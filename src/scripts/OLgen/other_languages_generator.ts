@@ -58,6 +58,6 @@ export async function ol_gen(name: string, hideTl: boolean = false): Promise<str
 
 if (require.main === module) {
   (async () => {
-    console.log(await ol_gen(`Akademiya Recommendation Letter`, false));
+    console.log(await ol_gen(`Cosmos Within`, true));
   })();
 }

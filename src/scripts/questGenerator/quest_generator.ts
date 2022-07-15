@@ -114,7 +114,7 @@ async function questGenerate(questNameOrId: string|number, mainQuestIndex: numbe
     // Fetch Talk Config by Main Quest Id
     for (let talkConfig of (await ctrl.selectTalkExcelConfigDataByQuestId(mainQuest.Id))) {
       if (!talkConfig.InitDialog) {
-        console.warn('Talk Config without InitDialog', talkConfig);
+        //console.warn('Talk Config without InitDialog', talkConfig);
         continue;
       }
       talkConfig.Dialog = await ctrl.selectDialogBranch(await ctrl.selectSingleDialogExcelConfigData(talkConfig.InitDialog));
@@ -126,7 +126,7 @@ async function questGenerate(questNameOrId: string|number, mainQuestIndex: numbe
     for (let questExcelConfigData of mainQuest.QuestExcelConfigDataList) {
       let talkConfig = await ctrl.selectTalkExcelConfigDataByQuestSubId(questExcelConfigData.SubId);
       if (talkConfig && !talkConfig.InitDialog) {
-        console.warn('Talk Config without InitDialog', talkConfig);
+        //console.warn('Talk Config without InitDialog', talkConfig);
         continue;
       }
       if (!talkConfig || fetchedTalkConfigIds.includes(talkConfig.Id)) {
@@ -147,7 +147,7 @@ async function questGenerate(questNameOrId: string|number, mainQuestIndex: numbe
         continue;
       }
       if (!talkConfig.InitDialog) {
-        console.warn('Talk Config without InitDialog', talkConfig);
+        //console.warn('Talk Config without InitDialog', talkConfig);
         continue;
       }
       talkConfig.Dialog = await ctrl.selectDialogBranch(await ctrl.selectSingleDialogExcelConfigData(talkConfig.InitDialog));
@@ -312,7 +312,7 @@ async function questGenerate(questNameOrId: string|number, mainQuestIndex: numbe
         line();
         for (let dialog of questSub.OrphanedDialog) {
           line('{{Dialogue start}}');
-          out += ctrl.generateDialogueWikiText(dialog);
+          out += await ctrl.generateDialogueWikiText(dialog);
           line('{{Dialogue end}}');
           line();
         }
@@ -331,7 +331,7 @@ async function questGenerate(questNameOrId: string|number, mainQuestIndex: numbe
           if (talkConfig.QuestIdleTalk) {
             line(`;(Talk to ${talkConfig.NpcNameList.join(', ')} again)`);
           }
-          out += ctrl.generateDialogueWikiText(talkConfig.Dialog);
+          out += await ctrl.generateDialogueWikiText(talkConfig.Dialog);
           line('{{Dialogue end}}');
           line();
         }
@@ -356,7 +356,7 @@ async function questGenerate(questNameOrId: string|number, mainQuestIndex: numbe
       line();
       for (let dialog of mainQuest.OrphanedDialog) {
         line('{{Dialogue start}}');
-        out += ctrl.generateDialogueWikiText(dialog);
+        out += await ctrl.generateDialogueWikiText(dialog);
         line('{{Dialogue end}}');
         line();
       }
@@ -375,7 +375,7 @@ async function questGenerate(questNameOrId: string|number, mainQuestIndex: numbe
         if (talkConfig.QuestIdleTalk) {
           line(`;(Talk to ${talkConfig.NpcNameList.join(', ')} again)`);
         }
-        out += ctrl.generateDialogueWikiText(talkConfig.Dialog);
+        out += await ctrl.generateDialogueWikiText(talkConfig.Dialog);
         line('{{Dialogue end}}');
         line();
       }
@@ -414,12 +414,14 @@ async function questGenerate(questNameOrId: string|number, mainQuestIndex: numbe
 if (require.main === module) {
   (async () => {
     let prefs = new OverridePrefs();
-    prefs.OutputFileLocation = 'C:/Users/Matthew/Downloads/Generated Dialogue/More/';
-    prefs.AttemptQuestSubReorder = false;
-    prefs.OutputFileNameAsQuest = true;
-    prefs.OutputFileNameAppendId = true;
+    prefs.AttemptQuestSubReorder = false; // this doesn't really work
 
-    await questGenerate(`Evermotion Mechanical Painting: Finale`, 0, prefs);
-    // Radiant Sakura test - reworking dialogue branching
+    //prefs.OutputFileLocation = 'C:/Users/Matthew/Downloads/Generated Dialogue/More/';
+    //prefs.OutputFileNameAsQuest = true;
+    //prefs.OutputFileNameAppendId = true;
+
+    await questGenerate(`"Outlander Brigade!"`, 0, prefs);
+    //await questGenerate(`Memories of Inteyvat`, 0, prefs);
+    //await questGenerate(`Radiant Sakura`, 0, prefs);
   })();
 }

@@ -101,6 +101,7 @@ export const normText = (text: string) => {
   }
   text = text.replace(/—/g, '&mdash;').trim();
   text = text.replace('{NICKNAME}', '(Traveler)');
+  text = text.replace('{NON_BREAK_SPACE}', '&nbsp;');
   text = text.replace(/{F#([^}]+)}{M#([^}]+)}/g, '($2/$1)');
   text = text.replace(/{M#([^}]+)}{F#([^}]+)}/g, '($1/$2)');
   text = text.replace(/\<color=#00E1FFFF\>([^<]+)\<\/color\>/g, '{{color|buzzword|$1}}');
@@ -459,7 +460,9 @@ export function getControl(knex: Knex, pref?: OverridePrefs) {
       } else if (nextNodes.length > 1) {
         // If multiple next nodes -> branching
         const branches: DialogExcelConfigData[][] = await Promise.all(nextNodes.map(node => selectDialogBranch(node, dialogSeenAlready.slice())));
-        const intersect = arrayIntersect(branches, IdComparator);
+        //console.log('Branches:', branches.map(b => b[0]));
+        const intersect = arrayIntersect<DialogExcelConfigData>(branches, IdComparator).filter(x => x.TalkRole.Type !== 'TALK_ROLE_PLAYER'); // do not rejoin on a player talk
+        //console.log('Intersect:', intersect.length ? intersect[0] : null);
         if (!intersect.length) {
           // branches do not rejoin
           currNode.Branches = branches;
@@ -471,12 +474,7 @@ export function getControl(knex: Knex, pref?: OverridePrefs) {
             let branch = branches[i];
             branches[i] = branch.slice(0, arrayIndexOf(branch, rejoinNode, IdComparator));
           }
-          if (branches.every(branch => branch.length === 1)) {
-            // If every branch's length is 1 (only player talk) - then keep in current branch
-            branches.filter(newBranch => currBranch.push(... newBranch));
-          } else {
-            currNode.Branches = branches;
-          }
+          currNode.Branches = branches;
           currNode = rejoinNode;
         }
       } else {
@@ -538,18 +536,49 @@ export function getControl(knex: Knex, pref?: OverridePrefs) {
     return false;
   }
 
-  function generateDialogueWikiText(dialogLines: DialogExcelConfigData[], dialogDepth = 1): string {
+  async function generateDialogueWikiText(dialogLines: DialogExcelConfigData[], dialogDepth = 1, originatorDialog: DialogExcelConfigData = null, originatorIsFirstOfBranch: boolean = false): Promise<string> {
     let out = '';
     let numSubsequentNonBranchPlayerDialogOption = 0;
     let previousDialog: DialogExcelConfigData = null;
 
-    for (let dialog of dialogLines) {
-      let diconPrefix = ':'.repeat((dialogDepth - 1) || 1);
+    for (let i = 0; i < dialogLines.length; i++) {
+      let dialog = dialogLines[i];
+      let diconPrefix;
+
+      if (i == 0 && dialog.TalkRole.Type === 'TALK_ROLE_PLAYER') {
+        if (originatorDialog && originatorDialog.TalkRole.Type === 'TALK_ROLE_PLAYER' && !originatorIsFirstOfBranch) {
+          diconPrefix = ':'.repeat(dialogDepth);
+          dialogDepth += 1;
+        } else {
+          diconPrefix = ':'.repeat((dialogDepth - 1 ) || 1);
+        }
+      } else {
+        diconPrefix = ':'.repeat(dialogDepth);
+      }
+
       let prefix = ':'.repeat(dialogDepth);
       let text = normText(dialog.TalkContentText);
 
+      if (text.includes('SEXPRO')) {
+        let matches = /\{PLAYERAVATAR#SEXPRO\[(.*)\|(.*)\]\}/.exec(text);
+        if (matches.length >= 3) {
+          let g1 = matches[1];
+          let g2 = matches[2];
+          let g1e = await selectManualTextMapConfigDataById(g1);
+          let g2e = await selectManualTextMapConfigDataById(g2);
+          text = `(${g1e.TextMapContentText}/${g2e.TextMapContentText})`;
+        }
+      }
+
       if (previousDialog && isPlayerDialogueOption(dialog) && isPlayerDialogueOption(previousDialog) &&
           previousDialog.NextDialogs.length === 1 && previousDialog.NextDialogs[0] === dialog.Id) {
+        // This is for if you have non-branch subsequent player dialogue options for the purpose of generating an output like:
+        // :'''Paimon:''' Blah blah blah
+        // :{{DIcon}} Paimon, you're sussy baka
+        // ::{{DIcon}} And you're emergency food too
+        // :'''Paimon:''' Nani!?!?
+        // The second dialogue option is indented to show it is an option that follows the previous option rather than
+        // the player being presented with two dialogue options at the same time.
         numSubsequentNonBranchPlayerDialogOption++;
       } else {
         numSubsequentNonBranchPlayerDialogOption = 0;
@@ -561,11 +590,13 @@ export function getControl(knex: Knex, pref?: OverridePrefs) {
         out += '\n';
       } else if (dialog.TalkRole.Type === 'TALK_ROLE_PLAYER') {
         if (dialog.TalkRoleNameText) {
+          // I don't remember under what circumstances a TALK_ROLE_PLAYER has a TalkRoleNameText
           out += `\n${diconPrefix}'''${dialog.TalkRoleNameText}:''' ${text}`;
         } else if (dialog.TalkShowType && dialog.TalkShowType === 'TALK_SHOW_FORCE_SELECT') {
           out += `\n${diconPrefix}${':'.repeat(numSubsequentNonBranchPlayerDialogOption)}{{DIcon}} ${text}`;
         } else {
-          out += `\n${diconPrefix}'''(Traveler):''' ${text}`;
+          //out += `\n${diconPrefix}'''(Traveler):''' ${text}`;
+          out += `\n${diconPrefix}${':'.repeat(numSubsequentNonBranchPlayerDialogOption)}{{DIcon}} ${text}`;
         }
       } else if (dialog.TalkRole.Type === 'TALK_ROLE_NPC' || dialog.TalkRole.Type === 'TALK_ROLE_GADGET') {
         out += `\n${prefix}'''${dialog.TalkRoleNameText}:''' ${text}`;
@@ -585,7 +616,7 @@ export function getControl(knex: Knex, pref?: OverridePrefs) {
 
       if (dialog.Branches && dialog.Branches.length) {
         for (let dialogBranch of dialog.Branches) {
-          out += generateDialogueWikiText(dialogBranch, dialogDepth + 1);
+          out += await generateDialogueWikiText(dialogBranch, dialogDepth + 1, dialog, i === 0);
         }
       }
 

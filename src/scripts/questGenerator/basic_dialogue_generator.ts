@@ -22,12 +22,12 @@ async function dialogueGenerate(firstDialogueId: number|number[]|string) {
     if (typeof firstDialogueId === 'number') {
       const dialogue = await ctrl.selectDialogBranch(await ctrl.selectSingleDialogExcelConfigData(firstDialogueId));
       console.log(`FirstDialogueId: ${firstDialogueId}`);
-      console.log(ctrl.generateDialogueWikiText(dialogue));
+      console.log(await ctrl.generateDialogueWikiText(dialogue));
     } else {
       for (let id of firstDialogueId) {
         console.log(`FirstDialogueId: ${id}`);
         const dialogue = await ctrl.selectDialogBranch(await ctrl.selectSingleDialogExcelConfigData(id));
-        console.log(ctrl.generateDialogueWikiText(dialogue));
+        console.log(await ctrl.generateDialogueWikiText(dialogue));
         console.log();
       }
     }
@@ -84,6 +84,7 @@ if (require.main === module) {
     // 2061 - Muning
     //await getDialogueByNpcNameOrId('Borrowed Advertisement Board');
 
-    await dialogueGenerate('aha, an open-air');
+    //await dialogueGenerate(722860121);
+    await dialogueGenerate(`Yeah! It was thanks to everything you did that you got to see her again. That's amazing!`);
   })();
 }
