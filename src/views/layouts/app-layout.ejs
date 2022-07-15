@@ -1,0 +1,11 @@
+<% if (locals.announcements && locals.announcements.filter(a => a.announcement_area === 'top_everypage').length) { %>
+  <section class="card announcement-group">
+    <div class="wrapper">
+    <% locals.announcements.filter(a => a.announcement_area === 'top_everypage').forEach(announcement => {
+      announcement.not_card = true; %>
+      <%- include('partials/announcement', announcement) %>
+    <% }); %>
+    </div>
+  </section>
+<% } %>
+<div class="wrapper"><%- include(subview, sublocals) %></div>

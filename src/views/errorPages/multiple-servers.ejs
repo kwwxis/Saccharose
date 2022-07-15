@@ -1,0 +1,8 @@
+<div class="error-box is--404">
+  <h2><%= req.context.serviceName %>: Only one server allowed</h2>
+  <hr class="thin-border">
+  <p>You have selected <%= req.context.serverId.length %> servers, but this service only allows one
+  server to be selected per browser tab.</p>
+  <p>Select a single server:</p>
+  <%- include('partials/server-list') %>
+</div>

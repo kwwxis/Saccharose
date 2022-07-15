@@ -1,0 +1,264 @@
+import '../../setup';
+import {openKnex} from '@db';
+import config from '@/config';
+import objectPath from 'object-path';
+import { SchemaTable, SEP } from './import_types';
+import { getGenshinDataFilePath } from '@/scripts/script_util';
+
+const schema = {
+  DialogExcelConfigData: <SchemaTable> {
+    name: 'DialogExcelConfigData',
+    jsonFile: './ExcelBinOutput/DialogExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'TalkRoleType', type: 'string', resolve: 'TalkRole.Type', isIndex: true},
+      {name: 'TalkRoleId', type: 'string', resolve: 'TalkRole.Id', isIndex: true},
+      {name: 'TalkContentTextMapHash', type: 'integer', isIndex: true},
+      {name: 'TalkTitleTextMapHash', type: 'integer', isIndex: true},
+      {name: 'TalkRoleNameTextMapHash', type: 'integer', isIndex: true},
+    ],
+    skip: true
+  },
+  ManualTextMapConfigData: <SchemaTable> {
+    name: 'ManualTextMapConfigData',
+    jsonFile: './ExcelBinOutput/ManualTextMapConfigData.json',
+    columns: [
+      {name: 'TextMapId', type: 'string', isPrimary: true},
+      {name: 'TextMapContentTextMapHash', type: 'integer', isIndex: true},
+    ],
+    skip: true
+  },
+  NpcExcelConfigData: <SchemaTable> {
+    name: 'NpcExcelConfigData',
+    jsonFile: './ExcelBinOutput/NpcExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'NameTextMapHash', type: 'integer', isIndex: true}
+    ],
+    skip: true
+  },
+  TalkExcelConfigData: <SchemaTable> {
+    name: 'TalkExcelConfigData',
+    jsonFile: './ExcelBinOutput/TalkExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'InitDialog', type: 'integer', isIndex: true},
+      {name: 'NpcId', type: 'integer', isIndex: true},
+      {name: 'QuestId', type: 'integer', isIndex: true},
+      {name: 'Priority', type: 'integer'}
+    ],
+    skip: true
+  },
+  MainQuestExcelConfigData: <SchemaTable> {
+    name: 'MainQuestExcelConfigData',
+    jsonFile: './ExcelBinOutput/MainQuestExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'Series', type: 'integer', isIndex: true},
+      {name: 'ChapterId', type: 'integer', isIndex: true},
+      {name: 'TitleTextMapHash', type: 'integer', isIndex: true},
+      {name: 'DescTextMapHash', type: 'integer', isIndex: true}
+    ],
+    skip: false
+  },
+  ChapterExcelConfigData: <SchemaTable> {
+    name: 'ChapterExcelConfigData',
+    jsonFile: './ExcelBinOutput/ChapterExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'BeginQuestId', type: 'integer', isIndex: true},
+      {name: 'EndQuestId', type: 'integer', isIndex: true},
+      {name: 'ChapterNumTextMapHash', type: 'integer', isIndex: true},
+      {name: 'ChapterTitleTextMapHash', type: 'integer', isIndex: true}
+    ],
+    skip: false
+  },
+  QuestExcelConfigData: <SchemaTable> {
+    name: 'QuestExcelConfigData',
+    jsonFile: './ExcelBinOutput/QuestExcelConfigData.json',
+    columns: [
+      {name: 'SubId', type: 'integer', isPrimary: true},
+      {name: 'MainId', type: 'integer', isIndex: true},
+      {name: 'Order', type: 'integer'},
+      {name: 'DescTextMapHash', type: 'integer', isIndex: true},
+      {name: 'StepDescTextMapHash', type: 'integer', isIndex: true},
+      {name: 'GuideTipsTextMapHash', type: 'integer', isIndex: true}
+    ],
+    skip: true
+  },
+  LoadingTipsExcelConfigData: <SchemaTable> {
+    name: 'LoadingTipsExcelConfigData',
+    jsonFile: './ExcelBinOutput/LoadingTipsExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'TipsTitleTextMapHash', type: 'integer', isIndex: true},
+      {name: 'TipsDescTextMapHash', type: 'integer', isIndex: true}
+    ],
+    skip: true
+  },
+  ReminderExcelConfigData: <SchemaTable> {
+    name: 'ReminderExcelConfigData',
+    jsonFile: './ExcelBinOutput/ReminderExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'SpeakerTextMapHash', type: 'integer', isIndex: true},
+      {name: 'ContentTextMapHash', type: 'integer', isIndex: true},
+      {name: 'NextReminderId', type: 'integer', isIndex: true},
+    ],
+    skip: true
+  },
+  MaterialExcelConfigData: <SchemaTable> {
+    name: 'MaterialExcelConfigData',
+    jsonFile: './ExcelBinOutput/MaterialExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'InteractionTitleTextMapHash', type: 'integer', isIndex: true},
+      {name: 'EffectDescTextMapHash', type: 'integer', isIndex: true},
+      {name: 'SpecialDescTextMapHash', type: 'integer', isIndex: true},
+      {name: 'TypeDescTextMapHash', type: 'integer', isIndex: true},
+      {name: 'NameTextMapHash', type: 'integer', isIndex: true},
+      {name: 'DescTextMapHash', type: 'integer', isIndex: true},
+      {name: 'Icon', type: 'string'},
+      {name: 'ItemType', type: 'string'},
+      {name: 'RankLevel', type: 'string'},
+    ],
+    skip: true
+  },
+  DailyTaskExcelConfigData: <SchemaTable> {
+    name: 'DailyTaskExcelConfigData',
+    jsonFile: './ExcelBinOutput/DailyTaskExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'CityId', type: 'integer', isIndex: true},
+      {name: 'PoolId', type: 'integer', isIndex: true},
+      {name: 'QuestId', type: 'integer', isIndex: true},
+      {name: 'TitleTextMapHash', type: 'integer', isIndex: true},
+      {name: 'DescriptionTextMapHash', type: 'integer', isIndex: true},
+      {name: 'TargetTextMapHash', type: 'integer', isIndex: true},
+    ],
+    skip: true
+  },
+  NpcFirstMetExcelConfigData: <SchemaTable> {
+    name: 'NpcFirstMetExcelConfigData',
+    jsonFile: './ExcelBinOutput/NpcFirstMetExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'AvatarID', type: 'integer', isIndex: true},
+      {name: 'AvatarDescriptionTextMapHash', type: 'integer', isIndex: true},
+    ],
+    skip: true,
+  },
+  AvatarExcelConfigData: <SchemaTable> {
+    name: 'AvatarExcelConfigData',
+    jsonFile: './ExcelBinOutput/AvatarExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'NameTextMapHash', type: 'integer', isIndex: true},
+      {name: 'DescTextMapHash', type: 'integer', isIndex: true},
+      {name: 'WeaponType', type: 'string', isIndex: true},
+      {name: 'BodyType', type: 'string', isIndex: true},
+      {name: 'IconName', type: 'string'},
+      {name: 'SideIconName', type: 'string'},
+    ],
+    skip: true,
+  },
+  TextMap: <SchemaTable> {
+    name: 'TextMap',
+    jsonFile: './TextMap/' + config.database.textMapFile,
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true, resolve: 'Key'},
+      {name: 'Text', type: 'text', resolve: 'Value'}
+    ],
+    useKeys: true,
+    noIncludeJson: true,
+    skip: true
+  }
+};
+
+(async () => {
+  const knex = openKnex();
+
+  async function createTable(table: SchemaTable) {
+    console.log('Creating table: ' + table.name);
+    await knex.schema.dropTableIfExists(table.name);
+    await knex.schema.createTable(table.name, function(builder) {
+      for (let col of table.columns) {
+        builder[col.type](col.name);
+        if (col.isPrimary) {
+          builder.primary([col.name]);
+        } else if (col.isIndex) {
+          builder.index(col.name);
+        }
+      }
+      if (!table.noIncludeJson) {
+        builder.json('json_data');
+      }
+    }).then();
+    console.log('  (done)');
+  };
+
+  function capitalizeFirstLetter(s: string) {
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+
+  function normalizeRawJson(row: any) {
+    if (typeof row === 'undefined' || typeof row === null || typeof row !== 'object') {
+      return row;
+    }
+    if (Array.isArray(row)) {
+      let newArray = [];
+      for (let item of row) {
+        newArray.push(normalizeRawJson(item));
+      }
+      return newArray;
+    }
+    let newRow = {};
+    for (let key of Object.keys(row)) {
+      let originalKey = key;
+      if (key.startsWith('_')) {
+        key = key.slice(1);
+      }
+      key = capitalizeFirstLetter(key);
+      newRow[key] = normalizeRawJson(row[originalKey]);
+    }
+    return newRow;
+  }
+
+  async function insertRow(table: SchemaTable, row: any) {
+    row = normalizeRawJson(row);
+    let payload = {};
+    if (!table.noIncludeJson) {
+      payload['json_data'] = JSON.stringify(row);
+    }
+    for (let col of table.columns) {
+      payload[col.name] = col.resolve
+        ? objectPath.get(row, col.resolve)
+        : row[col.name];
+    }
+    await knex(table.name).insert(payload).then();
+  }
+
+  async function insertAll(table: SchemaTable) {
+    console.log('Inserting data for: ' + table.name + ' from: ' + table.jsonFile);
+    const json = require(getGenshinDataFilePath(table.jsonFile));
+    if (table.useKeys) {
+      for (let key in json) {
+        await insertRow(table, {key, value: json[key]});
+      }
+    } else {
+      for (let row of json) {
+        await insertRow(table, row);
+      }
+    }
+    console.log('  (done)');
+  }
+
+  for (let table of Object.values(schema).filter(x => !x.skip)) {
+    await createTable(table);
+    await insertAll(table);
+    console.log(SEP);
+  }
+
+  console.log('Shutting down...');
+  await knex.destroy();
+})();

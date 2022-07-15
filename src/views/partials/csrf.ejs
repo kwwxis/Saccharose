@@ -1,0 +1,4 @@
+<%# This partial is included from every form that needs a CSRF token.
+If you want to add additional stuff to every POST/PUT/DELETE form,
+you can do that here. %>
+<input type="hidden" name="_csrf" value="<%= locals.csrfToken %>" />

@@ -1,0 +1,13 @@
+import { create, Router, Request, Response, NextFunction } from '@router';
+
+export default async function(): Promise<Router> {
+  const router: Router = create();
+
+  router.get('/', async (req: Request, res: Response) => {
+    res.render('pages/homepage', {
+      styles: ['homepage']
+    });
+  });
+
+  return router;
+}
