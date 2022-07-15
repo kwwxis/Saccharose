@@ -34,7 +34,7 @@ async function dialogueGenerate(firstDialogueId: number|number[]|string) {
   } catch (e) {
     console.error(e);
   } finally {
-    closeKnex();
+    await closeKnex();
   }
 }
 
@@ -70,7 +70,7 @@ async function getDialogueByNpcNameOrId(npcNameOrId: number|string) {
   } catch (e) {
     console.error(e);
   } finally {
-    closeKnex();
+    await closeKnex();
   }
 }
 

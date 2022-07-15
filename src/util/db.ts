@@ -36,7 +36,7 @@ export function openKnex(): Knex {
   return self.knex;
 }
 
-export function closeDatabase(): Promise<void> {
+export async function closeDatabase(): Promise<void> {
   if (self.db) {
     return self.db.close().then(() => {
       self.db = null;
@@ -45,7 +45,7 @@ export function closeDatabase(): Promise<void> {
   return Promise.resolve();
 }
 
-export function closeKnex(): Promise<void> {
+export async function closeKnex(): Promise<void> {
   if (self.knex) {
     return self.knex.destroy().then(() => {
       self.knex = null;

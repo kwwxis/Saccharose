@@ -407,7 +407,7 @@ async function questGenerate(questNameOrId: string|number, mainQuestIndex: numbe
   } catch (e) {
     console.error(e);
   } finally {
-    closeKnex();
+    await closeKnex();
   }
 }
 
@@ -416,12 +416,51 @@ if (require.main === module) {
     let prefs = new OverridePrefs();
     prefs.AttemptQuestSubReorder = false; // this doesn't really work
 
-    //prefs.OutputFileLocation = 'C:/Users/Matthew/Downloads/Generated Dialogue/More/';
-    //prefs.OutputFileNameAsQuest = true;
-    //prefs.OutputFileNameAppendId = true;
+    prefs.OutputFileLocation = 'C:/Users/Matthew/Downloads/Generated Dialogue/More/';
+    prefs.OutputFileNameAsQuest = true;
+    prefs.OutputFileNameAppendId = true;
+
+    // let list = [
+    //   [79024, 0, prefs],
+    //   [70513, 0, prefs],
+    //   [70517, 0, prefs],
+    //   [79025, 0, prefs],
+    //   [79026, 0, prefs],
+    //   [70514, 0, prefs],
+    //   [70515, 0, prefs],
+    //   [70512, 0, prefs],
+    //   [79035, 0, prefs],
+    //   [79023, 0, prefs],
+    //   [79027, 0, prefs],
+    //   [79022, 0, prefs],
+    //   [79013, 0, prefs],
+    //   [79021, 0, prefs],
+
+    //   [40065, 0, prefs],
+    //   [40066, 0, prefs],
+    //   [40067, 0, prefs],
+    //   [40068, 0, prefs],
+    //   [40069, 0, prefs],
+    //   [40070, 0, prefs],
+    //   [40071, 0, prefs],
+    //   [40072, 0, prefs],
+    //   [40073, 0, prefs],
+    //   [40077, 0, prefs],
+    //   [40074, 0, prefs],
+    //   [40075, 0, prefs],
+    //   [40076, 0, prefs],
+    //   [40064, 0, prefs],
+
+    //   [79020, 0, prefs],
+    //   [79028, 0, prefs],
+    //   [79029, 0, prefs],
+    //   [79030, 0, prefs],
+    //   [79031, 0, prefs],
+    // ];
+    // for (let args of list) {
+    //   await questGenerate.apply(null, args);
+    // }
 
     await questGenerate(`"Outlander Brigade!"`, 0, prefs);
-    //await questGenerate(`Memories of Inteyvat`, 0, prefs);
-    //await questGenerate(`Radiant Sakura`, 0, prefs);
   })();
 }

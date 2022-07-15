@@ -401,7 +401,7 @@ async function doStuff() {
   } catch (e) {
     console.error(e);
   } finally {
-    closeKnex();
+    await closeKnex();
   }
 }
 
