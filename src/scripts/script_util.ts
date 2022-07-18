@@ -34,6 +34,8 @@ export const normNameMap = {
   souta: 'sota',
   shimurakanbei: 'shimurakanbee',
   shikanoinheizou: 'heizou',
+  amenomatougo: 'amenomatoogo',
+  ryuuji: 'ryuji',
 };
 
 export function normalizeName(name: string) {
@@ -335,11 +337,11 @@ export function getControl(knex: Knex, pref?: OverridePrefs) {
   }
 
   async function selectTalkExcelConfigDataById(id: number): Promise<TalkExcelConfigData> {
-    return await knex.select('*').from('TalkExcelConfigData').where({Id: id}).first().then(commonLoadFirst);
+    return await knex.select('*').from('TalkExcelConfigData').where({Id: id}).orWhere({QuestCondStateEqualFirst: id}).first().then(commonLoadFirst);
   }
 
   async function selectTalkExcelConfigDataByQuestSubId(id: number): Promise<TalkExcelConfigData> {
-    return await knex.select('*').from('TalkExcelConfigData').where({Id: id}).first().then(commonLoadFirst);
+    return await knex.select('*').from('TalkExcelConfigData').where({Id: id}).orWhere({QuestCondStateEqualFirst: id}).first().then(commonLoadFirst);
   }
 
   async function selectTalkExcelConfigDataIdsByPrefix(idPrefix: number|string): Promise<number[]> {
@@ -394,7 +396,7 @@ export function getControl(knex: Knex, pref?: OverridePrefs) {
   }
 
   async function selectTalkExcelConfigDataByQuestId(questId: number): Promise<TalkExcelConfigData[]> {
-    return await knex.select('*').from('TalkExcelConfigData').where({QuestId: questId}).then(commonLoad)
+    return await knex.select('*').from('TalkExcelConfigData').where({QuestId: questId}).orWhere({QuestCondStateEqualFirst: questId}).then(commonLoad)
       .then(quests => quests.sort(sortByOrder));
   }
 

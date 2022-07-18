@@ -58,6 +58,6 @@ export async function ol_gen(name: string, hideTl: boolean = false): Promise<str
 
 if (require.main === module) {
   (async () => {
-    console.log(await ol_gen(`Cosmos Within`, true));
+    console.log(await ol_gen(`Tenryou Commission's Missing Person Poster`, true));
   })();
 }

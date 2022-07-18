@@ -9,6 +9,13 @@ import {
   DialogExcelConfigData, TalkExcelConfigData, TalkRole
 } from '@types';
 
+/**
+ * Generates quest dialogue.
+ *
+ * @param questNameOrId The name or id of the main quest. Name must be an exact match and is case sensitive. Leading/trailing whitespace will be trimmed.
+ * @param mainQuestIndex If multiple main quests match the name given, then this index can be used to select a specific one.
+ * @param prefs Preferences for quest generation and output.
+ */
 async function questGenerate(questNameOrId: string|number, mainQuestIndex: number = 0, prefs?: OverridePrefs) {
   console.log('Started');
   console.time('Quest Generation');
@@ -114,7 +121,7 @@ async function questGenerate(questNameOrId: string|number, mainQuestIndex: numbe
     // Fetch Talk Config by Main Quest Id
     for (let talkConfig of (await ctrl.selectTalkExcelConfigDataByQuestId(mainQuest.Id))) {
       if (!talkConfig.InitDialog) {
-        //console.warn('Talk Config without InitDialog', talkConfig);
+        console.warn('Talk Config without InitDialog', talkConfig);
         continue;
       }
       talkConfig.Dialog = await ctrl.selectDialogBranch(await ctrl.selectSingleDialogExcelConfigData(talkConfig.InitDialog));
@@ -126,7 +133,7 @@ async function questGenerate(questNameOrId: string|number, mainQuestIndex: numbe
     for (let questExcelConfigData of mainQuest.QuestExcelConfigDataList) {
       let talkConfig = await ctrl.selectTalkExcelConfigDataByQuestSubId(questExcelConfigData.SubId);
       if (talkConfig && !talkConfig.InitDialog) {
-        //console.warn('Talk Config without InitDialog', talkConfig);
+        console.warn('Talk Config without InitDialog', talkConfig);
         continue;
       }
       if (!talkConfig || fetchedTalkConfigIds.includes(talkConfig.Id)) {
@@ -147,7 +154,7 @@ async function questGenerate(questNameOrId: string|number, mainQuestIndex: numbe
         continue;
       }
       if (!talkConfig.InitDialog) {
-        //console.warn('Talk Config without InitDialog', talkConfig);
+        console.warn('Talk Config without InitDialog', talkConfig);
         continue;
       }
       talkConfig.Dialog = await ctrl.selectDialogBranch(await ctrl.selectSingleDialogExcelConfigData(talkConfig.InitDialog));
@@ -240,7 +247,7 @@ async function questGenerate(questNameOrId: string|number, mainQuestIndex: numbe
         if (i !== 0) {
           line();
         }
-        line(';(' + questSub.DescText.replaceAll('(', '<nowiki>(').replaceAll(')', ')</nowiki>') + ')');
+        line(';(' + questSub.DescText.replaceAll('(', '<nowiki>(').replaceAll(')', ')</nowiki>').replaceAll(':', '<nowiki>:</nowiki>') + ')');
         line();
         if (i !== mainQuest.QuestExcelConfigDataList.length - 1) {
           line('----');
@@ -416,9 +423,9 @@ if (require.main === module) {
     let prefs = new OverridePrefs();
     prefs.AttemptQuestSubReorder = false; // this doesn't really work
 
-    prefs.OutputFileLocation = 'C:/Users/Matthew/Downloads/Generated Dialogue/More/';
-    prefs.OutputFileNameAsQuest = true;
-    prefs.OutputFileNameAppendId = true;
+    //prefs.OutputFileLocation = 'C:/Users/Matthew/Downloads/Generated Dialogue/More/';
+    //prefs.OutputFileNameAsQuest = true;
+    //prefs.OutputFileNameAppendId = true;
 
     // let list = [
     //   [79024, 0, prefs],
@@ -461,6 +468,6 @@ if (require.main === module) {
     //   await questGenerate.apply(null, args);
     // }
 
-    await questGenerate(`"Outlander Brigade!"`, 0, prefs);
+    await questGenerate(`Drama Phantasmagoria: Tale of the Sword-Wielding Princess!`, 0, prefs);
   })();
 }

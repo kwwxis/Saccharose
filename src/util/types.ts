@@ -41,6 +41,7 @@ export interface DialogExcelConfigData {
 export interface TalkExcelConfigData {
   Id: number,
   QuestId: number,
+  QuestCondStateEqualFirst: number,
   BeginWay: string,
   ActiveMode: string,
   BeginCondComb: string,

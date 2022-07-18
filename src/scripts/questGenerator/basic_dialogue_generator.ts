@@ -82,9 +82,9 @@ if (require.main === module) {
     // 2154 - Taliesin
     // 2617 - Clitopho
     // 2061 - Muning
-    //await getDialogueByNpcNameOrId('Borrowed Advertisement Board');
+    await getDialogueByNpcNameOrId('Chiaki');
 
     //await dialogueGenerate(722860121);
-    await dialogueGenerate(`Yeah! It was thanks to everything you did that you got to see her again. That's amazing!`);
+    //await dialogueGenerate(`Yeah! It was thanks to everything you did that you got to see her again. That's amazing!`);
   })();
 }

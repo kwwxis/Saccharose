@@ -4,6 +4,7 @@ import config from '@/config';
 import objectPath from 'object-path';
 import { SchemaTable, SEP } from './import_types';
 import { getGenshinDataFilePath } from '@/scripts/script_util';
+import { TalkExcelConfigData } from '@types';
 
 const schema = {
   DialogExcelConfigData: <SchemaTable> {
@@ -45,9 +46,26 @@ const schema = {
       {name: 'InitDialog', type: 'integer', isIndex: true},
       {name: 'NpcId', type: 'integer', isIndex: true},
       {name: 'QuestId', type: 'integer', isIndex: true},
-      {name: 'Priority', type: 'integer'}
+      {name: 'Priority', type: 'integer'},
+      {name: 'QuestCondStateEqualFirst', type: 'integer', isIndex: true, resolve(row: TalkExcelConfigData) {
+        if (row.BeginCond) {
+          let questCondStateEqual = row.BeginCond.find(cond => cond.Type === 'QUEST_COND_STATE_EQUAL');
+          if (questCondStateEqual && Array.isArray(questCondStateEqual.Param)) {
+            try {
+              if (typeof questCondStateEqual.Param[0] === 'string') {
+                return parseInt(questCondStateEqual.Param[0]);
+              } else {
+                return questCondStateEqual.Param[0];
+              }
+            } catch (e) {
+              return null;
+            }
+          }
+        }
+        return null;
+      }}
     ],
-    skip: true
+    skip: false
   },
   MainQuestExcelConfigData: <SchemaTable> {
     name: 'MainQuestExcelConfigData',
@@ -59,7 +77,7 @@ const schema = {
       {name: 'TitleTextMapHash', type: 'integer', isIndex: true},
       {name: 'DescTextMapHash', type: 'integer', isIndex: true}
     ],
-    skip: false
+    skip: true
   },
   ChapterExcelConfigData: <SchemaTable> {
     name: 'ChapterExcelConfigData',
@@ -71,7 +89,7 @@ const schema = {
       {name: 'ChapterNumTextMapHash', type: 'integer', isIndex: true},
       {name: 'ChapterTitleTextMapHash', type: 'integer', isIndex: true}
     ],
-    skip: false
+    skip: true
   },
   QuestExcelConfigData: <SchemaTable> {
     name: 'QuestExcelConfigData',
@@ -231,9 +249,15 @@ const schema = {
       payload['json_data'] = JSON.stringify(row);
     }
     for (let col of table.columns) {
-      payload[col.name] = col.resolve
-        ? objectPath.get(row, col.resolve)
-        : row[col.name];
+      if (col.resolve) {
+        if (typeof col.resolve === 'string') {
+          payload[col.name] = objectPath.get(row, col.resolve);
+        } else if (typeof col.resolve === 'function') {
+          payload[col.name] = col.resolve(row);
+        }
+      } else {
+        payload[col.name] = row[col.name];
+      }
     }
     await knex(table.name).insert(payload).then();
   }
