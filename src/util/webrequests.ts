@@ -1,11 +1,11 @@
 import https from 'https';
 import axios from 'axios';
-import sslcreds from '@/sslcreds';
+import fs from 'fs';
 
 export const rejectUnauthorizedSetting = !process.env.VHOST.endsWith('.localhost');
 
 export const httpsAgent = new https.Agent({
-  ca: sslcreds.ca,
+  ca: fs.readFileSync(process.env.SSL_CACERT, 'utf8'),
   rejectUnauthorized: rejectUnauthorizedSetting,
 });
 

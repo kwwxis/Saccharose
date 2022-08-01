@@ -25,12 +25,16 @@ import appctl from '@/app';
     httpsPort = 443; // override
   }
 
-  spdy.createServer(sslcreds, httpsApp).listen(httpsPort, () => {
-    console.log(`HTTPS/2 Server running on port ${httpsPort}`
-      + (process.env.VHOSTED ? ' (in VHOSTED mode)' : ''));
+  if (process.env.SSL_ENABLED) {
+    spdy.createServer(sslcreds, httpsApp).listen(httpsPort, () => {
+      console.log(`HTTPS/2 Server running on port ${httpsPort}`
+        + (process.env.VHOSTED ? ' (in VHOSTED mode)' : ''));
 
-      if (process.env.VHOSTED) {
-        console.log('Node app is running at https://' + process.env.VHOST);
-      }
-  });
+        if (process.env.VHOSTED) {
+          console.log('Node app is running at https://' + process.env.VHOST);
+        }
+    });
+  } else {
+    console.log('Not starting HTTPS server: not enabled');
+  }
 })();
