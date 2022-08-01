@@ -4,6 +4,7 @@ import express from 'express';
 import spdy from 'spdy';
 import vhost from 'vhost';
 import appctl from '@/app';
+import {toBoolean} from '@functions';
 
 // You shouldn't need to change anything in this file.
 // Application init code should go in `@/app.js`, not here.
@@ -25,7 +26,7 @@ import appctl from '@/app';
     httpsPort = 443; // override
   }
 
-  if (process.env.SSL_ENABLED) {
+  if (toBoolean(process.env.SSL_ENABLED)) {
     spdy.createServer(sslcreds, httpsApp).listen(httpsPort, () => {
       console.log(`HTTPS/2 Server running on port ${httpsPort}`
         + (process.env.VHOSTED ? ' (in VHOSTED mode)' : ''));

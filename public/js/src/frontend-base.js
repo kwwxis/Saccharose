@@ -420,9 +420,9 @@ const app = {
         }
 
         waitForConstant('axios', () => {
-          axios.defaults.headers.common['x-csrf-token'] = document.querySelector(
-            'meta[name="csrf-token"]'
-          ).content;
+          let csrfElement = document.querySelector('meta[name="csrf-token"]');
+          axios.defaults.headers.common['x-csrf-token'] = csrfElement.content;
+          csrfElement.remove();
         });
       },
     },
