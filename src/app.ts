@@ -3,7 +3,7 @@ const STEPS_TO_LOAD = 9;
 console.log(`(1/${STEPS_TO_LOAD}) Requiring dependencies`);
 import config from '@/config';
 import { Express, Request, Response, NextFunction } from 'express';
-const express = require('express');
+import express from 'express';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 const partialResponse = require('express-partial-response');
@@ -12,6 +12,7 @@ import helmet from 'helmet';
 import csrf from 'csurf';
 import exitHook from 'async-exit-hook';
 import { openKnex } from '@db';
+import serveIndex from 'serve-index';
 
 import sessions from '@/middleware/sessions';
 import baseRouter from '@/controllers/BaseRouter';
@@ -38,6 +39,11 @@ export default {
 
     console.log(`(4/${STEPS_TO_LOAD}) Opening sqlite database`);
     openKnex();
+
+    if (process.env.SSL_WELL_KNOWN_DIR) {
+      console.log('Serving .well-known directory');
+      app.use('/.well-known', express.static(process.env.SSL_WELL_KNOWN_DIR), serveIndex(process.env.SSL_WELL_KNOWN_DIR));
+    }
 
     // These middleware functions parse the incoming request:
     console.log(`(3/${STEPS_TO_LOAD}) Adding middleware for incoming requests`);
