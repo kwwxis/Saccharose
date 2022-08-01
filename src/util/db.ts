@@ -1,6 +1,7 @@
 import config from '@/config';
 import {Knex, knex as loadKnex} from 'knex';
 import exitHook from 'async-exit-hook';
+import path from 'path';
 
 let singleton: Knex = null;
 
@@ -11,7 +12,7 @@ export function openKnex(): Knex {
   singleton = loadKnex({
     client: 'sqlite3',
     connection: {
-      filename: config.database.filename,
+      filename: path.resolve(process.env.DATA_ROOT, config.database.filename),
     },
     useNullAsDefault: true
   });

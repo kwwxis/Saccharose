@@ -59,7 +59,7 @@ export function normalizeCharName(name: string) {
 }
 
 export function getGenshinDataFilePath(file: string) {
-  return path.resolve(config.database.genshin_data, file).replaceAll('\\', '/');
+  return path.resolve(process.env.DATA_ROOT, config.database.genshin_data, file).replaceAll('\\', '/');
 }
 
 export async function grep(searchText: string, file: string, extraFlags?: string): Promise<string[]> {
@@ -67,8 +67,8 @@ export async function grep(searchText: string, file: string, extraFlags?: string
     searchText = searchText.replace(/"/g, '\\"'); // escape double quote
     const cmd = `grep -i ${extraFlags || ''} "${searchText}" ${getGenshinDataFilePath(file)}`;
     const { stdout, stderr } = await execPromise(cmd, {
-      env: { PATH: config.bash.binDirectory },
-      shell: config.bash.shell
+      env: { PATH: process.env.SHELL_BIN },
+      shell: process.env.SHELL_EXEC
     });
     let lines = stdout.split(/\n/).map(s => s.trim()).filter(x => !!x);
     return lines;

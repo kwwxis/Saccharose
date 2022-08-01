@@ -12,14 +12,10 @@ export default {
     HTTP_PORT: 6000,
     HTTPS_PORT: 6001,
   },
-  bash: {
-    binDirectory: 'C:/Program Files/Git/usr/bin',
-    shell: 'C:/Program Files/Git/usr/bin/bash.exe',
-  },
   currentGenshinVersion: '2.8',
   database: {
-    filename: 'C:/Shared/genshin_data.db',
-    genshin_data: 'C:/Shared/git/GenshinData/',
+    filename: './genshin_data.db',
+    genshin_data: './git/GenshinData/',
     textMapFile: 'TextMapEN.json',
   },
   session: session({
