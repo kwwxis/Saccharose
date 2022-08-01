@@ -32,7 +32,11 @@ export function toInt(x: any): number {
   if (typeof x === 'number') {
     return Math.floor(x);
   } else if (typeof x === 'string') {
-    return parseInt(x);
+    try {
+      return parseInt(x);
+    } catch (e) {
+      return NaN;
+    }
   } else {
     return NaN;
   }

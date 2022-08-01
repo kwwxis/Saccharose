@@ -1,11 +1,16 @@
-<% if (locals.announcements && locals.announcements.filter(a => a.announcement_area === 'top_everypage').length) { %>
-  <section class="card announcement-group">
-    <div class="wrapper">
-    <% locals.announcements.filter(a => a.announcement_area === 'top_everypage').forEach(announcement => {
-      announcement.not_card = true; %>
-      <%- include('partials/announcement', announcement) %>
-    <% }); %>
-    </div>
-  </section>
-<% } %>
-<div class="wrapper"><%- include(subview, sublocals) %></div>
+<div class="wrapper">
+  <div class="talign">
+    <main class="f70p">
+      <%- include(subview, sublocals) %>
+    </main>
+    <aside class="f30p">
+      <section class="card">
+        <h2>Tools</h2>
+        <div class="content">
+          <a class="secondary dispBlock spacer3 textAlignLeft" role="button" href="/quests">Quest Dialogue Generator</a>
+          <a class="secondary dispBlock spacer3 textAlignLeft" role="button" href="/OL">Other Languages Generator</a>
+        </p>
+      </section>
+    </aside>
+  </div>
+</div>

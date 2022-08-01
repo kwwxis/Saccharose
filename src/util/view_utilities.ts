@@ -7,6 +7,18 @@ export function icon(iconName: string, props: any = {}): string {
   return feather.icons[iconName].toSvg(props);
 }
 
+export function Tl(template: string): string {
+  return '{{' + createHtmlElement({
+    name: 'a',
+    attributes: {
+      href: 'https://genshin-impact.fandom.com/wiki/Template:' + template.replaceAll(' ', '_'),
+      target: '_blank',
+      style: 'text-decoration:none'
+    },
+    text: template
+  }) + '}}';
+}
+
 export function timestamp(ts: Date|number|string, format=null): string {
   if (ts instanceof Date)
     ts = ts.getTime() / 1000 | 0;

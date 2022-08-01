@@ -4,6 +4,7 @@ import util from 'util';
 import {exec} from 'child_process';
 const execPromise = util.promisify(exec);
 import { Knex } from 'knex';
+import { openKnex } from '@db';
 import {
   TextMapItem, NpcExcelConfigData, ManualTextMapConfigData, ConfigCondition,
   MainQuestExcelConfigData, QuestExcelConfigData,
@@ -172,6 +173,9 @@ export function arraySort<T>(args: T[], comparator?: ArrayComparator<T>): T[] {
 }
 
 export const stringify = (obj: any) => {
+  if (typeof obj === 'string') {
+    return obj;
+  }
   return JSON.stringify(obj, null, 2);
 };
 
@@ -185,11 +189,8 @@ export class OverridePrefs {
   ExcludeNpcDataListProperties = true;
   ExcludeOrphanedDialogue = false;
 
-  OutputFileLocation = null;
-  OutputFileNameAsQuest = false;
-  OutputFileNameAppendId = false;
-
-  AttemptQuestSubReorder = true;
+  dialogCache: {[Id: number]: DialogExcelConfigData} = {};
+  npcCache: {[Id: number]: NpcExcelConfigData} = {};
 
   static beforeQuestSub(questSubId: number): ConfigCondition {
     return {Type: 'QUEST_COND_STATE_EQUAL', Param: [questSubId, 2]};
@@ -199,7 +200,10 @@ export class OverridePrefs {
   }
 }
 
-export function getControl(knex: Knex, pref?: OverridePrefs) {
+export function getControl(knex?: Knex, pref?: OverridePrefs) {
+  if (!knex) {
+    knex = openKnex();
+  }
   if (!pref) {
     pref = new OverridePrefs();
   }
@@ -208,9 +212,6 @@ export function getControl(knex: Knex, pref?: OverridePrefs) {
   const sortByOrder = (a: any, b: any) => {
     return a.Order - b.Order || a.Order - b.Order;
   };
-
-  const dialogCache: {[Id: number]: DialogExcelConfigData} = {};
-  const npcCache: {[Id: number]: NpcExcelConfigData} = {};
 
   function postProcessCondProp(obj: any, prop: string) {
     let condArray = obj[prop] as ConfigCondition[];
@@ -304,10 +305,10 @@ export function getControl(knex: Knex, pref?: OverridePrefs) {
 
   async function getNpcList(npcIds: number[]): Promise<NpcExcelConfigData[]> {
     if (!npcIds || !npcIds.length) return [];
-    let notCachedIds = npcIds.filter(id => !npcCache[id]);
-    let cachedList = npcIds.map(id => npcCache[id]).filter(x => !!x);
+    let notCachedIds = npcIds.filter(id => !pref.npcCache[id]);
+    let cachedList = npcIds.map(id => pref.npcCache[id]).filter(x => !!x);
     let uncachedList: NpcExcelConfigData[] = await knex.select('*').from('NpcExcelConfigData').whereIn('Id', notCachedIds).then(commonLoad);
-    uncachedList.forEach(npc => npcCache[npc.Id] = npc);
+    uncachedList.forEach(npc => pref.npcCache[npc.Id] = npc);
     return cachedList.concat(uncachedList);
   }
 
@@ -355,7 +356,7 @@ export function getControl(knex: Knex, pref?: OverridePrefs) {
     let consumedQuestMessageIds = [];
 
     const handleOrphanedDialog = async (quest: MainQuestExcelConfigData|QuestExcelConfigData, id: number) => {
-      if (dialogCache[id])
+      if (pref.dialogCache[id])
         return;
       let dialog = await selectSingleDialogExcelConfigData(id as number);
       if (dialog) {
@@ -411,10 +412,10 @@ export function getControl(knex: Knex, pref?: OverridePrefs) {
   }
 
   async function selectSingleDialogExcelConfigData(id: number): Promise<DialogExcelConfigData> {
-    if (dialogCache[id])
-      return dialogCache[id];
+    if (pref.dialogCache[id])
+      return pref.dialogCache[id];
     let result: DialogExcelConfigData = await knex.select('*').from('DialogExcelConfigData').where({Id: id}).first().then(commonLoadFirst);
-    dialogCache[id] = result;
+    pref.dialogCache[id] = result;
     return result && result.TalkContentText ? result : null;
   }
 
@@ -430,7 +431,7 @@ export function getControl(knex: Knex, pref?: OverridePrefs) {
 
   async function getDialogFromTextContentId(textMapId: number): Promise<DialogExcelConfigData> {
     let result: DialogExcelConfigData = await knex.select('*').from('DialogExcelConfigData').where({TalkContentTextMapHash: textMapId}).first().then(commonLoadFirst);
-    dialogCache[result.Id] = result;
+    pref.dialogCache [result.Id] = result;
     return result;
   }
 
@@ -628,8 +629,9 @@ export function getControl(knex: Knex, pref?: OverridePrefs) {
   };
 
   return {
-    dialogCache,
-    npcCache,
+    getPref() {
+      return pref;
+    },
     postProcess,
     commonLoad,
     commonLoadFirst,

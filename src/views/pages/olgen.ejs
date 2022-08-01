@@ -1,0 +1,81 @@
+<section class="card">
+  <h2>OL Generate</h2>
+  <div class="content">
+    <p class="spacer5-bottom">Generate <%- Tl('Other Languages') %> template with official names filled out.</p>
+    <div class="field valign">
+      <div class="valign grow" style="max-width:500px">
+        <input class="ol-input grow" type="text" placeholder="Enter a name" />
+        <button class="ol-submit primary primary--2 spacer5-left">Generate</button>
+      </div>
+      <div class="ol-submit-pending hide loading small spacer5-left"></div>
+    </div>
+    <div class="field spacer5-top">
+      <label class="ui-checkbox" style="padding-left:5px;font-size:13px;">
+        <input type="checkbox" class="ol-hide-tl-param" />
+        <span>Hide TL Param</span>
+      </label>
+    </div>
+  </div>
+  <hr>
+  <div class="content">
+    <div class="ol-result-wrapper">
+      <div class="fsplit spacer5-bottom">
+        <h4>Results</h4>
+        <button class="secondary ol-result-copy"
+          ui-tippy-hover="{content:'Click to copy to clipboard', delay:[100,100]}"
+          ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">Copy</button>
+      </div>
+      <textarea readonly class="ol-result w100p" style="resize:vertical;min-height:300px" placeholder="The result will show up here."></textarea>
+    </div>
+  </div>
+</section>
+<script nonce="<%= req.context.nonce %>">
+waitForConstant('app', app => {
+  const listeners = [
+    {
+      el: '.ol-input',
+      ev: 'enter',
+      fn: function(event, target) {
+        document.querySelector('.ol-submit').click();
+      }
+    },
+    {
+      el: '.ol-submit',
+      ev: 'click',
+      fn: function(event, target) {
+        let inputEl = document.querySelector('.ol-input');
+        let loadingEl = document.querySelector('.ol-submit-pending');
+        let hideTlEl = document.querySelector('.ol-hide-tl-param');
+        let text = inputEl.value.trim();
+
+        if (!text) {
+          app.flashTippy(inputEl, {content: 'Enter a name first!', delay:[0,2000]});
+          return;
+        }
+
+        loadingEl.classList.remove('hide');
+        inputEl.disabled = true;
+        target.disabled = true;
+
+        app.endpoints.generateOL(text, hideTlEl.checked).then(result => {
+          document.querySelector('.ol-result').value = result;
+          inputEl.value = '';
+        }).finally(() => {
+          loadingEl.classList.add('hide');
+          inputEl.disabled = false;
+          target.disabled = false;
+        });
+      }
+    },
+    {
+      el: '.ol-result-copy',
+      ev: 'click',
+      fn: function(event, target) {
+        copyToClipboard(document.querySelector('.ol-result').value);
+      }
+    }
+  ];
+
+  app.startListeners(listeners);
+});
+</script>

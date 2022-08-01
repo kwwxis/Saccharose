@@ -5,6 +5,7 @@
 // properties  using `process.env.PROP_NAME`
 
 import path from 'path';
+import session from 'express-session';
 
 export default {
   server: {
@@ -15,11 +16,22 @@ export default {
     binDirectory: 'C:/Program Files/Git/usr/bin',
     shell: 'C:/Program Files/Git/usr/bin/bash.exe',
   },
+  currentGenshinVersion: '2.8',
   database: {
     filename: 'C:/Shared/genshin_data.db',
     genshin_data: 'C:/Shared/git/GenshinData/',
     textMapFile: 'TextMapEN.json',
   },
+  session: session({
+    secret: process.env.SESSID_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      httpOnly: true,
+      secure: true,
+    },
+  }),
   csrfConfig: {
     standard: {
       cookie: {
@@ -39,14 +51,15 @@ export default {
   views: {
     root: path.resolve(__dirname, './views'),
     publicDir: path.resolve(__dirname, '../public'),
-    siteTitle: 'Benedict-9940',
+    siteTitle: 'Genshin Wiki Tools',
     assetVersion: '2020-04-30-rev1',
     base: {
       layouts: ['layouts/base-layout'],
       styles: [
         'lib.fonts',
         'https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.2.0/css/material-design-iconic-font.min.css',
-        'style',
+        'app.base',
+        'app.default',
         'lib.buttons',
         'https://unpkg.com/tail.select@0.5.15/css/default/tail.select-light.min.css',
       ],

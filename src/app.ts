@@ -1,4 +1,4 @@
-const STEPS_TO_LOAD = 7;
+const STEPS_TO_LOAD = 9;
 
 console.log(`(1/${STEPS_TO_LOAD}) Requiring dependencies`);
 import config from '@/config';
@@ -11,9 +11,11 @@ import useragent from 'express-useragent';
 import helmet from 'helmet';
 import csrf from 'csurf';
 import exitHook from 'async-exit-hook';
+import { openKnex } from '@db';
 
-import { closeDatabase, openKnex, closeKnex } from '@db';
+import sessions from '@/middleware/sessions';
 import baseRouter from '@/controllers/BaseRouter';
+import apiRouter from '@/controllers/api';
 
 const app: Express = express();
 
@@ -36,13 +38,6 @@ export default {
 
     console.log(`(4/${STEPS_TO_LOAD}) Opening sqlite database`);
     openKnex();
-    exitHook(callback => {
-      console.log('Exit signal received, closing database.')
-      Promise.all([closeDatabase(), closeKnex()]).then(() => {
-        console.log('Successfully closed database.');
-        callback();
-      })
-    });
 
     // These middleware functions parse the incoming request:
     console.log(`(3/${STEPS_TO_LOAD}) Adding middleware for incoming requests`);
@@ -53,7 +48,10 @@ export default {
     // These middleware functions affect the outgoing responses:
     console.log(`(4/${STEPS_TO_LOAD}) Adding middleware for outgoing responses`);
     app.use(compression()); // payload compression
-    app.use(helmet()); // security-related headers
+    app.use(helmet({ // security-related headers
+      contentSecurityPolicy: false, // CSP is set in base router
+      crossOriginEmbedderPolicy: false,
+    }));
     app.use(helmet.referrerPolicy({ policy: 'same-origin' })); // referrer policy header
     app.use(partialResponse()); // allows `fields` query param for JSON responses
     app.use(express.static(config.views.publicDir)); // specifies public directory
@@ -66,13 +64,22 @@ export default {
       next();
     });
 
-    // Load BaseRouter and CSRF protection.
-    console.log(`(5/${STEPS_TO_LOAD}) Loading application router`);
+    // Initialize sessions
+    console.log(`(5/${STEPS_TO_LOAD}) Initializing sessions`);
+    app.use(sessions);
+
+    // Load API router
+    console.log(`(6/${STEPS_TO_LOAD}) Loading API router`);
+    app.use('/api', await apiRouter());
+
+    // Load BaseRouter and CSRF protection. We must load CSRF protection after we load the API router
+    // because the API does not necessarily use CSRF protection (only for same-site AJAX requests).
+    console.log(`(7/${STEPS_TO_LOAD}) Loading application router`);
     app.use(csrf(config.csrfConfig.standard));
     app.use('/', await baseRouter());
 
     //#region Global Error Handlers
-    console.log(`(6/${STEPS_TO_LOAD}) Adding global error handlers`);
+    console.log(`(8/${STEPS_TO_LOAD}) Adding global error handlers`);
     exitHook.uncaughtExceptionHandler(err => {
       console.error(err);
     });
@@ -100,7 +107,7 @@ export default {
     });
     //#endregion
 
-    console.log(`(7/${STEPS_TO_LOAD}) Application code fully loaded`);
+    console.log(`(9/${STEPS_TO_LOAD}) Application code fully loaded`);
     return app;
   },
 };

@@ -174,7 +174,7 @@ export function dialogueVoSort(dialogueText: string, voText: string): {out: stri
 
 
 function voSorter() {
-  let dialogueText = fs.readFileSync('C:/Shared/git/localweb/genshin-data-explorer/script-io/input/voSort_dialogueIn.txt','utf8');
+  let dialogueText = fs.readFileSync('C:/Shared/git/localweb/genshin-data-explorer/script-io/input/voSort_dialogueIn.wt','utf8');
   let voText = fs.readFileSync('C:/Shared/git/localweb/genshin-data-explorer/script-io/input/voSort_voiceover.txt','utf8');
   let {out, voMap, warnings} = dialogueVoSort(dialogueText, voText);
 
@@ -184,7 +184,7 @@ function voSorter() {
 
   let leftoverVOs = Object.values(voMap).flat().map(v => '* '+v.voLine.slice(0,-2) + '|1}}').join('\n');
 
-  fs.writeFileSync('C:/Shared/git/localweb/genshin-data-explorer/script-io/dist/voSort_dialogueOut.txt', out.join('\n') + (leftoverVOs.length ? '\n\n===Unsorted Voice-Overs===\n' + leftoverVOs : ''));
+  fs.writeFileSync('C:/Shared/git/localweb/genshin-data-explorer/script-io/dist/voSort_dialogueOut.wt', out.join('\n') + (leftoverVOs.length ? '\n\n===Unsorted Voice-Overs===\n' + leftoverVOs : ''));
 }
 
 if (require.main === module) {

@@ -1,55 +1,41 @@
 import config from '@/config';
-import sqlite3 from 'sqlite3';
-import { Database, open } from 'sqlite';
 import {Knex, knex as loadKnex} from 'knex';
+import exitHook from 'async-exit-hook';
 
-const self: {db: Database, knex: Knex} = {
-  db: null,
-  knex: null,
-};
-
-export const db = self.db;
-export const knex = self.knex;
-
-export async function openDatabase(): Promise<Database> {
-  if (self.db) {
-    return self.db;
-  }
-  self.db = await open({
-    filename: config.database.filename,
-    driver: sqlite3.Database
-  });
-  return self.db;
-}
+let singleton: Knex = null;
 
 export function openKnex(): Knex {
-  if (self.knex) {
-    return self.knex;
+  if (singleton) {
+    return singleton;
   }
-  self.knex = loadKnex({
+  singleton = loadKnex({
     client: 'sqlite3',
     connection: {
       filename: config.database.filename,
     },
     useNullAsDefault: true
   });
-  return self.knex;
+  return singleton;
 }
 
-export async function closeDatabase(): Promise<void> {
-  if (self.db) {
-    return self.db.close().then(() => {
-      self.db = null;
+export async function closeKnex(): Promise<boolean> {
+  if (singleton) {
+    return singleton.destroy().then(() => {
+      singleton = null;
+      return true;
     });
   }
-  return Promise.resolve();
+  return Promise.resolve(false);
 }
 
-export async function closeKnex(): Promise<void> {
-  if (self.knex) {
-    return self.knex.destroy().then(() => {
-      self.knex = null;
-    });
-  }
-  return Promise.resolve();
-}
+exitHook(callback => {
+  console.log('Exit signal received, closing database...')
+  closeKnex().then(b => {
+    if (b) {
+      console.log('Successfully closed database.');
+    } else {
+      console.log('Database already closed.');
+    }
+    callback();
+  })
+});

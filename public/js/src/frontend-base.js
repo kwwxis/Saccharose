@@ -158,23 +158,7 @@ function humanTiming(time, suffix) {
   return ret;
 }
 
-/**
- * Get URI relative to currently selected Discord server(s).
- *
- * @param {string} path
- * @returns {string} HTML-escaped URI string
- */
-function relUri(path) {
-  let serverPart = window.location.pathname.slice(1).split('/')[0];
-  if (path.startsWith('/')) path = path.slice(1);
-  return esc(`/${serverPart}/${path}`);
-}
-
 const app = {
-  context: {
-    serverId: undefined,
-    serviceName: undefined,
-  },
 
   /**
    * Save JSON file.
@@ -311,8 +295,7 @@ const app = {
     app.dialog.open(`<h2>Unexpected error</h2>
     <p class="spacer-top">
     An unexpected JavaScript error occurred. Try again in a few moments. If the problem
-    persists then ping <span class="d-mention">@Support</span> on our
-    <a href="/support" class="d-link" style="font-weight:600">Support Discord</a> with the technical details below.</p>
+    persists then yell at kwwxis with the technical details below.</p>
     <div class="js-error-details">
       <button ui-trigger="js-error-details" aria-label="Toggle technical details">Technical Details</button>
       <div class="hide" ui-target="js-error-details">
@@ -320,9 +303,6 @@ const app = {
           ui-tippy-hover="{content:'Click to copy technical details', delay:[100,100]}"
           ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">Copy</button>
         <textarea readonly class="d-pre-code">${technicalDetails}</textarea>
-        <p class="spacer5-top">If you feel like the technical details might contain personal/confidential
-        information (for example, the contents of a modmail message) then send a direct message to
-        <code class="d-code">kwwxis#1145</code> or <code class="d-code">D0cR3d#0001</code></p>
       </div>
     </div>
     <div class="buttons spacer-top">
@@ -443,24 +423,6 @@ const app = {
           axios.defaults.headers.common['x-csrf-token'] = document.querySelector(
             'meta[name="csrf-token"]'
           ).content;
-
-          app.context.serverId = document.querySelector('meta[name="serverId"]').content;
-          app.context.serviceName = document.querySelector('meta[name="serviceName"]').content;
-        });
-
-        document.querySelectorAll('[name="save_name"]').forEach(el => {
-          el.addEventListener('click', function(e) {
-            let val;
-            let promptMessage =
-              el.getAttribute('data-prompt') || 'Enter name to save this query as:';
-
-            if ((val = prompt(promptMessage)) && val.trim().length) {
-              el.value = val.trim();
-            } else {
-              e.preventDefault();
-              e.stopPropagation();
-            }
-          });
         });
       },
     },
@@ -527,11 +489,6 @@ const app = {
               setTimeout(() => focusableEl.focus(), 0);
             }
           }
-
-          if (uiTrigger.hasAttribute('ui-set-query-param')) {
-            let kvPair = uiTrigger.getAttribute('ui-set-query-param').split('=');
-            app.setQueryStringParameter(kvPair[0], kvPair.slice(1).join('='));
-          }
         }
 
         document.querySelectorAll('.ui-dropdown').forEach(dropdownEl => {
@@ -563,7 +520,16 @@ const app = {
           opts.fn.call(opts);
         }, 0);
         return;
+      } else if (opts.ev === 'enter') {
+        opts.ev = 'keypress';
+        let originalFn = opts.fn;
+        opts.fn = function(event, target) {
+          if (event.code === 'Enter' || (event.keyCode ? event.keyCode : event.which) === 13) {
+            originalFn.call(opts, event, target);
+          }
+        };
       }
+
       if (opts.multiple) {
         // prettier-ignore
         let targets = typeof opts.el === 'string' ? rel.querySelectorAll(opts.el) :
@@ -584,8 +550,8 @@ const app = {
       }
     });
   },
-  datapulls: {
-    base_uri: '/api/v1',
+  endpoints: {
+    base_uri: '/api',
     general_error_handler: err => {
       if (!err.response.data || err.response.data.error != 'BAD_REQUEST') {
         const errorObj = {error: err.toJSON()};
@@ -603,160 +569,39 @@ const app = {
       }
       return err.response.data;
     },
+    ping() {
+      return axios
+        .get(`${this.base_uri}/ping`)
+        .then(response => response.data)
+        .catch(this.general_error_handler);
+    },
     testGeneralErrorHandler() {
       return axios
         .get(`${this.base_uri}/nonexistant_endpoint`)
         .then(response => response.data)
         .catch(this.general_error_handler);
     },
-    /**
-     * @returns {Promise<{id: Number, created: String, discord_id: String, user_alias: String}[]>}
-     */
-    searchUsers: function(q) {
+    findMainQuest(nameOrId) {
       return axios
-        .get(`${this.base_uri}/users`, {
-          params: { q },
+        .get(`${this.base_uri}/quests/findMainQuest`, {
+          params: {name: nameOrId}
         })
         .then(response => response.data)
         .catch(this.general_error_handler);
     },
-    updatePrefs: function(payload) {
+    generateMainQuest(id) {
       return axios
-        .put(`${this.base_uri}/me/prefs`, payload)
-        .then(response => response.data)
-        .catch(this.general_error_handler);
-    },
-    forceLogoutSession: function(deleteKey) {
-      return axios
-        .delete(`${this.base_uri}/me/sessions`, {
-          params: { deleteKey },
-        })
-        .then(response => response.status >= 200 && response.status < 300)
-        .catch(this.general_error_handler);
-    },
-    regenerateAPIKey: function(prop, value) {
-      return axios
-        .post(`${this.base_uri}/me/api_key`)
-        .then(response => response.data && response.data.api_key)
-        .catch(this.general_error_handler);
-    },
-    invalidateAPIKey: function(prop, value) {
-      return axios.delete(`${this.base_uri}/me/api_key`)
-        .catch(this.general_error_handler);
-    },
-    sendTagPreview: function(content) {
-      return axios.post(`${this.base_uri}/s-${app.context.serverId}/tags.sendPreview`, { ref: content })
-        .catch(this.general_error_handler);
-    },
-    sendDirectMessage: function(userDiscordId, content) {
-      return axios
-        .post(`${this.base_uri}/s-${app.context.serverId}/sendDirectMessage`, {
-          userDiscordId,
-          content,
-        })
-        .catch(this.general_error_handler);
-    },
-    discordMarkdown: function(text) {
-      return axios
-        .post(`${this.base_uri}/s-${app.context.serverId}/discord-markdown`, { text })
-        .then(response => response.data)
-        .catch(this.general_error_handler);
-    },
-    validateHTML: function(snippet) {
-      return axios
-        .post(`${this.base_uri}/validate-html`, { snippet })
-        .then(response => response.data)
-        .catch(this.general_error_handler);
-    },
-    getTag: function(tagId, asHTML = false) {
-      return axios
-        .get(`${this.base_uri}/s-${app.context.serverId}/tags/${tagId}`, {
-          headers: {
-            'Accept': asHTML ? 'text/html' : 'application/json',
-            'Content-Type': asHTML ? 'text/html' : 'application/json',
-          }
+        .get(`${this.base_uri}/quests/generate`, {
+          params: {id: id}
         })
         .then(response => response.data)
         .catch(this.general_error_handler);
     },
-    createTag: function(name, content) {
+    generateOL(text, hideTl) {
       return axios
-        .post(`${this.base_uri}/s-${app.context.serverId}/tags`, {name, content})
-        .then(response => response.data)
-        .catch(this.general_error_handler);
-    },
-    updateTag: function(tagId, name, content) {
-      return axios
-        .put(`${this.base_uri}/s-${app.context.serverId}/tags/${tagId}`, {name, content})
-        .then(response => response.data)
-        .catch(this.general_error_handler);
-    },
-    deleteTag: function(tagId) {
-      return axios
-        .delete(`${this.base_uri}/s-${app.context.serverId}/tags/${tagId}`)
-        .then(response => response.data)
-        .catch(this.general_error_handler);
-    },
-    setAdminBypass: function(state) {
-      return axios
-        .post(`/prefs/set_admin_bypass`, `state=${state}`, {
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/x-www-form-urlencoded'
-          }
+        .get(`${this.base_uri}/OL/generate`, {
+          params: {text: text, hideTl: hideTl ? 'true' : 'false'}
         })
-        .then(response => response.data)
-        .catch(this.general_error_handler);
-    },
-    updateServerSettings: function(payload) {
-      return axios
-        .put(`${this.base_uri}/s-${app.context.serverId}/serversettings`, payload)
-        .then(response => response.data)
-        .catch(this.general_error_handler);
-    },
-    dismissAnnouncement: function(announcementId) {
-      return axios
-        .put(`${this.base_uri}/me/announcements/dismissed`, {id: announcementId})
-        .then(response => response.data)
-        .catch(this.general_error_handler);
-    },
-    getAntiSpamSettingTemplate: function(serviceId) {
-      return axios
-        .get(`${this.base_uri}/s-${app.context.serverId}/antispam/services/${serviceId}/setting-template`, {
-          headers: {
-            'Accept': 'text/html',
-            'Content-Type': 'text/html',
-          }
-        })
-        .then(response => response.data)
-        .catch(this.general_error_handler);
-    },
-    getAntiSpamSettingAsHTML: function(id) {
-      return axios
-        .get(`${this.base_uri}/s-${app.context.serverId}/antispam/settings/${id}`, {
-          headers: {
-            'Accept': 'text/html',
-            'Content-Type': 'text/html',
-          }
-        })
-        .then(response => response.data)
-        .catch(this.general_error_handler);
-    },
-    deleteAntiSpamSetting: function(id) {
-      return axios
-        .delete(`${this.base_uri}/s-${app.context.serverId}/antispam/settings/${id}`)
-        .then(response => response.data)
-        .catch(this.general_error_handler);
-    },
-    updateAntiSpamSetting: function(id, payload) {
-      return axios
-        .put(`${this.base_uri}/s-${app.context.serverId}/antispam/settings/${id}`, payload)
-        .then(response => response.data)
-        .catch(this.general_error_handler);
-    },
-    createAntiSpamSetting: function(payload) {
-      return axios
-        .post(`${this.base_uri}/s-${app.context.serverId}/antispam/settings`, payload)
         .then(response => response.data)
         .catch(this.general_error_handler);
     },
@@ -776,94 +621,6 @@ const app = {
       waitForConstant('Tree', Tree => {
         new Tree(element, opts || {});
       });
-    },
-    message_editor(el, opts) {
-      /** @param {Element} ref */
-      function refreshPreview(ref) {
-        const content = ref.closest('.message-editing-area').querySelector('.message-editor').value;
-
-        ref.closest('.message-editing-area')
-          .querySelector('.message-preview-toolbar .loading').classList.remove('hide');
-
-        return app.datapulls
-          .discordMarkdown(content)
-          .then(html => {
-            ref.closest('.message-editing-area').querySelector('.message-preview').innerHTML = html;
-          })
-          .finally(() => {
-            ref.closest('.message-editing-area')
-              .querySelector('.message-preview-toolbar .loading').classList.add('hide');
-          });
-      }
-
-      const editorListeners = [
-        {
-          el: '.message-editor',
-          ev: 'input',
-          fn: function(event, target) {
-            if (target._previewReloadTimeout) {
-              clearTimeout(target._previewReloadTimeout);
-              target._previewReloadTimeout = null;
-            }
-
-            target.classList.remove('error');
-
-            target.closest('.message-editing-area')
-              .querySelector('.message-preview-toolbar .loading').classList.remove('hide');
-
-            target._previewReloadTimeout = setTimeout(() => {
-              refreshPreview(target);
-            }, 1000);
-          }
-        },
-        {
-          el: '.send-message-button',
-          ev: 'click',
-          fn: function(event, target) {
-            const content = target.closest('.message-editing-area').querySelector('.message-editor').value;
-
-            if (!content.trim().length) {
-              const inputEl = target.closest('.message-editing-area').querySelector('.message-editor');
-              inputEl.classList.add('error');
-              app.showTippy(inputEl, {content: '<strong>Message Body</strong> must not be empty'});
-              return;
-            }
-
-            target.disabled = true;
-
-            app.datapulls
-              .sendDirectMessage(opts.message_recipient, content)
-              .finally(() => {
-                target.disabled = false;
-                app.flashTippy(target, {content: 'Sent! Be careful not to accidently send again!'});
-              });
-          }
-        },
-        {
-          el: '.send-message-preview-button',
-          ev: 'click',
-          fn: function(event, target) {
-            const content = target.closest('.message-editing-area').querySelector('.message-editor').value;
-
-            if (!content.trim().length) {
-              const inputEl = target.closest('.message-editing-area').querySelector('.message-editor');
-              inputEl.classList.add('error');
-              app.showTippy(inputEl, {content: '<strong>Message Body</strong> must not be empty'});
-              return;
-            }
-
-            target.disabled = true;
-
-            app.datapulls
-              .sendDirectMessage(opts.preview_recipient, content)
-              .finally(() => {
-                target.disabled = false;
-                app.flashTippy(target, {content: 'Sent! Check your DMs'});
-              });
-          }
-        },
-      ];
-      app.startListeners(editorListeners, el);
     },
     /** @param {Element} selectEl */
     tail_select(selectEl) {
@@ -925,130 +682,6 @@ const app = {
         }).on('close', function(item, state) {
           updateTailLabel(this);
         });
-      });
-    },
-    /** @param {Element} parent */
-    announcement(parent) {
-      parent.querySelectorAll('.close,.dismiss').forEach(dismissTriggerEl => {
-        dismissTriggerEl.addEventListener('click', event => {
-          parent.style.display = 'none';
-          app.datapulls.dismissAnnouncement(parent.getAttribute('data-announcement-id')).then(res => {
-            if (res) {
-              parent.remove();
-            } else {
-              app.dialog.open('Failed to dismiss announcement due to a network error or internal server error. Try again later.', app.DIALOG_ERROR);
-            }
-          });
-        });
-      });
-    },
-    /** @param {Element} parent */
-    user_searcher(parent, opts = {type: 'lister', method: undefined, action: undefined}) {
-      parent.classList.add('widget', 'widget--user_searcher');
-      parent.style.position = 'relative';
-      parent.innerHTML = `
-      <div class="content">
-        <form class="valign"
-            ${opts.method ? `method="${opts.method}"` : ''}
-            ${opts.action ? `action="${opts.action}"` : ''}>
-          <input class="grow" type="text" placeholder="Search user aliases or ids..." aria-label="Search users by alias or id" />
-          <button type="submit" class="primary spacer5-left">Go</button>
-          <button type="button" class="primary cancel">Clear</button>
-        </form>
-        <p class="error hide spacer5-top"></p>
-      </div>
-      <div class="content valign hide pending spacer5-left" role="presentation">
-        <span class="loading small"></span>
-        <span class="spacer10-left">Please wait...</span>
-      </div>
-      <div class="content output-container hide" role="region"
-          aria-label="User search results" aria-live="polite">
-        <p class="spacer5-bottom">Only shows up to 25 results.</p>
-        <div class="output" role="list"></div>
-      </div>
-      `;
-
-      const errorEl = parent.querySelector('.error');
-      const outputContainerEl = parent.querySelector('.output-container');
-      const outputEl = parent.querySelector('.output');
-
-      const setError = text => {
-        errorEl.innerText = text;
-        errorEl.classList.remove('hide');
-      };
-
-      parent.querySelector('button.cancel').addEventListener('click', () => {
-        errorEl.classList.add('hide');
-        outputContainerEl.classList.add('hide');
-        outputEl.innerHTML = '';
-        parent.querySelector('form input[type=text]').value = '';
-      });
-
-      parent.querySelector('form').addEventListener('submit', event => {
-        event.preventDefault();
-        event.stopPropagation();
-
-        errorEl.classList.add('hide');
-        outputContainerEl.classList.add('hide');
-
-        const value = parent.querySelector('form input[type=text]').value;
-
-        if (!value || value.length < 3) {
-          return setError('Must enter at least 3 characters to search');
-        }
-
-        parent.querySelector('.pending').classList.remove('hide');
-
-        app.datapulls
-          .searchUsers(value)
-          .then(data => {
-            parent.querySelector('.pending').classList.add('hide');
-
-            if (!Array.isArray(data)) {
-              return setError('Received malformed data from server. Try again later.');
-            }
-
-            outputEl.innerHTML = '';
-
-            data.forEach(item => {
-              outputEl.insertAdjacentHTML('afterend',
-                `<div class="row valign" role="listitem">
-                  <div class="user-info grow">
-                    <a href="${relUri('users/' + item.discord_id)}"
-                      class="user-alias user-link">${esc(item.user_alias || 'User alias unavailable')}</a>
-                    <span class="user-id">${esc(item.discord_id)}</span>
-                  </div>
-                  <button class="secondary" onclick="copyToClipboard('${item.discord_id}')"
-                      data-tippy-content="Copied!"
-                      data-tippy-trigger="click">
-                    <span>Copy ID</span>
-                  </button>
-                </div>`
-              );
-            });
-
-            if (!data.length) {
-              outputEl.innerHTML = `
-                <p class="info-notice">No results</p>
-                <p class="spacer5-top" style="font-size: 15px;padding: 0 5px;">
-                <strong>Note:</strong> we don't have every user alias in our database. Even if you enter
-                in someone's exact username, no result might show up.</p>`;
-            }
-
-            tippy(outputEl.querySelectorAll('button'));
-
-            outputContainerEl.classList.remove('hide');
-          })
-          .catch(error => {
-            parent.querySelector('.pending').classList.add('hide');
-            setError(
-              error.response
-                ? String(error.reponse.data)
-                : 'An internal error occurred. Try again later.'
-            );
-          });
-
-        return false;
       });
     },
   },

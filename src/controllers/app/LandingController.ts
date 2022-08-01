@@ -4,8 +4,8 @@ export default async function(): Promise<Router> {
   const router: Router = create();
 
   router.get('/', async (req: Request, res: Response) => {
-    res.render('pages/homepage', {
-      styles: ['homepage']
+    res.render('pages/landing', {
+      styles: []
     });
   });
 

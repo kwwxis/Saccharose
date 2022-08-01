@@ -4,12 +4,10 @@
     <meta charset="utf-8" />
     <title><%= req.context.formattedPageTitle %></title>
     <meta name="csrf-token" content="<%= locals.csrfToken || '' %>">
-    <meta name="serverId" content="<%= req.context.serverId || '' %>" />
-    <meta name="serviceName" content="<%= req.context.serviceName || '' %>" />
     <% req.context.styles.forEach(styleHref => { %>
       <%- compileResourceElement(styleHref, 'css') %>
     <% }); %>
-    <script>
+    <script nonce="<%= req.context.nonce %>">
     document.addEventListener('DOMContentLoaded', function() {
       var isIE11 = !!window.MSInputMethodContext && !!document.documentMode;
 
@@ -55,81 +53,12 @@
       <div class="left">
         <a id="site-title" href="/" aria-label="Site title">
           <div id="site-logo-bg"></div>
-          <div id="site-logo-fg"></div>
+          <div id="site-logo-fg"><%- icon('home') %></div>
           <span><%= config.views.siteTitle %></span>
         </a>
-        <% if (req.context.bodyClass.includes('in-app')) { %>
-          <ul class="quick-switcher">
-            <li aria-label="Server selector" class="quick-switcher-item for--server">
-              <%
-              let serverText = (servers.filter(s => req.context.serverId && req.context.serverId.includes(s.id)) || {}).map(s => s.name || 'Unknown Server').join(', ') || 'Unknown Server'; %>
-              <button class="quick-switcher-label thin-border"  ui-trigger="quick-switcher-for-server" title="<%= serverText %>">
-                <span><%= serverText %></span>
-                <%- icon('chevron-down', {class: 'is-inactive'}) %>
-                <%- icon('chevron-up', {class: 'is-active'}) %>
-              </button>
-              <%- include('partials/server-list', {
-                class: 'quick-switcher-dropdown ui-dropdown hide thin-border',
-                uiTarget: 'quick-switcher-for-server',
-                multiSelect: true,
-                style: 'padding-top:0'
-              }) %>
-            </li>
-            <li role="presentation" class="quick-switcher-separator"><%- icon('chevron-right') %></li>
-            <li aria-label="Service selector" class="quick-switcher-item for--service">
-              <% let serviceText = (Object.values(config.services).find(x => x.name == req.context.serviceName) || {}).text; %>
-              <button class="quick-switcher-label thin-border" ui-trigger="quick-switcher-for-service" title="<%= serviceText %>">
-                <span><%= serviceText %></span>
-                <%- icon('chevron-down', {class: 'is-inactive'}) %>
-                <%- icon('chevron-up', {class: 'is-active'}) %>
-              </button>
-              <%- include('partials/service-list', {
-                class: 'quick-switcher-dropdown ui-dropdown hide thin-border content',
-                uiTarget: 'quick-switcher-for-service',
-              }) %>
-            </li>
-            <% if (req.user?.info?.is_global_admin) { %>
-            <li>
-              <form class="quick-toggle" action="/prefs/set_admin_bypass" method="POST">
-                <%- include('partials/csrf') %>
-                <input type="hidden" name="cont" value="<%= req.originalUrl %>" />
-                <button type="submit" name="state" value="<%= req.user.info.admin_bypass_active ? '0' : '1' %>"
-                    class="quick-toggle-inner"
-                    ui-tippy-hover="{content:'Click to toggle to <strong><%= req.user.info.admin_bypass_active ? 'Off' : 'On' %></strong>', delay:[100,100],theme:'light-border'}">
-                  <span class="quick-toggle-label">Admin Bypass:</span>
-                  <span class="quick-toggle-value"><%= req.user.info.admin_bypass_active ? 'On' : 'Off' %></span>
-                </button>
-              </form>
-            </li>
-            <% } %>
-          </ul>
-        <% } %>
       </div>
       <div class="right">
         <div class="nav-user">
-          <% if (req.isAuthenticated()) { %>
-            <% if (req.user.avatar) { %>
-              <img class="user-avatar lazy" aria-hidden="true" alt="user avatar"
-                data-src="https://cdn.discordapp.com/avatars/<%= req.user.id %>/<%= req.user.avatar %>.png" />
-            <% } %>
-            <div class="user">
-              <div class="user-tag" aria-label="username">
-                <small>@</small>
-                <span class="user-username"><%= req.user.username %></span>
-                <span style="font-size:0.95em">#</span>
-                <span class="user-discriminator"><%= req.user.discriminator %></span>
-              </div>
-              <div class="user-id" aria-label="user id"><%= req.user.id %></div>
-            </div>
-            <a role="button" aria-label="Preferences" class="prefs-link" href="/prefs"><%- icon('settings') %></a>
-            <a role="button" class="auth-button primary primary--2 spacer10-left is--logout" href="<%= config.auth.paths.logout %>">
-              <span>Logout</span>
-            </a>
-          <% } else { %>
-            <a role="button" class="auth-button primary primary--2 spacer10-left is--login" href="<%= config.auth.paths.login %>">
-              <span>Login</span>
-            </a>
-          <% } %>
         </div>
       </div>
     </header>
@@ -149,16 +78,11 @@
     <div class="content"><%- include(subview, sublocals) %></div>
     <footer>
       <div class="wrapper valign">
-        <section class="copyright">
-          <p>&copy; <%= config.copyright.copyrightYear %> <%= config.copyright.ownerName %></p>
-          <p><a href="/terms">Terms</a> &bull; <a href="/privacy">Privacy</a></p>
+        <section class="credit">
+          <p>kwwxis's genshin wiki tools</p>
         </section>
         <section class="footer-links">
-          <a href="/docs">Bot Documentation</a>
-          <a href="/support">Support Discord</a>
-          <% if (req.isAuthenticated()) { %>
-            <a href="/prefs">User Preferences</a>
-          <% } %>
+          <a href="http://genshin-impact.fandom.com/">Genshin Wiki</a>
         </section>
       </div>
     </footer>

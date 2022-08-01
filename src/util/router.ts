@@ -7,8 +7,9 @@ import availableMethods from '@/middleware/availableMethods';
 import * as functions from '@functions';
 import * as express from 'express';
 import * as expressCore from 'express-serve-static-core';
-import { icon, timestamp, humanTiming, compileResourceElement } from '@/view_utilities';
+import { icon, timestamp, humanTiming, compileResourceElement, Tl } from '@/util/view_utilities';
 import { cachedSync } from '@cache';
+import crypto from 'crypto';
 //#endregion
 
 //#region Types
@@ -28,10 +29,9 @@ class RequestContext {
   styles: any[];
   scripts: any[];
   bodyClass: string[];
-  serverId?: number[];
-  serviceName?: string;
   viewStack: RequestSubViewLocals;
   viewStackPointer: RequestSubViewLocals;
+  nonce = crypto.randomBytes(16).toString('hex');
 
   constructor() {
     this.title = '';
@@ -109,6 +109,7 @@ export const DEFAULT_GLOBAL_LOCALS = {
   functions,
   timestamp,
   humanTiming,
+  Tl,
 };
 
 function createIncludeFunction(req: Request, viewStackPointer: RequestSubViewLocals): IncludeFunction {

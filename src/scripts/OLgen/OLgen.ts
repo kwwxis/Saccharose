@@ -2,9 +2,8 @@ import "../../setup";
 import {findTextMapIdByExactName} from "../textMapFinder/text_map_finder";
 import {grep} from "../script_util";
 
-function genOL(grepOutput: string, hideTl: boolean = false): string {
-  let template = `==Other Languages==
-{{Other Languages
+function ol_gen_internal(grepOutput: string, hideTl: boolean = false): string {
+  let template = `{{Other Languages
 |en      = {EN_official_name}
 |zhs     = {CHS_official_name}
 |zhs_rm  = {}
@@ -37,7 +36,7 @@ function genOL(grepOutput: string, hideTl: boolean = false): string {
 }}`;
   if (hideTl) {
     template = template.split('\n').filter(s => !s.includes('_tl')).join('\n');
-    template = template.replace('{{Other Languages', '{{Other Languages\n|hide_tl = yes');
+    //template = template.replace('{{Other Languages', '{{Other Languages\n|hide_tl = yes');
   }
   grepOutput.trim().split('\n')
     .map(s => s.trim())
@@ -53,7 +52,7 @@ function genOL(grepOutput: string, hideTl: boolean = false): string {
 export async function ol_gen(name: string, hideTl: boolean = false): Promise<string> {
   let id = await findTextMapIdByExactName(name);
   let lines = await grep(`${id}`, './TextMap/', '-rnw');
-  return genOL(lines.join('\n'), hideTl);
+  return ol_gen_internal(lines.join('\n'), hideTl);
 }
 
 if (require.main === module) {
