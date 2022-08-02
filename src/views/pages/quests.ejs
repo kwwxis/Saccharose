@@ -1,9 +1,115 @@
 <section class="card">
   <h2>Find Quest</h2>
   <div class="content">
-    <div class="field valign" style="max-width:500px">
-      <input class="grow" type="text" placeholder="Enter quest name" />
-      <button class="primary primary--2 spacer5-left">Search</button>
+    <p class="spacer10-bottom">Quest name must be an exact match, case sensitive. Leading/trailing spaces will be trimmed.</p>
+    <div class="field valign">
+      <div class="valign grow" style="max-width:500px">
+        <input class="quest-search-input grow" type="text" placeholder="Enter quest name" />
+        <button class="quest-search-submit primary primary--2 spacer5-left">Search</button>
+      </div>
+      <div class="quest-search-submit-pending hide loading small spacer5-left"></div>
     </div>
   </div>
+  <div class="content quest-search-result-wrapper hide">
+    <h4>Search Results</h4>
+    <div class="quest-search-result"></div>
+  </div>
 </section>
+<% if (locals.error) { %>
+  <section class="card">
+    <h2>Error</h2>
+    <p><%= error %></p>
+  </section>
+<% } %>
+<% if (locals.isResultPage) { %>
+  <section class="card">
+    <h2><strong><%= questId %>:</strong>&nbsp;<%= questTitle %></h2>
+    <div class="content">
+      <h4>Quest Descriptions</h4>
+      <textarea class="w100p" style="resize:vertical;min-height:100px;"><%= questDescriptionWikitext %></textarea>
+    </div>
+    <div class="content">
+      <h4>Other Languages</h4>
+      <textarea class="w100p" style="resize:vertical;min-height:200px;"><%= otherLanguagesWikitext %></textarea>
+    </div>
+    <h2>Dialogue</h4>
+    <div class="dialogue-container">
+      <% dialogue.forEach(section => { %>
+        <%- include('partials/quests/dialogue-section', section) %>
+      <% }) %>
+    </div>
+  </section>
+<% } %>
+
+<style>
+.dialogue-section {
+  margin-bottom: 10px;
+  border-top: 0.5px solid hsla(223, 67%, 18%, 0.2);
+}
+.dialogue-container > .dialogue-section {
+  padding: 5px 15px;
+}
+
+.dialogue-section-meta span + span:before {
+  content: '; ';
+}
+
+.dialogue-section .dialogue-section-children {
+  padding-left: 20px;
+  margin-top:10px;
+}
+
+.dialogue-section textarea {
+  padding: 5px;
+}
+</style>
+
+<script nonce="<%= req.context.nonce %>">
+waitForConstant('app', app => {
+  const listeners = [
+    {
+        ev: 'ready',
+        fn: function() {
+          autosize(document.querySelectorAll('.dialogue-container textarea'));
+        }
+    },
+    {
+      el: '.quest-search-input',
+      ev: 'enter',
+      fn: function(event, target) {
+        document.querySelector('.quest-search-submit').click();
+      }
+    },
+    {
+      el: '.quest-search-submit',
+      ev: 'click',
+      fn: function(event, target) {
+        let inputEl = document.querySelector('.quest-search-input');
+        let loadingEl = document.querySelector('.quest-search-submit-pending');
+        let text = inputEl.value.trim();
+
+        if (!text) {
+          app.flashTippy(inputEl, {content: 'Enter a quest name first!', delay:[0,2000]});
+          return;
+        }
+
+        loadingEl.classList.remove('hide');
+        inputEl.disabled = true;
+        target.disabled = true;
+
+        app.endpoints.findMainQuest(text, true).then(result => {
+          document.querySelector('.quest-search-result-wrapper').classList.remove('hide');
+          document.querySelector('.quest-search-result').innerHTML = result;
+          inputEl.value = '';
+        }).finally(() => {
+          loadingEl.classList.add('hide');
+          inputEl.disabled = false;
+          target.disabled = false;
+        });
+      }
+    },
+  ];
+
+  app.startListeners(listeners);
+});
+</script>

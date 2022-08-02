@@ -37,6 +37,7 @@ export default async function(): Promise<Router> {
         locals.templateWikitext = result.templateWikitext;
         locals.questDescriptionWikitext = result.questDescriptionWikitext;
         locals.otherLanguagesWikitext = result.otherLanguagesWikitext;
+        locals.dialogue = result.dialogue;
       } catch (e) {
         if (typeof e === 'string') {
           locals.error = e;

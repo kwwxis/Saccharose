@@ -1,0 +1,18 @@
+<div class="dialogue-section">
+  <h4 class="dialogue-section-title"><%= title %></h4>
+  <% if (locals.metatext) { %>
+    <p class="dialogue-section-meta">
+      <% metatext.split('\n').map(x => x.trim()).filter(x => !!x).forEach(part => { %>
+       <span><%= part %></span>
+      <% }) %>
+    </p>
+  <% } %>
+  <% if (locals.wikitext) { %>
+    <textarea class="dialogue-section-wikitext w100p" style="resize:vertical;min-height:50px;"><%= wikitext %></textarea>
+  <% } %>
+  <div class="dialogue-section-children">
+    <% children.forEach(section => { %>
+     <%- include('partials/quests/dialogue-section', section) %>
+    <% }) %>
+  </div>
+</div>

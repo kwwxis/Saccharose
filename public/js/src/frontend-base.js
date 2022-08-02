@@ -581,10 +581,14 @@ const app = {
         .then(response => response.data)
         .catch(this.general_error_handler);
     },
-    findMainQuest(nameOrId) {
+    findMainQuest(nameOrId, asHTML = false) {
       return axios
         .get(`${this.base_uri}/quests/findMainQuest`, {
-          params: {name: nameOrId}
+          params: {name: nameOrId },
+          headers: {
+            'Accept': asHTML ? 'text/html' : 'application/json',
+            'Content-Type': asHTML ? 'text/html' : 'application/json',
+          }
         })
         .then(response => response.data)
         .catch(this.general_error_handler);

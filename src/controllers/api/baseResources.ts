@@ -28,19 +28,20 @@ router.restful('/quests/findMainQuest', {
 
     const ctrl = getControl();
 
-    console.log('FindMainQuest:', questNameOrId);
-
     const mainQuests: MainQuestExcelConfigData[] = typeof questNameOrId === 'string'
       ? await ctrl.selectMainQuestsByName(questNameOrId.trim())
       : [await ctrl.selectMainQuestById(questNameOrId)];
 
-    let result = {};
+    let result: {[id: number]: string} = {};
     for (let mainQuest of mainQuests) {
       result[mainQuest.Id] = mainQuest.TitleText;
     }
-    console.log('FindMainQuest Result:', result);
 
-    return result;
+    if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
+      return res.render('partials/quests/quest-search-results', { searchResults: result });
+    } else {
+      return result;
+    }
   }
 });
 
