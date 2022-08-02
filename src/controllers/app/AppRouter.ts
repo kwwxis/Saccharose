@@ -15,39 +15,14 @@ export default async function(): Promise<Router> {
 
   router.get('/quests', async (req: Request, res: Response) => {
     res.render('pages/quests', {
-      styles: [],
-      isResultPage: false,
+      styles: ['app.dialogue'],
     });
   });
 
   router.get('/quests/:id', async (req: Request, res: Response) => {
-    let id = toInt(req.params.id);
-    let locals: any = {
-      isResultPage: true,
-    };
-
-    if (isNaN(id)) {
-      locals.error = 'ID must be a number';
-    } else {
-      try {
-        let result: QuestGenerateResult = await questGenerate(id);
-        locals.questTitle = result.questTitle;
-        locals.questId = result.questId;
-        locals.npc = result.npc;
-        locals.templateWikitext = result.templateWikitext;
-        locals.questDescriptionWikitext = result.questDescriptionWikitext;
-        locals.otherLanguagesWikitext = result.otherLanguagesWikitext;
-        locals.dialogue = result.dialogue;
-      } catch (e) {
-        if (typeof e === 'string') {
-          locals.error = e;
-        } else {
-          locals.error = 'An internal error occurred';
-        }
-      }
-    }
-
-    res.render('pages/quests', locals);
+    res.render('pages/quests', {
+      styles: ['app.dialogue'],
+    });
   });
 
   router.get('/OL', async (req: Request, res: Response) => {

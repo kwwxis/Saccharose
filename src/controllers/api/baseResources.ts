@@ -3,7 +3,7 @@ const router: Router = create();
 import { validateHTML } from '@/util/html_validator';
 import { MainQuestExcelConfigData } from '@types';
 import { getControl } from '@/scripts/script_util';
-import { questGenerate } from '@/scripts/dialogue/quest_generator';
+import { questGenerate, QuestGenerateResult } from '@/scripts/dialogue/quest_generator';
 import { ol_gen } from '@/scripts/OLgen/OLgen';
 import { toBoolean, toInt } from '@functions';
 
@@ -55,8 +55,24 @@ router.restful('/quests/generate', {
       param = String(req.query.name);
     }
 
-    let result = await questGenerate(param);
-    return result;
+    let result: QuestGenerateResult = await questGenerate(param);
+
+    if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
+      let locals: any = {};
+
+      locals.isResultPage = true;
+      locals.questTitle = result.questTitle;
+      locals.questId = result.questId;
+      locals.npc = result.npc;
+      locals.templateWikitext = result.templateWikitext;
+      locals.questDescriptionWikitext = result.questDescriptionWikitext;
+      locals.otherLanguagesWikitext = result.otherLanguagesWikitext;
+      locals.dialogue = result.dialogue;
+
+      return res.render('partials/quests/quest-generate-result', locals);
+    } else {
+      return result;
+    }
   }
 });
 

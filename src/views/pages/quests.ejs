@@ -15,62 +15,38 @@
     <div class="quest-search-result"></div>
   </div>
 </section>
-<% if (locals.error) { %>
-  <section class="card">
-    <h2>Error</h2>
-    <p><%= error %></p>
-  </section>
-<% } %>
-<% if (locals.isResultPage) { %>
-  <section class="card">
-    <h2><strong><%= questId %>:</strong>&nbsp;<%= questTitle %></h2>
-    <div class="content">
-      <h4>Quest Descriptions</h4>
-      <textarea class="w100p" style="resize:vertical;min-height:100px;"><%= questDescriptionWikitext %></textarea>
-    </div>
-    <div class="content">
-      <h4>Other Languages</h4>
-      <textarea class="w100p" style="resize:vertical;min-height:200px;"><%= otherLanguagesWikitext %></textarea>
-    </div>
-    <h2>Dialogue</h4>
-    <div class="dialogue-container">
-      <% dialogue.forEach(section => { %>
-        <%- include('partials/quests/dialogue-section', section) %>
-      <% }) %>
-    </div>
-  </section>
-<% } %>
-
-<style>
-.dialogue-section {
-  margin-bottom: 10px;
-  border-top: 0.5px solid hsla(223, 67%, 18%, 0.2);
-}
-.dialogue-container > .dialogue-section {
-  padding: 5px 15px;
-}
-
-.dialogue-section-meta span + span:before {
-  content: '; ';
-}
-
-.dialogue-section .dialogue-section-children {
-  padding-left: 20px;
-  margin-top:10px;
-}
-
-.dialogue-section textarea {
-  padding: 5px;
-}
-</style>
+<div id="quest-generate-result"></div>
 
 <script nonce="<%= req.context.nonce %>">
 waitForConstant('app', app => {
+  function loadQuestGenerateResult() {
+    document.querySelector('.quest-search-result-wrapper').classList.add('hide');
+
+    let urlParts = /\/quests\/(\d+)/.exec(window.location.href);
+    if (!urlParts || urlParts.length < 2) {
+      return;
+    }
+
+    document.querySelector('#quest-generate-result').innerHTML = `
+    <div class="valign spacer10-left">
+      <span class="loading"></span>
+      <span class="spacer10-left fontWeight600">Loading quest...</span>
+    </div>`
+
+    let id = urlParts[1];
+    app.endpoints.generateMainQuest(id, true).then(html => {
+      document.querySelector('#quest-generate-result').innerHTML = html;
+      autosize(document.querySelectorAll('.dialogue-container textarea'));
+    });
+  }
+
   const listeners = [
     {
-        ev: 'ready',
+        ev: 'readyAsync',
         fn: function() {
-          autosize(document.querySelectorAll('.dialogue-container textarea'));
+          waitForConstant('axios', () => {
+            loadQuestGenerateResult();
+          })
         }
     },
     {
@@ -101,6 +77,19 @@ waitForConstant('app', app => {
           document.querySelector('.quest-search-result-wrapper').classList.remove('hide');
           document.querySelector('.quest-search-result').innerHTML = result;
           inputEl.value = '';
+
+          app.startListeners([
+            {
+              el: '.quest-search-result',
+              ev: 'click',
+              fn: function(event) {
+                event.stopPropagation();
+                event.preventDefault();
+                window.history.pushState({}, null, event.target.href);
+                loadQuestGenerateResult();
+              }
+            }
+          ], document.querySelector('.quest-search-result'));
         }).finally(() => {
           loadingEl.classList.add('hide');
           inputEl.disabled = false;

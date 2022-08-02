@@ -593,10 +593,14 @@ const app = {
         .then(response => response.data)
         .catch(this.general_error_handler);
     },
-    generateMainQuest(id) {
+    generateMainQuest(id, asHTML = false) {
       return axios
         .get(`${this.base_uri}/quests/generate`, {
-          params: {id: id}
+          params: {id: id},
+          headers: {
+            'Accept': asHTML ? 'text/html' : 'application/json',
+            'Content-Type': asHTML ? 'text/html' : 'application/json',
+          }
         })
         .then(response => response.data)
         .catch(this.general_error_handler);

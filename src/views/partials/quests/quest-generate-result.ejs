@@ -1,0 +1,17 @@
+<section class="card">
+  <h2><strong><%= questId %>:</strong>&nbsp;<%= questTitle %></h2>
+  <div class="content">
+    <h4>Quest Descriptions</h4>
+    <textarea class="w100p" style="resize:vertical;min-height:100px;"><%= questDescriptionWikitext %></textarea>
+  </div>
+  <div class="content">
+    <h4>Other Languages</h4>
+    <textarea class="w100p" style="resize:vertical;min-height:200px;"><%= otherLanguagesWikitext %></textarea>
+  </div>
+  <h2>Dialogue</h4>
+  <div class="dialogue-container">
+    <% dialogue.forEach(section => { %>
+      <%- include('partials/quests/dialogue-section', section) %>
+    <% }) %>
+  </div>
+</section>

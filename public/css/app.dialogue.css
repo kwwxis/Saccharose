@@ -1,0 +1,21 @@
+
+.dialogue-section {
+  margin-bottom: 10px;
+  border-top: 0.5px solid hsla(223, 67%, 18%, 0.2);
+}
+.dialogue-container > .dialogue-section {
+  padding: 5px 15px;
+}
+
+.dialogue-section-meta span + span:before {
+  content: '; ';
+}
+
+.dialogue-section .dialogue-section-children {
+  padding-left: 20px;
+  margin-top:10px;
+}
+
+.dialogue-section textarea {
+  padding: 5px;
+}
