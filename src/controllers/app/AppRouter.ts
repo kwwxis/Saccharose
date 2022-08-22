@@ -16,18 +16,23 @@ export default async function(): Promise<Router> {
   router.get('/quests', async (req: Request, res: Response) => {
     res.render('pages/quests', {
       styles: ['app.dialogue'],
+      bodyClass: ['page--quests'],
+      tab: 'dialogue',
     });
   });
 
   router.get('/quests/:id', async (req: Request, res: Response) => {
     res.render('pages/quests', {
       styles: ['app.dialogue'],
+      bodyClass: ['page--quests'],
+      tab: 'dialogue',
     });
   });
 
   router.get('/OL', async (req: Request, res: Response) => {
     res.render('pages/olgen', {
-      styles: []
+      styles: [],
+      bodyClass: ['page--OL'],
     });
   });
 

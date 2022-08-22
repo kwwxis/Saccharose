@@ -13,6 +13,7 @@ import csrf from 'csurf';
 import exitHook from 'async-exit-hook';
 import { openKnex } from '@db';
 import serveIndex from 'serve-index';
+import morgan from 'morgan';
 
 import sessions from '@/middleware/sessions';
 import baseRouter from '@/controllers/BaseRouter';
@@ -47,6 +48,12 @@ export default {
 
     // These middleware functions parse the incoming request:
     console.log(`(3/${STEPS_TO_LOAD}) Adding middleware for incoming requests`);
+    app.use(morgan('dev', {
+      skip: function(req: Request, res: Response) {
+        return res.statusCode === 304 || req.url.endsWith('.css') || req.url.endsWith('.js')
+          || req.url.endsWith('.png') || req.url.endsWith('.svg') || req.url.endsWith('.ico');
+      }
+    }));
     app.use(cookieParser()); // parses cookies
     app.use(useragent.express()); // parses user-agent header
     app.use(express.urlencoded({extended: true})); // parses url-encoded POST/PUT bodies

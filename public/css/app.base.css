@@ -965,63 +965,8 @@ body.nightmode {
   align-items: center;
 }
 
-/* #endregion */
-
-/* #region Discord user display */
-.user {
-  font-size: 15px;
-  line-height: 1em;
-  color: hsla(223, 67%, 18%, 0.7);
-}
-.user .user-tag {
-  display: flex;
-}
-.user .user-id {
-  font-size: 0.7em;
-  color: hsla(223, 67%, 18%, 0.5);
-}
-
-body.nightmode .user {
-  font-weight: 600;
-}
-
-.user-avatar {
-  border: 1px solid #eaeffb;
-  height: 34px;
-  width: 34px;
-  border-radius: 50%;
+#header .toggle-theme-buttons {
   margin-right: 10px;
-  opacity: 0.8;
-}
-.user-avatar.lazy {
-  visibility: hidden;
-}
-
-.nav-user {
-  display: flex;
-  align-items: center;
-}
-.nav-user .prefs-link {
-  height: 28px;
-  width: 28px;
-  box-sizing: border-box;
-  background: #eaeffb;
-  border-radius: 3px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-left: 10px;
-  margin-right: -5px;
-}
-.nav-user .prefs-link .icon {
-  stroke-width: 1;
-  height: 20px;
-  width: 20px;
-}
-
-body.nightmode .nav-user .prefs-link {
-  background: hsla(222, 50%, 85%, 1);
-  color: hsl(220, 61%, 35%);
 }
 /* #endregion */
 

@@ -4,3 +4,6 @@
     <span><%= searchResults[id] %></span>
   </a>
 <% } %>
+<% if (!searchResults || !Object.keys(searchResults).length) { %>
+  <p>No results found.</p>
+<% } %>

@@ -7,8 +7,8 @@
       <section class="card">
         <h2>Tools</h2>
         <div class="content">
-          <a class="secondary dispBlock spacer3 textAlignLeft" role="button" href="/quests">Quest Dialogue Generator</a>
-          <a class="secondary dispBlock spacer3 textAlignLeft" role="button" href="/OL">Other Languages Generator</a>
+          <a class="secondary dispBlock spacer3 textAlignLeft <%= req.context.bodyClass.includes('page--quests') ? 'selected' : '' %>" role="button" href="/quests">Quest Dialogue Generator</a>
+          <a class="secondary dispBlock spacer3 textAlignLeft <%= req.context.bodyClass.includes('page--OL') ? 'selected' : '' %>" role="button" href="/OL">Other Languages Generator</a>
         </p>
       </section>
     </aside>

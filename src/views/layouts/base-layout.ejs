@@ -46,19 +46,29 @@
     <% req.context.scripts.forEach(scriptSrc => { %>
       <%- compileResourceElement(scriptSrc, 'js') %>
     <% }); %>
+    <template id="template-info-icon">
+      <%- icon('info') %>
+    </template>
+    <template id="template-alert-icon">
+      <%- icon('alert-triangle') %>
+    </template>
   </head>
-  <body class="<%= req.context.bodyClassString %>">
+  <body class="<%= req.context.bodyClassString %> <%= req.cookies['nightmode'] ? 'nightmode' : '' %>">
     <span id="top" style="height:0;width:0;opacity:0"></span>
     <header id="header" class="thin-border" role="navigation" aria-label="Main">
       <div class="left">
         <a id="site-title" href="/" aria-label="Site title">
           <div id="site-logo-bg"></div>
           <div id="site-logo-fg"><%- icon('home') %></div>
-          <span><%= config.views.siteTitle %></span>
+          <span style="line-height:21px;margin-top:-3px">
+            <small style="opacity:0.65">kwwxis's</small><br><%= config.views.siteTitle %>
+          </span>
         </a>
       </div>
       <div class="right">
-        <div class="nav-user">
+        <div class="toggle-theme-buttons valign button-group">
+          <button class="secondary <%= req.cookies['nightmode'] ? '' : 'selected' %>" value="daymode"><%- icon('sun') %></button>
+          <button class="secondary <%= req.cookies['nightmode'] ? 'selected' : '' %>" value="nightmode"><%- icon('moon') %></button>
         </div>
       </div>
     </header>

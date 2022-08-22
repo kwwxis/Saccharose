@@ -191,12 +191,12 @@ body.nightmode .card {
   border-bottom: 0;
 }
 
-.card .content ul {
+.card .content ul, ul.padding {
   padding-left: 25px;
   font-size: 16px;
   line-height: 24px;
 }
-.card .content ul li {
+.card .content ul li, ul.padding li {
   margin-bottom: 5px;
 }
 
@@ -307,39 +307,6 @@ table.secondary tr:nth-child(odd) td {
   -ms-user-select: none;
   user-select: none;
   cursor: pointer;
-}
-
-/*------------------------------------------------------------------------------------------------*/
-
-@media (max-width: 1024px) {
-  #header .left {
-    display: block;
-  }
-  #site-title span {
-    display: none;
-  }
-  .quick-switcher {
-    margin-left: 90px;
-  }
-}
-@media (max-width: 850px) {
-  #header .left {
-    display: block;
-    height: 52px;
-    border-top: 1px solid #eaeffb;
-  }
-  #header .right {
-    display: flex;
-    align-items: center;
-    height: 52px;
-    margin-left: 90px;
-  }
-  #header {
-    height: 104px;
-    flex-direction: column-reverse;
-    align-items: stretch;
-    justify-content: stretch;
-  }
 }
 
 /*------------------------------------------------------------------------------------------------*/

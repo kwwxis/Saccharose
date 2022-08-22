@@ -308,7 +308,7 @@ const app = {
     <div class="buttons spacer-top">
       <button class="primary dismiss-btn">Dismiss</button>
     </div>`, app.DIALOG_MODAL, {
-      custom_class: 'js-error',
+      dialog_outer_class: 'js-error',
       blocking: true,
       disableDefaultCloseButton: true,
       disableEscToClose: true,
@@ -489,6 +489,21 @@ const app = {
               setTimeout(() => focusableEl.focus(), 0);
             }
           }
+
+          if (uiTrigger.hasAttribute('ui-set-query-param')) {
+            let kvPair = uiTrigger.getAttribute('ui-set-query-param').split('=');
+            app.setQueryStringParameter(kvPair[0], kvPair.slice(1).join('='));
+          }
+
+          if (uiTrigger.hasAttribute('ui-set-path')) {
+            let path = uiTrigger.getAttribute('ui-set-path');
+            window.history.pushState({}, null, path);
+          }
+
+          if (uiTrigger.hasAttribute('ui-replace-path')) {
+            let path = uiTrigger.getAttribute('ui-replace-path');
+            window.history.replaceState({}, null, path);
+          }
         }
 
         document.querySelectorAll('.ui-dropdown').forEach(dropdownEl => {
@@ -508,6 +523,26 @@ const app = {
         });
       },
     },
+    {
+      el: '.toggle-theme-buttons button',
+      ev: 'click',
+      multiple: true,
+      fn: function(event, target) {
+        let value = target.value;
+        console.log('Toggle theme button clicked with value:', value);
+
+        document.querySelectorAll('.toggle-theme-buttons button').forEach(el => el.classList.remove('selected'));
+        target.classList.add('selected');
+
+        if (value === 'daymode') {
+          document.body.classList.remove('nightmode');
+          Cookies.remove('nightmode');
+        } else if (value === 'nightmode') {
+          document.body.classList.add('nightmode');
+          Cookies.set('nightmode', '1', { expires: 365 });
+        }
+      }
+    }
   ],
   startListeners(listeners, rel = undefined) {
     if (!rel) rel = document;
@@ -868,9 +903,13 @@ const app = {
         }
       } else if (dialog_type == app.DIALOG_ERROR || dialog_type == app.DIALOG_TOAST) {
         type_name = 'toast';
-        let iconClass = opts.icon ||
-          (dialog_type == app.DIALOG_ERROR ? 'zmdi zmdi-alert-triangle' : 'zmdi zmdi-info');
-        inner = `<i class="icon ${iconClass}"></i>
+        let iconHTML = '';
+        if (dialog_type === app.DIALOG_ERROR) {
+          iconHTML = document.getElementById('template-alert-icon').innerHTML;
+        } else {
+          iconHTML = document.getElementById('template-info-icon').innerHTML;
+        }
+        inner = `${iconHTML}
             <div id="appDialogDesc" class="AppDialog_Content"></div>`;
         if (!opts.disableDefaultCloseButton) {
           inner += `<button class="close small AppDialog_CloseTrigger" aria-label="Close dialog"
@@ -881,9 +920,9 @@ const app = {
       const id = 'dialog-' + Date.now();
 
       document.body.insertAdjacentHTML('beforeend',
-        `<div id="${id}" class="AppDialogOuter ${opts.custom_class || ''} ${opts.blocking ? 'AppDialogBlocking' : ''}"
+        `<div id="${id}" class="AppDialogOuter ${opts.dialog_outer_class || ''} ${opts.blocking ? 'AppDialogBlocking' : ''}"
             data-type="${type_name}" role="dialog" aria-describedby="appDialogDesc">
-          <div class="AppDialog" data-type="${type_name}">
+          <div class="AppDialog" data-type="${type_name}" ${opts.dialog_class ? 'class="'+esc(opts.dialog_class)+'"' : ''} ${opts.dialog_style ? 'style="'+esc(opts.dialog_style)+'"' : ''}>
             <div class="AppDialog_Inner">${inner}</div>
           </div>
         </div>`

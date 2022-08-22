@@ -12,12 +12,15 @@ import config from '@/config';
 
 export class DialogueSectionResult {
   title: string = null;
+  helptext: string = null;
   metatext: string = null;
   wikitext: string = null;
+  wikitextArray: string[] = [];
   children: DialogueSectionResult[] = [];
 
-  constructor(title: string) {
+  constructor(title: string, helptext: string = null) {
     this.title = title;
+    this.helptext = helptext;
   }
 }
 
@@ -31,7 +34,7 @@ export class QuestGenerateResult {
   } = {names: [], data: {}};
 
   templateWikitext: string = null;
-  questDescriptionWikitext: string = null;
+  questDescriptions: string[] = [];
   otherLanguagesWikitext: string = null;
   dialogue: DialogueSectionResult[] = [];
 }
@@ -271,11 +274,17 @@ export async function questGenerate(questNameOrId: string|number, mainQuestIndex
   // Quest Descriptions
   // ------------------
   clearOut();
-  lineProp('{{Quest Description|%s}}', mainQuest.DescText);
+
+  result.questDescriptions.push('{{Quest Description|'+mainQuest.DescText+'}}');
   for (let questSub of mainQuest.QuestExcelConfigDataList) {
-    lineProp('{{Quest Description|update|%s}}', questSub.StepDescText);
+    if (!questSub.StepDescText) {
+      continue;
+    }
+    let desc = '{{Quest Description|update|'+questSub.StepDescText+'}}';
+    if (!result.questDescriptions.includes(desc)) {
+      result.questDescriptions.push(desc);
+    }
   }
-  result.questDescriptionWikitext = out;
 
   // Other Languages
   // ---------------
@@ -286,6 +295,10 @@ export async function questGenerate(questNameOrId: string|number, mainQuestIndex
   // Quest Dialogue
   // --------------
   clearOut();
+
+  const orphanedHelpText = `"Orphaned" means that the script didn't find anything conclusive in the JSON associating this dialogue to the quest. The tool assumes it's associated based on the dialogue IDs.`;
+  const questMessageHelpText = `These are usually black-screen transition lines. There isn't any info in the JSON to show where these lines go chronologically within the section, so you'll have to figure that out.`;
+
   for (let questSub of mainQuest.QuestExcelConfigDataList) {
     let sect = new DialogueSectionResult('Section');
 
@@ -301,7 +314,7 @@ export async function questGenerate(questNameOrId: string|number, mainQuestIndex
 
     if (questSub.OrphanedDialog && questSub.OrphanedDialog.length) {
       for (let dialog of questSub.OrphanedDialog) {
-        let subsect = new DialogueSectionResult('Orphaned Dialogue');
+        let subsect = new DialogueSectionResult('Orphaned Dialogue', orphanedHelpText);
         clearOut();
         line('{{Dialogue start}}');
         out += await ctrl.generateDialogueWikiText(dialog);
@@ -335,12 +348,11 @@ export async function questGenerate(questNameOrId: string|number, mainQuestIndex
     }
 
     if (questSub.QuestMessages && questSub.QuestMessages.length) {
-      let subsect = new DialogueSectionResult('Section Quest Messages');
+      let subsect = new DialogueSectionResult('Section Quest Messages', questMessageHelpText);
       clearOut();
       for (let questMessage of questSub.QuestMessages) {
-        line(questMessage.TextMapContentText);
+        subsect.wikitextArray.push(questMessage.TextMapContentText.replace(/\\n/g, '\n').split('\n').map(line => `:'''${line}'''`).join('\n'));
       }
-      subsect.wikitext = out;
       sect.children.push(subsect);
     }
 
@@ -349,7 +361,7 @@ export async function questGenerate(questNameOrId: string|number, mainQuestIndex
 
   if (mainQuest.OrphanedDialog && mainQuest.OrphanedDialog.length) {
     for (let dialog of mainQuest.OrphanedDialog) {
-      let sect = new DialogueSectionResult('Orphaned Dialogue');
+      let sect = new DialogueSectionResult('Orphaned Dialogue', orphanedHelpText);
       clearOut();
       line('{{Dialogue start}}');
       out += await ctrl.generateDialogueWikiText(dialog);
@@ -362,7 +374,7 @@ export async function questGenerate(questNameOrId: string|number, mainQuestIndex
   if (mainQuest.OrphanedTalkExcelConfigDataList && mainQuest.OrphanedTalkExcelConfigDataList.length
       && mainQuest.OrphanedTalkExcelConfigDataList.every(x => x.Dialog && x.Dialog.length)) {
     for (let talkConfig of mainQuest.OrphanedTalkExcelConfigDataList) {
-      let sect = new DialogueSectionResult('Orphaned Talk Dialogue');
+      let sect = new DialogueSectionResult('Orphaned Talk Dialogue', orphanedHelpText);
       clearOut();
       lineProp('TalkConfigId', talkConfig.Id);
       lineProp('BeginWay', talkConfig.BeginWay);
@@ -382,12 +394,11 @@ export async function questGenerate(questNameOrId: string|number, mainQuestIndex
     }
   }
   if (mainQuest.QuestMessages && mainQuest.QuestMessages.length) {
-    let sect = new DialogueSectionResult('Quest Messages');
+    let sect = new DialogueSectionResult('Quest Messages', questMessageHelpText);
     clearOut();
     for (let questMessage of mainQuest.QuestMessages) {
-      line(questMessage.TextMapContentText);
+      sect.wikitextArray.push(questMessage.TextMapContentText.replace(/\\n/g, '\n').split('\n').map(line => `:'''${line}'''`).join('\n'));
     }
-    sect.wikitext = out;
     result.dialogue.push(sect);
   }
 

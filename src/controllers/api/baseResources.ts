@@ -6,6 +6,7 @@ import { getControl } from '@/scripts/script_util';
 import { questGenerate, QuestGenerateResult } from '@/scripts/dialogue/quest_generator';
 import { ol_gen } from '@/scripts/OLgen/OLgen';
 import { toBoolean, toInt } from '@functions';
+import { getTextMapMatches } from '@/scripts/textMapFinder/text_map_finder';
 
 router.restful('/ping', {
   get: async (req: Request, res: Response) => {
@@ -28,9 +29,14 @@ router.restful('/quests/findMainQuest', {
 
     const ctrl = getControl();
 
-    const mainQuests: MainQuestExcelConfigData[] = typeof questNameOrId === 'string'
-      ? await ctrl.selectMainQuestsByName(questNameOrId.trim())
-      : [await ctrl.selectMainQuestById(questNameOrId)];
+    let mainQuests: MainQuestExcelConfigData[] = [];
+
+    if (typeof questNameOrId === 'string') {
+      let matches = await getTextMapMatches(questNameOrId);
+      mainQuests = await ctrl.selectMainQuestsByName(Object.keys(matches).map(i => parseInt(i)));
+    } else {
+      mainQuests = [await ctrl.selectMainQuestById(questNameOrId)];
+    }
 
     let result: {[id: number]: string} = {};
     for (let mainQuest of mainQuests) {
@@ -65,7 +71,7 @@ router.restful('/quests/generate', {
       locals.questId = result.questId;
       locals.npc = result.npc;
       locals.templateWikitext = result.templateWikitext;
-      locals.questDescriptionWikitext = result.questDescriptionWikitext;
+      locals.questDescriptions = result.questDescriptions;
       locals.otherLanguagesWikitext = result.otherLanguagesWikitext;
       locals.dialogue = result.dialogue;
 

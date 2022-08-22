@@ -33,7 +33,7 @@ export async function dialogueGenerate(firstDialogueId: number|number[]|string):
 
 if (require.main === module) {
   (async () => {
-    await dialogueGenerate(`At the festival, I waited in the marketplace while Her Excellency...`);
+    console.log(await dialogueGenerate(`Uh, why are you two fighting?`));
     closeKnex();
   })();
 }

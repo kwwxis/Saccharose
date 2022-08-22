@@ -209,8 +209,8 @@ button.primary .icon,
   width: 1.1em;
   margin-right: 0.4em;
 }
-button.primary .icon:first-child,
-[role='button'].primary .icon:first-child {
+button.primary .icon:first-child:not(:last-child),
+[role='button'].primary .icon:first-child:not(:last-child) {
   margin-right: 0.45em;
   margin-left: -0.15em;
 }
@@ -239,11 +239,6 @@ button.secondary:not([disabled]):hover,
   color: hsla(223, 67%, 18%, 0.8);
 }
 
-button.secondary .icon,
-[role='button'].secondary .icon {
-  margin-right: 5px;
-}
-
 button.secondary:not([disabled]):focus,
 [role='button'].secondary:not([disabled]):focus {
   box-shadow: 0 0 0 2px rgba(0, 140, 221, 0.2);
@@ -269,12 +264,16 @@ button.secondary .icon,
 [role='button'].secondary .icon {
   height: 1.1em;
   width: 1.1em;
-  margin-right: 0.4em;
 }
-button.secondary .icon:first-child,
-[role='button'].secondary .icon:first-child {
+button.secondary .icon:first-child:not(:last-child),
+[role='button'].secondary .icon:first-child:not(:last-child) {
   margin-right: 0.45em;
   margin-left: -0.15em;
+}
+
+button.secondary.selected,
+[role=button].secondary.selected {
+  background: hsl(222deg 45% 88%);
 }
 
 /* Other Buttons
@@ -328,4 +327,19 @@ button.discord-button,
 button.discord-button:hover,
 [role='button'].discord-button:hover {
   background-color: hsla(227, 58%, 60%);
+}
+
+.button-group > :not(:first-child) {
+  border-left: 0 !important;
+}
+.button-group > :first-child {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+.button-group > :last-child {
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+}
+.button-group > *:not(:first-child):not(:last-child) {
+  border-radius: 0 !important;
 }

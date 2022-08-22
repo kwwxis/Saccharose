@@ -67,7 +67,7 @@ export async function grep(searchText: string, file: string, extraFlags?: string
     searchText = searchText.replace(/"/g, '\\"'); // escape double quote
     const cmd = `grep -i ${extraFlags || ''} "${searchText}" ${getGenshinDataFilePath(file)}`;
     const { stdout, stderr } = await execPromise(cmd, {
-      env: { PATH: process.env.SHELL_BIN },
+      env: { PATH: process.env.SHELL_PATH },
       shell: process.env.SHELL_EXEC
     });
     let lines = stdout.split(/\n/).map(s => s.trim()).filter(x => !!x);
@@ -312,16 +312,30 @@ export function getControl(knex?: Knex, pref?: OverridePrefs) {
     return cachedList.concat(uncachedList);
   }
 
-  async function selectMainQuestByName(name: string): Promise<MainQuestExcelConfigData> {
-    const textMapItems: TextMapItem[] = await knex.select('*').from('TextMap').where({Text: name}).then();
-    return await knex.select('*').from('MainQuestExcelConfigData').whereIn('TitleTextMapHash', textMapItems.map(x => x.Id))
+  async function selectMainQuestByName(name: string|number[]): Promise<MainQuestExcelConfigData> {
+    let textMapIds = [];
+    if (typeof name === 'string') {
+      const textMapItems: TextMapItem[] = await knex.select('*').from('TextMap').where({Text: name}).limit(25).then();
+      textMapIds = textMapItems.map(x => x.Id);
+    } else {
+      textMapIds = name;
+    }
+
+    return await knex.select('*').from('MainQuestExcelConfigData').whereIn('TitleTextMapHash', textMapIds)
       .first().then(commonLoadFirst);
   }
 
-  async function selectMainQuestsByName(name: string): Promise<MainQuestExcelConfigData[]> {
-    const textMapItems: TextMapItem[] = await knex.select('*').from('TextMap').where({Text: name}).then();
-    return await knex.select('*').from('MainQuestExcelConfigData').whereIn('TitleTextMapHash', textMapItems.map(x => x.Id))
-      .then(commonLoad);
+  async function selectMainQuestsByName(name: string|number[], limit: number = 25): Promise<MainQuestExcelConfigData[]> {
+    let textMapIds = [];
+    if (typeof name === 'string') {
+      const textMapItems: TextMapItem[] = await knex.select('*').from('TextMap').where({Text: name}).limit(limit).then();
+      textMapIds = textMapItems.map(x => x.Id);
+    } else {
+      textMapIds = name;
+    }
+
+    return await knex.select('*').from('MainQuestExcelConfigData').whereIn('TitleTextMapHash', textMapIds)
+      .limit(limit).then(commonLoad);
   }
 
   async function selectMainQuestById(id: number): Promise<MainQuestExcelConfigData> {

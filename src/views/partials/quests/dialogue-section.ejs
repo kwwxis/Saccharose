@@ -1,14 +1,23 @@
 <div class="dialogue-section">
-  <h4 class="dialogue-section-title"><%= title %></h4>
+  <h4 class="dialogue-section-title valign"><%= title %>
+    <% if (locals.helptext) { %>
+      <span ui-tippy-hover="<%= locals.helptext %>" class="dispInlineBlock spacer5-left" style="height:18px;width:18px;"><%- icon('info',{width: 18, height:18}) %></span>
+    <% } %>
+  </h4>
   <% if (locals.metatext) { %>
     <p class="dialogue-section-meta">
       <% metatext.split('\n').map(x => x.trim()).filter(x => !!x).forEach(part => { %>
-       <span><%= part %></span>
+       <code class="item"><%= part %></code>
       <% }) %>
     </p>
   <% } %>
   <% if (locals.wikitext) { %>
     <textarea class="dialogue-section-wikitext w100p" style="resize:vertical;min-height:50px;"><%= wikitext %></textarea>
+  <% } %>
+  <% if (locals.wikitextArray) { %>
+    <% wikitextArray.forEach(item => { %>
+      <textarea class="dialogue-section-wikitext w100p" style="resize:vertical;min-height:40px;"><%= item %></textarea>
+    <% }) %>
   <% } %>
   <div class="dialogue-section-children">
     <% children.forEach(section => { %>

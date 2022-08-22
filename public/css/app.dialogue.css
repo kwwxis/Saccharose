@@ -7,7 +7,11 @@
   padding: 5px 15px;
 }
 
-.dialogue-section-meta span + span:before {
+.dialogue-section-meta, .card p.dialogue-section-meta {
+  font-size: 13px;
+  line-height: 15px;
+}
+.dialogue-section-meta .item + .item:before {
   content: '; ';
 }
 

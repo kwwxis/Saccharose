@@ -1,21 +1,38 @@
-<section class="card">
-  <h2>Find Quest</h2>
-  <div class="content">
-    <p class="spacer10-bottom">Quest name must be an exact match, case sensitive. Leading/trailing spaces will be trimmed.</p>
-    <div class="field valign">
-      <div class="valign grow" style="max-width:500px">
-        <input class="quest-search-input grow" type="text" placeholder="Enter quest name" />
-        <button class="quest-search-submit primary primary--2 spacer5-left">Search</button>
+<!--
+<div class="tab-list" role="tablist">
+  <button role="tab" id="dialogueTab" class="tab-button <%= tab === 'dialogue' ? 'active' : '' %>"
+    ui-trigger="tab:dialogue" ui-set-query-param="tab=dialogue">Dialogue</button>
+
+    <button role="tab" id="reverseTab" class="tab-button <%= tab === 'reverse' ? 'active' : '' %>"
+      ui-trigger="tab:reverse" ui-set-query-param="tab=reverse">Reverse Find</button>
+</div>
+-->
+<div role="tabpanel" aria-labelledby="dialogueTab" class="tab <%= tab === 'dialogue' ? 'active' : 'hide' %>" ui-target="tab:dialogue">
+  <section class="card">
+    <h2>Find Quest</h2>
+    <div class="content">
+      <p class="spacer10-bottom">Search for a quest by its full name or keywords. You can also enter a specific quest ID.</p>
+      <div class="field valign">
+        <div class="valign grow" style="max-width:500px">
+          <input class="quest-search-input grow" type="text" placeholder="Enter quest name" />
+          <button class="quest-search-submit primary primary--2 spacer5-left">Search</button>
+        </div>
+        <div class="quest-search-submit-pending hide loading small spacer5-left"></div>
       </div>
-      <div class="quest-search-submit-pending hide loading small spacer5-left"></div>
     </div>
-  </div>
-  <div class="content quest-search-result-wrapper hide">
-    <h4>Search Results</h4>
-    <div class="quest-search-result"></div>
-  </div>
-</section>
-<div id="quest-generate-result"></div>
+    <div class="content quest-search-result-wrapper hide">
+      <h4>Search Results</h4>
+      <div class="quest-search-result"></div>
+    </div>
+  </section>
+  <div id="quest-generate-result"></div>
+</div>
+<div role="tabpanel" aria-labelledby="reverseTab" class="tab <%= tab === 'reverse' ? 'active' : 'hide' %>" ui-target="tab:reverse">
+  <section class="card">
+    <h2>Find Quest</h2>
+    <p>Blah</p>
+  </section>
+</div>
 
 <script nonce="<%= req.context.nonce %>">
 waitForConstant('app', app => {
@@ -37,8 +54,41 @@ waitForConstant('app', app => {
     app.endpoints.generateMainQuest(id, true).then(html => {
       document.querySelector('#quest-generate-result').innerHTML = html;
       autosize(document.querySelectorAll('.dialogue-container textarea'));
+      autosize(document.querySelectorAll('textarea.autosize'));
+
+      app.startListeners(questResultListeners, document.querySelector('#quest-generate-result'));
     });
   }
+
+  const questResultListeners = [
+    {
+      el: '.help-info',
+      ev: 'click',
+      multiple: true,
+      fn: function(event, target) {
+        app.dialog.open(`<h2>Notes</h2>
+        <ul class="padding">
+          <li>The order of dialogue sections is not guaranteed to be in the correct chronological order nor are the "Section Order" parameters reliable.
+            The "Quest Step" parameters listed under sections don't always match up either. But the dialogue within a textbox is guaranteed to be in the right order.
+          </li>
+          <li>You may sometimes notice seemingly duplicate dialogue sections. These dialogue sections may have slight differences depending on player's completion of
+            other quests/objectives.
+          </li>
+          <li>You may sometimes notice dialogue sections that start with a dialogue option. These are sometimes for conditional dialogue options.
+            You may have to adjust the dialogue depth (number of <code>:</code>'s at the start of a dialogue line) manually sometimes.
+          </li>
+          <li>The tool cannot distinguish between player dialogue options and Traveler spoken lines. For most quests you don't have to worry about this,
+            but some quests like Archon Quests and Flagship Event Quests may have Traveler spoken lines.
+          </li>
+        </ul>
+        <div class="buttons spacer-top">
+          <button class="primary AppDialog_CloseTrigger">Dismiss</button>
+        </div>`, app.DIALOG_MODAL, {
+          dialog_style: 'max-width:800px;margin-top:90px'
+        });
+      }
+    },
+  ];
 
   const listeners = [
     {
@@ -76,19 +126,21 @@ waitForConstant('app', app => {
         app.endpoints.findMainQuest(text, true).then(result => {
           document.querySelector('.quest-search-result-wrapper').classList.remove('hide');
           document.querySelector('.quest-search-result').innerHTML = result;
-          inputEl.value = '';
 
           app.startListeners([
             {
               el: '.quest-search-result',
               ev: 'click',
               fn: function(event) {
+                if (event.ctrlKey) {
+                  return; // allow default behavior if ctrl-click
+                }
                 event.stopPropagation();
                 event.preventDefault();
                 window.history.pushState({}, null, event.target.href);
                 loadQuestGenerateResult();
               }
-            }
+            },
           ], document.querySelector('.quest-search-result'));
         }).finally(() => {
           loadingEl.classList.add('hide');

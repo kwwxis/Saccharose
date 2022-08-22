@@ -53,7 +53,6 @@ export default {
       layouts: ['layouts/base-layout'],
       styles: [
         'lib.fonts',
-        'https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.2.0/css/material-design-iconic-font.min.css',
         'app.base',
         'app.default',
         'lib.buttons',

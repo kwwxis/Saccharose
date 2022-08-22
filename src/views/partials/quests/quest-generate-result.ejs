@@ -1,8 +1,13 @@
 <section class="card">
-  <h2><strong><%= questId %>:</strong>&nbsp;<%= questTitle %></h2>
+  <h2>
+    <strong><%= questId %>:</strong>&nbsp;<%= questTitle %>
+    <a class="help-info fr fontWeight600" style="font-size:15px;cursor:pointer;">Help</a>
+  </h2>
   <div class="content">
     <h4>Quest Descriptions</h4>
-    <textarea class="w100p" style="resize:vertical;min-height:100px;"><%= questDescriptionWikitext %></textarea>
+    <% questDescriptions.forEach(questDescription => { %>
+      <textarea class="w100p autosize" style="resize:vertical;min-height:40px;"><%= questDescription %></textarea>
+    <% }) %>
   </div>
   <div class="content">
     <h4>Other Languages</h4>
