@@ -50,8 +50,8 @@ export default {
     console.log(`(3/${STEPS_TO_LOAD}) Adding middleware for incoming requests`);
     app.use(morgan('dev', {
       skip: function(req: Request, res: Response) {
-        return res.statusCode === 304 || req.url.endsWith('.css') || req.url.endsWith('.js')
-          || req.url.endsWith('.png') || req.url.endsWith('.svg') || req.url.endsWith('.ico');
+        return res.statusCode === 304 || req.url.includes('.css') || req.url.includes('.js')
+          || req.url.includes('.png') || req.url.includes('.svg') || req.url.includes('.ico');
       }
     }));
     app.use(cookieParser()); // parses cookies
