@@ -12,7 +12,7 @@ export default {
     HTTP_PORT: 6000,
     HTTPS_PORT: 6001,
   },
-  currentGenshinVersion: '2.8',
+  currentGenshinVersion: '3.0',
   database: {
     filename: './genshin_data.db',
     genshin_data: './git/GenshinData/',

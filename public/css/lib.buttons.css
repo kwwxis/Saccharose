@@ -5,7 +5,8 @@ button.secondary,
 button.tertiary,
 [role='button'].primary,
 [role='button'].secondary,
-[role='button'].tertiary {
+[role='button'].tertiary,
+.secondary-label {
   outline: 0 !important;
   text-decoration: none;
 }
@@ -219,7 +220,8 @@ button.primary .icon:first-child:not(:last-child),
 ------------------------------------------------------------------------------------------------- */
 
 button.secondary,
-[role='button'].secondary {
+[role='button'].secondary,
+.secondary-label {
   display: inline-flex;
   align-items: center;
   height: 30px;

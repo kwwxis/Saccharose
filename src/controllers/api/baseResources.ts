@@ -7,6 +7,7 @@ import { questGenerate, QuestGenerateResult } from '@/scripts/dialogue/quest_gen
 import { ol_gen } from '@/scripts/OLgen/OLgen';
 import { toBoolean, toInt } from '@functions';
 import { getTextMapMatches } from '@/scripts/textMapFinder/text_map_finder';
+import { dialogueGenerate } from '@/scripts/dialogue/basic_dialogue_generator';
 
 router.restful('/ping', {
   get: async (req: Request, res: Response) => {
@@ -86,6 +87,20 @@ router.restful('/OL/generate', {
   get: async (req: Request, res: Response) => {
     let result: string = await ol_gen(<string> req.query.text, toBoolean(req.query.hideTl));
     return result;
+  }
+});
+
+router.restful('/dialogue/single-branch-generate', {
+  get: async (req: Request, res: Response) => {
+    let result: {[id: number]: string} = await dialogueGenerate(<string> req.query.text);
+
+    if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
+      return res.render('partials/dialogue/single-branch-dialogue-generate-result', {
+        result: result,
+      });
+    } else {
+      return result;
+    }
   }
 });
 

@@ -29,6 +29,13 @@ export default async function(): Promise<Router> {
     });
   });
 
+  router.get('/branch-dialogue', async (req: Request, res: Response) => {
+    res.render('pages/branch-dialogue', {
+      styles: ['app.dialogue'],
+      bodyClass: ['page--branch-dialogue'],
+    });
+  });
+
   router.get('/OL', async (req: Request, res: Response) => {
     res.render('pages/olgen', {
       styles: [],

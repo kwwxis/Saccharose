@@ -70,6 +70,7 @@
           <button class="secondary <%= req.cookies['nightmode'] ? '' : 'selected' %>" value="daymode"><%- icon('sun') %></button>
           <button class="secondary <%= req.cookies['nightmode'] ? 'selected' : '' %>" value="nightmode"><%- icon('moon') %></button>
         </div>
+        <span class="secondary-label disabled spacer10-right" style="cursor:default;"><%= req.context.currentGenshinVersion %></span>
       </div>
     </header>
     <div>

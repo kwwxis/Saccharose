@@ -648,6 +648,18 @@ const app = {
         .then(response => response.data)
         .catch(this.general_error_handler);
     },
+    generateSingleDialogueBranch(text, asHTML = false) {
+      return axios
+        .get(`${this.base_uri}/dialogue/single-branch-generate`, {
+          params: {text: text},
+          headers: {
+            'Accept': asHTML ? 'text/html' : 'application/json',
+            'Content-Type': asHTML ? 'text/html' : 'application/json',
+          }
+        })
+        .then(response => response.data)
+        .catch(this.general_error_handler);
+    },
   },
   widgets: {
     multi_input(element, opts = {}) {

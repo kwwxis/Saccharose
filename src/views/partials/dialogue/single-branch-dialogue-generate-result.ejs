@@ -1,0 +1,8 @@
+<% Object.keys(result).forEach(matchId => { %>
+  <section class="card">
+    <h2>Match ID: <strong><%= matchId %></strong></h2>
+    <div class="content">
+      <textarea class="w100p autosize" style="resize:vertical;min-height:50px;"><%= result[matchId] %></textarea>
+    </div>
+  </section>
+<% }) %>

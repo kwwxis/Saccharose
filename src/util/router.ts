@@ -49,6 +49,10 @@ class RequestContext {
   get bodyClassString() {
     return this.bodyClass ? this.bodyClass.join(' ') : '';
   }
+
+  get currentGenshinVersion() {
+    return config.currentGenshinVersion;
+  }
 };
 
 export type StringSupplier = string|((req: Request) => Promise<string>);
