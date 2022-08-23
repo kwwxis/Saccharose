@@ -11,7 +11,7 @@ export interface ConfigCondition {
 
 export interface TalkRole {
   Type: 'TALK_ROLE_NPC' | 'TALK_ROLE_PLAYER' | 'TALK_ROLE_BLACK_SCREEN',
-  Id: number,
+  Id: number|string,
   NameTextMapHash?: number,
   NameText?: string,
 }

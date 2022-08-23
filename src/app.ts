@@ -51,7 +51,7 @@ export default {
     app.use(morgan('dev', {
       skip: function(req: Request, res: Response) {
         return res.statusCode === 304 || req.url.includes('.css') || req.url.includes('.js')
-          || req.url.includes('.png') || req.url.includes('.svg') || req.url.includes('.ico');
+          || req.url.includes('.png') || req.url.includes('.svg') || req.url.includes('.ico') || req.url.includes('.woff');
       }
     }));
     app.use(cookieParser()); // parses cookies

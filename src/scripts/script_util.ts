@@ -273,13 +273,22 @@ export function getControl(knex?: Knex, pref?: OverridePrefs) {
       }
       if (prop == 'TalkRole') {
         let TalkRole = (<any> object[prop]) as TalkRole;
-        let TalkRoleId = TalkRole.Id;
-        if (typeof TalkRoleId === 'string')
-          TalkRole.Id = parseInt(TalkRoleId);
+        let TalkRoleId: number = null;
+
+        if (typeof TalkRole.Id === 'string') {
+          TalkRoleId = parseInt(TalkRole.Id);
+          if (isNaN(TalkRoleId)) {
+            TalkRole.NameText = TalkRole.Id as string;
+          }
+        } else {
+          TalkRoleId = TalkRole.Id;
+        }
+
         if (TalkRole.Type === 'TALK_ROLE_PLAYER') {
           delete TalkRole.Id;
           continue;
         }
+
         let npc = await getNpc(TalkRoleId);
         if (npc) {
           TalkRole.NameTextMapHash = npc.NameTextMapHash;
@@ -300,6 +309,7 @@ export function getControl(knex?: Knex, pref?: OverridePrefs) {
   const commonLoadFirst = async (record: any) => !record ? record : await postProcess(JSON.parse(record.json_data));
 
   async function getNpc(npcId: number): Promise<NpcExcelConfigData> {
+    if (!npcId) return null;
     return await getNpcList([ npcId ]).then(x => x && x.length ? x[0] : null);
   }
 
@@ -628,7 +638,7 @@ export function getControl(knex?: Knex, pref?: OverridePrefs) {
       }
 
       if (dialog.recurse) {
-        out += '\n(recursive)';
+        //out += '\n(recursive)';
       }
 
       if (dialog.Branches && dialog.Branches.length) {
