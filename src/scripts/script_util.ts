@@ -455,7 +455,7 @@ export function getControl(knex?: Knex, pref?: OverridePrefs) {
 
   async function getDialogFromTextContentId(textMapId: number): Promise<DialogExcelConfigData> {
     let result: DialogExcelConfigData = await knex.select('*').from('DialogExcelConfigData').where({TalkContentTextMapHash: textMapId}).first().then(commonLoadFirst);
-    pref.dialogCache [result.Id] = result;
+    pref.dialogCache[result.Id] = result;
     return result;
   }
 
@@ -563,10 +563,16 @@ export function getControl(knex?: Knex, pref?: OverridePrefs) {
     return false;
   }
 
-  async function generateDialogueWikiText(dialogLines: DialogExcelConfigData[], dialogDepth = 1, originatorDialog: DialogExcelConfigData = null, originatorIsFirstOfBranch: boolean = false): Promise<string> {
+  async function generateDialogueWikiText(dialogLines: DialogExcelConfigData[], dialogDepth = 1,
+        originatorDialog: DialogExcelConfigData = null, originatorIsFirstOfBranch: boolean = false,
+        firstDialogOfBranchVisited: Set<number> = new Set()): Promise<string> {
     let out = '';
     let numSubsequentNonBranchPlayerDialogOption = 0;
     let previousDialog: DialogExcelConfigData = null;
+
+    if (dialogLines.length) {
+      firstDialogOfBranchVisited.add(dialogLines[0].Id);
+    }
 
     for (let i = 0; i < dialogLines.length; i++) {
       let dialog = dialogLines[i];
@@ -638,12 +644,31 @@ export function getControl(knex?: Knex, pref?: OverridePrefs) {
       }
 
       if (dialog.recurse) {
-        //out += '\n(recursive)';
+        if (dialog.TalkRole.Type === 'TALK_ROLE_PLAYER') {
+          out += `\n${diconPrefix};(Return to option selection)`;
+        } else {
+          out += `\n${diconPrefix.slice(0,-1)};(Return to option selection)`;
+        }
       }
 
       if (dialog.Branches && dialog.Branches.length) {
+        let temp = new Set<number>(firstDialogOfBranchVisited);
         for (let dialogBranch of dialog.Branches) {
-          out += await generateDialogueWikiText(dialogBranch, dialogDepth + 1, dialog, i === 0);
+          temp.add(dialogBranch[0].Id);
+        }
+
+        let excludedCount = 0;
+        let includedCount = 0;
+        for (let dialogBranch of dialog.Branches) {
+          if (firstDialogOfBranchVisited.has(dialogBranch[0].Id)) {
+            excludedCount++;
+            continue;
+          }
+          includedCount++;
+          out += await generateDialogueWikiText(dialogBranch, dialogDepth + 1, dialog, i === 0, temp);
+        }
+        if (includedCount === 0 && excludedCount > 0) {
+          out += `\n${diconPrefix};(Return to option selection)`;
         }
       }
 

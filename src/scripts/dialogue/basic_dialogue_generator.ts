@@ -21,11 +21,11 @@ export async function dialogueGenerate(firstDialogueId: number|number[]|string):
 
   if (typeof firstDialogueId === 'number') {
     const dialogue = await ctrl.selectDialogBranch(await ctrl.selectSingleDialogExcelConfigData(firstDialogueId));
-    result[firstDialogueId] = await ctrl.generateDialogueWikiText(dialogue);
+    result[firstDialogueId] = '{{Dialogue start}}\n'+(await ctrl.generateDialogueWikiText(dialogue)).trim()+'\n{{Dialogue end}}';
   } else {
     for (let id of firstDialogueId) {
       const dialogue = await ctrl.selectDialogBranch(await ctrl.selectSingleDialogExcelConfigData(id));
-      result[id] = await ctrl.generateDialogueWikiText(dialogue);
+      result[id] = '{{Dialogue start}}\n'+(await ctrl.generateDialogueWikiText(dialogue)).trim()+'\n{{Dialogue end}}';
     }
   }
   return result;

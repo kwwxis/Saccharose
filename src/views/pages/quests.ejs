@@ -52,7 +52,11 @@ waitForConstant('app', app => {
 
     let id = urlParts[1];
     app.endpoints.generateMainQuest(id, true).then(html => {
-      document.querySelector('#quest-generate-result').innerHTML = html;
+      if (typeof html === 'string') {
+        document.querySelector('#quest-generate-result').innerHTML = html;
+      } else if (typeof html === 'object' && html.error_description) {
+        document.querySelector('#quest-generate-result').innerHTML = '<p>'+esc(html.error_description)+'</p>';
+      }
       autosize(document.querySelectorAll('.dialogue-container textarea'));
       autosize(document.querySelectorAll('textarea.autosize'));
 
