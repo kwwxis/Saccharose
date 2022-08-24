@@ -48,6 +48,7 @@ export interface TalkExcelConfigData {
   BeginCond: ConfigCondition[],
   Priority: number,
   NextTalks: number[],
+  NextTalksDataList: TalkExcelConfigData[],
   InitDialog: number,
   NpcId: number,
   NpcDataList?: NpcExcelConfigData[],
