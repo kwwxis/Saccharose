@@ -2,6 +2,7 @@ import '../../setup';
 import {closeKnex, openKnex} from '@db';
 import { getControl } from '@/scripts/script_util';
 import { getTextMapMatches } from '@/scripts/textMapFinder/text_map_finder';
+import { DialogExcelConfigData, TalkExcelConfigData } from '@types';
 
 export async function dialogueGenerate(firstDialogueId: number|number[]|string): Promise<{[id: number]: string}> {
   const knex = openKnex();
@@ -31,9 +32,48 @@ export async function dialogueGenerate(firstDialogueId: number|number[]|string):
   return result;
 }
 
+export async function talkConfigGenerate(talkConfigId: number): Promise<string> {
+  const knex = openKnex();
+  const ctrl = getControl(knex);
+
+
+  let initTalkConfig = await ctrl.selectTalkExcelConfigDataByQuestSubId(talkConfigId);
+
+  async function handleTalkDialogue(talkConfig: TalkExcelConfigData, originatorDialog?: DialogExcelConfigData) {
+    talkConfig.Dialog = [];
+
+    if (talkConfig.InitDialog) {
+      talkConfig.Dialog = await ctrl.selectDialogBranch(await ctrl.selectSingleDialogExcelConfigData(talkConfig.InitDialog));
+
+      if (originatorDialog) {
+        if (!originatorDialog.Branches) {
+          originatorDialog.Branches = [];
+        }
+        originatorDialog.Branches.push(talkConfig.Dialog);
+      }
+    }
+
+    let nextOriginatorDialog = talkConfig.Dialog[talkConfig.Dialog.length - 1];
+
+    if (talkConfig.NextTalks) {
+      for (let nextTalkConfigId of talkConfig.NextTalks) {
+        let nextTalkConfig = await ctrl.selectTalkExcelConfigDataByQuestSubId(nextTalkConfigId);
+        await handleTalkDialogue(nextTalkConfig, nextOriginatorDialog);
+      }
+    }
+  }
+  await handleTalkDialogue(initTalkConfig);
+
+  let out = '{{Dialogue start}}';
+  out += await ctrl.generateDialogueWikiText(initTalkConfig.Dialog);
+  out += '\n{{Dialogue end}}';
+  return out;
+}
+
 if (require.main === module) {
   (async () => {
-    console.log(await dialogueGenerate(`Uh, why are you two fighting?`));
+    //console.log(await dialogueGenerate(`Uh, why are you two fighting?`));
+    console.log(await talkConfigGenerate(6906901));
     closeKnex();
   })();
 }

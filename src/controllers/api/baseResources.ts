@@ -85,7 +85,10 @@ router.restful('/quests/generate', {
 
 router.restful('/OL/generate', {
   get: async (req: Request, res: Response) => {
-    let result: string = await ol_gen(<string> req.query.text, toBoolean(req.query.hideTl));
+    let result: string = await ol_gen(<string> req.query.text, toBoolean(req.query.hideTl), toBoolean(req.query.addDefaultHidden));
+    if (result.includes('{EN_official_name}')) {
+      return 'Not found: ' + req.query.text;
+    }
     return result;
   }
 });

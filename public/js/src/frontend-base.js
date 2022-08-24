@@ -640,10 +640,10 @@ const app = {
         .then(response => response.data)
         .catch(this.general_error_handler);
     },
-    generateOL(text, hideTl) {
+    generateOL(text, hideTl, addDefaultHidden) {
       return axios
         .get(`${this.base_uri}/OL/generate`, {
-          params: {text: text, hideTl: hideTl ? 'true' : 'false'}
+          params: {text: text, hideTl: hideTl ? 'true' : 'false', addDefaultHidden: addDefaultHidden ? 'true' : 'false'}
         })
         .then(response => response.data)
         .catch(this.general_error_handler);

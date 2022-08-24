@@ -14,6 +14,10 @@
         <input type="checkbox" class="ol-hide-tl-param" />
         <span>Exclude <code>[lang]_tl</code> params</span>
       </label>
+      <label class="ui-checkbox" style="padding-left:5px;font-size:13px;">
+        <input type="checkbox" class="ol-default-hidden-param" />
+        <span>Add <code>default_hidden</code> param</span>
+      </label>
     </div>
   </div>
   <hr>
@@ -46,6 +50,7 @@ waitForConstant('app', app => {
         let inputEl = document.querySelector('.ol-input');
         let loadingEl = document.querySelector('.ol-submit-pending');
         let hideTlEl = document.querySelector('.ol-hide-tl-param');
+        let defaultHiddenEl = document.querySelector('.ol-default-hidden-param');
         let text = inputEl.value.trim();
 
         if (!text) {
@@ -57,7 +62,7 @@ waitForConstant('app', app => {
         inputEl.disabled = true;
         target.disabled = true;
 
-        app.endpoints.generateOL(text, hideTlEl.checked).then(result => {
+        app.endpoints.generateOL(text, hideTlEl.checked, defaultHiddenEl.checked).then(result => {
           document.querySelector('.ol-result').value = result;
           inputEl.value = '';
         }).finally(() => {
