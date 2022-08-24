@@ -351,7 +351,9 @@ export async function questGenerate(questNameOrId: string|number, mainQuestIndex
       let subsect = new DialogueSectionResult('Section Quest Messages', questMessageHelpText);
       clearOut();
       for (let questMessage of questSub.QuestMessages) {
-        subsect.wikitextArray.push(questMessage.TextMapContentText.replace(/\\n/g, '\n').split('\n').map(line => `:'''${line}'''`).join('\n'));
+        if (typeof questMessage.TextMapContentText === 'string') {
+          subsect.wikitextArray.push(questMessage.TextMapContentText.replace(/\\n/g, '\n').split('\n').map(line => `:'''${line}'''`).join('\n'));
+        }
       }
       sect.children.push(subsect);
     }
@@ -397,7 +399,9 @@ export async function questGenerate(questNameOrId: string|number, mainQuestIndex
     let sect = new DialogueSectionResult('Quest Messages', questMessageHelpText);
     clearOut();
     for (let questMessage of mainQuest.QuestMessages) {
-      sect.wikitextArray.push(questMessage.TextMapContentText.replace(/\\n/g, '\n').split('\n').map(line => `:'''${line}'''`).join('\n'));
+      if (typeof questMessage.TextMapContentText === 'string') {
+        sect.wikitextArray.push(questMessage.TextMapContentText.replace(/\\n/g, '\n').split('\n').map(line => `:'''${line}'''`).join('\n'));
+      }
     }
     result.dialogue.push(sect);
   }
