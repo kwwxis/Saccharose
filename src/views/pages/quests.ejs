@@ -132,12 +132,19 @@ waitForConstant('app', app => {
               el: '.quest-search-result',
               ev: 'click',
               fn: function(event) {
+                console.log('Search result clicked', event);
+
+                let target = event.target.tagName.toLowerCase() === 'a' ? event.target : event.target.closest('a');
+                let href = target.href;
+
                 if (event.ctrlKey) {
                   return; // allow default behavior if ctrl-click
                 }
+
                 event.stopPropagation();
                 event.preventDefault();
-                window.history.pushState({}, null, event.target.href);
+                console.log('Changing url to', href);
+                window.history.pushState({}, null, href);
                 loadQuestGenerateResult();
               }
             },
