@@ -61,13 +61,14 @@ export function normalizeCharName(name: string) {
 
 export async function grep(searchText: string, file: string, extraFlags?: string): Promise<string[]> {
   try {
-    searchText = searchText.replace(/'/g, `\\'`); // escape single quote
     if (file.endsWith('.json')) {
       searchText = searchText.replace(/"/g, `\\\\"`); // double quotes since it's JSON
     }
+    searchText = searchText.replace(/'/g, `'"'"'`); // escape single quote by gluing different kinds of quotations, do this after double quote replacement
 
     // Must use single quotes for searchText - double quotes has different behavior in bash, is insecure for arbitrary string...
     const cmd = `grep -i ${extraFlags || ''} '${searchText}' ${config.database.getGenshinDataFilePath(file)}`;
+    console.log('Command:', cmd);
     const { stdout, stderr } = await execPromise(cmd, {
       env: { PATH: process.env.SHELL_PATH },
       shell: process.env.SHELL_EXEC
@@ -123,10 +124,10 @@ export const travelerPlaceholder = (langCode: string = 'EN') => {
   switch (langCode) {
     case 'CHS': return '玩家';
     case 'CHT': return '玩家';
-    case 'DE': return 'Reisender'; // #(Reisende/Reisender)
+    case 'DE': return '{{MC|m=Reisender|f=Reisende}}';
     case 'EN': return 'Traveler';
-    case 'ES': return 'Viajero'; // #Viajer(a/o)
-    case 'FR': return 'Voyageur'; // #{M#Voyageur}{F#Voyageuse}
+    case 'ES': return '{{MC|m=Viajero|f=Viajera}}';
+    case 'FR': return '{{MC|m=Voyageur|f=Voyageuse}}'
     case 'ID': return 'Pengembara';
     case 'JP': return 'プレイヤー';
     case 'KR': return '플레이어';
@@ -145,8 +146,8 @@ export const normText = (text: string, langCode: string = 'EN') => {
   text = text.replace(/—/g, '&mdash;').trim();
   text = text.replace(/{NICKNAME}/g, '('+travelerPlaceholder(langCode)+')');
   text = text.replace(/{NON_BREAK_SPACE}/g, '&nbsp;');
-  text = text.replace(/{F#([^}]+)}{M#([^}]+)}/g, '($2/$1)');
-  text = text.replace(/{M#([^}]+)}{F#([^}]+)}/g, '($1/$2)');
+  text = text.replace(/{F#([^}]+)}{M#([^}]+)}/g, '{{MC|m=$2|f=$1}}');
+  text = text.replace(/{M#([^}]+)}{F#([^}]+)}/g, '{{MC|m=$1|f=$2}}');
   text = text.replace(/\<color=#00E1FFFF\>([^<]+)\<\/color\>/g, '{{color|buzzword|$1}}');
   text = text.replace(/\\n/g, '<br />');
 
@@ -659,7 +660,11 @@ export class Control {
           let g2 = matches[2];
           let g1e = await this.selectManualTextMapConfigDataById(g1);
           let g2e = await this.selectManualTextMapConfigDataById(g2);
-          text = `(${g1e.TextMapContentText}/${g2e.TextMapContentText})`;
+          if (g1.includes('FEMALE')) {
+            text = `{{MC|m=${g2e.TextMapContentText}|f=${g1e.TextMapContentText}}}`;
+          } else {
+            text = `{{MC|m=${g1e.TextMapContentText}|f=${g2e.TextMapContentText}}}`;
+          }
         }
       }
 
