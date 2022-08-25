@@ -98,6 +98,25 @@ function toNumber(x: string|number) {
   }
 }
 
+export const convertRubi = (text: string) => {
+  let ruby = [];
+
+  let i = 0;
+  text = text.replace(/{RUBY#\[S\]([^}]+)}/g, (match, p1) => {
+    ruby.push(p1);
+    return '{RUBY'+(i++)+'}';
+  });
+
+  let parts = text.split(/(\s+)/); // keep whitespace parts
+
+  for (let i = 0; i < parts.length; i++) {
+    if (parts[i].includes('{RUBY')) {
+      parts[i] = parts[i].replace(/^(.*){RUBY(\d+)}(.*)/, (match, p1, p2, p3) => `{{Rubi|${p1}${p3}|${ruby[parseInt(p2)]}}}`);
+    }
+  }
+  return parts.join('');
+}
+
 export const normText = (text: string) => {
   if (!text) {
     return text;
@@ -108,6 +127,11 @@ export const normText = (text: string) => {
   text = text.replace(/{F#([^}]+)}{M#([^}]+)}/g, '($2/$1)');
   text = text.replace(/{M#([^}]+)}{F#([^}]+)}/g, '($1/$2)');
   text = text.replace(/\<color=#00E1FFFF\>([^<]+)\<\/color\>/g, '{{color|buzzword|$1}}');
+  text = text.replace(/\\n/g, '<br />');
+
+  if (text.includes('RUBY#[S]')) {
+    text = convertRubi(text);
+  }
 
   if (text.startsWith('#')) {
     text = text.slice(1);
