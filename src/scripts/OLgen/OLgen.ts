@@ -40,12 +40,14 @@ function ol_gen_internal(grepOutput: string, hideTl: boolean = false, addDefault
   if (addDefaultHidden) {
     template = template.replace('{{Other Languages', '{{Other Languages\n|default_hidden = 1');
   }
+  let olMap: {[code: string]: string} = {};
   grepOutput.trim().split('\n')
     .map(s => s.trim())
     .filter(s => !!s && s.length)
     .map(s => /^.*TextMap([A-Z]{2,3})\.json.*": "(.*)"/.exec(s))
     .map(x => ({lang: x[1], text: x[2]}))
     .forEach(x => {
+      olMap[x.lang] = x.text;
       template = template.replace(`{${x.lang}_official_name}`, x.text);
       let isFullAscii = /^[\u0000-\u007f]*$/.test(x.text);
       if (x.lang === 'TH' && isFullAscii) {
@@ -53,6 +55,9 @@ function ol_gen_internal(grepOutput: string, hideTl: boolean = false, addDefault
         template = template.replace(/\|th_tl\s*=\s*\{\}/, '');
       }
     });
+  if (olMap['EN'] === olMap['ID']) {
+    template = template.replace(/\|id_tl\s*=\s*\{\}/, '');
+  }
   return template.replaceAll('{}', '').replaceAll('\\"', '"').replace(/{F#([^}]+)}{M#([^}]+)}/g, '($1/$2)').split('\n').filter(s => !!s).join('\n');
 }
 

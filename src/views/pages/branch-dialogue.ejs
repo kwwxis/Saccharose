@@ -43,7 +43,11 @@ waitForConstant('app', app => {
         target.disabled = true;
 
         app.endpoints.generateSingleDialogueBranch(text, true).then(result => {
-          document.querySelector('#dialogue-generate-result').innerHTML = result;
+          if (typeof result === 'string') {
+            document.querySelector('#dialogue-generate-result').innerHTML = result;
+          } else if (typeof result === 'object' && result.error_description) {
+            document.querySelector('#dialogue-generate-result').innerHTML = '<p>'+esc(result.error_description)+'</p>';
+          }
           autosize(document.querySelectorAll('textarea.autosize'));
         }).finally(() => {
           loadingEl.classList.add('hide');

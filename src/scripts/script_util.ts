@@ -91,6 +91,17 @@ export async function grepIdStartsWith(idProp: string, idPrefix: number|string, 
   return out;
 }
 
+async function replaceAsync(str: string, regex: RegExp, asyncFn: Function): Promise<string> {
+  const promises = [];
+  str.replace(regex, (match, ...args) => {
+      const promise = asyncFn(match, ...args);
+      promises.push(promise);
+      return match;
+  });
+  const data = await Promise.all(promises);
+  return str.replace(regex, () => data.shift());
+}
+
 function toNumber(x: string|number) {
   if (typeof x === 'number') {
     return x;
@@ -654,18 +665,15 @@ export class Control {
       let text = normText(dialog.TalkContentText, this.outputLangCode);
 
       if (text.includes('SEXPRO')) {
-        let matches = /\{PLAYERAVATAR#SEXPRO\[(.*)\|(.*)\]\}/.exec(text);
-        if (matches.length >= 3) {
-          let g1 = matches[1];
-          let g2 = matches[2];
+        text = await replaceAsync(text, /\{PLAYERAVATAR#SEXPRO\[(.*)\|(.*)\]\}/g, async (_fullMatch, g1, g2) => {
           let g1e = await this.selectManualTextMapConfigDataById(g1);
           let g2e = await this.selectManualTextMapConfigDataById(g2);
           if (g1.includes('FEMALE')) {
-            text = `{{MC|m=${g2e.TextMapContentText}|f=${g1e.TextMapContentText}}}`;
+            return `{{MC|m=${g2e.TextMapContentText}|f=${g1e.TextMapContentText}}}`;
           } else {
-            text = `{{MC|m=${g1e.TextMapContentText}|f=${g2e.TextMapContentText}}}`;
+            return `{{MC|m=${g1e.TextMapContentText}|f=${g2e.TextMapContentText}}}`;
           }
-        }
+        });
       }
 
       if (previousDialog && this.isPlayerDialogueOption(dialog) && this.isPlayerDialogueOption(previousDialog) &&
