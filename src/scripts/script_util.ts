@@ -68,7 +68,6 @@ export async function grep(searchText: string, file: string, extraFlags?: string
 
     // Must use single quotes for searchText - double quotes has different behavior in bash, is insecure for arbitrary string...
     const cmd = `grep -i ${extraFlags || ''} '${searchText}' ${config.database.getGenshinDataFilePath(file)}`;
-    console.log('Command:', cmd);
     const { stdout, stderr } = await execPromise(cmd, {
       env: { PATH: process.env.SHELL_PATH },
       shell: process.env.SHELL_EXEC
