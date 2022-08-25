@@ -7,7 +7,7 @@ export async function dialogueGenerate(ctrl: Control, firstDialogueId: number|nu
   let result: {[id: number]: string} = {};
 
   if (typeof firstDialogueId === 'string') {
-    const matches = await ctrl.getTextMapMatches(firstDialogueId.trim());
+    const matches = await ctrl.getTextMapMatches(ctrl.inputLangCode, firstDialogueId.trim());
     if (Object.keys(matches).length) {
       let dialogue = await ctrl.getDialogFromTextContentId(parseInt(Object.keys(matches)[0]));
       firstDialogueId = dialogue.Id;

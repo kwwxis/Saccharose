@@ -1,3 +1,4 @@
+import { LangCode } from "@types";
 import "../../setup";
 import {Control, getControl, grep} from "../script_util";
 
@@ -55,8 +56,8 @@ function ol_gen_internal(grepOutput: string, hideTl: boolean = false, addDefault
   return template.replaceAll('{}', '').replaceAll('\\"', '"').replace(/{F#([^}]+)}{M#([^}]+)}/g, '($1/$2)').split('\n').filter(s => !!s).join('\n');
 }
 
-export async function ol_gen(ctrl: Control, name: string, hideTl: boolean = false, addDefaultHidden: boolean = false): Promise<string> {
-  let id = await ctrl.findTextMapIdByExactName(name);
+export async function ol_gen(ctrl: Control, name: string, hideTl: boolean = false, addDefaultHidden: boolean = false, langCode: LangCode = null): Promise<string> {
+  let id = await ctrl.findTextMapIdByExactName(langCode || ctrl.inputLangCode, name);
   if (!id) {
     return null;
   }

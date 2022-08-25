@@ -396,7 +396,7 @@ export class Control {
 
   async selectMainQuestsByNameOrId(name: string|number, limit: number = 25): Promise<MainQuestExcelConfigData[]> {
     if (typeof name === 'string') {
-      let matches = await this.getTextMapMatches(name);
+      let matches = await this.getTextMapMatches(this.inputLangCode, name);
       let textMapIds = Object.keys(matches).map(i => parseInt(i));
 
       return await this.knex.select('*').from('MainQuestExcelConfigData').whereIn('TitleTextMapHash', textMapIds)
@@ -573,7 +573,7 @@ export class Control {
 
   async selectNpcListByName(nameOrTextMapId: number|string|number[]): Promise<NpcExcelConfigData[]> {
     if (typeof nameOrTextMapId === 'string') {
-      let matchId = await this.findTextMapIdByExactName(nameOrTextMapId);
+      let matchId = await this.findTextMapIdByExactName(this.inputLangCode, nameOrTextMapId);
       nameOrTextMapId = [ matchId ];
     }
     if (typeof nameOrTextMapId === 'number') {
@@ -752,8 +752,8 @@ export class Control {
   readonly FLAG_EXACT_WORD = '-w';
   readonly FLAG_REGEX = '-E';
 
-  async getTextMapMatches(searchText: string, flags?: string): Promise<{[id: number]: string}> {
-    let lines = await grep(searchText, config.database.getTextMapFile(this.inputLangCode), flags);
+  async getTextMapMatches(langCode: LangCode, searchText: string, flags?: string): Promise<{[id: number]: string}> {
+    let lines = await grep(searchText, config.database.getTextMapFile(langCode), flags);
     let out = {};
     for (let line of lines) {
       let parts = /^"(\d+)":\s+"(.*)",?$/.exec(line);
@@ -762,8 +762,8 @@ export class Control {
     return out;
   }
 
-  async getTextMapIdStartsWith(idPrefix: string): Promise<{[id: number]: string}> {
-    let lines = await grep(`^\\s*"${idPrefix}\\d+": "`,config.database.getTextMapFile(this.inputLangCode), '-E');
+  async getTextMapIdStartsWith(langCode: LangCode, idPrefix: string): Promise<{[id: number]: string}> {
+    let lines = await grep(`^\\s*"${idPrefix}\\d+": "`,config.database.getTextMapFile(langCode), '-E');
     console.log(lines);
     let out = {};
     for (let line of lines) {
@@ -773,8 +773,8 @@ export class Control {
     return out;
   }
 
-  async findTextMapIdByExactName(name: string): Promise<number> {
-    let matches = await this.getTextMapMatches(name, this.FLAG_EXACT_WORD);
+  async findTextMapIdByExactName(langCode: LangCode, name: string): Promise<number> {
+    let matches = await this.getTextMapMatches(langCode, name, this.FLAG_EXACT_WORD);
     for (let [id,value] of Object.entries(matches)) {
       if (value.toLowerCase() === name.toLowerCase()) {
         return parseInt(id);
