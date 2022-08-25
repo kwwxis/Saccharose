@@ -23,13 +23,13 @@ router.restful('/quests/findMainQuest', {
   get: async (req: Request, res: Response) => {
     let questNameOrId: string|number = <string|number> (req.query.name || req.query.id);
 
-    if (typeof questNameOrId === 'string' && /^\d+$/.test(questNameOrId)) {
+    if (typeof questNameOrId === 'string' && /^\d+$/.test(questNameOrId.trim())) {
       questNameOrId = parseInt(questNameOrId);
     }
 
     const ctrl = getControl(req);
 
-    let mainQuests: MainQuestExcelConfigData[] = await ctrl.selectMainQuestsByNameOrIds(questNameOrId);
+    let mainQuests: MainQuestExcelConfigData[] = await ctrl.selectMainQuestsByNameOrId(questNameOrId);
 
     let result: {[id: number]: string} = {};
     for (let mainQuest of mainQuests) {

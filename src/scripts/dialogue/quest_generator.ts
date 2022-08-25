@@ -57,7 +57,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
 
   // Find Main Quest and Quest Subs
   const mainQuests: MainQuestExcelConfigData[] = typeof questNameOrId === 'string'
-      ? await ctrl.selectMainQuestsByNameOrIds(questNameOrId.trim())
+      ? await ctrl.selectMainQuestsByNameOrId(questNameOrId.trim())
       : [await ctrl.selectMainQuestById(questNameOrId)];
 
   const mainQuest = mainQuests.length ? mainQuests[mainQuestIndex] : null;

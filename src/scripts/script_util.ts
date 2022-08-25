@@ -394,20 +394,16 @@ export class Control {
     return cachedList.concat(uncachedList);
   }
 
-  async selectMainQuestsByNameOrIds(name: string|number|number[], limit: number = 25): Promise<MainQuestExcelConfigData[]> {
-    let textMapIds: number[] = [];
-
+  async selectMainQuestsByNameOrId(name: string|number, limit: number = 25): Promise<MainQuestExcelConfigData[]> {
     if (typeof name === 'string') {
       let matches = await this.getTextMapMatches(name);
-      textMapIds = Object.keys(matches).map(i => parseInt(i));
-    } else if (typeof name === 'number') {
-      textMapIds = [name];
-    } else {
-      textMapIds = name;
-    }
+      let textMapIds = Object.keys(matches).map(i => parseInt(i));
 
-    return await this.knex.select('*').from('MainQuestExcelConfigData').whereIn('TitleTextMapHash', textMapIds)
-      .limit(limit).then(this.commonLoad);
+      return await this.knex.select('*').from('MainQuestExcelConfigData').whereIn('TitleTextMapHash', textMapIds)
+        .limit(limit).then(this.commonLoad);
+    } else {
+      return [await this.selectMainQuestById(name)];
+    }
   }
 
   async selectMainQuestById(id: number): Promise<MainQuestExcelConfigData> {
