@@ -3,8 +3,21 @@ import {openKnex} from '@db';
 import config from '@/config';
 import objectPath from 'object-path';
 import { SchemaTable, SEP } from './import_types';
-import { getGenshinDataFilePath } from '@/scripts/script_util';
-import { TalkExcelConfigData } from '@types';
+import { TalkExcelConfigData, LANG_CODES, LangCode } from '@types';
+
+function textMapSchema(langCode: LangCode, skip: boolean): SchemaTable {
+  return <SchemaTable> {
+    name: 'TextMap' + langCode,
+    jsonFile: './TextMap/TextMap'+langCode+'.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true, resolve: 'Key'},
+      {name: 'Text', type: 'text', resolve: 'Value'}
+    ],
+    useKeys: true,
+    noIncludeJson: true,
+    skip: skip
+  };
+}
 
 const schema = {
   DialogExcelConfigData: <SchemaTable> {
@@ -18,7 +31,7 @@ const schema = {
       {name: 'TalkTitleTextMapHash', type: 'integer', isIndex: true},
       {name: 'TalkRoleNameTextMapHash', type: 'integer', isIndex: true},
     ],
-    skip: false
+    skip: true
   },
   ManualTextMapConfigData: <SchemaTable> {
     name: 'ManualTextMapConfigData',
@@ -27,7 +40,7 @@ const schema = {
       {name: 'TextMapId', type: 'string', isPrimary: true},
       {name: 'TextMapContentTextMapHash', type: 'integer', isIndex: true},
     ],
-    skip: false
+    skip: true
   },
   NpcExcelConfigData: <SchemaTable> {
     name: 'NpcExcelConfigData',
@@ -36,7 +49,7 @@ const schema = {
       {name: 'Id', type: 'integer', isPrimary: true},
       {name: 'NameTextMapHash', type: 'integer', isIndex: true}
     ],
-    skip: false
+    skip: true
   },
   TalkExcelConfigData: <SchemaTable> {
     name: 'TalkExcelConfigData',
@@ -65,7 +78,7 @@ const schema = {
         return null;
       }}
     ],
-    skip: false
+    skip: true
   },
   MainQuestExcelConfigData: <SchemaTable> {
     name: 'MainQuestExcelConfigData',
@@ -77,7 +90,7 @@ const schema = {
       {name: 'TitleTextMapHash', type: 'integer', isIndex: true},
       {name: 'DescTextMapHash', type: 'integer', isIndex: true}
     ],
-    skip: false
+    skip: true
   },
   ChapterExcelConfigData: <SchemaTable> {
     name: 'ChapterExcelConfigData',
@@ -89,7 +102,7 @@ const schema = {
       {name: 'ChapterNumTextMapHash', type: 'integer', isIndex: true},
       {name: 'ChapterTitleTextMapHash', type: 'integer', isIndex: true}
     ],
-    skip: false
+    skip: true
   },
   QuestExcelConfigData: <SchemaTable> {
     name: 'QuestExcelConfigData',
@@ -102,7 +115,7 @@ const schema = {
       {name: 'StepDescTextMapHash', type: 'integer', isIndex: true},
       {name: 'GuideTipsTextMapHash', type: 'integer', isIndex: true}
     ],
-    skip: false
+    skip: true
   },
   LoadingTipsExcelConfigData: <SchemaTable> {
     name: 'LoadingTipsExcelConfigData',
@@ -112,7 +125,7 @@ const schema = {
       {name: 'TipsTitleTextMapHash', type: 'integer', isIndex: true},
       {name: 'TipsDescTextMapHash', type: 'integer', isIndex: true}
     ],
-    skip: false
+    skip: true
   },
   ReminderExcelConfigData: <SchemaTable> {
     name: 'ReminderExcelConfigData',
@@ -123,7 +136,7 @@ const schema = {
       {name: 'ContentTextMapHash', type: 'integer', isIndex: true},
       {name: 'NextReminderId', type: 'integer', isIndex: true},
     ],
-    skip: false
+    skip: true
   },
   MaterialExcelConfigData: <SchemaTable> {
     name: 'MaterialExcelConfigData',
@@ -140,7 +153,7 @@ const schema = {
       {name: 'ItemType', type: 'string'},
       {name: 'RankLevel', type: 'string'},
     ],
-    skip: false
+    skip: true
   },
   DailyTaskExcelConfigData: <SchemaTable> {
     name: 'DailyTaskExcelConfigData',
@@ -154,7 +167,7 @@ const schema = {
       {name: 'DescriptionTextMapHash', type: 'integer', isIndex: true},
       {name: 'TargetTextMapHash', type: 'integer', isIndex: true},
     ],
-    skip: false
+    skip: true
   },
   NpcFirstMetExcelConfigData: <SchemaTable> {
     name: 'NpcFirstMetExcelConfigData',
@@ -164,7 +177,7 @@ const schema = {
       {name: 'AvatarID', type: 'integer', isIndex: true},
       {name: 'AvatarDescriptionTextMapHash', type: 'integer', isIndex: true},
     ],
-    skip: false,
+    skip: true,
   },
   AvatarExcelConfigData: <SchemaTable> {
     name: 'AvatarExcelConfigData',
@@ -178,19 +191,21 @@ const schema = {
       {name: 'IconName', type: 'string'},
       {name: 'SideIconName', type: 'string'},
     ],
-    skip: false,
+    skip: true,
   },
-  TextMap: <SchemaTable> {
-    name: 'TextMap',
-    jsonFile: './TextMap/' + config.database.textMapFile,
-    columns: [
-      {name: 'Id', type: 'integer', isPrimary: true, resolve: 'Key'},
-      {name: 'Text', type: 'text', resolve: 'Value'}
-    ],
-    useKeys: true,
-    noIncludeJson: true,
-    skip: false
-  }
+  // 'CHS' | 'CHT' | 'DE' | 'EN' | 'ES' | 'FR' | 'ID' | 'JP' | 'KR' | 'PT' | 'RU' | 'TH' | 'VI'
+  TextMapEN: textMapSchema('EN', true),
+  TextMapCHS: textMapSchema('CHS', false),
+  TextMapCHT: textMapSchema('CHT', false),
+  TextMapDE: textMapSchema('DE', false),
+  TextMapES: textMapSchema('ES', false),
+  TextMapFR: textMapSchema('FR', false),
+  TextMapID: textMapSchema('ID', false),
+  TextMapKR: textMapSchema('KR', false),
+  TextMapPT: textMapSchema('PT', false),
+  TextMapRU: textMapSchema('RU', false),
+  TextMapTH: textMapSchema('TH', false),
+  TextMapVI: textMapSchema('VI', false),
 };
 
 (async () => {
@@ -264,7 +279,7 @@ const schema = {
 
   async function insertAll(table: SchemaTable) {
     console.log('Inserting data for: ' + table.name + ' from: ' + table.jsonFile);
-    const json = require(getGenshinDataFilePath(table.jsonFile));
+    const json = require(config.database.getGenshinDataFilePath(table.jsonFile));
     if (table.useKeys) {
       for (let key in json) {
         await insertRow(table, {key, value: json[key]});

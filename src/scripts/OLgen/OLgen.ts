@@ -1,6 +1,5 @@
 import "../../setup";
-import {findTextMapIdByExactName} from "../textMapFinder/text_map_finder";
-import {grep} from "../script_util";
+import {Control, getControl, grep} from "../script_util";
 
 function ol_gen_internal(grepOutput: string, hideTl: boolean = false, addDefaultHidden: boolean = false): string {
   let template = `{{Other Languages
@@ -56,14 +55,22 @@ function ol_gen_internal(grepOutput: string, hideTl: boolean = false, addDefault
   return template.replaceAll('{}', '').replaceAll('\\"', '"').replace(/{F#([^}]+)}{M#([^}]+)}/g, '($1/$2)').split('\n').filter(s => !!s).join('\n');
 }
 
-export async function ol_gen(name: string, hideTl: boolean = false, addDefaultHidden: boolean = false): Promise<string> {
-  let id = await findTextMapIdByExactName(name);
+export async function ol_gen(ctrl: Control, name: string, hideTl: boolean = false, addDefaultHidden: boolean = false): Promise<string> {
+  let id = await ctrl.findTextMapIdByExactName(name);
+  if (!id) {
+    return null;
+  }
   let lines = await grep(`${id}`, './TextMap/', '-rnw');
-  return ol_gen_internal(lines.join('\n'), hideTl, addDefaultHidden);
+  let result = ol_gen_internal(lines.join('\n'), hideTl, addDefaultHidden);
+  if (result.includes('{EN_official_name}')) {
+    return null;
+  }
+  return result;
 }
 
 if (require.main === module) {
   (async () => {
-    console.log(await ol_gen(`"Outlander Brigade!"`, true));
+    console.log(await ol_gen(getControl(), `"Outlander Brigade!"`, true));
+    //console.log(await ol_gen(getControl(), `Radiant Sakura`, true));
   })();
 }

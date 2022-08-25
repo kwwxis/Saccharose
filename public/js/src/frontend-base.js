@@ -542,6 +542,17 @@ const app = {
           Cookies.set('nightmode', '1', { expires: 365 });
         }
       }
+    },
+    {
+      el: '.header-language-selector select',
+      ev: 'change',
+      multiple: true,
+      fn: function(event, target) {
+        let name = target.name;
+        let value = target.value;
+        console.log('Language selector: Name='+name+', Value='+value);
+        Cookies.set(name, value, { expires: 365 });
+      }
     }
   ],
   startListeners(listeners, rel = undefined) {

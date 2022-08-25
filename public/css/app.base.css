@@ -731,29 +731,32 @@ input[type='number'] {
 }
 
 .spacer10,
-.spacer10-vert {
-  margin-top: 10px !important;
-  margin-bottom: 10px !important;
-}
-.spacer10-horiz {
-  margin-left: 10px !important;
-  margin-right: 10px !important;
-}
-.spacer10-all {
-  margin: 10px !important;
-}
-.spacer10-top {
-  margin-top: 10px !important;
-}
-.spacer10-bottom {
-  margin-bottom: 10px !important;
-}
-.spacer10-left {
-  margin-left: 10px !important;
-}
-.spacer10-right {
-  margin-right: 10px !important;
-}
+.spacer10-vert { margin-top: 10px !important; margin-bottom: 10px !important; }
+.spacer10-horiz { margin-left: 10px !important; margin-right: 10px !important; }
+.spacer10-all { margin: 10px !important; }
+.spacer10-top { margin-top: 10px !important; }
+.spacer10-bottom { margin-bottom: 10px !important; }
+.spacer10-left { margin-left: 10px !important; }
+.spacer10-right { margin-right: 10px !important; }
+
+
+.spacer15,
+.spacer15-vert { margin-top: 15px !important; margin-bottom: 15px !important; }
+.spacer15-horiz { margin-left: 15px !important; margin-right: 15px !important; }
+.spacer15-all { margin: 15px !important; }
+.spacer15-top { margin-top: 15px !important; }
+.spacer15-bottom { margin-bottom: 15px !important; }
+.spacer15-left { margin-left: 15px !important; }
+.spacer15-right { margin-right: 15px !important; }
+
+.spacer25,
+.spacer25-vert { margin-top: 25px !important; margin-bottom: 25px !important; }
+.spacer25-horiz { margin-left: 25px !important; margin-right: 25px !important; }
+.spacer25-all { margin: 25px !important; }
+.spacer25-top { margin-top: 25px !important; }
+.spacer25-bottom { margin-bottom: 25px !important; }
+.spacer25-left { margin-left: 25px !important; }
+.spacer25-right { margin-right: 25px !important; }
 
 .spacer5,
 .spacer5-vert {
@@ -967,6 +970,25 @@ body.nightmode {
 
 #header .toggle-theme-buttons {
   margin-right: 10px;
+}
+
+.header-language-selector {
+  display: flex;
+  flex-direction: column;
+  margin-top: -5px;
+  margin-right: 10px;
+}
+.header-language-selector strong {
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 16px;
+  opacity: 0.8;
+}
+.header-language-selector select {
+  padding: 3px;
+}
+.output-language-selector {
+  margin-right: 20px;
 }
 /* #endregion */
 

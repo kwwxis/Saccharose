@@ -1,6 +1,6 @@
 import '../../setup';
 import {closeKnex, openKnex} from '@db';
-import { arrayUnique, arrayEmpty, getControl, OverridePrefs, stringify } from '@/scripts/script_util';
+import { arrayUnique, arrayEmpty, getControl, ControlPrefs, stringify, Control } from '@/scripts/script_util';
 import { ol_gen } from '@/scripts/OLgen/OLgen';
 import {
   ConfigCondition,
@@ -49,22 +49,15 @@ export class QuestGenerateResult {
  * @param mainQuestIndex If multiple main quests match the name given, then this index can be used to select a specific one.
  * @param prefs Preferences for quest generation and output.
  */
-export async function questGenerate(questNameOrId: string|number, mainQuestIndex: number = 0, prefs?: OverridePrefs): Promise<QuestGenerateResult> {
+export async function questGenerate(questNameOrId: string|number, ctrl: Control, mainQuestIndex: number = 0): Promise<QuestGenerateResult> {
   const result = new QuestGenerateResult();
-
-  if (!prefs) {
-    prefs = new OverridePrefs();
-  }
-
-  const knex = openKnex();
-  const ctrl = getControl(knex, prefs);
 
   // MAIN QUEST GENERATION
   // ~~~~~~~~~~~~~~~~~~~~~
 
   // Find Main Quest and Quest Subs
   const mainQuests: MainQuestExcelConfigData[] = typeof questNameOrId === 'string'
-      ? await ctrl.selectMainQuestsByName(questNameOrId.trim())
+      ? await ctrl.selectMainQuestsByNameOrIds(questNameOrId.trim())
       : [await ctrl.selectMainQuestById(questNameOrId)];
 
   const mainQuest = mainQuests.length ? mainQuests[mainQuestIndex] : null;
@@ -77,8 +70,8 @@ export async function questGenerate(questNameOrId: string|number, mainQuestIndex
 
   // Talk Configs aren't always in the right section, so we have a somewhat complicated method to place them in the right place
   function pushTalkConfigToCorrespondingQuestSub(talkConfig: TalkExcelConfigData) {
-    if (prefs.TalkConfigDataBeginCond[talkConfig.Id]) {
-      talkConfig.BeginCond = [prefs.TalkConfigDataBeginCond[talkConfig.Id]];
+    if (ctrl.getPrefs().TalkConfigDataBeginCond[talkConfig.Id]) {
+      talkConfig.BeginCond = [ctrl.getPrefs().TalkConfigDataBeginCond[talkConfig.Id]];
     }
 
     const questExcelConfigData = mainQuest.QuestExcelConfigDataList.find(q => q.SubId === talkConfig.Id);
@@ -181,8 +174,8 @@ export async function questGenerate(questNameOrId: string|number, mainQuestIndex
   result.questTitle = mainQuest.TitleText;
   result.mainQuest = mainQuest;
   result.npc = {
-    names: arrayUnique(Object.values(ctrl.getPref().npcCache).filter(x => !!x.BodyType).map(x => x.NameText).concat('Traveler').sort()),
-    data: ctrl.getPref().npcCache,
+    names: arrayUnique(Object.values(ctrl.getPrefs().npcCache).filter(x => !!x.BodyType).map(x => x.NameText).concat('Traveler').sort()),
+    data: ctrl.getPrefs().npcCache,
   };
 
   // WIKI TEXT GENERATION
@@ -250,7 +243,7 @@ export async function questGenerate(questNameOrId: string|number, mainQuestIndex
   // Other Languages
   // ---------------
   clearOut();
-  line(await ol_gen(mainQuest.TitleText));
+  line(await ol_gen(ctrl, mainQuest.TitleText));
   result.otherLanguagesWikitext = out;
 
   // Quest Dialogue
@@ -389,8 +382,7 @@ export async function questGenerate(questNameOrId: string|number, mainQuestIndex
 
 if (require.main === module) {
   (async () => {
-    let prefs = new OverridePrefs();
-    let result: QuestGenerateResult = await questGenerate(`Radiant Sakura`, 0, prefs);
+    let result: QuestGenerateResult = await questGenerate(`Radiant Sakura`, getControl());
     console.log(stringify(result.dialogue));
     closeKnex();
   })();

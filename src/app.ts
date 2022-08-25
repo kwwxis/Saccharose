@@ -1,4 +1,4 @@
-const STEPS_TO_LOAD = 9;
+const STEPS_TO_LOAD = 10;
 
 console.log(`(1/${STEPS_TO_LOAD}) Requiring dependencies`);
 import config from '@/config';
@@ -18,6 +18,7 @@ import morgan from 'morgan';
 import sessions from '@/middleware/sessions';
 import baseRouter from '@/controllers/BaseRouter';
 import apiRouter from '@/controllers/api';
+import { loadTextMaps } from './scripts/textmap';
 
 const app: Express = express();
 
@@ -38,8 +39,9 @@ export default {
     app.set('views', config.views.root);
     app.set('view engine', 'ejs');
 
-    console.log(`(4/${STEPS_TO_LOAD}) Opening sqlite database`);
+    console.log(`(3/${STEPS_TO_LOAD}) Opening sqlite database and loading resources`);
     openKnex();
+    await loadTextMaps();
 
     if (process.env.SSL_WELL_KNOWN_DIR) {
       console.log('Serving .well-known directory');
@@ -47,7 +49,7 @@ export default {
     }
 
     // These middleware functions parse the incoming request:
-    console.log(`(3/${STEPS_TO_LOAD}) Adding middleware for incoming requests`);
+    console.log(`(4/${STEPS_TO_LOAD}) Adding middleware for incoming requests`);
     app.use(morgan('dev', {
       skip: function(req: Request, res: Response) {
         return res.statusCode === 304 || req.url.includes('.css') || req.url.includes('.js')
@@ -59,7 +61,7 @@ export default {
     app.use(express.urlencoded({extended: true})); // parses url-encoded POST/PUT bodies
 
     // These middleware functions affect the outgoing responses:
-    console.log(`(4/${STEPS_TO_LOAD}) Adding middleware for outgoing responses`);
+    console.log(`(5/${STEPS_TO_LOAD}) Adding middleware for outgoing responses`);
     app.use(compression()); // payload compression
     app.use(helmet({ // security-related headers
       contentSecurityPolicy: false, // CSP is set in base router
@@ -78,21 +80,21 @@ export default {
     });
 
     // Initialize sessions
-    console.log(`(5/${STEPS_TO_LOAD}) Initializing sessions`);
+    console.log(`(6/${STEPS_TO_LOAD}) Initializing sessions`);
     app.use(sessions);
 
     // Load API router
-    console.log(`(6/${STEPS_TO_LOAD}) Loading API router`);
+    console.log(`(7/${STEPS_TO_LOAD}) Loading API router`);
     app.use('/api', await apiRouter());
 
     // Load BaseRouter and CSRF protection. We must load CSRF protection after we load the API router
     // because the API does not necessarily use CSRF protection (only for same-site AJAX requests).
-    console.log(`(7/${STEPS_TO_LOAD}) Loading application router`);
+    console.log(`(8/${STEPS_TO_LOAD}) Loading application router`);
     app.use(csrf(config.csrfConfig.standard));
     app.use('/', await baseRouter());
 
     //#region Global Error Handlers
-    console.log(`(8/${STEPS_TO_LOAD}) Adding global error handlers`);
+    console.log(`(9/${STEPS_TO_LOAD}) Adding global error handlers`);
     exitHook.uncaughtExceptionHandler(err => {
       console.error(err);
     });
@@ -120,7 +122,7 @@ export default {
     });
     //#endregion
 
-    console.log(`(9/${STEPS_TO_LOAD}) Application code fully loaded`);
+    console.log(`(10/${STEPS_TO_LOAD}) Application code fully loaded`);
     return app;
   },
 };

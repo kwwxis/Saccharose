@@ -6,6 +6,7 @@
 
 import path from 'path';
 import session from 'express-session';
+import { LangCode } from '@types';
 
 export default {
   server: {
@@ -16,7 +17,10 @@ export default {
   database: {
     filename: './genshin_data.db',
     genshin_data: './git/GenshinData/',
-    textMapFile: 'TextMapEN.json',
+    getTextMapFile: (langCode: LangCode) => './TextMap/TextMap'+langCode+'.json',
+    getGenshinDataFilePath(file: string) {
+      return path.resolve(process.env.DATA_ROOT, this.genshin_data, file).replaceAll('\\', '/');
+    }
   },
   session: session({
     secret: process.env.SESSID_SECRET,

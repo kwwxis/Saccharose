@@ -26,7 +26,7 @@
   const css = document.createElement('style');
   css.type = 'text/css';
 
-  const styles = `.tree li.is--closed > ul { display: none; }`;
+  const styles = `.tree li.is--closed > ul, .tree li.is--closed > ol { display: none; }`;
 
   if (css.styleSheet)
     css.styleSheet.cssText = styles;

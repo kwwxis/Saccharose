@@ -66,6 +66,24 @@
         </a>
       </div>
       <div class="right">
+        <div class="input-language-selector header-language-selector">
+          <strong>Input Language</strong>
+          <select name="inputLangCode">
+            <% Object.keys(req.context.languages).forEach(langCode => { %>
+            <option value="<%= langCode %>" <%= req.context.inputLangCode === langCode ? 'selected' : '' %>><%= req.context.languages[langCode] %></option>
+            <% }) %>
+          </select>
+        </div>
+
+        <div class="output-language-selector header-language-selector">
+          <strong>Output Language</strong>
+          <select name="outputLangCode">
+            <% Object.keys(req.context.languages).forEach(langCode => { %>
+             <option value="<%= langCode %>" <%= req.context.outputLangCode === langCode ? 'selected' : '' %>><%= req.context.languages[langCode] %></option>
+            <% }) %>
+          </select>
+        </div>
+
         <div class="toggle-theme-buttons valign button-group">
           <button class="secondary <%= req.cookies['nightmode'] ? '' : 'selected' %>" value="daymode"><%- icon('sun') %></button>
           <button class="secondary <%= req.cookies['nightmode'] ? 'selected' : '' %>" value="nightmode"><%- icon('moon') %></button>

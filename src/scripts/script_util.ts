@@ -1,5 +1,4 @@
 import config from '@/config';
-import path from 'path';
 import util from 'util';
 import {exec} from 'child_process';
 const execPromise = util.promisify(exec);
@@ -8,8 +7,10 @@ import { openKnex } from '@db';
 import {
   TextMapItem, NpcExcelConfigData, ManualTextMapConfigData, ConfigCondition,
   MainQuestExcelConfigData, QuestExcelConfigData,
-  DialogExcelConfigData, TalkExcelConfigData, TalkRole
+  DialogExcelConfigData, TalkExcelConfigData, TalkRole, LangCode
 } from '@types';
+import { getTextMapItem } from './textmap';
+import { Request } from '@router';
 
 // character name in the dialogue text -> character name in the vo file
 export const normNameMap = {
@@ -58,14 +59,15 @@ export function normalizeCharName(name: string) {
   return normName;
 }
 
-export function getGenshinDataFilePath(file: string) {
-  return path.resolve(process.env.DATA_ROOT, config.database.genshin_data, file).replaceAll('\\', '/');
-}
-
 export async function grep(searchText: string, file: string, extraFlags?: string): Promise<string[]> {
   try {
-    searchText = searchText.replace(/"/g, '\\"'); // escape double quote
-    const cmd = `grep -i ${extraFlags || ''} "${searchText}" ${getGenshinDataFilePath(file)}`;
+    searchText = searchText.replace(/'/g, `\\'`); // escape single quote
+    if (file.endsWith('.json')) {
+      searchText = searchText.replace(/"/g, `\\\\"`); // double quotes since it's JSON
+    }
+
+    // Must use single quotes for searchText - double quotes has different behavior in bash, is insecure for arbitrary string...
+    const cmd = `grep -i ${extraFlags || ''} '${searchText}' ${config.database.getGenshinDataFilePath(file)}`;
     const { stdout, stderr } = await execPromise(cmd, {
       env: { PATH: process.env.SHELL_PATH },
       shell: process.env.SHELL_EXEC
@@ -203,7 +205,9 @@ export const stringify = (obj: any) => {
   return JSON.stringify(obj, null, 2);
 };
 
-export class OverridePrefs {
+export class ControlPrefs {
+  KnexInstance: Knex = null;
+  Request: Request = null;
   TalkConfigDataBeginCond: {[talkConfigId: number]: ConfigCondition} = {};
 
   ExcludeCondProperties = true;
@@ -222,22 +226,43 @@ export class OverridePrefs {
   static afterQuestSub(questSubId: number): ConfigCondition {
     return {Type: 'QUEST_COND_STATE_EQUAL', Param: [questSubId, 3]};
   }
+
+  get inputLangCode(): LangCode {
+    return this.Request ? this.Request.cookies['inputLangCode'] || 'EN' : 'EN';
+  }
+
+  get outputLangCode(): LangCode {
+    return this.Request ? this.Request.cookies['outputLangCode'] || 'EN' : 'EN';
+  }
 }
 
-export function getControl(knex?: Knex, pref?: OverridePrefs) {
-  if (!knex) {
-    knex = openKnex();
-  }
-  if (!pref) {
-    pref = new OverridePrefs();
-  }
+export function getControl(controlContext?: Request|ControlPrefs) {
+  return new Control(controlContext);
+}
 
-  const IdComparator = (a: any, b: any) => a.Id === b.Id;
-  const sortByOrder = (a: any, b: any) => {
+export class Control {
+  private prefs: ControlPrefs;
+  private knex: Knex;
+
+  private IdComparator = (a: any, b: any) => a.Id === b.Id;
+  private sortByOrder = (a: any, b: any) => {
     return a.Order - b.Order || a.Order - b.Order;
   };
 
-  function postProcessCondProp(obj: any, prop: string) {
+  constructor(controlContext: Request|ControlPrefs) {
+    if (!!controlContext && controlContext.hasOwnProperty('url')) {
+      this.prefs = new ControlPrefs();
+      this.prefs.Request = controlContext as Request;
+    } else if (!!controlContext) {
+      this.prefs = controlContext as ControlPrefs;
+    } else {
+      this.prefs = new ControlPrefs();
+    }
+
+    this.knex = this.prefs.KnexInstance || openKnex();
+  }
+
+  postProcessCondProp(obj: any, prop: string) {
     let condArray = obj[prop] as ConfigCondition[];
     let newCondArray = [];
     for (let cond of condArray) {
@@ -255,44 +280,45 @@ export function getControl(knex?: Knex, pref?: OverridePrefs) {
     }
   }
 
-  async function postProcess<T>(object: T): Promise<T> {
+  async postProcess<T>(object: T): Promise<T> {
     const objAsAny = object as any;
     for (let prop in object) {
       if (prop.endsWith('MapHash')) {
         let textProp = prop.slice(0, -7);
-        let text = await knex.select('Text').from('TextMap').where({Id: object[prop]}).first().then(x => x && x.Text);
+        //let text = await knex.select('Text').from('TextMap').where({Id: object[prop]}).first().then(x => x && x.Text);
+        let text = getTextMapItem(this.outputLangCode, object[prop]);
         if (!!text)
           object[textProp] = text;
         else
           delete object[prop];
       }
       if (prop.endsWith('Cond')) {
-        if (pref.ExcludeCondProperties && !prop.startsWith('Begin') && !prop.startsWith('Accept') && !prop.startsWith('Finish') && !prop.startsWith('Fail')) {
+        if (this.prefs.ExcludeCondProperties && !prop.startsWith('Begin') && !prop.startsWith('Accept') && !prop.startsWith('Finish') && !prop.startsWith('Fail')) {
           delete object[prop];
         } else if (objAsAny[prop]) {
-          postProcessCondProp(objAsAny, prop);
+          this.postProcessCondProp(objAsAny, prop);
         }
       }
       if (prop.endsWith('Exec')) {
-        if (pref.ExcludeExecProperties) {
+        if (this.prefs.ExcludeExecProperties) {
           delete object[prop];
         } else {
-          postProcessCondProp(objAsAny, prop);
+          this.postProcessCondProp(objAsAny, prop);
         }
       }
       if (prop.endsWith('NpcList') || prop.endsWith('NpcId')) {
         let slicedProp = prop.endsWith('NpcList') ? prop.slice(0, -4) : prop.slice(0, -2);
-        if (pref.ExcludeNpcListProperties) {
+        if (this.prefs.ExcludeNpcListProperties) {
           delete object[prop];
         } else {
-          let dataList = await getNpcList(object[prop] as any);
+          let dataList = await this.getNpcList(object[prop] as any);
           dataList = dataList.filter(x => !!x);
-          if (!pref.ExcludeNpcDataListProperties)
+          if (!this.prefs.ExcludeNpcDataListProperties)
             object[slicedProp+'DataList'] = dataList;
           object[slicedProp+'NameList'] = dataList.map(x => x.NameText);
         }
       }
-      if (pref.ExcludeGuideProperties && prop.endsWith('Guide')) {
+      if (this.prefs.ExcludeGuideProperties && prop.endsWith('Guide')) {
         delete object[prop];
       }
       if (prop == 'TalkRole') {
@@ -313,7 +339,7 @@ export function getControl(knex?: Knex, pref?: OverridePrefs) {
           continue;
         }
 
-        let npc = await getNpc(TalkRoleId);
+        let npc = await this.getNpc(TalkRoleId);
         if (npc) {
           TalkRole.NameTextMapHash = npc.NameTextMapHash;
           TalkRole.NameText = npc.NameText;
@@ -329,88 +355,78 @@ export function getControl(knex?: Knex, pref?: OverridePrefs) {
     return object;
   }
 
-  const commonLoad = async (result: any[]) => await Promise.all(result.map(record => !record ? record : postProcess(JSON.parse(record.json_data))));
-  const commonLoadFirst = async (record: any) => !record ? record : await postProcess(JSON.parse(record.json_data));
+  private commonLoad = async (result: any[]) => await Promise.all(result.map(record => !record ? record : this.postProcess(JSON.parse(record.json_data))));
+  private commonLoadFirst = async (record: any) => !record ? record : await this.postProcess(JSON.parse(record.json_data));
 
-  async function getNpc(npcId: number): Promise<NpcExcelConfigData> {
+  async getNpc(npcId: number): Promise<NpcExcelConfigData> {
     if (!npcId) return null;
-    return await getNpcList([ npcId ]).then(x => x && x.length ? x[0] : null);
+    return await this.getNpcList([ npcId ]).then(x => x && x.length ? x[0] : null);
   }
 
-  async function getNpcList(npcIds: number[]): Promise<NpcExcelConfigData[]> {
+  async getNpcList(npcIds: number[]): Promise<NpcExcelConfigData[]> {
     if (!npcIds || !npcIds.length) return [];
-    let notCachedIds = npcIds.filter(id => !pref.npcCache[id]);
-    let cachedList = npcIds.map(id => pref.npcCache[id]).filter(x => !!x);
-    let uncachedList: NpcExcelConfigData[] = await knex.select('*').from('NpcExcelConfigData').whereIn('Id', notCachedIds).then(commonLoad);
-    uncachedList.forEach(npc => pref.npcCache[npc.Id] = npc);
+    let notCachedIds = npcIds.filter(id => !this.prefs.npcCache[id]);
+    let cachedList = npcIds.map(id => this.prefs.npcCache[id]).filter(x => !!x);
+    let uncachedList: NpcExcelConfigData[] = await this.knex.select('*').from('NpcExcelConfigData').whereIn('Id', notCachedIds).then(this.commonLoad);
+    uncachedList.forEach(npc => this.prefs.npcCache[npc.Id] = npc);
     return cachedList.concat(uncachedList);
   }
 
-  async function selectMainQuestByName(name: string|number[]): Promise<MainQuestExcelConfigData> {
-    let textMapIds = [];
+  async selectMainQuestsByNameOrIds(name: string|number|number[], limit: number = 25): Promise<MainQuestExcelConfigData[]> {
+    let textMapIds: number[] = [];
+
     if (typeof name === 'string') {
-      const textMapItems: TextMapItem[] = await knex.select('*').from('TextMap').where({Text: name}).limit(25).then();
-      textMapIds = textMapItems.map(x => x.Id);
+      let matches = await this.getTextMapMatches(name);
+      textMapIds = Object.keys(matches).map(i => parseInt(i));
+    } else if (typeof name === 'number') {
+      textMapIds = [name];
     } else {
       textMapIds = name;
     }
 
-    return await knex.select('*').from('MainQuestExcelConfigData').whereIn('TitleTextMapHash', textMapIds)
-      .first().then(commonLoadFirst);
+    return await this.knex.select('*').from('MainQuestExcelConfigData').whereIn('TitleTextMapHash', textMapIds)
+      .limit(limit).then(this.commonLoad);
   }
 
-  async function selectMainQuestsByName(name: string|number[], limit: number = 25): Promise<MainQuestExcelConfigData[]> {
-    let textMapIds = [];
-    if (typeof name === 'string') {
-      const textMapItems: TextMapItem[] = await knex.select('*').from('TextMap').where({Text: name}).limit(limit).then();
-      textMapIds = textMapItems.map(x => x.Id);
-    } else {
-      textMapIds = name;
-    }
-
-    return await knex.select('*').from('MainQuestExcelConfigData').whereIn('TitleTextMapHash', textMapIds)
-      .limit(limit).then(commonLoad);
+  async selectMainQuestById(id: number): Promise<MainQuestExcelConfigData> {
+    return await this.knex.select('*').from('MainQuestExcelConfigData').where({Id: id}).first().then(this.commonLoadFirst);
   }
 
-  async function selectMainQuestById(id: number): Promise<MainQuestExcelConfigData> {
-    return await knex.select('*').from('MainQuestExcelConfigData').where({Id: id}).first().then(commonLoadFirst);
+  async selectQuestByMainQuestId(id: number): Promise<QuestExcelConfigData[]> {
+    return await this.knex.select('*').from('QuestExcelConfigData').where({MainId: id}).then(this.commonLoad)
+      .then(quests => quests.sort(this.sortByOrder));
   }
 
-  async function selectQuestByMainQuestId(id: number): Promise<QuestExcelConfigData[]> {
-    return await knex.select('*').from('QuestExcelConfigData').where({MainId: id}).then(commonLoad)
-      .then(quests => quests.sort(sortByOrder));
+  async selectManualTextMapConfigDataById(id: string): Promise<ManualTextMapConfigData> {
+    return await this.knex.select('*').from('ManualTextMapConfigData').where({TextMapId: id}).first().then(this.commonLoadFirst);
   }
 
-  async function selectManualTextMapConfigDataById(id: string): Promise<ManualTextMapConfigData> {
-    return await knex.select('*').from('ManualTextMapConfigData').where({TextMapId: id}).first().then(commonLoadFirst);
+  async selectTalkExcelConfigDataById(id: number): Promise<TalkExcelConfigData> {
+    return await this.knex.select('*').from('TalkExcelConfigData').where({Id: id}).orWhere({QuestCondStateEqualFirst: id}).first().then(this.commonLoadFirst);
   }
 
-  async function selectTalkExcelConfigDataById(id: number): Promise<TalkExcelConfigData> {
-    return await knex.select('*').from('TalkExcelConfigData').where({Id: id}).orWhere({QuestCondStateEqualFirst: id}).first().then(commonLoadFirst);
+  async selectTalkExcelConfigDataByQuestSubId(id: number): Promise<TalkExcelConfigData> {
+    return await this.knex.select('*').from('TalkExcelConfigData').where({Id: id}).orWhere({QuestCondStateEqualFirst: id}).first().then(this.commonLoadFirst);
   }
 
-  async function selectTalkExcelConfigDataByQuestSubId(id: number): Promise<TalkExcelConfigData> {
-    return await knex.select('*').from('TalkExcelConfigData').where({Id: id}).orWhere({QuestCondStateEqualFirst: id}).first().then(commonLoadFirst);
-  }
-
-  async function selectTalkExcelConfigDataIdsByPrefix(idPrefix: number|string): Promise<number[]> {
-    let allTalkExcelTalkConfigIds = pref.ExcludeOrphanedDialogue ? [] : await grepIdStartsWith('_id', idPrefix, './ExcelBinOutput/TalkExcelConfigData.json');
+  async selectTalkExcelConfigDataIdsByPrefix(idPrefix: number|string): Promise<number[]> {
+    let allTalkExcelTalkConfigIds = this.prefs.ExcludeOrphanedDialogue ? [] : await grepIdStartsWith('_id', idPrefix, './ExcelBinOutput/TalkExcelConfigData.json');
     return allTalkExcelTalkConfigIds.map(i => toNumber(i));
   }
 
-  async function addOrphanedDialogueAndQuestMessages(mainQuest: MainQuestExcelConfigData) {
-    let allDialogueIds = pref.ExcludeOrphanedDialogue ? [] : await grepIdStartsWith('Id', mainQuest.Id, './ExcelBinOutput/DialogExcelConfigData.json');
+  async addOrphanedDialogueAndQuestMessages(mainQuest: MainQuestExcelConfigData) {
+    let allDialogueIds = this.prefs.ExcludeOrphanedDialogue ? [] : await grepIdStartsWith('Id', mainQuest.Id, './ExcelBinOutput/DialogExcelConfigData.json');
     let allQuestMessageIds = await grepIdStartsWith('TextMapId', 'QUEST_Message_Q' + mainQuest.Id, './ExcelBinOutput/ManualTextMapConfigData.json');
     let consumedQuestMessageIds = [];
 
     const handleOrphanedDialog = async (quest: MainQuestExcelConfigData|QuestExcelConfigData, id: number) => {
-      if (pref.dialogCache[id])
+      if (this.prefs.dialogCache[id])
         return;
-      let dialog = await selectSingleDialogExcelConfigData(id as number);
+      let dialog = await this.selectSingleDialogExcelConfigData(id as number);
       if (dialog) {
         if (!quest.OrphanedDialog)
           quest.OrphanedDialog = [];
-        let dialogs = await selectDialogBranch(dialog);
+        let dialogs = await this.selectDialogBranch(dialog);
         quest.OrphanedDialog.push(dialogs);
       }
     }
@@ -426,7 +442,7 @@ export function getControl(knex?: Knex, pref?: OverridePrefs) {
         for (let id of allQuestMessageIds) {
           if (!id.toString().startsWith('QUEST_Message_Q' + quest.SubId.toString()))
             continue;
-          quest.QuestMessages.push(await selectManualTextMapConfigDataById(id as string));
+          quest.QuestMessages.push(await this.selectManualTextMapConfigDataById(id as string));
           consumedQuestMessageIds.push(id);
         }
       }
@@ -439,62 +455,63 @@ export function getControl(knex?: Knex, pref?: OverridePrefs) {
       for (let id of allQuestMessageIds) {
         if (consumedQuestMessageIds.includes(id))
           continue;
-        mainQuest.QuestMessages.push(await selectManualTextMapConfigDataById(id as string));
+        mainQuest.QuestMessages.push(await this.selectManualTextMapConfigDataById(id as string));
       }
     }
   }
 
-  async function selectTalkExcelConfigDataByQuestId(questId: number): Promise<TalkExcelConfigData[]> {
-    return await knex.select('*').from('TalkExcelConfigData').where({QuestId: questId}).orWhere({QuestCondStateEqualFirst: questId}).then(commonLoad)
-      .then(quests => quests.sort(sortByOrder));
+  async selectTalkExcelConfigDataByQuestId(questId: number): Promise<TalkExcelConfigData[]> {
+    return await this.knex.select('*').from('TalkExcelConfigData').where({QuestId: questId}).orWhere({QuestCondStateEqualFirst: questId}).then(this.commonLoad)
+      .then(quests => quests.sort(this.sortByOrder));
   }
 
-  async function selectTalkExcelConfigDataByNpcId(npcId: number): Promise<TalkExcelConfigData[]> {
-    return await knex.select('*').from('TalkExcelConfigData').where({NpcId: npcId}).then(commonLoad)
-      .then(quests => quests.sort(sortByOrder));
+  async selectTalkExcelConfigDataByNpcId(npcId: number): Promise<TalkExcelConfigData[]> {
+    return await this.knex.select('*').from('TalkExcelConfigData').where({NpcId: npcId}).then(this.commonLoad)
+      .then(quests => quests.sort(this.sortByOrder));
   }
 
-  async function selectDialogExcelConfigDataByTalkRoleId(talkRoleId: number): Promise<DialogExcelConfigData[]> {
-    return await knex.select('*').from('DialogExcelConfigData').where({TalkRoleId: talkRoleId}).then(commonLoad)
-      .then(quests => quests.sort(sortByOrder));
+  async selectDialogExcelConfigDataByTalkRoleId(talkRoleId: number): Promise<DialogExcelConfigData[]> {
+    return await this.knex.select('*').from('DialogExcelConfigData').where({TalkRoleId: talkRoleId}).then(this.commonLoad)
+      .then(quests => quests.sort(this.sortByOrder));
   }
 
-  async function selectSingleDialogExcelConfigData(id: number): Promise<DialogExcelConfigData> {
-    if (pref.dialogCache[id])
-      return pref.dialogCache[id];
-    let result: DialogExcelConfigData = await knex.select('*').from('DialogExcelConfigData').where({Id: id}).first().then(commonLoadFirst);
-    pref.dialogCache[id] = result;
+  async selectSingleDialogExcelConfigData(id: number): Promise<DialogExcelConfigData> {
+    if (this.prefs.dialogCache[id])
+      return this.prefs.dialogCache[id];
+    let result: DialogExcelConfigData = await this.knex.select('*').from('DialogExcelConfigData').where({Id: id}).first().then(this.commonLoadFirst);
+    this.prefs.dialogCache[id] = result;
     return result && result.TalkContentText ? result : null;
   }
 
-  async function selectMultipleDialogExcelConfigData(ids: number[]): Promise<DialogExcelConfigData[]> {
-    return await Promise.all(ids.map(id => selectSingleDialogExcelConfigData(id))).then(arr => arr.filter(x => !!x && !!x.TalkContentText));
+  async selectMultipleDialogExcelConfigData(ids: number[]): Promise<DialogExcelConfigData[]> {
+    return await Promise.all(ids.map(id => this.selectSingleDialogExcelConfigData(id))).then(arr => arr.filter(x => !!x && !!x.TalkContentText));
   }
 
-  function copyDialogForRecurse(node: DialogExcelConfigData) {
+  copyDialogForRecurse(node: DialogExcelConfigData) {
     let copy: DialogExcelConfigData = JSON.parse(JSON.stringify(node));
     copy.recurse = true;
     return copy;
   }
 
-  async function getDialogFromTextContentId(textMapId: number): Promise<DialogExcelConfigData> {
-    let result: DialogExcelConfigData = await knex.select('*').from('DialogExcelConfigData').where({TalkContentTextMapHash: textMapId}).first().then(commonLoadFirst);
-    pref.dialogCache[result.Id] = result;
+  async getDialogFromTextContentId(textMapId: number): Promise<DialogExcelConfigData> {
+    let result: DialogExcelConfigData = await this.knex.select('*').from('DialogExcelConfigData').where({TalkContentTextMapHash: textMapId})
+      .first().then(this.commonLoadFirst);
+    this.prefs.dialogCache[result.Id] = result;
     return result;
   }
 
-  function isPlayerDialogueOption(dialog: DialogExcelConfigData): boolean {
+  isPlayerDialogueOption(dialog: DialogExcelConfigData): boolean {
     return dialog.TalkRole.Type === 'TALK_ROLE_PLAYER' && dialog.TalkShowType && dialog.TalkShowType === 'TALK_SHOW_FORCE_SELECT';
   }
 
-  async function selectDialogBranch(start: DialogExcelConfigData, dialogSeenAlready: number[] = []): Promise<DialogExcelConfigData[]> {
+  async selectDialogBranch(start: DialogExcelConfigData, dialogSeenAlready: number[] = []): Promise<DialogExcelConfigData[]> {
     if (!start)
       return [];
     let currBranch: DialogExcelConfigData[] = [];
     let currNode = start;
     while (currNode) {
       if (dialogSeenAlready.includes(currNode.Id)) {
-        currBranch.push(copyDialogForRecurse(currNode));
+        currBranch.push(this.copyDialogForRecurse(currNode));
         break;
       } else {
         dialogSeenAlready.push(currNode.Id);
@@ -504,15 +521,15 @@ export function getControl(knex?: Knex, pref?: OverridePrefs) {
         currBranch.push(currNode);
       }
 
-      const nextNodes: DialogExcelConfigData[] = await selectMultipleDialogExcelConfigData(currNode.NextDialogs);
+      const nextNodes: DialogExcelConfigData[] = await this.selectMultipleDialogExcelConfigData(currNode.NextDialogs);
       if (nextNodes.length === 1) {
         // If only one next node -> same branch
         currNode = nextNodes[0];
       } else if (nextNodes.length > 1) {
         // If multiple next nodes -> branching
-        const branches: DialogExcelConfigData[][] = await Promise.all(nextNodes.map(node => selectDialogBranch(node, dialogSeenAlready.slice())));
+        const branches: DialogExcelConfigData[][] = await Promise.all(nextNodes.map(node => this.selectDialogBranch(node, dialogSeenAlready.slice())));
         //console.log('Branches:', branches.map(b => b[0]));
-        const intersect = arrayIntersect<DialogExcelConfigData>(branches, IdComparator).filter(x => x.TalkRole.Type !== 'TALK_ROLE_PLAYER'); // do not rejoin on a player talk
+        const intersect = arrayIntersect<DialogExcelConfigData>(branches, this.IdComparator).filter(x => x.TalkRole.Type !== 'TALK_ROLE_PLAYER'); // do not rejoin on a player talk
         //console.log('Intersect:', intersect.length ? intersect[0] : null);
         if (!intersect.length) {
           // branches do not rejoin
@@ -523,7 +540,7 @@ export function getControl(knex?: Knex, pref?: OverridePrefs) {
           let rejoinNode = intersect[0];
           for (let i = 0; i < branches.length; i++) {
             let branch = branches[i];
-            branches[i] = branch.slice(0, arrayIndexOf(branch, rejoinNode, IdComparator));
+            branches[i] = branch.slice(0, arrayIndexOf(branch, rejoinNode, this.IdComparator));
           }
           currNode.Branches = branches;
           currNode = rejoinNode;
@@ -536,27 +553,28 @@ export function getControl(knex?: Knex, pref?: OverridePrefs) {
     return currBranch;
   }
 
-  async function selectNpcListByName(nameOrTextMapId: number|string|number[]): Promise<NpcExcelConfigData[]> {
+  async selectNpcListByName(nameOrTextMapId: number|string|number[]): Promise<NpcExcelConfigData[]> {
     if (typeof nameOrTextMapId === 'string') {
-      nameOrTextMapId = await knex.select('Id').from('TextMap').where({Text: nameOrTextMapId}).then(a => a.map(x => <number> x.Id));
+      let matchId = await this.findTextMapIdByExactName(nameOrTextMapId);
+      nameOrTextMapId = [ matchId ];
     }
     if (typeof nameOrTextMapId === 'number') {
       nameOrTextMapId = [ nameOrTextMapId ];
     }
     console.log('NPC Name TextMapId:', nameOrTextMapId);
-    let npcList = await knex.select('*').from('NpcExcelConfigData').whereIn('NameTextMapHash', <number[]> nameOrTextMapId).then(commonLoad);
+    let npcList = await this.knex.select('*').from('NpcExcelConfigData').whereIn('NameTextMapHash', <number[]> nameOrTextMapId).then(this.commonLoad);
     console.log('NPC List', npcList);
     return npcList;
   }
 
-  function doesDialogHaveNpc(dialog: DialogExcelConfigData, npcNames: string[]) {
+  doesDialogHaveNpc(dialog: DialogExcelConfigData, npcNames: string[]) {
     if (npcNames.includes(dialog.TalkRole.NameText)) {
       return true;
     }
     if (dialog.Branches) {
       for (let branch of dialog.Branches) {
         for (let branchDialog of branch) {
-          if (doesDialogHaveNpc(branchDialog, npcNames)) {
+          if (this.doesDialogHaveNpc(branchDialog, npcNames)) {
             return true;
           }
         }
@@ -565,11 +583,11 @@ export function getControl(knex?: Knex, pref?: OverridePrefs) {
     return false;
   }
 
-  function doesQuestSubHaveNpc(questSub: QuestExcelConfigData, npcNames: string[]) {
+  doesQuestSubHaveNpc(questSub: QuestExcelConfigData, npcNames: string[]) {
     if (questSub.TalkExcelConfigDataList) {
       for (let talkConfig of questSub.TalkExcelConfigDataList) {
         for (let dialog of talkConfig.Dialog) {
-          if (doesDialogHaveNpc(dialog, npcNames)) {
+          if (this.doesDialogHaveNpc(dialog, npcNames)) {
             return true;
           }
         }
@@ -578,7 +596,7 @@ export function getControl(knex?: Knex, pref?: OverridePrefs) {
     if (questSub.OrphanedDialog) {
       for (let dialogs of questSub.OrphanedDialog) {
         for (let dialog of dialogs) {
-          if (doesDialogHaveNpc(dialog, npcNames)) {
+          if (this.doesDialogHaveNpc(dialog, npcNames)) {
             return true;
           }
         }
@@ -587,7 +605,7 @@ export function getControl(knex?: Knex, pref?: OverridePrefs) {
     return false;
   }
 
-  async function generateDialogueWikiText(dialogLines: DialogExcelConfigData[], dialogDepth = 1,
+  async generateDialogueWikiText(dialogLines: DialogExcelConfigData[], dialogDepth = 1,
         originatorDialog: DialogExcelConfigData = null, originatorIsFirstOfBranch: boolean = false,
         firstDialogOfBranchVisited: Set<number> = new Set()): Promise<string> {
     let out = '';
@@ -621,13 +639,13 @@ export function getControl(knex?: Knex, pref?: OverridePrefs) {
         if (matches.length >= 3) {
           let g1 = matches[1];
           let g2 = matches[2];
-          let g1e = await selectManualTextMapConfigDataById(g1);
-          let g2e = await selectManualTextMapConfigDataById(g2);
+          let g1e = await this.selectManualTextMapConfigDataById(g1);
+          let g2e = await this.selectManualTextMapConfigDataById(g2);
           text = `(${g1e.TextMapContentText}/${g2e.TextMapContentText})`;
         }
       }
 
-      if (previousDialog && isPlayerDialogueOption(dialog) && isPlayerDialogueOption(previousDialog) &&
+      if (previousDialog && this.isPlayerDialogueOption(dialog) && this.isPlayerDialogueOption(previousDialog) &&
           previousDialog.NextDialogs.length === 1 && previousDialog.NextDialogs[0] === dialog.Id) {
         // This is for if you have non-branch subsequent player dialogue options for the purpose of generating an output like:
         // :'''Paimon:''' Blah blah blah
@@ -689,7 +707,7 @@ export function getControl(knex?: Knex, pref?: OverridePrefs) {
             continue;
           }
           includedCount++;
-          out += await generateDialogueWikiText(dialogBranch, dialogDepth + 1, dialog, i === 0, temp);
+          out += await this.generateDialogueWikiText(dialogBranch, dialogDepth + 1, dialog, i === 0, temp);
         }
         if (includedCount === 0 && excludedCount > 0) {
           out += `\n${diconPrefix};(Return to option selection)`;
@@ -699,36 +717,51 @@ export function getControl(knex?: Knex, pref?: OverridePrefs) {
       previousDialog = dialog;
     }
     return out;
-  };
+  }
 
-  return {
-    getPref() {
-      return pref;
-    },
-    postProcess,
-    commonLoad,
-    commonLoadFirst,
-    getNpc,
-    getNpcList,
-    selectMainQuestByName,
-    selectMainQuestsByName,
-    selectMainQuestById,
-    selectQuestByMainQuestId,
-    selectManualTextMapConfigDataById,
-    selectTalkExcelConfigDataById,
-    selectTalkExcelConfigDataByQuestSubId,
-    selectTalkExcelConfigDataIdsByPrefix,
-    selectTalkExcelConfigDataByQuestId,
-    selectTalkExcelConfigDataByNpcId,
-    selectNpcListByName,
-    selectDialogExcelConfigDataByTalkRoleId,
-    addOrphanedDialogueAndQuestMessages,
-    getDialogFromTextContentId,
-    selectSingleDialogExcelConfigData,
-    selectMultipleDialogExcelConfigData,
-    selectDialogBranch,
-    doesQuestSubHaveNpc,
-    generateDialogueWikiText,
-    isPlayerDialogueOption,
+  getPrefs(): ControlPrefs {
+    return this.prefs;
+  }
+
+  get inputLangCode() {
+    return this.prefs.inputLangCode;
+  }
+
+  get outputLangCode() {
+    return this.prefs.outputLangCode;
+  }
+
+  readonly FLAG_EXACT_WORD = '-w';
+  readonly FLAG_REGEX = '-E';
+
+  async getTextMapMatches(searchText: string, flags?: string): Promise<{[id: number]: string}> {
+    let lines = await grep(searchText, config.database.getTextMapFile(this.inputLangCode), flags);
+    let out = {};
+    for (let line of lines) {
+      let parts = /^"(\d+)":\s+"(.*)",?$/.exec(line);
+      out[parts[1]] = parts[2].replaceAll('\\', '');
+    }
+    return out;
+  }
+
+  async getTextMapIdStartsWith(idPrefix: string): Promise<{[id: number]: string}> {
+    let lines = await grep(`^\\s*"${idPrefix}\\d+": "`,config.database.getTextMapFile(this.inputLangCode), '-E');
+    console.log(lines);
+    let out = {};
+    for (let line of lines) {
+      let parts = /^"(\d+)":\s+"(.*)",?$/.exec(line);
+      out[parts[1]] = parts[2].replaceAll('\\', '');
+    }
+    return out;
+  }
+
+  async findTextMapIdByExactName(name: string): Promise<number> {
+    let matches = await this.getTextMapMatches(name, this.FLAG_EXACT_WORD);
+    for (let [id,value] of Object.entries(matches)) {
+      if (value.toLowerCase() === name.toLowerCase()) {
+        return parseInt(id);
+      }
+    }
+    return 0;
   }
 }

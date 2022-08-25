@@ -10,6 +10,7 @@ import * as expressCore from 'express-serve-static-core';
 import { icon, timestamp, humanTiming, compileResourceElement, Tl } from '@/util/view_utilities';
 import { cachedSync } from '@cache';
 import crypto from 'crypto';
+import { LANG_CODES_TO_NAME } from '@types';
 //#endregion
 
 //#region Types
@@ -25,6 +26,7 @@ export type RequestSubViewLocals = {
 
 /** The only instance of this type should be at req.context */
 class RequestContext {
+  private _req: Request;
   title: string;
   styles: any[];
   scripts: any[];
@@ -33,7 +35,8 @@ class RequestContext {
   viewStackPointer: RequestSubViewLocals;
   nonce = crypto.randomBytes(16).toString('hex');
 
-  constructor() {
+  constructor(req: Request) {
+    this._req = req;
     this.title = '';
     this.styles = [];
     this.scripts = [];
@@ -52,6 +55,18 @@ class RequestContext {
 
   get currentGenshinVersion() {
     return config.currentGenshinVersion;
+  }
+
+  get languages() {
+    return LANG_CODES_TO_NAME;
+  }
+
+  get inputLangCode() {
+    return this._req.cookies['inputLangCode'] || 'EN';
+  }
+
+  get outputLangCode() {
+    return this._req.cookies['outputLangCode'] || 'EN';
   }
 };
 
@@ -145,7 +160,7 @@ async function mergeReqContextList(req: Request, prop: string, mergeIn?: StringL
 
 export async function updateReqContext(req: Request, ctx: Readonly<RequestContextUpdate>) {
   if (!req.context) {
-    req.context = new RequestContext();
+    req.context = new RequestContext(req);
   }
 
   mergeReqContextList(req, 'styles', ctx.styles);

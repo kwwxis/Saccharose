@@ -1,17 +1,13 @@
 import '../../setup';
-import {closeKnex, openKnex} from '@db';
-import { getControl } from '@/scripts/script_util';
-import { getTextMapMatches } from '@/scripts/textMapFinder/text_map_finder';
+import {closeKnex} from '@db';
+import { Control } from '@/scripts/script_util';
 import { DialogExcelConfigData, TalkExcelConfigData } from '@types';
 
-export async function dialogueGenerate(firstDialogueId: number|number[]|string): Promise<{[id: number]: string}> {
-  const knex = openKnex();
-  const ctrl = getControl(knex);
-
+export async function dialogueGenerate(ctrl: Control, firstDialogueId: number|number[]|string): Promise<{[id: number]: string}> {
   let result: {[id: number]: string} = {};
 
   if (typeof firstDialogueId === 'string') {
-    const matches = await getTextMapMatches(firstDialogueId.trim());
+    const matches = await ctrl.getTextMapMatches(firstDialogueId.trim());
     if (Object.keys(matches).length) {
       let dialogue = await ctrl.getDialogFromTextContentId(parseInt(Object.keys(matches)[0]));
       firstDialogueId = dialogue.Id;
@@ -32,11 +28,7 @@ export async function dialogueGenerate(firstDialogueId: number|number[]|string):
   return result;
 }
 
-export async function talkConfigGenerate(talkConfigId: number): Promise<string> {
-  const knex = openKnex();
-  const ctrl = getControl(knex);
-
-
+export async function talkConfigGenerate(ctrl: Control, talkConfigId: number): Promise<string> {
   let initTalkConfig = await ctrl.selectTalkExcelConfigDataByQuestSubId(talkConfigId);
 
   async function handleTalkDialogue(talkConfig: TalkExcelConfigData, originatorDialog?: DialogExcelConfigData) {
@@ -73,7 +65,7 @@ export async function talkConfigGenerate(talkConfigId: number): Promise<string> 
 if (require.main === module) {
   (async () => {
     //console.log(await dialogueGenerate(`Uh, why are you two fighting?`));
-    console.log(await talkConfigGenerate(6906901));
+    //console.log(await talkConfigGenerate(6906901));
     closeKnex();
   })();
 }
