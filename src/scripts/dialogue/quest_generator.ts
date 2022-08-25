@@ -11,14 +11,17 @@ import {
 import config from '@/config';
 
 export class DialogueSectionResult {
+  id: string = null;
   title: string = null;
   helptext: string = null;
   metatext: string = null;
   wikitext: string = null;
   wikitextArray: string[] = [];
   children: DialogueSectionResult[] = [];
+  htmlMessage: string = null;
 
-  constructor(title: string, helptext: string = null) {
+  constructor(id: string, title: string, helptext: string = null) {
+    this.id = id;
     this.title = title;
     this.helptext = helptext;
   }
@@ -33,7 +36,7 @@ export class QuestGenerateResult {
     data: {[Id: number]: NpcExcelConfigData},
   } = {names: [], data: {}};
 
-  templateWikitext: string = null;
+  stepsWikitext: string = null;
   questDescriptions: string[] = [];
   otherLanguagesWikitext: string = null;
   dialogue: DialogueSectionResult[] = [];
@@ -101,23 +104,25 @@ export async function questGenerate(questNameOrId: string|number, mainQuestIndex
 
   // Fetch talk configs
   const fetchedTalkConfigIds: number[] = [];
-  const fetchedTalkConfigs: TalkExcelConfigData[] = [];
+  const fetchedTopLevelTalkConfigs: TalkExcelConfigData[] = [];
 
-  async function handleTalkConfig(talkConfig: TalkExcelConfigData): Promise<TalkExcelConfigData> {
+  async function handleTalkConfig(talkConfig: TalkExcelConfigData, isTopLevel: boolean = true): Promise<TalkExcelConfigData> {
     if (!talkConfig || fetchedTalkConfigIds.includes(talkConfig.Id)) {
       return null; // skip if not found or if already found
     }
+    fetchedTalkConfigIds.push(talkConfig.Id);
     if (!!talkConfig.InitDialog) {
       talkConfig.Dialog = await ctrl.selectDialogBranch(await ctrl.selectSingleDialogExcelConfigData(talkConfig.InitDialog));
     }
-    fetchedTalkConfigIds.push(talkConfig.Id);
-    fetchedTalkConfigs.push(talkConfig);
+    if (isTopLevel) {
+      fetchedTopLevelTalkConfigs.push(talkConfig);
+    }
     if (talkConfig.NextTalks) {
       if (!talkConfig.NextTalksDataList) {
         talkConfig.NextTalksDataList = [];
       }
       for (let nextTalkId of talkConfig.NextTalks) {
-        let nextTalkConfig = await handleTalkConfig(await ctrl.selectTalkExcelConfigDataByQuestSubId(nextTalkId));
+        let nextTalkConfig = await handleTalkConfig(await ctrl.selectTalkExcelConfigDataByQuestSubId(nextTalkId), false);
         if (nextTalkConfig) {
           talkConfig.NextTalksDataList.push(nextTalkConfig);
         }
@@ -126,12 +131,12 @@ export async function questGenerate(questNameOrId: string|number, mainQuestIndex
     return talkConfig;
   }
 
-  // Fetch Talk Config by Main Quest Id
+  // Fetch Talk Configs by Main Quest Id (exact)
   for (let talkConfig of (await ctrl.selectTalkExcelConfigDataByQuestId(mainQuest.Id))) {
     await handleTalkConfig(talkConfig);
   }
 
-  // Find Talk Config by Quest Sub Id
+  // Find Talk Configs by Quest Sub Id
   for (let questExcelConfigData of mainQuest.QuestExcelConfigDataList) {
     if (fetchedTalkConfigIds.includes(questExcelConfigData.SubId)) {
       continue;
@@ -140,7 +145,8 @@ export async function questGenerate(questNameOrId: string|number, mainQuestIndex
     await handleTalkConfig(talkConfig);
   }
 
-  let talkConfigIdsByMainQuestIdPrefix = await ctrl.selectTalkExcelConfigDataIdsByPrefix(mainQuest.Id);
+  // Fetch Talk Configs by Main Quest Id (prefix)
+  let talkConfigIdsByMainQuestIdPrefix: number[] = await ctrl.selectTalkExcelConfigDataIdsByPrefix(mainQuest.Id);
   for (let talkConfigId of talkConfigIdsByMainQuestIdPrefix) {
     if (fetchedTalkConfigIds.includes(talkConfigId)) {
       continue;
@@ -153,37 +159,17 @@ export async function questGenerate(questNameOrId: string|number, mainQuestIndex
   await ctrl.addOrphanedDialogueAndQuestMessages(mainQuest);
 
   // Push Talk Configs to appropriate sections (after fetching orphaned dialogue)
-  for (let talkConfig of fetchedTalkConfigs) {
+  for (let talkConfig of fetchedTopLevelTalkConfigs) {
     pushTalkConfigToCorrespondingQuestSub(talkConfig);
   }
 
-  // Delete quest subs without dialogue.
-  // If empty dialogue quest subs have non-empty DescText or StepDescText, then move those to the previous quest sub
+  // Skip quest subs without dialogue/DescTest/StepDescTest.
   let newQuestSubs: QuestExcelConfigData[] = [];
   for (let questSub of mainQuest.QuestExcelConfigDataList) {
     if (arrayEmpty(questSub.OrphanedDialog) && arrayEmpty(questSub.QuestMessages) && arrayEmpty(questSub.TalkExcelConfigDataList)) {
       if (questSub.DescText || questSub.StepDescText) {
-        if (!newQuestSubs.length) {
-          newQuestSubs.push(questSub); // If no previous quest sub, then keep empty section
-          continue;
-        }
-
-        let prev = newQuestSubs[newQuestSubs.length - 1];
-        if (!prev.DescText) { // only move to previous if previous doesn't have DescText already
-          prev.DescText = questSub.DescText;
-          delete questSub.DescText;
-        }
-        if (!prev.StepDescText) { // only move to previous if previous doesn't have StepDescText already
-          prev.StepDescText = questSub.StepDescText;
-          delete questSub.StepDescText;
-        }
-
-        if (questSub.DescText || questSub.StepDescText) {
-          newQuestSubs.push(questSub); // push if failed to move DescText/StepDescText properties to previous
-        }
-        // If properties moved, then don't push (delete)
+        newQuestSubs.push(questSub);
       }
-      // If quest sub doesn't have DescText/StepDescText, then don't push (delete)
     } else {
       newQuestSubs.push(questSub);
     }
@@ -219,59 +205,32 @@ export async function questGenerate(questNameOrId: string|number, mainQuestIndex
     }
   }
   function printCond(fieldName: string, condComb: string, condList: ConfigCondition[]) {
+    let out = '';
     if (condList && condList.length) {
-      line(fieldName + (condComb ? ' [Comb='+condComb+']' : '') + ':')
-      for (let cond of condList) {
-        if (cond.Type === 'QUEST_COND_STATE_EQUAL') {
-          if (cond.Param[1] === '2') {
-            line('  Condition: before section ' + cond.Param[0]);
-          } else if (cond.Param[1] === '3') {
-            line('  Condition: after section ' + cond.Param[0]);
-          } else {
-            line('  Condition: ' + JSON.stringify(cond.Param));
-          }
-        } else {
-          line('  Condition: Type=' + cond.Type + (cond.Param ? ' Param=' + JSON.stringify(cond.Param) : '')
-              + (cond.ParamStr ? ' ParamStr=' + cond.ParamStr : '')
-              + (cond.Count ? ' Count=' + cond.Count : ''));
+      out += fieldName + (condComb ? '[Comb='+condComb+']' : '') + ': ';
+      for (let i = 0; i < condList.length; i++) {
+        let cond = condList[i];
+        if (i !== 0) {
+          out += ', ';
         }
+        out += '('+'Type=' + cond.Type + (cond.Param ? ' Param=' + JSON.stringify(cond.Param) : '')
+            + (cond.ParamStr ? ' ParamStr=' + cond.ParamStr : '')
+            + (cond.Count ? ' Count=' + cond.Count : '')+')';
       }
+    }
+    if (out) {
+      line(out);
     }
   }
 
-  // Quest Page Template
-  // -------------------
+  // Quest Steps
+  // -----------
   clearOut();
-
-  line('==Steps==');
   for (let questSub of mainQuest.QuestExcelConfigDataList) {
     if (questSub.DescText)
       line('# ' + questSub.DescText);
   }
-  line();
-  line('==Dialogue==');
-  line('{{Quest Description|'+mainQuest.DescText+'}}');
-  line('{{Dialogue start}}');
-  for (let i = 0; i < mainQuest.QuestExcelConfigDataList.length; i++) {
-    let questSub = mainQuest.QuestExcelConfigDataList[i];
-    if (questSub.DescText) {
-      if (i !== 0) {
-        line();
-      }
-      line(';(' + questSub.DescText.replaceAll('(', '<nowiki>(').replaceAll(')', ')</nowiki>').replaceAll(':', '<nowiki>:</nowiki>') + ')');
-      line();
-      if (i !== mainQuest.QuestExcelConfigDataList.length - 1) {
-        line('----');
-      }
-    }
-  }
-  line('{{Dialogue end}}');
-  line();
-  line(await ol_gen(mainQuest.TitleText));
-  line();
-  line('==Change History==');
-  line('{{Change History|'+config.currentGenshinVersion+'}}');
-  result.templateWikitext = out;
+  result.stepsWikitext = out;
 
   // Quest Descriptions
   // ------------------
@@ -301,13 +260,14 @@ export async function questGenerate(questNameOrId: string|number, mainQuestIndex
   const orphanedHelpText = `"Orphaned" means that the script didn't find anything conclusive in the JSON associating this dialogue to the quest. The tool assumes it's associated based on the dialogue IDs.`;
   const questMessageHelpText = `These are usually black-screen transition lines. There isn't any info in the JSON to show where these lines go chronologically within the section, so you'll have to figure that out.`;
 
-  async function handleTalkDialogue(parentSect: DialogueSectionResult|QuestGenerateResult, sectName: string, talkConfig: TalkExcelConfigData) {
-    let mysect = new DialogueSectionResult(sectName);
+  async function handleTalkDialogue(parentSect: DialogueSectionResult|QuestGenerateResult, sectName: string, sectHelptext: string, talkConfig: TalkExcelConfigData) {
+    let mysect = new DialogueSectionResult('TalkDialogue_'+talkConfig.Id, sectName, sectHelptext);
     clearOut();
     lineProp('TalkConfigId', talkConfig.Id);
-    lineProp('BeginWay', talkConfig.BeginWay);
-    printCond('BeginCond', talkConfig.BeginCondComb, talkConfig.BeginCond);
+    //lineProp('BeginWay', talkConfig.BeginWay);
+    //printCond('BeginCond', talkConfig.BeginCondComb, talkConfig.BeginCond);
     lineProp('QuestIdleTalk', talkConfig.QuestIdleTalk ? 'yes' : null);
+    lineProp('NextTalks', talkConfig.NextTalks && talkConfig.NextTalks.length ? talkConfig.NextTalks.join(', ') : null);
     mysect.metatext = out;
 
     clearOut();
@@ -318,7 +278,23 @@ export async function questGenerate(questNameOrId: string|number, mainQuestIndex
 
     if (talkConfig.NextTalksDataList) {
       for (let nextTalkConfig of talkConfig.NextTalksDataList) {
-        await handleTalkDialogue(mysect, 'Next Talk Dialogue', nextTalkConfig);
+        await handleTalkDialogue(mysect, 'Next Talk Dialogue', 'An immediate continuation from the parent talk dialogue. ' +
+        'This can happen for conditional dialogues (ex. multiple talk dialogues leading to the same next talk dialogue).', nextTalkConfig);
+      }
+    }
+
+    if (talkConfig.NextTalks) {
+      // Get a list of next talk ids that are *not* in NextTalksDataList
+      let skippedNextTalkIds = talkConfig.NextTalks.filter(myId => !talkConfig.NextTalksDataList.find(x => x.Id === myId));
+      for (let nextTalkId of skippedNextTalkIds) {
+        let placeholderSect = new DialogueSectionResult(null, 'Next Talk Dialogue');
+        clearOut();
+        lineProp('TalkConfigId', nextTalkId);
+        placeholderSect.metatext = out;
+        placeholderSect.htmlMessage = `<p>This section contains dialogue but wasn't shown because the section is already present on the page.
+        This can happen when multiple talk dialogues lead to the same next talk dialogue.</p>
+        <p><a href="#TalkDialogue_${nextTalkId}">Jump to Talk Dialogue ${nextTalkId}</a></p>`;
+        mysect.children.push(placeholderSect);
       }
     }
 
@@ -330,7 +306,7 @@ export async function questGenerate(questNameOrId: string|number, mainQuestIndex
   }
 
   for (let questSub of mainQuest.QuestExcelConfigDataList) {
-    let sect = new DialogueSectionResult('Section');
+    let sect = new DialogueSectionResult('Section_'+questSub.SubId, 'Section');
 
     clearOut();
     lineProp('Section Id', questSub.SubId);
@@ -344,7 +320,7 @@ export async function questGenerate(questNameOrId: string|number, mainQuestIndex
 
     if (questSub.OrphanedDialog && questSub.OrphanedDialog.length) {
       for (let dialog of questSub.OrphanedDialog) {
-        let subsect = new DialogueSectionResult('Orphaned Dialogue', orphanedHelpText);
+        let subsect = new DialogueSectionResult('OrphanedDialogue_'+dialog[0].Id, 'Orphaned Dialogue', orphanedHelpText);
         clearOut();
         line('{{Dialogue start}}');
         out += await ctrl.generateDialogueWikiText(dialog);
@@ -357,19 +333,21 @@ export async function questGenerate(questNameOrId: string|number, mainQuestIndex
     if (questSub.TalkExcelConfigDataList && questSub.TalkExcelConfigDataList.length
           && questSub.TalkExcelConfigDataList.every(x => x.Dialog && x.Dialog.length)) {
       for (let talkConfig of questSub.TalkExcelConfigDataList) {
-        await handleTalkDialogue(sect, 'Talk Dialogue' , talkConfig);
+        await handleTalkDialogue(sect, 'Talk Dialogue', null, talkConfig);
       }
     }
 
     if (questSub.QuestMessages && questSub.QuestMessages.length) {
-      let subsect = new DialogueSectionResult('Section Quest Messages', questMessageHelpText);
+      let subsect = new DialogueSectionResult('SectionQuestMessages_'+questSub.SubId, 'Section Quest Messages', questMessageHelpText);
       clearOut();
       for (let questMessage of questSub.QuestMessages) {
         if (typeof questMessage.TextMapContentText === 'string') {
           subsect.wikitextArray.push(questMessage.TextMapContentText.replace(/\\n/g, '\n').split('\n').map(line => `:'''${line}'''`).join('\n'));
         }
       }
-      sect.children.push(subsect);
+      if (subsect.wikitextArray.length) {
+        sect.children.push(subsect);
+      }
     }
 
     result.dialogue.push(sect);
@@ -377,7 +355,7 @@ export async function questGenerate(questNameOrId: string|number, mainQuestIndex
 
   if (mainQuest.OrphanedDialog && mainQuest.OrphanedDialog.length) {
     for (let dialog of mainQuest.OrphanedDialog) {
-      let sect = new DialogueSectionResult('Orphaned Dialogue', orphanedHelpText);
+      let sect = new DialogueSectionResult('OrphanedDialogue_'+dialog[0].Id, 'Orphaned Dialogue', orphanedHelpText);
       clearOut();
       line('{{Dialogue start}}');
       out += await ctrl.generateDialogueWikiText(dialog);
@@ -390,18 +368,20 @@ export async function questGenerate(questNameOrId: string|number, mainQuestIndex
   if (mainQuest.OrphanedTalkExcelConfigDataList && mainQuest.OrphanedTalkExcelConfigDataList.length
       && mainQuest.OrphanedTalkExcelConfigDataList.every(x => x.Dialog && x.Dialog.length)) {
     for (let talkConfig of mainQuest.OrphanedTalkExcelConfigDataList) {
-      await handleTalkDialogue(result, 'Orphaned Talk Dialogue' , talkConfig);
+      await handleTalkDialogue(result, 'Orphaned Talk Dialogue', null, talkConfig);
     }
   }
   if (mainQuest.QuestMessages && mainQuest.QuestMessages.length) {
-    let sect = new DialogueSectionResult('Quest Messages', questMessageHelpText);
+    let sect = new DialogueSectionResult('MainQuestMessages', 'Quest Messages', questMessageHelpText);
     clearOut();
     for (let questMessage of mainQuest.QuestMessages) {
       if (typeof questMessage.TextMapContentText === 'string') {
         sect.wikitextArray.push(questMessage.TextMapContentText.replace(/\\n/g, '\n').split('\n').map(line => `:'''${line}'''`).join('\n'));
       }
     }
-    result.dialogue.push(sect);
+    if (sect.wikitextArray.length) {
+      result.dialogue.push(sect);
+    }
   }
 
   return result;

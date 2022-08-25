@@ -71,7 +71,7 @@ router.restful('/quests/generate', {
       locals.questTitle = result.questTitle;
       locals.questId = result.questId;
       locals.npc = result.npc;
-      locals.templateWikitext = result.templateWikitext;
+      locals.stepsWikitext = result.stepsWikitext;
       locals.questDescriptions = result.questDescriptions;
       locals.otherLanguagesWikitext = result.otherLanguagesWikitext;
       locals.dialogue = result.dialogue;

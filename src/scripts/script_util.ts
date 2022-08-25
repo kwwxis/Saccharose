@@ -103,8 +103,8 @@ export const normText = (text: string) => {
     return text;
   }
   text = text.replace(/—/g, '&mdash;').trim();
-  text = text.replace('{NICKNAME}', '(Traveler)');
-  text = text.replace('{NON_BREAK_SPACE}', '&nbsp;');
+  text = text.replace(/{NICKNAME}/g, '(Traveler)');
+  text = text.replace(/{NON_BREAK_SPACE}/g, '&nbsp;');
   text = text.replace(/{F#([^}]+)}{M#([^}]+)}/g, '($2/$1)');
   text = text.replace(/{M#([^}]+)}{F#([^}]+)}/g, '($1/$2)');
   text = text.replace(/\<color=#00E1FFFF\>([^<]+)\<\/color\>/g, '{{color|buzzword|$1}}');

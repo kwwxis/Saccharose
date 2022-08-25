@@ -4,10 +4,14 @@
     <a class="help-info fr fontWeight600" style="font-size:15px;cursor:pointer;">Help</a>
   </h2>
   <div class="content">
-    <h4>Quest Descriptions</h4>
+    <h4>Quest Description(s)</h4>
     <% questDescriptions.forEach(questDescription => { %>
       <textarea class="w100p autosize" style="resize:vertical;min-height:40px;"><%= questDescription %></textarea>
     <% }) %>
+  </div>
+  <div class="content">
+    <h4>Steps</h4>
+    <textarea class="w100p" style="resize:vertical;min-height:200px;"><%= stepsWikitext %></textarea>
   </div>
   <div class="content">
     <h4>Other Languages</h4>

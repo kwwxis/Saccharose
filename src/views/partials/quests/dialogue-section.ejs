@@ -1,4 +1,4 @@
-<div class="dialogue-section">
+<div class="dialogue-section" id="<%= id %>">
   <h4 class="dialogue-section-title valign"><%= title %>
     <% if (locals.helptext) { %>
       <span ui-tippy-hover="<%= locals.helptext %>" class="dispInlineBlock spacer5-left" style="height:18px;width:18px;"><%- icon('info',{width: 18, height:18}) %></span>
@@ -11,8 +11,11 @@
       <% }) %>
     </p>
   <% } %>
+  <% if (locals.htmlMessage) { %>
+    <div class="dialogue-section-info-message"><%- htmlMessage %></div>
+    <% } %>
   <% if (locals.wikitext) { %>
-    <textarea class="dialogue-section-wikitext w100p" style="resize:vertical;min-height:50px;"><%= wikitext %></textarea>
+    <textarea class="dialogue-section-wikitext w100p" style="resize:vertical;min-height:40px;"><%= wikitext %></textarea>
   <% } %>
   <% if (locals.wikitextArray) { %>
     <% wikitextArray.forEach(item => { %>
