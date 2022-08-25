@@ -111,6 +111,7 @@ export interface MainQuestExcelConfigData {
   Type?: string,
   ActiveMode: string,
   TitleText?: string,
+  TitleTextEN?: string,
   TitleTextMapHash: number,
   DescText?: string,
   DescTextMapHash: number,

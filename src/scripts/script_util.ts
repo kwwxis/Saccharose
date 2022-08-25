@@ -292,6 +292,9 @@ export class Control {
         else
           delete object[prop];
       }
+      if (prop === 'TitleTextMapHash') {
+        object['TitleTextEN'] = getTextMapItem('EN', object['TitleTextMapHash']);
+      }
       if (prop.endsWith('Cond')) {
         if (this.prefs.ExcludeCondProperties && !prop.startsWith('Begin') && !prop.startsWith('Accept') && !prop.startsWith('Finish') && !prop.startsWith('Fail')) {
           delete object[prop];

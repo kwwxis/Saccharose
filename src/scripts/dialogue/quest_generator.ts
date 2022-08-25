@@ -243,7 +243,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
   // Other Languages
   // ---------------
   clearOut();
-  line(await ol_gen(ctrl, mainQuest.TitleText));
+  line(await ol_gen(ctrl, mainQuest.TitleTextEN));
   result.otherLanguagesWikitext = out;
 
   // Quest Dialogue

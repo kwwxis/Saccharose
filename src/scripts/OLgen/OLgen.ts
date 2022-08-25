@@ -70,7 +70,7 @@ export async function ol_gen(ctrl: Control, name: string, hideTl: boolean = fals
 
 if (require.main === module) {
   (async () => {
-    console.log(await ol_gen(getControl(), `"Outlander Brigade!"`, true));
-    //console.log(await ol_gen(getControl(), `Radiant Sakura`, true));
+    //console.log(await ol_gen(getControl(), `"Outlander Brigade!"`, true));
+    console.log(await ol_gen(getControl(), `Master Chef: Vanarana`, true));
   })();
 }
