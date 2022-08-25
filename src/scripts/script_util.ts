@@ -119,12 +119,31 @@ export const convertRubi = (text: string) => {
   return parts.join('');
 }
 
-export const normText = (text: string) => {
+export const travelerPlaceholder = (langCode: string = 'EN') => {
+  switch (langCode) {
+    case 'CHS': return '玩家';
+    case 'CHT': return '玩家';
+    case 'DE': return 'Reisender'; // #(Reisende/Reisender)
+    case 'EN': return 'Traveler';
+    case 'ES': return 'Viajero'; // #Viajer(a/o)
+    case 'FR': return 'Voyageur'; // #{M#Voyageur}{F#Voyageuse}
+    case 'ID': return 'Pengembara';
+    case 'JP': return 'プレイヤー';
+    case 'KR': return '플레이어';
+    case 'PT': return 'Jogador';
+    case 'RU': return 'Игрок';
+    case 'TH': return 'ผู้เล่น';
+    case 'VI': return 'Người Chơi';
+  }
+  return 'Traveler;'
+}
+
+export const normText = (text: string, langCode: string = 'EN') => {
   if (!text) {
     return text;
   }
   text = text.replace(/—/g, '&mdash;').trim();
-  text = text.replace(/{NICKNAME}/g, '(Traveler)');
+  text = text.replace(/{NICKNAME}/g, '('+travelerPlaceholder(langCode)+')');
   text = text.replace(/{NON_BREAK_SPACE}/g, '&nbsp;');
   text = text.replace(/{F#([^}]+)}{M#([^}]+)}/g, '($2/$1)');
   text = text.replace(/{M#([^}]+)}{F#([^}]+)}/g, '($1/$2)');
@@ -635,7 +654,7 @@ export class Control {
       }
 
       let prefix = ':'.repeat(dialogDepth);
-      let text = normText(dialog.TalkContentText);
+      let text = normText(dialog.TalkContentText, this.outputLangCode);
 
       if (text.includes('SEXPRO')) {
         let matches = /\{PLAYERAVATAR#SEXPRO\[(.*)\|(.*)\]\}/.exec(text);
