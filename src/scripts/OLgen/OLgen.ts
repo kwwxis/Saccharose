@@ -55,8 +55,32 @@ function ol_gen_internal(grepOutput: string, hideTl: boolean = false, addDefault
         template = template.replace(/\|th_tl\s*=\s*\{\}/, '');
       }
     });
+  if (olMap['EN'] === olMap['ES']) {
+    template = template.replace(/\|es_tl\s*=\s*\{\}/, '');
+  }
+  if (olMap['EN'] === olMap['FR']) {
+    template = template.replace(/\|fr_tl\s*=\s*\{\}/, '');
+  }
+  if (olMap['EN'] === olMap['RU']) {
+    template = template.replace(/\|ru_tl\s*=\s*\{\}/, '');
+  }
   if (olMap['EN'] === olMap['ID']) {
     template = template.replace(/\|id_tl\s*=\s*\{\}/, '');
+  }
+  if (olMap['EN'] === olMap['TH']) {
+    template = template.replace(/\|th_tl\s*=\s*\{\}/, '');
+  }
+  if (olMap['EN'] === olMap['VI']) {
+    template = template.replace(/\|vi_tl\s*=\s*\{\}/, '');
+  }
+  if (olMap['EN'] === olMap['DE']) {
+    template = template.replace(/\|de_tl\s*=\s*\{\}/, '');
+  }
+  if (olMap['EN'] === olMap['ID']) {
+    template = template.replace(/\|id_tl\s*=\s*\{\}/, '');
+  }
+  if (olMap['EN'] === olMap['PT']) {
+    template = template.replace(/\|pt_tl\s*=\s*\{\}/, '');
   }
   return template.replaceAll('{}', '').replaceAll('\\"', '"').replace(/{F#([^}]+)}{M#([^}]+)}/g, '($1/$2)').split('\n').filter(s => !!s).join('\n');
 }

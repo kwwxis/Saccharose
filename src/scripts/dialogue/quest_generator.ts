@@ -1,6 +1,6 @@
 import '../../setup';
 import {closeKnex, openKnex} from '@db';
-import { arrayUnique, arrayEmpty, getControl, ControlPrefs, stringify, Control } from '@/scripts/script_util';
+import { arrayUnique, arrayEmpty, getControl, ControlPrefs, stringify, Control, normText } from '@/scripts/script_util';
 import { ol_gen } from '@/scripts/OLgen/OLgen';
 import {
   ConfigCondition,
@@ -221,7 +221,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
   clearOut();
   for (let questSub of mainQuest.QuestExcelConfigDataList) {
     if (questSub.DescText)
-      line('# ' + questSub.DescText);
+      line('# ' + normText(questSub.DescText));
   }
   result.stepsWikitext = out;
 
