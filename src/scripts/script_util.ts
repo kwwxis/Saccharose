@@ -62,13 +62,14 @@ export function normalizeCharName(name: string) {
 export async function grep(searchText: string, file: string, extraFlags?: string): Promise<string[]> {
   try {
     if (file.endsWith('.json')) {
-      searchText = searchText.replace(/"/g, `\\\\"`); // double quotes since it's JSON
+      searchText = searchText.replace(/"/g, `\\"`); // double quotes since it's JSON
     }
     searchText = searchText.replace(/'/g, `'"'"'`); // escape single quote by gluing different kinds of quotations, do this after double quote replacement
 
     // Must use single quotes for searchText - double quotes has different behavior in bash, is insecure for arbitrary string...
     // Use "-F" flag (fixed strings) so it isn't interpreted as a pattern. But don't use -F" flag if "-E" flag (extended regex) is present.
     const cmd = `grep -i ${extraFlags && extraFlags.includes('-E') ? '' : '-F'} ${extraFlags || ''} '${searchText}' ${config.database.getGenshinDataFilePath(file)}`;
+    console.log('Command:',cmd);
     const { stdout, stderr } = await execPromise(cmd, {
       env: { PATH: process.env.SHELL_PATH },
       shell: process.env.SHELL_EXEC

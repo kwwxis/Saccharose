@@ -33,6 +33,8 @@ router.restful('/quests/findMainQuest', {
 
     let result: {[id: number]: string} = {};
     for (let mainQuest of mainQuests) {
+      if (!mainQuest || !mainQuest.Id)
+        continue;
       result[mainQuest.Id] = mainQuest.TitleText;
     }
 
