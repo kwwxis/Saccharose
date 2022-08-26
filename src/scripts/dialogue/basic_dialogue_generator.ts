@@ -4,6 +4,7 @@ import { Control } from '@/scripts/script_util';
 import { DialogExcelConfigData, TalkExcelConfigData } from '@types';
 import { DialogueSectionResult, TalkConfigAccumulator, talkConfigToDialogueSectionResult } from './quest_generator';
 import { isInt } from '@functions';
+import { C } from 'html-validate/dist/cjs/core';
 
 export async function dialogueGenerate(ctrl: Control, query: number|number[]|string): Promise<DialogueSectionResult[]> {
   let result: DialogueSectionResult[] = [];
@@ -42,6 +43,8 @@ export async function dialogueGenerate(ctrl: Control, query: number|number[]|str
         Object.keys(matches).map(textMapId => parseInt(textMapId)).map(textMapId => ctrl.getDialogFromTextContentId(textMapId))
       );
       for (let dialogue of dialogues) {
+        if (!dialogue)
+          continue;
         await handle(dialogue);
       }
     } else {
