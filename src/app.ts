@@ -19,6 +19,7 @@ import sessions from '@/middleware/sessions';
 import baseRouter from '@/controllers/BaseRouter';
 import apiRouter from '@/controllers/api';
 import { loadTextMaps } from './scripts/textmap';
+import { EOL } from 'os';
 
 const app: Express = express();
 
@@ -71,8 +72,15 @@ export default {
     app.use(partialResponse()); // allows `fields` query param for JSON responses
     app.use(express.static(config.views.publicDir)); // specifies public directory
 
+    // robots.txt
+    app.use('/robots.txt', (_req, res) => {
+      res.header('Content-Type', 'text/plain');
+      res.send(['User-agent: *', 'Disallow: /'].join(EOL));
+    });
+
     // Add STS header (redirects HTTP to HTTPS)
     app.use((req, res, next) => {
+      res.header('X-Robots-Tag', 'noindex, nofollow');
       if (req.headers.host === process.env.VHOST) {
         res.header('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
       }

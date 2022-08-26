@@ -2,10 +2,17 @@
   <section class="card">
     <h2>Single Branch Dialogue Generator</h2>
     <div class="content">
-      <p class="spacer10-bottom">Generate dialogue after a specific line within a single dialogue section.</p>
+      <p class="spacer10-bottom">Generate dialogue after a specific line within a single dialogue section. You can also enter a specific Talk ID or Dialogue ID.</p>
       <div class="field valign">
-        <div class="valign grow" style="max-width:500px">
-          <input class="dialogue-generate-input grow" type="text" placeholder="Enter dialogue line or part of a dialogue line." />
+        <div class="valign grow" style="max-width:700px">
+          <input class="dialogue-generate-input grow" type="text" placeholder="Enter dialogue line or part of a dialogue line." style="border-top-right-radius:0;border-bottom-right-radius:0;" />
+          <div class="posRel">
+            <input class="npc-filter-input" type="text" placeholder="NPC Filter (optional)" style="border-top-left-radius:0;border-bottom-left-radius:0;border-left:0;" />
+            <span ui-tippy="{allowHTML: true, content: 'Filter by the speaker of the dialogue line to further narrow down the results (e.g. &quot;Paimon&quot;).<br><br>Enter in &quot;Player&quot; or &quot;Traveler&quot; for dialogue options or Traveler lines.<br><br>This input is case insensitive and optional.',delay:[200, 100]}"
+                  class="dispInlineBlock" style="height:18px;width:18px;position:absolute;right:5px;top:0;bottom:0;margin:auto 0;">
+                  <%- icon('info',{width: 18, height:18}) %>
+            </span>
+          </div>
           <button class="dialogue-generate-submit primary primary--2 spacer5-left">Generate</button>
         </div>
         <div class="dialogue-generate-submit-pending hide loading small spacer5-left"></div>
@@ -26,10 +33,18 @@ waitForConstant('app', app => {
       }
     },
     {
+      el: '.npc-filter-input',
+      ev: 'enter',
+      fn: function(event, target) {
+        document.querySelector('.dialogue-generate-submit').click();
+      }
+    },
+    {
       el: '.dialogue-generate-submit',
       ev: 'click',
       fn: function(event, target) {
         let inputEl = document.querySelector('.dialogue-generate-input');
+        let npcFilterEl = document.querySelector('.npc-filter-input');
         let loadingEl = document.querySelector('.dialogue-generate-submit-pending');
         let text = inputEl.value.trim();
 
@@ -38,11 +53,16 @@ waitForConstant('app', app => {
           return;
         }
 
+        if (text.length < 5) {
+          app.flashTippy(inputEl, {content: 'Enter at least 5 characters.', delay:[0,2000]});
+          return;
+        }
+
         loadingEl.classList.remove('hide');
         inputEl.disabled = true;
         target.disabled = true;
 
-        app.endpoints.generateSingleDialogueBranch(text, true).then(result => {
+        app.endpoints.generateSingleDialogueBranch(text, npcFilterEl.value.trim(), true).then(result => {
           if (typeof result === 'string') {
             document.querySelector('#dialogue-generate-result').innerHTML = result;
           } else if (typeof result === 'object' && result.error_description) {

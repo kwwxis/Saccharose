@@ -200,6 +200,17 @@ const app = {
     }
     return arr.join(', ');
   },
+  enableTippy(el, props={}) {
+    waitForConstant('tippy', tippy => {
+      let tip = el._tippy;
+
+      if (!tip) {
+        tip = tippy(el, props);
+      } else {
+        tip.setProps(props);
+      }
+    });
+  },
   showTippy(el, props={}) {
     if (el._tippyTimeout) return;
     waitForConstant('tippy', tippy => {
@@ -300,7 +311,7 @@ const app = {
       <button ui-trigger="js-error-details" aria-label="Toggle technical details">Technical Details</button>
       <div class="hide" ui-target="js-error-details">
         <button class="primary primary--2 copy-js-error-details spacer5-bottom"
-          ui-tippy-hover="{content:'Click to copy technical details', delay:[100,100]}"
+          ui-tippy-hover="Click to copy technical details"
           ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">Copy</button>
         <textarea readonly class="d-pre-code">${technicalDetails}</textarea>
       </div>
@@ -379,8 +390,13 @@ const app = {
         }
 
         waitForConstant('tippy', tippy => {
-          document.querySelectorAll('[ui-tooltip],[ui-tippy-hover]').forEach(el => {
-            const opts = getTippyOpts(el, 'ui-tooltip', 'ui-tippy-hover');
+          document.querySelectorAll('[ui-tooltip],[ui-tippy]').forEach(el => {
+            const opts = getTippyOpts(el, 'ui-tooltip', 'ui-tippy');
+            app.enableTippy(el, opts);
+          });
+
+          document.querySelectorAll('[ui-tippy-hover]').forEach(el => {
+            const opts = getTippyOpts(el, 'ui-tippy-hover');
             el.addEventListener('mouseenter', event => {
               app.showTippy(el, opts);
             });
@@ -659,10 +675,10 @@ const app = {
         .then(response => response.data)
         .catch(this.general_error_handler);
     },
-    generateSingleDialogueBranch(text, asHTML = false) {
+    generateSingleDialogueBranch(text, npcFilter, asHTML = false) {
       return axios
         .get(`${this.base_uri}/dialogue/single-branch-generate`, {
-          params: {text: text},
+          params: {text: text, npcFilter: npcFilter || null},
           headers: {
             'Accept': asHTML ? 'text/html' : 'application/json',
             'Content-Type': asHTML ? 'text/html' : 'application/json',

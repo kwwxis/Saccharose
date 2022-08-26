@@ -3,6 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <title><%= req.context.formattedPageTitle %></title>
+    <meta name="robots" content="noindex, nofollow" />
     <meta name="csrf-token" content="<%= locals.csrfToken || '' %>">
     <% req.context.styles.forEach(styleHref => { %>
       <%- compileResourceElement(styleHref, 'css') %>

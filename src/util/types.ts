@@ -28,7 +28,7 @@ export const LANG_CODES_TO_NAME = {
 // ~~~~~~~~~~~~~
 
 export interface TalkRole {
-  Type: 'TALK_ROLE_NPC' | 'TALK_ROLE_PLAYER' | 'TALK_ROLE_BLACK_SCREEN',
+  Type: 'TALK_ROLE_NPC' | 'TALK_ROLE_PLAYER' | 'TALK_ROLE_BLACK_SCREEN' | 'TALK_ROLE_MATE_AVATAR',
   Id: number|string,
   NameTextMapHash?: number,
   NameText?: string,

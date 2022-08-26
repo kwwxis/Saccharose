@@ -90,7 +90,7 @@ router.restful('/OL/generate', {
 router.restful('/dialogue/single-branch-generate', {
   get: async (req: Request, res: Response) => {
     const ctrl = getControl(req);
-    let result: DialogueSectionResult[] = await dialogueGenerate(ctrl, <string> req.query.text);
+    let result: DialogueSectionResult[] = await dialogueGenerate(ctrl, <string> req.query.text, <string> req.query.npcFilter);
 
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
       return res.render('partials/dialogue/single-branch-dialogue-generate-result', {
