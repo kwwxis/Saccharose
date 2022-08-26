@@ -53,7 +53,7 @@ export async function dialogueGenerate(ctrl: Control, query: number|number[]|str
       const dialogueBranch = await ctrl.selectDialogBranch(dialogue);
       const sect = new DialogueSectionResult('Dialogue_'+dialogue.Id, 'Dialogue');
       sect.metatext = 'First Dialogue ID: ' + dialogue.Id;
-      sect.wikitext=  '{{Dialogue start}}\n'+(await ctrl.generateDialogueWikiText(dialogueBranch)).trim()+'\n{{Dialogue end}}'
+      sect.wikitext = (await ctrl.generateDialogueWikiText(dialogueBranch)).trim();
       result.push(sect);
     }
   }

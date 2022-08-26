@@ -269,9 +269,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
       for (let dialog of questSub.OrphanedDialog) {
         let subsect = new DialogueSectionResult('OrphanedDialogue_'+dialog[0].Id, 'Orphaned Dialogue', orphanedHelpText);
         out.clearOut();
-        out.line('{{Dialogue start}}');
         out.append(await ctrl.generateDialogueWikiText(dialog));
-        out.line('{{Dialogue end}}');
         subsect.wikitext = out.toString();
         sect.children.push(subsect);
       }
@@ -304,9 +302,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
     for (let dialog of mainQuest.OrphanedDialog) {
       let sect = new DialogueSectionResult('OrphanedDialogue_'+dialog[0].Id, 'Orphaned Dialogue', orphanedHelpText);
       out.clearOut();
-      out.line('{{Dialogue start}}');
       out.append(await ctrl.generateDialogueWikiText(dialog));
-      out.line('{{Dialogue end}}');
       out.line();
       sect.wikitext = out.toString();
       result.dialogue.push(sect);
@@ -395,9 +391,7 @@ export async function talkConfigToDialogueSectionResult(ctrl: Control, parentSec
   mysect.metatext = out.toString();
 
   out.clearOut();
-  out.line('{{Dialogue start}}');
   out.append(await ctrl.generateDialogueWikiText(talkConfig.Dialog));
-  out.line('{{Dialogue end}}');
   mysect.wikitext = out.toString();
 
   if (talkConfig.NextTalksDataList) {
