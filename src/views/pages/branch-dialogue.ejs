@@ -49,6 +49,7 @@ waitForConstant('app', app => {
             document.querySelector('#dialogue-generate-result').innerHTML = '<p>'+esc(result.error_description)+'</p>';
           }
           autosize(document.querySelectorAll('textarea.autosize'));
+          autosize(document.querySelectorAll('.dialogue-container textarea'));
         }).finally(() => {
           loadingEl.classList.add('hide');
           inputEl.disabled = false;

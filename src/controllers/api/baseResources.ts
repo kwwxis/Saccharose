@@ -3,7 +3,7 @@ const router: Router = create();
 import { validateHTML } from '@/util/html_validator';
 import { MainQuestExcelConfigData } from '@types';
 import { getControl } from '@/scripts/script_util';
-import { questGenerate, QuestGenerateResult } from '@/scripts/dialogue/quest_generator';
+import { DialogueSectionResult, questGenerate, QuestGenerateResult } from '@/scripts/dialogue/quest_generator';
 import { ol_gen } from '@/scripts/OLgen/OLgen';
 import { toBoolean, toInt } from '@functions';
 import { dialogueGenerate } from '@/scripts/dialogue/basic_dialogue_generator';
@@ -90,11 +90,11 @@ router.restful('/OL/generate', {
 router.restful('/dialogue/single-branch-generate', {
   get: async (req: Request, res: Response) => {
     const ctrl = getControl(req);
-    let result: {[id: number]: string} = await dialogueGenerate(ctrl, <string> req.query.text);
+    let result: DialogueSectionResult[] = await dialogueGenerate(ctrl, <string> req.query.text);
 
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
       return res.render('partials/dialogue/single-branch-dialogue-generate-result', {
-        result: result,
+        sections: result,
       });
     } else {
       return result;

@@ -2,64 +2,73 @@ import '../../setup';
 import {closeKnex} from '@db';
 import { Control } from '@/scripts/script_util';
 import { DialogExcelConfigData, TalkExcelConfigData } from '@types';
+import { DialogueSectionResult, TalkConfigAccumulator, talkConfigToDialogueSectionResult } from './quest_generator';
+import { isInt } from '@functions';
 
-export async function dialogueGenerate(ctrl: Control, firstDialogueId: number|number[]|string): Promise<{[id: number]: string}> {
-  let result: {[id: number]: string} = {};
+export async function dialogueGenerate(ctrl: Control, query: number|number[]|string): Promise<DialogueSectionResult[]> {
+  let result: DialogueSectionResult[] = [];
 
-  if (typeof firstDialogueId === 'string') {
-    const matches = await ctrl.getTextMapMatches(ctrl.inputLangCode, firstDialogueId.trim());
-    if (Object.keys(matches).length) {
-      let dialogue = await ctrl.getDialogFromTextContentId(parseInt(Object.keys(matches)[0]));
-      firstDialogueId = dialogue.Id;
+  if (typeof query === 'string' && isInt(query)) {
+    query = parseInt(query);
+  }
+
+  async function handle(id: number|DialogExcelConfigData) {
+    if (typeof id === 'number') {
+      const talkConfigResult = await talkConfigGenerate(ctrl, id);
+      if (talkConfigResult) {
+        result.push(talkConfigResult);
+        return;
+      }
+    }
+
+    const dialogue = typeof id === 'number' ? await ctrl.selectSingleDialogExcelConfigData(id) : id;
+    const talkConfig = await ctrl.selectTalkExcelConfigByFirstDialogueId(dialogue.Id);
+    if (talkConfig) {
+      result.push(await talkConfigGenerate(ctrl, talkConfig));
     } else {
-      throw 'Text Map record not found for: ' + firstDialogueId;
+      const dialogueBranch = await ctrl.selectDialogBranch(dialogue);
+      const sect = new DialogueSectionResult('Dialogue_'+dialogue.Id, 'Dialogue');
+      sect.metatext = 'First Dialogue ID: ' + dialogue.Id;
+      sect.wikitext=  '{{Dialogue start}}\n'+(await ctrl.generateDialogueWikiText(dialogueBranch)).trim()+'\n{{Dialogue end}}'
+      result.push(sect);
     }
   }
 
-  if (typeof firstDialogueId === 'number') {
-    const dialogue = await ctrl.selectDialogBranch(await ctrl.selectSingleDialogExcelConfigData(firstDialogueId));
-    result[firstDialogueId] = '{{Dialogue start}}\n'+(await ctrl.generateDialogueWikiText(dialogue)).trim()+'\n{{Dialogue end}}';
+  if (typeof query === 'string') {
+    // string
+    const matches = await ctrl.getTextMapMatches(ctrl.inputLangCode, query.trim());
+    if (Object.keys(matches).length) {
+      let dialogues = await Promise.all(
+        Object.keys(matches).map(textMapId => parseInt(textMapId)).map(textMapId => ctrl.getDialogFromTextContentId(textMapId))
+      );
+      for (let dialogue of dialogues) {
+        await handle(dialogue);
+      }
+    } else {
+      throw 'Text Map record not found for: ' + query;
+    }
+  } else if (typeof query === 'number') {
+    // number
+    await handle(query);
   } else {
-    for (let id of firstDialogueId) {
-      const dialogue = await ctrl.selectDialogBranch(await ctrl.selectSingleDialogExcelConfigData(id));
-      result[id] = '{{Dialogue start}}\n'+(await ctrl.generateDialogueWikiText(dialogue)).trim()+'\n{{Dialogue end}}';
+    // number[]
+    for (let id of query) {
+      await handle(id);
     }
   }
+
   return result;
 }
 
-export async function talkConfigGenerate(ctrl: Control, talkConfigId: number): Promise<string> {
-  let initTalkConfig = await ctrl.selectTalkExcelConfigDataByQuestSubId(talkConfigId);
+export async function talkConfigGenerate(ctrl: Control, talkConfigId: number|TalkExcelConfigData): Promise<DialogueSectionResult> {
+  let initTalkConfig = typeof talkConfigId === 'number' ? await ctrl.selectTalkExcelConfigDataByQuestSubId(talkConfigId) : talkConfigId;
 
-  async function handleTalkDialogue(talkConfig: TalkExcelConfigData, originatorDialog?: DialogExcelConfigData) {
-    talkConfig.Dialog = [];
-
-    if (talkConfig.InitDialog) {
-      talkConfig.Dialog = await ctrl.selectDialogBranch(await ctrl.selectSingleDialogExcelConfigData(talkConfig.InitDialog));
-
-      if (originatorDialog) {
-        if (!originatorDialog.Branches) {
-          originatorDialog.Branches = [];
-        }
-        originatorDialog.Branches.push(talkConfig.Dialog);
-      }
-    }
-
-    let nextOriginatorDialog = talkConfig.Dialog[talkConfig.Dialog.length - 1];
-
-    if (talkConfig.NextTalks) {
-      for (let nextTalkConfigId of talkConfig.NextTalks) {
-        let nextTalkConfig = await ctrl.selectTalkExcelConfigDataByQuestSubId(nextTalkConfigId);
-        await handleTalkDialogue(nextTalkConfig, nextOriginatorDialog);
-      }
-    }
+  if (!initTalkConfig) {
+    return undefined;
   }
-  await handleTalkDialogue(initTalkConfig);
 
-  let out = '{{Dialogue start}}';
-  out += await ctrl.generateDialogueWikiText(initTalkConfig.Dialog);
-  out += '\n{{Dialogue end}}';
-  return out;
+  let talkConfig: TalkExcelConfigData =  await (new TalkConfigAccumulator(ctrl)).handleTalkConfig(initTalkConfig);
+  return await talkConfigToDialogueSectionResult(ctrl, null, 'Talk Dialogue', null, talkConfig);
 }
 
 if (require.main === module) {

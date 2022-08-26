@@ -67,7 +67,8 @@ export async function grep(searchText: string, file: string, extraFlags?: string
     searchText = searchText.replace(/'/g, `'"'"'`); // escape single quote by gluing different kinds of quotations, do this after double quote replacement
 
     // Must use single quotes for searchText - double quotes has different behavior in bash, is insecure for arbitrary string...
-    const cmd = `grep -i ${extraFlags || ''} '${searchText}' ${config.database.getGenshinDataFilePath(file)}`;
+    // Use "-F" flag (fixed strings) so it isn't interpreted as a pattern. But don't use -F" flag if "-E" flag (extended regex) is present.
+    const cmd = `grep -i ${extraFlags && extraFlags.includes('-E') ? '' : '-F'} ${extraFlags || ''} '${searchText}' ${config.database.getGenshinDataFilePath(file)}`;
     const { stdout, stderr } = await execPromise(cmd, {
       env: { PATH: process.env.SHELL_PATH },
       shell: process.env.SHELL_EXEC
@@ -443,6 +444,10 @@ export class Control {
     return allTalkExcelTalkConfigIds.map(i => toNumber(i));
   }
 
+  async selectTalkExcelConfigByFirstDialogueId(firstDialogueId: number): Promise<TalkExcelConfigData> {
+    return await this.knex.select('*').from('TalkExcelConfigData').where({InitDialog: firstDialogueId}).first().then(this.commonLoadFirst);
+  }
+
   async addOrphanedDialogueAndQuestMessages(mainQuest: MainQuestExcelConfigData) {
     let allDialogueIds = this.prefs.ExcludeOrphanedDialogue ? [] : await grepIdStartsWith('Id', mainQuest.Id, './ExcelBinOutput/DialogExcelConfigData.json');
     let allQuestMessageIds = await grepIdStartsWith('TextMapId', 'QUEST_Message_Q' + mainQuest.Id, './ExcelBinOutput/ManualTextMapConfigData.json');
@@ -525,6 +530,9 @@ export class Control {
   async getDialogFromTextContentId(textMapId: number): Promise<DialogExcelConfigData> {
     let result: DialogExcelConfigData = await this.knex.select('*').from('DialogExcelConfigData').where({TalkContentTextMapHash: textMapId})
       .first().then(this.commonLoadFirst);
+    if (!result) {
+      return undefined;
+    }
     this.prefs.dialogCache[result.Id] = result;
     return result;
   }
@@ -793,5 +801,11 @@ export class Control {
       }
     }
     return 0;
+  }
+
+  equivDialog(d1: DialogExcelConfigData, d2: DialogExcelConfigData): boolean {
+    if (!d1 || !d2) return false;
+
+    return d1.TalkContentText === d2.TalkContentText && d1.TalkRoleNameText === d2.TalkRoleNameText && d1.TalkRole.Type === d2.TalkRole.Type;
   }
 }
