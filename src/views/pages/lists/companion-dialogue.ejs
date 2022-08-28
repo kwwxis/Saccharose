@@ -1,0 +1,28 @@
+
+<section class="card">
+  <h2>Serenitea Pot Companion Dialogue</h2>
+  <% if (locals.charNameToTalkId) { %>
+    <div class="content dispFlex flexWrap">
+      <% Object.keys(charNameToTalkId).sort().forEach(charName => { %>
+       <a class="secondary spacer3-all w20p" role="button" href="/lists/companion-dialogue/<%= charNameToTalkId[charName] %>"><%= charName %></a>
+      <% }) %>
+    </div>
+  <% } %>
+  <% if (locals.dialogue) { %>
+    <div class="content">
+      <div class="dialogue-container">
+        <%- include('partials/quests/dialogue-section', dialogue) %>
+      </div>
+    </div>
+  <% } %>
+</section>
+<script nonce="<%= req.context.nonce %>">
+waitForConstant('app', app => {
+  app.startListeners([{
+      ev: 'readyAsync',
+      fn: function() {
+        autosize(document.querySelectorAll('.dialogue-container textarea'));
+      }
+  }]);
+});
+</script>

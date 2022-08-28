@@ -19,10 +19,11 @@ export default async function(): Promise<Router> {
     helmet.contentSecurityPolicy({
       useDefaults: true,
       directives: {
-        defaultSrc: ["'self'", 'cdnjs.cloudflare.com', 'unpkg.com'],
-        prefetchSrc: ["'self'", 'cdnjs.cloudflare.com', 'unpkg.com'],
-        styleSrc: ["'self'", "'unsafe-inline'", 'cdnjs.cloudflare.com', 'unpkg.com'],
+        defaultSrc: ["'self'", 'cdnjs.cloudflare.com', 'unpkg.com', 'fonts.googleapis.com', 'fonts.gstatic.com'],
+        prefetchSrc: ["'self'", 'cdnjs.cloudflare.com', 'unpkg.com', 'fonts.googleapis.com', 'fonts.gstatic.com'],
+        styleSrc: ["'self'", "'unsafe-inline'", 'cdnjs.cloudflare.com', 'unpkg.com', 'fonts.googleapis.com', 'fonts.gstatic.com'],
         scriptSrc: ["'self'", "'unsafe-eval'", 'cdnjs.cloudflare.com', 'unpkg.com', `'nonce-${req.context.nonce}'`],
+        fontSrc: ["'self'", 'fonts.googleapis.com', 'fonts.gstatic.com'],
         upgradeInsecureRequests: [],
       },
       reportOnly: false,

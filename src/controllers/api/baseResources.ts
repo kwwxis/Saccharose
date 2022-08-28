@@ -7,6 +7,7 @@ import { DialogueSectionResult, questGenerate, QuestGenerateResult } from '@/scr
 import { ol_gen } from '@/scripts/OLgen/OLgen';
 import { toBoolean, toInt } from '@functions';
 import { dialogueGenerate } from '@/scripts/dialogue/basic_dialogue_generator';
+import apiError from '@apiError';
 
 router.restful('/ping', {
   get: async (req: Request, res: Response) => {
@@ -83,7 +84,7 @@ router.restful('/OL/generate', {
     const ctrl = getControl(req);
     let result: string = await ol_gen(ctrl, <string> req.query.text, toBoolean(req.query.hideTl), toBoolean(req.query.addDefaultHidden));
     if (!result) {
-      return 'Not found: ' + req.query.text;
+      throw apiError(req.query.text, 'NOT_FOUND');
     }
     return result;
   }

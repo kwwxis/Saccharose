@@ -56,7 +56,6 @@ export default {
     base: {
       layouts: ['layouts/base-layout'],
       styles: [
-        'lib.fonts',
         'app.base',
         'app.default',
         'lib.buttons',

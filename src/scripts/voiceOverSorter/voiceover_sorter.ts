@@ -1,6 +1,6 @@
 import '../../setup';
 import fs from 'fs';
-import {normalizeName, normalizeCharName, normNameMap} from '@/scripts/script_util';
+import {normalizeNameForVo, normalizeCharNameForVo, normNameMapForVo} from '@/scripts/script_util';
 
 type VOLine = {
   charName: string,
@@ -31,7 +31,7 @@ function createVOLine(voLine: string): VOLine {
   }
   return {
     voLine,
-    charName: normalizeCharName(charNameRaw)
+    charName: normalizeCharNameForVo(charNameRaw)
   };
 }
 
@@ -73,7 +73,7 @@ function dialogueLine(line: string): DialogueLine {
   return {
     indentPart,
     lineWithoutIndent: line.slice(indentPart.length),
-    charName: normalizeCharName(line.split(`'''`)[1])
+    charName: normalizeCharNameForVo(line.split(`'''`)[1])
   };
 }
 
@@ -101,7 +101,7 @@ export function dialogueVoSort(dialogueText: string, voText: string): {out: stri
     if (line.startsWith('#char[')) {
       let parts = line.slice(6).split(/\](.+)/);
       line = parts[1].trim();
-      charOverride = normalizeCharName(parts[0].trim());
+      charOverride = normalizeCharNameForVo(parts[0].trim());
     }
     if (line.startsWith('#double ')) {
       line = line.slice('#double '.length);
@@ -116,12 +116,12 @@ export function dialogueVoSort(dialogueText: string, voText: string): {out: stri
 
     if (line.startsWith('#chardefine ')) {
       let parts = line.slice('#chardefine '.length).split('=');
-      normNameMap[normalizeName(parts[0])] = normalizeName(parts[1]);
+      normNameMapForVo[normalizeNameForVo(parts[0])] = normalizeNameForVo(parts[1]);
       continue;
     }
     if (line.startsWith('#chardef ')) {
       let parts = line.slice('#chardef '.length).split('=');
-      normNameMap[normalizeName(parts[0])] = normalizeName(parts[1]);
+      normNameMapForVo[normalizeNameForVo(parts[0])] = normalizeNameForVo(parts[1]);
       continue;
     }
     if (line.startsWith('#skip start')) {

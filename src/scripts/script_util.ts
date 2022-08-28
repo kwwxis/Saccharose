@@ -7,13 +7,13 @@ import { openKnex } from '@db';
 import {
   TextMapItem, NpcExcelConfigData, ManualTextMapConfigData, ConfigCondition,
   MainQuestExcelConfigData, QuestExcelConfigData,
-  DialogExcelConfigData, TalkExcelConfigData, TalkRole, LangCode
+  DialogExcelConfigData, TalkExcelConfigData, TalkRole, LangCode, AvatarExcelConfigData
 } from '@types';
 import { getTextMapItem } from './textmap';
 import { Request } from '@router';
 
 // character name in the dialogue text -> character name in the vo file
-export const normNameMap = {
+export const normNameMapForVo = {
   azhdaha: 'dahaka',
   kaedeharakazuha: 'kazuha',
   kamisatoayaka: 'ayaka',
@@ -40,24 +40,93 @@ export const normNameMap = {
   ryuuji: 'ryuji',
 };
 
-export function normalizeName(name: string) {
+export function normalizeNameForVo(name: string) {
   if (name.trim().startsWith('???')) {
     return '???';
   }
   if (name.includes('|')) {
-    name = name.split('|')[1];
+    name = name.split('|')[1]; // wikitext links
   }
   return name.replace(/\s+/g, '').replace(/[\._\-\?,:\[\]\(\)'"]/g, '').trim().toLowerCase();
 }
 
-// Same as normalizeName but uses normNameMap too
-export function normalizeCharName(name: string) {
-  let normName = normalizeName(name);
-  if (normNameMap[normName]) {
-    normName = normNameMap[normName];
+// Same as normalizeNameForVo but uses normNameMapForVo too
+export function normalizeCharNameForVo(name: string) {
+  let normName = normalizeNameForVo(name);
+  if (normNameMapForVo[normName]) {
+    normName = normNameMapForVo[normName];
   }
   return normName;
 }
+
+export const nameNormMap = {
+  ayaka: 'Kamisato Ayaka',
+  kamisatoayaka: 'Kamisato Ayaka',
+  qin: 'Jean',
+  jean: 'Jean',
+  lisa: 'Lisa',
+  yelan: 'Yelan',
+  shinobu: 'Kuki Shinobu',
+  kukishinobu: 'Kuki Shinobu',
+  barbara: 'Barbara',
+  kaeya: 'Kaeya',
+  diluc: 'Diluc',
+  razor: 'Razor',
+  ambor: 'Amber',
+  amber: 'Amber',
+  venti: 'Venti',
+  xiangling: 'Xiangling',
+  beidou: 'Beidou',
+  xingqiu: 'Xingqiu',
+  xiao: 'Xiao',
+  ningguang: 'Ningguang',
+  klee: 'Klee',
+  zhongli: 'Zhongli',
+  fischl: 'Fischl',
+  bennett: 'Bennett',
+  tartaglia: 'Tartaglia',
+  noel: 'Noelle',
+  noelle: 'Noelle',
+  qiqi: 'Qiqi',
+  chongyun: 'Chongyun',
+  ganyu: 'Ganyu',
+  albedo: 'Albedo',
+  diona: 'Diona',
+  mona: 'Mona',
+  keqing: 'Keqing',
+  sucrose: 'Sucrose',
+  xinyan: 'Xinyan',
+  rosaria: 'Rosaria',
+  hutao: 'Hu Tao',
+  kazuha: 'Kazuha',
+  yanfei: 'Yanfei',
+  yoimiya: 'Yoimiya',
+  tohma: 'Thoma',
+  thoma: 'Thoma',
+  eula: 'Eula',
+  shougun: 'Raiden Shogun',
+  raidenshogun: 'Raiden Shogun',
+  sayu: 'Sayu',
+  kokomi: 'Kokomi',
+  gorou: 'Gorou',
+  sara: 'Kujou Sara',
+  kujousara: 'Kujou Sara',
+  itto: 'Arataki Itto',
+  aratakiitto: 'Arataki Itto',
+  yae: 'Yae Miko',
+  yaemiko: 'Yae Miko',
+  heizo: 'Shikanoin Heizou',
+  shikanoinheizou: 'Shikanoin Heizou',
+  aloy: 'Aloy',
+  shenhe: 'Shenhe',
+  yunjin: 'Yunjin',
+  ayato: 'Kamisato Ayato',
+  kamisatoayato: 'Kamisato Ayato',
+  collei: 'Collei',
+  dori: 'Dori',
+  tighnari: 'Tighnari',
+  paimon: 'Paimon'
+};
 
 export async function grep(searchText: string, file: string, extraFlags?: string): Promise<string[]> {
   try {
@@ -69,7 +138,7 @@ export async function grep(searchText: string, file: string, extraFlags?: string
     // Must use single quotes for searchText - double quotes has different behavior in bash, is insecure for arbitrary string...
     // Use "-F" flag (fixed strings) so it isn't interpreted as a pattern. But don't use -F" flag if "-E" flag (extended regex) is present.
     const cmd = `grep -i ${extraFlags && extraFlags.includes('-E') ? '' : '-F'} ${extraFlags || ''} '${searchText}' ${config.database.getGenshinDataFilePath(file)}`;
-    console.log('Command:',cmd);
+    //console.log('Command:',cmd);
     const { stdout, stderr } = await execPromise(cmd, {
       env: { PATH: process.env.SHELL_PATH },
       shell: process.env.SHELL_EXEC
@@ -313,6 +382,8 @@ export class Control {
   }
 
   async postProcess<T>(object: T): Promise<T> {
+    if (!object)
+      return object;
     const objAsAny = object as any;
     for (let prop in object) {
       if (prop.endsWith('MapHash')) {
@@ -390,8 +461,8 @@ export class Control {
     return object;
   }
 
-  private commonLoad = async (result: any[]) => await Promise.all(result.map(record => !record ? record : this.postProcess(JSON.parse(record.json_data))));
-  private commonLoadFirst = async (record: any) => !record ? record : await this.postProcess(JSON.parse(record.json_data));
+  readonly commonLoad = async (result: any[]) => await Promise.all(result.map(record => !record || !record.json_data ? this.postProcess(record) : this.postProcess(JSON.parse(record.json_data))));
+  readonly commonLoadFirst = async (record: any) => !record ? record : await this.postProcess(JSON.parse(record.json_data));
 
   async getNpc(npcId: number): Promise<NpcExcelConfigData> {
     if (!npcId) return null;
@@ -808,5 +879,9 @@ export class Control {
     if (!d1 || !d2) return false;
 
     return d1.TalkContentText === d2.TalkContentText && d1.TalkRoleNameText === d2.TalkRoleNameText && d1.TalkRole.Type === d2.TalkRole.Type;
+  }
+
+  async selectAvatarById(id: number): Promise<AvatarExcelConfigData> {
+    return await this.knex.select('*').from('AvatarExcelConfigData').where({Id: id}).first().then(this.commonLoadFirst);
   }
 }

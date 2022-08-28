@@ -351,7 +351,7 @@ export function rtrim(str, char_mask = undefined): string {
  * @param {string} text
  * @returns {string} escaped text
  */
-export function escapeHtml(text: string): string {
+export function escapeHtml(text: string, onlyBrackets: boolean = false): string {
   var map = {
     '&': '&amp;',
     '<': '&lt;',
@@ -359,6 +359,9 @@ export function escapeHtml(text: string): string {
     '"': '&quot;',
     "'": '&#039;'
   };
-
-  return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+  if (onlyBrackets) {
+    return text.replace(/[<>]/g, (m) => map[m]);
+  } else {
+    return text.replace(/[&<>"']/g, (m) => map[m]);
+  }
 };

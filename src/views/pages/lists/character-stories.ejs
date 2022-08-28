@@ -1,0 +1,59 @@
+
+<section class="card">
+  <% if (locals.avatars) { %>
+    <h2>Character Stories</h2>
+    <div class="content dispFlex flexWrap">
+      <% avatars.forEach(avatar => { %>
+       <a class="secondary spacer3-all w20p" role="button" href="/lists/character-stories/<%= avatar.Id %>"><%= avatar.NameText %></a>
+      <% }) %>
+    </div>
+  <% } %>
+  <% if (locals.story) { %>
+    <h2>Character Story &mdash; <%= story.avatar.NameText %></h2>
+    <div class="tab-list" role="tablist">
+      <button role="tab" id="displayTab" class="tab-button <%= tab === 'display' ? 'active' : '' %>"
+        ui-trigger="tab:display" ui-set-query-param="tab=display">Display</button>
+      <button role="tab" id="wikitextTab" class="tab-button <%= tab === 'wikitext' ? 'active' : '' %>"
+        ui-trigger="tab:wikitext" ui-set-query-param="tab=wikitext">Wiki-Text</button>
+    </div>
+    <div role="tabpanel" aria-labelledby="displayTab" class="tab <%= tab === 'display' ? 'active' : 'hide' %>" ui-target="tab:display">
+      <% story.fetters.forEach(fetter => { %>
+        <hr>
+        <div class="content">
+          <h3 class="title-text"><%= fetter.storyTitleText %></h3>
+          <h4>Friendship Lv. <%= fetter.friendship %></h4>
+          <p class="context-text"><%- fetter.storyContextHtml %></p>
+        </div>
+      <% }) %>
+    </div>
+    <div role="tabpanel" aria-labelledby="wikitextTab" class="tab <%= tab === 'wikitext' ? 'active' : 'hide' %>" ui-target="tab:wikitext">
+      <div class="content">
+        <textarea readonly class="w100p wikitext"><%= wikitext %></textarea>
+      </div>
+    </div>
+  <% } %>
+</section>
+<script nonce="<%= req.context.nonce %>">
+waitForConstant('app', app => {
+  app.startListeners([
+    {
+      ev: 'readyAsync',
+      fn: function() {
+        waitForElement('.tab.active textarea.wikitext', el => {
+          autosize(el);
+        });
+      }
+    },
+    {
+      el: '.tab-button',
+      ev: 'click',
+      multiple: true,
+      fn: function() {
+        waitForElement('.tab.active textarea.wikitext', el => {
+          autosize(el);
+        });
+      }
+    }
+]);
+});
+</script>

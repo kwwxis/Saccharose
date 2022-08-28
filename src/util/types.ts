@@ -188,3 +188,34 @@ export interface ManualTextMapConfigData {
   TextMapContentTextMapHash: number,
   ParamTypes: string[],
 }
+
+export interface AvatarExcelConfigData {
+  Id: number
+  NameText: string,
+  NameTextMapHash: number,
+  DescText: string,
+  DescTextMapHash: number,
+  WeaponType: string,
+  BodyType: string,
+  IconName: string,
+  SideIconName: string,
+}
+
+export interface FetterStoryExcelConfigData {
+  fetterId: number,
+  avatarId: number,
+  storyTitleTextMapHash: number,
+  storyContextTextMapHash: number,
+  storyTitle2TextMapHash: number,
+  storyContext2TextMapHash: number,
+  storyTitleLockedTextMapHash: number,
+  storyTitleText: string,
+  storyContextText: string,
+  storyTitle2Text: string,
+  storyContext2Text: string,
+  storyTitleLockedText: string,
+  tips: number[],
+  friendship: number,
+  storyContextHtml: string,
+  openConds: {condType: string, paramList: number[]}[],
+}

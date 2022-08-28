@@ -5,6 +5,9 @@
     <title><%= req.context.formattedPageTitle %></title>
     <meta name="robots" content="noindex, nofollow" />
     <meta name="csrf-token" content="<%= locals.csrfToken || '' %>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=Source+Sans+Pro:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600;1,700&display=swap" rel="stylesheet">
     <% req.context.styles.forEach(styleHref => { %>
       <%- compileResourceElement(styleHref, 'css') %>
     <% }); %>
@@ -24,23 +27,29 @@
         document.getElementById('ieLte10-error-notice').removeAttribute('style');
       }
     });
-    function waitForConstant(variableName, callback, interval = 50) {
+    function waitForConstant(variableName, callback, interval = 50, currentTry = 0, maxTries = 100) {
       if (window[variableName]) {
         callback(window[variableName]);
         return;
       }
+      if (currentTry >= maxTries) {
+        return;
+      }
       setTimeout(() => {
-        waitForConstant(variableName, callback, interval);
+        waitForConstant(variableName, callback, interval, currentTry + 1, maxTries);
       }, interval);
     }
-    function waitForElement(query, callback, interval = 50) {
+    function waitForElement(query, callback, interval = 50, currentTry = 0, maxTries = 100) {
       let el;
       if ((el = document.querySelector(query))) {
         callback(el);
         return;
       }
+      if (currentTry >= maxTries) {
+        return;
+      }
       setTimeout(() => {
-        waitForElement(query, callback, interval);
+        waitForElement(query, callback, interval, currentTry + 1, maxTries);
       }, interval);
     }
     </script>

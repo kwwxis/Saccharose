@@ -1,5 +1,5 @@
 import '../../setup';
-import {closeKnex} from '@db';
+import { closeKnex } from '@db';
 import { Control } from '@/scripts/script_util';
 import { DialogExcelConfigData, TalkExcelConfigData } from '@types';
 import { DialogueSectionResult, TalkConfigAccumulator, talkConfigToDialogueSectionResult } from './quest_generator';

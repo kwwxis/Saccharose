@@ -66,8 +66,16 @@ waitForConstant('app', app => {
         target.disabled = true;
 
         app.endpoints.generateOL(text, optionValue.includes('exclude_tl'), optionValue.includes('default_hidden')).then(result => {
-          document.querySelector('.ol-result').value = result;
-          inputEl.value = '';
+          if (typeof result === 'string') {
+            document.querySelector('.ol-result').value = result;
+            inputEl.value = '';
+          } else if (typeof result === 'object' && result.error_description) {
+            if (result.error_code === 'NOT_FOUND') {
+              document.querySelector('.ol-result').value = 'Not Found: ' + result.error_description;
+            } else {
+              document.querySelector('.ol-result').value = result.error_code + ': ' + result.error_description;
+            }
+          }
         }).finally(() => {
           loadingEl.classList.add('hide');
           inputEl.disabled = false;
