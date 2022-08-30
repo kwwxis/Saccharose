@@ -1236,6 +1236,9 @@ body.nightmode {
   background: hsla(255, 18%, 10%, 1);
   color: hsl(255deg 5% 73%);
 }
+body.nightmode a {
+  color: #0d96f2;
+}
 
 body.nightmode .card {
   background: hsl(255deg 13% 14%);
@@ -1280,6 +1283,21 @@ body.nightmode input[type='url'], body.nightmode input[type='number'], body.nigh
   color: hsl(255deg 5% 73%);
   border-color: hsla(232, 20%, 60%, 0.25);
 }
+
+body.nightmode textarea:focus,
+body.nightmode select:focus,
+body.nightmode input[type='text']:focus,
+body.nightmode input[type='password']:focus,
+body.nightmode input[type='search']:focus,
+body.nightmode input[type='email']:focus,
+body.nightmode input[type='url']:focus,
+body.nightmode input[type='number']:focus,
+body.nightmode input[type='time']:focus, input[type='date']:focus {
+  box-shadow: 0 0 0 2px rgb(0 140 221 / 20%);
+  box-shadow: none;
+  border-color: hsl(204deg 90% 32%);
+}
+
 
 body.nightmode .tab-list {
   background: hsl(255deg 8% 8%);
