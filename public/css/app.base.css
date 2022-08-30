@@ -1278,6 +1278,7 @@ body.nightmode input[type='text'], body.nightmode input[type='password'], body.n
 body.nightmode input[type='url'], body.nightmode input[type='number'], body.nightmode input[type='time'], body.nightmode input[type='date'] {
   background: hsl(255deg 8% 22%);
   color: hsl(255deg 5% 73%);
+  border-color: hsla(232, 20%, 60%, 0.25);
 }
 
 body.nightmode .tab-list {
