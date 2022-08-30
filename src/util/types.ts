@@ -219,3 +219,16 @@ export interface FetterStoryExcelConfigData {
   storyContextHtml: string,
   openConds: {condType: string, paramList: number[]}[],
 }
+
+export interface ReminderExcelConfigData {
+  Id: number,
+  SpeakerText: string,
+  SpeakerTextMapHash: number,
+  ContentText: string,
+  ContentTextMapHash: number,
+  Delay: number,
+  ShowTime: number,
+  NextReminderId: number,
+  SoundEffect: string,
+  HasAudio: boolean,
+}

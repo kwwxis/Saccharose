@@ -7,7 +7,7 @@ import { openKnex } from '@db';
 import {
   TextMapItem, NpcExcelConfigData, ManualTextMapConfigData, ConfigCondition,
   MainQuestExcelConfigData, QuestExcelConfigData,
-  DialogExcelConfigData, TalkExcelConfigData, TalkRole, LangCode, AvatarExcelConfigData
+  DialogExcelConfigData, TalkExcelConfigData, TalkRole, LangCode, AvatarExcelConfigData, ReminderExcelConfigData
 } from '@types';
 import { getTextMapItem } from './textmap';
 import { Request } from '@router';
@@ -144,6 +144,7 @@ export async function grep(searchText: string, file: string, extraFlags?: string
       shell: process.env.SHELL_EXEC
     });
     let lines = stdout.split(/\n/).map(s => s.trim()).filter(x => !!x);
+    //console.log(lines);
     return lines;
   } catch (err) {
     return [];
@@ -756,7 +757,8 @@ export class Control {
       }
 
       if (previousDialog && this.isPlayerDialogueOption(dialog) && this.isPlayerDialogueOption(previousDialog) &&
-          previousDialog.NextDialogs.length === 1 && previousDialog.NextDialogs[0] === dialog.Id) {
+          (previousDialog.NextDialogs.length === 1 || previousDialog.Branches.map(b => b[0]).every(x => this.isPlayerDialogueOption(x))) &&
+          previousDialog.NextDialogs.some(x => x === dialog.Id)) {
         // This is for if you have non-branch subsequent player dialogue options for the purpose of generating an output like:
         // :'''Paimon:''' Blah blah blah
         // :{{DIcon}} Paimon, you're sussy baka
@@ -884,4 +886,13 @@ export class Control {
   async selectAvatarById(id: number): Promise<AvatarExcelConfigData> {
     return await this.knex.select('*').from('AvatarExcelConfigData').where({Id: id}).first().then(this.commonLoadFirst);
   }
+
+  async selectReminderById(id: number): Promise<ReminderExcelConfigData> {
+    return await this.knex.select('*').from('ReminderExcelConfigData').where({Id: id}).first().then(this.commonLoadFirst);
+  }
+
+  async selectReminderByContentTextMapId(id: number): Promise<ReminderExcelConfigData> {
+    return await this.knex.select('*').from('ReminderExcelConfigData').where({ContentTextMapHash: id}).first().then(this.commonLoadFirst);
+  }
+
 }

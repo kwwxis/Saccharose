@@ -46,6 +46,13 @@ export default async function(): Promise<Router> {
     });
   });
 
+  router.get('/reminders', async (req: Request, res: Response) => {
+    res.render('pages/reminders', {
+      styles: [],
+      bodyClass: ['page--reminders'],
+    });
+  });
+
   router.get('/lists/companion-dialogue', async (req: Request, res: Response) => {
     res.render('pages/lists/companion-dialogue', {
       charNameToTalkId: await fetchCompanionDialogueTalkIds(),

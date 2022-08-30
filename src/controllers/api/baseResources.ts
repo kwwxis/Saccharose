@@ -5,9 +5,10 @@ import { MainQuestExcelConfigData } from '@types';
 import { getControl } from '@/scripts/script_util';
 import { DialogueSectionResult, questGenerate, QuestGenerateResult } from '@/scripts/dialogue/quest_generator';
 import { ol_gen } from '@/scripts/OLgen/OLgen';
-import { toBoolean, toInt } from '@functions';
+import { isInt, toBoolean, toInt } from '@functions';
 import { dialogueGenerate } from '@/scripts/dialogue/basic_dialogue_generator';
 import apiError from '@apiError';
+import { reminderGenerate } from '@/scripts/dialogue/reminder_generator';
 
 router.restful('/ping', {
   get: async (req: Request, res: Response) => {
@@ -94,6 +95,26 @@ router.restful('/dialogue/single-branch-generate', {
   get: async (req: Request, res: Response) => {
     const ctrl = getControl(req);
     let result: DialogueSectionResult[] = await dialogueGenerate(ctrl, <string> req.query.text, <string> req.query.npcFilter);
+
+    if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
+      return res.render('partials/dialogue/single-branch-dialogue-generate-result', {
+        sections: result,
+      });
+    } else {
+      return result;
+    }
+  }
+});
+
+router.restful('/dialogue/reminder-dialogue-generate', {
+  get: async (req: Request, res: Response) => {
+    const ctrl = getControl(req);
+    let subsequentAmount = 0;
+    if (isInt(req.query.subsequentAmount)) {
+      subsequentAmount = toInt(req.query.subsequentAmount);
+    }
+
+    let result: DialogueSectionResult[] = await reminderGenerate(ctrl, <string> req.query.text, subsequentAmount);
 
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
       return res.render('partials/dialogue/single-branch-dialogue-generate-result', {
