@@ -887,6 +887,10 @@ export class Control {
     return await this.knex.select('*').from('AvatarExcelConfigData').where({Id: id}).first().then(this.commonLoadFirst);
   }
 
+  async selectAllReminders(): Promise<ReminderExcelConfigData[]> {
+    return await this.knex.select('*').from('ReminderExcelConfigData').then(this.commonLoad);
+  }
+
   async selectReminderById(id: number): Promise<ReminderExcelConfigData> {
     return await this.knex.select('*').from('ReminderExcelConfigData').where({Id: id}).first().then(this.commonLoadFirst);
   }

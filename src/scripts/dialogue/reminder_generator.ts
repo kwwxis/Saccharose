@@ -5,6 +5,26 @@ import { ReminderExcelConfigData } from '@types';
 import { DialogueSectionResult } from './quest_generator';
 import { isInt } from '@functions';
 import { loadTextMaps } from '../textmap';
+import { cached } from '@cache';
+
+export async function reminderGenerateAll(ctrl: Control): Promise<DialogueSectionResult> {
+  let sect = new DialogueSectionResult(null, 'All Reminders');
+
+  sect.wikitext = await cached('AllRemindersWikitext', async () => {
+    let out = '';
+    let reminders = await ctrl.selectAllReminders();
+    for (let reminder of reminders) {
+      if (!reminder.SpeakerText) {
+        out += '\n' + normText(reminder.ContentText, ctrl.outputLangCode);
+      } else {
+        out += `\n:'''${reminder.SpeakerText}:''' ${normText(reminder.ContentText, ctrl.outputLangCode)}`;
+      }
+    }
+    return out.trimStart();
+  });
+
+  return sect;
+}
 
 export async function reminderGenerate(ctrl: Control, query: number|string, subsequentAmount: number = 0): Promise<DialogueSectionResult[]> {
   let result: DialogueSectionResult[] = [];

@@ -1,6 +1,7 @@
 import { talkConfigGenerate } from '@/scripts/dialogue/basic_dialogue_generator';
 import { fetchCharacterStories } from '@/scripts/dialogue/character_story';
 import { fetchCompanionDialogueTalkIds } from '@/scripts/dialogue/companion_dialogue';
+import { reminderGenerateAll } from '@/scripts/dialogue/reminder_generator';
 import { getControl } from '@/scripts/script_util';
 import { toInt } from '@functions';
 import { create, Router, Request, Response } from '@router';
@@ -50,6 +51,14 @@ export default async function(): Promise<Router> {
     res.render('pages/reminders', {
       styles: [],
       bodyClass: ['page--reminders'],
+    });
+  });
+
+  router.get('/lists/all-reminders', async (req: Request, res: Response) => {
+    res.render('pages/lists/reminder-dialogue', {
+      dialogue: await reminderGenerateAll(getControl(req)),
+      styles: [],
+      bodyClass: ['page--all-reminders'],
     });
   });
 

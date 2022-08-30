@@ -1,0 +1,19 @@
+
+<section class="card">
+  <h2>All Reminder Dialogue</h2>
+  <div class="content">
+    <div class="dialogue-container">
+      <%- include('partials/quests/dialogue-section', dialogue) %>
+    </div>
+  </div>
+</section>
+<script nonce="<%= req.context.nonce %>">
+waitForConstant('app', app => {
+  app.startListeners([{
+      ev: 'readyAsync',
+      fn: function() {
+        autosize(document.querySelectorAll('.dialogue-container textarea'));
+      }
+  }]);
+});
+</script>
