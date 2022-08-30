@@ -1308,6 +1308,10 @@ body.nightmode .ui-checkbox:hover {
   background: hsl(255deg 12% 16%);
 }
 
+body.nightmode .form-box fieldset {
+  border-color: hsl(255deg 13% 25%);
+}
+
 body.nightmode .card hr {
   border-bottom-color: hsl(255deg 13% 25%);
 }
