@@ -23,3 +23,7 @@
 .dialogue-section textarea {
   padding: 5px;
 }
+
+body.nightmode .dialogue-section {
+  border-top-color: hsl(255deg 13% 25%);
+}

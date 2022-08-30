@@ -29,10 +29,6 @@ body.wrapper-with-sidebar > .content > .wrapper {
   flex-shrink: 0;
 }
 
-body.nightmode .wrapper .sidebar {
-  background: hsl(240, 30%, 99%);
-}
-
 .wrapper .sidebar h1 {
   font-size: 16px;
   font-weight: 600;
@@ -135,14 +131,6 @@ body.nightmode .wrapper .sidebar {
   padding: 0 8px;
 }
 
-body.nightmode .wrapper .sidebar ul.sidebar-bg li a:not(.selected) {
-    background: hsl(255, 25%, 94%);
-}
-
-body.nightmode .wrapper .sidebar ul.sidebar-bg li a:hover:not(.selected) {
-    background: hsl(255, 25%, 90%);
-}
-
 /*------------------------------------------------------------------------------------------------*/
 
 aside {
@@ -157,11 +145,6 @@ aside {
 .card p {
   font-size: 15px;
   line-height: 20px;
-}
-
-body.nightmode .card {
-  background: hsl(240, 30%, 98%);
-  box-shadow: 0 1px 2px hsla(223, 67%, 18%, 0.25);
 }
 
 .content {
@@ -205,11 +188,6 @@ body.nightmode .card {
   padding: 7px 10px;
 }
 
-body.nightmode .card p.info,
-body.nightmode .info-notice,
-body.nightmode .notice {
-  background: #d4e8f8;
-}
 
 .card p.error, .error-notice {
   background: #fee3e3;

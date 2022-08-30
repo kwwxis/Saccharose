@@ -890,10 +890,6 @@ body {
   color: #0f214d;
 }
 
-body.nightmode {
-  color: #344265;
-}
-
 .error-box {
   max-width: 400px;
   margin: 80px;
@@ -989,17 +985,6 @@ body.nightmode {
 }
 .output-language-selector {
   margin-right: 20px;
-}
-/* #endregion */
-
-/* #region Nightmode */
-body.nightmode {
-  filter: invert(100%) hue-rotate(180deg);
-  background: hsla(255, 18%, 10%, 1);
-}
-body.nightmode #site-logo-fg,
-body.nightmode img {
-  filter: invert(100%) hue-rotate(180deg);
 }
 /* #endregion */
 
@@ -1243,5 +1228,111 @@ footer a {
 }
 .footer-links a:hover {
   background: hsla(210, 14%, 93%, 1);
+}
+/* #endregion */
+
+/* #region Nightmode */
+body.nightmode {
+  background: hsla(255, 18%, 10%, 1);
+  color: hsl(255deg 5% 73%);
+}
+
+body.nightmode .card {
+  background: hsl(255deg 13% 14%);
+  box-shadow: 0 1px 2px rgb(174 180 193 / 25%);
+}
+
+body.nightmode .card > h2:first-child {
+  border-bottom-color: hsl(255deg 13% 25%);
+}
+
+body.nightmode #header {
+  background: hsl(255deg 13% 14%);
+}
+
+body.nightmode #site-logo-bg {
+  background: hsl(255deg 13% 18%);
+}
+
+body.nightmode button.secondary,
+body.nightmode [role='button'].secondary,
+body.nightmode .secondary-label {
+  background: hsl(255deg 10% 18%);
+  color: hsl(255deg 5% 73%);
+}
+body.nightmode button.secondary:hover,
+body.nightmode [role='button'].secondary:hover,
+body.nightmode .secondary-label:hover {
+  color: hsl(255deg 5% 73%);
+  background: hsl(255deg 10% 22%);
+}
+
+body.nightmode button.secondary.selected,
+body.nightmode [role=button].secondary.selected {
+  background: hsl(255deg 10% 24%);
+}
+
+body.nightmode textarea,
+body.nightmode select,
+body.nightmode input[type='text'], body.nightmode input[type='password'], body.nightmode input[type='search'], body.nightmode input[type='email'],
+body.nightmode input[type='url'], body.nightmode input[type='number'], body.nightmode input[type='time'], body.nightmode input[type='date'] {
+  background: hsl(255deg 8% 22%);
+  color: hsl(255deg 5% 73%);
+}
+
+body.nightmode .tab-list {
+  background: hsl(255deg 8% 8%);
+}
+
+body.nightmode .tab-list button {
+  background: hsl(255deg 8% 14%);
+  color: #fff;
+}
+body.nightmode .tab-list button.active {
+  background: hsl(255deg 8% 22%);
+  color: #fff;
+}
+
+body .tab-list:after {
+  background: hsl(255deg 8% 22%);
+}
+
+body.nightmode .ui-radio input + *,
+body.nightmode .ui-checkbox input + * {
+  color: hsl(255deg 5% 73%);
+}
+
+body.nightmode .ui-radio:hover,
+body.nightmode .ui-checkbox:hover {
+  background: hsl(255deg 12% 16%);
+}
+
+body.nightmode .card hr {
+  border-bottom-color: hsl(255deg 13% 25%);
+}
+
+body.nightmode .card > h2 {
+  border-bottom-color: hsl(255deg 13% 25%);
+}
+body.nightmode .card > h2:not(:first-child) {
+  border-top-color: hsl(255deg 13% 25%);
+}
+body.nightmode > footer {
+  background: hsl(255deg 13% 14%);
+  color: hsl(255deg 5% 73%);
+  border-top-color: hsl(255deg 13% 25%);
+}
+
+body.nightmode .credit p:first-child {
+  color: hsl(255deg 5% 73%);
+}
+body.nightmode .footer-links a {
+  background: hsl(255deg 8% 20%);
+  color: hsl(255deg 5% 73%);
+}
+
+body.nightmode .AppDialog {
+  background: hsl(255deg 13% 14%);
+  box-shadow: 0 10px 100px rgb(255 255 255 / 10%), 0 0px 1px rgb(255 255 255 / 10%), 0 1px 25px rgb(255 255 255 / 5%);
 }
 /* #endregion */
