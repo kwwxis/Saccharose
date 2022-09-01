@@ -86,7 +86,7 @@ export async function dialogueGenerate(ctrl: Control, query: number|number[]|str
   return result;
 }
 
-export async function talkConfigGenerate(ctrl: Control, talkConfigId: number|TalkExcelConfigData, npcFilter?: string): Promise<DialogueSectionResult> {
+export async function talkConfigGenerate(ctrl: Control, talkConfigId: number|TalkExcelConfigData, npcFilter?: string, acc?: TalkConfigAccumulator): Promise<DialogueSectionResult> {
   let initTalkConfig = typeof talkConfigId === 'number' ? await ctrl.selectTalkExcelConfigDataByQuestSubId(talkConfigId) : talkConfigId;
 
   if (!initTalkConfig) {
@@ -95,8 +95,9 @@ export async function talkConfigGenerate(ctrl: Control, talkConfigId: number|Tal
 
   if (npcFilter) npcFilter = npcFilter.trim().toLowerCase();
   if (!npcFilter) npcFilter = undefined;
+  if (!acc) acc = new TalkConfigAccumulator(ctrl);
 
-  let talkConfig: TalkExcelConfigData =  await (new TalkConfigAccumulator(ctrl)).handleTalkConfig(initTalkConfig);
+  let talkConfig: TalkExcelConfigData = await acc.handleTalkConfig(initTalkConfig);
   if (npcFilterExclude(talkConfig.Dialog[0], npcFilter)) {
     return undefined;
   }

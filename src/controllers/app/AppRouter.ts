@@ -1,6 +1,6 @@
 import { talkConfigGenerate } from '@/scripts/dialogue/basic_dialogue_generator';
 import { fetchCharacterStories } from '@/scripts/dialogue/character_story';
-import { fetchCompanionDialogueTalkIds } from '@/scripts/dialogue/companion_dialogue';
+import { fetchCompanionDialogue, fetchCompanionDialogueTalkIds } from '@/scripts/dialogue/companion_dialogue';
 import { reminderGenerateAll } from '@/scripts/dialogue/reminder_generator';
 import { getControl } from '@/scripts/script_util';
 import { toInt } from '@functions';
@@ -63,16 +63,21 @@ export default async function(): Promise<Router> {
   });
 
   router.get('/lists/companion-dialogue', async (req: Request, res: Response) => {
+    let charNameToTalkIds = await fetchCompanionDialogueTalkIds();
     res.render('pages/lists/companion-dialogue', {
-      charNameToTalkId: await fetchCompanionDialogueTalkIds(),
+      charNames: Object.keys(charNameToTalkIds),
       styles: [],
       bodyClass: ['page--companion-dialogue'],
     });
   });
 
-  router.get('/lists/companion-dialogue/:talkId', async (req: Request, res: Response) => {
+  router.get('/lists/companion-dialogue/:charName', async (req: Request, res: Response) => {
+    let charName = <string> req.params.charName;
+    charName = charName.replace(/_/g, ' ');
+
     res.render('pages/lists/companion-dialogue', {
-      dialogue: await talkConfigGenerate(getControl(req), toInt(req.params.talkId)),
+      charName: charName,
+      dialogue: await fetchCompanionDialogue(getControl(req), charName),
       styles: ['app.dialogue'],
       bodyClass: ['page--companion-dialogue'],
     });

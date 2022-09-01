@@ -1,17 +1,19 @@
 
 <section class="card">
-  <h2>Serenitea Pot Companion Dialogue</h2>
-  <% if (locals.charNameToTalkId) { %>
+  <h2>Serenitea Pot Companion Dialogue<% if (locals.charName) { %> &mdash; <%= charName %><% } %></h2>
+  <% if (locals.charNames) { %>
     <div class="content dispFlex flexWrap">
-      <% Object.keys(charNameToTalkId).sort().forEach(charName => { %>
-       <a class="secondary spacer3-all w20p" role="button" href="/lists/companion-dialogue/<%= charNameToTalkId[charName] %>"><%= charName %></a>
+      <% charNames.sort().forEach(charName => { %>
+       <a class="secondary spacer3-all w20p" role="button" href="/lists/companion-dialogue/<%= charName.replace(/ /g, '_') %>"><%= charName %></a>
       <% }) %>
     </div>
   <% } %>
   <% if (locals.dialogue) { %>
     <div class="content">
       <div class="dialogue-container">
-        <%- include('partials/quests/dialogue-section', dialogue) %>
+        <% dialogue.forEach(section => { %>
+          <%- include('partials/quests/dialogue-section', section) %>
+        <% }) %>
       </div>
     </div>
   <% } %>

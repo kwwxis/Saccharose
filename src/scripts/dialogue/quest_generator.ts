@@ -381,7 +381,8 @@ export class TalkConfigAccumulator {
 }
 
 
-export async function talkConfigToDialogueSectionResult(ctrl: Control, parentSect: DialogueSectionResult|QuestGenerateResult, sectName: string, sectHelptext: string, talkConfig: TalkExcelConfigData): Promise<DialogueSectionResult> {
+export async function talkConfigToDialogueSectionResult(ctrl: Control, parentSect: DialogueSectionResult|QuestGenerateResult,
+    sectName: string, sectHelptext: string, talkConfig: TalkExcelConfigData, dialogueDepth: number = 1): Promise<DialogueSectionResult> {
   let mysect = new DialogueSectionResult('TalkDialogue_'+talkConfig.Id, sectName, sectHelptext);
   let out = new SbOut();
   out.clearOut();
@@ -390,14 +391,18 @@ export async function talkConfigToDialogueSectionResult(ctrl: Control, parentSec
   out.lineProp('NextTalks', talkConfig.NextTalks && talkConfig.NextTalks.length ? talkConfig.NextTalks.join(', ') : null);
   mysect.metatext = out.toString();
 
+  if (talkConfig.Dialog.length && ctrl.isPlayerDialogueOption(talkConfig.Dialog[0])) {
+    dialogueDepth += 1;
+  }
+
   out.clearOut();
-  out.append(await ctrl.generateDialogueWikiText(talkConfig.Dialog));
+  out.append(await ctrl.generateDialogueWikiText(talkConfig.Dialog, dialogueDepth));
   mysect.wikitext = out.toString();
 
   if (talkConfig.NextTalksDataList) {
     for (let nextTalkConfig of talkConfig.NextTalksDataList) {
       await talkConfigToDialogueSectionResult(ctrl, mysect, 'Next Talk Dialogue', 'An immediate continuation from the parent talk dialogue. ' +
-      'This can happen for conditional dialogues (ex. multiple talk dialogues leading to the same next talk dialogue).', nextTalkConfig);
+      'This can happen for conditional dialogues (ex. multiple talk dialogues leading to the same next talk dialogue).', nextTalkConfig, dialogueDepth);
     }
   }
 
