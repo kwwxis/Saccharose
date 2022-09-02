@@ -30,7 +30,7 @@ export async function fetchCompanionDialogueTalkIds(): Promise<{[charName: strin
 }
 
 export async function fetchCompanionDialogue(ctrl: Control, charName: string): Promise<DialogueSectionResult[]> {
-  return cached('CompanionDialogue_'+charName, async () => {
+  return cached('CompanionDialogue_'+charName+'_'+ctrl.outputLangCode, async () => {
     let result: DialogueSectionResult[] = [];
     let talkIds = (await fetchCompanionDialogueTalkIds())[charName];
     if (!talkIds) {

@@ -14,7 +14,7 @@ type GroupedFetterStoryExcelConfigData = {[avatarId: number]: {avatar: AvatarExc
 const sep = '</p><!--\n              --><p>';
 
 export async function fetchCharacterStories(ctrl: Control): Promise<GroupedFetterStoryExcelConfigData> {
-  const fetters = await cached('FetterStoryExcelConfigData', async () => {
+  const fetters = await cached('FetterStoryExcelConfigData_'+ctrl.outputLangCode, async () => {
     let json: any[] = await fs.readFile(config.database.getGenshinDataFilePath('./ExcelBinOutput/FetterStoryExcelConfigData.json'), {encoding: 'utf8'})
       .then(data => JSON.parse(data));
     let records: FetterStoryExcelConfigData[] = await ctrl.commonLoad(json);
@@ -27,7 +27,7 @@ export async function fetchCharacterStories(ctrl: Control): Promise<GroupedFette
     return records;
   });
 
-  const groupedFetters = await cached('GroupedFetterStoryExcelConfigData', async () => {
+  const groupedFetters = await cached('GroupedFetterStoryExcelConfigData_'+ctrl.outputLangCode, async () => {
     let out: GroupedFetterStoryExcelConfigData = {};
     for (let fetter of fetters) {
       if (!out.hasOwnProperty(fetter.avatarId)) {

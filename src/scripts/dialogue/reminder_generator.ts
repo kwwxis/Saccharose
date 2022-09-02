@@ -10,10 +10,13 @@ import { cached } from '@cache';
 export async function reminderGenerateAll(ctrl: Control): Promise<DialogueSectionResult> {
   let sect = new DialogueSectionResult(null, 'All Reminders');
 
-  sect.wikitext = await cached('AllRemindersWikitext', async () => {
+  sect.wikitext = await cached('AllRemindersWikitext_'+ctrl.outputLangCode, async () => {
     let out = '';
     let reminders = await ctrl.selectAllReminders();
     for (let reminder of reminders) {
+      if (!reminder.ContentText) {
+        continue;
+      }
       if (!reminder.SpeakerText) {
         out += '\n' + normText(reminder.ContentText, ctrl.outputLangCode);
       } else {
