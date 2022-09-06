@@ -687,6 +687,18 @@ const app = {
         .then(response => response.data)
         .catch(this.general_error_handler);
     },
+    generateNpcDialogue(npcName, asHTML = false) {
+      return axios
+        .get(`${this.base_uri}/dialogue/npc-dialogue-generate`, {
+          params: {name: npcName},
+          headers: {
+            'Accept': asHTML ? 'text/html' : 'application/json',
+            'Content-Type': asHTML ? 'text/html' : 'application/json',
+          }
+        })
+        .then(response => response.data)
+        .catch(this.general_error_handler);
+    },
     generateReminderDialogue(text, subsequentAmount = 0, asHTML = false) {
       return axios
         .get(`${this.base_uri}/dialogue/reminder-dialogue-generate`, {

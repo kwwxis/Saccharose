@@ -6,7 +6,7 @@ import { getControl } from '@/scripts/script_util';
 import { DialogueSectionResult, questGenerate, QuestGenerateResult } from '@/scripts/dialogue/quest_generator';
 import { ol_gen } from '@/scripts/OLgen/OLgen';
 import { isInt, toBoolean, toInt } from '@functions';
-import { dialogueGenerate } from '@/scripts/dialogue/basic_dialogue_generator';
+import { dialogueGenerate, dialogueGenerateByNpc, NpcDialogueResultMap } from '@/scripts/dialogue/basic_dialogue_generator';
 import apiError from '@apiError';
 import { reminderGenerate } from '@/scripts/dialogue/reminder_generator';
 
@@ -102,6 +102,31 @@ router.restful('/dialogue/single-branch-generate', {
       });
     } else {
       return result;
+    }
+  }
+});
+
+router.restful('/dialogue/npc-dialogue-generate', {
+  get: async (req: Request, res: Response) => {
+    const ctrl = getControl(req);
+    const query = (<string> req.query.name).trim();
+
+    switch (query.toLowerCase()) {
+      case 'paimon':
+      case '1005':
+        throw apiError('Unfortunately, NPC dialogue generator does not support Paimon (id: 1005). The opperation would be too intensive.', 'UNSUPPORTED_OPERATION');
+      case '???':
+        throw apiError('Unfortunately, NPC dialogue generator does not support search for "???"', 'UNSUPPORTED_OPERATION');
+    }
+
+    let resultMap: NpcDialogueResultMap = await dialogueGenerateByNpc(ctrl, query);
+
+    if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
+      return res.render('partials/dialogue/npc-dialogue-result', {
+        resultMap: resultMap,
+      });
+    } else {
+      return resultMap;
     }
   }
 });

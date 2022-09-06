@@ -1,13 +1,18 @@
 import '../../setup';
 import { closeKnex } from '@db';
-import { Control } from '@/scripts/script_util';
-import { DialogExcelConfigData, TalkExcelConfigData } from '@types';
+import { Control, getControl } from '@/scripts/script_util';
+import { DialogExcelConfigData, NpcExcelConfigData, TalkExcelConfigData } from '@types';
 import { DialogueSectionResult, TalkConfigAccumulator, talkConfigToDialogueSectionResult } from './quest_generator';
 import { isInt } from '@functions';
+import { loadTextMaps } from '../textmap';
+import util from 'util';
 
 const lc = (s: string) => s ? s.toLowerCase() : s;
 
-const npcFilterExclude = (d: DialogExcelConfigData, npcFilter: string) => {
+const npcFilterExclude = (d: DialogExcelConfigData, npcFilter: string): boolean => {
+  if (!d) {
+    return true;
+  }
   if (npcFilter === 'player' || npcFilter === 'traveler') {
     return d.TalkRole.Type !== 'TALK_ROLE_PLAYER';
   }
@@ -98,16 +103,79 @@ export async function talkConfigGenerate(ctrl: Control, talkConfigId: number|Tal
   if (!acc) acc = new TalkConfigAccumulator(ctrl);
 
   let talkConfig: TalkExcelConfigData = await acc.handleTalkConfig(initTalkConfig);
-  if (npcFilterExclude(talkConfig.Dialog[0], npcFilter)) {
+  if (!talkConfig || npcFilterExclude(talkConfig.Dialog[0], npcFilter)) {
     return undefined;
   }
   return await talkConfigToDialogueSectionResult(ctrl, null, 'Talk Dialogue', null, talkConfig);
 }
 
+export type NpcDialogueResultMap = {[npcId: number]: NpcDialogueResult};
+export class NpcDialogueResult {
+  npcId: number;
+  npc: NpcExcelConfigData;
+  talkConfigs: TalkExcelConfigData[];
+  dialogue: DialogueSectionResult[];
+  orphanedDialogue: DialogueSectionResult[];
+}
+
+export async function dialogueGenerateByNpc(ctrl: Control, npcNameOrId: string|number, acc?: TalkConfigAccumulator): Promise<NpcDialogueResultMap> {
+  if (!acc) acc = new TalkConfigAccumulator(ctrl);
+
+  if (typeof npcNameOrId === 'string' && isInt(npcNameOrId)) {
+    npcNameOrId = parseInt(npcNameOrId);
+  }
+
+  let npcList = [];
+  if (typeof npcNameOrId === 'string') {
+    npcList = await ctrl.selectNpcListByName(npcNameOrId);
+  } else {
+    npcList.push(await ctrl.getNpc(npcNameOrId));
+  }
+
+  let resultMap: NpcDialogueResultMap = {};
+
+  for (let npc of npcList) {
+    let res = new NpcDialogueResult();
+    res.npcId = npc.Id;
+    res.npc = npc;
+
+    res.talkConfigs = await ctrl.selectTalkExcelConfigByNpcId(npc.Id);
+    res.dialogue = [];
+    res.orphanedDialogue = [];
+
+    for (let talkConfig of res.talkConfigs) {
+      let dres = await talkConfigGenerate(ctrl, talkConfig, null, acc);
+      if (dres) {
+        res.dialogue.push(dres);
+      }
+    }
+
+    let dialogOrphaned: DialogExcelConfigData[] = await ctrl.selectDialogExcelConfigDataByTalkRoleId(npc.Id);
+    for (let dialogue of dialogOrphaned) {
+      if (ctrl.isDialogExcelConfigDataCached(dialogue))
+        continue;
+      ctrl.saveDialogExcelConfigDataToCache(dialogue);
+
+      let dialogueBranch = await ctrl.selectDialogBranch(dialogue);
+      const sect = new DialogueSectionResult('Dialogue_'+dialogue.Id, 'Dialogue');
+      sect.metatext = 'First Dialogue ID: ' + dialogue.Id;
+      sect.wikitext = (await ctrl.generateDialogueWikiText(dialogueBranch)).trim();
+      res.orphanedDialogue.push(sect);
+    }
+
+    resultMap[npc.Id] = res;
+  }
+
+  return resultMap;
+}
+
 if (require.main === module) {
   (async () => {
+    await loadTextMaps();
     //console.log(await dialogueGenerate(`Uh, why are you two fighting?`));
     //console.log(await talkConfigGenerate(6906901));
+    let res = await dialogueGenerateByNpc(getControl(), 'Arapratap');
+    console.log(util.inspect(res, false, null, true));
     closeKnex();
   })();
 }

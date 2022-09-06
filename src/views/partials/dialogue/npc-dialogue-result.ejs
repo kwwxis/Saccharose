@@ -1,0 +1,24 @@
+<div class="dialogue-container">
+  <% Object.values(resultMap).forEach(res => { %>
+    <section class="card">
+      <h2>NPC ID: <strong><%= res.npcId %></strong> "<span><%= res.npc.NameText %></span>"</h2>
+      <% res.dialogue.forEach(section => { %>
+        <div class="content">
+          <%- include('partials/quests/dialogue-section', section) %>
+        </div>
+      <% }) %>
+      <% res.orphanedDialogue.forEach(section => { %>
+        <div class="content">
+          <%- include('partials/quests/dialogue-section', section) %>
+        </div>
+      <% }) %>
+    </section>
+  <% }) %>
+  <% if (!Object.keys(resultMap).length) { %>
+    <section class="card">
+      <div class="content">
+        <strong>NPC not found.</strong>
+      </div>
+    </section>
+  <% } %>
+</div>

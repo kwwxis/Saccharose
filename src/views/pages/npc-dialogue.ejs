@@ -1,0 +1,64 @@
+<div role="tabpanel">
+  <section class="card">
+    <h2>NPC Dialogue Generator</h2>
+    <div class="content">
+      <p class="spacer10-bottom">Generate dialogue for a specific NPC. You can also enter a specific NPC ID.<br>If you can't find the dialogue you're looking for, try entering part of the first line of the dialogue (if you have it) into the "Single Branch Dialogue Generator" tool.</p>
+      <div class="field valign">
+        <div class="valign grow" style="max-width:700px">
+          <input class="dialogue-generate-input grow" type="text" placeholder="Enter the exact name of an NPC (case insensitive)" style="border-top-right-radius:0;border-bottom-right-radius:0;" />
+          <button class="dialogue-generate-submit primary primary--2 spacer5-left">Generate</button>
+        </div>
+        <div class="dialogue-generate-submit-pending hide loading small spacer5-left"></div>
+      </div>
+    </div>
+  </section>
+  <div id="dialogue-generate-result"></div>
+</div>
+
+<script nonce="<%= req.context.nonce %>">
+waitForConstant('app', app => {
+  const listeners = [
+    {
+      el: '.dialogue-generate-input',
+      ev: 'enter',
+      fn: function(event, target) {
+        document.querySelector('.dialogue-generate-submit').click();
+      }
+    },
+    {
+      el: '.dialogue-generate-submit',
+      ev: 'click',
+      fn: function(event, target) {
+        let inputEl = document.querySelector('.dialogue-generate-input');
+        let loadingEl = document.querySelector('.dialogue-generate-submit-pending');
+        let text = inputEl.value.trim();
+
+        if (!text) {
+          app.flashTippy(inputEl, {content: 'Enter something in first!', delay:[0,2000]});
+          return;
+        }
+
+        loadingEl.classList.remove('hide');
+        inputEl.disabled = true;
+        target.disabled = true;
+
+        app.endpoints.generateNpcDialogue(text, true).then(result => {
+          if (typeof result === 'string') {
+            document.querySelector('#dialogue-generate-result').innerHTML = result;
+          } else if (typeof result === 'object' && result.error_description) {
+            document.querySelector('#dialogue-generate-result').innerHTML = '<div class="card"><div class="content">'+esc(result.error_description)+'</div></div>';
+          }
+          autosize(document.querySelectorAll('textarea.autosize'));
+          autosize(document.querySelectorAll('.dialogue-container textarea'));
+        }).finally(() => {
+          loadingEl.classList.add('hide');
+          inputEl.disabled = false;
+          target.disabled = false;
+        });
+      }
+    },
+  ];
+
+  app.startListeners(listeners);
+});
+</script>

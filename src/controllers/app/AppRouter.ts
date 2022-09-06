@@ -47,6 +47,13 @@ export default async function(): Promise<Router> {
     });
   });
 
+  router.get('/npc-dialogue', async (req: Request, res: Response) => {
+    res.render('pages/npc-dialogue', {
+      styles: ['app.dialogue'],
+      bodyClass: ['page--npc-dialogue'],
+    });
+  });
+
   router.get('/reminders', async (req: Request, res: Response) => {
     res.render('pages/reminders', {
       styles: [],

@@ -521,6 +521,10 @@ export class Control {
     return await this.knex.select('*').from('TalkExcelConfigData').where({InitDialog: firstDialogueId}).first().then(this.commonLoadFirst);
   }
 
+  async selectTalkExcelConfigByNpcId(npcId: number): Promise<TalkExcelConfigData[]> {
+    return await this.knex.select('*').from('TalkExcelConfigData').where({NpcId: npcId}).then(this.commonLoad);
+  }
+
   async addOrphanedDialogueAndQuestMessages(mainQuest: MainQuestExcelConfigData) {
     let allDialogueIds = this.prefs.ExcludeOrphanedDialogue ? [] : await grepIdStartsWith('Id', mainQuest.Id, './ExcelBinOutput/DialogExcelConfigData.json');
     let allQuestMessageIds = await grepIdStartsWith('TextMapId', 'QUEST_Message_Q' + mainQuest.Id, './ExcelBinOutput/ManualTextMapConfigData.json');
@@ -588,6 +592,13 @@ export class Control {
     let result: DialogExcelConfigData = await this.knex.select('*').from('DialogExcelConfigData').where({Id: id}).first().then(this.commonLoadFirst);
     this.prefs.dialogCache[id] = result;
     return result && result.TalkContentText ? result : null;
+  }
+
+  saveDialogExcelConfigDataToCache(x: DialogExcelConfigData): void {
+    this.prefs.dialogCache[x.Id] = x;
+  }
+  isDialogExcelConfigDataCached(x: number|DialogExcelConfigData): boolean {
+    return !!this.prefs.dialogCache[typeof x === 'number' ? x : x.Id];
   }
 
   async selectMultipleDialogExcelConfigData(ids: number[]): Promise<DialogExcelConfigData[]> {
@@ -665,15 +676,12 @@ export class Control {
 
   async selectNpcListByName(nameOrTextMapId: number|string|number[]): Promise<NpcExcelConfigData[]> {
     if (typeof nameOrTextMapId === 'string') {
-      let matchId = await this.findTextMapIdByExactName(this.inputLangCode, nameOrTextMapId);
-      nameOrTextMapId = [ matchId ];
+      nameOrTextMapId = await this.findTextMapIdListByExactName(this.inputLangCode, nameOrTextMapId);
     }
     if (typeof nameOrTextMapId === 'number') {
       nameOrTextMapId = [ nameOrTextMapId ];
     }
-    console.log('NPC Name TextMapId:', nameOrTextMapId);
     let npcList = await this.knex.select('*').from('NpcExcelConfigData').whereIn('NameTextMapHash', <number[]> nameOrTextMapId).then(this.commonLoad);
-    console.log('NPC List', npcList);
     return npcList;
   }
 
@@ -875,6 +883,17 @@ export class Control {
       }
     }
     return 0;
+  }
+
+  async findTextMapIdListByExactName(langCode: LangCode, name: string): Promise<number[]> {
+    let results = [];
+    let matches = await this.getTextMapMatches(langCode, name, this.FLAG_EXACT_WORD);
+    for (let [id,value] of Object.entries(matches)) {
+      if (value.toLowerCase() === name.toLowerCase()) {
+        results.push(parseInt(id));
+      }
+    }
+    return results;
   }
 
   equivDialog(d1: DialogExcelConfigData, d2: DialogExcelConfigData): boolean {

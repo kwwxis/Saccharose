@@ -351,6 +351,8 @@ export class TalkConfigAccumulator {
     this.fetchedTalkConfigIds.push(talkConfig.Id);
     if (!!talkConfig.InitDialog) {
       talkConfig.Dialog = await this.ctrl.selectDialogBranch(await this.ctrl.selectSingleDialogExcelConfigData(talkConfig.InitDialog));
+    } else {
+      talkConfig.Dialog = [];
     }
     if (isTopLevel) {
       this.fetchedTopLevelTalkConfigs.push(talkConfig);
@@ -387,7 +389,9 @@ export async function talkConfigToDialogueSectionResult(ctrl: Control, parentSec
   let out = new SbOut();
   out.clearOut();
   out.lineProp('TalkConfigId', talkConfig.Id);
+  out.lineProp('QuestId', talkConfig.QuestId);
   out.lineProp('QuestIdleTalk', talkConfig.QuestIdleTalk ? 'yes' : null);
+  out.lineProp('NpcId', talkConfig.NpcId);
   out.lineProp('NextTalks', talkConfig.NextTalks && talkConfig.NextTalks.length ? talkConfig.NextTalks.join(', ') : null);
   mysect.metatext = out.toString();
 
