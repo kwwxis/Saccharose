@@ -1,8 +1,9 @@
-import { LangCode } from "@types";
+import { LangCode, LANG_CODES } from "@types";
 import "../../setup";
 import {Control, getControl, grep} from "../script_util";
+import { getTextMapItem } from "../textmap";
 
-function ol_gen_internal(grepOutput: string, hideTl: boolean = false, addDefaultHidden: boolean = false): string {
+function ol_gen_internal(textMapId: number, hideTl: boolean = false, addDefaultHidden: boolean = false): string {
   let template = `{{Other Languages
 |en      = {EN_official_name}
 |zhs     = {CHS_official_name}
@@ -41,20 +42,18 @@ function ol_gen_internal(grepOutput: string, hideTl: boolean = false, addDefault
     template = template.replace('{{Other Languages', '{{Other Languages\n|default_hidden = 1');
   }
   let olMap: {[code: string]: string} = {};
-  grepOutput.trim().split('\n')
-    .map(s => s.trim())
-    .filter(s => !!s && s.length)
-    .map(s => /^.*TextMap([A-Z]{2,3})\.json.*": "(.*)"/.exec(s))
-    .map(x => ({lang: x[1], text: x[2]}))
-    .forEach(x => {
-      olMap[x.lang] = x.text;
-      template = template.replace(`{${x.lang}_official_name}`, x.text);
-      let isFullAscii = /^[\u0000-\u007f]*$/.test(x.text);
-      if (x.lang === 'TH' && isFullAscii) {
-        template = template.replace(/\|th_rm\s*=\s*\{\}/, '');
-        template = template.replace(/\|th_tl\s*=\s*\{\}/, '');
-      }
-    });
+  for (let langCode of LANG_CODES) {
+    let textInLang = getTextMapItem(langCode, textMapId);
+    olMap[langCode] = textInLang;
+
+    template = template.replace(`{${langCode}_official_name}`, textInLang);
+
+    let isFullAscii = /^[\u0000-\u007f]*$/.test(textInLang);
+    if (langCode === 'TH' && isFullAscii) {
+      template = template.replace(/\|th_rm\s*=\s*\{\}/, '');
+      template = template.replace(/\|th_tl\s*=\s*\{\}/, '');
+    }
+  }
   if (olMap['EN'] === olMap['ES']) {
     template = template.replace(/\|es_tl\s*=\s*\{\}/, '');
   }
@@ -85,17 +84,20 @@ function ol_gen_internal(grepOutput: string, hideTl: boolean = false, addDefault
   return template.replaceAll('{}', '').replaceAll('\\"', '"').replace(/{F#([^}]+)}{M#([^}]+)}/g, '($1/$2)').split('\n').filter(s => !!s).join('\n');
 }
 
-export async function ol_gen(ctrl: Control, name: string, hideTl: boolean = false, addDefaultHidden: boolean = false, langCode: LangCode = null): Promise<string> {
-  let id = await ctrl.findTextMapIdByExactName(langCode || ctrl.inputLangCode, name);
-  if (!id) {
-    return null;
+export async function ol_gen(ctrl: Control, name: string, hideTl: boolean = false, addDefaultHidden: boolean = false, langCode: LangCode = null): Promise<string[]> {
+  let idList: number[] = await ctrl.findTextMapIdListByExactName(langCode || ctrl.inputLangCode, name);
+  if (!idList || !idList.length) {
+    return [];
   }
-  let lines = await grep(`${id}`, './TextMap/', '-rnw');
-  let result = ol_gen_internal(lines.join('\n'), hideTl, addDefaultHidden);
-  if (result.includes('{EN_official_name}')) {
-    return null;
+  let allResults = new Set<string>();
+  for (let id of idList) {
+    let result = ol_gen_internal(id, hideTl, addDefaultHidden);
+    if (result.includes('{EN_official_name}')) {
+      continue;
+    }
+    allResults.add(result);
   }
-  return result;
+  return Array.from(allResults);
 }
 
 if (require.main === module) {

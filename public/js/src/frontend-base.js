@@ -667,10 +667,14 @@ const app = {
         .then(response => response.data)
         .catch(this.general_error_handler);
     },
-    generateOL(text, hideTl, addDefaultHidden) {
+    generateOL(text, hideTl, addDefaultHidden, asHTML = false) {
       return axios
         .get(`${this.base_uri}/OL/generate`, {
-          params: {text: text, hideTl: hideTl ? 'true' : 'false', addDefaultHidden: addDefaultHidden ? 'true' : 'false'}
+          params: {text: text, hideTl: hideTl ? 'true' : 'false', addDefaultHidden: addDefaultHidden ? 'true' : 'false'},
+          headers: {
+            'Accept': asHTML ? 'text/html' : 'application/json',
+            'Content-Type': asHTML ? 'text/html' : 'application/json',
+          }
         })
         .then(response => response.data)
         .catch(this.general_error_handler);

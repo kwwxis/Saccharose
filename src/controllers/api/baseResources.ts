@@ -83,11 +83,16 @@ router.restful('/quests/generate', {
 router.restful('/OL/generate', {
   get: async (req: Request, res: Response) => {
     const ctrl = getControl(req);
-    let result: string = await ol_gen(ctrl, <string> req.query.text, toBoolean(req.query.hideTl), toBoolean(req.query.addDefaultHidden));
+    let result: string[] = await ol_gen(ctrl, <string> req.query.text, toBoolean(req.query.hideTl), toBoolean(req.query.addDefaultHidden));
     if (!result) {
       throw apiError(req.query.text, 'NOT_FOUND');
     }
-    return result;
+
+    if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
+      return res.render('partials/ol-result', { olResults: result, searchText: <string> req.query.text });
+    } else {
+      return result;
+    }
   }
 });
 

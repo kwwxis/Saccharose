@@ -24,19 +24,8 @@
       </label>
     </div>
   </div>
-  <hr>
-  <div class="content">
-    <div class="ol-result-wrapper">
-      <div class="fsplit spacer5-bottom">
-        <h4>Results</h4>
-        <button class="secondary ol-result-copy"
-          ui-tippy-hover="Click to copy to clipboard"
-          ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">Copy</button>
-      </div>
-      <textarea readonly class="ol-result w100p" style="resize:vertical;min-height:300px" placeholder="The result will show up here."></textarea>
-    </div>
-  </div>
 </section>
+<div id="ol-results-list"></div>
 <script nonce="<%= req.context.nonce %>">
 waitForConstant('app', app => {
   const listeners = [
@@ -65,15 +54,27 @@ waitForConstant('app', app => {
         inputEl.disabled = true;
         target.disabled = true;
 
-        app.endpoints.generateOL(text, optionValue.includes('exclude_tl'), optionValue.includes('default_hidden')).then(result => {
+        app.endpoints.generateOL(text, optionValue.includes('exclude_tl'), optionValue.includes('default_hidden'), true).then(result => {
           if (typeof result === 'string') {
-            document.querySelector('.ol-result').value = result;
-            inputEl.value = '';
+            document.querySelector('#ol-results-list').innerHTML = result;
+            if (!result.includes('no-results-found')) {
+              inputEl.value = '';
+            }
+            app.startListeners([
+              {
+                el: '.ol-result-copy',
+                ev: 'click',
+                multiple: true,
+                fn: function(event, target) {
+                  copyToClipboard(target.closest('.ol-result').querySelector('.ol-result-textarea').value);
+                }
+              }
+            ], document.querySelector('#ol-results-list'));
           } else if (typeof result === 'object' && result.error_description) {
             if (result.error_code === 'NOT_FOUND') {
-              document.querySelector('.ol-result').value = 'Not Found: ' + result.error_description;
+              document.querySelector('#ol-results-list').innerHTML = 'Not Found: ' + result.error_description;
             } else {
-              document.querySelector('.ol-result').value = result.error_code + ': ' + result.error_description;
+              document.querySelector('#ol-results-list').innerHTML = result.error_code + ': ' + result.error_description;
             }
           }
         }).finally(() => {
@@ -83,13 +84,6 @@ waitForConstant('app', app => {
         });
       }
     },
-    {
-      el: '.ol-result-copy',
-      ev: 'click',
-      fn: function(event, target) {
-        copyToClipboard(document.querySelector('.ol-result').value);
-      }
-    }
   ];
 
   app.startListeners(listeners);
