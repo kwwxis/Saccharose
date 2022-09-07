@@ -486,6 +486,7 @@ const app = {
         /** @type {Element} */
         const target = e.target,
           parentDropdown = target.closest('.ui-dropdown'),
+          copyTargetEl = target.closest('[copy-target]'),
           uiTrigger = target.closest('[ui-trigger]'),
           uiClear = target.closest('[ui-clear]'),
           uiTriggerTarget = getUITarget(uiTrigger),
@@ -500,6 +501,15 @@ const app = {
 
         if (target.classList.contains('AppDialog_CloseTrigger')) {
           app.dialog.close();
+        }
+
+        if (copyTargetEl) {
+          let copyTargetId = copyTargetEl.getAttribute('copy-target');
+          let copyTarget = document.getElementById(copyTargetId);
+
+          if (copyTarget) {
+            copyToClipboard(copyTarget.value);
+          }
         }
 
         if (uiTriggerTarget && (!parentDropdown || parentDropdown != uiTriggerTarget)) {
