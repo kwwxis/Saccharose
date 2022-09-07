@@ -38,6 +38,7 @@ export const normNameMapForVo = {
   shikanoinheizou: 'heizou',
   amenomatougo: 'amenomatoogo',
   ryuuji: 'ryuji',
+  setaria: 'setare'
 };
 
 export function normalizeNameForVo(name: string) {

@@ -314,7 +314,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
   if (mainQuest.OrphanedTalkExcelConfigDataList && mainQuest.OrphanedTalkExcelConfigDataList.length
       && mainQuest.OrphanedTalkExcelConfigDataList.every(x => x.Dialog && x.Dialog.length)) {
     for (let talkConfig of mainQuest.OrphanedTalkExcelConfigDataList) {
-      await talkConfigToDialogueSectionResult(ctrl, result, 'Orphaned Talk Dialogue', null, talkConfig);
+      await talkConfigToDialogueSectionResult(ctrl, result, 'Unsectioned Talk Dialogue', 'These are Talk Dialogues that are part of the quest but not part of any section.', talkConfig);
     }
   }
   if (mainQuest.QuestMessages && mainQuest.QuestMessages.length) {
@@ -408,8 +408,10 @@ export async function talkConfigToDialogueSectionResult(ctrl: Control, parentSec
 
   if (talkConfig.NextTalksDataList) {
     for (let nextTalkConfig of talkConfig.NextTalksDataList) {
-      await talkConfigToDialogueSectionResult(ctrl, mysect, 'Next Talk Dialogue', 'An immediate continuation from the parent talk dialogue. ' +
-      'This can happen for conditional dialogues (ex. multiple talk dialogues leading to the same next talk dialogue).', nextTalkConfig, dialogueDepth);
+      await talkConfigToDialogueSectionResult(ctrl, mysect, 'Next Talk Dialogue', 'An immediate (but possibly conditional) continuation from the parent talk dialogue.<br>' +
+      'This can happen for conditional dialogues and branching.<br><br>'+
+      'Example 1: multiple talk dialogues leading to the same next talk dialogue.<br>'+
+      'Example 2: a branch that might lead to one of the next talk dialogues depending on some condition.', nextTalkConfig, dialogueDepth);
     }
   }
 

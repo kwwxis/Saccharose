@@ -141,13 +141,21 @@ export function dialogueVoSort(dialogueText: string, voText: string): {out: stri
       continue;
     }
 
-    if (!!info && !!info.charName && voMap.hasOwnProperty(info.charName)) {
+    let isTravelerLineAndVoiced = !!info && info.charName === 'traveler' && voMap.hasOwnProperty('hero') && voMap.hasOwnProperty('heroine');
+    let isSiblingLineAndVoiced = !!info && info.charName === 'travelerssibling' && voMap.hasOwnProperty('hero') && voMap.hasOwnProperty('heroine');
+
+    if (!!info && !!info.charName && (voMap.hasOwnProperty(info.charName) || isTravelerLineAndVoiced || isSiblingLineAndVoiced)) {
       let voLine: VOLine = null;
 
       if (seenDialogueMapEnabled && seenDialogueMap.hasOwnProperty(info.lineWithoutIndent)) {
         voLine = seenDialogueMap[info.lineWithoutIndent];
       } else {
-        voLine = voMap[info.charName].shift();
+        if (isTravelerLineAndVoiced)
+          voLine = voMap['hero'].shift();
+        else if (isSiblingLineAndVoiced)
+          voLine = voMap['heroine'].shift();
+        else
+          voLine = voMap[info.charName].shift();
         if (voLine)
           seenDialogueMap[info.lineWithoutIndent] = voLine;
       }
@@ -155,8 +163,14 @@ export function dialogueVoSort(dialogueText: string, voText: string): {out: stri
       if (voLine) {
         let voPart = voLine.voLine;
 
-        if (voLine.voLine.includes('a.ogg') && voMap[info.charName].length && voMap[info.charName][0].voLine.includes('b.ogg') &&
-            (doubleVoLine || /\([^/]+\/[^)]+\)/.test(info.lineWithoutIndent) || /\(Traveler\)/i.test(info.lineWithoutIndent))) {
+        if (isTravelerLineAndVoiced) {
+          let nextVoLine = voMap['heroine'].shift();
+          voPart += ' ' + nextVoLine.voLine;
+        } else if (isSiblingLineAndVoiced) {
+          let nextVoLine = voMap['hero'].shift();
+          voPart += ' ' + nextVoLine.voLine;
+        } else if (voLine.voLine.includes('a.ogg') && voMap[info.charName].length && voMap[info.charName][0].voLine.includes('b.ogg') &&
+            (doubleVoLine || /\([^/]+\/[^)]+\)/.test(info.lineWithoutIndent) || /\(Traveler\)/i.test(info.lineWithoutIndent)) || /{{MC\|/i.test(info.lineWithoutIndent)) {
           let nextVoLine = voMap[info.charName].shift();
           voPart += ' ' + nextVoLine.voLine;
         }

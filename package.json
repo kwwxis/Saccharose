@@ -4,6 +4,7 @@
   "description": "",
   "main": "dist/server.js",
   "scripts": {
+    "vo-sort": "node ./dist/scripts/voiceOverSorter/voiceover_sorter.js",
     "clean": "rm -rf ./dist",
     "tsc": "tsc",
     "copy-assets": "copyfiles -u 1 \"src/**/*.css\" \"src/**/*.html\" \"src/**/*.ejs\" \"src/**/*.sql\" dist/",

@@ -358,6 +358,22 @@ const app = {
           return app.showJavascriptErrorDialog.apply(null, [event.reason]);
         });
 
+        window.addEventListener('hashchange', function (event) {
+          let hash = window.location.hash;
+          if (hash && hash.length > 1) {
+            hash = hash.slice(1);
+            console.log('Hash Change:', hash);
+            let target = document.getElementById(hash);
+            if (target) {
+              window.history.replaceState({}, null, window.location.pathname);
+              target.classList.add('flash');
+              setTimeout(() => {
+                target.classList.remove('flash');
+              }, 1000);
+            }
+          }
+        });
+
         app.loadWidgets();
       },
       intervalFunction() {
