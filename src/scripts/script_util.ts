@@ -824,7 +824,7 @@ export class Control {
           }
         }
       } else if (dialog.TalkRole.Type === 'TALK_ROLE_NPC' || dialog.TalkRole.Type === 'TALK_ROLE_GADGET') {
-        out += `\n${prefix}${voPrefix}'''${dialog.TalkRoleNameText}:''' ${text} -- ${dialog.Id}`;
+        out += `\n${prefix}${voPrefix}'''${dialog.TalkRoleNameText}:''' ${text}`;
       } else if (dialog.TalkRole.Type === 'TALK_ROLE_MATE_AVATAR') {
         out += `\n${prefix}${voPrefix}'''(Traveler's Sibling):''' ${text}`;
       } else {
