@@ -16,6 +16,7 @@ export default {
   currentGenshinVersion: '3.0',
   database: {
     filename: './genshin_data.db',
+    voiceItemsFile: './voiceItemsNormalized.json',
     genshin_data: './git/GenshinData/',
     getTextMapFile: (langCode: LangCode) => './TextMap/TextMap'+langCode+'.json',
     getGenshinDataFilePath(file: string) {

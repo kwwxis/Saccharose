@@ -43,7 +43,7 @@ export async function dialogueGenerate(ctrl: Control, query: number|number[]|str
 
     const dialogue = typeof id === 'number' ? await ctrl.selectSingleDialogExcelConfigData(id) : id;
     if (!dialogue) {
-      throw 'Dialogue not found for ID: ' + id;
+      throw 'No Talk or Dialogue found or ID: ' + id;
     }
     if (npcFilterExclude(dialogue, npcFilter)) {
       return undefined;
@@ -129,7 +129,10 @@ export async function dialogueGenerateByNpc(ctrl: Control, npcNameOrId: string|n
   if (typeof npcNameOrId === 'string') {
     npcList = await ctrl.selectNpcListByName(npcNameOrId);
   } else {
-    npcList.push(await ctrl.getNpc(npcNameOrId));
+    let npc = await ctrl.getNpc(npcNameOrId);
+    if (!!npc) {
+      npcList.push(npc);
+    }
   }
 
   let resultMap: NpcDialogueResultMap = {};

@@ -9,7 +9,7 @@ import {
   MainQuestExcelConfigData, QuestExcelConfigData,
   DialogExcelConfigData, TalkExcelConfigData, TalkRole, LangCode, AvatarExcelConfigData, ReminderExcelConfigData
 } from '@types';
-import { getTextMapItem } from './textmap';
+import { getTextMapItem, getVoiceItems } from './textmap';
 import { Request } from '@router';
 
 // character name in the dialogue text -> character name in the vo file
@@ -780,6 +780,34 @@ export class Control {
         numSubsequentNonBranchPlayerDialogOption = 0;
       }
 
+      let voPrefix = '';
+      let voItems = getVoiceItems(dialog.Id);
+      if (voItems) {
+        let maleVo = voItems.find(voItem => voItem.gender === 'M');
+        let femaleVo = voItems.find(voItem => voItem.gender === 'F');
+        let noGenderVo = voItems.filter(voItem => !voItem.gender);
+        let tmp = [];
+
+        if (maleVo) {
+          tmp.push(`{{A|${maleVo.fileName}}}`);
+        }
+        if (femaleVo) {
+          if (dialog.TalkRole.Type === 'TALK_ROLE_MATE_AVATAR') {
+            // If dialog speaker is Traveler's sibling, then female VO goes before male VO.
+            tmp.unshift(`{{A|${femaleVo.fileName}}}`);
+          } else {
+            // In all other cases, male VO goes before female VO
+            tmp.push(`{{A|${femaleVo.fileName}}}`);
+          }
+        }
+        if (noGenderVo) {
+          noGenderVo.forEach(x => tmp.push(`{{A|${x.fileName}}}`));
+        }
+        if (tmp.length) {
+          voPrefix = tmp.join(' ') + ' ';
+        }
+      }
+
       if (dialog.TalkRole.Type === 'TALK_ROLE_BLACK_SCREEN') {
         out += '\n';
         out += `\n${prefix}'''${text}'''`;
@@ -787,17 +815,18 @@ export class Control {
       } else if (dialog.TalkRole.Type === 'TALK_ROLE_PLAYER') {
         if (dialog.TalkRoleNameText) {
           // I don't remember under what circumstances a TALK_ROLE_PLAYER has a TalkRoleNameText
-          out += `\n${diconPrefix}'''${dialog.TalkRoleNameText}:''' ${text}`;
-        } else if (dialog.TalkShowType && dialog.TalkShowType === 'TALK_SHOW_FORCE_SELECT') {
-          out += `\n${diconPrefix}${':'.repeat(numSubsequentNonBranchPlayerDialogOption)}{{DIcon}} ${text}`;
+          out += `\n${diconPrefix}${voPrefix}'''${dialog.TalkRoleNameText}:''' ${text}`;
         } else {
-          //out += `\n${diconPrefix}'''(Traveler):''' ${text}`;
-          out += `\n${diconPrefix}${':'.repeat(numSubsequentNonBranchPlayerDialogOption)}{{DIcon}} ${text}`;
+          if (voPrefix) {
+            out += `\n${prefix}${voPrefix}'''(Traveler):''' ${text}`;
+          } else {
+            out += `\n${diconPrefix}${':'.repeat(numSubsequentNonBranchPlayerDialogOption)}{{DIcon}} ${text}`;
+          }
         }
       } else if (dialog.TalkRole.Type === 'TALK_ROLE_NPC' || dialog.TalkRole.Type === 'TALK_ROLE_GADGET') {
-        out += `\n${prefix}'''${dialog.TalkRoleNameText}:''' ${text}`;
+        out += `\n${prefix}${voPrefix}'''${dialog.TalkRoleNameText}:''' ${text}`;
       } else if (dialog.TalkRole.Type === 'TALK_ROLE_MATE_AVATAR') {
-        out += `\n${prefix}'''(Traveler's Sibling):''' ${text}`;
+        out += `\n${prefix}${voPrefix}'''(Traveler's Sibling):''' ${text}`;
       } else {
         if (text) {
           out += `\n${prefix}:'''Cutscene_Character_Replace_me''' ${text}`;

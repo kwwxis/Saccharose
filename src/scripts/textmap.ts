@@ -1,8 +1,14 @@
 import { LangCode, LANG_CODES } from "@types";
 import config from '@/config';
 import {promises as fs} from 'fs';
+import path from 'path';
 
 export const TextMap: {[langCode: string]: {[id: string]: string}} = {};
+
+export type VoiceItem = {fileName: string, gender?: 'M' | 'F'};
+export type VoiceItemMap = {[dialogueId: string]: VoiceItem[]};
+
+export const VoiceItems: VoiceItemMap = {};
 
 export async function loadTextMaps(): Promise<void> {
   console.log('Loading TextMap -- starting...');
@@ -19,6 +25,16 @@ export async function loadTextMaps(): Promise<void> {
   });
 }
 
+export async function loadVoiceItems(): Promise<void> {
+  console.log('Loading Voice Items -- starting...');
+  let voiceItemsFilePath = path.resolve(process.env.DATA_ROOT, config.database.voiceItemsFile);
+
+  let result: VoiceItemMap = await fs.readFile(voiceItemsFilePath, {encoding: 'utf8'}).then(data => Object.freeze(JSON.parse(data)));
+
+  Object.assign(VoiceItems, result);
+  console.log('Loading Voice Items -- done!');
+}
+
 export function getTextMapItem(langCode: LangCode, id: any) {
   if (typeof id === 'number') {
     id = String(id);
@@ -27,4 +43,8 @@ export function getTextMapItem(langCode: LangCode, id: any) {
     return undefined;
   }
   return TextMap[langCode][id];
+}
+
+export function getVoiceItems(dialogueId: number|string): VoiceItem[] {
+  return VoiceItems[dialogueId];
 }

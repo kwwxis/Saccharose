@@ -18,7 +18,7 @@ import morgan from 'morgan';
 import sessions from '@/middleware/sessions';
 import baseRouter from '@/controllers/BaseRouter';
 import apiRouter from '@/controllers/api';
-import { loadTextMaps } from './scripts/textmap';
+import { loadTextMaps, loadVoiceItems } from './scripts/textmap';
 import { EOL } from 'os';
 
 const app: Express = express();
@@ -43,6 +43,7 @@ export default {
     console.log(`(3/${STEPS_TO_LOAD}) Opening sqlite database and loading resources`);
     openKnex();
     await loadTextMaps();
+    await loadVoiceItems();
 
     if (process.env.SSL_WELL_KNOWN_DIR) {
       console.log('Serving .well-known directory');

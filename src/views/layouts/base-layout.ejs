@@ -12,21 +12,6 @@
       <%- compileResourceElement(styleHref, 'css') %>
     <% }); %>
     <script nonce="<%= req.context.nonce %>">
-    document.addEventListener('DOMContentLoaded', function() {
-      var isIE11 = !!window.MSInputMethodContext && !!document.documentMode;
-
-      if (isIE11) {
-        document.getElementById('ie11-error-notice').removeAttribute('style');
-      }
-
-      var isIELte10 =
-        window.navigator.userAgent.indexOf('Trident/') > 0 ||
-        window.navigator.userAgent.indexOf('MSIE ') > 0;
-
-      if (isIELte10 && !isIE11) {
-        document.getElementById('ieLte10-error-notice').removeAttribute('style');
-      }
-    });
     function waitForConstant(variableName, callback, interval = 50, currentTry = 0, maxTries = 100) {
       if (window[variableName]) {
         callback(window[variableName]);
@@ -113,19 +98,6 @@
         <span class="secondary-label disabled spacer10-right" style="cursor:default;"><%= req.context.currentGenshinVersion %></span>
       </div>
     </header>
-    <div>
-      <!--[if IE]>
-      <p id="ie-error-notice" class="error-notice js-error-notice">
-          <strong>This website may not work properly on Internet Explorer. Try Chrome or Firefox.</strong>
-      </p>
-      <![endif]-->
-      <p id="ieLte10-error-notice" style="display:none" class="error-notice js-error-notice">
-          <strong>This website may not work properly on Internet Explorer. Try Chrome or Firefox.</strong>
-      </p>
-      <p id="ie11-error-notice" style="display:none" class="error-notice js-error-notice">
-          <strong>This website may not work properly on Internet Explorer. Try Chrome or Firefox.</strong>
-      </p>
-    </div>
     <div class="content"><%- include(subview, sublocals) %></div>
     <footer>
       <div class="wrapper valign">

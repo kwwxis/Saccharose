@@ -60,7 +60,7 @@ waitForConstant('app', app => {
       autosize(document.querySelectorAll('.dialogue-container textarea'));
       autosize(document.querySelectorAll('textarea.autosize'));
 
-      app.startListeners(questResultListeners, document.querySelector('#quest-generate-result'));
+      app.startListeners(questResultListeners, '#quest-generate-result');
     });
   }
 
@@ -152,7 +152,7 @@ waitForConstant('app', app => {
                 loadQuestGenerateResult();
               }
             },
-          ], document.querySelector('.quest-search-result'));
+          ], '.quest-search-result');
         }).finally(() => {
           loadingEl.classList.add('hide');
           inputEl.disabled = false;

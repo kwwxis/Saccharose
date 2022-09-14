@@ -599,6 +599,12 @@ const app = {
   ],
   startListeners(listeners, rel = undefined) {
     if (!rel) rel = document;
+    if (typeof rel === 'string') {
+      waitForElement(rel, el => {
+        app.startListeners(listeners, el);
+      });
+      return;
+    }
     listeners.forEach(opts => {
       if (opts.ev === 'ready') {
         opts.fn.call(opts);
