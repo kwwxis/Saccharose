@@ -818,13 +818,13 @@ export class Control {
           out += `\n${diconPrefix}${voPrefix}'''${dialog.TalkRoleNameText}:''' ${text}`;
         } else {
           if (voPrefix) {
-            out += `\n${prefix}${voPrefix}'''(Traveler):''' ${text}`;
+            out += `\n${diconPrefix}${voPrefix}'''(Traveler):''' ${text}`;
           } else {
             out += `\n${diconPrefix}${':'.repeat(numSubsequentNonBranchPlayerDialogOption)}{{DIcon}} ${text}`;
           }
         }
       } else if (dialog.TalkRole.Type === 'TALK_ROLE_NPC' || dialog.TalkRole.Type === 'TALK_ROLE_GADGET') {
-        out += `\n${prefix}${voPrefix}'''${dialog.TalkRoleNameText}:''' ${text}`;
+        out += `\n${prefix}${voPrefix}'''${dialog.TalkRoleNameText}:''' ${text} -- ${dialog.Id}`;
       } else if (dialog.TalkRole.Type === 'TALK_ROLE_MATE_AVATAR') {
         out += `\n${prefix}${voPrefix}'''(Traveler's Sibling):''' ${text}`;
       } else {

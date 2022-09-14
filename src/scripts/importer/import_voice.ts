@@ -4,7 +4,7 @@
 import fs from 'fs';
 import path from 'path';
 
-const outDir = 'C:/Shared/git/Voice';
+const outDir = 'C:/Shared/';
 const jsonDir = 'C:/Shared/git/Voice/Items';
 
 const combined = {};
@@ -16,6 +16,10 @@ jsonsInDir.forEach(file => {
 
   for (let voiceItem of Object.values(json)) {
     if (!voiceItem.gameTriggerArgs || !voiceItem._sourceNames) {
+      continue;
+    }
+    if (voiceItem._gameTrigger !== 'Dialog') {
+      console.log('Unknown Game Trigger:', voiceItem._gameTrigger);
       continue;
     }
 
