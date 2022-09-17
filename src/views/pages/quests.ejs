@@ -39,7 +39,7 @@ waitForConstant('app', app => {
   function loadQuestGenerateResult() {
     document.querySelector('.quest-search-result-wrapper').classList.add('hide');
 
-    let urlParts = /\/quests\/(\d+)/.exec(window.location.href);
+    let urlParts = /\/quests\/(\d+)/i.exec(window.location.href);
     if (!urlParts || urlParts.length < 2) {
       return;
     }
@@ -102,6 +102,22 @@ waitForConstant('app', app => {
             loadQuestGenerateResult();
           })
         }
+    },
+    {
+      el: 'window',
+      ev: 'popstate', // user clicks browser back/forward buttons
+      fn: function(event) {
+        console.log('URL changed to', window.location.href);
+        if (/\/quests\/?$/i.test(window.location.href)) {
+          document.querySelector('.quest-search-result-wrapper').classList.add('hide');
+          document.querySelector('.quest-search-input').value = '';
+          document.querySelector('#quest-generate-result').innerHTML = '';
+        }
+
+        if (/\/quests\/(\d+)/i.test(window.location.href)) {
+          loadQuestGenerateResult();
+        }
+      }
     },
     {
       el: '.quest-search-input',

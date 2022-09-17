@@ -24,7 +24,39 @@
 
 <script nonce="<%= req.context.nonce %>">
 waitForConstant('app', app => {
+  function loadResultFromURL() {
+    const url = new URL(window.location.href);
+    const query = url.searchParams.get('q');
+    if (query) {
+      document.querySelector('.dialogue-generate-input').value = query;
+      document.querySelector('.dialogue-generate-submit').click();
+    }
+  }
+
   const listeners = [
+    {
+        ev: 'readyAsync',
+        fn: function() {
+          waitForConstant('axios', () => {
+            loadResultFromURL();
+          })
+        }
+    },
+    {
+      el: 'window',
+      ev: 'popstate', // user clicks browser back/forward buttons
+      fn: function(event) {
+        console.log('URL changed to', window.location.href);
+
+        if (/\/npc-dialogue\/?$/i.test(window.location.href)) {
+          document.querySelector('#dialogue-generate-result').innerHTML = '';
+        }
+
+        if (/\/npc-dialogue.*[?&]q=/i.test(window.location.href)) {
+          loadResultFromURL();
+        }
+      }
+    },
     {
       el: '.dialogue-generate-input',
       ev: 'enter',
@@ -48,6 +80,10 @@ waitForConstant('app', app => {
         loadingEl.classList.remove('hide');
         inputEl.disabled = true;
         target.disabled = true;
+
+        const url = new URL(window.location.href);
+        url.searchParams.set('q', text);
+        window.history.pushState({}, null, url.href);
 
         app.endpoints.generateNpcDialogue(text, true).then(result => {
           if (typeof result === 'string') {

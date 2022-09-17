@@ -9,7 +9,8 @@ import { getTextMapItem, loadTextMaps } from '../textmap';
 import util from 'util';
 import { escapeHtml } from '@functions';
 
-type GroupedFetterStoryExcelConfigData = {[avatarId: number]: {avatar: AvatarExcelConfigData, fetters: FetterStoryExcelConfigData[]}};
+export type AvatarAndFetterStoryExcelConfigData = {avatar: AvatarExcelConfigData, fetters: FetterStoryExcelConfigData[]};
+export type GroupedFetterStoryExcelConfigData = {[avatarId: number]: AvatarAndFetterStoryExcelConfigData};
 
 const sep = '</p><!--\n              --><p>';
 
@@ -39,6 +40,19 @@ export async function fetchCharacterStories(ctrl: Control): Promise<GroupedFette
   });
 
   return groupedFetters;
+}
+
+export async function fetchCharacterStoryByAvatarId(ctrl: Control, avatarId: number): Promise<AvatarAndFetterStoryExcelConfigData> {
+  let storiesByAvatar = await fetchCharacterStories(ctrl);
+  let story = storiesByAvatar[avatarId];
+  return story;
+}
+
+export async function fetchCharacterStoryByAvatarName(ctrl: Control, avatarName: string): Promise<AvatarAndFetterStoryExcelConfigData> {
+  let avatarNameNorm = avatarName.replaceAll(/_/g, ' ').toLowerCase().trim();
+  let storiesByAvatar = await fetchCharacterStories(ctrl);
+  let story = Object.values(storiesByAvatar).find(x => x.avatar.NameText.toLowerCase() == avatarNameNorm);
+  return story;
 }
 
 if (require.main === module) {

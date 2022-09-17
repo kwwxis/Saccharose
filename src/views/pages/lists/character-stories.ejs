@@ -4,7 +4,7 @@
     <h2>Character Stories</h2>
     <div class="content dispFlex flexWrap">
       <% avatars.forEach(avatar => { %>
-       <a class="secondary spacer3-all w20p" role="button" href="/lists/character-stories/<%= avatar.Id %>"><%= avatar.NameText %></a>
+       <a class="secondary spacer3-all w20p" role="button" href="/lists/character-stories/<%= avatar.NameText.replaceAll(' ', '_') %>"><%= avatar.NameText %></a>
       <% }) %>
     </div>
   <% } %>
@@ -28,8 +28,20 @@
     </div>
     <div role="tabpanel" aria-labelledby="wikitextTab" class="tab <%= tab === 'wikitext' ? 'active' : 'hide' %>" ui-target="tab:wikitext">
       <div class="content">
-        <textarea readonly class="w100p wikitext"><%= wikitext %></textarea>
+        <div class="posRel">
+          <textarea id="story-wikitext" readonly class="w100p wikitext"><%= wikitext %></textarea>
+          <button class="secondary posAbs" copy-target="story-wikitext"
+            ui-tippy-hover="Click to copy to clipboard"
+            ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
+            style="right: 0; top: 0;">Copy</button>
+        </div>
       </div>
+    </div>
+  <% } %>
+  <% if (!locals.avatars && !locals.story) { %>
+    <h2>Character Stories</h2>
+    <div class="content">
+      <p>Character not found for "<code><%= avatarId %></code>"</p>
     </div>
   <% } %>
 </section>

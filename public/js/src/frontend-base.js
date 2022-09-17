@@ -598,11 +598,13 @@ const app = {
     }
   ],
   startListeners(listeners, rel = undefined) {
-    if (!rel) rel = document;
     if (typeof rel === 'string') {
       waitForElement(rel, el => {
         app.startListeners(listeners, el);
       });
+      return;
+    } else if (!rel || typeof rel === 'undefined') {
+      app.startListeners(listeners, window.document);
       return;
     }
     listeners.forEach(opts => {
@@ -625,18 +627,28 @@ const app = {
       }
 
       if (opts.multiple) {
-        // prettier-ignore
-        let targets = typeof opts.el === 'string' ? rel.querySelectorAll(opts.el) :
-          (Array.isArray(opts.el) ? opts.el : [opts.el]);
+        let targets;
+        if (typeof opts.el === 'string') {
+          targets = rel.querySelectorAll(opts.el);
+        } else {
+          targets = Array.isArray(opts.el) ? opts.el : [opts.el];
+        }
         Array.from(targets).forEach(target =>
           target.addEventListener(opts.ev, function(event) {
             opts.fn.call(opts, event, target);
           })
         );
       } else {
-        // prettier-ignore
-        let target = typeof opts.el === 'string' ? rel.querySelector(opts.el) :
-          (Array.isArray(opts.el) ? opts.el[0] : opts.el);
+        let target;
+        if (opts.el === 'document') {
+          target = window.document;
+        } else if (opts.el === 'window') {
+          target = window;
+        } else if (typeof opts.el === 'string') {
+          target = rel.querySelector(opts.el);
+        } else {
+          target = Array.isArray(opts.el) ? opts.el[0] : opts.el;
+        }
         if (!target) return;
         target.addEventListener(opts.ev, function(event) {
           opts.fn.call(opts, event, target);

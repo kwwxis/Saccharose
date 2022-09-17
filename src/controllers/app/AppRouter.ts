@@ -1,9 +1,9 @@
 import { talkConfigGenerate } from '@/scripts/dialogue/basic_dialogue_generator';
-import { fetchCharacterStories } from '@/scripts/dialogue/character_story';
+import { AvatarAndFetterStoryExcelConfigData, fetchCharacterStories, fetchCharacterStoryByAvatarId, fetchCharacterStoryByAvatarName } from '@/scripts/dialogue/character_story';
 import { fetchCompanionDialogue, fetchCompanionDialogueTalkIds } from '@/scripts/dialogue/companion_dialogue';
 import { reminderGenerateAll } from '@/scripts/dialogue/reminder_generator';
 import { getControl } from '@/scripts/script_util';
-import { toInt } from '@functions';
+import { isInt, toInt } from '@functions';
 import { create, Router, Request, Response } from '@router';
 
 import LandingController from './LandingController';
@@ -92,7 +92,7 @@ export default async function(): Promise<Router> {
 
   router.get('/lists/character-stories', async (req: Request, res: Response) => {
     let storiesByAvatar = await fetchCharacterStories(getControl(req));
-    let avatars = Object.values(storiesByAvatar).map(x => x.avatar);
+    let avatars = Object.values(storiesByAvatar).map(x => x.avatar).sort((a,b) => a.NameText.localeCompare(b.NameText));
     res.render('pages/lists/character-stories', {
       avatars: avatars,
       bodyClass: ['page--character-stories'],
@@ -100,25 +100,36 @@ export default async function(): Promise<Router> {
   });
 
   router.get('/lists/character-stories/:avatarId', async (req: Request, res: Response) => {
-    let avatarId = toInt(req.params.avatarId);
-    let storiesByAvatar = await fetchCharacterStories(getControl(req));
-    let story = storiesByAvatar[avatarId];
-
-    let out = '{{Character Story';
-    let i = 1;
-    for (let fetter of story.fetters) {
-      out += `\n|title${i}`.padEnd(16)+'= '+fetter.storyTitleText;
-      if (fetter.friendship) {
-        out += `\n|friendship${i}`.padEnd(16)+'= '+fetter.friendship;
-      }
-      out += `\n|text${i}`.padEnd(16)+'= '+fetter.storyContextHtml;
-      out += `\n|mention${i}`.padEnd(16)+'= ';
-      out += '\n';
-      i++;
+    let story: AvatarAndFetterStoryExcelConfigData;
+    if (isInt(req.params.avatarId)) {
+      story = await fetchCharacterStoryByAvatarId(getControl(req), toInt(req.params.avatarId));
+    } else {
+      story = await fetchCharacterStoryByAvatarName(getControl(req), req.params.avatarId);
     }
-    out += '}}';
+
+    let out = null;
+    if (story) {
+      out = '{{Character Story';
+      let i = 1;
+      for (let fetter of story.fetters) {
+        out += `\n|title${i}`.padEnd(16)+'= '+fetter.storyTitleText;
+        if (fetter.friendship) {
+          out += `\n|friendship${i}`.padEnd(16)+'= '+fetter.friendship;
+        }
+        out += `\n|text${i}`.padEnd(16)+'= '+fetter.storyContextHtml;
+        out += `\n|mention${i}`.padEnd(16)+'= ';
+        out += '\n';
+        i++;
+      }
+      out += '}}';
+    }
+
+    if (typeof req.query.tab === 'string' && (req.query.tab !== 'wikitext' && req.query.tab !== 'display')) {
+      req.query.tab = 'display';
+    }
 
     res.render('pages/lists/character-stories', {
+      avatarId: req.params.avatarId,
       story: story,
       wikitext: out,
       styles: ['app.dialogue'],
