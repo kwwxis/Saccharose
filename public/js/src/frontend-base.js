@@ -630,12 +630,7 @@ const app = {
       if (opts.multiple) {
         let targets;
         if (typeof opts.el === 'string') {
-          try {
-            targets = rel.querySelectorAll(opts.el);
-          } catch (e) {
-            console.warn('Got error in app.startListeners', e, listeners);
-            return;
-          }
+          targets = rel.querySelectorAll(opts.el);
         } else {
           targets = Array.isArray(opts.el) ? opts.el : [opts.el];
         }
@@ -651,12 +646,7 @@ const app = {
         } else if (opts.el === 'window') {
           target = window;
         } else if (typeof opts.el === 'string') {
-          try {
-            target = rel.querySelector(opts.el);
-          } catch (e) {
-            console.warn('Got error in app.startListeners', e, listeners);
-            return;
-          }
+          target = rel.querySelector(opts.el);
         } else {
           target = Array.isArray(opts.el) ? opts.el[0] : opts.el;
         }
