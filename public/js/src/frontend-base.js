@@ -607,6 +607,7 @@ const app = {
       app.startListeners(listeners, window.document);
       return;
     }
+
     listeners.forEach(opts => {
       if (opts.ev === 'ready') {
         opts.fn.call(opts);
@@ -629,7 +630,12 @@ const app = {
       if (opts.multiple) {
         let targets;
         if (typeof opts.el === 'string') {
-          targets = rel.querySelectorAll(opts.el);
+          try {
+            targets = rel.querySelectorAll(opts.el);
+          } catch (e) {
+            console.warn('Got error in app.startListeners', e, listeners);
+            return;
+          }
         } else {
           targets = Array.isArray(opts.el) ? opts.el : [opts.el];
         }
@@ -645,7 +651,12 @@ const app = {
         } else if (opts.el === 'window') {
           target = window;
         } else if (typeof opts.el === 'string') {
-          target = rel.querySelector(opts.el);
+          try {
+            target = rel.querySelector(opts.el);
+          } catch (e) {
+            console.warn('Got error in app.startListeners', e, listeners);
+            return;
+          }
         } else {
           target = Array.isArray(opts.el) ? opts.el[0] : opts.el;
         }
@@ -1082,10 +1093,9 @@ if (!window.app) {
 }
 
 if (/comp|inter|loaded/.test(document.readyState)) {
-  app.startListeners(app.initial_listeners);
+  app.startListeners(app.initial_listeners, document);
 } else {
-  document.addEventListener(
-    'DOMContentLoaded',
-    app.startListeners.bind(null, app.initial_listeners)
-  );
+  document.addEventListener('DOMContentLoaded', function() {
+    app.startListeners(app.initial_listeners, document);
+  });
 }

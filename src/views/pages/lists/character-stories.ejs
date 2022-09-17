@@ -21,7 +21,9 @@
         <hr>
         <div class="content">
           <h3 class="title-text"><%= fetter.storyTitleText %></h3>
-          <h4>Friendship Lv. <%= fetter.friendship %></h4>
+          <% if (fetter.friendship) { %>
+            <h4>Friendship Lv. <%= fetter.friendship %></h4>
+          <% } %>
           <p class="context-text"><%- fetter.storyContextHtml %></p>
         </div>
       <% }) %>
@@ -51,6 +53,9 @@ waitForConstant('app', app => {
     {
       ev: 'readyAsync',
       fn: function() {
+        if (window.location.href.includes('%20')) {
+          window.history.pushState({}, null, window.location.href.replaceAll(/%20/g, '_'));
+        }
         waitForElement('.tab.active textarea.wikitext', el => {
           autosize(el);
         });
