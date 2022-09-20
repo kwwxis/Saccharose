@@ -83,15 +83,34 @@ button.primary[disabled],
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
 }
 
+body.nightmode button.primary.cancel,
+body.nightmode button.primary.disabled,
+body.nightmode button.primary[disabled],
+body.nightmode [role='button'].primary.cancel,
+body.nightmode [role='button'].primary.disabled,
+body.nightmode [role='button'].primary[disabled] {
+  background-color: rgba(255, 255, 255, 0.18) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 25%) !important;
+}
+
+
 button.primary.cancel:focus,
 button.primary.disabled:focus,
 button.primary[disabled]:focus,
 [role='button'].primary.cancel:focus,
 [role='button'].primary.disabled:focus,
-[role='button'].primary[disabled]:focus {
+[role='button'].primary[disabled]:focus,
+body.nightmode button.primary.cancel:focus,
+body.nightmode button.primary.disabled:focus,
+body.nightmode button.primary[disabled]:focus,
+body.nightmode [role='button'].primary.cancel:focus,
+body.nightmode [role='button'].primary.disabled:focus,
+body.nightmode [role='button'].primary[disabled]:focus {
   box-shadow: 0 0 0 3px rgba(0, 140, 221, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
   border-color: rgba(0, 0, 0, 0.35) !important;
 }
+
 
 button.primary.danger,
 button.primary.no,
@@ -177,10 +196,6 @@ button.primary.primary--2:focus,
 [role='button'].primary.primary--2:focus {
   box-shadow: 0 0 0 3px rgba(0, 140, 221, 0.2);
   border-color: #000;
-}
-button.primary.primary--2[disabled],
-[role='button'].primary.primary--2[disabled] {
-  background: hsla(210, 40%, 84%, 1);
 }
 
 /* Other Primary States

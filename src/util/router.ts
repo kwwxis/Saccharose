@@ -18,6 +18,8 @@ import { LANG_CODES_TO_NAME } from '@types';
 export type IncludeFunction = (view: string, locals?: any) => string;
 
 export type RequestSubViewLocals = {
+  parent?: RequestSubViewLocals;
+  viewName?: string,
   subview?: string;
   sublocals?: RequestSubViewLocals;
   include?: IncludeFunction,
@@ -41,8 +43,30 @@ class RequestContext {
     this.styles = [];
     this.scripts = [];
     this.bodyClass = [];
-    this.viewStack = {};
+    this.viewStack = {viewName: 'RouterRootViewStack'};
     this.viewStackPointer = this.viewStack;
+  }
+
+  canPopViewStack(): boolean {
+    return this.viewStackPointer.parent && this.viewStackPointer.parent.viewName !== 'RouterRootViewStack';
+  }
+
+  popViewStack(): boolean {
+    if (!this.canPopViewStack()) {
+      return false;
+    }
+    this.viewStackPointer = this.viewStackPointer.parent;
+    this.viewStackPointer.subview = undefined;
+    this.viewStackPointer.sublocals = undefined;
+    return true;
+  }
+
+  hasBodyClass(bodyClass: string) {
+    return this.bodyClass.includes(bodyClass);
+  }
+
+  bodyClassTernary(bodyClass: string, ifIncludes?: any, ifNotIncludes?: any) {
+    return this.hasBodyClass(bodyClass) ? (ifIncludes || '') : (ifNotIncludes || '');
   }
 
   get formattedPageTitle() {
@@ -96,9 +120,10 @@ export type Request = express.Request & {
     [key: string]: any;
   }
 };
-export type Response = express.Response & {
-  csv: (data: any, csvHeaders?: boolean, headers?: any, statusCode?: number) => Response
-};
+export type Response = {
+  csv: (data: any, csvHeaders?: boolean, headers?: any, statusCode?: number) => Response,
+  render(view: string, options?: object, callback?: (err: Error, html: string) => void, throwOnError?: boolean): Promise<string|Error>,
+} & express.Response;
 export type NextFunction = express.NextFunction;
 export type RequestHandler = express.RequestHandler;
 
@@ -143,6 +168,8 @@ function createIncludeFunction(req: Request, viewStackPointer: RequestSubViewLoc
       Object.assign({
         include,
         req,
+        hasBodyClass: req.context.hasBodyClass.bind(req.context),
+        bodyClassTernary: req.context.bodyClassTernary.bind(req.context),
       }, DEFAULT_GLOBAL_LOCALS, viewStackPointer, typeof locals !== 'object' ? {} : locals),
       { delimiter: config.views.ejsDelimiter }
     );
@@ -196,7 +223,12 @@ export async function updateReqContext(req: Request, ctx: Readonly<RequestContex
       req.context.viewStackPointer.include = createIncludeFunction(req, req.context.viewStackPointer);
 
       // copy down to child view b/c child views should inherit the locals of the parent view
-      req.context.viewStackPointer.sublocals = Object.assign({}, req.context.viewStackPointer, {subview: undefined, sublocals: undefined});
+      req.context.viewStackPointer.sublocals = Object.assign({}, req.context.viewStackPointer, {
+        viewName: viewName,
+        subview: undefined,
+        sublocals: undefined,
+        parent: req.context.viewStackPointer,
+      });
       req.context.viewStackPointer = req.context.viewStackPointer.sublocals;
       numLayoutsProcessed++;
     });
@@ -220,22 +252,35 @@ export function create(context?: Readonly<RequestContextUpdate>): Router {
     if (context)
       await updateReqContext(req, context);
 
-    res.render = async function(view: string, locals?: any, callback?: (err: Error, html: string) => void): Promise<void> {
-      await updateReqContext(req, {
-        locals,
-        layouts: view,
-        title: locals && locals.title,
-        styles: locals && locals.styles,
-        scripts: locals && locals.scripts,
-        bodyClass: locals && locals.bodyClass,
-      });
+    res.render = async function(view: string, locals?: any, callback?: (err: Error, html: string) => void, throwOnError: boolean = false): Promise<string|Error> {
+      try {
+        await updateReqContext(req, {
+          locals,
+          layouts: view,
+          title: locals && locals.title,
+          styles: locals && locals.styles,
+          scripts: locals && locals.scripts,
+          bodyClass: locals && locals.bodyClass,
+        });
 
-      const rendered = req.context.viewStack.include(req.context.viewStack.subview, req.context.viewStack.sublocals);
-      res.set('Content-Type', 'text/html');
-      res.send(rendered);
+        const rendered = req.context.viewStack.include(req.context.viewStack.subview, req.context.viewStack.sublocals);
+        res.set('Content-Type', 'text/html');
+        res.send(rendered);
 
-      if (typeof callback === 'function') {
-        callback(null, rendered);
+        if (typeof callback === 'function') {
+          callback(null, rendered);
+        }
+        return rendered;
+      } catch (e) {
+        if (typeof callback === 'function') {
+          callback(e, null);
+        }
+        if (throwOnError) {
+          throw e;
+        } else if (req.next) {
+          req.next(e);
+        }
+        return e;
       }
     };
 

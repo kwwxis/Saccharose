@@ -2,7 +2,7 @@ import '../../setup';
 import { closeKnex } from '@db';
 import { Control, getControl } from '@/scripts/script_util';
 import { DialogExcelConfigData, NpcExcelConfigData, TalkExcelConfigData } from '@types';
-import { DialogueSectionResult, TalkConfigAccumulator, talkConfigToDialogueSectionResult } from './quest_generator';
+import { DialogueSectionResult, MetaProp, TalkConfigAccumulator, talkConfigToDialogueSectionResult } from './quest_generator';
 import { isInt } from '@functions';
 import { loadTextMaps } from '../textmap';
 import util from 'util';
@@ -48,7 +48,7 @@ export async function dialogueGenerate(ctrl: Control, query: number|number[]|str
     if (npcFilterExclude(dialogue, npcFilter)) {
       return undefined;
     }
-    const talkConfig = await ctrl.selectTalkExcelConfigByFirstDialogueId(dialogue.Id);
+    const talkConfig = await ctrl.selectTalkExcelConfigDataByFirstDialogueId(dialogue.Id);
     if (talkConfig) {
       const talkConfigResult = await talkConfigGenerate(ctrl, talkConfig, npcFilter);
       if (talkConfigResult) {
@@ -57,7 +57,7 @@ export async function dialogueGenerate(ctrl: Control, query: number|number[]|str
     } else {
       const dialogueBranch = await ctrl.selectDialogBranch(dialogue);
       const sect = new DialogueSectionResult('Dialogue_'+dialogue.Id, 'Dialogue');
-      sect.metatext = 'First Dialogue ID: ' + dialogue.Id;
+      sect.metadata.push(new MetaProp('First Dialogue ID', dialogue.Id, `/branch-dialogue?q=${dialogue.Id}`));
       sect.wikitext = (await ctrl.generateDialogueWikiText(dialogueBranch)).trim();
       result.push(sect);
     }
@@ -142,7 +142,7 @@ export async function dialogueGenerateByNpc(ctrl: Control, npcNameOrId: string|n
     res.npcId = npc.Id;
     res.npc = npc;
 
-    res.talkConfigs = await ctrl.selectTalkExcelConfigByNpcId(npc.Id);
+    res.talkConfigs = await ctrl.selectTalkExcelConfigDataByNpcId(npc.Id);
     res.dialogue = [];
     res.orphanedDialogue = [];
 
@@ -161,7 +161,7 @@ export async function dialogueGenerateByNpc(ctrl: Control, npcNameOrId: string|n
 
       let dialogueBranch = await ctrl.selectDialogBranch(dialogue);
       const sect = new DialogueSectionResult('Dialogue_'+dialogue.Id, 'Dialogue');
-      sect.metatext = 'First Dialogue ID: ' + dialogue.Id;
+      sect.metadata.push(new MetaProp('First Dialogue ID', dialogue.Id, `/branch-dialogue?q=${dialogue.Id}`));
       sect.wikitext = (await ctrl.generateDialogueWikiText(dialogueBranch)).trim();
       res.orphanedDialogue.push(sect);
     }

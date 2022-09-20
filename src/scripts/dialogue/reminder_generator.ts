@@ -2,7 +2,7 @@ import '../../setup';
 import { closeKnex } from '@db';
 import { Control, getControl, normText } from '@/scripts/script_util';
 import { ReminderExcelConfigData } from '@types';
-import { DialogueSectionResult } from './quest_generator';
+import { DialogueSectionResult, MetaProp } from './quest_generator';
 import { isInt } from '@functions';
 import { loadTextMaps } from '../textmap';
 import { cached } from '@cache';
@@ -42,7 +42,7 @@ export async function reminderGenerate(ctrl: Control, query: number|string, subs
     }
     if (!sect) {
       sect = new DialogueSectionResult('Reminder_'+reminder.Id, 'Reminder');
-      sect.metatext = 'First Reminder ID: ' + reminder.Id;
+      sect.metadata.push(new MetaProp('First Reminder ID', reminder.Id));
       sect.wikitext = '';
       result.push(sect);
     } else {

@@ -3,7 +3,7 @@
     <% if (locals.helptext) { %>
       <span ui-tippy-hover="<%= locals.helptext %>" class="dispInlineBlock spacer5-left" style="height:18px;width:18px;"><%- icon('info',{width: 18, height:18}) %></span>
     <% } %>
-    <% if (locals.wikitext && !locals.metatext) { %>
+    <% if (locals.wikitext && (!locals.metadata || !Object.keys(locals.metadata).length)) { %>
       <div class="grow"></div>
       <button class="secondary small" copy-target="wikitext-<%= id %>"
         ui-tippy-hover="Click to copy to clipboard"
@@ -11,13 +11,24 @@
         style="margin:5px 0 0">Copy</button>
     <% } %>
   </h4>
-  <% if (locals.metatext) { %>
+  <% if (locals.metadata && Object.keys(locals.metadata).length) { %>
     <div class="valign">
-      <p class="dialogue-section-meta">
-        <% metatext.split('\n').map(x => x.trim()).filter(x => !!x).forEach(part => { %>
-         <code class="item"><%= part %></code>
-        <% }) %>
-      </p>
+      <div class="valign dialogue-section-metadata">
+        <% for (let metaProp of metadata) { %>
+          <div class="prop">
+            <span class="prop-label"><%= metaProp.label %></span>
+            <span class="prop-values">
+              <% for (let val of metaProp.values) { %>
+                <% if (val.link) { %>
+                  <a class="prop-value" href="<%= val.link %>" target="_blank"><%= val.value %></a>
+                <% } else { %>
+                  <span class="prop-value"><%= val.value %></span>
+                <% } %>
+              <% } %>
+            </span>
+          </div>
+        <% } %>
+      </div>
       <% if (locals.wikitext) { %>
         <div class="grow"></div>
         <button class="secondary small" copy-target="wikitext-<%= id %>"

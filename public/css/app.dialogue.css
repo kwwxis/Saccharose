@@ -7,14 +7,6 @@
   padding: 5px 15px;
 }
 
-.dialogue-section-meta, .card p.dialogue-section-meta {
-  font-size: 13px;
-  line-height: 15px;
-}
-.dialogue-section-meta .item + .item:before {
-  content: '; ';
-}
-
 .dialogue-section .dialogue-section-children {
   padding-left: 20px;
   margin-top:10px;
@@ -26,4 +18,51 @@
 
 body.nightmode .dialogue-section {
   border-top-color: hsl(255deg 13% 25%);
+}
+
+/*------------------------------*/
+
+.dialogue-section-metadata {
+  flex-wrap: wrap;
+}
+.dialogue-section-metadata .prop {
+  display: flex;
+  align-items: center;
+  border: 1px solid hsla(232, 20%, 32%, 0.25);
+  border-radius: 3px;
+  margin-right: 5px;
+  line-height: 19px;
+  font-size: 13px;
+  margin-bottom: 3px;
+}
+
+.dialogue-section-metadata .prop-label {
+  background: hsla(232, 20%, 32%, 0.11);
+  padding: 0 3px;
+}
+
+.dialogue-section-metadata .prop-values {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.dialogue-section-metadata .prop-value {
+  border-left: 1px solid hsla(232, 20%, 32%, 0.3);
+  padding: 0 5px;
+  text-decoration: none;
+}
+
+body.nightmode .dialogue-section-metadata .prop {
+  border-color: hsla(232, 20%, 60%, 0.25);
+}
+body.nightmode .dialogue-section-metadata .prop-value {
+  border-left-color: hsla(232, 20%, 60%, 0.3);
+}
+
+body.nightmode .dialogue-section-metadata .prop-label {
+  background: hsl(255deg 8% 22%);
+}
+body.nightmode .dialogue-section-metadata .prop-value {
+  background: hsl(255deg 8% 20%);
 }

@@ -8,13 +8,42 @@ import {
   TalkExcelConfigData,
   NpcExcelConfigData
 } from '@types';
-import config from '@/config';
+
+export class MetaPropValue {
+  value: string;
+  link?: string;
+  constructor(value: string, link?: string) {
+    this.value = value;
+    this.link = link;
+  }
+}
+
+export class MetaProp {
+  label: string;
+  values: MetaPropValue[] = [];
+
+  constructor(label: string, values: string|number|string[]|number[]|MetaPropValue[], link?: string) {
+    this.label = label;
+
+    if (typeof values === 'string' || typeof values === 'number') {
+      this.values.push(new MetaPropValue(String(values), link ? link.replace('{}', String(values)) : link));
+    } else if (Array.isArray(values) && values.length > 0) {
+      if (typeof values[0] === 'string' || typeof values[0] === 'number') {
+        for (let value of values) {
+          this.values.push(new MetaPropValue(String(value), link ? link.replace('{}', String(value)) : link));
+        }
+      } else if (values[0] instanceof MetaPropValue) {
+        this.values.push(... (values as MetaPropValue[]));
+      }
+    }
+  }
+}
 
 export class DialogueSectionResult {
   id: string = null;
   title: string = null;
+  metadata: MetaProp[] = [];
   helptext: string = null;
-  metatext: string = null;
   wikitext: string = null;
   wikitextArray: string[] = [];
   children: DialogueSectionResult[] = [];
@@ -24,6 +53,27 @@ export class DialogueSectionResult {
     this.id = id;
     this.title = title;
     this.helptext = helptext;
+  }
+
+  addMetaProp(label: string, values: string|number|string[]|number[]|MetaPropValue[], link?: string) {
+    if (!values || (Array.isArray(values) && !values.length)) {
+      return;
+    }
+    this.metadata.push(new MetaProp(label, values, link));
+  }
+
+  addCondMetaProp(fieldName: string, condComb: string, condList: ConfigCondition[]) {
+    let label = fieldName + (condComb ? '[Comb='+condComb+']' : '');
+    let values = [];
+    if (condList && condList.length) {
+      for (let cond of condList) {
+        let str = '('+'Type=' + cond.Type + (cond.Param ? ' Param=' + JSON.stringify(cond.Param) : '')
+          + (cond.ParamStr ? ' ParamStr=' + cond.ParamStr : '')
+          + (cond.Count ? ' Count=' + cond.Count : '')+')';
+        values.push(str);
+      }
+    }
+    this.addMetaProp(label, values);
   }
 }
 
@@ -58,33 +108,6 @@ export class SbOut {
   }
   clearOut() {
     this.out = '';
-  }
-  lineProp(label: string, prop: any) {
-    if (!prop)
-      return;
-    if (label.includes('%s')) {
-      this.line(label.replace('%s', prop));
-    } else {
-      this.line(`${label}: ${prop}`);
-    }
-  }
-  printCond(fieldName: string, condComb: string, condList: ConfigCondition[]) {
-    let out = '';
-    if (condList && condList.length) {
-      out += fieldName + (condComb ? '[Comb='+condComb+']' : '') + ': ';
-      for (let i = 0; i < condList.length; i++) {
-        let cond = condList[i];
-        if (i !== 0) {
-          out += ', ';
-        }
-        out += '('+'Type=' + cond.Type + (cond.Param ? ' Param=' + JSON.stringify(cond.Param) : '')
-            + (cond.ParamStr ? ' ParamStr=' + cond.ParamStr : '')
-            + (cond.Count ? ' Count=' + cond.Count : '')+')';
-      }
-    }
-    if (out) {
-      this.line(out);
-    }
   }
 }
 
@@ -259,14 +282,13 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
     let sect = new DialogueSectionResult('Section_'+questSub.SubId, 'Section');
 
     out.clearOut();
-    out.lineProp('Section Id', questSub.SubId);
-    out.lineProp('Section Order', questSub.Order);
-    out.lineProp('Quest Step', questSub.DescText);
-    out.lineProp('Quest Desc Update', questSub.StepDescText);
-    out.printCond('AcceptCond', questSub.AcceptCondComb, questSub.AcceptCond);
-    out.printCond('FinishCond', questSub.FinishCondComb, questSub.FinishCond);
-    out.printCond('FailCond', questSub.FailCondComb, questSub.FailCond);
-    sect.metatext = out.toString();
+    sect.addMetaProp('Section ID', questSub.SubId);
+    sect.addMetaProp('Section Order', questSub.Order);
+    sect.addMetaProp('Quest Step', questSub.Order);
+    sect.addMetaProp('Quest Desc Update', questSub.StepDescText);
+    sect.addCondMetaProp('AcceptCond', questSub.AcceptCondComb, questSub.AcceptCond);
+    sect.addCondMetaProp('FinishCond', questSub.FinishCondComb, questSub.FinishCond);
+    sect.addCondMetaProp('FailCond', questSub.FailCondComb, questSub.FailCond);
 
     if (questSub.OrphanedDialog && questSub.OrphanedDialog.length) {
       for (let dialog of questSub.OrphanedDialog) {
@@ -389,20 +411,18 @@ export class TalkConfigAccumulator {
 export async function talkConfigToDialogueSectionResult(ctrl: Control, parentSect: DialogueSectionResult|QuestGenerateResult,
     sectName: string, sectHelptext: string, talkConfig: TalkExcelConfigData, dialogueDepth: number = 1): Promise<DialogueSectionResult> {
   let mysect = new DialogueSectionResult('TalkDialogue_'+talkConfig.Id, sectName, sectHelptext);
-  let out = new SbOut();
-  out.clearOut();
-  out.lineProp('TalkConfigId', talkConfig.Id);
-  out.lineProp('QuestId', talkConfig.QuestId);
-  out.lineProp('QuestIdleTalk', talkConfig.QuestIdleTalk ? 'yes' : null);
-  out.lineProp('NpcId', talkConfig.NpcId);
-  out.lineProp('NextTalks', talkConfig.NextTalks && talkConfig.NextTalks.length ? talkConfig.NextTalks.join(', ') : null);
-  mysect.metatext = out.toString();
+
+  mysect.addMetaProp('Talk ID', talkConfig.Id, '/branch-dialogue?q={}');
+  mysect.addMetaProp('Quest ID', talkConfig.QuestId, '/quests/{}');
+  mysect.addMetaProp('Quest Idle Talk', talkConfig.QuestIdleTalk ? 'yes' : null);
+  mysect.addMetaProp('NPC ID', talkConfig.NpcId, '/npc-dialogue?q={}');
+  mysect.addMetaProp('Next Talk IDs', talkConfig.NextTalks, '/branch-dialogue?q={}');
 
   if (talkConfig.Dialog.length && ctrl.isPlayerDialogueOption(talkConfig.Dialog[0])) {
     dialogueDepth += 1;
   }
 
-  out.clearOut();
+  let out = new SbOut();
   out.append(await ctrl.generateDialogueWikiText(talkConfig.Dialog, dialogueDepth));
   mysect.wikitext = out.toString();
 
@@ -420,9 +440,7 @@ export async function talkConfigToDialogueSectionResult(ctrl: Control, parentSec
     let skippedNextTalkIds = talkConfig.NextTalks.filter(myId => !talkConfig.NextTalksDataList.find(x => x.Id === myId));
     for (let nextTalkId of skippedNextTalkIds) {
       let placeholderSect = new DialogueSectionResult(null, 'Next Talk Dialogue');
-      out.clearOut();
-      out.lineProp('TalkConfigId', nextTalkId);
-      placeholderSect.metatext = out.toString();
+      placeholderSect.metadata.push(new MetaProp('Talk ID', nextTalkId, `/branch-dialogue?q=${nextTalkId}`));
       placeholderSect.htmlMessage = `<p>This section contains dialogue but wasn't shown because the section is already present on the page.
       This can happen when multiple talk dialogues lead to the same next talk dialogue.</p>
       <p><a href="#TalkDialogue_${nextTalkId}">Jump to Talk Dialogue ${nextTalkId}</a></p>`;

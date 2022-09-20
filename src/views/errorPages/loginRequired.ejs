@@ -1,8 +1,10 @@
-<div class="error-box is--404">
-  <h2>Login Required</h2>
-  <hr class="thin-border">
-  <p>You must be logged-in to access this page.</p>
-  <div class="spacer-top">
-    <a role="button" class="primary auth-button is--login" href="<%= config.auth.paths.login %>?cont=<%= req.originalUrl %>">Login and continue</a>
+<div class="card error-box-card">
+  <div class="error-box is--401">
+    <h2>Login Required</h2>
+    <hr class="thin-border">
+    <p>You must be logged-in to access this page.</p>
+    <div class="spacer-top">
+      <a role="button" class="primary auth-button is--login" href="<%= config.auth.paths.login %>?cont=<%= req.originalUrl %>">Login and continue</a>
+    </div>
   </div>
 </div>

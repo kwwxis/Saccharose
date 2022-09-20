@@ -68,7 +68,7 @@ export interface TalkExcelConfigData {
   NextTalks: number[],
   NextTalksDataList: TalkExcelConfigData[],
   InitDialog: number,
-  NpcId: number,
+  NpcId: number[],
   NpcDataList?: NpcExcelConfigData[],
   NpcNameList?: string[],
   ParticipantId: number[],

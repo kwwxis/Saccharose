@@ -365,7 +365,7 @@ const app = {
             console.log('Hash Change:', hash);
             let target = document.getElementById(hash);
             if (target) {
-              window.history.replaceState({}, null, window.location.pathname);
+              window.history.replaceState({}, null, window.location.href.split('#')[0]);
               target.classList.add('flash');
               setTimeout(() => {
                 target.classList.remove('flash');

@@ -138,5 +138,14 @@ export default async function(): Promise<Router> {
     });
   });
 
+  // These are for testing purposes - making sure the global error handlers work
+  router.get('/trigger-exception1', async (_req: Request, _res: Response) => {
+    let thing = {};
+    thing['foobar']();
+  });
+  router.get('/trigger-exception2', async (_req: Request, res: Response) => {
+    res.render('pages/lists/character-stories');
+  });
+
   return router;
 }

@@ -518,12 +518,8 @@ export class Control {
     return allTalkExcelTalkConfigIds.map(i => toNumber(i));
   }
 
-  async selectTalkExcelConfigByFirstDialogueId(firstDialogueId: number): Promise<TalkExcelConfigData> {
+  async selectTalkExcelConfigDataByFirstDialogueId(firstDialogueId: number): Promise<TalkExcelConfigData> {
     return await this.knex.select('*').from('TalkExcelConfigData').where({InitDialog: firstDialogueId}).first().then(this.commonLoadFirst);
-  }
-
-  async selectTalkExcelConfigByNpcId(npcId: number): Promise<TalkExcelConfigData[]> {
-    return await this.knex.select('*').from('TalkExcelConfigData').where({NpcId: npcId}).then(this.commonLoad);
   }
 
   async addOrphanedDialogueAndQuestMessages(mainQuest: MainQuestExcelConfigData) {
@@ -573,18 +569,16 @@ export class Control {
   }
 
   async selectTalkExcelConfigDataByQuestId(questId: number): Promise<TalkExcelConfigData[]> {
-    return await this.knex.select('*').from('TalkExcelConfigData').where({QuestId: questId}).orWhere({QuestCondStateEqualFirst: questId}).then(this.commonLoad)
-      .then(quests => quests.sort(this.sortByOrder));
+    return await this.knex.select('*').from('TalkExcelConfigData').where({QuestId: questId})
+      .orWhere({QuestCondStateEqualFirst: questId}).then(this.commonLoad);
   }
 
   async selectTalkExcelConfigDataByNpcId(npcId: number): Promise<TalkExcelConfigData[]> {
-    return await this.knex.select('*').from('TalkExcelConfigData').where({NpcId: npcId}).then(this.commonLoad)
-      .then(quests => quests.sort(this.sortByOrder));
+    return await this.knex.select('*').from('TalkExcelConfigData').where({NpcId: npcId}).then(this.commonLoad);
   }
 
   async selectDialogExcelConfigDataByTalkRoleId(talkRoleId: number): Promise<DialogExcelConfigData[]> {
-    return await this.knex.select('*').from('DialogExcelConfigData').where({TalkRoleId: talkRoleId}).then(this.commonLoad)
-      .then(quests => quests.sort(this.sortByOrder));
+    return await this.knex.select('*').from('DialogExcelConfigData').where({TalkRoleId: talkRoleId}).then(this.commonLoad);
   }
 
   async selectSingleDialogExcelConfigData(id: number): Promise<DialogExcelConfigData> {
@@ -846,12 +840,18 @@ export class Control {
       if (dialog.Branches && dialog.Branches.length) {
         let temp = new Set<number>(firstDialogOfBranchVisited);
         for (let dialogBranch of dialog.Branches) {
+          if (!dialogBranch.length) {
+            continue;
+          }
           temp.add(dialogBranch[0].Id);
         }
 
         let excludedCount = 0;
         let includedCount = 0;
         for (let dialogBranch of dialog.Branches) {
+          if (!dialogBranch.length) {
+            continue;
+          }
           if (firstDialogOfBranchVisited.has(dialogBranch[0].Id)) {
             excludedCount++;
             continue;

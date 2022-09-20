@@ -36,13 +36,8 @@
 
 <script nonce="<%= req.context.nonce %>">
 waitForConstant('app', app => {
-  function loadQuestGenerateResult() {
+  function loadQuestGenerateResult(questId) {
     document.querySelector('.quest-search-result-wrapper').classList.add('hide');
-
-    let urlParts = /\/quests\/(\d+)/i.exec(window.location.href);
-    if (!urlParts || urlParts.length < 2) {
-      return;
-    }
 
     document.querySelector('#quest-generate-result').innerHTML = `
     <div class="valign spacer10-left">
@@ -50,8 +45,7 @@ waitForConstant('app', app => {
       <span class="spacer10-left fontWeight600">Loading quest...</span>
     </div>`
 
-    let id = urlParts[1];
-    app.endpoints.generateMainQuest(id, true).then(html => {
+    app.endpoints.generateMainQuest(questId, true).then(html => {
       if (typeof html === 'string') {
         document.querySelector('#quest-generate-result').innerHTML = html;
       } else if (typeof html === 'object' && html.error_description) {
@@ -62,6 +56,33 @@ waitForConstant('app', app => {
 
       app.startListeners(questResultListeners, '#quest-generate-result');
     });
+  }
+
+  function loadQuestGenerateResultFromUrl() {
+    let urlParts = /\/quests\/(\d+)/i.exec(window.location.href);
+    if (!urlParts || urlParts.length < 2) {
+      window.history.replaceState({}, null, window.location.href);
+      return;
+    }
+    let id = urlParts[1];
+    window.history.replaceState({questId: id}, null, window.location.href);
+    loadQuestGenerateResult(id);
+  }
+
+  function loadQuestGenerateResultFromState(state) {
+    if (!state)
+      state = {};
+    if (state.questId) {
+      loadQuestGenerateResult(state.questId);
+    } else {
+      document.querySelector('.quest-search-result-wrapper').classList.add('hide');
+      document.querySelector('#quest-generate-result').innerHTML = '';
+    }
+    if (state.q) {
+      document.querySelector('.quest-search-input').value = state.q;
+    } else {
+      document.querySelector('.quest-search-input').value = '';
+    }
   }
 
   const questResultListeners = [
@@ -99,7 +120,7 @@ waitForConstant('app', app => {
         ev: 'readyAsync',
         fn: function() {
           waitForConstant('axios', () => {
-            loadQuestGenerateResult();
+            loadQuestGenerateResultFromUrl();
           })
         }
     },
@@ -107,16 +128,10 @@ waitForConstant('app', app => {
       el: 'window',
       ev: 'popstate', // user clicks browser back/forward buttons
       fn: function(event) {
-        console.log('URL changed to', window.location.href);
-        if (/\/quests\/?$/i.test(window.location.href)) {
-          document.querySelector('.quest-search-result-wrapper').classList.add('hide');
-          document.querySelector('.quest-search-input').value = '';
-          document.querySelector('#quest-generate-result').innerHTML = '';
+        if (!event.state) {
+          return;
         }
-
-        if (/\/quests\/(\d+)/i.test(window.location.href)) {
-          loadQuestGenerateResult();
-        }
+        loadQuestGenerateResultFromState(event.state);
       }
     },
     {
@@ -164,8 +179,11 @@ waitForConstant('app', app => {
                 event.stopPropagation();
                 event.preventDefault();
                 console.log('Changing url to', href);
-                window.history.pushState({}, null, href);
-                loadQuestGenerateResult();
+
+                let questId = target.getAttribute('data-id');
+
+                window.history.pushState({questId: questId, q: text}, null, href);
+                loadQuestGenerateResult(questId);
               }
             },
           ], '.quest-search-result');

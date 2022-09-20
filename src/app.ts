@@ -2,24 +2,26 @@ const STEPS_TO_LOAD = 10;
 
 console.log(`(1/${STEPS_TO_LOAD}) Requiring dependencies`);
 import config from '@/config';
-import { Express, Request, Response, NextFunction } from 'express';
+import { Express } from 'express';
 import express from 'express';
+import 'express-async-errors';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 const partialResponse = require('express-partial-response');
 import useragent from 'express-useragent';
 import helmet from 'helmet';
 import csrf from 'csurf';
-import exitHook from 'async-exit-hook';
 import { openKnex } from '@db';
 import serveIndex from 'serve-index';
 import morgan from 'morgan';
 
+import { Request, Response, NextFunction } from '@router';
 import sessions from '@/middleware/sessions';
 import baseRouter from '@/controllers/BaseRouter';
 import apiRouter from '@/controllers/api';
 import { loadTextMaps, loadVoiceItems } from './scripts/textmap';
 import { EOL } from 'os';
+import util from 'util';
 
 const app: Express = express();
 
@@ -102,35 +104,46 @@ export default {
     app.use(csrf(config.csrfConfig.standard));
     app.use('/', await baseRouter());
 
-    //#region Global Error Handlers
+    // Global Error Handlers
     console.log(`(9/${STEPS_TO_LOAD}) Adding global error handlers`);
-    exitHook.uncaughtExceptionHandler(err => {
-      console.error(err);
+    process.on('uncaughtException', function(err) {
+      console.error('UncaughtException!', err);
     });
-    exitHook.unhandledRejectionHandler(err => {
-      console.error(err);
+    process.on('unhandledRejection', function(err) {
+      console.error('UnhandledRejection!', err);
     });
+    app.use(async function(err: any, req: Request, res: Response, next: NextFunction) {
+      console.error(err);
 
-    app.use(function(err, req: Request, res: Response, next: NextFunction) {
       if (res.headersSent) {
         return next(err);
       }
 
-      if (err.code === 'EBADCSRFTOKEN') {
+      if (err && typeof err === 'object' && err.code === 'EBADCSRFTOKEN') {
         return res.status(403).sendFile(`${config.views.root}/errorPages/csrfTokenDenied.html`);
       }
 
-      console.error(err);
+      do {
+        try {
+          await res.status(404).render('errorPages/500', null, null, true);
+          return;
+        } catch (e) {
+          req.context.popViewStack();
+          req.context.popViewStack();
+        }
+      } while (req.context.canPopViewStack());
 
-      return res.status(404).sendFile(`${config.views.root}/errorPages/500.html`);
+      // Depending on what causes the error, attempting to render 'errorPages/500.ejs' might cause an error too.
+      // In that case then just send an HTML file as the safe option.
+      res.status(500).sendFile(`${config.views.root}/errorPages/500.html`);
     });
 
-    app.get('*', function(req: Request, res: Response) {
+    app.get('*', function(_req: Request, res: Response) {
       // 404-Handler: this must always be last.
       res.status(404).render('errorPages/404');
     });
-    //#endregion
 
+    // Application loading complete
     console.log(`(10/${STEPS_TO_LOAD}) Application code fully loaded`);
     return app;
   },

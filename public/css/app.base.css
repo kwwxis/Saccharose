@@ -931,9 +931,13 @@ body {
   color: #0f214d;
 }
 
+.error-box-card {
+  border-top: 3px solid hsla(359, 76%, 54%, 1);
+}
+
 .error-box {
-  max-width: 400px;
-  margin: 80px;
+  max-width: 500px;
+  padding: 20px 0 60px 40px;
 }
 
 .error-box p {
