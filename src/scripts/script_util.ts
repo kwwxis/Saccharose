@@ -129,10 +129,10 @@ export const nameNormMap = {
   paimon: 'Paimon'
 };
 
-export async function grep(searchText: string, file: string, extraFlags?: string): Promise<string[]> {
+export async function grep(searchText: string, file: string, extraFlags?: string, escapeDoubleQuotes: boolean = true): Promise<string[]> {
   try {
-    if (file.endsWith('.json')) {
-      searchText = searchText.replace(/"/g, `\\"`); // double quotes since it's JSON
+    if (escapeDoubleQuotes && file.endsWith('.json')) {
+      searchText = searchText.replace(/"/g, `\\"`); // double quotes, assuming searching within JSON string values
     }
     searchText = searchText.replace(/'/g, `'"'"'`); // escape single quote by gluing different kinds of quotations, do this after double quote replacement
 
@@ -154,7 +154,8 @@ export async function grep(searchText: string, file: string, extraFlags?: string
 
 export async function grepIdStartsWith(idProp: string, idPrefix: number|string, file: string): Promise<(number|string)[]> {
   let isInt = typeof idPrefix === 'number';
-  let lines = await grep(`"${idProp}": ${isInt ? idPrefix : '"' + idPrefix}`, file);
+  let grepSearchText = `"${idProp}": ${isInt ? idPrefix : '"' + idPrefix}`;
+  let lines = await grep(grepSearchText, file, null, false);
   let out = [];
   for (let line of lines) {
     let parts = /":\s+"?([^",$]+)/.exec(line);
@@ -232,6 +233,8 @@ export const normText = (text: string, langCode: string = 'EN') => {
   text = text.replace(/{F#([^}]+)}{M#([^}]+)}/g, '{{MC|m=$2|f=$1}}');
   text = text.replace(/{M#([^}]+)}{F#([^}]+)}/g, '{{MC|m=$1|f=$2}}');
   text = text.replace(/\<color=#00E1FFFF\>([^<]+)\<\/color\>/g, '{{color|buzzword|$1}}');
+  text = text.replace(/\<color=#FFCC33FF\>([^<]+)\<\/color\>/g, '{{color|help|$1}}');
+  text = text.replace(/\<color=(#[0-9a-fA-F]{6})FF\>([^<]+)\<\/color\>/g, '{{color|$1|$2}}');
   text = text.replace(/\\n/g, '<br />');
 
   if (text.includes('RUBY#[S]')) {
@@ -523,8 +526,8 @@ export class Control {
   }
 
   async addOrphanedDialogueAndQuestMessages(mainQuest: MainQuestExcelConfigData) {
-    let allDialogueIds = this.prefs.ExcludeOrphanedDialogue ? [] : await grepIdStartsWith('Id', mainQuest.Id, './ExcelBinOutput/DialogExcelConfigData.json');
-    let allQuestMessageIds = await grepIdStartsWith('TextMapId', 'QUEST_Message_Q' + mainQuest.Id, './ExcelBinOutput/ManualTextMapConfigData.json');
+    let allDialogueIds = this.prefs.ExcludeOrphanedDialogue ? [] : await grepIdStartsWith('id', mainQuest.Id, './ExcelBinOutput/DialogExcelConfigData.json');
+    let allQuestMessageIds = await grepIdStartsWith('textMapId', 'QUEST_Message_Q' + mainQuest.Id, './ExcelBinOutput/ManualTextMapConfigData.json');
     let consumedQuestMessageIds = [];
 
     const handleOrphanedDialog = async (quest: MainQuestExcelConfigData|QuestExcelConfigData, id: number) => {
@@ -730,8 +733,11 @@ export class Control {
     }
 
     for (let i = 0; i < dialogLines.length; i++) {
-      let dialog = dialogLines[i];
-      let diconPrefix;
+      let dialog: DialogExcelConfigData = dialogLines[i];
+
+      // DIcon Prefix
+      // ~~~~~~~~~~~~
+      let diconPrefix: string;
 
       if (i == 0 && dialog.TalkRole.Type === 'TALK_ROLE_PLAYER') {
         if (originatorDialog && originatorDialog.TalkRole.Type === 'TALK_ROLE_PLAYER' && !originatorIsFirstOfBranch) {
@@ -744,8 +750,11 @@ export class Control {
         diconPrefix = ':'.repeat(dialogDepth);
       }
 
-      let prefix = ':'.repeat(dialogDepth);
-      let text = normText(dialog.TalkContentText, this.outputLangCode);
+      let prefix: string = ':'.repeat(dialogDepth);
+      let text: string = normText(dialog.TalkContentText, this.outputLangCode);
+
+      // Traveler SEXPRO
+      // ~~~~~~~~~~~~~~~
 
       if (text.includes('SEXPRO')) {
         text = await replaceAsync(text, /\{PLAYERAVATAR#SEXPRO\[(.*)\|(.*)\]\}/g, async (_fullMatch, g1, g2) => {
@@ -758,6 +767,9 @@ export class Control {
           }
         });
       }
+
+      // Subsequent Non-Branch Dialogue Options
+      // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
       if (previousDialog && this.isPlayerDialogueOption(dialog) && this.isPlayerDialogueOption(previousDialog) &&
           (previousDialog.NextDialogs.length === 1 || previousDialog.Branches.map(b => b[0]).every(x => this.isPlayerDialogueOption(x))) &&
@@ -773,6 +785,9 @@ export class Control {
       } else {
         numSubsequentNonBranchPlayerDialogOption = 0;
       }
+
+      // Voice-Overs
+      // ~~~~~~~~~~~
 
       let voPrefix = '';
       let voItems = getVoiceItems(dialog.Id);
@@ -801,6 +816,9 @@ export class Control {
           voPrefix = tmp.join(' ') + ' ';
         }
       }
+
+      // Output Append
+      // ~~~~~~~~~~~~~
 
       if (dialog.TalkRole.Type === 'TALK_ROLE_BLACK_SCREEN') {
         out += '\n';
@@ -836,6 +854,9 @@ export class Control {
           out += `\n${diconPrefix.slice(0,-1)};(Return to option selection)`;
         }
       }
+
+      // Next Branches
+      // ~~~~~~~~~~~~~
 
       if (dialog.Branches && dialog.Branches.length) {
         let temp = new Set<number>(firstDialogOfBranchVisited);

@@ -284,7 +284,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
     out.clearOut();
     sect.addMetaProp('Section ID', questSub.SubId);
     sect.addMetaProp('Section Order', questSub.Order);
-    sect.addMetaProp('Quest Step', questSub.Order);
+    sect.addMetaProp('Quest Step', questSub.DescText);
     sect.addMetaProp('Quest Desc Update', questSub.StepDescText);
     sect.addCondMetaProp('AcceptCond', questSub.AcceptCondComb, questSub.AcceptCond);
     sect.addCondMetaProp('FinishCond', questSub.FinishCondComb, questSub.FinishCond);
@@ -293,6 +293,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
     if (questSub.OrphanedDialog && questSub.OrphanedDialog.length) {
       for (let dialog of questSub.OrphanedDialog) {
         let subsect = new DialogueSectionResult('OrphanedDialogue_'+dialog[0].Id, 'Orphaned Dialogue', orphanedHelpText);
+        subsect.metadata.push(new MetaProp('First Dialogue ID', dialog[0].Id, `/branch-dialogue?q=${dialog[0].Id}`));
         out.clearOut();
         out.append(await ctrl.generateDialogueWikiText(dialog));
         subsect.wikitext = out.toString();
@@ -326,6 +327,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
   if (mainQuest.OrphanedDialog && mainQuest.OrphanedDialog.length) {
     for (let dialog of mainQuest.OrphanedDialog) {
       let sect = new DialogueSectionResult('OrphanedDialogue_'+dialog[0].Id, 'Orphaned Dialogue', orphanedHelpText);
+      sect.metadata.push(new MetaProp('First Dialogue ID', dialog[0].Id, `/branch-dialogue?q=${dialog[0].Id}`));
       out.clearOut();
       out.append(await ctrl.generateDialogueWikiText(dialog));
       out.line();
