@@ -31,7 +31,7 @@ const schema = {
       {name: 'TalkTitleTextMapHash', type: 'integer', isIndex: true},
       {name: 'TalkRoleNameTextMapHash', type: 'integer', isIndex: true},
     ],
-    skip: true
+    skip: false
   },
   ManualTextMapConfigData: <SchemaTable> {
     name: 'ManualTextMapConfigData',
@@ -40,7 +40,7 @@ const schema = {
       {name: 'TextMapId', type: 'string', isPrimary: true},
       {name: 'TextMapContentTextMapHash', type: 'integer', isIndex: true},
     ],
-    skip: true
+    skip: false
   },
   NpcExcelConfigData: <SchemaTable> {
     name: 'NpcExcelConfigData',
@@ -49,7 +49,7 @@ const schema = {
       {name: 'Id', type: 'integer', isPrimary: true},
       {name: 'NameTextMapHash', type: 'integer', isIndex: true}
     ],
-    skip: true
+    skip: false
   },
   TalkExcelConfigData: <SchemaTable> {
     name: 'TalkExcelConfigData',
@@ -78,7 +78,7 @@ const schema = {
         return null;
       }}
     ],
-    skip: true
+    skip: false
   },
   MainQuestExcelConfigData: <SchemaTable> {
     name: 'MainQuestExcelConfigData',
@@ -90,7 +90,7 @@ const schema = {
       {name: 'TitleTextMapHash', type: 'integer', isIndex: true},
       {name: 'DescTextMapHash', type: 'integer', isIndex: true}
     ],
-    skip: true
+    skip: false
   },
   ChapterExcelConfigData: <SchemaTable> {
     name: 'ChapterExcelConfigData',
@@ -102,7 +102,7 @@ const schema = {
       {name: 'ChapterNumTextMapHash', type: 'integer', isIndex: true},
       {name: 'ChapterTitleTextMapHash', type: 'integer', isIndex: true}
     ],
-    skip: true
+    skip: false
   },
   QuestExcelConfigData: <SchemaTable> {
     name: 'QuestExcelConfigData',
@@ -115,7 +115,7 @@ const schema = {
       {name: 'StepDescTextMapHash', type: 'integer', isIndex: true},
       {name: 'GuideTipsTextMapHash', type: 'integer', isIndex: true}
     ],
-    skip: true
+    skip: false
   },
   LoadingTipsExcelConfigData: <SchemaTable> {
     name: 'LoadingTipsExcelConfigData',
@@ -125,7 +125,7 @@ const schema = {
       {name: 'TipsTitleTextMapHash', type: 'integer', isIndex: true},
       {name: 'TipsDescTextMapHash', type: 'integer', isIndex: true}
     ],
-    skip: true
+    skip: false
   },
   ReminderExcelConfigData: <SchemaTable> {
     name: 'ReminderExcelConfigData',
@@ -136,7 +136,7 @@ const schema = {
       {name: 'ContentTextMapHash', type: 'integer', isIndex: true},
       {name: 'NextReminderId', type: 'integer', isIndex: true},
     ],
-    skip: true
+    skip: false
   },
   MaterialExcelConfigData: <SchemaTable> {
     name: 'MaterialExcelConfigData',
@@ -153,7 +153,7 @@ const schema = {
       {name: 'ItemType', type: 'string'},
       {name: 'RankLevel', type: 'string'},
     ],
-    skip: true
+    skip: false
   },
   DailyTaskExcelConfigData: <SchemaTable> {
     name: 'DailyTaskExcelConfigData',
@@ -167,7 +167,7 @@ const schema = {
       {name: 'DescriptionTextMapHash', type: 'integer', isIndex: true},
       {name: 'TargetTextMapHash', type: 'integer', isIndex: true},
     ],
-    skip: true
+    skip: false
   },
   NpcFirstMetExcelConfigData: <SchemaTable> {
     name: 'NpcFirstMetExcelConfigData',
@@ -177,7 +177,7 @@ const schema = {
       {name: 'AvatarID', type: 'integer', isIndex: true},
       {name: 'AvatarDescriptionTextMapHash', type: 'integer', isIndex: true},
     ],
-    skip: true,
+    skip: false,
   },
   AvatarExcelConfigData: <SchemaTable> {
     name: 'AvatarExcelConfigData',
@@ -191,7 +191,7 @@ const schema = {
       {name: 'IconName', type: 'string'},
       {name: 'SideIconName', type: 'string'},
     ],
-    skip: true,
+    skip: false,
   },
   // 'CHS' | 'CHT' | 'DE' | 'EN' | 'ES' | 'FR' | 'ID' | 'JP' | 'KR' | 'PT' | 'RU' | 'TH' | 'VI'
   // TextMapEN: textMapSchema('EN', true),

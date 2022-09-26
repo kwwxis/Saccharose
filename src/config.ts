@@ -13,7 +13,7 @@ export default {
     HTTP_PORT: 6000,
     HTTPS_PORT: 6001,
   },
-  currentGenshinVersion: '3.0',
+  currentGenshinVersion: '3.1',
   database: {
     filename: './genshin_data.db',
     voiceItemsFile: './voiceItemsNormalized.json',
