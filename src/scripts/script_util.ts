@@ -825,15 +825,15 @@ export class Control {
         out += `\n${prefix}'''${text}'''`;
         out += '\n';
       } else if (dialog.TalkRole.Type === 'TALK_ROLE_PLAYER') {
-        if (dialog.TalkRoleNameText) {
-          // I don't remember under what circumstances a TALK_ROLE_PLAYER has a TalkRoleNameText
-          out += `\n${diconPrefix}${voPrefix}'''${dialog.TalkRoleNameText}:''' ${text}`;
+        // if (dialog.TalkRoleNameText) {
+        //   // I don't remember under what circumstances a TALK_ROLE_PLAYER has a TalkRoleNameText
+        //   out += `\n${diconPrefix}${voPrefix}'''${dialog.TalkRoleNameText}:''' ${text}`;
+        // } else {
+        // }
+        if (voPrefix) {
+          out += `\n${diconPrefix}${voPrefix}'''(Traveler):''' ${text}`;
         } else {
-          if (voPrefix) {
-            out += `\n${diconPrefix}${voPrefix}'''(Traveler):''' ${text}`;
-          } else {
-            out += `\n${diconPrefix}${':'.repeat(numSubsequentNonBranchPlayerDialogOption)}{{DIcon}} ${text}`;
-          }
+          out += `\n${diconPrefix}${':'.repeat(numSubsequentNonBranchPlayerDialogOption)}{{DIcon}} ${text}`;
         }
       } else if (dialog.TalkRole.Type === 'TALK_ROLE_NPC' || dialog.TalkRole.Type === 'TALK_ROLE_GADGET') {
         out += `\n${prefix}${voPrefix}'''${dialog.TalkRoleNameText}:''' ${text}`;

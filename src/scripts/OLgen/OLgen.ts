@@ -1,6 +1,6 @@
 import { LangCode, LANG_CODES } from "@types";
 import "../../setup";
-import {Control, getControl, grep} from "../script_util";
+import {Control, getControl, grep, normText} from "../script_util";
 import { getTextMapItem } from "../textmap";
 
 function ol_gen_internal(textMapId: number, hideTl: boolean = false, addDefaultHidden: boolean = false): string {
@@ -46,7 +46,7 @@ function ol_gen_internal(textMapId: number, hideTl: boolean = false, addDefaultH
     let textInLang = getTextMapItem(langCode, textMapId);
     olMap[langCode] = textInLang;
 
-    template = template.replace(`{${langCode}_official_name}`, textInLang);
+    template = template.replace(`{${langCode}_official_name}`, normText(textInLang));
 
     let isFullAscii = /^[\u0000-\u007f]*$/.test(textInLang);
     if (langCode === 'TH' && isFullAscii) {
