@@ -813,7 +813,11 @@ export class Control {
           noGenderVo.forEach(x => tmp.push(`{{A|${x.fileName}}}`));
         }
         if (tmp.length) {
-          voPrefix = tmp.join(' ') + ' ';
+          if (/{{MC/i.test(text)) {
+            voPrefix = tmp.join(' ') + ' ';
+          } else {
+            voPrefix = tmp.shift() + tmp.map(x => `<!--${x}-->`).join('') + ' ';
+          }
         }
       }
 

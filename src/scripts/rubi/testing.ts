@@ -1,4 +1,4 @@
-import '../setup';
+import '../../setup';
 //import {normText} from './script_util';
 import {TEXT_WIDTH_LOOKUP_TABLE} from './text_width_lookup';
 
@@ -62,8 +62,17 @@ export const convertRubi = (text: string): string => {
     text += part;
   }
 
-  console.log('text', text);
-  console.log('ruby info', rubyList);
+  console.log('text:', text);
+  console.log('ruby info:', rubyList);
+
+  let words: string[] = text.split(/(\s+)/g);
+
+  let idxStart: number = 0;
+  for (let word of words) {
+    let idxEnd = idxStart + word.length;
+
+    idxStart = idxEnd;
+  }
 
   // console.log('split parts', parts);
   // for (let i = 0; i < parts.length; i++) {
