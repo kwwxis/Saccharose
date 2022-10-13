@@ -18,12 +18,19 @@ jsonsInDir.forEach(file => {
     if (!voiceItem.gameTriggerArgs || !voiceItem._sourceNames) {
       continue;
     }
-    if (voiceItem._gameTrigger !== 'Dialog') {
+
+    let key: string;
+
+    if (voiceItem._gameTrigger === 'Dialog') {
+      key = 'Dialog_' + voiceItem.gameTriggerArgs;
+    } else if (voiceItem._gameTrigger === 'DungeonReminder') {
+      key = 'Reminder_' + voiceItem.gameTriggerArgs;
+    } else {
       console.log('Unknown Game Trigger:', voiceItem._gameTrigger);
       continue;
     }
 
-    combined[voiceItem.gameTriggerArgs] = [];
+    combined[key] = [];
 
     for (let voiceSource of voiceItem._sourceNames) {
       let fileName = voiceSource.sourceFileName.split('\\').pop().toLowerCase().replace(/_/g, ' ').replace('.wem', '.ogg');
@@ -34,7 +41,7 @@ jsonsInDir.forEach(file => {
       } else  if (gender === 2) {
         voiceSourceNorm.gender = 'M';
       }
-      combined[voiceItem.gameTriggerArgs].push(voiceSourceNorm);
+      combined[key].push(voiceSourceNorm);
     }
   }
 });

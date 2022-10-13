@@ -4,7 +4,7 @@ import { Control, getControl, normText } from '@/scripts/script_util';
 import { ReminderExcelConfigData } from '@types';
 import { DialogueSectionResult, MetaProp } from './quest_generator';
 import { isInt } from '@functions';
-import { loadTextMaps } from '../textmap';
+import { getVoPrefix, loadTextMaps } from '../textmap';
 import { cached } from '@cache';
 
 export async function reminderGenerateAll(ctrl: Control): Promise<DialogueSectionResult> {
@@ -17,10 +17,14 @@ export async function reminderGenerateAll(ctrl: Control): Promise<DialogueSectio
       if (!reminder.ContentText) {
         continue;
       }
+
+      let text = normText(reminder.ContentText, ctrl.outputLangCode);
+      let voPrefix = getVoPrefix('Reminder', reminder.Id, text);
+
       if (!reminder.SpeakerText) {
-        out += '\n' + normText(reminder.ContentText, ctrl.outputLangCode);
+        out += '\n' + voPrefix + text;
       } else {
-        out += `\n:'''${reminder.SpeakerText}:''' ${normText(reminder.ContentText, ctrl.outputLangCode)}`;
+        out += `\n:${voPrefix}'''${reminder.SpeakerText}:''' ${text}`;
       }
     }
     return out.trimStart();
@@ -48,7 +52,16 @@ export async function reminderGenerate(ctrl: Control, query: number|string, subs
     } else {
       sect.wikitext += '\n';
     }
-    sect.wikitext += `:'''${reminder.SpeakerText}:''' ${normText(reminder.ContentText, ctrl.outputLangCode)}`;
+
+    let text = normText(reminder.ContentText, ctrl.outputLangCode);
+    let voPrefix = getVoPrefix('Reminder', reminder.Id, text);
+
+    if (!reminder.SpeakerText) {
+      sect.wikitext += '\n' + voPrefix + text;
+    } else {
+      sect.wikitext += `:${voPrefix}'''${reminder.SpeakerText}:''' ${text}`;
+    }
+
     if (reminder.NextReminderId) {
       let nextReminder = await ctrl.selectReminderById(reminder.NextReminderId);
       await handle(nextReminder, subseq, sect);

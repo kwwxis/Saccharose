@@ -9,7 +9,7 @@ import {
   MainQuestExcelConfigData, QuestExcelConfigData,
   DialogExcelConfigData, TalkExcelConfigData, TalkRole, LangCode, AvatarExcelConfigData, ReminderExcelConfigData
 } from '@types';
-import { getTextMapItem, getVoiceItems } from './textmap';
+import { getTextMapItem, getVoiceItems, getVoPrefix } from './textmap';
 import { Request } from '@router';
 
 // character name in the dialogue text -> character name in the vo file
@@ -788,38 +788,7 @@ export class Control {
 
       // Voice-Overs
       // ~~~~~~~~~~~
-
-      let voPrefix = '';
-      let voItems = getVoiceItems(dialog.Id);
-      if (voItems) {
-        let maleVo = voItems.find(voItem => voItem.gender === 'M');
-        let femaleVo = voItems.find(voItem => voItem.gender === 'F');
-        let noGenderVo = voItems.filter(voItem => !voItem.gender);
-        let tmp = [];
-
-        if (maleVo) {
-          tmp.push(`{{A|${maleVo.fileName}}}`);
-        }
-        if (femaleVo) {
-          if (dialog.TalkRole.Type === 'TALK_ROLE_MATE_AVATAR') {
-            // If dialog speaker is Traveler's sibling, then female VO goes before male VO.
-            tmp.unshift(`{{A|${femaleVo.fileName}}}`);
-          } else {
-            // In all other cases, male VO goes before female VO
-            tmp.push(`{{A|${femaleVo.fileName}}}`);
-          }
-        }
-        if (noGenderVo) {
-          noGenderVo.forEach(x => tmp.push(`{{A|${x.fileName}}}`));
-        }
-        if (tmp.length) {
-          if (/{{MC/i.test(text)) {
-            voPrefix = tmp.join(' ') + ' ';
-          } else {
-            voPrefix = tmp.shift() + tmp.map(x => `<!--${x}-->`).join('') + ' ';
-          }
-        }
-      }
+      let voPrefix = getVoPrefix('Dialog', dialog.Id, text, dialog.TalkRole.Type);
 
       // Output Append
       // ~~~~~~~~~~~~~

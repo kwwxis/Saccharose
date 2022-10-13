@@ -45,6 +45,43 @@ export function getTextMapItem(langCode: LangCode, id: any) {
   return TextMap[langCode][id];
 }
 
-export function getVoiceItems(dialogueId: number|string): VoiceItem[] {
-  return VoiceItems[dialogueId];
+export type VoiceItemType = 'Dialog'|'Reminder'|'Fetter'|'AnimatorEvent'|'WeatherMonologue'|'JoinTeam';
+
+export function getVoiceItems(type: VoiceItemType, id: number|string): VoiceItem[] {
+  return VoiceItems[type+'_'+id];
+}
+
+export function getVoPrefix(type: VoiceItemType, id: number|string, text?: string, TalkRoleType?: string): string {
+  let voItems = VoiceItems[type+'_'+id];
+  let voPrefix = '';
+  if (voItems) {
+    let maleVo = voItems.find(voItem => voItem.gender === 'M');
+    let femaleVo = voItems.find(voItem => voItem.gender === 'F');
+    let noGenderVo = voItems.filter(voItem => !voItem.gender);
+    let tmp = [];
+
+    if (maleVo) {
+      tmp.push(`{{A|${maleVo.fileName}}}`);
+    }
+    if (femaleVo) {
+      if (TalkRoleType === 'TALK_ROLE_MATE_AVATAR') {
+        // If dialog speaker is Traveler's sibling, then female VO goes before male VO.
+        tmp.unshift(`{{A|${femaleVo.fileName}}}`);
+      } else {
+        // In all other cases, male VO goes before female VO
+        tmp.push(`{{A|${femaleVo.fileName}}}`);
+      }
+    }
+    if (noGenderVo) {
+      noGenderVo.forEach(x => tmp.push(`{{A|${x.fileName}}}`));
+    }
+    if (tmp.length) {
+      if (text && /{{MC/i.test(text)) {
+        voPrefix = tmp.join(' ') + ' ';
+      } else {
+        voPrefix = tmp.shift() + tmp.map(x => `<!--${x}-->`).join('') + ' ';
+      }
+    }
+  }
+  return voPrefix;
 }
