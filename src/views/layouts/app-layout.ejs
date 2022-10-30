@@ -1,10 +1,10 @@
-<div class="wrapper">
+<div id="app-wrapper" class="wrapper">
   <div class="talign">
-    <main class="f70p">
+    <main id="app-main" class="f70p">
       <%- include(subview, sublocals) %>
     </main>
-    <aside class="f30p">
-      <section class="card">
+    <aside id="app-sidebar" class="f30p">
+      <section id="app-sidebar-tools" class="card">
         <h2>Tools</h2>
         <div class="content">
           <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--quests', 'selected') %>" role="button" href="/quests">Quest Dialogue Generator</a>
@@ -14,7 +14,7 @@
           <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--reminders', 'selected') %>" role="button" href="/reminders">Reminder Dialogue Generator</a>
         </p>
       </section>
-      <section class="card">
+      <section id="app-sidebar-lists" class="card">
         <h2>Lists</h2>
         <div class="content">
           <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--character-stories', 'selected') %>" role="button" href="/lists/character-stories">Character Stories</a>
