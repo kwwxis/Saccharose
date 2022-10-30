@@ -19,7 +19,7 @@ import { Request, Response, NextFunction } from '@router';
 import sessions from '@/middleware/sessions';
 import baseRouter from '@/controllers/BaseRouter';
 import apiRouter from '@/controllers/api';
-import { loadTextMaps, loadVoiceItems } from './scripts/textmap';
+import { loadTextMaps, loadVoiceItems, loadQuestSummarization } from './scripts/textmap';
 import { EOL } from 'os';
 import util from 'util';
 
@@ -46,6 +46,7 @@ export default {
     openKnex();
     await loadTextMaps();
     await loadVoiceItems();
+    await loadQuestSummarization();
 
     if (process.env.SSL_WELL_KNOWN_DIR) {
       console.log('Serving .well-known directory');

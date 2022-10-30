@@ -3,6 +3,8 @@ import config from '@/config';
 import {promises as fs} from 'fs';
 import path from 'path';
 
+// TYPES
+// ----------------------------------------------------------------------------------------------------
 export const TextMap: {[langCode: string]: {[id: string]: string}} = {};
 
 export type VoiceItem = {fileName: string, gender?: 'M' | 'F'};
@@ -10,10 +12,18 @@ export type VoiceItemMap = {[dialogueId: string]: VoiceItem[]};
 
 export const VoiceItems: VoiceItemMap = {};
 
-export async function loadTextMaps(): Promise<void> {
+export type QuestSummaryMap = {[questId: number]: number};
+export const QuestSummary: QuestSummaryMap = {};
+
+// TEXT MAPS
+// ----------------------------------------------------------------------------------------------------
+export async function loadTextMaps(filterLangCodes?: string[]): Promise<void> {
   console.log('Loading TextMap -- starting...');
   let promises = [];
   for (let langCode of LANG_CODES) {
+    if (filterLangCodes && !filterLangCodes.includes(langCode)) {
+      continue;
+    }
     console.log('Loading TextMap -- ' + langCode)
     let p = fs.readFile(config.database.getGenshinDataFilePath(config.database.getTextMapFile(langCode)), {encoding: 'utf8'}).then(data => {
       TextMap[langCode] = Object.freeze(JSON.parse(data));
@@ -25,14 +35,8 @@ export async function loadTextMaps(): Promise<void> {
   });
 }
 
-export async function loadVoiceItems(): Promise<void> {
-  console.log('Loading Voice Items -- starting...');
-  let voiceItemsFilePath = path.resolve(process.env.DATA_ROOT, config.database.voiceItemsFile);
-
-  let result: VoiceItemMap = await fs.readFile(voiceItemsFilePath, {encoding: 'utf8'}).then(data => Object.freeze(JSON.parse(data)));
-
-  Object.assign(VoiceItems, result);
-  console.log('Loading Voice Items -- done!');
+export async function loadEnglishTextMap(): Promise<void> {
+  return loadTextMaps(['EN']);
 }
 
 export function getTextMapItem(langCode: LangCode, id: any) {
@@ -43,6 +47,30 @@ export function getTextMapItem(langCode: LangCode, id: any) {
     return undefined;
   }
   return TextMap[langCode][id];
+}
+
+
+// TEXT MAPS
+// ----------------------------------------------------------------------------------------------------
+export async function loadQuestSummarization(): Promise<void> {
+  let filePath = config.database.getGenshinDataFilePath('./ExcelBinOutput/QuestSummarizationTextExcelConfigData.json');
+  let result: {Id: number, DescTextMapHash: number}[] = await fs.readFile(filePath, {encoding: 'utf8'}).then(data => Object.freeze(JSON.parse(data)));
+
+  for (let item of result) {
+    QuestSummary[item.Id] = item.DescTextMapHash;
+  }
+}
+
+// VOICE ITEMS
+// ----------------------------------------------------------------------------------------------------
+export async function loadVoiceItems(): Promise<void> {
+  console.log('Loading Voice Items -- starting...');
+  let voiceItemsFilePath = path.resolve(process.env.DATA_ROOT, config.database.voiceItemsFile);
+
+  let result: VoiceItemMap = await fs.readFile(voiceItemsFilePath, {encoding: 'utf8'}).then(data => Object.freeze(JSON.parse(data)));
+
+  Object.assign(VoiceItems, result);
+  console.log('Loading Voice Items -- done!');
 }
 
 export type VoiceItemType = 'Dialog'|'Reminder'|'Fetter'|'AnimatorEvent'|'WeatherMonologue'|'JoinTeam';

@@ -2,6 +2,7 @@ import '../../setup';
 import {closeKnex, openKnex} from '@db';
 import { arrayUnique, arrayEmpty, getControl, ControlPrefs, stringify, Control, normText } from '@/scripts/script_util';
 import { ol_gen } from '@/scripts/OLgen/OLgen';
+import { getTextMapItem, QuestSummary } from '../textmap';
 import {
   ConfigCondition,
   MainQuestExcelConfigData, QuestExcelConfigData,
@@ -90,6 +91,7 @@ export class QuestGenerateResult {
   questDescriptions: string[] = [];
   otherLanguagesWikitext: string = null;
   dialogue: DialogueSectionResult[] = [];
+  travelLogSummary: string[] = [];
 }
 
 export class SbOut {
@@ -351,6 +353,15 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
     }
     if (sect.wikitextArray.length) {
       result.dialogue.push(sect);
+    }
+  }
+
+  // Travel Log Summary
+  // ------------------
+  let summaryKeys = Object.keys(QuestSummary);
+  for (let summaryKey of summaryKeys) {
+    if (summaryKey.startsWith(String(mainQuest.Id))) {
+      result.travelLogSummary.push(normText(getTextMapItem(ctrl.outputLangCode, QuestSummary[summaryKey])));
     }
   }
 

@@ -108,6 +108,7 @@ export interface NpcExcelConfigData {
 export interface MainQuestExcelConfigData {
   Id: number,
   Series: number,
+  ChapterId?: number,
   Type?: string,
   ActiveMode: string,
   TitleText?: string,
@@ -231,4 +232,69 @@ export interface ReminderExcelConfigData {
   NextReminderId: number,
   SoundEffect: string,
   HasAudio: boolean,
+}
+
+export interface ChapterExcelConfigData {
+  Id: number,
+  BeginQuestId: number,
+  EndQuestId: number,
+  ChapterNumText: string
+  ChapterNumTextMapHash: number,
+  ChapterTitleText: string,
+  ChapterTitleTextMapHash: number,
+  ChapterIcon: string,
+  ChapterImageHashSuffix: number,
+  ChapterImageHashPre: number,
+  ChapterImageTitleText: string,
+  ChapterImageTitleTextMapHash: number,
+  ChapterSerialNumberIcon: string
+}
+
+export interface RewardExcelConfigData {
+  RewardId: number,
+  RewardItemList: {ItemId?: number, ItemCount?: number}[]
+}
+
+export interface MaterialExcelConfigData {
+  Id: number,
+  NameText: string,
+  NameTextMapHash: number
+  DescText?: string,
+  DescTextMapHash?: number,
+  Icon?: string,
+  ItemType?: string,
+  StackLimit?: number,
+  MaxUseCount?: number,
+  UseTarget?: string, // ITEM_USE_TARGET_CUR_TEAM
+  MaterialType?: string, // MATERIAL_FURNITURE_FORMULA
+  Rank?: number,
+  GlobalItemLimit?: number,
+  EffectDesc?: string,
+  EffectDescTextMapHash?: number,
+  SpecialDesc?: string,
+  SpecialDescTextMapHash?: number,
+  TypeDesc?: string,
+  TypeDescTextMapHash?: number,
+  EffectIcon?: string,
+  EffectName?: string,
+  SatiationParams?: any[],
+  DestroyRule?: string, // DESTROY_RETURN_MATERIAL
+  DestroyReturnMaterial?: any[],
+  DestroyReturnMaterialCount?: any[],
+  ItemUse?: {
+    UseOp: string,
+    UseParam: string[],
+    // ITEM_USE_UNLOCK_FURNITURE_FORMULA => ["371119"]]
+    // ITEM_USE_ADD_SERVER_BUFF => ["500202", "900"]
+  }[],
+  InteractionTitleText?: string,
+  InteractionTitleTextMapHash?: number,
+  FoodQuality?: string, // FOOD_QUALITY_STRANGE,FOOD_QUALITY_ORDINARY,FOOD_QUALITY_DELICIOUS
+}
+
+export interface MaterialSourceDataExcelConfigData {
+  Id: number,
+  DungeonList: number[],
+  JumpList: number[],
+  TextList: number[],
 }

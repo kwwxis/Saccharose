@@ -56,7 +56,7 @@ export default async function(): Promise<Router> {
 
   router.get('/reminders', async (req: Request, res: Response) => {
     res.render('pages/reminders', {
-      styles: [],
+      styles: ['app.dialogue'],
       bodyClass: ['page--reminders'],
     });
   });

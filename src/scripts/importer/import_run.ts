@@ -155,6 +155,14 @@ const schema = {
     ],
     skip: false
   },
+  MaterialSourceDataExcelConfigData: <SchemaTable> {
+    name: 'MaterialSourceDataExcelConfigData',
+    jsonFile: './ExcelBinOutput/MaterialSourceDataExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+    ],
+    skip: false
+  },
   DailyTaskExcelConfigData: <SchemaTable> {
     name: 'DailyTaskExcelConfigData',
     jsonFile: './ExcelBinOutput/DailyTaskExcelConfigData.json',
@@ -190,6 +198,45 @@ const schema = {
       {name: 'BodyType', type: 'string', isIndex: true},
       {name: 'IconName', type: 'string'},
       {name: 'SideIconName', type: 'string'},
+    ],
+    skip: false,
+  },
+  RewardExcelConfigData: <SchemaTable> {
+    name: 'RewardExcelConfigData',
+    jsonFile: './ExcelBinOutput/RewardExcelConfigData.json',
+    columns: [
+      {name: 'RewardId', type: 'integer', isPrimary: true},
+    ],
+    skip: false,
+  },
+  HomeWorldFurnitureExcelConfigData: <SchemaTable> {
+    name: 'HomeWorldFurnitureExcelConfigData',
+    jsonFile: './ExcelBinOutput/HomeWorldFurnitureExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'NameTextMapHash', type: 'integer', isIndex: true},
+      {name: 'DescTextMapHash', type: 'integer', isIndex: true},
+      {name: 'SurfaceType', type: 'string', isIndex: true},
+      {name: 'GridStyle', type: 'integer'},
+      {name: 'Comfort', type: 'integer'},
+      {name: 'StackLimit', type: 'integer'},
+      {name: 'Cost', type: 'integer'},
+      {name: 'FurnitureNameTextMapHash', type: 'integer'},
+      {name: 'Rank', type: 'integer', isIndex: true},
+      {name: 'RankLevel', type: 'integer', isIndex: true},
+      {name: 'ItemType', type: 'string', isIndex: true},
+    ],
+    skip: false,
+  },
+  HomeWorldFurnitureTypeExcelConfigData: <SchemaTable> {
+    name: 'HomeWorldFurnitureTypeExcelConfigData',
+    jsonFile: './ExcelBinOutput/HomeWorldFurnitureTypeExcelConfigData.json',
+    columns: [
+      {name: 'TypeID', type: 'integer', isPrimary: true},
+      {name: 'TypeNameTextMapHash', type: 'integer', isIndex: true},
+      {name: 'TypeName2TextMapHash', type: 'integer', isIndex: true},
+      {name: 'TabIcon', type: 'integer'},
+      {name: 'SceneType', type: 'string'},
     ],
     skip: false,
   },

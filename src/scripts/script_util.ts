@@ -7,7 +7,7 @@ import { openKnex } from '@db';
 import {
   TextMapItem, NpcExcelConfigData, ManualTextMapConfigData, ConfigCondition,
   MainQuestExcelConfigData, QuestExcelConfigData,
-  DialogExcelConfigData, TalkExcelConfigData, TalkRole, LangCode, AvatarExcelConfigData, ReminderExcelConfigData
+  DialogExcelConfigData, TalkExcelConfigData, TalkRole, LangCode, AvatarExcelConfigData, ReminderExcelConfigData, ChapterExcelConfigData
 } from '@types';
 import { getTextMapItem, getVoiceItems, getVoPrefix } from './textmap';
 import { Request } from '@router';
@@ -422,7 +422,7 @@ export class Control {
         if (this.prefs.ExcludeNpcListProperties) {
           delete object[prop];
         } else {
-          let dataList = await this.getNpcList(object[prop] as any);
+          let dataList = await this.getNpcList(object[prop] as any, false);
           dataList = dataList.filter(x => !!x);
           if (!this.prefs.ExcludeNpcDataListProperties)
             object[slicedProp+'DataList'] = dataList;
@@ -474,12 +474,18 @@ export class Control {
     return await this.getNpcList([ npcId ]).then(x => x && x.length ? x[0] : null);
   }
 
-  async getNpcList(npcIds: number[]): Promise<NpcExcelConfigData[]> {
+  async getNpcList(npcIds: number[], addToCache: boolean = true): Promise<NpcExcelConfigData[]> {
     if (!npcIds || !npcIds.length) return [];
+
     let notCachedIds = npcIds.filter(id => !this.prefs.npcCache[id]);
     let cachedList = npcIds.map(id => this.prefs.npcCache[id]).filter(x => !!x);
+
     let uncachedList: NpcExcelConfigData[] = await this.knex.select('*').from('NpcExcelConfigData').whereIn('Id', notCachedIds).then(this.commonLoad);
-    uncachedList.forEach(npc => this.prefs.npcCache[npc.Id] = npc);
+
+    if (addToCache) {
+      uncachedList.forEach(npc => this.prefs.npcCache[npc.Id] = npc);
+    }
+
     return cachedList.concat(uncachedList);
   }
 
@@ -497,6 +503,14 @@ export class Control {
 
   async selectMainQuestById(id: number): Promise<MainQuestExcelConfigData> {
     return await this.knex.select('*').from('MainQuestExcelConfigData').where({Id: id}).first().then(this.commonLoadFirst);
+  }
+
+  async selectMainQuestsByChapterId(chapterId: number): Promise<MainQuestExcelConfigData[]> {
+    return await this.knex.select('*').from('MainQuestExcelConfigData').where({ChapterId: chapterId}).then(this.commonLoad);
+  }
+
+  async selectMainQuestsBySeries(series: number): Promise<MainQuestExcelConfigData[]> {
+    return await this.knex.select('*').from('MainQuestExcelConfigData').where({Series: series}).then(this.commonLoad);
   }
 
   async selectQuestByMainQuestId(id: number): Promise<QuestExcelConfigData[]> {
@@ -942,4 +956,7 @@ export class Control {
     return await this.knex.select('*').from('ReminderExcelConfigData').where({ContentTextMapHash: id}).first().then(this.commonLoadFirst);
   }
 
+  async selectChapterById(id: number): Promise<ChapterExcelConfigData> {
+    return await this.knex.select('*').from('ChapterExcelConfigData').where({Id: id}).first().then(this.commonLoadFirst);
+  }
 }

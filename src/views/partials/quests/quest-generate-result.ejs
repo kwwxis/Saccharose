@@ -37,6 +37,20 @@
     </div>
     <textarea id="quest-name-ol" readony class="w100p" style="resize:vertical;min-height:200px;"><%= otherLanguagesWikitext %></textarea>
   </div>
+  <% if (travelLogSummary.length) { %>
+    <div class="content">
+      <h4>Travel Log Summarization</h4>
+      <% travelLogSummary.forEach((travelLogSummaryItem, idx) => { %>
+        <div class="posRel">
+          <textarea id="travel-log-summary-item-<%= idx %>" readony class="w100p autosize" style="resize:vertical;min-height:40px;padding-right:45px"><%= travelLogSummaryItem %></textarea>
+          <button class="secondary small posAbs" copy-target="travel-log-summary-item-<%= idx %>"
+            ui-tippy-hover="Click to copy to clipboard"
+            ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
+            style="right: 0; top: 0;">Copy</button>
+        </div>
+      <% }) %>
+    </div>
+  <% } %>
   <h2>Dialogue</h4>
   <div class="dialogue-container">
     <% dialogue.forEach(section => { %>
