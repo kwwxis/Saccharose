@@ -962,7 +962,7 @@ export class Control {
     return await this.knex.select('*').from('ChapterExcelConfigData').where({Id: id}).first().then(this.commonLoadFirst);
   }
 
-  async loadCutsceneSubtitlesByQuestId(questId: number): Promise<{[fileName: string]: string}> {
+  async loadCinematicSubtitlesByQuestId(questId: number): Promise<{[fileName: string]: string}> {
     let fileNames: string[] = await fs.readdir(config.database.getGenshinDataFilePath('./Subtitle/'+this.outputLangCode));
 
     let targetFileNames: string[] = [];

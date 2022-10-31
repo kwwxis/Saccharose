@@ -92,7 +92,7 @@ export class QuestGenerateResult {
   otherLanguagesWikitext: string = null;
   dialogue: DialogueSectionResult[] = [];
   travelLogSummary: string[] = [];
-  cutscenes: {file: string, text: string}[] = [];
+  cinematics: {file: string, text: string}[] = [];
 }
 
 export class SbOut {
@@ -371,11 +371,11 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
     }
   }
 
-  // Cutscenes
-  // ---------
-  let srtData = await ctrl.loadCutsceneSubtitlesByQuestId(mainQuest.Id);
+  // Cinematics
+  // ----------
+  let srtData = await ctrl.loadCinematicSubtitlesByQuestId(mainQuest.Id);
   for (let srtFile of Object.keys(srtData)) {
-    result.cutscenes.push({file: srtFile, text: srtData[srtFile]});
+    result.cinematics.push({file: srtFile, text: srtData[srtFile]});
   }
 
   return result;

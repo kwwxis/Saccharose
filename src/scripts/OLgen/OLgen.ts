@@ -46,7 +46,12 @@ function ol_gen_internal(textMapId: number, hideTl: boolean = false, addDefaultH
     let textInLang = getTextMapItem(langCode, textMapId);
     olMap[langCode] = textInLang;
 
-    template = template.replace(`{${langCode}_official_name}`, normText(textInLang));
+    let langText = normText(textInLang);
+    if (langCode === 'CHS' || langCode === 'CHT' || langCode === 'KR' || langCode === 'JP') {
+      // replace this character at the request of kalexhu
+      langText = langText.replace(/·/g, '・'); // neither are standard periods so no backlash is needed
+    }
+    template = template.replace(`{${langCode}_official_name}`, langText);
 
     let isFullAscii = /^[\u0000-\u007f]*$/.test(textInLang);
     if (langCode === 'TH' && isFullAscii) {

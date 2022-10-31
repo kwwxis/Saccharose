@@ -51,11 +51,11 @@
       <% }) %>
     </div>
   <% } %>
-  <% if (cutscenes.length) { %>
+  <% if (cinematics.length) { %>
     <div class="content">
-      <h4>Cutscenes</h4>
+      <h4>Cinematics</h4>
       <p>No speaker info is associated with cinematic subtitles. So you'll need to manually figure that out.</p>
-      <% cutscenes.forEach((item, idx) => { %>
+      <% cinematics.forEach((item, idx) => { %>
         <div class="cutscene-info">
           <p><strong><%= item.file %></strong></p>
           <div class="posRel">
