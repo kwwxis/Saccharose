@@ -73,6 +73,7 @@ router.restful('/quests/generate', {
       locals.otherLanguagesWikitext = result.otherLanguagesWikitext;
       locals.dialogue = result.dialogue;
       locals.travelLogSummary = result.travelLogSummary;
+      locals.cutscenes = result.cutscenes;
 
       return res.render('partials/quests/quest-generate-result', locals);
     } else {

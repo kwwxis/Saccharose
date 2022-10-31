@@ -51,6 +51,24 @@
       <% }) %>
     </div>
   <% } %>
+  <% if (cutscenes.length) { %>
+    <div class="content">
+      <h4>Cutscenes</h4>
+      <p>No speaker info is associated with cinematic subtitles. So you'll need to manually figure that out.</p>
+      <% cutscenes.forEach((item, idx) => { %>
+        <div class="cutscene-info">
+          <p><strong><%= item.file %></strong></p>
+          <div class="posRel">
+            <textarea id="cutscene-<%= idx %>" readony class="w100p autosize" style="resize:vertical;min-height:40px;padding-right:45px"><%= item.text %></textarea>
+            <button class="secondary small posAbs" copy-target="cutscene-<%= idx %>"
+              ui-tippy-hover="Click to copy to clipboard"
+              ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
+              style="right: 0; top: 0;">Copy</button>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  <% } %>
   <h2>Dialogue</h4>
   <div class="dialogue-container">
     <% dialogue.forEach(section => { %>

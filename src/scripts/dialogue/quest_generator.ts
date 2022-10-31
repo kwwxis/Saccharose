@@ -92,6 +92,7 @@ export class QuestGenerateResult {
   otherLanguagesWikitext: string = null;
   dialogue: DialogueSectionResult[] = [];
   travelLogSummary: string[] = [];
+  cutscenes: {file: string, text: string}[] = [];
 }
 
 export class SbOut {
@@ -368,6 +369,13 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
         result.travelLogSummary.push(':{{color|menu|'+text+'}}');
       }
     }
+  }
+
+  // Cutscenes
+  // ---------
+  let srtData = await ctrl.loadCutsceneSubtitlesByQuestId(mainQuest.Id);
+  for (let srtFile of Object.keys(srtData)) {
+    result.cutscenes.push({file: srtFile, text: srtData[srtFile]});
   }
 
   return result;
