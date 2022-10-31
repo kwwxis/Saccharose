@@ -6,8 +6,8 @@ export interface ConfigCondition {
   ParamStr?: string,
 }
 
-export type LangCode = 'CHS' | 'CHT' | 'DE' | 'EN' | 'ES' | 'FR' | 'ID' | 'JP' | 'KR' | 'PT' | 'RU' | 'TH' | 'VI';
-export const LANG_CODES: LangCode[] = ['CHS', 'CHT', 'DE', 'EN', 'ES', 'FR', 'ID', 'JP', 'KR', 'PT', 'RU', 'TH', 'VI'];
+export type LangCode = 'CHS' | 'CHT' | 'DE' | 'EN' | 'ES' | 'FR' | 'ID' | /*'IT' |*/ 'JP' | 'KR' | 'PT' | 'RU' | 'TH' | /*'TR' |*/ 'VI';
+export const LANG_CODES: LangCode[] = ['CHS', 'CHT', 'DE', 'EN', 'ES', 'FR', 'ID', /*'IT',*/ 'JP', 'KR', 'PT', 'RU', 'TH', /*'TR',*/ 'VI'];
 export const LANG_CODES_TO_NAME = {
   CHS: 'Chinese (Simplified)',
   CHT: 'Chinese (Traditional)',
@@ -16,12 +16,14 @@ export const LANG_CODES_TO_NAME = {
   ES: 'Spanish',
   FR: 'French',
   ID: 'Indonesian',
+  IT: 'Italian',
   JP: 'Japanese',
   KR: 'Korean',
   PT: 'Portuguese',
   RU: 'Russian',
   TH: 'Thai',
-  VI: 'Vietnamese'
+  //TR: 'Turkish',
+  //VI: 'Vietnamese',
 }
 
 // DIALOG CONFIG

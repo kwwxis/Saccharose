@@ -3,21 +3,7 @@ import {openKnex} from '@db';
 import config from '@/config';
 import objectPath from 'object-path';
 import { SchemaTable, SEP } from './import_types';
-import { TalkExcelConfigData, LANG_CODES, LangCode } from '@types';
-
-function textMapSchema(langCode: LangCode, skip: boolean): SchemaTable {
-  return <SchemaTable> {
-    name: 'TextMap' + langCode,
-    jsonFile: './TextMap/TextMap'+langCode+'.json',
-    columns: [
-      {name: 'Id', type: 'integer', isPrimary: true, resolve: 'Key'},
-      {name: 'Text', type: 'text', resolve: 'Value'}
-    ],
-    useKeys: true,
-    noIncludeJson: true,
-    skip: skip
-  };
-}
+import { TalkExcelConfigData, MaterialExcelConfigData } from '@types';
 
 const schema = {
   DialogExcelConfigData: <SchemaTable> {
@@ -31,7 +17,7 @@ const schema = {
       {name: 'TalkTitleTextMapHash', type: 'integer', isIndex: true},
       {name: 'TalkRoleNameTextMapHash', type: 'integer', isIndex: true},
     ],
-    skip: false
+    skip: true
   },
   ManualTextMapConfigData: <SchemaTable> {
     name: 'ManualTextMapConfigData',
@@ -57,9 +43,7 @@ const schema = {
     columns: [
       {name: 'Id', type: 'integer', isPrimary: true},
       {name: 'InitDialog', type: 'integer', isIndex: true},
-      {name: 'NpcId', type: 'integer', isIndex: true},
       {name: 'QuestId', type: 'integer', isIndex: true},
-      {name: 'Priority', type: 'integer'},
       {name: 'QuestCondStateEqualFirst', type: 'integer', isIndex: true, resolve(row: TalkExcelConfigData) {
         if (row.BeginCond) {
           let questCondStateEqual = row.BeginCond.find(cond => cond.Type === 'QUEST_COND_STATE_EQUAL');
@@ -78,6 +62,21 @@ const schema = {
         return null;
       }}
     ],
+    skip: false
+  },
+  NpcToTalkRelation: <SchemaTable> {
+    name: 'NpcToTalkRelation',
+    jsonFile: './ExcelBinOutput/TalkExcelConfigData.json',
+    columns: [
+      {name: 'NpcId', type: 'integer', isIndex: true},
+      {name: 'TalkId', type: 'integer'},
+    ],
+    customRowResolve: (row: TalkExcelConfigData) => {
+      if (row.NpcId && row.NpcId.length) {
+        return row.NpcId.map(npcId => ({NpcId: npcId, TalkId: row.Id}));
+      }
+      return [];
+    },
     skip: false
   },
   MainQuestExcelConfigData: <SchemaTable> {
@@ -155,6 +154,22 @@ const schema = {
     ],
     skip: false
   },
+  FurnitureToMaterialRelation: <SchemaTable> { // TODO: fix - doesn't work
+    name: 'FurnitureToMaterialRelation',
+    jsonFile: './ExcelBinOutput/MaterialSourceDataExcelConfigData.json',
+    columns: [
+      {name: 'FurnitureId', type: 'integer', isPrimary: true},
+      {name: 'MaterialId', type: 'integer'},
+    ],
+    customRowResolve: (row: MaterialExcelConfigData) => {
+      if (row.MaterialType === 'MATERIAL_FURNITURE_FORMULA' && row.ItemUse && row.ItemUse.length) {
+        return [{FurnitureId: row.ItemUse[0].UseParam[0], MaterialId: row.Id}];
+      } else {
+        return [];
+      }
+    },
+    skip: false
+  },
   MaterialSourceDataExcelConfigData: <SchemaTable> {
     name: 'MaterialSourceDataExcelConfigData',
     jsonFile: './ExcelBinOutput/MaterialSourceDataExcelConfigData.json',
@@ -221,11 +236,14 @@ const schema = {
       {name: 'Comfort', type: 'integer'},
       {name: 'StackLimit', type: 'integer'},
       {name: 'Cost', type: 'integer'},
-      {name: 'FurnitureNameTextMapHash', type: 'integer'},
       {name: 'Rank', type: 'integer', isIndex: true},
       {name: 'RankLevel', type: 'integer', isIndex: true},
       {name: 'ItemType', type: 'string', isIndex: true},
     ],
+    normalizeFixFields: {
+      'CBLENIDCKGG': 'DiscountCost',
+      'FurnitureNameTextMapHash': 'EditorClampDistance'
+    },
     skip: false,
   },
   HomeWorldFurnitureTypeExcelConfigData: <SchemaTable> {
@@ -240,19 +258,6 @@ const schema = {
     ],
     skip: false,
   },
-  // 'CHS' | 'CHT' | 'DE' | 'EN' | 'ES' | 'FR' | 'ID' | 'JP' | 'KR' | 'PT' | 'RU' | 'TH' | 'VI'
-  // TextMapEN: textMapSchema('EN', true),
-  // TextMapCHS: textMapSchema('CHS', false),
-  // TextMapCHT: textMapSchema('CHT', false),
-  // TextMapDE: textMapSchema('DE', false),
-  // TextMapES: textMapSchema('ES', false),
-  // TextMapFR: textMapSchema('FR', false),
-  // TextMapID: textMapSchema('ID', false),
-  // TextMapKR: textMapSchema('KR', false),
-  // TextMapPT: textMapSchema('PT', false),
-  // TextMapRU: textMapSchema('RU', false),
-  // TextMapTH: textMapSchema('TH', false),
-  // TextMapVI: textMapSchema('VI', false),
 };
 
 (async () => {
@@ -270,7 +275,7 @@ const schema = {
           builder.index(col.name);
         }
       }
-      if (!table.noIncludeJson) {
+      if (!table.customRowResolve) {
         builder.json('json_data');
       }
     }).then();
@@ -281,16 +286,12 @@ const schema = {
     return s.charAt(0).toUpperCase() + s.slice(1);
   }
 
-  function normalizeRawJson(row: any) {
+  function normalizeRawJson(row: any, table: SchemaTable) {
     if (typeof row === 'undefined' || typeof row === null || typeof row !== 'object') {
       return row;
     }
     if (Array.isArray(row)) {
-      let newArray = [];
-      for (let item of row) {
-        newArray.push(normalizeRawJson(item));
-      }
-      return newArray;
+      return row.map(item => normalizeRawJson(item, table));
     }
     let newRow = {};
     for (let key of Object.keys(row)) {
@@ -299,42 +300,44 @@ const schema = {
         key = key.slice(1);
       }
       key = capitalizeFirstLetter(key);
-      newRow[key] = normalizeRawJson(row[originalKey]);
+      if (table.normalizeFixFields && table.normalizeFixFields[key]) {
+        key = table.normalizeFixFields[key];
+      }
+      newRow[key] = normalizeRawJson(row[originalKey], table);
     }
     return newRow;
   }
 
   async function insertRow(table: SchemaTable, row: any) {
-    row = normalizeRawJson(row);
-    let payload = {};
-    if (!table.noIncludeJson) {
-      payload['json_data'] = JSON.stringify(row);
-    }
-    for (let col of table.columns) {
-      if (col.resolve) {
-        if (typeof col.resolve === 'string') {
-          payload[col.name] = objectPath.get(row, col.resolve);
-        } else if (typeof col.resolve === 'function') {
-          payload[col.name] = col.resolve(row);
-        }
-      } else {
-        payload[col.name] = row[col.name];
+    row = normalizeRawJson(row, table);
+    if (table.customRowResolve) {
+      let payloads: any[] = table.customRowResolve(row);
+      for (let payload of payloads) {
+        await knex(table.name).insert(payload).then();
       }
+    } else {
+      let payload = {};
+      payload['json_data'] = JSON.stringify(row);
+      for (let col of table.columns) {
+        if (col.resolve) {
+          if (typeof col.resolve === 'string') {
+            payload[col.name] = objectPath.get(row, col.resolve);
+          } else if (typeof col.resolve === 'function') {
+            payload[col.name] = col.resolve(row);
+          }
+        } else {
+          payload[col.name] = row[col.name];
+        }
+      }
+      await knex(table.name).insert(payload).then();
     }
-    await knex(table.name).insert(payload).then();
   }
 
   async function insertAll(table: SchemaTable) {
     console.log('Inserting data for: ' + table.name + ' from: ' + table.jsonFile);
     const json = require(config.database.getGenshinDataFilePath(table.jsonFile));
-    if (table.useKeys) {
-      for (let key in json) {
-        await insertRow(table, {key, value: json[key]});
-      }
-    } else {
-      for (let row of json) {
-        await insertRow(table, row);
-      }
+    for (let row of json) {
+      await insertRow(table, row);
     }
     console.log('  (done)');
   }

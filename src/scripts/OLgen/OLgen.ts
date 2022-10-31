@@ -48,7 +48,7 @@ function ol_gen_internal(textMapId: number, hideTl: boolean = false, addDefaultH
 
     let langText = normText(textInLang);
     if (langCode === 'CHS' || langCode === 'CHT' || langCode === 'KR' || langCode === 'JP') {
-      // replace this character at the request of kalexhu
+      // replacing this character at the request of kalexhu
       langText = langText.replace(/·/g, '・'); // neither are standard periods so no backlash is needed
     }
     template = template.replace(`{${langCode}_official_name}`, langText);
@@ -86,6 +86,12 @@ function ol_gen_internal(textMapId: number, hideTl: boolean = false, addDefaultH
   if (olMap['EN'] === olMap['PT']) {
     template = template.replace(/\|pt_tl\s*=\s*\{\}/, '');
   }
+  // if (olMap['EN'] === olMap['TR']) {
+  //   template = template.replace(/\|tr_tl\s*=\s*\{\}/, '');
+  // }
+  // if (olMap['EN'] === olMap['IT']) {
+  //   template = template.replace(/\|it_tl\s*=\s*\{\}/, '');
+  // }
   return template.replaceAll('{}', '').replaceAll('\\"', '"').replace(/{F#([^}]+)}{M#([^}]+)}/g, '($1/$2)').split('\n').filter(s => !!s).join('\n');
 }
 

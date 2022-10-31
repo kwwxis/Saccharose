@@ -215,11 +215,13 @@ export const travelerPlaceholder = (langCode: string = 'EN') => {
     case 'ES': return '{{MC|m=Viajero|f=Viajera}}';
     case 'FR': return '{{MC|m=Voyageur|f=Voyageuse}}'
     case 'ID': return 'Pengembara';
+    //case 'IT': return 'Traveler'; // TODO
     case 'JP': return 'プレイヤー';
     case 'KR': return '플레이어';
     case 'PT': return 'Jogador';
     case 'RU': return 'Игрок';
     case 'TH': return 'ผู้เล่น';
+    //case 'TR': return 'Traveler'; // TODO
     case 'VI': return 'Người Chơi';
   }
   return 'Traveler;'
@@ -593,7 +595,8 @@ export class Control {
   }
 
   async selectTalkExcelConfigDataByNpcId(npcId: number): Promise<TalkExcelConfigData[]> {
-    return await this.knex.select('*').from('TalkExcelConfigData').where({NpcId: npcId}).then(this.commonLoad);
+    let talkIds: number[] = await this.knex.select('TalkId').from('NpcToTalkRelation').where({NpcId: npcId}).pluck('TalkId').then();
+    return Promise.all(talkIds.map(talkId => this.selectTalkExcelConfigDataById(talkId)));
   }
 
   async selectDialogExcelConfigDataByTalkRoleId(talkRoleId: number): Promise<DialogExcelConfigData[]> {
@@ -967,7 +970,7 @@ export class Control {
 
     let targetFileNames: string[] = [];
     for (let fileName of fileNames) {
-      if (fileName.includes(`Q${questId}`)) {
+      if (fileName.includes(`Q${questId}`) || fileName.includes(`Q_${questId}`)) {
         if (fileName.endsWith('.txt') && targetFileNames.includes(fileName.slice(0, -4)+'.srt')) {
           // If targetFileNames already contains the .srt version of the .txt file, then skip
           continue;
