@@ -361,7 +361,12 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
   let summaryKeys = Object.keys(QuestSummary);
   for (let summaryKey of summaryKeys) {
     if (summaryKey.startsWith(String(mainQuest.Id))) {
-      result.travelLogSummary.push(normText(getTextMapItem(ctrl.outputLangCode, QuestSummary[summaryKey])));
+      let text = normText(getTextMapItem(ctrl.outputLangCode, QuestSummary[summaryKey]));
+      if (text.includes('<br')) {
+        result.travelLogSummary.push('{{Cutscene Description|'+text+'}}');
+      } else {
+        result.travelLogSummary.push(':{{color|menu|'+text+'}}');
+      }
     }
   }
 
