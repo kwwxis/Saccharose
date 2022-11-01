@@ -16,14 +16,14 @@ export const LANG_CODES_TO_NAME = {
   ES: 'Spanish',
   FR: 'French',
   ID: 'Indonesian',
-  IT: 'Italian',
+  //IT: 'Italian',
   JP: 'Japanese',
   KR: 'Korean',
   PT: 'Portuguese',
   RU: 'Russian',
   TH: 'Thai',
   //TR: 'Turkish',
-  //VI: 'Vietnamese',
+  VI: 'Vietnamese',
 }
 
 // DIALOG CONFIG
@@ -250,6 +250,8 @@ export interface ChapterExcelConfigData {
   ChapterImageTitleText: string,
   ChapterImageTitleTextMapHash: number,
   ChapterSerialNumberIcon: string
+  NeedPlayerLevel?: number,
+  Quests?: MainQuestExcelConfigData[],
 }
 
 export interface RewardExcelConfigData {
