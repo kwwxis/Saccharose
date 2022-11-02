@@ -750,6 +750,11 @@ export class Control {
     return false;
   }
 
+  isBlackScreenDialog(dialog: DialogExcelConfigData): boolean {
+    return dialog.TalkRole.Type === 'TALK_ROLE_BLACK_SCREEN' || dialog.TalkRole.Type === 'TALK_ROLE_CONSEQUENT_BLACK_SCREEN'
+      || dialog.TalkRole.Type === 'TALK_ROLE_NEED_CLICK_BLACK_SCREEN' || dialog.TalkRole.Type === 'TALK_ROLE_CONSEQUENT_NEED_CLICK_BLACK_SCREEN';
+  }
+
   async generateDialogueWikiText(dialogLines: DialogExcelConfigData[], dialogDepth = 1,
         originatorDialog: DialogExcelConfigData = null, originatorIsFirstOfBranch: boolean = false,
         firstDialogOfBranchVisited: Set<number> = new Set()): Promise<string> {
@@ -822,9 +827,10 @@ export class Control {
       // Output Append
       // ~~~~~~~~~~~~~
 
-      if (dialog.TalkRole.Type === 'TALK_ROLE_BLACK_SCREEN' || dialog.TalkRole.Type === 'TALK_ROLE_CONSEQUENT_BLACK_SCREEN'
-          || dialog.TalkRole.Type === 'TALK_ROLE_NEED_CLICK_BLACK_SCREEN' || dialog.TalkRole.Type === 'TALK_ROLE_CONSEQUENT_NEED_CLICK_BLACK_SCREEN') {
-        out += '\n';
+      if (this.isBlackScreenDialog(dialog)) {
+        if (!previousDialog || !this.isBlackScreenDialog(previousDialog)) {
+          out += '\n';
+        }
         out += `\n${prefix}'''${text}'''`;
         out += '\n';
       } else if (dialog.TalkRole.Type === 'TALK_ROLE_PLAYER') {
