@@ -493,6 +493,16 @@ export class Control {
     return cachedList.concat(uncachedList);
   }
 
+  private fixMainQuestType(mainQuest: MainQuestExcelConfigData): MainQuestExcelConfigData {
+    if (!mainQuest.Type && mainQuest.LuaPath && /Quest\/[ALEWM]Q/.test(mainQuest.LuaPath)) {
+      mainQuest.Type = /Quest\/([ALEWM]Q)/.exec(mainQuest.LuaPath)[1];
+    }
+    if (mainQuest.Type === 'MQ') {
+      mainQuest.Type = 'AQ';
+    }
+    return mainQuest;
+  }
+
   async selectMainQuestsByNameOrId(name: string|number, limit: number = 25): Promise<MainQuestExcelConfigData[]> {
     if (typeof name === 'string') {
       let matches = await this.getTextMapMatches(this.inputLangCode, name);
@@ -812,16 +822,12 @@ export class Control {
       // Output Append
       // ~~~~~~~~~~~~~
 
-      if (dialog.TalkRole.Type === 'TALK_ROLE_BLACK_SCREEN') {
+      if (dialog.TalkRole.Type === 'TALK_ROLE_BLACK_SCREEN' || dialog.TalkRole.Type === 'TALK_ROLE_CONSEQUENT_BLACK_SCREEN'
+          || dialog.TalkRole.Type === 'TALK_ROLE_NEED_CLICK_BLACK_SCREEN' || dialog.TalkRole.Type === 'TALK_ROLE_CONSEQUENT_NEED_CLICK_BLACK_SCREEN') {
         out += '\n';
         out += `\n${prefix}'''${text}'''`;
         out += '\n';
       } else if (dialog.TalkRole.Type === 'TALK_ROLE_PLAYER') {
-        // if (dialog.TalkRoleNameText) {
-        //   // I don't remember under what circumstances a TALK_ROLE_PLAYER has a TalkRoleNameText
-        //   out += `\n${diconPrefix}${voPrefix}'''${dialog.TalkRoleNameText}:''' ${text}`;
-        // } else {
-        // }
         if (voPrefix) {
           out += `\n${diconPrefix}${voPrefix}'''(Traveler):''' ${text}`;
         } else {
@@ -833,7 +839,7 @@ export class Control {
         out += `\n${prefix}${voPrefix}'''(Traveler's Sibling):''' ${text}`;
       } else {
         if (text) {
-          out += `\n${prefix}:'''Cutscene_Character_Replace_me''' ${text}`;
+          out += `\n${prefix}:'''Cutscene_Character_Replace_me:''' ${text}`;
         } else {
           console.warn('Dialog with unknown TalkRole.Type "' + dialog.TalkRole.Type + '" and without text:', dialog);
         }
@@ -959,6 +965,10 @@ export class Control {
 
   async selectReminderByContentTextMapId(id: number): Promise<ReminderExcelConfigData> {
     return await this.knex.select('*').from('ReminderExcelConfigData').where({ContentTextMapHash: id}).first().then(this.commonLoadFirst);
+  }
+
+  async selectAllChapters(): Promise<ChapterExcelConfigData[]> {
+    return await this.knex.select('*').from('ChapterExcelConfigData').then(this.commonLoad);
   }
 
   async selectChapterById(id: number): Promise<ChapterExcelConfigData> {
