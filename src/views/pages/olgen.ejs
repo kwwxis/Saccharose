@@ -9,15 +9,33 @@
       </div>
       <div class="ol-submit-pending hide loading small spacer5-left"></div>
     </div>
-    <div class="field spacer5-top">
-      <label class="ui-radio dispBlock" style="padding-left:5px;font-size:13px;">
-        <input type="radio" name="options" value="none" checked />
-        <span>Include <code>[lang]_tl</code> params*</span>
-      </label>
-      <label class="ui-radio dispBlock" style="padding-left:5px;font-size:13px;">
-        <input type="radio" name="options" value="exclude_tl,default_hidden" />
-        <span>Exclude <code>[lang]_tl</code> params and add <code>default_hidden</code> param</span>
-      </label>
+    <div class="talign spacer15-top spacer10-bottom flexWrap">
+      <fieldset>
+        <legend><code>_tl</code> options</legend>
+        <div class="field spacer5-horiz" style="padding-right:30px">
+          <label class="ui-radio dispBlock" style="padding-left:5px;font-size:13px;">
+            <input type="radio" name="tl_options" value="none" <%= cookieTernary('OL.tl_options', {equalsOrEmpty: 'none', then: 'checked'}) %> />
+            <span>Include <code>[lang]_tl</code> params*</span>
+          </label>
+          <label class="ui-radio dispBlock" style="padding-left:5px;font-size:13px;">
+            <input type="radio" name="tl_options" value="exclude_tl" <%= cookieTernary('OL.tl_options', {equals: 'exclude_tl', then: 'checked'}) %> />
+            <span>Exclude <code>[lang]_tl</code> params</span>
+          </label>
+        </div>
+      </fieldset>
+      <fieldset class="spacer5-left">
+        <legend><code>_rm</code> options</legend>
+        <div class="field spacer5-horiz" style="padding-right:30px">
+          <label class="ui-radio dispBlock" style="padding-left:5px;font-size:13px;">
+            <input type="radio" name="rm_options" value="none" <%= cookieTernary('OL.rm_options', {equalsOrEmpty: 'none', then: 'checked'}) %> />
+            <span>Include <code>[lang]_rm</code> params</span>
+          </label>
+          <label class="ui-radio dispBlock" style="padding-left:5px;font-size:13px;">
+            <input type="radio" name="rm_options" value="exclude_rm" <%= cookieTernary('OL.rm_options', {equals: 'exclude_rm', then: 'checked'}) %> />
+            <span>Exclude <code>[lang]_rm</code> params</span>
+          </label>
+        </div>
+      </fieldset>
     </div>
     <hr class="spacer5">
     <p style="padding:5px;font-size:0.85em">This utility will only work if there is an exact entire-value match for the name you're looking for in the TextMap. If the only reference to the name you're looking for is in a larger line of text, then it won't be found.</p>
@@ -37,12 +55,23 @@ waitForConstant('app', app => {
       }
     },
     {
+      el: 'input[type="radio"][name="tl_options"],input[type="radio"][name="rm_options"]',
+      ev: 'input',
+      multiple: true,
+      fn: function(event, target) {
+        let name = target.name;
+        let value = target.value;
+        Cookies.set('OL.'+name, value, { expires: 365 });
+      }
+    },
+    {
       el: '.ol-submit',
       ev: 'click',
       fn: function(event, target) {
         let inputEl = document.querySelector('.ol-input');
         let loadingEl = document.querySelector('.ol-submit-pending');
-        let optionValue = document.querySelector('input[type="radio"][name="options"]:checked').value;
+        let tlOptionValue = document.querySelector('input[type="radio"][name="tl_options"]:checked').value;
+        let rmOptionValue = document.querySelector('input[type="radio"][name="rm_options"]:checked').value;
         let text = inputEl.value.trim();
 
         if (!text) {
@@ -54,7 +83,7 @@ waitForConstant('app', app => {
         inputEl.disabled = true;
         target.disabled = true;
 
-        app.endpoints.generateOL(text, optionValue.includes('exclude_tl'), optionValue.includes('default_hidden'), true).then(result => {
+        app.endpoints.generateOL(text, tlOptionValue === 'exclude_tl', tlOptionValue === 'exclude_tl', rmOptionValue === 'exclude_rm', true).then(result => {
           if (typeof result === 'string') {
             document.querySelector('#ol-results-list').innerHTML = result;
             if (!result.includes('no-results-found')) {

@@ -703,21 +703,18 @@ table.sql-table-schema tr td:last-of-type {
   flex-direction: column;
 }
 
-.form-box legend {
-  margin-left: 10px;
-  padding: 0 0.5em;
-  font-size: 15px;
-  font-weight: 600;
-}
 
-.form-box fieldset {
+fieldset {
   display: block;
   padding: 10px 0;
   border: 1px solid hsla(223, 67%, 18%, 0.15);
 }
 
-.form-box fieldset + fieldset {
-  margin-top: 20px;
+fieldset legend {
+  margin-left: 10px;
+  padding: 0 0.5em;
+  font-size: 15px;
+  font-weight: 600;
 }
 
 /* Search Nav

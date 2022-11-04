@@ -268,7 +268,11 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
   // Other Languages
   // ---------------
   out.clearOut();
-  let olResults = await ol_gen(ctrl, mainQuest.TitleTextEN, false, false, 'EN');
+  let olResults = await ol_gen(ctrl, mainQuest.TitleTextEN, {
+    hideTl: false,
+    addDefaultHidden: false,
+    langCode: 'EN' // always EN
+  });
   for (let olResult of olResults) {
     out.line(olResult);
   }

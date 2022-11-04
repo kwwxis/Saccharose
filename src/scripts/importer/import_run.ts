@@ -5,7 +5,7 @@ import objectPath from 'object-path';
 import { SchemaTable, SEP } from './import_types';
 import { TalkExcelConfigData, MaterialExcelConfigData } from '@types';
 
-const schema = {
+export const schema = {
   DialogExcelConfigData: <SchemaTable> {
     name: 'DialogExcelConfigData',
     jsonFile: './ExcelBinOutput/DialogExcelConfigData.json',
@@ -26,7 +26,7 @@ const schema = {
       {name: 'TextMapId', type: 'string', isPrimary: true},
       {name: 'TextMapContentTextMapHash', type: 'integer', isIndex: true},
     ],
-    skip: false
+    skip: true
   },
   NpcExcelConfigData: <SchemaTable> {
     name: 'NpcExcelConfigData',
@@ -35,7 +35,7 @@ const schema = {
       {name: 'Id', type: 'integer', isPrimary: true},
       {name: 'NameTextMapHash', type: 'integer', isIndex: true}
     ],
-    skip: false
+    skip: true
   },
   TalkExcelConfigData: <SchemaTable> {
     name: 'TalkExcelConfigData',
@@ -62,7 +62,7 @@ const schema = {
         return null;
       }}
     ],
-    skip: false
+    skip: true
   },
   NpcToTalkRelation: <SchemaTable> {
     name: 'NpcToTalkRelation',
@@ -77,7 +77,7 @@ const schema = {
       }
       return [];
     },
-    skip: false
+    skip: true
   },
   MainQuestExcelConfigData: <SchemaTable> {
     name: 'MainQuestExcelConfigData',
@@ -89,7 +89,7 @@ const schema = {
       {name: 'TitleTextMapHash', type: 'integer', isIndex: true},
       {name: 'DescTextMapHash', type: 'integer', isIndex: true}
     ],
-    skip: false
+    skip: true
   },
   ChapterExcelConfigData: <SchemaTable> {
     name: 'ChapterExcelConfigData',
@@ -101,7 +101,7 @@ const schema = {
       {name: 'ChapterNumTextMapHash', type: 'integer', isIndex: true},
       {name: 'ChapterTitleTextMapHash', type: 'integer', isIndex: true}
     ],
-    skip: false
+    skip: true
   },
   QuestExcelConfigData: <SchemaTable> {
     name: 'QuestExcelConfigData',
@@ -114,7 +114,7 @@ const schema = {
       {name: 'StepDescTextMapHash', type: 'integer', isIndex: true},
       {name: 'GuideTipsTextMapHash', type: 'integer', isIndex: true}
     ],
-    skip: false
+    skip: true
   },
   LoadingTipsExcelConfigData: <SchemaTable> {
     name: 'LoadingTipsExcelConfigData',
@@ -124,7 +124,7 @@ const schema = {
       {name: 'TipsTitleTextMapHash', type: 'integer', isIndex: true},
       {name: 'TipsDescTextMapHash', type: 'integer', isIndex: true}
     ],
-    skip: false
+    skip: true
   },
   ReminderExcelConfigData: <SchemaTable> {
     name: 'ReminderExcelConfigData',
@@ -135,7 +135,7 @@ const schema = {
       {name: 'ContentTextMapHash', type: 'integer', isIndex: true},
       {name: 'NextReminderId', type: 'integer', isIndex: true},
     ],
-    skip: false
+    skip: true
   },
   MaterialExcelConfigData: <SchemaTable> {
     name: 'MaterialExcelConfigData',
@@ -152,23 +152,41 @@ const schema = {
       {name: 'ItemType', type: 'string'},
       {name: 'RankLevel', type: 'string'},
     ],
-    skip: false
+    skip: true
   },
-  FurnitureToMaterialRelation: <SchemaTable> { // TODO: fix - doesn't work
+  FurnitureToMaterialRelation: <SchemaTable> {
     name: 'FurnitureToMaterialRelation',
-    jsonFile: './ExcelBinOutput/MaterialSourceDataExcelConfigData.json',
+    jsonFile: './ExcelBinOutput/MaterialExcelConfigData.json',
     columns: [
       {name: 'FurnitureId', type: 'integer', isPrimary: true},
       {name: 'MaterialId', type: 'integer'},
     ],
     customRowResolve: (row: MaterialExcelConfigData) => {
       if (row.MaterialType === 'MATERIAL_FURNITURE_FORMULA' && row.ItemUse && row.ItemUse.length) {
-        return [{FurnitureId: row.ItemUse[0].UseParam[0], MaterialId: row.Id}];
+        let furnitureId = row.ItemUse.find(x => x.UseOp === 'ITEM_USE_UNLOCK_FURNITURE_FORMULA').UseParam.find(x => !!x);
+        return furnitureId ? [{FurnitureId: furnitureId, MaterialId: row.Id}] : [];
       } else {
         return [];
       }
     },
-    skip: false
+    skip: true
+  },
+  FurnitureSuiteToMaterialRelation: <SchemaTable> {
+    name: 'FurnitureSuiteToMaterialRelation',
+    jsonFile: './ExcelBinOutput/MaterialExcelConfigData.json',
+    columns: [
+      {name: 'FurnitureSuiteId', type: 'integer', isPrimary: true},
+      {name: 'MaterialId', type: 'integer'},
+    ],
+    customRowResolve: (row: MaterialExcelConfigData) => {
+      if (row.MaterialType === 'MATERIAL_FURNITURE_SUITE_FORMULA' && row.ItemUse && row.ItemUse.length) {
+        let furnitureSuiteId = row.ItemUse.find(x => x.UseOp === 'ITEM_USE_UNLOCK_FURNITURE_SUITE').UseParam.find(x => !!x);
+        return furnitureSuiteId ? [{FurnitureSuiteId: furnitureSuiteId, MaterialId: row.Id}] : [];
+      } else {
+        return [];
+      }
+    },
+    skip: true
   },
   MaterialSourceDataExcelConfigData: <SchemaTable> {
     name: 'MaterialSourceDataExcelConfigData',
@@ -176,7 +194,7 @@ const schema = {
     columns: [
       {name: 'Id', type: 'integer', isPrimary: true},
     ],
-    skip: false
+    skip: true
   },
   DailyTaskExcelConfigData: <SchemaTable> {
     name: 'DailyTaskExcelConfigData',
@@ -190,7 +208,7 @@ const schema = {
       {name: 'DescriptionTextMapHash', type: 'integer', isIndex: true},
       {name: 'TargetTextMapHash', type: 'integer', isIndex: true},
     ],
-    skip: false
+    skip: true
   },
   NpcFirstMetExcelConfigData: <SchemaTable> {
     name: 'NpcFirstMetExcelConfigData',
@@ -200,7 +218,7 @@ const schema = {
       {name: 'AvatarID', type: 'integer', isIndex: true},
       {name: 'AvatarDescriptionTextMapHash', type: 'integer', isIndex: true},
     ],
-    skip: false,
+    skip: true,
   },
   AvatarExcelConfigData: <SchemaTable> {
     name: 'AvatarExcelConfigData',
@@ -214,7 +232,7 @@ const schema = {
       {name: 'IconName', type: 'string'},
       {name: 'SideIconName', type: 'string'},
     ],
-    skip: false,
+    skip: true,
   },
   RewardExcelConfigData: <SchemaTable> {
     name: 'RewardExcelConfigData',
@@ -222,7 +240,7 @@ const schema = {
     columns: [
       {name: 'RewardId', type: 'integer', isPrimary: true},
     ],
-    skip: false,
+    skip: true,
   },
   HomeWorldFurnitureExcelConfigData: <SchemaTable> {
     name: 'HomeWorldFurnitureExcelConfigData',
@@ -244,7 +262,7 @@ const schema = {
       'CBLENIDCKGG': 'DiscountCost',
       'FurnitureNameTextMapHash': 'EditorClampDistance'
     },
-    skip: false,
+    skip: true,
   },
   HomeWorldFurnitureTypeExcelConfigData: <SchemaTable> {
     name: 'HomeWorldFurnitureTypeExcelConfigData',
@@ -256,98 +274,123 @@ const schema = {
       {name: 'TabIcon', type: 'integer'},
       {name: 'SceneType', type: 'string'},
     ],
-    skip: false,
+    skip: true,
   },
+  HomeWorldEventExcelConfigData: <SchemaTable> {
+    name: 'HomeWorldEventExcelConfigData',
+    jsonFile: './ExcelBinOutput/HomeWorldEventExcelConfigData.json',
+    columns: [
+      {name: 'EventID', type: 'integer', isPrimary: true},
+      {name: 'EventType', type: 'string', isIndex: true},
+      {name: 'AvatarID', type: 'integer', isIndex: true},
+      {name: 'TalkID', type: 'integer', isIndex: true},
+      {name: 'RewardID', type: 'integer', isIndex: true},
+      {name: 'FurnitureSuiteID', type: 'integer', isIndex: true},
+    ],
+    normalizeFixFields: {
+      'NGEGGCCMGOB': 'EventID',
+      'LKMNANNKCCA': 'EventType',
+      'ABLPIKPBBGL': 'TalkID',
+      'FCNLCDBIEBJ': 'FurnitureSuiteID',
+      'FurnitureSuitID': 'FurnitureSuiteID',
+    },
+    skip: true,
+  }
+  // FurnitureSuiteExcelConfigData
+  // FurnitureMakeExcelConfigData
+  // Dungeon...
 };
 
-(async () => {
-  const knex = openKnex();
+export function capitalizeFirstLetter(s: string) {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
 
-  async function createTable(table: SchemaTable) {
-    console.log('Creating table: ' + table.name);
-    await knex.schema.dropTableIfExists(table.name);
-    await knex.schema.createTable(table.name, function(builder) {
-      for (let col of table.columns) {
-        builder[col.type](col.name);
-        if (col.isPrimary) {
-          builder.primary([col.name]);
-        } else if (col.isIndex) {
-          builder.index(col.name);
+export function normalizeRawJson(row: any, table: SchemaTable) {
+  if (typeof row === 'undefined' || typeof row === null || typeof row !== 'object') {
+    return row;
+  }
+  if (Array.isArray(row)) {
+    return row.map(item => normalizeRawJson(item, table));
+  }
+  let newRow = {};
+  for (let key of Object.keys(row)) {
+    let originalKey = key;
+    if (key.startsWith('_')) {
+      key = key.slice(1);
+    }
+    key = capitalizeFirstLetter(key);
+    if (table.normalizeFixFields && table.normalizeFixFields[key]) {
+      key = table.normalizeFixFields[key];
+    }
+    newRow[key] = normalizeRawJson(row[originalKey], table);
+  }
+  return newRow;
+}
+
+if (require.main === module) {
+  (async () => {
+    const knex = openKnex();
+
+    async function createTable(table: SchemaTable) {
+      console.log('Creating table: ' + table.name);
+      await knex.schema.dropTableIfExists(table.name);
+      await knex.schema.createTable(table.name, function(builder) {
+        for (let col of table.columns) {
+          builder[col.type](col.name);
+          if (col.isPrimary) {
+            builder.primary([col.name]);
+          } else if (col.isIndex) {
+            builder.index(col.name);
+          }
         }
-      }
-      if (!table.customRowResolve) {
-        builder.json('json_data');
-      }
-    }).then();
-    console.log('  (done)');
-  };
+        if (!table.customRowResolve) {
+          builder.json('json_data');
+        }
+      }).then();
+      console.log('  (done)');
+    };
 
-  function capitalizeFirstLetter(s: string) {
-    return s.charAt(0).toUpperCase() + s.slice(1);
-  }
-
-  function normalizeRawJson(row: any, table: SchemaTable) {
-    if (typeof row === 'undefined' || typeof row === null || typeof row !== 'object') {
-      return row;
-    }
-    if (Array.isArray(row)) {
-      return row.map(item => normalizeRawJson(item, table));
-    }
-    let newRow = {};
-    for (let key of Object.keys(row)) {
-      let originalKey = key;
-      if (key.startsWith('_')) {
-        key = key.slice(1);
-      }
-      key = capitalizeFirstLetter(key);
-      if (table.normalizeFixFields && table.normalizeFixFields[key]) {
-        key = table.normalizeFixFields[key];
-      }
-      newRow[key] = normalizeRawJson(row[originalKey], table);
-    }
-    return newRow;
-  }
-
-  async function insertRow(table: SchemaTable, row: any) {
-    row = normalizeRawJson(row, table);
-    if (table.customRowResolve) {
-      let payloads: any[] = table.customRowResolve(row);
-      for (let payload of payloads) {
+    async function insertRow(table: SchemaTable, row: any) {
+      row = normalizeRawJson(row, table);
+      if (table.customRowResolve) {
+        let payloads: any[] = table.customRowResolve(row);
+        for (let payload of payloads) {
+          await knex(table.name).insert(payload).then();
+        }
+      } else {
+        let payload = {};
+        payload['json_data'] = JSON.stringify(row);
+        for (let col of table.columns) {
+          if (col.resolve) {
+            if (typeof col.resolve === 'string') {
+              payload[col.name] = objectPath.get(row, col.resolve);
+            } else if (typeof col.resolve === 'function') {
+              payload[col.name] = col.resolve(row);
+            }
+          } else {
+            payload[col.name] = row[col.name];
+          }
+        }
         await knex(table.name).insert(payload).then();
       }
-    } else {
-      let payload = {};
-      payload['json_data'] = JSON.stringify(row);
-      for (let col of table.columns) {
-        if (col.resolve) {
-          if (typeof col.resolve === 'string') {
-            payload[col.name] = objectPath.get(row, col.resolve);
-          } else if (typeof col.resolve === 'function') {
-            payload[col.name] = col.resolve(row);
-          }
-        } else {
-          payload[col.name] = row[col.name];
-        }
+    }
+
+    async function insertAll(table: SchemaTable) {
+      console.log('Inserting data for: ' + table.name + ' from: ' + table.jsonFile);
+      const json = require(config.database.getGenshinDataFilePath(table.jsonFile));
+      for (let row of json) {
+        await insertRow(table, row);
       }
-      await knex(table.name).insert(payload).then();
+      console.log('  (done)');
     }
-  }
 
-  async function insertAll(table: SchemaTable) {
-    console.log('Inserting data for: ' + table.name + ' from: ' + table.jsonFile);
-    const json = require(config.database.getGenshinDataFilePath(table.jsonFile));
-    for (let row of json) {
-      await insertRow(table, row);
+    for (let table of Object.values(schema).filter(x => !x.skip)) {
+      await createTable(table);
+      await insertAll(table);
+      console.log(SEP);
     }
-    console.log('  (done)');
-  }
 
-  for (let table of Object.values(schema).filter(x => !x.skip)) {
-    await createTable(table);
-    await insertAll(table);
-    console.log(SEP);
-  }
-
-  console.log('Shutting down...');
-  await knex.destroy();
-})();
+    console.log('Shutting down...');
+    await knex.destroy();
+  })();
+}

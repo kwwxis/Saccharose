@@ -3,7 +3,7 @@ import "../../setup";
 import {Control, getControl, grep, normText} from "../script_util";
 import { getTextMapItem } from "../textmap";
 
-function ol_gen_internal(textMapId: number, hideTl: boolean = false, addDefaultHidden: boolean = false): string {
+function ol_gen_internal(textMapId: number, hideTl: boolean = false, addDefaultHidden: boolean = false, hideRm: boolean = false): string {
   let template = `{{Other Languages
 |en      = {EN_official_name}
 |zhs     = {CHS_official_name}
@@ -37,6 +37,9 @@ function ol_gen_internal(textMapId: number, hideTl: boolean = false, addDefaultH
 }}`;
   if (hideTl) {
     template = template.split('\n').filter(s => !s.includes('_tl')).join('\n');
+  }
+  if (hideRm) {
+    template = template.split('\n').filter(s => !s.includes('_rm')).join('\n');
   }
   if (addDefaultHidden) {
     template = template.replace('{{Other Languages', '{{Other Languages\n|default_hidden = 1');
@@ -95,14 +98,21 @@ function ol_gen_internal(textMapId: number, hideTl: boolean = false, addDefaultH
   return template.replaceAll('{}', '').replaceAll('\\"', '"').replace(/{F#([^}]+)}{M#([^}]+)}/g, '($1/$2)').split('\n').filter(s => !!s).join('\n');
 }
 
-export async function ol_gen(ctrl: Control, name: string, hideTl: boolean = false, addDefaultHidden: boolean = false, langCode: LangCode = null): Promise<string[]> {
-  let idList: number[] = await ctrl.findTextMapIdListByExactName(langCode || ctrl.inputLangCode, name);
+export interface OLGenOptions {
+  hideTl?: boolean,
+  addDefaultHidden?: boolean,
+  langCode?: LangCode,
+  hideRm?: boolean,
+}
+
+export async function ol_gen(ctrl: Control, name: string, options?: OLGenOptions): Promise<string[]> {
+  let idList: number[] = await ctrl.findTextMapIdListByExactName(options.langCode || ctrl.inputLangCode, name);
   if (!idList || !idList.length) {
     return [];
   }
   let allResults = new Set<string>();
   for (let id of idList) {
-    let result = ol_gen_internal(id, hideTl, addDefaultHidden);
+    let result = ol_gen_internal(id, options.hideTl, options.addDefaultHidden, options.hideRm);
     if (result.includes('{EN_official_name}')) {
       continue;
     }
@@ -114,6 +124,8 @@ export async function ol_gen(ctrl: Control, name: string, hideTl: boolean = fals
 if (require.main === module) {
   (async () => {
     //console.log(await ol_gen(getControl(), `"Outlander Brigade!"`, true));
-    console.log(await ol_gen(getControl(), `Master Chef: Vanarana`, true));
+    console.log(await ol_gen(getControl(), `Master Chef: Vanarana`, {
+      hideTl: true,
+    }));
   })();
 }

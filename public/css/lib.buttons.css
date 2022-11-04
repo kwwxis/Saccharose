@@ -239,9 +239,8 @@ button.secondary,
 .secondary-label {
   display: inline-flex;
   align-items: center;
-  height: 30px;
-  line-height: 30px;
-  padding: 0 12px 0 12px;
+  line-height: 20px;
+  padding: 5px 12px;
   text-align: center;
   border: 0.5px solid hsla(223, 67%, 18%, 0.2);
   border-radius: 2px;
@@ -271,9 +270,8 @@ button.secondary[disabled],
 
 button.secondary.small,
 [role='button'].secondary.small {
-  line-height: 20px;
-  height: 22px;
-  padding: 0 8px;
+  line-height: 14px;
+  padding: 4px 8px;
   font-size: 12.5px;
 }
 

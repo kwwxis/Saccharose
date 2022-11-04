@@ -2,7 +2,7 @@
 <section class="card">
   <h2>Serenitea Pot Companion Dialogue<% if (locals.charName) { %> &mdash; <%= charName %><% } %></h2>
   <% if (locals.charNames) { %>
-    <div class="content dispFlex flexWrap">
+    <div class="content dispFlex flexWrap talign">
       <% charNames.sort().forEach(charName => { %>
        <a class="secondary spacer3-all w20p" role="button" href="/lists/companion-dialogue/<%= charName.replace(/ /g, '_') %>"><%= charName %></a>
       <% }) %>

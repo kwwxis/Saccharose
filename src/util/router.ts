@@ -65,8 +65,32 @@ class RequestContext {
     return this.bodyClass.includes(bodyClass);
   }
 
-  bodyClassTernary(bodyClass: string, ifIncludes?: any, ifNotIncludes?: any) {
+  bodyClassTernary(bodyClass: string, ifIncludes?: any, ifNotIncludes?: any): any {
     return this.hasBodyClass(bodyClass) ? (ifIncludes || '') : (ifNotIncludes || '');
+  }
+
+  cookieTernary(cookieName: string, cond: {
+    equals?: string,
+    equalsOrEmpty?: string,
+    includes?: string,
+    includesOrEmpty?: string,
+    then?: string,
+    else?: string
+  }): string {
+    let cookieValue: string = this._req.cookies[cookieName];
+    let match = false;
+
+    if (cond.equals) {
+      match = cookieValue === cond.equals;
+    } else if (cond.equalsOrEmpty) {
+      match = cookieValue === cond.equalsOrEmpty || !cookieValue;
+    } else if (cond.includes) {
+      match = cookieValue.includes(cond.includes);
+    } else if (cond.includesOrEmpty) {
+      match = cookieValue.includes(cond.includesOrEmpty) || !cookieValue;
+    }
+
+    return match ? cond.then || '' : cond.else || '';
   }
 
   get formattedPageTitle() {
@@ -170,6 +194,7 @@ function createIncludeFunction(req: Request, viewStackPointer: RequestSubViewLoc
         req,
         hasBodyClass: req.context.hasBodyClass.bind(req.context),
         bodyClassTernary: req.context.bodyClassTernary.bind(req.context),
+        cookieTernary: req.context.cookieTernary.bind(req.context),
       }, DEFAULT_GLOBAL_LOCALS, viewStackPointer, typeof locals !== 'object' ? {} : locals),
       { delimiter: config.views.ejsDelimiter }
     );

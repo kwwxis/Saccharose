@@ -1061,11 +1061,13 @@ body {
 
 .ui-radio input + *,
 .ui-checkbox input + * {
+  display: inline-block;
   padding-left: 1.8em;
   color: hsla(232, 20%, 32%, 0.8);
   font-family: 'Open Sans', Arial, sans-serif;
   font-weight: 600;
   position: relative;
+  line-height: 1.5em;
 }
 
 .ui-radio input + *:before,
@@ -1371,7 +1373,7 @@ body.nightmode .ui-checkbox:hover {
   background: hsl(255deg 12% 16%);
 }
 
-body.nightmode .form-box fieldset {
+body.nightmode fieldset {
   border-color: hsl(255deg 13% 25%);
 }
 

@@ -43,7 +43,7 @@ export async function dialogueGenerate(ctrl: Control, query: number|number[]|str
 
     const dialogue = typeof id === 'number' ? await ctrl.selectSingleDialogExcelConfigData(id) : id;
     if (!dialogue) {
-      throw 'No Talk or Dialogue found or ID: ' + id;
+      throw 'No Talk or Dialogue found for ID: ' + id;
     }
     if (npcFilterExclude(dialogue, npcFilter)) {
       return undefined;

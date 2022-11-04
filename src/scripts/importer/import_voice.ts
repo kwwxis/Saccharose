@@ -7,7 +7,7 @@ import path from 'path';
 const outDir = 'C:/Shared/';
 const jsonDir = 'C:/Shared/git/Voice/Items';
 
-const combined = {};
+const combined: {[id: string]: {fileName: string, gender: string}[]} = {};
 
 const jsonsInDir = fs.readdirSync(jsonDir).filter(file => path.extname(file) === '.json');
 const unknownTriggers: Set<string> = new Set();
@@ -50,6 +50,9 @@ jsonsInDir.forEach(file => {
         voiceSourceNorm.gender = 'F';
       } else  if (gender === 2) {
         voiceSourceNorm.gender = 'M';
+      }
+      if (!voiceSourceNorm.gender && combined[key].find(x => !x.gender && x.fileName === voiceSourceNorm.fileName)) {
+        continue;
       }
       combined[key].push(voiceSourceNorm);
     }
