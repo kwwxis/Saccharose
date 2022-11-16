@@ -11,15 +11,7 @@
     "allowJs": true,
     "outDir": "dist",
     "alwaysStrict": true,
-    "baseUrl": "./src",
-    "paths": {
-      "@cache": ["./util/cache.js"],
-      "@db": ["./util/db.js"],
-      "@functions": ["./util/functions.js"],
-      "@router": ["./util/router.js"],
-      "@types": ["./util/types.js"],
-      "@/*": ["./*"]
-    }
+    "baseUrl": "./src"
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules"]

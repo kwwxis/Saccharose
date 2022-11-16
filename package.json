@@ -2,7 +2,7 @@
   "name": "genshin-data-explorer",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/server.js",
+  "main": "dist/backend/server.js",
   "scripts": {
     "clean": "rm -rf ./dist",
     "tsc": "tsc",
@@ -11,8 +11,8 @@
     "serve": "npm-run-all build start",
     "serve:dev": "nodemon --watch src -e ts,html,js,ejs --exec npm run serve",
     "start": "node .",
-    "ts-serve": "ts-node src/server.ts",
-    "ts-serve:dev": "ts-node-dev --respawn --transpile-only --no-notify src/server.ts"
+    "ts-serve": "ts-node src/backend/server.ts",
+    "ts-serve:dev": "ts-node-dev --respawn --transpile-only --no-notify src/backend/server.ts"
   },
   "author": "kwwxis",
   "license": "MIT",
@@ -40,7 +40,6 @@
     "helmet": "^5.1.1",
     "json-mask": "^2.0.0",
     "knex": "^2.2.0",
-    "module-alias": "^2.2.2",
     "moment": "^2.29.4",
     "morgan": "^1.10.0",
     "node-cache": "^5.1.2",
@@ -73,7 +72,6 @@
     "@types/feather-icons": "^4.7.0",
     "@types/fs-extra": "^9.0.13",
     "@types/helmet": "0.0.48",
-    "@types/module-alias": "^2.0.1",
     "@types/moment": "^2.13.0",
     "@types/morgan": "^1.9.3",
     "@types/node": "^18.6.2",
@@ -92,7 +90,10 @@
     "node-dev": "^7.4.3",
     "nodemon": "^2.0.19",
     "npm-run-all": "^4.1.5",
+    "ts-loader": "^9.4.1",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^4.7.4"
+    "typescript": "^4.7.4",
+    "webpack": "^5.75.0",
+    "webpack-cli": "^4.10.0"
   }
 }
