@@ -907,7 +907,7 @@ export class Control {
   }
 
   async getTextMapIdStartsWith(langCode: LangCode, idPrefix: string): Promise<{[id: number]: string}> {
-    let lines = await grep(`^\\s*"${idPrefix}\\d+": "`,config.database.getTextMapFile(langCode), '-E');
+    let lines = await grep(`^\\s*"${idPrefix}\\d+": "`, config.database.getTextMapFile(langCode), '-E');
     console.log(lines);
     let out = {};
     for (let line of lines) {

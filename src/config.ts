@@ -13,9 +13,9 @@ export default {
   database: {
     filename: './genshin_data.db',
     voiceItemsFile: './voiceItemsNormalized.json',
-    getTextMapFile: (langCode: LangCode) => './TextMap/TextMap'+langCode+'.json',
-    getGenshinDataFilePath(file: string) {
-      return path.resolve(process.env.GENSHIN_DATA_ROOT, this.genshin_data, file).replaceAll('\\', '/');
+    getTextMapFile: (langCode: LangCode): string => './TextMap/TextMap'+langCode+'.json',
+    getGenshinDataFilePath(file: string): string {
+      return path.resolve(process.env.GENSHIN_DATA_ROOT, file).replaceAll('\\', '/');
     }
   },
   session: session({
