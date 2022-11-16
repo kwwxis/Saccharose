@@ -40,7 +40,7 @@ if (require.main === module) {
           dialog.TalkRoleNameText = getTextMapItem('EN', dialog.TalkRole.NameTextMapHash);
         }
 
-        out += `\n${dialog.Id} :${voPrefix}'''${dialog.TalkRoleNameText}:''' ${text}`;
+        out += `\n:${voPrefix}'''${dialog.TalkRoleNameText}:''' ${text}`;
       }
 
     }

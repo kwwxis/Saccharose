@@ -12,7 +12,7 @@ export function openKnex(): Knex {
   singleton = loadKnex({
     client: 'sqlite3',
     connection: {
-      filename: path.resolve(process.env.DATA_ROOT, config.database.filename),
+      filename: path.resolve(process.env.GENSHIN_DATA_ROOT, config.database.filename),
     },
     useNullAsDefault: true
   });

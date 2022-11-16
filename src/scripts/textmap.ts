@@ -1,6 +1,7 @@
 import { LangCode, LANG_CODES } from "@types";
 import config from '@/config';
 import {promises as fs} from 'fs';
+import {TalkRoleType} from '../util/types';
 import path from 'path';
 
 // TYPES
@@ -21,7 +22,7 @@ export async function loadTextMaps(filterLangCodes?: string[]): Promise<void> {
   console.log('Loading TextMap -- starting...');
   let promises = [];
   for (let langCode of LANG_CODES) {
-    if (filterLangCodes && !filterLangCodes.includes(langCode)) {
+    if (filterLangCodes && filterLangCodes.length && !filterLangCodes.includes(langCode)) {
       continue;
     }
     console.log('Loading TextMap -- ' + langCode)
@@ -65,7 +66,7 @@ export async function loadQuestSummarization(): Promise<void> {
 // ----------------------------------------------------------------------------------------------------
 export async function loadVoiceItems(): Promise<void> {
   console.log('Loading Voice Items -- starting...');
-  let voiceItemsFilePath = path.resolve(process.env.DATA_ROOT, config.database.voiceItemsFile);
+  let voiceItemsFilePath = path.resolve(process.env.GENSHIN_DATA_ROOT, config.database.voiceItemsFile);
 
   let result: VoiceItemMap = await fs.readFile(voiceItemsFilePath, {encoding: 'utf8'}).then(data => Object.freeze(JSON.parse(data)));
 
@@ -79,7 +80,7 @@ export function getVoiceItems(type: VoiceItemType, id: number|string): VoiceItem
   return VoiceItems[type+'_'+id];
 }
 
-export function getVoPrefix(type: VoiceItemType, id: number|string, text?: string, TalkRoleType?: string): string {
+export function getVoPrefix(type: VoiceItemType, id: number|string, text?: string, TalkRoleType?: TalkRoleType): string {
   let voItems = VoiceItems[type+'_'+id];
   let voPrefix = '';
   if (voItems) {
@@ -104,7 +105,7 @@ export function getVoPrefix(type: VoiceItemType, id: number|string, text?: strin
       noGenderVo.forEach(x => tmp.push(`{{A|${x.fileName}}}`));
     }
     if (tmp.length) {
-      if (text && /{{MC/i.test(text)) {
+      if (text && (/{{MC/i.test(text) || TalkRoleType === 'TALK_ROLE_PLAYER' || TalkRoleType === 'TALK_ROLE_MATE_AVATAR')) {
         voPrefix = tmp.join(' ') + ' ';
       } else {
         voPrefix = tmp.shift() + tmp.map(x => `<!--${x}-->`).join('') + ' ';

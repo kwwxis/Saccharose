@@ -7,7 +7,7 @@ import { openKnex } from '@db';
 import {
   TextMapItem, NpcExcelConfigData, ManualTextMapConfigData, ConfigCondition,
   MainQuestExcelConfigData, QuestExcelConfigData,
-  DialogExcelConfigData, TalkExcelConfigData, TalkRole, LangCode, AvatarExcelConfigData, ReminderExcelConfigData, ChapterExcelConfigData
+  DialogExcelConfigData, TalkExcelConfigData, TalkRole, LangCode, AvatarExcelConfigData, ReminderExcelConfigData, ChapterExcelConfigData, QuestType
 } from '@types';
 import { getTextMapItem, getVoiceItems, getVoPrefix } from './textmap';
 import { Request } from '@router';
@@ -319,12 +319,6 @@ export class ControlPrefs {
   KnexInstance: Knex = null;
   Request: Request = null;
   TalkConfigDataBeginCond: {[talkConfigId: number]: ConfigCondition} = {};
-
-  ExcludeCondProperties = true;
-  ExcludeExecProperties = true;
-  ExcludeGuideProperties = true;
-  ExcludeNpcListProperties = false;
-  ExcludeNpcDataListProperties = true;
   ExcludeOrphanedDialogue = false;
 
   dialogCache: {[Id: number]: DialogExcelConfigData} = {};
@@ -407,34 +401,17 @@ export class Control {
       if (prop === 'TitleTextMapHash') {
         object['TitleTextEN'] = getTextMapItem('EN', object['TitleTextMapHash']);
       }
-      if (prop.endsWith('Cond')) {
-        if (this.prefs.ExcludeCondProperties && !prop.startsWith('Begin') && !prop.startsWith('Accept') && !prop.startsWith('Finish') && !prop.startsWith('Fail')) {
-          delete object[prop];
-        } else if (objAsAny[prop]) {
-          this.postProcessCondProp(objAsAny, prop);
-        }
+      if (prop.endsWith('Cond') && objAsAny[prop]) {
+        this.postProcessCondProp(objAsAny, prop);
       }
-      if (prop.endsWith('Exec')) {
-        if (this.prefs.ExcludeExecProperties) {
-          delete object[prop];
-        } else {
-          this.postProcessCondProp(objAsAny, prop);
-        }
+      if (prop.endsWith('Exec') && objAsAny[prop]) {
+        this.postProcessCondProp(objAsAny, prop);
       }
       if (prop.endsWith('NpcList') || prop.endsWith('NpcId')) {
         let slicedProp = prop.endsWith('NpcList') ? prop.slice(0, -4) : prop.slice(0, -2);
-        if (this.prefs.ExcludeNpcListProperties) {
-          delete object[prop];
-        } else {
-          let dataList = await this.getNpcList(object[prop] as any, false);
-          dataList = dataList.filter(x => !!x);
-          if (!this.prefs.ExcludeNpcDataListProperties)
-            object[slicedProp+'DataList'] = dataList;
-          object[slicedProp+'NameList'] = dataList.map(x => x.NameText);
-        }
-      }
-      if (this.prefs.ExcludeGuideProperties && prop.endsWith('Guide')) {
-        delete object[prop];
+        let dataList: NpcExcelConfigData[] = (await this.getNpcList(object[prop] as any, false));
+        object[slicedProp+'DataList'] = dataList;
+        object[slicedProp+'NameList'] = dataList.map(x => x.NameText);
       }
       if (prop == 'TalkRole') {
         let TalkRole = (<any> object[prop]) as TalkRole;
@@ -493,14 +470,24 @@ export class Control {
     return cachedList.concat(uncachedList);
   }
 
-  private fixMainQuestType(mainQuest: MainQuestExcelConfigData): MainQuestExcelConfigData {
-    if (!mainQuest.Type && mainQuest.LuaPath && /Quest\/[ALEWM]Q/.test(mainQuest.LuaPath)) {
-      mainQuest.Type = /Quest\/([ALEWM]Q)/.exec(mainQuest.LuaPath)[1];
+  private postProcessMainQuest(mainQuest: MainQuestExcelConfigData): MainQuestExcelConfigData {
+    let tempType: string = mainQuest.Type;
+
+    if (!tempType && mainQuest.LuaPath && /Quest\/[ALEWM]Q/.test(mainQuest.LuaPath)) {
+      tempType = /Quest\/([ALEWM]Q)/.exec(mainQuest.LuaPath)[1];
     }
-    if (mainQuest.Type === 'MQ') {
-      mainQuest.Type = 'AQ';
+    if (tempType === 'MQ') {
+      tempType = 'AQ';
     }
+    if (tempType === 'LQ') {
+      tempType = 'SQ';
+    }
+    mainQuest.Type = tempType as QuestType;
     return mainQuest;
+  }
+
+  private postProcessMainQuests(mainQuestList: MainQuestExcelConfigData[]): MainQuestExcelConfigData[] {
+    return mainQuestList.map(mainQuest => this.postProcessMainQuest(mainQuest));
   }
 
   async selectMainQuestsByNameOrId(name: string|number, limit: number = 25): Promise<MainQuestExcelConfigData[]> {
@@ -509,22 +496,22 @@ export class Control {
       let textMapIds = Object.keys(matches).map(i => parseInt(i));
 
       return await this.knex.select('*').from('MainQuestExcelConfigData').whereIn('TitleTextMapHash', textMapIds)
-        .limit(limit).then(this.commonLoad);
+        .limit(limit).then(this.commonLoad).then(x => this.postProcessMainQuests(x));
     } else {
       return [await this.selectMainQuestById(name)];
     }
   }
 
   async selectMainQuestById(id: number): Promise<MainQuestExcelConfigData> {
-    return await this.knex.select('*').from('MainQuestExcelConfigData').where({Id: id}).first().then(this.commonLoadFirst);
+    return await this.knex.select('*').from('MainQuestExcelConfigData').where({Id: id}).first().then(this.commonLoadFirst).then(x => this.postProcessMainQuest(x));
   }
 
   async selectMainQuestsByChapterId(chapterId: number): Promise<MainQuestExcelConfigData[]> {
-    return await this.knex.select('*').from('MainQuestExcelConfigData').where({ChapterId: chapterId}).then(this.commonLoad);
+    return await this.knex.select('*').from('MainQuestExcelConfigData').where({ChapterId: chapterId}).then(this.commonLoad).then(x => this.postProcessMainQuests(x));
   }
 
   async selectMainQuestsBySeries(series: number): Promise<MainQuestExcelConfigData[]> {
-    return await this.knex.select('*').from('MainQuestExcelConfigData').where({Series: series}).then(this.commonLoad);
+    return await this.knex.select('*').from('MainQuestExcelConfigData').where({Series: series}).then(this.commonLoad).then(x => this.postProcessMainQuests(x));
   }
 
   async selectQuestByMainQuestId(id: number): Promise<QuestExcelConfigData[]> {
@@ -605,7 +592,7 @@ export class Control {
   }
 
   async selectTalkExcelConfigDataByNpcId(npcId: number): Promise<TalkExcelConfigData[]> {
-    let talkIds: number[] = await this.knex.select('TalkId').from('NpcToTalkRelation').where({NpcId: npcId}).pluck('TalkId').then();
+    let talkIds: number[] = await this.knex.select('TalkId').from('Relation_NpcToTalk').where({NpcId: npcId}).pluck('TalkId').then();
     return Promise.all(talkIds.map(talkId => this.selectTalkExcelConfigDataById(talkId)));
   }
 
@@ -973,15 +960,24 @@ export class Control {
     return await this.knex.select('*').from('ReminderExcelConfigData').where({ContentTextMapHash: id}).first().then(this.commonLoadFirst);
   }
 
+  private async postProcessChapter(chapter: ChapterExcelConfigData): Promise<ChapterExcelConfigData> {
+    chapter.Quests = await this.selectMainQuestsByChapterId(chapter.Id);
+    chapter.Type = chapter.Quests.find(x => x.Type)?.Type;
+    return chapter;
+  }
+  private async postProcessChapters(chapters: ChapterExcelConfigData[]): Promise<ChapterExcelConfigData[]> {
+    return Promise.all(chapters.map(x => this.postProcessChapter(x)));
+  }
+
   async selectAllChapters(): Promise<ChapterExcelConfigData[]> {
-    return await this.knex.select('*').from('ChapterExcelConfigData').then(this.commonLoad);
+    return await this.knex.select('*').from('ChapterExcelConfigData').then(this.commonLoad).then(x => this.postProcessChapters(x));
   }
 
   async selectChapterById(id: number): Promise<ChapterExcelConfigData> {
-    return await this.knex.select('*').from('ChapterExcelConfigData').where({Id: id}).first().then(this.commonLoadFirst);
+    return await this.knex.select('*').from('ChapterExcelConfigData').where({Id: id}).first().then(this.commonLoadFirst).then(x => this.postProcessChapter(x));
   }
 
-  async loadCinematicSubtitlesByQuestId(questId: number): Promise<{[fileName: string]: string}> {
+  async loadCutsceneSubtitlesByQuestId(questId: number): Promise<{[fileName: string]: string}> {
     let fileNames: string[] = await fs.readdir(config.database.getGenshinDataFilePath('./Subtitle/'+this.outputLangCode));
 
     let targetFileNames: string[] = [];

@@ -13,7 +13,6 @@ if (__filename.endsWith('.ts')) {
 }
 
 moduleAlias.addAliases({
-  '@apiError': moduleAliasPrefix + '/controllers/api/error' + moduleAliasSuffix,
   '@cache': moduleAliasPrefix + '/util/cache' + moduleAliasSuffix,
   '@db': moduleAliasPrefix + '/util/db' + moduleAliasSuffix,
   '@functions': moduleAliasPrefix + '/util/functions' + moduleAliasSuffix,

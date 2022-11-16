@@ -9,18 +9,13 @@ import session from 'express-session';
 import { LangCode } from '@types';
 
 export default {
-  server: {
-    HTTP_PORT: 6000,
-    HTTPS_PORT: 6001,
-  },
   currentGenshinVersion: '3.2',
   database: {
     filename: './genshin_data.db',
     voiceItemsFile: './voiceItemsNormalized.json',
-    genshin_data: './git/GenshinData/',
     getTextMapFile: (langCode: LangCode) => './TextMap/TextMap'+langCode+'.json',
     getGenshinDataFilePath(file: string) {
-      return path.resolve(process.env.DATA_ROOT, this.genshin_data, file).replaceAll('\\', '/');
+      return path.resolve(process.env.GENSHIN_DATA_ROOT, this.genshin_data, file).replaceAll('\\', '/');
     }
   },
   session: session({

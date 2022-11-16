@@ -29,9 +29,10 @@ export const LANG_CODES_TO_NAME = {
 // DIALOG CONFIG
 // ~~~~~~~~~~~~~
 
+export type TalkRoleType = 'TALK_ROLE_NPC' | 'TALK_ROLE_PLAYER' | 'TALK_ROLE_BLACK_SCREEN' | 'TALK_ROLE_MATE_AVATAR' | 'TALK_ROLE_GADGET'
+  | 'TALK_ROLE_CONSEQUENT_BLACK_SCREEN' | 'TALK_ROLE_NEED_CLICK_BLACK_SCREEN' | 'TALK_ROLE_CONSEQUENT_NEED_CLICK_BLACK_SCREEN';
 export interface TalkRole {
-  Type: 'TALK_ROLE_NPC' | 'TALK_ROLE_PLAYER' | 'TALK_ROLE_BLACK_SCREEN' | 'TALK_ROLE_MATE_AVATAR' | 'TALK_ROLE_GADGET'
-    | 'TALK_ROLE_CONSEQUENT_BLACK_SCREEN' | 'TALK_ROLE_NEED_CLICK_BLACK_SCREEN' | 'TALK_ROLE_CONSEQUENT_NEED_CLICK_BLACK_SCREEN',
+  Type: TalkRoleType,
   Id: number|string,
   NameTextMapHash?: number,
   NameText?: string,
@@ -108,11 +109,19 @@ export interface NpcExcelConfigData {
 // QUEST CONFIG
 // ~~~~~~~~~~~~
 
+export type QuestType = 'AQ' | 'SQ' | 'EQ' | 'WQ';
+export type MapByQuestType<T> = {
+  AQ: T,
+  SQ: T,
+  EQ: T,
+  WQ: T
+};
+
 export interface MainQuestExcelConfigData {
   Id: number,
   Series: number,
   ChapterId?: number,
-  Type?: string,
+  Type?: QuestType,
   ActiveMode: string,
   TitleText?: string,
   TitleTextEN?: string,
@@ -252,6 +261,7 @@ export interface ChapterExcelConfigData {
   ChapterImageTitleTextMapHash: number,
   ChapterSerialNumberIcon: string
   NeedPlayerLevel?: number,
+  Type?: QuestType,
   Quests?: MainQuestExcelConfigData[],
 }
 

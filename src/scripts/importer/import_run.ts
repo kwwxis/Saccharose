@@ -64,8 +64,8 @@ export const schema = {
     ],
     skip: true
   },
-  NpcToTalkRelation: <SchemaTable> {
-    name: 'NpcToTalkRelation',
+  Relation_NpcToTalk: <SchemaTable> {
+    name: 'Relation_NpcToTalk',
     jsonFile: './ExcelBinOutput/TalkExcelConfigData.json',
     columns: [
       {name: 'NpcId', type: 'integer', isIndex: true},
@@ -154,8 +154,8 @@ export const schema = {
     ],
     skip: true
   },
-  FurnitureToMaterialRelation: <SchemaTable> {
-    name: 'FurnitureToMaterialRelation',
+  Relation_FurnitureToMaterial: <SchemaTable> {
+    name: 'Relation_FurnitureToMaterial',
     jsonFile: './ExcelBinOutput/MaterialExcelConfigData.json',
     columns: [
       {name: 'FurnitureId', type: 'integer', isPrimary: true},
@@ -171,8 +171,8 @@ export const schema = {
     },
     skip: true
   },
-  FurnitureSuiteToMaterialRelation: <SchemaTable> {
-    name: 'FurnitureSuiteToMaterialRelation',
+  Relation_FurnitureSuiteToMaterial: <SchemaTable> {
+    name: 'Relation_FurnitureSuiteToMaterial',
     jsonFile: './ExcelBinOutput/MaterialExcelConfigData.json',
     columns: [
       {name: 'FurnitureSuiteId', type: 'integer', isPrimary: true},
@@ -187,6 +187,23 @@ export const schema = {
       }
     },
     skip: true
+  },
+  Relation_CodexToMaterial: <SchemaTable> {
+    name: 'Relation_CodexToMaterial',
+    jsonFile: './ExcelBinOutput/MaterialExcelConfigData.json',
+    columns: [
+      {name: 'CodexId', type: 'integer', isPrimary: true},
+      {name: 'MaterialId', type: 'integer'},
+    ],
+    customRowResolve: (row: MaterialExcelConfigData) => {
+      if (row.ItemUse && row.ItemUse.length) {
+        let codexId = row.ItemUse.find(x => x.UseOp === 'ITEM_USE_UNLOCK_CODEX')?.UseParam.find(x => !!x);
+        return codexId ? [{CodexId: codexId, MaterialId: row.Id}] : [];
+      } else {
+        return [];
+      }
+    },
+    skip: false
   },
   MaterialSourceDataExcelConfigData: <SchemaTable> {
     name: 'MaterialSourceDataExcelConfigData',

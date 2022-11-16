@@ -4,7 +4,7 @@ import csurfImport from 'csurf';
 const csrf = csurfImport(config.csrfConfig.api);
 import bodyParser from 'body-parser';
 import baseResources from './baseResources';
-import {APIError} from '@apiError';
+import {APIError} from './error';
 //#endregion
 
 //#region Setup Router

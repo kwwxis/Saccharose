@@ -1,7 +1,7 @@
 const STEPS_TO_LOAD = 10;
 
 console.log(`(1/${STEPS_TO_LOAD}) Requiring dependencies`);
-import config from '@/config';
+import config from './config';
 import { Express } from 'express';
 import express from 'express';
 import 'express-async-errors';
@@ -44,7 +44,8 @@ export default {
 
     console.log(`(3/${STEPS_TO_LOAD}) Opening sqlite database and loading resources`);
     openKnex();
-    await loadTextMaps();
+    const textMapLangCodes: string[] = process.env.TEXTMAP_LANG_CODES.split(',');
+    await loadTextMaps(textMapLangCodes);
     await loadVoiceItems();
     await loadQuestSummarization();
 

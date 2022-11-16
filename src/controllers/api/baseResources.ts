@@ -1,24 +1,18 @@
 import { create, Router, Request, Response, NextFunction } from '@router';
 const router: Router = create();
-import { validateHTML } from '@/util/html_validator';
 import { MainQuestExcelConfigData } from '@types';
 import { getControl } from '@/scripts/script_util';
 import { DialogueSectionResult, questGenerate, QuestGenerateResult } from '@/scripts/dialogue/quest_generator';
 import { ol_gen } from '@/scripts/OLgen/OLgen';
 import { isInt, toBoolean, toInt } from '@functions';
 import { dialogueGenerate, dialogueGenerateByNpc, NpcDialogueResultMap } from '@/scripts/dialogue/basic_dialogue_generator';
-import apiError from '@apiError';
+import apiError from './error';
 import { reminderGenerate } from '@/scripts/dialogue/reminder_generator';
 
 router.restful('/ping', {
   get: async (req: Request, res: Response) => {
     return 'pong!';
   }
-});
-
-router.restful('/validate-html', {
-  get: async (req: Request, res: Response) => validateHTML(String(req.query.snippet || req.query.html || '')),
-  post: async (req: Request, res: Response) => validateHTML(String(req.body.snippet || req.body.html || '')),
 });
 
 router.restful('/quests/findMainQuest', {
@@ -73,7 +67,7 @@ router.restful('/quests/generate', {
       locals.otherLanguagesWikitext = result.otherLanguagesWikitext;
       locals.dialogue = result.dialogue;
       locals.travelLogSummary = result.travelLogSummary;
-      locals.cinematics = result.cinematics;
+      locals.cutscenes = result.cutscenes;
 
       return res.render('partials/quests/quest-generate-result', locals);
     } else {

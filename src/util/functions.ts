@@ -1,5 +1,5 @@
 import moment from 'moment';
-const genuuid = require('@/util/genuuid.js');
+import { v4 as _uuidv4 } from 'uuid';
 
 export const whitespace = [
   ' ',
@@ -114,7 +114,7 @@ export function isPromise(o): boolean {
  * @returns {string}
  */
 export function uuidv4(): string {
-  return genuuid();
+  return _uuidv4();
 };
 /**
  * Add slashes.

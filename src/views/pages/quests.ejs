@@ -1,12 +1,3 @@
-<!--
-<div class="tab-list" role="tablist">
-  <button role="tab" id="dialogueTab" class="tab-button <%= tab === 'dialogue' ? 'active' : '' %>"
-    ui-trigger="tab:dialogue" ui-set-query-param="tab=dialogue">Dialogue</button>
-
-    <button role="tab" id="reverseTab" class="tab-button <%= tab === 'reverse' ? 'active' : '' %>"
-      ui-trigger="tab:reverse" ui-set-query-param="tab=reverse">Reverse Find</button>
-</div>
--->
 <div role="tabpanel" aria-labelledby="dialogueTab" class="tab <%= tab === 'dialogue' ? 'active' : 'hide' %>" ui-target="tab:dialogue">
   <section class="card">
     <h2>Find Quest</h2>

@@ -7,7 +7,8 @@ import path from 'path';
 const outDir = 'C:/Shared/';
 const jsonDir = 'C:/Shared/git/Voice/Items';
 
-const combined: {[id: string]: {fileName: string, gender: string}[]} = {};
+type VoiceOver = {fileName: string, gender?: 'M'|'F'};
+const combined: {[id: string]: VoiceOver[]} = {};
 
 const jsonsInDir = fs.readdirSync(jsonDir).filter(file => path.extname(file) === '.json');
 const unknownTriggers: Set<string> = new Set();
@@ -43,15 +44,23 @@ jsonsInDir.forEach(file => {
     combined[key] = [];
 
     for (let voiceSource of voiceItem._sourceNames) {
-      let fileName = voiceSource.sourceFileName.split('\\').pop().toLowerCase().replace(/_/g, ' ').replace('.wem', '.ogg');
-      let gender = voiceSource.gender;
-      let voiceSourceNorm: any = {fileName};
+      let fileName: string = voiceSource.sourceFileName.split('\\').pop().toLowerCase().replace(/_/g, ' ').replace('.wem', '.ogg');
+      let gender: number = voiceSource.gender;
+      let voiceSourceNorm: VoiceOver = {fileName};
       if (gender === 1) {
         voiceSourceNorm.gender = 'F';
       } else  if (gender === 2) {
         voiceSourceNorm.gender = 'M';
       }
-      if (!voiceSourceNorm.gender && combined[key].find(x => !x.gender && x.fileName === voiceSourceNorm.fileName)) {
+      let alreadyExisting = combined[key].find(x => x.fileName === voiceSourceNorm.fileName);
+      if (alreadyExisting) {
+        // Sometimes mihoyo accidentally adds duplicates like:
+        //   { sourceFileName: 'VO_AQ\VO_nahida\vo_XMAQ305_13_nahida_16.wem', rate: 1.0, avatarName: 'Switch_hero', emotion: '', gender: 2 }
+        //   { sourceFileName: 'VO_AQ\VO_nahida\vo_XMAQ305_13_nahida_16.wem', rate: 1.0, avatarName: 'Switch_heroine', emotion: '', gender: 1 }
+        // where the only difference is the gender/avatarName. In which case we want to only have one of them and remove the gender.
+        if (voiceSourceNorm.gender && alreadyExisting.gender) {
+          delete alreadyExisting.gender;
+        }
         continue;
       }
       combined[key].push(voiceSourceNorm);

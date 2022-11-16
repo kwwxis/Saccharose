@@ -13,7 +13,6 @@
     "alwaysStrict": true,
     "baseUrl": "./src",
     "paths": {
-      "@apiError": ["./controllers/api/error.js"],
       "@cache": ["./util/cache.js"],
       "@db": ["./util/db.js"],
       "@functions": ["./util/functions.js"],
