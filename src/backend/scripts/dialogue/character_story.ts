@@ -1,12 +1,12 @@
 import '../../loadenv';
-import { closeKnex } from '../../util/db';
-import { Control, getControl, grep, nameNormMap, normText } from '../../scripts/script_util';
+import util from 'util';
 import config from '../../config';
+import { closeKnex } from '../../util/db';
+import { Control, getControl, normText } from '../../scripts/script_util';
 import {promises as fs} from 'fs';
 import { AvatarExcelConfigData, FetterStoryExcelConfigData } from '../../util/types';
 import {cached} from '../../util/cache';
-import { getTextMapItem, loadTextMaps } from '../textmap';
-import util from 'util';
+import { loadTextMaps } from '../textmap';
 import { escapeHtml } from '../../../shared/functions';
 
 export type AvatarAndFetterStoryExcelConfigData = {avatar: AvatarExcelConfigData, fetters: FetterStoryExcelConfigData[]};

@@ -14,123 +14,6 @@ import { Request } from '../util/router';
 import SrtParser, { SrtLine } from '../util/srtParser';
 import {promises as fs} from 'fs';
 
-// character name in the dialogue text -> character name in the vo file
-export const normNameMapForVo = {
-  azhdaha: 'dahaka',
-  kaedeharakazuha: 'kazuha',
-  kamisatoayaka: 'ayaka',
-  kamisatoayato: 'ayato',
-  rounin: 'ronin',
-  sanden: 'santa',
-  sangonomiyakokomi: 'kokomi',
-  ei: 'raidenei',
-  raidenshogun: 'raidenshogun',
-  smileyyanxiao: 'yanxiao',
-  guoba: 'gooba',
-  amber: 'ambor',
-  aratakiitto: 'itto',
-  grannyoni: 'onibaaya',
-  jean: 'qin',
-  kayabukiikkei: 'kayabukikazukei',
-  kidkujirai: 'kurajikun',
-  kukishinobu: 'shinobu',
-  ushi: 'ushio',
-  souta: 'sota',
-  shimurakanbei: 'shimurakanbee',
-  shikanoinheizou: 'heizou',
-  amenomatougo: 'amenomatoogo',
-  ryuuji: 'ryuji',
-  setaria: 'setare'
-};
-
-export function normalizeNameForVo(name: string) {
-  if (name.trim().startsWith('???')) {
-    return '???';
-  }
-  if (name.includes('|')) {
-    name = name.split('|')[1]; // wikitext links
-  }
-  return name.replace(/\s+/g, '').replace(/[\._\-\?,:\[\]\(\)'"]/g, '').trim().toLowerCase();
-}
-
-// Same as normalizeNameForVo but uses normNameMapForVo too
-export function normalizeCharNameForVo(name: string) {
-  let normName = normalizeNameForVo(name);
-  if (normNameMapForVo[normName]) {
-    normName = normNameMapForVo[normName];
-  }
-  return normName;
-}
-
-export const nameNormMap = {
-  ayaka: 'Kamisato Ayaka',
-  kamisatoayaka: 'Kamisato Ayaka',
-  qin: 'Jean',
-  jean: 'Jean',
-  lisa: 'Lisa',
-  yelan: 'Yelan',
-  shinobu: 'Kuki Shinobu',
-  kukishinobu: 'Kuki Shinobu',
-  barbara: 'Barbara',
-  kaeya: 'Kaeya',
-  diluc: 'Diluc',
-  razor: 'Razor',
-  ambor: 'Amber',
-  amber: 'Amber',
-  venti: 'Venti',
-  xiangling: 'Xiangling',
-  beidou: 'Beidou',
-  xingqiu: 'Xingqiu',
-  xiao: 'Xiao',
-  ningguang: 'Ningguang',
-  klee: 'Klee',
-  zhongli: 'Zhongli',
-  fischl: 'Fischl',
-  bennett: 'Bennett',
-  tartaglia: 'Tartaglia',
-  noel: 'Noelle',
-  noelle: 'Noelle',
-  qiqi: 'Qiqi',
-  chongyun: 'Chongyun',
-  ganyu: 'Ganyu',
-  albedo: 'Albedo',
-  diona: 'Diona',
-  mona: 'Mona',
-  keqing: 'Keqing',
-  sucrose: 'Sucrose',
-  xinyan: 'Xinyan',
-  rosaria: 'Rosaria',
-  hutao: 'Hu Tao',
-  kazuha: 'Kazuha',
-  yanfei: 'Yanfei',
-  yoimiya: 'Yoimiya',
-  tohma: 'Thoma',
-  thoma: 'Thoma',
-  eula: 'Eula',
-  shougun: 'Raiden Shogun',
-  raidenshogun: 'Raiden Shogun',
-  sayu: 'Sayu',
-  kokomi: 'Kokomi',
-  gorou: 'Gorou',
-  sara: 'Kujou Sara',
-  kujousara: 'Kujou Sara',
-  itto: 'Arataki Itto',
-  aratakiitto: 'Arataki Itto',
-  yae: 'Yae Miko',
-  yaemiko: 'Yae Miko',
-  heizo: 'Shikanoin Heizou',
-  shikanoinheizou: 'Shikanoin Heizou',
-  aloy: 'Aloy',
-  shenhe: 'Shenhe',
-  yunjin: 'Yunjin',
-  ayato: 'Kamisato Ayato',
-  kamisatoayato: 'Kamisato Ayato',
-  collei: 'Collei',
-  dori: 'Dori',
-  tighnari: 'Tighnari',
-  paimon: 'Paimon'
-};
-
 export async function grep(searchText: string, file: string, extraFlags?: string, escapeDoubleQuotes: boolean = true): Promise<string[]> {
   try {
     if (escapeDoubleQuotes && file.endsWith('.json')) {
@@ -252,7 +135,7 @@ export const normText = (text: string, langCode: string = 'EN') => {
 }
 
 
-export function arrayUnique(a) {
+export function arrayUnique<T>(a: T[]): T[] {
   var prims = {"boolean":{}, "number":{}, "string":{}}, objs = [];
 
   return a.filter(function(item) {
