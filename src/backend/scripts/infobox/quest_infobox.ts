@@ -1,7 +1,5 @@
 import '../../loadenv';
-import {Control, getControl, normText} from "../script_util";
-import {promises as fs} from 'fs';
-import config from '../../config';
+import {Control, getControl} from "../script_util";
 import { loadEnglishTextMap } from '../textmap';
 import { closeKnex } from '../../util/db';
 import { MainQuestExcelConfigData } from '../../util/types';
@@ -30,6 +28,6 @@ if (require.main === module) {
     }
 
 
-    closeKnex();
+    await closeKnex();
   })();
 }

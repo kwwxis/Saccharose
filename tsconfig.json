@@ -1,8 +1,14 @@
 {
   "compilerOptions": {
     "module": "CommonJS",
+    "declaration": true,
     "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "esModuleInterop": true,
+    "preserveConstEnums": true,
+    "pretty": true,
+    "removeComments": true,
     "target": "ESNext",
     "noImplicitAny": false,
     "moduleResolution": "node",
@@ -11,7 +17,11 @@
     "allowJs": true,
     "outDir": "dist",
     "alwaysStrict": true,
-    "baseUrl": "./src"
+    "baseUrl": "./src",
+    "lib": [
+      "ESNext",
+      "dom"
+    ]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules"]

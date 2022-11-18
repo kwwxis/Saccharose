@@ -1,5 +1,5 @@
 import '../../loadenv';
-import {Control, getControl, grep, normText} from "../script_util";
+import {Control, getControl, normText} from "../script_util";
 import {promises as fs} from 'fs';
 import config from '../../config';
 import { getTextMapItem, loadTextMaps } from '../textmap';
@@ -61,6 +61,6 @@ if (require.main === module) {
 
     console.log(JSON.stringify(out, null, 2));
 
-    closeKnex();
+    await closeKnex();
   })();
 }

@@ -2,12 +2,12 @@ import '../../loadenv';
 import util from 'util';
 import config from '../../config';
 import { closeKnex } from '../../util/db';
-import { Control, getControl, normText } from '../../scripts/script_util';
+import { Control, getControl, normText } from '../script_util';
 import {promises as fs} from 'fs';
 import { AvatarExcelConfigData, FetterStoryExcelConfigData } from '../../util/types';
 import {cached} from '../../util/cache';
 import { loadTextMaps } from '../textmap';
-import { escapeHtml } from '../../../shared/functions';
+import { escapeHtml } from '../../../shared/util/stringUtil';
 
 export type AvatarAndFetterStoryExcelConfigData = {avatar: AvatarExcelConfigData, fetters: FetterStoryExcelConfigData[]};
 export type GroupedFetterStoryExcelConfigData = {[avatarId: number]: AvatarAndFetterStoryExcelConfigData};
@@ -60,6 +60,6 @@ if (require.main === module) {
     await loadTextMaps();
     const res = await fetchCharacterStories(getControl());
     console.log(util.inspect(res, false, null, true));
-    closeKnex();
+    await closeKnex();
   })();
 }

@@ -39,7 +39,7 @@ export const convertRubi = (text: string): string => {
   let rubyList: RubyInfo[] = [];
 
   let i = 0;
-  text = text.replace(/{RUBY#\[([SD])\]([^}]+)}/g, (_match: string, p1: 'S'|'D', p2: string) => {
+  text = text.replace(/{RUBY#\[([SD])]([^}]+)}/g, (_match: string, p1: 'S'|'D', p2: string) => {
     rubyList.push({
       text: p2,
       width: rtWidth(p2),

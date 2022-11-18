@@ -8,49 +8,18 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=Source+Sans+Pro:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600;1,700&display=swap" rel="stylesheet">
-    <% req.context.styles.forEach(styleHref => { %>
-      <%- compileResourceElement(styleHref, 'css') %>
-    <% }); %>
-    <script nonce="<%= req.context.nonce %>">
-    function waitForConstant(variableName, callback, interval = 50, currentTry = 0, maxTries = 100) {
-      if (window[variableName]) {
-        callback(window[variableName]);
-        return;
-      }
-      if (currentTry >= maxTries) {
-        return;
-      }
-      setTimeout(() => {
-        waitForConstant(variableName, callback, interval, currentTry + 1, maxTries);
-      }, interval);
-    }
-    function waitForElement(query, callback, interval = 50, currentTry = 0, maxTries = 100) {
-      let el;
-      if ((el = document.querySelector(query))) {
-        callback(el);
-        return;
-      }
-      if (currentTry >= maxTries) {
-        return;
-      }
-      setTimeout(() => {
-        waitForElement(query, callback, interval, currentTry + 1, maxTries);
-      }, interval);
-    }
-    </script>
-    <% req.context.scripts.forEach(scriptSrc => { %>
-      <%- compileResourceElement(scriptSrc, 'js') %>
-    <% }); %>
-    <template id="template-info-icon">
-      <%- icon('info') %>
-    </template>
-    <template id="template-alert-icon">
-      <%- icon('alert-triangle') %>
-    </template>
+    <template id="template-info-icon"><%- icon('info') %></template>
+    <template id="template-alert-icon"><%- icon('alert-triangle') %></template>
+    <% if (env.NODE_ENV === 'development') { %>
+      <script src="https://<%= env.VHOST %>:35729/livereload.js"></script>
+    <% } %>
+    <link rel="stylesheet" href="/dist/app.bundle.css">
+    <script src="/dist/vendor.bundle.js"></script>
+    <script src="/dist/app.bundle.js"></script>
   </head>
   <body class="<%= req.context.bodyClassString %> <%= req.cookies['nightmode'] ? 'nightmode' : '' %>">
     <span id="top" style="height:0;width:0;opacity:0"></span>
-    <header id="header" class="thin-border" role="navigation" aria-label="Main">
+    <header id="header" class="thin-border">
       <div class="left">
         <a id="site-title" href="/" aria-label="Site title">
           <div id="site-logo-bg"></div>
@@ -108,7 +77,7 @@
           <p>kwwxis's genshin wiki tools</p>
         </section>
         <section class="footer-links">
-          <a href="http://genshin-impact.fandom.com/">Genshin Wiki</a>
+          <a href="https://genshin-impact.fandom.com/">Genshin Wiki</a>
         </section>
       </div>
     </footer>

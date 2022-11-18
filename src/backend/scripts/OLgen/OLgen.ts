@@ -1,6 +1,6 @@
 import { LangCode, LANG_CODES } from "../../util/types";
 import "../../loadenv";
-import {Control, getControl, grep, normText} from "../script_util";
+import {Control, getControl, normText} from "../script_util";
 import { getTextMapItem } from "../textmap";
 
 function ol_gen_internal(textMapId: number, hideTl: boolean = false, addDefaultHidden: boolean = false, hideRm: boolean = false): string {
@@ -58,36 +58,36 @@ function ol_gen_internal(textMapId: number, hideTl: boolean = false, addDefaultH
 
     let isFullAscii = /^[\u0000-\u007f]*$/.test(textInLang);
     if (langCode === 'TH' && isFullAscii) {
-      template = template.replace(/\|th_rm\s*=\s*\{\}/, '');
-      template = template.replace(/\|th_tl\s*=\s*\{\}/, '');
+      template = template.replace(/\|th_rm\s*=\s*\{}/, '');
+      template = template.replace(/\|th_tl\s*=\s*\{}/, '');
     }
   }
   if (olMap['EN'] === olMap['ES']) {
-    template = template.replace(/\|es_tl\s*=\s*\{\}/, '');
+    template = template.replace(/\|es_tl\s*=\s*\{}/, '');
   }
   if (olMap['EN'] === olMap['FR']) {
-    template = template.replace(/\|fr_tl\s*=\s*\{\}/, '');
+    template = template.replace(/\|fr_tl\s*=\s*\{}/, '');
   }
   if (olMap['EN'] === olMap['RU']) {
-    template = template.replace(/\|ru_tl\s*=\s*\{\}/, '');
+    template = template.replace(/\|ru_tl\s*=\s*\{}/, '');
   }
   if (olMap['EN'] === olMap['ID']) {
-    template = template.replace(/\|id_tl\s*=\s*\{\}/, '');
+    template = template.replace(/\|id_tl\s*=\s*\{}/, '');
   }
   if (olMap['EN'] === olMap['TH']) {
-    template = template.replace(/\|th_tl\s*=\s*\{\}/, '');
+    template = template.replace(/\|th_tl\s*=\s*\{}/, '');
   }
   if (olMap['EN'] === olMap['VI']) {
-    template = template.replace(/\|vi_tl\s*=\s*\{\}/, '');
+    template = template.replace(/\|vi_tl\s*=\s*\{}/, '');
   }
   if (olMap['EN'] === olMap['DE']) {
-    template = template.replace(/\|de_tl\s*=\s*\{\}/, '');
+    template = template.replace(/\|de_tl\s*=\s*\{}/, '');
   }
   if (olMap['EN'] === olMap['ID']) {
-    template = template.replace(/\|id_tl\s*=\s*\{\}/, '');
+    template = template.replace(/\|id_tl\s*=\s*\{}/, '');
   }
   if (olMap['EN'] === olMap['PT']) {
-    template = template.replace(/\|pt_tl\s*=\s*\{\}/, '');
+    template = template.replace(/\|pt_tl\s*=\s*\{}/, '');
   }
   // if (olMap['EN'] === olMap['TR']) {
   //   template = template.replace(/\|tr_tl\s*=\s*\{\}/, '');

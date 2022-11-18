@@ -1,66 +1,36 @@
-'use strict';
+import axios from 'axios';
+import Cookies from 'js-cookie';
+import { copyToClipboard } from './util/domutil';
+import { escapeHtml } from '../shared/util/stringUtil';
+import { human_timing, timeConvert } from '../shared/util/genericUtil';
 
-/**
- * Escape HTML.
- * @param {string} unsafe
- * @returns {string}
- */
-function esc(unsafe) {
-  if (!unsafe || typeof unsafe !== 'string') return '';
-  return unsafe.replace(/[&<>"']/g, function(m) {
-    switch (m) {
-      case '&':
-        return '&amp;';
-      case '<':
-        return '&lt;';
-      case '>':
-        return '&gt;';
-      case '"':
-        return '&quot;';
-      default:
-        return '&#039;';
-    }
-  });
-}
-
-/**
- * Should be called from a user-interaction event listener such as `click`.
- *
- * Copied from https://stackoverflow.com/a/33928558
- *
- * @param {string} text
- */
-function copyToClipboard(text) {
-  if (window.clipboardData && window.clipboardData.setData) {
-    // IE specific code path to prevent textarea being shown while dialog is visible.
-    return clipboardData.setData('Text', text);
-  } else if (document.queryCommandSupported && document.queryCommandSupported('copy')) {
-    var textarea = document.createElement('textarea');
-    textarea.textContent = text;
-
-    textarea.style.position = 'fixed'; // Prevent scrolling to bottom of page in MS Edge.
-    textarea.style.top = 0;
-    textarea.style.left = 0;
-    textarea.style.width = '2em';
-    textarea.style.height = '2em';
-    textarea.style.background = 'transparent';
-
-    document.body.appendChild(textarea);
-    textarea.select();
-
-    try {
-      return document.execCommand('copy'); // Security exception may be thrown by some browsers.
-    } catch (ex) {
-      console.warn('Copy to clipboard failed.', ex);
-      return false;
-    } finally {
-      document.body.removeChild(textarea);
-    }
+function waitForConstant(variableName: string, callback: (val: any) => void, interval: number = 50, currentTry: number = 0, maxTries: number = 100) {
+  if (window[variableName]) {
+    callback(window[variableName]);
+    return;
   }
+  if (currentTry >= maxTries) {
+    return;
+  }
+  setTimeout(() => {
+    waitForConstant(variableName, callback, interval, currentTry + 1, maxTries);
+  }, interval);
+}
+function waitForElement(query: string, callback: (val: HTMLElement) => void, interval: number = 50, currentTry: number = 0, maxTries: number = 100) {
+  let el: HTMLElement;
+  if ((el = document.querySelector<HTMLElement>(query))) {
+    callback(el);
+    return;
+  }
+  if (currentTry >= maxTries) {
+    return;
+  }
+  setTimeout(() => {
+    waitForElement(query, callback, interval, currentTry + 1, maxTries);
+  }, interval);
 }
 
-/** @returns {string} */
-function getUITriggerString(o) {
+function getUITriggerString(o: string|HTMLElement): string {
   if (!o) return undefined;
   return typeof o === 'string'
     ? o
@@ -70,92 +40,24 @@ function getUITriggerString(o) {
         undefined;
 }
 
-/** @returns {Element[]} */
-function getUITriggers(o) {
+function getUITriggers(o: string|HTMLElement): HTMLElement[] {
   let str = getUITriggerString(o);
-  return !str ? [] : document.querySelectorAll(`[ui-trigger="${str}"]`);
+  return !str ? [] : Array.from(document.querySelectorAll(`[ui-trigger="${str}"]`));
 }
 
-/** @returns {Element[]} */
-function getUITriggerGroup(o) {
+function getUITriggerGroup(o: string|HTMLElement): HTMLElement[] {
   let str = getUITriggerString(o);
-  return !str ? [] : document.querySelectorAll(`[ui-trigger^="${str.split(':')[0]}:"]`);
+  return !str ? [] : Array.from(document.querySelectorAll(`[ui-trigger^="${str.split(':')[0]}:"]`));
 }
 
-/** @returns {Element[]} */
-function getUITargetGroup(o) {
+function getUITargetGroup(o: string|HTMLElement): HTMLElement[] {
   let str = getUITriggerString(o);
-  return !str ? [] : document.querySelectorAll(`[ui-target^="${str.split(':')[0]}:"]`);
+  return !str ? [] : Array.from(document.querySelectorAll(`[ui-target^="${str.split(':')[0]}:"]`));
 }
 
-/**  @returns {Element} */
-function getUITarget(o) {
+function getUITarget(o: string|HTMLElement): HTMLElement {
   let str = getUITriggerString(o);
   return document.querySelector(`[ui-target="${str}"]`) || undefined;
-}
-
-function timeConvert(UNIX_timestamp, format = undefined, tzOffset = null, tzAbrv = null) {
-  if (isNaN(UNIX_timestamp)) {
-    return 'n/a';
-  }
-
-  if (!UNIX_timestamp) {
-    return String(UNIX_timestamp);
-  }
-
-  if (UNIX_timestamp instanceof Date) {
-    var a = moment(UNIX_timestamp);
-  } else if (typeof UNIX_timestamp === 'number') {
-    var a = moment(UNIX_timestamp * 1000);
-  } else {
-    return String(UNIX_timestamp);
-  }
-
-  if (typeof format !== 'string') {
-    format = format ? 'MMM DD YYYY' : 'MMM DD YYYY hh:mm:ss a';
-  }
-
-  return a.format(format);
-}
-
-function humanTiming(time, suffix) {
-  suffix = suffix || null;
-
-  if (time instanceof Date) time = (time / 1000) | 0;
-  if (time === null) return null;
-  if (time <= 0) return 'never';
-
-  time = Math.floor(Date.now() / 1000) - time;
-  suffix = suffix ? suffix : time < 0 ? 'from now' : 'ago';
-  time = Math.abs(time);
-
-  if (time <= 1) return 'Just now';
-
-  var tokens = [
-    [31536000, 'year'],
-    [2592000, 'month'],
-    [604800, 'week'],
-    [86400, 'day'],
-    [3600, 'hour'],
-    [60, 'minute'],
-    [1, 'second'],
-  ];
-
-  var ret = null;
-
-  for (let i = 0; i < tokens.length; i++) {
-    let token = tokens[i];
-    var unit = token[0];
-    var text = token[1];
-
-    if (time < unit) continue;
-
-    var numberOfUnits = Math.floor(time / unit);
-    ret = numberOfUnits + ' ' + text + (numberOfUnits > 1 ? 's' : '') + ' ' + suffix;
-    break;
-  }
-
-  return ret;
 }
 
 const app = {
@@ -164,10 +66,10 @@ const app = {
    * Save JSON file.
    *
    * @param {object} exportObj the object to save
-   * @param {string} exportObj file name to save as
-   * @param {number} exportObj indentation level
+   * @param {string} exportName file name to save as
+   * @param {number} indentation indentation level
    */
-  downloadObjectAsJson(exportObj, exportName, indentation=0) {
+  downloadObjectAsJson(exportObj: any, exportName: string, indentation: number = 0) {
     if (exportName.endsWith('.json')) exportName = exportName.slice(0, -5);
     let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj, null, indentation));
     let downloadAnchorNode = document.createElement('a');
@@ -211,7 +113,7 @@ const app = {
       }
     });
   },
-  showTippy(el, props={}) {
+  showTippy(el, props: any = {}) {
     if (el._tippyTimeout) return;
     waitForConstant('tippy', tippy => {
       let tip = el._tippy;
@@ -236,7 +138,7 @@ const app = {
       }
     });
   },
-  flashTippy(el, props={}) {
+  flashTippy(el, props: any = {}) {
     waitForConstant('tippy', tippy => {
       let tip = el._tippy;
 
@@ -263,6 +165,7 @@ const app = {
       }, tip.props.delay[1] || 0);
     });
   },
+  handlingJavascriptError: false,
   showJavascriptErrorDialog(message, source, lineno, colno, error) {
     console.error(error || message);
 
@@ -292,16 +195,16 @@ const app = {
     let errorAsJSON = error ? searchAndRedact(JSON.parse(JSON.stringify(error))) : error;
 
     let technicalDetails = [
-      'Message: ' + esc(String(message)),
-      'Source: ' + esc(String(source)),
-      'Line: ' + esc(String(lineno)),
-      'Column: ' + esc(String(colno)),
-      'Error object: ' + esc(JSON.stringify(errorAsJSON, null, 2)),
-      'Stacktrace:\n' + esc(error ? error.stack : 'undefined'),
+      'Message: ' + escapeHtml(String(message)),
+      'Source: ' + escapeHtml(String(source)),
+      'Line: ' + escapeHtml(String(lineno)),
+      'Column: ' + escapeHtml(String(colno)),
+      'Error object: ' + escapeHtml(JSON.stringify(errorAsJSON, null, 2)),
+      'Stacktrace:\n' + escapeHtml(error ? error.stack : 'undefined'),
     ].join('\n');
 
     // Just in case:
-    technicalDetails = technicalDetails.replace(/('|")(x-api-key|x-csrf-token|_csrf|connect\.sid)('|")(:\s*)('|")([^ "']+)('|")/gi, '$1$2$3$4$5<REDACTED>$7');
+    technicalDetails = technicalDetails.replace(/(['"])(x-api-key|x-csrf-token|_csrf|connect\.sid)(['"])(:\s*)(['"])([^ "']+)(['"])/gi, '$1$2$3$4$5<REDACTED>$7');
 
     app.dialog.open(`<h2>Unexpected error</h2>
     <p class="spacer-top">
@@ -373,18 +276,16 @@ const app = {
             }
           }
         });
-
-        app.loadWidgets();
       },
       intervalFunction() {
-        document.querySelectorAll('.timestamp.is--formatted.is--unconverted').forEach(el => {
+        document.querySelectorAll<HTMLElement>('.timestamp.is--formatted.is--unconverted').forEach(el => {
           el.classList.remove('is--unconverted');
           el.classList.add('is--converted');
           el.innerText = timeConvert(parseInt(el.getAttribute('data-timestamp')), el.getAttribute('data-format') || null);
         });
 
-        document.querySelectorAll('.timestamp.is--humanTiming').forEach(el => {
-          el.innerText = humanTiming(parseInt(el.getAttribute('data-timestamp')));
+        document.querySelectorAll<HTMLElement>('.timestamp.is--humanTiming').forEach(el => {
+          el.innerText = human_timing(parseInt(el.getAttribute('data-timestamp')));
         });
 
         function getTippyOpts(el, ... attrNames) {
@@ -429,7 +330,7 @@ const app = {
           });
         });
 
-        document.querySelectorAll('img.lazy').forEach(el => {
+        document.querySelectorAll<HTMLImageElement>('img.lazy').forEach(el => {
           el.classList.remove('lazy');
           el.src = el.getAttribute('data-src');
         });
@@ -452,7 +353,7 @@ const app = {
         }
 
         waitForConstant('axios', () => {
-          let csrfElement = document.querySelector('meta[name="csrf-token"]');
+          let csrfElement: HTMLMetaElement = document.querySelector('meta[name="csrf-token"]');
           axios.defaults.headers.common['x-csrf-token'] = csrfElement.content;
           csrfElement.remove();
         });
@@ -462,9 +363,9 @@ const app = {
       el: document.body,
       ev: 'keyup',
       fn: function(e) {
-        var key = e.which || e.keyCode || 0;
+        const key = e.which || e.keyCode || 0;
         if (key === 27) { // escape key
-          document.querySelectorAll('.ui-dropdown').forEach(dropdownEl => {
+          document.querySelectorAll<HTMLElement>('.ui-dropdown').forEach(dropdownEl => {
             if (dropdownEl.contains(document.activeElement)) {
               // If focused element is inside dropdown, then
               // focus the first trigger for the dropdown that is focusable
@@ -495,7 +396,7 @@ const app = {
         getUITriggerGroup(uiTrigger).forEach(x => x.classList.remove('active'));
         getUITargetGroup(uiTrigger).forEach(x => x.classList.add('hide'));
 
-        if (uiClearTarget && uiClearTarget.value) {
+        if (uiClearTarget && uiClearTarget instanceof HTMLInputElement && uiClearTarget.value) {
           uiClearTarget.value = '';
         }
 
@@ -505,7 +406,7 @@ const app = {
 
         if (copyTargetEl) {
           let copyTargetId = copyTargetEl.getAttribute('copy-target');
-          let copyTarget = document.getElementById(copyTargetId);
+          let copyTarget: HTMLInputElement = document.getElementById(copyTargetId) as HTMLInputElement;
 
           if (copyTarget) {
             copyToClipboard(copyTarget.value);
@@ -522,7 +423,7 @@ const app = {
             uiTriggerTarget.classList.add('active');
             getUITriggers(uiTriggerTarget).forEach(x => x.classList.add('active'));
 
-            let focusableEl = uiTriggerTarget.querySelector(app.getFocusableSelector());
+            let focusableEl: HTMLElement = uiTriggerTarget.querySelector(app.getFocusableSelector());
             if (focusableEl) {
               e.preventDefault();
               e.stopPropagation();
@@ -548,13 +449,13 @@ const app = {
           }
         }
 
-        document.querySelectorAll('.ui-dropdown').forEach(dropdownEl => {
+        document.querySelectorAll<HTMLElement>('.ui-dropdown').forEach(dropdownEl => {
           // Don't try to hide dropdown if we clicked the trigger for it.
           if (uiTriggerTarget && uiTriggerTarget === dropdownEl) {
             return;
           }
 
-          // Don't hide to try to hide the dropdown if we clicked inside of it
+          // Don't hide to try to hide the dropdown if we clicked inside it
           if (!parentDropdown || dropdownEl !== parentDropdown) {
             if (!dropdownEl.classList.contains('hide')) {
               dropdownEl.classList.add('hide');
@@ -628,7 +529,7 @@ const app = {
       }
 
       if (opts.multiple) {
-        let targets;
+        let targets: HTMLElement[];
         if (typeof opts.el === 'string') {
           targets = rel.querySelectorAll(opts.el);
         } else {
@@ -661,14 +562,14 @@ const app = {
     base_uri: '/api',
     general_error_handler: err => {
       if (!err.response.data || err.response.data.error != 'BAD_REQUEST') {
-        const errorObj = {error: err.toJSON()};
+        const errorObj: any = {error: err.toJSON()};
 
         if (err.response) {
           errorObj.response = {status: err.response.status, headers: err.response.headers, data: err.response.data};
         }
 
         app.showJavascriptErrorDialog(err.message,
-          esc(`HTTP ${err.config.method.toUpperCase()} Request to ${err.config.url}`),
+          escapeHtml(`HTTP ${err.config.method.toUpperCase()} Request to ${err.config.url}`),
           undefined,
           undefined,
           errorObj
@@ -766,106 +667,6 @@ const app = {
         .catch(this.general_error_handler);
     },
   },
-  widgets: {
-    multi_input(element, opts = {}) {
-      waitForConstant('MultiInput', MultiInput => {
-        new MultiInput(element, Object.assign({
-          afterClassNames(classNames, lang) {
-            classNames.item_create.push('primary', 'primary--2');
-            lang.item_remove_text = '<span class="close small"></span>';
-          }
-        }, opts || {}));
-      });
-    },
-    tree(element, opts = {}) {
-      waitForConstant('Tree', Tree => {
-        new Tree(element, opts || {});
-      });
-    },
-    /** @param {Element} selectEl */
-    tail_select(selectEl) {
-      function updateTailLabel(tail) {
-        let option = tail.options.selected[0];
-        if (option && option.hasAttribute('style'))
-          tail.label.setAttribute('style', option.getAttribute('style'));
-        else
-          tail.label.removeAttribute('style');
-      }
-
-      waitForConstant('tail', tail => {
-        tail.select(selectEl, {
-          search: true,
-          descriptions: true,
-          cbLoopItem: function(item, optgroup, search, root){
-            let li = document.createElement("LI");
-            li.classList.add('dropdown-option');
-
-            if (item.selected) {
-              li.classList.add('selected');
-            }
-
-            if (item.option.hasAttribute('style')) {
-              li.setAttribute('style', item.option.getAttribute('style'));
-            }
-
-            let html = `<span>`;
-
-            if (item.option.hasAttribute('data-icon')) {
-              html += `<img role="presentation" class="channel-icon" src="${item.option.getAttribute('data-icon')}"/>`;
-            }
-
-            if (item.option.innerText === '(none)') {
-              html += `(none)</span>`;
-            } else {
-              let label = esc(item.option.innerText.split('(')[0].trim());
-              if (search) {
-                label = label.replace(new RegExp('('+search+')', 'gi'), '<mark>$1</mark>');
-              }
-              html += label + '</span>';
-            }
-
-            if (item.description) {
-              html += `<span class="option-description">${item.description}</span>`;
-            }
-
-            li.innerHTML = html;
-
-            return li;
-          },
-          cbComplete: function() {
-            updateTailLabel(this);
-          }
-        }).on('change', function(item, state) {
-          updateTailLabel(this);
-        }).on('open', function(item, state) {
-          updateTailLabel(this);
-        }).on('close', function(item, state) {
-          updateTailLabel(this);
-        });
-      });
-    },
-  },
-  loadWidgets() {
-    document.querySelectorAll('[ui-widget]').forEach(el => {
-      let widgetType = el.getAttribute('ui-widget').replace(/-/g, '_');
-      el.removeAttribute('ui-widget');
-
-      let widgetOpts = el.getAttribute('ui-widget-opts');
-
-      if (widgetOpts) {
-        el.removeAttribute('ui-widget-opts');
-        widgetOpts = eval('(() => (' + widgetOpts + '))()');
-      }
-
-      if (this.widgets[widgetType]) {
-        if (widgetOpts) {
-          this.widgets[widgetType](el, widgetOpts);
-        } else {
-          this.widgets[widgetType](el);
-        }
-      }
-    });
-  },
 
   TOAST_INFO: 'info',
   TOAST_SUCCESS: 'success',
@@ -901,8 +702,8 @@ const app = {
       <div class="toast-card">
         <div class="toast-inner">
           <div class="toast-content">
-            <div class="toast-title">${opts.escapeHTML ? esc(opts.title) : opts.title}</div>
-            <div class="toast-desc">${opts.escapeHTML ? esc(opts.content) : opts.content}</div>
+            <div class="toast-title">${opts.escapeHTML ? escapeHtml(opts.title) : opts.title}</div>
+            <div class="toast-desc">${opts.escapeHTML ? escapeHtml(opts.content) : opts.content}</div>
           </div>
           <button class="close small"></button>
         </div>
@@ -918,7 +719,7 @@ const app = {
 
       function eatToast() {
         const rect = toast.getBoundingClientRect();
-        const prevToast = toast.previousElementSibling;
+        const prevToast: HTMLElement = toast.previousElementSibling as HTMLElement;
         const bottomPos = toastContainer.clientHeight - (rect.top - toastContainer.offsetTop) - toast.clientHeight;
 
         toast.style.cssText = `bottom:${bottomPos}px;left:${rect.left}px;position:absolute;transition:${transitionVal};`;
@@ -1000,7 +801,7 @@ const app = {
 
       opts = opts || {};
 
-      var inner, type_name;
+      let inner, type_name;
 
       dialog_type = dialog_type || 0;
 
@@ -1039,7 +840,7 @@ const app = {
       document.body.insertAdjacentHTML('beforeend',
         `<div id="${id}" class="AppDialogOuter ${opts.dialog_outer_class || ''} ${opts.blocking ? 'AppDialogBlocking' : ''}"
             data-type="${type_name}" role="dialog" aria-describedby="appDialogDesc">
-          <div class="AppDialog" data-type="${type_name}" ${opts.dialog_class ? 'class="'+esc(opts.dialog_class)+'"' : ''} ${opts.dialog_style ? 'style="'+esc(opts.dialog_style)+'"' : ''}>
+          <div class="AppDialog" data-type="${type_name}" ${opts.dialog_class ? 'class="'+escapeHtml(opts.dialog_class)+'"' : ''} ${opts.dialog_style ? 'style="'+escapeHtml(opts.dialog_style)+'"' : ''}>
             <div class="AppDialog_Inner">${inner}</div>
           </div>
         </div>`
@@ -1052,12 +853,12 @@ const app = {
       }
 
       window.requestAnimationFrame(function() {
-        var selInput = document.querySelector(app.getFocusableSelector(`#${id}`));
+        const selInput: HTMLElement = document.querySelector(app.getFocusableSelector(`#${id}`));
         if (selInput) {
-          if (selInput.focus)
+          if (typeof selInput.focus === 'function')
             selInput.focus();
-          if (selInput.select)
-            selInput.select();
+          if (typeof (<any> selInput).select === 'function')
+            (<any> selInput).select();
         }
       });
 
@@ -1070,9 +871,9 @@ const app = {
       }
     },
     active_listener(e) {
-      var tag = e.target.tagName.toUpperCase();
+      const tag = e.target.tagName.toUpperCase();
 
-      var key = e.which || e.keyCode || 0;
+      const key = e.which || e.keyCode || 0;
       if (key === 13 && tag != 'TEXTAREA' && tag != 'INPUT' && tag != 'SELECT') app.dialog.close();
       if (key === 27) app.dialog.close();
     },
@@ -1083,8 +884,8 @@ const app = {
   },
 };
 
-if (!window.app) {
-  window.app = app;
+if (!(<any> window).app) {
+  (<any> window).app = app;
 }
 
 if (/comp|inter|loaded/.test(document.readyState)) {

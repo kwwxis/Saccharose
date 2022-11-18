@@ -47,6 +47,6 @@ if (require.main === module) {
 
     console.log(out);
 
-    closeKnex();
+    await closeKnex();
   })();
 }

@@ -1,25 +1,22 @@
-import { talkConfigGenerate } from '../../scripts/dialogue/basic_dialogue_generator';
 import { AvatarAndFetterStoryExcelConfigData, fetchCharacterStories, fetchCharacterStoryByAvatarId, fetchCharacterStoryByAvatarName } from '../../scripts/dialogue/character_story';
 import { fetchCompanionDialogue, fetchCompanionDialogueTalkIds } from '../../scripts/dialogue/companion_dialogue';
 import { reminderGenerateAll } from '../../scripts/dialogue/reminder_generator';
 import { getControl } from '../../scripts/script_util';
-import { isInt, toInt } from '../../../shared/functions';
 import { create, Router, Request, Response } from '../../util/router';
 
 import LandingController from './LandingController';
+import { isInt, toInt } from '../../../shared/util/numberUtil';
 
 export default async function(): Promise<Router> {
   const router: Router = create({
     layouts: ['layouts/app-layout'],
     bodyClass: ['in-app'],
-    styles: [],
   });
 
   router.use('/', await LandingController());
 
   router.get('/quests', async (req: Request, res: Response) => {
     res.render('pages/quests', {
-      styles: ['app.dialogue'],
       bodyClass: ['page--quests'],
       tab: 'dialogue',
     });
@@ -27,7 +24,6 @@ export default async function(): Promise<Router> {
 
   router.get('/quests/:id', async (req: Request, res: Response) => {
     res.render('pages/quests', {
-      styles: ['app.dialogue'],
       bodyClass: ['page--quests'],
       tab: 'dialogue',
     });
@@ -35,28 +31,24 @@ export default async function(): Promise<Router> {
 
   router.get('/branch-dialogue', async (req: Request, res: Response) => {
     res.render('pages/branch-dialogue', {
-      styles: ['app.dialogue'],
       bodyClass: ['page--branch-dialogue'],
     });
   });
 
   router.get('/OL', async (req: Request, res: Response) => {
     res.render('pages/olgen', {
-      styles: [],
       bodyClass: ['page--OL'],
     });
   });
 
   router.get('/npc-dialogue', async (req: Request, res: Response) => {
     res.render('pages/npc-dialogue', {
-      styles: ['app.dialogue'],
       bodyClass: ['page--npc-dialogue'],
     });
   });
 
   router.get('/reminders', async (req: Request, res: Response) => {
     res.render('pages/reminders', {
-      styles: ['app.dialogue'],
       bodyClass: ['page--reminders'],
     });
   });
@@ -64,7 +56,6 @@ export default async function(): Promise<Router> {
   router.get('/lists/all-reminders', async (req: Request, res: Response) => {
     res.render('pages/lists/reminder-dialogue', {
       dialogue: await reminderGenerateAll(getControl(req)),
-      styles: [],
       bodyClass: ['page--all-reminders'],
     });
   });
@@ -73,7 +64,6 @@ export default async function(): Promise<Router> {
     let charNameToTalkIds = await fetchCompanionDialogueTalkIds();
     res.render('pages/lists/companion-dialogue', {
       charNames: Object.keys(charNameToTalkIds),
-      styles: [],
       bodyClass: ['page--companion-dialogue'],
     });
   });
@@ -85,7 +75,6 @@ export default async function(): Promise<Router> {
     res.render('pages/lists/companion-dialogue', {
       charName: charName,
       dialogue: await fetchCompanionDialogue(getControl(req), charName),
-      styles: ['app.dialogue'],
       bodyClass: ['page--companion-dialogue'],
     });
   });
@@ -132,7 +121,6 @@ export default async function(): Promise<Router> {
       avatarId: req.params.avatarId,
       story: story,
       wikitext: out,
-      styles: ['app.dialogue'],
       bodyClass: ['page--character-stories'],
       tab: req.query.tab || 'display',
     });

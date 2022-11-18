@@ -1,8 +1,4 @@
 import '../../loadenv';
-import {Control, getControl} from "../script_util";
-import {loadEnglishTextMap} from "../textmap";
-import { closeKnex } from '../../util/db';
-import { DialogExcelConfigData } from '../../util/types';
 import config from '../../config';
 import {promises as fs} from 'fs';
 

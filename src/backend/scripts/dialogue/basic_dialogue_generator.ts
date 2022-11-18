@@ -3,9 +3,9 @@ import { closeKnex } from '../../util/db';
 import { Control, getControl } from '../script_util';
 import { DialogExcelConfigData, NpcExcelConfigData, TalkExcelConfigData } from '../../util/types';
 import { DialogueSectionResult, MetaProp, TalkConfigAccumulator, talkConfigToDialogueSectionResult } from './quest_generator';
-import { isInt } from '../../../shared/functions';
 import { loadTextMaps } from '../textmap';
 import util from 'util';
+import { isInt } from '../../../shared/util/numberUtil';
 
 const lc = (s: string) => s ? s.toLowerCase() : s;
 
@@ -179,6 +179,6 @@ if (require.main === module) {
     //console.log(await talkConfigGenerate(6906901));
     let res = await dialogueGenerateByNpc(getControl(), 'Arapratap');
     console.log(util.inspect(res, false, null, true));
-    closeKnex();
+    await closeKnex();
   })();
 }

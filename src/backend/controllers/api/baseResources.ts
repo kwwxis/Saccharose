@@ -1,12 +1,13 @@
 import apiError from './error';
-import { create, Router, Request, Response, NextFunction } from '../../util/router';
+import { create, Router, Request, Response } from '../../util/router';
 import { MainQuestExcelConfigData } from '../../util/types';
 import { getControl } from '../../scripts/script_util';
 import { DialogueSectionResult, questGenerate, QuestGenerateResult } from '../../scripts/dialogue/quest_generator';
 import { ol_gen } from '../../scripts/OLgen/OLgen';
-import { isInt, toBoolean, toInt } from '../../../shared/functions';
 import { dialogueGenerate, dialogueGenerateByNpc, NpcDialogueResultMap } from '../../scripts/dialogue/basic_dialogue_generator';
 import { reminderGenerate } from '../../scripts/dialogue/reminder_generator';
+import { isInt, toInt } from '../../../shared/util/numberUtil';
+import { toBoolean } from '../../../shared/util/genericUtil';
 
 const router: Router = create();
 

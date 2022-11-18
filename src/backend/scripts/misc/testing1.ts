@@ -2,7 +2,7 @@ import '../../loadenv';
 import {Control, getControl} from "../script_util";
 import {loadEnglishTextMap} from "../textmap";
 import { closeKnex } from '../../util/db';
-import { ChapterExcelConfigData, MapByQuestType, QuestType } from '../../util/types';
+import { ChapterExcelConfigData, MapByQuestType } from '../../util/types';
 
 if (require.main === module) {
   (async () => {
@@ -26,6 +26,6 @@ if (require.main === module) {
 
     console.log(map);
 
-    closeKnex();
+    await closeKnex();
   })();
 }

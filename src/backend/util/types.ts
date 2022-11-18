@@ -57,7 +57,7 @@ export interface DialogExcelConfigData {
   ActionAfter: string,
   OptionIcon: string,
   Branches?: DialogExcelConfigData[][],
-  recurse?: boolean
+  Recurse?: boolean
 }
 
 export interface TalkExcelConfigData {
@@ -101,7 +101,7 @@ export interface NpcExcelConfigData {
   NameTextMapHash: number,
   PrefabPathHashSuffix: number,
   PrefabPathHashPre: number,
-  CampID: number,
+  CampId: number,
   LODPatternName: string,
   BodyType?: string,
 }
@@ -187,7 +187,7 @@ export interface LoadingTipsExcelConfigData {
   TipsTitleTextMapHash: number,
   TipsDescText?: string,
   TipsDescTextMapHash: number,
-  StageID: string,
+  StageId: string,
   StartTime: string,
   EndTime: string,
   LimitOpenState: string,
@@ -371,7 +371,7 @@ export interface MaterialExcelConfigData {
   UseOnGain?: boolean,
   UseLevel?: number,
   Weight?: number,
-  SetID?: number,
+  SetId?: number,
   CloseBagAfterUsed?: boolean,
   PlayGainEffect?: number,
   MaterialType?: MaterialType,
@@ -379,7 +379,7 @@ export interface MaterialExcelConfigData {
   GlobalItemLimit?: number,
   EffectDesc?: string,
   EffectDescTextMapHash?: number,
-  EffectGadgetID?: number,
+  EffectGadgetId?: number,
   GadgetId?: number,
   SpecialDesc?: string,
   SpecialDescTextMapHash?: number,

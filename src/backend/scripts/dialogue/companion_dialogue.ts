@@ -123,6 +123,6 @@ if (require.main === module) {
   (async () => {
     await loadTextMaps();
     console.log(await fetchCompanionDialogue(getControl(), 'Raiden Shogun'));
-    closeKnex();
+    await closeKnex();
   })();
 }

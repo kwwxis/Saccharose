@@ -20,8 +20,6 @@ import sessions from './middleware/sessions';
 import baseRouter from './controllers/BaseRouter';
 import apiRouter from './controllers/api';
 import { loadTextMaps, loadVoiceItems, loadQuestSummarization } from './scripts/textmap';
-import { EOL } from 'os';
-import util from 'util';
 
 const app: Express = express();
 

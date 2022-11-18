@@ -1,6 +1,6 @@
 import '../../loadenv';
-import {closeKnex, openKnex} from '../../util/db';
-import { arrayUnique, arrayEmpty, getControl, ControlPrefs, stringify, Control, normText } from '../script_util';
+import {closeKnex} from '../../util/db';
+import { getControl, Control, normText } from '../script_util';
 import { ol_gen } from '../OLgen/OLgen';
 import { getTextMapItem, QuestSummary } from '../textmap';
 import {
@@ -9,6 +9,7 @@ import {
   TalkExcelConfigData,
   NpcExcelConfigData
 } from '../../util/types';
+import { arrayEmpty, arrayUnique } from '../../../shared/util/arrayUtil';
 
 export class MetaPropValue {
   value: string;
@@ -117,7 +118,7 @@ export class SbOut {
 /**
  * Generates quest dialogue.
  *
- * @param questNameOrId The name or id of the main quest. Name must be an exact match and is case sensitive. Leading/trailing whitespace will be trimmed.
+ * @param questNameOrId The name or id of the main quest. Name must be an exact match and is case-sensitive. Leading/trailing whitespace will be trimmed.
  * @param mainQuestIndex If multiple main quests match the name given, then this index can be used to select a specific one.
  * @param prefs Preferences for quest generation and output.
  */
@@ -146,12 +147,12 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
   // Fetch talk configs
   const talkConfigAcc = new TalkConfigAccumulator(ctrl);
 
-  // Fetch Talk Configs by Main Quest Id (exact)
+  // Fetch Talk Configs by Main Quest ID (exact)
   for (let talkConfig of (await ctrl.selectTalkExcelConfigDataByQuestId(mainQuest.Id))) {
     await talkConfigAcc.handleTalkConfig(talkConfig);
   }
 
-  // Find Talk Configs by Quest Sub Id
+  // Find Talk Configs by Quest Sub ID
   for (let questExcelConfigData of mainQuest.QuestExcelConfigDataList) {
     if (talkConfigAcc.fetchedTalkConfigIds.includes(questExcelConfigData.SubId)) {
       continue;
@@ -160,7 +161,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
     await talkConfigAcc.handleTalkConfig(talkConfig);
   }
 
-  // Fetch Talk Configs by Main Quest Id (prefix)
+  // Fetch Talk Configs by Main Quest ID (prefix)
   let talkConfigIdsByMainQuestIdPrefix: number[] = await ctrl.selectTalkExcelConfigDataIdsByPrefix(mainQuest.Id);
   for (let talkConfigId of talkConfigIdsByMainQuestIdPrefix) {
     if (talkConfigAcc.fetchedTalkConfigIds.includes(talkConfigId)) {
@@ -385,14 +386,6 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
   return result;
 }
 
-if (require.main === module) {
-  (async () => {
-    let result: QuestGenerateResult = await questGenerate(`Radiant Sakura`, getControl());
-    console.log(stringify(result.dialogue));
-    closeKnex();
-  })();
-}
-
 export class TalkConfigAccumulator {
   readonly fetchedTalkConfigIds: number[] = [];
   readonly fetchedTopLevelTalkConfigs: TalkExcelConfigData[] = [];
@@ -486,4 +479,12 @@ export async function talkConfigToDialogueSectionResult(ctrl: Control, parentSec
     }
   }
   return mysect;
+}
+
+if (require.main === module) {
+  (async () => {
+    let result: QuestGenerateResult = await questGenerate(`Radiant Sakura`, getControl());
+    console.log(JSON.stringify(result.dialogue));
+    await closeKnex();
+  })();
 }

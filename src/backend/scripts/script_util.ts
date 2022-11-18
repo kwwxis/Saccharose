@@ -5,14 +5,16 @@ const execPromise = util.promisify(exec);
 import { Knex } from 'knex';
 import { openKnex } from '../util/db';
 import {
-  TextMapItem, NpcExcelConfigData, ManualTextMapConfigData, ConfigCondition,
+  NpcExcelConfigData, ManualTextMapConfigData, ConfigCondition,
   MainQuestExcelConfigData, QuestExcelConfigData,
   DialogExcelConfigData, TalkExcelConfigData, TalkRole, LangCode, AvatarExcelConfigData, ReminderExcelConfigData, ChapterExcelConfigData, QuestType
 } from '../util/types';
-import { getTextMapItem, getVoiceItems, getVoPrefix } from './textmap';
+import { getTextMapItem, getVoPrefix } from './textmap';
 import { Request } from '../util/router';
 import SrtParser, { SrtLine } from '../util/srtParser';
 import {promises as fs} from 'fs';
+import { arrayIndexOf, arrayIntersect } from '../../shared/util/arrayUtil';
+import { toNumber } from '../../shared/util/numberUtil';
 
 export async function grep(searchText: string, file: string, extraFlags?: string, escapeDoubleQuotes: boolean = true): Promise<string[]> {
   try {
@@ -22,7 +24,7 @@ export async function grep(searchText: string, file: string, extraFlags?: string
     searchText = searchText.replace(/'/g, `'"'"'`); // escape single quote by gluing different kinds of quotations, do this after double quote replacement
 
     // Must use single quotes for searchText - double quotes has different behavior in bash, is insecure for arbitrary string...
-    // Use "-F" flag (fixed strings) so it isn't interpreted as a pattern. But don't use -F" flag if "-E" flag (extended regex) is present.
+    // Use "-F" flag (fixed strings) so it isn't interpreted as a pattern. But don't use "-F" flag if "-E" flag (extended regex) is present.
     const cmd = `grep -i ${extraFlags && extraFlags.includes('-E') ? '' : '-F'} ${extraFlags || ''} '${searchText}' ${config.database.getGenshinDataFilePath(file)}`;
     //console.log('Command:',cmd);
     const { stdout, stderr } = await execPromise(cmd, {
@@ -35,7 +37,7 @@ export async function grep(searchText: string, file: string, extraFlags?: string
   } catch (err) {
     return [];
   }
-};
+}
 
 export async function grepIdStartsWith(idProp: string, idPrefix: number|string, file: string): Promise<(number|string)[]> {
   let isInt = typeof idPrefix === 'number';
@@ -49,32 +51,11 @@ export async function grepIdStartsWith(idProp: string, idPrefix: number|string, 
   return out;
 }
 
-async function replaceAsync(str: string, regex: RegExp, asyncFn: Function): Promise<string> {
-  const promises = [];
-  str.replace(regex, (match, ...args) => {
-      const promise = asyncFn(match, ...args);
-      promises.push(promise);
-      return match;
-  });
-  const data = await Promise.all(promises);
-  return str.replace(regex, () => data.shift());
-}
-
-function toNumber(x: string|number) {
-  if (typeof x === 'number') {
-    return x;
-  } else if (x.includes('.')) {
-    return parseFloat(x);
-  } else {
-    return parseInt(x);
-  }
-}
-
 export const convertRubi = (text: string) => {
   let ruby = [];
 
   let i = 0;
-  text = text.replace(/{RUBY#\[S\]([^}]+)}/g, (match, p1) => {
+  text = text.replace(/{RUBY#\[S]([^}]+)}/g, (match, p1) => {
     ruby.push(p1);
     return '{RUBY'+(i++)+'}';
   });
@@ -119,9 +100,9 @@ export const normText = (text: string, langCode: string = 'EN') => {
   text = text.replace(/{NON_BREAK_SPACE}/g, '&nbsp;');
   text = text.replace(/{F#([^}]+)}{M#([^}]+)}/g, '{{MC|m=$2|f=$1}}');
   text = text.replace(/{M#([^}]+)}{F#([^}]+)}/g, '{{MC|m=$1|f=$2}}');
-  text = text.replace(/\<color=#00E1FFFF\>([^<]+)\<\/color\>/g, '{{color|buzzword|$1}}');
-  text = text.replace(/\<color=#FFCC33FF\>([^<]+)\<\/color\>/g, '{{color|help|$1}}');
-  text = text.replace(/\<color=(#[0-9a-fA-F]{6})FF\>([^<]+)\<\/color\>/g, '{{color|$1|$2}}');
+  text = text.replace(/<color=#00E1FFFF>([^<]+)<\/color>/g, '{{color|buzzword|$1}}');
+  text = text.replace(/<color=#FFCC33FF>([^<]+)<\/color>/g, '{{color|help|$1}}');
+  text = text.replace(/<color=(#[0-9a-fA-F]{6})FF>([^<]+)<\/color>/g, '{{color|$1|$2}}');
   text = text.replace(/\\n/g, '<br />');
 
   if (text.includes('RUBY#[S]')) {
@@ -133,70 +114,6 @@ export const normText = (text: string, langCode: string = 'EN') => {
   }
   return text;
 }
-
-
-export function arrayUnique<T>(a: T[]): T[] {
-  var prims = {"boolean":{}, "number":{}, "string":{}}, objs = [];
-
-  return a.filter(function(item) {
-      var type = typeof item;
-      if(type in prims)
-          return prims[type].hasOwnProperty(item) ? false : (prims[type][item] = true);
-      else
-          return objs.indexOf(item) >= 0 ? false : objs.push(item);
-  });
-}
-
-export type ArrayComparator<T> = (a: T, b: T) => (boolean|number);
-
-export function arrayEmpty(array: any[]) {
-  return !array || array.length === 0;
-}
-
-export function arrayIndexOf<T>(array: T[], obj: T, comparator: ArrayComparator<T>): number {
-  if (!comparator)
-    return array.indexOf(obj);
-  for (let i = 0; i < array.length; i++) {
-    let item = array[i];
-    if (item === obj || comparator(item, obj))
-      return i;
-  }
-  return -1;
-}
-
-export function arrayContains<T>(array: T[], obj: T, comparator: ArrayComparator<T>): boolean {
-  return arrayIndexOf(array, obj, comparator) >= 0;
-}
-
-export function arrayIntersect<T>(args: T[][], comparator?: ArrayComparator<T>): T[] {
-	let result = [];
-  let lists: T[][] = args;
-
-  for (let i = 0; i < lists.length; i++) {
-  	let currentList = lists[i];
-  	for (let y = 0; y < currentList.length; y++) {
-    	let currentValue = currentList[y];
-      if (!arrayContains(result, currentValue, comparator)) {
-        if (lists.filter(list => !arrayContains(list, currentValue, comparator)).length == 0) {
-          result.push(currentValue);
-        }
-      }
-    }
-  }
-  return result;
-}
-
-
-export function arraySort<T>(args: T[], comparator?: ArrayComparator<T>): T[] {
-  return args.sort(comparator as ((a: T, b: T) => number));
-}
-
-export const stringify = (obj: any) => {
-  if (typeof obj === 'string') {
-    return obj;
-  }
-  return JSON.stringify(obj, null, 2);
-};
 
 export class ControlPrefs {
   KnexInstance: Knex = null;
@@ -228,7 +145,7 @@ export function getControl(controlContext?: Request|ControlPrefs) {
 }
 
 export class Control {
-  private prefs: ControlPrefs;
+  readonly prefs: ControlPrefs;
   private knex: Knex;
 
   private IdComparator = (a: any, b: any) => a.Id === b.Id;
@@ -504,7 +421,7 @@ export class Control {
 
   copyDialogForRecurse(node: DialogExcelConfigData) {
     let copy: DialogExcelConfigData = JSON.parse(JSON.stringify(node));
-    copy.recurse = true;
+    copy.Recurse = true;
     return copy;
   }
 
@@ -661,7 +578,7 @@ export class Control {
       // ~~~~~~~~~~~~~~~
 
       if (text.includes('SEXPRO')) {
-        text = await replaceAsync(text, /\{PLAYERAVATAR#SEXPRO\[(.*)\|(.*)\]\}/g, async (_fullMatch, g1, g2) => {
+        text = await replaceAsync(text, /\{PLAYERAVATAR#SEXPRO\[(.*)\|(.*)]}/g, async (_fullMatch, g1, g2) => {
           let g1e = await this.selectManualTextMapConfigDataById(g1);
           let g2e = await this.selectManualTextMapConfigDataById(g2);
           if (g1.includes('FEMALE')) {
@@ -721,7 +638,7 @@ export class Control {
         }
       }
 
-      if (dialog.recurse) {
+      if (dialog.Recurse) {
         if (dialog.TalkRole.Type === 'TALK_ROLE_PLAYER') {
           out += `\n${diconPrefix};(Return to option selection)`;
         } else {
@@ -909,9 +826,7 @@ export class Control {
         for (let i = 0; i < srt1.length; i++) {
           let line1 = srt1[i];
           let line2 = srt2[i];
-          if (line1.text === line2.text) {
-            continue;
-          } else {
+          if (line1.text !== line2.text) {
             allMatch = false;
           }
         }
@@ -941,4 +856,8 @@ export class Control {
 
     return formattedResults;
   }
+}
+
+function replaceAsync(text: string, arg1: RegExp, arg2: (_fullMatch: any, g1: any, g2: any) => Promise<string>): string | PromiseLike<string> {
+  throw new Error('Function not implemented.');
 }

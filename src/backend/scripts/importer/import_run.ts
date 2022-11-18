@@ -232,7 +232,7 @@ export const schema = {
     jsonFile: './ExcelBinOutput/NpcFirstMetExcelConfigData.json',
     columns: [
       {name: 'Id', type: 'integer', isPrimary: true},
-      {name: 'AvatarID', type: 'integer', isIndex: true},
+      {name: 'AvatarId', type: 'integer', isIndex: true},
       {name: 'AvatarDescriptionTextMapHash', type: 'integer', isIndex: true},
     ],
     skip: true,
@@ -275,17 +275,13 @@ export const schema = {
       {name: 'RankLevel', type: 'integer', isIndex: true},
       {name: 'ItemType', type: 'string', isIndex: true},
     ],
-    normalizeFixFields: {
-      'CBLENIDCKGG': 'DiscountCost',
-      'FurnitureNameTextMapHash': 'EditorClampDistance'
-    },
     skip: true,
   },
   HomeWorldFurnitureTypeExcelConfigData: <SchemaTable> {
     name: 'HomeWorldFurnitureTypeExcelConfigData',
     jsonFile: './ExcelBinOutput/HomeWorldFurnitureTypeExcelConfigData.json',
     columns: [
-      {name: 'TypeID', type: 'integer', isPrimary: true},
+      {name: 'TypeId', type: 'integer', isPrimary: true},
       {name: 'TypeNameTextMapHash', type: 'integer', isIndex: true},
       {name: 'TypeName2TextMapHash', type: 'integer', isIndex: true},
       {name: 'TabIcon', type: 'integer'},
@@ -297,20 +293,13 @@ export const schema = {
     name: 'HomeWorldEventExcelConfigData',
     jsonFile: './ExcelBinOutput/HomeWorldEventExcelConfigData.json',
     columns: [
-      {name: 'EventID', type: 'integer', isPrimary: true},
+      {name: 'EventId', type: 'integer', isPrimary: true},
       {name: 'EventType', type: 'string', isIndex: true},
-      {name: 'AvatarID', type: 'integer', isIndex: true},
-      {name: 'TalkID', type: 'integer', isIndex: true},
-      {name: 'RewardID', type: 'integer', isIndex: true},
-      {name: 'FurnitureSuiteID', type: 'integer', isIndex: true},
+      {name: 'AvatarId', type: 'integer', isIndex: true},
+      {name: 'TalkId', type: 'integer', isIndex: true},
+      {name: 'RewardId', type: 'integer', isIndex: true},
+      {name: 'FurnitureSuiteId', type: 'integer', isIndex: true},
     ],
-    normalizeFixFields: {
-      'NGEGGCCMGOB': 'EventID',
-      'LKMNANNKCCA': 'EventType',
-      'ABLPIKPBBGL': 'TalkID',
-      'FCNLCDBIEBJ': 'FurnitureSuiteID',
-      'FurnitureSuitID': 'FurnitureSuiteID',
-    },
     skip: true,
   }
   // FurnitureSuiteExcelConfigData
@@ -336,6 +325,7 @@ export function normalizeRawJson(row: any, table: SchemaTable) {
       key = key.slice(1);
     }
     key = capitalizeFirstLetter(key);
+    key = key.replace(/ID/g, 'Id');
     if (table.normalizeFixFields && table.normalizeFixFields[key]) {
       key = table.normalizeFixFields[key];
     }
@@ -365,7 +355,7 @@ if (require.main === module) {
         }
       }).then();
       console.log('  (done)');
-    };
+    }
 
     async function insertRow(table: SchemaTable, row: any) {
       row = normalizeRawJson(row, table);

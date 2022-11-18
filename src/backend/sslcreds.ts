@@ -7,6 +7,6 @@ export default <ServerOptions> {
   ca: process.env.SSL_ENABLED ? fs.readFileSync(process.env.SSL_CA, 'utf8') : null,
   spdy: {
     plain: false,
-    ssl: process.env.SSL_ENABLED ? true : false,
+    ssl: !!process.env.SSL_ENABLED,
 	}
 };

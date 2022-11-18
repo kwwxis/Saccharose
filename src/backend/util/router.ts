@@ -4,13 +4,13 @@ import ejs from 'ejs';
 import path from 'path';
 import config from '../config';
 import availableMethods from '../middleware/availableMethods';
-import * as functions from '../../shared/functions';
 import * as express from 'express';
 import * as expressCore from 'express-serve-static-core';
-import { icon, timestamp, humanTiming, compileResourceElement, Tl } from './view_utilities';
+import { humanTiming, icon, timestamp, Tl } from './viewUtilities';
 import { cachedSync } from './cache';
 import crypto from 'crypto';
 import { LANG_CODES_TO_NAME } from './types';
+import { ltrim, remove_suffix } from '../../shared/util/stringUtil';
 //#endregion
 
 //#region Types
@@ -26,7 +26,7 @@ export type RequestSubViewLocals = {
   [prop: string]: any;
 };
 
-/** The only instance of this type should be at req.context */
+/** The only instance of this type should be at `req.context` */
 class RequestContext {
   private _req: Request;
   title: string;
@@ -116,7 +116,7 @@ class RequestContext {
   get outputLangCode() {
     return this._req.cookies['outputLangCode'] || 'EN';
   }
-};
+}
 
 export type StringSupplier = string|((req: Request) => Promise<string>);
 export type ListSupplier = any|any[]|((req: Request) => Promise<any|any[]>);
@@ -165,19 +165,18 @@ export type Router = express.Router & {
 //#endregion
 
 export function resolveViewPath(view: string): string {
-  view = functions.remove_suffix(view, '.ejs');
-  view = functions.ltrim(view, '/\\');
+  view = remove_suffix(view, '.ejs');
+  view = ltrim(view, '/\\');
   return path.resolve(config.views.root, view + '.ejs');
 }
 
 export const DEFAULT_GLOBAL_LOCALS = {
-  compileResourceElement,
   icon,
   config,
-  functions,
   timestamp,
   humanTiming,
   Tl,
+  env: process.env,
 };
 
 function createIncludeFunction(req: Request, viewStackPointer: RequestSubViewLocals): IncludeFunction {
@@ -215,9 +214,9 @@ export async function updateReqContext(req: Request, ctx: Readonly<RequestContex
     req.context = new RequestContext(req);
   }
 
-  mergeReqContextList(req, 'styles', ctx.styles);
-  mergeReqContextList(req, 'scripts', ctx.scripts);
-  mergeReqContextList(req, 'bodyClass', ctx.bodyClass);
+  await mergeReqContextList(req, 'styles', ctx.styles);
+  await mergeReqContextList(req, 'scripts', ctx.scripts);
+  await mergeReqContextList(req, 'bodyClass', ctx.bodyClass);
 
   if (ctx.title) {
     req.context.title = typeof ctx.title === 'function' ? await ctx.title(req) : ctx.title;
@@ -353,4 +352,4 @@ export function create(context?: Readonly<RequestContextUpdate>): Router {
   };
 
   return router;
-};
+}

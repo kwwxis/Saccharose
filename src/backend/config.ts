@@ -48,15 +48,10 @@ export default {
     root: path.resolve(__dirname, './views'),
     publicDir: path.resolve(__dirname, '../../public'),
     siteTitle: 'Genshin Wiki Tools',
-    assetVersion: '2020-04-30-rev1',
+    ejsDelimiter: '%',
+    formatPageTitle:
+      (siteTitle, pageTitle) => pageTitle ? `${pageTitle} | ${siteTitle}` : siteTitle,
     base: {
-      layouts: ['layouts/base-layout'],
-      styles: [
-        'app.base',
-        'app.default',
-        'lib.buttons',
-        'https://unpkg.com/tail.select@0.5.15/css/default/tail.select-light.min.css',
-      ],
       scripts: [
         {
           src: 'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js',
@@ -82,27 +77,7 @@ export default {
           integrity: 'sha384-G7kCdCHnoLRVDjaTYlKPteZ4GDCqtt+b1xZGmmO/KTnefdMjoom1ZiHT2tHS6exl',
           crossorigin: 'anonymous',
         },
-        {
-          src: 'https://unpkg.com/tail.select@0.5.15/js/tail.select.min.js',
-          async: true,
-          integrity: 'sha384-u1wigpGreBh3NGsmMCZMguURJTTJzAcybB+0TvoIsctr3NIxSdpdLvpRzGp5Yfdd',
-          crossorigin: 'anonymous',
-        },
-        {src: 'src/widgets', async: true},
-        {src: 'src/frontend-base', async: true},
       ],
-      bodyClass: [],
     },
-    otherScripts: {
-      requirejs: {
-        src: 'https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js',
-        async: true,
-        integrity: 'sha384-38qS6ZDmuc4fn68ICZ1CTMDv4+Yrqtpijvp5fwMNdbumNGNJ7JVJHgWr2X+nJfqM',
-        crossorigin: 'anonymous',
-      },
-    },
-    ejsDelimiter: '%',
-    formatPageTitle:
-      (siteTitle, pageTitle) => pageTitle ? `${pageTitle} | ${siteTitle}` : siteTitle,
   },
 };

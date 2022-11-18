@@ -7,9 +7,7 @@ import { create, Router, Request, Response, NextFunction } from '../util/router'
 
 export default async function(): Promise<Router> {
   const router: Router = create({
-    layouts: config.views.base.layouts,
-    styles: config.views.base.styles,
-    scripts: config.views.base.scripts,
+    layouts: ['layouts/base-layout'],
     locals: async (req: Request) => ({
       csrfToken: req.csrfToken(),
     })
