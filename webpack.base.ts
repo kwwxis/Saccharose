@@ -1,38 +1,41 @@
 import dotenv from 'dotenv';
-dotenv.config();
-
 import path from 'path';
-import { Configuration } from 'webpack';
+import { Configuration, IgnorePlugin } from 'webpack';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import { CleanWebpackPlugin } from 'clean-webpack-plugin';
+dotenv.config();
 
 const HASH_LENGTH = 6;
+const pathDefaults = {
+  entry: path.resolve(__dirname, './src/frontend/index.ts'),
+  dist: path.resolve(__dirname, './public/dist'),
+  public: '/dist', // path of distribution folder relative to base path in the browser (not in the repo)
+};
 const paths = {
-  dev: {
-    entry: path.resolve(__dirname, './src/frontend/index.ts'),
-    dist: path.resolve(__dirname, './public/dist'),
-    public: '/dist', // path of distribution folder relative to base path in the browser (not in the repo)
+  development: {
+    ... pathDefaults,
     outputFilename: `[name].bundle.js`,
     outputChunkFilename: `[name].bundle.js`,
     cssFilename: `[name].bundle.css`,
   },
-  prod: {
+  production: {
+    ... pathDefaults,
     outputFilename: `[name].[chunkhash:${HASH_LENGTH}].bundle.js`,
     outputChunkFilename: `[name].[chunkhash:${HASH_LENGTH}].bundle.js`,
     cssFilename: `[name].[contenthash:${HASH_LENGTH}].bundle.css`,
   }
 }
 
-export default <Configuration> {
+export default (env: 'development'|'production') => <Configuration> {
   entry: {
-    app: path.resolve(__dirname, './src/frontend/index.ts'),
+    app: paths[env].entry,
   },
   target: 'web',
   output: {
-    filename: paths.dev.outputFilename,
-    path: paths.dev.dist,
-    chunkFilename: paths.dev.outputChunkFilename,
-    publicPath: paths.dev.public,
+    filename: paths[env].outputFilename,
+    path: paths[env].dist,
+    chunkFilename: paths[env].outputChunkFilename,
+    publicPath: paths[env].public,
   },
   resolve: {
     extensions: ['.ts', '.js'],
@@ -53,7 +56,8 @@ export default <Configuration> {
     rules: [
       {
         test: /\.ts$/,
-        exclude: /node_modules|backend/,
+        include: path.resolve(__dirname, './src'),
+        exclude: path.resolve(__dirname, './src/backend'),
         use: [{
           loader: 'ts-loader',
           options: {
@@ -61,11 +65,13 @@ export default <Configuration> {
             experimentalWatchApi: true,
           },
         }],
-        include: path.resolve(__dirname, 'src'),
       },
       {
         test: /\.(sa|sc|c)ss$/,
-        exclude: /node_modules|backend/,
+        include: [
+          path.resolve(__dirname, './src/frontend'),
+          path.resolve(__dirname, './node_modules/tippy.js'),
+        ],
         use: [
           MiniCssExtractPlugin.loader,
           {loader: 'css-loader', options: {url: false, sourceMap: true}},
@@ -76,16 +82,11 @@ export default <Configuration> {
     ],
   },
   plugins: [
-    // new HtmlWebpackPlugin({
-    //   template: '!!raw-loader!./src/backend/views/layouts/base-layout.ejs',
-    //   filename: 'index.ejs',
-    //   minify: false,
-    // })
-    new MiniCssExtractPlugin({ filename: paths.dev.cssFilename }),
+    new MiniCssExtractPlugin({ filename: paths[env].cssFilename }),
     new CleanWebpackPlugin(),
+    new IgnorePlugin({
+      resourceRegExp: /^\.\/locale$/,
+      contextRegExp: /moment$/,
+    }),
   ],
-  externals: {
-    moment: 'moment',
-    axios: 'axios'
-  }
 };

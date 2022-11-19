@@ -1,4 +1,4 @@
-import { LangCode, LANG_CODES } from "../../util/types";
+import { LangCode, LANG_CODES } from "../../../shared/types";
 import "../../loadenv";
 import {Control, getControl, normText} from "../script_util";
 import { getTextMapItem } from "../textmap";

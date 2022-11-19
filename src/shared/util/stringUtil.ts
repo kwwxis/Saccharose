@@ -203,7 +203,7 @@ export function replace_prefix(str: string, prefix: string, replacement: string 
  * @returns {string}
  */
 export function remove_prefix(str: string, prefix: string): string {
-    return this.replace_prefix(str, prefix);
+    return replace_prefix(str, prefix);
 }
 
 /**
@@ -230,7 +230,7 @@ export function replace_suffix(str: string, suffix: string, replacement: string 
  * @returns {string}
  */
 export function remove_suffix(str: string, suffix: string): string {
-    return this.replace_suffix(str, suffix);
+    return replace_suffix(str, suffix);
 }
 
 /**
@@ -326,7 +326,7 @@ export function trim(str, char_mask = undefined, mode = undefined): string {
  * @returns {string}
  */
 export function ltrim(str, char_mask = undefined): string {
-    return this.trim(str, char_mask, 1);
+    return trim(str, char_mask, 1);
 }
 
 /**
@@ -334,7 +334,7 @@ export function ltrim(str, char_mask = undefined): string {
  * @returns {string}
  */
 export function rtrim(str, char_mask = undefined): string {
-    return this.trim(str, char_mask, 2);
+    return trim(str, char_mask, 2);
 }
 
 export async function replaceAsync(str: string, regex: RegExp, asyncFn: Function): Promise<string> {

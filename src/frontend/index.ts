@@ -1,14 +1,13 @@
 import '../shared/polyfills';
-import { human_timing } from '../shared/util/genericUtil';
 import './css/imports.scss';
+import 'tippy.js';
+import 'tippy.js/dist/tippy.css';
+import 'tippy.js/themes/light.css';
+import 'tippy.js/themes/light-border.css';
+import './initialListeners';
 
-function doStuff(thing: string) {
-  console.log(thing);
-}
-
-console.log('hello world!');
-doStuff('foobar');
-
-let someDate = new Date();
-
-console.log(human_timing(someDate));
+import './pages/branch_dialogue';
+import './pages/npc_dialogue';
+import './pages/olgen';
+import './pages/quests';
+import './pages/reminders';

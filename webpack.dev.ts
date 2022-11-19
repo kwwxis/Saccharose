@@ -2,10 +2,11 @@ import {merge} from 'webpack-merge';
 import {Configuration} from 'webpack';
 import LiveReloadPlugin from 'webpack-livereload-plugin';
 import baseConfig from './webpack.base';
+import fs from 'fs';
 
-export default <Configuration> merge(baseConfig, {
+// noinspection JSUnusedGlobalSymbols (used in package.json)
+export default <Configuration> merge(baseConfig('development'), {
   mode: 'development',
-  //watch: true,
   stats: 'normal',
   output: {
     pathinfo: false
@@ -18,9 +19,13 @@ export default <Configuration> merge(baseConfig, {
   },
   plugins: [
     new LiveReloadPlugin({
-      protocol: 'https',
+      protocol: process.env.SSL_ENABLED ? 'https' : 'http',
       port: 35729,
-      hostname: process.env.VHOST
+      hostname: process.env.VHOST,
+      ... (process.env.SSL_ENABLED ? {
+        key: fs.readFileSync(process.env.SSL_KEY, 'utf8'),
+        cert: fs.readFileSync(process.env.SSL_CERT, 'utf8'),
+      } : {})
     }),
   ]
 });

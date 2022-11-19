@@ -4,10 +4,10 @@ import config from '../../config';
 import { closeKnex } from '../../util/db';
 import { Control, getControl, normText } from '../script_util';
 import {promises as fs} from 'fs';
-import { AvatarExcelConfigData, FetterStoryExcelConfigData } from '../../util/types';
+import { AvatarExcelConfigData, FetterStoryExcelConfigData } from '../../../shared/types';
 import {cached} from '../../util/cache';
 import { loadTextMaps } from '../textmap';
-import { escapeHtml } from '../../../shared/util/stringUtil';
+import { escapeHtmlAllowEntities } from '../../../shared/util/stringUtil';
 
 export type AvatarAndFetterStoryExcelConfigData = {avatar: AvatarExcelConfigData, fetters: FetterStoryExcelConfigData[]};
 export type GroupedFetterStoryExcelConfigData = {[avatarId: number]: AvatarAndFetterStoryExcelConfigData};
@@ -23,7 +23,7 @@ export async function fetchCharacterStories(ctrl: Control): Promise<GroupedFette
       if (fetter.openConds && fetter.openConds[0] && fetter.openConds[0].condType === 'FETTER_COND_FETTER_LEVEL') {
         fetter.friendship = fetter.openConds[0].paramList[0];
       }
-      fetter.storyContextHtml = '<p>'+fetter.storyContextText.split('\\n').map(s => escapeHtml(normText(s), true)).join(sep)+'</p>';
+      fetter.storyContextHtml = '<p>'+fetter.storyContextText.split('\\n').map(s => escapeHtmlAllowEntities(normText(s))).join(sep)+'</p>';
     }
     return records;
   });

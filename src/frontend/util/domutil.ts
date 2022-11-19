@@ -239,3 +239,43 @@ export function copyToClipboard(text: string) {
     }
 }
 
+/**
+ * Save JSON file.
+ *
+ * @param {object} exportObj the object to save
+ * @param {string} exportName file name to save as
+ * @param {number} indentation indentation level
+ */
+export function downloadObjectAsJson(exportObj: any, exportName: string, indentation: number = 0) {
+    if (exportName.endsWith('.json')) exportName = exportName.slice(0, -5);
+    let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj, null, indentation));
+    let downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href",     dataStr);
+    downloadAnchorNode.setAttribute("download", exportName + ".json");
+    document.body.appendChild(downloadAnchorNode); // required for firefox
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+}
+
+/**
+ * Set current url query string parameter without moving the browser history state forward.
+ */
+export function setQueryStringParameter(name: string, value: string) {
+    const params = new URLSearchParams(window.location.search);
+    params.set(name, value);
+    window.history.replaceState({}, '', decodeURIComponent(`${window.location.pathname}?${params}`));
+}
+
+/**
+ * Returns a CSS selector that selects any focusable elements (e.g. buttons, inputs, textareas, etc.)
+ *
+ * @param {string} [prefix] optional prefix for each component of the selector
+ * @returns {string}
+ */
+export function getFocusableSelector(prefix: string = '') {
+    let arr = ['button', '[role=button]', 'a', 'input:not([type=hidden]):not([readonly])', 'select', 'textarea:not([readonly])', '[tabindex]:not([tabindex^="-"])'];
+    if (prefix) {
+        arr = arr.map(v => prefix + ' ' + v);
+    }
+    return arr.join(', ');
+}

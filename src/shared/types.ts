@@ -176,11 +176,6 @@ export interface QuestExcelConfigData {
 // RANDOM STUFF
 // ~~~~~~~~~~~~
 
-export interface TextMapItem {
-  Id: number,
-  Text: string,
-}
-
 export interface LoadingTipsExcelConfigData {
   Id: number,
   TipsTitleText?: string,

@@ -1,7 +1,7 @@
 import '../../loadenv';
 import { closeKnex } from '../../util/db';
 import { Control, getControl, normText } from '../script_util';
-import { ReminderExcelConfigData } from '../../util/types';
+import { ReminderExcelConfigData } from '../../../shared/types';
 import { DialogueSectionResult, MetaProp } from './quest_generator';
 import { getVoPrefix, loadTextMaps } from '../textmap';
 import { cached } from '../../util/cache';

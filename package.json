@@ -9,12 +9,12 @@
     "copy-assets": "copyfiles -u 1 \"src/**/*.css\" \"src/**/*.html\" \"src/**/*.ejs\" \"src/**/*.sql\" dist/",
     "webpack:prod": "webpack --config webpack.prod.ts",
     "webpack:dev": "webpack --config webpack.dev.ts",
-    "webpack:dev-watch": "webpack --config webpack.dev.ts --watch",
-    "build:dev": "npm-run-all clean tsc copy-assets webpack:prod",
+    "build:dev": "npm-run-all clean tsc copy-assets webpack:dev",
     "build:prod": "npm-run-all clean tsc copy-assets webpack:prod",
     "start": "node .",
-    "dev-serve": "npm run webpack:dev && ts-node src/backend/server.ts",
-    "dev-serve:watch": "npm run webpack:dev-watch && ts-node-dev --respawn --transpile-only --no-notify src/backend/server.ts"
+    "webpack:dev-watch": "webpack --config webpack.dev.ts --watch",
+    "ts-serve": "ts-node src/backend/server.ts",
+    "ts-serve:dev": "ts-node-dev --respawn --transpile-only --no-notify src/backend/server.ts"
   },
   "author": "kwwxis",
   "license": "MIT",
@@ -56,6 +56,7 @@
     "spdy": "^4.0.2",
     "sqlite": "^4.1.2",
     "sqlite3": "^5.0.10",
+    "tippy.js": "^6.3.7",
     "use-strict": "^1.0.1",
     "vhost": "^3.0.2"
   },

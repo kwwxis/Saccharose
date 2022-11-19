@@ -6,7 +6,7 @@
 
 import path from 'path';
 import session from 'express-session';
-import { LangCode } from './util/types';
+import { LangCode } from '../shared/types';
 
 export default {
   currentGenshinVersion: '3.2',
@@ -51,33 +51,5 @@ export default {
     ejsDelimiter: '%',
     formatPageTitle:
       (siteTitle, pageTitle) => pageTitle ? `${pageTitle} | ${siteTitle}` : siteTitle,
-    base: {
-      scripts: [
-        {
-          src: 'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js',
-          async: true,
-          integrity: 'sha384-fYxN7HsDOBRo1wT/NSZ0LkoNlcXvpDpFy6WzB42LxuKAX7sBwgo7vuins+E1HCaw',
-          crossorigin: 'anonymous',
-        },
-        {
-          src: 'https://unpkg.com/axios@0.19.0/dist/axios.min.js',
-          async: true,
-          integrity: 'sha384-6woDBwQr+eqsszpfCWmyJ2UTm+OSym/GuB2NAD8H3d+6xuEZzOMJ/6GEPDTPPCmi',
-          crossorigin: 'anonymous',
-        },
-        {
-          src: 'https://unpkg.com/popper.js@1.16.0/dist/umd/popper.min.js',
-          defer: true,
-          integrity: 'sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo',
-          crossorigin: 'anonymous',
-        },
-        {
-          src: 'https://unpkg.com/tippy.js@5.1.3/dist/tippy-bundle.iife.min.js',
-          defer: true,
-          integrity: 'sha384-G7kCdCHnoLRVDjaTYlKPteZ4GDCqtt+b1xZGmmO/KTnefdMjoom1ZiHT2tHS6exl',
-          crossorigin: 'anonymous',
-        },
-      ],
-    },
   },
 };

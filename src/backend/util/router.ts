@@ -9,7 +9,7 @@ import * as expressCore from 'express-serve-static-core';
 import { humanTiming, icon, timestamp, Tl } from './viewUtilities';
 import { cachedSync } from './cache';
 import crypto from 'crypto';
-import { LANG_CODES_TO_NAME } from './types';
+import { LANG_CODES_TO_NAME } from '../../shared/types';
 import { ltrim, remove_suffix } from '../../shared/util/stringUtil';
 //#endregion
 
@@ -45,6 +45,16 @@ class RequestContext {
     this.bodyClass = [];
     this.viewStack = {viewName: 'RouterRootViewStack'};
     this.viewStackPointer = this.viewStack;
+  }
+
+  getAllViewNames() {
+    let pointer: RequestSubViewLocals = this.viewStack;
+    let names = [];
+    while (pointer) {
+      names.push(pointer.viewName);
+      pointer = pointer.sublocals;
+    }
+    return names;
   }
 
   canPopViewStack(): boolean {
@@ -134,10 +144,6 @@ export type RequestContextUpdate = {
   locals?: any;
 };
 
-export type RequestLocals = {
-  [prop: string]: any;
-};
-
 export type Request = express.Request & {
   context: RequestContext,
   params: expressCore.Params & {
@@ -180,7 +186,7 @@ export const DEFAULT_GLOBAL_LOCALS = {
 };
 
 function createIncludeFunction(req: Request, viewStackPointer: RequestSubViewLocals): IncludeFunction {
-  return function include(view: string, locals={}): string {
+  return function include(view: string, locals: any = {}): string {
     const viewPath = resolveViewPath(view);
     const viewContent = process.env.NODE_ENV === 'development'
       ? fs.readFileSync(viewPath, 'utf8')

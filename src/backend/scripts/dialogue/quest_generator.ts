@@ -8,7 +8,7 @@ import {
   MainQuestExcelConfigData, QuestExcelConfigData,
   TalkExcelConfigData,
   NpcExcelConfigData
-} from '../../util/types';
+} from '../../../shared/types';
 import { arrayEmpty, arrayUnique } from '../../../shared/util/arrayUtil';
 
 export class MetaPropValue {

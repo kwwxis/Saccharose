@@ -1,7 +1,7 @@
 import '../../loadenv';
 import { closeKnex } from '../../util/db';
 import { Control, getControl } from '../script_util';
-import { DialogExcelConfigData, NpcExcelConfigData, TalkExcelConfigData } from '../../util/types';
+import { DialogExcelConfigData, NpcExcelConfigData, TalkExcelConfigData } from '../../../shared/types';
 import { DialogueSectionResult, MetaProp, TalkConfigAccumulator, talkConfigToDialogueSectionResult } from './quest_generator';
 import { loadTextMaps } from '../textmap';
 import util from 'util';

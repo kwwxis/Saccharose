@@ -18,13 +18,3 @@
     </div>
   <% } %>
 </section>
-<script nonce="<%= req.context.nonce %>">
-waitForConstant('app', app => {
-  app.startListeners([{
-      ev: 'readyAsync',
-      fn: function() {
-        autosize(document.querySelectorAll('.dialogue-container textarea'));
-      }
-  }]);
-});
-</script>

@@ -42,11 +42,11 @@
     <div class="dialogue-section-info-message"><%- htmlMessage %></div>
   <% } %>
   <% if (locals.wikitext) { %>
-    <textarea readonly id="wikitext-<%= id %>" class="dialogue-section-wikitext w100p" style="resize:vertical;min-height:40px;"><%= wikitext %></textarea>
+    <textarea readonly id="wikitext-<%= id %>" class="dialogue-section-wikitext w100p autosize" style="resize:vertical;min-height:40px;"><%= wikitext %></textarea>
   <% } %>
   <% if (locals.wikitextArray) { %>
     <% wikitextArray.forEach((item, idx) => { %>
-      <textarea readonly id="wikitext-<%= id %>-<%= idx %>" class="dialogue-section-wikitext w100p" style="resize:vertical;min-height:40px;"><%= item %></textarea>
+      <textarea readonly id="wikitext-<%= id %>-<%= idx %>" class="dialogue-section-wikitext w100p autosize" style="resize:vertical;min-height:40px;"><%= item %></textarea>
     <% }) %>
   <% } %>
   <div class="dialogue-section-children">
