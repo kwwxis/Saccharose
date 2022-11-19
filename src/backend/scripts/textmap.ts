@@ -19,7 +19,7 @@ export const QuestSummary: QuestSummaryMap = {};
 // TEXT MAPS
 // ----------------------------------------------------------------------------------------------------
 export async function loadTextMaps(filterLangCodes?: string[]): Promise<void> {
-  console.log('Loading TextMap -- starting...');
+  console.log('[Init] Loading TextMap -- starting...');
   let promises = [];
   for (let langCode of LANG_CODES) {
     if (filterLangCodes && filterLangCodes.length && !filterLangCodes.includes(langCode)) {
@@ -27,14 +27,14 @@ export async function loadTextMaps(filterLangCodes?: string[]): Promise<void> {
         TextMap[langCode] = {};
       continue;
     }
-    console.log('Loading TextMap -- ' + langCode)
+    console.log('[Init] Loading TextMap -- ' + langCode)
     let p = fs.readFile(config.database.getGenshinDataFilePath(config.database.getTextMapFile(langCode)), {encoding: 'utf8'}).then(data => {
       TextMap[langCode] = Object.freeze(JSON.parse(data));
     });
     promises.push(p);
   }
   return Promise.all(promises).then(() => {
-    console.log('Loading TextMap -- done!');
+    console.log('[Init] Loading TextMap -- done!');
   });
 }
 

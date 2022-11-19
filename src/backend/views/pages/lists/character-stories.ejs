@@ -20,11 +20,11 @@
       <% story.fetters.forEach(fetter => { %>
         <hr>
         <div class="content">
-          <h3 class="title-text"><%= fetter.storyTitleText %></h3>
-          <% if (fetter.friendship) { %>
-            <h4>Friendship Lv. <%= fetter.friendship %></h4>
+          <h3 class="title-text"><%= fetter.StoryTitleText %></h3>
+          <% if (fetter.Friendship) { %>
+            <h4>Friendship Lv. <%= fetter.Friendship %></h4>
           <% } %>
-          <p class="context-text"><%- fetter.storyContextHtml %></p>
+          <p class="context-text"><%- fetter.StoryContextHtml %></p>
         </div>
       <% }) %>
     </div>

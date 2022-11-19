@@ -101,11 +101,11 @@ export default async function(): Promise<Router> {
       out = '{{Character Story';
       let i = 1;
       for (let fetter of story.fetters) {
-        out += `\n|title${i}`.padEnd(16)+'= '+fetter.storyTitleText;
-        if (fetter.friendship) {
-          out += `\n|friendship${i}`.padEnd(16)+'= '+fetter.friendship;
+        out += `\n|title${i}`.padEnd(16)+'= '+fetter.StoryTitleText;
+        if (fetter.Friendship) {
+          out += `\n|friendship${i}`.padEnd(16)+'= '+fetter.Friendship;
         }
-        out += `\n|text${i}`.padEnd(16)+'= '+fetter.storyContextHtml;
+        out += `\n|text${i}`.padEnd(16)+'= '+fetter.StoryContextHtml;
         out += `\n|mention${i}`.padEnd(16)+'= ';
         out += '\n';
         i++;

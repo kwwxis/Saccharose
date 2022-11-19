@@ -7,7 +7,6 @@ import {promises as fs} from 'fs';
 import { AvatarExcelConfigData, FetterStoryExcelConfigData } from '../../../shared/types';
 import {cached} from '../../util/cache';
 import { loadTextMaps } from '../textmap';
-import { escapeHtmlAllowEntities } from '../../../shared/util/stringUtil';
 
 export type AvatarAndFetterStoryExcelConfigData = {avatar: AvatarExcelConfigData, fetters: FetterStoryExcelConfigData[]};
 export type GroupedFetterStoryExcelConfigData = {[avatarId: number]: AvatarAndFetterStoryExcelConfigData};
@@ -20,10 +19,10 @@ export async function fetchCharacterStories(ctrl: Control): Promise<GroupedFette
       .then(data => JSON.parse(data));
     let records: FetterStoryExcelConfigData[] = await ctrl.commonLoad(json);
     for (let fetter of records) {
-      if (fetter.openConds && fetter.openConds[0] && fetter.openConds[0].condType === 'FETTER_COND_FETTER_LEVEL') {
-        fetter.friendship = fetter.openConds[0].paramList[0];
+      if (fetter.OpenConds && fetter.OpenConds[0] && fetter.OpenConds[0].CondType === 'FETTER_COND_FETTER_LEVEL') {
+        fetter.Friendship = fetter.OpenConds[0].ParamList[0];
       }
-      fetter.storyContextHtml = '<p>'+fetter.storyContextText.split('\\n').map(s => escapeHtmlAllowEntities(normText(s))).join(sep)+'</p>';
+      fetter.StoryContextHtml = '<p>'+fetter.StoryContextText.split('\\n').map(s => normText(s)).join(sep)+'</p>';
     }
     return records;
   });
@@ -31,10 +30,10 @@ export async function fetchCharacterStories(ctrl: Control): Promise<GroupedFette
   const groupedFetters = await cached('GroupedFetterStoryExcelConfigData_'+ctrl.outputLangCode, async () => {
     let out: GroupedFetterStoryExcelConfigData = {};
     for (let fetter of fetters) {
-      if (!out.hasOwnProperty(fetter.avatarId)) {
-        out[fetter.avatarId] = {avatar: await ctrl.selectAvatarById(fetter.avatarId), fetters: []};
+      if (!out.hasOwnProperty(fetter.AvatarId)) {
+        out[fetter.AvatarId] = {avatar: await ctrl.selectAvatarById(fetter.AvatarId), fetters: []};
       }
-      out[fetter.avatarId].fetters.push(fetter);
+      out[fetter.AvatarId].fetters.push(fetter);
     }
     return out;
   });

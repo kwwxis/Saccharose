@@ -1,4 +1,3 @@
-//#region Imports
 import fs from 'fs';
 import ejs from 'ejs';
 import path from 'path';
@@ -6,15 +5,14 @@ import config from '../config';
 import availableMethods from '../middleware/availableMethods';
 import * as express from 'express';
 import * as expressCore from 'express-serve-static-core';
-import { humanTiming, icon, timestamp, Tl } from './viewUtilities';
+import { humanTiming, icon, timestamp, TemplateLink } from './viewUtilities';
 import { cachedSync } from './cache';
 import crypto from 'crypto';
 import { LANG_CODES_TO_NAME } from '../../shared/types';
 import { ltrim, remove_suffix } from '../../shared/util/stringUtil';
-//#endregion
+import { getWebpackBundleFileNames, WebpackBundles } from './webpackBundle';
 
 //#region Types
-
 export type IncludeFunction = (view: string, locals?: any) => string;
 
 export type RequestSubViewLocals = {
@@ -36,6 +34,7 @@ class RequestContext {
   viewStack: RequestSubViewLocals;
   viewStackPointer: RequestSubViewLocals;
   nonce = crypto.randomBytes(16).toString('hex');
+  webpackBundles: WebpackBundles;
 
   constructor(req: Request) {
     this._req = req;
@@ -45,6 +44,7 @@ class RequestContext {
     this.bodyClass = [];
     this.viewStack = {viewName: 'RouterRootViewStack'};
     this.viewStackPointer = this.viewStack;
+    this.webpackBundles = getWebpackBundleFileNames();
   }
 
   getAllViewNames() {
@@ -181,7 +181,7 @@ export const DEFAULT_GLOBAL_LOCALS = {
   config,
   timestamp,
   humanTiming,
-  Tl,
+  TemplateLink,
   env: process.env,
 };
 

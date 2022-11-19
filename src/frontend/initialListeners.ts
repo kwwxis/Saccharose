@@ -128,6 +128,9 @@ const initial_listeners: Listener[] = [
       });
 
       document.querySelectorAll<HTMLImageElement>('textarea.autosize').forEach(el => {
+        if (el.closest('.hide')) {
+          return;
+        }
         el.classList.remove('autosize');
         autosize(el);
       });

@@ -6,7 +6,7 @@ export function icon(iconName: string, props: any = {}): string {
   return feather.icons[iconName].toSvg(props);
 }
 
-export function Tl(template: string): string {
+export function TemplateLink(template: string): string {
   return '{{' + createHtmlElement({
     name: 'a',
     attributes: {

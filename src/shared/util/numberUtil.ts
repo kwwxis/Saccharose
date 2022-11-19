@@ -5,11 +5,17 @@ export function isNumberEmpty(n: number): boolean {
     return !n && n !== 0;
 }
 
-export function isInteger(value: number|string): boolean {
-    return typeof value === 'number' ? (value | 0) === value : /^-?\d+$/.test(value);
+export function isInteger(value: any): boolean {
+  if (typeof value === 'number') {
+    return (value | 0) === value;
+  } else if (typeof value === 'string') {
+    return /^-?\d+$/.test(value);
+  } else {
+    return isInteger(String(value));
+  }
 }
 
-export function isInt(value: number|string): boolean {
+export function isInt(value: any): boolean {
     return isInteger(value);
 }
 

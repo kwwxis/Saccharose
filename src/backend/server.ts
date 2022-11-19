@@ -10,11 +10,11 @@ import { toBoolean } from '../shared/util/genericUtil';
 // Application init code should go in `app.ts`, not here.
 
 (async () => {
-  console.log(`Booting server; in ${process.env.NODE_ENV} mode ...`);
+  console.log(`[Init] Booting server; in ${process.env.NODE_ENV} mode ...`);
   const app = await appctl.init();
 
   app.listen(parseInt(process.env.HTTP_PORT), () => {
-    console.log(`HTTP/2 Server running on port ${process.env.HTTP_PORT}`);
+    console.log(`[Init] HTTP/2 Server running on port ${process.env.HTTP_PORT}`);
   });
 
   let httpsApp = app;
@@ -28,14 +28,14 @@ import { toBoolean } from '../shared/util/genericUtil';
 
   if (toBoolean(process.env.SSL_ENABLED)) {
     spdy.createServer(sslcreds, httpsApp).listen(httpsPort, () => {
-      console.log(`HTTPS/2 Server running on port ${httpsPort}`
+      console.log(`[Init] HTTPS/2 Server running on port ${httpsPort}`
         + (process.env.VHOSTED ? ' (in VHOSTED mode)' : ''));
 
         if (process.env.VHOSTED) {
-          console.log('Node app is running at https://' + process.env.VHOST);
+          console.log('[Init] Node app is running at https://' + process.env.VHOST);
         }
     });
   } else {
-    console.log('Not starting HTTPS server: not enabled');
+    console.log('[Init] Not starting HTTPS server: not enabled');
   }
 })();
