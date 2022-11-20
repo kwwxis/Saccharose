@@ -14,7 +14,7 @@
     <template id="template-info-icon"><%- icon('info') %></template>
     <template id="template-alert-icon"><%- icon('alert-triangle') %></template>
     <% if (env.NODE_ENV === 'development') { %>
-      <script src="https://<%= env.VHOST %>:35729/livereload.js"></script>
+      <script src="//<%= env.VHOST %>:35729/livereload.js"></script>
     <% } %>
     <link rel="stylesheet" href="<%= req.context.webpackBundles.appCssBundle %>">
     <script src="<%= req.context.webpackBundles.vendorJsBundle %>"></script>

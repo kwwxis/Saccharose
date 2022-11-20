@@ -5,7 +5,7 @@ import { closeKnex } from '../../util/db';
 import { Control, getControl, normText } from '../script_util';
 import {promises as fs} from 'fs';
 import { AvatarExcelConfigData, FetterStoryExcelConfigData } from '../../../shared/types';
-import {cached} from '../../util/cache';
+import { cached } from '../../util/cache';
 import { loadTextMaps } from '../textmap';
 
 export type AvatarAndFetterStoryExcelConfigData = {avatar: AvatarExcelConfigData, fetters: FetterStoryExcelConfigData[]};

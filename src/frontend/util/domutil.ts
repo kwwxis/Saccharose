@@ -210,10 +210,9 @@ export function removeSessionStorageObject(key: string): void {
  *
  * Copied from https://stackoverflow.com/a/33928558
  */
-export function copyToClipboard(text: string) {
-    if ((<any>window).clipboardData && (<any>window).clipboardData.setData) {
-        // IE specific code path to prevent textarea being shown while dialog is visible.
-        return (<any>window).clipboardData.setData('Text', text);
+export function copyToClipboard(text: string): Promise<void> {
+    if (navigator.clipboard) {
+        return navigator.clipboard.writeText(text);
     } else if (document.queryCommandSupported && document.queryCommandSupported('copy')) {
         const textarea = document.createElement('textarea');
         textarea.textContent = text;
@@ -223,19 +222,29 @@ export function copyToClipboard(text: string) {
         textarea.style.left = '0';
         textarea.style.width = '2em';
         textarea.style.height = '2em';
+        textarea.style.padding = '0';
+        textarea.style.border = 'none';
+        textarea.style.outline = 'none';
+        textarea.style.boxShadow = 'none';
         textarea.style.background = 'transparent';
 
         document.body.appendChild(textarea);
+        textarea.focus();
         textarea.select();
 
         try {
-            return document.execCommand('copy'); // Security exception may be thrown by some browsers.
+            if (document.execCommand('copy')) {
+                return Promise.resolve();
+            } else {
+                return Promise.reject();
+            }
         } catch (ex) {
-            console.warn('Copy to clipboard failed.', ex);
-            return false;
+            return Promise.reject();
         } finally {
             document.body.removeChild(textarea);
         }
+    } else {
+        return Promise.reject();
     }
 }
 

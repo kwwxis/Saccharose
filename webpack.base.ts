@@ -5,7 +5,6 @@ import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import { CleanWebpackPlugin } from 'clean-webpack-plugin';
 dotenv.config();
 
-const HASH_LENGTH = 6;
 const pathDefaults = {
   entry: path.resolve(__dirname, './src/frontend/index.ts'),
   dist: path.resolve(__dirname, './public/dist'),
@@ -20,9 +19,9 @@ const paths = {
   },
   production: {
     ... pathDefaults,
-    outputFilename: `[name].[chunkhash:${HASH_LENGTH}].bundle.js`,
-    outputChunkFilename: `[name].[chunkhash:${HASH_LENGTH}].bundle.js`,
-    cssFilename: `[name].[contenthash:${HASH_LENGTH}].bundle.css`,
+    outputFilename: `[name].[chunkhash].bundle.js`,
+    outputChunkFilename: `[name].[chunkhash].bundle.js`,
+    cssFilename: `[name].[contenthash].bundle.css`,
   }
 }
 
