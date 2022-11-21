@@ -11,27 +11,87 @@
   <% if (locals.story) { %>
     <h2>Character Story &mdash; <%= story.avatar.NameText %></h2>
     <div class="tab-list" role="tablist">
+
       <button role="tab" id="displayTab" class="tab-button <%= tab === 'display' ? 'active' : '' %>"
         ui-trigger="tab:display" ui-set-query-param="tab=display">Display</button>
+
+      <% if (story.hasAlteredStories) { %>
+        <button role="tab" id="alteredDisplayTab" class="tab-button <%= tab === 'altered-display' ? 'active' : '' %>"
+                ui-trigger="tab:altered-display" ui-set-query-param="tab=altered-display">Altered Display</button>
+      <% } %>
+
       <button role="tab" id="wikitextTab" class="tab-button <%= tab === 'wikitext' ? 'active' : '' %>"
         ui-trigger="tab:wikitext" ui-set-query-param="tab=wikitext">Wiki-Text</button>
+
+      <% if (story.hasAlteredStories) { %>
+        <button role="tab" id="alteredWikitextTab" class="tab-button <%= tab === 'altered-wikitext' ? 'active' : '' %>"
+                ui-trigger="tab:altered-wikitext" ui-set-query-param="tab=altered-wikitext">Altered Wiki-Text</button>
+      <% } %>
     </div>
     <div role="tabpanel" aria-labelledby="displayTab" class="tab <%= tab === 'display' ? 'active' : 'hide' %>" ui-target="tab:display">
       <% story.fetters.forEach(fetter => { %>
         <hr>
         <div class="content">
           <h3 class="title-text"><%= fetter.StoryTitleText %></h3>
-          <% if (fetter.Friendship) { %>
-            <h4>Friendship Lv. <%= fetter.Friendship %></h4>
-          <% } %>
-          <p class="context-text"><%- fetter.StoryContextHtml %></p>
+          <div class="valign metadata-props">
+            <% if (fetter.OpenCondsSummary.Friendship) { %>
+              <div class="prop">
+                <span class="prop-label">Friendship Lv.</span>
+                <span class="prop-values">
+                  <span class="prop-value"><%= fetter.OpenCondsSummary.Friendship %></span>
+                </span>
+              </div>
+            <% } %>
+            <% if (fetter.OpenCondsSummary.Quest) { %>
+              <div class="prop">
+                <span class="prop-label">Quest</span>
+                <span class="prop-values">
+                  <span class="prop-value"><%= fetter.OpenCondsSummary.Quest %></span>
+                </span>
+              </div>
+            <% } %>
+          </div>
+          <div class="context-text"><%- fetter.StoryContextHtml %></div>
         </div>
       <% }) %>
     </div>
+    <% if (story.hasAlteredStories) { %>
+      <div role="tabpanel" aria-labelledby="alteredDisplayTab" class="tab <%= tab === 'altered-display' ? 'active' : 'hide' %>" ui-target="tab:altered-display">
+        <% story.fetters.filter(f => !!f.StoryContext2Html).forEach(fetter => { %>
+          <hr>
+          <div class="content">
+            <% if (fetter.StoryTitleText === fetter.StoryTitle2Text) { %>
+              <h3 class="title-text"><%= fetter.StoryTitle2Text %></h3>
+            <% } else { %>
+              <h3 class="title-text"><%= fetter.StoryTitleText %> <%- icon('arrow-right', 14) %> <%= fetter.StoryTitle2Text %></h3>
+            <% } %>
+            <div class="valign metadata-props">
+              <% if (fetter.FinishCondsSummary.Friendship) { %>
+                <div class="prop">
+                  <span class="prop-label">Friendship Lv.</span>
+                  <span class="prop-values">
+                  <span class="prop-value"><%= fetter.FinishCondsSummary.Friendship %></span>
+                </span>
+                </div>
+              <% } %>
+              <% if (fetter.FinishCondsSummary.Quest) { %>
+                <div class="prop">
+                  <span class="prop-label">Altered after Quest</span>
+                  <span class="prop-values">
+                  <span class="prop-value"><%= fetter.FinishCondsSummary.Quest %></span>
+                </span>
+                </div>
+              <% } %>
+            </div>
+            <div class="context-text"><%- fetter.StoryContext2Html %></div>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
     <div role="tabpanel" aria-labelledby="wikitextTab" class="tab <%= tab === 'wikitext' ? 'active' : 'hide' %>" ui-target="tab:wikitext">
       <div class="content">
         <div class="posRel">
-          <textarea id="story-wikitext" readonly class="w100p wikitext autosize"><%= wikitext %></textarea>
+          <textarea id="story-wikitext" readonly class="w100p wikitext autosize"><%= story.wikitext %></textarea>
           <button class="secondary posAbs" copy-target="story-wikitext"
             ui-tippy-hover="Click to copy to clipboard"
             ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
@@ -39,6 +99,19 @@
         </div>
       </div>
     </div>
+    <% if (story.hasAlteredStories) { %>
+      <div role="tabpanel" aria-labelledby="alteredWikitextTab" class="tab <%= tab === 'altered-wikitext' ? 'active' : 'hide' %>" ui-target="tab:altered-wikitext">
+        <div class="content">
+          <div class="posRel">
+            <textarea id="story-altered-wikitext" readonly class="w100p wikitext autosize"><%= story.alteredWikitext %></textarea>
+            <button class="secondary posAbs" copy-target="story-altered-wikitext"
+                    ui-tippy-hover="Click to copy to clipboard"
+                    ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
+                    style="right: 0; top: 0;">Copy</button>
+          </div>
+        </div>
+      </div>
+    <% } %>
   <% } %>
   <% if (!locals.avatars && !locals.story) { %>
     <h2>Character Stories</h2>

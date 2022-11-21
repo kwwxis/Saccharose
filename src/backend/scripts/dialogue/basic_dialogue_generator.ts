@@ -3,7 +3,7 @@ import { closeKnex } from '../../util/db';
 import { Control, getControl } from '../script_util';
 import { DialogExcelConfigData, NpcExcelConfigData, TalkExcelConfigData } from '../../../shared/types';
 import { DialogueSectionResult, MetaProp, TalkConfigAccumulator, talkConfigToDialogueSectionResult } from './quest_generator';
-import { loadTextMaps } from '../textmap';
+import { loadEnglishTextMap } from '../textmap';
 import util from 'util';
 import { isInt } from '../../../shared/util/numberUtil';
 
@@ -174,7 +174,7 @@ export async function dialogueGenerateByNpc(ctrl: Control, npcNameOrId: string|n
 
 if (require.main === module) {
   (async () => {
-    await loadTextMaps();
+    await loadEnglishTextMap();
     //console.log(await dialogueGenerate(`Uh, why are you two fighting?`));
     //console.log(await talkConfigGenerate(6906901));
     let res = await dialogueGenerateByNpc(getControl(), 'Arapratap');

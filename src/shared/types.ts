@@ -147,27 +147,31 @@ export interface QuestExcelConfigData {
   DescTextMapHash: number,
   StepDescText?: string,
   StepDescTextMapHash: number,
+  ShowType: string, // e.g. "QUEST_HIDDEN"
+
+  // Guide
+  Guide: ConfigCondition,
   GuideTipsText?: string,
   GuideTipsTextMapHash: number,
-  ShowType: string,
+
+  // Cond/Exec (no longer available?)
   AcceptCond: ConfigCondition[],
   AcceptCondComb: string,
   FinishCond: ConfigCondition[],
   FinishCondComb: string,
   FailCond: ConfigCondition[],
   FailCondComb: string,
-  Guide: ConfigCondition,
   FinishExec: ConfigCondition[],
   FailExec: ConfigCondition[],
   BeginExec: ConfigCondition[],
+
+  // NPC/Avatar (no longer available?)
   ExclusiveNpcList: number[],
-  ExclusiveNpcNameList: string[],
-  ExclusiveNpcDataList: NpcExcelConfigData[],
   SharedNpcList: number[],
-  SharedNpcNames: string[],
-  SharedNpcDataList: NpcExcelConfigData[],
   TrialAvatarList: any[],
   ExclusivePlaceList: any[],
+
+  // Custom:
   TalkExcelConfigDataList?: TalkExcelConfigData[],
   QuestMessages?: ManualTextMapConfigData[],
   OrphanedDialog?: DialogExcelConfigData[][],
@@ -209,24 +213,39 @@ export interface AvatarExcelConfigData {
   SideIconName: string,
 }
 
+export interface FetterStoryExcelConfigDataCondSummary {
+  Friendship?: number,
+  Quest?: string,
+}
+
 export interface FetterStoryExcelConfigData {
   FetterId: number,
   AvatarId: number,
+  Avatar?: AvatarExcelConfigData,
+
   StoryTitleTextMapHash: number,
   StoryContextTextMapHash: number,
-  StoryTitle2TextMapHash: number,
-  StoryContext2TextMapHash: number,
-  StoryTitleLockedTextMapHash: number,
   StoryTitleText: string,
   StoryContextText: string,
+
+  StoryTitle2TextMapHash: number,
+  StoryContext2TextMapHash: number,
   StoryTitle2Text: string,
   StoryContext2Text: string,
-  StoryTitleLockedText: string,
+
   Tips: number[],
-  Friendship: number,
-  StoryContextHtml: string,
   OpenConds: {CondType: string, ParamList: number[]}[],
   FinishConds: {CondType: string, ParamList: number[]}[],
+
+  // Unused:
+  //StoryTitleLockedText: string,
+  //StoryTitleLockedTextMapHash: number,
+
+  // Custom:
+  OpenCondsSummary: FetterStoryExcelConfigDataCondSummary,
+  FinishCondsSummary: FetterStoryExcelConfigDataCondSummary,
+  StoryContextHtml: string,
+  StoryContext2Html: string,
 }
 
 export interface ReminderExcelConfigData {
@@ -263,7 +282,12 @@ export interface ChapterExcelConfigData {
 
 export interface RewardExcelConfigData {
   RewardId: number,
-  RewardItemList: {ItemId?: number, ItemCount?: number}[]
+  RewardItemList: {
+    ItemId?: number,
+    ItemCount?: number,
+    Material?: MaterialExcelConfigData
+  }[],
+  RewardWikitext?: string,
 }
 
 export type MaterialType =
@@ -399,6 +423,7 @@ export interface MaterialExcelConfigData {
   IsHidden?: boolean,
   CdTime?: number,
   CdGroup?: number,
+  SourceData?: MaterialSourceDataExcelConfigData,
 }
 
 export interface MaterialSourceDataExcelConfigData {
@@ -406,4 +431,80 @@ export interface MaterialSourceDataExcelConfigData {
   DungeonList: number[],
   JumpList: number[],
   TextList: number[],
+  MappedTextList: string[],
+}
+
+export interface DungeonExcelConfigData {
+  Id: number,
+  NameTextMapHash: number,
+  NameText: string,
+  DisplayNameTextMapHash: number,
+  DisplayNameText: string,
+  DescTextMapHash: number,
+  DescText: string,
+  Type: string,
+  SceneId: number,
+  InvolveType: string,
+  ShowLevel: number,
+  LimitLevel: number,
+  LevelRevise: number,
+  PassCond: number,
+  ReviveMaxCount: number,
+  DayEnterCount: number,
+  EnterCostItems: any[]
+  PassRewardPreviewId: number,
+  SettleCountdownTime: number,
+  FailSettleCountdownTime: number,
+  QuitSettleCountdownTime: number,
+  SettleShows: string[],
+  ForbiddenRestart: boolean,
+  SettleUIType: string,
+  RecommendElementTypes: string[],
+  RecommendTips: any[],
+  LevelConfigMap: any,
+  PreviewMonsterList: number[],
+  GearDescTextMapHash: number,
+  CityId: number,
+  EntryPicPath: string,
+  StateType: string,
+  FactorPic: string,
+  FactorIcon: string,
+  AvatarLimitType: number,
+  IsDynamicLevel: boolean,
+  SubType: string,
+  SerialId: number,
+  FirstPassRewardPreviewId: number,
+  PassJumpDungeon: number,
+  DontShowPushTips: boolean,
+  PlayType: string,
+  EventInterval: number,
+  ReviveIntervalTime: number,
+  StatueCostId: number,
+  StatueCostCount: number,
+  StatueDrop: number,
+}
+
+export interface HomeWorldEventExcelConfigData {
+  EventId: number,
+  EventType: 'HOME_AVATAR_SUMMON_EVENT' | 'HOME_AVATAR_REWARD_EVENT',
+  AvatarId: number,
+  Avatar?: AvatarExcelConfigData,
+  TalkId: number,
+  RewardId: number,
+  FurnitureSuitId: number,
+  Order: number,
+}
+
+export interface HomeWorldNPCExcelConfigData {
+  FurnitureId: number,
+  AvatarId: number,
+  Avatar?: AvatarExcelConfigData,
+  NpcId: number,
+  Npc?: NpcExcelConfigData,
+  TalkIds: number[],
+  ShowNameTextMapHash: number,
+  DescTextMapHash: number,
+  RewardEvents: HomeWorldEventExcelConfigData[],
+  SummonEvents: HomeWorldEventExcelConfigData[],
+  IsNPC?: boolean,
 }

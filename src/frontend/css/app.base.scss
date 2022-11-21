@@ -1359,7 +1359,7 @@ body.nightmode .tab-list button.active {
   color: #fff;
 }
 
-body .tab-list:after {
+body.nightmode .tab-list:after {
   background: hsl(255deg 8% 22%);
 }
 

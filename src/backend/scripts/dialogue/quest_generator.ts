@@ -119,8 +119,8 @@ export class SbOut {
  * Generates quest dialogue.
  *
  * @param questNameOrId The name or id of the main quest. Name must be an exact match and is case-sensitive. Leading/trailing whitespace will be trimmed.
+ * @param ctrl Control object.
  * @param mainQuestIndex If multiple main quests match the name given, then this index can be used to select a specific one.
- * @param prefs Preferences for quest generation and output.
  */
 export async function questGenerate(questNameOrId: string|number, ctrl: Control, mainQuestIndex: number = 0): Promise<QuestGenerateResult> {
   const result = new QuestGenerateResult();
@@ -138,7 +138,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
   if (!mainQuest || !mainQuest.Id) {
     throw 'Main Quest not found.';
   }
-  mainQuest.QuestExcelConfigDataList = await ctrl.selectQuestByMainQuestId(mainQuest.Id);
+  mainQuest.QuestExcelConfigDataList = await ctrl.selectAllQuestExcelConfigDataByMainQuestId(mainQuest.Id);
   mainQuest.OrphanedTalkExcelConfigDataList = [];
 
   // Fetch talk configs
@@ -180,27 +180,12 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
   // Sort Talk Configs to quest subs
   // -------------------------------
 
-  // Talk Configs aren't always in the right section, so we have a somewhat complicated method to place them in the right place
   function pushTalkConfigToCorrespondingQuestSub(talkConfig: TalkExcelConfigData) {
-    if (ctrl.getPrefs().TalkConfigDataBeginCond[talkConfig.Id]) {
-      talkConfig.BeginCond = [ctrl.getPrefs().TalkConfigDataBeginCond[talkConfig.Id]];
-    }
-
     const questExcelConfigData = mainQuest.QuestExcelConfigDataList.find(q => q.SubId === talkConfig.Id);
-
-    if (talkConfig.BeginCond) {
-      let params: {paramQuestSubId: number, paramValue: number}[] = [];
-      for (let cond of talkConfig.BeginCond) {
-        if (cond.Type === 'QUEST_COND_STATE_EQUAL' && cond.Param.length === 2) {
-          let paramQuestSubId = typeof cond.Param[0] === 'number' ? cond.Param[0] : parseInt(cond.Param[0]);
-          let paramValue = typeof cond.Param[1] === 'number' ? cond.Param[1] : parseInt(cond.Param[1]); // 2 - before the questSub, 3 - after the questSub
-          params.push({ paramQuestSubId, paramValue });
-        }
-      }
-    }
     if (questExcelConfigData) {
-      if (!questExcelConfigData.TalkExcelConfigDataList)
+      if (!questExcelConfigData.TalkExcelConfigDataList) {
         questExcelConfigData.TalkExcelConfigDataList = [];
+      }
       questExcelConfigData.TalkExcelConfigDataList.push(talkConfig);
       return;
     }
@@ -343,10 +328,10 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
       result.dialogue.push(sect);
     }
   }
-  if (mainQuest.OrphanedTalkExcelConfigDataList && mainQuest.OrphanedTalkExcelConfigDataList.length
-      && mainQuest.OrphanedTalkExcelConfigDataList.every(x => x.Dialog && x.Dialog.length)) {
+  if (mainQuest.OrphanedTalkExcelConfigDataList && mainQuest.OrphanedTalkExcelConfigDataList.length) {
     for (let talkConfig of mainQuest.OrphanedTalkExcelConfigDataList) {
-      await talkConfigToDialogueSectionResult(ctrl, result, 'Unsectioned Talk Dialogue', 'These are Talk Dialogues that are part of the quest but not part of any section.', talkConfig);
+      await talkConfigToDialogueSectionResult(ctrl, result, 'Unsectioned Talk Dialogue',
+        'These are Talk Dialogues that are part of the quest but not part of any section.', talkConfig);
     }
   }
   if (mainQuest.QuestMessages && mainQuest.QuestMessages.length) {
@@ -469,6 +454,10 @@ export async function talkConfigToDialogueSectionResult(ctrl: Control, parentSec
       <p><a href="#TalkDialogue_${nextTalkId}">Jump to Talk Dialogue ${nextTalkId}</a></p>`;
       mysect.children.push(placeholderSect);
     }
+  }
+
+  if (talkConfig.Id === 1301130) {
+    console.log('YEET!!!');
   }
 
   if (parentSect) {

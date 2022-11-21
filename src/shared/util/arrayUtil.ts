@@ -176,7 +176,7 @@ export function arrayEmpty(array: any[]) {
     return !array || array.length === 0;
 }
 
-export function arrayIndexOf<T>(array: T[], obj: T, comparator: ElementComparator<T>): number {
+export function arrayIndexOf<T>(array: T[], obj: T, comparator?: ElementComparator<T>): number {
     if (!comparator)
         return array.indexOf(obj);
     for (let i = 0; i < array.length; i++) {
@@ -187,7 +187,7 @@ export function arrayIndexOf<T>(array: T[], obj: T, comparator: ElementComparato
     return -1;
 }
 
-export function arrayContains<T>(array: T[], obj: T, comparator: ElementComparator<T>): boolean {
+export function arrayContains<T>(array: T[], obj: T, comparator?: ElementComparator<T>): boolean {
     return arrayIndexOf(array, obj, comparator) >= 0;
 }
 

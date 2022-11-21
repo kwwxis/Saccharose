@@ -1,8 +1,12 @@
-import feather from 'feather-icons';
+import feather, { FeatherAttributes } from 'feather-icons';
 import createHtmlElement from 'create-html-element';
 
-export function icon(iconName: string, props: any = {}): string {
+export function icon(iconName: string, size?: number, props: FeatherAttributes = {}): string {
   props.class = props.class ? (props.class = 'icon ' + props.class) : 'icon';
+  if (size) {
+    props.width = size;
+    props.height = size;
+  }
   return feather.icons[iconName].toSvg(props);
 }
 

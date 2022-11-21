@@ -203,7 +203,7 @@ export const schema = {
         return [];
       }
     },
-    skip: false
+    skip: true
   },
   MaterialSourceDataExcelConfigData: <SchemaTable> {
     name: 'MaterialSourceDataExcelConfigData',
@@ -225,7 +225,7 @@ export const schema = {
       {name: 'DescriptionTextMapHash', type: 'integer', isIndex: true},
       {name: 'TargetTextMapHash', type: 'integer', isIndex: true},
     ],
-    skip: true
+    skip: false
   },
   NpcFirstMetExcelConfigData: <SchemaTable> {
     name: 'NpcFirstMetExcelConfigData',
@@ -257,7 +257,7 @@ export const schema = {
     columns: [
       {name: 'RewardId', type: 'integer', isPrimary: true},
     ],
-    skip: true,
+    skip: false,
   },
   HomeWorldFurnitureExcelConfigData: <SchemaTable> {
     name: 'HomeWorldFurnitureExcelConfigData',
@@ -275,7 +275,7 @@ export const schema = {
       {name: 'RankLevel', type: 'integer', isIndex: true},
       {name: 'ItemType', type: 'string', isIndex: true},
     ],
-    skip: true,
+    skip: false,
   },
   HomeWorldFurnitureTypeExcelConfigData: <SchemaTable> {
     name: 'HomeWorldFurnitureTypeExcelConfigData',
@@ -287,7 +287,7 @@ export const schema = {
       {name: 'TabIcon', type: 'integer'},
       {name: 'SceneType', type: 'string'},
     ],
-    skip: true,
+    skip: false,
   },
   HomeWorldEventExcelConfigData: <SchemaTable> {
     name: 'HomeWorldEventExcelConfigData',
@@ -300,8 +300,20 @@ export const schema = {
       {name: 'RewardId', type: 'integer', isIndex: true},
       {name: 'FurnitureSuiteId', type: 'integer', isIndex: true},
     ],
+    skip: false,
+  },
+  HomeWorldNPCExcelConfigData: <SchemaTable> {
+    name: 'HomeWorldNPCExcelConfigData',
+    jsonFile: './ExcelBinOutput/HomeWorldNPCExcelConfigData.json',
+    columns: [
+      {name: 'FurnitureId', type: 'integer', isPrimary: true},
+      {name: 'AvatarId', type: 'string', isIndex: true},
+      {name: 'NpcId', type: 'integer', isIndex: true},
+      {name: 'ShowNameTextMapHash', type: 'integer', isIndex: true},
+      {name: 'DescTextMapHash', type: 'integer', isIndex: true},
+    ],
     skip: true,
-  }
+  },
   // FurnitureSuiteExcelConfigData
   // FurnitureMakeExcelConfigData
   // Dungeon...
@@ -311,7 +323,7 @@ export function capitalizeFirstLetter(s: string) {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
-export function normalizeRawJson(row: any, table: SchemaTable) {
+export function normalizeRawJson(row: any, table?: SchemaTable) {
   if (typeof row === 'undefined' || typeof row === null || typeof row !== 'object') {
     return row;
   }
@@ -326,7 +338,7 @@ export function normalizeRawJson(row: any, table: SchemaTable) {
     }
     key = capitalizeFirstLetter(key);
     key = key.replace(/ID/g, 'Id');
-    if (table.normalizeFixFields && table.normalizeFixFields[key]) {
+    if (table && table.normalizeFixFields && table.normalizeFixFields[key]) {
       key = table.normalizeFixFields[key];
     }
     newRow[key] = normalizeRawJson(row[originalKey], table);

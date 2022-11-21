@@ -1,11 +1,12 @@
 import { AvatarAndFetterStoryExcelConfigData, fetchCharacterStories, fetchCharacterStoryByAvatarId, fetchCharacterStoryByAvatarName } from '../../scripts/dialogue/character_story';
-import { fetchCompanionDialogue, fetchCompanionDialogueTalkIds } from '../../scripts/dialogue/companion_dialogue';
+import { fetchCompanionDialogue, getHomeWorldCompanions } from '../../scripts/dialogue/companion_dialogue';
 import { reminderGenerateAll } from '../../scripts/dialogue/reminder_generator';
 import { getControl } from '../../scripts/script_util';
 import { create, Router, Request, Response } from '../../util/router';
 
 import LandingController from './LandingController';
 import { isInt, toInt } from '../../../shared/util/numberUtil';
+import { HomeWorldNPCExcelConfigData } from '../../../shared/types';
 
 export default async function(): Promise<Router> {
   const router: Router = create({
@@ -61,9 +62,10 @@ export default async function(): Promise<Router> {
   });
 
   router.get('/lists/companion-dialogue', async (req: Request, res: Response) => {
-    let charNameToTalkIds = await fetchCompanionDialogueTalkIds();
+    let companions: HomeWorldNPCExcelConfigData[] = await getHomeWorldCompanions(getControl(req));
+    let companionNames = companions.map(c => c.Avatar ? c.Avatar.NameText : c.Npc.NameText);
     res.render('pages/lists/companion-dialogue', {
-      charNames: Object.keys(charNameToTalkIds),
+      charNames: companionNames,
       bodyClass: ['page--companion-dialogue'],
     });
   });
@@ -96,31 +98,19 @@ export default async function(): Promise<Router> {
       story = await fetchCharacterStoryByAvatarName(getControl(req), req.params.avatarId);
     }
 
-    let out = null;
-    if (story) {
-      out = '{{Character Story';
-      let i = 1;
-      for (let fetter of story.fetters) {
-        out += `\n|title${i}`.padEnd(16)+'= '+fetter.StoryTitleText;
-        if (fetter.Friendship) {
-          out += `\n|friendship${i}`.padEnd(16)+'= '+fetter.Friendship;
-        }
-        out += `\n|text${i}`.padEnd(16)+'= '+fetter.StoryContextHtml;
-        out += `\n|mention${i}`.padEnd(16)+'= ';
-        out += '\n';
-        i++;
+    let validTabs = new Set(['wikitext', 'display', 'altered-wikitext', 'altered-display']);
+    if (typeof req.query.tab === 'string') {
+      if (!validTabs.has(req.query.tab)) {
+        req.query.tab = 'display';
       }
-      out += '}}';
-    }
-
-    if (typeof req.query.tab === 'string' && (req.query.tab !== 'wikitext' && req.query.tab !== 'display')) {
-      req.query.tab = 'display';
+      if (!story.hasAlteredStories && req.query.tab.startsWith('altered-')) {
+        req.query.tab = req.query.tab.slice('altered-'.length);
+      }
     }
 
     res.render('pages/lists/character-stories', {
       avatarId: req.params.avatarId,
       story: story,
-      wikitext: out,
       bodyClass: ['page--character-stories'],
       tab: req.query.tab || 'display',
     });

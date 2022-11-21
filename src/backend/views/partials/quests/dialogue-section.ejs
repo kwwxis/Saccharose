@@ -1,7 +1,7 @@
 <div class="dialogue-section" id="<%= id %>">
   <h4 class="dialogue-section-title valign"><%= title %>
     <% if (locals.helptext) { %>
-      <span ui-tippy-hover="<%= locals.helptext %>" class="dispInlineBlock spacer5-left" style="height:18px;width:18px;"><%- icon('info',{width: 18, height:18}) %></span>
+      <span ui-tippy-hover="<%= locals.helptext %>" class="dispInlineBlock spacer5-left" style="height:18px;width:18px;"><%- icon('info', 18) %></span>
     <% } %>
     <% if (locals.wikitext && (!locals.metadata || !Object.keys(locals.metadata).length)) { %>
       <div class="grow"></div>
@@ -13,7 +13,7 @@
   </h4>
   <% if (locals.metadata && Object.keys(locals.metadata).length) { %>
     <div class="valign">
-      <div class="valign dialogue-section-metadata">
+      <div class="valign metadata-props">
         <% for (let metaProp of metadata) { %>
           <div class="prop">
             <span class="prop-label"><%= metaProp.label %></span>

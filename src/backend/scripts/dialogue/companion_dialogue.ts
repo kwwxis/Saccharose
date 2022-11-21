@@ -3,116 +3,93 @@ import { closeKnex } from '../../util/db';
 import { Control, getControl, grep } from '../script_util';
 import { DialogueSectionResult, TalkConfigAccumulator } from './quest_generator';
 import { talkConfigGenerate } from './basic_dialogue_generator';
-import { loadTextMaps } from '../textmap';
+import { loadEnglishTextMap } from '../textmap';
 import { cached } from '../../util/cache';
+import { HomeWorldEventExcelConfigData, HomeWorldNPCExcelConfigData } from '../../../shared/types';
+import { toInt } from '../../../shared/util/numberUtil';
 
-const nameNormMap = {
-  ayaka: 'Kamisato Ayaka',
-  kamisatoayaka: 'Kamisato Ayaka',
-  qin: 'Jean',
-  jean: 'Jean',
-  lisa: 'Lisa',
-  yelan: 'Yelan',
-  shinobu: 'Kuki Shinobu',
-  kukishinobu: 'Kuki Shinobu',
-  barbara: 'Barbara',
-  kaeya: 'Kaeya',
-  diluc: 'Diluc',
-  razor: 'Razor',
-  ambor: 'Amber',
-  amber: 'Amber',
-  venti: 'Venti',
-  xiangling: 'Xiangling',
-  beidou: 'Beidou',
-  xingqiu: 'Xingqiu',
-  xiao: 'Xiao',
-  ningguang: 'Ningguang',
-  klee: 'Klee',
-  zhongli: 'Zhongli',
-  fischl: 'Fischl',
-  bennett: 'Bennett',
-  tartaglia: 'Tartaglia',
-  noel: 'Noelle',
-  noelle: 'Noelle',
-  qiqi: 'Qiqi',
-  chongyun: 'Chongyun',
-  ganyu: 'Ganyu',
-  albedo: 'Albedo',
-  diona: 'Diona',
-  mona: 'Mona',
-  keqing: 'Keqing',
-  sucrose: 'Sucrose',
-  xinyan: 'Xinyan',
-  rosaria: 'Rosaria',
-  hutao: 'Hu Tao',
-  kazuha: 'Kazuha',
-  yanfei: 'Yanfei',
-  yoimiya: 'Yoimiya',
-  tohma: 'Thoma',
-  thoma: 'Thoma',
-  eula: 'Eula',
-  shougun: 'Raiden Shogun',
-  raidenshogun: 'Raiden Shogun',
-  sayu: 'Sayu',
-  kokomi: 'Kokomi',
-  gorou: 'Gorou',
-  sara: 'Kujou Sara',
-  kujousara: 'Kujou Sara',
-  itto: 'Arataki Itto',
-  aratakiitto: 'Arataki Itto',
-  yae: 'Yae Miko',
-  yaemiko: 'Yae Miko',
-  heizo: 'Shikanoin Heizou',
-  shikanoinheizou: 'Shikanoin Heizou',
-  aloy: 'Aloy',
-  shenhe: 'Shenhe',
-  yunjin: 'Yunjin',
-  ayato: 'Kamisato Ayato',
-  kamisatoayato: 'Kamisato Ayato',
-  collei: 'Collei',
-  dori: 'Dori',
-  tighnari: 'Tighnari',
-  paimon: 'Paimon'
-};
+export async function getHomeWorldCompanions(ctrl: Control): Promise<HomeWorldNPCExcelConfigData[]> {
+  return cached('HomeWorldCompanions_'+ctrl.outputLangCode, async () => {
+    const homeWorldNPCs: HomeWorldNPCExcelConfigData[] = await ctrl.selectAllHomeWorldNPCs();
+    const homeWorldEvents: HomeWorldEventExcelConfigData[] = await ctrl.selectAllHomeWorldEvents();
 
-export async function fetchCompanionDialogueTalkIds(): Promise<{[charName: string]: number[]}> {
-  return cached('CompanionDialogueTalkIds', async () => {
-    const grepResult = await grep('QuestDialogue/HomeWorld/', './ExcelBinOutput/TalkExcelConfigData.json');
-    let charToTalkId: {[charName: string]: number[]} = {};
-    for (let item of grepResult) {
-      let substr = item.split('HomeWorld/')[1];
-      let parts = substr.split('/');
-      let char = parts[0].split('_')[0];
-      let talkId = parts[1].slice(1);
-      if (nameNormMap.hasOwnProperty(char.toLowerCase())) {
-        char = nameNormMap[char.toLowerCase()];
-      }
+    for (let npc of homeWorldNPCs) {
+      npc.SummonEvents = [];
+      npc.RewardEvents = [];
+    }
 
-      if (!charToTalkId.hasOwnProperty(char)) {
-        charToTalkId[char] = [parseInt(talkId)];
-      } else {
-        charToTalkId[char].push(parseInt(talkId));
+    // Load events into HomeWorldNPCExcelConfigData
+    for (let homeWorldEvent of homeWorldEvents) {
+      let npc = homeWorldNPCs.find(npc => npc.AvatarId === homeWorldEvent.AvatarId);
+
+      if (homeWorldEvent.EventType === 'HOME_AVATAR_SUMMON_EVENT') {
+        npc.SummonEvents.push(homeWorldEvent);
+      } else if (homeWorldEvent.EventType === 'HOME_AVATAR_REWARD_EVENT') {
+        npc.RewardEvents.push(homeWorldEvent);
       }
     }
-    return charToTalkId;
+
+    // Load grep result into map
+    const grepResult = await grep('QuestDialogue/HomeWorld/', './ExcelBinOutput/TalkExcelConfigData.json');
+    let npcIdToTalkIds: {[npcId: number]: number[]} = {};
+    for (let item of grepResult) {
+      let substr = item.split('HomeWorld/')[1];
+      substr = substr.replace(/__+/g, '_'); // replace multiple underscore with one underscore
+      let parts = substr.split('/');
+      let npcId = parseInt(parts[0].split('_')[1]);
+      let talkId = parseInt(parts[1].slice(1));
+      if (!npcIdToTalkIds.hasOwnProperty(npcId)) {
+        npcIdToTalkIds[npcId] = [talkId];
+      } else {
+        npcIdToTalkIds[npcId].push(talkId);
+      }
+    }
+
+    // Process grep result
+    for (let npcId of Object.keys(npcIdToTalkIds).map(toInt)) {
+      let talkIds: number[] = npcIdToTalkIds[npcId];
+      let npc = homeWorldNPCs.find(x => x.NpcId === npcId);
+      for (let talkId of talkIds) {
+        if (npc.TalkIds.includes(talkId) || npc.RewardEvents.find(x => x.TalkId == talkId)) {
+          // Don't add talk ids already in the HomeWorld NPC or the events
+          continue;
+        }
+        npc.TalkIds.push(talkId);
+      }
+      npc.TalkIds.sort();
+    }
+
+    return homeWorldNPCs;
   });
 }
 
-export async function fetchCompanionDialogue(ctrl: Control, charName: string): Promise<DialogueSectionResult[]> {
-  return cached('CompanionDialogue_'+charName+'_'+ctrl.outputLangCode, async () => {
+export async function fetchCompanionDialogue(ctrl: Control, avatarNameOrId: string|number): Promise<DialogueSectionResult[]> {
+  let companions = await getHomeWorldCompanions(ctrl);
+
+  let companion = companions.find(c => (c.Avatar && c.Avatar.NameText === avatarNameOrId) || (c.Npc && c.Npc.NameText === avatarNameOrId)
+    || c.AvatarId === avatarNameOrId || c.NpcId === avatarNameOrId);
+
+  if (!companion) {
+    return null;
+  }
+
+  return cached('CompanionDialogue_'+companion.AvatarId+'_'+ctrl.outputLangCode, async () => {
     let result: DialogueSectionResult[] = [];
-    let talkIds = (await fetchCompanionDialogueTalkIds())[charName];
-    if (!talkIds) {
-      return [];
-    }
 
     let acc = new TalkConfigAccumulator(ctrl);
 
-    for (let talkConfigId of talkIds) {
+    for (let talkConfigId of companion.TalkIds) {
       if (acc.fetchedTalkConfigIds.includes(talkConfigId)) {
         continue;
       }
       result.push(await talkConfigGenerate(ctrl, talkConfigId, null, acc));
+    }
+
+    for (let rewardEvent of companion.RewardEvents) {
+      let section = await talkConfigGenerate(ctrl, rewardEvent.TalkId, null, acc);
+      let rewardInfo = await ctrl.selectRewardExcelConfigData(rewardEvent.RewardId);
+      section.wikitextArray.push(rewardInfo.RewardWikitext);
+      result.push(section);
     }
 
     return result;
@@ -121,8 +98,9 @@ export async function fetchCompanionDialogue(ctrl: Control, charName: string): P
 
 if (require.main === module) {
   (async () => {
-    await loadTextMaps();
-    console.log(await fetchCompanionDialogue(getControl(), 'Raiden Shogun'));
+    await loadEnglishTextMap();
+    let ctrl = getControl();
+    console.log(await fetchCompanionDialogue(ctrl, 'Raiden Shogun'));
     await closeKnex();
   })();
 }

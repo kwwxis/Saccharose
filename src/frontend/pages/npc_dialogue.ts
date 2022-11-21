@@ -68,7 +68,6 @@ pageMatch('pages/npc-dialogue', () => {
     {
       ev: 'ready',
       fn: function() {
-        console.log('npc dialogue ready!');
         // Replace state on load to populate state to distinguish hashchanges in popstate
         loadResultFromURL();
       }

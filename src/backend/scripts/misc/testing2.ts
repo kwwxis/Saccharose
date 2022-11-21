@@ -18,6 +18,7 @@ if (require.main === module) {
     console.log('talkRoleTypes', talkRoleTypes);
     */
 
+    /*
     let filePath = config.database.getGenshinDataFilePath('./ExcelBinOutput/MaterialExcelConfigData.json');
     let result: any[] = await fs.readFile(filePath, {encoding: 'utf8'}).then(data => JSON.parse(data));
     let materialTypes: Set<string> = new Set();
@@ -28,18 +29,18 @@ if (require.main === module) {
     let uniqueProps: {[name: string]: string} = {};
 
     for (let material of result) {
-      if (material.materialType) {
-        materialTypes.add(material.materialType);
+      if (material.MaterialType) {
+        materialTypes.add(material.MaterialType);
       }
-      if (material.itemType) {
-        itemTypes.add(material.itemType);
+      if (material.ItemType) {
+        itemTypes.add(material.ItemType);
       }
-      if (material.useTarget) {
-        useTargets.add(material.useTarget);
+      if (material.UseTarget) {
+        useTargets.add(material.UseTarget);
       }
-      if (material.itemUse) {
-        for (let x of material.itemUse) {
-          useOps.add(x.useOp);
+      if (material.ItemUse) {
+        for (let x of material.ItemUse) {
+          useOps.add(x.UseOp);
         }
       }
       Object.keys(material).forEach(key => {
@@ -51,6 +52,24 @@ if (require.main === module) {
     console.log('materialTypes', materialTypes);
     console.log('useTargets', useTargets);
     console.log('useOps', useOps);
+    console.log('uniqueProps', uniqueProps);*/
+
+    let filePath = config.database.getGenshinDataFilePath('./ExcelBinOutput/DungeonExcelConfigData.json');
+    let result: any[] = await fs.readFile(filePath, {encoding: 'utf8'}).then(data => JSON.parse(data));
+    let types: Set<string> = new Set();
+
+    let uniqueProps: {[name: string]: string} = {};
+
+    for (let dungeon of result) {
+      if (dungeon.Type) {
+        types.add(dungeon.Type);
+      }
+      Object.keys(dungeon).forEach(key => {
+        uniqueProps[key] = typeof dungeon[key];
+      });
+    }
+
+    console.log('types', types);
     console.log('uniqueProps', uniqueProps);
   })();
 }

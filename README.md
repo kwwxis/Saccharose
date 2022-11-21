@@ -22,29 +22,29 @@
 
 1. Clone the repo from GitHub (`git clone git@github.com:matthew0x40/genshin-data-explorer.git`)
 2. Run `npm install` in the repo
-3. Copy `.env.example` to new file `.env` and configure it
+3. Copy `.env.example` to new file `.env` and configure it according to the comments.
     1. **shell setup**
        
-       This application requires the `grep` command to run.
-       So you must specify a `SHELL_PATH` and `SHELL_EXEC` in the `.env` file.
+        This application requires the `grep` command to run.
+        So you must specify a `SHELL_PATH` and `SHELL_EXEC` in the `.env` file.
 
-       If you're on Linux/Unix, you should already have Bash. But on Windows,
-       it's recommended that you install [Git Bash](https://git-scm.com/downloads).
+        If you're on Linux/Unix, you should already have Bash. But on Windows,
+        it's recommended that you install [Git Bash](https://git-scm.com/downloads).
     
-       After installing Git Bash, you can configure the follow:
-       ```dotenv
-       SHELL_PATH='C:/Program Files/Git/usr/bin'
-       SHELL_EXEC='C:/Program Files/Git/usr/bin/bash.exe'
-       ```
-       Or on Linux:
-       ```dotenv
-       SHELL_PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin
-       SHELL_EXEC=/bin/bash
-       ```
+        After installing Git Bash, you can configure the follow:
+        ```dotenv
+        SHELL_PATH='C:/Program Files/Git/usr/bin'
+        SHELL_EXEC='C:/Program Files/Git/usr/bin/bash.exe'
+        ```
+        Or on Linux:
+        ```dotenv
+        SHELL_PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin
+        SHELL_EXEC=/bin/bash
+        ```
     2. **SSL setup**
        
-       You can run this project locally without SSL, but it's recommended that you set up SSL. You can do this by
-       creating a self-signed SSL certificate:
+        You can run this project locally without SSL, but it's recommended that you set up SSL. You can do this by
+        creating a self-signed SSL certificate:
        
         1. Create a file called `openssl.<VHOST>.cnf` with these contents.
            
@@ -99,19 +99,39 @@
            ```
         6. Edit the `.env` file and set the SSL_KEY and SSL_CERT properties.
            
-           ```dotenv
-           SSL_KEY=C:/<wherever-you-put-the-files>/<VHOST>.key
-           SSL_CERT=C:/<wherever-you-put-the-files>/<VHOST>.crt
-           ```
+            ```dotenv
+            SSL_KEY=C:/<wherever-you-put-the-files>/<VHOST>.key
+            SSL_CERT=C:/<wherever-you-put-the-files>/<VHOST>.crt
+            SSL_CA=C:/<wherever-you-put-the-files>/rootSSL.pem
+            ```
         7. You'll need to register the `rootSSL.pem` file you created with your Operating System. You can find
            instructions on how to do that [here](https://reactpaths.com/how-to-get-https-working-in-localhost-development-environment-f17de34af046)
            in step 3 "*Trust the Certificate Authority CA on your local development machine*".
+       
+        If you don't want to use SSL locally, you can use these settings:
+        
+          * No SSL on localhost:
+              ```dotenv
+              VHOST=localhost
+              VHOSTED=0
+              HTTP_PORT=3002
+              SSL_ENABLED=false
+              ```
+              Application would be accessed at http://localhost:3002/
+          * No SSL on custom domain name:
+              ```dotenv
+              VHOST=genshin-data-explorer.localhost
+              VHOSTED=1
+              HTTP_PORT=80
+              SSL_ENABLED=false
+              ```
+              Application would be accessed at http://genshin-data-explorer.localhost/
            
     3. **Genshin Data Setup**
        
-       You'll need to repeat this step after every new Genshin Impact version.
-       The `import_run` step takes several hours, so if you're lazy you can just ask kwwxis or someone in the wiki
-       discord to zip up their folder and send it to you.
+        You'll need to repeat this step after every new Genshin Impact version.
+        The `import_run` step takes several hours, so if you're lazy you can just ask kwwxis or someone in the wiki
+        discord to zip up their folder and send it to you.
        
         1. **Obtain Genshin Data folder**
            
@@ -139,7 +159,7 @@
              your `GENSHIN_DATA_ROOT` folder.
 
            * You can start it by running `ts-node ./src/backend/scripts/importer/import_voice.ts`.
-    3. Done!
+ 3. Done!
     
 ## Development
 

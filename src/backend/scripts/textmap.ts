@@ -67,13 +67,13 @@ export async function loadQuestSummarization(): Promise<void> {
 // VOICE ITEMS
 // ----------------------------------------------------------------------------------------------------
 export async function loadVoiceItems(): Promise<void> {
-  console.log('Loading Voice Items -- starting...');
+  console.log('[Init] Loading Voice Items -- starting...');
   let voiceItemsFilePath = path.resolve(process.env.GENSHIN_DATA_ROOT, config.database.voiceItemsFile);
 
   let result: VoiceItemMap = await fs.readFile(voiceItemsFilePath, {encoding: 'utf8'}).then(data => Object.freeze(JSON.parse(data)));
 
   Object.assign(VoiceItems, result);
-  console.log('Loading Voice Items -- done!');
+  console.log('[Init]  Loading Voice Items -- done!');
 }
 
 export type VoiceItemType = 'Dialog'|'Reminder'|'Fetter'|'AnimatorEvent'|'WeatherMonologue'|'JoinTeam';

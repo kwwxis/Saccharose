@@ -22,10 +22,10 @@ body.nightmode .dialogue-section {
 
 /*------------------------------*/
 
-.dialogue-section-metadata {
+.metadata-props {
   flex-wrap: wrap;
 }
-.dialogue-section-metadata .prop {
+.metadata-props .prop {
   display: flex;
   align-items: center;
   border: 1px solid hsla(232, 20%, 32%, 0.25);
@@ -36,33 +36,33 @@ body.nightmode .dialogue-section {
   margin-bottom: 3px;
 }
 
-.dialogue-section-metadata .prop-label {
+.metadata-props .prop-label {
   background: hsla(232, 20%, 32%, 0.11);
   padding: 0 3px;
 }
 
-.dialogue-section-metadata .prop-values {
+.metadata-props .prop-values {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
 }
 
-.dialogue-section-metadata .prop-value {
+.metadata-props .prop-value {
   border-left: 1px solid hsla(232, 20%, 32%, 0.3);
   padding: 0 5px;
   text-decoration: none;
 }
 
-body.nightmode .dialogue-section-metadata .prop {
+body.nightmode .metadata-props .prop {
   border-color: hsla(232, 20%, 60%, 0.25);
 }
-body.nightmode .dialogue-section-metadata .prop-value {
+body.nightmode .metadata-props .prop-value {
   border-left-color: hsla(232, 20%, 60%, 0.3);
 }
 
-body.nightmode .dialogue-section-metadata .prop-label {
+body.nightmode .metadata-props .prop-label {
   background: hsl(255deg 8% 22%);
 }
-body.nightmode .dialogue-section-metadata .prop-value {
+body.nightmode .metadata-props .prop-value {
   background: hsl(255deg 8% 20%);
 }

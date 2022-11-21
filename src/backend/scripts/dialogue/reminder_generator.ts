@@ -3,7 +3,7 @@ import { closeKnex } from '../../util/db';
 import { Control, getControl, normText } from '../script_util';
 import { ReminderExcelConfigData } from '../../../shared/types';
 import { DialogueSectionResult, MetaProp } from './quest_generator';
-import { getVoPrefix, loadTextMaps } from '../textmap';
+import { getVoPrefix, loadEnglishTextMap } from '../textmap';
 import { cached } from '../../util/cache';
 import { isInt } from '../../../shared/util/numberUtil';
 
@@ -96,7 +96,7 @@ export async function reminderGenerate(ctrl: Control, query: number|string, subs
 
 if (require.main === module) {
   (async () => {
-    await loadTextMaps();
+    await loadEnglishTextMap();
     console.log(await reminderGenerate(getControl(), `Convinced that the king will in time provide a delicious meal`));
     await closeKnex();
   })();

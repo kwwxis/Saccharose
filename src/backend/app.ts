@@ -17,6 +17,7 @@ import baseRouter from './controllers/BaseRouter';
 import apiRouter from './controllers/api';
 import { loadTextMaps, loadVoiceItems, loadQuestSummarization } from './scripts/textmap';
 import { isStringNotBlank } from '../shared/util/stringUtil';
+import { toBoolean } from '../shared/util/genericUtil';
 
 const app: Express = express();
 
@@ -77,9 +78,10 @@ export default {
     app.use(express.static(config.views.publicDir)); // specifies public directory
 
     // Add default headers
+    const sendHstsHeader: boolean = toBoolean(process.env.SSL_ENABLED) && process.env.NODE_ENV !== 'development';
     app.use((req, res, next) => {
       res.header('X-Robots-Tag', 'noindex, nofollow');
-      if (req.headers.host === process.env.VHOST) {
+      if (sendHstsHeader && req.headers.host === process.env.VHOST) {
         res.header('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
       }
       next();
