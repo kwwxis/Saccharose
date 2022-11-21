@@ -20,7 +20,7 @@
 
 ## Setup
 
-1. Clone the repo from GitHub (`git clone git@github.com:matthew0x40/genshin-data-explorer.git`)
+1. Clone the repo from GitHub (`git clone git@github.com:kwwxis/genshin-data-explorer.git`)
 2. Run `npm install` in the repo
 3. Copy `.env.example` to new file `.env` and configure it according to the comments.
     1. **shell setup**
