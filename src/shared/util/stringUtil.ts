@@ -28,11 +28,19 @@ export function ucFirst(str: string): string {
     return str == null ? null : str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-export function sentenceJoin(s: string[]) {
+/**
+ * Sentence join.
+ *
+ * Examples:
+ *   - `sentenceJoin(['X']) -> 'X'`
+ *   - `sentenceJoin(['X', 'Y']) -> 'X and Y'`
+ *   - `sentenceJoin(['X', 'Y', 'Z']) -> 'X, Y, and Z'`
+ */
+export function sentenceJoin(s: string[], disableOxfordComma: boolean = false) {
     if (!s || !s.length) return '';
     if (s.length == 1) return s[0];
     if (s.length == 2) return s.join(' and ');
-    return s.slice(0, -1).join(', ') + ' and ' + s[s.length - 1];
+    return s.slice(0, -1).join(', ') + (disableOxfordComma ? '' : ',') + ' and ' + s[s.length - 1];
 }
 
 export function titleCase(s: string) {

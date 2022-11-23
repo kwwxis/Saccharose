@@ -2,11 +2,11 @@ import moment from 'moment/moment';
 
 export type Type<T> = { new (...args: any[]): T };
 
-export function isEmpty(x) {
+export function isUnset(x) {
     return x === null || typeof x === 'undefined';
 }
 
-export function isEmptyValue(x: any): boolean {
+export function isEmpty(x: any): boolean {
     if (typeof x === 'boolean' || typeof x === 'number') {
         return false; // don't consider any booleans or numbers to be empty
     }

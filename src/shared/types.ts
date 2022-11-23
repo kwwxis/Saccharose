@@ -6,8 +6,8 @@ export interface ConfigCondition {
   ParamStr?: string,
 }
 
-export type LangCode = 'CHS' | 'CHT' | 'DE' | 'EN' | 'ES' | 'FR' | 'ID' | /*'IT' |*/ 'JP' | 'KR' | 'PT' | 'RU' | 'TH' | /*'TR' |*/ 'VI';
-export const LANG_CODES: LangCode[] = ['CHS', 'CHT', 'DE', 'EN', 'ES', 'FR', 'ID', /*'IT',*/ 'JP', 'KR', 'PT', 'RU', 'TH', /*'TR',*/ 'VI'];
+export type LangCode = 'CHS' | 'CHT' | 'DE' | 'EN' | 'ES' | 'FR' | 'ID' | 'JP' | 'KR' | 'PT' | 'RU' | 'TH' | 'VI'; // TODO add IT/TR
+export const LANG_CODES: LangCode[] = ['CHS', 'CHT', 'DE', 'EN', 'ES', 'FR', 'ID', 'JP', 'KR', 'PT', 'RU', 'TH','VI']; // TODO add IT/TR
 export const LANG_CODES_TO_NAME = {
   CHS: 'Chinese (Simplified)',
   CHT: 'Chinese (Traditional)',
@@ -16,14 +16,31 @@ export const LANG_CODES_TO_NAME = {
   ES: 'Spanish',
   FR: 'French',
   ID: 'Indonesian',
-  //IT: 'Italian',
+  //IT: 'Italian', // TODO
   JP: 'Japanese',
   KR: 'Korean',
   PT: 'Portuguese',
   RU: 'Russian',
   TH: 'Thai',
-  //TR: 'Turkish',
+  //TR: 'Turkish', // TODO
   VI: 'Vietnamese',
+}
+export const LANG_CODES_TO_WIKI_CODE = {
+  CHS: 'ZHS',
+  CHT: 'ZHT',
+  DE: 'DE',
+  EN: 'EN',
+  ES: 'ES',
+  FR: 'FR',
+  ID: 'ID',
+  //IT: '', // TODO
+  JP: 'JA',
+  KR: 'KO',
+  PT: 'PT',
+  RU: 'RU',
+  TH: 'TH',
+  //TR: '', // TODO
+  VI: 'VI',
 }
 
 // DIALOG CONFIG
@@ -213,12 +230,37 @@ export interface AvatarExcelConfigData {
   SideIconName: string,
 }
 
-export interface FetterStoryExcelConfigDataCondSummary {
+export interface FetterCondSummary {
   Friendship?: number,
   Quest?: string,
+
+  AscensionPhase?: number, //
+  Birthday?: boolean,
+  Waypoint?: string, // only for Traveler VOs
+  Statue?: string, // only for Traveler VOs
 }
 
-export interface FetterStoryExcelConfigData {
+export type FetterCondType =
+  'FETTER_COND_AVATAR_PROMOTE_LEVEL' |  // ascension phase
+  'FETTER_COND_FETTER_LEVEL' |          // friendship
+  'FETTER_COND_FINISH_PARENT_QUEST' |   // quest requirement (Param is MainQuestExcelConfigData ID)
+  'FETTER_COND_FINISH_QUEST' |          // quest requirement (Param is QuestExcelConfigData ID)
+  'FETTER_COND_PLAYER_BIRTHDAY' |       // player birthday
+  'FETTER_COND_UNLOCK_TRANS_POINT';     // unlock waypoint
+export type FetterCond = {
+  CondType: FetterCondType,
+  ParamList: number[]
+};
+export interface FetterWithConditions {
+  OpenConds?: FetterCond[],
+  FinishConds?: FetterCond[],
+  OpenCondsSummary?: FetterCondSummary,
+  FinishCondsSummary?: FetterCondSummary,
+  Tips: number[],
+  MappedTips?: string[],
+}
+
+export interface FetterStoryExcelConfigData extends FetterWithConditions {
   FetterId: number,
   AvatarId: number,
   Avatar?: AvatarExcelConfigData,
@@ -227,25 +269,33 @@ export interface FetterStoryExcelConfigData {
   StoryContextTextMapHash: number,
   StoryTitleText: string,
   StoryContextText: string,
+  StoryContextHtml: string,
 
   StoryTitle2TextMapHash: number,
   StoryContext2TextMapHash: number,
   StoryTitle2Text: string,
   StoryContext2Text: string,
-
-  Tips: number[],
-  OpenConds: {CondType: string, ParamList: number[]}[],
-  FinishConds: {CondType: string, ParamList: number[]}[],
-
-  // Unused:
-  //StoryTitleLockedText: string,
-  //StoryTitleLockedTextMapHash: number,
-
-  // Custom:
-  OpenCondsSummary: FetterStoryExcelConfigDataCondSummary,
-  FinishCondsSummary: FetterStoryExcelConfigDataCondSummary,
-  StoryContextHtml: string,
   StoryContext2Html: string,
+
+  StoryTitleLockedTextMapHash?: number,
+}
+
+export interface FetterExcelConfigData extends FetterWithConditions {
+  Type: 1|2,
+  VoiceFile: string,
+  VoiceTitleTextMapHash: number,
+  VoiceFileTextTextMapHash: number,
+  VoiceTitleLockedTextMapHash: number,
+  FetterId: number,
+  AvatarId: number,
+  IsHiden: boolean, // this is misspelled in the source JSON, do not fix
+  HideCostumeList: number[],
+  ShowCostumeList: number[],
+
+  VoiceTitleText?: string,
+  VoiceFileTextText?: string,
+  VoiceTitleLockedText?: string,
+  Avatar?: AvatarExcelConfigData,
 }
 
 export interface ReminderExcelConfigData {

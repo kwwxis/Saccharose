@@ -1,4 +1,5 @@
-import { isEmpty, isEmptyValue } from './genericUtil';
+import { isUnset, isEmpty } from './genericUtil';
+import { isStringBlank } from './stringUtil';
 
 export type SortComparator<T> = (a: T, b: T) => number;
 export type ElementComparator<T> = (arrayElement: T, expectedElement: T) => boolean;
@@ -32,15 +33,24 @@ export function fromKeysWithFixedValue<T>(keys: string[], value: T): { [key: str
     return obj;
 }
 
-export function resolveObjectPath(o, s) {
+export function resolveObjectPath(o: any, s: string, deleteMode: boolean = false): any {
     if (typeof s !== 'string') return undefined;
-    s = s.replace(/\.?\[(\w+)]/g, '.$1'); // convert indexes to properties
+    s = s.replace(/\.?\[([^\]]+)]/g, '.$1'); // convert indexes to properties
     s = s.replace(/^\./, '');           // strip a leading dot
+    if (isStringBlank(s)) return o;
     let a = s.split('.');
-    for (let i = 0, n = a.length; i < n; ++i) {
+    let lastIdx = a.length - 1;
+    for (let i = 0; i < a.length; i++) {
         let k = a[i];
+        let isLast = i === lastIdx;
         if (typeof o === 'object' && k in o) {
-            o = o[k];
+            let v = o[k];
+            if (isLast && deleteMode) {
+                delete o[k];
+            }
+            o = v;
+        } else if (Array.isArray(o) && ['#ALL', '#EACH', '#EVERY'].includes(k.toUpperCase())) {
+            return o.map(item => resolveObjectPath(item, a.slice(i + 1).join('.'), deleteMode)).flat(Infinity);
         } else {
             return undefined;
         }
@@ -60,9 +70,9 @@ export function groupBy<T>(array: T[], property: string): { [groupedBy: string]:
 }
 
 export function compare<T>(a: T, b: T, field?: string|SortComparator<T>, nullsLast: boolean = false): number {
-    if (isEmpty(a) && !isEmpty(b)) return nullsLast ? 1 : -1;
-    if (!isEmpty(a) && isEmpty(b)) return nullsLast ? -1 : 1;
-    if (isEmpty(a) && isEmpty(b)) return 0;
+    if (isUnset(a) && !isUnset(b)) return nullsLast ? 1 : -1;
+    if (!isUnset(a) && isUnset(b)) return nullsLast ? -1 : 1;
+    if (isUnset(a) && isUnset(b)) return 0;
 
     let reverse = false;
     if (typeof field === 'string' && field.startsWith('-')) {
@@ -145,13 +155,16 @@ export function sort<T>(array: T[], ...fields: (string|SortComparator<T>)[]): T[
     return array;
 }
 
-export function removeEmptyValues(o: any): any {
-    if (Array.isArray(o)) {
-        return o.filter(item => !isEmptyValue(item));
+export function cleanEmpty(o: any): any {
+    if (isEmpty(o)) {
+        return o;
+    } else if (Array.isArray(o)) {
+        return o.map(item => cleanEmpty(item)).filter(x => !isEmpty(x));
     } else if (typeof o === 'object') {
         let copy = Object.assign({}, o);
         for (let key of Object.keys(copy)) {
-            if (isEmptyValue(copy[key])) {
+            copy[key] = cleanEmpty(copy[key]);
+            if (isEmpty(copy[key])) {
                 delete copy[key];
             }
         }

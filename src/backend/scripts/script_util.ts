@@ -1,36 +1,38 @@
 import config from '../config';
 import util from 'util';
-import {exec} from 'child_process';
-const execPromise = util.promisify(exec);
+import { exec } from 'child_process';
 import { Knex } from 'knex';
 import { openKnex } from '../util/db';
 import {
-  NpcExcelConfigData,
-  ManualTextMapConfigData,
-  ConfigCondition,
-  MainQuestExcelConfigData,
-  QuestExcelConfigData,
-  DialogExcelConfigData,
-  TalkExcelConfigData,
-  TalkRole,
-  LangCode,
   AvatarExcelConfigData,
-  ReminderExcelConfigData,
   ChapterExcelConfigData,
-  QuestType,
-  RewardExcelConfigData,
-  MaterialExcelConfigData,
-  MaterialSourceDataExcelConfigData,
+  ConfigCondition,
+  DialogExcelConfigData,
   HomeWorldEventExcelConfigData,
   HomeWorldNPCExcelConfigData,
+  LangCode,
+  MainQuestExcelConfigData,
+  ManualTextMapConfigData,
+  MaterialExcelConfigData,
+  MaterialSourceDataExcelConfigData,
+  NpcExcelConfigData,
+  QuestExcelConfigData,
+  QuestType,
+  ReminderExcelConfigData,
+  RewardExcelConfigData,
+  TalkExcelConfigData,
+  TalkRole,
 } from '../../shared/types';
 import { getTextMapItem, getVoPrefix } from './textmap';
 import { Request } from '../util/router';
 import SrtParser, { SrtLine } from '../util/srtParser';
-import {promises as fs} from 'fs';
+import { promises as fs } from 'fs';
 import { arrayIndexOf, arrayIntersect } from '../../shared/util/arrayUtil';
 import { toNumber } from '../../shared/util/numberUtil';
 import { normalizeRawJson } from './importer/import_run';
+import { replaceAsync } from '../../shared/util/stringUtil';
+
+const execPromise = util.promisify(exec);
 
 export async function grep(searchText: string, file: string, extraFlags?: string, escapeDoubleQuotes: boolean = true): Promise<string[]> {
   try {
@@ -47,9 +49,7 @@ export async function grep(searchText: string, file: string, extraFlags?: string
       env: { PATH: process.env.SHELL_PATH },
       shell: process.env.SHELL_EXEC
     });
-    let lines = stdout.split(/\n/).map(s => s.trim()).filter(x => !!x);
-    //console.log(lines);
-    return lines;
+    return stdout.split(/\n/).map(s => s.trim()).filter(x => !!x);
   } catch (err) {
     return [];
   }
@@ -118,6 +118,7 @@ export const normText = (text: string, langCode: string = 'EN') => {
   text = text.replace(/{M#([^}]+)}{F#([^}]+)}/g, '{{MC|m=$1|f=$2}}');
   text = text.replace(/<color=#00E1FFFF>([^<]+)<\/color>/g, '{{color|buzzword|$1}}');
   text = text.replace(/<color=#FFCC33FF>([^<]+)<\/color>/g, '{{color|help|$1}}');
+  text = text.replace(/<color=#37FFFF>([^<]+) ?<\/color>/g, "'''$1'''");
   text = text.replace(/<color=(#[0-9a-fA-F]{6})FF>([^<]+)<\/color>/g, '{{color|$1|$2}}');
   text = text.replace(/\\n/g, '<br />');
 
@@ -131,6 +132,8 @@ export const normText = (text: string, langCode: string = 'EN') => {
   return text;
 }
 
+const DEFAULT_LANG: LangCode = 'EN';
+
 export class ControlPrefs {
   KnexInstance: Knex = null;
   Request: Request = null;
@@ -138,6 +141,7 @@ export class ControlPrefs {
 
   dialogCache: {[Id: number]: DialogExcelConfigData} = {};
   npcCache: {[Id: number]: NpcExcelConfigData} = {};
+  avatarCache:  {[Id: number]: AvatarExcelConfigData} = {};
 
   static beforeQuestSub(questSubId: number): ConfigCondition {
     return {Type: 'QUEST_COND_STATE_EQUAL', Param: [questSubId, 2]};
@@ -147,11 +151,11 @@ export class ControlPrefs {
   }
 
   get inputLangCode(): LangCode {
-    return this.Request ? this.Request.cookies['inputLangCode'] || 'EN' : 'EN';
+    return this.Request ? this.Request.cookies['inputLangCode'] || DEFAULT_LANG : DEFAULT_LANG;
   }
 
   get outputLangCode(): LangCode {
-    return this.Request ? this.Request.cookies['outputLangCode'] || 'EN' : 'EN';
+    return this.Request ? this.Request.cookies['outputLangCode'] || DEFAULT_LANG : DEFAULT_LANG;
   }
 }
 
@@ -159,6 +163,7 @@ export function getControl(controlContext?: Request|ControlPrefs) {
   return new Control(controlContext);
 }
 
+// TODO: Make this not a god object
 export class Control {
   readonly prefs: ControlPrefs;
   private knex: Knex;
@@ -182,6 +187,9 @@ export class Control {
   }
 
   postProcessCondProp(obj: any, prop: string) {
+    if (!Array.isArray(obj[prop])) {
+      return;
+    }
     let condArray = obj[prop] as ConfigCondition[];
     let newCondArray = [];
     for (let cond of condArray) {
@@ -524,8 +532,7 @@ export class Control {
     if (typeof nameOrTextMapId === 'number') {
       nameOrTextMapId = [ nameOrTextMapId ];
     }
-    let npcList = await this.knex.select('*').from('NpcExcelConfigData').whereIn('NameTextMapHash', <number[]> nameOrTextMapId).then(this.commonLoad);
-    return npcList;
+    return await this.knex.select('*').from('NpcExcelConfigData').whereIn('NameTextMapHash', <number[]>nameOrTextMapId).then(this.commonLoad);
   }
 
   doesDialogHaveNpc(dialog: DialogExcelConfigData, npcNames: string[]) {
@@ -773,7 +780,13 @@ export class Control {
   }
 
   async selectAvatarById(id: number): Promise<AvatarExcelConfigData> {
-    return await this.knex.select('*').from('AvatarExcelConfigData').where({Id: id}).first().then(this.commonLoadFirst);
+    if (this.prefs.avatarCache.hasOwnProperty(id)) {
+      return this.prefs.avatarCache[id];
+    }
+    let avatar: AvatarExcelConfigData = await this.knex.select('*').from('AvatarExcelConfigData')
+      .where({Id: id}).first().then(this.commonLoadFirst);
+    this.prefs.avatarCache[id] = avatar;
+    return avatar;
   }
 
   async selectAllReminders(): Promise<ReminderExcelConfigData[]> {
@@ -944,8 +957,4 @@ export class Control {
     reward.RewardWikitext = wikitext.join('');
     return reward;
   }
-}
-
-function replaceAsync(text: string, arg1: RegExp, arg2: (_fullMatch: any, g1: any, g2: any) => Promise<string>): string | PromiseLike<string> {
-  throw new Error('Function not implemented.');
 }

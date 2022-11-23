@@ -166,9 +166,9 @@
 ### Build and run
 
  * Run `npm run build:dev` then `npm run start` to build and run the application.
-    * For production build, you'll want to use `npm run build:prod` instead.
+    * For production build, use `npm run build:prod` instead.
  * Note that `build:dev/prod` builds both the frontend and backend.
-    * If you want to build just the backend you can run `npm run backend:build`
+    * To build just the backend, run `npm run backend:build`
     * To build just the frontend, run `npm run webpack:dev` or `npm run webpack:prod`
 
 ### Live Reloading

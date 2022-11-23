@@ -1,4 +1,4 @@
-import { AvatarAndFetterStoryExcelConfigData, fetchCharacterStories, fetchCharacterStoryByAvatarId, fetchCharacterStoryByAvatarName } from '../../scripts/dialogue/character_story';
+import { StoryFetters, fetchCharacterStories, fetchCharacterStoryByAvatarId, fetchCharacterStoryByAvatarName } from '../../scripts/fetters/character_story';
 import { fetchCompanionDialogue, getHomeWorldCompanions } from '../../scripts/dialogue/companion_dialogue';
 import { reminderGenerateAll } from '../../scripts/dialogue/reminder_generator';
 import { getControl } from '../../scripts/script_util';
@@ -91,7 +91,7 @@ export default async function(): Promise<Router> {
   });
 
   router.get('/lists/character-stories/:avatarId', async (req: Request, res: Response) => {
-    let story: AvatarAndFetterStoryExcelConfigData;
+    let story: StoryFetters;
     if (isInt(req.params.avatarId)) {
       story = await fetchCharacterStoryByAvatarId(getControl(req), toInt(req.params.avatarId));
     } else {
