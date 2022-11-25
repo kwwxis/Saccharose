@@ -234,7 +234,7 @@ export interface FetterCondSummary {
   Friendship?: number,
   Quest?: string,
 
-  AscensionPhase?: number, //
+  AscensionPhase?: number,
   Birthday?: boolean,
   Waypoint?: string, // only for Traveler VOs
   Statue?: string, // only for Traveler VOs
@@ -242,7 +242,7 @@ export interface FetterCondSummary {
 
 export type FetterCondType =
   'FETTER_COND_AVATAR_PROMOTE_LEVEL' |  // ascension phase
-  'FETTER_COND_FETTER_LEVEL' |          // friendship
+  'FETTER_COND_FETTER_LEVEL' |          // friendship level
   'FETTER_COND_FINISH_PARENT_QUEST' |   // quest requirement (Param is MainQuestExcelConfigData ID)
   'FETTER_COND_FINISH_QUEST' |          // quest requirement (Param is QuestExcelConfigData ID)
   'FETTER_COND_PLAYER_BIRTHDAY' |       // player birthday

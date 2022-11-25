@@ -1,8 +1,8 @@
 import '../../loadenv';
 import { closeKnex } from '../../util/db';
 import { Control, getControl, grep } from '../script_util';
-import { DialogueSectionResult, TalkConfigAccumulator } from './quest_generator';
-import { talkConfigGenerate } from './basic_dialogue_generator';
+import { DialogueSectionResult, TalkConfigAccumulator } from '../dialogue/quest_generator';
+import { talkConfigGenerate } from '../dialogue/basic_dialogue_generator';
 import { loadEnglishTextMap } from '../textmap';
 import { cached } from '../../util/cache';
 import { HomeWorldEventExcelConfigData, HomeWorldNPCExcelConfigData } from '../../../shared/types';

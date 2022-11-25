@@ -1,5 +1,5 @@
-import { StoryFetters, fetchCharacterStories, fetchCharacterStoryByAvatarId, fetchCharacterStoryByAvatarName } from '../../scripts/fetters/character_story';
-import { fetchCompanionDialogue, getHomeWorldCompanions } from '../../scripts/dialogue/companion_dialogue';
+import { StoryFetters, fetchCharacterStories, fetchCharacterStoryByAvatarId, fetchCharacterStoryByAvatarName } from '../../scripts/fetters/fetchStoryFetters';
+import { fetchCompanionDialogue, getHomeWorldCompanions } from '../../scripts/homeworld/companion_dialogue';
 import { reminderGenerateAll } from '../../scripts/dialogue/reminder_generator';
 import { getControl } from '../../scripts/script_util';
 import { create, Router, Request, Response } from '../../util/router';

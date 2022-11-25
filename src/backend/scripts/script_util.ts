@@ -67,6 +67,9 @@ export async function grepIdStartsWith(idProp: string, idPrefix: number|string, 
   return out;
 }
 
+// TODO improve this method - it sucks
+//   Only works for languages that use spaces for word boundaries (i.e. not chinese)
+//   and only works for one word (i.e. doesn't expand the {{rubi}} to multiple words)
 export const convertRubi = (text: string) => {
   let ruby = [];
 
@@ -88,21 +91,21 @@ export const convertRubi = (text: string) => {
 
 export const travelerPlaceholder = (langCode: string = 'EN') => {
   switch (langCode) {
-    case 'CHS': return '玩家';
-    case 'CHT': return '玩家';
+    case 'CHS': return '旅行者';
+    case 'CHT': return '旅行者';
     case 'DE': return '{{MC|m=Reisender|f=Reisende}}';
     case 'EN': return 'Traveler';
     case 'ES': return '{{MC|m=Viajero|f=Viajera}}';
     case 'FR': return '{{MC|m=Voyageur|f=Voyageuse}}'
     case 'ID': return 'Pengembara';
-    //case 'IT': return 'Traveler'; // TODO
-    case 'JP': return 'プレイヤー';
-    case 'KR': return '플레이어';
-    case 'PT': return 'Jogador';
-    case 'RU': return 'Игрок';
-    case 'TH': return 'ผู้เล่น';
-    //case 'TR': return 'Traveler'; // TODO
-    case 'VI': return 'Người Chơi';
+    case 'IT': return '{{MC|m=Viaggiatore|f=Viaggiatrice}}';
+    case 'JP': return '旅人';
+    case 'KR': return '여행자';
+    case 'PT': return 'Viajante';
+    case 'RU': return '{{MC|m=Путешественник|f=Путешественница}}';
+    case 'TH': return 'นักเดินทาง';
+    case 'TR': return 'Gezgin';
+    case 'VI': return 'Nhà Lữ Hành';
   }
   return 'Traveler;'
 }
@@ -134,21 +137,18 @@ export const normText = (text: string, langCode: string = 'EN') => {
 
 const DEFAULT_LANG: LangCode = 'EN';
 
-export class ControlPrefs {
+export class ControlState {
+  // Instances:
   KnexInstance: Knex = null;
   Request: Request = null;
-  ExcludeOrphanedDialogue = false;
 
-  dialogCache: {[Id: number]: DialogExcelConfigData} = {};
-  npcCache: {[Id: number]: NpcExcelConfigData} = {};
+  // Caches:
+  dialogCache:  {[Id: number]: DialogExcelConfigData} = {};
+  npcCache:     {[Id: number]: NpcExcelConfigData}    = {};
   avatarCache:  {[Id: number]: AvatarExcelConfigData} = {};
 
-  static beforeQuestSub(questSubId: number): ConfigCondition {
-    return {Type: 'QUEST_COND_STATE_EQUAL', Param: [questSubId, 2]};
-  }
-  static afterQuestSub(questSubId: number): ConfigCondition {
-    return {Type: 'QUEST_COND_STATE_EQUAL', Param: [questSubId, 3]};
-  }
+  // Preferences:
+  ExcludeOrphanedDialogue = false;
 
   get inputLangCode(): LangCode {
     return this.Request ? this.Request.cookies['inputLangCode'] || DEFAULT_LANG : DEFAULT_LANG;
@@ -159,13 +159,13 @@ export class ControlPrefs {
   }
 }
 
-export function getControl(controlContext?: Request|ControlPrefs) {
-  return new Control(controlContext);
+export function getControl(controlState?: Request|ControlState) {
+  return new Control(controlState);
 }
 
 // TODO: Make this not a god object
 export class Control {
-  readonly prefs: ControlPrefs;
+  readonly prefs: ControlState;
   private knex: Knex;
 
   private IdComparator = (a: any, b: any) => a.Id === b.Id;
@@ -173,14 +173,14 @@ export class Control {
     return a.Order - b.Order || a.Order - b.Order;
   };
 
-  constructor(controlContext: Request|ControlPrefs) {
-    if (!!controlContext && controlContext.hasOwnProperty('url')) {
-      this.prefs = new ControlPrefs();
-      this.prefs.Request = controlContext as Request;
-    } else if (!!controlContext) {
-      this.prefs = controlContext as ControlPrefs;
+  constructor(controlState: Request|ControlState) {
+    if (!!controlState && controlState.hasOwnProperty('url')) {
+      this.prefs = new ControlState();
+      this.prefs.Request = controlState as Request;
+    } else if (!!controlState) {
+      this.prefs = controlState as ControlState;
     } else {
-      this.prefs = new ControlPrefs();
+      this.prefs = new ControlState();
     }
 
     this.knex = this.prefs.KnexInstance || openKnex();
@@ -717,7 +717,7 @@ export class Control {
     return out;
   }
 
-  getPrefs(): ControlPrefs {
+  getPrefs(): ControlState {
     return this.prefs;
   }
 

@@ -33,7 +33,7 @@ import { toInt } from '../shared/util/numberUtil';
 
   if (toBoolean(process.env.SSL_ENABLED)) {
     spdy.createServer(sslcreds, httpsApp).listen(httpsPort, () => {
-        if (process.env.VHOSTED) {
+        if (toBoolean(process.env.VHOSTED)) {
           console.log('[Init] HTTPS/2 Server is running at https://' + process.env.VHOST);
         } else {
           console.log('[Init] HTTPS/2 Server is running at https://' + process.env.VHOST + ':' + httpsPort);

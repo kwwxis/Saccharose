@@ -101,6 +101,5 @@ export async function processQuestConds(ctrl: Control, fetter: FetterWithConditi
         }
       }
     }
-
   }
 }

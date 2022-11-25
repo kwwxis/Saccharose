@@ -7,17 +7,6 @@ import util from 'util';
 import { closeKnex } from '../../util/db';
 import { cleanEmpty, resolveObjectPath } from '../../../shared/util/arrayUtil';
 
-// character
-// name -> _s,_t
-
-// title -> _s,_t
-// subtitle
-// file -> _male,_female
-// language -> _s,_t
-// tx -> _s,_t
-// rm -> _s,_t
-//
-
 export class CharacterFetters {
   avatar: AvatarExcelConfigData = null;
   storyFetters: FetterExcelConfigData[] = [];
