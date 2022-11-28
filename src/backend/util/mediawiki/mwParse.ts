@@ -6,6 +6,7 @@ import { MwParseModule } from './mwParseModule';
 import { MwParseLinkModule } from './parseModules/mwParse.link';
 import { isStringBlank } from '../../../shared/util/stringUtil';
 import { MwParseParamModule } from './parseModules/mwParse.param';
+import { MwParseSpecialTextModule } from './parseModules/mwParse.specialText';
 
 class MwParseIterator {
   i: number = 0;
@@ -86,6 +87,7 @@ export class MwParseContext {
     }
 
     this.modules.push(new MwParseTemplateModule(this));
+    this.modules.push(new MwParseSpecialTextModule(this));
     this.modules.push(new MwParseHtmlModule(this));
     this.modules.push(this.plaintextModule = new MwParsePlaintextModule(this));
   }
@@ -94,11 +96,15 @@ export class MwParseContext {
     return this.iter.i;
   }
 
+  mostRecentNode(): MwNode {
+    return this.node.parts.length ? this.node.parts[this.node.parts.length - 1] : null;
+  }
+
   addNode(node: MwNode, pushPlainText: boolean = true) {
     if (pushPlainText) {
       this.plaintextModule.sb_push();
     }
-    this.node.parts.push(node);
+    this.node.addNode(node);
   }
 
   enter(node: MwParentNode, controlModule: MwParseModule) {
@@ -134,13 +140,31 @@ export function mwSimpleTextParse(str: string): MwTextNode[] {
   return parts;
 }
 
+// TODO:
+//  - template parms
+//  - italic/bold
+//  - section headings
+//  - horizontal rule
+//  - bulleted/numbered lists
+//  - definition lists
+//  - html tags (including self-closing, e.g. ref, references)
+//  - <pre> blocks (space-prefixed too)
+//  - html entities
+//  - tables
+//
+// https://www.mediawiki.org/wiki/Help:Formatting
+// https://www.mediawiki.org/wiki/Help:Links
+// https://www.mediawiki.org/wiki/Help:Templates
+// https://www.mediawiki.org/wiki/Help:Magic_words
+// https://www.mediawiki.org/wiki/Help:Extension:ParserFunctions
+
 export function mwParse(str: string): MwParentNode {
   if (!str) {
     return new MwParentNode();
   }
   if (isStringBlank(str)) {
     let node = new MwParentNode();
-    node.parts.push(new MwWhiteSpace(str));
+    node.addNode(new MwWhiteSpace(str));
     return node;
   }
 

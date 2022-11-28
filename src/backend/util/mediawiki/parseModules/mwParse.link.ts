@@ -1,7 +1,7 @@
 import { escapeRegExp } from '../../../../shared/util/stringUtil';
 import { mwParse, mwSimpleTextParse } from '../mwParse';
 import { MwParseModule } from '../mwParseModule';
-import { MwLinkNode, MwLinkType } from '../mwTypes';
+import { MwLinkNode, MwLinkType, MwRedirect } from '../mwTypes';
 
 export const MW_URL_SCHEMES = [
   'bitcoin:', 'ftp://', 'ftps://', 'geo:', 'git://', 'mvn:', 'gopher://', 'http://',
@@ -60,7 +60,12 @@ export class MwParseLinkModule extends MwParseModule {
       const linkNode = new MwLinkNode(linkType, linkText);
 
       if (linkTextEnd.includes(']')) {
-        ctx.addNode(linkNode);
+        const mostRecentNode = ctx.mostRecentNode();
+        if (mostRecentNode instanceof MwRedirect) {
+          mostRecentNode.addNode(linkNode);
+        } else {
+          ctx.addNode(linkNode);
+        }
         ctx.iter.skip(fullMatch.length);
         console.log('Template entered and exited:', fullMatch);
       } else {

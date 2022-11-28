@@ -59,19 +59,21 @@ function basicTest() {
     `text ${templateCall1} Lorem ipsum [https://www.google.com] asdf [https://www.bing.com link text]\n\n` +
     `asdf [[File:MyFile.png|thumb|30px|link=|alt=my alt text]].\n\n` +
     `Lorem ipsum <nowiki>test {{Anemo}} no [[wiki]] ''markup''</nowiki> test {{DISPLAYTITLE:foobar}}` +
-    `{{ #if : thing|foo|bar}} testing {{subst:Name}} {{ns:1}} {{=}} {{!}} {{NAMESPACE}} {{NAMESPACE:MediaWiki}} {{#if}}`;
+    `{{ #if : thing|foo|bar}} testing {{subst:Name}} {{ns:1}} {{=}} {{!}} {{NAMESPACE}} {{NAMESPACE:MediaWiki}} {{#if}}\n\n` +
+    `#REDIRECT [[Foobar]] asdf __NOTOC__ asdf.`;
 
   const result: MwParentNode = mwParse(input);
   console.log(util.inspect(result, false, null, true));
 
   const result0_str = result.parts.filter(x => x instanceof MwTemplateNode)[0].toString();
   const result1_str = result.parts.filter(x => x instanceof MwTemplateNode)[1].toString();
+  console.log('-'.repeat(10).repeat(5));
+  console.log(result.toString());
+
+  console.log('-'.repeat(10).repeat(5));
   console.log('Input same as result.toString?', input === result.toString());
   console.log('  Template0.toString same as input?', templateCall0 === result0_str);
   console.log('  Template1.toString same as input?', templateCall1 === result1_str);
-
-  console.log('-'.repeat(10).repeat(5));
-  console.log(result.toString());
 }
 
 if (require.main === module) {

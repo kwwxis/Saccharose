@@ -31,6 +31,9 @@ export class MwParentNode extends MwNode {
   toString(): string {
     return this.parts.map(p => p.toString()).join('');
   }
+  addNode(node: MwNode) {
+    this.parts.push(node);
+  }
 }
 
 // ------------------------------------------------------------------------------------------
@@ -131,13 +134,23 @@ export class MwLinkNode extends MwParentNode {
   }
 }
 
+export class MwRedirect extends MwParentNode {
+  constructor(parts: MwNode[]) {
+    super();
+    this.parts = parts;
+  }
+  getLinkNode(): MwLinkNode {
+    return this.parts.find(part => part instanceof MwLinkNode) as MwLinkNode;
+  }
+}
+
 // ------------------------------------------------------------------------------------------
-export const MW_BEHAVIOR_SWITCHES: Set<string> = new Set<string>([
+export const MW_BEHAVIOR_SWITCHES: string[] = [
   '__NOTOC__', '__FORCETOC__', '__TOC__', '__NOEDITSECTION__', '__NEWSECTIONLINK__', '__NONEWSECTIONLINK__',
   '__NOGALLERY__', '__HIDDENCAT__', '__EXPECTUNUSEDCATEGORY__', '__NOCONTENTCONVERT__', '__NOCC__', '__NOTITLECONVERT__', '__NOTC__',
   '__START__', '__END__', '__INDEX__', '__NOINDEX__', '__STATICREDIRECT__', '__NOGLOBAL__', '__DISAMBIG__',
   '__EXPECTED_UNCONNECTED_PAGE__',
-]);
+];
 export const MW_VARIABLES: Set<string> = new Set<string>([
   'CURRENTYEAR', 'CURRENTMONTH', 'CURRENTMONTH1', 'CURRENTMONTHNAME', 'CURRENTMONTHNAMEGEN', 'CURRENTMONTHABBREV',
   'CURRENTDAY', 'CURRENTDAY2', 'CURRENTDOW', 'CURRENTDAYNAME', 'CURRENTTIME', 'CURRENTHOUR', 'CURRENTWEEK', 'CURRENTTIMESTAMP',

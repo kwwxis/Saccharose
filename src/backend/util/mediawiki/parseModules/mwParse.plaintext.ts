@@ -1,4 +1,3 @@
-import { MwParseContext } from '../mwParse';
 import { MwGlyphSpace, MwWhiteSpace } from '../mwTypes';
 import { MwParseModule } from '../mwParseModule';
 
