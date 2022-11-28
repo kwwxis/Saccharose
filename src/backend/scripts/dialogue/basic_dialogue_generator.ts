@@ -57,6 +57,7 @@ export async function dialogueGenerate(ctrl: Control, query: number|number[]|str
     } else {
       const dialogueBranch = await ctrl.selectDialogBranch(dialogue);
       const sect = new DialogueSectionResult('Dialogue_'+dialogue.Id, 'Dialogue');
+      sect.originalData.dialogBranch = dialogueBranch;
       sect.metadata.push(new MetaProp('First Dialogue ID', dialogue.Id, `/branch-dialogue?q=${dialogue.Id}`));
       sect.wikitext = (await ctrl.generateDialogueWikiText(dialogueBranch)).trim();
       result.push(sect);
@@ -147,20 +148,22 @@ export async function dialogueGenerateByNpc(ctrl: Control, npcNameOrId: string|n
     res.orphanedDialogue = [];
 
     for (let talkConfig of res.talkConfigs) {
-      let dres = await talkConfigGenerate(ctrl, talkConfig, null, acc);
-      if (dres) {
-        res.dialogue.push(dres);
+      let sect = await talkConfigGenerate(ctrl, talkConfig, null, acc);
+      if (sect) {
+        res.dialogue.push(sect);
       }
     }
 
     let dialogOrphaned: DialogExcelConfigData[] = await ctrl.selectDialogExcelConfigDataByTalkRoleId(npc.Id);
     for (let dialogue of dialogOrphaned) {
-      if (ctrl.isDialogExcelConfigDataCached(dialogue))
+      if (ctrl.isDialogExcelConfigDataCached(dialogue)) {
         continue;
+      }
       ctrl.saveDialogExcelConfigDataToCache(dialogue);
 
       let dialogueBranch = await ctrl.selectDialogBranch(dialogue);
       const sect = new DialogueSectionResult('Dialogue_'+dialogue.Id, 'Dialogue');
+      sect.originalData.dialogBranch = dialogueBranch;
       sect.metadata.push(new MetaProp('First Dialogue ID', dialogue.Id, `/branch-dialogue?q=${dialogue.Id}`));
       sect.wikitext = (await ctrl.generateDialogueWikiText(dialogueBranch)).trim();
       res.orphanedDialogue.push(sect);

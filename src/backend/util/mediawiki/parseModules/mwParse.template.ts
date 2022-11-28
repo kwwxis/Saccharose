@@ -1,6 +1,7 @@
-import { extractTrailingEmptySpaceToParentParts, MwParseContext } from '../mwParse';
-import { MW_VARIABLES, MwBlankSpace, MwNode, MwParentNode, MwTemplateNode, MwParamNode } from '../mwTypes';
+import { extractTrailingEmptySpaceToParentParts } from '../mwParse';
+import { MwTemplateNode, MwParamNode } from '../mwTypes';
 import { MwParseModule } from '../mwParseModule';
+import { MW_VARIABLES } from '../mwContants';
 
 /**
  * Parser module that handles:

@@ -165,7 +165,7 @@ export function getControl(controlState?: Request|ControlState) {
 
 // TODO: Make this not a god object
 export class Control {
-  readonly prefs: ControlState;
+  readonly state: ControlState;
   private knex: Knex;
 
   private IdComparator = (a: any, b: any) => a.Id === b.Id;
@@ -175,15 +175,15 @@ export class Control {
 
   constructor(controlState: Request|ControlState) {
     if (!!controlState && controlState.hasOwnProperty('url')) {
-      this.prefs = new ControlState();
-      this.prefs.Request = controlState as Request;
+      this.state = new ControlState();
+      this.state.Request = controlState as Request;
     } else if (!!controlState) {
-      this.prefs = controlState as ControlState;
+      this.state = controlState as ControlState;
     } else {
-      this.prefs = new ControlState();
+      this.state = new ControlState();
     }
 
-    this.knex = this.prefs.KnexInstance || openKnex();
+    this.knex = this.state.KnexInstance || openKnex();
   }
 
   postProcessCondProp(obj: any, prop: string) {
@@ -288,13 +288,13 @@ export class Control {
   async getNpcList(npcIds: number[], addToCache: boolean = true): Promise<NpcExcelConfigData[]> {
     if (!npcIds || !npcIds.length) return [];
 
-    let notCachedIds = npcIds.filter(id => !this.prefs.npcCache[id]);
-    let cachedList = npcIds.map(id => this.prefs.npcCache[id]).filter(x => !!x);
+    let notCachedIds = npcIds.filter(id => !this.state.npcCache[id]);
+    let cachedList = npcIds.map(id => this.state.npcCache[id]).filter(x => !!x);
 
     let uncachedList: NpcExcelConfigData[] = await this.knex.select('*').from('NpcExcelConfigData').whereIn('Id', notCachedIds).then(this.commonLoad);
 
     if (addToCache) {
-      uncachedList.forEach(npc => this.prefs.npcCache[npc.Id] = npc);
+      uncachedList.forEach(npc => this.state.npcCache[npc.Id] = npc);
     }
 
     return cachedList.concat(uncachedList);
@@ -369,7 +369,7 @@ export class Control {
   }
 
   async selectTalkExcelConfigDataIdsByPrefix(idPrefix: number|string): Promise<number[]> {
-    let allTalkExcelTalkConfigIds = this.prefs.ExcludeOrphanedDialogue ? [] : await grepIdStartsWith('_id', idPrefix, './ExcelBinOutput/TalkExcelConfigData.json');
+    let allTalkExcelTalkConfigIds = this.state.ExcludeOrphanedDialogue ? [] : await grepIdStartsWith('_id', idPrefix, './ExcelBinOutput/TalkExcelConfigData.json');
     return allTalkExcelTalkConfigIds.map(i => toNumber(i));
   }
 
@@ -378,12 +378,12 @@ export class Control {
   }
 
   async addOrphanedDialogueAndQuestMessages(mainQuest: MainQuestExcelConfigData) {
-    let allDialogueIds = this.prefs.ExcludeOrphanedDialogue ? [] : await grepIdStartsWith('id', mainQuest.Id, './ExcelBinOutput/DialogExcelConfigData.json');
+    let allDialogueIds = this.state.ExcludeOrphanedDialogue ? [] : await grepIdStartsWith('id', mainQuest.Id, './ExcelBinOutput/DialogExcelConfigData.json');
     let allQuestMessageIds = await grepIdStartsWith('textMapId', 'QUEST_Message_Q' + mainQuest.Id, './ExcelBinOutput/ManualTextMapConfigData.json');
     let consumedQuestMessageIds = [];
 
     const handleOrphanedDialog = async (quest: MainQuestExcelConfigData|QuestExcelConfigData, id: number) => {
-      if (this.prefs.dialogCache[id])
+      if (this.state.dialogCache[id])
         return;
       let dialog = await this.selectSingleDialogExcelConfigData(id as number);
       if (dialog) {
@@ -438,18 +438,18 @@ export class Control {
   }
 
   async selectSingleDialogExcelConfigData(id: number): Promise<DialogExcelConfigData> {
-    if (this.prefs.dialogCache[id])
-      return this.prefs.dialogCache[id];
+    if (this.state.dialogCache[id])
+      return this.state.dialogCache[id];
     let result: DialogExcelConfigData = await this.knex.select('*').from('DialogExcelConfigData').where({Id: id}).first().then(this.commonLoadFirst);
-    this.prefs.dialogCache[id] = result;
+    this.state.dialogCache[id] = result;
     return result && result.TalkContentText ? result : null;
   }
 
   saveDialogExcelConfigDataToCache(x: DialogExcelConfigData): void {
-    this.prefs.dialogCache[x.Id] = x;
+    this.state.dialogCache[x.Id] = x;
   }
   isDialogExcelConfigDataCached(x: number|DialogExcelConfigData): boolean {
-    return !!this.prefs.dialogCache[typeof x === 'number' ? x : x.Id];
+    return !!this.state.dialogCache[typeof x === 'number' ? x : x.Id];
   }
 
   async selectMultipleDialogExcelConfigData(ids: number[]): Promise<DialogExcelConfigData[]> {
@@ -468,7 +468,7 @@ export class Control {
     if (!result) {
       return undefined;
     }
-    this.prefs.dialogCache[result.Id] = result;
+    this.state.dialogCache[result.Id] = result;
     return result;
   }
 
@@ -718,15 +718,15 @@ export class Control {
   }
 
   getPrefs(): ControlState {
-    return this.prefs;
+    return this.state;
   }
 
   get inputLangCode() {
-    return this.prefs.inputLangCode;
+    return this.state.inputLangCode;
   }
 
   get outputLangCode() {
-    return this.prefs.outputLangCode;
+    return this.state.outputLangCode;
   }
 
   readonly FLAG_EXACT_WORD = '-w';
@@ -780,12 +780,12 @@ export class Control {
   }
 
   async selectAvatarById(id: number): Promise<AvatarExcelConfigData> {
-    if (this.prefs.avatarCache.hasOwnProperty(id)) {
-      return this.prefs.avatarCache[id];
+    if (this.state.avatarCache.hasOwnProperty(id)) {
+      return this.state.avatarCache[id];
     }
     let avatar: AvatarExcelConfigData = await this.knex.select('*').from('AvatarExcelConfigData')
       .where({Id: id}).first().then(this.commonLoadFirst);
-    this.prefs.avatarCache[id] = avatar;
+    this.state.avatarCache[id] = avatar;
     return avatar;
   }
 

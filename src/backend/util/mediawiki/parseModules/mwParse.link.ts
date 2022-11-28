@@ -1,14 +1,7 @@
 import { escapeRegExp } from '../../../../shared/util/stringUtil';
-import { mwParse, mwSimpleTextParse } from '../mwParse';
 import { MwParseModule } from '../mwParseModule';
 import { MwLinkNode, MwLinkType, MwRedirect } from '../mwTypes';
-
-export const MW_URL_SCHEMES = [
-  'bitcoin:', 'ftp://', 'ftps://', 'geo:', 'git://', 'mvn:', 'gopher://', 'http://',
-  'https://', 'irc://', 'ircs://', 'irc6://', 'magnet:', 'mailto:', 'mms://', 'news:', 'itms:', 'market:', 'spotify:', 'steam:',
-  'nntp://', 'redis://', 'sftp://', 'sip:', 'sips:', 'sms:', 'ssh://', 'fax:', 'fm:', 'hcp://', 'im:', 'imap://', 'teamspeak://',
-  'svn://', 'tel:', 'callto:', 'skype:', 'zoommtg://', 'zoomus://', 'telnet://', 'urn:', 'worldwind://', 'xmpp:','slack://', '//',
-];
+import { MW_URL_SCHEMES } from '../mwContants';
 
 export function MW_URL_SCHEME_REGEX(prepend: string = '', append: string =''): string {
   return MW_URL_SCHEMES.map(scheme => prepend + escapeRegExp(scheme) + append).join('|');

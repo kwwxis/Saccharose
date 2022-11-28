@@ -1,4 +1,4 @@
-import { MwBlankSpace, MwGlyphSpace, MwNode, MwParamNode, MwParentNode, MwTextNode, MwWhiteSpace } from './mwTypes';
+import { MwComment, MwGlyphSpace, MwNode, MwParamNode, MwParentNode, MwTextNode, MwWhiteSpace } from './mwTypes';
 import { MwParseHtmlModule } from './parseModules/mwParse.html';
 import { MwParseTemplateModule } from './parseModules/mwParse.template';
 import { MwParsePlaintextModule } from './parseModules/mwParse.plaintext';
@@ -141,7 +141,7 @@ export function mwSimpleTextParse(str: string): MwTextNode[] {
 }
 
 // TODO:
-//  - template parms
+//  - template params
 //  - italic/bold
 //  - section headings
 //  - horizontal rule
@@ -151,6 +151,8 @@ export function mwSimpleTextParse(str: string): MwTextNode[] {
 //  - <pre> blocks (space-prefixed too)
 //  - html entities
 //  - tables
+//  - magic links
+//  - interwiki links
 //
 // https://www.mediawiki.org/wiki/Help:Formatting
 // https://www.mediawiki.org/wiki/Help:Links
@@ -196,7 +198,7 @@ export function extractTrailingEmptySpaceToParentParts(parent: MwParentNode) {
       let trailingEmptySpace = [];
       for (let i = part.parts.length - 1; i >= 0; i--) {
         let paramPart = part.parts[i];
-        if (!(paramPart instanceof MwBlankSpace)) {
+        if (!(paramPart instanceof MwWhiteSpace || paramPart instanceof MwComment)) {
           inEmptySpace = false;
         }
         if (inEmptySpace) {

@@ -7,7 +7,7 @@ import {
   ConfigCondition,
   MainQuestExcelConfigData, QuestExcelConfigData,
   TalkExcelConfigData,
-  NpcExcelConfigData
+  NpcExcelConfigData, DialogExcelConfigData,
 } from '../../../shared/types';
 import { arrayEmpty, arrayUnique } from '../../../shared/util/arrayUtil';
 
@@ -50,6 +50,7 @@ export class DialogueSectionResult {
   wikitextArray: string[] = [];
   children: DialogueSectionResult[] = [];
   htmlMessage: string = null;
+  originalData: {talkConfig?: TalkExcelConfigData, dialogBranch?: DialogExcelConfigData[]} = {};
 
   constructor(id: string, title: string, helptext: string = null) {
     this.id = id;
@@ -320,6 +321,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
   if (mainQuest.OrphanedDialog && mainQuest.OrphanedDialog.length) {
     for (let dialog of mainQuest.OrphanedDialog) {
       let sect = new DialogueSectionResult('OrphanedDialogue_'+dialog[0].Id, 'Orphaned Dialogue', orphanedHelpText);
+      sect.originalData.dialogBranch = dialog;
       sect.metadata.push(new MetaProp('First Dialogue ID', dialog[0].Id, `/branch-dialogue?q=${dialog[0].Id}`));
       out.clearOut();
       out.append(await ctrl.generateDialogueWikiText(dialog));
@@ -402,7 +404,7 @@ export class TalkConfigAccumulator {
           if (talkConfig.NextTalksDataList.length) {
             prevTalkConfig = talkConfig.NextTalksDataList[talkConfig.NextTalksDataList.length - 1];
           }
-          if (prevTalkConfig && this.ctrl.equivDialog(prevTalkConfig.Dialog[0], nextTalkConfig.Dialog[0])) {
+          if (prevTalkConfig && prevTalkConfig.InitDialog === nextTalkConfig.InitDialog) {
             continue;
           }
           talkConfig.NextTalksDataList.push(nextTalkConfig);
@@ -419,6 +421,7 @@ export class TalkConfigAccumulator {
 export async function talkConfigToDialogueSectionResult(ctrl: Control, parentSect: DialogueSectionResult|QuestGenerateResult,
     sectName: string, sectHelptext: string, talkConfig: TalkExcelConfigData, dialogueDepth: number = 1): Promise<DialogueSectionResult> {
   let mysect = new DialogueSectionResult('TalkDialogue_'+talkConfig.Id, sectName, sectHelptext);
+  mysect.originalData.talkConfig = talkConfig;
 
   mysect.addMetaProp('Talk ID', talkConfig.Id, '/branch-dialogue?q={}');
   mysect.addMetaProp('Quest ID', talkConfig.QuestId, '/quests/{}');
@@ -454,10 +457,6 @@ export async function talkConfigToDialogueSectionResult(ctrl: Control, parentSec
       <p><a href="#TalkDialogue_${nextTalkId}">Jump to Talk Dialogue ${nextTalkId}</a></p>`;
       mysect.children.push(placeholderSect);
     }
-  }
-
-  if (talkConfig.Id === 1301130) {
-    console.log('YEET!!!');
   }
 
   if (parentSect) {

@@ -1,7 +1,8 @@
 import { MwParseModule } from '../mwParseModule';
-import { MW_BEHAVIOR_SWITCHES, MwBehaviorSwitch, MwRedirect } from '../mwTypes';
+import { MwBehaviorSwitch, MwRedirect } from '../mwTypes';
 import { escapeRegExp } from '../../../../shared/util/stringUtil';
 import { mwSimpleTextParse } from '../mwParse';
+import { MW_BEHAVIOR_SWITCHES } from '../mwContants';
 
 export function MW_BEHAVIOR_SWITCHES_REGEX(prepend: string = '', append: string = ''): string {
   return MW_BEHAVIOR_SWITCHES.map(scheme => prepend + escapeRegExp(scheme) + append).join('|');
@@ -15,6 +16,7 @@ export class MwParseSpecialTextModule extends MwParseModule {
     const ctx = this.ctx;
 
     if (ch === '_' && this.behaviorSwitchRegex.test(ctx.iter.peek())) {
+      // No word boundary for behavior switches, e.g. "foo__TOC__bar" is a valid match
       const match = this.behaviorSwitchRegex.exec(ctx.iter.peek());
       ctx.addNode(new MwBehaviorSwitch(match[0]));
       ctx.iter.skip(match[0].length);

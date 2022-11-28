@@ -1,14 +1,14 @@
 
 // MwNode
 //  ├─ MwTextNode
-//  │   ├─ MwBlankSpace
-//  │   │   ├─ MwComment
-//  │   │   └─ MwWhiteSpace
-//  │   └─ MwGlyphSpace
+//  │   ├─ MwBehaviorSwitch
+//  │   ├─ MwGlyphSpace
+//  │   └─ MwWhiteSpace
 //  ├─ MwParent
 //      ├─ MwTemplateParam
 //      ├─ MwTemplateCall
 //      ├─ MwElement
+//      │   ├─ MwComment
 //      │   ├─ MwItalic
 //      │   ├─ MwBold
 //      │   ├─ MwLink
@@ -48,17 +48,7 @@ export abstract class MwTextNode extends MwNode {
   }
 }
 
-export abstract class MwBlankSpace extends MwTextNode {
-  protected constructor(readonly content: string) {
-    super(content);
-  }
-}
-export class MwComment extends MwBlankSpace {
-  constructor(content: string) {
-    super(content);
-  }
-}
-export class MwWhiteSpace extends MwBlankSpace {
+export class MwWhiteSpace extends MwTextNode {
   constructor(content: string) {
     super(content);
   }
@@ -87,6 +77,17 @@ export class MwElement extends MwParentNode {
 
   toString(): string {
     return this.tagStart + super.toString() + this.tagEnd;
+  }
+}
+export class MwComment extends MwElement {
+  content: string;
+  constructor(tagStart: string, tagContent, tagEnd: string) {
+    super(tagStart, tagEnd);
+    this.tagName = 'nowiki';
+    this.content = tagContent;
+  }
+  toString(): string {
+    return this.tagStart + this.content + this.tagEnd;
   }
 }
 export class MwNowiki extends MwElement {
@@ -144,36 +145,6 @@ export class MwRedirect extends MwParentNode {
   }
 }
 
-// ------------------------------------------------------------------------------------------
-export const MW_BEHAVIOR_SWITCHES: string[] = [
-  '__NOTOC__', '__FORCETOC__', '__TOC__', '__NOEDITSECTION__', '__NEWSECTIONLINK__', '__NONEWSECTIONLINK__',
-  '__NOGALLERY__', '__HIDDENCAT__', '__EXPECTUNUSEDCATEGORY__', '__NOCONTENTCONVERT__', '__NOCC__', '__NOTITLECONVERT__', '__NOTC__',
-  '__START__', '__END__', '__INDEX__', '__NOINDEX__', '__STATICREDIRECT__', '__NOGLOBAL__', '__DISAMBIG__',
-  '__EXPECTED_UNCONNECTED_PAGE__',
-];
-export const MW_VARIABLES: Set<string> = new Set<string>([
-  'CURRENTYEAR', 'CURRENTMONTH', 'CURRENTMONTH1', 'CURRENTMONTHNAME', 'CURRENTMONTHNAMEGEN', 'CURRENTMONTHABBREV',
-  'CURRENTDAY', 'CURRENTDAY2', 'CURRENTDOW', 'CURRENTDAYNAME', 'CURRENTTIME', 'CURRENTHOUR', 'CURRENTWEEK', 'CURRENTTIMESTAMP',
-
-  'LOCALYEAR', 'LOCALMONTH', 'LOCALMONTH1', 'LOCALMONTHNAME', 'LOCALMONTHNAMEGEN', 'LOCALMONTHABBREV',
-  'LOCALDAY', 'LOCALDAY2', 'LOCALDOW', 'LOCALDAYNAME', 'LOCALTIME', 'LOCALHOUR', 'LOCALWEEK', 'LOCALTIMESTAMP',
-
-  'SITENAME', 'SERVER', 'SERVERNAME', 'DIRMARK', 'DIRECTIONMARK', 'SCRIPTPATH', 'STYLEPATH', 'CURRENTVERSION',
-  'CONTENTLANGUAGE', 'CONTENTLANG', 'PAGEID', 'PAGELANGUAGE', 'PROTECTIONLEVEL', 'PROTECTIONEXPIRY', 'CASCADINGSOURCES',
-  'REVISIONID', 'REVISIONDAY', 'REVISIONDAY2', 'REVISIONMONTH', 'REVISIONMONTH1', 'REVISIONYEAR', 'REVISIONTIMESTAMP',
-  'REVISIONUSER', 'REVISIONSIZE',
-  'DISPLAYTITLE', 'DEFAULTSORT', 'DEFAULTSORTKEY', 'DEFAULTCATEGORYSORT',
-  'PAGESINCATEGORY', 'PAGESINCAT', 'NUMBERINGROUP', 'NUMINGROUP', 'PAGESINNS', 'PAGESINNAMESPACE',
-  'NUMBEROFPAGES', 'NUMBEROFARTICLES', 'NUMBEROFFILES', 'NUMBEROFEDITS', 'NUMBEROFVIEWS', 'NUMBEROFUSERS', 'NUMBEROFADMINS',
-  'NUMBEROFACTIVEUSERS',
-  'FULLPAGENAME', 'PAGENAME', 'BASEPAGENAME', 'ROOTPAGENAME', 'SUBPAGENAME', 'SUBJECTPAGENAME', 'ARTICLEPAGENAME',
-  'TALKPAGENAME',
-  'FULLPAGENAMEE', 'PAGENAMEE', 'BASEPAGENAMEE', 'ROOTPAGENAMEE', 'SUBPAGENAMEE', 'SUBJECTPAGENAMEE', 'ARTICLEPAGENAMEE',
-  'TALKPAGENAMEE',
-  'NAMESPACE', 'NAMESPACENUMBER', 'SUBJECTSPACE', 'ARTICLESPACE', 'TALKSPACE',
-  'NAMESPACEE', 'SUBJECTSPACEE', 'ARTICLESPACEE', 'TALKSPACEE',
-  '!', '=',
-]);
 export class MwParamNode extends MwParentNode {
 
   /**

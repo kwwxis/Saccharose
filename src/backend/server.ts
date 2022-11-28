@@ -3,7 +3,7 @@ import sslcreds from './sslcreds';
 import express from 'express';
 import spdy from 'spdy';
 import vhost from 'vhost';
-import appctl from './app';
+import { appInit } from './app';
 import { toBoolean } from '../shared/util/genericUtil';
 import { toInt } from '../shared/util/numberUtil';
 
@@ -12,7 +12,7 @@ import { toInt } from '../shared/util/numberUtil';
 
 (async () => {
   console.log(`[Init] Booting server; in ${process.env.NODE_ENV} mode ...`);
-  const app = await appctl.init();
+  const app = await appInit();
 
   app.listen(toInt(process.env.HTTP_PORT), () => {
     if (process.env.HTTP_PORT === '80') {

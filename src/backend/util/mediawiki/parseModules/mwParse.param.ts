@@ -2,6 +2,20 @@ import { MwParseModule } from '../mwParseModule';
 import { MwParamNode, MwParamParentType } from '../mwTypes';
 import { MwParseContext } from '../mwParse';
 
+/**
+ * This parser module handles parameters for a few different types of nodes:
+ *   - Templates, e.g. `{{MyTemplate|myParam=myValue}}`
+ *   - Variables, e.g. `{{DISPLAYTITLE:foobar}}`
+ *   - Parser functions, e.g. `{{#if:x|then Y|else Z}}`
+ *   - Template params, e.g. `{{{myParam|default value if no value}}}`
+ *   - Links, e.g. `[[My Page|Link text]]` or `[https://www.google.com Go to google]`
+ *   - Files, e.g. `[[File:MyImage.png|alt=my alt text]]`
+ *
+ * There are three types of parameters:
+ *  - Anonymous, e.g. `{{MyTemplate|anonymous param value}}`
+ *  - Numbered, e.g. `{{MyTemplate|1=my numbered param value}}`
+ *  - Named, e.g. `{{MyTemplate|myNamedParam=some value}}`
+ */
 export class MwParseParamModule extends MwParseModule {
   paramNode: MwParamNode = null;
   paramCounter: number = 1;

@@ -55,7 +55,7 @@ function basicTest() {
 }}`;
   const templateCall1 = `{{Pyro}}`;
 
-  const input = `Surrounding text${templateCall0} More <!-- a comment --> surrounding\n\n` +
+  const input = `Surrounding text${templateCall0} More <\!-- a comment --> surrounding\n\n` +
     `text ${templateCall1} Lorem ipsum [https://www.google.com] asdf [https://www.bing.com link text]\n\n` +
     `asdf [[File:MyFile.png|thumb|30px|link=|alt=my alt text]].\n\n` +
     `Lorem ipsum <nowiki>test {{Anemo}} no [[wiki]] ''markup''</nowiki> test {{DISPLAYTITLE:foobar}}` +

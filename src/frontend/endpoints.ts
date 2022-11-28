@@ -111,3 +111,5 @@ export const endpoints = {
       .catch(this.errorHandler);
   },
 };
+
+(<any> window).endpoints = endpoints;
