@@ -35,9 +35,6 @@ export async function appInit(): Promise<Express> {
   didInit = true;
 
   console.log(`[Init] Configuring dependencies`);
-  const ejs = require('ejs');
-  ejs.delimiter = config.views.ejsDelimiter;
-  ejs.root = config.views.root;
   app.set('trust proxy', true);
   app.set('views', config.views.root);
   app.set('view engine', 'ejs');

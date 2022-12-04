@@ -42,18 +42,15 @@ export class MwParseTemplateModule extends MwParseModule {
       if (nameEnd.includes('}')) {
         ctx.addNode(templateNode);
         ctx.iter.skip(fullMatch.length);
-        console.log('Template entered and exited:', fullMatch);
       } else {
         this.templateNode = templateNode;
         ctx.enter(templateNode, this);
         ctx.iter.skip(fullMatch.length - nameEnd.length);
-        console.log('Template entered:', fullMatch);
       }
       return true;
     }
 
     if (this.templateNode && this.ctx.iter.peek(2) === '}}') {
-      console.log('Template exited:', this.templateNode.templateName);
       extractTrailingEmptySpaceToParentParts(this.templateNode);
       this.exit();
       ctx.iter.skip('}}');

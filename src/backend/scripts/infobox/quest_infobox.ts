@@ -2,7 +2,7 @@ import '../../loadenv';
 import {Control, getControl} from "../script_util";
 import { loadEnglishTextMap } from '../textmap';
 import { closeKnex } from '../../util/db';
-import { MainQuestExcelConfigData } from '../../../shared/types';
+import { MainQuestExcelConfigData } from '../../../shared/types/quest-types';
 
 if (require.main === module) {
   (async () => {

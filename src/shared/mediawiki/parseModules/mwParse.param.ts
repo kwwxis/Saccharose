@@ -70,7 +70,6 @@ export class MwParseParamModule extends MwParseModule {
     const peek = ctx.iter.peek();
 
     if (this.paramCounter > 1 && this.getEndRegex().test(peek)) {
-      console.log('Last param exited:', this.paramNode.key);
       this.completed = true;
       this.exit();
       this.ctx.iter.rollback(1);
@@ -79,7 +78,6 @@ export class MwParseParamModule extends MwParseModule {
 
     if (this.getStartRegex().test(peek)) {
       if (this.paramCounter > 1) {
-        console.log('Param exited:', this.paramNode.key);
         this.exit();
       }
 
@@ -90,7 +88,6 @@ export class MwParseParamModule extends MwParseModule {
 
       this.paramNode = new MwParamNode(ch, paramKey);
       this.paramCounter++;
-      console.log('Param entered:', this.paramNode.key);
 
       ctx.enter(this.paramNode, this);
 

@@ -1,7 +1,8 @@
-import { LangCode, LANG_CODES } from "../../../shared/types";
+
 import "../../loadenv";
 import {Control, getControl, normText} from "../script_util";
 import { getTextMapItem } from "../textmap";
+import { LANG_CODES, LangCode } from '../../../shared/types/dialogue-types';
 
 function ol_gen_internal(textMapId: number, hideTl: boolean = false, addDefaultHidden: boolean = false, hideRm: boolean = false): string {
   let template = `{{Other Languages

@@ -5,8 +5,8 @@ import { DialogueSectionResult, TalkConfigAccumulator } from '../dialogue/quest_
 import { talkConfigGenerate } from '../dialogue/basic_dialogue_generator';
 import { loadEnglishTextMap } from '../textmap';
 import { cached } from '../../util/cache';
-import { HomeWorldEventExcelConfigData, HomeWorldNPCExcelConfigData } from '../../../shared/types';
 import { toInt } from '../../../shared/util/numberUtil';
+import { HomeWorldEventExcelConfigData, HomeWorldNPCExcelConfigData } from '../../../shared/types/homeworld-types';
 
 export async function getHomeWorldCompanions(ctrl: Control): Promise<HomeWorldNPCExcelConfigData[]> {
   return cached('HomeWorldCompanions_'+ctrl.outputLangCode, async () => {

@@ -1,6 +1,6 @@
 import { MwParseModule } from '../mwParseModule';
 import { MwBehaviorSwitch, MwRedirect } from '../mwTypes';
-import { escapeRegExp } from '../../../../shared/util/stringUtil';
+import { escapeRegExp } from '../../util/stringUtil';
 import { mwSimpleTextParse } from '../mwParse';
 import { MW_BEHAVIOR_SWITCHES } from '../mwContants';
 
@@ -10,7 +10,7 @@ export function MW_BEHAVIOR_SWITCHES_REGEX(prepend: string = '', append: string 
 
 export class MwParseSpecialTextModule extends MwParseModule {
   private behaviorSwitchRegex: RegExp = new RegExp(`^(${MW_BEHAVIOR_SWITCHES_REGEX()})`);
-  private redirectRegex: RegExp = /^(\n#REDIRECT\s+)\[\[.*?]]/si;
+  private redirectRegex: RegExp = /^(#REDIRECT\s+)\[\[.*?]]/si;
 
   offer(ch: string): boolean {
     const ctx = this.ctx;
@@ -23,7 +23,7 @@ export class MwParseSpecialTextModule extends MwParseModule {
       return true;
     }
 
-    if (ch === '\n' && this.redirectRegex.test(ctx.iter.peek())) {
+    if (this.lineStartMatch(this.redirectRegex)) {
       const match = this.redirectRegex.exec(ctx.iter.peek());
       ctx.addNode(new MwRedirect(mwSimpleTextParse(match[1])));
       ctx.iter.skip(match[1].length);

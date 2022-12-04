@@ -6,7 +6,7 @@
 
 import path from 'path';
 import session from 'express-session';
-import { LangCode } from '../shared/types';
+import { LangCode } from '../shared/types/dialogue-types';
 
 export default {
   currentGenshinVersion: '3.2',

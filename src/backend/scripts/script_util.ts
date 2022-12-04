@@ -5,24 +5,13 @@ import { Knex } from 'knex';
 import { openKnex } from '../util/db';
 import {
   AvatarExcelConfigData,
-  ChapterExcelConfigData,
   ConfigCondition,
-  DialogExcelConfigData,
-  HomeWorldEventExcelConfigData,
-  HomeWorldNPCExcelConfigData,
-  LangCode,
-  MainQuestExcelConfigData,
-  ManualTextMapConfigData,
-  MaterialExcelConfigData,
-  MaterialSourceDataExcelConfigData,
   NpcExcelConfigData,
-  QuestExcelConfigData,
-  QuestType,
-  ReminderExcelConfigData,
-  RewardExcelConfigData,
-  TalkExcelConfigData,
-  TalkRole,
-} from '../../shared/types';
+
+
+
+
+} from '../../shared/types/general-types';
 import { getTextMapItem, getVoPrefix } from './textmap';
 import { Request } from '../util/router';
 import SrtParser, { SrtLine } from '../util/srtParser';
@@ -31,6 +20,24 @@ import { arrayIndexOf, arrayIntersect } from '../../shared/util/arrayUtil';
 import { toNumber } from '../../shared/util/numberUtil';
 import { normalizeRawJson } from './importer/import_run';
 import { replaceAsync } from '../../shared/util/stringUtil';
+import {
+  DialogExcelConfigData, LangCode,
+  ManualTextMapConfigData, ReminderExcelConfigData,
+  TalkExcelConfigData,
+  TalkRole,
+} from '../../shared/types/dialogue-types';
+import {
+  ChapterExcelConfigData,
+  MainQuestExcelConfigData,
+  QuestExcelConfigData,
+  QuestType,
+} from '../../shared/types/quest-types';
+import {
+  MaterialExcelConfigData,
+  MaterialSourceDataExcelConfigData,
+  RewardExcelConfigData,
+} from '../../shared/types/material-types';
+import { HomeWorldEventExcelConfigData, HomeWorldNPCExcelConfigData } from '../../shared/types/homeworld-types';
 
 const execPromise = util.promisify(exec);
 

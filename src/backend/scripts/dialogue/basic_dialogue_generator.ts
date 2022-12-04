@@ -1,11 +1,12 @@
 import '../../loadenv';
 import { closeKnex } from '../../util/db';
 import { Control, getControl } from '../script_util';
-import { DialogExcelConfigData, NpcExcelConfigData, TalkExcelConfigData } from '../../../shared/types';
+import { NpcExcelConfigData } from '../../../shared/types/general-types';
 import { DialogueSectionResult, MetaProp, TalkConfigAccumulator, talkConfigToDialogueSectionResult } from './quest_generator';
 import { loadEnglishTextMap } from '../textmap';
 import util from 'util';
 import { isInt } from '../../../shared/util/numberUtil';
+import { DialogExcelConfigData, TalkExcelConfigData } from '../../../shared/types/dialogue-types';
 
 const lc = (s: string) => s ? s.toLowerCase() : s;
 

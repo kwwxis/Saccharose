@@ -190,7 +190,7 @@ you can run `npm run backend:build` and `npm run webpack:dev-watch`
 Loading all the text maps can take a while. In your `.env` file, you can set `TEXTMAP_LANG_CODES` to a
 comma-separated list of language codes you want to load the text maps for.
 
-List of valid language codes are found in [./src/shared/types.ts](./src/shared/types.ts)
+List of valid language codes are found in [./src/shared/general-types.ts](src/shared/types/general-types.ts)
 
 For example:
 ```dotenv

@@ -1,0 +1,353 @@
+{{CharacterTabs}}
+{{LanguageTabs}}
+==Story==
+{{VO/Story
+|character           = Nahida
+|language            = en
+|name                = Nahida
+
+<!-- Hello -->
+|vo_01_01_title      = Hello
+|vo_01_01_file       = VO_{language}{character} Hello.ogg
+|vo_01_01_tx         = Nice to meet you! Hehe, I've actually been watching you for a long time already. My name's Nahida. I might look like a child, but don't be fooled: I understand this world much better than any grown-up. So... can we trade knowledge? I want to hear all about your travel stories. So, what would you like to know in return?
+
+<!-- Chats -->
+|vo_02_01_title      = Chat: Invitation
+|vo_02_01_file       = VO_{language}{character} Chat - Invitation.ogg
+|vo_02_01_tx         = If you're not sure what to do next, how about I take you on a walk?
+
+|vo_02_02_title      = Chat: Concerns
+|vo_02_02_file       = VO_{language}{character} Chat - Concerns.ogg
+|vo_02_02_tx         = Something on your mind again? Let's work through it together. Two heads are better than one.
+
+|vo_02_03_title      = Chat: Feelings
+|vo_02_03_file       = VO_{language}{character} Chat - Feelings.ogg
+|vo_02_03_tx         = What they say is true: You have to see the world for yourself to appreciate how beautiful it is.
+
+<!-- Weather -->
+|vo_03_01_title      = When It Rains
+|vo_03_01_file       = VO_{language}{character} When It Rains.ogg
+|vo_03_01_tx         = Quick, let's find shelter, or mushrooms will start growing on our heads.
+
+|vo_03_02_title      = When Thunder Strikes
+|vo_03_02_file       = VO_{language}{character} When Thunder Strikes.ogg
+|vo_03_02_tx         = Did you know that the sound of thunder is the prelude to new life? *sigh* Soon, this land will be brimming with vitality.
+
+|vo_03_03_title      = When It Snows
+|vo_03_03_file       = VO_{language}{character} When It Snows.ogg
+|vo_03_03_tx         = Can you hear that? The heavens are whispering to all living things, "It's time for bed now."
+
+|vo_03_04_title      = When the Sun Is Out
+|vo_03_04_file       = VO_{language}{character} When the Sun Is Out.ogg
+|vo_03_04_tx         = Ah, the weather is lovely and warm. Things are about to start getting lively again.
+
+|vo_03_05_title      = When It's Windy
+|vo_03_05_file       = VO_{language}{character} When It's Windy.ogg
+|vo_03_05_tx         = The wind never blows in the [[Sanctuary of Surasthana]]... Oh, sorry. That's probably obvious to you.
+
+<!-- Greetings -->
+|vo_04_01_title      = Good Morning
+|vo_04_01_file       = VO_{language}{character} Good Morning.ogg
+|vo_04_01_tx         = Good morning. We should get going right away. There are too many things in this world that you'll miss if you don't get there on time.
+
+|vo_04_02_title      = Good Afternoon
+|vo_04_02_file       = VO_{language}{character} Good Afternoon.ogg
+|vo_04_02_tx         = Ah, time for a break. I'd really like a [[Berry & Mint Burst]]... If you get one for me, I'll tell you a couple of stories about the sun. Okay?
+
+|vo_04_03_title      = Good Evening
+|vo_04_03_friendship = 4
+|vo_04_03_file       = VO_{language}{character} Good Evening.ogg
+|vo_04_03_tx         = The sun's setting. It's time to wave goodbye and let the creatures of the night take center stage.
+
+|vo_04_04_title      = Good Night
+|vo_04_04_file       = VO_{language}{character} Good Night.ogg
+|vo_04_04_tx         = You should go to sleep now. Don't worry, I've made sure there's a sweet dream waiting for you.
+
+<!-- About -->
+|vo_05_01_title      = About {character}: Knowledge
+|vo_05_01_file       = VO_{language}{character} About {character} - Knowledge.ogg
+|vo_05_01_tx         = Oh, the [[Mare Jivari]]? A place without anything at all, completely empty &mdash; just like a [[Shroomboar]]'s brain. Of course I know it. ...Hmm? I, uh... It's true, I've never seen it with my own eyes. It's one of the many places beyond my reach.
+
+|vo_05_02_title      = About {character}: Obsession
+|vo_05_02_friendship = 4
+|vo_05_02_file       = VO_{language}{character} About {character} - Obsession.ogg
+|vo_05_02_tx         = The gods gave humans barely enough knowledge for them to fill their stomachs. Yet, they used it to craft tools, write books, and build cities, and now they've set their sights on the stars and the abyss... With every moment that goes by, they're creating brand-new knowledge, so I never want to take my eyes off them.
+
+<!-- About Us -->
+|vo_06_01_title      = About Us: Story Time
+|vo_06_01_file       = VO_{language}{character} About Us - Story Time.ogg
+|vo_06_01_tx         = The things you've experienced on your journey are so much more exciting than anything I've ever learned. And now, I get to ask you about all of it any time I want, so I can understand each and every little detail... I couldn't ask for more. Alright, let's not waste any more time. Now where were we...?
+
+|vo_06_02_title      = About Us: Journey
+|vo_06_02_friendship = 6
+|vo_06_02_quest      = Akasha Pulses, the Kalpa Flame Rises
+|vo_06_02_file       = VO_{language}{character} About Us - Journey.ogg
+|vo_06_02_tx         = Being a listener has never been enough for me. I've always dreamed of going out and seeing things for myself. You're such an experienced adventurer... Can you be my guide? I want to experience all your future tales first-hand.
+
+<!-- Miscellany I -->
+|vo_07_01_title      = About the [[Vision]]
+|vo_07_01_friendship = 4
+|vo_07_01_file       = VO_{language}{character} About the Vision.ogg
+|vo_07_01_tx         = The heavens grew eyes to behold the true beauty of the world below, but humans already have eyes to begin with. So, what is it they see when they look at the world not with their eyes, but their vision? You're very smart. Can you figure out what the answer is?
+
+|vo_07_02_title      = Something to Share
+|vo_07_02_file       = VO_{language}{character} Something to Share.ogg
+|vo_07_02_tx         = Very often, only once we get hurt badly are we finally forced to face our own laziness, ignorance, recklessness, or arrogance. There's nothing to regret, though. We have no way of seeing all the possibilities that lie ahead in the future, so we have to rely on clumsy trial-and-error to gain knowledge. Just think of pain as the tuition you have to pay.
+
+|vo_07_03_title      = Interesting Things: A Flower Yet to Blossom
+|vo_07_03_file       = VO_{language}{character} Interesting Things - A Flower Yet to Blossom.ogg
+|vo_07_03_tx         = [[Sumeru]]'s desert looks more desolate than the rainforest, but it's also home to an ancient civilization, and supports its own stable ecosystem. One day, when it finally stops arguing with the rainforest, I'm sure that flowers will blossom there, the likes of which I've never seen before.
+
+<!-- About Teammates -->
+|vo_08_01_title      = About [[Cyno]]: Jokes
+|vo_08_01_friendship = 4
+|vo_08_01_file       = VO_{language}{character} About Cyno - Jokes.ogg
+|vo_08_01_tx         = His jokes are like buried treasure: gems hidden beneath the surface. They're a lot of fun. Hmm? Well, which part didn't you get? Okay, I can explain it for you.
+|vo_08_01_mention    = Cyno
+
+|vo_08_02_title      = About [[Cyno]]: Duty
+|vo_08_02_friendship = 4
+|vo_08_02_quest      = Akasha Pulses, the Kalpa Flame Rises
+|vo_08_02_file       = VO_{language}{character} About Cyno - Duty.ogg
+|vo_08_02_tx         = Not every General Mahamatra would take such a clear-cut and decisive stance when faced with a conflict between order and justice. He must know only too well that compromise is a path that leads to a dead end, so it's extremely fortunate for all of Sumeru that he's now been able to return to his rightful post.
+|vo_08_02_mention    = Cyno
+
+|vo_08_03_title      = About [[Tighnari]]
+|vo_08_03_friendship = 4
+|vo_08_03_file       = VO_{language}{character} About Tighnari.ogg
+|vo_08_03_tx         = The [[Forest Watchers]] played an essential role in helping the rainforest to withstand the [[Withering]] and continue to flourish, and Tighnari is the best of them all. Still... I do hope he learns to be a little gentler with people. Otherwise, it's gonna be difficult for the Forest Rangers to attract new top talent.
+|vo_08_03_mention    = Tighnari
+
+|vo_08_04_title      = About [[Collei]]
+|vo_08_04_friendship = 4
+|vo_08_04_file       = VO_{language}{character} About Collei.ogg
+|vo_08_04_tx         = When I heard her story for the first time, her tenacity shone through like a dazzling gemstone. She's been through so much... I hope that just as the rainforest supports all kinds of life, Sumeru will always provide a safe and nurturing environment for her, so that she can grow up healthy and strong.
+|vo_08_04_mention    = Collei
+
+|vo_08_05_title      = About [[Alhaitham]]
+|vo_08_05_friendship = 4
+|vo_08_05_file       = VO_{language}{character} About Alhaitham.ogg
+|vo_08_05_tx         = He holds a body of knowledge more advanced than most could imagine, and his mind is constantly thinking, so maybe nothing in this world could ever fool him. But is the wise man truly wise to view the mediocre majority as defective? Because without them, there is no us.
+|vo_08_05_mention    = Alhaitham
+
+|vo_08_06_title      = About [[Nilou]]
+|vo_08_06_friendship = 4
+|vo_08_06_file       = VO_{language}{character} About Nilou.ogg
+|vo_08_06_tx         = I once borrowed someone else's body to ask her if she'd mind allowing [[Lesser Lord Kusanali]] to watch her dance... Actually, I had already watched her lots of times before in secret, but I wanted to attend her dance at the [[Sabzeruz Festival]] properly, in person, as a sign of respect. Anyway, it turned out that she gently declined the offer... I was a little sad about that.
+|vo_08_06_mention    = Nilou
+
+|vo_08_07_title      = About [[Dori]]
+|vo_08_07_friendship = 4
+|vo_08_07_quest      = Akasha Pulses, the Kalpa Flame Rises
+|vo_08_07_file       = VO_{language}{character} About Dori.ogg
+|vo_08_07_tx         = The first thing she said when she saw me was "Nice palace. How much?" Of course, I couldn't possibly sell her the Sanctuary of Surasthana. But still, her question had me stumped. I thought about it long and hard, but I still can't figure out how much Mora it's worth...
+|vo_08_07_mention    = Dori
+
+|vo_08_08_title      = About [[Kaveh]]
+|vo_08_08_friendship = 4
+|vo_08_08_file       = VO_{language}{character} About Kaveh.ogg
+|vo_08_08_tx         = He has an almost-perfect grasp of what it truly means for Sumeru to be a Nation of Wisdom. Sadly, the truth as he understands it will never be accepted as the mainstream. Hmm? He's roommates with Alhaitham? Wow... the world really is full of surprises...
+|vo_08_08_mention    = Kaveh,Alhaitham
+
+|vo_08_09_title      = About [[Faruzan]]
+|vo_08_09_friendship = 4
+|vo_08_09_quest      = Akasha Pulses, the Kalpa Flame Rises
+|vo_08_09_file       = VO_{language}{character} About Faruzan.ogg
+|vo_08_09_tx         = She is suffering from exposure to remnants of [[King Deshret]]'s power. It's as if the great tortoise of time accidentally threw her off its back and left her suspended in the past. If you're interested, you should be able to catch a glimpse of Sumeru from a bygone age through her.
+|vo_08_09_mention    = Faruzan
+
+|vo_08_10_title      = About [[The Seven]]: Introduction
+|vo_08_10_friendship = 4
+|vo_08_10_quest      = Akasha Pulses, the Kalpa Flame Rises
+|vo_08_10_file       = VO_{language}{character} About The Seven - Introduction.ogg
+|vo_08_10_tx         = I'm led to believe that long, long ago, the Seven [[Archons]] used to stay in regular contact with each other. I'm a bit of a special case though, so I don't have any memory of that time... Now that things have settled down in Sumeru, I think it's about time I made contact with them again. You're on familiar terms with some of them, right? Would you mind introducing me?
+
+|vo_08_11_title      = About The Seven: Games
+|vo_08_11_friendship = 4
+|vo_08_11_quest      = Akasha Pulses, the Kalpa Flame Rises
+|vo_08_11_file       = VO_{language}{character} About The Seven - Games.ogg
+|vo_08_11_tx         = I hear that playing games is a good way to quickly bring people closer together. I'm sure it must work for gods, too. How about once everyone meets up, I suggest we play hopscotch together? ...Hmm, on second thought, maybe not. If I draw the squares, It would look like I made them really small on purpose just so I could win. That wouldn't be fair on the others.
+
+|vo_08_12_title      = About [[Scaramouche|The Balladeer]]
+|vo_08_12_friendship = 4
+|vo_08_12_quest      = Akasha Pulses, the Kalpa Flame Rises
+|vo_08_12_file       = VO_{language}{character} About The Balladeer.ogg
+|vo_08_12_tx         = When he finally achieved the ambition he thought he'd been pursuing all along, was he content at last, or only emptier still? We only yearn for the skies because we cannot fly... Hmm, perhaps he should reflect on this once he has held the sheer emptiness of the skies in his grasp.
+|vo_08_12_mention    = Scaramouche
+
+<!-- More About -->
+|vo_09_01_title      = More About {character}: I
+|vo_09_01_file       = VO_{language}{character} More About {character} - 01.ogg
+|vo_09_01_tx         = My past is quite monotonous. I could tell you about it, but it wouldn't be long before you let out a great, big yawn, like a Pufferfish taking in a big gulp of water. But curiosity is worth its weight in gold, and I wouldn't want yours to go to waste... I know &mdash; let me tell you about all the dreams I've had.
+
+|vo_09_02_title      = More About {character}: II
+|vo_09_02_friendship = 3
+|vo_09_02_file       = VO_{language}{character} More About {character} - 02.ogg
+|vo_09_02_tx         = In my dreams, there's often a flower pot. Every time I water it and add fresh fertilizer, the same flower grows. Can you still enjoy the process of growing flowers when you already know the exact outcome in advance? Hehe, well, for me, I'm glad that at least after the flower has blossomed, it attracts different colored butterflies each time, and sometimes even bees.
+
+|vo_09_03_title      = More About {character}: III
+|vo_09_03_friendship = 4
+|vo_09_03_file       = VO_{language}{character} More About {character} - 03.ogg
+|vo_09_03_tx         = In my dreams, there's often an hourglass. I like to add a few drops of water. Then, I shake it up, and time how long it takes to settle, and see if there's any difference from the last time. There's no reasoning behind it and nothing to gain out of it, but somehow it seems to relieve the exhaustion in my brain. I think that the fact that it's for nothing is what makes it fun for me.
+
+|vo_09_04_title      = More About {character}: IV
+|vo_09_04_friendship = 5
+|vo_09_04_quest      = Akasha Pulses, the Kalpa Flame Rises
+|vo_09_04_file       = VO_{language}{character} More About {character} - 04.ogg
+|vo_09_04_tx         = In my dreams, there's often an empty space. No matter how the scenery changes around it, the emptiness always occupies the most important place. Strange, isn't it? I think there used to be something there, but for all the power I have over dreams, I still can't find the answer as to what it was. Ugh, seems like even in my dreams, there are things that I can't control...
+
+|vo_09_05_title      = More About {character}: V
+|vo_09_05_friendship = 6
+|vo_09_05_quest      = Akasha Pulses, the Kalpa Flame Rises
+|vo_09_05_file       = VO_{language}{character} More About {character} - 05.ogg
+|vo_09_05_tx         = In my dreams, there can be anything &mdash; anything except people coming and going. But since meeting you, it's gradually started to get more lively here... Maybe you're a guide, adding a human touch to my dreams and leading me out from my cage. Hehe, c'mon, let's go. The journey's only just beginning, and I'd like you to carry on leading the way.
+
+<!-- Miscellany II -->
+|vo_10_01_title      = {character}'s Hobbies...
+|vo_10_01_file       = VO_{language}{character} Hobbies.ogg
+|vo_10_01_tx         = Umm... does watching you count as a hobby? Because everything you do fascinates me. You're traveling the whole world... Where did you come from, and where will you go next? Who will you meet, and what challenges will you have to overcome? I want to know the answers to all these questions and more. So please don't mind me, I just wanna keep on watching you, all the time.
+
+|vo_10_02_title      = {character}'s Troubles...
+|vo_10_02_file       = VO_{language}{character} Troubles.ogg
+|vo_10_02_tx         = I think I'm good at asking the right questions and giving good answers, but I've come to realize that a lot of people just convince themselves they don't understand. The answers to their problems don't help them. It seems to me that as people grow older, they lose the courage to question things and accept the truth...
+
+|vo_10_03_title      = Favorite Food
+|vo_10_03_file       = VO_{language}{character} Favorite Food.ogg
+|vo_10_03_tx         = Definitely [[Candied Ajilenakh Nut]]s. I just need one little bite and my brain starts chugging away at top speed, and suddenly there's no problem too difficult for me to solve. The only thing you need to watch out for is: Don't put the jar somewhere that's too easy to reach.
+
+|vo_10_04_title      = Least Favorite Food
+|vo_10_04_file       = VO_{language}{character} Least Favorite Food.ogg
+|vo_10_04_tx         = Sea creatures are born into infinite darkness and live their lives in the depths of the ocean. It's a complete unknown to me. Eating them is like swallowing an icky storm cloud.
+
+<!-- Receiving a Gift -->
+|vo_11_01_title      = Receiving a Gift: I
+|vo_11_01_file       = VO_{language}{character} Receiving a Gift - 01.ogg
+|vo_11_01_tx         = Mm, may the world never forget this beautiful flavor. Thank you.
+
+|vo_11_02_title      = Receiving a Gift: II
+|vo_11_02_file       = VO_{language}{character} Receiving a Gift - 02.ogg
+|vo_11_02_tx         = Hehe, I really appreciate this. It tastes lovely.
+
+|vo_11_03_title      = Receiving a Gift: III
+|vo_11_03_file       = VO_{language}{character} Receiving a Gift - 03.ogg
+|vo_11_03_tx         = ...How should I put this? I guess... you wouldn't feed Shroomboars to a Sumpter Beast, would you?
+
+<!-- Birthday -->
+|vo_12_01_title      = Birthday
+|vo_12_01_file       = VO_{language}{character} Birthday.ogg
+|vo_12_01_tx         = I was thinking, your birthday celebration needs to be at least as grand as the Sabzeruz Festival, so... Hmm? Too much? But everyone's already done preparing for it. C'mon, c'mon, let's go! Just this once &mdash; I'll make sure you love it!
+
+<!-- Feelings About Ascension -->
+|vo_13_01_title      = Feelings About Ascension: Intro
+|vo_13_01_ascension  = 1
+|vo_13_01_file       = VO_{language}{character} Feelings About Ascension - 01.ogg
+|vo_13_01_tx         = I'm getting smarter!
+
+|vo_13_02_title      = Feelings About Ascension: Building Up
+|vo_13_02_ascension  = 2
+|vo_13_02_file       = VO_{language}{character} Feelings About Ascension - 02.ogg
+|vo_13_02_tx         = My mind is growing even bigger. It feels like you could fit the entire sky and ocean inside it.
+
+|vo_13_03_title      = Feelings About Ascension: Climax
+|vo_13_03_ascension  = 4
+|vo_13_03_file       = VO_{language}{character} Feelings About Ascension - 03.ogg
+|vo_13_03_tx         = I feel like a [[Nilotpala Lotus]] that's been reunited with its leaves, or a [[Sango Pearl]] that's found its shell.
+
+|vo_13_04_title      = Feelings About Ascension: Conclusion
+|vo_13_04_ascension  = 6
+|vo_13_04_file       = VO_{language}{character} Feelings About Ascension - 04.ogg
+|vo_13_04_tx         = Thank you for allowing me to be your companion, and for teaching me so many new things. As the God of Wisdom, I grant to you my blessing: From here onward, may your journey be free from confusion that clouds your mind and obstacles that block your path.
+}}
+
+==Combat==
+{{Combat VO
+|character           = Nahida
+
+<!-- Elemental Skill -->
+|skill_1_tx          = Committed to memory.
+|skill_2_tx          = Grow, grow, grow.
+|skill_3_tx          = This might hurt a little.
+|skill_4_tx          = Hey!
+|skill_5_tx          = Everyone hold hands~
+|skill_6_tx          = I see everything.
+
+<!-- Elemental Burst -->
+|burst_1_tx          = Make yourselves at home~
+|burst_2_tx          = Share in my knowledge.
+|burst_3_tx          = The Temple of Wisdom.
+
+<!-- Sprint Start -->
+|sprint-s_1_file     = Sprint Start 01,Sprint Start 02,Sprint Start 03
+
+
+<!-- Deploying Wind Glider -->
+|glider_1_file       = Deploying Wind Glider 01,Deploying Wind Glider 02,Deploying Wind Glider 03
+
+<!-- Opening Treasure Chest -->
+|chest_1_file        = Opening Treasure Chest 01
+|chest_1_tx          = Curiosity deserves a reward.
+|chest_2_tx          = I wonder who this gift could be from.
+|chest_3_tx          = Find anything you like?
+
+<!-- Low HP -->
+|low-hp_1_file       = Low HP 01
+|low-hp_1_tx         = Let's change tactics.
+|low-hp_2_tx         = Stop fighting!
+|low-hp_3_tx         = This was unwise...
+
+<!-- Ally Low HP -->
+|ally-low-hp_1_tx    = Let me put my mind to it.
+|ally-low-hp_2_tx    = Don't bite off more than you can chew.
+
+<!-- Fallen -->
+|fallen_1_file       = Fallen 01
+|fallen_1_tx         = No life... lasts forever...
+|fallen_2_tx         = I'm... withering...
+|fallen_3_tx         = I don't... understand...
+
+<!-- Light Hit Taken -->
+|hit-l_1_file        = Light Hit Taken 01,Light Hit Taken 02,Light Hit Taken 03,Light Hit Taken 04,Light Hit Taken 05, Light Hit Taken 06
+
+<!-- Heavy Hit Taken -->
+|hit-h_1_file        = Heavy Hit Taken 01
+|hit-h_1_tx          = That really hurt...
+|hit-h_2_file        = Heavy Hit Taken 02
+|hit-h_2_tx          = I'm seeing stars...
+|hit-h_3_file        = Heavy Hit Taken 03,Heavy Hit Taken 04,Heavy Hit Taken 05, Heavy Hit Taken 06
+
+<!-- Joining Party-->
+|join_1_file         = Joining Party 01
+|join_1_tx           = I've been waiting for you for ages.
+|join_2_tx           = There are still so many places for us to explore.
+|join_3_tx           = Time to broaden our horizons again.
+
+<!-- Character Idles -->
+|idle_1_file         = Standby 02
+|idle_1_actual_tx    =
+|idle_2_actual_tx    =
+
+<!-- Light Attack -->
+|atk-l_1_file        = Light Attack 01,Light Attack 02,Light Attack 03,Light Attack 04,Light Attack 05,Light Attack 06,Light Attack 07
+
+<!-- Mid Attack -->
+|atk-m_1_file        = Mid Attack 01,Mid Attack 02,Mid Attack 03
+
+<!-- Heavy Attack -->
+|atk-h_1_file        = Heavy Attack 01,Heavy Attack 02,Heavy Attack 03
+
+<!-- Climbing -->
+|climb_1_file        = Climbing 01,Climbing 02,Climbing 03
+
+<!-- Climbing Breath -->
+|climb-b_1_file      = Climbing Breath 01,Climbing Breath 02,Climbing Breath 03
+
+<!-- Jumping -->
+|jump_1_file         = Jumping 01,Jumping 02,Jumping 03,Jumping 04,Jumping 05
+}}
+
+==Navigation==
+{{Character Navbox|type=playable|link type=vo}}
+
+[[es:Nahida/Voz]]
+[[fr:Nahida/Répliques]]
+[[ru:Нахида/Озвучка]]

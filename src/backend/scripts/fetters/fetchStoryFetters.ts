@@ -4,24 +4,13 @@ import { closeKnex } from '../../util/db';
 import { Control, getControl, normText } from '../script_util';
 import {
   AvatarExcelConfigData,
-  FetterStoryExcelConfigData,
-} from '../../../shared/types';
+
+} from '../../../shared/types/general-types';
 import { cached } from '../../util/cache';
 import { getTextMapItem, loadEnglishTextMap } from '../textmap';
 import { processFetterConds } from './fetterConds';
 import { resolveObjectPath } from '../../../shared/util/arrayUtil';
-
-export class StoryFetters {
-  avatar: AvatarExcelConfigData;
-  fetters: FetterStoryExcelConfigData[] = [];
-  wikitext: string = '';
-  alteredWikitext: string = '';
-  hasAlteredStories: boolean = false;
-}
-
-export type StoryFettersByAvatar = {
-  [avatarId: number]: StoryFetters
-};
+import { FetterStoryExcelConfigData, StoryFetters, StoryFettersByAvatar } from '../../../shared/types/fetter-types';
 
 const sep = '</p><!--\n              --><p>';
 

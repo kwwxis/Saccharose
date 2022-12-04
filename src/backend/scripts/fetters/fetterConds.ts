@@ -1,12 +1,14 @@
 import { Control } from '../script_util';
-import {
-  FetterCond,
-  FetterCondSummary, FetterCondType,
-  FetterWithConditions, LangCode,
-  MainQuestExcelConfigData,
-} from '../../../shared/types';
 import { getTextMapItem } from '../textmap';
 import { replace_prefix, sentenceJoin } from '../../../shared/util/stringUtil';
+import { MainQuestExcelConfigData } from '../../../shared/types/quest-types';
+import {
+  FetterCond,
+  FetterCondSummary,
+  FetterCondType,
+  FetterWithConditions,
+} from '../../../shared/types/fetter-types';
+import { LangCode } from '../../../shared/types/dialogue-types';
 
 async function doWithCond(fetterConds: FetterCond[], condType: FetterCondType, callback: (fetterCond: FetterCond) => Promise<void>) {
   let cond = fetterConds.find(x => x.CondType === condType);

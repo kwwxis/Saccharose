@@ -5,11 +5,11 @@ import { ol_gen } from '../OLgen/OLgen';
 import { getTextMapItem, QuestSummary } from '../textmap';
 import {
   ConfigCondition,
-  MainQuestExcelConfigData, QuestExcelConfigData,
-  TalkExcelConfigData,
-  NpcExcelConfigData, DialogExcelConfigData,
-} from '../../../shared/types';
+  NpcExcelConfigData,
+} from '../../../shared/types/general-types';
 import { arrayEmpty, arrayUnique } from '../../../shared/util/arrayUtil';
+import { DialogExcelConfigData, TalkExcelConfigData } from '../../../shared/types/dialogue-types';
+import { MainQuestExcelConfigData, QuestExcelConfigData } from '../../../shared/types/quest-types';
 
 export class MetaPropValue {
   value: string;

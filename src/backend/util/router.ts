@@ -8,9 +8,9 @@ import * as expressCore from 'express-serve-static-core';
 import { humanTiming, icon, timestamp, TemplateLink } from './viewUtilities';
 import { cachedSync } from './cache';
 import crypto from 'crypto';
-import { LANG_CODES_TO_NAME } from '../../shared/types';
 import { ltrim, remove_suffix } from '../../shared/util/stringUtil';
 import { getWebpackBundleFileNames, WebpackBundles } from './webpackBundle';
+import { LANG_CODES_TO_NAME } from '../../shared/types/dialogue-types';
 
 //#region Types
 export type IncludeFunction = (view: string, locals?: any) => string;
@@ -276,7 +276,7 @@ export async function updateReqContext(req: Request, ctx: Readonly<RequestContex
  * @returns {Router}
  */
 export function create(context?: Readonly<RequestContextUpdate>): Router {
-  const router = require('express').Router();
+  const router: Router = express.Router() as Router;
 
   router.use(async function defaultMiddleware(req: Request, res: Response, next: NextFunction) {
     if (context)

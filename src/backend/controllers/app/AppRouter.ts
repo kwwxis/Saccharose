@@ -6,7 +6,7 @@ import { create, Router, Request, Response } from '../../util/router';
 
 import LandingController from './LandingController';
 import { isInt, toInt } from '../../../shared/util/numberUtil';
-import { HomeWorldNPCExcelConfigData } from '../../../shared/types';
+import { HomeWorldNPCExcelConfigData } from '../../../shared/types/homeworld-types';
 
 export default async function(): Promise<Router> {
   const router: Router = create({

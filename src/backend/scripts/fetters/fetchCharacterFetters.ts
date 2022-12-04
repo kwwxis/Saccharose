@@ -1,19 +1,11 @@
 import '../../loadenv';
-import { AvatarExcelConfigData, FetterExcelConfigData, LangCode } from '../../../shared/types';
 import { Control, getControl, normText } from '../script_util';
 import { processFetterConds } from './fetterConds';
 import { getTextMapItem, loadEnglishTextMap, loadTextMaps } from '../textmap';
 import util from 'util';
 import { closeKnex } from '../../util/db';
 import { cleanEmpty, resolveObjectPath } from '../../../shared/util/arrayUtil';
-
-export class CharacterFetters {
-  avatar: AvatarExcelConfigData = null;
-  storyFetters: FetterExcelConfigData[] = [];
-  combatFetters: FetterExcelConfigData[] = [];
-}
-
-export type CharacterFettersByAvatar = {[avatarId: number]: CharacterFetters};
+import { CharacterFetters, CharacterFettersByAvatar, FetterExcelConfigData } from '../../../shared/types/fetter-types';
 
 export async function fetchCharacterFetters(ctrl: Control): Promise<CharacterFettersByAvatar> {
   let fetters: FetterExcelConfigData[] = await ctrl.readGenshinDataFile('./ExcelBinOutput/FettersExcelConfigData.json');

@@ -1,8 +1,8 @@
-import { LangCode, LANG_CODES } from "../../shared/types";
+
 import config from '../config';
 import {promises as fs} from 'fs';
-import {TalkRoleType} from '../../shared/types';
 import path from 'path';
+import { LANG_CODES, LangCode, TalkRoleType } from '../../shared/types/dialogue-types';
 
 // TYPES
 // ----------------------------------------------------------------------------------------------------

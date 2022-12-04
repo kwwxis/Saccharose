@@ -1,6 +1,5 @@
 import apiError from './error';
 import { create, Router, Request, Response } from '../../util/router';
-import { MainQuestExcelConfigData } from '../../../shared/types';
 import { getControl } from '../../scripts/script_util';
 import { DialogueSectionResult, questGenerate, QuestGenerateResult } from '../../scripts/dialogue/quest_generator';
 import { ol_gen } from '../../scripts/OLgen/OLgen';
@@ -8,6 +7,7 @@ import { dialogueGenerate, dialogueGenerateByNpc, NpcDialogueResultMap } from '.
 import { reminderGenerate } from '../../scripts/dialogue/reminder_generator';
 import { isInt, toInt } from '../../../shared/util/numberUtil';
 import { toBoolean } from '../../../shared/util/genericUtil';
+import { MainQuestExcelConfigData } from '../../../shared/types/quest-types';
 
 const router: Router = create();
 

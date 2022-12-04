@@ -4,12 +4,13 @@ import { MwParseTemplateModule } from './parseModules/mwParse.template';
 import { MwParsePlaintextModule } from './parseModules/mwParse.plaintext';
 import { MwParseModule } from './mwParseModule';
 import { MwParseLinkModule } from './parseModules/mwParse.link';
-import { isStringBlank } from '../../../shared/util/stringUtil';
+import { isStringBlank } from '../util/stringUtil';
 import { MwParseParamModule } from './parseModules/mwParse.param';
 import { MwParseSpecialTextModule } from './parseModules/mwParse.specialText';
 
 class MwParseIterator {
   i: number = 0;
+  ch: string = null;
   private stack: MwParseContext[] = [];
 
   constructor(private str) {}
@@ -78,8 +79,6 @@ export class MwParseContext {
       this.modules.push(this.controlModule);
     }
 
-    this.modules.push(new MwParseLinkModule(this));
-
     if (controlModule instanceof MwParseTemplateModule) {
       this.modules.push(new MwParseParamModule(this, controlModule.templateNode.type));
     } else if (controlModule instanceof MwParseLinkModule) {
@@ -87,6 +86,15 @@ export class MwParseContext {
     }
 
     this.modules.push(new MwParseTemplateModule(this));
+    this.modules.push(new MwParseLinkModule(this));
+
+
+    // if (!controlModule || controlModule instanceof MwParseSectionModule) {
+    //   // Do not activate section module unless at top-level or directly under another section.
+    //   // In other words, don't try to parse for section headings while inside a template/link/param/etc.
+    //   this.modules.push(new MwParseSectionModule(this));
+    // }
+
     this.modules.push(new MwParseSpecialTextModule(this));
     this.modules.push(new MwParseHtmlModule(this));
     this.modules.push(this.plaintextModule = new MwParsePlaintextModule(this));
@@ -94,6 +102,10 @@ export class MwParseContext {
 
   get i() {
     return this.iter.i;
+  }
+
+  get ch() {
+    return this.iter.ch;
   }
 
   mostRecentNode(): MwNode {
@@ -105,6 +117,10 @@ export class MwParseContext {
       this.plaintextModule.sb_push();
     }
     this.node.addNode(node);
+  }
+
+  sb_append(ch: string): void {
+    this.plaintextModule.sb_append(ch);
   }
 
   enter(node: MwParentNode, controlModule: MwParseModule) {
@@ -176,9 +192,10 @@ export function mwParse(str: string): MwParentNode {
   for (iter.i = 0; iter.i < str.length; iter.i++) {
     let ctx = iter.currentContext;
 
-    let ch = str.charAt(iter.i);
+    iter.ch = str.charAt(iter.i);
+
     for (let module of ctx.modules) {
-      if (module.offer(ch)) {
+      if (module.offer(iter.ch)) {
         break;
       }
     }

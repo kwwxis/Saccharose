@@ -3,7 +3,8 @@ import {openKnex} from '../../util/db';
 import config from '../../config';
 import objectPath from 'object-path';
 import { SchemaTable, SEP } from './import_types';
-import { TalkExcelConfigData, MaterialExcelConfigData } from '../../../shared/types';
+import { TalkExcelConfigData } from '../../../shared/types/dialogue-types';
+import { MaterialExcelConfigData } from '../../../shared/types/material-types';
 
 export const schema = {
   DialogExcelConfigData: <SchemaTable> {

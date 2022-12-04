@@ -16,7 +16,7 @@
 //      │   ├─ MwPre
 //      │   └─ MwNowiki
 
-import { isInt } from '../../../shared/util/numberUtil';
+import { isInt } from '../util/numberUtil';
 import { mwSimpleTextParse } from './mwParse';
 
 export abstract class MwNode {
@@ -69,8 +69,9 @@ export class MwElement extends MwParentNode {
   tagStart: string;
   tagEnd: string;
 
-  constructor(tagStart: string, tagEnd: string) {
+  constructor(tagName: string, tagStart: string, tagEnd: string) {
     super();
+    this.tagName = tagName;
     this.tagStart = tagStart;
     this.tagEnd = tagEnd;
   }
@@ -81,9 +82,8 @@ export class MwElement extends MwParentNode {
 }
 export class MwComment extends MwElement {
   content: string;
-  constructor(tagStart: string, tagContent, tagEnd: string) {
-    super(tagStart, tagEnd);
-    this.tagName = 'nowiki';
+  constructor(tagStart: string, tagContent: string, tagEnd: string) {
+    super('comment', tagStart, tagEnd);
     this.content = tagContent;
   }
   toString(): string {
@@ -92,15 +92,29 @@ export class MwComment extends MwElement {
 }
 export class MwNowiki extends MwElement {
   content: string;
-  constructor(tagStart: string, tagContent, tagEnd: string) {
-    super(tagStart, tagEnd);
-    this.tagName = 'nowiki';
+  constructor(tagStart: string, tagContent: string, tagEnd: string) {
+    super('nowiki', tagStart, tagEnd);
     this.content = tagContent;
   }
   toString(): string {
     return this.tagStart + this.content + this.tagEnd;
   }
 }
+export class MwHeading extends MwElement {
+  constructor(tagName: string, tagStart: string, tagEnd: string) {
+    super(tagName, tagStart, tagEnd);
+  }
+}
+
+export class MwSection extends MwParentNode {
+  getHeading(): MwHeading {
+    if (!(this.parts[0] instanceof MwHeading)) {
+      throw 'Implementation error: first item of parts should be an MwHeading.';
+    }
+    return this.parts[0];
+  }
+}
+
 export class MwLinkNode extends MwParentNode {
   readonly link: string = '';
   linkParts: MwTextNode[] = [];

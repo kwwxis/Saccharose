@@ -1,4 +1,4 @@
-import { escapeRegExp } from '../../../../shared/util/stringUtil';
+import { escapeRegExp } from '../../util/stringUtil';
 import { MwParseModule } from '../mwParseModule';
 import { MwLinkNode, MwLinkType, MwRedirect } from '../mwTypes';
 import { MW_URL_SCHEMES } from '../mwContants';
@@ -28,6 +28,19 @@ export function MW_LINK_START_REGEX(): RegExp {
  *   - Internal links e.g. `[[Pagename]]` or `[[Pagename|Go to Pagename]]`
  *   - External links e.g. `[https://www.google.com]` or `[https://www.google.com Go to google]`
  *   - Files e.g. `[[File:MyFile.png]]` or `[[File:MyFile.png|options|caption]]`
+ *
+ * TODO:
+ *   word ending links (link trail rules)
+ *   pipe trick (internal links only, doesn't work with anchor links
+ *   subpage links? [[/example]] [[../example]]
+ *   visible category link [[:Category:Help]] [[:File:Example.jpg]]
+ *   bare links
+ *   templates in links
+ *   interlanguage links [[en:link]] or [[:en:link]]
+ *
+ * Caveats:
+ *   Templates are assumed to be part of links when unclear.
+ *
  */
 export class MwParseLinkModule extends MwParseModule {
   linkNode: MwLinkNode = null;
@@ -60,20 +73,17 @@ export class MwParseLinkModule extends MwParseModule {
           ctx.addNode(linkNode);
         }
         ctx.iter.skip(fullMatch.length);
-        console.log('Template entered and exited:', fullMatch);
       } else {
         this.linkNode = linkNode;
         this.linkNode.hasParams = true;
         ctx.enter(this.linkNode, this);
         ctx.iter.skip(fullMatch.length - linkTextEnd.length);
-        console.log('Template entered:', fullMatch);
       }
       return true;
     }
 
     if (this.linkNode && ch === ']') {
       if (ctx.iter.peek(2) === ']]' && (this.linkNode.isInternal || this.linkNode.isFile)) {
-        console.log('Link exited:', this.linkNode.link);
         this.exit();
         ctx.iter.skip(']]');
         this.linkNode = null;
@@ -81,7 +91,6 @@ export class MwParseLinkModule extends MwParseModule {
       }
 
       if (this.linkNode.isExternal) {
-        console.log('Link exited:', this.linkNode.link);
         this.exit();
         ctx.iter.skip(']');
         this.linkNode = null;

@@ -1,11 +1,11 @@
 import '../../loadenv';
 import { closeKnex } from '../../util/db';
 import { Control, getControl, normText } from '../script_util';
-import { ReminderExcelConfigData } from '../../../shared/types';
 import { DialogueSectionResult, MetaProp } from './quest_generator';
 import { getVoPrefix, loadEnglishTextMap } from '../textmap';
 import { cached } from '../../util/cache';
 import { isInt } from '../../../shared/util/numberUtil';
+import { ReminderExcelConfigData } from '../../../shared/types/dialogue-types';
 
 export async function reminderGenerateAll(ctrl: Control): Promise<DialogueSectionResult> {
   let sect = new DialogueSectionResult(null, 'All Reminders');

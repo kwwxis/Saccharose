@@ -16,7 +16,7 @@ const jsonsInDir = fs.readdirSync(jsonDir).filter(file => path.extname(file) ===
 const unknownTriggers: Set<string> = new Set();
 
 jsonsInDir.forEach(file => {
-  const fileData = fs.readFileSync(path.join(jsonDir, file));
+  const fileData = fs.readFileSync(path.join(jsonDir, file), 'utf8');
   const json: {[guid: string]: any} = JSON.parse(fileData.toString());
 
   for (let voiceItem of Object.values(json)) {
