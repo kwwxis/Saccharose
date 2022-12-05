@@ -1,7 +1,7 @@
 import feather, { FeatherAttributes } from 'feather-icons';
 import createHtmlElement from 'create-html-element';
 
-export function icon(iconName: string, size?: number, props: FeatherAttributes = {}): string {
+export function icon(iconName: string, size?: number, props: any = {}): string {
   props.class = props.class ? (props.class = 'icon ' + props.class) : 'icon';
   if (size) {
     props.width = size;

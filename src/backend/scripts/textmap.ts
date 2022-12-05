@@ -6,12 +6,12 @@ import { LANG_CODES, LangCode, TalkRoleType } from '../../shared/types/dialogue-
 
 // TYPES
 // ----------------------------------------------------------------------------------------------------
-export const TextMap: {[langCode: string]: {[id: string]: string}} = {};
+const TextMap: {[langCode: string]: {[id: string]: string}} = {};
 
 export type VoiceItem = {fileName: string, gender?: 'M' | 'F'};
 export type VoiceItemMap = {[dialogueId: string]: VoiceItem[]};
 
-export const VoiceItems: VoiceItemMap = {};
+const VoiceItems: VoiceItemMap = {};
 
 export type QuestSummaryMap = {[questId: number]: number};
 export const QuestSummary: QuestSummaryMap = {};
