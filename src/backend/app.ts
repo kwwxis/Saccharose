@@ -8,7 +8,6 @@ import useragent from 'express-useragent';
 import helmet from 'helmet';
 import csrf from 'csurf';
 import { openKnex } from './util/db';
-import serveIndex from 'serve-index';
 import morgan from 'morgan';
 import { Request, Response } from './util/router';
 import sessions from './middleware/sessions';
@@ -57,7 +56,7 @@ export async function appInit(): Promise<Express> {
   app.use(express.static(config.views.publicDir));
   if (isStringNotBlank(process.env.EXT_PUBLIC_DIR)) {
     console.log('[Init] Serving EXT_PUBLIC_DIR directory');
-    app.use('/.well-known', express.static(process.env.EXT_PUBLIC_DIR), serveIndex(process.env.EXT_PUBLIC_DIR));
+    app.use(express.static(process.env.EXT_PUBLIC_DIR));
   }
 
   // Middleware for requests
