@@ -136,6 +136,20 @@
       <% } %>
     </div>
   </section>
+<section class="card">
+  <h2>Other Languages</h2>
+  <div class="content">
+    <% if (OL.mainChapterName) { %>
+      <textarea readonly class="ol-result-textarea w100p" style="resize:vertical;min-height:300px"><%= OL.mainChapterName %></textarea>
+    <% } %>
+    <% if (OL.subChapterName && OL.subChapterName !== OL.mainChapterName) { %>
+        <textarea readonly class="ol-result-textarea w100p" style="resize:vertical;min-height:300px"><%= OL.subChapterName %></textarea>
+    <% } %>
+    <% if (OL.actName) { %>
+        <textarea readonly class="ol-result-textarea w100p" style="resize:vertical;min-height:300px"><%= OL.actName %></textarea>
+    <% } %>
+  </div>
+</section>
 <% } else { %>
   <section class="card">
     <h2>Archon Quest</h2>

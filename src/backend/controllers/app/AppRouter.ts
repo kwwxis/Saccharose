@@ -9,6 +9,7 @@ import { isInt, toInt } from '../../../shared/util/numberUtil';
 import { HomeWorldNPCExcelConfigData } from '../../../shared/types/homeworld-types';
 import { StoryFetters } from '../../../shared/types/fetter-types';
 import { orderChapterQuests } from '../../scripts/misc/orderChapterQuests';
+import { ol_gen_from_id } from '../../scripts/OLgen/OLgen';
 
 export default async function(): Promise<Router> {
   const router: Router = create({
@@ -38,9 +39,18 @@ export default async function(): Promise<Router> {
     const chapter = await ctrl.selectChapterById(toInt(req.params.id));
     const quests = await orderChapterQuests(ctrl, chapter);
 
+    const mainChapterNameOL = await ol_gen_from_id(ctrl, chapter.ChapterNumTextMapHash);
+    const subChapterNameOL = await ol_gen_from_id(ctrl, chapter.ChapterImageTitleTextMapHash);
+    const actNameOL = await ol_gen_from_id(ctrl, chapter.ChapterTitleTextMapHash);
+
     res.render('pages/dialogue/chapters', {
       chapter: chapter,
       quests: quests,
+      OL: {
+        mainChapterName: mainChapterNameOL,
+        subChapterName: subChapterNameOL,
+        actName: actNameOL,
+      },
       bodyClass: ['page--chapters']
     });
   });
