@@ -31,6 +31,8 @@ export default async function(): Promise<Router> {
 
     if (toBoolean(process.env.SSL_ENABLED)) {
       cspOptions.directives.upgradeInsecureRequests = [];
+    } else {
+      cspOptions.directives.upgradeInsecureRequests = null;
     }
 
     helmet.contentSecurityPolicy(cspOptions)(req, res, next);
