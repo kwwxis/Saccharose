@@ -55,9 +55,9 @@ export async function appInit(): Promise<Express> {
   // Serve static directories
   // ~~~~~~~~~~~~~~~~~~~~~~~~
   app.use(express.static(config.views.publicDir));
-  if (process.env.SSL_WELL_KNOWN_DIR) {
-    console.log('[Init] Serving .well-known directory');
-    app.use('/.well-known', express.static(process.env.SSL_WELL_KNOWN_DIR), serveIndex(process.env.SSL_WELL_KNOWN_DIR));
+  if (isStringNotBlank(process.env.EXT_PUBLIC_DIR)) {
+    console.log('[Init] Serving EXT_PUBLIC_DIR directory');
+    app.use('/.well-known', express.static(process.env.EXT_PUBLIC_DIR), serveIndex(process.env.EXT_PUBLIC_DIR));
   }
 
   // Middleware for requests
