@@ -4,6 +4,7 @@ import AppRouter from './app/AppRouter';
 import helmet from 'helmet';
 
 import { create, Router, Request, Response, NextFunction } from '../util/router';
+import { toBoolean } from '../../shared/util/genericUtil';
 
 export default async function(): Promise<Router> {
   const router: Router = create({
@@ -14,7 +15,7 @@ export default async function(): Promise<Router> {
   });
 
   router.use((req: Request, res: Response, next: NextFunction) => {
-    helmet.contentSecurityPolicy({
+    const cspOptions: any = {
       useDefaults: true,
       directives: {
         defaultSrc: ["'self'", 'cdnjs.cloudflare.com', 'unpkg.com', 'fonts.googleapis.com', 'fonts.gstatic.com', `${process.env.VHOST}:*`],
@@ -23,10 +24,16 @@ export default async function(): Promise<Router> {
         scriptSrc: ["'self'", "'unsafe-eval'", 'cdnjs.cloudflare.com', 'unpkg.com', `'nonce-${req.context.nonce}'`, `${process.env.VHOST}:*`],
         fontSrc: ["'self'", 'fonts.googleapis.com', 'fonts.gstatic.com'],
         connectSrc: ["'self'", `wss://${process.env.VHOST}:*`],
-        upgradeInsecureRequests: [],
+        //upgradeInsecureRequests: [],
       },
       reportOnly: false,
-    })(req, res, next);
+    };
+
+    if (toBoolean(process.env.SSL_ENABLED)) {
+      cspOptions.directives.upgradeInsecureRequests = [];
+    }
+
+    helmet.contentSecurityPolicy(cspOptions)(req, res, next);
   });
 
   router.use('/', await AppRouter());
