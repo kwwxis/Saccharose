@@ -856,19 +856,19 @@ export class Control {
 
         AQCode: '',
       };
-      if (actPartEN.includes('Act')) {
+      if (actPartEN && actPartEN.includes('Act')) {
         chapter.Summary.ActType = 'Act';
-      } else if (actPartEN.includes('Part')) {
+      } else if (actPartEN && actPartEN.includes('Part')) {
         chapter.Summary.ActType = 'Part';
-      } else if (actPartEN.includes('Day')) {
+      } else if (actPartEN && actPartEN.includes('Day')) {
         chapter.Summary.ActType = 'Day';
       } else {
         chapter.Summary.ActType = 'None';
       }
-      if (chapter.Type === 'AQ' && chapterPartEN.includes('Prologue')) {
+      if (chapter.Type === 'AQ' && chapterPartEN && chapterPartEN.includes('Prologue')) {
         chapter.Summary.ChapterNum = 0;
       }
-      if (chapter.Type === 'AQ' && chapterPartEN.includes('Interlude Chapter')) {
+      if (chapter.Type === 'AQ' && chapterPartEN && chapterPartEN.includes('Interlude Chapter')) {
         chapter.Summary.AQCode += 'IC';
       } else if (chapter.Summary.ChapterNum >= 0) {
         chapter.Summary.AQCode += 'C' + chapter.Summary.ChapterNum;
