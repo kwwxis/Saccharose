@@ -12,7 +12,7 @@
     "webpack:dev": "webpack --config webpack.dev.ts",
     "build:dev": "npm-run-all --parallel backend:build webpack:dev",
     "build:prod": "npm-run-all --parallel backend:build webpack:prod",
-    "start": "node . --max-old-space-size=3072",
+    "start": "node . --max-old-space-size=4096",
     "ts-serve": "ts-node src/backend/server.ts",
     "ts-serve:dev": "ts-node-dev --respawn --transpile-only --no-notify src/backend/server.ts",
     "webpack:dev-watch": "webpack --config webpack.dev.ts --watch",
