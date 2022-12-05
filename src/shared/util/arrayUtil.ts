@@ -103,6 +103,8 @@ export function compare<T>(a: T, b: T, field?: string|SortComparator<T>, nullsLa
 }
 
 /**
+ * Sorts an array **in-place**.
+ *
  * Standard sort (can sort number/strings):
  * ```
  *   let myArr = [5, -1, 4, 2, 3, 0, 1];

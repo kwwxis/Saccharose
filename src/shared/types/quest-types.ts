@@ -9,6 +9,13 @@ export type MapByQuestType<T> = {
   WQ: T
 };
 
+export interface ChapterCollection {
+  AQ: {[chapterName: string]: {[subChapterName: string]: ChapterExcelConfigData[]}},
+  SQ: {[chapterName: string]: {[subChapterName: string]: ChapterExcelConfigData[]}},
+  EQ: {[chapterName: string]: ChapterExcelConfigData[]},
+  WQ: {[chapterName: string]: ChapterExcelConfigData[]},
+};
+
 export interface MainQuestExcelConfigData {
   Id: number,
   Series: number,
@@ -22,13 +29,14 @@ export interface MainQuestExcelConfigData {
   DescTextMapHash: number,
   LuaPath: string,
   SuggestTrackOutOfOrder?: boolean,
-  SuggestTrackMainQuestList?: any[],
-  RewardIdList: any[],
+  SuggestTrackMainQuestList?: number[],
+  RewardIdList: number[],
   ShowType: string,
   QuestExcelConfigDataList?: QuestExcelConfigData[],
   OrphanedTalkExcelConfigDataList?: TalkExcelConfigData[],
   OrphanedDialog?: DialogExcelConfigData[][],
   QuestMessages?: ManualTextMapConfigData[],
+  __globalVarPos?: number,
 }
 
 export interface QuestExcelConfigData {
@@ -86,4 +94,32 @@ export interface ChapterExcelConfigData {
   NeedPlayerLevel?: number,
   Type?: QuestType,
   Quests?: MainQuestExcelConfigData[],
+  Summary?: ChapterSummary;
+}
+
+export interface ChapterSummary {
+  ChapterNum: number,
+  ChapterRoman: string,
+  ChapterNumText: string,
+  ChapterName: string,
+
+  ActNum: number,
+  ActName: string,
+  ActNumText: string,
+  ActRoman: string,
+  ActType: string,
+
+  AQCode: string,
+}
+
+export interface ReputationQuestExcelConfigData {
+  ParentQuestId: number,
+  CityId: number,
+  RewardId: number,
+  IconName: string,
+  TitleText: string,
+  TitleTextMapHash: number,
+  Order: number
+  QuestForm?: string,
+  QuestFormWithTitle?: string,
 }

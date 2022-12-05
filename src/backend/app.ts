@@ -4,7 +4,6 @@ import express from 'express';
 import 'express-async-errors';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
-import partialResponse from 'express-partial-response';
 import useragent from 'express-useragent';
 import helmet from 'helmet';
 import csrf from 'csurf';
@@ -20,6 +19,7 @@ import { isStringNotBlank } from '../shared/util/stringUtil';
 import rateLimit from 'express-rate-limit';
 import requestIp from 'request-ip';
 import globalErrorHandler from './middleware/globalErrorHandler';
+import jsonResponse from './middleware/jsonResponse';
 import defaultResponseHeaders from './middleware/defaultResponseHeaders';
 
 const app: Express = express();
@@ -90,7 +90,7 @@ export async function appInit(): Promise<Express> {
     crossOriginEmbedderPolicy: false,
   }));
   app.use(helmet.referrerPolicy({ policy: 'same-origin' })); // referrer policy header
-  app.use(partialResponse()); // allows `fields` query param for JSON responses
+  app.use(jsonResponse)
   app.use(defaultResponseHeaders); // Add default response headers
 
   // Initialize sessions

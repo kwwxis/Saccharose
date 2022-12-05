@@ -1,10 +1,10 @@
-import { flashTippy } from '../util/tooltips';
-import { endpoints } from '../endpoints';
-import { escapeHtml } from '../../shared/util/stringUtil';
-import { startListeners } from '../util/eventLoader';
-import { pageMatch } from '../pageMatch';
+import { flashTippy } from '../../util/tooltips';
+import { endpoints } from '../../endpoints';
+import { escapeHtml } from '../../../shared/util/stringUtil';
+import { startListeners } from '../../util/eventLoader';
+import { pageMatch } from '../../pageMatch';
 
-pageMatch('pages/branch-dialogue', () => {
+pageMatch('pages/dialogue/branch-dialogue', () => {
   function loadResultFromURL() {
     const url = new URL(window.location.href);
     const query = url.searchParams.get('q');
@@ -48,8 +48,8 @@ pageMatch('pages/branch-dialogue', () => {
       return;
     }
 
-    if (text.length < 5) {
-      flashTippy(inputEl, {content: 'Enter at least 5 characters.', delay:[0,2000]});
+    if (text.length < 3) {
+      flashTippy(inputEl, {content: 'Enter at least 3 characters.', delay:[0,2000]});
       return;
     }
 

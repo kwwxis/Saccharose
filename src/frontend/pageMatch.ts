@@ -7,14 +7,14 @@ let loadedViews: Set<string> = (() => {
   return new Set(loadedViews.split(','));
 })();
 
-console.log('[Page-Match] Loaded views:', loadedViews);
+console.log('[Init] Loaded views:', loadedViews);
 
 export function pageMatch(pageName: string, callback: Function) {
   let didPageMatch: boolean = loadedViews.has(pageName);
   if (didPageMatch) {
-    console.log(`[Page-Match] Matched - ${pageName}`);
+    console.log(`[Init] Matched - ${pageName}`);
     runWhenDOMContentLoaded(() => callback());
   } else {
-    console.log(`[Page-Match] Not matched - ${pageName}`);
+    console.log(`[Init] Not matched - ${pageName}`);
   }
 }

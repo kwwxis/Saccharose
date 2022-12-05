@@ -1,10 +1,10 @@
-import { startListeners } from '../util/eventLoader';
-import { escapeHtml } from '../../shared/util/stringUtil';
-import { endpoints } from '../endpoints';
-import { flashTippy } from '../util/tooltips';
-import { pageMatch } from '../pageMatch';
+import { startListeners } from '../../util/eventLoader';
+import { escapeHtml } from '../../../shared/util/stringUtil';
+import { endpoints } from '../../endpoints';
+import { flashTippy } from '../../util/tooltips';
+import { pageMatch } from '../../pageMatch';
 
-pageMatch('pages/reminders', () => {
+pageMatch('pages/dialogue/reminders', () => {
   const listeners = [
     {
       el: '.reminder-generate-input',
@@ -28,8 +28,8 @@ pageMatch('pages/reminders', () => {
           return;
         }
 
-        if (text.length < 5) {
-          flashTippy(inputEl, {content: 'Enter at least 5 characters.', delay:[0,2000]});
+        if (text.length < 3) {
+          flashTippy(inputEl, {content: 'Enter at least 3 characters.', delay:[0,2000]});
           return;
         }
 

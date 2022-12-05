@@ -1,0 +1,40 @@
+
+<table class="article-table">
+  <thead>
+  <tr>
+    <th>Chapter</th>
+    <th>Act</th>
+  </tr>
+  </thead>
+  <tbody>
+  <% for (let chapterName of Object.keys(chapterSect)) { %>
+    <tr>
+      <th>&nbsp;</th>
+      <th><%= chapterName %></th>
+    </tr>
+    <% for (let subChapterName of Object.keys(chapterSect[chapterName])) { %>
+      <tr>
+        <td>
+          <div class="content"><%= subChapterName %></div>
+        </td>
+        <td>
+          <div class="content">
+            <% for (let [i, chapter] of chapterSect[chapterName][subChapterName].entries()) { %>
+              <a class="secondary dispBlock textAlignLeft spacer5-bottom" role="button" href="/chapters/<%= chapter.Id %>">
+                <% if (chapter.Summary.ActNumText) { %>
+                  <span><%= chapter.Summary.ActNumText %></span>
+                  <span>&mdash;</span>
+                <% } %>
+                <strong class="act-name"><%= chapter.Summary.ActName %></strong>
+              </a>
+              <% if (i !== chapterSect[chapterName][subChapterName].length - 1) { %>
+                <hr class="spacer5-bottom">
+              <% } %>
+            <% } %>
+          </div>
+        </td>
+      </tr>
+    <% } %>
+  <% } %>
+  </tbody>
+</table>

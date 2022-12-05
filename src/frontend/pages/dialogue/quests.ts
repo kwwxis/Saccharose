@@ -1,11 +1,11 @@
-import { endpoints } from '../endpoints';
-import { startListeners } from '../util/eventLoader';
-import { escapeHtml } from '../../shared/util/stringUtil';
-import { DIALOG_MODAL, openDialog } from '../util/dialog';
-import { flashTippy } from '../util/tooltips';
-import { pageMatch } from '../pageMatch';
+import { endpoints } from '../../endpoints';
+import { startListeners } from '../../util/eventLoader';
+import { escapeHtml } from '../../../shared/util/stringUtil';
+import { DIALOG_MODAL, openDialog } from '../../util/dialog';
+import { flashTippy } from '../../util/tooltips';
+import { pageMatch } from '../../pageMatch';
 
-pageMatch('pages/quests', () => {
+pageMatch('pages/dialogue/quests', () => {
   function loadQuestGenerateResult(questId) {
     document.querySelector('.quest-search-result-wrapper').classList.add('hide');
 

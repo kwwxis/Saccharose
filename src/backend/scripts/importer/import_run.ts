@@ -5,6 +5,8 @@ import objectPath from 'object-path';
 import { SchemaTable, SEP } from './import_types';
 import { TalkExcelConfigData } from '../../../shared/types/dialogue-types';
 import { MaterialExcelConfigData } from '../../../shared/types/material-types';
+import commandLineArgs, { OptionDefinition as ArgsOptionDefinition } from 'command-line-args';
+import commandLineUsage, { OptionDefinition as UsageOptionDefinition } from 'command-line-usage';
 
 export const schema = {
   DialogExcelConfigData: <SchemaTable> {
@@ -17,8 +19,7 @@ export const schema = {
       {name: 'TalkContentTextMapHash', type: 'integer', isIndex: true},
       {name: 'TalkTitleTextMapHash', type: 'integer', isIndex: true},
       {name: 'TalkRoleNameTextMapHash', type: 'integer', isIndex: true},
-    ],
-    skip: true
+    ]
   },
   ManualTextMapConfigData: <SchemaTable> {
     name: 'ManualTextMapConfigData',
@@ -26,8 +27,7 @@ export const schema = {
     columns: [
       {name: 'TextMapId', type: 'string', isPrimary: true},
       {name: 'TextMapContentTextMapHash', type: 'integer', isIndex: true},
-    ],
-    skip: true
+    ]
   },
   NpcExcelConfigData: <SchemaTable> {
     name: 'NpcExcelConfigData',
@@ -35,8 +35,7 @@ export const schema = {
     columns: [
       {name: 'Id', type: 'integer', isPrimary: true},
       {name: 'NameTextMapHash', type: 'integer', isIndex: true}
-    ],
-    skip: true
+    ]
   },
   TalkExcelConfigData: <SchemaTable> {
     name: 'TalkExcelConfigData',
@@ -62,8 +61,7 @@ export const schema = {
         }
         return null;
       }}
-    ],
-    skip: true
+    ]
   },
   Relation_NpcToTalk: <SchemaTable> {
     name: 'Relation_NpcToTalk',
@@ -77,8 +75,7 @@ export const schema = {
         return row.NpcId.map(npcId => ({NpcId: npcId, TalkId: row.Id}));
       }
       return [];
-    },
-    skip: true
+    }
   },
   MainQuestExcelConfigData: <SchemaTable> {
     name: 'MainQuestExcelConfigData',
@@ -89,8 +86,7 @@ export const schema = {
       {name: 'ChapterId', type: 'integer', isIndex: true},
       {name: 'TitleTextMapHash', type: 'integer', isIndex: true},
       {name: 'DescTextMapHash', type: 'integer', isIndex: true}
-    ],
-    skip: true
+    ]
   },
   ChapterExcelConfigData: <SchemaTable> {
     name: 'ChapterExcelConfigData',
@@ -101,8 +97,7 @@ export const schema = {
       {name: 'EndQuestId', type: 'integer', isIndex: true},
       {name: 'ChapterNumTextMapHash', type: 'integer', isIndex: true},
       {name: 'ChapterTitleTextMapHash', type: 'integer', isIndex: true}
-    ],
-    skip: true
+    ]
   },
   QuestExcelConfigData: <SchemaTable> {
     name: 'QuestExcelConfigData',
@@ -114,8 +109,7 @@ export const schema = {
       {name: 'DescTextMapHash', type: 'integer', isIndex: true},
       {name: 'StepDescTextMapHash', type: 'integer', isIndex: true},
       {name: 'GuideTipsTextMapHash', type: 'integer', isIndex: true}
-    ],
-    skip: true
+    ]
   },
   LoadingTipsExcelConfigData: <SchemaTable> {
     name: 'LoadingTipsExcelConfigData',
@@ -124,8 +118,7 @@ export const schema = {
       {name: 'Id', type: 'integer', isPrimary: true},
       {name: 'TipsTitleTextMapHash', type: 'integer', isIndex: true},
       {name: 'TipsDescTextMapHash', type: 'integer', isIndex: true}
-    ],
-    skip: true
+    ]
   },
   ReminderExcelConfigData: <SchemaTable> {
     name: 'ReminderExcelConfigData',
@@ -135,8 +128,7 @@ export const schema = {
       {name: 'SpeakerTextMapHash', type: 'integer', isIndex: true},
       {name: 'ContentTextMapHash', type: 'integer', isIndex: true},
       {name: 'NextReminderId', type: 'integer', isIndex: true},
-    ],
-    skip: true
+    ]
   },
   MaterialExcelConfigData: <SchemaTable> {
     name: 'MaterialExcelConfigData',
@@ -152,8 +144,7 @@ export const schema = {
       {name: 'Icon', type: 'string'},
       {name: 'ItemType', type: 'string'},
       {name: 'RankLevel', type: 'string'},
-    ],
-    skip: true
+    ]
   },
   Relation_FurnitureToMaterial: <SchemaTable> {
     name: 'Relation_FurnitureToMaterial',
@@ -169,8 +160,7 @@ export const schema = {
       } else {
         return [];
       }
-    },
-    skip: true
+    }
   },
   Relation_FurnitureSuiteToMaterial: <SchemaTable> {
     name: 'Relation_FurnitureSuiteToMaterial',
@@ -186,8 +176,7 @@ export const schema = {
       } else {
         return [];
       }
-    },
-    skip: true
+    }
   },
   Relation_CodexToMaterial: <SchemaTable> {
     name: 'Relation_CodexToMaterial',
@@ -203,16 +192,14 @@ export const schema = {
       } else {
         return [];
       }
-    },
-    skip: true
+    }
   },
   MaterialSourceDataExcelConfigData: <SchemaTable> {
     name: 'MaterialSourceDataExcelConfigData',
     jsonFile: './ExcelBinOutput/MaterialSourceDataExcelConfigData.json',
     columns: [
       {name: 'Id', type: 'integer', isPrimary: true},
-    ],
-    skip: true
+    ]
   },
   DailyTaskExcelConfigData: <SchemaTable> {
     name: 'DailyTaskExcelConfigData',
@@ -225,8 +212,7 @@ export const schema = {
       {name: 'TitleTextMapHash', type: 'integer', isIndex: true},
       {name: 'DescriptionTextMapHash', type: 'integer', isIndex: true},
       {name: 'TargetTextMapHash', type: 'integer', isIndex: true},
-    ],
-    skip: false
+    ]
   },
   NpcFirstMetExcelConfigData: <SchemaTable> {
     name: 'NpcFirstMetExcelConfigData',
@@ -235,8 +221,7 @@ export const schema = {
       {name: 'Id', type: 'integer', isPrimary: true},
       {name: 'AvatarId', type: 'integer', isIndex: true},
       {name: 'AvatarDescriptionTextMapHash', type: 'integer', isIndex: true},
-    ],
-    skip: true,
+    ]
   },
   AvatarExcelConfigData: <SchemaTable> {
     name: 'AvatarExcelConfigData',
@@ -249,16 +234,14 @@ export const schema = {
       {name: 'BodyType', type: 'string', isIndex: true},
       {name: 'IconName', type: 'string'},
       {name: 'SideIconName', type: 'string'},
-    ],
-    skip: true,
+    ]
   },
   RewardExcelConfigData: <SchemaTable> {
     name: 'RewardExcelConfigData',
     jsonFile: './ExcelBinOutput/RewardExcelConfigData.json',
     columns: [
       {name: 'RewardId', type: 'integer', isPrimary: true},
-    ],
-    skip: false,
+    ]
   },
   HomeWorldFurnitureExcelConfigData: <SchemaTable> {
     name: 'HomeWorldFurnitureExcelConfigData',
@@ -275,8 +258,7 @@ export const schema = {
       {name: 'Rank', type: 'integer', isIndex: true},
       {name: 'RankLevel', type: 'integer', isIndex: true},
       {name: 'ItemType', type: 'string', isIndex: true},
-    ],
-    skip: false,
+    ]
   },
   HomeWorldFurnitureTypeExcelConfigData: <SchemaTable> {
     name: 'HomeWorldFurnitureTypeExcelConfigData',
@@ -287,8 +269,7 @@ export const schema = {
       {name: 'TypeName2TextMapHash', type: 'integer', isIndex: true},
       {name: 'TabIcon', type: 'integer'},
       {name: 'SceneType', type: 'string'},
-    ],
-    skip: false,
+    ]
   },
   HomeWorldEventExcelConfigData: <SchemaTable> {
     name: 'HomeWorldEventExcelConfigData',
@@ -300,8 +281,7 @@ export const schema = {
       {name: 'TalkId', type: 'integer', isIndex: true},
       {name: 'RewardId', type: 'integer', isIndex: true},
       {name: 'FurnitureSuiteId', type: 'integer', isIndex: true},
-    ],
-    skip: false,
+    ]
   },
   HomeWorldNPCExcelConfigData: <SchemaTable> {
     name: 'HomeWorldNPCExcelConfigData',
@@ -312,12 +292,76 @@ export const schema = {
       {name: 'NpcId', type: 'integer', isIndex: true},
       {name: 'ShowNameTextMapHash', type: 'integer', isIndex: true},
       {name: 'DescTextMapHash', type: 'integer', isIndex: true},
-    ],
-    skip: true,
+    ]
   },
-  // FurnitureSuiteExcelConfigData
-  // FurnitureMakeExcelConfigData
-  // Dungeon...
+  ReputationQuestExcelConfigData: <SchemaTable> {
+    name: 'ReputationQuestExcelConfigData',
+    jsonFile: './ExcelBinOutput/ReputationQuestExcelConfigData.json',
+    columns: [
+      {name: 'ParentQuestId', type: 'integer', isPrimary: true},
+      {name: 'CityId', type: 'integer', isIndex: true},
+      {name: 'RewardId', type: 'integer'},
+      {name: 'TitleTextMapHash', type: 'integer', isIndex: true},
+      {name: 'Order', type: 'integer'},
+    ]
+  },
+  CityConfigData: <SchemaTable> {
+    name: 'CityConfigData',
+    jsonFile: './ExcelBinOutput/CityConfigData.json',
+    columns: [
+      {name: 'CityId', type: 'integer', isPrimary: true},
+      {name: 'CityNameTextMapHash', type: 'integer', isIndex: true},
+    ]
+  },
+  FurnitureSuiteExcelConfigData: <SchemaTable> {
+    name: 'FurnitureSuiteExcelConfigData',
+    jsonFile: './ExcelBinOutput/FurnitureSuiteExcelConfigData.json',
+    columns: [
+      {name: 'SuiteId', type: 'integer', isPrimary: true},
+      {name: 'SuiteNameText', type: 'integer', isIndex: true},
+    ]
+  },
+  FurnitureMakeExcelConfigData: <SchemaTable> {
+    name: 'FurnitureMakeExcelConfigData',
+    jsonFile: './ExcelBinOutput/FurnitureMakeExcelConfigData.json',
+    columns: [
+      {name: 'FurnitureItemId', type: 'integer', isIndex: true},
+      {name: 'ConfigId', type: 'integer', isIndex: true},
+    ]
+  },
+  BooksCodexExcelConfigData: <SchemaTable> {
+    name: 'FurnitureMakeExcelConfigData',
+    jsonFile: './ExcelBinOutput/BooksCodexExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'MaterialId', type: 'integer', isIndex: true},
+    ]
+  },
+  BookSuitExcelConfigData: <SchemaTable> {
+    name: 'FurnitureMakeExcelConfigData',
+    jsonFile: './ExcelBinOutput/FurnitureMakeExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'SuitNameText', type: 'integer', isIndex: true},
+    ]
+  },
+  LocalizationExcelConfigData: <SchemaTable> {
+    name: 'LocalizationExcelConfigData',
+    jsonFile: './ExcelBinOutput/LocalizationExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'AssetType', type: 'string', isIndex: true},
+    ]
+  },
+  DocumentExcelConfigData: <SchemaTable> {
+    name: 'DocumentExcelConfigData',
+    jsonFile: './ExcelBinOutput/DocumentExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'ContentLocalizedId', type: 'integer', isIndex: true},
+      {name: 'TitleTextMapHash', type: 'integer', isIndex: true},
+    ]
+  }
 };
 
 export function capitalizeFirstLetter(s: string) {
@@ -404,7 +448,76 @@ if (require.main === module) {
       console.log('  (done)');
     }
 
-    for (let table of Object.values(schema).filter(x => !x.skip)) {
+    const optionDefinitions: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
+      {name: 'run-only', alias: 'o', type: String, multiple: true, description: 'Import only the specified tables.', typeLabel: '<table>'},
+      {name: 'run-all-except', alias: 'e', type: String, multiple: true, description: 'Import all tables except the specified.', typeLabel: '<table>'},
+      {name: 'run-all', alias: 'a', type: Boolean, description: 'Import all tables.', typeLabel: '<table>'},
+      {name: 'list', alias: 'l', type: Boolean, description: 'List all table names.'},
+      {name: 'help', alias: 'h', type: Boolean, description: 'Display this usage guide.'},
+    ];
+
+    const options = commandLineArgs(optionDefinitions);
+
+    if (Object.keys(options).filter(k => k.startsWith('run')).length > 1) {
+      console.error('\x1b[31m', '\nThese options are mutually exclusive: --run-only, --run-all-except, or --run-all', '\x1b[0m');
+      options.help = true;
+    } else if (!Object.keys(options).length) {
+      console.error('\x1b[31m', '\nMust specify one of: --run-only, --run-all-except, or --run-all', '\x1b[0m');
+      options.help = true;
+    }
+
+    if (options.list) {
+      console.log();
+      console.log('\x1b[4m\x1b[1mAvailable Tables:\x1b[0m');
+      for (let tableName of Object.keys(schema)) {
+        console.log('  ' + tableName);
+      }
+      console.log();
+      return;
+    }
+
+    if (options.help) {
+      const usage = commandLineUsage([
+        {
+          header: 'Genshin Data Importer',
+          content: 'Imports Genshin Data json into a sqlite database for this application.'
+        },
+        {
+          header: 'Options',
+          optionList: optionDefinitions
+        }
+      ])
+      console.log(usage);
+      return;
+    }
+
+    let tablesToRun: string[];
+    if (options['run-all']) {
+      tablesToRun = Object.keys(schema);
+    } else if (options['run-all-except']) {
+      let input = (options['run-all-except'] as string[]).map(s => s.split(/[,;]/g)).flat(Infinity) as string[];
+      for (let table of input) {
+        if (!schema.hasOwnProperty(table)) {
+          console.error('\x1b[31m', '\nNot a valid table name: ' + table + '\n', '\x1b[0m');
+          return;
+        }
+      }
+      tablesToRun = Object.keys(schema).filter(x => !input.includes(x));
+    } else if (options['run-only']) {
+      let input = (options['run-only'] as string[]).map(s => s.split(/[,;]/g)).flat(Infinity) as string[];
+      for (let table of input) {
+        if (!schema.hasOwnProperty(table)) {
+          console.error('\x1b[31m', '\nNot a valid table name: ' + table + '\n', '\x1b[0m');
+          return;
+        }
+      }
+      tablesToRun = input;
+    } else {
+      throw 'Implementation exception.';
+    }
+
+    for (let tableName of tablesToRun) {
+      let table: SchemaTable = schema[tableName];
       await createTable(table);
       await insertAll(table);
       console.log(SEP);

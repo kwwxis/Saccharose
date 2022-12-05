@@ -2,7 +2,7 @@ import '../../loadenv';
 import {Control, getControl, normText} from "../script_util";
 import {getTextMapItem, getVoPrefix, loadEnglishTextMap, loadVoiceItems} from "../textmap";
 import { closeKnex } from '../../util/db';
-import { DialogExcelConfigData } from '../../../shared/types';
+import { DialogExcelConfigData } from '../../../shared/types/dialogue-types';
 import config from '../../config';
 import {promises as fs} from 'fs';
 import{schema, normalizeRawJson} from '../importer/import_run';

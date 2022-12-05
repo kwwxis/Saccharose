@@ -6,10 +6,22 @@ import { ol_gen } from '../../scripts/OLgen/OLgen';
 import { dialogueGenerate, dialogueGenerateByNpc, NpcDialogueResultMap } from '../../scripts/dialogue/basic_dialogue_generator';
 import { reminderGenerate } from '../../scripts/dialogue/reminder_generator';
 import { isInt, toInt } from '../../../shared/util/numberUtil';
-import { toBoolean } from '../../../shared/util/genericUtil';
+import { CyclicValueReplacer, removeCyclicRefs, toBoolean } from '../../../shared/util/genericUtil';
 import { MainQuestExcelConfigData } from '../../../shared/types/quest-types';
+import { getTextMapItem } from '../../scripts/textmap';
 
 const router: Router = create();
+
+const GenericCyclicValueReplacer: CyclicValueReplacer = (k: string, v: any) => {
+  if (typeof v === 'object' && v.Id) {
+    return {
+      __cyclicKey: k,
+      __cyclicRef: v.Id
+    };
+  } else {
+    return;
+  }
+}
 
 router.restful('/ping', {
   get: async (req: Request, res: Response) => {
@@ -70,10 +82,13 @@ router.restful('/quests/generate', {
       locals.dialogue = result.dialogue;
       locals.travelLogSummary = result.travelLogSummary;
       locals.cutscenes = result.cutscenes;
+      locals.reward = result.reward;
+      locals.reputation = result.reputation;
+      locals.rewardInfobox = result.rewardInfobox;
 
       return res.render('partials/quests/quest-generate-result', locals);
     } else {
-      return result;
+      return removeCyclicRefs(result, GenericCyclicValueReplacer);
     }
   }
 });
@@ -108,7 +123,7 @@ router.restful('/dialogue/single-branch-generate', {
         sections: result,
       });
     } else {
-      return result;
+      return removeCyclicRefs(result, GenericCyclicValueReplacer);
     }
   }
 });
@@ -133,7 +148,7 @@ router.restful('/dialogue/npc-dialogue-generate', {
         resultMap: resultMap,
       });
     } else {
-      return resultMap;
+      return removeCyclicRefs(resultMap, GenericCyclicValueReplacer);
     }
   }
 });
@@ -152,6 +167,26 @@ router.restful('/dialogue/reminder-dialogue-generate', {
       return res.render('partials/dialogue/single-branch-dialogue-generate-result', {
         sections: result,
       });
+    } else {
+      return result;
+    }
+  }
+});
+
+router.restful('/search-textmap', {
+  get: async (req: Request, res: Response) => {
+    const ctrl = getControl(req);
+
+    const result = await ctrl.getTextMapMatches(ctrl.inputLangCode, <string> req.query.text, '-m 50'); // "-m" flag -> max count
+
+    if (ctrl.inputLangCode !== ctrl.outputLangCode) {
+      for (let textMapId of Object.keys(result)) {
+        result[textMapId] = getTextMapItem(ctrl.outputLangCode, textMapId);
+      }
+    }
+
+    if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
+      return res.render('partials/textmap-search-result', { result });
     } else {
       return result;
     }

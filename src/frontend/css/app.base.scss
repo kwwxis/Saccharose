@@ -3,6 +3,7 @@
 * {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
 }
 
 html,
@@ -988,7 +989,7 @@ body {
   top: 0;
   left: 0;
   width: 80px;
-  height: 52px;
+  height: 50px;
   background: #eaeffb;
 }
 #site-logo-fg {
@@ -1284,7 +1285,10 @@ body.nightmode {
   color: hsl(255deg 5% 73%);
 }
 body.nightmode a {
-  color: #0d96f2;
+  color: #e4c179;
+}
+body.nightmode a:hover {
+  color: #f5e8cd;
 }
 
 body.nightmode .card {
@@ -1307,14 +1311,17 @@ body.nightmode #site-logo-bg {
 body.nightmode button.secondary,
 body.nightmode [role='button'].secondary,
 body.nightmode .secondary-label {
-  background: hsl(255deg 10% 18%);
+  background: hsl(232deg 12% 29% / 30%);
+  border: 1px solid hsl(232deg 12% 29% / 35%);
   color: hsl(255deg 5% 73%);
+  color: #e4c179;
 }
 body.nightmode button.secondary:hover,
 body.nightmode [role='button'].secondary:hover,
 body.nightmode .secondary-label:hover {
+  background: hsl(232deg 10% 29% / 50%);
   color: hsl(255deg 5% 73%);
-  background: hsl(255deg 10% 22%);
+  color: #f5e8cd;
 }
 
 body.nightmode button.secondary.selected,

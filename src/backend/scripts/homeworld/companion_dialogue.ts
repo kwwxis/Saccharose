@@ -87,8 +87,17 @@ export async function fetchCompanionDialogue(ctrl: Control, avatarNameOrId: stri
 
     for (let rewardEvent of companion.RewardEvents) {
       let section = await talkConfigGenerate(ctrl, rewardEvent.TalkId, null, acc);
+
       let rewardInfo = await ctrl.selectRewardExcelConfigData(rewardEvent.RewardId);
-      section.wikitextArray.push(rewardInfo.RewardWikitext);
+      section.wikitextArray.push(rewardInfo.RewardSummary.CombinedCards);
+
+      if (rewardEvent.FurnitureSuitId) {
+        let furnitureSuite = await ctrl.selectFurnitureSuite(rewardEvent.FurnitureSuitId);
+        if (furnitureSuite) {
+          section.title = 'Special Dialogue for Favorite Furnishing Set: ' + furnitureSuite.SuiteNameText;
+        }
+      }
+
       result.push(section);
     }
 

@@ -1,0 +1,26 @@
+<table class="article-table">
+  <% for (let chapterName of Object.keys(chapterSect)) { %>
+    <thead>
+    <tr><th><%= chapterName %></th></tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td>
+        <div class="content dispFlex flexWrap alignStretch">
+          <% for (let chapter of chapterSect[chapterName]) { %>
+            <div class="w33p dispFlex alignStretch">
+              <a class="w100p secondary dispBlock spacer5-all textAlignLeft" role="button" href="/chapters/<%= chapter.Id %>">
+                <% if (chapter.Summary.ActNumText) { %>
+                  <span><%= chapter.Summary.ActNumText %></span>
+                  <span>&mdash;</span>
+                <% } %>
+                <strong class="act-name"><%= chapter.Summary.ActName %></strong>
+              </a>
+            </div>
+          <%} %>
+        </div>
+      </td>
+    </tr>
+    </tbody>
+  <% } %>
+</table>

@@ -1,7 +1,7 @@
 import { ConfigCondition, NpcExcelConfigData } from './general-types';
 
-export type LangCode = 'CHS' | 'CHT' | 'DE' | 'EN' | 'ES' | 'FR' | 'ID' | 'JP' | 'KR' | 'PT' | 'RU' | 'TH' | 'VI'; // TODO add IT/TR
-export const LANG_CODES: LangCode[] = ['CHS', 'CHT', 'DE', 'EN', 'ES', 'FR', 'ID', 'JP', 'KR', 'PT', 'RU', 'TH', 'VI']; // TODO add IT/TR
+export type LangCode = 'CHS' | 'CHT' | 'DE' | 'EN' | 'ES' | 'FR' | 'ID' | 'IT' | 'JP' | 'KR' | 'PT' | 'RU' | 'TH' | 'TR' | 'VI';
+export const LANG_CODES: LangCode[] = ['CHS', 'CHT', 'DE', 'EN', 'ES', 'FR', 'ID', 'IT', 'JP', 'KR', 'PT', 'RU', 'TH', 'TR', 'VI'];
 export const LANG_CODES_TO_NAME = {
   CHS: 'Chinese (Simplified)',
   CHT: 'Chinese (Traditional)',
@@ -10,16 +10,16 @@ export const LANG_CODES_TO_NAME = {
   ES: 'Spanish',
   FR: 'French',
   ID: 'Indonesian',
-  //IT: 'Italian', // TODO
+  IT: 'Italian',
   JP: 'Japanese',
   KR: 'Korean',
   PT: 'Portuguese',
   RU: 'Russian',
   TH: 'Thai',
-  //TR: 'Turkish', // TODO
+  TR: 'Turkish',
   VI: 'Vietnamese',
 };
-export const LANG_CODES_TO_WIKI_CODE = {
+export const LANG_CODE_TO_WIKI_CODE = {
   CHS: 'ZHS',
   CHT: 'ZHT',
   DE: 'DE',
@@ -27,13 +27,13 @@ export const LANG_CODES_TO_WIKI_CODE = {
   ES: 'ES',
   FR: 'FR',
   ID: 'ID',
-  //IT: '', // TODO
+  IT: 'IT',
   JP: 'JA',
   KR: 'KO',
   PT: 'PT',
   RU: 'RU',
   TH: 'TH',
-  //TR: '', // TODO
+  TR: 'TR',
   VI: 'VI',
 };
 

@@ -110,6 +110,18 @@ export const endpoints = {
       .then(response => response.data)
       .catch(this.errorHandler);
   },
+  searchTextMap(text: string, asHTML: boolean = false) {
+    return axios
+      .get(`${this.base_uri}/search-textmap`, {
+        params: {text: text},
+        headers: {
+          'Accept': asHTML ? 'text/html' : 'application/json',
+          'Content-Type': asHTML ? 'text/html' : 'application/json',
+        }
+      })
+      .then(response => response.data)
+      .catch(this.errorHandler);
+  },
 };
 
 (<any> window).endpoints = endpoints;

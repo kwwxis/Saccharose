@@ -223,56 +223,70 @@ aside {
 }
 
 /*------------------------------------------------------------------------------------------------*/
-table {
-  width: 100%;
+table.article-table {
+  border: 1px solid hsl(222deg 20% 77%);
   border-collapse: collapse;
+  width: 100%;
 }
-
-table td,
-table th {
-  padding: 0 10px;
-  line-height: 1.5em;
-  box-sizing: border-box;
+table.article-table tr th,
+table.article-table tr td {
+  padding: 2px 5px;
 }
-
-table thead th {
+table.article-table tr th {
+  background: hsl(222deg 20% 96%);
+  border-top: 1px solid hsl(222deg 20% 77%);
+  border-bottom: 1px solid hsl(222deg 20% 77%);
+}
+table.article-table.all-borders tr th {
+  border-left: 1px solid hsl(222deg 20% 77%);
+  border-right: 1px solid hsl(222deg 20% 77%);
+}
+table.article-table thead tr th {
+  background: hsl(222deg 20% 88%);
+}
+table.article-table tr td {
+  border-top: 1px solid hsl(222deg 20% 90%);
+  border-bottom: 1px solid hsl(222deg 20% 90%);
+}
+table.article-table.all-borders tr td {
+  border-left: 1px solid hsl(222deg 20% 90%);
+  border-right: 1px solid hsl(222deg 20% 90%);
+}
+table.article-table tr td.bold {
+  background: hsl(222deg 20% 96%);
   font-weight: bold;
-  text-transform: uppercase;
-  font-size: 11px;
-  color: rgba(0, 0, 0, 0.55);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.09);
-  text-align: left;
+}
+table.article-table tr td.no-border {
+  border-top: 0;
+  border-bottom: 0;
 }
 
-.card table thead th {
-  color: hsl(217, 6%, 65%);
+body.nightmode table.article-table {
+  border: 1px solid #4C5067;
 }
-
-table.primary td {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.09);
+body.nightmode table.article-table tr th {
+  background: #404356;
+  border-top: 1px solid #4C5067;
+  border-bottom: 1px solid #4C5067;
 }
-
-table.primary tr:nth-child(odd) > td {
-  background: hsla(210, 40%, 96%, 0.6);
+body.nightmode table.article-table.all-borders tr th {
+  border-left: 1px solid #4C5067;
+  border-right: 1px solid #4C5067;
 }
-
-table.primary tr.greenbg:nth-child(odd) > td,
-table.primary tr.redbg:nth-child(odd) > td,
-table.primary tr.bluebg:nth-child(odd) > td,
-table.primary tr.yellowbg:nth-child(odd) > td,
-table.primary tr.blackbg:nth-child(odd) > td {
-  background: transparent;
+body.nightmode table.article-table thead tr th {
+  background: #404356;
 }
-
-table.secondary td {
-  line-height: 24px;
-  font-family: 'Open Sans', Arial, sans-serif;
-  font-size: 11px;
-  color: rgba(0, 0, 0, 0.65);
+body.nightmode table.article-table tr td {
+  border-top: 1px solid #4C5067;
+  border-bottom: 1px solid #4C5067;
 }
-
-table.secondary tr:nth-child(odd) td {
-  background: hsla(210, 40%, 95%, 0.8);
+body.nightmode table.article-table.all-borders tr td {
+  border-left: 1px solid #4C5067;
+  border-right: 1px solid #4C5067;
+}
+body.nightmode table.article-table tr td.bold {
+  background: #404356;
+  font-weight: bold;
 }
 
 /*------------------------------------------------------------------------------------------------*/

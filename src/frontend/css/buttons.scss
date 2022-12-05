@@ -282,8 +282,8 @@ button.secondary .icon,
 }
 button.secondary .icon:first-child:not(:last-child),
 [role='button'].secondary .icon:first-child:not(:last-child) {
-  margin-right: 0.45em;
-  margin-left: -0.15em;
+  margin-right: 0.15em;
+  margin-left: -0.45em;
 }
 
 button.secondary.selected,

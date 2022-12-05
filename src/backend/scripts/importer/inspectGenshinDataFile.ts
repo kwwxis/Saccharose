@@ -8,7 +8,12 @@ import { resolveObjectPath } from '../../../shared/util/arrayUtil';
 import { closeKnex } from '../../util/db';
 import { isInt } from '../../../shared/util/numberUtil';
 
-async function inspectGenshinDataFile(ctrl: Control, file: string, inspectFieldValues: string[] = []): Promise<any[]> {
+async function inspectGenshinDataFile(ctrl: Control, file: string, inspectFieldValues: string[] = [], printRecordsWithAnyValueForTheseFields: string[] = []): Promise<any[]> {
+  if (!inspectFieldValues)
+    inspectFieldValues = [];
+  if (!printRecordsWithAnyValueForTheseFields)
+    printRecordsWithAnyValueForTheseFields = [];
+
   const result: any[] = await ctrl.readGenshinDataFile(file);
 
   let inspectFieldsResult: {[fieldName: string]: Set<any>} = {};
@@ -24,6 +29,11 @@ async function inspectGenshinDataFile(ctrl: Control, file: string, inspectFieldV
         resolved.forEach(x => inspectFieldsResult[fieldName].add(x));
       } else {
         inspectFieldsResult[fieldName].add(resolved);
+      }
+    }
+    for (let fieldName of printRecordsWithAnyValueForTheseFields) {
+      if (!!record[fieldName]) {
+        console.log(fieldName, record);
       }
     }
     Object.keys(record).forEach(key => {
@@ -70,6 +80,8 @@ if (require.main === module) {
     // let res = await inspectGenshinDataFile(ctrl, './ExcelBinOutput/FetterInfoExcelConfigData.json', ['AvatarAssocType', 'OpenConds[#ALL].CondType', 'FinishConds[#ALL].CondType']);
     // resolveObjectPath(res, '[#EVERY].Avatar', true);
     // console.log(res.slice(0, 5));
+
+    await inspectGenshinDataFile(ctrl, './ExcelBinOutput/LocalizationExcelConfigData.json', ['AssetType']);
 
     await closeKnex();
   })();

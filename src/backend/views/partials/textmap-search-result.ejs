@@ -1,0 +1,17 @@
+<div class="dialogue-container">
+  <% Object.keys(result).forEach((textMapId, i) => { %>
+    <section class="card">
+      <h2>Text Map ID: <strong><%= textMapId %></strong> <small class="fr fontWeight300">#<%= i+1 %></small></h2>
+      <div class="dialogue-section content">
+        <textarea readonly class="w100p wikitext autosize"><%= result[textMapId] %></textarea>
+      </div>
+    </section>
+  <% }) %>
+  <% if (!Object.keys(result).length) { %>
+    <section class="card">
+      <div class="content">
+        <strong>No matches found.</strong>
+      </div>
+    </section>
+  <% } %>
+</div>

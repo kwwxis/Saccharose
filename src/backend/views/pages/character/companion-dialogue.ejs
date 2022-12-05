@@ -4,7 +4,7 @@
   <% if (locals.charNames) { %>
     <div class="content dispFlex flexWrap talign">
       <% charNames.sort().forEach(charName => { %>
-       <a class="secondary spacer3-all w20p" role="button" href="/lists/companion-dialogue/<%= charName.replace(/ /g, '_') %>"><%= charName %></a>
+       <a class="secondary spacer3-all w20p" role="button" href="/character/companion-dialogue/<%= charName.replace(/ /g, '_') %>"><%= charName %></a>
       <% }) %>
     </div>
   <% } %>

@@ -6,7 +6,6 @@
       <excludeFolder url="file://$MODULE_DIR$/.tmp" />
       <excludeFolder url="file://$MODULE_DIR$/tmp" />
       <excludeFolder url="file://$MODULE_DIR$/public/dist" />
-      <excludeFolder url="file://$MODULE_DIR$/src/backend/scripts/misc" />
       <excludeFolder url="file://$MODULE_DIR$/dist" />
       <excludePattern pattern="package-lock.json" />
     </content>

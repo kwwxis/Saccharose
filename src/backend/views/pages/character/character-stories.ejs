@@ -4,7 +4,7 @@
     <h2>Character Stories</h2>
     <div class="content dispFlex flexWrap talign">
       <% avatars.forEach(avatar => { %>
-       <a class="secondary spacer3-all w20p" role="button" href="/lists/character-stories/<%= avatar.NameText.replaceAll(' ', '_') %>"><%= avatar.NameText %></a>
+       <a class="secondary spacer3-all w20p" role="button" href="/character/stories/<%= avatar.NameText.replaceAll(' ', '_') %>"><%= avatar.NameText %></a>
       <% }) %>
     </div>
   <% } %>

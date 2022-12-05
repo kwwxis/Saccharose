@@ -2,7 +2,6 @@ import objectPath from 'object-path';
 export type SchemaTable = {
   name: string,
   columns: SchemaColumn[],
-  skip: boolean,
   jsonFile: string,
   customRowResolve?: (row: any) => any[],
   normalizeFixFields?: {[oldName: string]: string};

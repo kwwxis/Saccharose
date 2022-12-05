@@ -136,3 +136,84 @@ export function human_timing(time: Date | number | null, suffix?: string): strin
 
     return ret;
 }
+
+export function shallowClone(o: any): any {
+    if (Array.isArray(o)) {
+        return [... o];
+    } else {
+        return Object.assign({}, o);
+    }
+}
+
+/**
+ * Checks if the given object contains any circular references.
+ * @param obj The object to check.
+ */
+export function hasCyclicRefs(obj: any): boolean {
+    let queue: any[] = [obj];
+    const seen = new WeakSet();
+    while (queue.length) {
+        let o = queue.shift();
+        for (let k in o) {
+            if (o[k] !== null && typeof o[k] === 'object') {
+                if (seen.has(obj)) {
+                    return true;
+                }
+                seen.add(obj);
+                queue.push(o[k]);
+            }
+        }
+    }
+    return false;
+}
+
+/**
+ * Removes any circular references from an object **in-place**.
+ */
+export function removeCyclicRefs<T>(obj: T, cyclicValueReplacer?: CyclicValueReplacer): T {
+    let queue: any[] = [obj];
+    let cr = getCircularReplacer(cyclicValueReplacer);
+
+    while (queue.length) {
+        let o = queue.shift();
+        for (let k in o) {
+            let nv = cr(k, o[k]);
+            if (typeof nv === 'undefined') {
+                delete o[k];
+            } else {
+                o[k] = nv;
+            }
+            if (o[k] !== null && typeof o[k] === 'object') {
+                queue.push(o[k]);
+            }
+        }
+    }
+    return obj;
+}
+
+export type CyclicValueReplacer = (cyclicKey: string, cyclicValue: any) => any;
+
+function getCircularReplacer(cyclicValueReplacer?: CyclicValueReplacer) {
+    const seen = new WeakSet();
+    return (key: string, value: any) => {
+        if (typeof value === "object" && value !== null) {
+            if (seen.has(value)) {
+                if (cyclicValueReplacer) {
+                    return cyclicValueReplacer(key, value);
+                } else {
+                    return;
+                }
+            }
+            seen.add(value);
+        }
+        return value;
+    };
+};
+
+/**
+ * Stringifies JSON with circular references removed.
+ * @param data
+ */
+export function safeStringify(data: any) {
+    return JSON.stringify(data, getCircularReplacer());
+}

@@ -38,6 +38,8 @@ jsonsInDir.forEach(file => {
       key = 'JoinTeam_' + voiceItem.gameTriggerArgs;
     } else if (voiceItem._gameTrigger === 'WeatherMonologue') {
       key = 'WeatherMonologue_' + voiceItem.gameTriggerArgs;
+    } else if (voiceItem._gameTrigger === 'Card') {
+      key = 'Card_' + voiceItem.gameTriggerArgs;
     } else {
       unknownTriggers.add(voiceItem._gameTrigger);
       continue;

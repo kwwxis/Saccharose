@@ -1,3 +1,18 @@
+// The Material IDs of some useful items:
+export const ADVENTURE_EXP_ID = 102;
+export const PRIMOGEM_ID = 201;
+export const MORA_ID = 202;
+
+
+export interface RewardSummary {
+  ExpCount: string,
+  MoraCount: string,
+  PrimogemCount: string,
+  OtherCards: string,
+  CombinedCards: string,
+  QuestForm: string,
+}
+
 export interface RewardExcelConfigData {
   RewardId: number,
   RewardItemList: {
@@ -5,7 +20,7 @@ export interface RewardExcelConfigData {
     ItemCount?: number,
     Material?: MaterialExcelConfigData
   }[],
-  RewardWikitext?: string,
+  RewardSummary?: RewardSummary,
 }
 
 export type MaterialType =

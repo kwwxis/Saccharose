@@ -6,8 +6,10 @@ import 'tippy.js/themes/light.css';
 import 'tippy.js/themes/light-border.css';
 import './initialListeners';
 
-import './pages/branch_dialogue';
-import './pages/npc_dialogue';
-import './pages/olgen';
-import './pages/quests';
-import './pages/reminders';
+import './pages/basic/olgen';
+import './pages/basic/text-map-expand';
+
+import './pages/dialogue/branch_dialogue';
+import './pages/dialogue/npc_dialogue';
+import './pages/dialogue/quests';
+import './pages/dialogue/reminders';

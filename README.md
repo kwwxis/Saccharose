@@ -138,6 +138,13 @@
            * Obtain the Genshin Data folder and specify the location to it in the `GENSHIN_DATA_ROOT` property of `.env`
     
            * The Genshin Data folder should contain these folders: `ExcelBinOutput`, `Readable`, `Subtitle`, `TextMap`.
+                
+                * TextMap folder should contain JSON files in the format of `TextMap<LangCode>.json` where `<LangCode>`
+                  is one of these: `'CHS', 'CHT', 'DE', 'EN', 'ES', 'FR', 'ID', 'IT', 'JP', 'KR', 'PT', 'RU', 'TH', 'TR', 'VI'`.
+                  For example `TextMapCHS.json`.
+                * The `Readable` folder should contain sub-folders where each sub-folder name is `<LangCode>` for each language code.
+                * The `Subtitle` folder should contain sub-folders where each sub-folder name is `<LangCode>` for each language code.
+                  Within each language code folder there should be SRT files with the file extension ".txt" or ".srt"
     
            * And also the `BinOutput/Voice/Items` folder. None of the other folders in BinOutput are needed.
           

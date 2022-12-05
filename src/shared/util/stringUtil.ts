@@ -355,3 +355,39 @@ export async function replaceAsync(str: string, regex: RegExp, asyncFn: Function
     const data = await Promise.all(promises);
     return str.replace(regex, () => data.shift());
 }
+
+export function isValidRomanNumeral(str: string): boolean {
+    return /^M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$/.test(str);
+}
+
+export function extractRomanNumeral(str: string): string {
+    return !str ? str : str.split(' ').find(s => isValidRomanNumeral(s));
+}
+
+export function romanToInt(s: string) {
+    if (!s) {
+        return -1;
+    }
+    const sym = {
+        'I': 1,
+        'V': 5,
+        'X': 10,
+        'L': 50,
+        'C': 100,
+        'D': 500,
+        'M': 1000
+    };
+    let result = 0;
+    for (let i = 0; i < s.length; i++){
+        const cur = sym[s[i]];
+        const next = sym[s[i+1]];
+
+        if (cur < next){
+            result += next - cur // IV -> 5 - 1 = 4
+            i++
+        } else {
+            result += cur
+        }
+    }
+    return result;
+}

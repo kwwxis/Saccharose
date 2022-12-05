@@ -7,10 +7,6 @@ import {
   AvatarExcelConfigData,
   ConfigCondition,
   NpcExcelConfigData,
-
-
-
-
 } from '../../shared/types/general-types';
 import { getTextMapItem, getVoPrefix } from './textmap';
 import { Request } from '../util/router';
@@ -19,7 +15,7 @@ import { promises as fs } from 'fs';
 import { arrayIndexOf, arrayIntersect } from '../../shared/util/arrayUtil';
 import { toNumber } from '../../shared/util/numberUtil';
 import { normalizeRawJson } from './importer/import_run';
-import { replaceAsync } from '../../shared/util/stringUtil';
+import { extractRomanNumeral, isStringBlank, replaceAsync, romanToInt } from '../../shared/util/stringUtil';
 import {
   DialogExcelConfigData, LangCode,
   ManualTextMapConfigData, ReminderExcelConfigData,
@@ -27,17 +23,24 @@ import {
   TalkRole,
 } from '../../shared/types/dialogue-types';
 import {
+  ChapterCollection,
   ChapterExcelConfigData,
   MainQuestExcelConfigData,
   QuestExcelConfigData,
-  QuestType,
+  QuestType, ReputationQuestExcelConfigData,
 } from '../../shared/types/quest-types';
 import {
+  ADVENTURE_EXP_ID,
   MaterialExcelConfigData,
-  MaterialSourceDataExcelConfigData,
-  RewardExcelConfigData,
+  MaterialSourceDataExcelConfigData, MORA_ID, PRIMOGEM_ID,
+  RewardExcelConfigData, RewardSummary,
 } from '../../shared/types/material-types';
-import { HomeWorldEventExcelConfigData, HomeWorldNPCExcelConfigData } from '../../shared/types/homeworld-types';
+import {
+  FurnitureSuiteExcelConfigData,
+  HomeWorldEventExcelConfigData,
+  HomeWorldFurnitureExcelConfigData, HomeWorldFurnitureTypeExcelConfigData,
+  HomeWorldNPCExcelConfigData,
+} from '../../shared/types/homeworld-types';
 
 const execPromise = util.promisify(exec);
 
@@ -98,23 +101,23 @@ export const convertRubi = (text: string) => {
 
 export const travelerPlaceholder = (langCode: string = 'EN') => {
   switch (langCode) {
-    case 'CHS': return '旅行者';
-    case 'CHT': return '旅行者';
+    case 'CHS': return '(旅行者)';
+    case 'CHT': return '(旅行者)';
     case 'DE': return '{{MC|m=Reisender|f=Reisende}}';
-    case 'EN': return 'Traveler';
+    case 'EN': return '(Traveler)';
     case 'ES': return '{{MC|m=Viajero|f=Viajera}}';
     case 'FR': return '{{MC|m=Voyageur|f=Voyageuse}}'
-    case 'ID': return 'Pengembara';
+    case 'ID': return '(Pengembara)';
     case 'IT': return '{{MC|m=Viaggiatore|f=Viaggiatrice}}';
-    case 'JP': return '旅人';
-    case 'KR': return '여행자';
-    case 'PT': return 'Viajante';
+    case 'JP': return '(旅人)';
+    case 'KR': return '(여행자)';
+    case 'PT': return '(Viajante)';
     case 'RU': return '{{MC|m=Путешественник|f=Путешественница}}';
-    case 'TH': return 'นักเดินทาง';
-    case 'TR': return 'Gezgin';
-    case 'VI': return 'Nhà Lữ Hành';
+    case 'TH': return '(นักเดินทาง)';
+    case 'TR': return '(Gezgin)';
+    case 'VI': return '(Nhà Lữ Hành)';
   }
-  return 'Traveler;'
+  return '(Traveler)';
 }
 
 export const normText = (text: string, langCode: string = 'EN') => {
@@ -122,7 +125,7 @@ export const normText = (text: string, langCode: string = 'EN') => {
     return text;
   }
   text = text.replace(/—/g, '&mdash;').trim();
-  text = text.replace(/{NICKNAME}/g, '('+travelerPlaceholder(langCode)+')');
+  text = text.replace(/{NICKNAME}/g, travelerPlaceholder(langCode));
   text = text.replace(/{NON_BREAK_SPACE}/g, '&nbsp;');
   text = text.replace(/{F#([^}]+)}{M#([^}]+)}/g, '{{MC|m=$2|f=$1}}');
   text = text.replace(/{M#([^}]+)}{F#([^}]+)}/g, '{{MC|m=$1|f=$2}}');
@@ -740,6 +743,9 @@ export class Control {
   readonly FLAG_REGEX = '-E';
 
   async getTextMapMatches(langCode: LangCode, searchText: string, flags?: string): Promise<{[id: number]: string}> {
+    if (isStringBlank(searchText)) {
+      return {};
+    }
     let lines = await grep(searchText, config.database.getTextMapFile(langCode), flags);
     let out = {};
     for (let line of lines) {
@@ -813,14 +819,121 @@ export class Control {
       return chapter;
     chapter.Quests = await this.selectMainQuestsByChapterId(chapter.Id);
     chapter.Type = chapter.Quests.find(x => x.Type)?.Type;
+    if (chapter.Id === 1105) {
+      chapter.Type = 'AQ';
+    }
+
+    let ChapterNumTextEN = getTextMapItem('EN', chapter.ChapterNumTextMapHash);
+
+    if (chapter.ChapterNumText && (chapter.ChapterNumText.includes(':') || chapter.ChapterNumText.includes('-'))) {
+      let chapterPart: string;
+      let actPart: string;
+
+      let chapterPartEN: string;
+      let actPartEN: string;
+
+      if (chapter.ChapterNumText.includes(':')) {
+        [chapterPart, actPart]     = chapter.ChapterNumText.split(':', 2).map(x => x.trim());
+        [chapterPartEN, actPartEN] = ChapterNumTextEN.split(':', 2).map(x => x.trim());
+      } else if (chapter.ChapterNumText.includes('-')) {
+        [chapterPart, actPart]     = chapter.ChapterNumText.split('-', 2).map(x => x.trim());
+        [chapterPartEN, actPartEN] = ChapterNumTextEN.split('-', 2).map(x => x.trim());
+      }
+
+      chapter.Summary = {
+        ChapterNum: romanToInt(extractRomanNumeral(chapterPart)),
+        ChapterRoman: extractRomanNumeral(chapterPart),
+        ChapterNumText: chapterPart,
+        ChapterName: chapter.ChapterImageTitleText,
+
+        ActNum: romanToInt(extractRomanNumeral(actPart)),
+        ActRoman: extractRomanNumeral(actPart),
+        ActNumText: actPart,
+        ActName: chapter.ChapterTitleText,
+        ActType: '',
+
+        AQCode: '',
+      };
+      if (actPartEN.includes('Act')) {
+        chapter.Summary.ActType = 'Act';
+      } else if (actPartEN.includes('Part')) {
+        chapter.Summary.ActType = 'Part';
+      } else if (actPartEN.includes('Day')) {
+        chapter.Summary.ActType = 'Day';
+      } else {
+        chapter.Summary.ActType = 'None';
+      }
+      if (chapter.Type === 'AQ' && chapterPartEN.includes('Prologue')) {
+        chapter.Summary.ChapterNum = 0;
+      }
+      if (chapter.Type === 'AQ' && chapterPartEN.includes('Interlude Chapter')) {
+        chapter.Summary.AQCode += 'IC';
+      } else if (chapter.Summary.ChapterNum >= 0) {
+        chapter.Summary.AQCode += 'C' + chapter.Summary.ChapterNum;
+      }
+      if (chapter.Summary.ActNum >= 0) {
+        chapter.Summary.AQCode += 'A' + chapter.Summary.ActNum;
+      }
+    } else {
+      chapter.Summary = {
+        ChapterNum: -1,
+        ChapterRoman: null,
+        ChapterNumText: null,
+        ChapterName: chapter.ChapterImageTitleText,
+
+        ActNum: -1,
+        ActRoman: null,
+        ActNumText: null,
+        ActName: chapter.ChapterTitleText,
+        ActType: null,
+
+        AQCode: null,
+      };
+    }
+
     return chapter;
   }
+
   private async postProcessChapters(chapters: ChapterExcelConfigData[]): Promise<ChapterExcelConfigData[]> {
     return Promise.all(chapters.map(x => this.postProcessChapter(x))).then(arr => arr.filter(item => !!item));
   }
 
   async selectAllChapters(): Promise<ChapterExcelConfigData[]> {
     return await this.knex.select('*').from('ChapterExcelConfigData').then(this.commonLoad).then(x => this.postProcessChapters(x));
+  }
+
+  async selectChapterCollection(): Promise<ChapterCollection> {
+    let map: ChapterCollection = {
+      AQ: {},
+      SQ: {},
+      EQ: {},
+      WQ: {},
+    };
+
+    let chapters = await this.selectAllChapters();
+    for (let chapter of chapters) {
+      if (!chapter.Type) {
+        continue;
+      }
+
+      let chapterName = chapter.Summary.ChapterNumText || 'No Chapter';
+      let subChapterName = chapter.Summary.ChapterName || 'No Sub-Chapter';
+
+      if (!map[chapter.Type][chapterName]) {
+        map[chapter.Type][chapterName] = [];
+      }
+
+      if (chapter.Type === 'EQ' || chapter.Type === 'WQ') {
+        map[chapter.Type][chapterName].push(chapter);
+      } else {
+        if (!map[chapter.Type][chapterName][subChapterName]) {
+          map[chapter.Type][chapterName][subChapterName] = [];
+        }
+        map[chapter.Type][chapterName][subChapterName].push(chapter);
+      }
+    }
+
+    return map;
   }
 
   async selectChapterById(id: number): Promise<ChapterExcelConfigData> {
@@ -925,6 +1038,18 @@ export class Control {
   async selectAllHomeWorldNPCs(): Promise<HomeWorldNPCExcelConfigData[]> {
     return await this.knex.select('*').from('HomeWorldNPCExcelConfigData').then(this.commonLoad);
   }
+  async selectFurniture(id: number): Promise<HomeWorldFurnitureExcelConfigData> {
+    return await this.knex.select('*').from('HomeWorldFurnitureExcelConfigData')
+      .where({Id: id}).first().then(this.commonLoadFirst);
+  }
+  async selectFurnitureType(typeId: number): Promise<HomeWorldFurnitureTypeExcelConfigData> {
+    return await this.knex.select('*').from('HomeWorldFurnitureTypeExcelConfigData')
+      .where({TypeId: typeId}).first().then(this.commonLoadFirst);
+  }
+  async selectFurnitureSuite(suiteId: number): Promise<FurnitureSuiteExcelConfigData> {
+    return await this.knex.select('*').from('FurnitureSuiteExcelConfigData')
+      .where({SuiteId: suiteId}).first().then(this.commonLoadFirst);
+  }
 
   async selectMaterialSourceDataExcelConfigData(id: number): Promise<MaterialSourceDataExcelConfigData> {
     let sourceData: MaterialSourceDataExcelConfigData = await this.knex.select('*')
@@ -955,13 +1080,96 @@ export class Control {
       }
       return this.selectMaterialExcelConfigData(x.ItemId).then(material => x.Material = material);
     }));
-    let wikitext = [];
-    for (let item of reward.RewardItemList) {
-      if (item.Material) {
-        wikitext.push(`{{Card|${item.Material.NameText}|${(item.ItemCount || 1).toLocaleString('en-US')}}`);
+    return this.generateRewardSummary(reward);
+  }
+
+  combineRewardExcelConfigData(...rewardArray: RewardExcelConfigData[]): RewardExcelConfigData {
+    if (!rewardArray.length) {
+      return null;
+    }
+    if (rewardArray.length === 1) {
+      return rewardArray[0];
+    }
+    let primary = rewardArray[0];
+    for (let i = 1; i < rewardArray.length; i++) {
+      for (let otherItem of rewardArray[i].RewardItemList) {
+        let primaryItem = primary.RewardItemList.find(r => r.ItemId === otherItem.ItemId);
+        if (primaryItem) {
+          primaryItem.ItemCount += otherItem.ItemCount;
+        } else {
+          primary.RewardItemList.push(otherItem);
+        }
       }
     }
-    reward.RewardWikitext = wikitext.join('');
+    return this.generateRewardSummary(primary);
+  }
+
+  private generateRewardSummary(reward: RewardExcelConfigData): RewardExcelConfigData {
+    reward.RewardSummary = {
+      ExpCount: '',
+      MoraCount: '',
+      PrimogemCount: '',
+      CombinedCards: '',
+      OtherCards: '',
+      QuestForm: '',
+    };
+
+    for (let item of reward.RewardItemList) {
+      if (!item.Material) {
+        continue;
+      }
+
+      let countForm = (item.ItemCount || 1).toLocaleString('en-US');
+      let cardForm = `{{Card|${item.Material.NameText}|${countForm}}`;
+
+      if (item.ItemId === ADVENTURE_EXP_ID) {
+        reward.RewardSummary.ExpCount = countForm;
+      } else if (item.ItemId === MORA_ID) {
+        reward.RewardSummary.MoraCount = countForm;
+      } else if (item.ItemId === PRIMOGEM_ID) {
+        reward.RewardSummary.PrimogemCount = countForm;
+      } else {
+        reward.RewardSummary.OtherCards += cardForm;
+      }
+
+      reward.RewardSummary.CombinedCards += cardForm;
+    }
+
+    reward.RewardSummary.QuestForm =
+      `|exp           = ${reward.RewardSummary.ExpCount}\n` +
+      `|mora          = ${reward.RewardSummary.MoraCount}\n` +
+      `|primogems     = ${reward.RewardSummary.PrimogemCount}\n` +
+      `|other         = ${reward.RewardSummary.OtherCards}`;
+
     return reward;
+  }
+
+  async selectCityNameById(cityId: number): Promise<string> {
+    let textMapHash: number = await this.knex.select('CityNameTextMapHash')
+      .from('CityConfigData').where({CityId: cityId}).first().then(x => x.CityNameTextMapHash);
+    return getTextMapItem(this.outputLangCode, textMapHash);
+  }
+
+  async selectReputationQuestExcelConfigData(parentQuestId: number): Promise<ReputationQuestExcelConfigData> {
+    let rep: ReputationQuestExcelConfigData = await this.knex.select('*')
+      .from('ReputationQuestExcelConfigData')
+      .where({ParentQuestId: parentQuestId})
+      .first().then(this.commonLoadFirst);
+
+    if (!rep) {
+      return null;
+    }
+
+    let cityName = await this.selectCityNameById(rep.CityId);
+    let reward = await this.selectRewardExcelConfigData(rep.RewardId);
+
+    rep.QuestForm =
+      `|rep           = ${cityName}\n` +
+      `|repAmt        = ${reward.RewardItemList[0].ItemCount}\n` +
+      `|repOrder      = ${rep.Order}`;
+    rep.QuestFormWithTitle = rep.QuestForm + `\n` +
+      `|repTitle      = ${rep.TitleText}`;
+
+    return rep;
   }
 }

@@ -1,10 +1,10 @@
-import { flashTippy } from '../util/tooltips';
-import { endpoints } from '../endpoints';
-import { startListeners } from '../util/eventLoader';
-import { escapeHtml } from '../../shared/util/stringUtil';
-import { pageMatch } from '../pageMatch';
+import { flashTippy } from '../../util/tooltips';
+import { endpoints } from '../../endpoints';
+import { startListeners } from '../../util/eventLoader';
+import { escapeHtml } from '../../../shared/util/stringUtil';
+import { pageMatch } from '../../pageMatch';
 
-pageMatch('pages/npc-dialogue', () => {
+pageMatch('pages/dialogue/npc-dialogue', () => {
   function loadResultFromURL() {
     const url = new URL(window.location.href);
     const query = url.searchParams.get('q');

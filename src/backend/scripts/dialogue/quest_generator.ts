@@ -9,7 +9,12 @@ import {
 } from '../../../shared/types/general-types';
 import { arrayEmpty, arrayUnique } from '../../../shared/util/arrayUtil';
 import { DialogExcelConfigData, TalkExcelConfigData } from '../../../shared/types/dialogue-types';
-import { MainQuestExcelConfigData, QuestExcelConfigData } from '../../../shared/types/quest-types';
+import {
+  MainQuestExcelConfigData,
+  QuestExcelConfigData,
+  ReputationQuestExcelConfigData,
+} from '../../../shared/types/quest-types';
+import { RewardExcelConfigData } from '../../../shared/types/material-types';
 
 export class MetaPropValue {
   value: string;
@@ -95,6 +100,10 @@ export class QuestGenerateResult {
   dialogue: DialogueSectionResult[] = [];
   travelLogSummary: string[] = [];
   cutscenes: {file: string, text: string}[] = [];
+
+  reward?: RewardExcelConfigData;
+  reputation?: ReputationQuestExcelConfigData;
+  rewardInfobox?: string;
 }
 
 export class SbOut {
@@ -368,6 +377,27 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
   let srtData = await ctrl.loadCutsceneSubtitlesByQuestId(mainQuest.Id);
   for (let srtFile of Object.keys(srtData)) {
     result.cutscenes.push({file: srtFile, text: srtData[srtFile]});
+  }
+
+  // Rewards
+  // -------
+
+  let rewards: RewardExcelConfigData[] = await Promise.all(mainQuest.RewardIdList.map(rewardId => ctrl.selectRewardExcelConfigData(rewardId)));
+  result.reward = ctrl.combineRewardExcelConfigData(... rewards);
+  result.reputation = await ctrl.selectReputationQuestExcelConfigData(mainQuest.Id);
+
+  if (result.reward) {
+    result.rewardInfobox = result.reward.RewardSummary.QuestForm;
+  }
+  if (result.reputation) {
+    if (result.reward) {
+      result.rewardInfobox += '\n';
+    }
+    if (result.reputation.TitleText === mainQuest.TitleText) {
+      result.rewardInfobox += result.reputation.QuestForm;
+    } else {
+      result.rewardInfobox += result.reputation.QuestFormWithTitle;
+    }
   }
 
   return result;

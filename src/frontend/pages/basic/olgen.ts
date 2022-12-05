@@ -1,11 +1,11 @@
-import { startListeners } from '../util/eventLoader';
+import { startListeners } from '../../util/eventLoader';
 import Cookies from 'js-cookie';
-import { flashTippy } from '../util/tooltips';
-import { copyToClipboard } from '../util/domutil';
-import { endpoints } from '../endpoints';
-import { pageMatch } from '../pageMatch';
+import { flashTippy } from '../../util/tooltips';
+import { copyToClipboard } from '../../util/domutil';
+import { endpoints } from '../../endpoints';
+import { pageMatch } from '../../pageMatch';
 
-pageMatch('pages/olgen', () => {
+pageMatch('pages/basic/olgen', () => {
   const listeners = [
     {
       el: '.ol-input',

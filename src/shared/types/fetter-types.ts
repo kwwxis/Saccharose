@@ -1,5 +1,8 @@
 import { AvatarExcelConfigData } from './general-types';
 
+// Fetter Condition Types
+// ----------------------------------------------------------------------------------------------------
+
 export interface FetterCondSummary {
   Friendship?: number,
   Quest?: string,
@@ -17,6 +20,7 @@ export type FetterCondType =
   'FETTER_COND_FINISH_QUEST' |          // quest requirement (Param is QuestExcelConfigData ID)
   'FETTER_COND_PLAYER_BIRTHDAY' |       // player birthday
   'FETTER_COND_UNLOCK_TRANS_POINT';     // unlock waypoint
+
 export type FetterCond = {
   CondType: FetterCondType,
   ParamList: number[]
@@ -30,6 +34,9 @@ export interface FetterWithConditions {
   Tips: number[],
   MappedTips?: string[],
 }
+
+// Character Story Fetter Types
+// ----------------------------------------------------------------------------------------------------
 
 export interface FetterStoryExcelConfigData extends FetterWithConditions {
   FetterId: number,
@@ -51,6 +58,21 @@ export interface FetterStoryExcelConfigData extends FetterWithConditions {
   StoryTitleLockedTextMapHash?: number,
 }
 
+export class StoryFetters {
+  avatar: AvatarExcelConfigData;
+  fetters: FetterStoryExcelConfigData[] = [];
+  wikitext: string = '';
+  alteredWikitext: string = '';
+  hasAlteredStories: boolean = false;
+}
+
+export type StoryFettersByAvatar = {
+  [avatarId: number]: StoryFetters
+};
+
+// Character VO Fetter Types
+// ----------------------------------------------------------------------------------------------------
+
 export interface FetterExcelConfigData extends FetterWithConditions {
   Type: 1 | 2,
   VoiceFile: string,
@@ -69,7 +91,6 @@ export interface FetterExcelConfigData extends FetterWithConditions {
   Avatar?: AvatarExcelConfigData,
 }
 
-
 export class CharacterFetters {
   avatar: AvatarExcelConfigData = null;
   storyFetters: FetterExcelConfigData[] = [];
@@ -77,16 +98,3 @@ export class CharacterFetters {
 }
 
 export type CharacterFettersByAvatar = {[avatarId: number]: CharacterFetters};
-
-
-export class StoryFetters {
-  avatar: AvatarExcelConfigData;
-  fetters: FetterStoryExcelConfigData[] = [];
-  wikitext: string = '';
-  alteredWikitext: string = '';
-  hasAlteredStories: boolean = false;
-}
-
-export type StoryFettersByAvatar = {
-  [avatarId: number]: StoryFetters
-};

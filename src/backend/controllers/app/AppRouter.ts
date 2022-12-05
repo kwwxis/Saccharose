@@ -1,4 +1,4 @@
-import { StoryFetters, fetchCharacterStories, fetchCharacterStoryByAvatarId, fetchCharacterStoryByAvatarName } from '../../scripts/fetters/fetchStoryFetters';
+import { fetchCharacterStories, fetchCharacterStoryByAvatarId, fetchCharacterStoryByAvatarName } from '../../scripts/fetters/fetchStoryFetters';
 import { fetchCompanionDialogue, getHomeWorldCompanions } from '../../scripts/homeworld/companion_dialogue';
 import { reminderGenerateAll } from '../../scripts/dialogue/reminder_generator';
 import { getControl } from '../../scripts/script_util';
@@ -7,6 +7,8 @@ import { create, Router, Request, Response } from '../../util/router';
 import LandingController from './LandingController';
 import { isInt, toInt } from '../../../shared/util/numberUtil';
 import { HomeWorldNPCExcelConfigData } from '../../../shared/types/homeworld-types';
+import { StoryFetters } from '../../../shared/types/fetter-types';
+import { orderChapterQuests } from '../../scripts/misc/orderChapterQuests';
 
 export default async function(): Promise<Router> {
   const router: Router = create({
@@ -16,81 +18,106 @@ export default async function(): Promise<Router> {
 
   router.use('/', await LandingController());
 
+  router.get('/text-map-expand', async (req: Request, res: Response) => {
+    res.render('pages/basic/text-map-expand', {
+      bodyClass: ['page--text-map-expand']
+    });
+  });
+
+  router.get('/chapters', async (req: Request, res: Response) => {
+    const chapters = await getControl(req).selectChapterCollection();
+
+    res.render('pages/dialogue/chapters', {
+      chapters: chapters,
+      bodyClass: ['page--chapters']
+    });
+  });
+
+  router.get('/chapters/:id', async (req: Request, res: Response) => {
+    const ctrl = getControl(req);
+    const chapter = await ctrl.selectChapterById(toInt(req.params.id));
+    const quests = await orderChapterQuests(ctrl, chapter);
+
+    res.render('pages/dialogue/chapters', {
+      chapter: chapter,
+      quests: quests,
+      bodyClass: ['page--chapters']
+    });
+  });
+
   router.get('/quests', async (req: Request, res: Response) => {
-    res.render('pages/quests', {
-      bodyClass: ['page--quests'],
-      tab: 'dialogue',
+    res.render('pages/dialogue/quests', {
+      bodyClass: ['page--quests']
     });
   });
 
   router.get('/quests/:id', async (req: Request, res: Response) => {
-    res.render('pages/quests', {
-      bodyClass: ['page--quests'],
-      tab: 'dialogue',
+    res.render('pages/dialogue/quests', {
+      bodyClass: ['page--quests']
     });
   });
 
   router.get('/branch-dialogue', async (req: Request, res: Response) => {
-    res.render('pages/branch-dialogue', {
-      bodyClass: ['page--branch-dialogue'],
+    res.render('pages/dialogue/branch-dialogue', {
+      bodyClass: ['page--branch-dialogue']
     });
   });
 
   router.get('/OL', async (req: Request, res: Response) => {
-    res.render('pages/olgen', {
-      bodyClass: ['page--OL'],
+    res.render('pages/basic/olgen', {
+      bodyClass: ['page--OL']
     });
   });
 
   router.get('/npc-dialogue', async (req: Request, res: Response) => {
-    res.render('pages/npc-dialogue', {
-      bodyClass: ['page--npc-dialogue'],
+    res.render('pages/dialogue/npc-dialogue', {
+      bodyClass: ['page--npc-dialogue']
     });
   });
 
   router.get('/reminders', async (req: Request, res: Response) => {
-    res.render('pages/reminders', {
-      bodyClass: ['page--reminders'],
+    res.render('pages/dialogue/reminders', {
+      bodyClass: ['page--reminders']
     });
   });
 
-  router.get('/lists/all-reminders', async (req: Request, res: Response) => {
-    res.render('pages/lists/reminder-dialogue', {
+  router.get('/reminders/all', async (req: Request, res: Response) => {
+    res.render('pages/dialogue/reminders-all', {
       dialogue: await reminderGenerateAll(getControl(req)),
-      bodyClass: ['page--all-reminders'],
+      bodyClass: ['page--all-reminders']
     });
   });
 
-  router.get('/lists/companion-dialogue', async (req: Request, res: Response) => {
+  router.get('/character/companion-dialogue', async (req: Request, res: Response) => {
     let companions: HomeWorldNPCExcelConfigData[] = await getHomeWorldCompanions(getControl(req));
     let companionNames = companions.map(c => c.Avatar ? c.Avatar.NameText : c.Npc.NameText);
-    res.render('pages/lists/companion-dialogue', {
+    res.render('pages/character/companion-dialogue', {
       charNames: companionNames,
-      bodyClass: ['page--companion-dialogue'],
+      bodyClass: ['page--companion-dialogue']
     });
   });
 
-  router.get('/lists/companion-dialogue/:charName', async (req: Request, res: Response) => {
+  router.get('/character/companion-dialogue/:charName', async (req: Request, res: Response) => {
     let charName = <string> req.params.charName;
     charName = charName.replace(/_/g, ' ');
 
-    res.render('pages/lists/companion-dialogue', {
+    res.render('pages/character/companion-dialogue', {
       charName: charName,
       dialogue: await fetchCompanionDialogue(getControl(req), charName),
-      bodyClass: ['page--companion-dialogue'],
+      bodyClass: ['page--companion-dialogue']
     });
   });
 
-  router.get('/lists/character-stories', async (req: Request, res: Response) => {
+  router.get('/character/stories', async (req: Request, res: Response) => {
     let storiesByAvatar = await fetchCharacterStories(getControl(req));
     let avatars = Object.values(storiesByAvatar).map(x => x.avatar).sort((a,b) => a.NameText.localeCompare(b.NameText));
-    res.render('pages/lists/character-stories', {
+    res.render('pages/character/character-stories', {
       avatars: avatars,
-      bodyClass: ['page--character-stories'],
+      bodyClass: ['page--character-stories']
     });
   });
 
-  router.get('/lists/character-stories/:avatarId', async (req: Request, res: Response) => {
+  router.get('/character/stories/:avatarId', async (req: Request, res: Response) => {
     let story: StoryFetters;
     if (isInt(req.params.avatarId)) {
       story = await fetchCharacterStoryByAvatarId(getControl(req), toInt(req.params.avatarId));
@@ -108,7 +135,7 @@ export default async function(): Promise<Router> {
       }
     }
 
-    res.render('pages/lists/character-stories', {
+    res.render('pages/character/character-stories', {
       avatarId: req.params.avatarId,
       story: story,
       bodyClass: ['page--character-stories'],
@@ -122,7 +149,7 @@ export default async function(): Promise<Router> {
     thing['foobar']();
   });
   router.get('/trigger-exception2', async (_req: Request, res: Response) => {
-    res.render('pages/lists/character-stories');
+    res.render('pages/character/character-stories');
   });
 
   return router;
