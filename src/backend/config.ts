@@ -7,6 +7,7 @@
 import path from 'path';
 import session from 'express-session';
 import { LangCode } from '../shared/types/dialogue-types';
+import { toBoolean } from '../shared/util/genericUtil';
 
 export default {
   currentGenshinVersion: '3.2',
@@ -25,20 +26,20 @@ export default {
     cookie: {
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
       httpOnly: true,
-      secure: true,
+      secure: toBoolean(process.env.SSL_ENABLED),
     },
   }),
   csrfConfig: {
     standard: {
       cookie: {
-        secure: true,
+        secure: toBoolean(process.env.SSL_ENABLED),
         httpOnly: true,
       },
       ignoreMethods: ['GET', 'HEAD', 'OPTIONS']
     },
     api: {
       cookie: {
-        secure: true,
+        secure: toBoolean(process.env.SSL_ENABLED),
         httpOnly: true,
       },
       ignoreMethods: ['HEAD', 'OPTIONS']
