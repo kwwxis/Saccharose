@@ -109,7 +109,7 @@ export interface OLGenOptions {
   hideRm?: boolean,
 }
 
-export async function ol_gen(ctrl: Control, name: string, options?: OLGenOptions = {}): Promise<string[]> {
+export async function ol_gen(ctrl: Control, name: string, options: OLGenOptions = {}): Promise<string[]> {
   let idList: number[] = await ctrl.findTextMapIdListByExactName(options.langCode || ctrl.inputLangCode, name);
   if (!idList || !idList.length) {
     return [];
@@ -125,7 +125,7 @@ export async function ol_gen(ctrl: Control, name: string, options?: OLGenOptions
   return Array.from(allResults);
 }
 
-export async function ol_gen_from_id(ctrl: Control, textMapId: number, options?: OLGenOptions = {}): Promise<string> {
+export async function ol_gen_from_id(ctrl: Control, textMapId: number, options: OLGenOptions = {}): Promise<string> {
   if (!textMapId) {
     return null;
   }
