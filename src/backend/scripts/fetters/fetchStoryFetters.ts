@@ -20,9 +20,9 @@ async function fetchAllFetterStoryExcelConfigData(ctrl: Control): Promise<Fetter
     for (let fetter of records) {
       await processFetterConds(ctrl, fetter, 'OpenConds');
       await processFetterConds(ctrl, fetter, 'FinishConds');
-      fetter.StoryContextHtml = '<p>'+fetter.StoryContextText.split('\\n').map(s => normText(s)).join(sep)+'</p>';
+      fetter.StoryContextHtml = '<p>'+fetter.StoryContextText.split('\\n').map(s => normText(s, ctrl.outputLangCode)).join(sep)+'</p>';
       if (fetter.StoryContext2Text) {
-        fetter.StoryContext2Html = '<p>'+fetter.StoryContext2Text.split('\\n').map(s => normText(s)).join(sep)+'</p>';
+        fetter.StoryContext2Html = '<p>'+fetter.StoryContext2Text.split('\\n').map(s => normText(s, ctrl.outputLangCode)).join(sep)+'</p>';
       }
       fetter.MappedTips = fetter.Tips.map(tip => getTextMapItem(ctrl.outputLangCode, tip)).filter(x => !!x);
     }

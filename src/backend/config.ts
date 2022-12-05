@@ -10,7 +10,7 @@ import { LangCode } from '../shared/types/dialogue-types';
 import { toBoolean } from '../shared/util/genericUtil';
 
 export default {
-  currentGenshinVersion: '3.2',
+  currentGenshinVersion: '3.3',
   database: {
     filename: './genshin_data.db',
     voiceItemsFile: './voiceItemsNormalized.json',

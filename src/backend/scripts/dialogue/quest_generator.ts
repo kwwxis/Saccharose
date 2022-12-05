@@ -242,7 +242,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
   out.clearOut();
   for (let questSub of mainQuest.QuestExcelConfigDataList) {
     if (questSub.DescText)
-      out.line('# ' + normText(questSub.DescText));
+      out.line('# ' + normText(questSub.DescText, ctrl.outputLangCode));
   }
   result.stepsWikitext = out.toString();
 

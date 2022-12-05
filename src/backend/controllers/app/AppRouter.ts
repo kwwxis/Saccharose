@@ -37,6 +37,14 @@ export default async function(): Promise<Router> {
   router.get('/chapters/:id', async (req: Request, res: Response) => {
     const ctrl = getControl(req);
     const chapter = await ctrl.selectChapterById(toInt(req.params.id));
+    if (!chapter) {
+      return res.render('pages/dialogue/chapters', {
+        chapterNotFound: true,
+        requestId: req.params.id,
+        bodyClass: ['page--chapters']
+      });
+    }
+
     const quests = await orderChapterQuests(ctrl, chapter);
 
     const mainChapterNameOL = await ol_gen_from_id(ctrl, chapter.ChapterNumTextMapHash);

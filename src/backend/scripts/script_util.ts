@@ -134,6 +134,7 @@ export const normText = (text: string, langCode: string = 'EN') => {
   text = text.replace(/<color=#37FFFF>([^<]+) ?<\/color>/g, "'''$1'''");
   text = text.replace(/<color=(#[0-9a-fA-F]{6})FF>([^<]+)<\/color>/g, '{{color|$1|$2}}');
   text = text.replace(/\\n/g, '<br />');
+  text = text.replace(/#\{REALNAME\[ID\(1\)(\|HOSTONLY\(true\))?]}/g, '(Wanderer)');
 
   if (text.includes('RUBY#[S]')) {
     text = convertRubi(text);
@@ -673,7 +674,8 @@ export class Control {
           out += `\n${diconPrefix}${':'.repeat(numSubsequentNonBranchPlayerDialogOption)}{{DIcon}} ${text}`;
         }
       } else if (dialog.TalkRole.Type === 'TALK_ROLE_NPC' || dialog.TalkRole.Type === 'TALK_ROLE_GADGET') {
-        out += `\n${prefix}${voPrefix}'''${dialog.TalkRoleNameText}:''' ${text}`;
+        let name = normText(dialog.TalkRoleNameText, this.outputLangCode);
+        out += `\n${prefix}${voPrefix}'''${name}:''' ${text}`;
       } else if (dialog.TalkRole.Type === 'TALK_ROLE_MATE_AVATAR') {
         out += `\n${prefix}${voPrefix}'''(Traveler's Sibling):''' ${text}`;
       } else {
@@ -1023,7 +1025,7 @@ export class Control {
       let out = [];
       out.push(';(A cinematic plays)');
       for (let srtLine of srtLines) {
-        out.push(`::'''CS_CHAR:''' ` + normText(srtLine.text));
+        out.push(`::'''CS_CHAR:''' ` + normText(srtLine.text, this.outputLangCode));
       }
       out.push(':;(Cinematic ends)');
       formattedResults[srtFile] = out.join('\n');

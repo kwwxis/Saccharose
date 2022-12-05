@@ -13,6 +13,9 @@ export interface QuestOrderItem {
 }
 
 export async function orderChapterQuests(ctrl: Control, chapter: ChapterExcelConfigData): Promise<QuestOrderItem[]> {
+  if (!chapter) {
+    return [];
+  }
   const globalVarIds: number[] = await cached('GlobalVars', async () => {
     const globalVar: any[] = await ctrl.readGenshinDataFile('./ExcelBinOutput/QuestGlobalVarConfigData.json');
     return globalVar.map(x => x.Id);
