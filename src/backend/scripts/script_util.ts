@@ -1122,7 +1122,7 @@ export class Control {
       }
 
       let countForm = (item.ItemCount || 1).toLocaleString('en-US');
-      let cardForm = `{{Card|${item.Material.NameText}|${countForm}}`;
+      let cardForm = `{{Card|${item.Material.NameText}|${countForm}}}`;
 
       if (item.ItemId === ADVENTURE_EXP_ID) {
         reward.RewardSummary.ExpCount = countForm;
