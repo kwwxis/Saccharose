@@ -16,6 +16,8 @@ export type DialogOpts = {
   blocking?: boolean,
 }
 
+let modalsOpen = false;
+
 export function openDialog(contents: string|HTMLElement, dialog_type: number, opts: DialogOpts = {}) {
   closeDialog();
 
@@ -76,34 +78,42 @@ export function openDialog(contents: string|HTMLElement, dialog_type: number, op
     document.querySelector(`#${id} .AppDialog_Content`).innerHTML = contents;
   }
 
-  window.requestAnimationFrame(function() {
-    const selInput: HTMLElement = document.querySelector(getFocusableSelector(`#${id}`));
-    if (selInput) {
-      if (typeof selInput.focus === 'function')
-        selInput.focus();
-      if (typeof (<any> selInput).select === 'function')
-        (<any> selInput).select();
-    }
-  });
+  modalsOpen = true;
 
   if (opts.callback) {
     opts.callback.apply(null, [document.getElementById(id)]);
   }
 
   if (!opts.disableEscToClose) {
-    document.body.addEventListener('keyup', active_listener);
+    setTimeout(() => document.body.addEventListener('keyup', active_listener), 100);
   }
+
+  setTimeout(() => {
+    window.requestAnimationFrame(function() {
+      const selInput: HTMLElement = document.querySelector(getFocusableSelector(`#${id}`));
+      if (selInput) {
+        if (typeof selInput.focus === 'function')
+          selInput.focus();
+        if (typeof (<any> selInput).select === 'function')
+          (<any> selInput).select();
+      }
+    });
+  });
 }
 
-const active_listener = function(e) {
-  const tag = e.target.tagName.toUpperCase();
+const active_listener = function(e: KeyboardEvent) {
+  if (!modalsOpen) {
+    return;
+  }
+  const tag = (<HTMLElement> e.target).tagName.toUpperCase();
 
   const key = e.which || e.keyCode || 0;
-  if (key === 13 && tag != 'TEXTAREA' && tag != 'INPUT' && tag != 'SELECT') closeDialog();
-  if (key === 27) closeDialog();
+  if (key === 13 && tag != 'TEXTAREA' && tag != 'INPUT' && tag != 'SELECT' && tag != 'BUTTON') closeDialog(); // Enter
+  if (key === 27 && tag != 'TEXTAREA' && tag != 'INPUT' && tag != 'SELECT') closeDialog(); // Escape
 };
 
 export function closeDialog() {
+  modalsOpen = false;
   document.querySelectorAll('.AppDialogOuter').forEach(el => el.remove());
   document.body.removeEventListener('keyup', active_listener);
 }

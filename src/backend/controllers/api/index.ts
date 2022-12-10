@@ -9,6 +9,7 @@ import {APIError} from './error';
 
 //#region Setup Router
 import { create, Router, Request, Response, NextFunction } from '../../util/router';
+import { apiErrorHandler } from '../../middleware/globalErrorHandler';
 
 function accessDenied(error_code = undefined, error_description = undefined) {
   return (req: Request, res: Response, next: NextFunction) => {
@@ -37,15 +38,16 @@ export default async function(): Promise<Router> {
     });
     next();
   });
-  //#endregion
 
-  //#region Check Authentication
+  // Check Authentication
+  // ~~~~~~~~~~~~~~~~~~~~
   router.use(function(req: Request, res: Response, next: NextFunction) {
-    if (typeof req.headers['x-api-key'] === 'string') {
-      //const apiKey = req.headers['x-api-key'].trim();
-      // not implemented
-      return next();
-    } else if (req.headers['x-csrf-token']) {
+    // if (typeof req.headers['x-api-key'] === 'string') {
+    //   const apiKey = req.headers['x-api-key'].trim();
+    //   return next();
+    // } else
+
+    if (req.headers['x-csrf-token']) {
       csrf(req, res, next);
     } else {
       accessDenied(
@@ -54,47 +56,15 @@ export default async function(): Promise<Router> {
       )(req, res, next);
     }
   });
-  //#endregion
 
-  //#region Add API Resources
+  // Add API Resources
+  // ~~~~~~~~~~~~~~~~~
   router.use('/', baseResources);
-  //#endregion
 
-  //#region Client Error Handlers
+  // Client Error Handlers
+  // ~~~~~~~~~~~~~~~~~~~~~
   router.route('*').all((req: Request, res: Response) => res.status(404).send());
-
-  router.use(function(err, req, res, next) {
-    if (res.headersSent) {
-      return next(err);
-    }
-    if (err) {
-      const sendBadRequest = (error_code, error_description) =>
-        res.status(400).json({
-          error: 'BAD_REQUEST',
-          error_code,
-          error_description,
-        });
-
-      if (typeof err === 'string') {
-        return sendBadRequest(undefined, err);
-      } else if (err instanceof APIError) {
-        return sendBadRequest(err.code, err.message);
-      } else {
-        // For any other error types, assume internal server error
-        // Don't include any details about the error in the JSON response in case it reveals
-        // details about the code.
-
-        console.error(err);
-
-        return res.status(500).json({
-          error: 'INTERNAL_SERVER_ERROR',
-          error_description: 'An internal server error occurred. Try again later.'
-        });
-      }
-    }
-    next(err);
-  });
-  //#endregion
+  router.use(apiErrorHandler);
 
   return router;
 }

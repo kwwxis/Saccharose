@@ -245,6 +245,9 @@ const initial_listeners: Listener[] = [
                 }
               }
               break;
+            case 'refresh-page':
+              window.location.reload();
+              break;
             case 'close-modals':
               closeDialog();
               break;

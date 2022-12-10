@@ -1,11 +1,15 @@
 import { escapeHtml } from '../shared/util/stringUtil';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { showJavascriptErrorDialog } from './util/errorHandler';
+import { DIALOG_ALERT, DIALOG_MODAL, openDialog } from './util/dialog';
 
 export const endpoints = {
   base_uri: '/api',
-  errorHandler: err => {
-    if (!err.response.data || err.response.data.error != 'BAD_REQUEST') {
+  errorHandler: (err: AxiosError) => {
+    console.log('Error Handler:', err);
+    const data: any = err.response.data;
+
+    if (!data || data.error != 'BAD_REQUEST') {
       const errorObj: any = {error: err.toJSON()};
 
       if (err.response) {
@@ -19,6 +23,23 @@ export const endpoints = {
         errorObj
       );
     }
+
+    if (data && data.error_code === 'EBADCSRFTOKEN') {
+      openDialog(`
+      <h2>Session timed out.</h2>
+      <p class='spacer-top'>
+        The session for your page expired after being left open for too long.
+      </p>
+      <p class='spacer-top'>
+        Simply just refresh the page to restore the session and fix the issue.
+      </p>
+      <div class='buttons spacer-top'>
+        <button class='primary' ui-action="refresh-page">Refresh Page</button>
+        <button class='secondary' ui-action="close-modals">Dismiss</button>
+      </div>
+    `, DIALOG_MODAL);
+    }
+
     return err.response.data;
   },
   ping() {
