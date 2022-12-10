@@ -1,0 +1,4 @@
+<div class="toggle-theme-buttons alignStretch button-group">
+  <button class="secondary <%= req.cookies['nightmode'] ? '' : 'selected' %>" value="daymode"><%- icon('sun') %></button>
+  <button class="secondary <%= req.cookies['nightmode'] ? 'selected' : '' %>" value="nightmode"><%- icon('moon') %></button>
+</div>

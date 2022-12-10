@@ -1,0 +1,34 @@
+<section id="app-sidebar__basic" class="card">
+  <h2>Basic Tools</h2>
+  <div class="content">
+    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--text-map-expand', 'selected') %>" role="button" href="/text-map-expand">Text Map Expansion</a>
+    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--OL', 'selected') %>" role="button" href="/OL">Other Languages Generator</a>
+  </div>
+</section>
+<section id="app-sidebar__dialogue" class="card">
+  <h2>Quests &amp; Dialogue</h2>
+  <div class="content">
+    <h4>Dialogue Generators</h4>
+    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--quests', 'selected') %>" role="button" href="/quests">Quest Dialogue</a>
+    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--branch-dialogue', 'selected') %>" role="button" href="/branch-dialogue">Single Branch Dialogue</a>
+    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--npc-dialogue', 'selected') %>" role="button" href="/npc-dialogue">NPC Dialogue</a>
+    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--reminders', 'selected') %>" role="button" href="/reminders">Reminder Dialogue</a>
+
+    <h4 class="spacer10-top">Lists</h4>
+    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--chapters', 'selected') %>" role="button" href="/chapters">Chapters & Acts</a>
+    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--all-reminders', 'selected') %>" role="button" href="/reminders/all">All Reminder Dialogue</a>
+  </div>
+</section>
+<section id="app-sidebar__items" class="card hide">
+  <h2>Items</h2>
+  <div class="content">
+    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--books', 'selected') %>" role="button" href="/item/books">Books</a>
+  </div>
+</section>
+<section id="app-sidebar__character" class="card">
+  <h2>Character Info</h2>
+  <div class="content">
+    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--character-stories', 'selected') %>" role="button" href="/character/stories">Character Stories</a>
+    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--companion-dialogue', 'selected') %>" role="button" href="/character/companion-dialogue">Serenitea Pot Dialogue</a>
+  </div>
+</section>

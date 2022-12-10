@@ -6,6 +6,7 @@
     <meta name="robots" content="noindex, nofollow" />
     <meta name="csrf-token" content="<%= locals.csrfToken || '' %>">
     <meta name="view-stack" content="<%= req.context.getAllViewNames() %>">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" href="favicon.ico" type="image/x-icon" />
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -33,47 +34,25 @@
         </a>
       </div>
       <div class="right">
-        <div class="input-language-selector header-language-selector">
-          <div class="valign">
-            <strong>Input Language</strong>
-            <span ui-tippy="{allowHTML: true, content: 'The language for text fields (e.g. searching for quests/dialogue)',delay:[200, 100]}"
-              class="dispInlineBlock spacer5-left" style="height:14px;width:14px;font-size:0;opacity:0.5">
-              <%- icon('info', 14) %>
-            </span>
-          </div>
-          <select name="inputLangCode">
-            <% Object.keys(req.context.languages).forEach(langCode => { %>
-            <option value="<%= langCode %>" <%= req.context.inputLangCode === langCode ? 'selected' : '' %>><%= req.context.languages[langCode] %></option>
-            <% }) %>
-          </select>
-        </div>
-
-        <div class="output-language-selector header-language-selector">
-          <div class="valign">
-            <strong>Output Language</strong>
-            <span ui-tippy="{allowHTML: true, content: 'The language for output results (e.g. quest dialogue generation / single branch dialogue results).<br>OL results are unaffected by this.',delay:[200, 100]}"
-              class="dispInlineBlock spacer5-left" style="height:14px;width:14px;font-size:0;opacity:0.5">
-              <%- icon('info', 14) %>
-            </span>
-          </div>
-          <select name="outputLangCode">
-            <% Object.keys(req.context.languages).forEach(langCode => { %>
-             <option value="<%= langCode %>" <%= req.context.outputLangCode === langCode ? 'selected' : '' %>><%= req.context.languages[langCode] %></option>
-            <% }) %>
-          </select>
-        </div>
-
+        <%- include('partials/menu/app-language-selectors') %>
         <div class="alignStretch">
-          <div class="toggle-theme-buttons alignStretch button-group">
-            <button class="secondary <%= req.cookies['nightmode'] ? '' : 'selected' %>" value="daymode"><%- icon('sun') %></button>
-            <button class="secondary <%= req.cookies['nightmode'] ? 'selected' : '' %>" value="nightmode"><%- icon('moon') %></button>
-          </div>
+          <%- include('partials/menu/app-menu-theme-buttons') %>
           <span class="secondary-label disabled spacer10-right" style="cursor:default;"><%= req.context.currentGenshinVersion %></span>
+          <div id="mobile-menu-trigger" class="alignStretch">
+            <button ui-action="toggle: 200, #mobile-menu, #mobile-menu-body-cover; toggle-class: body, mobile-menu-open" class="secondary spacer10-right"><%- icon('menu') %></button>
+          </div>
         </div>
-
       </div>
     </header>
     <div class="content"><%- include(subview, sublocals) %></div>
+    <div id="mobile-menu" class="hide thin-border">
+      <%- include('partials/menu/app-menu-theme-buttons') %>
+      <div class="spacer15-vert">
+        <%- include('partials/menu/app-language-selectors') %>
+      </div>
+      <%- include('partials/menu/app-menu') %>
+    </div>
+    <div id="mobile-menu-body-cover" class="hide"></div>
     <footer>
       <div class="wrapper valign">
         <section class="credit">

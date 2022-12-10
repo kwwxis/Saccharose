@@ -1,0 +1,147 @@
+#mobile-menu-trigger {
+  display: none !important;
+}
+
+body.mobile-menu-open {
+  overflow: hidden;
+}
+
+@media (max-width: 1200px) {
+  #app-wrapper {
+    padding: 15px;
+  }
+
+  #app-main {
+    flex-basis: 72%;
+  }
+
+  #app-sidebar {
+    flex-basis: 28%;
+    padding-left: 15px;
+  }
+}
+
+@media (max-width: 1000px) {
+  #app-wrapper {
+    padding: 10px;
+  }
+
+  #app-main {
+    flex-basis: 75%;
+  }
+
+  #app-sidebar {
+    flex-basis: 25%;
+    padding-left: 10px;
+  }
+}
+
+@media (max-width: 880px) {
+  #mobile-menu-trigger {
+    display: flex !important;
+  }
+
+  #header > .right .secondary {
+    font-size: 17px;
+    padding: 8px 18px;
+  }
+
+  #header > .right .header-language-selector,
+  #header > .right .toggle-theme-buttons {
+    display: none !important;
+  }
+
+  #app-sidebar {
+    display: none;
+  }
+  #app-main {
+    flex-basis: 100%;
+  }
+
+  #header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+  }
+  body {
+    padding-top: 52px;
+  }
+
+  #mobile-menu-body-cover {
+    position: fixed;
+    z-index: 9000;
+    top: 52px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.0);
+    transition: all 100ms ease;
+  }
+  #mobile-menu-body-cover.active {
+    background: rgba(0,0,0,0.4);
+  }
+
+  #mobile-menu {
+    position: fixed;
+    z-index: 9999;
+    top: 52px;
+    right: 0;
+    bottom: 0;
+    background: white;
+    padding: 10px;
+    border-left: 1px solid hsla(223, 67%, 18%, 0.3);
+    transform: translateX(100%);
+    transition: all 100ms ease;
+    overflow-y: auto;
+    min-width: min(300px, 80vw);
+  }
+  #mobile-menu.active {
+    transform: translateX(0%);
+  }
+  body.nightmode #mobile-menu {
+    background: hsl(255deg 13% 14%);
+  }
+
+
+  #mobile-menu .toggle-theme-buttons {
+    margin: 0;
+    width: 100%;
+  }
+  #mobile-menu .toggle-theme-buttons .secondary:first-child {
+    width: 50%;
+  }
+  #mobile-menu .toggle-theme-buttons .secondary:last-child {
+    width: 50%;
+  }
+  #mobile-menu .toggle-theme-buttons .secondary {
+    text-align: center;
+    justify-content: center;
+    padding: 8px 0;
+    font-size: 16px;
+  }
+
+  #mobile-menu .header-language-selector {
+    margin: 5px 0;
+  }
+
+  #mobile-menu .card {
+    margin: 0 -10px 0;
+  }
+
+  #mobile-menu .card > h2 {
+    font-size:  17px;
+    padding: 4px 10px;
+  }
+  #mobile-menu .card h4 {
+    font-size: 16px;
+  }
+
+  footer .wrapper {
+    flex-direction: column;
+  }
+
+  footer .wrapper .credit {
+    margin-bottom: 10px;
+  }
+}

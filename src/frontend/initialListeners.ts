@@ -8,6 +8,7 @@ import { enableTippy, flashTippy, hideTippy, showTippy } from './util/tooltips';
 import { Listener, runWhenDOMContentLoaded, startListeners } from './util/eventLoader';
 import { showJavascriptErrorDialog } from './util/errorHandler';
 import autosize from 'autosize';
+import { isInt } from '../shared/util/numberUtil';
 
 function parseUiAction(actionStr: string|HTMLElement): {[actionType: string]: string[]} {
   if (actionStr instanceof HTMLElement) {
@@ -152,27 +153,54 @@ const initial_listeners: Listener[] = [
       const target: HTMLElement = e.target as HTMLElement;
       const actionEl = target.closest<HTMLElement>('[ui-action]');
 
+      if (!target.closest('#mobile-menu') && !target.closest('#mobile-menu-trigger')
+          && document.querySelector('#mobile-menu').classList.contains('active')) {
+        document.querySelector<HTMLButtonElement>('#mobile-menu-trigger button').click();
+      }
+
       if (actionEl) {
         const actions = parseUiAction(actionEl);
         for (let actionType of Object.keys(actions)) {
-          const actionParams = actions[actionType];
+          let actionParams = actions[actionType];
 
           switch (actionType) {
+            case 'toggle-class':
+              let toggleClassTarget = document.querySelector(actionParams[0]);
+              if (toggleClassTarget) {
+                for (let cls of actionParams.slice(1)) {
+                  toggleClassTarget.classList.toggle(cls);
+                }
+              }
+              break;
             case 'show':
+              let showEase = 0;
+              if (isInt(actionParams[0])) {
+                showEase = parseInt(actionParams[0]);
+                actionParams = actionParams.slice(1);
+              }
               for (let selector of actionParams) {
                 const showTarget = document.querySelector(selector);
                 if (showTarget) {
                   showTarget.classList.remove('hide');
-                  showTarget.classList.add('active');
+                  setTimeout(() => {
+                    showTarget.classList.add('active');
+                  }, showEase);
                 }
               }
               break;
             case 'hide':
+              let hideEase = 0;
+              if (isInt(actionParams[0])) {
+                hideEase = parseInt(actionParams[0]);
+                actionParams = actionParams.slice(1);
+              }
               for (let selector of actionParams) {
                 const hideTarget = document.querySelector(selector);
                 if (hideTarget) {
                   hideTarget.classList.remove('active');
-                  hideTarget.classList.add('hide');
+                  setTimeout(() => {
+                    hideTarget.classList.add('hide');
+                  }, hideEase);
                 }
               }
               break;
@@ -191,17 +219,28 @@ const initial_listeners: Listener[] = [
               }
               break;
             case 'toggle':
+              let toggleEase = 0;
+              if (isInt(actionParams[0])) {
+                toggleEase = parseInt(actionParams[0]);
+                actionParams = actionParams.slice(1);
+              }
               for (let selector of actionParams) {
                 const toggleTarget = document.querySelector(selector);
                 if (toggleTarget) {
                   (<any> toggleTarget)._toggledBy = actionEl;
 
-                  if (toggleTarget.classList.toggle('hide')) {
+                  if (toggleTarget.classList.contains('hide')) {
+                    toggleTarget.classList.remove('hide');
+                    setTimeout(() => {
+                      toggleTarget.classList.add('active');
+                      actionEl.classList.add('active');
+                    }, toggleEase);
+                  } else {
                     toggleTarget.classList.remove('active');
                     actionEl.classList.remove('active');
-                  } else {
-                    toggleTarget.classList.add('active');
-                    actionEl.classList.add('active');
+                    setTimeout(() => {
+                      toggleTarget.classList.add('hide');
+                    }, toggleEase);
                   }
                 }
               }
