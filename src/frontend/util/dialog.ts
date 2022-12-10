@@ -34,14 +34,14 @@ export function openDialog(contents: string|HTMLElement, dialog_type: number, op
     inner = `
           <div id="appDialogDesc" class="AppDialog_Content"></div>
           <div class="AppDialog_ButtonGroup">
-            <button class="secondary AppDialog_CloseTrigger">OK</button>
+            <button class="secondary AppDialog_CloseTrigger" ui-action="close-modals">OK</button>
           </div>`;
   } else if (dialog_type == DIALOG_MODAL) {
     type_name = 'modal';
     inner = `<div id="appDialogDesc" class="AppDialog_Content"></div>`;
     if (!opts.disableDefaultCloseButton) {
-      inner += `<button class="close small AppDialog_CloseTrigger" aria-label="Close dialog"
-          ui-tippy-hover="{content:'Keyboard shortcut: <strong>esc</strong>', delay:[100,100]}"></button>`;
+      inner += `<button class="close small AppDialog_CloseTrigger" aria-label="Close dialog" ui-action="close-modals"
+          ui-tippy-hover="{content:'Keyboard shortcut: <strong>esc</strong>', delay:[100,100], allowHTML: true}"></button>`;
     }
   } else if (dialog_type == DIALOG_ERROR || dialog_type == DIALOG_TOAST) {
     type_name = 'toast';
@@ -54,8 +54,8 @@ export function openDialog(contents: string|HTMLElement, dialog_type: number, op
     inner = `${iconHTML}
           <div id="appDialogDesc" class="AppDialog_Content"></div>`;
     if (!opts.disableDefaultCloseButton) {
-      inner += `<button class="close small AppDialog_CloseTrigger" aria-label="Close dialog"
-          ui-tippy-hover="{content:'Keyboard shortcut: <strong>esc</strong>', delay:[100,100]}"></button>`;
+      inner += `<button class="close small AppDialog_CloseTrigger" aria-label="Close dialog" ui-action="close-modals"
+          ui-tippy-hover="{content:'Keyboard shortcut: <strong>esc</strong>', delay:[100,100], allowHTML: true}"></button>`;
     }
   }
 

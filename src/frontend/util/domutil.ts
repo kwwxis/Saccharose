@@ -288,3 +288,16 @@ export function getFocusableSelector(prefix: string = '') {
     }
     return arr.join(', ');
 }
+
+export function focusFirstInElement(element: HTMLElement, e?: Event) {
+    let focusableEl: HTMLElement = element.querySelector(getFocusableSelector());
+    if (focusableEl) {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        // Focus the first focusable element inside the target
+        focusableEl.focus();
+        setTimeout(() => focusableEl.focus(), 0);
+    }
+}

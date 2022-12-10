@@ -8,7 +8,7 @@
     <% questDescriptions.forEach((questDescription, idx) => { %>
       <div class="posRel">
         <textarea id="quest-desc-<%= idx %>" readonly class="w100p autosize" style="resize:vertical;min-height:40px;padding-right:45px"><%= questDescription %></textarea>
-        <button class="secondary small posAbs" copy-target="quest-desc-<%= idx %>"
+        <button class="secondary small posAbs" ui-action="copy:quest-desc-<%= idx %>"
                 ui-tippy-hover="Click to copy to clipboard"
                 ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
                 style="right: 0; top: 0;">Copy</button>
@@ -20,7 +20,7 @@
       <h4>Quest Rewards</h4>
       <div class="posRel">
         <textarea id="quest-reward" readonly class="w100p autosize" style="resize:vertical;min-height:40px;padding-right:45px"><%= rewardInfobox %></textarea>
-        <button class="secondary small posAbs" copy-target="quest-reward"
+        <button class="secondary small posAbs" ui-action="copy:quest-reward"
                 ui-tippy-hover="Click to copy to clipboard"
                 ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
                 style="right: 0; top: 0;">Copy</button>
@@ -31,7 +31,7 @@
     <div class="valign">
       <h4>Steps</h4>
       <div class="grow"></div>
-      <button class="secondary small" copy-target="quest-steps"
+      <button class="secondary small" ui-action="copy:quest-steps"
               ui-tippy-hover="Click to copy to clipboard"
               ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
               style="margin:5px 0">Copy</button>
@@ -42,7 +42,7 @@
     <div class="valign">
       <h4>Other Languages</h4>
       <div class="grow"></div>
-      <button class="secondary small" copy-target="quest-name-ol"
+      <button class="secondary small" ui-action="copy:quest-name-ol"
               ui-tippy-hover="Click to copy to clipboard"
               ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
               style="margin:5px 0">Copy</button>
@@ -55,7 +55,7 @@
       <% travelLogSummary.forEach((travelLogSummaryItem, idx) => { %>
         <div class="posRel">
           <textarea id="travel-log-summary-item-<%= idx %>" readonly class="w100p autosize" style="resize:vertical;min-height:40px;padding-right:45px"><%= travelLogSummaryItem %></textarea>
-          <button class="secondary small posAbs" copy-target="travel-log-summary-item-<%= idx %>"
+          <button class="secondary small posAbs" ui-action="copy:travel-log-summary-item-<%= idx %>"
                   ui-tippy-hover="Click to copy to clipboard"
                   ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
                   style="right: 0; top: 0;">Copy</button>
@@ -72,7 +72,7 @@
           <p><strong><%= item.file %></strong></p>
           <div class="posRel">
             <textarea id="cutscene-<%= idx %>" readonly class="w100p autosize" style="resize:vertical;min-height:40px;padding-right:45px"><%= item.text %></textarea>
-            <button class="secondary small posAbs" copy-target="cutscene-<%= idx %>"
+            <button class="secondary small posAbs" ui-action="copy:cutscene-<%= idx %>"
                     ui-tippy-hover="Click to copy to clipboard"
                     ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
                     style="right: 0; top: 0;">Copy</button>

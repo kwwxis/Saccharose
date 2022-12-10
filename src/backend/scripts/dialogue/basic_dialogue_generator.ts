@@ -1,14 +1,21 @@
 import '../../loadenv';
 import { closeKnex } from '../../util/db';
-import { Control, getControl } from '../script_util';
+import { Control, getControl, normText } from '../script_util';
 import { NpcExcelConfigData } from '../../../shared/types/general-types';
 import { DialogueSectionResult, MetaProp, TalkConfigAccumulator, talkConfigToDialogueSectionResult } from './quest_generator';
 import { loadEnglishTextMap } from '../textmap';
 import util from 'util';
 import { isInt } from '../../../shared/util/numberUtil';
 import { DialogExcelConfigData, TalkExcelConfigData } from '../../../shared/types/dialogue-types';
+import { trim } from '../../../shared/util/stringUtil';
 
 const lc = (s: string) => s ? s.toLowerCase() : s;
+
+function normNpcFilterInput(npcFilterInput: string): string {
+  if (!npcFilterInput)
+    return undefined;
+  return lc(trim(normText(npcFilterInput), '()'));
+}
 
 const npcFilterExclude = (d: DialogExcelConfigData, npcFilter: string): boolean => {
   if (!d) {
@@ -20,14 +27,13 @@ const npcFilterExclude = (d: DialogExcelConfigData, npcFilter: string): boolean 
   if (npcFilter === 'sibling') {
     return d.TalkRole.Type !== 'TALK_ROLE_MATE_AVATAR';
   }
-  return npcFilter && !(lc(d.TalkRoleNameText) === npcFilter || lc(d.TalkRole.NameText) === npcFilter);
+  let npcName = lc(trim(normText(d.TalkRoleNameText), '()'));
+  return npcFilter && !(npcName === npcFilter || npcName === npcFilter);
 };
 
 export async function dialogueGenerate(ctrl: Control, query: number|number[]|string, npcFilter?: string): Promise<DialogueSectionResult[]> {
   let result: DialogueSectionResult[] = [];
-
-  if (npcFilter) npcFilter = npcFilter.trim().toLowerCase();
-  if (!npcFilter) npcFilter = undefined;
+  npcFilter = normNpcFilterInput(npcFilter);
 
   if (typeof query === 'string' && isInt(query)) {
     query = parseInt(query);
@@ -100,8 +106,7 @@ export async function talkConfigGenerate(ctrl: Control, talkConfigId: number|Tal
     return undefined;
   }
 
-  if (npcFilter) npcFilter = npcFilter.trim().toLowerCase();
-  if (!npcFilter) npcFilter = undefined;
+  npcFilter = normNpcFilterInput(npcFilter);
   if (!acc) acc = new TalkConfigAccumulator(ctrl);
 
   let talkConfig: TalkExcelConfigData = await acc.handleTalkConfig(initTalkConfig);

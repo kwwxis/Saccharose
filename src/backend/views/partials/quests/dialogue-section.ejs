@@ -5,7 +5,7 @@
     <% } %>
     <% if (locals.wikitext && (!locals.metadata || !Object.keys(locals.metadata).length)) { %>
       <div class="grow"></div>
-      <button class="secondary small" copy-target="wikitext-<%= id %>"
+      <button class="secondary small" ui-action="copy:wikitext-<%= id %>"
         ui-tippy-hover="Click to copy to clipboard"
         ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
         style="margin:5px 0 0">Copy</button>
@@ -31,7 +31,7 @@
       </div>
       <% if (locals.wikitext) { %>
         <div class="grow"></div>
-        <button class="secondary small" copy-target="wikitext-<%= id %>"
+        <button class="secondary small" ui-action="copy:wikitext-<%= id %>"
           ui-tippy-hover="Click to copy to clipboard"
           ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
           style="margin:0 0 5px">Copy</button>

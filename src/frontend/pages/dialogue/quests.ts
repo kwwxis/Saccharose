@@ -74,7 +74,7 @@ pageMatch('pages/dialogue/quests', () => {
         </li>
       </ul>
       <div class="buttons spacer-top">
-        <button class="primary AppDialog_CloseTrigger">Dismiss</button>
+        <button class="primary AppDialog_CloseTrigger" ui-action="close-modals">Dismiss</button>
       </div>`, DIALOG_MODAL, {
           dialog_style: 'max-width:800px;margin-top:90px'
         });

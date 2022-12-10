@@ -1,44 +1,32 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import { copyToClipboard, getFocusableSelector, setQueryStringParameter } from './util/domutil';
+import { copyToClipboard, setQueryStringParameter } from './util/domutil';
 import { human_timing, timeConvert } from '../shared/util/genericUtil';
 import { Props as TippyProps } from 'tippy.js';
 import { closeDialog } from './util/dialog';
-import { enableTippy, showTippy, hideTippy, flashTippy } from './util/tooltips';
+import { enableTippy, flashTippy, hideTippy, showTippy } from './util/tooltips';
 import { Listener, runWhenDOMContentLoaded, startListeners } from './util/eventLoader';
 import { showJavascriptErrorDialog } from './util/errorHandler';
 import autosize from 'autosize';
 
-function getUITriggerString(o: string|HTMLElement): string {
-  if (!o) return undefined;
-  return typeof o === 'string'
-    ? o
-    : o.getAttribute('ui-trigger') ||
-        o.getAttribute('ui-clear') ||
-        o.getAttribute('ui-target') ||
-        undefined;
+function parseUiAction(actionStr: string|HTMLElement): {[actionType: string]: string[]} {
+  if (actionStr instanceof HTMLElement) {
+    actionStr = actionStr.getAttribute('ui-action');
+  }
+  const result = {};
+  const actions = actionStr.split(';');
+  for (let action of actions) {
+    if (!action.includes(':')) {
+      result[action.trim()] = [];
+      continue;
+    }
+    const actionType = action.split(':')[0].trim().toLowerCase();
+    result[actionType] = action.split(':')[1].split(',').map(x => x.trim());
+  }
+  return result;
 }
 
-function getUITriggers(o: string|HTMLElement): HTMLElement[] {
-  let str = getUITriggerString(o);
-  return !str ? [] : Array.from(document.querySelectorAll(`[ui-trigger="${str}"]`));
-}
-
-function getUITriggerGroup(o: string|HTMLElement): HTMLElement[] {
-  let str = getUITriggerString(o);
-  return !str ? [] : Array.from(document.querySelectorAll(`[ui-trigger^="${str.split(':')[0]}:"]`));
-}
-
-function getUITargetGroup(o: string|HTMLElement): HTMLElement[] {
-  let str = getUITriggerString(o);
-  return !str ? [] : Array.from(document.querySelectorAll(`[ui-target^="${str.split(':')[0]}:"]`));
-}
-
-function getUITarget(o: string|HTMLElement): HTMLElement {
-  let str = getUITriggerString(o);
-  return document.querySelector(`[ui-target="${str}"]`) || undefined;
-}
-
+// noinspection JSIgnoredPromiseFromCall
 const initial_listeners: Listener[] = [
   {
     ev: 'ready',
@@ -158,108 +146,124 @@ const initial_listeners: Listener[] = [
     },
   },
   {
-    el: document.body,
-    ev: 'keyup',
-    fn: function(e: KeyboardEvent) {
-      const key = e.which || e.keyCode || 0;
-      if (key === 27) { // escape key
-        document.querySelectorAll<HTMLElement>('.ui-dropdown').forEach(dropdownEl => {
-          if (dropdownEl.contains(document.activeElement)) {
-            // If focused element is inside dropdown, then
-            // focus the first trigger for the dropdown that is focusable
-            let firstTrigger = Array.from(getUITriggers(dropdownEl)).filter(el => el.focus)[0];
-            if (firstTrigger) firstTrigger.focus();
-          }
-
-          dropdownEl.classList.add('hide');
-          dropdownEl.classList.remove('active');
-          getUITriggers(dropdownEl).forEach(x => x.classList.remove('active'));
-        });
-      }
-    },
-  },
-  {
     el: document,
     ev: 'click',
     fn: function(e: Event) {
-      /** @type {Element} */
-      const target: HTMLElement = e.target as HTMLElement,
-        parentDropdown = target.closest<HTMLElement>('.ui-dropdown'),
-        copyTargetEl = target.closest<HTMLElement>('[copy-target]'),
-        uiTrigger = target.closest<HTMLElement>('[ui-trigger]'),
-        uiClear = target.closest<HTMLElement>('[ui-clear]'),
-        uiTriggerTarget = getUITarget(uiTrigger),
-        uiClearTarget = getUITarget(uiClear);
+      const target: HTMLElement = e.target as HTMLElement;
+      const actionEl = target.closest<HTMLElement>('[ui-action]');
 
-      getUITriggerGroup(uiTrigger).forEach(x => x.classList.remove('active'));
-      getUITargetGroup(uiTrigger).forEach(x => x.classList.add('hide'));
+      if (actionEl) {
+        const actions = parseUiAction(actionEl);
+        for (let actionType of Object.keys(actions)) {
+          const actionParams = actions[actionType];
 
-      if (uiClearTarget && uiClearTarget instanceof HTMLInputElement && uiClearTarget.value) {
-        uiClearTarget.value = '';
-      }
+          switch (actionType) {
+            case 'show':
+              for (let selector of actionParams) {
+                const showTarget = document.querySelector(selector);
+                if (showTarget) {
+                  showTarget.classList.remove('hide');
+                  showTarget.classList.add('active');
+                }
+              }
+              break;
+            case 'hide':
+              for (let selector of actionParams) {
+                const hideTarget = document.querySelector(selector);
+                if (hideTarget) {
+                  hideTarget.classList.remove('active');
+                  hideTarget.classList.add('hide');
+                }
+              }
+              break;
+            case 'toggle-dropdown':
+            case 'dropdown':
+              const dropdown = document.querySelector(actionParams[0]);
+              if (dropdown) {
+                (<any> dropdown)._toggledBy = actionEl;
+                if (dropdown.classList.contains('active')) {
+                  dropdown.classList.remove('active');
+                  actionEl.classList.remove('active');
+                } else {
+                  dropdown.classList.add('active');
+                  actionEl.classList.add('active');
+                }
+              }
+              break;
+            case 'toggle':
+              for (let selector of actionParams) {
+                const toggleTarget = document.querySelector(selector);
+                if (toggleTarget) {
+                  (<any> toggleTarget)._toggledBy = actionEl;
 
-      if (target.classList.contains('AppDialog_CloseTrigger')) {
-        closeDialog();
-      }
-
-      if (copyTargetEl) {
-        let copyTargetId = copyTargetEl.getAttribute('copy-target');
-        let copyTarget: HTMLInputElement = document.getElementById(copyTargetId) as HTMLInputElement;
-
-        if (copyTarget) {
-          copyToClipboard(copyTarget.value);
-        }
-      }
-
-      if (uiTriggerTarget && (!parentDropdown || parentDropdown != uiTriggerTarget)) {
-        if (uiTriggerTarget.classList.toggle('hide')) {
-          // Target hidden
-          uiTriggerTarget.classList.remove('active');
-          getUITriggers(uiTriggerTarget).forEach(x => x.classList.remove('active'));
-        } else {
-          // Target shown
-          uiTriggerTarget.classList.add('active');
-          getUITriggers(uiTriggerTarget).forEach(x => x.classList.add('active'));
-
-          let focusableEl: HTMLElement = uiTriggerTarget.querySelector(getFocusableSelector());
-          if (focusableEl) {
-            e.preventDefault();
-            e.stopPropagation();
-            // Focus the first focusable element inside the target
-            focusableEl.focus();
-            setTimeout(() => focusableEl.focus(), 0);
+                  if (toggleTarget.classList.toggle('hide')) {
+                    toggleTarget.classList.remove('active');
+                    actionEl.classList.remove('active');
+                  } else {
+                    toggleTarget.classList.add('active');
+                    actionEl.classList.add('active');
+                  }
+                }
+              }
+              break;
+            case 'close-modals':
+              closeDialog();
+              break;
+            case 'copy':
+              let copyTarget: HTMLInputElement = document.getElementById(actionParams[0]) as HTMLInputElement;
+              if (copyTarget) {
+                // noinspection JSIgnoredPromiseFromCall
+                copyToClipboard(copyTarget.value);
+              }
+              break;
+            case 'tab':
+              const tabpanel = document.querySelector(actionParams[0]);
+              const tabgroup = actionParams[1];
+              if (tabpanel) {
+                tabpanel.classList.remove('hide');
+                tabpanel.classList.add('active');
+                actionEl.classList.add('active');
+              }
+              let otherTabs = Array.from(document.querySelectorAll<HTMLElement>('[ui-action*="tab:"]'));
+              for (let tab of otherTabs) {
+                let tabActions = parseUiAction(tab);
+                if (tabActions.tab && tabActions.tab[1] == tabgroup && tabActions.tab[0] !== actionParams[0]) {
+                  tab.classList.remove('active');
+                  const otherTabPanel = document.querySelector(tabActions.tab[0]);
+                  otherTabPanel.classList.remove('active');
+                  otherTabPanel.classList.add('hide');
+                }
+              }
+              break;
+            case 'set-query-param':
+              const kvPairs: string[] = actionParams.map(x => x.split('&')).flat(Infinity) as string[];
+              for (let kvPair of kvPairs) {
+                let key = kvPair.split('=')[0];
+                let value = kvPair.split('=')[1];
+                setQueryStringParameter(key, value);
+              }
+              break;
           }
         }
-
-        if (uiTrigger.hasAttribute('ui-set-query-param')) {
-          let kvPair = uiTrigger.getAttribute('ui-set-query-param').split('=');
-          setQueryStringParameter(kvPair[0], kvPair.slice(1).join('='));
-        }
-
-        if (uiTrigger.hasAttribute('ui-set-path')) {
-          let path = uiTrigger.getAttribute('ui-set-path');
-          window.history.pushState({}, null, path);
-        }
-
-        if (uiTrigger.hasAttribute('ui-replace-path')) {
-          let path = uiTrigger.getAttribute('ui-replace-path');
-          window.history.replaceState({}, null, path);
-        }
       }
 
-      document.querySelectorAll<HTMLElement>('.ui-dropdown').forEach(dropdownEl => {
-        // Don't try to hide dropdown if we clicked the trigger for it.
-        if (uiTriggerTarget && uiTriggerTarget === dropdownEl) {
+      const parentDropdownEl = target.closest<HTMLElement>('.ui-dropdown');
+      document.querySelectorAll<HTMLElement>('.ui-dropdown.active').forEach(dropdownEl => {
+        // If we clicked inside the dropdown, don't close it.
+        if (dropdownEl === parentDropdownEl) {
           return;
         }
 
-        // Don't hide to try to hide the dropdown if we clicked inside it
-        if (!parentDropdown || dropdownEl !== parentDropdown) {
-          if (!dropdownEl.classList.contains('hide')) {
-            dropdownEl.classList.add('hide');
-            dropdownEl.classList.remove('active');
-            getUITriggers(dropdownEl).forEach(x => x.classList.remove('active'));
-          }
+        const toggledBy = (<any> dropdownEl)._toggledBy;
+
+        // If we clicked inside the trigger for the dropdown, don't close it.
+        if (toggledBy && (toggledBy === target || toggledBy.contains(target))) {
+          return;
+        }
+
+        dropdownEl.classList.remove('active');
+        if (toggledBy) {
+          toggledBy.classList.remove('active');
         }
       });
     },
