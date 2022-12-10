@@ -1,0 +1,13 @@
+.page--vo-tool {
+  #app-wrapper {
+    max-width: initial;
+  }
+
+  aside#app-sidebar {
+    flex-basis: 20%;
+  }
+
+  main#app-main {
+    flex-basis: 80%;
+  }
+}

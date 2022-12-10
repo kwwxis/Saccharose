@@ -33,6 +33,17 @@ export async function reminderGenerateAll(ctrl: Control): Promise<DialogueSectio
   return sect;
 }
 
+export function reminderWikitext(ctrl: Control, reminder: ReminderExcelConfigData) {
+  let text = normText(reminder.ContentText, ctrl.outputLangCode);
+  let voPrefix = getVoPrefix('Reminder', reminder.Id, text);
+
+  if (!reminder.SpeakerText) {
+    return '\n' + voPrefix + text;
+  } else {
+    return `:${voPrefix}'''${reminder.SpeakerText}:''' ${text}`;
+  }
+}
+
 export async function reminderGenerate(ctrl: Control, query: number|string, subsequentAmount: number = 0): Promise<DialogueSectionResult[]> {
   let result: DialogueSectionResult[] = [];
 
@@ -53,14 +64,7 @@ export async function reminderGenerate(ctrl: Control, query: number|string, subs
       sect.wikitext += '\n';
     }
 
-    let text = normText(reminder.ContentText, ctrl.outputLangCode);
-    let voPrefix = getVoPrefix('Reminder', reminder.Id, text);
-
-    if (!reminder.SpeakerText) {
-      sect.wikitext += '\n' + voPrefix + text;
-    } else {
-      sect.wikitext += `:${voPrefix}'''${reminder.SpeakerText}:''' ${text}`;
-    }
+    sect.wikitext += reminderWikitext(ctrl, reminder);
 
     if (reminder.NextReminderId) {
       let nextReminder = await ctrl.selectReminderById(reminder.NextReminderId);

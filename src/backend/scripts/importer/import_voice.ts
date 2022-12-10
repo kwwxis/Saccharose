@@ -58,10 +58,11 @@ jsonsInDir.forEach(file => {
       }
       let alreadyExisting = combined[key].find(x => x.fileName === voiceSourceNorm.fileName);
       if (alreadyExisting) {
-        // Sometimes mihoyo accidentally adds duplicates like:
+        // Sometimes MiHoYo adds duplicates like:
         //   { sourceFileName: 'VO_AQ\VO_nahida\vo_XMAQ305_13_nahida_16.wem', rate: 1.0, avatarName: 'Switch_hero', emotion: '', gender: 2 }
         //   { sourceFileName: 'VO_AQ\VO_nahida\vo_XMAQ305_13_nahida_16.wem', rate: 1.0, avatarName: 'Switch_heroine', emotion: '', gender: 1 }
-        // where the only difference is the gender/avatarName. In which case we want to only have one of them and remove the gender.
+        // where the only difference is the "gender"/"avatarName" property, but they use the same file.
+        // In which case we want to only have one of them and remove the gender.
         if (voiceSourceNorm.gender && alreadyExisting.gender) {
           delete alreadyExisting.gender;
         }
@@ -75,4 +76,5 @@ jsonsInDir.forEach(file => {
 if (unknownTriggers.size) {
   console.log('Unknown game triggers:', unknownTriggers);
 }
+console.log('Done. Output written to: ' + outDir + '/voiceItemsNormalized.json');
 fs.writeFileSync(outDir + '/voiceItemsNormalized.json', JSON.stringify(combined, null, 2));

@@ -82,6 +82,20 @@ export function getVoiceItems(type: VoiceItemType, id: number|string): VoiceItem
   return VoiceItems[type+'_'+id];
 }
 
+export function getIdFromVoFile(voFile: string): [type: VoiceItemType, id: number] {
+  voFile = voFile.toLowerCase();
+  for (let key of Object.keys(VoiceItems)) {
+    let voiceItemArray = VoiceItems[key];
+    for (let voiceItem of voiceItemArray) {
+      if (voiceItem.fileName.toLowerCase() == voFile) {
+        let args = key.split('_');
+        return [args[0] as VoiceItemType, parseInt(args[1])]
+      }
+    }
+  }
+  return null;
+}
+
 export function getVoPrefix(type: VoiceItemType, id: number|string, text?: string, TalkRoleType?: TalkRoleType): string {
   let voItems = VoiceItems[type+'_'+id];
   let voPrefix = '';

@@ -10,6 +10,7 @@ import { HomeWorldNPCExcelConfigData } from '../../../shared/types/homeworld-typ
 import { StoryFetters } from '../../../shared/types/fetter-types';
 import { orderChapterQuests } from '../../scripts/misc/orderChapterQuests';
 import { ol_gen_from_id } from '../../scripts/OLgen/OLgen';
+import { sort } from '../../../shared/util/arrayUtil';
 
 export default async function(): Promise<Router> {
   const router: Router = create({
@@ -22,6 +23,12 @@ export default async function(): Promise<Router> {
   router.get('/text-map-expand', async (req: Request, res: Response) => {
     res.render('pages/basic/text-map-expand', {
       bodyClass: ['page--text-map-expand']
+    });
+  });
+
+  router.get('/vo-to-dialogue', async (req: Request, res: Response) => {
+    res.render('pages/dialogue/vo-to-dialogue', {
+      bodyClass: ['page--vo-to-dialogue']
     });
   });
 
@@ -158,6 +165,15 @@ export default async function(): Promise<Router> {
       story: story,
       bodyClass: ['page--character-stories'],
       tab: req.query.tab || 'display',
+    });
+  });
+  router.get('/character/VO', async (req: Request, res: Response) => {
+    let storiesByAvatar = await fetchCharacterStories(getControl(req));
+    let avatars = Object.values(storiesByAvatar).map(x => x.avatar).sort((a,b) => a.NameText.localeCompare(b.NameText));
+
+    res.render('pages/character/vo-tool', {
+      bodyClass: ['page--vo-tool'],
+      avatars
     });
   });
 

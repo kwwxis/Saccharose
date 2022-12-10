@@ -4,11 +4,11 @@ import { getControl } from '../../scripts/script_util';
 import { DialogueSectionResult, questGenerate, QuestGenerateResult } from '../../scripts/dialogue/quest_generator';
 import { ol_gen } from '../../scripts/OLgen/OLgen';
 import { dialogueGenerate, dialogueGenerateByNpc, NpcDialogueResultMap } from '../../scripts/dialogue/basic_dialogue_generator';
-import { reminderGenerate } from '../../scripts/dialogue/reminder_generator';
+import { reminderGenerate, reminderWikitext } from '../../scripts/dialogue/reminder_generator';
 import { isInt, toInt } from '../../../shared/util/numberUtil';
 import { CyclicValueReplacer, removeCyclicRefs, toBoolean } from '../../../shared/util/genericUtil';
 import { MainQuestExcelConfigData } from '../../../shared/types/quest-types';
-import { getTextMapItem } from '../../scripts/textmap';
+import { getIdFromVoFile, getTextMapItem } from '../../scripts/textmap';
 
 const router: Router = create();
 
@@ -187,6 +187,42 @@ router.restful('/search-textmap', {
 
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
       return res.render('partials/textmap-search-result', { result });
+    } else {
+      return result;
+    }
+  }
+});
+
+router.restful('/dialogue/vo-to-dialogue', {
+  get: async (req: Request, res: Response) => {
+    const ctrl = getControl(req);
+    let input = (<string> req.query.text).trim();
+    if (input.toLowerCase().includes('{{a|')) {
+      input = /{{A\|(.*?)[|}]/.exec(input)[1].trim();
+    }
+    if (!input.toLowerCase().endsWith('.ogg')) {
+      input += '.ogg';
+    }
+
+    let result = getIdFromVoFile(input);
+    let type = result?.[0];
+    let id = result?.[1];
+    let text = '';
+
+    if (type === 'Dialog') {
+      let dialogue = await ctrl.selectSingleDialogExcelConfigData(id);
+      text = await ctrl.generateDialogueWikiText([dialogue]);
+    } else if (type === 'Reminder') {
+      let reminder = await ctrl.selectReminderById(id);
+      text = reminderWikitext(ctrl, reminder);
+    }
+
+    if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
+      return res.render('partials/dialogue/vo-to-dialogue-result', {
+        type: type,
+        id: id,
+        text: text,
+      });
     } else {
       return result;
     }

@@ -1,0 +1,11 @@
+<div class="talign">
+    <div id="vo-tool-sidebar" class="f15p">
+        <% for (let avatar of avatars) { %>
+            <a href="/character/VO/<%= avatar.NameText.replace(' ', '_') %>" class="secondary dispFlex textAlignLeft" role="button">
+                <img src="/images/avatar/<%= avatar.IconName %>.png" style="width:32px;height:32px;" />
+                <span><%= avatar.NameText %></span>
+            </a>
+        <% } %>
+    </div>
+    <div id="vo-tool-app" class="f85p"></div>
+</div>

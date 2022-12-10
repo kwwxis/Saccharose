@@ -1,0 +1,25 @@
+<div role="tabpanel">
+  <section class="card">
+    <h2>VO File to Dialogue</h2>
+    <div class="content form-box">
+      <p class="spacer10-bottom">Enter the VO file name and get the corresponding text line. Result does not
+      include any subsequent dialog lines.</p>
+      <div class="field valign">
+        <input class="search-input grow" type="text" placeholder="Enter VO file name." />
+      </div>
+      <div class="field valign spacer10-top">
+        <button class="search-submit primary primary--2">Search</button>
+        <div class="search-submit-pending hide loading small spacer5-left"></div>
+      </div>
+      <hr class="spacer5" />
+      <p style="padding:5px;font-size:0.85em">Accepted formats (case insensitive):</p>
+      <ul style="font-size:0.85em">
+        <li><code>vo qinlq002 1 paimon 09.ogg</code> (file extension optional)</li>
+        <li><code>{{A|vo qinlq002 1 paimon 09.ogg}}</code> (with or without additional parameters)</li>
+      </ul>
+      <p style="padding:5px;font-size:0.85em">Currently only supports showing the text for dialogue and reminders,
+        other types such as fetters will only show the type and ID.</p>
+    </div>
+  </section>
+  <div id="search-result"></div>
+</div>

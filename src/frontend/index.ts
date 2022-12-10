@@ -13,3 +13,6 @@ import './pages/dialogue/branch_dialogue';
 import './pages/dialogue/npc_dialogue';
 import './pages/dialogue/quests';
 import './pages/dialogue/reminders';
+import './pages/dialogue/vo-to-dialogue';
+
+import './pages/character/vo-tool';

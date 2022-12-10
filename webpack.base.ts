@@ -3,6 +3,7 @@ import path from 'path';
 import { Configuration, IgnorePlugin } from 'webpack';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import { CleanWebpackPlugin } from 'clean-webpack-plugin';
+import { VueLoaderPlugin } from 'vue-loader';
 dotenv.config();
 
 const pathDefaults = {
@@ -62,8 +63,20 @@ export default (env: 'development'|'production') => <Configuration> {
           options: {
             transpileOnly: true,
             experimentalWatchApi: true,
+            appendTsSuffixTo: ['\\.vue$']
           },
         }],
+      },
+      {
+        test: /\.vue$/,
+        loader: 'vue-loader',
+        options: {
+          esModule: true,
+          loaders: {
+            'scss': 'vue-style-loader!css-loader!sass-loader',
+            'sass': 'vue-style-loader!css-loader!sass-loader?indentedSyntax'
+          }
+        }
       },
       {
         test: /\.(sa|sc|c)ss$/,
@@ -87,5 +100,6 @@ export default (env: 'development'|'production') => <Configuration> {
       resourceRegExp: /^\.\/locale$/,
       contextRegExp: /moment$/,
     }),
+    new VueLoaderPlugin()
   ],
 };

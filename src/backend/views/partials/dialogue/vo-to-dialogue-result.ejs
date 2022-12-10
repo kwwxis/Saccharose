@@ -1,0 +1,17 @@
+<div class="dialogue-container">
+  <% if (!!id) { %>
+    <section class="card">
+      <h2><%= type %>: <strong><%= id %></strong></h2>
+      <div class="dialogue-section content">
+        <textarea readonly class="w100p wikitext autosize"><%= text %></textarea>
+      </div>
+    </section>
+  <% } %>
+  <% if (!id) { %>
+    <section class="card">
+      <div class="content">
+        <strong>Not found.</strong>
+      </div>
+    </section>
+  <% } %>
+</div>

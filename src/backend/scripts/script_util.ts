@@ -3,11 +3,7 @@ import util from 'util';
 import { exec } from 'child_process';
 import { Knex } from 'knex';
 import { openKnex } from '../util/db';
-import {
-  AvatarExcelConfigData,
-  ConfigCondition,
-  NpcExcelConfigData,
-} from '../../shared/types/general-types';
+import { AvatarExcelConfigData, ConfigCondition, NpcExcelConfigData } from '../../shared/types/general-types';
 import { getTextMapItem, getVoPrefix } from './textmap';
 import { Request } from '../util/router';
 import SrtParser, { SrtLine } from '../util/srtParser';
@@ -17,8 +13,10 @@ import { toNumber } from '../../shared/util/numberUtil';
 import { normalizeRawJson } from './importer/import_run';
 import { extractRomanNumeral, isStringBlank, replaceAsync, romanToInt } from '../../shared/util/stringUtil';
 import {
-  DialogExcelConfigData, LangCode,
-  ManualTextMapConfigData, ReminderExcelConfigData,
+  DialogExcelConfigData,
+  LangCode,
+  ManualTextMapConfigData,
+  ReminderExcelConfigData,
   TalkExcelConfigData,
   TalkRole,
 } from '../../shared/types/dialogue-types';
@@ -27,18 +25,22 @@ import {
   ChapterExcelConfigData,
   MainQuestExcelConfigData,
   QuestExcelConfigData,
-  QuestType, ReputationQuestExcelConfigData,
+  QuestType,
+  ReputationQuestExcelConfigData,
 } from '../../shared/types/quest-types';
 import {
   ADVENTURE_EXP_ID,
   MaterialExcelConfigData,
-  MaterialSourceDataExcelConfigData, MORA_ID, PRIMOGEM_ID,
-  RewardExcelConfigData, RewardSummary,
+  MaterialSourceDataExcelConfigData,
+  MORA_ID,
+  PRIMOGEM_ID,
+  RewardExcelConfigData,
 } from '../../shared/types/material-types';
 import {
   FurnitureSuiteExcelConfigData,
   HomeWorldEventExcelConfigData,
-  HomeWorldFurnitureExcelConfigData, HomeWorldFurnitureTypeExcelConfigData,
+  HomeWorldFurnitureExcelConfigData,
+  HomeWorldFurnitureTypeExcelConfigData,
   HomeWorldNPCExcelConfigData,
 } from '../../shared/types/homeworld-types';
 
@@ -802,6 +804,10 @@ export class Control {
       .where({Id: id}).first().then(this.commonLoadFirst);
     this.state.avatarCache[id] = avatar;
     return avatar;
+  }
+
+  async selectAllAvatars(): Promise<AvatarExcelConfigData[]> {
+    return await this.knex.select('*').from('AvatarExcelConfigData').then(this.commonLoad);
   }
 
   async selectAllReminders(): Promise<ReminderExcelConfigData[]> {
