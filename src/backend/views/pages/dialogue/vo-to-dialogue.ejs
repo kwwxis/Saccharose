@@ -12,10 +12,13 @@
         <div class="search-submit-pending hide loading small spacer5-left"></div>
       </div>
       <hr class="spacer5" />
-      <p style="padding:5px;font-size:0.85em">Accepted formats (case insensitive):</p>
+      <p style="padding:5px;font-size:0.85em">Accepted format: case insensitive, underscores or spaces,
+        "<code>File:</code>" prefix optional, "<code>.ogg</code>" extension optional, can be in the <span style="white-space: nowrap">"<code>{{A}}</code>"</span>
+        template with or without additional parameters.<br/>Examples:</p>
       <ul style="font-size:0.85em">
-        <li><code>vo qinlq002 1 paimon 09.ogg</code> (file extension optional)</li>
-        <li><code>{{A|vo qinlq002 1 paimon 09.ogg}}</code> (with or without additional parameters)</li>
+        <li><code>vo qinlq002 1 paimon 09.ogg</code></li>
+        <li><code>File:vo_qinlq002_1_paimon_09.ogg</code> </li>
+        <li><code>{{A|vo qinlq002 1 paimon 09.ogg}}</code></li>
       </ul>
       <p style="padding:5px;font-size:0.85em">Currently only supports showing the text for dialogue and reminders,
         other types such as fetters will only show the type and ID.</p>

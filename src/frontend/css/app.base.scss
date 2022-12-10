@@ -1003,6 +1003,9 @@ body {
   align-items: center;
   justify-content: center;
 }
+body.nightmode #site-logo-fg img {
+  opacity: 0.9;
+}
 
 #header .left,
 #header .right {

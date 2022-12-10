@@ -3,19 +3,20 @@
     <option name="myName" value="Project Default" />
     <inspection_tool class="HtmlFormInputWithoutLabel" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="HtmlRequiredAltAttribute" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="HtmlUnknownAnchorTarget" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="HtmlUnknownAttribute" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="myValues">
         <value>
-          <list size="5">
+          <list size="4">
             <item index="0" class="java.lang.String" itemvalue="ui-action" />
             <item index="1" class="java.lang.String" itemvalue="ui-tippy-hover" />
             <item index="2" class="java.lang.String" itemvalue="ui-tippy-flash" />
             <item index="3" class="java.lang.String" itemvalue="ui-tippy" />
-            <item index="4" class="java.lang.String" itemvalue="ui-group" />
           </list>
         </value>
       </option>
       <option name="myCustomValuesEnabled" value="true" />
     </inspection_tool>
+    <inspection_tool class="HtmlUnknownTarget" enabled="false" level="WARNING" enabled_by_default="false" />
   </profile>
 </component>

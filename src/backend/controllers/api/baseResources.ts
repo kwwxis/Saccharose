@@ -203,6 +203,8 @@ router.restful('/dialogue/vo-to-dialogue', {
     if (!input.toLowerCase().endsWith('.ogg')) {
       input += '.ogg';
     }
+    input = input.replaceAll('_', ' ');
+    input = input.replace('File:', '');
 
     let result = getIdFromVoFile(input);
     let type = result?.[0];
