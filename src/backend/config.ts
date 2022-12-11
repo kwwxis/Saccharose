@@ -48,7 +48,7 @@ export default {
   views: {
     root: path.resolve(__dirname, './views'),
     publicDir: path.resolve(__dirname, '../../public'),
-    siteTitle: 'Genshin Wiki Tools',
+    siteTitle: 'Saccharose.wiki',
     ejsDelimiter: '%',
     formatPageTitle:
       (siteTitle, pageTitle) => pageTitle ? `${pageTitle} | ${siteTitle}` : siteTitle,

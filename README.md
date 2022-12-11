@@ -1,4 +1,4 @@
-# kwwxis's Genshin Wiki Tools
+# Saccharose.wiki
 
 ## Prerequisites
 
@@ -20,7 +20,7 @@
 
 ## Setup
 
-1. Clone the repo from GitHub (`git clone git@github.com:kwwxis/genshin-data-explorer.git`)
+1. Clone the repo from GitHub (`git clone git@github.com:kwwxis/Saccharose.git`)
 2. Run `npm install` in the repo
 3. Copy `.env.example` to new file `.env` and configure it according to the comments.
     1. **shell setup**
@@ -120,12 +120,12 @@
               Application would be accessed at http://localhost:3002/
           * No SSL on custom domain name:
               ```dotenv
-              VHOST=genshin-data-explorer.localhost
+              VHOST=saccharose.localhost
               VHOSTED=1
               HTTP_PORT=80
               SSL_ENABLED=false
               ```
-              Application would be accessed at http://genshin-data-explorer.localhost/
+              Application would be accessed at http://saccharose.localhost/
            
     3. **Genshin Data Setup**
        

@@ -101,7 +101,7 @@ export const convertRubi = (text: string) => {
   return parts.join('');
 }
 
-export const travelerPlaceholder = (langCode: string = 'EN') => {
+export const travelerPlaceholder = (langCode: LangCode = 'EN') => {
   switch (langCode) {
     case 'CHS': return '(旅行者)';
     case 'CHT': return '(旅行者)';
@@ -122,7 +122,16 @@ export const travelerPlaceholder = (langCode: string = 'EN') => {
   return '(Traveler)';
 }
 
-export const normText = (text: string, langCode: string = 'EN') => {
+export const denormText = (text: string, langCode: LangCode = 'EN') => {
+  if (!text) {
+    return text;
+  }
+  text = text.replace(/&mdash;/g, '—').trim();
+  text = text.replace(/&nbsp;/g, '{NON_BREAK_SPACE}');
+  text = text.replace(/<br ?\/?>/g, '\\n');
+};
+
+export const normText = (text: string, langCode: LangCode = 'EN') => {
   if (!text) {
     return text;
   }
