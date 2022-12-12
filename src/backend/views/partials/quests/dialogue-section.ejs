@@ -5,10 +5,16 @@
     <% } %>
     <% if (locals.wikitext && (!locals.metadata || !Object.keys(locals.metadata).length)) { %>
       <div class="grow"></div>
-      <button class="secondary small" ui-action="copy:wikitext-<%= id %>"
+      <button class="secondary small" ui-action="copy: #wikitext-<%= id %>"
         ui-tippy-hover="Click to copy to clipboard"
         ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
         style="margin:5px 0 0">Copy</button>
+        <% if (children && children.length) { %>
+          <button class="secondary small" ui-action="copy-all: #wikitext-<%= id %>, .wikitext-childOf-<%= id %>; copy-sep: \n"
+                ui-tippy-hover="Click to copy to clipboard (including child sections)"
+                ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
+                style="margin:5px 0 0 5px; white-space: nowrap;">Copy All</button>
+        <% } %>
     <% } %>
   </h4>
   <% if (locals.metadata && Object.keys(locals.metadata).length) { %>
@@ -31,10 +37,16 @@
       </div>
       <% if (locals.wikitext) { %>
         <div class="grow"></div>
-        <button class="secondary small" ui-action="copy:wikitext-<%= id %>"
+        <button class="secondary small" ui-action="copy: #wikitext-<%= id %>"
           ui-tippy-hover="Click to copy to clipboard"
           ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
           style="margin:0 0 5px">Copy</button>
+          <% if (children && children.length) { %>
+            <button class="secondary small" ui-action="copy-all: #wikitext-<%= id %>, .wikitext-childOf-<%= id %>; copy-sep: \n"
+                    ui-tippy-hover="Click to copy to clipboard (including child sections)"
+                    ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
+                    style="margin:0 0 5px 5px; white-space: nowrap;">Copy All</button>
+          <% } %>
       <% } %>
     </div>
   <% } %>
@@ -42,7 +54,8 @@
     <div class="dialogue-section-info-message"><%- htmlMessage %></div>
   <% } %>
   <% if (locals.wikitext) { %>
-    <textarea readonly id="wikitext-<%= id %>" class="dialogue-section-wikitext w100p autosize" style="resize:vertical;min-height:40px;"><%= wikitext %></textarea>
+    <textarea readonly id="wikitext-<%= id %>" class="dialogue-section-wikitext w100p autosize <%= (locals.parentIds || []).map(s => 'wikitext-childOf-' + s).join(' ') %>"
+              style="resize:vertical;min-height:40px;"><%= wikitext %></textarea>
   <% } %>
   <% if (locals.wikitextArray) { %>
     <% wikitextArray.forEach((item, idx) => { %>
@@ -51,7 +64,7 @@
   <% } %>
   <div class="dialogue-section-children">
     <% children.forEach(section => { %>
-     <%- include('partials/quests/dialogue-section', section) %>
+     <%- include('partials/quests/dialogue-section', Object.assign(section, {parentIds: (locals.parentIds || []).concat(id) })) %>
     <% }) %>
   </div>
 </div>

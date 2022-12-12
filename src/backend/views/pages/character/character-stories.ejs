@@ -4,7 +4,12 @@
     <h2>Character Stories</h2>
     <div class="content dispFlex flexWrap talign">
       <% avatars.forEach(avatar => { %>
-       <a class="secondary spacer3-all w20p" role="button" href="/character/stories/<%= avatar.NameText.replaceAll(' ', '_') %>"><%= avatar.NameText %></a>
+      <div class="w50p">
+        <a class="secondary spacer3-all valign textAlignLeft" role="button" href="/character/stories/<%= avatar.NameText.replaceAll(' ', '_') %>">
+          <img src="/images/avatar/<%= avatar.IconName %>.png" class="spacer10-right" style="width:32px;height:32px;" />
+          <span><%= avatar.NameText %></span>
+        </a>
+      </div>
       <% }) %>
     </div>
   <% } %>
@@ -91,7 +96,7 @@
       <div class="content">
         <div class="posRel">
           <textarea id="story-wikitext" readonly class="w100p wikitext autosize"><%= story.wikitext %></textarea>
-          <button class="secondary posAbs" ui-action="copy:story-wikitext"
+          <button class="secondary posAbs" ui-action="copy: #story-wikitext"
             ui-tippy-hover="Click to copy to clipboard"
             ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
             style="right: 0; top: 0;">Copy</button>
@@ -103,7 +108,7 @@
         <div class="content">
           <div class="posRel">
             <textarea id="story-altered-wikitext" readonly class="w100p wikitext autosize"><%= story.alteredWikitext %></textarea>
-            <button class="secondary posAbs" ui-action="copy:story-altered-wikitext"
+            <button class="secondary posAbs" ui-action="copy: #story-altered-wikitext"
                     ui-tippy-hover="Click to copy to clipboard"
                     ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
                     style="right: 0; top: 0;">Copy</button>

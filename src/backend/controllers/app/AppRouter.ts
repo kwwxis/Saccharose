@@ -115,9 +115,14 @@ export default async function(): Promise<Router> {
 
   router.get('/character/companion-dialogue', async (req: Request, res: Response) => {
     let companions: HomeWorldNPCExcelConfigData[] = await getHomeWorldCompanions(getControl(req));
-    let companionNames = companions.map(c => c.Avatar ? c.Avatar.NameText : c.Npc.NameText);
+    let characters = companions.map(c =>
+      c.Avatar
+        ? { name: c.Avatar.NameText, icon: c.Avatar.IconName }
+        : { name: c.Npc.NameText }
+    );
+    sort(characters, 'name');
     res.render('pages/character/companion-dialogue', {
-      charNames: companionNames,
+      characters: characters,
       bodyClass: ['page--companion-dialogue']
     });
   });

@@ -159,7 +159,7 @@ const initial_listeners: Listener[] = [
       }
 
       if (actionEl) {
-        const actions = parseUiAction(actionEl);
+        const actions: {[actionType: string]: string[]} = parseUiAction(actionEl);
         for (let actionType of Object.keys(actions)) {
           let actionParams = actions[actionType];
 
@@ -252,10 +252,21 @@ const initial_listeners: Listener[] = [
               closeDialog();
               break;
             case 'copy':
-              let copyTarget: HTMLInputElement = document.getElementById(actionParams[0]) as HTMLInputElement;
+              let copyTarget: HTMLInputElement = document.querySelector(actionParams[0]) as HTMLInputElement;
               if (copyTarget) {
                 // noinspection JSIgnoredPromiseFromCall
                 copyToClipboard(copyTarget.value);
+              }
+              break;
+            case 'copy-all':
+              let copyTargets: HTMLInputElement[] = actionParams.map(sel => Array.from(document.querySelectorAll<HTMLInputElement>(sel))).flat(Infinity) as HTMLInputElement[];
+              let combinedValues: string[] = [];
+              let sep = (actions?.['copy-sep']?.[0] || '').replace(/\\n/g, '\n');
+              if (copyTargets) {
+                for (let el of copyTargets) {
+                  combinedValues.push(el.value);
+                }
+                copyToClipboard(combinedValues.join(sep));
               }
               break;
             case 'tab':
@@ -284,6 +295,8 @@ const initial_listeners: Listener[] = [
                 let value = kvPair.split('=')[1];
                 setQueryStringParameter(key, value);
               }
+              break;
+            default:
               break;
           }
         }

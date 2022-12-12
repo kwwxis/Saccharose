@@ -929,7 +929,7 @@ export class Control {
 
     let chapters = await this.selectAllChapters();
     for (let chapter of chapters) {
-      if (!chapter.Type) {
+      if (!chapter.Type || !chapter.ChapterTitleText) {
         continue;
       }
 
