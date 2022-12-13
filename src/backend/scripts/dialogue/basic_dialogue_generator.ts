@@ -31,6 +31,8 @@ const npcFilterExclude = (d: DialogExcelConfigData, npcFilter: string): boolean 
   return npcFilter && !(npcName === npcFilter || npcName === npcFilter);
 };
 
+export const DIALOGUE_GENERATE_MAX = 100;
+
 export async function dialogueGenerate(ctrl: Control, query: number|number[]|string, npcFilter?: string): Promise<DialogueSectionResult[]> {
   let result: DialogueSectionResult[] = [];
   npcFilter = normNpcFilterInput(npcFilter);
@@ -39,12 +41,15 @@ export async function dialogueGenerate(ctrl: Control, query: number|number[]|str
     query = parseInt(query);
   }
 
-  async function handle(id: number|DialogExcelConfigData) {
+  async function handle(id: number|DialogExcelConfigData): Promise<boolean> {
+    if (!id) {
+      return false;
+    }
     if (typeof id === 'number') {
       const talkConfigResult = await talkConfigGenerate(ctrl, id, npcFilter);
       if (talkConfigResult) {
         result.push(talkConfigResult);
-        return;
+        return true;
       }
     }
 
@@ -53,13 +58,14 @@ export async function dialogueGenerate(ctrl: Control, query: number|number[]|str
       throw 'No Talk or Dialogue found for ID: ' + id;
     }
     if (npcFilterExclude(dialogue, npcFilter)) {
-      return undefined;
+      return false;
     }
     const talkConfig = await ctrl.selectTalkExcelConfigDataByFirstDialogueId(dialogue.Id);
     if (talkConfig) {
       const talkConfigResult = await talkConfigGenerate(ctrl, talkConfig, npcFilter);
       if (talkConfigResult) {
         result.push(talkConfigResult);
+        return true;
       }
     } else {
       const dialogueBranch = await ctrl.selectDialogBranch(dialogue);
@@ -68,23 +74,31 @@ export async function dialogueGenerate(ctrl: Control, query: number|number[]|str
       sect.metadata.push(new MetaProp('First Dialogue ID', dialogue.Id, `/branch-dialogue?q=${dialogue.Id}`));
       sect.wikitext = (await ctrl.generateDialogueWikiText(dialogueBranch)).trim();
       result.push(sect);
+      return true;
     }
+    return false;
   }
 
   if (typeof query === 'string') {
     // string
-    const matches = await ctrl.getTextMapMatches(ctrl.inputLangCode, query.trim());
-    if (Object.keys(matches).length) {
-      let dialogues = await Promise.all(
-        Object.keys(matches).map(textMapId => parseInt(textMapId)).map(textMapId => ctrl.getDialogFromTextContentId(textMapId))
-      );
-      for (let dialogue of dialogues) {
-        if (!dialogue)
-          continue;
-        await handle(dialogue);
+    let unexecutedPromises: (() => Promise<boolean>)[] = [];
+
+    await ctrl.streamTextMapMatches(ctrl.inputLangCode, query.trim(), (textMapId: number, _text: string) => {
+      unexecutedPromises.push(async () => {
+        let dialogue = await ctrl.getDialogFromTextContentId(textMapId);
+        return await handle(dialogue);
+      });
+    });
+
+    let count = 0;
+    for (let unexecutedPromise of unexecutedPromises) {
+      let ret = await unexecutedPromise();
+      if (ret) {
+        count++;
       }
-    } else {
-      throw 'Text Map record not found for: ' + query;
+      if (count > DIALOGUE_GENERATE_MAX) {
+        break;
+      }
     }
   } else if (typeof query === 'number') {
     // number

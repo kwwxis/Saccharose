@@ -41,7 +41,7 @@ pageMatch('pages/dialogue/reminders', () => {
           if (typeof result === 'string') {
             document.querySelector('#reminder-generate-result').innerHTML = result;
           } else if (typeof result === 'object' && result.error_description) {
-            document.querySelector('#reminder-generate-result').innerHTML = '<p>'+escapeHtml(result.error_description)+'</p>';
+            document.querySelector('#reminder-generate-result').innerHTML = endpoints.errorHtmlWrap(result.error_description);
           }
         }).finally(() => {
           loadingEl.classList.add('hide');

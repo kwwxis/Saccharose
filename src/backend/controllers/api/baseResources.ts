@@ -1,8 +1,8 @@
 import apiError from './error';
 import { create, Router, Request, Response } from '../../util/router';
-import { getControl } from '../../scripts/script_util';
+import { getControl, normText } from '../../scripts/script_util';
 import { DialogueSectionResult, questGenerate, QuestGenerateResult } from '../../scripts/dialogue/quest_generator';
-import { ol_gen } from '../../scripts/OLgen/OLgen';
+import { ol_gen, OLResult } from '../../scripts/OLgen/OLgen';
 import { dialogueGenerate, dialogueGenerateByNpc, NpcDialogueResultMap } from '../../scripts/dialogue/basic_dialogue_generator';
 import { reminderGenerate, reminderWikitext } from '../../scripts/dialogue/reminder_generator';
 import { isInt, toInt } from '../../../shared/util/numberUtil';
@@ -96,19 +96,21 @@ router.restful('/quests/generate', {
 router.restful('/OL/generate', {
   get: async (req: Request, res: Response) => {
     const ctrl = getControl(req);
-    let result: string[] = await ol_gen(ctrl, <string> req.query.text, {
+
+    let results: OLResult[] = await ol_gen(ctrl, <string> req.query.text, {
       hideTl: toBoolean(req.query.hideTl),
       hideRm: toBoolean(req.query.hideRm),
       addDefaultHidden: toBoolean(req.query.addDefaultHidden),
     });
-    if (!result) {
+
+    if (!results) {
       throw apiError(req.query.text, 'NOT_FOUND');
     }
 
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
-      return res.render('partials/ol-result', { olResults: result, searchText: <string> req.query.text });
+      return res.render('partials/ol-result', { olResults: results, searchText: <string> req.query.text });
     } else {
-      return result;
+      return results;
     }
   }
 });
@@ -116,7 +118,13 @@ router.restful('/OL/generate', {
 router.restful('/dialogue/single-branch-generate', {
   get: async (req: Request, res: Response) => {
     const ctrl = getControl(req);
-    let result: DialogueSectionResult[] = await dialogueGenerate(ctrl, <string> req.query.text, <string> req.query.npcFilter);
+    const query = (<string> req.query.text)?.trim();
+
+    if (query.toLowerCase() === 'paimon') {
+      throw apiError('Unfortunately, you cannot search for just "Paimon" as the operation would be too intensive.', 'UNSUPPORTED_OPERATION');
+    }
+
+    let result: DialogueSectionResult[] = await dialogueGenerate(ctrl, query, <string> req.query.npcFilter);
 
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
       return res.render('partials/dialogue/single-branch-dialogue-generate-result', {
@@ -131,12 +139,12 @@ router.restful('/dialogue/single-branch-generate', {
 router.restful('/dialogue/npc-dialogue-generate', {
   get: async (req: Request, res: Response) => {
     const ctrl = getControl(req);
-    const query = (<string> req.query.name).trim();
+    const query = (<string> req.query.name)?.trim();
 
     switch (query.toLowerCase()) {
       case 'paimon':
       case '1005':
-        throw apiError('Unfortunately, NPC dialogue generator does not support Paimon (id: 1005). The opperation would be too intensive.', 'UNSUPPORTED_OPERATION');
+        throw apiError('Unfortunately, NPC dialogue generator does not support Paimon (id: 1005). The operation would be too intensive.', 'UNSUPPORTED_OPERATION');
       case '???':
         throw apiError('Unfortunately, NPC dialogue generator does not support search for "???"', 'UNSUPPORTED_OPERATION');
     }
@@ -177,12 +185,16 @@ router.restful('/search-textmap', {
   get: async (req: Request, res: Response) => {
     const ctrl = getControl(req);
 
-    const result = await ctrl.getTextMapMatches(ctrl.inputLangCode, <string> req.query.text, '-m 50'); // "-m" flag -> max count
+    const result = await ctrl.getTextMapMatches(ctrl.inputLangCode, <string> req.query.text, '-m 100'); // "-m" flag -> max count
 
     if (ctrl.inputLangCode !== ctrl.outputLangCode) {
       for (let textMapId of Object.keys(result)) {
         result[textMapId] = getTextMapItem(ctrl.outputLangCode, textMapId);
       }
+    }
+
+    for (let textMapId of Object.keys(result)) {
+      result[textMapId] = normText(result[textMapId], ctrl.outputLangCode);
     }
 
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {

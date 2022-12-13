@@ -118,7 +118,7 @@ export default async function(): Promise<Router> {
     let characters = companions.map(c =>
       c.Avatar
         ? { name: c.Avatar.NameText, icon: c.Avatar.IconName }
-        : { name: c.Npc.NameText }
+        : { name: c.Npc.NameText, icon: c.FrontIcon }
     );
     sort(characters, 'name');
     res.render('pages/character/companion-dialogue', {

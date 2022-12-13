@@ -2,6 +2,7 @@ import '../../loadenv';
 import { Control, getControl, normText } from '../script_util';
 import { getTextMapItem } from '../textmap';
 import { LANG_CODES, LangCode } from '../../../shared/types/dialogue-types';
+import { isInt } from '../../../shared/util/numberUtil';
 
 function ol_gen_internal(textMapId: number, hideTl: boolean = false, addDefaultHidden: boolean = false, hideRm: boolean = false): string {
   let template = `{{Other Languages
@@ -109,27 +110,42 @@ export interface OLGenOptions {
   hideRm?: boolean,
 }
 
-export async function ol_gen(ctrl: Control, name: string, options: OLGenOptions = {}): Promise<string[]> {
+export interface OLResult {
+  textMapId: number,
+  result: string,
+}
+
+export async function ol_gen(ctrl: Control, name: string, options: OLGenOptions = {}): Promise<OLResult[]> {
+  if (isInt(name)) {
+    return [await ol_gen_from_id(ctrl, parseInt(name), options)];
+  }
+
   let idList: number[] = await ctrl.findTextMapIdListByExactName(options.langCode || ctrl.inputLangCode, name);
   if (!idList || !idList.length) {
     return [];
   }
-  let allResults = new Set<string>();
-  for (let id of idList) {
-    let result = ol_gen_internal(id, options.hideTl, options.addDefaultHidden, options.hideRm);
+  let allResults: OLResult[] = [];
+  let seen = new Set<string>();
+  for (let textMapId of idList) {
+    let result = ol_gen_internal(textMapId, options.hideTl, options.addDefaultHidden, options.hideRm);
     if (result.includes('{EN_official_name}')) {
       continue;
     }
-    allResults.add(result);
+    if (seen.has(result)) {
+      continue;
+    }
+    seen.add(result);
+    allResults.push({textMapId, result});
   }
   return Array.from(allResults);
 }
 
-export async function ol_gen_from_id(ctrl: Control, textMapId: number, options: OLGenOptions = {}): Promise<string> {
+export async function ol_gen_from_id(ctrl: Control, textMapId: number, options: OLGenOptions = {}): Promise<OLResult> {
   if (!textMapId) {
     return null;
   }
-  return ol_gen_internal(textMapId, options.hideTl, options.addDefaultHidden, options.hideRm);
+  let result = ol_gen_internal(textMapId, options.hideTl, options.addDefaultHidden, options.hideRm);
+  return {textMapId, result};
 }
 
 if (require.main === module) {

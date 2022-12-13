@@ -61,9 +61,9 @@ pageMatch('pages/basic/olgen', () => {
             ], document.querySelector<HTMLElement>('#ol-results-list'));
           } else if (typeof result === 'object' && result.error_description) {
             if (result.error_code === 'NOT_FOUND') {
-              document.querySelector('#ol-results-list').innerHTML = 'Not Found: ' + result.error_description;
+              document.querySelector('#ol-results-list').innerHTML = endpoints.errorHtmlWrap('Not Found: ' + result.error_description);
             } else {
-              document.querySelector('#ol-results-list').innerHTML = result.error_code + ': ' + result.error_description;
+              document.querySelector('#ol-results-list').innerHTML = endpoints.errorHtmlWrap(result.error_description);
             }
           }
         }).finally(() => {

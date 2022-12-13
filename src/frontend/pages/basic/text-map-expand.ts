@@ -39,7 +39,7 @@ pageMatch('pages/basic/text-map-expand', () => {
           if (typeof result === 'string') {
             document.querySelector('#search-result').innerHTML = result;
           } else if (typeof result === 'object' && result.error_description) {
-            document.querySelector('#search-result').innerHTML = '<p>'+escapeHtml(result.error_description)+'</p>';
+            document.querySelector('#search-result').innerHTML = endpoints.errorHtmlWrap(result.error_description);
           }
         }).finally(() => {
           loadingEl.classList.add('hide');

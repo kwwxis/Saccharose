@@ -1,6 +1,6 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import { copyToClipboard, setQueryStringParameter } from './util/domutil';
+import { copyToClipboard, getScrollbarWidth, setQueryStringParameter } from './util/domutil';
 import { human_timing, timeConvert } from '../shared/util/genericUtil';
 import { Props as TippyProps } from 'tippy.js';
 import { closeDialog } from './util/dialog';
@@ -60,6 +60,29 @@ const initial_listeners: Listener[] = [
           }
         }
       });
+
+      if (location.hash) {
+        let el = document.querySelector(location.hash);
+        if (el) {
+          setTimeout(() => {
+            el.classList.add('flash');
+            window.history.replaceState(null, null, ' '); // remove hash
+            setTimeout(() => {
+              el.classList.remove('flash');
+            }, 2000);
+          }, 500);
+        }
+      }
+
+      let csrfElement: HTMLMetaElement = document.querySelector('meta[name="csrf-token"]');
+      axios.defaults.headers.common['x-csrf-token'] = csrfElement.content;
+      csrfElement.remove();
+
+      let scrollbarWidth = getScrollbarWidth();
+      document.head.insertAdjacentHTML('beforeend',
+        `<style>body.mobile-menu-open { margin-right: ${scrollbarWidth}px; }\n` +
+        `body.mobile-menu-open #header { padding-right: ${scrollbarWidth}px; }</style>`
+      );
     },
     intervalFunction() {
       document.querySelectorAll<HTMLElement>('.timestamp.is--formatted.is--unconverted').forEach(el => {
@@ -123,27 +146,6 @@ const initial_listeners: Listener[] = [
         el.classList.remove('autosize');
         autosize(el);
       });
-    },
-  },
-  {
-    ev: 'ready',
-    fn: function() {
-      if (location.hash) {
-        let el = document.querySelector(location.hash);
-        if (el) {
-          setTimeout(() => {
-            el.classList.add('flash');
-            window.history.replaceState(null, null, ' '); // remove hash
-            setTimeout(() => {
-              el.classList.remove('flash');
-            }, 2000);
-          }, 500);
-        }
-      }
-
-      let csrfElement: HTMLMetaElement = document.querySelector('meta[name="csrf-token"]');
-      axios.defaults.headers.common['x-csrf-token'] = csrfElement.content;
-      csrfElement.remove();
     },
   },
   {

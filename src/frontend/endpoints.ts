@@ -5,6 +5,9 @@ import { DIALOG_ALERT, DIALOG_MODAL, openDialog } from './util/dialog';
 
 export const endpoints = {
   base_uri: '/api',
+  errorHtmlWrap: (str: string) => {
+    return `<div class="card"><div class="content">${escapeHtml(str)}</div></div>`;
+  },
   errorHandler: (err: AxiosError) => {
     console.log('Error Handler:', err);
     const data: any = err.response.data;

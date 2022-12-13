@@ -55,7 +55,7 @@ pageMatch('pages/dialogue/npc-dialogue', () => {
       if (typeof result === 'string') {
         document.querySelector('#dialogue-generate-result').innerHTML = result;
       } else if (typeof result === 'object' && result.error_description) {
-        document.querySelector('#dialogue-generate-result').innerHTML = '<div class="card"><div class="content">'+escapeHtml(result.error_description)+'</div></div>';
+        document.querySelector('#dialogue-generate-result').innerHTML = endpoints.errorHtmlWrap(result.error_description);
       }
     }).finally(() => {
       loadingEl.classList.add('hide');

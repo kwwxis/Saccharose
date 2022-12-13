@@ -1,6 +1,6 @@
+// noinspection JSUnusedGlobalSymbols
+
 import config from '../config';
-import util from 'util';
-import { exec } from 'child_process';
 import { Knex } from 'knex';
 import { openKnex } from '../util/db';
 import { AvatarExcelConfigData, ConfigCondition, NpcExcelConfigData } from '../../shared/types/general-types';
@@ -9,7 +9,7 @@ import { Request } from '../util/router';
 import SrtParser, { SrtLine } from '../util/srtParser';
 import { promises as fs } from 'fs';
 import { arrayIndexOf, arrayIntersect } from '../../shared/util/arrayUtil';
-import { toNumber } from '../../shared/util/numberUtil';
+import { toInt, toNumber } from '../../shared/util/numberUtil';
 import { normalizeRawJson } from './importer/import_run';
 import { extractRomanNumeral, isStringBlank, replaceAsync, romanToInt } from '../../shared/util/stringUtil';
 import {
@@ -43,41 +43,7 @@ import {
   HomeWorldFurnitureTypeExcelConfigData,
   HomeWorldNPCExcelConfigData,
 } from '../../shared/types/homeworld-types';
-
-const execPromise = util.promisify(exec);
-
-export async function grep(searchText: string, file: string, extraFlags?: string, escapeDoubleQuotes: boolean = true): Promise<string[]> {
-  try {
-    if (escapeDoubleQuotes && file.endsWith('.json')) {
-      searchText = searchText.replace(/"/g, `\\"`); // double quotes, assuming searching within JSON string values
-    }
-    searchText = searchText.replace(/'/g, `'"'"'`); // escape single quote by gluing different kinds of quotations, do this after double quote replacement
-
-    // Must use single quotes for searchText - double quotes has different behavior in bash, is insecure for arbitrary string...
-    // Use "-F" flag (fixed strings) so it isn't interpreted as a pattern. But don't use "-F" flag if "-E" flag (extended regex) is present.
-    const cmd = `grep -i ${extraFlags && extraFlags.includes('-E') ? '' : '-F'} ${extraFlags || ''} '${searchText}' ${config.database.getGenshinDataFilePath(file)}`;
-    //console.log('Command:',cmd);
-    const { stdout, stderr } = await execPromise(cmd, {
-      env: { PATH: process.env.SHELL_PATH },
-      shell: process.env.SHELL_EXEC
-    });
-    return stdout.split(/\n/).map(s => s.trim()).filter(x => !!x);
-  } catch (err) {
-    return [];
-  }
-}
-
-export async function grepIdStartsWith(idProp: string, idPrefix: number|string, file: string): Promise<(number|string)[]> {
-  let isInt = typeof idPrefix === 'number';
-  let grepSearchText = `"${idProp}": ${isInt ? idPrefix : '"' + idPrefix}`;
-  let lines = await grep(grepSearchText, file, null, false);
-  let out = [];
-  for (let line of lines) {
-    let parts = /":\s+"?([^",$]+)/.exec(line);
-    out.push(isInt ? parseInt(parts[1]) : parts[1]);
-  }
-  return out;
-}
+import { grep, grepIdStartsWith, grepStream } from '../util/shellutil';
 
 // TODO improve this method - it sucks
 //   Only works for languages that use spaces for word boundaries (i.e. not chinese)
@@ -122,15 +88,6 @@ export const travelerPlaceholder = (langCode: LangCode = 'EN') => {
   return '(Traveler)';
 }
 
-export const denormText = (text: string, langCode: LangCode = 'EN') => {
-  if (!text) {
-    return text;
-  }
-  text = text.replace(/&mdash;/g, '—').trim();
-  text = text.replace(/&nbsp;/g, '{NON_BREAK_SPACE}');
-  text = text.replace(/<br ?\/?>/g, '\\n');
-};
-
 export const normText = (text: string, langCode: LangCode = 'EN') => {
   if (!text) {
     return text;
@@ -142,9 +99,18 @@ export const normText = (text: string, langCode: LangCode = 'EN') => {
   text = text.replace(/{M#([^}]+)}{F#([^}]+)}/g, '{{MC|m=$1|f=$2}}');
   text = text.replace(/<color=#00E1FFFF>([^<]+)<\/color>/g, '{{color|buzzword|$1}}');
   text = text.replace(/<color=#FFCC33FF>([^<]+)<\/color>/g, '{{color|help|$1}}');
+
+  text = text.replace(/<color=#FFACFFFF>([^<]+)<\/color>/g, '{{Electro|$1}}');
+  text = text.replace(/<color=#99FFFFFF>([^<]+)<\/color>/g, '{{Cryo|$1}}');
+  text = text.replace(/<color=#80C0FFFF>([^<]+)<\/color>/g, '{{Hydro|$1}}');
+  text = text.replace(/<color=#FF9999FF>([^<]+)<\/color>/g, '{{Pyro|$1}}');
+  text = text.replace(/<color=#99FF88FF>([^<]+)<\/color>/g, '{{Dendro|$1}}');
+  text = text.replace(/<color=#80FFD7FF>([^<]+)<\/color>/g, '{{Anemo|$1}}');
+  text = text.replace(/<color=#FFE699FF>([^<]+)<\/color>/g, '{{Geo|$1}}');
+
   text = text.replace(/<color=#37FFFF>([^<]+) ?<\/color>/g, "'''$1'''");
   text = text.replace(/<color=(#[0-9a-fA-F]{6})FF>([^<]+)<\/color>/g, '{{color|$1|$2}}');
-  text = text.replace(/\\n/g, '<br />');
+  text = text.replace(/\\?\\n/g, '<br />');
   text = text.replace(/#\{REALNAME\[ID\(1\)(\|HOSTONLY\(true\))?]}/g, '(Wanderer)');
 
   if (text.includes('RUBY#[S]')) {
@@ -391,7 +357,7 @@ export class Control {
   }
 
   async selectTalkExcelConfigDataIdsByPrefix(idPrefix: number|string): Promise<number[]> {
-    let allTalkExcelTalkConfigIds = this.state.ExcludeOrphanedDialogue ? [] : await grepIdStartsWith('_id', idPrefix, './ExcelBinOutput/TalkExcelConfigData.json');
+    let allTalkExcelTalkConfigIds = this.state.ExcludeOrphanedDialogue ? [] : await grepIdStartsWith('Id', idPrefix, './ExcelBinOutput/TalkExcelConfigData.json');
     return allTalkExcelTalkConfigIds.map(i => toNumber(i));
   }
 
@@ -401,7 +367,7 @@ export class Control {
 
   async addOrphanedDialogueAndQuestMessages(mainQuest: MainQuestExcelConfigData) {
     let allDialogueIds = this.state.ExcludeOrphanedDialogue ? [] : await grepIdStartsWith('id', mainQuest.Id, './ExcelBinOutput/DialogExcelConfigData.json');
-    let allQuestMessageIds = await grepIdStartsWith('textMapId', 'QUEST_Message_Q' + mainQuest.Id, './ExcelBinOutput/ManualTextMapConfigData.json');
+    let allQuestMessageIds = await grepIdStartsWith('TextMapId', 'QUEST_Message_Q' + mainQuest.Id, './ExcelBinOutput/ManualTextMapConfigData.json');
     let consumedQuestMessageIds = [];
 
     const handleOrphanedDialog = async (quest: MainQuestExcelConfigData|QuestExcelConfigData, id: number) => {
@@ -763,13 +729,29 @@ export class Control {
     let out = {};
     for (let line of lines) {
       let parts = /^"(\d+)":\s+"(.*)",?$/.exec(line);
-      out[parts[1]] = parts[2].replaceAll('\\', '');
+      out[parts[1]] = parts[2];
     }
     return out;
   }
 
+  async streamTextMapMatches(langCode: LangCode, searchText: string, stream: (textMapId: number, text: string) => void, flags?: string): Promise<number|Error> {
+    if (isStringBlank(searchText)) {
+      return 0;
+    }
+    return await grepStream(searchText, config.database.getTextMapFile(langCode), line => {
+      if (!line)
+        return;
+      let parts = /^"(\d+)":\s+"(.*)",?$/.exec(line.trim());
+      if (!parts)
+        return;
+      let textMapId = toInt(parts[1]);
+      let text = parts[2];
+      stream(textMapId, text);
+    }, flags);
+  }
+
   async getTextMapIdStartsWith(langCode: LangCode, idPrefix: string): Promise<{[id: number]: string}> {
-    let lines = await grep(`^\\s*"${idPrefix}\\d+": "`, config.database.getTextMapFile(langCode), '-E');
+    let lines = await grep(`^\\s*"${idPrefix}\\d+": "`, config.database.getTextMapFile(langCode), this.FLAG_REGEX);
     let out = {};
     for (let line of lines) {
       let parts = /^"(\d+)":\s+"(.*)",?$/.exec(line);

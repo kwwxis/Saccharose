@@ -1,13 +1,13 @@
-<% olResults.forEach((result, idx) => { %>
+<% olResults.forEach((olResult, idx) => { %>
   <div class="card ol-result">
     <div class="content">
       <div class="fsplit spacer5-bottom">
-        <h4>Result #<%= idx + 1 %></h4>
+        <h4>TextMap ID: <%= olResult.textMapId %></h4>
         <button class="secondary ol-result-copy"
           ui-tippy-hover="Click to copy to clipboard"
           ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">Copy</button>
       </div>
-      <textarea readonly class="ol-result-textarea w100p" style="resize:vertical;min-height:300px"><%= result %></textarea>
+      <textarea readonly class="ol-result-textarea w100p" style="resize:vertical;min-height:300px"><%= olResult.result %></textarea>
     </div>
   </div>
 <% }) %>

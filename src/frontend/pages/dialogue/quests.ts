@@ -19,7 +19,7 @@ pageMatch('pages/dialogue/quests', () => {
       if (typeof html === 'string') {
         document.querySelector('#quest-generate-result').innerHTML = html;
       } else if (typeof html === 'object' && html.error_description) {
-        document.querySelector('#quest-generate-result').innerHTML = '<p>'+escapeHtml(html.error_description)+'</p>';
+        document.querySelector('#quest-generate-result').innerHTML = endpoints.errorHtmlWrap(html.error_description);
       }
       startListeners(questResultListeners, '#quest-generate-result');
     });

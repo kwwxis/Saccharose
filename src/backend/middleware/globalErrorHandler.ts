@@ -25,8 +25,6 @@ export async function pageLoadApiHandler(err: any, req: Request, res: Response, 
 }
 
 export async function apiErrorHandler(err, req, res, next) {
-  console.error('\x1b[4m\x1b[1mInternal Error (API):\x1b[0m\n', err);
-
   if (res.headersSent) {
     return next(err);
   }
@@ -45,6 +43,8 @@ export async function apiErrorHandler(err, req, res, next) {
   } else if (err && typeof err === 'object' && err.code === 'EBADCSRFTOKEN') {
     return sendBadRequest(err.code, err.message);
   } else {
+    console.error('\x1b[4m\x1b[1mInternal Error (API):\x1b[0m\n', err);
+
     // For any other error types, assume internal server error
     // Don't include any details about the error in the JSON response in case it reveals
     // details about the code.

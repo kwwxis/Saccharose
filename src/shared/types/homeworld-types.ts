@@ -23,6 +23,12 @@ export interface HomeWorldNPCExcelConfigData {
   RewardEvents: HomeWorldEventExcelConfigData[],
   SummonEvents: HomeWorldEventExcelConfigData[],
   IsNPC?: boolean,
+
+  // These three icon properties only used for Paimon.
+  // Player icons are via Avatar.
+  HeadIcon?: string,
+  FrontIcon?: string,
+  SideIcon?: string,
 }
 
 export type FurnitureSurfaceType =

@@ -149,13 +149,16 @@
   <h2>Other Languages</h2>
   <div class="content">
     <% if (OL.mainChapterName) { %>
-      <textarea readonly class="ol-result-textarea w100p" style="resize:vertical;min-height:300px"><%= OL.mainChapterName %></textarea>
+      <strong class="dispBlock spacer5-top">TextMap ID: <%= OL.mainChapterName.textMapId %></strong>
+      <textarea readonly class="ol-result-textarea w100p" style="resize:vertical;min-height:300px"><%= OL.mainChapterName.result %></textarea>
     <% } %>
     <% if (OL.subChapterName && OL.subChapterName !== OL.mainChapterName) { %>
-        <textarea readonly class="ol-result-textarea w100p" style="resize:vertical;min-height:300px"><%= OL.subChapterName %></textarea>
+        <strong class="dispBlock spacer5-top">TextMap ID: <%= OL.subChapterName.textMapId %></strong>
+      <textarea readonly class="ol-result-textarea w100p" style="resize:vertical;min-height:300px"><%= OL.subChapterName.result %></textarea>
     <% } %>
     <% if (OL.actName) { %>
-        <textarea readonly class="ol-result-textarea w100p" style="resize:vertical;min-height:300px"><%= OL.actName %></textarea>
+      <strong class="dispBlock spacer5-top">TextMap ID: <%= OL.actName.textMapId %></strong>
+      <textarea readonly class="ol-result-textarea w100p" style="resize:vertical;min-height:300px"><%= OL.actName.result %></textarea>
     <% } %>
   </div>
 </section>

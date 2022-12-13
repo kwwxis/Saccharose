@@ -261,6 +261,12 @@ button.secondary:not([disabled]):focus,
   border-color: hsla(223, 67%, 18%, 0.5);
 }
 
+body.nightmode button.secondary:not([disabled]):focus,
+body.nightmode [role=button].secondary:not([disabled]):focus {
+  box-shadow: 0 0 0 2px hsl(40deg 80% 70% / 30%);
+  border-color: hsla(223deg, 67%, 18%, 0.5);
+}
+
 button.secondary[disabled],
 [role='button'].secondary[disabled] {
   cursor: default;

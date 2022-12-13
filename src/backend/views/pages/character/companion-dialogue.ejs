@@ -6,9 +6,7 @@
       <% characters.forEach(character => { %>
         <div class="w50p">
           <a class="secondary spacer3-all valign textAlignLeft" role="button" href="/character/companion-dialogue/<%= character.name.replace(/ /g, '_') %>">
-            <% if (character.icon) { %>
-              <img src="/images/avatar/<%= character.icon %>.png" class="spacer10-right" style="width:32px;height:32px;" />
-            <% } %>
+            <img src="/images/avatar/<%= character.icon %>.png" class="spacer10-right" style="width:32px;height:32px;" />
             <span><%= character.name %></span>
           </a>
         </div>

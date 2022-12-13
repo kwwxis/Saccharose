@@ -111,10 +111,6 @@ class RequestContext {
     return this.bodyClass ? this.bodyClass.join(' ') : '';
   }
 
-  get currentGenshinVersion() {
-    return config.currentGenshinVersion;
-  }
-
   get languages() {
     return LANG_CODES_TO_NAME;
   }

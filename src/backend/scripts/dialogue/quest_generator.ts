@@ -270,7 +270,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
     langCode: 'EN' // always EN
   });
   for (let olResult of olResults) {
-    out.line(olResult);
+    out.line(olResult.result);
   }
   result.otherLanguagesWikitext = out.toString();
 
