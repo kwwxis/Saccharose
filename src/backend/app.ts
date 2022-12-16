@@ -1,4 +1,3 @@
-import config from './config';
 import { Express } from 'express';
 import express from 'express';
 import 'express-async-errors';
@@ -20,6 +19,8 @@ import requestIp from 'request-ip';
 import { pageLoadApiHandler } from './middleware/globalErrorHandler';
 import jsonResponse from './middleware/jsonResponse';
 import defaultResponseHeaders from './middleware/defaultResponseHeaders';
+import { toBoolean } from '../shared/util/genericUtil';
+import { PUBLIC_DIR, VIEWS_ROOT } from './loadenv';
 
 const app: Express = express();
 let didInit: boolean = false;
@@ -35,7 +36,7 @@ export async function appInit(): Promise<Express> {
 
   console.log(`[Init] Configuring dependencies`);
   app.set('trust proxy', true);
-  app.set('views', config.views.root);
+  app.set('views', VIEWS_ROOT);
   app.set('view engine', 'ejs');
 
   // Load Genshin data resources
@@ -53,7 +54,7 @@ export async function appInit(): Promise<Express> {
 
   // Serve static directories
   // ~~~~~~~~~~~~~~~~~~~~~~~~
-  app.use(express.static(config.views.publicDir));
+  app.use(express.static(PUBLIC_DIR));
   if (isStringNotBlank(process.env.EXT_PUBLIC_DIR)) {
     console.log('[Init] Serving EXT_PUBLIC_DIR directory');
     app.use(express.static(process.env.EXT_PUBLIC_DIR));
@@ -107,7 +108,13 @@ export async function appInit(): Promise<Express> {
   // We must load CSRF protection after we load the API router
   // because the API does not necessarily use CSRF protection (only for same-site AJAX requests).
   console.log(`[Init] Loading application router`);
-  app.use(csrf(config.csrfConfig.standard));
+  app.use(csrf({
+    cookie: {
+      secure: toBoolean(process.env.SSL_ENABLED),
+      httpOnly: true,
+    },
+    ignoreMethods: ['GET', 'HEAD', 'OPTIONS']
+  }));
   app.use('/', await baseRouter());
 
   // Global Error Handler

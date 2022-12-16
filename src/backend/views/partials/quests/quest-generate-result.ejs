@@ -4,11 +4,11 @@
     <a class="help-info fr fontWeight600" style="font-size:15px;cursor:pointer;">Help</a>
   </h2>
   <div class="content">
-    <h4>Quest Description(s)</h4>
+    <h4>Quest Description<%= questDescriptions.length > 1 ? 's' : '' %></h4>
     <% questDescriptions.forEach((questDescription, idx) => { %>
       <div class="posRel">
         <textarea id="quest-desc-<%= idx %>" readonly class="w100p autosize" style="resize:vertical;min-height:40px;padding-right:45px"><%= questDescription %></textarea>
-        <button class="secondary small posAbs" ui-action="copy: # #quest-desc-<%= idx %>"
+        <button class="secondary small posAbs" ui-action="copy: #quest-desc-<%= idx %>"
                 ui-tippy-hover="Click to copy to clipboard"
                 ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
                 style="right: 0; top: 0;">Copy</button>

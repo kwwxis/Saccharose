@@ -17,7 +17,7 @@
 //      │   └─ MwNowiki
 
 import { isInt } from '../util/numberUtil';
-import { mwSimpleTextParse } from './mwParse';
+import { mwParse, mwSimpleTextParse } from './mwParse';
 
 export abstract class MwNode {
   abstract toString(): string;
@@ -170,6 +170,8 @@ export class MwParamNode extends MwParentNode {
 
   readonly prefix: string = '';
 
+  beforeValueWhitespace: MwWhiteSpace = new MwWhiteSpace('');
+
   /**
    * Key parts. Only present for numbered/named parameters.
    */
@@ -209,11 +211,15 @@ export class MwParamNode extends MwParentNode {
     return super.toString();
   }
 
+  setValue(wikitext: string) {
+    this.parts = mwParse(wikitext).parts;
+  }
+
   toString() {
     if (this.isAnonymous) {
-      return this.prefix + this.value;
+      return this.prefix + this.beforeValueWhitespace.toString() + this.value;
     } else {
-      return this.prefix + this.keyParts.map(x => x.toString()).join('') + '=' + this.value;
+      return this.prefix + this.keyParts.map(x => x.toString()).join('') + '=' + this.beforeValueWhitespace.toString() + this.value;
     }
   }
 }
@@ -242,5 +248,9 @@ export class MwTemplateNode extends MwParentNode {
 
   get params(): MwParamNode[] {
     return this.parts.filter(part => part instanceof MwParamNode && part.key !== 0) as MwParamNode[];
+  }
+
+  getParam(key: string | number): MwParamNode{
+    return this.params.find(param => param.key == key);
   }
 }

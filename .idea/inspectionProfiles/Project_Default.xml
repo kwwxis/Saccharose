@@ -7,11 +7,12 @@
     <inspection_tool class="HtmlUnknownAttribute" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="myValues">
         <value>
-          <list size="4">
+          <list size="5">
             <item index="0" class="java.lang.String" itemvalue="ui-action" />
             <item index="1" class="java.lang.String" itemvalue="ui-tippy-hover" />
             <item index="2" class="java.lang.String" itemvalue="ui-tippy-flash" />
             <item index="3" class="java.lang.String" itemvalue="ui-tippy" />
+            <item index="4" class="java.lang.String" itemvalue="readonly" />
           </list>
         </value>
       </option>

@@ -1,8 +1,11 @@
 import '../../loadenv';
-import { Control, getControl, normText } from '../script_util';
+import { Control, normText } from '../script_util';
 import { getTextMapItem } from '../textmap';
 import { LANG_CODES, LangCode } from '../../../shared/types/dialogue-types';
 import { isInt } from '../../../shared/util/numberUtil';
+import { mwParse } from '../../../shared/mediawiki/mwParse';
+import { MwTemplateNode } from '../../../shared/mediawiki/mwTypes';
+import { escapeHtml } from '../../../shared/util/stringUtil';
 
 function ol_gen_internal(textMapId: number, hideTl: boolean = false, addDefaultHidden: boolean = false, hideRm: boolean = false): string {
   let template = `{{Other Languages
@@ -113,6 +116,8 @@ export interface OLGenOptions {
 export interface OLResult {
   textMapId: number,
   result: string,
+
+  templateNode?: MwTemplateNode;
 }
 
 export async function ol_gen(ctrl: Control, name: string, options: OLGenOptions = {}): Promise<OLResult[]> {
@@ -148,11 +153,106 @@ export async function ol_gen_from_id(ctrl: Control, textMapId: number, options: 
   return {textMapId, result};
 }
 
+/**
+ * Highlight OL differences on the passed-in parameters in-place.
+ *
+ * Be aware that the [OLResult.result]{@link OLResult#result} property will be converted to HTML.
+ *
+ * @param olResults
+ * @returns the same olResults array that was passed in
+ */
+export function highlight_ol_differences(olResults: OLResult[]): OLResult[] {
+  for (let olResult of olResults) {
+    let mwParseResult = mwParse(olResult.result);
+    olResult.templateNode = mwParseResult.parts.find(p => p instanceof MwTemplateNode) as MwTemplateNode;
+  }
+
+  for (let olResult of olResults) {
+    for (let param of olResult.templateNode.params) {
+      for (let otherOlResult of olResults) {
+        if (otherOlResult == olResult) {
+          continue;
+        }
+        let otherParam = otherOlResult.templateNode.getParam(param.key);
+        if (otherParam && param.value !== otherParam.value) {
+          param.setValue('<span class="highlight">' + escapeHtml(param.value) + '</span>');
+        }
+      }
+    }
+    olResult.result = olResult.templateNode.toString();
+      // .split('\n')
+      // .map(line => `<div>${line}</div>`)
+      // .join('\n');
+  }
+
+  return olResults;
+}
+
 if (require.main === module) {
   (async () => {
     //console.log(await ol_gen(getControl(), `"Outlander Brigade!"`, true));
-    console.log(await ol_gen(getControl(), `Master Chef: Vanarana`, {
-      hideTl: true,
-    }));
+    // console.log(await ol_gen(getControl(), `Master Chef: Vanarana`, {
+    //   hideTl: true,
+    // }));
+
+    let out = highlight_ol_differences([{
+      textMapId: 1861052848,
+      result: `{{Other Languages
+|en      = Iris
+|zhs     = 伊丽丝
+|zhs_rm  = 
+|zht     = 伊麗絲
+|zht_rm  = 
+|zh_tl   = 
+|ja      = イリス
+|ja_rm   = 
+|ja_tl   = 
+|ko      = 이리스
+|ko_rm   = 
+|ko_tl   = 
+|es      = Iris
+|fr      = Iris
+|ru      = Ирис
+|ru_tl   = 
+|th      = Iris
+|vi      = Iris
+|de      = Iris
+|id      = Iris
+|pt      = Iris
+|tr      = Iris
+|it      = Iris
+}}`
+  }, {
+      textMapId: 1892768677,
+      result: `{{Other Languages
+|en      = Iris
+|zhs     = 玉霞
+|zhs_rm  = 
+|zht     = 玉霞
+|zht_rm  = 
+|zh_tl   = 
+|ja      = 玉霞
+|ja_rm   = 
+|ja_tl   = 
+|ko      = 옥희
+|ko_rm   = 
+|ko_tl   = 
+|es      = Iris
+|fr      = Iris
+|ru      = Юй Ся
+|ru_tl   = 
+|th      = Iris
+|vi      = Iris
+|de      = Iris
+|id      = Iris
+|pt      = Yuxia
+|pt_tl   = 
+|tr      = Iris
+|it      = Iris
+}}`
+    }]);
+
+    console.log(out[0].result);
+    console.log(out[1].result);
   })();
 }

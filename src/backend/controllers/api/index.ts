@@ -1,15 +1,17 @@
-//#region Imports
-import config from '../../config';
 import csurfImport from 'csurf';
-const csrf = csurfImport(config.csrfConfig.api);
 import bodyParser from 'body-parser';
 import baseResources from './baseResources';
-import {APIError} from './error';
-//#endregion
-
-//#region Setup Router
 import { create, Router, Request, Response, NextFunction } from '../../util/router';
 import { apiErrorHandler } from '../../middleware/globalErrorHandler';
+import { toBoolean } from '../../../shared/util/genericUtil';
+
+const csrf = csurfImport({
+  cookie: {
+    secure: toBoolean(process.env.SSL_ENABLED),
+    httpOnly: true,
+  },
+  ignoreMethods: ['HEAD', 'OPTIONS']
+});
 
 function accessDenied(error_code = undefined, error_description = undefined) {
   return (req: Request, res: Response, next: NextFunction) => {

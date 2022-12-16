@@ -1,7 +1,7 @@
 import '../../loadenv';
 import {closeKnex} from '../../util/db';
 import { getControl, Control, normText } from '../script_util';
-import { ol_gen } from '../OLgen/OLgen';
+import { ol_gen, ol_gen_from_id } from '../OLgen/OLgen';
 import { getTextMapItem, QuestSummary } from '../textmap';
 import {
   ConfigCondition,
@@ -264,14 +264,12 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
   // Other Languages
   // ---------------
   out.clearOut();
-  let olResults = await ol_gen(ctrl, mainQuest.TitleTextEN, {
+  let olResult = await ol_gen_from_id(ctrl, mainQuest.TitleTextMapHash, {
     hideTl: false,
     addDefaultHidden: false,
     langCode: 'EN' // always EN
   });
-  for (let olResult of olResults) {
-    out.line(olResult.result);
-  }
+  out.append(olResult.result);
   result.otherLanguagesWikitext = out.toString();
 
   // Quest Dialogue

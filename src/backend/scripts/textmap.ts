@@ -1,8 +1,7 @@
-
-import config from '../config';
 import {promises as fs} from 'fs';
 import path from 'path';
 import { LANG_CODES, LangCode, TalkRoleType } from '../../shared/types/dialogue-types';
+import { DATAFILE_VOICE_ITEMS, getGenshinDataFilePath, getTextMapRelPath } from '../loadenv';
 
 // TYPES
 // ----------------------------------------------------------------------------------------------------
@@ -28,7 +27,7 @@ export async function loadTextMaps(filterLangCodes?: string[]): Promise<void> {
       continue;
     }
     console.log('[Init] Loading TextMap -- ' + langCode)
-    let p = fs.readFile(config.database.getGenshinDataFilePath(config.database.getTextMapFile(langCode)), {encoding: 'utf8'}).then(data => {
+    let p = fs.readFile(getGenshinDataFilePath(getTextMapRelPath(langCode)), {encoding: 'utf8'}).then(data => {
       TextMap[langCode] = Object.freeze(JSON.parse(data));
     });
     promises.push(p);
@@ -56,7 +55,7 @@ export function getTextMapItem(langCode: LangCode, id: any): string {
 // TEXT MAPS
 // ----------------------------------------------------------------------------------------------------
 export async function loadQuestSummarization(): Promise<void> {
-  let filePath = config.database.getGenshinDataFilePath('./ExcelBinOutput/QuestSummarizationTextExcelConfigData.json');
+  let filePath = getGenshinDataFilePath('./ExcelBinOutput/QuestSummarizationTextExcelConfigData.json');
   let result: {Id: number, DescTextMapHash: number}[] = await fs.readFile(filePath, {encoding: 'utf8'}).then(data => Object.freeze(JSON.parse(data)));
 
   for (let item of result) {
@@ -68,7 +67,7 @@ export async function loadQuestSummarization(): Promise<void> {
 // ----------------------------------------------------------------------------------------------------
 export async function loadVoiceItems(): Promise<void> {
   console.log('[Init] Loading Voice Items -- starting...');
-  let voiceItemsFilePath = path.resolve(process.env.GENSHIN_DATA_ROOT, config.database.voiceItemsFile);
+  let voiceItemsFilePath = path.resolve(process.env.GENSHIN_DATA_ROOT, DATAFILE_VOICE_ITEMS);
 
   let result: VoiceItemMap = await fs.readFile(voiceItemsFilePath, {encoding: 'utf8'}).then(data => Object.freeze(JSON.parse(data)));
 

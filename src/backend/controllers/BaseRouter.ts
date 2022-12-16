@@ -1,8 +1,5 @@
-import config from '../config';
-
 import AppRouter from './app/AppRouter';
 import helmet from 'helmet';
-
 import { create, Router, Request, Response, NextFunction } from '../util/router';
 import { toBoolean } from '../../shared/util/genericUtil';
 

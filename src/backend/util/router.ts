@@ -1,7 +1,8 @@
+// noinspection JSUnusedGlobalSymbols
+
 import fs from 'fs';
 import ejs from 'ejs';
 import path from 'path';
-import config from '../config';
 import availableMethods from '../middleware/availableMethods';
 import * as express from 'express';
 import * as expressCore from 'express-serve-static-core';
@@ -11,6 +12,7 @@ import crypto from 'crypto';
 import { ltrim, remove_suffix } from '../../shared/util/stringUtil';
 import { getWebpackBundleFileNames, WebpackBundles } from './webpackBundle';
 import { LANG_CODES_TO_NAME } from '../../shared/types/dialogue-types';
+import { EJS_DELIMITER, SITE_TITLE, VIEWS_ROOT } from '../loadenv';
 
 //#region Types
 export type IncludeFunction = (view: string, locals?: any) => string;
@@ -103,8 +105,12 @@ class RequestContext {
     return match ? cond.then || '' : cond.else || '';
   }
 
+  get siteTitle() {
+    return SITE_TITLE;
+  }
+
   get formattedPageTitle() {
-    return config.views.formatPageTitle(config.views.siteTitle, this.title);
+    return this.title ? `${this.title} | ${SITE_TITLE}` : SITE_TITLE;
   }
 
   get bodyClassString() {
@@ -169,12 +175,11 @@ export type Router = express.Router & {
 export function resolveViewPath(view: string): string {
   view = remove_suffix(view, '.ejs');
   view = ltrim(view, '/\\');
-  return path.resolve(config.views.root, view + '.ejs');
+  return path.resolve(VIEWS_ROOT, view + '.ejs');
 }
 
 export const DEFAULT_GLOBAL_LOCALS = {
   icon,
-  config,
   timestamp,
   humanTiming,
   TemplateLink,
@@ -197,7 +202,7 @@ function createIncludeFunction(req: Request, viewStackPointer: RequestSubViewLoc
         bodyClassTernary: req.context.bodyClassTernary.bind(req.context),
         cookieTernary: req.context.cookieTernary.bind(req.context),
       }, DEFAULT_GLOBAL_LOCALS, viewStackPointer, typeof locals !== 'object' ? {} : locals),
-      { delimiter: config.views.ejsDelimiter }
+      { delimiter: EJS_DELIMITER }
     );
   };
 }

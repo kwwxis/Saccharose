@@ -4,10 +4,12 @@
       <div class="fsplit spacer5-bottom">
         <h4>TextMap ID: <%= olResult.textMapId %></h4>
         <button class="secondary ol-result-copy"
-          ui-tippy-hover="Click to copy to clipboard"
-          ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">Copy</button>
+                ui-action="copy: #ol-result-<%= idx %>"
+                ui-tippy-hover="Click to copy to clipboard"
+                ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">Copy</button>
       </div>
-      <textarea readonly class="ol-result-textarea w100p" style="resize:vertical;min-height:300px"><%= olResult.result %></textarea>
+      <div id="ol-result-<%= idx %>" contenteditable="true" readonly class="ol-result-textarea w100p code"
+           style="resize:vertical;overflow:auto;font-size:13px;"><%- olResult.result %></div>
     </div>
   </div>
 <% }) %>

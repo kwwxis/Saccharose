@@ -48,11 +48,11 @@ function basicTest() {
 
 <\!-- testing-->
 |param0
-| character = [[Nahida]]
+| character =  [[Nahida]]
 |language  =  en
 
 <\!-- test comment -->
-|foo = bar lorem ipsum|  param1  |test = {{Hydro}}
+|foo =bar lorem ipsum|  param1  |test = {{Hydro}}
 }}`;
   const templateCall1 = `{{Pyro}}`;
 
@@ -79,6 +79,6 @@ function basicTest() {
 
 if (require.main === module) {
   (async () => {
-    //await basicTest();
+    await basicTest();
   })();
 }

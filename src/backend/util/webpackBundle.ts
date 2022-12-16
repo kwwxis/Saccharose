@@ -1,6 +1,6 @@
 import path from 'path';
-import config from '../config';
 import fs from 'fs';
+import { PUBLIC_DIR } from '../loadenv';
 
 export type WebpackBundles = {appCssBundle: string, appJsBundle: string, vendorJsBundle: string};
 
@@ -10,7 +10,7 @@ export function getWebpackBundleFileNames(): WebpackBundles {
   if (cache) {
     return cache;
   }
-  let distDir = path.resolve(config.views.publicDir, './dist');
+  let distDir = path.resolve(PUBLIC_DIR, './dist');
 
   let files: string[] = fs.readdirSync(distDir);
   let result: WebpackBundles = {

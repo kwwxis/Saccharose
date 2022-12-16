@@ -12,7 +12,8 @@
   margin-top:10px;
 }
 
-.dialogue-section textarea {
+.dialogue-section textarea,
+.dialogue-section [contenteditable] {
   padding: 5px;
 }
 

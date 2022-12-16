@@ -1,6 +1,5 @@
 // noinspection JSUnusedGlobalSymbols
 
-import config from '../config';
 import { Knex } from 'knex';
 import { openKnex } from '../util/db';
 import { AvatarExcelConfigData, ConfigCondition, NpcExcelConfigData } from '../../shared/types/general-types';
@@ -44,6 +43,7 @@ import {
   HomeWorldNPCExcelConfigData,
 } from '../../shared/types/homeworld-types';
 import { grep, grepIdStartsWith, grepStream } from '../util/shellutil';
+import { getGenshinDataFilePath, getTextMapRelPath } from '../loadenv';
 
 // TODO improve this method - it sucks
 //   Only works for languages that use spaces for word boundaries (i.e. not chinese)
@@ -110,7 +110,10 @@ export const normText = (text: string, langCode: LangCode = 'EN') => {
 
   text = text.replace(/<color=#37FFFF>([^<]+) ?<\/color>/g, "'''$1'''");
   text = text.replace(/<color=(#[0-9a-fA-F]{6})FF>([^<]+)<\/color>/g, '{{color|$1|$2}}');
-  text = text.replace(/\\?\\n/g, '<br />');
+
+  text = text.replace(/\\"/g, '"');
+  text = text.replace(/\r/g, '');
+  text = text.replace(/\\?\\n|\n/g, '<br />');
   text = text.replace(/#\{REALNAME\[ID\(1\)(\|HOSTONLY\(true\))?]}/g, '(Wanderer)');
 
   if (text.includes('RUBY#[S]')) {
@@ -725,7 +728,7 @@ export class Control {
     if (isStringBlank(searchText)) {
       return {};
     }
-    let lines = await grep(searchText, config.database.getTextMapFile(langCode), flags);
+    let lines = await grep(searchText, getTextMapRelPath(langCode), flags);
     let out = {};
     for (let line of lines) {
       let parts = /^"(\d+)":\s+"(.*)",?$/.exec(line);
@@ -738,7 +741,7 @@ export class Control {
     if (isStringBlank(searchText)) {
       return 0;
     }
-    return await grepStream(searchText, config.database.getTextMapFile(langCode), line => {
+    return await grepStream(searchText, getTextMapRelPath(langCode), line => {
       if (!line)
         return;
       let parts = /^"(\d+)":\s+"(.*)",?$/.exec(line.trim());
@@ -751,7 +754,7 @@ export class Control {
   }
 
   async getTextMapIdStartsWith(langCode: LangCode, idPrefix: string): Promise<{[id: number]: string}> {
-    let lines = await grep(`^\\s*"${idPrefix}\\d+": "`, config.database.getTextMapFile(langCode), this.FLAG_REGEX);
+    let lines = await grep(`^\\s*"${idPrefix}\\d+": "`, getTextMapRelPath(langCode), this.FLAG_REGEX);
     let out = {};
     for (let line of lines) {
       let parts = /^"(\d+)":\s+"(.*)",?$/.exec(line);
@@ -940,7 +943,7 @@ export class Control {
   }
 
   async readGenshinDataFile<T>(filePath: string): Promise<T> {
-    let fileContents: string = await fs.readFile(config.database.getGenshinDataFilePath(filePath), {encoding: 'utf8'});
+    let fileContents: string = await fs.readFile(getGenshinDataFilePath(filePath), {encoding: 'utf8'});
     let json = JSON.parse(fileContents);
     json = normalizeRawJson(json);
     if (Array.isArray(json)) {
@@ -952,7 +955,7 @@ export class Control {
   }
 
   async loadCutsceneSubtitlesByQuestId(questId: number): Promise<{[fileName: string]: string}> {
-    let fileNames: string[] = await fs.readdir(config.database.getGenshinDataFilePath('./Subtitle/'+this.outputLangCode));
+    let fileNames: string[] = await fs.readdir(getGenshinDataFilePath('./Subtitle/'+this.outputLangCode));
 
     let targetFileNames: string[] = [];
     for (let fileName of fileNames) {
@@ -983,14 +986,14 @@ export class Control {
 
     for (let inputKey of Object.keys(inputs)) {
       let input = inputs[inputKey];
-      let filePath1: string = config.database.getGenshinDataFilePath('./Subtitle/'+this.outputLangCode+'/'+input[0]);
+      let filePath1: string = getGenshinDataFilePath('./Subtitle/'+this.outputLangCode+'/'+input[0]);
       let fileData1: string = await fs.readFile(filePath1, {encoding: 'utf8'});
 
       let srt1: SrtLine[] = parser.fromSrt(fileData1);
       let srt2: SrtLine[] = [];
 
       if (input.length > 1) {
-        let filePath2: string = config.database.getGenshinDataFilePath('./Subtitle/'+this.outputLangCode+'/'+input[1]);
+        let filePath2: string = getGenshinDataFilePath('./Subtitle/'+this.outputLangCode+'/'+input[1]);
         let fileData2: string = await fs.readFile(filePath2, {encoding: 'utf8'});
         srt2 = parser.fromSrt(fileData2);
       }

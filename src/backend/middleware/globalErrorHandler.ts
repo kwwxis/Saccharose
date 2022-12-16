@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from '../util/router';
-import config from '../config';
 import { APIError } from '../controllers/api/error';
+import { VIEWS_ROOT } from '../loadenv';
 
 export async function pageLoadApiHandler(err: any, req: Request, res: Response, next: NextFunction) {
   console.error('\x1b[4m\x1b[1mInternal Error (Page Load):\x1b[0m\n', err);
@@ -21,7 +21,7 @@ export async function pageLoadApiHandler(err: any, req: Request, res: Response, 
 
   // Depending on what causes the error, attempting to render 'errorPages/500.ejs' might cause an error too.
   // In that case then just send an HTML file as the safe option.
-  res.status(500).sendFile(`${config.views.root}/errorPages/500.html`);
+  res.status(500).sendFile(`${VIEWS_ROOT}/errorPages/500.html`);
 }
 
 export async function apiErrorHandler(err, req, res, next) {

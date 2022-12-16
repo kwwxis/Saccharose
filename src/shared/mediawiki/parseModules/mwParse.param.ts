@@ -1,5 +1,5 @@
 import { MwParseModule } from '../mwParseModule';
-import { MwParamNode, MwParamParentType } from '../mwTypes';
+import { MwParamNode, MwParamParentType, MwWhiteSpace } from '../mwTypes';
 import { MwParseContext } from '../mwParse';
 
 /**
@@ -99,6 +99,13 @@ export class MwParseParamModule extends MwParseModule {
         // If numbered/named, then skip past key and "="
         ctx.iter.skip(fullMatch.length);
       }
+
+      if (/^\s+/.test(this.ctx.iter.peek().slice(1))) {
+        const whitespaceRegexRes = /^\s+/.exec(this.ctx.iter.peek().slice(1));
+        this.paramNode.beforeValueWhitespace = new MwWhiteSpace(whitespaceRegexRes[0]);
+        ctx.iter.skip(whitespaceRegexRes[0].length + 1);
+      }
+
       return true;
     }
 

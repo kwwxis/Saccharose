@@ -1,12 +1,12 @@
 import '../../loadenv';
 import {openKnex} from '../../util/db';
-import config from '../../config';
 import objectPath from 'object-path';
 import { SchemaTable, SEP } from './import_types';
 import { TalkExcelConfigData } from '../../../shared/types/dialogue-types';
 import { MaterialExcelConfigData } from '../../../shared/types/material-types';
 import commandLineArgs, { OptionDefinition as ArgsOptionDefinition } from 'command-line-args';
 import commandLineUsage, { OptionDefinition as UsageOptionDefinition } from 'command-line-usage';
+import { getGenshinDataFilePath } from '../../loadenv';
 
 export const schema = {
   DialogExcelConfigData: <SchemaTable> {
@@ -441,7 +441,7 @@ if (require.main === module) {
 
     async function insertAll(table: SchemaTable) {
       console.log('Inserting data for: ' + table.name + ' from: ' + table.jsonFile);
-      const json = require(config.database.getGenshinDataFilePath(table.jsonFile));
+      const json = require(getGenshinDataFilePath(table.jsonFile));
       for (let row of json) {
         await insertRow(table, row);
       }

@@ -2,7 +2,7 @@ import apiError from './error';
 import { create, Router, Request, Response } from '../../util/router';
 import { getControl, normText } from '../../scripts/script_util';
 import { DialogueSectionResult, questGenerate, QuestGenerateResult } from '../../scripts/dialogue/quest_generator';
-import { ol_gen, OLResult } from '../../scripts/OLgen/OLgen';
+import { highlight_ol_differences, ol_gen, OLResult } from '../../scripts/OLgen/OLgen';
 import { dialogueGenerate, dialogueGenerateByNpc, NpcDialogueResultMap } from '../../scripts/dialogue/basic_dialogue_generator';
 import { reminderGenerate, reminderWikitext } from '../../scripts/dialogue/reminder_generator';
 import { isInt, toInt } from '../../../shared/util/numberUtil';
@@ -24,7 +24,7 @@ const GenericCyclicValueReplacer: CyclicValueReplacer = (k: string, v: any) => {
 }
 
 router.restful('/ping', {
-  get: async (req: Request, res: Response) => {
+  get: async (_req: Request, _res: Response) => {
     return 'pong!';
   }
 });
@@ -106,6 +106,8 @@ router.restful('/OL/generate', {
     if (!results) {
       throw apiError(req.query.text, 'NOT_FOUND');
     }
+
+    highlight_ol_differences(results);
 
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
       return res.render('partials/ol-result', { olResults: results, searchText: <string> req.query.text });

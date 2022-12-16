@@ -212,9 +212,11 @@ aside {
   padding: 0 8px;
 }
 
-.card .content textarea {
+.card .content textarea,
+.card .content [contenteditable] {
   line-height: 22px;
   padding: 4px 8px;
+  border-radius: 3px;
 }
 
 .card hr {

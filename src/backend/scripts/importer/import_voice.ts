@@ -1,13 +1,13 @@
 import '../../loadenv';
-import config from '../../config';
 import fs from 'fs';
 import path from 'path';
+import { getGenshinDataFilePath } from '../../loadenv';
 
 // gender 2 - male traveler
 // gender 1 - female traveler
 
 const outDir = process.env.GENSHIN_DATA_ROOT;
-const jsonDir = config.database.getGenshinDataFilePath('./BinOutput/Voice/Items');
+const jsonDir = getGenshinDataFilePath('./BinOutput/Voice/Items');
 
 type VoiceOver = {fileName: string, gender?: 'M'|'F'};
 const combined: {[id: string]: VoiceOver[]} = {};

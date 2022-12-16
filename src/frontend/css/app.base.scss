@@ -15,6 +15,7 @@ body {
 }
 
 body {
+  overflow: scroll;
   font-size: 17px;
   line-height: 1.5em;
   font-family: 'Source Sans Pro', Arial, sans-serif;
@@ -50,7 +51,8 @@ input[type='email'],
 input[type='url'],
 input[type='number'],
 input[type='time'],
-input[type='date'] {
+input[type='date'],
+[contenteditable] {
   border: 1px solid hsla(232, 20%, 32%, 0.25);
   border-radius: 3px;
   box-sizing: border-box;
@@ -76,7 +78,9 @@ input[type='number']:focus,
 input[type='time']:hover,
 input[type='time']:focus,
 input[type='date']:hover,
-input[type='date']:focus {
+input[type='date']:focus,
+[contenteditable]:hover,
+[contenteditable]:focus {
   border: 1px solid hsla(232, 20%, 32%, 0.4);
 }
 
@@ -89,13 +93,15 @@ input[type='email']:focus,
 input[type='url']:focus,
 input[type='number']:focus,
 input[type='time']:focus,
-input[type='date']:focus {
+input[type='date']:focus,
+[contenteditable]:focus {
   outline: 0;
   box-shadow: 0 0 0 2px rgba(0, 140, 221, 0.2);
   border-color: #3daaf5;
 }
 
-input.error, textarea.error, select.error {
+input.error, textarea.error, select.error,,
+[contenteditable].error {
   border-color: rgba(230, 69, 72, 0.5) !important;
 }
 
@@ -135,7 +141,10 @@ input.error, textarea.error, select.error {
   input[type='time']:focus,
   input[type='date']:focus,
   .thin-border:focus,
-  .card {
+  .card,
+  [contenteditable],
+  [contenteditable]:hover,,
+  [contenteditable]:focus {
     border-width: 0.5px !important;
   }
 }
@@ -870,15 +879,31 @@ body.nightmode .flash {
   }
 }
 
-body:not(.nightmode) .flash textarea, body:not(.nightmode) .flash select,
-body:not(.nightmode) .flash input[type='text'], body:not(.nightmode) .flash input[type='password'], body:not(.nightmode) .flash input[type='search'], body:not(.nightmode) .flash input[type='email'],
-body:not(.nightmode) .flash input[type='url'], body:not(.nightmode) .flash input[type='number'], body:not(.nightmode) .flash input[type='time'], body:not(.nightmode) .flash input[type='date'] {
+body:not(.nightmode) .flash textarea,
+body:not(.nightmode) .flash select,
+body:not(.nightmode) .flash [contenteditable],
+body:not(.nightmode) .flash input[type='text'],
+body:not(.nightmode) .flash input[type='password'],
+body:not(.nightmode) .flash input[type='search'],
+body:not(.nightmode) .flash input[type='email'],
+body:not(.nightmode) .flash input[type='url'],
+body:not(.nightmode) .flash input[type='number'],
+body:not(.nightmode) .flash input[type='time'],
+body:not(.nightmode) .flash input[type='date'] {
   background: transparent !important;
 }
 
-body.nightmode .flash textarea, body.nightmode .flash select,
-body.nightmode .flash input[type='text'], body.nightmode .flash input[type='password'], body.nightmode .flash input[type='search'], body.nightmode .flash input[type='email'],
-body.nightmode .flash input[type='url'], body.nightmode .flash input[type='number'], body.nightmode .flash input[type='time'], body.nightmode .flash input[type='date'] {
+body.nightmode .flash textarea,
+body.nightmode .flash select,
+body.nightmode .flash [contenteditable],
+body.nightmode .flash input[type='text'],
+body.nightmode .flash input[type='password'],
+body.nightmode .flash input[type='search'],
+body.nightmode .flash input[type='email'],
+body.nightmode .flash input[type='url'],
+body.nightmode .flash input[type='number'],
+body.nightmode .flash input[type='time'],
+body.nightmode .flash input[type='date'] {
   animation: nightmode-flash-textfield 1s ease-out;
 }
 
@@ -895,9 +920,16 @@ body.nightmode .flash input[type='url'], body.nightmode .flash input[type='numbe
   }
 }
 
-.hard-flash textarea, .hard-flash select,
-.hard-flash input[type='text'], .hard-flash input[type='password'], .hard-flash input[type='search'], .hard-flash input[type='email'],
-.hard-flash input[type='url'], .hard-flash input[type='number'], .hard-flash input[type='time'], .hard-flash input[type='date'] {
+.hard-flash textarea,
+.hard-flash select,
+.hard-flash [contenteditable],
+.hard-flash input[type='text'],
+.hard-flash input[type='password'],
+.hard-flash input[type='search'],
+.hard-flash input[type='email'],
+.hard-flash input[type='url'],
+.hard-flash input[type='number'],
+.hard-flash input[type='time'], .hard-flash input[type='date'] {
   background: transparent !important;
 }
 
@@ -907,11 +939,12 @@ code,
     Bitstream Vera Sans Mono, Courier New, monospace, sans-serif;
 }
 
-textarea.code {
+textarea.code, [contenteditable].code {
   resize: vertical;
   border-color: #ccc;
   padding: 3px;
   box-sizing: border-box;
+  white-space: pre;
 }
 
 .active .inactive-only {
@@ -923,6 +956,13 @@ textarea.code {
 }
 .active .active-only {
   display: initial;
+}
+
+.highlight {
+  background: yellow;
+}
+body.nightmode .highlight {
+  background: hsl(41deg 78% 75% / 20%);
 }
 /* #endregion */
 
@@ -1341,8 +1381,15 @@ body.nightmode [role=button].secondary.selected {
 
 body.nightmode textarea,
 body.nightmode select,
-body.nightmode input[type='text'], body.nightmode input[type='password'], body.nightmode input[type='search'], body.nightmode input[type='email'],
-body.nightmode input[type='url'], body.nightmode input[type='number'], body.nightmode input[type='time'], body.nightmode input[type='date'] {
+body.nightmode [contenteditable],
+body.nightmode input[type='text'],
+body.nightmode input[type='password'],
+body.nightmode input[type='search'],
+body.nightmode input[type='email'],
+body.nightmode input[type='url'],
+body.nightmode input[type='number'],
+body.nightmode input[type='time'],
+body.nightmode input[type='date'] {
   background: hsl(255deg 8% 22%);
   color: hsl(255deg 5% 73%);
   border-color: hsla(232, 20%, 60%, 0.25);
@@ -1350,6 +1397,7 @@ body.nightmode input[type='url'], body.nightmode input[type='number'], body.nigh
 
 body.nightmode textarea:focus,
 body.nightmode select:focus,
+body.nightmode [contenteditable]:focus,
 body.nightmode input[type='text']:focus,
 body.nightmode input[type='password']:focus,
 body.nightmode input[type='search']:focus,

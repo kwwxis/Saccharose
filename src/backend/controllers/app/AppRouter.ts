@@ -22,12 +22,14 @@ export default async function(): Promise<Router> {
 
   router.get('/text-map-expand', async (req: Request, res: Response) => {
     res.render('pages/basic/text-map-expand', {
+      title: 'Text Map Expansion',
       bodyClass: ['page--text-map-expand']
     });
   });
 
   router.get('/vo-to-dialogue', async (req: Request, res: Response) => {
     res.render('pages/dialogue/vo-to-dialogue', {
+      title: 'VO to Dialogue',
       bodyClass: ['page--vo-to-dialogue']
     });
   });
@@ -36,6 +38,7 @@ export default async function(): Promise<Router> {
     const chapters = await getControl(req).selectChapterCollection();
 
     res.render('pages/dialogue/chapters', {
+      title: 'Chapters & Acts',
       chapters: chapters,
       bodyClass: ['page--chapters']
     });
@@ -46,6 +49,7 @@ export default async function(): Promise<Router> {
     const chapter = await ctrl.selectChapterById(toInt(req.params.id));
     if (!chapter) {
       return res.render('pages/dialogue/chapters', {
+        title: 'Chapters & Acts',
         chapterNotFound: true,
         requestId: req.params.id,
         bodyClass: ['page--chapters']
@@ -59,6 +63,7 @@ export default async function(): Promise<Router> {
     const actNameOL = await ol_gen_from_id(ctrl, chapter.ChapterTitleTextMapHash);
 
     res.render('pages/dialogue/chapters', {
+      title: chapter.Summary.ActName,
       chapter: chapter,
       quests: quests,
       OL: {
@@ -72,42 +77,49 @@ export default async function(): Promise<Router> {
 
   router.get('/quests', async (req: Request, res: Response) => {
     res.render('pages/dialogue/quests', {
+      title: 'Quests',
       bodyClass: ['page--quests']
     });
   });
 
   router.get('/quests/:id', async (req: Request, res: Response) => {
     res.render('pages/dialogue/quests', {
+      title: 'Quests',
       bodyClass: ['page--quests']
     });
   });
 
   router.get('/branch-dialogue', async (req: Request, res: Response) => {
     res.render('pages/dialogue/branch-dialogue', {
+      title: 'Single Branch Dialogue',
       bodyClass: ['page--branch-dialogue']
     });
   });
 
   router.get('/OL', async (req: Request, res: Response) => {
     res.render('pages/basic/olgen', {
+      title: 'OL',
       bodyClass: ['page--OL']
     });
   });
 
   router.get('/npc-dialogue', async (req: Request, res: Response) => {
     res.render('pages/dialogue/npc-dialogue', {
+      title: 'NPC Dialogue',
       bodyClass: ['page--npc-dialogue']
     });
   });
 
   router.get('/reminders', async (req: Request, res: Response) => {
     res.render('pages/dialogue/reminders', {
+      title: 'Reminders',
       bodyClass: ['page--reminders']
     });
   });
 
   router.get('/reminders/all', async (req: Request, res: Response) => {
     res.render('pages/dialogue/reminders-all', {
+      title: 'All Reminders',
       dialogue: await reminderGenerateAll(getControl(req)),
       bodyClass: ['page--all-reminders']
     });
@@ -122,6 +134,7 @@ export default async function(): Promise<Router> {
     );
     sort(characters, 'name');
     res.render('pages/character/companion-dialogue', {
+      title: 'Companion Dialogue',
       characters: characters,
       bodyClass: ['page--companion-dialogue']
     });
@@ -132,6 +145,7 @@ export default async function(): Promise<Router> {
     charName = charName.replace(/_/g, ' ');
 
     res.render('pages/character/companion-dialogue', {
+      title: 'Companion Dialogue - ' + charName,
       charName: charName,
       dialogue: await fetchCompanionDialogue(getControl(req), charName),
       bodyClass: ['page--companion-dialogue']
@@ -142,6 +156,7 @@ export default async function(): Promise<Router> {
     let storiesByAvatar = await fetchCharacterStories(getControl(req));
     let avatars = Object.values(storiesByAvatar).map(x => x.avatar).sort((a,b) => a.NameText.localeCompare(b.NameText));
     res.render('pages/character/character-stories', {
+      title: 'Character Stories',
       avatars: avatars,
       bodyClass: ['page--character-stories']
     });
@@ -166,17 +181,20 @@ export default async function(): Promise<Router> {
     }
 
     res.render('pages/character/character-stories', {
+      title: 'Character Stories - ' + story.avatar.NameText,
       avatarId: req.params.avatarId,
       story: story,
       bodyClass: ['page--character-stories'],
       tab: req.query.tab || 'display',
     });
   });
+
   router.get('/character/VO', async (req: Request, res: Response) => {
     let storiesByAvatar = await fetchCharacterStories(getControl(req));
     let avatars = Object.values(storiesByAvatar).map(x => x.avatar).sort((a,b) => a.NameText.localeCompare(b.NameText));
 
     res.render('pages/character/vo-tool', {
+      title: 'Character VO',
       bodyClass: ['page--vo-tool'],
       avatars
     });

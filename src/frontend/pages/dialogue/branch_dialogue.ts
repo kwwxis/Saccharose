@@ -35,7 +35,7 @@ pageMatch('pages/dialogue/branch-dialogue', () => {
     }
   }
 
-  function generateResult(isNonUserAction = false) {
+  function generateResult(isNonUserAction: boolean = false) {
     let inputEl = document.querySelector<HTMLInputElement>('.dialogue-generate-input');
     let npcFilterEl = document.querySelector<HTMLInputElement>('.npc-filter-input');
     let loadingEl = document.querySelector<HTMLElement>('.dialogue-generate-submit-pending');

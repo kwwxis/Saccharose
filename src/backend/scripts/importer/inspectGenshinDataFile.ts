@@ -1,6 +1,4 @@
 import '../../loadenv';
-import config from '../../config';
-import {promises as fs} from 'fs';
 import { Control, getControl } from '../script_util';
 import { loadEnglishTextMap } from '../textmap';
 import { isEmpty } from '../../../shared/util/genericUtil';

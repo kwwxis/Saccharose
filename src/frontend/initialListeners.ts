@@ -146,6 +146,28 @@ const initial_listeners: Listener[] = [
         el.classList.remove('autosize');
         autosize(el);
       });
+
+      let allowedKeys = new Set(['ArrowUp', 'ArrowRight', 'ArrowDown', 'ArrowLeft', 'Shift', 'Control ', 'Alt', 'Tab',
+      'PageUp', 'PageDown', 'Home', 'End']);
+
+      document.querySelectorAll('[contenteditable][readonly]:not(.readonly-contenteditable-processed)').forEach(el => {
+        el.classList.add('readonly-contenteditable-processed');
+        el.addEventListener('paste', event => {
+          event.stopPropagation();
+          event.preventDefault();
+        });
+        el.addEventListener('cut', event => {
+          event.stopPropagation();
+          event.preventDefault();
+        });
+        el.addEventListener('keydown', (event: KeyboardEvent) => {
+          if (event.metaKey || event.ctrlKey || event.altKey || event.shiftKey || allowedKeys.has(event.key)) {
+            return;
+          }
+          event.stopPropagation();
+          event.preventDefault();
+        });
+      });
     },
   },
   {
@@ -254,10 +276,16 @@ const initial_listeners: Listener[] = [
               closeDialog();
               break;
             case 'copy':
-              let copyTarget: HTMLInputElement = document.querySelector(actionParams[0]) as HTMLInputElement;
-              if (copyTarget) {
+              let copyTarget = document.querySelector(actionParams[0]);
+
+              if ((<any> copyTarget).value) {
                 // noinspection JSIgnoredPromiseFromCall
-                copyToClipboard(copyTarget.value);
+                copyToClipboard((<any> copyTarget).value);
+              }
+
+              if (copyTarget.hasAttribute('contenteditable')) {
+                let value = copyTarget.textContent;
+                copyToClipboard(value);
               }
               break;
             case 'copy-all':

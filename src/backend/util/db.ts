@@ -1,7 +1,7 @@
-import config from '../config';
 import {Knex, knex as loadKnex} from 'knex';
 import exitHook from 'async-exit-hook';
 import path from 'path';
+import { DATAFILE_SQLITE_DB } from '../loadenv';
 
 let singleton: Knex = null;
 
@@ -12,7 +12,7 @@ export function openKnex(): Knex {
   singleton = loadKnex({
     client: 'sqlite3',
     connection: {
-      filename: path.resolve(process.env.GENSHIN_DATA_ROOT, config.database.filename),
+      filename: path.resolve(process.env.GENSHIN_DATA_ROOT, DATAFILE_SQLITE_DB),
     },
     useNullAsDefault: true
   });
