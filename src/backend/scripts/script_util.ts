@@ -776,7 +776,6 @@ export class Control {
   async findTextMapIdListByExactName(langCode: LangCode, name: string): Promise<number[]> {
     let results = [];
     let matches = await this.getTextMapMatches(langCode, name, this.FLAG_EXACT_WORD);
-    console.log('Matches:', matches);
     for (let [id,value] of Object.entries(matches)) {
       if (normJsonGrepCmp(value, name)) {
         results.push(parseInt(id));
