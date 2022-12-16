@@ -169,6 +169,7 @@ export function highlight_ol_differences(olResults: OLResult[]): OLResult[] {
 
   for (let olResult of olResults) {
     for (let param of olResult.templateNode.params) {
+      let didHighlight = false;
       for (let otherOlResult of olResults) {
         if (otherOlResult == olResult) {
           continue;
@@ -176,7 +177,11 @@ export function highlight_ol_differences(olResults: OLResult[]): OLResult[] {
         let otherParam = otherOlResult.templateNode.getParam(param.key);
         if (otherParam && param.value !== otherParam.value) {
           param.setValue('<span class="highlight">' + escapeHtml(param.value) + '</span>');
+          didHighlight = true;
         }
+      }
+      if (!didHighlight) {
+        param.setValue(escapeHtml(param.value));
       }
     }
     olResult.result = olResult.templateNode.toString();
