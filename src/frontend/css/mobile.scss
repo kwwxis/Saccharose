@@ -117,6 +117,7 @@ body.nightmode #mobile-menu-button {
 
   #header {
     position: fixed;
+    z-index: 9990;
     top: 0;
     left: 0;
     right: 0;
@@ -129,7 +130,7 @@ body.nightmode #mobile-menu-button {
 
   #mobile-menu-body-cover {
     position: fixed;
-    z-index: 9000;
+    z-index: 9990;
     top: 52px;
     left: 0;
     right: 0;

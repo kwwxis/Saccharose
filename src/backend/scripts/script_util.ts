@@ -42,7 +42,7 @@ import {
   HomeWorldFurnitureTypeExcelConfigData,
   HomeWorldNPCExcelConfigData,
 } from '../../shared/types/homeworld-types';
-import { grep, grepIdStartsWith, grepStream } from '../util/shellutil';
+import { grep, grepIdStartsWith, grepStream, normJsonGrep, normJsonGrepCmp } from '../util/shellutil';
 import { getGenshinDataFilePath, getTextMapRelPath } from '../loadenv';
 
 // TODO improve this method - it sucks
@@ -732,7 +732,7 @@ export class Control {
     let out = {};
     for (let line of lines) {
       let parts = /^"(\d+)":\s+"(.*)",?$/.exec(line);
-      out[parts[1]] = parts[2];
+      out[parts[1]] = normJsonGrep(parts[2]);
     }
     return out;
   }
@@ -748,7 +748,7 @@ export class Control {
       if (!parts)
         return;
       let textMapId = toInt(parts[1]);
-      let text = parts[2];
+      let text = normJsonGrep(parts[2]);
       stream(textMapId, text);
     }, flags);
   }
@@ -758,7 +758,7 @@ export class Control {
     let out = {};
     for (let line of lines) {
       let parts = /^"(\d+)":\s+"(.*)",?$/.exec(line);
-      out[parts[1]] = parts[2].replaceAll('\\', '');
+      out[parts[1]] = normJsonGrep(parts[2]);
     }
     return out;
   }
@@ -766,7 +766,7 @@ export class Control {
   async findTextMapIdByExactName(langCode: LangCode, name: string): Promise<number> {
     let matches = await this.getTextMapMatches(langCode, name, this.FLAG_EXACT_WORD);
     for (let [id,value] of Object.entries(matches)) {
-      if (value.toLowerCase() === name.toLowerCase()) {
+      if (normJsonGrepCmp(value, name)) {
         return parseInt(id);
       }
     }
@@ -776,8 +776,9 @@ export class Control {
   async findTextMapIdListByExactName(langCode: LangCode, name: string): Promise<number[]> {
     let results = [];
     let matches = await this.getTextMapMatches(langCode, name, this.FLAG_EXACT_WORD);
+    console.log('Matches:', matches);
     for (let [id,value] of Object.entries(matches)) {
-      if (value.toLowerCase() === name.toLowerCase()) {
+      if (normJsonGrepCmp(value, name)) {
         results.push(parseInt(id));
       }
     }

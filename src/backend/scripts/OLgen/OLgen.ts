@@ -1,6 +1,6 @@
 import '../../loadenv';
-import { Control, normText } from '../script_util';
-import { getTextMapItem } from '../textmap';
+import { Control, getControl, normText } from '../script_util';
+import { getTextMapItem, loadEnglishTextMap, loadTextMaps } from '../textmap';
 import { LANG_CODES, LangCode } from '../../../shared/types/dialogue-types';
 import { isInt } from '../../../shared/util/numberUtil';
 import { mwParse } from '../../../shared/mediawiki/mwParse';
@@ -190,69 +190,72 @@ export function highlight_ol_differences(olResults: OLResult[]): OLResult[] {
 
 if (require.main === module) {
   (async () => {
-    //console.log(await ol_gen(getControl(), `"Outlander Brigade!"`, true));
+    await loadTextMaps(['EN', 'CHS']);
+    console.log(await ol_gen(getControl(), `"Outlander Brigade!"`));
+
+    console.log(await ol_gen(getControl(), `A letter given to you by Sumida.\\nGive this letter to Kama in Ritou.`))
     // console.log(await ol_gen(getControl(), `Master Chef: Vanarana`, {
     //   hideTl: true,
     // }));
 
-    let out = highlight_ol_differences([{
-      textMapId: 1861052848,
-      result: `{{Other Languages
-|en      = Iris
-|zhs     = 伊丽丝
-|zhs_rm  = 
-|zht     = 伊麗絲
-|zht_rm  = 
-|zh_tl   = 
-|ja      = イリス
-|ja_rm   = 
-|ja_tl   = 
-|ko      = 이리스
-|ko_rm   = 
-|ko_tl   = 
-|es      = Iris
-|fr      = Iris
-|ru      = Ирис
-|ru_tl   = 
-|th      = Iris
-|vi      = Iris
-|de      = Iris
-|id      = Iris
-|pt      = Iris
-|tr      = Iris
-|it      = Iris
-}}`
-  }, {
-      textMapId: 1892768677,
-      result: `{{Other Languages
-|en      = Iris
-|zhs     = 玉霞
-|zhs_rm  = 
-|zht     = 玉霞
-|zht_rm  = 
-|zh_tl   = 
-|ja      = 玉霞
-|ja_rm   = 
-|ja_tl   = 
-|ko      = 옥희
-|ko_rm   = 
-|ko_tl   = 
-|es      = Iris
-|fr      = Iris
-|ru      = Юй Ся
-|ru_tl   = 
-|th      = Iris
-|vi      = Iris
-|de      = Iris
-|id      = Iris
-|pt      = Yuxia
-|pt_tl   = 
-|tr      = Iris
-|it      = Iris
-}}`
-    }]);
-
-    console.log(out[0].result);
-    console.log(out[1].result);
+//     let out = highlight_ol_differences([{
+//       textMapId: 1861052848,
+//       result: `{{Other Languages
+// |en      = Iris
+// |zhs     = 伊丽丝
+// |zhs_rm  =
+// |zht     = 伊麗絲
+// |zht_rm  =
+// |zh_tl   =
+// |ja      = イリス
+// |ja_rm   =
+// |ja_tl   =
+// |ko      = 이리스
+// |ko_rm   =
+// |ko_tl   =
+// |es      = Iris
+// |fr      = Iris
+// |ru      = Ирис
+// |ru_tl   =
+// |th      = Iris
+// |vi      = Iris
+// |de      = Iris
+// |id      = Iris
+// |pt      = Iris
+// |tr      = Iris
+// |it      = Iris
+// }}`
+//   }, {
+//       textMapId: 1892768677,
+//       result: `{{Other Languages
+// |en      = Iris
+// |zhs     = 玉霞
+// |zhs_rm  =
+// |zht     = 玉霞
+// |zht_rm  =
+// |zh_tl   =
+// |ja      = 玉霞
+// |ja_rm   =
+// |ja_tl   =
+// |ko      = 옥희
+// |ko_rm   =
+// |ko_tl   =
+// |es      = Iris
+// |fr      = Iris
+// |ru      = Юй Ся
+// |ru_tl   =
+// |th      = Iris
+// |vi      = Iris
+// |de      = Iris
+// |id      = Iris
+// |pt      = Yuxia
+// |pt_tl   =
+// |tr      = Iris
+// |it      = Iris
+// }}`
+//     }]);
+//
+//     console.log(out[0].result);
+//     console.log(out[1].result);
   })();
 }

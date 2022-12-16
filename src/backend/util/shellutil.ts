@@ -108,24 +108,22 @@ export async function passthru(command: string,
  */
 export function shellEscapeArg(s: string): string {
   s = s.replace(/\x00+/g, '');
+  s = s.replace(/\b/g, '');
 
   s = s.replace(/'+/g, m => `'"${m}"'`);
 
-  s = s.replace(/\\/g, '\\\\');
-
-  s = s.replace(/\n/g, '\\n');
-  s = s.replace(/\r/g, '\\r');
-  s = s.replace(/\b/g, '');
-  s = s.replace(/\f/g, '\\f');
-  s = s.replace(/\t/g, '\\t');
-  s = s.replace(/\v/g, '\\v');
+  s = s.replace(/\n/g, '\\\\n');
+  s = s.replace(/\r/g, '\\\\r');
+  s = s.replace(/\f/g, '\\\\f');
+  s = s.replace(/\t/g, '\\\\t');
+  s = s.replace(/\v/g, '\\\\v');
 
   return `'` + s + `'`;
 }
 
 export function createGrepCommand(searchText: string, file: string, extraFlags?: string, escapeDoubleQuotes: boolean = true): string {
   if (escapeDoubleQuotes && file.endsWith('.json')) {
-    searchText = searchText.replace(/"/g, `\\"`); // double quotes, assuming searching within JSON string values
+    searchText = searchText.replace(/"/g, `\\"`); // double quotes, assuming searching within a JSON string value
   }
 
   searchText = shellEscapeArg(searchText);
@@ -139,6 +137,7 @@ export function createGrepCommand(searchText: string, file: string, extraFlags?:
 export async function grep(searchText: string, file: string, extraFlags?: string, escapeDoubleQuotes: boolean = true): Promise<string[]> {
   try {
     const cmd = createGrepCommand(searchText, file, extraFlags, escapeDoubleQuotes);
+    console.log('Command:', cmd);
     const { stdout, stderr } = await execPromise(cmd, {
       env: { PATH: process.env.SHELL_PATH },
       shell: process.env.SHELL_EXEC,
@@ -171,4 +170,13 @@ export async function grepIdStartsWith(idProp: string, idPrefix: number | string
     out.push(isInt ? parseInt(parts[1]) : parts[1]);
   }
   return out;
+}
+
+export function normJsonGrep(s: string) {
+  return s.replace(/\\"/g, '"').replace(/\\n/g, '\n');
+}
+
+
+export function normJsonGrepCmp(a: string, b: string) {
+  return normJsonGrep(a).toLowerCase() === normJsonGrep(b).toLowerCase();
 }
