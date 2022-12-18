@@ -21,5 +21,9 @@
         <% }) %>
       </div>
     </div>
+  <% } else if (locals.charName) { %>
+    <div class="content">
+      <p>Serenitea Pot Companion not found: <%= charName %></p>
+    </div>
   <% } %>
 </section>
