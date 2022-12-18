@@ -30,13 +30,13 @@ export const endpoints = {
     if (data && data.error_code === 'EBADCSRFTOKEN') {
       openDialog(`
       <h2>Session timed out.</h2>
-      <p class='spacer-top'>
+      <p class='spacer15-top'>
         The session for your page expired after being left open for too long.
       </p>
-      <p class='spacer-top'>
+      <p class='spacer15-top'>
         Simply just refresh the page to restore the session and fix the issue.
       </p>
-      <div class='buttons spacer-top'>
+      <div class='buttons spacer15-top'>
         <button class='primary' ui-action="refresh-page">Refresh Page</button>
         <button class='secondary' ui-action="close-modals">Dismiss</button>
       </div>

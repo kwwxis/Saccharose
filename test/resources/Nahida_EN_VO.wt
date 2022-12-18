@@ -1,6 +1,3 @@
-{{CharacterTabs}}
-{{LanguageTabs}}
-==Story==
 {{VO/Story
 |character           = Nahida
 |language            = en
@@ -344,10 +341,3 @@
 <!-- Jumping -->
 |jump_1_file         = Jumping 01,Jumping 02,Jumping 03,Jumping 04,Jumping 05
 }}
-
-==Navigation==
-{{Character Navbox|type=playable|link type=vo}}
-
-[[es:Nahida/Voz]]
-[[fr:Nahida/Répliques]]
-[[ru:Нахида/Озвучка]]

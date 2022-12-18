@@ -1,3 +1,19 @@
+import { saveAs } from 'file-saver';
+
+export function createElement(tag: string, attrs: {[attr: string]: string|number|boolean} = {}) {
+    let el = document.createElement(tag);
+    for (let attr of Object.keys(attrs)) {
+        if (typeof attrs[attr] === 'string') {
+            el.setAttribute(attr, attrs[attr] as string);
+        } else if (typeof attrs[attr] === 'number') {
+            el.setAttribute(attr, String(attrs[attr]));
+        } else if (attrs[attr] === true) {
+            el.setAttribute(attr, '');
+        }
+    }
+    return el;
+}
+
 /**
  * Waits for an element to exist within the DOM.
  * @param parent The parent element to search for the element within.
@@ -256,14 +272,15 @@ export function copyToClipboard(text: string): Promise<void> {
  * @param {number} indentation indentation level
  */
 export function downloadObjectAsJson(exportObj: any, exportName: string, indentation: number = 0) {
-    if (exportName.endsWith('.json')) exportName = exportName.slice(0, -5);
-    let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj, null, indentation));
-    let downloadAnchorNode = document.createElement('a');
-    downloadAnchorNode.setAttribute("href",     dataStr);
-    downloadAnchorNode.setAttribute("download", exportName + ".json");
-    document.body.appendChild(downloadAnchorNode); // required for firefox
-    downloadAnchorNode.click();
-    downloadAnchorNode.remove();
+    if (exportName.toLowerCase().endsWith('.json')) exportName = exportName.slice(0, -5);
+    let text = JSON.stringify(exportObj, null, indentation);
+    let blob = new Blob([ text ], { type: "application/json;charset=utf-8" });
+    saveAs(blob, exportName + '.json');
+}
+
+export function downloadTextAsFile(filename: string, text: string) {
+    let blob = new Blob([ text ], { type: "text/plain;charset=utf-8" });
+    saveAs(blob, filename);
 }
 
 /**

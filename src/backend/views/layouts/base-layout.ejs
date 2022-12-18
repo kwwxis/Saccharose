@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="<%= req.cookies['nightmode'] ? 'nightmode' : '' %>">
   <head>
     <meta charset="utf-8" />
     <title><%= req.context.formattedPageTitle %></title>
@@ -15,7 +15,7 @@
     <template id="template-info-icon"><%- icon('info') %></template>
     <template id="template-alert-icon"><%- icon('alert-triangle') %></template>
     <% if (env.NODE_ENV === 'development') { %>
-      <script src="//<%= env.VHOST %>:35729/livereload.js"></script>
+      <script src="<%= toBoolean(env.SSL_ENABLED) ? 'https' : 'http' %>://<%= env.VHOST %>:35729/livereload.js"></script>
     <% } %>
     <link rel="stylesheet" href="<%= req.context.webpackBundles.appCssBundle %>">
     <script src="<%= req.context.webpackBundles.vendorJsBundle %>"></script>

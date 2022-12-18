@@ -2,8 +2,12 @@ import moment from 'moment/moment';
 
 export type Type<T> = { new (...args: any[]): T };
 
-export function isUnset(x) {
+export function isUnset(x: any): boolean {
     return x === null || typeof x === 'undefined';
+}
+
+export function isset(x: any): boolean {
+    return !isUnset(x);
 }
 
 export function isEmpty(x: any): boolean {
@@ -11,6 +15,10 @@ export function isEmpty(x: any): boolean {
         return false; // don't consider any booleans or numbers to be empty
     }
     return !x || (typeof x === 'string' && !x.trim().length) || (Array.isArray(x) && !x.length) || (typeof x === 'object' && !Object.keys(x).length);
+}
+
+export function isNotEmpty(x: any): boolean {
+    return !isEmpty(x);
 }
 
 /**

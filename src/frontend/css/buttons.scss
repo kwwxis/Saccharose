@@ -231,7 +231,7 @@ button.primary .icon:first-child:not(:last-child),
   margin-left: -0.15em;
 }
 
-/* secondary Buttons
+/* Secondary Buttons
 ------------------------------------------------------------------------------------------------- */
 
 button.secondary,
@@ -261,16 +261,21 @@ button.secondary:not([disabled]):focus,
   border-color: hsla(223, 67%, 18%, 0.5);
 }
 
-body.nightmode button.secondary:not([disabled]):focus,
-body.nightmode [role=button].secondary:not([disabled]):focus {
-  box-shadow: 0 0 0 2px hsl(40deg 80% 70% / 30%);
-  border-color: hsla(223deg, 67%, 18%, 0.5);
+button.secondary.selected,
+[role=button].secondary.selected {
+  background: hsl(222deg 45% 88%);
 }
 
 button.secondary[disabled],
 [role='button'].secondary[disabled] {
   cursor: default;
   color: hsla(223, 67%, 18%, 0.3);
+  border: 0.5px solid hsla(223, 67%, 18%, 0.1);
+}
+
+button.secondary.border-light,
+[role='button'].secondary.border-light,
+.secondary-label.border-light {
   border: 0.5px solid hsla(223, 67%, 18%, 0.1);
 }
 
@@ -292,9 +297,35 @@ button.secondary .icon:first-child:not(:last-child),
   margin-left: -0.45em;
 }
 
-button.secondary.selected,
-[role=button].secondary.selected {
-  background: hsl(222deg 45% 88%);
+body.nightmode button.secondary,
+body.nightmode [role='button'].secondary,
+body.nightmode .secondary-label {
+  background: hsl(232deg 12% 29% / 30%);
+  border: 1px solid hsl(232deg 12% 29% / 35%);
+  color: hsl(255deg 5% 73%);
+  color: #e4c179;
+}
+body.nightmode button.secondary.border-light,
+body.nightmode [role='button'].secondary.border-light,
+body.nightmode .secondary-label.border-light {
+  border: 1px solid hsl(232deg 12% 29% / 35%);
+}
+body.nightmode button.secondary:hover,
+body.nightmode [role='button'].secondary:hover,
+body.nightmode .secondary-label:hover {
+  background: hsl(232deg 10% 29% / 50%);
+  color: hsl(255deg 5% 73%);
+  color: #f5e8cd;
+}
+
+body.nightmode button.secondary:not([disabled]):focus,
+body.nightmode [role=button].secondary:not([disabled]):focus {
+  box-shadow: 0 0 0 2px hsl(40deg 80% 70% / 30%);
+  border-color: hsla(223deg, 67%, 18%, 0.5);
+}
+body.nightmode button.secondary.selected,
+body.nightmode [role=button].secondary.selected {
+  background: hsl(255deg 10% 24%);
 }
 
 /* Other Buttons

@@ -391,3 +391,19 @@ export function romanToInt(s: string) {
     }
     return result;
 }
+
+/**
+ * Unlike [String.split(string, number)]{@link String#split}, this split method will keep parts after the limit.
+ *
+ * @example
+ * '1_2_3_4'.split('_', 2); // => ['1', '2']
+ *
+ * splitLimit('1_2_3_4', '_', 2); // => ['1', '2', '3_4']
+ */
+export function splitLimit(s: string, del: string, limit: number): string[] {
+    let parts = s.split(del);
+    if (parts.length > limit) {
+        parts = parts.slice(0, limit).concat(parts.slice(limit, parts.length).join(del));
+    }
+    return parts;
+}

@@ -69,6 +69,7 @@ export async function passthru(command: string,
   };
 
   return new Promise((resolve, reject) => {
+    console.log('Command:', command);
     const child = spawn(command, {
       env: { PATH: process.env.SHELL_PATH },
       shell: process.env.SHELL_EXEC,

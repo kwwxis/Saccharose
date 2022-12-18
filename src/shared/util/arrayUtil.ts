@@ -223,3 +223,7 @@ export function arrayIntersect<T>(args: T[][], comparator?: ElementComparator<T>
     }
     return result;
 }
+
+export function arraySum(array: number[]): number {
+    return array.reduce((a: number, b: number) => a + b, 0);
+}

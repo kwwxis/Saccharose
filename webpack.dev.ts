@@ -19,6 +19,7 @@ export default <Configuration> merge(baseConfig('development'), {
   },
   plugins: [
     new LiveReloadPlugin({
+      delay: 500,
       protocol: process.env.SSL_ENABLED ? 'https' : 'http',
       port: 35729,
       hostname: process.env.VHOST,

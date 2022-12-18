@@ -100,10 +100,25 @@ export class MwParseParamModule extends MwParseModule {
         ctx.iter.skip(fullMatch.length);
       }
 
-      if (/^\s+/.test(this.ctx.iter.peek().slice(1))) {
-        const whitespaceRegexRes = /^\s+/.exec(this.ctx.iter.peek().slice(1));
-        this.paramNode.beforeValueWhitespace = new MwWhiteSpace(whitespaceRegexRes[0]);
-        ctx.iter.skip(whitespaceRegexRes[0].length + 1);
+      if (/^(\s+)(\S)/.test(this.ctx.iter.peek().slice(1))) {
+        const whitespaceRegexRes = /^(\s+)(\S)/.exec(this.ctx.iter.peek().slice(1));
+        let whitespace = whitespaceRegexRes[1];
+
+        if (/[|}\]]/.test(whitespaceRegexRes[2])) {
+          // Param has no value
+          if (whitespace.endsWith('\r\n')) {
+            whitespace = whitespace.slice(0, -2);
+          } else if (whitespace.endsWith('\n')) {
+            whitespace = whitespace.slice(0, -1);
+          } else {
+            whitespace = null;
+          }
+        }
+
+        if (whitespace) {
+          this.paramNode.beforeValueWhitespace = new MwWhiteSpace(whitespace);
+          ctx.iter.skip(whitespace.length + 1);
+        }
       }
 
       return true;

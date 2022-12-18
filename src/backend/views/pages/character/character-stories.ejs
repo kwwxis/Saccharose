@@ -25,11 +25,11 @@
       <% } %>
 
       <button role="tab" id="tab-wikitext" class="tab <%= tab === 'wikitext' ? 'active' : '' %>"
-              ui-action="tab: #tabpanel-wikitext, storyTabs; set-query-param: tab=wikitext">Wiki-Text</button>
+              ui-action="tab: #tabpanel-wikitext, storyTabs; set-query-param: tab=wikitext">Wikitext</button>
 
       <% if (story.hasAlteredStories) { %>
         <button role="tab" id="tab-altered-wikitext" class="tab <%= tab === 'altered-wikitext' ? 'active' : '' %>"
-                ui-action="tab: #tabpanel-altered-wikitext, storyTabs; set-query-param: tab=altered-wikitext">Altered Wiki-Text</button>
+                ui-action="tab: #tabpanel-altered-wikitext, storyTabs; set-query-param: tab=altered-wikitext">Altered Wikitext</button>
       <% } %>
     </div>
     <div role="tabpanel" aria-labelledby="tab-display" class="tabpanel <%= tab === 'display' ? 'active' : 'hide' %>" id="tabpanel-display">

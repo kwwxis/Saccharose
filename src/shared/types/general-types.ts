@@ -24,14 +24,19 @@ export interface NpcExcelConfigData {
 }
 
 export interface AvatarExcelConfigData {
-  Id: number
+  Id: number,
+  QualityType: string,
   NameText: string,
   NameTextMapHash: number,
   DescText: string,
   DescTextMapHash: number,
+  InfoDescText: string,
+  InfoDescTextMapHash: number,
+  InitialWeapon: number,
   WeaponType: string,
   BodyType: string,
   IconName: string,
+  ImageName: string,
   SideIconName: string,
 }
 

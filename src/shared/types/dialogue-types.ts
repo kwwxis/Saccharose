@@ -1,8 +1,9 @@
 import { ConfigCondition, NpcExcelConfigData } from './general-types';
 
-export type LangCode = 'CHS' | 'CHT' | 'DE' | 'EN' | 'ES' | 'FR' | 'ID' | 'IT' | 'JP' | 'KR' | 'PT' | 'RU' | 'TH' | 'TR' | 'VI';
-export const LANG_CODES: LangCode[] = ['CHS', 'CHT', 'DE', 'EN', 'ES', 'FR', 'ID', 'IT', 'JP', 'KR', 'PT', 'RU', 'TH', 'TR', 'VI'];
+export type LangCode = 'CH' | 'CHS' | 'CHT' | 'DE' | 'EN' | 'ES' | 'FR' | 'ID' | 'IT' | 'JP' | 'KR' | 'PT' | 'RU' | 'TH' | 'TR' | 'VI';
+export const LANG_CODES: LangCode[] = ['CH', 'CHS', 'CHT', 'DE', 'EN', 'ES', 'FR', 'ID', 'IT', 'JP', 'KR', 'PT', 'RU', 'TH', 'TR', 'VI'];
 export const LANG_CODES_TO_NAME = {
+  CH: 'Chinese',
   CHS: 'Chinese (Simplified)',
   CHT: 'Chinese (Traditional)',
   DE: 'German',
@@ -20,6 +21,7 @@ export const LANG_CODES_TO_NAME = {
   VI: 'Vietnamese',
 };
 export const LANG_CODE_TO_WIKI_CODE = {
+  CH: 'ZH',
   CHS: 'ZHS',
   CHT: 'ZHT',
   DE: 'DE',

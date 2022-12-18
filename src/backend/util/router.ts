@@ -13,6 +13,8 @@ import { ltrim, remove_suffix } from '../../shared/util/stringUtil';
 import { getWebpackBundleFileNames, WebpackBundles } from './webpackBundle';
 import { LANG_CODES_TO_NAME } from '../../shared/types/dialogue-types';
 import { EJS_DELIMITER, SITE_TITLE, VIEWS_ROOT } from '../loadenv';
+import { toBoolean } from '../../shared/util/genericUtil';
+import { toInt } from '../../shared/util/numberUtil';
 
 //#region Types
 export type IncludeFunction = (view: string, locals?: any) => string;
@@ -44,7 +46,7 @@ class RequestContext {
     this.styles = [];
     this.scripts = [];
     this.bodyClass = [];
-    this.viewStack = {viewName: 'RouterRootViewStack'};
+    this.viewStack = {viewName: 'RouterRootView'};
     this.viewStackPointer = this.viewStack;
     this.webpackBundles = getWebpackBundleFileNames();
   }
@@ -60,7 +62,7 @@ class RequestContext {
   }
 
   canPopViewStack(): boolean {
-    return this.viewStackPointer.parent && this.viewStackPointer.parent.viewName !== 'RouterRootViewStack';
+    return this.viewStackPointer.parent && this.viewStackPointer.parent.viewName !== 'RouterRootView';
   }
 
   popViewStack(): boolean {
@@ -79,6 +81,11 @@ class RequestContext {
 
   bodyClassTernary(bodyClass: string, ifIncludes?: any, ifNotIncludes?: any): any {
     return this.hasBodyClass(bodyClass) ? (ifIncludes || '') : (ifNotIncludes || '');
+  }
+
+  cookie(cookieName: string, orElse: string = '') {
+    let cookieValue: string = this._req.cookies[cookieName];
+    return cookieValue || orElse;
   }
 
   cookieTernary(cookieName: string, cond: {
@@ -118,7 +125,9 @@ class RequestContext {
   }
 
   get languages() {
-    return LANG_CODES_TO_NAME;
+    let copy = Object.assign({}, LANG_CODES_TO_NAME);
+    delete copy['CH'];
+    return copy;
   }
 
   get inputLangCode() {
@@ -184,6 +193,8 @@ export const DEFAULT_GLOBAL_LOCALS = {
   humanTiming,
   TemplateLink,
   env: process.env,
+  toBoolean: toBoolean,
+  toInt: toInt,
 };
 
 function createIncludeFunction(req: Request, viewStackPointer: RequestSubViewLocals): IncludeFunction {
@@ -201,6 +212,7 @@ function createIncludeFunction(req: Request, viewStackPointer: RequestSubViewLoc
         hasBodyClass: req.context.hasBodyClass.bind(req.context),
         bodyClassTernary: req.context.bodyClassTernary.bind(req.context),
         cookieTernary: req.context.cookieTernary.bind(req.context),
+        cookie: req.context.cookie.bind(req.context),
       }, DEFAULT_GLOBAL_LOCALS, viewStackPointer, typeof locals !== 'object' ? {} : locals),
       { delimiter: EJS_DELIMITER }
     );

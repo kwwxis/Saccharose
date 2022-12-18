@@ -38,7 +38,7 @@ export class MwParentNode extends MwNode {
 
 // ------------------------------------------------------------------------------------------
 export abstract class MwTextNode extends MwNode {
-  readonly content;
+  readonly content: string;
   protected constructor(content: string) {
     super();
     this.content = content;

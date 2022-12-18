@@ -11,3 +11,92 @@
     flex-basis: 80%;
   }
 }
+
+#vo-app {
+  padding-left: 20px;
+}
+
+#vo-tool-sidebar {
+  font-size: 15px;
+
+  .content {
+    padding: 8px;
+    &:first-child {
+      padding-bottom: 0;
+    }
+  }
+
+  a[role=button].secondary {
+    padding: 3px 5px;
+    margin-bottom: 5px;
+  }
+
+  img {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+#vo-app-toolbar {
+  .vo-app-toolbar-charName {
+    padding: 5px 10px;
+    background: hsl(240deg, 30%, 95%);
+    img {
+      width: 32px;
+      height: 32px;
+      background: hsl(240deg, 30%, 90%);
+      border: 2px solid hsl(240deg, 30%, 85%);
+      border-radius: 5px;
+    }
+    strong {
+      margin-left: 10px;
+      margin-right: 10px;
+    }
+  }
+  .vo-app-toolbar-buttons {
+    padding: 5px 10px;
+
+    button.secondary {
+      padding: 3px 12px;
+    }
+  }
+}
+body.nightmode #vo-app-toolbar .vo-app-toolbar-charName {
+  background: hsl(255deg, 8%, 14%);
+  img {
+    background: hsl(255deg, 8%, 25%);
+    border: 2px solid hsl(255deg, 8%, 35%);
+  }
+}
+
+.list-group {
+  background: rgba(0,0,0,0.1);
+  padding: 5px 5px 5px 20px;
+}
+.list-group-item {
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 5px;
+  padding: 5px;
+  margin: 5px 0;
+}
+.sortable-ghost {
+  background: lightblue;
+}
+
+
+.sortable-drag {
+  background: white;
+  opacity: 1 !important;
+  scale: 1;
+  overflow: hidden;
+  animation: sortable-drag-element-scale 200ms ease forwards,
+    sortable-drag-element-height 250ms linear forwards;
+}
+
+@keyframes sortable-drag-element-scale {
+  0%   { scale: 1;   }
+  100% { scale: 0.9; }
+}
+@keyframes sortable-drag-element-height {
+  100% { height: 30px; }
+}

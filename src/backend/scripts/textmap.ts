@@ -21,6 +21,9 @@ export async function loadTextMaps(filterLangCodes?: string[]): Promise<void> {
   console.log('[Init] Loading TextMap -- starting...');
   let promises = [];
   for (let langCode of LANG_CODES) {
+    if (langCode === 'CH') {
+      continue;
+    }
     if (filterLangCodes && filterLangCodes.length && !filterLangCodes.includes(langCode)) {
       if (!TextMap[langCode])
         TextMap[langCode] = {};

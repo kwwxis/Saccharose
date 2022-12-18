@@ -1,3 +1,4 @@
+import { LangCode } from './dialogue-types';
 import { AvatarExcelConfigData } from './general-types';
 
 // Fetter Condition Types
@@ -73,11 +74,19 @@ export type StoryFettersByAvatar = {
 // Character VO Fetter Types
 // ----------------------------------------------------------------------------------------------------
 
+export interface FetterExcelConfigDataTextMap {
+  EN: string,
+  CHS: string,
+  CHT: string,
+  JP: string,
+  KR: string,
+}
+
 export interface FetterExcelConfigData extends FetterWithConditions {
   Type: 1 | 2,
   VoiceFile: string,
   VoiceTitleTextMapHash: number,
-  VoiceFileTextTextMapHash: number,
+  VoiceFileTextMapHash: number,
   VoiceTitleLockedTextMapHash: number,
   FetterId: number,
   AvatarId: number,
@@ -85,14 +94,22 @@ export interface FetterExcelConfigData extends FetterWithConditions {
   HideCostumeList: number[],
   ShowCostumeList: number[],
 
+  // Custom Text Props:
   VoiceTitleText?: string,
-  VoiceFileTextText?: string,
+  VoiceFileText?: string,
   VoiceTitleLockedText?: string,
+
+  // Custom Other Languages:
+  VoiceTitleTextMap?: FetterExcelConfigDataTextMap,
+  VoiceFileTextMap?: FetterExcelConfigDataTextMap,
+  VoiceTitleLockedTextMap?: FetterExcelConfigDataTextMap,
+
+  // Custom:
   Avatar?: AvatarExcelConfigData,
 }
 
 export class CharacterFetters {
-  avatar: AvatarExcelConfigData = null;
+  avatar?: AvatarExcelConfigData = null;
   storyFetters: FetterExcelConfigData[] = [];
   combatFetters: FetterExcelConfigData[] = [];
 }

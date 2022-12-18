@@ -15,11 +15,11 @@ export function showJavascriptErrorDialog(message, source, lineno?: number, coln
 
   openDialog(`
     <h2>Unexpected error</h2>
-    <p class='spacer-top'>
+    <p class='spacer15-top'>
       An unexpected JavaScript error occurred. Try again in a few moments. If the problem
       persists then yell at kwwxis.
     </p>
-    <div class='buttons spacer-top'>
+    <div class='buttons spacer15-top'>
       <button class='primary dismiss-btn'>Dismiss</button>
     </div>
   `, DIALOG_MODAL, {

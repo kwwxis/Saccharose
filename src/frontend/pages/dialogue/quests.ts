@@ -73,7 +73,7 @@ pageMatch('pages/dialogue/quests', () => {
           but some quests like Archon Quests and Flagship Event Quests may have Traveler spoken lines.
         </li>
       </ul>
-      <div class="buttons spacer-top">
+      <div class="buttons spacer15-top">
         <button class="primary AppDialog_CloseTrigger" ui-action="close-modals">Dismiss</button>
       </div>`, DIALOG_MODAL, {
           dialog_style: 'max-width:800px;margin-top:90px'

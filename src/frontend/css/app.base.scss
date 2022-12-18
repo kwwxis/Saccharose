@@ -15,7 +15,8 @@ body {
 }
 
 body {
-  overflow: scroll;
+  overflow-y: scroll;
+  overflow-x: hidden;
   font-size: 17px;
   line-height: 1.5em;
   font-family: 'Source Sans Pro', Arial, sans-serif;
@@ -716,30 +717,14 @@ input[type='number'] {
   opacity: 1;
 }
 
-.spacer,
-.spacer-vert {
-  margin-top: 15px !important;
-  margin-bottom: 15px !important;
-}
-.spacer-horiz {
-  margin-left: 15px !important;
-  margin-right: 15px !important;
-}
-.spacer-all {
-  margin: 15px !important;
-}
-.spacer-top {
-  margin-top: 15px !important;
-}
-.spacer-bottom {
-  margin-bottom: 15px !important;
-}
-.spacer-left {
-  margin-left: 15px !important;
-}
-.spacer-right {
-  margin-right: 15px !important;
-}
+.spacer0,
+.spacer0-vert { margin-top: 0 !important; margin-bottom: 0 !important; }
+.spacer0-horiz { margin-left: 0 !important; margin-right: 0 !important; }
+.spacer0-all { margin: 0 !important; }
+.spacer0-top { margin-top: 0 !important; }
+.spacer0-bottom { margin-bottom: 0 !important; }
+.spacer0-left { margin-left: 0 !important; }
+.spacer0-right { margin-right: 0 !important; }
 
 .spacer10,
 .spacer10-vert { margin-top: 10px !important; margin-bottom: 10px !important; }
@@ -770,29 +755,13 @@ input[type='number'] {
 .spacer25-right { margin-right: 25px !important; }
 
 .spacer5,
-.spacer5-vert {
-  margin-top: 5px !important;
-  margin-bottom: 5px !important;
-}
-.spacer5-horiz {
-  margin-left: 5px !important;
-  margin-right: 5px !important;
-}
-.spacer5-all {
-  margin: 5px !important;
-}
-.spacer5-top {
-  margin-top: 5px !important;
-}
-.spacer5-bottom {
-  margin-bottom: 5px !important;
-}
-.spacer5-left {
-  margin-left: 5px !important;
-}
-.spacer5-right {
-  margin-right: 5px !important;
-}
+.spacer5-vert { margin-top: 5px !important; margin-bottom: 5px !important; }
+.spacer5-horiz { margin-left: 5px !important; margin-right: 5px !important; }
+.spacer5-all { margin: 5px !important; }
+.spacer5-top { margin-top: 5px !important; }
+.spacer5-bottom { margin-bottom: 5px !important; }
+.spacer5-left { margin-left: 5px !important; }
+.spacer5-right { margin-right: 5px !important; }
 
 .spacer3,
 .spacer3-vert {
@@ -850,7 +819,6 @@ input[type='number'] {
 body.nightmode .flash {
   animation: nightmode-flash 1s ease-out;
 }
-
 
 @keyframes flash {
   0% {
@@ -960,6 +928,13 @@ textarea.code, [contenteditable].code {
 
 .highlight {
   background: yellow;
+}
+.highlight:empty {
+  padding: 0 2px;
+}
+.highlight:empty:before {
+  content: '(empty)';
+  opacity: 0.5;
 }
 body.nightmode .highlight {
   background: hsl(41deg 78% 75% / 20%);
@@ -1327,6 +1302,9 @@ footer a {
 /* #endregion */
 
 /* #region Nightmode */
+html.nightmode {
+  color-scheme: dark;
+}
 body.nightmode {
   background: hsla(255, 18%, 10%, 1);
   color: hsl(255deg 5% 73%);
@@ -1356,27 +1334,6 @@ body.nightmode #header {
 
 body.nightmode #site-logo-bg {
   background: hsl(255deg 13% 18%);
-}
-
-body.nightmode button.secondary,
-body.nightmode [role='button'].secondary,
-body.nightmode .secondary-label {
-  background: hsl(232deg 12% 29% / 30%);
-  border: 1px solid hsl(232deg 12% 29% / 35%);
-  color: hsl(255deg 5% 73%);
-  color: #e4c179;
-}
-body.nightmode button.secondary:hover,
-body.nightmode [role='button'].secondary:hover,
-body.nightmode .secondary-label:hover {
-  background: hsl(232deg 10% 29% / 50%);
-  color: hsl(255deg 5% 73%);
-  color: #f5e8cd;
-}
-
-body.nightmode button.secondary.selected,
-body.nightmode [role=button].secondary.selected {
-  background: hsl(255deg 10% 24%);
 }
 
 body.nightmode textarea,

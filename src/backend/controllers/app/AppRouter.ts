@@ -1,7 +1,7 @@
 import { fetchCharacterStories, fetchCharacterStoryByAvatarId, fetchCharacterStoryByAvatarName } from '../../scripts/fetters/fetchStoryFetters';
 import { fetchCompanionDialogue, getHomeWorldCompanions } from '../../scripts/homeworld/companion_dialogue';
 import { reminderGenerateAll } from '../../scripts/dialogue/reminder_generator';
-import { getControl } from '../../scripts/script_util';
+import { Control, getControl } from '../../scripts/script_util';
 import { create, Router, Request, Response } from '../../util/router';
 
 import LandingController from './LandingController';
@@ -11,6 +11,10 @@ import { StoryFetters } from '../../../shared/types/fetter-types';
 import { orderChapterQuests } from '../../scripts/misc/orderChapterQuests';
 import { ol_gen_from_id } from '../../scripts/OLgen/OLgen';
 import { sort } from '../../../shared/util/arrayUtil';
+import { AvatarExcelConfigData } from '../../../shared/types/general-types';
+import jsonMask from 'json-mask';
+import { cached } from '../../util/cache';
+import { fetchCharacterFettersByAvatarId } from '../../scripts/fetters/fetchCharacterFetters';
 
 export default async function(): Promise<Router> {
   const router: Router = create({
@@ -189,14 +193,77 @@ export default async function(): Promise<Router> {
     });
   });
 
+  const avatarMaskProps = 'Id,' +
+    'QualityType,' +
+    'NameText,' +
+    'NameTextMapHash,' +
+    'DescText,' +
+    'DescTextMapHash,' +
+    'InfoDescText,' +
+    'InfoDescTextMapHash,' +
+    'InitialWeapon,' +
+    'WeaponType,' +
+    'BodyType,' +
+    'IconName,' +
+    'ImageName,' +
+    'SideIconName';
+
+  async function getAvatars(ctrl: Control): Promise<AvatarExcelConfigData[]> {
+    return cached('AvatarListCache_' + ctrl.outputLangCode, async () => {
+      let storiesByAvatar = await fetchCharacterStories(ctrl);
+      return Object.values(storiesByAvatar).map(x => jsonMask(x.avatar, avatarMaskProps))
+        .sort((a,b) => a.NameText.localeCompare(b.NameText));
+    });
+  }
+
+  async function getAvatar(ctrl: Control, avatarName: string|number): Promise<AvatarExcelConfigData> {
+    let story: StoryFetters;
+    if (isInt(avatarName)) {
+      story = await fetchCharacterStoryByAvatarId(ctrl, toInt(avatarName));
+    } else {
+      story = await fetchCharacterStoryByAvatarName(ctrl, avatarName as string);
+    }
+    return story && jsonMask(story.avatar, avatarMaskProps);
+  }
+
   router.get('/character/VO', async (req: Request, res: Response) => {
-    let storiesByAvatar = await fetchCharacterStories(getControl(req));
-    let avatars = Object.values(storiesByAvatar).map(x => x.avatar).sort((a,b) => a.NameText.localeCompare(b.NameText));
+    res.render('pages/character/vo-tool', {
+      title: 'Character VO',
+      bodyClass: ['page--vo-tool'],
+      avatars: await getAvatars(getControl(req)),
+      avatar: null
+    });
+  });
+
+  router.get('/character/VO/:avatarId', async (req: Request, res: Response) => {
+    const ctrl = getControl(req);
+
+    let validTabs = new Set(['editor', 'wikitext']);
+    if (typeof req.query.tab === 'string' && !validTabs.has(req.query.tab)) {
+      req.query.tab = 'editor';
+    }
+
+    let avatar = await getAvatar(ctrl, req.params.avatarId);
+    let fetters = avatar && await fetchCharacterFettersByAvatarId(ctrl, avatar.Id);
+
+    if (fetters) {
+      fetters = JSON.parse(JSON.stringify(fetters));
+      delete fetters.avatar;
+      for (let fetter of fetters.combatFetters) {
+        delete fetter.Avatar;
+      }
+      for (let fetter of fetters.storyFetters) {
+        delete fetter.Avatar;
+      }
+    }
 
     res.render('pages/character/vo-tool', {
       title: 'Character VO',
       bodyClass: ['page--vo-tool'],
-      avatars
+      avatars: await getAvatars(ctrl),
+      avatar: avatar,
+      fetters: fetters,
+      tab: req.query.tab || 'editor',
     });
   });
 

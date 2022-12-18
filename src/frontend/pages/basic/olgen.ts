@@ -1,4 +1,4 @@
-import { startListeners } from '../../util/eventLoader';
+import { Listener, startListeners } from '../../util/eventLoader';
 import Cookies from 'js-cookie';
 import { flashTippy } from '../../util/tooltips';
 import { endpoints } from '../../endpoints';
@@ -73,7 +73,7 @@ pageMatch('pages/basic/olgen', () => {
     });
   }
 
-  const listeners = [
+  const listeners: Listener[] = [
     {
       ev: 'ready',
       fn: function() {
@@ -83,7 +83,7 @@ pageMatch('pages/basic/olgen', () => {
     {
       el: 'window',
       ev: 'popstate', // user clicks browser back/forward buttons
-      fn: function(event) {
+      fn: function(event: PopStateEvent) {
         if (!event.state) {
           return;
         }
@@ -102,7 +102,7 @@ pageMatch('pages/basic/olgen', () => {
       el: 'input[type="radio"][name="tl_options"],input[type="radio"][name="rm_options"]',
       ev: 'input',
       multiple: true,
-      fn: function(event, target) {
+      fn: function(event, target: HTMLInputElement) {
         let name = target.name;
         let value = target.value;
         Cookies.set('OL.'+name, value, { expires: 365 });

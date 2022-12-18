@@ -694,7 +694,10 @@ fieldset legend {
 }
 
 .ui-dropdown .option {
-  padding: 3px 6px;
+  padding: 3px 8px;
+  font-size: 15px;
+  cursor: pointer;
+  white-space: nowrap;
 }
 
 .ui-dropdown .option-sep {
@@ -706,4 +709,7 @@ fieldset legend {
 
 .ui-dropdown .option:hover {
   background: rgba(0,0,0,0.05);
+}
+.ui-dropdown .option.selected {
+  background: rgba(0,0,0,0.04);
 }

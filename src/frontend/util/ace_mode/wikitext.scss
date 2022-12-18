@@ -1,0 +1,60 @@
+.ace_header-open,
+.ace_header-close {
+  color: #08f;
+}
+
+.ace_header {
+  font-weight: bold;
+}
+
+.ace_template-color {
+  color: #80c !important;
+}
+.ace_template-customVar {
+  font-weight: bold;
+}
+
+.ace_wikitext.ace_variable-color {
+  color: #f50 !important;
+}
+
+.ace_link {
+  background-color: rgba(34,17,153,0.04);
+}
+body.nightmode .ace_link {
+  background-color: hsl(247deg 75% 93% / 6%);
+}
+.ace_link-color {
+  color: #327b9a;
+}
+
+.ace_bold-open,
+.ace_italic-open,
+.ace_bold-close,
+.ace_italic-close {
+  color: #08f;
+  font-weight: normal !important;
+  font-style: normal !important;
+}
+
+.ace_bold:not(.ace_bold-open):not(.ace_bold-close) {
+  font-weight: bold;
+}
+.ace_italic:not(.ace_italic-open):not(.ace_italic-close) {
+  font-style: italic;
+}
+
+.ace_tag, .ace_attribute-name, .ace_attribute-equals, .ace_attribute-value,
+.ace_nowiki-open, .ace_nowiki-close,
+.ace_pre-open, .ace_pre-close {
+  color: #290 !important;
+}
+
+.ace_behavior-switch {
+  color: #08f;
+  font-weight: bold;
+  background-color: rgba(0,0,0,0.15);
+}
+body.nightmode .ace_behavior-switch {
+  background-color: rgba(255,255,255,0.15);
+}

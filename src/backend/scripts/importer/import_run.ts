@@ -383,6 +383,7 @@ export function normalizeRawJson(row: any, table?: SchemaTable) {
     }
     key = capitalizeFirstLetter(key);
     key = key.replace(/ID/g, 'Id');
+    key = key.replace(/TextText/g, 'Text');
     if (table && table.normalizeFixFields && table.normalizeFixFields[key]) {
       key = table.normalizeFixFields[key];
     }

@@ -242,6 +242,17 @@ const initial_listeners: Listener[] = [
                 }
               }
               break;
+            case 'dropdown-close':
+            case 'close-dropdown':
+            case 'close-dropdowns':
+              document.querySelectorAll<HTMLElement>('.ui-dropdown.active').forEach(dropdownEl => {
+                const toggledBy = (<any> dropdownEl)._toggledBy;
+                dropdownEl.classList.remove('active');
+                if (toggledBy) {
+                  toggledBy.classList.remove('active');
+                }
+              });
+              break;
             case 'toggle':
               let toggleEase = 0;
               if (isInt(actionParams[0])) {
@@ -366,9 +377,11 @@ const initial_listeners: Listener[] = [
 
       if (value === 'daymode') {
         document.body.classList.remove('nightmode');
+        document.documentElement.classList.remove('nightmode');
         Cookies.remove('nightmode');
       } else if (value === 'nightmode') {
         document.body.classList.add('nightmode');
+        document.documentElement.classList.add('nightmode');
         Cookies.set('nightmode', '1', { expires: 365 });
       }
     }

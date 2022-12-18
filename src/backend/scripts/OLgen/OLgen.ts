@@ -54,6 +54,9 @@ function ol_gen_internal(textMapId: number, hideTl: boolean = false, addDefaultH
   }
   let olMap: {[code: string]: string} = {};
   for (let langCode of LANG_CODES) {
+    if (langCode === 'CH') {
+      continue;
+    }
     let textInLang = getTextMapItem(langCode, textMapId) || '';
     olMap[langCode] = textInLang;
 
@@ -176,7 +179,9 @@ export function highlight_ol_differences(olResults: OLResult[]): OLResult[] {
         }
         let otherParam = otherOlResult.templateNode.getParam(param.key);
         if (otherParam && param.value !== otherParam.value) {
-          param.setValue('<span class="highlight">' + escapeHtml(param.value) + '</span>');
+          if (!param.value.includes(`<span class="highlight">`)) {
+            param.setValue('<span class="highlight">' + escapeHtml(param.value) + '</span>');
+          }
           didHighlight = true;
         }
       }
