@@ -1069,7 +1069,10 @@ export class Control {
   async selectMaterialExcelConfigData(id: number): Promise<MaterialExcelConfigData> {
     let material: MaterialExcelConfigData = await this.knex.select('*').from('MaterialExcelConfigData')
       .where({Id: id}).first().then(this.commonLoadFirst);
-    material.SourceData = await this.selectMaterialSourceDataExcelConfigData(material.Id);
+    if (material) {
+      material.SourceData = await this.selectMaterialSourceDataExcelConfigData(material.Id);
+
+    }
     return material;
   }
 
