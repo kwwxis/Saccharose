@@ -3,7 +3,7 @@ import { closeKnex } from '../../util/db';
 import { Control, getControl, normText } from '../script_util';
 import { NpcExcelConfigData } from '../../../shared/types/general-types';
 import { DialogueSectionResult, MetaProp, TalkConfigAccumulator, talkConfigToDialogueSectionResult } from './quest_generator';
-import { loadEnglishTextMap } from '../textmap';
+import { getTextMapItem, loadEnglishTextMap } from '../textmap';
 import util from 'util';
 import { isInt } from '../../../shared/util/numberUtil';
 import { DialogExcelConfigData, TalkExcelConfigData } from '../../../shared/types/dialogue-types';
@@ -14,21 +14,25 @@ const lc = (s: string) => s ? s.toLowerCase() : s;
 function normNpcFilterInput(npcFilterInput: string): string {
   if (!npcFilterInput)
     return undefined;
-  return lc(trim(normText(npcFilterInput), '()'));
+  return lc(trim(normText(npcFilterInput), '()').trim());
 }
 
-const npcFilterExclude = (d: DialogExcelConfigData, npcFilter: string): boolean => {
+const npcFilterInclude = (ctrl: Control, d: DialogExcelConfigData, npcFilter: string): boolean => {
   if (!d) {
-    return true;
+    return false;
   }
   if (npcFilter === 'player' || npcFilter === 'traveler') {
-    return d.TalkRole.Type !== 'TALK_ROLE_PLAYER';
+    return d.TalkRole.Type === 'TALK_ROLE_PLAYER';
   }
   if (npcFilter === 'sibling') {
-    return d.TalkRole.Type !== 'TALK_ROLE_MATE_AVATAR';
+    return d.TalkRole.Type === 'TALK_ROLE_MATE_AVATAR';
   }
-  let npcName = lc(trim(normText(d.TalkRoleNameText), '()'));
-  return npcFilter && !(npcName === npcFilter || npcName === npcFilter);
+  let npcNameOutputLang = lc(trim(normText(d.TalkRoleNameText), '()'));
+  let npcNameInputLang = lc(trim(normText(getTextMapItem(ctrl.inputLangCode, d.TalkRoleNameTextMapHash)), '()'));
+  if (!npcFilter) {
+    return true;
+  }
+  return npcNameOutputLang === npcFilter || npcNameInputLang === npcFilter;
 };
 
 export const DIALOGUE_GENERATE_MAX = 100;
@@ -57,7 +61,7 @@ export async function dialogueGenerate(ctrl: Control, query: number|number[]|str
     if (!dialogue) {
       throw 'No Talk or Dialogue found for ID: ' + id;
     }
-    if (npcFilterExclude(dialogue, npcFilter)) {
+    if (!npcFilterInclude(ctrl, dialogue, npcFilter)) {
       return false;
     }
     const talkConfig = await ctrl.selectTalkExcelConfigDataByFirstDialogueId(dialogue.Id);
@@ -124,7 +128,7 @@ export async function talkConfigGenerate(ctrl: Control, talkConfigId: number|Tal
   if (!acc) acc = new TalkConfigAccumulator(ctrl);
 
   let talkConfig: TalkExcelConfigData = await acc.handleTalkConfig(initTalkConfig);
-  if (!talkConfig || npcFilterExclude(talkConfig.Dialog[0], npcFilter)) {
+  if (!talkConfig || !npcFilterInclude(ctrl, talkConfig.Dialog[0], npcFilter)) {
     return undefined;
   }
   return await talkConfigToDialogueSectionResult(ctrl, null, 'Talk Dialogue', null, talkConfig);

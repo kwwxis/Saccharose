@@ -264,11 +264,15 @@ export class Control {
     }
     if (!objAsAny.TalkRoleNameText && !!objAsAny.TalkRole) {
       objAsAny.TalkRoleNameText = objAsAny.TalkRole.NameText;
+      objAsAny.TalkRoleNameTextMapHash = objAsAny.TalkRole.NameTextMapHash;
     }
     return object;
   }
 
-  readonly commonLoad = async (result: any[]) => await Promise.all(result.map(record => !record || !record.json_data ? this.postProcess(record) : this.postProcess(JSON.parse(record.json_data))));
+  readonly commonLoad = async (result: any[]) => await Promise.all(
+    result.map(record => !record || !record.json_data ? this.postProcess(record) : this.postProcess(JSON.parse(record.json_data)))
+  );
+
   readonly commonLoadFirst = async (record: any) => !record ? record : await this.postProcess(JSON.parse(record.json_data));
 
   async getNpc(npcId: number): Promise<NpcExcelConfigData> {
@@ -282,7 +286,8 @@ export class Control {
     let notCachedIds = npcIds.filter(id => !this.state.npcCache[id]);
     let cachedList = npcIds.map(id => this.state.npcCache[id]).filter(x => !!x);
 
-    let uncachedList: NpcExcelConfigData[] = await this.knex.select('*').from('NpcExcelConfigData').whereIn('Id', notCachedIds).then(this.commonLoad);
+    let uncachedList: NpcExcelConfigData[] = await this.knex.select('*').from('NpcExcelConfigData')
+      .whereIn('Id', notCachedIds).then(this.commonLoad);
 
     if (addToCache) {
       uncachedList.forEach(npc => this.state.npcCache[npc.Id] = npc);
@@ -319,7 +324,8 @@ export class Control {
       let matches = await this.getTextMapMatches(this.inputLangCode, name);
       let textMapIds = Object.keys(matches).map(i => parseInt(i));
 
-      return await this.knex.select('*').from('MainQuestExcelConfigData').whereIn('TitleTextMapHash', textMapIds)
+      return await this.knex.select('*').from('MainQuestExcelConfigData')
+        .whereIn('TitleTextMapHash', textMapIds)
         .limit(limit).then(this.commonLoad).then(x => this.postProcessMainQuests(x));
     } else {
       return [await this.selectMainQuestById(name)];
@@ -327,40 +333,49 @@ export class Control {
   }
 
   async selectMainQuestById(id: number): Promise<MainQuestExcelConfigData> {
-    return await this.knex.select('*').from('MainQuestExcelConfigData').where({Id: id}).first().then(this.commonLoadFirst).then(x => this.postProcessMainQuest(x));
+    return await this.knex.select('*').from('MainQuestExcelConfigData')
+      .where({Id: id}).first().then(this.commonLoadFirst).then(x => this.postProcessMainQuest(x));
   }
 
   async selectMainQuestsByChapterId(chapterId: number): Promise<MainQuestExcelConfigData[]> {
-    return await this.knex.select('*').from('MainQuestExcelConfigData').where({ChapterId: chapterId}).then(this.commonLoad).then(x => this.postProcessMainQuests(x));
+    return await this.knex.select('*').from('MainQuestExcelConfigData')
+      .where({ChapterId: chapterId}).then(this.commonLoad).then(x => this.postProcessMainQuests(x));
   }
 
   async selectMainQuestsBySeries(series: number): Promise<MainQuestExcelConfigData[]> {
-    return await this.knex.select('*').from('MainQuestExcelConfigData').where({Series: series}).then(this.commonLoad).then(x => this.postProcessMainQuests(x));
+    return await this.knex.select('*').from('MainQuestExcelConfigData')
+      .where({Series: series}).then(this.commonLoad).then(x => this.postProcessMainQuests(x));
   }
 
   async selectAllQuestExcelConfigDataByMainQuestId(id: number): Promise<QuestExcelConfigData[]> {
-    return await this.knex.select('*').from('QuestExcelConfigData').where({MainId: id}).then(this.commonLoad)
+    return await this.knex.select('*').from('QuestExcelConfigData')
+      .where({MainId: id}).then(this.commonLoad)
       .then(quests => quests.sort(this.sortByOrder));
   }
 
   async selectQuestExcelConfigData(id: number): Promise<QuestExcelConfigData> {
-    return await this.knex.select('*').from('QuestExcelConfigData').where({SubId: id}).first().then(this.commonLoadFirst);
+    return await this.knex.select('*').from('QuestExcelConfigData')
+      .where({SubId: id}).first().then(this.commonLoadFirst);
   }
 
   async selectManualTextMapConfigDataById(id: string): Promise<ManualTextMapConfigData> {
-    return await this.knex.select('*').from('ManualTextMapConfigData').where({TextMapId: id}).first().then(this.commonLoadFirst);
+    return await this.knex.select('*').from('ManualTextMapConfigData')
+      .where({TextMapId: id}).first().then(this.commonLoadFirst);
   }
 
   async selectTalkExcelConfigDataById(id: number): Promise<TalkExcelConfigData> {
-    return await this.knex.select('*').from('TalkExcelConfigData').where({Id: id}).orWhere({QuestCondStateEqualFirst: id}).first().then(this.commonLoadFirst);
+    return await this.knex.select('*').from('TalkExcelConfigData')
+      .where({Id: id}).orWhere({QuestCondStateEqualFirst: id}).first().then(this.commonLoadFirst);
   }
 
   async selectTalkExcelConfigDataByQuestSubId(id: number): Promise<TalkExcelConfigData> {
-    return await this.knex.select('*').from('TalkExcelConfigData').where({Id: id}).orWhere({QuestCondStateEqualFirst: id}).first().then(this.commonLoadFirst);
+    return await this.knex.select('*').from('TalkExcelConfigData')
+      .where({Id: id}).orWhere({QuestCondStateEqualFirst: id}).first().then(this.commonLoadFirst);
   }
 
   async selectTalkExcelConfigDataIdsByPrefix(idPrefix: number|string): Promise<number[]> {
-    let allTalkExcelTalkConfigIds = this.state.ExcludeOrphanedDialogue ? [] : await grepIdStartsWith('Id', idPrefix, './ExcelBinOutput/TalkExcelConfigData.json');
+    let allTalkExcelTalkConfigIds = this.state.ExcludeOrphanedDialogue ? []
+      : await grepIdStartsWith('Id', idPrefix, './ExcelBinOutput/TalkExcelConfigData.json');
     return allTalkExcelTalkConfigIds.map(i => toNumber(i));
   }
 
@@ -415,23 +430,30 @@ export class Control {
   }
 
   async selectTalkExcelConfigDataByQuestId(questId: number): Promise<TalkExcelConfigData[]> {
-    return await this.knex.select('*').from('TalkExcelConfigData').where({QuestId: questId})
+    return await this.knex.select('*').from('TalkExcelConfigData')
+      .where({QuestId: questId})
       .orWhere({QuestCondStateEqualFirst: questId}).then(this.commonLoad);
   }
 
   async selectTalkExcelConfigDataByNpcId(npcId: number): Promise<TalkExcelConfigData[]> {
-    let talkIds: number[] = await this.knex.select('TalkId').from('Relation_NpcToTalk').where({NpcId: npcId}).pluck('TalkId').then();
+    let talkIds: number[] = await this.knex.select('TalkId').from('Relation_NpcToTalk')
+      .where({NpcId: npcId}).pluck('TalkId').then();
     return Promise.all(talkIds.map(talkId => this.selectTalkExcelConfigDataById(talkId)));
   }
 
   async selectDialogExcelConfigDataByTalkRoleId(talkRoleId: number): Promise<DialogExcelConfigData[]> {
-    return await this.knex.select('*').from('DialogExcelConfigData').where({TalkRoleId: talkRoleId}).then(this.commonLoad);
+    return await this.knex.select('*').from('DialogExcelConfigData')
+      .where({TalkRoleId: talkRoleId}).then(this.commonLoad);
   }
 
   async selectSingleDialogExcelConfigData(id: number): Promise<DialogExcelConfigData> {
     if (this.state.dialogCache[id])
       return this.state.dialogCache[id];
-    let result: DialogExcelConfigData = await this.knex.select('*').from('DialogExcelConfigData').where({Id: id}).first().then(this.commonLoadFirst);
+    let result: DialogExcelConfigData = await this.knex.select('*').from('DialogExcelConfigData')
+      .where({Id: id}).first().then(this.commonLoadFirst);
+    if (!result) {
+      return result;
+    }
     this.state.dialogCache[id] = result;
     return result && result.TalkContentText ? result : null;
   }
@@ -444,7 +466,8 @@ export class Control {
   }
 
   async selectMultipleDialogExcelConfigData(ids: number[]): Promise<DialogExcelConfigData[]> {
-    return await Promise.all(ids.map(id => this.selectSingleDialogExcelConfigData(id))).then(arr => arr.filter(x => !!x && !!x.TalkContentText));
+    return await Promise.all(ids.map(id => this.selectSingleDialogExcelConfigData(id)))
+      .then(arr => arr.filter(x => !!x && !!x.TalkContentText));
   }
 
   copyDialogForRecurse(node: DialogExcelConfigData) {
@@ -454,7 +477,8 @@ export class Control {
   }
 
   async getDialogFromTextContentId(textMapId: number): Promise<DialogExcelConfigData> {
-    let result: DialogExcelConfigData = await this.knex.select('*').from('DialogExcelConfigData').where({TalkContentTextMapHash: textMapId})
+    let result: DialogExcelConfigData = await this.knex.select('*').from('DialogExcelConfigData')
+      .where({TalkContentTextMapHash: textMapId})
       .first().then(this.commonLoadFirst);
     if (!result) {
       return undefined;
@@ -523,7 +547,8 @@ export class Control {
     if (typeof nameOrTextMapId === 'number') {
       nameOrTextMapId = [ nameOrTextMapId ];
     }
-    return await this.knex.select('*').from('NpcExcelConfigData').whereIn('NameTextMapHash', <number[]>nameOrTextMapId).then(this.commonLoad);
+    return await this.knex.select('*').from('NpcExcelConfigData')
+      .whereIn('NameTextMapHash', <number[]>nameOrTextMapId).then(this.commonLoad);
   }
 
   doesDialogHaveNpc(dialog: DialogExcelConfigData, npcNames: string[]) {
@@ -809,11 +834,13 @@ export class Control {
   }
 
   async selectReminderById(id: number): Promise<ReminderExcelConfigData> {
-    return await this.knex.select('*').from('ReminderExcelConfigData').where({Id: id}).first().then(this.commonLoadFirst);
+    return await this.knex.select('*').from('ReminderExcelConfigData')
+      .where({Id: id}).first().then(this.commonLoadFirst);
   }
 
   async selectReminderByContentTextMapId(id: number): Promise<ReminderExcelConfigData> {
-    return await this.knex.select('*').from('ReminderExcelConfigData').where({ContentTextMapHash: id}).first().then(this.commonLoadFirst);
+    return await this.knex.select('*').from('ReminderExcelConfigData')
+      .where({ContentTextMapHash: id}).first().then(this.commonLoadFirst);
   }
 
   private async postProcessChapter(chapter: ChapterExcelConfigData): Promise<ChapterExcelConfigData> {
@@ -901,7 +928,8 @@ export class Control {
   }
 
   async selectAllChapters(): Promise<ChapterExcelConfigData[]> {
-    return await this.knex.select('*').from('ChapterExcelConfigData').then(this.commonLoad).then(x => this.postProcessChapters(x));
+    return await this.knex.select('*').from('ChapterExcelConfigData')
+      .then(this.commonLoad).then(x => this.postProcessChapters(x));
   }
 
   async selectChapterCollection(): Promise<ChapterCollection> {
@@ -939,7 +967,8 @@ export class Control {
   }
 
   async selectChapterById(id: number): Promise<ChapterExcelConfigData> {
-    return await this.knex.select('*').from('ChapterExcelConfigData').where({Id: id}).first().then(this.commonLoadFirst).then(x => this.postProcessChapter(x));
+    return await this.knex.select('*').from('ChapterExcelConfigData').where({Id: id})
+      .first().then(this.commonLoadFirst).then(x => this.postProcessChapter(x));
   }
 
   async readGenshinDataFile<T>(filePath: string): Promise<T> {
@@ -1056,6 +1085,9 @@ export class Control {
   async selectMaterialSourceDataExcelConfigData(id: number): Promise<MaterialSourceDataExcelConfigData> {
     let sourceData: MaterialSourceDataExcelConfigData = await this.knex.select('*')
       .from('MaterialSourceDataExcelConfigData').where({Id: id}).first().then(this.commonLoadFirst);
+    if (!sourceData) {
+      return sourceData;
+    }
     sourceData.MappedTextList = [];
     for (let textMapHash of sourceData.TextList) {
       let text = getTextMapItem(this.outputLangCode, textMapHash);
@@ -1071,7 +1103,6 @@ export class Control {
       .where({Id: id}).first().then(this.commonLoadFirst);
     if (material) {
       material.SourceData = await this.selectMaterialSourceDataExcelConfigData(material.Id);
-
     }
     return material;
   }
@@ -1079,12 +1110,18 @@ export class Control {
   async selectRewardExcelConfigData(rewardId: number): Promise<RewardExcelConfigData> {
     let reward: RewardExcelConfigData = await this.knex.select('*').from('RewardExcelConfigData')
       .where({RewardId: rewardId}).first().then(this.commonLoadFirst);
+
+    if (!reward) {
+      return reward;
+    }
+
     await Promise.all(reward.RewardItemList.map(x => {
       if (!x.ItemId) {
         return Promise.resolve();
       }
       return this.selectMaterialExcelConfigData(x.ItemId).then(material => x.Material = material);
     }));
+
     return this.generateRewardSummary(reward);
   }
 
@@ -1110,6 +1147,10 @@ export class Control {
   }
 
   private generateRewardSummary(reward: RewardExcelConfigData): RewardExcelConfigData {
+    if (!reward) {
+      return reward;
+    }
+
     reward.RewardSummary = {
       ExpCount: '',
       MoraCount: '',

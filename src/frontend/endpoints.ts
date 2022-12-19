@@ -1,6 +1,6 @@
 import { escapeHtml } from '../shared/util/stringUtil';
 import axios, { AxiosError } from 'axios';
-import { showJavascriptErrorDialog } from './util/errorHandler';
+import { showInternalErrorDialog, showJavascriptErrorDialog } from './util/errorHandler';
 import { DIALOG_ALERT, DIALOG_MODAL, openDialog } from './util/dialog';
 
 export const endpoints = {
@@ -11,6 +11,28 @@ export const endpoints = {
   errorHandler: (err: AxiosError) => {
     console.log('Error Handler:', err);
     const data: any = err.response.data;
+
+    if (data && typeof data === 'object' && data.error === 'INTERNAL_SERVER_ERROR') {
+      showInternalErrorDialog(data);
+      return;
+    }
+
+    if (data && typeof data === 'object' && data.error === 'BAD_REQUEST' && data.error_code === 'EBADCSRFTOKEN') {
+      openDialog(`
+      <h2>Session timed out.</h2>
+      <p class='spacer15-top'>
+        The session for your page expired after being left open for too long.
+      </p>
+      <p class='spacer15-top'>
+        Simply just refresh the page to restore the session and fix the issue.
+      </p>
+      <div class='buttons spacer15-top'>
+        <button class='primary' ui-action="refresh-page">Refresh Page</button>
+        <button class='secondary' ui-action="close-modals">Dismiss</button>
+      </div>
+    `, DIALOG_MODAL);
+      return;
+    }
 
     if (!data || data.error != 'BAD_REQUEST') {
       const errorObj: any = {error: err.toJSON()};
@@ -25,22 +47,6 @@ export const endpoints = {
         undefined,
         errorObj
       );
-    }
-
-    if (data && data.error_code === 'EBADCSRFTOKEN') {
-      openDialog(`
-      <h2>Session timed out.</h2>
-      <p class='spacer15-top'>
-        The session for your page expired after being left open for too long.
-      </p>
-      <p class='spacer15-top'>
-        Simply just refresh the page to restore the session and fix the issue.
-      </p>
-      <div class='buttons spacer15-top'>
-        <button class='primary' ui-action="refresh-page">Refresh Page</button>
-        <button class='secondary' ui-action="close-modals">Dismiss</button>
-      </div>
-    `, DIALOG_MODAL);
     }
 
     return err.response.data;
