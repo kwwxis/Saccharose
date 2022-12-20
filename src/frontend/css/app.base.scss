@@ -101,7 +101,7 @@ input[type='date']:focus,
   border-color: #3daaf5;
 }
 
-input.error, textarea.error, select.error,,
+input.error, textarea.error, select.error, .error-border-color,
 [contenteditable].error {
   border-color: rgba(230, 69, 72, 0.5) !important;
 }
@@ -474,19 +474,19 @@ input[type='number'] {
   height: 8px;
 }
 
-.valign {
+.valign, .alignCenter {
   display: -webkit-flex !important;
   display: flex !important;
   -webkit-align-items: center !important;
   align-items: center !important;
 }
-.talign {
+.alignStart {
   display: -webkit-flex !important;
   display: flex !important;
   -webkit-align-items: flex-start !important;
   align-items: flex-start !important;
 }
-.balign {
+.alignEnd {
   display: -webkit-flex !important;
   display: flex !important;
   -webkit-align-items: flex-end !important;
@@ -499,20 +499,11 @@ input[type='number'] {
   align-items: stretch !important;
 }
 
-.calign {
+.halign, .justifyCenter {
   display: -webkit-flex !important;
   display: flex !important;
   -webkit-justify-content: center !important;
   justify-content: center !important;
-}
-
-.halign {
-  display: -webkit-flex !important;
-  display: flex !important;
-  -webkit-flex-direction: column !important;
-  flex-direction: column !important;
-  -webkit-align-items: center !important;
-  align-items: center !important;
 }
 
 .grow {
@@ -805,6 +796,16 @@ input[type='number'] {
 .spacer20-right {
   margin-right: 20px !important;
 }
+
+img.x16 { width: 16px; height: 16px; }
+img.x18 { width: 18px; height: 18px; }
+img.x20 { width: 20px; height: 20px; }
+img.x22 { width: 22px; height: 22px; }
+img.x24 { width: 24px; height: 24px; }
+img.x26 { width: 26px; height: 26px; }
+img.x28 { width: 28px; height: 28px; }
+img.x30 { width: 30px; height: 30px; }
+img.x32 { width: 32px; height: 32px; }
 
 .flash {
   animation: flash 1s ease-out;

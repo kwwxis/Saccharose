@@ -2,7 +2,7 @@
 <section class="card">
   <h2>Serenitea Pot Companion Dialogue<% if (locals.charName) { %> &mdash; <%= charName %><% } %></h2>
   <% if (locals.characters) { %>
-    <div class="content dispFlex flexWrap talign">
+    <div class="content dispFlex flexWrap alignStart">
       <% characters.forEach(character => { %>
         <div class="w50p">
           <a class="secondary spacer3-all valign textAlignLeft" role="button" href="/character/companion-dialogue/<%= character.name.replace(/ /g, '_') %>">

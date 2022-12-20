@@ -2,7 +2,7 @@
 <section class="card">
   <% if (locals.avatars) { %>
     <h2>Character Stories</h2>
-    <div class="content dispFlex flexWrap talign">
+    <div class="content dispFlex flexWrap alignStart">
       <% avatars.forEach(avatar => { %>
       <div class="w50p">
         <a class="secondary spacer3-all valign textAlignLeft" role="button" href="/character/stories/<%= avatar.NameText.replaceAll(' ', '_') %>">

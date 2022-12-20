@@ -1,3 +1,5 @@
+// Headers
+// --------------------------------------------------------------------------------------------------------------
 .ace_header-open,
 .ace_header-close {
   color: #08f;
@@ -7,17 +9,30 @@
   font-weight: bold;
 }
 
+// Templates
+// --------------------------------------------------------------------------------------------------------------
 .ace_template-color {
   color: #80c !important;
 }
 .ace_template-customVar {
   font-weight: bold;
 }
+.ace_template-name {
+  font-weight: bold;
+  text-decoration: underline;
+}
+.ace_template-named-param {
+  font-weight: bold;
+}
 
+// Variables
+// --------------------------------------------------------------------------------------------------------------
 .ace_wikitext.ace_variable-color {
   color: #f50 !important;
 }
 
+// Links
+// --------------------------------------------------------------------------------------------------------------
 .ace_link {
   background-color: rgba(34,17,153,0.04);
 }
@@ -28,6 +43,8 @@ body.nightmode .ace_link {
   color: #327b9a;
 }
 
+// Bold and Italic
+// --------------------------------------------------------------------------------------------------------------
 .ace_bold-open,
 .ace_italic-open,
 .ace_bold-close,
@@ -44,17 +61,52 @@ body.nightmode .ace_link {
   font-style: italic;
 }
 
+// HTML tags
+// --------------------------------------------------------------------------------------------------------------
 .ace_tag, .ace_attribute-name, .ace_attribute-equals, .ace_attribute-value,
 .ace_nowiki-open, .ace_nowiki-close,
-.ace_pre-open, .ace_pre-close {
+.ace_pre-open, .ace_pre-close,
+.ace_escape.ace_xml {
   color: #290 !important;
 }
 
+// Nowiki and Pre
+// --------------------------------------------------------------------------------------------------------------
+.ace_nowiki-text,
+.ace_pre-text {
+  background-color: rgba(0,0,0,0.04);
+}
+
+body.nightmode .ace_nowiki-text,
+body.nightmode .ace_pre-text {
+  background-color: rgba(255,255,255,0.04);
+}
+
+.ace_nowiki-text:only-child, .ace_pre-text:only-child {
+  display: inline-block;
+  width: 100%;
+}
+
+// Behavior Switch
+// --------------------------------------------------------------------------------------------------------------
 .ace_behavior-switch {
-  color: #08f;
   font-weight: bold;
+  color: #08f;
   background-color: rgba(0,0,0,0.15);
 }
 body.nightmode .ace_behavior-switch {
+  background-color: rgba(255,255,255,0.15);
+}
+
+// Horizontal Rule and Signature
+// --------------------------------------------------------------------------------------------------------------
+.ace_hr,
+.ace_signature {
+  font-weight: bold;
+  color: #08f;
+  background-color: rgba(223,218,213);
+}
+body.nightmode .ace_hr,
+body.nightmode .ace_signature {
   background-color: rgba(255,255,255,0.15);
 }

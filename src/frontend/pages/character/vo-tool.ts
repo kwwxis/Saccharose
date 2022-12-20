@@ -40,15 +40,17 @@ export class VoAppState {
       if (!LANG_CODES.includes(langCode)) {
         langCode = 'EN';
       }
-      this.voLang = langCode;
-      document.querySelectorAll('.vo-app-language-option').forEach(el => el.classList.remove('selected'));
-      document.querySelector(`.vo-app-language-option[data-value="${langCode}"]`).classList.add('selected');
 
+      this.voLang = langCode;
       let langText = LANG_CODES_TO_NAME[langCode];
       Cookies.set('VO-App-LangText', langText, { expires: 365 });
       Cookies.set('VO-App-LangCode', langCode, { expires: 365 });
 
-      document.querySelector('#vo-app-language-current').innerHTML = langText;
+      if (document.querySelector('#vo-app-toolbar')) {
+        document.querySelectorAll('.vo-app-language-option').forEach(el => el.classList.remove('selected'));
+        document.querySelector(`.vo-app-language-option[data-value="${langCode}"]`).classList.add('selected');
+        document.querySelector('#vo-app-language-current').innerHTML = langText;
+      }
 
       this.eventBus.emit('VO-Wikitext-LocalLoad');
     });

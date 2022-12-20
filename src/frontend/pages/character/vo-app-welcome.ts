@@ -3,16 +3,55 @@ import { flashTippy } from '../../util/tooltips';
 import { createVoHandle } from '../../../shared/vo-tool/vo-handle';
 import { LangCode } from '../../../shared/types/dialogue-types';
 import { VoAppState } from './vo-tool';
+import { toInt } from '../../../shared/util/numberUtil';
+import { closeDialog, DIALOG_MODAL, openDialog } from '../../util/dialog';
+import { createWikitextEditor } from '../../util/wikitextEditor';
 
 export function VoAppWelcome(state: VoAppState) {
+  const recentEl = document.querySelector('#vo-app-welcome-recent');
+  const recentListEl = document.querySelector('#vo-app-welcome-recent-list');
+  let anyRecents = false;
+
+  let locallySavedAvatars: {avatarId: number, langCode: LangCode}[] = [];
+
+  for (let i = 0; i < localStorage.length; i++){
+    let key = localStorage.key(i);
+    if (key.startsWith('CHAR_VO_WIKITEXT_')) {
+      let keyParts: string[] = key.split('_');
+      let avatarId: number = toInt(keyParts.pop());
+      let langCode: LangCode = keyParts.pop() as LangCode;
+
+      let avatar = state.avatars.find(avatar => avatar.Id === avatarId);
+      if (avatar) {
+        locallySavedAvatars.push({ avatarId: avatar.Id, langCode });
+        anyRecents = true;
+        recentListEl.insertAdjacentHTML('beforeend', `
+        <div class="w50p">
+          <a id="vo-app-welcome-recent-avatar-${avatar.Id}"
+             class="vo-app-welcome-recent-avatar secondary dispFlex textAlignLeft spacer5-all"
+             href="/character/VO/${avatar.NameText.replace(' ', '_')}"
+             role="button">
+            <img class="icon x32" src="/images/avatar/${avatar.IconName}.png" />
+            <span class="spacer10-left">${avatar.NameText}</span>
+          </a>
+        </div>
+      `);
+      }
+    }
+  }
+  if (anyRecents) {
+    recentEl.classList.remove('hide');
+  }
+
+  let inputEditor = createWikitextEditor('welcome-wt-input');
+
   startListeners([
     {
       el: '#welcome-wt-submit',
       ev: 'click',
       fn: function() {
-        let wikitext = document.querySelector<HTMLTextAreaElement>('#welcome-wt-input').value;
+        let wikitext = inputEditor.getValue();
         let submitEl = document.querySelector<HTMLButtonElement>('#welcome-wt-submit');
-        let spinnerEl = document.querySelector<HTMLButtonElement>('#welcome-wt-spinner');
 
         if (!wikitext) {
           flashTippy(submitEl, {content: 'Enter some text first!', delay:[0,2000]});
@@ -60,8 +99,41 @@ export function VoAppWelcome(state: VoAppState) {
           return;
         }
 
-        window.localStorage.setItem('CHAR_VO_WIKITEXT_' + langCode + '_' + avatar.Id, wikitext);
-        window.location.href = '/character/VO/' + avatar.NameText;
+        function go() {
+          state.eventBus.emit('VO-Lang-Changed', langCode);
+          window.localStorage.setItem('CHAR_VO_WIKITEXT_' + langCode + '_' + avatar.Id, wikitext);
+          setTimeout(() => window.location.href = '/character/VO/' + avatar.NameText);
+        }
+
+        let locallySavedAvatar = locallySavedAvatars.find(x => x.avatarId === avatar.Id);
+        if (locallySavedAvatar) {
+          openDialog(`
+            <h2>Are you sure?</h2>
+            <div class="content">
+              <p>You already have locally-saved wikitext for <strong>${avatar.NameText}</strong> (${langCode})</p>
+              <p>If you proceed, then it'll be overwritten with what you just pasted.</p>
+            </div>
+            <div class="buttons">
+              <button class="primary danger">Overwrite</button>
+              <button ui-action="close-modals" class="primary cancel">Cancel</button>
+            </div>
+          `, DIALOG_MODAL, {
+            callback(el) {
+              startListeners([
+                {
+                  el: '.primary.danger',
+                  ev: 'click',
+                  fn() {
+                    closeDialog();
+                    go();
+                  }
+                }
+              ], el);
+            }
+          });
+        } else {
+          go();
+        }
       }
     }
   ]);

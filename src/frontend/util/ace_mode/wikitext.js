@@ -1,6 +1,7 @@
 // noinspection JSUnusedGlobalSymbols,JSUnusedLocalSymbols
 
 import { MW_BEHAVIOR_SWITCHES_REGEX } from '../../../shared/mediawiki/parseModules/mwParse.specialText';
+import { getQuotePos } from '../../../shared/mediawiki/mwQuotes';
 
 ace.define('ace/mode/wikitext_highlight_rules', ['require', 'exports', 'module', 'ace/lib/oop', 'ace/lib/lang', 'ace/mode/text_highlight_rules', 'ace/mode/javascript_highlight_rules', 'ace/mode/xml_highlight_rules', 'ace/mode/html_highlight_rules', 'ace/mode/css_highlight_rules'], function(acequire, exports, module) {
   'use strict';
@@ -12,10 +13,6 @@ ace.define('ace/mode/wikitext_highlight_rules', ['require', 'exports', 'module',
   let XmlHighlightRules = acequire('./xml_highlight_rules').XmlHighlightRules;
   let HtmlHighlightRules = acequire('./html_highlight_rules').HtmlHighlightRules;
   let CssHighlightRules = acequire('./css_highlight_rules').CssHighlightRules;
-
-  let escaped = function(ch) {
-    return '(?:[^' + lang.escapeRegExp(ch) + '\\\\]|\\\\.)*';
-  };
 
   let WikitextHighlightRules = function() {
     // regexp must not have capturing parentheses. Use (?:) instead.
@@ -62,20 +59,36 @@ ace.define('ace/mode/wikitext_highlight_rules', ['require', 'exports', 'module',
         regex: /\[\[/,
         next: 'wt_link',
         onMatch: function(val, currentState, stack) {
-          stack.unshift('wt_template');
+          stack.unshift('wt_link');
           return 'wikitext.link.link-open.link-color';
         }
       },
-      { include: 'wt_textstyle' },
+      { include: 'wt_quotes_open' },
       {
         token: 'wikitext.nowiki.nowiki-open',
         regex: /<nowiki[^>]*>/,
         next: 'wt_nowiki',
+        onMatch: function(val, currentState, stack) {
+          stack.unshift('wt_nowiki');
+          return 'wikitext.nowiki.nowiki-open';
+        }
       },
       {
         token: 'wikitext.pre.pre-open',
         regex: /<pre[^>]*>/,
         next: 'wt_pre',
+        onMatch: function(val, currentState, stack) {
+          stack.unshift('wt_pre');
+          return 'wikitext.pre.pre-open';
+        }
+      },
+      {
+        token: 'wikitext.hr',
+        regex: /^-{4}-*/,
+      },
+      {
+        token: 'wikitext.signature',
+        regex: /~{3,5}/,
       }
     );
 
@@ -102,9 +115,6 @@ ace.define('ace/mode/wikitext_highlight_rules', ['require', 'exports', 'module',
           } else if (s === 'wt_template') {
             res.push('template-color');
             break;
-          } else if (s === 'wt_link') {
-            res.push('link-color');
-            break;
           }
         }
       }
@@ -112,29 +122,34 @@ ace.define('ace/mode/wikitext_highlight_rules', ['require', 'exports', 'module',
     }
 
     this.addRules({
-      wt_textstyle: [
-        { include: 'wt_bold_open' },
-        { include: 'wt_italic_open' },
-      ],
-      wt_bold_open: [
+      wt_quotes_open: [
         {
-          regex: /([']{3})(?=.*?'*\1)/,
-          next: 'wt_bold',
-          onMatch: function(val, currentState, stack) {
-            stack.unshift('wt_bold');
-            return 'wikitext.bold.bold-open';
+          regex: /'''/,
+          next: 'wt_quotes',
+          onMatch: function(val, currentState, stack, line, match) {
+            if (getQuotePos(line, match.index) === 'BOLD_OPEN') {
+              stack.unshift('wt_bold');
+              return 'wikitext.bold.bold-open';
+            }
+            return false;
           }
         },
-      ],
-      wt_italic_open: [
         {
-          regex: /([']{2})(?=.*?'*\1)/,
-          next: 'wt_italic',
-          onMatch: function(val, currentState, stack) {
-            stack.unshift('wt_italic');
-            return 'wikitext.italic.italic-open';
-          }
-        },
+          regex: /''/,
+          next: 'wt_quotes',
+          onMatch: function(val, currentState, stack, line, match) {
+            if (getQuotePos(line, match.index) === 'ITALIC_OPEN') {
+              stack.unshift('wt_italic');
+              return 'wikitext.italic.italic-open';
+            }
+            return false;
+          },
+          matchFailBehaviorAdvanceIf: function(val, currentState, stack, line, match) {
+            let leftOver = line.slice(match.index + 1);
+            return leftOver.startsWith(`''`);
+          },
+          matchFailBehaviorAdvanceDelta: -2
+        }
       ],
       wt_header: [
         {
@@ -149,7 +164,7 @@ ace.define('ace/mode/wikitext_highlight_rules', ['require', 'exports', 'module',
             return 'wikitext.header.header-close';
           }
         },
-        { include: 'wt_textstyle' },
+        { include: 'start' },
         {
           defaultToken: function(currentState, stack) {
             return stack_tokens('wikitext.header.header-text', stack);
@@ -166,6 +181,14 @@ ace.define('ace/mode/wikitext_highlight_rules', ['require', 'exports', 'module',
             this.next = stack[0] || 'start';
             return 'wikitext.template.template-close.template-color';
           }
+        },
+        {
+          token: 'wikitext.template.template-name.template-color',
+          regex: /(?<={{\s*)\S.*?\S(?=\s*(?:\||}}|$))/,
+        },
+        {
+          token: 'wikitext.template.template-named-param.template-color',
+          regex: /(?<=\|\s*)\S.*?\S(?=\s*=)/,
         },
         { include: 'start' },
         {
@@ -208,39 +231,47 @@ ace.define('ace/mode/wikitext_highlight_rules', ['require', 'exports', 'module',
           }
         },
         {
+          token: 'wikitext.link.link-name.link-text.link-color',
+          regex: /(?<=\[\[).*?(?=\||]]|$)\|?/,
+        },
+        { include: 'start' },
+        {
           defaultToken: function(currentState, stack) {
-            return stack_tokens('wikitext.link.link-text.link-color', stack);
+            return stack_tokens('wikitext.link.link-text', stack);
           }
         }
       ],
-      wt_italic: [
-        { include: 'wt_bold_open' },
+      wt_quotes: [
+        {
+          regex: /'''/,
+          next: 'wt_quotes',
+          onMatch: function(val, currentState, stack, line, match) {
+            if (getQuotePos(line, match.index) === 'BOLD_CLOSE') {
+              stack.shift();
+              this.next = stack[0] || 'start';
+              return 'wikitext.bold.bold-close';
+            }
+            return false;
+          }
+        },
         {
           regex: /''/,
           next: 'start',
-          onMatch: function(value, currentState, stack) {
-            stack.shift();
-            this.next = stack[0] || 'start';
-            return 'wikitext.italic.italic-close';
-          }
+          onMatch: function(val, currentState, stack, line, match) {
+            if (getQuotePos(line, match.index) === 'ITALIC_CLOSE') {
+              stack.shift();
+              this.next = stack[0] || 'start';
+              return 'wikitext.italic.italic-close';
+            }
+            return false;
+          },
+          matchFailBehaviorAdvanceIf: function(val, currentState, stack, line, match) {
+            let leftOver = line.slice(match.index + 1);
+            return leftOver.startsWith(`''`);
+          },
+          matchFailBehaviorAdvanceDelta: -2
         },
-        {
-          defaultToken: function(currentState, stack) {
-            return stack_tokens('wikitext', stack);
-          }
-        }
-      ],
-      wt_bold: [
-        {
-          regex: /'''/,
-          next: 'start',
-          onMatch: function(value, currentState, stack) {
-            stack.shift();
-            this.next = stack[0] || 'start';
-            return 'wikitext.bold.bold-close';
-          }
-        },
-        { include: 'wt_italic_open' },
+        { include: 'start' },
         {
           defaultToken: function(currentState, stack) {
             return stack_tokens('wikitext', stack);
@@ -268,6 +299,11 @@ ace.define('ace/mode/wikitext_highlight_rules', ['require', 'exports', 'module',
             this.next = stack[0] || 'start';
             return 'wikitext.pre.pre-close';
           }
+        },
+        {
+          regex: /^$/,
+          token: 'wikitext.pre.pre-text.pre-empty-line',
+          allowEmptyToken: true
         },
         { defaultToken: 'wikitext.pre.pre-text' }
       ],
@@ -297,9 +333,6 @@ ace.define('ace/mode/wikitext_highlight_rules', ['require', 'exports', 'module',
       next: 'pop',
     }]);
 
-    console.log('Wikitext Rules:', this.$rules);
-
-
     this.normalizeRules();
   };
 
@@ -314,7 +347,7 @@ ace.define('ace/mode/wikitext_highlight_rules', ['require', 'exports', 'module',
   exports.WikitextHighlightRules = WikitextHighlightRules;
 });
 
-ace.define('ace/mode/wikitext', ['require', 'exports', 'module', 'ace/lib/oop', 'ace/tokenizer',
+ace.define('ace/mode/wikitext', ['require', 'exports', 'module', 'ace/lib/oop', 'ace/lib/lang', 'ace/tokenizer', 'ace/layer/text',
   'ace/mode/text', 'ace/mode/javascript',  'ace/mode/xml', 'ace/mode/html', 'ace/mode/wikitext_highlight_rules'], function(acequire, exports, module) {
 
   'use strict';
@@ -325,11 +358,10 @@ ace.define('ace/mode/wikitext', ['require', 'exports', 'module', 'ace/lib/oop', 
   let XmlMode = acequire('./xml').Mode;
   let HtmlMode = acequire('./html').Mode;
   let Tokenizer = acequire("../tokenizer").Tokenizer;
+  let TextLayer = acequire('../layer/text').Text;
+  let lang = acequire('../lib/lang');
 
   let WikitextHighlightRules = acequire('./wikitext_highlight_rules').WikitextHighlightRules;
-
-  // TODO: pick appropriate fold mode
-  // var FoldMode = acequire("./folding/cstyle").FoldMode;
 
   let Mode = function() {
     this.HighlightRules = WikitextHighlightRules;
@@ -381,7 +413,6 @@ ace.define('ace/mode/wikitext', ['require', 'exports', 'module', 'ace/lib/oop', 
       if (!this.$tokenizer) {
         this.$highlightRules = this.$highlightRules || new this.HighlightRules(this.$highlightRuleConfig);
         this.$tokenizer = new Tokenizer(this.$highlightRules.getRules());
-        console.log('New Tokenizer', this.$tokenizer);
 
         let MAX_TOKEN_COUNT = 2000;
 
@@ -421,7 +452,7 @@ ace.define('ace/mode/wikitext', ['require', 'exports', 'module', 'ace/lib/oop', 
 
           var token = {type: null, value: ""};
 
-          while (match = re.exec(line)) {
+          main_loop: while (match = re.exec(line)) {
             var type = mapping.defaultToken;
             var rule = null;
             var value = match[0];
@@ -432,6 +463,9 @@ ace.define('ace/mode/wikitext', ['require', 'exports', 'module', 'ace/lib/oop', 
               // It allows the "defaultToken" property to also accept a function value
               type = type(currentState, stack, line);
             }
+
+            let tokenBefore = Object.assign({}, token); // added this line
+            let tokensBefore = tokens.slice(); // added this line
 
             if (index - value.length > lastIndex) {
               var skipped = line.substring(lastIndex, index - value.length);
@@ -450,19 +484,56 @@ ace.define('ace/mode/wikitext', ['require', 'exports', 'module', 'ace/lib/oop', 
 
               rule = state[mapping[i]];
 
-              let typeBefore = type;
-              let tokenBefore = JSON.parse(JSON.stringify(token));
+              let typeBefore = type; // added this line
 
               if (rule.onMatch)
-                type = rule.onMatch(value, currentState, stack, line);
+                type = rule.onMatch(value, currentState, stack, line, match); // added additional parameters
               else
                 type = rule.token;
+
+              // added this if statement and the stuff inside it
+              if (type === false) {
+                let reSplit = splitNotInParens(re.source, '|');
+
+                if (reSplit[mapping[i]] !== '($.)') {
+                  reSplit[mapping[i]] = '($.)';
+
+                  let isEndOfLine = match.index + value.length === line.length;
+
+                  let hasAdvanceBehavior = rule
+                    && typeof rule.matchFailBehaviorAdvanceDelta === 'number'
+                    && typeof rule.matchFailBehaviorAdvanceIf === 'function'
+                    && !isEndOfLine;
+
+                  if (hasAdvanceBehavior && rule.matchFailBehaviorAdvanceIf(value, currentState, stack, line, match)) {
+                    re = this.regExps[currentState];
+                    let oldIndex = re.lastIndex;
+
+                    re.lastIndex = re.lastIndex + rule.matchFailBehaviorAdvanceDelta;
+                  } else {
+                    let newRe = new RegExp(reSplit.join('|'), re.flags);
+                    newRe.lastIndex = lastIndex;
+                    re = newRe;
+                  }
+
+                  token = tokenBefore;
+                  tokens = tokensBefore;
+                  continue main_loop;
+                } else {
+                  type = typeBefore;
+                }
+              }
 
               if (rule.next) {
                 if (typeof rule.next == "string") {
                   currentState = rule.next;
                 } else {
                   currentState = rule.next(currentState, stack);
+                }
+
+                // Added this if statement:
+                if (currentState === 'wt_bold' || currentState === 'wt_italic') {
+                  currentState = 'wt_quotes';
                 }
 
                 state = this.states[currentState];
@@ -479,6 +550,12 @@ ace.define('ace/mode/wikitext', ['require', 'exports', 'module', 'ace/lib/oop', 
               if (rule.consumeLineEnd)
                 lastIndex = index;
               break;
+            }
+
+            if (!value && rule && rule.allowEmptyToken) {
+              // Need space for value otherwise a token with 0-length value will be ignored by the renderer.
+              // But the space won't become part of the actual text, so it's okay.
+              tokens.push({type: type, value: ' '});
             }
 
             if (value) {

@@ -86,8 +86,9 @@ export async function appInit(): Promise<Express> {
   console.log(`[Init] Adding middleware for outgoing responses`);
   app.use(compression()); // payload compression
   app.use(helmet({ // security-related headers
-    contentSecurityPolicy: false, // CSP is set in base router
+    contentSecurityPolicy: false, // CSP header is set in base router
     crossOriginEmbedderPolicy: false,
+    hsts: false, // HSTS header is set in defaultResponseHeaders
   }));
   app.use(helmet.referrerPolicy({ policy: 'same-origin' })); // referrer policy header
   app.use(jsonResponse)

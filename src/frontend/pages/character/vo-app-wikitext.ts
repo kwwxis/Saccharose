@@ -1,34 +1,10 @@
 import { VoAppState } from './vo-tool';
 import * as ace from 'brace';
-import 'brace/mode/text';
-import 'brace/mode/javascript';
-import 'brace/mode/xml';
-import 'brace/mode/html';
-import 'brace/mode/css';
-import '../../util/ace_mode/wikitext';
-import '../../util/ace_mode/wikitext.scss';
-import 'brace/theme/textmate';
-import 'brace/theme/tomorrow_night';
 import { flashTippy } from '../../util/tooltips';
-import Cookies from 'js-cookie';
-import { toBoolean } from '../../../shared/util/genericUtil';
-import { DOMClassWatcher } from '../../util/domClassWatcher';
+import { createWikitextEditor } from '../../util/wikitextEditor';
 
 export function VoAppWikitext(state: VoAppState) {
-  const editor: ace.Editor = ace.edit('wikitext-editor');
-  editor.getSession().setMode('ace/mode/wikitext');
-  editor.setShowPrintMargin(false);
-  if (toBoolean(Cookies.get('nightmode'))) {
-    editor.setTheme('ace/theme/tomorrow_night');
-  } else {
-    editor.setTheme('ace/theme/textmate');
-  }
-  editor.resize();
-  state.wikitext = editor;
-
-  new DOMClassWatcher('body', 'nightmode',
-    () => editor.setTheme('ace/theme/tomorrow_night'),
-    () => editor.setTheme('ace/theme/textmate'));
+  const editor: ace.Editor = createWikitextEditor('wikitext-editor');
 
   function localLoad(isFirstLoad: boolean = false) {
     console.log('[VO-App] Wikitext Local Load');
@@ -47,7 +23,14 @@ export function VoAppWikitext(state: VoAppState) {
 
   function localSave() {
     console.log('[VO-App] Wikitext Local Save');
-    window.localStorage.setItem('CHAR_VO_WIKITEXT_' + state.voLang + '_' + state.avatar.Id, editor.getValue());
+    let editorValue = editor.getValue();
+    let localKey = 'CHAR_VO_WIKITEXT_' + state.voLang + '_' + state.avatar.Id;
+
+    if (!editorValue || !editorValue.trim()) {
+      window.localStorage.removeItem(localKey);
+    } else {
+      window.localStorage.setItem(localKey, editorValue);
+    }
   }
 
   localLoad(true);
