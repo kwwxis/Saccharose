@@ -14,6 +14,7 @@ export class DialogueSectionResult {
   children: DialogueSectionResult[] = [];
   htmlMessage: string = null;
   originalData: { talkConfig?: TalkExcelConfigData, dialogBranch?: DialogExcelConfigData[] } = {};
+  showGutter: boolean = false;
 
   constructor(id: string, title: string, helptext: string = null) {
     this.id = id;

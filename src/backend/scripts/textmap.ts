@@ -78,7 +78,7 @@ export async function loadVoiceItems(): Promise<void> {
   console.log('[Init]  Loading Voice Items -- done!');
 }
 
-export type VoiceItemType = 'Dialog'|'Reminder'|'Fetter'|'AnimatorEvent'|'WeatherMonologue'|'JoinTeam';
+export type VoiceItemType = 'Dialog'|'Reminder'|'Fetter'|'AnimatorEvent'|'WeatherMonologue'|'JoinTeam'|'Card';
 
 export function getVoiceItems(type: VoiceItemType, id: number|string): VoiceItem[] {
   return VoiceItems[type+'_'+id];
@@ -98,7 +98,7 @@ export function getIdFromVoFile(voFile: string): [type: VoiceItemType, id: numbe
   return null;
 }
 
-export function getVoPrefix(type: VoiceItemType, id: number|string, text?: string, TalkRoleType?: TalkRoleType): string {
+export function getVoPrefix(type: VoiceItemType, id: number|string, text?: string, TalkRoleType?: TalkRoleType, commentOutDupes: boolean = true): string {
   let voItems = VoiceItems[type+'_'+id];
   let voPrefix = '';
   if (voItems) {
@@ -123,7 +123,9 @@ export function getVoPrefix(type: VoiceItemType, id: number|string, text?: strin
       noGenderVo.forEach(x => tmp.push(`{{A|${x.fileName}}}`));
     }
     if (tmp.length) {
-      if (text && (/{{MC/i.test(text) || TalkRoleType === 'TALK_ROLE_PLAYER' || TalkRoleType === 'TALK_ROLE_MATE_AVATAR')) {
+      if (!commentOutDupes) {
+        voPrefix = tmp.join(' ') + ' ';
+      } else if (text && (/{{MC/i.test(text) || TalkRoleType === 'TALK_ROLE_PLAYER' || TalkRoleType === 'TALK_ROLE_MATE_AVATAR')) {
         voPrefix = tmp.join(' ') + ' ';
       } else {
         voPrefix = tmp.shift() + tmp.map(x => `<!--${x}-->`).join('') + ' ';

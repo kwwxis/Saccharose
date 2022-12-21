@@ -10,6 +10,7 @@ import { MetaProp } from '../../util/metaProp';
 
 export async function reminderGenerateAll(ctrl: Control): Promise<DialogueSectionResult> {
   let sect = new DialogueSectionResult(null, 'All Reminders');
+  sect.showGutter = true;
 
   sect.wikitext = await cached('AllRemindersWikitext_'+ctrl.outputLangCode, async () => {
     let out = '';

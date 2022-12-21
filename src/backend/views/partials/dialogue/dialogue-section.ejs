@@ -57,7 +57,7 @@
       <div class="dialogue-section-info-message"><%- htmlMessage %></div>
     <% } %>
     <% if (locals.wikitext) { %>
-      <textarea readonly id="wikitext-<%= id %>" class="wikitext dialogue-section-wikitext w100p autosize <%= (locals.parentIds || []).map(s => 'wikitext-childOf-' + s).join(' ') %>"
+      <textarea readonly id="wikitext-<%= id %>" class="wikitext <%= locals.showGutter ? 'wikitext-gutter ' : '' %>dialogue-section-wikitext w100p autosize <%= (locals.parentIds || []).map(s => 'wikitext-childOf-' + s).join(' ') %>"
                 style="resize:vertical;min-height:40px;" spellcheck="false"><%= wikitext %></textarea>
     <% } %>
     <% if (locals.wikitextArray) { %>
@@ -72,7 +72,7 @@
                     style="margin:0 0 5px">Copy</button>
           </div>
         <% } %>
-        <textarea readonly id="wikitext-<%= id %>-<%= idx %>" class="wikitext wikitext-array-<%= id %> dialogue-section-wikitext w100p autosize"
+        <textarea readonly id="wikitext-<%= id %>-<%= idx %>" class="wikitext <%= locals.showGutter ? 'wikitext-gutter ' : '' %>wikitext-array-<%= id %> dialogue-section-wikitext w100p autosize"
                   style="resize:vertical;min-height:40px;" spellcheck="false"><%= item.wikitext %></textarea>
       <% }) %>
     <% } %>

@@ -110,3 +110,7 @@ body.nightmode .dialogue-section-expando {
     background: hsl(240deg 13% 23%);
   }
 }
+
+[contenteditable].wikitext-gutter {
+  padding: 0 !important;
+}

@@ -90,7 +90,8 @@ const initial_listeners: Listener[] = [
     },
     intervalFunction() {
       document.querySelectorAll<HTMLTextAreaElement>('textarea.wikitext').forEach(el => {
-        highlightWikitextReplace(el, true);
+        let showGutter = el.classList.contains('wikitext-gutter');
+        highlightWikitextReplace(el, !showGutter);
       });
       document.querySelectorAll<HTMLElement>('.timestamp.is--formatted.is--unconverted').forEach(el => {
         el.classList.remove('is--unconverted');

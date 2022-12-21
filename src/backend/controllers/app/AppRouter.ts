@@ -15,6 +15,11 @@ import { AvatarExcelConfigData } from '../../../shared/types/general-types';
 import jsonMask from 'json-mask';
 import { cached } from '../../util/cache';
 import { fetchCharacterFettersByAvatarId } from '../../scripts/fetters/fetchCharacterFetters';
+import {
+  fetchGCGTalkDetail,
+  generateGCGTalkDetailDialogue,
+  generateGCGTutorialDialogue,
+} from '../../scripts/gcg/gcgReader';
 
 export default async function(): Promise<Router> {
   const router: Router = create({
@@ -126,6 +131,26 @@ export default async function(): Promise<Router> {
       title: 'All Reminders',
       dialogue: await reminderGenerateAll(getControl(req)),
       bodyClass: ['page--all-reminders']
+    });
+  });
+
+  router.get('/TCG/talk-detail', async (req: Request, res: Response) => {
+    const ctrl = getControl(req);
+    const details = await fetchGCGTalkDetail(ctrl);
+
+    res.render('pages/gcg/gcg-talk-detail', {
+      title: 'TCG Talk Detail',
+      details: await generateGCGTalkDetailDialogue(ctrl, details),
+      bodyClass: ['page--tcg-talk-detail']
+    });
+  });
+
+  router.get('/TCG/tutorial-text', async (req: Request, res: Response) => {
+    const ctrl = getControl(req);
+    res.render('pages/gcg/gcg-tutorial-text', {
+      title: 'TCG Tutorial Text',
+      dialogue: await generateGCGTutorialDialogue(ctrl),
+      bodyClass: ['page--tcg-tutorial-text']
     });
   });
 
