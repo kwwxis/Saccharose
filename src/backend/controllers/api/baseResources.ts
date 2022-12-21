@@ -1,7 +1,7 @@
 import apiError from './error';
 import { create, Router, Request, Response } from '../../util/router';
 import { getControl, normText } from '../../scripts/script_util';
-import { DialogueSectionResult, questGenerate, QuestGenerateResult } from '../../scripts/dialogue/quest_generator';
+import { questGenerate, QuestGenerateResult } from '../../scripts/dialogue/quest_generator';
 import { highlight_ol_differences, ol_gen, OLResult } from '../../scripts/OLgen/OLgen';
 import { dialogueGenerate, dialogueGenerateByNpc, NpcDialogueResultMap } from '../../scripts/dialogue/basic_dialogue_generator';
 import { reminderGenerate, reminderWikitext } from '../../scripts/dialogue/reminder_generator';
@@ -9,6 +9,7 @@ import { isInt, toInt } from '../../../shared/util/numberUtil';
 import { CyclicValueReplacer, removeCyclicRefs, toBoolean } from '../../../shared/util/genericUtil';
 import { MainQuestExcelConfigData } from '../../../shared/types/quest-types';
 import { getIdFromVoFile, getTextMapItem } from '../../scripts/textmap';
+import { DialogueSectionResult } from '../../scripts/dialogue/dialogue_util';
 
 const router: Router = create();
 

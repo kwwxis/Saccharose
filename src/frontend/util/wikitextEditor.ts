@@ -35,6 +35,7 @@ export function createWikitextEditor(editorElementId: string|HTMLElement): ace.E
     wrapBehavioursEnabled: true,
     wrap: true,
     useWrapMode: true,
+    scrollPastEnd: 1,
   })
 
   editor.setHighlightActiveLine(false);

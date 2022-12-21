@@ -12,9 +12,7 @@ console.log('[Init] Loaded views:', loadedViews);
 export function pageMatch(pageName: string, callback: Function) {
   let didPageMatch: boolean = loadedViews.has(pageName);
   if (didPageMatch) {
-    console.log(`[Init] Matched - ${pageName}`);
+    console.log(`[Init] Page Match - ${pageName}`);
     runWhenDOMContentLoaded(() => callback());
-  } else {
-    console.log(`[Init] Not matched - ${pageName}`);
   }
 }

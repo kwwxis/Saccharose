@@ -1,13 +1,13 @@
 import '../../loadenv';
 import { closeKnex } from '../../util/db';
 import { Control, getControl } from '../script_util';
-import { DialogueSectionResult, TalkConfigAccumulator } from '../dialogue/quest_generator';
 import { talkConfigGenerate } from '../dialogue/basic_dialogue_generator';
 import { loadEnglishTextMap } from '../textmap';
 import { cached } from '../../util/cache';
 import { toInt } from '../../../shared/util/numberUtil';
 import { HomeWorldEventExcelConfigData, HomeWorldNPCExcelConfigData } from '../../../shared/types/homeworld-types';
 import { grep } from '../../util/shellutil';
+import { DialogueSectionResult, TalkConfigAccumulator } from '../dialogue/dialogue_util';
 
 export async function getHomeWorldCompanions(ctrl: Control): Promise<HomeWorldNPCExcelConfigData[]> {
   return cached('HomeWorldCompanions_'+ctrl.outputLangCode, async () => {
@@ -90,7 +90,10 @@ export async function fetchCompanionDialogue(ctrl: Control, avatarNameOrId: stri
       let section = await talkConfigGenerate(ctrl, rewardEvent.TalkId, null, acc);
 
       let rewardInfo = await ctrl.selectRewardExcelConfigData(rewardEvent.RewardId);
-      section.wikitextArray.push(rewardInfo.RewardSummary.CombinedCards);
+      section.wikitextArray.push({
+        title: 'Rewards',
+        wikitext: rewardInfo.RewardSummary.CombinedCards
+      });
 
       if (rewardEvent.FurnitureSuitId) {
         let furnitureSuite = await ctrl.selectFurnitureSuite(rewardEvent.FurnitureSuitId);

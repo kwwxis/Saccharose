@@ -2,12 +2,13 @@ import '../../loadenv';
 import { closeKnex } from '../../util/db';
 import { Control, getControl, normText } from '../script_util';
 import { NpcExcelConfigData } from '../../../shared/types/general-types';
-import { DialogueSectionResult, MetaProp, TalkConfigAccumulator, talkConfigToDialogueSectionResult } from './quest_generator';
 import { getTextMapItem, loadEnglishTextMap } from '../textmap';
 import util from 'util';
 import { isInt } from '../../../shared/util/numberUtil';
 import { DialogExcelConfigData, TalkExcelConfigData } from '../../../shared/types/dialogue-types';
 import { trim } from '../../../shared/util/stringUtil';
+import { DialogueSectionResult, TalkConfigAccumulator, talkConfigToDialogueSectionResult } from './dialogue_util';
+import { MetaProp } from '../../util/metaProp';
 
 const lc = (s: string) => s ? s.toLowerCase() : s;
 

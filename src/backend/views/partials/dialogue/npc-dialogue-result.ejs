@@ -4,12 +4,12 @@
       <h2>NPC ID: <strong><%= res.npcId %></strong> "<span><%= res.npc.NameText %></span>"</h2>
       <% res.dialogue.forEach(section => { %>
         <div class="content">
-          <%- include('partials/quests/dialogue-section', section) %>
+          <%- include('partials/dialogue/dialogue-section', section) %>
         </div>
       <% }) %>
       <% res.orphanedDialogue.forEach(section => { %>
         <div class="content">
-          <%- include('partials/quests/dialogue-section', section) %>
+          <%- include('partials/dialogue/dialogue-section', section) %>
         </div>
       <% }) %>
     </section>

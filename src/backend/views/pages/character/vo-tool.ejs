@@ -122,32 +122,67 @@
         <div role="tabpanel" aria-labelledby="tab-editor" class="tabpanel <%= tab === 'editor' ? 'active' : 'hide' %>" id="tabpanel-editor">
           <div class="card">
             <div class="content" id="vo-editor">
-
-              <div id="nestedDemo" class="list-group col nested-sortable">
-                <div class="list-group-item nested-1"><span class="drag-handle">drag</span> Item 1.1
-                  <div class="list-group nested-sortable">
-                    <div class="list-group-item nested-2"><span class="drag-handle">drag</span> Item 2.1</div>
-                    <div class="list-group-item nested-2"><span class="drag-handle">drag</span> Item 2.2</div>
-                    <div class="list-group-item nested-2"><span class="drag-handle">drag</span> Item 2.3</div>
-                    <div class="list-group-item nested-2"><span class="drag-handle">drag</span> Item 2.4</div>
+              <div id="vo-groups">
+                <div class="vo-group">
+                  <div class="vo-group-header">
+                    <span class="drag-handle"><%- dragHandle() %></span>
+                    <span>Group 1</span>
+                  </div>
+                  <div class="vo-group-items">
+                    <div class="vo-item">
+                      <div class="vo-item-header"><span class="drag-handle"><%- dragHandle() %></span> VO 1.1</div>
+                    </div>
+                    <div class="vo-item">
+                      <div class="vo-item-header"><span class="drag-handle"><%- dragHandle() %></span> VO 1.2</div>
+                    </div>
+                    <div class="vo-item">
+                      <div class="vo-item-header"><span class="drag-handle"><%- dragHandle() %></span> VO 1.3</div>
+                    </div>
+                    <div class="vo-item">
+                      <div class="vo-item-header"><span class="drag-handle"><%- dragHandle() %></span> VO 1.4</div>
+                    </div>
                   </div>
                 </div>
-                <div class="list-group-item nested-1"><span class="drag-handle">drag</span> Item 1.2
-                  <div class="list-group nested-sortable"></div>
+                <div class="vo-group">
+                  <div class="vo-group-header">
+                    <span class="drag-handle"><%- dragHandle() %></span>
+                    <span>Group 2</span>
+                  </div>
+                  <div class="vo-group-items empty-group"></div>
                 </div>
-                <div class="list-group-item nested-1"><span class="drag-handle">drag</span> Item 1.3
-                  <div class="list-group nested-sortable"></div>
+                <div class="vo-group">
+                  <div class="vo-group-header">
+                    <span class="drag-handle"><%- dragHandle() %></span>
+                    <span>Group 3</span>
+                  </div>
+                  <div class="vo-group-items empty-group"></div>
                 </div>
-                <div class="list-group-item nested-1"><span class="drag-handle">drag</span> Item 1.4
-                  <div class="list-group nested-sortable">
-                    <div class="list-group-item nested-2"><span class="drag-handle">drag</span> Item 2.1</div>
-                    <div class="list-group-item nested-2"><span class="drag-handle">drag</span> Item 2.2</div>
-                    <div class="list-group-item nested-2"><span class="drag-handle">drag</span> Item 2.3</div>
-                    <div class="list-group-item nested-2"><span class="drag-handle">drag</span> Item 2.4</div>
+                <div class="vo-group">
+                  <div class="vo-group-header">
+                    <span class="drag-handle"><%- dragHandle() %></span>
+                    <span>Group 4</span>
+                  </div>
+                  <div class="vo-group-items">
+                    <div class="vo-item">
+                      <div class="vo-item-header"><span class="drag-handle"><%- dragHandle() %></span> VO 4.1</div>
+                    </div>
+                    <div class="vo-item">
+                      <div class="vo-item-header"><span class="drag-handle"><%- dragHandle() %></span> VO 4.2</div>
+                    </div>
+                    <div class="vo-item">
+                      <div class="vo-item-header"><span class="drag-handle"><%- dragHandle() %></span> VO 4.3</div>
+                    </div>
+                    <div class="vo-item">
+                      <div class="vo-item-header"><span class="drag-handle"><%- dragHandle() %></span> VO 4.4</div>
+                    </div>
                   </div>
                 </div>
-                <div class="list-group-item nested-1"><span class="drag-handle">drag</span> Item 1.5
-                  <div class="list-group nested-sortable"></div>
+                <div class="vo-group">
+                  <div class="vo-group-header">
+                    <span class="drag-handle"><%- dragHandle() %></span>
+                    <span>Group 5</span>
+                  </div>
+                  <div class="vo-group-items empty-group"></div>
                 </div>
               </div>
             </div>

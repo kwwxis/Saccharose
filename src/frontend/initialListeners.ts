@@ -9,6 +9,7 @@ import { Listener, runWhenDOMContentLoaded, startListeners } from './util/eventL
 import { showJavascriptErrorDialog } from './util/errorHandler';
 import autosize from 'autosize';
 import { isInt } from '../shared/util/numberUtil';
+import { uuidv4 } from '../shared/util/stringUtil';
 
 function parseUiAction(actionStr: string|HTMLElement): {[actionType: string]: string[]} {
   if (actionStr instanceof HTMLElement) {
@@ -81,7 +82,9 @@ const initial_listeners: Listener[] = [
       let scrollbarWidth = getScrollbarWidth();
       document.head.insertAdjacentHTML('beforeend',
         `<style>body.mobile-menu-open { margin-right: ${scrollbarWidth}px; }\n` +
-        `body.mobile-menu-open #header { padding-right: ${scrollbarWidth}px; }</style>`
+        `body.mobile-menu-open #header { padding-right: ${scrollbarWidth}px; }\n` +
+        `.collapsed { height: 0; overflow: hidden; }\n` +
+        `</style>`
       );
     },
     intervalFunction() {
@@ -336,6 +339,68 @@ const initial_listeners: Listener[] = [
                 let value = kvPair.split('=')[1];
                 setQueryStringParameter(key, value);
               }
+              break;
+            case 'expando':
+              const animId = uuidv4();
+              const container = document.querySelector<HTMLElement>(actionParams[0]);
+
+              const inTransition = container.classList.contains('collapsing') || container.classList.contains('expanding');
+              if (inTransition) {
+                return;
+              }
+
+              if (container.classList.contains('collapsed')) {
+                actionEl.classList.remove('expand');
+                actionEl.classList.add('collapse');
+
+                const styleEl = document.createElement('style');
+                const height = container.scrollHeight;
+                const duration = Math.min(500, Math.max(200, height / 5 | 0));
+
+                styleEl.textContent = `
+                  .expanding-${animId} { overflow: hidden; animation: expanding-${animId} ${duration}ms ease forwards; }
+                  @keyframes expanding-${animId} { 100% { height: ${height}px; } }
+                `;
+                container.style.height = '0';
+                container.style.overflow = 'hidden';
+
+                document.head.append(styleEl);
+                container.classList.remove('collapsed');
+                container.classList.add('expanding', 'expanding-' + animId);
+                setTimeout(() => {
+                  container.style.removeProperty('height');
+                  container.style.removeProperty('overflow');
+                  container.classList.add('expanded');
+                  container.classList.remove('expanding', 'expanding-' + animId);
+                  styleEl.remove();
+                }, duration);
+              } else {
+                actionEl.classList.add('expand');
+                actionEl.classList.remove('collapse');
+
+                const styleEl = document.createElement('style');
+                const height = container.getBoundingClientRect().height;
+                const duration = Math.min(500, Math.max(200, height / 5 | 0));
+
+                styleEl.textContent = `
+                  .collapsing-${animId} { overflow: hidden; animation: collapsing-${animId} ${duration}ms ease forwards; }
+                  @keyframes collapsing-${animId} { 100% { height: 0; } }
+                `;
+                container.style.height = height+'px';
+                container.style.overflow = 'hidden';
+
+                document.head.append(styleEl);
+                container.classList.remove('expanded');
+                container.classList.add('collapsing', 'collapsing-' + animId);
+                setTimeout(() => {
+                  container.style.removeProperty('height');
+                  container.style.removeProperty('overflow');
+                  container.classList.add('collapsed');
+                  container.classList.remove('collapsing', 'collapsing-' + animId);
+                  styleEl.remove();
+                }, duration);
+              }
+
               break;
             default:
               break;

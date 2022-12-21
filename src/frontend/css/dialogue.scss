@@ -67,3 +67,45 @@ body.nightmode .metadata-props .prop-label {
 body.nightmode .metadata-props .prop-value {
   background: hsl(255deg 8% 20%);
 }
+
+/*------------------------------*/
+
+.dialogue-section-expando {
+  width: 18px;
+  height: 18px;
+  display: inline-block;
+  background: #f0f0f0;
+  border-radius: 50%;
+  border: 1px solid #e0e0e0;
+  position: relative;
+  cursor: pointer;
+  margin-right: 5px;
+  transform-origin: center;
+  transition: transform 200ms;
+  &.expand {
+    transform: rotate(-90deg);
+  }
+  &:hover {
+    background: #eaeaea;
+  }
+  .icon {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    margin: auto;
+    color: #777;
+  }
+}
+
+body.nightmode .dialogue-section-expando {
+  background: hsl(240deg 13% 20%);
+  border-color: hsl(240deg 13% 28%);
+  .icon {
+    color: hsl(240deg 13% 50%);
+  }
+  &:hover {
+    background: hsl(240deg 13% 23%);
+  }
+}

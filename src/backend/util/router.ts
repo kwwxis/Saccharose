@@ -6,7 +6,7 @@ import path from 'path';
 import availableMethods from '../middleware/availableMethods';
 import * as express from 'express';
 import * as expressCore from 'express-serve-static-core';
-import { humanTiming, icon, timestamp, TemplateLink } from './viewUtilities';
+import { humanTiming, icon, dragHandle, timestamp, TemplateLink } from './viewUtilities';
 import { cachedSync } from './cache';
 import crypto from 'crypto';
 import { ltrim, remove_suffix } from '../../shared/util/stringUtil';
@@ -189,6 +189,7 @@ export function resolveViewPath(view: string): string {
 
 export const DEFAULT_GLOBAL_LOCALS = {
   icon,
+  dragHandle,
   timestamp,
   humanTiming,
   TemplateLink,

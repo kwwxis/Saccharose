@@ -86,16 +86,32 @@ body.nightmode #vo-app-toolbar .vo-app-toolbar-charName {
 
 // Editor Draggables
 // --------------------------------------------------------------------------------------------------------------
-.list-group {
-  background: rgba(0,0,0,0.1);
-  padding: 5px 5px 5px 20px;
+.vo-group-items {
+  background: rgba(0,0,0,0.05);
+  padding: 5px 5px 5px 10px;
+  box-shadow: inset 0 0 3px rgba(0,0,0,0.2);
+
+  &.empty-group {
+    display: none;
+  }
 }
-.list-group-item {
+body.vo-item-dragging .vo-group-items.empty-group {
+  display: block;
+}
+.vo-item, .vo-group {
   border: 1px solid rgba(0,0,0,0.1);
   border-radius: 5px;
-  padding: 5px;
+  padding: 0;
   margin: 5px 0;
+  background: #fff;
 }
+.vo-group-header, .vo-item-header {
+  height: 38px;
+  line-height: 38px;
+  padding: 0 5px;
+}
+
+
 .sortable-ghost {
   background: lightblue;
 }
@@ -105,8 +121,14 @@ body.nightmode #vo-app-toolbar .vo-app-toolbar-charName {
   opacity: 1 !important;
   scale: 1;
   overflow: hidden;
+  transform-origin: center;
   animation: sortable-drag-element-scale 200ms ease forwards,
     sortable-drag-element-height 250ms linear forwards;
+  box-shadow: 0 0 10px rgba(0,0,0,0.2), 0 0 30px rgba(0,0,0,0.2);
+}
+
+body.vo-dragging {
+  cursor: move !important;
 }
 
 @keyframes sortable-drag-element-scale {
@@ -114,5 +136,14 @@ body.nightmode #vo-app-toolbar .vo-app-toolbar-charName {
   100% { scale: 0.9; }
 }
 @keyframes sortable-drag-element-height {
-  100% { height: 30px; }
+  100% { height: 38px; }
+}
+span.drag-handle {
+  padding: 6px;
+  cursor: move;
+}
+svg.icon.icon-drag-handle {
+  height: 14px;
+  width: auto;
+  fill: rgba(0,0,0,0.6);
 }
