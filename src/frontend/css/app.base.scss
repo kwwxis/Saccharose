@@ -1331,7 +1331,7 @@ body.nightmode #site-logo-bg {
 
 body.nightmode textarea,
 body.nightmode select,
-body.nightmode [contenteditable],
+body.nightmode [contenteditable]:not(.highlighted),
 body.nightmode input[type='text'],
 body.nightmode input[type='password'],
 body.nightmode input[type='search'],
@@ -1342,6 +1342,10 @@ body.nightmode input[type='time'],
 body.nightmode input[type='date'] {
   background: hsl(255deg 8% 22%);
   color: hsl(255deg 5% 73%);
+  border-color: hsla(232, 20%, 60%, 0.25);
+}
+
+body.nightmode [contenteditable].highlighted {
   border-color: hsla(232, 20%, 60%, 0.25);
 }
 

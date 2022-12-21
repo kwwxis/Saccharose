@@ -14,6 +14,9 @@
 .ace_template-color {
   color: #80c !important;
 }
+body.nightmode .ace_template-color {
+  color: #D2A8FF !important;
+}
 .ace_template-customVar {
   font-weight: bold;
 }
@@ -39,8 +42,13 @@
 body.nightmode .ace_link {
   background-color: hsl(247deg 75% 93% / 6%);
 }
-.ace_link-color {
+.ace_link-color,
+.ace_external-link-color{
   color: #327b9a;
+}
+body.nightmode .ace_link-color,
+body.nightmode .ace_external-link-color {
+  color: #e4c179;
 }
 
 // Bold and Italic

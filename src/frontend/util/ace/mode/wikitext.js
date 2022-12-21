@@ -1,6 +1,7 @@
 // noinspection JSUnusedGlobalSymbols,JSUnusedLocalSymbols
 
 import { MW_BEHAVIOR_SWITCHES_REGEX } from '../../../../shared/mediawiki/parseModules/mwParse.specialText';
+import { MW_URL_SCHEME_REGEX } from '../../../../shared/mediawiki/parseModules/mwParse.link';
 import { getQuotePos } from '../../../../shared/mediawiki/mwQuotes';
 
 ace.define('ace/mode/wikitext_highlight_rules', ['require', 'exports', 'module', 'ace/lib/oop', 'ace/lib/lang', 'ace/mode/text_highlight_rules', 'ace/mode/javascript_highlight_rules', 'ace/mode/xml_highlight_rules', 'ace/mode/html_highlight_rules', 'ace/mode/css_highlight_rules'], function(acequire, exports, module) {
@@ -56,11 +57,20 @@ ace.define('ace/mode/wikitext_highlight_rules', ['require', 'exports', 'module',
       },
       {
         token: 'wikitext.link.link-open',
-        regex: /\[\[/,
+        regex: new RegExp(`\\[\\[(?!${MW_URL_SCHEME_REGEX()})`),
         next: 'wt_link',
         onMatch: function(val, currentState, stack) {
           stack.unshift('wt_link');
           return 'wikitext.link.link-open.link-color';
+        }
+      },
+      {
+        token: 'wikitext.external-link.external-link-open',
+        regex: new RegExp(`\\[(?=(?:${MW_URL_SCHEME_REGEX()})[^ |]*?(?: |]|$))`),
+        next: 'wt_external_link',
+        onMatch: function(val, currentState, stack) {
+          stack.unshift('wt_external_link');
+          return 'wikitext.external-link.external-link-open.external-link-color';
         }
       },
       { include: 'wt_quotes_open' },
@@ -242,6 +252,29 @@ ace.define('ace/mode/wikitext_highlight_rules', ['require', 'exports', 'module',
         {
           defaultToken: function(currentState, stack) {
             return stack_tokens('wikitext.link.link-text', stack);
+          }
+        }
+      ],
+      wt_external_link: [
+        {
+          token: 'wikitext.external-link.external-link-close.link-external-color',
+          regex: /]/,
+          next: 'start',
+          onMatch: function(value, currentState, stack) {
+            stack.shift();
+            this.next = stack[0] || 'start';
+            return 'wikitext.external-link.external-link-close.external-link-color';
+          }
+        },
+        {
+          token: 'wikitext.external-link.external-link-name.external-link-text.external-link-color',
+          regex: new RegExp(`(?:${MW_URL_SCHEME_REGEX()}).*?(?= |]|$)`),
+          // MW_URL_SCHEME_REGEX
+        },
+        { include: 'start' },
+        {
+          defaultToken: function(currentState, stack) {
+            return stack_tokens('wikitext.external-link.external-link-text', stack);
           }
         }
       ],
