@@ -5,7 +5,7 @@ import { LangCode } from '../../../shared/types/dialogue-types';
 import { VoAppState } from './vo-tool';
 import { toInt } from '../../../shared/util/numberUtil';
 import { closeDialog, DIALOG_MODAL, openDialog } from '../../util/dialog';
-import { createWikitextEditor } from '../../util/wikitextEditor';
+import { createWikitextEditor } from '../../util/ace/wikitextEditor';
 
 export function VoAppWelcome(state: VoAppState) {
   const recentEl = document.querySelector('#vo-app-welcome-recent');

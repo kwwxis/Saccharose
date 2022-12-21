@@ -8,7 +8,7 @@
                 ui-tippy-hover="Click to copy to clipboard"
                 ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">Copy</button>
       </div>
-      <div id="ol-result-<%= idx %>" contenteditable="true" readonly class="ol-result-textarea w100p code"
+      <div id="ol-result-<%= idx %>" contenteditable="true" readonly spellcheck="false" class="ol-result-textarea w100p code"
            style="resize:vertical;overflow:auto;font-size:13px;"><%- olResult.result %></div>
     </div>
   </div>

@@ -82,6 +82,7 @@ body.nightmode .metadata-props .prop-value {
   margin-right: 5px;
   transform-origin: center;
   transition: transform 200ms;
+  user-select: none;
   &.expand {
     transform: rotate(-90deg);
   }

@@ -3,7 +3,7 @@
     <section class="card">
       <h2>TextMap ID: <strong><%= textMapId %></strong> <small class="fr fontWeight300">#<%= i+1 %></small></h2>
       <div class="dialogue-section content">
-        <textarea readonly class="w100p wikitext autosize"><%= result[textMapId] %></textarea>
+        <textarea readonly class="w100p wikitext autosize" spellcheck="false"><%= result[textMapId] %></textarea>
       </div>
     </section>
   <% }) %>

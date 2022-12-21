@@ -1,7 +1,7 @@
 import { VoAppState } from './vo-tool';
 import * as ace from 'brace';
 import { flashTippy } from '../../util/tooltips';
-import { createWikitextEditor } from '../../util/wikitextEditor';
+import { createWikitextEditor } from '../../util/ace/wikitextEditor';
 
 export function VoAppWikitext(state: VoAppState) {
   const editor: ace.Editor = createWikitextEditor('wikitext-editor');

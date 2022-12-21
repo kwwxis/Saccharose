@@ -10,6 +10,7 @@ import { showJavascriptErrorDialog } from './util/errorHandler';
 import autosize from 'autosize';
 import { isInt } from '../shared/util/numberUtil';
 import { uuidv4 } from '../shared/util/stringUtil';
+import { highlightWikitextReplace } from './util/ace/wikitextEditor';
 
 function parseUiAction(actionStr: string|HTMLElement): {[actionType: string]: string[]} {
   if (actionStr instanceof HTMLElement) {
@@ -88,6 +89,9 @@ const initial_listeners: Listener[] = [
       );
     },
     intervalFunction() {
+      document.querySelectorAll<HTMLTextAreaElement>('textarea.wikitext').forEach(el => {
+        highlightWikitextReplace(el, true);
+      });
       document.querySelectorAll<HTMLElement>('.timestamp.is--formatted.is--unconverted').forEach(el => {
         el.classList.remove('is--unconverted');
         el.classList.add('is--converted');
@@ -294,12 +298,13 @@ const initial_listeners: Listener[] = [
 
               if ((<any> copyTarget).value) {
                 // noinspection JSIgnoredPromiseFromCall
-                copyToClipboard((<any> copyTarget).value);
+                copyToClipboard((<any> copyTarget).value.trim());
               }
 
               if (copyTarget.hasAttribute('contenteditable')) {
                 let value = copyTarget.textContent;
-                copyToClipboard(value);
+                // noinspection JSIgnoredPromiseFromCall
+                copyToClipboard(value.trim());
               }
               break;
             case 'copy-all':
@@ -307,9 +312,15 @@ const initial_listeners: Listener[] = [
               let combinedValues: string[] = [];
               let sep = (actions?.['copy-sep']?.[0] || '').replace(/\\n/g, '\n');
               if (copyTargets) {
-                for (let el of copyTargets) {
-                  combinedValues.push(el.value);
+                for (let copyTarget of copyTargets) {
+                  if ((<any> copyTarget).value) {
+                    combinedValues.push(copyTarget.value.trim());
+                  }
+                  if (copyTarget.hasAttribute('contenteditable')) {
+                    combinedValues.push(copyTarget.textContent.trim());
+                  }
                 }
+                // noinspection JSIgnoredPromiseFromCall
                 copyToClipboard(combinedValues.join(sep));
               }
               break;
@@ -353,8 +364,16 @@ const initial_listeners: Listener[] = [
                 actionEl.classList.remove('expand');
                 actionEl.classList.add('collapse');
 
+                let height;
+                if (container.hasAttribute('data-original-height')) {
+                  // Use data-original-height (if it exists)
+                  height = parseInt(container.getAttribute('data-original-height'));
+                  container.removeAttribute('data-original-height');
+                } else {
+                  // Otherwise use scrollHeight, which should be approximately correct.
+                  height = container.scrollHeight;
+                }
                 const styleEl = document.createElement('style');
-                const height = container.scrollHeight;
                 const duration = Math.min(500, Math.max(200, height / 5 | 0));
 
                 styleEl.textContent = `
@@ -381,6 +400,7 @@ const initial_listeners: Listener[] = [
                 const styleEl = document.createElement('style');
                 const height = container.getBoundingClientRect().height;
                 const duration = Math.min(500, Math.max(200, height / 5 | 0));
+                container.setAttribute('data-original-height', String(height));
 
                 styleEl.textContent = `
                   .collapsing-${animId} { overflow: hidden; animation: collapsing-${animId} ${duration}ms ease forwards; }

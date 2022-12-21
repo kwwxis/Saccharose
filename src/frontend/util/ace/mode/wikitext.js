@@ -1,7 +1,7 @@
 // noinspection JSUnusedGlobalSymbols,JSUnusedLocalSymbols
 
-import { MW_BEHAVIOR_SWITCHES_REGEX } from '../../../shared/mediawiki/parseModules/mwParse.specialText';
-import { getQuotePos } from '../../../shared/mediawiki/mwQuotes';
+import { MW_BEHAVIOR_SWITCHES_REGEX } from '../../../../shared/mediawiki/parseModules/mwParse.specialText';
+import { getQuotePos } from '../../../../shared/mediawiki/mwQuotes';
 
 ace.define('ace/mode/wikitext_highlight_rules', ['require', 'exports', 'module', 'ace/lib/oop', 'ace/lib/lang', 'ace/mode/text_highlight_rules', 'ace/mode/javascript_highlight_rules', 'ace/mode/xml_highlight_rules', 'ace/mode/html_highlight_rules', 'ace/mode/css_highlight_rules'], function(acequire, exports, module) {
   'use strict';
@@ -89,6 +89,10 @@ ace.define('ace/mode/wikitext_highlight_rules', ['require', 'exports', 'module',
       {
         token: 'wikitext.signature',
         regex: /~{3,5}/,
+      },
+      {
+        token: 'wikitext.item-prefix',
+        regex: /^[#*:]+/
       }
     );
 
@@ -184,11 +188,11 @@ ace.define('ace/mode/wikitext_highlight_rules', ['require', 'exports', 'module',
         },
         {
           token: 'wikitext.template.template-name.template-color',
-          regex: /(?<={{\s*)\S.*?\S(?=\s*(?:\||}}|$))/,
+          regex: /(?<={{\s*)\S(?:[^|}]*?\S)?(?=\s*(?:\||}}|$))/,
         },
         {
           token: 'wikitext.template.template-named-param.template-color',
-          regex: /(?<=\|\s*)\S.*?\S(?=\s*=)/,
+          regex: /(?<=\|\s*)\S(?:[^=|}]*?\S)?(?=\s*=)/,
         },
         { include: 'start' },
         {

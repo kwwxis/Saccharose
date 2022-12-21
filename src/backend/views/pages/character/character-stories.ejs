@@ -95,7 +95,7 @@
     <div role="tabpanel" aria-labelledby="tab-wikitext" class="tabpanel <%= tab === 'wikitext' ? 'active' : 'hide' %>" id="tabpanel-wikitext">
       <div class="content">
         <div class="posRel">
-          <textarea id="story-wikitext" readonly class="w100p wikitext autosize"><%= story.wikitext %></textarea>
+          <textarea id="story-wikitext" readonly class="w100p wikitext autosize" spellcheck="false"><%= story.wikitext %></textarea>
           <button class="secondary posAbs" ui-action="copy: #story-wikitext"
             ui-tippy-hover="Click to copy to clipboard"
             ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
@@ -107,7 +107,7 @@
       <div role="tabpanel" aria-labelledby="tab-altered-wikitext" class="tabpanel <%= tab === 'altered-wikitext' ? 'active' : 'hide' %>" id="tabpanel-altered-wikitext">
         <div class="content">
           <div class="posRel">
-            <textarea id="story-altered-wikitext" readonly class="w100p wikitext autosize"><%= story.alteredWikitext %></textarea>
+            <textarea id="story-altered-wikitext" readonly class="w100p wikitext autosize" spellcheck="false"><%= story.alteredWikitext %></textarea>
             <button class="secondary posAbs" ui-action="copy: #story-altered-wikitext"
                     ui-tippy-hover="Click to copy to clipboard"
                     ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
