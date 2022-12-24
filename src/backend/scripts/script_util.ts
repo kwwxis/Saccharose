@@ -1132,6 +1132,7 @@ export class Control {
     if (rewardArray.length === 1) {
       return rewardArray[0];
     }
+    rewardArray = rewardArray.filter(x => !!x);
     let primary = rewardArray[0];
     for (let i = 1; i < rewardArray.length; i++) {
       for (let otherItem of rewardArray[i].RewardItemList) {

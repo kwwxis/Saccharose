@@ -38,6 +38,7 @@ export function VoAppEditor(state: VoAppState) {
       onStart(event) {
         document.body.classList.add('vo-dragging');
         document.body.classList.add('vo-item-dragging');
+        event.from.style.height = event.from.getBoundingClientRect().height+'px';
       },
       onEnd(event) {
         document.body.classList.remove('vo-dragging');
@@ -46,6 +47,7 @@ export function VoAppEditor(state: VoAppState) {
         let voItem = event.item;
         let fromEl = event.from;
         let toEl = event.to;
+
         dragEnd(fromEl);
         dragEnd(toEl);
         console.log('Drag End', {voItem, fromEl, toEl});
@@ -54,10 +56,12 @@ export function VoAppEditor(state: VoAppState) {
   });
 
   function dragEnd(el: HTMLElement) {
+    el.style.removeProperty('height');
+    let parentGroup = el.closest('.vo-group');
     if (el.querySelectorAll('.vo-item').length) {
-      el.classList.remove('empty-group');
+      parentGroup.classList.remove('empty-group');
     } else {
-      el.classList.add('empty-group');
+      parentGroup.classList.add('empty-group');
     }
   }
 }
