@@ -11,6 +11,12 @@
   text-align: right;
   padding: 0 3px 0 0;
   margin-right: 3px;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  caret-color: transparent;
 }
 
 .ace_static_highlight.ace_show_gutter .ace_line {

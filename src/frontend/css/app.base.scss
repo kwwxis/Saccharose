@@ -53,7 +53,10 @@ input[type='url'],
 input[type='number'],
 input[type='time'],
 input[type='date'],
-[contenteditable] {
+[contenteditable],
+.input-style {
+  font-family: Arial, "Source Sans Pro", sans-serif;
+  font-size: 13.333px;
   border: 1px solid hsla(232, 20%, 32%, 0.25);
   border-radius: 3px;
   box-sizing: border-box;
@@ -81,7 +84,9 @@ input[type='time']:focus,
 input[type='date']:hover,
 input[type='date']:focus,
 [contenteditable]:hover,
-[contenteditable]:focus {
+[contenteditable]:focus,
+.input-style:hover,
+.input-style:focus {
   border: 1px solid hsla(232, 20%, 32%, 0.4);
 }
 
@@ -95,14 +100,15 @@ input[type='url']:focus,
 input[type='number']:focus,
 input[type='time']:focus,
 input[type='date']:focus,
-[contenteditable]:focus {
+[contenteditable]:focus,
+.input-style:focus {
   outline: 0;
   box-shadow: 0 0 0 2px rgba(0, 140, 221, 0.2);
   border-color: #3daaf5;
 }
 
 input.error, textarea.error, select.error, .error-border-color,
-[contenteditable].error {
+[contenteditable].error, .input-style.error {
   border-color: rgba(230, 69, 72, 0.5) !important;
 }
 
@@ -145,7 +151,10 @@ input.error, textarea.error, select.error, .error-border-color,
   .card,
   [contenteditable],
   [contenteditable]:hover,
-  [contenteditable]:focus {
+  [contenteditable]:focus,
+  .input-style,
+  .input-style:hover,
+  .input-style:focus {
     border-width: 0.5px !important;
   }
 }
@@ -847,6 +856,7 @@ body.nightmode .flash {
 body:not(.nightmode) .flash textarea,
 body:not(.nightmode) .flash select,
 body:not(.nightmode) .flash [contenteditable],
+body:not(.nightmode) .flash .input-style,
 body:not(.nightmode) .flash input[type='text'],
 body:not(.nightmode) .flash input[type='password'],
 body:not(.nightmode) .flash input[type='search'],
@@ -861,6 +871,7 @@ body:not(.nightmode) .flash input[type='date'] {
 body.nightmode .flash textarea,
 body.nightmode .flash select,
 body.nightmode .flash [contenteditable],
+body.nightmode .flash .input-style,
 body.nightmode .flash input[type='text'],
 body.nightmode .flash input[type='password'],
 body.nightmode .flash input[type='search'],
@@ -872,39 +883,13 @@ body.nightmode .flash input[type='date'] {
   animation: nightmode-flash-textfield 1s ease-out;
 }
 
-.hard-flash {
-  animation: hard-flash 500ms ease-out;
-}
-
-@keyframes hard-flash {
-  0% {
-    background: transparent;
-  }
-  20% {
-    background: red;
-  }
-}
-
-.hard-flash textarea,
-.hard-flash select,
-.hard-flash [contenteditable],
-.hard-flash input[type='text'],
-.hard-flash input[type='password'],
-.hard-flash input[type='search'],
-.hard-flash input[type='email'],
-.hard-flash input[type='url'],
-.hard-flash input[type='number'],
-.hard-flash input[type='time'], .hard-flash input[type='date'] {
-  background: transparent !important;
-}
-
 code,
 .code {
   font-family: Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono,
     Bitstream Vera Sans Mono, Courier New, monospace, sans-serif;
 }
 
-textarea.code, [contenteditable].code {
+textarea.code, [contenteditable].code, .input-style.code {
   resize: vertical;
   border-color: #ccc;
   padding: 3px;
@@ -1336,6 +1321,7 @@ body.nightmode #site-logo-bg {
 body.nightmode textarea,
 body.nightmode select,
 body.nightmode [contenteditable]:not(.highlighted),
+body.nightmode .input-style,
 body.nightmode input[type='text'],
 body.nightmode input[type='password'],
 body.nightmode input[type='search'],
@@ -1356,6 +1342,7 @@ body.nightmode [contenteditable].highlighted {
 body.nightmode textarea:focus,
 body.nightmode select:focus,
 body.nightmode [contenteditable]:focus,
+body.nightmode .input-style:focus,
 body.nightmode input[type='text']:focus,
 body.nightmode input[type='password']:focus,
 body.nightmode input[type='search']:focus,

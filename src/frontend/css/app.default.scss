@@ -204,7 +204,8 @@ aside {
 .card .content input[type='search'],
 .card .content input[type='password'],
 .card .content select,
-.card .content textarea {
+.card .content textarea,
+.card .content .input-style {
   height: 30px;
   line-height: 30px;
   box-sizing: border-box;

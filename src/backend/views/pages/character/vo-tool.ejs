@@ -88,7 +88,7 @@
                 <%- icon('chevron-down') %>
               </button>
               <div id="vo-app-language-dropdown" class="ui-dropdown">
-                <div class="vo-app-language-option option <%= cookieTernary('VO-App-LangCode').equals('EN').or.empty().then('selected') %>"
+                <div class="vo-app-language-option option <%= cookieTernary('VO-App-LangCode').equals('EN').or.isEmpty().then('selected') %>"
                      ui-action="close-dropdowns" data-value="EN">English</div>
                 <div class="vo-app-language-option option <%= cookieTernary('VO-App-LangCode').equals('CH').then('selected') %>"
                      ui-action="close-dropdowns" data-value="CH">Chinese</div>
