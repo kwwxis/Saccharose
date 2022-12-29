@@ -1,30 +1,12 @@
-import csurfImport from 'csurf';
 import bodyParser from 'body-parser';
 import baseResources from './baseResources';
 import { create, Router, Request, Response, NextFunction } from '../../util/router';
 import { apiErrorHandler } from '../../middleware/globalErrorHandler';
-import { toBoolean } from '../../../shared/util/genericUtil';
+import { HttpError } from '../../../shared/util/httpError';
+import { csrfMiddleware } from '../../middleware/csrf';
 
-const csrf = csurfImport({
-  cookie: {
-    secure: toBoolean(process.env.SSL_ENABLED),
-    httpOnly: true,
-  },
-  ignoreMethods: ['HEAD', 'OPTIONS']
-});
-
-function accessDenied(error_code = undefined, error_description = undefined) {
-  return (req: Request, res: Response, next: NextFunction) => {
-    if (res.headersSent) {
-      return next();
-    }
-
-    res.status(403).json({
-      error: 'ACCESS_DENIED',
-      error_code,
-      error_description,
-    });
-  };
+function isValidApiKey(apiKey: string) {
+  return false;
 }
 
 export default async function(): Promise<Router> {
@@ -44,18 +26,16 @@ export default async function(): Promise<Router> {
   // Check Authentication
   // ~~~~~~~~~~~~~~~~~~~~
   router.use(function(req: Request, res: Response, next: NextFunction) {
-    // if (typeof req.headers['x-api-key'] === 'string') {
-    //   const apiKey = req.headers['x-api-key'].trim();
-    //   return next();
-    // } else
-
-    if (req.headers['x-csrf-token']) {
-      csrf(req, res, next);
+    if (typeof req.headers['x-api-key'] === 'string') {
+      const apiKey = req.headers['x-api-key'].trim();
+      if (!isValidApiKey(apiKey)) {
+        throw HttpError.unauthenticated('EBADAPIKEY', 'Invalid API key.');
+      }
+      return next();
+    } else if (req.headers['x-csrf-token']) {
+      csrfMiddleware(req, res, next);
     } else {
-      accessDenied(
-        'AUTH_REQUIRED',
-        'Must use an API key or CSRF token to authenticate requests.'
-      )(req, res, next);
+      throw HttpError.unauthenticated('AuthRequired', 'Must use an API key or CSRF token to authenticate requests.');
     }
   });
 

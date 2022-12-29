@@ -6,8 +6,9 @@ import { DialogExcelConfigData } from '../../../shared/types/dialogue-types';
 import {promises as fs} from 'fs';
 import{schema, normalizeRawJson} from '../importer/import_run';
 import { getGenshinDataFilePath } from '../../loadenv';
+import { pathToFileURL } from 'url';
 
-if (require.main === module) {
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
     await loadEnglishTextMap();
     await loadVoiceItems();

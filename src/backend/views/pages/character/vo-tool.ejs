@@ -88,13 +88,13 @@
                 <%- icon('chevron-down') %>
               </button>
               <div id="vo-app-language-dropdown" class="ui-dropdown">
-                <div class="vo-app-language-option option <%= cookieTernary('VO-App-LangCode', {equalsOrEmpty: 'EN', then: 'selected'}) %>"
+                <div class="vo-app-language-option option <%= cookieTernary('VO-App-LangCode').equals('EN').or.empty().then('selected') %>"
                      ui-action="close-dropdowns" data-value="EN">English</div>
-                <div class="vo-app-language-option option <%= cookieTernary('VO-App-LangCode', {equals: 'CH', then: 'selected'}) %>"
+                <div class="vo-app-language-option option <%= cookieTernary('VO-App-LangCode').equals('CH').then('selected') %>"
                      ui-action="close-dropdowns" data-value="CH">Chinese</div>
-                <div class="vo-app-language-option option <%= cookieTernary('VO-App-LangCode', {equals: 'JP', then: 'selected'}) %>"
+                <div class="vo-app-language-option option <%= cookieTernary('VO-App-LangCode').equals('JP').then('selected') %>"
                      ui-action="close-dropdowns" data-value="JP">Japanese</div>
-                <div class="vo-app-language-option option <%= cookieTernary('VO-App-LangCode', {equals: 'KR', then: 'selected'}) %>"
+                <div class="vo-app-language-option option <%= cookieTernary('VO-App-LangCode').equals('KR').then('selected') %>"
                      ui-action="close-dropdowns" data-value="KR">Korean</div>
               </div>
             </div>

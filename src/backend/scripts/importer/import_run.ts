@@ -2,11 +2,15 @@ import '../../loadenv';
 import {openKnex} from '../../util/db';
 import objectPath from 'object-path';
 import { SchemaTable, SEP } from './import_types';
-import { TalkExcelConfigData } from '../../../shared/types/dialogue-types';
+import { DialogExcelConfigData, TalkExcelConfigData } from '../../../shared/types/dialogue-types';
 import { MaterialExcelConfigData } from '../../../shared/types/material-types';
 import commandLineArgs, { OptionDefinition as ArgsOptionDefinition } from 'command-line-args';
 import commandLineUsage, { OptionDefinition as UsageOptionDefinition } from 'command-line-usage';
 import { getGenshinDataFilePath } from '../../loadenv';
+import { humanTiming, timeConvert } from '../../../shared/util/genericUtil';
+import { promises as fs } from 'fs';
+import ora from 'ora';
+import { pathToFileURL } from 'url';
 
 export const schema = {
   DialogExcelConfigData: <SchemaTable> {
@@ -20,6 +24,24 @@ export const schema = {
       {name: 'TalkTitleTextMapHash', type: 'integer', isIndex: true},
       {name: 'TalkRoleNameTextMapHash', type: 'integer', isIndex: true},
     ]
+  },
+  Relation_DialogToNext: <SchemaTable> {
+    name: 'Relation_DialogToNext',
+    jsonFile: './ExcelBinOutput/DialogExcelConfigData.json',
+    columns: [
+      {name: 'DialogId', type: 'integer', isIndex: true},
+      {name: 'NextId', type: 'integer', isIndex: true},
+    ],
+    customRowResolve: (row: DialogExcelConfigData) => {
+      if (row.NextDialogs && row.NextDialogs.length) {
+        return row.NextDialogs.map(nextDialogId => ({
+          DialogId: row.Id,
+          NextId: nextDialogId,
+        }));
+      } else {
+        return [];
+      }
+    }
   },
   ManualTextMapConfigData: <SchemaTable> {
     name: 'ManualTextMapConfigData',
@@ -392,12 +414,15 @@ export function normalizeRawJson(row: any, table?: SchemaTable) {
   return newRow;
 }
 
-if (require.main === module) {
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
     const knex = openKnex();
 
     async function createTable(table: SchemaTable) {
       console.log('Creating table: ' + table.name);
+      if (knex.schema.hasTable(table.name)) {
+        console.log('  Table already exists - dropping and recreating...')
+      }
       await knex.schema.dropTableIfExists(table.name);
       await knex.schema.createTable(table.name, function(builder) {
         for (let col of table.columns) {
@@ -415,10 +440,10 @@ if (require.main === module) {
       console.log('  (done)');
     }
 
-    async function insertRow(table: SchemaTable, row: any) {
+    async function insertRow(table: SchemaTable, row: any, allRows: any[]) {
       row = normalizeRawJson(row, table);
       if (table.customRowResolve) {
-        let payloads: any[] = table.customRowResolve(row);
+        let payloads: any[] = table.customRowResolve(row, allRows);
         for (let payload of payloads) {
           await knex(table.name).insert(payload).then();
         }
@@ -441,18 +466,34 @@ if (require.main === module) {
     }
 
     async function insertAll(table: SchemaTable) {
+      let timeStart = Date.now();
       console.log('Inserting data for: ' + table.name + ' from: ' + table.jsonFile);
-      const json = require(getGenshinDataFilePath(table.jsonFile));
+      console.log('  Starting at ' + timeConvert(timeStart));
+
+      const spinner = ora('Processing...').start();
+      spinner.indent = 2;
+
+
+      const fileContents: string = await fs.readFile(getGenshinDataFilePath(table.jsonFile), {encoding: 'utf8'});
+      const json: any[] = JSON.parse(fileContents);
+      const totalRows: number = json.length;
+
+      let currentRow = 1;
       for (let row of json) {
-        await insertRow(table, row);
+        await insertRow(table, row, json);
+        spinner.text = `Processed ${currentRow} rows of ${totalRows}`;
+        currentRow++;
       }
+
+      let timeEnd = Date.now();
+      spinner.succeed('Finished at ' + timeConvert(timeEnd) + ' (took '+humanTiming(timeStart, '', timeEnd)+')');
       console.log('  (done)');
     }
 
     const optionDefinitions: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
-      {name: 'run-only', alias: 'o', type: String, multiple: true, description: 'Import only the specified tables.', typeLabel: '<table>'},
-      {name: 'run-all-except', alias: 'e', type: String, multiple: true, description: 'Import all tables except the specified.', typeLabel: '<table>'},
-      {name: 'run-all', alias: 'a', type: Boolean, description: 'Import all tables.', typeLabel: '<table>'},
+      {name: 'run-only', alias: 'o', type: String, multiple: true, description: 'Import only the specified tables (comma-separated).', typeLabel: '<tables>'},
+      {name: 'run-all-except', alias: 'e', type: String, multiple: true, description: 'Import all tables except the specified (comma-separated).', typeLabel: '<tables>'},
+      {name: 'run-all', alias: 'a', type: Boolean, description: 'Import all tables.'},
       {name: 'list', alias: 'l', type: Boolean, description: 'List all table names.'},
       {name: 'help', alias: 'h', type: Boolean, description: 'Display this usage guide.'},
     ];
@@ -523,6 +564,8 @@ if (require.main === module) {
       await insertAll(table);
       console.log(SEP);
     }
+
+    console.log('Complete at ')
 
     console.log('Shutting down...');
     await knex.destroy();

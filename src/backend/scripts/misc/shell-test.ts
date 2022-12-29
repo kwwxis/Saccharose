@@ -1,7 +1,8 @@
 import '../../loadenv';
 import { grepIdStartsWith, grepStream } from '../../util/shellutil';
+import { pathToFileURL } from 'url';
 
-if (require.main === module) {
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
     // let allQuestMessageIds = await grepIdStartsWith('TextMapId', 'QUEST_Message_Q', './ExcelBinOutput/ManualTextMapConfigData.json');
     // console.log(allQuestMessageIds);

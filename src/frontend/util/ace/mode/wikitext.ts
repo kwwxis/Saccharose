@@ -1,10 +1,11 @@
 // noinspection JSUnusedGlobalSymbols,JSUnusedLocalSymbols
 
+import * as ace from 'brace';
 import { MW_BEHAVIOR_SWITCHES_REGEX } from '../../../../shared/mediawiki/parseModules/mwParse.specialText';
 import { MW_URL_SCHEME_REGEX } from '../../../../shared/mediawiki/parseModules/mwParse.link';
 import { getQuotePos } from '../../../../shared/mediawiki/mwQuotes';
 
-ace.define('ace/mode/wikitext_highlight_rules', ['require', 'exports', 'module', 'ace/lib/oop', 'ace/lib/lang', 'ace/mode/text_highlight_rules', 'ace/mode/javascript_highlight_rules', 'ace/mode/xml_highlight_rules', 'ace/mode/html_highlight_rules', 'ace/mode/css_highlight_rules'], function(acequire, exports, module) {
+(<any> ace).define('ace/mode/wikitext_highlight_rules', ['require', 'exports', 'module', 'ace/lib/oop', 'ace/lib/lang', 'ace/mode/text_highlight_rules', 'ace/mode/javascript_highlight_rules', 'ace/mode/xml_highlight_rules', 'ace/mode/html_highlight_rules', 'ace/mode/css_highlight_rules'], function(acequire, exports, module) {
   'use strict';
 
   let oop = acequire('../lib/oop');
@@ -15,7 +16,7 @@ ace.define('ace/mode/wikitext_highlight_rules', ['require', 'exports', 'module',
   let HtmlHighlightRules = acequire('./html_highlight_rules').HtmlHighlightRules;
   let CssHighlightRules = acequire('./css_highlight_rules').CssHighlightRules;
 
-  let WikitextHighlightRules = function() {
+  let WikitextHighlightRules: any = function() {
     // regexp must not have capturing parentheses. Use (?:) instead.
     // regexps are ordered -> the first match is used
 
@@ -73,7 +74,23 @@ ace.define('ace/mode/wikitext_highlight_rules', ['require', 'exports', 'module',
           return 'wikitext.external-link.external-link-open.external-link-color';
         }
       },
+      {
+        token: 'wikitext.bare-link.bare-link-color',
+        regex: new RegExp(`(?:${MW_URL_SCHEME_REGEX()})[^ ]*`),
+      },
+      {
+        token: 'wikitext.magic-link.magic-link-color',
+        regex: new RegExp(`(?<=\\b)(?:ISBN|PMID|RFC)\\s+[\\d-]+(?=\\b)`),
+      },
       { include: 'wt_quotes_open' },
+      {
+        token: 'wikitext.table.table-open.table-color',
+        regex: /(?<=^\s*)\{\|.*$/,
+        onMatch: function(val, currentState, stack) {
+          stack.unshift('wt_table');
+          return 'wikitext.table.table-open.table-color';
+        }
+      },
       {
         token: 'wikitext.nowiki.nowiki-open',
         regex: /<nowiki[^>]*>/,
@@ -106,7 +123,7 @@ ace.define('ace/mode/wikitext_highlight_rules', ['require', 'exports', 'module',
       }
     );
 
-    function stack_tokens(initialToken, stack, exclude = []) {
+    function stack_tokens(initialToken, stack, exclude: string[]|string = []) {
       if (typeof exclude === 'string') {
         exclude = exclude.split('.');
       }
@@ -344,6 +361,39 @@ ace.define('ace/mode/wikitext_highlight_rules', ['require', 'exports', 'module',
         },
         { defaultToken: 'wikitext.pre.pre-text' }
       ],
+      wt_table: [
+        {
+          regex: /(?<=^\s*)\|}/,
+          next: 'start',
+          onMatch: function(value, currentState, stack) {
+            stack.shift();
+            this.next = stack[0] || 'start';
+            return 'wikitext.table.table-close.table-color';
+          }
+        },
+        {
+          regex: /(?<=^\s*)\|\+/,
+          token: 'wikitext.table.table-caption.table-color',
+        },
+        {
+          regex: /(?<=^\s*)\|-/,
+          token: 'wikitext.table.table-row-boundary.table-color',
+        },
+        {
+          regex: /(?<=^\s*)\|/,
+          token: 'wikitext.table.table-data-cell.table-color'
+        },
+        {
+          regex: /(?<=^\s*)!/,
+          token: 'wikitext.table.table-header-cell.table-color'
+        },
+        { include: 'start' },
+        {
+          defaultToken: function(currentState, stack) {
+            return stack_tokens('wikitext.table.table-text', stack);
+          }
+        }
+      ]
     });
 
     this.embedRules(JavaScriptHighlightRules, 'jscode-', [{
@@ -384,7 +434,7 @@ ace.define('ace/mode/wikitext_highlight_rules', ['require', 'exports', 'module',
   exports.WikitextHighlightRules = WikitextHighlightRules;
 });
 
-ace.define('ace/mode/wikitext', ['require', 'exports', 'module', 'ace/lib/oop', 'ace/lib/lang', 'ace/tokenizer', 'ace/layer/text',
+(<any> ace).define('ace/mode/wikitext', ['require', 'exports', 'module', 'ace/lib/oop', 'ace/lib/lang', 'ace/tokenizer', 'ace/layer/text',
   'ace/mode/text', 'ace/mode/javascript',  'ace/mode/xml', 'ace/mode/html', 'ace/mode/wikitext_highlight_rules'], function(acequire, exports, module) {
 
   'use strict';
@@ -455,7 +505,7 @@ ace.define('ace/mode/wikitext', ['require', 'exports', 'module', 'ace/lib/oop', 
 
         this.$tokenizer.reportError = function reportError(msg, data) {
           var e = new Error(msg);
-          e.data = data;
+          (<any> e).data = data;
           console.error(msg, data);
           setTimeout(function() { throw e; });
         };
@@ -463,15 +513,17 @@ ace.define('ace/mode/wikitext', ['require', 'exports', 'module', 'ace/lib/oop', 
         // Custom implementation of getLineTokens.
         // The entire function is copied from the original except for a few changes.
         this.$tokenizer.getLineTokens = function(line, startState) {
+          let stack;
           if (startState && typeof startState != "string") {
-            var stack = startState.slice(0);
+            stack = startState.slice(0);
             startState = stack[0];
             if (startState === "#tmp") {
               stack.shift();
               startState = stack.shift();
             }
-          } else
-            var stack = [];
+          } else {
+            stack = [];
+          }
 
           var currentState = startState || "start";
           var state = this.states[currentState];

@@ -12,7 +12,7 @@ export class MetaProp {
   label: string;
   values: MetaPropValue[] = [];
 
-  constructor(label: string, values: string | number | string[] | number[] | MetaPropValue[], link?: string) {
+  constructor(label: string, values: string | number | string[] | (string|number)[] | number[] | MetaPropValue[], link?: string) {
     this.label = label;
 
     if (typeof values === 'string' || typeof values === 'number') {

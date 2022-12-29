@@ -1,6 +1,7 @@
 import util from 'util';
 import { exec, spawn } from 'child_process';
 import { getGenshinDataFilePath } from '../loadenv';
+import { pathToFileURL } from 'url';
 
 const execPromise = util.promisify(exec);
 
@@ -122,17 +123,82 @@ export function shellEscapeArg(s: string): string {
   return `'` + s + `'`;
 }
 
+export function parseFlags(flags: string): Map<string, string> {
+  if (!flags) {
+    return new Map<string, string>();
+  }
+  let out: Map<string, string> = new Map<string, string>();
+  let curr: string;
+  for (let arg of flags.split(/(\s+)/g)) {
+    if (arg.startsWith('--')) {
+      out.set(curr = arg, '');
+    } else if (arg.startsWith('-')) {
+      [... arg.slice(1)].forEach(a => out.set(curr = ('-'+a), ''));
+    } else if (curr) {
+      out.set(curr, out.get(curr) + arg);
+    }
+  }
+  for (let flag of out.keys()) {
+    out.set(flag, out.get(flag).trim());
+  }
+  return out;
+}
+
+export function stringifyFlags(flags: Map<string, string>): string {
+  if (!flags || !flags.size) {
+    return '';
+  }
+
+  let flagsWithValues = [];
+  let doubles = [];
+  let singles = '';
+
+  for (let flag of flags.keys()) {
+    if (!!flags.get(flag)) {
+      flagsWithValues.push(flag + ' ' + flags.get(flag));
+    } else if (flag.startsWith('--')) {
+      doubles.push(flag);
+    } else if (flag.startsWith('-')) {
+      singles += flag.slice(1);
+    }
+  }
+  if (singles) {
+    return [... flagsWithValues, ... doubles, '-' + singles].join(' ');
+  } else {
+    return [... flagsWithValues, ... doubles].join(' ');
+  }
+}
+
 export function createGrepCommand(searchText: string, file: string, extraFlags?: string, escapeDoubleQuotes: boolean = true): string {
+  let flags: Map<string, string> = parseFlags(extraFlags);
+
+  if (/^\s*\/(.*)\/(i?)\s*$/.test(searchText)) {
+    let match = /^\s*\/(.*)\/(i?)\s*$/.exec(searchText);
+    let regex = match[1];
+    let iFlag = match[2];
+    flags.set('-P', '');
+    if (iFlag) {
+      flags.set('-i', '');
+    }
+    searchText = regex;
+  }
+
   if (escapeDoubleQuotes && file.endsWith('.json')) {
     searchText = searchText.replace(/"/g, `\\"`); // double quotes, assuming searching within a JSON string value
   }
 
   searchText = shellEscapeArg(searchText);
 
-  // Must use single quotes for searchText - double quotes has different behavior in bash, is insecure for arbitrary string...
-  // Use "-F" flag (fixed strings) so it isn't interpreted as a pattern. But don't use "-F" flag if "-E" flag (extended regex) is present.
-  let defaultFlags = extraFlags && extraFlags.includes('-E') ? '-i' : '-iF';
-  return `grep ${defaultFlags} ${extraFlags || ''} ${searchText} ${getGenshinDataFilePath(file)}`;
+  let hasRegexFlag: boolean = flags.has('-E') || flags.has('-P') || flags.has('-G');
+  if (!hasRegexFlag) {
+    flags.set('-i', '');
+    flags.set('-F', '');
+  }
+  let env = '';
+  if (flags.has('-P')) {
+    env = `LC_ALL=en_US.utf8 `;
+  }
+  return `${env}grep ${stringifyFlags(flags)} ${searchText} ${getGenshinDataFilePath(file)}`;
 }
 
 export async function grep(searchText: string, file: string, extraFlags?: string, escapeDoubleQuotes: boolean = true): Promise<string[]> {
@@ -177,7 +243,14 @@ export function normJsonGrep(s: string) {
   return s.replace(/\\"/g, '"').replace(/\\n/g, '\n');
 }
 
-
 export function normJsonGrepCmp(a: string, b: string) {
   return normJsonGrep(a).toLowerCase() === normJsonGrep(b).toLowerCase();
+}
+
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+  let parsed = parseFlags('--test-flag -abc -m 10 --another --foo bar -D -e');
+  console.log(parsed);
+
+  let stringified = stringifyFlags(parsed);
+  console.log(stringified);
 }

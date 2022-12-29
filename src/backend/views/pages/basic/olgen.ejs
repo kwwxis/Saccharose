@@ -14,11 +14,11 @@
         <legend><code>_tl</code> options</legend>
         <div class="field spacer5-horiz" style="padding-right:30px">
           <label class="ui-radio dispBlock" style="padding-left:5px;font-size:13px;">
-            <input type="radio" name="tl_options" value="none" <%= cookieTernary('OL.tl_options', {equalsOrEmpty: 'none', then: 'checked'}) %> />
+            <input type="radio" name="tl_options" value="none" <%= cookieTernary('OL.tl_options').equals('none').or.empty().then('checked') %> />
             <span>Include <code>[lang]_tl</code> params*</span>
           </label>
           <label class="ui-radio dispBlock" style="padding-left:5px;font-size:13px;">
-            <input type="radio" name="tl_options" value="exclude_tl" <%= cookieTernary('OL.tl_options', {equals: 'exclude_tl', then: 'checked'}) %> />
+            <input type="radio" name="tl_options" value="exclude_tl" <%= cookieTernary('OL.tl_options').equals('exclude_tl').then('checked') %> />
             <span>Exclude <code>[lang]_tl</code> params</span>
           </label>
         </div>
@@ -27,11 +27,11 @@
         <legend><code>_rm</code> options</legend>
         <div class="field spacer5-horiz" style="padding-right:30px">
           <label class="ui-radio dispBlock" style="padding-left:5px;font-size:13px;">
-            <input type="radio" name="rm_options" value="none" <%= cookieTernary('OL.rm_options', {equalsOrEmpty: 'none', then: 'checked'}) %> />
+            <input type="radio" name="rm_options" value="none" <%= cookieTernary('OL.rm_options').equals('none').or.empty().then('checked') %> />
             <span>Include <code>[lang]_rm</code> params</span>
           </label>
           <label class="ui-radio dispBlock" style="padding-left:5px;font-size:13px;">
-            <input type="radio" name="rm_options" value="exclude_rm" <%= cookieTernary('OL.rm_options', {equals: 'exclude_rm', then: 'checked'}) %> />
+            <input type="radio" name="rm_options" value="exclude_rm" <%= cookieTernary('OL.rm_options').equals('exclude_rm').then('checked') %> />
             <span>Exclude <code>[lang]_rm</code> params</span>
           </label>
         </div>

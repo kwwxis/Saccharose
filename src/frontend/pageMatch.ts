@@ -1,9 +1,9 @@
 import { runWhenDOMContentLoaded } from './util/eventLoader';
 
 let loadedViews: Set<string> = (() => {
-  let csrfElement: HTMLMetaElement = document.querySelector('meta[name="view-stack"]');
-  let loadedViews = csrfElement.content;
-  csrfElement.remove();
+  let viewStackMeta: HTMLMetaElement = document.querySelector('meta[name="view-stack"]');
+  let loadedViews = viewStackMeta.content;
+  viewStackMeta.remove();
   return new Set(loadedViews.split(','));
 })();
 

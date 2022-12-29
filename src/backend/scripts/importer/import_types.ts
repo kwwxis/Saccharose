@@ -3,7 +3,7 @@ export type SchemaTable = {
   name: string,
   columns: SchemaColumn[],
   jsonFile: string,
-  customRowResolve?: (row: any) => any[],
+  customRowResolve?: (row: any, allRows?: any[]) => any[],
   normalizeFixFields?: {[oldName: string]: string};
 };
 export type SchemaColumnType = 'string'|'integer'|'bigInteger'|'boolean'|'text'|'float'|'double'|'decimal'|'json'|'jsonb'|'uuid';

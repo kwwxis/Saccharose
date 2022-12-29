@@ -1,5 +1,5 @@
-export interface ConfigCondition {
-  Type?: string,
+export interface ConfigCondition<T extends string = string> {
+  Type?: T,
   Param?: (string|number)[]
   Count?: string,
   ParamStr?: string,

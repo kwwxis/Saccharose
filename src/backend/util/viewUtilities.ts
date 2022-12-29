@@ -1,4 +1,4 @@
-import feather, { FeatherAttributes } from 'feather-icons';
+import feather from 'feather-icons';
 import createHtmlElement from 'create-html-element';
 
 export function icon(iconName: string, size?: number, props: any = {}): string {
@@ -39,7 +39,7 @@ export function TemplateLink(template: string): string {
   }) + '}}';
 }
 
-export function timestamp(ts: Date|number|string, format=null): string {
+export function printTimestamp(ts: Date|number|string, format=null): string {
   if (ts instanceof Date)
     ts = ts.getTime() / 1000 | 0;
   if (typeof ts !== 'number')
@@ -49,7 +49,7 @@ export function timestamp(ts: Date|number|string, format=null): string {
   return `<span class="timestamp is--formatted is--unconverted" data-timestamp="${ts}" data-format="${format}">${format}</span>`;
 }
 
-export function humanTiming(ts: Date|number): string {
+export function printHumanTiming(ts: Date|number): string {
   if (ts instanceof Date)
     ts = ts.getTime() / 1000 | 0;
 

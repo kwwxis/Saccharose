@@ -1,7 +1,7 @@
-import AppRouter from './app/AppRouter';
+import AppRouter from './AppRouter';
 import helmet from 'helmet';
-import { create, Router, Request, Response, NextFunction } from '../util/router';
-import { toBoolean } from '../../shared/util/genericUtil';
+import { create, Router, Request, Response, NextFunction } from '../../util/router';
+import { toBoolean } from '../../../shared/util/genericUtil';
 
 export default async function(): Promise<Router> {
   const router: Router = create({
@@ -21,7 +21,6 @@ export default async function(): Promise<Router> {
         scriptSrc: ["'self'", "'unsafe-eval'", 'cdnjs.cloudflare.com', 'unpkg.com', `'nonce-${req.context.nonce}'`, `${process.env.VHOST}:*`],
         fontSrc: ["'self'", 'fonts.googleapis.com', 'fonts.gstatic.com'],
         connectSrc: ["'self'", `wss://${process.env.VHOST}:*`],
-        //upgradeInsecureRequests: [],
       },
       reportOnly: false,
     };

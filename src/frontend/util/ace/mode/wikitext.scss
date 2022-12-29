@@ -43,11 +43,15 @@ body.nightmode .ace_link {
   background-color: hsl(247deg 75% 93% / 6%);
 }
 .ace_link-color,
-.ace_external-link-color{
+.ace_external-link-color,
+.ace_bare-link-color,
+.ace_magic-link-color {
   color: #327b9a;
 }
 body.nightmode .ace_link-color,
-body.nightmode .ace_external-link-color {
+body.nightmode .ace_external-link-color,
+body.nightmode .ace_bare-link-color,
+body.nightmode .ace_magic-link-color {
   color: #e4c179;
 }
 
@@ -123,4 +127,10 @@ body.nightmode .ace_signature {
 // --------------------------------------------------------------------------------------------------------------
 .ace_item-prefix {
   color: #08f;
+}
+
+// Bulleted/Numbered List Prefixes and Indents
+// --------------------------------------------------------------------------------------------------------------
+.ace_table-color {
+  color: #e0e;
 }

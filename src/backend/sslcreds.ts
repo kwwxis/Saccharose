@@ -9,5 +9,9 @@ export default <ServerOptions> {
   spdy: {
     plain: false,
     ssl: !!process.env.SSL_ENABLED,
-	}
+    connection: {
+      windowSize: 1024*1024
+    }
+	},
+  maxHeaderSize: 500_000 // 500 KB
 };

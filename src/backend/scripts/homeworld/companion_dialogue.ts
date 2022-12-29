@@ -8,6 +8,9 @@ import { toInt } from '../../../shared/util/numberUtil';
 import { HomeWorldEventExcelConfigData, HomeWorldNPCExcelConfigData } from '../../../shared/types/homeworld-types';
 import { grep } from '../../util/shellutil';
 import { DialogueSectionResult, TalkConfigAccumulator } from '../dialogue/dialogue_util';
+import util from 'util';
+import { toBoolean } from '../../../shared/util/genericUtil';
+import { pathToFileURL } from 'url';
 
 export async function getHomeWorldCompanions(ctrl: Control): Promise<HomeWorldNPCExcelConfigData[]> {
   return cached('HomeWorldCompanions_'+ctrl.outputLangCode, async () => {
@@ -83,7 +86,24 @@ export async function fetchCompanionDialogue(ctrl: Control, avatarNameOrId: stri
       if (acc.fetchedTalkConfigIds.includes(talkConfigId)) {
         continue;
       }
-      result.push(await talkConfigGenerate(ctrl, talkConfigId, null, acc));
+      let sect = await talkConfigGenerate(ctrl, talkConfigId, null, acc);
+      result.push(sect);
+
+      for (let child of sect.children) {
+        let friendshipCond = child.originalData.talkConfig?.BeginCond?.find(cond => cond.Type === 'QUEST_COND_AVATAR_FETTER_GT');
+        if (friendshipCond) {
+          child.wikitext = `;(Unlocks at Friendship Level ${toInt(friendshipCond.Param[1]) + 1})\n` + child.wikitext.trimStart();
+        }
+
+        let daytimeCond = child.originalData.talkConfig?.BeginCond?.find(cond => cond.Type === 'QUEST_COND_IS_DAYTIME');
+        if (daytimeCond) {
+          if (toBoolean(daytimeCond.Param[0])) {
+            child.wikitext = `;<nowiki>(Between 6:00 and 19:00)</nowiki>\n` + child.wikitext.trimStart();
+          } else {
+            child.wikitext = `;<nowiki>(Between 19:00 and 6:00)</nowiki>\n` + child.wikitext.trimStart();
+          }
+        }
+      }
     }
 
     for (let rewardEvent of companion.RewardEvents) {
@@ -109,11 +129,13 @@ export async function fetchCompanionDialogue(ctrl: Control, avatarNameOrId: stri
   });
 }
 
-if (require.main === module) {
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
     await loadEnglishTextMap();
     let ctrl = getControl();
-    console.log(await fetchCompanionDialogue(ctrl, 'Raiden Shogun'));
+    //console.log(await fetchCompanionDialogue(ctrl, 'Raiden Shogun'));
+    let res = await fetchCompanionDialogue(ctrl, 'Collei');
+    console.log(util.inspect(res, false, null, true));
     await closeKnex();
   })();
 }

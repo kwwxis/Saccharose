@@ -1,10 +1,15 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import { copyToClipboard, getScrollbarWidth, setQueryStringParameter } from './util/domutil';
-import { human_timing, timeConvert } from '../shared/util/genericUtil';
-import { Props as TippyProps } from 'tippy.js';
+import {
+  copyToClipboard,
+  getScrollbarWidth,
+  hashFlash,
+  isElementPartiallyInViewport,
+  setQueryStringParameter,
+} from './util/domutil';
+import { humanTiming, throttle, timeConvert } from '../shared/util/genericUtil';
 import { closeDialog } from './util/dialog';
-import { enableTippy, flashTippy, hideTippy, showTippy } from './util/tooltips';
+import { enableTippy, flashTippy, getTippyOpts, hideTippy, showTippy } from './util/tooltips';
 import { Listener, runWhenDOMContentLoaded, startListeners } from './util/eventLoader';
 import { showJavascriptErrorDialog } from './util/errorHandler';
 import autosize from 'autosize';
@@ -12,19 +17,24 @@ import { isInt } from '../shared/util/numberUtil';
 import { uuidv4 } from '../shared/util/stringUtil';
 import { highlightWikitextReplace } from './util/ace/wikitextEditor';
 
-function parseUiAction(actionStr: string|HTMLElement): {[actionType: string]: string[]} {
+type UiAction = {actionType: string, actionParams: string[]};
+
+function parseUiAction(actionStr: string|HTMLElement): UiAction[] {
   if (actionStr instanceof HTMLElement) {
     actionStr = actionStr.getAttribute('ui-action');
   }
-  const result = {};
+  const result: UiAction[] = [];
   const actions = actionStr.split(';');
   for (let action of actions) {
     if (!action.includes(':')) {
-      result[action.trim()] = [];
+      result.push({actionType: action.trim(), actionParams: []});
       continue;
     }
     const actionType = action.split(':')[0].trim().toLowerCase();
-    result[actionType] = action.split(':')[1].split(',').map(x => x.trim());
+    result.push({
+      actionType,
+      actionParams: action.split(':')[1].split(',').map(x => x.trim())
+    });
   }
   return result;
 }
@@ -47,40 +57,14 @@ const initial_listeners: Listener[] = [
         return showJavascriptErrorDialog.apply(null, [event.reason]);
       });
 
-      window.addEventListener('hashchange', function (_event: HashChangeEvent) {
-        let hash = window.location.hash;
-        if (hash && hash.length > 1) {
-          hash = hash.slice(1);
-          console.log('Hash Change:', hash);
-          let target = document.getElementById(hash);
-          if (target) {
-            window.history.replaceState({}, null, window.location.href.split('#')[0]);
-            target.classList.add('flash');
-            setTimeout(() => {
-              target.classList.remove('flash');
-            }, 1000);
-          }
-        }
-      });
+      hashFlash();
+      window.addEventListener('hashchange', () => hashFlash());
 
-      if (location.hash) {
-        let el = document.querySelector(location.hash);
-        if (el) {
-          setTimeout(() => {
-            el.classList.add('flash');
-            window.history.replaceState(null, null, ' '); // remove hash
-            setTimeout(() => {
-              el.classList.remove('flash');
-            }, 2000);
-          }, 500);
-        }
-      }
-
-      let csrfElement: HTMLMetaElement = document.querySelector('meta[name="csrf-token"]');
+      const csrfElement: HTMLMetaElement = document.querySelector('meta[name="csrf-token"]');
       axios.defaults.headers.common['x-csrf-token'] = csrfElement.content;
       csrfElement.remove();
 
-      let scrollbarWidth = getScrollbarWidth();
+      const scrollbarWidth = getScrollbarWidth();
       document.head.insertAdjacentHTML('beforeend',
         `<style>body.mobile-menu-open { margin-right: ${scrollbarWidth}px; }\n` +
         `body.mobile-menu-open #header { padding-right: ${scrollbarWidth}px; }\n` +
@@ -88,43 +72,29 @@ const initial_listeners: Listener[] = [
         `</style>`
       );
     },
+
+    allowReadonlyKeys: new Set(['ArrowUp', 'ArrowRight', 'ArrowDown', 'ArrowLeft', 'Shift', 'Control ', 'Alt', 'Tab',
+      'PageUp', 'PageDown', 'Home', 'End']),
+
     intervalFunction() {
       document.querySelectorAll<HTMLTextAreaElement>('textarea.wikitext').forEach(el => {
-        autosize(el);
-        let showGutter = el.classList.contains('wikitext-gutter');
+        if (el.closest('.hide')) {
+          return;
+        }
+        let showGutter: boolean = el.classList.contains('wikitext-gutter');
         highlightWikitextReplace(el, !showGutter);
       });
 
-      document.querySelectorAll<HTMLElement>('.timestamp.is--formatted.is--unconverted').forEach(el => {
-        el.classList.remove('is--unconverted');
-        el.classList.add('is--converted');
-        el.innerText = timeConvert(parseInt(el.getAttribute('data-timestamp')), el.getAttribute('data-format') || null);
-      });
-
-      document.querySelectorAll<HTMLElement>('.timestamp.is--humanTiming').forEach(el => {
-        el.innerText = human_timing(parseInt(el.getAttribute('data-timestamp')));
-      });
-
-      function getTippyOpts(el: HTMLElement, attrName: string): Partial<TippyProps> {
-        const attrVal = el.getAttribute(attrName).trim();
-
-        let opts;
-        if (attrVal.startsWith('{') && attrVal.endsWith('}')) {
-          opts = eval('('+attrVal+')');
-        } else {
-          opts = {content: attrVal};
+      document.querySelectorAll<HTMLTextAreaElement>('textarea.autosize').forEach(el => {
+        if (el.closest('.hide')) {
+          return;
         }
-        if (!opts.delay) {
-          opts.delay = [100,100];
-        }
-
-        el.removeAttribute(attrName);
-        return opts;
-      }
+        el.classList.remove('autosize');
+        autosize(el);
+      });
 
       document.querySelectorAll<HTMLElement>('[ui-tippy]').forEach(el => {
-        const opts = getTippyOpts(el, 'ui-tippy');
-        enableTippy(el, opts);
+        enableTippy(el, getTippyOpts(el, 'ui-tippy'));
       });
 
       document.querySelectorAll<HTMLElement>('[ui-tippy-hover]').forEach(el => {
@@ -144,22 +114,6 @@ const initial_listeners: Listener[] = [
         });
       });
 
-      document.querySelectorAll<HTMLImageElement>('img.lazy').forEach(el => {
-        el.classList.remove('lazy');
-        el.src = el.getAttribute('data-src');
-      });
-
-      document.querySelectorAll<HTMLImageElement>('textarea.autosize').forEach(el => {
-        if (el.closest('.hide')) {
-          return;
-        }
-        el.classList.remove('autosize');
-        autosize(el);
-      });
-
-      let allowedKeys = new Set(['ArrowUp', 'ArrowRight', 'ArrowDown', 'ArrowLeft', 'Shift', 'Control ', 'Alt', 'Tab',
-      'PageUp', 'PageDown', 'Home', 'End']);
-
       document.querySelectorAll('[contenteditable][readonly]:not(.readonly-contenteditable-processed)').forEach(el => {
         el.classList.add('readonly-contenteditable-processed');
         el.addEventListener('paste', event => {
@@ -171,12 +125,22 @@ const initial_listeners: Listener[] = [
           event.preventDefault();
         });
         el.addEventListener('keydown', (event: KeyboardEvent) => {
-          if (event.metaKey || event.ctrlKey || event.altKey || event.shiftKey || allowedKeys.has(event.key)) {
+          if (event.metaKey || event.ctrlKey || event.altKey || event.shiftKey || this.allowReadonlyKeys.has(event.key)) {
             return;
           }
           event.stopPropagation();
           event.preventDefault();
         });
+      });
+
+      document.querySelectorAll<HTMLElement>('.timestamp.is--formatted.is--unconverted').forEach(el => {
+        el.classList.remove('is--unconverted');
+        el.classList.add('is--converted');
+        el.innerText = timeConvert(parseInt(el.getAttribute('data-timestamp')), el.getAttribute('data-format') || null);
+      });
+
+      document.querySelectorAll<HTMLElement>('.timestamp.is--humanTiming').forEach(el => {
+        el.innerText = humanTiming(parseInt(el.getAttribute('data-timestamp')));
       });
     },
   },
@@ -193,11 +157,28 @@ const initial_listeners: Listener[] = [
       }
 
       if (actionEl) {
-        const actions: {[actionType: string]: string[]} = parseUiAction(actionEl);
-        for (let actionType of Object.keys(actions)) {
-          let actionParams = actions[actionType];
+        const actions: UiAction[] = parseUiAction(actionEl);
+        for (let action of actions) {
+          let actionType = action.actionType;
+          let actionParams = action.actionParams;
 
           switch (actionType) {
+            case 'add-class':
+              let addClassTarget = document.querySelector(actionParams[0]);
+              if (addClassTarget) {
+                for (let cls of actionParams.slice(1)) {
+                  addClassTarget.classList.remove(cls);
+                }
+              }
+              break;
+            case 'remove-class':
+              let removeClassTarget = document.querySelector(actionParams[0]);
+              if (removeClassTarget) {
+                for (let cls of actionParams.slice(1)) {
+                  removeClassTarget.classList.remove(cls);
+                }
+              }
+              break;
             case 'toggle-class':
               let toggleClassTarget = document.querySelector(actionParams[0]);
               if (toggleClassTarget) {
@@ -313,7 +294,7 @@ const initial_listeners: Listener[] = [
             case 'copy-all':
               let copyTargets: HTMLInputElement[] = actionParams.map(sel => Array.from(document.querySelectorAll<HTMLInputElement>(sel))).flat(Infinity) as HTMLInputElement[];
               let combinedValues: string[] = [];
-              let sep = (actions?.['copy-sep']?.[0] || '').replace(/\\n/g, '\n');
+              let sep = actions.find(a => a.actionType === 'copy-sep')?.actionParams?.[0].replace(/\\n/g, '\n') || '\n';
               if (copyTargets) {
                 for (let copyTarget of copyTargets) {
                   if ((<any> copyTarget).value) {
@@ -335,14 +316,16 @@ const initial_listeners: Listener[] = [
                 tabpanel.classList.add('active');
                 actionEl.classList.add('active');
               }
-              let otherTabs = Array.from(document.querySelectorAll<HTMLElement>('[ui-action*="tab:"]'));
-              for (let tab of otherTabs) {
-                let tabActions = parseUiAction(tab);
-                if (tabActions.tab && tabActions.tab[1] == tabgroup && tabActions.tab[0] !== actionParams[0]) {
-                  tab.classList.remove('active');
-                  const otherTabPanel = document.querySelector(tabActions.tab[0]);
-                  otherTabPanel.classList.remove('active');
-                  otherTabPanel.classList.add('hide');
+              let otherTabEls = Array.from(document.querySelectorAll<HTMLElement>('[ui-action*="tab:"]'));
+              for (let otherTabEl of otherTabEls) {
+                let otherTabActions = parseUiAction(otherTabEl);
+                for (let otherTabAction of otherTabActions.filter(x => x.actionType === 'tab')) {
+                  if (otherTabAction.actionParams[0] == tabgroup && otherTabAction.actionParams[0] !== actionParams[0]) {
+                    otherTabEl.classList.remove('active');
+                    const otherTabPanel = document.querySelector(otherTabAction.actionParams[0]);
+                    otherTabPanel.classList.remove('active');
+                    otherTabPanel.classList.add('hide');
+                  }
                 }
               }
               break;
@@ -424,6 +407,13 @@ const initial_listeners: Listener[] = [
                 }, duration);
               }
 
+              break;
+            case 'set-cookie':
+              Cookies.set(actionParams[0].trim(), actionParams[1].trim(), {expires: 365});
+              break;
+            case 'remove-cookie':
+            case 'delete-cookie':
+              Cookies.remove(actionParams[0].trim());
               break;
             default:
               break;

@@ -57,13 +57,15 @@ export interface QuestExcelConfigData {
   // Cond/Exec (no longer available?)
   AcceptCond: ConfigCondition[],
   AcceptCondComb: string,
-  FinishCond: ConfigCondition[],
-  FinishCondComb: string,
+  BeginExec: ConfigCondition[],
+
   FailCond: ConfigCondition[],
   FailCondComb: string,
-  FinishExec: ConfigCondition[],
   FailExec: ConfigCondition[],
-  BeginExec: ConfigCondition[],
+
+  FinishCond: ConfigCondition[],
+  FinishCondComb: string,
+  FinishExec: ConfigCondition[],
 
   // NPC/Avatar (no longer available?)
   ExclusiveNpcList: number[],

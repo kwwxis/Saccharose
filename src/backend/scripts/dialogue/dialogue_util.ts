@@ -3,6 +3,7 @@ import { ConfigCondition } from '../../../shared/types/general-types';
 import { Control } from '../script_util';
 import { QuestGenerateResult } from './quest_generator';
 import { MetaProp, MetaPropValue } from '../../util/metaProp';
+import { toBoolean } from '../../../shared/util/genericUtil';
 
 export class DialogueSectionResult {
   id: string = null;
@@ -22,7 +23,11 @@ export class DialogueSectionResult {
     this.helptext = helptext;
   }
 
-  addMetaProp(label: string, values: string | number | string[] | number[] | MetaPropValue[], link?: string) {
+  addEmptyMetaProp(label: string) {
+    this.metadata.push(new MetaProp(label, null));
+  }
+
+  addMetaProp(label: string, values: string | number | string[] | (string|number)[] | number[] | MetaPropValue[], link?: string) {
     if (!values || (Array.isArray(values) && !values.length)) {
       return;
     }
@@ -124,6 +129,27 @@ export async function talkConfigToDialogueSectionResult(ctrl: Control, parentSec
   mysect.addMetaProp('NPC ID', talkConfig.NpcId, '/npc-dialogue?q={}');
   mysect.addMetaProp('Next Talk IDs', talkConfig.NextTalks, '/branch-dialogue?q={}');
 
+  for (let beginCond of (talkConfig.BeginCond || [])) {
+    switch (beginCond.Type) {
+      case 'QUEST_COND_AVATAR_FETTER_GT':
+        mysect.addMetaProp('Friendship', ['greater than', beginCond.Param[1]]);
+        break;
+      case 'QUEST_COND_AVATAR_FETTER_LT':
+        mysect.addMetaProp('Friendship', ['less than', beginCond.Param[1]]);
+        break;
+      case 'QUEST_COND_AVATAR_FETTER_EQ':
+        mysect.addMetaProp('Friendship', ['equals', beginCond.Param[1]]);
+        break;
+      case 'QUEST_COND_IS_DAYTIME':
+        if (toBoolean(beginCond.Param[0])) {
+          mysect.addEmptyMetaProp('Daytime Only');
+        } else {
+          mysect.addEmptyMetaProp('Nighttime Only');
+        }
+        break;
+    }
+  }
+
   if (talkConfig.Dialog.length && ctrl.isPlayerDialogueOption(talkConfig.Dialog[0])) {
     dialogueDepth += 1;
   }
@@ -162,4 +188,8 @@ export async function talkConfigToDialogueSectionResult(ctrl: Control, parentSec
     }
   }
   return mysect;
+}
+
+export function traceBack(dialog: DialogExcelConfigData) {
+
 }

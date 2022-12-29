@@ -5,6 +5,8 @@ import { isEmpty } from '../../../shared/util/genericUtil';
 import { resolveObjectPath } from '../../../shared/util/arrayUtil';
 import { closeKnex } from '../../util/db';
 import { isInt } from '../../../shared/util/numberUtil';
+import { QuestExcelConfigData } from '../../../shared/types/quest-types';
+import { pathToFileURL } from 'url';
 
 async function inspectGenshinDataFile(ctrl: Control, file: string, inspectFieldValues: string[] = [], printRecordsWithAnyValueForTheseFields: string[] = []): Promise<any[]> {
   if (!inspectFieldValues)
@@ -53,8 +55,22 @@ async function inspectGenshinDataFile(ctrl: Control, file: string, inspectFieldV
   console.log('-'.repeat(100))
   for (let field of inspectFieldValues) {
     let values = Array.from(inspectFieldsResult[field]).sort();
-    console.log(`${file} - Unique values for field "${field}":\n  ` + values.map(x => (''+JSON.stringify(x))
-      .replace(/"/g, "'")).join(values.length < 4 || values.every(x => isInt(x)) ? ' | ' : ' |\n  '));
+    let isOptionalField = values.some(v => typeof v === 'undefined' || v === null);
+    values = values.filter(v => typeof v !== 'undefined' && v !== null)
+
+    values = values.map(x => String(JSON.stringify(x)).replace(/"/g, "'"));
+
+    let singleLineThreshold: boolean = values.join(' | ').length < 110;
+    if (!singleLineThreshold) {
+      let padEndNum = Math.max(... values.map(v => v.length));
+      if (padEndNum % 4 !== 0) {
+        padEndNum += 4 - (padEndNum % 4);
+      }
+      values = values.map(v => v.padEnd(padEndNum));
+    }
+
+    let valueStr = values.join(singleLineThreshold ? ' | ' : '|\n  ') + ';';
+    console.log(`${file} - Unique values for field "${field}":${isOptionalField ? ' (optional)' : ''}\n` + valueStr);
   }
   console.log('Unique fields:\n{');
   for (let field of Object.keys(uniqueFields)) {
@@ -64,7 +80,7 @@ async function inspectGenshinDataFile(ctrl: Control, file: string, inspectFieldV
   return result;
 }
 
-if (require.main === module) {
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
     const ctrl = getControl();
     await loadEnglishTextMap();
@@ -79,7 +95,13 @@ if (require.main === module) {
     // resolveObjectPath(res, '[#EVERY].Avatar', true);
     // console.log(res.slice(0, 5));
 
-    await inspectGenshinDataFile(ctrl, './ExcelBinOutput/LocalizationExcelConfigData.json', ['AssetType']);
+    //await inspectGenshinDataFile(ctrl, './ExcelBinOutput/LocalizationExcelConfigData.json', ['AssetType']);
+    //await inspectGenshinDataFile(ctrl, './ExcelBinOutput/TalkExcelConfigData.json', ['BeginCond[#ALL].Type', 'FinishExec[#ALL].Type']);
+    await inspectGenshinDataFile(ctrl, './ExcelBinOutput/QuestExcelConfigData.json', [
+      'AcceptCond[#ALL].Type', 'BeginExec[#ALL].Type',
+      'FailCond[#ALL].Type', 'FailExec[#ALL].Type',
+      'FinishCond[#ALL].Type', 'FinishExec[#ALL].Type',
+    ]);
 
     await closeKnex();
   })();

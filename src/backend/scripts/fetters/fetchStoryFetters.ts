@@ -11,6 +11,7 @@ import { getTextMapItem, loadEnglishTextMap } from '../textmap';
 import { processFetterConds } from './fetterConds';
 import { resolveObjectPath } from '../../../shared/util/arrayUtil';
 import { FetterStoryExcelConfigData, StoryFetters, StoryFettersByAvatar } from '../../../shared/types/fetter-types';
+import { pathToFileURL } from 'url';
 
 const sep = '</p><!--\n              --><p>';
 
@@ -105,7 +106,7 @@ export async function fetchCharacterStoryByAvatarName(ctrl: Control, avatarName:
   return Object.values(storiesByAvatar).find(x => x.avatar.NameText.toLowerCase() == avatarNameNorm);
 }
 
-if (require.main === module) {
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
     await loadEnglishTextMap();
     let res: StoryFetters = await fetchCharacterStoryByAvatarName(getControl(), 'nahida');

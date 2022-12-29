@@ -6,6 +6,7 @@ import { isInt } from '../../../shared/util/numberUtil';
 import { mwParse } from '../../../shared/mediawiki/mwParse';
 import { MwTemplateNode } from '../../../shared/mediawiki/mwTypes';
 import { escapeHtml } from '../../../shared/util/stringUtil';
+import { pathToFileURL } from 'url';
 
 function ol_gen_internal(textMapId: number, hideTl: boolean = false, addDefaultHidden: boolean = false, hideRm: boolean = false): string {
   let template = `{{Other Languages
@@ -198,7 +199,7 @@ export function highlight_ol_differences(olResults: OLResult[]): OLResult[] {
   return olResults;
 }
 
-if (require.main === module) {
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
     await loadTextMaps(['EN', 'CHS']);
     console.log(await ol_gen(getControl(), `"Outlander Brigade!"`));

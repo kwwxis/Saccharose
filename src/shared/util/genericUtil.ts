@@ -1,4 +1,5 @@
 import moment from 'moment/moment';
+import { arrayContains, isArrayLike, isIterable } from './arrayUtil';
 
 export type Type<T> = { new (...args: any[]): T };
 
@@ -13,12 +14,49 @@ export function isset(x: any): boolean {
 export function isEmpty(x: any): boolean {
     if (typeof x === 'boolean' || typeof x === 'number') {
         return false; // don't consider any booleans or numbers to be empty
+    } else if (typeof x === 'string') {
+        return !x.trim().length;
+    } else if (Array.isArray(x)) {
+        return x.length === 0;
+    } else if (isArrayLike(x)) {
+        return x.length === 0;
+    } else if (x instanceof Map) {
+        return x.size === 0;
+    } else if (x instanceof Set) {
+        return x.size === 0;
+    } else if (isIterable(x)) {
+        return [... x[Symbol.iterator]()].length === 0;
+    } else if (typeof x === 'object') {
+        return Object.keys(x).length === 0;
+    } else {
+        return !x;
     }
-    return !x || (typeof x === 'string' && !x.trim().length) || (Array.isArray(x) && !x.length) || (typeof x === 'object' && !Object.keys(x).length);
 }
 
 export function isNotEmpty(x: any): boolean {
     return !isEmpty(x);
+}
+
+export function includes<T>(obj: any, item: any) {
+    if (typeof obj === 'string' && typeof item === 'string') {
+        return obj.includes(item);
+    } else if (Array.isArray(obj)) {
+        return obj.includes(item);
+    } else if (isArrayLike(obj)) {
+        return arrayContains(<any> obj, item);
+    } else if (obj instanceof Map) {
+        return [... obj.entries()].includes(item);
+    } else if (obj instanceof Set) {
+        return obj.has(item);
+    } else if (isIterable(obj)) {
+        return [... obj[Symbol.iterator]()].includes(item);
+    } else {
+        return false;
+    }
+}
+
+export function notIncludes(obj: any, item: any) {
+    return !includes(obj, item);
 }
 
 /**
@@ -39,12 +77,6 @@ export function toVoidPromise(x: Promise<any>): Promise<void> {
     return x.then(() => {});
 }
 
-export function strToBool(s: string) {
-    if (!s) return false;
-    s = s.toLowerCase();
-    return (s === 'true' || s === 'yes' || s === 'y' || s === '1');
-}
-
 export const TRUTHY_STRINGS = new Set(['t', 'true', '1', 'y', 'yes', 'on', 'en', 'enable', 'enabled',
     'active', 'activated', 'positive', 'allow', 'allowed', '+', '+', '✓', '✔', '🗸', '☑', '🗹', '✅']);
 
@@ -55,6 +87,12 @@ export function toBoolean(x: any): boolean {
         return TRUTHY_STRINGS.has(x.toLowerCase().trim());
     } else if (typeof x === 'number') {
         return x > 0;
+    } else if (Array.isArray(x) || isArrayLike(x)) {
+        return x.length > 0;
+    } else if (x instanceof Map || x instanceof Set) {
+        return x.size > 0;
+    } else if (isIterable(x)) {
+        return [... x[Symbol.iterator]()].length > 0;
     } else {
         return !!x;
     }
@@ -63,12 +101,10 @@ export function toBoolean(x: any): boolean {
 /**
  * Format a date.
  *
- * @param {Date|number} UNIX_timestamp date object or unix timestamp integer
- * @param {boolean|string} [format] true for only date, false for date and time, or string for
- * custom format (moment.js format)
- * @param {number} [tzOffset] e.g. `-8`
- * @param {string} [tzAbrv] e.g. 'PST' or 'GMT'
- * @returns {string}
+ * @param UNIX_timestamp The timestamp, either as a Date object or as a UNIX timestamp (milliseconds).
+ * @param format true for only date (`MMM DD YYYY`), falsy for date and time (`MMM DD YYYY hh:mm:ss a`), or string for custom format (moment.js format)
+ * @param tzOffset e.g. `-8`
+ * @param tzAbrv e.g. 'PST' or 'GMT'
  */
 export function timeConvert(UNIX_timestamp: Date | number, format: boolean | string = undefined, tzOffset: number = null, tzAbrv: string = null): string {
     if (!UNIX_timestamp) {
@@ -79,7 +115,7 @@ export function timeConvert(UNIX_timestamp: Date | number, format: boolean | str
     if (UNIX_timestamp instanceof Date) {
         a = moment(UNIX_timestamp);
     } else if (typeof UNIX_timestamp === 'number') {
-        a = moment(UNIX_timestamp * 1000);
+        a = moment(UNIX_timestamp);
     } else {
         return String(UNIX_timestamp);
     }
@@ -100,21 +136,37 @@ export function timeConvert(UNIX_timestamp: Date | number, format: boolean | str
 /**
  * Returns time in formats such as `X days ago` or `X seconds ago`
  *
- * @param {Date} time
- * @param {string} [suffix] by default uses 'from now' or 'ago' based on whether input time is
- * before or after current time, or uses specified `suffix` parameter if provided
- * @returns {string}
+ * @param time The timestamp, either as a Date object or as a UNIX timestamp (milliseconds).
+ * @param suffix The suffix. Default is `from now` or `ago` depending on whether the time is in the future or in the past.
+ * @param currentTime The timestamp to use as the "current time".
  */
-export function human_timing(time: Date | number | null, suffix?: string): string {
+export function humanTiming(time: Date | number | null, suffix?: string|((inPast: boolean) => string), currentTime?: Date|number): string {
     suffix = suffix || null;
 
-    if (time instanceof Date) time = (time.getTime() / 1000) | 0;
-    if (time === null) return null;
-    if (time <= 0) return 'never';
+    if (time instanceof Date)
+        time = time.getTime();
+    if (typeof time === 'undefined' || time === null || time <= 0)
+        return 'never';
+    if (currentTime instanceof Date)
+        currentTime = currentTime.getTime();
+    if (!currentTime)
+        currentTime = Date.now();
 
-    time = Math.floor(Date.now() / 1000) - time;
-    suffix = suffix ? suffix : time < 0 ? 'from now' : 'ago';
+    // convert from MS to seconds:
+    time = (time / 1000) | 0;
+    currentTime = (currentTime / 1000 | 0);
+
+    // get delta:
+    time = currentTime - time;
+    let inFuture = time < 0;
     time = Math.abs(time);
+
+    if (suffix && typeof suffix == 'function') {
+        suffix = suffix(inFuture);
+    }
+    if (typeof suffix === 'undefined' || suffix === null) {
+        suffix = inFuture ? 'from now' : 'ago';
+    }
 
     if (time <= 1) return 'Just now';
 
@@ -216,7 +268,7 @@ function getCircularReplacer(cyclicValueReplacer?: CyclicValueReplacer) {
         }
         return value;
     };
-};
+}
 
 /**
  * Stringifies JSON with circular references removed.
@@ -224,4 +276,210 @@ function getCircularReplacer(cyclicValueReplacer?: CyclicValueReplacer) {
  */
 export function safeStringify(data: any) {
     return JSON.stringify(data, getCircularReplacer());
+}
+
+type CompareTernaryMode = 'equals' | 'notEquals' | 'includes' | 'notIncludes' | 'isEmpty' | 'isNotEmpty'
+  | 'isTruthy' | 'isFalsy' | 'isGreaterThan' | 'isLessThan' | 'isGreaterThanOrEqual' | 'isLessThanOrEqual';
+type CompareTernaryComparison<T> = {value: T, mode: CompareTernaryMode};
+
+export class CompareTernaryGroup<T> {
+    protected value: T;
+    protected comparisons: (CompareTernaryComparison<T>|CompareTernaryGroup<T>)[] = [];
+    protected chainMode: 'or' | 'and' = null;
+    protected flagAllowChain: boolean = true;
+    protected flagIgnoreCase: boolean = false;
+
+    protected constructor(value: T) {
+        this.value = value;
+    }
+
+    private addComparison(value: T, mode: CompareTernaryMode): this {
+        if (!this.flagAllowChain) {
+            throw 'CompareTernary: must use .or/.and to chain';
+        }
+        this.flagAllowChain = false;
+        this.comparisons.push({value, mode});
+        return this;
+    }
+
+    get or(): this {
+        if (this.chainMode === 'and') {
+            throw 'Cannot change chain mode to "or" after it has already been set to "and"';
+        }
+        this.chainMode = 'or';
+        this.flagAllowChain = true;
+        return this;
+    }
+
+    get and(): this {
+        if (this.chainMode === 'or') {
+            throw 'Cannot change chain mode to "and" after it has already been set to "or"';
+        }
+        this.chainMode = 'and';
+        this.flagAllowChain = true;
+        return this;
+    }
+
+    ignoreCase(): this {
+        this.flagIgnoreCase = true;
+        return this;
+    }
+
+    equals(value: T): this {
+        return this.addComparison(value, 'equals');
+    }
+
+    notEquals(value: T): this {
+        return this.addComparison(value, 'equals');
+    }
+
+    includes(value: T): this {
+        return this.addComparison(value, 'includes');
+    }
+
+    notIncludes(value: T): this {
+        return this.addComparison(value, 'notIncludes');
+    }
+
+    isEmpty(): this {
+        return this.addComparison(null, 'isEmpty');
+    }
+
+    isNotEmpty(): this {
+        return this.addComparison(null, 'isNotEmpty');
+    }
+
+    isTruthy(): this {
+        return this.addComparison(null, 'isTruthy');
+    }
+
+    isFalsy(): this {
+        return this.addComparison(null, 'isFalsy');
+    }
+
+    isGreaterThan(value: T) {
+        return this.addComparison(value as any, 'isGreaterThan');
+    }
+
+    isLessThan(value: T) {
+        return this.addComparison(value as any, 'isLessThan');
+    }
+
+    isGreaterThanOrEqual(value: T) {
+        return this.addComparison(value as any, 'isGreaterThanOrEqual');
+    }
+
+    isLessThanOrEqual(value: T) {
+        return this.addComparison(value as any, 'isLessThanOrEqual');
+    }
+
+    group(callback: (group: CompareTernaryGroup<T>) => void): this {
+        let newGroup = new CompareTernaryGroup(this.value);
+        this.comparisons.push(newGroup);
+        callback(newGroup);
+        return this;
+    }
+
+    protected cmpResult() {
+        if (!this.comparisons.length) {
+            return true;
+        }
+        if (this.flagIgnoreCase && typeof this.value === 'string') {
+            this.value = <T> <any> this.value.toUpperCase();
+        }
+        if (!this.chainMode) {
+            this.chainMode = 'or';
+        }
+        let fullResult = this.chainMode === 'and';
+        for (let cmp of this.comparisons) {
+            let cmpResult = false;
+            if (cmp instanceof CompareTernaryGroup) {
+                cmpResult = cmp.cmpResult();
+            } else {
+                if (this.flagIgnoreCase && typeof cmp.value === 'string') {
+                    cmp.value = <T> <any> cmp.value.toUpperCase();
+                }
+                switch (cmp.mode) {
+                    case 'equals':
+                        cmpResult = this.value === cmp.value;
+                        break;
+                    case 'notEquals':
+                        cmpResult = this.value !== cmp.value;
+                        break;
+                    case 'includes':
+                        cmpResult = includes(this.value, cmp.value);
+                        break;
+                    case 'notIncludes':
+                        cmpResult = notIncludes(this.value, cmp.value);
+                        break;
+                    case 'isEmpty':
+                        cmpResult = isEmpty(this.value);
+                        break;
+                    case 'isNotEmpty':
+                        cmpResult = isNotEmpty(this.value);
+                        break;
+                    case 'isTruthy':
+                        cmpResult = toBoolean(this.value);
+                        break;
+                    case 'isFalsy':
+                        cmpResult = !toBoolean(this.value);
+                        break;
+                    case 'isLessThan':
+                        cmpResult = this.value < cmp.value;
+                        break;
+                    case 'isGreaterThan':
+                        cmpResult = this.value > cmp.value;
+                        break;
+                    case 'isLessThanOrEqual':
+                        cmpResult = this.value <= cmp.value;
+                        break;
+                    case 'isGreaterThanOrEqual':
+                        cmpResult = this.value >= cmp.value;
+                        break;
+                }
+            }
+            if (this.chainMode === 'or' && cmpResult) {
+                return true;
+            }
+            if (this.chainMode === 'and') {
+                fullResult &&= cmpResult;
+            }
+        }
+        return fullResult;
+    }
+}
+
+export class CompareTernary<T> extends CompareTernaryGroup<T> {
+    private defaultElseValue: any = undefined;
+
+    constructor(value: T) {
+        super(value);
+    }
+
+    setDefaultElse(elseValue: any): CompareTernary<T> {
+        this.defaultElseValue = elseValue;
+        return this;
+    }
+
+    then<R>(thenValue: R, elseValue?: R): R {
+        if (typeof elseValue === 'undefined') {
+            elseValue = this.defaultElseValue;
+        }
+        return this.cmpResult() ? thenValue : elseValue;
+    }
+}
+
+export function ternary<T>(value: T): CompareTernary<T> {
+    return new CompareTernary(value);
+}
+
+export function throttle<T extends Function>(fn: T, delayMs: number): T {
+    let lastTime: number = 0;
+    return <T> <any> function(... args) {
+        let now: number = new Date().getTime();
+        if (now - lastTime >= delayMs) {
+            fn(... args);
+            lastTime = now;
+        }
+    };
 }

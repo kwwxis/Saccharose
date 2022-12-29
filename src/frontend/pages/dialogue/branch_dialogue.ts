@@ -48,11 +48,6 @@ pageMatch('pages/dialogue/branch-dialogue', () => {
       return;
     }
 
-    if (text.length < 3) {
-      flashTippy(inputEl, {content: 'Enter at least 3 characters.', delay:[0,2000]});
-      return;
-    }
-
     loadingEl.classList.remove('hide');
     inputEl.disabled = true;
     buttonEl.disabled = true;
@@ -75,8 +70,8 @@ pageMatch('pages/dialogue/branch-dialogue', () => {
     endpoints.generateSingleDialogueBranch(text, npcFilter, true).then(result => {
       if (typeof result === 'string') {
         document.querySelector('#dialogue-generate-result').innerHTML = result;
-      } else if (typeof result === 'object' && result.error_description) {
-        document.querySelector('#dialogue-generate-result').innerHTML = endpoints.errorHtmlWrap(result.error_description);
+      } else if (typeof result === 'object' && result.message) {
+        document.querySelector('#dialogue-generate-result').innerHTML = endpoints.errorHtmlWrap(result.message);
       }
     }).finally(() => {
       loadingEl.classList.add('hide');

@@ -9,6 +9,7 @@ import { DialogExcelConfigData, TalkExcelConfigData } from '../../../shared/type
 import { trim } from '../../../shared/util/stringUtil';
 import { DialogueSectionResult, TalkConfigAccumulator, talkConfigToDialogueSectionResult } from './dialogue_util';
 import { MetaProp } from '../../util/metaProp';
+import { pathToFileURL } from 'url';
 
 const lc = (s: string) => s ? s.toLowerCase() : s;
 
@@ -200,7 +201,7 @@ export async function dialogueGenerateByNpc(ctrl: Control, npcNameOrId: string|n
   return resultMap;
 }
 
-if (require.main === module) {
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
     await loadEnglishTextMap();
     //console.log(await dialogueGenerate(`Uh, why are you two fighting?`));

@@ -18,8 +18,8 @@ pageMatch('pages/dialogue/quests', () => {
     endpoints.generateMainQuest(questId, true).then(html => {
       if (typeof html === 'string') {
         document.querySelector('#quest-generate-result').innerHTML = html;
-      } else if (typeof html === 'object' && html.error_description) {
-        document.querySelector('#quest-generate-result').innerHTML = endpoints.errorHtmlWrap(html.error_description);
+      } else if (typeof html === 'object' && html.message) {
+        document.querySelector('#quest-generate-result').innerHTML = endpoints.errorHtmlWrap(html.message);
       }
       startListeners(questResultListeners, '#quest-generate-result');
     });

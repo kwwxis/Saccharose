@@ -54,8 +54,8 @@ pageMatch('pages/dialogue/npc-dialogue', () => {
     endpoints.generateNpcDialogue(text, true).then(result => {
       if (typeof result === 'string') {
         document.querySelector('#dialogue-generate-result').innerHTML = result;
-      } else if (typeof result === 'object' && result.error_description) {
-        document.querySelector('#dialogue-generate-result').innerHTML = endpoints.errorHtmlWrap(result.error_description);
+      } else if (typeof result === 'object' && result.message) {
+        document.querySelector('#dialogue-generate-result').innerHTML = endpoints.errorHtmlWrap(result.message);
       }
     }).finally(() => {
       loadingEl.classList.add('hide');

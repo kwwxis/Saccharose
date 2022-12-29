@@ -4,6 +4,10 @@ import '../shared/polyfills';
 import path from 'path';
 import dotenv from 'dotenv';
 import { LangCode } from '../shared/types/dialogue-types';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const envFile = path.resolve(__dirname, '../../.env');
 console.log('[Init] envFile:', envFile);

@@ -26,15 +26,17 @@
           <% for (let metaProp of metadata) { %>
             <div class="prop">
               <span class="prop-label"><%= metaProp.label %></span>
-              <span class="prop-values">
-                <% for (let val of metaProp.values) { %>
-                  <% if (val.link) { %>
-                    <a class="prop-value" href="<%= val.link %>" target="_blank"><%= val.value %></a>
-                  <% } else { %>
-                    <span class="prop-value"><%= val.value %></span>
+              <% if (metaProp.values && metaProp.values.length) { %>
+                <span class="prop-values">
+                  <% for (let val of metaProp.values) { %>
+                    <% if (val.link) { %>
+                      <a class="prop-value" href="<%= val.link %>" target="_blank"><%= val.value %></a>
+                    <% } else { %>
+                      <span class="prop-value"><%= val.value %></span>
+                    <% } %>
                   <% } %>
-                <% } %>
-              </span>
+                </span>
+              <% } %>
             </div>
           <% } %>
         </div>

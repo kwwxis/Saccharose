@@ -19,6 +19,7 @@ import {
   talkConfigToDialogueSectionResult,
 } from './dialogue_util';
 import { MetaProp } from '../../util/metaProp';
+import { pathToFileURL } from 'url';
 
 export class QuestGenerateResult {
   mainQuest: MainQuestExcelConfigData = null;
@@ -323,8 +324,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
   return result;
 }
 
-
-if (require.main === module) {
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
     let result: QuestGenerateResult = await questGenerate(`Radiant Sakura`, getControl());
     console.log(JSON.stringify(result.dialogue));

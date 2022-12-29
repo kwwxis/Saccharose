@@ -6,6 +6,7 @@ import { getTextMapItem, getVoPrefix, loadEnglishTextMap, loadVoiceItems } from 
 import { AvatarExcelConfigData } from '../../../shared/types/general-types';
 import { DialogueSectionResult } from '../dialogue/dialogue_util';
 import { MetaProp } from '../../util/metaProp';
+import { pathToFileURL } from 'url';
 
 
 export async function fetchGCGTalkDetail(ctrl: Control): Promise<GCGTalkDetailExcelConfigData[]> {
@@ -102,7 +103,7 @@ export async function generateGCGTalkDetailDialogue(ctrl: Control, details: GCGT
   return result;
 }
 
-if (require.main === module) {
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
     await loadEnglishTextMap();
     await loadVoiceItems();

@@ -6,24 +6,26 @@ import path from 'path';
 import availableMethods from '../middleware/availableMethods';
 import * as express from 'express';
 import * as expressCore from 'express-serve-static-core';
-import { humanTiming, icon, dragHandle, timestamp, TemplateLink } from './viewUtilities';
+import { printHumanTiming, icon, dragHandle, printTimestamp, TemplateLink } from './viewUtilities';
 import { cachedSync } from './cache';
 import crypto from 'crypto';
 import { ltrim, remove_suffix } from '../../shared/util/stringUtil';
 import { getWebpackBundleFileNames, WebpackBundles } from './webpackBundle';
 import { LANG_CODES_TO_NAME } from '../../shared/types/dialogue-types';
 import { EJS_DELIMITER, SITE_TITLE, VIEWS_ROOT } from '../loadenv';
-import { toBoolean } from '../../shared/util/genericUtil';
+import { CompareTernary, ternary, toBoolean } from '../../shared/util/genericUtil';
 import { toInt } from '../../shared/util/numberUtil';
 
 //#region Types
-export type IncludeFunction = (view: string, locals?: any) => string;
+export type IncludeFunction = (view: string, locals?: RequestLocals) => string;
 
-export type RequestSubViewLocals = {
-  parent?: RequestSubViewLocals;
+export type RequestLocals = ((req: Request, res: Response) => object)|object;
+
+export type RequestViewStack = {
+  parent?: RequestViewStack;
   viewName?: string,
-  subview?: string;
-  sublocals?: RequestSubViewLocals;
+  subviewName?: string;
+  subviewStack?: RequestViewStack;
   include?: IncludeFunction,
   [prop: string]: any;
 };
@@ -35,8 +37,8 @@ class RequestContext {
   styles: any[];
   scripts: any[];
   bodyClass: string[];
-  viewStack: RequestSubViewLocals;
-  viewStackPointer: RequestSubViewLocals;
+  viewStack: RequestViewStack;
+  viewStackPointer: RequestViewStack;
   nonce = crypto.randomBytes(16).toString('hex');
   webpackBundles: WebpackBundles;
 
@@ -52,11 +54,11 @@ class RequestContext {
   }
 
   getAllViewNames() {
-    let pointer: RequestSubViewLocals = this.viewStack;
+    let pointer: RequestViewStack = this.viewStack;
     let names = [];
     while (pointer) {
       names.push(pointer.viewName);
-      pointer = pointer.sublocals;
+      pointer = pointer.subviewStack;
     }
     return names;
   }
@@ -70,8 +72,8 @@ class RequestContext {
       return false;
     }
     this.viewStackPointer = this.viewStackPointer.parent;
-    this.viewStackPointer.subview = undefined;
-    this.viewStackPointer.sublocals = undefined;
+    this.viewStackPointer.subviewName = undefined;
+    this.viewStackPointer.subviewStack = undefined;
     return true;
   }
 
@@ -88,28 +90,9 @@ class RequestContext {
     return cookieValue || orElse;
   }
 
-  cookieTernary(cookieName: string, cond: {
-    equals?: string,
-    equalsOrEmpty?: string,
-    includes?: string,
-    includesOrEmpty?: string,
-    then?: string,
-    else?: string
-  }): string {
+  cookieTernary(cookieName: string): CompareTernary<string> {
     let cookieValue: string = this._req.cookies[cookieName];
-    let match = false;
-
-    if (cond.equals) {
-      match = cookieValue === cond.equals;
-    } else if (cond.equalsOrEmpty) {
-      match = cookieValue === cond.equalsOrEmpty || !cookieValue;
-    } else if (cond.includes) {
-      match = cookieValue.includes(cond.includes);
-    } else if (cond.includesOrEmpty) {
-      match = cookieValue.includes(cond.includesOrEmpty) || !cookieValue;
-    }
-
-    return match ? cond.then || '' : cond.else || '';
+    return ternary(cookieValue).setDefaultElse('');
   }
 
   get siteTitle() {
@@ -152,7 +135,7 @@ export type RequestContextUpdate = {
   styles?: ListSupplier;
   scripts?: ListSupplier;
   bodyClass?: StringListSupplier;
-  locals?: any;
+  locals?: RequestLocals;
 };
 
 export type Request = express.Request & {
@@ -163,7 +146,7 @@ export type Request = express.Request & {
 };
 export type Response = {
   csv: (data: any, csvHeaders?: boolean, headers?: any, statusCode?: number) => Response,
-  render(view: string, options?: object, callback?: (err: Error, html: string) => void, throwOnError?: boolean): Promise<string|Error>,
+  render(view: string, options?: RequestLocals, callback?: (err: Error, html: string) => void, throwOnError?: boolean): Promise<string|Error>,
 } & express.Response;
 export type NextFunction = express.NextFunction;
 export type RequestHandler = express.RequestHandler;
@@ -190,16 +173,17 @@ export function resolveViewPath(view: string): string {
 export const DEFAULT_GLOBAL_LOCALS = {
   icon,
   dragHandle,
-  timestamp,
-  humanTiming,
+  printTimestamp,
+  printHumanTiming,
+  ternary,
   TemplateLink,
   env: process.env,
   toBoolean: toBoolean,
   toInt: toInt,
 };
 
-function createIncludeFunction(req: Request, viewStackPointer: RequestSubViewLocals): IncludeFunction {
-  return function include(view: string, locals: any = {}): string {
+function createIncludeFunction(req: Request, viewStackPointer: RequestViewStack): IncludeFunction {
+  return function include(view: string, locals: RequestLocals = {}): string {
     const viewPath = resolveViewPath(view);
     const viewContent = process.env.NODE_ENV === 'development'
       ? fs.readFileSync(viewPath, 'utf8')
@@ -229,7 +213,7 @@ async function mergeReqContextList(req: Request, prop: string, mergeIn?: StringL
   }
 }
 
-export async function updateReqContext(req: Request, ctx: Readonly<RequestContextUpdate>) {
+export async function updateReqContext(req: Request, res: Response, ctx: Readonly<RequestContextUpdate>) {
   if (!req.context) {
     req.context = new RequestContext(req);
   }
@@ -242,11 +226,11 @@ export async function updateReqContext(req: Request, ctx: Readonly<RequestContex
     req.context.title = typeof ctx.title === 'function' ? await ctx.title(req) : ctx.title;
   }
 
-  let locals: any = ctx.locals;
+  let locals: RequestLocals = ctx.locals;
   let layouts: StringListSupplier = ctx.layouts;
 
   if (typeof locals === 'function') {
-    locals = await locals(req);
+    locals = await locals(req, res);
   }
 
   let numLayoutsProcessed = 0;
@@ -262,18 +246,18 @@ export async function updateReqContext(req: Request, ctx: Readonly<RequestContex
       if (locals && typeof locals === 'object')
         Object.assign(req.context.viewStackPointer, locals);
 
-      req.context.viewStackPointer.subview = viewName;
+      req.context.viewStackPointer.subviewName = viewName;
 
       req.context.viewStackPointer.include = createIncludeFunction(req, req.context.viewStackPointer);
 
       // copy down to child view b/c child views should inherit the locals of the parent view
-      req.context.viewStackPointer.sublocals = Object.assign({}, req.context.viewStackPointer, {
+      req.context.viewStackPointer.subviewStack = Object.assign({}, req.context.viewStackPointer, {
         viewName: viewName,
-        subview: undefined,
-        sublocals: undefined,
+        subviewName: undefined,
+        subviewStack: undefined,
         parent: req.context.viewStackPointer,
       });
-      req.context.viewStackPointer = req.context.viewStackPointer.sublocals;
+      req.context.viewStackPointer = req.context.viewStackPointer.subviewStack;
       numLayoutsProcessed++;
     });
   }
@@ -294,20 +278,20 @@ export function create(context?: Readonly<RequestContextUpdate>): Router {
 
   router.use(async function defaultMiddleware(req: Request, res: Response, next: NextFunction) {
     if (context)
-      await updateReqContext(req, context);
+      await updateReqContext(req, res, context);
 
-    res.render = async function(view: string, locals?: any, callback?: (err: Error, html: string) => void, throwOnError: boolean = false): Promise<string|Error> {
+    res.render = async function(view: string, locals?: RequestLocals, callback?: (err: Error, html: string) => void, throwOnError: boolean = false): Promise<string|Error> {
       try {
-        await updateReqContext(req, {
+        await updateReqContext(req, res, {
           locals,
           layouts: view,
-          title: locals && locals.title,
-          styles: locals && locals.styles,
-          scripts: locals && locals.scripts,
-          bodyClass: locals && locals.bodyClass,
+          title: locals && (<any> locals).title,
+          styles: locals && (<any> locals).styles,
+          scripts: locals && (<any> locals).scripts,
+          bodyClass: locals && (<any> locals).bodyClass,
         });
 
-        const rendered = req.context.viewStack.include(req.context.viewStack.subview, req.context.viewStack.sublocals);
+        const rendered = req.context.viewStack.include(req.context.viewStack.subviewName, req.context.viewStack.subviewStack);
         res.set('Content-Type', 'text/html');
         res.send(rendered);
 

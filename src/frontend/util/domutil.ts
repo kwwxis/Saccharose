@@ -128,6 +128,24 @@ export function scrollToElementThenFlash(scrollEl: Element, flashEl?: Element) {
     flashElement(flashEl || scrollEl)
 }
 
+export function hashFlash(initialDelay: number = 0) {
+    let hash = window.location.hash;
+    if (hash && hash.length > 1) {
+        hash = hash.slice(1);
+        console.log('Hash Change:', hash);
+        let target = document.getElementById(hash);
+        if (target) {
+            setTimeout(() => {
+                window.history.replaceState({}, null, window.location.href.split('#')[0]);
+                target.classList.add('flash');
+                setTimeout(() => {
+                    target.classList.remove('flash');
+                }, 1000);
+            }, initialDelay);
+        }
+    }
+}
+
 /**
  * Deselects any currently selected text.
  */

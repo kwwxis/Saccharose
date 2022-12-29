@@ -2,6 +2,7 @@ import { escapeHtml } from '../shared/util/stringUtil';
 import axios, { AxiosError } from 'axios';
 import { showInternalErrorDialog, showJavascriptErrorDialog } from './util/errorHandler';
 import { DIALOG_ALERT, DIALOG_MODAL, openDialog } from './util/dialog';
+import { HttpError } from '../shared/util/httpError';
 
 export const endpoints = {
   base_uri: '/api',
@@ -10,14 +11,16 @@ export const endpoints = {
   },
   errorHandler: (err: AxiosError) => {
     console.log('Error Handler:', err);
-    const data: any = err.response.data;
 
-    if (data && typeof data === 'object' && data.error === 'INTERNAL_SERVER_ERROR') {
+    const data: any = err.response.data;
+    const httpError = HttpError.fromJson(data);
+
+    if (httpError && httpError.status === 500) {
       showInternalErrorDialog(data);
       return;
     }
 
-    if (data && typeof data === 'object' && data.error === 'BAD_REQUEST' && data.error_code === 'EBADCSRFTOKEN') {
+    if (httpError && httpError.type === 'EBADCSRFTOKEN') {
       openDialog(`
       <h2>Session timed out.</h2>
       <p class='spacer15-top'>
@@ -34,7 +37,7 @@ export const endpoints = {
       return;
     }
 
-    if (!data || data.error != 'BAD_REQUEST') {
+    if (!httpError || httpError.status !== 400) {
       const errorObj: any = {error: err.toJSON()};
 
       if (err.response) {
@@ -49,7 +52,7 @@ export const endpoints = {
       );
     }
 
-    return err.response.data;
+    return httpError || err.response.data;
   },
   ping() {
     return axios

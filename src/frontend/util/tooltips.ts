@@ -1,4 +1,5 @@
 import { default as tippy, Instance as Tippy, Props as TippyProps } from 'tippy.js';
+import JSON5 from 'json5';
 
 export function enableTippy(el: HTMLElement, props: Partial<TippyProps> = {}) {
   let tip: Tippy<TippyProps> = (<any> el)._tippy;
@@ -57,4 +58,25 @@ export function flashTippy(el: HTMLElement, props: Partial<TippyProps> = {}) {
     tip.hide();
     (<any> el)._tippyTimeout = undefined;
   }, tip.props.delay[1] || 0);
+}
+
+export function getTippyOpts(el: HTMLElement, attrName: string): Partial<TippyProps> {
+  const attrVal = el.getAttribute(attrName).trim();
+  el.removeAttribute(attrName);
+
+  let opts;
+  if (attrVal.startsWith('{') && attrVal.endsWith('}')) {
+    try {
+      opts = JSON5.parse(attrVal);
+    } catch (e) {
+      console.error('Failed to parse tippy opts', attrVal, el);
+    }
+  } else {
+    opts = {content: attrVal};
+  }
+  if (!opts.delay) {
+    opts.delay = [100,100];
+  }
+
+  return opts;
 }

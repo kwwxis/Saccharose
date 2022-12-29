@@ -1,4 +1,3 @@
-import apiError from './error';
 import { create, Router, Request, Response } from '../../util/router';
 import { getControl, normText } from '../../scripts/script_util';
 import { questGenerate, QuestGenerateResult } from '../../scripts/dialogue/quest_generator';
@@ -10,6 +9,7 @@ import { CyclicValueReplacer, removeCyclicRefs, toBoolean } from '../../../share
 import { MainQuestExcelConfigData } from '../../../shared/types/quest-types';
 import { getIdFromVoFile, getTextMapItem } from '../../scripts/textmap';
 import { DialogueSectionResult } from '../../scripts/dialogue/dialogue_util';
+import { HttpError } from '../../../shared/util/httpError';
 
 const router: Router = create();
 
@@ -105,7 +105,7 @@ router.restful('/OL/generate', {
     });
 
     if (!results) {
-      throw apiError(req.query.text, 'NOT_FOUND');
+      throw HttpError.badRequest('NotFound', req.query.text as string);
     }
 
     highlight_ol_differences(results);
@@ -124,7 +124,7 @@ router.restful('/dialogue/single-branch-generate', {
     const query = (<string> req.query.text)?.trim();
 
     if (query.toLowerCase() === 'paimon') {
-      throw apiError('Unfortunately, you cannot search for just "Paimon" as the operation would be too intensive.', 'UNSUPPORTED_OPERATION');
+      throw HttpError.badRequest('UnsupportedOperation', 'Unfortunately, you cannot search for just "Paimon" as the operation would be too intensive.');
     }
 
     let result: DialogueSectionResult[] = await dialogueGenerate(ctrl, query, <string> req.query.npcFilter);
@@ -147,9 +147,9 @@ router.restful('/dialogue/npc-dialogue-generate', {
     switch (query.toLowerCase()) {
       case 'paimon':
       case '1005':
-        throw apiError('Unfortunately, NPC dialogue generator does not support Paimon (id: 1005). The operation would be too intensive.', 'UNSUPPORTED_OPERATION');
+        throw HttpError.badRequest('UnsupportedOperation', 'Unfortunately, NPC dialogue generator does not support Paimon (id: 1005). The operation would be too intensive.');
       case '???':
-        throw apiError('Unfortunately, NPC dialogue generator does not support search for "???"', 'UNSUPPORTED_OPERATION');
+        throw HttpError.badRequest('UnsupportedOperation', 'Unfortunately, NPC dialogue generator does not support search for "???"');
     }
 
     let resultMap: NpcDialogueResultMap = await dialogueGenerateByNpc(ctrl, query);

@@ -7,6 +7,7 @@ import { isInt } from '../../../shared/util/numberUtil';
 import { ReminderExcelConfigData } from '../../../shared/types/dialogue-types';
 import { DialogueSectionResult } from './dialogue_util';
 import { MetaProp } from '../../util/metaProp';
+import { pathToFileURL } from 'url';
 
 export async function reminderGenerateAll(ctrl: Control): Promise<DialogueSectionResult> {
   let sect = new DialogueSectionResult(null, 'All Reminders');
@@ -100,7 +101,7 @@ export async function reminderGenerate(ctrl: Control, query: number|string, subs
   return result;
 }
 
-if (require.main === module) {
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
     await loadEnglishTextMap();
     console.log(await reminderGenerate(getControl(), `Convinced that the king will in time provide a delicious meal`));

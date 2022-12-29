@@ -5,12 +5,11 @@ import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import useragent from 'express-useragent';
 import helmet from 'helmet';
-import csrf from 'csurf';
 import { openKnex } from './util/db';
 import morgan from 'morgan';
 import { Request, Response } from './util/router';
 import sessions from './middleware/sessions';
-import baseRouter from './controllers/BaseRouter';
+import baseRouter from './controllers/app/BaseRouter';
 import apiRouter from './controllers/api';
 import { loadTextMaps, loadVoiceItems, loadQuestSummarization } from './scripts/textmap';
 import { isStringNotBlank } from '../shared/util/stringUtil';
@@ -19,8 +18,8 @@ import requestIp from 'request-ip';
 import { pageLoadApiHandler } from './middleware/globalErrorHandler';
 import jsonResponse from './middleware/jsonResponse';
 import defaultResponseHeaders from './middleware/defaultResponseHeaders';
-import { toBoolean } from '../shared/util/genericUtil';
 import { PUBLIC_DIR, VIEWS_ROOT } from './loadenv';
+import { csrfMiddleware } from './middleware/csrf';
 
 const app: Express = express();
 let didInit: boolean = false;
@@ -60,16 +59,15 @@ export async function appInit(): Promise<Express> {
     app.use(express.static(process.env.EXT_PUBLIC_DIR));
   }
 
+  // Initialize sessions
+  // ~~~~~~~~~~~~~~~~~~~
+  console.log(`[Init] Initializing sessions`);
+  app.use(sessions);
+
   // Middleware for requests
   // ~~~~~~~~~~~~~~~~~~~~~~~
   console.log(`[Init] Adding middleware for incoming requests`);
-  app.use(morgan('dev', {
-    skip: function(req: Request, res: Response) {
-      return res.statusCode === 304 || req.url.includes('.css') || req.url.includes('.js')
-        || req.url.includes('.png') || req.url.includes('.svg') || req.url.includes('.ico') || req.url.includes('.woff');
-    }
-  }));
-  app.use(cookieParser()); // parses cookies
+  app.use(cookieParser(process.env.SESSION_SECRET)); // parses cookies
   app.use(useragent.express()); // parses user-agent header
   app.use(express.urlencoded({extended: true})); // parses url-encoded POST/PUT bodies
   app.use(requestIp.mw()); // enable request-ip
@@ -78,6 +76,15 @@ export async function appInit(): Promise<Express> {
     max: 30, // limit each IP to 30 requests per windowMs
     keyGenerator: (req: Request, _res: Response) => {
       return req.clientIp // IP address from requestIp.mw(), as opposed to req.ip
+    }
+  }));
+
+  // Middleware for logging
+  // ~~~~~~~~~~~~~~~~~~~~~~
+  app.use(morgan('dev', {
+    skip: function(req: Request, res: Response) {
+      return res.statusCode === 304 || req.url.includes('.css') || req.url.includes('.js')
+        || req.url.includes('.png') || req.url.includes('.svg') || req.url.includes('.ico') || req.url.includes('.woff');
     }
   }));
 
@@ -94,11 +101,6 @@ export async function appInit(): Promise<Express> {
   app.use(jsonResponse)
   app.use(defaultResponseHeaders); // Add default response headers
 
-  // Initialize sessions
-  // ~~~~~~~~~~~~~~~~~~~
-  console.log(`[Init] Initializing sessions`);
-  app.use(sessions);
-
   // Load API router
   // ~~~~~~~~~~~~~~~
   console.log(`[Init] Loading API router`);
@@ -109,13 +111,7 @@ export async function appInit(): Promise<Express> {
   // We must load CSRF protection after we load the API router
   // because the API does not necessarily use CSRF protection (only for same-site AJAX requests).
   console.log(`[Init] Loading application router`);
-  app.use(csrf({
-    cookie: {
-      secure: toBoolean(process.env.SSL_ENABLED),
-      httpOnly: true,
-    },
-    ignoreMethods: ['GET', 'HEAD', 'OPTIONS']
-  }));
+  app.use(csrfMiddleware);
   app.use('/', await baseRouter());
 
   // Global Error Handler

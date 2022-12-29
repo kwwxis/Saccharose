@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
-    "module": "CommonJS",
+    "module": "ESNext",
+    "moduleResolution": "node",
     "declaration": true,
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
@@ -11,17 +12,24 @@
     "removeComments": true,
     "target": "ESNext",
     "noImplicitAny": false,
-    "moduleResolution": "node",
     "resolveJsonModule": true,
     "sourceMap": true,
     "allowJs": true,
     "outDir": "dist",
     "alwaysStrict": true,
+    "noFallthroughCasesInSwitch": true,
     "baseUrl": "./src",
+    "skipLibCheck": true,
     "lib": [
       "ESNext",
       "dom"
     ]
+  },
+  "ts-node": {
+    "esm": true,
+    "experimentalSpecifierResolution": "node",
+    "transpileOnly": true,
+    "transpiler": "ts-node/transpilers/swc-experimental"
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "src/frontend"]

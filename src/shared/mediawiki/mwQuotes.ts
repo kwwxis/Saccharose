@@ -1,3 +1,4 @@
+
 export function doQuotes(text: string): string {
   let arr: string[] = text.split(/(''+)/g);
   let countArr = arr.length;
@@ -228,23 +229,4 @@ export function checkQuotePos(s: string, i: number, type: MW_QUOTE_POS) {
     }
   }
   return false;
-}
-
-if (require.main === module) {
-  console.log('doQuotes:', doQuotes(`''italic'''`));
-  console.log('doQuotes:', doQuotes(`'''italic''`));
-  console.log();
-  console.log(`checkQuotePos:`, checkQuotePos(`'''''bold and italic'''italic''`, 0, 'BOLD_OPEN')); // false
-  console.log(`checkQuotePos:`, checkQuotePos(`'''''bold and italic'''italic''`, 0, 'ITALIC_OPEN')); // true
-  console.log(`checkQuotePos:`, checkQuotePos(`'''''bold and italic''bold'''`, 20, 'ITALIC_CLOSE')); // true
-  console.log(`checkQuotePos:`, checkQuotePos(`'''''bold and italic''bold'''`, 26, 'BOLD_CLOSE')); // true
-  console.log();
-  console.log();
-  console.log(`getQuotePos:`, getQuotePos(`'''''bold and italic'''italic''`, 0)); // ITALIC_OPEN
-  console.log(`getQuotePos:`, getQuotePos(`'''''bold and italic''bold'''`, 20)); // ITALIC_CLOSE
-  console.log(`getQuotePos:`, getQuotePos(`'''''bold and italic''bold'''`, 26)); // BOLD_CLOSE
-  console.log(`getQuotePos:`, getQuotePos(`'''''bold and italic'''''`, 0)); // ITALIC_OPEN
-  console.log(`getQuotePos:`, getQuotePos(`'''''bold and italic'''''`, 1)); // null
-  console.log(`getQuotePos:`, getQuotePos(`'''''bold and italic'''''`, 2)); // BOLD_OPEN
-  console.log(`getQuotePos:`, getQuotePos(`'''''bold and italic'''''`, 4)); // null
 }

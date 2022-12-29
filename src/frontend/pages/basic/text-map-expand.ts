@@ -26,11 +26,6 @@ pageMatch('pages/basic/text-map-expand', () => {
           return;
         }
 
-        if (text.length < 3) {
-          flashTippy(inputEl, {content: 'Enter at least 3 characters.', delay:[0,2000]});
-          return;
-        }
-
         loadingEl.classList.remove('hide');
         inputEl.disabled = true;
         target.disabled = true;
@@ -38,8 +33,8 @@ pageMatch('pages/basic/text-map-expand', () => {
         endpoints.searchTextMap(text, true).then(result => {
           if (typeof result === 'string') {
             document.querySelector('#search-result').innerHTML = result;
-          } else if (typeof result === 'object' && result.error_description) {
-            document.querySelector('#search-result').innerHTML = endpoints.errorHtmlWrap(result.error_description);
+          } else if (typeof result === 'object' && result.message) {
+            document.querySelector('#search-result').innerHTML = endpoints.errorHtmlWrap(result.message);
           }
         }).finally(() => {
           loadingEl.classList.add('hide');

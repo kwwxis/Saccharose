@@ -1,7 +1,6 @@
 import { MwNode, MwParentNode, MwTemplateNode } from './mwTypes';
 import util from 'util';
 import { mwParse } from './mwParse';
-import fs from 'fs';
 
 async function dplTest() {
   const dplCall0 = `{{#DPL:
@@ -77,8 +76,27 @@ function basicTest() {
   console.log('  Template1.toString same as input?', templateCall1 === result1_str);
 }
 
-if (require.main === module) {
-  (async () => {
-    await basicTest();
-  })();
-}
+/*
+
+
+  console.log('doQuotes:', doQuotes(`''italic'''`));
+  console.log('doQuotes:', doQuotes(`'''italic''`));
+  console.log();
+  console.log(`checkQuotePos:`, checkQuotePos(`'''''bold and italic'''italic''`, 0, 'BOLD_OPEN')); // false
+  console.log(`checkQuotePos:`, checkQuotePos(`'''''bold and italic'''italic''`, 0, 'ITALIC_OPEN')); // true
+  console.log(`checkQuotePos:`, checkQuotePos(`'''''bold and italic''bold'''`, 20, 'ITALIC_CLOSE')); // true
+  console.log(`checkQuotePos:`, checkQuotePos(`'''''bold and italic''bold'''`, 26, 'BOLD_CLOSE')); // true
+  console.log();
+  console.log();
+  console.log(`getQuotePos:`, getQuotePos(`'''''bold and italic'''italic''`, 0)); // ITALIC_OPEN
+  console.log(`getQuotePos:`, getQuotePos(`'''''bold and italic''bold'''`, 20)); // ITALIC_CLOSE
+  console.log(`getQuotePos:`, getQuotePos(`'''''bold and italic''bold'''`, 26)); // BOLD_CLOSE
+  console.log(`getQuotePos:`, getQuotePos(`'''''bold and italic'''''`, 0)); // ITALIC_OPEN
+  console.log(`getQuotePos:`, getQuotePos(`'''''bold and italic'''''`, 1)); // null
+  console.log(`getQuotePos:`, getQuotePos(`'''''bold and italic'''''`, 2)); // BOLD_OPEN
+  console.log(`getQuotePos:`, getQuotePos(`'''''bold and italic'''''`, 4)); // null
+ */
+
+(async () => {
+  await basicTest();
+})();

@@ -7,6 +7,7 @@ import { closeKnex } from '../../util/db';
 import { cleanEmpty, resolveObjectPath } from '../../../shared/util/arrayUtil';
 import { CharacterFetters, CharacterFettersByAvatar, FetterExcelConfigData } from '../../../shared/types/fetter-types';
 import { cached } from '../../util/cache';
+import { pathToFileURL } from 'url';
 
 export async function fetchCharacterFetters(ctrl: Control): Promise<CharacterFettersByAvatar> {
   return cached('CharacterFetters_' + ctrl.outputLangCode, async () => {
@@ -79,7 +80,7 @@ export async function fetchCharacterFettersByAvatarName(ctrl: Control, avatarNam
   return Object.values(fettersByAvatar).find(x => x.avatar.NameText.toLowerCase() == avatarNameNorm);
 }
 
-if (require.main === module) {
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
     await loadEnglishTextMap();
     const ctrl = getControl();

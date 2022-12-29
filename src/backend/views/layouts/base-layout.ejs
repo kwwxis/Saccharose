@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="<%= req.cookies['nightmode'] ? 'nightmode' : '' %>">
+<html lang="en" class="<%= cookieTernary('nightmode').isTruthy().then('nightmode') %>">
   <head>
     <meta charset="utf-8" />
     <title><%= req.context.formattedPageTitle %></title>
@@ -15,13 +15,13 @@
     <template id="template-info-icon"><%- icon('info') %></template>
     <template id="template-alert-icon"><%- icon('alert-triangle') %></template>
     <% if (env.NODE_ENV === 'development') { %>
-      <script src="<%= toBoolean(env.SSL_ENABLED) ? 'https' : 'http' %>://<%= env.VHOST %>:35729/livereload.js"></script>
+      <script async src="<%= toBoolean(env.SSL_ENABLED) ? 'https' : 'http' %>://<%= env.VHOST %>:35729/livereload.js"></script>
     <% } %>
     <link rel="stylesheet" href="<%= req.context.webpackBundles.appCssBundle %>">
     <script src="<%= req.context.webpackBundles.vendorJsBundle %>"></script>
     <script src="<%= req.context.webpackBundles.appJsBundle %>"></script>
   </head>
-  <body class="<%= req.context.bodyClassString %> <%= req.cookies['nightmode'] ? 'nightmode' : '' %>">
+  <body class="<%= req.context.bodyClassString %> <%= cookieTernary('nightmode').isTruthy().then('nightmode') %>">
     <span id="top" style="height:0;width:0;opacity:0"></span>
     <header id="header" class="thin-border">
       <div class="left">
@@ -51,7 +51,7 @@
         </div>
       </div>
     </header>
-    <div class="content"><%- include(subview, sublocals) %></div>
+    <div class="content"><%- include(subviewName, subviewStack) %></div>
     <div id="mobile-menu" class="hide thin-border">
       <%- include('partials/menu/app-menu-theme-buttons') %>
       <div class="spacer15-vert">

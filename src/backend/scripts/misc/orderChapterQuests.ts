@@ -6,6 +6,7 @@ import { ChapterExcelConfigData, MainQuestExcelConfigData } from '../../../share
 import toposort from 'toposort';
 import { sort } from '../../../shared/util/arrayUtil';
 import { cached } from '../../util/cache';
+import { pathToFileURL } from 'url';
 
 export interface QuestOrderItem {
   quest: MainQuestExcelConfigData;
@@ -103,7 +104,7 @@ export async function orderChapterQuests(ctrl: Control, chapter: ChapterExcelCon
   return result;
 }
 
-if (require.main === module) {
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
     await loadEnglishTextMap();
 

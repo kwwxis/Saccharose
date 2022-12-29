@@ -4,6 +4,27 @@ import { isStringBlank } from './stringUtil';
 export type SortComparator<T> = (a: T, b: T) => number;
 export type ElementComparator<T> = (arrayElement: T, expectedElement: T) => boolean;
 
+export function isIterable(obj: any): boolean {
+    if (!obj) {
+        return false;
+    }
+    return typeof obj[Symbol.iterator] === 'function';
+}
+
+export function isArrayLike(obj: any): boolean {
+    return (
+      Array.isArray(obj) ||
+      (!!obj &&
+        typeof obj === "object" &&
+        typeof (obj.length) === "number" &&
+        (obj.length === 0 ||
+          (obj.length > 0 &&
+            (obj.length - 1) in obj)
+        )
+      )
+    );
+}
+
 export function filterInPlace<T>(a: T[], condition: (item: T) => boolean, thisArg: any = null): T[] {
     let j = 0;
 

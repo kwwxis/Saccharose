@@ -1,8 +1,13 @@
 import dotenv from 'dotenv';
 import path from 'path';
-import { Configuration, IgnorePlugin } from 'webpack';
+import webpack from 'webpack';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import { CleanWebpackPlugin } from 'clean-webpack-plugin';
+import sass from 'sass';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 dotenv.config();
 
 const pathDefaults = {
@@ -25,7 +30,7 @@ const paths = {
   }
 }
 
-export default (env: 'development'|'production') => <Configuration> {
+export default (env: 'development'|'production') => <webpack.Configuration> {
   entry: {
     app: paths[env].entry,
   },
@@ -35,6 +40,12 @@ export default (env: 'development'|'production') => <Configuration> {
     path: paths[env].dist,
     chunkFilename: paths[env].outputChunkFilename,
     publicPath: paths[env].public,
+    library: {
+      type: 'module'
+    }
+  },
+  experiments: {
+    outputModule: true,
   },
   resolve: {
     extensions: ['.ts', '.js'],
@@ -75,7 +86,7 @@ export default (env: 'development'|'production') => <Configuration> {
           MiniCssExtractPlugin.loader,
           {loader: 'css-loader', options: {url: false, sourceMap: true}},
           'postcss-loader',
-          {loader: 'sass-loader', options: {sourceMap: true, implementation: require('sass')}}
+          {loader: 'sass-loader', options: {sourceMap: true, implementation: sass}}
         ]
       }
     ],
@@ -83,7 +94,7 @@ export default (env: 'development'|'production') => <Configuration> {
   plugins: [
     new MiniCssExtractPlugin({ filename: paths[env].cssFilename }),
     new CleanWebpackPlugin(),
-    new IgnorePlugin({
+    new webpack.IgnorePlugin({
       resourceRegExp: /^\.\/locale$/,
       contextRegExp: /moment$/,
     }),

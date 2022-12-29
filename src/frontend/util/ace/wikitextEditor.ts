@@ -107,19 +107,20 @@ export function highlightWikitext(wikitext: string, disableGutter: boolean = fal
 
 export function highlightWikitextReplace(textarea: HTMLTextAreaElement, disableGutter: boolean = false): HTMLElement {
   let element = highlightWikitext(textarea.value, disableGutter);
-  if (textarea.hasAttribute('id')) {
-    element.setAttribute('id', textarea.getAttribute('id'));
-  }
+
   if (textarea.hasAttribute('class')) {
     element.setAttribute('class', element.getAttribute('class') + ' ' + textarea.getAttribute('class'));
   }
+
+  for (let attributeName of textarea.getAttributeNames()) {
+    if (attributeName.toUpperCase() === 'CLASS') {
+      continue;
+    }
+    element.setAttribute(attributeName, textarea.getAttribute(attributeName))
+  }
+
   element.setAttribute('contenteditable', '');
-  if (textarea.hasAttribute('readonly')) {
-    element.setAttribute('readonly', '');
-  }
-  if (textarea.spellcheck == false) {
-    element.setAttribute('spellcheck', 'false');
-  }
+
   textarea.replaceWith(element);
   return element;
 }

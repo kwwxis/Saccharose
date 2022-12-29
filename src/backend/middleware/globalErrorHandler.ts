@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from '../util/router';
-import { APIError } from '../controllers/api/error';
 import { VIEWS_ROOT } from '../loadenv';
+import { HttpError } from '../../shared/util/httpError';
 
 export async function pageLoadApiHandler(err: any, req: Request, res: Response, next: NextFunction) {
   console.error('\x1b[4m\x1b[1mInternal Error (Page Load):\x1b[0m\n', err);
@@ -24,34 +24,24 @@ export async function pageLoadApiHandler(err: any, req: Request, res: Response, 
   res.status(500).sendFile(`${VIEWS_ROOT}/errorPages/500.html`);
 }
 
-export async function apiErrorHandler(err, req, res, next) {
+export async function apiErrorHandler(err: any, req: Request, res: Response, next: NextFunction) {
   if (res.headersSent) {
     return next(err);
   }
 
-  const sendBadRequest = (error_code, error_description) =>
-    res.status(400).json({
-      error: 'BAD_REQUEST',
-      error_code,
-      error_description,
-    });
-
   if (typeof err === 'string') {
-    return sendBadRequest(undefined, err);
-  } else if (err instanceof APIError) {
-    return sendBadRequest(err.code, err.message);
-  } else if (err && typeof err === 'object' && err.code === 'EBADCSRFTOKEN') {
-    return sendBadRequest(err.code, err.message);
+    sendHttpError(HttpError.notFound(null, err), res);
+  } else if (err && typeof err === 'object' && (err.code === 'EBADCSRFTOKEN' || err.type === 'EBADCSRFTOKEN')) {
+    sendHttpError(HttpError.unauthenticated('EBADCSRFTOKEN', err), res);
+  } else if (err instanceof HttpError) {
+    sendHttpError(err, res);
   } else {
     console.error('\x1b[4m\x1b[1mInternal Error (API):\x1b[0m\n', err);
-
-    // For any other error types, assume internal server error
-    // Don't include any details about the error in the JSON response in case it reveals
-    // details about the code.
-
-    return res.status(500).json({
-      error: 'INTERNAL_SERVER_ERROR',
-      error_description: 'An internal server error occurred. Try again later.'
-    });
+    sendHttpError(HttpError.internalServerError('InternalError', 'An internal server error occurred. Try again later.'), res);
   }
+}
+
+function sendHttpError(err: HttpError, res: Response): Response {
+  res.status(err.status).json(err.toJson());
+  return res;
 }
