@@ -714,3 +714,18 @@ fieldset legend {
 .ui-dropdown .option.selected {
   background: rgba(0,0,0,0.04);
 }
+
+body.nightmode .ui-dropdown {
+  background: hsl(253deg 13% 12%);
+  box-shadow: 0 1px 4px hsl(253deg 13% 28%), 0 1px 4px hsl(253deg 13% 8%);
+  border-bottom: 2px solid hsl(253deg 13% 4%);
+}
+body.nightmode .ui-dropdown .option-sep {
+  background: rgba(255,255,255,0.06);
+}
+body.nightmode .ui-dropdown .option.selected {
+  background: rgba(255,255,255,0.03);
+}
+body.nightmode .ui-dropdown .option:hover {
+  background: rgba(255,255,255,0.04);
+}
