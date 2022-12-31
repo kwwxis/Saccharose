@@ -123,65 +123,108 @@ export function shellEscapeArg(s: string): string {
   return `'` + s + `'`;
 }
 
-export function parseFlags(flags: string): Map<string, string> {
-  if (!flags) {
-    return new Map<string, string>();
+export class ShellFlags {
+  private map: Map<string, string>;
+
+  private constructor(map?: Map<string, string>) {
+    this.map = map || new Map<string, string>();
   }
-  let out: Map<string, string> = new Map<string, string>();
-  let curr: string;
-  for (let arg of flags.split(/(\s+)/g)) {
-    if (arg.startsWith('--')) {
-      out.set(curr = arg, '');
-    } else if (arg.startsWith('-')) {
-      [... arg.slice(1)].forEach(a => out.set(curr = ('-'+a), ''));
-    } else if (curr) {
-      out.set(curr, out.get(curr) + arg);
+
+  merge(flags: ShellFlags): this {
+    for (let [flag, value] of flags.entries()) {
+      this.map.set(flag, value);
     }
-  }
-  for (let flag of out.keys()) {
-    out.set(flag, out.get(flag).trim());
-  }
-  return out;
-}
-
-export function stringifyFlags(flags: Map<string, string>): string {
-  if (!flags || !flags.size) {
-    return '';
+    return this;
   }
 
-  let flagsWithValues = [];
-  let doubles = [];
-  let singles = '';
+  getFlagValue(flag: string): string {
+    return this.map.get(flag);
+  }
 
-  for (let flag of flags.keys()) {
-    if (!!flags.get(flag)) {
-      flagsWithValues.push(flag + ' ' + flags.get(flag));
-    } else if (flag.startsWith('--')) {
-      doubles.push(flag);
-    } else if (flag.startsWith('-')) {
-      singles += flag.slice(1);
+  has(flag: string): boolean {
+    return this.map.has(flag);
+  }
+
+  set(flag: string, value?: string): void {
+    if (!flag.startsWith('-')) {
+      throw 'Flag should start with "-" or "--", instead got "' + flag + '"';
     }
+    this.map.set(flag, value || '');
   }
-  if (singles) {
-    return [... flagsWithValues, ... doubles, '-' + singles].join(' ');
-  } else {
-    return [... flagsWithValues, ... doubles].join(' ');
+
+  add(flags: string) {
+    this.merge(ShellFlags.parseFlags(flags));
+  }
+
+  keys() {
+    return this.map.keys();
+  }
+
+  values() {
+    return this.map.values();
+  }
+
+  entries() {
+    return this.map.entries();
+  }
+
+  get size(): number {
+    return this.map.size;
+  }
+
+  stringify(): string {
+    return ShellFlags.stringifyFlags(this);
+  }
+
+  static parseFlags(flags: string): ShellFlags {
+    if (!flags) {
+      return new ShellFlags();
+    }
+    let out: Map<string, string> = new Map<string, string>();
+    let curr: string;
+    for (let arg of flags.split(/(\s+)/g)) {
+      if (arg.startsWith('--')) {
+        out.set(curr = arg, '');
+      } else if (arg.startsWith('-')) {
+        [... arg.slice(1)].forEach(a => out.set(curr = ('-'+a), ''));
+      } else if (curr) {
+        out.set(curr, out.get(curr) + arg);
+      }
+    }
+    for (let flag of out.keys()) {
+      out.set(flag, out.get(flag).trim());
+    }
+    return new ShellFlags(out);
+  }
+
+  static stringifyFlags(flags: ShellFlags): string {
+    if (!flags || !flags.size) {
+      return '';
+    }
+
+    let flagsWithValues = [];
+    let doubles = [];
+    let singles = '';
+
+    for (let flag of flags.keys()) {
+      if (!!flags.getFlagValue(flag)) {
+        flagsWithValues.push(flag + ' ' + flags.getFlagValue(flag));
+      } else if (flag.startsWith('--')) {
+        doubles.push(flag);
+      } else if (flag.startsWith('-')) {
+        singles += flag.slice(1);
+      }
+    }
+    if (singles) {
+      return [... flagsWithValues, ... doubles, '-' + singles].join(' ');
+    } else {
+      return [... flagsWithValues, ... doubles].join(' ');
+    }
   }
 }
 
 export function createGrepCommand(searchText: string, file: string, extraFlags?: string, escapeDoubleQuotes: boolean = true): string {
-  let flags: Map<string, string> = parseFlags(extraFlags);
-
-  if (/^\s*\/(.*)\/(i?)\s*$/.test(searchText)) {
-    let match = /^\s*\/(.*)\/(i?)\s*$/.exec(searchText);
-    let regex = match[1];
-    let iFlag = match[2];
-    flags.set('-P', '');
-    if (iFlag) {
-      flags.set('-i', '');
-    }
-    searchText = regex;
-  }
+  let flags: ShellFlags = ShellFlags.parseFlags(extraFlags);
 
   if (escapeDoubleQuotes && file.endsWith('.json')) {
     searchText = searchText.replace(/"/g, `\\"`); // double quotes, assuming searching within a JSON string value
@@ -191,19 +234,18 @@ export function createGrepCommand(searchText: string, file: string, extraFlags?:
 
   let hasRegexFlag: boolean = flags.has('-E') || flags.has('-P') || flags.has('-G');
   if (!hasRegexFlag) {
-    flags.set('-i', '');
-    flags.set('-F', '');
+    flags.set('-F');
   }
   let env = '';
   if (flags.has('-P')) {
     env = `LC_ALL=en_US.utf8 `;
   }
-  return `${env}grep ${stringifyFlags(flags)} ${searchText} ${getGenshinDataFilePath(file)}`;
+  return `${env}grep ${flags.stringify()} ${searchText} ${getGenshinDataFilePath(file)}`;
 }
 
-export async function grep(searchText: string, file: string, extraFlags?: string, escapeDoubleQuotes: boolean = true): Promise<string[]> {
+export async function grep(searchText: string, file: string, flags?: string, escapeDoubleQuotes: boolean = true): Promise<string[]> {
   try {
-    const cmd = createGrepCommand(searchText, file, extraFlags, escapeDoubleQuotes);
+    const cmd = createGrepCommand(searchText, file, flags, escapeDoubleQuotes);
     console.log('Command:', cmd);
     const { stdout, stderr } = await execPromise(cmd, {
       env: { PATH: process.env.SHELL_PATH },
@@ -230,7 +272,7 @@ export async function grepStream(searchText: string, file: string, stream: (line
 export async function grepIdStartsWith(idProp: string, idPrefix: number | string, file: string): Promise<(number | string)[]> {
   let isInt = typeof idPrefix === 'number';
   let grepSearchText = `"${idProp}": ${isInt ? idPrefix : '"' + idPrefix}`;
-  let lines = await grep(grepSearchText, file, null, false);
+  let lines = await grep(grepSearchText, file, '-i', false);
   let out = [];
   for (let line of lines) {
     let parts = /":\s+"?([^",$]+)/.exec(line);
@@ -248,9 +290,9 @@ export function normJsonGrepCmp(a: string, b: string) {
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
-  let parsed = parseFlags('--test-flag -abc -m 10 --another --foo bar -D -e');
+  let parsed = ShellFlags.parseFlags('--test-flag -abc -m 10 --another --foo bar -D -e');
   console.log(parsed);
 
-  let stringified = stringifyFlags(parsed);
+  let stringified = ShellFlags.stringifyFlags(parsed);
   console.log(stringified);
 }

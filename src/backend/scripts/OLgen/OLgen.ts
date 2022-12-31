@@ -1,6 +1,6 @@
 import '../../loadenv';
 import { Control, getControl, normText } from '../script_util';
-import { getTextMapItem, loadEnglishTextMap, loadTextMaps } from '../textmap';
+import { getTextMapItem, loadTextMaps } from '../textmap';
 import { LANG_CODES, LangCode } from '../../../shared/types/dialogue-types';
 import { isInt } from '../../../shared/util/numberUtil';
 import { mwParse } from '../../../shared/mediawiki/mwParse';
@@ -61,7 +61,7 @@ function ol_gen_internal(textMapId: number, hideTl: boolean = false, addDefaultH
     let textInLang = getTextMapItem(langCode, textMapId) || '';
     olMap[langCode] = textInLang;
 
-    let langText = normText(textInLang);
+    let langText = normText(textInLang, langCode, true);
     if (langCode === 'CHS' || langCode === 'CHT' || langCode === 'KR' || langCode === 'JP') {
       // replacing this character at the request of kalexhu
       langText = langText.replace(/·/g, '・'); // neither are standard periods so no backlash is needed
@@ -102,10 +102,10 @@ function ol_gen_internal(textMapId: number, hideTl: boolean = false, addDefaultH
     template = template.replace(/\|pt_tl\s*=\s*\{}/, '');
   }
   if (olMap['EN'] === olMap['TR']) {
-    template = template.replace(/\|tr_tl\s*=\s*\{\}/, '');
+    template = template.replace(/\|tr_tl\s*=\s*\{}/, '');
   }
   if (olMap['EN'] === olMap['IT']) {
-    template = template.replace(/\|it_tl\s*=\s*\{\}/, '');
+    template = template.replace(/\|it_tl\s*=\s*\{}/, '');
   }
   return template.replaceAll('{}', '').replaceAll('\\"', '"').replace(/{F#([^}]+)}{M#([^}]+)}/g, '($1/$2)').split('\n').filter(s => !!s).join('\n');
 }
@@ -129,7 +129,7 @@ export async function ol_gen(ctrl: Control, name: string, options: OLGenOptions 
     return [await ol_gen_from_id(ctrl, parseInt(name), options)];
   }
 
-  let idList: number[] = await ctrl.findTextMapIdListByExactName(options.langCode || ctrl.inputLangCode, name);
+  let idList: number[] = await ctrl.findTextMapIdsByExactName(options.langCode || ctrl.inputLangCode, name);
   if (!idList || !idList.length) {
     return [];
   }

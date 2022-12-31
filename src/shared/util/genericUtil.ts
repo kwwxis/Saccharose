@@ -345,8 +345,16 @@ export class CompareTernaryGroup<T> {
         return this.addComparison(null, 'isEmpty');
     }
 
+    empty(): this { // alias for isEmpty
+        return this.isEmpty();
+    }
+
     isNotEmpty(): this {
         return this.addComparison(null, 'isNotEmpty');
+    }
+
+    notEmpty(): this { // alias for isNotEmpty
+        return this.isNotEmpty();
     }
 
     isTruthy(): this {

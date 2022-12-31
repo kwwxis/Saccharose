@@ -94,7 +94,7 @@ export async function dialogueGenerate(ctrl: Control, query: number|number[]|str
         let dialogue = await ctrl.getDialogFromTextContentId(textMapId);
         return await handle(dialogue);
       });
-    });
+    }, ctrl.searchModeFlags);
 
     let count = 0;
     for (let unexecutedPromise of unexecutedPromises) {

@@ -188,7 +188,7 @@ router.restful('/search-textmap', {
   get: async (req: Request, res: Response) => {
     const ctrl = getControl(req);
 
-    const result = await ctrl.getTextMapMatches(ctrl.inputLangCode, <string> req.query.text, '-m 100'); // "-m" flag -> max count
+    const result = await ctrl.getTextMapMatches(ctrl.inputLangCode, <string> req.query.text, '-m 100 ' + ctrl.searchModeFlags); // "-m" flag -> max count
 
     if (ctrl.inputLangCode !== ctrl.outputLangCode) {
       for (let textMapId of Object.keys(result)) {

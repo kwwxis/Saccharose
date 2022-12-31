@@ -201,6 +201,7 @@ export interface TalkExcelConfigData {
   BeginCondComb: string,
   BeginCond: ConfigCondition<TalkExcelBeginCondType>[],
   Priority: number,
+  NextRandomTalks: number[],
   NextTalks: number[],
   NextTalksDataList: TalkExcelConfigData[],
   InitDialog: number,
@@ -210,7 +211,7 @@ export interface TalkExcelConfigData {
   ParticipantId: number[],
   PerformCfg: string,
   QuestIdleTalk: boolean,
-  HeroTalk: string,
+  HeroTalk?: 'TALK_HERO_MAIN',
   ExtraLoadMarkId: number[],
   PrePerformCfg: string,
   FinishExec: ConfigCondition<TalkExcelFinishExecType>[]

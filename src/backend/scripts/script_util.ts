@@ -88,7 +88,12 @@ export const travelerPlaceholder = (langCode: LangCode = 'EN') => {
   return '(Traveler)';
 }
 
-export const normText = (text: string, langCode: LangCode = 'EN') => {
+export const normDecolor = (text: string): string => {
+  text = text.replace(/<color=#[^>]+>([^<]+)<\/color>/g, '$1');
+  return text;
+}
+
+export const normText = (text: string, langCode: LangCode = 'EN', decolor: boolean = false): string => {
   if (!text) {
     return text;
   }
@@ -97,19 +102,24 @@ export const normText = (text: string, langCode: LangCode = 'EN') => {
   text = text.replace(/{NON_BREAK_SPACE}/g, '&nbsp;');
   text = text.replace(/{F#([^}]+)}{M#([^}]+)}/g, '{{MC|m=$2|f=$1}}');
   text = text.replace(/{M#([^}]+)}{F#([^}]+)}/g, '{{MC|m=$1|f=$2}}');
-  text = text.replace(/<color=#00E1FFFF>([^<]+)<\/color>/g, '{{color|buzzword|$1}}');
-  text = text.replace(/<color=#FFCC33FF>([^<]+)<\/color>/g, '{{color|help|$1}}');
 
-  text = text.replace(/<color=#FFACFFFF>([^<]+)<\/color>/g, '{{Electro|$1}}');
-  text = text.replace(/<color=#99FFFFFF>([^<]+)<\/color>/g, '{{Cryo|$1}}');
-  text = text.replace(/<color=#80C0FFFF>([^<]+)<\/color>/g, '{{Hydro|$1}}');
-  text = text.replace(/<color=#FF9999FF>([^<]+)<\/color>/g, '{{Pyro|$1}}');
-  text = text.replace(/<color=#99FF88FF>([^<]+)<\/color>/g, '{{Dendro|$1}}');
-  text = text.replace(/<color=#80FFD7FF>([^<]+)<\/color>/g, '{{Anemo|$1}}');
-  text = text.replace(/<color=#FFE699FF>([^<]+)<\/color>/g, '{{Geo|$1}}');
+  if (decolor) {
+    text = normDecolor(text);
+  } else {
+    text = text.replace(/<color=#00E1FFFF>([^<]+)<\/color>/g, '{{color|buzzword|$1}}');
+    text = text.replace(/<color=#FFCC33FF>([^<]+)<\/color>/g, '{{color|help|$1}}');
 
-  text = text.replace(/<color=#37FFFF>([^<]+) ?<\/color>/g, "'''$1'''");
-  text = text.replace(/<color=(#[0-9a-fA-F]{6})FF>([^<]+)<\/color>/g, '{{color|$1|$2}}');
+    text = text.replace(/<color=#FFACFFFF>([^<]+)<\/color>/g, '{{Electro|$1}}');
+    text = text.replace(/<color=#99FFFFFF>([^<]+)<\/color>/g, '{{Cryo|$1}}');
+    text = text.replace(/<color=#80C0FFFF>([^<]+)<\/color>/g, '{{Hydro|$1}}');
+    text = text.replace(/<color=#FF9999FF>([^<]+)<\/color>/g, '{{Pyro|$1}}');
+    text = text.replace(/<color=#99FF88FF>([^<]+)<\/color>/g, '{{Dendro|$1}}');
+    text = text.replace(/<color=#80FFD7FF>([^<]+)<\/color>/g, '{{Anemo|$1}}');
+    text = text.replace(/<color=#FFE699FF>([^<]+)<\/color>/g, '{{Geo|$1}}');
+
+    text = text.replace(/<color=#37FFFF>([^<]+) ?<\/color>/g, "'''$1'''");
+    text = text.replace(/<color=(#[0-9a-fA-F]{6})FF>([^<]+)<\/color>/g, '{{color|$1|$2}}');
+  }
 
   text = text.replace(/\\"/g, '"');
   text = text.replace(/\r/g, '');
@@ -127,6 +137,9 @@ export const normText = (text: string, langCode: LangCode = 'EN') => {
 }
 
 const DEFAULT_LANG: LangCode = 'EN';
+const DEFAULT_SEARCH_MODE: SearchMode = 'WI';
+
+export type SearchMode = 'W' | 'WI' | 'C' | 'CI' | 'R' | 'RI';
 
 export class ControlState {
   // Instances:
@@ -148,6 +161,11 @@ export class ControlState {
   get outputLangCode(): LangCode {
     return this.Request ? this.Request.cookies['outputLangCode'] || DEFAULT_LANG : DEFAULT_LANG;
   }
+
+  get searchMode(): SearchMode {
+    return this.Request ? this.Request.cookies['search-mode'] || DEFAULT_SEARCH_MODE : DEFAULT_SEARCH_MODE;
+  }
+
 }
 
 export function getControl(controlState?: Request|ControlState) {
@@ -321,7 +339,7 @@ export class Control {
 
   async selectMainQuestsByNameOrId(name: string|number, limit: number = 25): Promise<MainQuestExcelConfigData[]> {
     if (typeof name === 'string') {
-      let matches = await this.getTextMapMatches(this.inputLangCode, name);
+      let matches = await this.getTextMapMatches(this.inputLangCode, name, '-i');
       let textMapIds = Object.keys(matches).map(i => parseInt(i));
 
       return await this.knex.select('*').from('MainQuestExcelConfigData')
@@ -542,7 +560,7 @@ export class Control {
 
   async selectNpcListByName(nameOrTextMapId: number|string|number[]): Promise<NpcExcelConfigData[]> {
     if (typeof nameOrTextMapId === 'string') {
-      nameOrTextMapId = await this.findTextMapIdListByExactName(this.inputLangCode, nameOrTextMapId);
+      nameOrTextMapId = await this.findTextMapIdsByExactName(this.inputLangCode, nameOrTextMapId);
     }
     if (typeof nameOrTextMapId === 'number') {
       nameOrTextMapId = [ nameOrTextMapId ];
@@ -738,16 +756,36 @@ export class Control {
     return this.state;
   }
 
-  get inputLangCode() {
+  get inputLangCode(): LangCode {
     return this.state.inputLangCode;
   }
 
-  get outputLangCode() {
+  get outputLangCode(): LangCode {
     return this.state.outputLangCode;
   }
 
-  readonly FLAG_EXACT_WORD = '-w';
-  readonly FLAG_REGEX = '-E';
+  get searchMode(): SearchMode {
+    return this.state.searchMode;
+  }
+
+  get searchModeFlags(): string {
+    switch (this.searchMode) {
+      case 'W':
+        return '-w';
+      case 'WI':
+        return '-wi';
+      case 'C':
+        return '';
+      case 'CI':
+        return '-i';
+      case 'R':
+        return '-P';
+      case 'RI':
+        return '-Pi';
+      default:
+        return '-wi';
+    }
+  }
 
   async getTextMapMatches(langCode: LangCode, searchText: string, flags?: string): Promise<{[id: number]: string}> {
     if (isStringBlank(searchText)) {
@@ -778,34 +816,27 @@ export class Control {
     }, flags);
   }
 
-  async getTextMapIdStartsWith(langCode: LangCode, idPrefix: string): Promise<{[id: number]: string}> {
-    let lines = await grep(`^\\s*"${idPrefix}\\d+": "`, getTextMapRelPath(langCode), this.FLAG_REGEX);
-    let out = {};
-    for (let line of lines) {
-      let parts = /^"(\d+)":\s+"(.*)",?$/.exec(line);
-      out[parts[1]] = normJsonGrep(parts[2]);
-    }
-    return out;
-  }
-
-  async findTextMapIdByExactName(langCode: LangCode, name: string): Promise<number> {
-    let matches = await this.getTextMapMatches(langCode, name, this.FLAG_EXACT_WORD);
-    for (let [id,value] of Object.entries(matches)) {
-      if (normJsonGrepCmp(value, name)) {
-        return parseInt(id);
-      }
-    }
-    return 0;
-  }
-
-  async findTextMapIdListByExactName(langCode: LangCode, name: string): Promise<number[]> {
+  async findTextMapIdsByExactName(langCode: LangCode, name: string): Promise<number[]> {
     let results = [];
-    let matches = await this.getTextMapMatches(langCode, name, this.FLAG_EXACT_WORD);
-    for (let [id,value] of Object.entries(matches)) {
-      if (normJsonGrepCmp(value, name)) {
-        results.push(parseInt(id));
+
+    let matches = await this.getTextMapMatches(langCode, name, '-wi');
+
+    const processMatches = () => {
+      for (let [id,value] of Object.entries(matches)) {
+        if (normJsonGrepCmp(normDecolor(value), name)) {
+          results.push(parseInt(id));
+        }
       }
     }
+
+    processMatches();
+
+    if (!results.length) {
+      let searchRegex = name.split(/\s+/g).join('.*?');
+      matches = await this.getTextMapMatches(langCode, searchRegex, '-Pi');
+      processMatches();
+    }
+
     return results;
   }
 

@@ -5,32 +5,18 @@
       <p class="spacer10-bottom">Generate dialogue after a specific line within a single dialogue section. You can also enter a specific Talk ID or Dialogue ID.<br />
       Only shows up to 100 results. More specific searches will be faster than broad searches.</p>
       <div class="field valign">
-        <div class="valign grow" style="max-width:700px">
-          <input class="dialogue-generate-input grow" type="text" placeholder="Enter dialogue line or part of a dialogue line." style="border-top-right-radius:0;border-bottom-right-radius:0;" />
-          <div class="posRel">
-            <input class="npc-filter-input" type="text" placeholder="NPC Filter" style="border-radius:0;border-left:0;width:120px" />
-            <span ui-tippy="{allowHTML: true, content: 'Filter by the speaker of the dialogue line to further narrow down the results (e.g. &quot;Paimon&quot;).<br><br>Enter in &quot;Player&quot; or &quot;Traveler&quot; for player lines/options.<br><br>This input is case insensitive and optional.',delay:[200, 100]}"
-                  class="dispInlineFlex" style="height:16px;width:16px;position:absolute;right:5px;top:0;bottom:0;margin:auto 0;opacity:0.6">
+        <input class="dialogue-generate-input grow" type="text" placeholder="Enter dialogue line or part of a dialogue line." style="border-top-right-radius:0;border-bottom-right-radius:0;" />
+        <div class="posRel">
+          <input class="npc-filter-input" type="text" placeholder="NPC Filter" style="border-radius:0;border-left:0;width:120px" />
+          <span ui-tippy="{allowHTML: true, content: 'Filter by the speaker of the dialogue line to further narrow down the results (e.g. &quot;Paimon&quot;).<br><br>Enter in &quot;Player&quot; or &quot;Traveler&quot; for player lines/options.<br><br>This input is case insensitive and optional.',delay:[200, 100]}"
+                class="dispInlineFlex" style="height:16px;width:16px;position:absolute;right:5px;top:0;bottom:0;margin:auto 0;opacity:0.6">
                   <%- icon('info', 16) %>
             </span>
-          </div>
-          <div class="posRel hide">
-            <button ui-action="dropdown: #search-mode-dropdown" class="valign input-style no-select" style="cursor: pointer;border-top-left-radius:0;border-bottom-left-radius:0;border-left:0;">
-              <span>mode:&nbsp;</span><strong class="code">W</strong><%- icon('chevron-down', 18) %>
-            </button>
-            <div id="search-mode-dropdown" class="ui-dropdown">
-              <div class="option" ui-action="close-dropdowns"><strong class="code">C:&nbsp;</strong> Character match <small><em>(case-sensitive)</em></small></div>
-              <div class="option" ui-action="close-dropdowns"><strong class="code">CI:</strong> Character match <small><em>(case-insensitive)</em></small></div>
-              <div class="option-sep"></div>
-              <div class="option" ui-action="close-dropdowns"><strong class="code">W:&nbsp;</strong> Word match <small><em>(case-sensitive)</em></small></div>
-              <div class="option" ui-action="close-dropdowns"><strong class="code">WI:</strong> Word match <small><em>(case-insensitive)</em></small></div>
-              <div class="option-sep"></div>
-              <div class="option" ui-action="close-dropdowns"><strong class="code">R:&nbsp;</strong> Regex <small><em>(case-sensitive)</em></small></div>
-              <div class="option" ui-action="close-dropdowns"><strong class="code">RI:</strong> Regex <small><em>(case-insensitive)</em></small></div>
-            </div>
-          </div>
-          <button class="dialogue-generate-submit primary primary--2 spacer5-left">Generate</button>
         </div>
+        <%- include('partials/search-mode-input') %>
+      </div>
+      <div class="field valign spacer10-top">
+        <button class="dialogue-generate-submit primary primary--2">Generate</button>
         <div class="dialogue-generate-submit-pending hide loading small spacer5-left"></div>
       </div>
     </div>

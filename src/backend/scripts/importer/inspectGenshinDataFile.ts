@@ -96,12 +96,12 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     // console.log(res.slice(0, 5));
 
     //await inspectGenshinDataFile(ctrl, './ExcelBinOutput/LocalizationExcelConfigData.json', ['AssetType']);
-    //await inspectGenshinDataFile(ctrl, './ExcelBinOutput/TalkExcelConfigData.json', ['BeginCond[#ALL].Type', 'FinishExec[#ALL].Type']);
-    await inspectGenshinDataFile(ctrl, './ExcelBinOutput/QuestExcelConfigData.json', [
-      'AcceptCond[#ALL].Type', 'BeginExec[#ALL].Type',
-      'FailCond[#ALL].Type', 'FailExec[#ALL].Type',
-      'FinishCond[#ALL].Type', 'FinishExec[#ALL].Type',
-    ]);
+    await inspectGenshinDataFile(ctrl, './ExcelBinOutput/TalkExcelConfigData.json', ['BeginCond[#ALL].Type', 'FinishExec[#ALL].Type', 'HeroTalk']);
+    // await inspectGenshinDataFile(ctrl, './ExcelBinOutput/QuestExcelConfigData.json', [
+    //   'AcceptCond[#ALL].Type', 'BeginExec[#ALL].Type',
+    //   'FailCond[#ALL].Type', 'FailExec[#ALL].Type',
+    //   'FinishCond[#ALL].Type', 'FinishExec[#ALL].Type',
+    // ]);
 
     await closeKnex();
   })();

@@ -156,6 +156,11 @@ const initial_listeners: Listener[] = [
         document.querySelector<HTMLButtonElement>('#mobile-menu-trigger button').click();
       }
 
+      const qs = <T extends HTMLElement = HTMLElement>(selector: string): T =>
+        (selector === 'this') ? (actionEl as T): document.querySelector<T>(selector);
+      const qsAll = <T extends HTMLElement = HTMLElement>(selector: string): T[] =>
+        (selector === 'this') ? ([actionEl as T]): Array.from(document.querySelectorAll<T>(selector));
+
       if (actionEl) {
         const actions: UiAction[] = parseUiAction(actionEl);
         for (let action of actions) {
@@ -164,7 +169,7 @@ const initial_listeners: Listener[] = [
 
           switch (actionType) {
             case 'add-class':
-              let addClassTarget = document.querySelector(actionParams[0]);
+              let addClassTarget = qs(actionParams[0]);
               if (addClassTarget) {
                 for (let cls of actionParams.slice(1)) {
                   addClassTarget.classList.remove(cls);
@@ -172,7 +177,7 @@ const initial_listeners: Listener[] = [
               }
               break;
             case 'remove-class':
-              let removeClassTarget = document.querySelector(actionParams[0]);
+              let removeClassTarget = qs(actionParams[0]);
               if (removeClassTarget) {
                 for (let cls of actionParams.slice(1)) {
                   removeClassTarget.classList.remove(cls);
@@ -180,7 +185,7 @@ const initial_listeners: Listener[] = [
               }
               break;
             case 'toggle-class':
-              let toggleClassTarget = document.querySelector(actionParams[0]);
+              let toggleClassTarget = qs(actionParams[0]);
               if (toggleClassTarget) {
                 for (let cls of actionParams.slice(1)) {
                   toggleClassTarget.classList.toggle(cls);
@@ -194,7 +199,7 @@ const initial_listeners: Listener[] = [
                 actionParams = actionParams.slice(1);
               }
               for (let selector of actionParams) {
-                const showTarget = document.querySelector(selector);
+                const showTarget = qs(selector);
                 if (showTarget) {
                   showTarget.classList.remove('hide');
                   setTimeout(() => {
@@ -210,7 +215,7 @@ const initial_listeners: Listener[] = [
                 actionParams = actionParams.slice(1);
               }
               for (let selector of actionParams) {
-                const hideTarget = document.querySelector(selector);
+                const hideTarget = qs(selector);
                 if (hideTarget) {
                   hideTarget.classList.remove('active');
                   setTimeout(() => {
@@ -221,7 +226,7 @@ const initial_listeners: Listener[] = [
               break;
             case 'toggle-dropdown':
             case 'dropdown':
-              const dropdown = document.querySelector(actionParams[0]);
+              const dropdown = qs(actionParams[0]);
               if (dropdown) {
                 (<any> dropdown)._toggledBy = actionEl;
                 if (dropdown.classList.contains('active')) {
@@ -236,7 +241,7 @@ const initial_listeners: Listener[] = [
             case 'dropdown-close':
             case 'close-dropdown':
             case 'close-dropdowns':
-              document.querySelectorAll<HTMLElement>('.ui-dropdown.active').forEach(dropdownEl => {
+              qsAll('.ui-dropdown.active').forEach(dropdownEl => {
                 const toggledBy = (<any> dropdownEl)._toggledBy;
                 dropdownEl.classList.remove('active');
                 if (toggledBy) {
@@ -251,7 +256,7 @@ const initial_listeners: Listener[] = [
                 actionParams = actionParams.slice(1);
               }
               for (let selector of actionParams) {
-                const toggleTarget = document.querySelector(selector);
+                const toggleTarget = qs(selector);
                 if (toggleTarget) {
                   (<any> toggleTarget)._toggledBy = actionEl;
 
@@ -278,7 +283,7 @@ const initial_listeners: Listener[] = [
               closeDialog();
               break;
             case 'copy':
-              let copyTarget = document.querySelector(actionParams[0]);
+              let copyTarget = qs(actionParams[0]);
 
               if ((<any> copyTarget).value) {
                 // noinspection JSIgnoredPromiseFromCall
@@ -292,7 +297,7 @@ const initial_listeners: Listener[] = [
               }
               break;
             case 'copy-all':
-              let copyTargets: HTMLInputElement[] = actionParams.map(sel => Array.from(document.querySelectorAll<HTMLInputElement>(sel))).flat(Infinity) as HTMLInputElement[];
+              let copyTargets: HTMLInputElement[] = actionParams.map(sel => Array.from(qsAll<HTMLInputElement>(sel))).flat(Infinity) as HTMLInputElement[];
               let combinedValues: string[] = [];
               let sep = actions.find(a => a.actionType === 'copy-sep')?.actionParams?.[0].replace(/\\n/g, '\n') || '\n';
               if (copyTargets) {
@@ -309,20 +314,20 @@ const initial_listeners: Listener[] = [
               }
               break;
             case 'tab':
-              const tabpanel = document.querySelector(actionParams[0]);
+              const tabpanel = qs(actionParams[0]);
               const tabgroup = actionParams[1];
               if (tabpanel) {
                 tabpanel.classList.remove('hide');
                 tabpanel.classList.add('active');
                 actionEl.classList.add('active');
               }
-              let otherTabEls = Array.from(document.querySelectorAll<HTMLElement>('[ui-action*="tab:"]'));
+              let otherTabEls = Array.from(qsAll<HTMLElement>('[ui-action*="tab:"]'));
               for (let otherTabEl of otherTabEls) {
                 let otherTabActions = parseUiAction(otherTabEl);
                 for (let otherTabAction of otherTabActions.filter(x => x.actionType === 'tab')) {
                   if (otherTabAction.actionParams[0] == tabgroup && otherTabAction.actionParams[0] !== actionParams[0]) {
                     otherTabEl.classList.remove('active');
-                    const otherTabPanel = document.querySelector(otherTabAction.actionParams[0]);
+                    const otherTabPanel = qs(otherTabAction.actionParams[0]);
                     otherTabPanel.classList.remove('active');
                     otherTabPanel.classList.add('hide');
                   }
@@ -339,7 +344,7 @@ const initial_listeners: Listener[] = [
               break;
             case 'expando':
               const animId = uuidv4();
-              const container = document.querySelector<HTMLElement>(actionParams[0]);
+              const container = qs(actionParams[0]);
 
               const inTransition = container.classList.contains('collapsing') || container.classList.contains('expanding');
               if (inTransition) {
@@ -473,6 +478,20 @@ const initial_listeners: Listener[] = [
       let value = target.value;
       console.log('Language selector: Name='+name+', Value='+value);
       Cookies.set(name, value, { expires: 365 });
+    }
+  },
+  {
+    el: '#search-mode-dropdown .option',
+    ev: 'click',
+    multiple: true,
+    fn: function(event: Event, target: HTMLElement) {
+      console.log('clicked!!!!');
+      document.querySelectorAll('#search-mode-dropdown .option').forEach(el => el.classList.remove('selected'));
+      target.classList.add('selected');
+
+      let val = target.getAttribute('data-value');
+      document.querySelector<HTMLElement>('#search-mode-button .code').innerText = val;
+      Cookies.set('search-mode', val, { expires: 365 });
     }
   }
 ];
