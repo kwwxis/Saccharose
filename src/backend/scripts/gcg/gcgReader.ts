@@ -7,6 +7,8 @@ import { AvatarExcelConfigData } from '../../../shared/types/general-types';
 import { DialogueSectionResult } from '../dialogue/dialogue_util';
 import { MetaProp } from '../../util/metaProp';
 import { pathToFileURL } from 'url';
+import util from 'util';
+import { closeKnex } from '../../util/db';
 
 
 export async function fetchGCGTalkDetail(ctrl: Control): Promise<GCGTalkDetailExcelConfigData[]> {
@@ -15,14 +17,14 @@ export async function fetchGCGTalkDetail(ctrl: Control): Promise<GCGTalkDetailEx
 
     let result: GCGTalkDetailExcelConfigData[] = [];
     for (let row of json) {
-      let text: string;
-      let textMapId: number;
+      let text: string[] = [];
+      let textMapHash: number[] = [];
 
       for (let id of row[Object.keys(row).find(k => k.startsWith('OK'))]) {
-        text = getTextMapItem(ctrl.outputLangCode, id);
-        textMapId = id;
-        if (text) {
-          break;
+        let checkText = getTextMapItem(ctrl.outputLangCode, id);
+        if (checkText) {
+          text.push(checkText);
+          textMapHash.push(id);
         }
       }
 
@@ -33,7 +35,7 @@ export async function fetchGCGTalkDetail(ctrl: Control): Promise<GCGTalkDetailEx
         avatar = await ctrl.selectAvatarById(SpeakerId);
       }
 
-      if (!SpeakerId && !text && !voPrefix) {
+      if (!SpeakerId && !text) {
         continue;
       }
 
@@ -42,7 +44,7 @@ export async function fetchGCGTalkDetail(ctrl: Control): Promise<GCGTalkDetailEx
         SpeakerId: SpeakerId,
         Avatar: avatar,
         Text: text,
-        TextMapHash: textMapId,
+        TextMapHash: textMapHash,
         VoPrefix: voPrefix,
       })
     }
@@ -90,15 +92,16 @@ export async function generateGCGTalkDetailDialogue(ctrl: Control, details: GCGT
       result[detail.SpeakerId].dialogue.metadata.push(new MetaProp('Speaker ID', detail.SpeakerId));
       result[detail.SpeakerId].dialogue.wikitext = '';
       result[detail.SpeakerId].dialogue.showGutter = true;
-    } else {
-      result[detail.SpeakerId].dialogue.wikitext += '\n';
     }
 
     const sect = result[detail.SpeakerId].dialogue;
     delete detail.Avatar;
     delete detail.SpeakerId;
 
-    sect.wikitext += `${detail.VoPrefix}${normText(detail.Text, ctrl.outputLangCode)}`;
+    for (let text of detail.Text) {
+      sect.wikitext += `\n`;
+      sect.wikitext += `${detail.VoPrefix}${normText(text, ctrl.outputLangCode)}`;
+    }
   }
   return result;
 }
@@ -110,6 +113,8 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
 
     const ctrl = getControl();
     const details = await fetchGCGTalkDetail(getControl());
-    console.log(generateGCGTalkDetailDialogue(ctrl, details));
+    console.log(util.inspect(details.filter(d => d.SpeakerId === 40000002), false, null, true));
+    // console.log(generateGCGTalkDetailDialogue(ctrl, details));
+    await closeKnex();
   })();
 }
