@@ -221,3 +221,13 @@ faster when running `npm run ts-serve:dev`
 * `/src/frontend` - backend code
 * `/src/shared` - shared code used by both frontend and backend code. The frontend and backend folders should
   not share code between each other. Any shared code should go in `./src/shared`
+  
+## Genshin Images
+
+You'll want to create the `public/images/genshin` folder and add the follow images to it from Texture2D:
+
+ - All images starting with `UI_AvatarIcon`
+ - All images starting with `UI_EquipIcon`
+ - All images starting with `UI_FlycloakIcon`
+ - All images starting with `UI_ItemIcon`
+ - All images starting with `UI_RelicIcon`
