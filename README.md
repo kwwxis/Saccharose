@@ -231,3 +231,7 @@ You'll want to create the `public/images/genshin` folder and add the follow imag
  - All images starting with `UI_FlycloakIcon`
  - All images starting with `UI_ItemIcon`
  - All images starting with `UI_RelicIcon`
+
+Having these images isn't necessary for the application to run, but you'll have a bunch of broken images without them
+in certain areas of the UI. If you don't know where to get these images, you can ask for them in the "Saccharose.wiki"
+Discord editing forums post.
