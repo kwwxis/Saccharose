@@ -11,6 +11,8 @@ import { humanTiming, timeConvert } from '../../../shared/util/genericUtil';
 import { promises as fs } from 'fs';
 import ora from 'ora';
 import { pathToFileURL } from 'url';
+import { ReliquaryCodexExcelConfigData, ReliquaryExcelConfigData } from '../../../shared/types/artifact-types';
+import { WeaponCodexExcelConfigData, WeaponExcelConfigData } from '../../../shared/types/weapon-types';
 
 export const schema = {
   DialogExcelConfigData: <SchemaTable> {
@@ -352,7 +354,7 @@ export const schema = {
     ]
   },
   BooksCodexExcelConfigData: <SchemaTable> {
-    name: 'FurnitureMakeExcelConfigData',
+    name: 'BooksCodexExcelConfigData',
     jsonFile: './ExcelBinOutput/BooksCodexExcelConfigData.json',
     columns: [
       {name: 'Id', type: 'integer', isPrimary: true},
@@ -360,11 +362,11 @@ export const schema = {
     ]
   },
   BookSuitExcelConfigData: <SchemaTable> {
-    name: 'FurnitureMakeExcelConfigData',
-    jsonFile: './ExcelBinOutput/FurnitureMakeExcelConfigData.json',
+    name: 'BookSuitExcelConfigData',
+    jsonFile: './ExcelBinOutput/BookSuitExcelConfigData.json',
     columns: [
       {name: 'Id', type: 'integer', isPrimary: true},
-      {name: 'SuitNameText', type: 'integer', isIndex: true},
+      {name: 'SuitNameTextMapHash', type: 'integer', isIndex: true},
     ]
   },
   LocalizationExcelConfigData: <SchemaTable> {
@@ -383,7 +385,49 @@ export const schema = {
       {name: 'ContentLocalizedId', type: 'integer', isIndex: true},
       {name: 'TitleTextMapHash', type: 'integer', isIndex: true},
     ]
-  }
+  },
+  ReliquaryExcelConfigData: <SchemaTable> {
+    name: 'ReliquaryExcelConfigData',
+    jsonFile: './ExcelBinOutput/ReliquaryExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'SetId', type: 'integer', isIndex: true},
+      {name: 'EquipType', type: 'string', isIndex: true},
+      {name: 'StoryId', type: 'integer', isIndex: true}
+    ]
+  },
+  ReliquaryCodexExcelConfigData: <SchemaTable> {
+    name: 'ReliquaryCodexExcelConfigData',
+    jsonFile: './ExcelBinOutput/ReliquaryCodexExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'SuitId', type: 'integer', isIndex: true},
+    ]
+  },
+  ReliquarySetExcelConfigData: <SchemaTable> {
+    name: 'ReliquarySetExcelConfigData',
+    jsonFile: './ExcelBinOutput/ReliquarySetExcelConfigData.json',
+    columns: [
+      {name: 'SetId', type: 'integer', isPrimary: true},
+    ]
+  },
+  WeaponExcelConfigData: <SchemaTable> {
+    name: 'WeaponExcelConfigData',
+    jsonFile: './ExcelBinOutput/WeaponExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'WeaponType', type: 'integer', isIndex: true},
+      {name: 'StoryId', type: 'integer', isIndex: true}
+    ]
+  },
+  WeaponCodexExcelConfigData: <SchemaTable> {
+    name: 'WeaponCodexExcelConfigData',
+    jsonFile: './ExcelBinOutput/WeaponCodexExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'WeaponId', type: 'integer', isIndex: true},
+    ]
+  },
 };
 
 export function capitalizeFirstLetter(s: string) {
@@ -481,7 +525,8 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
       let currentRow = 1;
       for (let row of json) {
         await insertRow(table, row, json);
-        spinner.text = `Processed ${currentRow} rows of ${totalRows}`;
+        let percent = ((currentRow / totalRows) * 100.0) | 0;
+        spinner.text = `Processed ${currentRow} rows of ${totalRows} (${percent}%)`;
         currentRow++;
       }
 

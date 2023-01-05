@@ -2,13 +2,20 @@ import AppRouter from './AppRouter';
 import helmet from 'helmet';
 import { create, Router, Request, Response, NextFunction } from '../../util/router';
 import { toBoolean } from '../../../shared/util/genericUtil';
+import { getControl, normText } from '../../scripts/script_util';
 
 export default async function(): Promise<Router> {
   const router: Router = create({
     layouts: ['layouts/base-layout'],
-    locals: async (req: Request) => ({
-      csrfToken: req.csrfToken(),
-    })
+    locals: async (req: Request) => {
+      const ctrl = getControl(req);
+      return {
+        normText: (s: string) => normText(s, ctrl.outputLangCode),
+        outputLangCode: ctrl.outputLangCode,
+        inputLangCode: ctrl.inputLangCode,
+        csrfToken: req.csrfToken(),
+      };
+    }
   });
 
   router.use((req: Request, res: Response, next: NextFunction) => {

@@ -1,0 +1,111 @@
+<section class="card">
+  <h2><%= title %></h2>
+  <div class="content">
+    <% if (readable.Material) { %>
+      <table class="article-table">
+        <tbody>
+          <tr>
+            <td class="bold">Image</td>
+            <td class="w70p"><img class="icon x36" src="/images/genshin/<%= readable?.Material?.Icon %>.png" /></td>
+          </tr>
+          <tr>
+            <td class="bold">Rarity</td>
+            <td class="w70p"><%= readable?.Material?.RankLevel %></td>
+          </tr>
+          <tr>
+            <td class="bold">Name</td>
+            <td class="w70p"><%= readable?.Material?.NameText %></td>
+          </tr>
+          <tr>
+            <td class="bold">Type</td>
+            <td class="w70p"><%= readable?.Material?.TypeDescText %></td>
+          </tr>
+          <tr>
+            <td class="bold">Desc.</td>
+            <td class="w70p"><%= normText(readable?.Material?.DescText) %></td>
+          </tr>
+        </tbody>
+      </table>
+    <% } %>
+    <% if (readable.Artifact) { %>
+      <table class="article-table">
+        <tbody>
+          <tr>
+            <td class="bold">Image</td>
+            <td class="w70p"><img class="icon x36" src="/images/genshin/<%= readable?.Artifact?.Icon %>.png" /></td>
+          </tr>
+          <tr>
+            <td class="bold">Rarity</td>
+            <td class="w70p"><%= readable?.Artifact?.RankLevel %></td>
+          </tr>
+          <tr>
+            <td class="bold">Name</td>
+            <td class="w70p"><%= readable?.Artifact?.NameText %></td>
+          </tr>
+          <tr>
+            <td class="bold">Type</td>
+            <td class="w70p"><%= readable?.Artifact?.EquipName %></td>
+          </tr>
+          <tr>
+            <td class="bold">Desc.</td>
+            <td class="w70p"><%= normText(readable?.Artifact?.DescText) %></td>
+          </tr>
+        </tbody>
+      </table>
+    <% } %>
+      <% if (readable.Weapon) { %>
+        <table class="article-table">
+          <tbody>
+            <tr>
+              <td class="bold">Image</td>
+              <td class="w70p"><img class="icon x36" src="/images/genshin/<%= readable?.Weapon?.Icon %>.png" /></td>
+            </tr>
+            <tr>
+              <td class="bold">Awaken Image</td>
+              <td class="w70p"><img class="icon x36" src="/images/genshin/<%= readable?.Weapon?.AwakenIcon %>.png" /></td>
+            </tr>
+            <tr>
+              <td class="bold">Rarity</td>
+              <td class="w70p"><%= readable?.Weapon?.RankLevel %></td>
+            </tr>
+            <tr>
+              <td class="bold">Name</td>
+              <td class="w70p"><%= readable?.Weapon?.NameText %></td>
+            </tr>
+            <tr>
+              <td class="bold">Type</td>
+              <td class="w70p"><%= readable?.Weapon?.WeaponType %></td>
+            </tr>
+            <tr>
+              <td class="bold">Desc.</td>
+              <td class="w70p"><%= normText(readable?.Weapon?.DescText) %></td>
+            </tr>
+          </tbody>
+        </table>
+      <% } %>
+  </div>
+  <div class="content">
+    <div class="valign">
+      <h3>Text</h3>
+      <div class="grow"></div>
+      <button class="secondary small" ui-action="copy: #wikitext"
+              ui-tippy-hover="Click to copy to clipboard"
+              ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
+              style="margin:5px 0">Copy</button>
+    </div>
+    <textarea id="wikitext" readonly class="w100p wikitext autosize" spellcheck="false"><%= readable.ReadableText %></textarea>
+  </div>
+  <% if (locals.ol) { %>
+    <div class="content">
+      <div class="valign">
+        <h3>OL</h3>
+        <div class="grow"></div>
+        <button class="secondary small" ui-action="copy: #ol"
+                ui-tippy-hover="Click to copy to clipboard"
+                ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
+                style="margin:5px 0">Copy</button>
+      </div>
+      <textarea id="ol" readonly class="w100p wikitext autosize" spellcheck="false"><%= ol.result %></textarea>
+    </div>
+  <% } %>
+</section>

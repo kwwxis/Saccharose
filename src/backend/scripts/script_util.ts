@@ -7,7 +7,7 @@ import { getTextMapItem, getVoPrefix } from './textmap';
 import { Request } from '../util/router';
 import SrtParser, { SrtLine } from '../util/srtParser';
 import { promises as fs } from 'fs';
-import { arrayIndexOf, arrayIntersect } from '../../shared/util/arrayUtil';
+import { arrayIndexOf, arrayIntersect, sort } from '../../shared/util/arrayUtil';
 import { toInt, toNumber } from '../../shared/util/numberUtil';
 import { normalizeRawJson } from './importer/import_run';
 import { extractRomanNumeral, isStringBlank, replaceAsync, romanToInt } from '../../shared/util/stringUtil';
@@ -44,6 +44,24 @@ import {
 } from '../../shared/types/homeworld-types';
 import { grep, grepIdStartsWith, grepStream, normJsonGrep, normJsonGrepCmp } from '../util/shellutil';
 import { getGenshinDataFilePath, getTextMapRelPath } from '../loadenv';
+import {
+  ReadableArchiveView,
+  BooksCodexExcelConfigData,
+  BookSuitExcelConfigData,
+  ReadableView,
+  DocumentExcelConfigData,
+  LANG_CODE_TO_LOCALIZATION_PATH_PROP,
+  LocalizationExcelConfigData,
+  Readable,
+} from '../../shared/types/readable-types';
+import { cached } from '../util/cache';
+import {
+  RELIC_EQUIP_TYPE_TO_NAME,
+  ReliquaryCodexExcelConfigData,
+  ReliquaryExcelConfigData,
+  ReliquarySetExcelConfigData,
+} from '../../shared/types/artifact-types';
+import { WeaponExcelConfigData } from '../../shared/types/weapon-types';
 
 // TODO improve this method - it sucks
 //   Only works for languages that use spaces for word boundaries (i.e. not chinese)
@@ -123,7 +141,7 @@ export const normText = (text: string, langCode: LangCode = 'EN', decolor: boole
 
   text = text.replace(/\\"/g, '"');
   text = text.replace(/\r/g, '');
-  text = text.replace(/\\?\\n|\n/g, '<br />');
+  text = text.replace(/\\?\\n|\n/g, '<br />').replace(/<br \/><br \/>/g, '\n\n');
   text = text.replace(/#\{REALNAME\[ID\(1\)(\|HOSTONLY\(true\))?]}/g, '(Wanderer)');
 
   if (text.includes('RUBY#[S]')) {
@@ -147,9 +165,10 @@ export class ControlState {
   Request: Request = null;
 
   // Caches:
-  dialogCache:  {[Id: number]: DialogExcelConfigData} = {};
-  npcCache:     {[Id: number]: NpcExcelConfigData}    = {};
-  avatarCache:  {[Id: number]: AvatarExcelConfigData} = {};
+  dialogCache:   {[Id: number]: DialogExcelConfigData} = {};
+  npcCache:      {[Id: number]: NpcExcelConfigData}    = {};
+  avatarCache:   {[Id: number]: AvatarExcelConfigData} = {};
+  bookSuitCache: {[Id: number]: BookSuitExcelConfigData} = {};
 
   // Preferences:
   ExcludeOrphanedDialogue = false;
@@ -1250,4 +1269,177 @@ export class Control {
 
     return rep;
   }
+
+  async selectArtifactById(id: number): Promise<ReliquaryExcelConfigData> {
+    let artifact: ReliquaryExcelConfigData = await this.knex.select('*').from('ReliquaryExcelConfigData')
+      .where({Id: id}).first().then(this.commonLoadFirst);
+    if (!artifact) {
+      return artifact;
+    }
+    artifact.EquipName = RELIC_EQUIP_TYPE_TO_NAME[artifact.EquipType];
+    return artifact;
+  }
+
+  async selectArtifactByStoryId(storyId: number): Promise<ReliquaryExcelConfigData> {
+    let artifact: ReliquaryExcelConfigData = await this.knex.select('*').from('ReliquaryExcelConfigData')
+      .where({StoryId: storyId}).first().then(this.commonLoadFirst);
+    if (!artifact) {
+      return artifact;
+    }
+    artifact.EquipName = RELIC_EQUIP_TYPE_TO_NAME[artifact.EquipType];
+    return artifact;
+  }
+
+  async selectWeaponById(id: number): Promise<WeaponExcelConfigData> {
+    return await this.knex.select('*').from('WeaponExcelConfigData')
+      .where({Id: id}).first().then(this.commonLoadFirst);
+  }
+
+  async selectWeaponByStoryId(storyId: number): Promise<WeaponExcelConfigData> {
+    return await this.knex.select('*').from('WeaponExcelConfigData')
+      .where({StoryId: storyId}).first().then(this.commonLoadFirst);
+  }
+
+  async selectArtifactCodexById(id: number): Promise<ReliquaryCodexExcelConfigData> {
+    return await this.knex.select('*').from('ReliquaryCodexExcelConfigData')
+      .where({Id: id}).first().then(this.commonLoadFirst);
+  }
+
+  async selectArtifactSetById(id: number): Promise<ReliquarySetExcelConfigData> {
+    return await this.knex.select('*').from('ReliquarySetExcelConfigData')
+      .where({SetId: id}).first().then(this.commonLoadFirst);
+  }
+
+  private async selectBookSuitById(id: number): Promise<BookSuitExcelConfigData> {
+    if (this.state.bookSuitCache[id]) {
+      return this.state.bookSuitCache[id];
+    }
+    let res: BookSuitExcelConfigData = await this.knex.select('*').from('BookSuitExcelConfigData')
+      .where({Id: id}).first().then(this.commonLoadFirst);
+    res.Books = [];
+    this.state.bookSuitCache[id] = res;
+    return res;
+  }
+
+  private async selectBookCodexByMaterialId(id: number): Promise<BooksCodexExcelConfigData> {
+    return await this.knex.select('*').from('BooksCodexExcelConfigData')
+      .where({MaterialId: id}).first().then(this.commonLoadFirst);
+  }
+
+  async selectReadableByDocumentId(documentId: number): Promise<Readable> {
+    let out: Readable = {};
+
+    out.Document = await this.knex.select('*').from('DocumentExcelConfigData')
+      .where({Id: documentId}).first().then(this.commonLoadFirst);
+
+    if (out.Document && !!out.Document.ContentLocalizedId) {
+      out.Localization = await this.knex.select('*').from('LocalizationExcelConfigData')
+        .where({Id: out.Document.ContentLocalizedId}).first().then(this.commonLoadFirst);
+    }
+
+    const pathVar = LANG_CODE_TO_LOCALIZATION_PATH_PROP[this.outputLangCode];
+
+    if (out.Localization && out.Localization.AssetType === 'LOC_TEXT'
+        && typeof out.Localization[pathVar] === 'string' && out.Localization[pathVar].includes('/Readable/')) {
+      let filePath = './Readable/' + out.Localization[pathVar].split('/Readable/')[1] + '.txt';
+      try {
+        let fileText = await fs.readFile(getGenshinDataFilePath(filePath), { encoding: 'utf8' });
+        out.ReadableText = normText(fileText, this.outputLangCode).replace(/<br \/>/g, '<br />\n');
+      } catch (ignore) {
+
+      }
+    }
+
+    if (!out.Document || !out.Localization || !out.ReadableText) {
+      return null;
+    }
+
+    return out;
+  }
+
+  async selectReadableView(documentId: number, loadReadable: boolean = true): Promise<ReadableView> {
+    let view: ReadableView = {Id: documentId};
+    view.BookCodex = await this.selectBookCodexByMaterialId(documentId);
+    view.Material = await this.selectMaterialExcelConfigData(documentId);
+    view.Artifact = await this.selectArtifactByStoryId(documentId);
+    view.Weapon = await this.selectWeaponByStoryId(documentId);
+
+    if (view.Material && view.Material.SetId) {
+      view.BookSuit = await this.selectBookSuitById(view.Material.SetId);
+    }
+
+    if (view.Artifact) {
+      view.ArtifactSet = await this.selectArtifactSetById(view.Artifact.SetId);
+      view.ArtifactCodex = await this.selectArtifactCodexById(view.Artifact.Id);
+    }
+
+    if (loadReadable) {
+      let readable = await this.selectReadableByDocumentId(documentId);
+      if (readable) {
+        Object.assign(view, readable);
+      }
+    }
+
+    return view;
+  }
+
+  async selectBookCollection(suitId: number): Promise<BookSuitExcelConfigData> {
+    let archive: ReadableArchiveView = await this.selectReadableArchiveView();
+
+    let collection: BookSuitExcelConfigData = archive.BookCollections[suitId];
+    for (let book of collection.Books) {
+      let readable = await this.selectReadableByDocumentId(book.Material.Id);
+      if (readable) {
+        Object.assign(book, readable);
+      }
+    }
+
+    return collection;
+  }
+
+  async selectReadableArchiveView(): Promise<ReadableArchiveView> {
+    let documents: DocumentExcelConfigData[] = await this.readGenshinDataFile('./ExcelBinOutput/DocumentExcelConfigData.json');
+    let readableViews: ReadableView[] = [];
+    let archive: ReadableArchiveView = {
+      BookCollections: {},
+      Materials: [],
+      Artifacts: [],
+      Weapons: [],
+    };
+
+    for (let document of documents) {
+      let view: ReadableView = {Id: document.Id};
+      view.BookCodex = await this.selectBookCodexByMaterialId(document.Id);
+      view.Material = await this.selectMaterialExcelConfigData(document.Id);
+      view.Artifact = await this.selectArtifactByStoryId(document.Id);
+      view.Weapon = await this.selectWeaponByStoryId(document.Id);
+
+      if (view.Material && view.Material.SetId) {
+        view.BookSuit = await this.selectBookSuitById(view.Material.SetId);
+      }
+      readableViews.push(view);
+    }
+
+    for (let view of readableViews) {
+      if (view.BookSuit) {
+        if (!archive.BookCollections[view.BookSuit.Id]) {
+          archive.BookCollections[view.BookSuit.Id] = view.BookSuit;
+        }
+        archive.BookCollections[view.BookSuit.Id].Books.push(view);
+      } else if (view.Artifact) {
+        archive.Artifacts.push(view);
+      } else if (view.Weapon) {
+        archive.Weapons.push(view);
+      } else {
+        archive.Materials.push(view);
+      }
+    }
+
+    for (let collection of Object.values(archive.BookCollections)) {
+      sort(collection.Books, 'BookCodex.SortOrder');
+    }
+
+    return archive;
+  }
+
 }
