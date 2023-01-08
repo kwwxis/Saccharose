@@ -190,12 +190,6 @@ export function highlight_ol_differences(olResults: OLResult[]): OLResult[] {
         param.setValue(escapeHtml(param.value));
       }
     }
-    olResult.result = olResult.templateNode.toString().replace(/  +/g, match => {
-      return '&nbsp;'.repeat(match.length);
-    });
-      // .split('\n')
-      // .map(line => `<div>${line}</div>`)
-      // .join('\n');
   }
 
   return olResults;
