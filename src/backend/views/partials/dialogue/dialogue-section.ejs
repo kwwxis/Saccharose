@@ -60,7 +60,7 @@
     <% } %>
     <% if (locals.wikitext) { %>
       <textarea readonly id="wikitext-<%= id %>" class="wikitext <%= locals.showGutter ? 'wikitext-gutter ' : '' %>dialogue-section-wikitext w100p autosize <%= (locals.parentIds || []).map(s => 'wikitext-childOf-' + s).join(' ') %>"
-                style="resize:vertical;min-height:40px;" spellcheck="false"><%= wikitext %></textarea>
+                data-highlight-lines="<%= locals.highlightLines.join(',') %>" style="resize:vertical;min-height:40px;" spellcheck="false"><%= wikitext %></textarea>
     <% } %>
     <% if (locals.wikitextArray) { %>
       <% wikitextArray.forEach((item, idx) => { %>

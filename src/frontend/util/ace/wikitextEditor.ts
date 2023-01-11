@@ -80,12 +80,13 @@ export function createWikitextEditor(editorElementId: string|HTMLElement): ace.E
   return editor;
 }
 
-export function highlightWikitext(wikitext: string, disableGutter: boolean = false): HTMLElement {
+export function highlightWikitext(wikitext: string, disableGutter: boolean = false, highlightLines: number[] = []): HTMLElement {
   createDomClassWatcher();
 
   let Highlight = ace.acequire('ace/ext/static_highlight').highlight;
   let TextmateTheme = ace.acequire('ace/theme/textmate');
   let TomorrowNightTheme = ace.acequire('ace/theme/tomorrow_night');
+  let Range = ace.acequire('ace/range').Range;
 
   let theme;
   if (toBoolean(Cookies.get('nightmode'))) {
@@ -102,11 +103,22 @@ export function highlightWikitext(wikitext: string, disableGutter: boolean = fal
   );
   aceHighlights[guid] = result.session;
 
-  return document.createRange().createContextualFragment(result.html).firstElementChild as HTMLElement;
+  let htmlElement = document.createRange().createContextualFragment(result.html).firstElementChild as HTMLElement;
+
+  if (highlightLines) {
+    for (let lineNum of highlightLines) {
+      let line = htmlElement.querySelector(`.ace_line:nth-child(${lineNum})`);
+      if (line) {
+        line.classList.add('highlight');
+      }
+    }
+  }
+
+  return htmlElement;
 }
 
-export function highlightWikitextReplace(textarea: HTMLTextAreaElement, disableGutter: boolean = false): HTMLElement {
-  let element = highlightWikitext(textarea.value, disableGutter);
+export function highlightWikitextReplace(textarea: HTMLTextAreaElement, disableGutter: boolean = false, highlightLines: number[] = []): HTMLElement {
+  let element = highlightWikitext(textarea.value, disableGutter, highlightLines);
 
   if (textarea.hasAttribute('class')) {
     element.setAttribute('class', element.getAttribute('class') + ' ' + textarea.getAttribute('class'));

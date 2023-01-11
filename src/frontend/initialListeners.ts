@@ -82,7 +82,8 @@ const initial_listeners: Listener[] = [
           return;
         }
         let showGutter: boolean = el.classList.contains('wikitext-gutter');
-        highlightWikitextReplace(el, !showGutter);
+        let highlightLines: number[] = el.getAttribute('data-highlight-lines')?.split(',')?.filter(x => !!x)?.map(s => parseInt(s)) || [];
+        highlightWikitextReplace(el, !showGutter, highlightLines);
       });
 
       document.querySelectorAll<HTMLTextAreaElement>('textarea.autosize').forEach(el => {

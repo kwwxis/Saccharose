@@ -7,9 +7,15 @@ import util from 'util';
 import { isInt } from '../../../shared/util/numberUtil';
 import { DialogExcelConfigData, TalkExcelConfigData } from '../../../shared/types/dialogue-types';
 import { trim } from '../../../shared/util/stringUtil';
-import { DialogueSectionResult, TalkConfigAccumulator, talkConfigToDialogueSectionResult } from './dialogue_util';
+import {
+  DialogueSectionResult,
+  TalkConfigAccumulator,
+  talkConfigToDialogueSectionResult,
+  traceBack,
+} from './dialogue_util';
 import { MetaProp } from '../../util/metaProp';
 import { pathToFileURL } from 'url';
+import { dialogueToQuestId } from './reverse_quest';
 
 const lc = (s: string) => s ? s.toLowerCase() : s;
 
@@ -59,25 +65,54 @@ export async function dialogueGenerate(ctrl: Control, query: number|number[]|str
       }
     }
 
-    const dialogue = typeof id === 'number' ? await ctrl.selectSingleDialogExcelConfigData(id) : id;
+    const dialogue: DialogExcelConfigData = typeof id === 'number' ? await ctrl.selectSingleDialogExcelConfigData(id) : id;
     if (!dialogue) {
       throw 'No Talk or Dialogue found for ID: ' + id;
     }
     if (!npcFilterInclude(ctrl, dialogue, npcFilter)) {
       return false;
     }
-    const talkConfig = await ctrl.selectTalkExcelConfigDataByFirstDialogueId(dialogue.Id);
-    if (talkConfig) {
-      const talkConfigResult = await talkConfigGenerate(ctrl, talkConfig, npcFilter);
-      if (talkConfigResult) {
-        result.push(talkConfigResult);
+    let talkConfigs = await ctrl.selectTalkExcelConfigDataListByFirstDialogueId(dialogue.Id);
+    if (!talkConfigs.length) {
+      let dialogs = await traceBack(ctrl, dialogue);
+      for (let d of dialogs) {
+        talkConfigs.push(... await ctrl.selectTalkExcelConfigDataListByFirstDialogueId(d.Id));
+      }
+    }
+    if (talkConfigs.length) {
+      let foundTalks: boolean = false;
+      for (let talkConfig of talkConfigs) {
+        const talkConfigResult = await talkConfigGenerate(ctrl, talkConfig, npcFilter);
+        if (talkConfigResult) {
+          talkConfigResult.metadata.push(new MetaProp('Talk First Dialogue ID', talkConfig.InitDialog));
+          talkConfigResult.metadata.push(new MetaProp('Highlighted Dialogue ID', dialogue.Id));
+          result.push(talkConfigResult);
+          foundTalks = true;
+
+          let lineCmp = normText(dialogue.TalkContentText, ctrl.outputLangCode);
+          let lineNum = 1;
+          for (let line of talkConfigResult.wikitext.split('\n')) {
+            if (line.endsWith(lineCmp)) {
+              talkConfigResult.highlightLines.push(lineNum);
+            } else if (ctrl.isBlackScreenDialog(dialogue) && line.endsWith(lineCmp + `'''`)) {
+              talkConfigResult.highlightLines.push(lineNum);
+            }
+            lineNum++;
+          }
+        }
+      }
+      if (foundTalks) {
         return true;
       }
     } else {
       const dialogueBranch = await ctrl.selectDialogBranch(dialogue);
       const sect = new DialogueSectionResult('Dialogue_'+dialogue.Id, 'Dialogue');
       sect.originalData.dialogBranch = dialogueBranch;
-      sect.metadata.push(new MetaProp('First Dialogue ID', dialogue.Id, `/branch-dialogue?q=${dialogue.Id}`));
+      sect.metadata.push(new MetaProp('Dialogue ID', dialogue.Id, `/branch-dialogue?q=${dialogue.Id}`));
+      let questIds = await dialogueToQuestId(ctrl, dialogue);
+      if (questIds.length) {
+        sect.metadata.push(new MetaProp('Quest ID', questIds, '/quests/{}'));
+      }
       sect.wikitext = (await ctrl.generateDialogueWikiText(dialogueBranch)).trim();
       result.push(sect);
       return true;
@@ -91,8 +126,8 @@ export async function dialogueGenerate(ctrl: Control, query: number|number[]|str
 
     await ctrl.streamTextMapMatches(ctrl.inputLangCode, query.trim(), (textMapId: number, _text: string) => {
       unexecutedPromises.push(async () => {
-        let dialogue = await ctrl.getDialogFromTextContentId(textMapId);
-        return await handle(dialogue);
+        let dialogues = await ctrl.selectDialogsFromTextContentId(textMapId);
+        return (await Promise.all(dialogues.map(d => handle(d)))).some(b => !!b);
       });
     }, ctrl.searchModeFlags);
 
@@ -133,7 +168,7 @@ export async function talkConfigGenerate(ctrl: Control, talkConfigId: number|Tal
   if (!talkConfig || !npcFilterInclude(ctrl, talkConfig.Dialog[0], npcFilter)) {
     return undefined;
   }
-  return await talkConfigToDialogueSectionResult(ctrl, null, 'Talk Dialogue', null, talkConfig);
+  return await talkConfigToDialogueSectionResult(ctrl, null, 'Talk', null, talkConfig);
 }
 
 export type NpcDialogueResultMap = {[npcId: number]: NpcDialogueResult};

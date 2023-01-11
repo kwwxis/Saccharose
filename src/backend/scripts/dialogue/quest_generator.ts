@@ -226,7 +226,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
     if (questSub.TalkExcelConfigDataList && questSub.TalkExcelConfigDataList.length
           && questSub.TalkExcelConfigDataList.every(x => x.Dialog && x.Dialog.length)) {
       for (let talkConfig of questSub.TalkExcelConfigDataList) {
-        await talkConfigToDialogueSectionResult(ctrl, sect, 'Talk Dialogue', null, talkConfig);
+        await talkConfigToDialogueSectionResult(ctrl, sect, 'Talk', null, talkConfig);
       }
     }
 
@@ -263,8 +263,8 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
   }
   if (mainQuest.OrphanedTalkExcelConfigDataList && mainQuest.OrphanedTalkExcelConfigDataList.length) {
     for (let talkConfig of mainQuest.OrphanedTalkExcelConfigDataList) {
-      await talkConfigToDialogueSectionResult(ctrl, result, 'Unsectioned Talk Dialogue',
-        'These are Talk Dialogues that are part of the quest but not part of any section.', talkConfig);
+      await talkConfigToDialogueSectionResult(ctrl, result, 'Unsectioned Talk',
+        'These are Talks that are part of the quest but not part of any section.', talkConfig);
     }
   }
   if (mainQuest.QuestMessages && mainQuest.QuestMessages.length) {

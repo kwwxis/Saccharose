@@ -369,6 +369,12 @@ export class Control {
     }
   }
 
+  async doesQuestExist(id: number): Promise<boolean> {
+    let result = await this.knex.select('*').from('MainQuestExcelConfigData')
+      .where({Id: id}).first();
+    return !!result;
+  }
+
   async selectMainQuestById(id: number): Promise<MainQuestExcelConfigData> {
     return await this.knex.select('*').from('MainQuestExcelConfigData')
       .where({Id: id}).first().then(this.commonLoadFirst).then(x => this.postProcessMainQuest(x));
@@ -418,6 +424,10 @@ export class Control {
 
   async selectTalkExcelConfigDataByFirstDialogueId(firstDialogueId: number): Promise<TalkExcelConfigData> {
     return await this.knex.select('*').from('TalkExcelConfigData').where({InitDialog: firstDialogueId}).first().then(this.commonLoadFirst);
+  }
+
+  async selectTalkExcelConfigDataListByFirstDialogueId(firstDialogueId: number): Promise<TalkExcelConfigData[]> {
+    return await this.knex.select('*').from('TalkExcelConfigData').where({InitDialog: firstDialogueId}).then(this.commonLoad);
   }
 
   async addOrphanedDialogueAndQuestMessages(mainQuest: MainQuestExcelConfigData) {
@@ -483,6 +493,12 @@ export class Control {
       .where({TalkRoleId: talkRoleId}).then(this.commonLoad);
   }
 
+  async selectPreviousDialogs(nextId: number): Promise<DialogExcelConfigData[]> {
+    let ids: number[] = await this.knex.select('*').from('Relation_DialogToNext')
+      .where({NextId: nextId}).pluck('DialogId').then();
+    return this.selectMultipleDialogExcelConfigData(ids);
+  }
+
   async selectSingleDialogExcelConfigData(id: number): Promise<DialogExcelConfigData> {
     if (this.state.dialogCache[id])
       return this.state.dialogCache[id];
@@ -503,6 +519,9 @@ export class Control {
   }
 
   async selectMultipleDialogExcelConfigData(ids: number[]): Promise<DialogExcelConfigData[]> {
+    if (!ids.length) {
+      return [];
+    }
     return await Promise.all(ids.map(id => this.selectSingleDialogExcelConfigData(id)))
       .then(arr => arr.filter(x => !!x && !!x.TalkContentText));
   }
@@ -513,15 +532,14 @@ export class Control {
     return copy;
   }
 
-  async getDialogFromTextContentId(textMapId: number): Promise<DialogExcelConfigData> {
-    let result: DialogExcelConfigData = await this.knex.select('*').from('DialogExcelConfigData')
+  async selectDialogsFromTextContentId(textMapId: number): Promise<DialogExcelConfigData[]> {
+    let results: DialogExcelConfigData[] = await this.knex.select('*').from('DialogExcelConfigData')
       .where({TalkContentTextMapHash: textMapId})
-      .first().then(this.commonLoadFirst);
-    if (!result) {
-      return undefined;
+      .then(this.commonLoad);
+    for (let result of results) {
+      this.state.dialogCache[result.Id] = result;
     }
-    this.state.dialogCache[result.Id] = result;
-    return result;
+    return results;
   }
 
   isPlayerDialogueOption(dialog: DialogExcelConfigData): boolean {
@@ -768,7 +786,7 @@ export class Control {
 
       previousDialog = dialog;
     }
-    return out;
+    return out.trim();
   }
 
   getPrefs(): ControlState {

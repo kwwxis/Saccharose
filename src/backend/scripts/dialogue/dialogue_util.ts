@@ -4,6 +4,7 @@ import { Control } from '../script_util';
 import { QuestGenerateResult } from './quest_generator';
 import { MetaProp, MetaPropValue } from '../../util/metaProp';
 import { toBoolean } from '../../../shared/util/genericUtil';
+import { dialogueToQuestId } from './reverse_quest';
 
 export class DialogueSectionResult {
   id: string = null;
@@ -16,6 +17,7 @@ export class DialogueSectionResult {
   htmlMessage: string = null;
   originalData: { talkConfig?: TalkExcelConfigData, dialogBranch?: DialogExcelConfigData[] } = {};
   showGutter: boolean = false;
+  highlightLines: number[] = [];
 
   constructor(id: string, title: string, helptext: string = null) {
     this.id = id;
@@ -120,11 +122,18 @@ export class TalkConfigAccumulator {
 
 export async function talkConfigToDialogueSectionResult(ctrl: Control, parentSect: DialogueSectionResult | QuestGenerateResult,
                                                         sectName: string, sectHelptext: string, talkConfig: TalkExcelConfigData, dialogueDepth: number = 1): Promise<DialogueSectionResult> {
-  let mysect = new DialogueSectionResult('TalkDialogue_' + talkConfig.Id, sectName, sectHelptext);
+  let mysect = new DialogueSectionResult('Talk_' + talkConfig.Id, sectName, sectHelptext);
   mysect.originalData.talkConfig = talkConfig;
 
   mysect.addMetaProp('Talk ID', talkConfig.Id, '/branch-dialogue?q={}');
-  mysect.addMetaProp('Quest ID', talkConfig.QuestId, '/quests/{}');
+  if (talkConfig.QuestId) {
+    mysect.addMetaProp('Quest ID', talkConfig.QuestId, '/quests/{}');
+  } else {
+    let questIds = await dialogueToQuestId(ctrl, talkConfig);
+    if (questIds.length) {
+      mysect.addMetaProp('Quest ID', questIds, '/quests/{}');
+    }
+  }
   mysect.addMetaProp('Quest Idle Talk', talkConfig.QuestIdleTalk ? 'yes' : null);
   mysect.addMetaProp('NPC ID', talkConfig.NpcId, '/npc-dialogue?q={}');
   mysect.addMetaProp('Next Talk IDs', talkConfig.NextTalks, '/branch-dialogue?q={}');
@@ -160,10 +169,10 @@ export async function talkConfigToDialogueSectionResult(ctrl: Control, parentSec
 
   if (talkConfig.NextTalksDataList) {
     for (let nextTalkConfig of talkConfig.NextTalksDataList) {
-      await talkConfigToDialogueSectionResult(ctrl, mysect, 'Next Talk Dialogue', 'An immediate (but possibly conditional) continuation from the parent talk dialogue.<br>' +
+      await talkConfigToDialogueSectionResult(ctrl, mysect, 'Next Talk', 'An immediate (but possibly conditional) continuation from the parent talk.<br>' +
         'This can happen for conditional dialogues and branching.<br><br>' +
-        'Example 1: multiple talk dialogues leading to the same next talk dialogue.<br>' +
-        'Example 2: a branch that might lead to one of the next talk dialogues depending on some condition.', nextTalkConfig, dialogueDepth);
+        'Example 1: multiple talks leading to the same next talk.<br>' +
+        'Example 2: a branch that might lead to one of the next talks depending on some condition.', nextTalkConfig, dialogueDepth);
     }
   }
 
@@ -171,11 +180,11 @@ export async function talkConfigToDialogueSectionResult(ctrl: Control, parentSec
     // Get a list of next talk ids that are *not* in NextTalksDataList
     let skippedNextTalkIds = talkConfig.NextTalks.filter(myId => !talkConfig.NextTalksDataList.find(x => x.Id === myId));
     for (let nextTalkId of skippedNextTalkIds) {
-      let placeholderSect = new DialogueSectionResult(null, 'Next Talk Dialogue');
+      let placeholderSect = new DialogueSectionResult(null, 'Next Talk');
       placeholderSect.metadata.push(new MetaProp('Talk ID', nextTalkId, `/branch-dialogue?q=${nextTalkId}`));
       placeholderSect.htmlMessage = `<p>This section contains dialogue but wasn't shown because the section is already present on the page.
-      This can happen when multiple talk dialogues lead to the same next talk dialogue.</p>
-      <p><a href="#TalkDialogue_${nextTalkId}">Jump to Talk Dialogue ${nextTalkId}</a></p>`;
+      This can happen when multiple talks lead to the same next talk.</p>
+      <p><a href="#Talk_${nextTalkId}">Jump to Talk ${nextTalkId}</a></p>`;
       mysect.children.push(placeholderSect);
     }
   }
@@ -190,6 +199,32 @@ export async function talkConfigToDialogueSectionResult(ctrl: Control, parentSec
   return mysect;
 }
 
-export function traceBack(dialog: DialogExcelConfigData) {
-
+/**
+ * Trace a dialog back to the first dialog of its section.
+ *
+ * There can be multiple results if there are multiple first dialogs that lead to the same dialog.
+ */
+export async function traceBack(ctrl: Control, dialog: DialogExcelConfigData): Promise<DialogExcelConfigData[]> {
+  if (!dialog) {
+    return undefined;
+  }
+  let stack: DialogExcelConfigData[] = [dialog];
+  let ret: DialogExcelConfigData[] = [];
+  while (true) {
+    let nextStack = [];
+    for (let d of stack) {
+      let prevs = await ctrl.selectPreviousDialogs(d.Id);
+      if (!prevs.length) {
+        ret.push(d);
+      } else {
+        nextStack.push(... prevs);
+      }
+    }
+    if (nextStack.length) {
+      stack = nextStack;
+    } else {
+      break;
+    }
+  }
+  return ret;
 }
