@@ -7,6 +7,7 @@ import { mwParse } from '../../../shared/mediawiki/mwParse';
 import { MwTemplateNode } from '../../../shared/mediawiki/mwTypes';
 import { escapeHtml } from '../../../shared/util/stringUtil';
 import { pathToFileURL } from 'url';
+import { Marker } from '../../../shared/util/highlightMarker';
 
 function ol_gen_internal(textMapId: number, hideTl: boolean = false, addDefaultHidden: boolean = false, hideRm: boolean = false): string {
   let template = `{{Other Languages
@@ -120,7 +121,7 @@ export interface OLGenOptions {
 export interface OLResult {
   textMapId: number,
   result: string,
-
+  markers: Marker[],
   templateNode?: MwTemplateNode;
 }
 
@@ -144,7 +145,7 @@ export async function ol_gen(ctrl: Control, name: string, options: OLGenOptions 
       continue;
     }
     seen.add(result);
-    allResults.push({textMapId, result});
+    allResults.push({textMapId, result, markers: []});
   }
   return Array.from(allResults);
 }
@@ -154,41 +155,43 @@ export async function ol_gen_from_id(ctrl: Control, textMapId: number, options: 
     return null;
   }
   let result = ol_gen_internal(textMapId, options.hideTl, options.addDefaultHidden, options.hideRm);
-  return {textMapId, result};
+  return {textMapId, result, markers: []};
 }
 
-/**
- * Highlight OL differences on the passed-in parameters in-place.
- *
- * Be aware that the [OLResult.result]{@link OLResult#result} property will be converted to HTML.
- *
- * @param olResults
- * @returns the same olResults array that was passed in
- */
-export function highlight_ol_differences(olResults: OLResult[]): OLResult[] {
+export function add_ol_markers(olResults: OLResult[]): OLResult[] {
   for (let olResult of olResults) {
     let mwParseResult = mwParse(olResult.result);
     olResult.templateNode = mwParseResult.parts.find(p => p instanceof MwTemplateNode) as MwTemplateNode;
   }
 
+  let diffKeys = [];
+
   for (let olResult of olResults) {
     for (let param of olResult.templateNode.params) {
-      let didHighlight = false;
       for (let otherOlResult of olResults) {
         if (otherOlResult == olResult) {
           continue;
         }
         let otherParam = otherOlResult.templateNode.getParam(param.key);
         if (otherParam && param.value !== otherParam.value) {
-          if (!param.value.includes(`<span class="highlight">`)) {
-            param.setValue('<span class="highlight">' + escapeHtml(param.value) + '</span>');
+          if (!diffKeys.includes(param.key)) {
+            diffKeys.push(param.key);
           }
-          didHighlight = true;
         }
       }
-      if (!didHighlight) {
-        param.setValue(escapeHtml(param.value));
+    }
+  }
+
+  let diffKeyRegex = new RegExp('^(\\|(?:' + diffKeys.join('|') + ')\\s*=\\s*)(.*)$');
+
+  for (let olResult of olResults) {
+    let lineNum = 1;
+    for (let line of olResult.result.split('\n')) {
+      if (diffKeyRegex.test(line)) {
+        let match = diffKeyRegex.exec(line);
+        olResult.markers.push(new Marker('highlight', lineNum, match[1].length, match[1].length + match[2].length));
       }
+      lineNum++;
     }
   }
 

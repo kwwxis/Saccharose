@@ -4,6 +4,27 @@
   font-size: 13.333px;
   white-space: pre-wrap;
   line-height: 22px;
+  position: relative;
+}
+
+.ace_static_layer {
+  position: relative;
+}
+
+.ace_static_marker_layer {
+  font-size: 13.333px;
+  white-space: pre-wrap;
+  line-height: 22px;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  pointer-events: none;
+  color: transparent;
+}
+.ace_static_marker_layer span {
+  display: inline-block;
 }
 
 .ace_static_highlight .ace_gutter {

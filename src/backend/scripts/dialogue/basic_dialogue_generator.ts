@@ -16,6 +16,7 @@ import {
 import { MetaProp } from '../../util/metaProp';
 import { pathToFileURL } from 'url';
 import { dialogueToQuestId } from './reverse_quest';
+import { Marker } from '../../../shared/util/highlightMarker';
 
 const lc = (s: string) => s ? s.toLowerCase() : s;
 
@@ -58,9 +59,9 @@ export async function dialogueGenerate(ctrl: Control, query: number|number[]|str
     let lineNum = 1;
     for (let line of sect.wikitext.split('\n')) {
       if (line.endsWith(lineCmp)) {
-        sect.highlightLines.push(lineNum);
+        sect.wikitextMarkers.push(Marker.fullLine('highlight', lineNum));
       } else if (ctrl.isBlackScreenDialog(dialogue) && line.endsWith(lineCmp + `'''`)) {
-        sect.highlightLines.push(lineNum);
+        sect.wikitextMarkers.push(Marker.fullLine('highlight', lineNum));
       }
       lineNum++;
     }

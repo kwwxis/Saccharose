@@ -5,6 +5,7 @@ import { QuestGenerateResult } from './quest_generator';
 import { MetaProp, MetaPropValue } from '../../util/metaProp';
 import { toBoolean } from '../../../shared/util/genericUtil';
 import { dialogueToQuestId } from './reverse_quest';
+import { Marker } from '../../../shared/util/highlightMarker';
 
 export class DialogueSectionResult {
   id: string = null;
@@ -12,12 +13,12 @@ export class DialogueSectionResult {
   metadata: MetaProp[] = [];
   helptext: string = null;
   wikitext: string = null;
-  wikitextArray: { title?: string, wikitext: string }[] = [];
+  wikitextMarkers: Marker[] = [];
+  wikitextArray: { title?: string, wikitext: string, markers?: Marker[] }[] = [];
   children: DialogueSectionResult[] = [];
   htmlMessage: string = null;
   originalData: { talkConfig?: TalkExcelConfigData, dialogBranch?: DialogExcelConfigData[] } = {};
   showGutter: boolean = false;
-  highlightLines: number[] = [];
 
   constructor(id: string, title: string, helptext: string = null) {
     this.id = id;
@@ -215,7 +216,9 @@ export async function traceBack(ctrl: Control, dialog: DialogExcelConfigData): P
     for (let d of stack) {
       let prevs = await ctrl.selectPreviousDialogs(d.Id);
       if (!prevs.length) {
-        ret.push(d);
+        if (!ret.some(r => r.Id === d.Id)) {
+          ret.push(d);
+        }
       } else {
         nextStack.push(... prevs);
       }

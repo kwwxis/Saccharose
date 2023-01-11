@@ -1,7 +1,7 @@
 import { create, Router, Request, Response } from '../../util/router';
 import { getControl, normText } from '../../scripts/script_util';
 import { questGenerate, QuestGenerateResult } from '../../scripts/dialogue/quest_generator';
-import { highlight_ol_differences, ol_gen, OLResult } from '../../scripts/OLgen/OLgen';
+import { add_ol_markers, ol_gen, OLResult } from '../../scripts/OLgen/OLgen';
 import { dialogueGenerate, dialogueGenerateByNpc, NpcDialogueResultMap } from '../../scripts/dialogue/basic_dialogue_generator';
 import { reminderGenerate, reminderWikitext } from '../../scripts/dialogue/reminder_generator';
 import { isInt, toInt } from '../../../shared/util/numberUtil';
@@ -108,7 +108,7 @@ router.restful('/OL/generate', {
       throw HttpError.badRequest('NotFound', req.query.text as string);
     }
 
-    highlight_ol_differences(results);
+    add_ol_markers(results);
 
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
       return res.render('partials/ol-result', { olResults: results, searchText: <string> req.query.text });

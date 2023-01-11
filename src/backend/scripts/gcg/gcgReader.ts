@@ -9,6 +9,7 @@ import { MetaProp } from '../../util/metaProp';
 import { pathToFileURL } from 'url';
 import util from 'util';
 import { closeKnex } from '../../util/db';
+import { Marker } from '../../../shared/util/highlightMarker';
 
 
 export async function fetchGCGTalkDetail(ctrl: Control): Promise<GCGTalkDetailExcelConfigData[]> {

@@ -39,6 +39,9 @@ function parseUiAction(actionStr: string|HTMLElement): UiAction[] {
   return result;
 }
 
+const allowReadonlyKeys = new Set(['ArrowUp', 'ArrowRight', 'ArrowDown', 'ArrowLeft', 'Shift', 'Control ', 'Alt', 'Tab',
+  'PageUp', 'PageDown', 'Home', 'End']);
+
 // noinspection JSIgnoredPromiseFromCall
 const initial_listeners: Listener[] = [
   {
@@ -73,17 +76,13 @@ const initial_listeners: Listener[] = [
       );
     },
 
-    allowReadonlyKeys: new Set(['ArrowUp', 'ArrowRight', 'ArrowDown', 'ArrowLeft', 'Shift', 'Control ', 'Alt', 'Tab',
-      'PageUp', 'PageDown', 'Home', 'End']),
-
     intervalFunction() {
       document.querySelectorAll<HTMLTextAreaElement>('textarea.wikitext').forEach(el => {
         if (el.closest('.hide')) {
           return;
         }
         let showGutter: boolean = el.classList.contains('wikitext-gutter');
-        let highlightLines: number[] = el.getAttribute('data-highlight-lines')?.split(',')?.filter(x => !!x)?.map(s => parseInt(s)) || [];
-        highlightWikitextReplace(el, !showGutter, highlightLines);
+        highlightWikitextReplace(el, !showGutter, el.getAttribute('data-markers') || []);
       });
 
       document.querySelectorAll<HTMLTextAreaElement>('textarea.autosize').forEach(el => {
@@ -126,7 +125,7 @@ const initial_listeners: Listener[] = [
           event.preventDefault();
         });
         el.addEventListener('keydown', (event: KeyboardEvent) => {
-          if (event.metaKey || event.ctrlKey || event.altKey || event.shiftKey || this.allowReadonlyKeys.has(event.key)) {
+          if (event.metaKey || event.ctrlKey || event.altKey || event.shiftKey || allowReadonlyKeys.has(event.key)) {
             return;
           }
           event.stopPropagation();
@@ -292,6 +291,10 @@ const initial_listeners: Listener[] = [
               }
 
               if (copyTarget.hasAttribute('contenteditable')) {
+                if (copyTarget.querySelector('.ace_static_text_layer')) {
+                  copyTarget = copyTarget.querySelector('.ace_static_text_layer');
+                }
+                console.log('Copy target', copyTarget);
                 let value = copyTarget.textContent;
                 // noinspection JSIgnoredPromiseFromCall
                 copyToClipboard(value.trim());
@@ -307,6 +310,10 @@ const initial_listeners: Listener[] = [
                     combinedValues.push(copyTarget.value.trim());
                   }
                   if (copyTarget.hasAttribute('contenteditable')) {
+                    if (copyTarget.querySelector('.ace_static_text_layer')) {
+                      copyTarget = copyTarget.querySelector('.ace_static_text_layer');
+                    }
+                    console.log('Copy target', copyTarget);
                     combinedValues.push(copyTarget.textContent.trim());
                   }
                 }

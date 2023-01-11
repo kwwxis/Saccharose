@@ -16,8 +16,12 @@
   <h2>Changelog</h2>
   <div class="content">
     <ul>
-      <li><strong>2022-01-10:</strong> If the "Single Branch Dialogue" tool found a talk, then only the first talk would be shown. Now all matching talks are shown.</li>
-      <li><strong>2022-01-10:</strong> Improved lookup for quest IDs for dialogue sections.</li>
+      <li><strong>2022-01-10:</strong> The "Single Branch Dialogue" tool would only load a talk if the user entered either the ID of the talk or the text for the first dialogue line of the talk.
+        Now it will always show the talk(s) corresponding to a dialogue line. If the dialogue line is not part of any talk, then it'll also load previous dialogue lines in addition to subsequent lines.
+      </li>
+      <li><strong>2022-01-10:</strong> Implemented highlighting range support in wikitext.</li>
+      <li><strong>2022-01-10:</strong> The "Single Branch Dialogue" tool used to falsely assume that the same DialogExcelConfigData ID
+        cannot be part of multiple talks. It has been fixed to load all talks associated with a DialogExcelConfigData.</li>
       <li><strong>2022-01-05:</strong> Added "Books &amp; Readables" list.</li>
       <li><strong>2022-12-31:</strong> Can now choose search mode in "Text Map Expansion", "Single Branch Dialogue", and "Reminder Dialogue" tools. Regex support included.</li>
       <li><strong>2022-12-21:</strong> Wikitext is now highlighted.</li>

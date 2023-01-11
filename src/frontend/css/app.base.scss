@@ -913,10 +913,10 @@ textarea.code, [contenteditable].code, .input-style.code {
 .highlight {
   background: yellow;
 }
-.highlight:empty {
+.highlight.empty {
   padding: 0 2px;
 }
-.highlight:empty:before {
+.highlight.empty:before {
   content: '(empty)';
   opacity: 0.5;
 }
