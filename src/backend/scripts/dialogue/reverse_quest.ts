@@ -75,7 +75,7 @@ export async function dialogueToQuestId(ctrl: Control, query: string|number|Dial
     return ret;
   }
   for (let d of firstDialogs) {
-    let qId = guessQuestFromDialogueId(ctrl, d.Id);
+    let qId = await guessQuestFromDialogueId(ctrl, d.Id);
     if (qId) {
       ret.push(qId);
     }

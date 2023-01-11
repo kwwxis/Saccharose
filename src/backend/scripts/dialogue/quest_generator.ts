@@ -216,6 +216,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
       for (let dialog of questSub.OrphanedDialog) {
         let subsect = new DialogueSectionResult('OrphanedDialogue_'+dialog[0].Id, 'Orphaned Dialogue', orphanedHelpText);
         subsect.metadata.push(new MetaProp('First Dialogue ID', dialog[0].Id, `/branch-dialogue?q=${dialog[0].Id}`));
+        subsect.metadata.push(new MetaProp('Quest ID', mainQuest.Id, `/quests/{}`));
         out.clearOut();
         out.append(await ctrl.generateDialogueWikiText(dialog));
         subsect.wikitext = out.toString();
@@ -254,6 +255,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
       let sect = new DialogueSectionResult('OrphanedDialogue_'+dialog[0].Id, 'Orphaned Dialogue', orphanedHelpText);
       sect.originalData.dialogBranch = dialog;
       sect.metadata.push(new MetaProp('First Dialogue ID', dialog[0].Id, `/branch-dialogue?q=${dialog[0].Id}`));
+      sect.metadata.push(new MetaProp('Quest ID', mainQuest.Id, `/quests/{}`));
       out.clearOut();
       out.append(await ctrl.generateDialogueWikiText(dialog));
       out.line();
