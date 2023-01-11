@@ -167,7 +167,9 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
   // ------------------
   out.clearOut();
 
-  result.questDescriptions.push('{{Quest Description|'+mainQuest.DescText+'}}');
+  if (mainQuest.DescText) {
+    result.questDescriptions.push('{{Quest Description|'+mainQuest.DescText+'}}');
+  }
   for (let questSub of mainQuest.QuestExcelConfigDataList) {
     if (!questSub.StepDescText) {
       continue;
@@ -186,8 +188,10 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
     addDefaultHidden: false,
     langCode: 'EN' // always EN
   });
-  out.append(olResult.result);
-  result.otherLanguagesWikitext = out.toString();
+  if (olResult) {
+    out.append(olResult.result);
+    result.otherLanguagesWikitext = out.toString();
+  }
 
   // Quest Dialogue
   // --------------

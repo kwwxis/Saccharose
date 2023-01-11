@@ -1,7 +1,7 @@
 <% for (let id in searchResults) { %>
   <a role="button" class="quest-search-result secondary dispBlock spacer5-bottom textAlignLeft" href="/quests/<%= id %>" data-id="<%= id %>">
     <strong>ID <%= id %>:&nbsp;</strong>
-    <span><%= searchResults[id] %></span>
+    <span><%= searchResults[id] || '(No title)' %></span>
   </a>
 <% } %>
 <% if (!searchResults || !Object.keys(searchResults).length) { %>

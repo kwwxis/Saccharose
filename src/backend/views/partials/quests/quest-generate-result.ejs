@@ -1,10 +1,13 @@
 <section class="card">
   <h2>
-    <strong><%= questId %>:</strong>&nbsp;<%= questTitle %>
+    <strong><%= questId %>:</strong>&nbsp;<%= questTitle || '(No title)' %>
     <a class="help-info fr fontWeight600" style="font-size:15px;cursor:pointer;">Help</a>
   </h2>
   <div class="content">
     <h4>Quest Description<%= questDescriptions.length > 1 ? 's' : '' %></h4>
+    <% if (!questDescriptions.length) { %>
+      <p>(None)</p>
+    <% } %>
     <% questDescriptions.forEach((questDescription, idx) => { %>
       <div class="posRel">
         <textarea id="quest-desc-<%= idx %>" readonly class="wikitext w100p autosize" style="resize:vertical;min-height:40px;padding-right:45px" spellcheck="false"><%= questDescription %></textarea>
@@ -31,23 +34,35 @@
     <div class="valign">
       <h4>Steps</h4>
       <div class="grow"></div>
-      <button class="secondary small" ui-action="copy: #quest-steps"
-              ui-tippy-hover="Click to copy to clipboard"
-              ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
-              style="margin:5px 0">Copy</button>
+      <% if (stepsWikitext) { %>
+        <button class="secondary small" ui-action="copy: #quest-steps"
+                ui-tippy-hover="Click to copy to clipboard"
+                ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
+                style="margin:5px 0">Copy</button>
+      <% } %>
     </div>
-    <textarea id="quest-steps" readonly class="wikitext w100p autosize" style="resize:vertical;min-height:40px;" spellcheck="false"><%= stepsWikitext %></textarea>
+    <% if (stepsWikitext) { %>
+      <textarea id="quest-steps" readonly class="wikitext w100p autosize" style="resize:vertical;min-height:40px;" spellcheck="false"><%= stepsWikitext %></textarea>
+    <% } else { %>
+      <p>(None)</p>
+    <% } %>
   </div>
   <div class="content">
     <div class="valign">
       <h4>Other Languages</h4>
       <div class="grow"></div>
-      <button class="secondary small" ui-action="copy: #quest-name-ol"
-              ui-tippy-hover="Click to copy to clipboard"
-              ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
-              style="margin:5px 0">Copy</button>
+      <% if (otherLanguagesWikitext) { %>
+        <button class="secondary small" ui-action="copy: #quest-name-ol"
+                ui-tippy-hover="Click to copy to clipboard"
+                ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
+                style="margin:5px 0">Copy</button>
+      <% } %>
     </div>
-    <textarea id="quest-name-ol" readonly class="wikitext w100p" style="resize:vertical;min-height:200px;" spellcheck="false"><%= otherLanguagesWikitext %></textarea>
+    <% if (otherLanguagesWikitext) { %>
+      <textarea id="quest-name-ol" readonly class="wikitext w100p" style="resize:vertical;min-height:200px;" spellcheck="false"><%= otherLanguagesWikitext %></textarea>
+    <% } else { %>
+      <p>(Not applicable)</p>
+    <% } %>
   </div>
   <% if (travelLogSummary.length) { %>
     <div class="content">
