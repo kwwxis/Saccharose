@@ -777,7 +777,7 @@ export class Control {
             continue;
           }
           includedCount++;
-          out += await this.generateDialogueWikiText(dialogBranch, dialogDepth + 1, dialog, i === 0, temp);
+          out += '\n' + await this.generateDialogueWikiText(dialogBranch, dialogDepth + 1, dialog, i === 0, temp);
         }
         if (includedCount === 0 && excludedCount > 0) {
           out += `\n${diconPrefix};(Return to option selection)`;
