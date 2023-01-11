@@ -53,6 +53,19 @@ export async function dialogueGenerate(ctrl: Control, query: number|number[]|str
     query = parseInt(query);
   }
 
+  function highlightLine(dialogue: DialogExcelConfigData, sect: DialogueSectionResult) {
+    let lineCmp = normText(dialogue.TalkContentText, ctrl.outputLangCode);
+    let lineNum = 1;
+    for (let line of sect.wikitext.split('\n')) {
+      if (line.endsWith(lineCmp)) {
+        sect.highlightLines.push(lineNum);
+      } else if (ctrl.isBlackScreenDialog(dialogue) && line.endsWith(lineCmp + `'''`)) {
+        sect.highlightLines.push(lineNum);
+      }
+      lineNum++;
+    }
+  }
+
   async function handle(id: number|DialogExcelConfigData): Promise<boolean> {
     if (!id) {
       return false;
@@ -72,10 +85,11 @@ export async function dialogueGenerate(ctrl: Control, query: number|number[]|str
     if (!npcFilterInclude(ctrl, dialogue, npcFilter)) {
       return false;
     }
-    let talkConfigs = await ctrl.selectTalkExcelConfigDataListByFirstDialogueId(dialogue.Id);
+    let talkConfigs: TalkExcelConfigData[] = await ctrl.selectTalkExcelConfigDataListByFirstDialogueId(dialogue.Id);
+    let firstDialogs: DialogExcelConfigData[] = null;
     if (!talkConfigs.length) {
-      let dialogs = await traceBack(ctrl, dialogue);
-      for (let d of dialogs) {
+      firstDialogs = await traceBack(ctrl, dialogue);
+      for (let d of firstDialogs) {
         talkConfigs.push(... await ctrl.selectTalkExcelConfigDataListByFirstDialogueId(d.Id));
       }
     }
@@ -86,35 +100,33 @@ export async function dialogueGenerate(ctrl: Control, query: number|number[]|str
         if (talkConfigResult) {
           talkConfigResult.metadata.push(new MetaProp('Talk First Dialogue ID', talkConfig.InitDialog));
           talkConfigResult.metadata.push(new MetaProp('Highlighted Dialogue ID', dialogue.Id));
+          highlightLine(dialogue, talkConfigResult);
           result.push(talkConfigResult);
           foundTalks = true;
-
-          let lineCmp = normText(dialogue.TalkContentText, ctrl.outputLangCode);
-          let lineNum = 1;
-          for (let line of talkConfigResult.wikitext.split('\n')) {
-            if (line.endsWith(lineCmp)) {
-              talkConfigResult.highlightLines.push(lineNum);
-            } else if (ctrl.isBlackScreenDialog(dialogue) && line.endsWith(lineCmp + `'''`)) {
-              talkConfigResult.highlightLines.push(lineNum);
-            }
-            lineNum++;
-          }
         }
       }
       if (foundTalks) {
         return true;
       }
     } else {
-      const dialogueBranch = await ctrl.selectDialogBranch(dialogue);
-      const sect = new DialogueSectionResult('Dialogue_'+dialogue.Id, 'Dialogue');
-      sect.originalData.dialogBranch = dialogueBranch;
-      sect.metadata.push(new MetaProp('Dialogue ID', dialogue.Id, `/branch-dialogue?q=${dialogue.Id}`));
-      let questIds = await dialogueToQuestId(ctrl, dialogue);
-      if (questIds.length) {
-        sect.metadata.push(new MetaProp('Quest ID', questIds, '/quests/{}'));
+      if (!firstDialogs) {
+        firstDialogs = await traceBack(ctrl, dialogue);
       }
-      sect.wikitext = (await ctrl.generateDialogueWikiText(dialogueBranch)).trim();
-      result.push(sect);
+      for (let d of firstDialogs) {
+        const dialogueBranch = await ctrl.selectDialogBranch(d);
+        const sect = new DialogueSectionResult('Dialogue_'+d.Id, 'Dialogue');
+        sect.originalData.dialogBranch = dialogueBranch;
+        sect.metadata.push(new MetaProp('First Dialogue ID', dialogue.Id, `/branch-dialogue?q=${dialogue.Id}`));
+        sect.metadata.push(new MetaProp('Highlighted Dialogue ID', d.Id, `/branch-dialogue?q=${d.Id}`));
+
+        let questIds = await dialogueToQuestId(ctrl, d);
+        if (questIds.length) {
+          sect.metadata.push(new MetaProp('Quest ID', questIds, '/quests/{}'));
+        }
+        sect.wikitext = (await ctrl.generateDialogueWikiText(dialogueBranch)).trim();
+        highlightLine(dialogue, sect);
+        result.push(sect);
+      }
       return true;
     }
     return false;
