@@ -8,8 +8,6 @@
                 ui-tippy-hover="Click to copy to clipboard"
                 ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">Copy</button>
       </div>
-<!--      <div id="ol-result-<%= idx %>" contenteditable="true" readonly spellcheck="false" class="ol-result-textarea w100p code"-->
-<!--           style="resize:vertical;overflow:auto;font-size:13px;"><%- olResult.result %></div>-->
       <textarea id="ol-result-<%= idx %>" readonly spellcheck="false" class="ol-result-textarea wikitext w100p"
                 style="resize:vertical;overflow:auto;font-size:13px;" data-markers="<%= olResult.markers?.map(m => m.toString())?.join(';') || '' %>"><%= olResult.result %></textarea>
     </div>

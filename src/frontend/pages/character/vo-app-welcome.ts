@@ -6,40 +6,49 @@ import { VoAppState } from './vo-tool';
 import { toInt } from '../../../shared/util/numberUtil';
 import { closeDialog, DIALOG_MODAL, openDialog } from '../../util/dialog';
 import { createWikitextEditor } from '../../util/ace/wikitextEditor';
+import { humanTiming } from '../../../shared/util/genericUtil';
+import { sort } from '../../../shared/util/arrayUtil';
 
 export function VoAppWelcome(state: VoAppState) {
   const recentEl = document.querySelector('#vo-app-welcome-recent');
   const recentListEl = document.querySelector('#vo-app-welcome-recent-list');
-  let anyRecents = false;
 
-  let locallySavedAvatars: {avatarId: number, langCode: LangCode}[] = [];
+  let locallySavedAvatars: {avatarId: number, langCode: LangCode, lastUpdateTime: number, recentListHtml: string}[] = [];
 
   for (let i = 0; i < localStorage.length; i++){
     let key = localStorage.key(i);
-    if (key.startsWith('CHAR_VO_WIKITEXT_')) {
+    if (key.startsWith('CHAR_VO_WIKITEXT_') && !key.endsWith('_UPDATETIME')) {
       let keyParts: string[] = key.split('_');
       let avatarId: number = toInt(keyParts.pop());
       let langCode: LangCode = keyParts.pop() as LangCode;
 
+      let lastUpdatedTimeStr: string = localStorage.getItem(key+'_UPDATETIME');
+      let lastUpdateTime: number = lastUpdatedTimeStr ? parseInt(lastUpdatedTimeStr) : 0;
+
       let avatar = state.avatars.find(avatar => avatar.Id === avatarId);
       if (avatar) {
-        locallySavedAvatars.push({ avatarId: avatar.Id, langCode });
-        anyRecents = true;
-        recentListEl.insertAdjacentHTML('beforeend', `
+        locallySavedAvatars.push({ avatarId: avatar.Id, langCode, lastUpdateTime, recentListHtml: `
         <div class="w50p">
           <a id="vo-app-welcome-recent-avatar-${avatar.Id}"
              class="vo-app-welcome-recent-avatar secondary dispFlex textAlignLeft spacer5-all"
              href="/character/VO/${avatar.NameText.replace(' ', '_')}"
              role="button">
             <img class="icon x32" src="/images/genshin/${avatar.IconName}.png" />
-            <span class="spacer10-left">${avatar.NameText}</span>
+            <div class="spacer10-left spacer5-top" style="line-height:1em">
+              <div>${avatar.NameText}</div>
+              <small>Last updated: ${humanTiming(lastUpdateTime)}</small>
+            </div>
           </a>
         </div>
-      `);
+      ` });
       }
     }
   }
-  if (anyRecents) {
+  if (locallySavedAvatars.length) {
+    sort(locallySavedAvatars, '-lastUpdateTime');
+    for (let locallySavedAvatar of locallySavedAvatars) {
+      recentListEl.insertAdjacentHTML('beforeend', locallySavedAvatar.recentListHtml);
+    }
     recentEl.classList.remove('hide');
   }
 
@@ -59,7 +68,7 @@ export function VoAppWelcome(state: VoAppState) {
         }
 
         let voHandle = createVoHandle(wikitext);
-        if (!voHandle.templateNode) {
+        if (!voHandle || !voHandle.templateNode) {
           flashTippy(submitEl, {content: 'VO template not found!', delay:[0,2000]});
           return;
         }
@@ -102,6 +111,7 @@ export function VoAppWelcome(state: VoAppState) {
         function go() {
           state.eventBus.emit('VO-Lang-Changed', langCode);
           window.localStorage.setItem('CHAR_VO_WIKITEXT_' + langCode + '_' + avatar.Id, wikitext);
+          window.localStorage.setItem('CHAR_VO_WIKITEXT_' + langCode + '_' + avatar.Id + '_UPDATETIME', String(Date.now()));
           setTimeout(() => window.location.href = '/character/VO/' + avatar.NameText);
         }
 

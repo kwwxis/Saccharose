@@ -2,197 +2,702 @@
 
 import { MwComment, MwNode, MwParamNode, MwTemplateNode, MwWhiteSpace } from '../mediawiki/mwTypes';
 import { mwParse } from '../mediawiki/mwParse';
-import { splitLimit } from '../util/stringUtil';
-import { arraySum } from '../util/arrayUtil';
+import { isStringBlank, splitLimit, uuidv4 } from '../util/stringUtil';
+import { arraySum, sort } from '../util/arrayUtil';
 import { isset } from '../util/genericUtil';
+import { constrainNumber, isInt, toInt } from '../util/numberUtil';
+
+interface VoParamKey {
+  groupKey: string;
+  itemKey: string;
+  prop: string;
+}
+
+function arrayMove<T>(arr: T[], fromIndex: number, toIndex: number) {
+  let element = arr[fromIndex];
+  arr.splice(fromIndex, 1);
+  arr.splice(toIndex, 0, element);
+}
+
+// Returns the number in 'arr' that is closest to 'target'
+function arrayClosest(arr: number[], target: number) {
+  return arr.reduce((prev: number, curr: number) => {
+    return (Math.abs(curr - target) < Math.abs(prev - target) ? curr : prev);
+  });
+}
+
+function arrayRemove<T>(arr: T[], items: T[]) {
+  for (let item of items) {
+    let index = arr.indexOf(item);
+    if (index > -1) {
+      arr.splice(index, 1);
+    }
+  }
+}
+
+const enforcePropOrderItem = (item: string) => [item, item + '_s', item + '_t']
+const enforcePropOrder = [
+  ... enforcePropOrderItem('title'),
+  ... enforcePropOrderItem('subtitle'),
+  ... enforcePropOrderItem('waypoint'),
+  ... enforcePropOrderItem('statue'),
+  ... enforcePropOrderItem('friendship'),
+  ... enforcePropOrderItem('ascension'),
+  ... enforcePropOrderItem('quest'),
+  ... enforcePropOrderItem('hidden'),
+  ... enforcePropOrderItem('file'),
+  ... enforcePropOrderItem('file_male'),
+  ... enforcePropOrderItem('file_female'),
+  ... enforcePropOrderItem('tx'),
+  ... enforcePropOrderItem('rm'),
+  ... enforcePropOrderItem('tl'),
+  ... enforcePropOrderItem('actualtx'),
+  ... enforcePropOrderItem('actualrm'),
+  ... enforcePropOrderItem('actualtl'),
+  ... enforcePropOrderItem('mention')
+];
+
+function obtainPropOrder(propName: string): number {
+  propName = propName.toLowerCase();
+  for (let i = 0; i < enforcePropOrder.length; i++) {
+    if (propName.startsWith(enforcePropOrder[i])) {
+      return i;
+    }
+  }
+  return -1;
+}
 
 export class VoItem {
   // Parent ref:
-  handle: VoHandle;
+  readonly handle: VoHandle;
   group: VoGroup;
 
   // Self info:
-  itemKey: string = null;
+  readonly uuid: string;
+  private _itemKey: string = null;
   propToParam: {[propName: string]: MwParamNode} = {};
   allNodes: MwNode[] = [];
 
   constructor(handle: VoHandle, voGroup: VoGroup) {
+    this.uuid = handle.setUUID(this);
     this.handle = handle;
     this.group = voGroup;
+  }
+
+  isEmpty(): boolean {
+    return !this.allNodes.length;
+  }
+
+  get position(): number {
+    return this.group.items.indexOf(this);
+  }
+
+  get itemKey(): string {
+    return this._itemKey;
+  }
+
+  set itemKey(newItemKey: string) {
+    this._itemKey = newItemKey;
+    this.processKeyChange();
+  }
+
+  get htmlId(): string {
+    return (this.handle.isCombat ? 'combat_' : 'story_') + this._itemKey;
+  }
+
+  getParam(propName: string): string {
+    if (this.propToParam[propName]) {
+      return this.propToParam[propName].value;
+    } else {
+      return undefined;
+    }
+  }
+
+  setParam(propName: string, newValue: string) {
+    if (this.propToParam[propName]) {
+      this.propToParam[propName].value = newValue;
+    } else {
+      this.addParam(propName, newValue);
+    }
+  }
+
+  addParam(propName: string, newValue: string) {
+    if (this.propToParam[propName]) {
+      this.propToParam[propName].value = newValue;
+      return;
+    }
+    let key = this.handle.compileKey({groupKey: this.group.groupKey, itemKey: this._itemKey, prop: propName});
+    let propOrder = obtainPropOrder(propName);
+    let paramNode = new MwParamNode('|', (key + ' ').padEnd(this.handle.keyPadLen, ' '));
+    let eolNode = new MwWhiteSpace('\n');
+    paramNode.beforeValueWhitespace = new MwWhiteSpace(' ');
+    paramNode.value = newValue;
+
+    let allNodesIndex = -1;
+    let insertIndex = -1;
+
+    const defaultToLast = () => {
+      insertIndex = this.lastNodeIndex + 1;
+      allNodesIndex = this.allNodes.length;
+    };
+
+    let paramNodes = this.paramNodes;
+    if (propOrder < 0 || !paramNodes.length) {
+      defaultToLast();
+    } else {
+      let map: {[order: number]: MwParamNode} = {};
+      for (let i = 0; i < paramNodes.length; i++) {
+        let otherNode = paramNodes[i];
+        let otherNodeOrder = obtainPropOrder(this.handle.parseKey(otherNode.key).prop);
+        if (otherNodeOrder >= 0) {
+          map[otherNodeOrder] = otherNode;
+        }
+      }
+      if (!Object.keys(map).length) {
+        defaultToLast();
+      } else {
+        let closestOrder = arrayClosest(Object.keys(map).map(toInt), propOrder);
+        let closestNode = map[closestOrder];
+        insertIndex = this.handle.indexOf(closestNode);
+        allNodesIndex = this.allNodes.indexOf(closestNode);
+        if (closestOrder < propOrder) {
+          // If it's before, then we'll want to insert after the closestNode (previous sibling node)
+          // If it's after, then we'll want to insert before the closestNode (next sibling node)
+          insertIndex++;
+          allNodesIndex++;
+          if (this.allNodes[allNodesIndex] instanceof MwWhiteSpace) {
+            // Increment again to go past the EOL whitespace of the closestNode (previous sibling node)
+            insertIndex++;
+            allNodesIndex++;
+          }
+        }
+      }
+    }
+
+    this.propToParam[propName] = paramNode;
+    this.allNodes.splice(allNodesIndex, 0, paramNode, eolNode);
+    this.handle.insertNodes(insertIndex, [paramNode, eolNode]);
+
+    this.handle.recalculate();
+  }
+
+  remove(): boolean {
+    if (this.position < 0) {
+      return false;
+    }
+    let allNodes = this.allNodes;
+    for (let node of allNodes) {
+      this.handle.removeNode(node);
+    }
+    arrayRemove(this.group.items, [this]);
+    this.group.recalculate();
+    return true;
+  }
+
+  moveTo(newPosition: number, targetGroup?: VoGroup): boolean {
+    let newGroup = targetGroup || this.group;
+    let oldGroup = this.group;
+    let isSameGroup = newGroup === oldGroup;
+
+    if (isSameGroup && newPosition === this.position) {
+      return false;
+    }
+
+    if (newPosition < 0 || newPosition > newGroup.items.length) {
+      throw 'Invalid new item position: ' + newPosition;
+    }
+
+    let allNodes = this.allNodes;
+    this.remove();
+    this.group = newGroup;
+
+    let insertNodeIndex = this.insertIndexForItemPosition(newGroup, newPosition);
+
+    this.handle.insertNodes(insertNodeIndex, allNodes);
+    newGroup.items.splice(newPosition, 0, this);
+
+    if (isSameGroup) {
+      newGroup.recalculate();
+    } else {
+      oldGroup.recalculate();
+      newGroup.recalculate();
+    }
+    return true;
+  }
+
+  private insertIndexForItemPosition(group: VoGroup, position: number) {
+    let isEndPos = position >= group.items.length;
+    let item = group.items[constrainNumber(position, 0, group.items.length - 1)];
+    return isEndPos ? item.lastNodeIndex + 1 : item.firstNodeIndex;
+  }
+
+  recalculate() {
+    if (!this.handle.compileDone) {
+      return;
+    }
+
+    let itemNum = this.position + 1;
+    if (isInt(this.itemKey)) {
+      // Set '_itemKey' directly instead of using 'itemKey'
+      // processKeyChange() is called at the end of this function, no need to call it twice.
+      this._itemKey = this.handle.isCombat ? String(itemNum) : String(itemNum).padStart(2, '0');
+    }
+
+    let isLastItemOfLastGroup = this.position === this.group.items.length - 1 && this.group.position === this.handle.groups.length - 1;
+    let newAllNodes = [];
+
+    for (let i = 0; i < this.allNodes.length; i++) {
+      let prevNode = i === 0 ? null : this.allNodes[i - 1];
+      let thisNode = this.allNodes[i];
+      let isLastNode = i === this.allNodes.length - 1;
+
+      newAllNodes.push(thisNode);
+
+      if (thisNode instanceof MwParamNode) {
+        thisNode.beforeValueWhitespace = new MwWhiteSpace(' ');
+      }
+
+      if (!isLastNode && prevNode instanceof MwParamNode) {
+        if (thisNode instanceof MwWhiteSpace) {
+          thisNode.content = '\n';
+        } else {
+          let newWhiteSpace = new MwWhiteSpace('\n');
+          newAllNodes.push(newWhiteSpace);
+          this.handle.insertNodes(this.handle.indexOf(thisNode) + 1, [newWhiteSpace]);
+        }
+      }
+
+      if (isLastNode) {
+        let lastNodeText = isLastItemOfLastGroup || this.handle.isCombat ? '\n' : '\n\n';
+        if (thisNode instanceof MwWhiteSpace) {
+          thisNode.content = lastNodeText;
+        } else {
+          let newWhiteSpace = new MwWhiteSpace(lastNodeText);
+          newAllNodes.push(newWhiteSpace);
+          this.handle.insertNodes(this.handle.indexOf(thisNode) + 1, [newWhiteSpace]);
+        }
+      }
+    }
+
+    if (newAllNodes.length > this.allNodes.length) {
+      this.allNodes = newAllNodes;
+    }
+
+    this.processKeyChange();
   }
 
   get paramNodes(): MwParamNode[] {
     return Object.values(this.propToParam);
   }
 
-  get firstParamIndex() {
-    return Math.min(... this.paramNodes.map(node => this.handle.templateNode.parts.indexOf(node)));
-  }
-
-  get lastParamIndex() {
-    return Math.max(... this.allNodes.map(node => this.handle.templateNode.parts.indexOf(node)));
-  }
-
   get firstNodeIndex() {
+    if (this.isEmpty()) {
+      return this.group.firstNodeIndex;
+    }
     return Math.min(... this.allNodes.map(node => this.handle.templateNode.parts.indexOf(node)));
   }
 
   get lastNodeIndex() {
+    if (this.isEmpty()) {
+      return this.group.lastNodeIndex;
+    }
     return Math.max(... this.allNodes.map(node => this.handle.templateNode.parts.indexOf(node)));
+  }
+
+  private processKeyChange() {
+    for (let param of this.paramNodes) {
+      let keyParts = this.handle.parseKey(param.key);
+      let didChange: boolean = false;
+
+      if (keyParts.groupKey !== this.group.groupKey) {
+        keyParts.groupKey = this.group.groupKey;
+        didChange = true;
+      }
+
+      if (keyParts.itemKey !== this.itemKey) {
+        keyParts.itemKey = this.itemKey;
+        didChange = true;
+      }
+
+      if (didChange) {
+        param.key = (this.handle.compileKey(keyParts) + ' ').padEnd(this.handle.keyPadLen, ' ');
+      }
+    }
   }
 }
 
 export class VoGroupTitle {
   // Parent ref:
-  handle: VoHandle;
-  group: VoGroup;
+  readonly handle: VoHandle;
+  readonly group: VoGroup;
 
   // Self info:
+  readonly uuid: string;
   titleNode: MwComment = null;
   allNodes: MwNode[] = [];
 
   constructor(handle: VoHandle, voGroup: VoGroup) {
+    this.uuid = handle.setUUID(this);
     this.handle = handle;
     this.group = voGroup;
   }
 
+  isEmpty(): boolean {
+    return !this.allNodes.length;
+  }
+
+  recalculate() {
+    if (!this.handle.compileDone || !this.titleNode) {
+      return;
+    }
+    let lastNode = this.allNodes[this.allNodes.length - 1];
+    if (lastNode instanceof MwWhiteSpace) {
+      lastNode.content = '\n';
+    } else {
+      let newWhitespace = new MwWhiteSpace('\n');
+      this.allNodes.push(newWhitespace);
+      this.handle.insertNodes(this.handle.indexOf(lastNode) + 1, [newWhitespace]);
+    }
+  }
+
   get text() {
-    return this.titleNode && this.titleNode.content.trim();
+    return this.titleNode ? this.titleNode.content.trim() : '';
   }
 
   set text(newTitle: string) {
     if (!this.titleNode) {
       this.titleNode = new MwComment('<!--', ' '+newTitle+' ', '-->');
-      this.allNodes = [
+      let newNodes = [
         this.titleNode,
         new MwWhiteSpace('\n'),
       ];
-      this.handle.insertNodes(this.group.firstNodeIndex, this.allNodes);
+      if (this.group.isEmpty()) {
+        this.handle.insertNodes(this.group.lastNodeIndex + 1, newNodes);
+      } else {
+        this.handle.insertNodes(this.group.firstNodeIndex, newNodes);
+      }
+      this.allNodes = newNodes;
     } else {
       this.titleNode.content = ' '+newTitle+' ';
     }
   }
 
   get firstNodeIndex(): number {
+    if (this.isEmpty()) {
+      return this.group.firstNodeIndex;
+    }
     return Math.min(... this.allNodes.map(node => this.handle.templateNode.parts.indexOf(node)));
   }
 
   get lastNodeIndex(): number {
+    if (this.isEmpty()) {
+      return this.group.lastNodeIndex;
+    }
     return Math.max(... this.allNodes.map(node => this.handle.templateNode.parts.indexOf(node)));
   }
 }
 
 export class VoGroup {
   // Parent ref:
-  handle: VoHandle;
+  readonly handle: VoHandle;
 
   // Self info:
-  groupKey: string = null;
-  title: VoGroupTitle;
-  items: VoItem[];
+  readonly uuid: string;
+  private _groupKey: string = null;
+  readonly title: VoGroupTitle;
+  readonly items: VoItem[];
 
   constructor(handle: VoHandle) {
+    this.uuid = handle.setUUID(this);
     this.handle = handle;
     this.title = new VoGroupTitle(this.handle, this);
     this.items = [];
   }
 
-  item(num: string) {
-    let item = this.items.find(item => item.itemKey === num);
+  isEmpty(): boolean {
+    let itemsEmpty = !this.items.length || this.items.every(item => item.isEmpty());
+    let titleEmpty = this.title.isEmpty();
+    return itemsEmpty && titleEmpty;
+  }
+
+  recalculate() {
+    if (!this.handle.compileDone) {
+      return;
+    }
+    let groupNum = this.position + 1;
+    if (isInt(this.groupKey)) {
+      this.groupKey = String(groupNum).padStart(2, '0');
+    }
+
+    this.title.recalculate();
+
+    for (let item of this.items) {
+      item.recalculate();
+    }
+  }
+
+  get htmlId(): string {
+    return (this.handle.isCombat ? 'combat_' : 'story_') + this._groupKey;
+  }
+
+  get groupKey(): string {
+    return this._groupKey;
+  }
+
+  set groupKey(newGroupKey: string) {
+    this._groupKey = newGroupKey;
+    this.items.forEach(item => item.recalculate());
+  }
+
+  get allNodes(): MwNode[] {
+    let nodes = [];
+    nodes.push(... this.title.allNodes);
+    for (let item of this.items) {
+      nodes.push(... item.allNodes);
+    }
+    return nodes;
+  }
+
+  get position(): number {
+    return this.handle.groups.indexOf(this);
+  }
+
+  remove(): boolean {
+    if (this.position < 0) {
+      return false;
+    }
+    let allNodes = this.allNodes;
+    for (let node of allNodes) {
+      this.handle.removeNode(node);
+    }
+    arrayRemove(this.handle.groups, [this]);
+    this.handle.recalculate();
+    return true;
+  }
+
+  moveTo(newPosition: number): boolean {
+    if (newPosition === this.position) {
+      return false;
+    }
+
+    if (newPosition < 0 || newPosition > this.handle.groups.length) {
+      throw 'Invalid new group position: ' + newPosition;
+    }
+
+    let allNodes = this.allNodes;
+    this.remove();
+
+    let insertNodeIndex = this.insertIndexForGroupPosition(newPosition);
+
+    this.handle.insertNodes(insertNodeIndex, allNodes);
+    this.handle.groups.splice(newPosition, 0, this);
+    this.handle.recalculate();
+    return true;
+  }
+
+  private insertIndexForGroupPosition(position: number) {
+    let isEndPos = position >= this.handle.groups.length;
+    let group = this.handle.groups[constrainNumber(position, 0, this.handle.groups.length - 1)];
+    return isEndPos ? group.lastNodeIndex + 1 : group.firstNodeIndex;
+  }
+
+  /**
+   * Create or get VO item with `itemKey`.
+   * @param itemKey
+   */
+  item(itemKey: string): VoItem {
+    let item = this.items.find(item => item.itemKey === itemKey);
     if (!item) {
       item = new VoItem(this.handle, this);
-      item.itemKey = num;
+      item.itemKey = itemKey;
       this.items.push(item);
+      this.handle.recalculate();
     }
     return item;
   }
 
-  get keyPadLen() {
-    let len = 0;
-    for (let item of this.items) {
-      for (let node of item.paramNodes) {
-        let nodeLen = arraySum(node.keyParts.map(part => part.content.length));
-        if (nodeLen > len) {
-          len = nodeLen;
-        }
-      }
-    }
-    return len;
+  newItem(): VoItem {
+    let newItemKey = String(this.items.length + 1);
+    return this.item(this.handle.isCombat ? newItemKey : newItemKey.padStart(2, '0'));
   }
 
   get firstNodeIndex(): number {
-    return Math.min(this.title.firstNodeIndex, ... this.items.map(item => item.firstNodeIndex));
+    if (this.isEmpty()) {
+      return this.handle.firstNodeIndex;
+    }
+    let indices: number[] = [];
+    if (!this.title.isEmpty()) {
+      indices.push(this.title.firstNodeIndex);
+    }
+    for (let item of this.items) {
+      if (!item.isEmpty()) {
+        indices.push(item.firstNodeIndex);
+      }
+    }
+    return Math.min(... indices);
   }
 
   get lastNodeIndex(): number {
-    return Math.max(this.title.lastNodeIndex, ... this.items.map(item => item.lastNodeIndex));
+    if (this.isEmpty()) {
+      return this.handle.lastNodeIndex;
+    }
+    let indices: number[] = [];
+    if (!this.title.isEmpty()) {
+      indices.push(this.title.lastNodeIndex);
+    }
+    for (let item of this.items) {
+      if (!item.isEmpty()) {
+        indices.push(item.lastNodeIndex);
+      }
+    }
+    return Math.max(... indices);
   }
 }
 
 export class VoHandle {
-  templateNode: MwTemplateNode;
-  groups: VoGroup[] = [];
+  readonly templateNode: MwTemplateNode;
+  readonly groups: VoGroup[] = [];
+  private uuidMap: {[uuid: string]: any} = {};
+  isCombat: boolean = false;
+  compileDone: boolean = false;
+  keyPadLen: number = 20;
 
   constructor(templateNode: MwTemplateNode) {
     this.templateNode = templateNode;
   }
 
-  insertNodes(index: number, ...newItems: MwNode[]) {
-    this.templateNode.parts = [
-      ... this.templateNode.parts.slice(0, index),
-      ... newItems,
-      ... this.templateNode.parts.slice(index),
-    ];
+  byUUID<T>(uuid: string): T {
+    return this.uuidMap[uuid];
   }
 
-  removeNode(node: number|MwNode) {
-    let index: number;
+  setUUID(o: any): string {
+    let uuid = uuidv4();
+    this.uuidMap[uuid] = o;
+    return uuid;
+  }
+
+  isEmpty(): boolean {
+    return !this.groups.length || this.groups.every(g => g.isEmpty());
+  }
+
+  get firstNodeIndex(): number {
+    if (!this.groups.length) {
+      return 0;
+    }
+    return this.groups[0].firstNodeIndex;
+  }
+
+  get lastNodeIndex(): number {
+    if (!this.groups.length) {
+      return 0;
+    }
+    return this.groups[this.groups.length - 1].lastNodeIndex;
+  }
+
+  recalculate() {
+    if (!this.compileDone) {
+      return;
+    }
+    sort(this.groups, 'firstNodeIndex');
+    for (let group of this.groups) {
+      group.recalculate();
+    }
+  }
+
+  parseKey(paramKey: string|number): VoParamKey {
+    if (typeof paramKey === 'number') {
+      return {groupKey: undefined, itemKey: undefined, prop: undefined}; // anonymous parameter
+    }
+    if (paramKey.startsWith('vo_')) {
+      const keyParts = splitLimit(paramKey, '_', 4);
+      const groupKey = keyParts[1];
+      const itemKey = keyParts[2];
+      const prop = keyParts[3];
+      return {groupKey, itemKey, prop};
+    }
+    if (this.isCombat) {
+      const keyParts = splitLimit(paramKey, '_', 3);
+      const groupKey = keyParts[0];
+      const itemKey = keyParts[1];
+      const prop = keyParts[2];
+      return {groupKey, itemKey, prop};
+    }
+    return {groupKey: undefined, itemKey: undefined, prop: paramKey};
+  }
+
+  compileKey(paramKey: VoParamKey) {
+    if (this.isCombat) {
+      return `${paramKey.groupKey}_${paramKey.itemKey}_${paramKey.prop}`
+    } else {
+      return `vo_${paramKey.groupKey}_${paramKey.itemKey}_${paramKey.prop}`
+    }
+  }
+
+  indexOf(node: number|MwNode): number {
+    let index;
     if (node instanceof MwNode) {
       index = this.templateNode.parts.indexOf(node);
     } else {
       index = node;
     }
-    if (index > -1) {
-      this.templateNode.parts.splice(index, 1);
+    if (index > this.templateNode.parts.length - 1) {
+      return -1;
     }
+    return index;
   }
 
-  group(groupKey: string) {
+  insertNodes(index: number, newItems: MwNode[]) {
+    this.templateNode.parts.splice(index, 0, ... newItems);
+  }
+
+  removeNodes(nodes: (number|MwNode)[]): boolean {
+    return nodes.map(node => this.removeNode(node)).some(res => !!res);
+  }
+
+  removeNode(node: number|MwNode): boolean {
+    let index = this.indexOf(node);
+    if (index > -1) {
+      this.templateNode.parts.splice(index, 1);
+      return true;
+    }
+    return false;
+  }
+
+  replaceNode(node: number|MwNode, newNode: MwNode): boolean {
+    let index = this.indexOf(node);
+    if (index > -1) {
+      this.templateNode.parts[index] = newNode;
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Create or get group with `groupKey`.
+   * @param groupKey
+   */
+  group(groupKey: string): VoGroup {
     let group = this.groups.find(group => group.groupKey === groupKey);
     if (!group) {
       group = new VoGroup(this);
       group.groupKey = groupKey;
       this.groups.push(group);
+      this.recalculate();
     }
     return group;
   }
 
+  newGroup(): VoGroup {
+    return this.group(String(this.groups.length + 1).padStart(2, '0'));
+  }
+
   compile(): VoHandle {
+    this.compileDone = false;
     let seenParamKeys: Set<string> = new Set();
+    let seenTitleSubseqNodes: Set<MwNode> = new Set();
     let currentGroup: VoGroup = null;
     let currentItem: VoItem = null;
-    let isCombat: boolean = this.templateNode.templateName.toLowerCase().includes('combat');
-
-    const parseKey = (paramKey: string|number): {groupKey: string, itemKey: string, prop: string} => {
-      if (typeof paramKey === 'number') {
-        return {groupKey: undefined, itemKey: undefined, prop: undefined};
-      }
-      if (paramKey.startsWith('vo_')) {
-        const keyParts = splitLimit(paramKey, '_', 4);
-        const groupKey = keyParts[1];
-        const itemKey = keyParts[2];
-        const prop = keyParts[3];
-        return {groupKey, itemKey, prop};
-      }
-      if (isCombat) {
-        const keyParts = splitLimit(paramKey, '_', 3);
-        const groupKey = keyParts[0];
-        const itemKey = keyParts[1];
-        const prop = keyParts[2];
-        return {groupKey, itemKey, prop};
-      }
-      return {groupKey: undefined, itemKey: undefined, prop: paramKey};
-    };
+    this.isCombat = this.templateNode.templateName.toLowerCase().includes('combat');
 
     for (let node of this.templateNode.parts) {
       if (node instanceof MwParamNode && typeof node.key === 'string') {
@@ -203,9 +708,9 @@ export class VoHandle {
         }
         seenParamKeys.add(key);
 
-        const {groupKey, itemKey, prop} = parseKey(key);
+        const {groupKey, itemKey, prop} = this.parseKey(key);
 
-        if (key.startsWith('vo_')) {
+        if (groupKey && itemKey && prop) {
           const group = this.group(groupKey);
           const item = group.item(itemKey);
 
@@ -214,6 +719,11 @@ export class VoHandle {
           currentGroup = group;
           currentItem = item;
           currentItem.allNodes.push(node);
+        }
+
+        let keyLen = arraySum(node.keyParts.map(part => part.content.length));
+        if (keyLen > this.keyPadLen) {
+          this.keyPadLen = keyLen;
         }
       } else if (node instanceof MwParamNode && typeof node.key === 'number') {
         if (node.key === 0) {
@@ -250,15 +760,15 @@ export class VoHandle {
           // If there's no next param, then do not consider it to be a group title
           // and keep it in the current item (if there is one)
         } else if (!prevParam) {
-          let keyParts = parseKey(nextParam.key);
+          let keyParts = this.parseKey(nextParam.key);
           // If no prev param, then consider it to be a group title if only the nextParam is a VO param
           if (isset(keyParts.groupKey) && isset(keyParts.itemKey)) {
             isGroupTitleComment = true;
             groupKey = keyParts.groupKey;
           }
         } else {
-          let prevKeyParts = parseKey(prevParam.key);
-          let nextKeyParts = parseKey(nextParam.key);
+          let prevKeyParts = this.parseKey(prevParam.key);
+          let nextKeyParts = this.parseKey(nextParam.key);
           // If both prev and next param, then consider it to be a group title only if the nextParam is a VO param
           // and is not in the same group as prevParam
           if (isset(nextKeyParts.groupKey) && isset(nextKeyParts.itemKey) && nextKeyParts.groupKey !== prevKeyParts.groupKey) {
@@ -276,21 +786,35 @@ export class VoHandle {
           let titleObj: VoGroupTitle = this.group(groupKey).title;
           titleObj.titleNode = node;
           titleObj.allNodes.push(node, ... subseqNodes);
+          subseqNodes.forEach(subseqNode => seenTitleSubseqNodes.add(subseqNode))
         }
       } else {
-        if (currentItem) {
+        if (currentItem && !seenTitleSubseqNodes.has(node)) {
           currentItem.allNodes.push(node);
         }
       }
     }
+    this.compileDone = true;
     return this;
   }
 }
 
 export function createVoHandle(templateNode: MwTemplateNode|string): VoHandle {
-  if (typeof templateNode === 'string') {
-    templateNode = mwParse(templateNode.replace(/\r/g, ''))
-      .parts.find(p => p instanceof MwTemplateNode && p.templateName.includes('VO')) as MwTemplateNode;
+  if (isStringBlank(templateNode)) {
+    return null;
   }
-  return new VoHandle(templateNode);
+  if (typeof templateNode === 'string') {
+    templateNode = mwParse(templateNode).findTemplateNodes().find(p => p.templateName.includes('VO'));
+  }
+  return templateNode ? new VoHandle(templateNode) : null;
+}
+
+export function createVoHandles(templateNodes: MwTemplateNode[]|string): VoHandle[] {
+  if (isStringBlank(templateNodes)) {
+    return [];
+  }
+  if (typeof templateNodes === 'string') {
+    templateNodes = mwParse(templateNodes).findTemplateNodes().filter(p => p.templateName.includes('VO'));
+  }
+  return templateNodes.map(templateNode => new VoHandle(templateNode));
 }

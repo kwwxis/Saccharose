@@ -34,6 +34,10 @@ export class VoAppState {
     this.init();
   }
 
+  get isTraveler() {
+    return [10000005, 10000007].includes(this.avatar.Id);
+  }
+
   init() {
     this.eventBus.on('VO-Lang-Changed', (langCode: LangCode) => {
       console.log('[VO-App] Lang Code Changed:', langCode);

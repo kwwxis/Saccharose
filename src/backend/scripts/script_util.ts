@@ -118,8 +118,8 @@ export const normText = (text: string, langCode: LangCode = 'EN', decolor: boole
   text = text.replace(/—/g, '&mdash;').trim();
   text = text.replace(/{NICKNAME}/g, travelerPlaceholder(langCode));
   text = text.replace(/{NON_BREAK_SPACE}/g, '&nbsp;');
-  text = text.replace(/{F#([^}]+)}{M#([^}]+)}/g, '{{MC|m=$2|f=$1}}');
-  text = text.replace(/{M#([^}]+)}{F#([^}]+)}/g, '{{MC|m=$1|f=$2}}');
+  text = text.replace(/{F#([^}]*)}{M#([^}]*)}/g, '{{MC|m=$2|f=$1}}');
+  text = text.replace(/{M#([^}]*)}{F#([^}]*)}/g, '{{MC|m=$1|f=$2}}');
 
   if (decolor) {
     text = normDecolor(text);

@@ -115,6 +115,8 @@ body.vo-item-dragging .vo-group.empty-group .vo-group-body {
   background: #fff;
 }
 .vo-group-header, .vo-item-header {
+  display: flex;
+  align-items: center;
   height: 38px;
   line-height: 38px;
   padding: 0 5px;
@@ -156,4 +158,13 @@ svg.icon.icon-drag-handle {
   height: 14px;
   width: auto;
   fill: rgba(0,0,0,0.6);
+}
+
+
+input.seamless-input:not(:hover):not(:focus) {
+  border-color: transparent !important;
+}
+body.vo-dragging input.seamless-input {
+  background: transparent !important;
+  border-color: transparent !important;
 }

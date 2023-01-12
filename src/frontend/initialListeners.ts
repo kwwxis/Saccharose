@@ -301,7 +301,7 @@ const initial_listeners: Listener[] = [
               }
               break;
             case 'copy-all':
-              let copyTargets: HTMLInputElement[] = actionParams.map(sel => Array.from(qsAll<HTMLInputElement>(sel))).flat(Infinity) as HTMLInputElement[];
+              let copyTargets: HTMLInputElement[] = actionParams.map(sel => qsAll<HTMLInputElement>(sel)).flat(Infinity) as HTMLInputElement[];
               let combinedValues: string[] = [];
               let sep = actions.find(a => a.actionType === 'copy-sep')?.actionParams?.[0].replace(/\\n/g, '\n') || '\n';
               if (copyTargets) {
@@ -329,11 +329,11 @@ const initial_listeners: Listener[] = [
                 tabpanel.classList.add('active');
                 actionEl.classList.add('active');
               }
-              let otherTabEls = Array.from(qsAll<HTMLElement>('[ui-action*="tab:"]'));
+              let otherTabEls = qsAll<HTMLElement>('[ui-action*="tab:"]');
               for (let otherTabEl of otherTabEls) {
                 let otherTabActions = parseUiAction(otherTabEl);
                 for (let otherTabAction of otherTabActions.filter(x => x.actionType === 'tab')) {
-                  if (otherTabAction.actionParams[0] == tabgroup && otherTabAction.actionParams[0] !== actionParams[0]) {
+                  if (otherTabAction.actionParams[1] == tabgroup && otherTabAction.actionParams[0] !== actionParams[0]) {
                     otherTabEl.classList.remove('active');
                     const otherTabPanel = qs(otherTabAction.actionParams[0]);
                     otherTabPanel.classList.remove('active');

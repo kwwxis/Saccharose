@@ -186,6 +186,8 @@ export function mwParse(str: string): MwParentNode {
     return node;
   }
 
+  str = str.replace(/\r/g, '');
+
   let iter: MwParseIterator = new MwParseIterator(str);
   let rootContext = iter.pushContext(new MwParentNode(), null);
 

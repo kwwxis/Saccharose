@@ -1,5 +1,5 @@
 import { MwParseModule } from '../mwParseModule';
-import { MwParamNode, MwParamParentType, MwWhiteSpace } from '../mwTypes';
+import { MwParamNode, MwParamNodePrefixType, MwParamParentType, MwWhiteSpace } from '../mwTypes';
 import { MwParseContext } from '../mwParse';
 
 /**
@@ -86,7 +86,7 @@ export class MwParseParamModule extends MwParseModule {
       const isAnonymous = regexRes[3] !== '=';
       const paramKey = isAnonymous ? this.anonymousKeyCounter++ : regexRes[2];
 
-      this.paramNode = new MwParamNode(ch, paramKey);
+      this.paramNode = new MwParamNode(ch as MwParamNodePrefixType, paramKey);
       this.paramCounter++;
 
       ctx.enter(this.paramNode, this);

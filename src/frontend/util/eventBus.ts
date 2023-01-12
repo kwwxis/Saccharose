@@ -3,6 +3,7 @@ import { createElement } from './domutil';
 export type EventBusListener<EventDetail = any> = (event?: EventDetail) => void;
 
 export class EventBus<EventDetail = any> {
+  private eventBusName: string;
   private eventTarget: EventTarget;
 
   private listeners: {
@@ -12,6 +13,7 @@ export class EventBus<EventDetail = any> {
   }[] = [];
 
   constructor(eventBusName: string) {
+    this.eventBusName = eventBusName;
     this.eventTarget = document.body.appendChild(createElement('div', {
       'data-event-bus': eventBusName,
       'style': 'display: none !important',
@@ -66,6 +68,7 @@ export class EventBus<EventDetail = any> {
   }
 
   emit(type: string, detail?: EventDetail) {
+    console.log('[EventBus:'+this.eventBusName+']', type, { type, detail, eventBus: this });
     return this.eventTarget.dispatchEvent(new CustomEvent(type, { detail }));
   }
 }

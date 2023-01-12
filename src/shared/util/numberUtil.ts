@@ -31,7 +31,7 @@ export function toNumber(x: string | number) {
 
 export function toInt(x: any): number {
   if (typeof x === 'number') {
-    return Math.floor(x);
+    return x | 0;
   } else if (typeof x === 'string') {
     try {
       return parseInt(x);
@@ -41,4 +41,14 @@ export function toInt(x: any): number {
   } else {
     return NaN;
   }
+}
+
+export function constrainNumber(n: number, min: number, max: number) {
+  if (n < min) {
+    return min;
+  }
+  if (n > max) {
+    return max;
+  }
+  return n;
 }

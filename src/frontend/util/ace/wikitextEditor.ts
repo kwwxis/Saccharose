@@ -122,6 +122,9 @@ export function highlightWikitext(wikitext: string, disableGutter: boolean = fal
     let length: number = session.getLength();
     let rawLines: string[] = input.split(/\r?\n/g);
 
+    let anyMarkersInFront: boolean = false;
+    let anyMarkersInBack: boolean = false;
+
     for(let ix = 0; ix < length; ix++) {
       textLayerSb.push("<div class='ace_line'>");
       if (!disableGutter)
@@ -144,14 +147,24 @@ export function highlightWikitext(wikitext: string, disableGutter: boolean = fal
         if (marker.isFront) {
           markerFrontLayerSb.push(`<div class="ace_line">${markerHtml}</div>`);
           markerBackLayerSb.push(`<div class="ace_line">${line}</div>`);
+          anyMarkersInFront = true;
         } else {
           markerFrontLayerSb.push(`<div class="ace_line">${line}</div>`);
           markerBackLayerSb.push(`<div class="ace_line">${markerHtml}</div>`);
+          anyMarkersInBack = true;
         }
       } else {
         markerFrontLayerSb.push(`<div class="ace_line">${line}</div>`);
         markerBackLayerSb.push(`<div class="ace_line">${line}</div>`);
       }
+    }
+
+    if (!anyMarkersInBack) {
+      markerBackLayerSb = [];
+    }
+
+    if (!anyMarkersInFront) {
+      markerFrontLayerSb = [];
     }
 
     let html =

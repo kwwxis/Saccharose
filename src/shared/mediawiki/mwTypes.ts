@@ -34,11 +34,27 @@ export class MwParentNode extends MwNode {
   addNode(node: MwNode) {
     this.parts.push(node);
   }
+  findTemplateNodes(): MwTemplateNode[] {
+    let ret: MwTemplateNode[] = [];
+    let stack: MwParentNode[] = [this];
+    while (stack.length) {
+      let node = stack.pop();
+      if (node instanceof MwTemplateNode) {
+        ret.push(node);
+      }
+      for (let child of node.parts) {
+        if (child instanceof MwTemplateNode) {
+          stack.push(child);
+        }
+      }
+    }
+    return ret;
+  }
 }
 
 // ------------------------------------------------------------------------------------------
 export abstract class MwTextNode extends MwNode {
-  readonly content: string;
+  content: string;
   protected constructor(content: string) {
     super();
     this.content = content;
@@ -116,16 +132,24 @@ export class MwSection extends MwParentNode {
 }
 
 export class MwLinkNode extends MwParentNode {
-  readonly link: string = '';
+  private _link: string = '';
   linkParts: MwTextNode[] = [];
   hasParams: boolean = false;
-  readonly type: MwLinkType;
+  type: MwLinkType;
 
   constructor(type: MwLinkType, link: string) {
     super();
     this.type = type;
-    this.link = link.trim();
-    this.linkParts = mwSimpleTextParse(link);
+    this.link = link;
+  }
+
+  get link() {
+    return this._link;
+  }
+
+  set link(newLink: string) {
+    this._link = newLink.trim();
+    this.linkParts = mwSimpleTextParse(newLink);
   }
 
   get isInternal(): boolean {
@@ -159,6 +183,8 @@ export class MwRedirect extends MwParentNode {
   }
 }
 
+export type MwParamNodePrefixType = '|' | ':' | ' ' | '';
+
 export class MwParamNode extends MwParentNode {
 
   /**
@@ -166,9 +192,9 @@ export class MwParamNode extends MwParentNode {
    * Always a number for anonymous parameters
    * Always a string for numbered and named parameters.
    */
-  readonly key: number|string;
+  private _key: number|string;
 
-  readonly prefix: string = '';
+  prefix: MwParamNodePrefixType = '';
 
   beforeValueWhitespace: MwWhiteSpace = new MwWhiteSpace('');
 
@@ -177,15 +203,10 @@ export class MwParamNode extends MwParentNode {
    */
   keyParts: MwTextNode[] = [];
 
-  constructor(prefix: string, key: string|number, simpleTextValue?: string) {
+  constructor(prefix: MwParamNodePrefixType, key: string|number, simpleTextValue?: string) {
     super();
     this.prefix = prefix;
     this.key = key;
-
-    if (typeof key === 'string') {
-      this.keyParts = mwSimpleTextParse(key);
-      this.key = key.trim();
-    }
     if (!!simpleTextValue) {
       this.parts = mwSimpleTextParse(simpleTextValue);
     }
@@ -211,8 +232,21 @@ export class MwParamNode extends MwParentNode {
     return super.toString();
   }
 
-  setValue(wikitext: string) {
+  set value(wikitext: string) {
     this.parts = mwParse(wikitext).parts;
+  }
+
+  get key() {
+    return this._key;
+  }
+
+  set key(newKey: number|string) {
+    if (typeof newKey === 'string') {
+      this.keyParts = mwSimpleTextParse(newKey);
+      this._key = newKey.trim();
+    } else {
+      this._key = newKey;
+    }
   }
 
   toString() {
