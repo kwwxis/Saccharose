@@ -23,7 +23,7 @@ export class VoAppState {
   constructor() {
     this.avatars = (<any> window).avatars;
     this.avatar = (<any> window).avatar;
-    this.fetters = (<any> window).fetters;
+    //this.fetters = (<any> window).fetters;
     this.voLang = (Cookies.get('VO-App-LangCode') as LangCode) || 'EN';
     this.eventBus = new EventBus<any>('VO-App-EventBus');
 

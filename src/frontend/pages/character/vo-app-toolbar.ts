@@ -50,12 +50,11 @@ export function VoAppToolbar(state: VoAppState) {
       el: '#vo-app-export-fetters',
       ev: 'click',
       fn: function() {
-        let wtAvatarName = state.avatar.NameText.replace(/ /g, '_');
-        let wtLangCode = LANG_CODE_TO_WIKI_CODE[state.voLang];
-        downloadObjectAsJson(Object.assign(
-          {}, { avatar: state.avatar},
-          state.fetters
-        ), `${wtAvatarName}_Fetters.json`, 2);
+        // let wtAvatarName = state.avatar.NameText.replace(/ /g, '_');
+        // downloadObjectAsJson(Object.assign(
+        //   {}, { avatar: state.avatar},
+        //   state.fetters
+        // ), `${wtAvatarName}_Fetters.json`, 2);
       }
     }
   ]);

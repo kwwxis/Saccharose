@@ -25,7 +25,9 @@
     <script nonce="<%= req.context.nonce %>">window.avatars = [].concat(<%- JSON.stringify(avatars) %>);</script>
     <% if (avatar) { %>
       <script nonce="<%= req.context.nonce %>">window.avatar = Object.assign({}, <%- JSON.stringify(avatar) %>);</script>
-      <script nonce="<%= req.context.nonce %>">window.fetters = Object.assign({}, <%- JSON.stringify(fetters) %>);</script>
+      <% if (locals.loadFetters) { %>
+        <script nonce="<%= req.context.nonce %>">window.fetters = Object.assign({}, <%- JSON.stringify(fetters) %>);</script>
+      <% } %>
     <% } else { %>
       <script nonce="<%= req.context.nonce %>">window.avatar = null;</script>
     <% } %>
