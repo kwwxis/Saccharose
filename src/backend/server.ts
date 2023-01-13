@@ -14,7 +14,16 @@ import { toInt } from '../shared/util/numberUtil';
   console.log(`[Init] Booting server; in ${process.env.NODE_ENV} mode ...`);
   const app = await appInit();
 
-  app.listen(toInt(process.env.HTTP_PORT), () => {
+  let httpPort: number = toInt(process.env.HTTP_PORT);
+  let httpsPort: number = toInt(process.env.HTTPS_PORT);
+  let vhosted: boolean = toBoolean(process.env.VHOSTED);
+
+  if (vhosted) {
+    httpPort = 80;
+    httpsPort = 443;
+  }
+
+  app.listen(httpPort, () => {
     if (process.env.HTTP_PORT === '80') {
       console.log(`[Init] HTTP/2 Server is running at http://` + process.env.VHOST);
     } else {
@@ -23,12 +32,10 @@ import { toInt } from '../shared/util/numberUtil';
   });
 
   let httpsApp = app;
-  let httpsPort: number = toInt(process.env.HTTPS_PORT);
 
-  if (toBoolean(process.env.VHOSTED)) {
+  if (vhosted) {
     httpsApp = express();
     httpsApp.use(vhost(process.env.VHOST, app));
-    httpsPort = 443; // override
   }
 
   if (toBoolean(process.env.SSL_ENABLED)) {

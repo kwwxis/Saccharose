@@ -2,7 +2,8 @@ import { VoAppState } from './vo-tool';
 import Sortable, { SortableEvent } from 'sortablejs';
 import { createVoHandles, VoGroup, VoHandle } from '../../../shared/vo-tool/vo-handle';
 import { MwTemplateNode } from '../../../shared/mediawiki/mwTypes';
-import { escapeHtml } from '../../../shared/util/stringUtil';
+import { escapeHtml, romanize } from '../../../shared/util/stringUtil';
+import { createPlaintextContenteditable } from '../../util/domutil';
 
 const sortableDefaultOptions: Sortable.Options = {
   scroll: true,
@@ -108,7 +109,6 @@ export function VoAppEditor(state: VoAppState) {
       <div id="${group.uuid}" class="vo-group">
         <div class="vo-group-header">
           <span class="drag-handle">${dragHandleHtml}</span>
-          <input class="vo-group-header-title seamless-input" type="text" id="${group.title.uuid}" />
         </div>
         <div class="vo-group-body">
           <div class="vo-group-items">
@@ -118,32 +118,55 @@ export function VoAppEditor(state: VoAppState) {
     `);
 
       let groupEl: HTMLElement = document.getElementById(group.uuid);
-      let voGroupItemsEl: HTMLElement = groupEl.querySelector('.vo-group-items')
-      let groupTitleInput: HTMLInputElement = groupEl.querySelector('.vo-group-header-title');
-      groupTitleInput.value = group.title.text;
+      let voGroupHeaderEl: HTMLElement = groupEl.querySelector('.vo-group-header');
+      let voGroupItemsEl: HTMLElement = groupEl.querySelector('.vo-group-items');
 
-      groupTitleInput.addEventListener('change', () => {
-        group.title.text = groupTitleInput.value;
+      let groupTitleInput = createPlaintextContenteditable({
+        class: 'vo-group-header-title seamless-input',
+        id: group.title.uuid
+      });
+      groupTitleInput.innerText = group.title.text;
+
+      groupTitleInput.addEventListener('blur', () => {
+        group.title.text = groupTitleInput.innerText;
         notifyWikitext(type);
       });
 
+      voGroupHeaderEl.append(groupTitleInput);
+
+      let i = 1;
       for (let item of group.items) {
         voGroupItemsEl.insertAdjacentHTML('beforeend', `
-        <div id="${item.uuid}" class="vo-item">
-          <div class="vo-item-header">
-            <span class="drag-handle">${dragHandleHtml}</span>
-            <input type="text" class="vo-item-title seamless-input" />
+          <div id="${item.uuid}" class="vo-item">
+            <div class="vo-item-header">
+              <span class="drag-handle">${dragHandleHtml}</span>
+            </div>
           </div>
-        </div>
-      `);
+        `);
 
         let itemEl: HTMLElement = document.getElementById(item.uuid);
-        let titleInput: HTMLInputElement = itemEl.querySelector('.vo-item-title');
-        titleInput.value = item.getParam('title');
-        titleInput.addEventListener('change', () => {
-          item.setParam('title', titleInput.value);
-          notifyWikitext(type);
-        });
+        let itemHeaderEl: HTMLElement = itemEl.querySelector('.vo-item-header');
+
+        if (type === 'story') {
+          let itemTitleInput = createPlaintextContenteditable({
+            class: 'vo-group-header-title seamless-input',
+            id: group.title.uuid
+          });
+          itemTitleInput.innerText = item.getParam('title');
+
+          itemTitleInput.addEventListener('blur', () => {
+            item.setParam('title', itemTitleInput.innerText);
+            notifyWikitext(type);
+          });
+
+          itemHeaderEl.append(itemTitleInput);
+        } else {
+          let span = document.createElement('span');
+          span.innerText = group.title.text + ': ' + romanize(i);
+          itemHeaderEl.append(span);
+        }
+
+        i++;
       }
 
       initSortableItemGroups(type, voGroupItemsEl);
@@ -156,6 +179,15 @@ export function VoAppEditor(state: VoAppState) {
   }
 
   function initEvents() {
+    state.eventBus.on('VO-Editor-RequestHandle', (type: 'story' | 'combat', cb: (value: VoHandle) => void) => {
+      if (type === 'story') {
+        cb(storyHandle)
+      }
+      if (type === 'combat') {
+        cb(combatHandle);
+      }
+    });
+
     state.eventBus.on('VO-Editor-Reload', (wikitext: string) => {
       storyHandle = null;
       combatHandle = null;

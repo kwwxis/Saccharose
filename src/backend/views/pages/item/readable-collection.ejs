@@ -56,20 +56,29 @@
         </table>
       <% } %>
     </div>
-    <div class="content">
-      <div class="valign">
-        <h3>Text</h3>
-        <div class="grow"></div>
-        <button class="secondary small" ui-action="copy: #wikitext-<%= idx %>"
-                ui-tippy-hover="Click to copy to clipboard"
-                ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
-                style="margin:5px 0">Copy</button>
+    <% book.Items.forEach((item, itemIdx) => { %>
+      <div class="content">
+        <div class="valign">
+          <h3>Text<%- itemIdx > 0 ? ' &ndash; Version ' + (itemIdx + 1)  : '' %></h3>
+          <div class="grow"></div>
+          <button class="secondary small" ui-action="copy: #wikitext-<%= idx %>-<%= itemIdx %>"
+                  ui-tippy-hover="Click to copy to clipboard"
+                  ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
+                  style="margin:5px 0">Copy</button>
+        </div>
+        <% if (item.MainQuestTrigger) { %>
+          <div class="valign metadata-props">
+            <div class="prop">
+              <span class="prop-label">Quest Condition</span>
+              <span class="prop-values">
+                <span class="prop-value"><%= item.MainQuestTrigger.Id %></span>
+                <span class="prop-value"><%= item.MainQuestTrigger.TitleText %></span>
+              </span>
+            </div>
+          </div>
+        <% } %>
+        <textarea id="wikitext-<%= idx %>-<%= itemIdx %>" readonly class="w100p wikitext autosize" spellcheck="false"><%= item.ReadableText %></textarea>
       </div>
-      <% if (!book.ReadableText) { %>
-        <p>Not yet available.</p>
-      <% } else { %>
-        <textarea id="wikitext-<%= idx %>" readonly class="w100p wikitext autosize" spellcheck="false"><%= book.ReadableText %></textarea>
-      <% } %>
-    </div>
+    <% })%>
   </section>
 <% }) %>

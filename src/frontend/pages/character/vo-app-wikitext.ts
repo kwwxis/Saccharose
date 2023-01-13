@@ -19,8 +19,8 @@ export function VoAppWikitext(state: VoAppState) {
       editor.setValue('', -1);
     }
     if (!isFirstLoad) {
-      let wikitext = document.querySelector<HTMLElement>('#wikitext-editor');
-      flashTippy(wikitext, {content: 'Loaded locally saved text for ' + state.avatar.NameText + ' (' + state.voLang + ')', delay:[0,2000]});
+      let langButton = document.querySelector<HTMLElement>('#vo-app-language-button');
+      flashTippy(langButton, {content: 'Loaded locally saved text for ' + state.avatar.NameText + ' (' + state.voLang + ')', delay:[0,2000]});
     }
     state.eventBus.emit('VO-Editor-Reload', localStorageValue || '');
   }
@@ -57,6 +57,9 @@ export function VoAppWikitext(state: VoAppState) {
   state.eventBus.on('VO-Wikitext-SetValue', (newValue: string) => {
     editor.setValue(newValue, -1);
     localSave();
+  });
+  state.eventBus.on('VO-Wikitext-RequestValue', (cb: (value: string) => void) => {
+    cb(editor.getValue());
   });
   state.eventBus.on('VO-Wikitext-SetFromVoHandle', (voHandle: VoHandle) => {
     let templateName = voHandle.templateNode.templateName;

@@ -243,7 +243,8 @@ export class VoItem {
       this._itemKey = this.handle.isCombat ? String(itemNum) : String(itemNum).padStart(2, '0');
     }
 
-    let isLastItemOfLastGroup = this.position === this.group.items.length - 1 && this.group.position === this.handle.groups.length - 1;
+    let isLastItemOfGroup = this.position === this.group.items.length - 1;
+    let isLastItemOfLastGroup = isLastItemOfGroup && this.group.position === this.handle.groups.length - 1;
     let newAllNodes = [];
 
     for (let i = 0; i < this.allNodes.length; i++) {
@@ -268,7 +269,17 @@ export class VoItem {
       }
 
       if (isLastNode) {
-        let lastNodeText = isLastItemOfLastGroup || this.handle.isCombat ? '\n' : '\n\n';
+        let lastNodeText;
+        if (this.handle.isCombat) {
+          if (isLastItemOfLastGroup) {
+            lastNodeText = '\n';
+          } else {
+            lastNodeText = isLastItemOfGroup ? '\n\n' : '\n';
+          }
+        } else {
+          lastNodeText = isLastItemOfLastGroup ? '\n' : '\n\n';
+        }
+
         if (thisNode instanceof MwWhiteSpace) {
           thisNode.content = lastNodeText;
         } else {

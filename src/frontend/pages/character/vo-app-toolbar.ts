@@ -29,21 +29,23 @@ export function VoAppToolbar(state: VoAppState) {
       el: '#vo-app-export-copyText',
       ev: 'click',
       fn: function() {
-        // noinspection JSIgnoredPromiseFromCall
-        copyToClipboard(state.wikitext.getValue());
+        state.eventBus.emit('VO-Wikitext-RequestValue', (value: string) => {
+          copyToClipboard(value);
 
-        let exportButton = document.querySelector<HTMLButtonElement>('#vo-app-export-button');
-        flashTippy(exportButton, {content: 'Copied!', delay:[0,2000]});
+          let exportButton = document.querySelector<HTMLButtonElement>('#vo-app-export-button');
+          flashTippy(exportButton, {content: 'Copied!', delay:[0,2000]});
+        });
       }
     },
     {
       el: '#vo-app-export-saveFile',
       ev: 'click',
       fn: function() {
-        let value = state.wikitext.getValue();
-        let wtAvatarName = state.avatar.NameText.replace(/ /g, '_');
-        let wtLangCode = LANG_CODE_TO_WIKI_CODE[state.voLang];
-        downloadTextAsFile(`${wtAvatarName}_${wtLangCode}.wt`, value);
+        state.eventBus.emit('VO-Wikitext-RequestValue', (value: string) => {
+          let wtAvatarName = state.avatar.NameText.replace(/ /g, '_');
+          let wtLangCode = LANG_CODE_TO_WIKI_CODE[state.voLang];
+          downloadTextAsFile(`${wtAvatarName}_${wtLangCode}.wt`, value);
+        });
       }
     },
     {

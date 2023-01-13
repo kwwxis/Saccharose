@@ -141,8 +141,6 @@ export function timeConvert(UNIX_timestamp: Date | number, format: boolean | str
  * @param currentTime The timestamp to use as the "current time".
  */
 export function humanTiming(time: Date | number | null, suffix?: string|((inPast: boolean) => string), currentTime?: Date|number): string {
-    suffix = suffix || null;
-
     if (time instanceof Date)
         time = time.getTime();
     if (typeof time === 'undefined' || time === null || time <= 0)
@@ -163,6 +161,9 @@ export function humanTiming(time: Date | number | null, suffix?: string|((inPast
 
     if (suffix && typeof suffix == 'function') {
         suffix = suffix(inFuture);
+    }
+    if (typeof suffix !== 'string') {
+        suffix = null;
     }
     if (typeof suffix === 'undefined' || suffix === null) {
         suffix = inFuture ? 'from now' : 'ago';

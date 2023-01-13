@@ -4,6 +4,7 @@ import * as ace from 'brace';
 import { MW_BEHAVIOR_SWITCHES_REGEX } from '../../../../shared/mediawiki/parseModules/mwParse.specialText';
 import { MW_URL_SCHEME_REGEX } from '../../../../shared/mediawiki/parseModules/mwParse.link';
 import { getQuotePos } from '../../../../shared/mediawiki/mwQuotes';
+import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mwParse.template';
 
 (<any> ace).define('ace/mode/wikitext_highlight_rules', ['require', 'exports', 'module', 'ace/lib/oop', 'ace/lib/lang', 'ace/mode/text_highlight_rules', 'ace/mode/javascript_highlight_rules', 'ace/mode/xml_highlight_rules', 'ace/mode/html_highlight_rules', 'ace/mode/css_highlight_rules'], function(acequire, exports, module) {
   'use strict';
@@ -39,12 +40,30 @@ import { getQuotePos } from '../../../../shared/mediawiki/mwQuotes';
         }
       },
       {
+        token: 'wikitext.magic-variable.magic-variable-open',
+        regex: new RegExp(`{{(?=\s*(?:${MW_VARIABLES_REGEX()}))`),
+        next: 'wt_magic_variable',
+        onMatch: function(val, state, stack) {
+          stack.unshift('wt_magic_variable');
+          return 'wikitext.magic-variable.magic-variable-open.magic-variable-color';
+        }
+      },
+      {
         token: 'wikitext.variable.variable-open',
         regex: /{{{/,
         next: 'wt_variable',
         onMatch: function(val, state, stack) {
           stack.unshift('wt_variable');
           return 'wikitext.variable.variable-open.variable-color';
+        }
+      },
+      {
+        token: 'wikitext.parserFn.parserFn-open',
+        regex: /{{(?=\s*#)/,
+        next: 'wt_parserFn',
+        onMatch: function(val, currentState, stack) {
+          stack.unshift('wt_parserFn');
+          return 'wikitext.parserFn.parserFn-open.parserFn-color';
         }
       },
       {
@@ -143,6 +162,9 @@ import { getQuotePos } from '../../../../shared/mediawiki/mwQuotes';
           if (s === 'wt_variable') {
             res.push('variable-color');
             break;
+          } else if (s === 'wt_magic_variable') {
+            res.push('magic-variable-color');
+            break;
           } else if (s === 'wt_template') {
             res.push('template-color');
             break;
@@ -202,6 +224,36 @@ import { getQuotePos } from '../../../../shared/mediawiki/mwQuotes';
           }
         }
       ],
+      wt_parserFn: [
+        {
+          token: 'wikitext.parserFn.parserFn-close.parserFn-color',
+          regex: /}}/,
+          next: 'start',
+          onMatch: function(value, currentState, stack) {
+            stack.shift();
+            this.next = stack[0] || 'start';
+            return 'wikitext.parserFn.parserFn-close.parserFn-color';
+          }
+        },
+        {
+          token: 'wikitext.parserFn.parserFn-name.parserFn-color',
+          regex: /(?<={{\s*)\S(?:[^:}]*?\S)?(?=\s*(?::|}}|$))/,
+        },
+        {
+          token: 'wikitext.parserFn.parserFn-delimiter.parserFn-color',
+          regex: /\|/,
+        },
+        {
+          token: 'wikitext.parserFn.parserFn-named-param.parserFn-color',
+          regex: /(?<=\|\s*)\S(?:[^=|}]*?\S)?(?=\s*=)/,
+        },
+        { include: 'start' },
+        {
+          defaultToken: function(currentState, stack) {
+            return stack_tokens('wikitext.parserFn.parserFn-text', stack, ['variable-color', 'template-color']);
+          }
+        }
+      ],
       wt_template: [
         {
           token: 'wikitext.template.template-close.template-color',
@@ -215,7 +267,11 @@ import { getQuotePos } from '../../../../shared/mediawiki/mwQuotes';
         },
         {
           token: 'wikitext.template.template-name.template-color',
-          regex: /(?<={{\s*)\S(?:[^|}]*?\S)?(?=\s*(?:\||}}|$))/,
+          regex: /(?<={{\s*)\S(?:[^:|}]*?\S)?(?=\s*(?:\||:|}}|$))/,
+        },
+        {
+          token: 'wikitext.template.template-delimiter.template-color',
+          regex: /\|/,
         },
         {
           token: 'wikitext.template.template-named-param.template-color',
@@ -242,6 +298,40 @@ import { getQuotePos } from '../../../../shared/mediawiki/mwQuotes';
             this.next = stack[0] || 'start';
             return 'wikitext.variable.variable-close.variable-color';
           }
+        },
+        {
+          token: 'wikitext.variable.variable-name.variable-color',
+          regex: /(?<={{{\s*)\S(?:[^|}]*?\S)?(?=\s*(?:\||}}}|$))/,
+        },
+        {
+          token: 'wikitext.variable.variable-delimiter.variable-color',
+          regex: /\|/,
+        },
+        { include: 'start' },
+        {
+          defaultToken: function(currentState, stack) {
+            return stack_tokens('wikitext.variable.variable-text.variable-color', stack, 'template-color');
+          }
+        }
+      ],
+      wt_magic_variable: [
+        {
+          token: 'wikitext.magic-variable.magic-variable-close.magic-variable-color',
+          regex: /}}/,
+          next: 'start',
+          onMatch: function(value, currentState, stack) {
+            stack.shift();
+            this.next = stack[0] || 'start';
+            return 'wikitext.magic-variable.magic-variable-close.magic-variable-color';
+          }
+        },
+        {
+          token: 'wikitext.magic-variable.magic-variable-name.magic-variable-color',
+          regex: /(?<={{\s*)\S(?:[^:|}]*?\S)?(?=\s*(?:\||:|}}|$))/,
+        },
+        {
+          token: 'wikitext.magic-variable.magic-variable-delimiter.magic-variable-color',
+          regex: /\|/,
         },
         { include: 'start' },
         {

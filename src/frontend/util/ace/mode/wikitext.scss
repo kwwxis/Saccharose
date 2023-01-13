@@ -27,11 +27,50 @@ body.nightmode .ace_template-color {
 .ace_template-named-param {
   font-weight: bold;
 }
+.ace_template-delimiter {
+  font-weight: bold;
+}
+
+// Parser Functions
+// --------------------------------------------------------------------------------------------------------------
+.ace_parserFn-color {
+  color: #a11 !important;
+}
+.ace_parserFn-customVar {
+  font-weight: bold;
+}
+.ace_parserFn-name {
+  font-weight: bold;
+}
+.ace_parserFn-named-param {
+  font-weight: bold;
+}
+.ace_parserFn-delimiter {
+  font-weight: bold;
+}
+
+// Magic Variables
+// --------------------------------------------------------------------------------------------------------------
+.ace_wikitext.ace_magic-variable-color {
+  color: #a11 !important;
+}
+.ace_wikitext.ace_magic-variable-name {
+  font-weight: bold;
+}
+.ace_wikitext.ace_magic-variable-delimiter {
+  font-weight: bold;
+}
 
 // Variables
 // --------------------------------------------------------------------------------------------------------------
 .ace_wikitext.ace_variable-color {
   color: #f50 !important;
+}
+.ace_wikitext.ace_variable-name {
+  font-weight: bold;
+}
+.ace_wikitext.ace_variable-delimiter {
+  font-weight: bold;
 }
 
 // Links

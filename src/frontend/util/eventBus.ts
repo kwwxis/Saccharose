@@ -1,14 +1,14 @@
 import { createElement } from './domutil';
 
-export type EventBusListener<EventDetail = any> = (event?: EventDetail) => void;
+export type EventBusListener = (...args: any[]) => void;
 
-export class EventBus<EventDetail = any> {
+export class EventBus {
   private eventBusName: string;
   private eventTarget: EventTarget;
 
   private listeners: {
     type: string,
-    original: EventBusListener<EventDetail>,
+    original: EventBusListener,
     wrapped: EventListener,
   }[] = [];
 
@@ -20,7 +20,7 @@ export class EventBus<EventDetail = any> {
     }));
   }
 
-  private wrap(type: string, fn: EventBusListener<EventDetail>, fetchOnly: boolean = false): EventListener {
+  private wrap(type: string, fn: EventBusListener, fetchOnly: boolean = false): EventListener {
     for (let listener of this.listeners) {
       if (listener.original === fn) {
         return listener.wrapped;
@@ -33,22 +33,22 @@ export class EventBus<EventDetail = any> {
 
     const wrapped = (event: Event) => {
       if (event instanceof CustomEvent) {
-        fn(event.detail);
+        fn(... event.detail);
       }
     };
     this.listeners.push({type, original: fn, wrapped});
     return wrapped;
   }
 
-  on(type: string, listener: EventBusListener<EventDetail>) {
+  on(type: string, listener: EventBusListener) {
     this.eventTarget.addEventListener(type, this.wrap(type, listener));
   }
 
-  once(type: string, listener: EventBusListener<EventDetail>) {
+  once(type: string, listener: EventBusListener) {
     this.eventTarget.addEventListener(type, this.wrap(type, listener), { once: true });
   }
 
-  off(type: string, listener?: EventBusListener<EventDetail>) {
+  off(type: string, listener?: EventBusListener) {
     if (!listener) {
       let removed = [];
       for (let listener of this.listeners) {
@@ -67,8 +67,8 @@ export class EventBus<EventDetail = any> {
     }
   }
 
-  emit(type: string, detail?: EventDetail) {
-    console.log('[EventBus:'+this.eventBusName+']', type, { type, detail, eventBus: this });
-    return this.eventTarget.dispatchEvent(new CustomEvent(type, { detail }));
+  emit(type: string, ... args: any[]) {
+    console.log('[EventBus:'+this.eventBusName+']', type, { type, detail: args, eventBus: this });
+    return this.eventTarget.dispatchEvent(new CustomEvent(type, { detail: args }));
   }
 }

@@ -357,3 +357,49 @@ export function getScrollbarWidth() {
 
     return scrollbarWidth;
 }
+
+export function createPlaintextContenteditable(attrib: {[attr: string]: string|number} = {}): HTMLElement {
+    let div = document.createElement('div');
+    div.setAttribute('contenteditable', 'PLAINTEXT-ONLY');
+    if (div.contentEditable?.toLowerCase() !== 'plaintext-only') {
+        div.setAttribute('contenteditable', 'contenteditable');
+    }
+    div.addEventListener('keypress', (e) => {
+        // noinspection JSDeprecatedSymbols
+        const code = e.keyCode || e.which;
+        if (e.key === 'Enter' || code === 10 || code === 13) {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+        }
+    });
+    div.addEventListener('paste', (e) => {
+        if (!document.execCommand) {
+            return;
+        }
+
+        e.preventDefault()
+        e = (<any> e).originalEvent || e;
+
+        let text = '';
+        if (e.clipboardData) {
+            text = e.clipboardData.getData('text/plain');
+        } else if ((<any> window).clipboardData) {
+            text = (<any> window).clipboardData.getData('Text');
+        } else {
+            return;
+        }
+        if (text) {
+            text = (text || '').replace(/(\r\n|\r|\n)/g, ' ');
+        }
+        if (document.queryCommandSupported('insertText')) {
+            document.execCommand('insertText', false, text);
+        } else {
+            document.execCommand('paste', false, text);
+        }
+    });
+    for (let key in attrib) {
+        div.setAttribute(key, String(attrib[key]));
+    }
+    return div;
+}

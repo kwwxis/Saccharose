@@ -2,6 +2,11 @@ import { extractTrailingEmptySpaceToParentParts } from '../mwParse';
 import { MwTemplateNode, MwParamNode } from '../mwTypes';
 import { MwParseModule } from '../mwParseModule';
 import { MW_VARIABLES } from '../mwContants';
+import { escapeRegExp } from '../../util/stringUtil';
+
+export function MW_VARIABLES_REGEX(prepend: string = '', append: string = ''): string {
+  return Array.from(MW_VARIABLES).map(scheme => prepend + escapeRegExp(scheme) + append).join('|');
+}
 
 /**
  * Parser module that handles:

@@ -99,9 +99,20 @@ export async function generateGCGTalkDetailDialogue(ctrl: Control, details: GCGT
     delete detail.Avatar;
     delete detail.SpeakerId;
 
-    for (let text of detail.Text) {
+    if (detail.Text.length === 1) {
       sect.wikitext += `\n`;
-      sect.wikitext += `${detail.VoPrefix}${normText(text, ctrl.outputLangCode)}`;
+      sect.wikitext += `${detail.VoPrefix}${normText(detail.Text[0], ctrl.outputLangCode)}`;
+    } else {
+      let texts = [];
+      if (detail.VoPrefix) {
+        texts.push(detail.VoPrefix);
+      }
+      for (let text of detail.Text) {
+        texts.push(normText(text, ctrl.outputLangCode));
+      }
+      sect.wikitextArray.push({
+        wikitext: texts.join('\n')
+      });
     }
   }
   return result;

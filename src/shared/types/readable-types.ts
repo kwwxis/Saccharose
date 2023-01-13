@@ -13,6 +13,7 @@
 import { MaterialExcelConfigData } from './material-types';
 import { ReliquaryCodexExcelConfigData, ReliquaryExcelConfigData, ReliquarySetExcelConfigData } from './artifact-types';
 import { WeaponExcelConfigData } from './weapon-types';
+import { MainQuestExcelConfigData } from './quest-types';
 
 // Book View
 // --------------------------------------------------------------------------------------------------------------
@@ -57,10 +58,15 @@ export interface BookSuitExcelConfigData {
 // Common Readable
 // --------------------------------------------------------------------------------------------------------------
 
+export interface ReadableItem {
+  Localization: LocalizationExcelConfigData,
+  ReadableText: string,
+  MainQuestTrigger?: MainQuestExcelConfigData
+}
+
 export interface Readable {
-  Document?: DocumentExcelConfigData,
-  Localization?: LocalizationExcelConfigData,
-  ReadableText?: string,
+  Document: DocumentExcelConfigData,
+  Items: ReadableItem[],
 }
 
 export const LANG_CODE_TO_LOCALIZATION_PATH_PROP = {
@@ -116,4 +122,6 @@ export interface DocumentExcelConfigData {
   DocumentType?: 'Video' | undefined,
   VideoPath?: string,
   SubtitleId?: number,
+  NHNENGFHDEG: number[], // Quest trigger condition for alternate
+  HGHPAKBJLMN: number[], // Alternate ContentLocalizedIds
 }

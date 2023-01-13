@@ -464,7 +464,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
 
     async function createTable(table: SchemaTable) {
       console.log('Creating table: ' + table.name);
-      if (knex.schema.hasTable(table.name)) {
+      if (await knex.schema.hasTable(table.name)) {
         console.log('  Table already exists - dropping and recreating...')
       }
       await knex.schema.dropTableIfExists(table.name);

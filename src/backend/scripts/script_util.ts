@@ -45,16 +45,16 @@ import {
 import { grep, grepIdStartsWith, grepStream, normJsonGrep, normJsonGrepCmp } from '../util/shellutil';
 import { getGenshinDataFilePath, getTextMapRelPath } from '../loadenv';
 import {
-  ReadableArchiveView,
   BooksCodexExcelConfigData,
   BookSuitExcelConfigData,
-  ReadableView,
   DocumentExcelConfigData,
   LANG_CODE_TO_LOCALIZATION_PATH_PROP,
   LocalizationExcelConfigData,
   Readable,
+  ReadableItem,
+  ReadableArchiveView,
+  ReadableView,
 } from '../../shared/types/readable-types';
-import { cached } from '../util/cache';
 import {
   RELIC_EQUIP_TYPE_TO_NAME,
   ReliquaryCodexExcelConfigData,
@@ -111,6 +111,8 @@ export const normDecolor = (text: string): string => {
   return text;
 }
 
+const languagesWithoutSpaceDelimitedWords: Set<LangCode> = new Set<LangCode>(['CH', 'CHS', 'CHT', 'JP', 'TH']);
+
 export const normText = (text: string, langCode: LangCode = 'EN', decolor: boolean = false): string => {
   if (!text) {
     return text;
@@ -151,6 +153,16 @@ export const normText = (text: string, langCode: LangCode = 'EN', decolor: boole
   if (text.startsWith('#')) {
     text = text.slice(1);
   }
+
+  if (text.includes('{{MC') && !languagesWithoutSpaceDelimitedWords.has(langCode)) {
+    text = text.replace(/(?<=\s|^)(\S*)\{\{MC\|m=(.*?)\|f=(.*?)}}(\S*)(?=\s|$)/g, (fm, g1, g2, g3, g4) => {
+      if (!g1 && !g4) {
+        return fm;
+      }
+      return `{{MC|m=${g1}${g2}${g4}|f=${g1}${g3}${g4}}}`;
+    });
+  }
+
   return text;
 }
 
@@ -1344,39 +1356,63 @@ export class Control {
       .where({MaterialId: id}).first().then(this.commonLoadFirst);
   }
 
+  async loadLocalization(contentLocalizedId: number): Promise<{Localization: LocalizationExcelConfigData, ReadableText: string}> {
+    let localization: LocalizationExcelConfigData = await this.knex.select('*').from('LocalizationExcelConfigData')
+      .where({Id: contentLocalizedId}).first().then(this.commonLoadFirst);
+
+    const pathVar = LANG_CODE_TO_LOCALIZATION_PATH_PROP[this.outputLangCode];
+
+    if (localization && localization.AssetType === 'LOC_TEXT'
+        && typeof localization[pathVar] === 'string' && localization[pathVar].includes('/Readable/')) {
+      let filePath = './Readable/' + localization[pathVar].split('/Readable/')[1] + '.txt';
+      try {
+        let fileText = await fs.readFile(getGenshinDataFilePath(filePath), { encoding: 'utf8' });
+        let fileNormText = normText(fileText, this.outputLangCode).replace(/<br \/>/g, '<br />\n');
+        return {Localization: localization, ReadableText: fileNormText};
+      } catch (ignore) {}
+    }
+    return {Localization: localization, ReadableText: null};
+  }
+
   async selectReadableByDocumentId(documentId: number): Promise<Readable> {
-    let out: Readable = {};
+    let out: Readable = {
+      Document: null,
+      Items: [],
+    };
 
     out.Document = await this.knex.select('*').from('DocumentExcelConfigData')
       .where({Id: documentId}).first().then(this.commonLoadFirst);
 
     if (out.Document && !!out.Document.ContentLocalizedId) {
-      out.Localization = await this.knex.select('*').from('LocalizationExcelConfigData')
-        .where({Id: out.Document.ContentLocalizedId}).first().then(this.commonLoadFirst);
-    }
-
-    const pathVar = LANG_CODE_TO_LOCALIZATION_PATH_PROP[this.outputLangCode];
-
-    if (out.Localization && out.Localization.AssetType === 'LOC_TEXT'
-        && typeof out.Localization[pathVar] === 'string' && out.Localization[pathVar].includes('/Readable/')) {
-      let filePath = './Readable/' + out.Localization[pathVar].split('/Readable/')[1] + '.txt';
-      try {
-        let fileText = await fs.readFile(getGenshinDataFilePath(filePath), { encoding: 'utf8' });
-        out.ReadableText = normText(fileText, this.outputLangCode).replace(/<br \/>/g, '<br />\n');
-      } catch (ignore) {
-
+      let item = await this.loadLocalization(out.Document.ContentLocalizedId);
+      if (item) {
+        out.Items.push(item);
       }
     }
 
-    if (!out.Document || !out.Localization || !out.ReadableText) {
-      return null;
+    if (out.Document && Array.isArray(out.Document.HGHPAKBJLMN) && out.Document.HGHPAKBJLMN.length) {
+      for (let i = 0; i < out.Document.HGHPAKBJLMN.length; i++) {
+        let altContentLocalizedId = out.Document.HGHPAKBJLMN[i];
+        let readableAlt: ReadableItem = await this.loadLocalization(altContentLocalizedId);
+
+        if (readableAlt) {
+          let triggerCond = Array.isArray(out.Document.NHNENGFHDEG) ? out.Document.NHNENGFHDEG[i] : null;
+          if (triggerCond) {
+            let quest = await this.selectQuestExcelConfigData(triggerCond);
+            if (quest) {
+              readableAlt.MainQuestTrigger = await this.selectMainQuestById(quest.MainId);
+            }
+          }
+          out.Items.push(readableAlt);
+        }
+      }
     }
 
-    return out;
+    return out.Document ? out : null;
   }
 
   async selectReadableView(documentId: number, loadReadable: boolean = true): Promise<ReadableView> {
-    let view: ReadableView = {Id: documentId};
+    let view: ReadableView = {Id: documentId, Document: null, Items: []};
     view.BookCodex = await this.selectBookCodexByMaterialId(documentId);
     view.Material = await this.selectMaterialExcelConfigData(documentId);
     view.Artifact = await this.selectArtifactByStoryId(documentId);
@@ -1426,7 +1462,7 @@ export class Control {
     };
 
     for (let document of documents) {
-      let view: ReadableView = {Id: document.Id};
+      let view: ReadableView = {Id: document.Id, Document: null, Items: []};
       view.BookCodex = await this.selectBookCodexByMaterialId(document.Id);
       view.Material = await this.selectMaterialExcelConfigData(document.Id);
       view.Artifact = await this.selectArtifactByStoryId(document.Id);

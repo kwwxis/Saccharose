@@ -161,10 +161,10 @@ svg.icon.icon-drag-handle {
 }
 
 
-input.seamless-input:not(:hover):not(:focus) {
+.seamless-input:not(:hover):not(:focus) {
   border-color: transparent !important;
 }
-body.vo-dragging input.seamless-input {
+body.vo-dragging .seamless-input {
   background: transparent !important;
   border-color: transparent !important;
 }

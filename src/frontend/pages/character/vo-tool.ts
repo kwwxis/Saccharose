@@ -8,7 +8,6 @@ import { VoAppSidebar } from './vo-app-sidebar';
 import { VoAppToolbar } from './vo-app-toolbar';
 import { VoAppWikitext } from './vo-app-wikitext';
 import { VoAppEditor } from './vo-app-editor';
-import * as ace from 'brace';
 import { EventBus } from '../../util/eventBus';
 import { CharacterFetters } from '../../../shared/types/fetter-types';
 
@@ -17,7 +16,6 @@ export class VoAppState {
   avatar: AvatarExcelConfigData;
   fetters: CharacterFetters;
   voLang: LangCode;
-  wikitext: ace.Editor;
   eventBus: EventBus;
 
   constructor() {
@@ -25,7 +23,7 @@ export class VoAppState {
     this.avatar = (<any> window).avatar;
     //this.fetters = (<any> window).fetters;
     this.voLang = (Cookies.get('VO-App-LangCode') as LangCode) || 'EN';
-    this.eventBus = new EventBus<any>('VO-App-EventBus');
+    this.eventBus = new EventBus('VO-App-EventBus');
 
     if (!LANG_CODES.includes(this.voLang)) {
       this.eventBus.emit('VO-Lang-Changed', 'EN');
