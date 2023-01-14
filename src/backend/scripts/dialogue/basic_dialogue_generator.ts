@@ -30,7 +30,6 @@ const npcFilterInclude = (ctrl: Control, d: DialogExcelConfigData, npcFilter: st
   if (!d) {
     return false;
   }
-  console.log('NPC FILTER INCLUDE', d, npcFilter);
   if (npcFilter === 'player' || npcFilter === 'traveler') {
     return d.TalkRole.Type === 'TALK_ROLE_PLAYER';
   }

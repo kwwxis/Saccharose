@@ -175,7 +175,7 @@ const initial_listeners: Listener[] = [
               let addClassTarget = qs(actionParams[0]);
               if (addClassTarget) {
                 for (let cls of actionParams.slice(1)) {
-                  addClassTarget.classList.remove(cls);
+                  addClassTarget.classList.add(cls);
                 }
               }
               break;

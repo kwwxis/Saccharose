@@ -11,12 +11,12 @@
       <textarea id="ol-result-<%= idx %>" readonly spellcheck="false" class="ol-result-textarea wikitext w100p"
                 style="resize:vertical;overflow:auto;font-size:13px;" data-markers="<%= olResult.markers?.map(m => m.toString())?.join(';') || '' %>"><%= olResult.result %></textarea>
       <% if (olResult.duplicateTextMapIds.length) { %>
-        <h4>Duplicate TextMapHashes</h4>
+        <h5>Duplicate TextMapHashes</h5>
         <p class="spacer5-bottom">List of TextMapHashes whose values are duplicates of <%= olResult.textMapId %> across all languages.<br>
           Click on a link to see where that hash is used or see <a href="/id-usages?q=<%= olResult.textMapId %>,<%= olResult.duplicateTextMapIds.join(',') %>" target="_blank">all usages</a>.</p>
         <ul style="-webkit-columns:4;-moz-columns:4;columns:4">
           <% for (let textMapId of olResult.duplicateTextMapIds) { %>
-            <li><a href="/id-usages?q=<%= textMapId %>" target="_blank"><%= textMapId %></a></li>
+            <li><a style="text-decoration:none" href="/id-usages?q=<%= textMapId %>" target="_blank"><%= textMapId %></a></li>
           <% } %>
         </ul>
       <% } %>
@@ -27,6 +27,7 @@
   <div class="card no-results-found">
     <div class="content">
       <p>No results found for <b><%= searchText %></b></p>
+      <p class="spacer5-top">It's possible you might not have an exact match. Try using the <a href="/text-map-expand">Text Map Expansion</a> tool.</p>
     </div>
   </div>
 <% } %>

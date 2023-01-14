@@ -9,7 +9,7 @@
       </div>
       <div class="ol-submit-pending hide loading small spacer5-left"></div>
     </div>
-    <div class="alignStart spacer15-top spacer10-bottom flexWrap">
+    <div class="alignStart spacer15-top flexWrap">
       <fieldset>
         <legend><code>_tl</code> options</legend>
         <div class="field spacer5-horiz" style="padding-right:30px">
@@ -37,10 +37,14 @@
         </div>
       </fieldset>
     </div>
-    <hr class="spacer5">
-    <p style="padding:5px;font-size:0.85em">This utility will only work if there is an exact entire-value match for the name you're looking for in the TextMap. If the only reference to the name you're looking for is in a larger line of text, then it won't be found.</p>
-    <p style="padding:0 5px 5px;margin:0;font-size:0.85em">e.g. it'd only match against <code style="font-size:0.85em">"Iris"</code> and not <code style="font-size:0.85em">"Cyrus' Letter to Iris"</code> if searching for <code>Iris</code></p>
-    <p style="padding:0 5px;margin:0;font-size:0.85em">* <code style="font-size:0.8em">[lang]_tl</code> params are automatically excluded if the language text is the same as EN text.</p>
+    <a id="ol-info-show" style="font-size:13px;cursor:pointer;opacity:0.8;display:block;margin-bottom:-8px" ui-action="delete-cookie: OL.info; remove-class: #ol-info, hide; add-class: this, hide" class="<%= cookieTernary('OL.info').isEmpty().then('hide') %>">[Show info]</a>
+    <div id="ol-info" class="<%= cookieTernary('OL.info').equals('hidden').then('hide') %>">
+      <hr class="spacer5-bottom spacer10-top">
+      <p style="padding:5px;font-size:0.85em">This utility will only work if there is an exact entire-value match for the name you're looking for in the TextMap. If the only reference to the name you're looking for is in a larger line of text, then it won't be found.</p>
+      <p style="padding:0 5px 5px;margin:0;font-size:0.85em">e.g. it'd only match against <code style="font-size:0.85em">"Iris"</code> and not <code style="font-size:0.85em">"Cyrus' Letter to Iris"</code> if searching for <code>Iris</code></p>
+      <p style="padding:0 5px;margin:0;font-size:0.85em">* <code style="font-size:0.8em">[lang]_tl</code> params are automatically excluded if the language text is the same as EN text.</p>
+      <a style="font-size:13px;cursor:pointer;display:block;margin-bottom:-8px" ui-action="set-cookie: OL.info, hidden; add-class: #ol-info, hide; remove-class: #ol-info-show, hide">[Collapse info]</a>
+    </div>
   </div>
 </section>
 <div id="ol-results-list"></div>
