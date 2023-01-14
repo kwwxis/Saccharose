@@ -9,15 +9,17 @@
             <li>
               <div>File <strong><%= file %></strong>:</div>
               <ul>
-                <% for (let item of idToUsages[id][file]) { %>
-                  <li>
-                    <div>Line <code><%= item.lineNumber %></code><% if (item.field) { %>, field <code><%= item.field %></code><% } %></div>
-                    <% if (item.refObject) { %>
-                      <div>Ref Object:</div>
-                      <textarea class="code json w100p autosize"><%= JSON.stringify(item.refObject, null, 2) %></textarea>
-                    <% } %>
-                  </li>
-                <% } %>
+                <% idToUsages[id][file].forEach((item, i) => { %>
+                  <% if (item.field || item.refObject) { %>
+                    <li>
+                      <div>Match <%= i + 1 %>, field <code><%= item.field %></code></div>
+                      <% if (item.refObject) { %>
+                        <div>Ref Object:</div>
+                        <textarea class="code json w100p autosize"><%= JSON.stringify(item.refObject, null, 2) %></textarea>
+                      <% } %>
+                    </li>
+                  <% } %>
+                <% }) %>
               </ul>
             </li>
           <% }) %>
