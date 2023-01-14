@@ -101,7 +101,9 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     //   'FinishCond[#ALL].Type', 'FinishExec[#ALL].Type',
     // ]);
     // await inspectGenshinDataFile(ctrl, './ExcelBinOutput/ReliquaryExcelConfigData.json', ['EquipType', 'ItemType', 'DestroyRule']);
-    await inspectGenshinDataFile(ctrl, './ExcelBinOutput/WeaponExcelConfigData.json', ['WeaponType', 'DestroyRule', 'ItemType']);
+    //await inspectGenshinDataFile(ctrl, './ExcelBinOutput/WeaponExcelConfigData.json', ['WeaponType', 'DestroyRule', 'ItemType']);
+    await inspectGenshinDataFile(ctrl, './ExcelBinOutput/AchievementExcelConfigData.json');
+    await inspectGenshinDataFile(ctrl, './ExcelBinOutput/AchievementGoalExcelConfigData.json');
 
     await closeKnex();
   })();

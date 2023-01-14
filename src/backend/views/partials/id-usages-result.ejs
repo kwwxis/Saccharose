@@ -15,7 +15,7 @@
                       <div>Match <%= i + 1 %>, field <code><%= item.field %></code></div>
                       <% if (item.refObject) { %>
                         <div>Ref Object:</div>
-                        <textarea class="code json w100p autosize"><%= JSON.stringify(item.refObject, null, 2) %></textarea>
+                        <textarea class="code json w100p autosize" spellcheck="false"><%= JSON.stringify(item.refObject, null, 2) %></textarea>
                       <% } %>
                     </li>
                   <% } %>

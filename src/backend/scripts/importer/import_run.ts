@@ -13,6 +13,7 @@ import ora from 'ora';
 import { pathToFileURL } from 'url';
 import { ReliquaryCodexExcelConfigData, ReliquaryExcelConfigData } from '../../../shared/types/artifact-types';
 import { WeaponCodexExcelConfigData, WeaponExcelConfigData } from '../../../shared/types/weapon-types';
+import { AchievementExcelConfigData, AchievementGoalExcelConfigData } from '../../../shared/types/general-types';
 
 export const schema = {
   DialogExcelConfigData: <SchemaTable> {
@@ -428,6 +429,27 @@ export const schema = {
       {name: 'WeaponId', type: 'integer', isIndex: true},
     ]
   },
+  AchievementExcelConfigData: <SchemaTable> {
+    name: 'AchievementExcelConfigData',
+    jsonFile: './ExcelBinOutput/AchievementExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'TitleTextMapHash', type: 'integer', isIndex: true},
+      {name: 'DescTextMapHash', type: 'integer', isIndex: true},
+      {name: 'Ps5TitleTextMapHash', type: 'integer', isIndex: true},
+      {name: 'PreStageAchievementId', type: 'integer', isIndex: true},
+      {name: 'FinishRewardId', type: 'integer', isIndex: true},
+    ]
+  },
+  AchievementGoalExcelConfigData: <SchemaTable> {
+    name: 'AchievementGoalExcelConfigData',
+    jsonFile: './ExcelBinOutput/AchievementGoalExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isIndex: true},
+      {name: 'NameTextMapHash', type: 'integer', isIndex: true},
+      {name: 'FinishRewardId', type: 'integer', isIndex: true},
+    ]
+  }
 };
 
 export function capitalizeFirstLetter(s: string) {

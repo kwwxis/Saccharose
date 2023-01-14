@@ -90,3 +90,43 @@ export interface DungeonExcelConfigData {
   StatueDrop: number,
 }
 
+export interface AchievementExcelConfigData {
+  GoalId: number,
+  OrderId: number,
+
+  Id: number,
+  TitleText: string,
+  TitleTextEN: string,
+  TitleTextMapHash: number,
+  DescText: string,
+  DescTextMapHash: number,
+  Ps5TitleText: string,
+  Ps5TitleTextMapHash: number,
+
+  PreStageAchievementId: number,
+  FinishRewardId: number,
+
+  IsDeleteWatcherAfterFinish: boolean,
+  TriggerConfig: object,
+  Progress: number,
+  Ps4GroupId: number,
+  Ps5GroupId: number,
+  Ttype: string,
+  PsTrophyId: string,
+  Ps4TrophyId: string,
+  Ps5TrophyId: string,
+  Icon: string,
+  IsShow: string,
+  IsDisuse: boolean,
+  ProgressShowType: string,
+}
+
+
+export interface AchievementGoalExcelConfigData {
+  Id: number,
+  OrderId: number,
+  NameText: string,
+  NameTextMapHash: number,
+  IconPath: string,
+  FinishRewardId: number,
+}
