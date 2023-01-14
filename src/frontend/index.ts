@@ -8,6 +8,7 @@ import './initialListeners';
 
 import './pages/basic/olgen';
 import './pages/basic/text-map-expand';
+import './pages/basic/id-usages';
 
 import './pages/dialogue/branch_dialogue';
 import './pages/dialogue/npc_dialogue';

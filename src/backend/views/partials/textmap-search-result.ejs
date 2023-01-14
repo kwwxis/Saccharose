@@ -1,7 +1,7 @@
 <div class="dialogue-container">
   <% Object.keys(result).forEach((textMapId, i) => { %>
     <section class="card">
-      <h2>TextMap ID: <strong><%= textMapId %></strong> <small class="fr fontWeight300">#<%= i+1 %></small></h2>
+      <h2>TextMapHash: <a href="/id-usages?q=<%= textMapId %>" style="font-weight:700;text-decoration:none;"><%= textMapId %></a> <small class="fr fontWeight300">#<%= i+1 %></small></h2>
       <div class="dialogue-section content">
         <textarea readonly class="w100p wikitext autosize" spellcheck="false"><%= result[textMapId] %></textarea>
       </div>

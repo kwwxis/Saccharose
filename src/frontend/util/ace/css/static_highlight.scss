@@ -7,6 +7,10 @@
   position: relative;
 }
 
+[contenteditable].highlighted-has-gutters {
+  padding: 0 !important;
+}
+
 .ace_static_layer {
   position: relative;
 }

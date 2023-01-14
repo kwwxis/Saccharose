@@ -5,7 +5,6 @@ import { LANG_CODES, LangCode } from '../../../shared/types/dialogue-types';
 import { isInt } from '../../../shared/util/numberUtil';
 import { mwParse } from '../../../shared/mediawiki/mwParse';
 import { MwTemplateNode } from '../../../shared/mediawiki/mwTypes';
-import { escapeHtml } from '../../../shared/util/stringUtil';
 import { pathToFileURL } from 'url';
 import { Marker } from '../../../shared/util/highlightMarker';
 
@@ -123,6 +122,7 @@ export interface OLResult {
   result: string,
   markers: Marker[],
   templateNode?: MwTemplateNode;
+  duplicateTextMapIds: number[];
 }
 
 export async function ol_gen(ctrl: Control, name: string, options: OLGenOptions = {}): Promise<OLResult[]> {
@@ -134,18 +134,22 @@ export async function ol_gen(ctrl: Control, name: string, options: OLGenOptions 
   if (!idList || !idList.length) {
     return [];
   }
+
   let allResults: OLResult[] = [];
-  let seen = new Set<string>();
+  let seen: {[result: string]: OLResult} = {};
+
   for (let textMapId of idList) {
     let result = ol_gen_internal(textMapId, options.hideTl, options.addDefaultHidden, options.hideRm);
     if (result.includes('{EN_official_name}')) {
       continue;
     }
-    if (seen.has(result)) {
+    if (seen[result]) {
+      seen[result].duplicateTextMapIds.push(textMapId);
       continue;
     }
-    seen.add(result);
-    allResults.push({textMapId, result, markers: []});
+    let olResult: OLResult = {textMapId, result, markers: [], duplicateTextMapIds: []};
+    seen[result] = olResult;
+    allResults.push(olResult);
   }
   return Array.from(allResults);
 }
@@ -155,7 +159,7 @@ export async function ol_gen_from_id(ctrl: Control, textMapId: number, options: 
     return null;
   }
   let result = ol_gen_internal(textMapId, options.hideTl, options.addDefaultHidden, options.hideRm);
-  return {textMapId, result, markers: []};
+  return {textMapId, result, markers: [], duplicateTextMapIds: []};
 }
 
 export function add_ol_markers(olResults: OLResult[]): OLResult[] {

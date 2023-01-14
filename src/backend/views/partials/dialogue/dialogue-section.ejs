@@ -59,8 +59,8 @@
       <div class="dialogue-section-info-message"><%- htmlMessage %></div>
     <% } %>
     <% if (locals.wikitext) { %>
-      <textarea readonly id="wikitext-<%= id %>" class="wikitext <%= locals.showGutter ? 'wikitext-gutter ' : '' %>dialogue-section-wikitext w100p autosize <%= (locals.parentIds || []).map(s => 'wikitext-childOf-' + s).join(' ') %>"
-                data-markers="<%= locals.wikitextMarkers?.map(m => m.toString())?.join(';') || '' %>" style="resize:vertical;min-height:40px;" spellcheck="false"><%= wikitext %></textarea>
+      <textarea readonly id="wikitext-<%= id %>" class="wikitext dialogue-section-wikitext w100p autosize <%= (locals.parentIds || []).map(s => 'wikitext-childOf-' + s).join(' ') %>"
+                data-gutters="<%= locals.showGutter ? 'true' : 'false' %>" data-markers="<%= locals.wikitextMarkers?.map(m => m.toString())?.join(';') || '' %>" style="resize:vertical;min-height:40px;" spellcheck="false"><%= wikitext %></textarea>
     <% } %>
     <% if (locals.wikitextArray) { %>
       <% wikitextArray.forEach((item, idx) => { %>
@@ -74,8 +74,8 @@
                     style="margin:0 0 5px">Copy</button>
           </div>
         <% } %>
-        <textarea readonly id="wikitext-<%= id %>-<%= idx %>" class="wikitext <%= locals.showGutter ? 'wikitext-gutter ' : '' %>wikitext-array-<%= id %> dialogue-section-wikitext w100p autosize"
-                  data-markers="<%= item.markers?.map(m => m.toString())?.join(';') || '' %>" style="resize:vertical;min-height:40px;" spellcheck="false"><%= item.wikitext %></textarea>
+        <textarea readonly id="wikitext-<%= id %>-<%= idx %>" class="wikitext wikitext-array-<%= id %> dialogue-section-wikitext w100p autosize"
+                  data-gutters="<%= locals.showGutter ? 'true' : 'false' %>" data-markers="<%= item.markers?.map(m => m.toString())?.join(';') || '' %>" style="resize:vertical;min-height:40px;" spellcheck="false"><%= item.wikitext %></textarea>
       <% }) %>
     <% } %>
     <div class="dialogue-section-children">

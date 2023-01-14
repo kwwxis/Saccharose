@@ -1,5 +1,4 @@
 import { startListeners } from '../../util/eventLoader';
-import { escapeHtml } from '../../../shared/util/stringUtil';
 import { endpoints } from '../../endpoints';
 import { flashTippy } from '../../util/tooltips';
 import { pageMatch } from '../../pageMatch';

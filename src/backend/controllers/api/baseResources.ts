@@ -1,5 +1,5 @@
 import { create, Router, Request, Response } from '../../util/router';
-import { getControl, normText } from '../../scripts/script_util';
+import { getControl, IdUsages, normText } from '../../scripts/script_util';
 import { questGenerate, QuestGenerateResult } from '../../scripts/dialogue/quest_generator';
 import { add_ol_markers, ol_gen, OLResult } from '../../scripts/OLgen/OLgen';
 import { dialogueGenerate, dialogueGenerateByNpc, NpcDialogueResultMap } from '../../scripts/dialogue/basic_dialogue_generator';
@@ -204,6 +204,26 @@ router.restful('/search-textmap', {
       return res.render('partials/textmap-search-result', { result });
     } else {
       return result;
+    }
+  }
+});
+
+router.restful('/id-usages', {
+  get: async (req: Request, res: Response) => {
+    const ctrl = getControl(req);
+    const ids: number[] = String(req.query.q).split(/[ ,]/g).map(s => s.trim()).filter(s => !!s && isInt(s)).map(toInt);
+    const idToUsages: {[id: number]: IdUsages} = {};
+
+    await Promise.all(ids.map(id => {
+      return ctrl.getIdUsages(id).then(usages => {
+        idToUsages[id] = usages;
+      });
+    }));
+
+    if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
+      return res.render('partials/id-usages-result', { idToUsages });
+    } else {
+      return idToUsages;
     }
   }
 });

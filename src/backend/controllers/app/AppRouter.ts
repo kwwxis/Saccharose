@@ -35,6 +35,13 @@ export default async function(): Promise<Router> {
       title: 'Text Map Expansion',
       bodyClass: ['page--text-map-expand']
     });
+  })
+
+  router.get('/id-usages', async (req: Request, res: Response) => {
+    res.render('pages/basic/id-usages', {
+      title: 'ID usages',
+      bodyClass: ['page--id-usages']
+    });
   });
 
   router.get('/vo-to-dialogue', async (req: Request, res: Response) => {

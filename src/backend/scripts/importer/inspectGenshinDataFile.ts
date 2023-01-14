@@ -4,8 +4,6 @@ import { loadEnglishTextMap } from '../textmap';
 import { isEmpty } from '../../../shared/util/genericUtil';
 import { resolveObjectPath } from '../../../shared/util/arrayUtil';
 import { closeKnex } from '../../util/db';
-import { isInt } from '../../../shared/util/numberUtil';
-import { QuestExcelConfigData } from '../../../shared/types/quest-types';
 import { pathToFileURL } from 'url';
 
 async function inspectGenshinDataFile(ctrl: Control, file: string, inspectFieldValues: string[] = [], printRecordsWithAnyValueForTheseFields: string[] = []): Promise<any[]> {

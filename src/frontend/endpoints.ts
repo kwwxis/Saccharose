@@ -155,6 +155,19 @@ export const endpoints = {
       .then(response => response.data)
       .catch(this.errorHandler);
   },
+  getIdUsages(ids: string, asHTML: boolean = false) {
+    return axios
+      .get(`${this.base_uri}/id-usages`, {
+        params: {q: ids},
+        headers: {
+          'Accept': asHTML ? 'text/html' : 'application/json',
+          'Content-Type': asHTML ? 'text/html' : 'application/json',
+        }
+      })
+      .then(response => response.data)
+      .catch(this.errorHandler);
+
+  },
   voToDialogue(text: string, asHTML: boolean = false) {
     return axios
       .get(`${this.base_uri}/dialogue/vo-to-dialogue`, {

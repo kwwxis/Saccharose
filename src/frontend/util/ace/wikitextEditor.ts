@@ -4,6 +4,7 @@ import 'brace/mode/javascript';
 import 'brace/mode/xml';
 import 'brace/mode/html';
 import 'brace/mode/css';
+import 'brace/mode/json';
 import './mode/wikitext';
 import './mode/wikitext.scss';
 import 'brace/theme/textmate';
@@ -15,7 +16,6 @@ import Cookies from 'js-cookie';
 import { toBoolean } from '../../../shared/util/genericUtil';
 import { DOMClassWatcher } from '../domClassWatcher';
 import { escapeHtml, uuidv4 } from '../../../shared/util/stringUtil';
-import { isInt } from '../../../shared/util/numberUtil';
 import { Marker } from '../../../shared/util/highlightMarker';
 
 let aceEditors: ace.Editor[] = [];
@@ -81,7 +81,15 @@ export function createWikitextEditor(editorElementId: string|HTMLElement): ace.E
   return editor;
 }
 
-export function highlightWikitext(wikitext: string, disableGutter: boolean = false, markers: Marker[] = []): HTMLElement {
+export function highlightWikitext(text: string, gutters: boolean = false, markers: Marker[] = []): HTMLElement {
+  return highlight(text, 'ace/mode/wikitext', gutters, markers);
+}
+
+export function highlightJson(text: string, gutters: boolean = false, markers: Marker[] = []): HTMLElement {
+  return highlight(text, 'ace/mode/json', gutters, markers);
+}
+
+export function highlight(text: string, mode: string, gutters: boolean = true, markers: Marker[] = []): HTMLElement {
   createDomClassWatcher();
 
   // Create unique ID for highlight element
@@ -98,7 +106,7 @@ export function highlightWikitext(wikitext: string, disableGutter: boolean = fal
   // Override default implementation of Highlight.renderSync
   let Highlight = ace.acequire('ace/ext/static_highlight').highlight;
 
-  Highlight.renderSync = function(input, mode, theme, lineStart, disableGutter: boolean = false) {
+  Highlight.renderSync = function(input, mode, theme, lineStart, gutters: boolean = true) {
     lineStart = parseInt(lineStart || 1, 10);
 
     let session = new EditSession("");
@@ -107,13 +115,6 @@ export function highlightWikitext(wikitext: string, disableGutter: boolean = fal
 
     let textLayer = new SimpleTextLayer();
     textLayer.setSession(session);
-    console.log('TEXT LAYER', textLayer);
-
-    let markerConfig = {
-      characterWidth: 13.333,
-      lineHeight: 22,
-      firstRowScreen: 1
-    };
 
     session.setValue(input);
 
@@ -147,7 +148,7 @@ export function highlightWikitext(wikitext: string, disableGutter: boolean = fal
 
     for(let ix = 0; ix < length; ix++) {
       textLayerSb.push("<div class='ace_line'>");
-      if (!disableGutter)
+      if (gutters)
         textLayerSb.push(`<span class="ace_gutter ace_gutter-cell">` + /*(ix + lineStart) + */ `</span>`);
       textLayer.$renderLine(textLayerSb, ix, true, false);
       textLayerSb.push(`\n</div>`);
@@ -166,10 +167,6 @@ export function highlightWikitext(wikitext: string, disableGutter: boolean = fal
         if (marker.fullLine) {
           markerHtml = `<span class="ace_static_marker ${clazz}" style="width:100%" data-text="${escapeHtml(line)}"></span>`;
         } else {
-          let startBlank = blankify(start);
-          let rangeBlank = blankify(range);
-          let endBlank = blankify(end);
-
           markerHtml = `<span class="ace_static_marker before-range" data-text="${escapeHtml(start)}"></span>` +
             `<span class="ace_static_marker range ${clazz}" data-text="${escapeHtml(range)}"></span>` +
             `<span class="ace_static_marker after-range" data-text="${escapeHtml(end)}"></span>`;
@@ -199,8 +196,8 @@ export function highlightWikitext(wikitext: string, disableGutter: boolean = fal
     }
 
     let html =
-      `<div data-ace-highlight-id="${guid}" class="highlighted ${theme.cssClass}" style="position:relative">` +
-        `<div class="ace_static_highlight${disableGutter ? '' : ' ace_show_gutter'}" style="counter-reset:ace_line ${lineStart - 1}">` +
+      `<div data-ace-highlight-id="${guid}" class="highlighted ${gutters ? 'highlighted-has-gutters' : ''} ${theme.cssClass}" style="position:relative">` +
+        `<div class="ace_static_highlight${gutters ? ' ace_show_gutter' : ''}" style="counter-reset:ace_line ${lineStart - 1}">` +
           `<div class="ace_static_layer ace_static_marker_layer ace_static_marker_back_layer">${markerBackLayerSb.join('')}</div>` +
           `<div class="ace_static_layer ace_static_text_layer">${textLayerSb.join('').replace(/\s*style=['"]width:NaNpx['"]/g, '')}</div>` +
           `<div class="ace_static_layer ace_static_marker_layer ace_static_marker_front_layer">${markerFrontLayerSb.join('')}</div>` +
@@ -229,7 +226,7 @@ export function highlightWikitext(wikitext: string, disableGutter: boolean = fal
   }
 
   // Run highlight
-  let result: {html: string, session: ace.IEditSession} = Highlight.renderSync(wikitext, 'ace/mode/wikitext', theme, 1, disableGutter,
+  let result: {html: string, session: ace.IEditSession} = Highlight.renderSync(text, mode, theme, 1, gutters,
     (editSession) => {
       editSession.addMarker(new Range(1, 0, 2, 1), 'highlight', 'line', false);
     });
@@ -238,7 +235,22 @@ export function highlightWikitext(wikitext: string, disableGutter: boolean = fal
   return document.createRange().createContextualFragment(result.html).firstElementChild as HTMLElement;
 }
 
-export function highlightWikitextReplace(textarea: HTMLTextAreaElement, disableGutter: boolean = false, markers?: (string|Marker)[]|string): HTMLElement {
+
+export function highlightWikitextReplace(textarea: HTMLTextAreaElement, gutters: boolean = false, markers?: (string|Marker)[]|string): HTMLElement {
+  return highlightReplace(textarea, 'ace/mode/wikitext', gutters, markers);
+}
+
+export function highlightReplace(textarea: HTMLTextAreaElement, mode: string, gutters: boolean = true, markers?: (string|Marker)[]|string): HTMLElement {
+  if (textarea.hasAttribute('data-mode')) {
+    mode = textarea.getAttribute('data-mode');
+  }
+  if (!markers && textarea.hasAttribute('data-markers')) {
+    markers = textarea.getAttribute('data-markers') || [];
+  }
+  if (textarea.hasAttribute('data-gutters')) {
+    gutters = toBoolean(textarea.getAttribute('data-gutters'));
+  }
+
   if (typeof markers === 'string') {
     markers = markers.split(';').filter(x => !!x).map(str => Marker.fromString(str)).filter(x => !!x);
   }
@@ -254,7 +266,7 @@ export function highlightWikitextReplace(textarea: HTMLTextAreaElement, disableG
     }).filter(x => !!x);
   }
 
-  let element = highlightWikitext(textarea.value, disableGutter, markers as Marker[]);
+  let element = highlight(textarea.value, mode, gutters, markers as Marker[]);
 
   if (textarea.hasAttribute('class')) {
     element.setAttribute('class', element.getAttribute('class') + ' ' + textarea.getAttribute('class'));

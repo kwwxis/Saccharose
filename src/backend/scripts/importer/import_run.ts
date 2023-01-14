@@ -1,5 +1,5 @@
 import '../../loadenv';
-import {openKnex} from '../../util/db';
+import { openKnex } from '../../util/db';
 import objectPath from 'object-path';
 import { SchemaTable, SEP } from './import_types';
 import { DialogExcelConfigData, TalkExcelConfigData } from '../../../shared/types/dialogue-types';
@@ -484,13 +484,10 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
       console.log('  (done)');
     }
 
-    async function insertRow(table: SchemaTable, row: any, allRows: any[]) {
+    function createRowPayload(table: SchemaTable, row: any, allRows: any[]): any[] {
       row = normalizeRawJson(row, table);
       if (table.customRowResolve) {
-        let payloads: any[] = table.customRowResolve(row, allRows);
-        for (let payload of payloads) {
-          await knex(table.name).insert(payload).then();
-        }
+        return table.customRowResolve(row, allRows);
       } else {
         let payload = {};
         payload['json_data'] = JSON.stringify(row);
@@ -505,7 +502,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
             payload[col.name] = row[col.name];
           }
         }
-        await knex(table.name).insert(payload).then();
+        return [payload];
       }
     }
 
@@ -517,17 +514,36 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
       const spinner = ora('Processing...').start();
       spinner.indent = 2;
 
-
       const fileContents: string = await fs.readFile(getGenshinDataFilePath(table.jsonFile), {encoding: 'utf8'});
       const json: any[] = JSON.parse(fileContents);
       const totalRows: number = json.length;
 
+      let batch: any[] = [];
+      let batchNum = 1;
+      let batchMax = 200;
+
+      async function commitBatch() {
+        await knex.transaction(function(tx) {
+          return knex.batchInsert(table.name, batch).transacting(tx);
+        }).then();
+        batch = [];
+        batchNum++;
+      }
+
       let currentRow = 1;
       for (let row of json) {
-        await insertRow(table, row, json);
+        batch.push(... createRowPayload(table, row, json));
+        if (batch.length >= batchMax) {
+          await commitBatch();
+        }
+
         let percent = ((currentRow / totalRows) * 100.0) | 0;
-        spinner.text = `Processed ${currentRow} rows of ${totalRows} (${percent}%)`;
+        spinner.text = `Processed ${currentRow} rows of ${totalRows} (${percent}%) (B${batchNum})`;
         currentRow++;
+      }
+
+      if (batch.length) {
+        await commitBatch();
       }
 
       let timeEnd = Date.now();

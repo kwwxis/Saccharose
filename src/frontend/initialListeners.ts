@@ -15,7 +15,7 @@ import { showJavascriptErrorDialog } from './util/errorHandler';
 import autosize from 'autosize';
 import { isInt } from '../shared/util/numberUtil';
 import { uuidv4 } from '../shared/util/stringUtil';
-import { highlightWikitextReplace } from './util/ace/wikitextEditor';
+import { highlightReplace, highlightWikitextReplace } from './util/ace/wikitextEditor';
 
 type UiAction = {actionType: string, actionParams: string[]};
 
@@ -78,11 +78,14 @@ const initial_listeners: Listener[] = [
 
     intervalFunction() {
       document.querySelectorAll<HTMLTextAreaElement>('textarea.wikitext').forEach(el => {
-        if (el.closest('.hide')) {
+        if (el.closest('.hide'))
           return;
-        }
-        let showGutter: boolean = el.classList.contains('wikitext-gutter');
-        highlightWikitextReplace(el, !showGutter, el.getAttribute('data-markers') || []);
+        highlightWikitextReplace(el);
+      });
+      document.querySelectorAll<HTMLTextAreaElement>('textarea.json').forEach(el => {
+        if (el.closest('.hide'))
+          return;
+        highlightReplace(el, 'ace/mode/json');
       });
 
       document.querySelectorAll<HTMLTextAreaElement>('textarea.autosize').forEach(el => {

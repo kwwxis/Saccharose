@@ -9,7 +9,7 @@ import SrtParser, { SrtLine } from '../util/srtParser';
 import { promises as fs } from 'fs';
 import { arrayIndexOf, arrayIntersect, sort } from '../../shared/util/arrayUtil';
 import { toInt, toNumber } from '../../shared/util/numberUtil';
-import { normalizeRawJson } from './importer/import_run';
+import { normalizeRawJson, schema } from './importer/import_run';
 import { extractRomanNumeral, isStringBlank, replaceAsync, romanToInt } from '../../shared/util/stringUtil';
 import {
   DialogExcelConfigData,
@@ -62,6 +62,7 @@ import {
   ReliquarySetExcelConfigData,
 } from '../../shared/types/artifact-types';
 import { WeaponExcelConfigData } from '../../shared/types/weapon-types';
+import { SchemaTable } from './importer/import_types';
 
 // TODO improve this method - it sucks
 //   Only works for languages that use spaces for word boundaries (i.e. not chinese)
@@ -112,6 +113,8 @@ export const normDecolor = (text: string): string => {
 }
 
 const languagesWithoutSpaceDelimitedWords: Set<LangCode> = new Set<LangCode>(['CH', 'CHS', 'CHT', 'JP', 'TH']);
+
+export type IdUsages = {[fileName: string]: {field: string, lineNumber: number, refObject?: any}[]};
 
 export const normText = (text: string, langCode: LangCode = 'EN', decolor: boolean = false): string => {
   if (!text) {
@@ -834,6 +837,52 @@ export class Control {
       default:
         return '-wi';
     }
+  }
+
+  async getIdUsages(id: number): Promise<IdUsages> {
+    let out: IdUsages = {};
+
+    let decimalRegex = new RegExp(`(\\.${id}|${id}\\.)`)
+    let fieldRegex = new RegExp(`"([^"]+)":\\s*["\\[]?`);
+
+    let results = await grep(String(id), './ExcelBinOutput', '-wrn');
+    for (let result of results) {
+      if (decimalRegex.test(result)) {
+        continue;
+      }
+
+      let exec = /\/([^\/]+).json:(\d+)/.exec(result);
+      if (exec && exec.length >= 3) {
+        let fileName = exec[1];
+        let lineNum = parseInt(exec[2]);
+        if (!out[fileName]) {
+          out[fileName] = [];
+        }
+
+        let fieldExec = fieldRegex.exec(result);
+        let fieldName = fieldExec && fieldExec.length >= 2 && fieldExec[1];
+        let refObject: any = undefined;
+
+        if (fieldName && schema[fileName]) {
+          let table: SchemaTable = schema[fileName];
+          for (let column of table.columns) {
+            if (column.name === fieldName && (column.isPrimary || column.isIndex)) {
+
+              refObject = await this.knex.select('*').from(table.name)
+                .where({[column.name]: id}).first().then(this.commonLoadFirst);
+            }
+          }
+        }
+
+        out[fileName].push({
+          lineNumber: lineNum,
+          field: fieldName,
+          refObject: refObject,
+        });
+      }
+    }
+
+    return out;
   }
 
   async getTextMapMatches(langCode: LangCode, searchText: string, flags?: string): Promise<{[id: number]: string}> {

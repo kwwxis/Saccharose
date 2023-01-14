@@ -14,7 +14,14 @@ export function openKnex(): Knex {
     connection: {
       filename: path.resolve(process.env.GENSHIN_DATA_ROOT, DATAFILE_SQLITE_DB),
     },
-    useNullAsDefault: true
+    useNullAsDefault: true,
+    pool: {
+      afterCreate: function(conn, done) {
+        conn.run('PRAGMA journal_mode = off;', function() {
+          conn.run('PRAGMA synchronous = 0;', done);
+        });
+      }
+    }
   });
   return singleton;
 }
