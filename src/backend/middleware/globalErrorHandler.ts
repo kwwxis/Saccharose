@@ -3,6 +3,11 @@ import { VIEWS_ROOT } from '../loadenv';
 import { HttpError } from '../../shared/util/httpError';
 
 export async function pageLoadApiHandler(err: any, req: Request, res: Response, next: NextFunction) {
+  if (err && typeof err === 'object' && (err.code === 'EBADCSRFTOKEN' || err.type === 'EBADCSRFTOKEN')) {
+    res.status(400).sendFile(`${VIEWS_ROOT}/errorPages/csrfTokenDenied.html`);
+    return;
+  }
+
   console.error('\x1b[4m\x1b[1mInternal Error (Page Load):\x1b[0m\n', err);
 
   if (res.headersSent) {
@@ -11,7 +16,7 @@ export async function pageLoadApiHandler(err: any, req: Request, res: Response, 
 
   do {
     try {
-      await res.status(404).render('errorPages/500', null, null, true);
+      await res.status(500).render('errorPages/500', null, null, true);
       return;
     } catch (e) {
       req.context.popViewStack();
