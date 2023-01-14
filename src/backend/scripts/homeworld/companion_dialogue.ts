@@ -86,7 +86,7 @@ export async function fetchCompanionDialogue(ctrl: Control, avatarNameOrId: stri
       if (acc.fetchedTalkConfigIds.includes(talkConfigId)) {
         continue;
       }
-      let sect = await talkConfigGenerate(ctrl, talkConfigId, null, acc);
+      let sect = await talkConfigGenerate(ctrl, talkConfigId, acc);
       result.push(sect);
 
       for (let child of sect.children) {
@@ -107,7 +107,7 @@ export async function fetchCompanionDialogue(ctrl: Control, avatarNameOrId: stri
     }
 
     for (let rewardEvent of companion.RewardEvents) {
-      let section = await talkConfigGenerate(ctrl, rewardEvent.TalkId, null, acc);
+      let section = await talkConfigGenerate(ctrl, rewardEvent.TalkId, acc);
 
       let rewardInfo = await ctrl.selectRewardExcelConfigData(rewardEvent.RewardId);
       section.wikitextArray.push({

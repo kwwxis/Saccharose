@@ -16,3 +16,6 @@ import './pages/dialogue/reminders';
 import './pages/dialogue/vo-to-dialogue';
 
 import './pages/character/vo-tool';
+
+import { escapeHtml } from '../shared/util/stringUtil';
+(<any> window).escapeHtml = escapeHtml;

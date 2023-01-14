@@ -22,9 +22,11 @@
   left: 0;
   pointer-events: none;
   color: transparent;
-}
-.ace_static_marker_layer span {
-  display: inline-block;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .ace_static_highlight .ace_gutter {
@@ -67,4 +69,10 @@
 
 .ace_static_highlight {
   counter-reset: ace_line;
+}
+//.ace_static_highlight .ace_cjk {
+//  font-family: sans-serif;
+//}
+.ace_static_marker:before {
+  content: attr(data-text);
 }

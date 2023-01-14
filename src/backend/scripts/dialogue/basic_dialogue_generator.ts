@@ -30,6 +30,7 @@ const npcFilterInclude = (ctrl: Control, d: DialogExcelConfigData, npcFilter: st
   if (!d) {
     return false;
   }
+  console.log('NPC FILTER INCLUDE', d, npcFilter);
   if (npcFilter === 'player' || npcFilter === 'traveler') {
     return d.TalkRole.Type === 'TALK_ROLE_PLAYER';
   }
@@ -67,12 +68,18 @@ export async function dialogueGenerate(ctrl: Control, query: number|number[]|str
     }
   }
 
+  const seenTalkConfigIds: Set<number> = new Set();
+  const seenFirstDialogueIds: Set<number> = new Set();
+
   async function handle(id: number|DialogExcelConfigData): Promise<boolean> {
     if (!id) {
       return false;
     }
     if (typeof id === 'number') {
-      const talkConfigResult = await talkConfigGenerate(ctrl, id, npcFilter);
+      if (seenTalkConfigIds.has(id) || seenFirstDialogueIds.has(id)) {
+        return false;
+      }
+      const talkConfigResult = await talkConfigGenerate(ctrl, id);
       if (talkConfigResult) {
         result.push(talkConfigResult);
         return true;
@@ -97,7 +104,12 @@ export async function dialogueGenerate(ctrl: Control, query: number|number[]|str
     if (talkConfigs.length) {
       let foundTalks: boolean = false;
       for (let talkConfig of talkConfigs) {
-        const talkConfigResult = await talkConfigGenerate(ctrl, talkConfig, npcFilter);
+        if (seenTalkConfigIds.has(talkConfig.Id)) {
+          continue;
+        } else {
+          seenTalkConfigIds.add(talkConfig.Id);
+        }
+        const talkConfigResult = await talkConfigGenerate(ctrl, talkConfig);
         if (talkConfigResult) {
           talkConfigResult.metadata.push(new MetaProp('Talk First Dialogue ID', talkConfig.InitDialog));
           talkConfigResult.metadata.push(new MetaProp('Highlighted Dialogue ID', dialogue.Id));
@@ -110,10 +122,16 @@ export async function dialogueGenerate(ctrl: Control, query: number|number[]|str
         return true;
       }
     } else {
+      let foundDialogs: boolean = false;
       if (!firstDialogs) {
         firstDialogs = await traceBack(ctrl, dialogue);
       }
       for (let d of firstDialogs) {
+        if (seenFirstDialogueIds.has(d.Id)) {
+          continue;
+        } else {
+          seenFirstDialogueIds.add(d.Id);
+        }
         const dialogueBranch = await ctrl.selectDialogBranch(d);
         const sect = new DialogueSectionResult('Dialogue_'+d.Id, 'Dialogue');
         sect.originalData.dialogBranch = dialogueBranch;
@@ -128,7 +146,9 @@ export async function dialogueGenerate(ctrl: Control, query: number|number[]|str
         highlightLine(dialogue, sect);
         result.push(sect);
       }
-      return true;
+      if (foundDialogs) {
+        return true;
+      }
     }
     return false;
   }
@@ -167,18 +187,17 @@ export async function dialogueGenerate(ctrl: Control, query: number|number[]|str
   return result;
 }
 
-export async function talkConfigGenerate(ctrl: Control, talkConfigId: number|TalkExcelConfigData, npcFilter?: string, acc?: TalkConfigAccumulator): Promise<DialogueSectionResult> {
+export async function talkConfigGenerate(ctrl: Control, talkConfigId: number|TalkExcelConfigData, acc?: TalkConfigAccumulator): Promise<DialogueSectionResult> {
   let initTalkConfig = typeof talkConfigId === 'number' ? await ctrl.selectTalkExcelConfigDataByQuestSubId(talkConfigId) : talkConfigId;
 
   if (!initTalkConfig) {
     return undefined;
   }
 
-  npcFilter = normNpcFilterInput(npcFilter);
   if (!acc) acc = new TalkConfigAccumulator(ctrl);
 
   let talkConfig: TalkExcelConfigData = await acc.handleTalkConfig(initTalkConfig);
-  if (!talkConfig || !npcFilterInclude(ctrl, talkConfig.Dialog[0], npcFilter)) {
+  if (!talkConfig) {
     return undefined;
   }
   return await talkConfigToDialogueSectionResult(ctrl, null, 'Talk', null, talkConfig);
@@ -222,7 +241,7 @@ export async function dialogueGenerateByNpc(ctrl: Control, npcNameOrId: string|n
     res.orphanedDialogue = [];
 
     for (let talkConfig of res.talkConfigs) {
-      let sect = await talkConfigGenerate(ctrl, talkConfig, null, acc);
+      let sect = await talkConfigGenerate(ctrl, talkConfig, acc);
       if (sect) {
         res.dialogue.push(sect);
       }
