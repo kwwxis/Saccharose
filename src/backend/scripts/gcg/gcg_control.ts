@@ -4,8 +4,8 @@ import { cached } from '../../util/cache';
 import {
   GCGCardExcelConfigData,
   GCGChallengeExcelConfigData,
-  GCGCharacterLevelExcelConfigData,
-  GCGCostExcelConfigData,
+  GCGCharacterLevelExcelConfigData, GCGCharExcelConfigData,
+  GCGCostExcelConfigData, GCGDeckCardExcelConfigData, GCGDeckExcelConfigData,
   GCGElementReactionExcelConfigData,
   GCGGameExcelConfigData,
   GCGGameRewardExcelConfigData,
@@ -43,7 +43,7 @@ export class GCGControl {
   keywordList: GCGKeywordExcelConfigData[];
   costDataList: GCGCostExcelConfigData[];
 
-  constructor(readonly ctrl: Control) {}
+  constructor(readonly ctrl: Control, readonly enableElementalReactionMapping: boolean = false) {}
 
   async init() {
     if (this.didInit) {
@@ -66,12 +66,16 @@ export class GCGControl {
     this.elementReactions = await this.allSelect('GCGElementReactionExcelConfigData'); // must come after skillTagList
 
     for (let rule of this.rules) {
-      rule.MappedElementReactionList = [];
-      for (let elementReactionId of rule.ElementReactionList) {
-        let mapped = this.elementReactions.find(x => x.Id === elementReactionId);
-        if (mapped) {
-          rule.MappedElementReactionList.push(mapped);
+      if (this.enableElementalReactionMapping) {
+        rule.MappedElementReactionList = [];
+        for (let elementReactionId of rule.ElementReactionList) {
+          let mapped = this.elementReactions.find(x => x.Id === elementReactionId);
+          if (mapped) {
+            rule.MappedElementReactionList.push(mapped);
+          }
         }
+      } else {
+        delete rule.ElementReactionList;
       }
     }
 
@@ -87,24 +91,29 @@ export class GCGControl {
 
   private async defaultPostProcess(o: any): Promise<any> {
     if ('KeywordId' in o) {
-      o.Keyword = this.singleSelect('GCGKeywordExcelConfigData', 'Id', o['KeywordId']);
+      o.Keyword = await this.singleSelect('GCGKeywordExcelConfigData', 'Id', o['KeywordId']);
     }
     if ('SkillId' in o) {
-      o.MappedSkill = this.singleSelect('GCGSkillExcelConfigData', 'Id', o['SkillId']);
+      o.MappedSkill = await this.singleSelect('GCGSkillExcelConfigData', 'Id', o['SkillId']);
     }
     if ('SkillList' in o) {
-      o.MappedSkillList = this.multiSelect('GCGSkillExcelConfigData', 'Id', o['SkillList']);
+      o.MappedSkillList = await this.multiSelect('GCGSkillExcelConfigData', 'Id', o['SkillList']);
     }
     if ('TagList' in o) {
       o.MappedTagList = o.TagList.map(tagType => this.tagList.find(tag => tag.Type == tagType)).filter(x => !!x);
     }
+    if ('RelatedCharacterTagList' in o) {
+      o.MappedRelatedCharacterTagList = o.RelatedCharacterTagList.map(tagType => this.tagList.find(tag => tag.Type == tagType)).filter(x => !!x);
+    }
+    if ('RelatedCharacterId' in o) {
+      o.RelatedCharacter = await this.singleSelect('GCGCharExcelConfigData', 'Id', o['RelatedCharacterId']);
+    }
     if ('SkillTagList' in o) {
-      console.log(o);
       o.MappedSkillTagList = o.SkillTagList.map(tagType => this.skillTagList.find(tag => tag.Type == tagType)).filter(x => !!x);
     }
     if ('CostList' in o && Array.isArray(o.CostList)) {
       for (let costItem of o.CostList) {
-        costItem.CostData = this.costDataList.find(x => x.Type === costItem.Type);
+        costItem.CostData = this.costDataList.find(x => x.Type === costItem.CostType);
       }
     }
     return o;
@@ -128,6 +137,7 @@ export class GCGControl {
     await this.init();
     let records: T[];
     if (Array.isArray(value)) {
+      value = Array.from(new Set(value));
       records = await this.ctrl.knex.select('*').from(table)
         .whereIn(field, value).then(this.ctrl.commonLoad);
     } else {
@@ -230,7 +240,7 @@ export class GCGControl {
 
   // GCG GAME/LEVEL/STAGE
   // --------------------------------------------------------------------------------------------------------------
-  private async postProcessStage(stage: GCGGameExcelConfigData): Promise<GCGGameExcelConfigData> {
+  private async postProcessStage(stage: GCGGameExcelConfigData, loadDecks: boolean = false): Promise<GCGGameExcelConfigData> {
     stage.Rule = this.rules.find(rule => rule.Id === stage.RuleId);
 
     stage.Talks = await this.selectAllTalkByGameId(stage.Id);
@@ -257,11 +267,13 @@ export class GCGControl {
     if (stage.BossLevel) {
       stage.LevelType = 'BOSS';
       stage.LevelDifficulty = 'NORMAL';
+      stage.LevelGcgLevel = stage.BossLevel.UnlockGcgLevel;
     } else {
       stage.BossLevel = await this.singleSelect('GCGBossLevelExcelConfigData', 'HardLevelId', stage.Id);
       if (stage.BossLevel) {
         stage.LevelType = 'BOSS';
         stage.LevelDifficulty = 'HARD';
+        stage.LevelGcgLevel = stage.BossLevel.UnlockGcgLevel;
       }
     }
 
@@ -271,12 +283,17 @@ export class GCGControl {
       if (stage.WorldLevel.TalkId) {
         stage.WorldLevel.Talk = await this.ctrl.selectTalkExcelConfigDataById(stage.WorldLevel.TalkId);
       }
+      if (stage.WorldLevel.UnlockCond === 'GCG_LEVEL_UNLOCK_QUEST') {
+        stage.WorldLevel.UnlockMainQuest = await this.ctrl.selectMainQuestById(stage.WorldLevel.UnlockParam);
+      }
     }
 
     for (let weekLevel of this.weekLevels) {
       if (weekLevel.LevelCondList.some(cond => cond.LevelId === stage.Id)) {
+        let cond = weekLevel.LevelCondList.find(cond => cond.LevelId === stage.Id);
         stage.LevelType = 'WEEK';
         stage.WeekLevel = weekLevel;
+        stage.LevelGcgLevel = cond.GcgLevel;
       }
     }
 
@@ -284,6 +301,11 @@ export class GCGControl {
     if (stage.CharacterLevel) {
       stage.LevelType = 'CHARACTER';
       stage.LevelDifficulty = 'NORMAL';
+
+      let normalItem = stage.CharacterLevel.NormalLevelList.find(item => item.LevelId === stage.Id);
+      if (normalItem) {
+        stage.LevelGcgLevel = normalItem.GcgLevel;
+      }
 
       if (stage.Id === stage.CharacterLevel.HardLevelId) {
         stage.LevelDifficulty = 'HARD';
@@ -314,6 +336,16 @@ export class GCGControl {
 
     stage.Reward = await this.selectReward(stage.Id);
 
+    if (loadDecks) {
+      if (stage.CardGroupId) {
+        stage.CardGroup = await this.selectDeck(stage.CardGroupId);
+      }
+
+      if (stage.EnemyCardGroupId) {
+        stage.EnemyCardGroup = await this.selectDeck(stage.EnemyCardGroupId);
+      }
+    }
+
     return stage;
   }
 
@@ -327,11 +359,11 @@ export class GCGControl {
   }
 
   async selectAllStage(): Promise<GCGGameExcelConfigData[]> {
-    return await this.allSelect('GCGGameExcelConfigData', this.postProcessStage)
+    return await this.allSelect('GCGGameExcelConfigData', o => this.postProcessStage(o, false))
   }
 
   async selectStage(id: number): Promise<GCGGameExcelConfigData> {
-    return await this.singleSelect('GCGGameExcelConfigData', 'Id', id, this.postProcessStage);
+    return await this.singleSelect('GCGGameExcelConfigData', 'Id', id, o => this.postProcessStage(o, true));
   }
 
   // GCG REWARD
@@ -370,6 +402,18 @@ export class GCGControl {
       card.TokenDesc = await this.singleSelect('GCGTokenDescConfigData', 'Id', card.TokenDescId);
     }
 
+    card.CardFace = await this.singleSelect('GCGCardFaceExcelConfigData', 'CardId', card.Id);
+    card.CardView = await this.singleSelect('GCGCardViewExcelConfigData', 'Id', card.Id);
+
+    if (card.CardFace && card.CardFace.ItemId) {
+      card.CardFace.ItemMaterial = await this.ctrl.selectMaterialExcelConfigData(card.CardFace.ItemId);
+    }
+
+    let deckCard = await this.selectDeckCard(card.Id);
+    if (deckCard) {
+      card.DeckCard = deckCard;
+    }
+
     return card;
   }
 
@@ -379,6 +423,75 @@ export class GCGControl {
 
   async selectCard(id: number): Promise<GCGCardExcelConfigData> {
     return await this.singleSelect('GCGCardExcelConfigData', 'Id', id, this.postProcessCard);
+  }
+
+  // GCG DECK CARD GROUP
+  // --------------------------------------------------------------------------------------------------------------
+
+  private async postProcessDeck(deck: GCGDeckExcelConfigData): Promise<GCGDeckExcelConfigData> {
+    deck.MappedCharacterList = await this.multiSelect('GCGCharExcelConfigData', 'Id', deck.CharacterList);
+    deck.MappedCardList = [];
+    for (let cardId of deck.CardList) {
+      let card = await this.selectCard(cardId);
+      if (card) {
+        deck.MappedCardList.push(card);
+      }
+    }
+    return deck;
+  }
+
+  async selectAllDeck(): Promise<GCGDeckExcelConfigData[]> {
+    return await this.allSelect('GCGDeckExcelConfigData', this.postProcessDeck)
+  }
+
+  async selectDeck(id: number): Promise<GCGDeckExcelConfigData> {
+    return await this.singleSelect('GCGDeckExcelConfigData', 'Id', id, this.postProcessDeck);
+  }
+
+  // GCG CHAR
+  // --------------------------------------------------------------------------------------------------------------
+  async selectAllChar(): Promise<GCGCharExcelConfigData[]> {
+    return await this.allSelect('GCGCharExcelConfigData')
+  }
+
+  async selectChar(id: number): Promise<GCGCharExcelConfigData> {
+    return await this.singleSelect('GCGCharExcelConfigData', 'Id', id);
+  }
+
+  // GCG DECK CARD
+  // --------------------------------------------------------------------------------------------------------------
+
+  private async postProcessDeckCard(card: GCGDeckCardExcelConfigData): Promise<GCGDeckCardExcelConfigData> {
+    card.CardFaceList = await this.multiSelect('GCGCardFaceExcelConfigData', 'CardId', card.CardFaceIdList);
+    card.CardFace = await this.singleSelect('GCGCardFaceExcelConfigData', 'CardId', card.Id);
+    card.CardView = await this.singleSelect('GCGCardViewExcelConfigData', 'Id', card.Id);
+
+    card.ProficiencyReward = await this.singleSelect('GCGProficiencyRewardExcelConfigData', 'CardId', card.Id);
+    if (card.ProficiencyReward) {
+      if (!card.ProficiencyReward.ProficiencyRewardList) {
+        card.ProficiencyReward.ProficiencyRewardList = [];
+      }
+      for (let item of card.ProficiencyReward.ProficiencyRewardList) {
+        if (item.RewardId) {
+          item.Reward = await this.ctrl.selectRewardExcelConfigData(item.RewardId);
+        }
+      }
+    }
+
+    if (card && card.ItemId) {
+      card.ItemMaterial = await this.ctrl.selectMaterialExcelConfigData(card.ItemId);
+    }
+
+
+    return card;
+  }
+
+  async selectAllDeckCard(): Promise<GCGDeckCardExcelConfigData[]> {
+    return await this.allSelect('GCGDeckCardExcelConfigData', this.postProcessDeckCard)
+  }
+
+  async selectDeckCard(id: number): Promise<GCGDeckCardExcelConfigData> {
+    return await this.singleSelect('GCGDeckCardExcelConfigData', 'Id', id, this.postProcessDeckCard);
   }
 }
 
@@ -442,9 +555,24 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     const gcg = getGCGControl(ctrl);
     await gcg.init();
 
-    const res = await gcg.selectAllStage();
-    console.log(util.inspect(res, false, null, true));
-    fs.writeFileSync(getGenshinDataFilePath('./stages.json'), JSON.stringify(res, null, 2), 'utf8');
+    const stages = await gcg.selectAllStage();
+    fs.writeFileSync(getGenshinDataFilePath('./stages.json'), JSON.stringify(stages, null, 2), 'utf8');
+    //
+    // const cards = await gcg.selectAllCard();
+    // fs.writeFileSync(getGenshinDataFilePath('./cards.json'), JSON.stringify(cards, null, 2), 'utf8');
+    //
+    // const deckCards = await gcg.selectAllDeckCard();
+    // fs.writeFileSync(getGenshinDataFilePath('./deck-cards.json'), JSON.stringify(deckCards, null, 2), 'utf8');
+    //
+    // const decks = await gcg.selectAllDeck();
+    // fs.writeFileSync(getGenshinDataFilePath('./decks.json'), JSON.stringify(decks, null, 2), 'utf8');
+    //
+    // const chars = await gcg.selectAllChar();
+    // fs.writeFileSync(getGenshinDataFilePath('./characters.json'), JSON.stringify(chars, null, 2), 'utf8');
+
+    const stage = await gcg.selectStage(1063);
+    fs.writeFileSync(getGenshinDataFilePath('./single-stage.json'), JSON.stringify(stage, null, 2), 'utf8');
+
     await closeKnex();
   })();
 }

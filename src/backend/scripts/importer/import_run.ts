@@ -588,7 +588,7 @@ export const schema = {
       {name: 'Id', type: 'integer', isPrimary: true},
       {name: 'NormalLevelId', type: 'integer', isIndex: true},
       {name: 'HardLevelId', type: 'integer', isIndex: true},
-      {name: 'UnlockPlayerLevel', type: 'integer', isIndex: true},
+      {name: 'UnlockGcgLevel', type: 'integer', isIndex: true},
       {name: 'UnlockTipTextMapHash', type: 'integer', isIndex: true},
       {name: 'NpcId', type: 'integer', isIndex: true},
       {name: 'MonsterId', type: 'integer', isIndex: true},
@@ -597,7 +597,7 @@ export const schema = {
     normalizeFixFields: {
       JECHMICDJBE: 'NpcId',
       OAPOAACBKHJ: 'MonsterTitleTextMapHash',
-      LKOILEBONPH: 'UnlockPlayerLevel',
+      LKOILEBONPH: 'UnlockGcgLevel',
       AIIDKAAKFNL: 'UnlockTipTextMapHash',
     }
   },
@@ -736,6 +736,34 @@ export const schema = {
       IKKGAPALFCH: 'TokenDescId'
     }
   },
+  GCGCardFaceExcelConfigData: <SchemaTable> {
+    name: 'GCGCardFaceExcelConfigData',
+    jsonFile: './ExcelBinOutput/GCGCardFaceExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'ItemId', type: 'integer', isIndex: true},
+      {name: 'CardId', type: 'integer', isIndex: true},
+      {name: 'ShopGoodId', type: 'integer', isIndex: true},
+      {name: 'NameTextMapHash', type: 'integer', isIndex: true},
+      {name: 'DescTextMapHash', type: 'integer', isIndex: true},
+    ]
+  },
+  GCGCardViewExcelConfigData: <SchemaTable> {
+    name: 'GCGCardViewExcelConfigData',
+    jsonFile: './ExcelBinOutput/GCGCardViewExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+    ]
+  },
+  GCGCharExcelConfigData: <SchemaTable> {
+    name: 'GCGCharExcelConfigData',
+    jsonFile: './ExcelBinOutput/GCGCharExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'NameTextMapHash', type: 'integer', isIndex: true},
+      {name: 'DescTextMapHash', type: 'integer', isIndex: true},
+    ],
+  },
   GCGCharacterLevelExcelConfigData: <SchemaTable> {
     name: 'GCGCharacterLevelExcelConfigData',
     jsonFile: './ExcelBinOutput/GCGCharacterLevelExcelConfigData.json',
@@ -822,6 +850,45 @@ export const schema = {
       {name: 'Id', type: 'integer', isPrimary: true},
     ]
   },
+  GCGDeckCardExcelConfigData: <SchemaTable> {
+    name: 'GCGDeckCardExcelConfigData',
+    jsonFile: './ExcelBinOutput/GCGDeckCardExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+    ],
+    normalizeFixFields: {
+      GKHGDCBALPE: 'CardFaceIdList',
+      PEBMEKJKGOB: 'StoryContextTextMapHash',
+      FLLIMNKBNNC: 'SourceTextMapHash',
+    }
+  },
+  GCGProficiencyRewardExcelConfigData: <SchemaTable> {
+    name: 'GCGProficiencyRewardExcelConfigData',
+    jsonFile: './ExcelBinOutput/GCGProficiencyRewardExcelConfigData.json',
+    columns: [
+      {name: 'CardId', type: 'integer', isPrimary: true},
+    ]
+  },
+  GCGDeckFaceLinkExcelConfigData: <SchemaTable> {
+    name: 'GCGDeckFaceLinkExcelConfigData',
+    jsonFile: './ExcelBinOutput/GCGDeckFaceLinkExcelConfigData.json',
+    columns: [
+      {name: 'CardId', type: 'integer', isIndex: true},
+      {name: 'DeckCardId', type: 'integer', isIndex: true},
+    ],
+    normalizeFixFields: {
+      KFDMIAPDCEG: 'CardId',
+      AGBEBLBIMGD: 'DeckCardId'
+    }
+  },
+  GCGTokenDescConfigData: <SchemaTable> {
+    name: 'GCGTokenDescConfigData',
+    jsonFile: './ExcelBinOutput/GCGTokenDescConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'NameTextMapHash', type: 'integer', isIndex: true},
+    ]
+  },
   GCGSkillTagExcelConfigData: <SchemaTable> {
     name: 'GCGSkillTagExcelConfigData',
     jsonFile: './ExcelBinOutput/GCGSkillTagExcelConfigData.json',
@@ -865,6 +932,50 @@ export const schema = {
     ],
     normalizeFixFields: {
       BNKFFFCCNGF: 'KeywordId',
+    }
+  },
+  GCGDeckStorageExcelConfigData: <SchemaTable> { // Configuration for deck-saving slots for player level rewards
+    name: 'GCGDeckStorageExcelConfigData',
+    jsonFile: './ExcelBinOutput/GCGDeckStorageExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'UnlockCond', type: 'string', isIndex: true},
+      {name: 'UnlockParam', type: 'integer', isIndex: true},
+      {name: 'SourceTextMapHash', type: 'integer', isIndex: true},
+    ],
+    normalizeFixFields: {
+      KPINCGJPICF: 'SourceTextMapHash',
+    }
+  },
+  GCGDeckBackExcelConfigData: <SchemaTable> { // "Card Back" items, e.g. [[Dandelion_Seed_(Card_Back)]] or [[Legend]]
+    name: 'GCGDeckBackExcelConfigData',
+    jsonFile: './ExcelBinOutput/GCGDeckBackExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'ItemId', type: 'integer', isIndex: true},
+      {name: 'NameTextMapHash', type: 'integer', isIndex: true},
+      {name: 'DescTextMapHash', type: 'integer', isIndex: true},
+      {name: 'Order', type: 'integer', isIndex: true},
+    ],
+    normalizeFixFields: {
+      DameTextMapHash: 'NameTextMapHash',
+    }
+  },
+  GCGDeckFieldExcelConfigData: <SchemaTable> { // "Card Box" items, e.g. [[Liyue_(Card_Box)]]
+    name: 'GCGDeckFieldExcelConfigData',
+    jsonFile: './ExcelBinOutput/GCGDeckFieldExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'ItemId', type: 'integer', isIndex: true},
+      {name: 'NameTextMapHash', type: 'integer', isIndex: true},
+      {name: 'DescTextMapHash', type: 'integer', isIndex: true},
+      {name: 'SourceTextMapHash', type: 'integer', isIndex: true},
+      {name: 'Order', type: 'integer', isIndex: true},
+      {name: 'BattleTableId', type: 'integer', isIndex: true},
+      {name: 'DiceTableId', type: 'integer', isIndex: true},
+    ],
+    normalizeFixFields: {
+      KPINCGJPICF: 'SourceTextMapHash',
     }
   },
 };

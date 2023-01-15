@@ -118,7 +118,7 @@ export interface GCGSkillExcelConfigData {
   IsHidden: boolean,
 
   ODACBHLGCIN: string, // card internal id
-  GOOGPDHGMGN: string, // json path
+  GOOGPDHGMGN: string, // JsonPathHash
   PHNMFFMECLK: 0 | 0.4 | 0.8,
 
   LHEEECLKKMJ: boolean,
@@ -162,8 +162,12 @@ export interface GCGGameExcelConfigData {
   EnemyNameTextMapHash: number,
   RuleId: number,
   Rule?: GCGRuleExcelConfigData,
+
   CardGroupId: number,
   EnemyCardGroupId: number,
+  CardGroup: GCGDeckExcelConfigData,
+  EnemyCardGroup: GCGDeckExcelConfigData,
+
   GameType: 'AI' | 'PVE',
   InitHand: 'SELF',
   GuideName: 'Tutorial_1_1' | 'Tutorial_1_2' | 'Tutorial_1_4' | 'Tutorial_1_5' | 'Tutorial_2_1' | 'Tutorial_2_2',
@@ -175,6 +179,7 @@ export interface GCGGameExcelConfigData {
   // Resolved:
   LevelType: 'BOSS' | 'QUEST' | 'WORLD' | 'WEEK' | 'CHARACTER',
   LevelDifficulty?: 'NORMAL' | 'HARD',
+  LevelGcgLevel: number,
 
   BossLevel?: GCGBossLevelExcelConfigData,
   QuestLevel: GCGQuestLevelExcelConfigData,
@@ -193,7 +198,7 @@ export interface GCGBossLevelExcelConfigData {
   NormalLevelId: number, // -> GCGGameExcelConfigData.Id
   HardLevelId: number, // -> GCGGameExcelConfigData.Id
   UnlockCond: string,
-  UnlockPlayerLevel: number,
+  UnlockGcgLevel: number,
   NpcId: number, // -> NpcExcelConfigData.Id
   Npc: NpcExcelConfigData,
   MonsterId: number, // -> MonsterExcelConfigData.Id
@@ -215,8 +220,9 @@ export interface GCGWorldLevelExcelConfigData {
   Talk?: TalkExcelConfigData,
   LevelTitleText: string,
   MapDescText: string,
-  UnlockCond: string,
+  UnlockCond?: 'GCG_LEVEL_UNLOCK_QUEST',
   UnlockParam: number,
+  UnlockMainQuest: MainQuestExcelConfigData,
 }
 
 export interface GCGWeekLevelExcelConfigData {
@@ -265,7 +271,7 @@ export interface GCGCharacterLevelExcelConfigData {
   LoseHardLevelTalk: TalkExcelConfigData,
 
   CondQuestList: never, // unused
-  LHOBJKLEJNC: string, // json path or something
+  LHOBJKLEJNC: string, // JsonPathHash
 }
 
 // GCG LEVEL-SUPPORTING DATA
@@ -463,7 +469,11 @@ export interface GCGCardExcelConfigData {
   TokenDescId: number,
   TokenDesc: GCGTokenDescConfigData,
 
-  BHJGPGHNMPB?: string, // json path or something
+  CardFace?: GCGCardFaceExcelConfigData,
+  CardView?: GCGCardViewExcelConfigData,
+  DeckCard?: GCGDeckCardExcelConfigData,
+
+  BHJGPGHNMPB?: string, // JsonPathHash
   PIGACPCFCPF?: '1' | '2' | '×2',
   LEHHGAJEOEE?: 4,
   GDCDJNEBLAB?: 2,
@@ -535,16 +545,148 @@ export interface GCGChooseExcelConfigData {
   ChooseType: 'HEALING' | 'RELIC' | 'TALENT' | 'WEAPON',
 }
 
-// RewardHintText -> GCGDeckCardExcelConfigData.FLLIMNKBNNC
+export interface GCGCardFaceExcelConfigData {
+  Id: number,
+  ItemId: number,
+  ItemMaterial?: MaterialExcelConfigData,
+  CardId: number,
+  CardFaceType: 'GCG_CARD_FACE_GOLD',
+  ShopGoodId: number,
+  ReceiveParamList: number[],
+  NameTextMapHash: number,
+  DescTextMapHash: number,
+  NameText: string,
+  ReceiveCondition?: 'GCG_PROFICIENCY_REWARD',
+}
 
+export interface GCGCardViewExcelConfigData {
+  Id: number,
+  GLCONCDPNCI: string,
+  DEPNICHKLNH: string[],
+  HEJOECFICIP: never,
+  AMGJBKAJBLM: string[],
+  NBIPJPBMABC: string,
+  MINCENHBDMG: string,
+  OOEGELMFOPF: string,
+  CJMAEMFDAGK: string,
+  COCCNCFJLDP: string,
+  LKBFALNMKFC: string,
+}
+
+export interface GCGCharExcelConfigData {
+  Id: number,
+  Hp: number,
+  CardType: 'GCG_CARD_CHARACTER',
+
+  NameTextMapHash: number,
+  DescTextMapHash: number,
+  NameText: string,
+  DescText: string,
+
+  TagList: string[],
+  MappedTagList: GCGTagExcelConfigData[],
+  SkillList: number[],
+  MappedMappedSkillList: GCGSkillExcelConfigData[],
+  IsRemoveAfterDie: boolean,
+  IsCanObtain: boolean,
+
+  BPHBKAGLFCE: number, // JsonPathHash
+  HLKMHIIIFHA: string,
+  IAPINBOEJCO: string,
+}
 
 // GCG CARD GROUP/DECK
 // --------------------------------------------------------------------------------------------------------------
 export interface GCGDeckExcelConfigData {
   Id: number,
+
   CharacterList: number[],
+  MappedCharacterList: GCGCharExcelConfigData[],
+
   CardList: number[],
+  MappedCardList: GCGCardExcelConfigData[],
+
   InitHpList: never,
   InitEnergyList: never,
   WaitingCharacterList: { Id: number, CondCount: number }[],
+}
+
+export interface GCGDeckCardExcelConfigData {
+  Id: number,
+  ItemId: number,
+  ItemMaterial: MaterialExcelConfigData,
+  SortOrder: number,
+  CardFaceIdList: number[],
+  CardFaceList: GCGCardFaceExcelConfigData[],
+  ShopGoodId: number,
+
+  RelatedCharacterId: number,
+  RelatedCharacterTagList: string[],
+  RelatedCharacter?: GCGCharExcelConfigData,
+
+  CardFace?: GCGCardFaceExcelConfigData,
+  CardView?: GCGCardViewExcelConfigData,
+  ProficiencyReward?: GCGProficiencyRewardExcelConfigData,
+
+  StoryTitleTextMapHash: number,
+  StoryContextTextMapHash: number,
+  SourceTextMapHash: number,
+  StoryTitleText: string,
+  StoryContextText: string,
+  SourceText: string,
+}
+
+export interface GCGDeckStorageExcelConfigData {
+  Id: number,
+  SourceTextMapHash: number,
+  SourceText: string,
+  UnlockCond: string,
+  UnlockParam: number,
+}
+
+export interface GCGProficiencyRewardExcelConfigData {
+  CardId: number,
+  ProficiencyRewardList: { Proficiency: number, RewardId: number, Reward: RewardExcelConfigData }[],
+}
+
+export interface GCGDeckFieldExcelConfigData {
+  Id: number,
+  ItemId: number,
+  Order: number,
+
+  NameTextMapHash: number,
+  DescTextMapHash: number,
+  SourceTextMapHash: number,
+  NameText: string,
+  DescText: string,
+  SourceText: string,
+  BattleTableId: number,
+  DiceTableId: number,
+
+  StagePrefabPath: string,
+  TableTurnHintEffectList: string[],
+  StageTurnHintEffectList: string[],
+  StageTurnHintLoopEffectList: string[],
+  ScreenClickHintEffect: string,
+  EnviroPath: string,
+  BDFNKMJCNBF: string, // JsonPathHash
+  MFCNIONLJGE: string,
+}
+
+export interface GCGDeckBackExcelConfigData {
+  Id: number,
+  ItemId: number,
+  Order: number,
+  NameTextMapHash: number,
+  DescTextMapHash: number
+  NameText: string,
+  DescText: string,
+  MAEDEOPNNON: string,
+  KPINCGJPICF: number,
+  BDFNKMJCNBF: string,
+}
+
+export interface GCGDeckFaceLinkExcelConfigData {
+  CardId: number,
+  DeckCardId: number,
 }

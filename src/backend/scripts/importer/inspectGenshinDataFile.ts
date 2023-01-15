@@ -222,8 +222,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     // await inspectGenshinDataFile(ctrl, './ExcelBinOutput/GCGChallengeExcelConfigData.json', ['Type', 'ParamList[#ALL]']);
 
     // await inspectGenshinDataFile(ctrl, './ExcelBinOutput/GCGDeckExcelConfigData.json');
-    await inspectGenshinDataFile(ctrl, './ExcelBinOutput/GCGChooseExcelConfigData.json', [
-      'CardType', 'TargetCamp', 'CondList[#ALL].Type', 'AICLIKHNGHO[#ALL].Type', 'SortList[#ALL].Type', 'FABKBPGPHII']);
+    await inspectGenshinDataFile(ctrl, './ExcelBinOutput/GCGWorldLevelExcelConfigData.json', ['UnlockCond']);
     await closeKnex();
   })();
 }
