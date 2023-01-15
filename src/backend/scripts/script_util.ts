@@ -2,7 +2,7 @@
 
 import { Knex } from 'knex';
 import { openKnex } from '../util/db';
-import { AvatarExcelConfigData, ConfigCondition, NpcExcelConfigData } from '../../shared/types/general-types';
+import { ConfigCondition, NpcExcelConfigData } from '../../shared/types/general-types';
 import { getTextMapItem, getVoPrefix } from './textmap';
 import { Request } from '../util/router';
 import SrtParser, { SrtLine } from '../util/srtParser';
@@ -63,6 +63,9 @@ import {
 } from '../../shared/types/artifact-types';
 import { WeaponExcelConfigData } from '../../shared/types/weapon-types';
 import { SchemaTable } from './importer/import_types';
+import { AvatarExcelConfigData } from '../../shared/types/avatar-types';
+import { basename } from 'path';
+import { MonsterExcelConfigData } from '../../shared/types/monster-types';
 
 // TODO improve this method - it sucks
 //   Only works for languages that use spaces for word boundaries (i.e. not chinese)
@@ -209,7 +212,7 @@ export function getControl(controlState?: Request|ControlState) {
 // TODO: Make this not a god object
 export class Control {
   readonly state: ControlState;
-  private knex: Knex;
+  readonly knex: Knex;
 
   private IdComparator = (a: any, b: any) => a.Id === b.Id;
   private sortByOrder = (a: any, b: any) => {
@@ -255,14 +258,38 @@ export class Control {
       return object;
     const objAsAny = object as any;
     for (let prop in object) {
-      if (prop.endsWith('MapHash')) {
-        let textProp = prop.slice(0, -7);
-        //let text = await knex.select('Text').from('TextMap').where({Id: object[prop]}).first().then(x => x && x.Text);
-        let text = getTextMapItem(this.outputLangCode, object[prop]);
-        if (!!text)
-          object[textProp] = text;
-        else
-          delete object[prop];
+      if (prop.endsWith('MapHash') || prop.endsWith('MapHashList')) {
+        let textProp = prop.endsWith('List') ? prop.slice(0, -11) + 'List' : prop.slice(0, -7);
+        if (Array.isArray(object[prop])) {
+          let newOriginalArray = [];
+          object[textProp] = [];
+          for (let id of <any[]> object[prop]) {
+            let text = getTextMapItem(this.outputLangCode, id);
+            if (text) {
+              object[textProp].push(text);
+              newOriginalArray.push(id);
+            }
+          }
+          objAsAny[prop] = newOriginalArray;
+        } else {
+          let text = getTextMapItem(this.outputLangCode, object[prop]);
+          if (!!text) {
+            object[textProp] = text;
+          }
+        }
+      }
+      if (prop.endsWith('Tips') && Array.isArray(object[prop])) {
+        let textProp = 'Mapped' + prop;
+        let newOriginalArray = [];
+        object[textProp] = [];
+        for (let id of <any[]> object[prop]) {
+          let text = getTextMapItem(this.outputLangCode, id);
+          if (text) {
+            object[textProp].push(text);
+            newOriginalArray.push(id);
+          }
+        }
+        objAsAny[prop] = newOriginalArray;
       }
       if (prop === 'TitleTextMapHash') {
         object['TitleTextEN'] = getTextMapItem('EN', object['TitleTextMapHash']);
@@ -309,6 +336,9 @@ export class Control {
       }
       if (prop === 'AvatarId' && typeof objAsAny[prop] === 'number') {
         objAsAny.Avatar = await this.selectAvatarById(objAsAny[prop]);
+      }
+      if (prop === 'MonsterId' && typeof objAsAny[prop] === 'number') {
+        objAsAny.Monster = await this.selectMonsterById(objAsAny[prop]);
       }
       if (object[prop] === null || objAsAny[prop] === '') {
         delete object[prop];
@@ -954,6 +984,28 @@ export class Control {
     return avatar;
   }
 
+  async selectMonsterById(id: number): Promise<MonsterExcelConfigData> {
+    let monster: MonsterExcelConfigData = await this.knex.select('*').from('MonsterExcelConfigData')
+      .where({Id: id}).first().then(this.commonLoadFirst);
+
+    if (monster.DescribeId) {
+      monster.Describe = await this.knex.select('*').from('MonsterDescribeExcelConfigData')
+        .where({Id: monster.DescribeId}).first().then(this.commonLoadFirst);
+
+      if (monster.Describe && monster.Describe.TitleId) {
+        monster.Describe.Title = await this.knex.select('*').from('MonsterTitleExcelConfigData')
+          .where({TitleId: monster.Describe.TitleId}).first().then(this.commonLoadFirst);
+      }
+
+      if (monster.Describe && monster.Describe.SpecialNameLabId) {
+        monster.Describe.SpecialName = await this.knex.select('*').from('MonsterSpecialNameExcelConfigData')
+          .where({SpecialNameLabId: monster.Describe.SpecialNameLabId}).first().then(this.commonLoadFirst);
+      }
+    }
+
+    return monster;
+  }
+
   async selectAllAvatars(): Promise<AvatarExcelConfigData[]> {
     return await this.knex.select('*').from('AvatarExcelConfigData').then(this.commonLoad);
   }
@@ -1103,7 +1155,9 @@ export class Control {
   async readGenshinDataFile<T>(filePath: string): Promise<T> {
     let fileContents: string = await fs.readFile(getGenshinDataFilePath(filePath), {encoding: 'utf8'});
     let json = JSON.parse(fileContents);
-    json = normalizeRawJson(json);
+    let fileBaseName = '/' + basename(filePath);
+    let schemaTable = Object.values(schema).find(s => s.jsonFile.endsWith(fileBaseName));
+    json = normalizeRawJson(json, schemaTable);
     if (Array.isArray(json)) {
       json = await this.commonLoad(json);
     } else {

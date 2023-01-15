@@ -4,6 +4,10 @@ import { isStringBlank } from './stringUtil';
 export type SortComparator<T> = (a: T, b: T) => number;
 export type ElementComparator<T> = (arrayElement: T, expectedElement: T) => boolean;
 
+export function toArray<T>(obj: T|T[]): T[] {
+    return Array.isArray(obj) ? obj : [obj];
+}
+
 export function isIterable(obj: any): boolean {
     if (!obj) {
         return false;

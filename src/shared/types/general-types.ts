@@ -23,23 +23,6 @@ export interface NpcExcelConfigData {
   BodyType?: string,
 }
 
-export interface AvatarExcelConfigData {
-  Id: number,
-  QualityType: string,
-  NameText: string,
-  NameTextMapHash: number,
-  DescText: string,
-  DescTextMapHash: number,
-  InfoDescText: string,
-  InfoDescTextMapHash: number,
-  InitialWeapon: number,
-  WeaponType: string,
-  BodyType: string,
-  IconName: string,
-  ImageName: string,
-  SideIconName: string,
-}
-
 export interface DungeonExcelConfigData {
   Id: number,
   NameTextMapHash: number,

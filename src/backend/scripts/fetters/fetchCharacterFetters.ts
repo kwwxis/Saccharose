@@ -60,8 +60,6 @@ export async function fetchCharacterFetters(ctrl: Control): Promise<CharacterFet
           KR: normText(getTextMapItem('KR', fetter.VoiceTitleLockedTextMapHash), 'KR')
         };
       }
-
-      fetter.MappedTips = fetter.Tips.map(tip => getTextMapItem(ctrl.outputLangCode, tip)).filter(x => !!x);
       await processFetterConds(ctrl, fetter, 'OpenConds');
     }
 

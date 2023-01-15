@@ -14,6 +14,9 @@ import { pathToFileURL } from 'url';
 import { ReliquaryCodexExcelConfigData, ReliquaryExcelConfigData } from '../../../shared/types/artifact-types';
 import { WeaponCodexExcelConfigData, WeaponExcelConfigData } from '../../../shared/types/weapon-types';
 import { AchievementExcelConfigData, AchievementGoalExcelConfigData } from '../../../shared/types/general-types';
+import { AvatarFlycloakExcelConfigData } from '../../../shared/types/avatar-types';
+import chalk from 'chalk';
+import { GCGCharacterLevelExcelConfigData, GCGRuleExcelConfigData } from '../../../shared/types/gcg-types';
 
 export const schema = {
   DialogExcelConfigData: <SchemaTable> {
@@ -449,7 +452,421 @@ export const schema = {
       {name: 'NameTextMapHash', type: 'integer', isIndex: true},
       {name: 'FinishRewardId', type: 'integer', isIndex: true},
     ]
-  }
+  },
+
+
+  MonsterExcelConfigData: <SchemaTable> {
+    name: 'MonsterExcelConfigData',
+    jsonFile: './ExcelBinOutput/MonsterExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'Type', type: 'string', isIndex: true},
+      {name: 'DescribeId', type: 'integer', isIndex: true},
+      {name: 'NameTextMapHash', type: 'integer', isIndex: true},
+      {name: 'SecurityLevel', type: 'string', isIndex: true},
+      {name: 'VisionLevel', type: 'string', isIndex: true},
+    ]
+  },
+  MonsterDescribeExcelConfigData: <SchemaTable> {
+    name: 'MonsterDescribeExcelConfigData',
+    jsonFile: './ExcelBinOutput/MonsterDescribeExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'NameTextMapHash', type: 'decimal', isIndex: true},
+      {name: 'TitleId', type: 'integer', isIndex: true},
+      {name: 'SpecialNameLabId', type: 'integer', isIndex: true},
+    ]
+  },
+  MonsterSpecialNameExcelConfigData: <SchemaTable> {
+    name: 'MonsterSpecialNameExcelConfigData',
+    jsonFile: './ExcelBinOutput/MonsterSpecialNameExcelConfigData.json',
+    columns: [
+      {name: 'SpecialNameId', type: 'integer', isPrimary: true},
+      {name: 'SpecialNameLabId', type: 'integer', isIndex: true},
+      {name: 'SpecialNameTextMapHash', type: 'decimal', isIndex: true},
+    ]
+  },
+  MonsterTitleExcelConfigData: <SchemaTable> {
+    name: 'MonsterTitleExcelConfigData',
+    jsonFile: './ExcelBinOutput/MonsterTitleExcelConfigData.json',
+    columns: [
+      {name: 'TitleId', type: 'integer', isPrimary: true},
+      {name: 'TitleNameTextMapHash', type: 'decimal', isIndex: true},
+    ]
+  },
+
+  AvatarCodexExcelConfigData: <SchemaTable> {
+    name: 'AvatarCodexExcelConfigData',
+    jsonFile: './ExcelBinOutput/AvatarCodexExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'SortFactor', type: 'integer', isIndex: true},
+      {name: 'AvatarId', type: 'integer', isIndex: true},
+    ]
+  },
+  AvatarFlycloakExcelConfigData: <SchemaTable> {
+    name: 'AvatarFlycloakExcelConfigData',
+    jsonFile: './ExcelBinOutput/AvatarFlycloakExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'NameTextMapHash', type: 'integer', isIndex: true},
+      {name: 'DescTextMapHash', type: 'integer', isIndex: true},
+      {name: 'MaterialId', type: 'integer', isIndex: true},
+    ]
+  },
+  AvatarCostumeExcelConfigData: <SchemaTable> {
+    name: 'AvatarCostumeExcelConfigData',
+    jsonFile: './ExcelBinOutput/AvatarCostumeExcelConfigData.json',
+    columns: [
+      {name: 'SkinId', type: 'integer', isPrimary: true},
+      {name: 'IndexId', type: 'integer', isIndex: true},
+      {name: 'NameTextMapHash', type: 'decimal', isIndex: true},
+      {name: 'DescTextMapHash', type: 'decimal', isIndex: true},
+      {name: 'ItemId', type: 'integer', isIndex: true},
+      {name: 'CharacterId', type: 'integer', isIndex: true},
+      {name: 'Quality', type: 'integer', isIndex: true},
+    ]
+  },
+  GCGTalkExcelConfigData: <SchemaTable> {
+    name: 'GCGTalkExcelConfigData',
+    jsonFile: './ExcelBinOutput/GCGTalkExcelConfigData.json',
+    columns: [
+      {name: 'GameId', type: 'integer', isPrimary: true},
+      {name: 'HappyTalkId', type: 'integer', isIndex: true},
+      {name: 'SadTalkId', type: 'integer', isIndex: true},
+      {name: 'ToughTalkId', type: 'integer', isIndex: true},
+      {name: 'ElementBurstTalkId', type: 'integer', isIndex: true},
+      {name: 'HighHealthTalkId', type: 'integer', isIndex: true},
+      {name: 'HighHealthConfigId', type: 'integer', isIndex: true},
+      {name: 'LowHealthTalkId', type: 'integer', isIndex: true},
+      {name: 'LowHealthConfigId', type: 'integer', isIndex: true},
+    ],
+    normalizeFixFields: {
+      ElementBrustTalkId: 'ElementBurstTalkId'
+    }
+  },
+  GCGTalkDetailExcelConfigData: <SchemaTable> {
+    name: 'GCGTalkDetailExcelConfigData',
+    jsonFile: './ExcelBinOutput/GCGTalkDetailExcelConfigData.json',
+    columns: [
+      {name: 'TalkDetailId', type: 'integer', isPrimary: true},
+      {name: 'TalkRoleId', type: 'integer', isIndex: true},
+    ],
+    normalizeFixFields: {
+      OKFHEMAKLNN: 'TalkContentTextMapHash',
+      CPBEMEKHDCO: 'TalkRoleId',
+      PGFENJJPNBG: 'TalkEmoji',
+    },
+    singularize: ['TalkRoleId']
+  },
+  GCGTalkDetailIconExcelConfigData: <SchemaTable> {
+    name: 'GCGTalkDetailIconExcelConfigData',
+    jsonFile: './ExcelBinOutput/GCGTalkDetailIconExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'Type', type: 'string', isIndex: true},
+    ]
+  },
+  GCGGameExcelConfigData: <SchemaTable> {
+    name: 'GCGGameExcelConfigData',
+    jsonFile: './ExcelBinOutput/GCGGameExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'RuleId', type: 'integer', isIndex: true},
+      {name: 'CardGroupId', type: 'integer', isIndex: true},
+      {name: 'EnemyCardGroupId', type: 'integer', isIndex: true},
+      {name: 'GameType', type: 'string', isIndex: true},
+    ],
+    normalizeFixFields: {
+      MBJIAMCDJLJ: 'EnemyNameTextMapHash',
+    }
+  },
+  GCGBossLevelExcelConfigData: <SchemaTable> {
+    name: 'GCGBossLevelExcelConfigData',
+    jsonFile: './ExcelBinOutput/GCGBossLevelExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'NormalLevelId', type: 'integer', isIndex: true},
+      {name: 'HardLevelId', type: 'integer', isIndex: true},
+      {name: 'UnlockPlayerLevel', type: 'integer', isIndex: true},
+      {name: 'UnlockTipTextMapHash', type: 'integer', isIndex: true},
+      {name: 'NpcId', type: 'integer', isIndex: true},
+      {name: 'MonsterId', type: 'integer', isIndex: true},
+      {name: 'MonsterTitleTextMapHash', type: 'integer', isIndex: true},
+    ],
+    normalizeFixFields: {
+      JECHMICDJBE: 'NpcId',
+      OAPOAACBKHJ: 'MonsterTitleTextMapHash',
+      LKOILEBONPH: 'UnlockPlayerLevel',
+      AIIDKAAKFNL: 'UnlockTipTextMapHash',
+    }
+  },
+  GCGGameRewardExcelConfigData: <SchemaTable> {
+    name: 'GCGGameRewardExcelConfigData',
+    jsonFile: './ExcelBinOutput/GCGGameRewardExcelConfigData.json',
+    columns: [
+      {name: 'LevelId', type: 'integer', isPrimary: true},
+      {name: 'LevelNameTextMapHash', type: 'integer', isIndex: true},
+      {name: 'IntroTextMapHash', type: 'integer', isIndex: true},
+      {name: 'GroupId', type: 'integer', isIndex: true},
+    ],
+    normalizeFixFields: {
+      ILOGAIHBHNE: 'IntroTextMapHash',
+      CNMAEJMKIJG: 'TalkDetailIconId',
+      IDJCJFFHJEE: 'ObjectiveTextMapHashList',
+    }
+  },
+  GCGChallengeExcelConfigData: <SchemaTable> {
+    name: 'GCGChallengeExcelConfigData',
+    jsonFile: './ExcelBinOutput/GCGChallengeExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'Type', type: 'string', isIndex: true},
+    ],
+    normalizeFixFields: {
+      MIPOKBOGHGJ: 'ParamTarget'
+    }
+  },
+  GCGTutorialTextExcelConfigData: <SchemaTable> {
+    name: 'GCGTutorialTextExcelConfigData',
+    jsonFile: './ExcelBinOutput/GCGTutorialTextExcelConfigData.json',
+    columns: [
+      {name: 'TutorialTextId', type: 'integer', isPrimary: true},
+      {name: 'TutorialTextMapHash', type: 'integer', isIndex: true}
+    ],
+    normalizeFixFields: {
+      LFJMKDDJPNH: 'TutorialTextId',
+      AFBOPFJIDKP: 'TutorialTextMapHash'
+    }
+  },
+  GCGRuleExcelConfigData: <SchemaTable> {
+    name: 'GCGRuleExcelConfigData',
+    jsonFile: './ExcelBinOutput/GCGRuleExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+    ]
+  },
+  GCGRuleTextExcelConfigData: <SchemaTable> {
+    name: 'GCGRuleTextExcelConfigData',
+    jsonFile: './ExcelBinOutput/GCGRuleTextExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'TitleTextMapHash', type: 'integer', isIndex: true},
+    ]
+  },
+  GCGRuleTextDetailExcelConfigData: <SchemaTable> {
+    name: 'GCGRuleTextDetailExcelConfigData',
+    jsonFile: './ExcelBinOutput/GCGRuleTextDetailExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'TitleTextMapHash', type: 'integer', isIndex: true},
+      {name: 'ContentTextMapHash', type: 'integer', isIndex: true},
+    ],
+    normalizeFixFields: {
+      IFJNLHHKLME: 'Icon'
+    }
+  },
+  GCGLevelLockExcelConfigData: <SchemaTable> {
+    name: 'GCGLevelLockExcelConfigData',
+    jsonFile: './ExcelBinOutput/GCGLevelLockExcelConfigData.json',
+    columns: [
+      {name: 'LevelId', type: 'integer', isPrimary: true},
+      {name: 'UnlockLevel', type: 'integer', isIndex: true},
+      {name: 'UnlockMainQuestId', type: 'integer', isIndex: true},
+      {name: 'UnlockDescTextMapHash', type: 'integer', isIndex: true},
+      {name: 'QuestTitleTextMapHash', type: 'integer', isIndex: true},
+      {name: 'QuestDescTextMapHash', type: 'integer', isIndex: true},
+    ]
+  },
+  GcgOtherLevelExcelConfigData: <SchemaTable> {
+    name: 'GcgOtherLevelExcelConfigData',
+    jsonFile: './ExcelBinOutput/GcgOtherLevelExcelConfigData.json',
+    columns: [
+      {name: 'LevelId', type: 'integer', isPrimary: true},
+    ]
+  },
+  GCGQuestLevelExcelConfigData: <SchemaTable> {
+    name: 'GCGQuestLevelExcelConfigData',
+    jsonFile: './ExcelBinOutput/GCGQuestLevelExcelConfigData.json',
+    columns: [
+      {name: 'LevelId', type: 'integer', isPrimary: true},
+      {name: 'QuestId', type: 'integer', isIndex: true},
+    ]
+  },
+  GCGWorldLevelExcelConfigData: <SchemaTable> {
+    name: 'GCGWorldLevelExcelConfigData',
+    jsonFile: './ExcelBinOutput/GCGWorldLevelExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'NpcId', type: 'integer', isIndex: true},
+      {name: 'LevelId', type: 'integer', isIndex: true},
+      {name: 'LevelTitleTextMapHash', type: 'integer', isIndex: true},
+      {name: 'MapDescTextMapHash', type: 'integer', isIndex: true},
+      {name: 'TalkId', type: 'integer', isIndex: true},
+    ],
+    normalizeFixFields: {
+      ILOGAIHBHNE: 'MapDescTextMapHash'
+    }
+  },
+  GCGWeekLevelExcelConfigData: <SchemaTable> {
+    name: 'GCGWeekLevelExcelConfigData',
+    jsonFile: './ExcelBinOutput/GCGWeekLevelExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'NpcId', type: 'integer', isIndex: true},
+      {name: 'NpcType', type: 'string', isIndex: true},
+      {name: 'OpenQuestId', type: 'integer', isIndex: true},
+    ]
+  },
+  GCGCardExcelConfigData: <SchemaTable> {
+    name: 'GCGCardExcelConfigData',
+    jsonFile: './ExcelBinOutput/GCGCardExcelConfigData.json',
+    columns: [
+      {name: 'CardType', type: 'string', isIndex: true},
+      {name: 'ChooseTargetType', type: 'string', isIndex: true},
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'NameTextMapHash', type: 'integer', isIndex: true},
+      {name: 'DescTextMapHash', type: 'integer', isIndex: true},
+    ],
+    normalizeFixFields: {
+      PMEAKELAHJJ: 'StateBuffType',
+      BBNNKHIKEEB: 'PersistEffectType',
+      EJLBDGICGCA: 'TokenIconToShow',
+      MJEFNLJLBIJ: 'ElementHintType',
+      IKKGAPALFCH: 'TokenDescId'
+    }
+  },
+  GCGCharacterLevelExcelConfigData: <SchemaTable> {
+    name: 'GCGCharacterLevelExcelConfigData',
+    jsonFile: './ExcelBinOutput/GCGCharacterLevelExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'NpcId', type: 'integer', isIndex: true},
+      {name: 'AvatarId', type: 'integer', isIndex: true},
+      {name: 'NormalLevelId', type: 'integer', isIndex: true},
+      {name: 'HardLevelId', type: 'integer', isIndex: true},
+      {name: 'WinNormalLevelTalkId', type: 'integer', isIndex: true},
+      {name: 'LoseNormalLevelTalkId', type: 'integer', isIndex: true},
+      {name: 'WinHardLevelTalkId', type: 'integer', isIndex: true},
+      {name: 'LoseHardLevelTalkId', type: 'integer', isIndex: true},
+    ],
+    normalizeFixFields: {
+      NIDONEPDAOP: 'WinNormalLevelTalkId',
+      HEGBPOCJBCF: 'LoseNormalLevelTalkId',
+      GLAAKALKCEJ: 'WinHardLevelTalkId',
+      FMDNIFOPMGP: 'LoseHardLevelTalkId',
+    }
+  },
+  Relation_GCGCharacterLevel: <SchemaTable> {
+    name: 'Relation_GCGCharacterLevel',
+    jsonFile: './ExcelBinOutput/GCGCharacterLevelExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isIndex: true},
+      {name: 'LevelId', type: 'integer', isIndex: true},
+    ],
+    customRowResolve: (row: GCGCharacterLevelExcelConfigData) => {
+      let ret = [];
+      if (row.NormalLevelId) {
+        ret.push({Id: row.Id, LevelId: row.NormalLevelId});
+      }
+      if (row.HardLevelId) {
+        ret.push({Id: row.Id, LevelId: row.HardLevelId});
+      }
+      if (row.NormalLevelList && row.NormalLevelList.length) {
+        for (let level of row.NormalLevelList) {
+          if (level.LevelId !== row.NormalLevelId) {
+            ret.push({Id: row.Id, LevelId: level.LevelId });
+          }
+        }
+      }
+      return ret;
+    }
+  },
+  GCGElementReactionExcelConfigData: <SchemaTable> {
+    name: 'GCGElementReactionExcelConfigData',
+    jsonFile: './ExcelBinOutput/GCGElementReactionExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'ElementType1', type: 'string', isIndex: true},
+      {name: 'ElementType2', type: 'string', isIndex: true},
+      {name: 'SkillId', type: 'integer', isIndex: true},
+    ]
+  },
+  GCGSkillExcelConfigData: <SchemaTable> {
+    name: 'GCGSkillExcelConfigData',
+    jsonFile: './ExcelBinOutput/GCGSkillExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'NameTextMapHash', type: 'integer', isIndex: true},
+      {name: 'DescTextMapHash', type: 'integer', isIndex: true},
+    ]
+  },
+  GCGChooseExcelConfigData: <SchemaTable> {
+    name: 'GCGChooseExcelConfigData',
+    jsonFile: './ExcelBinOutput/GCGChooseExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'CardType', type: 'string', isIndex: true},
+      {name: 'TargetCamp', type: 'string', isIndex: true},
+      {name: 'ChooseType', type: 'string', isIndex: true},
+    ],
+    normalizeFixFields: {
+      HMHHABHDBAG: 'ChooseTextMapHash',
+      FABKBPGPHII: 'ChooseType',
+    }
+  },
+  GCGDeckExcelConfigData: <SchemaTable> {
+    name: 'GCGDeckExcelConfigData',
+    jsonFile: './ExcelBinOutput/GCGDeckExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+    ]
+  },
+  GCGSkillTagExcelConfigData: <SchemaTable> {
+    name: 'GCGSkillTagExcelConfigData',
+    jsonFile: './ExcelBinOutput/GCGSkillTagExcelConfigData.json',
+    columns: [
+      {name: 'Type', type: 'string', isPrimary: true},
+      {name: 'NameTextMapHash', type: 'integer', isIndex: true},
+      {name: 'KeywordId', type: 'integer', isIndex: true},
+    ],
+    normalizeFixFields: {
+      BNKFFFCCNGF: 'KeywordId',
+    }
+  },
+  GCGTagExcelConfigData: <SchemaTable> {
+    name: 'GCGTagExcelConfigData',
+    jsonFile: './ExcelBinOutput/GCGTagExcelConfigData.json',
+    columns: [
+      {name: 'Type', type: 'string', isPrimary: true},
+      {name: 'CategoryType', type: 'string', isIndex: true},
+      {name: 'NameTextMapHash', type: 'integer', isIndex: true},
+    ],
+    normalizeFixFields: {
+      PHMOLEPKEIB: 'CategoryType',
+    },
+    singularize: ['CategoryType']
+  },
+  GCGKeywordExcelConfigData: <SchemaTable> {
+    name: 'GCGKeywordExcelConfigData',
+    jsonFile: './ExcelBinOutput/GCGKeywordExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'TitleTextMapHash', type: 'integer', isIndex: true},
+      {name: 'DescTextMapHash', type: 'integer', isIndex: true},
+    ]
+  },
+  GCGCostExcelConfigData: <SchemaTable> {
+    name: 'GCGCostExcelConfigData',
+    jsonFile: './ExcelBinOutput/GCGCostExcelConfigData.json',
+    columns: [
+      {name: 'Type', type: 'string', isPrimary: true},
+      {name: 'KeywordId', type: 'integer', isIndex: true},
+    ],
+    normalizeFixFields: {
+      BNKFFFCCNGF: 'KeywordId',
+    }
+  },
 };
 
 export function capitalizeFirstLetter(s: string) {
@@ -470,12 +887,23 @@ export function normalizeRawJson(row: any, table?: SchemaTable) {
       key = key.slice(1);
     }
     key = capitalizeFirstLetter(key);
-    key = key.replace(/ID/g, 'Id');
+    if (!(key.length === 11 && /^[A-Z]+$/.test(key))) {
+      key = key.replace(/ID/g, 'Id');
+    }
     key = key.replace(/TextText/g, 'Text');
-    if (table && table.normalizeFixFields && table.normalizeFixFields[key]) {
-      key = table.normalizeFixFields[key];
+    key = key.replace(/_(\w)/g, (fm: string, g: string) => g.toUpperCase()); // snake to camel
+    if (table && table.normalizeFixFields) {
+      if (key in table.normalizeFixFields) {
+        key = table.normalizeFixFields[key];
+      }
+      if (key.toUpperCase() in table.normalizeFixFields) {
+        key = table.normalizeFixFields[key.toUpperCase()];
+      }
     }
     newRow[key] = normalizeRawJson(row[originalKey], table);
+    if (table && table.singularize && table.singularize.includes(key) && Array.isArray(newRow[key])) {
+      newRow[key] = newRow[key].find(x => !!x);
+    }
   }
   return newRow;
 }
@@ -575,6 +1003,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
 
     const optionDefinitions: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
       {name: 'run-only', alias: 'o', type: String, multiple: true, description: 'Import only the specified tables (comma-separated).', typeLabel: '<tables>'},
+      {name: 'run-includes', alias: 'i', type: String, multiple: true, description: 'Import only tables whose name contains any one of the specified texts (comma-separated, case-insensitive, not a regex).', typeLabel: '<texts>'},
       {name: 'run-all-except', alias: 'e', type: String, multiple: true, description: 'Import all tables except the specified (comma-separated).', typeLabel: '<tables>'},
       {name: 'run-all', alias: 'a', type: Boolean, description: 'Import all tables.'},
       {name: 'list', alias: 'l', type: Boolean, description: 'List all table names.'},
@@ -584,16 +1013,16 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     const options = commandLineArgs(optionDefinitions);
 
     if (Object.keys(options).filter(k => k.startsWith('run')).length > 1) {
-      console.error('\x1b[31m', '\nThese options are mutually exclusive: --run-only, --run-all-except, or --run-all', '\x1b[0m');
+      console.error(chalk.red('\nThese options are mutually exclusive: --run-only, --run-includes, --run-all-except, or --run-all'));
       options.help = true;
     } else if (!Object.keys(options).length) {
-      console.error('\x1b[31m', '\nMust specify one of: --run-only, --run-all-except, or --run-all', '\x1b[0m');
+      console.warn(chalk.yellow('\nMust specify one of: --run-only, --run-includes, --run-all-except, or --run-all'));
       options.help = true;
     }
 
     if (options.list) {
       console.log();
-      console.log('\x1b[4m\x1b[1mAvailable Tables:\x1b[0m');
+      console.log(chalk.bold.underline('Available Tables:'));
       for (let tableName of Object.keys(schema)) {
         console.log('  ' + tableName);
       }
@@ -617,13 +1046,14 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     }
 
     let tablesToRun: string[];
+
     if (options['run-all']) {
       tablesToRun = Object.keys(schema);
     } else if (options['run-all-except']) {
       let input = (options['run-all-except'] as string[]).map(s => s.split(/[,;]/g)).flat(Infinity) as string[];
       for (let table of input) {
         if (!schema.hasOwnProperty(table)) {
-          console.error('\x1b[31m', '\nNot a valid table name: ' + table + '\n', '\x1b[0m');
+          console.error(chalk.red('\nNot a valid table name: ' + table + '\n'));
           return;
         }
       }
@@ -632,13 +1062,27 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
       let input = (options['run-only'] as string[]).map(s => s.split(/[,;]/g)).flat(Infinity) as string[];
       for (let table of input) {
         if (!schema.hasOwnProperty(table)) {
-          console.error('\x1b[31m', '\nNot a valid table name: ' + table + '\n', '\x1b[0m');
+          console.error(chalk.red('\nNot a valid table name: ' + table + '\n'));
           return;
         }
       }
       tablesToRun = input;
+    } else if (options['run-includes']) {
+      let input = (options['run-includes'] as string[]).map(s => s.split(/[,;]/g)).flat(Infinity) as string[];
+      tablesToRun = [];
+      for (let text of input) {
+        for (let table of Object.values(schema)) {
+          if (table.name.toLowerCase().includes(text.toLowerCase())) {
+            tablesToRun.push(table.name);
+          }
+        }
+      }
     } else {
       throw 'Implementation exception.';
+    }
+
+    if (!tablesToRun || !tablesToRun.length) {
+      console.error(chalk.yellow('No tables selected.'));
     }
 
     for (let tableName of tablesToRun) {
@@ -647,8 +1091,6 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
       await insertAll(table);
       console.log(SEP);
     }
-
-    console.log('Complete at ')
 
     console.log('Shutting down...');
     await knex.destroy();

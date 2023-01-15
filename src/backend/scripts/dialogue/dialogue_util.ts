@@ -9,10 +9,10 @@ import { Marker } from '../../../shared/util/highlightMarker';
 
 export class DialogueSectionResult {
   id: string = null;
-  title: string = null;
+  title: string = '';
   metadata: MetaProp[] = [];
-  helptext: string = null;
-  wikitext: string = null;
+  helptext: string = '';
+  wikitext: string = '';
   wikitextMarkers: Marker[] = [];
   wikitextArray: { title?: string, wikitext: string, markers?: Marker[] }[] = [];
   children: DialogueSectionResult[] = [];
@@ -24,6 +24,11 @@ export class DialogueSectionResult {
     this.id = id;
     this.title = title;
     this.helptext = helptext;
+  }
+
+  afterConstruct(fn: (sect: this) => void): this {
+    fn(this);
+    return this;
   }
 
   addEmptyMetaProp(label: string) {

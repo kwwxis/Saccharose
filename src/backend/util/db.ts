@@ -17,8 +17,12 @@ export function openKnex(): Knex {
     useNullAsDefault: true,
     pool: {
       afterCreate: function(conn, done) {
-        conn.run('PRAGMA journal_mode = off;', function() {
-          conn.run('PRAGMA synchronous = 0;', done);
+        conn.run('PRAGMA journal_mode = WAL;', function() {
+          conn.run('PRAGMA synchronous = normal;', function() {
+            conn.run('PRAGMA temp_store = memory;', function() {
+              conn.run('PRAGMA page_size = 32768;', done);
+            })
+          });
         });
       }
     }

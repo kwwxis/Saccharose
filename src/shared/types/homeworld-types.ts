@@ -1,4 +1,5 @@
-import { AvatarExcelConfigData, NpcExcelConfigData } from './general-types';
+import { NpcExcelConfigData } from './general-types';
+import { AvatarExcelConfigData } from './avatar-types';
 
 export interface HomeWorldEventExcelConfigData {
   EventId: number,

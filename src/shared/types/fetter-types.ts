@@ -1,5 +1,5 @@
 import { LangCode } from './dialogue-types';
-import { AvatarExcelConfigData } from './general-types';
+import { AvatarExcelConfigData } from './avatar-types';
 
 // Fetter Condition Types
 // ----------------------------------------------------------------------------------------------------

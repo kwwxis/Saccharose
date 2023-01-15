@@ -11,16 +11,16 @@ import { StoryFetters } from '../../../shared/types/fetter-types';
 import { orderChapterQuests } from '../../scripts/misc/orderChapterQuests';
 import { ol_gen_from_id } from '../../scripts/OLgen/OLgen';
 import { sort } from '../../../shared/util/arrayUtil';
-import { AvatarExcelConfigData } from '../../../shared/types/general-types';
 import jsonMask from 'json-mask';
 import { cached } from '../../util/cache';
 import { fetchCharacterFettersByAvatarId } from '../../scripts/fetters/fetchCharacterFetters';
 import {
-  fetchGCGTalkDetail,
+  getGCGControl,
   generateGCGTalkDetailDialogue,
-  generateGCGTutorialDialogue,
-} from '../../scripts/gcg/gcgReader';
+} from '../../scripts/gcg/gcg_control';
 import { BookSuitExcelConfigData, ReadableView } from '../../../shared/types/readable-types';
+import { AvatarExcelConfigData } from '../../../shared/types/avatar-types';
+import { generateGCGTutorialDialogue } from '../../scripts/gcg/gcg_tutorial_text';
 
 export default async function(): Promise<Router> {
   const router: Router = create({
@@ -144,7 +144,7 @@ export default async function(): Promise<Router> {
 
   router.get('/TCG/talk-detail', async (req: Request, res: Response) => {
     const ctrl = getControl(req);
-    const details = await fetchGCGTalkDetail(ctrl);
+    const details = await getGCGControl(ctrl).selectAllTalkDetail();
 
     res.render('pages/gcg/gcg-talk-detail', {
       title: 'TCG Talk Detail',
@@ -300,7 +300,7 @@ export default async function(): Promise<Router> {
     });
   });
 
-  router.get('/item/readables', async (req: Request, res: Response) => {
+  router.get('/readables', async (req: Request, res: Response) => {
     const ctrl = getControl(req);
     const archive = await ctrl.selectReadableArchiveView();
 
@@ -311,7 +311,7 @@ export default async function(): Promise<Router> {
     });
   });
 
-  router.get('/item/readables/book-collection/:suitId', async (req: Request, res: Response) => {
+  router.get('/readables/book-collection/:suitId', async (req: Request, res: Response) => {
     const ctrl = getControl(req);
     const collection: BookSuitExcelConfigData = await ctrl.selectBookCollection(req.params.suitId);
 
@@ -335,7 +335,7 @@ export default async function(): Promise<Router> {
     });
   });
 
-  router.get('/item/readables/item/:itemId', async (req: Request, res: Response) => {
+  router.get('/readables/item/:itemId', async (req: Request, res: Response) => {
     const ctrl = getControl(req);
     const readable: ReadableView = await ctrl.selectReadableView(req.params.itemId);
 

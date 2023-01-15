@@ -2,16 +2,13 @@ import '../../loadenv';
 import util from 'util';
 import { closeKnex } from '../../util/db';
 import { Control, getControl, normText } from '../script_util';
-import {
-  AvatarExcelConfigData,
-
-} from '../../../shared/types/general-types';
 import { cached } from '../../util/cache';
 import { getTextMapItem, loadEnglishTextMap } from '../textmap';
 import { processFetterConds } from './fetterConds';
 import { resolveObjectPath } from '../../../shared/util/arrayUtil';
 import { FetterStoryExcelConfigData, StoryFetters, StoryFettersByAvatar } from '../../../shared/types/fetter-types';
 import { pathToFileURL } from 'url';
+import { AvatarExcelConfigData } from '../../../shared/types/avatar-types';
 
 const sep = '</p><!--\n              --><p>';
 
@@ -25,7 +22,6 @@ async function fetchAllFetterStoryExcelConfigData(ctrl: Control): Promise<Fetter
       if (fetter.StoryContext2Text) {
         fetter.StoryContext2Html = '<p>'+fetter.StoryContext2Text.split('\\n').map(s => normText(s, ctrl.outputLangCode)).join(sep)+'</p>';
       }
-      fetter.MappedTips = fetter.Tips.map(tip => getTextMapItem(ctrl.outputLangCode, tip)).filter(x => !!x);
     }
     return records;
   });

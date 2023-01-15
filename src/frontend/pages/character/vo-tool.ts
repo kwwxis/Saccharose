@@ -1,6 +1,5 @@
 import { pageMatch } from '../../pageMatch';
 import './vo-common.scss';
-import { AvatarExcelConfigData } from '../../../shared/types/general-types';
 import { LANG_CODES, LANG_CODES_TO_NAME, LangCode } from '../../../shared/types/dialogue-types';
 import { VoAppWelcome } from './vo-app-welcome';
 import Cookies from 'js-cookie';
@@ -10,6 +9,7 @@ import { VoAppWikitext } from './vo-app-wikitext';
 import { VoAppEditor } from './vo-app-editor';
 import { EventBus } from '../../util/eventBus';
 import { CharacterFetters } from '../../../shared/types/fetter-types';
+import { AvatarExcelConfigData } from '../../../shared/types/avatar-types';
 
 export class VoAppState {
   avatars: AvatarExcelConfigData[];
