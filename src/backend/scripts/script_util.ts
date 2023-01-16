@@ -161,7 +161,7 @@ export const normText = (text: string, langCode: LangCode = 'EN', decolor: boole
   }
 
   if (text.includes('{{MC') && !languagesWithoutSpaceDelimitedWords.has(langCode)) {
-    text = text.replace(/(?<=\s|^)(\S*)\{\{MC\|m=(.*?)\|f=(.*?)}}(\S*)(?=\s|$)/g, (fm, g1, g2, g3, g4) => {
+    text = text.replace(/(?<=\s|>|^)([^\r\n\t\f\v\s><]*)\{\{MC\|m=([^\s|]*)\|f=([^\s}]*)}}([^\r\n\t\f\v\s><]*)(?=\s|<|$)/g, (fm, g1, g2, g3, g4) => {
       if (!g1 && !g4) {
         return fm;
       }

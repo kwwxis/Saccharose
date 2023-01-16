@@ -193,7 +193,7 @@ export interface GCGGameExcelConfigData {
   LevelLock?: GCGLevelLockExcelConfigData,
 
   // Dialogue:
-  Talks?: GCGTalkExcelConfigData[],
+  LevelTalk?: GCGTalkExcelConfigData,
   DialogTalks?: TalkExcelConfigData[],
 
   // Reward object:
@@ -658,6 +658,7 @@ export interface GCGProficiencyRewardExcelConfigData {
   ProficiencyRewardList: { Proficiency: number, RewardId: number, Reward: RewardExcelConfigData }[],
 }
 
+// "Card Box" items, e.g. [[Liyue_(Card_Box)]]
 export interface GCGDeckFieldExcelConfigData {
   Id: number,
   ItemId: number,
@@ -682,6 +683,7 @@ export interface GCGDeckFieldExcelConfigData {
   MFCNIONLJGE: string,
 }
 
+// "Card Back" items, e.g. [[Dandelion_Seed_(Card_Back)]] or [[Legend]]
 export interface GCGDeckBackExcelConfigData {
   Id: number,
   ItemId: number,

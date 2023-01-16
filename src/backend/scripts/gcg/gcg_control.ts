@@ -206,8 +206,8 @@ export class GCGControl {
     return await this.allSelect('GCGTalkExcelConfigData', this.postProcessTalk)
   }
 
-  async selectAllTalkByGameId(gameId: number): Promise<GCGTalkExcelConfigData[]> {
-    return await this.multiSelect('GCGTalkExcelConfigData', 'GameId', gameId, this.postProcessTalk);
+  async selectTalkByGameId(gameId: number): Promise<GCGTalkExcelConfigData> {
+    return await this.singleSelect('GCGTalkExcelConfigData', 'GameId', gameId, this.postProcessTalk);
   }
 
   // GCG RULE
@@ -249,7 +249,7 @@ export class GCGControl {
       stage.Rule = this.rules.find(rule => rule.Id === stage.RuleId);
     }
     if (!disableLoad.disableTalkLoad) {
-      stage.Talks = await this.selectAllTalkByGameId(stage.Id);
+      stage.LevelTalk = await this.selectTalkByGameId(stage.Id);
     }
     if (!disableLoad.disableLevelLockLoad) {
       stage.LevelLock = await this.singleSelect('GCGLevelLockExcelConfigData', 'LevelId', stage.Id);
@@ -559,25 +559,29 @@ export class GCGControl {
           talkSect.title = 'World Talk';
           parentSect.children.push(talkSect);
         }
-        if (stage.CharacterLevel && stage.CharacterLevel.WinNormalLevelTalk) {
-          let talkSect = await talkConfigGenerate(this.ctrl, stage.CharacterLevel.WinNormalLevelTalk);
-          talkSect.title = 'Win Friendly Fracas Stage Talk';
-          parentSect.children.push(talkSect);
+        if (stage.LevelDifficulty === 'NORMAL') {
+          if (stage.CharacterLevel && stage.CharacterLevel.WinNormalLevelTalk) {
+            let talkSect = await talkConfigGenerate(this.ctrl, stage.CharacterLevel.WinNormalLevelTalk);
+            talkSect.title = 'Win Talk';
+            parentSect.children.push(talkSect);
+          }
+          if (stage.CharacterLevel && stage.CharacterLevel.LoseNormalLevelTalk) {
+            let talkSect = await talkConfigGenerate(this.ctrl, stage.CharacterLevel.LoseNormalLevelTalk);
+            talkSect.title = 'Lose Talk';
+            parentSect.children.push(talkSect);
+          }
         }
-        if (stage.CharacterLevel && stage.CharacterLevel.LoseNormalLevelTalk) {
-          let talkSect = await talkConfigGenerate(this.ctrl, stage.CharacterLevel.LoseNormalLevelTalk);
-          talkSect.title = 'Lose Friendly Fracas Stage Talk';
-          parentSect.children.push(talkSect);
-        }
-        if (stage.CharacterLevel && stage.CharacterLevel.WinHardLevelTalk) {
-          let talkSect = await talkConfigGenerate(this.ctrl, stage.CharacterLevel.WinHardLevelTalk);
-          talkSect.title = 'Win Serious Showdown Stage Talk';
-          parentSect.children.push(talkSect);
-        }
-        if (stage.CharacterLevel && stage.CharacterLevel.LoseHardLevelTalk) {
-          let talkSect = await talkConfigGenerate(this.ctrl, stage.CharacterLevel.LoseHardLevelTalk);
-          talkSect.title = 'Lose Serious Showdown Stage Talk';
-          parentSect.children.push(talkSect);
+        if (stage.LevelDifficulty === 'HARD') {
+          if (stage.CharacterLevel && stage.CharacterLevel.WinHardLevelTalk) {
+            let talkSect = await talkConfigGenerate(this.ctrl, stage.CharacterLevel.WinHardLevelTalk);
+            talkSect.title = 'Win Talk';
+            parentSect.children.push(talkSect);
+          }
+          if (stage.CharacterLevel && stage.CharacterLevel.LoseHardLevelTalk) {
+            let talkSect = await talkConfigGenerate(this.ctrl, stage.CharacterLevel.LoseHardLevelTalk);
+            talkSect.title = 'Lose Talk';
+            parentSect.children.push(talkSect);
+          }
         }
       }
       parentSect = results[talk.GameId];
