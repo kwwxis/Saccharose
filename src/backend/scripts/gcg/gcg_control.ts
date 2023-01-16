@@ -530,13 +530,21 @@ export class GCGControl {
           disableLevelLockLoad: true,
           disableDeckLoad: true,
         });
-        let title = stage?.Reward?.LevelNameText || stage.EnemyNameText;
+        let title = stage.EnemyNameText || String(talk.GameId);
+        if (stage?.Reward?.LevelNameText) {
+          title += '/' + stage.Reward.LevelNameText
+        }
         parentSect = new DialogueSectionResult('GCGTalk_'+talk.GameId, title).afterConstruct(sect => {
           sect.addMetaProp('Stage ID', talk.GameId);
           sect.addMetaProp('Stage Type', stage.LevelType);
           sect.addMetaProp('Stage Difficulty', stage.LevelDifficulty === 'NORMAL' ? 'Friendly Fracas' : 'Serious Showdown');
           sect.addMetaProp('Stage Player Level', stage.LevelGcgLevel);
-          sect.addMetaProp('Enemy Name', stage.EnemyNameText);
+          if (stage.EnemyNameText) {
+            sect.addMetaProp('Enemy Name', stage.EnemyNameText);
+          }
+          if (stage?.Reward?.LevelNameText) {
+            sect.addMetaProp('Level Name', stage.Reward.LevelNameText);
+          }
         });
         results[talk.GameId] = parentSect;
         if (stage.DialogTalks && stage.DialogTalks.length) {
