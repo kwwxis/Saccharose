@@ -14,10 +14,7 @@ import { sort } from '../../../shared/util/arrayUtil';
 import jsonMask from 'json-mask';
 import { cached } from '../../util/cache';
 import { fetchCharacterFettersByAvatarId } from '../../scripts/fetters/fetchCharacterFetters';
-import {
-  getGCGControl,
-  generateGCGTalkDetailDialogue,
-} from '../../scripts/gcg/gcg_control';
+import {  getGCGControl } from '../../scripts/gcg/gcg_control';
 import { BookSuitExcelConfigData, ReadableView } from '../../../shared/types/readable-types';
 import { AvatarExcelConfigData } from '../../../shared/types/avatar-types';
 import { generateGCGTutorialDialogue } from '../../scripts/gcg/gcg_tutorial_text';
@@ -144,11 +141,9 @@ export default async function(): Promise<Router> {
 
   router.get('/TCG/talk-detail', async (req: Request, res: Response) => {
     const ctrl = getControl(req);
-    const details = await getGCGControl(ctrl).selectAllTalkDetail();
-
     res.render('pages/gcg/gcg-talk-detail', {
       title: 'TCG Talk Detail',
-      details: await generateGCGTalkDetailDialogue(ctrl, details),
+      talkSections: await getGCGControl(ctrl).generateGCGTalkDialogueSections(),
       bodyClass: ['page--tcg-talk-detail']
     });
   });

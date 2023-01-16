@@ -550,14 +550,14 @@ export const schema = {
     jsonFile: './ExcelBinOutput/GCGTalkDetailExcelConfigData.json',
     columns: [
       {name: 'TalkDetailId', type: 'integer', isPrimary: true},
-      {name: 'TalkRoleId', type: 'integer', isIndex: true},
+      {name: 'TalkDetailIconId', type: 'integer', isIndex: true},
     ],
     normalizeFixFields: {
       OKFHEMAKLNN: 'TalkContentTextMapHash',
-      CPBEMEKHDCO: 'TalkRoleId',
+      CPBEMEKHDCO: 'TalkDetailIconId',
       PGFENJJPNBG: 'TalkEmoji',
     },
-    singularize: ['TalkRoleId']
+    singularize: ['TalkDetailIconId']
   },
   GCGTalkDetailIconExcelConfigData: <SchemaTable> {
     name: 'GCGTalkDetailIconExcelConfigData',

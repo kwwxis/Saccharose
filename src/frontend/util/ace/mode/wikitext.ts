@@ -388,7 +388,7 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
       wt_quotes: [
         {
           regex: /'''/,
-          next: 'wt_quotes',
+          next: 'start',
           onMatch: function(val, currentState, stack, line, match) {
             if (getQuotePos(line, match.index) === 'BOLD_CLOSE') {
               stack.shift();
@@ -486,30 +486,6 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
       ]
     });
 
-    this.embedRules(JavaScriptHighlightRules, 'jscode-', [{
-      token: 'support.function',
-      regex: '^\\s*```',
-      next: 'pop',
-    }]);
-
-    this.embedRules(HtmlHighlightRules, 'htmlcode-', [{
-      token: 'support.function',
-      regex: '^\\s*```',
-      next: 'pop',
-    }]);
-
-    this.embedRules(CssHighlightRules, 'csscode-', [{
-      token: 'support.function',
-      regex: '^\\s*```',
-      next: 'pop',
-    }]);
-
-    this.embedRules(XmlHighlightRules, 'xmlcode-', [{
-      token: 'support.function',
-      regex: '^\\s*```',
-      next: 'pop',
-    }]);
-
     this.normalizeRules();
   };
 
@@ -602,9 +578,9 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
 
         // Custom implementation of getLineTokens.
         // The entire function is copied from the original except for a few changes.
-        this.$tokenizer.getLineTokens = function(line, startState) {
-          let stack;
-          if (startState && typeof startState != "string") {
+        this.$tokenizer.getLineTokens = function(line: string, startState) {
+          let stack: string[];
+          if (startState && typeof startState !== "string") {
             stack = startState.slice(0);
             startState = stack[0];
             if (startState === "#tmp") {
@@ -701,6 +677,11 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
                 } else {
                   type = typeBefore;
                 }
+              }
+
+              if (type.includes('meta') && rule.next === 'start' && stack.length) {
+                rule.next = stack[0] || 'start';
+                console.log('rule next', rule.next);
               }
 
               if (rule.next) {

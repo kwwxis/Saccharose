@@ -1,10 +1,8 @@
 <section class="card">
   <h2>TCG Talk Detail</h2>
   <div class="content">
-    <% for (let detail of Object.values(details)) { %>
-      <div class="dialogue-container">
-        <%- include('partials/dialogue/dialogue-section', detail.dialogue) %>
-      </div>
+    <% for (let talkSection of talkSections) { %>
+      <%- include('partials/dialogue/dialogue-section', talkSection) %>
     <% } %>
   </div>
 </section>

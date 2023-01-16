@@ -20,7 +20,7 @@ export interface GCGTalkDetailExcelConfigData {
 }
 
 export interface GCGTalkDetailIconExcelConfigData {
-  Id: number, // -> GCGTalkDetailExcelConfigData.TalkRoleId
+  Id: number, // -> GCGTalkDetailExcelConfigData.TalkDetailIconId
   IconName: string,
   Type?: 'NPC',
 }
@@ -163,33 +163,40 @@ export interface GCGGameExcelConfigData {
   RuleId: number,
   Rule?: GCGRuleExcelConfigData,
 
+  // Game Cards:
   CardGroupId: number,
   EnemyCardGroupId: number,
   CardGroup: GCGDeckExcelConfigData,
   EnemyCardGroup: GCGDeckExcelConfigData,
 
+  // IDK what these are:
   GameType: 'AI' | 'PVE',
   InitHand: 'SELF',
   GuideName: 'Tutorial_1_1' | 'Tutorial_1_2' | 'Tutorial_1_4' | 'Tutorial_1_5' | 'Tutorial_2_1' | 'Tutorial_2_2',
-
   AFDLJEHJMBM: boolean,
   EOKDDNCPBJF?: 'GCG_FESTIVAL_MODE_TYPE_PAIMON',
   DOIPEHEKFHD?: number, // no idea what this is -- only one record has this field and its value is 44
 
-  // Resolved:
+  // Custom properties, set based on data in sub-objects.
   LevelType: 'BOSS' | 'QUEST' | 'WORLD' | 'WEEK' | 'CHARACTER',
   LevelDifficulty?: 'NORMAL' | 'HARD',
   LevelGcgLevel: number,
 
+  // Resolved level types:
   BossLevel?: GCGBossLevelExcelConfigData,
   QuestLevel: GCGQuestLevelExcelConfigData,
   WorldLevel: GCGWorldLevelExcelConfigData,
   WeekLevel: GCGWeekLevelExcelConfigData,
   CharacterLevel: GCGCharacterLevelExcelConfigData,
 
+  // Quest condition:
   LevelLock?: GCGLevelLockExcelConfigData,
+
+  // Dialogue:
   Talks?: GCGTalkExcelConfigData[],
   DialogTalks?: TalkExcelConfigData[],
+
+  // Reward object:
   Reward: GCGGameRewardExcelConfigData,
 }
 
@@ -589,6 +596,8 @@ export interface GCGCharExcelConfigData {
   MappedMappedSkillList: GCGSkillExcelConfigData[],
   IsRemoveAfterDie: boolean,
   IsCanObtain: boolean,
+
+  DeckCard?: GCGDeckCardExcelConfigData,
 
   BPHBKAGLFCE: number, // JsonPathHash
   HLKMHIIIFHA: string,
