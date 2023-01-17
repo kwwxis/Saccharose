@@ -10,6 +10,7 @@ import { VoAppEditor } from './vo-app-editor';
 import { EventBus } from '../../util/eventBus';
 import { CharacterFetters } from '../../../shared/types/fetter-types';
 import { AvatarExcelConfigData } from '../../../shared/types/avatar-types';
+import { endpoints } from '../../endpoints';
 
 export class VoAppState {
   avatars: AvatarExcelConfigData[];
@@ -21,7 +22,6 @@ export class VoAppState {
   constructor() {
     this.avatars = (<any> window).avatars;
     this.avatar = (<any> window).avatar;
-    //this.fetters = (<any> window).fetters;
     this.voLang = (Cookies.get('VO-App-LangCode') as LangCode) || 'EN';
     this.eventBus = new EventBus('VO-App-EventBus');
 
@@ -37,6 +37,15 @@ export class VoAppState {
   }
 
   init() {
+    if (this.avatar) {
+      endpoints.getFetters(this.avatar.Id).then((fetters: CharacterFetters) => {
+        this.fetters = fetters;
+        this.fetters.avatar = this.avatar;
+        this.eventBus.emit('VO-FettersLoaded');
+        document.querySelector('#vo-app-loadingFettersStatus').classList.add('hide');
+      });
+    }
+
     this.eventBus.on('VO-Lang-Changed', (langCode: LangCode) => {
       console.log('[VO-App] Lang Code Changed:', langCode);
       if (!LANG_CODES.includes(langCode)) {

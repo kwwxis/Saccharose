@@ -5,6 +5,9 @@ import { createWikitextEditor } from '../../util/ace/wikitextEditor';
 import { VoHandle } from '../../../shared/vo-tool/vo-handle';
 import { mwParse } from '../../../shared/mediawiki/mwParse';
 import { MwTemplateNode } from '../../../shared/mediawiki/mwTypes';
+import Cookies from 'js-cookie';
+import { preloadFromFetters } from './vo-app-preload';
+import { LangCode } from '../../../shared/types/dialogue-types';
 
 export function VoAppWikitext(state: VoAppState) {
   const editor: ace.Editor = createWikitextEditor('wikitext-editor');
@@ -67,7 +70,7 @@ export function VoAppWikitext(state: VoAppState) {
     let templateFound: MwTemplateNode = null;
 
     for (let wikitextTemplate of wikitext.findTemplateNodes()) {
-      if (wikitextTemplate.templateName === templateName) {
+      if (wikitextTemplate.templateName.toLowerCase() === templateName.toLowerCase()) {
         templateFound = wikitextTemplate;
         wikitextTemplate.parts = voHandle.templateNode.parts;
       }
@@ -79,6 +82,52 @@ export function VoAppWikitext(state: VoAppState) {
       editor.setValue(stringified, -1);
       editor.resize();
       localSave();
+    }
+  });
+  state.eventBus.on('VO-Wikitext-OverwriteFromFetters', (requestedMode: string) => {
+    if (!state.fetters) {
+      return;
+    }
+    let voLang: LangCode = state.voLang;
+    let userLang: LangCode = (Cookies.get('outputLangCode') || 'EN') as LangCode;
+    let mode: 'story' | 'combat' = null;
+    if (requestedMode === 'story') {
+      mode = 'story';
+    } else if (requestedMode === 'combat') {
+      mode = 'combat';
+    } else {
+      return;
+    }
+
+    let result = preloadFromFetters(state.fetters, mode, voLang, userLang);
+    let parsedResult: MwTemplateNode = mwParse(result.wikitext).findTemplateNodes()[0];
+
+    let wikitext = mwParse(editor.getValue());
+    let templateFound: MwTemplateNode = null;
+    for (let wikitextTemplate of wikitext.findTemplateNodes()) {
+      if (wikitextTemplate.templateName.toLowerCase() === result.templateName.toLowerCase()) {
+        templateFound = wikitextTemplate;
+        wikitextTemplate.parts = parsedResult.parts;
+      }
+    }
+
+    let scrollTop = editor.session.getScrollTop();
+    if (templateFound) {
+      let stringified = wikitext.toString();
+      console.log('[VO-App] Replaced {{' + templateFound.templateName + '}} in wikitext with load from fetters.', { stringified });
+      editor.setValue(stringified, -1);
+      editor.resize();
+      editor.session.setScrollTop(scrollTop);
+      localSave();
+      state.eventBus.emit('VO-Editor-Reload', editor.getValue());
+    } else {
+      let stringified = editor.getValue() + '\n\n' + result.wikitext;
+      console.log('[VO-App] Appended {{' + result.templateName + '}} to wikitext with load from fetters.', { stringified });
+      editor.setValue(stringified, -1);
+      editor.resize();
+      editor.session.setScrollTop(scrollTop);
+      localSave();
+      state.eventBus.emit('VO-Editor-Reload', editor.getValue());
     }
   });
 

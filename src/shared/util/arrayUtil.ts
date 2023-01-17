@@ -182,11 +182,11 @@ export function sort<T>(array: T[], ...fields: (string|SortComparator<T>)[]): T[
     return array;
 }
 
-export function cleanEmpty(o: any): any {
+export function cleanEmpty<T>(o: T): T {
     if (isEmpty(o)) {
         return o;
     } else if (Array.isArray(o)) {
-        return o.map(item => cleanEmpty(item)).filter(x => !isEmpty(x));
+        return <T> o.map(item => cleanEmpty(item)).filter(x => !isEmpty(x));
     } else if (typeof o === 'object') {
         let copy = Object.assign({}, o);
         for (let key of Object.keys(copy)) {

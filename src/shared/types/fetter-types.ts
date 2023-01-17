@@ -98,6 +98,7 @@ export interface FetterExcelConfigData extends FetterWithConditions {
   VoiceTitleText?: string,
   VoiceFileText?: string,
   VoiceTitleLockedText?: string,
+  VoiceFilePath?: string,
 
   // Custom Other Languages:
   VoiceTitleTextMap?: FetterExcelConfigDataTextMap,
@@ -110,8 +111,13 @@ export interface FetterExcelConfigData extends FetterWithConditions {
 
 export class CharacterFetters {
   avatar?: AvatarExcelConfigData = null;
+  avatarName: FetterExcelConfigDataTextMap;
   storyFetters: FetterExcelConfigData[] = [];
   combatFetters: FetterExcelConfigData[] = [];
+
+  voAvatarName: string = null;
+  fetterFiles: string[] = [];
+  animatorEventFiles: string[] = [];
 }
 
 export type CharacterFettersByAvatar = {[avatarId: number]: CharacterFetters};

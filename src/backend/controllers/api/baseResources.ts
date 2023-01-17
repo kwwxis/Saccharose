@@ -10,6 +10,7 @@ import { MainQuestExcelConfigData } from '../../../shared/types/quest-types';
 import { getIdFromVoFile, getTextMapItem } from '../../scripts/textmap';
 import { DialogueSectionResult } from '../../scripts/dialogue/dialogue_util';
 import { HttpError } from '../../../shared/util/httpError';
+import { fetchCharacterFettersByAvatarId } from '../../scripts/fetters/fetchCharacterFetters';
 
 const router: Router = create();
 
@@ -263,6 +264,28 @@ router.restful('/dialogue/vo-to-dialogue', {
     } else {
       return result;
     }
+  }
+});
+
+router.restful('/character/fetters', {
+  get: async (req: Request, res: Response) => {
+    const ctrl = getControl(req);
+    const avatarId = toInt(req.query.avatarId);
+
+    let fetters = await fetchCharacterFettersByAvatarId(ctrl, avatarId);
+
+    if (fetters) {
+      fetters = JSON.parse(JSON.stringify(fetters));
+      delete fetters.avatar;
+      for (let fetter of fetters.combatFetters) {
+        delete fetter.Avatar;
+      }
+      for (let fetter of fetters.storyFetters) {
+        delete fetter.Avatar;
+      }
+    }
+
+    return fetters;
   }
 });
 

@@ -5,6 +5,7 @@ export const DIALOG_ALERT = 0;
 export const DIALOG_MODAL = 1;
 export const DIALOG_ERROR = 2;
 export const DIALOG_TOAST = 3;
+export const DIALOG_CONFIRM = 4;
 
 export type DialogOpts = {
   disableDefaultCloseButton?: boolean,
@@ -14,6 +15,8 @@ export type DialogOpts = {
   callback?: (el: HTMLElement) => void,
   disableEscToClose?: boolean,
   blocking?: boolean,
+  onConfirm?: () => void,
+  onCancel?: () => void,
 }
 
 let modalsOpen = false;
@@ -34,13 +37,21 @@ export function openDialog(contents: string|HTMLElement, dialog_type: number, op
   if (dialog_type == DIALOG_ALERT) {
     type_name = 'alert';
     inner = `
-          <div id="appDialogDesc" class="AppDialog_Content"></div>
+          <div class="AppDialog_Content"></div>
           <div class="AppDialog_ButtonGroup">
-            <button class="secondary AppDialog_CloseTrigger" ui-action="close-modals">OK</button>
+            <button class="AppDialog_ConfirmButton secondary AppDialog_CloseTrigger" ui-action="close-modals">OK</button>
+          </div>`;
+  } else if (dialog_type == DIALOG_CONFIRM) {
+      type_name = 'alert';
+      inner = `
+          <div class="AppDialog_Content"></div>
+          <div class="AppDialog_ButtonGroup">
+            <button class="AppDialog_ConfirmButton primary danger AppDialog_CloseTrigger" ui-action="close-modals">OK</button>
+            <button class="AppDialog_CancelButton secondary focus-target AppDialog_CloseTrigger" ui-action="close-modals">Cancel</button>
           </div>`;
   } else if (dialog_type == DIALOG_MODAL) {
     type_name = 'modal';
-    inner = `<div id="appDialogDesc" class="AppDialog_Content"></div>`;
+    inner = `<div class="AppDialog_Content"></div>`;
     if (!opts.disableDefaultCloseButton) {
       inner += `<button class="close small AppDialog_CloseTrigger" aria-label="Close dialog" ui-action="close-modals"
           ui-tippy-hover="{content:'Keyboard shortcut: <strong>esc</strong>', delay:[100,100], allowHTML: true}"></button>`;
@@ -54,7 +65,7 @@ export function openDialog(contents: string|HTMLElement, dialog_type: number, op
       iconHTML = document.getElementById('template-info-icon').innerHTML;
     }
     inner = `${iconHTML}
-          <div id="appDialogDesc" class="AppDialog_Content"></div>`;
+          <div class="AppDialog_Content"></div>`;
     if (!opts.disableDefaultCloseButton) {
       inner += `<button class="close small AppDialog_CloseTrigger" aria-label="Close dialog" ui-action="close-modals"
           ui-tippy-hover="{content:'Keyboard shortcut: <strong>esc</strong>', delay:[100,100], allowHTML: true}"></button>`;
@@ -65,7 +76,7 @@ export function openDialog(contents: string|HTMLElement, dialog_type: number, op
 
   document.body.insertAdjacentHTML('beforeend',
     `<div id="${id}" class="AppDialogOuter ${opts.dialog_outer_class || ''} ${opts.blocking ? 'AppDialogBlocking' : ''}"
-          data-type="${type_name}" role="dialog" aria-describedby="appDialogDesc">
+          data-type="${type_name}" role="dialog">
         <div class="AppDialog" data-type="${type_name}" ${opts.dialog_class ? 'class="'+escapeHtml(opts.dialog_class)+'"' : ''} ${opts.dialog_style ? 'style="'+escapeHtml(opts.dialog_style)+'"' : ''}>
           <div class="AppDialog_Inner">${inner}</div>
         </div>
@@ -76,6 +87,20 @@ export function openDialog(contents: string|HTMLElement, dialog_type: number, op
     document.querySelector(`#${id} .AppDialog_Content`).append(contents);
   } else {
     document.querySelector(`#${id} .AppDialog_Content`).innerHTML = contents;
+  }
+
+  let confirmBtn = document.querySelector(`#${id} .AppDialog_ConfirmButton`);
+  if (confirmBtn && opts.onConfirm) {
+    confirmBtn.addEventListener('click', () => {
+      opts.onConfirm();
+    });
+  }
+
+  let cancelBtn = document.querySelector(`#${id} .AppDialog_CancelButton`);
+  if (cancelBtn && opts.onConfirm) {
+    cancelBtn.addEventListener('click', () => {
+      opts.onCancel();
+    });
   }
 
   modalsOpen = true;
@@ -90,12 +115,15 @@ export function openDialog(contents: string|HTMLElement, dialog_type: number, op
 
   setTimeout(() => {
     window.requestAnimationFrame(function() {
-      const selInput: HTMLElement = document.querySelector(getFocusableSelector(`#${id}`));
-      if (selInput) {
-        if (typeof selInput.focus === 'function')
-          selInput.focus();
-        if (typeof (<any> selInput).select === 'function')
-          (<any> selInput).select();
+      let focusTarget: HTMLElement = document.querySelector(`#${id} .focus-target`);
+      if (!focusTarget) {
+        focusTarget = document.querySelector(getFocusableSelector(`#${id}`));
+      }
+      if (focusTarget) {
+        if (typeof focusTarget.focus === 'function')
+          focusTarget.focus();
+        if (typeof (<any> focusTarget).select === 'function')
+          (<any> focusTarget).select();
       }
     });
   });

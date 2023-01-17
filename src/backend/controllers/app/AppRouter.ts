@@ -239,19 +239,23 @@ export default async function(): Promise<Router> {
   async function getAvatars(ctrl: Control): Promise<AvatarExcelConfigData[]> {
     return cached('AvatarListCache_' + ctrl.outputLangCode, async () => {
       let storiesByAvatar = await fetchCharacterStories(ctrl);
-      return Object.values(storiesByAvatar).map(x => jsonMask(x.avatar, avatarMaskProps))
+      return Object.values(storiesByAvatar)
+        .map(x => jsonMask(x.avatar, avatarMaskProps))
         .sort((a,b) => a.NameText.localeCompare(b.NameText));
     });
   }
 
   async function getAvatar(ctrl: Control, avatarName: string|number): Promise<AvatarExcelConfigData> {
-    let story: StoryFetters;
-    if (isInt(avatarName)) {
-      story = await fetchCharacterStoryByAvatarId(ctrl, toInt(avatarName));
-    } else {
-      story = await fetchCharacterStoryByAvatarName(ctrl, avatarName as string);
+    let avatars = await getAvatars(ctrl);
+    for (let avatar of avatars) {
+      if (avatar.Id === avatarName) {
+        return avatar;
+      }
+      if (typeof avatarName === 'string' && avatarName.toLowerCase() === avatar.NameText.toLowerCase()) {
+        return avatar;
+      }
     }
-    return story && jsonMask(story.avatar, avatarMaskProps);
+    return null;
   }
 
   router.get('/character/VO', async (req: Request, res: Response) => {
@@ -266,31 +270,16 @@ export default async function(): Promise<Router> {
   router.get('/character/VO/:avatarId', async (req: Request, res: Response) => {
     const ctrl = getControl(req);
 
-    let validTabs = new Set(['editor', 'wikitext']);
+    const validTabs = new Set(['editor', 'wikitext']);
     if (typeof req.query.tab === 'string' && !validTabs.has(req.query.tab)) {
       req.query.tab = 'editor';
-    }
-
-    let avatar = await getAvatar(ctrl, req.params.avatarId);
-    let fetters = avatar && await fetchCharacterFettersByAvatarId(ctrl, avatar.Id);
-
-    if (fetters) {
-      fetters = JSON.parse(JSON.stringify(fetters));
-      delete fetters.avatar;
-      for (let fetter of fetters.combatFetters) {
-        delete fetter.Avatar;
-      }
-      for (let fetter of fetters.storyFetters) {
-        delete fetter.Avatar;
-      }
     }
 
     res.render('pages/character/vo-tool', {
       title: 'Character VO',
       bodyClass: ['page--vo-tool'],
       avatars: await getAvatars(ctrl),
-      avatar: avatar,
-      fetters: fetters,
+      avatar: await getAvatar(ctrl, req.params.avatarId),
       tab: req.query.tab || 'editor',
     });
   });

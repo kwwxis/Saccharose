@@ -3,6 +3,7 @@ import { LANG_CODE_TO_WIKI_CODE, LangCode } from '../../../shared/types/dialogue
 import { VoAppState } from './vo-tool';
 import { flashTippy } from '../../util/tooltips';
 import { copyToClipboard, downloadObjectAsJson, downloadTextAsFile } from '../../util/domutil';
+import { DIALOG_CONFIRM, openDialog } from '../../util/dialog';
 
 export function VoAppToolbar(state: VoAppState) {
   startListeners([
@@ -23,6 +24,54 @@ export function VoAppToolbar(state: VoAppState) {
         tabButton.click();
         let wikitext = document.querySelector<HTMLElement>('#wikitext-editor');
         flashTippy(wikitext, {content: 'Paste the wikitext here!', delay:[0,2000]});
+      }
+    },
+    {
+      el: '#vo-app-load-fromStoryFetters',
+      ev: 'click',
+      fn: function() {
+        if (!state.fetters) {
+          alert('Fetters not yet loaded. Please wait a bit and then retry.');
+          return;
+        }
+        openDialog(`
+          <h2 class="spacer20-bottom">Confirm overwrite</h2>
+          <p class="error-notice">This will <em>completely</em> overwrite any existing wikitext you have for the VO Story template.</p>
+          <p>If you don't already have the template, then it'll append it to the end.</p>
+          <p>Are you sure you want to proceed?</p>
+        `, DIALOG_CONFIRM, {
+          blocking: true,
+          onConfirm() {
+            state.eventBus.emit('VO-Wikitext-OverwriteFromFetters', 'story');
+          },
+          onCancel() {
+            // Do nothing
+          }
+        });
+      }
+    },
+    {
+      el: '#vo-app-load-fromCombatFetters',
+      ev: 'click',
+      fn: function() {
+        if (!state.fetters) {
+          alert('Fetters not yet loaded. Please wait a bit and then retry.');
+          return;
+        }
+        openDialog(`
+          <h2 class="spacer20-bottom">Confirm overwrite</h2>
+          <p class="error-notice">This will <em>completely</em> overwrite any existing wikitext you have for the VO Combat template.</p>
+          <p>If you don't already have the template, then it'll append it to the end.</p>
+          <p>Are you sure you want to proceed?</p>
+        `, DIALOG_CONFIRM, {
+          blocking: true,
+          onConfirm() {
+            state.eventBus.emit('VO-Wikitext-OverwriteFromFetters', 'combat');
+          },
+          onCancel() {
+            // Do nothing
+          }
+        });
       }
     },
     {
@@ -52,11 +101,12 @@ export function VoAppToolbar(state: VoAppState) {
       el: '#vo-app-export-fetters',
       ev: 'click',
       fn: function() {
-        // let wtAvatarName = state.avatar.NameText.replace(/ /g, '_');
-        // downloadObjectAsJson(Object.assign(
-        //   {}, { avatar: state.avatar},
-        //   state.fetters
-        // ), `${wtAvatarName}_Fetters.json`, 2);
+        if (!state.fetters) {
+          alert('Fetters not yet loaded. Please wait a bit and then retry.');
+          return;
+        }
+        let wtAvatarName = state.avatar.NameText.replace(/ /g, '_');
+        downloadObjectAsJson(state.fetters, `${wtAvatarName}_Fetters.json`, 2);
       }
     }
   ]);

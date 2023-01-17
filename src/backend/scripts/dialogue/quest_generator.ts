@@ -14,12 +14,12 @@ import {
 import { RewardExcelConfigData } from '../../../shared/types/material-types';
 import {
   DialogueSectionResult,
-  SbOut,
   TalkConfigAccumulator,
   talkConfigToDialogueSectionResult,
 } from './dialogue_util';
 import { MetaProp } from '../../util/metaProp';
 import { pathToFileURL } from 'url';
+import { SbOut } from '../../../shared/util/stringUtil';
 
 export class QuestGenerateResult {
   mainQuest: MainQuestExcelConfigData = null;

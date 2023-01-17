@@ -6,6 +6,7 @@ import { MetaProp, MetaPropValue } from '../../util/metaProp';
 import { toBoolean } from '../../../shared/util/genericUtil';
 import { dialogueToQuestId } from './reverse_quest';
 import { Marker } from '../../../shared/util/highlightMarker';
+import { SbOut } from '../../../shared/util/stringUtil';
 
 export class DialogueSectionResult {
   id: string = null;
@@ -54,30 +55,6 @@ export class DialogueSectionResult {
       }
     }
     this.addMetaProp(label, values);
-  }
-}
-
-export class SbOut {
-  private out = '';
-
-  toString() {
-    return this.out;
-  }
-
-  get() {
-    return this.out;
-  }
-
-  append(str: string) {
-    this.out += str;
-  }
-
-  line(text?: string) {
-    this.out += '\n' + (text || '');
-  }
-
-  clearOut() {
-    this.out = '';
   }
 }
 

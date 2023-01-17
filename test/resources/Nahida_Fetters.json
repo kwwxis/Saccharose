@@ -1,0 +1,3031 @@
+{
+  "storyFetters": [
+    {
+      "Type": 1,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 1673397351,
+      "VoiceFile": "1006",
+      "VoiceFileTextMapHash": 3648247183,
+      "VoiceTitleLockedTextMapHash": 3429614394,
+      "FetterId": 73000,
+      "AvatarId": 10000073,
+      "OpenConds": [],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "Hello",
+      "VoiceFileText": "Nice to meet you! Hehe, I've actually been watching you for a long time already. My name's Nahida. I might look like a child, but don't be fooled: I understand this world much better than any grown-up. So... can we trade knowledge? I want to hear all about your travel stories. So, what would you like to know in return?",
+      "VoiceFilePath": "vo nahida draw appear 01.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "Hello",
+        "CHS": "初次见面…",
+        "CHT": "初次見面…",
+        "JP": "初めまして…",
+        "KR": "첫 만남…"
+      },
+      "VoiceFileTextMap": {
+        "EN": "Nice to meet you! Hehe, I've actually been watching you for a long time already. My name's Nahida. I might look like a child, but don't be fooled: I understand this world much better than any grown-up. So... can we trade knowledge? I want to hear all about your travel stories. So, what would you like to know in return?",
+        "CHS": "初次见面，我已经关注你很久了。我叫纳西妲，别看我像个孩子，我比任何一位大人都了解这个世界。所以，我可以用我的知识，换取你路上的见闻吗？",
+        "CHT": "初次見面，我已經注意{{MC|m=你|f=妳}}很久了。我叫納西妲。別看我像個孩子，我比任何一位大人都瞭解這個世界。所以，我可以用我的知識，換取{{MC|m=你|f=妳}}路上的見聞嗎？",
+        "JP": "初めまして、かしら？ふふっ、あなたのことはもうずっと見ていたわ。私はナヒーダ。子供に見えるかもしれないけど、どの大人よりもこの世界を理解しているはずよ。ねえ、私の知識とあなたの見識を交換しない？",
+        "KR": "첫 만남? 난 널 아주 오래전부터 주시해왔어. 내 이름은 나히다, 아이처럼 보이지만 그 어떤 어른보다도 이 세상을 잘 알고 있지. 그럼 내 지식으로 네 여행 이야기를 교환할 수 있을까?"
+      },
+      "OpenCondsSummary": {}
+    },
+    {
+      "Type": 1,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 593796719,
+      "VoiceFile": "1101",
+      "VoiceFileTextMapHash": 1382018959,
+      "VoiceTitleLockedTextMapHash": 1624280170,
+      "FetterId": 73001,
+      "AvatarId": 10000073,
+      "OpenConds": [],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "Chat: Invitation",
+      "VoiceFileText": "If you're not sure what to do next, how about I take you on a walk?",
+      "VoiceFilePath": "vo nahida character idle 01.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "Chat: Invitation",
+        "CHS": "闲聊·邀请",
+        "CHT": "閒聊·邀請",
+        "JP": "世間話·誘い",
+        "KR": "잡담·초대"
+      },
+      "VoiceFileTextMap": {
+        "EN": "If you're not sure what to do next, how about I take you on a walk?",
+        "CHS": "不知道干什么的话，要不要我带你去转转呀？",
+        "CHT": "不知道做什麼的話，要不要我帶{{MC|m=你|f=妳}}去走走呀？",
+        "JP": "することがないなら、私が遊びに連れていってあげましょうか？",
+        "KR": "뭘 할지 모르겠으면, 나랑 한 바퀴 둘러볼까?"
+      },
+      "OpenCondsSummary": {}
+    },
+    {
+      "Type": 1,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 2871152671,
+      "VoiceFile": "1102",
+      "VoiceFileTextMapHash": 1092810791,
+      "VoiceTitleLockedTextMapHash": 2901985442,
+      "FetterId": 73002,
+      "AvatarId": 10000073,
+      "OpenConds": [],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "Chat: Concerns",
+      "VoiceFileText": "Something on your mind again? Let's work through it together. Two heads are better than one.",
+      "VoiceFilePath": "vo nahida character idle 02.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "Chat: Concerns",
+        "CHS": "闲聊·心事",
+        "CHT": "閒聊·心事",
+        "JP": "世間話·悩み事",
+        "KR": "잡담·고민"
+      },
+      "VoiceFileTextMap": {
+        "EN": "Something on your mind again? Let's work through it together. Two heads are better than one.",
+        "CHS": "又有心事吗？我来陪你一起想吧。",
+        "CHT": "又有心事嗎？我來陪{{MC|m=你|f=妳}}一起想吧。",
+        "JP": "何か悩み事？一緒に考えてあげるわ。",
+        "KR": "또 고민거리가 생긴 거야? 내가 같이 고민해 줄게"
+      },
+      "OpenCondsSummary": {}
+    },
+    {
+      "Type": 1,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 4001481095,
+      "VoiceFile": "1103",
+      "VoiceFileTextMapHash": 1000517039,
+      "VoiceTitleLockedTextMapHash": 1650872170,
+      "FetterId": 73003,
+      "AvatarId": 10000073,
+      "OpenConds": [],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "Chat: Feelings",
+      "VoiceFileText": "What they say is true: You have to see the world for yourself to appreciate how beautiful it is.",
+      "VoiceFilePath": "vo nahida character idle 03.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "Chat: Feelings",
+        "CHS": "闲聊·感受",
+        "CHT": "閒聊·感受",
+        "JP": "世間話·体感",
+        "KR": "잡담·느낌"
+      },
+      "VoiceFileTextMap": {
+        "EN": "What they say is true: You have to see the world for yourself to appreciate how beautiful it is.",
+        "CHS": "果然要亲眼去看，才能感受到世界的美。",
+        "CHT": "果然要親眼去看，才能感受到世界的美。",
+        "JP": "やっぱり自分の目で見てこそ、世界の美しさを感じられる。",
+        "KR": "역시 직접 봐야만 세상의 아름다움을 느낄 수 있어"
+      },
+      "OpenCondsSummary": {}
+    },
+    {
+      "Type": 1,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 2700688375,
+      "VoiceFile": "1201",
+      "VoiceFileTextMapHash": 2683603183,
+      "VoiceTitleLockedTextMapHash": 2548981306,
+      "FetterId": 73004,
+      "AvatarId": 10000073,
+      "OpenConds": [],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "When It Rains",
+      "VoiceFileText": "Quick, let's find shelter, or mushrooms will start growing on our heads.",
+      "VoiceFilePath": "vo nahida weather heavyrain 01.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "When It Rains",
+        "CHS": "下雨的时候…",
+        "CHT": "下雨的時候…",
+        "JP": "雨の日…",
+        "KR": "비가 올 때…"
+      },
+      "VoiceFileTextMap": {
+        "EN": "Quick, let's find shelter, or mushrooms will start growing on our heads.",
+        "CHS": "快去避雨吧，小心头顶上长出蘑菇哦。",
+        "CHT": "快去避雨吧，小心頭頂上長出蘑菇喔。",
+        "JP": "早く雨宿りしましょう。じゃないと、頭にキノコが生えるわよ。",
+        "KR": "어서 비를 피하지 않으면 머리에 버섯이 자랄 거야"
+      },
+      "OpenCondsSummary": {}
+    },
+    {
+      "Type": 1,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 2421992055,
+      "VoiceFile": "1202",
+      "VoiceFileTextMapHash": 3297938759,
+      "VoiceTitleLockedTextMapHash": 4180446690,
+      "FetterId": 73005,
+      "AvatarId": 10000073,
+      "OpenConds": [],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "When Thunder Strikes",
+      "VoiceFileText": "Did you know that the sound of thunder is the prelude to new life? *sigh* Soon, this land will be brimming with vitality.",
+      "VoiceFilePath": "vo nahida weather thunder 01.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "When Thunder Strikes",
+        "CHS": "打雷的时候…",
+        "CHT": "打雷的時候…",
+        "JP": "雷の日…",
+        "KR": "번개가 칠 때…"
+      },
+      "VoiceFileTextMap": {
+        "EN": "Did you know that the sound of thunder is the prelude to new life? *sigh* Soon, this land will be brimming with vitality.",
+        "CHS": "你知道吗？雷鸣是生命的前奏，很快这片大地就会充满生机。",
+        "CHT": "{{MC|m=你|f=妳}}知道嗎？雷鳴是生命的前奏，很快這片大地就會充滿生機。",
+        "JP": "知ってる？雷鳴はね、生命の前奏なの。この大地も、きっとすぐ活気に満ち溢れるわ。",
+        "KR": "그거 알아? 뇌명은 생명의 서곡이야. 이 대지에 생기를 불어넣어 주거든"
+      },
+      "OpenCondsSummary": {}
+    },
+    {
+      "Type": 1,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 3382911055,
+      "VoiceFile": "1203",
+      "VoiceFileTextMapHash": 399503607,
+      "VoiceTitleLockedTextMapHash": 4279775082,
+      "FetterId": 73006,
+      "AvatarId": 10000073,
+      "OpenConds": [],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "When It Snows",
+      "VoiceFileText": "Can you hear that? The heavens are whispering to all living things, \"It's time for bed now.\"",
+      "VoiceFilePath": "vo nahida weather snowy 01.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "When It Snows",
+        "CHS": "下雪的时候…",
+        "CHT": "下雪的時候…",
+        "JP": "雪の日…",
+        "KR": "눈이 올 때…"
+      },
+      "VoiceFileTextMap": {
+        "EN": "Can you hear that? The heavens are whispering to all living things, \"It's time for bed now.\"",
+        "CHS": "听见了吗？天空正对万物轻语：「睡觉时间到了哦。」",
+        "CHT": "聽見了嗎？天空正對萬物輕語：「睡覺時間到了喔。」",
+        "JP": "聞こえた？空が万物に「お休みの時間」だって言っているわ。",
+        "KR": "들리니? 하늘이 만물에게 「이제 잠들 시간」이라고 속삭이고 있어"
+      },
+      "OpenCondsSummary": {}
+    },
+    {
+      "Type": 1,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 3360153199,
+      "VoiceFile": "1204",
+      "VoiceFileTextMapHash": 900619839,
+      "VoiceTitleLockedTextMapHash": 3263806346,
+      "FetterId": 73007,
+      "AvatarId": 10000073,
+      "OpenConds": [],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "When the Sun Is Out",
+      "VoiceFileText": "Ah, the weather is lovely and warm. Things are about to start getting lively again.",
+      "VoiceFilePath": "vo nahida weather sunny 01.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "When the Sun Is Out",
+        "CHS": "阳光很好…",
+        "CHT": "陽光很好…",
+        "JP": "晴れの日…",
+        "KR": "햇살이 좋을 때…"
+      },
+      "VoiceFileTextMap": {
+        "EN": "Ah, the weather is lovely and warm. Things are about to start getting lively again.",
+        "CHS": "天气真好啊，暖洋洋的，我们的身边马上也要热闹起来了。",
+        "CHT": "天氣真好啊，暖洋洋的，我們的身邊馬上也要熱鬧起來了。",
+        "JP": "いい天気ね、暖かいわ。じきに辺りも賑やかになるわね。",
+        "KR": "날씨가 참 포근하네. 우리 주변도 곧 시끌벅적해지겠어"
+      },
+      "OpenCondsSummary": {}
+    },
+    {
+      "Type": 1,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 1547759559,
+      "VoiceFile": "1205",
+      "VoiceFileTextMapHash": 63438487,
+      "VoiceTitleLockedTextMapHash": 3417196394,
+      "FetterId": 73008,
+      "AvatarId": 10000073,
+      "OpenConds": [],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "When It's Windy",
+      "VoiceFileText": "The wind never blows in the Sanctuary of Surasthana... Oh, sorry. That's probably obvious to you.",
+      "VoiceFilePath": "vo nahida weather breezy 01.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "When It's Windy",
+        "CHS": "起风的时候…",
+        "CHT": "起風的時候…",
+        "JP": "風の日…",
+        "KR": "바람이 불 때…"
+      },
+      "VoiceFileTextMap": {
+        "EN": "The wind never blows in the Sanctuary of Surasthana... Oh, sorry. That's probably obvious to you.",
+        "CHS": "宫殿里可不会起风呢…哦，抱歉，对你来说是理所当然的知识吧。",
+        "CHT": "宮殿裡是不會起風的…哦，抱歉，對{{MC|m=你|f=妳}}來說是理所當然的知識吧。",
+        "JP": "宮殿に風は吹かない…あらっ、ごめんなさい。あなたにとっては当たり前の知識だったわね。",
+        "KR": "궁전 안에는 바람이 불지 않아… 아, 미안, 너에게는 너무 당연한 지식이겠구나"
+      },
+      "OpenCondsSummary": {}
+    },
+    {
+      "Type": 1,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 1685438847,
+      "VoiceFile": "1001",
+      "VoiceFileTextMapHash": 3446603023,
+      "VoiceTitleLockedTextMapHash": 1314674042,
+      "FetterId": 73009,
+      "AvatarId": 10000073,
+      "OpenConds": [],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "Good Morning",
+      "VoiceFileText": "Good morning. We should get going right away. There are too many things in this world that you'll miss if you don't get there on time.",
+      "VoiceFilePath": "vo nahida dialog greetingmorning.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "Good Morning",
+        "CHS": "早上好…",
+        "CHT": "早安…",
+        "JP": "おはよう…",
+        "KR": "아침 인사…"
+      },
+      "VoiceFileTextMap": {
+        "EN": "Good morning. We should get going right away. There are too many things in this world that you'll miss if you don't get there on time.",
+        "CHS": "早上好，我们赶快出发吧，这世上有太多的东西都是「过时不候」的呢。",
+        "CHT": "早安，我們趕快出發吧，這世上有太多的東西都是「逾時不候」的呢。",
+        "JP": "おはよう、はやく出発しましょう。この世界にあるほとんどのものは、「待ってはくれない」わ。",
+        "KR": "좋은 아침이야, 어서 출발하자. 이 세상에는 「때가 지나면 기다리지 않는 것」들이 너무 많거든"
+      },
+      "OpenCondsSummary": {}
+    },
+    {
+      "Type": 1,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 844601047,
+      "VoiceFile": "1002",
+      "VoiceFileTextMapHash": 3952577703,
+      "VoiceTitleLockedTextMapHash": 2352754610,
+      "FetterId": 73010,
+      "AvatarId": 10000073,
+      "OpenConds": [],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "Good Afternoon",
+      "VoiceFileText": "Ah, time for a break. I'd really like a Berry & Mint Burst... If you get one for me, I'll tell you a couple of stories about the sun. Okay?",
+      "VoiceFilePath": "vo nahida dialog greetingnoon.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "Good Afternoon",
+        "CHS": "中午好…",
+        "CHT": "午安…",
+        "JP": "こんにちは…",
+        "KR": "점심 인사…"
+      },
+      "VoiceFileTextMap": {
+        "EN": "Ah, time for a break. I'd really like a Berry & Mint Burst... If you get one for me, I'll tell you a couple of stories about the sun. Okay?",
+        "CHS": "午休时间到，我想喝树莓薄荷饮。用两个和太阳有关的故事和你换，好不好？",
+        "CHT": "午休時間到，我想喝樹莓薄荷飲。用兩個和太陽有關的故事跟{{MC|m=你|f=妳}}換，好不好？",
+        "JP": "お昼休憩の時間ね。ミントベリージュースが飲みたいわ。太陽に関する物語二つと交換してくれないかしら？",
+        "KR": "점심시간이네, 라즈베리 허브 주스를 마시고 싶은데, 태양에 관한 이야기 두 개로 교환할 수 있을까?"
+      },
+      "OpenCondsSummary": {}
+    },
+    {
+      "Type": 1,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [
+        459285490
+      ],
+      "VoiceTitleTextMapHash": 1179931279,
+      "VoiceFile": "1003",
+      "VoiceFileTextMapHash": 1016117487,
+      "VoiceTitleLockedTextMapHash": 2197249362,
+      "FetterId": 73011,
+      "AvatarId": 10000073,
+      "OpenConds": [
+        {
+          "CondType": "FETTER_COND_FETTER_LEVEL",
+          "ParamList": [
+            4
+          ]
+        }
+      ],
+      "FinishConds": [],
+      "MappedTips": [
+        "Unlocks at Friendship Lv. 4"
+      ],
+      "VoiceTitleText": "Good Evening",
+      "VoiceFileText": "The sun's setting. It's time to wave goodbye and let the creatures of the night take center stage.",
+      "VoiceFilePath": "vo nahida dialog greetingnight.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "Good Evening",
+        "CHS": "晚上好…",
+        "CHT": "晚上好…",
+        "JP": "こんばんは…",
+        "KR": "저녁 인사…"
+      },
+      "VoiceFileTextMap": {
+        "EN": "The sun's setting. It's time to wave goodbye and let the creatures of the night take center stage.",
+        "CHS": "太阳落山啦，我们也该把舞台让给夜行的大家族了。",
+        "CHT": "太陽下山啦，我們也該把舞臺讓給夜行的大家族了。",
+        "JP": "日も暮れたし、そろそろ夜行性の大家族に舞台を譲ってあげないとね。",
+        "KR": "태양이 저물었으니 야행하는 친구들한테 무대를 양보해주자"
+      },
+      "OpenCondsSummary": {
+        "Friendship": 4
+      }
+    },
+    {
+      "Type": 1,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 1217296623,
+      "VoiceFile": "1004",
+      "VoiceFileTextMapHash": 1267977295,
+      "VoiceTitleLockedTextMapHash": 3626184178,
+      "FetterId": 73012,
+      "AvatarId": 10000073,
+      "OpenConds": [],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "Good Night",
+      "VoiceFileText": "You should go to sleep now. Don't worry, I've made sure there's a sweet dream waiting for you.",
+      "VoiceFilePath": "vo nahida dialog greetingnight2.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "Good Night",
+        "CHS": "晚安…",
+        "CHT": "晚安…",
+        "JP": "おやすみ…",
+        "KR": "굿나잇…"
+      },
+      "VoiceFileTextMap": {
+        "EN": "You should go to sleep now. Don't worry, I've made sure there's a sweet dream waiting for you.",
+        "CHS": "快去睡吧，放心，我已经为你准备好甜甜的梦啦。",
+        "CHT": "快去睡吧，放心，我已經為{{MC|m=你|f=妳}}準備好甜甜的夢啦。",
+        "JP": "はやく寝なさい。安心して、甘い夢をあなたに用意したから。",
+        "KR": "달콤한 꿈을 준비해뒀으니까 걱정하지 말고 푹 자"
+      },
+      "OpenCondsSummary": {}
+    },
+    {
+      "Type": 1,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 4083322311,
+      "VoiceFile": "2001",
+      "VoiceFileTextMapHash": 2561214439,
+      "VoiceTitleLockedTextMapHash": 591356202,
+      "FetterId": 73013,
+      "AvatarId": 10000073,
+      "OpenConds": [],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "About Nahida: Knowledge",
+      "VoiceFileText": "Oh, the Mare Jivari? A place without anything at all, completely empty &mdash; just like a Shroomboar's brain. Of course I know it. ...Hmm? I, uh... It's true, I've never seen it with my own eyes. It's one of the many places beyond my reach.",
+      "VoiceFilePath": "vo nahida dialog idle.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "About Nahida: Knowledge",
+        "CHS": "关于纳西妲自己·见识",
+        "CHT": "關於納西妲自己·見識",
+        "JP": "ナヒーダ自身について·見識",
+        "KR": "나히다 자신에 대해·견문"
+      },
+      "VoiceFileTextMap": {
+        "EN": "Oh, the Mare Jivari? A place without anything at all, completely empty &mdash; just like a Shroomboar's brain. Of course I know it. ...Hmm? I, uh... It's true, I've never seen it with my own eyes. It's one of the many places beyond my reach.",
+        "CHS": "烬寂海啊，那里什么都没有，就像蕈猪的脑子一样空空如也，我当然知道。啊？我…我确实没有亲眼见过，那也是我所触及不到的地方呀。",
+        "CHT": "燼寂海啊，那裡什麼都沒有，就像蕈豬的腦子一樣空空如也，我當然知道。啊？我…我確實沒有親眼見過，那也是我所觸及不到的地方呀。",
+        "JP": "烬寂海？あそこには何もないわ。キノシシの脳みそみたいに空っぽ。もちろん知っているわよ。えっ？た…確かに直接見たことがあるわけじゃない…だってあそこも、私には手の届かない場所だもの。",
+        "KR": "잿더미 바다라. 당연히 알지, 거기엔 아무것도 없어. 텅텅 빈 버섯 돼지 머릿속처럼 말이야. 응? 내… 내가 직접 가본 적은 없어. 거기는 내가 닿을 수 없는 곳이니까"
+      },
+      "OpenCondsSummary": {}
+    },
+    {
+      "Type": 1,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [
+        1285727322
+      ],
+      "VoiceTitleTextMapHash": 404128111,
+      "VoiceFile": "2005",
+      "VoiceFileTextMapHash": 980562095,
+      "VoiceTitleLockedTextMapHash": 4193150650,
+      "FetterId": 73014,
+      "AvatarId": 10000073,
+      "OpenConds": [
+        {
+          "CondType": "FETTER_COND_FETTER_LEVEL",
+          "ParamList": [
+            4
+          ]
+        }
+      ],
+      "FinishConds": [],
+      "MappedTips": [
+        "Unlocks at Friendship Lv. 4"
+      ],
+      "VoiceTitleText": "About Nahida: Obsession",
+      "VoiceFileText": "The gods gave humans barely enough knowledge for them to fill their stomachs. Yet, they used it to craft tools, write books, and build cities, and now they've set their sights on the stars and the abyss... With every moment that goes by, they're creating brand-new knowledge, so I never want to take my eyes off them.",
+      "VoiceFilePath": "vo nahida dialog idle2.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "About Nahida: Obsession",
+        "CHS": "关于纳西妲自己·痴迷",
+        "CHT": "關於納西妲自己·癡迷",
+        "JP": "ナヒーダ自身について·知識欲",
+        "KR": "나히다 자신에 대해·몰입"
+      },
+      "VoiceFileTextMap": {
+        "EN": "The gods gave humans barely enough knowledge for them to fill their stomachs. Yet, they used it to craft tools, write books, and build cities, and now they've set their sights on the stars and the abyss... With every moment that goes by, they're creating brand-new knowledge, so I never want to take my eyes off them.",
+        "CHS": "神明只送给人类填饱肚子的知识，人类却借此制作了工具，书写了文字，壮大了城邦，现在又放眼星辰与深渊…他们每时每刻都在创造全新的「知识」，也令我再也无法移开双眼。",
+        "CHT": "神明只送給人類填飽肚子的知識，人類卻藉此製作了工具、書寫了文字、壯大了城邦，現在又放眼星辰與深淵…他們每時每刻都在創造全新的「知識」，也令我再也無法移開雙眼。",
+        "JP": "神は人間に腹を満たせるだけの知識しか与えなかったのに、人間はそれを使って道具を作り、文字を書き、都市を育んだ。そして今や、星々と深淵にまで目を向けている…彼らは常にまったく新しい「知識」を生み出すから、本当に目が離せないわ。",
+        "KR": "신은 인간에게 배를 채우는 지식만을 알려주었지만, 인간은 그걸 토대로 도구를 제작하고 문자를 만들어서 도시와 국가를 발전시켰어. 오늘날에는 별과 심연까지 바라보고 있지….인간은 매 순간 새로운 「지식」을 만들어내고 있어서 도저히 눈을 뗄 수가 없는걸"
+      },
+      "OpenCondsSummary": {
+        "Friendship": 4
+      }
+    },
+    {
+      "Type": 1,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 3317195495,
+      "VoiceFile": "2003",
+      "VoiceFileTextMapHash": 1778341071,
+      "VoiceTitleLockedTextMapHash": 1850935954,
+      "FetterId": 73015,
+      "AvatarId": 10000073,
+      "OpenConds": [],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "About Us: Story Time",
+      "VoiceFileText": "The things you've experienced on your journey are so much more exciting than anything I've ever learned. And now, I get to ask you about all of it any time I want, so I can understand each and every little detail... I couldn't ask for more. Alright, let's not waste any more time. Now where were we...?",
+      "VoiceFilePath": "vo nahida dialog close.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "About Us: Story Time",
+        "CHS": "关于我们·故事会",
+        "CHT": "關於我們·故事集錦",
+        "JP": "物語について…",
+        "KR": "우리에 대해·이야기 마당"
+      },
+      "VoiceFileTextMap": {
+        "EN": "The things you've experienced on your journey are so much more exciting than anything I've ever learned. And now, I get to ask you about all of it any time I want, so I can understand each and every little detail... I couldn't ask for more. Alright, let's not waste any more time. Now where were we...?",
+        "CHS": "你旅途中的见闻，比我学习到的知识要精彩太多，而且我还能随时提问，把所有的细节都了解到一清二楚…真是太满足了。好了好了，别浪费时间，我们快继续吧。",
+        "CHT": "{{MC|m=你|f=妳}}旅途中的見聞，比我學習到的知識要精彩太多，而且我還能隨時提問，把所有的細節都瞭解到一清二楚…真是太滿足了。好了好了，別浪費時間，我們快繼續吧。",
+        "JP": "あなたが旅先で見てきたものは、私が学んだ知識よりもずっと素晴らしいものよ。しかも、いつでもそれについて質問ができて、その詳細を知られるなんて…本当に満足だわ。そうね、時間を無駄にしてはいけないわ。さ、話の続きを。",
+        "KR": "네가 여행하면서 보고 들은 이야기가 내가 배운 지식보다 훨씬 더 흥미로워. 게다가 질문을 통해 사소한 것까지 다 알아낼 수 있어서… 정말 만족스러워. 자, 시간 낭비하지 말고 계속 가자"
+      },
+      "OpenCondsSummary": {}
+    },
+    {
+      "Type": 1,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [
+        3251204394,
+        1513689232
+      ],
+      "VoiceTitleTextMapHash": 3490682719,
+      "VoiceFile": "2002",
+      "VoiceFileTextMapHash": 2450090463,
+      "VoiceTitleLockedTextMapHash": 3989243522,
+      "FetterId": 73016,
+      "AvatarId": 10000073,
+      "OpenConds": [
+        {
+          "CondType": "FETTER_COND_FETTER_LEVEL",
+          "ParamList": [
+            6
+          ]
+        },
+        {
+          "CondType": "FETTER_COND_FINISH_PARENT_QUEST",
+          "ParamList": [
+            3026
+          ]
+        }
+      ],
+      "FinishConds": [],
+      "MappedTips": [
+        "Unlocks at Friendship Lv. 6",
+        "Complete \"Akasha Pulses, the Kalpa Flame Rises\""
+      ],
+      "VoiceTitleText": "About Us: Journey",
+      "VoiceFileText": "Being a listener has never been enough for me. I've always dreamed of going out and seeing things for myself. You're such an experienced adventurer... Can you be my guide? I want to experience all your future tales first-hand.",
+      "VoiceFilePath": "vo nahida dialog close1.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "About Us: Journey",
+        "CHS": "关于我们·旅行",
+        "CHT": "關於我們·旅行",
+        "JP": "旅について…",
+        "KR": "우리에 대해·여행"
+      },
+      "VoiceFileTextMap": {
+        "EN": "Being a listener has never been enough for me. I've always dreamed of going out and seeing things for myself. You're such an experienced adventurer... Can you be my guide? I want to experience all your future tales first-hand.",
+        "CHS": "我早就不满足于当一个听众了，一直都想出去看看。你冒险经验这么丰富，当我的向导好不好啊？你之后所有的故事，我都想亲身感受。",
+        "CHT": "我早就不滿足於當一位聽眾了，一直都想出去看看。{{MC|m=你|f=妳}}冒險經驗這麼豐富，當我的嚮導好不好啊？{{MC|m=你|f=妳}}之後所有的故事，我都想親身感受。",
+        "JP": "もう聞くだけじゃ満足できない。ずっと自分の足で行ってみたかったの。あなたは冒険の経験も豊富だし、私のガイドになってくれないかしら？あなたのこれからの物語…そのすべてを、私も感じていたいの。",
+        "KR": "난 오래전부터 청중으로 있기보단 항상 밖으로 나가고 싶었어. 넌 모험 경험이 풍부하니 내 가이드가 되어줄 수 있을까? 네가 겪을 모든 이야기를 직접 느껴보고 싶어"
+      },
+      "OpenCondsSummary": {
+        "Friendship": 6,
+        "Quest": "Akasha Pulses, the Kalpa Flame Rises"
+      }
+    },
+    {
+      "Type": 1,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [
+        1771586722
+      ],
+      "VoiceTitleTextMapHash": 2521664423,
+      "VoiceFile": "3001",
+      "VoiceFileTextMapHash": 967338279,
+      "VoiceTitleLockedTextMapHash": 1427544234,
+      "FetterId": 73017,
+      "AvatarId": 10000073,
+      "OpenConds": [
+        {
+          "CondType": "FETTER_COND_FETTER_LEVEL",
+          "ParamList": [
+            4
+          ]
+        }
+      ],
+      "FinishConds": [],
+      "MappedTips": [
+        "Unlocks at Friendship Lv. 4"
+      ],
+      "VoiceTitleText": "About the Vision",
+      "VoiceFileText": "The heavens grew eyes to behold the true beauty of the world below, but humans already have eyes to begin with. So, what is it they see when they look at the world not with their eyes, but their vision? You're very smart. Can you figure out what the answer is?",
+      "VoiceFilePath": "vo nahida dialog pendant.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "About the Vision",
+        "CHS": "关于「神之眼」…",
+        "CHT": "關於「神之眼」…",
+        "JP": "「神の目」について…",
+        "KR": "「신의 눈」에 대해…"
+      },
+      "VoiceFileTextMap": {
+        "EN": "The heavens grew eyes to behold the true beauty of the world below, but humans already have eyes to begin with. So, what is it they see when they look at the world not with their eyes, but their vision? You're very smart. Can you figure out what the answer is?",
+        "CHS": "天空长出眼睛是为了见证大地的美好，而本来就拥有双眼的人类，是在什么样的情况下，才需要靠「神之眼」观察这个世界呢？这个问题的答案，聪明的你能够明白吗？",
+        "CHT": "天空長出眼睛是為了見證大地的美好，而本來就擁有雙眼的人類，是在什麼模樣的情況下，才需要靠「神之眼」觀察這個世界呢？這個問題的答案，聰明的{{MC|m=你|f=妳}}能夠明白嗎？",
+        "JP": "空に目が出来たのは、大地の美しさを見届けるため。なら、元から目を二つ持っている人間は、一体どんな状況で「神の目」を通して世界を見る必要があるのかしら？この質問の答え、頭の良いあなたならたどり着けるわよね？",
+        "KR": "하늘의 눈은 대지의 아름다움을 지켜보기 위해 생겼지. 그런데 이미 눈을 가진 인간들은 어째서 「신의 눈」으로 세상을 관찰하려 할까? 이 문제의 답은, 똑똑한 너라면 알 수 있겠지?"
+      },
+      "OpenCondsSummary": {
+        "Friendship": 4
+      }
+    },
+    {
+      "Type": 1,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 2494832199,
+      "VoiceFile": "3002",
+      "VoiceFileTextMapHash": 1451295895,
+      "VoiceTitleLockedTextMapHash": 3924767642,
+      "FetterId": 73018,
+      "AvatarId": 10000073,
+      "OpenConds": [],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "Something to Share",
+      "VoiceFileText": "Very often, only once we get hurt badly are we finally forced to face our own laziness, ignorance, recklessness, or arrogance. There's nothing to regret, though. We have no way of seeing all the possibilities that lie ahead in the future, so we have to rely on clumsy trial-and-error to gain knowledge. Just think of pain as the tuition you have to pay.",
+      "VoiceFilePath": "vo nahida dialog share 01.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "Something to Share",
+        "CHS": "有什么想要分享…",
+        "CHT": "有什麼想要分享…",
+        "JP": "シェアしたいこと…",
+        "KR": "하고 싶은 이야기…"
+      },
+      "VoiceFileTextMap": {
+        "EN": "Very often, only once we get hurt badly are we finally forced to face our own laziness, ignorance, recklessness, or arrogance. There's nothing to regret, though. We have no way of seeing all the possibilities that lie ahead in the future, so we have to rely on clumsy trial-and-error to gain knowledge. Just think of pain as the tuition you have to pay.",
+        "CHS": "很多时候，我们直到经受切肤之痛，才不得不直视自身的懒惰，愚昧，鲁莽或傲慢。但大可不必为此懊悔，我们无法观测未来的所有可能性，只能靠这样略显笨拙的方式获取知识。学费而已，再正常不过啦。",
+        "CHT": "很多時候，我們直到經受切膚之痛，才不得不直視自身的懶惰、愚昧、魯莽或傲慢。但大可不必為此懊悔。我們無法觀測未來的所有可能性，只能靠這樣略顯笨拙的方式獲得知識。學費而已，再正常不過啦。",
+        "JP": "多くの場合、身を切られるような痛みを味わって、初めて自身の怠惰や愚昧さ、無謀さ、傲慢さを直視できるようになる。でも、それを後悔する必要なんてまったくないわ。未来に起こりうるすべての可能性をすべて見通すことなんて、私たちにはできない。だから、こんな不器用な方法でしか知識を得られないの。いわば授業料と同じね、至って普通のことよ。",
+        "KR": "때로는 직접 뼈에 사무치는 고통을 받기 전까지 자신의 게으름과 우매함 그리고 무모함과 오만함을 마주할 수 없어. 하지만 후회할 필요는 없지. 우리는 모든 가능성을 다 예측할 수 없기 때문에 이렇게 무모하고 어리석어 보이는 방식으로 지식을 얻는 거야. 수업료를 냈다고 생각하면 이상할 것 없잖아"
+      },
+      "OpenCondsSummary": {}
+    },
+    {
+      "Type": 1,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 3762908575,
+      "VoiceFile": "3003",
+      "VoiceFileTextMapHash": 1761699343,
+      "VoiceTitleLockedTextMapHash": 546008378,
+      "FetterId": 73019,
+      "AvatarId": 10000073,
+      "OpenConds": [],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "Interesting Things: A Flower Yet to Blossom",
+      "VoiceFileText": "Sumeru's desert looks more desolate than the rainforest, but it's also home to an ancient civilization, and supports its own stable ecosystem. One day, when it finally stops arguing with the rainforest, I'm sure that flowers will blossom there, the likes of which I've never seen before.",
+      "VoiceFilePath": "vo nahida pref gift 01.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "Interesting Things: A Flower Yet to Blossom",
+        "CHS": "感兴趣的见闻·未见之花",
+        "CHT": "感興趣的見聞·未見之花",
+        "JP": "興味のあること·見たこともない花",
+        "KR": "흥미있는 일·처음 보는 꽃"
+      },
+      "VoiceFileTextMap": {
+        "EN": "Sumeru's desert looks more desolate than the rainforest, but it's also home to an ancient civilization, and supports its own stable ecosystem. One day, when it finally stops arguing with the rainforest, I'm sure that flowers will blossom there, the likes of which I've never seen before.",
+        "CHS": "须弥的沙漠看上去比雨林缺乏生机，但它也承载了久远的文明，孕育了稳定的生态。等哪天它不再和雨林吵架了，一定能开出我从来没见过的花吧。",
+        "CHT": "須彌的沙漠看起來比雨林缺乏生機，但它也承載了久遠的文明，孕育了穩定的生態。等哪天它不再和雨林吵架了，一定能開出我從來沒見過的花吧。",
+        "JP": "スメールの砂漠は雨林より活気に欠けるように見えるでしょうけど、あそこは古くからの文明を背負い、安定した生態系を育んできたの。いつか雨林とのいざこざが終わったら、きっと見たこともないような花を咲かせてくれるはずよ。",
+        "KR": "수메르의 사막은 우림보다 생기가 없어 보이지만 사막도 나름의 오래된 문명과 안정적인 생태 환경을 낳았어. 사막이 우림과 더 이상 싸우지 않는 날이 온다면 분명 내가 처음 보는 꽃이 피어나겠지?"
+      },
+      "OpenCondsSummary": {}
+    },
+    {
+      "Type": 1,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [
+        2339765490
+      ],
+      "VoiceTitleTextMapHash": 4244438847,
+      "VoiceFile": "4001",
+      "VoiceFileTextMapHash": 2033049175,
+      "VoiceTitleLockedTextMapHash": 3927935786,
+      "FetterId": 73020,
+      "AvatarId": 10000073,
+      "OpenConds": [
+        {
+          "CondType": "FETTER_COND_FETTER_LEVEL",
+          "ParamList": [
+            4
+          ]
+        }
+      ],
+      "FinishConds": [],
+      "MappedTips": [
+        "Unlocks at Friendship Lv. 4"
+      ],
+      "VoiceTitleText": "About Cyno: Jokes",
+      "VoiceFileText": "His jokes are like buried treasure: gems hidden beneath the surface. They're a lot of fun. Hmm? Well, which part didn't you get? Okay, I can explain it for you.",
+      "VoiceFilePath": "vo nahida teammate cyno 01.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "About Cyno: Jokes",
+        "CHS": "关于赛诺·笑话",
+        "CHT": "關於賽諾·笑話",
+        "JP": "セノについて·ジョーク",
+        "KR": "사이노에 대해·농담"
+      },
+      "VoiceFileTextMap": {
+        "EN": "His jokes are like buried treasure: gems hidden beneath the surface. They're a lot of fun. Hmm? Well, which part didn't you get? Okay, I can explain it for you.",
+        "CHS": "他讲的笑话确实深奥，还挺有意思的。嗯？你有哪句没听懂吗？那我解释给你听吧。",
+        "CHT": "他講的笑話確實深奧，還滿有趣的。嗯？{{MC|m=你|f=妳}}有哪句沒聽懂嗎？那我來解釋給{{MC|m=你|f=妳}}聽吧。",
+        "JP": "彼の話すジョークは奥が深くて、なかなか面白いわ。え？意味の分からなかったものがある？なら、私が解説してあげるわ。",
+        "KR": "사이노의 농담은 심오하면서도 재밌어. 응? 못 알아들었다고? 그럼 내가 설명해 줄게"
+      },
+      "OpenCondsSummary": {
+        "Friendship": 4
+      }
+    },
+    {
+      "Type": 1,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [
+        3155571762,
+        1939879192
+      ],
+      "VoiceTitleTextMapHash": 940649207,
+      "VoiceFile": "4002",
+      "VoiceFileTextMapHash": 633750183,
+      "VoiceTitleLockedTextMapHash": 670043498,
+      "FetterId": 73021,
+      "AvatarId": 10000073,
+      "OpenConds": [
+        {
+          "CondType": "FETTER_COND_FETTER_LEVEL",
+          "ParamList": [
+            4
+          ]
+        },
+        {
+          "CondType": "FETTER_COND_FINISH_PARENT_QUEST",
+          "ParamList": [
+            3026
+          ]
+        }
+      ],
+      "FinishConds": [],
+      "MappedTips": [
+        "Unlocks at Friendship Lv. 4",
+        "Complete \"Akasha Pulses, the Kalpa Flame Rises\""
+      ],
+      "VoiceTitleText": "About Cyno: Duty",
+      "VoiceFileText": "Not every General Mahamatra would take such a clear-cut and decisive stance when faced with a conflict between order and justice. He must know only too well that compromise is a path that leads to a dead end, so it's extremely fortunate for all of Sumeru that he's now been able to return to his rightful post.",
+      "VoiceFilePath": "vo nahida teammate cyno 02.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "About Cyno: Duty",
+        "CHS": "关于赛诺·职责",
+        "CHT": "關於賽諾·職責",
+        "JP": "セノについて·責務",
+        "KR": "사이노에 대해·직책"
+      },
+      "VoiceFileTextMap": {
+        "EN": "Not every General Mahamatra would take such a clear-cut and decisive stance when faced with a conflict between order and justice. He must know only too well that compromise is a path that leads to a dead end, so it's extremely fortunate for all of Sumeru that he's now been able to return to his rightful post.",
+        "CHS": "在面对秩序与正义的冲突之时，不是每一位「大风纪官」都能得出绝对坚定的答案。他应该最清楚，妥协的结果只有无路可退，所以他现在能回到属于他的位置上，对整个须弥而言都是一大幸事。",
+        "CHT": "在面對秩序與正義的衝突之時，不是每一位「大風紀官」都能得出絕對堅定的答案。他應該最清楚，妥協的結果只有無路可退，所以他現在能回到屬於他的位置上，對整個須彌而言都是一大幸事。",
+        "JP": "秩序と正義の衝突に直面した時、絶対に揺るがない答えをいつも「大マハマトラ」が出せるとは限らない&mdash;&mdash;妥協すれば後戻りできなくなることは、彼自身が一番よく知っているはずよ。だからこそ、彼がいま本来の居場所に戻れたことは、スメール全体にとっても幸運なことなの。",
+        "KR": "질서와 정의가 충돌할 때 모든 「대풍기관」이 확고한 해답을 내릴 수 있는 건 아니야. 사이노는 타협은 곧 궁지로 직결된다는 것을 가장 잘 알고 있어서, 자신이 있어야 할 위치로 돌아올 수 있었지. 수메르에게는 잘된 일이야"
+      },
+      "OpenCondsSummary": {
+        "Friendship": 4,
+        "Quest": "Akasha Pulses, the Kalpa Flame Rises"
+      }
+    },
+    {
+      "Type": 1,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [
+        1579395450
+      ],
+      "VoiceTitleTextMapHash": 3864308991,
+      "VoiceFile": "4003",
+      "VoiceFileTextMapHash": 986244631,
+      "VoiceTitleLockedTextMapHash": 2417501986,
+      "FetterId": 73022,
+      "AvatarId": 10000073,
+      "OpenConds": [
+        {
+          "CondType": "FETTER_COND_FETTER_LEVEL",
+          "ParamList": [
+            4
+          ]
+        }
+      ],
+      "FinishConds": [],
+      "MappedTips": [
+        "Unlocks at Friendship Lv. 4"
+      ],
+      "VoiceTitleText": "About Tighnari",
+      "VoiceFileText": "The Forest Watchers played an essential role in helping the rainforest to withstand the Withering and continue to flourish, and Tighnari is the best of them all. Still... I do hope he learns to be a little gentler with people. Otherwise, it's gonna be difficult for the Forest Rangers to attract new top talent.",
+      "VoiceFilePath": "vo nahida teammate tighnari 01.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "About Tighnari",
+        "CHS": "关于提纳里…",
+        "CHT": "關於提納里…",
+        "JP": "ティナリについて…",
+        "KR": "타이나리에 대해…"
+      },
+      "VoiceFileTextMap": {
+        "EN": "The Forest Watchers played an essential role in helping the rainforest to withstand the Withering and continue to flourish, and Tighnari is the best of them all. Still... I do hope he learns to be a little gentler with people. Otherwise, it's gonna be difficult for the Forest Rangers to attract new top talent.",
+        "CHS": "雨林能够对抗「死域」的侵蚀，至今都生机焕发，巡林官们的付出举足轻重，而提纳里又是他们之中的佼佼者。只是…希望他可以稍稍温柔一些，这样才更有利于巡林员招新纳贤嘛。",
+        "CHT": "雨林能夠對抗「死域」的侵蝕，至今都生機煥發。巡林官們的付出舉足輕重，而提納里又是他們之中的佼佼者。只是…希望他可以稍稍溫柔一些，這樣才更有利於巡林員招賢納士嘛。",
+        "JP": "雨林が「死域」の侵蝕に対抗し、今でも活気に満ち溢れていられるのは、レンジャー長たちの働きがあってこそ。ティナリはその中でもずば抜けた存在よ。ただ…もう少しだけ優しい接し方をしてくれたら、新しいレンジャーの募集も捗るんだけど。",
+        "KR": "우림이 「죽음의 땅」의 침식에 대항하고 오늘날까지 생기발랄한 모습을 유지할 수 있는 건 숲의 순찰관의 역할이 컸어. 타이나리는 그중에서도 특출났지. 다만… 성격이 조금 더 온화해졌으면 좋겠어. 그래야 숲의 순찰자 지원자가 더 많이 생길 거야"
+      },
+      "OpenCondsSummary": {
+        "Friendship": 4
+      }
+    },
+    {
+      "Type": 1,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [
+        155269450
+      ],
+      "VoiceTitleTextMapHash": 4030209527,
+      "VoiceFile": "4004",
+      "VoiceFileTextMapHash": 716809007,
+      "VoiceTitleLockedTextMapHash": 3036366002,
+      "FetterId": 73023,
+      "AvatarId": 10000073,
+      "OpenConds": [
+        {
+          "CondType": "FETTER_COND_FETTER_LEVEL",
+          "ParamList": [
+            4
+          ]
+        }
+      ],
+      "FinishConds": [],
+      "MappedTips": [
+        "Unlocks at Friendship Lv. 4"
+      ],
+      "VoiceTitleText": "About Collei",
+      "VoiceFileText": "When I heard her story for the first time, her tenacity shone through like a dazzling gemstone. She's been through so much... I hope that just as the rainforest supports all kinds of life, Sumeru will always provide a safe and nurturing environment for her, so that she can grow up healthy and strong.",
+      "VoiceFilePath": "vo nahida teammate collei 01.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "About Collei",
+        "CHS": "关于柯莱…",
+        "CHT": "關於柯萊…",
+        "JP": "コレイについて…",
+        "KR": "콜레이에 대해…"
+      },
+      "VoiceFileTextMap": {
+        "EN": "When I heard her story for the first time, her tenacity shone through like a dazzling gemstone. She's been through so much... I hope that just as the rainforest supports all kinds of life, Sumeru will always provide a safe and nurturing environment for her, so that she can grow up healthy and strong.",
+        "CHS": "我听说过她的故事，她的坚韧如宝石般璀璨夺目。她经历了太多，希望须弥的葱绿能够长久地庇护她，令她像普通的女孩子那样健康成长。",
+        "CHT": "我聽說過她的故事，她的堅韌如寶石般璀璨奪目。她經歷了太多，希望須彌的蔥綠能夠長久地庇護她，令她像普通的女孩子那樣健康成長。",
+        "JP": "彼女のことは聞いたことがあるわ。そのタフな精神は宝石のように輝いていて、目を奪うものだった。あまりにも多くのことを経験してきたのね…彼女がスメールの豊かな緑に守られ、普通の女の子と同じように健康に成長できることを祈っているわ。",
+        "KR": "콜레이에 대해 들어본 적 있어. 콜레이의 의지는 보석처럼 단단하고 눈부시다고 해. 많은 시련을 겪은 그 아이가 평범하고 건강하게 자랄 수 있게, 수메르의 초목의 가호가 함께하기를"
+      },
+      "OpenCondsSummary": {
+        "Friendship": 4
+      }
+    },
+    {
+      "Type": 1,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [
+        308163202
+      ],
+      "VoiceTitleTextMapHash": 1113829711,
+      "VoiceFile": "4005",
+      "VoiceFileTextMapHash": 4185379079,
+      "VoiceTitleLockedTextMapHash": 472711570,
+      "FetterId": 73024,
+      "AvatarId": 10000073,
+      "OpenConds": [
+        {
+          "CondType": "FETTER_COND_FETTER_LEVEL",
+          "ParamList": [
+            4
+          ]
+        }
+      ],
+      "FinishConds": [],
+      "MappedTips": [
+        "Unlocks at Friendship Lv. 4"
+      ],
+      "VoiceTitleText": "About Alhaitham",
+      "VoiceFileText": "He holds a body of knowledge more advanced than most could imagine, and his mind is constantly thinking, so maybe nothing in this world could ever fool him. But is the wise man truly wise to view the mediocre majority as defective? Because without them, there is no us.",
+      "VoiceFilePath": "vo nahida teammate alhaitham 01.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "About Alhaitham",
+        "CHS": "关于艾尔海森…",
+        "CHT": "關於艾爾海森…",
+        "JP": "アルハイゼンについて…",
+        "KR": "알하이탐에 대해…"
+      },
+      "VoiceFileTextMap": {
+        "EN": "He holds a body of knowledge more advanced than most could imagine, and his mind is constantly thinking, so maybe nothing in this world could ever fool him. But is the wise man truly wise to view the mediocre majority as defective? Because without them, there is no us.",
+        "CHS": "他拥有很超前的知识体系，并且每时每刻都在保持思考，或许这个世界上没有什么事能瞒过他吧。然而对智慧者而言，普通人的凡庸是一种与生俱来的错吗？那都是「我们」不可分割的一部分。",
+        "CHT": "他擁有很超前的知識體系，並且每時每刻都在保持思考，或許這個世界上沒有什麼事能瞞過他吧。然而對智慧者而言，普通人的凡庸是一種與生俱來的錯嗎？那都是「我們」不可分割的一部分。",
+        "JP": "彼は遥か先を行く知識体系を持っていて、常に思考を巡らせている。もしかしたら、この世で彼に隠し通せるものなんてないのかもしれないわね。智者からすれば、平凡な人々の凡庸さは生まれ持っての過ちと言うけれど…本当にそう？私は…それら凡庸さも含めて「私たち」にとって不可欠な一部なのだと思っているわ。",
+        "KR": "알하이탐은 시대를 앞서가는 지식 체계를 가지고 있으며 항상 사고를 유지하지, 세상에서 알하이탐을 속일 수 있는 건 없을 거야. 하지만 지혜로운 자는 일반인의 평범함을 타고난 잘못이라고 생각하는 걸까? 그건 「우리」에게 있어서 떼어낼 수 없는 부분인데 말이야"
+      },
+      "OpenCondsSummary": {
+        "Friendship": 4
+      }
+    },
+    {
+      "Type": 1,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [
+        1234068434
+      ],
+      "VoiceTitleTextMapHash": 362308943,
+      "VoiceFile": "4006",
+      "VoiceFileTextMapHash": 3848620391,
+      "VoiceTitleLockedTextMapHash": 3072011842,
+      "FetterId": 73025,
+      "AvatarId": 10000073,
+      "OpenConds": [
+        {
+          "CondType": "FETTER_COND_FETTER_LEVEL",
+          "ParamList": [
+            4
+          ]
+        }
+      ],
+      "FinishConds": [],
+      "MappedTips": [
+        "Unlocks at Friendship Lv. 4"
+      ],
+      "VoiceTitleText": "About Nilou",
+      "VoiceFileText": "I once borrowed someone else's body to ask her if she'd mind allowing Lesser Lord Kusanali to watch her dance... Actually, I had already watched her lots of times before in secret, but I wanted to attend her dance at the Sabzeruz Festival properly, in person, as a sign of respect. Anyway, it turned out that she gently declined the offer... I was a little sad about that.",
+      "VoiceFilePath": "vo nahida teammate nilou 01.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "About Nilou",
+        "CHS": "关于妮露…",
+        "CHT": "關於妮露…",
+        "JP": "ニィロウについて…",
+        "KR": "닐루에 대해…"
+      },
+      "VoiceFileTextMap": {
+        "EN": "I once borrowed someone else's body to ask her if she'd mind allowing Lesser Lord Kusanali to watch her dance... Actually, I had already watched her lots of times before in secret, but I wanted to attend her dance at the Sabzeruz Festival properly, in person, as a sign of respect. Anyway, it turned out that she gently declined the offer... I was a little sad about that.",
+        "CHS": "我曾经借用别人的身体，问她想不想让小吉祥草王来看她的舞蹈…虽然我已经悄悄看了很多次，但按理来说，应该要我本人到场，才算是对她「花神诞祭」表演的尊重。结果我却被委婉地拒绝了…唔，有点伤心。",
+        "CHT": "我曾經借用別人的身體，問她想不想讓小吉祥草王來看她的舞蹈…雖然我已經悄悄看了很多次，但按理來說，應該要我本人到場，才算是對她「花神誕祭」表演的尊重。結果我卻被委婉地拒絕了…唔，有點傷心。",
+        "JP": "昔、他の人の体を借りて、クラクサナリデビに踊りを見てほしいかどうか、彼女に聞いたことがあるの…実はもう何度もこっそり見たのだけれど…彼女の「花神誕祭」におけるパフォーマンスに敬意を示すためにも、理屈上は私が現場に居合わせる必要があるでしょう？でも結局、遠回しに断られてしまったの…うぅ、少し悲しいわ。",
+        "KR": "다른 사람의 몸을 빌려 닐루에게 물어본 적이 있어. 자신의 공연에 작은 쿠사나리 화신을 초대하고 싶은지 말이야…. 물론 난 몰래 공연을 몇 번 봤지만, 그래도 직접 가는 게 「화신(花神) 탄신 축제」 공연에 대한 예의잖아. 하지만 결국 거절당했어… 음, 좀 가슴 아프네"
+      },
+      "OpenCondsSummary": {
+        "Friendship": 4
+      }
+    },
+    {
+      "Type": 1,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [
+        557505906,
+        1995128112
+      ],
+      "VoiceTitleTextMapHash": 3697881215,
+      "VoiceFile": "4007",
+      "VoiceFileTextMapHash": 3413996215,
+      "VoiceTitleLockedTextMapHash": 2472861362,
+      "FetterId": 73026,
+      "AvatarId": 10000073,
+      "OpenConds": [
+        {
+          "CondType": "FETTER_COND_FETTER_LEVEL",
+          "ParamList": [
+            4
+          ]
+        },
+        {
+          "CondType": "FETTER_COND_FINISH_PARENT_QUEST",
+          "ParamList": [
+            3026
+          ]
+        }
+      ],
+      "FinishConds": [],
+      "MappedTips": [
+        "Unlocks at Friendship Lv. 4",
+        "Complete \"Akasha Pulses, the Kalpa Flame Rises\""
+      ],
+      "VoiceTitleText": "About Dori",
+      "VoiceFileText": "The first thing she said when she saw me was \"Nice palace. How much?\" Of course, I couldn't possibly sell her the Sanctuary of Surasthana. But still, her question had me stumped. I thought about it long and hard, but I still can't figure out how much Mora it's worth...",
+      "VoiceFilePath": "vo nahida teammate dori 01.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "About Dori",
+        "CHS": "关于多莉…",
+        "CHT": "關於多莉…",
+        "JP": "ドリーについて…",
+        "KR": "도리에 대해…"
+      },
+      "VoiceFileTextMap": {
+        "EN": "The first thing she said when she saw me was \"Nice palace. How much?\" Of course, I couldn't possibly sell her the Sanctuary of Surasthana. But still, her question had me stumped. I thought about it long and hard, but I still can't figure out how much Mora it's worth...",
+        "CHS": "她见到我的第一句话就是，「我看上了你的宫殿，怎么卖啊？」净善宫怎么可能卖给她呢？不过她的问题确实把我问住了，我想了好久，也不知道净善宫该定价多少摩拉…",
+        "CHT": "她見到我的第一句話就是，「我看上了{{MC|m=你|f=妳}}的宮殿，怎麼賣啊？」淨善宮怎麼可能賣給她呢？不過她的問題確實把我問倒了。我想了好久，也不知道淨善宮該定價多少摩拉…",
+        "JP": "彼女が私に初めて会った時、開口一番に「あなたの宮殿を気に入りましたわ、いくらなら売ってくださりますの？」と言われたわ。スラサタンナ聖処を売るなんてできないけど、その質問には確かに悩まされたわ。とても長い間考えたのだけれど、結局どれだけの値をつけるべきか分からなかったの…",
+        "KR": "도리는 날 처음 보자마자 「궁전이 마음에 드는데 얼마에 팔 거야?」라고 물었어. 정선궁을 팔 생각은 없었지만, 질문에는 답할 수 없었지. 아무리 생각해봐도 정선궁의 가치를 모라로 매길 수 없었거든…"
+      },
+      "OpenCondsSummary": {
+        "Friendship": 4,
+        "Quest": "Akasha Pulses, the Kalpa Flame Rises"
+      }
+    },
+    {
+      "Type": 1,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [
+        806883082
+      ],
+      "VoiceTitleTextMapHash": 1270051655,
+      "VoiceFile": "4008",
+      "VoiceFileTextMapHash": 3921029167,
+      "VoiceTitleLockedTextMapHash": 3852831282,
+      "FetterId": 73027,
+      "AvatarId": 10000073,
+      "OpenConds": [
+        {
+          "CondType": "FETTER_COND_FETTER_LEVEL",
+          "ParamList": [
+            4
+          ]
+        }
+      ],
+      "FinishConds": [],
+      "MappedTips": [
+        "Unlocks at Friendship Lv. 4"
+      ],
+      "VoiceTitleText": "About Kaveh",
+      "VoiceFileText": "He has an almost-perfect grasp of what it truly means for Sumeru to be a Nation of Wisdom. Sadly, the truth as he understands it will never be accepted as the mainstream. Hmm? He's roommates with Alhaitham? Wow... the world really is full of surprises...",
+      "VoiceFilePath": "vo nahida teammate kaveh 01.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "About Kaveh",
+        "CHS": "关于卡维…",
+        "CHT": "關於卡維…",
+        "JP": "カーヴェについて…",
+        "KR": "카베에 대해…"
+      },
+      "VoiceFileTextMap": {
+        "EN": "He has an almost-perfect grasp of what it truly means for Sumeru to be a Nation of Wisdom. Sadly, the truth as he understands it will never be accepted as the mainstream. Hmm? He's roommates with Alhaitham? Wow... the world really is full of surprises...",
+        "CHS": "他对须弥推行智慧这一事的理解，已经非常接近本质了，很可惜的是，他掌握的真相无法成为这个国度的主流。什么？你说他和艾尔海森是室友？世上居然还有这种可能性…",
+        "CHT": "他對須彌推行智慧這一事的理解，已經非常接近本質了，很可惜的是，他掌握的真相無法成為這個國度的主流。什麼？{{MC|m=你|f=妳}}說他和艾爾海森是室友？世上居然還有這種可能性…",
+        "JP": "スメールの知恵を実践することにおいて、すでに彼の理解は本質にとても近いところまで辿り着いている。ただ惜しいことに、彼の把握している真実は、この国の主流にはなれないわ。え？彼って、アルハイゼンと同居しているの？この世にこんな可能性があったなんて…",
+        "KR": "수메르가 지식을 전파하는 것에 대한 카베의 이해는 거의 본질에 가깝지만 아쉽게도 그가 파악한 진실은 이 나라의 주류가 될 수 없어. 뭐? 카베가 알하이탐의 룸메이트라고? 세상에 이런 일이…"
+      },
+      "OpenCondsSummary": {
+        "Friendship": 4
+      }
+    },
+    {
+      "Type": 1,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [
+        3627144394,
+        1244357528
+      ],
+      "VoiceTitleTextMapHash": 1984806519,
+      "VoiceFile": "4009",
+      "VoiceFileTextMapHash": 2527214735,
+      "VoiceTitleLockedTextMapHash": 834713018,
+      "FetterId": 73028,
+      "AvatarId": 10000073,
+      "OpenConds": [
+        {
+          "CondType": "FETTER_COND_FETTER_LEVEL",
+          "ParamList": [
+            4
+          ]
+        },
+        {
+          "CondType": "FETTER_COND_FINISH_PARENT_QUEST",
+          "ParamList": [
+            3026
+          ]
+        }
+      ],
+      "FinishConds": [],
+      "MappedTips": [
+        "Unlocks at Friendship Lv. 4",
+        "Complete \"Akasha Pulses, the Kalpa Flame Rises\""
+      ],
+      "VoiceTitleText": "About Faruzan",
+      "VoiceFileText": "She is suffering from exposure to remnants of King Deshret's power. It's as if the great tortoise of time accidentally threw her off its back and left her suspended in the past. If you're interested, you should be able to catch a glimpse of Sumeru from a bygone age through her.",
+      "VoiceFilePath": "vo nahida teammate faruzan 01.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "About Faruzan",
+        "CHS": "关于珐露珊…",
+        "CHT": "關於琺露珊…",
+        "JP": "ファルザンについて…",
+        "KR": "파루잔에 대해…"
+      },
+      "VoiceFileTextMap": {
+        "EN": "She is suffering from exposure to remnants of King Deshret's power. It's as if the great tortoise of time accidentally threw her off its back and left her suspended in the past. If you're interested, you should be able to catch a glimpse of Sumeru from a bygone age through her.",
+        "CHS": "她的身体遭受了赤王遗迹中残留力量的影响，就像是被时间这只大乌龟不小心甩下了背，永远忘在了身后。如果你感兴趣的话，应该能从她身上窥见过去须弥的一角吧。",
+        "CHT": "她的身體遭受了赤王遺蹟中殘留力量的影響，就像是被時間這隻大烏龜不小心甩下了背，永遠忘在身後。如果{{MC|m=你|f=妳}}感興趣的話，應該能從她身上窺見過去須彌的一角吧。",
+        "JP": "彼女の体は、キングデシェレト遺跡に残留していた力に影響されてしまったの…まるで時間という大きな亀の背から落ちて、永遠に置き去りにされてしまったかのように。興味があるなら、あるいは…彼女を通して、過去のスメールの片隅を覗けるかもしれないわね。",
+        "KR": "파루잔의 몸은 적왕의 유적에 있는 잔재의 힘의 영향을 받아, 시간이라는 거북이의 등에서 떨어지고 영원히 잊혀졌지. 관심이 있다면 그녀를 통해 과거 수메르의 일각을 엿볼 수 있을 거야"
+      },
+      "OpenCondsSummary": {
+        "Friendship": 4,
+        "Quest": "Akasha Pulses, the Kalpa Flame Rises"
+      }
+    },
+    {
+      "Type": 1,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [
+        3720495986,
+        3448226120
+      ],
+      "VoiceTitleTextMapHash": 864362031,
+      "VoiceFile": "4010",
+      "VoiceFileTextMapHash": 728211751,
+      "VoiceTitleLockedTextMapHash": 3104335226,
+      "FetterId": 73029,
+      "AvatarId": 10000073,
+      "OpenConds": [
+        {
+          "CondType": "FETTER_COND_FETTER_LEVEL",
+          "ParamList": [
+            4
+          ]
+        },
+        {
+          "CondType": "FETTER_COND_FINISH_PARENT_QUEST",
+          "ParamList": [
+            3026
+          ]
+        }
+      ],
+      "FinishConds": [],
+      "MappedTips": [
+        "Unlocks at Friendship Lv. 4",
+        "Complete \"Akasha Pulses, the Kalpa Flame Rises\""
+      ],
+      "VoiceTitleText": "About The Seven: Introduction",
+      "VoiceFileText": "I'm led to believe that long, long ago, the Seven Archons used to stay in regular contact with each other. I'm a bit of a special case though, so I don't have any memory of that time... Now that things have settled down in Sumeru, I think it's about time I made contact with them again. You're on familiar terms with some of them, right? Would you mind introducing me?",
+      "VoiceFilePath": "vo nahida teammate theseven 01.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "About The Seven: Introduction",
+        "CHS": "关于尘世七执政·引荐",
+        "CHT": "關於塵世七執政·引薦",
+        "JP": "俗世の七執政について·紹介",
+        "KR": "7명의 집정관에 대해·소개"
+      },
+      "VoiceFileTextMap": {
+        "EN": "I'm led to believe that long, long ago, the Seven Archons used to stay in regular contact with each other. I'm a bit of a special case though, so I don't have any memory of that time... Now that things have settled down in Sumeru, I think it's about time I made contact with them again. You're on familiar terms with some of them, right? Would you mind introducing me?",
+        "CHS": "好像尘世七执政之间在很久很久以前还会定期联络，只是我的情况比较特殊，已经不记得这段经历了…既然须弥的混乱告一段落，我觉得我该重新见他们一面。你熟识的那几位神明，能为我引荐一下吗？",
+        "CHT": "好像塵世七執政之間在很久很久以前還會定期聯絡，只是我的情況比較特殊，已經不記得這段經歷了…既然須彌的混亂告一段落，我覺得我該重新見他們一面。{{MC|m=你|f=妳}}熟識的那幾位神明，能為我引薦一下嗎？",
+        "JP": "ずっとずっと昔、俗世の七執政は定期的に連絡を取り合っていたらしいわ。ただ、私だけは状況が特別だったから、そのことを覚えていない…スメールの混乱も一段落ついたし、そろそろ彼らともう一度会うべきよね。あなたのよく知っている神を、私に紹介してくれるかしら？",
+        "KR": "아주 아주 오래전에 7명의 집정관은 정기적으로 연락을 주고받았지만, 나는 상황이 좀 특수해서 그때의 기억이 없어…. 수메르의 혼란이 어느 정도 마무리되었으니 다시 만나보고 싶은데, 네가 잘 아는 신들을 나에게 소개 좀 해줄 수 있을까?"
+      },
+      "OpenCondsSummary": {
+        "Friendship": 4,
+        "Quest": "Akasha Pulses, the Kalpa Flame Rises"
+      }
+    },
+    {
+      "Type": 1,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [
+        4017195858,
+        4182033496
+      ],
+      "VoiceTitleTextMapHash": 2173744519,
+      "VoiceFile": "4011",
+      "VoiceFileTextMapHash": 2812731287,
+      "VoiceTitleLockedTextMapHash": 324658930,
+      "FetterId": 73030,
+      "AvatarId": 10000073,
+      "OpenConds": [
+        {
+          "CondType": "FETTER_COND_FETTER_LEVEL",
+          "ParamList": [
+            4
+          ]
+        },
+        {
+          "CondType": "FETTER_COND_FINISH_PARENT_QUEST",
+          "ParamList": [
+            3026
+          ]
+        }
+      ],
+      "FinishConds": [],
+      "MappedTips": [
+        "Unlocks at Friendship Lv. 4",
+        "Complete \"Akasha Pulses, the Kalpa Flame Rises\""
+      ],
+      "VoiceTitleText": "About The Seven: Games",
+      "VoiceFileText": "I hear that playing games is a good way to quickly bring people closer together. I'm sure it must work for gods, too. How about once everyone meets up, I suggest we play hopscotch together? ...Hmm, on second thought, maybe not. If I draw the squares, it would look like I made them really small on purpose just so I could win. That wouldn't be fair on the others.",
+      "VoiceFilePath": "vo nahida teammate theseven 02.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "About The Seven: Games",
+        "CHS": "关于尘世七执政·游戏",
+        "CHT": "關於塵世七執政·遊戲",
+        "JP": "俗世の七執政について·ゲーム",
+        "KR": "7명의 집정관에 대해·게임"
+      },
+      "VoiceFileTextMap": {
+        "EN": "I hear that playing games is a good way to quickly bring people closer together. I'm sure it must work for gods, too. How about once everyone meets up, I suggest we play hopscotch together? ...Hmm, on second thought, maybe not. If I draw the squares, it would look like I made them really small on purpose just so I could win. That wouldn't be fair on the others.",
+        "CHS": "听说玩游戏能够快速缩短人与人之间的距离。神也是如此吧。不如，在和大家相聚之后，我就主动提议一起玩「跳房子」…好像也不合适。弄得像是我把房门做成了小小的洞口，仗着自己的优势欺负大家一样。",
+        "CHT": "聽說玩遊戲能夠快速縮短人與人之間的距離。神也是如此吧。不如，在和大家相聚之後，我就主動提議一起玩「跳房子」…好像也不適合。弄得像是我把房門做成了小小的洞口，仗著自己的優勢欺負大家一樣。",
+        "JP": "一緒にゲームをすると、人と人との距離は一気に縮まるのだと聞いたわ。それは神も同じよ。いっそ、今度またみんなで集まった時には、「ケンケンパ」で遊ぶことを提案しようかしら？…やっぱりやめておくわ。小さなマスを書いて、自分の優勢を利用してみんなをいじめてるって思われたらいけないもの。",
+        "KR": "게임을 하면 서로 금방 친해질 수 있다고 들었는데, 신들도 마찬가지일 거야. 다들 모였을 때 「사방치기」를 제안해 보는 건 어떨까…? 아니다 내가 끼면 사각형을 작게 만들어야 해서 나한테 너무 유리할 거야"
+      },
+      "OpenCondsSummary": {
+        "Friendship": 4,
+        "Quest": "Akasha Pulses, the Kalpa Flame Rises"
+      }
+    },
+    {
+      "Type": 1,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [
+        1687613738,
+        4246518040
+      ],
+      "VoiceTitleTextMapHash": 4197092351,
+      "VoiceFile": "4012",
+      "VoiceFileTextMapHash": 1152661831,
+      "VoiceTitleLockedTextMapHash": 3612690594,
+      "FetterId": 73031,
+      "AvatarId": 10000073,
+      "OpenConds": [
+        {
+          "CondType": "FETTER_COND_FETTER_LEVEL",
+          "ParamList": [
+            4
+          ]
+        },
+        {
+          "CondType": "FETTER_COND_FINISH_PARENT_QUEST",
+          "ParamList": [
+            3026
+          ]
+        }
+      ],
+      "FinishConds": [],
+      "MappedTips": [
+        "Unlocks at Friendship Lv. 4",
+        "Complete \"Akasha Pulses, the Kalpa Flame Rises\""
+      ],
+      "VoiceTitleText": "About The Balladeer",
+      "VoiceFileText": "When he finally achieved the ambition he thought he'd been pursuing all along, was he content at last, or only emptier still? We only yearn for the skies because we cannot fly... Hmm, perhaps he should reflect on this once he has held the sheer emptiness of the skies in his grasp.",
+      "VoiceFilePath": "vo nahida teammate scaramouche 01.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "About The Balladeer",
+        "CHS": "关于散兵…",
+        "CHT": "關於散兵…",
+        "JP": "散兵について…",
+        "KR": "스카라무슈에 대해…"
+      },
+      "VoiceFileTextMap": {
+        "EN": "When he finally achieved the ambition he thought he'd been pursuing all along, was he content at last, or only emptier still? We only yearn for the skies because we cannot fly... Hmm, perhaps he should reflect on this once he has held the sheer emptiness of the skies in his grasp.",
+        "CHS": "当他自认为追寻已久的愿望终于实现，他眼中所见的究竟是满足，还是更大的空虚呢？正是因为我们不会飞，才会无比向往天空…让他好好想想吧，在拥抱过空无一物的天空之后。",
+        "CHT": "當他自認為追尋已久的願望終於實現，他眼中所見的究竟是滿足，還是更大的空虛呢？正是因為我們不會飛，才會無比嚮往天空…讓他好好想想吧，在擁抱過空無一物的天空之後。",
+        "JP": "長きにわたって追い求めていた願いがようやく叶ったと思った時、彼の瞳に映るものは満足？それとも虚しさかしら？私たちは飛べないからこそ、空に焦がれる…彼にはきちんと考えてほしいものね、からっぽの空を抱いたその後に。",
+        "KR": "오랫동안 추구해왔던 염원이 이루어졌을 때 그는 만족했을까, 아니면 더 공허해졌을까? 우리는 날지 못하기 때문에 하늘을 날고 싶어 하지… 그가 텅 빈 하늘을 가지고 난 다음 다시 생각해 보라고 하자"
+      },
+      "OpenCondsSummary": {
+        "Friendship": 4,
+        "Quest": "Akasha Pulses, the Kalpa Flame Rises"
+      }
+    },
+    {
+      "Type": 1,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 610858863,
+      "VoiceFile": "5001",
+      "VoiceFileTextMapHash": 3436275959,
+      "VoiceTitleLockedTextMapHash": 2072221378,
+      "FetterId": 73032,
+      "AvatarId": 10000073,
+      "OpenConds": [],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "More About Nahida: I",
+      "VoiceFileText": "My past is quite monotonous. I could tell you about it, but it wouldn't be long before you let out a great, big yawn, like a Pufferfish taking in a big gulp of water. But curiosity is worth its weight in gold, and I wouldn't want yours to go to waste... I know &mdash; let me tell you about all the dreams I've had.",
+      "VoiceFilePath": "vo nahida friendship 01.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "More About Nahida: I",
+        "CHS": "想要了解纳西妲·其一",
+        "CHT": "想要瞭解納西妲·其一",
+        "JP": "ナヒーダを知る·1",
+        "KR": "나히다에 대해 알기·첫 번째"
+      },
+      "VoiceFileTextMap": {
+        "EN": "My past is quite monotonous. I could tell you about it, but it wouldn't be long before you let out a great, big yawn, like a Pufferfish taking in a big gulp of water. But curiosity is worth its weight in gold, and I wouldn't want yours to go to waste... I know &mdash; let me tell you about all the dreams I've had.",
+        "CHS": "我的过往相当单调，估计你听上一会儿就会像炮鲀吸水那样打哈欠。不过好奇心是弥足珍贵的东西，我也不想浪费…既然这样，我给你分享一些我做过的梦吧。",
+        "CHT": "我的過往相當單調，大概{{MC|m=你|f=妳}}聽上一陣子就會像炮魨吸水那樣打哈欠。不過好奇心是彌足珍貴的東西，我也不想浪費…既然這樣，我跟{{MC|m=你|f=妳}}分享一些我做過的夢吧。",
+        "JP": "私の過去なんてとても単調なものよ。聴いているうちに、きっと鉄砲フグが水を吸うみたいにあくびが抑えきれなくなるわ。でも、好奇心はとても貴重なものだから、私も無駄にはしたくない…そうね、私が今までに見た夢でも紹介しましょうか。",
+        "KR": "내 과거는 엄청 단조로워, 듣다 보면 지루해서 대포 복어처럼 하품할걸? 하지만 호기심은 아주 소중하므로 낭비하고 싶지 않아… 그럼 내가 꿨던 꿈들을 공유해 줄게"
+      },
+      "OpenCondsSummary": {}
+    },
+    {
+      "Type": 1,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [
+        1467109250
+      ],
+      "VoiceTitleTextMapHash": 2125268623,
+      "VoiceFile": "5002",
+      "VoiceFileTextMapHash": 3890070567,
+      "VoiceTitleLockedTextMapHash": 69561146,
+      "FetterId": 73033,
+      "AvatarId": 10000073,
+      "OpenConds": [
+        {
+          "CondType": "FETTER_COND_FETTER_LEVEL",
+          "ParamList": [
+            3
+          ]
+        }
+      ],
+      "FinishConds": [],
+      "MappedTips": [
+        "Unlocks at Friendship Lv. 3"
+      ],
+      "VoiceTitleText": "More About Nahida: II",
+      "VoiceFileText": "In my dreams, there's often a flower pot. Every time I water it and add fresh fertilizer, the same flower grows. Can you still enjoy the process of growing flowers when you already know the exact outcome in advance? Hehe, well, for me, I'm glad that at least after the flower has blossomed, it attracts different colored butterflies each time, and sometimes even bees.",
+      "VoiceFilePath": "vo nahida friendship 02.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "More About Nahida: II",
+        "CHS": "想要了解纳西妲·其二",
+        "CHT": "想要瞭解納西妲·其二",
+        "JP": "ナヒーダを知る·2",
+        "KR": "나히다에 대해 알기·두 번째"
+      },
+      "VoiceFileTextMap": {
+        "EN": "In my dreams, there's often a flower pot. Every time I water it and add fresh fertilizer, the same flower grows. Can you still enjoy the process of growing flowers when you already know the exact outcome in advance? Hehe, well, for me, I'm glad that at least after the flower has blossomed, it attracts different colored butterflies each time, and sometimes even bees.",
+        "CHS": "我的梦中总会出现一个花盆，每次浇水施肥就会长出相同的花。对于完全确定的收获，你还能享受养花的过程吗？呵呵，对我来说，至少每次开花之后飞过的蝴蝶，都有不一样的颜色，有时候还会有蜜蜂呢。",
+        "CHT": "我的夢中總會出現一個花盆，每次澆水施肥就會長出相同的花。對於完全確定的收穫，{{MC|m=你|f=妳}}還能享受養花的過程嗎？呵呵，對我來說，至少每次開花之後飛過的蝴蝶，都有不一樣的顏色，有時候還會有蜜蜂呢。",
+        "JP": "私の夢にはよく、植木鉢が現れるの。それに水や肥料をやると、いつも同じ花が咲く。収穫が完全に約束されたものだったら、花を育てる過程すら楽しめないでしょ？ふふっ、でも私の場合は少なくとも、花が咲くたびに飛んでくる蝶々の色が違うし、たまに蜂がいたりもするの。",
+        "KR": "내 꿈엔 항상 화분이 나타나는데, 매번 물을 주고 비료를 뿌리면 같은 꽃이 피어나지. 너라면 결과가 확정된 꽃을 키우는 과정을 즐길 수 있을까? 후후, 난 적어도 매번 꽃이 피고 나면 날아오는 나비의 색이 다르다는 걸로 만족해, 가끔은 벌도 날아온다구"
+      },
+      "OpenCondsSummary": {
+        "Friendship": 3
+      }
+    },
+    {
+      "Type": 1,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [
+        499570778
+      ],
+      "VoiceTitleTextMapHash": 2474966647,
+      "VoiceFile": "5003",
+      "VoiceFileTextMapHash": 2559058119,
+      "VoiceTitleLockedTextMapHash": 806092490,
+      "FetterId": 73034,
+      "AvatarId": 10000073,
+      "OpenConds": [
+        {
+          "CondType": "FETTER_COND_FETTER_LEVEL",
+          "ParamList": [
+            4
+          ]
+        }
+      ],
+      "FinishConds": [],
+      "MappedTips": [
+        "Unlocks at Friendship Lv. 4"
+      ],
+      "VoiceTitleText": "More About Nahida: III",
+      "VoiceFileText": "In my dreams, there's often an hourglass. I like to add a few drops of water. Then, I shake it up, and time how long it takes to settle, and see if there's any difference from the last time. There's no reasoning behind it and nothing to gain out of it, but somehow it seems to relieve the exhaustion in my brain. I think that the fact that it's for nothing is what makes it fun for me.",
+      "VoiceFilePath": "vo nahida friendship 03.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "More About Nahida: III",
+        "CHS": "想要了解纳西妲·其三",
+        "CHT": "想要瞭解納西妲·其三",
+        "JP": "ナヒーダを知る·3",
+        "KR": "나히다에 대해 알기·세 번째"
+      },
+      "VoiceFileTextMap": {
+        "EN": "In my dreams, there's often an hourglass. I like to add a few drops of water. Then, I shake it up, and time how long it takes to settle, and see if there's any difference from the last time. There's no reasoning behind it and nothing to gain out of it, but somehow it seems to relieve the exhaustion in my brain. I think that the fact that it's for nothing is what makes it fun for me.",
+        "CHS": "我的梦中总会出现一个沙漏，我喜欢往里面加一点点水，搅匀之后看它走完一次需要多长时间，和上一次又差了多少。没有规律，也没有意义，却能带走我大脑积累的疲惫，我想「什么都没有」正是它的乐趣所在。",
+        "CHT": "我的夢中總會出現一個沙漏，我喜歡往裡面加一點點水，攪勻之後看它走完一次需要多長時間，和上一次又差了多少。沒有規律，也沒有意義，卻能帶走我大腦累積的疲憊。我想「什麼都沒有」正是它的樂趣所在。",
+        "JP": "私の夢にはよく、砂時計が現れるの。その中に少しだけ水を入れてかき混ぜて、落ちきるまでにどれくらいの時間を費やすか、それが前回と比べてどのくらい違うのかを眺めるのが好きよ。規則性も意味もないけれど、私の脳に蓄積された疲れを取り除いてくれる。もしかしたら、「何もない」ことこそが、この遊びの面白さなのかもしれないわね。",
+        "KR": "내 꿈에선 항상 모래시계가 나타나는데, 난 그 안에 물을 넣고 섞은 다음 다 내려가는 데 얼마나 걸리는지, 저번과 얼마나 차이 나는지 관찰하는 걸 좋아해. 규칙도 없고 의미도 없지만 머릿속 피로가 사라지거든, 「아무 의미 없는 것」이라서 더 재밌어"
+      },
+      "OpenCondsSummary": {
+        "Friendship": 4
+      }
+    },
+    {
+      "Type": 1,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [
+        3335779610,
+        3137794504
+      ],
+      "VoiceTitleTextMapHash": 4139920567,
+      "VoiceFile": "5004",
+      "VoiceFileTextMapHash": 2766918415,
+      "VoiceTitleLockedTextMapHash": 1004352322,
+      "FetterId": 73035,
+      "AvatarId": 10000073,
+      "OpenConds": [
+        {
+          "CondType": "FETTER_COND_FETTER_LEVEL",
+          "ParamList": [
+            5
+          ]
+        },
+        {
+          "CondType": "FETTER_COND_FINISH_PARENT_QUEST",
+          "ParamList": [
+            3026
+          ]
+        }
+      ],
+      "FinishConds": [],
+      "MappedTips": [
+        "Unlocks at Friendship Lv. 5",
+        "Complete \"Akasha Pulses, the Kalpa Flame Rises\""
+      ],
+      "VoiceTitleText": "More About Nahida: IV",
+      "VoiceFileText": "In my dreams, there's often an empty space. No matter how the scenery changes around it, the emptiness always occupies the most important place. Strange, isn't it? I think there used to be something there, but for all the power I have over dreams, I still can't find the answer as to what it was. Ugh, seems like even in my dreams, there are things that I can't control...",
+      "VoiceFilePath": "vo nahida friendship 04.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "More About Nahida: IV",
+        "CHS": "想要了解纳西妲·其四",
+        "CHT": "想要瞭解納西妲·其四",
+        "JP": "ナヒーダを知る·4",
+        "KR": "나히다에 대해 알기·네 번째"
+      },
+      "VoiceFileTextMap": {
+        "EN": "In my dreams, there's often an empty space. No matter how the scenery changes around it, the emptiness always occupies the most important place. Strange, isn't it? I think there used to be something there, but for all the power I have over dreams, I still can't find the answer as to what it was. Ugh, seems like even in my dreams, there are things that I can't control...",
+        "CHS": "我的梦中总会出现一片空地，无论周遭的景色如何变化，它都会占据最重要的位置，挺奇怪的吧？我觉得这里曾经应该存在过什么东西，可就算我驱使梦境的权能也无法获得答案。唔，居然梦中也有我不能掌控的东西…",
+        "CHT": "我的夢中總會出現一片空地，無論周遭的景色如何變化，它都會佔據最重要的位置，滿奇怪的吧？我覺得這裡曾經應該存在過什麼東西，可是就算我驅使夢境的權能也無法獲得答案。唔，夢中居然也有我不能掌控的東西…",
+        "JP": "私の夢にはよく、空き地が現れるの。どんなに周りの風景が変わっても、いつもその場所だけは一番重要な位置にある。変でしょ？かつてそこに何かがあったような気がするのだけど、夢境の権能を使ってさえも、答えは得られなかった。はぁ…まさか夢の中にも、私に制御できないものがあるなんて…",
+        "KR": "내 꿈에선 항상 공터가 나타나는데, 주변 풍경이 어떻게 변하든, 그 공터는 가장 중요한 위치를 차지하고 있어. 정말 이상하지? 이곳에 무언가가 존재했을 거라고 생각을 하지만 꿈의 권능을 사용해 봐도 전혀 알아낼 수가 없었어. 음, 꿈에서 내가 제어할 수 없는 것이 존재하다니…"
+      },
+      "OpenCondsSummary": {
+        "Friendship": 5,
+        "Quest": "Akasha Pulses, the Kalpa Flame Rises"
+      }
+    },
+    {
+      "Type": 1,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [
+        2316462986,
+        375477920
+      ],
+      "VoiceTitleTextMapHash": 3072564967,
+      "VoiceFile": "5005",
+      "VoiceFileTextMapHash": 364648143,
+      "VoiceTitleLockedTextMapHash": 3929305106,
+      "FetterId": 73036,
+      "AvatarId": 10000073,
+      "OpenConds": [
+        {
+          "CondType": "FETTER_COND_FETTER_LEVEL",
+          "ParamList": [
+            6
+          ]
+        },
+        {
+          "CondType": "FETTER_COND_FINISH_PARENT_QUEST",
+          "ParamList": [
+            3026
+          ]
+        }
+      ],
+      "FinishConds": [],
+      "MappedTips": [
+        "Unlocks at Friendship Lv. 6",
+        "Complete \"Akasha Pulses, the Kalpa Flame Rises\""
+      ],
+      "VoiceTitleText": "More About Nahida: V",
+      "VoiceFileText": "In my dreams, there can be anything &mdash; anything except people coming and going. But since meeting you, it's gradually started to get more lively here... Maybe you're a guide, adding a human touch to my dreams and leading me out from my cage. Hehe, c'mon, let's go. The journey's only just beginning, and I'd like you to carry on leading the way.",
+      "VoiceFilePath": "vo nahida friendship 05.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "More About Nahida: V",
+        "CHS": "想要了解纳西妲·其五",
+        "CHT": "想要瞭解納西妲·其五",
+        "JP": "ナヒーダを知る·5",
+        "KR": "나히다에 대해 알기·다섯 번째"
+      },
+      "VoiceFileTextMap": {
+        "EN": "In my dreams, there can be anything &mdash; anything except people coming and going. But since meeting you, it's gradually started to get more lively here... Maybe you're a guide, adding a human touch to my dreams and leading me out from my cage. Hehe, c'mon, let's go. The journey's only just beginning, and I'd like you to carry on leading the way.",
+        "CHS": "我的梦中什么都有，唯独缺少来来往往的人。但在与你相遇之后，这里渐渐变得热闹了。或许你在梦中扮演的是「向导」这样的角色，不仅让我的梦变得更有人情味，也带我走出了牢笼。呵呵，走吧，接下来的旅途也请你引路了。",
+        "CHT": "我的夢中什麼都有，唯獨缺少來來往往的人。但在與{{MC|m=你|f=妳}}相遇之後，這裡漸漸變得熱鬧了。或許{{MC|m=你|f=妳}}在夢中扮演的是「嚮導」這樣的角色，不僅讓我的夢變得更有人情味，也帶我走出了牢籠。呵呵，走吧，接下來的旅途也請{{MC|m=你|f=妳}}引路了。",
+        "JP": "私の夢にはなんでもある。けれど唯一、人はいない。でもあなたと出会ってからは、段々と賑やかになってきたのよ。もしかしたらあなたは、私の夢における「ガイド」役で、夢に人情味をもたらすと同時に、私を籠から連れ出してくれたのかもしれないわね。ふふっ、行きましょう。これからの旅路は、あなたが導いてちょうだい。",
+        "KR": "내 꿈에는 없는 게 없지만 유일하게 부족한 건 오가는 사람들이야. 하지만 너와 만나고 나서 이곳도 점차 활기를 띠고 있어. 네가 꿈에서 「가이드」 역할을 해준 덕에 꿈에 인간미가 생겼지. 네가 날 우리 안에서 꺼내준 거야. 후후, 가자, 앞으로의 여정도 잘 부탁할게"
+      },
+      "OpenCondsSummary": {
+        "Friendship": 6,
+        "Quest": "Akasha Pulses, the Kalpa Flame Rises"
+      }
+    },
+    {
+      "Type": 1,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 137587863,
+      "VoiceFile": "6001",
+      "VoiceFileTextMapHash": 2996292791,
+      "VoiceTitleLockedTextMapHash": 1182489474,
+      "FetterId": 73037,
+      "AvatarId": 10000073,
+      "OpenConds": [],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "Nahida's Hobbies",
+      "VoiceFileText": "Umm... does watching you count as a hobby? Because everything you do fascinates me. You're traveling the whole world... Where did you come from, and where will you go next? Who will you meet, and what challenges will you have to overcome? I want to know the answers to all these questions and more. So please don't mind me, I just wanna keep on watching you, all the time.",
+      "VoiceFilePath": "vo nahida pref hobby.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "Nahida's Hobbies",
+        "CHS": "纳西妲的爱好…",
+        "CHT": "納西妲的愛好…",
+        "JP": "ナヒーダの趣味…",
+        "KR": "나히다의 취미…"
+      },
+      "VoiceFileTextMap": {
+        "EN": "Umm... does watching you count as a hobby? Because everything you do fascinates me. You're traveling the whole world... Where did you come from, and where will you go next? Who will you meet, and what challenges will you have to overcome? I want to know the answers to all these questions and more. So please don't mind me, I just wanna keep on watching you, all the time.",
+        "CHS": "就这么看着你，算是爱好吗？因为你的一举一动都让我很好奇啊。作为世界的旅行者，你从哪里来，将到哪里去，会遇到什么人，战胜什么困难，都是我想寻求的答案。你不用太在意我，就让我一直观察你吧。",
+        "CHT": "就這麼看著{{MC|m=你|f=妳}}，算是愛好嗎？因為{{MC|m=你|f=妳}}的一舉一動都讓我很好奇啊。作為世界的旅行者，{{MC|m=你|f=妳}}從哪裡來、將到哪裡去、會遇到什麼人、戰勝什麼困難，都是我想尋求的答案。{{MC|m=你|f=妳}}不用太在意我，就讓我一直觀察{{MC|m=你|f=妳}}吧。",
+        "JP": "こうしてあなたを見ること…これって趣味と言うべきなのかしら？あなたの一挙一動、そのすべてに興味をそそられるの。世界を旅する者として、あなたがどこから来て、どこへ向かい、どんな人に会い、どんな困難を乗り越えるか。そのすべてが私の追い求めている答えだわ。私のことは気にしないで…こうして、あなたをずっと観察させて。",
+        "KR": "이렇게 널 바라보는 것도 취미라고 할 수 있을까? 너의 행동 하나하나가 모두 다 궁금하거든. 세상을 누비는 여행자가 어디서 왔고 어디로 가는지, 어떤 사람을 만나고 어떤 어려움을 극복해나가는지, 이 모든 게 내가 알고 싶은 답이야. 신경 쓰지 말고 그냥 계속 관찰하게 해줘"
+      },
+      "OpenCondsSummary": {}
+    },
+    {
+      "Type": 1,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 3877659623,
+      "VoiceFile": "6002",
+      "VoiceFileTextMapHash": 1129743831,
+      "VoiceTitleLockedTextMapHash": 3765974042,
+      "FetterId": 73038,
+      "AvatarId": 10000073,
+      "OpenConds": [],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "Nahida's Troubles",
+      "VoiceFileText": "I think I'm good at asking the right questions and giving good answers, but I've come to realize that a lot of people just convince themselves they don't understand. The answers to their problems don't help them. It seems to me that as people grow older, they lose the courage to question things and accept the truth...",
+      "VoiceFilePath": "vo nahida dialog annoyed.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "Nahida's Troubles",
+        "CHS": "纳西妲的烦恼…",
+        "CHT": "納西妲的煩惱…",
+        "JP": "ナヒーダの悩み…",
+        "KR": "나히다의 고민…"
+      },
+      "VoiceFileTextMap": {
+        "EN": "I think I'm good at asking the right questions and giving good answers, but I've come to realize that a lot of people just convince themselves they don't understand. The answers to their problems don't help them. It seems to me that as people grow older, they lose the courage to question things and accept the truth...",
+        "CHS": "我自认为我擅长提问和回答问题，但我渐渐明白，有很多人是揣着明白装糊涂，问题的答案并不能帮上他们的忙。是不是随着年龄增长，大家都会失去面对质问和答案的勇气呢…",
+        "CHT": "我自認為我擅長提問和回答問題，但我漸漸明白，有很多人是揣著明白裝糊塗，問題的答案並不能幫上他們的忙。是不是隨著年齡增長，大家都會失去面對質問和答案的勇氣呢…",
+        "JP": "私、自分では質問したり答えたりするのが得意だと思っていたけれど、次第に分かってきたことがあるの。分かっているのに分かっていないふりをする人がたくさんいて、彼らにとっては答えなんて何の役にも立たないってこと。人は年を重ねていくにつれて、疑問や答えに向き合う勇気を失っていくものなのかしら…",
+        "KR": "난 내가 질문과 답변을 잘한다고 생각했어. 그런데 사람들은 알면서도 모르는 척하거나, 답을 알려줘도 도움이 되지 않는다는 것을 점차 깨달았지. 사람은 나이가 들면 답을 마주할 용기가 없어지는 걸까…"
+      },
+      "OpenCondsSummary": {}
+    },
+    {
+      "Type": 1,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 1054909423,
+      "VoiceFile": "6005",
+      "VoiceFileTextMapHash": 1079004391,
+      "VoiceTitleLockedTextMapHash": 80261202,
+      "FetterId": 73039,
+      "AvatarId": 10000073,
+      "OpenConds": [],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "Favorite Food",
+      "VoiceFileText": "Definitely Candied Ajilenakh Nuts. I just need one little bite and my brain starts chugging away at top speed, and suddenly there's no problem too difficult for me to solve. The only thing you need to watch out for is: Don't put the jar somewhere that's too easy to reach.",
+      "VoiceFilePath": "vo nahida pref foodlike 01.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "Favorite Food",
+        "CHS": "喜欢的食物…",
+        "CHT": "喜歡的食物…",
+        "JP": "好きな食べ物…",
+        "KR": "좋아하는 음식…"
+      },
+      "VoiceFileTextMap": {
+        "EN": "Definitely Candied Ajilenakh Nuts. I just need one little bite and my brain starts chugging away at top speed, and suddenly there's no problem too difficult for me to solve. The only thing you need to watch out for is: Don't put the jar somewhere that's too easy to reach.",
+        "CHS": "当然是枣椰蜜糖了，只要吃上一小块，大脑就会噼里啪啦地飞速运转，没什么问题解决不了。唯一需要注意的是，装蜜糖的罐子不能放在太容易伸手够到的地方。",
+        "CHT": "當然是棗椰蜜糖了，只要吃上一小塊，大腦就會劈哩啪啦地飛速運轉，沒什麼問題解決不了。唯一需要注意的是，裝蜜糖的罐子不能放在太容易伸手搆到的地方。",
+        "JP": "もちろんナツメヤシキャンディよ。一つ食べるだけで物凄い速さで頭が回り出すから、なんだって解決できるわ。ただ唯一注意すべきなのは、キャンディの入っている瓶をあまり手の届きやすい場所に置かないことね。",
+        "KR": "당연히 대추야자 사탕이지. 하나만 먹어도 머리 회전이 빨라져서 해결 못하는 문제가 없거든. 주의할 점은, 절대 사탕 항아리를 쉽게 손닿는 곳에 두어서는 안 된다는 거야"
+      },
+      "OpenCondsSummary": {}
+    },
+    {
+      "Type": 1,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 2769424255,
+      "VoiceFile": "6004",
+      "VoiceFileTextMapHash": 1869866183,
+      "VoiceTitleLockedTextMapHash": 1597408274,
+      "FetterId": 73040,
+      "AvatarId": 10000073,
+      "OpenConds": [],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "Least Favorite Food",
+      "VoiceFileText": "Sea creatures are born into infinite darkness and live their lives in the depths of the ocean. It's a complete unknown to me. Eating them is like swallowing an icky storm cloud.",
+      "VoiceFilePath": "vo nahida pref fooddislike.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "Least Favorite Food",
+        "CHS": "讨厌的食物…",
+        "CHT": "討厭的食物…",
+        "JP": "嫌いな食べ物…",
+        "KR": "싫어하는 음식…"
+      },
+      "VoiceFileTextMap": {
+        "EN": "Sea creatures are born into infinite darkness and live their lives in the depths of the ocean. It's a complete unknown to me. Eating them is like swallowing an icky storm cloud.",
+        "CHS": "那些海鲜，它们在无边无际的黑暗中出生，成长在我所不了解的海底深处。要我吃下它们，就好像要我咽下一团脏兮兮的乌云一样。",
+        "CHT": "那些海鮮，牠們在無邊無際的黑暗中出生，成長在我所不瞭解的海底深處。要我吃下牠們，就好像要我咽下一團髒兮兮的烏雲一樣。",
+        "JP": "海鮮というものは、果てのない暗闇の中に生まれ、私の知らない深海で育った…それを食べろだなんて、汚れた雲を飲み込めって言うようなものよ。",
+        "KR": "해산물은 내가 모르는 깊고 어두운 바닷속에서 자랐을 텐데, 그걸 먹으라는 것은 나보고 더러운 먹구름을 먹으라는 것과 다름없어"
+      },
+      "OpenCondsSummary": {}
+    },
+    {
+      "Type": 1,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 3038402447,
+      "VoiceFile": "6007",
+      "VoiceFileTextMapHash": 3676868359,
+      "VoiceTitleLockedTextMapHash": 2441797314,
+      "FetterId": 73041,
+      "AvatarId": 10000073,
+      "OpenConds": [],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "Receiving a Gift: I",
+      "VoiceFileText": "Mm, may the world never forget this beautiful flavor. Thank you.",
+      "VoiceFilePath": "vo nahida spice pref 01.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "Receiving a Gift: I",
+        "CHS": "收到赠礼·其一",
+        "CHT": "收到贈禮·其一",
+        "JP": "贈り物を受け取る·1",
+        "KR": "선물 획득·첫 번째"
+      },
+      "VoiceFileTextMap": {
+        "EN": "Mm, may the world never forget this beautiful flavor. Thank you.",
+        "CHS": "像这样的好味道，应该被世界永久记录下来。谢谢你。",
+        "CHT": "像這樣的好味道，應該被世界永久記錄下來。謝謝{{MC|m=你|f=妳}}。",
+        "JP": "ありがとう。これほどにおいしい味は、永久にこの世界に残されるべきね。",
+        "KR": "이렇게 훌륭한 맛은 세상에 영원히 기록되어야 해. 정말 고마워"
+      },
+      "OpenCondsSummary": {}
+    },
+    {
+      "Type": 1,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 863091399,
+      "VoiceFile": "6008",
+      "VoiceFileTextMapHash": 1730969119,
+      "VoiceTitleLockedTextMapHash": 4004986738,
+      "FetterId": 73042,
+      "AvatarId": 10000073,
+      "OpenConds": [],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "Receiving a Gift: II",
+      "VoiceFileText": "Hehe, I really appreciate this. It tastes lovely.",
+      "VoiceFilePath": "vo nahida spice normal 01.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "Receiving a Gift: II",
+        "CHS": "收到赠礼·其二",
+        "CHT": "收到贈禮·其二",
+        "JP": "贈り物を受け取る·2",
+        "KR": "선물 획득·두 번째"
+      },
+      "VoiceFileTextMap": {
+        "EN": "Hehe, I really appreciate this. It tastes lovely.",
+        "CHS": "呵呵，你的心意我收到了，味道也可圈可点。",
+        "CHT": "呵呵，{{MC|m=你|f=妳}}的心意我收到了，味道也可圈可點。",
+        "JP": "ふふっ。その気持ち、ちゃんと受け取ったわ。味も申し分なかった。",
+        "KR": "후후, 마음은 잘 받았어, 맛도 아주 훌륭해"
+      },
+      "OpenCondsSummary": {}
+    },
+    {
+      "Type": 1,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 2288695039,
+      "VoiceFile": "6009",
+      "VoiceFileTextMapHash": 3901262711,
+      "VoiceTitleLockedTextMapHash": 1395909442,
+      "FetterId": 73043,
+      "AvatarId": 10000073,
+      "OpenConds": [],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "Receiving a Gift: III",
+      "VoiceFileText": "...How should I put this? I guess... you wouldn't feed Shroomboars to a Sumpter Beast, would you?",
+      "VoiceFilePath": "vo nahida spice dislike 01.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "Receiving a Gift: III",
+        "CHS": "收到赠礼·其三",
+        "CHT": "收到贈禮·其三",
+        "JP": "贈り物を受け取る·3",
+        "KR": "선물 획득·세 번째"
+      },
+      "VoiceFileTextMap": {
+        "EN": "...How should I put this? I guess... you wouldn't feed Shroomboars to a Sumpter Beast, would you?",
+        "CHS": "…怎么说呢？打比方的话，你不会给狗狗喝蔬菜汁吧？",
+        "CHT": "…怎麼說呢？打比方的話，{{MC|m=你|f=妳}}不會讓狗狗喝蔬菜汁吧？",
+        "JP": "そうね、例えて言えば…あなたもワンちゃんには野菜ジュースをあげないでしょ？",
+        "KR": "…뭐라고 해야 할까? 예를 들면 강아지한테 야채 주스를 먹일 순 없잖아?"
+      },
+      "OpenCondsSummary": {}
+    },
+    {
+      "Type": 1,
+      "IsHiden": true,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 3759350391,
+      "VoiceFile": "7001",
+      "VoiceFileTextMapHash": 3653268031,
+      "VoiceTitleLockedTextMapHash": 1104643698,
+      "FetterId": 73044,
+      "AvatarId": 10000073,
+      "OpenConds": [
+        {
+          "CondType": "FETTER_COND_PLAYER_BIRTHDAY",
+          "ParamList": []
+        }
+      ],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "Birthday",
+      "VoiceFileText": "I was thinking, your birthday celebration needs to be at least as grand as the Sabzeruz Festival, so... Hmm? Too much? But everyone's already done preparing for it. C'mon, c'mon, let's go! Just this once &mdash; I'll make sure you love it!",
+      "VoiceFilePath": "vo nahida pref birthday 01.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "Birthday",
+        "CHS": "生日…",
+        "CHT": "生日…",
+        "JP": "誕生日…",
+        "KR": "생일…"
+      },
+      "VoiceFileTextMap": {
+        "EN": "I was thinking, your birthday celebration needs to be at least as grand as the Sabzeruz Festival, so... Hmm? Too much? But everyone's already done preparing for it. C'mon, c'mon, let's go! Just this once &mdash; I'll make sure you love it!",
+        "CHS": "我想了想，要庆祝你的生日，至少也要像「花神诞祭」一样隆重…欸？太夸张了吗？可是我都让人准备好了，走吧走吧，仅限一次也好，绝对会让你满意的！",
+        "CHT": "我想了想，要慶祝{{MC|m=你|f=妳}}的生日，至少也要像「花神誕祭」一樣隆重…欸？太誇張了嗎？可是我都讓人準備好了，走吧走吧，僅限一次也好，絕對會讓{{MC|m=你|f=妳}}滿意的！",
+        "JP": "よく考えたのだけど、あなたの誕生日を祝うには、少なくとも「花神誕祭」くらいは盛大にやらないと…えっ？大げさですって？でも、もう準備の手配も済んだし…行きましょう、一度きりでもいいから、きっと満足させてあげるわ！",
+        "KR": "생각해 봤는데 네 생일을 축하하려면 적어도 화신 탄신 축제만큼 성대해야 할 것 같아…. 음? 너무 과하다고? 하지만 이미 준비하라고 시켰는걸. 어서 가자. 이번 한 번만은 기대해도 좋을 거야!"
+      },
+      "OpenCondsSummary": {
+        "Birthday": true
+      }
+    },
+    {
+      "Type": 1,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [
+        1541364482
+      ],
+      "VoiceTitleTextMapHash": 645800199,
+      "VoiceFile": "8001",
+      "VoiceFileTextMapHash": 4058395335,
+      "VoiceTitleLockedTextMapHash": 2038949178,
+      "FetterId": 73045,
+      "AvatarId": 10000073,
+      "OpenConds": [
+        {
+          "CondType": "FETTER_COND_AVATAR_PROMOTE_LEVEL",
+          "ParamList": [
+            1
+          ]
+        }
+      ],
+      "FinishConds": [],
+      "MappedTips": [
+        "Unlocks at Ascension Phase 1"
+      ],
+      "VoiceTitleText": "Feelings About Ascension: Intro",
+      "VoiceFileText": "I'm getting smarter!",
+      "VoiceFilePath": "vo nahida starup 01.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "Feelings About Ascension: Intro",
+        "CHS": "突破的感受·起",
+        "CHT": "突破的感受·起",
+        "JP": "突破した感想·起",
+        "KR": "돌파의 느낌·기"
+      },
+      "VoiceFileTextMap": {
+        "EN": "I'm getting smarter!",
+        "CHS": "变聪明啦~",
+        "CHT": "變聰明啦~",
+        "JP": "頭が良くなったわ。",
+        "KR": "더 똑똑해졌어~"
+      },
+      "OpenCondsSummary": {
+        "AscensionPhase": 1
+      }
+    },
+    {
+      "Type": 1,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [
+        1884590810
+      ],
+      "VoiceTitleTextMapHash": 1149399407,
+      "VoiceFile": "8002",
+      "VoiceFileTextMapHash": 113959,
+      "VoiceTitleLockedTextMapHash": 3417647746,
+      "FetterId": 73046,
+      "AvatarId": 10000073,
+      "OpenConds": [
+        {
+          "CondType": "FETTER_COND_AVATAR_PROMOTE_LEVEL",
+          "ParamList": [
+            2
+          ]
+        }
+      ],
+      "FinishConds": [],
+      "MappedTips": [
+        "Unlocks at Ascension Phase 2"
+      ],
+      "VoiceTitleText": "Feelings About Ascension: Building Up",
+      "VoiceFileText": "My mind is growing even bigger. It feels like you could fit the entire sky and ocean inside it.",
+      "VoiceFilePath": "vo nahida starup 02.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "Feelings About Ascension: Building Up",
+        "CHS": "突破的感受·承",
+        "CHT": "突破的感受·承",
+        "JP": "突破した感想·承",
+        "KR": "돌파의 느낌·승"
+      },
+      "VoiceFileTextMap": {
+        "EN": "My mind is growing even bigger. It feels like you could fit the entire sky and ocean inside it.",
+        "CHS": "思路变得更开阔了，天空和大海都能装进去。",
+        "CHT": "想法變得更開闊了，天空和大海都能裝進去。",
+        "JP": "考えが広がったわ。空と海さえ入ってしまうほどよ。",
+        "KR": "하늘과 바다도 집어넣을 수 있을 정도로 생각이 트였어"
+      },
+      "OpenCondsSummary": {
+        "AscensionPhase": 2
+      }
+    },
+    {
+      "Type": 1,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [
+        3265378106
+      ],
+      "VoiceTitleTextMapHash": 83151407,
+      "VoiceFile": "8003",
+      "VoiceFileTextMapHash": 722636943,
+      "VoiceTitleLockedTextMapHash": 2517754370,
+      "FetterId": 73047,
+      "AvatarId": 10000073,
+      "OpenConds": [
+        {
+          "CondType": "FETTER_COND_AVATAR_PROMOTE_LEVEL",
+          "ParamList": [
+            4
+          ]
+        }
+      ],
+      "FinishConds": [],
+      "MappedTips": [
+        "Unlocks at Ascension Phase 4"
+      ],
+      "VoiceTitleText": "Feelings About Ascension: Climax",
+      "VoiceFileText": "I feel like a Nilotpala Lotus that's been reunited with its leaves, or a Sango Pearl that's found its shell.",
+      "VoiceFilePath": "vo nahida starup 03.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "Feelings About Ascension: Climax",
+        "CHS": "突破的感受·转",
+        "CHT": "突破的感受·轉",
+        "JP": "突破した感想·転",
+        "KR": "돌파의 느낌·전"
+      },
+      "VoiceFileTextMap": {
+        "EN": "I feel like a Nilotpala Lotus that's been reunited with its leaves, or a Sango Pearl that's found its shell.",
+        "CHS": "这种感觉，就像月莲找到了莲叶，珊瑚真珠找到了贝壳。",
+        "CHT": "這種感覺，就像月蓮找到了蓮葉，珊瑚真珠找到了貝殼。",
+        "JP": "この感覚…まるでサウマラタ蓮が蓮の葉を見つけ、珊瑚真珠が貝を見つけたみたい。",
+        "KR": "마치 달 연꽃이 연잎을 만나고 산호 진주가 조개를 만난 듯한 느낌이 들어"
+      },
+      "OpenCondsSummary": {
+        "AscensionPhase": 4
+      }
+    },
+    {
+      "Type": 1,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [
+        4108461122
+      ],
+      "VoiceTitleTextMapHash": 1434712527,
+      "VoiceFile": "8004",
+      "VoiceFileTextMapHash": 982929999,
+      "VoiceTitleLockedTextMapHash": 2516342794,
+      "FetterId": 73048,
+      "AvatarId": 10000073,
+      "OpenConds": [
+        {
+          "CondType": "FETTER_COND_AVATAR_PROMOTE_LEVEL",
+          "ParamList": [
+            6
+          ]
+        }
+      ],
+      "FinishConds": [],
+      "MappedTips": [
+        "Unlocks at Ascension Phase 6"
+      ],
+      "VoiceTitleText": "Feelings About Ascension: Conclusion",
+      "VoiceFileText": "Thank you for allowing me to be your companion, and for teaching me so many new things. As the God of Wisdom, I grant to you my blessing: From here onward, may your journey be free from confusion that clouds your mind and obstacles that block your path.",
+      "VoiceFilePath": "vo nahida starup 04.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "Feelings About Ascension: Conclusion",
+        "CHS": "突破的感受·合",
+        "CHT": "突破的感受·合",
+        "JP": "突破した感想·結",
+        "KR": "돌파의 느낌·결"
+      },
+      "VoiceFileTextMap": {
+        "EN": "Thank you for allowing me to be your companion, and for teaching me so many new things. As the God of Wisdom, I grant to you my blessing: From here onward, may your journey be free from confusion that clouds your mind and obstacles that block your path.",
+        "CHS": "感谢你愿意让我成为你的同伴，还教会了我那么多新的知识。我以智慧之神的名义为你赐福，从今往后不再会有困惑阻碍你的旅途。",
+        "CHT": "感謝{{MC|m=你|f=妳}}願意讓我成為{{MC|m=你|f=妳}}的同伴，還教會了我那麼多新的知識。我以智慧之神的名義為{{MC|m=你|f=妳}}賜福，從今往後不再會有困惑阻礙{{MC|m=你|f=妳}}的旅途。",
+        "JP": "私を仲間にしてくれてありがとう。それだけでなく、こんなに多くの新しい知識を与えてくれた。これから先のあなたの旅路が、混乱に遮られないことを、知恵の神の名において祈るわ。",
+        "KR": "날 동료로 받아주고 새로운 지식을 가르쳐줘서 정말 고마워. 지혜의 신의 이름으로 앞으로 있을 여정에 그 어떠한 어려움도 널 막지 못하도록 축복해 줄게"
+      },
+      "OpenCondsSummary": {
+        "AscensionPhase": 6
+      }
+    }
+  ],
+  "combatFetters": [
+    {
+      "Type": 2,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 1600798983,
+      "VoiceFile": "100001",
+      "VoiceFileTextMapHash": 800915871,
+      "VoiceTitleLockedTextMapHash": 4280477402,
+      "FetterId": 73049,
+      "AvatarId": 10000073,
+      "OpenConds": [],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "Elemental Skill: I",
+      "VoiceFileText": "Committed to memory.",
+      "VoiceFilePath": "vo nahida battle skill1 01.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "Elemental Skill: I",
+        "CHS": "元素战技·其一",
+        "CHT": "元素戰技·其一",
+        "JP": "元素スキル·1",
+        "KR": "원소전투 스킬·첫 번째"
+      },
+      "VoiceFileTextMap": {
+        "EN": "Committed to memory.",
+        "CHS": "记住你了。",
+        "CHT": "記住你了。",
+        "JP": "覚えたわよ。",
+        "KR": "기억했어"
+      },
+      "OpenCondsSummary": {}
+    },
+    {
+      "Type": 2,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 1042231815,
+      "VoiceFile": "100002",
+      "VoiceFileTextMapHash": 2913100767,
+      "VoiceTitleLockedTextMapHash": 3986095994,
+      "FetterId": 73050,
+      "AvatarId": 10000073,
+      "OpenConds": [],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "Elemental Skill: II",
+      "VoiceFileText": "Grow, grow, grow.",
+      "VoiceFilePath": "vo nahida battle skill1 02.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "Elemental Skill: II",
+        "CHS": "元素战技·其二",
+        "CHT": "元素戰技·其二",
+        "JP": "元素スキル·2",
+        "KR": "원소전투 스킬·두 번째"
+      },
+      "VoiceFileTextMap": {
+        "EN": "Grow, grow, grow.",
+        "CHS": "蔓延吧。",
+        "CHT": "蔓延吧。",
+        "JP": "蔓延りなさい。",
+        "KR": "퍼져라"
+      },
+      "OpenCondsSummary": {}
+    },
+    {
+      "Type": 2,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 4260102639,
+      "VoiceFile": "100003",
+      "VoiceFileTextMapHash": 3044286391,
+      "VoiceTitleLockedTextMapHash": 1051515698,
+      "FetterId": 73051,
+      "AvatarId": 10000073,
+      "OpenConds": [],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "Elemental Skill: III",
+      "VoiceFileText": "This might hurt a little.",
+      "VoiceFilePath": "vo nahida battle skill1 03.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "Elemental Skill: III",
+        "CHS": "元素战技·其三",
+        "CHT": "元素戰技·其三",
+        "JP": "元素スキル·3",
+        "KR": "원소전투 스킬·세 번째"
+      },
+      "VoiceFileTextMap": {
+        "EN": "This might hurt a little.",
+        "CHS": "等下有点痛哦。",
+        "CHT": "等一下會有點痛喔。",
+        "JP": "痛くしちゃうかも。",
+        "KR": "이따가 조금 아플 거야"
+      },
+      "OpenCondsSummary": {}
+    },
+    {
+      "Type": 2,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 2949743415,
+      "VoiceFile": "100004",
+      "VoiceFileTextMapHash": 1950167735,
+      "VoiceTitleLockedTextMapHash": 4185671714,
+      "FetterId": 73052,
+      "AvatarId": 10000073,
+      "OpenConds": [],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "Elemental Skill: IV",
+      "VoiceFileText": "Hey!",
+      "VoiceFilePath": "vo nahida battle skill1 04.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "Elemental Skill: IV",
+        "CHS": "元素战技·其四",
+        "CHT": "元素戰技·其四",
+        "JP": "元素スキル·4",
+        "KR": "원소전투 스킬·네 번째"
+      },
+      "VoiceFileTextMap": {
+        "EN": "Hey!",
+        "CHS": "嘿！",
+        "CHT": "嘿！",
+        "JP": "ふふっ！",
+        "KR": "헤이!"
+      },
+      "OpenCondsSummary": {}
+    },
+    {
+      "Type": 2,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 40739943,
+      "VoiceFile": "100005",
+      "VoiceFileTextMapHash": 2200198295,
+      "VoiceTitleLockedTextMapHash": 2422656146,
+      "FetterId": 73053,
+      "AvatarId": 10000073,
+      "OpenConds": [],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "Elemental Skill: V",
+      "VoiceFileText": "Everyone hold hands~",
+      "VoiceFilePath": "vo nahida battle skill1 05.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "Elemental Skill: V",
+        "CHS": "元素战技·其五",
+        "CHT": "元素戰技·其五",
+        "JP": "元素スキル·5",
+        "KR": "원소전투 스킬·다섯 번째"
+      },
+      "VoiceFileTextMap": {
+        "EN": "Everyone hold hands~",
+        "CHS": "手牵手~",
+        "CHT": "手牽手~",
+        "JP": "手をつなぎましょう～",
+        "KR": "손에 손잡고~"
+      },
+      "OpenCondsSummary": {}
+    },
+    {
+      "Type": 2,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 146549583,
+      "VoiceFile": "100006",
+      "VoiceFileTextMapHash": 3374540487,
+      "VoiceTitleLockedTextMapHash": 2479366602,
+      "FetterId": 73054,
+      "AvatarId": 10000073,
+      "OpenConds": [],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "Elemental Skill: VI",
+      "VoiceFileText": "I see everything.",
+      "VoiceFilePath": "vo nahida battle skill1 06.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "Elemental Skill: VI",
+        "CHS": "元素战技·其六",
+        "CHT": "元素戰技·其六",
+        "JP": "元素スキル·6",
+        "KR": "원소전투 스킬·여섯 번째"
+      },
+      "VoiceFileTextMap": {
+        "EN": "I see everything.",
+        "CHS": "全都看见咯。",
+        "CHT": "全都看見囉。",
+        "JP": "ぜんぶ丸見えね。",
+        "KR": "전부 다 보인다구"
+      },
+      "OpenCondsSummary": {}
+    },
+    {
+      "Type": 2,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 1482687719,
+      "VoiceFile": "200001",
+      "VoiceFileTextMapHash": 2834787175,
+      "VoiceTitleLockedTextMapHash": 3804522898,
+      "FetterId": 73055,
+      "AvatarId": 10000073,
+      "OpenConds": [],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "Elemental Burst: I",
+      "VoiceFileText": "Make yourselves at home~",
+      "VoiceFilePath": "vo nahida battle skill3 01.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "Elemental Burst: I",
+        "CHS": "元素爆发·其一",
+        "CHT": "元素爆發·其一",
+        "JP": "元素爆発·1",
+        "KR": "원소폭발·첫 번째"
+      },
+      "VoiceFileTextMap": {
+        "EN": "Make yourselves at home~",
+        "CHS": "来我家做客吧~",
+        "CHT": "來我家作客吧~",
+        "JP": "私のおうちにいらっしゃい。",
+        "KR": "우리 집에 놀러 와~"
+      },
+      "OpenCondsSummary": {}
+    },
+    {
+      "Type": 2,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 283058287,
+      "VoiceFile": "200002",
+      "VoiceFileTextMapHash": 2477522943,
+      "VoiceTitleLockedTextMapHash": 3649004274,
+      "FetterId": 73056,
+      "AvatarId": 10000073,
+      "OpenConds": [],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "Elemental Burst: II",
+      "VoiceFileText": "Share in my knowledge.",
+      "VoiceFilePath": "vo nahida battle skill3 02.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "Elemental Burst: II",
+        "CHS": "元素爆发·其二",
+        "CHT": "元素爆發·其二",
+        "JP": "元素爆発·2",
+        "KR": "원소폭발·두 번째"
+      },
+      "VoiceFileTextMap": {
+        "EN": "Share in my knowledge.",
+        "CHS": "知识，与你分享。",
+        "CHT": "知識，與你分享。",
+        "JP": "知識を、あなたにも。",
+        "KR": "지식을 너와 공유할게"
+      },
+      "OpenCondsSummary": {}
+    },
+    {
+      "Type": 2,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 4137649839,
+      "VoiceFile": "200003",
+      "VoiceFileTextMapHash": 3812042511,
+      "VoiceTitleLockedTextMapHash": 608510346,
+      "FetterId": 73057,
+      "AvatarId": 10000073,
+      "OpenConds": [],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "Elemental Burst: III",
+      "VoiceFileText": "The Temple of Wisdom.",
+      "VoiceFilePath": "vo nahida battle skill3 03.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "Elemental Burst: III",
+        "CHS": "元素爆发·其三",
+        "CHT": "元素爆發·其三",
+        "JP": "元素爆発·3",
+        "KR": "원소폭발·세 번째"
+      },
+      "VoiceFileTextMap": {
+        "EN": "The Temple of Wisdom.",
+        "CHS": "此即智慧之殿堂。",
+        "CHT": "此即智慧之殿堂。",
+        "JP": "これこそが知恵の殿堂&mdash;&mdash;",
+        "KR": "이곳이 바로 지혜의 전당이야"
+      },
+      "OpenCondsSummary": {}
+    },
+    {
+      "Type": 2,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 555146655,
+      "VoiceFile": "300001",
+      "VoiceFileTextMapHash": 348453095,
+      "VoiceTitleLockedTextMapHash": 2096223658,
+      "FetterId": 73058,
+      "AvatarId": 10000073,
+      "OpenConds": [],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "Opening Treasure Chest: I",
+      "VoiceFileText": "Curiosity deserves a reward.",
+      "VoiceFilePath": "vo nahida chest open 01.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "Opening Treasure Chest: I",
+        "CHS": "打开宝箱·其一",
+        "CHT": "打開寶箱·其一",
+        "JP": "宝箱を開ける·1",
+        "KR": "보물상자 오픈·첫 번째"
+      },
+      "VoiceFileTextMap": {
+        "EN": "Curiosity deserves a reward.",
+        "CHS": "好奇心值得嘉奖哦。",
+        "CHT": "好奇心值得嘉獎喔。",
+        "JP": "賞賛すべき好奇心ね。",
+        "KR": "호기심의 포상이야"
+      },
+      "OpenCondsSummary": {}
+    },
+    {
+      "Type": 2,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 2328136839,
+      "VoiceFile": "300002",
+      "VoiceFileTextMapHash": 3893392247,
+      "VoiceTitleLockedTextMapHash": 2649932090,
+      "FetterId": 73059,
+      "AvatarId": 10000073,
+      "OpenConds": [],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "Opening Treasure Chest: II",
+      "VoiceFileText": "I wonder who this gift could be from.",
+      "VoiceFilePath": "vo nahida chest open 02.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "Opening Treasure Chest: II",
+        "CHS": "打开宝箱·其二",
+        "CHT": "打開寶箱·其二",
+        "JP": "宝箱を開ける·2",
+        "KR": "보물상자 오픈·두 번째"
+      },
+      "VoiceFileTextMap": {
+        "EN": "I wonder who this gift could be from.",
+        "CHS": "是源自谁的馈赠呢？",
+        "CHT": "是源自誰的饋贈呢？",
+        "JP": "誰からの贈り物かしら？",
+        "KR": "누가 남긴 선물일까?"
+      },
+      "OpenCondsSummary": {}
+    },
+    {
+      "Type": 2,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 3160254063,
+      "VoiceFile": "300003",
+      "VoiceFileTextMapHash": 702197719,
+      "VoiceTitleLockedTextMapHash": 3090035882,
+      "FetterId": 73060,
+      "AvatarId": 10000073,
+      "OpenConds": [],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "Opening Treasure Chest: III",
+      "VoiceFileText": "Find anything you like?",
+      "VoiceFilePath": "vo nahida chest open 03.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "Opening Treasure Chest: III",
+        "CHS": "打开宝箱·其三",
+        "CHT": "打開寶箱·其三",
+        "JP": "宝箱を開ける·3",
+        "KR": "보물상자 오픈·세 번째"
+      },
+      "VoiceFileTextMap": {
+        "EN": "Find anything you like?",
+        "CHS": "有你想要的吗？",
+        "CHT": "有{{MC|m=你|f=妳}}想要的嗎？",
+        "JP": "欲しいものはあった？",
+        "KR": "원하는 게 들어 있어?"
+      },
+      "OpenCondsSummary": {}
+    },
+    {
+      "Type": 2,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 630481623,
+      "VoiceFile": "410001",
+      "VoiceFileTextMapHash": 2522254415,
+      "VoiceTitleLockedTextMapHash": 1645402210,
+      "FetterId": 73061,
+      "AvatarId": 10000073,
+      "OpenConds": [],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "Low HP: I",
+      "VoiceFileText": "Let's change tactics.",
+      "VoiceFilePath": "vo nahida life less30 01.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "Low HP: I",
+        "CHS": "生命值低·其一",
+        "CHT": "生命值低·其一",
+        "JP": "HP低下·1",
+        "KR": "HP 부족·첫 번째"
+      },
+      "VoiceFileTextMap": {
+        "EN": "Let's change tactics.",
+        "CHS": "换个策略吧。",
+        "CHT": "換個策略吧。",
+        "JP": "方策を変えましょう。",
+        "KR": "전략을 바꿔보자"
+      },
+      "OpenCondsSummary": {}
+    },
+    {
+      "Type": 2,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 3661231423,
+      "VoiceFile": "410002",
+      "VoiceFileTextMapHash": 3974983191,
+      "VoiceTitleLockedTextMapHash": 1665352770,
+      "FetterId": 73062,
+      "AvatarId": 10000073,
+      "OpenConds": [],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "Low HP: II",
+      "VoiceFileText": "Stop fighting!",
+      "VoiceFilePath": "vo nahida life less30 02.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "Low HP: II",
+        "CHS": "生命值低·其二",
+        "CHT": "生命值低·其二",
+        "JP": "HP低下·2",
+        "KR": "HP 부족·두 번째"
+      },
+      "VoiceFileTextMap": {
+        "EN": "Stop fighting!",
+        "CHS": "别打啦！",
+        "CHT": "別打啦！",
+        "JP": "もうやめてちょうだい！",
+        "KR": "그만 때려!"
+      },
+      "OpenCondsSummary": {}
+    },
+    {
+      "Type": 2,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 1577541199,
+      "VoiceFile": "410003",
+      "VoiceFileTextMapHash": 1287769559,
+      "VoiceTitleLockedTextMapHash": 556775490,
+      "FetterId": 73063,
+      "AvatarId": 10000073,
+      "OpenConds": [],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "Low HP: III",
+      "VoiceFileText": "This was unwise...",
+      "VoiceFilePath": "vo nahida life less30 03.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "Low HP: III",
+        "CHS": "生命值低·其三",
+        "CHT": "生命值低·其三",
+        "JP": "HP低下·3",
+        "KR": "HP 부족·세 번째"
+      },
+      "VoiceFileTextMap": {
+        "EN": "This was unwise...",
+        "CHS": "这样不太明智…",
+        "CHT": "這樣不太明智…",
+        "JP": "賢明とはいいがたいわ…",
+        "KR": "현명하지 못하네…"
+      },
+      "OpenCondsSummary": {}
+    },
+    {
+      "Type": 2,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 392489207,
+      "VoiceFile": "400001",
+      "VoiceFileTextMapHash": 2260014039,
+      "VoiceTitleLockedTextMapHash": 3964085146,
+      "FetterId": 73064,
+      "AvatarId": 10000073,
+      "OpenConds": [],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "Ally at Low HP: I",
+      "VoiceFileText": "Let me put my mind to it.",
+      "VoiceFilePath": "vo nahida life less30 teammate 01.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "Ally at Low HP: I",
+        "CHS": "同伴生命值低·其一",
+        "CHT": "同伴生命值低·其一",
+        "JP": "仲間HP低下·1",
+        "KR": "동료 HP 감소·첫 번째"
+      },
+      "VoiceFileTextMap": {
+        "EN": "Let me put my mind to it.",
+        "CHS": "让我来想想办法。",
+        "CHT": "讓我來想想辦法。",
+        "JP": "私が何とかするわ。",
+        "KR": "내가 방법을 생각해 볼게"
+      },
+      "OpenCondsSummary": {}
+    },
+    {
+      "Type": 2,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 1690814079,
+      "VoiceFile": "400002",
+      "VoiceFileTextMapHash": 2717329583,
+      "VoiceTitleLockedTextMapHash": 2182409010,
+      "FetterId": 73065,
+      "AvatarId": 10000073,
+      "OpenConds": [],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "Ally at Low HP: II",
+      "VoiceFileText": "Don't bite off more than you can chew.",
+      "VoiceFilePath": "vo nahida life less30 teammate 02.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "Ally at Low HP: II",
+        "CHS": "同伴生命值低·其二",
+        "CHT": "同伴生命值低·其二",
+        "JP": "仲間HP低下·2",
+        "KR": "동료 HP 감소·두 번째"
+      },
+      "VoiceFileTextMap": {
+        "EN": "Don't bite off more than you can chew.",
+        "CHS": "别再硬撑了。",
+        "CHT": "別再硬撐了。",
+        "JP": "やせ我慢しないで。",
+        "KR": "무리하지 마"
+      },
+      "OpenCondsSummary": {}
+    },
+    {
+      "Type": 2,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 2496586591,
+      "VoiceFile": "500001",
+      "VoiceFileTextMapHash": 956863311,
+      "VoiceTitleLockedTextMapHash": 2876361554,
+      "FetterId": 73066,
+      "AvatarId": 10000073,
+      "OpenConds": [],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "Fallen: I",
+      "VoiceFileText": "No life... lasts forever...",
+      "VoiceFilePath": "vo nahida life die 01.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "Fallen: I",
+        "CHS": "倒下·其一",
+        "CHT": "倒下·其一",
+        "JP": "戦闘不能·1",
+        "KR": "전투 불능·첫 번째"
+      },
+      "VoiceFileTextMap": {
+        "EN": "No life... lasts forever...",
+        "CHS": "生命…终有尽时…",
+        "CHT": "生命…終有盡時…",
+        "JP": "命は…いつか尽きるもの…",
+        "KR": "생명은… 끝나기 마련이지…"
+      },
+      "OpenCondsSummary": {}
+    },
+    {
+      "Type": 2,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 279928247,
+      "VoiceFile": "500002",
+      "VoiceFileTextMapHash": 120991103,
+      "VoiceTitleLockedTextMapHash": 4285116618,
+      "FetterId": 73067,
+      "AvatarId": 10000073,
+      "OpenConds": [],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "Fallen: II",
+      "VoiceFileText": "I'm... withering...",
+      "VoiceFilePath": "vo nahida life die 02.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "Fallen: II",
+        "CHS": "倒下·其二",
+        "CHT": "倒下·其二",
+        "JP": "戦闘不能·2",
+        "KR": "전투 불능·두 번째"
+      },
+      "VoiceFileTextMap": {
+        "EN": "I'm... withering...",
+        "CHS": "枯萎之刻…",
+        "CHT": "枯萎之刻…",
+        "JP": "枯れしぼむ刻…",
+        "KR": "시드는 순간…"
+      },
+      "OpenCondsSummary": {}
+    },
+    {
+      "Type": 2,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 276719575,
+      "VoiceFile": "500003",
+      "VoiceFileTextMapHash": 2513915335,
+      "VoiceTitleLockedTextMapHash": 1511416794,
+      "FetterId": 73068,
+      "AvatarId": 10000073,
+      "OpenConds": [],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "Fallen: III",
+      "VoiceFileText": "I don't... understand...",
+      "VoiceFilePath": "vo nahida life die 03.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "Fallen: III",
+        "CHS": "倒下·其三",
+        "CHT": "倒下·其三",
+        "JP": "戦闘不能·3",
+        "KR": "전투 불능·세 번째"
+      },
+      "VoiceFileTextMap": {
+        "EN": "I don't... understand...",
+        "CHS": "我…不明白…",
+        "CHT": "我…不明白…",
+        "JP": "私には…分からない…",
+        "KR": "이… 이해할 수 없어…"
+      },
+      "OpenCondsSummary": {}
+    },
+    {
+      "Type": 2,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 3703345895,
+      "VoiceFile": "910001",
+      "VoiceFileTextMapHash": 3463853039,
+      "VoiceTitleLockedTextMapHash": 2944095530,
+      "FetterId": 73069,
+      "AvatarId": 10000073,
+      "OpenConds": [],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "Heavy Hit Taken: I",
+      "VoiceFileText": "That really hurt...",
+      "VoiceFilePath": "vo nahida battle hit h 01.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "Heavy Hit Taken: I",
+        "CHS": "重受击·其一",
+        "CHT": "受重擊·其一",
+        "JP": "重ダメージを受ける·1",
+        "KR": "강공격 피격·첫 번째"
+      },
+      "VoiceFileTextMap": {
+        "EN": "That really hurt...",
+        "CHS": "好痛啊。",
+        "CHT": "好痛啊。",
+        "JP": "痛いっ…",
+        "KR": "아프잖아"
+      },
+      "OpenCondsSummary": {}
+    },
+    {
+      "Type": 2,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 1364286687,
+      "VoiceFile": "910002",
+      "VoiceFileTextMapHash": 2311181311,
+      "VoiceTitleLockedTextMapHash": 4212668658,
+      "FetterId": 73070,
+      "AvatarId": 10000073,
+      "OpenConds": [],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "Heavy Hit Taken: II",
+      "VoiceFileText": "I'm seeing stars...",
+      "VoiceFilePath": "vo nahida battle hit h 02.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "Heavy Hit Taken: II",
+        "CHS": "重受击·其二",
+        "CHT": "受重擊·其二",
+        "JP": "重ダメージを受ける·2",
+        "KR": "강공격 피격·두 번째"
+      },
+      "VoiceFileTextMap": {
+        "EN": "I'm seeing stars...",
+        "CHS": "被打晕了…",
+        "CHT": "被打暈了…",
+        "JP": "めまいが…",
+        "KR": "어지러워…"
+      },
+      "OpenCondsSummary": {}
+    },
+    {
+      "Type": 2,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 1168723655,
+      "VoiceFile": "600001",
+      "VoiceFileTextMapHash": 2380901327,
+      "VoiceTitleLockedTextMapHash": 104816210,
+      "FetterId": 73071,
+      "AvatarId": 10000073,
+      "OpenConds": [],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "Joining Party: I",
+      "VoiceFileText": "I've been waiting for you for ages.",
+      "VoiceFilePath": "vo nahida teamjoin 01.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "Joining Party: I",
+        "CHS": "加入队伍·其一",
+        "CHT": "加入隊伍·其一",
+        "JP": "チーム加入·1",
+        "KR": "파티 가입·첫 번째"
+      },
+      "VoiceFileTextMap": {
+        "EN": "I've been waiting for you for ages.",
+        "CHS": "我等你好久啦。",
+        "CHT": "我等{{MC|m=你|f=妳}}好久啦。",
+        "JP": "ずいぶん待ってたのよ。",
+        "KR": "널 한참 기다렸어"
+      },
+      "OpenCondsSummary": {}
+    },
+    {
+      "Type": 2,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 2446677071,
+      "VoiceFile": "600002",
+      "VoiceFileTextMapHash": 196952279,
+      "VoiceTitleLockedTextMapHash": 3606184298,
+      "FetterId": 73072,
+      "AvatarId": 10000073,
+      "OpenConds": [],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "Joining Party: II",
+      "VoiceFileText": "There are still so many places for us to explore.",
+      "VoiceFilePath": "vo nahida teamjoin 02.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "Joining Party: II",
+        "CHS": "加入队伍·其二",
+        "CHT": "加入隊伍·其二",
+        "JP": "チーム加入·2",
+        "KR": "파티 가입·두 번째"
+      },
+      "VoiceFileTextMap": {
+        "EN": "There are still so many places for us to explore.",
+        "CHS": "没去过的地方还有很多呢。",
+        "CHT": "沒去過的地方還有很多呢。",
+        "JP": "まだ行ったことのない場所がたくさんあるの。",
+        "KR": "아직 안 가 본 곳이 엄청 많아"
+      },
+      "OpenCondsSummary": {}
+    },
+    {
+      "Type": 2,
+      "HideCostumeList": [],
+      "ShowCostumeList": [],
+      "Tips": [],
+      "VoiceTitleTextMapHash": 3357754487,
+      "VoiceFile": "600003",
+      "VoiceFileTextMapHash": 3162810271,
+      "VoiceTitleLockedTextMapHash": 1500997458,
+      "FetterId": 73073,
+      "AvatarId": 10000073,
+      "OpenConds": [],
+      "FinishConds": [],
+      "MappedTips": [],
+      "VoiceTitleText": "Joining Party: III",
+      "VoiceFileText": "Time to broaden our horizons again.",
+      "VoiceFilePath": "vo nahida teamjoin 03.ogg",
+      "VoiceTitleTextMap": {
+        "EN": "Joining Party: III",
+        "CHS": "加入队伍·其三",
+        "CHT": "加入隊伍·其三",
+        "JP": "チーム加入·3",
+        "KR": "파티 가입·세 번째"
+      },
+      "VoiceFileTextMap": {
+        "EN": "Time to broaden our horizons again.",
+        "CHS": "又可以增长见识了。",
+        "CHT": "又可以增長見識了。",
+        "JP": "また見識を広められそうね。",
+        "KR": "또 견문을 넓힐 수 있겠어"
+      },
+      "OpenCondsSummary": {}
+    }
+  ],
+  "voAvatarName": "nahida",
+  "fetterFiles": [
+    "vo nahida weather breezy 01.ogg",
+    "vo nahida pref foodlike 01.ogg",
+    "vo nahida pref hobby.ogg",
+    "vo nahida dialog greetingnight.ogg",
+    "vo nahida teammate faruzan 01.ogg",
+    "vo nahida starup 01.ogg",
+    "vo nahida teammate cyno 02.ogg",
+    "vo nahida spice dislike 01.ogg",
+    "vo nahida teammate alhaitham 01.ogg",
+    "vo nahida character idle 02.ogg",
+    "vo nahida teammate cyno 01.ogg",
+    "vo nahida weather thunder 01.ogg",
+    "vo nahida dialog close.ogg",
+    "vo nahida dialog annoyed.ogg",
+    "vo nahida pref fooddislike.ogg",
+    "vo nahida weather snowy 01.ogg",
+    "vo nahida character idle 01.ogg",
+    "vo nahida spice pref 01.ogg",
+    "vo nahida starup 03.ogg",
+    "vo nahida dialog share 01.ogg",
+    "vo nahida dialog greetingnoon.ogg",
+    "vo nahida friendship 02.ogg",
+    "vo nahida friendship 03.ogg",
+    "vo nahida character idle 03.ogg",
+    "vo nahida dialog greetingnight2.ogg",
+    "vo nahida pref gift 01.ogg",
+    "vo nahida teammate tighnari 01.ogg",
+    "vo nahida dialog idle.ogg",
+    "vo nahida teammate theseven 02.ogg",
+    "vo nahida pref birthday 01.ogg",
+    "vo nahida friendship 01.ogg",
+    "vo nahida starup 04.ogg",
+    "vo nahida teammate theseven 01.ogg",
+    "vo nahida teammate collei 01.ogg",
+    "vo nahida friendship 05.ogg",
+    "vo nahida teammate scaramouche 01.ogg",
+    "vo nahida draw appear 01.ogg",
+    "vo nahida dialog greetingmorning.ogg",
+    "vo nahida weather heavyrain 01.ogg",
+    "vo nahida dialog close1.ogg",
+    "vo nahida teammate nilou 01.ogg",
+    "vo nahida starup 02.ogg",
+    "vo nahida weather sunny 01.ogg",
+    "vo nahida teammate kaveh 01.ogg",
+    "vo nahida teammate dori 01.ogg",
+    "vo nahida dialog idle2.ogg",
+    "vo nahida dialog pendant.ogg",
+    "vo nahida spice normal 01.ogg",
+    "vo nahida friendship 04.ogg",
+    "vo nahida life die 03.ogg",
+    "vo nahida teamjoin 03.ogg",
+    "vo nahida life less30 03.ogg",
+    "vo nahida life die 01.ogg",
+    "vo nahida battle hit h 01.ogg",
+    "vo nahida chest open 01.ogg",
+    "vo nahida battle hit l 01.ogg",
+    "vo nahida chest open 02.ogg",
+    "vo nahida chest open 03.ogg",
+    "vo nahida teamjoin 02.ogg",
+    "vo nahida battle skill3 01.ogg",
+    "vo nahida battle hit h 02.ogg",
+    "vo nahida life less30 01.ogg",
+    "vo nahida life less30 teammate 02.ogg",
+    "vo nahida explore sprint start 03.ogg",
+    "vo nahida battle skill1 04.ogg",
+    "vo nahida life less30 teammate 01.ogg",
+    "vo nahida battle skill1 05.ogg",
+    "vo nahida life die 02.ogg",
+    "vo nahida battle skill3 03.ogg",
+    "vo nahida life less30 02.ogg",
+    "vo nahida explore fly start 01.ogg",
+    "vo nahida teamjoin 01.ogg",
+    "vo nahida explore sprint start 02.ogg",
+    "vo nahida battle hit l 02.ogg",
+    "vo nahida battle skill1 03.ogg",
+    "vo nahida battle skill1 01.ogg",
+    "vo nahida battle skill1 06.ogg",
+    "vo nahida explore sprint start 01.ogg",
+    "vo nahida battle skill3 02.ogg",
+    "vo nahida battle skill1 02.ogg",
+    "vo nahida starup 04.ogg",
+    "vo nahida starup 02.ogg",
+    "vo nahida starup 01.ogg",
+    "vo nahida friendship 04.ogg",
+    "vo nahida starup 03.ogg",
+    "vo nahida friendship 05.ogg",
+    "vo nahida friendship 02.ogg",
+    "vo nahida chest open 01.ogg",
+    "vo nahida chest open 02.ogg",
+    "vo nahida chest open 03.ogg",
+    "vo nahida friendship 01.ogg",
+    "vo nahida life less30 01.ogg",
+    "vo nahida life less30 02.ogg",
+    "vo nahida life less30 03.ogg",
+    "vo nahida friendship 03.ogg",
+    "vo nahida life less30 teammate 01.ogg",
+    "vo nahida life less30 teammate 02.ogg"
+  ],
+  "animatorEventFiles": [
+    "vo nahida explore jump 01.ogg",
+    "vo nahida explore jump 02.ogg",
+    "vo nahida explore jump 03.ogg",
+    "vo nahida explore jump 04.ogg",
+    "vo nahida explore jump 05.ogg",
+    "vo nahida explore fly start 01.ogg",
+    "vo nahida explore fly start 02.ogg",
+    "vo nahida explore fly start 03.ogg",
+    "vo nahida battle attackmid 01.ogg",
+    "vo nahida battle attackmid 02.ogg",
+    "vo nahida battle attackmid 03.ogg",
+    "vo nahida battle skill3 01.ogg",
+    "vo nahida battle skill3 02.ogg",
+    "vo nahida battle skill3 03.ogg",
+    "vo nahida explore climb breath 01.ogg",
+    "vo nahida explore climb breath 02.ogg",
+    "vo nahida explore climb breath 03.ogg",
+    "vo nahida life die 01.ogg",
+    "vo nahida life die 02.ogg",
+    "vo nahida life die 03.ogg",
+    "vo nahida battle hit h 01.ogg",
+    "vo nahida battle hit h 02.ogg",
+    "vo nahida battle hit h 03.ogg",
+    "vo nahida battle hit h 04.ogg",
+    "vo nahida battle hit h 05.ogg",
+    "vo nahida battle hit h 06.ogg",
+    "vo nahida explore idle 01.ogg",
+    "vo nahida explore idle 02.ogg",
+    "vo nahida explore idle 03.ogg",
+    "vo nahida battle skill1 01.ogg",
+    "vo nahida battle skill1 02.ogg",
+    "vo nahida battle skill1 03.ogg",
+    "vo nahida battle attacklight 01.ogg",
+    "vo nahida battle attacklight 02.ogg",
+    "vo nahida battle attacklight 03.ogg",
+    "vo nahida battle attacklight 04.ogg",
+    "vo nahida battle attacklight 05.ogg",
+    "vo nahida battle attacklight 06.ogg",
+    "vo nahida battle attacklight 07.ogg",
+    "vo nahida battle attackheavy 01.ogg",
+    "vo nahida battle attackheavy 02.ogg",
+    "vo nahida battle attackheavy 03.ogg",
+    "vo nahida explore climb 01.ogg",
+    "vo nahida explore climb 02.ogg",
+    "vo nahida explore climb 03.ogg",
+    "vo nahida battle hit l 01.ogg",
+    "vo nahida battle hit l 02.ogg",
+    "vo nahida battle hit l 03.ogg",
+    "vo nahida battle hit l 04.ogg",
+    "vo nahida battle hit l 05.ogg",
+    "vo nahida battle hit l 06.ogg",
+    "vo nahida explore sprint start 01.ogg",
+    "vo nahida explore sprint start 02.ogg",
+    "vo nahida explore sprint start 03.ogg",
+    "vo nahida battle skill1 04.ogg",
+    "vo nahida battle skill1 05.ogg",
+    "vo nahida battle skill1 06.ogg"
+  ],
+  "avatarName": {
+    "EN": "Nahida",
+    "CHS": "纳西妲",
+    "CHT": "納西妲",
+    "JP": "ナヒーダ",
+    "KR": "나히다"
+  },
+  "avatar": {
+    "Id": 10000073,
+    "QualityType": "QUALITY_ORANGE",
+    "NameText": "Nahida",
+    "NameTextMapHash": 712501082,
+    "DescText": "A caged bird secluded within the confines of the Sanctuary of Surasthana who can only see the world in her dreams.",
+    "DescTextMapHash": 2629071729,
+    "InfoDescText": "A caged bird secluded within the confines of the Sanctuary of Surasthana who can only see the world in her dreams.",
+    "InfoDescTextMapHash": 2629071729,
+    "InitialWeapon": 14101,
+    "WeaponType": "WEAPON_CATALYST",
+    "BodyType": "BODY_LOLI",
+    "IconName": "UI_AvatarIcon_Nahida",
+    "ImageName": "AvatarImage_Forward_Nahida",
+    "SideIconName": "UI_AvatarIcon_Side_Nahida"
+  }
+}

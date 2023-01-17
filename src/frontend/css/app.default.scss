@@ -465,6 +465,10 @@ dl dd:after {
   font-family: 'Source Sans Pro', 'Open Sans', Arial, sans-serif;
   min-height: 40px;
   padding: 0 10px;
+  line-height: 1.3em;
+}
+.AppDialog .AppDialog_Content p + p {
+  margin-top: 0.3em;
 }
 .AppDialog[data-type='modal'] .AppDialog_Content {
   min-height: 60px;

@@ -54,8 +54,7 @@ export function getTextMapItem(langCode: LangCode, id: any): string {
   return TextMap[langCode][id];
 }
 
-
-// TEXT MAPS
+// QUEST SUMMARIZATION
 // ----------------------------------------------------------------------------------------------------
 export async function loadQuestSummarization(): Promise<void> {
   let filePath = getGenshinDataFilePath('./ExcelBinOutput/QuestSummarizationTextExcelConfigData.json');
@@ -79,6 +78,16 @@ export async function loadVoiceItems(): Promise<void> {
 }
 
 export type VoiceItemType = 'Dialog'|'Reminder'|'Fetter'|'AnimatorEvent'|'WeatherMonologue'|'JoinTeam'|'Card';
+
+export function getAllVoiceItemsOfType(type: VoiceItemType) {
+  let items: VoiceItem[] = [];
+  for (let [key, item] of Object.entries(VoiceItems)) {
+    if (key.startsWith(type)) {
+      items.push(... item)
+    }
+  }
+  return items;
+}
 
 export function getVoiceItems(type: VoiceItemType, id: number|string): VoiceItem[] {
   return VoiceItems[type+'_'+id];

@@ -25,9 +25,6 @@
     <script nonce="<%= req.context.nonce %>">window.avatars = [].concat(<%- JSON.stringify(avatars) %>);</script>
     <% if (avatar) { %>
       <script nonce="<%= req.context.nonce %>">window.avatar = Object.assign({}, <%- JSON.stringify(avatar) %>);</script>
-      <% if (locals.loadFetters) { %>
-        <script nonce="<%= req.context.nonce %>">window.fetters = Object.assign({}, <%- JSON.stringify(fetters) %>);</script>
-      <% } %>
     <% } else { %>
       <script nonce="<%= req.context.nonce %>">window.avatar = null;</script>
     <% } %>
@@ -81,8 +78,8 @@
               <div id="vo-app-load-dropdown" class="ui-dropdown">
                 <div id="vo-app-load-fromWikitext" class="option" ui-action="close-dropdowns">Load from wikitext</div>
                 <div class="option-sep"></div>
-                <div id="vo-app-load-fromFetters" class="option" ui-action="close-dropdowns">Load from story fetters</div>
-                <div id="vo-app-load-fromFetters" class="option" ui-action="close-dropdowns">Load from combat fetters</div>
+                <div id="vo-app-load-fromStoryFetters" class="option" ui-action="close-dropdowns">Load from story fetters</div>
+                <div id="vo-app-load-fromCombatFetters" class="option" ui-action="close-dropdowns">Load from combat fetters</div>
               </div>
             </div>
             <div class="vo-app-toolbar-button valign spacer10-left posRel">
@@ -112,6 +109,13 @@
                 <div class="option-sep"></div>
                 <div id="vo-app-export-fetters" class="option" ui-action="close-dropdowns">Export Fetters JSON to file</div>
               </div>
+            </div>
+          </div>
+          <div class="grow"></div>
+          <div class="vo-app-toolbar-buttons valign">
+            <div id="vo-app-loadingFettersStatus" class="valign">
+              <div class="loading"></div>
+              <div class="spacer5-left">Loading Fetters...</div>
             </div>
           </div>
         </div>

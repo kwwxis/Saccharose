@@ -180,6 +180,18 @@ export const endpoints = {
       .then(response => response.data)
       .catch(this.errorHandler);
   },
+  getFetters(avatarId: number) {
+    return axios
+      .get(`${this.base_uri}/character/fetters`, {
+        params: {avatarId: avatarId},
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        }
+      })
+      .then(response => response.data)
+      .catch(this.errorHandler);
+  }
 };
 
 (<any> window).endpoints = endpoints;
