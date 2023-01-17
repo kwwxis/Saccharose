@@ -136,7 +136,7 @@ export function preloadFromFetters(characterFetters: CharacterFetters, mode: 'st
         out.prop('title', fetter.VoiceTitleTextMap[lang].replace(avatarName.EN, '{character}'));
       }
       if (lang !== userLang) {
-        out.prop('subtitle', fetter.VoiceTitleText.replace(avatarName.EN, '{character}'));
+        out.prop('subtitle', fetter.VoiceTitleTextMap[userLang].replace(avatarName.EN, '{character}'));
       }
 
       if (fetter.OpenCondsSummary && fetter.OpenCondsSummary.Birthday) {

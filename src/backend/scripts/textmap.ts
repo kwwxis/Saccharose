@@ -1,7 +1,8 @@
 import {promises as fs} from 'fs';
 import path from 'path';
-import { LANG_CODES, LangCode, TalkRoleType } from '../../shared/types/dialogue-types';
+import { LANG_CODES, LangCode, LangCodeMap, TalkRoleType } from '../../shared/types/dialogue-types';
 import { DATAFILE_VOICE_ITEMS, getGenshinDataFilePath, getTextMapRelPath } from '../loadenv';
+import { normText } from './script_util';
 
 // TYPES
 // ----------------------------------------------------------------------------------------------------
@@ -51,7 +52,21 @@ export function getTextMapItem(langCode: LangCode, id: any): string {
   if (typeof id !== 'string') {
     return undefined;
   }
+  if (langCode === 'CH') {
+    langCode = 'CHS';
+  }
   return TextMap[langCode][id];
+}
+
+export function createLangCodeMap(id: any, doNormText: boolean = true): LangCodeMap {
+  let map = {};
+  for (let langCode of LANG_CODES) {
+    map[langCode] = getTextMapItem(langCode, id);
+    if (doNormText) {
+      map[langCode] = normText(map[langCode], langCode);
+    }
+  }
+  return map as LangCodeMap;
 }
 
 // QUEST SUMMARIZATION

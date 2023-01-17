@@ -1795,7 +1795,7 @@
     },
     {
       "Type": 1,
-      "IsHiden": true,
+      "IsHidden": true,
       "HideCostumeList": [],
       "ShowCostumeList": [],
       "Tips": [],

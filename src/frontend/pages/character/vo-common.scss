@@ -168,3 +168,29 @@ body.vo-dragging .seamless-input {
   background: transparent !important;
   border-color: transparent !important;
 }
+
+
+
+body.nightmode .vo-item {
+  background: hsl(240deg 12% 25%);
+  box-shadow: 0 0 5px hsl(240deg 12% 14%);
+}
+body.nightmode .vo-group {
+  background: hsl(240deg 12% 23%);
+}
+
+body.nightmode .vo-group .vo-group-body {
+  background: hsl(240deg 12% 21%);
+}
+
+body.nightmode .vo-group-items {
+  box-shadow: inset 0 0 8px hsl(240deg 12% 12%);
+}
+
+body.nightmode svg.icon.icon-drag-handle {
+  fill: hsl(255deg, 5%, 73%);
+}
+
+body.nightmode .seamless-input {
+  background: transparent !important;
+}

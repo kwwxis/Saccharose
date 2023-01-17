@@ -72,9 +72,12 @@ export async function processFetterConds(ctrl: Control, fetter: FetterWithCondit
         waypointArray.push(tipText);
       }
       if (tipTextCmp && tipTextCmp.includes('statue of the seven')) {
-        tipText = tipText.split(/seven/i)[1].trim();
-        tipText = tipText.replace(/^(.*) [-–] (Pyro|Hydro|Electro|Cryo|Dendro|Anemo|Geo)$/i, '($2) $1');
-        tipText = tipText.replace(/(Pyro|Hydro|Electro|Cryo|Dendro|Anemo|Geo)/, '{{$1}}');
+        if (langCode === 'EN') {
+          tipText = tipText.split(/seven/i)[1].trim();
+          tipText = tipText.replace(/^(.*) [-–] (Pyro|Hydro|Electro|Cryo|Dendro|Anemo|Geo)$/i, '($2) $1');
+          tipText = tipText.replace(/(Pyro|Hydro|Electro|Cryo|Dendro|Anemo|Geo)/, '{{$1}}');
+        }
+        statueArray.push(tipText);
       }
     }
 

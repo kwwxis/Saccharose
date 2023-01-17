@@ -38,6 +38,24 @@ export const LANG_CODE_TO_WIKI_CODE = {
   TR: 'TR',
   VI: 'VI',
 };
+export type LangCodeMap = {
+  CH: string,
+  CHS: string,
+  CHT: string,
+  DE: string,
+  EN: string,
+  ES: string,
+  FR: string,
+  ID: string,
+  IT: string,
+  JP: string,
+  KR: string,
+  PT: string,
+  RU: string,
+  TH: string,
+  TR: string,
+  VI: string,
+};
 
 export type TalkRoleType =
   'TALK_ROLE_NPC'

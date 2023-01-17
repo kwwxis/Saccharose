@@ -978,6 +978,21 @@ export const schema = {
       KPINCGJPICF: 'SourceTextMapHash',
     }
   },
+  FettersExcelConfigData: <SchemaTable> {
+    name: 'FettersExcelConfigData',
+    jsonFile: './ExcelBinOutput/FettersExcelConfigData.json',
+    columns: [
+      {name: 'Type', type: 'integer', isIndex: true},
+      {name: 'VoiceTitleTextMapHash', type: 'integer', isIndex: true},
+      {name: 'VoiceFileTextMapHash', type: 'integer', isIndex: true},
+      {name: 'VoiceTitleLockedTextMapHash', type: 'integer', isIndex: true},
+      {name: 'FetterId', type: 'integer', isPrimary: true},
+      {name: 'AvatarId', type: 'integer', isIndex: true},
+    ],
+    normalizeFixFields: {
+      IsHiden: 'IsHidden'
+    }
+  },
 };
 
 export function capitalizeFirstLetter(s: string) {

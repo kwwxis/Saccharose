@@ -91,6 +91,7 @@ export const convertRubi = (text: string) => {
 
 export const travelerPlaceholder = (langCode: LangCode = 'EN') => {
   switch (langCode) {
+    case 'CH': return '(旅行者)';
     case 'CHS': return '(旅行者)';
     case 'CHT': return '(旅行者)';
     case 'DE': return '{{MC|m=Reisender|f=Reisende}}';

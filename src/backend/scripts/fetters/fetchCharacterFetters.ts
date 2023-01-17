@@ -1,9 +1,9 @@
 import '../../loadenv';
-import { Control, getControl, normText } from '../script_util';
+import { Control, getControl } from '../script_util';
 import { processFetterConds } from './fetterConds';
 import {
+  createLangCodeMap,
   getAllVoiceItemsOfType,
-  getTextMapItem,
   getVoiceItems,
   loadEnglishTextMap,
   loadVoiceItems, VoiceItem,
@@ -53,7 +53,7 @@ function getVoAvatarName(avatar: AvatarExcelConfigData, voiceItems: VoiceItem[])
 }
 
 export async function fetchCharacterFetters(ctrl: Control): Promise<CharacterFettersByAvatar> {
-  return cached('CharacterFetters_' + ctrl.outputLangCode, async () => {
+  return cached('CharacterFetters', async () => {
     let fetters: FetterExcelConfigData[] = await ctrl.readGenshinDataFile('./ExcelBinOutput/FettersExcelConfigData.json');
     let fettersByAvatar: CharacterFettersByAvatar = {};
     let aggByVoAvatar: {[voAvatarName: string]: CharacterFetters} = {};
@@ -65,13 +65,7 @@ export async function fetchCharacterFetters(ctrl: Control): Promise<CharacterFet
       let agg = fettersByAvatar[fetter.AvatarId];
       if (!agg.avatar && fetter.Avatar) {
         agg.avatar = fetter.Avatar;
-        agg.avatarName = {
-          EN: getTextMapItem('EN', fetter.Avatar.NameTextMapHash),
-          CHS: getTextMapItem('CHS', fetter.Avatar.NameTextMapHash),
-          CHT: getTextMapItem('CHT', fetter.Avatar.NameTextMapHash),
-          JP: getTextMapItem('JP', fetter.Avatar.NameTextMapHash),
-          KR: getTextMapItem('KR', fetter.Avatar.NameTextMapHash),
-        };
+        agg.avatarName = createLangCodeMap(fetter.Avatar.NameTextMapHash);
       }
       if (agg.avatar && !agg.voAvatarName && fetter.VoiceFile) {
         let voItems = getVoiceItems('Fetter', fetter.VoiceFile);
@@ -91,36 +85,18 @@ export async function fetchCharacterFetters(ctrl: Control): Promise<CharacterFet
         agg.combatFetters.push(fetter);
       }
 
-      fetter.VoiceTitleText = normText(fetter.VoiceTitleText, ctrl.outputLangCode);
-      fetter.VoiceFileText = normText(fetter.VoiceFileText, ctrl.outputLangCode);
-      fetter.VoiceTitleLockedText = normText(fetter.VoiceTitleLockedText, ctrl.outputLangCode);
+      delete (<any> fetter).VoiceTitleText;
+      delete (<any> fetter).VoiceFileText;
+      delete (<any> fetter).VoiceTitleLockedText;
 
-      if (fetter.VoiceTitleText) {
-        fetter.VoiceTitleTextMap = {
-          EN: normText(getTextMapItem('EN', fetter.VoiceTitleTextMapHash), 'EN'),
-          CHS: normText(getTextMapItem('CHS', fetter.VoiceTitleTextMapHash), 'CHS'),
-          CHT: normText(getTextMapItem('CHT', fetter.VoiceTitleTextMapHash), 'CHT'),
-          JP: normText(getTextMapItem('JP', fetter.VoiceTitleTextMapHash), 'JP'),
-          KR: normText(getTextMapItem('KR', fetter.VoiceTitleTextMapHash), 'KR')
-        };
+      if (fetter.VoiceTitleTextMapHash) {
+        fetter.VoiceTitleTextMap = createLangCodeMap(fetter.VoiceTitleTextMapHash);
       }
-      if (fetter.VoiceFileText) {
-        fetter.VoiceFileTextMap = {
-          EN: normText(getTextMapItem('EN', fetter.VoiceFileTextMapHash), 'EN'),
-          CHS: normText(getTextMapItem('CHS', fetter.VoiceFileTextMapHash), 'CHS'),
-          CHT: normText(getTextMapItem('CHT', fetter.VoiceFileTextMapHash), 'CHT'),
-          JP: normText(getTextMapItem('JP', fetter.VoiceFileTextMapHash), 'JP'),
-          KR: normText(getTextMapItem('KR', fetter.VoiceFileTextMapHash), 'KR')
-        };
+      if (fetter.VoiceFileTextMapHash) {
+        fetter.VoiceFileTextMap = createLangCodeMap(fetter.VoiceFileTextMapHash);
       }
-      if (fetter.VoiceTitleLockedText) {
-        fetter.VoiceTitleLockedTextMap = {
-          EN: normText(getTextMapItem('EN', fetter.VoiceTitleLockedTextMapHash), 'EN'),
-          CHS: normText(getTextMapItem('CHS', fetter.VoiceTitleLockedTextMapHash), 'CHS'),
-          CHT: normText(getTextMapItem('CHT', fetter.VoiceTitleLockedTextMapHash), 'CHT'),
-          JP: normText(getTextMapItem('JP', fetter.VoiceTitleLockedTextMapHash), 'JP'),
-          KR: normText(getTextMapItem('KR', fetter.VoiceTitleLockedTextMapHash), 'KR')
-        };
+      if (fetter.VoiceTitleLockedTextMapHash) {
+        fetter.VoiceTitleLockedTextMap = createLangCodeMap(fetter.VoiceTitleLockedTextMapHash);
       }
       await processFetterConds(ctrl, fetter, 'OpenConds');
     }
