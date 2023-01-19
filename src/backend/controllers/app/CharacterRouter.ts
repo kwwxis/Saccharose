@@ -115,9 +115,9 @@ export default async function(): Promise<Router> {
     const ctrl = getControl(req);
     const avatar: AvatarExcelConfigData = await getAvatar(ctrl, req, res);
     res.render('pages/character/companion-dialogue', {
-      title: 'Companion Dialogue - ' + avatar.NameText,
+      title: 'Companion Dialogue - ' + (avatar?.NameText || req.params.avatar),
       avatar: avatar,
-      dialogue: await fetchCompanionDialogue(ctrl, req.params.avatar),
+      dialogue: await fetchCompanionDialogue(ctrl, avatar ? avatar.Id : req.params.avatar),
       bodyClass: ['page--companion-dialogue']
     });
   });

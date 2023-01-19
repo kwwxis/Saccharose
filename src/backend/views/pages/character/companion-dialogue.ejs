@@ -22,7 +22,7 @@
       </div>
     </div>
   <% } %>
-  <% if (!locals.avatar) { %>
+  <% if (!locals.dialogue && locals.hasOwnProperty('dialogue')) { %>
     <div class="content">
       <p>Serenitea Pot Companion not found.</p>
     </div>
