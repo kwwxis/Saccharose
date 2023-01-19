@@ -1,35 +1,21 @@
-import { create, Router, Request, Response } from '../../util/router';
-import { getControl, IdUsages, normText } from '../../scripts/script_util';
-import { questGenerate, QuestGenerateResult } from '../../scripts/dialogue/quest_generator';
-import { add_ol_markers, ol_gen, OLResult } from '../../scripts/OLgen/OLgen';
-import { dialogueGenerate, dialogueGenerateByNpc, NpcDialogueResultMap } from '../../scripts/dialogue/basic_dialogue_generator';
-import { reminderGenerate, reminderWikitext } from '../../scripts/dialogue/reminder_generator';
-import { isInt, toInt } from '../../../shared/util/numberUtil';
-import { CyclicValueReplacer, removeCyclicRefs, toBoolean } from '../../../shared/util/genericUtil';
+import { create, Request, Response, Router } from '../../util/router';
+import { getControl } from '../../scripts/script_util';
 import { MainQuestExcelConfigData } from '../../../shared/types/quest-types';
-import { getIdFromVoFile, getTextMapItem } from '../../scripts/textmap';
-import { DialogueSectionResult } from '../../scripts/dialogue/dialogue_util';
+import { isInt, toInt } from '../../../shared/util/numberUtil';
+import { questGenerate, QuestGenerateResult } from '../../scripts/dialogue/quest_generator';
+import { removeCyclicRefs } from '../../../shared/util/genericUtil';
+import { ApiCyclicValueReplacer } from '../ApiBaseRouter';
 import { HttpError } from '../../../shared/util/httpError';
-import { fetchCharacterFettersByAvatarId } from '../../scripts/fetters/fetchCharacterFetters';
+import { DialogueSectionResult } from '../../scripts/dialogue/dialogue_util';
+import {
+  dialogueGenerate,
+  dialogueGenerateByNpc,
+  NpcDialogueResultMap,
+} from '../../scripts/dialogue/basic_dialogue_generator';
+import { reminderGenerate, reminderWikitext } from '../../scripts/dialogue/reminder_generator';
+import { getIdFromVoFile } from '../../scripts/textmap';
 
 const router: Router = create();
-
-const GenericCyclicValueReplacer: CyclicValueReplacer = (k: string, v: any) => {
-  if (typeof v === 'object' && v.Id) {
-    return {
-      __cyclicKey: k,
-      __cyclicRef: v.Id
-    };
-  } else {
-    return;
-  }
-}
-
-router.restful('/ping', {
-  get: async (_req: Request, _res: Response) => {
-    return 'pong!';
-  }
-});
 
 router.restful('/quests/findMainQuest', {
   get: async (req: Request, res: Response) => {
@@ -78,6 +64,7 @@ router.restful('/quests/generate', {
       locals.questTitle = result.questTitle;
       locals.questId = result.questId;
       locals.npc = result.npc;
+      locals.npcStrList = result.npc ? result.npc.names.join('; ') : '';
       locals.stepsWikitext = result.stepsWikitext;
       locals.questDescriptions = result.questDescriptions;
       locals.otherLanguagesWikitext = result.otherLanguagesWikitext;
@@ -90,31 +77,7 @@ router.restful('/quests/generate', {
 
       return res.render('partials/quests/quest-generate-result', locals);
     } else {
-      return removeCyclicRefs(result, GenericCyclicValueReplacer);
-    }
-  }
-});
-
-router.restful('/OL/generate', {
-  get: async (req: Request, res: Response) => {
-    const ctrl = getControl(req);
-
-    let results: OLResult[] = await ol_gen(ctrl, <string> req.query.text, {
-      hideTl: toBoolean(req.query.hideTl),
-      hideRm: toBoolean(req.query.hideRm),
-      addDefaultHidden: toBoolean(req.query.addDefaultHidden),
-    });
-
-    if (!results) {
-      throw HttpError.badRequest('NotFound', req.query.text as string);
-    }
-
-    add_ol_markers(results);
-
-    if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
-      return res.render('partials/ol-result', { olResults: results, searchText: <string> req.query.text });
-    } else {
-      return results;
+      return removeCyclicRefs(result, ApiCyclicValueReplacer);
     }
   }
 });
@@ -135,7 +98,7 @@ router.restful('/dialogue/single-branch-generate', {
         sections: result,
       });
     } else {
-      return removeCyclicRefs(result, GenericCyclicValueReplacer);
+      return removeCyclicRefs(result, ApiCyclicValueReplacer);
     }
   }
 });
@@ -160,7 +123,7 @@ router.restful('/dialogue/npc-dialogue-generate', {
         resultMap: resultMap,
       });
     } else {
-      return removeCyclicRefs(resultMap, GenericCyclicValueReplacer);
+      return removeCyclicRefs(resultMap, ApiCyclicValueReplacer);
     }
   }
 });
@@ -181,50 +144,6 @@ router.restful('/dialogue/reminder-dialogue-generate', {
       });
     } else {
       return result;
-    }
-  }
-});
-
-router.restful('/search-textmap', {
-  get: async (req: Request, res: Response) => {
-    const ctrl = getControl(req);
-
-    const result = await ctrl.getTextMapMatches(ctrl.inputLangCode, <string> req.query.text, '-m 100 ' + ctrl.searchModeFlags); // "-m" flag -> max count
-
-    if (ctrl.inputLangCode !== ctrl.outputLangCode) {
-      for (let textMapId of Object.keys(result)) {
-        result[textMapId] = getTextMapItem(ctrl.outputLangCode, textMapId);
-      }
-    }
-
-    for (let textMapId of Object.keys(result)) {
-      result[textMapId] = normText(result[textMapId], ctrl.outputLangCode);
-    }
-
-    if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
-      return res.render('partials/textmap-search-result', { result });
-    } else {
-      return result;
-    }
-  }
-});
-
-router.restful('/id-usages', {
-  get: async (req: Request, res: Response) => {
-    const ctrl = getControl(req);
-    const ids: number[] = String(req.query.q).split(/[ ,]/g).map(s => s.trim()).filter(s => !!s && isInt(s)).map(toInt);
-    const idToUsages: {[id: number]: IdUsages} = {};
-
-    await Promise.all(ids.map(id => {
-      return ctrl.getIdUsages(id).then(usages => {
-        idToUsages[id] = usages;
-      });
-    }));
-
-    if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
-      return res.render('partials/id-usages-result', { idToUsages });
-    } else {
-      return idToUsages;
     }
   }
 });
@@ -264,28 +183,6 @@ router.restful('/dialogue/vo-to-dialogue', {
     } else {
       return result;
     }
-  }
-});
-
-router.restful('/character/fetters', {
-  get: async (req: Request, res: Response) => {
-    const ctrl = getControl(req);
-    const avatarId = toInt(req.query.avatarId);
-
-    let fetters = await fetchCharacterFettersByAvatarId(ctrl, avatarId);
-
-    if (fetters) {
-      fetters = JSON.parse(JSON.stringify(fetters));
-      delete fetters.avatar;
-      for (let fetter of fetters.combatFetters) {
-        delete fetter.Avatar;
-      }
-      for (let fetter of fetters.storyFetters) {
-        delete fetter.Avatar;
-      }
-    }
-
-    return fetters;
   }
 });
 

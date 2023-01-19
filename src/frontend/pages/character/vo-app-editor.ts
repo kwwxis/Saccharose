@@ -2,7 +2,7 @@ import { VoAppState } from './vo-tool';
 import Sortable, { SortableEvent } from 'sortablejs';
 import { createVoHandles, VoGroup, VoHandle } from '../../../shared/vo-tool/vo-handle';
 import { MwTemplateNode } from '../../../shared/mediawiki/mwTypes';
-import { escapeHtml, romanize } from '../../../shared/util/stringUtil';
+import { escapeHtml, romanize, ucFirst } from '../../../shared/util/stringUtil';
 import { createPlaintextContenteditable } from '../../util/domutil';
 
 const sortableDefaultOptions: Sortable.Options = {
@@ -24,7 +24,7 @@ export function VoAppEditor(state: VoAppState) {
 
   let storyStorable: Sortable = initSortableGroups('story', '#vo-story-groups');
   let combatSortable: Sortable = initSortableGroups('combat', '#vo-combat-groups');
-  let dragHandleHtml: string = document.querySelector('#drag-handle-template').innerHTML;
+  const dragHandleHtml: string = document.querySelector('#drag-handle-template').innerHTML;
 
   function initSortableGroups(type: 'story' | 'combat', selector: string): Sortable {
     let parent: HTMLElement = document.querySelector(selector);
@@ -174,17 +174,33 @@ export function VoAppEditor(state: VoAppState) {
   }
 
   function notifyWikitext(type: 'story' | 'combat') {
-    let voHandle: VoHandle = type === 'story' ? storyHandle : combatHandle;
-    state.eventBus.emit('VO-Wikitext-SetFromVoHandle', voHandle);
+    state.eventBus.emit('VO-Wikitext-SetFromVoHandle', type === 'story' ? storyHandle : combatHandle);
   }
 
   function initEvents() {
     state.eventBus.on('VO-Editor-RequestHandle', (type: 'story' | 'combat', cb: (value: VoHandle) => void) => {
-      if (type === 'story') {
-        cb(storyHandle)
+      cb(type === 'story' ? storyHandle : combatHandle);
+    });
+
+    state.eventBus.on('VO-Editor-ReloadError', (mode: 'story' | 'combat', error: any, templateName: string) => {
+      let errorEl = document.querySelector('#vo-app-editorReloadError-' + mode);
+      let groupsEl = document.querySelector('#vo-' + mode + '-groups');
+      if (error && typeof error !== 'string') {
+        error = String(error);
       }
-      if (type === 'combat') {
-        cb(combatHandle);
+      if (error) {
+        console.error('[VO-App] VoHandle ('+mode+') compile error:', error);
+        errorEl.querySelector('.content').innerHTML = `
+          <p class="error-notice">${escapeHtml(error)}</p>
+          <p>The <strong>${ucFirst(mode)} Groups</strong> area of the <strong>Editor</strong> tab will not function until you fix this issue in the
+            <strong>${templateName ? '{{'+templateName+'}}' : 'VO ' + ucFirst(mode)}</strong> template within the <strong>Wikitext</strong> tab.</p>
+        `;
+        errorEl.classList.remove('hide');
+        groupsEl.classList.add('vo-handle-errored');
+      } else {
+        errorEl.querySelector('.content').innerHTML = '';
+        errorEl.classList.add('hide');
+        groupsEl.classList.remove('vo-handle-errored');
       }
     });
 
@@ -192,9 +208,15 @@ export function VoAppEditor(state: VoAppState) {
       storyHandle = null;
       combatHandle = null;
 
-      let handles = createVoHandles(wikitext);
+      let handles: VoHandle[] = createVoHandles(wikitext);
       for (let handle of handles) {
-        handle.compile();
+        try {
+          handle.compile();
+          state.eventBus.emit('VO-Editor-ReloadError', handle.isCombat ? 'combat' : 'story', null, handle?.templateNode?.templateName);
+        } catch (e) {
+          handle.clear();
+          state.eventBus.emit('VO-Editor-ReloadError', handle.isCombat ? 'combat' : 'story', e, handle?.templateNode?.templateName);
+        }
         if (handle.isCombat) {
           combatHandle = handle;
         } else {

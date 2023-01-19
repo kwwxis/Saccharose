@@ -9,8 +9,21 @@ import Cookies from 'js-cookie';
 import { preloadFromFetters } from './vo-app-preload';
 import { LangCode } from '../../../shared/types/dialogue-types';
 
+function compareTemplateName(t1: string, t2: string) {
+  return t1?.toLowerCase()?.replace(/_/g, ' ') === t2?.toLowerCase()?.replace(/_/g, ' ');
+}
+
 export function VoAppWikitext(state: VoAppState) {
   const editor: ace.Editor = createWikitextEditor('wikitext-editor');
+
+  let editorEl = document.getElementById('wikitext-editor');
+  editorEl.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.keyCode === 70) {
+      e.preventDefault();
+      e.stopPropagation();
+      editor.execCommand('find');
+    }
+  })
 
   function localLoad(isFirstLoad: boolean = false) {
     console.log('[VO-App] Wikitext Local Load');
@@ -70,7 +83,7 @@ export function VoAppWikitext(state: VoAppState) {
     let templateFound: MwTemplateNode = null;
 
     for (let wikitextTemplate of wikitext.findTemplateNodes()) {
-      if (wikitextTemplate.templateName.toLowerCase() === templateName.toLowerCase()) {
+      if (compareTemplateName(wikitextTemplate.templateName, templateName)) {
         templateFound = wikitextTemplate;
         wikitextTemplate.parts = voHandle.templateNode.parts;
       }
@@ -105,7 +118,7 @@ export function VoAppWikitext(state: VoAppState) {
     let wikitext = mwParse(editor.getValue());
     let templateFound: MwTemplateNode = null;
     for (let wikitextTemplate of wikitext.findTemplateNodes()) {
-      if (wikitextTemplate.templateName.toLowerCase() === result.templateName.toLowerCase()) {
+      if (compareTemplateName(wikitextTemplate.templateName, result.templateName)) {
         templateFound = wikitextTemplate;
         wikitextTemplate.parts = parsedResult.parts;
       }
@@ -121,7 +134,7 @@ export function VoAppWikitext(state: VoAppState) {
       localSave();
       state.eventBus.emit('VO-Editor-Reload', editor.getValue());
     } else {
-      let stringified = editor.getValue() + '\n\n' + result.wikitext;
+      let stringified = (editor.getValue() + '\n\n' + result.wikitext).trimStart();
       console.log('[VO-App] Appended {{' + result.templateName + '}} to wikitext with load from fetters.', { stringified });
       editor.setValue(stringified, -1);
       editor.resize();

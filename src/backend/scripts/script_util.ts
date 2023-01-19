@@ -777,7 +777,12 @@ export class Control {
         if (voPrefix) {
           out += `\n${diconPrefix}${voPrefix}'''(Traveler):''' ${text}`;
         } else {
-          out += `\n${diconPrefix}${':'.repeat(numSubsequentNonBranchPlayerDialogOption)}{{DIcon}} ${text}`;
+          if (dialog.TalkRoleNameText) {
+            let name = normText(dialog.TalkRoleNameText, this.outputLangCode);
+            out += `\n${prefix}'''${name}:''' ${text}`;
+          } else {
+            out += `\n${diconPrefix}${':'.repeat(numSubsequentNonBranchPlayerDialogOption)}{{DIcon}} ${text}`;
+          }
         }
       } else if (dialog.TalkRole.Type === 'TALK_ROLE_NPC' || dialog.TalkRole.Type === 'TALK_ROLE_GADGET') {
         let name = normText(dialog.TalkRoleNameText, this.outputLangCode);
@@ -961,7 +966,7 @@ export class Control {
     processMatches();
 
     if (!results.length) {
-      let searchRegex = name.split(/\s+/g).join('.*?');
+      let searchRegex = name.split(/\s+/g).join('.*?').split(/(')/g).join('.*?');
       matches = await this.getTextMapMatches(langCode, searchRegex, '-Pi');
       processMatches();
     }

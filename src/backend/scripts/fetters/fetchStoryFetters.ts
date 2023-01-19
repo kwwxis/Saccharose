@@ -96,16 +96,10 @@ export async function fetchCharacterStoryByAvatarId(ctrl: Control, avatarId: num
   return storiesByAvatar[avatarId];
 }
 
-export async function fetchCharacterStoryByAvatarName(ctrl: Control, avatarName: string): Promise<StoryFetters> {
-  let avatarNameNorm = avatarName.replaceAll(/_/g, ' ').toLowerCase().trim();
-  let storiesByAvatar = await fetchCharacterStories(ctrl);
-  return Object.values(storiesByAvatar).find(x => x.avatar.NameText.toLowerCase() == avatarNameNorm);
-}
-
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
     await loadEnglishTextMap();
-    let res: StoryFetters = await fetchCharacterStoryByAvatarName(getControl(), 'nahida');
+    let res: StoryFetters = await fetchCharacterStoryByAvatarId(getControl(), 10000048);
     let x1 = resolveObjectPath(res, 'avatar', true);
     let x2 = resolveObjectPath(res, 'fetters[#EVERY].Avatar', true);
     console.log(util.inspect(res, false, null, true));

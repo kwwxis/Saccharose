@@ -577,6 +577,14 @@ export class VoHandle {
     this.templateNode = templateNode;
   }
 
+  clear() {
+    this.uuidMap = {};
+    this.compileDone = false;
+    while (this.groups.length) {
+      this.groups.pop();
+    }
+  }
+
   byUUID<T>(uuid: string): T {
     return this.uuidMap[uuid];
   }
@@ -703,7 +711,9 @@ export class VoHandle {
   }
 
   compile(): VoHandle {
+    this.clear();
     this.compileDone = false;
+
     let seenParamKeys: Set<string> = new Set();
     let seenTitleSubseqNodes: Set<MwNode> = new Set();
     let currentGroup: VoGroup = null;
@@ -740,7 +750,7 @@ export class VoHandle {
         if (node.key === 0) {
           continue;
         }
-        throw 'Unexpected anonymous parameter ' + node.key + ' :' + node.value;
+        throw 'Unexpected anonymous parameter ' + node.key + ' with value: ' + node.value;
       } else if (node instanceof MwComment) {
         let commentIdx = this.templateNode.parts.indexOf(node);
         let prevParam: MwParamNode;

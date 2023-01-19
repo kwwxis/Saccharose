@@ -1,6 +1,6 @@
 
 <section class="card">
-  <h2>Serenitea Pot Companion Dialogue<% if (locals.charName) { %> &mdash; <%= charName %><% } %></h2>
+  <h2>Serenitea Pot Companion Dialogue<% if (locals.avatar) { %> &mdash; <%= avatar.NameText %><% } %></h2>
   <% if (locals.characters) { %>
     <div class="content dispFlex flexWrap alignStart">
       <% characters.forEach(character => { %>
@@ -21,9 +21,10 @@
         <% }) %>
       </div>
     </div>
-  <% } else if (locals.charName) { %>
+  <% } %>
+  <% if (!locals.avatar) { %>
     <div class="content">
-      <p>Serenitea Pot Companion not found: <%= charName %></p>
+      <p>Serenitea Pot Companion not found.</p>
     </div>
   <% } %>
 </section>

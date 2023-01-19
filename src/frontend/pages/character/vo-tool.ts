@@ -9,7 +9,7 @@ import { VoAppWikitext } from './vo-app-wikitext';
 import { VoAppEditor } from './vo-app-editor';
 import { EventBus } from '../../util/eventBus';
 import { CharacterFetters } from '../../../shared/types/fetter-types';
-import { AvatarExcelConfigData } from '../../../shared/types/avatar-types';
+import { AvatarExcelConfigData, isTraveler } from '../../../shared/types/avatar-types';
 import { endpoints } from '../../endpoints';
 
 export class VoAppState {
@@ -33,7 +33,7 @@ export class VoAppState {
   }
 
   get isTraveler() {
-    return [10000005, 10000007].includes(this.avatar.Id);
+    return isTraveler(this.avatar);
   }
 
   init() {

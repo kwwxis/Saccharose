@@ -36,7 +36,7 @@ export function VoAppWelcome(state: VoAppState) {
             <img class="icon x32" src="/images/genshin/${avatar.IconName}.png" />
             <div class="spacer10-left spacer5-top" style="line-height:1em">
               <div>${avatar.NameText}</div>
-              <small>Last updated: ${humanTiming(lastUpdateTime)}</small>
+              <small><strong>${langCode} Text</strong> Last updated: ${humanTiming(lastUpdateTime)}</small>
             </div>
           </a>
         </div>

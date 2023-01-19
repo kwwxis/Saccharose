@@ -10,6 +10,7 @@ import './mode/wikitext.scss';
 import 'brace/theme/textmate';
 import 'brace/theme/tomorrow_night';
 import 'brace/ext/static_highlight';
+import 'brace/ext/searchbox';
 import './css/static_highlight.scss';
 
 import Cookies from 'js-cookie';

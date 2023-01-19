@@ -4,10 +4,9 @@ import {
   copyToClipboard,
   getScrollbarWidth,
   hashFlash,
-  isElementPartiallyInViewport,
   setQueryStringParameter,
 } from './util/domutil';
-import { humanTiming, throttle, timeConvert } from '../shared/util/genericUtil';
+import { humanTiming, timeConvert } from '../shared/util/genericUtil';
 import { closeDialog } from './util/dialog';
 import { enableTippy, flashTippy, getTippyOpts, hideTippy, showTippy } from './util/tooltips';
 import { Listener, runWhenDOMContentLoaded, startListeners } from './util/eventLoader';
@@ -66,6 +65,12 @@ const initial_listeners: Listener[] = [
       const csrfElement: HTMLMetaElement = document.querySelector('meta[name="csrf-token"]');
       axios.defaults.headers.common['x-csrf-token'] = csrfElement.content;
       csrfElement.remove();
+
+      const changeAvatarNameInURL: HTMLMetaElement = document.querySelector('meta[name="X-ChangeAvatarNameInURL"]');
+      if (changeAvatarNameInURL) {
+        let [oldName, newName] = changeAvatarNameInURL.content.split(';');
+        window.history.replaceState({}, null, window.location.href.replace(oldName, newName).replace(encodeURIComponent(oldName), newName));
+      }
 
       const scrollbarWidth = getScrollbarWidth();
       document.head.insertAdjacentHTML('beforeend',

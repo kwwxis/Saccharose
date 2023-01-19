@@ -15,13 +15,13 @@ import { pathToFileURL } from 'url';
 import { fetchCharacterStories } from './fetchStoryFetters';
 import chalk from 'chalk';
 import { distance as strdist } from 'fastest-levenshtein';
-import { AvatarExcelConfigData } from '../../../shared/types/avatar-types';
+import { AvatarExcelConfigData, isTraveler } from '../../../shared/types/avatar-types';
 
 function getVoAvatarName(avatar: AvatarExcelConfigData, voiceItems: VoiceItem[]): string {
-  if (avatar.Id === 10000005) {
+  if (isTraveler(avatar, 'male')) {
     return 'hero';
   }
-  if (avatar.Id === 10000007) {
+  if (isTraveler(avatar, 'female')) {
     return 'heroine';
   }
   if (avatar.Id === 10000048) {

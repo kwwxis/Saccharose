@@ -681,7 +681,6 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
 
               if (type.includes('meta') && rule.next === 'start' && stack.length) {
                 rule.next = stack[0] || 'start';
-                console.log('rule next', rule.next);
               }
 
               if (rule.next) {

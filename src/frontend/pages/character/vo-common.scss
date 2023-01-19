@@ -18,6 +18,21 @@
   padding-left: 20px;
 }
 
+.vo-handle-area.vo-handle-errored {
+  opacity: 0.6;
+  cursor: not-allowed;
+  position: relative;
+}
+.vo-handle-area.vo-handle-errored:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 99999;
+}
+
 // Sidebar
 // --------------------------------------------------------------------------------------------------------------
 #vo-tool-sidebar {
@@ -50,7 +65,7 @@
 // Toolbar
 // --------------------------------------------------------------------------------------------------------------
 #vo-app-toolbar {
-  .vo-app-toolbar-charName {
+  .vo-app-toolbar-avatarName {
     padding: 5px 10px;
     background: hsl(240deg, 30%, 95%);
     border: 0;
@@ -75,7 +90,7 @@
     }
   }
 }
-body.nightmode #vo-app-toolbar .vo-app-toolbar-charName {
+body.nightmode #vo-app-toolbar .vo-app-toolbar-avatarName {
   background: hsl(255deg, 8%, 14%);
   border-right-color: hsl(255deg, 8%, 19%);
   img.icon {

@@ -39,7 +39,7 @@
               <div id="vo-app-welcome-recent" class="hide">
                 <hr class="spacer15-vert" />
                 <p class="spacer5-bottom">Characters you have saved local data for:</p>
-                <div id="vo-app-welcome-recent-list" class="alignStart"></div>
+                <div id="vo-app-welcome-recent-list" class="alignStart flexWrap"></div>
               </div>
             </div>
           </div>
@@ -65,7 +65,7 @@
         </div>
       <% } else { %>
         <div id="vo-app-toolbar" class="card alignStretch spacer15-bottom">
-          <div class="vo-app-toolbar-charName valign secondary-label">
+          <div class="vo-app-toolbar-avatarName valign secondary-label">
             <img class="icon x32" src="/images/genshin/<%= avatar.IconName %>.png" />
             <strong><%= avatar.NameText %></strong>
           </div>
@@ -126,15 +126,21 @@
           <button role="tab" id="tab-wikitext" class="tab <%= tab === 'wikitext' ? 'active' : '' %>"
                   ui-action="tab: #tabpanel-wikitext, voAppTabs; set-query-param: tab=wikitext">Wikitext</button>
         </div>
+        <div id="vo-app-editorReloadError-story" class="card hide" style="margin-bottom:1px">
+          <div class="content"></div>
+        </div>
+        <div id="vo-app-editorReloadError-combat" class="card hide" style="margin-bottom:1px">
+          <div class="content"></div>
+        </div>
         <div role="tabpanel" aria-labelledby="tab-editor" class="tabpanel <%= tab === 'editor' ? 'active' : 'hide' %>" id="tabpanel-editor">
           <div class="card" id="vo-editor">
             <h2>Story Groups</h2>
             <div class="content">
-              <div id="vo-story-groups"></div>
+              <div id="vo-story-groups" class="vo-handle-area"></div>
             </div>
             <h2>Combat Groups</h2>
             <div class="content">
-              <div id="vo-combat-groups"></div>
+              <div id="vo-combat-groups" class="vo-handle-area"></div>
             </div>
           </div>
         </div>

@@ -41,6 +41,7 @@ class RequestContext {
   viewStackPointer: RequestViewStack;
   nonce = crypto.randomBytes(16).toString('hex');
   webpackBundles: WebpackBundles;
+  htmlMetaProps: {[name: string]: string} = {};
 
   constructor(req: Request) {
     this._req = req;

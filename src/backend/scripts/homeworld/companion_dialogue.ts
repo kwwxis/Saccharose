@@ -77,7 +77,7 @@ export async function fetchCompanionDialogue(ctrl: Control, avatarNameOrId: stri
     return null;
   }
 
-  return cached('CompanionDialogue_'+companion.AvatarId+'_'+ctrl.outputLangCode, async () => {
+  return cached('CompanionDialogue_'+(companion.AvatarId || companion.NpcId)+'_'+ctrl.outputLangCode, async () => {
     let result: DialogueSectionResult[] = [];
 
     let acc = new TalkConfigAccumulator(ctrl);

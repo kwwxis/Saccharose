@@ -9,8 +9,8 @@ import { openKnex } from './util/db';
 import morgan from 'morgan';
 import { Request, Response } from './util/router';
 import sessions from './middleware/sessions';
-import baseRouter from './controllers/app/BaseRouter';
-import apiRouter from './controllers/api';
+import appBaseRouter from './controllers/AppBaseRouter';
+import apiBaseRouter from './controllers/ApiBaseRouter';
 import { loadTextMaps, loadVoiceItems, loadQuestSummarization } from './scripts/textmap';
 import { isStringNotBlank } from '../shared/util/stringUtil';
 import rateLimit from 'express-rate-limit';
@@ -104,7 +104,7 @@ export async function appInit(): Promise<Express> {
   // Load API router
   // ~~~~~~~~~~~~~~~
   console.log(`[Init] Loading API router`);
-  app.use('/api', await apiRouter());
+  app.use('/api', await apiBaseRouter());
 
   // Load BaseRouter and CSRF protection
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -112,7 +112,7 @@ export async function appInit(): Promise<Express> {
   // because the API does not necessarily use CSRF protection (only for same-site AJAX requests).
   console.log(`[Init] Loading application router`);
   app.use(csrfMiddleware);
-  app.use('/', await baseRouter());
+  app.use('/', await appBaseRouter());
 
   // Global Error Handler
   // ~~~~~~~~~~~~~~~~~~~~

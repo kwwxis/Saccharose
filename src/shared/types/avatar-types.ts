@@ -53,3 +53,19 @@ export interface AvatarCostumeExcelConfigData {
   IsDefault: boolean,
   DomesticHideInArtPreview: boolean,
 }
+
+export function isTraveler(avatar: number|AvatarExcelConfigData, checkMode: 'male' | 'female' | 'either' = 'either'): boolean {
+  if (!avatar) {
+    return false;
+  }
+  if (typeof avatar !== 'number') {
+    avatar = avatar.Id;
+  }
+  if (checkMode === 'either') {
+    return [10000005, 10000007].includes(avatar);
+  } else if (checkMode === 'male') {
+    return avatar === 10000005;
+  } else {
+    return avatar === 10000007;
+  }
+}

@@ -4,9 +4,12 @@
     <meta charset="utf-8" />
     <title><%= req.context.formattedPageTitle %></title>
     <meta name="robots" content="noindex, nofollow" />
-    <meta name="csrf-token" content="<%= locals.csrfToken || '' %>">
-    <meta name="view-stack" content="<%= req.context.getAllViewNames() %>">
+    <meta name="csrf-token" content="<%= locals.csrfToken || '' %>" />
+    <meta name="view-stack" content="<%= req.context.getAllViewNames() %>" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <% for (let [propName, propValue] of Object.entries(req.context.htmlMetaProps)) { %>
+      <meta name="<%= propName %>" content="<%= propValue %>" />
+    <% } %>
     <link rel="icon" href="/favicon.ico" type="image/x-icon" />
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
     <link rel="preconnect" href="https://fonts.googleapis.com">

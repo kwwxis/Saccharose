@@ -993,6 +993,30 @@ export const schema = {
       IsHiden: 'IsHidden'
     }
   },
+  TutorialExcelConfigData: <SchemaTable> {
+    name: 'TutorialExcelConfigData',
+    jsonFile: './ExcelBinOutput/TutorialExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+    ],
+  },
+  TutorialDetailExcelConfigData: <SchemaTable> {
+    name: 'TutorialDetailExcelConfigData',
+    jsonFile: './ExcelBinOutput/TutorialDetailExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'DescriptTextMapHash', type: 'integer', isIndex: true},
+    ],
+  },
+  TutorialCatalogExcelConfigData: <SchemaTable> {
+    name: 'TutorialCatalogExcelConfigData',
+    jsonFile: './ExcelBinOutput/TutorialCatalogExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'PushTipsId', type: 'integer', isIndex: true},
+      {name: 'TitleTextMapHash', type: 'integer', isIndex: true},
+    ],
+  },
 };
 
 export function capitalizeFirstLetter(s: string) {

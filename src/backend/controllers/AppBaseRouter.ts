@@ -1,12 +1,16 @@
-import AppRouter from './AppRouter';
 import helmet from 'helmet';
-import { create, Router, Request, Response, NextFunction } from '../../util/router';
-import { toBoolean } from '../../../shared/util/genericUtil';
-import { getControl, normText } from '../../scripts/script_util';
+import { create, Router, Request, Response, NextFunction } from '../util/router';
+import { toBoolean } from '../../shared/util/genericUtil';
+import { getControl, normText } from '../scripts/script_util';
+import BasicRouter from './app/BasicRouter';
+import DialogueRouter from './app/DialogueRouter';
+import ItemRouter from './app/ItemRouter';
+import CharacterRouter from './app/CharacterRouter';
+import TcgRouter from './app/TcgRouter';
 
 export default async function(): Promise<Router> {
   const router: Router = create({
-    layouts: ['layouts/base-layout'],
+    layouts: ['layouts/base-layout', 'layouts/app-layout'],
     locals: async (req: Request) => {
       const ctrl = getControl(req);
       return {
@@ -41,7 +45,11 @@ export default async function(): Promise<Router> {
     helmet.contentSecurityPolicy(cspOptions)(req, res, next);
   });
 
-  router.use('/', await AppRouter());
+  router.use('/', await BasicRouter());
+  router.use('/', await DialogueRouter());
+  router.use('/', await ItemRouter());
+  router.use('/', await CharacterRouter());
+  router.use('/', await TcgRouter());
 
   return router;
 };

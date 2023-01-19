@@ -2,6 +2,11 @@ import { CharacterFetters, FetterExcelConfigData } from '../../../shared/types/f
 import { replaceRomanNumerals, romanize, romanToInt, SbOut } from '../../../shared/util/stringUtil';
 import { LangCode } from '../../../shared/types/dialogue-types';
 import { defaultMap } from '../../../shared/util/genericUtil';
+import { isTraveler as checkIsTraveler } from '../../../shared/types/avatar-types';
+
+export interface VoAppPreloadOptions {
+
+}
 
 export function preloadFromFetters(characterFetters: CharacterFetters, mode: 'story' | 'combat', lang: LangCode, userLang: LangCode): {
   templateName: string,
@@ -14,7 +19,7 @@ export function preloadFromFetters(characterFetters: CharacterFetters, mode: 'st
   const isCombat: boolean = mode === 'combat';
   const avatarName = characterFetters.avatarName;
   const fetters: FetterExcelConfigData[] = isStory ? characterFetters.storyFetters : characterFetters.combatFetters;
-  const isTraveler: boolean = [10000005, 10000007].includes(characterFetters.avatar.Id);
+  const isTraveler: boolean = checkIsTraveler(characterFetters.avatar.Id);
 
   let templateName: string;
   if (isTraveler) {
@@ -139,38 +144,30 @@ export function preloadFromFetters(characterFetters: CharacterFetters, mode: 'st
         out.prop('subtitle', fetter.VoiceTitleTextMap[userLang].replace(avatarName.EN, '{character}'));
       }
 
-      if (fetter.OpenCondsSummary && fetter.OpenCondsSummary.Birthday) {
-        // No special prop needed
+      if (fetter.OpenCondsSummary) {
+        if (fetter.OpenCondsSummary.AscensionPhase) {
+          out.prop('ascension', fetter.OpenCondsSummary.AscensionPhase);
+        }
+        if (fetter.OpenCondsSummary.Quest) {
+          out.prop('quest', fetter.OpenCondsSummary.Quest);
+        }
+        if (fetter.OpenCondsSummary.Friendship) {
+          out.prop('friendship', fetter.OpenCondsSummary.Friendship);
+        }
+        if (fetter.OpenCondsSummary.Statue) {
+          out.prop('statue', fetter.OpenCondsSummary.Statue);
+        }
+        if (fetter.OpenCondsSummary.Waypoint) {
+          out.prop('waypoint', fetter.OpenCondsSummary.Waypoint);
+        }
       }
-      if (fetter.OpenCondsSummary && fetter.OpenCondsSummary.AscensionPhase) {
-        out.prop('ascension', fetter.OpenCondsSummary.AscensionPhase);
-      }
-      if (fetter.OpenCondsSummary && fetter.OpenCondsSummary.Quest) {
-        out.prop('quest', fetter.OpenCondsSummary.Quest);
-      }
-      if (fetter.OpenCondsSummary && fetter.OpenCondsSummary.Friendship) {
-        out.prop('friendship', fetter.OpenCondsSummary.Friendship);
-      }
-      if (fetter.OpenCondsSummary && fetter.OpenCondsSummary.Statue) {
-        out.prop('statue', fetter.OpenCondsSummary.Statue);
-      }
-      if (fetter.OpenCondsSummary && fetter.OpenCondsSummary.Waypoint) {
-        out.prop('waypoint', fetter.OpenCondsSummary.Waypoint);
-      }
-
-      // Note: FinishCondsSummary only used for character story fetters
 
       out.prop('file', getStoryFileName(fetter));
 
       if (lang === 'CH') {
         out.prop('tx_s', fetter.VoiceFileTextMap.CHS);
         out.prop('tx_t', fetter.VoiceFileTextMap.CHT);
-        if (fetter.VoiceFileTextMap.CHS === fetter.VoiceFileTextMap.CHT) {
-          out.prop('rm');
-        } else {
-          out.prop('rm_s');
-          out.prop('rm_t');
-        }
+        out.prop('rm');
       } else {
         out.prop('tx', fetter.VoiceFileTextMap[lang]);
         if (lang !== 'EN') {
@@ -178,7 +175,7 @@ export function preloadFromFetters(characterFetters: CharacterFetters, mode: 'st
         }
       }
       if (lang !== userLang) {
-        out.prop('tl');
+        out.prop('tl', fetter.VoiceFileTextMap[userLang]);
       }
     }
   }
