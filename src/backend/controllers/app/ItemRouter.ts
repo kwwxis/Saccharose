@@ -17,6 +17,13 @@ export default async function(): Promise<Router> {
     });
   });
 
+  router.get('/readables/search', async (req: Request, res: Response) => {
+    res.render('pages/item/readables-search', {
+      title: 'Search Books & Readables',
+      bodyClass: ['page--readables-search']
+    });
+  });
+
   router.get('/readables/book-collection/:suitId', async (req: Request, res: Response) => {
     const ctrl = getControl(req);
     const collection: BookSuitExcelConfigData = await ctrl.selectBookCollection(req.params.suitId);

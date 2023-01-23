@@ -1,0 +1,82 @@
+
+.close {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  position: relative;
+}
+
+.close.smaller {
+  width: 8px;
+  height: 8px;
+}
+.close.small {
+  width: 16px;
+  height: 16px;
+}
+.close.medium {
+  width: 20px;
+  height: 20px;
+}
+.close.xmedium {
+  width: 28px;
+  height: 28px;
+}
+.close.large {
+  width: 32px;
+  height: 32px;
+}
+.close.xlarge {
+  width: 40px;
+  height: 40px;
+}
+
+.close:before,
+.close:after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  top: 50%;
+  left: 0;
+  height: 1px;
+  background: #333;
+}
+.close.w2:before, .close.w2:after {
+  height: 2px;
+}
+.close.w3:before, .close.w3:after {
+  height: 3px;
+}
+.close:before {
+  -o-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  -moz-transform: rotate(45deg);
+  -webkit-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
+.close:after {
+  -o-transform: rotate(-45deg);
+  -ms-transform: rotate(-45deg);
+  -moz-transform: rotate(-45deg);
+  -webkit-transform: rotate(-45deg);
+  transform: rotate(-45deg);
+}
+
+button.close,
+button.close:hover {
+  border: 0;
+  padding: 0;
+  background: transparent;
+}
+
+.close:focus:before, .close:focus:after {
+  background: #3daaf5;
+  opacity: 1 !important ;
+}
+
+.close:focus{
+  opacity: 1 !important;
+  outline: 0 !important;
+  box-shadow: 0 0 0 3px rgba(0, 140, 221, 0.2);
+}

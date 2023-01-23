@@ -2,6 +2,9 @@ import { default as tippy, Instance as Tippy, Props as TippyProps } from 'tippy.
 import JSON5 from 'json5';
 
 export function enableTippy(el: HTMLElement, props: Partial<TippyProps> = {}) {
+  if (!props.content) {
+    return;
+  }
   let tip: Tippy<TippyProps> = (<any> el)._tippy;
   if (!tip) {
     tip = tippy(el, props);
@@ -11,6 +14,10 @@ export function enableTippy(el: HTMLElement, props: Partial<TippyProps> = {}) {
 }
 
 export function showTippy(el: HTMLElement, props: Partial<TippyProps> = {}) {
+  if (!props.content) {
+    return;
+  }
+
   if ((<any> el)._tippyTimeout) return;
 
   let tip: Tippy<TippyProps> = (<any> el)._tippy;
@@ -35,6 +42,10 @@ export function hideTippy(el: HTMLElement) {
 }
 
 export function flashTippy(el: HTMLElement, props: Partial<TippyProps> = {}) {
+  if (!props.content) {
+    return;
+  }
+
   let tip: Tippy<TippyProps> = (<any> el)._tippy;
 
   if (!tip) {
@@ -63,6 +74,10 @@ export function flashTippy(el: HTMLElement, props: Partial<TippyProps> = {}) {
 export function getTippyOpts(el: HTMLElement, attrName: string): Partial<TippyProps> {
   const attrVal = el.getAttribute(attrName).trim();
   el.removeAttribute(attrName);
+
+  if (!attrVal) {
+    return {};
+  }
 
   let opts;
   if (attrVal.startsWith('{') && attrVal.endsWith('}')) {

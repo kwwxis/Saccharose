@@ -95,7 +95,7 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
       },
       {
         token: 'wikitext.bare-link.bare-link-color',
-        regex: new RegExp(`(?:${MW_URL_SCHEME_REGEX()})[^ ]*`),
+        regex: new RegExp(`(?<=\\b)(?:${MW_URL_SCHEME_REGEX()})[^\\s\\b]*`),
       },
       {
         token: 'wikitext.magic-link.magic-link-color',

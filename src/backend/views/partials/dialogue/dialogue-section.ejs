@@ -22,7 +22,7 @@
   <div id="dialogue-section-content-<%= id %>" class="dialogue-section-content">
     <% if (locals.metadata && Object.keys(locals.metadata).length) { %>
       <div class="valign">
-        <div class="valign metadata-props">
+        <div class="valign meta-props">
           <% for (let metaProp of metadata) { %>
             <div class="prop">
               <span class="prop-label"><%= metaProp.label %></span>
@@ -30,9 +30,9 @@
                 <span class="prop-values">
                   <% for (let val of metaProp.values) { %>
                     <% if (val.link) { %>
-                      <a class="prop-value" href="<%= val.link %>" target="_blank"><%= val.value %></a>
+                      <a class="prop-value" href="<%= val.link %>" target="_blank" ui-tippy-hover="<%= val.tooltip %>"><%= val.value %></a>
                     <% } else { %>
-                      <span class="prop-value"><%= val.value %></span>
+                      <span class="prop-value" ui-tippy-hover="<%= val.tooltip %>"><%= val.value %></span>
                     <% } %>
                   <% } %>
                 </span>

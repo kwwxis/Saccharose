@@ -1,6 +1,6 @@
-<section class="card">
+<section class="card" data-document-title="<%= req.context.getFormattedPageTitle(questTitle || '(No title)') %>">
   <h2>
-    <strong><%= questId %>:</strong>&nbsp;<%= questTitle || '(No title)' %>
+    <strong><%= questId %>:</strong>&nbsp;<span class="quest-title"><%= questTitle || '(No title)' %></span>
     <a class="help-info fr fontWeight600" style="font-size:15px;cursor:pointer;">Help</a>
   </h2>
   <div class="content">

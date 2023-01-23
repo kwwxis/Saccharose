@@ -1,7 +1,7 @@
 import { escapeHtml } from '../shared/util/stringUtil';
 import axios, { AxiosError } from 'axios';
 import { showInternalErrorDialog, showJavascriptErrorDialog } from './util/errorHandler';
-import { DIALOG_ALERT, DIALOG_MODAL, openDialog } from './util/dialog';
+import { DIALOG_MODAL, openDialog } from './util/dialog';
 import { HttpError } from '../shared/util/httpError';
 
 export const endpoints = {
@@ -166,7 +166,6 @@ export const endpoints = {
       })
       .then(response => response.data)
       .catch(this.errorHandler);
-
   },
   voToDialogue(text: string, asHTML: boolean = false) {
     return axios
@@ -191,7 +190,19 @@ export const endpoints = {
       })
       .then(response => response.data)
       .catch(this.errorHandler);
-  }
+  },
+  searchReadables(text: string, asHTML: boolean = false) {
+    return axios
+      .get(`${this.base_uri}/readables/search`, {
+        params: {text: text},
+        headers: {
+          'Accept': asHTML ? 'text/html' : 'application/json',
+          'Content-Type': asHTML ? 'text/html' : 'application/json',
+        }
+      })
+      .then(response => response.data)
+      .catch(this.errorHandler);
+  },
 };
 
 (<any> window).endpoints = endpoints;

@@ -2,7 +2,7 @@
 <html lang="en" class="<%= cookieTernary('nightmode').isTruthy().then('nightmode') %>">
   <head>
     <meta charset="utf-8" />
-    <title><%= req.context.formattedPageTitle %></title>
+    <title><%= req.context.getFormattedPageTitle() %></title>
     <meta name="robots" content="noindex, nofollow" />
     <meta name="csrf-token" content="<%= locals.csrfToken || '' %>" />
     <meta name="view-stack" content="<%= req.context.getAllViewNames() %>" />

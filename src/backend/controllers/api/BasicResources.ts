@@ -31,7 +31,7 @@ router.restful('/search-textmap', {
     }
 
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
-      return res.render('partials/textmap-search-result', { result });
+      return res.render('partials/basic/textmap-search-result', { result });
     } else {
       return result;
     }
@@ -55,7 +55,7 @@ router.restful('/OL/generate', {
     add_ol_markers(results);
 
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
-      return res.render('partials/ol-result', { olResults: results, searchText: <string> req.query.text });
+      return res.render('partials/basic/ol-result', { olResults: results, searchText: <string> req.query.text });
     } else {
       return results;
     }
@@ -75,7 +75,7 @@ router.restful('/id-usages', {
     }));
 
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
-      return res.render('partials/id-usages-result', { idToUsages });
+      return res.render('partials/basic/id-usages-result', { idToUsages });
     } else {
       return idToUsages;
     }

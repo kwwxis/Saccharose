@@ -2,6 +2,7 @@ import util from 'util';
 import { exec, spawn } from 'child_process';
 import { getGenshinDataFilePath } from '../loadenv';
 import { pathToFileURL } from 'url';
+import treeKill from 'tree-kill';
 
 const execPromise = util.promisify(exec);
 
@@ -16,15 +17,21 @@ const execPromise = util.promisify(exec);
  * @param stderrLineStream Stream method for stderr.
  */
 export async function passthru(command: string,
-                                       stdoutLineStream?: (data: string) => void,
-                                       stderrLineStream?: (data: string) => void): Promise<number|Error> {
+                                       stdoutLineStream?: (data: string, kill?: () => void) => void,
+                                       stderrLineStream?: (data: string, kill?: () => void) => void): Promise<number|Error> {
   const partial_line_buffer = {
     stdout: '',
     stderr: '',
   };
 
-  const create_chunk_listener = (buffer_name: 'stdout' | 'stderr', stream_method: (data: string) => void) => {
+  let didKill: boolean = false;
+
+  const create_chunk_listener = (buffer_name: 'stdout' | 'stderr', stream_method: (data: string, kill?: () => void) => void, killFn: () => void) => {
     return (chunk: string) => {
+      if (didKill) {
+        return;
+      }
+
       // The chunk is an arbitrary string from the output of the command, it can start at any point and end at any point.
       // However, we want to send data to the output method on a line-by-line basis.
 
@@ -52,21 +59,12 @@ export async function passthru(command: string,
       }
 
       for (let line of lines) {
-        stream_method(line);
+        if (didKill) {
+          return;
+        }
+        stream_method(line, killFn);
       }
     };
-  };
-
-  const flush_partial_line_buffer = () => {
-    // Once the shell stream closes, send any data still left in the partial line buffers to the output methods.
-
-    if (stdoutLineStream && partial_line_buffer.stdout)
-      stdoutLineStream(partial_line_buffer.stdout);
-    if (stderrLineStream && partial_line_buffer.stderr)
-      stderrLineStream(partial_line_buffer.stderr);
-
-    partial_line_buffer.stdout = '';
-    partial_line_buffer.stderr = '';
   };
 
   return new Promise((resolve, reject) => {
@@ -80,13 +78,38 @@ export async function passthru(command: string,
     child.stdout.setEncoding('utf8');
     child.stderr.setEncoding('utf8');
 
+    const killFn = () => {
+      // Pausing the stdout and sending the kill signal doesn't really seem to work.
+      // so set didKill = true so the stream callback isn't called anymore even if the command is still running.
+      child.stdout.pause();
+      child.stderr.pause();
+      treeKill(child.pid);
+      didKill = true;
+    };
+
+    const flush_partial_line_buffer = () => {
+      // Once the shell stream closes, send any data still left in the partial line buffers to the output methods.
+
+      if (didKill) {
+        return;
+      }
+
+      if (stdoutLineStream && partial_line_buffer.stdout)
+        stdoutLineStream(partial_line_buffer.stdout, killFn);
+      if (stderrLineStream && partial_line_buffer.stderr)
+        stderrLineStream(partial_line_buffer.stderr, killFn);
+
+      partial_line_buffer.stdout = '';
+      partial_line_buffer.stderr = '';
+    };
+
     if (stdoutLineStream) {
-      const listener = create_chunk_listener('stdout', stdoutLineStream);
+      const listener = create_chunk_listener('stdout', stdoutLineStream, killFn);
       child.stdout.on('data', listener);
     }
 
     if (stderrLineStream) {
-      const listener = create_chunk_listener('stderr', stderrLineStream);
+      const listener = create_chunk_listener('stderr', stderrLineStream, killFn);
       child.stderr.on('data', listener);
     }
 
@@ -247,6 +270,7 @@ export async function grep(searchText: string, file: string, flags?: string, esc
   try {
     const cmd = createGrepCommand(searchText, file, flags, escapeDoubleQuotes);
     console.log('Command:', cmd);
+    // noinspection JSUnusedLocalSymbols
     const { stdout, stderr } = await execPromise(cmd, {
       env: { PATH: process.env.SHELL_PATH },
       shell: process.env.SHELL_EXEC,
@@ -259,13 +283,22 @@ export async function grep(searchText: string, file: string, flags?: string, esc
       throw 'Max buffer reached (too many results).';
     } else {
       console.error('\x1b[4m\x1b[1mshell error:\x1b[0m\n', err);
-      throw 'Text map search error.';
+      const parsedFlags = ShellFlags.parseFlags(flags);
+      const hasRegexFlag: boolean = parsedFlags.has('-E') || parsedFlags.has('-P') || parsedFlags.has('-G');
+      if (hasRegexFlag) {
+        try {
+          new RegExp(searchText)
+        } catch (e) {
+          throw e?.message || 'Search error occurred.';
+        }
+      }
+      throw 'Search error occurred.';
     }
   }
 }
 
-export async function grepStream(searchText: string, file: string, stream: (line: string) => void, extraFlags?: string): Promise<number|Error> {
-  const cmd = createGrepCommand(searchText, file, extraFlags);
+export async function grepStream(searchText: string, file: string, stream: (line: string, kill?: () => void) => void, flags?: string): Promise<number|Error> {
+  const cmd = createGrepCommand(searchText, file, flags);
   return await passthru(cmd, stream);
 }
 
@@ -291,8 +324,20 @@ export function normJsonGrepCmp(a: string, b: string) {
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   let parsed = ShellFlags.parseFlags('--test-flag -abc -m 10 --another --foo bar -D -e');
-  console.log(parsed);
+  //console.log(parsed);
 
   let stringified = ShellFlags.stringifyFlags(parsed);
-  console.log(stringified);
+  //console.log(stringified);
+
+  let i = 0;
+  await grepStream('lantern rite', getGenshinDataFilePath('./TextMap/TextMapEN.json'),
+    (line: string, kill: () => void) => {
+      console.log(i, line);
+      i++;
+      if (i === 10) {
+        kill();
+      }
+    }, '-i');
+
+  console.log('grep done');
 }

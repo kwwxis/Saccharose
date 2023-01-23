@@ -100,8 +100,11 @@ class RequestContext {
     return SITE_TITLE;
   }
 
-  get formattedPageTitle() {
-    return this.title ? `${this.title} | ${SITE_TITLE}` : SITE_TITLE;
+  getFormattedPageTitle(customTitle?: string) {
+    if (!customTitle) {
+      customTitle = this.title;
+    }
+    return customTitle ? `${customTitle} | ${SITE_TITLE}` : SITE_TITLE;
   }
 
   get bodyClassString() {
@@ -281,7 +284,7 @@ export function create(context?: Readonly<RequestContextUpdate>): Router {
     if (context)
       await updateReqContext(req, res, context);
 
-    res.render = async function(view: string, locals?: RequestLocals, callback?: (err: Error, html: string) => void, throwOnError: boolean = false): Promise<string|Error> {
+    res.render = async function(view: string, locals?: RequestLocals, callback?: (err: Error, html: string) => void, throwOnError: boolean = true): Promise<string|Error> {
       try {
         await updateReqContext(req, res, {
           locals,

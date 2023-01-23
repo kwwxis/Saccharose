@@ -452,8 +452,12 @@ export class SbOut {
     this.propPrefix = prefix;
   }
 
-  toString() {
-    return this.out;
+  toString(noTrim: boolean = false) {
+    if (noTrim) {
+      return this.out;
+    } else {
+      return this.out.trim();
+    }
   }
 
   get() {

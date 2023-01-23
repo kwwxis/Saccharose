@@ -3,7 +3,7 @@ import { endpoints } from '../../endpoints';
 import { flashTippy } from '../../util/tooltips';
 import { pageMatch } from '../../pageMatch';
 
-pageMatch('pages/basic/text-map-expand', () => {
+pageMatch('pages/item/readables-search', () => {
   function loadResultFromURL() {
     const url = new URL(window.location.href);
     const query = url.searchParams.get('q');
@@ -50,7 +50,7 @@ pageMatch('pages/basic/text-map-expand', () => {
       window.history.pushState({q: text}, null, url.href);
     }
 
-    endpoints.searchTextMap(text, true).then(result => {
+    endpoints.searchReadables(text, true).then(result => {
       if (typeof result === 'string') {
         document.querySelector('#search-result').innerHTML = result;
       } else if (typeof result === 'object' && result.message) {

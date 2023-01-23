@@ -65,8 +65,9 @@ export default async function(): Promise<Router> {
   });
 
   router.get('/quests/:id', async (req: Request, res: Response) => {
+    let mainQuest = await getControl(req).selectMainQuestById(req.params.id);
     res.render('pages/dialogue/quests', {
-      title: 'Quests',
+      title: mainQuest ? mainQuest.TitleText + ' - Quests' : 'Quest Not Found',
       bodyClass: ['page--quests']
     });
   });

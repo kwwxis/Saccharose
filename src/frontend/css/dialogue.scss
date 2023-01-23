@@ -23,10 +23,10 @@ body.nightmode .dialogue-section {
 
 /*------------------------------*/
 
-.metadata-props {
+.meta-props {
   flex-wrap: wrap;
 }
-.metadata-props .prop {
+.meta-props .prop {
   display: flex;
   align-items: center;
   border: 1px solid hsla(232, 20%, 32%, 0.25);
@@ -37,34 +37,34 @@ body.nightmode .dialogue-section {
   margin-bottom: 3px;
 }
 
-.metadata-props .prop-label {
+.meta-props .prop-label {
   background: hsla(232, 20%, 32%, 0.11);
   padding: 0 3px;
 }
 
-.metadata-props .prop-values {
+.meta-props .prop-values {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
 }
 
-.metadata-props .prop-value {
+.meta-props .prop-value {
   border-left: 1px solid hsla(232, 20%, 32%, 0.3);
   padding: 0 5px;
   text-decoration: none;
 }
 
-body.nightmode .metadata-props .prop {
+body.nightmode .meta-props .prop {
   border-color: hsla(232, 20%, 60%, 0.25);
 }
-body.nightmode .metadata-props .prop-value {
+body.nightmode .meta-props .prop-value {
   border-left-color: hsla(232, 20%, 60%, 0.3);
 }
 
-body.nightmode .metadata-props .prop-label {
+body.nightmode .meta-props .prop-label {
   background: hsl(255deg 8% 22%);
 }
-body.nightmode .metadata-props .prop-value {
+body.nightmode .meta-props .prop-value {
   background: hsl(255deg 8% 20%);
 }
 

@@ -1,5 +1,54 @@
 import { isInt } from './numberUtil';
 
+/**
+ * Aggregate of all markers in a single line.
+ */
+export class MarkerAggregate {
+  line: number;
+  isFront: boolean;
+  ranges: {startCol: number, endCol: number, fullLine: boolean, token: string}[] = [];
+
+  private constructor(line: number, isFront: boolean) {
+    this.line = line;
+    this.isFront = isFront;
+  }
+
+  /**
+   * Convert an array of markers into marker aggregates.
+   *
+   * Does not allow overlaps. Processes from left to right. Markers overlapping already-processed markers will be
+   * silently ignored.
+   */
+  static from(markers: Marker[]): { front: Map<number, MarkerAggregate>, back: Map<number, MarkerAggregate> } {
+    let front: Map<number, MarkerAggregate> = new Map<number, MarkerAggregate>();
+    let back: Map<number, MarkerAggregate> = new Map<number, MarkerAggregate>();
+
+    if (!markers || !markers.length) {
+      return { front, back };
+    }
+
+    for (let marker of markers) {
+      let agg: MarkerAggregate = marker.isFront ? front.get(marker.line) : back.get(marker.line);
+      if (!agg) {
+        agg = new MarkerAggregate(marker.line, marker.isFront);
+        marker.isFront ? front.set(marker.line, agg) : back.set(marker.line, agg);
+      }
+      let doOverlap: boolean = false;
+      for (let range of agg.ranges) {
+        doOverlap = range.fullLine || marker.fullLine || (Math.max(range.startCol, marker.startCol) < Math.min(range.endCol, marker.endCol));
+        if (doOverlap) {
+          break;
+        }
+      }
+      if (!doOverlap) {
+        agg.ranges.push({startCol: marker.startCol, endCol: marker.endCol, fullLine: marker.fullLine, token: marker.token});
+      }
+    }
+
+    return { front, back };
+  }
+}
+
 export class Marker {
   token: string;
   line: number;

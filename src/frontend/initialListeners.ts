@@ -139,6 +139,13 @@ const initial_listeners: Listener[] = [
           event.stopPropagation();
           event.preventDefault();
         });
+        el.addEventListener('copy', (event: ClipboardEvent) => {
+          const selection = document.getSelection();
+          if (selection && selection.toString().trim() === el.textContent.trim()) {
+            event.clipboardData.setData('text/plain', selection.toString().trim());
+            event.preventDefault();
+          }
+        });
       });
 
       document.querySelectorAll<HTMLElement>('.timestamp.is--formatted.is--unconverted').forEach(el => {
@@ -302,7 +309,6 @@ const initial_listeners: Listener[] = [
                 if (copyTarget.querySelector('.ace_static_text_layer')) {
                   copyTarget = copyTarget.querySelector('.ace_static_text_layer');
                 }
-                console.log('Copy target', copyTarget);
                 let value = copyTarget.textContent;
                 // noinspection JSIgnoredPromiseFromCall
                 copyToClipboard(value.trim());
@@ -501,7 +507,6 @@ const initial_listeners: Listener[] = [
     ev: 'click',
     multiple: true,
     fn: function(event: Event, target: HTMLElement) {
-      console.log('clicked!!!!');
       document.querySelectorAll('#search-mode-dropdown .option').forEach(el => el.classList.remove('selected'));
       target.classList.add('selected');
 

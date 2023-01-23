@@ -122,6 +122,7 @@ export interface DocumentExcelConfigData {
   DocumentType?: 'Video' | undefined,
   VideoPath?: string,
   SubtitleId?: number,
-  NHNENGFHDEG: number[], // Quest trigger condition for alternate
-  HGHPAKBJLMN: number[], // Alternate ContentLocalizedIds
+  
+  AltContentLocalizedQuestConds: number[], // Quest trigger condition for alternate
+  AltContentLocalizedIds: number[], // Alternate ContentLocalizedIds
 }

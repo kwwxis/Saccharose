@@ -8,7 +8,6 @@ import {
   fetchCharacterStoryByAvatarId,
 } from '../../scripts/fetters/fetchStoryFetters';
 import { StoryFetters } from '../../../shared/types/fetter-types';
-import { isInt, toInt } from '../../../shared/util/numberUtil';
 import { AvatarExcelConfigData } from '../../../shared/types/avatar-types';
 import { cached } from '../../util/cache';
 import jsonMask from 'json-mask';

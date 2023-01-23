@@ -16,6 +16,8 @@ import './pages/dialogue/quests';
 import './pages/dialogue/reminders';
 import './pages/dialogue/vo-to-dialogue';
 
+import './pages/item/readables-search';
+
 import './pages/character/vo-tool';
 
 import { escapeHtml } from '../shared/util/stringUtil';

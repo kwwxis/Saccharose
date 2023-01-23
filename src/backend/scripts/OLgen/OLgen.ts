@@ -130,7 +130,7 @@ export async function ol_gen(ctrl: Control, name: string, options: OLGenOptions 
     return [await ol_gen_from_id(ctrl, parseInt(name), options)];
   }
 
-  let idList: number[] = await ctrl.findTextMapIdsByExactName(options.langCode || ctrl.inputLangCode, name);
+  let idList: number[] = await ctrl.findTextMapIdsByExactName(name);
   if (!idList || !idList.length) {
     return [];
   }

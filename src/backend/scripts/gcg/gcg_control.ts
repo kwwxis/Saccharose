@@ -713,6 +713,31 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     console.log('CardExcels that have a CharExcel with same ID (should be zero - no overlap):', cardIds.filter(id => charIds.includes(id)).length);
     console.log('\n\n\n\n\n\n\n\n\n\n\n\n\n');
 
+    console.log('Expecto Patronum:');
+    for (let card of cards) {
+      if (card.PersistEffectType === 'GCG_PERSIST_EFFECT_EXPECTO_PATRONUM') {
+        console.log('  * '+card.NameText);
+      }
+    }
+    console.log('\nImperturable Charm:');
+    for (let card of cards) {
+      if (card.PersistEffectType === 'GCG_PERSIST_EFFECT_IMPERTURBABLE_CHARM') {
+        console.log('  * '+card.NameText);
+      }
+    }
+    console.log('\nProtego:');
+    for (let card of cards) {
+      if (card.PersistEffectType === 'GCG_PERSIST_EFFECT_PROTEGO') {
+        console.log('  * '+card.NameText);
+      }
+    }
+    console.log('\nStupefy:');
+    for (let card of cards) {
+      if (card.PersistEffectType === 'GCG_PERSIST_EFFECT_STUPEFY') {
+        console.log('  * '+card.NameText);
+      }
+    }
+
     await closeKnex();
   })();
 }

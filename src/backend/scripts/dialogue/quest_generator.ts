@@ -146,7 +146,13 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
   result.questTitle = mainQuest.TitleText;
   result.mainQuest = mainQuest;
   result.npc = {
-    names: arrayUnique(Object.values(ctrl.getPrefs().npcCache).filter(x => !!x.BodyType).map(x => x.NameText).concat('Traveler').sort()),
+    names: arrayUnique(
+      Object.values(ctrl.getPrefs().npcCache)
+        .filter(x => !x.Invisiable && !x.JsonName?.startsWith('ReadableNPC'))
+        .map(x => x.NameText)
+        .concat('Traveler')
+        .sort()
+    ),
     data: ctrl.getPrefs().npcCache,
   };
 
@@ -186,7 +192,6 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
   let olResult = await ol_gen_from_id(ctrl, mainQuest.TitleTextMapHash, {
     hideTl: false,
     addDefaultHidden: false,
-    langCode: 'EN' // always EN
   });
   if (olResult) {
     out.append(olResult.result);
@@ -216,7 +221,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
       for (let dialog of questSub.OrphanedDialog) {
         let subsect = new DialogueSectionResult('OrphanedDialogue_'+dialog[0].Id, 'Orphaned Dialogue', orphanedHelpText);
         subsect.metadata.push(new MetaProp('First Dialogue ID', dialog[0].Id, `/branch-dialogue?q=${dialog[0].Id}`));
-        subsect.metadata.push(new MetaProp('Quest ID', mainQuest.Id, `/quests/{}`));
+        subsect.metadata.push(new MetaProp('Quest ID', {value: mainQuest.Id, tooltip: mainQuest.TitleText}, `/quests/{}`));
         out.clearOut();
         out.append(await ctrl.generateDialogueWikiText(dialog));
         subsect.wikitext = out.toString();
@@ -255,7 +260,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
       let sect = new DialogueSectionResult('OrphanedDialogue_'+dialog[0].Id, 'Orphaned Dialogue', orphanedHelpText);
       sect.originalData.dialogBranch = dialog;
       sect.metadata.push(new MetaProp('First Dialogue ID', dialog[0].Id, `/branch-dialogue?q=${dialog[0].Id}`));
-      sect.metadata.push(new MetaProp('Quest ID', mainQuest.Id, `/quests/{}`));
+      sect.metadata.push(new MetaProp('Quest ID', {value: mainQuest.Id, tooltip: mainQuest.TitleText}, `/quests/{}`));
       out.clearOut();
       out.append(await ctrl.generateDialogueWikiText(dialog));
       out.line();

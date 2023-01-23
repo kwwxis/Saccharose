@@ -3,7 +3,18 @@ import { Control } from '../script_util';
 import { isInt } from '../../../shared/util/numberUtil';
 import { traceBack } from './dialogue_util';
 
-async function guessQuestFromDialogueId(ctrl: Control, id: number): Promise<number> {
+export async function guessQuestFromDialogueId(ctrl: Control, id: number|string): Promise<number> {
+  if (typeof id === 'string') {
+    if (isInt(id)) {
+      id = parseInt(id);
+    } else {
+      return undefined;
+    }
+  }
+  if (!id || id < 100) {
+    return undefined; // minimum quest id is 3 digits
+  }
+
   let strId = id.toString().padStart(9, '0');
 
   // Most dialogue IDs are in the format of xxxxx|yy|zz (9 digits)

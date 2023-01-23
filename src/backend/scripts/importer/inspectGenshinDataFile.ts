@@ -222,7 +222,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     // await inspectGenshinDataFile(ctrl, './ExcelBinOutput/GCGChallengeExcelConfigData.json', ['Type', 'ParamList[#ALL]']);
 
     // await inspectGenshinDataFile(ctrl, './ExcelBinOutput/GCGDeckExcelConfigData.json');
-    await inspectGenshinDataFile(ctrl, './ExcelBinOutput/FettersExcelConfigData.json');
+    await inspectGenshinDataFile(ctrl, './ExcelBinOutput/NPCExcelConfigData.json', ['JsonName', 'SpecialType', 'BodyType']);
     await closeKnex();
   })();
 }

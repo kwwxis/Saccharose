@@ -1,6 +1,5 @@
 import { endpoints } from '../../endpoints';
 import { startListeners } from '../../util/eventLoader';
-import { escapeHtml } from '../../../shared/util/stringUtil';
 import { DIALOG_MODAL, openDialog } from '../../util/dialog';
 import { flashTippy } from '../../util/tooltips';
 import { pageMatch } from '../../pageMatch';
@@ -21,6 +20,12 @@ pageMatch('pages/dialogue/quests', () => {
       } else if (typeof html === 'object' && html.message) {
         document.querySelector('#quest-generate-result').innerHTML = endpoints.errorHtmlWrap(html.message);
       }
+      setTimeout(() => {
+        let questTitleEl = document.querySelector('[data-document-title]');
+        if (questTitleEl) {
+          document.title = questTitleEl.getAttribute('data-document-title');
+        }
+      })
       startListeners(questResultListeners, '#quest-generate-result');
     });
   }

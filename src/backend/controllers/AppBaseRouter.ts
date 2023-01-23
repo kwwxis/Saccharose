@@ -7,6 +7,7 @@ import DialogueRouter from './app/DialogueRouter';
 import ItemRouter from './app/ItemRouter';
 import CharacterRouter from './app/CharacterRouter';
 import TcgRouter from './app/TcgRouter';
+import { pageLoadApiHandler } from '../middleware/globalErrorHandler';
 
 export default async function(): Promise<Router> {
   const router: Router = create({
@@ -50,6 +51,7 @@ export default async function(): Promise<Router> {
   router.use('/', await ItemRouter());
   router.use('/', await CharacterRouter());
   router.use('/', await TcgRouter());
+  router.use(pageLoadApiHandler);
 
   return router;
 };

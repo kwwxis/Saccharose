@@ -1,6 +1,5 @@
 import '../../loadenv';
 import { openKnex } from '../../util/db';
-import objectPath from 'object-path';
 import { SchemaTable, SEP } from './import_types';
 import { DialogExcelConfigData, TalkExcelConfigData } from '../../../shared/types/dialogue-types';
 import { MaterialExcelConfigData } from '../../../shared/types/material-types';
@@ -17,6 +16,7 @@ import { AchievementExcelConfigData, AchievementGoalExcelConfigData } from '../.
 import { AvatarFlycloakExcelConfigData } from '../../../shared/types/avatar-types';
 import chalk from 'chalk';
 import { GCGCharacterLevelExcelConfigData, GCGRuleExcelConfigData } from '../../../shared/types/gcg-types';
+import { resolveObjectPath } from '../../../shared/util/arrayUtil';
 
 export const schema = {
   DialogExcelConfigData: <SchemaTable> {
@@ -379,6 +379,21 @@ export const schema = {
     columns: [
       {name: 'Id', type: 'integer', isPrimary: true},
       {name: 'AssetType', type: 'string', isIndex: true},
+      {name: 'ScPath', type: 'string', isIndex: true},
+      {name: 'TcPath', type: 'string', isIndex: true},
+      {name: 'EnPath', type: 'string', isIndex: true},
+      {name: 'KrPath', type: 'string', isIndex: true},
+      {name: 'JpPath', type: 'string', isIndex: true},
+      {name: 'EsPath', type: 'string', isIndex: true},
+      {name: 'FrPath', type: 'string', isIndex: true},
+      {name: 'IdPath', type: 'string', isIndex: true},
+      {name: 'PtPath', type: 'string', isIndex: true},
+      {name: 'RuPath', type: 'string', isIndex: true},
+      {name: 'ThPath', type: 'string', isIndex: true},
+      {name: 'ViPath', type: 'string', isIndex: true},
+      {name: 'DePath', type: 'string', isIndex: true},
+      {name: 'TrPath', type: 'string', isIndex: true},
+      {name: 'ItPath', type: 'string', isIndex: true},
     ]
   },
   DocumentExcelConfigData: <SchemaTable> {
@@ -387,8 +402,13 @@ export const schema = {
     columns: [
       {name: 'Id', type: 'integer', isPrimary: true},
       {name: 'ContentLocalizedId', type: 'integer', isIndex: true},
+      {name: 'AltContentLocalizationId_0', type: 'integer', isIndex: true, resolve: 'AltContentLocalizedIds[0]'},
       {name: 'TitleTextMapHash', type: 'integer', isIndex: true},
-    ]
+    ],
+    normalizeFixFields: {
+      NHNENGFHDEG: 'AltContentLocalizedQuestConds',
+      HGHPAKBJLMN: 'AltContentLocalizedIds',
+    }
   },
   ReliquaryExcelConfigData: <SchemaTable> {
     name: 'ReliquaryExcelConfigData',
@@ -1017,6 +1037,29 @@ export const schema = {
       {name: 'TitleTextMapHash', type: 'integer', isIndex: true},
     ],
   },
+
+  PushTipsConfigData: <SchemaTable> {
+    name: 'PushTipsConfigData',
+    jsonFile: './ExcelBinOutput/PushTipsConfigData.json',
+    columns: [
+      {name: 'PushTipsId', type: 'integer', isPrimary: true},
+      {name: 'PushTipsType', type: 'string', isIndex: true},
+      {name: 'CodexType', type: 'string', isIndex: true},
+      {name: 'TitleTextMapHash', type: 'integer', isIndex: true},
+      {name: 'SubtitleTextMapHash', type: 'integer', isIndex: true},
+      {name: 'TutorialId', type: 'integer', isIndex: true},
+      {name: 'GroupId', type: 'integer', isIndex: true},
+    ]
+  },
+  PushTipsCodexExcelConfigData: <SchemaTable> {
+    name: 'PushTipsCodexExcelConfigData',
+    jsonFile: './ExcelBinOutput/PushTipsCodexExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'PushTipId', type: 'integer', isIndex: true},
+      {name: 'SortOrder', type: 'integer', isIndex: true},
+    ]
+  },
 };
 
 export function capitalizeFirstLetter(s: string) {
@@ -1094,7 +1137,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
         for (let col of table.columns) {
           if (col.resolve) {
             if (typeof col.resolve === 'string') {
-              payload[col.name] = objectPath.get(row, col.resolve);
+              payload[col.name] = resolveObjectPath(row, col.resolve);
             } else if (typeof col.resolve === 'function') {
               payload[col.name] = col.resolve(row);
             }

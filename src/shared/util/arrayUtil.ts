@@ -252,3 +252,11 @@ export function arrayIntersect<T>(args: T[][], comparator?: ElementComparator<T>
 export function arraySum(array: number[]): number {
     return array.reduce((a: number, b: number) => a + b, 0);
 }
+
+export async function asyncMap<T, R>(arr: T[], fn: (item: T) => Promise<R>): Promise<R[]> {
+  let ret: R[] = [];
+  for (let item of arr) {
+    ret.push(await fn(item));
+  }
+  return ret;
+}

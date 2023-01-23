@@ -1,0 +1,32 @@
+<% if (readables.length) { %>
+  <section class="card">
+    <h2>Search Results</h2>
+    <div class="content dispFlex flexWrap alignStart">
+      <% for (let readableView of readables) { %>
+        <div class="w100p">
+          <a class="secondary spacer3-all valign textAlignLeft" role="button" href="/readables/item/<%= readableView.Id %>">
+            <% if (readableView.Material) { %>
+              <img class="icon x32" src="/images/genshin/<%= readableView?.Material?.Icon %>.png" loading="lazy" />
+              <span class="spacer10-left"><%= readableView?.Material?.NameText %></span>
+            <%} %>
+            <% if (readableView.Artifact) { %>
+              <img class="icon x32" src="/images/genshin/<%= readableView?.Artifact?.Icon %>.png" loading="lazy" />
+              <span class="spacer10-left"><%= readableView?.Artifact?.NameText %></span>
+            <%} %>
+            <% if (readableView.Weapon) { %>
+              <img class="icon x32" src="/images/genshin/<%= readableView?.Weapon?.Icon %>.png" loading="lazy" />
+              <span class="spacer10-left"><%= readableView?.Weapon?.NameText %></span>
+            <%} %>
+          </a>
+        </div>
+      <% } %>
+    </div>
+  </section>
+<% } %>
+<% if (!readables.length) { %>
+  <div class="card no-results-found">
+    <div class="content">
+      <p>No results found for <b><%= searchText %></b></p>
+    </div>
+  </div>
+<% } %>

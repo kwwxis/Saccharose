@@ -71,6 +71,7 @@
     "sqlite3": "^5.1.4",
     "tippy.js": "^6.3.7",
     "toposort": "^2.0.2",
+    "tree-kill": "^1.2.2",
     "url": "^0.11.0",
     "use-strict": "^1.0.1",
     "vhost": "^3.0.2"

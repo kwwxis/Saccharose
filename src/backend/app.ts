@@ -15,7 +15,6 @@ import { loadTextMaps, loadVoiceItems, loadQuestSummarization } from './scripts/
 import { isStringNotBlank } from '../shared/util/stringUtil';
 import rateLimit from 'express-rate-limit';
 import requestIp from 'request-ip';
-import { pageLoadApiHandler } from './middleware/globalErrorHandler';
 import jsonResponse from './middleware/jsonResponse';
 import defaultResponseHeaders from './middleware/defaultResponseHeaders';
 import { PUBLIC_DIR, VIEWS_ROOT } from './loadenv';
@@ -119,7 +118,6 @@ export async function appInit(): Promise<Express> {
   console.log(`[Init] Adding global error handlers`);
   process.on('uncaughtException', (err) => console.error('UncaughtException!', err));
   process.on('unhandledRejection', (err) => console.error('UnhandledRejection!', err));
-  app.use(pageLoadApiHandler);
 
   // 404-Handler
   // ~~~~~~~~~~~

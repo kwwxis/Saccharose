@@ -1,4 +1,3 @@
-import objectPath from 'object-path';
 export type SchemaTable = {
   name: string,
   columns: SchemaColumn[],
@@ -11,7 +10,7 @@ export type SchemaColumnType = 'string'|'integer'|'bigInteger'|'boolean'|'text'|
 export type SchemaColumn = {
   name: string,
   type: SchemaColumnType,
-  resolve?: objectPath.Path|Function,
+  resolve?: string|Function,
   isIndex?: boolean,
   isPrimary?: boolean
 };

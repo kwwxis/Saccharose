@@ -35,7 +35,7 @@ export async function apiErrorHandler(err: any, req: Request, res: Response, nex
   }
 
   if (typeof err === 'string') {
-    sendHttpError(HttpError.notFound(null, err), res);
+    sendHttpError(HttpError.badRequest(null, err), res);
   } else if (err && typeof err === 'object' && (err.code === 'EBADCSRFTOKEN' || err.type === 'EBADCSRFTOKEN')) {
     sendHttpError(HttpError.unauthenticated('EBADCSRFTOKEN', err), res);
   } else if (err instanceof HttpError) {

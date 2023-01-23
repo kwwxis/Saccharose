@@ -6,21 +6,41 @@ export interface ConfigCondition<T extends string = string> {
 }
 
 export interface NpcExcelConfigData {
-  JsonName: string,
-  Alias: string,
-  ScriptDataPath: string,
-  LuaDataPath: string,
-  DyePart: string,
-  BillboardIcon: string,
-  TemplateEmotionPath: string,
   Id: number,
-  NameText?: string,
   NameTextMapHash: number,
-  PrefabPathHashSuffix: number,
-  PrefabPathHashPre: number,
+  NameText: string,
+
+  JsonName: string,
+  SpecialType: string,
+  BodyType: string,
+  Alias: string,
+
+  HasMove: boolean,
+  HasAudio: boolean,
+  IsDaily: boolean,
+  Invisiable: boolean,
+  DisableShowName: boolean,
+  UseDynBone: boolean,
+  SkipInitClosetToGround: boolean,
+  IsActivityDailyNpc: boolean,
+
+  BillboardType: string,
+  BillboardIcon: string,
+
   CampId: number,
-  LODPatternName: string,
-  BodyType?: string,
+  FirstMetId: number,
+  UniqueBodyId: number,
+
+  ScriptDataPath: string,
+  PrefabPathHash: string,
+  TemplateEmotionPath: string,
+  AnimatorConfigPathHash: string,
+  JsonPathHash: string,
+  LuaDataPath: string,
+  LuaDataIndex: number,
+  OKJNGNPPCBP: string,
+  JMJLKENBJEA: number,
+  BHDMIMPGPOI: number[],
 }
 
 export interface DungeonExcelConfigData {

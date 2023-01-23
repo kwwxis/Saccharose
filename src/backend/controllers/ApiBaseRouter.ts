@@ -7,6 +7,7 @@ import CharacterResources from './api/CharacterResources';
 import DialogueResources from './api/DialogueResources';
 import apiAccessControlHeaders from '../middleware/apiAccessControlHeaders';
 import apiAuth from '../middleware/apiAuth';
+import ItemResources from './api/ItemResources';
 
 export const ApiCyclicValueReplacer: CyclicValueReplacer = (k: string, v: any) => {
   if (typeof v === 'object' && v.Id) {
@@ -32,6 +33,7 @@ export default async function(): Promise<Router> {
   // ~~~~~~~~~~~~~~~~~
   router.use('/', BasicResources);
   router.use('/', DialogueResources);
+  router.use('/', ItemResources);
   router.use('/', CharacterResources);
 
   // Client Error Handlers

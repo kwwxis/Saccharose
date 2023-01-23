@@ -180,6 +180,7 @@ export type TalkExcelBeginCondType =
   'QUEST_COND_PACK_HAVE_ITEM'                     |
   'QUEST_COND_PLAYER_CHOOSE_MALE'                 |
   'QUEST_COND_PLAYER_LEVEL_REWARD_CAN_GET'        |
+
   'QUEST_COND_QUEST_GLOBAL_VAR_EQUAL'             |
   'QUEST_COND_QUEST_GLOBAL_VAR_GREATER'           |
   'QUEST_COND_QUEST_GLOBAL_VAR_LESS'              |

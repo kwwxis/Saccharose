@@ -1,0 +1,65 @@
+
+
+.flash {
+  animation: flash 1s ease-out;
+}
+body.nightmode .flash {
+  animation: nightmode-flash 1s ease-out;
+}
+
+@keyframes flash {
+  0% {
+    background: transparent;
+  }
+  20% {
+    background: #ffc;
+  }
+}
+
+@keyframes nightmode-flash {
+  0% {
+    background: transparent;
+  }
+  20% {
+    background: hsl(57deg 9% 19%);
+  }
+}
+
+@keyframes nightmode-flash-textfield {
+  0% {
+    background: hsl(255deg 8% 22%);
+  }
+  20% {
+    background: hsl(57deg 9% 19%);
+  }
+}
+
+body:not(.nightmode) .flash textarea,
+body:not(.nightmode) .flash select,
+body:not(.nightmode) .flash [contenteditable],
+body:not(.nightmode) .flash .input-style,
+body:not(.nightmode) .flash input[type='text'],
+body:not(.nightmode) .flash input[type='password'],
+body:not(.nightmode) .flash input[type='search'],
+body:not(.nightmode) .flash input[type='email'],
+body:not(.nightmode) .flash input[type='url'],
+body:not(.nightmode) .flash input[type='number'],
+body:not(.nightmode) .flash input[type='time'],
+body:not(.nightmode) .flash input[type='date'] {
+  background: transparent !important;
+}
+
+body.nightmode .flash textarea,
+body.nightmode .flash select,
+body.nightmode .flash [contenteditable],
+body.nightmode .flash .input-style,
+body.nightmode .flash input[type='text'],
+body.nightmode .flash input[type='password'],
+body.nightmode .flash input[type='search'],
+body.nightmode .flash input[type='email'],
+body.nightmode .flash input[type='url'],
+body.nightmode .flash input[type='number'],
+body.nightmode .flash input[type='time'],
+body.nightmode .flash input[type='date'] {
+  animation: nightmode-flash-textfield 1s ease-out;
+}

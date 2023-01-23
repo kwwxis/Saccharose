@@ -2,11 +2,12 @@ import { DialogExcelConfigData, TalkExcelConfigData } from '../../../shared/type
 import { ConfigCondition } from '../../../shared/types/general-types';
 import { Control } from '../script_util';
 import { QuestGenerateResult } from './quest_generator';
-import { MetaProp, MetaPropValue } from '../../util/metaProp';
+import { MetaProp, MetaPropAcceptValue } from '../../util/metaProp';
 import { toBoolean } from '../../../shared/util/genericUtil';
 import { dialogueToQuestId } from './reverse_quest';
 import { Marker } from '../../../shared/util/highlightMarker';
 import { SbOut } from '../../../shared/util/stringUtil';
+import { asyncMap } from '../../../shared/util/arrayUtil';
 
 export class DialogueSectionResult {
   id: string = null;
@@ -36,7 +37,7 @@ export class DialogueSectionResult {
     this.metadata.push(new MetaProp(label, null));
   }
 
-  addMetaProp(label: string, values: string | number | string[] | (string|number)[] | number[] | MetaPropValue[], link?: string) {
+  addMetaProp(label: string, values: MetaPropAcceptValue, link?: string) {
     if (!values || (Array.isArray(values) && !values.length)) {
       return;
     }
@@ -110,15 +111,18 @@ export async function talkConfigToDialogueSectionResult(ctrl: Control, parentSec
 
   mysect.addMetaProp('Talk ID', talkConfig.Id, '/branch-dialogue?q={}');
   if (talkConfig.QuestId) {
-    mysect.addMetaProp('Quest ID', talkConfig.QuestId, '/quests/{}');
+    mysect.addMetaProp('Quest ID', {value: talkConfig.QuestId, tooltip: await ctrl.selectMainQuestName(talkConfig.QuestId)}, '/quests/{}');
   } else {
     let questIds = await dialogueToQuestId(ctrl, talkConfig);
     if (questIds.length) {
-      mysect.addMetaProp('Quest ID', questIds, '/quests/{}');
+      mysect.addMetaProp('Quest ID', await asyncMap(questIds, async id => ({
+        value: id,
+        tooltip: await ctrl.selectMainQuestName(id)
+      })), '/quests/{}');
     }
   }
   mysect.addMetaProp('Quest Idle Talk', talkConfig.QuestIdleTalk ? 'yes' : null);
-  mysect.addMetaProp('NPC ID', talkConfig.NpcId, '/npc-dialogue?q={}');
+  mysect.addMetaProp('NPC ID', talkConfig.NpcDataList.map(npc => ({value: npc.Id, tooltip: npc.NameText})), '/npc-dialogue?q={}');
   mysect.addMetaProp('Next Talk IDs', talkConfig.NextTalks, '/branch-dialogue?q={}');
 
   for (let beginCond of (talkConfig.BeginCond || [])) {
@@ -139,6 +143,28 @@ export async function talkConfigToDialogueSectionResult(ctrl: Control, parentSec
           mysect.addEmptyMetaProp('Nighttime Only');
         }
         break;
+    }
+    if (beginCond.Type.startsWith('QUEST_COND_QUEST_')) {
+      mysect.addMetaProp('Quest Cond', [
+        beginCond.Type.slice(17),
+        ... beginCond.Param
+      ]);
+    } else
+    if (beginCond.Type.startsWith('QUEST_COND_SCENE_')) {
+      mysect.addMetaProp('Quest Scene Cond', [
+        beginCond.Type.slice(17),
+        ... beginCond.Param
+      ]);
+    } else
+    if (beginCond.Type.startsWith('QUEST_COND_STATE_')) {
+      let questExcel = await ctrl.selectQuestExcelConfigData(beginCond.Param[0]);
+      let questName = questExcel ? await ctrl.selectMainQuestName(questExcel.MainId) : null;
+
+      mysect.addMetaProp('Quest State Cond', [
+        beginCond.Type.slice(17),
+        {value: beginCond.Param[0], tooltip: questName, link: questExcel ? '/quests/' + questExcel.MainId : null},
+        ... beginCond.Param.slice(1)
+      ]);
     }
   }
 

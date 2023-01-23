@@ -10,7 +10,13 @@ import { promises as fs } from 'fs';
 import { arrayIndexOf, arrayIntersect, sort } from '../../shared/util/arrayUtil';
 import { toInt, toNumber } from '../../shared/util/numberUtil';
 import { normalizeRawJson, schema } from './importer/import_run';
-import { extractRomanNumeral, isStringBlank, replaceAsync, romanToInt } from '../../shared/util/stringUtil';
+import {
+  escapeRegExp,
+  extractRomanNumeral,
+  isStringBlank,
+  replaceAsync,
+  romanToInt,
+} from '../../shared/util/stringUtil';
 import {
   DialogExcelConfigData,
   LangCode,
@@ -43,7 +49,7 @@ import {
   HomeWorldNPCExcelConfigData,
 } from '../../shared/types/homeworld-types';
 import { grep, grepIdStartsWith, grepStream, normJsonGrep, normJsonGrepCmp } from '../util/shellutil';
-import { getGenshinDataFilePath, getTextMapRelPath } from '../loadenv';
+import { getGenshinDataFilePath, getReadableRelPath, getTextMapRelPath } from '../loadenv';
 import {
   BooksCodexExcelConfigData,
   BookSuitExcelConfigData,
@@ -144,6 +150,8 @@ export const normText = (text: string, langCode: LangCode = 'EN', decolor: boole
     text = text.replace(/<color=#80FFD7FF>([^<]+)<\/color>/g, '{{Anemo|$1}}');
     text = text.replace(/<color=#FFE699FF>([^<]+)<\/color>/g, '{{Geo|$1}}');
 
+    text = text.replace(/<color=#FFE14BFF>([^<]+)<\/color>/g, '{{color|help|$1}}');
+
     text = text.replace(/<color=#37FFFF>([^<]+) ?<\/color>/g, "'''$1'''");
     text = text.replace(/<color=(#[0-9a-fA-F]{6})FF>([^<]+)<\/color>/g, '{{color|$1|$2}}');
   }
@@ -188,6 +196,7 @@ export class ControlState {
   npcCache:      {[Id: number]: NpcExcelConfigData}    = {};
   avatarCache:   {[Id: number]: AvatarExcelConfigData} = {};
   bookSuitCache: {[Id: number]: BookSuitExcelConfigData} = {};
+  mqNameCache:   {[Id: number]: string} = {};
 
   // Preferences:
   ExcludeOrphanedDialogue = false;
@@ -426,6 +435,16 @@ export class Control {
       .where({Id: id}).first().then(this.commonLoadFirst).then(x => this.postProcessMainQuest(x));
   }
 
+  async selectMainQuestName(id: number): Promise<string> {
+    if (!!this.state.mqNameCache[id]) {
+      return this.state.mqNameCache[id];
+    }
+    let name = await this.knex.select('TitleTextMapHash').from('MainQuestExcelConfigData')
+      .where({Id: id}).first().then(res => res ? getTextMapItem(this.outputLangCode, res.TitleTextMapHash) : undefined);
+    this.state.mqNameCache[id] = name;
+    return name;
+  }
+
   async selectMainQuestsByChapterId(chapterId: number): Promise<MainQuestExcelConfigData[]> {
     return await this.knex.select('*').from('MainQuestExcelConfigData')
       .where({ChapterId: chapterId}).then(this.commonLoad).then(x => this.postProcessMainQuests(x));
@@ -442,7 +461,10 @@ export class Control {
       .then(quests => quests.sort(this.sortByOrder));
   }
 
-  async selectQuestExcelConfigData(id: number): Promise<QuestExcelConfigData> {
+  async selectQuestExcelConfigData(id: number|string): Promise<QuestExcelConfigData> {
+    if (typeof id === 'string') {
+      id = parseInt(id);
+    }
     return await this.knex.select('*').from('QuestExcelConfigData')
       .where({SubId: id}).first().then(this.commonLoadFirst);
   }
@@ -643,7 +665,7 @@ export class Control {
 
   async selectNpcListByName(nameOrTextMapId: number|string|number[]): Promise<NpcExcelConfigData[]> {
     if (typeof nameOrTextMapId === 'string') {
-      nameOrTextMapId = await this.findTextMapIdsByExactName(this.inputLangCode, nameOrTextMapId);
+      nameOrTextMapId = await this.findTextMapIdsByExactName(nameOrTextMapId);
     }
     if (typeof nameOrTextMapId === 'number') {
       nameOrTextMapId = [ nameOrTextMapId ];
@@ -934,11 +956,28 @@ export class Control {
     return out;
   }
 
-  async streamTextMapMatches(langCode: LangCode, searchText: string, stream: (textMapId: number, text: string) => void, flags?: string): Promise<number|Error> {
+  async getReadableMatches(langCode: LangCode, searchText: string, flags?: string): Promise<string[]> {
+    if (isStringBlank(searchText)) {
+      return [];
+    }
+
+    let out = [];
+
+    await grepStream(searchText, getReadableRelPath(langCode), line => {
+      let exec = /\/([^\/]+)\.txt/.exec(line);
+      if (exec) {
+        out.push(exec[1]);
+      }
+    }, '-r ' + flags);
+
+    return out;
+  }
+
+  async streamTextMapMatches(langCode: LangCode, searchText: string, stream: (textMapId: number, text: string, kill?: () => void) => void, flags?: string): Promise<number|Error> {
     if (isStringBlank(searchText)) {
       return 0;
     }
-    return await grepStream(searchText, getTextMapRelPath(langCode), line => {
+    return await grepStream(searchText, getTextMapRelPath(langCode), (line: string, kill: () => void) => {
       if (!line)
         return;
       let parts = /^"(\d+)":\s+"(.*)",?$/.exec(line.trim());
@@ -946,29 +985,28 @@ export class Control {
         return;
       let textMapId = toInt(parts[1]);
       let text = normJsonGrep(parts[2]);
-      stream(textMapId, text);
+      stream(textMapId, text, kill);
     }, flags);
   }
 
-  async findTextMapIdsByExactName(langCode: LangCode, name: string): Promise<number[]> {
+  async findTextMapIdsByExactName(name: string): Promise<number[]> {
     let results = [];
 
-    let matches = await this.getTextMapMatches(langCode, name, '-wi');
-
-    const processMatches = () => {
-      for (let [id,value] of Object.entries(matches)) {
-        if (normJsonGrepCmp(normDecolor(value), name)) {
-          results.push(parseInt(id));
-        }
+    await this.streamTextMapMatches(this.inputLangCode, name, (id: number, value: string) => {
+      if (normJsonGrepCmp(normDecolor(value), name)) {
+        results.push(id);
       }
-    }
+    }, '-wi');
 
-    processMatches();
 
     if (!results.length) {
-      let searchRegex = name.split(/\s+/g).join('.*?').split(/(')/g).join('.*?');
-      matches = await this.getTextMapMatches(langCode, searchRegex, '-Pi');
-      processMatches();
+      let searchRegex = escapeRegExp(name).split(/\s+/g).join('.*?').split(/(')/g).join('.*?');
+
+      await this.streamTextMapMatches(this.inputLangCode, searchRegex, (id: number, value: string) => {
+        if (normJsonGrepCmp(normDecolor(value), name)) {
+          results.push(id);
+        }
+      }, '-Pi');
     }
 
     return results;
@@ -1465,6 +1503,39 @@ export class Control {
       .where({MaterialId: id}).first().then(this.commonLoadFirst);
   }
 
+  async searchReadableView(searchText: string): Promise<ReadableView[]> {
+    const files = await this.getReadableMatches(this.inputLangCode, searchText, this.searchModeFlags);
+
+    if (!files.length) {
+      return [];
+    }
+
+    const pathVar = LANG_CODE_TO_LOCALIZATION_PATH_PROP[this.inputLangCode];
+    const pathVarSearch = files.map(f => 'ART/UI/Readable/' + this.inputLangCode + '/' + f.split('.txt')[0]);
+
+    let localizations: LocalizationExcelConfigData[] = await this.knex.select('*')
+      .from('LocalizationExcelConfigData')
+      .whereIn(pathVar, pathVarSearch)
+      .then(this.commonLoad);
+
+    let readableViews: ReadableView[] = [];
+    for (let localization of localizations) {
+      let readableView = await this.selectReadableViewByLocalizationId(localization.Id, false);
+      if (readableView) {
+        readableViews.push(readableView);
+      }
+    }
+    return readableViews;
+  }
+
+  async selectDocumentIdByLocalizationId(localizationId: number) {
+    return await this.knex.select('Id').from('DocumentExcelConfigData')
+      .where({ContentLocalizedId: localizationId})
+      .or.where({AltContentLocalizationId_0: localizationId})
+      .first()
+      .then(res => res ? res.Id : undefined);
+  }
+
   async loadLocalization(contentLocalizedId: number): Promise<{Localization: LocalizationExcelConfigData, ReadableText: string}> {
     let localization: LocalizationExcelConfigData = await this.knex.select('*').from('LocalizationExcelConfigData')
       .where({Id: contentLocalizedId}).first().then(this.commonLoadFirst);
@@ -1499,13 +1570,13 @@ export class Control {
       }
     }
 
-    if (out.Document && Array.isArray(out.Document.HGHPAKBJLMN) && out.Document.HGHPAKBJLMN.length) {
-      for (let i = 0; i < out.Document.HGHPAKBJLMN.length; i++) {
-        let altContentLocalizedId = out.Document.HGHPAKBJLMN[i];
+    if (out.Document && Array.isArray(out.Document.AltContentLocalizedIds) && out.Document.AltContentLocalizedIds.length) {
+      for (let i = 0; i < out.Document.AltContentLocalizedIds.length; i++) {
+        let altContentLocalizedId = out.Document.AltContentLocalizedIds[i];
         let readableAlt: ReadableItem = await this.loadLocalization(altContentLocalizedId);
 
         if (readableAlt) {
-          let triggerCond = Array.isArray(out.Document.NHNENGFHDEG) ? out.Document.NHNENGFHDEG[i] : null;
+          let triggerCond = Array.isArray(out.Document.AltContentLocalizedQuestConds) ? out.Document.AltContentLocalizedQuestConds[i] : null;
           if (triggerCond) {
             let quest = await this.selectQuestExcelConfigData(triggerCond);
             if (quest) {
@@ -1518,6 +1589,15 @@ export class Control {
     }
 
     return out.Document ? out : null;
+  }
+
+  async selectReadableViewByLocalizationId(localizationId: number, loadReadable: boolean = true): Promise<ReadableView> {
+    let documentId = await this.selectDocumentIdByLocalizationId(localizationId);
+    if (documentId) {
+      return await this.selectReadableView(documentId, loadReadable);
+    } else {
+      return null;
+    }
   }
 
   async selectReadableView(documentId: number, loadReadable: boolean = true): Promise<ReadableView> {
