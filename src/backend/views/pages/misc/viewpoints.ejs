@@ -1,0 +1,10 @@
+<% for (let [regionName, viewpoints] of Object.entries(viewpointsList)) { %>
+  <section class="card">
+    <h2><%= regionName %></h2>
+    <div class="content">
+      <% for (let viewpoint of viewpoints) { %>
+        <textarea readonly class="w100p wikitext autosize" spellcheck="false"><%= viewpoint.Wikitext %></textarea>
+      <% } %>
+    </div>
+  </section>
+<% } %>

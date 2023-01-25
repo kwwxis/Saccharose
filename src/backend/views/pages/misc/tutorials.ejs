@@ -1,0 +1,10 @@
+<% for (let [type, tutorials] of Object.entries(tutorialsList)) { %>
+  <section class="card">
+    <h2><%= type %></h2>
+    <div class="content">
+      <% for (let tutorial of tutorials) { %>
+        <textarea readonly class="w100p wikitext autosize" spellcheck="false"><%= tutorial.Wikitext %></textarea>
+      <% } %>
+    </div>
+  </section>
+<% } %>

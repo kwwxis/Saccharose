@@ -94,13 +94,14 @@ export interface DungeonExcelConfigData {
 }
 
 export interface AchievementExcelConfigData {
+  Id: number,
   GoalId: number,
   OrderId: number,
 
-  Id: number,
   TitleText: string,
   TitleTextEN: string,
   TitleTextMapHash: number,
+
   DescText: string,
   DescTextMapHash: number,
   Ps5TitleText: string,

@@ -214,27 +214,46 @@ export type TalkExcelFinishExecType =
 export interface TalkExcelConfigData {
   Id: number,
   QuestId: number,
-  QuestCondStateEqualFirst: number,
+  QuestCondStateEqualFirst: number
+
   BeginWay: string,
   ActiveMode: string,
   BeginCondComb: string,
   BeginCond: ConfigCondition<TalkExcelBeginCondType>[],
-  Priority: number,
+  FinishExec: ConfigCondition<TalkExcelFinishExecType>[]
+
   NextRandomTalks: number[],
   NextTalks: number[],
   NextTalksDataList: TalkExcelConfigData[],
   InitDialog: number,
+  Dialog?: DialogExcelConfigData[],
+
   NpcId: number[],
   NpcDataList?: NpcExcelConfigData[],
   NpcNameList?: string[],
   ParticipantId: number[],
-  PerformCfg: string,
-  QuestIdleTalk: boolean,
+
+  Priority: number,
   HeroTalk?: 'TALK_HERO_MAIN',
+  LoadType?: 'TALK_ACTIVITY' | 'TALK_BLOSSOM' | 'TALK_GADGET',
   ExtraLoadMarkId: number[],
+  PerformCfg: string,
   PrePerformCfg: string,
-  FinishExec: ConfigCondition<TalkExcelFinishExecType>[]
-  Dialog?: DialogExcelConfigData[],
+
+  TalkMarkType: 'TALK_MARK_COMMON' | 'TALK_MARK_HIDE',
+  TalkMarkHideList: number[],
+  CrowdLOD0List: number[],
+  ShowRandomTalkCount: number,
+  DecoratorId: number,
+
+  QuestIdleTalk: boolean,
+  DontBlockDaily: boolean,
+  LowPriority: boolean,
+  LockGameTime: boolean,
+  StayFreeStyle: boolean,
+  CheckActionAfter: boolean,
+  EnableCameraDisplacement: boolean,
+  ForceNpcNotDestroy: boolean,
 }
 
 export interface ReminderExcelConfigData {

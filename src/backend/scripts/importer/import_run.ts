@@ -1060,6 +1060,34 @@ export const schema = {
       {name: 'SortOrder', type: 'integer', isIndex: true},
     ]
   },
+  ViewCodexExcelConfigData: <SchemaTable> {
+    name: 'ViewCodexExcelConfigData',
+    jsonFile: './ExcelBinOutput/ViewCodexExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'SceneId', type: 'integer', isIndex: true},
+      {name: 'GroupId', type: 'integer', isIndex: true},
+      {name: 'ConfigId', type: 'integer', isIndex: true},
+      {name: 'NameTextMapHash', type: 'integer', isIndex: true},
+      {name: 'DescTextMapHash', type: 'integer', isIndex: true},
+      {name: 'CityId', type: 'integer', isIndex: true},
+      {name: 'WorldAreaId', type: 'integer', isIndex: true},
+      {name: 'SortOrder', type: 'integer', isIndex: true},
+    ]
+  },
+  WorldAreaConfigData: <SchemaTable> {
+    name: 'WorldAreaConfigData',
+    jsonFile: './ExcelBinOutput/WorldAreaConfigData.json',
+    columns: [
+      {name: 'ElementType', type: 'string', isIndex: true},
+      {name: 'TerrainType', type: 'string', isIndex: true},
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'SceneId', type: 'integer', isIndex: true},
+      {name: 'AreaType', type: 'string', isIndex: true},
+      {name: 'AreaNameTextMapHash', type: 'integer', isIndex: true},
+      {name: 'TowerPointId', type: 'integer', isIndex: true},
+    ]
+  },
 };
 
 export function capitalizeFirstLetter(s: string) {
