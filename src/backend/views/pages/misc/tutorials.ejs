@@ -1,5 +1,19 @@
+<section class="card">
+  <h2>Viewpoints</h2>
+  <div class="content">
+    <p class="error-notice">The <code>area</code> and <code>subarea</code> parameter values aren't always accurate
+      but the tool tries to figure it out the best it can. Make sure to check it manually.</p>
+
+    <p>Section Jump:</p>
+    <ul>
+      <% for (let type of Object.keys(tutorialsList)) { %>
+        <li><a href="#<%= type.replace(' ', '_') %>"><%= type %></a></li>
+      <% } %>
+    </ul>
+  </div>
+</section>
 <% for (let [type, tutorials] of Object.entries(tutorialsList)) { %>
-  <section class="card">
+  <section class="card" id="<%= type.replace(' ', '_') %>">
     <h2><%= type %></h2>
     <div class="content">
       <% for (let tutorial of tutorials) { %>

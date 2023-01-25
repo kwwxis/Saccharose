@@ -20,6 +20,7 @@ function pushTipCodexTypeName(type: PushTipsCodexType) {
     case 'CODEX_SYSTEM':
       return 'System';
     case 'CODEX_UNRECORDED':
+      return 'Unrecorded';
     default:
       return '';
   }
@@ -109,20 +110,23 @@ export async function selectTutorials(ctrl: Control): Promise<TutorialsByType> {
 
     let text = `
 {{Tutorial
-|title    = ${tutorial.PushTip.TitleText}
-|subtitle = ${tutorial.PushTip.SubtitleText}
-|type     = ${codexType}
-|icon     = ${tipsIcon}
+|title    = ${tutorial.PushTip.TitleText || ''}
+|subtitle = ${tutorial.PushTip.SubtitleText || ''}
+|type     = ${codexType || ''}
+|icon     = ${tipsIcon || ''}
 |about    =`;
     for (let i = 0; i < tutorial.DetailList.length; i++) {
       let detail = tutorial.DetailList[i];
       let imageName = (tutorial.DetailList.length === 1) ? 'Tutorial ' + tutorial.PushTip.TitleText + '.png' : 'Tutorial ' + tutorial.PushTip.TitleText + ' ' + (i+1) + '.png';
       text += '\n|' + ('text' + (i+1)).padEnd(9, ' ') + '= ' + normText(detail.DescriptText, ctrl.outputLangCode);
-      text += '\n|' + ('image' + (i+1)).padEnd(9, ' ') + '= ' + imageName;
+      text += '\n|' + ('image' + (i+1)).padEnd(9, ' ') + '= ' + (imageName || '');
     }
-    text += '\n|sort     = ' + tutorial.PushTip?.Codex?.SortOrder;
+    text += '\n|sort     = ' + (tutorial.PushTip?.Codex?.SortOrder || '');
     text += '\n}}';
     tutorial.Wikitext = text.trim();
+    if (!codexType) {
+      codexType = 'Uncategorized';
+    }
     ret[codexType].push(tutorial);
   }
 
