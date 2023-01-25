@@ -1,6 +1,6 @@
 import { pathToFileURL } from 'url';
 import { getTextMapItem, loadEnglishTextMap } from '../textmap';
-import { Control, getControl } from '../script_util';
+import { Control, getControl, normText } from '../script_util';
 import util from 'util';
 import { closeKnex } from '../../util/db';
 import { defaultMap } from '../../../shared/util/genericUtil';
@@ -76,7 +76,7 @@ export async function selectViewpoints(ctrl: Control): Promise<ViewpointsByRegio
 |area    = ${viewpoint.ParentWorldArea ? viewpoint.ParentWorldArea.AreaNameText : ''}
 |region  = ${viewpoint.CityNameText}
 |note    = 
-|text    = ${viewpoint.DescText}
+|text    = ${viewpoint.DescText ? normText(viewpoint.DescText, ctrl.outputLangCode) : ''}
 |image   = Viewpoint ${viewpoint.NameText}.png
 |map     = Viewpoint ${viewpoint.NameText} Map Location.png
 }}`.trim();
