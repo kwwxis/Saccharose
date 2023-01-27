@@ -60,7 +60,7 @@
     <% } %>
     <% if (locals.wikitext) { %>
       <textarea readonly id="wikitext-<%= id %>" class="wikitext dialogue-section-wikitext w100p autosize <%= (locals.parentIds || []).map(s => 'wikitext-childOf-' + s).join(' ') %>"
-                data-gutters="<%= locals.showGutter ? 'true' : 'false' %>" data-markers="<%= locals.wikitextMarkers?.map(m => m.toString())?.join(';') || '' %>" style="resize:vertical;min-height:40px;" spellcheck="false"><%= wikitext %></textarea>
+                data-gutters="<%= locals.showGutter ? 'true' : 'false' %>" data-markers="<%= Marker.joinedString(locals.wikitextMarkers) %>" style="resize:vertical;min-height:40px;" spellcheck="false"><%= wikitext %></textarea>
     <% } %>
     <% if (locals.wikitextArray) { %>
       <% wikitextArray.forEach((item, idx) => { %>
@@ -75,7 +75,7 @@
           </div>
         <% } %>
         <textarea readonly id="wikitext-<%= id %>-<%= idx %>" class="wikitext wikitext-array-<%= id %> dialogue-section-wikitext w100p autosize"
-                  data-gutters="<%= locals.showGutter ? 'true' : 'false' %>" data-markers="<%= item.markers?.map(m => m.toString())?.join(';') || '' %>" style="resize:vertical;min-height:40px;" spellcheck="false"><%= item.wikitext %></textarea>
+                  data-gutters="<%= locals.showGutter ? 'true' : 'false' %>" data-markers="<%= Marker.joinedString(item.markers) %>" style="resize:vertical;min-height:40px;" spellcheck="false"><%= item.wikitext %></textarea>
       <% }) %>
     <% } %>
     <div class="dialogue-section-children">

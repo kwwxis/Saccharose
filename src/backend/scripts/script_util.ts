@@ -7,7 +7,7 @@ import { getTextMapItem, getVoPrefix } from './textmap';
 import { Request } from '../util/router';
 import SrtParser, { SrtLine } from '../util/srtParser';
 import { promises as fs } from 'fs';
-import { arrayIndexOf, arrayIntersect, sort } from '../../shared/util/arrayUtil';
+import { arrayIndexOf, arrayIntersect, cleanEmpty, pairArrays, sort } from '../../shared/util/arrayUtil';
 import { toInt, toNumber } from '../../shared/util/numberUtil';
 import { normalizeRawJson, schema } from './importer/import_run';
 import {
@@ -19,10 +19,10 @@ import {
 } from '../../shared/util/stringUtil';
 import {
   DialogExcelConfigData,
-  LangCode,
+  LangCode, LangCodeMap,
   ManualTextMapConfigData,
   ReminderExcelConfigData,
-  TalkExcelConfigData,
+  TalkExcelConfigData, TalkLoadType,
   TalkRole,
 } from '../../shared/types/dialogue-types';
 import {
@@ -49,7 +49,7 @@ import {
   HomeWorldNPCExcelConfigData,
 } from '../../shared/types/homeworld-types';
 import { grep, grepIdStartsWith, grepStream, normJsonGrep, normJsonGrepCmp } from '../util/shellutil';
-import { getGenshinDataFilePath, getReadableRelPath, getTextMapRelPath } from '../loadenv';
+import { getGenshinDataFilePath, getReadableRelPath, getReadableTitleMapRelPath, getTextMapRelPath } from '../loadenv';
 import {
   BooksCodexExcelConfigData,
   BookSuitExcelConfigData,
@@ -59,7 +59,7 @@ import {
   Readable,
   ReadableItem,
   ReadableArchiveView,
-  ReadableView,
+  ReadableView, ReadableSearchView,
 } from '../../shared/types/readable-types';
 import {
   RELIC_EQUIP_TYPE_TO_NAME,
@@ -72,6 +72,9 @@ import { SchemaTable } from './importer/import_types';
 import { AvatarExcelConfigData } from '../../shared/types/avatar-types';
 import { basename } from 'path';
 import { MonsterExcelConfigData } from '../../shared/types/monster-types';
+import { defaultMap, isset } from '../../shared/util/genericUtil';
+import { NewActivityExcelConfigData } from '../../shared/types/activity-types';
+import { Marker } from '../../shared/util/highlightMarker';
 
 // TODO improve this method - it sucks
 //   Only works for languages that use spaces for word boundaries (i.e. not chinese)
@@ -186,6 +189,15 @@ const DEFAULT_SEARCH_MODE: SearchMode = 'WI';
 
 export type SearchMode = 'W' | 'WI' | 'C' | 'CI' | 'R' | 'RI';
 
+// Shared state/cache between all Controls
+class ControlGlobalState {
+
+  constructor(readonly lang: LangCode) {}
+}
+
+const globalState: LangCodeMap<ControlGlobalState> = defaultMap((langCode: LangCode) => new ControlGlobalState(langCode));
+
+// State/cache for only a single control
 export class ControlState {
   // Instances:
   KnexInstance: Knex = null;
@@ -197,6 +209,7 @@ export class ControlState {
   avatarCache:   {[Id: number]: AvatarExcelConfigData} = {};
   bookSuitCache: {[Id: number]: BookSuitExcelConfigData} = {};
   mqNameCache:   {[Id: number]: string} = {};
+  newActivityNameCache: {[Id: number]: string} = {};
 
   // Preferences:
   ExcludeOrphanedDialogue = false;
@@ -474,14 +487,16 @@ export class Control {
       .where({TextMapId: id}).first().then(this.commonLoadFirst);
   }
 
-  async selectTalkExcelConfigDataById(id: number): Promise<TalkExcelConfigData> {
+  async selectTalkExcelConfigDataById(id: number, loadType: TalkLoadType = null): Promise<TalkExcelConfigData> {
     return await this.knex.select('*').from('TalkExcelConfigData')
-      .where({Id: id}).orWhere({QuestCondStateEqualFirst: id}).first().then(this.commonLoadFirst);
+      .where(cleanEmpty({Id: id, LoadType: loadType}))
+      .orWhere(cleanEmpty({QuestCondStateEqualFirst: id, LoadType: loadType})).first().then(this.commonLoadFirst);
   }
 
-  async selectTalkExcelConfigDataByQuestSubId(id: number): Promise<TalkExcelConfigData> {
+  async selectTalkExcelConfigDataByQuestSubId(id: number, loadType: TalkLoadType = null): Promise<TalkExcelConfigData> {
     return await this.knex.select('*').from('TalkExcelConfigData')
-      .where({Id: id}).orWhere({QuestCondStateEqualFirst: id}).first().then(this.commonLoadFirst);
+      .where(cleanEmpty({Id: id, LoadType: loadType}))
+      .orWhere(cleanEmpty({QuestCondStateEqualFirst: id, LoadType: loadType})).first().then(this.commonLoadFirst);
   }
 
   async selectTalkExcelConfigDataIdsByPrefix(idPrefix: number|string): Promise<number[]> {
@@ -490,12 +505,14 @@ export class Control {
     return allTalkExcelTalkConfigIds.map(i => toNumber(i));
   }
 
-  async selectTalkExcelConfigDataByFirstDialogueId(firstDialogueId: number): Promise<TalkExcelConfigData> {
-    return await this.knex.select('*').from('TalkExcelConfigData').where({InitDialog: firstDialogueId}).first().then(this.commonLoadFirst);
+  async selectTalkExcelConfigDataByFirstDialogueId(firstDialogueId: number, loadType: TalkLoadType = null): Promise<TalkExcelConfigData> {
+    return await this.knex.select('*').from('TalkExcelConfigData')
+      .where(cleanEmpty({InitDialog: firstDialogueId, LoadType: loadType})).first().then(this.commonLoadFirst);
   }
 
-  async selectTalkExcelConfigDataListByFirstDialogueId(firstDialogueId: number): Promise<TalkExcelConfigData[]> {
-    return await this.knex.select('*').from('TalkExcelConfigData').where({InitDialog: firstDialogueId}).then(this.commonLoad);
+  async selectTalkExcelConfigDataListByFirstDialogueId(firstDialogueId: number, loadType: TalkLoadType = null): Promise<TalkExcelConfigData[]> {
+    return await this.knex.select('*').from('TalkExcelConfigData')
+      .where(cleanEmpty({InitDialog: firstDialogueId, LoadType: loadType})).then(this.commonLoad);
   }
 
   async addOrphanedDialogueAndQuestMessages(mainQuest: MainQuestExcelConfigData) {
@@ -544,10 +561,10 @@ export class Control {
     }
   }
 
-  async selectTalkExcelConfigDataByQuestId(questId: number): Promise<TalkExcelConfigData[]> {
+  async selectTalkExcelConfigDataByQuestId(questId: number, loadType: TalkLoadType = null): Promise<TalkExcelConfigData[]> {
     return await this.knex.select('*').from('TalkExcelConfigData')
-      .where({QuestId: questId})
-      .orWhere({QuestCondStateEqualFirst: questId}).then(this.commonLoad);
+      .where(cleanEmpty({QuestId: questId, LoadType: loadType}))
+      .orWhere(cleanEmpty({QuestCondStateEqualFirst: questId, LoadType: loadType})).then(this.commonLoad);
   }
 
   async selectTalkExcelConfigDataByNpcId(npcId: number): Promise<TalkExcelConfigData[]> {
@@ -1503,29 +1520,51 @@ export class Control {
       .where({MaterialId: id}).first().then(this.commonLoadFirst);
   }
 
-  async searchReadableView(searchText: string): Promise<ReadableView[]> {
+  async getReadableTitleMapMatches(langCode: LangCode, searchText: string, flags?: string): Promise<{[id: number]: string}> {
+    if (isStringBlank(searchText)) {
+      return {};
+    }
+    let lines = await grep(searchText, getReadableTitleMapRelPath(langCode), flags);
+    let out = {};
+    for (let line of lines) {
+      let parts = /^"(\d+)":\s+"(.*)",?$/.exec(line);
+      out[parts[1]] = normJsonGrep(parts[2]);
+    }
+    return out;
+  }
+
+  async searchReadableView(searchText: string): Promise<ReadableSearchView> {
     const files = await this.getReadableMatches(this.inputLangCode, searchText, this.searchModeFlags);
+    const titles = await this.getReadableTitleMapMatches(this.inputLangCode, searchText, this.searchModeFlags);
+    const ret: ReadableSearchView = { ContentResults: [], TitleResults: [] }
 
-    if (!files.length) {
-      return [];
+    if (files.length) {
+      const pathVar = LANG_CODE_TO_LOCALIZATION_PATH_PROP[this.inputLangCode];
+      const pathVarSearch = files.map(f => 'ART/UI/Readable/' + this.inputLangCode + '/' + f.split('.txt')[0]);
+
+      let localizations: LocalizationExcelConfigData[] = await this.knex.select('*')
+        .from('LocalizationExcelConfigData')
+        .whereIn(pathVar, pathVarSearch)
+        .then(this.commonLoad);
+
+      ret.ContentResults = await localizations.asyncMap(async localization => {
+        let view = await this.selectReadableViewByLocalizationId(localization.Id, true);
+        if (!view) {
+          console.log(localization);
+          return;
+        }
+        for (let item of view.Items) {
+          item.Markers = Marker.create(normText(searchText), item.ReadableText);
+        }
+        return view;
+      });
     }
 
-    const pathVar = LANG_CODE_TO_LOCALIZATION_PATH_PROP[this.inputLangCode];
-    const pathVarSearch = files.map(f => 'ART/UI/Readable/' + this.inputLangCode + '/' + f.split('.txt')[0]);
-
-    let localizations: LocalizationExcelConfigData[] = await this.knex.select('*')
-      .from('LocalizationExcelConfigData')
-      .whereIn(pathVar, pathVarSearch)
-      .then(this.commonLoad);
-
-    let readableViews: ReadableView[] = [];
-    for (let localization of localizations) {
-      let readableView = await this.selectReadableViewByLocalizationId(localization.Id, false);
-      if (readableView) {
-        readableViews.push(readableView);
-      }
+    if (Object.keys(titles).length) {
+      ret.TitleResults = await Object.keys(titles).asyncMap(async id => await this.selectReadableView(toInt(id), false));
     }
-    return readableViews;
+
+    return ret;
   }
 
   async selectDocumentIdByLocalizationId(localizationId: number) {
@@ -1536,11 +1575,12 @@ export class Control {
       .then(res => res ? res.Id : undefined);
   }
 
-  async loadLocalization(contentLocalizedId: number): Promise<{Localization: LocalizationExcelConfigData, ReadableText: string}> {
-    let localization: LocalizationExcelConfigData = await this.knex.select('*').from('LocalizationExcelConfigData')
+  async loadLocalization(contentLocalizedId: number, triggerCond?: number): Promise<ReadableItem> {
+    const localization: LocalizationExcelConfigData = await this.knex.select('*').from('LocalizationExcelConfigData')
       .where({Id: contentLocalizedId}).first().then(this.commonLoadFirst);
 
     const pathVar = LANG_CODE_TO_LOCALIZATION_PATH_PROP[this.outputLangCode];
+    let ret: ReadableItem = {Localization: localization, ReadableText: null};
 
     if (localization && localization.AssetType === 'LOC_TEXT'
         && typeof localization[pathVar] === 'string' && localization[pathVar].includes('/Readable/')) {
@@ -1548,59 +1588,38 @@ export class Control {
       try {
         let fileText = await fs.readFile(getGenshinDataFilePath(filePath), { encoding: 'utf8' });
         let fileNormText = normText(fileText, this.outputLangCode).replace(/<br \/>/g, '<br />\n');
-        return {Localization: localization, ReadableText: fileNormText};
+        ret = {Localization: localization, ReadableText: fileNormText};
       } catch (ignore) {}
     }
-    return {Localization: localization, ReadableText: null};
+    if (triggerCond) {
+      let quest = await this.selectQuestExcelConfigData(triggerCond);
+      if (quest) {
+        ret.MainQuestTrigger = await this.selectMainQuestById(quest.MainId);
+      }
+    }
+    return ret;
   }
 
   async selectReadableByDocumentId(documentId: number): Promise<Readable> {
-    let out: Readable = {
-      Document: null,
-      Items: [],
-    };
-
-    out.Document = await this.knex.select('*').from('DocumentExcelConfigData')
+    const Document: DocumentExcelConfigData = await this.knex.select('*').from('DocumentExcelConfigData')
       .where({Id: documentId}).first().then(this.commonLoadFirst);
-
-    if (out.Document && !!out.Document.ContentLocalizedId) {
-      let item = await this.loadLocalization(out.Document.ContentLocalizedId);
-      if (item) {
-        out.Items.push(item);
-      }
-    }
-
-    if (out.Document && Array.isArray(out.Document.AltContentLocalizedIds) && out.Document.AltContentLocalizedIds.length) {
-      for (let i = 0; i < out.Document.AltContentLocalizedIds.length; i++) {
-        let altContentLocalizedId = out.Document.AltContentLocalizedIds[i];
-        let readableAlt: ReadableItem = await this.loadLocalization(altContentLocalizedId);
-
-        if (readableAlt) {
-          let triggerCond = Array.isArray(out.Document.AltContentLocalizedQuestConds) ? out.Document.AltContentLocalizedQuestConds[i] : null;
-          if (triggerCond) {
-            let quest = await this.selectQuestExcelConfigData(triggerCond);
-            if (quest) {
-              readableAlt.MainQuestTrigger = await this.selectMainQuestById(quest.MainId);
-            }
-          }
-          out.Items.push(readableAlt);
-        }
-      }
-    }
-
-    return out.Document ? out : null;
+    return !Document ? null : {
+      Document,
+      Items: [
+        await this.loadLocalization(Document.ContentLocalizedId),
+        ... await pairArrays(Document.AltContentLocalizedIds, Document.AltContentLocalizedQuestConds).asyncMap(
+          async ([id, triggerCond]) => await this.loadLocalization(id, triggerCond)
+        )
+      ]
+    };
   }
 
   async selectReadableViewByLocalizationId(localizationId: number, loadReadable: boolean = true): Promise<ReadableView> {
-    let documentId = await this.selectDocumentIdByLocalizationId(localizationId);
-    if (documentId) {
-      return await this.selectReadableView(documentId, loadReadable);
-    } else {
-      return null;
-    }
+    return await this.selectDocumentIdByLocalizationId(localizationId)
+      .then(docId => isset(docId) ? this.selectReadableView(docId, loadReadable) : null);
   }
 
-  async selectReadableView(documentId: number, loadReadable: boolean = true): Promise<ReadableView> {
+  async selectReadableView(documentId: number, loadReadable: boolean|((readableView: ReadableView) => boolean) = true): Promise<ReadableView> {
     let view: ReadableView = {Id: documentId, Document: null, Items: []};
     view.BookCodex = await this.selectBookCodexByMaterialId(documentId);
     view.Material = await this.selectMaterialExcelConfigData(documentId);
@@ -1616,7 +1635,23 @@ export class Control {
       view.ArtifactCodex = await this.selectArtifactCodexById(view.Artifact.Id);
     }
 
-    if (loadReadable) {
+    if (view.Material) {
+      view.TitleText = view.Material.NameText;
+      view.TitleTextMapHash = view.Material.NameTextMapHash;
+      view.Icon = view.Material.Icon;
+    } else if (view.Artifact) {
+      view.TitleText = view.Artifact.NameText;
+      view.TitleTextMapHash = view.Artifact.NameTextMapHash;
+      view.Icon = view.Artifact.Icon;
+    } else if (view.Weapon) {
+      view.TitleText = view.Weapon.NameText;
+      view.TitleTextMapHash = view.Weapon.NameTextMapHash;
+      view.Icon = view.Weapon.Icon;
+    } else {
+      view.TitleText = '(Unnamed readable)';
+    }
+
+    if ((typeof loadReadable === 'function' ? loadReadable(view) : loadReadable) === true) {
       let readable = await this.selectReadableByDocumentId(documentId);
       if (readable) {
         Object.assign(view, readable);
@@ -1627,43 +1662,21 @@ export class Control {
   }
 
   async selectBookCollection(suitId: number): Promise<BookSuitExcelConfigData> {
-    let archive: ReadableArchiveView = await this.selectReadableArchiveView();
-
-    let collection: BookSuitExcelConfigData = archive.BookCollections[suitId];
-    for (let book of collection.Books) {
-      let readable = await this.selectReadableByDocumentId(book.Material.Id);
-      if (readable) {
-        Object.assign(book, readable);
-      }
-    }
-
-    return collection;
+    let archive: ReadableArchiveView = await this.selectReadableArchiveView(readableView => readableView?.BookSuit?.Id === toInt(suitId));
+    return archive.BookCollections[suitId];
   }
 
-  async selectReadableArchiveView(): Promise<ReadableArchiveView> {
-    let documents: DocumentExcelConfigData[] = await this.readGenshinDataFile('./ExcelBinOutput/DocumentExcelConfigData.json');
-    let readableViews: ReadableView[] = [];
-    let archive: ReadableArchiveView = {
+  async selectReadableArchiveView(loadReadables: boolean|((readableView: ReadableView) => boolean) = false): Promise<ReadableArchiveView> {
+    const archive: ReadableArchiveView = {
       BookCollections: {},
       Materials: [],
       Artifacts: [],
       Weapons: [],
     };
 
-    for (let document of documents) {
-      let view: ReadableView = {Id: document.Id, Document: null, Items: []};
-      view.BookCodex = await this.selectBookCodexByMaterialId(document.Id);
-      view.Material = await this.selectMaterialExcelConfigData(document.Id);
-      view.Artifact = await this.selectArtifactByStoryId(document.Id);
-      view.Weapon = await this.selectWeaponByStoryId(document.Id);
+    for (let document of await this.readGenshinDataFile<DocumentExcelConfigData[]>('./ExcelBinOutput/DocumentExcelConfigData.json')) {
+      let view = await this.selectReadableView(document.Id, loadReadables);
 
-      if (view.Material && view.Material.SetId) {
-        view.BookSuit = await this.selectBookSuitById(view.Material.SetId);
-      }
-      readableViews.push(view);
-    }
-
-    for (let view of readableViews) {
       if (view.BookSuit) {
         if (!archive.BookCollections[view.BookSuit.Id]) {
           archive.BookCollections[view.BookSuit.Id] = view.BookSuit;
@@ -1685,4 +1698,25 @@ export class Control {
     return archive;
   }
 
+  async selectNewActivityById(id: number) {
+    const activity: NewActivityExcelConfigData = await this.knex.select('*').from('NewActivityExcelConfigData')
+      .where({ActivityId: id}).first().then(this.commonLoadFirst);
+
+    if (activity) {
+      activity.Entry = await this.knex.select('*').from('NewActivityEntryConfigData')
+        .where({Id: id}).first().then(this.commonLoadFirst);
+    }
+
+    return activity;
+  }
+
+  async selectNewActivityName(id: number): Promise<string> {
+    if (!!this.state.newActivityNameCache[id]) {
+      return this.state.newActivityNameCache[id];
+    }
+    let name = await this.knex.select('NameTextMapHash').from('NewActivityExcelConfigData')
+      .where({ActivityId: id}).first().then(res => res ? getTextMapItem(this.outputLangCode, res.NameTextMapHash) : undefined);
+    this.state.newActivityNameCache[id] = name;
+    return name;
+  }
 }

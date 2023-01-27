@@ -6,7 +6,7 @@ import { getTextMapItem, loadEnglishTextMap } from '../textmap';
 import util from 'util';
 import { isInt } from '../../../shared/util/numberUtil';
 import { DialogExcelConfigData, TalkExcelConfigData } from '../../../shared/types/dialogue-types';
-import { trim } from '../../../shared/util/stringUtil';
+import { escapeRegExp, trim } from '../../../shared/util/stringUtil';
 import {
   DialogueSectionResult,
   TalkConfigAccumulator,
@@ -54,16 +54,16 @@ export async function dialogueGenerate(ctrl: Control, query: number|number[]|str
     query = parseInt(query);
   }
 
-  function highlightLine(dialogue: DialogExcelConfigData, sect: DialogueSectionResult) {
-    let lineCmp = normText(dialogue.TalkContentText, ctrl.outputLangCode);
-    let lineNum = 1;
-    for (let line of sect.wikitext.split('\n')) {
-      if (line.endsWith(lineCmp)) {
-        sect.wikitextMarkers.push(Marker.fullLine('highlight', lineNum));
-      } else if (ctrl.isBlackScreenDialog(dialogue) && line.endsWith(lineCmp + `'''`)) {
-        sect.wikitextMarkers.push(Marker.fullLine('highlight', lineNum));
-      }
-      lineNum++;
+  function addHighlightMarkers(dialogue: DialogExcelConfigData, sect: DialogueSectionResult) {
+    let re: RegExp;
+    let reFlags: string = ctrl.searchModeFlags.includes('i') ? 'gi' : 'g';
+    if (typeof query === 'string') {
+      re = new RegExp(escapeRegExp(normText(query, ctrl.outputLangCode)), reFlags);
+    } else {
+      re = new RegExp(escapeRegExp(normText(dialogue.TalkContentText, ctrl.outputLangCode)), reFlags);
+    }
+    for (let marker of Marker.create(re, sect.wikitext)) {
+      sect.wikitextMarkers.push(marker);
     }
   }
 
@@ -110,9 +110,9 @@ export async function dialogueGenerate(ctrl: Control, query: number|number[]|str
         }
         const talkConfigResult = await talkConfigGenerate(ctrl, talkConfig);
         if (talkConfigResult) {
-          talkConfigResult.metadata.push(new MetaProp('Talk First Dialogue ID', talkConfig.InitDialog));
-          talkConfigResult.metadata.push(new MetaProp('Highlighted Dialogue ID', dialogue.Id));
-          highlightLine(dialogue, talkConfigResult);
+          talkConfigResult.metadata.push(new MetaProp('First Dialogue ID', talkConfig.InitDialog));
+          talkConfigResult.metadata.push(new MetaProp('First Match Dialogue ID', dialogue.Id));
+          addHighlightMarkers(dialogue, talkConfigResult);
           result.push(talkConfigResult);
           foundTalks = true;
         }
@@ -125,24 +125,24 @@ export async function dialogueGenerate(ctrl: Control, query: number|number[]|str
       if (!firstDialogs) {
         firstDialogs = await traceBack(ctrl, dialogue);
       }
-      for (let d of firstDialogs) {
-        if (seenFirstDialogueIds.has(d.Id)) {
+      for (let firstDialog of firstDialogs) {
+        if (seenFirstDialogueIds.has(firstDialog.Id)) {
           continue;
         } else {
-          seenFirstDialogueIds.add(d.Id);
+          seenFirstDialogueIds.add(firstDialog.Id);
         }
-        const dialogueBranch = await ctrl.selectDialogBranch(d);
-        const sect = new DialogueSectionResult('Dialogue_'+d.Id, 'Dialogue');
+        const dialogueBranch = await ctrl.selectDialogBranch(firstDialog);
+        const sect = new DialogueSectionResult('Dialogue_'+firstDialog.Id, 'Dialogue');
         sect.originalData.dialogBranch = dialogueBranch;
-        sect.metadata.push(new MetaProp('First Dialogue ID', dialogue.Id, `/branch-dialogue?q=${dialogue.Id}`));
-        sect.metadata.push(new MetaProp('Highlighted Dialogue ID', d.Id, `/branch-dialogue?q=${d.Id}`));
+        sect.metadata.push(new MetaProp('First Dialogue ID', firstDialog.Id, `/branch-dialogue?q=${firstDialog.Id}`));
+        sect.metadata.push(new MetaProp('First Match Dialogue ID', dialogue.Id, `/branch-dialogue?q=${dialogue.Id}`));
 
-        let questIds = await dialogueToQuestId(ctrl, d);
+        let questIds = await dialogueToQuestId(ctrl, firstDialog);
         if (questIds.length) {
           sect.metadata.push(new MetaProp('Quest ID', questIds, '/quests/{}'));
         }
         sect.wikitext = (await ctrl.generateDialogueWikiText(dialogueBranch)).trim();
-        highlightLine(dialogue, sect);
+        addHighlightMarkers(dialogue, sect);
         result.push(sect);
       }
       if (foundDialogs) {

@@ -207,7 +207,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     // console.log(res.slice(0, 5));
 
     //await inspectGenshinDataFile(ctrl, './ExcelBinOutput/LocalizationExcelConfigData.json', ['AssetType']);
-    // await inspectGenshinDataFile(ctrl, './ExcelBinOutput/TalkExcelConfigData.json', ['BeginCond[#ALL].Type', 'FinishExec[#ALL].Type', 'HeroTalk', 'LoadType', 'TalkMarkType']);
+    //await inspectGenshinDataFile(ctrl, './ExcelBinOutput/TalkExcelConfigData.json', ['BeginCond[#ALL].Type', 'FinishExec[#ALL].Type', 'HeroTalk', 'LoadType', 'TalkMarkType']);
     // await inspectGenshinDataFile(ctrl, './ExcelBinOutput/QuestExcelConfigData.json', [
     //   'AcceptCond[#ALL].Type', 'BeginExec[#ALL].Type',
     //   'FailCond[#ALL].Type', 'FailExec[#ALL].Type',
@@ -222,7 +222,8 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     // await inspectGenshinDataFile(ctrl, './ExcelBinOutput/GCGChallengeExcelConfigData.json', ['Type', 'ParamList[#ALL]']);
 
     // await inspectGenshinDataFile(ctrl, './ExcelBinOutput/GCGDeckExcelConfigData.json');
-    await inspectGenshinDataFile(ctrl, './ExcelBinOutput/WorldAreaConfigData.json', ['ElementType', 'TerrainType', 'AreaType']);
+    //await inspectGenshinDataFile(ctrl, './ExcelBinOutput/WorldAreaConfigData.json', ['ElementType', 'TerrainType', 'AreaType']);
+    await inspectGenshinDataFile(ctrl, './ExcelBinOutput/NewActivityExcelConfigData.json');
     await closeKnex();
   })();
 }

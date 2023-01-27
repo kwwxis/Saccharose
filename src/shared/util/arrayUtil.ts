@@ -253,10 +253,24 @@ export function arraySum(array: number[]): number {
     return array.reduce((a: number, b: number) => a + b, 0);
 }
 
-export async function asyncMap<T, R>(arr: T[], fn: (item: T) => Promise<R>): Promise<R[]> {
-  let ret: R[] = [];
-  for (let item of arr) {
-    ret.push(await fn(item));
+export function pairArrays<T, U>(arr1: T[], arr2: U[]): [T, U][] {
+  return !arr1 || !Array.isArray(arr1) ? [] : arr1.map((item: T, idx: number) => [item, arr2?.[idx]]);
+}
+
+declare global {
+  interface Array<T> {
+    asyncMap<U>(callbackfn: (value: T, index: number, array: T[]) => Promise<U>, skipNilResults?: boolean): Promise<U[]>;
+  }
+}
+
+Array.prototype.asyncMap = async function<T, U>(callbackfn: (value: T, index: number, array: T[]) => Promise<U>, skipNilResults: boolean = true): Promise<U[]> {
+  let ret: U[] = [];
+  for (let i = 0; i < this.length; i++) {
+    let fnRet = await callbackfn(this[i], i, this);
+    if (skipNilResults && isUnset(fnRet)) {
+      continue;
+    }
+    ret.push(fnRet);
   }
   return ret;
 }

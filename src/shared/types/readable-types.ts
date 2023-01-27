@@ -14,12 +14,22 @@ import { MaterialExcelConfigData } from './material-types';
 import { ReliquaryCodexExcelConfigData, ReliquaryExcelConfigData, ReliquarySetExcelConfigData } from './artifact-types';
 import { WeaponExcelConfigData } from './weapon-types';
 import { MainQuestExcelConfigData } from './quest-types';
+import { Marker } from '../util/highlightMarker';
+
+export interface ReadableSearchView {
+  TitleResults: ReadableView[]
+  ContentResults: ReadableView[]
+}
 
 // Book View
 // --------------------------------------------------------------------------------------------------------------
 
 export interface ReadableView extends Readable {
   Id: number,
+  TitleText?: string,
+  TitleTextMapHash?: number,
+  Icon?: string,
+
   Material?: MaterialExcelConfigData,
   BookSuit?: BookSuitExcelConfigData,
   BookCodex?: BooksCodexExcelConfigData,
@@ -61,7 +71,8 @@ export interface BookSuitExcelConfigData {
 export interface ReadableItem {
   Localization: LocalizationExcelConfigData,
   ReadableText: string,
-  MainQuestTrigger?: MainQuestExcelConfigData
+  MainQuestTrigger?: MainQuestExcelConfigData,
+  Markers?: Marker[]
 }
 
 export interface Readable {
@@ -122,7 +133,7 @@ export interface DocumentExcelConfigData {
   DocumentType?: 'Video' | undefined,
   VideoPath?: string,
   SubtitleId?: number,
-  
+
   AltContentLocalizedQuestConds: number[], // Quest trigger condition for alternate
   AltContentLocalizedIds: number[], // Alternate ContentLocalizedIds
 }

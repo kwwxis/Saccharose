@@ -84,32 +84,7 @@
         </table>
       <% } %>
   </div>
-
-  <% readable.Items.forEach((item, itemIdx) => { %>
-    <div class="content">
-      <div class="valign">
-        <h3>Text<%- itemIdx > 0 ? ' &ndash; Version ' + (itemIdx + 1)  : '' %></h3>
-        <div class="grow"></div>
-        <button class="secondary small" ui-action="copy: #wikitext-<%= itemIdx %>"
-                ui-tippy-hover="Click to copy to clipboard"
-                ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
-                style="margin:5px 0">Copy</button>
-      </div>
-      <% if (item.MainQuestTrigger) { %>
-        <div class="valign meta-props">
-          <div class="prop">
-            <span class="prop-label">Quest Condition</span>
-            <span class="prop-values">
-              <a href="/quests/<%= item.MainQuestTrigger.Id %>" class="prop-value"><%= item.MainQuestTrigger.Id %></a>
-              <span class="prop-value"><%= item.MainQuestTrigger.TitleText %></span>
-            </span>
-          </div>
-        </div>
-      <% } %>
-      <textarea id="wikitext-<%= itemIdx %>" readonly class="w100p wikitext autosize" spellcheck="false"><%= item.ReadableText %></textarea>
-    </div>
-  <% })%>
-
+  <%- include('partials/item/readable-items', {readable: readable}) %>
   <% if (locals.ol) { %>
     <div class="content">
       <div class="valign">

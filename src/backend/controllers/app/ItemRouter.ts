@@ -52,25 +52,10 @@ export default async function(): Promise<Router> {
     const ctrl = getControl(req);
     const readable: ReadableView = await ctrl.selectReadableView(req.params.itemId);
 
-    let name: string;
-    let nameId: number;
-    if (readable.Material) {
-      name = readable.Material.NameText;
-      nameId = readable.Material.NameTextMapHash;
-    } else if (readable.Artifact) {
-      name = readable.Artifact.NameText;
-      nameId = readable.Artifact.NameTextMapHash;
-    } else if (readable.Weapon) {
-      name = readable.Weapon.NameText;
-      nameId = readable.Weapon.NameTextMapHash;
-    } else {
-      name = '(Unnamed readable)';
-    }
-
     res.render('pages/item/readable-item', {
-      title: name,
+      title: readable.TitleText,
       readable: readable,
-      ol: await ol_gen_from_id(ctrl, nameId),
+      ol: await ol_gen_from_id(ctrl, readable.TitleTextMapHash),
       bodyClass: ['pages-readables', 'page--readable-item']
     });
   });

@@ -75,7 +75,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
   const talkConfigAcc = new TalkConfigAccumulator(ctrl);
 
   // Fetch Talk Configs by Main Quest ID (exact)
-  for (let talkConfig of (await ctrl.selectTalkExcelConfigDataByQuestId(mainQuest.Id))) {
+  for (let talkConfig of (await ctrl.selectTalkExcelConfigDataByQuestId(mainQuest.Id, 'TALK_DEFAULT'))) {
     await talkConfigAcc.handleTalkConfig(talkConfig);
   }
 
@@ -84,7 +84,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
     if (talkConfigAcc.fetchedTalkConfigIds.includes(questExcelConfigData.SubId)) {
       continue;
     }
-    let talkConfig = await ctrl.selectTalkExcelConfigDataByQuestSubId(questExcelConfigData.SubId);
+    let talkConfig = await ctrl.selectTalkExcelConfigDataByQuestSubId(questExcelConfigData.SubId, 'TALK_DEFAULT');
     await talkConfigAcc.handleTalkConfig(talkConfig);
   }
 
@@ -94,7 +94,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
     if (talkConfigAcc.fetchedTalkConfigIds.includes(talkConfigId)) {
       continue;
     }
-    let talkConfig = await ctrl.selectTalkExcelConfigDataById(talkConfigId);
+    let talkConfig = await ctrl.selectTalkExcelConfigDataById(talkConfigId, 'TALK_DEFAULT');
     await talkConfigAcc.handleTalkConfig(talkConfig);
   }
 

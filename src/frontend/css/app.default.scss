@@ -183,17 +183,19 @@ aside {
   margin-bottom: 5px;
 }
 
-.card p.info, .info-notice, .notice {
+.info-notice {
   background: #eff8ff;
   padding: 7px 10px;
 }
 
-
-.card p.error, .error-notice {
+.error-notice {
   background: #fee3e3;
   padding: 10px;
   border-radius: 3px;
   font-weight: 600;
+  body.nightmode & {
+    background: #5a2e2e;
+  }
 }
 
 .card .content input[type='number'],
@@ -671,6 +673,10 @@ fieldset legend {
   padding: 0 0.5em;
   font-size: 15px;
   font-weight: 600;
+}
+
+fieldset > .content {
+  padding-top: 0;
 }
 
 /* Dropdown

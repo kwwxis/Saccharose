@@ -12,6 +12,7 @@ export type SchemaColumn = {
   type: SchemaColumnType,
   resolve?: string|Function,
   isIndex?: boolean,
-  isPrimary?: boolean
+  isPrimary?: boolean,
+  defaultValue?: any,
 };
 export const SEP = '------------------------------------------------------------------------------------------';

@@ -38,23 +38,23 @@ export const LANG_CODE_TO_WIKI_CODE = {
   TR: 'TR',
   VI: 'VI',
 };
-export type LangCodeMap = {
-  CH: string,
-  CHS: string,
-  CHT: string,
-  DE: string,
-  EN: string,
-  ES: string,
-  FR: string,
-  ID: string,
-  IT: string,
-  JP: string,
-  KR: string,
-  PT: string,
-  RU: string,
-  TH: string,
-  TR: string,
-  VI: string,
+export type LangCodeMap<T = string> = {
+  CH: T,
+  CHS: T,
+  CHT: T,
+  DE: T,
+  EN: T,
+  ES: T,
+  FR: T,
+  ID: T,
+  IT: T,
+  JP: T,
+  KR: T,
+  PT: T,
+  RU: T,
+  TH: T,
+  TR: T,
+  VI: T,
 };
 
 export type TalkRoleType =
@@ -211,6 +211,12 @@ export type TalkExcelFinishExecType =
   'TALK_EXEC_SET_QUEST_VAR'           |
   'TALK_EXEC_TRANS_SCENE_DUMMY_POINT' ;
 
+export type TalkLoadType =
+  'TALK_DEFAULT'    |
+  'TALK_ACTIVITY'   |
+  'TALK_BLOSSOM'    | // For "Is there anything of note nearby?" dialogues for "Magical Crystal Chunk" veins...
+  'TALK_GADGET';
+
 export interface TalkExcelConfigData {
   Id: number,
   QuestId: number,
@@ -235,7 +241,7 @@ export interface TalkExcelConfigData {
 
   Priority: number,
   HeroTalk?: 'TALK_HERO_MAIN',
-  LoadType?: 'TALK_ACTIVITY' | 'TALK_BLOSSOM' | 'TALK_GADGET',
+  LoadType?: TalkLoadType,
   ExtraLoadMarkId: number[],
   PerformCfg: string,
   PrePerformCfg: string,

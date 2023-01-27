@@ -1,15 +1,14 @@
 <section class="card">
-  <h2>Viewpoints</h2>
+  <h2>Tutorials</h2>
   <div class="content">
-    <p class="error-notice">The <code>area</code> and <code>subarea</code> parameter values aren't always accurate
-      but the tool tries to figure it out the best it can. Make sure to check it manually.</p>
-
-    <p>Section Jump:</p>
-    <ul>
-      <% for (let type of Object.keys(tutorialsList)) { %>
-        <li><a href="#<%= type.replace(' ', '_') %>"><%= type %></a></li>
-      <% } %>
-    </ul>
+    <fieldset>
+      <legend>Section Jump</legend>
+      <div class="content alignStart flexWrap" style="padding-top:0;">
+        <% for (let typeName of Object.keys(tutorialsList)) { %>
+          <div class="w25p"><a role="button" class="spacer5-all secondary dispBlock textAlignLeft" href="#<%= typeName.replace(' ', '_') %>"><%= typeName %></a></div>
+        <% } %>
+      </div>
+    </fieldset>
   </div>
 </section>
 <% for (let [type, tutorials] of Object.entries(tutorialsList)) { %>

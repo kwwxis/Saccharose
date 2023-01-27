@@ -1,4 +1,5 @@
 import { isInt } from './numberUtil';
+import { escapeRegExp } from './stringUtil';
 
 /**
  * Aggregate of all markers in a single line.
@@ -98,5 +99,25 @@ export class Marker {
     } else {
       return new Marker(a[0], intArgs[0], intArgs[1] || 0, intArgs[2] || 0, isFullLine, isFront);
     }
+  }
+
+  static create(searchText: string|RegExp, contentText: string): Marker[] {
+    let re = typeof searchText === 'string' ? new RegExp(escapeRegExp(searchText), 'gi') : searchText;
+    let ret: Marker[] = [];
+
+    let lineNum = 1;
+    for (let line of contentText.split('\n')) {
+      let match: RegExpMatchArray;
+      re.lastIndex = 0;
+      while ((match = re.exec(line)) !== null) {
+        ret.push(new Marker('highlight', lineNum, match.index, match.index + match[0].length));
+      }
+      lineNum++;
+    }
+    return ret;
+  }
+
+  static joinedString(markers: Marker[]) {
+    return markers && Array.isArray(markers) ? markers.map(m => m.toString()).join(';') : '';
   }
 }

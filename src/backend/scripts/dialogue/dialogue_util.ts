@@ -7,7 +7,6 @@ import { toBoolean } from '../../../shared/util/genericUtil';
 import { dialogueToQuestId } from './reverse_quest';
 import { Marker } from '../../../shared/util/highlightMarker';
 import { SbOut } from '../../../shared/util/stringUtil';
-import { asyncMap } from '../../../shared/util/arrayUtil';
 
 export class DialogueSectionResult {
   id: string = null;
@@ -111,19 +110,27 @@ export async function talkConfigToDialogueSectionResult(ctrl: Control, parentSec
 
   mysect.addMetaProp('Talk ID', talkConfig.Id, '/branch-dialogue?q={}');
   if (talkConfig.QuestId) {
-    mysect.addMetaProp('Quest ID', {value: talkConfig.QuestId, tooltip: await ctrl.selectMainQuestName(talkConfig.QuestId)}, '/quests/{}');
+    if (talkConfig.LoadType === 'TALK_ACTIVITY') {
+      mysect.addMetaProp('Activity ID', {value: talkConfig.QuestId, tooltip: await ctrl.selectNewActivityName(talkConfig.QuestId)});
+    } else {
+      mysect.addMetaProp('Quest ID', {value: talkConfig.QuestId, tooltip: await ctrl.selectMainQuestName(talkConfig.QuestId)}, '/quests/{}');
+    }
   } else {
     let questIds = await dialogueToQuestId(ctrl, talkConfig);
     if (questIds.length) {
-      mysect.addMetaProp('Quest ID', await asyncMap(questIds, async id => ({
+      mysect.addMetaProp('Quest ID', await questIds.asyncMap(async id => ({
         value: id,
         tooltip: await ctrl.selectMainQuestName(id)
       })), '/quests/{}');
     }
   }
   mysect.addMetaProp('Quest Idle Talk', talkConfig.QuestIdleTalk ? 'yes' : null);
-  mysect.addMetaProp('NPC ID', talkConfig.NpcDataList.map(npc => ({value: npc.Id, tooltip: npc.NameText})), '/npc-dialogue?q={}');
+  mysect.addMetaProp('NPC ID', talkConfig.NpcDataList?.map(npc => ({value: npc.Id, tooltip: npc.NameText})), '/npc-dialogue?q={}');
   mysect.addMetaProp('Next Talk IDs', talkConfig.NextTalks, '/branch-dialogue?q={}');
+
+  if (talkConfig.LoadType === 'TALK_BLOSSOM') {
+    mysect.addEmptyMetaProp('Magical Crystal Ore Vein Talk');
+  }
 
   for (let beginCond of (talkConfig.BeginCond || [])) {
     switch (beginCond.Type) {

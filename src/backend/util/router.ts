@@ -15,6 +15,7 @@ import { LANG_CODES_TO_NAME } from '../../shared/types/dialogue-types';
 import { EJS_DELIMITER, SITE_TITLE, VIEWS_ROOT } from '../loadenv';
 import { CompareTernary, ternary, toBoolean } from '../../shared/util/genericUtil';
 import { toInt } from '../../shared/util/numberUtil';
+import { Marker } from '../../shared/util/highlightMarker';
 
 //#region Types
 export type IncludeFunction = (view: string, locals?: RequestLocals) => string;
@@ -184,6 +185,7 @@ export const DEFAULT_GLOBAL_LOCALS = {
   env: process.env,
   toBoolean: toBoolean,
   toInt: toInt,
+  Marker: Marker,
 };
 
 function createIncludeFunction(req: Request, viewStackPointer: RequestViewStack): IncludeFunction {

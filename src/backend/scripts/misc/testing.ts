@@ -4,10 +4,11 @@ import { pathToFileURL } from 'url';
 import { loadEnglishTextMap } from '../textmap';
 import util from 'util';
 import { closeKnex } from '../../util/db';
-import { sort } from '../../../shared/util/arrayUtil';
+import { cleanEmpty, sort } from '../../../shared/util/arrayUtil';
 import { AchievementExcelConfigData, AchievementGoalExcelConfigData } from '../../../shared/types/general-types';
 import { talkConfigGenerate } from '../dialogue/basic_dialogue_generator';
 import { DialogueSectionResult } from '../dialogue/dialogue_util';
+import { TalkExcelConfigData } from '../../../shared/types/dialogue-types';
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   await loadEnglishTextMap();
@@ -38,7 +39,10 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     }
   }
 
-  let talks = await ctrl.selectTalkExcelConfigDataByQuestId(5066);
+  //let talks = await ctrl.selectTalkExcelConfigDataByQuestId(5066);
+  let talks: TalkExcelConfigData[] = await ctrl.knex.select('*').from('TalkExcelConfigData')
+    .where(cleanEmpty({LoadType: 'TALK_GADGET'}));
+
   for (let talk of talks) {
     let sect = await talkConfigGenerate(ctrl, talk);
     logSect(sect);

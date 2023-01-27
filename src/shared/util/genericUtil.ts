@@ -4,7 +4,7 @@ import { arrayContains, isArrayLike, isIterable } from './arrayUtil';
 export type Type<T> = { new(...args: any[]): T };
 
 export function isUnset(x: any): boolean {
-  return x === null || typeof x === 'undefined';
+  return typeof x === 'undefined' || x === null;
 }
 
 export function isset(x: any): boolean {
@@ -12,7 +12,9 @@ export function isset(x: any): boolean {
 }
 
 export function isEmpty(x: any): boolean {
-  if (typeof x === 'boolean' || typeof x === 'number') {
+  if (typeof x === 'undefined' || x === null) {
+    return true;
+  } else if (typeof x === 'boolean' || typeof x === 'number') {
     return false; // don't consider any booleans or numbers to be empty
   } else if (typeof x === 'string') {
     return !x.trim().length;

@@ -129,6 +129,7 @@ export function highlight(text: string, mode: string, gutters: boolean = true, m
     let anyMarkersInBack: boolean = false;
 
     const markerAggs = MarkerAggregate.from(markers);
+    const markerText = str => !str ? ' ' : escapeHtml(str);
 
     for(let ix = 0; ix < length; ix++) {
       textLayerSb.push("<div class='ace_line'>");
@@ -140,7 +141,7 @@ export function highlight(text: string, mode: string, gutters: boolean = true, m
       let markerFrontAgg = markerAggs.front.get(ix + 1);
       let markerBackAgg = markerAggs.back.get(ix + 1);
       let line: string = rawLines[ix];
-      let lineBlank = `<span class="ace_static_marker" data-text="${escapeHtml(line)}"></span>`; //blankify(line);
+      let lineBlank = `<span class="ace_static_marker" data-text="${markerText(line)}"></span>`; //blankify(line);
 
       function processMarkerAgg(agg: MarkerAggregate, isFront: boolean) {
         if (!agg || !agg.ranges.length) {
@@ -161,22 +162,22 @@ export function highlight(text: string, mode: string, gutters: boolean = true, m
           prevRangeEnd = range.endCol;
 
           if (range.fullLine) {
-            markerHtml = `<span class="ace_static_marker ${clazz}" style="width:100%;display:inline-block;" data-text="${escapeHtml(line)}"></span>`;
+            markerHtml = `<span class="ace_static_marker ${clazz}" style="width:100%;display:inline-block;" data-text="${markerText(line)}"></span>`;
             prevRangeEnd = line.length;
             break;
           }
 
           if (beforeText) {
-            markerHtml += `<span class="ace_static_marker range-norm-text" data-text="${escapeHtml(beforeText)}"></span>`;
+            markerHtml += `<span class="ace_static_marker range-norm-text" data-text="${markerText(beforeText)}"></span>`;
           }
 
           if (rangeText) {
-            markerHtml += `<span class="ace_static_marker range-token-text ${clazz}" data-text="${escapeHtml(rangeText)}"></span>`;
+            markerHtml += `<span class="ace_static_marker range-token-text ${clazz}" data-text="${markerText(rangeText)}"></span>`;
           }
         }
         let lastText = line.slice(prevRangeEnd);
         if (lastText) {
-          markerHtml += `<span class="ace_static_marker range-norm-text" data-text="${escapeHtml(lastText)}"></span>`;
+          markerHtml += `<span class="ace_static_marker range-norm-text" data-text="${markerText(lastText)}"></span>`;
         }
 
         if (agg.isFront) {

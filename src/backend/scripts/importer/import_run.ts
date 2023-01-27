@@ -71,6 +71,7 @@ export const schema = {
     columns: [
       {name: 'Id', type: 'integer', isPrimary: true},
       {name: 'InitDialog', type: 'integer', isIndex: true},
+      {name: 'LoadType', type: 'string', isIndex: true, defaultValue: 'TALK_DEFAULT' },
       {name: 'QuestId', type: 'integer', isIndex: true},
       {name: 'QuestCondStateEqualFirst', type: 'integer', isIndex: true, resolve(row: TalkExcelConfigData) {
         if (row.BeginCond) {
@@ -97,10 +98,11 @@ export const schema = {
     columns: [
       {name: 'NpcId', type: 'integer', isIndex: true},
       {name: 'TalkId', type: 'integer'},
+      {name: 'TalkLoadType', type: 'string', isIndex: true}
     ],
     customRowResolve: (row: TalkExcelConfigData) => {
       if (row.NpcId && row.NpcId.length) {
-        return row.NpcId.map(npcId => ({NpcId: npcId, TalkId: row.Id}));
+        return row.NpcId.map(npcId => ({NpcId: npcId, TalkId: row.Id, TalkLoadType: row.LoadType || 'TALK_DEFAULT'}));
       }
       return [];
     }
@@ -1088,6 +1090,24 @@ export const schema = {
       {name: 'TowerPointId', type: 'integer', isIndex: true},
     ]
   },
+  NewActivityExcelConfigData: <SchemaTable> {
+    name: 'NewActivityExcelConfigData',
+    jsonFile: './ExcelBinOutput/NewActivityExcelConfigData.json',
+    columns: [
+      {name: 'ActivityId', type: 'integer', isPrimary: true},
+      {name: 'ActivityType', type: 'string', isIndex: true},
+      {name: 'NameTextMapHash', type: 'integer', isIndex: true},
+    ]
+  },
+  NewActivityEntryConfigData: <SchemaTable> {
+    name: 'NewActivityEntryConfigData',
+    jsonFile: './ExcelBinOutput/NewActivityEntryConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'ActivityType', type: 'string', isIndex: true},
+      {name: 'TabNameTextMapHash', type: 'integer', isIndex: true},
+    ]
+  },
 };
 
 export function capitalizeFirstLetter(s: string) {
@@ -1171,6 +1191,9 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
             }
           } else {
             payload[col.name] = row[col.name];
+          }
+          if (col.defaultValue && (typeof payload[col.name] === 'undefined' || payload[col.name] === null)) {
+            payload[col.name] = col.defaultValue;
           }
         }
         return [payload];
