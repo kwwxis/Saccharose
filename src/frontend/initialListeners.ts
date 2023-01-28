@@ -6,7 +6,7 @@ import {
   hashFlash,
   setQueryStringParameter,
 } from './util/domutil';
-import { humanTiming, timeConvert } from '../shared/util/genericUtil';
+import { humanTiming, throttle, timeConvert } from '../shared/util/genericUtil';
 import { closeDialog } from './util/dialog';
 import { enableTippy, flashTippy, getTippyOpts, hideTippy, showTippy } from './util/tooltips';
 import { Listener, runWhenDOMContentLoaded, startListeners } from './util/eventLoader';
@@ -548,9 +548,7 @@ const desktopStickerHeaderListeners: Listener[] = [
   {
     el: 'window',
     ev: 'resize',
-    fn: function(_event: UIEvent) {
-      recalculateDesktopStickyHeader();
-    }
+    fn: throttle((_event: UIEvent) => recalculateDesktopStickyHeader(), 250)
   }
 ];
 
