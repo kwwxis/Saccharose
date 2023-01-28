@@ -54,6 +54,9 @@ export async function dialogueGenerate(ctrl: Control, query: number|number[]|str
     query = parseInt(query);
   }
 
+  ctrl.state.DisableDialogueCache = true;
+  ctrl.state.DisableNpcCache = true;
+
   function addHighlightMarkers(dialogue: DialogExcelConfigData, sect: DialogueSectionResult) {
     let re: RegExp;
     let reFlags: string = ctrl.searchModeFlags.includes('i') ? 'gi' : 'g';
@@ -154,22 +157,21 @@ export async function dialogueGenerate(ctrl: Control, query: number|number[]|str
 
   if (typeof query === 'string') {
     // string
-    let unexecutedPromises: (() => Promise<boolean>)[] = [];
+    let textMapIds: number[] = [];
 
-    await ctrl.streamTextMapMatches(ctrl.inputLangCode, query.trim(), (textMapId: number, _text: string) => {
-      unexecutedPromises.push(async () => {
-        let dialogues = await ctrl.selectDialogsFromTextContentId(textMapId);
-        return (await Promise.all(dialogues.map(d => handle(d)))).some(b => !!b);
-      });
-    }, ctrl.searchModeFlags);
+    await ctrl.streamTextMapMatches(ctrl.inputLangCode, query.trim(),
+      (textMapId: number) => textMapIds.push(textMapId),
+      ctrl.searchModeFlags
+    );
 
-    let count = 0;
-    for (let unexecutedPromise of unexecutedPromises) {
-      let ret = await unexecutedPromise();
-      if (ret) {
-        count++;
+    let acceptedCount = 0;
+    for (let textMapId of textMapIds) {
+      let dialogues = await ctrl.selectDialogsFromTextContentId(textMapId);
+      let accepted: boolean = (await Promise.all(dialogues.map(d => handle(d)))).some(b => !!b);
+      if (accepted) {
+        acceptedCount++;
       }
-      if (count > DIALOGUE_GENERATE_MAX) {
+      if (acceptedCount > DIALOGUE_GENERATE_MAX) {
         break;
       }
     }

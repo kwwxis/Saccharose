@@ -7,7 +7,7 @@ import { getTextMapItem, getVoPrefix } from './textmap';
 import { Request } from '../util/router';
 import SrtParser, { SrtLine } from '../util/srtParser';
 import { promises as fs } from 'fs';
-import { arrayIndexOf, arrayIntersect, cleanEmpty, pairArrays, sort } from '../../shared/util/arrayUtil';
+import { arrayIndexOf, arrayIntersect, arrayUnique, cleanEmpty, pairArrays, sort } from '../../shared/util/arrayUtil';
 import { toInt, toNumber } from '../../shared/util/numberUtil';
 import { normalizeRawJson, schema } from './importer/import_run';
 import {
@@ -212,7 +212,10 @@ export class ControlState {
   newActivityNameCache: {[Id: number]: string} = {};
 
   // Preferences:
-  ExcludeOrphanedDialogue = false;
+  DisableDialogueCache: boolean = false;
+  DisableNpcCache: boolean = false;
+  DisableAvatarCache: boolean = false;
+  ExcludeOrphanedDialogue: boolean = false;
 
   get inputLangCode(): LangCode {
     return this.Request ? this.Request.cookies['inputLangCode'] || DEFAULT_LANG : DEFAULT_LANG;
@@ -394,7 +397,7 @@ export class Control {
     let uncachedList: NpcExcelConfigData[] = await this.knex.select('*').from('NpcExcelConfigData')
       .whereIn('Id', notCachedIds).then(this.commonLoad);
 
-    if (addToCache) {
+    if (addToCache && !this.state.DisableNpcCache) {
       uncachedList.forEach(npc => this.state.npcCache[npc.Id] = npc);
     }
 
@@ -581,7 +584,7 @@ export class Control {
   async selectPreviousDialogs(nextId: number): Promise<DialogExcelConfigData[]> {
     let ids: number[] = await this.knex.select('*').from('Relation_DialogToNext')
       .where({NextId: nextId}).pluck('DialogId').then();
-    return this.selectMultipleDialogExcelConfigData(ids);
+    return this.selectMultipleDialogExcelConfigData(arrayUnique(ids));
   }
 
   async selectSingleDialogExcelConfigData(id: number): Promise<DialogExcelConfigData> {
@@ -592,12 +595,14 @@ export class Control {
     if (!result) {
       return result;
     }
-    this.state.dialogCache[id] = result;
+    this.saveDialogExcelConfigDataToCache(result);
     return result && result.TalkContentText ? result : null;
   }
 
   saveDialogExcelConfigDataToCache(x: DialogExcelConfigData): void {
-    this.state.dialogCache[x.Id] = x;
+    if (!this.state.DisableDialogueCache) {
+      this.state.dialogCache[x.Id] = x;
+    }
   }
   isDialogExcelConfigDataCached(x: number|DialogExcelConfigData): boolean {
     return !!this.state.dialogCache[typeof x === 'number' ? x : x.Id];
@@ -621,8 +626,10 @@ export class Control {
     let results: DialogExcelConfigData[] = await this.knex.select('*').from('DialogExcelConfigData')
       .where({TalkContentTextMapHash: textMapId})
       .then(this.commonLoad);
-    for (let result of results) {
-      this.state.dialogCache[result.Id] = result;
+    if (!this.state.DisableDialogueCache) {
+      for (let result of results) {
+        this.saveDialogExcelConfigDataToCache(result);
+      }
     }
     return results;
   }
@@ -990,7 +997,7 @@ export class Control {
     return out;
   }
 
-  async streamTextMapMatches(langCode: LangCode, searchText: string, stream: (textMapId: number, text: string, kill?: () => void) => void, flags?: string): Promise<number|Error> {
+  async streamTextMapMatches(langCode: LangCode, searchText: string, stream: (textMapId: number, text?: string, kill?: () => void) => void, flags?: string): Promise<number|Error> {
     if (isStringBlank(searchText)) {
       return 0;
     }
@@ -1041,7 +1048,9 @@ export class Control {
     }
     let avatar: AvatarExcelConfigData = await this.knex.select('*').from('AvatarExcelConfigData')
       .where({Id: id}).first().then(this.commonLoadFirst);
-    this.state.avatarCache[id] = avatar;
+    if (!this.state.DisableAvatarCache) {
+      this.state.avatarCache[id] = avatar;
+    }
     return avatar;
   }
 

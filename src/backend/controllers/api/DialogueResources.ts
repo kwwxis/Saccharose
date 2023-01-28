@@ -87,9 +87,9 @@ router.restful('/dialogue/single-branch-generate', {
     const ctrl = getControl(req);
     const query = (<string> req.query.text)?.trim();
 
-    if (query.toLowerCase() === 'paimon') {
-      throw HttpError.badRequest('UnsupportedOperation', 'Unfortunately, you cannot search for just "Paimon" as the operation would be too intensive.');
-    }
+    // if (query.toLowerCase() === 'paimon') {
+    //   throw HttpError.badRequest('UnsupportedOperation', 'Unfortunately, you cannot search for just "Paimon" as the operation would be too intensive.');
+    // }
 
     let result: DialogueSectionResult[] = await dialogueGenerate(ctrl, query, <string> req.query.npcFilter);
 

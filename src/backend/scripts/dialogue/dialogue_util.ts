@@ -226,16 +226,23 @@ export async function traceBack(ctrl: Control, dialog: DialogExcelConfigData): P
   }
   let stack: DialogExcelConfigData[] = [dialog];
   let ret: DialogExcelConfigData[] = [];
+  let seenIds: Set<number> = new Set();
+
   while (true) {
     let nextStack = [];
     for (let d of stack) {
-      let prevs = await ctrl.selectPreviousDialogs(d.Id);
+      let prevs: DialogExcelConfigData[] = await ctrl.selectPreviousDialogs(d.Id);
       if (!prevs.length) {
         if (!ret.some(r => r.Id === d.Id)) {
           ret.push(d);
         }
       } else {
-        nextStack.push(... prevs);
+        for (let prev of prevs) {
+          if (!seenIds.has(prev.Id)) {
+            nextStack.push(prev);
+            seenIds.add(prev.Id);
+          }
+        }
       }
     }
     if (nextStack.length) {

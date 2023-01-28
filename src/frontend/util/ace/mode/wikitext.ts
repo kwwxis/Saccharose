@@ -6,6 +6,8 @@ import { MW_URL_SCHEME_REGEX } from '../../../../shared/mediawiki/parseModules/m
 import { getQuotePos } from '../../../../shared/mediawiki/mwQuotes';
 import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mwParse.template';
 
+// <any> cast because brace doesn't expose the 'define' method in its types.
+// In fact, most of the acequire() internal stuff don't seem to have any available types in brace.
 (<any> ace).define('ace/mode/wikitext_highlight_rules', ['require', 'exports', 'module', 'ace/lib/oop', 'ace/lib/lang', 'ace/mode/text_highlight_rules', 'ace/mode/javascript_highlight_rules', 'ace/mode/xml_highlight_rules', 'ace/mode/html_highlight_rules', 'ace/mode/css_highlight_rules'], function(acequire, exports, module) {
   'use strict';
 
