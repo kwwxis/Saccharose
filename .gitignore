@@ -61,4 +61,4 @@ dist/
 /package-lock.json
 
 # Genshin Images
-/public/images/genshin
+/public/images/genshin/*.png

@@ -15,6 +15,7 @@ import autosize from 'autosize';
 import { isInt } from '../shared/util/numberUtil';
 import { uuidv4 } from '../shared/util/stringUtil';
 import { highlightReplace, highlightWikitextReplace } from './util/ace/wikitextEditor';
+import { GeneralEventBus } from './generalEventBus';
 
 type UiAction = {actionType: string, actionParams: string[]};
 
@@ -500,6 +501,7 @@ const initial_listeners: Listener[] = [
       let value = target.value;
       console.log('Language selector: Name='+name+', Value='+value);
       Cookies.set(name, value, { expires: 365 });
+      GeneralEventBus.emit(name + 'Changed', value);
     }
   },
   {
@@ -518,3 +520,41 @@ const initial_listeners: Listener[] = [
 ];
 
 runWhenDOMContentLoaded(() => startListeners(initial_listeners, document));
+
+function recalculateDesktopStickyHeader() {
+  let scrollY = window.scrollY;
+  let width = window.innerWidth;
+  let hasClass = document.body.classList.contains('desktop-sticky-header');
+
+  if (scrollY > 60 && width > 880) {
+    if (!hasClass) {
+      document.body.classList.add('desktop-sticky-header');
+    }
+  } else {
+    if (hasClass) {
+      document.body.classList.remove('desktop-sticky-header');
+    }
+  }
+}
+
+const desktopStickerHeaderListeners: Listener[] = [
+  {
+    el: 'window',
+    ev: 'scroll',
+    fn: function(_event) {
+      recalculateDesktopStickyHeader();
+    }
+  },
+  {
+    el: 'window',
+    ev: 'resize',
+    fn: function(_event: UIEvent) {
+      recalculateDesktopStickyHeader();
+    }
+  }
+];
+
+runWhenDOMContentLoaded(() => {
+  startListeners(desktopStickerHeaderListeners, document);
+  recalculateDesktopStickyHeader();
+});

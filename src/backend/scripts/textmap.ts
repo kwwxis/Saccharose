@@ -41,6 +41,10 @@ export async function loadTextMaps(filterLangCodes?: string[]): Promise<void> {
   });
 }
 
+export function getFullTextMap(langCode: LangCode): {[id: string]: string} {
+  return TextMap[langCode];
+}
+
 export async function loadEnglishTextMap(): Promise<void> {
   return loadTextMaps(['EN']);
 }

@@ -1,0 +1,39 @@
+
+@keyframes desktop-sticky-header-in {
+  0%    { transform: translateY(-100%); }
+  100%  { transform: translateY(0);     }
+}
+body.desktop-sticky-header {
+  padding-top: 52px;
+
+  #header {
+    position: fixed;
+    top: 0;
+    right: 0;
+    z-index: 9990;
+    border-left: 1px solid hsla(223deg, 67%, 18%, 0.3);
+    padding-left: 10px;
+    border-bottom-left-radius: 6px;
+    height: 38px;
+    transform: translateY(-100%);
+    animation: desktop-sticky-header-in 100ms ease-out forwards;
+  }
+  #header .left {
+    display: none;
+  }
+  .header-language-selector {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-top: 1px;
+  }
+  .header-language-selector-title {
+    display: none !important;
+  }
+  .header-language-selector-input {
+    max-width: 120px;
+  }
+  #header .toggle-theme-buttons .secondary {
+    height: 24px;
+  }
+}

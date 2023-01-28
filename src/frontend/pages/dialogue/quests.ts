@@ -3,8 +3,11 @@ import { startListeners } from '../../util/eventLoader';
 import { DIALOG_MODAL, openDialog } from '../../util/dialog';
 import { flashTippy } from '../../util/tooltips';
 import { pageMatch } from '../../pageMatch';
+import { GeneralEventBus } from '../../generalEventBus';
 
 pageMatch('pages/dialogue/quests', () => {
+  let lastSuccessfulQuestId: number = 0;
+
   function loadQuestGenerateResult(questId) {
     document.querySelector('.quest-search-result-wrapper').classList.add('hide');
 
@@ -15,6 +18,7 @@ pageMatch('pages/dialogue/quests', () => {
   </div>`
 
     endpoints.generateMainQuest(questId, true).then(html => {
+      lastSuccessfulQuestId = questId;
       if (typeof html === 'string') {
         document.querySelector('#quest-generate-result').innerHTML = html;
       } else if (typeof html === 'object' && html.message) {
@@ -56,6 +60,12 @@ pageMatch('pages/dialogue/quests', () => {
       document.querySelector<HTMLInputElement>('.quest-search-input').value = '';
     }
   }
+
+  GeneralEventBus.on('outputLangCodeChanged', () => {
+    if (lastSuccessfulQuestId) {
+      loadQuestGenerateResult(lastSuccessfulQuestId);
+    }
+  });
 
   const questResultListeners = [
     {

@@ -9,7 +9,7 @@ import SrtParser, { SrtLine } from '../util/srtParser';
 import { promises as fs } from 'fs';
 import { arrayIndexOf, arrayIntersect, arrayUnique, cleanEmpty, pairArrays, sort } from '../../shared/util/arrayUtil';
 import { toInt, toNumber } from '../../shared/util/numberUtil';
-import { normalizeRawJson, schema } from './importer/import_run';
+import { normalizeRawJson, schema, SchemaTable } from './importer/import_run';
 import {
   escapeRegExp,
   extractRomanNumeral,
@@ -68,7 +68,6 @@ import {
   ReliquarySetExcelConfigData,
 } from '../../shared/types/artifact-types';
 import { WeaponExcelConfigData } from '../../shared/types/weapon-types';
-import { SchemaTable } from './importer/import_types';
 import { AvatarExcelConfigData } from '../../shared/types/avatar-types';
 import { basename } from 'path';
 import { MonsterExcelConfigData } from '../../shared/types/monster-types';

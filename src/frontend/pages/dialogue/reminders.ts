@@ -1,51 +1,20 @@
-import { startListeners } from '../../util/eventLoader';
-import { escapeHtml } from '../../../shared/util/stringUtil';
 import { endpoints } from '../../endpoints';
-import { flashTippy } from '../../util/tooltips';
 import { pageMatch } from '../../pageMatch';
+import { startGenericSearchPageListeners } from '../genericSearchPage';
 
 pageMatch('pages/dialogue/reminders', () => {
-  const listeners = [
-    {
-      el: '.reminder-generate-input',
-      ev: 'enter',
-      fn: function(event, target) {
-        document.querySelector<HTMLButtonElement>('.reminder-generate-submit').click();
-      }
-    },
-    {
-      el: '.reminder-generate-submit',
-      ev: 'click',
-      fn: function(event, target) {
-        let inputEl = document.querySelector<HTMLInputElement>('.reminder-generate-input');
-        let subseqEl = document.querySelector<HTMLInputElement>('.reminder-subseq-input');
-        let loadingEl = document.querySelector('.reminder-generate-submit-pending');
-        let text = inputEl.value.trim();
-        let subseq = parseInt(subseqEl.value || '0');
+  startGenericSearchPageListeners({
+    endpoint: endpoints.generateReminderDialogue,
 
-        if (!text) {
-          flashTippy(inputEl, {content: 'Enter something in first!', delay:[0,2000]});
-          return;
-        }
+    inputTarget: '.reminder-generate-input',
+    submitPendingTarget: '.reminder-generate-submit-pending',
+    submitButtonTarget: '.reminder-generate-submit',
+    resultTarget: '#reminder-generate-result',
 
-        loadingEl.classList.remove('hide');
-        inputEl.disabled = true;
-        target.disabled = true;
-
-        endpoints.generateReminderDialogue(text, subseq, true).then(result => {
-          if (typeof result === 'string') {
-            document.querySelector('#reminder-generate-result').innerHTML = result;
-          } else if (typeof result === 'object' && result.message) {
-            document.querySelector('#reminder-generate-result').innerHTML = endpoints.errorHtmlWrap(result.message);
-          }
-        }).finally(() => {
-          loadingEl.classList.add('hide');
-          inputEl.disabled = false;
-          target.disabled = false;
-        });
-      }
-    },
-  ];
-
-  startListeners(listeners);
+    secondaryInputUrlParam: 'subseq',
+    secondaryInputTarget: '.reminder-subseq-input',
+    secondaryInputMapper: (text: string) => {
+      return parseInt(text || '0');
+    }
+  });
 });

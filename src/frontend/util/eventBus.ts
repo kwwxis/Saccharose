@@ -1,10 +1,11 @@
 import { createElement } from './domutil';
+import { runWhenDOMContentLoaded } from './eventLoader';
 
 export type EventBusListener = (...args: any[]) => void;
 
 export class EventBus {
-  private eventBusName: string;
-  private eventTarget: EventTarget;
+  readonly eventBusName: string;
+  private eventTarget: HTMLElement;
 
   private listeners: {
     type: string,
@@ -14,10 +15,11 @@ export class EventBus {
 
   constructor(eventBusName: string) {
     this.eventBusName = eventBusName;
-    this.eventTarget = document.body.appendChild(createElement('div', {
+    this.eventTarget = createElement('div', {
       'data-event-bus': eventBusName,
       'style': 'display: none !important',
-    }));
+    });
+    runWhenDOMContentLoaded(() => document.body.appendChild(this.eventTarget));
   }
 
   private wrap(type: string, fn: EventBusListener, fetchOnly: boolean = false): EventListener {

@@ -1,6 +1,5 @@
 import '../../loadenv';
 import { openKnex } from '../../util/db';
-import { SchemaTable, SEP } from './import_types';
 import { DialogExcelConfigData, TalkExcelConfigData } from '../../../shared/types/dialogue-types';
 import { MaterialExcelConfigData } from '../../../shared/types/material-types';
 import commandLineArgs, { OptionDefinition as ArgsOptionDefinition } from 'command-line-args';
@@ -17,6 +16,35 @@ import { AvatarFlycloakExcelConfigData } from '../../../shared/types/avatar-type
 import chalk from 'chalk';
 import { GCGCharacterLevelExcelConfigData, GCGRuleExcelConfigData } from '../../../shared/types/gcg-types';
 import { resolveObjectPath } from '../../../shared/util/arrayUtil';
+
+export type SchemaTable = {
+  name: string,
+  columns: SchemaColumn[],
+  jsonFile: string,
+  customRowResolve?: (row: any, allRows?: any[]) => any[],
+  normalizeFixFields?: { [oldName: string]: string },
+  singularize?: string[],
+};
+export type SchemaColumnType =
+  'string'
+  | 'integer'
+  | 'bigInteger'
+  | 'boolean'
+  | 'text'
+  | 'float'
+  | 'double'
+  | 'decimal'
+  | 'json'
+  | 'jsonb'
+  | 'uuid';
+export type SchemaColumn = {
+  name: string,
+  type: SchemaColumnType,
+  resolve?: string | Function,
+  isIndex?: boolean,
+  isPrimary?: boolean,
+  defaultValue?: any,
+};
 
 export const schema = {
   DialogExcelConfigData: <SchemaTable> {
@@ -1333,7 +1361,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
       let table: SchemaTable = schema[tableName];
       await createTable(table);
       await insertAll(table);
-      console.log(SEP);
+      console.log('-'.repeat(90));
     }
 
     console.log('Shutting down...');
