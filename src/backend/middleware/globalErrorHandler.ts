@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from '../util/router';
 import { VIEWS_ROOT } from '../loadenv';
 import { HttpError } from '../../shared/util/httpError';
 
-export async function pageLoadApiHandler(err: any, req: Request, res: Response, next: NextFunction) {
+export async function pageLoadErrorHandler(err: any, req: Request, res: Response, next: NextFunction) {
   if (err && typeof err === 'object' && (err.code === 'EBADCSRFTOKEN' || err.type === 'EBADCSRFTOKEN')) {
     res.status(400).sendFile(`${VIEWS_ROOT}/errorPages/csrfTokenDenied.html`);
     return;

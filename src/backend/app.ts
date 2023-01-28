@@ -19,6 +19,7 @@ import jsonResponse from './middleware/jsonResponse';
 import defaultResponseHeaders from './middleware/defaultResponseHeaders';
 import { PUBLIC_DIR, VIEWS_ROOT } from './loadenv';
 import { csrfMiddleware } from './middleware/csrf';
+import { pageLoadErrorHandler } from './middleware/globalErrorHandler';
 
 const app: Express = express();
 let didInit: boolean = false;
@@ -118,6 +119,7 @@ export async function appInit(): Promise<Express> {
   console.log(`[Init] Adding global error handlers`);
   process.on('uncaughtException', (err) => console.error('UncaughtException!', err));
   process.on('unhandledRejection', (err) => console.error('UnhandledRejection!', err));
+  app.use(pageLoadErrorHandler);
 
   // 404-Handler
   // ~~~~~~~~~~~
