@@ -7,7 +7,6 @@ import DialogueRouter from './app/DialogueRouter';
 import ItemRouter from './app/ItemRouter';
 import CharacterRouter from './app/CharacterRouter';
 import TcgRouter from './app/TcgRouter';
-import MiscRouter from './app/MiscRouter';
 
 export default async function(): Promise<Router> {
   const router: Router = create({
