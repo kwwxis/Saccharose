@@ -127,7 +127,6 @@ export interface DocumentExcelConfigData {
   Id: number,
   TitleTextMapHash: number,
   TitleText?: string,
-  TitleTextEN?: string,
   ContentLocalizedId: number,
   PreviewPath: string,
   DocumentType?: 'Video' | undefined,

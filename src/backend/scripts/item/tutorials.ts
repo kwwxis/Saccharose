@@ -41,7 +41,6 @@ export interface PushTipsConfigData {
   TitleTextMapHash: number,
   SubtitleTextMapHash: number,
   TitleText: string,
-  TitleTextEN: string,
   SubtitleText: string,
 
   ShowImmediately: boolean,
@@ -67,7 +66,6 @@ export const TUTORIAL_FILE_FORMAT_PARAMS: string[] = [
   'PushTip.TitleTextMapHash',
   'PushTip.SubtitleTextMapHash',
   'PushTip.TitleText',
-  'PushTip.TitleTextEN',
   'PushTip.SubtitleText',
   'PushTip.GroupId',
   'PushTip.ShowIcon',
@@ -100,7 +98,6 @@ export interface TutorialCatalogExcelConfigData {
   PushTipsId: number,
   TitleTextMapHash: number,
   TitleText: string,
-  TitleTextEN: string,
 }
 export interface TutorialDetailExcelConfigData {
   Id: number,

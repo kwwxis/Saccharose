@@ -315,9 +315,6 @@ export class Control {
         }
         objAsAny[prop] = newOriginalArray;
       }
-      if (prop === 'TitleTextMapHash') {
-        object['TitleTextEN'] = getTextMapItem('EN', object['TitleTextMapHash']);
-      }
       if (prop.endsWith('Cond') && objAsAny[prop]) {
         this.postProcessCondProp(objAsAny, prop);
       }

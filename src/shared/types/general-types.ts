@@ -99,7 +99,6 @@ export interface AchievementExcelConfigData {
   OrderId: number,
 
   TitleText: string,
-  TitleTextEN: string,
   TitleTextMapHash: number,
 
   DescText: string,

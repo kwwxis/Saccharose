@@ -23,7 +23,6 @@ export interface MainQuestExcelConfigData {
   Type?: QuestType,
   ActiveMode: string,
   TitleText?: string,
-  TitleTextEN?: string,
   TitleTextMapHash: number,
   DescText?: string,
   DescTextMapHash: number,
