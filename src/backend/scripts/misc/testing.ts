@@ -4,11 +4,17 @@ import { pathToFileURL } from 'url';
 import { loadEnglishTextMap } from '../textmap';
 import util from 'util';
 import { closeKnex } from '../../util/db';
-import { cleanEmpty, sort } from '../../../shared/util/arrayUtil';
+import { cleanEmpty, resolveObjectPath, sort } from '../../../shared/util/arrayUtil';
 import { AchievementExcelConfigData, AchievementGoalExcelConfigData } from '../../../shared/types/general-types';
 import { talkConfigGenerate } from '../dialogue/basic_dialogue_generator';
 import { DialogueSectionResult } from '../dialogue/dialogue_util';
 import { TalkExcelConfigData } from '../../../shared/types/dialogue-types';
+import { mwParse } from '../../../shared/mediawiki/mwParse';
+import { MwParentNode, MwTemplateNode, MwWhiteSpace } from '../../../shared/mediawiki/mwTypes';
+import { isInt, isNumeric, toNumber } from '../../../shared/util/numberUtil';
+import { toBoolean } from '../../../shared/util/genericUtil';
+import JSON5 from 'json5';
+import { evaluateCustomFormat } from '../../util/fileFormatOptions';
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   await loadEnglishTextMap();
@@ -29,25 +35,38 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     console.log(achievement.TitleText, achievement.DescText);
   }
   */
+  //
+  // const logSect = (sect: DialogueSectionResult) => {
+  //   console.log(sect.wikitext);
+  //   if (sect.children) {
+  //     for (let child of sect.children) {
+  //       logSect(child);
+  //     }
+  //   }
+  // }
+  //
+  // //let talks = await ctrl.selectTalkExcelConfigDataByQuestId(5066);
+  // let talks: TalkExcelConfigData[] = await ctrl.knex.select('*').from('TalkExcelConfigData')
+  //   .where(cleanEmpty({LoadType: 'TALK_GADGET'}));
+  //
+  // for (let talk of talks) {
+  //   let sect = await talkConfigGenerate(ctrl, talk);
+  //   logSect(sect);
+  //   console.log('-'.repeat(100));
+  // }
 
-  const logSect = (sect: DialogueSectionResult) => {
-    console.log(sect.wikitext);
-    if (sect.children) {
-      for (let child of sect.children) {
-        logSect(child);
-      }
-    }
-  }
+  // const str = "吾輩は猫である。名前はたぬき。";
+  // const segmenterJa = new Intl.Segmenter("ja-JP", { granularity: "word" });
+  //
+  // const segments = segmenterJa.segment(str);
+  // console.log(Array.from(segments));
 
-  //let talks = await ctrl.selectTalkExcelConfigDataByQuestId(5066);
-  let talks: TalkExcelConfigData[] = await ctrl.knex.select('*').from('TalkExcelConfigData')
-    .where(cleanEmpty({LoadType: 'TALK_GADGET'}));
+  let result: string = '';
+  const format = `Tutorial {PushTip.TitleText.EN}{{If|'My foobar <= Text' *= foo| {CurrentDetail.Index1based}|}}.png`;
 
-  for (let talk of talks) {
-    let sect = await talkConfigGenerate(ctrl, talk);
-    logSect(sect);
-    console.log('-'.repeat(100));
-  }
+  const parsed = mwParse(format);
+
+  console.log(evaluateCustomFormat({DetailCount: 1, MyText: 'Foobar'}, parsed));
 
   await closeKnex();
 }

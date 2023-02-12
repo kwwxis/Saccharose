@@ -284,7 +284,7 @@ export class MwTemplateNode extends MwParentNode {
     return this.parts.filter(part => part instanceof MwParamNode && part.key !== 0) as MwParamNode[];
   }
 
-  getParam(key: string | number): MwParamNode{
+  getParam(key: string | number): MwParamNode {
     return this.params.find(param => param.key == key);
   }
 }

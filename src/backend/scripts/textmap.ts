@@ -139,13 +139,7 @@ export function getVoPrefix(type: VoiceItemType, id: number|string, text?: strin
       tmp.push(`{{A|${maleVo.fileName}}}`);
     }
     if (femaleVo) {
-      if (TalkRoleType === 'TALK_ROLE_MATE_AVATAR') {
-        // If dialog speaker is Traveler's sibling, then female VO goes before male VO.
-        tmp.unshift(`{{A|${femaleVo.fileName}}}`);
-      } else {
-        // In all other cases, male VO goes before female VO
-        tmp.push(`{{A|${femaleVo.fileName}}}`);
-      }
+      tmp.push(`{{A|${femaleVo.fileName}}}`);
     }
     if (noGenderVo) {
       noGenderVo.forEach(x => tmp.push(`{{A|${x.fileName}}}`));

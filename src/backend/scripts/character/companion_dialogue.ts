@@ -83,7 +83,7 @@ export async function fetchCompanionDialogue(ctrl: Control, avatarNameOrId: stri
     let acc = new TalkConfigAccumulator(ctrl);
 
     for (let talkConfigId of companion.TalkIds) {
-      if (acc.fetchedTalkConfigIds.includes(talkConfigId)) {
+      if (acc.fetchedTalkConfigIds.has(talkConfigId)) {
         continue;
       }
       let sect = await talkConfigGenerate(ctrl, talkConfigId, acc);

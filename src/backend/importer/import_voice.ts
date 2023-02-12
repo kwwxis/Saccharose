@@ -1,7 +1,7 @@
-import '../../loadenv';
+import '../loadenv';
 import fs from 'fs';
 import path from 'path';
-import { getGenshinDataFilePath } from '../../loadenv';
+import { getGenshinDataFilePath } from '../loadenv';
 
 // gender 2 - male traveler
 // gender 1 - female traveler

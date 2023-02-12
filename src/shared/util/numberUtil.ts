@@ -5,6 +5,16 @@ export function isNumberEmpty(n: number): boolean {
     return !n && n !== 0;
 }
 
+export function isNumeric(value: any): boolean {
+  if (typeof value === 'number') {
+    return true;
+  } else if (typeof value === 'string') {
+    return /^[-+]?\d*(\.\d*)?$/.test(value);
+  } else {
+    return isNumeric(String(value));
+  }
+}
+
 export function isInteger(value: any): boolean {
   if (typeof value === 'number') {
     return (value | 0) === value;

@@ -145,3 +145,5 @@ export function closeDialog() {
   document.querySelectorAll('.AppDialogOuter').forEach(el => el.remove());
   document.body.removeEventListener('keyup', active_listener);
 }
+
+(<any> window).openDialog = openDialog;

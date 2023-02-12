@@ -4,6 +4,40 @@ import { Control, getControl, normText } from '../script_util';
 import util from 'util';
 import { closeKnex } from '../../util/db';
 import { defaultMap } from '../../../shared/util/genericUtil';
+import { fileFormatOptionsApply, fileFormatOptionsCheck } from '../../util/fileFormatOptions';
+
+export const VIEWPOINT_FILE_FORMAT_PARAMS: string[] = [
+  'Id',
+  'GadgetId',
+  'SceneId',
+  'GroupId',
+  'ConfigId',
+  'NameTextMapHash',
+  'DescTextMapHash',
+  'Image',
+  'CityId',
+  'WorldAreaId',
+  'SortOrder',
+  'NameText',
+  'DescText',
+  'CityNameText',
+  'WorldArea.Id',
+  'WorldArea.SceneId',
+  'WorldArea.AreaId1',
+  'WorldArea.AreaId2',
+  'WorldArea.ElementType',
+  'WorldArea.TerrainType',
+  'WorldArea.AreaNameTextMapHash',
+  'WorldArea.AreaNameText',
+  'ParentWorldArea.Id',
+  'ParentWorldArea.SceneId',
+  'ParentWorldArea.AreaId1',
+  'ParentWorldArea.AreaId2',
+  'ParentWorldArea.ElementType',
+  'ParentWorldArea.TerrainType',
+  'ParentWorldArea.AreaNameTextMapHash',
+  'ParentWorldArea.AreaNameText',
+];
 
 export interface WorldAreaConfigData {
   Id: number,
@@ -53,6 +87,9 @@ export interface ViewCodexExcelConfigData {
 
 export type ViewpointsByRegion = {[region: string]: ViewCodexExcelConfigData[]};
 
+export const VIEWPOINT_DEFAULT_FILE_FORMAT_IMAGE = 'Viewpoint {NameText.EN}.png';
+export const VIEWPOINT_DEFAULT_FILE_FORMAT_MAP = 'Viewpoint {NameText.EN} Map Location.png';
+
 export async function selectViewpoints(ctrl: Control): Promise<ViewpointsByRegion> {
   let viewpoints: ViewCodexExcelConfigData[] = await ctrl.readGenshinDataFile('./ExcelBinOutput/ViewCodexExcelConfigData.json');
   let areas: WorldAreaConfigData[] = await ctrl.readGenshinDataFile('./ExcelBinOutput/WorldAreaConfigData.json');
@@ -68,7 +105,7 @@ export async function selectViewpoints(ctrl: Control): Promise<ViewpointsByRegio
     if (viewpoint.WorldArea.AreaType === 'LEVEL_2') {
       viewpoint.ParentWorldArea = areas.find(area => area.AreaType === 'LEVEL_1' && area.AreaId1 === viewpoint.WorldArea.AreaId1);
     }
-    viewpoint.Wikitext = `{{Viewpoint
+    viewpoint.Wikitext = fileFormatOptionsCheck(`{{Viewpoint
 |id      = ${viewpoint.SortOrder}
 |title   = ${viewpoint.NameText}
 |title2  = ${viewpoint.WorldArea.AreaNameText || ''}
@@ -77,9 +114,9 @@ export async function selectViewpoints(ctrl: Control): Promise<ViewpointsByRegio
 |region  = ${viewpoint.CityNameText}
 |note    = 
 |text    = ${viewpoint.DescText ? normText(viewpoint.DescText, ctrl.outputLangCode) : ''}
-|image   = Viewpoint ${viewpoint.NameText}.png
-|map     = Viewpoint ${viewpoint.NameText} Map Location.png
-}}`.trim();
+|image   = ${fileFormatOptionsApply(ctrl.state.Request, viewpoint, 'FileFormat.viewpoint.image', VIEWPOINT_DEFAULT_FILE_FORMAT_IMAGE)}
+|map     = ${fileFormatOptionsApply(ctrl.state.Request, viewpoint, 'FileFormat.viewpoint.map', VIEWPOINT_DEFAULT_FILE_FORMAT_MAP)}
+}}`);
     ret[viewpoint.CityNameText].push(viewpoint);
   }
 

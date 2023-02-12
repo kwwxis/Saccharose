@@ -1,6 +1,6 @@
 import { create, Request, Response, Router } from '../../util/router';
 import { getControl, IdUsages, normText } from '../../scripts/script_util';
-import { add_ol_markers, ol_gen, OLResult } from '../../scripts/OLgen/OLgen';
+import { add_ol_markers, ol_gen, OLResult } from '../../scripts/basic/OLgen';
 import { toBoolean } from '../../../shared/util/genericUtil';
 import { HttpError } from '../../../shared/util/httpError';
 import { getTextMapItem } from '../../scripts/textmap';

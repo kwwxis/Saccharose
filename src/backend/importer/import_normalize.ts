@@ -1,7 +1,7 @@
-import '../../loadenv';
+import '../loadenv';
 import {promises as fs} from 'fs';
 import path from 'path';
-import { getGenshinDataFilePath } from '../../loadenv';
+import { getGenshinDataFilePath } from '../loadenv';
 
 const jsonDir = getGenshinDataFilePath('./ExcelBinOutput');
 const jsonsInDir = (await fs.readdir(jsonDir)).filter(file => path.extname(file) === '.json');

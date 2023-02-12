@@ -1,12 +1,12 @@
 import { create, Request, Response, Router } from '../../util/router';
 import { HomeWorldNPCExcelConfigData } from '../../../shared/types/homeworld-types';
-import { fetchCompanionDialogue, getHomeWorldCompanions } from '../../scripts/homeworld/companion_dialogue';
+import { fetchCompanionDialogue, getHomeWorldCompanions } from '../../scripts/character/companion_dialogue';
 import { Control, getControl } from '../../scripts/script_util';
 import { sort } from '../../../shared/util/arrayUtil';
 import {
   fetchCharacterStories,
   fetchCharacterStoryByAvatarId,
-} from '../../scripts/fetters/fetchStoryFetters';
+} from '../../scripts/character/fetchStoryFetters';
 import { StoryFetters } from '../../../shared/types/fetter-types';
 import { AvatarExcelConfigData } from '../../../shared/types/avatar-types';
 import { cached } from '../../util/cache';
@@ -86,11 +86,13 @@ export default async function(): Promise<Router> {
       req.query.tab = 'editor';
     }
 
+    let avatar: AvatarExcelConfigData = await getAvatar(ctrl, req, res);
+
     res.render('pages/character/vo-tool', {
-      title: 'Character VO',
+      title: (avatar ? avatar.NameText +  ' - ' : '') + 'Character VO',
       bodyClass: ['page--vo-tool'],
       avatars: await getAvatars(ctrl),
-      avatar: await getAvatar(ctrl, req, res),
+      avatar: avatar,
       tab: req.query.tab || 'editor',
     });
   });

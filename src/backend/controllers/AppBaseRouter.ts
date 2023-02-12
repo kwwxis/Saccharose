@@ -51,7 +51,6 @@ export default async function(): Promise<Router> {
   router.use('/', await ItemRouter());
   router.use('/', await CharacterRouter());
   router.use('/', await TcgRouter());
-  router.use('/', await MiscRouter());
 
   return router;
 };

@@ -433,24 +433,26 @@ dl dd:after {
   display: block;
   position: fixed;
   left: 50%;
-  transform: translateX(-50%);
-  top: -20px;
+  top: 50%;
+  transform: translateX(-50%) translateY(-50%);
   opacity: 0.5;
-  animation: AppDialogEntryFromAbove 300ms ease-out forwards;
+  animation: AppDialogEntryOpacity 300ms ease-out forwards;
   padding: 10px;
   background: white;
   box-shadow: 0 10px 100px rgba(0, 0, 0, 0.1), 0 0px 1px rgba(0, 0, 0, 0.1),
     0 1px 2px rgba(0, 0, 0, 0.35);
+  max-height: 100vh;
+  max-width: 100vw;
+  margin: auto;
+  overflow: auto;
 }
 .AppDialog[data-type='alert'] {
   max-width: 400px;
   width: 100%;
-  margin-top: 30px;
 }
 .AppDialog[data-type='modal'] {
   max-width: 500px;
   width: 100%;
-  margin-top: 30px;
 }
 .AppDialog_Inner > .close {
   position: absolute;
@@ -486,7 +488,7 @@ dl dd:after {
   margin-bottom: 30px;
   top: auto;
   bottom: -20px;
-  animation: AppDialogEntryFromBelow 300ms ease-out forwards;
+  animation: AppDialogEntryFromBelow 80ms linear forwards;
 }
 .AppDialog[data-type='toast'] .AppDialog_Content {
   display: flex;
@@ -519,13 +521,11 @@ dl dd:after {
   margin: auto 0;
 }
 
-@keyframes AppDialogEntryFromAbove {
+@keyframes AppDialogEntryOpacity {
   0% {
-    top: -20px;
     opacity: 0.5;
   }
   100% {
-    top: 0px;
     opacity: 1;
   }
 }
@@ -535,7 +535,7 @@ dl dd:after {
     opacity: 0.5;
   }
   100% {
-    bottom: 0px;
+    bottom: 0;
     opacity: 1;
   }
 }

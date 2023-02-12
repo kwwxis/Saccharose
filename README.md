@@ -134,14 +134,14 @@
         
         2.  **Run import_normalize**
             
-            * Run with: `ts-node ./src/backend/scripts/importer/import_normalize.ts`.
+            * Run with: `ts-node ./src/backend/scripts/import_normalize.ts`.
     
         3.  **Run import_run**
            
             * This will create or modify a file called`genshin_data.db` in your `GENSHIN_DATA_ROOT` folder.
               This file is a sqlite database.
            
-            * Run with: `ts-node ./src/backend/scripts/importer/import_run.ts`.
+            * Run with: `ts-node ./src/backend/importer/import_run.ts`.
                 * Use the `--help` flag to see your options.
                 * You can use `--run-all` to first time you run it.
                 * Other options such as `--run-only` can regenerate specific tables on the existing database.
@@ -151,14 +151,14 @@
             * This will create or overwrite a file called `voiceItemsNormalized.json` in
               your `GENSHIN_DATA_ROOT` folder.
 
-            * Run with: `ts-node ./src/backend/scripts/importer/import_voice.ts`.
+            * Run with: `ts-node ./src/backend/importer/import_voice.ts`.
             
         5.  **Run import_readableTitleMap**
     
             * This will create a new folder called TitleMap at `{GENSHIN_DATA_ROOT}/Readable/TitleMap` and will fill
               this folder with files called `ReadableTitleMap<LangCode>.json` for each language code.
     
-            * Run with: `ts-node ./src/backend/scripts/importer/import_readableTitleMap.ts`.
+            * Run with: `ts-node ./src/backend/importer/import_readableTitleMap.ts`.
  4. Done!
     
 ## Development

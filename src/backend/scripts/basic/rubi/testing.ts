@@ -1,4 +1,4 @@
-import '../../loadenv';
+import '../../../loadenv';
 //import {normText} from './script_util';
 import {TEXT_WIDTH_LOOKUP_TABLE} from './text_width_lookup';
 

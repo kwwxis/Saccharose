@@ -1,13 +1,13 @@
-import '../../loadenv';
+import '../loadenv';
 import { pathToFileURL } from 'url';
-import { getTextMapItem, loadTextMaps } from '../textmap';
-import { getControl } from '../script_util';
-import { ReadableView } from '../../../shared/types/readable-types';
-import { LANG_CODES, LangCodeMap } from '../../../shared/types/dialogue-types';
-import { defaultMap } from '../../../shared/util/genericUtil';
-import { getGenshinDataFilePath } from '../../loadenv';
+import { getTextMapItem, loadTextMaps } from '../scripts/textmap';
+import { getControl } from '../scripts/script_util';
+import { ReadableView } from '../../shared/types/readable-types';
+import { LANG_CODES, LangCodeMap } from '../../shared/types/dialogue-types';
+import { defaultMap } from '../../shared/util/genericUtil';
+import { getGenshinDataFilePath } from '../loadenv';
 import fs from 'fs';
-import { closeKnex } from '../../util/db';
+import { closeKnex } from '../util/db';
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   await loadTextMaps();

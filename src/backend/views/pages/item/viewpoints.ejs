@@ -10,7 +10,17 @@
       </div>
     </fieldset>
     <p class="error-notice spacer10-top">The <code>area</code> and <code>subarea</code> parameter values aren't always accurate
-      but the tool tries to figure it out the best it can. Make sure to check it manually.</p>
+      but the tool tries to figure it out the best it can. Make sure to check it manually in-game.</p>
+  </div>
+</section>
+<section class="card">
+  <h2>File Format parameter options</h2>
+  <div class="content">
+    <p>Reload page after changing options to see effect.</p>
+    <div class="alignStart spacer15-top flexWrap">
+      <%- include('partials/util/file-format-options', {paramName: 'image', cookieName: 'FileFormat.viewpoint.image', fileFormatParams: locals.fileFormatParams, fileFormatDefault: locals.fileFormatDefault_image}) %>
+      <%- include('partials/util/file-format-options', {paramName: 'map', cookieName: 'FileFormat.viewpoint.map', fileFormatParams: locals.fileFormatParams, fileFormatDefault: locals.fileFormatDefault_map}) %>
+    </div>
   </div>
 </section>
 <% for (let [regionName, viewpoints] of Object.entries(viewpointsList)) { %>

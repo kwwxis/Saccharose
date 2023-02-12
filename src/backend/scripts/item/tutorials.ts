@@ -5,6 +5,7 @@ import { loadEnglishTextMap } from '../textmap';
 import util from 'util';
 import { closeKnex } from '../../util/db';
 import { defaultMap } from '../../../shared/util/genericUtil';
+import { fileFormatOptionsApply, fileFormatOptionsCheck } from '../../util/fileFormatOptions';
 
 export type PushTipsCodexType = 'CODEX_ADVENTURE' | 'CODEX_ARANARA' | 'CODEX_ELEMENT' | 'CODEX_ENEMY' | 'CODEX_SYSTEM' | 'CODEX_UNRECORDED';
 function pushTipCodexTypeName(type: PushTipsCodexType) {
@@ -56,6 +57,32 @@ export interface PushTipsCodexExcelConfigData {
   SortOrder: number,
 }
 
+export const TUTORIAL_FILE_FORMAT_PARAMS: string[] = [
+  'Id',
+  'PushTip.PushTipsId',
+  'PushTip.TutorialId',
+  'PushTip.RewardId',
+  'PushTip.PushTipsType',
+  'PushTip.CodexType',
+  'PushTip.TitleTextMapHash',
+  'PushTip.SubtitleTextMapHash',
+  'PushTip.TitleText',
+  'PushTip.TitleTextEN',
+  'PushTip.SubtitleText',
+  'PushTip.GroupId',
+  'PushTip.ShowIcon',
+  'PushTip.TabIcon',
+  'PushTip.Codex.Id',
+  'PushTip.Codex.PushTipId',
+  'PushTip.Codex.SortOrder',
+  'DetailCount',
+  'CurrentDetail.Id',
+  'CurrentDetail.Index1based',
+  'CurrentDetail.Index0based',
+  'CurrentDetail.DescriptTextMapHash',
+  'CurrentDetail.DescriptText'
+];
+
 export interface TutorialExcelConfigData {
   Id: number,
   DetailIdList: number[],
@@ -83,6 +110,8 @@ export interface TutorialDetailExcelConfigData {
 }
 
 export type TutorialsByType = {[type: string]: TutorialExcelConfigData[]};
+
+export const TUTORIAL_DEFAULT_FILE_FORMAT_IMAGE = 'Tutorial {PushTip.TitleText.EN}{{If|DetailCount > 1| {CurrentDetail.Index1based}|}}.png';
 
 export async function selectTutorials(ctrl: Control): Promise<TutorialsByType> {
   let tutorials: TutorialExcelConfigData[] = await ctrl.readGenshinDataFile('./ExcelBinOutput/TutorialExcelConfigData.json');
@@ -117,13 +146,21 @@ export async function selectTutorials(ctrl: Control): Promise<TutorialsByType> {
 |about    =`;
     for (let i = 0; i < tutorial.DetailList.length; i++) {
       let detail = tutorial.DetailList[i];
-      let imageName = (tutorial.DetailList.length === 1) ? 'Tutorial ' + tutorial.PushTip.TitleText + '.png' : 'Tutorial ' + tutorial.PushTip.TitleText + ' ' + (i+1) + '.png';
+      let imageName = fileFormatOptionsApply(
+        ctrl.state.Request,
+        Object.assign(
+          {CurrentDetail: Object.assign({Index1based: i+1, Index0based: i}, detail), DetailCount: tutorial.DetailList.length},
+          tutorial
+        ),
+        'FileFormat.tutorial.image',
+        TUTORIAL_DEFAULT_FILE_FORMAT_IMAGE
+      );
       text += '\n|' + ('text' + (i+1)).padEnd(9, ' ') + '= ' + normText(detail.DescriptText, ctrl.outputLangCode);
       text += '\n|' + ('image' + (i+1)).padEnd(9, ' ') + '= ' + (imageName || '');
     }
     text += '\n|sort     = ' + (tutorial.PushTip?.Codex?.SortOrder || '');
     text += '\n}}';
-    tutorial.Wikitext = text.trim();
+    tutorial.Wikitext = fileFormatOptionsCheck(text);
     if (!codexType) {
       codexType = 'Uncategorized';
     }

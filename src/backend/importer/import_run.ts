@@ -1,21 +1,22 @@
-import '../../loadenv';
-import { openKnex } from '../../util/db';
-import { DialogExcelConfigData, TalkExcelConfigData } from '../../../shared/types/dialogue-types';
-import { MaterialExcelConfigData } from '../../../shared/types/material-types';
+import '../loadenv';
+import { openKnex } from '../util/db';
+import { DialogExcelConfigData, TalkExcelConfigData } from '../../shared/types/dialogue-types';
+import { MaterialExcelConfigData } from '../../shared/types/material-types';
 import commandLineArgs, { OptionDefinition as ArgsOptionDefinition } from 'command-line-args';
 import commandLineUsage, { OptionDefinition as UsageOptionDefinition } from 'command-line-usage';
-import { getGenshinDataFilePath } from '../../loadenv';
-import { humanTiming, timeConvert } from '../../../shared/util/genericUtil';
+import { getGenshinDataFilePath } from '../loadenv';
+import { humanTiming, timeConvert } from '../../shared/util/genericUtil';
 import { promises as fs } from 'fs';
 import ora from 'ora';
 import { pathToFileURL } from 'url';
-import { ReliquaryCodexExcelConfigData, ReliquaryExcelConfigData } from '../../../shared/types/artifact-types';
-import { WeaponCodexExcelConfigData, WeaponExcelConfigData } from '../../../shared/types/weapon-types';
-import { AchievementExcelConfigData, AchievementGoalExcelConfigData } from '../../../shared/types/general-types';
-import { AvatarFlycloakExcelConfigData } from '../../../shared/types/avatar-types';
+import { ReliquaryCodexExcelConfigData, ReliquaryExcelConfigData } from '../../shared/types/artifact-types';
+import { WeaponCodexExcelConfigData, WeaponExcelConfigData } from '../../shared/types/weapon-types';
+import { AchievementExcelConfigData, AchievementGoalExcelConfigData } from '../../shared/types/general-types';
+import { AvatarFlycloakExcelConfigData } from '../../shared/types/avatar-types';
 import chalk from 'chalk';
-import { GCGCharacterLevelExcelConfigData, GCGRuleExcelConfigData } from '../../../shared/types/gcg-types';
-import { resolveObjectPath } from '../../../shared/util/arrayUtil';
+import { GCGCharacterLevelExcelConfigData, GCGRuleExcelConfigData } from '../../shared/types/gcg-types';
+import { resolveObjectPath } from '../../shared/util/arrayUtil';
+import { ucFirst } from '../../shared/util/stringUtil';
 
 export type SchemaTable = {
   name: string,
@@ -1138,10 +1139,6 @@ export const schema = {
   },
 };
 
-export function capitalizeFirstLetter(s: string) {
-  return s.charAt(0).toUpperCase() + s.slice(1);
-}
-
 export function normalizeRawJson(row: any, table?: SchemaTable) {
   if (typeof row === 'undefined' || typeof row === null || typeof row !== 'object') {
     return row;
@@ -1155,7 +1152,7 @@ export function normalizeRawJson(row: any, table?: SchemaTable) {
     if (key.startsWith('_')) {
       key = key.slice(1);
     }
-    key = capitalizeFirstLetter(key);
+    key = ucFirst(key);
     if (!(key.length === 11 && /^[A-Z]+$/.test(key))) {
       key = key.replace(/ID/g, 'Id');
     }

@@ -8,14 +8,13 @@ import { isInt } from '../../../shared/util/numberUtil';
 import { DialogExcelConfigData, TalkExcelConfigData } from '../../../shared/types/dialogue-types';
 import { escapeRegExp, trim } from '../../../shared/util/stringUtil';
 import {
-  DialogueSectionResult,
+  DialogueSectionResult, dialogueToQuestId,
   TalkConfigAccumulator,
   talkConfigToDialogueSectionResult,
   traceBack,
 } from './dialogue_util';
 import { MetaProp } from '../../util/metaProp';
 import { pathToFileURL } from 'url';
-import { dialogueToQuestId } from './reverse_quest';
 import { Marker } from '../../../shared/util/highlightMarker';
 
 const lc = (s: string) => s ? s.toLowerCase() : s;
@@ -54,7 +53,6 @@ export async function dialogueGenerate(ctrl: Control, query: number|number[]|str
     query = parseInt(query);
   }
 
-  ctrl.state.DisableDialogueCache = true;
   ctrl.state.DisableNpcCache = true;
 
   function addHighlightMarkers(dialogue: DialogExcelConfigData, sect: DialogueSectionResult) {
@@ -250,10 +248,10 @@ export async function dialogueGenerateByNpc(ctrl: Control, npcNameOrId: string|n
 
     let dialogOrphaned: DialogExcelConfigData[] = await ctrl.selectDialogExcelConfigDataByTalkRoleId(npc.Id);
     for (let dialogue of dialogOrphaned) {
-      if (ctrl.isDialogExcelConfigDataCached(dialogue)) {
+      if (ctrl.isInDialogIdCache(dialogue)) {
         continue;
       }
-      ctrl.saveDialogExcelConfigDataToCache(dialogue);
+      ctrl.saveToDialogIdCache(dialogue);
 
       let dialogueBranch = await ctrl.selectDialogBranch(dialogue);
       const sect = new DialogueSectionResult('Dialogue_'+dialogue.Id, 'Dialogue');

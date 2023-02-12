@@ -1,7 +1,7 @@
 import '../../loadenv';
 import { closeKnex } from '../../util/db';
 import { Control, getControl, normText } from '../script_util';
-import { ol_gen_from_id } from '../OLgen/OLgen';
+import { ol_gen_from_id } from '../basic/OLgen';
 import { getTextMapItem, QuestSummary } from '../textmap';
 import { NpcExcelConfigData } from '../../../shared/types/general-types';
 import { arrayEmpty, arrayUnique } from '../../../shared/util/arrayUtil';
@@ -75,13 +75,14 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
   const talkConfigAcc = new TalkConfigAccumulator(ctrl);
 
   // Fetch Talk Configs by Main Quest ID (exact)
-  for (let talkConfig of (await ctrl.selectTalkExcelConfigDataByQuestId(mainQuest.Id, 'TALK_DEFAULT'))) {
+  const talkConfigsByMainQuestId = await ctrl.selectTalkExcelConfigDataByQuestId(mainQuest.Id, 'TALK_DEFAULT');
+  for (let talkConfig of talkConfigsByMainQuestId) {
     await talkConfigAcc.handleTalkConfig(talkConfig);
   }
 
   // Find Talk Configs by Quest Sub ID
   for (let questExcelConfigData of mainQuest.QuestExcelConfigDataList) {
-    if (talkConfigAcc.fetchedTalkConfigIds.includes(questExcelConfigData.SubId)) {
+    if (talkConfigAcc.fetchedTalkConfigIds.has(questExcelConfigData.SubId)) {
       continue;
     }
     let talkConfig = await ctrl.selectTalkExcelConfigDataByQuestSubId(questExcelConfigData.SubId, 'TALK_DEFAULT');
@@ -91,7 +92,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
   // Fetch Talk Configs by Main Quest ID (prefix)
   let talkConfigIdsByMainQuestIdPrefix: number[] = await ctrl.selectTalkExcelConfigDataIdsByPrefix(mainQuest.Id);
   for (let talkConfigId of talkConfigIdsByMainQuestIdPrefix) {
-    if (talkConfigAcc.fetchedTalkConfigIds.includes(talkConfigId)) {
+    if (talkConfigAcc.fetchedTalkConfigIds.has(talkConfigId)) {
       continue;
     }
     let talkConfig = await ctrl.selectTalkExcelConfigDataById(talkConfigId, 'TALK_DEFAULT');

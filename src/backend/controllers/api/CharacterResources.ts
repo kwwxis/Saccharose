@@ -1,7 +1,7 @@
 import { create, Request, Response, Router } from '../../util/router';
 import { getControl } from '../../scripts/script_util';
 import { toInt } from '../../../shared/util/numberUtil';
-import { fetchCharacterFettersByAvatarId } from '../../scripts/fetters/fetchCharacterFetters';
+import { fetchCharacterFettersByAvatarId } from '../../scripts/character/fetchCharacterFetters';
 
 const router: Router = create();
 

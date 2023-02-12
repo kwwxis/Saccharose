@@ -4,7 +4,7 @@ import {getTextMapItem, getVoPrefix, loadEnglishTextMap, loadVoiceItems} from ".
 import { closeKnex } from '../../util/db';
 import { DialogExcelConfigData } from '../../../shared/types/dialogue-types';
 import {promises as fs} from 'fs';
-import{schema, normalizeRawJson} from '../importer/import_run';
+import{schema, normalizeRawJson} from '../../importer/import_run';
 import { getGenshinDataFilePath } from '../../loadenv';
 import { pathToFileURL } from 'url';
 

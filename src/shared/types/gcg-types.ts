@@ -610,14 +610,16 @@ export interface GCGDeckExcelConfigData {
   Id: number,
 
   CharacterList: number[],
-  MappedCharacterList: GCGCharExcelConfigData[],
+  MappedCharacterList: GCGCharExcelConfigData[], // active
 
   CardList: number[],
-  MappedCardList: GCGCardExcelConfigData[],
+  MappedCardList: GCGCardExcelConfigData[], // action
+
+  WaitingCharacterList: { Id: number, CondCount: number }[], // reserve TODO
+  MappedWaitingCharacterList: GCGCharExcelConfigData[],
 
   InitHpList: never,
   InitEnergyList: never,
-  WaitingCharacterList: { Id: number, CondCount: number }[],
 }
 
 export interface GCGDeckCardExcelConfigData {

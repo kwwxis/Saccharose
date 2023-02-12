@@ -22,6 +22,7 @@ export class MwParseParamModule extends MwParseModule {
   anonymousKeyCounter: number = 1;
   parentType: MwParamParentType;
   completed: boolean = false;
+  openBraces: number = 0;
 
   constructor(context: MwParseContext, parentType: MwParamParentType) {
     super(context);
@@ -70,10 +71,16 @@ export class MwParseParamModule extends MwParseModule {
     const peek = ctx.iter.peek();
 
     if (this.paramCounter > 1 && this.getEndRegex().test(peek)) {
-      this.completed = true;
-      this.exit();
-      this.ctx.iter.rollback(1);
-      return true;
+      if (this.parentType === 'Template' && this.openBraces > 0 && /^}}}/.test(peek)) {
+        // do nothing
+      } else if (this.parentType === 'TemplateParam' && this.openBraces > 0 && /^}}}}/.test(peek)) {
+        // do nothing
+      } else {
+        this.completed = true;
+        this.exit();
+        this.ctx.iter.rollback(1);
+        return true;
+      }
     }
 
     if (this.getStartRegex().test(peek)) {
@@ -83,7 +90,7 @@ export class MwParseParamModule extends MwParseModule {
 
       const regexRes = this.getStartRegex().exec(ctx.iter.peek());
       const fullMatch = regexRes[0];
-      const isAnonymous = regexRes[3] !== '=';
+      const isAnonymous = regexRes[3] !== '=' || !/^[a-zA-Z0-9\-_.]+$/.test(regexRes[2]);
       const paramKey = isAnonymous ? this.anonymousKeyCounter++ : regexRes[2];
 
       this.paramNode = new MwParamNode(ch as MwParamNodePrefixType, paramKey);
@@ -122,6 +129,13 @@ export class MwParseParamModule extends MwParseModule {
       }
 
       return true;
+    } else {
+      if (ch === '{') {
+        this.openBraces++;
+      }
+      if (ch === '}') {
+        this.openBraces--;
+      }
     }
 
     return false;

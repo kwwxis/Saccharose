@@ -1,12 +1,12 @@
-import '../../loadenv';
-import { Control, getControl } from '../script_util';
-import { loadEnglishTextMap } from '../textmap';
-import { defaultMap, isEmpty } from '../../../shared/util/genericUtil';
-import { resolveObjectPath, toArray } from '../../../shared/util/arrayUtil';
-import { closeKnex } from '../../util/db';
+import '../loadenv';
+import { Control, getControl } from '../scripts/script_util';
+import { loadEnglishTextMap } from '../scripts/textmap';
+import { defaultMap, isEmpty } from '../../shared/util/genericUtil';
+import { resolveObjectPath, toArray } from '../../shared/util/arrayUtil';
+import { closeKnex } from '../util/db';
 import { pathToFileURL } from 'url';
 import { basename } from 'path';
-import { isInt } from '../../../shared/util/numberUtil';
+import { isInt } from '../../shared/util/numberUtil';
 import chalk from 'chalk';
 
 async function inspectGenshinDataFile(ctrl: Control, file: string, inspectFieldValues: string[] = [], printRecordIfFieldNotEmpty: string[] = []): Promise<any[]> {

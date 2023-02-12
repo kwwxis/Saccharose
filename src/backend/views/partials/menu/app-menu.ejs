@@ -22,8 +22,13 @@
   </div>
 </section>
 <section id="app-sidebar__items" class="card">
-  <h2>Items</h2>
+  <h2>Items &amp; Archive</h2>
   <div class="content">
+    <h4>Archive</h4>
+    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--tutorials', 'selected') %>" role="button" href="/tutorials">Tutorials</a>
+    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--viewpoints', 'selected') %>" role="button" href="/viewpoints">Viewpoints</a>
+
+    <h4 class="spacer10-top">Readables</h4>
     <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--readables-search', 'selected') %>" role="button" href="/readables/search">Search Readables</a>
     <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--readables', 'selected') %>" role="button" href="/readables">Books &amp; Readables</a>
   </div>
@@ -40,12 +45,5 @@
   <div class="content">
     <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--tcg-talk-detail', 'selected') %>" role="button" href="/TCG/talk-detail">TCG Talk Detail</a>
     <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--tcg-tutorial-text', 'selected') %>" role="button" href="/TCG/tutorial-text">TCG Tutorial Text</a>
-  </div>
-</section>
-<section id="app-sidebar__character" class="card">
-  <h2>Misc</h2>
-  <div class="content">
-    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--tutorials', 'selected') %>" role="button" href="/tutorials">Tutorials</a>
-    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--viewpoints', 'selected') %>" role="button" href="/viewpoints">Viewpoints</a>
   </div>
 </section>

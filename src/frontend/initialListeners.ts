@@ -7,22 +7,20 @@ import {
   setQueryStringParameter,
 } from './util/domutil';
 import { humanTiming, throttle, timeConvert } from '../shared/util/genericUtil';
-import { closeDialog } from './util/dialog';
+import { closeDialog, DIALOG_MODAL, openDialog } from './util/dialog';
 import { enableTippy, flashTippy, getTippyOpts, hideTippy, showTippy } from './util/tooltips';
 import { Listener, runWhenDOMContentLoaded, startListeners } from './util/eventLoader';
 import { showJavascriptErrorDialog } from './util/errorHandler';
 import autosize from 'autosize';
 import { isInt } from '../shared/util/numberUtil';
-import { uuidv4 } from '../shared/util/stringUtil';
+import { escapeHtml, uuidv4 } from '../shared/util/stringUtil';
 import { highlightReplace, highlightWikitextReplace } from './util/ace/wikitextEditor';
 import { GeneralEventBus } from './generalEventBus';
 
 type UiAction = {actionType: string, actionParams: string[]};
 
-function parseUiAction(actionStr: string|HTMLElement): UiAction[] {
-  if (actionStr instanceof HTMLElement) {
-    actionStr = actionStr.getAttribute('ui-action');
-  }
+function parseUiAction(actionEl: HTMLElement): UiAction[] {
+  const actionStr = actionEl.getAttribute('ui-action');
   const result: UiAction[] = [];
   const actions = actionStr.split(';');
   for (let action of actions) {
@@ -31,9 +29,17 @@ function parseUiAction(actionStr: string|HTMLElement): UiAction[] {
       continue;
     }
     const actionType = action.split(':')[0].trim().toLowerCase();
+    const actionParams = action.split(':')[1].split(',').map(param => param.trim()).map(param => {
+      if (param.startsWith('attr.')) {
+        return actionEl.getAttribute(param.slice('attr.'.length));
+      } else {
+        return param;
+      }
+    });
+
     result.push({
       actionType,
-      actionParams: action.split(':')[1].split(',').map(x => x.trim())
+      actionParams,
     });
   }
   return result;
@@ -65,6 +71,9 @@ const initial_listeners: Listener[] = [
 
       const csrfElement: HTMLMetaElement = document.querySelector('meta[name="csrf-token"]');
       axios.defaults.headers.common['x-csrf-token'] = csrfElement.content;
+      axios.defaults.validateStatus = (status: number) => {
+        return status >= 200 && status < 400; // accept 2xx and 3xx as valid
+      };
       csrfElement.remove();
 
       const changeAvatarNameInURL: HTMLMetaElement = document.querySelector('meta[name="X-ChangeAvatarNameInURL"]');
@@ -515,6 +524,110 @@ const initial_listeners: Listener[] = [
       let val = target.getAttribute('data-value');
       document.querySelector<HTMLElement>('#search-mode-button .code').innerText = val;
       Cookies.set('search-mode', val, { expires: 365 });
+    }
+  },
+  {
+    el: '.file-format-options input[type="radio"]',
+    ev: 'input',
+    multiple: true,
+    fn: function(event, target: HTMLInputElement) {
+      let parent = target.closest('.file-format-options');
+      let name = target.name;
+      let value = target.value;
+      Cookies.set(name, value, { expires: 365 });
+      if (value === 'custom') {
+        parent.querySelector('.file-format-options-custom-format').classList.remove('hide');
+      } else {
+        parent.querySelector('.file-format-options-custom-format').classList.add('hide');
+      }
+    }
+  },
+  {
+    el: '.file-format-options input[type="text"]',
+    ev: 'change',
+    multiple: true,
+    fn: function(event, target: HTMLInputElement) {
+      let name = target.name;
+      let value = target.value;
+      Cookies.set(name, value, { expires: 365 });
+    }
+  },
+  {
+    el: '.file-format-options .file-format-options-custom-format-help-button',
+    ev: 'click',
+    multiple: true,
+    fn: function(event, target: HTMLInputElement) {
+      const paramName = target.closest('.file-format-options').getAttribute('data-param-name');
+      const fileFormatDefault = target.closest('.file-format-options').getAttribute('data-file-format-default');
+      const params = target.closest('.file-format-options').getAttribute('data-file-format-params').split(',').map(x => x.trim());
+      const langCodes = target.closest('.file-format-options').getAttribute('data-lang-codes').split(',').map(x => x.trim());
+
+      openDialog(`<h2 style="line-height:40px;">Custom Format Options for <code>${escapeHtml(paramName)}</code></h2>
+      <div style="
+        max-height:640px;
+        overflow: auto;
+        box-shadow: inset 0 11px 8px -10px #ccc, inset 0 -11px 8px -10px #ccc;
+        margin: 0 -20px;
+        padding: 0 20px 20px;
+      ">
+        <p class="info-notice spacer20-top">Parameters must be in curly braces, for example:<br/><code>{NameText.EN} Map Location.png</code></p>
+        <p class="info-notice spacer5-top">
+          <strong>English wiki format for <code>${escapeHtml(paramName)}</code>:</strong><br />
+          <textarea class="code autosize w100p" readonly>${escapeHtml(fileFormatDefault)}</textarea>
+        </p>
+        <fieldset class="spacer5-top">
+          <legend>Available parameters:</legend>
+          <div class="content spacer20-horiz">
+            <ul style="columns:2;">${params.map(param => `<li><code>${escapeHtml(param)}</code></li>`).join('')}</ul>
+          </div>
+        </fieldset>
+        <fieldset class="spacer5-top">
+          <legend>Available language codes:</legend>
+          <div class="content spacer20-horiz">
+            <ul style="columns:5;">${langCodes.map(param => `<li><code>${escapeHtml(param)}</code></li>`).join('')}</ul>
+          </div>
+        </fieldset>
+        <fieldset class="spacer5-top">
+          <legend>Specify Specific Language</legend>
+          <div class="content">
+            <p>For in-game text parameters, you can specify a specific language by appending it with <code>.{Langcode}</code>. For example,
+            for a <code>NameText</code> param, you can use <code>NameText.JP</code>. Otherwise, without any specific language code, just <code>NameText</code>
+            would use your selected <strong>Output Language</strong>.</p>
+          </div>
+        </fieldset>
+        <fieldset class="spacer5-top">
+          <legend>Conditionals</legend>
+          <div class="content">
+            <p>You can use conditionals in the format of:</p>
+            
+            <br />
+            <code class="dispBlock">{{If|&lt;condition&gt;|&lt;then value&gt;|&lt;else value&gt;}}</code>
+            <code class="dispBlock spacer20-left">condition = &lt;left-param&gt; &lt;operator&gt; &lt;right-param&gt;</code>
+            <code class="dispBlock spacer20-left">op = = | != | &lt;= | &gt;= | &lt; | &gt; | *= | ^= | $= | ~</code>
+            <br />
+            
+            <p>The <code>left-param</code> and <code>right-param</code> are evaluated the same as the top-level format,
+            so you can use parameters inside of them and have nested conditionals.</p>
+            
+            <p>The condition follows different logic such that parameters do not need to be wrapped in curly braces.</p>
+            
+            <p>Strings do not need to be wrapped in quotes, but you should put them in quotes to prevent them from
+            being evaluated as parameters or operators.</p>
+            
+            <p>String condition operators: <code>*=</code> is string includes,
+            <code>^=</code> is string starts with, <code>"$="</code> is string ends with, and <code>~=</code> is regex
+            (left param is test string, right param is regex).</p>
+            
+            <p>These operations are case-insensitive. For case-sensitive operations, use <code>{{IfCase|...}}</code> instead of <code>{{If|...}}</code></p>
+          </div>
+        </fieldset>
+      </div>
+      <div class="buttons spacer15-top">
+        <button class="primary AppDialog_CloseTrigger" ui-action="close-modals">Dismiss</button>
+      </div>`, DIALOG_MODAL, {
+        dialog_style: 'max-width:800px;max-height:750px',
+        blocking: true,
+      });
     }
   }
 ];

@@ -180,6 +180,7 @@ export const endpoints = {
       .catch(this.errorHandler);
   },
   getFetters(avatarId: number) {
+    console.log('SENDING REQUEST TO GET FETTERS');
     return axios
       .get(`${this.base_uri}/character/fetters`, {
         params: {avatarId: avatarId},

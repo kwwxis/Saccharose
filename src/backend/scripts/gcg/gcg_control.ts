@@ -676,10 +676,10 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     fs.writeFileSync(getGenshinDataFilePath('./stages.json'), JSON.stringify(stages, null, 2), 'utf8');
 
     const cards = await gcg.selectAllCard();
-    // fs.writeFileSync(getGenshinDataFilePath('./cards.json'), JSON.stringify(cards, null, 2), 'utf8');
+    fs.writeFileSync(getGenshinDataFilePath('./cards.json'), JSON.stringify(cards, null, 2), 'utf8');
 
     const deckCards = await gcg.selectAllDeckCard();
-    // fs.writeFileSync(getGenshinDataFilePath('./deck-cards.json'), JSON.stringify(deckCards, null, 2), 'utf8');
+    fs.writeFileSync(getGenshinDataFilePath('./deck-cards.json'), JSON.stringify(deckCards, null, 2), 'utf8');
 
     // const decks = await gcg.selectAllDeck();
     // fs.writeFileSync(getGenshinDataFilePath('./decks.json'), JSON.stringify(decks, null, 2), 'utf8');
@@ -711,32 +711,6 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     console.log('DeckCardExcels that have a CardExcel with same ID:', deckCardIds.filter(id => cardIds.includes(id)).length);
     console.log('DeckCardExcels that have a CharExcel with same ID:', deckCardIds.filter(id => charIds.includes(id)).length);
     console.log('CardExcels that have a CharExcel with same ID (should be zero - no overlap):', cardIds.filter(id => charIds.includes(id)).length);
-    console.log('\n\n\n\n\n\n\n\n\n\n\n\n\n');
-
-    console.log('Expecto Patronum:');
-    for (let card of cards) {
-      if (card.PersistEffectType === 'GCG_PERSIST_EFFECT_EXPECTO_PATRONUM') {
-        console.log('  * '+card.NameText);
-      }
-    }
-    console.log('\nImperturable Charm:');
-    for (let card of cards) {
-      if (card.PersistEffectType === 'GCG_PERSIST_EFFECT_IMPERTURBABLE_CHARM') {
-        console.log('  * '+card.NameText);
-      }
-    }
-    console.log('\nProtego:');
-    for (let card of cards) {
-      if (card.PersistEffectType === 'GCG_PERSIST_EFFECT_PROTEGO') {
-        console.log('  * '+card.NameText);
-      }
-    }
-    console.log('\nStupefy:');
-    for (let card of cards) {
-      if (card.PersistEffectType === 'GCG_PERSIST_EFFECT_STUPEFY') {
-        console.log('  * '+card.NameText);
-      }
-    }
 
     await closeKnex();
   })();

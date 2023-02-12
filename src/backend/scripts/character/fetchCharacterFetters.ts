@@ -99,6 +99,7 @@ export async function fetchCharacterFetters(ctrl: Control): Promise<CharacterFet
         fetter.VoiceTitleLockedTextMap = createLangCodeMap(fetter.VoiceTitleLockedTextMapHash);
       }
       await processFetterConds(ctrl, fetter, 'OpenConds');
+      await processFetterConds(ctrl, fetter, 'FinishConds');
     }
 
     let fetterVos = getAllVoiceItemsOfType('Fetter');

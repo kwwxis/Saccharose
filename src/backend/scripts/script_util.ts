@@ -9,7 +9,7 @@ import SrtParser, { SrtLine } from '../util/srtParser';
 import { promises as fs } from 'fs';
 import { arrayIndexOf, arrayIntersect, arrayUnique, cleanEmpty, pairArrays, sort } from '../../shared/util/arrayUtil';
 import { toInt, toNumber } from '../../shared/util/numberUtil';
-import { normalizeRawJson, schema, SchemaTable } from './importer/import_run';
+import { normalizeRawJson, schema, SchemaTable } from '../importer/import_run';
 import {
   escapeRegExp,
   extractRomanNumeral,
@@ -203,7 +203,7 @@ export class ControlState {
   Request: Request = null;
 
   // Caches:
-  dialogCache:   {[Id: number]: DialogExcelConfigData} = {};
+  dialogueIdCache: Set<number> = new Set();
   npcCache:      {[Id: number]: NpcExcelConfigData}    = {};
   avatarCache:   {[Id: number]: AvatarExcelConfigData} = {};
   bookSuitCache: {[Id: number]: BookSuitExcelConfigData} = {};
@@ -211,7 +211,6 @@ export class ControlState {
   newActivityNameCache: {[Id: number]: string} = {};
 
   // Preferences:
-  DisableDialogueCache: boolean = false;
   DisableNpcCache: boolean = false;
   DisableAvatarCache: boolean = false;
   ExcludeOrphanedDialogue: boolean = false;
@@ -523,7 +522,7 @@ export class Control {
     let consumedQuestMessageIds = [];
 
     const handleOrphanedDialog = async (quest: MainQuestExcelConfigData|QuestExcelConfigData, id: number) => {
-      if (this.state.dialogCache[id])
+      if (this.state.dialogueIdCache.has(id))
         return;
       let dialog = await this.selectSingleDialogExcelConfigData(id as number);
       if (dialog) {
@@ -587,24 +586,20 @@ export class Control {
   }
 
   async selectSingleDialogExcelConfigData(id: number): Promise<DialogExcelConfigData> {
-    if (this.state.dialogCache[id])
-      return this.state.dialogCache[id];
     let result: DialogExcelConfigData = await this.knex.select('*').from('DialogExcelConfigData')
       .where({Id: id}).first().then(this.commonLoadFirst);
     if (!result) {
       return result;
     }
-    this.saveDialogExcelConfigDataToCache(result);
+    this.saveToDialogIdCache(result);
     return result && result.TalkContentText ? result : null;
   }
 
-  saveDialogExcelConfigDataToCache(x: DialogExcelConfigData): void {
-    if (!this.state.DisableDialogueCache) {
-      this.state.dialogCache[x.Id] = x;
-    }
+  saveToDialogIdCache(x: DialogExcelConfigData): void {
+    this.state.dialogueIdCache.add(x.Id);
   }
-  isDialogExcelConfigDataCached(x: number|DialogExcelConfigData): boolean {
-    return !!this.state.dialogCache[typeof x === 'number' ? x : x.Id];
+  isInDialogIdCache(x: number|DialogExcelConfigData): boolean {
+    return this.state.dialogueIdCache.has(typeof x === 'number' ? x : x.Id);
   }
 
   async selectMultipleDialogExcelConfigData(ids: number[]): Promise<DialogExcelConfigData[]> {
@@ -625,10 +620,8 @@ export class Control {
     let results: DialogExcelConfigData[] = await this.knex.select('*').from('DialogExcelConfigData')
       .where({TalkContentTextMapHash: textMapId})
       .then(this.commonLoad);
-    if (!this.state.DisableDialogueCache) {
-      for (let result of results) {
-        this.saveDialogExcelConfigDataToCache(result);
-      }
+    for (let result of results) {
+      this.saveToDialogIdCache(result);
     }
     return results;
   }
@@ -637,17 +630,19 @@ export class Control {
     return dialog.TalkRole.Type === 'TALK_ROLE_PLAYER' && dialog.TalkShowType && dialog.TalkShowType === 'TALK_SHOW_FORCE_SELECT';
   }
 
-  async selectDialogBranch(start: DialogExcelConfigData, dialogSeenAlready: number[] = []): Promise<DialogExcelConfigData[]> {
+  async selectDialogBranch(start: DialogExcelConfigData, dialogSeenAlready?: Set<number>): Promise<DialogExcelConfigData[]> {
     if (!start)
       return [];
+    if (!dialogSeenAlready)
+      dialogSeenAlready = new Set();
     let currBranch: DialogExcelConfigData[] = [];
     let currNode = start;
     while (currNode) {
-      if (dialogSeenAlready.includes(currNode.Id)) {
+      if (dialogSeenAlready.has(currNode.Id)) {
         currBranch.push(this.copyDialogForRecurse(currNode));
         break;
       } else {
-        dialogSeenAlready.push(currNode.Id);
+        dialogSeenAlready.add(currNode.Id);
       }
 
       if (currNode.TalkContentText) {
@@ -660,7 +655,7 @@ export class Control {
         currNode = nextNodes[0];
       } else if (nextNodes.length > 1) {
         // If multiple next nodes -> branching
-        const branches: DialogExcelConfigData[][] = await Promise.all(nextNodes.map(node => this.selectDialogBranch(node, dialogSeenAlready.slice())));
+        const branches: DialogExcelConfigData[][] = await Promise.all(nextNodes.map(node => this.selectDialogBranch(node, new Set(dialogSeenAlready))));
         //console.log('Branches:', branches.map(b => b[0]));
         const intersect = arrayIntersect<DialogExcelConfigData>(branches, this.IdComparator).filter(x => x.TalkRole.Type !== 'TALK_ROLE_PLAYER'); // do not rejoin on a player talk
         //console.log('Intersect:', intersect.length ? intersect[0] : null);
@@ -1558,7 +1553,6 @@ export class Control {
       ret.ContentResults = await localizations.asyncMap(async localization => {
         let view = await this.selectReadableViewByLocalizationId(localization.Id, true);
         if (!view) {
-          console.log(localization);
           return;
         }
         for (let item of view.Items) {

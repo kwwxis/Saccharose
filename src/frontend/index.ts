@@ -23,3 +23,6 @@ import './pages/character/vo-tool';
 
 import { escapeHtml } from '../shared/util/stringUtil';
 (<any> window).escapeHtml = escapeHtml;
+
+import JSON5 from 'json5';
+(<any> window).JSON5 = JSON5;

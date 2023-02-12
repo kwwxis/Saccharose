@@ -2,8 +2,8 @@ import { create, Request, Response, Router } from '../../util/router';
 import { reminderGenerateAll } from '../../scripts/dialogue/reminder_generator';
 import { getControl } from '../../scripts/script_util';
 import { toInt } from '../../../shared/util/numberUtil';
-import { orderChapterQuests } from '../../scripts/misc/orderChapterQuests';
-import { ol_gen_from_id } from '../../scripts/OLgen/OLgen';
+import { ol_gen_from_id } from '../../scripts/basic/OLgen';
+import { orderChapterQuests } from '../../scripts/dialogue/dialogue_util';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
