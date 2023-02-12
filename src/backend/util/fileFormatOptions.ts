@@ -33,6 +33,11 @@ export function evaluateCustomFormat(obj: Object, parentNode: MwParentNode): str
         const thenParam = node.getParam(2) || node.getParam('then');
         const elseParam = node.getParam(3) || node.getParam('else');
 
+        if (!cond) {
+          out += node.toString();
+          continue;
+        }
+
         if (thenParam) {
           thenParam.parts.unshift(thenParam.beforeValueWhitespace);
           const tmp = node.parts[node.parts.indexOf(thenParam) + 1];
@@ -145,9 +150,9 @@ export function evaluateCustomFormat(obj: Object, parentNode: MwParentNode): str
               break;
           }
           if (condResult) {
-            out += evaluateCustomFormat(obj, thenParam);
+            out += !thenParam ? '' : evaluateCustomFormat(obj, thenParam);
           } else {
-            out += evaluateCustomFormat(obj, elseParam);
+            out += !elseParam ? '' : evaluateCustomFormat(obj, elseParam);
           }
         }
       } else {

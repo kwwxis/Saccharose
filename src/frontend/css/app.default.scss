@@ -186,6 +186,9 @@ aside {
 .info-notice {
   background: #eff8ff;
   padding: 7px 10px;
+  body.nightmode & {
+    background: hsl(206deg 33% 31% / 20%);
+  }
 }
 
 .error-notice {

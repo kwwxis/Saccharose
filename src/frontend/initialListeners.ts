@@ -573,7 +573,7 @@ const initial_listeners: Listener[] = [
         <p class="info-notice spacer20-top">Parameters must be in curly braces, for example:<br/><code>{NameText.EN} Map Location.png</code></p>
         <p class="info-notice spacer5-top">
           <strong>English wiki format for <code>${escapeHtml(paramName)}</code>:</strong><br />
-          <textarea class="code autosize w100p" readonly>${escapeHtml(fileFormatDefault)}</textarea>
+          <textarea class="code autosize w100p" readonly style="background:transparent">${escapeHtml(fileFormatDefault)}</textarea>
         </p>
         <fieldset class="spacer5-top">
           <legend>Available parameters:</legend>
@@ -603,7 +603,7 @@ const initial_listeners: Listener[] = [
             <br />
             <code class="dispBlock">{{If|&lt;condition&gt;|&lt;then value&gt;|&lt;else value&gt;}}</code>
             <code class="dispBlock spacer20-left">condition = "&lt;left-param&gt; &lt;operator&gt; &lt;right-param&gt;"</code>
-            <code class="dispBlock spacer20-left">op = "=" | "!=" | "&lt;=" | "&gt;=" | "&lt;" | "&gt;" | "*=" | "^=" | "$=" | "~"</code>
+            <code class="dispBlock spacer20-left">operator = "=" | "!=" | "&lt;=" | "&gt;=" | "&lt;" | "&gt;" | "*=" | "^=" | "$=" | "~"</code>
             <br />
             
             <p>The <code>left-param</code> and <code>right-param</code> are evaluated the same as the top-level format,
