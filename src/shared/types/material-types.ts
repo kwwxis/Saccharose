@@ -9,6 +9,7 @@ export interface RewardSummary {
   MoraCount: string,
   PrimogemCount: string,
   OtherCards: string,
+  CombinedStrings: string,
   CombinedCards: string,
   QuestForm: string,
 }

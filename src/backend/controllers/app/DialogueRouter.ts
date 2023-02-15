@@ -8,7 +8,6 @@ import { orderChapterQuests } from '../../scripts/dialogue/dialogue_util';
 export default async function(): Promise<Router> {
   const router: Router = create();
 
-
   router.get('/vo-to-dialogue', async (req: Request, res: Response) => {
     res.render('pages/dialogue/vo-to-dialogue', {
       title: 'VO to Dialogue',

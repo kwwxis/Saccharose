@@ -216,6 +216,13 @@ export interface GCGBossLevelExcelConfigData {
   UnlockTipText: string,
 }
 
+export interface GCGQuestLevelExcelConfigData {
+  LevelId: number,
+  QuestId: number,
+  Quest?: QuestExcelConfigData,
+  MainQuest?: MainQuestExcelConfigData,
+}
+
 export interface GCGWorldLevelExcelConfigData {
   Id: number,
   NpcId: number,
@@ -298,13 +305,6 @@ export interface GCGLevelLockExcelConfigData {
 export interface GcgOtherLevelExcelConfigData {
   LevelId: number,
   TalkId: number[],
-}
-
-export interface GCGQuestLevelExcelConfigData {
-  LevelId: number,
-  QuestId: number,
-  Quest?: QuestExcelConfigData,
-  MainQuest?: MainQuestExcelConfigData,
 }
 
 // GCG REWARD
@@ -615,7 +615,7 @@ export interface GCGDeckExcelConfigData {
   CardList: number[],
   MappedCardList: GCGCardExcelConfigData[], // action
 
-  WaitingCharacterList: { Id: number, CondCount: number }[], // reserve TODO
+  WaitingCharacterList: { Id: number, CondCount: number }[], // reserve
   MappedWaitingCharacterList: GCGCharExcelConfigData[],
 
   InitHpList: never,
@@ -647,17 +647,18 @@ export interface GCGDeckCardExcelConfigData {
   SourceText: string,
 }
 
+export interface GCGProficiencyRewardExcelConfigData {
+  CardId: number,
+  ProficiencyRewardList: { Proficiency: number, RewardId: number, Reward: RewardExcelConfigData }[],
+}
+
+// idk:
 export interface GCGDeckStorageExcelConfigData {
   Id: number,
   SourceTextMapHash: number,
   SourceText: string,
   UnlockCond: string,
   UnlockParam: number,
-}
-
-export interface GCGProficiencyRewardExcelConfigData {
-  CardId: number,
-  ProficiencyRewardList: { Proficiency: number, RewardId: number, Reward: RewardExcelConfigData }[],
 }
 
 // "Card Box" items, e.g. [[Liyue_(Card_Box)]]
@@ -699,6 +700,7 @@ export interface GCGDeckBackExcelConfigData {
   BDFNKMJCNBF: string,
 }
 
+// idk:
 export interface GCGDeckFaceLinkExcelConfigData {
   CardId: number,
   DeckCardId: number,

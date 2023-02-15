@@ -24,6 +24,25 @@ export default async function(): Promise<Router> {
     });
   });
 
+  // TODO: rules page
+
+
+  router.get('/TCG/stages/:stageId', async (req: Request, res: Response) => {
+    const ctrl = getControl(req);
+    const gcgCtrl = getGCGControl(ctrl);
+    const stage = await gcgCtrl.selectStage(req.params.stageId);
+
+    let title = stage.EnemyNameText || String(stage.Id);
+    if (stage?.Reward?.LevelNameText) {
+      title += '/' + stage.Reward.LevelNameText
+    }
+
+    res.render('pages/gcg/gcg-stage', {
+      title: title + ' | TCG Stage',
+      stage: stage,
+      bodyClass: ['page--tcg-stage']
+    });
+  });
 
   return router;
 }

@@ -1,9 +1,16 @@
 <div class="dialogue-container">
   <% if (!!id) { %>
     <section class="card">
-      <h2><%= type %>: <strong><%= id %></strong></h2>
+      <h2 class="valign">
+        <span><%= type %>:</span>&nbsp;<strong><%= id %></strong>
+        <div class="grow"></div>
+        <button class="secondary" ui-action="copy: #wikitext"
+                ui-tippy-hover="Click to copy to clipboard"
+                ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
+                style="margin:-5px 0">Copy</button>
+      </h2>
       <div class="dialogue-section content">
-        <textarea readonly class="w100p wikitext autosize" spellcheck="false"><%= text %></textarea>
+        <textarea id="wikitext" readonly class="w100p wikitext autosize" spellcheck="false"><%= text %></textarea>
       </div>
     </section>
   <% } %>

@@ -160,7 +160,7 @@ export const normText = (text: string, langCode: LangCode = 'EN', decolor: boole
 
   text = text.replace(/\\"/g, '"');
   text = text.replace(/\r/g, '');
-  text = text.replace(/\\?\\n|\n/g, '<br />').replace(/<br \/><br \/>/g, '\n\n');
+  text = text.replace(/\\?\\n|\\\n|\n/g, '<br />').replace(/<br \/><br \/>/g, '\n\n');
   text = text.replace(/#\{REALNAME\[ID\(1\)(\|HOSTONLY\(true\))?]}/g, '(Wanderer)');
 
   if (text.includes('RUBY#[S]')) {
@@ -1397,11 +1397,15 @@ export class Control {
     }
 
     reward.RewardSummary = {
+      // Split:
       ExpCount: '',
       MoraCount: '',
       PrimogemCount: '',
-      CombinedCards: '',
       OtherCards: '',
+
+      // All:
+      CombinedStrings: '',
+      CombinedCards: '',
       QuestForm: '',
     };
 
@@ -1412,6 +1416,7 @@ export class Control {
 
       let countForm = (item.ItemCount || 1).toLocaleString('en-US');
       let cardForm = `{{Card|${item.Material.NameText}|${countForm}}}`;
+      let stringForm = `${item.Material.NameText}*${countForm}`;
 
       if (item.ItemId === ADVENTURE_EXP_ID) {
         reward.RewardSummary.ExpCount = countForm;
@@ -1424,6 +1429,7 @@ export class Control {
       }
 
       reward.RewardSummary.CombinedCards += cardForm;
+      reward.RewardSummary.CombinedStrings += (reward.RewardSummary.CombinedStrings.length ? ';' : '') + stringForm;
     }
 
     reward.RewardSummary.QuestForm =
