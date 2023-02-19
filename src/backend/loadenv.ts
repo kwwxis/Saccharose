@@ -21,6 +21,7 @@ export const EJS_DELIMITER = '%';
 export const DATAFILE_SQLITE_DB = './genshin_data.db';
 export const DATAFILE_VOICE_ITEMS = './voiceItemsNormalized.json';
 export const getTextMapRelPath = (langCode: LangCode): string => './TextMap/TextMap'+langCode+'.json';
+export const getPlainTextMapRelPath = (langCode: LangCode): string => './TextMap/Plain/PlainTextMap'+langCode+'.json';
 export const getReadableTitleMapRelPath = (langCode: LangCode): string => './Readable/TitleMap/ReadableTitleMap'+langCode+'.json';
 export const getReadableRelPath = (langCode: LangCode): string => './Readable/'+langCode;
 

@@ -48,8 +48,14 @@ import {
   HomeWorldFurnitureTypeExcelConfigData,
   HomeWorldNPCExcelConfigData,
 } from '../../shared/types/homeworld-types';
-import { grep, grepIdStartsWith, grepStream, normJsonGrep, normJsonGrepCmp } from '../util/shellutil';
-import { getGenshinDataFilePath, getReadableRelPath, getReadableTitleMapRelPath, getTextMapRelPath } from '../loadenv';
+import { grep, grepIdStartsWith, grepStream } from '../util/shellutil';
+import {
+  getGenshinDataFilePath,
+  getPlainTextMapRelPath,
+  getReadableRelPath,
+  getReadableTitleMapRelPath,
+  getTextMapRelPath,
+} from '../loadenv';
 import {
   BooksCodexExcelConfigData,
   BookSuitExcelConfigData,
@@ -97,21 +103,21 @@ export const convertRubi = (text: string) => {
   return parts.join('');
 }
 
-export const travelerPlaceholder = (langCode: LangCode = 'EN') => {
+export const travelerPlaceholder = (langCode: LangCode = 'EN', plaintext: boolean = false) => {
   switch (langCode) {
     case 'CH': return '(旅行者)';
     case 'CHS': return '(旅行者)';
     case 'CHT': return '(旅行者)';
-    case 'DE': return '{{MC|m=Reisender|f=Reisende}}';
+    case 'DE': return plaintext ? '(Reisender/Reisende)' : '{{MC|m=Reisender|f=Reisende}}';
     case 'EN': return '(Traveler)';
-    case 'ES': return '{{MC|m=Viajero|f=Viajera}}';
-    case 'FR': return '{{MC|m=Voyageur|f=Voyageuse}}'
+    case 'ES': return plaintext ? '(Viajero/Viajera)' : '{{MC|m=Viajero|f=Viajera}}';
+    case 'FR': return plaintext ? '(Voyageur/Voyageuse)' : '{{MC|m=Voyageur|f=Voyageuse}}'
     case 'ID': return '(Pengembara)';
-    case 'IT': return '{{MC|m=Viaggiatore|f=Viaggiatrice}}';
+    case 'IT': return plaintext ? '(Viaggiatore/Viaggiatrice)' : '{{MC|m=Viaggiatore|f=Viaggiatrice}}';
     case 'JP': return '(旅人)';
     case 'KR': return '(여행자)';
     case 'PT': return '(Viajante)';
-    case 'RU': return '{{MC|m=Путешественник|f=Путешественница}}';
+    case 'RU': return plaintext ? '(Путешественник/Путешественница)' : '{{MC|m=Путешественник|f=Путешественница}}';
     case 'TH': return '(นักเดินทาง)';
     case 'TR': return '(Gezgin)';
     case 'VI': return '(Nhà Lữ Hành)';
@@ -119,48 +125,44 @@ export const travelerPlaceholder = (langCode: LangCode = 'EN') => {
   return '(Traveler)';
 }
 
-export const normDecolor = (text: string): string => {
-  text = text.replace(/<color=#[^>]+>([^<]+)<\/color>/g, '$1');
-  return text;
-}
-
 const languagesWithoutSpaceDelimitedWords: Set<LangCode> = new Set<LangCode>(['CH', 'CHS', 'CHT', 'JP', 'TH']);
 
 export type IdUsages = {[fileName: string]: {field: string, lineNumber: number, refObject?: any}[]};
 
-export const normText = (text: string, langCode: LangCode = 'EN', decolor: boolean = false): string => {
+export const normText = (text: string, langCode: LangCode = 'EN', decolor: boolean = false, plaintext: boolean = false): string => {
   if (!text) {
     return text;
   }
-  text = text.replace(/—/g, '&mdash;').trim();
-  text = text.replace(/{NICKNAME}/g, travelerPlaceholder(langCode));
-  text = text.replace(/{NON_BREAK_SPACE}/g, '&nbsp;');
-  text = text.replace(/{F#([^}]*)}{M#([^}]*)}/g, '{{MC|m=$2|f=$1}}');
-  text = text.replace(/{M#([^}]*)}{F#([^}]*)}/g, '{{MC|m=$1|f=$2}}');
+  text = text.replace(/—/g, plaintext ? '-' : '&mdash;').trim();
+  text = text.replace(/{NICKNAME}/g, travelerPlaceholder(langCode, plaintext));
+  text = text.replace(/{NON_BREAK_SPACE}/g, plaintext ? ' ' : '&nbsp;');
+  text = text.replace(/{F#([^}]*)}{M#([^}]*)}/g, plaintext ? '($2/$1)' : '{{MC|m=$2|f=$1}}');
+  text = text.replace(/{M#([^}]*)}{F#([^}]*)}/g, plaintext ? '($1/$2)' : '{{MC|m=$1|f=$2}}');
+  text = text.replace(/<size=[^>]+>(.*?)<\/size>/gs, '$1');
 
-  if (decolor) {
-    text = normDecolor(text);
+  if (decolor || plaintext) {
+    text = text.replace(/<color=#[^>]+>(.*?)<\/color>/gs, '$1');
   } else {
-    text = text.replace(/<color=#00E1FFFF>([^<]+)<\/color>/g, '{{color|buzzword|$1}}');
-    text = text.replace(/<color=#FFCC33FF>([^<]+)<\/color>/g, '{{color|help|$1}}');
+    text = text.replace(/<color=#00E1FFFF>(.*?)<\/color>/g, '{{color|buzzword|$1}}');
+    text = text.replace(/<color=#FFCC33FF>(.*?)<\/color>/g, '{{color|help|$1}}');
 
-    text = text.replace(/<color=#FFACFFFF>([^<]+)<\/color>/g, '{{Electro|$1}}');
-    text = text.replace(/<color=#99FFFFFF>([^<]+)<\/color>/g, '{{Cryo|$1}}');
-    text = text.replace(/<color=#80C0FFFF>([^<]+)<\/color>/g, '{{Hydro|$1}}');
-    text = text.replace(/<color=#FF9999FF>([^<]+)<\/color>/g, '{{Pyro|$1}}');
-    text = text.replace(/<color=#99FF88FF>([^<]+)<\/color>/g, '{{Dendro|$1}}');
-    text = text.replace(/<color=#80FFD7FF>([^<]+)<\/color>/g, '{{Anemo|$1}}');
-    text = text.replace(/<color=#FFE699FF>([^<]+)<\/color>/g, '{{Geo|$1}}');
+    text = text.replace(/<color=#FFACFFFF>(.*?)<\/color>/g, '{{Electro|$1}}');
+    text = text.replace(/<color=#99FFFFFF>(.*?)<\/color>/g, '{{Cryo|$1}}');
+    text = text.replace(/<color=#80C0FFFF>(.*?)<\/color>/g, '{{Hydro|$1}}');
+    text = text.replace(/<color=#FF9999FF>(.*?)<\/color>/g, '{{Pyro|$1}}');
+    text = text.replace(/<color=#99FF88FF>(.*?)<\/color>/g, '{{Dendro|$1}}');
+    text = text.replace(/<color=#80FFD7FF>(.*?)<\/color>/g, '{{Anemo|$1}}');
+    text = text.replace(/<color=#FFE699FF>(.*?)<\/color>/g, '{{Geo|$1}}');
 
-    text = text.replace(/<color=#FFE14BFF>([^<]+)<\/color>/g, '{{color|help|$1}}');
+    text = text.replace(/<color=#FFE14BFF>(.*?)<\/color>/g, '{{color|help|$1}}');
 
-    text = text.replace(/<color=#37FFFF>([^<]+) ?<\/color>/g, "'''$1'''");
-    text = text.replace(/<color=(#[0-9a-fA-F]{6})FF>([^<]+)<\/color>/g, '{{color|$1|$2}}');
+    text = text.replace(/<color=#37FFFF>(.*?) ?<\/color>/g, "'''$1'''");
+    text = text.replace(/<color=(#[0-9a-fA-F]{6})FF>(.*?)<\/color>/g, '{{color|$1|$2}}');
   }
 
   text = text.replace(/\\"/g, '"');
   text = text.replace(/\r/g, '');
-  text = text.replace(/\\?\\n|\\\n|\n/g, '<br />').replace(/<br \/><br \/>/g, '\n\n');
+  text = text.replace(/\\?\\n|\\\n|\n/g, plaintext ? '\n' : '<br />').replace(/<br \/><br \/>/g, '\n\n');
   text = text.replace(/#\{REALNAME\[ID\(1\)(\|HOSTONLY\(true\))?]}/g, '(Wanderer)');
 
   if (text.includes('RUBY#[S]')) {
@@ -176,7 +178,11 @@ export const normText = (text: string, langCode: LangCode = 'EN', decolor: boole
       if (!g1 && !g4) {
         return fm;
       }
-      return `{{MC|m=${g1}${g2}${g4}|f=${g1}${g3}${g4}}}`;
+      if (plaintext) {
+        return `(${g1}${g2}${g4}/${g1}${g3}${g4})`;
+      } else {
+        return `{{MC|m=${g1}${g2}${g4}|f=${g1}${g3}${g4}}}`;
+      }
     });
   }
 
@@ -768,13 +774,14 @@ export class Control {
       // ~~~~~~~~~~~~~~~
 
       if (text.includes('SEXPRO')) {
-        text = await replaceAsync(text, /\{PLAYERAVATAR#SEXPRO\[(.*)\|(.*)]}/g, async (_fullMatch, g1, g2) => {
+        text = await replaceAsync(text, /\{(MATEAVATAR|PLAYERAVATAR)#SEXPRO\[(.*?)\|(.*?)]}/g, async (_fullMatch, g0, g1, g2) => {
           let g1e = await this.selectManualTextMapConfigDataById(g1);
           let g2e = await this.selectManualTextMapConfigDataById(g2);
+          let extraParam = g0 === 'MATEAVATAR' ? '|mc=1' : '';
           if (g1.includes('FEMALE')) {
-            return `{{MC|m=${g2e.TextMapContentText}|f=${g1e.TextMapContentText}}}`;
+            return `{{MC|m=${g2e.TextMapContentText}|f=${g1e.TextMapContentText}${extraParam}}`;
           } else {
-            return `{{MC|m=${g1e.TextMapContentText}|f=${g2e.TextMapContentText}}}`;
+            return `{{MC|m=${g1e.TextMapContentText}|f=${g2e.TextMapContentText}${extraParam}}}`;
           }
         });
       }
@@ -962,11 +969,12 @@ export class Control {
     if (isStringBlank(searchText)) {
       return {};
     }
-    let lines = await grep(searchText, getTextMapRelPath(langCode), flags);
+    let lines = await grep(searchText, getPlainTextMapRelPath(langCode), flags);
     let out = {};
     for (let line of lines) {
       let parts = /^"(\d+)":\s+"(.*)",?$/.exec(line);
-      out[parts[1]] = normJsonGrep(parts[2]);
+      let textMapId = toInt(parts[1]);
+      out[textMapId] = getTextMapItem(langCode, textMapId);
     }
     return out;
   }
@@ -992,33 +1000,37 @@ export class Control {
     if (isStringBlank(searchText)) {
       return 0;
     }
-    return await grepStream(searchText, getTextMapRelPath(langCode), (line: string, kill: () => void) => {
+    return await grepStream(searchText, getPlainTextMapRelPath(langCode), (line: string, kill: () => void) => {
       if (!line)
         return;
       let parts = /^"(\d+)":\s+"(.*)",?$/.exec(line.trim());
       if (!parts)
         return;
       let textMapId = toInt(parts[1]);
-      let text = normJsonGrep(parts[2]);
+      let text = getTextMapItem(langCode, textMapId);
       stream(textMapId, text, kill);
     }, flags);
   }
 
   async findTextMapIdsByExactName(name: string): Promise<number[]> {
     let results = [];
+    
+    const cmp = (a: string, b: string) => {
+      return normText(a, this.inputLangCode, true, true)?.toLowerCase() ===
+        normText(b, this.inputLangCode, true, true)?.toLowerCase();
+    }
 
     await this.streamTextMapMatches(this.inputLangCode, name, (id: number, value: string) => {
-      if (normJsonGrepCmp(normDecolor(value), name)) {
+      if (cmp(value, name)) {
         results.push(id);
       }
     }, '-wi');
-
 
     if (!results.length) {
       let searchRegex = escapeRegExp(name).split(/\s+/g).join('.*?').split(/(')/g).join('.*?');
 
       await this.streamTextMapMatches(this.inputLangCode, searchRegex, (id: number, value: string) => {
-        if (normJsonGrepCmp(normDecolor(value), name)) {
+        if (cmp(value, name)) {
           results.push(id);
         }
       }, '-Pi');
@@ -1534,7 +1546,8 @@ export class Control {
     let out = {};
     for (let line of lines) {
       let parts = /^"(\d+)":\s+"(.*)",?$/.exec(line);
-      out[parts[1]] = normJsonGrep(parts[2]);
+      let textMapId = toInt(parts[1]);
+      out[textMapId] = getTextMapItem(langCode, textMapId);
     }
     return out;
   }

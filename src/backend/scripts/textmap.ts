@@ -42,6 +42,9 @@ export async function loadTextMaps(filterLangCodes?: string[]): Promise<void> {
 }
 
 export function getFullTextMap(langCode: LangCode): {[id: string]: string} {
+  if (langCode === 'CH') {
+    langCode = 'CHS';
+  }
   return TextMap[langCode];
 }
 
