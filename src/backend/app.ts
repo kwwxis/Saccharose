@@ -81,10 +81,15 @@ export async function appInit(): Promise<Express> {
 
   // Middleware for logging
   // ~~~~~~~~~~~~~~~~~~~~~~
-  app.use(morgan('dev', {
+  const skipRegex: RegExp = /\.css|\.js|\.png|\.svg|\.ico|\.jpg|\.woff|\.env/g;
+
+  morgan.token('date', function(){
+    return new Date().toLocaleString('en-US', {timeZone: 'America/Los_Angeles'});
+  });
+
+  app.use(morgan('[:date[web] PST] :method :url :status :response-time ms - :res[content-length]', {
     skip: function(req: Request, res: Response) {
-      return res.statusCode === 304 || req.url.includes('.css') || req.url.includes('.js')
-        || req.url.includes('.png') || req.url.includes('.svg') || req.url.includes('.ico') || req.url.includes('.woff');
+      return res.statusCode === 304 || skipRegex.test(req.url);
     }
   }));
 
