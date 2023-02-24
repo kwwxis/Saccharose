@@ -1,4 +1,6 @@
-
+<div class="card result-count-card">
+  <h2>Total Results: <span><%= Object.keys(idToUsages).length %></span></h2>
+</div>
 <% Object.keys(idToUsages).forEach(id => { %>
   <section class="card">
     <h2>ID: <strong><%= id %></strong></h2>
