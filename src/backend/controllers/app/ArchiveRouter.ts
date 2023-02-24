@@ -5,14 +5,19 @@ import { ol_gen_from_id } from '../../scripts/basic/OLgen';
 import {
   selectViewpoints, VIEWPOINT_DEFAULT_FILE_FORMAT_IMAGE, VIEWPOINT_DEFAULT_FILE_FORMAT_MAP,
   VIEWPOINT_FILE_FORMAT_PARAMS,
-  ViewpointsByRegion,
-} from '../../scripts/item/viewpoints';
+
+} from '../../scripts/archive/viewpoints';
 import {
   selectTutorials,
   TUTORIAL_FILE_FORMAT_PARAMS,
   TUTORIAL_DEFAULT_FILE_FORMAT_IMAGE,
-  TutorialsByType,
-} from '../../scripts/item/tutorials';
+
+} from '../../scripts/archive/tutorials';
+import { TutorialsByType } from '../../../shared/types/tutorial-types';
+import { ViewpointsByRegion } from '../../../shared/types/viewpoint-types';
+import { selectAchievements } from '../../scripts/archive/achievements';
+import { AchievementsByGoals } from '../../../shared/types/achievement-types';
+import { sort } from '../../../shared/util/arrayUtil';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -20,7 +25,7 @@ export default async function(): Promise<Router> {
   router.get('/viewpoints', async (req: Request, res: Response) => {
     let viewpointsList: ViewpointsByRegion = await selectViewpoints(getControl(req));
     delete viewpointsList['then'];
-    res.render('pages/item/viewpoints', {
+    res.render('pages/archive/viewpoints', {
       title: 'Viewpoints',
       bodyClass: ['page--viewpoints'],
       viewpointsList,
@@ -33,7 +38,7 @@ export default async function(): Promise<Router> {
   router.get('/tutorials', async (req: Request, res: Response) => {
     let tutorialsList: TutorialsByType = await selectTutorials(getControl(req));
     delete tutorialsList['then'];
-    res.render('pages/item/tutorials', {
+    res.render('pages/archive/tutorials', {
       title: 'Tutorials',
       bodyClass: ['page--tutorials'],
       tutorialsList,
@@ -42,11 +47,21 @@ export default async function(): Promise<Router> {
     });
   });
 
+  router.get('/achievements', async (req: Request, res: Response) => {
+    let achievements: AchievementsByGoals = await selectAchievements(getControl(req));
+    res.render('pages/archive/achievements', {
+      title: 'Achievements',
+      bodyClass: ['page--achievements'],
+      achievements,
+      goals: sort(Object.values(achievements).map(a => a.Goal), 'OrderId')
+    });
+  });
+
   router.get('/readables', async (req: Request, res: Response) => {
     const ctrl = getControl(req);
     const archive = await ctrl.selectReadableArchiveView();
 
-    res.render('pages/item/readables', {
+    res.render('pages/archive/readables', {
       title: 'Books & Readables',
       archive: archive,
       bodyClass: ['pages-readables', 'page--readables-list']
@@ -54,7 +69,7 @@ export default async function(): Promise<Router> {
   });
 
   router.get('/readables/search', async (req: Request, res: Response) => {
-    res.render('pages/item/readables-search', {
+    res.render('pages/archive/readables-search', {
       title: 'Search Books & Readables',
       bodyClass: ['page--readables-search']
     });
@@ -75,7 +90,7 @@ export default async function(): Promise<Router> {
     }
     infobox += '\n}}';
 
-    res.render('pages/item/readable-collection', {
+    res.render('pages/archive/readable-collection', {
       title: collection.SuitNameText,
       collection: collection,
       infobox,
@@ -88,7 +103,7 @@ export default async function(): Promise<Router> {
     const ctrl = getControl(req);
     const readable: ReadableView = await ctrl.selectReadableView(req.params.itemId);
 
-    res.render('pages/item/readable-item', {
+    res.render('pages/archive/readable-item', {
       title: readable.TitleText,
       readable: readable,
       ol: await ol_gen_from_id(ctrl, readable.TitleTextMapHash),

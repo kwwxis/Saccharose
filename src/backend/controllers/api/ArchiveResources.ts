@@ -11,7 +11,7 @@ router.restful('/readables/search', {
     let readableSearchView: ReadableSearchView = await ctrl.searchReadableView(<string> req.query.text);
 
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
-      return res.render('partials/item/readable-search-results', {
+      return res.render('partials/archive/readable-search-results', {
         searchView: readableSearchView,
         searchText: <string> req.query.text
       });

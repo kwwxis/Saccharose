@@ -4,7 +4,7 @@ import { toBoolean } from '../../shared/util/genericUtil';
 import { getControl, normText } from '../scripts/script_util';
 import BasicRouter from './app/BasicRouter';
 import DialogueRouter from './app/DialogueRouter';
-import ItemRouter from './app/ItemRouter';
+import ItemRouter from './app/ArchiveRouter';
 import CharacterRouter from './app/CharacterRouter';
 import TcgRouter from './app/TcgRouter';
 

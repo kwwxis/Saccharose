@@ -11,12 +11,12 @@ import ora from 'ora';
 import { pathToFileURL } from 'url';
 import { ReliquaryCodexExcelConfigData, ReliquaryExcelConfigData } from '../../shared/types/artifact-types';
 import { WeaponCodexExcelConfigData, WeaponExcelConfigData } from '../../shared/types/weapon-types';
-import { AchievementExcelConfigData, AchievementGoalExcelConfigData } from '../../shared/types/general-types';
 import { AvatarFlycloakExcelConfigData } from '../../shared/types/avatar-types';
 import chalk from 'chalk';
 import { GCGCharacterLevelExcelConfigData, GCGRuleExcelConfigData } from '../../shared/types/gcg-types';
 import { resolveObjectPath } from '../../shared/util/arrayUtil';
 import { ucFirst } from '../../shared/util/stringUtil';
+import { AchievementExcelConfigData, AchievementGoalExcelConfigData } from '../../shared/types/achievement-types';
 
 export type SchemaTable = {
   name: string,

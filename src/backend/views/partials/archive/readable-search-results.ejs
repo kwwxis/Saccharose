@@ -25,7 +25,7 @@
           <img class="icon x32" src="/images/genshin/<%= readableView?.Icon %>.png" loading="lazy" />
           <span class="spacer10-left"><%= readableView?.TitleText %></span>
         </a>
-        <%- include('partials/item/readable-items', {readable: readableView, itemIdPrefix: idx}) %>
+        <%- include('partials/archive/readable-items', {readable: readableView, itemIdPrefix: idx}) %>
       </div>
     </section>
   <% }) %>

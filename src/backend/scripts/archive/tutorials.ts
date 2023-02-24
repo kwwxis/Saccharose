@@ -1,14 +1,21 @@
 import '../../loadenv';
-import {Control, getControl, normText} from "../script_util";
+import { Control, getControl, normText } from '../script_util';
 import { pathToFileURL } from 'url';
 import { loadEnglishTextMap } from '../textmap';
 import util from 'util';
 import { closeKnex } from '../../util/db';
 import { defaultMap } from '../../../shared/util/genericUtil';
 import { fileFormatOptionsApply, fileFormatOptionsCheck } from '../../util/fileFormatOptions';
+import {
+  PushTipsCodexExcelConfigData,
+  PushTipsCodexType,
+  PushTipsConfigData,
+  TutorialDetailExcelConfigData,
+  TutorialExcelConfigData,
+  TutorialsByType,
+} from '../../../shared/types/tutorial-types';
 
-export type PushTipsCodexType = 'CODEX_ADVENTURE' | 'CODEX_ARANARA' | 'CODEX_ELEMENT' | 'CODEX_ENEMY' | 'CODEX_SYSTEM' | 'CODEX_UNRECORDED';
-function pushTipCodexTypeName(type: PushTipsCodexType) {
+function pushTipCodexTypeName(type: PushTipsCodexType): string {
   switch (type) {
     case 'CODEX_ADVENTURE':
       return 'Adventure';
@@ -28,32 +35,6 @@ function pushTipCodexTypeName(type: PushTipsCodexType) {
 }
 function pushTipsIcon(iconName: string) {
   return 'Icon Tutorial '+iconName.split('_').pop() + '.png';
-}
-
-export interface PushTipsConfigData {
-  PushTipsId: number,
-  TutorialId: number,
-  RewardId: number,
-
-  PushTipsType: 'PUSH_TIPS_MONSTER' | 'PUSH_TIPS_TUTORIAL',
-  CodexType?: PushTipsCodexType,
-
-  TitleTextMapHash: number,
-  SubtitleTextMapHash: number,
-  TitleText: string,
-  SubtitleText: string,
-
-  ShowImmediately: boolean,
-  GroupId: number,
-  ShowIcon?: string,
-  TabIcon: string,
-
-  Codex?: PushTipsCodexExcelConfigData,
-}
-export interface PushTipsCodexExcelConfigData {
-  Id: number,
-  PushTipId: number,
-  SortOrder: number,
 }
 
 export const TUTORIAL_FILE_FORMAT_PARAMS: string[] = [
@@ -80,33 +61,6 @@ export const TUTORIAL_FILE_FORMAT_PARAMS: string[] = [
   'CurrentDetail.DescriptTextMapHash',
   'CurrentDetail.DescriptText'
 ];
-
-export interface TutorialExcelConfigData {
-  Id: number,
-  DetailIdList: number[],
-  MobileDetailIdList: number[],
-  JoypadDetailIdList: number[],
-  PauseGame: boolean,
-  IsMultiPlatform: boolean,
-
-  DetailList?: TutorialDetailExcelConfigData[],
-  PushTip?: PushTipsConfigData,
-  Wikitext?: string,
-}
-export interface TutorialCatalogExcelConfigData {
-  Id: number,
-  PushTipsId: number,
-  TitleTextMapHash: number,
-  TitleText: string,
-}
-export interface TutorialDetailExcelConfigData {
-  Id: number,
-  ImageNameList: string[],
-  DescriptTextMapHash: number,
-  DescriptText: string,
-}
-
-export type TutorialsByType = {[type: string]: TutorialExcelConfigData[]};
 
 export const TUTORIAL_DEFAULT_FILE_FORMAT_IMAGE = 'Tutorial {PushTip.TitleText.EN}{{If|DetailCount > 1| {CurrentDetail.Index1based}|}}.png';
 

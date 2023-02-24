@@ -1455,8 +1455,8 @@ export class Control {
 
   async selectCityNameById(cityId: number): Promise<string> {
     let textMapHash: number = await this.knex.select('CityNameTextMapHash')
-      .from('CityConfigData').where({CityId: cityId}).first().then(x => x.CityNameTextMapHash);
-    return getTextMapItem(this.outputLangCode, textMapHash);
+      .from('CityConfigData').where({CityId: cityId}).first().then(x => x && x.CityNameTextMapHash);
+    return textMapHash ? getTextMapItem(this.outputLangCode, textMapHash) : 'n/a';
   }
 
   async selectReputationQuestExcelConfigData(parentQuestId: number): Promise<ReputationQuestExcelConfigData> {

@@ -5,7 +5,10 @@
       <legend>Section Jump</legend>
       <div class="content alignStart flexWrap" style="padding-top:0;">
         <% for (let typeName of Object.keys(tutorialsList)) { %>
-          <div class="w25p"><a role="button" class="spacer5-all secondary dispBlock textAlignLeft" href="#<%= typeName.replace(' ', '_') %>"><%= typeName %></a></div>
+          <div class="w25p">
+            <a role="button" class="spacer5-all secondary dispBlock textAlignLeft"
+               href="#<%= typeName.replace(' ', '_') %>"><%= typeName %></a>
+          </div>
         <% } %>
       </div>
     </fieldset>

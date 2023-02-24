@@ -215,7 +215,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     // ]);
     // await inspectGenshinDataFile(ctrl, './ExcelBinOutput/ReliquaryExcelConfigData.json', ['EquipType', 'ItemType', 'DestroyRule']);
     //await inspectGenshinDataFile(ctrl, './ExcelBinOutput/WeaponExcelConfigData.json', ['WeaponType', 'DestroyRule', 'ItemType']);
-    // await inspectGenshinDataFile(ctrl, './ExcelBinOutput/AchievementExcelConfigData.json');
+    await inspectGenshinDataFile(ctrl, './ExcelBinOutput/AchievementExcelConfigData.json', ['Ttype', 'IsShow', 'ProgressShowType', 'TriggerConfig.TriggerType']);
     // await inspectGenshinDataFile(ctrl, './ExcelBinOutput/AchievementGoalExcelConfigData.json');
 
     // await inspectGenshinDataFile(ctrl, './ExcelBinOutput/GCGGameRewardExcelConfigData.json', ['GroupId' ], ['SomethingTextList', 'AnotherTextList']);
@@ -223,7 +223,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
 
     // await inspectGenshinDataFile(ctrl, './ExcelBinOutput/GCGDeckExcelConfigData.json');
     //await inspectGenshinDataFile(ctrl, './ExcelBinOutput/WorldAreaConfigData.json', ['ElementType', 'TerrainType', 'AreaType']);
-    await inspectGenshinDataFile(ctrl, './ExcelBinOutput/NewActivityExcelConfigData.json');
+    //await inspectGenshinDataFile(ctrl, './ExcelBinOutput/NewActivityExcelConfigData.json');
     await closeKnex();
   })();
 }

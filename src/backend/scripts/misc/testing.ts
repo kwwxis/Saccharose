@@ -5,7 +5,6 @@ import { loadEnglishTextMap } from '../textmap';
 import util from 'util';
 import { closeKnex } from '../../util/db';
 import { cleanEmpty, resolveObjectPath, sort } from '../../../shared/util/arrayUtil';
-import { AchievementExcelConfigData, AchievementGoalExcelConfigData } from '../../../shared/types/general-types';
 import { talkConfigGenerate } from '../dialogue/basic_dialogue_generator';
 import { DialogueSectionResult } from '../dialogue/dialogue_util';
 import { TalkExcelConfigData } from '../../../shared/types/dialogue-types';
@@ -15,6 +14,7 @@ import { isInt, isNumeric, toNumber } from '../../../shared/util/numberUtil';
 import { toBoolean } from '../../../shared/util/genericUtil';
 import JSON5 from 'json5';
 import { evaluateCustomFormat } from '../../util/fileFormatOptions';
+import { AchievementExcelConfigData, AchievementGoalExcelConfigData } from '../../../shared/types/achievement-types';
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   await loadEnglishTextMap();

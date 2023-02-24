@@ -7,7 +7,7 @@ import CharacterResources from './api/CharacterResources';
 import DialogueResources from './api/DialogueResources';
 import apiAccessControlHeaders from '../middleware/apiAccessControlHeaders';
 import apiAuth from '../middleware/apiAuth';
-import ItemResources from './api/ItemResources';
+import ItemResources from './api/ArchiveResources';
 
 export const ApiCyclicValueReplacer: CyclicValueReplacer = (k: string, v: any) => {
   if (typeof v === 'object' && v.Id) {

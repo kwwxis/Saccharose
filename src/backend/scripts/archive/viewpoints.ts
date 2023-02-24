@@ -1,10 +1,12 @@
 import { pathToFileURL } from 'url';
-import { getTextMapItem, loadEnglishTextMap } from '../textmap';
+import { loadEnglishTextMap } from '../textmap';
 import { Control, getControl, normText } from '../script_util';
 import util from 'util';
 import { closeKnex } from '../../util/db';
 import { defaultMap } from '../../../shared/util/genericUtil';
 import { fileFormatOptionsApply, fileFormatOptionsCheck } from '../../util/fileFormatOptions';
+import { WorldAreaConfigData } from '../../../shared/types/general-types';
+import { ViewCodexExcelConfigData, ViewpointsByRegion } from '../../../shared/types/viewpoint-types';
 
 export const VIEWPOINT_FILE_FORMAT_PARAMS: string[] = [
   'Id',
@@ -38,54 +40,6 @@ export const VIEWPOINT_FILE_FORMAT_PARAMS: string[] = [
   'ParentWorldArea.AreaNameTextMapHash',
   'ParentWorldArea.AreaNameText',
 ];
-
-export interface WorldAreaConfigData {
-  Id: number,
-  SceneId: number,
-  AreaId1: number,
-  AreaId2: number,
-
-  ElementType?: string,
-  TerrainType?: 'AREA_TERRAIN_CITY' | 'AREA_TERRAIN_OUTDOOR',
-  AreaType: 'LEVEL_1' | 'LEVEL_2',
-
-  AreaNameTextMapHash: number,
-  AreaNameText: string,
-
-  AreaDefaultLock: boolean,
-  ShowTips: boolean,
-  TowerPointId: number,
-  AreaOffset: number[],
-  MinimapScale: number,
-
-  BIIDMOCNDEL: number[],
-  HBLACDGEBND: number[],
-  GJBLMBDABFF: boolean,
-}
-
-export interface ViewCodexExcelConfigData {
-  Id: number,
-  GadgetId: number,
-  SceneId: number,
-  GroupId: number,
-  ConfigId: number,
-  NameTextMapHash: number,
-  DescTextMapHash: number,
-  Image: string,
-  CityId: number,
-  WorldAreaId: number,
-  SortOrder: number,
-  NameText: string,
-  DescText: string,
-  ShowOnlyUnlocked: boolean,
-
-  CityNameText?: string,
-  WorldArea?: WorldAreaConfigData,
-  ParentWorldArea?: WorldAreaConfigData,
-  Wikitext?: string,
-}
-
-export type ViewpointsByRegion = {[region: string]: ViewCodexExcelConfigData[]};
 
 export const VIEWPOINT_DEFAULT_FILE_FORMAT_IMAGE = 'Viewpoint {NameText.EN}.png';
 export const VIEWPOINT_DEFAULT_FILE_FORMAT_MAP = 'Viewpoint {NameText.EN} Map Location.png';
