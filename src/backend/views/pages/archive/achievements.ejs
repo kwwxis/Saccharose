@@ -18,8 +18,8 @@
   <div class="content">
     <p>The <strong>Trigger</strong> column shows the trigger type and parameters. For certain types, e.g. finishing quests,
     I resolved the parameters for you (e.g. showing the quest name). But there's a lot of different trigger types, which'd
-    require code for each one to resolve its parameters. You can use the <a href="/id-usages">ID Usages</a> tool to lookup
-    where certain IDs are used.</p>
+    require code for each one to resolve its parameters, which is too much effort.
+    You can use the <a href="/id-usages">ID Usages</a> tool to lookup where certain IDs are used.</p>
   </div>
 </section>
 <% for (let section of Object.values(achievements)) { %>
@@ -34,22 +34,40 @@
         <tr>
           <th>Title</th>
           <th>Description</th>
+          <th>Primos</th>
           <th>Hidden</th>
-          <th>Primogems</th>
           <th>Trigger</th>
         </tr>
         <% for (let achievement of section.Achievements) { %>
           <tr>
-            <td style="font-weight:600"><%= achievement.TitleText %></td>
-            <td><%= achievement.DescText || 'n/a' %></td>
-            <td><%= achievement.IsHidden ? 'Yes' : 'No' %></td>
-            <td><code><%= achievement?.FinishReward?.RewardSummary?.PrimogemCount || 'n/a' %></code></td>
             <td>
-              <div class="code" style="font-size:0.8em"><%=
-                achievement?.TriggerConfig?.TriggerType?.startsWith('TRIGGER_')
-                        ? achievement?.TriggerConfig?.TriggerType?.slice('TRIGGER_'.length)
-                        : (achievement?.TriggerConfig?.TriggerType || 'n/a')
-              %></div>
+              <div style="font-weight:600"><%= achievement.TitleText %></div>
+            </td>
+            <td>
+              <div><%= normText(achievement.DescText) || 'n/a' %></div>
+              <div class="valign meta-props">
+                <div class="prop">
+                  <span class="prop-label">ID</span>
+                  <span class="prop-values">
+                    <span class="prop-value"><%= achievement.Id %></span>
+                  </span>
+                </div>
+                <div class="prop">
+                  <span class="prop-label">Order ID</span>
+                  <span class="prop-values">
+                    <span class="prop-value"><%= achievement.OrderId %></span>
+                  </span>
+                </div>
+              </div>
+            </td>
+            <td><%= achievement?.FinishReward?.RewardSummary?.PrimogemCount || 'n/a' %></td>
+            <td><%= achievement.IsHidden ? 'Yes' : 'No' %></td>
+            <td>
+              <div class="code" style="word-break:break-all;max-width:300px;font-size:0.8em"><%=
+                  achievement?.TriggerConfig?.TriggerType?.startsWith('TRIGGER_')
+                          ? achievement?.TriggerConfig?.TriggerType?.slice('TRIGGER_'.length)
+                          : (achievement?.TriggerConfig?.TriggerType || 'n/a')
+                %></div>
               <div class="code" style="word-break:break-all;max-width:300px;font-size:0.8em"><%= JSON.stringify(achievement?.TriggerConfig?.ParamList || 'n/a') %></div>
               <% if (achievement.TriggerConfig.TriggerQuests.length) { %>
                 <% for (let mainQuest of achievement.TriggerConfig.TriggerQuests) { %>
