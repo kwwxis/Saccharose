@@ -27,6 +27,9 @@
     <section class="card" id="<%= toParam(regionName) %>">
       <h2><%= regionName %></h2>
       <div class="content">
+        <div class="card result-count-card">
+          <h2>Total: <span><%= viewpoints.length %></span></h2>
+        </div>
         <p class="error-notice spacer10-bottom">The <code>area</code> and <code>subarea</code> parameter values aren't always accurate
           but the tool tries to figure it out the best it can. Make sure to check it manually in-game.</p>
         <% for (let viewpoint of viewpoints) { %>

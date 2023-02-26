@@ -28,6 +28,9 @@
     <section class="card" id="<%= toParam(type) %>">
       <h2><%= type %></h2>
       <div class="content">
+        <div class="card result-count-card">
+          <h2>Total: <span><%= tutorials.length %></span></h2>
+        </div>
         <% for (let tutorial of tutorials) { %>
           <textarea readonly class="w100p wikitext autosize" spellcheck="false" translate="no"><%= tutorial.Wikitext %></textarea>
         <% } %>

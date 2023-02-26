@@ -86,7 +86,6 @@ export default async function(): Promise<Router> {
         paramCmp(goal.NameText, req.params.category) ||
         paramCmp(goal.Id, req.params.category)
       );
-      console.log(goal);
       if (goal) {
         goalName = goal.NameText;
         achievements = await selectAchievements(ctrl, goal.Id);

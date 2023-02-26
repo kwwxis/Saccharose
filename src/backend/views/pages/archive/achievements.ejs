@@ -19,6 +19,9 @@
     <section class="card" id="<%= section?.Goal?.NameText?.replace(' ', '_') || 'no_id' %>">
       <h2><%= section?.Goal?.NameText || 'n/a' %></h2>
       <div class="content">
+        <div class="card result-count-card">
+          <h2>Total: <span><%= section.Achievements.length %></span></h2>
+        </div>
         <p class="info-notice">
           The <strong>Trigger</strong> column shows the trigger type and parameters. For certain types, e.g. finishing quests,
           I resolved the parameters for you (e.g. showing the quest name). But there's a lot of different trigger types, which'd

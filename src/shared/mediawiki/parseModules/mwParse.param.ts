@@ -90,8 +90,10 @@ export class MwParseParamModule extends MwParseModule {
 
       const regexRes = this.getStartRegex().exec(ctx.iter.peek());
       const fullMatch = regexRes[0];
-      const isAnonymous = regexRes[3] !== '=' || !/^[a-zA-Z0-9\-_.]+$/.test(regexRes[2]);
+      const isAnonymous = regexRes[3] !== '=' || !/^[a-zA-Z0-9\-_.\s]+$/.test(regexRes[2]);
       const paramKey = isAnonymous ? this.anonymousKeyCounter++ : regexRes[2];
+
+      console.log({ regexRes, fullMatch, isAnonymous, paramKey });
 
       this.paramNode = new MwParamNode(ch as MwParamNodePrefixType, paramKey);
       this.paramCounter++;
