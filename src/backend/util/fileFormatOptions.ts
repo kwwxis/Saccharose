@@ -99,9 +99,7 @@ export function evaluateCustomFormat(obj: Object, parentNode: MwParentNode): str
           let condResult: boolean = false;
 
           switch (condOp) {
-            case '=':
-            case '==':
-            case '===':
+            case ':=':
               condResult = leftParam === rightParam;
               break;
             case '!=':

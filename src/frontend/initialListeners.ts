@@ -603,7 +603,7 @@ const initial_listeners: Listener[] = [
             <br />
             <code class="dispBlock">{{If|&lt;condition&gt;|&lt;then value&gt;|&lt;else value&gt;}}</code>
             <code class="dispBlock spacer20-left">condition = "&lt;left-param&gt; &lt;operator&gt; &lt;right-param&gt;"</code>
-            <code class="dispBlock spacer20-left">operator = "=" | "!=" | "&lt;=" | "&gt;=" | "&lt;" | "&gt;" | "*=" | "^=" | "$=" | "~"</code>
+            <code class="dispBlock spacer20-left">operator = ":=" | "!=" | "&lt;=" | "&gt;=" | "&lt;" | "&gt;" | "*=" | "^=" | "$=" | "~"</code>
             <br />
             
             <p>The <code>left-param</code> and <code>right-param</code> are evaluated the same as the top-level format,
