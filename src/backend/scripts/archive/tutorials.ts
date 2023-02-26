@@ -15,7 +15,7 @@ import {
   TutorialsByType,
 } from '../../../shared/types/tutorial-types';
 
-function pushTipCodexTypeName(type: PushTipsCodexType): string {
+export function pushTipCodexTypeName(type: PushTipsCodexType): string {
   switch (type) {
     case 'CODEX_ADVENTURE':
       return 'Adventure';
@@ -64,7 +64,7 @@ export const TUTORIAL_FILE_FORMAT_PARAMS: string[] = [
 
 export const TUTORIAL_DEFAULT_FILE_FORMAT_IMAGE = 'Tutorial {PushTip.TitleText.EN}{{If|DetailCount > 1| {CurrentDetail.Index1based}|}}.png';
 
-export async function selectTutorials(ctrl: Control): Promise<TutorialsByType> {
+export async function selectTutorials(ctrl: Control, codexTypeConstraint?: PushTipsCodexType): Promise<TutorialsByType> {
   let tutorials: TutorialExcelConfigData[] = await ctrl.readGenshinDataFile('./ExcelBinOutput/TutorialExcelConfigData.json');
   let tutorialDetails: TutorialDetailExcelConfigData[] = await ctrl.readGenshinDataFile('./ExcelBinOutput/TutorialDetailExcelConfigData.json');
 
@@ -87,6 +87,10 @@ export async function selectTutorials(ctrl: Control): Promise<TutorialsByType> {
 
     let codexType = pushTipCodexTypeName(tutorial.PushTip.CodexType);
     let tipsIcon = pushTipsIcon(tutorial.PushTip.TabIcon);
+
+    if (codexTypeConstraint && tutorial.PushTip.CodexType !== codexTypeConstraint) {
+      continue;
+    }
 
     let text = `
 {{Tutorial

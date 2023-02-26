@@ -2,13 +2,13 @@
 
 import { Knex } from 'knex';
 import { openKnex } from '../util/db';
-import { ConfigCondition, NpcExcelConfigData } from '../../shared/types/general-types';
-import { getTextMapItem, getVoPrefix } from './textmap';
+import { CityConfigData, ConfigCondition, ElementType, NpcExcelConfigData } from '../../shared/types/general-types';
+import { createLangCodeMap, getElementName, getTextMapItem, getVoPrefix } from './textmap';
 import { Request } from '../util/router';
 import SrtParser, { SrtLine } from '../util/srtParser';
 import { promises as fs } from 'fs';
 import { arrayIndexOf, arrayIntersect, arrayUnique, cleanEmpty, pairArrays, sort } from '../../shared/util/arrayUtil';
-import { toInt, toNumber } from '../../shared/util/numberUtil';
+import { isInt, toInt, toNumber } from '../../shared/util/numberUtil';
 import { normalizeRawJson, schema, SchemaTable } from '../importer/import_run';
 import {
   escapeRegExp,
@@ -271,8 +271,10 @@ export class Control {
     for (let cond of condArray) {
       if (cond.Param) {
         cond.Param = cond.Param.filter(x => !!x);
-      }
-      if (cond.Param && cond.Param.length) {
+        if (cond.Param.length) {
+          newCondArray.push(cond);
+        }
+      } else {
         newCondArray.push(cond);
       }
     }
@@ -320,6 +322,20 @@ export class Control {
           }
         }
         objAsAny[prop] = newOriginalArray;
+      }
+      if (prop.endsWith('ElementType') || prop.endsWith('ElementTypes')) {
+        let newProp = prop.replace('ElementType', 'ElementName');
+        if (typeof object[prop] === 'string') {
+          object[newProp] = getElementName(object[prop] as ElementType, this.outputLangCode);
+        } else if (Array.isArray(object[prop])) {
+          let newArray = [];
+          for (let item of <any[]> object[prop]) {
+            if (typeof item === 'string' && item !== 'None') {
+              newArray.push(getElementName(item as ElementType, this.outputLangCode));
+            }
+          }
+          object[newProp] = newArray;
+        }
       }
       if (prop.endsWith('Cond') && objAsAny[prop]) {
         this.postProcessCondProp(objAsAny, prop);
@@ -739,8 +755,8 @@ export class Control {
   }
 
   async generateDialogueWikiText(dialogLines: DialogExcelConfigData[], dialogDepth = 1,
-        originatorDialog: DialogExcelConfigData = null, originatorIsFirstOfBranch: boolean = false,
-        firstDialogOfBranchVisited: Set<number> = new Set()): Promise<string> {
+                                 originatorDialog: DialogExcelConfigData = null, originatorIsFirstOfBranch: boolean = false,
+                                 firstDialogOfBranchVisited: Set<number> = new Set()): Promise<string> {
     let out = '';
     let numSubsequentNonBranchPlayerDialogOption = 0;
     let previousDialog: DialogExcelConfigData = null;
@@ -790,8 +806,8 @@ export class Control {
       // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
       if (previousDialog && this.isPlayerDialogueOption(dialog) && this.isPlayerDialogueOption(previousDialog) &&
-          (previousDialog.NextDialogs.length === 1 || previousDialog.Branches.map(b => b[0]).every(x => this.isPlayerDialogueOption(x))) &&
-          previousDialog.NextDialogs.some(x => x === dialog.Id)) {
+        (previousDialog.NextDialogs.length === 1 || previousDialog.Branches.map(b => b[0]).every(x => this.isPlayerDialogueOption(x))) &&
+        previousDialog.NextDialogs.some(x => x === dialog.Id)) {
         // This is for if you have non-branch subsequent player dialogue options for the purpose of generating an output like:
         // :'''Paimon:''' Blah blah blah
         // :{{DIcon}} Paimon, you're sussy baka
@@ -1014,7 +1030,7 @@ export class Control {
 
   async findTextMapIdsByExactName(name: string): Promise<number[]> {
     let results = [];
-    
+
     const cmp = (a: string, b: string) => {
       return normText(a, this.inputLangCode, true, true)?.toLowerCase() ===
         normText(b, this.inputLangCode, true, true)?.toLowerCase();
@@ -1453,10 +1469,46 @@ export class Control {
     return reward;
   }
 
-  async selectCityNameById(cityId: number): Promise<string> {
+  async selectCityNameById(cityId: number, forceLangCode?: LangCode): Promise<string> {
     let textMapHash: number = await this.knex.select('CityNameTextMapHash')
       .from('CityConfigData').where({CityId: cityId}).first().then(x => x && x.CityNameTextMapHash);
-    return textMapHash ? getTextMapItem(this.outputLangCode, textMapHash) : 'n/a';
+    return textMapHash ? getTextMapItem(forceLangCode || this.outputLangCode, textMapHash) : 'n/a';
+  }
+
+  async selectAllCities(filter?: (city: CityConfigData) => boolean): Promise<CityConfigData[]> {
+    let cities: CityConfigData[] = await this.knex.select('*').from('CityConfigData').then(this.commonLoad);
+    return sort(cities, 'CityId')
+      .filter(row => !!row.CityNameText && (!filter || filter(row)))
+      .map(row => {
+        row.CityNameTextEN = getTextMapItem('EN', row.CityNameTextMapHash);
+        return row;
+      });
+  }
+
+  async getCityIdFromName(cityNameOrId: string|number): Promise<number> {
+    if (!cityNameOrId) {
+      return 0;
+    }
+    if (typeof cityNameOrId === 'number' || isInt(cityNameOrId)) {
+      cityNameOrId = toInt(cityNameOrId);
+    }
+    if (typeof cityNameOrId === 'string') {
+      cityNameOrId = cityNameOrId.trim().toLowerCase().replaceAll(/_/g, ' ');
+    }
+
+    let cities = await this.knex.select(['CityId', 'CityNameTextMapHash']).from('CityConfigData').then();
+    for (let city of cities) {
+      if (city.CityId === cityNameOrId) {
+        return city.CityId;
+      }
+      let map = createLangCodeMap(city.CityNameTextMapHash, false);
+      for (let text of Object.values(map)) {
+        if (!!text && text.toLowerCase() === cityNameOrId) {
+          return city.CityId;
+        }
+      }
+    }
+    return 0;
   }
 
   async selectReputationQuestExcelConfigData(parentQuestId: number): Promise<ReputationQuestExcelConfigData> {
@@ -1601,7 +1653,7 @@ export class Control {
     let ret: ReadableItem = {Localization: localization, ReadableText: null};
 
     if (localization && localization.AssetType === 'LOC_TEXT'
-        && typeof localization[pathVar] === 'string' && localization[pathVar].includes('/Readable/')) {
+      && typeof localization[pathVar] === 'string' && localization[pathVar].includes('/Readable/')) {
       let filePath = './Readable/' + localization[pathVar].split('/Readable/')[1] + '.txt';
       try {
         let fileText = await fs.readFile(getGenshinDataFilePath(filePath), { encoding: 'utf8' });

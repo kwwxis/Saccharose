@@ -11,7 +11,7 @@
                 ui-tippy-hover="Click to copy to clipboard"
                 ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">Copy</button>
       </div>
-      <textarea id="ol-result-<%= idx %>" readonly spellcheck="false" class="ol-result-textarea wikitext w100p"
+      <textarea id="ol-result-<%= idx %>" readonly spellcheck="false" translate="no" class="ol-result-textarea wikitext w100p"
                 style="resize:vertical;overflow:auto;font-size:13px;" data-markers="<%= Marker.joinedString(olResult.markers) %>"><%= olResult.result %></textarea>
       <% if (olResult.duplicateTextMapIds.length) { %>
         <h5>Duplicate TextMapHashes</h5>

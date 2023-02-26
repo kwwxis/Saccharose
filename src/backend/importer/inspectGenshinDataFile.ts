@@ -8,6 +8,7 @@ import { pathToFileURL } from 'url';
 import { basename } from 'path';
 import { isInt } from '../../shared/util/numberUtil';
 import chalk from 'chalk';
+import { DungeonEntryExcelConfigData } from '../../shared/types/dungeon-types';
 
 async function inspectGenshinDataFile(ctrl: Control, file: string, inspectFieldValues: string[] = [], printRecordIfFieldNotEmpty: string[] = []): Promise<any[]> {
   if (!inspectFieldValues)
@@ -198,7 +199,18 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
 
     //await inspectGenshinDataFile(ctrl, './ExcelBinOutput/DialogExcelConfigData.json', ['TalkRole.Type']);
     //await inspectGenshinDataFile(ctrl, './ExcelBinOutput/MaterialExcelConfigData.json', ['MaterialType', 'ItemType', 'UseTarget', 'ItemUse[#ALL].UseOp']);
-    //await inspectGenshinDataFile(ctrl, './ExcelBinOutput/DungeonExcelConfigData.json', ['Type']);
+
+    await inspectGenshinDataFile(ctrl, './ExcelBinOutput/CityConfigData.json');
+
+    // await inspectGenshinDataFile(ctrl, './ExcelBinOutput/DungeonExcelConfigData.json',
+    //  ['Type', 'SubType', 'InvolveType', 'SettleUIType', 'SettleShows[#ALL]', 'RecommendElementTypes[#ALL]', 'StateType', 'PlayType']);
+    // await inspectGenshinDataFile(ctrl, './ExcelBinOutput/DungeonPassExcelConfigData.json', ['Conds[#ALL].CondType', 'LogicType']);
+    // await inspectGenshinDataFile(ctrl, './ExcelBinOutput/DungeonLevelEntityConfigData.json');
+    // let rows: DungeonEntryExcelConfigData[] = await inspectGenshinDataFile(ctrl, './ExcelBinOutput/DungeonEntryExcelConfigData.json',
+    //   ['Type', 'CondComb', 'SatisfiedCond[#ALL].Type']);
+    //await inspectGenshinDataFile(ctrl, './ExcelBinOutput/DungeonElementChallengeExcelConfigData.json');
+    //await inspectGenshinDataFile(ctrl, './ExcelBinOutput/DungeonChallengeConfigData.json', ['ChallengeType', 'InterruptButtonType', 'SubChallengeSortType']);
+
     //await inspectGenshinDataFile(ctrl, './ExcelBinOutput/FettersExcelConfigData.json', ['OpenConds[#ALL].CondType', 'FinishConds[#ALL].CondType', 'Type']);
     //await inspectGenshinDataFile(ctrl, './ExcelBinOutput/FetterStoryExcelConfigData.json', ['OpenConds[#ALL].CondType', 'FinishConds[#ALL].CondType']);
 
@@ -215,7 +227,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     // ]);
     // await inspectGenshinDataFile(ctrl, './ExcelBinOutput/ReliquaryExcelConfigData.json', ['EquipType', 'ItemType', 'DestroyRule']);
     //await inspectGenshinDataFile(ctrl, './ExcelBinOutput/WeaponExcelConfigData.json', ['WeaponType', 'DestroyRule', 'ItemType']);
-    await inspectGenshinDataFile(ctrl, './ExcelBinOutput/AchievementExcelConfigData.json', ['Ttype', 'IsShow', 'ProgressShowType', 'TriggerConfig.TriggerType']);
+    //await inspectGenshinDataFile(ctrl, './ExcelBinOutput/AchievementExcelConfigData.json', ['Ttype', 'IsShow', 'ProgressShowType', 'TriggerConfig.TriggerType']);
     // await inspectGenshinDataFile(ctrl, './ExcelBinOutput/AchievementGoalExcelConfigData.json');
 
     // await inspectGenshinDataFile(ctrl, './ExcelBinOutput/GCGGameRewardExcelConfigData.json', ['GroupId' ], ['SomethingTextList', 'AnotherTextList']);

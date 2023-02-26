@@ -5,6 +5,26 @@ export interface ConfigCondition<T extends string = string> {
   ParamStr?: string,
 }
 
+export interface CityConfigData {
+  CityId: number,
+  SceneId: number,
+  AreaIdVec: number[],
+  CityNameTextMapHash: number,
+  MapPosX: number,
+  MapPosY: number,
+  ZoomForExploration: number,
+  AdventurePointId: number,
+  ExpeditionMap: string,
+  ExpeditionWaterMark: string,
+  OpenState: string,
+  CityGoddnessNameTextMapHash: number,
+  CityGoddnessDescTextMapHash: number,
+  CityNameText: string,
+  CityNameTextEN: string,
+  CityGoddnessNameText: string,
+  CityGoddnessDescText: string,
+}
+
 export interface NpcExcelConfigData {
   Id: number,
   NameTextMapHash: number,
@@ -67,3 +87,16 @@ export interface WorldAreaConfigData {
   HBLACDGEBND: number[],
   GJBLMBDABFF: boolean,
 }
+
+export type ElementType = 'Electric' | 'Fire' | 'Grass' | 'Ice' | 'None' | 'Rock' | 'Water' | 'Wind';
+export const ElementTypeArray: ElementType[] = ['Electric', 'Fire', 'Grass', 'Ice', 'None', 'Rock', 'Water', 'Wind'];
+export const ElementTypeToNameTextMapHash = {
+  'None': 3053155130,
+  'Fire': 3531671786,
+  'Water': 514679490,
+  'Grass': 3552853794,
+  'Electric': 1844493602,
+  'Wind': 594678994,
+  'Ice': 3168728290,
+  'Rock': 1844983962,
+};

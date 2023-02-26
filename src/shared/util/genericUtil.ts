@@ -142,8 +142,14 @@ export function timeConvert(UNIX_timestamp: Date | number, format: boolean | str
  * @param time The timestamp, either as a Date object or as a UNIX timestamp (milliseconds).
  * @param suffix The suffix. Default is `from now` or `ago` depending on whether the time is in the future or in the past.
  * @param currentTime The timestamp to use as the "current time".
+ * @param instantPhrase The return value if there has been no time elapsed (default: "Just now")
  */
-export function humanTiming(time: Date | number | null, suffix?: string | ((inPast: boolean) => string), currentTime?: Date | number): string {
+export function humanTiming(
+  time: Date | number | null,
+  suffix?: string | ((inPast: boolean) => string),
+  currentTime?: Date | number,
+  instantPhrase?: string,
+): string {
   if (time instanceof Date)
     time = time.getTime();
   if (typeof time === 'undefined' || time === null || time <= 0)
@@ -172,7 +178,7 @@ export function humanTiming(time: Date | number | null, suffix?: string | ((inPa
     suffix = inFuture ? 'from now' : 'ago';
   }
 
-  if (time <= 1) return 'Just now';
+  if (time <= 1) return instantPhrase || 'Just now';
 
   const tokens = [
     [31536000, 'year'],
@@ -194,7 +200,7 @@ export function humanTiming(time: Date | number | null, suffix?: string | ((inPa
     if (time < unit) continue;
 
     let numberOfUnits = Math.floor(time / unit);
-    ret = numberOfUnits + ' ' + text + (numberOfUnits > 1 ? 's' : '') + ' ' + suffix;
+    ret = numberOfUnits + ' ' + text + (numberOfUnits > 1 ? 's' : '') + (suffix ? ' ' + suffix : suffix);
     break;
   }
 
@@ -499,7 +505,7 @@ export function throttle<T extends Function>(fn: T, delayMs: number): T {
 export function defaultMap<T extends object>(defaultValue: ((prop: keyof T) => T[keyof T])|'Set'|'Map'|'Array'|'Object', initialObj?: T): T {
   return new Proxy<T>(initialObj || {} as T, {
     get(obj: T, prop: string|symbol) {
-      if (prop in obj) {
+      if (prop in obj || prop === 'then' || prop === 'catch' || prop === 'finally') {
         return obj[prop];
       } else {
         if (defaultValue === 'Set') {

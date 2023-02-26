@@ -114,7 +114,8 @@ export interface DialogExcelConfigData {
   ActionAfter: string,
   OptionIcon: string,
   Branches?: DialogExcelConfigData[][],
-  Recurse?: boolean
+  Recurse?: boolean,
+  GroupId?: number,
 }
 
 export interface LoadingTipsExcelConfigData {

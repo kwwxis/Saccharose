@@ -6,6 +6,8 @@ export type PushTipsCodexType =
   | 'CODEX_SYSTEM'
   | 'CODEX_UNRECORDED';
 
+export const PushTipsCodexTypeList: PushTipsCodexType[] = ['CODEX_ADVENTURE', 'CODEX_ARANARA', 'CODEX_ELEMENT', 'CODEX_ENEMY', 'CODEX_SYSTEM', 'CODEX_UNRECORDED'];
+
 export interface PushTipsConfigData {
   PushTipsId: number,
   TutorialId: number,

@@ -58,6 +58,7 @@ export const schema = {
       {name: 'TalkContentTextMapHash', type: 'integer', isIndex: true},
       {name: 'TalkTitleTextMapHash', type: 'integer', isIndex: true},
       {name: 'TalkRoleNameTextMapHash', type: 'integer', isIndex: true},
+      {name: 'GroupId', type: 'integer', isIndex: true},
     ]
   },
   Relation_DialogToNext: <SchemaTable> {
@@ -370,6 +371,8 @@ export const schema = {
     columns: [
       {name: 'CityId', type: 'integer', isPrimary: true},
       {name: 'CityNameTextMapHash', type: 'integer', isIndex: true},
+      {name: 'CityGoddnessNameTextMapHash', type: 'integer', isIndex: true},
+      {name: 'CityGoddnessDescTextMapHash', type: 'integer', isIndex: true},
     ]
   },
   FurnitureSuiteExcelConfigData: <SchemaTable> {
@@ -1137,6 +1140,104 @@ export const schema = {
       {name: 'TabNameTextMapHash', type: 'integer', isIndex: true},
     ]
   },
+  FetterInfoExcelConfigData: <SchemaTable> {
+    name: 'FetterInfoExcelConfigData',
+    jsonFile: './ExcelBinOutput/FetterInfoExcelConfigData.json',
+    columns: [
+      {name: 'FetterId', type: 'integer', isPrimary: true},
+      {name: 'AvatarId', type: 'integer', isIndex: true},
+      {name: 'AvatarNativeTextMapHash', type: 'integer', isIndex: true},
+      {name: 'AvatarVisionBeforTextMapHash', type: 'integer', isIndex: true},
+      {name: 'AvatarConstellationBeforTextMapHash', type: 'integer', isIndex: true},
+      {name: 'AvatarTitleTextMapHash', type: 'integer', isIndex: true},
+      {name: 'AvatarDetailTextMapHash', type: 'integer', isIndex: true},
+      {name: 'AvatarAssocType', type: 'string', isIndex: true},
+      {name: 'CvChineseTextMapHash', type: 'integer', isIndex: true},
+      {name: 'CvJapaneseTextMapHash', type: 'integer', isIndex: true},
+      {name: 'CvEnglishTextMapHash', type: 'integer', isIndex: true},
+      {name: 'CvKoreanTextMapHash', type: 'integer', isIndex: true},
+      {name: 'AvatarVisionAfterTextMapHash', type: 'integer', isIndex: true},
+      {name: 'AvatarConstellationAfterTextMapHash', type: 'integer', isIndex: true},
+    ],
+    normalizeFixFields: {
+      'AvatarVisionBeforText': 'AvatarVisionBeforeText',
+      'AvatarConstellationBeforText': 'AvatarConstellationBeforeText',
+    }
+  },
+  DungeonExcelConfigData: <SchemaTable> {
+    name: 'DungeonExcelConfigData',
+    jsonFile: './ExcelBinOutput/DungeonExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'Type', type: 'string', isIndex: true},
+      {name: 'SubType', type: 'string', isIndex: true},
+      {name: 'InvolveType', type: 'string', isIndex: true},
+      {name: 'SettleUIType', type: 'string', isIndex: true},
+      {name: 'StateType', type: 'string', isIndex: true},
+      {name: 'PlayType', type: 'string', isIndex: true},
+      {name: 'NameTextMapHash', type: 'integer', isIndex: true},
+      {name: 'DisplayNameTextMapHash', type: 'integer', isIndex: true},
+      {name: 'DescTextMapHash', type: 'integer', isIndex: true},
+      {name: 'SceneId', type: 'integer', isIndex: true},
+      {name: 'ShowLevel', type: 'integer', isIndex: true},
+      {name: 'LimitLevel', type: 'integer', isIndex: true},
+      {name: 'GearDescTextMapHash', type: 'integer', isIndex: true},
+      {name: 'CityId', type: 'integer', isIndex: true},
+      {name: 'PassRewardPreviewId', type: 'integer', isIndex: true},
+      {name: 'FirstPassRewardPreviewId', type: 'integer', isIndex: true},
+    ]
+  },
+  DungeonPassExcelConfigData: <SchemaTable>{
+    name: 'DungeonPassExcelConfigData',
+    jsonFile: './ExcelBinOutput/DungeonPassExcelConfigData.json',
+    columns: [
+      { name: 'Id', type: 'integer', isPrimary: true },
+      { name: 'LogicType', type: 'string', isIndex: true },
+    ]
+  },
+  DungeonEntryExcelConfigData: <SchemaTable> {
+    name: 'DungeonEntryExcelConfigData',
+    jsonFile: './ExcelBinOutput/DungeonEntryExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'Type', type: 'string', isIndex: true},
+      {name: 'DungeonEntryId', type: 'integer', isIndex: true},
+      {name: 'DescTextMapHash', type: 'integer', isIndex: true},
+      {name: 'SystemOpenUiId', type: 'integer', isIndex: true},
+      {name: 'RewardDataId', type: 'integer', isIndex: true},
+    ]
+  },
+  DungeonElementChallengeExcelConfigData: <SchemaTable> {
+    name: 'DungeonElementChallengeExcelConfigData',
+    jsonFile: './ExcelBinOutput/DungeonElementChallengeExcelConfigData.json',
+    columns: [
+      {name: 'DungeonId', type: 'integer', isPrimary: true},
+      {name: 'TutorialId', type: 'integer', isIndex: true},
+    ]
+  },
+  DungeonChallengeConfigData: <SchemaTable> {
+    name: 'DungeonChallengeConfigData',
+    jsonFile: './ExcelBinOutput/DungeonChallengeConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'ChallengeType', type: 'string', isIndex: true},
+      {name: 'TargetTextTemplateTextMapHash', type: 'integer', isIndex: true},
+      {name: 'SubTargetTextTemplateTextMapHash', type: 'integer', isIndex: true},
+      {name: 'ProgressTextTemplateTextMapHash', type: 'integer', isIndex: true},
+      {name: 'SubProgressTextTemplateTextMapHash', type: 'integer', isIndex: true},
+      {name: 'InterruptButtonType', type: 'string', isIndex: true},
+    ]
+  },
+  DungeonLevelEntityConfigData: <SchemaTable> {
+    name: 'DungeonLevelEntityConfigData',
+    jsonFile: './ExcelBinOutput/DungeonLevelEntityConfigData.json',
+    columns: [
+      {name: 'ClientId', type: 'integer', isPrimary: true},
+      {name: 'Id', type: 'integer', isIndex: true},
+      {name: 'DescTextMapHash', type: 'integer', isIndex: true},
+      {name: 'SwitchTitleTextMapHash', type: 'integer', isIndex: true},
+    ]
+  },
 };
 
 export function normalizeRawJson(row: any, table?: SchemaTable) {
@@ -1266,7 +1367,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
       }
 
       let timeEnd = Date.now();
-      spinner.succeed('Finished at ' + timeConvert(timeEnd) + ' (took '+humanTiming(timeStart, '', timeEnd)+')');
+      spinner.succeed('Finished at ' + timeConvert(timeEnd) + ' (took '+humanTiming(timeStart, '', timeEnd, '0 seconds')+')');
       console.log('  (done)');
     }
 

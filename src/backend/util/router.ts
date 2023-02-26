@@ -6,7 +6,7 @@ import path from 'path';
 import availableMethods from '../middleware/availableMethods';
 import * as express from 'express';
 import * as expressCore from 'express-serve-static-core';
-import { printHumanTiming, icon, dragHandle, printTimestamp, TemplateLink } from './viewUtilities';
+import { printHumanTiming, icon, dragHandle, printTimestamp, TemplateLink, toParam } from './viewUtilities';
 import { cachedSync } from './cache';
 import crypto from 'crypto';
 import { ltrim, remove_suffix } from '../../shared/util/stringUtil';
@@ -186,6 +186,7 @@ export const DEFAULT_GLOBAL_LOCALS = {
   toBoolean: toBoolean,
   toInt: toInt,
   Marker: Marker,
+  toParam: toParam,
 };
 
 function createIncludeFunction(req: Request, viewStackPointer: RequestViewStack): IncludeFunction {

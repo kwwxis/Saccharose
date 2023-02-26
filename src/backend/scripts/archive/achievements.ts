@@ -1,8 +1,8 @@
 import { Control, getControl } from '../script_util';
 import { sort } from '../../../shared/util/arrayUtil';
-import { defaultMap } from '../../../shared/util/genericUtil';
+import { defaultMap, isset } from '../../../shared/util/genericUtil';
 import { pathToFileURL } from 'url';
-import { loadEnglishTextMap } from '../textmap';
+import { getTextMapItem, loadEnglishTextMap } from '../textmap';
 import util from 'util';
 import { closeKnex } from '../../util/db';
 import {
@@ -12,7 +12,7 @@ import {
 } from '../../../shared/types/achievement-types';
 import { toInt } from '../../../shared/util/numberUtil';
 
-export async function selectAchievements(ctrl: Control): Promise<AchievementsByGoals> {
+export async function selectAchievementGoals(ctrl: Control): Promise<AchievementGoalExcelConfigData[]> {
   let goals: AchievementGoalExcelConfigData[] = await ctrl.readGenshinDataFile('./ExcelBinOutput/AchievementGoalExcelConfigData.json');
   sort(goals, 'OrderId');
   for (let goal of goals) {
@@ -22,7 +22,13 @@ export async function selectAchievements(ctrl: Control): Promise<AchievementsByG
     if (goal.FinishRewardId) {
       goal.FinishReward = await ctrl.selectRewardExcelConfigData(goal.FinishRewardId);
     }
+    goal.NameTextEN = getTextMapItem('EN', goal.NameTextMapHash);
   }
+  return goals;
+}
+
+export async function selectAchievements(ctrl: Control, goalIdConstraint?: number): Promise<AchievementsByGoals> {
+  let goals: AchievementGoalExcelConfigData[] = await selectAchievementGoals(ctrl);
 
   let achievements: AchievementExcelConfigData[] = await ctrl.readGenshinDataFile('./ExcelBinOutput/AchievementExcelConfigData.json');
   sort(achievements, 'OrderId');
@@ -35,6 +41,9 @@ export async function selectAchievements(ctrl: Control): Promise<AchievementsByG
   for (let achievement of achievements) {
     if (!achievement.GoalId) {
       achievement.GoalId = 0;
+    }
+    if (isset(goalIdConstraint) && achievement.GoalId !== goalIdConstraint) {
+      continue;
     }
     if (!achievement.TitleText) {
       continue;
@@ -49,7 +58,7 @@ export async function selectAchievements(ctrl: Control): Promise<AchievementsByG
       achievement.TriggerConfig.ParamList = achievement.TriggerConfig.ParamList.filter(s => s !== '');
       achievement.TriggerConfig.TriggerQuests = [];
       if (achievement.TriggerConfig.TriggerType === 'TRIGGER_FINISH_PARENT_QUEST_AND' || achievement.TriggerConfig.TriggerType == 'TRIGGER_FINISH_PARENT_QUEST_OR') {
-        for (let qid of achievement.TriggerConfig.ParamList) {
+        for (let qid of achievement.TriggerConfig.ParamList.flatMap(p => p.split(','))) {
           let mainQuest = await ctrl.selectMainQuestById(toInt(qid));
           if (mainQuest) {
             achievement.TriggerConfig.TriggerQuests.push(mainQuest);
@@ -57,7 +66,7 @@ export async function selectAchievements(ctrl: Control): Promise<AchievementsByG
         }
       }
       if (achievement.TriggerConfig.TriggerType === 'TRIGGER_FINISH_QUEST_AND' || achievement.TriggerConfig.TriggerType == 'TRIGGER_FINISH_QUEST_OR') {
-        for (let qid of achievement.TriggerConfig.ParamList) {
+        for (let qid of achievement.TriggerConfig.ParamList.flatMap(p => p.split(','))) {
           let quest = await ctrl.selectQuestExcelConfigData(toInt(qid));
           if (quest) {
             let mainQuest = await ctrl.selectMainQuestById(quest.MainId);
@@ -72,9 +81,7 @@ export async function selectAchievements(ctrl: Control): Promise<AchievementsByG
       }
     }
     ret[achievement.GoalId].Achievements.push(achievement);
-
   }
-  console.log(ret);
 
   return ret;
 }

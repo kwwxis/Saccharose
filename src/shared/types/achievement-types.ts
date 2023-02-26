@@ -149,6 +149,7 @@ export interface AchievementGoalExcelConfigData {
   Id: number,
   OrderId: number,
   NameText: string,
+  NameTextEN: string,
   NameTextMapHash: number,
   IconPath: string,
   FinishRewardId: number,

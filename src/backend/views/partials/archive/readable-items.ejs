@@ -21,6 +21,6 @@
     <% } %>
     <textarea id="wikitext-<%= locals.itemIdPrefix ? locals.itemIdPrefix + '-' : ''  %><%= itemIdx %>" readonly
               data-markers="<%= Marker.joinedString(item.Markers) %>"
-              class="w100p wikitext autosize" spellcheck="false"><%= item.ReadableText %></textarea>
+              class="w100p wikitext autosize" spellcheck="false" translate="no"><%= item.ReadableText %></textarea>
   </div>
 <% })%>

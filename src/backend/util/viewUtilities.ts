@@ -1,5 +1,6 @@
 import feather from 'feather-icons';
 import createHtmlElement from 'create-html-element';
+import { isUnset } from '../../shared/util/genericUtil';
 
 export function icon(iconName: string, size?: number, props: any = {}): string {
   props.class = props.class ? (props.class = 'icon ' + props.class) : 'icon';
@@ -61,4 +62,22 @@ export function printHumanTiming(ts: Date|number): string {
   let placeholder = ts > now ? 'some time from now' : 'some time ago';
 
   return `<span class="timestamp is--humanTiming" data-timestamp="${ts}">${placeholder}</span>`;
+}
+
+export function toParam(x: any): string {
+  if (isUnset(x)) {
+    return '';
+  }
+  x = String(x);
+  if (typeof x === 'string') {
+    return x.replace(/ /g, '_');
+  }
+  return x;
+}
+
+export function paramCmp(a: any, b: any) {
+  if (a === b) {
+    return true;
+  }
+  return String(a).trim().toLowerCase().replace(/_/g, ' ') === String(b).trim().toLowerCase().replace(/_/g, ' ');
 }

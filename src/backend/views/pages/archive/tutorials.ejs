@@ -2,34 +2,43 @@
   <h2>Tutorials</h2>
   <div class="content">
     <fieldset>
-      <legend>Section Jump</legend>
+      <legend>Categories</legend>
       <div class="content alignStart flexWrap" style="padding-top:0;">
-        <% for (let typeName of Object.keys(tutorialsList)) { %>
-          <div class="w25p">
+        <% for (let name of categoryNames) { %>
+          <div class="w100p">
             <a role="button" class="spacer5-all secondary dispBlock textAlignLeft"
-               href="#<%= typeName.replace(' ', '_') %>"><%= typeName %></a>
+               href="/tutorials/<%= toParam(name) %>"><%= name %></a>
           </div>
         <% } %>
       </div>
     </fieldset>
   </div>
 </section>
-<section class="card">
-  <h2>File Format parameter options</h2>
-  <div class="content">
-    <p>Reload page after changing options to see effect.</p>
-    <div class="alignStart spacer15-top flexWrap">
-      <%- include('partials/util/file-format-options', {paramName: 'image', cookieName: 'FileFormat.tutorial.image', fileFormatParams: locals.fileFormatParams, fileFormatDefault: locals.fileFormatDefault_image}) %>
-    </div>
-  </div>
-</section>
-<% for (let [type, tutorials] of Object.entries(tutorialsList)) { %>
-  <section class="card" id="<%= type.replace(' ', '_') %>">
-    <h2><%= type %></h2>
+<% if (tutorialsList) { %>
+  <% for (let [type, tutorials] of Object.entries(tutorialsList)) { %>
+    <section class="card">
+      <h2>File Format parameter options</h2>
+      <div class="content">
+        <p>Reload page after changing options to see effect.</p>
+        <div class="alignStart spacer15-top flexWrap">
+          <%- include('partials/util/file-format-options', {paramName: 'image', cookieName: 'FileFormat.tutorial.image', fileFormatParams: locals.fileFormatParams, fileFormatDefault: locals.fileFormatDefault_image}) %>
+        </div>
+      </div>
+    </section>
+    <section class="card" id="<%= toParam(type) %>">
+      <h2><%= type %></h2>
+      <div class="content">
+        <% for (let tutorial of tutorials) { %>
+          <textarea readonly class="w100p wikitext autosize" spellcheck="false" translate="no"><%= tutorial.Wikitext %></textarea>
+        <% } %>
+      </div>
+    </section>
+  <% } %>
+<% } %>
+<% if (req.params.category && !tutorialsList) { %>
+  <section class="card">
     <div class="content">
-      <% for (let tutorial of tutorials) { %>
-        <textarea readonly class="w100p wikitext autosize" spellcheck="false"><%= tutorial.Wikitext %></textarea>
-      <% } %>
+      <p>Category not found: <%= req.params.category %></p>
     </div>
   </section>
 <% } %>

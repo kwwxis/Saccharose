@@ -2,34 +2,44 @@
   <h2>Viewpoints</h2>
   <div class="content">
     <fieldset>
-      <legend>Section Jump</legend>
+      <legend>Sections</legend>
       <div class="content alignStart flexWrap" style="padding-top:0;">
-        <% for (let regionName of Object.keys(viewpointsList)) { %>
-          <div class="w25p"><a role="button" class="spacer5-all secondary dispBlock textAlignLeft" href="#<%= regionName.replace(' ', '_') %>"><%= regionName %></a></div>
+        <% for (let city of cities) { %>
+          <div class="w100p"><a role="button" class="spacer5-all secondary dispBlock textAlignLeft"
+                               href="/viewpoints/<%= toParam(city.CityNameTextEN) %>"><%= city.CityNameText %></a></div>
         <% } %>
       </div>
     </fieldset>
-    <p class="error-notice spacer10-top">The <code>area</code> and <code>subarea</code> parameter values aren't always accurate
-      but the tool tries to figure it out the best it can. Make sure to check it manually in-game.</p>
   </div>
 </section>
-<section class="card">
-  <h2>File Format parameter options</h2>
-  <div class="content">
-    <p>Reload page after changing options to see effect.</p>
-    <div class="alignStart spacer15-top flexWrap">
-      <%- include('partials/util/file-format-options', {paramName: 'image', cookieName: 'FileFormat.viewpoint.image', fileFormatParams: locals.fileFormatParams, fileFormatDefault: locals.fileFormatDefault_image}) %>
-      <%- include('partials/util/file-format-options', {paramName: 'map', cookieName: 'FileFormat.viewpoint.map', fileFormatParams: locals.fileFormatParams, fileFormatDefault: locals.fileFormatDefault_map}) %>
-    </div>
-  </div>
-</section>
-<% for (let [regionName, viewpoints] of Object.entries(viewpointsList)) { %>
-  <section class="card" id="<%= regionName.replace(' ', '_') %>">
-    <h2><%= regionName %></h2>
+<% if (viewpointsList) { %>
+  <section class="card">
+    <h2>File Format parameter options</h2>
     <div class="content">
-      <% for (let viewpoint of viewpoints) { %>
-        <textarea readonly class="w100p wikitext autosize" spellcheck="false"><%= viewpoint.Wikitext %></textarea>
-      <% } %>
+      <p>Reload page after changing options to see effect.</p>
+      <div class="alignStart spacer15-top flexWrap">
+        <%- include('partials/util/file-format-options', {paramName: 'image', cookieName: 'FileFormat.viewpoint.image', fileFormatParams: locals.fileFormatParams, fileFormatDefault: locals.fileFormatDefault_image}) %>
+        <%- include('partials/util/file-format-options', {paramName: 'map', cookieName: 'FileFormat.viewpoint.map', fileFormatParams: locals.fileFormatParams, fileFormatDefault: locals.fileFormatDefault_map}) %>
+      </div>
+    </div>
+  </section>
+  <% for (let [regionName, viewpoints] of Object.entries(viewpointsList)) { %>
+    <section class="card" id="<%= toParam(regionName) %>">
+      <h2><%= regionName %></h2>
+      <div class="content">
+        <p class="error-notice spacer10-bottom">The <code>area</code> and <code>subarea</code> parameter values aren't always accurate
+          but the tool tries to figure it out the best it can. Make sure to check it manually in-game.</p>
+        <% for (let viewpoint of viewpoints) { %>
+          <textarea readonly class="w100p wikitext autosize" spellcheck="false" translate="no"><%= viewpoint.Wikitext %></textarea>
+        <% } %>
+      </div>
+    </section>
+  <% } %>
+<% } %>
+<% if (req.params.city && !viewpointsList) { %>
+  <section class="card">
+    <div class="content">
+      <p>Region not found: <%= req.params.city %></p>
     </div>
   </section>
 <% } %>

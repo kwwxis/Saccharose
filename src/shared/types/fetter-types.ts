@@ -110,3 +110,38 @@ export class CharacterFetters {
 }
 
 export type CharacterFettersByAvatar = {[avatarId: number]: CharacterFetters};
+
+// Character Info Types
+// ----------------------------------------------------------------------------------------------------
+export interface FetterInfoExcelConfigData {
+  InfoBirthMonth: number,
+  InfoBirthDay: number,
+  AvatarNativeTextMapHash: number,
+  AvatarVisionBeforTextMapHash: number,
+  AvatarConstellationBeforTextMapHash: number,
+  AvatarTitleTextMapHash: number,
+  AvatarDetailTextMapHash: number,
+  AvatarAssocType: string,
+  CvChineseTextMapHash: number,
+  CvJapaneseTextMapHash: number,
+  CvEnglishTextMapHash: number,
+  CvKoreanTextMapHash: number,
+  AvatarVisionAfterTextMapHash: number,
+  AvatarConstellationAfterTextMapHash: number,
+  FetterId: number,
+  AvatarId: number,
+  OpenConds: never,
+  FinishConds: { CondType: string, ParamList?: number[] }[],
+  AvatarNativeText: string,
+  AvatarVisionBeforeText: string,
+  AvatarConstellationBeforeText: string,
+  AvatarTitleText: string,
+  AvatarDetailText: string,
+  CvChineseText: string,
+  CvJapaneseText: string,
+  CvEnglishText: string,
+  CvKoreanText: string,
+  Avatar?: AvatarExcelConfigData,
+  AvatarVisionAfterText: string,
+  AvatarConstellationAfterText: string,
+}

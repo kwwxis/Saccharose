@@ -3,6 +3,7 @@ import { getControl } from '../../scripts/script_util';
 import { BookSuitExcelConfigData, ReadableView } from '../../../shared/types/readable-types';
 import { ol_gen_from_id } from '../../scripts/basic/OLgen';
 import {
+  getCityIdsWithViewpoints,
   selectViewpoints, VIEWPOINT_DEFAULT_FILE_FORMAT_IMAGE, VIEWPOINT_DEFAULT_FILE_FORMAT_MAP,
   VIEWPOINT_FILE_FORMAT_PARAMS,
 
@@ -10,24 +11,38 @@ import {
 import {
   selectTutorials,
   TUTORIAL_FILE_FORMAT_PARAMS,
-  TUTORIAL_DEFAULT_FILE_FORMAT_IMAGE,
+  TUTORIAL_DEFAULT_FILE_FORMAT_IMAGE, pushTipCodexTypeName,
 
 } from '../../scripts/archive/tutorials';
-import { TutorialsByType } from '../../../shared/types/tutorial-types';
+import { PushTipsCodexType, PushTipsCodexTypeList, TutorialsByType } from '../../../shared/types/tutorial-types';
 import { ViewpointsByRegion } from '../../../shared/types/viewpoint-types';
-import { selectAchievements } from '../../scripts/archive/achievements';
+import { selectAchievementGoals, selectAchievements } from '../../scripts/archive/achievements';
 import { AchievementsByGoals } from '../../../shared/types/achievement-types';
-import { sort } from '../../../shared/util/arrayUtil';
+import { paramCmp } from '../../util/viewUtilities';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
 
-  router.get('/viewpoints', async (req: Request, res: Response) => {
-    let viewpointsList: ViewpointsByRegion = await selectViewpoints(getControl(req));
-    delete viewpointsList['then'];
+  router.get('/viewpoints/:city?', async (req: Request, res: Response) => {
+    const ctrl = getControl(req);
+    let cityName: string = '';
+    let viewpointsList: ViewpointsByRegion = null;
+
+    if (req.params.city) {
+      let cityId = await ctrl.getCityIdFromName(req.params.city);
+      if (cityId) {
+        cityName = await ctrl.selectCityNameById(cityId);
+        viewpointsList = await selectViewpoints(ctrl, cityId);
+      }
+    }
+
+    const cityIdsWithViewpoints = await getCityIdsWithViewpoints(ctrl);
+    const cities = await ctrl.selectAllCities(city => cityIdsWithViewpoints.has(city.CityId));
+
     res.render('pages/archive/viewpoints', {
-      title: 'Viewpoints',
+      title: `${cityName} Viewpoints`.trim(),
       bodyClass: ['page--viewpoints'],
+      cities,
       viewpointsList,
       fileFormatParams: VIEWPOINT_FILE_FORMAT_PARAMS.join(','),
       fileFormatDefault_image: VIEWPOINT_DEFAULT_FILE_FORMAT_IMAGE,
@@ -35,25 +50,54 @@ export default async function(): Promise<Router> {
     });
   })
 
-  router.get('/tutorials', async (req: Request, res: Response) => {
-    let tutorialsList: TutorialsByType = await selectTutorials(getControl(req));
-    delete tutorialsList['then'];
+  router.get('/tutorials/:category?', async (req: Request, res: Response) => {
+    const ctrl = getControl(req);
+    const codexTypes: PushTipsCodexType[] = PushTipsCodexTypeList;
+    let codexTypeName: string = null;
+    let tutorialsList: TutorialsByType = null;
+
+    if (req.params.category) {
+      let codexType = codexTypes.find(codexType => paramCmp(pushTipCodexTypeName(codexType), req.params.category));
+      if (codexType) {
+        codexTypeName = pushTipCodexTypeName(codexType);
+        tutorialsList = await selectTutorials(ctrl, codexType);
+      }
+    }
+
     res.render('pages/archive/tutorials', {
-      title: 'Tutorials',
+      title: codexTypeName ? `Tutorials - ${codexTypeName}` : 'Tutorials',
       bodyClass: ['page--tutorials'],
+      categoryNames: codexTypes.map(pushTipCodexTypeName),
       tutorialsList,
       fileFormatParams: TUTORIAL_FILE_FORMAT_PARAMS.join(','),
       fileFormatDefault_image: TUTORIAL_DEFAULT_FILE_FORMAT_IMAGE,
     });
   });
 
-  router.get('/achievements', async (req: Request, res: Response) => {
-    let achievements: AchievementsByGoals = await selectAchievements(getControl(req));
+  router.get('/achievements/:category?', async (req: Request, res: Response) => {
+    const ctrl = getControl(req);
+    const goals = await selectAchievementGoals(ctrl);
+    let goalName: string = '';
+    let achievements: AchievementsByGoals = null;
+
+    if (req.params.category) {
+      let goal = goals.find(goal =>
+        paramCmp(goal.NameTextEN, req.params.category) ||
+        paramCmp(goal.NameText, req.params.category) ||
+        paramCmp(goal.Id, req.params.category)
+      );
+      console.log(goal);
+      if (goal) {
+        goalName = goal.NameText;
+        achievements = await selectAchievements(ctrl, goal.Id);
+      }
+    }
+
     res.render('pages/archive/achievements', {
-      title: 'Achievements',
+      title: goalName ? `Achievements - ${goalName}` : 'Achievements',
       bodyClass: ['page--achievements'],
+      goals,
       achievements,
-      goals: sort(Object.values(achievements).map(a => a.Goal), 'OrderId')
     });
   });
 

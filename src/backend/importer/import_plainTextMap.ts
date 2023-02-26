@@ -1,15 +1,12 @@
 import '../loadenv';
 import { pathToFileURL } from 'url';
-import { clearFullTextMap, getFullTextMap, getTextMapItem, loadTextMaps } from '../scripts/textmap';
-import { LANG_CODES, LangCodeMap } from '../../shared/types/dialogue-types';
-import { defaultMap } from '../../shared/util/genericUtil';
+import { clearFullTextMap, getFullTextMap, loadTextMaps } from '../scripts/textmap';
+import { LANG_CODES } from '../../shared/types/dialogue-types';
 import { getGenshinDataFilePath } from '../loadenv';
 import fs from 'fs';
-import { closeKnex } from '../util/db';
 import { normText } from '../scripts/script_util';
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
-
   if (!fs.existsSync(getGenshinDataFilePath('./TextMap/Plain/'))) {
     fs.mkdirSync(getGenshinDataFilePath('./TextMap/Plain/'));
   }
@@ -30,5 +27,4 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     console.log('----------');
   }
   console.log('Done');
-  await closeKnex();
 }
