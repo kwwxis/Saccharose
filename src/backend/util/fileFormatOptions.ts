@@ -53,7 +53,7 @@ export function evaluateCustomFormat(obj: Object, parentNode: MwParentNode): str
           }
         }
 
-        const condOpRegex = /^(={1,3}|<=?|>=?|!={1,2}|~|\*=|\^=|\$=)$/;
+        const condOpRegex = /^(:={1,3}|<=?|>=?|!={1,2}|~|\*=|\^=|\$=)$/;
 
         let condParts = splitArgs(cond.value);
         let condOpIndex: number = condParts.findIndex(part => condOpRegex.test(part));

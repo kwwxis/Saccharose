@@ -576,7 +576,9 @@ img.x36 { width: 36px; height: 36px; }
 
 
 code,
-.code {
+.code,
+input[type=text].code,
+input[type=search].code {
   font-family: Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono,
   Bitstream Vera Sans Mono, Courier New, monospace, sans-serif;
 }
