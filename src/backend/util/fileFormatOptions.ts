@@ -3,12 +3,11 @@ import { resolveObjectPath } from '../../shared/util/arrayUtil';
 import { isLangCode, LangCode } from '../../shared/types/dialogue-types';
 import { getTextMapItem } from '../scripts/textmap';
 import { isset, toBoolean } from '../../shared/util/genericUtil';
-import ejs from 'ejs';
 import { mwParse } from '../../shared/mediawiki/mwParse';
 import { MwParentNode, MwTemplateNode, MwWhiteSpace } from '../../shared/mediawiki/mwTypes';
-import JSON5 from 'json5';
 import { isNumeric, toNumber } from '../../shared/util/numberUtil';
 import { splitArgs } from '../../shared/util/stringUtil';
+import JSON5 from 'json5';
 
 export type FileFormatOption = 'default' | 'remove' | 'custom';
 

@@ -36,7 +36,7 @@ function arrayRemove<T>(arr: T[], items: T[]) {
 }
 
 const enforcePropOrderItem = (item: string) => [item, item + '_s', item + '_t']
-const enforcePropOrder = [
+export const enforcePropOrder = [
   ... enforcePropOrderItem('title'),
   ... enforcePropOrderItem('subtitle'),
   ... enforcePropOrderItem('waypoint'),
@@ -57,8 +57,13 @@ const enforcePropOrder = [
   ... enforcePropOrderItem('mention')
 ];
 
-function obtainPropOrder(propName: string): number {
+export function obtainPropOrder(propName: string): number {
   propName = propName.toLowerCase();
+  for (let i = 0; i < enforcePropOrder.length; i++) {
+    if (propName === enforcePropOrder[i]) {
+      return i;
+    }
+  }
   for (let i = 0; i < enforcePropOrder.length; i++) {
     if (propName.startsWith(enforcePropOrder[i])) {
       return i;
@@ -113,15 +118,49 @@ export class VoItem {
     }
   }
 
-  setParam(propName: string, newValue: string) {
+  setParam(propName: string, newValue: string): MwParamNode {
     if (this.propToParam[propName]) {
       this.propToParam[propName].value = newValue;
+      return this.propToParam[propName];
     } else {
-      this.addParam(propName, newValue);
+      return this.addParam(propName, newValue);
     }
   }
 
-  addParam(propName: string, newValue: string) {
+  getPropName(paramNode: MwParamNode): string {
+    return Object.entries(this.propToParam).find(p => p[1] === paramNode)?.[0];
+  }
+
+  get params(): [string, MwParamNode][] {
+    return this.paramNodes.map(node => {
+      return [this.getPropName(node), node];
+    });
+  }
+
+  removeParam(propName: string): MwParamNode {
+    if (!this.propToParam[propName]) {
+      return null;
+    }
+
+    let paramNode = this.propToParam[propName];
+    delete this.propToParam[propName];
+
+    let allNodesIndex = this.allNodes.indexOf(paramNode);
+    let eolNode = this.allNodes[allNodesIndex + 1];
+
+    if (eolNode instanceof MwWhiteSpace && (eolNode.content === '\n' || eolNode.content === '\n\n')) {
+      arrayRemove(this.allNodes, [eolNode]);
+      this.handle.removeNode(eolNode);
+    }
+
+    arrayRemove(this.allNodes, [paramNode]);
+    this.handle.removeNode(paramNode);
+
+    this.handle.recalculate();
+    return paramNode;
+  }
+
+  addParam(propName: string, newValue: string): MwParamNode {
     if (this.propToParam[propName]) {
       this.propToParam[propName].value = newValue;
       return;
@@ -179,6 +218,7 @@ export class VoItem {
     this.handle.insertNodes(insertIndex, [paramNode, eolNode]);
 
     this.handle.recalculate();
+    return paramNode;
   }
 
   remove(): boolean {
@@ -298,7 +338,7 @@ export class VoItem {
   }
 
   get paramNodes(): MwParamNode[] {
-    return Object.values(this.propToParam);
+    return this.allNodes.filter(node => node instanceof MwParamNode) as MwParamNode[];
   }
 
   get firstNodeIndex() {
@@ -610,14 +650,18 @@ export class VoHandle {
     if (!this.groups.length) {
       return 0;
     }
-    return this.groups[this.groups.length - 1].lastNodeIndex;
+    let nonEmptyGroups = this.groups.filter(g => !g.isEmpty());
+    return nonEmptyGroups[nonEmptyGroups.length - 1].lastNodeIndex;
   }
 
   recalculate() {
     if (!this.compileDone) {
       return;
     }
-    sort(this.groups, 'firstNodeIndex');
+    let noSort = this.groups.find(g => g.isEmpty());
+    if (!noSort) {
+      sort(this.groups, 'firstNodeIndex');
+    }
     for (let group of this.groups) {
       group.recalculate();
     }
@@ -628,14 +672,14 @@ export class VoHandle {
       return {groupKey: undefined, itemKey: undefined, prop: undefined}; // anonymous parameter
     }
     if (paramKey.startsWith('vo_')) {
-      const keyParts = splitLimit(paramKey, '_', 4);
+      const keyParts = splitLimit(paramKey, '_', 3);
       const groupKey = keyParts[1];
       const itemKey = keyParts[2];
       const prop = keyParts[3];
       return {groupKey, itemKey, prop};
     }
     if (this.isCombat) {
-      const keyParts = splitLimit(paramKey, '_', 3);
+      const keyParts = splitLimit(paramKey, '_', 2);
       const groupKey = keyParts[0];
       const itemKey = keyParts[1];
       const prop = keyParts[2];

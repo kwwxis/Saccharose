@@ -1,6 +1,6 @@
 import { endpoints } from '../../endpoints';
 import { startListeners } from '../../util/eventLoader';
-import { DIALOG_MODAL, openDialog } from '../../util/dialog';
+import { modalService } from '../../util/modalService';
 import { flashTippy } from '../../util/tooltips';
 import { pageMatch } from '../../pageMatch';
 import { GeneralEventBus } from '../../generalEventBus';
@@ -73,26 +73,27 @@ pageMatch('pages/dialogue/quests', () => {
       ev: 'click',
       multiple: true,
       fn: function(event, target) {
-        openDialog(`<h2>Notes</h2>
-      <ul class="padding">
-        <li>The order of dialogue sections is not guaranteed to be in the correct chronological order nor are the "Section Order" parameters reliable.
-          The "Quest Step" parameters listed under sections don't always match up either. But the dialogue within a textbox is guaranteed to be in the right order.
-        </li>
-        <li>You may sometimes notice seemingly duplicate dialogue sections. These dialogue sections may have slight differences depending on player's completion of
-          other quests/objectives.
-        </li>
-        <li>You may sometimes notice dialogue sections that start with a dialogue option. These are sometimes for conditional dialogue options.
-          You may have to adjust the dialogue depth (number of <code>:</code>'s at the start of a dialogue line) manually sometimes.
-        </li>
-        <li>The tool cannot distinguish between player dialogue options and Traveler spoken lines. For most quests you don't have to worry about this,
-          but some quests like Archon Quests and Flagship Event Quests may have Traveler spoken lines.
-        </li>
-      </ul>
-      <div class="buttons spacer15-top">
-        <button class="primary AppDialog_CloseTrigger" ui-action="close-modals">Dismiss</button>
-      </div>`, DIALOG_MODAL, {
-          dialog_style: 'max-width:800px;margin-top:90px'
-        });
+        modalService.modal(`<h2>Notes</h2>
+          <ul class="padding">
+            <li>The order of dialogue sections is not guaranteed to be in the correct chronological order nor are the "Section Order" parameters reliable.
+              The "Quest Step" parameters listed under sections don't always match up either. But the dialogue within a textbox is guaranteed to be in the right order.
+            </li>
+            <li>You may sometimes notice seemingly duplicate dialogue sections. These dialogue sections may have slight differences depending on player's completion of
+              other quests/objectives.
+            </li>
+            <li>You may sometimes notice dialogue sections that start with a dialogue option. These are sometimes for conditional dialogue options.
+              You may have to adjust the dialogue depth (number of <code>:</code>'s at the start of a dialogue line) manually sometimes.
+            </li>
+            <li>The tool cannot distinguish between player dialogue options and Traveler spoken lines. For most quests you don't have to worry about this,
+              but some quests like Archon Quests and Flagship Event Quests may have Traveler spoken lines.
+            </li>
+          </ul>
+          <div class="buttons spacer15-top">
+            <button class="primary" ui-action="close-modals">Dismiss</button>
+          </div>`,
+          {
+            modalCssStyle: 'max-width:800px;margin-top:90px'
+          });
       }
     },
   ];

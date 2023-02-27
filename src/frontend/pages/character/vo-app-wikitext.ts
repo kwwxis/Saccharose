@@ -6,14 +6,14 @@ import { VoHandle } from '../../../shared/vo-tool/vo-handle';
 import { mwParse } from '../../../shared/mediawiki/mwParse';
 import { MwTemplateNode } from '../../../shared/mediawiki/mwTypes';
 import Cookies from 'js-cookie';
-import { preloadFromFetters } from './vo-app-preload';
+import { preloadFromFetters, VoAppPreloadOptions } from './vo-app-preload';
 import { LangCode } from '../../../shared/types/dialogue-types';
 
 function compareTemplateName(t1: string, t2: string) {
   return t1?.toLowerCase()?.replace(/_/g, ' ') === t2?.toLowerCase()?.replace(/_/g, ' ');
 }
 
-export function VoAppWikitext(state: VoAppState) {
+export function VoAppWikitextEditor(state: VoAppState) {
   const editor: ace.Editor = createWikitextEditor('wikitext-editor');
 
   let editorEl = document.getElementById('wikitext-editor');
@@ -38,7 +38,7 @@ export function VoAppWikitext(state: VoAppState) {
       let langButton = document.querySelector<HTMLElement>('#vo-app-language-button');
       flashTippy(langButton, {content: 'Loaded locally saved text for ' + state.avatar.NameText + ' (' + state.voLang + ')', delay:[0,2000]});
     }
-    state.eventBus.emit('VO-Editor-Reload', localStorageValue || '');
+    state.eventBus.emit('VO-Visual-Reload', localStorageValue || '');
   }
 
   function localSave() {
@@ -61,7 +61,7 @@ export function VoAppWikitext(state: VoAppState) {
   editor.on('blur', (e) => {
     console.log('Wikitext blur', e);
     localSave();
-    state.eventBus.emit('VO-Editor-Reload', editor.getValue());
+    state.eventBus.emit('VO-Visual-Reload', editor.getValue());
   });
 
   state.eventBus.on('VO-Wikitext-LocalLoad', () => {
@@ -97,7 +97,7 @@ export function VoAppWikitext(state: VoAppState) {
       localSave();
     }
   });
-  state.eventBus.on('VO-Wikitext-OverwriteFromFetters', (requestedMode: string) => {
+  state.eventBus.on('VO-Wikitext-OverwriteFromFetters', (requestedMode: string, opts: VoAppPreloadOptions = {}) => {
     if (!state.fetters) {
       return;
     }
@@ -112,7 +112,7 @@ export function VoAppWikitext(state: VoAppState) {
       return;
     }
 
-    let result = preloadFromFetters(state.fetters, mode, voLang, userLang);
+    let result = preloadFromFetters(state.fetters, mode, voLang, userLang, opts);
     let parsedResult: MwTemplateNode = mwParse(result.wikitext).findTemplateNodes()[0];
 
     let wikitext = mwParse(editor.getValue());
@@ -132,7 +132,7 @@ export function VoAppWikitext(state: VoAppState) {
       editor.resize();
       editor.session.setScrollTop(scrollTop);
       localSave();
-      state.eventBus.emit('VO-Editor-Reload', editor.getValue());
+      state.eventBus.emit('VO-Visual-Reload', editor.getValue());
     } else {
       let stringified = (editor.getValue() + '\n\n' + result.wikitext).trimStart();
       console.log('[VO-App] Appended {{' + result.templateName + '}} to wikitext with load from fetters.', { stringified });
@@ -140,7 +140,7 @@ export function VoAppWikitext(state: VoAppState) {
       editor.resize();
       editor.session.setScrollTop(scrollTop);
       localSave();
-      state.eventBus.emit('VO-Editor-Reload', editor.getValue());
+      state.eventBus.emit('VO-Visual-Reload', editor.getValue());
     }
   });
 

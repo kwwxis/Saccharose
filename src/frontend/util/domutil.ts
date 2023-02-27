@@ -1,17 +1,25 @@
 import { saveAs } from 'file-saver';
 
-export function createElement(tag: string, attrs: {[attr: string]: string|number|boolean} = {}) {
-    let el = document.createElement(tag);
-    for (let attr of Object.keys(attrs)) {
-        if (typeof attrs[attr] === 'string') {
-            el.setAttribute(attr, attrs[attr] as string);
-        } else if (typeof attrs[attr] === 'number') {
-            el.setAttribute(attr, String(attrs[attr]));
-        } else if (attrs[attr] === true) {
-            el.setAttribute(attr, '');
-        }
+export function tag(el: Element): string {
+  return el ? el.tagName.toLowerCase() : null;
+}
+
+export function createElement<T extends HTMLElement = HTMLElement>(tag: string, attrs: {[attr: string]: string|number|boolean} = {}): T {
+  let el = document.createElement(tag);
+  for (let attr of Object.keys(attrs)) {
+    if (attr === 'text' || attr === 'textContent' || attr === 'innerText') {
+      el.innerText = String(attrs[attr]);
+    } else if (attr === 'html' || attr === 'HTML' || attr === 'innerHTML') {
+      el.innerHTML = String(attrs[attr]);
+    } else if (typeof attrs[attr] === 'string') {
+      el.setAttribute(attr, attrs[attr] as string);
+    } else if (typeof attrs[attr] === 'number') {
+      el.setAttribute(attr, String(attrs[attr]));
+    } else if (attrs[attr] === true) {
+      el.setAttribute(attr, '');
     }
-    return el;
+  }
+  return el as T;
 }
 
 /**

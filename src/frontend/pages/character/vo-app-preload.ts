@@ -4,11 +4,13 @@ import { LangCode } from '../../../shared/types/dialogue-types';
 import { defaultMap } from '../../../shared/util/genericUtil';
 import { isTraveler as checkIsTraveler } from '../../../shared/types/avatar-types';
 
-export interface VoAppPreloadOptions {
-
+export type VoAppPreloadOptions = {
+  noIncludeFileParam?: boolean,
+  swapTitleSubtitle?: boolean,
 }
 
-export function preloadFromFetters(characterFetters: CharacterFetters, mode: 'story' | 'combat', lang: LangCode, userLang: LangCode): {
+export function preloadFromFetters(characterFetters: CharacterFetters, mode: 'story' | 'combat', lang: LangCode, userLang: LangCode,
+                                   opts: VoAppPreloadOptions = {}): {
   templateName: string,
   wikitext: string
 } {
@@ -138,10 +140,12 @@ export function preloadFromFetters(characterFetters: CharacterFetters, mode: 'st
         out.prop('title_s', fetter.VoiceTitleTextMap.CHS);
         out.prop('title_t', fetter.VoiceTitleTextMap.CHT);
       } else {
-        out.prop('title', fetter.VoiceTitleTextMap[lang].replace(avatarName.EN, '{character}'));
+        let langProp = opts.swapTitleSubtitle ? userLang : lang;
+        out.prop('title', fetter.VoiceTitleTextMap[langProp].replace(avatarName.EN, '{character}'));
       }
       if (lang !== userLang) {
-        out.prop('subtitle', fetter.VoiceTitleTextMap[userLang].replace(avatarName.EN, '{character}'));
+        let langProp = opts.swapTitleSubtitle ? lang : userLang;
+        out.prop('subtitle', fetter.VoiceTitleTextMap[langProp].replace(avatarName.EN, '{character}'));
       }
 
       if (fetter.OpenCondsSummary) {
@@ -162,20 +166,24 @@ export function preloadFromFetters(characterFetters: CharacterFetters, mode: 'st
         }
       }
 
-      out.prop('file', getStoryFileName(fetter));
+      if (!opts.noIncludeFileParam) {
+        out.prop('file', getStoryFileName(fetter));
+      }
 
       if (lang === 'CH') {
         out.prop('tx_s', fetter.VoiceFileTextMap.CHS);
         out.prop('tx_t', fetter.VoiceFileTextMap.CHT);
         out.prop('rm');
       } else {
-        out.prop('tx', fetter.VoiceFileTextMap[lang]);
+        let langProp = opts.swapTitleSubtitle ? userLang : lang;
+        out.prop('tx', fetter.VoiceFileTextMap[langProp]);
         if (lang !== 'EN') {
           out.prop('rm');
         }
       }
       if (lang !== userLang) {
-        out.prop('tl', fetter.VoiceFileTextMap[userLang]);
+        let langProp = opts.swapTitleSubtitle ? lang : userLang;
+        out.prop('tl', fetter.VoiceFileTextMap[langProp]);
       }
     }
   }
@@ -215,11 +223,14 @@ export function preloadFromFetters(characterFetters: CharacterFetters, mode: 'st
         }
       } else if (titleEN.includes('fallen')) {
         return 'fallen';
+      } else if (titleEN.includes('light hit')) {
+        return 'hit-l';
       } else if (titleEN.includes('heavy hit')) {
         return 'hit-h';
       } else if (titleEN.includes('joining party')) {
         return 'join';
       } else {
+        console.log('[VO-App] Was unable to determine combat group for fetter', fetter);
         return 'unknown';
       }
     }
@@ -295,7 +306,9 @@ export function preloadFromFetters(characterFetters: CharacterFetters, mode: 'st
       }
       if (file) {
         out.setPropPrefix(`${groupCode}_${voItemNum + 1}_`);
-        out.prop('file', file);
+        if (!opts.noIncludeFileParam) {
+          out.prop('file', file);
+        }
       }
     }
   }

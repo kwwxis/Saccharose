@@ -5,24 +5,27 @@ import { VoAppWelcome } from './vo-app-welcome';
 import Cookies from 'js-cookie';
 import { VoAppSidebar } from './vo-app-sidebar';
 import { VoAppToolbar } from './vo-app-toolbar';
-import { VoAppWikitext } from './vo-app-wikitext';
-import { VoAppEditor } from './vo-app-editor';
+import { VoAppWikitextEditor } from './vo-app-wikitext';
+import { VoAppVisual } from './vo-app-visual';
 import { EventBus } from '../../util/eventBus';
 import { CharacterFetters } from '../../../shared/types/fetter-types';
 import { AvatarExcelConfigData, isTraveler } from '../../../shared/types/avatar-types';
 import { endpoints } from '../../endpoints';
+import { GeneralEventBus } from '../../generalEventBus';
 
 export class VoAppState {
   avatars: AvatarExcelConfigData[];
   avatar: AvatarExcelConfigData;
   fetters: CharacterFetters;
   voLang: LangCode;
+  interfaceLang: LangCode;
   eventBus: EventBus;
 
   constructor() {
     this.avatars = (<any> window).avatars;
     this.avatar = (<any> window).avatar;
     this.voLang = (Cookies.get('VO-App-LangCode') as LangCode) || 'EN';
+    this.interfaceLang = (Cookies.get('outputLangCode') as LangCode) || 'EN';
     this.eventBus = new EventBus('VO-App-EventBus');
 
     if (!LANG_CODES.includes(this.voLang)) {
@@ -45,6 +48,10 @@ export class VoAppState {
         document.querySelector('#vo-app-loadingFettersStatus').classList.add('hide');
       });
     }
+
+    GeneralEventBus.on('outputLangCodeChanged', (newLangCode: LangCode) => {
+      this.interfaceLang = newLangCode;
+    });
 
     this.eventBus.on('VO-Lang-Changed', (langCode: LangCode) => {
       console.log('[VO-App] Lang Code Changed:', langCode);
@@ -77,7 +84,7 @@ pageMatch('pages/character/vo-tool', () => {
   }
   if (state.avatar) {
     VoAppToolbar(state);
-    VoAppEditor(state);
-    VoAppWikitext(state);
+    VoAppVisual(state);
+    VoAppWikitextEditor(state);
   }
 });

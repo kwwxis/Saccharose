@@ -65,7 +65,12 @@ export function createWikitextEditor(editorElementId: string|HTMLElement): ace.E
     wrap: true,
     useWrapMode: true,
     scrollPastEnd: 1,
-  })
+  });
+
+  // Set this variable to `Infinity` to deal with this console warning:
+  //   "Automatically scrolling cursor into view after selection change this will be disabled in the next version
+  //   set editor.$blockScrolling = Infinity to disable the message"
+  editor.$blockScrolling = Infinity;
 
   editor.setHighlightActiveLine(false);
   editor.setBehavioursEnabled(false);

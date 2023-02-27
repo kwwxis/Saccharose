@@ -4,7 +4,7 @@ import { createVoHandle } from '../../../shared/vo-tool/vo-handle';
 import { LangCode } from '../../../shared/types/dialogue-types';
 import { VoAppState } from './vo-tool';
 import { toInt } from '../../../shared/util/numberUtil';
-import { closeDialog, DIALOG_MODAL, openDialog } from '../../util/dialog';
+import { modalService } from '../../util/modalService';
 import { createWikitextEditor } from '../../util/ace/wikitextEditor';
 import { humanTiming } from '../../../shared/util/genericUtil';
 import { sort } from '../../../shared/util/arrayUtil';
@@ -117,7 +117,7 @@ export function VoAppWelcome(state: VoAppState) {
 
         let locallySavedAvatar = locallySavedAvatars.find(x => x.avatarId === avatar.Id);
         if (locallySavedAvatar) {
-          openDialog(`
+          modalService.modal(`
             <h2>Are you sure?</h2>
             <div class="content">
               <p>You already have locally-saved wikitext for <strong>${avatar.NameText}</strong> (${langCode})</p>
@@ -127,14 +127,14 @@ export function VoAppWelcome(state: VoAppState) {
               <button class="primary danger">Overwrite</button>
               <button ui-action="close-modals" class="primary cancel">Cancel</button>
             </div>
-          `, DIALOG_MODAL, {
+          `, {
             callback(el) {
               startListeners([
                 {
                   el: '.primary.danger',
                   ev: 'click',
                   fn() {
-                    closeDialog();
+                    modalService.closeAll();
                     go();
                   }
                 }

@@ -1,9 +1,9 @@
 // noinspection JSUnusedGlobalSymbols
 export class DOMClassWatcher {
-  private targetNode: HTMLElement;
-  private classToWatch: string;
-  private classAddedCallback: () => void;
-  private classRemovedCallback: () => void;
+  private readonly targetNode: HTMLElement;
+  private readonly classToWatch: string;
+  private readonly classAddedCallback: () => void;
+  private readonly classRemovedCallback: () => void;
   private observer: MutationObserver;
   private lastClassState: boolean;
 

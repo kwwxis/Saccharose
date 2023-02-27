@@ -42,6 +42,9 @@
   height: 1px;
   background: #333;
 }
+body.nightmode .close:before, body.nightmode .close:after {
+  background: hsla(232deg, 20%, 55%)
+}
 .close.w2:before, .close.w2:after {
   height: 2px;
 }

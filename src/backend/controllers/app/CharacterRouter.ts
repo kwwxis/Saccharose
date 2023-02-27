@@ -81,9 +81,9 @@ export default async function(): Promise<Router> {
   router.get('/character/VO/:avatar', async (req: Request, res: Response) => {
     const ctrl = getControl(req);
 
-    const validTabs = new Set(['editor', 'wikitext']);
+    const validTabs = new Set(['visualEditor', 'wikitext']);
     if (typeof req.query.tab === 'string' && !validTabs.has(req.query.tab)) {
-      req.query.tab = 'editor';
+      req.query.tab = 'visualEditor';
     }
 
     let avatar: AvatarExcelConfigData = await getAvatar(ctrl, req, res);
@@ -93,7 +93,7 @@ export default async function(): Promise<Router> {
       bodyClass: ['page--vo-tool'],
       avatars: await getAvatars(ctrl),
       avatar: avatar,
-      tab: req.query.tab || 'editor',
+      tab: req.query.tab || 'visualEditor',
     });
   });
 

@@ -1,7 +1,7 @@
 import { escapeHtml } from '../shared/util/stringUtil';
 import axios, { AxiosError } from 'axios';
 import { showInternalErrorDialog, showJavascriptErrorDialog } from './util/errorHandler';
-import { DIALOG_MODAL, openDialog } from './util/dialog';
+import { modalService } from './util/modalService';
 import { HttpError } from '../shared/util/httpError';
 
 export const endpoints = {
@@ -21,19 +21,19 @@ export const endpoints = {
     }
 
     if (httpError && httpError.type === 'EBADCSRFTOKEN') {
-      openDialog(`
-      <h2>Session timed out.</h2>
-      <p class='spacer15-top'>
-        The session for your page expired after being left open for too long.
-      </p>
-      <p class='spacer15-top'>
-        Simply just refresh the page to restore the session and fix the issue.
-      </p>
-      <div class='buttons spacer15-top'>
-        <button class='primary' ui-action="refresh-page">Refresh Page</button>
-        <button class='secondary' ui-action="close-modals">Dismiss</button>
-      </div>
-    `, DIALOG_MODAL);
+      modalService.modal(`
+        <h2>Session timed out.</h2>
+        <p class='spacer15-top'>
+          The session for your page expired after being left open for too long.
+        </p>
+        <p class='spacer15-top'>
+          Simply just refresh the page to restore the session and fix the issue.
+        </p>
+        <div class='buttons spacer15-top'>
+          <button class='primary' ui-action="refresh-page">Refresh Page</button>
+          <button class='secondary' ui-action="close-modals">Dismiss</button>
+        </div>
+      `);
       return;
     }
 

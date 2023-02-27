@@ -4,10 +4,10 @@ import {
   copyToClipboard,
   getScrollbarWidth,
   hashFlash,
-  setQueryStringParameter,
+  setQueryStringParameter, tag,
 } from './util/domutil';
 import { humanTiming, throttle, timeConvert } from '../shared/util/genericUtil';
-import { closeDialog, DIALOG_MODAL, openDialog } from './util/dialog';
+import { modalService } from './util/modalService';
 import { enableTippy, flashTippy, getTippyOpts, hideTippy, showTippy } from './util/tooltips';
 import { Listener, runWhenDOMContentLoaded, startListeners } from './util/eventLoader';
 import { showJavascriptErrorDialog } from './util/errorHandler';
@@ -16,6 +16,8 @@ import { isInt } from '../shared/util/numberUtil';
 import { escapeHtml, uuidv4 } from '../shared/util/stringUtil';
 import { highlightReplace, highlightWikitextReplace } from './util/ace/wikitextEditor';
 import { GeneralEventBus } from './generalEventBus';
+import { LangCode } from '../shared/types/dialogue-types';
+import { languages } from './util/langCodes';
 
 type UiAction = {actionType: string, actionParams: string[]};
 
@@ -89,6 +91,68 @@ const initial_listeners: Listener[] = [
         `.collapsed { height: 0; overflow: hidden; }\n` +
         `</style>`
       );
+
+      function langCodeChanged(name: string, value: LangCode) {
+        console.log('Language selector: Name='+name+', Value='+value);
+        Cookies.set(name, value, { expires: 365 });
+
+        const processOption = (opt: HTMLElement) => {
+          let isSelectOption = tag(opt) === 'option';
+          let optValue = (opt.hasAttribute('value')
+            ? opt.getAttribute('value')
+            : opt.getAttribute('data-value')
+          ) || opt.textContent;
+          if (optValue === value) {
+            if (isSelectOption) {
+              if (!opt.hasAttribute('selected')) {
+                opt.setAttribute('selected', 'selected');
+              }
+            } else {
+              opt.classList.add('selected');
+            }
+          } else {
+            if (isSelectOption) {
+              if (opt.hasAttribute('selected')) {
+                opt.removeAttribute('selected');
+              }
+            } else {
+              opt.classList.remove('selected');
+            }
+          }
+        }
+
+        const processCurrentValueElement = (el: HTMLElement) => {
+          el.setAttribute('data-value', value);
+          if (el.hasAttribute('value')) {
+            el.setAttribute('value', value);
+          }
+          if (tag(el) != 'input' && tag(el)!= 'select' && tag(el) !== 'textarea') {
+            el.textContent = languages[value];
+          }
+        };
+
+        let elements = Array.from(document.querySelectorAll(`[name="${name}"], [data-name="${name}"], [data-for="${name}"], [data-control="${name}"]`));
+        for (let element of elements) {
+          if (tag(element) === 'select') {
+            element.querySelectorAll('option').forEach(el => processOption(el));
+          } else if (tag(element) === 'span' || tag(element) === 'p' || tag(element) === 'div' || tag(element) === 'section') {
+            element.querySelectorAll('.option').forEach(el => processOption(el as HTMLElement));
+
+            if (element.classList.contains('current-value') || element.classList.contains('current-option')) {
+              processCurrentValueElement(element as HTMLElement);
+            } else {
+              element.querySelectorAll('.current-value, .current-option').forEach(el => processCurrentValueElement(el as HTMLElement))
+            }
+          }
+        }
+      }
+
+      GeneralEventBus.on('inputLangCodeChanged', (langCode: LangCode) => {
+        langCodeChanged('inputLangCode', langCode);
+      });
+      GeneralEventBus.on('outputLangCodeChanged', (langCode: LangCode) => {
+        langCodeChanged('outputLangCode', langCode);
+      });
     },
 
     intervalFunction() {
@@ -305,7 +369,7 @@ const initial_listeners: Listener[] = [
               window.location.reload();
               break;
             case 'close-modals':
-              closeDialog();
+              modalService.closeAll();
               break;
             case 'copy':
               let copyTarget = qs(actionParams[0]);
@@ -508,8 +572,6 @@ const initial_listeners: Listener[] = [
     fn: function(event: Event, target: HTMLSelectElement) {
       let name = target.name;
       let value = target.value;
-      console.log('Language selector: Name='+name+', Value='+value);
-      Cookies.set(name, value, { expires: 365 });
       GeneralEventBus.emit(name + 'Changed', value);
     }
   },
@@ -562,15 +624,9 @@ const initial_listeners: Listener[] = [
       const params = target.closest('.file-format-options').getAttribute('data-file-format-params').split(',').map(x => x.trim());
       const langCodes = target.closest('.file-format-options').getAttribute('data-lang-codes').split(',').map(x => x.trim());
 
-      openDialog(`<h2 style="line-height:40px;">Custom Format Options for <code>${escapeHtml(paramName)}</code></h2>
-      <div style="
-        max-height:640px;
-        overflow: auto;
-        box-shadow: inset 0 11px 8px -10px #ccc, inset 0 -11px 8px -10px #ccc;
-        margin: 0 -20px;
-        padding: 0 20px 20px;
-      ">
-        <p class="info-notice spacer20-top">Parameters must be in curly braces, for example:<br/><code>{NameText.EN} Map Location.png</code></p>
+      modalService.modal(`<h2 style="line-height:40px;">Custom Format Options for <code>${escapeHtml(paramName)}</code></h2>
+      <div class="modal-inset">
+        <p class="info-notice">Parameters must be in curly braces, for example:<br/><code>{NameText.EN} Map Location.png</code></p>
         <p class="info-notice spacer5-top">
           <strong>English wiki format for <code>${escapeHtml(paramName)}</code>:</strong><br />
           <textarea class="code autosize w100p" readonly style="background:transparent">${escapeHtml(fileFormatDefault)}</textarea>
@@ -623,9 +679,9 @@ const initial_listeners: Listener[] = [
         </fieldset>
       </div>
       <div class="buttons spacer15-top">
-        <button class="primary AppDialog_CloseTrigger" ui-action="close-modals">Dismiss</button>
-      </div>`, DIALOG_MODAL, {
-        dialog_style: 'max-width:800px;max-height:750px',
+        <button class="primary" ui-action="close-modals">Dismiss</button>
+      </div>`, {
+        modalCssStyle: 'max-width:800px;max-height:750px',
         blocking: true,
       });
     }

@@ -452,21 +452,21 @@ body.nightmode .card.result-count-card > h2 {
 
 /*------------------------------------------------------------------------------------------------*/
 
-.AppDialogOuter {
+.modal-outer {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   z-index: 9990;
 }
-.AppDialog {
+.modal {
   display: block;
   position: fixed;
   left: 50%;
   top: 50%;
   transform: translateX(-50%) translateY(-50%);
   opacity: 0.5;
-  animation: AppDialogEntryOpacity 300ms ease-out forwards;
+  animation: modalEntryOpacity 300ms ease-out forwards;
   padding: 10px;
   background: white;
   box-shadow: 0 10px 100px rgba(0, 0, 0, 0.1), 0 0px 1px rgba(0, 0, 0, 0.1),
@@ -476,51 +476,53 @@ body.nightmode .card.result-count-card > h2 {
   margin: auto;
   overflow: auto;
 }
-.AppDialog[data-type='alert'] {
+.modal[data-type='alert'] {
   max-width: 400px;
   width: 100%;
 }
-.AppDialog[data-type='modal'] {
+.modal[data-type='modal'] {
   max-width: 500px;
   width: 100%;
 }
-.AppDialog_Inner > .close {
+.modal-inner > .close {
   position: absolute;
   top: 10px;
   right: 10px;
   opacity: 0.5;
 }
-.AppDialog_Inner > .close:hover {
+.modal-inner > .close:hover {
   opacity: 1;
 }
-
-.AppDialog .AppDialog_Content {
+.modal .modal-inset {
+  max-height:640px;
+  overflow: auto;
+  box-shadow: inset 0 11px 8px -10px #ccc, inset 0 -11px 8px -10px #ccc;
+  margin: 0 -20px;
+  padding: 20px 20px 20px;
+}
+.modal .modal-content {
   font-size: 15px;
   font-family: 'Source Sans Pro', 'Open Sans', Arial, sans-serif;
   min-height: 40px;
   padding: 0 10px;
   line-height: 1.3em;
 }
-.AppDialog .AppDialog_Content p + p {
+.modal .modal-content p + p {
   margin-top: 0.3em;
 }
-.AppDialog[data-type='modal'] .AppDialog_Content {
+.modal[data-type='modal'] .modal-content {
   min-height: 60px;
 }
-.AppDialog[data-type='alert'] .AppDialog_ButtonGroup {
-  display: flex;
-  justify-content: flex-end;
-}
 
-.AppDialog[data-type='toast'] {
+.modal[data-type='toast'] {
   max-width: 450px;
   width: 100%;
   margin-bottom: 30px;
   top: auto;
   bottom: -20px;
-  animation: AppDialogEntryFromBelow 80ms linear forwards;
+  animation: modalEntryFromBelow 80ms linear forwards;
 }
-.AppDialog[data-type='toast'] .AppDialog_Content {
+.modal[data-type='toast'] .modal-content {
   display: flex;
   align-items: center;
   font-family: 'Open Sans', Arial, sans-serif;
@@ -528,7 +530,7 @@ body.nightmode .card.result-count-card > h2 {
   line-height: 20px;
   margin-right: 30px;
 }
-.AppDialog[data-type='toast'] .AppDialog_Inner .icon {
+.modal[data-type='toast'] .modal-inner .icon {
   position: absolute;
   top: 0;
   bottom: 0;
@@ -540,18 +542,18 @@ body.nightmode .card.result-count-card > h2 {
   text-align: center;
   font-size: 25px;
 }
-.AppDialog[data-type='toast'] .AppDialog_Inner .icon + .AppDialog_Content {
+.modal[data-type='toast'] .modal-inner .icon + .modal-content {
   margin-left: 40px;
   border-left: 1px solid #ccc;
 }
-.AppDialog[data-type='toast'] .AppDialog_Inner > .close {
+.modal[data-type='toast'] .modal-inner > .close {
   top: 0;
   bottom: 0;
   right: 20px;
   margin: auto 0;
 }
 
-@keyframes AppDialogEntryOpacity {
+@keyframes modalEntryOpacity {
   0% {
     opacity: 0.5;
   }
@@ -559,7 +561,7 @@ body.nightmode .card.result-count-card > h2 {
     opacity: 1;
   }
 }
-@keyframes AppDialogEntryFromBelow {
+@keyframes modalEntryFromBelow {
   0% {
     bottom: -20px;
     opacity: 0.5;
@@ -570,12 +572,12 @@ body.nightmode .card.result-count-card > h2 {
   }
 }
 
-.AppDialog hr {
+.modal hr {
   border: 0;
   border-bottom: 0.5px solid hsla(223, 67%, 18%, 0.4);
 }
 
-.AppDialogOuter.AppDialogBlocking {
+.modal-outer.modal-blocking {
   top: 0 !important;
   left: 0 !important;
   right: 0 !important;
@@ -736,7 +738,7 @@ fieldset > .content {
 
 .ui-dropdown .option {
   padding: 3px 8px;
-  font-size: 15px;
+  font-size: 14px;
   cursor: pointer;
   white-space: nowrap;
 }

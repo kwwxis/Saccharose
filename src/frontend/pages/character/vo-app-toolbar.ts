@@ -3,9 +3,58 @@ import { LANG_CODE_TO_WIKI_CODE, LangCode } from '../../../shared/types/dialogue
 import { VoAppState } from './vo-tool';
 import { flashTippy } from '../../util/tooltips';
 import { copyToClipboard, downloadObjectAsJson, downloadTextAsFile } from '../../util/domutil';
-import { DIALOG_CONFIRM, openDialog } from '../../util/dialog';
+import { modalService } from '../../util/modalService';
+import { ucFirst } from '../../../shared/util/stringUtil';
+import { GeneralEventBus } from '../../generalEventBus';
+import { VoAppPreloadOptions } from './vo-app-preload';
 
 export function VoAppToolbar(state: VoAppState) {
+  function overwriteModal(type: 'story' | 'combat') {
+    if (!state.fetters) {
+      alert('Fetters not yet loaded. Please wait a bit and then retry.');
+      return;
+    }
+    let opts: VoAppPreloadOptions = {};
+    modalService.confirm(`
+          <h2 style="line-height:40px;">Preload ${ucFirst(type)} Template</h2>
+          <div class="modal-inset">
+            <div class="info-notice">
+              <p>This will <em>completely</em> overwrite any existing wikitext you have for the VO ${ucFirst(type)} template.
+              Any wikitext outside of the template will be unaffected.</p>
+              <p>If you don't already have the template, then it'll append it to the end.</p>
+            </div>
+            <fieldset class="spacer10-top">
+              <legend>Preload Options</legend>
+              <div class="field spacer5-horiz" style="padding-right:30px">
+                <label class="ui-checkbox dispBlock" style="padding-left:5px;font-size:13px;">
+                  <input type="checkbox" name="noIncludeFileParam" value="true" />
+                  <span>Do not include <code>file</code> parameter.</span>
+                </label>
+              </div>
+              <div class="field spacer5-horiz" style="padding-right:30px">
+                <label class="ui-checkbox dispBlock" style="padding-left:5px;font-size:13px;">
+                  <input type="checkbox" name="swapTitleSubtitle" value="true" />
+                  <span>Swap <code>title/tx</code> and <code>subtitle/tl</code> values when applicable.</span>
+                </label>
+              </div>
+            </fieldset>
+          </div>
+        `, {
+      modalCssStyle: 'max-width:800px;max-height:750px',
+      blocking: true,
+      onConfirm(modalEl: HTMLElement) {
+        modalEl.querySelectorAll<HTMLInputElement>('input[type=checkbox]').forEach(inputEl => {
+          if (inputEl.checked) {
+            opts[inputEl.name] = true;
+          }
+        });
+        state.eventBus.emit('VO-Wikitext-OverwriteFromFetters', type, opts);
+      },
+      onCancel() {
+        // Do nothing
+      }
+    });
+  }
   startListeners([
     {
       el: '.vo-app-language-option',
@@ -14,6 +63,15 @@ export function VoAppToolbar(state: VoAppState) {
       fn: function(event, target) {
         let targetValue = target.getAttribute('data-value');
         state.eventBus.emit('VO-Lang-Changed', targetValue as LangCode);
+      }
+    },
+    {
+      el: '.vo-app-interfacelang-option',
+      ev: 'click',
+      multiple: true,
+      fn: function(event, target) {
+        let targetValue = target.getAttribute('data-value');
+        GeneralEventBus.emit('outputLangCodeChanged', targetValue as LangCode);
       }
     },
     {
@@ -34,20 +92,7 @@ export function VoAppToolbar(state: VoAppState) {
           alert('Fetters not yet loaded. Please wait a bit and then retry.');
           return;
         }
-        openDialog(`
-          <h2 class="spacer20-bottom">Confirm overwrite</h2>
-          <p class="error-notice">This will <em>completely</em> overwrite any existing wikitext you have for the VO Story template.</p>
-          <p>If you don't already have the template, then it'll append it to the end.</p>
-          <p>Are you sure you want to proceed?</p>
-        `, DIALOG_CONFIRM, {
-          blocking: true,
-          onConfirm() {
-            state.eventBus.emit('VO-Wikitext-OverwriteFromFetters', 'story');
-          },
-          onCancel() {
-            // Do nothing
-          }
-        });
+        overwriteModal('story');
       }
     },
     {
@@ -58,20 +103,7 @@ export function VoAppToolbar(state: VoAppState) {
           alert('Fetters not yet loaded. Please wait a bit and then retry.');
           return;
         }
-        openDialog(`
-          <h2 class="spacer20-bottom">Confirm overwrite</h2>
-          <p class="error-notice">This will <em>completely</em> overwrite any existing wikitext you have for the VO Combat template.</p>
-          <p>If you don't already have the template, then it'll append it to the end.</p>
-          <p>Are you sure you want to proceed?</p>
-        `, DIALOG_CONFIRM, {
-          blocking: true,
-          onConfirm() {
-            state.eventBus.emit('VO-Wikitext-OverwriteFromFetters', 'combat');
-          },
-          onCancel() {
-            // Do nothing
-          }
-        });
+        overwriteModal('combat');
       }
     },
     {

@@ -99,7 +99,7 @@ body.nightmode #vo-app-toolbar .vo-app-toolbar-avatarName {
   }
 }
 
-// Editor Draggables
+// VO Group / Item Containers
 // --------------------------------------------------------------------------------------------------------------
 .vo-group-body {
   overflow: hidden;
@@ -107,13 +107,16 @@ body.nightmode #vo-app-toolbar .vo-app-toolbar-avatarName {
   flex-direction: column;
   justify-content: stretch;
   align-items: stretch;
+  background: rgba(0,0,0,0.05);
+  box-shadow: inset 0 0 3px rgba(0,0,0,0.2);
+}
+.vo-group-addItem {
+  padding: 0 5px 5px 10px;
 }
 .vo-group-items {
   width: 100%;
   height: 100%;
-  background: rgba(0,0,0,0.05);
   padding: 5px 5px 5px 10px;
-  box-shadow: inset 0 0 3px rgba(0,0,0,0.2);
 }
 .vo-group.empty-group .vo-group-body {
   height: 0;
@@ -122,14 +125,16 @@ body.nightmode #vo-app-toolbar .vo-app-toolbar-avatarName {
 body.vo-item-dragging .vo-group.empty-group .vo-group-body {
   height: 60px; // 40 (height of vo item) + 5*2 (vo-group-items padding) + 5*2 (vo-item margin)
 }
-.vo-item, .vo-group {
+.vo-item,
+.vo-group {
   border: 1px solid rgba(0,0,0,0.1);
   border-radius: 5px;
   padding: 0;
   margin: 5px 0;
   background: #fff;
 }
-.vo-group-header, .vo-item-header {
+.vo-group-header,
+.vo-item-header {
   display: flex;
   align-items: center;
   height: 38px;
@@ -137,7 +142,8 @@ body.vo-item-dragging .vo-group.empty-group .vo-group-body {
   padding: 0 5px;
 }
 
-
+// Sortable
+// --------------------------------------------------------------------------------------------------------------
 .sortable-ghost {
   background: lightblue;
   opacity: 0.6;
@@ -157,6 +163,10 @@ body.vo-item-dragging .vo-group.empty-group .vo-group-body {
 
 body.vo-dragging {
   cursor: move !important;
+
+  .vo-group-add-buttons, .vo-item-remove, .vo-group-remove {
+    display: none !important;
+  }
 }
 
 @keyframes sortable-drag-element-width {
@@ -176,7 +186,10 @@ svg.icon.icon-drag-handle {
 }
 
 
-.seamless-input:not(:hover):not(:focus) {
+// Seamless Input
+// --------------------------------------------------------------------------------------------------------------
+.seamless-input:not(:hover):not(:focus),
+.seamless-input.no-hover {
   border-color: transparent !important;
 }
 body.vo-dragging .seamless-input {
@@ -184,8 +197,93 @@ body.vo-dragging .seamless-input {
   border-color: transparent !important;
 }
 
+// VO Item Header
+// --------------------------------------------------------------------------------------------------------------
+.vo-item-remove, .vo-group-remove {
+  cursor: pointer;
+  margin-left: 5px;
+  height: 28px;
+  line-height: 28px;
+  padding: 0 5px;
+  .icon {
+    width: 16px;
+    height: 16px;
+  }
+}
 
+.vo-group-add-buttons {
+  font-size: 14px;
 
+  .secondary, .secondary-label {
+    line-height: 28px;
+    height: 28px;
+    padding: 0 5px;
+  }
+
+  .secondary-label {
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .icon {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+// VO Item Params
+// --------------------------------------------------------------------------------------------------------------
+.vo-item-params {
+  padding-left: 35px;
+}
+.vo-item-param, .vo-item-addParam {
+  border-top: 1px solid hsla(232deg, 20%, 32%, 0.15);
+  padding-top: 5px;
+  padding-bottom: 5px;
+  body.nightmode & {
+    border-top-color: hsla(232, 20%, 60%, 0.25);
+  }
+}
+.vo-item-addParam {
+  margin-left: 35px;
+  padding-left: 5px;
+  select {
+    min-width: 200px;
+  }
+  .card .content & select,
+  .card .content & input[type=text] {
+    line-height: 14px;
+    height: auto;
+    padding: 3.5px 8px;
+    font-size: 12.5px;
+  }
+}
+.vo-item-param {
+  &:hover {
+    background: hsla(232deg, 20%, 32%, 0.02);
+  }
+  body.nightmode & {
+    &:hover {
+      background: hsla(232, 20%, 60%, 0.03);
+    }
+    .prop-value {
+      background: hsla(232deg, 20%, 80%, 0.075);
+    }
+  }
+
+  .prop-name {
+    min-width: 100px;
+    font-size: 14px;
+    font-weight: 600;
+    padding-left: 5px;
+  }
+  .close {
+    margin: 0 5px;
+  }
+}
+
+// Nightmode
+// --------------------------------------------------------------------------------------------------------------
 body.nightmode .vo-item {
   background: hsl(240deg 12% 25%);
   box-shadow: 0 0 5px hsl(240deg 12% 14%);
@@ -196,9 +294,6 @@ body.nightmode .vo-group {
 
 body.nightmode .vo-group .vo-group-body {
   background: hsl(240deg 12% 21%);
-}
-
-body.nightmode .vo-group-items {
   box-shadow: inset 0 0 8px hsl(240deg 12% 12%);
 }
 

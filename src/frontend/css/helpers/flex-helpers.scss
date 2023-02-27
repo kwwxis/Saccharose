@@ -29,6 +29,30 @@
   -webkit-justify-content: center !important;
   justify-content: center !important;
 }
+.justifyStart {
+  display: -webkit-flex !important;
+  display: flex !important;
+  -webkit-justify-content: flex-start !important;
+  justify-content: flex-start !important;
+}
+.justifyEnd {
+  display: -webkit-flex !important;
+  display: flex !important;
+  -webkit-justify-content: flex-end !important;
+  justify-content: flex-end !important;
+}
+.justifySpaceBetween {
+  display: -webkit-flex !important;
+  display: flex !important;
+  -webkit-justify-content: space-between !important;
+  justify-content: space-between !important;
+}
+.justfiySpaceAround {
+  display: -webkit-flex !important;
+  display: flex !important;
+  -webkit-justify-content: space-around !important;
+  justify-content: space-around !important;
+}
 
 .grow {
   -webkit-flex-grow: 1 !important;
