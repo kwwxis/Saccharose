@@ -148,7 +148,7 @@ export default async function(): Promise<Router> {
 
     res.render('pages/character/character-stories', {
       title: 'Character Stories - ' + (story?.avatar?.NameText || 'N/A'),
-      avatarId: req.params.avatarId,
+      avatarId: req.params.avatar,
       story: story,
       bodyClass: ['page--character-stories'],
       tab: req.query.tab || 'display',

@@ -57,8 +57,5 @@ node_modules/
 # Build output
 dist/
 
-# package lock
-/package-lock.json
-
 # Genshin Images
 /public/images/genshin/*.png

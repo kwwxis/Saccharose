@@ -34,7 +34,7 @@ export function getIconHtml(icon: 'add' | 'trash' | 'chevron-up' | 'chevron-down
   return tpl.innerHTML;
 }
 
-export function VoAppVisual(state: VoAppState) {
+export function VoAppVisualEditor(state: VoAppState) {
   let storyHandle: VoHandle;
   let combatHandle: VoHandle;
 

@@ -23,7 +23,17 @@ export function VoAppWikitextEditor(state: VoAppState) {
       e.stopPropagation();
       editor.execCommand('find');
     }
-  })
+  });
+
+  let reformatButtonEl = document.getElementById('wikitext-reformat-button');
+  reformatButtonEl.addEventListener('click', () => {
+    state.eventBus.emit('VO-Visual-RequestHandle', 'story', (voStoryHandle: VoHandle) => {
+      state.eventBus.emit('VO-Visual-RequestHandle', 'combat', (voCombatHandle: VoHandle) => {
+        console.log('[VO-App] Wikitext reformat', { voStoryHandle, voCombatHandle });
+        state.eventBus.emit('VO-Wikitext-SetFromVoHandle', [voStoryHandle, voCombatHandle], true);
+      });
+    });
+  });
 
   function localLoad(isFirstLoad: boolean = false) {
     console.log('[VO-App] Wikitext Local Load');
@@ -77,21 +87,32 @@ export function VoAppWikitextEditor(state: VoAppState) {
   state.eventBus.on('VO-Wikitext-RequestValue', (cb: (value: string) => void) => {
     cb(editor.getValue());
   });
-  state.eventBus.on('VO-Wikitext-SetFromVoHandle', (voHandle: VoHandle) => {
-    let templateName = voHandle.templateNode.templateName;
+  state.eventBus.on('VO-Wikitext-SetFromVoHandle', (voHandleArg: VoHandle|VoHandle[], reformat: boolean = false) => {
+    let voHandleArray: VoHandle[] = Array.isArray(voHandleArg) ? voHandleArg : [voHandleArg];
     let wikitext = mwParse(editor.getValue());
-    let templateFound: MwTemplateNode = null;
+    let didWork = false;
 
-    for (let wikitextTemplate of wikitext.findTemplateNodes()) {
-      if (compareTemplateName(wikitextTemplate.templateName, templateName)) {
-        templateFound = wikitextTemplate;
-        wikitextTemplate.parts = voHandle.templateNode.parts;
+    for (let voHandle of voHandleArray) {
+      if (!voHandle) {
+        continue;
+      }
+      if (reformat) {
+        voHandle.recalculate();
+      }
+
+      let templateName = voHandle.templateNode.templateName;
+
+      for (let wikitextTemplate of wikitext.findTemplateNodes()) {
+        if (compareTemplateName(wikitextTemplate.templateName, templateName)) {
+          console.log('[VO-App] Replaced {{' + wikitextTemplate.templateName + '}} in wikitext with editor result.');
+          wikitextTemplate.parts = voHandle.templateNode.parts;
+          didWork = true;
+        }
       }
     }
 
-    if (templateFound) {
+    if (didWork) {
       let stringified = wikitext.toString();
-      console.log('[VO-App] Replaced {{' + templateFound.templateName + '}} in wikitext with editor result.', { stringified });
       editor.setValue(stringified, -1);
       editor.resize();
       localSave();

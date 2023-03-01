@@ -6,7 +6,7 @@ import Cookies from 'js-cookie';
 import { VoAppSidebar } from './vo-app-sidebar';
 import { VoAppToolbar } from './vo-app-toolbar';
 import { VoAppWikitextEditor } from './vo-app-wikitext';
-import { VoAppVisual } from './vo-app-visual';
+import { VoAppVisualEditor } from './vo-app-visual';
 import { EventBus } from '../../util/eventBus';
 import { CharacterFetters } from '../../../shared/types/fetter-types';
 import { AvatarExcelConfigData, isTraveler } from '../../../shared/types/avatar-types';
@@ -84,7 +84,7 @@ pageMatch('pages/character/vo-tool', () => {
   }
   if (state.avatar) {
     VoAppToolbar(state);
-    VoAppVisual(state);
+    VoAppVisualEditor(state);
     VoAppWikitextEditor(state);
   }
 });
