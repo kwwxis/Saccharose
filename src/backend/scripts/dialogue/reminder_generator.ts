@@ -21,13 +21,14 @@ export async function reminderGenerateAll(ctrl: Control): Promise<DialogueSectio
         continue;
       }
 
+      let speaker = normText(reminder.SpeakerText, ctrl.outputLangCode);
       let text = normText(reminder.ContentText, ctrl.outputLangCode);
       let voPrefix = getVoPrefix('Reminder', reminder.Id, text);
 
       if (!reminder.SpeakerText) {
         out += '\n' + voPrefix + text;
       } else {
-        out += `\n:${voPrefix}'''${reminder.SpeakerText}:''' ${text}`;
+        out += `\n:${voPrefix}'''${speaker}:''' ${text}`;
       }
     }
     return out.trimStart();

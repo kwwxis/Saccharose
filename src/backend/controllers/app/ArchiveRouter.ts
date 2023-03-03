@@ -19,6 +19,8 @@ import { ViewpointsByRegion } from '../../../shared/types/viewpoint-types';
 import { selectAchievementGoals, selectAchievements } from '../../scripts/archive/achievements';
 import { AchievementsByGoals } from '../../../shared/types/achievement-types';
 import { paramCmp } from '../../util/viewUtilities';
+import { generateLoadingTipsWikiText, selectLoadingTips } from '../../scripts/archive/loadingTips';
+import { LoadingTipsByCategory } from '../../../shared/types/general-types';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -107,7 +109,7 @@ export default async function(): Promise<Router> {
     res.render('pages/archive/readables', {
       title: 'Books & Readables',
       archive: archive,
-      bodyClass: ['pages-readables', 'page--readables-list']
+      bodyClass: ['page--readables', 'page--readables-list']
     });
   });
 
@@ -138,7 +140,7 @@ export default async function(): Promise<Router> {
       collection: collection,
       infobox,
       ol: await ol_gen_from_id(ctrl, collection.SuitNameTextMapHash),
-      bodyClass: ['pages-readables', 'page--readable-collection']
+      bodyClass: ['page--readables', 'page--readable-collection']
     });
   });
 
@@ -150,7 +152,19 @@ export default async function(): Promise<Router> {
       title: readable.TitleText,
       readable: readable,
       ol: await ol_gen_from_id(ctrl, readable.TitleTextMapHash),
-      bodyClass: ['pages-readables', 'page--readable-item']
+      bodyClass: ['page--readables', 'page--readable-item']
+    });
+  });
+
+  router.get('/loading-tips', async (req: Request, res: Response) => {
+    const ctrl = getControl(req);
+    const loadingTipsByCategory: LoadingTipsByCategory = await selectLoadingTips(ctrl);
+    const wikitextByCategory: { [cat: string]: string } = generateLoadingTipsWikiText(ctrl, loadingTipsByCategory);
+
+    res.render('pages/archive/loading-tips', {
+      title: 'Loading Tips',
+      wikitextByCategory,
+      bodyClass: ['page--loading-tips']
     });
   });
 

@@ -118,20 +118,6 @@ export interface DialogExcelConfigData {
   GroupId?: number,
 }
 
-export interface LoadingTipsExcelConfigData {
-  Id: number,
-  TipsTitleText?: string,
-  TipsTitleTextMapHash: number,
-  TipsDescText?: string,
-  TipsDescTextMapHash: number,
-  StageId: string,
-  StartTime: string,
-  EndTime: string,
-  LimitOpenState: string,
-  PreMainQuestIds: string,
-  Weight: number
-}
-
 export interface ManualTextMapConfigData {
   TextMapId: string,
   TextMapContentText?: string,

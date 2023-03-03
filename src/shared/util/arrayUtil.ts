@@ -1,5 +1,5 @@
 import { isUnset, isEmpty } from './genericUtil';
-import { isStringBlank } from './stringUtil';
+import { isStringBlank, trim } from './stringUtil';
 
 export type SortComparator<T> = (a: T, b: T) => number;
 export type ElementComparator<T> = (arrayElement: T, expectedElement: T) => boolean;
@@ -111,7 +111,7 @@ export function compare<T>(a: T, b: T, field?: string|SortComparator<T>, nullsLa
     let n = 0;
 
     if (typeof a === 'string' && typeof b === 'string') {
-        n = a.localeCompare(b);
+        n = trim(a, `"`).localeCompare(trim(b, `"`));
     } else if (typeof a === 'number' && typeof b === 'number') {
         n = a - b;
     } else if (typeof a === 'object' && typeof b === 'object' && !!field) {

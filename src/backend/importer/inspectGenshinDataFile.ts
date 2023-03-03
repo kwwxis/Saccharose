@@ -8,7 +8,6 @@ import { pathToFileURL } from 'url';
 import { basename } from 'path';
 import { isInt } from '../../shared/util/numberUtil';
 import chalk from 'chalk';
-import { DungeonEntryExcelConfigData } from '../../shared/types/dungeon-types';
 
 async function inspectGenshinDataFile(ctrl: Control, file: string, inspectFieldValues: string[] = [], printRecordIfFieldNotEmpty: string[] = []): Promise<any[]> {
   if (!inspectFieldValues)
@@ -199,9 +198,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
 
     //await inspectGenshinDataFile(ctrl, './ExcelBinOutput/DialogExcelConfigData.json', ['TalkRole.Type']);
     //await inspectGenshinDataFile(ctrl, './ExcelBinOutput/MaterialExcelConfigData.json', ['MaterialType', 'ItemType', 'UseTarget', 'ItemUse[#ALL].UseOp']);
-
-    await inspectGenshinDataFile(ctrl, './ExcelBinOutput/CityConfigData.json');
-
+    //await inspectGenshinDataFile(ctrl, './ExcelBinOutput/CityConfigData.json');
     // await inspectGenshinDataFile(ctrl, './ExcelBinOutput/DungeonExcelConfigData.json',
     //  ['Type', 'SubType', 'InvolveType', 'SettleUIType', 'SettleShows[#ALL]', 'RecommendElementTypes[#ALL]', 'StateType', 'PlayType']);
     // await inspectGenshinDataFile(ctrl, './ExcelBinOutput/DungeonPassExcelConfigData.json', ['Conds[#ALL].CondType', 'LogicType']);
@@ -236,6 +233,9 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     // await inspectGenshinDataFile(ctrl, './ExcelBinOutput/GCGDeckExcelConfigData.json');
     //await inspectGenshinDataFile(ctrl, './ExcelBinOutput/WorldAreaConfigData.json', ['ElementType', 'TerrainType', 'AreaType']);
     //await inspectGenshinDataFile(ctrl, './ExcelBinOutput/NewActivityExcelConfigData.json');
+
+    await inspectGenshinDataFile(ctrl, './ExcelBinOutput/LoadingSituationExcelConfigData.json', ['LoadingSituationType', 'AreaTerrainType', 'PicPath']);
+
     await closeKnex();
   })();
 }

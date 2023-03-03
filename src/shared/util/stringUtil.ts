@@ -288,6 +288,10 @@ export const whitespaceCombined = whitespace.join('');
  * @returns {string}
  */
 export function trim(str, char_mask = undefined, mode = undefined): string {
+  if (!str) {
+    return str;
+  }
+
   if (typeof str !== 'string') {
     str += '';
   }
@@ -493,5 +497,35 @@ export class SbOut {
 
   htmlComment(text: string) {
     this.line('<!-- ' + text + ' -->');
+  }
+
+  getLines(): string[] {
+    return this.out.trim().split('\n');
+  }
+
+  lastLine(): string {
+    if (!this.out) {
+      return '';
+    }
+    let lines = this.getLines();
+    return lines[lines.length - 1];
+  }
+
+  wtTableStart(cssClass: string = 'wikitable', cssStyle: string = 'width: 100%') {
+    this.line(`{| class="${cssClass}" style="${cssStyle}"`);
+  }
+
+  wtTableRow(cells: string[], cellsOnOwnLine: boolean = false, isHeader: boolean = false) {
+    let needsNewRowLine = /^\s*(\{\||\|-)/.test(this.lastLine());
+    if (needsNewRowLine) {
+      this.line('|-');
+    }
+    let ch = isHeader ? '!' : '|';
+    this.line(ch + ' ');
+    this.append(cells.join(cellsOnOwnLine ? ' ' + ch + ch + ' ' : '\n' + ch + ' '));
+  }
+
+  wtTableEnd() {
+    this.line(`|}`);
   }
 }

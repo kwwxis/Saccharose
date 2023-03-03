@@ -177,7 +177,18 @@ export const schema = {
     columns: [
       {name: 'Id', type: 'integer', isPrimary: true},
       {name: 'TipsTitleTextMapHash', type: 'integer', isIndex: true},
-      {name: 'TipsDescTextMapHash', type: 'integer', isIndex: true}
+      {name: 'TipsDescTextMapHash', type: 'integer', isIndex: true},
+      {name: 'StageId', type: 'string', isIndex: true},
+      {name: 'MinLevel', type: 'integer', isIndex: true},
+    ]
+  },
+  LoadingSituationExcelConfigData: <SchemaTable> {
+    name: 'LoadingSituationExcelConfigData',
+    jsonFile: './ExcelBinOutput/LoadingSituationExcelConfigData.json',
+    columns: [
+      {name: 'StageId', type: 'integer', isPrimary: true},
+      {name: 'LoadingSituationType', type: 'string', isIndex: true},
+      {name: 'AreaTerrainType', type: 'string', isIndex: true},
     ]
   },
   ReminderExcelConfigData: <SchemaTable> {
