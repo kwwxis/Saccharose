@@ -632,9 +632,17 @@ export class Control {
     return Promise.all(talkIds.map(talkId => this.selectTalkExcelConfigDataById(talkId)));
   }
 
+  private postProcessDialog(dialog: DialogExcelConfigData): DialogExcelConfigData {
+    if (dialog.TalkRole.Type !== 'TALK_ROLE_PLAYER' && dialog.TalkShowType === 'TALK_SHOW_FORCE_SELECT' && !dialog.TalkRole.Id) {
+      dialog.TalkRole.Type = 'TALK_ROLE_PLAYER';
+    }
+    return dialog;
+  }
+
   async selectDialogExcelConfigDataByTalkRoleId(talkRoleId: number): Promise<DialogExcelConfigData[]> {
-    return await this.knex.select('*').from('DialogExcelConfigData')
+    let dialogs: DialogExcelConfigData[] = await this.knex.select('*').from('DialogExcelConfigData')
       .where({TalkRoleId: talkRoleId}).then(this.commonLoad);
+    return dialogs.map(d => this.postProcessDialog(d));
   }
 
   async selectPreviousDialogs(nextId: number): Promise<DialogExcelConfigData[]> {
@@ -649,6 +657,7 @@ export class Control {
     if (!result) {
       return result;
     }
+    result = this.postProcessDialog(result);
     this.saveToDialogIdCache(result);
     return result && result.TalkContentText ? result : null;
   }
@@ -679,6 +688,7 @@ export class Control {
       .where({TalkContentTextMapHash: textMapId})
       .then(this.commonLoad);
     for (let result of results) {
+      result = this.postProcessDialog(result);
       this.saveToDialogIdCache(result);
     }
     return results;
