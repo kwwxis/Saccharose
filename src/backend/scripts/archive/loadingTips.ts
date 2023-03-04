@@ -5,15 +5,19 @@ import util from 'util';
 import { closeKnex } from '../../util/db';
 import { defaultMap } from '../../../shared/util/genericUtil';
 import {
-  ElementTypeToNation,
-  LoadingSituationExcelConfigData, LoadingTipsByCategory,
-  LoadingTipsExcelConfigData,
   WorldAreaConfigData,
 } from '../../../shared/types/general-types';
 import { sort } from '../../../shared/util/arrayUtil';
 import { SbOut } from '../../../shared/util/stringUtil';
+import { ElementTypeToNation, ManualTextMapHashes } from '../../../shared/types/manual-text-map';
+import {
+  LoadingSituationExcelConfigData,
+  LoadingTipsByCategory,
+  LoadingTipsExcelConfigData,
+} from '../../../shared/types/loading-types';
 
-function determineLoadingTipCategory(tip: LoadingTipsExcelConfigData, situations: LoadingSituationExcelConfigData[], worldAreas: WorldAreaConfigData[]): string {
+function determineLoadingTipCategory(ctrl: Control, tip: LoadingTipsExcelConfigData,
+                                     situations: LoadingSituationExcelConfigData[], worldAreas: WorldAreaConfigData[]): string {
   if (!situations || !situations.length) {
     return 'General';
   }
@@ -55,11 +59,19 @@ function determineLoadingTipCategory(tip: LoadingTipsExcelConfigData, situations
       }
     }
   }
+  let cat: string;
   if (foundAreas.size === 1) {
-    return foundAreas.values().next().value;
+    cat = foundAreas.values().next().value;
+  } else {
+    sort(foundCats, '-weight');
+    cat = foundCats[0].text;
   }
-  sort(foundCats, '-weight');
-  return foundCats[0].text;
+  let catHash = ManualTextMapHashes[cat];
+  if (catHash) {
+    return getTextMapItem(ctrl.outputLangCode, catHash);
+  } else {
+    return cat;
+  }
 }
 
 export function generateLoadingTipsWikiText(ctrl: Control, tipsByCategory: LoadingTipsByCategory): {[cat: string]: string} {
@@ -88,6 +100,34 @@ export function generateLoadingTipsWikiText(ctrl: Control, tipsByCategory: Loadi
   return ret;
 }
 
+function createLoadingTipsByCategoryObject(ctrl: Control): LoadingTipsByCategory {
+  const manualKeys = [
+    'Mondstadt',
+    'Liyue',
+    'Inazuma',
+    'Sumeru',
+    'Domains',
+    'Spiral Abyss',
+    'Serenitea Pot',
+    'Golden Apple Archipelago',
+    'Three Realms Gateway Offering',
+    'General',
+  ];
+
+  let initialObj = {};
+  for (let manualKey of manualKeys) {
+    let hash = ManualTextMapHashes[manualKey];
+    if (hash) {
+      let cat = getTextMapItem(ctrl.outputLangCode, hash);
+      initialObj[cat] = [];
+    } else {
+      initialObj[manualKey] = [];
+    }
+  }
+  
+  return defaultMap('Array', initialObj);
+}
+
 export async function selectLoadingTips(ctrl: Control): Promise<LoadingTipsByCategory> {
   const areas: WorldAreaConfigData[] = await ctrl.readGenshinDataFile('./ExcelBinOutput/WorldAreaConfigData.json');
   const situations: LoadingSituationExcelConfigData[] = await ctrl.readGenshinDataFile('./ExcelBinOutput/LoadingSituationExcelConfigData.json');
@@ -97,22 +137,11 @@ export async function selectLoadingTips(ctrl: Control): Promise<LoadingTipsByCat
   }
 
   const tips: LoadingTipsExcelConfigData[] = await ctrl.readGenshinDataFile('./ExcelBinOutput/LoadingTipsExcelConfigData.json');
-  const ret: LoadingTipsByCategory = defaultMap('Array', {
-    Mondstadt: [],
-    Liyue: [],
-    Inazuma: [],
-    Sumeru: [],
-    Domains: [],
-    'Spiral Abyss': [],
-    'Serenitea Pot': [],
-    'Golden Apple Archipelago': [],
-    'Three Realms Gateway Offering': [],
-    General: [],
-  });
+  const ret: LoadingTipsByCategory = createLoadingTipsByCategoryObject(ctrl);
 
   for (let tip of tips) {
     let situations = tip.StageId ? tip.StageId.split(',').map(stageId => situationsByStageId[stageId]).filter(x => !!x) : null;
-    let category = determineLoadingTipCategory(tip, situations, areas);
+    let category = determineLoadingTipCategory(ctrl, tip, situations, areas);
     ret[category].push(tip);
   }
 

@@ -2,7 +2,7 @@
 
 import { Knex } from 'knex';
 import { openKnex } from '../util/db';
-import { CityConfigData, ConfigCondition, ElementType, NpcExcelConfigData } from '../../shared/types/general-types';
+import { CityConfigData, ConfigCondition, NpcExcelConfigData } from '../../shared/types/general-types';
 import { createLangCodeMap, getElementName, getTextMapItem, getVoPrefix } from './textmap';
 import { Request } from '../util/router';
 import SrtParser, { SrtLine } from '../util/srtParser';
@@ -80,6 +80,7 @@ import { MonsterExcelConfigData } from '../../shared/types/monster-types';
 import { defaultMap, isset } from '../../shared/util/genericUtil';
 import { NewActivityExcelConfigData } from '../../shared/types/activity-types';
 import { Marker } from '../../shared/util/highlightMarker';
+import { ElementType } from '../../shared/types/manual-text-map';
 
 // TODO improve this method - it sucks
 //   Only works for languages that use spaces for word boundaries (i.e. not chinese)
@@ -194,13 +195,51 @@ const DEFAULT_SEARCH_MODE: SearchMode = 'WI';
 
 export type SearchMode = 'W' | 'WI' | 'C' | 'CI' | 'R' | 'RI';
 
-// Shared state/cache between all Controls
-class ControlGlobalState {
-
-  constructor(readonly lang: LangCode) {}
+export function simpleSeqSearch<T>(array: T[], searchText: string, searchMode: SearchMode, fieldFilter: RegExp = /Text$|Id$/): T[] {
+  const testVal = (val: any): boolean => {
+    if (typeof val !== 'string')
+      val = String(val);
+    if (typeof val === 'string') {
+      switch (searchMode) {
+        case 'W':
+          return new RegExp('\\b' + escapeRegExp(searchText) + '\\b').test(val);
+        case 'WI':
+          return new RegExp('\\b' + escapeRegExp(searchText) + '\\b', 'i').test(val);
+        case 'C':
+          return val.includes(searchText);
+        case 'CI':
+          return val.toLowerCase().includes(searchText.toLowerCase());
+        case 'R':
+          return new RegExp(searchText).test(val);
+        case 'RI':
+          return new RegExp(searchText, 'i').test(val);
+      }
+    }
+    return false;
+  };
+  const out = [];
+  for (let item of array) {
+    if (!item) {
+      continue;
+    }
+    if (typeof item !== 'object') {
+      if (testVal(item)) {
+        out.push(item);
+      }
+    } else {
+      for (let [field, val] of Object.entries(item)) {
+        if (fieldFilter && !fieldFilter.test(field)) {
+          continue;
+        }
+        if (testVal(val)) {
+          out.push(item);
+          break;
+        }
+      }
+    }
+  }
+  return out;
 }
-
-const globalState: LangCodeMap<ControlGlobalState> = defaultMap((langCode: LangCode) => new ControlGlobalState(langCode));
 
 // State/cache for only a single control
 export class ControlState {

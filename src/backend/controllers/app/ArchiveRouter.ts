@@ -20,7 +20,7 @@ import { selectAchievementGoals, selectAchievements } from '../../scripts/archiv
 import { AchievementsByGoals } from '../../../shared/types/achievement-types';
 import { paramCmp } from '../../util/viewUtilities';
 import { generateLoadingTipsWikiText, selectLoadingTips } from '../../scripts/archive/loadingTips';
-import { LoadingTipsByCategory } from '../../../shared/types/general-types';
+import { LoadingTipsByCategory } from '../../../shared/types/loading-types';
 
 export default async function(): Promise<Router> {
   const router: Router = create();

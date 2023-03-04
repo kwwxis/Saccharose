@@ -1,4 +1,4 @@
-import { ElementType } from './general-types';
+import { ElementType } from './manual-text-map';
 
 export type DungeonType =
   'DUNGEON_ACTIVITY'                  |

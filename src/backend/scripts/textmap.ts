@@ -3,7 +3,7 @@ import path from 'path';
 import { LANG_CODES, LangCode, LangCodeMap, TalkRoleType } from '../../shared/types/dialogue-types';
 import { DATAFILE_VOICE_ITEMS, getGenshinDataFilePath, getTextMapRelPath } from '../loadenv';
 import { normText } from './script_util';
-import { ElementType, ElementTypeToNameTextMapHash } from '../../shared/types/general-types';
+import { ElementType, ManualTextMapHashes } from '../../shared/types/manual-text-map';
 
 // TYPES
 // ----------------------------------------------------------------------------------------------------
@@ -83,9 +83,9 @@ export function createLangCodeMap(id: any, doNormText: boolean = true): LangCode
 }
 
 export function getElementName(elementType: ElementType, langCode: LangCode = 'EN') {
-  let hash = ElementTypeToNameTextMapHash[elementType];
+  let hash = ManualTextMapHashes[elementType];
   if (!hash) {
-    hash = ElementTypeToNameTextMapHash['None'];
+    hash = ManualTextMapHashes['None'];
   }
   return getTextMapItem(langCode, hash);
 }
