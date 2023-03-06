@@ -224,13 +224,22 @@ faster when running `npm run ts-serve:dev`
   
 ## Genshin Images
 
-You'll want to create the `public/images/genshin` folder and add the follow images to it from Texture2D:
+You'll want to create the `public/images/genshin` folder and add the images starting with any of the following:
 
- - All images starting with `UI_AvatarIcon`
- - All images starting with `UI_EquipIcon`
- - All images starting with `UI_FlycloakIcon`
- - All images starting with `UI_ItemIcon`
- - All images starting with `UI_RelicIcon`
+- `UI_AchievementIcon`
+- `UI_AvatarIcon`
+- `UI_EquipIcon`
+- `UI_FlycloakIcon`
+- `UI_Gcg`
+- `UI_ItemIcon`
+- `UI_QUALITY`
+- `UI_QualityBg`
+- `UI_RelicIcon`
+
+Might be needed in the future:
+- `UI_Monster`
+- `UI_NameCardPic`
+- `UI_Gacha`
 
 Having these images isn't necessary for the application to run, but you'll have a bunch of broken images without them
 in certain areas of the UI. If you don't know where to get these images, you can ask for them in the "Saccharose.wiki"

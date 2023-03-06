@@ -151,37 +151,39 @@ router.restful('/dialogue/reminder-dialogue-generate', {
 router.restful('/dialogue/vo-to-dialogue', {
   get: async (req: Request, res: Response) => {
     const ctrl = getControl(req);
-    let input = (<string> req.query.text).trim();
-    if (input.toLowerCase().includes('{{a|')) {
-      input = /{{A\|(.*?)[|}]/.exec(input)[1].trim();
-    }
-    if (!input.toLowerCase().endsWith('.ogg')) {
-      input += '.ogg';
-    }
-    input = input.replaceAll('_', ' ');
-    input = input.replace('File:', '');
+    const inputs: string[] = (<string> req.query.text).trim().split(/\n/g).map(s => s.trim()).filter(s => !!s);
+    const results: {id: number, type: string, text: string, file: string}[] = [];
 
-    let result = getIdFromVoFile(input);
-    let type = result?.[0];
-    let id = result?.[1];
-    let text = '';
+    for (let input of inputs) {
+      if (input.toLowerCase().includes('{{a|')) {
+        input = /{{A\|(.*?)[|}]/.exec(input)[1].trim();
+      }
+      if (!input.toLowerCase().endsWith('.ogg')) {
+        input += '.ogg';
+      }
+      input = input.replaceAll('_', ' ');
+      input = input.replace('File:', '');
 
-    if (type === 'Dialog') {
-      let dialogue = await ctrl.selectSingleDialogExcelConfigData(id);
-      text = await ctrl.generateDialogueWikiText([dialogue]);
-    } else if (type === 'Reminder') {
-      let reminder = await ctrl.selectReminderById(id);
-      text = reminderWikitext(ctrl, reminder);
+      let result = getIdFromVoFile(input);
+      let type = result?.[0];
+      let id = result?.[1];
+      let text = '';
+
+      if (type === 'Dialog') {
+        let dialogue = await ctrl.selectSingleDialogExcelConfigData(id);
+        text = await ctrl.generateDialogueWikiText([dialogue]);
+      } else if (type === 'Reminder') {
+        let reminder = await ctrl.selectReminderById(id);
+        text = reminderWikitext(ctrl, reminder);
+      }
+
+      results.push({ id, type, text, file: input });
     }
 
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
-      return res.render('partials/dialogue/vo-to-dialogue-result', {
-        type: type,
-        id: id,
-        text: text,
-      });
+      return res.render('partials/dialogue/vo-to-dialogue-result', { results });
     } else {
-      return result;
+      return results;
     }
   }
 });

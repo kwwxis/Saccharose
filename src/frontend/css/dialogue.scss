@@ -70,7 +70,7 @@ body.nightmode .meta-props .prop-value {
 
 /*------------------------------*/
 
-.dialogue-section-expando {
+.dialogue-section-expando, .expando {
   width: 18px;
   height: 18px;
   display: inline-block;
@@ -100,7 +100,8 @@ body.nightmode .meta-props .prop-value {
   }
 }
 
-body.nightmode .dialogue-section-expando {
+body.nightmode .dialogue-section-expando,
+body.nightmode .expando {
   background: hsl(240deg 13% 20%);
   border-color: hsl(240deg 13% 28%);
   .icon {

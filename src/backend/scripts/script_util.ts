@@ -633,7 +633,7 @@ export class Control {
   }
 
   private postProcessDialog(dialog: DialogExcelConfigData): DialogExcelConfigData {
-    if (dialog.TalkRole.Type !== 'TALK_ROLE_PLAYER' && dialog.TalkShowType === 'TALK_SHOW_FORCE_SELECT' && !dialog.TalkRole.Id) {
+    if (dialog.TalkRole.Type !== 'TALK_ROLE_PLAYER' && !dialog.TalkRole.Id) {
       dialog.TalkRole.Type = 'TALK_ROLE_PLAYER';
     }
     return dialog;
@@ -695,7 +695,7 @@ export class Control {
   }
 
   isPlayerDialogueOption(dialog: DialogExcelConfigData): boolean {
-    return dialog.TalkRole.Type === 'TALK_ROLE_PLAYER' && dialog.TalkShowType && dialog.TalkShowType === 'TALK_SHOW_FORCE_SELECT';
+    return dialog.TalkRole.Type === 'TALK_ROLE_PLAYER'; // && dialog.TalkShowType && dialog.TalkShowType === 'TALK_SHOW_FORCE_SELECT';
   }
 
   async selectDialogBranch(start: DialogExcelConfigData, dialogSeenAlready?: Set<number>): Promise<DialogExcelConfigData[]> {

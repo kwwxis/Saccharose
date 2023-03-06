@@ -25,6 +25,9 @@ import { LoadingTipsByCategory } from '../../../shared/types/loading-types';
 export default async function(): Promise<Router> {
   const router: Router = create();
 
+  // Viewpoints
+  // ~~~~~~~~~~
+
   router.get('/viewpoints/:city?', async (req: Request, res: Response) => {
     const ctrl = getControl(req);
     let cityName: string = '';
@@ -52,6 +55,9 @@ export default async function(): Promise<Router> {
     });
   })
 
+  // Tutorials
+  // ~~~~~~~~~
+
   router.get('/tutorials/:category?', async (req: Request, res: Response) => {
     const ctrl = getControl(req);
     const codexTypes: PushTipsCodexType[] = PushTipsCodexTypeList;
@@ -75,6 +81,9 @@ export default async function(): Promise<Router> {
       fileFormatDefault_image: TUTORIAL_DEFAULT_FILE_FORMAT_IMAGE,
     });
   });
+
+  // Achievements
+  // ~~~~~~~~~~~~
 
   router.get('/achievements/:category?', async (req: Request, res: Response) => {
     const ctrl = getControl(req);
@@ -101,6 +110,9 @@ export default async function(): Promise<Router> {
       achievements,
     });
   });
+
+  // Readables
+  // ~~~~~~~~~
 
   router.get('/readables', async (req: Request, res: Response) => {
     const ctrl = getControl(req);
@@ -155,6 +167,9 @@ export default async function(): Promise<Router> {
       bodyClass: ['page--readables', 'page--readable-item']
     });
   });
+
+  // Loading Tips
+  // ~~~~~~~~~~~~
 
   router.get('/loading-tips', async (req: Request, res: Response) => {
     const ctrl = getControl(req);

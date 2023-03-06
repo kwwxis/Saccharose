@@ -1,23 +1,34 @@
 <div class="dialogue-container">
-  <% if (!!id) { %>
-    <section class="card">
-      <h2 class="valign">
-        <span><%= type %>:</span>&nbsp;<strong><%= id %></strong>
-        <div class="grow"></div>
-        <button class="secondary" ui-action="copy: #wikitext"
-                ui-tippy-hover="Click to copy to clipboard"
-                ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
-                style="margin:-5px 0">Copy</button>
-      </h2>
-      <div class="dialogue-section content">
-        <textarea id="wikitext" readonly class="w100p wikitext autosize" spellcheck="false" translate="no"><%= text %></textarea>
-      </div>
-    </section>
+  <% for (let result of results) { %>
+    <% if (result.id) { %>
+      <section class="card">
+        <h2 class="valign">
+          <span class="expando" ui-action="expando: #result-<%= result.id %>"><%- icon('chevron-down', 17) %></span>
+          <span><%= result.type %>:</span>&nbsp;<strong><%= result.id %></strong>
+          <span class="grow"></span>
+          <button class="secondary" ui-action="copy: #wikitext-<%= result.id %>"
+                  ui-tippy-hover="Click to copy to clipboard"
+                  ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
+                  style="margin:-5px 0">Copy</button>
+        </h2>
+        <div id="result-<%= result.id %>">
+          <div class="dialogue-section content">
+            <textarea id="wikitext-<%= result.id %>" readonly class="w100p wikitext autosize" spellcheck="false" translate="no"><%= result.text %></textarea>
+          </div>
+        </div>
+      </section>
+    <% } else { %>
+      <section class="card">
+        <div class="content">
+          <p>No results for <code><%= result.file %></code></p>
+        </div>
+      </section>
+    <% } %>
   <% } %>
-  <% if (!id) { %>
+  <% if (!results.length) { %>
     <section class="card">
       <div class="content">
-        <strong>Not found.</strong>
+        <strong>No input entered.</strong>
       </div>
     </section>
   <% } %>
