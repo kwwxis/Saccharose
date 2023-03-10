@@ -2,6 +2,8 @@ import { create, Request, Response, Router } from '../../util/router';
 import { getControl } from '../../scripts/script_util';
 import { getGCGControl } from '../../scripts/gcg/gcg_control';
 import { generateGCGTutorialDialogue } from '../../scripts/gcg/gcg_tutorial_text';
+import { GCGGameExcelConfigData } from '../../../shared/types/gcg-types';
+import { defaultMap } from '../../../shared/util/genericUtil';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -26,22 +28,44 @@ export default async function(): Promise<Router> {
 
   // TODO: rules page
 
+  router.get('/TCG/stages', async (req: Request, res: Response) => {
+    const ctrl = getControl(req);
+    const gcg = getGCGControl(ctrl);
+
+    const stages = await gcg.selectAllStage();
+    const stagesByType: {[type: string]: GCGGameExcelConfigData[]} = defaultMap('Array');
+
+    for (let stage of stages) {
+      stagesByType[stage.LevelType].push(stage);
+    }
+
+    res.render('pages/gcg/stage-list', {
+      title: 'TCG Stages',
+      stagesByType: stagesByType,
+      bodyClass: ['page--tcg-stage']
+    });
+  });
 
   router.get('/TCG/stages/:stageId', async (req: Request, res: Response) => {
     const ctrl = getControl(req);
-    const gcgCtrl = getGCGControl(ctrl);
-    const stage = await gcgCtrl.selectStage(req.params.stageId);
-
-    let title = stage.EnemyNameText || String(stage.Id);
-    if (stage?.Reward?.LevelNameText) {
-      title += '/' + stage.Reward.LevelNameText
-    }
+    const gcg = getGCGControl(ctrl);
+    const stage = await gcg.selectStage(req.params.stageId);
 
     res.render('pages/gcg/gcg-stage', {
-      title: title + ' | TCG Stage',
+      title: stage.LevelPageTitle + ' | TCG Stage',
       stage: stage,
       bodyClass: ['page--tcg-stage']
     });
+  });
+
+
+  router.get('/TCG/cards', async (req: Request, res: Response) => {
+
+  });
+
+
+  router.get('/TCG/cards/:cardId', async (req: Request, res: Response) => {
+
   });
 
   return router;

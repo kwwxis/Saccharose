@@ -1,6 +1,6 @@
 <% if (locals.stage) { %>
 <section class="card">
-  <h2><%= title %></h2>
+  <h2><%= stage.LevelPageTitle %></h2>
   <div class="content">
     <table class="article-table">
       <thead>
@@ -16,22 +16,22 @@
         <tr>
           <td class="no-border">&nbsp;</td>
           <td class="bold">Stage Player Level</td>
-          <td class="w70p"><%= stage.LevelGcgLevel %></td>
+          <td class="w70p"><%= stage.LevelGcgLevel || 'n/a' %></td>
         </tr>
         <tr>
           <td class="no-border">&nbsp;</td>
           <td class="bold">Enemy Name</td>
-          <td class="w70p"><%= stage.EnemyNameText %></td>
+          <td class="w70p"><%= stage.EnemyNameText || 'n/a' %></td>
         </tr>
         <tr>
           <td class="no-border">&nbsp;</td>
           <td class="bold">Level Name</td>
-          <td class="w70p"><%= stage.Reward.LevelNameText %></td>
+          <td class="w70p"><%= stage?.Reward?.LevelNameText || 'n/a' %></td>
         </tr>
         <tr>
           <td class="no-border">&nbsp;</td>
           <td class="bold">Level Type</td>
-          <td class="w70p"><%= stage.LevelType %></td>
+          <td class="w70p"><%= stage.LevelType || 'n/a' %></td>
         </tr>
         <% if (stage.LevelDifficulty) { %>
           <tr>
@@ -66,6 +66,33 @@
             <td class="w70p"><%= stage.Rule.HandCardLimit %></td>
           </tr>
         <% } %>
+      <% if (stage.LevelLock) { %>
+        <tr>
+          <td class="bold" colspan="2">Ascension Challenge</td>
+          <td class="w70p"></td>
+        </tr>
+        <% if (stage.LevelLock.UnlockLevel) { %>
+          <tr>
+            <td class="no-border">&nbsp;</td>
+            <td class="bold">Player Level</td>
+            <td class="w70p"><%= stage.LevelLock.UnlockLevel %></td>
+          </tr>
+        <% } %>
+        <% if (stage.LevelLock.UnlockDescText) { %>
+          <tr>
+            <td class="no-border">&nbsp;</td>
+            <td class="bold">Description</td>
+            <td class="w70p"><%= normText(stage.LevelLock.UnlockDescText) %></td>
+          </tr>
+        <% } %>
+        <% if (stage.LevelLock.UnlockMainQuestId) { %>
+          <tr>
+            <td class="no-border">&nbsp;</td>
+            <td class="bold">Quest</td>
+            <td class="w70p"><a href="/quests/<%= stage.LevelLock.UnlockMainQuestId %>"><%= stage.LevelLock.QuestTitleText %></a></td>
+          </tr>
+        <% } %>
+      <% } %>
       </tbody>
     </table>
   </div>

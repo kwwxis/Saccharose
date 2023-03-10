@@ -181,6 +181,7 @@ export interface GCGGameExcelConfigData {
   LevelType: 'BOSS' | 'QUEST' | 'WORLD' | 'WEEK' | 'CHARACTER',
   LevelDifficulty?: 'NORMAL' | 'HARD',
   LevelGcgLevel: number,
+  LevelPageTitle: string,
 
   // Resolved level types:
   BossLevel?: GCGBossLevelExcelConfigData,

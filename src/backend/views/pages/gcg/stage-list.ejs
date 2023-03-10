@@ -1,0 +1,26 @@
+<section class="card">
+  <h2>TCG Stages</h2>
+  <div class="content">
+    <fieldset>
+      <legend>Categories</legend>
+      <div class="content alignStretch flexWrap" style="padding-top:0;">
+        <% for (let typeCode of Object.keys(stagesByType)) { %>
+          <div class="w50p">
+            <a role="button" class="spacer5-all secondary dispBlock textAlignLeft"
+               href="#<%= toParam(typeCode) %>"><%= typeCode %></a>
+          </div>
+        <% } %>
+      </div>
+    </fieldset>
+  </div>
+</section>
+<% for (let [typeCode, stages] of Object.entries(stagesByType)) { %>
+  <section class="card" id="<%= toParam(typeCode) %>">
+    <h2><%= typeCode %></h2>
+    <div class="content">
+      <% for (let stage of stages) { %>
+        <a href="/TCG/stages/<%= stage.Id %>" role="button" class="spacer5-all secondary dispBlock textAlignLeft"><%= stage.LevelPageTitle %></a>
+      <% } %>
+    </div>
+  </section>
+<% } %>

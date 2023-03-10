@@ -359,6 +359,11 @@ export class GCGControl {
         stage.EnemyCardGroup = await this.selectDeck(stage.EnemyCardGroupId);
       }
     }
+    let title = stage.EnemyNameText || String(stage.Id);
+    if (stage?.Reward?.LevelNameText) {
+      title += '/' + stage.Reward.LevelNameText
+    }
+    stage.LevelPageTitle = title;
     return stage;
   }
 
