@@ -19,10 +19,12 @@ import {
 } from '../../shared/util/stringUtil';
 import {
   DialogExcelConfigData,
-  LangCode, LangCodeMap,
+  LANG_CODE_TO_LOCALE,
+  LangCode,
   ManualTextMapConfigData,
   ReminderExcelConfigData,
-  TalkExcelConfigData, TalkLoadType,
+  TalkExcelConfigData,
+  TalkLoadType,
   TalkRole,
 } from '../../shared/types/dialogue-types';
 import {
@@ -54,7 +56,6 @@ import {
   getPlainTextMapRelPath,
   getReadableRelPath,
   getReadableTitleMapRelPath,
-  getTextMapRelPath,
 } from '../loadenv';
 import {
   BooksCodexExcelConfigData,
@@ -63,9 +64,10 @@ import {
   LANG_CODE_TO_LOCALIZATION_PATH_PROP,
   LocalizationExcelConfigData,
   Readable,
-  ReadableItem,
   ReadableArchiveView,
-  ReadableView, ReadableSearchView,
+  ReadableItem,
+  ReadableSearchView,
+  ReadableView,
 } from '../../shared/types/readable-types';
 import {
   RELIC_EQUIP_TYPE_TO_NAME,
@@ -77,7 +79,7 @@ import { WeaponExcelConfigData } from '../../shared/types/weapon-types';
 import { AvatarExcelConfigData } from '../../shared/types/avatar-types';
 import { basename } from 'path';
 import { MonsterExcelConfigData } from '../../shared/types/monster-types';
-import { defaultMap, isset } from '../../shared/util/genericUtil';
+import { isset } from '../../shared/util/genericUtil';
 import { NewActivityExcelConfigData } from '../../shared/types/activity-types';
 import { Marker } from '../../shared/util/highlightMarker';
 import { ElementType } from '../../shared/types/manual-text-map';
@@ -89,7 +91,7 @@ export const convertRubi = (text: string) => {
   let ruby = [];
 
   let i = 0;
-  text = text.replace(/{RUBY#\[S]([^}]+)}/g, (match, p1) => {
+  text = text.replace(/{RUBY#\[[SD]]([^}]+)}/g, (match, p1) => {
     ruby.push(p1);
     return '{RUBY'+(i++)+'}';
   });
@@ -102,6 +104,15 @@ export const convertRubi = (text: string) => {
     }
   }
   return parts.join('');
+}
+
+export const wordSplit = (langCode: LangCode, text: string): Intl.SegmentData[] => {
+  const segmenter = new Intl.Segmenter(LANG_CODE_TO_LOCALE[langCode], { granularity: "word" });
+  return Array.from(segmenter.segment(text));
+}
+
+export const wordRejoin = (segments: Intl.SegmentData[]): string => {
+  return segments.map(s => s.segment).join('');
 }
 
 export const travelerPlaceholder = (langCode: LangCode = 'EN', plaintext: boolean = false) => {
@@ -126,17 +137,16 @@ export const travelerPlaceholder = (langCode: LangCode = 'EN', plaintext: boolea
   return '(Traveler)';
 }
 
-const languagesWithoutSpaceDelimitedWords: Set<LangCode> = new Set<LangCode>(['CH', 'CHS', 'CHT', 'JP', 'TH']);
-
 export type IdUsages = {[fileName: string]: {field: string, lineNumber: number, refObject?: any}[]};
 
-export const normText = (text: string, langCode: LangCode = 'EN', decolor: boolean = false, plaintext: boolean = false): string => {
+export const normText = (text: string, langCode: LangCode, decolor: boolean = false, plaintext: boolean = false): string => {
   if (!text) {
     return text;
   }
   text = text.replace(/—/g, plaintext ? '-' : '&mdash;').trim();
   text = text.replace(/{NICKNAME}/g, travelerPlaceholder(langCode, plaintext));
   text = text.replace(/{NON_BREAK_SPACE}/g, plaintext ? ' ' : '&nbsp;');
+  text = text.replace(/\u00A0/g, plaintext ? ' ' : '&nbsp;');
   text = text.replace(/{F#([^}]*)}{M#([^}]*)}/g, plaintext ? '($2/$1)' : '{{MC|m=$2|f=$1}}');
   text = text.replace(/{M#([^}]*)}{F#([^}]*)}/g, plaintext ? '($1/$2)' : '{{MC|m=$1|f=$2}}');
   text = text.replace(/<size=[^>]+>(.*?)<\/size>/gs, '$1');
@@ -161,12 +171,18 @@ export const normText = (text: string, langCode: LangCode = 'EN', decolor: boole
     text = text.replace(/<color=(#[0-9a-fA-F]{6})FF>(.*?)<\/color>/g, '{{color|$1|$2}}');
   }
 
+  if (!plaintext) {
+    text = text.replace(/« /g, '«&nbsp;');
+    text = text.replace(/ »/g, '&nbsp;»');
+    text = text.replace(/(?<=\S) (:|%|\.\.\.)/g, '&nbsp;$1')
+  }
+
   text = text.replace(/\\"/g, '"');
   text = text.replace(/\r/g, '');
   text = text.replace(/\\?\\n|\\\n|\n/g, plaintext ? '\n' : '<br />').replace(/<br \/><br \/>/g, '\n\n');
-  text = text.replace(/#\{REALNAME\[ID\(1\)(\|HOSTONLY\(true\))?]}/g, '(Wanderer)');
+  text = text.replace(/\{REALNAME\[ID\(1\)(\|HOSTONLY\(true\))?]}/g, '(Wanderer)'); // TODO fix?
 
-  if (text.includes('RUBY#[S]')) {
+  if (text.includes('RUBY#[')) {
     text = convertRubi(text);
   }
 
@@ -174,17 +190,46 @@ export const normText = (text: string, langCode: LangCode = 'EN', decolor: boole
     text = text.slice(1);
   }
 
-  if (text.includes('{{MC') && !languagesWithoutSpaceDelimitedWords.has(langCode)) {
-    text = text.replace(/(?<=\s|>|^)([^\r\n\t\f\v\s><]*)\{\{MC\|m=([^\s|]*)\|f=([^\s}]*)}}([^\r\n\t\f\v\s><]*)(?=\s|<|$)/g, (fm, g1, g2, g3, g4) => {
-      if (!g1 && !g4) {
-        return fm;
-      }
-      if (plaintext) {
-        return `(${g1}${g2}${g4}/${g1}${g3}${g4})`;
-      } else {
-        return `{{MC|m=${g1}${g2}${g4}|f=${g1}${g3}${g4}}}`;
-      }
+  if (langCode && text.includes('{{MC')) {
+    const mcParts = [];
+
+    const textForWordSplit = text.replaceAll(/\{\{MC\|.*?}}/g, s => {
+      const i = mcParts.length;
+      mcParts.push(s);
+      return `__MCTMPL${i}__`;
     });
+
+    const words = wordSplit(langCode, textForWordSplit).map(word => {
+      word.segment = word.segment.replaceAll(/__MCTMPL(\d+)__/g, (fm: string, g1: string) => mcParts[toInt(g1)]);
+
+      if (word.segment.includes('{{MC')) {
+        word.segment = word.segment.replace(/(.*)\{\{MC\|m=(.*?)\|f=(.*?)}}(.*)/g, (fm: string, before: string, maleText: string, femaleText: string, after: string) => {
+          let suffix = '';
+          if (maleText.endsWith(`'s`) && femaleText.endsWith(`'s`)) {
+            maleText = maleText.slice(0, -2);
+            femaleText = femaleText.slice(0, -2);
+            suffix = `'s`;
+          }
+          if (plaintext) {
+            return `(${before}${maleText}${after}/${before}${femaleText}${after})${suffix}`;
+          } else {
+            return `{{MC|m=${before}${maleText}${after}|f=${before}${femaleText}${after}}}${suffix}`;
+          }
+        });
+      }
+
+      return word;
+    });
+
+    text = wordRejoin(words);
+
+    // Merge multiple subsequent {{MC}} with only spaces between:
+    let regex = /\{\{MC\|m=(.*?)\|f=(.*?)}}(\s*)\{\{MC\|m=(.*?)\|f=(.*?)}}/;
+    while (regex.test(text)) {
+      text = text.replace(regex, (s, maleText1, femaleText1, whitespace, maleText2, femaleText2) => {
+        return `{{MC|m=${maleText1}${whitespace}${maleText2}|f=${femaleText1}${whitespace}${femaleText2}}}`;
+      });
+    }
   }
 
   return text;
@@ -1673,7 +1718,7 @@ export class Control {
           return;
         }
         for (let item of view.Items) {
-          item.Markers = Marker.create(normText(searchText), item.ReadableText);
+          item.Markers = Marker.create(normText(searchText, this.inputLangCode), item.ReadableText);
         }
         return view;
       });

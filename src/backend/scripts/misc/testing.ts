@@ -55,18 +55,40 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   //   console.log('-'.repeat(100));
   // }
 
-  // const str = "吾輩は猫である。名前はたぬき。";
-  // const segmenterJa = new Intl.Segmenter("ja-JP", { granularity: "word" });
+  const strJa = "吾輩は猫である。名前はたぬ__MCTMPL0__き。";
+  const segmenterJa = new Intl.Segmenter("ja-JP", { granularity: "word" });
+  const segments = segmenterJa.segment(strJa);
+  console.log(Array.from(segments).map(part => part.segment));
+
+
+  // const mcParts = [];
+  // let strEn = "Hello my name is {{MC|f=Lorem test|m=Ipsum test}} foobar test{{MC|m=hi|f=bye}}test.";
+  // strEn = strEn.replaceAll(/\{\{MC\|.*?}}/g, s => {
+  //   let i = mcParts.length;
+  //   mcParts.push(s);
+  //   return `__MCTMPL${i}__`;
+  // })
+  // const segmenterEn = new Intl.Segmenter("en-US", { granularity: "word" });
   //
-  // const segments = segmenterJa.segment(str);
-  // console.log(Array.from(segments));
+  // const segments = segmenterEn.segment(strEn);
+  // console.log(strEn);
+  // console.log(mcParts);
+  // console.log(Array.from(segments).map(part => part.segment));
 
-  let result: string = '';
-  const format = `Tutorial {PushTip.TitleText.EN}{{If|'My foobar <= Text' *= foo| {CurrentDetail.Index1based}|}}.png`;
+  // const format = `Tutorial {PushTip.TitleText.EN}{{If|'My foobar <= Text' *= foo| {CurrentDetail.Index1based}|}}.png`;
+  // const parsed = mwParse(format);
+  // console.log(evaluateCustomFormat({DetailCount: 1, MyText: 'Foobar'}, parsed));
 
-  const parsed = mwParse(format);
 
-  console.log(evaluateCustomFormat({DetailCount: 1, MyText: 'Foobar'}, parsed));
+  // let testStr = `¡{{MC|m=Un|f=Una}} {{MC|m=aventurero|f=aventurera}} {{MC|m=foo|f=bar}} ejemplar!`;
+  //
+  // let regex = /\{\{MC\|m=(.*?)\|f=(.*?)}}(\s*)\{\{MC\|m=(.*?)\|f=(.*?)}}/;
+  // while (regex.test(testStr)) {
+  //   testStr = testStr.replace(regex, (s, maleText1, femaleText1, whitespace, maleText2, femaleText2) => {
+  //     return `{{MC|m=${maleText1}${whitespace}${maleText2}|f=${femaleText1}${whitespace}${femaleText2}}}`;
+  //   });
+  // }
+  // console.log(testStr);
 
   await closeKnex();
 }

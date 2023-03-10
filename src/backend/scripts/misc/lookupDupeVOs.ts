@@ -21,7 +21,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
 
     for (let row of result) {
       let dialog: DialogExcelConfigData = normalizeRawJson(row, schema.DialogExcelConfigData);
-      let text: string = normText(getTextMapItem('EN', dialog.TalkContentTextMapHash));
+      let text: string = normText(getTextMapItem('EN', dialog.TalkContentTextMapHash), 'EN');
       let voPrefix = getVoPrefix('Dialog', dialog.Id, text, dialog.TalkRole.Type);
 
       if (!voPrefix || !voPrefix.includes('<!--') || !text) {

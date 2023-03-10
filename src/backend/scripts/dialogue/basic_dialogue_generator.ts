@@ -5,7 +5,7 @@ import { NpcExcelConfigData } from '../../../shared/types/general-types';
 import { getTextMapItem, loadEnglishTextMap } from '../textmap';
 import util from 'util';
 import { isInt } from '../../../shared/util/numberUtil';
-import { DialogExcelConfigData, TalkExcelConfigData } from '../../../shared/types/dialogue-types';
+import { DialogExcelConfigData, LangCode, TalkExcelConfigData } from '../../../shared/types/dialogue-types';
 import { escapeRegExp, trim } from '../../../shared/util/stringUtil';
 import {
   DialogueSectionResult, dialogueToQuestId,
@@ -19,10 +19,10 @@ import { Marker } from '../../../shared/util/highlightMarker';
 
 const lc = (s: string) => s ? s.toLowerCase() : s;
 
-function normNpcFilterInput(npcFilterInput: string): string {
+function normNpcFilterInput(npcFilterInput: string, langCode: LangCode): string {
   if (!npcFilterInput)
     return undefined;
-  return lc(trim(normText(npcFilterInput), '()').trim());
+  return lc(trim(normText(npcFilterInput, langCode), '()').trim());
 }
 
 const npcFilterInclude = (ctrl: Control, d: DialogExcelConfigData, npcFilter: string): boolean => {
@@ -35,8 +35,8 @@ const npcFilterInclude = (ctrl: Control, d: DialogExcelConfigData, npcFilter: st
   if (npcFilter === 'sibling') {
     return d.TalkRole.Type === 'TALK_ROLE_MATE_AVATAR';
   }
-  let npcNameOutputLang = lc(trim(normText(d.TalkRoleNameText), '()'));
-  let npcNameInputLang = lc(trim(normText(getTextMapItem(ctrl.inputLangCode, d.TalkRoleNameTextMapHash)), '()'));
+  let npcNameOutputLang = lc(trim(normText(d.TalkRoleNameText, ctrl.outputLangCode), '()'));
+  let npcNameInputLang = lc(trim(normText(getTextMapItem(ctrl.inputLangCode, d.TalkRoleNameTextMapHash), ctrl.inputLangCode), '()'));
   if (!npcFilter) {
     return true;
   }
@@ -47,7 +47,7 @@ export const DIALOGUE_GENERATE_MAX = 100;
 
 export async function dialogueGenerate(ctrl: Control, query: number|number[]|string, npcFilter?: string): Promise<DialogueSectionResult[]> {
   let result: DialogueSectionResult[] = [];
-  npcFilter = normNpcFilterInput(npcFilter);
+  npcFilter = normNpcFilterInput(npcFilter, ctrl.inputLangCode);
 
   if (typeof query === 'string' && isInt(query)) {
     query = parseInt(query);
