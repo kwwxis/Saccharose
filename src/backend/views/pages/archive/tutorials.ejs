@@ -32,7 +32,14 @@
           <h2>Total: <span><%= tutorials.length %></span></h2>
         </div>
         <% for (let tutorial of tutorials) { %>
-          <textarea readonly class="w100p wikitext autosize" spellcheck="false" translate="no"><%= tutorial.Wikitext %></textarea>
+          <div class="tutorial">
+            <textarea readonly class="w100p wikitext autosize" spellcheck="false" translate="no"><%= tutorial.Wikitext %></textarea>
+            <div class="tutorial-images spacer15-bottom">
+              <% for (let image of tutorial.Images) { %>
+                <a role="button" class="image-loader" ui-action="lazy-image-click" data-src="/images/genshin/<%= image.originalName %>.png" data-download="<%= image.downloadName %>"></a>
+              <% } %>
+            </div>
+          </div>
         <% } %>
       </div>
     </section>

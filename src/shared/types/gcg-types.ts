@@ -156,6 +156,9 @@ export interface GCGKeywordExcelConfigData {
 // GCG GAME / LEVEL
 // --------------------------------------------------------------------------------------------------------------
 
+export type GCGGameWikiType = 'No Type' | 'Adventure Challenge' | 'Duel' | 'Friendly Fracas' | 'Serious Showdown' | 'Weekly Guest Challenge' | 'Ascension Challenge';
+export type GCGGameWikiGroup = 'No Group' | 'Open World Match' | 'Tavern Challenge' | 'Invitation Board' | 'Quest' | 'Event' | 'Special';
+
 export interface GCGGameExcelConfigData {
   Id: number,
   EnemyNameText: string,
@@ -178,10 +181,16 @@ export interface GCGGameExcelConfigData {
   DOIPEHEKFHD?: number, // no idea what this is -- only one record has this field and its value is 44
 
   // Custom properties, set based on data in sub-objects.
-  LevelType: 'BOSS' | 'QUEST' | 'WORLD' | 'WEEK' | 'CHARACTER',
+  LevelType: 'BOSS' | 'QUEST' | 'WORLD' | 'WEEK' | 'CHARACTER' | 'OTHER',
   LevelDifficulty?: 'NORMAL' | 'HARD',
   LevelGcgLevel: number,
-  LevelPageTitle: string,
+
+  // Custom Wiki Properties:
+  WikiCombinedTitle: string,
+  WikiCharacter: string,
+  WikiLevelName: string,
+  WikiType: GCGGameWikiType,
+  WikiGroup: GCGGameWikiGroup,
 
   // Resolved level types:
   BossLevel?: GCGBossLevelExcelConfigData,
@@ -189,13 +198,13 @@ export interface GCGGameExcelConfigData {
   WorldLevel: GCGWorldLevelExcelConfigData,
   WeekLevel: GCGWeekLevelExcelConfigData,
   CharacterLevel: GCGCharacterLevelExcelConfigData,
+  OtherLevel: GcgOtherLevelExcelConfigData,
 
   // Quest condition:
   LevelLock?: GCGLevelLockExcelConfigData,
 
   // Dialogue:
   LevelTalk?: GCGTalkExcelConfigData,
-  DialogTalks?: TalkExcelConfigData[],
 
   // Reward object:
   Reward: GCGGameRewardExcelConfigData,
@@ -306,13 +315,14 @@ export interface GCGLevelLockExcelConfigData {
 export interface GcgOtherLevelExcelConfigData {
   LevelId: number,
   TalkId: number[],
+  Talks?: TalkExcelConfigData[],
 }
 
 // GCG REWARD
 // --------------------------------------------------------------------------------------------------------------
 export interface GCGGameRewardExcelConfigData {
   LevelId: number, // -> GCGGameExcelConfigData.Id
-  GroupId: number,
+  GroupId: number, // -> ???
   ChallengeRewardList: {
     ChallengeId: number, // -> GCGChallengeExcelConfigData.Id
     Challenge?: GCGChallengeExcelConfigData,

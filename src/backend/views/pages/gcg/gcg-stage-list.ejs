@@ -1,0 +1,75 @@
+<section class="card">
+  <h2>TCG Stages</h2>
+  <div class="content">
+    <fieldset>
+      <legend>Groups &amp; Types</legend>
+      <div class="content alignStretch flexWrap" style="padding-top:0;max-width:80%;font-size:15px">
+        <% for (let [groupName, stagesByType] of Object.entries(stagesByGroupAndType)) { %>
+
+          <div class="w100p">
+            <a role="button" class="spacer5-all secondary dispBlock textAlignLeft"
+               href="#<%= toParam(groupName) %>"><%= groupName %></a>
+          </div>
+
+          <% for (let typeName of Object.keys(stagesByType)) { %>
+            <div class="w100p spacer15-left">
+              <a role="button" class="spacer5-all secondary dispBlock textAlignLeft"
+                 href="#<%= toParam(groupName) + '_' + toParam(typeName) %>"><%= typeName %></a>
+            </div>
+          <% } %>
+
+        <% } %>
+      </div>
+    </fieldset>
+  </div>
+</section>
+<% for (let [groupName, stagesByType] of Object.entries(stagesByGroupAndType)) { %>
+  <section class="card" id="<%= toParam(groupName) %>">
+    <h2><%= groupName %></h2>
+    <div class="content">
+
+      <% for (let [typeName, stages] of Object.entries(stagesByType)) { %>
+        <section class="content" id="<%= toParam(groupName) + '_' + toParam(typeName) %>">
+          <h3><%= typeName %></h3>
+          <table class="article-table">
+            <thead>
+              <tr style="font-size: 14px;text-align: left;line-height: 16px;">
+                <th>ID</th>
+                <th>Character</th>
+                <th>Stage</th>
+                <th>Internal<br/>Type</th>
+                <th>Wiki<br/>Group</th>
+                <th>Wiki<br/>Type</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% for (let stage of stages) { %>
+                <tr style="font-size:15px">
+                  <td>
+                    <span class="code" style="font-size:14px"><%= stage.Id %></span>
+                  </td>
+                  <td>
+                    <span><%= stage.WikiCharacter %></span>
+                  </td>
+                  <td>
+                    <a href="/TCG/stages/<%= stage.Id %>" role="button" class="spacer5-all secondary dispBlock textAlignLeft"><%= stage.WikiLevelName %></a>
+                  </td>
+                  <td>
+                    <span class="code" style="font-size:14px"><%= stage.LevelType %></span>
+                  </td>
+                  <td>
+                    <span style="font-size:14px"><%= stage.WikiGroup %></span>
+                  </td>
+                  <td>
+                    <span style="font-size:14px"><%= stage.WikiType %></span>
+                  </td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </section>
+      <% } %>
+
+    </div>
+  </section>
+<% } %>

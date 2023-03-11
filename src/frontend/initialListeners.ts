@@ -516,6 +516,20 @@ const initial_listeners: Listener[] = [
             case 'delete-cookie':
               Cookies.remove(actionParams[0].trim());
               break;
+            case 'lazy-image-click':
+              let a = document.createElement('a');
+              a.classList.add('image-loaded');
+              a.href = actionEl.getAttribute('data-src');
+              if (actionEl.hasAttribute('data-download')) {
+                a.download = actionEl.getAttribute('data-download');
+              }
+
+              let img = document.createElement('img');
+              img.src = actionEl.getAttribute('data-src');
+              a.append(img);
+
+              actionEl.replaceWith(a);
+              break;
             default:
               break;
           }

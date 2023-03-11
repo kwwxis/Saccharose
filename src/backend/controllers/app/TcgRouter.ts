@@ -33,15 +33,17 @@ export default async function(): Promise<Router> {
     const gcg = getGCGControl(ctrl);
 
     const stages = await gcg.selectAllStage();
-    const stagesByType: {[type: string]: GCGGameExcelConfigData[]} = defaultMap('Array');
+
+    const stagesByGroupAndType: {[group: string]: {[type: string]: GCGGameExcelConfigData[]}} =
+      defaultMap(() => defaultMap('Array'));
 
     for (let stage of stages) {
-      stagesByType[stage.LevelType].push(stage);
+      stagesByGroupAndType[stage.WikiGroup][stage.WikiType].push(stage);
     }
 
-    res.render('pages/gcg/stage-list', {
+    res.render('pages/gcg/gcg-stage-list', {
       title: 'TCG Stages',
-      stagesByType: stagesByType,
+      stagesByGroupAndType,
       bodyClass: ['page--tcg-stage']
     });
   });
@@ -52,7 +54,7 @@ export default async function(): Promise<Router> {
     const stage = await gcg.selectStage(req.params.stageId);
 
     res.render('pages/gcg/gcg-stage', {
-      title: stage.LevelPageTitle + ' | TCG Stage',
+      title: stage.WikiCombinedTitle + ' | TCG Stage',
       stage: stage,
       bodyClass: ['page--tcg-stage']
     });

@@ -20,7 +20,7 @@ import {
   GCGTalkExcelConfigData,
   GCGWeekLevelExcelConfigData,
 } from '../../../shared/types/gcg-types';
-import { getVoPrefix, loadEnglishTextMap, loadVoiceItems } from '../textmap';
+import { getTextMapItem, getVoPrefix, loadEnglishTextMap, loadVoiceItems } from '../textmap';
 import { DialogueSectionResult } from '../dialogue/dialogue_util';
 import { pathToFileURL } from 'url';
 import { closeKnex } from '../../util/db';
@@ -253,13 +253,17 @@ export class GCGControl {
     }
     if (!disableLoad.disableLevelLockLoad) {
       stage.LevelLock = await this.singleSelect('GCGLevelLockExcelConfigData', 'LevelId', stage.Id);
+      if (stage.LevelLock && stage.LevelLock.UnlockLevel) {
+        stage.LevelGcgLevel = stage.LevelLock.UnlockLevel;
+      }
     }
     if (!disableLoad.disableDialogTalkLoad) {
-      let otherLevelTalk: GcgOtherLevelExcelConfigData = await this.singleSelect('GcgOtherLevelExcelConfigData', 'LevelId', stage.Id);
-      if (otherLevelTalk && otherLevelTalk.TalkId) {
-        stage.DialogTalks = [];
-        for (let talkId of otherLevelTalk.TalkId) {
-          stage.DialogTalks.push(await this.ctrl.selectTalkExcelConfigDataById(talkId));
+      stage.OtherLevel = await this.singleSelect('GcgOtherLevelExcelConfigData', 'LevelId', stage.Id);
+      stage.LevelType = 'OTHER';
+      if (stage.OtherLevel && stage.OtherLevel.TalkId) {
+        stage.OtherLevel.Talks = [];
+        for (let talkId of stage.OtherLevel.TalkId) {
+          stage.OtherLevel.Talks.push(await this.ctrl.selectTalkExcelConfigDataById(talkId));
         }
       }
     }
@@ -359,11 +363,49 @@ export class GCGControl {
         stage.EnemyCardGroup = await this.selectDeck(stage.EnemyCardGroupId);
       }
     }
-    let title = stage.EnemyNameText || String(stage.Id);
-    if (stage?.Reward?.LevelNameText) {
-      title += '/' + stage.Reward.LevelNameText
+    if (!disableLoad.disableWikiTitleLoad) {
+      stage.WikiCharacter = stage.EnemyNameText || '(No character)';
+      stage.WikiLevelName = stage?.Reward?.LevelNameText || '(No title)';
+      stage.WikiCombinedTitle = `${stage.WikiCharacter}/${stage.WikiLevelName}`;
     }
-    stage.LevelPageTitle = title;
+    if (!disableLoad.disableWikiTypeGroupLoad) {
+      stage.WikiGroup = 'No Group';
+      stage.WikiType = 'No Type';
+      switch (stage.LevelType) {
+        case 'BOSS':
+          stage.WikiGroup = 'Tavern Challenge';
+          break;
+        case 'QUEST':
+          stage.WikiGroup = 'Quest';
+          break;
+        case 'WORLD':
+          stage.WikiGroup = 'Open World Match';
+          if (stage?.Reward?.LevelNameText) {
+            let levelNameTextEn = getTextMapItem('EN', stage.Reward.LevelNameTextMapHash);
+            if (levelNameTextEn.startsWith('Duel:')) {
+              stage.WikiType = 'Duel';
+            } else {
+              stage.WikiType = 'Adventure Challenge';
+            }
+          }
+          break;
+        case 'WEEK':
+          stage.WikiType = 'Weekly Guest Challenge';
+          break;
+        case 'CHARACTER':
+          stage.WikiGroup = 'Invitation Board';
+          break;
+        case 'OTHER':
+          break;
+      }
+      if (stage.LevelLock) {
+        stage.WikiType = 'Ascension Challenge';
+      }
+      if (stage.LevelDifficulty) {
+        // Only 'BOSS' and 'CHARACTER' games have level difficulty
+        stage.WikiType = stage.LevelDifficulty === 'NORMAL' ? 'Friendly Fracas' : 'Serious Showdown';
+      }
+    }
     return stage;
   }
 
@@ -523,6 +565,11 @@ export class GCGControl {
     return await this.singleSelect('GCGDeckCardExcelConfigData', 'Id', id, this.postProcessDeckCard);
   }
 
+  // TODO:
+  // async gcgTalkToDialogueSection(talk: GCGTalkExcelConfigData, stageForTalk: GCGGameExcelConfigData): Promise<DialogueSectionResult> {
+  //
+  // }
+
   async generateGCGTalkDialogueSections(): Promise<DialogueSectionResult[]> {
     let results: {[gameId: number]: DialogueSectionResult} = {};
 
@@ -553,8 +600,8 @@ export class GCGControl {
           }
         });
         results[talk.GameId] = parentSect;
-        if (stage.DialogTalks && stage.DialogTalks.length) {
-          for (let talk of stage.DialogTalks) {
+        if (stage.OtherLevel && stage.OtherLevel.Talks) {
+          for (let talk of stage.OtherLevel.Talks) {
             let talkSect = await talkConfigGenerate(this.ctrl, talk);
             talkSect.title = 'Other Talk';
             parentSect.children.push(talkSect);
@@ -663,6 +710,8 @@ export interface GCGStageLoadOptions {
   disableCharacterLevelLoad?: boolean,
   disableRewardLoad?: boolean,
   disableDeckLoad?: boolean,
+  disableWikiTitleLoad?: boolean,
+  disableWikiTypeGroupLoad?: boolean
 }
 
 export function getGCGControl(ctrl: Control) {

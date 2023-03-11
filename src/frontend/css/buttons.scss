@@ -406,3 +406,35 @@ button.discord-button:hover,
 .button-group > *:not(:first-child):not(:last-child) {
   border-radius: 0 !important;
 }
+
+/* Image Loader
+------------------------------------------------------------------------------------------------- */
+.image-loader {
+  padding: 3px;
+  display: block;
+  cursor: pointer;
+  font-size: 15px;
+  line-height: 18px;
+}
+.image-loader:before {
+  content: 'Load ';
+}
+
+.image-loader:after {
+  content: attr(data-download);
+  font-weight: 600;
+}
+
+.image-loaded {
+  text-decoration: none;
+  margin: 3px;
+  display: block;
+}
+.image-loaded:before {
+  content: attr(download) ' (Click to download with this name)';
+  background: #eee;
+  display: inline-block;
+}
+body.nightmode .image-loaded:before {
+  background: rgba(255,255,255,0.15);
+}

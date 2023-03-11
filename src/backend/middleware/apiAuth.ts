@@ -2,13 +2,24 @@ import { NextFunction, Request, Response } from '../util/router';
 import { HttpError } from '../../shared/util/httpError';
 import { csrfMiddleware } from './csrf';
 
+const devApiKey: string = process.env.DEV_API_KEY || undefined;
+
 function isValidApiKey(apiKey: string) {
+  if (devApiKey && devApiKey === apiKey) {
+    return true;
+  }
   return false;
 }
 
 export default function(req: Request, res: Response, next: NextFunction) {
   if (typeof req.headers['x-api-key'] === 'string') {
     const apiKey = req.headers['x-api-key'].trim();
+    if (!isValidApiKey(apiKey)) {
+      throw HttpError.unauthenticated('EBADAPIKEY', 'Invalid API key.');
+    }
+    return next();
+  } else if (typeof req.query.apiKey === 'string') {
+    const apiKey = req.query.apiKey.trim();
     if (!isValidApiKey(apiKey)) {
       throw HttpError.unauthenticated('EBADAPIKEY', 'Invalid API key.');
     }

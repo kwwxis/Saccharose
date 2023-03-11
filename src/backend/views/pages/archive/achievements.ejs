@@ -6,8 +6,11 @@
       <div class="content alignStretch flexWrap" style="padding-top:0;">
         <% for (let goal of goals) { %>
           <div class="w50p">
-            <a role="button" class="spacer5-all secondary dispBlock textAlignLeft"
-               href="/achievements/<%= toParam(goal.NameTextEN) %>"><%= goal.NameText %></a>
+            <a role="button" class="spacer5-all secondary valign textAlignLeft"
+               href="/achievements/<%= toParam(goal.NameTextEN) %>">
+              <img class="icon x32" src="/images/genshin/<%= goal.IconPath %>.png" />
+              <span class="spacer10-left"><%= goal.NameText %></span>
+            </a>
           </div>
         <% } %>
       </div>

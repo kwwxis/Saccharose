@@ -1,3 +1,5 @@
+import { GenshinImage } from './general-types';
+
 export type PushTipsCodexType =
   'CODEX_ADVENTURE'
   | 'CODEX_ARANARA'
@@ -46,6 +48,7 @@ export interface TutorialExcelConfigData {
   DetailList?: TutorialDetailExcelConfigData[],
   PushTip?: PushTipsConfigData,
   Wikitext?: string,
+  Images?: GenshinImage[]
 }
 
 export interface TutorialCatalogExcelConfigData {

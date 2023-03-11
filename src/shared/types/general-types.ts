@@ -86,3 +86,8 @@ export interface WorldAreaConfigData {
   HBLACDGEBND: number[],
   GJBLMBDABFF: boolean,
 }
+
+export interface GenshinImage {
+  originalName: string,
+  downloadName: string,
+}

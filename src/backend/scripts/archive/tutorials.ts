@@ -80,6 +80,7 @@ export async function selectTutorials(ctrl: Control, codexTypeConstraint?: PushT
   for (let tutorial of tutorials) {
     tutorial.PushTip = pushTips.find(p => p.TutorialId === tutorial.Id);
     tutorial.DetailList = tutorial.DetailIdList.map(id => tutorialDetails.find(d => d.Id === id));
+    tutorial.Images = [];
 
     if (!tutorial.PushTip) {
       continue;
@@ -112,6 +113,7 @@ export async function selectTutorials(ctrl: Control, codexTypeConstraint?: PushT
       );
       text += '\n|' + ('text' + (i+1)).padEnd(9, ' ') + '= ' + normText(detail.DescriptText, ctrl.outputLangCode);
       text += '\n|' + ('image' + (i+1)).padEnd(9, ' ') + '= ' + (imageName || '');
+      tutorial.Images.push({ originalName: detail.ImageNameList[0], downloadName: imageName });
     }
     text += '\n|sort     = ' + (tutorial.PushTip?.Codex?.SortOrder || '');
     text += '\n}}';
