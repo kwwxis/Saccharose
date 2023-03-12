@@ -72,6 +72,7 @@ export async function selectViewpoints(ctrl: Control, cityIdConstraint?: number)
     if (viewpoint.WorldArea.AreaType === 'LEVEL_2') {
       viewpoint.ParentWorldArea = areas.find(area => area.AreaType === 'LEVEL_1' && area.AreaId1 === viewpoint.WorldArea.AreaId1);
     }
+    viewpoint.DownloadImage = fileFormatOptionsApply(ctrl.state.Request, viewpoint, 'FileFormat.viewpoint.image', VIEWPOINT_DEFAULT_FILE_FORMAT_IMAGE);
     viewpoint.Wikitext = fileFormatOptionsCheck(`{{Viewpoint
 |id      = ${viewpoint.SortOrder}
 |title   = ${viewpoint.NameText}
@@ -81,7 +82,7 @@ export async function selectViewpoints(ctrl: Control, cityIdConstraint?: number)
 |region  = ${viewpoint.CityNameText}
 |note    = 
 |text    = ${viewpoint.DescText ? normText(viewpoint.DescText, ctrl.outputLangCode) : ''}
-|image   = ${fileFormatOptionsApply(ctrl.state.Request, viewpoint, 'FileFormat.viewpoint.image', VIEWPOINT_DEFAULT_FILE_FORMAT_IMAGE)}
+|image   = ${viewpoint.DownloadImage}
 |map     = ${fileFormatOptionsApply(ctrl.state.Request, viewpoint, 'FileFormat.viewpoint.map', VIEWPOINT_DEFAULT_FILE_FORMAT_MAP)}
 }}`);
     ret[viewpoint.CityNameText].push(viewpoint);

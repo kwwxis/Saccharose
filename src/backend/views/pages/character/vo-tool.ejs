@@ -1,12 +1,19 @@
-<div class="alignStart">
-    <div id="vo-tool-sidebar" class="f15p card">
-      <h2>Character VO Tool</h2>
-      <div class="content">
+<div id="vo-tool-outer">
+    <div id="vo-tool-sidebar" class="card">
+      <h2 class="valign">
+        <span>Character VO Tool</span>
+        <span class="grow"></span>
+        <button id="vo-tool-sidebar-mobile-toggle" class="secondary" ui-action="toggle-class: #vo-tool-sidebar, mobile">
+          <span class="toggle-show-text">Show Character List</span>
+          <span class="toggle-hide-text">Hide Character List</span>
+        </button>
+      </h2>
+      <div id="vo-tool-sidebar-search" class="content">
         <div class="field">
           <input id="vo-toolbar-sidebar-search" type="text" class="w100p" placeholder="Search characters..." />
         </div>
       </div>
-      <div class="content">
+      <div id="vo-tool-sidebar-list" class="content">
         <a role="button" class="secondary dispFlex textAlignLeft" href="/character/VO">
           <span class="icon framed valign halign"><%- icon('home') %></span>
           <span class="spacer10-left">VO Tool Home</span>
@@ -36,7 +43,7 @@
     <template id="file-prop-config">
       <%- include('partials/util/file-format-options', {paramName: 'image', cookieName: 'FileFormat.viewpoint.image', fileFormatParams: locals.fileFormatParams, fileFormatDefault: locals.fileFormatDefault_image}) %>
     </template>
-    <div id="vo-app" class="f85p">
+    <div id="vo-app">
       <% if (!avatar) { %>
         <div id="vo-app-welcome">
           <div class="card">

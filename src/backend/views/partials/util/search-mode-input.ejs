@@ -6,7 +6,7 @@
     <span>mode:&nbsp;</span><strong class="code" style="width:17px;text-align:center"><%= cookie('search-mode', 'WI') %></strong>
     <%- icon('chevron-down', 18, {style: 'opacity: 0.5; margin: 0 -5px 0 3px;'}) %>
   </button>
-  <div id="search-mode-dropdown" class="ui-dropdown">
+  <div id="search-mode-dropdown" class="ui-dropdown hide">
     <div data-value="C" class="option <%= cookieTernary('search-mode').equals('C').then('selected') %>" ui-action="close-dropdowns">
       <strong class="code">C:&nbsp;</strong> Character match <small><em>(case-sensitive)</em></small>
     </div>

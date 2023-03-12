@@ -33,7 +33,12 @@
         <p class="error-notice spacer10-bottom">The <code>area</code> and <code>subarea</code> parameter values aren't always accurate
           but the tool tries to figure it out the best it can. Make sure to check it manually in-game.</p>
         <% for (let viewpoint of viewpoints) { %>
+        <div class="viewpoint">
           <textarea readonly class="w100p wikitext autosize" spellcheck="false" translate="no"><%= viewpoint.Wikitext %></textarea>
+          <div class="viewpoint-image spacer15-bottom">
+            <a role="button" class="image-loader" ui-action="lazy-image-click" data-src="/images/genshin/<%= viewpoint.Image %>.png" data-download="<%= viewpoint.DownloadImage %>"></a>
+          </div>
+        </div>
         <% } %>
       </div>
     </section>

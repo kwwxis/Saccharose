@@ -12,10 +12,75 @@
   main#app-main {
     flex-basis: 80%;
   }
+
+  #vo-tool-outer {
+    display: flex;
+    align-items: flex-start;
+  }
+  #vo-tool-sidebar {
+    flex-basis: 15%;
+    min-width: 220px;
+  }
+  #vo-app {
+    flex-basis: 85%;
+    padding-left: 20px;
+  }
+  #vo-tool-sidebar-mobile-toggle {
+    display: none;
+  }
 }
 
-#vo-app {
-  padding-left: 20px;
+@media (max-width: 1200px) {
+  .page--vo-tool {
+    #vo-app {
+      padding-left: 0;
+    }
+    #vo-tool-outer {
+      display: block;
+    }
+    #vo-tool-sidebar-mobile-toggle {
+      display: block;
+    }
+    #vo-tool-sidebar .content {
+      display: none;
+    }
+    #vo-tool-sidebar:not(.mobile) {
+      .toggle-hide-text {
+        display: none;
+      }
+    }
+    #vo-tool-sidebar.mobile {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 100000;
+      margin: 0;
+
+      #vo-tool-sidebar-list {
+        max-height: 85vh;
+        overflow: scroll;
+        box-shadow: inset 0 11px 8px -10px #ccc, inset 0 -11px 8px -10px #ccc;
+        padding: 20px 10px;
+      }
+
+      .content {
+        display: block;
+      }
+      .toggle-show-text {
+        display: none;
+      }
+    }
+  }
+}
+
+@media (max-width: 880px) {
+  .page--vo-tool {
+    main#app-main {
+      flex-basis: 100%;
+    }
+  }
 }
 
 .vo-handle-area.vo-handle-errored {

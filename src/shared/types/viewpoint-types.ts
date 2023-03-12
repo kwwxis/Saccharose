@@ -20,6 +20,7 @@ export interface ViewCodexExcelConfigData {
   WorldArea?: WorldAreaConfigData,
   ParentWorldArea?: WorldAreaConfigData,
   Wikitext?: string,
+  DownloadImage?: string,
 }
 
 export type ViewpointsByRegion = { [region: string]: ViewCodexExcelConfigData[] };

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import {
-  copyToClipboard,
+  copyToClipboard, getHiddenElementBounds,
   getScrollbarWidth,
   hashFlash,
   setQueryStringParameter, tag,
@@ -316,14 +316,31 @@ const initial_listeners: Listener[] = [
             case 'toggle-dropdown':
             case 'dropdown':
               const dropdown = qs(actionParams[0]);
+              const bounds = getHiddenElementBounds(dropdown);
+              const actionElPosX = actionEl.getBoundingClientRect().left;
+
+              if (actionElPosX + bounds.width > window.innerWidth) {
+                dropdown.style.left = 'auto';
+                dropdown.style.right = '0';
+                dropdown.style.transformOrigin = 'right top';
+              } else {
+                dropdown.style.left = '0';
+                dropdown.style.right = 'auto';
+                dropdown.style.transformOrigin = 'left top';
+              }
+
               if (dropdown) {
                 (<any> dropdown)._toggledBy = actionEl;
                 if (dropdown.classList.contains('active')) {
                   dropdown.classList.remove('active');
                   actionEl.classList.remove('active');
+                  setTimeout(() => dropdown.classList.add('hide'), 110);
                 } else {
-                  dropdown.classList.add('active');
-                  actionEl.classList.add('active');
+                  dropdown.classList.remove('hide');
+                  setTimeout(() => {
+                    dropdown.classList.add('active');
+                    actionEl.classList.add('active');
+                  });
                 }
               }
               break;
@@ -336,6 +353,7 @@ const initial_listeners: Listener[] = [
                 if (toggledBy) {
                   toggledBy.classList.remove('active');
                 }
+                setTimeout(() => dropdownEl.classList.add('hide'), 110);
               });
               break;
             case 'toggle':
@@ -554,6 +572,7 @@ const initial_listeners: Listener[] = [
         if (toggledBy) {
           toggledBy.classList.remove('active');
         }
+        setTimeout(() => dropdownEl.classList.add('hide'), 110);
       });
     },
   },

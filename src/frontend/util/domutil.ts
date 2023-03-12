@@ -411,3 +411,15 @@ export function createPlaintextContenteditable(attrib: {[attr: string]: string|n
     }
     return div;
 }
+
+export function getHiddenElementBounds(el: HTMLElement): { width: number, height: number } {
+  let tmp = document.createElement('div');
+  tmp.setAttribute('style', 'position: fixed; visibility: hidden; top: 0; left: 0; width: 0; height: 0; pointer-events: none; opacity: 0;');
+  document.body.append(tmp);
+  tmp.innerHTML = el.outerHTML;
+  tmp.firstElementChild.setAttribute('style', 'transition:none;transform:none;');
+  tmp.firstElementChild.classList.remove('hide');
+  let width = tmp.firstElementChild.getBoundingClientRect().width;
+  let height = tmp.firstElementChild.getBoundingClientRect().height;
+  return { width, height };
+}
