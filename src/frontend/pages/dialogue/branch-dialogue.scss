@@ -1,0 +1,30 @@
+
+
+@media (min-width: 881px) {
+  .dialogue-generate-input {
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+  }
+  .npc-filter-input {
+    border-radius: 0 !important;
+    border-left: 0;
+    width: 120px;
+  }
+}
+@media (max-width: 880px) {
+  #branch-dialogue-inputs {
+    flex-wrap: wrap;
+  }
+  .dialogue-generate-input {
+    flex-basis: 100%;
+    margin-bottom: 10px;
+  }
+  .npc-filter-input {
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    width: 100%;
+  }
+  .npc-filter-input-outer {
+    flex-grow: 1;
+  }
+}

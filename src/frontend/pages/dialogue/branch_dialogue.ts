@@ -1,6 +1,7 @@
 import { endpoints } from '../../endpoints';
 import { pageMatch } from '../../pageMatch';
 import { startGenericSearchPageListeners } from '../genericSearchPage';
+import './branch-dialogue.scss';
 
 pageMatch('pages/dialogue/branch-dialogue', () => {
   startGenericSearchPageListeners({
