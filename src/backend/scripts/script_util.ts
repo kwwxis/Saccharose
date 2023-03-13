@@ -370,9 +370,12 @@ export class Control {
     }
   }
 
-  async postProcess<T>(object: T): Promise<T> {
+  async postProcess<T>(object: T, triggerNormalize?: SchemaTable): Promise<T> {
     if (!object)
       return object;
+    if (triggerNormalize) {
+      object = normalizeRawJson(object, triggerNormalize);
+    }
     const objAsAny = object as any;
     for (let prop in object) {
       if (prop.endsWith('MapHash') || prop.endsWith('MapHashList')) {
@@ -479,11 +482,12 @@ export class Control {
     return object;
   }
 
-  readonly commonLoad = async (result: any[]) => await Promise.all(
-    result.map(record => !record || !record.json_data ? this.postProcess(record) : this.postProcess(JSON.parse(record.json_data)))
+  readonly commonLoad = async (result: any[], triggerNormalize?: SchemaTable) => await Promise.all(
+    result.map(record => !record || !record.json_data ? this.postProcess(record, triggerNormalize) : this.postProcess(JSON.parse(record.json_data)), triggerNormalize)
   );
 
-  readonly commonLoadFirst = async (record: any) => !record ? record : await this.postProcess(JSON.parse(record.json_data));
+  readonly commonLoadFirst = async (record: any, triggerNormalize?: SchemaTable) =>
+    !record ? record : await this.postProcess(JSON.parse(record.json_data), triggerNormalize);
 
   async getNpc(npcId: number): Promise<NpcExcelConfigData> {
     if (!npcId) return null;

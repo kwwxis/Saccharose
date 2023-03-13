@@ -467,6 +467,8 @@ export interface GCGCommonCard {
   DescText: string,
   IsCanObtain: boolean,
 
+  CardFace?: GCGCardFaceExcelConfigData,
+  CardView?: GCGCardViewExcelConfigData,
   DeckCard?: GCGDeckCardExcelConfigData,
 }
 
@@ -595,8 +597,10 @@ export interface GCGCardFaceExcelConfigData {
 
 export interface GCGCardViewExcelConfigData {
   Id: number,
-  GLCONCDPNCI: string,
-  DEPNICHKLNH: string[],
+  ImagePath: string,
+  Image: string,
+  SpinePaths: string[],
+
   HEJOECFICIP: never,
   AMGJBKAJBLM: string[],
   NBIPJPBMABC: string,
@@ -624,6 +628,8 @@ export interface GCGCharExcelConfigData extends GCGCommonCard {
   IsRemoveAfterDie: boolean,
   IsCanObtain: boolean,
 
+  CardFace?: GCGCardFaceExcelConfigData,
+  CardView?: GCGCardViewExcelConfigData,
   DeckCard?: GCGDeckCardExcelConfigData,
 
   BPHBKAGLFCE: number, // JsonPathHash

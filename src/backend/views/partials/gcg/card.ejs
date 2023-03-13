@@ -4,6 +4,11 @@
       <img src="/images/genshin/<%= card.DeckCard.ItemMaterial.Icon %>.png" />
     </div>
     <div class="gcg-card-name"><%= card.DeckCard.ItemMaterial.NameText %></div>
+  <% } else if (card.CardView) { %>
+    <div class="gcg-card-icon">
+      <img src="/images/genshin/<%= card.CardView.Image %>.png" />
+    </div>
+    <div class="gcg-card-name"><%= card.NameText || card.Id %></div>
   <% } else { %>
     <div class="gcg-card-name"><%= card.NameText || card.Id %><br /><span class="gcg-no-deck-card">(No DeckCard)</span></div>
   <% } %>

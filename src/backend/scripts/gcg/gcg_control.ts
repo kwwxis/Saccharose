@@ -27,6 +27,7 @@ import { closeKnex } from '../../util/db';
 import fs from 'fs';
 import { getGenshinDataFilePath } from '../../loadenv';
 import { talkConfigGenerate } from '../dialogue/basic_dialogue_generator';
+import { normalizeRawJson, schema, SchemaTable } from '../../importer/import_run';
 
 // noinspection JSUnusedGlobalSymbols
 export class GCGControl {
@@ -119,8 +120,13 @@ export class GCGControl {
 
   private async singleSelect<T>(table: string, field: string, value: any, postProcess?: (o: T) => Promise<T>): Promise<T> {
     await this.init();
+    const schemaTable: SchemaTable = schema[table];
+
     let record: T = await this.ctrl.knex.select('*').from(table)
-      .where({[field]: value}).first().then(this.ctrl.commonLoadFirst);
+      .where({[field]: value}).first().then(row => {
+        return this.ctrl.commonLoadFirst(row, schemaTable);
+      });
+
     if (record) {
       record = await this.defaultPostProcess(record);
       if (postProcess) {
@@ -128,30 +134,42 @@ export class GCGControl {
         record = await postProcess(record);
       }
     }
+
     return record;
   }
 
   private async multiSelect<T>(table: string, field: string, value: any|any[], postProcess?: (o: T) => Promise<T>): Promise<T[]> {
     await this.init();
-    let records: T[];
-    if (Array.isArray(value)) {
-      value = Array.from(new Set(value));
-      records = await this.ctrl.knex.select('*').from(table)
-        .whereIn(field, value).then(this.ctrl.commonLoad);
-    } else {
-      records = await this.ctrl.knex.select('*').from(table)
-        .where({[field]: value}).then(this.ctrl.commonLoad);
-    }
+    const schemaTable: SchemaTable = schema[table];
+
+    value = Array.isArray(value) ? value : [value];
+
+    let records: T[] = await this.ctrl.knex.select('*').from(table)
+      .whereIn(field, value).then(rows => {
+        return this.ctrl.commonLoad(rows, schemaTable);
+      });
+
     if (postProcess) {
       postProcess = postProcess.bind(this);
     }
+
     for (let record of records) {
       await this.defaultPostProcess(record);
       if (postProcess) {
         await postProcess(record);
       }
     }
-    return records;
+
+    let out: T[] = [];
+
+    for (let v of value) {
+      let record = records.find(r => r[field] === v);
+      if (record) {
+        out.push(record);
+      }
+    }
+
+    return out;
   }
 
   private async allSelect<T>(table: string, postProcess?: (o: T) => Promise<T>): Promise<T[]> {
@@ -458,6 +476,9 @@ export class GCGControl {
   // --------------------------------------------------------------------------------------------------------------
 
   private async postProcessCardView(cardView: GCGCardViewExcelConfigData): Promise<GCGCardViewExcelConfigData> {
+    if (cardView.ImagePath) {
+      cardView.Image = 'UI_' + cardView.ImagePath;
+    }
     return cardView;
   }
 
@@ -512,6 +533,9 @@ export class GCGControl {
   // GCG CHAR
   // --------------------------------------------------------------------------------------------------------------
   async postProcessChar(char: GCGCharExcelConfigData): Promise<GCGCharExcelConfigData> {
+    char.CardFace = await this.singleSelect('GCGCardFaceExcelConfigData', 'CardId', char.Id);
+    char.CardView = await this.singleSelect('GCGCardViewExcelConfigData', 'Id', char.Id, this.postProcessCardView);
+
     let deckCard = await this.selectDeckCard(char.Id);
     if (deckCard) {
       char.DeckCard = deckCard;

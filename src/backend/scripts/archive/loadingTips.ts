@@ -9,7 +9,7 @@ import {
 } from '../../../shared/types/general-types';
 import { sort } from '../../../shared/util/arrayUtil';
 import { SbOut } from '../../../shared/util/stringUtil';
-import { ElementTypeToNation, ManualTextMapHashes } from '../../../shared/types/manual-text-map';
+import { ElementTypeToNation, ExternalArea1ToNation, ManualTextMapHashes } from '../../../shared/types/manual-text-map';
 import {
   LoadingSituationExcelConfigData,
   LoadingTipsByCategory,
@@ -51,10 +51,12 @@ function determineLoadingTipCategory(ctrl: Control, tip: LoadingTipsExcelConfigD
       foundCats.push({ text: 'Golden Apple Archipelago', weight: 15});
     }
     if (sit.Area1Id) {
-      const areas = worldAreas.filter(area => sit.Area1Id.includes(area.AreaId1));
+      const areas = worldAreas.filter(area => sit.Area1Id.includes(area.AreaId1) && area.AreaType === 'LEVEL_1');
       for (let area of areas) {
         if (area.ElementType && ElementTypeToNation[area.ElementType]) {
           foundAreas.add(ElementTypeToNation[area.ElementType]);
+        } else if (ExternalArea1ToNation[area.AreaId1]) {
+          foundAreas.add(ExternalArea1ToNation[area.AreaId1]);
         }
       }
     }

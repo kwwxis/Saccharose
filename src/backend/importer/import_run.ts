@@ -818,7 +818,11 @@ export const schema = {
     jsonFile: './ExcelBinOutput/GCGCardViewExcelConfigData.json',
     columns: [
       {name: 'Id', type: 'integer', isPrimary: true},
-    ]
+    ],
+    normalizeFixFields: {
+      GLCONCDPNCI: 'ImagePath',
+      DEPNICHKLNH: 'SpinePaths',
+    }
   },
   GCGCharExcelConfigData: <SchemaTable> {
     name: 'GCGCharExcelConfigData',

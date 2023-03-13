@@ -14,6 +14,7 @@ export const ManualTextMapHashes = {
   'Golden Apple Archipelago': 3682200372,
   'Three Realms Gateway Offering': 2887066388,
   'Spiral Abyss': 2284786655,
+  'Enkanomiya': 1862653596,
 
   // General
   'Domains': 705921482,
@@ -40,6 +41,11 @@ export const ElementTypeToNation = {
   'Ice': 'Snezhnaya',
   'Rock': 'Liyue',
 };
+
+export const ExternalArea1ToNation = {
+  200: 'Inazuma', // Enkanomiya
+  300: 'Liyue', // The Chasm
+}
 
 export type ElementType = 'Electric' | 'Fire' | 'Grass' | 'Ice' | 'None' | 'Rock' | 'Water' | 'Wind';
 export const ElementTypeArray: ElementType[] = [ 'Electric', 'Fire', 'Grass', 'Ice', 'None', 'Rock', 'Water', 'Wind' ];
