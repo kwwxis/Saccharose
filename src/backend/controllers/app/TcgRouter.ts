@@ -53,21 +53,31 @@ export default async function(): Promise<Router> {
     const gcg = getGCGControl(ctrl);
     const stage = await gcg.selectStage(req.params.stageId);
 
+    const validTabs = new Set(['wikitext', 'display']);
+    if (typeof req.query.tab === 'string' && !validTabs.has(req.query.tab)) {
+      req.query.tab = 'display';
+    }
+
     res.render('pages/gcg/gcg-stage', {
       title: stage.WikiCombinedTitle + ' | TCG Stage',
       stage: stage,
-      bodyClass: ['page--tcg-stage']
+      bodyClass: ['page--tcg-stage'],
+      tab: req.query.tab || 'display',
     });
   });
 
 
   router.get('/TCG/cards', async (req: Request, res: Response) => {
-
+    res.render('pages/gcg/gcg-card', {
+      title: 'Cards',
+    });
   });
 
 
   router.get('/TCG/cards/:cardId', async (req: Request, res: Response) => {
-
+    res.render('pages/gcg/gcg-card', {
+      title: 'Cards',
+    });
   });
 
   return router;

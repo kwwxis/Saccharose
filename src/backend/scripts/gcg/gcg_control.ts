@@ -1,7 +1,7 @@
 import '../../loadenv';
 import { Control, getControl, normText } from '../script_util';
 import {
-  GCGCardExcelConfigData,
+  GCGCardExcelConfigData, GCGCardViewExcelConfigData,
   GCGChallengeExcelConfigData,
   GCGCharacterLevelExcelConfigData, GCGCharExcelConfigData,
   GCGCostExcelConfigData, GCGDeckCardExcelConfigData, GCGDeckExcelConfigData,
@@ -457,6 +457,10 @@ export class GCGControl {
   // GCG CARD
   // --------------------------------------------------------------------------------------------------------------
 
+  private async postProcessCardView(cardView: GCGCardViewExcelConfigData): Promise<GCGCardViewExcelConfigData> {
+    return cardView;
+  }
+
   private async postProcessCard(card: GCGCardExcelConfigData): Promise<GCGCardExcelConfigData> {
     card.MappedChooseTargetList = await this.multiSelect('GCGChooseExcelConfigData', 'Id', card.ChooseTargetList);
 
@@ -465,7 +469,7 @@ export class GCGControl {
     }
 
     card.CardFace = await this.singleSelect('GCGCardFaceExcelConfigData', 'CardId', card.Id);
-    card.CardView = await this.singleSelect('GCGCardViewExcelConfigData', 'Id', card.Id);
+    card.CardView = await this.singleSelect('GCGCardViewExcelConfigData', 'Id', card.Id, this.postProcessCardView);
 
     if (card.CardFace && card.CardFace.ItemId) {
       card.CardFace.ItemMaterial = await this.ctrl.selectMaterialExcelConfigData(card.CardFace.ItemId);
@@ -491,15 +495,9 @@ export class GCGControl {
   // --------------------------------------------------------------------------------------------------------------
 
   private async postProcessDeck(deck: GCGDeckExcelConfigData): Promise<GCGDeckExcelConfigData> {
-    deck.MappedCharacterList = await this.multiSelect('GCGCharExcelConfigData', 'Id', deck.CharacterList);
-    deck.MappedWaitingCharacterList = await this.multiSelect('GCGCharExcelConfigData', 'Id', deck.CharacterList);
-    deck.MappedCardList = [];
-    for (let cardId of deck.CardList) {
-      let card = await this.selectCard(cardId);
-      if (card) {
-        deck.MappedCardList.push(card);
-      }
-    }
+    deck.MappedCharacterList = await this.multiSelect('GCGCharExcelConfigData', 'Id', deck.CharacterList, this.postProcessChar);
+    deck.MappedWaitingCharacterList = await this.multiSelect('GCGCharExcelConfigData', 'Id', deck.WaitingCharacterList, this.postProcessChar);
+    deck.MappedCardList = await this.multiSelect('GCGCardExcelConfigData', 'Id', deck.CardList, this.postProcessCard);
     return deck;
   }
 
@@ -535,7 +533,7 @@ export class GCGControl {
   private async postProcessDeckCard(card: GCGDeckCardExcelConfigData): Promise<GCGDeckCardExcelConfigData> {
     card.CardFaceList = await this.multiSelect('GCGCardFaceExcelConfigData', 'CardId', card.CardFaceIdList);
     card.CardFace = await this.singleSelect('GCGCardFaceExcelConfigData', 'CardId', card.Id);
-    card.CardView = await this.singleSelect('GCGCardViewExcelConfigData', 'Id', card.Id);
+    card.CardView = await this.singleSelect('GCGCardViewExcelConfigData', 'Id', card.Id, this.postProcessCardView);
 
     card.ProficiencyReward = await this.singleSelect('GCGProficiencyRewardExcelConfigData', 'CardId', card.Id);
     if (card.ProficiencyReward) {
@@ -730,6 +728,23 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     const stages = await gcg.selectAllStage();
     fs.writeFileSync(getGenshinDataFilePath('./stages.json'), JSON.stringify(stages, null, 2), 'utf8');
 
+    for (let stage of stages) {
+      if (stage.Reward) {
+        for (let hash of stage.Reward.OACBEKOLDFI) {
+          let text = getTextMapItem('EN', hash);
+          if (text) {
+            console.log('OACBEKOLDFI', text);
+          }
+        }
+        for (let hash of stage.Reward.HGDLKEHAKCE) {
+          let text = getTextMapItem('EN', hash);
+          if (text) {
+            console.log('HGDLKEHAKCE', text);
+          }
+        }
+      }
+    }
+
     const cards = await gcg.selectAllCard();
     fs.writeFileSync(getGenshinDataFilePath('./cards.json'), JSON.stringify(cards, null, 2), 'utf8');
 
@@ -742,8 +757,11 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     const chars = await gcg.selectAllChar();
     // fs.writeFileSync(getGenshinDataFilePath('./characters.json'), JSON.stringify(chars, null, 2), 'utf8');
 
-    const stage = await gcg.selectStage(30111);
-    fs.writeFileSync(getGenshinDataFilePath('./single-stage.json'), JSON.stringify(stage, null, 2), 'utf8');
+    const stage1 = await gcg.selectStage(2011);
+    fs.writeFileSync(getGenshinDataFilePath('./single-stage-2011.json'), JSON.stringify(stage1, null, 2), 'utf8');
+
+    const stage2 = await gcg.selectStage(11003);
+    fs.writeFileSync(getGenshinDataFilePath('./single-stage-11003.json'), JSON.stringify(stage2, null, 2), 'utf8');
 
     const cardIds: number[] = [];
     for (let card of cards) {

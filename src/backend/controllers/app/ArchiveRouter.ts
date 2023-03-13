@@ -25,6 +25,28 @@ import { LoadingTipsByCategory } from '../../../shared/types/loading-types';
 export default async function(): Promise<Router> {
   const router: Router = create();
 
+  // Material Items
+  // ~~~~~~~~~~~~~~
+  router.get('/items/:itemId?', async (req: Request, res: Response) => {
+    const ctrl = getControl(req);
+
+
+    if (req.params.itemId) {
+      const material = await ctrl.selectMaterialExcelConfigData(req.params.itemId);
+
+      res.render('pages/archive/material-item', {
+        title: material ? material.NameText : 'Item not found',
+        bodyClass: ['page--materials'],
+        material
+      });
+    } else {
+      res.render('pages/archive/material-item', {
+        title: 'Item not found',
+        bodyClass: ['page--materials'],
+      });
+    }
+  });
+
   // Viewpoints
   // ~~~~~~~~~~
 

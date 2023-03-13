@@ -359,8 +359,8 @@ export interface GCGGameRewardExcelConfigData {
   OJIFJBBFGPG: 'Gcg_Loading_Bg2' | 'Gcg_Loading_Bg3' | 'Gcg_Loading_Bg4' | 'Gcg_Loading_Bg5',
 
   // These two properties don't seem to be used for anything right now:
-  // OACBEKOLDFI: number[],
-  // HGDLKEHAKCE: number[],
+  OACBEKOLDFI: number[],
+  HGDLKEHAKCE: number[],
 }
 
 // GCG CHALLENGE
@@ -404,7 +404,7 @@ export interface GCGChallengeExcelConfigData {
   IsAchieveFail: boolean,
 }
 
-// GCG CARD
+// GCG CARD TYPES
 // --------------------------------------------------------------------------------------------------------------
 export type GCGCostType =
   'GCG_COST_DICE_ANEMO'   |
@@ -441,12 +441,13 @@ export type GCGCardStateBuffType =
   'GCG_STATE_BUFF_PYRO'       ;
 export type GCGChooseTargetType = 'GCG_CHOOSE_ARTIFACT_MOVE' | 'GCG_CHOOSE_WEAPON_MOVE';
 export type GCGCardType =
-  'GCG_CARD_ASSIST'   |
-  'GCG_CARD_EVENT'    |
-  'GCG_CARD_MODIFY'   |
-  'GCG_CARD_ONSTAGE'  |
-  'GCG_CARD_STATE'    |
-  'GCG_CARD_SUMMON'   ;
+  'GCG_CARD_ASSIST'    |
+  'GCG_CARD_EVENT'     |
+  'GCG_CARD_MODIFY'    |
+  'GCG_CARD_ONSTAGE'   |
+  'GCG_CARD_STATE'     |
+  'GCG_CARD_SUMMON'    |
+  'GCG_CARD_CHARACTER' ; // Only for GCGCharExcelConfigData
 
 export interface GCGTokenDescConfigData {
   Id: number,
@@ -454,7 +455,22 @@ export interface GCGTokenDescConfigData {
   NameText: string,
 }
 
-export interface GCGCardExcelConfigData {
+// GCG CARD
+// --------------------------------------------------------------------------------------------------------------
+export interface GCGCommonCard {
+  Id: number,
+  CardType: GCGCardType,
+
+  NameTextMapHash: number,
+  DescTextMapHash: number,
+  NameText: string,
+  DescText: string,
+  IsCanObtain: boolean,
+
+  DeckCard?: GCGDeckCardExcelConfigData,
+}
+
+export interface GCGCardExcelConfigData extends GCGCommonCard {
   Id: number,
   CardType: GCGCardType,
   ChooseTargetType?: GCGChooseTargetType,
@@ -591,7 +607,7 @@ export interface GCGCardViewExcelConfigData {
   LKBFALNMKFC: string,
 }
 
-export interface GCGCharExcelConfigData {
+export interface GCGCharExcelConfigData extends GCGCommonCard {
   Id: number,
   Hp: number,
   CardType: 'GCG_CARD_CHARACTER',
@@ -626,8 +642,8 @@ export interface GCGDeckExcelConfigData {
   CardList: number[],
   MappedCardList: GCGCardExcelConfigData[], // action
 
-  WaitingCharacterList: { Id: number, CondCount: number }[], // reserve
-  MappedWaitingCharacterList: GCGCharExcelConfigData[],
+  WaitingCharacterList: { Id: number, CondCount: number }[],
+  MappedWaitingCharacterList: GCGCharExcelConfigData[], // reserve
 
   InitHpList: never,
   InitEnergyList: never,

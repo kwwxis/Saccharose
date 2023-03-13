@@ -136,7 +136,7 @@ export default async function(): Promise<Router> {
     const avatar: AvatarExcelConfigData = await getAvatar(ctrl, req, res);
     const story: StoryFetters = await fetchCharacterStoryByAvatarId(ctrl, avatar?.Id);
 
-    let validTabs = new Set(['wikitext', 'display', 'altered-wikitext', 'altered-display']);
+    const validTabs = new Set(['wikitext', 'display', 'altered-wikitext', 'altered-display']);
     if (typeof req.query.tab === 'string') {
       if (!validTabs.has(req.query.tab)) {
         req.query.tab = 'display';

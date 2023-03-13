@@ -79,7 +79,7 @@ import { WeaponExcelConfigData } from '../../shared/types/weapon-types';
 import { AvatarExcelConfigData } from '../../shared/types/avatar-types';
 import { basename } from 'path';
 import { MonsterExcelConfigData } from '../../shared/types/monster-types';
-import { isset } from '../../shared/util/genericUtil';
+import { isEmpty, isset } from '../../shared/util/genericUtil';
 import { NewActivityExcelConfigData } from '../../shared/types/activity-types';
 import { Marker } from '../../shared/util/highlightMarker';
 import { ElementType } from '../../shared/types/manual-text-map';
@@ -154,6 +154,7 @@ export const normText = (text: string, langCode: LangCode, decolor: boolean = fa
   if (decolor || plaintext) {
     text = text.replace(/<color=#[^>]+>(.*?)<\/color>/gs, '$1');
   } else {
+    text = text.replace(/<color=#\{0}>(.*?)<\/color>/g, `'''$1'''`);
     text = text.replace(/<color=#00E1FFFF>(.*?)<\/color>/g, '{{color|buzzword|$1}}');
     text = text.replace(/<color=#FFCC33FF>(.*?)<\/color>/g, '{{color|help|$1}}');
 
@@ -1481,12 +1482,14 @@ export class Control {
       return reward;
     }
 
-    await Promise.all(reward.RewardItemList.map(x => {
-      if (!x.ItemId) {
+    await Promise.all(reward.RewardItemList.map(rewardItem => {
+      if (!rewardItem.ItemId) {
         return Promise.resolve();
       }
-      return this.selectMaterialExcelConfigData(x.ItemId).then(material => x.Material = material);
+      return this.selectMaterialExcelConfigData(rewardItem.ItemId).then(material => rewardItem.Material = material);
     }));
+
+    reward.RewardItemList = reward.RewardItemList.filter(x => !isEmpty(x));
 
     return this.generateRewardSummary(reward);
   }

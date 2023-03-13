@@ -1,0 +1,29 @@
+.gcg-card {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  width: 80px;
+  text-align: center;
+
+  .gcg-card-icon {
+    height: 89px;
+
+    img {
+      height: 89px;
+      width: auto;
+    }
+  }
+
+  .gcg-card-name {
+    font-size: 13px;
+    font-family: 'Open Sans', sans-serif;
+    line-height: 20px;
+
+    .gcg-no-deck-card {
+      color: initial;
+      font-size: 10px;
+      font-weight: 600;
+    }
+  }
+}

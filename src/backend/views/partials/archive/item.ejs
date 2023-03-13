@@ -1,0 +1,9 @@
+<a href="/items/<%= material.Id %>" class="material-item">
+  <div class="material-card">
+    <div class="material-icon" data-quality="<%= material.RankLevel %>">
+        <img src="/images/genshin/<%= material.Icon %>.png" />
+    </div>
+    <div class="material-text"><%- locals.itemCount ? escapeHtml(itemCount) : '&mdash;' %></div>
+  </div>
+  <span class="material-name"><%= material.NameText %></span>
+</a>

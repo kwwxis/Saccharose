@@ -1,0 +1,43 @@
+<% if (locals.material) { %>
+  <section class="card">
+    <h2><%= material.NameText %></h2>
+    <div class="content">
+      <table class="article-table">
+        <tr>
+          <td class="bold">Name</td>
+          <td><%= normText(material.NameText) %></td>
+        </tr>
+        <tr>
+          <td class="bold">Description</td>
+          <td><%- include('partials/util/wikitext', {content: normText(material.DescText), seamless: true}) %></td>
+        </tr>
+        <tr>
+          <td class="bold">Quality</td>
+          <td><%= material.RankLevel %></td>
+        </tr>
+        <tr>
+          <td class="bold">Icon</td>
+          <td><img src="/images/genshin/<%= material.Icon %>.png" style="max-height:74px" /></td>
+        </tr>
+        <tr>
+          <td class="bold">material Type</td>
+          <td><%= material.MaterialType %></td>
+        </tr>
+        <tr>
+          <td class="bold">Item Type</td>
+          <td><%= material.ItemType %></td>
+        </tr>
+      </table>
+    </div>
+  </section>
+  <section class="card">
+    <h2>Raw JSON</h2>
+    <div class="content">
+      <textarea class="code json w100p autosize" spellcheck="false" translate="no"><%= JSON.stringify(material, null, 2) %></textarea>
+    </div>
+  </section>
+<% } else { %>
+  <section class="card">
+    <h2>Item not found.</h2>
+  </section>
+<% } %>

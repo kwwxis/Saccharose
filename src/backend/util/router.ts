@@ -9,7 +9,7 @@ import * as expressCore from 'express-serve-static-core';
 import { printHumanTiming, icon, dragHandle, printTimestamp, TemplateLink, toParam } from './viewUtilities';
 import { cachedSync } from './cache';
 import crypto from 'crypto';
-import { ltrim, remove_suffix } from '../../shared/util/stringUtil';
+import { escapeHtml, ltrim, remove_suffix } from '../../shared/util/stringUtil';
 import { getWebpackBundleFileNames, WebpackBundles } from './webpackBundle';
 import { LANG_CODES_TO_NAME } from '../../shared/types/dialogue-types';
 import { EJS_DELIMITER, SITE_TITLE, VIEWS_ROOT } from '../loadenv';
@@ -182,6 +182,7 @@ export const DEFAULT_GLOBAL_LOCALS = {
   printHumanTiming,
   ternary,
   TemplateLink,
+  escapeHtml,
   env: process.env,
   toBoolean: toBoolean,
   toInt: toInt,
