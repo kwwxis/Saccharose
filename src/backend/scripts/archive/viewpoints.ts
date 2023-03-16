@@ -55,7 +55,7 @@ export async function getCityIdsWithViewpoints(ctrl: Control): Promise<Set<numbe
 
 export async function selectViewpoints(ctrl: Control, cityIdConstraint?: number): Promise<ViewpointsByRegion> {
   let viewpoints: ViewCodexExcelConfigData[] = await ctrl.readGenshinDataFile('./ExcelBinOutput/ViewCodexExcelConfigData.json');
-  let areas: WorldAreaConfigData[] = await ctrl.readGenshinDataFile('./ExcelBinOutput/WorldAreaConfigData.json');
+  let areas: WorldAreaConfigData[] = await ctrl.selectWorldAreas();
 
   let ret: ViewpointsByRegion = defaultMap('Array');
 

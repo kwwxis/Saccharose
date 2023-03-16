@@ -2,7 +2,12 @@
 
 import { Knex } from 'knex';
 import { openKnex } from '../util/db';
-import { CityConfigData, ConfigCondition, NpcExcelConfigData } from '../../shared/types/general-types';
+import {
+  CityConfigData,
+  ConfigCondition,
+  NpcExcelConfigData,
+  WorldAreaConfigData, WorldAreaType,
+} from '../../shared/types/general-types';
 import { createLangCodeMap, getElementName, getTextMapItem, getVoPrefix } from './textmap';
 import { Request } from '../util/router';
 import SrtParser, { SrtLine } from '../util/srtParser';
@@ -1584,6 +1589,32 @@ export class Control {
         row.CityNameTextEN = getTextMapItem('EN', row.CityNameTextMapHash);
         return row;
       });
+  }
+
+  async selectWorldAreas(criteria: { AreaType?: WorldAreaType, AreaId1?: number, AreaId2?: number } = {}): Promise<WorldAreaConfigData[]> {
+    let builder = this.knex.select('*').from('WorldAreaConfigData');
+    if (criteria.AreaType) {
+      builder = builder.where('AreaType', criteria.AreaType)
+    }
+    if (criteria.AreaId1) {
+      builder = builder.where('AreaId1', criteria.AreaId1)
+    }
+    if (criteria.AreaId2) {
+      builder = builder.where('AreaId2', criteria.AreaId2)
+    }
+
+    const cities = await this.selectAllCities();
+    const worldAreas: WorldAreaConfigData[] = await builder.then(this.commonLoad);
+
+    for (let worldArea of worldAreas) {
+      for (let city of cities) {
+        if (city.AreaIdVec.includes(worldArea.AreaId1)) {
+          worldArea.ParentCity = city;
+        }
+      }
+    }
+
+    return worldAreas;
   }
 
   async getCityIdFromName(cityNameOrId: string|number): Promise<number> {

@@ -63,6 +63,8 @@ export interface NpcExcelConfigData {
   BHDMIMPGPOI: number[],
 }
 
+export type WorldAreaType = 'LEVEL_1' | 'LEVEL_2';
+
 export interface WorldAreaConfigData {
   Id: number,
   SceneId: number,
@@ -71,7 +73,7 @@ export interface WorldAreaConfigData {
 
   ElementType?: string,
   TerrainType?: 'AREA_TERRAIN_CITY' | 'AREA_TERRAIN_OUTDOOR',
-  AreaType: 'LEVEL_1' | 'LEVEL_2',
+  AreaType: WorldAreaType,
 
   AreaNameTextMapHash: number,
   AreaNameText: string,
@@ -85,6 +87,9 @@ export interface WorldAreaConfigData {
   BIIDMOCNDEL: number[],
   HBLACDGEBND: number[],
   GJBLMBDABFF: boolean,
+
+  // Custom:
+  ParentCity?: CityConfigData,
 }
 
 export interface GenshinImage {

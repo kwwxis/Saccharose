@@ -9,7 +9,7 @@ import {
 } from '../../../shared/types/general-types';
 import { sort } from '../../../shared/util/arrayUtil';
 import { SbOut } from '../../../shared/util/stringUtil';
-import { ElementTypeToNation, ExternalArea1ToNation, ManualTextMapHashes } from '../../../shared/types/manual-text-map';
+import { ElementTypeToNation, ManualTextMapHashes } from '../../../shared/types/manual-text-map';
 import {
   LoadingSituationExcelConfigData,
   LoadingTipsByCategory,
@@ -24,7 +24,7 @@ function determineLoadingTipCategory(ctrl: Control, tip: LoadingTipsExcelConfigD
   let foundCats: {text: string, weight: number}[] = [
     {text: 'General', weight: 5}
   ];
-  let foundAreas: Set<string> = new Set<string>();
+  let foundRegions: Set<string> = new Set<string>();
   let tipTitleEN = getTextMapItem('EN', tip.TipsTitleTextMapHash);
   for (let sit of situations) {
     if (sit.StageId === 23) {
@@ -53,24 +53,21 @@ function determineLoadingTipCategory(ctrl: Control, tip: LoadingTipsExcelConfigD
     if (sit.Area1Id) {
       const areas = worldAreas.filter(area => sit.Area1Id.includes(area.AreaId1) && area.AreaType === 'LEVEL_1');
       for (let area of areas) {
-        if (area.ElementType && ElementTypeToNation[area.ElementType]) {
-          foundAreas.add(ElementTypeToNation[area.ElementType]);
-        } else if (ExternalArea1ToNation[area.AreaId1]) {
-          foundAreas.add(ExternalArea1ToNation[area.AreaId1]);
+        if (area.ParentCity) {
+          foundRegions.add(area.ParentCity.CityNameText);
         }
       }
     }
   }
   let cat: string;
-  if (foundAreas.size === 1) {
-    cat = foundAreas.values().next().value;
+  if (foundRegions.size === 1) {
+    cat = foundRegions.values().next().value;
   } else {
     sort(foundCats, '-weight');
     cat = foundCats[0].text;
   }
-  let catHash = ManualTextMapHashes[cat];
-  if (catHash) {
-    return getTextMapItem(ctrl.outputLangCode, catHash);
+  if (ManualTextMapHashes[cat]) {
+    return getTextMapItem(ctrl.outputLangCode, ManualTextMapHashes[cat]);
   } else {
     return cat;
   }
@@ -131,7 +128,12 @@ function createLoadingTipsByCategoryObject(ctrl: Control): LoadingTipsByCategory
 }
 
 export async function selectLoadingTips(ctrl: Control): Promise<LoadingTipsByCategory> {
-  const areas: WorldAreaConfigData[] = await ctrl.readGenshinDataFile('./ExcelBinOutput/WorldAreaConfigData.json');
+  const areas: WorldAreaConfigData[] = await ctrl.selectWorldAreas();
+  for (let area of areas) {
+    if (area.AreaType === 'LEVEL_1' && !area.ElementType) {
+      console.log(area);
+    }
+  }
   const situations: LoadingSituationExcelConfigData[] = await ctrl.readGenshinDataFile('./ExcelBinOutput/LoadingSituationExcelConfigData.json');
   const situationsByStageId: {[stageId: number]: LoadingSituationExcelConfigData} = {};
   for (let sit of situations) {

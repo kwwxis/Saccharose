@@ -42,10 +42,5 @@ export const ElementTypeToNation = {
   'Rock': 'Liyue',
 };
 
-export const ExternalArea1ToNation = {
-  200: 'Inazuma', // Enkanomiya
-  300: 'Liyue', // The Chasm
-}
-
 export type ElementType = 'Electric' | 'Fire' | 'Grass' | 'Ice' | 'None' | 'Rock' | 'Water' | 'Wind';
 export const ElementTypeArray: ElementType[] = [ 'Electric', 'Fire', 'Grass', 'Ice', 'None', 'Rock', 'Water', 'Wind' ];
