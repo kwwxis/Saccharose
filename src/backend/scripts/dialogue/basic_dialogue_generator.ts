@@ -58,8 +58,9 @@ export async function dialogueGenerate(ctrl: Control, query: number|number[]|str
   function addHighlightMarkers(dialogue: DialogExcelConfigData, sect: DialogueSectionResult) {
     let re: RegExp;
     let reFlags: string = ctrl.searchModeFlags.includes('i') ? 'gi' : 'g';
+    let isRegexQuery: boolean = ctrl.searchMode === 'R' || ctrl.searchMode === 'RI';
     if (typeof query === 'string') {
-      re = new RegExp(escapeRegExp(normText(query, ctrl.outputLangCode)), reFlags);
+      re = new RegExp(isRegexQuery ? `(?<=:''' .*)` + query : escapeRegExp(normText(query, ctrl.outputLangCode)), reFlags);
     } else {
       re = new RegExp(escapeRegExp(normText(dialogue.TalkContentText, ctrl.outputLangCode)), reFlags);
     }

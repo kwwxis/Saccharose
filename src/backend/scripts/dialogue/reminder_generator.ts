@@ -83,7 +83,7 @@ export async function reminderGenerate(ctrl: Control, query: number|string, subs
 
   if (typeof query === 'string') {
     // string
-    const matches = await ctrl.getTextMapMatches(ctrl.inputLangCode, query.trim(), ctrl.searchModeFlags);
+    const matches = (await ctrl.getTextMapMatches(ctrl.inputLangCode, query.trim(), ctrl.searchModeFlags)).result;
     if (Object.keys(matches).length) {
       let reminders = await Promise.all(
         Object.keys(matches).map(textMapId => parseInt(textMapId)).map(textMapId => ctrl.selectReminderByContentTextMapId(textMapId))

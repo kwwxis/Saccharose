@@ -312,7 +312,7 @@ export async function dialogueToQuestId(ctrl: Control, query: string | number | 
     query = parseInt(query);
   }
   if (typeof query === 'string') {
-    let matches = ctrl.getTextMapMatches(ctrl.inputLangCode, query, '-m 1'); // only get one match
+    let matches = (await ctrl.getTextMapMatches(ctrl.inputLangCode, query, '-m 1')).result; // only get one match
     if (!Object.keys(matches).length) {
       return [];
     }

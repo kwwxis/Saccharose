@@ -1,8 +1,9 @@
 import util from 'util';
-import { exec, spawn } from 'child_process';
+import { exec, execSync, spawn } from 'child_process';
 import { getGenshinDataFilePath } from '../loadenv';
 import { pathToFileURL } from 'url';
 import treeKill from 'tree-kill';
+import { isset } from '../../shared/util/genericUtil';
 
 const execPromise = util.promisify(exec);
 
@@ -165,6 +166,9 @@ export class ShellFlags {
   }
 
   has(flag: string): boolean {
+    if (!flag.startsWith('-')) {
+      throw 'Flag should start with "-" or "--", instead got "' + flag + '"';
+    }
     return this.map.has(flag);
   }
 
@@ -177,6 +181,13 @@ export class ShellFlags {
 
   add(flags: string) {
     this.merge(ShellFlags.parseFlags(flags));
+  }
+
+  remove(flag: string): boolean {
+    if (!flag.startsWith('-')) {
+      throw 'Flag should start with "-" or "--", instead got "' + flag + '"';
+    }
+    return this.map.delete(flag);
   }
 
   keys() {
@@ -246,7 +257,8 @@ export class ShellFlags {
   }
 }
 
-export function createGrepCommand(searchText: string, file: string, extraFlags?: string, escapeDoubleQuotes: boolean = true): string {
+export function createGrepCommand(searchText: string, file: string, extraFlags?: string,
+                                  escapeDoubleQuotes: boolean = true, startFromLine?: number): { line: string, flags: ShellFlags } {
   let flags: ShellFlags = ShellFlags.parseFlags(extraFlags);
 
   if (escapeDoubleQuotes && file.endsWith('.json')) {
@@ -258,24 +270,45 @@ export function createGrepCommand(searchText: string, file: string, extraFlags?:
   let hasRegexFlag: boolean = flags.has('-E') || flags.has('-P') || flags.has('-G');
   if (!hasRegexFlag) {
     flags.set('-F');
+  } else {
+    searchText = searchText.replace(/\\n/g, '(\\\\\\\\n)');
   }
-  let env = '';
-  //if (flags.has('-P')) {
-    env = `LC_ALL=en_US.utf8 `;
-  //}
-  return `${env}grep ${flags.stringify()} ${searchText} ${getGenshinDataFilePath(file)}`;
+  if (isset(startFromLine)) {
+    flags.remove('-H');
+    flags.remove('--with-filename');
+  }
+
+  let env = `LC_ALL=en_US.utf8 `;
+  let grepCmd = `${env}grep ${flags.stringify()} ${searchText}`;
+
+  if (isset(startFromLine)) {
+    return { line: `tail -n +${startFromLine} ${getGenshinDataFilePath(file)} | ${grepCmd} -`, flags: flags };
+  } else {
+    return { line: `${grepCmd} ${getGenshinDataFilePath(file)}`, flags: flags };
+  }
 }
 
-export async function grep(searchText: string, file: string, flags?: string, escapeDoubleQuotes: boolean = true): Promise<string[]> {
+export async function grep(searchText: string, file: string, flags?: string,
+                           escapeDoubleQuotes: boolean = true, startFromLine?: number): Promise<string[]> {
   try {
-    const cmd = createGrepCommand(searchText, file, flags, escapeDoubleQuotes);
-    console.log('Command:', cmd);
+    const cmd = createGrepCommand(searchText, file, flags, escapeDoubleQuotes, startFromLine);
+    console.log('Command:', cmd.line);
+
     // noinspection JSUnusedLocalSymbols
-    const { stdout, stderr } = await execPromise(cmd, {
+    const { stdout, stderr } = await execPromise(cmd.line, {
       env: { PATH: process.env.SHELL_PATH },
       shell: process.env.SHELL_EXEC,
     });
-    return stdout.split(/\n/).map(s => s.trim()).filter(x => !!x);
+
+    return stdout.split(/\n/)
+      .map(s => {
+        s = s.trim();
+        if (isset(startFromLine)) {
+          s = s.replace(/^(\d+):/, (fm, g) => (parseInt(g) + startFromLine - 1) + ':');
+        }
+        return s;
+      })
+      .filter(x => !!x);
   } catch (err) {
     if (err && err.code === 1) {
       return []; // exit code of 1 is no matches found - not an error for our use case
@@ -299,7 +332,7 @@ export async function grep(searchText: string, file: string, flags?: string, esc
 
 export async function grepStream(searchText: string, file: string, stream: (line: string, kill?: () => void) => void, flags?: string): Promise<number|Error> {
   const cmd = createGrepCommand(searchText, file, flags);
-  return await passthru(cmd, stream);
+  return await passthru(cmd.line, stream);
 }
 
 export async function grepIdStartsWith(idProp: string, idPrefix: number | string, file: string): Promise<(number | string)[]> {
@@ -312,6 +345,21 @@ export async function grepIdStartsWith(idProp: string, idPrefix: number | string
     out.push(isInt ? parseInt(parts[1]) : parts[1]);
   }
   return out;
+}
+
+export function getTextAtLine(lineNum: number, file: string): string {
+  try {
+    const cmd = `sed '${lineNum}q;d' ${getGenshinDataFilePath(file)}`;
+    // noinspection JSUnusedLocalSymbols
+    const stdout: string = execSync(cmd, {
+      env: { PATH: process.env.SHELL_PATH },
+      shell: process.env.SHELL_EXEC,
+    }).toString();
+    return stdout.trim();
+  } catch (err) {
+    console.error('\x1b[4m\x1b[1mshell error:\x1b[0m\n', err);
+    throw 'Search error occurred.';
+  }
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {

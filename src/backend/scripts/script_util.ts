@@ -8,12 +8,18 @@ import {
   NpcExcelConfigData,
   WorldAreaConfigData, WorldAreaType,
 } from '../../shared/types/general-types';
-import { createLangCodeMap, getElementName, getTextMapItem, getVoPrefix } from './textmap';
+import {
+  createLangCodeMap,
+  getElementName,
+  getTextMapHashFromPlainLineMap,
+  getTextMapItem,
+  getVoPrefix,
+} from './textmap';
 import { Request } from '../util/router';
 import SrtParser, { SrtLine } from '../util/srtParser';
 import { promises as fs } from 'fs';
 import { arrayIndexOf, arrayIntersect, arrayUnique, cleanEmpty, pairArrays, sort } from '../../shared/util/arrayUtil';
-import { isInt, toInt, toNumber } from '../../shared/util/numberUtil';
+import { isInt, isNumeric, toInt, toNumber } from '../../shared/util/numberUtil';
 import { normalizeRawJson, schema, SchemaTable } from '../importer/import_run';
 import {
   escapeRegExp,
@@ -55,7 +61,7 @@ import {
   HomeWorldFurnitureTypeExcelConfigData,
   HomeWorldNPCExcelConfigData,
 } from '../../shared/types/homeworld-types';
-import { grep, grepIdStartsWith, grepStream } from '../util/shellutil';
+import { getTextAtLine, grep, grepIdStartsWith, grepStream } from '../util/shellutil';
 import {
   getGenshinDataFilePath,
   getPlainTextMapRelPath,
@@ -155,6 +161,8 @@ export const normText = (text: string, langCode: LangCode, decolor: boolean = fa
   text = text.replace(/{F#([^}]*)}{M#([^}]*)}/g, plaintext ? '($2/$1)' : '{{MC|m=$2|f=$1}}');
   text = text.replace(/{M#([^}]*)}{F#([^}]*)}/g, plaintext ? '($1/$2)' : '{{MC|m=$1|f=$2}}');
   text = text.replace(/<size=[^>]+>(.*?)<\/size>/gs, '$1');
+  text = text.replace(/<i>(.*?)<\/i>/gs, plaintext ? '$1' : `''$1''`);
+  text = text.replace(/<\/?c\d>/g, '');
 
   if (decolor || plaintext) {
     text = text.replace(/<color=#[^>]+>(.*?)<\/color>/gs, '$1');
@@ -540,7 +548,7 @@ export class Control {
 
   async selectMainQuestsByNameOrId(name: string|number, limit: number = 25): Promise<MainQuestExcelConfigData[]> {
     if (typeof name === 'string') {
-      let matches = await this.getTextMapMatches(this.inputLangCode, name, '-i');
+      let matches = (await this.getTextMapMatches(this.inputLangCode, name, '-i')).result;
       let textMapIds = Object.keys(matches).map(i => parseInt(i));
 
       return await this.knex.select('*').from('MainQuestExcelConfigData')
@@ -1085,17 +1093,43 @@ export class Control {
     return out;
   }
 
-  async getTextMapMatches(langCode: LangCode, searchText: string, flags?: string): Promise<{[id: number]: string}> {
+  async getTextMapMatches(langCode: LangCode, searchText: string, flags?: string, startFromLine?: number): Promise<{
+    result: {[id: number]: string},
+    lastLine: number
+  }> {
     if (isStringBlank(searchText)) {
-      return {};
+      return {result: {}, lastLine: -1};
     }
-    let lines = await grep(searchText, getPlainTextMapRelPath(langCode), flags);
-    let out = {};
-    for (let line of lines) {
-      let parts = /^"(\d+)":\s+"(.*)",?$/.exec(line);
-      let textMapId = toInt(parts[1]);
-      out[textMapId] = getTextMapItem(langCode, textMapId);
+
+    const out = {
+      result: {},
+      lastLine: -1
+    };
+
+    if (isInt(searchText.trim())) {
+      const hash = toInt(searchText.trim());
+      const text = getTextMapItem(langCode, searchText);
+      if (text) {
+        out.result[hash] = text;
+      }
     }
+
+    const textFile = getPlainTextMapRelPath(langCode, 'Text');
+    const matches = await grep(searchText, textFile, flags + ' -n', true, startFromLine);
+
+    let lineNum = -1;
+    for (let match of matches) {
+      if (!match)
+        continue;
+
+      lineNum = toInt(match.split(':', 2)[0]);
+      if (isNaN(lineNum))
+        continue;
+
+      const textMapId = getTextMapHashFromPlainLineMap(langCode, lineNum);
+      out.result[textMapId] = getTextMapItem(langCode, textMapId);
+    }
+    out.lastLine = lineNum;
     return out;
   }
 
@@ -1120,16 +1154,33 @@ export class Control {
     if (isStringBlank(searchText)) {
       return 0;
     }
-    return await grepStream(searchText, getPlainTextMapRelPath(langCode), (line: string, kill: () => void) => {
-      if (!line)
+
+    if (isInt(searchText.trim())) {
+      let didKill = false;
+      const hash = toInt(searchText.trim());
+      const text = getTextMapItem(langCode, searchText);
+      if (text) {
+        stream(hash, text, () => didKill = true);
+      }
+      if (didKill) {
+        return 0;
+      }
+    }
+
+    const textFile = getPlainTextMapRelPath(langCode, 'Text');
+
+    return await grepStream(searchText, textFile, (match: string, kill: () => void) => {
+      if (!match)
         return;
-      let parts = /^"(\d+)":\s+"(.*)",?$/.exec(line.trim());
-      if (!parts)
+
+      const lineNum = toInt(match.split(':', 2)[0]);
+      if (isNaN(lineNum))
         return;
-      let textMapId = toInt(parts[1]);
-      let text = getTextMapItem(langCode, textMapId);
+
+      const textMapId = getTextMapHashFromPlainLineMap(langCode, lineNum);
+      const text = getTextMapItem(langCode, textMapId);
       stream(textMapId, text, kill);
-    }, flags);
+    }, flags + ' -n');
   }
 
   async findTextMapIdsByExactName(name: string): Promise<number[]> {

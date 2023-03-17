@@ -3,6 +3,9 @@ import axios, { AxiosError } from 'axios';
 import { showInternalErrorDialog, showJavascriptErrorDialog } from './util/errorHandler';
 import { modalService } from './util/modalService';
 import { HttpError } from '../shared/util/httpError';
+import { isInt } from '../shared/util/numberUtil';
+import { isset } from '../shared/util/genericUtil';
+import { cleanEmpty } from '../shared/util/arrayUtil';
 
 export const endpoints = {
   base_uri: '/api',
@@ -143,10 +146,13 @@ export const endpoints = {
       .then(response => response.data)
       .catch(this.errorHandler);
   },
-  searchTextMap(text: string, asHTML: boolean = false) {
+  searchTextMap(text: string, startFromLine?: string|number, asHTML: boolean = false) {
     return axios
       .get(`${this.base_uri}/search-textmap`, {
-        params: {text: text},
+        params: cleanEmpty({
+          text: text,
+          startFromLine: isset(startFromLine) && isInt(startFromLine) ? startFromLine : null
+        }),
         headers: {
           'Accept': asHTML ? 'text/html' : 'application/json',
           'Content-Type': asHTML ? 'text/html' : 'application/json',

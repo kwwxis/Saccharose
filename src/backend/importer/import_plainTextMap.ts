@@ -12,17 +12,28 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   }
 
   for (let langCode of LANG_CODES) {
-    if (langCode === 'CH') {
+    if (langCode === 'CH')
       continue;
+    await loadTextMaps([ langCode ], false);
+
+    let textmap = getFullTextMap(langCode);
+
+    console.log('  Normalizing TextMap for ' + langCode);
+    let hashList = [];
+    let textList = [];
+
+    for (let [hash, text] of Object.entries(textmap)) {
+      hashList.push(hash);
+      textList.push(normText(text, langCode, true, true).replaceAll(/\r?\n/g, '\\n'));
     }
-    await loadTextMaps([ langCode ]);
-    let textmap = Object.assign({}, getFullTextMap(langCode));
-    for (let id of Object.keys(textmap)) {
-      textmap[id] = normText(textmap[id], langCode, true, true);
-    }
-    console.log('Writing to PlainTextMap' + langCode + '.json');
-    fs.writeFileSync(getGenshinDataFilePath('./TextMap/Plain/PlainTextMap' + langCode + '.json'), JSON.stringify(textmap, null, 2), 'utf8');
+
+    console.log('  Writing to PlainTextMap_Text.dat');
+    fs.writeFileSync(getGenshinDataFilePath('./TextMap/Plain/PlainTextMap' + langCode + '_Text.dat'), textList.join('\n'), 'utf8');
+    console.log('  Writing to PlainTextMap_Hash.dat');
+    fs.writeFileSync(getGenshinDataFilePath('./TextMap/Plain/PlainTextMap' + langCode + '_Hash.dat'), hashList.join('\n'), 'utf8');
+
     textmap = null;
+
     clearFullTextMap(langCode);
     console.log('----------');
   }

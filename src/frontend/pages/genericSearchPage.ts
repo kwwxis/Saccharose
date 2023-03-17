@@ -3,6 +3,12 @@ import { endpoints } from '../endpoints';
 import { startListeners } from '../util/eventLoader';
 import { GeneralEventBus } from '../generalEventBus';
 
+export interface GenericSearchPageHandle {
+  generateResult(caller: string): void;
+  loadResultFromURL();
+  loadResultFromState(state: any);
+}
+
 export function startGenericSearchPageListeners(opts: {
   endpoint: ((input: string|number, asHTML?: boolean) => Promise<any>)|((input: string|number, input2?: string|number, asHTML?: boolean) => Promise<any>),
 
@@ -23,6 +29,12 @@ export function startGenericSearchPageListeners(opts: {
   submitPendingTarget?: string,
   submitButtonTarget?: string,
   resultTarget?: string,
+
+  // Events:
+  beforeGenerateResult?: (caller?: string) => void,
+  onReceiveResult?: (caller?: string, resultContainer?: HTMLElement, result?: any, preventDefault?: () => void) => void,
+  afterProcessResult?: (caller?: string, resultContainer?: HTMLElement, result?: any) => void,
+  afterInit?: (handle?: GenericSearchPageHandle) => void,
 }) {
   let lastSuccessfulStateData: any = null;
 
@@ -60,7 +72,7 @@ export function startGenericSearchPageListeners(opts: {
       if (secondaryInputEl) {
         secondaryInputEl.value = query2;
       }
-      generateResult(true);
+      generateResult('nonUserAction');
     } else {
       inputEl.value = '';
       if (secondaryInputEl) {
@@ -69,7 +81,7 @@ export function startGenericSearchPageListeners(opts: {
     }
   }
 
-  function loadResultFromState(state) {
+  function loadResultFromState(state: any) {
     if (!state)
       state = {};
 
@@ -81,13 +93,17 @@ export function startGenericSearchPageListeners(opts: {
     }
 
     if (state[opts.inputUrlParam]) {
-      generateResult(true);
+      generateResult('nonUserAction');
     } else {
       document.querySelector(opts.resultTarget).innerHTML = '';
     }
   }
 
-  function generateResult(isNonUserAction: boolean = false) {
+  function generateResult(caller: string) {
+    if (opts.beforeGenerateResult) {
+      opts.beforeGenerateResult(caller);
+    }
+
     const inputEl = document.querySelector<HTMLInputElement>(opts.inputTarget);
     let text: string|number = inputEl.value.trim();
     if (inputEl) {
@@ -146,7 +162,7 @@ export function startGenericSearchPageListeners(opts: {
         url.searchParams.delete(opts.secondaryInputUrlParam);
       }
     }
-    if (isNonUserAction) {
+    if (caller === 'nonUserAction') {
       window.history.replaceState(stateData, null, url.href);
     } else {
       window.history.pushState(stateData, null, url.href);
@@ -155,10 +171,24 @@ export function startGenericSearchPageListeners(opts: {
     opts.endpoint.apply(endpoints, secondaryInputEl ? [text, secondaryText, true] :  [text, true]).then(result => {
       lastSuccessfulStateData = stateData;
 
-      if (typeof result === 'string') {
-        document.querySelector(opts.resultTarget).innerHTML = result;
-      } else if (typeof result === 'object' && result.message) {
-        document.querySelector(opts.resultTarget).innerHTML = endpoints.errorHtmlWrap(result.message);
+      const resultTargetEl: HTMLElement = document.querySelector(opts.resultTarget);
+      let preventDefaultRes = false;
+
+      if (opts.onReceiveResult) {
+        let preventDefaultFn = () => preventDefaultRes = true;
+        opts.onReceiveResult(caller, resultTargetEl, result, preventDefaultFn);
+      }
+
+      if (!preventDefaultRes) {
+        if (typeof result === 'string') {
+          resultTargetEl.innerHTML = result;
+        } else if (typeof result === 'object' && result.message) {
+          resultTargetEl.innerHTML = endpoints.errorHtmlWrap(result.message);
+        }
+      }
+
+      if (opts.afterProcessResult) {
+        opts.afterProcessResult(caller, resultTargetEl, result)
       }
     }).finally(() => {
       loadingEl.classList.add('hide');
@@ -181,6 +211,19 @@ export function startGenericSearchPageListeners(opts: {
       ev: 'ready',
       fn: function() {
         loadResultFromURL();
+        if (opts.afterInit) {
+          opts.afterInit({
+            generateResult(caller: string) {
+              generateResult(caller);
+            },
+            loadResultFromURL() {
+              loadResultFromURL();
+            },
+            loadResultFromState(state: any) {
+              loadResultFromState(state);
+            }
+          })
+        }
       }
     },
     {
@@ -198,14 +241,14 @@ export function startGenericSearchPageListeners(opts: {
       el: opts.inputTarget,
       ev: 'enter',
       fn: function(event, target) {
-        generateResult();
+        generateResult('inputEnter');
       }
     },
     {
       el: opts.submitButtonTarget,
       ev: 'click',
       fn: function(event, target) {
-        generateResult();
+        generateResult('submitButtonClick');
       }
     },
   ];
@@ -215,7 +258,7 @@ export function startGenericSearchPageListeners(opts: {
       el: opts.secondaryInputTarget,
       ev: 'enter',
       fn: function(event, target) {
-        generateResult();
+        generateResult('inputEnter');
       }
     })
   }

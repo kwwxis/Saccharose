@@ -1,13 +1,14 @@
 import {promises as fs} from 'fs';
 import path from 'path';
 import { LANG_CODES, LangCode, LangCodeMap, TalkRoleType } from '../../shared/types/dialogue-types';
-import { DATAFILE_VOICE_ITEMS, getGenshinDataFilePath, getTextMapRelPath } from '../loadenv';
+import { DATAFILE_VOICE_ITEMS, getGenshinDataFilePath, getPlainTextMapRelPath, getTextMapRelPath } from '../loadenv';
 import { normText } from './script_util';
 import { ElementType, ManualTextMapHashes } from '../../shared/types/manual-text-map';
 
 // TYPES
 // ----------------------------------------------------------------------------------------------------
 const TextMap: {[langCode: string]: {[id: string]: string}} = {};
+const PlainLineMap: {[langCode: string]: {[lineNum: number]: number}} = {};
 
 export type VoiceItem = {fileName: string, gender?: 'M' | 'F'};
 export type VoiceItemMap = {[dialogueId: string]: VoiceItem[]};
@@ -18,25 +19,44 @@ export type QuestSummaryMap = {[questId: number]: number};
 export const QuestSummary: QuestSummaryMap = {};
 
 // TEXT MAPS
-// ----------------------------------------------------------------------------------------------------
-export async function loadTextMaps(filterLangCodes?: string[]): Promise<void> {
+// ----------------------------------------------------------------------------------------------------\
+export async function loadTextMaps(filterLangCodes?: string[], loadPlainLineMaps: boolean = true): Promise<void> {
   console.log('[Init] Loading TextMap -- starting...');
+
   let promises = [];
   for (let langCode of LANG_CODES) {
     if (langCode === 'CH') {
       continue;
     }
+
     if (filterLangCodes && filterLangCodes.length && !filterLangCodes.includes(langCode)) {
       if (!TextMap[langCode])
         TextMap[langCode] = {};
       continue;
     }
-    console.log('[Init] Loading TextMap -- ' + langCode)
-    let p = fs.readFile(getGenshinDataFilePath(getTextMapRelPath(langCode)), {encoding: 'utf8'}).then(data => {
+
+    console.log(`[Init] Loading TextMap${loadPlainLineMaps ? ' and PlainLineMap ' : ' '}-- ` + langCode);
+
+    const p = fs.readFile(getGenshinDataFilePath(getTextMapRelPath(langCode)), {encoding: 'utf8'}).then(data => {
       TextMap[langCode] = Object.freeze(JSON.parse(data));
     });
+
     promises.push(p);
+
+    if (loadPlainLineMaps) {
+      PlainLineMap[langCode] = {};
+
+      const p2 = fs.readFile(getGenshinDataFilePath(getPlainTextMapRelPath(langCode, 'Hash')), {encoding: 'utf8'}).then(data => {
+        let lines = data.split(/\n/g);
+        for (let i = 0; i < lines.length; i++) {
+          PlainLineMap[langCode][i + 1] = parseInt(lines[i]);
+        }
+      });
+
+      promises.push(p2);
+    }
   }
+
   return Promise.all(promises).then(() => {
     console.log('[Init] Loading TextMap -- done!');
   });
@@ -69,6 +89,10 @@ export function getTextMapItem(langCode: LangCode, id: any): string {
     langCode = 'CHS';
   }
   return TextMap[langCode][id];
+}
+
+export function getTextMapHashFromPlainLineMap(langCode: LangCode, lineNum: number): number {
+  return PlainLineMap[langCode][lineNum] || undefined;
 }
 
 export function createLangCodeMap(id: any, doNormText: boolean = true): LangCodeMap {

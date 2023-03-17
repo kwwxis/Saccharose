@@ -1,3 +1,5 @@
+import { isUnset } from './genericUtil';
+
 /**
  * Returns true if empty (false, null, undefined), otherwise returns false if non-empty (zero is considered non-empty).
  */
@@ -40,7 +42,9 @@ export function toNumber(x: string | number) {
 }
 
 export function toInt(x: any): number {
-  if (typeof x === 'number') {
+  if (isUnset(x)) {
+    return NaN;
+  } else if (typeof x === 'number') {
     return x | 0;
   } else if (typeof x === 'string') {
     try {

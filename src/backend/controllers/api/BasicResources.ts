@@ -1,7 +1,7 @@
 import { create, NextFunction, Request, Response, Router } from '../../util/router';
 import { getControl, IdUsages, normText } from '../../scripts/script_util';
 import { add_ol_markers, ol_gen, OLResult } from '../../scripts/basic/OLgen';
-import { toBoolean } from '../../../shared/util/genericUtil';
+import { isset, toBoolean } from '../../../shared/util/genericUtil';
 import { HttpError } from '../../../shared/util/httpError';
 import { getTextMapItem } from '../../scripts/textmap';
 import { isInt, toInt } from '../../../shared/util/numberUtil';
@@ -20,8 +20,11 @@ router.restful('/ping', {
 router.restful('/search-textmap', {
   get: async (req: Request, res: Response) => {
     const ctrl = getControl(req);
+    const startFromLine: number = isset(req.query.startFromLine) && isInt(req.query.startFromLine) ? toInt(req.query.startFromLine) : undefined;
 
-    const result = await ctrl.getTextMapMatches(ctrl.inputLangCode, <string> req.query.text, '-m 100 ' + ctrl.searchModeFlags); // "-m" flag -> max count
+    // "-m" flag -> max count
+    const matches = await ctrl.getTextMapMatches(ctrl.inputLangCode, <string> req.query.text, '-m 100 ' + ctrl.searchModeFlags, startFromLine);
+    const result = matches.result;
 
     if (ctrl.inputLangCode !== ctrl.outputLangCode) {
       for (let textMapId of Object.keys(result)) {
@@ -34,9 +37,9 @@ router.restful('/search-textmap', {
     }
 
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
-      return res.render('partials/basic/textmap-search-result', { result });
+      return res.render('partials/basic/textmap-search-result', { result, lastLine: matches.lastLine });
     } else {
-      return result;
+      return matches;
     }
   }
 });
