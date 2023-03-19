@@ -65,7 +65,7 @@ export function notIncludes(obj: any, item: any) {
  * Checks if input object is a Promise.
  * @returns {boolean} true if a promise, false otherwise
  */
-export function isPromise(o): boolean {
+export function isPromise(o): o is Promise<any> {
   return (
     o &&
     (o instanceof Promise ||

@@ -272,7 +272,7 @@ export class GCGControl {
     if (!disableLoad.disableLevelLockLoad) {
       stage.LevelLock = await this.singleSelect('GCGLevelLockExcelConfigData', 'LevelId', stage.Id);
       if (stage.LevelLock && stage.LevelLock.UnlockLevel) {
-        stage.LevelGcgLevel = stage.LevelLock.UnlockLevel;
+        stage.MinPlayerLevel = stage.LevelLock.UnlockLevel;
       }
     }
     if (!disableLoad.disableDialogTalkLoad) {
@@ -300,13 +300,13 @@ export class GCGControl {
       if (stage.BossLevel) {
         stage.LevelType = 'BOSS';
         stage.LevelDifficulty = 'NORMAL';
-        stage.LevelGcgLevel = stage.BossLevel.UnlockGcgLevel;
+        stage.MinPlayerLevel = stage.BossLevel.UnlockGcgLevel;
       } else {
         stage.BossLevel = await this.singleSelect('GCGBossLevelExcelConfigData', 'HardLevelId', stage.Id);
         if (stage.BossLevel) {
           stage.LevelType = 'BOSS';
           stage.LevelDifficulty = 'HARD';
-          stage.LevelGcgLevel = stage.BossLevel.UnlockGcgLevel;
+          stage.MinPlayerLevel = stage.BossLevel.UnlockGcgLevel;
         }
       }
     }
@@ -328,7 +328,7 @@ export class GCGControl {
           let cond = weekLevel.LevelCondList.find(cond => cond.LevelId === stage.Id);
           stage.LevelType = 'WEEK';
           stage.WeekLevel = weekLevel;
-          stage.LevelGcgLevel = cond.GcgLevel;
+          stage.MinPlayerLevel = cond.GcgLevel;
         }
       }
     }
@@ -340,7 +340,7 @@ export class GCGControl {
 
         let normalItem = stage.CharacterLevel.NormalLevelList.find(item => item.LevelId === stage.Id);
         if (normalItem) {
-          stage.LevelGcgLevel = normalItem.GcgLevel;
+          stage.MinPlayerLevel = normalItem.GcgLevel;
         }
 
         if (stage.Id === stage.CharacterLevel.HardLevelId) {
@@ -422,6 +422,13 @@ export class GCGControl {
       if (stage.LevelDifficulty) {
         // Only 'BOSS' and 'CHARACTER' games have level difficulty
         stage.WikiType = stage.LevelDifficulty === 'NORMAL' ? 'Friendly Fracas' : 'Serious Showdown';
+      }
+    }
+    if (stage.Reward && stage.Reward.CondList) {
+      for (let cond of stage.Reward.CondList) {
+        if (cond.Type === 'GCG_LEVEL') {
+          stage.MinPlayerLevel = cond.ParamList[0];
+        }
       }
     }
     return stage;
@@ -516,9 +523,15 @@ export class GCGControl {
   // --------------------------------------------------------------------------------------------------------------
 
   private async postProcessDeck(deck: GCGDeckExcelConfigData): Promise<GCGDeckExcelConfigData> {
-    deck.MappedCharacterList = await this.multiSelect('GCGCharExcelConfigData', 'Id', deck.CharacterList, this.postProcessChar);
-    deck.MappedWaitingCharacterList = await this.multiSelect('GCGCharExcelConfigData', 'Id', deck.WaitingCharacterList, this.postProcessChar);
-    deck.MappedCardList = await this.multiSelect('GCGCardExcelConfigData', 'Id', deck.CardList, this.postProcessCard);
+    deck.MappedCharacterList = await this.multiSelect('GCGCharExcelConfigData', 'Id',
+      deck.CharacterList, this.postProcessChar);
+
+    deck.MappedWaitingCharacterList = await this.multiSelect('GCGCharExcelConfigData', 'Id',
+      deck.WaitingCharacterList.map(x => x.Id).filter(x => !!x), this.postProcessChar);
+
+    deck.MappedCardList = await this.multiSelect('GCGCardExcelConfigData', 'Id',
+      deck.CardList, this.postProcessCard);
+
     return deck;
   }
 
@@ -613,7 +626,7 @@ export class GCGControl {
           sect.addMetaProp('Stage ID', talk.GameId);
           sect.addMetaProp('Stage Type', stage.LevelType);
           sect.addMetaProp('Stage Difficulty', stage.LevelDifficulty === 'NORMAL' ? 'Friendly Fracas' : 'Serious Showdown');
-          sect.addMetaProp('Stage Player Level', stage.LevelGcgLevel);
+          sect.addMetaProp('Stage Player Level', stage.MinPlayerLevel);
           if (stage.EnemyNameText) {
             sect.addMetaProp('Enemy Name', stage.EnemyNameText);
           }
@@ -786,6 +799,9 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
 
     const stage2 = await gcg.selectStage(11003);
     fs.writeFileSync(getGenshinDataFilePath('./single-stage-11003.json'), JSON.stringify(stage2, null, 2), 'utf8');
+
+    const stage3 = await gcg.selectStage(12105);
+    fs.writeFileSync(getGenshinDataFilePath('./single-stage-12105.json'), JSON.stringify(stage3, null, 2), 'utf8');
 
     const cardIds: number[] = [];
     for (let card of cards) {

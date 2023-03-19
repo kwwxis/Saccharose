@@ -224,30 +224,36 @@ faster when running `npm run ts-serve:dev`
   
 ## Genshin Images
 
-You'll want to create the `public/images/genshin` folder and add the images starting with (case-insensitive)
-any of the following:
+You'll want to create the `public/images/genshin` folder and add the images in `Texture2D` matching these conditions.
 
+All files starting with (case insensitive):
 - `UI_AchievementIcon`
+- `UI_AnimalIcon`
 - `UI_AvatarIcon`
-- 'UI_Activity'
+- `UI_Activity`
+- `UI_ChapterIcon`
+- `UI_Codex`
 - `UI_EquipIcon`
 - `UI_FlycloakIcon`
+- `UI_Gacha`
 - `UI_Gcg`
 - `UI_ItemIcon`
-- `UI_Quality`
-- `UI_RelicIcon`
-
-All files containing:
-- `Tutorial`, e.g. `7z e Texture2D.zip -o'/dest/path' '*Tutorial*' -r`
-
-Might be needed in the future:
 - `UI_Monster`
 - `UI_NameCardPic`
-- `UI_Gacha`
 - `UI_Reputation`
+- `UI_RelicIcon`
+
+All files containing (case insensitive):
+- `Tutorial`, e.g. `7z e Texture2D.zip -o'/dest/path' '*Tutorial*' -r`
 
 Having these images isn't necessary for the application to run, but you'll have a bunch of broken images without them
 in certain areas of the UI. If you don't know where to get these images, you can ask for them in the "Saccharose.wiki"
 Discord editing forums post.
 
-Files can be transfer with rsync over ssh: `rsync -avP /source/path hostname:/dest/path`
+**Commands:**
+
+- **Print:** `find ./Texture2D/ -type f -regextype posix-extended -iregex '.*/(UI_Achievement|UI_AnimalIcon|UI_AvatarIcon|UI_Activity|UI_ChapterIcon|UI_EquipIcon|UI_FlycloakIcon|UI_Gacha|UI_Gcg|UI_ItemIcon|UI_Monster|UI_NameCardPic|UI_Reputation|UI_RelicIcon|.*Tutorial).*'`<br /><br />
+
+- **Copy:** `find ./Texture2D/ -type f -regextype posix-extended -iregex '.*/(UI_Achievement|UI_AnimalIcon|UI_AvatarIcon|UI_Activity|UI_ChapterIcon|UI_EquipIcon|UI_FlycloakIcon|UI_Gacha|UI_Gcg|UI_ItemIcon|UI_Monster|UI_NameCardPic|UI_Reputation|UI_RelicIcon|.*Tutorial).*' -exec cp '{}' dist ';'`<br /><br />
+
+- **Transfer:**: `rsync -avP /source/path hostname:/dest/path`

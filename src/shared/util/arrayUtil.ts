@@ -8,7 +8,7 @@ export function toArray<T>(obj: T|T[]): T[] {
     return Array.isArray(obj) ? obj : [obj];
 }
 
-export function isIterable(obj: any): boolean {
+export function isIterable(obj: any): obj is IterableIterator<any> {
     if (!obj) {
         return false;
     }
@@ -16,17 +16,17 @@ export function isIterable(obj: any): boolean {
 }
 
 export function isArrayLike(obj: any): boolean {
-    return (
-      Array.isArray(obj) ||
-      (!!obj &&
-        typeof obj === "object" &&
-        typeof (obj.length) === "number" &&
-        (obj.length === 0 ||
-          (obj.length > 0 &&
-            (obj.length - 1) in obj)
-        )
+  return (
+    Array.isArray(obj) ||
+    (!!obj &&
+      typeof obj === "object" &&
+      typeof (obj.length) === "number" &&
+      (obj.length === 0 ||
+        (obj.length > 0 &&
+          (obj.length - 1) in obj)
       )
-    );
+    )
+  );
 }
 
 export function filterInPlace<T>(a: T[], condition: (item: T) => boolean, thisArg: any = null): T[] {

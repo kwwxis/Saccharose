@@ -4,7 +4,7 @@
     <% for (let collection of Object.values(archive.BookCollections)) { %>
       <div class="w50p">
         <a class="secondary spacer3-all valign textAlignLeft" role="button" href="/readables/book-collection/<%= collection.Id %>">
-          <img class="icon x32" src="/images/genshin/<%= collection.Books[0]?.Material?.Icon %>.png" loading="lazy" />
+          <img class="icon x32" src="/images/genshin/<%= collection.Books[0]?.Material?.Icon %>.png" loading="lazy" decoding="async" />
           <span class="spacer10-left"><%= collection.SuitNameText %></span>
         </a>
       </div>
@@ -17,7 +17,7 @@
     <% for (let readableView of archive.Materials.filter(v => v?.Material?.MaterialType === 'MATERIAL_QUEST')) { %>
       <div class="w50p">
         <a class="secondary spacer3-all valign textAlignLeft" role="button" href="/readables/item/<%= readableView.Id %>">
-          <img class="icon x32" src="/images/genshin/<%= readableView?.Material?.Icon %>.png" loading="lazy" />
+          <img class="icon x32" src="/images/genshin/<%= readableView?.Material?.Icon %>.png" loading="lazy" decoding="async" />
           <span class="spacer10-left"><%= readableView?.Material?.NameText %></span>
         </a>
       </div>
@@ -30,7 +30,7 @@
     <% for (let readableView of archive.Materials.filter(v => v?.Material?.MaterialType === 'MATERIAL_FLYCLOAK')) { %>
       <div class="w50p">
         <a class="secondary spacer3-all valign textAlignLeft" role="button" href="/readables/item/<%= readableView.Id %>">
-          <img class="icon x32" src="/images/genshin/<%= readableView?.Material?.Icon %>.png" loading="lazy" />
+          <img class="icon x32" src="/images/genshin/<%= readableView?.Material?.Icon %>.png" loading="lazy" decoding="async" />
           <span class="spacer10-left"><%= readableView?.Material?.NameText %></span>
         </a>
       </div>
@@ -43,7 +43,7 @@
     <% for (let readableView of archive.Materials.filter(v => v?.Material?.MaterialType === 'MATERIAL_COSTUME')) { %>
       <div class="w50p">
         <a class="secondary spacer3-all valign textAlignLeft" role="button" href="/readables/item/<%= readableView.Id %>">
-          <img class="icon x32" src="/images/genshin/<%= readableView?.Material?.Icon %>.png" loading="lazy" />
+          <img class="icon x32" src="/images/genshin/<%= readableView?.Material?.Icon %>.png" loading="lazy" decoding="async" />
           <span class="spacer10-left"><%= readableView?.Material?.NameText %></span>
         </a>
       </div>
@@ -56,7 +56,7 @@
     <% for (let readableView of archive.Weapons) { %>
       <div class="w50p">
         <a class="secondary spacer3-all valign textAlignLeft" role="button" href="/readables/item/<%= readableView.Id %>">
-          <img class="icon x32" src="/images/genshin/<%= readableView?.Weapon?.Icon %>.png" loading="lazy" />
+          <img class="icon x32" src="/images/genshin/<%= readableView?.Weapon?.Icon %>.png" loading="lazy" decoding="async" />
           <span class="spacer10-left"><%= readableView?.Weapon?.NameText %></span>
         </a>
       </div>
@@ -69,7 +69,7 @@
     <% for (let readableView of archive.Artifacts) { %>
       <div class="w50p">
         <a class="secondary spacer3-all valign textAlignLeft" role="button" href="/readables/item/<%= readableView.Id %>">
-          <img class="icon x32" src="/images/genshin/<%= readableView?.Artifact?.Icon %>.png" loading="lazy" />
+          <img class="icon x32" src="/images/genshin/<%= readableView?.Artifact?.Icon %>.png" loading="lazy" decoding="async" />
           <span class="spacer10-left"><%= readableView?.Artifact?.NameText %></span>
         </a>
       </div>

@@ -1,83 +1,79 @@
 import { flashTippy } from '../util/tooltips';
-import { endpoints } from '../endpoints';
-import { startListeners } from '../util/eventLoader';
+import { endpoints, SaccharoseApiEndpoint } from '../endpoints';
+import { Listener, startListeners } from '../util/eventLoader';
 import { GeneralEventBus } from '../generalEventBus';
+import { HttpError } from '../../shared/util/httpError';
 
 export interface GenericSearchPageHandle {
   generateResult(caller: string): void;
   loadResultFromURL();
   loadResultFromState(state: any);
+  clearResult();
 }
 
-export function startGenericSearchPageListeners(opts: {
-  endpoint: ((input: string|number, asHTML?: boolean) => Promise<any>)|((input: string|number, input2?: string|number, asHTML?: boolean) => Promise<any>),
+export type GenericSearchPageParamOpt<T> = {
+  selector: string,
+  apiParam: keyof T,
+  queryParam?: string,
+  guards?: ((text: string|number) => string)[],
+  mapper?: (text: string) => string|number,
+  required?: boolean
+}
 
-  // Primary Input:
-  inputTarget?: string,
-  inputUrlParam?: string,
-  inputGuards?: ((text: string) => string)[],
-  inputMapper?: (text: string|number) => string|number,
+export type GenericSearchPageOpts<T> =  {
+  endpoint: SaccharoseApiEndpoint<T>,
 
-  // Secondary Input:
-  secondaryInputTarget?: string,
-  secondaryInputRequired?: boolean,
-  secondaryInputUrlParam?: string,
-  secondaryInputGuards?: ((text: string|number) => string)[],
-  secondaryInputMapper?: (text: string) => string|number,
+  inputs: [GenericSearchPageParamOpt<T>, ... GenericSearchPageParamOpt<T>[]],
 
   // Submit Buttons/Result:
-  submitPendingTarget?: string,
-  submitButtonTarget?: string,
-  resultTarget?: string,
+  submitPendingTarget: string,
+  submitButtonTarget: string,
+  resultTarget: string,
 
   // Events:
   beforeGenerateResult?: (caller?: string) => void,
-  onReceiveResult?: (caller?: string, resultContainer?: HTMLElement, result?: any, preventDefault?: () => void) => void,
+  onReceiveResult?: (caller?: string, resultContainer?: HTMLElement, html?: string, preventDefault?: () => void) => void,
+  onReceiveError?: (caller?: string, resultContainer?: HTMLElement, err?: HttpError, preventDefault?: () => void) => void,
   afterProcessResult?: (caller?: string, resultContainer?: HTMLElement, result?: any) => void,
   afterInit?: (handle?: GenericSearchPageHandle) => void,
-}) {
+};
+
+export function startGenericSearchPageListeners<T>(opts: GenericSearchPageOpts<T>) {
   let lastSuccessfulStateData: any = null;
 
-  opts = Object.assign({
-    inputTarget: '.search-input',
-    submitPendingTarget: '.search-submit-pending',
-    submitButtonTarget: '.search-submit',
-    resultTarget: '#search-result',
-
-    inputUrlParam: 'q',
-    secondaryInputUrlParam: 'q2',
-  }, opts);
+  opts.inputs[0].required = true; // first input always required
 
   function loadResultFromURL() {
-    const inputEl = document.querySelector<HTMLInputElement>(opts.inputTarget);
-    const secondaryInputEl = opts.secondaryInputTarget ? document.querySelector<HTMLInputElement>(opts.secondaryInputTarget) : null;
-
+    const stateData = {};
     const url = new URL(window.location.href);
-    const query = url.searchParams.get(opts.inputUrlParam) || '';
-    const query2 = url.searchParams.get(opts.secondaryInputUrlParam) || '';
 
-    let stateData = {[opts.inputUrlParam]: query};
-    if (secondaryInputEl) {
-      stateData[opts.secondaryInputUrlParam] = query2;
+    let doGenerate: boolean = true;
+
+    for (let opt of opts.inputs) {
+      if (!opt.queryParam) {
+        continue;
+      }
+
+      const val = url.searchParams.get(opt.queryParam) || '';
+      stateData[opt.queryParam] = val;
+
+      const el = document.querySelector<HTMLInputElement>(opt.selector);
+      if (val) {
+        el.value = val;
+      } else {
+        el.value = '';
+        if (opt.required) {
+          doGenerate = false;
+        }
+      }
     }
 
     window.history.replaceState(stateData, null, window.location.href);
-    if (query) {
-      if (secondaryInputEl && opts.secondaryInputRequired && !query2) {
-        inputEl.value = '';
-        secondaryInputEl.value = '';
-        return;
-      }
-      inputEl.value = query;
-      if (secondaryInputEl) {
-        secondaryInputEl.value = query2;
-      }
+
+    if (doGenerate) {
       generateResult('nonUserAction');
     } else {
-      inputEl.value = '';
-      if (secondaryInputEl) {
-        secondaryInputEl.value = '';
-      }
+      clearResult();
     }
   }
 
@@ -85,18 +81,32 @@ export function startGenericSearchPageListeners(opts: {
     if (!state)
       state = {};
 
-    document.querySelector<HTMLInputElement>(opts.inputTarget).value = state[opts.inputUrlParam] || '';
+    let doGenerate: boolean = true;
 
-    const secondaryInputEl = opts.secondaryInputTarget ? document.querySelector<HTMLInputElement>(opts.secondaryInputTarget) : null;
-    if (secondaryInputEl) {
-      secondaryInputEl.value = state[opts.secondaryInputUrlParam] || '';
+    for (let opt of opts.inputs) {
+      if (!opt.queryParam) {
+        continue;
+      }
+
+      const val = state[opt.queryParam];
+      const el = document.querySelector<HTMLInputElement>(opt.selector);
+
+      el.value = val || '';
+
+      if (!val && opt.required) {
+        doGenerate = false;
+      }
     }
 
-    if (state[opts.inputUrlParam]) {
+    if (doGenerate) {
       generateResult('nonUserAction');
     } else {
-      document.querySelector(opts.resultTarget).innerHTML = '';
+      clearResult();
     }
+  }
+
+  function clearResult() {
+    document.querySelector(opts.resultTarget).innerHTML = '';
   }
 
   function generateResult(caller: string) {
@@ -104,99 +114,97 @@ export function startGenericSearchPageListeners(opts: {
       opts.beforeGenerateResult(caller);
     }
 
-    const inputEl = document.querySelector<HTMLInputElement>(opts.inputTarget);
-    let text: string|number = inputEl.value.trim();
-    if (inputEl) {
-      if (!text) {
-        flashTippy(inputEl, {content: 'Enter something in first!', delay:[0,2000]});
-        return;
-      }
-      if (opts.inputMapper) {
-        text = opts.inputMapper(text);
-      }
-      for (let inputGuard of (opts.inputGuards || [])) {
-        let result = inputGuard(String(text));
-        if (!!result && typeof result === 'string') {
-          flashTippy(inputEl, {content: result, delay:[0,2000]});
-          return;
-        }
-      }
-    }
+    const apiPayload: {[apiParam: string]: string|number} = {};
+    const stateData: {[queryParam: string]: string} = {};
+    const inputEls: HTMLInputElement[] = [];
 
-    const secondaryInputEl = opts.secondaryInputTarget ? document.querySelector<HTMLInputElement>(opts.secondaryInputTarget) : null;
-    let secondaryText: string|number = secondaryInputEl ? secondaryInputEl.value.trim() : null;
-    if (secondaryInputEl) {
-      if (opts.secondaryInputRequired && !secondaryText) {
-        flashTippy(secondaryInputEl, {content: 'Enter something in first!', delay:[0,2000]});
+    for (let opt of opts.inputs) {
+      const el = document.querySelector<HTMLInputElement>(opt.selector);
+      let val: string|number = el.value.trim();
+
+      inputEls.push(el);
+
+      if (opt.mapper) {
+        val = opt.mapper(val);
+      }
+
+      if (opt.required && !val) {
+        flashTippy(el, {content: 'Enter something in first!', delay:[0,2000]});
         return;
       }
-      if (opts.secondaryInputMapper) {
-        secondaryText = opts.secondaryInputMapper(String(secondaryText));
-      }
-      for (let inputGuard of (opts.secondaryInputGuards || [])) {
-        let result = inputGuard(text);
-        if (!!result && typeof result === 'string') {
-          flashTippy(inputEl, {content: result, delay:[0,2000]});
+
+      for (let guard of (opt.guards || [])) {
+        let result = guard(val);
+        if (typeof result === 'string') {
+          flashTippy(el, {content: result, delay:[0,2000]});
           return;
         }
+      }
+
+      apiPayload[opt.apiParam as string] = val;
+
+      if (opt.queryParam) {
+        stateData[opt.queryParam] = String(val);
       }
     }
 
     const buttonEl = document.querySelector<HTMLInputElement>(opts.submitButtonTarget);
     const loadingEl = document.querySelector(opts.submitPendingTarget);
+    const resultTargetEl: HTMLElement = document.querySelector(opts.resultTarget);
+
     loadingEl.classList.remove('hide');
     buttonEl.disabled = true;
-    inputEl.disabled = true;
-    if (secondaryInputEl) {
-      secondaryInputEl.disabled = true;
-    }
+    inputEls.forEach(el => el.disabled = true);
 
     const url = new URL(window.location.href);
-    url.searchParams.set(opts.inputUrlParam, String(text));
-    let stateData = {[opts.inputUrlParam]: text};
-    if (secondaryInputEl) {
-      if (secondaryText) {
-        url.searchParams.set(opts.secondaryInputUrlParam, String(secondaryText));
-        stateData[opts.secondaryInputUrlParam] = secondaryText;
-      } else if (url.searchParams.has(opts.secondaryInputUrlParam)) {
-        url.searchParams.delete(opts.secondaryInputUrlParam);
+    for (let opt of opts.inputs) {
+      if (stateData[opt.queryParam]) {
+        url.searchParams.set(opt.queryParam, stateData[opt.queryParam]);
+      } else {
+        url.searchParams.delete(opt.queryParam);
       }
     }
+
     if (caller === 'nonUserAction') {
       window.history.replaceState(stateData, null, url.href);
     } else {
       window.history.pushState(stateData, null, url.href);
     }
 
-    opts.endpoint.apply(endpoints, secondaryInputEl ? [text, secondaryText, true] :  [text, true]).then(result => {
+    opts.endpoint.get(apiPayload as any, true).then(result => {
       lastSuccessfulStateData = stateData;
 
-      const resultTargetEl: HTMLElement = document.querySelector(opts.resultTarget);
-      let preventDefaultRes = false;
+      let preventDefault = false;
 
       if (opts.onReceiveResult) {
-        let preventDefaultFn = () => preventDefaultRes = true;
+        let preventDefaultFn = () => preventDefault = true;
         opts.onReceiveResult(caller, resultTargetEl, result, preventDefaultFn);
       }
 
-      if (!preventDefaultRes) {
+      if (!preventDefault) {
         if (typeof result === 'string') {
           resultTargetEl.innerHTML = result;
-        } else if (typeof result === 'object' && result.message) {
-          resultTargetEl.innerHTML = endpoints.errorHtmlWrap(result.message);
         }
       }
 
       if (opts.afterProcessResult) {
         opts.afterProcessResult(caller, resultTargetEl, result)
       }
+    }).catch((err: HttpError) => {
+      let preventDefault = false;
+
+      if (opts.onReceiveError) {
+        let preventDefaultFn = () => preventDefault = true;
+        opts.onReceiveError(caller, resultTargetEl, err, preventDefaultFn);
+      }
+
+      if (!preventDefault) {
+        resultTargetEl.innerHTML = endpoints.errorHtmlWrap(err.message);
+      }
     }).finally(() => {
       loadingEl.classList.add('hide');
-      inputEl.disabled = false;
       buttonEl.disabled = false;
-      if (secondaryInputEl) {
-        secondaryInputEl.disabled = false;
-      }
+      inputEls.forEach(el => el.disabled = false);
     });
   }
 
@@ -206,7 +214,7 @@ export function startGenericSearchPageListeners(opts: {
     }
   });
 
-  const listeners = [
+  const listeners: Listener[] = [
     {
       ev: 'ready',
       fn: function() {
@@ -221,6 +229,9 @@ export function startGenericSearchPageListeners(opts: {
             },
             loadResultFromState(state: any) {
               loadResultFromState(state);
+            },
+            clearResult() {
+              clearResult();
             }
           })
         }
@@ -237,31 +248,21 @@ export function startGenericSearchPageListeners(opts: {
         loadResultFromState(event.state);
       }
     },
-    {
-      el: opts.inputTarget,
+    ... opts.inputs.map(optInput => ({
+      el: optInput.selector,
       ev: 'enter',
-      fn: function(event, target) {
+      fn: function(_event, _target) {
         generateResult('inputEnter');
       }
-    },
+    })),
     {
       el: opts.submitButtonTarget,
       ev: 'click',
-      fn: function(event, target) {
+      fn: function(_event, _target) {
         generateResult('submitButtonClick');
       }
     },
   ];
-
-  if (opts.secondaryInputTarget) {
-    listeners.push({
-      el: opts.secondaryInputTarget,
-      ev: 'enter',
-      fn: function(event, target) {
-        generateResult('inputEnter');
-      }
-    })
-  }
 
   startListeners(listeners);
 }

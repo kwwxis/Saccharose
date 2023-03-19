@@ -23,7 +23,7 @@
              class="vo-toolbar-sidebar-avatar secondary dispFlex textAlignLeft"
              href="/character/VO/<%= avatar.NameText.replace(' ', '_') %>"
              role="button">
-            <img class="icon x28" src="/images/genshin/<%= avatar.IconName %>.png" />
+            <img class="icon x28" src="/images/genshin/<%= avatar.IconName %>.png" loading="lazy" decoding="async" />
             <span class="spacer10-left"><%= avatar.NameText %></span>
           </a>
         <% } %>
@@ -80,7 +80,7 @@
       <% } else { %>
         <div id="vo-app-toolbar" class="card alignStretch spacer15-bottom">
           <div class="vo-app-toolbar-avatarName valign secondary-label">
-            <img class="icon x32" src="/images/genshin/<%= avatar.IconName %>.png" />
+            <img class="icon x32" src="/images/genshin/<%= avatar.IconName %>.png" loading="lazy" decoding="async" />
             <strong><%= avatar.NameText %></strong>
           </div>
           <div class="vo-app-toolbar-buttons valign">

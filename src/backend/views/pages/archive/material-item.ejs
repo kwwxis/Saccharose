@@ -4,7 +4,7 @@
     <div class="content">
       <table class="article-table">
         <tr>
-          <td class="bold">Name</td>
+          <td style="width:150px" class="bold">Name</td>
           <td><%= normText(material.NameText) %></td>
         </tr>
         <tr>
@@ -13,19 +13,21 @@
         </tr>
         <tr>
           <td class="bold">Quality</td>
-          <td><%= material.RankLevel %></td>
+          <td>
+            <div class="valign"><code class="spacer10-right"><%= material.RankLevel %></code> <%- include('partials/util/stars', { quality: material.RankLevel }) %></div>
+          </td>
         </tr>
         <tr>
           <td class="bold">Icon</td>
-          <td><img src="/images/genshin/<%= material.Icon %>.png" style="max-height:74px" /></td>
+          <td><img src="/images/genshin/<%= material.Icon %>.png" style="max-height:74px" loading="lazy" decoding="async" /></td>
         </tr>
         <tr>
-          <td class="bold">material Type</td>
-          <td><%= material.MaterialType %></td>
+          <td class="bold">Material Type</td>
+          <td><code><%= material.MaterialType %></code></td>
         </tr>
         <tr>
           <td class="bold">Item Type</td>
-          <td><%= material.ItemType %></td>
+          <td><code><%= material.ItemType %></code></td>
         </tr>
       </table>
     </div>

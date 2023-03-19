@@ -3,7 +3,7 @@ import { getControl } from '../../scripts/script_util';
 import { MainQuestExcelConfigData } from '../../../shared/types/quest-types';
 import { isInt, toInt } from '../../../shared/util/numberUtil';
 import { questGenerate, QuestGenerateResult } from '../../scripts/dialogue/quest_generator';
-import { removeCyclicRefs } from '../../../shared/util/genericUtil';
+import { isset, removeCyclicRefs } from '../../../shared/util/genericUtil';
 import { ApiCyclicValueReplacer } from '../ApiBaseRouter';
 import { HttpError } from '../../../shared/util/httpError';
 import { DialogueSectionResult } from '../../scripts/dialogue/dialogue_util';
@@ -20,6 +20,10 @@ const router: Router = create();
 router.restful('/quests/findMainQuest', {
   get: async (req: Request, res: Response) => {
     let questNameOrId: string|number = <string|number> (req.query.name || req.query.id);
+
+    if (!isset(questNameOrId)) {
+      throw HttpError.badRequest('InvalidParameter', 'The "name" or "id" query parameter must be given');
+    }
 
     if (typeof questNameOrId === 'string' && /^\d+$/.test(questNameOrId.trim())) {
       questNameOrId = parseInt(questNameOrId);

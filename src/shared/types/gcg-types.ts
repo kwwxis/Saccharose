@@ -183,7 +183,7 @@ export interface GCGGameExcelConfigData {
   // Custom properties, set based on data in sub-objects.
   LevelType: 'BOSS' | 'QUEST' | 'WORLD' | 'WEEK' | 'CHARACTER' | 'OTHER',
   LevelDifficulty?: 'NORMAL' | 'HARD',
-  LevelGcgLevel: number,
+  MinPlayerLevel: number,
 
   // Custom Wiki Properties:
   WikiCombinedTitle: string,

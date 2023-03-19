@@ -91,6 +91,14 @@ export function getTextMapItem(langCode: LangCode, id: any): string {
   return TextMap[langCode][id];
 }
 
+export function getPlainLineNumFromTextMapHash(langCode: LangCode, textmapHash: number): number {
+  let res = Object.entries(PlainLineMap[langCode]).find(entry => entry[1] === textmapHash);
+  if (res) {
+    return parseInt(res[0]);
+  }
+  return undefined;
+}
+
 export function getTextMapHashFromPlainLineMap(langCode: LangCode, lineNum: number): number {
   return PlainLineMap[langCode][lineNum] || undefined;
 }

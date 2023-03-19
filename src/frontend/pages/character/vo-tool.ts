@@ -41,7 +41,7 @@ export class VoAppState {
 
   init() {
     if (this.avatar) {
-      endpoints.getFetters(this.avatar.Id).then((fetters: CharacterFetters) => {
+      endpoints.getFetters.get({ avatarId: this.avatar.Id }).then((fetters: CharacterFetters) => {
         this.fetters = fetters;
         this.fetters.avatar = this.avatar;
         this.eventBus.emit('VO-FettersLoaded');

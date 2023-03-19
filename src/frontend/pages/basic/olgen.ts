@@ -3,6 +3,7 @@ import Cookies from 'js-cookie';
 import { flashTippy } from '../../util/tooltips';
 import { endpoints } from '../../endpoints';
 import { pageMatch } from '../../pageMatch';
+import { HttpError } from '../../../shared/util/httpError';
 
 pageMatch('pages/basic/olgen', () => {
   function loadResultFromURL() {
@@ -53,18 +54,21 @@ pageMatch('pages/basic/olgen', () => {
       window.history.pushState({q: text}, null, url.href);
     }
 
-    endpoints.generateOL(text, tlOptionValue === 'exclude_tl', tlOptionValue === 'exclude_tl', rmOptionValue === 'exclude_rm', true).then(result => {
-      if (typeof result === 'string') {
-        document.querySelector('#ol-results-list').innerHTML = result;
-        if (!result.includes('no-results-found')) {
-          inputEl.value = '';
-        }
-      } else if (typeof result === 'object' && result.message) {
-        if (result.type === 'NotFound') {
-          document.querySelector('#ol-results-list').innerHTML = endpoints.errorHtmlWrap('Not Found: ' + result.message);
-        } else {
-          document.querySelector('#ol-results-list').innerHTML = endpoints.errorHtmlWrap(result.message);
-        }
+    endpoints.generateOL.get({
+      text,
+      hideTl: tlOptionValue === 'exclude_tl',
+      hideRm: tlOptionValue === 'exclude_tl',
+      addDefaultHidden: rmOptionValue === 'exclude_rm'
+    }, true).then(result => {
+      document.querySelector('#ol-results-list').innerHTML = result;
+      if (!result.includes('no-results-found')) {
+        inputEl.value = '';
+      }
+    }).catch((err: HttpError) => {
+      if (err.type === 'NotFound') {
+        document.querySelector('#ol-results-list').innerHTML = endpoints.errorHtmlWrap('Not Found: ' + err.message);
+      } else {
+        document.querySelector('#ol-results-list').innerHTML = endpoints.errorHtmlWrap(err.message);
       }
     }).finally(() => {
       loadingEl.classList.add('hide');
@@ -94,7 +98,7 @@ pageMatch('pages/basic/olgen', () => {
     {
       el: '.ol-input',
       ev: 'enter',
-      fn: function(event, target) {
+      fn: function(_event, _target) {
         generateResult();
       }
     },
@@ -111,7 +115,7 @@ pageMatch('pages/basic/olgen', () => {
     {
       el: '.ol-submit',
       ev: 'click',
-      fn: function(event, target) {
+      fn: function(_event, _target) {
         generateResult();
       }
     },

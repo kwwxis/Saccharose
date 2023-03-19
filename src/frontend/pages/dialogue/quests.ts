@@ -4,11 +4,17 @@ import { modalService } from '../../util/modalService';
 import { flashTippy } from '../../util/tooltips';
 import { pageMatch } from '../../pageMatch';
 import { GeneralEventBus } from '../../generalEventBus';
+import { HttpError } from '../../../shared/util/httpError';
+import { isInt } from '../../../shared/util/numberUtil';
 
 pageMatch('pages/dialogue/quests', () => {
   let lastSuccessfulQuestId: number = 0;
 
   function loadQuestGenerateResult(questId) {
+    if (!isInt(questId)) {
+      return;
+    }
+
     document.querySelector('.quest-search-result-wrapper').classList.add('hide');
 
     document.querySelector('#quest-generate-result').innerHTML = `
@@ -17,13 +23,9 @@ pageMatch('pages/dialogue/quests', () => {
     <span class="spacer10-left fontWeight600">Loading quest...</span>
   </div>`
 
-    endpoints.generateMainQuest(questId, true).then(html => {
+    endpoints.generateMainQuest.get({ id: questId }, true).then(html => {
       lastSuccessfulQuestId = questId;
-      if (typeof html === 'string') {
-        document.querySelector('#quest-generate-result').innerHTML = html;
-      } else if (typeof html === 'object' && html.message) {
-        document.querySelector('#quest-generate-result').innerHTML = endpoints.errorHtmlWrap(html.message);
-      }
+      document.querySelector('#quest-generate-result').innerHTML = html;
       setTimeout(() => {
         let questTitleEl = document.querySelector('[data-document-title]');
         if (questTitleEl) {
@@ -31,6 +33,8 @@ pageMatch('pages/dialogue/quests', () => {
         }
       })
       startListeners(questResultListeners, '#quest-generate-result');
+    }).catch((err: HttpError) => {
+      document.querySelector('#quest-generate-result').innerHTML = endpoints.errorHtmlWrap(err.message);
     });
   }
 
@@ -40,7 +44,7 @@ pageMatch('pages/dialogue/quests', () => {
       window.history.replaceState({}, null, window.location.href);
       return;
     }
-    let id = urlParts[1];
+    let id: string = urlParts[1];
     window.history.replaceState({questId: id}, null, window.location.href);
     loadQuestGenerateResult(id);
   }
@@ -72,7 +76,7 @@ pageMatch('pages/dialogue/quests', () => {
       el: '.help-info',
       ev: 'click',
       multiple: true,
-      fn: function(event, target) {
+      fn: function(_event, _target) {
         modalService.modal(`<h2>Notes</h2>
           <ul class="padding">
             <li>The order of dialogue sections is not guaranteed to be in the correct chronological order nor are the "Section Order" parameters reliable.
@@ -118,7 +122,7 @@ pageMatch('pages/dialogue/quests', () => {
     {
       el: '.quest-search-input',
       ev: 'enter',
-      fn: function(event, target) {
+      fn: function(_event, _target) {
         document.querySelector<HTMLButtonElement>('.quest-search-submit').click();
       }
     },
@@ -139,7 +143,7 @@ pageMatch('pages/dialogue/quests', () => {
         inputEl.disabled = true;
         target.disabled = true;
 
-        endpoints.findMainQuest(text, true).then(result => {
+        endpoints.findMainQuest.get({ name: text }, true).then(result => {
           document.querySelector('.quest-search-result-wrapper').classList.remove('hide');
           document.querySelector('.quest-search-result').innerHTML = result;
 

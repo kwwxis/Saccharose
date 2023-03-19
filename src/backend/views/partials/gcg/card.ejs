@@ -1,12 +1,12 @@
 <a href="/TCG/cards/<%= card.Id %>" class="gcg-card">
   <% if (card.DeckCard) { %>
     <div class="gcg-card-icon">
-      <img src="/images/genshin/<%= card.DeckCard.ItemMaterial.Icon %>.png" />
+      <img src="/images/genshin/<%= card.DeckCard.ItemMaterial.Icon %>.png" loading="lazy" decoding="async" />
     </div>
     <div class="gcg-card-name"><%= card.DeckCard.ItemMaterial.NameText %></div>
   <% } else if (card.CardView) { %>
     <div class="gcg-card-icon">
-      <img src="/images/genshin/<%= card.CardView.Image %>.png" />
+      <img src="/images/genshin/<%= card.CardView.Image %>.png" loading="lazy" decoding="async" />
     </div>
     <div class="gcg-card-name"><%= card.NameText || card.Id %></div>
   <% } else { %>

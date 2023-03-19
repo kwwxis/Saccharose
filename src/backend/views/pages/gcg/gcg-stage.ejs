@@ -22,18 +22,8 @@
         <tr>
         <tr>
           <td class="no-border">&nbsp;</td>
-          <td class="bold">Stage Player Level</td>
-          <td class="w70p"><%= stage.LevelGcgLevel || 'n/a' %></td>
-        </tr>
-        <tr>
-          <td class="no-border">&nbsp;</td>
           <td class="bold">Enemy Name</td>
           <td class="w70p"><%= stage.EnemyNameText || 'n/a' %></td>
-        </tr>
-        <tr>
-          <td class="no-border">&nbsp;</td>
-          <td class="bold">Enemy Game Type</td>
-          <td class="w70p"><%= stage.GameType %></td>
         </tr>
         <tr>
           <td class="no-border">&nbsp;</td>
@@ -43,20 +33,42 @@
         <tr>
           <td class="no-border">&nbsp;</td>
           <td class="bold">Level Type</td>
-          <td class="w70p"><%= stage.LevelType || 'n/a' %></td>
+          <td class="w70p"><code><%= stage.LevelType || 'n/a' %></code></td>
+        </tr>
+        <tr>
+          <td class="no-border">&nbsp;</td>
+          <td class="bold" style="padding-left:20px">Wiki Group</td>
+          <td class="w70p"><%= stage.WikiGroup %></td>
+        </tr>
+        <tr>
+          <td class="no-border">&nbsp;</td>
+          <td class="bold" style="padding-left:20px">Wiki Type</td>
+          <td class="w70p"><%= stage.WikiType %></td>
         </tr>
         <% if (stage.LevelDifficulty) { %>
           <tr>
             <td class="no-border">&nbsp;</td>
-            <td class="bold">Level Difficulty</td>
+            <td class="bold" style="padding-left:20px">Level Difficulty</td>
             <td class="w70p"><%= stage.LevelDifficulty === 'NORMAL' ? 'Friendly Fracas' : 'Serious Showdown' %></td>
           </tr>
         <% } %>
+        <tr>
+          <td class="no-border">&nbsp;</td>
+          <td class="bold">Min. Player Level</td>
+          <td class="w70p"><%= stage.MinPlayerLevel || 'n/a' %></td>
+        </tr>
         <% if (stage.Reward) { %>
           <tr>
             <td class="no-border">&nbsp;</td>
             <td class="bold">Intro Text</td>
             <td class="w70p"><%- include('partials/util/wikitext', { content: normText(stage.Reward.IntroText), seamless: true }) %></td>
+          </tr>
+        <% } %>
+        <% if (stage?.WorldLevel?.MapDescText) { %>
+          <tr>
+            <td class="no-border">&nbsp;</td>
+            <td class="bold">Map Description</td>
+            <td class="w70p"><%- include('partials/util/wikitext', { content: normText(stage.WorldLevel.MapDescText), seamless: true }) %></td>
           </tr>
         <% } %>
       </table>
@@ -124,38 +136,38 @@
           </table>
         <% } %>
       <% } %>
-      <table class="article-table">
-        <tr>
-          <th colspan="3">Rule</th>
-        </tr>
-        <% if (stage.Rule) { %>
+      <% if (stage.Rule && false) { %>
+        <table class="article-table">
           <tr>
-            <td class="no-border">&nbsp;</td>
-            <td class="bold">Rule ID</td>
-            <td class="w70p"><%= stage.RuleId %></td>
+            <th colspan="3">Rule</th>
           </tr>
-          <tr>
-            <td class="no-border">&nbsp;</td>
-            <td class="bold">FirstDrawNum</td>
-            <td class="w70p"><%= stage.Rule.FirstDrawNum %></td>
-          </tr>
-          <tr>
-            <td class="no-border">&nbsp;</td>
-            <td class="bold">SecondDrawNum</td>
-            <td class="w70p"><%= stage.Rule.SecondDrawNum %></td>
-          </tr>
-          <tr>
-            <td class="no-border">&nbsp;</td>
-            <td class="bold">DrawCardNum</td>
-            <td class="w70p"><%= stage.Rule.DrawCardNum %></td>
-          </tr>
-          <tr>
-            <td class="no-border">&nbsp;</td>
-            <td class="bold">HandCardLimit</td>
-            <td class="w70p"><%= stage.Rule.HandCardLimit %></td>
-          </tr>
-        <% } %>
-      </table>
+            <tr>
+              <td class="no-border">&nbsp;</td>
+              <td class="bold">Rule ID</td>
+              <td class="w70p"><%= stage.RuleId %></td>
+            </tr>
+            <tr>
+              <td class="no-border">&nbsp;</td>
+              <td class="bold">FirstDrawNum</td>
+              <td class="w70p"><%= stage.Rule.FirstDrawNum %></td>
+            </tr>
+            <tr>
+              <td class="no-border">&nbsp;</td>
+              <td class="bold">SecondDrawNum</td>
+              <td class="w70p"><%= stage.Rule.SecondDrawNum %></td>
+            </tr>
+            <tr>
+              <td class="no-border">&nbsp;</td>
+              <td class="bold">DrawCardNum</td>
+              <td class="w70p"><%= stage.Rule.DrawCardNum %></td>
+            </tr>
+            <tr>
+              <td class="no-border">&nbsp;</td>
+              <td class="bold">HandCardLimit</td>
+              <td class="w70p"><%= stage.Rule.HandCardLimit %></td>
+            </tr>
+        </table>
+      <% } %>
       <% if (stage.CardGroup) { %>
         <table class="article-table">
           <tr>
@@ -244,3 +256,8 @@
     <h2>TCG Stage not found</h2>
   </section>
 <% } %>
+<style>
+td:first-of-type.no-border {
+  width: 20px;
+}
+</style>

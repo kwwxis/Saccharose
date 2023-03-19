@@ -10,7 +10,7 @@ import {
 } from '../../shared/types/general-types';
 import {
   createLangCodeMap,
-  getElementName,
+  getElementName, getPlainLineNumFromTextMapHash,
   getTextMapHashFromPlainLineMap,
   getTextMapItem,
   getVoPrefix,
@@ -548,9 +548,7 @@ export class Control {
 
   async selectMainQuestsByNameOrId(name: string|number, limit: number = 25): Promise<MainQuestExcelConfigData[]> {
     if (typeof name === 'string') {
-      let matches = (await this.getTextMapMatches(this.inputLangCode, name, '-i')).result;
-      let textMapIds = Object.keys(matches).map(i => parseInt(i));
-
+      let textMapIds: number[] = (await this.getTextMapMatches(this.inputLangCode, name, '-i')).map(x => x.hash);
       return await this.knex.select('*').from('MainQuestExcelConfigData')
         .whereIn('TitleTextMapHash', textMapIds)
         .limit(limit).then(this.commonLoad).then(x => this.postProcessMainQuests(x));
@@ -1093,24 +1091,18 @@ export class Control {
     return out;
   }
 
-  async getTextMapMatches(langCode: LangCode, searchText: string, flags?: string, startFromLine?: number): Promise<{
-    result: {[id: number]: string},
-    lastLine: number
-  }> {
+  async getTextMapMatches(langCode: LangCode, searchText: string, flags?: string, startFromLine?: number): Promise<{hash: number, text: string, line: number}[]> {
     if (isStringBlank(searchText)) {
-      return {result: {}, lastLine: -1};
+      return [];
     }
 
-    const out = {
-      result: {},
-      lastLine: -1
-    };
+    const out: {hash: number, text: string, line: number}[] = [];
 
     if (isInt(searchText.trim())) {
       const hash = toInt(searchText.trim());
       const text = getTextMapItem(langCode, searchText);
       if (text) {
-        out.result[hash] = text;
+        out.push({ hash, text, line: getPlainLineNumFromTextMapHash[hash] });
       }
     }
 
@@ -1127,9 +1119,8 @@ export class Control {
         continue;
 
       const textMapId = getTextMapHashFromPlainLineMap(langCode, lineNum);
-      out.result[textMapId] = getTextMapItem(langCode, textMapId);
+      out.push({ hash: textMapId, text: getTextMapItem(langCode, textMapId), line: lineNum });
     }
-    out.lastLine = lineNum;
     return out;
   }
 
@@ -1150,7 +1141,10 @@ export class Control {
     return out;
   }
 
-  async streamTextMapMatches(langCode: LangCode, searchText: string, stream: (textMapId: number, text?: string, kill?: () => void) => void, flags?: string): Promise<number|Error> {
+  async streamTextMapMatches(langCode: LangCode,
+                             searchText: string,
+                             stream: (textMapId: number, text?: string, kill?: () => void) => void,
+                             flags?: string): Promise<number|Error> {
     if (isStringBlank(searchText)) {
       return 0;
     }

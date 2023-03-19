@@ -1,0 +1,6 @@
+<% if (typeof quality === 'number' && quality > 0 && quality <= 5) { %>
+  <img src="/images/static/Icon_<%= quality %>_Stars.png" loading="lazy" decoding="async"
+       style="height:<%= locals.height || 18 %>px;width:auto;"
+       alt="<%= quality %> stars<%= quality > 1 ? 's' :'' %>"
+       title="<%= quality %> star<%= quality > 1 ? 's' :'' %>" />
+<% } %>

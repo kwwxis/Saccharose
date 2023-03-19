@@ -44,6 +44,10 @@ export const HTTP_STATUS_CODE_TO_NAME = {
   511: 'NetworkAuthenticationRequired',
 }
 
+export function isHttpErrorLike(o: any): boolean {
+  return !!o && typeof o === 'object' && (typeof o.status === 'number' || typeof o.code  === 'number') && o.type && o.message;
+}
+
 export class HttpError extends Error {
   public code: number;
   public status: number;
@@ -67,7 +71,7 @@ export class HttpError extends Error {
   }
 
   static fromJson(obj: any): HttpError {
-    if (!!obj && typeof obj === 'object' && (typeof obj.status === 'number' || typeof obj.code === 'number') && typeof obj.name === 'string') {
+    if (isHttpErrorLike(obj)) {
       return new HttpError(obj.status || obj.code, obj.type, obj.message);
     } else {
       return null;

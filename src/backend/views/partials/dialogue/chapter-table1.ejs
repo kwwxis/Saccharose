@@ -20,12 +20,18 @@
         <td>
           <div class="content">
             <% for (let [i, chapter] of chapterSect[chapterName][subChapterName].entries()) { %>
-              <a class="secondary dispBlock textAlignLeft spacer5-bottom" role="button" href="/chapters/<%= chapter.Id %>">
-                <% if (chapter.Summary.ActNumText) { %>
-                  <span><%= chapter.Summary.ActNumText %></span>
-                  <span>&mdash;</span>
+              <a class="secondary textAlignLeft spacer5-bottom valign" role="button" href="/chapters/<%= chapter.Id %>">
+                <% if (chapter.ChapterIcon) { %>
+                  <img src="/images/genshin/<%= chapter.ChapterIcon %>.png" class="spacer10-right" loading="lazy" decoding="async"
+                   style="width:48px;height:48px;background:#333;border-radius:50%;border:1px solid #fff;"/>
                 <% } %>
-                <strong class="act-name"><%= chapter.Summary.ActName %></strong>
+                <div>
+                  <% if (chapter.Summary.ActNumText) { %>
+                    <span><%= chapter.Summary.ActNumText %></span>
+                    <span>&nbsp;&mdash;&nbsp;</span>
+                  <% } %>
+                  <strong class="act-name"><%= chapter.Summary.ActName %></strong>
+                </div>
               </a>
               <% if (i !== chapterSect[chapterName][subChapterName].length - 1) { %>
                 <hr class="spacer5-bottom">

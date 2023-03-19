@@ -2,6 +2,7 @@ import { endpoints } from '../../endpoints';
 import { pageMatch } from '../../pageMatch';
 import { GenericSearchPageHandle, startGenericSearchPageListeners } from '../genericSearchPage';
 import { toInt } from '../../../shared/util/numberUtil';
+import { frag } from '../../util/domutil';
 
 pageMatch('pages/basic/text-map-expand', () => {
   let handle: GenericSearchPageHandle;
@@ -9,44 +10,52 @@ pageMatch('pages/basic/text-map-expand', () => {
   startGenericSearchPageListeners({
     endpoint: endpoints.searchTextMap,
 
-    secondaryInputUrlParam: 'startFromLine',
-    secondaryInputTarget: '#startFromLine',
+    inputs: [
+      {
+        selector: '.search-input',
+        apiParam: 'text',
+        queryParam: 'q',
+      },
+      {
+        selector: '#startFromLine',
+        apiParam: 'startFromLine',
+      },
+      {
+        selector: '#resultSetNum',
+        apiParam: 'resultSetNum',
+      }
+    ],
+
+    submitPendingTarget: '.search-submit-pending',
+    submitButtonTarget: '.search-submit',
+    resultTarget: '#search-result',
 
     onReceiveResult(caller: string, resultTarget: HTMLElement, result: any, preventDefault: () => void) {
       preventDefault();
 
-      if (typeof result === 'object' && result.message) {
-        resultTarget.innerHTML = endpoints.errorHtmlWrap(result.message);
-        return;
-      } else if (typeof result !== 'string') {
-        resultTarget.innerHTML = endpoints.errorHtmlWrap('Internal error - malformed response');
-        return;
-      }
-
-      resultTarget.querySelectorAll('[data-last-line]').forEach(el => el.removeAttribute('data-last-line'));
+      const fragment = frag(result);
+      const containerEl = fragment.querySelector('.dialogue-container');
 
       if (caller === 'loadMore') {
-        let loadMoreButton = resultTarget.querySelector('#search-load-more');
-        if (loadMoreButton) {
-          let parent = loadMoreButton.parentElement;
-          loadMoreButton.remove();
-          parent.innerHTML = `<p class="fontWeight600 textAlignCenter" style="font-size:17px">More results loaded.</p>`
-        }
-        resultTarget.insertAdjacentHTML('beforeend', result);
+        resultTarget.querySelectorAll('.search-load-more-container').forEach(e => e.remove());
+        resultTarget.querySelectorAll('.load-more-status').forEach(e => e.remove());
+        resultTarget.append(fragment);
       } else {
-        resultTarget.innerHTML = result;
+        resultTarget.innerHTML = '';
+        resultTarget.append(fragment);
       }
 
-      let dataLastLineEl = resultTarget.querySelector('[data-last-line]');
-      if (dataLastLineEl) {
-        let lastLineValue = dataLastLineEl.getAttribute('data-last-line');
-        document.querySelector<HTMLInputElement>('#startFromLine').value = String(toInt(lastLineValue) + 1);
-      }
+      let lastLineValue = containerEl.getAttribute('data-last-line');
+      document.querySelector<HTMLInputElement>('#startFromLine').value = String(toInt(lastLineValue) + 1);
 
-      let loadMoreButton = resultTarget.querySelector('#search-load-more');
+      let resultSetNum = containerEl.getAttribute('data-result-set-num');
+      document.querySelector<HTMLInputElement>('#resultSetNum').value = String(toInt(resultSetNum) + 1);
+
+      let loadMoreButton = resultTarget.querySelector<HTMLButtonElement>('#search-load-more');
       if (loadMoreButton) {
         loadMoreButton.addEventListener('click', () => {
           handle.generateResult('loadMore');
+          loadMoreButton.disabled = true;
         });
       }
     },
@@ -58,6 +67,7 @@ pageMatch('pages/basic/text-map-expand', () => {
         return;
       }
       document.querySelector<HTMLInputElement>('#startFromLine').value = '';
+      document.querySelector<HTMLInputElement>('#resultSetNum').value = '';
     }
   })
 });

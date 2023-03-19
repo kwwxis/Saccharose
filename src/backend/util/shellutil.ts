@@ -300,10 +300,11 @@ export async function grep(searchText: string, file: string, flags?: string,
       shell: process.env.SHELL_EXEC,
     });
 
+    const hasLineNumFlag = cmd.flags.has('-n') || cmd.flags.has('--line-number');
     return stdout.split(/\n/)
       .map(s => {
         s = s.trim();
-        if (isset(startFromLine)) {
+        if (hasLineNumFlag && isset(startFromLine)) {
           s = s.replace(/^(\d+):/, (fm, g) => (parseInt(g) + startFromLine - 1) + ':');
         }
         return s;

@@ -8,13 +8,19 @@
       <td>
         <div class="content dispFlex flexWrap alignStretch">
           <% for (let chapter of chapterSect[chapterName]) { %>
-            <div class="w33p dispFlex alignStretch">
-              <a class="w100p secondary dispBlock spacer5-all textAlignLeft" role="button" href="/chapters/<%= chapter.Id %>">
-                <% if (chapter.Summary.ActNumText) { %>
-                  <span><%= chapter.Summary.ActNumText %></span>
-                  <span>&mdash;</span>
+            <div class="w50p dispFlex alignStretch">
+              <a class="w100p secondary valign spacer5-all textAlignLeft" role="button" href="/chapters/<%= chapter.Id %>">
+                <% if (chapter.ChapterIcon) { %>
+                  <img src="/images/genshin/<%= chapter.ChapterIcon %>.png" class="spacer10-right" loading="lazy" decoding="async"
+                       style="width:48px;height:48px;background:#333;border-radius:50%;border:1px solid #fff;"/>
                 <% } %>
-                <strong class="act-name"><%= chapter.Summary.ActName %></strong>
+                <div>
+                  <% if (chapter.Summary.ActNumText) { %>
+                    <span><%= chapter.Summary.ActNumText %></span>
+                    <span>&nbsp;&mdash;&nbsp;</span>
+                  <% } %>
+                  <strong class="act-name"><%= chapter.Summary.ActName %></strong>
+                </div>
               </a>
             </div>
           <%} %>

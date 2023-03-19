@@ -21,25 +21,34 @@ router.restful('/search-textmap', {
   get: async (req: Request, res: Response) => {
     const ctrl = getControl(req);
     const startFromLine: number = isset(req.query.startFromLine) && isInt(req.query.startFromLine) ? toInt(req.query.startFromLine) : undefined;
+    const resultSetNum: number = isset(req.query.resultSetNum) && isInt(req.query.resultSetNum) ? toInt(req.query.resultSetNum) : 0;
+    const SEARCH_TEXTMAP_MAX = 100;
 
     // "-m" flag -> max count
-    const matches = await ctrl.getTextMapMatches(ctrl.inputLangCode, <string> req.query.text, '-m 100 ' + ctrl.searchModeFlags, startFromLine);
-    const result = matches.result;
+    const items = await ctrl.getTextMapMatches(ctrl.inputLangCode, <string> req.query.text, `-m ${SEARCH_TEXTMAP_MAX+1} ${ctrl.searchModeFlags}`, startFromLine);
+    let hasMoreResults: boolean = false;
+
+    if (items.length > SEARCH_TEXTMAP_MAX) {
+      hasMoreResults = true;
+      items.pop();
+    }
+
+    let lastLine: number = items.length ? items[items.length - 1].line : null;
 
     if (ctrl.inputLangCode !== ctrl.outputLangCode) {
-      for (let textMapId of Object.keys(result)) {
-        result[textMapId] = getTextMapItem(ctrl.outputLangCode, textMapId);
+      for (let item of items) {
+        item.text = getTextMapItem(ctrl.outputLangCode, item.hash);
       }
     }
 
-    for (let textMapId of Object.keys(result)) {
-      result[textMapId] = normText(result[textMapId], ctrl.outputLangCode);
+    for (let item of items) {
+      item.text = normText(item.text, ctrl.outputLangCode);
     }
 
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
-      return res.render('partials/basic/textmap-search-result', { result, lastLine: matches.lastLine });
+      return res.render('partials/basic/textmap-search-result', { items, lastLine, hasMoreResults, resultSetNum, SEARCH_TEXTMAP_MAX });
     } else {
-      return matches;
+      return items;
     }
   }
 });

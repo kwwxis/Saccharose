@@ -1,4 +1,7 @@
+// noinspection JSUnusedGlobalSymbols,JSDeprecatedSymbols
+
 import { saveAs } from 'file-saver';
+import { isset } from '../../shared/util/genericUtil';
 
 export function tag(el: Element): string {
   return el ? el.tagName.toLowerCase() : null;
@@ -422,4 +425,67 @@ export function getHiddenElementBounds(el: HTMLElement): { width: number, height
   let width = tmp.firstElementChild.getBoundingClientRect().width;
   let height = tmp.firstElementChild.getBoundingClientRect().height;
   return { width, height };
+}
+
+
+export function isNode(o): o is Node {
+  return (
+    typeof Node === "object" ? o instanceof Node :
+      o && typeof o === "object" && typeof o.nodeType === "number" && typeof o.nodeName==="string"
+  );
+}
+
+export function isElement(o): o is HTMLElement {
+  return (
+    typeof HTMLElement === "object" ? o instanceof HTMLElement : //DOM2
+      o && typeof o === "object" && o.nodeType === 1 && typeof o.nodeName==="string"
+  );
+}
+
+export function isFragment(o): o is DocumentFragment {
+  return (
+    typeof DocumentFragment === "object" ? o instanceof DocumentFragment : //DOM2
+      o && typeof o === "object" && o.nodeType === 11 && typeof o.nodeName==="string"
+  );
+}
+
+export function isNodeList(nodes): nodes is NodeList {
+  let stringRepr = Object.prototype.toString.call(nodes);
+
+  return typeof nodes === 'object' &&
+    /^\[object (HTMLCollection|NodeList|Object)]$/.test(stringRepr) &&
+    (typeof nodes.length === 'number') &&
+    (nodes.length === 0 || (typeof nodes[0] === "object" && nodes[0].nodeType > 0));
+}
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+export function frag(html: string|Node|NodeList|Node[]|HTMLElement) {
+  if (!isset(html)) {
+    return document.createDocumentFragment();
+  }
+
+  if (isElement(html) && html.tagName.toUpperCase() == 'TEMPLATE') {
+    html = html.innerHTML.trim();
+  }
+
+  const frag = document.createDocumentFragment();
+  const div = document.createElement('div');
+
+  if (typeof html === 'string') {
+    div.innerHTML = html;
+  } else if (isNodeList(html)) {
+    html.forEach(node => div.append(node));
+  } else if (isNode(html)) {
+    div.append(html);
+  } else if (Array.isArray(html)) {
+    div.append(... html);
+  }
+
+  let child;
+  while ( (child = div.firstChild) ) {
+    frag.appendChild(child);
+  }
+
+  return frag;
 }

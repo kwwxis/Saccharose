@@ -6,7 +6,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "backend:clean": "ts-node clean.ts",
+    "backend:clean": "ts-node src/pipeline/clean.ts",
     "backend:tsc": "tsc",
     "backend:copy-assets": "copyfiles -u 1 \"src/**/*.css\" \"src/**/*.html\" \"src/**/*.ejs\" \"src/**/*.sql\" dist/",
     "backend:build": "npm-run-all backend:clean backend:tsc backend:copy-assets",

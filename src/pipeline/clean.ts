@@ -7,8 +7,8 @@ import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const distFolder = path.resolve(__dirname, './dist');
-const envFile = path.resolve(__dirname, '.env');
+const distFolder = path.resolve(__dirname, '../../dist');
+const envFile = path.resolve(__dirname, '../../.env');
 dotenv.config({ path: envFile });
 
 console.log('Deleting ' + distFolder);

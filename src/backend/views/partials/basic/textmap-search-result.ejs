@@ -1,30 +1,42 @@
 <div class="card result-count-card">
-  <h2>Total Results: <span><%= Object.keys(result).length %></span></h2>
+  <h2 class="valign">
+    <div class="valign">
+      <span>Page&nbsp;</span>
+      <span><%= resultSetNum + 1 %></span>
+      <span style="margin:0 8px">&mdash;</span>
+      <span><%= items.length %></span>
+      <span>&nbsp;items</span>
+    </div>
+    <div class="grow"></div>
+    <div class="valign">
+      <small class="load-more-status" style="opacity:0.8"><%= hasMoreResults ? 'Load more results at bottom' : 'All results loaded' %></small>
+    </div>
+  </h2>
 </div>
-<div class="dialogue-container" data-last-line="<%= lastLine %>">
-  <% Object.keys(result).forEach((textMapId, i) => { %>
+<div class="dialogue-container" data-last-line="<%= lastLine %>" data-page="<%= resultSetNum + 1 %>" data-result-set-num="<%= resultSetNum %>">
+  <% items.forEach((item, i) => { %>
     <section class="card">
       <h2 class="valign" style="font-size: 16px;padding: 3px 10px;">
-        <span style="opacity:0.6">TextMapHash:&nbsp;</span><code style="margin-top:1px;margin-bottom:-1px"><%= textMapId %></code>
+        <span style="opacity:0.6">TextMapHash:&nbsp;</span><code style="margin-top:1px;margin-bottom:-1px"><%= item.hash %></code>
         <span class="grow"></span>
-        <small class="fontWeight400 spacer10-right" style="opacity:0.5">Result #<%= i+1 %></small>
-        <a role="button" class="secondary small fontWeight500" href="/id-usages?q=<%= textMapId %>" target="_blank">
+        <small class="fontWeight400 spacer10-right" style="opacity:0.5">Result #<%= (resultSetNum * SEARCH_TEXTMAP_MAX) +  (i+1) %></small>
+        <a role="button" class="secondary small fontWeight500" href="/id-usages?q=<%= item.hash %>" target="_blank">
           <span class="spacer5-right">Usages</span><%- icon('external-link') %>
         </a>
       </h2>
       <div class="dialogue-section content" style="padding:7px">
-        <textarea readonly class="w100p wikitext autosize spacer0-all" spellcheck="false" translate="no"><%= result[textMapId] %></textarea>
+        <textarea readonly class="w100p wikitext autosize spacer0-all" spellcheck="false" translate="no"><%= item.text %></textarea>
       </div>
     </section>
   <% }) %>
-  <% if (Object.keys(result).length >= 100) { %>
-    <section class="card">
+  <% if (hasMoreResults) { %>
+    <section class="card search-load-more-container">
       <div class="content">
-        <button id="search-load-more" class="dispBlock primary primary--2 w100p" style="padding:5px">Load more results</button>
+        <button id="search-load-more" class="dispBlock primary primary--2 w100p" style="padding:5px">Click to load next page</button>
       </div>
     </section>
   <% } %>
-  <% if (!Object.keys(result).length) { %>
+  <% if (!items.length) { %>
     <section class="card">
       <div class="content">
         <strong>No matches found.</strong>

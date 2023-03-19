@@ -312,12 +312,11 @@ export async function dialogueToQuestId(ctrl: Control, query: string | number | 
     query = parseInt(query);
   }
   if (typeof query === 'string') {
-    let matches = (await ctrl.getTextMapMatches(ctrl.inputLangCode, query, '-m 1')).result; // only get one match
-    if (!Object.keys(matches).length) {
+    let textmapHashes = (await ctrl.getTextMapMatches(ctrl.inputLangCode, query, '-m 1')).map(x => x.hash); // only get one match
+    if (!textmapHashes.length) {
       return [];
     }
-    let textMapId = parseInt(Object.keys(matches)[0]);
-    dialog = (await ctrl.selectDialogsFromTextContentId(textMapId))[0];
+    dialog = (await ctrl.selectDialogsFromTextContentId(textmapHashes[0]))[0];
   }
   if (typeof query === 'number') {
     talk = await ctrl.selectTalkExcelConfigDataById(query);
