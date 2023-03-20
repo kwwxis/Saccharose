@@ -1,15 +1,14 @@
-<a href="/TCG/cards/<%= card.Id %>" class="gcg-card">
-  <% if (card.DeckCard) { %>
-    <div class="gcg-card-icon">
-      <img src="/images/genshin/<%= card.DeckCard.ItemMaterial.Icon %>.png" loading="lazy" decoding="async" />
-    </div>
-    <div class="gcg-card-name"><%= card.DeckCard.ItemMaterial.NameText %></div>
-  <% } else if (card.CardView) { %>
-    <div class="gcg-card-icon">
-      <img src="/images/genshin/<%= card.CardView.Image %>.png" loading="lazy" decoding="async" />
-    </div>
-    <div class="gcg-card-name"><%= card.NameText || card.Id %></div>
-  <% } else { %>
-    <div class="gcg-card-name"><%= card.NameText || card.Id %><br /><span class="gcg-no-deck-card">(No DeckCard)</span></div>
+<a href="/TCG/cards/<%= String(card.Id).padStart(6, '0') %>" class="tcg-card">
+  <div class="tcg-card-image">
+    <img src="/images/genshin/<%= card.WikiImage %>.png" loading="lazy" decoding="async" />
+  </div>
+  <div class="tcg-card-name"><%= card.WikiName %></div>
+  <% if (card.Hp) { %>
+    <div class="tcg-icon tcg-card-icon GCG_CHAR_HP"><%= card.Hp %></div>
+  <% } %>
+  <% if (card.CostList && Array.isArray(card.CostList)) { %>
+    <% for (let costItem of card.CostList.filter(x => !!x.CostType)) { %>
+      <div class="tcg-icon tcg-card-icon <%= costItem.CostType %>"><%= costItem.Count %></div>
+    <% } %>
   <% } %>
 </a>

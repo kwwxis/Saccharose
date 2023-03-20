@@ -81,6 +81,14 @@ export function escapeRegExp(str: string): string {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }
 
+export function validateRegExp(pattern: string, options?: string): boolean {
+  try {
+    new RegExp(pattern, options || '');
+    return true;
+  } catch(e) {
+    return false;
+  }
+}
 
 export function snakeToTitleCase(str: string) {
   return !str ? str : titleCase(str.replace(/_/g, ' ').toLowerCase());

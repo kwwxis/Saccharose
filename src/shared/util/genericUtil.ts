@@ -18,6 +18,8 @@ export function isEmpty(x: any): boolean {
     return false; // don't consider any booleans or numbers to be empty
   } else if (typeof x === 'string') {
     return !x.trim().length;
+  } else if (typeof x === 'object' && typeof x.nodeType === 'number' && typeof x.nodeName === 'string') {
+    return false;
   } else if (Array.isArray(x)) {
     return x.length === 0;
   } else if (isArrayLike(x)) {

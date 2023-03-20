@@ -1,0 +1,60 @@
+<section class="card">
+  <h2>TCG Cards</h2>
+  <div class="content">
+    <fieldset>
+      <legend>Categories</legend>
+      <div class="content alignStretch flexWrap" style="padding-top:0;max-width:80%;font-size:15px">
+        <div class="w100p">
+          <a role="button" class="spacer5-all secondary dispBlock textAlignLeft"
+             href="#character_cards">Character Cards</a>
+        </div>
+
+        <div class="w100p">
+          <a role="button" class="spacer5-all secondary dispBlock textAlignLeft"
+             href="#character_cards_unobtainable">Character Cards &mdash; Unobtainable</a>
+        </div>
+
+        <% for (let [sectionName, actionCardsByObtainability] of Object.entries(actionCardsBySection)) { %>
+          <% if (actionCardsByObtainability.Obtainable.length) { %>
+            <div class="w100p">
+              <a role="button" class="spacer5-all secondary dispBlock textAlignLeft"
+                 href="#<%= toParam(sectionName) %>"><b>Action Cards</b> / <%= sectionName %></a>
+            </div>
+          <% } %>
+          <% if (actionCardsByObtainability.Unobtainable.length) { %>
+              <div class="w100p">
+                <a role="button" class="spacer5-all secondary dispBlock textAlignLeft"
+                   href="#<%= toParam(sectionName) %>_unobtainable"><b>Action Cards</b> / <%= sectionName %> &mdash; Unobtainable</a>
+              </div>
+          <% } %>
+        <% } %>
+      </div>
+    </fieldset>
+  </div>
+</section>
+<%- include('partials/gcg/card-table-char', {
+  section_id: 'character_cards',
+  section_name: 'Character Cards',
+  cards: charCardsBySection.Obtainable
+}) %>
+<%- include('partials/gcg/card-table-char', {
+  section_id: 'character_cards_unobtainable',
+  section_name: 'Character Cards &mdash; Unobtainable',
+  cards: charCardsBySection.Unobtainable
+}) %>
+<% for (let [sectionName, actionCardsByObtainability] of Object.entries(actionCardsBySection)) { %>
+  <% if (actionCardsByObtainability.Obtainable.length) { %>
+    <%- include('partials/gcg/card-table-action', {
+      section_id: toParam(sectionName),
+      section_name: escapeHtml(sectionName),
+      cards: actionCardsByObtainability.Obtainable
+    }) %>
+  <% } %>
+  <% if (actionCardsByObtainability.Unobtainable.length) { %>
+    <%- include('partials/gcg/card-table-action', {
+      section_id: toParam(sectionName) + '_unobtainable',
+      section_name: escapeHtml(sectionName) + ' &mdash; Unobtainable',
+      cards: actionCardsByObtainability.Unobtainable
+    }) %>
+  <% } %>
+<% } %>

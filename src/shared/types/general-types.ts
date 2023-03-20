@@ -96,3 +96,12 @@ export interface GenshinImage {
   originalName: string,
   downloadName: string,
 }
+
+export const formatTime = (time: number) => {
+  let hour = Math.floor(time) + '';
+  let minute = (time+'').includes('.') ? (time+'').split('.')[1] : '00';
+
+  hour = hour.padStart(2, '0');
+  minute = minute.padEnd(2, '0');
+  return hour + ':' + minute;
+};

@@ -1,12 +1,79 @@
-.gcg-card {
+
+.tcg-icon {
+  font-weight: 600;
+  width: 20px;
+  font-size: 11px;
+  color: white;
+  text-align: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  text-shadow: -1px -1px 0 black,1px -1px 0 black,-1px 1px 0 black,1px 1px 0 black;
+
+  &.GCG_CHAR_HP {
+    height: 24px;
+    line-height: 25px;
+    background-image: url(/images/static/TCG/GCG_COST/GCG_CHAR_HP.png);
+  }
+
+  &.GCG_COST_ENERGY {
+    height: 24px;
+    line-height: 21px;
+    background-image: url(/images/static/TCG/GCG_COST/GCG_COST_ENERGY.png);
+  }
+
+  &[class*=GCG_COST_DICE] {
+    height: 20px;
+    line-height: 21px;
+  }
+
+  &.GCG_COST_DICE_VOID {
+    background-image: url(/images/static/TCG/GCG_COST/GCG_COST_DICE_VOID.png)
+  }
+
+  &.GCG_COST_DICE_SAME {
+    background-image: url(/images/static/TCG/GCG_COST/GCG_COST_DICE_SAME.png)
+  }
+
+  &.GCG_COST_DICE_ANEMO {
+    background-image: url(/images/static/TCG/GCG_COST/GCG_COST_DICE_ANEMO.png)
+  }
+
+  &.GCG_COST_DICE_CRYO {
+    background-image: url(/images/static/TCG/GCG_COST/GCG_COST_DICE_CRYO.png)
+  }
+
+  &.GCG_COST_DICE_DENDRO {
+    background-image: url(/images/static/TCG/GCG_COST/GCG_COST_DICE_DENDRO.png)
+  }
+
+  &.GCG_COST_DICE_ELECTRO {
+    background-image: url(/images/static/TCG/GCG_COST/GCG_COST_DICE_ELECTRO.png)
+  }
+
+  &.GCG_COST_DICE_GEO {
+    background-image: url(/images/static/TCG/GCG_COST/GCG_COST_DICE_GEO.png)
+  }
+
+  &.GCG_COST_DICE_HYDRO {
+    background-image: url(/images/static/TCG/GCG_COST/GCG_COST_DICE_HYDRO.png)
+  }
+
+  &.GCG_COST_DICE_PYRO {
+    background-image: url(/images/static/TCG/GCG_COST/GCG_COST_DICE_PYRO.png)
+  }
+}
+
+.tcg-card {
   display: inline-flex;
   flex-direction: column;
   align-items: center;
   text-decoration: none;
   width: 80px;
   text-align: center;
+  position: relative;
+  margin: 10px 0;
 
-  .gcg-card-icon {
+  .tcg-card-image {
     height: 89px;
 
     img {
@@ -15,15 +82,47 @@
     }
   }
 
-  .gcg-card-name {
+  .tcg-card-name {
     font-size: 13px;
     font-family: 'Open Sans', sans-serif;
     line-height: 20px;
 
-    .gcg-no-deck-card {
+    .tcg-no-deck-card {
       color: initial;
       font-size: 10px;
       font-weight: 600;
     }
+  }
+
+  .tcg-card-icon {
+    &.GCG_CHAR_HP {
+      position: absolute;
+      top: -6px;
+      left: 4px;
+    }
+    &.GCG_COST_ENERGY {
+      position: absolute;
+      top: 14px;
+      left: 4px;
+    }
+    &[class*=GCG_COST_DICE] {
+      position: absolute;
+      top: -6px;
+      left: 4px;
+    }
+  }
+}
+
+.tcg-tag {
+  .tcg-tag-icon--no-image {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    // background: #455467;
+    background: #45546787;
+    border-radius: 50%;
+    line-height: 20px;
+    font-size: 15px;
+    font-family: 'Open Sans', sans-serif;
   }
 }

@@ -13,7 +13,11 @@ import { ReliquaryCodexExcelConfigData, ReliquaryExcelConfigData } from '../../s
 import { WeaponCodexExcelConfigData, WeaponExcelConfigData } from '../../shared/types/weapon-types';
 import { AvatarFlycloakExcelConfigData } from '../../shared/types/avatar-types';
 import chalk from 'chalk';
-import { GCGCharacterLevelExcelConfigData, GCGRuleExcelConfigData } from '../../shared/types/gcg-types';
+import {
+  GCGCharacterLevelExcelConfigData,
+  GCGRuleExcelConfigData,
+  GCGWeekLevelExcelConfigData,
+} from '../../shared/types/gcg-types';
 import { resolveObjectPath } from '../../shared/util/arrayUtil';
 import { ucFirst } from '../../shared/util/stringUtil';
 import { AchievementExcelConfigData, AchievementGoalExcelConfigData } from '../../shared/types/achievement-types';
@@ -852,6 +856,22 @@ export const schema = {
       HEGBPOCJBCF: 'LoseNormalLevelTalkId',
       GLAAKALKCEJ: 'WinHardLevelTalkId',
       FMDNIFOPMGP: 'LoseHardLevelTalkId',
+    }
+  },
+  Relation_GCGGameToWeekLevel: <SchemaTable> {
+    name: 'Relation_GCGGameToWeekLevel',
+    jsonFile: './ExcelBinOutput/GCGWeekLevelExcelConfigData.json',
+    columns: [
+      {name: 'LevelId', type: 'integer', isIndex: true},
+      {name: 'WeekLevelId', type: 'integer', isIndex: true},
+      {name: 'GcgLevel', type: 'integer', isIndex: true},
+    ],
+    customRowResolve: (row: GCGWeekLevelExcelConfigData) => {
+      let ret = [];
+      for (let levelCond of row.LevelCondList) {
+        ret.push({LevelId: levelCond.LevelId, WeekLevelId: row.Id, GcgLevel: levelCond.GcgLevel});
+      }
+      return ret;
     }
   },
   Relation_GCGCharacterLevel: <SchemaTable> {

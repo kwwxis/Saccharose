@@ -16,6 +16,11 @@
 @import './genshin/material-item';
 @import './genshin/gcg-card';
 
+// 3rd Party
+@import './../../../node_modules/pikaday/scss/pikaday';
+@import './helpers/pikaday-custom';
+
+// Main Styles
 @import 'app.base';
 @import 'app.default';
 @import 'buttons';

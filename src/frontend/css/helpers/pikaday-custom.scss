@@ -1,0 +1,108 @@
+
+
+/* LAYER7 CUSTOM
+--------------------------------------------------------------------------------*/
+.pika-single {
+  border: 0;
+  border-radius: 0 0 3px 3px;
+  border-right: 1px solid #e8e8e8;
+  float: left;
+  width: 238px;
+}
+.pika-single .pika-lendar {
+  width: 238px;
+  margin: 0;
+  border-radius: 0 0 3px 3px;
+}
+
+.pika-single .pika-title,
+.pika-single .pika-label,
+.pika-single .pika-prev,
+.pika-single .pika-next {
+  height: 30px;
+  background: #3daaf5;
+  color: white;
+}
+
+.pika-single .pika-prev,
+.pika-single .pika-next {
+  position: relative;
+  font-size: 0;
+  width: 30px;
+}
+
+.pika-single .pika-prev:before,
+.pika-single .pika-next:before {
+  content: '';
+  display: block;
+  width: 8px;
+  height: 8px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  margin: auto
+}
+.pika-single .pika-prev:before {
+  border-top: 2px solid white;
+  border-left: 2px solid white;
+  transform: rotate(-45deg);
+}
+.pika-single .pika-next:before {
+  border-top: 2px solid white;
+  border-right: 2px solid white;
+  transform: rotate(45deg);
+}
+
+.pika-single .pika-table td,
+.pika-single .pika-table th {
+  width: 34px;
+  height: 34px;
+  box-sizing: border-box;
+  line-height: 34px;
+}
+
+.pika-single .pika-table th {
+  border: 0;
+  background: #3daaf5;
+  color: white;
+  font-size: 10px;
+}
+
+.pika-single .pika-button,
+.pika-single .pika-button:hover {
+  text-align: center;
+  padding: 0;
+  width: 34px;
+  height: 34px;
+  line-height: 34px;
+  margin: auto;
+  font-family: 'Open Sans', Arial, sans-serif;
+  font-size: 10px;
+  font-weight: bold;
+  color: hsl(217, 11%, 70%);
+  background: transparent;
+  border-radius: 0;
+}
+
+.pika-single .pika-button:hover {
+  background: #f0f0f0;
+}
+
+.pika-single .is-today .pika-button {
+  color: #3daaf5;
+}
+
+.pika-single .is-selected .pika-button {
+  border-radius: 50%;
+  width: 23px;
+  height: 23px;
+  line-height: 23px;
+  background: #3daaf5;
+  color: white;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.15), 0 0 1px rgba(0,0,0,0.15);
+  border: 2px solid white;
+  box-sizing: content-box;
+
+}

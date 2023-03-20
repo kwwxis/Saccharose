@@ -1,12 +1,18 @@
 <% if (locals.stage) { %>
   <section class="card">
-    <h2><%= stage.WikiCombinedTitle %></h2>
+    <h2>
+      <span class="dispBlock" style="margin-top:-5px"><a role="button" class="secondary fontWeight600" style="font-size:14px;padding:3px 8px" href="/TCG/stages">Back to stages</a></span>
+      <span class="dispBlock spacer10-top"><%= stage.WikiCombinedTitle %></span>
+    </h2>
     <div class="tab-list" role="tablist">
       <button role="tab" id="tab-display" class="tab <%= tab === 'display' ? 'active' : '' %>"
-              ui-action="tab: #tabpanel-display, storyTabs; set-query-param: tab=display">Display</button>
+              ui-action="tab: #tabpanel-display, storyTabs; delete-query-param: tab">Display</button>
 
       <button role="tab" id="tab-wikitext" class="tab <%= tab === 'wikitext' ? 'active' : '' %>"
               ui-action="tab: #tabpanel-wikitext, storyTabs; set-query-param: tab=wikitext">Wikitext</button>
+
+      <button role="tab" id="tab-json" class="tab <%= tab === 'json' ? 'active' : '' %>"
+              ui-action="tab: #tabpanel-json, storyTabs; set-query-param: tab=json">JSON</button>
     </div>
     <div role="tabpanel" aria-labelledby="tab-display" class="tabpanel <%= tab === 'display' ? 'active' : 'hide' %> content" id="tabpanel-display">
       <table class="article-table">
@@ -17,13 +23,20 @@
         </thead>
         <tr>
           <td class="bold" colspan="2">Stage ID</td>
-          <td class="w70p"><%= stage.Id %></td>
+          <td class="w70p"><code><%= String(stage.Id).padStart(6, '0') %></code></td>
         </tr>
         <tr>
         <tr>
           <td class="no-border">&nbsp;</td>
           <td class="bold">Enemy Name</td>
-          <td class="w70p"><%= stage.EnemyNameText || 'n/a' %></td>
+          <td class="w70p">
+            <div class="valign">
+              <% if (stage?.Reward?.TalkDetailIcon) { %>
+                <img src="/images/genshin/<%= stage.Reward.TalkDetailIcon.IconName %>.png" class="framed-icon x42" />
+              <% } %>
+              <span class="spacer10-left"><%= stage.EnemyNameText || 'n/a' %></span>
+            </div>
+          </td>
         </tr>
         <tr>
           <td class="no-border">&nbsp;</td>
@@ -67,8 +80,8 @@
         <% if (stage?.WorldLevel?.MapDescText) { %>
           <tr>
             <td class="no-border">&nbsp;</td>
-            <td class="bold">Map Description</td>
-            <td class="w70p"><%- include('partials/util/wikitext', { content: normText(stage.WorldLevel.MapDescText), seamless: true }) %></td>
+            <td class="bold">Map Description<br /><small class="fontWeight600 opacity70p"><em>Not included in wikitext</em></small></td>
+            <td class="w70p"><%- include('partials/util/wikitext', { content: '{{Description|' + normText(stage.WorldLevel.MapDescText) + '|[[Map]] description}}', seamless: true }) %></td>
           </tr>
         <% } %>
       </table>
@@ -88,14 +101,19 @@
             <tr>
               <td class="no-border">&nbsp;</td>
               <td class="bold">Description</td>
-              <td class="w70p"><%= normText(stage.LevelLock.UnlockDescText) %></td>
+              <td class="w70p"><%- include('partials/util/wikitext', { content: normText(stage.LevelLock.UnlockDescText), seamless: true }) %></td>
             </tr>
           <% } %>
           <% if (stage.LevelLock.UnlockMainQuestId) { %>
             <tr>
               <td class="no-border">&nbsp;</td>
-              <td class="bold">Quest</td>
-              <td class="w70p"><a href="/quests/<%= stage.LevelLock.UnlockMainQuestId %>"><%= stage.LevelLock.QuestTitleText %></a></td>
+              <td class="bold">Quest Dialogue</td>
+              <td class="w70p">
+                <a class="valign" href="/quests/<%= stage.LevelLock.UnlockMainQuestId %>">
+                  <span class="spacer5-right"><%= stage.LevelLock.QuestTitleText %></span>
+                  <%- icon('external-link', 14) %>
+                </a>
+              </td>
             </tr>
           <% } %>
         </table>
@@ -124,7 +142,7 @@
         <% if (stage.Reward.MappedFailTips && stage.Reward.MappedFailTips.length) { %>
           <table class="article-table">
             <tr>
-              <th colspan="3">Fail Tips</th>
+              <th colspan="3" style="line-height:1em">Fail Tips<br /><small class="fontWeight600 opacity70p"><em>Not included in wikitext</em></small></th>
             </tr>
             <% for (let [index, failTipText] of Object.entries(stage.Reward.MappedFailTips)) { %>
               <tr>
@@ -176,7 +194,7 @@
           <tr>
             <td class="no-border">&nbsp;</td>
             <td class="bold">Player Card Group ID</td>
-            <td class="w70p"><%= stage.CardGroupId %></td>
+            <td class="w70p"><code><%= stage.CardGroupId %></code></td>
           </tr>
           <tr>
             <td class="no-border">&nbsp;</td>
@@ -215,7 +233,7 @@
           <tr>
             <td class="no-border">&nbsp;</td>
             <td class="bold">Enemy Card Group ID</td>
-            <td class="w70p"><%= stage.EnemyCardGroupId %></td>
+            <td class="w70p"><code><%= stage.EnemyCardGroupId %></code></td>
           </tr>
           <tr>
             <td class="no-border">&nbsp;</td>
@@ -249,6 +267,9 @@
     </div>
     <div role="tabpanel" aria-labelledby="tab-wikitext" class="tabpanel <%= tab === 'wikitext' ? 'active' : 'hide' %>" id="tabpanel-wikitext">
       Not implemented yet.
+    </div>
+    <div role="tabpanel" aria-labelledby="tab-json" class="tabpanel <%= tab === 'json' ? 'active' : 'hide' %> content" id="tabpanel-json">
+      <textarea class="code json w100p autosize" spellcheck="false" translate="no"><%= JSON.stringify(stageForJson, null, 2) %></textarea>
     </div>
   </section>
 <% } else { %>

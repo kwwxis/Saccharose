@@ -1,7 +1,7 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import {
-  copyToClipboard, getHiddenElementBounds,
+  copyToClipboard, deleteQueryStringParameter, getHiddenElementBounds,
   getScrollbarWidth,
   hashFlash,
   setQueryStringParameter, tag,
@@ -448,7 +448,7 @@ const initial_listeners: Listener[] = [
                 }
               }
               break;
-            case 'set-query-param':
+            case 'set-query-param': {
               const kvPairs: string[] = actionParams.map(x => x.split('&')).flat(Infinity) as string[];
               for (let kvPair of kvPairs) {
                 let key = kvPair.split('=')[0];
@@ -456,6 +456,13 @@ const initial_listeners: Listener[] = [
                 setQueryStringParameter(key, value);
               }
               break;
+            }
+            case 'delete-query-param': {
+              for (let key of actionParams) {
+                deleteQueryStringParameter(key);
+              }
+              break;
+            }
             case 'expando':
               const animId = uuidv4();
               const container = qs(actionParams[0]);

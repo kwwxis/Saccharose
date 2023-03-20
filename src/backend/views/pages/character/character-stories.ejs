@@ -17,7 +17,7 @@
     <h2>Character Story &mdash; <%= story.avatar.NameText %></h2>
     <div class="tab-list" role="tablist">
       <button role="tab" id="tab-display" class="tab <%= tab === 'display' ? 'active' : '' %>"
-        ui-action="tab: #tabpanel-display, storyTabs; set-query-param: tab=display">Display</button>
+        ui-action="tab: #tabpanel-display, storyTabs; delete-query-param: tab">Display</button>
 
       <% if (story.hasAlteredStories) { %>
         <button role="tab" id="tab-altered-display" class="tab <%= tab === 'altered-display' ? 'active' : '' %>"

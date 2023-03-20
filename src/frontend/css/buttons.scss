@@ -322,7 +322,8 @@ button.secondary img.icon,
 
 button.secondary .icon.framed,
 [role=button].secondary .icon.framed,
-.secondary-label .icon.framed {
+.secondary-label .icon.framed,
+.framed-icon {
   background: hsl(210deg, 14%, 92%);
   border: 2px solid hsla(223deg, 67%, 18%, 0.1);
   border-radius: 5px;
@@ -334,7 +335,8 @@ body.nightmode .secondary-label img.icon,
 
 body.nightmode button.secondary .icon.framed,
 body.nightmode [role=button].secondary .icon.framed,
-body.nightmode .secondary-label .icon.framed {
+body.nightmode .secondary-label .icon.framed,
+body.nightmode .framed-icon {
   background: hsla(232deg, 12%, 40%, 0.3);
   border: 2px solid hsla(232deg, 12%, 40%, 0.3);
 }

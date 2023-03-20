@@ -3,7 +3,7 @@ import { Control, getControl, normText } from '../script_util';
 import {
   GCGCardExcelConfigData, GCGCardViewExcelConfigData,
   GCGChallengeExcelConfigData,
-  GCGCharacterLevelExcelConfigData, GCGCharExcelConfigData,
+  GCGCharacterLevelExcelConfigData, GCGCharExcelConfigData, GCGCommonCard,
   GCGCostExcelConfigData, GCGDeckCardExcelConfigData, GCGDeckExcelConfigData,
   GCGElementReactionExcelConfigData,
   GCGGameExcelConfigData,
@@ -18,7 +18,7 @@ import {
   GCGTalkDetailExcelConfigData,
   GCGTalkDetailIconExcelConfigData,
   GCGTalkExcelConfigData,
-  GCGWeekLevelExcelConfigData,
+  GCGWeekLevelExcelConfigData, GcgWorldWorkTimeExcelConfigData,
 } from '../../../shared/types/gcg-types';
 import { getTextMapItem, getVoPrefix, loadEnglishTextMap, loadVoiceItems } from '../textmap';
 import { DialogueSectionResult } from '../dialogue/dialogue_util';
@@ -27,20 +27,21 @@ import { closeKnex } from '../../util/db';
 import fs from 'fs';
 import { getGenshinDataFilePath } from '../../loadenv';
 import { talkConfigGenerate } from '../dialogue/basic_dialogue_generator';
-import { normalizeRawJson, schema, SchemaTable } from '../../importer/import_run';
+import { schema, SchemaTable } from '../../importer/import_run';
+import { formatTime } from '../../../shared/types/general-types';
 
 // noinspection JSUnusedGlobalSymbols
 export class GCGControl {
   private didInit: boolean = false;
   icons: GCGTalkDetailIconExcelConfigData[];
   rules: GCGRuleExcelConfigData[];
-  weekLevels: GCGWeekLevelExcelConfigData[];
   challenges: GCGChallengeExcelConfigData[];
   elementReactions: GCGElementReactionExcelConfigData[];
   tagList: GCGTagExcelConfigData[];
   skillTagList: GCGSkillTagExcelConfigData[];
   keywordList: GCGKeywordExcelConfigData[];
   costDataList: GCGCostExcelConfigData[];
+  worldWorkTime: GcgWorldWorkTimeExcelConfigData[];
 
   constructor(readonly ctrl: Control, readonly enableElementalReactionMapping: boolean = false) {}
 
@@ -55,12 +56,12 @@ export class GCGControl {
     this.icons = await this.allSelect('GCGTalkDetailIconExcelConfigData');
     this.rules = await this.allSelect('GCGRuleExcelConfigData');
 
-    this.weekLevels = await this.allSelect('GCGWeekLevelExcelConfigData');
     this.challenges = await this.allSelect('GCGChallengeExcelConfigData');
 
     this.tagList = await this.allSelect('GCGTagExcelConfigData');
     this.skillTagList = await this.allSelect('GCGSkillTagExcelConfigData');
     this.costDataList = await this.allSelect('GCGCostExcelConfigData');
+    this.worldWorkTime = await this.allSelect('GcgWorldWorkTimeExcelConfigData');
 
     this.elementReactions = await this.allSelect('GCGElementReactionExcelConfigData'); // must come after skillTagList
 
@@ -75,15 +76,6 @@ export class GCGControl {
         }
       } else {
         delete rule.ElementReactionList;
-      }
-    }
-
-    for (let weekLevel of this.weekLevels) {
-      if (weekLevel.OpenQuestId) {
-        weekLevel.OpenQuest = await this.ctrl.selectQuestExcelConfigData(weekLevel.OpenQuestId);
-        if (weekLevel.OpenQuest && weekLevel.OpenQuest.MainId) {
-          weekLevel.OpenMainQuest = await this.ctrl.selectMainQuestById(weekLevel.OpenQuest.MainId);
-        }
       }
     }
   }
@@ -320,15 +312,30 @@ export class GCGControl {
         if (stage.WorldLevel.UnlockCond === 'GCG_LEVEL_UNLOCK_QUEST') {
           stage.WorldLevel.UnlockMainQuest = await this.ctrl.selectMainQuestById(stage.WorldLevel.UnlockParam);
         }
+        stage.WorldLevel.WorldWorkTime = this.worldWorkTime.find(wt => wt.Id === stage.WorldLevel.NpcId);
+        if (stage.WorldLevel.WorldWorkTime && stage.WorldLevel.MapDescText) {
+          stage.WorldLevel.MapDescText = stage.WorldLevel.MapDescText.replace(/\{0}/g, formatTime(stage.WorldLevel.WorldWorkTime.StartTime));
+          stage.WorldLevel.MapDescText = stage.WorldLevel.MapDescText.replace(/\{1}/g, formatTime(stage.WorldLevel.WorldWorkTime.EndTime));
+        }
       }
     }
     if (!disableLoad.disableWeekLevelLoad) {
-      for (let weekLevel of this.weekLevels) {
-        if (weekLevel.LevelCondList.some(cond => cond.LevelId === stage.Id)) {
-          let cond = weekLevel.LevelCondList.find(cond => cond.LevelId === stage.Id);
-          stage.LevelType = 'WEEK';
-          stage.WeekLevel = weekLevel;
-          stage.MinPlayerLevel = cond.GcgLevel;
+      let weekLevelRelation: { LevelId: number, GcgLevel: number, WeekLevelId: number } =
+        await this.singleSelect('Relation_GCGGameToWeekLevel', 'LevelId', stage.Id);
+
+      if (weekLevelRelation && weekLevelRelation.WeekLevelId) {
+        stage.WeekLevel = await this.singleSelect('GCGWeekLevelExcelConfigData', 'Id', weekLevelRelation.WeekLevelId);
+      }
+
+      if (stage.WeekLevel) {
+        stage.LevelType = 'WEEK';
+        stage.MinPlayerLevel = weekLevelRelation.GcgLevel;
+
+        if (stage.WeekLevel.OpenQuestId) {
+          stage.WeekLevel.OpenQuest = await this.ctrl.selectQuestExcelConfigData(stage.WeekLevel.OpenQuestId);
+          if (stage.WeekLevel.OpenQuest && stage.WeekLevel.OpenQuest.MainId) {
+            stage.WeekLevel.OpenMainQuest = await this.ctrl.selectMainQuestById(stage.WeekLevel.OpenQuest.MainId);
+          }
         }
       }
     }
@@ -468,6 +475,9 @@ export class GCGControl {
         item.Reward = await this.ctrl.selectRewardExcelConfigData(item.RewardId);
       }
     }
+    if (reward.TalkDetailIconId) {
+      reward.TalkDetailIcon = this.icons.find(icon => icon.Id === reward.TalkDetailIconId);
+    }
     return reward;
   }
 
@@ -477,6 +487,22 @@ export class GCGControl {
 
   async selectReward(levelId: number, loadRewardExcel: boolean = true): Promise<GCGGameRewardExcelConfigData> {
     return await this.singleSelect('GCGGameRewardExcelConfigData', 'LevelId', levelId, o => this.postProcessReward(o, loadRewardExcel));
+  }
+
+  // GCG COMMON CARD
+  // --------------------------------------------------------------------------------------------------------------
+  private async postProcessCommonCard(card: GCGCardExcelConfigData|GCGCharExcelConfigData): Promise<GCGCommonCard> {
+    if (card.DeckCard) {
+      card.WikiImage = card.DeckCard.ItemMaterial.Icon;
+      card.WikiName = card.DeckCard.ItemMaterial.NameText;
+    } else if (card.CardView) {
+      card.WikiImage = card.CardView.Image;
+      card.WikiName = card.NameText || String(card.Id).padStart(6, '0');
+    } else {
+      card.WikiName = card.NameText || String(card.Id).padStart(6, '0');
+    }
+
+    return card;
   }
 
   // GCG CARD
@@ -508,6 +534,12 @@ export class GCGControl {
       card.DeckCard = deckCard;
     }
 
+    card.IsEquipment = card.MappedTagList.some(tag => tag.CategoryType === 'GCG_TAG_IDENTIFIER_MODIFY');
+    card.IsSupport = card.MappedTagList.some(tag => tag.CategoryType === 'GCG_TAG_IDENTIFIER_ASSIST');
+    card.IsEvent = card.MappedTagList.some(tag => tag.CategoryType === 'GCG_TAG_IDENTIFIER_EVENT');
+
+    await this.postProcessCommonCard(card);
+
     return card;
   }
 
@@ -517,6 +549,30 @@ export class GCGControl {
 
   async selectCard(id: number): Promise<GCGCardExcelConfigData> {
     return await this.singleSelect('GCGCardExcelConfigData', 'Id', id, this.postProcessCard);
+  }
+
+  // GCG CHAR
+  // --------------------------------------------------------------------------------------------------------------
+  async postProcessChar(char: GCGCharExcelConfigData): Promise<GCGCharExcelConfigData> {
+    char.CardFace = await this.singleSelect('GCGCardFaceExcelConfigData', 'CardId', char.Id);
+    char.CardView = await this.singleSelect('GCGCardViewExcelConfigData', 'Id', char.Id, this.postProcessCardView);
+
+    let deckCard = await this.selectDeckCard(char.Id);
+    if (deckCard) {
+      char.DeckCard = deckCard;
+    }
+
+    await this.postProcessCommonCard(char);
+
+    return char;
+  }
+
+  async selectAllChar(): Promise<GCGCharExcelConfigData[]> {
+    return await this.allSelect('GCGCharExcelConfigData', this.postProcessChar);
+  }
+
+  async selectChar(id: number): Promise<GCGCharExcelConfigData> {
+    return await this.singleSelect('GCGCharExcelConfigData', 'Id', id, this.postProcessChar);
   }
 
   // GCG DECK CARD GROUP
@@ -541,27 +597,6 @@ export class GCGControl {
 
   async selectDeck(id: number): Promise<GCGDeckExcelConfigData> {
     return await this.singleSelect('GCGDeckExcelConfigData', 'Id', id, this.postProcessDeck);
-  }
-
-  // GCG CHAR
-  // --------------------------------------------------------------------------------------------------------------
-  async postProcessChar(char: GCGCharExcelConfigData): Promise<GCGCharExcelConfigData> {
-    char.CardFace = await this.singleSelect('GCGCardFaceExcelConfigData', 'CardId', char.Id);
-    char.CardView = await this.singleSelect('GCGCardViewExcelConfigData', 'Id', char.Id, this.postProcessCardView);
-
-    let deckCard = await this.selectDeckCard(char.Id);
-    if (deckCard) {
-      char.DeckCard = deckCard;
-    }
-    return char;
-  }
-
-  async selectAllChar(): Promise<GCGCharExcelConfigData[]> {
-    return await this.allSelect('GCGCharExcelConfigData', this.postProcessChar);
-  }
-
-  async selectChar(id: number): Promise<GCGCharExcelConfigData> {
-    return await this.singleSelect('GCGCharExcelConfigData', 'Id', id, this.postProcessChar);
   }
 
   // GCG DECK CARD
@@ -618,12 +653,8 @@ export class GCGControl {
           disableLevelLockLoad: true,
           disableDeckLoad: true,
         });
-        let title = stage.EnemyNameText || String(talk.GameId);
-        if (stage?.Reward?.LevelNameText) {
-          title += '/' + stage.Reward.LevelNameText
-        }
-        parentSect = new DialogueSectionResult('GCGTalk_'+talk.GameId, title).afterConstruct(sect => {
-          sect.addMetaProp('Stage ID', talk.GameId);
+        parentSect = new DialogueSectionResult('GCGTalk_'+talk.GameId, stage.WikiCombinedTitle).afterConstruct(sect => {
+          sect.addMetaProp('Stage ID', { value: talk.GameId, tooltip: stage.WikiCombinedTitle }, '/TCG/stages/' + String(talk.GameId).padStart(6, '0'));
           sect.addMetaProp('Stage Type', stage.LevelType);
           sect.addMetaProp('Stage Difficulty', stage.LevelDifficulty === 'NORMAL' ? 'Friendly Fracas' : 'Serious Showdown');
           sect.addMetaProp('Stage Player Level', stage.MinPlayerLevel);
@@ -675,7 +706,7 @@ export class GCGControl {
       parentSect = results[talk.GameId];
       const pushTalkDetailSect = (mode: string, talkDetail: GCGTalkDetailExcelConfigData): DialogueSectionResult => {
         let sect = new DialogueSectionResult('GCGTalk_'+talk.GameId+'_'+talkDetail.TalkDetailIconId, mode).afterConstruct(sect => {
-          sect.addMetaProp('Stage ID', talk.GameId);
+          sect.addMetaProp('Stage ID', { value: talk.GameId, tooltip: parentSect.title }, '/TCG/stages/'+String(talk.GameId).padStart(6, '0'));
           sect.addMetaProp('Talk Mode', mode);
           sect.addMetaProp('Icon ID', talkDetail.TalkDetailIconId);
           if (talkDetail?.TalkDetailIcon?.Type === 'NPC') {

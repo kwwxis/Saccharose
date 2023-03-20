@@ -114,11 +114,13 @@ export function compare<T>(a: T, b: T, field?: string|SortComparator<T>, nullsLa
         n = trim(a, `"`).localeCompare(trim(b, `"`));
     } else if (typeof a === 'number' && typeof b === 'number') {
         n = a - b;
+    } else if (typeof a === 'boolean' && typeof b === 'boolean') {
+      n = (a ? 1 : -1) - (b ? 1 : -1);
     } else if (typeof a === 'object' && typeof b === 'object' && !!field) {
         if (typeof field === 'function') {
-            n = field(a, b);
+          n = field(a, b);
         } else {
-            n = compare(resolveObjectPath(a, field), resolveObjectPath(b, field), null, reverse ? !nullsLast : nullsLast);
+          n = compare(resolveObjectPath(a, field), resolveObjectPath(b, field), field, reverse ? !nullsLast : nullsLast);
         }
     } else {
         if (a < b) n = -1;

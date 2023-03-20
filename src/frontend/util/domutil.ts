@@ -322,6 +322,19 @@ export function setQueryStringParameter(name: string, value: string) {
 }
 
 /**
+ * Set current url query string parameter without moving the browser history state forward.
+ */
+export function deleteQueryStringParameter(name: string) {
+  const params = new URLSearchParams(window.location.search);
+  params.delete(name);
+  let newUrl = decodeURIComponent(`${window.location.pathname}?${params}`);
+  if (newUrl.endsWith('?')) {
+    newUrl = newUrl.slice(0, -1);
+  }
+  window.history.replaceState({}, '', newUrl);
+}
+
+/**
  * Returns a CSS selector that selects any focusable elements (e.g. buttons, inputs, textareas, etc.)
  *
  * @param {string} [prefix] optional prefix for each component of the selector
@@ -488,4 +501,8 @@ export function frag(html: string|Node|NodeList|Node[]|HTMLElement) {
   }
 
   return frag;
+}
+
+export function frag1<T extends Element = HTMLElement>(html: string|Node|NodeList|Node[]|HTMLElement): T {
+  return frag(html).firstElementChild as T;
 }

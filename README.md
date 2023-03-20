@@ -252,8 +252,8 @@ Discord editing forums post.
 
 **Commands:**
 
-- **Print:** `find ./Texture2D/ -type f -regextype posix-extended -iregex '.*/(UI_Achievement|UI_AnimalIcon|UI_AvatarIcon|UI_Activity|UI_ChapterIcon|UI_EquipIcon|UI_FlycloakIcon|UI_Gacha|UI_Gcg|UI_ItemIcon|UI_Monster|UI_NameCardPic|UI_Reputation|UI_RelicIcon|.*Tutorial).*'`<br /><br />
+- **Print:** `find ./Texture2D/ -type f -regextype posix-extended -iregex '.*/(UI_Achievement|UI_AnimalIcon|UI_AvatarIcon|UI_Activity|UI_ChapterIcon|UI_Codex|UI_EquipIcon|UI_FlycloakIcon|UI_Gacha|UI_Gcg|UI_ItemIcon|UI_Monster|UI_NameCardPic|UI_Reputation|UI_RelicIcon|.*Tutorial).*'`<br /><br />
 
-- **Copy:** `find ./Texture2D/ -type f -regextype posix-extended -iregex '.*/(UI_Achievement|UI_AnimalIcon|UI_AvatarIcon|UI_Activity|UI_ChapterIcon|UI_EquipIcon|UI_FlycloakIcon|UI_Gacha|UI_Gcg|UI_ItemIcon|UI_Monster|UI_NameCardPic|UI_Reputation|UI_RelicIcon|.*Tutorial).*' -exec cp '{}' dist ';'`<br /><br />
+- **Copy:** `find ./Texture2D/ -type f -regextype posix-extended -iregex '.*/(UI_Achievement|UI_AnimalIcon|UI_AvatarIcon|UI_Activity|UI_ChapterIcon|UI_Codex|UI_EquipIcon|UI_FlycloakIcon|UI_Gacha|UI_Gcg|UI_ItemIcon|UI_Monster|UI_NameCardPic|UI_Reputation|UI_RelicIcon|.*Tutorial).*' -exec cp '{}' dist ';'`<br /><br />
 
 - **Transfer:**: `rsync -avP /source/path hostname:/dest/path`

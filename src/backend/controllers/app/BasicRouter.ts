@@ -28,5 +28,11 @@ export default async function(): Promise<Router> {
     });
   });
 
+  router.get('/asi-test', async (req: Request, res: Response) => {
+    res.render('pages/basic/asi-test', {
+      title: 'ASI Test',
+    })
+  });
+
   return router;
 }

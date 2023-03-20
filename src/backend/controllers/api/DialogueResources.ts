@@ -41,7 +41,7 @@ router.restful('/quests/findMainQuest', {
     }
 
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
-      return res.render('partials/quests/quest-search-results', { searchResults: result });
+      return res.render('partials/dialogue/quest-search-results', { searchResults: result });
     } else {
       return result;
     }
@@ -79,7 +79,7 @@ router.restful('/quests/generate', {
       locals.reputation = result.reputation;
       locals.rewardInfobox = result.rewardInfobox;
 
-      return res.render('partials/quests/quest-generate-result', locals);
+      return res.render('partials/dialogue/quest-generate-result', locals);
     } else {
       return removeCyclicRefs(result, ApiCyclicValueReplacer);
     }

@@ -138,12 +138,43 @@ export interface GCGSkillTagExcelConfigData {
   Keyword?: GCGKeywordExcelConfigData,
 }
 
+export type GCGTagCategoryType =
+    'GCG_TAG_IDENTIFIER_NONE'
+  | 'GCG_TAG_IDENTIFIER_CHAR' // char camp
+  | 'GCG_TAG_IDENTIFIER_WEAPON' // char weapon
+  | 'GCG_TAG_IDENTIFIER_ELEMENT' // char element
+  | 'GCG_TAG_IDENTIFIER_MODIFY' // equipment cards
+  | 'GCG_TAG_IDENTIFIER_ASSIST' // support cards
+  | 'GCG_TAG_IDENTIFIER_EVENT' // event cards
+
 export interface GCGTagExcelConfigData {
   Type: string,
-  CategoryType: string,
+  CategoryType: GCGTagCategoryType,
   NameText: string,
   NameTextMapHash: number,
 }
+
+export const GCG_TAGS_WITHOUT_ICONS: Set<string> = new Set([
+
+  // GCG_TAG_IDENTIFIER_NONE:
+  'GCG_TAG_UNIQUE',
+  'GCG_TAG_SLOWLY',
+  'GCG_TAG_FORBIDDEN_ATTACK',
+  'GCG_TAG_IMMUNE_FREEZING',
+  'GCG_TAG_IMMUNE_CONTROL',
+
+  // GCG_TAG_IDENTIFIER_CHAR:
+  'GCG_TAG_NATION_FONTAINE',
+  'GCG_TAG_NATION_NATLAN',
+  'GCG_TAG_NATION_SNEZHNAYA',
+  'GCG_TAG_NATION_KHAENRIAH',
+
+  // GCG_TAG_IDENTIFIER_MODIFY:
+  'GCG_TAG_SHEILD',
+
+  // GCG_TAG_IDENTIFIER_NONE:
+  'GCG_TAG_DENDRO_PRODUCE',
+]);
 
 export interface GCGKeywordExcelConfigData {
   Id: number,
@@ -247,6 +278,13 @@ export interface GCGWorldLevelExcelConfigData {
   UnlockCond?: 'GCG_LEVEL_UNLOCK_QUEST',
   UnlockParam: number,
   UnlockMainQuest: MainQuestExcelConfigData,
+  WorldWorkTime?: GcgWorldWorkTimeExcelConfigData,
+}
+
+export interface GcgWorldWorkTimeExcelConfigData {
+  Id: number, // npc id
+  StartTime: number,
+  EndTime: number,
 }
 
 export interface GCGWeekLevelExcelConfigData {
@@ -470,44 +508,36 @@ export interface GCGCommonCard {
   CardFace?: GCGCardFaceExcelConfigData,
   CardView?: GCGCardViewExcelConfigData,
   DeckCard?: GCGDeckCardExcelConfigData,
+
+  TagList: string[],
+  MappedTagList: GCGTagExcelConfigData[],
+  SkillList: number[],
+  MappedMappedSkillList: GCGSkillExcelConfigData[],
+
+  WikiName?: string,
+  WikiImage?: string,
 }
 
 export interface GCGCardExcelConfigData extends GCGCommonCard {
   Id: number,
   CardType: GCGCardType,
+
   ChooseTargetType?: GCGChooseTargetType,
   StateBuffType?: GCGCardStateBuffType,
   PersistEffectType?: GCGCardPersistEffectType,
-  TokenToShow?: 'GCG_TOKEN_COUNTER' | 'GCG_TOKEN_LIFE' | 'GCG_TOKEN_ROUND_COUNT' | 'GCG_TOKEN_SHIELD',
-  TokenIconToShow?:
-    'GCG_TOKEN_ICON_BARRIER_SHIELD' |
-    'GCG_TOKEN_ICON_CLOCK'          |
-    'GCG_TOKEN_ICON_HOURGLASS'      |
-    'GCG_TOKEN_ICON_NORMAL_SHIELD'  ,
-  CMMFEFPMGID?:
-    'GCG_TOKEN_COUNTER' |
-    'GCG_TOKEN_LIFE'    |
-    'GCG_TOKEN_SHIELD'  ,
   ElementHintType?: GCGCardElementHintType,
-
-  NameTextMapHash: number,
-  DescTextMapHash: number,
-  NameText: string,
-  DescText: string,
 
   ChooseTargetList: number[],
   MappedChooseTargetList?: GCGChooseExcelConfigData[],
   CostList: { CostType: GCGCostType, CostData?: GCGCostExcelConfigData, Count: number }[],
-  TagList: string[],
-  SkillList: number[],
+
   IsHidden: boolean,
-  IsCanObtain: boolean,
   TokenDescId: number,
   TokenDesc: GCGTokenDescConfigData,
 
-  CardFace?: GCGCardFaceExcelConfigData,
-  CardView?: GCGCardViewExcelConfigData,
-  DeckCard?: GCGDeckCardExcelConfigData,
+  IsEquipment?: boolean,
+  IsSupport?: boolean,
+  IsEvent?: boolean,
 
   BHJGPGHNMPB?: string, // JsonPathHash
   PIGACPCFCPF?: '1' | '2' | '×2',
@@ -535,6 +565,16 @@ export interface GCGCardExcelConfigData extends GCGCommonCard {
     'Weapon_2'      |
     'Weapon_2_A'    |
     'Weapon_3_Q'    )[],
+  TokenToShow?: 'GCG_TOKEN_COUNTER' | 'GCG_TOKEN_LIFE' | 'GCG_TOKEN_ROUND_COUNT' | 'GCG_TOKEN_SHIELD',
+  TokenIconToShow?:
+    'GCG_TOKEN_ICON_BARRIER_SHIELD' |
+    'GCG_TOKEN_ICON_CLOCK'          |
+    'GCG_TOKEN_ICON_HOURGLASS'      |
+    'GCG_TOKEN_ICON_NORMAL_SHIELD'  ,
+  CMMFEFPMGID?:
+    'GCG_TOKEN_COUNTER' |
+    'GCG_TOKEN_LIFE'    |
+    'GCG_TOKEN_SHIELD'  ,
 }
 
 export interface GCGCostExcelConfigData {
@@ -562,6 +602,7 @@ export interface GCGChooseExcelConfigData {
   CardType: 'GCG_CARD_CHARACTER' | 'GCG_CARD_SUMMON',
   TargetCamp: 'ENEMY' | 'FRIENDLY',
   TagList: string[],
+  MappedTagList: GCGTagExcelConfigData[],
   BAGLDMNNBIP: string[],
   CondList: {
     Type: GCGChooseCondType,
@@ -615,22 +656,7 @@ export interface GCGCharExcelConfigData extends GCGCommonCard {
   Id: number,
   Hp: number,
   CardType: 'GCG_CARD_CHARACTER',
-
-  NameTextMapHash: number,
-  DescTextMapHash: number,
-  NameText: string,
-  DescText: string,
-
-  TagList: string[],
-  MappedTagList: GCGTagExcelConfigData[],
-  SkillList: number[],
-  MappedMappedSkillList: GCGSkillExcelConfigData[],
   IsRemoveAfterDie: boolean,
-  IsCanObtain: boolean,
-
-  CardFace?: GCGCardFaceExcelConfigData,
-  CardView?: GCGCardViewExcelConfigData,
-  DeckCard?: GCGDeckCardExcelConfigData,
 
   BPHBKAGLFCE: number, // JsonPathHash
   HLKMHIIIFHA: string,

@@ -496,11 +496,18 @@ export class Control {
   }
 
   readonly commonLoad = async (result: any[], triggerNormalize?: SchemaTable) => await Promise.all(
-    result.map(record => !record || !record.json_data ? this.postProcess(record, triggerNormalize) : this.postProcess(JSON.parse(record.json_data)), triggerNormalize)
+    result.map(record => {
+      return !record || !record.json_data
+        ? this.postProcess(record, triggerNormalize)
+        : this.postProcess(JSON.parse(record.json_data), triggerNormalize);
+    })
   );
 
-  readonly commonLoadFirst = async (record: any, triggerNormalize?: SchemaTable) =>
-    !record ? record : await this.postProcess(JSON.parse(record.json_data), triggerNormalize);
+  readonly commonLoadFirst = async (record: any, triggerNormalize?: SchemaTable) => {
+    return !record || !record.json_data
+      ? this.postProcess(record, triggerNormalize)
+      : await this.postProcess(JSON.parse(record.json_data), triggerNormalize);
+  };
 
   async getNpc(npcId: number): Promise<NpcExcelConfigData> {
     if (!npcId) return null;

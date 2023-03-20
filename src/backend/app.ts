@@ -66,6 +66,8 @@ export async function appInit(): Promise<Express> {
 
   // Middleware for requests
   // ~~~~~~~~~~~~~~~~~~~~~~~
+  const rateLimitSkipRegex: RegExp = /\.css|\.js|\.png|\.svg|\.ico|\.jpg|\.woff|\.env/g;
+
   console.log(`[Init] Adding middleware for incoming requests`);
   app.use(cookieParser(process.env.SESSION_SECRET)); // parses cookies
   app.use(useragent.express()); // parses user-agent header
@@ -76,12 +78,15 @@ export async function appInit(): Promise<Express> {
     max: 30, // limit each IP to 30 requests per windowMs
     keyGenerator: (req: Request, _res: Response) => {
       return req.clientIp // IP address from requestIp.mw(), as opposed to req.ip
+    },
+    skip: (req: Request, _res: Response) => {
+      return rateLimitSkipRegex.test(req.url);
     }
   }));
 
   // Middleware for logging
   // ~~~~~~~~~~~~~~~~~~~~~~
-  const skipRegex: RegExp = /\.css|\.js|\.png|\.svg|\.ico|\.jpg|\.woff|\.env/g;
+  const logSkipRegex: RegExp = /\.css|\.js|\.png|\.svg|\.ico|\.jpg|\.woff|\.env/g;
 
   morgan.token('date', function(){
     return new Date().toLocaleString('en-US', {timeZone: 'America/Los_Angeles'});
@@ -89,7 +94,7 @@ export async function appInit(): Promise<Express> {
 
   app.use(morgan('[:date[web] PST] :method :url :status :response-time ms - :res[content-length]', {
     skip: function(req: Request, res: Response) {
-      return res.statusCode === 304 || skipRegex.test(req.url);
+      return res.statusCode === 304 || logSkipRegex.test(req.url);
     }
   }));
 

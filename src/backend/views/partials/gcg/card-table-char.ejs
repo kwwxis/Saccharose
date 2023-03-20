@@ -1,0 +1,53 @@
+<section class="card" id="<%= section_id %>">
+  <h2><%- section_name %></h2>
+  <table class="article-table">
+    <thead>
+    <tr style="font-size: 14px;text-align: left;line-height: 16px;">
+      <th>Icon</th>
+      <th>ID</th>
+      <th>Name</th>
+      <th>Health</th>
+      <th>Element</th>
+      <th>Weapon</th>
+      <th>Faction</th>
+      <th style="font-size:11px">Obtainable</th>
+    </tr>
+    </thead>
+    <tbody>
+    <% for (let card of cards) { %>
+      <tr>
+        <td>
+          <% if (card.WikiImage) { %>
+            <div style="min-height:86px"><img src="/images/genshin/<%= card.WikiImage %>.png" style="width:50px" /></div>
+          <% } %>
+        </td>
+        <td><code style="font-size:15px"><%= String(card.Id).padStart(6, '0') %></code></td>
+        <td>
+          <a href="/TCG/cards/<%= String(card.Id).padStart(6, '0') %>" role="button" class="spacer5-all secondary dispBlock textAlignLeft"><%= card.WikiName %></a>
+        </td>
+        <td>
+          <% if (card.Hp) { %>
+            <div class="tcg-icon GCG_CHAR_HP"><%= card.Hp %></div>
+          <% } %>
+        </td>
+        <td style="font-size:14px;line-height:1.1em">
+          <% for (let tag of card.MappedTagList.filter(x => !!x.Type && x.CategoryType === 'GCG_TAG_IDENTIFIER_ELEMENT')) { %>
+            <%- include('partials/gcg/tag', { tag, GCG_TAGS_WITHOUT_ICONS }) %>
+          <% } %>
+        </td>
+        <td style="font-size:14px;line-height:1.1em">
+          <% for (let tag of card.MappedTagList.filter(x => !!x.Type && x.CategoryType === 'GCG_TAG_IDENTIFIER_WEAPON')) { %>
+            <%- include('partials/gcg/tag', { tag, GCG_TAGS_WITHOUT_ICONS }) %>
+          <% } %>
+        </td>
+        <td style="font-size:14px;line-height:1.1em">
+          <% for (let tag of card.MappedTagList.filter(x => !!x.Type && x.CategoryType === 'GCG_TAG_IDENTIFIER_CHAR')) { %>
+            <%- include('partials/gcg/tag', { tag, GCG_TAGS_WITHOUT_ICONS }) %>
+          <% } %>
+        </td>
+        <td class="textAlignCenter" style="font-size:14px"><%- card.IsCanObtain ? '<span style="color:green">Yes</span>' : '<span style="color:red">No</span>'%></td>
+      </tr>
+    <% } %>
+    </tbody>
+  </table>
+</section>
