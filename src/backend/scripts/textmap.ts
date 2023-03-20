@@ -4,6 +4,8 @@ import { LANG_CODES, LangCode, LangCodeMap, TalkRoleType } from '../../shared/ty
 import { DATAFILE_VOICE_ITEMS, getGenshinDataFilePath, getPlainTextMapRelPath, getTextMapRelPath } from '../loadenv';
 import { normText } from './script_util';
 import { ElementType, ManualTextMapHashes } from '../../shared/types/manual-text-map';
+import { SpriteTagExcelConfigData } from '../../shared/types/general-types';
+import { normalizeRawJson, schema } from '../importer/import_run';
 
 // TYPES
 // ----------------------------------------------------------------------------------------------------
@@ -130,6 +132,22 @@ export async function loadQuestSummarization(): Promise<void> {
 
   for (let item of result) {
     QuestSummary[item.Id] = item.DescTextMapHash;
+  }
+}
+
+// SPRITE TAGS
+// ----------------------------------------------------------------------------------------------------
+export const SPRITE_TAGS: {[spriteId: number]: SpriteTagExcelConfigData} = {};
+
+export async function loadSpriteTags(): Promise<void> {
+  let filePath = getGenshinDataFilePath('./ExcelBinOutput/SpriteTagExcelConfigData.json');
+  let result: SpriteTagExcelConfigData[] = await fs.readFile(filePath, {encoding: 'utf8'}).then(data => {
+    let rows = JSON.parse(data);
+    rows = normalizeRawJson(rows, schema.SpriteTagExcelConfigData);
+    return Object.freeze(rows);
+  });
+  for (let row of result) {
+    SPRITE_TAGS[row.Id] = row;
   }
 }
 

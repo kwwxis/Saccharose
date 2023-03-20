@@ -6,7 +6,15 @@ import path from 'path';
 import availableMethods from '../middleware/availableMethods';
 import * as express from 'express';
 import * as expressCore from 'express-serve-static-core';
-import { printHumanTiming, icon, dragHandle, printTimestamp, TemplateLink, toParam } from './viewUtilities';
+import {
+  printHumanTiming,
+  icon,
+  dragHandle,
+  printTimestamp,
+  TemplateLink,
+  toParam,
+  spriteTagIconize,
+} from './viewUtilities';
 import { cachedSync } from './cache';
 import crypto from 'crypto';
 import { escapeHtml, escapeHtmlAllowEntities, ltrim, remove_suffix } from '../../shared/util/stringUtil';
@@ -184,6 +192,7 @@ export const DEFAULT_GLOBAL_LOCALS = {
   TemplateLink,
   escapeHtml,
   escapeHtmlAllowEntities,
+  spriteTagIconize,
   env: process.env,
   toBoolean: toBoolean,
   toInt: toInt,

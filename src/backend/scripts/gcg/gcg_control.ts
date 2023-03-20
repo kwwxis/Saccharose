@@ -220,7 +220,7 @@ export class GCGControl {
     return await this.singleSelect('GCGTalkExcelConfigData', 'GameId', gameId, this.postProcessTalk);
   }
 
-  // GCG RULE
+  // GCG RULE TEXT
   // --------------------------------------------------------------------------------------------------------------
 
   private async postProcessRuleText(ruleText: GCGRuleTextExcelConfigData): Promise<GCGRuleTextExcelConfigData> {
@@ -634,6 +634,9 @@ export class GCGControl {
   async selectDeckCard(id: number): Promise<GCGDeckCardExcelConfigData> {
     return await this.singleSelect('GCGDeckCardExcelConfigData', 'Id', id, this.postProcessDeckCard);
   }
+
+  // GCG TALKS + DIALOGUE
+  // --------------------------------------------------------------------------------------------------------------
 
   // TODO:
   // async gcgTalkToDialogueSection(talk: GCGTalkExcelConfigData, stageForTalk: GCGGameExcelConfigData): Promise<DialogueSectionResult> {

@@ -1,6 +1,8 @@
 import feather from 'feather-icons';
 import createHtmlElement from 'create-html-element';
 import { isUnset } from '../../shared/util/genericUtil';
+import { SPRITE_TAGS } from '../scripts/textmap';
+import { escapeHtmlAllowEntities } from '../../shared/util/stringUtil';
 
 export function icon(iconName: string, size?: number, props: any = {}): string {
   props.class = props.class ? (props.class = 'icon ' + props.class) : 'icon';
@@ -80,4 +82,15 @@ export function paramCmp(a: any, b: any) {
     return true;
   }
   return String(a).trim().toLowerCase().replace(/_/g, ' ') === String(b).trim().toLowerCase().replace(/_/g, ' ');
+}
+
+export function spriteTagIconize(s: string, escapeHtmlFirst: boolean = true) {
+  if (escapeHtmlFirst) {
+    s = escapeHtmlAllowEntities(s);
+  }
+  return s.replace(/\{SPRITE_PRESET#(\d+)}/g, (fm: string, g1: string) => {
+    let image = SPRITE_TAGS[parseInt(g1)].Image;
+    image = image.split('/').pop();
+    return `<img src="/images/genshin/${image}.png" class="icon x24" />`;
+  });
 }

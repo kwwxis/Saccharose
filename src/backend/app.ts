@@ -11,7 +11,7 @@ import { Request, Response } from './util/router';
 import sessions from './middleware/sessions';
 import appBaseRouter from './controllers/AppBaseRouter';
 import apiBaseRouter from './controllers/ApiBaseRouter';
-import { loadTextMaps, loadVoiceItems, loadQuestSummarization } from './scripts/textmap';
+import { loadTextMaps, loadVoiceItems, loadQuestSummarization, loadSpriteTags } from './scripts/textmap';
 import { isStringNotBlank } from '../shared/util/stringUtil';
 import rateLimit from 'express-rate-limit';
 import requestIp from 'request-ip';
@@ -50,6 +50,7 @@ export async function appInit(): Promise<Express> {
   }
   await loadVoiceItems();
   await loadQuestSummarization();
+  await loadSpriteTags();
 
   // Serve static directories
   // ~~~~~~~~~~~~~~~~~~~~~~~~

@@ -163,5 +163,17 @@ export default async function(): Promise<Router> {
     });
   });
 
+  router.get('/TCG/rules', async (req: Request, res: Response) => {
+    const ctrl = getControl(req);
+    const gcg = getGCGControl(ctrl);
+    const rules = await gcg.selectAllRuleText();
+
+    res.render('pages/gcg/gcg-rules', {
+      title: 'TCG Rules',
+      bodyClass: ['page--tcg-rules'],
+      rules
+    });
+  });
+
   return router;
 }

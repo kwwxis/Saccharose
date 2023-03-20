@@ -13,7 +13,7 @@ import {
   getElementName, getPlainLineNumFromTextMapHash,
   getTextMapHashFromPlainLineMap,
   getTextMapItem,
-  getVoPrefix,
+  getVoPrefix, SPRITE_TAGS,
 } from './textmap';
 import { Request } from '../util/router';
 import SrtParser, { SrtLine } from '../util/srtParser';
@@ -194,7 +194,12 @@ export const normText = (text: string, langCode: LangCode, decolor: boolean = fa
   text = text.replace(/\\"/g, '"');
   text = text.replace(/\r/g, '');
   text = text.replace(/\\?\\n|\\\n|\n/g, plaintext ? '\n' : '<br />').replace(/<br \/><br \/>/g, '\n\n');
-  text = text.replace(/\{REALNAME\[ID\(1\)(\|HOSTONLY\(true\))?]}/g, '(Wanderer)'); // TODO fix?
+  text = text.replace(/\{REALNAME\[ID\(1\)(\|HOSTONLY\(true\))?]}/g, '(Wanderer)');
+  text = text.replace(/\{SPRITE_PRESET#(\d+)}/g, (fm: string, g1: string) => {
+    let image = SPRITE_TAGS[parseInt(g1)].Image;
+    image = image.split('/').pop();
+    return '{{Sprite|' + image + '}}';
+  });
 
   if (text.includes('RUBY#[')) {
     text = convertRubi(text);

@@ -114,6 +114,15 @@
 }
 
 .tcg-tag {
+  .tcg-tag-icon--image {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-size: contain;
+    background-color: #455467;
+    background-repeat: no-repeat;
+  }
   .tcg-tag-icon--no-image {
     display: inline-block;
     width: 20px;

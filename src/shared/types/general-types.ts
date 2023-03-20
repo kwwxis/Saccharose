@@ -105,3 +105,8 @@ export const formatTime = (time: number) => {
   minute = minute.padEnd(2, '0');
   return hour + ':' + minute;
 };
+
+export interface SpriteTagExcelConfigData {
+  Id: number,
+  Image: string,
+}

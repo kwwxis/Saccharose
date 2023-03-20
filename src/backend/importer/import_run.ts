@@ -1273,6 +1273,17 @@ export const schema = {
       {name: 'SwitchTitleTextMapHash', type: 'integer', isIndex: true},
     ]
   },
+  SpriteTagExcelConfigData: <SchemaTable> {
+    name: 'SpriteTagExcelConfigData',
+    jsonFile: './ExcelBinOutput/SpriteTagExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'Image', type: 'string'},
+    ],
+    normalizeFixFields: {
+      'EAFDGIBBIJD': 'Image'
+    }
+  }
 };
 
 export function normalizeRawJson(row: any, table?: SchemaTable) {
