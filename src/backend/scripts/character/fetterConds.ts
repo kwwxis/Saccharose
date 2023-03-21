@@ -1,5 +1,5 @@
 import { Control } from '../script_util';
-import { getTextMapItem } from '../textmap';
+import { createLangCodeMap, getTextMapItem } from '../textmap';
 import { replace_prefix, sentenceJoin } from '../../../shared/util/stringUtil';
 import { MainQuestExcelConfigData } from '../../../shared/types/quest-types';
 import {
@@ -92,17 +92,23 @@ export async function processFetterConds(ctrl: Control, fetter: FetterWithCondit
 }
 
 export async function processQuestConds(ctrl: Control, fetter: FetterWithConditions, mainQuest: MainQuestExcelConfigData, summaryObj: FetterCondSummary) {
-  summaryObj.Quest = mainQuest.TitleText;
+  summaryObj.QuestId = mainQuest.Id;
+  summaryObj.QuestTitleTextMap = createLangCodeMap(mainQuest.TitleTextMapHash);
+  summaryObj.QuestType = 'MainQuest';
 
   if (mainQuest.ChapterId) {
     let chapter = await ctrl.selectChapterById(mainQuest.ChapterId);
     if (chapter && chapter.EndQuestId) {
       if (chapter.EndQuestId === mainQuest.Id) {
-        summaryObj.Quest = chapter.ChapterTitleText;
+        summaryObj.QuestId = chapter.Id;
+        summaryObj.QuestTitleTextMap = createLangCodeMap(chapter.ChapterTitleTextMapHash);
+        summaryObj.QuestType = 'Chapter';
       } else {
         let subQuest = await ctrl.selectQuestExcelConfigData(chapter.EndQuestId);
         if (subQuest.MainId === mainQuest.Id) {
-          summaryObj.Quest = chapter.ChapterTitleText;
+          summaryObj.QuestId = chapter.Id;
+          summaryObj.QuestTitleTextMap = createLangCodeMap(chapter.ChapterTitleTextMapHash);
+          summaryObj.QuestType = 'Chapter';
         }
       }
     }

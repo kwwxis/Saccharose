@@ -1499,9 +1499,29 @@ export class Control {
   async selectAllHomeWorldEvents(): Promise<HomeWorldEventExcelConfigData[]> {
     return await this.knex.select('*').from('HomeWorldEventExcelConfigData').then(this.commonLoad);
   }
+
   async selectAllHomeWorldNPCs(): Promise<HomeWorldNPCExcelConfigData[]> {
-    return await this.knex.select('*').from('HomeWorldNPCExcelConfigData').then(this.commonLoad);
+    return await this.knex.select('*').from('HomeWorldNPCExcelConfigData').then(this.commonLoad)
+      .then((rows: HomeWorldNPCExcelConfigData[]) => {
+        for (let npc of rows) {
+          npc.SummonEvents = [];
+          npc.RewardEvents = [];
+          if (npc.Avatar) {
+            npc.CommonId = npc.AvatarId;
+            npc.CommonName = npc.Avatar.NameText;
+            npc.CommonIcon = npc.Avatar.IconName;
+            npc.CommonNameTextMapHash = npc.Avatar.NameTextMapHash;
+          } else {
+            npc.CommonId = npc.NpcId;
+            npc.CommonName = npc.Npc.NameText;
+            npc.CommonIcon = npc.FrontIcon;
+            npc.CommonNameTextMapHash = npc.Npc.NameTextMapHash;
+          }
+        }
+        return rows;
+      });
   }
+
   async selectFurniture(id: number): Promise<HomeWorldFurnitureExcelConfigData> {
     return await this.knex.select('*').from('HomeWorldFurnitureExcelConfigData')
       .where({Id: id}).first().then(this.commonLoadFirst);

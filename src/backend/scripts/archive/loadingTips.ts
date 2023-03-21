@@ -129,11 +129,6 @@ function createLoadingTipsByCategoryObject(ctrl: Control): LoadingTipsByCategory
 
 export async function selectLoadingTips(ctrl: Control): Promise<LoadingTipsByCategory> {
   const areas: WorldAreaConfigData[] = await ctrl.selectWorldAreas();
-  for (let area of areas) {
-    if (area.AreaType === 'LEVEL_1' && !area.ElementType) {
-      console.log(area);
-    }
-  }
   const situations: LoadingSituationExcelConfigData[] = await ctrl.readGenshinDataFile('./ExcelBinOutput/LoadingSituationExcelConfigData.json');
   const situationsByStageId: {[stageId: number]: LoadingSituationExcelConfigData} = {};
   for (let sit of situations) {

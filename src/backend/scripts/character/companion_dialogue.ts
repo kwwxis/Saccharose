@@ -11,20 +11,17 @@ import { DialogueSectionResult, TalkConfigAccumulator } from '../dialogue/dialog
 import util from 'util';
 import { toBoolean } from '../../../shared/util/genericUtil';
 import { pathToFileURL } from 'url';
+import { sort } from '../../../shared/util/arrayUtil';
+import { toLower } from '../../../shared/util/stringUtil';
 
 export async function getHomeWorldCompanions(ctrl: Control): Promise<HomeWorldNPCExcelConfigData[]> {
   return cached('HomeWorldCompanions_'+ctrl.outputLangCode, async () => {
     const homeWorldNPCs: HomeWorldNPCExcelConfigData[] = await ctrl.selectAllHomeWorldNPCs();
     const homeWorldEvents: HomeWorldEventExcelConfigData[] = await ctrl.selectAllHomeWorldEvents();
 
-    for (let npc of homeWorldNPCs) {
-      npc.SummonEvents = [];
-      npc.RewardEvents = [];
-    }
-
     // Load events into HomeWorldNPCExcelConfigData
     for (let homeWorldEvent of homeWorldEvents) {
-      let npc = homeWorldNPCs.find(npc => npc.AvatarId === homeWorldEvent.AvatarId);
+      const npc = homeWorldNPCs.find(npc => npc.AvatarId === homeWorldEvent.AvatarId);
 
       if (homeWorldEvent.EventType === 'HOME_AVATAR_SUMMON_EVENT') {
         npc.SummonEvents.push(homeWorldEvent);
@@ -63,15 +60,20 @@ export async function getHomeWorldCompanions(ctrl: Control): Promise<HomeWorldNP
       npc.TalkIds.sort();
     }
 
+    sort(homeWorldNPCs, 'CommonName');
+
     return homeWorldNPCs;
   });
 }
 
-export async function fetchCompanionDialogue(ctrl: Control, avatarNameOrId: string|number): Promise<DialogueSectionResult[]> {
-  let companions = await getHomeWorldCompanions(ctrl);
+export async function fetchCompanionDialogue(ctrl: Control, avatarNameOrId: string|number|HomeWorldNPCExcelConfigData): Promise<DialogueSectionResult[]> {
+  let companion: HomeWorldNPCExcelConfigData;
 
-  let companion = companions.find(c => (c.Avatar && c.Avatar.NameText === avatarNameOrId) || (c.Npc && c.Npc.NameText === avatarNameOrId)
-    || c.AvatarId === avatarNameOrId || c.NpcId === avatarNameOrId);
+  if (typeof avatarNameOrId === 'object') {
+    companion = avatarNameOrId;
+  } else {
+    companion = (await getHomeWorldCompanions(ctrl)).find(c => toLower(c.CommonName) === toLower(avatarNameOrId) || c.CommonId == toInt(avatarNameOrId));
+  }
 
   if (!companion) {
     return null;

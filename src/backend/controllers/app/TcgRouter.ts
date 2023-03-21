@@ -11,6 +11,7 @@ import {
 import { defaultMap } from '../../../shared/util/genericUtil';
 import { isInt, toInt } from '../../../shared/util/numberUtil';
 import { sort } from '../../../shared/util/arrayUtil';
+import { queryTab } from '../../middleware/queryTab';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -32,8 +33,6 @@ export default async function(): Promise<Router> {
       bodyClass: ['page--tcg-tutorial-text']
     });
   });
-
-  // TODO: rules page
 
   router.get('/TCG/stages', async (req: Request, res: Response) => {
     const ctrl = getControl(req);
@@ -60,11 +59,6 @@ export default async function(): Promise<Router> {
     const gcg = getGCGControl(ctrl);
     const stageId = isInt(req.params.stageId) ? toInt(req.params.stageId) : null;
     const stage = await gcg.selectStage(stageId);
-
-    const validTabs = new Set(['wikitext', 'display', 'json']);
-    if (typeof req.query.tab === 'string' && !validTabs.has(req.query.tab)) {
-      req.query.tab = 'display';
-    }
 
     const stageForJson: GCGGameExcelConfigData = Object.assign({}, stage);
     if (stageForJson.EnemyCardGroup) {
@@ -94,7 +88,7 @@ export default async function(): Promise<Router> {
       stage,
       stageForJson,
       bodyClass: ['page--tcg-stage'],
-      tab: req.query.tab || 'display',
+      tab: queryTab(req, 'display', 'wikitext', 'json'),
     });
   });
 
@@ -149,16 +143,11 @@ export default async function(): Promise<Router> {
     const cardId = isInt(req.params.cardId) ? toInt(req.params.cardId) : null;
     const card: GCGCommonCard = (await gcg.selectChar(cardId)) || (await gcg.selectCard(cardId));
 
-    const validTabs = new Set(['wikitext', 'display', 'json']);
-    if (typeof req.query.tab === 'string' && !validTabs.has(req.query.tab)) {
-      req.query.tab = 'display';
-    }
-
     res.render('pages/gcg/gcg-card', {
       title: (card?.WikiName || 'Not Found') + ' | TCG Card',
       bodyClass: ['page--tcg-card'],
       card: card,
-      tab: req.query.tab || 'display',
+      tab: queryTab(req, 'display', 'wikitext', 'json'),
       GCG_TAGS_WITHOUT_ICONS
     });
   });

@@ -50,8 +50,8 @@ export async function fetchCharacterStories(ctrl: Control): Promise<StoryFetters
         if (fetter.OpenCondsSummary.Friendship) {
           wikitext += `\n|friendship${i}`.padEnd(16)+'= '+fetter.OpenCondsSummary.Friendship;
         }
-        if (fetter.OpenCondsSummary.Quest) {
-          wikitext += `\n|quest${i}`.padEnd(16)+'= '+fetter.OpenCondsSummary.Quest;
+        if (fetter.OpenCondsSummary.QuestTitleTextMap) {
+          wikitext += `\n|quest${i}`.padEnd(16)+'= '+fetter.OpenCondsSummary.QuestTitleTextMap[ctrl.outputLangCode];
         }
         wikitext += `\n|text${i}`.padEnd(16)+'= '+fetter.StoryContextHtml;
         wikitext += `\n|mention${i}`.padEnd(16)+'= ';
@@ -76,8 +76,8 @@ export async function fetchCharacterStories(ctrl: Control): Promise<StoryFetters
           if (fetter.FinishCondsSummary.Friendship) {
             alteredWikitext += `\n|friendship${i}`.padEnd(16)+'= '+fetter.FinishCondsSummary.Friendship;
           }
-          if (fetter.FinishCondsSummary.Quest) {
-            alteredWikitext += `\n|quest${i}`.padEnd(16)+'= '+fetter.FinishCondsSummary.Quest;
+          if (fetter.FinishCondsSummary.QuestTitleTextMap) {
+            alteredWikitext += `\n|quest${i}`.padEnd(16)+'= '+fetter.FinishCondsSummary.QuestTitleTextMap[ctrl.outputLangCode];
           }
           alteredWikitext += `\n|text${i}`.padEnd(16)+'= '+fetter.StoryContext2Html;
           alteredWikitext += `\n|mention${i}`.padEnd(16)+'= ';

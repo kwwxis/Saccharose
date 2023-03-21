@@ -230,11 +230,11 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     // await inspectGenshinDataFile(ctrl, './ExcelBinOutput/GCGGameRewardExcelConfigData.json', ['GroupId' ], ['SomethingTextList', 'AnotherTextList']);
     // await inspectGenshinDataFile(ctrl, './ExcelBinOutput/GCGChallengeExcelConfigData.json', ['Type', 'ParamList[#ALL]']);
 
-    // await inspectGenshinDataFile(ctrl, './ExcelBinOutput/GCGDeckExcelConfigData.json');
+    await inspectGenshinDataFile(ctrl, './ExcelBinOutput/GCGDeckExcelConfigData.json');
     //await inspectGenshinDataFile(ctrl, './ExcelBinOutput/WorldAreaConfigData.json', ['ElementType', 'TerrainType', 'AreaType']);
     //await inspectGenshinDataFile(ctrl, './ExcelBinOutput/NewActivityExcelConfigData.json');
 
-    await inspectGenshinDataFile(ctrl, './ExcelBinOutput/LoadingSituationExcelConfigData.json', ['LoadingSituationType', 'AreaTerrainType', 'PicPath']);
+    //await inspectGenshinDataFile(ctrl, './ExcelBinOutput/LoadingSituationExcelConfigData.json', ['LoadingSituationType', 'AreaTerrainType', 'PicPath']);
 
     await closeKnex();
   })();

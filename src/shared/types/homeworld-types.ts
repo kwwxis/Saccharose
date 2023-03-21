@@ -13,11 +13,20 @@ export interface HomeWorldEventExcelConfigData {
 }
 
 export interface HomeWorldNPCExcelConfigData {
-  FurnitureId: number,
+  CommonId?: number;
+  CommonName?: string;
+  CommonNameTextMapHash?: number;
+  CommonIcon?: string;
+
+  // Playable Characters:
   AvatarId: number,
   Avatar?: AvatarExcelConfigData,
+
+  // Only Paimon:
   NpcId: number,
   Npc?: NpcExcelConfigData,
+
+  FurnitureId: number,
   TalkIds: number[],
   ShowNameTextMapHash: number,
   DescTextMapHash: number,
@@ -26,7 +35,7 @@ export interface HomeWorldNPCExcelConfigData {
   IsNPC?: boolean,
 
   // These three icon properties only used for Paimon.
-  // Player icons are via Avatar.
+  // Player icons are via Avatar.IconName
   HeadIcon?: string,
   FrontIcon?: string,
   SideIcon?: string,

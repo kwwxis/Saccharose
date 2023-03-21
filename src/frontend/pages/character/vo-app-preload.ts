@@ -152,8 +152,8 @@ export function preloadFromFetters(characterFetters: CharacterFetters, mode: 'st
         if (fetter.OpenCondsSummary.AscensionPhase) {
           out.prop('ascension', fetter.OpenCondsSummary.AscensionPhase);
         }
-        if (fetter.OpenCondsSummary.Quest) {
-          out.prop('quest', fetter.OpenCondsSummary.Quest);
+        if (fetter.OpenCondsSummary.QuestTitleTextMap) {
+          out.prop('quest', fetter.OpenCondsSummary.QuestTitleTextMap[userLang]);
         }
         if (fetter.OpenCondsSummary.Friendship) {
           out.prop('friendship', fetter.OpenCondsSummary.Friendship);
@@ -301,7 +301,8 @@ export function preloadFromFetters(characterFetters: CharacterFetters, mode: 'st
           }
         }
         if (lang !== userLang) {
-          out.prop('tl');
+          let langProp = opts.swapTitleSubtitle ? lang : userLang;
+          out.prop('tl', fetter.VoiceFileTextMap[langProp]);
         }
       }
       if (file) {

@@ -6,7 +6,9 @@ import { AvatarExcelConfigData } from './avatar-types';
 
 export interface FetterCondSummary {
   Friendship?: number,
-  Quest?: string,
+  QuestTitleTextMap?: LangCodeMap,
+  QuestId?: number,
+  QuestType?: 'MainQuest' | 'Chapter',
 
   AscensionPhase?: number,
   Birthday?: boolean,

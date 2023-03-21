@@ -14,7 +14,10 @@
     </div>
   <% } %>
   <% if (locals.story) { %>
-    <h2>Character Story &mdash; <%= story.avatar.NameText %></h2>
+    <h2 class="valign">
+      <img class="framed-icon x42" src="/images/genshin/<%= story.avatar.IconName %>.png" loading="lazy" decoding="async" />
+      <span class="spacer15-left">Character Story &mdash; <%= story.avatar.NameText %></span>
+    </h2>
     <div class="tab-list" role="tablist">
       <button role="tab" id="tab-display" class="tab <%= tab === 'display' ? 'active' : '' %>"
         ui-action="tab: #tabpanel-display, storyTabs; delete-query-param: tab">Display</button>
@@ -46,11 +49,11 @@
                 </span>
               </div>
             <% } %>
-            <% if (fetter.OpenCondsSummary.Quest) { %>
+            <% if (fetter.OpenCondsSummary.QuestTitleTextMap) { %>
               <div class="prop">
                 <span class="prop-label">Quest</span>
                 <span class="prop-values">
-                  <span class="prop-value"><%= fetter.OpenCondsSummary.Quest %></span>
+                  <span class="prop-value"><%= fetter.OpenCondsSummary.QuestTitleTextMap[req.context.outputLangCode] %></span>
                 </span>
               </div>
             <% } %>
@@ -78,11 +81,11 @@
                 </span>
                 </div>
               <% } %>
-              <% if (fetter.FinishCondsSummary.Quest) { %>
+              <% if (fetter.FinishCondsSummary.QuestTitleTextMap) { %>
                 <div class="prop">
                   <span class="prop-label">Altered after Quest</span>
                   <span class="prop-values">
-                  <span class="prop-value"><%= fetter.FinishCondsSummary.Quest %></span>
+                  <span class="prop-value"><%= fetter.FinishCondsSummary.QuestTitleTextMap[req.context.outputLangCode] %></span>
                 </span>
                 </div>
               <% } %>

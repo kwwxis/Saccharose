@@ -30,6 +30,24 @@ export function ucFirst(str: string): string {
   return str == null ? null : str.charAt(0).toUpperCase() + str.slice(1);
 }
 
+export function isString(o: any): o is string {
+  return typeof o === 'string';
+}
+
+export function toLower(str: any): string {
+  if (typeof str !== 'string') {
+    str = String(str);
+  }
+  return str? str.toLowerCase() : str;
+}
+
+export function toUpper(str: any): string {
+  if (typeof str !== 'string') {
+    str = String(str);
+  }
+  return str? str.toUpperCase() : str;
+}
+
 /**
  * Sentence join.
  *
