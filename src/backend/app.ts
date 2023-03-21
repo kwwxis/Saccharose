@@ -16,6 +16,7 @@ import { isStringNotBlank } from '../shared/util/stringUtil';
 import rateLimit from 'express-rate-limit';
 import requestIp from 'request-ip';
 import jsonResponse from './middleware/jsonResponse';
+import antiBots from './middleware/antiBots';
 import defaultResponseHeaders from './middleware/defaultResponseHeaders';
 import { PUBLIC_DIR, VIEWS_ROOT } from './loadenv';
 import { csrfMiddleware } from './middleware/csrf';
@@ -70,6 +71,7 @@ export async function appInit(): Promise<Express> {
   const rateLimitSkipRegex: RegExp = /\.css|\.js|\.png|\.svg|\.ico|\.jpg|\.woff|\.env/g;
 
   console.log(`[Init] Adding middleware for incoming requests`);
+  app.use(antiBots);
   app.use(cookieParser(process.env.SESSION_SECRET)); // parses cookies
   app.use(useragent.express()); // parses user-agent header
   app.use(express.urlencoded({extended: true})); // parses url-encoded POST/PUT bodies

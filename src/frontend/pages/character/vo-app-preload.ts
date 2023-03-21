@@ -9,11 +9,10 @@ export type VoAppPreloadOptions = {
   swapTitleSubtitle?: boolean,
 }
 
+export type VoAppPreloadResult = { templateName: string, wikitext: string };
+
 export function preloadFromFetters(characterFetters: CharacterFetters, mode: 'story' | 'combat', lang: LangCode, userLang: LangCode,
-                                   opts: VoAppPreloadOptions = {}): {
-  templateName: string,
-  wikitext: string
-} {
+                                   opts: VoAppPreloadOptions = {}): VoAppPreloadResult {
   const out = new SbOut();
   out.setPropPad(20);
 
@@ -295,7 +294,8 @@ export function preloadFromFetters(characterFetters: CharacterFetters, mode: 'st
             out.prop('rm_t');
           }
         } else {
-          out.prop('tx', fetter.VoiceFileTextMap[lang]);
+          let langProp = opts.swapTitleSubtitle ? userLang : lang;
+          out.prop('tx', fetter.VoiceFileTextMap[langProp]);
           if (lang !== 'EN') {
             out.prop('rm');
           }
