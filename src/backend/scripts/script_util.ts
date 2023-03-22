@@ -243,7 +243,7 @@ export const normText = (text: string, langCode: LangCode, decolor: boolean = fa
     text = wordRejoin(words);
 
     // Merge multiple subsequent {{MC}} with only spaces between:
-    let regex = /\{\{MC\|m=(.*?)\|f=(.*?)}}(\s*)\{\{MC\|m=(.*?)\|f=(.*?)}}/;
+    const regex = /\{\{MC\|m=((?:.(?<!\{\{MC))*?)\|f=((?:.(?<!\{\{MC))*?)}}(\s*)\{\{MC\|m=(.*?)\|f=(.*?)}}/;
     while (regex.test(text)) {
       text = text.replace(regex, (s, maleText1, femaleText1, whitespace, maleText2, femaleText2) => {
         return `{{MC|m=${maleText1}${whitespace}${maleText2}|f=${femaleText1}${whitespace}${femaleText2}}}`;
