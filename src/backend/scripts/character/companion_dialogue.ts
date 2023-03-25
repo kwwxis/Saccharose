@@ -84,12 +84,23 @@ export async function fetchCompanionDialogue(ctrl: Control, avatarNameOrId: stri
 
     let acc = new TalkConfigAccumulator(ctrl);
 
+    let activitySect = new DialogueSectionResult('activity', 'Event Dialogue');
+
     for (let talkConfigId of companion.TalkIds) {
       if (acc.fetchedTalkConfigIds.has(talkConfigId)) {
         continue;
       }
-      let sect = await talkConfigGenerate(ctrl, talkConfigId, acc);
-      result.push(sect);
+      let sect: DialogueSectionResult = await talkConfigGenerate(ctrl, talkConfigId, acc);
+
+      if (sect.hasMetaProp('Activity ID')) {
+        activitySect.children.push(sect);
+      } else {
+        result.push(sect);
+      }
+
+      sect.children.filter(subsect => subsect.hasMetaProp('Activity ID')).forEach(subsect => activitySect.children.push(subsect));
+
+      sect.children = sect.children.filter(subsect => !subsect.hasMetaProp('Activity ID'));
 
       for (let child of sect.children) {
         let friendshipCond = child.originalData.talkConfig?.BeginCond?.find(cond => cond.Type === 'QUEST_COND_AVATAR_FETTER_GT');
@@ -108,8 +119,15 @@ export async function fetchCompanionDialogue(ctrl: Control, avatarNameOrId: stri
       }
     }
 
+    if (activitySect.children.length) {
+      result.push(activitySect);
+    }
+
     for (let rewardEvent of companion.RewardEvents) {
-      let section = await talkConfigGenerate(ctrl, rewardEvent.TalkId, acc);
+      let section: DialogueSectionResult = await talkConfigGenerate(ctrl, rewardEvent.TalkId, acc);
+      if (!section) {
+        continue;
+      }
 
       let rewardInfo = await ctrl.selectRewardExcelConfigData(rewardEvent.RewardId);
       section.wikitextArray.push({

@@ -65,6 +65,10 @@ export class DialogueSectionResult {
     }
     this.addMetaProp(label, values);
   }
+
+  hasMetaProp(label: string) {
+    return this.metadata.some(x => x.label === label);
+  }
 }
 
 // TALK EXCEL CONFIG DATA STUFF
