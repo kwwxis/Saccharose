@@ -31,6 +31,6 @@
     "transpileOnly": true,
     "transpiler": "ts-node/transpilers/swc-experimental"
   },
-  "include": ["./**/*"],
-  "exclude": ["node_modules", "src/frontend", "test"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "src/frontend"]
 }
