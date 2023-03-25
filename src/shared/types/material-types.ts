@@ -173,10 +173,10 @@ export interface MaterialExcelConfigData {
 export interface MaterialSourceDataExcelConfigData {
   Id: number,
   DungeonList: number[],
-  JumpList: number[],
+  JumpDescs: number[],
   TextList: number[],
   MappedTextList: string[],
-  MappedJumpList: string[],
+  MappedJumpDescs: string[],
 }
 
 export interface MaterialVecItem {

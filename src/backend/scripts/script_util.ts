@@ -1604,11 +1604,11 @@ export class Control {
         sourceData.MappedTextList.push(text);
       }
     }
-    sourceData.MappedJumpList = [];
-    for (let textMapHash of sourceData.JumpList) {
+    sourceData.MappedJumpDescs = [];
+    for (let textMapHash of sourceData.JumpDescs) {
       let text = getTextMapItem(this.outputLangCode, textMapHash);
       if (text) {
-        sourceData.MappedJumpList.push(text);
+        sourceData.MappedJumpDescs.push(text);
       }
     }
     return sourceData;
