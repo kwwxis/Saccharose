@@ -8,7 +8,7 @@ import './initialListeners';
 import './generalEventBus';
 
 import './pages/basic/olgen';
-import './pages/basic/text-map-expand';
+import './pages/basic/textmap';
 import './pages/basic/id-usages';
 import './pages/basic/asi-test';
 
@@ -19,6 +19,8 @@ import './pages/dialogue/reminders';
 import './pages/dialogue/vo-to-dialogue';
 
 import './pages/archive/readables-search';
+import './pages/archive/material-search';
+import './pages/archive/weapon-search';
 
 import './pages/character/vo-tool';
 

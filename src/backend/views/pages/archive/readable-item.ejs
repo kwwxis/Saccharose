@@ -9,8 +9,13 @@
             <td class="w70p"><img class="icon x36" src="/images/genshin/<%= readable?.Material?.Icon %>.png" loading="lazy" decoding="async" /></td>
           </tr>
           <tr>
-            <td class="bold">Rarity</td>
-            <td class="w70p"><%= readable?.Material?.RankLevel %></td>
+            <td class="bold">Quality</td>
+            <td class="w70p">
+              <div class="valign">
+                <code class="spacer10-right"><%= readable?.Material?.RankLevel ;%></code>
+                <%- include('partials/util/stars', { quality: readable?.Material?.RankLevel }) %>
+              </div>
+            </td>
           </tr>
           <tr>
             <td class="bold">Name</td>
@@ -22,7 +27,9 @@
           </tr>
           <tr>
             <td class="bold">Desc.</td>
-            <td class="w70p"><%= normText(readable?.Material?.DescText) %></td>
+            <td class="w70p">
+              <%- include('partials/util/wikitext', {content: normText(readable?.Material?.DescText), seamless: true}) %>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -35,8 +42,13 @@
             <td class="w70p"><img class="icon x36" src="/images/genshin/<%= readable?.Artifact?.Icon %>.png" loading="lazy" decoding="async" /></td>
           </tr>
           <tr>
-            <td class="bold">Rarity</td>
-            <td class="w70p"><%= readable?.Artifact?.RankLevel %></td>
+            <td class="bold">Quality</td>
+            <td class="w70p">
+              <div class="valign">
+                <code class="spacer10-right"><%= readable?.Artifact?.RankLevel ;%></code>
+                <%- include('partials/util/stars', { quality: readable?.Artifact?.RankLevel }) %>
+              </div>
+            </td>
           </tr>
           <tr>
             <td class="bold">Name</td>
@@ -48,7 +60,9 @@
           </tr>
           <tr>
             <td class="bold">Desc.</td>
-            <td class="w70p"><%= normText(readable?.Artifact?.DescText) %></td>
+            <td class="w70p">
+              <%- include('partials/util/wikitext', {content: normText(readable?.Artifact?.DescText), seamless: true}) %>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -65,20 +79,27 @@
               <td class="w70p"><img class="icon x36" src="/images/genshin/<%= readable?.Weapon?.AwakenIcon %>.png" loading="lazy" decoding="async" /></td>
             </tr>
             <tr>
-              <td class="bold">Rarity</td>
-              <td class="w70p"><%= readable?.Weapon?.RankLevel %></td>
+              <td class="bold">Quality</td>
+              <td class="w70p">
+                <div class="valign">
+                  <code class="spacer10-right"><%= readable?.Weapon?.RankLevel ;%></code>
+                  <%- include('partials/util/stars', { quality: readable?.Weapon?.RankLevel }) %>
+                </div>
+              </td>
             </tr>
             <tr>
               <td class="bold">Name</td>
-              <td class="w70p"><%= readable?.Weapon?.NameText %></td>
+              <td class="w70p"><%= normText(readable?.Weapon?.NameText) %></td>
             </tr>
             <tr>
               <td class="bold">Type</td>
-              <td class="w70p"><%= readable?.Weapon?.WeaponType %></td>
+              <td class="w70p code"><%= readable?.Weapon?.WeaponType %></td>
             </tr>
             <tr>
               <td class="bold">Desc.</td>
-              <td class="w70p"><%= normText(readable?.Weapon?.DescText) %></td>
+              <td class="w70p">
+                <%- include('partials/util/wikitext', {content: normText(readable?.Weapon?.DescText), seamless: true}) %>
+              </td>
             </tr>
           </tbody>
         </table>

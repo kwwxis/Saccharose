@@ -27,8 +27,8 @@ export const getTextMapRelPath = (langCode: LangCode): string =>
 export const getPlainTextMapRelPath = (langCode: LangCode, fileType: 'Text' | 'Hash'): string =>
   './TextMap/Plain/PlainTextMap'+langCode+'_'+fileType+'.dat';
 
-export const getReadableTitleMapRelPath = (langCode: LangCode): string =>
-  './Readable/TitleMap/ReadableTitleMap'+langCode+'.json';
+export const getTextIndexRelPath = (textIndexName: string): string =>
+  './TextMap/Index/TextIndex_'+textIndexName+'.json';
 
 export const getReadableRelPath = (langCode: LangCode): string =>
   './Readable/'+langCode;

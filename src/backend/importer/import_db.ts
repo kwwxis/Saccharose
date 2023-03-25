@@ -1,7 +1,11 @@
 import '../loadenv';
 import { openKnex } from '../util/db';
 import { DialogExcelConfigData, TalkExcelConfigData } from '../../shared/types/dialogue-types';
-import { MaterialExcelConfigData } from '../../shared/types/material-types';
+import {
+  CombineExcelConfigData,
+  CompoundExcelConfigData, CookRecipeExcelConfigData, ForgeExcelConfigData,
+  MaterialExcelConfigData, MaterialRelation,
+} from '../../shared/types/material-types';
 import commandLineArgs, { OptionDefinition as ArgsOptionDefinition } from 'command-line-args';
 import commandLineUsage, { OptionDefinition as UsageOptionDefinition } from 'command-line-usage';
 import { getGenshinDataFilePath } from '../loadenv';
@@ -21,6 +25,7 @@ import {
 import { resolveObjectPath } from '../../shared/util/arrayUtil';
 import { ucFirst } from '../../shared/util/stringUtil';
 import { AchievementExcelConfigData, AchievementGoalExcelConfigData } from '../../shared/types/achievement-types';
+import { FurnitureMakeExcelConfigData } from '../../shared/types/homeworld-types';
 
 export type SchemaTable = {
   name: string,
@@ -402,9 +407,30 @@ export const schema = {
     name: 'FurnitureMakeExcelConfigData',
     jsonFile: './ExcelBinOutput/FurnitureMakeExcelConfigData.json',
     columns: [
-      {name: 'FurnitureItemId', type: 'integer', isIndex: true},
+      {name: 'FurnitureItemId', type: 'integer', isPrimary: true},
       {name: 'ConfigId', type: 'integer', isIndex: true},
     ]
+  },
+  Relation_FurnitureMakeExcelConfigData: <SchemaTable> {
+    name: 'Relation_FurnitureMakeExcelConfigData',
+    jsonFile: './ExcelBinOutput/FurnitureMakeExcelConfigData.json',
+    columns: [
+      {name: 'RelationId', type: 'integer', isIndex: true},
+      {name: 'RoleId', type: 'integer', isIndex: true},
+      {name: 'RoleType', type: 'string', isIndex: true},
+    ],
+    customRowResolve: (row: FurnitureMakeExcelConfigData) => {
+      let ret: MaterialRelation[] = [];
+      if (row.FurnitureItemId) {
+        ret.push({RelationId: row.ConfigId, RoleId: row.FurnitureItemId, RoleType: 'output'});
+      }
+      for (let item of row.MaterialItems) {
+        if (item.Id) {
+          ret.push({RelationId: row.ConfigId, RoleId: item.Id, RoleType: 'input'});
+        }
+      }
+      return ret;
+    }
   },
   BooksCodexExcelConfigData: <SchemaTable> {
     name: 'BooksCodexExcelConfigData',
@@ -1283,8 +1309,169 @@ export const schema = {
     normalizeFixFields: {
       'EAFDGIBBIJD': 'Image'
     }
-  }
+  },
+
+  CombineExcelConfigData: <SchemaTable> {
+    name: 'CombineExcelConfigData',
+    jsonFile: './ExcelBinOutput/CombineExcelConfigData.json',
+    columns: [
+      {name: 'CombineId', type: 'integer', isPrimary: true},
+
+      {name: 'RecipeType', type: 'string', isIndex: true},
+      {name: 'PlayerLevel', type: 'integer', isIndex: true},
+      {name: 'CombineType', type: 'integer', isIndex: true},
+      {name: 'SubCombineType', type: 'integer', isIndex: true},
+      {name: 'ResultItemId', type: 'integer', isIndex: true},
+      {name: 'EffectDescTextMapHash', type: 'integer', isIndex: true},
+    ]
+  },
+  Relation_CombineExcelConfigData: <SchemaTable> {
+    name: 'Relation_CombineExcelConfigData',
+    jsonFile: './ExcelBinOutput/CombineExcelConfigData.json',
+    columns: [
+      {name: 'RelationId', type: 'integer', isIndex: true},
+      {name: 'RoleId', type: 'integer', isIndex: true},
+      {name: 'RoleType', type: 'string', isIndex: true},
+    ],
+    customRowResolve: (row: CombineExcelConfigData) => {
+      let ret: MaterialRelation[] = [];
+      if (row.ResultItemId) {
+        ret.push({RelationId: row.CombineId, RoleId: row.ResultItemId, RoleType: 'output'});
+      }
+      for (let item of row.MaterialItems) {
+        if (item.Id) {
+          ret.push({RelationId: row.CombineId, RoleId: item.Id, RoleType: 'input'});
+        }
+      }
+      return ret;
+    }
+  },
+  CompoundExcelConfigData: <SchemaTable> {
+    name: 'CompoundExcelConfigData',
+    jsonFile: './ExcelBinOutput/CompoundExcelConfigData.json',
+    columns: [
+      {name: 'Type', type: 'string', isIndex: true},
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'GroupId', type: 'integer', isIndex: true},
+      {name: 'NameTextMapHash', type: 'integer', isIndex: true},
+      {name: 'RankLevel', type: 'integer', isIndex: true},
+      {name: 'DescTextMapHash', type: 'integer', isIndex: true},
+      {name: 'CountDescTextMapHash', type: 'integer', isIndex: true},
+    ]
+  },
+  Relation_CompoundExcelConfigData: <SchemaTable> {
+    name: 'Relation_CompoundExcelConfigData',
+    jsonFile: './ExcelBinOutput/CompoundExcelConfigData.json',
+    columns: [
+      {name: 'RelationId', type: 'integer', isIndex: true},
+      {name: 'RoleId', type: 'integer', isIndex: true},
+      {name: 'RoleType', type: 'string', isIndex: true},
+    ],
+    customRowResolve: (row: CompoundExcelConfigData) => {
+      let ret: MaterialRelation[] = [];
+      for (let item of row.InputVec) {
+        if (item.Id) {
+          ret.push({RelationId: row.Id, RoleId: item.Id, RoleType: 'input'});
+        }
+      }
+      for (let item of row.OutputVec) {
+        if (item.Id) {
+          ret.push({RelationId: row.Id, RoleId: item.Id, RoleType: 'output'});
+        }
+      }
+      return ret;
+    }
+  },
+  CookRecipeExcelConfigData: <SchemaTable> {
+    name: 'CookRecipeExcelConfigData',
+    jsonFile: './ExcelBinOutput/CookRecipeExcelConfigData.json',
+    columns: [
+      {name: 'FoodType', type: 'string', isIndex: true},
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'NameTextMapHash', type: 'integer', isIndex: true},
+      {name: 'RankLevel', type: 'integer', isIndex: true},
+      {name: 'DescTextMapHash', type: 'integer', isIndex: true},
+    ]
+  },
+  Relation_CookRecipeExcelConfigData: <SchemaTable> {
+    name: 'Relation_CookRecipeExcelConfigData',
+    jsonFile: './ExcelBinOutput/CookRecipeExcelConfigData.json',
+    columns: [
+      {name: 'RelationId', type: 'integer', isIndex: true},
+      {name: 'RoleId', type: 'integer', isIndex: true},
+      {name: 'RoleType', type: 'string', isIndex: true},
+    ],
+    customRowResolve: (row: CookRecipeExcelConfigData) => {
+      let ret: MaterialRelation[] = [];
+      for (let item of row.InputVec) {
+        if (item.Id) {
+          ret.push({RelationId: row.Id, RoleId: item.Id, RoleType: 'input'});
+        }
+      }
+      for (let item of row.QualityOutputVec) {
+        if (item.Id) {
+          ret.push({RelationId: row.Id, RoleId: item.Id, RoleType: 'output'});
+        }
+      }
+      return ret;
+    }
+  },
+  ForgeExcelConfigData: <SchemaTable> {
+    name: 'ForgeExcelConfigData',
+    jsonFile: './ExcelBinOutput/ForgeExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'PlayerLevel', type: 'integer', isIndex: true},
+      {name: 'ForgeType', type: 'integer', isIndex: true},
+      {name: 'ShowItemId', type: 'integer', isIndex: true},
+      {name: 'ShowConsumeItemId', type: 'integer', isIndex: true},
+      {name: 'ResultItemId', type: 'integer', isIndex: true},
+      {name: 'ForgePointNoticeTextMapHash', type: 'integer', isIndex: true},
+    ]
+  },
+  Relation_ForgeExcelConfigData: <SchemaTable> {
+    name: 'Relation_ForgeExcelConfigData',
+    jsonFile: './ExcelBinOutput/ForgeExcelConfigData.json',
+    columns: [
+      {name: 'RelationId', type: 'integer', isIndex: true},
+      {name: 'RoleId', type: 'integer', isIndex: true},
+      {name: 'RoleType', type: 'string', isIndex: true},
+    ],
+    customRowResolve: (row: ForgeExcelConfigData) => {
+      let ret: MaterialRelation[] = [];
+      if (row.ResultItemId) {
+        ret.push({RelationId: row.Id, RoleId: row.ResultItemId, RoleType: 'output'});
+      }
+      for (let item of row.MaterialItems) {
+        if (item.Id) {
+          ret.push({RelationId: row.Id, RoleId: item.Id, RoleType: 'input'});
+        }
+      }
+      return ret;
+    }
+  },
 };
+
+export function normalizeRawJsonKey(key: string, table: SchemaTable) {
+  if (key.startsWith('_')) {
+    key = key.slice(1);
+  }
+  key = ucFirst(key);
+  if (!(key.length === 11 && /^[A-Z]+$/.test(key))) {
+    key = key.replace(/ID/g, 'Id');
+  }
+  key = key.replace(/TextText/g, 'Text');
+  key = key.replace(/_(\w)/g, (fm: string, g: string) => g.toUpperCase()); // snake to camel
+  if (table && table.normalizeFixFields) {
+    if (key in table.normalizeFixFields) {
+      key = table.normalizeFixFields[key];
+    }
+    if (key.toUpperCase() in table.normalizeFixFields) {
+      key = table.normalizeFixFields[key.toUpperCase()];
+    }
+  }
+  return key;
+}
 
 export function normalizeRawJson(row: any, table?: SchemaTable) {
   if (typeof row === 'undefined' || typeof row === null || typeof row !== 'object') {
@@ -1296,23 +1483,7 @@ export function normalizeRawJson(row: any, table?: SchemaTable) {
   let newRow = {};
   for (let key of Object.keys(row)) {
     let originalKey = key;
-    if (key.startsWith('_')) {
-      key = key.slice(1);
-    }
-    key = ucFirst(key);
-    if (!(key.length === 11 && /^[A-Z]+$/.test(key))) {
-      key = key.replace(/ID/g, 'Id');
-    }
-    key = key.replace(/TextText/g, 'Text');
-    key = key.replace(/_(\w)/g, (fm: string, g: string) => g.toUpperCase()); // snake to camel
-    if (table && table.normalizeFixFields) {
-      if (key in table.normalizeFixFields) {
-        key = table.normalizeFixFields[key];
-      }
-      if (key.toUpperCase() in table.normalizeFixFields) {
-        key = table.normalizeFixFields[key.toUpperCase()];
-      }
-    }
+    key = normalizeRawJsonKey(key, table);
     newRow[key] = normalizeRawJson(row[originalKey], table);
     if (table && table.singularize && table.singularize.includes(key) && Array.isArray(newRow[key])) {
       newRow[key] = newRow[key].find(x => !!x);
@@ -1449,7 +1620,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     if (options.help) {
       const usage = commandLineUsage([
         {
-          header: 'Genshin Data Importer',
+          header: 'Genshin Data DB Importer',
           content: 'Imports Genshin Data json into a sqlite database for this application.'
         },
         {

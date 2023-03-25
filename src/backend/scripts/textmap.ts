@@ -5,7 +5,7 @@ import { DATAFILE_VOICE_ITEMS, getGenshinDataFilePath, getPlainTextMapRelPath, g
 import { normText } from './script_util';
 import { ElementType, ManualTextMapHashes } from '../../shared/types/manual-text-map';
 import { SpriteTagExcelConfigData } from '../../shared/types/general-types';
-import { normalizeRawJson, schema } from '../importer/import_run';
+import { normalizeRawJson, schema } from '../importer/import_db';
 
 // TYPES
 // ----------------------------------------------------------------------------------------------------

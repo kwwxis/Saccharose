@@ -8,11 +8,15 @@ export default async function(): Promise<Router> {
   });
 
   router.get('/text-map-expand', async (req: Request, res: Response) => {
-    res.render('pages/basic/text-map-expand', {
-      title: 'Text Map Expansion',
-      bodyClass: ['page--text-map-expand']
+    res.redirect(req.url.replace(/text-map-expand/i, 'textmap'));
+  });
+
+  router.get('/textmap', async (req: Request, res: Response) => {
+    res.render('pages/basic/textmap', {
+      title: 'TextMap Search',
+      bodyClass: ['page--textmap']
     });
-  })
+  });
 
   router.get('/OL', async (req: Request, res: Response) => {
     res.render('pages/basic/olgen', {

@@ -27,7 +27,7 @@ import { closeKnex } from '../../util/db';
 import fs from 'fs';
 import { getGenshinDataFilePath } from '../../loadenv';
 import { talkConfigGenerate } from '../dialogue/basic_dialogue_generator';
-import { schema, SchemaTable } from '../../importer/import_run';
+import { schema, SchemaTable } from '../../importer/import_db';
 import { formatTime } from '../../../shared/types/general-types';
 
 // noinspection JSUnusedGlobalSymbols

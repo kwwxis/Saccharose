@@ -9,24 +9,28 @@ import { basename } from 'path';
 import { isInt } from '../../shared/util/numberUtil';
 import chalk from 'chalk';
 
-async function inspectGenshinDataFile(ctrl: Control, file: string, inspectFieldValues: string[] = [], printRecordIfFieldNotEmpty: string[] = []): Promise<any[]> {
-  if (!inspectFieldValues)
-    inspectFieldValues = [];
+type InspectOpt = {file: string, inspectFieldValues?: string[], printRecordIfFieldNotEmpty?: string[]};
 
-  const tableName = basename(file).split('.json')[0];
-  const result: any[] = await ctrl.readGenshinDataFile(file);
+async function inspectGenshinDataFile(ctrl: Control, opt: InspectOpt): Promise<any[]> {
+  if (!opt.inspectFieldValues)
+    opt.inspectFieldValues = [];
+  if (!opt.printRecordIfFieldNotEmpty)
+    opt.printRecordIfFieldNotEmpty = [];
+
+  const tableName = basename(opt.file).split('.json')[0];
+  const result: any[] = await ctrl.readGenshinDataFile(opt.file);
 
   let fieldsToValues: {[fieldName: string]: Set<any>} = defaultMap('Set');
   let fieldsWithUniqueValues: Set<string> = new Set();
   let fieldsToType: {[name: string]: { type: string, canBeNil: boolean }} = {};
 
   for (let record of result) {
-    for (let key of printRecordIfFieldNotEmpty) {
+    for (let key of opt.printRecordIfFieldNotEmpty) {
       if (!isEmpty(resolveObjectPath(record, key))) {
         console.log(record);
       }
     }
-    for (let key of inspectFieldValues) {
+    for (let key of opt.inspectFieldValues) {
       toArray(resolveObjectPath(record, key)).forEach(value => {
         fieldsToValues[key].add(value);
       });
@@ -121,7 +125,7 @@ async function inspectGenshinDataFile(ctrl: Control, file: string, inspectFieldV
   }
 
   console.log('-'.repeat(100))
-  for (let field of inspectFieldValues) {
+  for (let field of opt.inspectFieldValues) {
     let values = Array.from(fieldsToValues[field]).sort();
     let isOptionalField = values.some(v => typeof v === 'undefined' || v === null);
 
@@ -141,7 +145,7 @@ async function inspectGenshinDataFile(ctrl: Control, file: string, inspectFieldV
     if (!singleLineThreshold) {
       valueStr = '  ' + valueStr;
     }
-    console.log(`${file} - Unique values for field "${field}":${isOptionalField ? ' (optional field)' : ''}\n` + valueStr);
+    console.log(`${opt.file} - Unique values for field "${field}":${isOptionalField ? ' (optional field)' : ''}\n` + valueStr);
     console.log();
   }
   console.log(chalk.underline.bold(`Interface:`));
@@ -191,50 +195,47 @@ async function inspectGenshinDataFile(ctrl: Control, file: string, inspectFieldV
   return result;
 }
 
+const excel = (file: string) => `./ExcelBinOutput/${file}.json`;
+
+const presets = {
+  DialogExcelConfigData: <InspectOpt> { file: excel('DialogExcelConfigData'), inspectFieldValues: ['TalkRole.Type'] },
+  MaterialExcelConfigData: <InspectOpt> { file: excel('MaterialExcelConfigData'), inspectFieldValues: ['MaterialType', 'ItemType', 'UseTarget', 'ItemUse[#ALL].UseOp'] },
+  CityConfigData: <InspectOpt> { file: excel('CityConfigData') },
+  DungeonExcelConfigData: <InspectOpt> { file: excel('DungeonExcelConfigData'), inspectFieldValues: ['Type', 'SubType', 'InvolveType', 'SettleUIType', 'SettleShows[#ALL]', 'RecommendElementTypes[#ALL]', 'StateType', 'PlayType'] },
+  DungeonPassExcelConfigData: <InspectOpt> { file: excel('DungeonPassExcelConfigData'), inspectFieldValues: ['Conds[#ALL].CondType', 'LogicType'] },
+  DungeonLevelEntityConfigData: <InspectOpt> { file: excel('DungeonLevelEntityConfigData') },
+  DungeonEntryExcelConfigData: <InspectOpt> { file: excel('DungeonEntryExcelConfigData'), inspectFieldValues: ['Type', 'CondComb', 'SatisfiedCond[#ALL].Type'] },
+  DungeonElementChallengeExcelConfigData: <InspectOpt> { file: excel('DungeonElementChallengeExcelConfigData') },
+  DungeonChallengeConfigData: <InspectOpt> { file: excel('DungeonChallengeConfigData'), inspectFieldValues: ['ChallengeType', 'InterruptButtonType', 'SubChallengeSortType'] },
+  FettersExcelConfigData: <InspectOpt> { file: excel('FettersExcelConfigData'), inspectFieldValues: ['OpenConds[#ALL].CondType', 'FinishConds[#ALL].CondType', 'Type'] },
+  FetterStoryExcelConfigData: <InspectOpt> { file: excel('FetterStoryExcelConfigData'), inspectFieldValues: ['OpenConds[#ALL].CondType', 'FinishConds[#ALL].CondType'] },
+  FetterInfoExcelConfigData: <InspectOpt> { file: excel('FetterInfoExcelConfigData'), inspectFieldValues: ['AvatarAssocType', 'OpenConds[#ALL].CondType', 'FinishConds[#ALL].CondType'] },
+  LocalizationExcelConfigData: <InspectOpt> { file: excel('LocalizationExcelConfigData'), inspectFieldValues: ['AssetType'] },
+  TalkExcelConfigData: <InspectOpt> { file: excel('TalkExcelConfigData'), inspectFieldValues: ['BeginCond[#ALL].Type', 'FinishExec[#ALL].Type', 'HeroTalk', 'LoadType', 'TalkMarkType'] },
+  QuestExcelConfigData: <InspectOpt> { file: excel('QuestExcelConfigData'), inspectFieldValues: ['AcceptCond[#ALL].Type', 'BeginExec[#ALL].Type', 'FailCond[#ALL].Type', 'FailExec[#ALL].Type', 'FinishCond[#ALL].Type', 'FinishExec[#ALL].Type',] },
+  ReliquaryExcelConfigData: <InspectOpt> { file: excel('ReliquaryExcelConfigData'), inspectFieldValues: ['EquipType', 'ItemType', 'DestroyRule'] },
+  WeaponExcelConfigData: <InspectOpt> { file: excel('WeaponExcelConfigData'), inspectFieldValues: ['WeaponType', 'DestroyRule', 'ItemType'] },
+  AchievementExcelConfigData: <InspectOpt> { file: excel('AchievementExcelConfigData'), inspectFieldValues: ['Ttype', 'IsShow', 'ProgressShowType', 'TriggerConfig.TriggerType'] },
+  AchievementGoalExcelConfigData: <InspectOpt> { file: excel('AchievementGoalExcelConfigData') },
+  GCGGameRewardExcelConfigData: <InspectOpt> { file: excel('GCGGameRewardExcelConfigData'), inspectFieldValues: ['GroupId'] },
+  GCGChallengeExcelConfigData: <InspectOpt> { file: excel('GCGChallengeExcelConfigData'), inspectFieldValues: ['Type', 'ParamList[#ALL]'] },
+  WorldAreaConfigData: <InspectOpt> { file: excel('WorldAreaConfigData'), inspectFieldValues: ['ElementType', 'TerrainType', 'AreaType'] },
+  NewActivityExcelConfigData: <InspectOpt> { file: excel('NewActivityExcelConfigData') },
+  LoadingSituationExcelConfigData: <InspectOpt> { file: excel('LoadingSituationExcelConfigData'), inspectFieldValues: ['LoadingSituationType', 'AreaTerrainType', 'PicPath'] },
+
+  CombineExcelConfigData: <InspectOpt> { file: excel('CombineExcelConfigData'), inspectFieldValues: ['RecipeType'] },
+  CompoundExcelConfigData: <InspectOpt> { file: excel('CompoundExcelConfigData'), inspectFieldValues: ['Type'] },
+  CookRecipeExcelConfigData: <InspectOpt> { file: excel('CookRecipeExcelConfigData'), inspectFieldValues: ['FoodType', 'CookMethod'] },
+
+};
+
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
     const ctrl = getControl();
     await loadEnglishTextMap();
 
-    //await inspectGenshinDataFile(ctrl, './ExcelBinOutput/DialogExcelConfigData.json', ['TalkRole.Type']);
-    //await inspectGenshinDataFile(ctrl, './ExcelBinOutput/MaterialExcelConfigData.json', ['MaterialType', 'ItemType', 'UseTarget', 'ItemUse[#ALL].UseOp']);
-    //await inspectGenshinDataFile(ctrl, './ExcelBinOutput/CityConfigData.json');
-    // await inspectGenshinDataFile(ctrl, './ExcelBinOutput/DungeonExcelConfigData.json',
-    //  ['Type', 'SubType', 'InvolveType', 'SettleUIType', 'SettleShows[#ALL]', 'RecommendElementTypes[#ALL]', 'StateType', 'PlayType']);
-    // await inspectGenshinDataFile(ctrl, './ExcelBinOutput/DungeonPassExcelConfigData.json', ['Conds[#ALL].CondType', 'LogicType']);
-    // await inspectGenshinDataFile(ctrl, './ExcelBinOutput/DungeonLevelEntityConfigData.json');
-    // let rows: DungeonEntryExcelConfigData[] = await inspectGenshinDataFile(ctrl, './ExcelBinOutput/DungeonEntryExcelConfigData.json',
-    //   ['Type', 'CondComb', 'SatisfiedCond[#ALL].Type']);
-    //await inspectGenshinDataFile(ctrl, './ExcelBinOutput/DungeonElementChallengeExcelConfigData.json');
-    //await inspectGenshinDataFile(ctrl, './ExcelBinOutput/DungeonChallengeConfigData.json', ['ChallengeType', 'InterruptButtonType', 'SubChallengeSortType']);
-
-    //await inspectGenshinDataFile(ctrl, './ExcelBinOutput/FettersExcelConfigData.json', ['OpenConds[#ALL].CondType', 'FinishConds[#ALL].CondType', 'Type']);
-    //await inspectGenshinDataFile(ctrl, './ExcelBinOutput/FetterStoryExcelConfigData.json', ['OpenConds[#ALL].CondType', 'FinishConds[#ALL].CondType']);
-
-    // let res = await inspectGenshinDataFile(ctrl, './ExcelBinOutput/FetterInfoExcelConfigData.json', ['AvatarAssocType', 'OpenConds[#ALL].CondType', 'FinishConds[#ALL].CondType']);
-    // resolveObjectPath(res, '[#EVERY].Avatar', true);
-    // console.log(res.slice(0, 5));
-
-    //await inspectGenshinDataFile(ctrl, './ExcelBinOutput/LocalizationExcelConfigData.json', ['AssetType']);
-    //await inspectGenshinDataFile(ctrl, './ExcelBinOutput/TalkExcelConfigData.json', ['BeginCond[#ALL].Type', 'FinishExec[#ALL].Type', 'HeroTalk', 'LoadType', 'TalkMarkType']);
-    // await inspectGenshinDataFile(ctrl, './ExcelBinOutput/QuestExcelConfigData.json', [
-    //   'AcceptCond[#ALL].Type', 'BeginExec[#ALL].Type',
-    //   'FailCond[#ALL].Type', 'FailExec[#ALL].Type',
-    //   'FinishCond[#ALL].Type', 'FinishExec[#ALL].Type',
-    // ]);
-    // await inspectGenshinDataFile(ctrl, './ExcelBinOutput/ReliquaryExcelConfigData.json', ['EquipType', 'ItemType', 'DestroyRule']);
-    //await inspectGenshinDataFile(ctrl, './ExcelBinOutput/WeaponExcelConfigData.json', ['WeaponType', 'DestroyRule', 'ItemType']);
-    //await inspectGenshinDataFile(ctrl, './ExcelBinOutput/AchievementExcelConfigData.json', ['Ttype', 'IsShow', 'ProgressShowType', 'TriggerConfig.TriggerType']);
-    // await inspectGenshinDataFile(ctrl, './ExcelBinOutput/AchievementGoalExcelConfigData.json');
-
-    // await inspectGenshinDataFile(ctrl, './ExcelBinOutput/GCGGameRewardExcelConfigData.json', ['GroupId' ], ['SomethingTextList', 'AnotherTextList']);
-    // await inspectGenshinDataFile(ctrl, './ExcelBinOutput/GCGChallengeExcelConfigData.json', ['Type', 'ParamList[#ALL]']);
-
-    await inspectGenshinDataFile(ctrl, './ExcelBinOutput/GCGDeckExcelConfigData.json');
-    //await inspectGenshinDataFile(ctrl, './ExcelBinOutput/WorldAreaConfigData.json', ['ElementType', 'TerrainType', 'AreaType']);
-    //await inspectGenshinDataFile(ctrl, './ExcelBinOutput/NewActivityExcelConfigData.json');
-
-    //await inspectGenshinDataFile(ctrl, './ExcelBinOutput/LoadingSituationExcelConfigData.json', ['LoadingSituationType', 'AreaTerrainType', 'PicPath']);
+    //await inspectGenshinDataFile(ctrl, presets.CookRecipeExcelConfigData);
+    await inspectGenshinDataFile(ctrl, { file: excel('ForgeExcelConfigData') });
 
     await closeKnex();
   })();

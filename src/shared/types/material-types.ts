@@ -1,4 +1,6 @@
 // The Material IDs of some useful items:
+import { FurnitureMakeExcelConfigData } from './homeworld-types';
+
 export const ADVENTURE_EXP_ID = 102;
 export const PRIMOGEM_ID = 201;
 export const MORA_ID = 202;
@@ -72,6 +74,7 @@ export type MaterialUseTarget =
   'ITEM_USE_TARGET_SPECIFY_DEAD_AVATAR';
 export type MaterialItemUseOp =
   'ITEM_USE_ACCEPT_QUEST' |
+
   'ITEM_USE_ADD_ALL_ENERGY' |
   'ITEM_USE_ADD_AVATAR_EXTRA_PROPERTY' |
   'ITEM_USE_ADD_CHANNELLER_SLAB_BUFF' |
@@ -88,17 +91,21 @@ export type MaterialItemUseOp =
   'ITEM_USE_ADD_SERVER_BUFF' |
   'ITEM_USE_ADD_TEMPORARY_STAMINA' |
   'ITEM_USE_ADD_WEAPON_EXP' |
+
   'ITEM_USE_CHEST_SELECT_ITEM' |
   'ITEM_USE_COMBINE_ITEM' |
+
   'ITEM_USE_GAIN_AVATAR' |
   'ITEM_USE_GAIN_CARD_PRODUCT' |
   'ITEM_USE_GAIN_COSTUME' |
   'ITEM_USE_GAIN_FLYCLOAK' |
   'ITEM_USE_GAIN_NAME_CARD' |
+
   'ITEM_USE_GRANT_SELECT_REWARD' |
   'ITEM_USE_MAKE_GADGET' |
   'ITEM_USE_OPEN_RANDOM_CHEST' |
   'ITEM_USE_RELIVE_AVATAR' |
+
   'ITEM_USE_UNLOCK_CODEX' |
   'ITEM_USE_UNLOCK_COMBINE' |
   'ITEM_USE_UNLOCK_COOK_RECIPE' |
@@ -108,6 +115,8 @@ export type MaterialItemUseOp =
   'ITEM_USE_UNLOCK_HOME_BGM' |
   'ITEM_USE_UNLOCK_HOME_MODULE' |
   'ITEM_USE_UNLOCK_PAID_BATTLE_PASS_NORMAL';
+
+export type MaterialLoadConf = {LoadSourceData?: boolean, LoadRelations?: boolean};
 
 export interface MaterialExcelConfigData {
   Id: number,
@@ -156,7 +165,9 @@ export interface MaterialExcelConfigData {
   IsHidden?: boolean,
   CdTime?: number,
   CdGroup?: number,
+
   SourceData?: MaterialSourceDataExcelConfigData,
+  Relations?: ItemRelationMap,
 }
 
 export interface MaterialSourceDataExcelConfigData {
@@ -165,4 +176,119 @@ export interface MaterialSourceDataExcelConfigData {
   JumpList: number[],
   TextList: number[],
   MappedTextList: string[],
+  MappedJumpList: string[],
+}
+
+export interface MaterialVecItem {
+  Id: number,
+  Count: number,
+  Material?: MaterialExcelConfigData,
+}
+
+export interface MaterialRelation<T = any> {
+  RelationId: number,
+  RoleId: number,
+  RoleType: 'input' | 'output',
+  RelationData?: T
+}
+
+export interface ItemRelationMap {
+  Combine: MaterialRelation<CombineExcelConfigData>[],
+  Compound: MaterialRelation<CompoundExcelConfigData>[],
+  CookRecipe: MaterialRelation<CookRecipeExcelConfigData>[],
+  Forge: MaterialRelation<ForgeExcelConfigData>[],
+  FurnitureMake: MaterialRelation<FurnitureMakeExcelConfigData>[],
+}
+
+export interface CombineExcelConfigData {
+  CombineId: number,
+  EffectDescTextMapHash: number,
+  EffectDescText: string,
+
+  RecipeType: 'RECIPE_TYPE_COMBINE' | 'RECIPE_TYPE_COMBINE_HOMEWORLD' | 'RECIPE_TYPE_CONVERT',
+  PlayerLevel: number,
+  IsDefaultShow: boolean,
+  CombineType: number,
+  SubCombineType: number,
+
+  ScoinCost: number,
+  ResultItemId: number,
+  ResultItemCount: number,
+  ResultItem?: MaterialExcelConfigData,
+  RandomItems: { Count: number }[],
+  MaterialItems: MaterialVecItem[]
+}
+
+export interface CompoundExcelConfigData {
+  Id: number,
+  GroupId: number,
+  RankLevel: number,
+  Type: 'COMPOUND_COOK' | 'COMPOUND_RANDOM_COOK',
+
+  NameText: string,
+  DescText: string,
+  CountDescText: string,
+
+  NameTextMapHash: number,
+  DescTextMapHash: number,
+  CountDescTextMapHash: number,
+
+  IsDefaultUnlocked: boolean,
+  CostTime: number,
+  QueueSize: number,
+  InputVec: MaterialVecItem[],
+  OutputVec: MaterialVecItem[],
+  Icon: string,
+  DropId: number,
+}
+
+export interface CookRecipeExcelConfigData {
+  Id: number,
+  RankLevel: number,
+  Icon: string,
+
+  NameText: string,
+  DescText: string,
+  NameTextMapHash: number,
+  DescTextMapHash: number,
+  EffectDesc: number[],
+  MappedEffectDesc: string[],
+
+  FoodType: 'COOK_FOOD_ATTACK' | 'COOK_FOOD_DEFENSE' | 'COOK_FOOD_FUNCTION' | 'COOK_FOOD_HEAL',
+  CookMethod: 'COOK_METHOD_BAKE' | 'COOK_METHOD_BOIL' | 'COOK_METHOD_FRY' | 'COOK_METHOD_STEAM',
+  IsDefaultUnlocked: boolean,
+  MaxProficiency: number,
+
+  InputVec: MaterialVecItem[],
+  QualityOutputVec: MaterialVecItem[],
+
+  QteParam: string,
+  QteQualityWeightVec: number[],
+}
+
+export interface ForgeExcelConfigData {
+  Id: number,
+
+  Priority: number,
+  ForgeType: number,
+  IsDefaultShow: boolean,
+  PlayerLevel: number,
+  EffectiveWorldLevels: number[],
+
+  ForgePoint: number,
+  ForgePointNoticeText: string,
+  ForgePointNoticeTextMapHash: number,
+
+  ShowItemId: number,
+  ShowConsumeItemId: number,
+  ForgeTime: number,
+  QueueNum: number,
+  ScoinCost: number,
+  RandomItems: never,
+
+  ResultItemId: number,
+  ResultItemCount: number,
+  ResultItem?: MaterialExcelConfigData,
+  MaterialItems: MaterialVecItem[],
+  MainRandomDropId: number,
 }

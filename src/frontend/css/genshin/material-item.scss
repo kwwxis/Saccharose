@@ -5,11 +5,15 @@
   text-decoration: none;
   width: 85px;
 
+  &.no-name {
+    width: 74px;
+  }
+
   .material-card {
     display: block;
     width: min-content;
     box-shadow: 0 0 5px #43403d;
-    border-radius: 5px;
+    border-radius: 7px;
     overflow: hidden;
     background: #E9E5DC;
     background: linear-gradient(transparent 10px,#E9E5DC 10px);
@@ -41,15 +45,39 @@
     font-size: 12.5px;
     font-family: 'Open Sans', sans-serif;
     line-height: 20px;
+    text-align: center;
+  }
+}
+
+.material-sep {
+  width: 32px;
+  height: 94px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+
+  background: rgba(0,0,0,0.1);
+  border-radius: 5px;
+  margin: 0 3px;
+
+  body.nightmode & {
+    background: rgba(255,255,255,0.05);
   }
 }
 
 .material-icon {
+  &.no-text {
+    border-radius: 0 !important;
+  }
   &[data-quality='0'],
   &[data-quality='1'] {
     background: #a4a4a4;
     background: linear-gradient(0deg,#a4a4a4 0%,#76787c 100%);
     background: url('/images/static/ItemQualityBg_1.png') 0 0 / 100% auto;
+    &.no-text {
+      background-image: url('/images/static/Quality/UI_QualityBg_1.png');
+    }
   }
   &[data-quality='123'],
   &[data-quality='1-2-3'],
@@ -63,6 +91,9 @@
     background: #5D8C81;
     background: linear-gradient(0deg,#5D8C81 0%,#4E7E6C 100%);
     background: url('/images/static/ItemQualityBg_2.png') 0 0 / 100% auto;
+    &.no-text {
+      background-image: url('/images/static/Quality/UI_QualityBg_2.png');
+    }
   }
   &[data-quality='23'],
   &[data-quality='2-3'] {
@@ -75,6 +106,9 @@
     background: #6faaca;
     background: linear-gradient(0deg,#6faaca 0%,#697b9b 100%);
     background: url('/images/static/ItemQualityBg_3.png') 0 0 / 100% auto;
+    &.no-text {
+      background-image: url('/images/static/Quality/UI_QualityBg_3.png');
+    }
   }
   &[data-quality='34'],
   &[data-quality='3-4'] {
@@ -87,6 +121,9 @@
     background: #917ab1;
     background: linear-gradient(0deg,#917ab1 0%,#6c6192 100%);
     background: url('/images/static/ItemQualityBg_4.png') 0 0 / 100% auto;
+    &.no-text {
+      background-image: url('/images/static/Quality/UI_QualityBg_4.png');
+    }
   }
   &[data-quality='45'],
   &[data-quality='4-5'] {
@@ -99,10 +136,16 @@
     background: #9a6d43;
     background: linear-gradient(0deg,#de9552 0%,#9a6d43 100%);
     background: url('/images/static/ItemQualityBg_5.png') 0 0 / 100% auto;
+    &.no-text {
+      background-image: url('/images/static/Quality/UI_QualityBg_5.png');
+    }
   }
   &[data-quality='5a'] {
     background: #AF5155;
     background: linear-gradient(0deg,#DA4F55 0%,#AF5155 100%);
     background: url('/images/static/ItemQualityBg_5a.png') 0 0 / 100% auto;
+    &.no-text {
+      background-image: url('/images/static/Quality/UI_QualityBg_5a.png');
+    }
   }
 }

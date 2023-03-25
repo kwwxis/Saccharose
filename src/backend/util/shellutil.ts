@@ -69,7 +69,7 @@ export async function passthru(command: string,
   };
 
   return new Promise((resolve, reject) => {
-    console.log('Command:', command);
+    //console.log('Command:', command);
     const child = spawn(command, {
       env: { PATH: process.env.SHELL_PATH },
       shell: process.env.SHELL_EXEC,
@@ -292,7 +292,7 @@ export async function grep(searchText: string, file: string, flags?: string,
                            escapeDoubleQuotes: boolean = true, startFromLine?: number): Promise<string[]> {
   try {
     const cmd = createGrepCommand(searchText, file, flags, escapeDoubleQuotes, startFromLine);
-    console.log('Command:', cmd.line);
+    //console.log('Command:', cmd.line);
 
     // noinspection JSUnusedLocalSymbols
     const { stdout, stderr } = await execPromise(cmd.line, {

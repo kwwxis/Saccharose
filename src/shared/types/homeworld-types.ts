@@ -1,5 +1,6 @@
 import { NpcExcelConfigData } from './general-types';
 import { AvatarExcelConfigData } from './avatar-types';
+import { MaterialVecItem } from './material-types';
 
 export interface HomeWorldEventExcelConfigData {
   EventId: number,
@@ -148,9 +149,10 @@ export interface FurnitureSuiteExcelConfigData {
 export interface FurnitureMakeExcelConfigData {
   ConfigId: number,
   FurnitureItemId: number,
+  FurnitureItem?: HomeWorldFurnitureExcelConfigData,
   Count: number,
   Exp: number,
-  MaterialItems: {Id: number, Count: number}[],
+  MaterialItems: MaterialVecItem[],
   MakeTime: number,
   MaxAccelerateTime: number,
   QuickFetchMaterialNum: number,

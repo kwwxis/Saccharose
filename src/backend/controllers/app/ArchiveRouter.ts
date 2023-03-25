@@ -27,17 +27,27 @@ export default async function(): Promise<Router> {
 
   // Material Items
   // ~~~~~~~~~~~~~~
-  router.get('/items/:itemId?', async (req: Request, res: Response) => {
+  router.get('/items', async (req: Request, res: Response) => {
+    res.render('pages/archive/material-search', {
+      title: 'Items',
+      bodyClass: ['page--items'],
+    });
+  });
+
+  router.get('/items/:itemId', async (req: Request, res: Response) => {
     const ctrl = getControl(req);
 
-
     if (req.params.itemId) {
-      const material = await ctrl.selectMaterialExcelConfigData(req.params.itemId);
+      const material = await ctrl.selectMaterialExcelConfigData(req.params.itemId, {
+        LoadRelations: true,
+        LoadSourceData: true
+      });
 
       res.render('pages/archive/material-item', {
         title: material ? material.NameText : 'Item not found',
-        bodyClass: ['page--materials'],
-        material
+        bodyClass: ['page--items'],
+        material,
+        ol: material ? (await ol_gen_from_id(ctrl, material.NameTextMapHash)) : null
       });
     } else {
       res.render('pages/archive/material-item', {
@@ -46,6 +56,35 @@ export default async function(): Promise<Router> {
       });
     }
   });
+
+  // Weapons
+  // ~~~~~~~
+  router.get('/weapons', async (req: Request, res: Response) => {
+    res.render('pages/archive/weapon-search', {
+      title: 'Weapons',
+      bodyClass: ['page--weapons'],
+    });
+  });
+
+  router.get('/weapons/:weaponId', async (req: Request, res: Response) => {
+    const ctrl = getControl(req);
+
+    if (req.params.weaponId) {
+      const weapon = await ctrl.selectWeaponById(req.params.weaponId, {LoadRelations: true, LoadReadable: true});
+
+      res.render('pages/archive/weapon-item', {
+        title: weapon ? weapon.NameText : 'Item not found',
+        bodyClass: ['page--weapons'],
+        weapon,
+        ol: weapon ? (await ol_gen_from_id(ctrl, weapon.NameTextMapHash)) : null
+      });
+    } else {
+      res.render('pages/archive/weapon-item', {
+        title: 'Weapon not found',
+        bodyClass: ['page--weapons'],
+      });
+    }
+  })
 
   // Viewpoints
   // ~~~~~~~~~~

@@ -1,9 +1,21 @@
-<a href="/items/<%= material.Id %>" class="material-item">
-  <div class="material-card">
-    <div class="material-icon" data-quality="<%= material.RankLevel %>">
-        <img src="/images/genshin/<%= material.Icon %>.png" loading="lazy" decoding="async" />
-    </div>
-    <div class="material-text"><%- locals.itemCount ? escapeHtml(itemCount) : '&mdash;' %></div>
+<%-
+locals.noLink
+        ? `<div class="material-item${locals.disableName ? ' no-name' : ''}">`
+        : `<a href="/${material.WeaponType ? 'weapons' : 'items'}/${material.Id}" class="material-item${locals.disableName ? ' no-name' : ''}">`
+%>
+
+<div class="material-card">
+  <div class="material-icon<%= locals.noText ? ' no-text' : '' %>" data-quality="<%= material.RankLevel || 0 %>">
+    <img src="/images/genshin/<%= material.Icon %>.png" loading="lazy" decoding="async" />
   </div>
+  <% if (!locals.noText) { %>
+    <div class="material-text"><%- locals.itemCount ? escapeHtml(itemCount) : '&mdash;' %></div>
+  <% } %>
+</div>
+<% if (!locals.disableName) { %>
   <span class="material-name"><%= material.NameText %></span>
-</a>
+<% } %>
+
+<%-
+locals.noLink ? '</div>' : `</a>`
+%>

@@ -6,21 +6,24 @@ import {
   CityConfigData,
   ConfigCondition,
   NpcExcelConfigData,
-  WorldAreaConfigData, WorldAreaType,
+  WorldAreaConfigData,
+  WorldAreaType,
 } from '../../shared/types/general-types';
 import {
   createLangCodeMap,
-  getElementName, getPlainLineNumFromTextMapHash,
+  getElementName,
+  getPlainLineNumFromTextMapHash,
   getTextMapHashFromPlainLineMap,
   getTextMapItem,
-  getVoPrefix, SPRITE_TAGS,
+  getVoPrefix,
+  SPRITE_TAGS,
 } from './textmap';
 import { Request } from '../util/router';
 import SrtParser, { SrtLine } from '../util/srtParser';
 import { promises as fs } from 'fs';
 import { arrayIndexOf, arrayIntersect, arrayUnique, cleanEmpty, pairArrays, sort } from '../../shared/util/arrayUtil';
-import { isInt, isNumeric, toInt, toNumber } from '../../shared/util/numberUtil';
-import { normalizeRawJson, schema, SchemaTable } from '../importer/import_run';
+import { isInt, toInt, toNumber } from '../../shared/util/numberUtil';
+import { normalizeRawJson, normalizeRawJsonKey, schema, SchemaTable } from '../importer/import_db';
 import {
   escapeRegExp,
   extractRomanNumeral,
@@ -49,7 +52,11 @@ import {
 import {
   ADVENTURE_EXP_ID,
   MaterialExcelConfigData,
+  MaterialLoadConf,
+  MaterialRelation,
+  ItemRelationMap,
   MaterialSourceDataExcelConfigData,
+  MaterialVecItem,
   MORA_ID,
   PRIMOGEM_ID,
   RewardExcelConfigData,
@@ -61,13 +68,8 @@ import {
   HomeWorldFurnitureTypeExcelConfigData,
   HomeWorldNPCExcelConfigData,
 } from '../../shared/types/homeworld-types';
-import { getTextAtLine, grep, grepIdStartsWith, grepStream } from '../util/shellutil';
-import {
-  getGenshinDataFilePath,
-  getPlainTextMapRelPath,
-  getReadableRelPath,
-  getReadableTitleMapRelPath,
-} from '../loadenv';
+import { grep, grepIdStartsWith, grepStream } from '../util/shellutil';
+import { getGenshinDataFilePath, getPlainTextMapRelPath, getReadableRelPath, getTextIndexRelPath } from '../loadenv';
 import {
   BooksCodexExcelConfigData,
   BookSuitExcelConfigData,
@@ -86,7 +88,7 @@ import {
   ReliquaryExcelConfigData,
   ReliquarySetExcelConfigData,
 } from '../../shared/types/artifact-types';
-import { WeaponExcelConfigData } from '../../shared/types/weapon-types';
+import { WeaponExcelConfigData, WeaponLoadConf } from '../../shared/types/weapon-types';
 import { AvatarExcelConfigData } from '../../shared/types/avatar-types';
 import { basename } from 'path';
 import { MonsterExcelConfigData } from '../../shared/types/monster-types';
@@ -1083,6 +1085,7 @@ export class Control {
 
         if (fieldName && schema[fileName]) {
           let table: SchemaTable = schema[fileName];
+          fieldName = normalizeRawJsonKey(fieldName, table);
           for (let column of table.columns) {
             if (column.name === fieldName && (column.isPrimary || column.isIndex)) {
 
@@ -1153,9 +1156,51 @@ export class Control {
     return out;
   }
 
+  async streamTextMapMatchesWithIndex(langCode: LangCode,
+                                      searchText: string,
+                                      textIndexName: string,
+                                      stream: (id: number, textMapHash: number) => void,
+                                      flags?: string): Promise<number|Error> {
+    const textIndexFile = getTextIndexRelPath(textIndexName);
+    const promises: Promise<void>[] = [];
+    const batchMax = 100;
+
+    let batch = [];
+
+    const processBatch = () => {
+      if (!batch.length) {
+        return;
+      }
+      const regex = `"(` + batch.join('|') + `)":`;
+      batch = [];
+      promises.push((async () => {
+        const matches = await grep(regex, textIndexFile, '-E', false);
+        for (let match of matches) {
+          let parts = /"(\d+)":\s+(\d+),?$/.exec(match);
+          let textMapId = toInt(parts[1]);
+          let id = toInt(parts[2]);
+          stream(id, textMapId);
+        }
+      })());
+    };
+
+    const ret = await this.streamTextMapMatches(langCode, searchText, (textMapHash: number, text: string) => {
+      batch.push(textMapHash);
+      if (batch.length >= batchMax) {
+        processBatch();
+      }
+    }, flags);
+
+    processBatch();
+
+    await Promise.all(promises);
+
+    return ret;
+  }
+
   async streamTextMapMatches(langCode: LangCode,
                              searchText: string,
-                             stream: (textMapId: number, text?: string, kill?: () => void) => void,
+                             stream: (textMapHash: number, text?: string, kill?: () => void) => void,
                              flags?: string): Promise<number|Error> {
     if (isStringBlank(searchText)) {
       return 0;
@@ -1535,6 +1580,17 @@ export class Control {
       .where({SuiteId: suiteId}).first().then(this.commonLoadFirst);
   }
 
+
+  async selectAllFurniture(): Promise<HomeWorldFurnitureExcelConfigData[]> {
+    return await this.knex.select('*').from('HomeWorldFurnitureExcelConfigData').then(this.commonLoad);
+  }
+  async selectAllFurnitureType(): Promise<HomeWorldFurnitureTypeExcelConfigData[]> {
+    return await this.knex.select('*').from('HomeWorldFurnitureTypeExcelConfigData').then(this.commonLoad);
+  }
+  async selectAllFurnitureSuite(): Promise<FurnitureSuiteExcelConfigData[]> {
+    return await this.knex.select('*').from('FurnitureSuiteExcelConfigData').then(this.commonLoad);
+  }
+
   async selectMaterialSourceDataExcelConfigData(id: number): Promise<MaterialSourceDataExcelConfigData> {
     let sourceData: MaterialSourceDataExcelConfigData = await this.knex.select('*')
       .from('MaterialSourceDataExcelConfigData').where({Id: id}).first().then(this.commonLoadFirst);
@@ -1548,16 +1604,137 @@ export class Control {
         sourceData.MappedTextList.push(text);
       }
     }
+    sourceData.MappedJumpList = [];
+    for (let textMapHash of sourceData.JumpList) {
+      let text = getTextMapItem(this.outputLangCode, textMapHash);
+      if (text) {
+        sourceData.MappedJumpList.push(text);
+      }
+    }
     return sourceData;
   }
 
-  async selectMaterialExcelConfigData(id: number): Promise<MaterialExcelConfigData> {
-    let material: MaterialExcelConfigData = await this.knex.select('*').from('MaterialExcelConfigData')
-      .where({Id: id}).first().then(this.commonLoadFirst);
-    if (material) {
+  async selectItemRelations(id: number): Promise<ItemRelationMap> {
+    const relationMap: ItemRelationMap = {
+      Combine: [],
+      Compound: [],
+      CookRecipe: [],
+      Forge: [],
+      FurnitureMake: []
+    };
+
+    const relationConf: [string, string, keyof ItemRelationMap, string, string[]][] = [
+      ['CombineExcelConfigData',        'CombineId',  'Combine',        'ResultItemId',     ['MaterialItems']],
+      ['CompoundExcelConfigData',       'Id',         'Compound',       null,               ['InputVec', 'OutputVec']],
+      ['CookRecipeExcelConfigData',     'Id',         'CookRecipe',     null,               ['InputVec', 'QualityOutputVec']],
+      ['ForgeExcelConfigData',          'Id',         'Forge',          'ResultItemId',     ['MaterialItems']],
+      ['FurnitureMakeExcelConfigData',  'ConfigId',   'FurnitureMake',  'FurnitureItemId',  ['MaterialItems']],
+    ];
+
+    const pList: Promise<void>[] = [];
+
+    for (let conf of relationConf) {
+      let [table, idProp, outProp, singleResultProp, materialVecProps] = conf;
+
+      pList.push((async () => {
+        const relations: MaterialRelation[] = await this.knex.select('*').from(`Relation_${table}`)
+          .where({RoleId: id}).then();
+
+        if (relations.length) {
+          const queryIds: number[] = relations.map(rel => rel.RelationId);
+          let rows: any[] = await this.knex.select('*').from(table).whereIn(idProp, queryIds).then(this.commonLoad);
+
+          for (let row of rows) {
+            relations.find(rel => rel.RelationId === row[idProp]).RelationData = row;
+
+            if (singleResultProp) {
+              let outProp = singleResultProp.slice(0, -2); // remove "Id" suffix
+              if (row[singleResultProp]) {
+                if (table === 'FurnitureMakeExcelConfigData') {
+                  row[outProp] = await this.selectFurniture(row[singleResultProp]);
+                } else {
+                  row[outProp] = await this.selectMaterialExcelConfigData(row[singleResultProp], {LoadRelations: false, LoadSourceData: false});
+                }
+                if (table === 'ForgeExcelConfigData' && !row[outProp]) {
+                  row[outProp] = await this.selectWeaponById(row[singleResultProp]);
+                }
+              }
+            }
+            for (let vecProp of materialVecProps) {
+              row[vecProp] = row[vecProp].filter(x => !!x.Id);
+              for (let vecItem of (row[vecProp] as MaterialVecItem[])) {
+                if (vecItem.Id) {
+                  vecItem.Material = await this.selectMaterialExcelConfigData(vecItem.Id, {LoadRelations: false, LoadSourceData: false});
+                }
+              }
+            }
+          }
+        }
+
+        relationMap[outProp] = relations;
+      })());
+    }
+
+    await Promise.all(pList);
+
+    return relationMap;
+  }
+
+
+  private async postProcessMaterial(material: MaterialExcelConfigData, loadConf: MaterialLoadConf): Promise<MaterialExcelConfigData> {
+    if (!material || !loadConf) {
+      return material;
+    }
+    if (loadConf.LoadSourceData) {
       material.SourceData = await this.selectMaterialSourceDataExcelConfigData(material.Id);
     }
+    if (loadConf.LoadRelations) {
+      material.Relations = await this.selectItemRelations(material.Id);
+    }
     return material;
+  }
+
+  async selectMaterialExcelConfigData(id: number, loadConf: MaterialLoadConf = {}): Promise<MaterialExcelConfigData> {
+    return await this.knex.select('*').from('MaterialExcelConfigData')
+      .where({ Id: id }).first().then(this.commonLoadFirst).then(material => this.postProcessMaterial(material, loadConf));
+  }
+
+  async selectMaterialsBySearch(searchText: string, searchFlags: string, loadConf: MaterialLoadConf = {}): Promise<MaterialExcelConfigData[]> {
+    if (!searchText || !searchText.trim()) {
+      return []
+    } else {
+      searchText = searchText.trim();
+    }
+
+    const ids = [];
+
+    if (isInt(searchText)) {
+      ids.push(toInt(searchText));
+    }
+
+    await this.streamTextMapMatchesWithIndex(this.inputLangCode, searchText, 'Material', (id) => {
+      ids.push(id);
+    }, searchFlags);
+
+    const materials: MaterialExcelConfigData[] = await this.knex.select('*').from('MaterialExcelConfigData')
+      .whereIn('Id', ids).then(this.commonLoad);
+    if (Object.values(loadConf).some(bool => !!bool)) {
+      for (let material of materials) {
+        await this.postProcessMaterial(material, loadConf);
+      }
+    }
+    return materials;
+  }
+
+  async selectAllMaterialExcelConfigData(loadConf: MaterialLoadConf = {}): Promise<MaterialExcelConfigData[]> {
+    const materials: MaterialExcelConfigData[] = await this.knex.select('*').from('MaterialExcelConfigData')
+      .then(this.commonLoad);
+    if (Object.values(loadConf).some(bool => !!bool)) {
+      for (let material of materials) {
+        await this.postProcessMaterial(material, loadConf);
+      }
+    }
+    return materials;
   }
 
   async selectRewardExcelConfigData(rewardId: number): Promise<RewardExcelConfigData> {
@@ -1763,14 +1940,52 @@ export class Control {
     return artifact;
   }
 
-  async selectWeaponById(id: number): Promise<WeaponExcelConfigData> {
+  private async postProcessWeapon(weapon: WeaponExcelConfigData, loadConf: WeaponLoadConf): Promise<WeaponExcelConfigData> {
+    if (!weapon || !loadConf) {
+      return weapon;
+    }
+    if (loadConf.LoadRelations) {
+      weapon.Relations = await this.selectItemRelations(weapon.Id);
+    }
+    if (loadConf.LoadReadable && weapon.StoryId) {
+      weapon.Story = await this.selectReadableView(weapon.StoryId, true);
+    }
+    return weapon;
+  }
+
+  async selectWeaponById(id: number, loadConf: WeaponLoadConf = {}): Promise<WeaponExcelConfigData> {
     return await this.knex.select('*').from('WeaponExcelConfigData')
-      .where({Id: id}).first().then(this.commonLoadFirst);
+      .where({Id: id}).first().then(this.commonLoadFirst).then(weapon => this.postProcessWeapon(weapon, loadConf));
+  }
+
+  async selectAllWeapons(): Promise<WeaponExcelConfigData[]> {
+    return await this.knex.select('*').from('WeaponExcelConfigData').then(this.commonLoad);
   }
 
   async selectWeaponByStoryId(storyId: number): Promise<WeaponExcelConfigData> {
     return await this.knex.select('*').from('WeaponExcelConfigData')
       .where({StoryId: storyId}).first().then(this.commonLoadFirst);
+  }
+
+  async selectWeaponsBySearch(searchText: string, searchFlags: string): Promise<WeaponExcelConfigData[]> {
+    if (!searchText || !searchText.trim()) {
+      return []
+    } else {
+      searchText = searchText.trim();
+    }
+
+    const ids = [];
+
+    if (isInt(searchText)) {
+      ids.push(toInt(searchText));
+    }
+
+    await this.streamTextMapMatchesWithIndex(this.inputLangCode, searchText, 'Weapon', (id) => {
+      ids.push(id);
+    }, searchFlags);
+
+    return await this.knex.select('*').from('WeaponExcelConfigData')
+      .whereIn('Id', ids).then(this.commonLoad);
   }
 
   async selectArtifactCodexById(id: number): Promise<ReliquaryCodexExcelConfigData> {
@@ -1799,23 +2014,20 @@ export class Control {
       .where({MaterialId: id}).first().then(this.commonLoadFirst);
   }
 
-  async getReadableTitleMapMatches(langCode: LangCode, searchText: string, flags?: string): Promise<{[id: number]: string}> {
+  async selectReadableViewsByTitle(langCode: LangCode, searchText: string, flags?: string): Promise<number[]> {
     if (isStringBlank(searchText)) {
-      return {};
+      return [];
     }
-    let lines = await grep(searchText, getReadableTitleMapRelPath(langCode), flags);
-    let out = {};
-    for (let line of lines) {
-      let parts = /^"(\d+)":\s+"(.*)",?$/.exec(line);
-      let textMapId = toInt(parts[1]);
-      out[textMapId] = getTextMapItem(langCode, textMapId);
-    }
-    return out;
+    let ids = [];
+    await this.streamTextMapMatchesWithIndex(langCode, searchText, 'Readable', (id, textMapHash) => {
+      ids.push(id);
+    }, flags);
+    return ids;
   }
 
   async searchReadableView(searchText: string): Promise<ReadableSearchView> {
     const files = await this.getReadableMatches(this.inputLangCode, searchText, this.searchModeFlags);
-    const titles = await this.getReadableTitleMapMatches(this.inputLangCode, searchText, this.searchModeFlags);
+    const titleMatchViewIds = await this.selectReadableViewsByTitle(this.inputLangCode, searchText, this.searchModeFlags);
     const ret: ReadableSearchView = { ContentResults: [], TitleResults: [] }
 
     if (files.length) {
@@ -1839,8 +2051,8 @@ export class Control {
       });
     }
 
-    if (Object.keys(titles).length) {
-      ret.TitleResults = await Object.keys(titles).asyncMap(async id => await this.selectReadableView(toInt(id), false));
+    if (titleMatchViewIds.length) {
+      ret.TitleResults = await titleMatchViewIds.asyncMap(async id => await this.selectReadableView(id, false));
     }
 
     return ret;

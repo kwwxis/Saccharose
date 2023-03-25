@@ -1,11 +1,17 @@
 <% if (locals.material) { %>
   <section class="card">
-    <h2><%= material.NameText %></h2>
+    <h2>
+      <span class="dispBlock" style="margin-top:-5px"><a role="button" class="secondary fontWeight600" style="font-size:14px;padding:3px 8px" href="/items">Back to items search</a></span>
+      <span class="valign spacer10-top">
+        <img class="framed-icon x36" src="/images/genshin/<%= material.Icon ;%>.png" loading="lazy" decoding="async" />
+        <span class="spacer15-left"><%= material.NameText ;%></span>
+      </span>
+    </h2>
     <div class="content">
       <table class="article-table">
         <tr>
           <td style="width:150px" class="bold">Name</td>
-          <td><%= normText(material.NameText) %></td>
+          <td><%= normText(material.NameText) ;%></td>
         </tr>
         <tr>
           <td class="bold">Description</td>
@@ -14,28 +20,122 @@
         <tr>
           <td class="bold">Quality</td>
           <td>
-            <div class="valign"><code class="spacer10-right"><%= material.RankLevel %></code> <%- include('partials/util/stars', { quality: material.RankLevel }) %></div>
+            <div class="valign">
+              <code class="spacer10-right"><%= material.RankLevel ;%></code>
+              <%- include('partials/util/stars', { quality: material.RankLevel }) %>
+            </div>
           </td>
         </tr>
         <tr>
           <td class="bold">Icon</td>
-          <td><img src="/images/genshin/<%= material.Icon %>.png" style="max-height:74px" loading="lazy" decoding="async" /></td>
-        </tr>
-        <tr>
-          <td class="bold">Material Type</td>
-          <td><code><%= material.MaterialType %></code></td>
+          <td><img src="/images/genshin/<%= material.Icon ;%>.png" style="max-height:74px" loading="lazy"
+                   decoding="async" /></td>
         </tr>
         <tr>
           <td class="bold">Item Type</td>
-          <td><code><%= material.ItemType %></code></td>
+          <td><code><%= material.ItemType ;%></code></td>
+        </tr>
+        <tr>
+          <td class="bold">Material Type</td>
+          <td><code><%= material.MaterialType ;%></code></td>
         </tr>
       </table>
     </div>
   </section>
+  <% if (material.Relations.Combine?.length) { %>
+    <section class="card">
+      <h2>Crafting</h2>
+      <% for (let relation of material.Relations.Combine) { %>
+        <div class="content alignStart">
+          <% for (let inputItem of relation.RelationData.MaterialItems) { %>
+            <%- include('partials/archive/item', { material: inputItem.Material, itemCount: inputItem.Count }) %>
+          <% } %>
+          <div class="material-sep"><%- icon('chevron-right', 28); %></div>
+          <% if (relation.RelationData.ResultItem) { %>
+            <%- include('partials/archive/item', { material: relation.RelationData.ResultItem, itemCount: relation.RelationData.ResultItemCount }) %>
+          <% }%>
+        </div>
+        <hr>
+      <% } %>
+    </section>
+  <% } %>
+  <% if (material.Relations.Compound?.length) { %>
+    <section class="card">
+      <h2>Processing</h2>
+      <% for (let relation of material.Relations.Compound) { %>
+        <div class="content alignStart">
+          <% for (let inputItem of relation.RelationData.InputVec) { %>
+            <%- include('partials/archive/item', { material: inputItem.Material, itemCount: inputItem.Count }) %>
+          <% } %>
+          <div class="material-sep"><%- icon('chevron-right', 28); %></div>
+          <% for (let inputItem of relation.RelationData.OutputVec) { %>
+            <%- include('partials/archive/item', { material: inputItem.Material, itemCount: inputItem.Count }) %>
+          <% } %>
+        </div>
+        <hr>
+      <% } %>
+    </section>
+  <% } %>
+  <% if (material.Relations.CookRecipe?.length) { %>
+    <section class="card">
+      <h2>Cooking</h2>
+      <% for (let relation of material.Relations.CookRecipe) { %>
+        <div class="content alignStart">
+          <% for (let inputItem of relation.RelationData.InputVec) { %>
+            <%- include('partials/archive/item', { material: inputItem.Material, itemCount: inputItem.Count }) %>
+          <% } %>
+          <div class="material-sep"><%- icon('chevron-right', 28); %></div>
+          <% for (let inputItem of relation.RelationData.QualityOutputVec) { %>
+            <%- include('partials/archive/item', { material: inputItem.Material, itemCount: inputItem.Count }) %>
+          <% } %>
+        </div>
+        <hr>
+      <% } %>
+    </section>
+  <% } %>
+  <% if (material.Relations.Forge?.length) { %>
+    <section class="card">
+      <h2>Forging</h2>
+      <% for (let relation of material.Relations.Forge) { %>
+        <div class="content alignStart">
+          <% for (let inputItem of relation.RelationData.MaterialItems) { %>
+            <%- include('partials/archive/item', { material: inputItem.Material, itemCount: inputItem.Count }) %>
+          <% } %>
+          <div class="material-sep"><%- icon('chevron-right', 28); %></div>
+          <% if (relation.RelationData.ResultItem) { %>
+            <%- include('partials/archive/item', { material: relation.RelationData.ResultItem, itemCount: relation.RelationData.ResultItemCount }) %>
+          <% } %>
+        </div>
+        <hr>
+      <% } %>
+    </section>
+  <% } %>
+  <% if (locals.ol) { %>
+    <section class="card">
+      <h2 class="valign">
+        <span>OL</span>
+        <span class="grow"></span>
+        <button class="secondary small" ui-action="copy: #ol"
+                ui-tippy-hover="Click to copy to clipboard"
+                ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">Copy</button>
+      </h2>
+      <div class="content">
+        <textarea id="ol" readonly class="w100p wikitext autosize" spellcheck="false" translate="no"><%= ol.result %></textarea>
+      </div>
+    </section>
+  <% } %>
   <section class="card">
-    <h2>Raw JSON</h2>
-    <div class="content">
-      <textarea class="code json w100p autosize" spellcheck="false" translate="no"><%= JSON.stringify(material, null, 2) %></textarea>
+    <h2 class="valign">
+      <span>Raw JSON</span>
+      <span class="grow"></span>
+      <button class="secondary" ui-action="toggle: #json-outer">
+        <span class="inactive-only">Show</span>
+        <span class="active-only">Hide</span>
+      </button>
+    </h2>
+    <div id="json-outer" class="content hide">
+      <textarea class="code json w100p autosize" spellcheck="false"
+                translate="no"><%= JSON.stringify(material, null, 2) ;%></textarea>
     </div>
   </section>
 <% } else { %>

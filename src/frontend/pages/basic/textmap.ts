@@ -4,7 +4,7 @@ import { GenericSearchPageHandle, startGenericSearchPageListeners } from '../gen
 import { toInt } from '../../../shared/util/numberUtil';
 import { frag } from '../../util/domutil';
 
-pageMatch('pages/basic/text-map-expand', () => {
+pageMatch('pages/basic/textmap', () => {
   let handle: GenericSearchPageHandle;
 
   startGenericSearchPageListeners({

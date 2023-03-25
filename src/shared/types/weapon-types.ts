@@ -1,4 +1,9 @@
+import { ItemRelationMap } from './material-types';
+import { ReadableView } from './readable-types';
+
 export type WeaponType = 'WEAPON_BOW' | 'WEAPON_CATALYST' | 'WEAPON_CLAYMORE' | 'WEAPON_POLE' | 'WEAPON_SWORD_ONE_HAND';
+
+export type WeaponLoadConf = { LoadRelations?: boolean, LoadReadable?: boolean };
 
 export interface WeaponExcelConfigData {
   WeaponType: WeaponType,
@@ -11,6 +16,7 @@ export interface WeaponExcelConfigData {
   AwakenIcon: string,
   WeaponPromoteId: number,
   StoryId: number,
+  Story?: ReadableView,
   GachaCardNameHash: string,
   DestroyRule?: 'DESTROY_RETURN_MATERIAL',
   DestroyReturnMaterial: number[],
@@ -30,6 +36,7 @@ export interface WeaponExcelConfigData {
   AwakenMaterial: number,
   EnhanceRule: number,
   UnRotate: boolean,
+  Relations?: ItemRelationMap,
 }
 
 export interface WeaponCodexExcelConfigData {

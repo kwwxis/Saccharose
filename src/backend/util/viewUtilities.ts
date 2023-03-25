@@ -1,15 +1,35 @@
-import feather from 'feather-icons';
+import feather, { FeatherAttributes, FeatherIconNames } from 'feather-icons';
 import createHtmlElement from 'create-html-element';
 import { isUnset } from '../../shared/util/genericUtil';
 import { SPRITE_TAGS } from '../scripts/textmap';
 import { escapeHtmlAllowEntities } from '../../shared/util/stringUtil';
 
-export function icon(iconName: string, size?: number, props: any = {}): string {
+export function icon(iconName: string, size: number);
+export function icon(iconName: string, props: Partial<FeatherAttributes>);
+export function icon(iconName: string, size: number, props: Partial<FeatherAttributes>);
+export function icon(iconName: string, props: Partial<FeatherAttributes>, size: number);
+
+export function icon(iconName: FeatherIconNames, sizeOrProps?: number|Partial<FeatherAttributes>, propsOrSize?: number|Partial<FeatherAttributes>): string {
+  let size: number = undefined;
+  let props: Partial<FeatherAttributes> = {};
+
+  if (typeof sizeOrProps === 'number') size = sizeOrProps;
+  if (typeof propsOrSize === 'number') size = propsOrSize;
+
+  if (typeof sizeOrProps === 'object') props = sizeOrProps;
+  if (typeof propsOrSize === 'object') props = propsOrSize;
+
   props.class = props.class ? (props.class = 'icon ' + props.class) : 'icon';
   if (size) {
     props.width = size;
     props.height = size;
   }
+  if ((<any> props).size) {
+    props.width = (<any> props).size;
+    props.height = (<any> props).size;
+    delete (<any> props).size;
+  }
+
   return feather.icons[iconName].toSvg(props);
 }
 

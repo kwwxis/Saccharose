@@ -136,40 +136,40 @@ You'll need to repeat this step after every new Genshin Impact version.
 
     * And also the `BinOutput/Voice/Items` folder. None of the other folders in BinOutput are needed.
 
-2.  **Run import_normalize**
+2.  **Run import_files (normalize)**
     
-    * Run with: `ts-node ./src/backend/scripts/import_normalize.ts`.
+    * Run with: `ts-node ./src/backend/scripts/import_files.ts --normalize`.
 
-3.  **Run import_run**
+3.  **Run import_db**
    
     * This will create or modify a file called`genshin_data.db` in your `GENSHIN_DATA_ROOT` folder.
       This file is a sqlite database.
    
-    * Run with: `ts-node ./src/backend/importer/import_run.ts`.
+    * Run with: `ts-node ./src/backend/importer/import_db.ts`.
         * Use the `--help` flag to see your options.
         * You can use `--run-all` to first time you run it.
         * Other options such as `--run-only` can regenerate specific tables on the existing database.
    
-4.  **Run import_voice**
+4.  **Run import_files (voice)**
    
     * This will create or overwrite a file called `voiceItemsNormalized.json` in
       your `GENSHIN_DATA_ROOT` folder.
 
-    * Run with: `ts-node ./src/backend/importer/import_voice.ts`.
-    
-5.  **Run import_readableTitleMap**
+    * Run with: `ts-node ./src/backend/importer/import_voice.ts --voice`.
 
-    * This will create a new folder called TitleMap at `{GENSHIN_DATA_ROOT}/Readable/TitleMap` and will fill
-      this folder with files called `ReadableTitleMap<LangCode>.json` for each language code.
-
-    * Run with: `ts-node ./src/backend/importer/import_readableTitleMap.ts`.
-
-6.  **Run import_plainTitleMap**
+5.  **Run import_files (plaintext)**
     
     * This will create a new folder called Plain at `{GENSHIN_DATA_ROOT}/TextMap/Plain` and will fill
       this folder with files called `PlainTextMap<LangCode>.json` for each language code.
     
-    * Run with: `ts-node ./src/backend/importer/import_plainTitleMap.ts`.
+    * Run with: `ts-node ./src/backend/importer/import_files.ts --plaintext`.
+
+6.  **Run import_files (index)**
+    
+    * This will create a new folder called Index at `{GENSHIN_DATA_ROOT}/TextMap/Index` and will fill
+      this folder with files called `TextIndex_<Name>.json` for various entities.
+    
+    * Run with: `ts-node ./src/backend/importer/import_files.ts --index`.
     
 ## Development
 

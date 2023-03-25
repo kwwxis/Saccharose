@@ -165,6 +165,9 @@ export const endpoints = {
   getFetters: new SaccharoseApiEndpoint<{avatarId: number}, CharacterFetters>('/character/fetters'),
 
   searchReadables: new SaccharoseApiEndpoint<{text: string}>('/readables/search'),
+
+  searchItems: new SaccharoseApiEndpoint<{text: string}>('/items/search'),
+  searchWeapons: new SaccharoseApiEndpoint<{text: string}>('/weapons/search'),
 };
 
 (<any> window).endpoints = endpoints;
