@@ -95,7 +95,11 @@ export async function appInit(): Promise<Express> {
     return new Date().toLocaleString('en-US', {timeZone: 'America/Los_Angeles'});
   });
 
-  app.use(morgan('[:date[web] PST] :method :url :status :response-time ms - :res[content-length]', {
+  morgan.token('url', (req: Request) => decodeURI(req.originalUrl || req.url));
+  morgan.token('inputLanguage', (req: Request) => req.cookies['inputLangCode'] || 'EN');
+  morgan.token('outputLanguage', (req: Request) => req.cookies['outputLangCode'] || 'EN');
+
+  app.use(morgan('[:date[web] PST] [:inputLanguage::outputLanguage] :status :method :url (:response-time ms)', {
     skip: function(req: Request, res: Response) {
       return res.statusCode === 304 || logSkipRegex.test(req.url);
     }
