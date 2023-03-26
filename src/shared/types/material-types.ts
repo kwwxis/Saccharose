@@ -153,6 +153,7 @@ export interface MaterialExcelConfigData {
   DestroyRule?: string, // DESTROY_RETURN_MATERIAL
   DestroyReturnMaterial?: any[],
   DestroyReturnMaterialCount?: any[],
+  PicPath?: string[],
   ItemUse?: {
     UseOp: MaterialItemUseOp,
     UseParam: string[],

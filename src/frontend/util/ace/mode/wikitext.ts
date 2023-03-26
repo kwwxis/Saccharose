@@ -434,6 +434,11 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
             return 'wikitext.nowiki.nowiki-close';
           }
         },
+        {
+          regex: /^$/,
+          token: 'wikitext.nowiki.nowiki-text.nowiki-empty-line',
+          allowEmptyToken: true
+        },
         { defaultToken: 'wikitext.nowiki.nowiki-text' }
       ],
       wt_pre: [

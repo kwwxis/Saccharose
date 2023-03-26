@@ -3,15 +3,15 @@
     <h2>
       <span class="dispBlock" style="margin-top:-5px"><a role="button" class="secondary fontWeight600" style="font-size:14px;padding:3px 8px" href="/weapons">Back to weapons search</a></span>
       <span class="valign spacer10-top">
-        <img class="framed-icon x36" src="/images/genshin/<%= weapon.Icon ;%>.png" loading="lazy" decoding="async" />
-        <span class="spacer15-left"><%= weapon.NameText ;%></span>
+        <img class="framed-icon x36" src="/images/genshin/<%= weapon.Icon %>.png" loading="lazy" decoding="async" />
+        <span class="spacer15-left"><%= weapon.NameText %></span>
       </span>
     </h2>
     <div class="content">
       <table class="article-table">
         <tr>
           <td style="width:150px" class="bold">Name</td>
-          <td><%= normText(weapon.NameText) ;%></td>
+          <td><%= normText(weapon.NameText) %></td>
         </tr>
         <tr>
           <td class="bold">Description</td>
@@ -21,7 +21,7 @@
           <td class="bold">Quality</td>
           <td>
             <div class="valign">
-              <code class="spacer10-right"><%= weapon.RankLevel ;%></code>
+              <code class="spacer10-right"><%= weapon.RankLevel %></code>
               <%- include('partials/util/stars', { quality: weapon.RankLevel }) %>
             </div>
           </td>
@@ -29,7 +29,7 @@
         <tr>
           <td class="bold">Icon</td>
           <td>
-            <img src="/images/genshin/<%= weapon.Icon ;%>.png" style="max-height:74px" loading="lazy"
+            <img src="/images/genshin/<%= weapon.Icon %>.png" style="max-height:74px" loading="lazy"
                    decoding="async" />
           </td>
         </tr>
@@ -37,18 +37,18 @@
           <tr>
             <td class="bold">2nd Ascension Icon</td>
             <td>
-              <img src="/images/genshin/<%= weapon.AwakenIcon ;%>.png" style="max-height:74px" loading="lazy"
+              <img src="/images/genshin/<%= weapon.AwakenIcon %>.png" style="max-height:74px" loading="lazy"
                    decoding="async" />
             </td>
           </tr>
         <% } %>
         <tr>
           <td class="bold">Item Type</td>
-          <td><code><%= weapon.ItemType ;%></code></td>
+          <td><code><%= weapon.ItemType %></code></td>
         </tr>
         <tr>
           <td class="bold">Weapon Type</td>
-          <td><code><%= weapon.WeaponType ;%></code></td>
+          <td><code><%= weapon.WeaponType %></code></td>
         </tr>
       </table>
     </div>
@@ -75,7 +75,7 @@
       <h2 class="valign">
         <span>Story</span>
         <span class="grow"></span>
-        <a class="valign fontWeight500" href="/readables/item/<%= weapon.StoryId %>" style="font-size:18px">
+        <a class="valign fontWeight500" href="/readables/item/<%= weapon.StoryId %>" style="font-size:18px" target="_blank">
           <span class="spacer5-right">Document</span><%- icon('external-link', 16) %>
         </a>
       </h2>
@@ -107,7 +107,7 @@
     </h2>
     <div id="json-outer" class="content hide">
       <textarea class="code json w100p autosize" spellcheck="false"
-                translate="no"><%= JSON.stringify(weapon, null, 2) ;%></textarea>
+                translate="no"><%= JSON.stringify(weapon, null, 2) %></textarea>
     </div>
   </section>
 <% } else { %>

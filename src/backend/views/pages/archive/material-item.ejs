@@ -3,15 +3,15 @@
     <h2>
       <span class="dispBlock" style="margin-top:-5px"><a role="button" class="secondary fontWeight600" style="font-size:14px;padding:3px 8px" href="/items">Back to items search</a></span>
       <span class="valign spacer10-top">
-        <img class="framed-icon x36" src="/images/genshin/<%= material.Icon ;%>.png" loading="lazy" decoding="async" />
-        <span class="spacer15-left"><%= material.NameText ;%></span>
+        <img class="framed-icon x36" src="/images/genshin/<%= material.Icon %>.png" loading="lazy" decoding="async" />
+        <span class="spacer15-left"><%= material.NameText %></span>
       </span>
     </h2>
     <div class="content">
       <table class="article-table">
         <tr>
           <td style="width:150px" class="bold">Name</td>
-          <td><%= normText(material.NameText) ;%></td>
+          <td><%= normText(material.NameText) %></td>
         </tr>
         <tr>
           <td class="bold">Description</td>
@@ -21,23 +21,36 @@
           <td class="bold">Quality</td>
           <td>
             <div class="valign">
-              <code class="spacer10-right"><%= material.RankLevel ;%></code>
+              <code class="spacer10-right"><%= material.RankLevel %></code>
               <%- include('partials/util/stars', { quality: material.RankLevel }) %>
             </div>
           </td>
         </tr>
         <tr>
           <td class="bold">Icon</td>
-          <td><img src="/images/genshin/<%= material.Icon ;%>.png" style="max-height:74px" loading="lazy"
+          <td><img src="/images/genshin/<%= material.Icon %>.png" style="max-height:74px" loading="lazy"
                    decoding="async" /></td>
         </tr>
+        <% if (material.PicPath) { %>
+          <tr>
+            <td class="bold">Other Images</td>
+            <td>
+              <% for (let pic of material.PicPath) { %>
+                <div>
+                  <img src="/images/genshin/<%= pic %>.png" style="max-height:74px" loading="lazy"
+                       decoding="async" />
+                </div>
+              <% } %>
+            </td>
+          </tr>
+        <% } %>
         <tr>
           <td class="bold">Item Type</td>
-          <td><code><%= material.ItemType ;%></code></td>
+          <td><code><%= material.ItemType %></code></td>
         </tr>
         <tr>
           <td class="bold">Material Type</td>
-          <td><code><%= material.MaterialType ;%></code></td>
+          <td><code><%= material.MaterialType %></code></td>
         </tr>
       </table>
     </div>
@@ -135,7 +148,7 @@
     </h2>
     <div id="json-outer" class="content hide">
       <textarea class="code json w100p autosize" spellcheck="false"
-                translate="no"><%= JSON.stringify(material, null, 2) ;%></textarea>
+                translate="no"><%= JSON.stringify(material, null, 2) %></textarea>
     </div>
   </section>
 <% } else { %>
