@@ -6,21 +6,21 @@ import cookieParser from 'cookie-parser';
 import useragent from 'express-useragent';
 import helmet from 'helmet';
 import { openKnex } from './util/db';
-import morgan from 'morgan';
 import { Request, Response } from './util/router';
 import sessions from './middleware/sessions';
 import appBaseRouter from './controllers/AppBaseRouter';
 import apiBaseRouter from './controllers/ApiBaseRouter';
 import { loadTextMaps, loadVoiceItems, loadQuestSummarization, loadSpriteTags } from './scripts/textmap';
 import { isStringNotBlank } from '../shared/util/stringUtil';
-import rateLimit from 'express-rate-limit';
 import requestIp from 'request-ip';
-import jsonResponse from './middleware/jsonResponse';
-import antiBots from './middleware/antiBots';
-import defaultResponseHeaders from './middleware/defaultResponseHeaders';
+import jsonResponse from './middleware/response/jsonResponse';
+import antiBots from './middleware/request/antiBots';
+import rateLimiter from './middleware/request/rateLimiter';
+import accessLogging from './middleware/request/accessLogging';
+import defaultResponseHeaders from './middleware/response/defaultResponseHeaders';
 import { PUBLIC_DIR, VIEWS_ROOT } from './loadenv';
-import { csrfMiddleware } from './middleware/csrf';
-import { pageLoadErrorHandler } from './middleware/globalErrorHandler';
+import { csrfMiddleware } from './middleware/request/csrf';
+import { pageLoadErrorHandler } from './middleware/response/globalErrorHandler';
 
 const app: Express = express();
 let didInit: boolean = false;
@@ -43,12 +43,7 @@ export async function appInit(): Promise<Express> {
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~
   console.log(`[Init] Opening sqlite database and loading Genshin data resources`);
   openKnex();
-  if (isStringNotBlank(process.env.TEXTMAP_LANG_CODES)) {
-    const textMapLangCodes: string[] = process.env.TEXTMAP_LANG_CODES.split(',');
-    await loadTextMaps(textMapLangCodes);
-  } else {
-    await loadTextMaps();
-  }
+  await loadTextMaps(process.env.TEXTMAP_LANG_CODES);
   await loadVoiceItems();
   await loadQuestSummarization();
   await loadSpriteTags();
@@ -57,7 +52,7 @@ export async function appInit(): Promise<Express> {
   // ~~~~~~~~~~~~~~~~~~~~~~~~
   app.use(express.static(PUBLIC_DIR));
   if (isStringNotBlank(process.env.EXT_PUBLIC_DIR)) {
-    console.log('[Init] Serving EXT_PUBLIC_DIR directory');
+    console.log('[Init] Serving external public directory');
     app.use(express.static(process.env.EXT_PUBLIC_DIR));
   }
 
@@ -68,55 +63,29 @@ export async function appInit(): Promise<Express> {
 
   // Middleware for requests
   // ~~~~~~~~~~~~~~~~~~~~~~~
-  const rateLimitSkipRegex: RegExp = /\.css|\.js|\.png|\.svg|\.ico|\.jpg|\.woff|\.env/g;
-
   console.log(`[Init] Adding middleware for incoming requests`);
-  app.use(antiBots);
-  app.use(cookieParser(process.env.SESSION_SECRET)); // parses cookies
-  app.use(useragent.express()); // parses user-agent header
-  app.use(express.urlencoded({extended: true})); // parses url-encoded POST/PUT bodies
-  app.use(requestIp.mw()); // enable request-ip
-  app.use(rateLimit({
-    windowMs: 60 * 1000, // 1 minute
-    max: 30, // limit each IP to 30 requests per windowMs
-    keyGenerator: (req: Request, _res: Response) => {
-      return req.clientIp // IP address from requestIp.mw(), as opposed to req.ip
-    },
-    skip: (req: Request, _res: Response) => {
-      return rateLimitSkipRegex.test(req.url);
-    }
-  }));
-
-  // Middleware for logging
-  // ~~~~~~~~~~~~~~~~~~~~~~
-  const logSkipRegex: RegExp = /\.css|\.js|\.png|\.svg|\.ico|\.jpg|\.woff|\.env/g;
-
-  morgan.token('date', function(){
-    return new Date().toLocaleString('en-US', {timeZone: 'America/Los_Angeles'});
-  });
-
-  morgan.token('url', (req: Request) => decodeURI(req.originalUrl || req.url));
-  morgan.token('inputLanguage', (req: Request) => req.cookies['inputLangCode'] || 'EN');
-  morgan.token('outputLanguage', (req: Request) => req.cookies['outputLangCode'] || 'EN');
-
-  app.use(morgan('[:date[web] PST] [:inputLanguage::outputLanguage] :status :method :url (:response-time ms)', {
-    skip: function(req: Request, res: Response) {
-      return res.statusCode === 304 || logSkipRegex.test(req.url);
-    }
-  }));
+  app.use(antiBots);                                        // rejects bot-like requests
+  app.use(cookieParser(process.env.SESSION_SECRET));        // parses cookies
+  app.use(useragent.express());                             // parses user-agent header
+  app.use(express.urlencoded({extended: true}));     // parses url-encoded POST/PUT bodies
+  app.use(requestIp.mw());                                  // enable request-ip
+  app.use(rateLimiter);                                     // rate-limits requests
+  app.use(accessLogging);                                   // access logging
 
   // Middleware for responses
   // ~~~~~~~~~~~~~~~~~~~~~~~~
   console.log(`[Init] Adding middleware for outgoing responses`);
-  app.use(compression()); // payload compression
-  app.use(helmet({ // security-related headers
-    contentSecurityPolicy: false, // CSP header is set in base router
+  app.use(compression());                                   // payload compression
+  app.use(helmet({                                   // security-related headers
+    contentSecurityPolicy: false,                           // CSP header is set in base router
     crossOriginEmbedderPolicy: false,
-    hsts: false, // HSTS header is set in defaultResponseHeaders
+    hsts: false,                                            // HSTS header is set in defaultResponseHeaders
   }));
-  app.use(helmet.referrerPolicy({ policy: 'same-origin' })); // referrer policy header
-  app.use(jsonResponse)
-  app.use(defaultResponseHeaders); // Add default response headers
+  app.use(helmet.referrerPolicy({                    // referrer policy header
+    policy: 'same-origin'
+  }));
+  app.use(jsonResponse);                                    // JSON response field masking
+  app.use(defaultResponseHeaders);                          // Add default response headers
 
   // Load API router
   // ~~~~~~~~~~~~~~~

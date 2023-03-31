@@ -10,31 +10,35 @@
     <div class="content">
       <table class="article-table">
         <tr>
-          <td style="width:150px" class="bold">Name</td>
-          <td><%= normText(material.NameText) %></td>
-        </tr>
-        <tr>
-          <td class="bold">Description</td>
-          <td><%- include('partials/util/wikitext', {content: normText(material.DescText), seamless: true}) %></td>
-        </tr>
-        <tr>
-          <td class="bold">Quality</td>
-          <td>
-            <div class="valign">
-              <code class="spacer10-right"><%= material.RankLevel %></code>
-              <%- include('partials/util/stars', { quality: material.RankLevel }) %>
+          <td style="width:150px" class="bold">ID</td>
+          <td><%= String(material.Id).padStart(6, '0') %></td>
+          <td rowspan="2" style="width:100px">
+            <div class="fr">
+              <%- use('partials/archive/item', {material: material, disableName: true, noText: true, noLink: true}) %>
             </div>
           </td>
         </tr>
         <tr>
-          <td class="bold">Icon</td>
-          <td><img src="/images/genshin/<%= material.Icon %>.png" style="max-height:74px" loading="lazy"
-                   decoding="async" /></td>
+          <td class="bold">Name</td>
+          <td><%= normText(material.NameText) %></td>
         </tr>
-        <% if (material.PicPath) { %>
+        <tr>
+          <td class="bold">Description</td>
+          <td colspan="2"><%- use('partials/util/wikitext', {content: normText(material.DescText), seamless: true}) %></td>
+        </tr>
+        <tr>
+          <td class="bold">Quality</td>
+          <td colspan="2">
+            <div class="valign">
+              <code class="spacer10-right"><%= material.RankLevel || 0 %></code>
+              <%- include('partials/util/stars', { quality: material.RankLevel || 0 }) %>
+            </div>
+          </td>
+        </tr>
+        <% if (material.PicPath && material.PicPath.length) { %>
           <tr>
             <td class="bold">Other Images</td>
-            <td>
+            <td colspan="2">
               <% for (let pic of material.PicPath) { %>
                 <div>
                   <img src="/images/genshin/<%= pic %>.png" style="max-height:74px" loading="lazy"
@@ -46,11 +50,7 @@
         <% } %>
         <tr>
           <td class="bold">Item Type</td>
-          <td><code><%= material.ItemType %></code></td>
-        </tr>
-        <tr>
-          <td class="bold">Material Type</td>
-          <td><code><%= material.MaterialType %></code></td>
+          <td colspan="2"><code><%= pluralize(material.TypeDescText) %></code></td>
         </tr>
       </table>
     </div>

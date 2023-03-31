@@ -5,8 +5,8 @@ import { getControl } from '../../scripts/script_util';
 import { fetchCharacterStoryByAvatarId } from '../../scripts/character/fetchStoryFetters';
 import { StoryFetters } from '../../../shared/types/fetter-types';
 import { AvatarExcelConfigData } from '../../../shared/types/avatar-types';
-import { getAvatar, getAvatars, getCompanion } from '../../middleware/avatarUtil';
-import { queryTab } from '../../middleware/queryTab';
+import { getAvatar, getAvatars, getCompanion } from '../../middleware/util/avatarUtil';
+import { queryTab } from '../../middleware/util/queryTab';
 
 export default async function(): Promise<Router> {
   const router: Router = create();

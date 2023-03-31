@@ -22,8 +22,12 @@ export const QuestSummary: QuestSummaryMap = {};
 
 // TEXT MAPS
 // ----------------------------------------------------------------------------------------------------\
-export async function loadTextMaps(filterLangCodes?: string[], loadPlainLineMaps: boolean = true): Promise<void> {
+export async function loadTextMaps(filterLangCodes?: string[]|string, loadPlainLineMaps: boolean = true): Promise<void> {
   console.log('[Init] Loading TextMap -- starting...');
+
+  if (typeof filterLangCodes === 'string') {
+    filterLangCodes = filterLangCodes.split(',').map(s => s.trim());
+  }
 
   let promises = [];
   for (let langCode of LANG_CODES) {

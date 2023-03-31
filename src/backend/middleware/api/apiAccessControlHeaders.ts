@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from '../util/router';
+import { NextFunction, Request, Response } from '../../util/router';
 
 export default (req: Request, res: Response, next: NextFunction) => {
   res.header({

@@ -11,7 +11,7 @@ import {
 import { defaultMap } from '../../../shared/util/genericUtil';
 import { isInt, toInt } from '../../../shared/util/numberUtil';
 import { sort } from '../../../shared/util/arrayUtil';
-import { queryTab } from '../../middleware/queryTab';
+import { queryTab } from '../../middleware/util/queryTab';
 
 export default async function(): Promise<Router> {
   const router: Router = create();

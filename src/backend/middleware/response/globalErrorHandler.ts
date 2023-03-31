@@ -1,6 +1,6 @@
-import { NextFunction, Request, Response } from '../util/router';
-import { VIEWS_ROOT } from '../loadenv';
-import { HttpError } from '../../shared/util/httpError';
+import { NextFunction, Request, Response } from '../../util/router';
+import { VIEWS_ROOT } from '../../loadenv';
+import { HttpError } from '../../../shared/util/httpError';
 
 export async function pageLoadErrorHandler(err: any, req: Request, res: Response, next: NextFunction) {
   if (err && typeof err === 'object' && (err.code === 'EBADCSRFTOKEN' || err.type === 'EBADCSRFTOKEN')) {

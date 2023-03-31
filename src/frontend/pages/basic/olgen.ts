@@ -57,8 +57,8 @@ pageMatch('pages/basic/olgen', () => {
     endpoints.generateOL.get({
       text,
       hideTl: tlOptionValue === 'exclude_tl',
-      hideRm: tlOptionValue === 'exclude_tl',
-      addDefaultHidden: rmOptionValue === 'exclude_rm'
+      addDefaultHidden: tlOptionValue === 'exclude_tl',
+      hideRm: rmOptionValue === 'exclude_rm',
     }, true).then(result => {
       document.querySelector('#ol-results-list').innerHTML = result;
       if (!result.includes('no-results-found')) {

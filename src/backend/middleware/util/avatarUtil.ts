@@ -1,14 +1,14 @@
-import { Control } from '../scripts/script_util';
-import { AvatarExcelConfigData } from '../../shared/types/avatar-types';
-import { cached } from '../util/cache';
-import { fetchCharacterStories } from '../scripts/character/fetchStoryFetters';
-import { Request } from '../util/router';
-import { isInt, toInt } from '../../shared/util/numberUtil';
-import { isString } from '../../shared/util/stringUtil';
-import { createLangCodeMap } from '../scripts/textmap';
+import { Control } from '../../scripts/script_util';
+import { AvatarExcelConfigData } from '../../../shared/types/avatar-types';
+import { cached } from '../../util/cache';
+import { fetchCharacterStories } from '../../scripts/character/fetchStoryFetters';
+import { Request } from '../../util/router';
+import { isInt, toInt } from '../../../shared/util/numberUtil';
+import { isString } from '../../../shared/util/stringUtil';
+import { createLangCodeMap } from '../../scripts/textmap';
 import jsonMask from 'json-mask';
-import { HomeWorldNPCExcelConfigData } from '../../shared/types/homeworld-types';
-import { getHomeWorldCompanions } from '../scripts/character/companion_dialogue';
+import { HomeWorldNPCExcelConfigData } from '../../../shared/types/homeworld-types';
+import { getHomeWorldCompanions } from '../../scripts/character/companion_dialogue';
 
 export const avatarMaskProps = 'Id,' +
   'QualityType,' +

@@ -3,7 +3,7 @@
 import fs from 'fs';
 import ejs from 'ejs';
 import path from 'path';
-import availableMethods from '../middleware/availableMethods';
+import availableMethods from '../middleware/api/availableMethods';
 import * as express from 'express';
 import * as expressCore from 'express-serve-static-core';
 import {
@@ -24,6 +24,7 @@ import { EJS_DELIMITER, SITE_TITLE, VIEWS_ROOT } from '../loadenv';
 import { CompareTernary, ternary, toBoolean } from '../../shared/util/genericUtil';
 import { toInt } from '../../shared/util/numberUtil';
 import { Marker } from '../../shared/util/highlightMarker';
+import pluralize from 'pluralize';
 
 //#region Types
 export type IncludeFunction = (view: string, locals?: RequestLocals) => string;
@@ -36,6 +37,7 @@ export type RequestViewStack = {
   subviewName?: string;
   subviewStack?: RequestViewStack;
   include?: IncludeFunction,
+  use?: IncludeFunction,
   [prop: string]: any;
 };
 
@@ -193,6 +195,7 @@ export const DEFAULT_GLOBAL_LOCALS = {
   escapeHtml,
   escapeHtmlAllowEntities,
   spriteTagIconize,
+  pluralize,
   env: process.env,
   toBoolean: toBoolean,
   toInt: toInt,
@@ -211,6 +214,7 @@ function createIncludeFunction(req: Request, viewStackPointer: RequestViewStack)
       viewContent,
       Object.assign({
         include,
+        use: include,
         req,
         hasBodyClass: req.context.hasBodyClass.bind(req.context),
         bodyClassTernary: req.context.bodyClassTernary.bind(req.context),
@@ -267,6 +271,7 @@ export async function updateReqContext(req: Request, res: Response, ctx: Readonl
       req.context.viewStackPointer.subviewName = viewName;
 
       req.context.viewStackPointer.include = createIncludeFunction(req, req.context.viewStackPointer);
+      req.context.viewStackPointer.use = req.context.viewStackPointer.include;
 
       // copy down to child view b/c child views should inherit the locals of the parent view
       req.context.viewStackPointer.subviewStack = Object.assign({}, req.context.viewStackPointer, {

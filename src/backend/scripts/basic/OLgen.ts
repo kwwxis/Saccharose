@@ -51,7 +51,7 @@ function ol_gen_internal(textMapId: number, hideTl: boolean = false, addDefaultH
     template = template.split('\n').filter(s => !s.includes('_rm')).join('\n');
   }
   if (addDefaultHidden) {
-    template = template.replace('{{Other Languages', '{{Other Languages\n|default_hidden = 1');
+    template = template.replace('{{Other Languages', '{{Other Languages|default_hidden=1');
   }
   let olMap: {[code: string]: string} = {};
   for (let langCode of LANG_CODES) {

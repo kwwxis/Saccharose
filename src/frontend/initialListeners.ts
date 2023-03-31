@@ -549,9 +549,14 @@ const initial_listeners: Listener[] = [
                 a.download = actionEl.getAttribute('data-download');
               }
 
+              let div = document.createElement('div');
+
               let img = document.createElement('img');
               img.src = actionEl.getAttribute('data-src');
-              a.append(img);
+              img.style.maxWidth = '100%';
+
+              div.append(img);
+              a.append(div);
 
               actionEl.replaceWith(a);
               break;

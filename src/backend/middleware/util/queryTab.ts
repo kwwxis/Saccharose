@@ -1,4 +1,4 @@
-import { Request } from '../util/router';
+import { Request } from '../../util/router';
 
 export function queryTab(req: Request, defaultTab: string, ... otherTabs: string[]): string {
   const validTabs = new Set([defaultTab, ... otherTabs]);

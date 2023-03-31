@@ -1,26 +1,33 @@
-<section class="card">
-  <h2>Achievements</h2>
-  <div class="content">
-    <fieldset>
-      <legend>Categories</legend>
-      <div class="content alignStretch flexWrap" style="padding-top:0;">
-        <% for (let goal of goals) { %>
-          <div class="w50p">
-            <a role="button" class="spacer5-all secondary valign textAlignLeft"
-               href="/achievements/<%= toParam(goal.NameTextEN) %>">
-              <img class="icon x32" src="/images/genshin/<%= goal.IconPath %>.png" loading="lazy" decoding="async" />
-              <span class="spacer10-left"><%= goal.NameText %></span>
-            </a>
-          </div>
-        <% } %>
-      </div>
-    </fieldset>
-  </div>
-</section>
+<% if (!req.params.category) { %>
+  <section class="card">
+    <h2>Achievements</h2>
+    <div class="content">
+      <fieldset>
+        <legend>Categories</legend>
+        <div class="content alignStretch flexWrap" style="padding-top:0;">
+          <% for (let goal of goals) { %>
+            <div class="w50p">
+              <a role="button" class="spacer5-all secondary valign textAlignLeft"
+                 href="/achievements/<%= toParam(goal.NameTextEN) %>">
+                <img class="icon x32" src="/images/genshin/<%= goal.IconPath %>.png" loading="lazy" decoding="async" />
+                <span class="spacer10-left"><%= goal.NameText %></span>
+              </a>
+            </div>
+          <% } %>
+        </div>
+      </fieldset>
+    </div>
+  </section>
+<% } %>
 <% if (achievements) { %>
   <% for (let section of Object.values(achievements)) { %>
     <section class="card" id="<%= section?.Goal?.NameText?.replace(' ', '_') || 'no_id' %>">
-      <h2><%= section?.Goal?.NameText || 'n/a' %></h2>
+      <h2 class="valign">
+        <img class="framed-icon x42" src="/images/genshin/<%= section?.Goal?.IconPath %>.png" loading="lazy" decoding="async" />
+        <span class="spacer15-left"><%= section?.Goal?.NameText || 'n/a' %></span>
+        <span class="grow"></span>
+        <a href="/achievements" role="button" class="secondary small">Back to categories</a>
+      </h2>
       <div class="content">
         <div class="card result-count-card">
           <h2>Total: <span><%= section.Achievements.length %></span></h2>

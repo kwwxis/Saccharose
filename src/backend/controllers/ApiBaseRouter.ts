@@ -1,12 +1,12 @@
 import bodyParser from 'body-parser';
 import { create, Router, Request, Response } from '../util/router';
-import { apiErrorHandler } from '../middleware/globalErrorHandler';
+import { apiErrorHandler } from '../middleware/response/globalErrorHandler';
 import { CyclicValueReplacer } from '../../shared/util/genericUtil';
 import BasicResources from './api/BasicResources';
 import CharacterResources from './api/CharacterResources';
 import DialogueResources from './api/DialogueResources';
-import apiAccessControlHeaders from '../middleware/apiAccessControlHeaders';
-import apiAuth from '../middleware/apiAuth';
+import apiAccessControlHeaders from '../middleware/api/apiAccessControlHeaders';
+import apiAuth from '../middleware/api/apiAuth';
 import ItemResources from './api/ArchiveResources';
 
 export const ApiCyclicValueReplacer: CyclicValueReplacer = (k: string, v: any) => {
