@@ -128,21 +128,21 @@ export const wordRejoin = (segments: Intl.SegmentData[]): string => {
   return segments.map(s => s.segment).join('');
 }
 
-export const travelerPlaceholder = (langCode: LangCode = 'EN', plaintext: boolean = false) => {
+export const travelerPlaceholder = (langCode: LangCode = 'EN', degender: boolean = false) => {
   switch (langCode) {
     case 'CH': return '(旅行者)';
     case 'CHS': return '(旅行者)';
     case 'CHT': return '(旅行者)';
-    case 'DE': return plaintext ? '(Reisender/Reisende)' : '{{MC|m=Reisender|f=Reisende}}';
+    case 'DE': return degender ? '(Reisender)' : '(Reisender/Reisende)';
     case 'EN': return '(Traveler)';
-    case 'ES': return plaintext ? '(Viajero/Viajera)' : '{{MC|m=Viajero|f=Viajera}}';
-    case 'FR': return plaintext ? '(Voyageur/Voyageuse)' : '{{MC|m=Voyageur|f=Voyageuse}}'
+    case 'ES': return degender ? '(Viajero)' : '(Viajero/Viajera)';
+    case 'FR': return degender ? '(Voyageur)' : '(Voyageur/Voyageuse)';
     case 'ID': return '(Pengembara)';
-    case 'IT': return plaintext ? '(Viaggiatore/Viaggiatrice)' : '{{MC|m=Viaggiatore|f=Viaggiatrice}}';
+    case 'IT': return degender ? '(Viaggiatore)' : '(Viaggiatore/Viaggiatrice)';
     case 'JP': return '(旅人)';
     case 'KR': return '(여행자)';
     case 'PT': return '(Viajante)';
-    case 'RU': return plaintext ? '(Путешественник/Путешественница)' : '{{MC|m=Путешественник|f=Путешественница}}';
+    case 'RU': return degender ? '(Путешественник)' : '(Путешественник/Путешественница)';
     case 'TH': return '(นักเดินทาง)';
     case 'TR': return '(Gezgin)';
     case 'VI': return '(Nhà Lữ Hành)';
@@ -157,7 +157,7 @@ export const normText = (text: string, langCode: LangCode, decolor: boolean = fa
     return text;
   }
   text = text.replace(/—/g, plaintext ? '-' : '&mdash;').trim();
-  text = text.replace(/{NICKNAME}/g, travelerPlaceholder(langCode, plaintext));
+  text = text.replace(/{NICKNAME}/g, travelerPlaceholder(langCode, true));
   text = text.replace(/{NON_BREAK_SPACE}/g, plaintext ? ' ' : '&nbsp;');
   text = text.replace(/\u00A0/g, plaintext ? ' ' : '&nbsp;');
   text = text.replace(/{F#([^}]*)}{M#([^}]*)}/g, plaintext ? '($2/$1)' : '{{MC|m=$2|f=$1}}');

@@ -218,7 +218,7 @@ faster when running `npm run ts-serve:dev`
 * `/dist` - build output for backend (gitignored folder)
 * `/public/dist` - build output for frontend (gitignored folder)
 * `/src/backend` - backend code
-* `/src/frontend` - backend code
+* `/src/frontend` - frontend code
 * `/src/shared` - shared code used by both frontend and backend code. The frontend and backend folders should
   not share code between each other. Any shared code should go in `./src/shared`
   
