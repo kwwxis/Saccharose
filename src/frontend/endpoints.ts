@@ -65,10 +65,10 @@ export class SaccharoseApiEndpoint<T extends Object, R = any> {
     params['output'] = currentUrlParams.get('output');
     params['searchMode'] = currentUrlParams.get('searchMode');
 
-    let realParams = cleanEmpty(params);
-    for (let paramKey of Object.keys(realParams)) {
-      if (typeof realParams[paramKey] === 'boolean') {
-        realParams[paramKey] = realParams[paramKey] ? 'true' : 'false';
+    let cleanedParams = cleanEmpty(params);
+    for (let paramKey of Object.keys(cleanedParams)) {
+      if (typeof cleanedParams[paramKey] === 'boolean') {
+        cleanedParams[paramKey] = cleanedParams[paramKey] ? 'true' : 'false';
       }
     }
 
@@ -76,7 +76,7 @@ export class SaccharoseApiEndpoint<T extends Object, R = any> {
       .request({
         url: this.uri,
         method: method,
-        params: params,
+        params: cleanedParams,
         headers: {
           'Accept': asHTML ? 'text/html' : 'application/json',
           'Content-Type': asHTML ? 'text/html' : 'application/json',
