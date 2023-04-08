@@ -17,14 +17,15 @@ import {
 } from './viewUtilities';
 import { cachedSync } from './cache';
 import crypto from 'crypto';
-import { escapeHtml, escapeHtmlAllowEntities, ltrim, remove_suffix } from '../../shared/util/stringUtil';
+import { escapeHtml, escapeHtmlAllowEntities, ltrim, remove_suffix, sentenceJoin } from '../../shared/util/stringUtil';
 import { getWebpackBundleFileNames, WebpackBundles } from './webpackBundle';
-import { LANG_CODES_TO_NAME } from '../../shared/types/dialogue-types';
+import { DEFAULT_LANG, LANG_CODES, LANG_CODES_TO_NAME, LangCode } from '../../shared/types/dialogue-types';
 import { EJS_DELIMITER, SITE_TITLE, VIEWS_ROOT } from '../loadenv';
 import { CompareTernary, ternary, toBoolean } from '../../shared/util/genericUtil';
 import { toInt } from '../../shared/util/numberUtil';
 import { Marker } from '../../shared/util/highlightMarker';
 import pluralize from 'pluralize';
+import { SEARCH_MODES, SearchMode } from '../scripts/script_util';
 
 //#region Types
 export type IncludeFunction = (view: string, locals?: RequestLocals) => string;
@@ -129,11 +130,29 @@ class RequestContext {
   }
 
   get inputLangCode() {
-    return this._req.cookies['inputLangCode'] || 'EN';
+    return this._req.cookies['inputLangCode'] || DEFAULT_LANG;
   }
 
   get outputLangCode() {
-    return this._req.cookies['outputLangCode'] || 'EN';
+    return this._req.cookies['outputLangCode'] || DEFAULT_LANG;
+  }
+
+  hasQuerySettings() {
+    return this._req.query['input'] || this._req.query['output'] || this._req.query['searchMode'];
+  }
+
+  getQuerySettings(): {prop: string, value: string}[] {
+    let out = [];
+    if (typeof this._req.query['input'] === 'string' && (LANG_CODES as string[]).includes(this._req.query['input'])) {
+      out.push({prop: 'Input Language', value: this._req.query['input']});
+    }
+    if (typeof this._req.query['output'] === 'string' && (LANG_CODES as string[]).includes(this._req.query['output'])) {
+      out.push({prop: 'Output Language', value: this._req.query['output']});
+    }
+    if (typeof this._req.query['searchMode'] === 'string' && (SEARCH_MODES as string[]).includes(this._req.query['searchMode'])) {
+      out.push({prop: 'Search Mode', value: this._req.query['searchMode']});
+    }
+    return out;
   }
 }
 
@@ -201,6 +220,7 @@ export const DEFAULT_GLOBAL_LOCALS = {
   toInt: toInt,
   Marker: Marker,
   toParam: toParam,
+  sentenceJoin,
 };
 
 function createIncludeFunction(req: Request, viewStackPointer: RequestViewStack): IncludeFunction {

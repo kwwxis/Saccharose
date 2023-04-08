@@ -1,4 +1,0 @@
-<div class="toggle-theme-buttons alignStretch button-group">
-  <button class="secondary <%= cookieTernary('nightmode').isFalsy().then('selected') %>" value="daymode"><%- icon('sun') %></button>
-  <button class="secondary <%= cookieTernary('nightmode').isTruthy().then('selected') %>" value="nightmode"><%- icon('moon') %></button>
-</div>

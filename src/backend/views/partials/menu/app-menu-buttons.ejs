@@ -1,0 +1,8 @@
+<div class="app-menu-buttons alignStretch spacer10-right">
+  <div class="toggle-theme-buttons alignStretch button-group spacer5-right">
+    <button class="secondary <%= cookieTernary('nightmode').isFalsy().then('selected') %>" value="daymode"><%- icon('sun') %></button>
+    <button class="secondary <%= cookieTernary('nightmode').isTruthy().then('selected') %>" value="nightmode"><%- icon('moon') %></button>
+  </div>
+  <button class="secondary" ui-tippy-hover="Copy link to page with your language and search settings" ui-action="copy-pref-link"
+          ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"><%- icon('link') %></button>
+</div>

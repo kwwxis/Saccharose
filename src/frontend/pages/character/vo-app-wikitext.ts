@@ -7,7 +7,7 @@ import { mwParse } from '../../../shared/mediawiki/mwParse';
 import { MwTemplateNode } from '../../../shared/mediawiki/mwTypes';
 import Cookies from 'js-cookie';
 import { preloadFromFetters, VoAppPreloadOptions } from './vo-app-preload';
-import { LangCode } from '../../../shared/types/dialogue-types';
+import { DEFAULT_LANG, LangCode } from '../../../shared/types/dialogue-types';
 
 function compareTemplateName(t1: string, t2: string) {
   return t1?.toLowerCase()?.replace(/_/g, ' ') === t2?.toLowerCase()?.replace(/_/g, ' ');
@@ -123,7 +123,7 @@ export function VoAppWikitextEditor(state: VoAppState) {
       return;
     }
     let voLang: LangCode = state.voLang;
-    let userLang: LangCode = (Cookies.get('outputLangCode') || 'EN') as LangCode;
+    let userLang: LangCode = (Cookies.get('outputLangCode') || DEFAULT_LANG) as LangCode;
     let mode: 'story' | 'combat' = null;
     if (requestedMode === 'story') {
       mode = 'story';

@@ -60,12 +60,18 @@ export class SaccharoseApiEndpoint<T extends Object, R = any> {
   request<H extends boolean>(method: Method, params: T, asHTML: H): Promise<H extends true ? string : R>;
 
   request(method: Method, params: T, asHTML: boolean = false): Promise<any> {
-    let rawParams = cleanEmpty(params);
-    for (let paramKey of Object.keys(rawParams)) {
-      if (typeof rawParams[paramKey] === 'boolean') {
-        rawParams[paramKey] = rawParams[paramKey] ? 'true' : 'false';
+    const currentUrlParams = new URLSearchParams(window.location.search);
+    params['input'] = currentUrlParams.get('input');
+    params['output'] = currentUrlParams.get('output');
+    params['searchMode'] = currentUrlParams.get('searchMode');
+
+    let realParams = cleanEmpty(params);
+    for (let paramKey of Object.keys(realParams)) {
+      if (typeof realParams[paramKey] === 'boolean') {
+        realParams[paramKey] = realParams[paramKey] ? 'true' : 'false';
       }
     }
+
     return axios
       .request({
         url: this.uri,

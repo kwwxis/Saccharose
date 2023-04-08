@@ -1,6 +1,6 @@
 import { pageMatch } from '../../pageMatch';
 import './vo-common.scss';
-import { LANG_CODES, LANG_CODES_TO_NAME, LangCode } from '../../../shared/types/dialogue-types';
+import { DEFAULT_LANG, LANG_CODES, LANG_CODES_TO_NAME, LangCode } from '../../../shared/types/dialogue-types';
 import { VoAppWelcome } from './vo-app-welcome';
 import Cookies from 'js-cookie';
 import { VoAppSidebar } from './vo-app-sidebar';
@@ -24,12 +24,12 @@ export class VoAppState {
   constructor() {
     this.avatars = (<any> window).avatars;
     this.avatar = (<any> window).avatar;
-    this.voLang = (Cookies.get('VO-App-LangCode') as LangCode) || 'EN';
-    this.interfaceLang = (Cookies.get('outputLangCode') as LangCode) || 'EN';
+    this.voLang = (Cookies.get('VO-App-LangCode') as LangCode) || DEFAULT_LANG;
+    this.interfaceLang = (Cookies.get('outputLangCode') as LangCode) || DEFAULT_LANG;
     this.eventBus = new EventBus('VO-App-EventBus');
 
     if (!LANG_CODES.includes(this.voLang)) {
-      this.eventBus.emit('VO-Lang-Changed', 'EN');
+      this.eventBus.emit('VO-Lang-Changed', DEFAULT_LANG);
     }
 
     this.init();
@@ -56,7 +56,7 @@ export class VoAppState {
     this.eventBus.on('VO-Lang-Changed', (langCode: LangCode) => {
       console.log('[VO-App] Lang Code Changed:', langCode);
       if (!LANG_CODES.includes(langCode)) {
-        langCode = 'EN';
+        langCode = DEFAULT_LANG;
       }
 
       this.voLang = langCode;

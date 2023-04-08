@@ -136,13 +136,21 @@ async function importPlainTextMap() {
 
     let textmap = getFullTextMap(langCode);
 
-    console.log(chalk.bold.underline('  Normalizing TextMap for ' + langCode));
+    console.log(chalk.bold.underline('Normalizing TextMap for ' + langCode));
     let hashList = [];
     let textList = [];
 
     for (let [hash, text] of Object.entries(textmap)) {
       hashList.push(hash);
       textList.push(normText(text, langCode, true, true).replaceAll(/\r?\n/g, '\\n'));
+
+      if (text.includes('{F#') || text.includes('{M#')) {
+        hashList.push(hash);
+        textList.push(normText(text, langCode, true, true, 'male').replaceAll(/\r?\n/g, '\\n'));
+
+        hashList.push(hash);
+        textList.push(normText(text, langCode, true, true, 'female').replaceAll(/\r?\n/g, '\\n'));
+      }
     }
 
     console.log('  Writing to PlainTextMap_Text.dat');

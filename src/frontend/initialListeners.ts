@@ -16,7 +16,7 @@ import { isInt } from '../shared/util/numberUtil';
 import { escapeHtml, uuidv4 } from '../shared/util/stringUtil';
 import { highlightReplace, highlightWikitextReplace } from './util/ace/wikitextEditor';
 import { GeneralEventBus } from './generalEventBus';
-import { LangCode } from '../shared/types/dialogue-types';
+import { DEFAULT_LANG, LangCode } from '../shared/types/dialogue-types';
 import { languages } from './util/langCodes';
 
 type UiAction = {actionType: string, actionParams: string[]};
@@ -461,6 +461,17 @@ const initial_listeners: Listener[] = [
               for (let key of actionParams) {
                 deleteQueryStringParameter(key);
               }
+              break;
+            }
+            case 'copy-pref-link': {
+              const params = new URLSearchParams(window.location.search);
+
+              params.set('input', Cookies.get('inputLangCode') || DEFAULT_LANG);
+              params.set('output', Cookies.get('outputLangCode') || DEFAULT_LANG);
+              params.set('searchMode', Cookies.get('search-mode') || 'WI');
+
+              const newUrl = `${window.location.protocol}//${window.location.host}${window.location.pathname}?${params.toString()}`;
+              copyToClipboard(newUrl);
               break;
             }
             case 'expando':

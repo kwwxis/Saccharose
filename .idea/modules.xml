@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/genshin-data-explorer.iml" filepath="$PROJECT_DIR$/.idea/genshin-data-explorer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/saccharose.iml" filepath="$PROJECT_DIR$/.idea/saccharose.iml" />
     </modules>
   </component>
 </project>

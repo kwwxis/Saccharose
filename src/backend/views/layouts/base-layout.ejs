@@ -37,7 +37,7 @@
       </div>
       <div class="right">
         <%- include('partials/menu/app-language-selectors') %>
-        <%- include('partials/menu/app-menu-theme-buttons') %>
+        <%- include('partials/menu/app-menu-buttons') %>
         <div id="mobile-menu-trigger" class="alignStretch">
           <button id="mobile-menu-button" ui-action="toggle: 200, #mobile-menu, #mobile-menu-body-cover; toggle-class: body, mobile-menu-open">
             <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"
@@ -57,7 +57,7 @@
     </header>
     <div class="content"><%- include(subviewName, subviewStack) %></div>
     <div id="mobile-menu" class="hide thin-border">
-      <%- include('partials/menu/app-menu-theme-buttons') %>
+      <%- include('partials/menu/app-menu-buttons') %>
       <div class="spacer15-vert">
         <%- include('partials/menu/app-language-selectors') %>
       </div>

@@ -32,8 +32,9 @@ import {
   romanToInt,
 } from '../../shared/util/stringUtil';
 import {
+  DEFAULT_LANG,
   DialogExcelConfigData,
-  LANG_CODE_TO_LOCALE,
+  LANG_CODE_TO_LOCALE, LANG_CODES,
   LangCode,
   ManualTextMapConfigData,
   ReminderExcelConfigData,
@@ -51,10 +52,10 @@ import {
 } from '../../shared/types/quest-types';
 import {
   ADVENTURE_EXP_ID,
+  ItemRelationMap,
   MaterialExcelConfigData,
   MaterialLoadConf,
   MaterialRelation,
-  ItemRelationMap,
   MaterialSourceDataExcelConfigData,
   MaterialVecItem,
   MORA_ID,
@@ -152,7 +153,7 @@ export const travelerPlaceholder = (langCode: LangCode = 'EN', degender: boolean
 
 export type IdUsages = {[fileName: string]: {field: string, lineNumber: number, refObject?: any}[]};
 
-export const normText = (text: string, langCode: LangCode, decolor: boolean = false, plaintext: boolean = false): string => {
+export const normText = (text: string, langCode: LangCode, decolor: boolean = false, plaintext: boolean = false, plaintextMcMode: 'both' | 'male' | 'female' = 'both'): string => {
   if (!text) {
     return text;
   }
@@ -160,11 +161,25 @@ export const normText = (text: string, langCode: LangCode, decolor: boolean = fa
   text = text.replace(/{NICKNAME}/g, travelerPlaceholder(langCode, true));
   text = text.replace(/{NON_BREAK_SPACE}/g, plaintext ? ' ' : '&nbsp;');
   text = text.replace(/\u00A0/g, plaintext ? ' ' : '&nbsp;');
-  text = text.replace(/{F#([^}]*)}{M#([^}]*)}/g, plaintext ? '($2/$1)' : '{{MC|m=$2|f=$1}}');
-  text = text.replace(/{M#([^}]*)}{F#([^}]*)}/g, plaintext ? '($1/$2)' : '{{MC|m=$1|f=$2}}');
   text = text.replace(/<size=[^>]+>(.*?)<\/size>/gs, '$1');
   text = text.replace(/<i>(.*?)<\/i>/gs, plaintext ? '$1' : `''$1''`);
   text = text.replace(/<\/?c\d>/g, '');
+
+  if (plaintext) {
+    if (plaintextMcMode === 'male') {
+      text = text.replace(/{F#([^}]*)}{M#([^}]*)}/g, '$2');
+      text = text.replace(/{M#([^}]*)}{F#([^}]*)}/g, '$1');
+    } else if (plaintextMcMode === 'female') {
+      text = text.replace(/{F#([^}]*)}{M#([^}]*)}/g, '$1');
+      text = text.replace(/{M#([^}]*)}{F#([^}]*)}/g, '$2');
+    } else {
+      text = text.replace(/{F#([^}]*)}{M#([^}]*)}/g, '($2/$1)');
+      text = text.replace(/{M#([^}]*)}{F#([^}]*)}/g, '($1/$2)');
+    }
+  } else {
+    text = text.replace(/{F#([^}]*)}{M#([^}]*)}/g, '{{MC|m=$2|f=$1}}');
+    text = text.replace(/{M#([^}]*)}{F#([^}]*)}/g, '{{MC|m=$1|f=$2}}');
+  }
 
   if (decolor || plaintext) {
     text = text.replace(/<color=#[^>]+>(.*?)<\/color>/gs, '$1');
@@ -197,11 +212,13 @@ export const normText = (text: string, langCode: LangCode, decolor: boolean = fa
   text = text.replace(/\r/g, '');
   text = text.replace(/\\?\\n|\\\n|\n/g, plaintext ? '\n' : '<br />').replace(/<br \/><br \/>/g, '\n\n');
   text = text.replace(/\{REALNAME\[ID\(1\)(\|HOSTONLY\(true\))?]}/g, '(Wanderer)');
-  text = text.replace(/\{SPRITE_PRESET#(\d+)}/g, (fm: string, g1: string) => {
-    let image = SPRITE_TAGS[parseInt(g1)].Image;
-    image = image.split('/').pop();
-    return '{{Sprite|' + image + '}}';
-  });
+  if (!plaintext) {
+    text = text.replace(/\{SPRITE_PRESET#(\d+)}/g, (fm: string, g1: string) => {
+      let image = SPRITE_TAGS[parseInt(g1)].Image;
+      image = image.split('/').pop();
+      return '{{Sprite|' + image + '}}';
+    });
+  }
 
   if (text.includes('RUBY#[')) {
     text = convertRubi(text);
@@ -211,7 +228,7 @@ export const normText = (text: string, langCode: LangCode, decolor: boolean = fa
     text = text.slice(1);
   }
 
-  if (langCode && text.includes('{{MC')) {
+  if (langCode && !plaintext && text.includes('{{MC')) {
     const mcParts = [];
 
     const textForWordSplit = text.replaceAll(/\{\{MC\|.*?}}/g, s => {
@@ -231,11 +248,7 @@ export const normText = (text: string, langCode: LangCode, decolor: boolean = fa
             femaleText = femaleText.slice(0, -2);
             suffix = `'s`;
           }
-          if (plaintext) {
-            return `(${before}${maleText}${after}/${before}${femaleText}${after})${suffix}`;
-          } else {
-            return `{{MC|m=${before}${maleText}${after}|f=${before}${femaleText}${after}}}${suffix}`;
-          }
+          return `{{MC|m=${before}${maleText}${after}|f=${before}${femaleText}${after}}}${suffix}`;
         });
       }
 
@@ -256,10 +269,9 @@ export const normText = (text: string, langCode: LangCode, decolor: boolean = fa
   return text;
 }
 
-const DEFAULT_LANG: LangCode = 'EN';
-const DEFAULT_SEARCH_MODE: SearchMode = 'WI';
-
 export type SearchMode = 'W' | 'WI' | 'C' | 'CI' | 'R' | 'RI';
+export const SEARCH_MODES: SearchMode[] = ['W', 'WI', 'C', 'CI', 'R', 'RI'];
+const DEFAULT_SEARCH_MODE: SearchMode = 'WI';
 
 export function simpleSeqSearch<T>(array: T[], searchText: string, searchMode: SearchMode, fieldFilter: RegExp = /Text$|Id$/): T[] {
   const testVal = (val: any): boolean => {
@@ -327,15 +339,33 @@ export class ControlState {
   ExcludeOrphanedDialogue: boolean = false;
 
   get inputLangCode(): LangCode {
-    return this.Request ? this.Request.cookies['inputLangCode'] || DEFAULT_LANG : DEFAULT_LANG;
+    if (this.Request) {
+      if (typeof this.Request.query['input'] === 'string' && (LANG_CODES as string[]).includes(this.Request.query['input'])) {
+        return this.Request.query['input'] as LangCode;
+      }
+      return this.Request.cookies['inputLangCode'] || DEFAULT_LANG;
+    }
+    return DEFAULT_LANG;
   }
 
   get outputLangCode(): LangCode {
-    return this.Request ? this.Request.cookies['outputLangCode'] || DEFAULT_LANG : DEFAULT_LANG;
+    if (this.Request) {
+      if (typeof this.Request.query['output'] === 'string' && (LANG_CODES as string[]).includes(this.Request.query['output'])) {
+        return this.Request.query['output'] as LangCode;
+      }
+      return this.Request.cookies['outputLangCode'] || DEFAULT_LANG;
+    }
+    return DEFAULT_LANG;
   }
 
   get searchMode(): SearchMode {
-    return this.Request ? this.Request.cookies['search-mode'] || DEFAULT_SEARCH_MODE : DEFAULT_SEARCH_MODE;
+    if (this.Request) {
+      if (typeof this.Request.query['searchMode'] === 'string' && (SEARCH_MODES as string[]).includes(this.Request.query['searchMode'])) {
+        return this.Request.query['searchMode'] as SearchMode;
+      }
+      return this.Request.cookies['search-mode'] || DEFAULT_SEARCH_MODE;
+    }
+    return DEFAULT_SEARCH_MODE;
   }
 
 }

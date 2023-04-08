@@ -123,7 +123,7 @@ body.nightmode #mobile-menu-button {
     right: 0;
 
     & > .right .header-language-selector,
-    & > .right .toggle-theme-buttons {
+    & > .right .app-menu-buttons {
       display: none !important;
     }
   }
@@ -166,11 +166,13 @@ body.nightmode #mobile-menu-button {
       transform: translateX(0%);
     }
 
-    .toggle-theme-buttons {
+    .app-menu-buttons {
       margin: 0;
       width: 100%;
-
-      .secondary {
+      .toggle-theme-buttons {
+        flex-grow: 1;
+      }
+      .toggle-theme-buttons .secondary {
         text-align: center;
         justify-content: center;
         padding: 8px 0;

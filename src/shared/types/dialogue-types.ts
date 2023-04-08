@@ -2,6 +2,7 @@ import { ConfigCondition, NpcExcelConfigData } from './general-types';
 
 export type LangCode = 'CH' | 'CHS' | 'CHT' | 'DE' | 'EN' | 'ES' | 'FR' | 'ID' | 'IT' | 'JP' | 'KR' | 'PT' | 'RU' | 'TH' | 'TR' | 'VI';
 export const LANG_CODES: LangCode[] = ['CH', 'CHS', 'CHT', 'DE', 'EN', 'ES', 'FR', 'ID', 'IT', 'JP', 'KR', 'PT', 'RU', 'TH', 'TR', 'VI'];
+export const DEFAULT_LANG: LangCode = 'EN';
 export const isLangCode = (str: string) => {
   return (<string[]> LANG_CODES).includes(str);
 }
