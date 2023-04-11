@@ -1,0 +1,58 @@
+.ui-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  display: block;
+  z-index: 9999;
+  background: white;
+  min-width: 150px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  border-bottom: 2px solid #d5d5d5;
+  opacity: 0;
+  transform: scale(0.7);
+  transform-origin: left top;
+  transition: transform 100ms ease, opacity 100ms ease;
+  visibility: hidden;
+}
+
+.ui-dropdown.active {
+  transform: scale(1.0);
+  opacity: 1;
+  visibility: visible;
+}
+
+.ui-dropdown .option {
+  padding: 3px 8px;
+  font-size: 14px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.ui-dropdown .option-sep {
+  display: block;
+  width: 100%;
+  height: 1px;
+  background: rgba(0,0,0,0.06);
+}
+
+.ui-dropdown .option:hover {
+  background: rgba(0,0,0,0.05);
+}
+.ui-dropdown .option.selected {
+  background: rgba(0,0,0,0.04);
+}
+
+body.nightmode .ui-dropdown {
+  background: hsl(253deg 13% 12%);
+  box-shadow: 0 1px 4px hsl(253deg 13% 28%), 0 1px 4px hsl(253deg 13% 8%);
+  border-bottom: 2px solid hsl(253deg 13% 4%);
+}
+body.nightmode .ui-dropdown .option-sep {
+  background: rgba(255,255,255,0.06);
+}
+body.nightmode .ui-dropdown .option.selected {
+  background: rgba(255,255,255,0.03);
+}
+body.nightmode .ui-dropdown .option:hover {
+  background: rgba(255,255,255,0.04);
+}

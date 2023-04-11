@@ -1,0 +1,19 @@
+
+#app-sidebar {
+  padding-left: 30px;
+}
+
+
+@media (max-width: 1050px) {
+  #app-sidebar .content a.secondary {
+    font-size: 16px;
+  }
+}
+@media (max-width: 1000px) {
+  #app-sidebar .content a.secondary {
+    font-size: 15px;
+    padding: 6px 6px;
+    height: auto;
+    line-height: 16px;
+  }
+}

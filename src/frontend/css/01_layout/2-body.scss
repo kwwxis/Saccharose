@@ -1,0 +1,38 @@
+body {
+  background: #f6f4fc;
+  background: hsl(240, 50%, 97%);
+  color: #0f214d;
+}
+
+.wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.wrapper h1 {
+  font-size: 34px;
+  font-weight: 400;
+  margin: 10px 0 20px;
+  color: hsla(223, 67%, 18%, 0.75);
+}
+
+
+html.nightmode {
+  color-scheme: dark;
+}
+body.nightmode {
+  background: hsla(255, 18%, 10%, 1);
+  color: hsl(255deg 5% 73%);
+}
+body.nightmode a {
+  color: #e4c179;
+}
+body.nightmode a:hover {
+  color: #f5e8cd;
+}
+
+body.nightmode .tippy-box {
+  background-color: hsl(255deg 12% 20%);
+  border: 1px solid hsl(255deg 13% 42%);
+}

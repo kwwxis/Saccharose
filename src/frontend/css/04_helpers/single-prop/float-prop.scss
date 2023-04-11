@@ -1,0 +1,28 @@
+.fl {
+  float: left;
+}
+.flC > * {
+  float: left;
+}
+.fr {
+  float: right;
+}
+.frC > * {
+  float: right;
+}
+
+.clearfix:before,
+.clearfix:after,
+.cf:before,
+.cf:after {
+  content: '';
+  display: table;
+}
+.clearfix:after,
+.cf:after {
+  clear: both;
+}
+.clearfix,
+.cf {
+  zoom: 1;
+}

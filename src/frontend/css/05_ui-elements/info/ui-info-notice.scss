@@ -1,0 +1,17 @@
+.info-notice {
+  background: #eff8ff;
+  padding: 7px 10px;
+  body.nightmode & {
+    background: hsl(206deg 33% 31% / 20%);
+  }
+}
+
+.error-notice {
+  background: #fee3e3;
+  padding: 10px;
+  border-radius: 3px;
+  font-weight: 600;
+  body.nightmode & {
+    background: #5a2e2e;
+  }
+}

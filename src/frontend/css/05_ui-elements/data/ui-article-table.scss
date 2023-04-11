@@ -1,0 +1,66 @@
+
+table.article-table {
+  border: 1px solid hsl(222deg 20% 77%);
+  border-collapse: collapse;
+  width: 100%;
+}
+table.article-table tr th,
+table.article-table tr td {
+  padding: 2px 5px;
+}
+table.article-table tr th {
+  background: hsl(222deg 20% 96%);
+  border-top: 1px solid hsl(222deg 20% 77%);
+  border-bottom: 1px solid hsl(222deg 20% 77%);
+}
+table.article-table.all-borders tr th {
+  border-left: 1px solid hsl(222deg 20% 77%);
+  border-right: 1px solid hsl(222deg 20% 77%);
+}
+table.article-table thead tr th {
+  background: hsl(222deg 20% 88%);
+}
+table.article-table tr td {
+  border-top: 1px solid hsl(222deg 20% 90%);
+  border-bottom: 1px solid hsl(222deg 20% 90%);
+}
+table.article-table.all-borders tr td {
+  border-left: 1px solid hsl(222deg 20% 90%);
+  border-right: 1px solid hsl(222deg 20% 90%);
+}
+table.article-table tr td.bold {
+  background: hsl(222deg 20% 96%);
+  font-weight: bold;
+}
+table.article-table tr td.no-border {
+  border-top: 0;
+  border-bottom: 0;
+}
+
+body.nightmode table.article-table {
+  border: 1px solid #4C5067;
+}
+body.nightmode table.article-table tr th {
+  background: #404356;
+  border-top: 1px solid #4C5067;
+  border-bottom: 1px solid #4C5067;
+}
+body.nightmode table.article-table.all-borders tr th {
+  border-left: 1px solid #4C5067;
+  border-right: 1px solid #4C5067;
+}
+body.nightmode table.article-table thead tr th {
+  background: #404356;
+}
+body.nightmode table.article-table tr td {
+  border-top: 1px solid #4C5067;
+  border-bottom: 1px solid #4C5067;
+}
+body.nightmode table.article-table.all-borders tr td {
+  border-left: 1px solid #4C5067;
+  border-right: 1px solid #4C5067;
+}
+body.nightmode table.article-table tr td.bold {
+  background: #2e303e;
+  font-weight: bold;
+}

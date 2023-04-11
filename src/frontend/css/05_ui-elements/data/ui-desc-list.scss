@@ -1,0 +1,39 @@
+
+dl {
+  display: block;
+}
+dl dt,
+dl dd {
+  border-top: 0.5px solid hsla(223, 67%, 18%, 0.4);
+  padding: 1px 5px;
+}
+dl dt {
+  display: block;
+  font-weight: bold;
+  float: left;
+  width: 150px;
+  font-size: 12px;
+  color: #202020;
+  text-transform: uppercase;
+  box-sizing: border-box;
+}
+dl dd {
+  display: block;
+  font-size: 14px;
+}
+dl dt + dd {
+  margin-left: 150px;
+}
+dl dd a {
+  font-size: 12px;
+}
+
+dl dt:before {
+  content: '';
+  display: table;
+}
+dl dd:after {
+  content: '';
+  display: table;
+  clear: both;
+}

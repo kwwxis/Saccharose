@@ -1,0 +1,114 @@
+
+.dialogue-section {
+  margin-bottom: 10px;
+  border-top: 0.5px solid hsla(223, 67%, 18%, 0.2);
+
+  .dialogue-section-children {
+    padding-left: 20px;
+    margin-top:10px;
+  }
+
+  body.nightmode & {
+    border-top-color: hsl(255deg 13% 25%);
+  }
+
+  textarea, [contenteditable] {
+    padding: 5px;
+  }
+}
+
+.dialogue-container > .dialogue-section {
+  padding: 5px 15px;
+}
+
+/*------------------------------*/
+
+.meta-props {
+  flex-wrap: wrap;
+
+  .prop {
+    display: flex;
+    align-items: center;
+    border: 1px solid hsla(232, 20%, 32%, 0.25);
+    border-radius: 3px;
+    margin-right: 5px;
+    line-height: 19px;
+    font-size: 13px;
+    margin-bottom: 3px;
+
+    body.nightmode & {
+      border-color: hsla(232, 20%, 60%, 0.25);
+    }
+
+    .prop-label {
+      background: hsla(232, 20%, 32%, 0.11);
+      padding: 0 3px;
+
+      body.nightmode & {
+        background: hsl(255deg 8% 22%);
+      }
+    }
+
+    .prop-values {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+
+      .prop-value {
+        border-left: 1px solid hsla(232, 20%, 32%, 0.3);
+        padding: 0 5px;
+        text-decoration: none;
+
+        body.nightmode & {
+          border-left-color: hsla(232, 20%, 60%, 0.3);
+          background: hsl(255deg 8% 20%);
+        }
+      }
+    }
+  }
+}
+
+/*------------------------------*/
+
+.dialogue-section-expando,
+.expando {
+  width: 18px;
+  height: 18px;
+  display: inline-block;
+  background: #f0f0f0;
+  border-radius: 50%;
+  border: 1px solid #e0e0e0;
+  position: relative;
+  cursor: pointer;
+  margin-right: 5px;
+  transform-origin: center;
+  transition: transform 200ms;
+  user-select: none;
+
+  &.expand {
+    transform: rotate(-90deg);
+  }
+  &:hover {
+    background: #eaeaea;
+  }
+  .icon {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    margin: auto;
+    color: #777;
+  }
+
+  body.nightmode & {
+    background: hsl(240deg 13% 20%);
+    border-color: hsl(240deg 13% 28%);
+    &:hover {
+      background: hsl(240deg 13% 23%);
+    }
+    .icon {
+      color: hsl(240deg 13% 50%);
+    }
+  }
+}

@@ -1,0 +1,137 @@
+
+// Card
+// ----------------------------------------------------------------------------------------------------
+.card {
+  background: #fff;
+  box-shadow: 0 1px 2px hsla(223, 67%, 18%, 0.35);
+  margin-bottom: 20px;
+
+  body.nightmode & {
+    background: hsl(255deg 13% 14%);
+    box-shadow: 0 1px 2px rgb(174 180 193 / 25%);
+    border: 1px solid hsl(255deg, 13%, 25%);
+  }
+}
+
+.content {
+  padding: 10px;
+}
+
+.card hr {
+  border: 0;
+  border-bottom: 0.5px solid hsla(223, 67%, 18%, 0.2);
+
+  body.nightmode & {
+    border-bottom-color: hsl(255deg 13% 25%);
+  }
+}
+
+// Paragraphs
+// ----------------------------------------------------------------------------------------------------
+.card p {
+  font-size: 15px;
+  line-height: 20px;
+}
+.card .content p + p {
+  margin-top: 0.3em;
+}
+
+// Header
+// ----------------------------------------------------------------------------------------------------
+.card > h2 {
+  background: hsla(223, 67%, 18%, 0.03);
+  padding: 8px 10px;
+  font-size: 19px;
+  border-bottom: 1px solid hsl(240, 50%, 96.5%);
+
+  body.nightmode & {
+    background: hsl(232deg 15% 29% / 32%);
+    border-bottom-color: hsl(255deg 13% 25%);
+  }
+}
+
+.card > h2:first-child {
+  border-top: 0.5px solid hsla(223, 67%, 18%, 0.08);
+
+  body.nightmode & {
+    border-bottom-color: hsl(255deg 13% 25%);
+  }
+}
+
+.card > h2:not(:first-child) {
+  border-top: 1px solid hsl(240, 50%, 96.5%);
+
+  body.nightmode & {
+    border-top-color: hsl(255deg 13% 25%);
+  }
+}
+
+.card > h2:last-child {
+  border-bottom: 0;
+}
+
+// Content - UL
+// ----------------------------------------------------------------------------------------------------
+.card .content ul, ul.padding {
+  padding-left: 25px;
+  font-size: 16px;
+  line-height: 24px;
+}
+.card .content ul li, ul.padding li {
+  margin-bottom: 5px;
+}
+
+// Content - Inputs
+// ----------------------------------------------------------------------------------------------------
+.card .content input[type='number'],
+.card .content input[type='text'],
+.card .content input[type='date'],
+.card .content input[type='time'],
+.card .content input[type='datetime'],
+.card .content input[type='search'],
+.card .content input[type='password'],
+.card .content select,
+.card .content textarea,
+.card .content .input-style {
+  height: 30px;
+  line-height: 30px;
+  box-sizing: border-box;
+  border-radius: 3px;
+  padding: 0 8px;
+}
+
+.card .content textarea,
+.card .content [contenteditable] {
+  line-height: 22px;
+  padding: 4px 8px;
+  border-radius: 3px;
+}
+
+// Result Count Card
+// ----------------------------------------------------------------------------------------------------
+.card.result-count-card {
+  height: 36px;
+  line-height: 35px;
+  border-radius: 5px;
+  margin-bottom: 12px;
+  background: transparent;
+  box-shadow: inset 0 0 2px hsl(223deg 67% 18% / 15%);
+
+  body.nightmode & {
+    box-shadow: inset 0 0 2px rgb(174 180 193 / 25%);
+    background: transparent;
+    border: 0;
+  }
+}
+
+.card.result-count-card > h2 {
+  padding: 0 12px;
+  font-size: 17px;
+  border-radius: 5px;
+  color: hsla(223deg, 67%, 18%, 0.7);
+  font-weight: 600;
+
+  body.nightmode & {
+    color: hsl(232deg 24% 85% / 58%);
+  }
+}

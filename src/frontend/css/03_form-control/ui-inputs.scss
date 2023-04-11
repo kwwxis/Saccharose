@@ -1,0 +1,160 @@
+textarea,
+select,
+input[type='text'],
+input[type='password'],
+input[type='search'],
+input[type='email'],
+input[type='url'],
+input[type='number'],
+input[type='time'],
+input[type='date'],
+[contenteditable],
+.input-style {
+  font-family: Arial, "Source Sans Pro", sans-serif;
+  font-size: 13.333px;
+  border: 1px solid hsla(232, 20%, 32%, 0.25);
+  border-radius: 3px;
+  box-sizing: border-box;
+  background: #fff;
+
+  &:hover,
+  &:focus {
+    border: 1px solid hsla(232, 20%, 32%, 0.4);
+  }
+
+  &:focus {
+    outline: 0;
+    box-shadow: 0 0 0 2px rgba(0, 140, 221, 0.2);
+    border-color: #3daaf5;
+  }
+
+  &.error {
+    border-color: rgba(230, 69, 72, 0.5) !important;
+  }
+
+  body.nightmode & {
+    background: hsl(255deg 8% 22%);
+    color: hsl(255deg 5% 73%);
+    border-color: hsla(232, 20%, 60%, 0.25);
+
+    &:focus {
+      // box-shadow: 0 0 0 2px rgb(0 140 221 / 20%);
+      box-shadow: none;
+      border-color: hsl(204deg 90% 32%);
+    }
+  }
+}
+
+// High DPI thin borders
+// --------------------------------------------------------------------------------------------------------------
+@media (-webkit-min-device-pixel-ratio: 1.5), (min-resolution: 144dpi) {
+  textarea,
+  select,
+  hr,
+  input[type='text'],
+  input[type='password'],
+  input[type='search'],
+  input[type='email'],
+  input[type='url'],
+  input[type='number'],
+  input[type='time'],
+  input[type='date'],
+  .thin-border,
+  .card > h2,
+  textarea:hover,
+  select:hover,
+  input[type='text']:hover,
+  input[type='password']:hover,
+  input[type='search']:hover,
+  input[type='email']:hover,
+  input[type='url']:hover,
+  input[type='number']:hover,
+  input[type='time']:hover,
+  input[type='date']:hover,
+  .thin-border:hover,
+  textarea:focus,
+  select:focus,
+  input[type='text']:focus,
+  input[type='password']:focus,
+  input[type='search']:focus,
+  input[type='email']:focus,
+  input[type='url']:focus,
+  input[type='number']:focus,
+  input[type='time']:focus,
+  input[type='date']:focus,
+  .thin-border:focus,
+  .card,
+  [contenteditable],
+  [contenteditable]:hover,
+  [contenteditable]:focus,
+  .input-style,
+  .input-style:hover,
+  .input-style:focus {
+    border-width: 0.5px !important;
+  }
+}
+
+// Misc
+// --------------------------------------------------------------------------------------------------------------
+[contenteditable].highlighted {
+  margin-bottom: 5px;
+
+  body.nightmode & {
+    border-color: hsla(232, 20%, 60%, 0.25);
+  }
+}
+
+// Code Inputs
+// --------------------------------------------------------------------------------------------------------------
+code,
+.code,
+input[type=text].code,
+input[type=search].code {
+  font-family: Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono,
+  Bitstream Vera Sans Mono, Courier New, monospace, sans-serif;
+}
+
+textarea.code, [contenteditable].code, .input-style.code {
+  resize: vertical;
+  border-color: #ccc;
+  padding: 3px;
+  box-sizing: border-box;
+  white-space: pre-wrap;
+}
+
+// Input Clear Button
+// --------------------------------------------------------------------------------------------------------------
+.input-clear-button {
+  border: 0;
+  background: 0;
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  bottom: 1px;
+  border-radius: 0 3px 3px 0;
+  width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f4f4fb;
+  border-left: 1px solid #e1e1f4;
+  cursor: pointer;
+}
+
+.input-clear-button svg {
+  width: 18px;
+  height: 18px;
+  color: #45454e;
+  opacity: 0.6;
+}
+.input-clear-button:hover svg {
+  opacity: 1;
+}
+
+body.nightmode .input-clear-button {
+  background: #2a2a36;
+  border-left-color: hsla(232, 20%, 60%, 0.25);
+}
+body.nightmode .input-clear-button svg {
+  color: hsl(255deg 5% 58.97%);
+}

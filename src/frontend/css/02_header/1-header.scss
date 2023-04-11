@@ -1,0 +1,82 @@
+
+#header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 52px;
+  border-bottom: 1px solid hsla(223, 67%, 18%, 0.3);
+  background: #fff;
+}
+
+#header #site-title {
+  text-decoration: none;
+  margin: 0 10px;
+  color: inherit;
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 600;
+  font-size: 17px;
+  display: flex;
+  align-items: center;
+  margin-left: 100px;
+}
+
+#site-logo-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 80px;
+  height: 50px;
+  background: #eaeffb;
+}
+#site-logo-fg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-top: 0;
+  width: 80px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+body.nightmode #site-logo-fg img {
+  opacity: 0.9;
+}
+
+#header .left,
+#header .right {
+  display: flex;
+  align-items: center;
+}
+
+#header .app-menu-buttons .secondary {
+  height: 32px;
+}
+
+.header-language-selector {
+  display: flex;
+  flex-direction: column;
+  margin-top: -5px;
+  margin-right: 10px;
+}
+.header-language-selector strong {
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 16px;
+  opacity: 0.8;
+}
+.header-language-selector select {
+  padding: 3px;
+}
+.output-language-selector {
+  margin-right: 20px;
+}
+
+
+body.nightmode #header {
+  background: hsl(255deg 13% 14%);
+}
+
+body.nightmode #site-logo-bg {
+  background: hsl(255deg 13% 18%);
+}

@@ -1,29 +1,64 @@
-// Reset
-@import './helpers/reset';
+// 01: Layout/Reset
+@import '01_layout/1-reset';
+@import '01_layout/2-body';
+@import '01_layout/3-footer';
+@import '01_layout/landing';
 
-// Form Controls
-@import './inputs/text-inputs';
+// 02: Header
+@import '02_header/1-header';
+@import '02_header/2-sidebar';
+@import '02_header/3-sticky-header';
+@import '02_header/4-mobile';
 
-// Helpers
-@import './helpers/flex-helpers';
-@import './helpers/general-helpers';
+// 03: Form Controls
+@import '03_form-control/ui-inputs';
+@import '03_form-control/ui-buttons';
+@import '03_form-control/ui-radio';
+@import '03_form-control/form-box';
+@import '03_form-control/fieldset';
 
-// Misc UI elements
-@import './helpers/loading-spinner';
-@import './helpers/error-box';
-@import './helpers/element-flash';
-@import './helpers/close-icon';
-@import './genshin/material-item';
-@import './genshin/gcg-card';
+// 04: Helpers - Flex
+@import '04_helpers/flex-helpers/vertical-align';
+@import '04_helpers/flex-helpers/horiz-align';
+@import '04_helpers/flex-helpers/flex-split';
+@import '04_helpers/flex-helpers/flex-basis';
+@import '04_helpers/flex-helpers/flex-grow';
 
-// 3rd Party
+// 04: Helpers - General
+@import '04_helpers/general-helpers/element-flash';
+@import '04_helpers/general-helpers/hide-helpers';
+@import '04_helpers/general-helpers/img-size';
+@import '04_helpers/general-helpers/spacers';
+@import '04_helpers/general-helpers/text-helpers';
+
+// 04: Helpers - Single Prop
+@import '04_helpers/single-prop/display-prop';
+@import '04_helpers/single-prop/float-prop';
+@import '04_helpers/single-prop/height-prop';
+@import '04_helpers/single-prop/opacity-prop';
+@import '04_helpers/single-prop/position-prop';
+@import '04_helpers/single-prop/width-prop';
+
+// 05: Misc UI elements
+@import '05_ui-elements/data/ui-article-table';
+@import '05_ui-elements/data/ui-desc-list';
+@import '05_ui-elements/icons/ui-close-icon';
+@import '05_ui-elements/icons/ui-loading-spinner';
+@import '05_ui-elements/info/ui-error-box';
+@import '05_ui-elements/info/ui-info-notice';
+@import '05_ui-elements/ui-dropdown';
+@import '05_ui-elements/ui-modal';
+@import '05_ui-elements/ui-tab-list';
+@import '05_ui-elements/ui-toast';
+
+// 06: UI Card
+@import '06_ui-card/ui-card';
+
+// 07: Genshin Element Styles
+@import '07_genshin/dialogue';
+@import '07_genshin/gcg-card';
+@import '07_genshin/material-item';
+
+// 08: 3rd Party
 @import './../../../node_modules/pikaday/scss/pikaday';
-@import './helpers/pikaday-custom';
-
-// Main Styles
-@import 'app.base';
-@import 'app.default';
-@import 'buttons';
-@import 'dialogue';
-@import 'sticky-header';
-@import 'mobile';
+@import '08_third-party/pikaday-custom';

@@ -1,0 +1,17 @@
+
+.hide {
+  display: none !important;
+}
+.visHide {
+  visibility: hidden !important;
+}
+.active .inactive-only {
+  display: none;
+}
+
+.active-only {
+  display: none;
+}
+.active .active-only {
+  display: initial;
+}

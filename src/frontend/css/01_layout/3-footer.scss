@@ -1,0 +1,71 @@
+
+.credit p:first-child {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.6);
+  font-weight: 600;
+  margin: 0;
+}
+
+.credit p:last-child {
+  font-size: 14px;
+  margin: 0 !important;
+  margin-left: 13px !important;
+}
+
+.credit,
+.credit p {
+  line-height: 18px !important;
+}
+
+body > .content {
+  padding: 0;
+  min-height: calc(100vh - 52px);
+}
+
+body > footer {
+  border-top: 0.5px solid hsla(223, 67%, 18%, 0.3);
+  background: #fff;
+  padding: 0 10px;
+}
+
+footer .wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+footer a {
+  color: hsl(220, 61%, 50%);
+  text-decoration: none;
+}
+
+.footer-links {
+  margin-left: 30px;
+}
+
+.footer-links a {
+  text-decoration: none;
+  background: hsla(210, 14%, 96%, 1);
+  padding: 5px 8px;
+  border-radius: 3px;
+  margin-right: 5px;
+  font-size: 15px;
+  color: hsl(220, 61%, 60%);
+}
+.footer-links a:hover {
+  background: hsla(210, 14%, 93%, 1);
+}
+
+
+body.nightmode > footer {
+  background: hsl(255deg 13% 14%);
+  color: hsl(255deg 5% 73%);
+  border-top-color: hsl(255deg 13% 25%);
+}
+body.nightmode .credit p:first-child {
+  color: hsl(255deg 5% 73%);
+}
+body.nightmode .footer-links a {
+  background: hsl(255deg 8% 20%);
+  color: hsl(255deg 5% 73%);
+}

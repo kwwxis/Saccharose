@@ -61,9 +61,6 @@ pageMatch('pages/basic/olgen', () => {
       hideRm: rmOptionValue === 'exclude_rm',
     }, true).then(result => {
       document.querySelector('#ol-results-list').innerHTML = result;
-      if (!result.includes('no-results-found')) {
-        inputEl.value = '';
-      }
     }).catch((err: HttpError) => {
       if (err.type === 'NotFound') {
         document.querySelector('#ol-results-list').innerHTML = endpoints.errorHtmlWrap('Not Found: ' + err.message);
@@ -74,6 +71,12 @@ pageMatch('pages/basic/olgen', () => {
       loadingEl.classList.add('hide');
       inputEl.disabled = false;
       buttonEl.disabled = false;
+
+      if (inputEl.value.trim().length) {
+        document.querySelector('.ol-input-clear').classList.remove('hide');
+      } else {
+        document.querySelector('.ol-input-clear').classList.add('hide');
+      }
     });
   }
 
@@ -100,6 +103,27 @@ pageMatch('pages/basic/olgen', () => {
       ev: 'enter',
       fn: function(_event, _target) {
         generateResult();
+      }
+    },
+    {
+      el: '.ol-input',
+      ev: 'input',
+      fn: function(_event, target: HTMLInputElement) {
+        if (target.value.trim().length) {
+          document.querySelector('.ol-input-clear').classList.remove('hide');
+        } else {
+          document.querySelector('.ol-input-clear').classList.add('hide');
+        }
+      }
+    },
+    {
+      el: '.ol-input-clear',
+      ev: 'click',
+      fn: function(_event) {
+        let inputEl = document.querySelector<HTMLInputElement>('.ol-input');
+        inputEl.value = '';
+        inputEl.focus();
+        document.querySelector('.ol-input-clear').classList.add('hide');
       }
     },
     {
