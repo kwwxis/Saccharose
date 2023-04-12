@@ -239,7 +239,7 @@ All files in `Texture2D` starting with (case insensitive):
 - `UI_Gcg`
 - `UI_ItemIcon`
 - `UI_Monster`
-- `UI_NameCardPic`
+- `UI_NameCard`
 - `UI_Reputation`
 - `UI_RelicIcon`
 
@@ -257,9 +257,9 @@ Discord editing forums post.
 
 **Commands:**
 
-- **Print Texture2D:** `find ./Texture2D/ -type f -regextype posix-extended -iregex '.*/(UI_Achievement|UI_AnimalIcon|UI_AvatarIcon|UI_Activity|UI_ChapterIcon|UI_Codex|UI_EquipIcon|UI_FlycloakIcon|UI_Gacha|UI_Gcg|UI_ItemIcon|UI_Monster|UI_NameCardPic|UI_Reputation|UI_RelicIcon|.*Tutorial).*'`<br /><br />
+- **Print Texture2D:** `find ./Texture2D/ -type f -regextype posix-extended -iregex '.*/(UI_Achievement|UI_AnimalIcon|UI_AvatarIcon|UI_Activity|UI_ChapterIcon|UI_Codex|UI_EquipIcon|UI_FlycloakIcon|UI_Gacha|UI_Gcg|UI_ItemIcon|UI_Monster|UI_NameCard|UI_Reputation|UI_RelicIcon|.*Tutorial).*'`<br /><br />
 
-- **Copy Texture2D:** `find ./Texture2D/ -type f -regextype posix-extended -iregex '.*/(UI_Achievement|UI_AnimalIcon|UI_AvatarIcon|UI_Activity|UI_ChapterIcon|UI_Codex|UI_EquipIcon|UI_FlycloakIcon|UI_Gacha|UI_Gcg|UI_ItemIcon|UI_Monster|UI_NameCardPic|UI_Reputation|UI_RelicIcon|.*Tutorial).*' -exec cp '{}' dist ';'`<br /><br />
+- **Copy Texture2D:** `find ./Texture2D/ -type f -regextype posix-extended -iregex '.*/(UI_Achievement|UI_AnimalIcon|UI_AvatarIcon|UI_Activity|UI_ChapterIcon|UI_Codex|UI_EquipIcon|UI_FlycloakIcon|UI_Gacha|UI_Gcg|UI_ItemIcon|UI_Monster|UI_NameCard|UI_Reputation|UI_RelicIcon|.*Tutorial).*' -exec cp '{}' dist ';'`<br /><br />
 
 - **Copy Sprite:** `find ./Sprite/ -type f -regextype posix-extended -iregex '.*/(UI_Gcg_Dice|UI_Gcg_Buff|UI_Gcg_Tag).*' -exec cp '{}' dist ';'`
 

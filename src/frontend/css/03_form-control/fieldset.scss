@@ -2,19 +2,20 @@ fieldset {
   display: block;
   padding: 10px 0;
   border: 1px solid hsla(223, 67%, 18%, 0.15);
+
+  legend {
+    margin-left: 10px;
+    padding: 0 0.5em;
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  & > .content {
+    padding-top: 0;
+  }
+
+  body.nightmode & {
+    border-color: hsl(255deg 13% 25%);
+  }
 }
 
-fieldset legend {
-  margin-left: 10px;
-  padding: 0 0.5em;
-  font-size: 15px;
-  font-weight: 600;
-}
-
-fieldset > .content {
-  padding-top: 0;
-}
-
-body.nightmode fieldset {
-  border-color: hsl(255deg 13% 25%);
-}

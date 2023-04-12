@@ -52,17 +52,9 @@ body.nightmode .close:before, body.nightmode .close:after {
   height: 3px;
 }
 .close:before {
-  -o-transform: rotate(45deg);
-  -ms-transform: rotate(45deg);
-  -moz-transform: rotate(45deg);
-  -webkit-transform: rotate(45deg);
   transform: rotate(45deg);
 }
 .close:after {
-  -o-transform: rotate(-45deg);
-  -ms-transform: rotate(-45deg);
-  -moz-transform: rotate(-45deg);
-  -webkit-transform: rotate(-45deg);
   transform: rotate(-45deg);
 }
 

@@ -64,8 +64,7 @@
 
 .ui-checkbox input:checked + *:before {
   border-color: #3daaf5;
-  background: linear-gradient(#3daaf5, #3daaf5) center center / 0.6em 0.6em;
-  background-repeat: no-repeat;
+  background: linear-gradient(#3daaf5, #3daaf5) center center / 0.6em 0.6em no-repeat;
 }
 
 .ui-radio input:checked + *:before {
@@ -75,8 +74,7 @@
                   #3daaf5 49%,
                   hsla(204, 90%, 60%, 0.5) 50%,
                   #fff 55%
-  );
-  background-repeat: no-repeat;
+  ) no-repeat;
 }
 
 .ui-radio input:focus + *:before,
@@ -86,6 +84,7 @@
 }
 
 
+//noinspection CssReplaceWithShorthandSafely
 .ui-checkbox input:indeterminate + *:before,
 .ui-checkbox input:checked:indeterminate + *:before,
 .ui-checkbox input.is--indeterminate + *:before,
@@ -95,7 +94,7 @@
   border-color: #3daaf5;
   background-color: #fff;
   background: linear-gradient(#fff, #fff) center center / 0.35em 0.15em,
-  linear-gradient(hsla(204, 90%, 60%, 0.85), hsla(204, 90%, 60%, 0.85)) center center / 0.6em 0.6em;
+    linear-gradient(hsla(204, 90%, 60%, 0.85), hsla(204, 90%, 60%, 0.85)) center center / 0.6em 0.6em;
   background-repeat: no-repeat;
 }
 

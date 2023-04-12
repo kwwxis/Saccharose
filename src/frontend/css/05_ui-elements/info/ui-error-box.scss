@@ -7,23 +7,24 @@
 .error-box {
   max-width: 500px;
   padding: 20px 0 60px 40px;
-}
 
-.error-box p {
-  line-height: 24px;
-  margin-top: 10px;
-}
+  p {
+    line-height: 24px;
+    margin-top: 10px;
+  }
 
-.error-box hr {
-  margin: 10px 0;
-  border-color: hsla(223, 67%, 18%, 0.15);
-}
+  hr {
+    margin: 10px 0;
+    border-color: hsla(223, 67%, 18%, 0.15);
+  }
 
-.error-box h1 {
-  opacity: 0.5;
-  font-size: 30px;
-}
-.error-box h2 {
-  margin-top: 5px;
-  font-family: 'Open Sans', sans-serif;
+  h1 {
+    opacity: 0.5;
+    font-size: 30px;
+  }
+
+  h2 {
+    margin-top: 5px;
+    font-family: 'Open Sans', sans-serif;
+  }
 }

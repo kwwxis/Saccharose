@@ -3,93 +3,95 @@
   background: #555;
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
   position: relative;
-}
-.tab-list button {
-  border: 0;
-  height: 32px;
-  color: #fff;
-  line-height: 34px;
-  padding: 0 20px;
-  margin: 4px 4px 0;
-  background: #3a3a3a;
-  position: relative;
-  outline: none !important;
-  cursor: pointer;
-}
-.tab-list button.active {
-  background: #fff;
-  color: #3f3f3f;
-  font-weight: 700;
-}
-.tab-list:after {
-  content: '';
-  display: block;
-  height: 3px;
-  width: 100%;
-  background: #fff;
-  position: relative;
-}
 
-.tab-list button:focus {
-  text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
-}
+  button {
+    border: 0;
+    height: 32px;
+    color: #fff;
+    line-height: 34px;
+    padding: 0 20px;
+    margin: 4px 4px 0;
+    background: #3a3a3a;
+    position: relative;
+    outline: none !important;
+    cursor: pointer;
 
-.tab-list button:focus:before {
-  content: '';
-  display: block;
-  position: absolute;
-  top: 2px;
-  right: 2px;
-  bottom: 2px;
-  left: 2px;
-  border: 1px dashed #fff;
-}
+    &.active {
+      background: #fff;
+      color: #3f3f3f;
+      font-weight: 700;
+    }
 
-.tab-list button.active:focus {
-  color: hsl(220, 61%, 50%);
-}
-.tab-list button.active:focus:before {
-  border: 1px dashed rgba(0, 140, 221, 0.85);
+    &:focus {
+      text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+      &:before {
+        content: '';
+        display: block;
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        bottom: 2px;
+        left: 2px;
+        border: 1px dashed #fff;
+      }
+    }
+
+    &.active:focus {
+      color: hsl(220, 61%, 50%);
+      &:before {
+        border: 1px dashed rgba(0, 140, 221, 0.85);
+      }
+    }
+  }
+
+  &:after {
+    content: '';
+    display: block;
+    height: 3px;
+    width: 100%;
+    background: #fff;
+    position: relative;
+  }
 }
 
 body .tab-list {
   background: hsl(240, 30%, 90%);
   box-shadow: 0 -0.5px 2px hsla(223, 67%, 18%, 0.2),
-  0 1px 2px hsla(223, 67%, 18%, 0.2);
-}
+    0 1px 2px hsla(223, 67%, 18%, 0.2);
 
-body .tab-list button {
-  background: hsl(240, 30%, 95%);
-  color: hsla(223, 67%, 18%, 0.9);
-}
+  button {
+    background: hsl(240, 30%, 95%);
+    color: hsla(223, 67%, 18%, 0.9);
 
-body .tab-list button.active {
-  background: hsl(240, 30%, 100%);
-  color: #0f214d;
-}
+    &.active {
+      background: hsl(240, 30%, 100%);
+      color: #0f214d;
+    }
 
-body .tab-list button:focus:before {
-  border-color: hsla(223, 67%, 18%, 0.4);
-}
+    &:focus:before {
+      border-color: hsla(223, 67%, 18%, 0.4);
+    }
+  }
 
-body .tab-list:after {
-  background: hsl(240, 30%, 100%);
+  &:after {
+    background: hsl(240, 30%, 100%);
+  }
 }
-
 
 body.nightmode .tab-list {
   background: hsl(255deg 8% 8%);
-}
 
-body.nightmode .tab-list button {
-  background: hsl(255deg 8% 14%);
-  color: #fff;
-}
-body.nightmode .tab-list button.active {
-  background: hsl(255deg 8% 22%);
-  color: #fff;
-}
+  button {
+    background: hsl(255deg 8% 14%);
+    color: #fff;
 
-body.nightmode .tab-list:after {
-  background: hsl(255deg 8% 22%);
+    &.active {
+      background: hsl(255deg 8% 22%);
+      color: #fff;
+    }
+  }
+
+  &:after {
+    background: hsl(255deg 8% 22%);
+  }
 }

@@ -1,22 +1,24 @@
 
 #landing-header {
   border: 1.5px solid rgba(176,227,222,1);
-}
-#landing-header h2 {
-  background: linear-gradient(90deg, rgba(176,227,222,1) 0%, rgba(140,219,235,1) 37%, rgba(155,222,230,1) 69%, rgba(176,227,222,1) 100%);
-  color: hsl(175deg 68% 18%);
-  position: relative;
-  overflow: hidden;
-  border-bottom: 0;
-}
-#landing-header h2:after {
-  background: url('/images/Namecard_Banner_Sucrose_Bio-Alchemy.png') top right / contain no-repeat;
-  content: '';
-  display: block;
-  position: absolute;
-  top: 0;
-  right: -30px;
-  bottom: 0;
-  left: 0;
-  pointer-events: none;
+
+  h2 {
+    background: linear-gradient(90deg, rgba(176,227,222,1) 0%, rgba(140,219,235,1) 37%, rgba(155,222,230,1) 69%, rgba(176,227,222,1) 100%);
+    color: hsl(175deg 68% 18%);
+    position: relative;
+    overflow: hidden;
+    border-bottom: 0;
+  }
+
+  h2:after {
+    background: url('/images/Namecard_Banner_Sucrose_Bio-Alchemy.png') top right / contain no-repeat;
+    content: '';
+    display: block;
+    position: absolute;
+    top: 0;
+    right: -30px;
+    bottom: 0;
+    left: 0;
+    pointer-events: none;
+  }
 }

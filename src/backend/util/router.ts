@@ -214,7 +214,7 @@ export const DEFAULT_GLOBAL_LOCALS = {
   escapeHtml,
   escapeHtmlAllowEntities,
   spriteTagIconize,
-  pluralize,
+  pluralize: (s: string) => typeof s === 'string' ? pluralize(s) : s,
   env: process.env,
   toBoolean: toBoolean,
   toInt: toInt,

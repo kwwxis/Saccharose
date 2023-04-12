@@ -2,32 +2,33 @@
   display: flex;
   flex-direction: column;
   padding: 10px;
+
+  .field {
+    display: flex;
+    align-items: flex-start;
+    padding: 3px 0;
+
+    & > .label,
+    & > label {
+      min-width: 110px;
+      padding-right: 10px;
+      font-weight: bold;
+      font-size: 0.9rem;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    & > .values {
+      display: flex;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      flex-grow: 1;
+      padding-right: 15px;
+
+      &.column {
+        flex-direction: column;
+      }
+    }
+  }
 }
 
-.form-box .field {
-  display: flex;
-  align-items: flex-start;
-  padding: 3px 0;
-}
-
-.form-box .field > .label,
-.form-box .field > label {
-  min-width: 110px;
-  padding-right: 10px;
-  font-weight: bold;
-  font-size: 0.9rem;
-  text-align: right;
-  flex-shrink: 0;
-}
-
-.form-box .field > .values {
-  display: flex;
-  align-items: flex-start;
-  flex-wrap: wrap;
-  flex-grow: 1;
-  padding-right: 15px;
-}
-
-.form-box .field > .values.column {
-  flex-direction: column;
-}

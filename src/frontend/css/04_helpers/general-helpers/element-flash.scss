@@ -1,23 +1,25 @@
 
 .highlight {
   background: #fcfc64;
-}
-.highlight.empty {
-  padding: 0 2px;
-}
-.highlight.empty:before {
-  content: '(empty)';
-  opacity: 0.5;
-}
-body.nightmode .highlight {
-  background: hsl(41deg 78% 75% / 20%);
+
+  &.empty {
+    padding: 0 2px;
+    &:before {
+      content: '(empty)';
+      opacity: 0.5;
+    }
+  }
+  body.nightmode & {
+    background: hsl(41deg 78% 75% / 20%);
+  }
 }
 
 .flash {
   animation: flash 1s ease-out;
-}
-body.nightmode .flash {
-  animation: nightmode-flash 1s ease-out;
+
+  body.nightmode & {
+    animation: nightmode-flash 1s ease-out;
+  }
 }
 
 @keyframes flash {
