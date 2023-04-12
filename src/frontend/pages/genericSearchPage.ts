@@ -15,6 +15,7 @@ export type GenericSearchPageParamOpt<T> = {
   selector: string,
   apiParam: keyof T,
   queryParam?: string,
+  clearButton?: string,
   guards?: ((text: string|number) => string)[],
   mapper?: (text: string) => string|number,
   required?: boolean
@@ -255,6 +256,29 @@ export function startGenericSearchPageListeners<T>(opts: GenericSearchPageOpts<T
         generateResult('inputEnter');
       }
     })),
+    ... opts.inputs.filter(x => x.clearButton).flatMap((optInput) => ([
+      {
+        el: optInput.clearButton,
+        ev: 'click',
+        fn: function(_event, _target) {
+          let inputEl = document.querySelector<HTMLInputElement>(optInput.selector);
+          inputEl.value = '';
+          inputEl.focus();
+          document.querySelector(optInput.clearButton).classList.add('hide');
+        }
+      },
+      {
+        el: optInput.selector,
+        ev: 'input',
+        fn: function(_event, target) {
+          if (target.value.trim().length) {
+            document.querySelector(optInput.clearButton).classList.remove('hide');
+          } else {
+            document.querySelector(optInput.clearButton).classList.add('hide');
+          }
+        }
+      }
+    ])),
     {
       el: opts.submitButtonTarget,
       ev: 'click',

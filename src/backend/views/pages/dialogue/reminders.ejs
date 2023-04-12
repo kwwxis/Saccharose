@@ -5,7 +5,10 @@
     that can correlate a reminder to a quest, so some open-world dialogue may not show up in the quest dialogue generator. In which case you can try search for it here
     to generate a reminder dialogue branch.</p>
     <div class="field valign">
-      <input class="reminder-generate-input grow" type="text" placeholder="Enter reminder line or part of a reminder line to start from." style="border-radius:3px 0 0 3px" />
+      <div class="posRel valign grow">
+        <input class="reminder-generate-input grow" type="text" placeholder="Enter reminder line or part of a reminder line to start from." style="border-radius:3px 0 0 3px" />
+        <button class="reminder-generate-input-clear input-clear-button hide"><%- icon('x-circle') %></button>
+      </div>
       <%- include('partials/util/search-mode-input') %>
     </div>
     <fieldset class="spacer10">

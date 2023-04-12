@@ -11,6 +11,7 @@ pageMatch('pages/archive/readables-search', () => {
         selector: '.search-input',
         apiParam: 'text',
         queryParam: 'q',
+        clearButton: '.search-input-clear'
       }
     ],
 

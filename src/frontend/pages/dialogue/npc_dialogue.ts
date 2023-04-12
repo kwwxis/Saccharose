@@ -11,6 +11,7 @@ pageMatch('pages/dialogue/npc-dialogue', () => {
         selector: '.dialogue-generate-input',
         apiParam: 'name',
         queryParam: 'q',
+        clearButton: '.dialogue-generate-input-clear',
       }
     ],
 

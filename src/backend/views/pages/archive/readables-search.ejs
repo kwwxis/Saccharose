@@ -2,7 +2,10 @@
   <h2>Search Books &amp; Readables</h2>
   <div class="content form-box">
     <div class="field valign">
-      <input class="search-input grow" type="text" placeholder="Enter text to search for in books and readables." style="border-radius:3px 0 0 3px" />
+      <div class="posRel valign grow">
+        <input class="search-input grow" type="text" placeholder="Enter text to search for in books and readables." style="border-radius:3px 0 0 3px" />
+        <button class="search-input-clear input-clear-button hide"><%- icon('x-circle') %></button>
+      </div>
       <%- include('partials/util/search-mode-input') %>
     </div>
     <div class="field valign spacer10-top">

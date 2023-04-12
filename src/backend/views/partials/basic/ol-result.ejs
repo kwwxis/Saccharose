@@ -2,10 +2,11 @@
   <h2>Total Results: <span><%= olResults.length %></span></h2>
 </div>
 <% olResults.forEach((olResult, idx) => { %>
-  <div class="card ol-result">
+  <div id="ol-result-card-<%= idx %>" class="card ol-result">
     <div class="content">
-      <div class="fsplit spacer5-bottom">
-        <h4>
+      <div class="fsplit">
+        <h4 class="valign">
+          <span class="expando" ui-action="expando: #ol-result-content-<%= idx %>"><%- icon('chevron-down', 17) %></span>
           <span style="opacity:0.6">TextMapHash:&nbsp;</span>
           <code><%= olResult.textMapId %></code>
           <a href="/id-usages?q=<%= olResult.textMapId %>" role="button" class="secondary small spacer5-left fontWeight500" target="_blank">Usages</a>
@@ -17,19 +18,21 @@
                   ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">Copy</button>
         </div>
       </div>
-      <textarea id="ol-result-<%= idx %>" readonly spellcheck="false" translate="no" class="ol-result-textarea wikitext w100p"
-                style="resize:vertical;overflow:auto;font-size:13px;" data-markers="<%= Marker.joinedString(olResult.markers) %>"><%= olResult.result %></textarea>
-      <% if (olResult.duplicateTextMapIds.length) { %>
-        <h5>Duplicate TextMapHashes</h5>
-        <p class="spacer5-bottom">List of TextMapHashes whose values are duplicates of <%= olResult.textMapId %> across all languages.<br>
-          Click on a link to see where that hash is used or see <a href="/id-usages?q=<%= olResult.textMapId %>,<%= olResult.duplicateTextMapIds.join(',') %>" target="_blank">all usages</a>.</p>
-        <ul style="-webkit-columns:4;-moz-columns:4;columns:4">
-          <li><a style="text-decoration:none" href="/id-usages?q=<%= olResult.textMapId %>" target="_blank"><%= olResult.textMapId %></a></li>
-          <% for (let textMapId of olResult.duplicateTextMapIds) { %>
-            <li><a style="text-decoration:none" href="/id-usages?q=<%= textMapId %>" target="_blank"><%= textMapId %></a></li>
-          <% } %>
-        </ul>
-      <% } %>
+      <div id="ol-result-content-<%= idx %>">
+        <textarea id="ol-result-<%= idx %>" readonly spellcheck="false" translate="no" class="ol-result-textarea wikitext w100p spacer5-top"
+                  style="resize:vertical;overflow:auto;font-size:13px;" data-markers="<%= Marker.joinedString(olResult.markers) %>"><%= olResult.result %></textarea>
+        <% if (olResult.duplicateTextMapIds.length) { %>
+          <h5>Duplicate TextMapHashes</h5>
+          <p class="spacer5-bottom">List of TextMapHashes whose values are duplicates of <%= olResult.textMapId %> across all languages.<br>
+            Click on a link to see where that hash is used or see <a href="/id-usages?q=<%= olResult.textMapId %>,<%= olResult.duplicateTextMapIds.join(',') %>" target="_blank">all usages</a>.</p>
+          <ul style="-webkit-columns:4;-moz-columns:4;columns:4">
+            <li><a style="text-decoration:none" href="/id-usages?q=<%= olResult.textMapId %>" target="_blank"><%= olResult.textMapId %></a></li>
+            <% for (let textMapId of olResult.duplicateTextMapIds) { %>
+              <li><a style="text-decoration:none" href="/id-usages?q=<%= textMapId %>" target="_blank"><%= textMapId %></a></li>
+            <% } %>
+          </ul>
+        <% } %>
+      </div>
     </div>
   </div>
 <% }) %>

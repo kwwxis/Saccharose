@@ -12,11 +12,13 @@ pageMatch('pages/dialogue/branch-dialogue', () => {
         selector: '.dialogue-generate-input',
         apiParam: 'text',
         queryParam: 'q',
+        clearButton: '.dialogue-generate-input-clear',
       },
       {
         selector: '.npc-filter-input',
         apiParam: 'npcFilter',
         queryParam: 'npc',
+        clearButton: '.npc-filter-input-clear',
       }
     ],
 

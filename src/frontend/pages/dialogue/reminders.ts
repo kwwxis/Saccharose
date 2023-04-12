@@ -11,6 +11,7 @@ pageMatch('pages/dialogue/reminders', () => {
         selector: '.reminder-generate-input',
         apiParam: 'text',
         queryParam: 'q',
+        clearButton: '.reminder-generate-input-clear'
       },
       {
         selector: '.reminder-subseq-input',

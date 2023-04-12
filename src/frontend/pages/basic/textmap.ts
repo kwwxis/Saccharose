@@ -15,6 +15,7 @@ pageMatch('pages/basic/textmap', () => {
         selector: '.search-input',
         apiParam: 'text',
         queryParam: 'q',
+        clearButton: '.search-input-clear',
       },
       {
         selector: '#startFromLine',

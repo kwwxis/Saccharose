@@ -4,7 +4,10 @@
     <p class="spacer10-bottom">Enter any arbitrary text and search for it in the TextMap, returning the full TextMap
     item that the text was found in (up to 100 search results).</p>
     <div class="field valign">
-      <input class="search-input grow" type="text" placeholder="Enter text to search for in TextMap." style="border-radius:3px 0 0 3px" />
+      <div class="posRel valign grow">
+        <input class="search-input grow" type="text" placeholder="Enter text to search for in TextMap." style="border-radius:3px 0 0 3px" />
+        <button class="search-input-clear input-clear-button hide"><%- icon('x-circle') %></button>
+      </div>
       <%- include('partials/util/search-mode-input') %>
     </div>
     <div class="field valign spacer10-top">
