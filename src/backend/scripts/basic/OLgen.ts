@@ -65,8 +65,8 @@ function ol_gen_internal(textMapId: number, hideTl: boolean = false, addDefaultH
 
     let textInLang = getTextMapItem(langCode, textMapId) || '';
 
-    if (textInLang.includes('{') || textInLang.includes('}')) {
-      warnings.push(`The parameter value for <code>${LANG_CODE_TO_WIKI_CODE[langCode].toLowerCase()}</code> contains a curly brace.<br />If this is a special code, then it'll require manual editor intervention.`)
+    if (/(?<!{){(?!{)/.test(textInLang)) {
+      warnings.push(`The parameter value for <code>${LANG_CODE_TO_WIKI_CODE[langCode].toLowerCase()}</code> contains a non-wiki-template curly brace.<br />If this is a special code, then it'll require manual editor intervention.`)
     }
     if (textInLang.includes('|')) {
       textInLang = textInLang.replaceAll(/\|/g, '{{!}}');
