@@ -1,14 +1,17 @@
 import '../../loadenv';
 import { Control, getControl, normText } from '../script_util';
 import { getTextMapItem, loadTextMaps } from '../textmap';
-import { LANG_CODES, LangCode } from '../../../shared/types/dialogue-types';
+import { LANG_CODE_TO_WIKI_CODE, LANG_CODES, LangCode } from '../../../shared/types/dialogue-types';
 import { isInt } from '../../../shared/util/numberUtil';
 import { mwParse } from '../../../shared/mediawiki/mwParse';
 import { MwTemplateNode } from '../../../shared/mediawiki/mwTypes';
 import { pathToFileURL } from 'url';
 import { Marker } from '../../../shared/util/highlightMarker';
 
-function ol_gen_internal(textMapId: number, hideTl: boolean = false, addDefaultHidden: boolean = false, hideRm: boolean = false): string {
+function ol_gen_internal(textMapId: number, hideTl: boolean = false, addDefaultHidden: boolean = false, hideRm: boolean = false): {
+  wikitext: string,
+  warnings: string[],
+} {
   let template = `{{Other Languages
 |en      = {EN_official_name}
 |zhs     = {CHS_official_name}
@@ -53,17 +56,34 @@ function ol_gen_internal(textMapId: number, hideTl: boolean = false, addDefaultH
   if (addDefaultHidden) {
     template = template.replace('{{Other Languages', '{{Other Languages|default_hidden=1');
   }
-  let olMap: {[code: string]: string} = {};
+  const warnings: string[] = [];
+  const olMap: {[code: string]: string} = {};
   for (let langCode of LANG_CODES) {
     if (langCode === 'CH') {
       continue;
     }
+
     let textInLang = getTextMapItem(langCode, textMapId) || '';
+
+    if (textInLang.includes('{') || textInLang.includes('}')) {
+      warnings.push(`The parameter value for <code>${LANG_CODE_TO_WIKI_CODE[langCode].toLowerCase()}</code> contains a curly brace.<br />If this is a special code, then it'll require manual editor intervention.`)
+    }
+    if (textInLang.includes('|')) {
+      textInLang = textInLang.replaceAll(/\|/g, '{{!}}');
+      warnings.push(`The parameter value for <code>${LANG_CODE_TO_WIKI_CODE[langCode].toLowerCase()}</code> contains a pipe character (<code>|</code>). It has been replaced with <code>{{!}}</code>.<br />If pipe character was part of a special code, then it'll require manual editor intervention.`)
+    }
+    if (textInLang.includes('#')) {
+      warnings.push(`The parameter value for <code>${LANG_CODE_TO_WIKI_CODE[langCode].toLowerCase()}</code> contains a hash character (<code>#</code>).<br />If this is a special code, then it'll require manual editor intervention.`)
+    }
+    if (textInLang.includes('$')) {
+      warnings.push(`The parameter value for <code>${LANG_CODE_TO_WIKI_CODE[langCode].toLowerCase()}</code> contains a dollar character (<code>$</code>).<br />If this is a special code, then it'll require manual editor intervention.`)
+    }
+
     olMap[langCode] = textInLang;
 
     let langText = normText(textInLang, langCode, true);
     if (langCode === 'CHS' || langCode === 'CHT' || langCode === 'KR' || langCode === 'JP') {
-      // replacing this character at the request of kalexhu
+      // replacing this character at the request of kalexchu
       langText = langText.replace(/·/g, '・'); // neither are standard periods so no backlash is needed
     }
     template = template.replace(`{${langCode}_official_name}`, langText);
@@ -107,7 +127,12 @@ function ol_gen_internal(textMapId: number, hideTl: boolean = false, addDefaultH
   if (olMap['EN'] === olMap['IT']) {
     template = template.replace(/\|it_tl\s*=\s*\{}/, '');
   }
-  return template.replaceAll('{}', '').replaceAll('\\"', '"').replace(/{F#([^}]+)}{M#([^}]+)}/g, '($1/$2)').split('\n').filter(s => !!s).join('\n');
+  const wikitext = template.replaceAll('{}', '')
+    .replaceAll('\\"', '"')
+    .split('\n')
+    .filter(s => !!s)
+    .join('\n');
+  return { wikitext, warnings };
 }
 
 export interface OLGenOptions {
@@ -120,6 +145,7 @@ export interface OLGenOptions {
 export interface OLResult {
   textMapId: number,
   result: string,
+  warnings: string[],
   markers: Marker[],
   templateNode?: MwTemplateNode;
   duplicateTextMapIds: number[];
@@ -139,7 +165,7 @@ export async function ol_gen(ctrl: Control, name: string, options: OLGenOptions 
   let seen: {[result: string]: OLResult} = {};
 
   for (let textMapId of idList) {
-    let result = ol_gen_internal(textMapId, options.hideTl, options.addDefaultHidden, options.hideRm);
+    let { wikitext: result, warnings } = ol_gen_internal(textMapId, options.hideTl, options.addDefaultHidden, options.hideRm);
     if (result.includes('{EN_official_name}')) {
       continue;
     }
@@ -147,7 +173,7 @@ export async function ol_gen(ctrl: Control, name: string, options: OLGenOptions 
       seen[result].duplicateTextMapIds.push(textMapId);
       continue;
     }
-    let olResult: OLResult = {textMapId, result, markers: [], duplicateTextMapIds: []};
+    let olResult: OLResult = {textMapId, result, warnings, markers: [], duplicateTextMapIds: []};
     seen[result] = olResult;
     allResults.push(olResult);
   }
@@ -158,8 +184,8 @@ export async function ol_gen_from_id(ctrl: Control, textMapId: number, options: 
   if (!textMapId) {
     return null;
   }
-  let result = ol_gen_internal(textMapId, options.hideTl, options.addDefaultHidden, options.hideRm);
-  return {textMapId, result, markers: [], duplicateTextMapIds: []};
+  let { wikitext: result, warnings } = ol_gen_internal(textMapId, options.hideTl, options.addDefaultHidden, options.hideRm);
+  return {textMapId, result, warnings, markers: [], duplicateTextMapIds: []};
 }
 
 export function add_ol_markers(olResults: OLResult[]): OLResult[] {

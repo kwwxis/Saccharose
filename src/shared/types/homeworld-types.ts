@@ -84,10 +84,10 @@ export interface HomeWorldFurnitureExcelConfigData {
   FurnType: number[],
   SurfaceType: FurnitureSurfaceType,
   GridStyle: number,
-  Comfort: number,
+  Comfort: number,          // Adeptal Energy
   StackLimit: number,
-  Cost: number,
-  DiscountCost: number,
+  Cost: number,             // Load
+  DiscountCost: number,     // Reduced Load
   Height: number,
   ItemIcon: string,
   ClampDistance: number,

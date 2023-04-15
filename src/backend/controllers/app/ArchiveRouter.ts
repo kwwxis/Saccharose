@@ -21,6 +21,7 @@ import { AchievementsByGoals } from '../../../shared/types/achievement-types';
 import { paramCmp } from '../../util/viewUtilities';
 import { generateLoadingTipsWikiText, selectLoadingTips } from '../../scripts/archive/loadingTips';
 import { LoadingTipsByCategory } from '../../../shared/types/loading-types';
+import { toInt } from '../../../shared/util/numberUtil';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -234,8 +235,10 @@ export default async function(): Promise<Router> {
 
   router.get('/loading-tips', async (req: Request, res: Response) => {
     const ctrl = getControl(req);
+    const limitTips: number[] = typeof req.query.ids === 'string' ? req.query.ids.split(',')
+      .map(x => x.trim()).filter(x => !!x).map(x => toInt(x)) : null;
     const loadingTipsByCategory: LoadingTipsByCategory = await selectLoadingTips(ctrl);
-    const wikitextByCategory: { [cat: string]: string } = generateLoadingTipsWikiText(ctrl, loadingTipsByCategory);
+    const wikitextByCategory: { [cat: string]: string } = generateLoadingTipsWikiText(ctrl, loadingTipsByCategory, limitTips);
 
     res.render('pages/archive/loading-tips', {
       title: 'Loading Tips',

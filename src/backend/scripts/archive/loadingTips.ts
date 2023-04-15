@@ -73,7 +73,7 @@ function determineLoadingTipCategory(ctrl: Control, tip: LoadingTipsExcelConfigD
   }
 }
 
-export function generateLoadingTipsWikiText(ctrl: Control, tipsByCategory: LoadingTipsByCategory): {[cat: string]: string} {
+export function generateLoadingTipsWikiText(ctrl: Control, tipsByCategory: LoadingTipsByCategory, limitTipToIds?: number[]): {[cat: string]: string} {
   let ret: {[cat: string]: string} = {};
 
   for (let [cat, tips] of Object.entries(tipsByCategory)) {
@@ -83,6 +83,9 @@ export function generateLoadingTipsWikiText(ctrl: Control, tipsByCategory: Loadi
     let firstTip: boolean = true;
     let prevTitle: string = null;
     for (let tip of tips) {
+      if (limitTipToIds && !limitTipToIds.includes(tip.Id)) {
+        continue;
+      }
       if (tip.TipsTitleText !== prevTitle) {
         prevTitle = tip.TipsTitleText;
         if (firstTip) {

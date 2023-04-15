@@ -19,6 +19,11 @@
         </div>
       </div>
       <div id="ol-result-content-<%= idx %>">
+        <% if (olResult.warnings && olResult.warnings.length) { %>
+          <% for (let warning of olResult.warnings) { %>
+            <p class="error-notice"><strong>Warning:</strong> <%- warning %></p>
+          <% } %>
+        <% } %>
         <textarea id="ol-result-<%= idx %>" readonly spellcheck="false" translate="no" class="ol-result-textarea wikitext w100p spacer5-top"
                   style="resize:vertical;overflow:auto;font-size:13px;" data-markers="<%= Marker.joinedString(olResult.markers) %>"><%= olResult.result %></textarea>
         <% if (olResult.duplicateTextMapIds.length) { %>
