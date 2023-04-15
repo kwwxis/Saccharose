@@ -65,27 +65,30 @@ function ol_gen_internal(textMapId: number, hideTl: boolean = false, addDefaultH
 
     let textInLang = getTextMapItem(langCode, textMapId) || '';
 
-    if (/(?<!{){(?!{)/.test(textInLang)) {
-      warnings.push(`The parameter value for <code>${LANG_CODE_TO_WIKI_CODE[langCode].toLowerCase()}</code> contains a non-wiki-template curly brace.<br />If this is a special code, then it'll require manual editor intervention.`)
-    }
     if (textInLang.includes('|')) {
       textInLang = textInLang.replaceAll(/\|/g, '{{!}}');
-      warnings.push(`The parameter value for <code>${LANG_CODE_TO_WIKI_CODE[langCode].toLowerCase()}</code> contains a pipe character (<code>|</code>). It has been replaced with <code>{{!}}</code>.<br />If pipe character was part of a special code, then it'll require manual editor intervention.`)
-    }
-    if (textInLang.includes('#')) {
-      warnings.push(`The parameter value for <code>${LANG_CODE_TO_WIKI_CODE[langCode].toLowerCase()}</code> contains a hash character (<code>#</code>).<br />If this is a special code, then it'll require manual editor intervention.`)
-    }
-    if (textInLang.includes('$')) {
-      warnings.push(`The parameter value for <code>${LANG_CODE_TO_WIKI_CODE[langCode].toLowerCase()}</code> contains a dollar character (<code>$</code>).<br />If this is a special code, then it'll require manual editor intervention.`)
+      warnings.push(`The parameter value for <code>${LANG_CODE_TO_WIKI_CODE[langCode].toLowerCase()}</code> contains a non-template pipe character (<code>|</code>). It has been replaced with <code>{{!}}</code>.<br />If pipe character was part of a special code, then it'll require manual editor intervention.`)
     }
 
     olMap[langCode] = textInLang;
 
     let langText = normText(textInLang, langCode, true);
+
     if (langCode === 'CHS' || langCode === 'CHT' || langCode === 'KR' || langCode === 'JP') {
       // replacing this character at the request of kalexchu
       langText = langText.replace(/·/g, '・'); // neither are standard periods so no backlash is needed
     }
+
+    if (/(?<!{){(?!{)/.test(langText)) {
+      warnings.push(`The parameter value for <code>${LANG_CODE_TO_WIKI_CODE[langCode].toLowerCase()}</code> contains a non-template curly brace.<br />If this is a special code, then it'll require manual editor intervention.`)
+    }
+    if (langText.includes('#')) {
+      warnings.push(`The parameter value for <code>${LANG_CODE_TO_WIKI_CODE[langCode].toLowerCase()}</code> contains a hash character (<code>#</code>).<br />If this is a special code, then it'll require manual editor intervention.`)
+    }
+    if (langText.includes('$')) {
+      warnings.push(`The parameter value for <code>${LANG_CODE_TO_WIKI_CODE[langCode].toLowerCase()}</code> contains a dollar character (<code>$</code>).<br />If this is a special code, then it'll require manual editor intervention.`)
+    }
+
     template = template.replace(`{${langCode}_official_name}`, langText);
 
     let isFullAscii = /^[\u0000-\u007f]*$/.test(textInLang);
