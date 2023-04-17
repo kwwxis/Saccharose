@@ -65,7 +65,9 @@ export class DialogueSectionResult {
     if (!values || (Array.isArray(values) && !values.length)) {
       return;
     }
-    return this.getOrCreateMetaProp(label).addValues(values, link);
+    let newProp = new MetaProp(label, values, link);
+    this.metadata.push(newProp);
+    return newProp;
   }
 
   addCondMetaProp(fieldName: string, condComb: string, condList: ConfigCondition[]) {

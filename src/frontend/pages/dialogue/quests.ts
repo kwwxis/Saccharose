@@ -41,16 +41,22 @@ pageMatch('pages/dialogue/quests', () => {
 
           let groupId = target.getAttribute('data-filter-similarity-group');
           if (groupId === 'RESET') {
-            sections.forEach(sect => sect.classList.remove('hide'));
+            sections.forEach(sect => sect.classList.remove('hide', 'parent-hide'));
             flashTippy(target, {content: 'All sections restored.'});
           } else if (isInt(groupId)) {
             target.classList.add('active');
             flashTippy(target, {content: 'Dialogue sections filtered to just this group.'});
             for (let sect of sections) {
-              if (sect.getAttribute('data-similarity-group') === groupId || sect.hasAttribute('data-parent-of-similarity-group-' + groupId)) {
+
+              if (sect.getAttribute('data-similarity-group') === groupId) {
                 sect.classList.remove('hide');
+                sect.classList.remove('parent-hide');
+              } else if (sect.hasAttribute('data-parent-of-similarity-group-' + groupId)) {
+                sect.classList.remove('hide');
+                sect.classList.add('parent-hide');
               } else {
                 sect.classList.add('hide');
+                sect.classList.remove('parent-hide');
               }
             }
           }

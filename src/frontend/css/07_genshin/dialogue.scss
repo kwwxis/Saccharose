@@ -15,6 +15,10 @@
   textarea, [contenteditable] {
     padding: 5px;
   }
+
+  &.parent-hide > .dialogue-section-content > .dialogue-section-wikitext {
+    display: none;
+  }
 }
 
 .dialogue-container > .dialogue-section {

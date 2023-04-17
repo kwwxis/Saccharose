@@ -51,8 +51,8 @@ export function dialogueCompareApply(sections: DialogueSectionResult[]): Similar
         continue;
       }
 
-      sect1.addMetaProp('Similar Sections', sect2.id, '#{}');
-      sect2.addMetaProp('Similar Sections', sect1.id, '#{}');
+      sect1.getOrCreateMetaProp('Similar Sections').addValues(sect2.id, '#{}');
+      sect2.getOrCreateMetaProp('Similar Sections').addValues(sect1.id, '#{}');
 
       for (let i = 0; i < lines1.length; i++) {
         if (!lines2_set.has(lines1[i])) {
