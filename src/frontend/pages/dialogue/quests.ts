@@ -10,6 +10,55 @@ import { isInt } from '../../../shared/util/numberUtil';
 pageMatch('pages/dialogue/quests', () => {
   let lastSuccessfulQuestId: number = 0;
 
+  function postLoad(resultParent: HTMLElement) {
+    for (let section of Array.from(resultParent.querySelectorAll('.dialogue-section'))) {
+      if (section.hasAttribute('data-similarity-group')) {
+        const groupId = section.getAttribute('data-similarity-group');
+
+        let parent = section.parentElement.closest('.dialogue-section');
+        while (!!parent) {
+          if (!parent.hasAttribute('data-parent-of-similarity-group-' + groupId)) {
+            parent.setAttribute('data-parent-of-similarity-group-' + groupId, '');
+          }
+          parent = parent.parentElement.closest('.dialogue-section');
+        }
+      }
+    }
+
+    startListeners([
+      {
+        el: '[data-filter-similarity-group]',
+        ev: 'click',
+        multiple: true,
+        fn: function(event, target) {
+          if (target.classList.contains('active')) {
+            return;
+          }
+
+          document.querySelectorAll('[data-filter-similarity-group]').forEach(el => el.classList.remove('active'));
+
+          const sections = Array.from(resultParent.querySelectorAll('.dialogue-section'));
+
+          let groupId = target.getAttribute('data-filter-similarity-group');
+          if (groupId === 'RESET') {
+            sections.forEach(sect => sect.classList.remove('hide'));
+            flashTippy(target, {content: 'All sections restored.'});
+          } else if (isInt(groupId)) {
+            target.classList.add('active');
+            flashTippy(target, {content: 'Dialogue sections filtered to just this group.'});
+            for (let sect of sections) {
+              if (sect.getAttribute('data-similarity-group') === groupId || sect.hasAttribute('data-parent-of-similarity-group-' + groupId)) {
+                sect.classList.remove('hide');
+              } else {
+                sect.classList.add('hide');
+              }
+            }
+          }
+        }
+      }
+    ], resultParent);
+  }
+
   function loadQuestGenerateResult(questId) {
     if (!isInt(questId)) {
       return;
@@ -26,6 +75,7 @@ pageMatch('pages/dialogue/quests', () => {
     endpoints.generateMainQuest.get({ id: questId }, true).then(html => {
       lastSuccessfulQuestId = questId;
       document.querySelector('#quest-generate-result').innerHTML = html;
+      postLoad(document.querySelector('#quest-generate-result'));
       setTimeout(() => {
         let questTitleEl = document.querySelector('[data-document-title]');
         if (questTitleEl) {

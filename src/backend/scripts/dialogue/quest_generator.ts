@@ -20,6 +20,7 @@ import {
 import { MetaProp } from '../../util/metaProp';
 import { pathToFileURL } from 'url';
 import { SbOut } from '../../../shared/util/stringUtil';
+import { dialogueCompareApply, SimilarityGroups } from './dialogue_compare';
 
 export class QuestGenerateResult {
   mainQuest: MainQuestExcelConfigData = null;
@@ -36,6 +37,7 @@ export class QuestGenerateResult {
   dialogue: DialogueSectionResult[] = [];
   travelLogSummary: string[] = [];
   cutscenes: {file: string, text: string}[] = [];
+  similarityGroups: SimilarityGroups;
 
   reward?: RewardExcelConfigData;
   reputation?: ReputationQuestExcelConfigData;
@@ -290,6 +292,8 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
       result.dialogue.push(sect);
     }
   }
+
+  result.similarityGroups = dialogueCompareApply(result.dialogue);
 
   // Travel Log Summary
   // ------------------

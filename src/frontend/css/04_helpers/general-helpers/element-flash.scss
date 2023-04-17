@@ -2,15 +2,25 @@
 .highlight {
   background: #fcfc64;
 
+  body.nightmode & {
+    background: hsl(41deg 78% 75% / 20%);
+  }
+}
+
+.highlight-blue {
+  background: #e5eeff;
+  body.nightmode & {
+    background: #799ce533;
+  }
+}
+
+.highlight, .highlight-blue {
   &.empty {
     padding: 0 2px;
     &:before {
       content: '(empty)';
       opacity: 0.5;
     }
-  }
-  body.nightmode & {
-    background: hsl(41deg 78% 75% / 20%);
   }
 }
 

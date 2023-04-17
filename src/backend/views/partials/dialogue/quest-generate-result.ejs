@@ -146,6 +146,35 @@
       </div>
     </div>
   <% } %>
+  <% if (similarityGroups && Object.keys(similarityGroups).length) { %>
+    <h2>Similar Dialogue Groups</h2>
+    <div class="content">
+      <p class="spacer5-bottom">There are some dialogue sections in this quest that are similar to other sections. These may potentially for conditional branching. Use the table below to jump to specific sections.</p>
+      <p class="spacer5-bottom">Lines that are <b>different</b> from other sections are highlighted in a blue-ish tint.</p>
+      <table class="article-table">
+        <tr>
+          <th>Group No.</th>
+          <th>Section Jump Links</th>
+          <th class="textAlignRight"><button class="secondary small" style="font-size:13px" data-filter-similarity-group="RESET">Restore all sections</button></th>
+        </tr>
+        <% for (let [groupId, sectionInfoList] of Object.entries(similarityGroups)) { %>
+          <tr>
+            <td class="bold"><span style="white-space: nowrap;padding:0 10px">Group #<%= groupId %></span></td>
+            <td>
+              <div style="padding:5px">
+                <% for (let sectionInfo of sectionInfoList) { %>
+                  <a role="button" class="secondary small" href="#<%= sectionInfo.sectionId %>" style="font-size:15px"><%= sectionInfo.sectionId.replaceAll(/_/g, ' ') %></a>
+                <% } %>
+              </div>
+            </td>
+            <td class="textAlignRight">
+              <button class="secondary small" style="font-size:13px" data-filter-similarity-group="<%= groupId %>">Show only this group</button>
+            </td>
+          </tr>
+        <% } %>
+      </table>
+    </div>
+  <% } %>
   <h2>Dialogue</h2>
   <div class="dialogue-container">
     <% dialogue.forEach(section => { %>

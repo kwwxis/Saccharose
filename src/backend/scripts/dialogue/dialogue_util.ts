@@ -29,6 +29,7 @@ export class DialogueSectionResult {
   htmlMessage: string = null;
   originalData: { talkConfig?: TalkExcelConfigData, dialogBranch?: DialogExcelConfigData[] } = {};
   showGutter: boolean = false;
+  similarityGroupId: number = null;
 
   constructor(id: string, title: string, helptext: string = null) {
     this.id = id;
@@ -45,11 +46,26 @@ export class DialogueSectionResult {
     this.metadata.push(new MetaProp(label, null));
   }
 
+  getMetaProp(label: string): MetaProp {
+    return this.metadata.find(item => item.label === label);
+  }
+
+  getOrCreateMetaProp(label: string): MetaProp {
+    let existingProp = this.metadata.find(item => item.label === label);
+    if (existingProp) {
+      return existingProp;
+    } else {
+      let newProp = new MetaProp(label);
+      this.metadata.push(newProp);
+      return newProp;
+    }
+  }
+
   addMetaProp(label: string, values: MetaPropAcceptValue, link?: string) {
     if (!values || (Array.isArray(values) && !values.length)) {
       return;
     }
-    this.metadata.push(new MetaProp(label, values, link));
+    return this.getOrCreateMetaProp(label).addValues(values, link);
   }
 
   addCondMetaProp(fieldName: string, condComb: string, condList: ConfigCondition[]) {
@@ -123,6 +139,7 @@ export async function talkConfigToDialogueSectionResult(ctrl: Control, parentSec
   mysect.originalData.talkConfig = talkConfig;
 
   mysect.addMetaProp('Talk ID', talkConfig.Id, '/branch-dialogue?q={}');
+  mysect.addMetaProp('First Dialogue ID', talkConfig.InitDialog, '/branch-dialogue?q={}');
   if (talkConfig.QuestId) {
     if (talkConfig.LoadType === 'TALK_ACTIVITY') {
       mysect.addMetaProp('Activity ID', {value: talkConfig.QuestId, tooltip: await ctrl.selectNewActivityName(talkConfig.QuestId)});

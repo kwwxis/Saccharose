@@ -21,9 +21,14 @@ export class MetaProp {
   label: string;
   values: MetaPropValue[] = [];
 
-  constructor(label: string, values: MetaPropAcceptValue, link?: string) {
+  constructor(label: string, values?: MetaPropAcceptValue, link?: string) {
     this.label = label;
+    if (values) {
+      this.addValues(values, link);
+    }
+  }
 
+  addValues(values: MetaPropAcceptValue, link?: string): this {
     const getLink = (v: string|number, overrideLink?: string) => {
       if (!overrideLink) {
         overrideLink = link;
@@ -51,5 +56,6 @@ export class MetaProp {
     } else if (typeof values !== 'undefined' && values !== null) {
       single(values);
     }
+    return this;
   }
 }

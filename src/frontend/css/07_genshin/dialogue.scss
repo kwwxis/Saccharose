@@ -28,7 +28,7 @@
 
   .prop {
     display: flex;
-    align-items: center;
+    align-items: stretch;
     border: 1px solid hsla(232, 20%, 32%, 0.25);
     border-radius: 3px;
     margin-right: 5px;
@@ -42,10 +42,12 @@
 
     .prop-label {
       background: hsla(232, 20%, 32%, 0.11);
+      border-right: 1px solid hsla(232, 20%, 32%, 0.3);
       padding: 0 3px;
 
       body.nightmode & {
         background: hsl(255deg 8% 22%);
+        border-right-color: hsla(232, 20%, 60%, 0.3);
       }
     }
 
@@ -53,15 +55,28 @@
       display: flex;
       align-items: center;
       flex-wrap: wrap;
+      overflow: hidden;
+      margin-top: -1px;
 
       .prop-value {
-        border-left: 1px solid hsla(232, 20%, 32%, 0.3);
-        padding: 0 5px;
+        border: 1px solid hsla(232, 20%, 32%, 0.3);
+        background: #fff;
+        margin-left: -1px;
+        margin-bottom: -1px;
+        padding: 1px 5px;
         text-decoration: none;
+        transition: all 50ms;
 
         body.nightmode & {
-          border-left-color: hsla(232, 20%, 60%, 0.3);
+          border-color: hsla(232, 20%, 60%, 0.3);
           background: hsl(255deg 8% 20%);
+        }
+      }
+
+      a.prop-value:hover {
+        background: #d7e2f9;
+        body.nightmode & {
+          background: #799ce533;
         }
       }
     }

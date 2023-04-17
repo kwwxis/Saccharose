@@ -78,6 +78,7 @@ router.restful('/quests/generate', {
       locals.reward = result.reward;
       locals.reputation = result.reputation;
       locals.rewardInfobox = result.rewardInfobox;
+      locals.similarityGroups = result.similarityGroups;
 
       return res.render('partials/dialogue/quest-generate-result', locals);
     } else {

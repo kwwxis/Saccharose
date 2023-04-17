@@ -231,6 +231,9 @@ button.secondary,
   border-radius: 2px;
   background: hsla(210, 14%, 98%, 1);
   color: hsla(223, 67%, 18%, 0.75);
+}
+button.secondary,
+[role='button'].secondary {
   cursor: pointer;
 }
 
@@ -244,6 +247,17 @@ button.secondary:not([disabled]):focus,
 [role='button'].secondary:not([disabled]):focus {
   box-shadow: 0 0 0 2px rgba(0, 140, 221, 0.2);
   border-color: hsla(223, 67%, 18%, 0.5);
+}
+
+button.secondary.active,
+[role='button'].secondary.active,
+.secondary-label.active,
+button.secondary.active:not([disabled]):hover,
+[role='button'].secondary.active:not([disabled]):hover,
+.secondary-label.active:not([disabled]):hover {
+  background-color: #3daaf5;
+  color: white;
+  border: 1px solid hsla(204, 90%, 50%, 1);
 }
 
 button.secondary.selected,
@@ -265,7 +279,8 @@ button.secondary.border-light,
 }
 
 button.secondary.small,
-[role='button'].secondary.small {
+[role='button'].secondary.small,
+.secondary-label.small {
   line-height: 14px;
   padding: 4px 8px;
   font-size: 12.5px;
