@@ -19,7 +19,7 @@ export function preloadFromFetters(characterFetters: CharacterFetters, mode: 'st
   out.setPropPad(20);
   out.setPropFilter((propName: string, propValue: string) => {
     let mode: PropFillMode = Object.entries(opts.paramFill).find(([key, _value]) => {
-      return new RegExp(key).test(propName);
+      return new RegExp('^' + key + '$').test(propName);
     })?.[1];
     if (mode === 'remove') {
       return undefined;
