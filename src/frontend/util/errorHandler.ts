@@ -18,11 +18,9 @@ export function showJavascriptErrorDialog(message, source, lineno?: number, coln
       An unexpected JavaScript error occurred. Try again in a few moments. If the problem
       persists then yell at kwwxis.
     </p>
-  `, {
-    onConfirm() {
-      handlingJavascriptError = false;
-    }
-  });
+  `).onClose(() => {
+    handlingJavascriptError = false;
+  })
 
   return true;
 }
@@ -43,13 +41,8 @@ export function showInternalErrorDialog(data) {
       An internal server error occurred. Try again in a few moments. If the problem
       persists then yell at kwwxis.
     </p>
-    <div class='buttons spacer15-top'>
-      <button class='primary dismiss-btn'>Dismiss</button>
-    </div>
-  `, {
-    onConfirm() {
-      handlingInternalError = false;
-    }
+  `).onClose(() => {
+    handlingInternalError = false;
   });
 
   return true;

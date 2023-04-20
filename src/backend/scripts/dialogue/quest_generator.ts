@@ -84,11 +84,14 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
 
   // Fetch Talk Configs by Main Quest ID (exact)
   const talkConfigsByMainQuestId = await ctrl.selectTalkExcelConfigDataByQuestId(mainQuest.Id, 'TALK_DEFAULT');
+
+  debug(`Fetching Talks (by MainQuest ID) - obtained ${talkConfigsByMainQuestId.length} talks, processing...`);
+
   for (let talkConfig of talkConfigsByMainQuestId) {
     await talkConfigAcc.handleTalkConfig(talkConfig);
   }
 
-  debug('Fetching MainQuest (by SubQuest ID)');
+  debug('Fetching Talks (by SubQuest ID)');
 
   // Find Talk Configs by Quest Sub ID
   for (let questExcelConfigData of mainQuest.QuestExcelConfigDataList) {
@@ -99,7 +102,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
     await talkConfigAcc.handleTalkConfig(talkConfig);
   }
 
-  debug('Fetching MainQuest (by MainQuest ID Prefix)');
+  debug('Fetching Talks (by MainQuest ID Prefix)');
 
   // Fetch Talk Configs by Main Quest ID (prefix)
   let talkConfigIdsByMainQuestIdPrefix: number[] = await ctrl.selectTalkExcelConfigDataIdsByPrefix(mainQuest.Id);

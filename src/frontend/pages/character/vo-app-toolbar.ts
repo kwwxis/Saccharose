@@ -3,7 +3,7 @@ import { LANG_CODE_TO_WIKI_CODE, LangCode } from '../../../shared/types/dialogue
 import { VoAppState } from './vo-tool';
 import { flashTippy } from '../../util/tooltips';
 import { copyToClipboard, downloadObjectAsJson, downloadTextAsFile } from '../../util/domutil';
-import { modalService } from '../../util/modalService';
+import { ModalRef, modalService } from '../../util/modalService';
 import { ucFirst } from '../../../shared/util/stringUtil';
 import { GeneralEventBus } from '../../generalEventBus';
 import { VoAppPreloadOptions } from './vo-app-preload';
@@ -89,23 +89,19 @@ export function VoAppToolbar(state: VoAppState) {
         `, {
       modalClass: 'modal-lg',
       modalCssStyle: 'max-height:750px',
-      contentClass: 'modal-inset',
-      onConfirm(modalEl: HTMLElement) {
-        modalEl.querySelectorAll<HTMLInputElement>('input[type=checkbox]').forEach(inputEl => {
-          if (inputEl.checked) {
-            resolveObjectPath(opts, inputEl.name, 'set', true);
-          }
-        });
-        modalEl.querySelectorAll<HTMLInputElement>('input[type=radio]').forEach(inputEl => {
-          if (inputEl.checked) {
-            resolveObjectPath(opts, inputEl.name, 'set', inputEl.value);
-          }
-        });
-        state.eventBus.emit('VO-Wikitext-OverwriteFromFetters', type, opts);
-      },
-      onCancel() {
-        // Do nothing
-      }
+      contentClass: 'modal-inset'
+    }).onConfirm((ref: ModalRef) => {
+      ref.outerEl.querySelectorAll<HTMLInputElement>('input[type=checkbox]').forEach(inputEl => {
+        if (inputEl.checked) {
+          resolveObjectPath(opts, inputEl.name, 'set', true);
+        }
+      });
+      ref.outerEl.querySelectorAll<HTMLInputElement>('input[type=radio]').forEach(inputEl => {
+        if (inputEl.checked) {
+          resolveObjectPath(opts, inputEl.name, 'set', inputEl.value);
+        }
+      });
+      state.eventBus.emit('VO-Wikitext-OverwriteFromFetters', type, opts);
     });
   }
   startListeners([

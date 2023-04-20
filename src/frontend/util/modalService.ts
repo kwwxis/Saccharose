@@ -1,50 +1,82 @@
 import { escapeHtml } from '../../shared/util/stringUtil';
-import { getFocusableSelector } from './domutil';
+import { getFocusableSelector, isElement } from './domutil';
+import { runWhenDOMContentLoaded } from './eventLoader';
 
 const TYPE_ALERT = 0;
 const TYPE_MODAL = 1;
 const TYPE_CONFIRM = 4;
 
+export type ModalCloseListener = (ref: ModalRef) => void;
+
+const MODAL_REFS: {[id: string]: ModalRef} = {};
+
+export class ModalRef {
+  readonly id: string;
+  readonly outerEl: HTMLElement;
+  private closeListeners: ModalCloseListener[] = [];
+
+  constructor(id: string, outerEl: HTMLElement) {
+    this.id = id;
+    this.outerEl = outerEl;
+  }
+
+  close(): void {
+    for (let closeListener of this.closeListeners) {
+      closeListener(this);
+    }
+    this.outerEl.classList.remove('in');
+    this.outerEl.querySelector('.modal').classList.remove('in');
+    setTimeout(() => {
+      this.outerEl.remove();
+    })
+  }
+
+  onClose(listener: ModalCloseListener): this {
+    this.closeListeners.push(listener);
+    return this;
+  }
+
+  onConfirm(listener: ModalCloseListener): this {
+    this.outerEl.querySelectorAll(`.confirm`).forEach(confirmBtn => {
+      confirmBtn.addEventListener('click', () => {
+        listener(this);
+      });
+    });
+    return this;
+  }
+
+  onCancel(listener: ModalCloseListener): this {
+    this.outerEl.querySelectorAll(`.cancel`).forEach(cancelBtn => {
+      cancelBtn.addEventListener('click', () => {
+        listener(this);
+      });
+    });
+    return this;
+  }
+}
+
 export type ModalOpts = {
-  // CSS:
   modalOuterClass?: string,
   modalClass?: string,
   modalCssStyle?: string,
   contentClass?: string,
-
-  callback?: (modalEL: HTMLElement) => void,
-  disableEscToClose?: boolean,
-  onConfirm?: (modalEL?: HTMLElement) => void,
-  onCancel?: (modalEL?: HTMLElement) => void,
 }
 
 class ModalService {
-  private modalsOpen = false;
 
-  private active_listener = (e: KeyboardEvent) => {
-    if (!this.modalsOpen) {
-      return;
-    }
-    const tag = (<HTMLElement> e.target).tagName.toUpperCase();
-
-    const key = e.which || e.keyCode || 0;
-    if (key === 13 && tag != 'TEXTAREA' && tag != 'INPUT' && tag != 'SELECT' && tag != 'BUTTON') this.closeAll(); // Enter
-    if (key === 27 && tag != 'TEXTAREA' && tag != 'INPUT' && tag != 'SELECT') this.closeAll(); // Escape
-  };
-
-  modal(header: string, contents: string|HTMLElement, opts: ModalOpts = {}) {
-    this.open(header, contents, TYPE_MODAL, opts);
+  modal(header: string, contents: string|HTMLElement, opts: ModalOpts = {}): ModalRef {
+    return this.open(header, contents, TYPE_MODAL, opts);
   }
 
-  alert(header: string, contents: string|HTMLElement, opts: ModalOpts = {}) {
-    this.open(header, contents, TYPE_ALERT, opts);
+  alert(header: string, contents: string|HTMLElement, opts: ModalOpts = {}): ModalRef {
+    return this.open(header, contents, TYPE_ALERT, opts);
   }
 
-  confirm(header: string, contents: string|HTMLElement, opts: ModalOpts = {}) {
-    this.open(header, contents, TYPE_CONFIRM, opts);
+  confirm(header: string, contents: string|HTMLElement, opts: ModalOpts = {}): ModalRef {
+    return this.open(header, contents, TYPE_CONFIRM, opts);
   }
 
-  open(header: string, contents: string|HTMLElement, optType: number, opts: ModalOpts = {}) {
+  open(header: string, contents: string|HTMLElement, optType: number, opts: ModalOpts = {}): ModalRef {
     if (!header || !contents) return;
     this.closeAll();
     opts = opts || {};
@@ -87,37 +119,20 @@ class ModalService {
 
     document.body.insertAdjacentHTML('beforeend', html);
     const modalOuterEl: HTMLElement = document.querySelector(`#${id}`);
+    const modalRef: ModalRef = new ModalRef(id, modalOuterEl);
+
+    MODAL_REFS[id] = modalRef;
+
+    modalOuterEl.addEventListener('click', (event) => {
+      if (isElement(event.target) && !event.target.closest('.modal')) {
+        modalRef.close();
+      }
+    })
 
     if (contents instanceof Node) {
       modalOuterEl.querySelector(`.modal-content`).append(contents);
     } else {
       modalOuterEl.querySelector(`.modal-content`).innerHTML = contents;
-    }
-
-    if (opts.onConfirm) {
-      modalOuterEl.querySelectorAll(`.confirm`).forEach(confirmBtn => {
-        confirmBtn.addEventListener('click', () => {
-          opts.onConfirm(modalOuterEl);
-        });
-      })
-    }
-
-    if (opts.onCancel) {
-      modalOuterEl.querySelectorAll(`.cancel`).forEach(cancelBtn => {
-        cancelBtn.addEventListener('click', () => {
-          opts.onCancel(modalOuterEl);
-        });
-      });
-    }
-
-    this.modalsOpen = true;
-
-    if (opts.callback) {
-      opts.callback.apply(null, [document.getElementById(id)]);
-    }
-
-    if (!opts.disableEscToClose) {
-      setTimeout(() => document.body.addEventListener('keyup', this.active_listener.bind(this)), 100);
     }
 
     setTimeout(() => {
@@ -137,21 +152,36 @@ class ModalService {
         }
       });
     });
+
+    return modalRef;
   }
 
   closeAll() {
-    this.modalsOpen = false;
-    document.querySelectorAll('.modal-outer').forEach(el => {
-      el.classList.remove('in');
-      el.querySelector('.modal').classList.remove('in');
-      setTimeout(() => {
-        el.remove();
-      }, 300);
-    });
-    document.body.removeEventListener('keyup', this.active_listener.bind(this));
+    let keys: string[] = Object.keys(MODAL_REFS);
+    for (let key of keys) {
+      let modalRef: ModalRef = MODAL_REFS[key];
+      if (modalRef) {
+        modalRef.close();
+        delete MODAL_REFS[key];
+      }
+    }
   }
 }
 
-export const modalService = new ModalService();
+export const modalService: ModalService = new ModalService();
 
 (<any> window).modalService = modalService;
+
+
+runWhenDOMContentLoaded(() => {
+  document.body.addEventListener('keyup', (e: KeyboardEvent) => {
+    if (!Object.keys(MODAL_REFS).length) {
+      return;
+    }
+    const tag = (<HTMLElement> e.target).tagName.toUpperCase();
+
+    const key = e.which || e.keyCode || 0;
+    //if (key === 13 && tag != 'TEXTAREA' && tag != 'INPUT' && tag != 'SELECT' && tag != 'BUTTON') modalService.closeAll(); // Enter
+    if (key === 27 && tag != 'TEXTAREA' && tag != 'INPUT' && tag != 'SELECT') modalService.closeAll(); // Escape
+  })
+});

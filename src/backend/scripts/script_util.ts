@@ -97,6 +97,8 @@ import { isEmpty, isset } from '../../shared/util/genericUtil';
 import { NewActivityExcelConfigData } from '../../shared/types/activity-types';
 import { Marker } from '../../shared/util/highlightMarker';
 import { ElementType } from '../../shared/types/manual-text-map';
+import { custom } from '../util/logger';
+import { DialogBranchingCache } from './dialogue/dialogue_util';
 
 // TODO improve this method - it sucks
 //   Only works for languages that use spaces for word boundaries (i.e. not chinese)
@@ -803,19 +805,35 @@ export class Control {
     return dialog.TalkRole.Type === 'TALK_ROLE_PLAYER'; // && dialog.TalkShowType && dialog.TalkShowType === 'TALK_SHOW_FORCE_SELECT';
   }
 
-  async selectDialogBranch(start: DialogExcelConfigData, dialogSeenAlready?: Set<number>): Promise<DialogExcelConfigData[]> {
+  async selectDialogBranch(start: DialogExcelConfigData, cache?: DialogBranchingCache, debugSource?: string|number): Promise<DialogExcelConfigData[]> {
     if (!start)
       return [];
-    if (!dialogSeenAlready)
-      dialogSeenAlready = new Set();
-    let currBranch: DialogExcelConfigData[] = [];
+    if (!debugSource)
+      debugSource = 'any';
+    if (!cache)
+      cache = new DialogBranchingCache(null, null);
+
+    const debug: debug.Debugger = custom('dialog:' + debugSource);
+
+    const currBranch: DialogExcelConfigData[] = [];
+
+    if (cache.dialogToBranch.hasOwnProperty(start.Id)) {
+      debug('Selecting dialog branch for ' + start.Id + ' (already seen)');
+      //currBranch.push(this.copyDialogForRecurse(start));
+      return cache.dialogToBranch[start.Id];
+    } else {
+      debug('Selecting dialog branch for ' + start.Id);
+      cache.dialogToBranch[start.Id] = currBranch;
+    }
+
     let currNode = start;
+
     while (currNode) {
-      if (dialogSeenAlready.has(currNode.Id)) {
+      if (cache.dialogSeenAlready.has(currNode.Id)) {
         currBranch.push(this.copyDialogForRecurse(currNode));
         break;
       } else {
-        dialogSeenAlready.add(currNode.Id);
+        cache.dialogSeenAlready.add(currNode.Id);
       }
 
       if (currNode.TalkContentText) {
@@ -823,15 +841,22 @@ export class Control {
       }
 
       const nextNodes: DialogExcelConfigData[] = await this.selectMultipleDialogExcelConfigData(currNode.NextDialogs);
+
       if (nextNodes.length === 1) {
         // If only one next node -> same branch
         currNode = nextNodes[0];
       } else if (nextNodes.length > 1) {
         // If multiple next nodes -> branching
-        const branches: DialogExcelConfigData[][] = await Promise.all(nextNodes.map(node => this.selectDialogBranch(node, new Set(dialogSeenAlready))));
-        //console.log('Branches:', branches.map(b => b[0]));
-        const intersect = arrayIntersect<DialogExcelConfigData>(branches, this.IdComparator).filter(x => x.TalkRole.Type !== 'TALK_ROLE_PLAYER'); // do not rejoin on a player talk
-        //console.log('Intersect:', intersect.length ? intersect[0] : null);
+
+        const branches: DialogExcelConfigData[][] = await Promise.all(
+          nextNodes.map((node: DialogExcelConfigData) => {
+            return this.selectDialogBranch(node, DialogBranchingCache.from(cache), debugSource + ':' + start.Id);
+          })
+        );
+
+        const intersect: DialogExcelConfigData[] = arrayIntersect<DialogExcelConfigData>(branches, this.IdComparator)
+          .filter(x => x.TalkRole.Type !== 'TALK_ROLE_PLAYER'); // do not rejoin on a player talk
+
         if (!intersect.length) {
           // branches do not rejoin
           currNode.Branches = branches;
@@ -981,41 +1006,41 @@ export class Control {
       // Output Append
       // ~~~~~~~~~~~~~
 
-      if (this.isBlackScreenDialog(dialog)) {
-        if (!previousDialog || !this.isBlackScreenDialog(previousDialog)) {
-          out += '\n';
-        }
-        out += `\n${prefix}'''${text}'''`;
-        out += '\n';
-      } else if (dialog.TalkRole.Type === 'TALK_ROLE_PLAYER') {
-        if (voPrefix) {
-          out += `\n${diconPrefix}${voPrefix}'''(Traveler):''' ${text}`;
-        } else {
-          if (dialog.TalkRoleNameText) {
-            let name = normText(dialog.TalkRoleNameText, this.outputLangCode);
-            out += `\n${prefix}'''${name}:''' ${text}`;
-          } else {
-            out += `\n${diconPrefix}${':'.repeat(numSubsequentNonBranchPlayerDialogOption)}{{DIcon}} ${text}`;
-          }
-        }
-      } else if (dialog.TalkRole.Type === 'TALK_ROLE_NPC' || dialog.TalkRole.Type === 'TALK_ROLE_GADGET') {
-        let name = normText(dialog.TalkRoleNameText, this.outputLangCode);
-        out += `\n${prefix}${voPrefix}'''${name}:''' ${text}`;
-      } else if (dialog.TalkRole.Type === 'TALK_ROLE_MATE_AVATAR') {
-        out += `\n${prefix}${voPrefix}'''(Traveler's Sibling):''' ${text}`;
-      } else {
-        if (text) {
-          out += `\n${prefix}:'''Cutscene_Character_Replace_me:''' ${text}`;
-        } else {
-          console.warn('Dialog with unknown TalkRole.Type "' + dialog.TalkRole.Type + '" and without text:', dialog);
-        }
-      }
-
       if (dialog.Recurse) {
         if (dialog.TalkRole.Type === 'TALK_ROLE_PLAYER') {
           out += `\n${diconPrefix};(Return to option selection)`;
         } else {
           out += `\n${diconPrefix.slice(0,-1)};(Return to option selection)`;
+        }
+      } else {
+        if (this.isBlackScreenDialog(dialog)) {
+          if (!previousDialog || !this.isBlackScreenDialog(previousDialog)) {
+            out += '\n';
+          }
+          out += `\n${prefix}'''${text}'''`;
+          out += '\n';
+        } else if (dialog.TalkRole.Type === 'TALK_ROLE_PLAYER') {
+          if (voPrefix) {
+            out += `\n${diconPrefix}${voPrefix}'''(Traveler):''' ${text}`;
+          } else {
+            if (dialog.TalkRoleNameText) {
+              let name = normText(dialog.TalkRoleNameText, this.outputLangCode);
+              out += `\n${prefix}'''${name}:''' ${text}`;
+            } else {
+              out += `\n${diconPrefix}${':'.repeat(numSubsequentNonBranchPlayerDialogOption)}{{DIcon}} ${text}`;
+            }
+          }
+        } else if (dialog.TalkRole.Type === 'TALK_ROLE_NPC' || dialog.TalkRole.Type === 'TALK_ROLE_GADGET') {
+          let name = normText(dialog.TalkRoleNameText, this.outputLangCode);
+          out += `\n${prefix}${voPrefix}'''${name}:''' ${text}`;
+        } else if (dialog.TalkRole.Type === 'TALK_ROLE_MATE_AVATAR') {
+          out += `\n${prefix}${voPrefix}'''(Traveler's Sibling):''' ${text}`;
+        } else {
+          if (text) {
+            out += `\n${prefix}:'''Cutscene_Character_Replace_me:''' ${text}`;
+          } else {
+            console.warn('Dialog with unknown TalkRole.Type "' + dialog.TalkRole.Type + '" and without text:', dialog);
+          }
         }
       }
 

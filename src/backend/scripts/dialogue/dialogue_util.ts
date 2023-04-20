@@ -14,6 +14,21 @@ import { pathToFileURL } from 'url';
 import { loadEnglishTextMap } from '../textmap';
 import { closeKnex } from '../../util/db';
 import { isInt } from '../../../shared/util/numberUtil';
+import { custom } from '../../util/logger';
+
+export class DialogBranchingCache {
+  dialogToBranch: {[id: number]: DialogExcelConfigData[]} = {};
+  dialogSeenAlready: Set<number>;
+
+  constructor(dialogToBranch: {[id: number]: DialogExcelConfigData[]}, dialogueSeenAlready: Set<number>) {
+    this.dialogToBranch = dialogToBranch || {};
+    this.dialogSeenAlready = !dialogueSeenAlready ? new Set<number>() : new Set<number>(dialogueSeenAlready);
+  }
+
+  static from(self: DialogBranchingCache) {
+    return new DialogBranchingCache(self.dialogToBranch, self.dialogSeenAlready);
+  }
+}
 
 // "DialogueSectionResult" CLASS
 // --------------------------------------------------------------------------------------------------------------
@@ -101,15 +116,18 @@ export class TalkConfigAccumulator {
     if (!talkConfig || this.fetchedTalkConfigIds.has(talkConfig.Id)) {
       return null; // skip if not found or if already found
     }
+    const debug: debug.Debugger = custom('talk-config-acc:' + talkConfig.Id);
     this.fetchedTalkConfigIds.add(talkConfig.Id);
+    debug(`Fetching dialogue branch for ${talkConfig.Id} (${isTopLevel ? 'Top Level' : 'Child'}) [Init Dialog: ${talkConfig.InitDialog}]`);
     if (!!talkConfig.InitDialog) {
-      talkConfig.Dialog = await this.ctrl.selectDialogBranch(await this.ctrl.selectSingleDialogExcelConfigData(talkConfig.InitDialog));
+      talkConfig.Dialog = await this.ctrl.selectDialogBranch(await this.ctrl.selectSingleDialogExcelConfigData(talkConfig.InitDialog), null, talkConfig.Id);
     } else {
       talkConfig.Dialog = [];
     }
     if (isTopLevel) {
       this.fetchedTopLevelTalkConfigs.push(talkConfig);
     }
+    debug(`Fetched dialogue branch - has ${talkConfig.NextTalks.length} Next Talks`);
     if (talkConfig.NextTalks) {
       if (!talkConfig.NextTalksDataList) {
         talkConfig.NextTalksDataList = [];
@@ -118,6 +136,7 @@ export class TalkConfigAccumulator {
       for (let nextTalkId of talkConfig.NextTalks) {
         let nextTalkConfig = await this.handleTalkConfig(await this.ctrl.selectTalkExcelConfigDataByQuestSubId(nextTalkId), false);
         if (nextTalkConfig) {
+          debug(`Adding Next Talk data for ` + nextTalkId);
           let prevTalkConfig: TalkExcelConfigData = null;
           if (talkConfig.NextTalksDataList.length) {
             prevTalkConfig = talkConfig.NextTalksDataList[talkConfig.NextTalksDataList.length - 1];

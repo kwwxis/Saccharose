@@ -61,6 +61,7 @@ $modal-border-nightmode: hsl(255deg 13% 25%);
     justify-content: space-between;
     padding: 10px 20px;
     border-bottom: 0.5px solid $modal-border;
+    font-weight: 600;
 
     body.nightmode & {
       border-bottom-color: $modal-border-nightmode;
@@ -95,9 +96,11 @@ $modal-border-nightmode: hsl(255deg 13% 25%);
     justify-content: flex-end;
     padding: 10px 20px;
     border-top: 0.5px solid $modal-border;
+    background: hsla(223, 67%, 18%, 0.04);
 
     body.nightmode & {
       border-top-color: $modal-border-nightmode;
+      background: hsla(232, 12%, 29%, 0.2);
     }
   }
 
