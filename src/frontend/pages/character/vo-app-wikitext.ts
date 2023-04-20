@@ -122,6 +122,7 @@ export function VoAppWikitextEditor(state: VoAppState) {
     if (!state.fetters) {
       return;
     }
+    console.log('[VO-App] Received OverwriteFromFetters with mode ' + requestedMode + ' and options:', opts);
     let voLang: LangCode = state.voLang;
     let userLang: LangCode = (Cookies.get('outputLangCode') || DEFAULT_LANG) as LangCode;
     let mode: 'story' | 'combat' = null;

@@ -4,9 +4,11 @@ import { LangCode } from '../../../shared/types/dialogue-types';
 import { defaultMap } from '../../../shared/util/genericUtil';
 import { isTraveler as checkIsTraveler } from '../../../shared/types/avatar-types';
 
+export type PropFillMode = 'fill' | 'remove' | 'empty';
+
 export type VoAppPreloadOptions = {
-  noIncludeFileParam?: boolean,
   swapTitleSubtitle?: boolean,
+  paramFill?: {[paramName: string]: PropFillMode},
 }
 
 export type VoAppPreloadResult = { templateName: string, wikitext: string };
@@ -15,6 +17,18 @@ export function preloadFromFetters(characterFetters: CharacterFetters, mode: 'st
                                    opts: VoAppPreloadOptions = {}): VoAppPreloadResult {
   const out = new SbOut();
   out.setPropPad(20);
+  out.setPropFilter((propName: string, propValue: string) => {
+    let mode: PropFillMode = Object.entries(opts.paramFill).find(([key, _value]) => {
+      return new RegExp(key).test(propName);
+    })?.[1];
+    if (mode === 'remove') {
+      return undefined;
+    } else if (mode === 'empty') {
+      return '';
+    } else {
+      return propValue;
+    }
+  });
 
   const isStory: boolean = mode === 'story';
   const isCombat: boolean = mode === 'combat';
@@ -165,9 +179,7 @@ export function preloadFromFetters(characterFetters: CharacterFetters, mode: 'st
         }
       }
 
-      if (!opts.noIncludeFileParam) {
-        out.prop('file', getStoryFileName(fetter));
-      }
+      out.prop('file', getStoryFileName(fetter));
 
       if (lang === 'CH') {
         out.prop('tx_s', fetter.VoiceFileTextMap.CHS);
@@ -307,9 +319,7 @@ export function preloadFromFetters(characterFetters: CharacterFetters, mode: 'st
       }
       if (file) {
         out.setPropPrefix(`${groupCode}_${voItemNum + 1}_`);
-        if (!opts.noIncludeFileParam) {
-          out.prop('file', file);
-        }
+        out.prop('file', file);
       }
     }
   }

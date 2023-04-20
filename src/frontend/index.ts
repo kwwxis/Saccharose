@@ -29,3 +29,6 @@ import { escapeHtml } from '../shared/util/stringUtil';
 
 import JSON5 from 'json5';
 (<any> window).JSON5 = JSON5;
+
+import { resolveObjectPath } from '../shared/util/arrayUtil';
+(<any> window).resolveObjectPath = resolveObjectPath;

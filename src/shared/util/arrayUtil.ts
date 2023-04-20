@@ -1,5 +1,6 @@
 import { isUnset, isEmpty } from './genericUtil';
 import { isStringBlank, trim } from './stringUtil';
+import { isInt } from './numberUtil';
 
 export type SortComparator<T> = (a: T, b: T) => number;
 export type ElementComparator<T> = (arrayElement: T, expectedElement: T) => boolean;
@@ -58,29 +59,50 @@ export function fromKeysWithFixedValue<T>(keys: string[], value: T): { [key: str
     return obj;
 }
 
-export function resolveObjectPath(o: any, s: string, deleteMode: boolean = false): any {
-    if (typeof s !== 'string') return undefined;
-    s = s.replace(/\.?\[([^\]]+)]/g, '.$1'); // convert indexes to properties
-    s = s.replace(/^\./, '');           // strip a leading dot
-    if (isStringBlank(s)) return o;
-    let a = s.split('.');
-    let lastIdx = a.length - 1;
-    for (let i = 0; i < a.length; i++) {
-        let k = a[i];
-        let isLast = i === lastIdx;
-        if (typeof o === 'object' && k in o) {
-            let v = o[k];
-            if (isLast && deleteMode) {
-                delete o[k];
-            }
-            o = v;
-        } else if (Array.isArray(o) && ['#ALL', '#EACH', '#EVERY'].includes(k.toUpperCase())) {
-            return o.map(item => resolveObjectPath(item, a.slice(i + 1).join('.'), deleteMode)).flat(Infinity);
+export function resolveObjectPath(o: any, s: string, mode: 'get' | 'set' | 'delete' = 'get', newValue?: any): any {
+  if (typeof s !== 'string') return undefined;
+  s = s.replace(/\.?\[([^\]]+)]/g, '.$1'); // convert indexes to properties
+  s = s.replace(/^\./, '');           // strip a leading dot
+  if (isStringBlank(s)) return o;
+  let a = s.split('.');
+  let lastIdx = a.length - 1;
+  for (let i = 0; i < a.length; i++) {
+    let k = a[i];
+    let isLast = i === lastIdx;
+    if (typeof o === 'object' && k in o) {
+      let v = o[k];
+      if (isLast && mode === 'delete') {
+        delete o[k];
+      }
+      if (isLast && mode === 'set') {
+        o[k] = newValue;
+      }
+      if (!isLast && mode === 'set' && !v) {
+         o[k] = {};
+         v = o[k];
+      }
+      o = v;
+    } else if (Array.isArray(o) && ['#ALL', '#EACH', '#EVERY'].includes(k.toUpperCase())) {
+      return o.map(item => resolveObjectPath(item, a.slice(i + 1).join('.'), mode, newValue)).flat(Infinity);
+    } else {
+      if (mode === 'set') {
+        if (isLast) {
+          o[k] = newValue;
         } else {
-            return undefined;
+          let nextKeyUC = a[i+1].toUpperCase();
+          if (isInt(nextKeyUC) || ['#ALL', '#EACH', '#EVERY'].includes(nextKeyUC)) {
+            o[k] = [];
+          } else {
+            o[k] = {};
+          }
+          o = o[k];
+          continue;
         }
+      }
+      return undefined;
     }
-    return o;
+  }
+  return o;
 }
 
 export function groupBy<T>(array: T[], property: string): { [groupedBy: string]: T[] } {

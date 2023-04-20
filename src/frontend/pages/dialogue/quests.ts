@@ -31,16 +31,15 @@ pageMatch('pages/dialogue/quests', () => {
         ev: 'click',
         multiple: true,
         fn: function(event, target) {
-          if (target.classList.contains('active')) {
-            return;
-          }
+          const targetIsActive: boolean = target.classList.contains('active');
 
-          document.querySelectorAll('[data-filter-similarity-group]').forEach(el => el.classList.remove('active'));
+          document.querySelectorAll('[data-filter-similarity-group]')
+            .forEach(el => el.classList.remove('active'));
 
-          const sections = Array.from(resultParent.querySelectorAll('.dialogue-section'));
+          const sections: HTMLElement[] = Array.from(resultParent.querySelectorAll('.dialogue-section'));
 
           let groupId = target.getAttribute('data-filter-similarity-group');
-          if (groupId === 'RESET') {
+          if (groupId === 'RESET' || targetIsActive) {
             sections.forEach(sect => sect.classList.remove('hide', 'parent-hide'));
             flashTippy(target, {content: 'All sections restored.'});
           } else if (isInt(groupId)) {
@@ -133,7 +132,7 @@ pageMatch('pages/dialogue/quests', () => {
       ev: 'click',
       multiple: true,
       fn: function(_event, _target) {
-        modalService.modal(`<h2>Notes</h2>
+        modalService.modal('Notes', `
           <ul class="padding">
             <li>The order of dialogue sections is not guaranteed to be in the correct chronological order nor are the "Section Order" parameters reliable.
               The "Quest Step" parameters listed under sections don't always match up either. But the dialogue within a textbox is guaranteed to be in the right order.
@@ -147,13 +146,8 @@ pageMatch('pages/dialogue/quests', () => {
             <li>The tool cannot distinguish between player dialogue options and Traveler spoken lines. For most quests you don't have to worry about this,
               but some quests like Archon Quests and Flagship Event Quests may have Traveler spoken lines.
             </li>
-          </ul>
-          <div class="buttons spacer15-top">
-            <button class="primary" ui-action="close-modals">Dismiss</button>
-          </div>`,
-          {
-            modalCssStyle: 'max-width:800px;margin-top:90px'
-          });
+          </ul>`,
+          { modalClass: 'modal-lg' });
       }
     },
   ];

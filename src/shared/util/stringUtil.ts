@@ -1,4 +1,4 @@
-import { isEmpty } from './genericUtil';
+import { isEmpty, isUnset } from './genericUtil';
 
 export function toString(x) {
   if (typeof x === 'undefined' || x === null || typeof x === 'string') {
@@ -473,6 +473,7 @@ export class SbOut {
   private out = '';
   private propPadLen: number = 0;
   private propPrefix: string = '';
+  private propFilter: (name: string, value: string) => string;
 
   setPropPad(padLen: number) {
     this.propPadLen = padLen;
@@ -480,6 +481,10 @@ export class SbOut {
 
   setPropPrefix(prefix: string) {
     this.propPrefix = prefix;
+  }
+
+  setPropFilter(filter: (name: string, value: string) => string) {
+    this.propFilter = filter;
   }
 
   toString(noTrim: boolean = false) {
@@ -513,6 +518,12 @@ export class SbOut {
   prop(propName: string, propValue: any = '') {
     if (typeof propValue !== 'string') {
       propValue = String(propValue);
+    }
+    if (this.propFilter) {
+      propValue = this.propFilter(propName, propValue);
+    }
+    if (isUnset(propValue)) {
+      return;
     }
     this.line('|' + (this.propPrefix + propName + ' ').padEnd(this.propPadLen) + '= ' + propValue);
   }

@@ -13,24 +13,14 @@ export function showJavascriptErrorDialog(message, source, lineno?: number, coln
 
   handlingJavascriptError = true;
 
-  modalService.modal(`
-    <h2>Unexpected error</h2>
-    <p class='spacer15-top'>
+  modalService.modal('Unexpected Error', `
+    <p>
       An unexpected JavaScript error occurred. Try again in a few moments. If the problem
       persists then yell at kwwxis.
     </p>
-    <div class='buttons spacer15-top'>
-      <button class='primary dismiss-btn'>Dismiss</button>
-    </div>
   `, {
-    blocking: true,
-    disableDefaultCloseButton: true,
-    disableEscToClose: true,
-    callback(element: HTMLElement) {
-      element.querySelector('button.dismiss-btn').addEventListener('click', () => {
-        modalService.closeAll();
-        handlingJavascriptError = false;
-      });
+    onConfirm() {
+      handlingJavascriptError = false;
     }
   });
 
@@ -48,9 +38,8 @@ export function showInternalErrorDialog(data) {
 
   handlingInternalError = true;
 
-  modalService.modal(`
-    <h2>Internal error</h2>
-    <p class='spacer15-top'>
+  modalService.modal('Internal Error', `
+    <p>
       An internal server error occurred. Try again in a few moments. If the problem
       persists then yell at kwwxis.
     </p>
@@ -58,14 +47,8 @@ export function showInternalErrorDialog(data) {
       <button class='primary dismiss-btn'>Dismiss</button>
     </div>
   `, {
-    blocking: true,
-    disableDefaultCloseButton: true,
-    disableEscToClose: true,
-    callback(element: HTMLElement) {
-      element.querySelector('button.dismiss-btn').addEventListener('click', () => {
-        modalService.closeAll();
-        handlingInternalError = false;
-      });
+    onConfirm() {
+      handlingInternalError = false;
     }
   });
 

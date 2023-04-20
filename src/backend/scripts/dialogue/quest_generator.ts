@@ -21,6 +21,7 @@ import { MetaProp } from '../../util/metaProp';
 import { pathToFileURL } from 'url';
 import { SbOut } from '../../../shared/util/stringUtil';
 import { dialogueCompareApply, SimilarityGroups } from './dialogue_compare';
+import { custom } from '../../util/logger';
 
 export class QuestGenerateResult {
   mainQuest: MainQuestExcelConfigData = null;
@@ -70,8 +71,13 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
   mainQuest.QuestExcelConfigDataList = await ctrl.selectAllQuestExcelConfigDataByMainQuestId(mainQuest.Id);
   mainQuest.OrphanedTalkExcelConfigDataList = [];
 
+  const debug = custom('quest:' + mainQuest.Id);
+  debug('Generating MainQuest');
+
   // Fetch talk configs
   // ------------------
+
+  debug('Fetching Talks (by MainQuest ID)');
 
   // Fetch talk configs
   const talkConfigAcc = new TalkConfigAccumulator(ctrl);
@@ -82,6 +88,8 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
     await talkConfigAcc.handleTalkConfig(talkConfig);
   }
 
+  debug('Fetching MainQuest (by SubQuest ID)');
+
   // Find Talk Configs by Quest Sub ID
   for (let questExcelConfigData of mainQuest.QuestExcelConfigDataList) {
     if (talkConfigAcc.fetchedTalkConfigIds.has(questExcelConfigData.SubId)) {
@@ -90,6 +98,8 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
     let talkConfig = await ctrl.selectTalkExcelConfigDataByQuestSubId(questExcelConfigData.SubId, 'TALK_DEFAULT');
     await talkConfigAcc.handleTalkConfig(talkConfig);
   }
+
+  debug('Fetching MainQuest (by MainQuest ID Prefix)');
 
   // Fetch Talk Configs by Main Quest ID (prefix)
   let talkConfigIdsByMainQuestIdPrefix: number[] = await ctrl.selectTalkExcelConfigDataIdsByPrefix(mainQuest.Id);
@@ -104,11 +114,15 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
   // Find orphaned dialogue
   // ----------------------
 
+  debug('Fetching orphaned dialogue');
+
   // Add other orphaned dialogue and quest messages (after fetching talk configs)
   await ctrl.addOrphanedDialogueAndQuestMessages(mainQuest);
 
   // Sort Talk Configs to quest subs
   // -------------------------------
+
+  debug('Sorting Talks');
 
   function pushTalkConfigToCorrespondingQuestSub(talkConfig: TalkExcelConfigData) {
     const questExcelConfigData = mainQuest.QuestExcelConfigDataList.find(q => q.SubId === talkConfig.Id);
@@ -130,6 +144,8 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
   // Filter quest subs
   // -----------------
 
+  debug('Filtering SubQuests');
+
   // Skip quest subs without dialogue/DescTest/StepDescTest.
   let newQuestSubs: QuestExcelConfigData[] = [];
   for (let questSub of mainQuest.QuestExcelConfigDataList) {
@@ -144,6 +160,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
 
   // Finalize result
   // ---------------
+  debug('Preparing result');
   mainQuest.QuestExcelConfigDataList = newQuestSubs;
   result.questId = mainQuest.Id;
   result.questTitle = mainQuest.TitleText;
@@ -165,6 +182,8 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
 
   // Quest Steps
   // -----------
+  debug('Generating quest steps');
+
   out.clearOut();
   for (let questSub of mainQuest.QuestExcelConfigDataList) {
     if (questSub.DescText)
@@ -174,6 +193,8 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
 
   // Quest Descriptions
   // ------------------
+  debug('Generating quest descriptions');
+
   out.clearOut();
 
   if (mainQuest.DescText) {
@@ -191,6 +212,8 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
 
   // Other Languages
   // ---------------
+  debug('Generating OL');
+
   out.clearOut();
   let olResult = await ol_gen_from_id(ctrl, mainQuest.TitleTextMapHash, {
     hideTl: false,
@@ -203,6 +226,8 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
 
   // Quest Dialogue
   // --------------
+  debug('Generating quest dialogue (SubQuests)');
+
   out.clearOut();
 
   const orphanedHelpText = `"Orphaned" means that the script didn't find anything conclusive in the JSON associating this dialogue to the quest. The tool assumes it's associated based on the dialogue IDs.`;
@@ -271,12 +296,18 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
       result.dialogue.push(sect);
     }
   }
+
+  debug('Generating quest dialogue (Orphaned Talks)');
+
   if (mainQuest.OrphanedTalkExcelConfigDataList && mainQuest.OrphanedTalkExcelConfigDataList.length) {
     for (let talkConfig of mainQuest.OrphanedTalkExcelConfigDataList) {
       await talkConfigToDialogueSectionResult(ctrl, result, 'Unsectioned Talk',
         'These are Talks that are part of the quest but not part of any section.', talkConfig);
     }
   }
+
+  debug('Generating quest dialogue (Quest Messages)');
+
   if (mainQuest.QuestMessages && mainQuest.QuestMessages.length) {
     let sect = new DialogueSectionResult('MainQuestMessages', 'Quest Messages', questMessageHelpText);
     out.clearOut();
@@ -293,10 +324,14 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
     }
   }
 
+  // Dialogue Section Similarity Groups
+  // ----------------------------------
+  debug('Generating quest similarity groups');
   result.similarityGroups = dialogueCompareApply(result.dialogue);
 
   // Travel Log Summary
   // ------------------
+  debug('Generating travel log summary');
   let summaryKeys = Object.keys(QuestSummary);
   for (let summaryKey of summaryKeys) {
     if (summaryKey.startsWith(String(mainQuest.Id))) {
@@ -311,6 +346,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
 
   // Cutscenes
   // ---------
+  debug('Generating cutscenes');
   let srtData = await ctrl.loadCutsceneSubtitlesByQuestId(mainQuest.Id);
   for (let srtFile of Object.keys(srtData)) {
     result.cutscenes.push({file: srtFile, text: srtData[srtFile]});
@@ -318,7 +354,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
 
   // Rewards
   // -------
-
+  debug('Generating rewards');
   let rewards: RewardExcelConfigData[] = await Promise.all(mainQuest.RewardIdList.map(rewardId => ctrl.selectRewardExcelConfigData(rewardId)));
   result.reward = ctrl.combineRewardExcelConfigData(... rewards);
   result.reputation = await ctrl.selectReputationQuestExcelConfigData(mainQuest.Id);
@@ -337,6 +373,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: Control,
     }
   }
 
+  debug('Returning result');
   return result;
 }
 

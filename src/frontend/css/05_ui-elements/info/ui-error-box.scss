@@ -16,6 +16,9 @@
   hr {
     margin: 10px 0;
     border-color: hsla(223, 67%, 18%, 0.15);
+    body.nightmode & {
+      border-color: hsl(255deg 13% 25%);
+    }
   }
 
   h1 {

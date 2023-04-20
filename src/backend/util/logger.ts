@@ -1,11 +1,13 @@
 import debug from 'debug';
 
-export const log = debug(process.env.APP_NAME);
-export const error = debug(`${process.env.APP_NAME}:error`);
-export const custom = (namespace: string) => debug(`${process.env.APP_NAME}:` + namespace);
+console.log(process.env.DEBUG);
 
-export default {
-  log,
-  error,
-  custom,
-};
+function createDebugger(namespace: string): debug.Debugger {
+  const log: debug.Debugger = debug(namespace);
+  //log.log = console.log.bind(console);
+  return log;
+}
+
+export const log: debug.Debugger = createDebugger('app');
+export const error: debug.Debugger = createDebugger(`app:error`);
+export const custom = (namespace: string): debug.Debugger => createDebugger(namespace);

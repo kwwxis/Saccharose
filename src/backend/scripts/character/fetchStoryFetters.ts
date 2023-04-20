@@ -100,8 +100,8 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
     await loadEnglishTextMap();
     let res: StoryFetters = await fetchCharacterStoryByAvatarId(getControl(), 10000048);
-    let x1 = resolveObjectPath(res, 'avatar', true);
-    let x2 = resolveObjectPath(res, 'fetters[#EVERY].Avatar', true);
+    let x1 = resolveObjectPath(res, 'avatar', 'delete');
+    let x2 = resolveObjectPath(res, 'fetters[#EVERY].Avatar', 'delete');
     console.log(util.inspect(res, false, null, true));
     await closeKnex();
   })();

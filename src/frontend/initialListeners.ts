@@ -680,8 +680,7 @@ const initial_listeners: Listener[] = [
       const params = target.closest('.file-format-options').getAttribute('data-file-format-params').split(',').map(x => x.trim());
       const langCodes = target.closest('.file-format-options').getAttribute('data-lang-codes').split(',').map(x => x.trim());
 
-      modalService.modal(`<h2 style="line-height:40px;">Custom Format Options for <code>${escapeHtml(paramName)}</code></h2>
-      <div class="modal-inset">
+      modalService.modal(`Custom Format Options for <code>${escapeHtml(paramName)}</code>`, `
         <p class="info-notice">Parameters must be in curly braces, for example:<br/><code>{NameText.EN} Map Location.png</code></p>
         <p class="info-notice spacer5-top">
           <strong>English wiki format for <code>${escapeHtml(paramName)}</code>:</strong><br />
@@ -733,12 +732,10 @@ const initial_listeners: Listener[] = [
             <p>These operations are case-insensitive. For case-sensitive operations, use <code>{{IfCase|...}}</code> instead of <code>{{If|...}}</code></p>
           </div>
         </fieldset>
-      </div>
-      <div class="buttons spacer15-top">
-        <button class="primary" ui-action="close-modals">Dismiss</button>
-      </div>`, {
-        modalCssStyle: 'max-width:800px;max-height:750px',
-        blocking: true,
+      `, {
+        modalClass: 'modal-lg',
+        modalCssStyle: 'max-height:750px',
+        contentClass: 'modal-inset'
       });
     }
   }

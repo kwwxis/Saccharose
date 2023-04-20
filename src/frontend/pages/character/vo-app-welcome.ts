@@ -117,8 +117,7 @@ export function VoAppWelcome(state: VoAppState) {
 
         let locallySavedAvatar = locallySavedAvatars.find(x => x.avatarId === avatar.Id);
         if (locallySavedAvatar) {
-          modalService.modal(`
-            <h2>Are you sure?</h2>
+          modalService.modal(`Are you sure?`, `
             <div class="content">
               <p>You already have locally-saved wikitext for <strong>${avatar.NameText}</strong> (${langCode})</p>
               <p>If you proceed, then it'll be overwritten with what you just pasted.</p>

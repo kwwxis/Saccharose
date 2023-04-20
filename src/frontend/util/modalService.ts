@@ -3,18 +3,17 @@ import { getFocusableSelector } from './domutil';
 
 const TYPE_ALERT = 0;
 const TYPE_MODAL = 1;
-const TYPE_ERROR = 2;
-const TYPE_TOAST = 3;
 const TYPE_CONFIRM = 4;
 
 export type ModalOpts = {
-  disableDefaultCloseButton?: boolean,
+  // CSS:
   modalOuterClass?: string,
   modalClass?: string,
   modalCssStyle?: string,
+  contentClass?: string,
+
   callback?: (modalEL: HTMLElement) => void,
   disableEscToClose?: boolean,
-  blocking?: boolean,
   onConfirm?: (modalEL?: HTMLElement) => void,
   onCancel?: (modalEL?: HTMLElement) => void,
 }
@@ -33,105 +32,81 @@ class ModalService {
     if (key === 27 && tag != 'TEXTAREA' && tag != 'INPUT' && tag != 'SELECT') this.closeAll(); // Escape
   };
 
-  modal(contents: string|HTMLElement, opts: ModalOpts = {}) {
-    this.open(contents, TYPE_MODAL, opts);
+  modal(header: string, contents: string|HTMLElement, opts: ModalOpts = {}) {
+    this.open(header, contents, TYPE_MODAL, opts);
   }
 
-  alert(contents: string|HTMLElement, opts: ModalOpts = {}) {
-    this.open(contents, TYPE_ALERT, opts);
+  alert(header: string, contents: string|HTMLElement, opts: ModalOpts = {}) {
+    this.open(header, contents, TYPE_ALERT, opts);
   }
 
-  error(contents: string|HTMLElement, opts: ModalOpts = {}) {
-    this.open(contents, TYPE_ERROR, opts);
+  confirm(header: string, contents: string|HTMLElement, opts: ModalOpts = {}) {
+    this.open(header, contents, TYPE_CONFIRM, opts);
   }
 
-  toast(contents: string|HTMLElement, opts: ModalOpts = {}) {
-    this.open(contents, TYPE_TOAST, opts);
-  }
-
-  confirm(contents: string|HTMLElement, opts: ModalOpts = {}) {
-    this.open(contents, TYPE_CONFIRM, opts);
-  }
-
-  open(contents: string|HTMLElement, optType: number, opts: ModalOpts = {}) {
+  open(header: string, contents: string|HTMLElement, optType: number, opts: ModalOpts = {}) {
+    if (!header || !contents) return;
     this.closeAll();
-
-    if (!contents) {
-      return;
-    }
-
     opts = opts || {};
-
-    let inner, type_name;
-
     optType = optType || 0;
 
+    let inner = `
+      <div class="modal-header">
+        ${header}
+        <button class="modal-close cancel close small" aria-label="Close dialog" ui-action="close-modals"
+            ui-tippy-hover="{content:'Keyboard shortcut: <strong>esc</strong>', delay:[100,100], allowHTML: true}"></button>
+      </div>
+      <div class="modal-content${opts.contentClass ? ' ' + opts.contentClass : ''}"></div>
+    `;
+
     if (optType == TYPE_ALERT) {
-      type_name = 'alert';
-      inner = `
-          <div class="modal-content"></div>
-          <div class="buttons spacer15-top">
+      inner += `
+          <div class="modal-footer">
             <button class="confirm secondary" ui-action="close-modals">OK</button>
           </div>`;
     } else if (optType == TYPE_CONFIRM) {
-      type_name = 'alert';
-      inner = `
-          <div class="modal-content"></div>
-          <div class="buttons spacer15-top">
+      inner += `
+          <div class="modal-footer">
             <button class="confirm primary" ui-action="close-modals">OK</button>
-            <button class="cancel secondary focus-target" ui-action="close-modals">Cancel</button>
+            <button class="cancel secondary" ui-action="close-modals">Cancel</button>
           </div>`;
     } else if (optType == TYPE_MODAL) {
-      type_name = 'modal';
-      inner = `<div class="modal-content"></div>`;
-      if (!opts.disableDefaultCloseButton) {
-        inner += `<button class="close small" aria-label="Close dialog" ui-action="close-modals"
-          ui-tippy-hover="{content:'Keyboard shortcut: <strong>esc</strong>', delay:[100,100], allowHTML: true}"></button>`;
-      }
-    } else if (optType == TYPE_ERROR || optType == TYPE_TOAST) {
-      type_name = 'toast';
-      let iconHTML;
-      if (optType === TYPE_ERROR) {
-        iconHTML = document.getElementById('template-alert-icon').innerHTML;
-      } else {
-        iconHTML = document.getElementById('template-info-icon').innerHTML;
-      }
-      inner = `${iconHTML}
-          <div class="modal-content"></div>`;
-      if (!opts.disableDefaultCloseButton) {
-        inner += `<button class="close small" aria-label="Close dialog" ui-action="close-modals"
-          ui-tippy-hover="{content:'Keyboard shortcut: <strong>esc</strong>', delay:[100,100], allowHTML: true}"></button>`;
-      }
+      inner += `
+          <div class="modal-footer">
+            <button class="confirm primary" ui-action="close-modals">Dismiss</button>
+          </div>`;
     }
 
-    const id = 'dialog-' + Date.now();
-
-    document.body.insertAdjacentHTML('beforeend',
-      `<div id="${id}" class="modal-outer${opts.modalOuterClass ? ' ' + opts.modalOuterClass : ''}${opts.blocking ? ' modal-blocking' : ''}"
-          data-type="${type_name}" role="dialog">
-        <div class="modal" data-type="${type_name}" ${opts.modalClass ? 'class="'+escapeHtml(opts.modalClass)+'"' : ''} ${opts.modalCssStyle ? 'style="'+escapeHtml(opts.modalCssStyle)+'"' : ''}>
-          <div class="modal-inner">${inner}</div>
+    const id: string = 'modal-' + Date.now();
+    const html: string =
+      `<div id="${id}" class="modal-outer${opts.modalOuterClass ? ' ' + opts.modalOuterClass : ''}" role="dialog">
+        <div class="modal${opts.modalClass ? ' '+escapeHtml(opts.modalClass) : ''}" ${opts.modalCssStyle ? 'style="'+escapeHtml(opts.modalCssStyle)+'"' : ''}>
+          ${inner}
         </div>
-      </div>`
-    );
+      </div>`;
+
+    document.body.insertAdjacentHTML('beforeend', html);
+    const modalOuterEl: HTMLElement = document.querySelector(`#${id}`);
 
     if (contents instanceof Node) {
-      document.querySelector(`#${id} .modal-content`).append(contents);
+      modalOuterEl.querySelector(`.modal-content`).append(contents);
     } else {
-      document.querySelector(`#${id} .modal-content`).innerHTML = contents;
+      modalOuterEl.querySelector(`.modal-content`).innerHTML = contents;
     }
 
-    let confirmBtn = document.querySelector(`#${id} .confirm`);
-    if (confirmBtn && opts.onConfirm) {
-      confirmBtn.addEventListener('click', () => {
-        opts.onConfirm(document.getElementById(id));
-      });
+    if (opts.onConfirm) {
+      modalOuterEl.querySelectorAll(`.confirm`).forEach(confirmBtn => {
+        confirmBtn.addEventListener('click', () => {
+          opts.onConfirm(modalOuterEl);
+        });
+      })
     }
 
-    let cancelBtn = document.querySelector(`#${id} .cancel`);
-    if (cancelBtn && opts.onConfirm) {
-      cancelBtn.addEventListener('click', () => {
-        opts.onCancel(document.getElementById(id));
+    if (opts.onCancel) {
+      modalOuterEl.querySelectorAll(`.cancel`).forEach(cancelBtn => {
+        cancelBtn.addEventListener('click', () => {
+          opts.onCancel(modalOuterEl);
+        });
       });
     }
 
@@ -146,6 +121,9 @@ class ModalService {
     }
 
     setTimeout(() => {
+      modalOuterEl.classList.add('in');
+      modalOuterEl.querySelector(`.modal`).classList.add('in');
+
       window.requestAnimationFrame(function() {
         let focusTarget: HTMLElement = document.querySelector(`#${id} .focus-target`);
         if (!focusTarget) {
@@ -163,9 +141,17 @@ class ModalService {
 
   closeAll() {
     this.modalsOpen = false;
-    document.querySelectorAll('.modal-outer').forEach(el => el.remove());
+    document.querySelectorAll('.modal-outer').forEach(el => {
+      el.classList.remove('in');
+      el.querySelector('.modal').classList.remove('in');
+      setTimeout(() => {
+        el.remove();
+      }, 300);
+    });
     document.body.removeEventListener('keyup', this.active_listener.bind(this));
   }
 }
 
 export const modalService = new ModalService();
+
+(<any> window).modalService = modalService;

@@ -92,15 +92,14 @@ export class SaccharoseApiEndpoint<T extends Object, R = any> {
     const data: any = err.response.data;
     const httpError: HttpError = HttpError.fromJson(data);
 
-    if (httpError && httpError.status === 500) {
+    if (httpError && (httpError.status >= 500 || httpError.status <= 599)) {
       showInternalErrorDialog(data);
       return;
     }
 
     if (httpError && httpError.type === 'EBADCSRFTOKEN') {
-      modalService.modal(`
-        <h2>Session timed out.</h2>
-        <p class='spacer15-top'>
+      modalService.modal('Session timed out', `
+        <p>
           The session for your page expired after being left open for too long.
         </p>
         <p class='spacer15-top'>

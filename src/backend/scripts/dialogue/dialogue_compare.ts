@@ -5,7 +5,7 @@ import { sort } from '../../../shared/util/arrayUtil';
 
 export type SimilarityGroups = {[groupId: number]: {sectionId: string, sectionTitle: string}[]};
 
-const fastThreshold: number = 0.5;
+const fastThreshold: number = 0.3;
 
 export function dialogueCompareApply(sections: DialogueSectionResult[]): SimilarityGroups {
   const flatList: DialogueSectionResult[] = [];
