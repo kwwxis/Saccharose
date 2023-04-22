@@ -103,23 +103,43 @@ import { DialogBranchingCache } from './dialogue/dialogue_util';
 // TODO improve this method - it sucks
 //   Only works for languages that use spaces for word boundaries (i.e. not chinese)
 //   and only works for one word (i.e. doesn't expand the {{rubi}} to multiple words)
-export const convertRubi = (text: string) => {
-  let ruby = [];
+export const convertRubi = (langCode: LangCode, text: string) => {
+  const rubiMap: {[index: number]: string} = {};
+  const rubiRegex = /{RUBY#\[([SD])]([^}]+)}/;
 
-  let i = 0;
-  text = text.replace(/{RUBY#\[[SD]]([^}]+)}/g, (match, p1) => {
-    ruby.push(p1);
-    return '{RUBY'+(i++)+'}';
-  });
+  while (rubiRegex.test(text)) {
+    const exec = rubiRegex.exec(text);
+    const rubiType: string = exec[1]; // either 'S' or 'D'
+    const rubiText: string = exec[2];
+    let rubiIndex: number = exec.index;
 
-  let parts = text.split(/(\s+)/); // keep whitespace parts
+    if (rubiType === 'S') {
+      rubiIndex--;
+    }
+
+    rubiMap[rubiIndex] = rubiText;
+
+    text = text.replace(rubiRegex, '');
+  }
+
+  let parts: Intl.SegmentData[] = wordSplit(langCode, text);
 
   for (let i = 0; i < parts.length; i++) {
-    if (parts[i].includes('{RUBY')) {
-      parts[i] = parts[i].replace(/^(.*){RUBY(\d+)}(.*)/, (match, p1, p2, p3) => `{{Rubi|${p1}${p3}|${ruby[parseInt(p2)]}}}`);
+    const part: Intl.SegmentData = parts[i];
+    const rubiIndices: number[] = [];
+
+    for (let rubiIndex of Object.keys(rubiMap).map(toInt)) {
+      if (part.index <= rubiIndex && rubiIndex < (part.index + part.segment.length)) {
+        rubiIndices.push(rubiIndex);
+      }
+    }
+
+    if (rubiIndices.length) {
+      let rubiText = rubiIndices.map(rubiIndex => rubiMap[rubiIndex]).join('');
+      part.segment = `{{Rubi|${part.segment}|${rubiText}}}`;
     }
   }
-  return parts.join('');
+  return wordRejoin(parts);
 }
 
 export const wordSplit = (langCode: LangCode, text: string): Intl.SegmentData[] => {
@@ -223,7 +243,7 @@ export const normText = (text: string, langCode: LangCode, decolor: boolean = fa
   }
 
   if (text.includes('RUBY#[')) {
-    text = convertRubi(text);
+    text = convertRubi(langCode, text);
   }
 
   if (text.startsWith('#')) {
