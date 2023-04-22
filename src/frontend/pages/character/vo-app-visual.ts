@@ -13,6 +13,7 @@ import { escapeHtml, romanize, ucFirst } from '../../../shared/util/stringUtil';
 import { createElement, createPlaintextContenteditable, flashElement } from '../../util/domutil';
 import { startListeners } from '../../util/eventLoader';
 import { flashTippy } from '../../util/tooltips';
+import { createWikitextEditor } from '../../util/ace/wikitextEditor';
 
 const sortableDefaultOptions: Sortable.Options = {
   scroll: true,
@@ -320,39 +321,48 @@ export function VoAppVisualEditor(state: VoAppState) {
           }
         });
 
+        const PARAM_VALUE_EDIT_MAX_LINES: number = 10; // max display lines before scrolling is enabled
+
         // Item params
         function addVisualParamElement(propName: string, paramNode: MwParamNode, isVisualAdd: boolean = false): HTMLElement {
-          let paramDiv = createElement('div', {class: 'vo-item-param valign', 'data-prop-name': propName});
-          let propNameEl = createElement('div', {class: 'prop-name', text: propName});
-          let propValueEl = createElement<HTMLInputElement>('input', {type: 'text', class: 'prop-value grow', value: paramNode.value});
-          let removeEl = createElement('span', {class: 'close small', 'ui-tippy': 'Delete property'});
+          const paramDiv: HTMLElement     = createElement('div', {class: 'vo-item-param valign', 'data-prop-name': propName});
+          const propNameEl: HTMLElement   = createElement('div', {class: 'prop-name', text: propName});
+          const propValueEl: HTMLElement  = createElement('div', {class: 'prop-value grow'});
+          const removeEl: HTMLElement     = createElement('span',{class: 'close small', 'ui-tippy': 'Delete property'});
           paramDiv.append(propNameEl, propValueEl, removeEl);
 
-          startListeners([
-            {
-              el: '.prop-value',
-              ev: 'change',
-              fn: () => {
-                console.log(`[VO-App] Item param value change:`, { item, propName, paramNode });
-                item.setParam(propName, propValueEl.value);
-                notifyWikitext(type);
+          const editorEl = createElement('div', {innerText: paramNode.value, class: 'input-style for-editor'});
+          propValueEl.append(editorEl);
 
-                if (propName === titlePropName && itemTitleInput) {
-                  itemTitleInput.innerText = propValueEl.value;
-                }
-              },
-            },
-            {
-              el: '.close',
-              ev: 'click',
-              fn: () => {
-                console.log(`[VO-App] Item param remove click:`, { item, propName, paramNode });
-                item.removeParam(propName);
-                paramDiv.remove();
-                notifyWikitext(type);
+          setTimeout(() => {
+            const propValueEditor = createWikitextEditor(editorEl);
+            propValueEditor.renderer.setScrollMargin(5, 5, 5, 5);
+            propValueEditor.renderer.setShowGutter(false);
+            propValueEditor.setHighlightActiveLine(false);
+            propValueEditor.setOption('fontSize', 13);
+            propValueEditor.setOption('maxLines', PARAM_VALUE_EDIT_MAX_LINES);
+            propValueEditor.setValue(paramNode.value, -1)
+
+            propValueEditor.on('blur', (e) => {
+              console.log(`[VO-App] Item param value change:`, { item, propName, paramNode });
+
+              const newValue: string = propValueEditor.getValue();
+              item.setParam(propName, newValue);
+              notifyWikitext(type);
+
+              if (propName === titlePropName && itemTitleInput) {
+                itemTitleInput.innerText = newValue;
               }
-            }
-          ], paramDiv);
+            });
+
+            removeEl.addEventListener('click', () => {
+              console.log(`[VO-App] Item param remove click:`, { item, propName, paramNode });
+              item.removeParam(propName);
+              propValueEditor.destroy();
+              paramDiv.remove();
+              notifyWikitext(type);
+            });
+          });
 
           if (isVisualAdd) {
             const index = item.paramNodes.indexOf(paramNode);

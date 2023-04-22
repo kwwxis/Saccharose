@@ -60,6 +60,12 @@ export type ModalOpts = {
   modalClass?: string,
   modalCssStyle?: string,
   contentClass?: string,
+
+  confirmButtonText?: string,
+  cancelButtonText?: string,
+
+  confirmButtonClass?: string,
+  cancelButtonClass?: string,
 }
 
 class ModalService {
@@ -94,18 +100,18 @@ class ModalService {
     if (optType == TYPE_ALERT) {
       inner += `
           <div class="modal-footer">
-            <button class="confirm secondary" ui-action="close-modals">OK</button>
+            <button class="confirm ${opts.confirmButtonClass || 'secondary'}" ui-action="close-modals">${opts.confirmButtonText || 'OK'}</button>
           </div>`;
     } else if (optType == TYPE_CONFIRM) {
       inner += `
           <div class="modal-footer">
-            <button class="confirm primary" ui-action="close-modals">OK</button>
-            <button class="cancel secondary" ui-action="close-modals">Cancel</button>
+            <button class="confirm ${opts.confirmButtonClass || 'primary'}" ui-action="close-modals">${opts.confirmButtonText || 'OK'}</button>
+            <button class="cancel ${opts.cancelButtonClass || 'secondary'}" ui-action="close-modals">${opts.cancelButtonText || 'Cancel'}</button>
           </div>`;
     } else if (optType == TYPE_MODAL) {
       inner += `
           <div class="modal-footer">
-            <button class="confirm primary" ui-action="close-modals">Dismiss</button>
+            <button class="confirm ${opts.confirmButtonClass || 'primary'}" ui-action="close-modals">${opts.confirmButtonText || 'Dismiss'}</button>
           </div>`;
     }
 

@@ -30,7 +30,7 @@
           <h5>Duplicate TextMapHashes</h5>
           <p class="spacer5-bottom">List of TextMapHashes whose values are duplicates of <%= olResult.textMapId %> across all languages.<br>
             Click on a link to see where that hash is used or see <a href="/id-usages?q=<%= olResult.textMapId %>,<%= olResult.duplicateTextMapIds.join(',') %>" target="_blank">all usages</a>.</p>
-          <ul style="-webkit-columns:4;-moz-columns:4;columns:4">
+          <ul style="columns:4">
             <li><a style="text-decoration:none" href="/id-usages?q=<%= olResult.textMapId %>" target="_blank"><%= olResult.textMapId %></a></li>
             <% for (let textMapId of olResult.duplicateTextMapIds) { %>
               <li><a style="text-decoration:none" href="/id-usages?q=<%= textMapId %>" target="_blank"><%= textMapId %></a></li>

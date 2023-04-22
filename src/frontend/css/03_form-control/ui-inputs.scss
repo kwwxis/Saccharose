@@ -45,6 +45,16 @@ input[type='date'],
   }
 }
 
+.ace_editor.input-style,
+.card .content .ace_editor.input-style {
+  line-height: 1.5em;
+}
+
+.input-style.for-editor:not(.ace_editor):before {
+  content: 'Loading...';
+  opacity: 0.5;
+}
+
 // High DPI thin borders
 // --------------------------------------------------------------------------------------------------------------
 @media (-webkit-min-device-pixel-ratio: 1.5), (min-resolution: 144dpi) {

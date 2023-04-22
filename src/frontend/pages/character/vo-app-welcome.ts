@@ -117,28 +117,16 @@ export function VoAppWelcome(state: VoAppState) {
 
         let locallySavedAvatar = locallySavedAvatars.find(x => x.avatarId === avatar.Id);
         if (locallySavedAvatar) {
-          modalService.modal(`Are you sure?`, `
-            <div class="content">
-              <p>You already have locally-saved wikitext for <strong>${avatar.NameText}</strong> (${langCode})</p>
-              <p>If you proceed, then it'll be overwritten with what you just pasted.</p>
-            </div>
-            <div class="buttons">
-              <button class="primary danger">Overwrite</button>
-              <button ui-action="close-modals" class="primary cancel">Cancel</button>
-            </div>
+          modalService.confirm(`Are you sure?`, `
+            <p>You already have locally-saved wikitext for <strong>${avatar.NameText}</strong> (${langCode})</p>
+            <p>If you proceed, then it'll be overwritten with what you just pasted.</p>
           `, {
-            callback(el) {
-              startListeners([
-                {
-                  el: '.primary.danger',
-                  ev: 'click',
-                  fn() {
-                    modalService.closeAll();
-                    go();
-                  }
-                }
-              ], el);
-            }
+            confirmButtonText: 'Overwrite',
+            confirmButtonClass: 'primary danger',
+            cancelButtonText: 'Cancel',
+            cancelButtonClass: 'primary'
+          }).onConfirm(() => {
+            go();
           });
         } else {
           go();

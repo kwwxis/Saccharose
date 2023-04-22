@@ -276,6 +276,13 @@ body.vo-dragging .seamless-input {
   }
 }
 
+.vo-item-remove {
+  opacity: 0.5;
+  &:hover {
+    opacity: 1;
+  }
+}
+
 .vo-group-add-buttons {
   font-size: 14px;
 

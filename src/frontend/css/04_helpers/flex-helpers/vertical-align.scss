@@ -1,24 +1,16 @@
 .valign, .alignCenter {
-  display: -webkit-flex !important;
   display: flex !important;
-  -webkit-align-items: center !important;
   align-items: center !important;
 }
 .alignStart {
-  display: -webkit-flex !important;
   display: flex !important;
-  -webkit-align-items: flex-start !important;
   align-items: flex-start !important;
 }
 .alignEnd {
-  display: -webkit-flex !important;
   display: flex !important;
-  -webkit-align-items: flex-end !important;
   align-items: flex-end !important;
 }
 .alignStretch {
-  display: -webkit-flex !important;
   display: flex !important;
-  -webkit-align-items: stretch !important;
   align-items: stretch !important;
 }

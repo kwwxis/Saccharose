@@ -1,5 +1,6 @@
 
-.hide {
+.hide,
+html body .hide {
   display: none !important;
 }
 .visHide {
