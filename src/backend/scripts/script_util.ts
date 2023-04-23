@@ -760,7 +760,7 @@ export class Control {
   }
 
   private postProcessDialog(dialog: DialogExcelConfigData): DialogExcelConfigData {
-    if (dialog.TalkRole.Type !== 'TALK_ROLE_PLAYER' && !dialog.TalkRole.Id) {
+    if (dialog.TalkRole.Type !== 'TALK_ROLE_PLAYER' && !this.isBlackScreenDialog(dialog) && !dialog.TalkRole.Id) {
       dialog.TalkRole.Type = 'TALK_ROLE_PLAYER';
     }
     return dialog;
@@ -1034,11 +1034,11 @@ export class Control {
         }
       } else {
         if (this.isBlackScreenDialog(dialog)) {
-          if (!previousDialog || !this.isBlackScreenDialog(previousDialog)) {
-            out += '\n';
-          }
-          out += `\n${prefix}'''${text}'''`;
-          out += '\n';
+          // if (!previousDialog || !this.isBlackScreenDialog(previousDialog)) {
+          //   out += '\n';
+          // }
+          out += `\n${prefix}{{Black Screen|${text}}}`;
+          // out += '\n';
         } else if (dialog.TalkRole.Type === 'TALK_ROLE_PLAYER') {
           if (voPrefix) {
             out += `\n${diconPrefix}${voPrefix}'''(Traveler):''' ${text}`;
