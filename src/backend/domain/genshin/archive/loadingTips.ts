@@ -1,6 +1,5 @@
 import { pathToFileURL } from 'url';
-import { getTextMapItem, loadEnglishTextMap } from '../textmap';
-import { GenshinControl, getGenshinControl } from '../genshinControl';
+import { GenshinControl, getGenshinControl, loadEnglishTextMap } from '../genshinControl';
 import util from 'util';
 import { closeKnex } from '../../../util/db';
 import { defaultMap } from '../../../../shared/util/genericUtil';
@@ -9,7 +8,7 @@ import {
 } from '../../../../shared/types/genshin/general-types';
 import { sort } from '../../../../shared/util/arrayUtil';
 import { SbOut } from '../../../../shared/util/stringUtil';
-import { ElementTypeToNation, ManualTextMapHashes } from '../../../../shared/types/genshin/manual-text-map';
+import { ManualTextMapHashes } from '../../../../shared/types/genshin/manual-text-map';
 import {
   LoadingSituationExcelConfigData,
   LoadingTipsByCategory,
@@ -26,7 +25,7 @@ function determineLoadingTipCategory(ctrl: GenshinControl, tip: LoadingTipsExcel
     {text: 'General', weight: 5}
   ];
   let foundRegions: Set<string> = new Set<string>();
-  let tipTitleEN = getTextMapItem('EN', tip.TipsTitleTextMapHash);
+  let tipTitleEN = ctrl.getTextMapItem('EN', tip.TipsTitleTextMapHash);
   for (let sit of situations) {
     if (sit.StageId === 23) {
       foundCats.push({ text: 'Three Realms Gateway Offering', weight: 10});
@@ -68,7 +67,7 @@ function determineLoadingTipCategory(ctrl: GenshinControl, tip: LoadingTipsExcel
     cat = foundCats[0].text;
   }
   if (ManualTextMapHashes[cat]) {
-    return getTextMapItem(ctrl.outputLangCode, ManualTextMapHashes[cat]);
+    return ctrl.getTextMapItem(ctrl.outputLangCode, ManualTextMapHashes[cat]);
   } else {
     return cat;
   }
@@ -121,7 +120,7 @@ function createLoadingTipsByCategoryObject(ctrl: GenshinControl): LoadingTipsByC
   for (let manualKey of manualKeys) {
     let hash = ManualTextMapHashes[manualKey];
     if (hash) {
-      let cat = getTextMapItem(ctrl.outputLangCode, hash);
+      let cat = ctrl.getTextMapItem(ctrl.outputLangCode, hash);
       initialObj[cat] = [];
     } else {
       initialObj[manualKey] = [];

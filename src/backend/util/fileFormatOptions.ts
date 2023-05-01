@@ -1,13 +1,12 @@
-import { Request } from './router';
 import { resolveObjectPath } from '../../shared/util/arrayUtil';
-import { getTextMapItem } from '../domain/genshin/textmap';
 import { isset, toBoolean } from '../../shared/util/genericUtil';
 import { mwParse } from '../../shared/mediawiki/mwParse';
 import { MwParentNode, MwTemplateNode, MwWhiteSpace } from '../../shared/mediawiki/mwTypes';
 import { isNumeric, toNumber } from '../../shared/util/numberUtil';
-import { splitArgs } from '../../shared/util/stringUtil';
+import { replaceAsync, splitArgs } from '../../shared/util/stringUtil';
 import JSON5 from 'json5';
 import { isLangCode, LangCode } from '../../shared/types/lang-types';
+import { AbstractControl } from '../domain/abstractControl';
 
 export type FileFormatOption = 'default' | 'remove' | 'custom';
 
@@ -162,7 +161,8 @@ export function evaluateCustomFormat(obj: Object, parentNode: MwParentNode): str
   return out;
 }
 
-export function fileFormatOptionsApply(req: Request, obj: Object, cookieName: string, defaultFormat: string): string {
+export async function fileFormatOptionsApply(ctrl: AbstractControl, obj: Object, cookieName: string, defaultFormat: string): Promise<string> {
+  const req = ctrl.state.Request;
   let pref: FileFormatOption = req.cookies[cookieName] || 'default';
   let customFormat: string;
   if (pref === 'remove') {
@@ -176,14 +176,16 @@ export function fileFormatOptionsApply(req: Request, obj: Object, cookieName: st
   const parsed = mwParse(customFormat);
   const evaluatedFormat = evaluateCustomFormat(obj, parsed);
 
-  return evaluatedFormat.replaceAll(/\{([^}]*?)}/g, (fm: string, g1: string) => {
+
+  return await replaceAsync(evaluatedFormat, /\{([^}]*?)}/g, async (fm: string, g1: string) => {
     const possibleLangCode: string = g1.includes('.') ? g1.split('.').pop() : null;
+
     if (isLangCode(possibleLangCode)) {
       const textMapHashParamName = g1.split('.').slice(0, -1).join('.') + 'MapHash';
       const langCode: LangCode = possibleLangCode as LangCode;
       let value = resolveObjectPath(obj, textMapHashParamName);
       if (value) {
-        return getTextMapItem(langCode, value)
+        return ctrl.getTextMapItem(langCode, value)
       } else {
         return fm;
       }

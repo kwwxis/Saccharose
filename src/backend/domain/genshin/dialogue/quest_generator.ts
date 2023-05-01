@@ -2,10 +2,12 @@ import '../../../loadenv';
 import { closeKnex } from '../../../util/db';
 import { GenshinControl, getGenshinControl } from '../genshinControl';
 import { ol_gen_from_id } from '../basic/OLgen';
-import { getTextMapItem, QuestSummary } from '../textmap';
 import { NpcExcelConfigData } from '../../../../shared/types/genshin/general-types';
 import { arrayEmpty, arrayUnique } from '../../../../shared/util/arrayUtil';
-import { TalkExcelConfigData } from '../../../../shared/types/genshin/dialogue-types';
+import {
+  QuestSummarizationTextExcelConfigData,
+  TalkExcelConfigData,
+} from '../../../../shared/types/genshin/dialogue-types';
 import {
   MainQuestExcelConfigData,
   QuestExcelConfigData,
@@ -173,7 +175,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
     names: arrayUnique(
       Object.values(ctrl.getPrefs().npcCache)
         .filter(x => !x.Invisiable && !x.JsonName?.startsWith('ReadableNPC'))
-        .map(x => x.NameText)
+        .map(x => normText(x.NameText, ctrl.outputLangCode))
         .concat('Traveler')
         .sort()
     ),
@@ -336,10 +338,12 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
   // Travel Log Summary
   // ------------------
   debug('Generating travel log summary');
-  let summaryKeys = Object.keys(QuestSummary);
-  for (let summaryKey of summaryKeys) {
-    if (summaryKey.startsWith(String(mainQuest.Id))) {
-      let text = normText(getTextMapItem(ctrl.outputLangCode, QuestSummary[summaryKey]), ctrl.outputLangCode);
+
+  const QuestSummaryItems: QuestSummarizationTextExcelConfigData[] = await ctrl.selectAllQuestSummary();
+  for (let summaryItem of QuestSummaryItems) {
+
+    if (String(summaryItem.Id).startsWith(String(mainQuest.Id))) {
+      let text = normText(summaryItem.DescText, ctrl.outputLangCode);
       if (text.includes('<br')) {
         result.travelLogSummary.push('{{Cutscene Description|'+text+'}}');
       } else {

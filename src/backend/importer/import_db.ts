@@ -36,6 +36,7 @@ export type SchemaTable = {
   normalizeFixFields?: { [oldName: string]: string },
   singularize?: string[],
   isKvPair?: boolean,
+  isDatFile?: boolean,
   noIncludeJson?: boolean,
 };
 export type SchemaColumnType =
@@ -67,29 +68,59 @@ function textMapSchema(langCode: LangCode): SchemaTable {
       {name: 'Hash', type: 'integer', isPrimary: true, resolve: 'Key'},
       {name: 'Text', type: 'text', resolve: 'Value'}
     ],
-    customRowResolve(row): any[] {
+    customRowResolve(row) {
       return [{Hash: row.Key, Text: row.Value}];
     },
     isKvPair: true
   };
 }
 
-export const schema = {
+function plainLineMapSchema(langCode: LangCode): SchemaTable {
+  return <SchemaTable> {
+    name: 'PlainLineMap' + langCode,
+    jsonFile: `./TextMap/Plain/PlainTextMap${langCode}_Hash.dat`,
+    columns: [
+      {name: 'Line', type: 'integer', isPrimary: true, resolve: 'LineNumber' },
+      {name: 'Hash', type: 'integer', resolve: 'LineText' }
+    ],
+    customRowResolve(row) {
+      return [{Line: row.LineNumber, Hash: row.LineText}];
+    },
+    isDatFile: true,
+  }
+}
 
-  TextMapCHS: textMapSchema('CHS'),
-  TextMapCHT: textMapSchema('CHT'),
-  TextMapDE: textMapSchema('DE'),
-  TextMapEN: textMapSchema('EN'),
-  TextMapES: textMapSchema('ES'),
-  TextMapFR: textMapSchema('FR'),
-  TextMapID: textMapSchema('ID'),
-  TextMapIT: textMapSchema('IT'),
-  TextMapKR: textMapSchema('KR'),
-  TextMapPT: textMapSchema('PT'),
-  TextMapRU: textMapSchema('RU'),
-  TextMapTH: textMapSchema('TH'),
-  TextMapTR: textMapSchema('TR'),
-  TextMapVI: textMapSchema('VI'),
+export const schema = {
+  //
+  // TextMapCHS: textMapSchema('CHS'),
+  // TextMapCHT: textMapSchema('CHT'),
+  // TextMapDE: textMapSchema('DE'),
+  // TextMapEN: textMapSchema('EN'),
+  // TextMapES: textMapSchema('ES'),
+  // TextMapFR: textMapSchema('FR'),
+  // TextMapID: textMapSchema('ID'),
+  // TextMapIT: textMapSchema('IT'),
+  // TextMapKR: textMapSchema('KR'),
+  // TextMapPT: textMapSchema('PT'),
+  // TextMapRU: textMapSchema('RU'),
+  // TextMapTH: textMapSchema('TH'),
+  // TextMapTR: textMapSchema('TR'),
+  // TextMapVI: textMapSchema('VI'),
+  //
+  // PlainLineMapCHS: plainLineMapSchema('CHS'),
+  // PlainLineMapCHT: plainLineMapSchema('CHT'),
+  // PlainLineMapDE: plainLineMapSchema('DE'),
+  // PlainLineMapEN: plainLineMapSchema('EN'),
+  // PlainLineMapES: plainLineMapSchema('ES'),
+  // PlainLineMapFR: plainLineMapSchema('FR'),
+  // PlainLineMapID: plainLineMapSchema('ID'),
+  // PlainLineMapIT: plainLineMapSchema('IT'),
+  // PlainLineMapKR: plainLineMapSchema('KR'),
+  // PlainLineMapPT: plainLineMapSchema('PT'),
+  // PlainLineMapRU: plainLineMapSchema('RU'),
+  // PlainLineMapTH: plainLineMapSchema('TH'),
+  // PlainLineMapTR: plainLineMapSchema('TR'),
+  // PlainLineMapVI: plainLineMapSchema('VI'),
 
   DialogExcelConfigData: <SchemaTable> {
     name: 'DialogExcelConfigData',
@@ -1484,6 +1515,14 @@ export const schema = {
       return ret;
     }
   },
+  QuestSummarizationTextExcelConfigData: <SchemaTable> {
+    name: 'QuestSummarizationTextExcelConfigData',
+    jsonFile: './ExcelBinOutput/QuestSummarizationTextExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'DescTextMapHash', type: 'integer', isIndex: true},
+    ],
+  }
 };
 
 export function normalizeRawJsonKey(key: string, table: SchemaTable) {
@@ -1593,6 +1632,14 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
 
       if (table.isKvPair) {
         json = Object.entries(JSON.parse(fileContents)).map(([Key, Value]) => ({Key, Value}));
+        totalRows = json.length;
+      } else if (table.isDatFile) {
+        let lines: string[] = fileContents.split(/\n/g);
+        json = [];
+        
+        for (let i: number = 0; i < lines.length; i++) {
+          json.push({LineNumber: i + 1, LineText: lines[i]});
+        }
         totalRows = json.length;
       } else {
         json = JSON.parse(fileContents);

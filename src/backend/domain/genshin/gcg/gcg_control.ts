@@ -20,7 +20,7 @@ import {
   GCGTalkExcelConfigData,
   GCGWeekLevelExcelConfigData, GcgWorldWorkTimeExcelConfigData,
 } from '../../../../shared/types/genshin/gcg-types';
-import { getTextMapItem, getVoPrefix, loadEnglishTextMap, loadVoiceItems } from '../textmap';
+import { getVoPrefix, loadVoiceItems } from '../genshinVoiceItems';
 import { DialogueSectionResult } from '../dialogue/dialogue_util';
 import { pathToFileURL } from 'url';
 import { closeKnex } from '../../../util/db';
@@ -407,7 +407,7 @@ export class GCGControl {
         case 'WORLD':
           stage.WikiGroup = 'Open World Match';
           if (stage?.Reward?.LevelNameText) {
-            let levelNameTextEn = getTextMapItem('EN', stage.Reward.LevelNameTextMapHash);
+            let levelNameTextEn = await this.ctrl.getTextMapItem('EN', stage.Reward.LevelNameTextMapHash);
             if (levelNameTextEn.startsWith('Duel:')) {
               stage.WikiType = 'Duel';
             } else {
@@ -790,7 +790,6 @@ export function getGCGControl(ctrl: GenshinControl) {
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
-    await loadEnglishTextMap();
     await loadVoiceItems();
 
     const ctrl = getGenshinControl();
@@ -803,13 +802,13 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     for (let stage of stages) {
       if (stage.Reward) {
         for (let hash of stage.Reward.OACBEKOLDFI) {
-          let text = getTextMapItem('EN', hash);
+          let text = ctrl.getTextMapItem('EN', hash);
           if (text) {
             console.log('OACBEKOLDFI', text);
           }
         }
         for (let hash of stage.Reward.HGDLKEHAKCE) {
-          let text = getTextMapItem('EN', hash);
+          let text = ctrl.getTextMapItem('EN', hash);
           if (text) {
             console.log('HGDLKEHAKCE', text);
           }

@@ -1,7 +1,7 @@
 import { GenshinControl } from '../genshinControl';
 import { DialogueSectionResult } from '../dialogue/dialogue_util';
 import { cached } from '../../../util/cache';
-import { getVoPrefix } from '../textmap';
+import { getVoPrefix } from '../genshinVoiceItems';
 import { GCGTutorialTextExcelConfigData } from '../../../../shared/types/genshin/gcg-types';
 import { normText } from '../genshinNormalizers';
 

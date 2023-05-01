@@ -1,6 +1,5 @@
 import '../loadenv';
-import { GenshinControl, getGenshinControl } from '../domain/genshin/genshinControl';
-import { loadEnglishTextMap } from '../domain/genshin/textmap';
+import { GenshinControl, getGenshinControl, loadEnglishTextMap } from '../domain/genshin/genshinControl';
 import { defaultMap, isEmpty } from '../../shared/util/genericUtil';
 import { resolveObjectPath, toArray } from '../../shared/util/arrayUtil';
 import { closeKnex } from '../util/db';

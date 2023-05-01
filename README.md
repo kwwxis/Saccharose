@@ -155,7 +155,7 @@ You'll need to repeat this step after every new Genshin Impact version.
     * This will create or overwrite a file called `voiceItemsNormalized.json` in
       your `GENSHIN_DATA_ROOT` folder.
 
-    * Run with: `ts-node ./src/backend/importer/import_voice.ts --voice`.
+    * Run with: `ts-node ./src/backend/importer/import_files.ts --voice`.
 
 5.  **Run import_files (plaintext)**
     

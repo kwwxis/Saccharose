@@ -4,6 +4,8 @@ import { getGenshinDataFilePath } from '../loadenv';
 import { pathToFileURL } from 'url';
 import treeKill from 'tree-kill';
 import { isset } from '../../shared/util/genericUtil';
+import { toInt } from '../../shared/util/numberUtil';
+import { splitLimit } from '../../shared/util/stringUtil';
 
 const execPromise = util.promisify(exec);
 
@@ -288,11 +290,29 @@ export function createGrepCommand(searchText: string, file: string, extraFlags?:
   }
 }
 
+export async function getLineNumberForLineText(lineText: string, file: string) {
+  const matches = await grep(lineText, file, '-n', false);
+  for (let match of matches) {
+    if (!match)
+      continue;
+
+    let lineNum = toInt(match.split(':', 2)[0]);
+    if (isNaN(lineNum))
+      continue;
+
+    let matchText = splitLimit(match, ':', 2)[1];
+    if (matchText === lineText) {
+      return lineNum;
+    }
+  }
+  return -1;
+}
+
 export async function grep(searchText: string, file: string, flags?: string,
                            escapeDoubleQuotes: boolean = true, startFromLine?: number): Promise<string[]> {
   try {
     const cmd = createGrepCommand(searchText, file, flags, escapeDoubleQuotes, startFromLine);
-    //console.log('Command:', cmd.line);
+    console.log('Command:', cmd.line);
 
     // noinspection JSUnusedLocalSymbols
     const { stdout, stderr } = await execPromise(cmd.line, {

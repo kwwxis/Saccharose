@@ -10,7 +10,7 @@ import { Request, Response } from './util/router';
 import sessions from './middleware/sessions';
 import appBaseRouter from './controllers/AppBaseRouter';
 import apiBaseRouter from './controllers/ApiBaseRouter';
-import { loadTextMaps, loadVoiceItems, loadQuestSummarization, loadSpriteTags } from './domain/genshin/textmap';
+import { loadVoiceItems } from './domain/genshin/genshinVoiceItems';
 import { isStringNotBlank } from '../shared/util/stringUtil';
 import requestIp from 'request-ip';
 import jsonResponse from './middleware/response/jsonResponse';
@@ -21,6 +21,9 @@ import defaultResponseHeaders from './middleware/response/defaultResponseHeaders
 import { PUBLIC_DIR, VIEWS_ROOT } from './loadenv';
 import { csrfMiddleware } from './middleware/request/csrf';
 import { pageLoadErrorHandler } from './middleware/response/globalErrorHandler';
+import { loadSpriteTags } from './domain/genshin/misc/spriteTags';
+
+import { loadTextMaps } from './domain/genshin/genshinControl';
 
 const app: Express = express();
 let didInit: boolean = false;
@@ -45,7 +48,6 @@ export async function appInit(): Promise<Express> {
   openKnex();
   await loadTextMaps(process.env.TEXTMAP_LANG_CODES);
   await loadVoiceItems();
-  await loadQuestSummarization();
   await loadSpriteTags();
 
   // Serve static directories

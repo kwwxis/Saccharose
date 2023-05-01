@@ -2,9 +2,9 @@ import { Knex } from 'knex';
 import { Request } from '../util/router';
 import { DEFAULT_SEARCH_MODE, SEARCH_MODES, SearchMode } from '../util/searchUtil';
 import { openKnex } from '../util/db';
-import { DEFAULT_LANG, LANG_CODES, LangCode } from '../../shared/types/lang-types';
+import { DEFAULT_LANG, LANG_CODES, LangCode, LangCodeMap } from '../../shared/types/lang-types';
 
-export class AbstractControlState {
+export abstract class AbstractControlState {
   // Instances:
   public KnexInstance: Knex = null;
   public Request: Request = null;
@@ -41,7 +41,7 @@ export class AbstractControlState {
 
 }
 
-export class AbstractControl<T extends AbstractControlState>  {
+export abstract class AbstractControl<T extends AbstractControlState = AbstractControlState>  {
   readonly state: T;
   readonly knex: Knex;
 
@@ -50,7 +50,7 @@ export class AbstractControl<T extends AbstractControlState>  {
     return a.Order - b.Order || a.Order - b.Order;
   };
 
-  constructor(controlState: Request | T, stateConstructor: {new(): T}) {
+  protected constructor(controlState: Request | T, stateConstructor: {new(): T}) {
     if (!!controlState && controlState.hasOwnProperty('url')) {
       this.state = new stateConstructor();
       this.state.Request = controlState as Request;
@@ -61,4 +61,8 @@ export class AbstractControl<T extends AbstractControlState>  {
     }
     this.knex = this.state.KnexInstance || openKnex();
   }
+
+  abstract getTextMapItem(langCode: LangCode, hash: any): string;
+
+  abstract createLangCodeMap(hash: any, doNormText?: boolean): LangCodeMap;
 }

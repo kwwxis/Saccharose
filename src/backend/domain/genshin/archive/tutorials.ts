@@ -1,7 +1,6 @@
 import '../../../loadenv';
 import { GenshinControl, getGenshinControl } from '../genshinControl';
 import { pathToFileURL } from 'url';
-import { loadEnglishTextMap } from '../textmap';
 import util from 'util';
 import { closeKnex } from '../../../util/db';
 import { defaultMap } from '../../../../shared/util/genericUtil';
@@ -103,8 +102,8 @@ export async function selectTutorials(ctrl: GenshinControl, codexTypeConstraint?
 |about    =`;
     for (let i = 0; i < tutorial.DetailList.length; i++) {
       let detail = tutorial.DetailList[i];
-      let imageName = fileFormatOptionsApply(
-        ctrl.state.Request,
+      let imageName = await fileFormatOptionsApply(
+        ctrl,
         Object.assign(
           {CurrentDetail: Object.assign({Index1based: i+1, Index0based: i}, detail), DetailCount: tutorial.DetailList.length},
           tutorial
@@ -131,8 +130,6 @@ export async function selectTutorials(ctrl: GenshinControl, codexTypeConstraint?
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
-  await loadEnglishTextMap();
-
   const ctrl = getGenshinControl();
   const ret = await selectTutorials(ctrl);
   console.log(util.inspect(ret, false, null, true));

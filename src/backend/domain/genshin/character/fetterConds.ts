@@ -1,5 +1,4 @@
 import { GenshinControl } from '../genshinControl';
-import { createLangCodeMap, getTextMapItem } from '../textmap';
 import { replace_prefix, sentenceJoin } from '../../../../shared/util/stringUtil';
 import { MainQuestExcelConfigData } from '../../../../shared/types/genshin/quest-types';
 import {
@@ -62,8 +61,8 @@ export async function processFetterConds(ctrl: GenshinControl, fetter: FetterWit
     const langCode: LangCode = ctrl.outputLangCode;
 
     for (let itrTipId of fetter.Tips) {
-      let tipTextCmp = getTextMapItem('EN', itrTipId)?.toLowerCase();
-      let tipText = getTextMapItem(langCode, itrTipId);
+      let tipTextCmp = ctrl.getTextMapItem('EN', itrTipId)?.toLowerCase();
+      let tipText = ctrl.getTextMapItem(langCode, itrTipId);
 
       if (tipTextCmp && tipTextCmp.includes('teleport waypoint')) {
         if (langCode === 'EN') {
@@ -93,7 +92,7 @@ export async function processFetterConds(ctrl: GenshinControl, fetter: FetterWit
 
 export async function processQuestConds(ctrl: GenshinControl, fetter: FetterWithConditions, mainQuest: MainQuestExcelConfigData, summaryObj: FetterCondSummary) {
   summaryObj.QuestId = mainQuest.Id;
-  summaryObj.QuestTitleTextMap = createLangCodeMap(mainQuest.TitleTextMapHash);
+  summaryObj.QuestTitleTextMap = ctrl.createLangCodeMap(mainQuest.TitleTextMapHash);
   summaryObj.QuestType = 'MainQuest';
 
   if (mainQuest.ChapterId) {
@@ -101,13 +100,13 @@ export async function processQuestConds(ctrl: GenshinControl, fetter: FetterWith
     if (chapter && chapter.EndQuestId) {
       if (chapter.EndQuestId === mainQuest.Id) {
         summaryObj.QuestId = chapter.Id;
-        summaryObj.QuestTitleTextMap = createLangCodeMap(chapter.ChapterTitleTextMapHash);
+        summaryObj.QuestTitleTextMap = ctrl.createLangCodeMap(chapter.ChapterTitleTextMapHash);
         summaryObj.QuestType = 'Chapter';
       } else {
         let subQuest = await ctrl.selectQuestExcelConfigData(chapter.EndQuestId);
         if (subQuest.MainId === mainQuest.Id) {
           summaryObj.QuestId = chapter.Id;
-          summaryObj.QuestTitleTextMap = createLangCodeMap(chapter.ChapterTitleTextMapHash);
+          summaryObj.QuestTitleTextMap = ctrl.createLangCodeMap(chapter.ChapterTitleTextMapHash);
           summaryObj.QuestType = 'Chapter';
         }
       }

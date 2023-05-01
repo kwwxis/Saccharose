@@ -1,6 +1,6 @@
 import { DialogExcelConfigData, TalkExcelConfigData } from '../../../../shared/types/genshin/dialogue-types';
 import { ConfigCondition } from '../../../../shared/types/genshin/general-types';
-import { GenshinControl, getGenshinControl } from '../genshinControl';
+import { GenshinControl, getGenshinControl, loadEnglishTextMap } from '../genshinControl';
 import { QuestGenerateResult } from './quest_generator';
 import { MetaProp, MetaPropAcceptValue } from '../../../util/metaProp';
 import { toBoolean } from '../../../../shared/util/genericUtil';
@@ -11,7 +11,6 @@ import { cached } from '../../../util/cache';
 import toposort from 'toposort';
 import { sort } from '../../../../shared/util/arrayUtil';
 import { pathToFileURL } from 'url';
-import { loadEnglishTextMap } from '../textmap';
 import { closeKnex } from '../../../util/db';
 import { isInt } from '../../../../shared/util/numberUtil';
 import { custom } from '../../../util/logger';

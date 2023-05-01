@@ -12,7 +12,7 @@ import {
   NpcDialogueResultMap,
 } from '../../../domain/genshin/dialogue/basic_dialogue_generator';
 import { reminderGenerate, reminderWikitext } from '../../../domain/genshin/dialogue/reminder_generator';
-import { getIdFromVoFile } from '../../../domain/genshin/textmap';
+import { getIdFromVoFile } from '../../../domain/genshin/genshinVoiceItems';
 import { ApiCyclicValueReplacer } from '../../../middleware/api/apiCyclicValueReplacer';
 
 const router: Router = create();

@@ -1,6 +1,5 @@
 import '../../../loadenv';
-import { GenshinControl, getGenshinControl } from '../genshinControl';
-import { getTextMapItem, loadTextMaps } from '../textmap';
+import { GenshinControl, getGenshinControl, loadTextMaps } from '../genshinControl';
 import { isInt } from '../../../../shared/util/numberUtil';
 import { mwParse } from '../../../../shared/mediawiki/mwParse';
 import { MwTemplateNode } from '../../../../shared/mediawiki/mwTypes';
@@ -9,7 +8,7 @@ import { Marker } from '../../../../shared/util/highlightMarker';
 import { normText } from '../genshinNormalizers';
 import { LANG_CODE_TO_WIKI_CODE, LANG_CODES, LangCode } from '../../../../shared/types/lang-types';
 
-function ol_gen_internal(textMapId: number, hideTl: boolean = false, addDefaultHidden: boolean = false, hideRm: boolean = false): {
+function ol_gen_internal(ctrl: GenshinControl, textMapId: number, hideTl: boolean = false, addDefaultHidden: boolean = false, hideRm: boolean = false): {
   wikitext: string,
   warnings: string[],
 } {
@@ -64,7 +63,7 @@ function ol_gen_internal(textMapId: number, hideTl: boolean = false, addDefaultH
       continue;
     }
 
-    let textInLang = getTextMapItem(langCode, textMapId) || '';
+    let textInLang = ctrl.getTextMapItem(langCode, textMapId) || '';
 
     if (textInLang.includes('|')) {
       textInLang = textInLang.replaceAll(/\|/g, '{{!}}');
@@ -169,7 +168,7 @@ export async function ol_gen(ctrl: GenshinControl, name: string, options: OLGenO
   let seen: {[result: string]: OLResult} = {};
 
   for (let textMapId of idList) {
-    let { wikitext: result, warnings } = ol_gen_internal(textMapId, options.hideTl, options.addDefaultHidden, options.hideRm);
+    let { wikitext: result, warnings } = ol_gen_internal(ctrl, textMapId, options.hideTl, options.addDefaultHidden, options.hideRm);
     if (result.includes('{EN_official_name}')) {
       continue;
     }
@@ -188,7 +187,7 @@ export async function ol_gen_from_id(ctrl: GenshinControl, textMapId: number, op
   if (!textMapId) {
     return null;
   }
-  let { wikitext: result, warnings } = ol_gen_internal(textMapId, options.hideTl, options.addDefaultHidden, options.hideRm);
+  let { wikitext: result, warnings } = ol_gen_internal(ctrl, textMapId, options.hideTl, options.addDefaultHidden, options.hideRm);
   return {textMapId, result, warnings, markers: [], duplicateTextMapIds: []};
 }
 

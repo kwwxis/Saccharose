@@ -672,14 +672,14 @@ export class VoHandle {
       return {groupKey: undefined, itemKey: undefined, prop: undefined}; // anonymous parameter
     }
     if (paramKey.startsWith('vo_')) {
-      const keyParts = splitLimit(paramKey, '_', 3);
+      const keyParts = splitLimit(paramKey, '_', 4);
       const groupKey = keyParts[1];
       const itemKey = keyParts[2];
       const prop = keyParts[3];
       return {groupKey, itemKey, prop};
     }
     if (this.isCombat) {
-      const keyParts = splitLimit(paramKey, '_', 2);
+      const keyParts = splitLimit(paramKey, '_', 3);
       const groupKey = keyParts[0];
       const itemKey = keyParts[1];
       const prop = keyParts[2];

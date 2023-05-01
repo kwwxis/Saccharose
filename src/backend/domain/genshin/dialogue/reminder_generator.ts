@@ -1,7 +1,7 @@
 import '../../../loadenv';
 import { closeKnex } from '../../../util/db';
-import { GenshinControl, getGenshinControl } from '../genshinControl';
-import { getVoPrefix, loadEnglishTextMap } from '../textmap';
+import { GenshinControl, getGenshinControl, loadEnglishTextMap } from '../genshinControl';
+import { getVoPrefix } from '../genshinVoiceItems';
 import { cached } from '../../../util/cache';
 import { isInt } from '../../../../shared/util/numberUtil';
 import { ReminderExcelConfigData } from '../../../../shared/types/genshin/dialogue-types';

@@ -3,7 +3,6 @@ import { getGenshinControl } from '../../../domain/genshin/genshinControl';
 import { add_ol_markers, ol_gen, OLResult } from '../../../domain/genshin/basic/OLgen';
 import { isset, toBoolean } from '../../../../shared/util/genericUtil';
 import { HttpError } from '../../../../shared/util/httpError';
-import { getTextMapItem } from '../../../domain/genshin/textmap';
 import { isInt, toInt } from '../../../../shared/util/numberUtil';
 import path from 'path';
 import fs from 'fs';
@@ -39,7 +38,7 @@ router.restful('/search-textmap', {
 
     if (ctrl.inputLangCode !== ctrl.outputLangCode) {
       for (let item of items) {
-        item.text = getTextMapItem(ctrl.outputLangCode, item.hash);
+        item.text = ctrl.getTextMapItem(ctrl.outputLangCode, item.hash);
       }
     }
 
@@ -100,7 +99,7 @@ router.restful('/id-usages', {
 });
 
 router.restful('/serve-image', {
-  get: async (req: Request, res: Response, next: NextFunction) => {
+  get: async (req: Request, res: Response, _next: NextFunction) => {
     const genshinImagesRoot = path.resolve(PUBLIC_DIR, 'images/genshin');
     const mime = {
       html: 'text/html',

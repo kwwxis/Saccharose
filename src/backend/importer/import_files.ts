@@ -6,8 +6,7 @@ import { pathToFileURL } from 'url';
 import commandLineArgs, { OptionDefinition as ArgsOptionDefinition } from 'command-line-args';
 import commandLineUsage, { OptionDefinition as UsageOptionDefinition } from 'command-line-usage';
 import chalk from 'chalk';
-import { getGenshinDataFilePath } from '../loadenv';
-import { clearFullTextMap, getFullTextMap, loadEnglishTextMap, loadTextMaps } from '../domain/genshin/textmap';
+import { getGenshinDataFilePath, getTextMapRelPath } from '../loadenv';
 import { getGenshinControl } from '../domain/genshin/genshinControl';
 import { ReadableView } from '../../shared/types/genshin/readable-types';
 import { closeKnex } from '../util/db';
@@ -133,9 +132,10 @@ async function importPlainTextMap() {
   for (let langCode of LANG_CODES) {
     if (langCode === 'CH')
       continue;
-    await loadTextMaps([ langCode ], false);
 
-    let textmap = getFullTextMap(langCode);
+    let textmap: {[hash: string]: string} = await fsp.readFile(getGenshinDataFilePath(getTextMapRelPath(langCode)), {encoding: 'utf8'}).then(data => {
+      return Object.freeze(JSON.parse(data));
+    });
 
     console.log(chalk.bold.underline('Normalizing TextMap for ' + langCode));
     let hashList = [];
@@ -161,7 +161,6 @@ async function importPlainTextMap() {
 
     textmap = null;
 
-    clearFullTextMap(langCode);
     console.log(chalk.gray('----------'));
   }
   console.log(chalk.blue('Done'));
@@ -172,7 +171,6 @@ async function importIndex() {
     fs.mkdirSync(getGenshinDataFilePath('./TextMap/Index/'));
   }
 
-  await loadEnglishTextMap();
   const ctrl = getGenshinControl();
 
   const writeOutput = (file: string, data: any) => {

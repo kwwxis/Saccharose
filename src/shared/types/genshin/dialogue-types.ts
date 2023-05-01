@@ -204,3 +204,9 @@ export interface ReminderExcelConfigData {
   SoundEffect: string,
   HasAudio: boolean,
 }
+
+export interface QuestSummarizationTextExcelConfigData {
+  Id: number,
+  DescTextMapHash: number,
+  DescText: string,
+}

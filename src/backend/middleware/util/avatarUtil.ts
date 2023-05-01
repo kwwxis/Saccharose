@@ -5,7 +5,6 @@ import { fetchCharacterStories } from '../../domain/genshin/character/fetchStory
 import { Request } from '../../util/router';
 import { isInt, toInt } from '../../../shared/util/numberUtil';
 import { isString } from '../../../shared/util/stringUtil';
-import { createLangCodeMap } from '../../domain/genshin/textmap';
 import jsonMask from 'json-mask';
 import { HomeWorldNPCExcelConfigData } from '../../../shared/types/genshin/homeworld-types';
 import { getHomeWorldCompanions } from '../../domain/genshin/character/companion_dialogue';
@@ -49,7 +48,7 @@ export async function getAvatar(ctrl: GenshinControl, req: Request): Promise<Ava
       return ret;
     } else {
       for (let avatar of avatars) {
-        const langCodeMap = createLangCodeMap(avatar.NameTextMapHash, false);
+        const langCodeMap = ctrl.createLangCodeMap(avatar.NameTextMapHash, false);
         for (let name of Object.values(langCodeMap)) {
           if (nameCmp === name?.toLowerCase()) {
             req.context.htmlMetaProps['X-ChangeAvatarNameInURL'] = arg + ';' + avatar.NameText;
@@ -77,7 +76,7 @@ export async function getCompanion(ctrl: GenshinControl, req: Request): Promise<
       return ret;
     } else {
       for (let companion of companions) {
-        const langCodeMap = createLangCodeMap(companion.CommonNameTextMapHash, false);
+        const langCodeMap = ctrl.createLangCodeMap(companion.CommonNameTextMapHash, false);
         for (let name of Object.values(langCodeMap)) {
           if (nameCmp === name?.toLowerCase()) {
             req.context.htmlMetaProps['X-ChangeAvatarNameInURL'] = arg + ';' + companion.CommonName;

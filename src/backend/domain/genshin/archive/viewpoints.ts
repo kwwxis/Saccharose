@@ -1,5 +1,4 @@
 import { pathToFileURL } from 'url';
-import { loadEnglishTextMap } from '../textmap';
 import { GenshinControl, getGenshinControl } from '../genshinControl';
 import util from 'util';
 import { closeKnex } from '../../../util/db';
@@ -73,7 +72,7 @@ export async function selectViewpoints(ctrl: GenshinControl, cityIdConstraint?: 
     if (viewpoint.WorldArea.AreaType === 'LEVEL_2') {
       viewpoint.ParentWorldArea = areas.find(area => area.AreaType === 'LEVEL_1' && area.AreaId1 === viewpoint.WorldArea.AreaId1);
     }
-    viewpoint.DownloadImage = fileFormatOptionsApply(ctrl.state.Request, viewpoint, 'FileFormat.viewpoint.image', VIEWPOINT_DEFAULT_FILE_FORMAT_IMAGE);
+    viewpoint.DownloadImage = await fileFormatOptionsApply(ctrl, viewpoint, 'FileFormat.viewpoint.image', VIEWPOINT_DEFAULT_FILE_FORMAT_IMAGE);
     viewpoint.Wikitext = fileFormatOptionsCheck(`{{Viewpoint
 |id      = ${viewpoint.SortOrder}
 |title   = ${viewpoint.NameText}
@@ -84,7 +83,7 @@ export async function selectViewpoints(ctrl: GenshinControl, cityIdConstraint?: 
 |note    = 
 |text    = ${viewpoint.DescText ? normText(viewpoint.DescText, ctrl.outputLangCode) : ''}
 |image   = ${viewpoint.DownloadImage}
-|map     = ${fileFormatOptionsApply(ctrl.state.Request, viewpoint, 'FileFormat.viewpoint.map', VIEWPOINT_DEFAULT_FILE_FORMAT_MAP)}
+|map     = ${await fileFormatOptionsApply(ctrl, viewpoint, 'FileFormat.viewpoint.map', VIEWPOINT_DEFAULT_FILE_FORMAT_MAP)}
 }}`);
     ret[viewpoint.CityNameText].push(viewpoint);
   }
@@ -93,8 +92,6 @@ export async function selectViewpoints(ctrl: GenshinControl, cityIdConstraint?: 
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
-  await loadEnglishTextMap();
-
   const ctrl = getGenshinControl();
   const ret = await selectViewpoints(ctrl);
   console.log(util.inspect(ret, false, null, true));

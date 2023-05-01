@@ -459,9 +459,10 @@ export function romanToInt(s: string) {
  * @example
  * '1_2_3_4'.split('_', 2); // => ['1', '2']
  *
- * splitLimit('1_2_3_4', '_', 2); // => ['1', '2', '3_4']
+ * splitLimit('1_2_3_4', '_', 2); // => ['1', '2_3_4']
  */
-export function splitLimit(s: string, del: string, limit: number): string[] {
+export function splitLimit(s: string, del: string, numParts: number): string[] {
+  let limit = numParts - 1;
   let parts = s.split(del);
   if (parts.length > limit) {
     parts = parts.slice(0, limit).concat(parts.slice(limit, parts.length).join(del));

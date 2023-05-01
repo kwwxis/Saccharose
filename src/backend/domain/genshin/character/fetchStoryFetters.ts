@@ -1,9 +1,8 @@
 import '../../../loadenv';
 import util from 'util';
 import { closeKnex } from '../../../util/db';
-import { GenshinControl, getGenshinControl } from '../genshinControl';
+import { GenshinControl, getGenshinControl, loadEnglishTextMap } from '../genshinControl';
 import { cached } from '../../../util/cache';
-import { loadEnglishTextMap } from '../textmap';
 import { processFetterConds } from './fetterConds';
 import { resolveObjectPath } from '../../../../shared/util/arrayUtil';
 import { FetterStoryExcelConfigData, StoryFetters, StoryFettersByAvatar } from '../../../../shared/types/genshin/fetter-types';

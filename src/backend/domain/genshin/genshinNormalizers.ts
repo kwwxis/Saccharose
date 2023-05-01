@@ -1,6 +1,6 @@
 import { toInt } from '../../../shared/util/numberUtil';
-import { SPRITE_TAGS } from './textmap';
 import { LANG_CODE_TO_LOCALE, LangCode } from '../../../shared/types/lang-types';
+import { SPRITE_TAGS } from './misc/spriteTags';
 
 export const convertRubi = (langCode: LangCode, text: string) => {
   const rubiMap: { [index: number]: string } = {};

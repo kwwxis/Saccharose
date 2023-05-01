@@ -1,8 +1,7 @@
-import { GenshinControl, getGenshinControl } from '../genshinControl';
+import { GenshinControl, getGenshinControl, loadEnglishTextMap } from '../genshinControl';
 import { sort } from '../../../../shared/util/arrayUtil';
 import { defaultMap, isset } from '../../../../shared/util/genericUtil';
 import { pathToFileURL } from 'url';
-import { getTextMapItem, loadEnglishTextMap } from '../textmap';
 import util from 'util';
 import { closeKnex } from '../../../util/db';
 import {
@@ -22,7 +21,7 @@ export async function selectAchievementGoals(ctrl: GenshinControl): Promise<Achi
     if (goal.FinishRewardId) {
       goal.FinishReward = await ctrl.selectRewardExcelConfigData(goal.FinishRewardId);
     }
-    goal.NameTextEN = getTextMapItem('EN', goal.NameTextMapHash);
+    goal.NameTextEN = ctrl.getTextMapItem('EN', goal.NameTextMapHash);
   }
   return goals;
 }

@@ -1,8 +1,7 @@
 import '../../../loadenv';
 import { closeKnex } from '../../../util/db';
-import { GenshinControl, getGenshinControl } from '../genshinControl';
+import { GenshinControl, getGenshinControl, loadEnglishTextMap } from '../genshinControl';
 import { NpcExcelConfigData } from '../../../../shared/types/genshin/general-types';
-import { getTextMapItem, loadEnglishTextMap } from '../textmap';
 import util from 'util';
 import { isInt } from '../../../../shared/util/numberUtil';
 import { DialogExcelConfigData, TalkExcelConfigData } from '../../../../shared/types/genshin/dialogue-types';
@@ -38,7 +37,7 @@ const npcFilterInclude = (ctrl: GenshinControl, d: DialogExcelConfigData, npcFil
     return d.TalkRole.Type === 'TALK_ROLE_MATE_AVATAR';
   }
   let npcNameOutputLang = lc(trim(normText(d.TalkRoleNameText, ctrl.outputLangCode), '()'));
-  let npcNameInputLang = lc(trim(normText(getTextMapItem(ctrl.inputLangCode, d.TalkRoleNameTextMapHash), ctrl.inputLangCode), '()'));
+  let npcNameInputLang = lc(trim(normText(ctrl.getTextMapItem(ctrl.inputLangCode, d.TalkRoleNameTextMapHash), ctrl.inputLangCode), '()'));
   if (!npcFilter) {
     return true;
   }

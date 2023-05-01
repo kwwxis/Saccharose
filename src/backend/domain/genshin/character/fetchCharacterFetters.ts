@@ -1,13 +1,12 @@
 import '../../../loadenv';
-import { GenshinControl, getGenshinControl } from '../genshinControl';
+import { GenshinControl, getGenshinControl, loadEnglishTextMap } from '../genshinControl';
 import { processFetterConds } from './fetterConds';
 import {
-  createLangCodeMap,
   getAllVoiceItemsOfType,
   getVoiceItems,
-  loadEnglishTextMap,
-  loadVoiceItems, VoiceItem,
-} from '../textmap';
+  loadVoiceItems,
+  VoiceItem,
+} from '../genshinVoiceItems';
 import { closeKnex } from '../../../util/db';
 import { CharacterFetters, CharacterFettersByAvatar, FetterExcelConfigData } from '../../../../shared/types/genshin/fetter-types';
 import { cached } from '../../../util/cache';
@@ -65,7 +64,7 @@ export async function fetchCharacterFetters(ctrl: GenshinControl): Promise<Chara
       let agg = fettersByAvatar[fetter.AvatarId];
       if (!agg.avatar && fetter.Avatar) {
         agg.avatar = fetter.Avatar;
-        agg.avatarName = createLangCodeMap(fetter.Avatar.NameTextMapHash);
+        agg.avatarName = ctrl.createLangCodeMap(fetter.Avatar.NameTextMapHash);
       }
       if (agg.avatar && !agg.voAvatarName && fetter.VoiceFile) {
         let voItems = getVoiceItems('Fetter', fetter.VoiceFile);
@@ -90,13 +89,13 @@ export async function fetchCharacterFetters(ctrl: GenshinControl): Promise<Chara
       delete (<any> fetter).VoiceTitleLockedText;
 
       if (fetter.VoiceTitleTextMapHash) {
-        fetter.VoiceTitleTextMap = createLangCodeMap(fetter.VoiceTitleTextMapHash);
+        fetter.VoiceTitleTextMap = ctrl.createLangCodeMap(fetter.VoiceTitleTextMapHash);
       }
       if (fetter.VoiceFileTextMapHash) {
-        fetter.VoiceFileTextMap = createLangCodeMap(fetter.VoiceFileTextMapHash);
+        fetter.VoiceFileTextMap = ctrl.createLangCodeMap(fetter.VoiceFileTextMapHash);
       }
       if (fetter.VoiceTitleLockedTextMapHash) {
-        fetter.VoiceTitleLockedTextMap = createLangCodeMap(fetter.VoiceTitleLockedTextMapHash);
+        fetter.VoiceTitleLockedTextMap = ctrl.createLangCodeMap(fetter.VoiceTitleLockedTextMapHash);
       }
       await processFetterConds(ctrl, fetter, 'OpenConds');
       await processFetterConds(ctrl, fetter, 'FinishConds');

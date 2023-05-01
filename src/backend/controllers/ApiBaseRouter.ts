@@ -4,6 +4,10 @@ import { apiErrorHandler } from '../middleware/response/globalErrorHandler';
 import apiAccessControlHeaders from '../middleware/api/apiAccessControlHeaders';
 import apiAuth from '../middleware/api/apiAuth';
 import GenshinResources from './genshin/api/_index';
+import BasicResources from './genshin/api/BasicResources';
+import DialogueResources from './genshin/api/DialogueResources';
+import ItemResources from './genshin/api/ArchiveResources';
+import CharacterResources from './genshin/api/CharacterResources';
 
 export default async function(): Promise<Router> {
   const router: Router = create({ layouts: ['layouts/empty-layout'] });
@@ -16,7 +20,7 @@ export default async function(): Promise<Router> {
 
   // Add API Resources
   // ~~~~~~~~~~~~~~~~~
-  router.use('/genshin/', GenshinResources);
+  GenshinResources(router);
 
   // Client Error Handlers
   // ~~~~~~~~~~~~~~~~~~~~~

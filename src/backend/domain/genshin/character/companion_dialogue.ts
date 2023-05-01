@@ -1,8 +1,7 @@
 import '../../../loadenv';
 import { closeKnex } from '../../../util/db';
-import { GenshinControl, getGenshinControl } from '../genshinControl';
+import { GenshinControl, getGenshinControl, loadEnglishTextMap } from '../genshinControl';
 import { talkConfigGenerate } from '../dialogue/basic_dialogue_generator';
-import { loadEnglishTextMap } from '../textmap';
 import { cached } from '../../../util/cache';
 import { toInt } from '../../../../shared/util/numberUtil';
 import { HomeWorldEventExcelConfigData, HomeWorldNPCExcelConfigData } from '../../../../shared/types/genshin/homeworld-types';

@@ -11,7 +11,7 @@ import { CharacterFetters } from '../shared/types/genshin/fetter-types';
 export abstract class SaccharoseApiEndpoint<T extends Object, R = any> {
   readonly uri: string;
 
-  constructor(readonly base_uri: string, uri: string) {
+  protected constructor(readonly base_uri: string, uri: string) {
     if (!uri.startsWith('/')) {
       throw 'SaccharoseApiEndpoint constructor: uri must start with "/"'
     }
