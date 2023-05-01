@@ -1,0 +1,60 @@
+<section class="card">
+  <h2><%= title %></h2>
+  <% if (locals.ol) { %>
+    <div class="content">
+      <div class="valign">
+        <h3>Infobox</h3>
+        <div class="grow"></div>
+        <button class="secondary small" ui-action="copy: #infobox"
+                ui-tippy-hover="Click to copy to clipboard"
+                ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
+                style="margin:5px 0">Copy</button>
+      </div>
+      <textarea id="infobox" readonly class="w100p wikitext autosize" spellcheck="false" translate="no"><%= infobox %></textarea>
+
+      <div class="valign">
+        <h3>OL</h3>
+        <div class="grow"></div>
+        <button class="secondary small" ui-action="copy: #ol"
+                ui-tippy-hover="Click to copy to clipboard"
+                ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
+                style="margin:5px 0">Copy</button>
+      </div>
+      <textarea id="ol" readonly class="w100p wikitext autosize" spellcheck="false" translate="no"><%= ol.result %></textarea>
+    </div>
+  <% } %>
+</section>
+<% collection.Books.forEach((book, idx) => { %>
+  <section class="card">
+    <h2><%= book?.Material?.NameText %></h2>
+    <div class="content">
+      <a class="dispInlineBlock spacer10-bottom" href="/readables/item/<%= book.Id %>">Direct Link</a>
+      <% if (book.Material) { %>
+        <table class="article-table">
+          <tbody>
+            <tr>
+              <td class="bold">Image</td>
+              <td class="w70p"><img class="icon x36" src="/images/genshin/<%= book?.Material?.Icon %>.png" loading="lazy" decoding="async" /></td>
+            </tr>
+            <tr>
+              <td class="bold">Rarity</td>
+              <td class="w70p"><%= book?.Material?.RankLevel %></td>
+            </tr>
+            <tr>
+              <td class="bold">Name</td>
+              <td class="w70p"><%= book?.Material?.NameText %></td>
+            </tr>
+            <tr>
+              <td class="bold">Type</td>
+              <td class="w70p"><%= book?.Material?.TypeDescText %></td>
+            </tr>
+            <tr>
+              <td class="bold">Desc.</td>
+              <td class="w70p"><%= normText(book?.Material?.DescText) %></td>
+            </tr>
+          </tbody>
+        </table>
+      <% } %>
+    </div>
+    <%- include('partials/genshin/archive/readable-items', {readable: book, itemIdPrefix: idx}) %>
+<% }) %>

@@ -29,15 +29,45 @@
     <span id="top" style="height:0;width:0;opacity:0"></span>
     <header id="header" class="thin-border">
       <div class="left">
-        <a id="site-title" href="/" aria-label="Site title">
+        <a id="site-title" href="<%= req.context.siteHome %>" aria-label="Site title">
           <div id="site-logo-bg"></div>
-          <div id="site-logo-fg"><img src="/images/Sucrose.png" style="width:45px;height:auto" /></div>
+          <div id="site-logo-fg">
+            <% if (req.context.siteMode === 'genshin') { %>
+              <img src="/images/Sucrose.png" style="width:45px;height:auto" />
+            <% } else if (req.context.siteMode === 'hsr') { %>
+                <img src="/images/March_7th_Sticker_1.png" style="width:45px;height:auto" />
+            <% } else if (req.context.siteMode === 'zenless') { %>
+                <img src="/images/Belle.png" style="width:38px;height:auto;border-radius:50%" />
+            <% } %>
+          </div>
           <span style="line-height:21px"><%= req.context.siteTitle %></span>
         </a>
+        <% if (req.context.isDevelopment) { %>
+          <div id="site-mode-selector" class="valign spacer10-left posRel">
+            <button id="site-mode-dropdown-button" class="secondary border-light no-active-style" ui-action="dropdown: #site-mode-dropdown">
+              <span class="spacer5-right"><%= req.context.siteModeName %></span>
+              <%- icon('chevron-down') %>
+            </button>
+            <div id="site-mode-dropdown" class="ui-dropdown">
+              <a href="/" class="option valign" ui-action="close-dropdowns">
+                <img src="/images/Sucrose.png" style="width:16px;height:auto" />
+                <span class="spacer5-left">Genshin Impact</span>
+              </a>
+              <a href="/hsr" class="option valign" ui-action="close-dropdowns">
+                <img src="/images/March_7th_Sticker_1.png" style="width:16px;height:auto" />
+                <span class="spacer5-left">Honkai Star Rail</span>
+              </a>
+              <a href="/zenless" class="option valign" ui-action="close-dropdowns">
+                <img src="/images/Belle.png" style="width:16px;height:auto;border-radius:50%" />
+                <span class="spacer5-left">Zenless Zone Zero</span>
+              </a>
+            </div>
+          </div>
+        <% } %>
       </div>
       <div class="right">
-        <%- include('partials/menu/app-language-selectors') %>
-        <%- include('partials/menu/app-menu-buttons') %>
+        <%- include('partials/layout/app-language-selectors') %>
+        <%- include('partials/layout/app-menu-buttons') %>
         <div id="mobile-menu-trigger" class="alignStretch">
           <button id="mobile-menu-button" ui-action="toggle: 200, #mobile-menu, #mobile-menu-body-cover; toggle-class: body, mobile-menu-open">
             <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"
@@ -57,11 +87,17 @@
     </header>
     <div class="content"><%- include(subviewName, subviewStack) %></div>
     <div id="mobile-menu" class="hide thin-border">
-      <%- include('partials/menu/app-menu-buttons') %>
+      <%- include('partials/layout/app-menu-buttons') %>
       <div class="spacer15-vert">
-        <%- include('partials/menu/app-language-selectors') %>
+        <%- include('partials/layout/app-language-selectors') %>
       </div>
-      <%- include('partials/menu/app-menu') %>
+      <% if (req.context.siteMode === 'genshin') { %>
+        <%- include('partials/genshin/genshin-menu') %>
+      <% } else if (req.context.siteMode === 'hsr') { %>
+        <%- include('partials/hsr/hsr-menu') %>
+      <% } else if (req.context.siteMode === 'zenless') { %>
+        <%- include('partials/zenless/zenless-menu') %>
+      <% } %>
     </div>
     <div id="mobile-menu-body-cover" class="hide"></div>
     <footer>
@@ -70,7 +106,13 @@
           <p>Saccharose.wiki</p>
         </section>
         <section class="footer-links">
-          <a href="https://genshin-impact.fandom.com/">Genshin Wiki</a>
+          <% if (req.context.siteMode === 'genshin') { %>
+            <a href="https://genshin-impact.fandom.com/">Genshin Wiki</a>
+          <% } else if (req.context.siteMode === 'hsr') { %>
+              <a href="https://honkai-star-rail.fandom.com/">Honkai Star Rail Wiki</a>
+          <% } else if (req.context.siteMode === 'zenless') { %>
+              <a href="https://zenless-zone-zero.fandom.com/">Zenless Zone Zero Wiki</a>
+          <% } %>
           <a href="https://github.com/kwwxis/Saccharose">Source Code</a>
         </section>
       </div>

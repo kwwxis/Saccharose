@@ -1,17 +1,17 @@
+// noinspection JSUnusedGlobalSymbols
+
 import { escapeHtml } from '../shared/util/stringUtil';
 import axios, { AxiosError, Method } from 'axios';
 import { showInternalErrorDialog, showJavascriptErrorDialog } from './util/errorHandler';
 import { modalService } from './util/modalService';
 import { HttpError } from '../shared/util/httpError';
 import { cleanEmpty } from '../shared/util/arrayUtil';
-import { CharacterFetters } from '../shared/types/fetter-types';
+import { CharacterFetters } from '../shared/types/genshin/fetter-types';
 
-// noinspection JSUnusedGlobalSymbols
-export class SaccharoseApiEndpoint<T extends Object, R = any> {
-  readonly base_uri: string = '/api';
+export abstract class SaccharoseApiEndpoint<T extends Object, R = any> {
   readonly uri: string;
 
-  constructor(uri: string) {
+  constructor(readonly base_uri: string, uri: string) {
     if (!uri.startsWith('/')) {
       throw 'SaccharoseApiEndpoint constructor: uri must start with "/"'
     }
@@ -133,46 +133,70 @@ export class SaccharoseApiEndpoint<T extends Object, R = any> {
   }
 }
 
-export const endpoints = {
+export class GenshinApiEndpoint<T extends Object, R = any> extends SaccharoseApiEndpoint<T, R> {
+  constructor(uri: string) {
+    super('/api/genshin', uri);
+  }
+}
+
+export class HsrApiEndpoint<T extends Object, R = any> extends SaccharoseApiEndpoint<T, R> {
+  constructor(uri: string) {
+    super('/api/hsr', uri);
+  }
+}
+
+export class ZzzApiEndpoint<T extends Object, R = any> extends SaccharoseApiEndpoint<T, R> {
+  constructor(uri: string) {
+    super('/api/zenless', uri);
+  }
+}
+
+export const genshinEndpoints = {
   errorHtmlWrap: (str: string) => {
     return `<div class="card"><div class="content">${escapeHtml(str)}</div></div>`;
   },
 
-  ping: new SaccharoseApiEndpoint('/ping'),
-  testGeneralErrorHandler: new SaccharoseApiEndpoint('/nonexistant_endpoint'),
+  ping: new GenshinApiEndpoint('/ping'),
+  testGeneralErrorHandler: new GenshinApiEndpoint('/nonexistant_endpoint'),
 
-  findMainQuest: new SaccharoseApiEndpoint<{name: string|number}>('/quests/findMainQuest'),
-  generateMainQuest: new SaccharoseApiEndpoint<{id: string|number}>('/quests/generate'),
+  findMainQuest: new GenshinApiEndpoint<{name: string|number}>('/quests/findMainQuest'),
+  generateMainQuest: new GenshinApiEndpoint<{id: string|number}>('/quests/generate'),
 
-  generateOL: new SaccharoseApiEndpoint<{
+  generateOL: new GenshinApiEndpoint<{
     text: string,
     hideTl: boolean,
     hideRm: boolean,
     addDefaultHidden: boolean,
   }>('/OL/generate'),
 
-  generateSingleDialogueBranch: new SaccharoseApiEndpoint<{text: string, npcFilter?: string}>('/dialogue/single-branch-generate'),
+  generateSingleDialogueBranch: new GenshinApiEndpoint<{text: string, npcFilter?: string}>('/dialogue/single-branch-generate'),
 
-  generateNpcDialogue: new SaccharoseApiEndpoint<{name: string}>('/dialogue/npc-dialogue-generate'),
+  generateNpcDialogue: new GenshinApiEndpoint<{name: string}>('/dialogue/npc-dialogue-generate'),
 
-  generateReminderDialogue: new SaccharoseApiEndpoint<{text: string, subsequentAmount?: number}>('/dialogue/reminder-dialogue-generate'),
+  generateReminderDialogue: new GenshinApiEndpoint<{text: string, subsequentAmount?: number}>('/dialogue/reminder-dialogue-generate'),
 
-  searchTextMap: new SaccharoseApiEndpoint<{
+  searchTextMap: new GenshinApiEndpoint<{
     text: string,
     startFromLine: number,
     resultSetNum: number,
   }>('/search-textmap'),
 
-  getIdUsages: new SaccharoseApiEndpoint<{q: string}>('/id-usages'),
+  getIdUsages: new GenshinApiEndpoint<{q: string}>('/id-usages'),
 
-  voToDialogue: new SaccharoseApiEndpoint<{text: string}>('/dialogue/vo-to-dialogue'),
+  voToDialogue: new GenshinApiEndpoint<{text: string}>('/dialogue/vo-to-dialogue'),
 
-  getFetters: new SaccharoseApiEndpoint<{avatarId: number}, CharacterFetters>('/character/fetters'),
+  getFetters: new GenshinApiEndpoint<{avatarId: number}, CharacterFetters>('/character/fetters'),
 
-  searchReadables: new SaccharoseApiEndpoint<{text: string}>('/readables/search'),
+  searchReadables: new GenshinApiEndpoint<{text: string}>('/readables/search'),
 
-  searchItems: new SaccharoseApiEndpoint<{text: string}>('/items/search'),
-  searchWeapons: new SaccharoseApiEndpoint<{text: string}>('/weapons/search'),
+  searchItems: new GenshinApiEndpoint<{text: string}>('/items/search'),
+  searchWeapons: new GenshinApiEndpoint<{text: string}>('/weapons/search'),
 };
 
-(<any> window).endpoints = endpoints;
+export const hsrEndpoints = {};
+
+export const zenlessEndpoints = {};
+
+(<any> window).genshinEndpoints = genshinEndpoints;
+(<any> window).hsrEndpoints = genshinEndpoints;
+(<any> window).zenlessEndpoints = genshinEndpoints;

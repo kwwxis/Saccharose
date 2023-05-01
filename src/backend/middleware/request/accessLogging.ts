@@ -1,6 +1,7 @@
 import morgan from 'morgan';
 import { Request, Response } from '../../util/router';
-import { DEFAULT_LANG } from '../../../shared/types/dialogue-types';
+
+import { DEFAULT_LANG } from '../../../shared/types/lang-types';
 
 const logSkipRegex: RegExp = /\.css|\.js|\.png|\.svg|\.ico|\.jpg|\.woff|\.env/g;
 

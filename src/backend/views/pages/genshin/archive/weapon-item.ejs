@@ -1,0 +1,117 @@
+<% if (locals.weapon) { %>
+  <section class="card">
+    <h2>
+      <span class="dispBlock" style="margin-top:-5px"><a role="button" class="secondary fontWeight600" style="font-size:14px;padding:3px 8px" href="/weapons">Back to weapons search</a></span>
+      <span class="valign spacer10-top">
+        <img class="framed-icon x36" src="/images/genshin/<%= weapon.Icon %>.png" loading="lazy" decoding="async" />
+        <span class="spacer15-left"><%= weapon.NameText %></span>
+      </span>
+    </h2>
+    <div class="content">
+      <table class="article-table">
+        <tr>
+          <td style="width:150px" class="bold">Name</td>
+          <td><%= normText(weapon.NameText) %></td>
+        </tr>
+        <tr>
+          <td class="bold">Description</td>
+          <td><%- include('partials/util/wikitext', {content: normText(weapon.DescText), seamless: true}) %></td>
+        </tr>
+        <tr>
+          <td class="bold">Quality</td>
+          <td>
+            <div class="valign">
+              <code class="spacer10-right"><%= weapon.RankLevel %></code>
+              <%- include('partials/genshin/stars', { quality: weapon.RankLevel }) %>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="bold">Icon</td>
+          <td>
+            <img src="/images/genshin/<%= weapon.Icon %>.png" style="max-height:74px" loading="lazy"
+                   decoding="async" />
+          </td>
+        </tr>
+        <% if (weapon.AwakenIcon) { %>
+          <tr>
+            <td class="bold">2nd Ascension Icon</td>
+            <td>
+              <img src="/images/genshin/<%= weapon.AwakenIcon %>.png" style="max-height:74px" loading="lazy"
+                   decoding="async" />
+            </td>
+          </tr>
+        <% } %>
+        <tr>
+          <td class="bold">Item Type</td>
+          <td><code><%= weapon.ItemType %></code></td>
+        </tr>
+        <tr>
+          <td class="bold">Weapon Type</td>
+          <td><code><%= weapon.WeaponType %></code></td>
+        </tr>
+      </table>
+    </div>
+  </section>
+  <% if (weapon.Relations.Forge?.length) { %>
+    <section class="card">
+      <h2>Forging</h2>
+      <% for (let relation of weapon.Relations.Forge) { %>
+        <div class="content alignStart">
+          <% for (let inputItem of relation.RelationData.MaterialItems) { %>
+            <%- include('partials/genshin/archive/item', { material: inputItem.Material, itemCount: inputItem.Count }) %>
+          <% } %>
+          <div class="material-sep"><%- icon('chevron-right', 28); %></div>
+          <% if (relation.RelationData.ResultItem) { %>
+            <%- include('partials/genshin/archive/item', { material: relation.RelationData.ResultItem, itemCount: relation.RelationData.ResultItemCount }) %>
+          <% } %>
+        </div>
+        <hr>
+      <% } %>
+    </section>
+  <% } %>
+  <% if (weapon.Story) { %>
+    <section class="card">
+      <h2 class="valign">
+        <span>Story</span>
+        <span class="grow"></span>
+        <a class="valign fontWeight500" href="/readables/item/<%= weapon.StoryId %>" style="font-size:18px" target="_blank">
+          <span class="spacer5-right">Document</span><%- icon('external-link', 16) %>
+        </a>
+      </h2>
+      <%- include('partials/genshin/archive/readable-items', {readable: weapon.Story}) %>
+    </section>
+  <% } %>
+  <% if (locals.ol) { %>
+    <section class="card">
+      <h2 class="valign">
+        <span>OL</span>
+        <span class="grow"></span>
+        <button class="secondary small" ui-action="copy: #ol"
+                ui-tippy-hover="Click to copy to clipboard"
+                ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">Copy</button>
+      </h2>
+      <div class="content">
+        <textarea id="ol" readonly class="w100p wikitext autosize" spellcheck="false" translate="no"><%= ol.result %></textarea>
+      </div>
+    </section>
+  <% } %>
+  <section class="card">
+    <h2 class="valign">
+      <span>Raw JSON</span>
+      <span class="grow"></span>
+      <button class="secondary" ui-action="toggle: #json-outer">
+        <span class="inactive-only">Show</span>
+        <span class="active-only">Hide</span>
+      </button>
+    </h2>
+    <div id="json-outer" class="content hide">
+      <textarea class="code json w100p autosize" spellcheck="false"
+                translate="no"><%= JSON.stringify(weapon, null, 2) %></textarea>
+    </div>
+  </section>
+<% } else { %>
+  <section class="card">
+    <h2>Weapon not found.</h2>
+  </section>
+<% } %>

@@ -1,0 +1,184 @@
+<section class="card" data-document-title="<%= req.context.getFormattedPageTitle(questTitle || '(No title)') %>">
+  <h2>
+    <strong><%= questId %>:</strong>&nbsp;<span class="quest-title"><%= questTitle || '(No title)' %></span>
+    <a class="help-info fr fontWeight600" style="font-size:15px;cursor:pointer;">Help</a>
+  </h2>
+  <div id="quest-desc-section" class="content">
+    <h4 class="valign">
+      <span class="expando spacer5-right" ui-action="expando: #quest-desc-content"><%- icon('chevron-down', 17) %></span>
+      <span>Quest Description<%= questDescriptions.length > 1 ? 's' : '' %></span>
+    </h4>
+    <div id="quest-desc-content">
+      <% if (!questDescriptions.length) { %>
+        <p>(None)</p>
+      <% } %>
+      <% questDescriptions.forEach((questDescription, idx) => { %>
+        <div class="posRel">
+        <textarea id="quest-desc-<%= idx %>" readonly class="wikitext w100p autosize"
+                  style="resize:vertical;min-height:40px;padding-right:45px" spellcheck="false" translate="no"><%= questDescription %></textarea>
+          <button class="secondary small posAbs" ui-action="copy: #quest-desc-<%= idx %>"
+                  ui-tippy-hover="Click to copy to clipboard"
+                  ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
+                  style="right: 0; top: 0;">Copy</button>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+  <% if (locals.rewardInfobox) { %>
+    <div id="quest-rewards-section" class="content">
+      <h4 class="valign">
+        <span class="expando spacer5-right" ui-action="expando: #quest-rewards-content"><%- icon('chevron-down', 17) %></span>
+        <span>Quest Rewards</span>
+      </h4>
+      <div id="quest-rewards-content" class="posRel">
+        <textarea id="quest-reward" readonly class="wikitext w100p autosize"
+                  style="resize:vertical;min-height:40px;padding-right:45px" spellcheck="false" translate="no"><%= rewardInfobox %></textarea>
+        <button class="secondary small posAbs" ui-action="copy: #quest-reward"
+                ui-tippy-hover="Click to copy to clipboard"
+                ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
+                style="right: 0; top: 0;">Copy</button>
+      </div>
+    </div>
+  <% } %>
+  <% if (locals.npcStrList) { %>
+    <div id="quest-characters-section" class="content">
+      <h4 class="valign">
+        <span class="expando spacer5-right" ui-action="expando: #quest-characters-content"><%- icon('chevron-down', 17) %></span>
+        <span>Quest Characters</span>
+      </h4>
+      <div id="quest-characters-content" class="posRel">
+        <textarea id="quest-characters" readonly class="w100p autosize"
+                  style="resize:vertical;min-height:40px;padding-right:45px" spellcheck="false" translate="no"><%= locals.npcStrList %></textarea>
+        <button class="secondary small posAbs" ui-action="copy: #quest-characters"
+                ui-tippy-hover="Click to copy to clipboard"
+                ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
+                style="right: 0; top: 0;">Copy</button>
+      </div>
+    </div>
+  <% } %>
+  <div id="quest-steps-section" class="content">
+    <div class="valign">
+      <h4 class="valign">
+        <span class="expando spacer5-right" ui-action="expando: #quest-steps-content"><%- icon('chevron-down', 17) %></span>
+        <span>Steps</span>
+      </h4>
+      <div class="grow"></div>
+      <% if (stepsWikitext) { %>
+        <button class="secondary small" ui-action="copy: #quest-steps"
+                ui-tippy-hover="Click to copy to clipboard"
+                ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
+                style="margin:5px 0">Copy</button>
+      <% } %>
+    </div>
+    <div id="quest-steps-content">
+      <% if (stepsWikitext) { %>
+        <textarea id="quest-steps" readonly class="wikitext w100p autosize"
+                  style="resize:vertical;min-height:40px;" spellcheck="false" translate="no"><%= stepsWikitext %></textarea>
+      <% } else { %>
+        <p>(None)</p>
+      <% } %>
+    </div>
+  </div>
+  <div id="ol-section" class="content">
+    <div class="valign">
+      <h4 class="valign">
+        <span class="expando spacer5-right" ui-action="expando: #ol-content"><%- icon('chevron-down', 17) %></span>
+        <span>Other Languages</span>
+      </h4>
+      <div class="grow"></div>
+      <% if (otherLanguagesWikitext) { %>
+        <button class="secondary small" ui-action="copy: #quest-name-ol"
+                ui-tippy-hover="Click to copy to clipboard"
+                ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
+                style="margin:5px 0">Copy</button>
+      <% } %>
+    </div>
+    <div id="ol-content">
+      <% if (otherLanguagesWikitext) { %>
+        <textarea id="quest-name-ol" readonly class="wikitext w100p"
+                  style="resize:vertical;min-height:200px;" spellcheck="false" translate="no"><%= otherLanguagesWikitext %></textarea>
+      <% } else { %>
+        <p>(Not applicable)</p>
+      <% } %>
+    </div>
+  </div>
+  <% if (travelLogSummary.length) { %>
+    <div id="travel-log-section" class="content">
+      <h4 class="valign">
+        <span class="expando spacer5-right" ui-action="expando: #travel-log-content"><%- icon('chevron-down', 17) %></span>
+        <span>Travel Log Summarization</span>
+      </h4>
+      <div id="travel-log-content">
+        <% travelLogSummary.forEach((travelLogSummaryItem, idx) => { %>
+          <div class="posRel">
+          <textarea id="travel-log-summary-item-<%= idx %>" readonly class="wikitext w100p autosize"
+                    style="resize:vertical;min-height:40px;padding-right:45px" spellcheck="false" translate="no"><%= travelLogSummaryItem %></textarea>
+            <button class="secondary small posAbs" ui-action="copy: #travel-log-summary-item-<%= idx %>"
+                    ui-tippy-hover="Click to copy to clipboard"
+                    ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
+                    style="right: 0; top: 0;">Copy</button>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+  <% } %>
+  <% if (cutscenes.length) { %>
+    <div id="cutscene-section" class="content">
+      <h4 class="valign">
+        <span class="expando spacer5-right" ui-action="expando: #cutscene-content"><%- icon('chevron-down', 17) %></span>
+        <span>Cutscenes</span>
+      </h4>
+      <div id="cutscene-content">
+        <p>No speaker info is associated with cutscene subtitles. So you'll need to manually figure that out.</p>
+        <% cutscenes.forEach((item, idx) => { %>
+          <div class="cutscene-info">
+            <p><strong><%= item.file %></strong></p>
+            <div class="posRel">
+            <textarea id="cutscene-<%= idx %>" readonly class="wikitext w100p autosize"
+                      style="resize:vertical;min-height:40px;padding-right:45px" spellcheck="false" translate="no"><%= item.text %></textarea>
+              <button class="secondary small posAbs" ui-action="copy: #cutscene-<%= idx %>"
+                      ui-tippy-hover="Click to copy to clipboard"
+                      ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
+                      style="right: 0; top: 0;">Copy</button>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+  <% } %>
+  <% if (similarityGroups && Object.keys(similarityGroups).length) { %>
+    <h2>Similar Dialogue Groups</h2>
+    <div class="content">
+      <p class="spacer5-bottom">There are some dialogue sections in this quest that are similar to other sections. These may potentially for conditional branching. Use the table below to jump to specific sections.</p>
+      <p class="spacer5-bottom">Lines that are <b>different</b> from other sections are highlighted in a blue-ish tint.</p>
+      <table class="article-table">
+        <tr>
+          <th>Group No.</th>
+          <th>Section Jump Links</th>
+          <th class="textAlignRight"><button class="secondary small" style="font-size:13px" data-filter-similarity-group="RESET">Restore all sections</button></th>
+        </tr>
+        <% for (let [groupId, sectionInfoList] of Object.entries(similarityGroups)) { %>
+          <tr>
+            <td class="bold"><span style="white-space: nowrap;padding:0 10px">Group #<%= groupId %></span></td>
+            <td>
+              <div style="padding:5px">
+                <% for (let sectionInfo of sectionInfoList) { %>
+                  <a role="button" class="secondary small" href="#<%= sectionInfo.sectionId %>" style="font-size:15px"><%= sectionInfo.sectionId.replaceAll(/_/g, ' ') %></a>
+                <% } %>
+              </div>
+            </td>
+            <td class="textAlignRight">
+              <button class="secondary small" style="font-size:13px" data-filter-similarity-group="<%= groupId %>">Show only this group</button>
+            </td>
+          </tr>
+        <% } %>
+      </table>
+    </div>
+  <% } %>
+  <h2>Dialogue</h2>
+  <div class="dialogue-container">
+    <% dialogue.forEach(section => { %>
+      <%- include('partials/genshin/dialogue/dialogue-section', section) %>
+    <% }) %>
+  </div>
+</section>

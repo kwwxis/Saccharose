@@ -7,11 +7,12 @@ import commandLineArgs, { OptionDefinition as ArgsOptionDefinition } from 'comma
 import commandLineUsage, { OptionDefinition as UsageOptionDefinition } from 'command-line-usage';
 import chalk from 'chalk';
 import { getGenshinDataFilePath } from '../loadenv';
-import { LANG_CODES } from '../../shared/types/dialogue-types';
-import { clearFullTextMap, getFullTextMap, loadEnglishTextMap, loadTextMaps } from '../scripts/textmap';
-import { getControl, normText } from '../scripts/script_util';
-import { ReadableView } from '../../shared/types/readable-types';
+import { clearFullTextMap, getFullTextMap, loadEnglishTextMap, loadTextMaps } from '../domain/genshin/textmap';
+import { getGenshinControl } from '../domain/genshin/genshinControl';
+import { ReadableView } from '../../shared/types/genshin/readable-types';
 import { closeKnex } from '../util/db';
+import { normText } from '../domain/genshin/genshinNormalizers';
+import { LANG_CODES } from '../../shared/types/lang-types';
 
 async function importNormalize() {
   const jsonDir = getGenshinDataFilePath('./ExcelBinOutput');
@@ -172,7 +173,7 @@ async function importIndex() {
   }
 
   await loadEnglishTextMap();
-  const ctrl = getControl();
+  const ctrl = getGenshinControl();
 
   const writeOutput = (file: string, data: any) => {
     fs.writeFileSync(getGenshinDataFilePath(`./TextMap/Index/TextIndex_${file}.json`), JSON.stringify(data, null, 2), 'utf8');

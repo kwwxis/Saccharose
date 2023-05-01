@@ -1,6 +1,6 @@
 import '../loadenv';
-import { Control, getControl } from '../scripts/script_util';
-import { loadEnglishTextMap } from '../scripts/textmap';
+import { GenshinControl, getGenshinControl } from '../domain/genshin/genshinControl';
+import { loadEnglishTextMap } from '../domain/genshin/textmap';
 import { defaultMap, isEmpty } from '../../shared/util/genericUtil';
 import { resolveObjectPath, toArray } from '../../shared/util/arrayUtil';
 import { closeKnex } from '../util/db';
@@ -11,7 +11,7 @@ import chalk from 'chalk';
 
 type InspectOpt = {file: string, inspectFieldValues?: string[], printRecordIfFieldNotEmpty?: string[]};
 
-async function inspectGenshinDataFile(ctrl: Control, opt: InspectOpt): Promise<any[]> {
+async function inspectGenshinDataFile(ctrl: GenshinControl, opt: InspectOpt): Promise<any[]> {
   if (!opt.inspectFieldValues)
     opt.inspectFieldValues = [];
   if (!opt.printRecordIfFieldNotEmpty)
@@ -231,7 +231,7 @@ const presets = {
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
-    const ctrl = getControl();
+    const ctrl = getGenshinControl();
     await loadEnglishTextMap();
 
     //await inspectGenshinDataFile(ctrl, presets.CookRecipeExcelConfigData);

@@ -7,22 +7,22 @@ import 'tippy.js/themes/light-border.css';
 import './initialListeners';
 import './generalEventBus';
 
-import './pages/basic/olgen';
-import './pages/basic/textmap';
-import './pages/basic/id-usages';
-import './pages/basic/asi-test';
+import './pages/genshin/basic/olgen';
+import './pages/genshin/basic/textmap';
+import './pages/genshin/basic/id-usages';
+import './pages/genshin/basic/asi-test';
 
-import './pages/dialogue/branch_dialogue';
-import './pages/dialogue/npc_dialogue';
-import './pages/dialogue/quests';
-import './pages/dialogue/reminders';
-import './pages/dialogue/vo-to-dialogue';
+import './pages/genshin/dialogue/branch_dialogue';
+import './pages/genshin/dialogue/npc_dialogue';
+import './pages/genshin/dialogue/quests';
+import './pages/genshin/dialogue/reminders';
+import './pages/genshin/dialogue/vo-to-dialogue';
 
-import './pages/archive/readables-search';
-import './pages/archive/material-search';
-import './pages/archive/weapon-search';
+import './pages/genshin/archive/readables-search';
+import './pages/genshin/archive/material-search';
+import './pages/genshin/archive/weapon-search';
 
-import './pages/character/vo-tool';
+import './pages/genshin/character/vo-tool';
 
 import { escapeHtml } from '../shared/util/stringUtil';
 (<any> window).escapeHtml = escapeHtml;

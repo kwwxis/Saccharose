@@ -1,24 +1,9 @@
 import bodyParser from 'body-parser';
-import { create, Router, Request, Response } from '../util/router';
+import { create, Request, Response, Router } from '../util/router';
 import { apiErrorHandler } from '../middleware/response/globalErrorHandler';
-import { CyclicValueReplacer } from '../../shared/util/genericUtil';
-import BasicResources from './api/BasicResources';
-import CharacterResources from './api/CharacterResources';
-import DialogueResources from './api/DialogueResources';
 import apiAccessControlHeaders from '../middleware/api/apiAccessControlHeaders';
 import apiAuth from '../middleware/api/apiAuth';
-import ItemResources from './api/ArchiveResources';
-
-export const ApiCyclicValueReplacer: CyclicValueReplacer = (k: string, v: any) => {
-  if (typeof v === 'object' && v.Id) {
-    return {
-      __cyclicKey: k,
-      __cyclicRef: v.Id
-    };
-  } else {
-    return;
-  }
-}
+import GenshinResources from './genshin/api/_index';
 
 export default async function(): Promise<Router> {
   const router: Router = create({ layouts: ['layouts/empty-layout'] });
@@ -31,10 +16,7 @@ export default async function(): Promise<Router> {
 
   // Add API Resources
   // ~~~~~~~~~~~~~~~~~
-  router.use('/', BasicResources);
-  router.use('/', DialogueResources);
-  router.use('/', ItemResources);
-  router.use('/', CharacterResources);
+  router.use('/genshin/', GenshinResources);
 
   // Client Error Handlers
   // ~~~~~~~~~~~~~~~~~~~~~

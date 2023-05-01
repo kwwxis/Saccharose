@@ -1,7 +1,7 @@
 import feather, { FeatherAttributes, FeatherIconNames } from 'feather-icons';
 import createHtmlElement from 'create-html-element';
 import { isUnset } from '../../shared/util/genericUtil';
-import { SPRITE_TAGS } from '../scripts/textmap';
+import { SPRITE_TAGS } from '../domain/genshin/textmap';
 import { escapeHtmlAllowEntities } from '../../shared/util/stringUtil';
 
 export function icon(iconName: string, size: number);

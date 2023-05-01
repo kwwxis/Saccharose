@@ -1,22 +1,20 @@
 import helmet from 'helmet';
 import { create, Router, Request, Response, NextFunction } from '../util/router';
 import { toBoolean } from '../../shared/util/genericUtil';
-import { getControl, normText } from '../scripts/script_util';
-import BasicRouter from './app/BasicRouter';
-import DialogueRouter from './app/DialogueRouter';
-import ItemRouter from './app/ArchiveRouter';
-import CharacterRouter from './app/CharacterRouter';
-import TcgRouter from './app/TcgRouter';
+import { normText } from '../domain/genshin/genshinNormalizers';
+
+import GenshinRouter from './genshin/app/_index';
+import StarRailRouter from './hsr/app/_index';
+import ZenlessRouter from './zenless/app/_index';
 
 export default async function(): Promise<Router> {
   const router: Router = create({
     layouts: ['layouts/base-layout', 'layouts/app-layout'],
     locals: async (req: Request) => {
-      const ctrl = getControl(req);
       return {
-        normText: (s: string) => normText(s, ctrl.outputLangCode),
-        outputLangCode: ctrl.outputLangCode,
-        inputLangCode: ctrl.inputLangCode,
+        normText: (s: string) => normText(s, req.context.outputLangCode),
+        outputLangCode: req.context.outputLangCode,
+        inputLangCode: req.context.inputLangCode,
         csrfToken: req.csrfToken(),
       };
     }
@@ -45,11 +43,9 @@ export default async function(): Promise<Router> {
     helmet.contentSecurityPolicy(cspOptions)(req, res, next);
   });
 
-  router.use('/', await BasicRouter());
-  router.use('/', await DialogueRouter());
-  router.use('/', await ItemRouter());
-  router.use('/', await CharacterRouter());
-  router.use('/', await TcgRouter());
+  router.use('/', await GenshinRouter());
+  router.use('/hsr', await StarRailRouter());
+  router.use('/zenless', await ZenlessRouter());
 
   return router;
 };

@@ -1,13 +1,13 @@
 import { Request } from './router';
 import { resolveObjectPath } from '../../shared/util/arrayUtil';
-import { isLangCode, LangCode } from '../../shared/types/dialogue-types';
-import { getTextMapItem } from '../scripts/textmap';
+import { getTextMapItem } from '../domain/genshin/textmap';
 import { isset, toBoolean } from '../../shared/util/genericUtil';
 import { mwParse } from '../../shared/mediawiki/mwParse';
 import { MwParentNode, MwTemplateNode, MwWhiteSpace } from '../../shared/mediawiki/mwTypes';
 import { isNumeric, toNumber } from '../../shared/util/numberUtil';
 import { splitArgs } from '../../shared/util/stringUtil';
 import JSON5 from 'json5';
+import { isLangCode, LangCode } from '../../shared/types/lang-types';
 
 export type FileFormatOption = 'default' | 'remove' | 'custom';
 

@@ -16,8 +16,8 @@ import { isInt } from '../shared/util/numberUtil';
 import { escapeHtml, uuidv4 } from '../shared/util/stringUtil';
 import { highlightReplace, highlightWikitextReplace } from './util/ace/wikitextEditor';
 import { GeneralEventBus } from './generalEventBus';
-import { DEFAULT_LANG, LangCode } from '../shared/types/dialogue-types';
 import { languages } from './util/langCodes';
+import { DEFAULT_LANG, LangCode } from '../shared/types/lang-types';
 
 type UiAction = {actionType: string, actionParams: string[]};
 

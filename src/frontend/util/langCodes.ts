@@ -1,4 +1,4 @@
-import { LangCodeMap } from '../../shared/types/dialogue-types';
+import { LangCodeMap } from '../../shared/types/lang-types';
 
 export const languages: LangCodeMap<string> = (() => {
   let viewStackMeta: HTMLMetaElement = document.querySelector('meta[name="langCodes"]');

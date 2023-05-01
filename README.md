@@ -197,7 +197,7 @@ It doesn't matter which order you run those two commands in.
 Loading all the text maps can take a while. In your `.env` file, you can set `TEXTMAP_LANG_CODES` to a
 comma-separated list of language codes you want to load the text maps for.
 
-List of valid language codes are found in [./src/shared/dialogue-types.ts](src/shared/types/dialogue-types.ts)
+List of valid language codes are found in [./src/shared/types/lang-types.ts](src/shared/types/lang-types.ts)
 
 For example:
 ```dotenv

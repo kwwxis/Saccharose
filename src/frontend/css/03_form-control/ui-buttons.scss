@@ -249,12 +249,13 @@ button.secondary:not([disabled]):focus,
   border-color: hsla(223, 67%, 18%, 0.5);
 }
 
-button.secondary.active,
-[role='button'].secondary.active,
-.secondary-label.active,
-button.secondary.active:not([disabled]):hover,
-[role='button'].secondary.active:not([disabled]):hover,
-.secondary-label.active:not([disabled]):hover {
+button.secondary.active:not(.no-active-style),
+[role='button'].secondary.active:not(.no-active-style),
+.secondary-label.active:not(.no-active-style),
+
+button.secondary.active:not([disabled]):not(.no-active-style):hover,
+[role='button'].secondary.active:not([disabled]):not(.no-active-style):hover,
+.secondary-label.active:not([disabled]):not(.no-active-style):hover {
   background-color: #3daaf5;
   color: white;
   border: 1px solid hsla(204, 90%, 50%, 1);

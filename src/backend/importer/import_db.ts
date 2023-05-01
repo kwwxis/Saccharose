@@ -1,11 +1,11 @@
 import '../loadenv';
 import { openKnex } from '../util/db';
-import { DialogExcelConfigData, TalkExcelConfigData } from '../../shared/types/dialogue-types';
+import { DialogExcelConfigData, TalkExcelConfigData } from '../../shared/types/genshin/dialogue-types';
 import {
   CombineExcelConfigData,
   CompoundExcelConfigData, CookRecipeExcelConfigData, ForgeExcelConfigData,
   MaterialExcelConfigData, MaterialRelation,
-} from '../../shared/types/material-types';
+} from '../../shared/types/genshin/material-types';
 import commandLineArgs, { OptionDefinition as ArgsOptionDefinition } from 'command-line-args';
 import commandLineUsage, { OptionDefinition as UsageOptionDefinition } from 'command-line-usage';
 import { getGenshinDataFilePath } from '../loadenv';
@@ -13,19 +13,20 @@ import { humanTiming, timeConvert } from '../../shared/util/genericUtil';
 import { promises as fs } from 'fs';
 import ora from 'ora';
 import { pathToFileURL } from 'url';
-import { ReliquaryCodexExcelConfigData, ReliquaryExcelConfigData } from '../../shared/types/artifact-types';
-import { WeaponCodexExcelConfigData, WeaponExcelConfigData } from '../../shared/types/weapon-types';
-import { AvatarFlycloakExcelConfigData } from '../../shared/types/avatar-types';
+import { ReliquaryCodexExcelConfigData, ReliquaryExcelConfigData } from '../../shared/types/genshin/artifact-types';
+import { WeaponCodexExcelConfigData, WeaponExcelConfigData } from '../../shared/types/genshin/weapon-types';
+import { AvatarFlycloakExcelConfigData } from '../../shared/types/genshin/avatar-types';
 import chalk from 'chalk';
 import {
   GCGCharacterLevelExcelConfigData,
   GCGRuleExcelConfigData,
   GCGWeekLevelExcelConfigData,
-} from '../../shared/types/gcg-types';
+} from '../../shared/types/genshin/gcg-types';
 import { resolveObjectPath } from '../../shared/util/arrayUtil';
 import { ucFirst } from '../../shared/util/stringUtil';
-import { AchievementExcelConfigData, AchievementGoalExcelConfigData } from '../../shared/types/achievement-types';
-import { FurnitureMakeExcelConfigData } from '../../shared/types/homeworld-types';
+import { AchievementExcelConfigData, AchievementGoalExcelConfigData } from '../../shared/types/genshin/achievement-types';
+import { FurnitureMakeExcelConfigData } from '../../shared/types/genshin/homeworld-types';
+import { LangCode } from '../../shared/types/lang-types';
 
 export type SchemaTable = {
   name: string,
@@ -34,6 +35,8 @@ export type SchemaTable = {
   customRowResolve?: (row: any, allRows?: any[]) => any[],
   normalizeFixFields?: { [oldName: string]: string },
   singularize?: string[],
+  isKvPair?: boolean,
+  noIncludeJson?: boolean,
 };
 export type SchemaColumnType =
   'string'
@@ -56,7 +59,38 @@ export type SchemaColumn = {
   defaultValue?: any,
 };
 
+function textMapSchema(langCode: LangCode): SchemaTable {
+  return <SchemaTable> {
+    name: 'TextMap' + langCode,
+    jsonFile: './TextMap/TextMap'+langCode+'.json',
+    columns: [
+      {name: 'Hash', type: 'integer', isPrimary: true, resolve: 'Key'},
+      {name: 'Text', type: 'text', resolve: 'Value'}
+    ],
+    customRowResolve(row): any[] {
+      return [{Hash: row.Key, Text: row.Value}];
+    },
+    isKvPair: true
+  };
+}
+
 export const schema = {
+
+  TextMapCHS: textMapSchema('CHS'),
+  TextMapCHT: textMapSchema('CHT'),
+  TextMapDE: textMapSchema('DE'),
+  TextMapEN: textMapSchema('EN'),
+  TextMapES: textMapSchema('ES'),
+  TextMapFR: textMapSchema('FR'),
+  TextMapID: textMapSchema('ID'),
+  TextMapIT: textMapSchema('IT'),
+  TextMapKR: textMapSchema('KR'),
+  TextMapPT: textMapSchema('PT'),
+  TextMapRU: textMapSchema('RU'),
+  TextMapTH: textMapSchema('TH'),
+  TextMapTR: textMapSchema('TR'),
+  TextMapVI: textMapSchema('VI'),
+
   DialogExcelConfigData: <SchemaTable> {
     name: 'DialogExcelConfigData',
     jsonFile: './ExcelBinOutput/DialogExcelConfigData.json',
@@ -1511,7 +1545,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
             builder.index(col.name);
           }
         }
-        if (!table.customRowResolve) {
+        if (!table.customRowResolve && !table.noIncludeJson) {
           builder.json('json_data');
         }
       }).then();
@@ -1524,7 +1558,9 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
         return table.customRowResolve(row, allRows);
       } else {
         let payload = {};
-        payload['json_data'] = JSON.stringify(row);
+        if (!table.noIncludeJson) {
+          payload['json_data'] = JSON.stringify(row);
+        }
         for (let col of table.columns) {
           if (col.resolve) {
             if (typeof col.resolve === 'string') {
@@ -1552,12 +1588,20 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
       spinner.indent = 2;
 
       const fileContents: string = await fs.readFile(getGenshinDataFilePath(table.jsonFile), {encoding: 'utf8'});
-      const json: any[] = JSON.parse(fileContents);
-      const totalRows: number = json.length;
+      let json: any[];
+      let totalRows: number;
+
+      if (table.isKvPair) {
+        json = Object.entries(JSON.parse(fileContents)).map(([Key, Value]) => ({Key, Value}));
+        totalRows = json.length;
+      } else {
+        json = JSON.parse(fileContents);
+        totalRows = json.length;
+      }
 
       let batch: any[] = [];
       let batchNum = 1;
-      let batchMax = 200;
+      let batchMax = 300;
 
       async function commitBatch() {
         await knex.transaction(function(tx) {

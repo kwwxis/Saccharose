@@ -3,9 +3,9 @@ import 'use-strict';
 import '../shared/polyfills';
 import path from 'path';
 import dotenv from 'dotenv';
-import { LangCode } from '../shared/types/dialogue-types';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { LangCode } from '../shared/types/lang-types';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -20,6 +20,8 @@ export const EJS_DELIMITER = '%';
 
 export const DATAFILE_SQLITE_DB = './genshin_data.db';
 export const DATAFILE_VOICE_ITEMS = './voiceItemsNormalized.json';
+
+export const getNodeEnv = (): 'development'|'production' => <any> process.env.NODE_ENV;
 
 export const getTextMapRelPath = (langCode: LangCode): string =>
   './TextMap/TextMap'+langCode+'.json';

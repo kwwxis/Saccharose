@@ -15,7 +15,13 @@
       <%- include(subviewName, subviewStack) %>
     </main>
     <aside id="app-sidebar" class="f30p">
-      <%- include('partials/menu/app-menu') %>
+      <% if (req.context.siteMode === 'genshin') { %>
+        <%- include('partials/genshin/genshin-menu') %>
+      <% } else if (req.context.siteMode === 'hsr') { %>
+        <%- include('partials/hsr/hsr-menu') %>
+      <% } else if (req.context.siteMode === 'zenless') { %>
+        <%- include('partials/zenless/zenless-menu') %>
+      <% } %>
     </aside>
   </div>
 </div>

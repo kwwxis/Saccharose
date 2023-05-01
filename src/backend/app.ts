@@ -10,7 +10,7 @@ import { Request, Response } from './util/router';
 import sessions from './middleware/sessions';
 import appBaseRouter from './controllers/AppBaseRouter';
 import apiBaseRouter from './controllers/ApiBaseRouter';
-import { loadTextMaps, loadVoiceItems, loadQuestSummarization, loadSpriteTags } from './scripts/textmap';
+import { loadTextMaps, loadVoiceItems, loadQuestSummarization, loadSpriteTags } from './domain/genshin/textmap';
 import { isStringNotBlank } from '../shared/util/stringUtil';
 import requestIp from 'request-ip';
 import jsonResponse from './middleware/response/jsonResponse';

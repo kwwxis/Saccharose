@@ -1,0 +1,191 @@
+<% if (!!locals.chapterNotFound) { %>
+  <section class="card">
+    <h2>Chapter not found for <%= requestId %></h2>
+    <div class="content">
+      <a href="/chapters" role="button" class="secondary spacer10-bottom">
+        <%- icon('chevron-left') %>
+        <span>Back to chapter list</span>
+      </a>
+    </div>
+  </section>
+<% } else if (!!locals.chapter) { %>
+  <section class="card">
+    <h2>
+      <% if (chapter.Summary.ActNumText) { %>
+        <span><%= chapter.Summary.ActNumText %></span>
+        <span>&mdash;</span>
+      <% } %>
+      <strong class="act-name"><%= chapter.Summary.ActName %></strong>
+    </h2>
+    <div class="content">
+      <a href="/chapters" role="button" class="secondary spacer10-bottom">
+        <%- icon('chevron-left') %><span>Back to chapter list</span>
+      </a>
+      <table class="article-table">
+        <thead>
+          <tr>
+            <th colspan="3">Property Table</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (chapter.Summary.ChapterNumText) { %>
+            <tr>
+              <td class="bold" colspan="2">Chapter</td>
+              <td class="w70p"><%= chapter.Summary.ChapterNumText %></td>
+            </tr>
+          <% } %>
+          <% if (chapter.Summary.ChapterNum && chapter.Summary.ChapterNum >= 0) { %>
+            <tr>
+              <td class="no-border">&nbsp;</td>
+              <td class="bold">Chapter Number Int</td>
+              <td class="w70p"><%= chapter.Summary.ChapterNum %></td>
+            </tr>
+          <% } %>
+          <% if (chapter.Summary.ChapterRoman) { %>
+            <tr>
+              <td class="no-border">&nbsp;</td>
+              <td class="bold">Chapter Number Roman</td>
+              <td class="w70p"><%= chapter.Summary.ChapterRoman %></td>
+            </tr>
+          <% } %>
+
+          <% if (chapter.Summary.ChapterName) { %>
+            <tr>
+              <td class="no-border">&nbsp;</td>
+              <td class="bold">Sub Chapter</td>
+              <td class="w70p"><%= chapter.Summary.ChapterName %></td>
+            </tr>
+          <% } %>
+
+          <% if (chapter.Summary.ActNumText) { %>
+            <tr>
+              <td class="bold" colspan="2">Act Number</td>
+              <td class="w70p"><%= chapter.Summary.ActNumText %></td>
+            </tr>
+          <% } %>
+          <% if (chapter.Summary.ActNum && chapter.Summary.ActNum >= 0) { %>
+            <tr>
+              <td class="no-border">&nbsp;</td>
+              <td class="bold">Act Number Int</td>
+              <td class="w70p"><%= chapter.Summary.ActNum %></td>
+            </tr>
+          <% } %>
+          <% if (chapter.Summary.ActRoman) { %>
+            <tr>
+              <td class="no-border">&nbsp;</td>
+              <td class="bold">Act Number Roman</td>
+              <td class="w70p"><%= chapter.Summary.ActRoman %></td>
+            </tr>
+          <% } %>
+          <% if (chapter.Summary.ActType) { %>
+            <tr>
+              <td class="no-border">&nbsp;</td>
+              <td class="bold">Act Type</td>
+              <td class="w70p"><%= chapter.Summary.ActType %></td>
+            </tr>
+          <% } %>
+          <tr>
+            <td class="bold" colspan="2">Act Name</td>
+            <td class="w70p"><%= chapter.Summary.ActName %></td>
+          </tr>
+          <% if (chapter.Type === 'AQ') { %>
+            <tr>
+              <td class="bold" colspan="2">AQ Code</td>
+              <td class="w70p"><%= chapter.Summary.AQCode %></td>
+            </tr>
+          <% } %>
+          <% if (chapter.NeedPlayerLevel) { %>
+            <tr>
+              <td class="bold" colspan="2">Minimum Adventure Rank</td>
+              <td class="w70p"><%= chapter.NeedPlayerLevel %></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+  <section class="card">
+    <h2>Infoboxes</h2>
+    <table class="article-table all-borders">
+      <thead>
+        <tr>
+          <th class="w50p">Chapter Infobox</th>
+          <th class="w50p">Act Infobox</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td colspan="2"><strong>Feature not yet available</strong><br>Coming soon!</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+  <section class="card">
+    <h2>Quests</h2>
+    <div class="content">
+      <p class="spacer20-bottom">
+        The quests are usually in the correct order, but you should double-check. The Excel data doesn't make it obvious
+        what order quests are in. So they need to be programmatically ordered based on various clues. Whether this
+        tool can correct identify subquests is a hit-or-miss (e.g. <a href="/chapters/10070">Vimana Agama</a> is correctly
+        ordered but <a href="/chapters/10055">From Dusk to Dawn in Byakuyakoku</a> is not.)</p>
+      <% for (let item of quests) { %>
+        <a role="button" class="secondary dispBlock spacer5-bottom textAlignLeft" href="/quests/<%= item.quest.Id %>" data-id="<%= item.quest.Id %>">
+          <strong>ID <%= item.quest.Id %>:&nbsp;</strong>
+          <span><%= item.quest.TitleText %></span>
+        </a>
+        <% if (item.subquests && item.subquests.length) { %>
+          <div class="spacer15-left">
+            <% for (let subquest of item.subquests) { %>
+              <a role="button" class="secondary dispBlock spacer5-bottom textAlignLeft" href="/quests/<%= subquest.Id %>" data-id="<%= subquest.Id %>">
+                <strong>ID <%= subquest.Id %>:&nbsp;</strong>
+                <span><%= subquest.TitleText %></span>
+              </a>
+            <% } %>
+          </div>
+        <% } %>
+      <% } %>
+    </div>
+  </section>
+<section class="card">
+  <h2>Other Languages</h2>
+  <div class="content">
+    <% if (OL.mainChapterName) { %>
+      <strong class="dispBlock spacer5-top">TextMapHash: <%= OL.mainChapterName.textMapId %></strong>
+      <textarea readonly spellcheck="false" translate="no" class="ol-result-textarea wikitext w100p" style="resize:vertical;min-height:300px"><%= OL.mainChapterName.result %></textarea>
+    <% } %>
+    <% if (OL.subChapterName && OL.subChapterName !== OL.mainChapterName) { %>
+        <strong class="dispBlock spacer5-top">TextMapHash: <%= OL.subChapterName.textMapId %></strong>
+      <textarea readonly spellcheck="false" translate="no" class="ol-result-textarea wikitext w100p" style="resize:vertical;min-height:300px"><%= OL.subChapterName.result %></textarea>
+    <% } %>
+    <% if (OL.actName) { %>
+      <strong class="dispBlock spacer5-top">TextMapHash: <%= OL.actName.textMapId %></strong>
+      <textarea readonly spellcheck="false" translate="no" class="ol-result-textarea wikitext w100p" style="resize:vertical;min-height:300px"><%= OL.actName.result %></textarea>
+    <% } %>
+  </div>
+</section>
+<% } else { %>
+  <section class="card">
+    <h2>Archon Quest</h2>
+    <div class="content">
+      <%- include('partials/genshin/dialogue/chapter-table1', {chapterSect: chapters.AQ}) %>
+    </div>
+  </section>
+  <section class="card">
+    <h2>Story Quest</h2>
+    <div class="content">
+      <%- include('partials/genshin/dialogue/chapter-table1', {chapterSect: chapters.SQ}) %>
+    </div>
+  </section>
+  <section class="card">
+    <h2>Event Quest</h2>
+    <div class="content">
+      <%- include('partials/genshin/dialogue/chapter-table2', {chapterSect: chapters.EQ}) %>
+    </div>
+  </section>
+  <section class="card">
+    <h2>World Quest</h2>
+    <div class="content">
+      <%- include('partials/genshin/dialogue/chapter-table2', {chapterSect: chapters.WQ}) %>
+    </div>
+  </section>
+<% } %>

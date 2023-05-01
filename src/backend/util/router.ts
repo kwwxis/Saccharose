@@ -19,13 +19,13 @@ import { cachedSync } from './cache';
 import crypto from 'crypto';
 import { escapeHtml, escapeHtmlAllowEntities, ltrim, remove_suffix, sentenceJoin } from '../../shared/util/stringUtil';
 import { getWebpackBundleFileNames, WebpackBundles } from './webpackBundle';
-import { DEFAULT_LANG, LANG_CODES, LANG_CODES_TO_NAME, LangCode } from '../../shared/types/dialogue-types';
-import { EJS_DELIMITER, SITE_TITLE, VIEWS_ROOT } from '../loadenv';
+import { EJS_DELIMITER, getNodeEnv, SITE_TITLE, VIEWS_ROOT } from '../loadenv';
 import { CompareTernary, ternary, toBoolean } from '../../shared/util/genericUtil';
 import { toInt } from '../../shared/util/numberUtil';
 import { Marker } from '../../shared/util/highlightMarker';
 import pluralize from 'pluralize';
-import { SEARCH_MODES, SearchMode } from '../scripts/script_util';
+import { SEARCH_MODES, SearchMode } from './searchUtil';
+import { DEFAULT_LANG, LANG_CODES, LANG_CODES_TO_NAME, LangCode } from '../../shared/types/lang-types';
 
 //#region Types
 export type IncludeFunction = (view: string, locals?: RequestLocals) => string;
@@ -42,6 +42,8 @@ export type RequestViewStack = {
   [prop: string]: any;
 };
 
+export type RequestSiteMode = 'genshin' | 'hsr' | 'zenless';
+
 /** The only instance of this type should be at `req.context` */
 class RequestContext {
   private _req: Request;
@@ -54,6 +56,7 @@ class RequestContext {
   nonce = crypto.randomBytes(16).toString('hex');
   webpackBundles: WebpackBundles;
   htmlMetaProps: {[name: string]: string} = {};
+  siteMode: RequestSiteMode;
 
   constructor(req: Request) {
     this._req = req;
@@ -64,6 +67,46 @@ class RequestContext {
     this.viewStack = {viewName: 'RouterRootView'};
     this.viewStackPointer = this.viewStack;
     this.webpackBundles = getWebpackBundleFileNames();
+
+    if (req.path.toLowerCase().startsWith('/hsr')) {
+      this.siteMode = 'hsr';
+    } else if (req.path.toLowerCase().startsWith('/zenless')) {
+      this.siteMode = 'zenless';
+    } else {
+      this.siteMode = 'genshin';
+    }
+  }
+
+  get siteHome() {
+    switch (this.siteMode) {
+      case 'hsr':
+        return '/hsr';
+      case 'zenless':
+        return '/zenless';
+      case 'genshin':
+      default:
+        return '/';
+    }
+  }
+
+  get siteModeName() {
+    switch (this.siteMode) {
+      case 'hsr':
+        return 'Honkai Star Rail';
+      case 'zenless':
+        return 'Zenless Zone Zero';
+      case 'genshin':
+      default:
+        return 'Genshin Impact';
+    }
+  }
+
+  get isDevelopment() {
+    return getNodeEnv() === 'development';
+  }
+
+  get isProduction() {
+    return getNodeEnv() === 'production';
   }
 
   getAllViewNames() {
