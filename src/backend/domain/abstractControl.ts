@@ -62,7 +62,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     this.knex = this.state.KnexInstance || openKnex();
   }
 
-  abstract getTextMapItem(langCode: LangCode, hash: any): string;
+  abstract getTextMapItem(langCode: LangCode, hash: any): Promise<string>;
 
-  abstract createLangCodeMap(hash: any, doNormText?: boolean): LangCodeMap;
+  abstract createLangCodeMap(hash: any, doNormText?: boolean): Promise<LangCodeMap>;
 }

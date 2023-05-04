@@ -1,5 +1,5 @@
 import '../../../loadenv';
-import { GenshinControl, getGenshinControl, loadEnglishTextMap } from '../genshinControl';
+import { GenshinControl, getGenshinControl } from '../genshinControl';
 import { processFetterConds } from './fetterConds';
 import {
   getAllVoiceItemsOfType,
@@ -64,7 +64,7 @@ export async function fetchCharacterFetters(ctrl: GenshinControl): Promise<Chara
       let agg = fettersByAvatar[fetter.AvatarId];
       if (!agg.avatar && fetter.Avatar) {
         agg.avatar = fetter.Avatar;
-        agg.avatarName = ctrl.createLangCodeMap(fetter.Avatar.NameTextMapHash);
+        agg.avatarName = await ctrl.createLangCodeMap(fetter.Avatar.NameTextMapHash);
       }
       if (agg.avatar && !agg.voAvatarName && fetter.VoiceFile) {
         let voItems = getVoiceItems('Fetter', fetter.VoiceFile);
@@ -89,13 +89,13 @@ export async function fetchCharacterFetters(ctrl: GenshinControl): Promise<Chara
       delete (<any> fetter).VoiceTitleLockedText;
 
       if (fetter.VoiceTitleTextMapHash) {
-        fetter.VoiceTitleTextMap = ctrl.createLangCodeMap(fetter.VoiceTitleTextMapHash);
+        fetter.VoiceTitleTextMap = await ctrl.createLangCodeMap(fetter.VoiceTitleTextMapHash);
       }
       if (fetter.VoiceFileTextMapHash) {
-        fetter.VoiceFileTextMap = ctrl.createLangCodeMap(fetter.VoiceFileTextMapHash);
+        fetter.VoiceFileTextMap = await ctrl.createLangCodeMap(fetter.VoiceFileTextMapHash);
       }
       if (fetter.VoiceTitleLockedTextMapHash) {
-        fetter.VoiceTitleLockedTextMap = ctrl.createLangCodeMap(fetter.VoiceTitleLockedTextMapHash);
+        fetter.VoiceTitleLockedTextMap = await ctrl.createLangCodeMap(fetter.VoiceTitleLockedTextMapHash);
       }
       await processFetterConds(ctrl, fetter, 'OpenConds');
       await processFetterConds(ctrl, fetter, 'FinishConds');
@@ -129,7 +129,6 @@ export async function fetchCharacterFettersByAvatarId(ctrl: GenshinControl, avat
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
-    await loadEnglishTextMap();
     await loadVoiceItems();
 
     const ctrl = getGenshinControl();

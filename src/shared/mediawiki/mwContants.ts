@@ -30,7 +30,7 @@ export const MW_VARIABLES: Set<string> = new Set<string>([
 ]);
 
 export const MW_URL_SCHEMES = [
-  'bitcoin:', 'ftp://', 'ftps://', 'geo:', 'git://', 'mvn:', 'gopher://', 'http://',
+  'bitcoin:', 'ftp://', 'ftps://', /* 'geo:', */ 'git://', 'mvn:', 'gopher://', 'http://',
   'https://', 'irc://', 'ircs://', 'irc6://', 'magnet:', 'mailto:', 'mms://', 'news:', 'itms:', 'market:', 'spotify:', 'steam:',
   'nntp://', 'redis://', 'sftp://', 'sip:', 'sips:', 'sms:', 'ssh://', 'fax:', 'fm:', 'hcp://', 'im:', 'imap://', 'teamspeak://',
   'svn://', 'tel:', 'callto:', 'skype:', 'zoommtg://', 'zoomus://', 'telnet://', 'urn:', 'worldwind://', 'xmpp:', 'slack://', '//',

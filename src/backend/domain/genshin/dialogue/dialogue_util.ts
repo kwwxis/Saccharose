@@ -1,6 +1,6 @@
 import { DialogExcelConfigData, TalkExcelConfigData } from '../../../../shared/types/genshin/dialogue-types';
 import { ConfigCondition } from '../../../../shared/types/genshin/general-types';
-import { GenshinControl, getGenshinControl, loadEnglishTextMap } from '../genshinControl';
+import { GenshinControl, getGenshinControl } from '../genshinControl';
 import { QuestGenerateResult } from './quest_generator';
 import { MetaProp, MetaPropAcceptValue } from '../../../util/metaProp';
 import { toBoolean } from '../../../../shared/util/genericUtil';
@@ -499,8 +499,6 @@ export async function orderChapterQuests(ctrl: GenshinControl, chapter: ChapterE
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
-    await loadEnglishTextMap();
-
     let ctrl: GenshinControl = getGenshinControl();
 
     // 3001  - Further Observation

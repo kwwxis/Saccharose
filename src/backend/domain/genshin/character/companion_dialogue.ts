@@ -1,6 +1,6 @@
 import '../../../loadenv';
 import { closeKnex } from '../../../util/db';
-import { GenshinControl, getGenshinControl, loadEnglishTextMap } from '../genshinControl';
+import { GenshinControl, getGenshinControl } from '../genshinControl';
 import { talkConfigGenerate } from '../dialogue/basic_dialogue_generator';
 import { cached } from '../../../util/cache';
 import { toInt } from '../../../../shared/util/numberUtil';
@@ -150,7 +150,6 @@ export async function fetchCompanionDialogue(ctrl: GenshinControl, avatarNameOrI
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
-    await loadEnglishTextMap();
     let ctrl = getGenshinControl();
     //console.log(await fetchCompanionDialogue(ctrl, 'Raiden Shogun'));
     let res = await fetchCompanionDialogue(ctrl, 'Collei');

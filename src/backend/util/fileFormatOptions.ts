@@ -185,7 +185,7 @@ export async function fileFormatOptionsApply(ctrl: AbstractControl, obj: Object,
       const langCode: LangCode = possibleLangCode as LangCode;
       let value = resolveObjectPath(obj, textMapHashParamName);
       if (value) {
-        return ctrl.getTextMapItem(langCode, value)
+        return await ctrl.getTextMapItem(langCode, value)
       } else {
         return fm;
       }

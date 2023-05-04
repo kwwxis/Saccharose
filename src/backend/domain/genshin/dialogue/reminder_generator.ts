@@ -1,6 +1,6 @@
 import '../../../loadenv';
 import { closeKnex } from '../../../util/db';
-import { GenshinControl, getGenshinControl, loadEnglishTextMap } from '../genshinControl';
+import { GenshinControl, getGenshinControl } from '../genshinControl';
 import { getVoPrefix } from '../genshinVoiceItems';
 import { cached } from '../../../util/cache';
 import { isInt } from '../../../../shared/util/numberUtil';
@@ -103,7 +103,6 @@ export async function reminderGenerate(ctrl: GenshinControl, query: number|strin
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
-    await loadEnglishTextMap();
     console.log(await reminderGenerate(getGenshinControl(), `Convinced that the king will in time provide a delicious meal`));
     await closeKnex();
   })();

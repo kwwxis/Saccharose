@@ -1,7 +1,7 @@
 import '../../../loadenv';
 import util from 'util';
 import { closeKnex } from '../../../util/db';
-import { GenshinControl, getGenshinControl, loadEnglishTextMap } from '../genshinControl';
+import { GenshinControl, getGenshinControl } from '../genshinControl';
 import { cached } from '../../../util/cache';
 import { processFetterConds } from './fetterConds';
 import { resolveObjectPath } from '../../../../shared/util/arrayUtil';
@@ -97,7 +97,6 @@ export async function fetchCharacterStoryByAvatarId(ctrl: GenshinControl, avatar
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
-    await loadEnglishTextMap();
     let res: StoryFetters = await fetchCharacterStoryByAvatarId(getGenshinControl(), 10000048);
     let x1 = resolveObjectPath(res, 'avatar', 'delete');
     let x2 = resolveObjectPath(res, 'fetters[#EVERY].Avatar', 'delete');

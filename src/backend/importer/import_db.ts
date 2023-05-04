@@ -91,36 +91,38 @@ function plainLineMapSchema(langCode: LangCode): SchemaTable {
 }
 
 export const schema = {
-  //
-  // TextMapCHS: textMapSchema('CHS'),
-  // TextMapCHT: textMapSchema('CHT'),
-  // TextMapDE: textMapSchema('DE'),
-  // TextMapEN: textMapSchema('EN'),
-  // TextMapES: textMapSchema('ES'),
-  // TextMapFR: textMapSchema('FR'),
-  // TextMapID: textMapSchema('ID'),
-  // TextMapIT: textMapSchema('IT'),
-  // TextMapKR: textMapSchema('KR'),
-  // TextMapPT: textMapSchema('PT'),
-  // TextMapRU: textMapSchema('RU'),
-  // TextMapTH: textMapSchema('TH'),
-  // TextMapTR: textMapSchema('TR'),
-  // TextMapVI: textMapSchema('VI'),
-  //
-  // PlainLineMapCHS: plainLineMapSchema('CHS'),
-  // PlainLineMapCHT: plainLineMapSchema('CHT'),
-  // PlainLineMapDE: plainLineMapSchema('DE'),
-  // PlainLineMapEN: plainLineMapSchema('EN'),
-  // PlainLineMapES: plainLineMapSchema('ES'),
-  // PlainLineMapFR: plainLineMapSchema('FR'),
-  // PlainLineMapID: plainLineMapSchema('ID'),
-  // PlainLineMapIT: plainLineMapSchema('IT'),
-  // PlainLineMapKR: plainLineMapSchema('KR'),
-  // PlainLineMapPT: plainLineMapSchema('PT'),
-  // PlainLineMapRU: plainLineMapSchema('RU'),
-  // PlainLineMapTH: plainLineMapSchema('TH'),
-  // PlainLineMapTR: plainLineMapSchema('TR'),
-  // PlainLineMapVI: plainLineMapSchema('VI'),
+
+  TextMapCHS: textMapSchema('CHS'),
+  TextMapCHT: textMapSchema('CHT'),
+  TextMapDE: textMapSchema('DE'),
+  TextMapEN: textMapSchema('EN'),
+  TextMapES: textMapSchema('ES'),
+  TextMapFR: textMapSchema('FR'),
+  TextMapID: textMapSchema('ID'),
+  TextMapIT: textMapSchema('IT'),
+  TextMapJP: textMapSchema('JP'),
+  TextMapKR: textMapSchema('KR'),
+  TextMapPT: textMapSchema('PT'),
+  TextMapRU: textMapSchema('RU'),
+  TextMapTH: textMapSchema('TH'),
+  TextMapTR: textMapSchema('TR'),
+  TextMapVI: textMapSchema('VI'),
+
+  PlainLineMapCHS: plainLineMapSchema('CHS'),
+  PlainLineMapCHT: plainLineMapSchema('CHT'),
+  PlainLineMapDE: plainLineMapSchema('DE'),
+  PlainLineMapEN: plainLineMapSchema('EN'),
+  PlainLineMapES: plainLineMapSchema('ES'),
+  PlainLineMapFR: plainLineMapSchema('FR'),
+  PlainLineMapID: plainLineMapSchema('ID'),
+  PlainLineMapIT: plainLineMapSchema('IT'),
+  PlainLineMapJP: plainLineMapSchema('JP'),
+  PlainLineMapKR: plainLineMapSchema('KR'),
+  PlainLineMapPT: plainLineMapSchema('PT'),
+  PlainLineMapRU: plainLineMapSchema('RU'),
+  PlainLineMapTH: plainLineMapSchema('TH'),
+  PlainLineMapTR: plainLineMapSchema('TR'),
+  PlainLineMapVI: plainLineMapSchema('VI'),
 
   DialogExcelConfigData: <SchemaTable> {
     name: 'DialogExcelConfigData',
@@ -1648,7 +1650,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
 
       let batch: any[] = [];
       let batchNum = 1;
-      let batchMax = 300;
+      let batchMax = 500;
 
       async function commitBatch() {
         await knex.transaction(function(tx) {

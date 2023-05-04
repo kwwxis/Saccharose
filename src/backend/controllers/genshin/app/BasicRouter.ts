@@ -27,7 +27,7 @@ export default async function(): Promise<Router> {
 
   router.get('/id-usages', async (req: Request, res: Response) => {
     res.render('pages/genshin/basic/id-usages', {
-      title: 'ID usages',
+      title: 'Identifier usages',
       bodyClass: ['page--id-usages']
     });
   });

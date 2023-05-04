@@ -192,27 +192,6 @@ automatically reload  the code as you're developing. This is much faster than ru
 
 It doesn't matter which order you run those two commands in.
 
-### The "TEXTMAP_LANG_CODES" property
-
-Loading all the text maps can take a while. In your `.env` file, you can set `TEXTMAP_LANG_CODES` to a
-comma-separated list of language codes you want to load the text maps for.
-
-List of valid language codes are found in [./src/shared/types/lang-types.ts](src/shared/types/lang-types.ts)
-
-For example:
-```dotenv
-TEXTMAP_LANG_CODES=EN
-```
-
-To load all text maps, set the property to empty string or remove the property completely:
-```dotenv
-TEXTMAP_LANG_CODES=
-```
-
-The caveat with setting `TEXTMAP_LANG_CODES` is that the OL generator tool won't be fully functional. 
-But if you're not working on stuff that needs multiple text maps, then this can help make the reloads
-faster when running `npm run ts-serve:dev`
-
 ### Structure
 
 * `/dist` - build output for backend (gitignored folder)

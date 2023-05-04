@@ -1,5 +1,5 @@
 import { pathToFileURL } from 'url';
-import { GenshinControl, getGenshinControl, loadEnglishTextMap } from '../genshinControl';
+import { GenshinControl, getGenshinControl } from '../genshinControl';
 import util from 'util';
 import { closeKnex } from '../../../util/db';
 import { defaultMap } from '../../../../shared/util/genericUtil';
@@ -16,8 +16,8 @@ import {
 } from '../../../../shared/types/genshin/loading-types';
 import { normText } from '../genshinNormalizers';
 
-function determineLoadingTipCategory(ctrl: GenshinControl, tip: LoadingTipsExcelConfigData,
-                                     situations: LoadingSituationExcelConfigData[], worldAreas: WorldAreaConfigData[]): string {
+async function determineLoadingTipCategory(ctrl: GenshinControl, tip: LoadingTipsExcelConfigData,
+                                     situations: LoadingSituationExcelConfigData[], worldAreas: WorldAreaConfigData[]): Promise<string> {
   if (!situations || !situations.length) {
     return 'General';
   }
@@ -25,7 +25,7 @@ function determineLoadingTipCategory(ctrl: GenshinControl, tip: LoadingTipsExcel
     {text: 'General', weight: 5}
   ];
   let foundRegions: Set<string> = new Set<string>();
-  let tipTitleEN = ctrl.getTextMapItem('EN', tip.TipsTitleTextMapHash);
+  let tipTitleEN = await ctrl.getTextMapItem('EN', tip.TipsTitleTextMapHash);
   for (let sit of situations) {
     if (sit.StageId === 23) {
       foundCats.push({ text: 'Three Realms Gateway Offering', weight: 10});
@@ -67,7 +67,7 @@ function determineLoadingTipCategory(ctrl: GenshinControl, tip: LoadingTipsExcel
     cat = foundCats[0].text;
   }
   if (ManualTextMapHashes[cat]) {
-    return ctrl.getTextMapItem(ctrl.outputLangCode, ManualTextMapHashes[cat]);
+    return await ctrl.getTextMapItem(ctrl.outputLangCode, ManualTextMapHashes[cat]);
   } else {
     return cat;
   }
@@ -102,7 +102,7 @@ export function generateLoadingTipsWikiText(ctrl: GenshinControl, tipsByCategory
   return ret;
 }
 
-function createLoadingTipsByCategoryObject(ctrl: GenshinControl): LoadingTipsByCategory {
+async function createLoadingTipsByCategoryObject(ctrl: GenshinControl): Promise<LoadingTipsByCategory> {
   const manualKeys = [
     'Mondstadt',
     'Liyue',
@@ -120,7 +120,7 @@ function createLoadingTipsByCategoryObject(ctrl: GenshinControl): LoadingTipsByC
   for (let manualKey of manualKeys) {
     let hash = ManualTextMapHashes[manualKey];
     if (hash) {
-      let cat = ctrl.getTextMapItem(ctrl.outputLangCode, hash);
+      let cat = await ctrl.getTextMapItem(ctrl.outputLangCode, hash);
       initialObj[cat] = [];
     } else {
       initialObj[manualKey] = [];
@@ -139,11 +139,11 @@ export async function selectLoadingTips(ctrl: GenshinControl): Promise<LoadingTi
   }
 
   const tips: LoadingTipsExcelConfigData[] = await ctrl.readGenshinDataFile('./ExcelBinOutput/LoadingTipsExcelConfigData.json');
-  const ret: LoadingTipsByCategory = createLoadingTipsByCategoryObject(ctrl);
+  const ret: LoadingTipsByCategory = await createLoadingTipsByCategoryObject(ctrl);
 
   for (let tip of tips) {
     let situations = tip.StageId ? tip.StageId.split(',').map(stageId => situationsByStageId[stageId]).filter(x => !!x) : null;
-    let category = determineLoadingTipCategory(ctrl, tip, situations, areas);
+    let category = await determineLoadingTipCategory(ctrl, tip, situations, areas);
     ret[category].push(tip);
   }
 
@@ -155,8 +155,6 @@ export async function selectLoadingTips(ctrl: GenshinControl): Promise<LoadingTi
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
-  await loadEnglishTextMap();
-
   const ctrl = getGenshinControl();
   const ret = await selectLoadingTips(ctrl);
   console.log(util.inspect(ret, false, null, true));

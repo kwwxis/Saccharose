@@ -802,13 +802,13 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     for (let stage of stages) {
       if (stage.Reward) {
         for (let hash of stage.Reward.OACBEKOLDFI) {
-          let text = ctrl.getTextMapItem('EN', hash);
+          let text = await ctrl.getTextMapItem('EN', hash);
           if (text) {
             console.log('OACBEKOLDFI', text);
           }
         }
         for (let hash of stage.Reward.HGDLKEHAKCE) {
-          let text = ctrl.getTextMapItem('EN', hash);
+          let text = await ctrl.getTextMapItem('EN', hash);
           if (text) {
             console.log('HGDLKEHAKCE', text);
           }

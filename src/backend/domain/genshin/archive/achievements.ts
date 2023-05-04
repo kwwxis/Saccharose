@@ -1,4 +1,4 @@
-import { GenshinControl, getGenshinControl, loadEnglishTextMap } from '../genshinControl';
+import { GenshinControl, getGenshinControl } from '../genshinControl';
 import { sort } from '../../../../shared/util/arrayUtil';
 import { defaultMap, isset } from '../../../../shared/util/genericUtil';
 import { pathToFileURL } from 'url';
@@ -21,7 +21,7 @@ export async function selectAchievementGoals(ctrl: GenshinControl): Promise<Achi
     if (goal.FinishRewardId) {
       goal.FinishReward = await ctrl.selectRewardExcelConfigData(goal.FinishRewardId);
     }
-    goal.NameTextEN = ctrl.getTextMapItem('EN', goal.NameTextMapHash);
+    goal.NameTextEN = await ctrl.getTextMapItem('EN', goal.NameTextMapHash);
   }
   return goals;
 }
@@ -86,8 +86,6 @@ export async function selectAchievements(ctrl: GenshinControl, goalIdConstraint?
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
-  await loadEnglishTextMap();
-
   const ctrl = getGenshinControl();
   const ret = await selectAchievements(ctrl);
   console.log(util.inspect(ret, false, null, true));

@@ -1,5 +1,5 @@
 import '../../../loadenv';
-import { GenshinControl, getGenshinControl, loadEnglishTextMap } from '../genshinControl';
+import { GenshinControl, getGenshinControl } from '../genshinControl';
 import { getVoPrefix, loadVoiceItems} from "../genshinVoiceItems";
 import { closeKnex } from '../../../util/db';
 import { DialogExcelConfigData } from '../../../../shared/types/genshin/dialogue-types';
@@ -11,7 +11,6 @@ import { normText } from '../genshinNormalizers';
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
-    await loadEnglishTextMap();
     await loadVoiceItems();
     let ctrl: GenshinControl = getGenshinControl();
 
@@ -22,7 +21,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
 
     for (let row of result) {
       let dialog: DialogExcelConfigData = normalizeRawJson(row, schema.DialogExcelConfigData);
-      let text: string = normText(ctrl.getTextMapItem('EN', dialog.TalkContentTextMapHash), 'EN');
+      let text: string = normText(await ctrl.getTextMapItem('EN', dialog.TalkContentTextMapHash), 'EN');
       let voPrefix = getVoPrefix('Dialog', dialog.Id, text, dialog.TalkRole.Type);
 
       if (!voPrefix || !voPrefix.includes('<!--') || !text) {
@@ -30,7 +29,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
       }
 
       if (dialog.TalkRole.Type === 'TALK_ROLE_NPC' || dialog.TalkRole.Type === 'TALK_ROLE_GADGET') {
-        dialog.TalkRoleNameText = ctrl.getTextMapItem('EN', dialog.TalkRoleNameTextMapHash);
+        dialog.TalkRoleNameText = await ctrl.getTextMapItem('EN', dialog.TalkRoleNameTextMapHash);
 
         if (!dialog.TalkRoleNameText && !!dialog.TalkRole) {
           let npc = await ctrl.getNpc(typeof dialog.TalkRole.Id === 'string' ? parseInt(dialog.TalkRole.Id) : dialog.TalkRole.Id);
@@ -39,7 +38,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
             dialog.TalkRole.NameText = npc.NameText;
           }
 
-          dialog.TalkRoleNameText = ctrl.getTextMapItem('EN', dialog.TalkRole.NameTextMapHash);
+          dialog.TalkRoleNameText = await ctrl.getTextMapItem('EN', dialog.TalkRole.NameTextMapHash);
         }
 
         out += `\n:${voPrefix}'''${dialog.TalkRoleNameText}:''' ${text}`;

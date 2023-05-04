@@ -23,8 +23,6 @@ import { csrfMiddleware } from './middleware/request/csrf';
 import { pageLoadErrorHandler } from './middleware/response/globalErrorHandler';
 import { loadSpriteTags } from './domain/genshin/misc/spriteTags';
 
-import { loadTextMaps } from './domain/genshin/genshinControl';
-
 const app: Express = express();
 let didInit: boolean = false;
 
@@ -46,7 +44,6 @@ export async function appInit(): Promise<Express> {
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~
   console.log(`[Init] Opening sqlite database and loading Genshin data resources`);
   openKnex();
-  await loadTextMaps(process.env.TEXTMAP_LANG_CODES);
   await loadVoiceItems();
   await loadSpriteTags();
 

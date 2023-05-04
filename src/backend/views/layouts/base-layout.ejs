@@ -25,7 +25,7 @@
     <script src="<%= req.context.webpackBundles.vendorJsBundle %>"></script>
     <script src="<%= req.context.webpackBundles.appJsBundle %>"></script>
   </head>
-  <body class="<%= req.context.bodyClassString %> <%= cookieTernary('nightmode').isTruthy().then('nightmode') %>">
+  <body class="<%= req.context.bodyClassString %> <%= cookieTernary('nightmode').isTruthy().then('nightmode') %><% if (req.context.siteMode === 'genshin') { %> page--genshin <% } else if (req.context.siteMode === 'hsr') { %> page--hsr <% } else if (req.context.siteMode === 'zenless') { %> page--zenless <% } %>">
     <span id="top" style="height:0;width:0;opacity:0"></span>
     <header id="header" class="thin-border">
       <div class="left">

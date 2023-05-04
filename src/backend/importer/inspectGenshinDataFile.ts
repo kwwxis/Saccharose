@@ -1,5 +1,5 @@
 import '../loadenv';
-import { GenshinControl, getGenshinControl, loadEnglishTextMap } from '../domain/genshin/genshinControl';
+import { GenshinControl, getGenshinControl } from '../domain/genshin/genshinControl';
 import { defaultMap, isEmpty } from '../../shared/util/genericUtil';
 import { resolveObjectPath, toArray } from '../../shared/util/arrayUtil';
 import { closeKnex } from '../util/db';
@@ -231,8 +231,6 @@ const presets = {
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
     const ctrl = getGenshinControl();
-    await loadEnglishTextMap();
-
     //await inspectGenshinDataFile(ctrl, presets.CookRecipeExcelConfigData);
     await inspectGenshinDataFile(ctrl, { file: excel('ForgeExcelConfigData') });
 

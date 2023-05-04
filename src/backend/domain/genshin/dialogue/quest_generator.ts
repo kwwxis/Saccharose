@@ -139,7 +139,9 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
       questExcelConfigData.TalkExcelConfigDataList.push(talkConfig);
       return;
     }
-    mainQuest.OrphanedTalkExcelConfigDataList.push(talkConfig);
+    if (!talkConfig.QuestId || talkConfig.QuestId === mainQuest.Id) {
+      mainQuest.OrphanedTalkExcelConfigDataList.push(talkConfig);
+    }
   }
 
   // Push Talk Configs to appropriate sections (after fetching orphaned dialogue)

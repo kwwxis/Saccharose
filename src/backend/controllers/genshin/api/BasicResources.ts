@@ -38,7 +38,7 @@ router.restful('/search-textmap', {
 
     if (ctrl.inputLangCode !== ctrl.outputLangCode) {
       for (let item of items) {
-        item.text = ctrl.getTextMapItem(ctrl.outputLangCode, item.hash);
+        item.text = await ctrl.getTextMapItem(ctrl.outputLangCode, item.hash);
       }
     }
 

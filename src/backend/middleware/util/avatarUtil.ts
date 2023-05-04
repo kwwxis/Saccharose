@@ -48,7 +48,7 @@ export async function getAvatar(ctrl: GenshinControl, req: Request): Promise<Ava
       return ret;
     } else {
       for (let avatar of avatars) {
-        const langCodeMap = ctrl.createLangCodeMap(avatar.NameTextMapHash, false);
+        const langCodeMap = await ctrl.createLangCodeMap(avatar.NameTextMapHash, false);
         for (let name of Object.values(langCodeMap)) {
           if (nameCmp === name?.toLowerCase()) {
             req.context.htmlMetaProps['X-ChangeAvatarNameInURL'] = arg + ';' + avatar.NameText;
@@ -76,7 +76,7 @@ export async function getCompanion(ctrl: GenshinControl, req: Request): Promise<
       return ret;
     } else {
       for (let companion of companions) {
-        const langCodeMap = ctrl.createLangCodeMap(companion.CommonNameTextMapHash, false);
+        const langCodeMap = await ctrl.createLangCodeMap(companion.CommonNameTextMapHash, false);
         for (let name of Object.values(langCodeMap)) {
           if (nameCmp === name?.toLowerCase()) {
             req.context.htmlMetaProps['X-ChangeAvatarNameInURL'] = arg + ';' + companion.CommonName;

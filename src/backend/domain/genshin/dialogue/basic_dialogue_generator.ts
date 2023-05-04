@@ -1,6 +1,6 @@
 import '../../../loadenv';
 import { closeKnex } from '../../../util/db';
-import { GenshinControl, getGenshinControl, loadEnglishTextMap } from '../genshinControl';
+import { GenshinControl, getGenshinControl } from '../genshinControl';
 import { NpcExcelConfigData } from '../../../../shared/types/genshin/general-types';
 import util from 'util';
 import { isInt } from '../../../../shared/util/numberUtil';
@@ -26,7 +26,7 @@ function normNpcFilterInput(npcFilterInput: string, langCode: LangCode): string 
   return lc(trim(normText(npcFilterInput, langCode), '()').trim());
 }
 
-const npcFilterInclude = (ctrl: GenshinControl, d: DialogExcelConfigData, npcFilter: string): boolean => {
+const npcFilterInclude = async (ctrl: GenshinControl, d: DialogExcelConfigData, npcFilter: string): Promise<boolean> => {
   if (!d) {
     return false;
   }
@@ -37,7 +37,7 @@ const npcFilterInclude = (ctrl: GenshinControl, d: DialogExcelConfigData, npcFil
     return d.TalkRole.Type === 'TALK_ROLE_MATE_AVATAR';
   }
   let npcNameOutputLang = lc(trim(normText(d.TalkRoleNameText, ctrl.outputLangCode), '()'));
-  let npcNameInputLang = lc(trim(normText(ctrl.getTextMapItem(ctrl.inputLangCode, d.TalkRoleNameTextMapHash), ctrl.inputLangCode), '()'));
+  let npcNameInputLang = lc(trim(normText(await ctrl.getTextMapItem(ctrl.inputLangCode, d.TalkRoleNameTextMapHash), ctrl.inputLangCode), '()'));
   if (!npcFilter) {
     return true;
   }
@@ -92,7 +92,7 @@ export async function dialogueGenerate(ctrl: GenshinControl, query: number|numbe
     if (!dialogue) {
       throw 'No Talk or Dialogue found for ID: ' + id;
     }
-    if (!npcFilterInclude(ctrl, dialogue, npcFilter)) {
+    if (!(await npcFilterInclude(ctrl, dialogue, npcFilter))) {
       return false;
     }
     let talkConfigs: TalkExcelConfigData[] = await ctrl.selectTalkExcelConfigDataListByFirstDialogueId(dialogue.Id);
@@ -271,7 +271,6 @@ export async function dialogueGenerateByNpc(ctrl: GenshinControl, npcNameOrId: s
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
-    await loadEnglishTextMap();
     //console.log(await dialogueGenerate(`Uh, why are you two fighting?`));
     //console.log(await talkConfigGenerate(6906901));
     let res = await dialogueGenerateByNpc(getGenshinControl(), 'Arapratap');

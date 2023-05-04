@@ -3,7 +3,7 @@ import { exec, execSync, spawn } from 'child_process';
 import { getGenshinDataFilePath } from '../loadenv';
 import { pathToFileURL } from 'url';
 import treeKill from 'tree-kill';
-import { isset } from '../../shared/util/genericUtil';
+import { isPromise, isset } from '../../shared/util/genericUtil';
 import { toInt } from '../../shared/util/numberUtil';
 import { splitLimit } from '../../shared/util/stringUtil';
 
@@ -20,8 +20,8 @@ const execPromise = util.promisify(exec);
  * @param stderrLineStream Stream method for stderr.
  */
 export async function passthru(command: string,
-                                       stdoutLineStream?: (data: string, kill?: () => void) => void,
-                                       stderrLineStream?: (data: string, kill?: () => void) => void): Promise<number|Error> {
+                                       stdoutLineStream?: (data: string, kill?: () => void) => Promise<void>|void,
+                                       stderrLineStream?: (data: string, kill?: () => void) => Promise<void>|void): Promise<number|Error> {
   const partial_line_buffer = {
     stdout: '',
     stderr: '',
@@ -29,7 +29,9 @@ export async function passthru(command: string,
 
   let didKill: boolean = false;
 
-  const create_chunk_listener = (buffer_name: 'stdout' | 'stderr', stream_method: (data: string, kill?: () => void) => void, killFn: () => void) => {
+  const callback_promises: Promise<void>[] = [];
+
+  const create_chunk_listener = (buffer_name: 'stdout' | 'stderr', stream_method: (data: string, kill?: () => void) => Promise<void>|void, killFn: () => void) => {
     return (chunk: string) => {
       if (didKill) {
         return;
@@ -65,7 +67,10 @@ export async function passthru(command: string,
         if (didKill) {
           return;
         }
-        stream_method(line, killFn);
+        let ret = stream_method(line, killFn);
+        if (isPromise(ret)) {
+          callback_promises.push(ret);
+        }
       }
     };
   };
@@ -97,10 +102,17 @@ export async function passthru(command: string,
         return;
       }
 
+      let ret1: Promise<void>|void, ret2: Promise<void>|void;
+
       if (stdoutLineStream && partial_line_buffer.stdout)
-        stdoutLineStream(partial_line_buffer.stdout, killFn);
+        ret1 = stdoutLineStream(partial_line_buffer.stdout, killFn);
       if (stderrLineStream && partial_line_buffer.stderr)
-        stderrLineStream(partial_line_buffer.stderr, killFn);
+        ret2 = stderrLineStream(partial_line_buffer.stderr, killFn);
+
+      if (isPromise(ret1))
+        callback_promises.push(ret1);
+      if (isPromise(ret2))
+        callback_promises.push(ret2);
 
       partial_line_buffer.stdout = '';
       partial_line_buffer.stderr = '';
@@ -119,12 +131,12 @@ export async function passthru(command: string,
     child.on('error', error => {
       console.error('\x1b[4m\x1b[1mshell error:\x1b[0m\n', error);
       flush_partial_line_buffer();
-      reject(error);
+      Promise.all(callback_promises).then(() => reject(error));
     });
 
     child.on('close', exitCode => {
       flush_partial_line_buffer();
-      resolve(exitCode);
+      Promise.all(callback_promises).then(() => resolve(exitCode));
     });
   });
 }
@@ -351,7 +363,7 @@ export async function grep(searchText: string, file: string, flags?: string,
   }
 }
 
-export async function grepStream(searchText: string, file: string, stream: (line: string, kill?: () => void) => void, flags?: string): Promise<number|Error> {
+export async function grepStream(searchText: string, file: string, stream: (line: string, kill?: () => void) => Promise<void>|void, flags?: string): Promise<number|Error> {
   const cmd = createGrepCommand(searchText, file, flags);
   return await passthru(cmd.line, stream);
 }
