@@ -17,7 +17,14 @@ import {
 } from './viewUtilities';
 import { cachedSync } from './cache';
 import crypto from 'crypto';
-import { escapeHtml, escapeHtmlAllowEntities, ltrim, remove_suffix, sentenceJoin } from '../../shared/util/stringUtil';
+import {
+  escapeHtml,
+  escapeHtmlAllowEntities,
+  ltrim,
+  remove_suffix,
+  sentenceJoin,
+  snakeToTitleCase,
+} from '../../shared/util/stringUtil';
 import { getWebpackBundleFileNames, WebpackBundles } from './webpackBundle';
 import { EJS_DELIMITER, getNodeEnv, SITE_TITLE, VIEWS_ROOT } from '../loadenv';
 import { CompareTernary, ternary, toBoolean } from '../../shared/util/genericUtil';
@@ -264,6 +271,7 @@ export const DEFAULT_GLOBAL_LOCALS = {
   Marker: Marker,
   toParam: toParam,
   sentenceJoin,
+  snakeToTitleCase,
 };
 
 function createIncludeFunction(req: Request, viewStackPointer: RequestViewStack): IncludeFunction {

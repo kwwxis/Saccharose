@@ -340,33 +340,38 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   }
 
   async getTextMapItem(langCode: LangCode, hash: any): Promise<string> {
-    // if (typeof hash === 'number') {
-    //   hash = String(hash);
-    // }
-    // if (typeof hash !== 'string') {
-    //   return undefined;
-    // }
-    // if (langCode === 'CH') {
-    //   langCode = 'CHS';
-    // }
-    // return TextMap[langCode][hash];
+    if (typeof hash === 'number') {
+      hash = String(hash);
+    }
+    if (typeof hash !== 'string') {
+      return undefined;
+    }
+    if (langCode === 'CH') {
+      langCode = 'CHS';
+    }
     return await this.knex.select('Text').from('TextMap'+langCode)
       .where({Hash: hash}).first().then(x => x.Text);
   }
   
   async createLangCodeMap(hash: any, doNormText: boolean = true): Promise<LangCodeMap> {
     let map = {};
+    let promises: Promise<void>[] = [];
     for (let langCode of LANG_CODES) {
-      map[langCode] = await this.getTextMapItem(langCode, hash);
-      if (doNormText) {
-        map[langCode] = normText(map[langCode], langCode);
-      }
+      promises.push(this.getTextMapItem(langCode, hash).then(text => {
+        map[langCode] = text;
+        if (doNormText) {
+          map[langCode] = normText(map[langCode], langCode);
+        }
+      }))
     }
+    await Promise.all(promises);
     return map as LangCodeMap;
   }
 
   async getTextMapHashFromPlainLineMap(langCode: LangCode, lineNum: number): Promise<number> {
-    // return PlainLineMap[langCode][lineNum] || undefined;
+    if (langCode === 'CH') {
+      langCode = 'CHS';
+    }
     return await this.knex.select('Hash').from('PlainLineMap'+langCode)
       .where({Line: lineNum}).first().then(x => x.Hash);
   }

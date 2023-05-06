@@ -209,8 +209,8 @@ export class NpcDialogueResult {
   npcId: number;
   npc: NpcExcelConfigData;
   talkConfigs: TalkExcelConfigData[];
-  dialogue: DialogueSectionResult[];
-  orphanedDialogue: DialogueSectionResult[];
+  questDialogueSections: DialogueSectionResult[];
+  dialogueSections: DialogueSectionResult[];
 }
 
 export async function dialogueGenerateByNpc(ctrl: GenshinControl, npcNameOrId: string|number, acc?: TalkConfigAccumulator): Promise<NpcDialogueResultMap> {
@@ -238,13 +238,15 @@ export async function dialogueGenerateByNpc(ctrl: GenshinControl, npcNameOrId: s
     res.npc = npc;
 
     res.talkConfigs = await ctrl.selectTalkExcelConfigDataByNpcId(npc.Id);
-    res.dialogue = [];
-    res.orphanedDialogue = [];
+    res.questDialogueSections = [];
+    res.dialogueSections = [];
 
     for (let talkConfig of res.talkConfigs) {
       let sect = await talkConfigGenerate(ctrl, talkConfig, acc);
-      if (sect) {
-        res.dialogue.push(sect);
+      if (sect && sect.hasMetaProp('Quest ID')) {
+        res.questDialogueSections.push(sect);
+      } else if (sect) {
+        res.dialogueSections.push(sect);
       }
     }
 
@@ -260,7 +262,7 @@ export async function dialogueGenerateByNpc(ctrl: GenshinControl, npcNameOrId: s
       sect.originalData.dialogBranch = dialogueBranch;
       sect.metadata.push(new MetaProp('First Dialogue ID', dialogue.Id, `/branch-dialogue?q=${dialogue.Id}`));
       sect.wikitext = (await ctrl.generateDialogueWikiText(dialogueBranch)).trim();
-      res.orphanedDialogue.push(sect);
+      res.dialogueSections.push(sect);
     }
 
     resultMap[npc.Id] = res;

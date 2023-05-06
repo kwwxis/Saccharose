@@ -66,6 +66,14 @@ body.nightmode #site-logo-fg img {
   opacity: 0.9;
 }
 
+// Site Mode Selector
+// --------------------------------------------------------------------------------------------------------------
+#site-mode-dropdown-button span {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+}
+
 // Language Selectors
 // --------------------------------------------------------------------------------------------------------------
 .header-language-selector {

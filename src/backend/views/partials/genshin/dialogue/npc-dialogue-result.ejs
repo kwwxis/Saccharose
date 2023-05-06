@@ -1,17 +1,57 @@
+<section class="card">
+  <h2>Quick Jump</h2>
+    <% Object.values(resultMap).forEach(res => { %>
+      <h3>NPC ID: <strong><%= res.npcId %></strong> "<span><%= res.npc.NameText %></span>"</h3>
+      <div class="content">
+        <% if (res.dialogueSections.length) { %>
+          <fieldset>
+            <legend>Dialogue</legend>
+            <div class="content alignStart flexWrap" style="padding-top:0;">
+              <% res.dialogueSections.forEach(section => { %>
+                <div class="w25p">
+                  <a role="button" class="spacer5-all secondary dispBlock textAlignLeft"
+                     href="#<%= section.id %>"><%= snakeToTitleCase(section.id) %></a>
+                </div>
+              <% }) %>
+            </div>
+          </fieldset>
+        <% } %>
+        <% if (res.questDialogueSections.length) { %>
+          <fieldset>
+            <legend>Quest Dialogue</legend>
+            <div class="content alignStart flexWrap" style="padding-top:0;">
+              <% res.questDialogueSections.forEach(section => { %>
+                <div class="w25p">
+                  <a role="button" class="spacer5-all secondary dispBlock textAlignLeft"
+                     href="#<%= section.id %>"><%= snakeToTitleCase(section.id) %></a>
+                </div>
+              <% }) %>
+            </div>
+          </fieldset>
+        <% } %>
+      </div>
+    <% }) %>
+</section>
 <div class="dialogue-container">
   <% Object.values(resultMap).forEach(res => { %>
     <section class="card">
       <h2>NPC ID: <strong><%= res.npcId %></strong> "<span><%= res.npc.NameText %></span>"</h2>
-      <% res.dialogue.forEach(section => { %>
-        <div class="content">
-          <%- include('partials/genshin/dialogue/dialogue-section', section) %>
-        </div>
-      <% }) %>
-      <% res.orphanedDialogue.forEach(section => { %>
-        <div class="content">
-          <%- include('partials/genshin/dialogue/dialogue-section', section) %>
-        </div>
-      <% }) %>
+      <% if (res.dialogueSections.length) { %>
+        <h3>Dialogue</h3>
+        <% res.dialogueSections.forEach(section => { %>
+          <div class="content">
+            <%- use('partials/genshin/dialogue/dialogue-section', section) %>
+          </div>
+        <% }) %>
+      <% } %>
+      <% if (res.questDialogueSections.length) { %>
+        <h3>Quest Dialogue</h3>
+        <% res.questDialogueSections.forEach(section => { %>
+          <div class="content">
+            <%- use('partials/genshin/dialogue/dialogue-section', section) %>
+          </div>
+        <% }) %>
+      <% } %>
     </section>
   <% }) %>
   <% if (!Object.keys(resultMap).length) { %>

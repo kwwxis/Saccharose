@@ -246,20 +246,34 @@ export function highlight(text: string, mode: string, gutters: boolean = true, m
   return document.createRange().createContextualFragment(result.html).firstElementChild as HTMLElement;
 }
 
-
-export function highlightWikitextReplace(textarea: HTMLTextAreaElement, gutters: boolean = false, markers?: (string|Marker)[]|string): HTMLElement {
-  return highlightReplace(textarea, 'ace/mode/wikitext', gutters, markers);
+export function highlightWikitextReplace(original: HTMLElement, textOverride?: string): HTMLElement {
+  return highlightReplace(original, 'ace/mode/wikitext', textOverride, false);
 }
 
-export function highlightReplace(textarea: HTMLTextAreaElement, mode: string, gutters: boolean = true, markers?: (string|Marker)[]|string): HTMLElement {
-  if (textarea.hasAttribute('data-mode')) {
-    mode = textarea.getAttribute('data-mode');
+export function getInputValue(element: HTMLElement) {
+  if (element instanceof HTMLTextAreaElement || element instanceof HTMLInputElement || element.hasOwnProperty('value')) {
+    return (<any> element).value;
+  } else if (element.hasAttribute('contenteditable')) {
+    let copyTarget: HTMLElement = element;
+    if (element.querySelector('.ace_static_text_layer')) {
+      copyTarget = copyTarget.querySelector('.ace_static_text_layer');
+    }
+    return copyTarget.textContent;
+  } else {
+    return element.textContent;
   }
-  if (!markers && textarea.hasAttribute('data-markers')) {
-    markers = textarea.getAttribute('data-markers') || [];
+}
+
+export function highlightReplace(original: HTMLElement, mode: string, textOverride?: string,
+                                 gutters: boolean = true, markers?: (string|Marker)[]|string): HTMLElement {
+  if (original.hasAttribute('data-mode')) {
+    mode = original.getAttribute('data-mode');
   }
-  if (textarea.hasAttribute('data-gutters')) {
-    gutters = toBoolean(textarea.getAttribute('data-gutters'));
+  if (!markers && original.hasAttribute('data-markers')) {
+    markers = original.getAttribute('data-markers') || [];
+  }
+  if (original.hasAttribute('data-gutters')) {
+    gutters = toBoolean(original.getAttribute('data-gutters'));
   }
 
   if (typeof markers === 'string') {
@@ -277,22 +291,22 @@ export function highlightReplace(textarea: HTMLTextAreaElement, mode: string, gu
     }).filter(x => !!x);
   }
 
-  let element = highlight(textarea.value, mode, gutters, markers as Marker[]);
+  let element = highlight(textOverride || getInputValue(original), mode, gutters, markers as Marker[]);
 
-  if (textarea.hasAttribute('class')) {
-    element.setAttribute('class', element.getAttribute('class') + ' ' + textarea.getAttribute('class'));
+  if (original.hasAttribute('class')) {
+    element.classList.add(... Array.from(original.classList));
   }
 
-  for (let attributeName of textarea.getAttributeNames()) {
-    if (attributeName.toUpperCase() === 'CLASS') {
+  for (let attributeName of original.getAttributeNames()) {
+    if (attributeName.toUpperCase() === 'CLASS' || attributeName.toUpperCase() === 'ID') {
       continue;
     }
-    element.setAttribute(attributeName, textarea.getAttribute(attributeName))
+    element.setAttribute(attributeName, original.getAttribute(attributeName))
   }
 
   element.setAttribute('contenteditable', '');
 
-  textarea.replaceWith(element);
+  original.replaceWith(element);
   return element;
 }
 

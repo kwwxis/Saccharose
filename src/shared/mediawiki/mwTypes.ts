@@ -18,6 +18,7 @@
 
 import { isInt } from '../util/numberUtil';
 import { mwParse, mwSimpleTextParse } from './mwParse';
+import { arrayRemove } from '../util/arrayUtil';
 
 export abstract class MwNode {
   abstract toString(): string;
@@ -286,5 +287,32 @@ export class MwTemplateNode extends MwParentNode {
 
   getParam(key: string | number): MwParamNode {
     return this.params.find(param => param.key == key);
+  }
+
+  removeParam(key: string | number): MwParamNode {
+    let param = this.getParam(key);
+
+    if (param) {
+      let index = this.parts.indexOf(param);
+      let nextNode = this.parts[index + 1];
+      if (nextNode instanceof MwWhiteSpace && nextNode.content === '\n') {
+        arrayRemove(this.parts, [param, nextNode]);
+      } else {
+        arrayRemove(this.parts, [param]);
+      }
+    }
+
+    return param;
+  }
+
+  removeParams(keys: (string|number)[]|RegExp) {
+    if (keys instanceof RegExp) {
+      const regexp: RegExp = keys;
+      keys = this.params.filter(p => regexp.test(String(p.key))).map(p => p.key);
+    }
+
+    for (let key of keys) {
+      this.removeParam(key);
+    }
   }
 }

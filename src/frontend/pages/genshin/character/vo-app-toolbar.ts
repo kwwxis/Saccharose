@@ -16,6 +16,29 @@ export function VoAppToolbar(state: VoAppState) {
       return;
     }
     let opts: VoAppPreloadOptions = {};
+
+    const createFieldModeOption = (field: string, paramFillProp?: string): string => {
+      return `
+        <fieldset class="spacer10-top">
+          <legend><code>${field}</code> field mode</legend>
+          <div class="field spacer5-horiz" style="padding-right:30px">
+            <label class="ui-radio dispBlock" style="padding-left:5px;font-size:13px;">
+              <input type="radio" name="paramFill.${paramFillProp || field}" value="fill" checked />
+              <span>Filled</span>
+            </label>
+            <label class="ui-radio dispBlock" style="padding-left:5px;font-size:13px;">
+              <input type="radio" name="paramFill.${paramFillProp || field}" value="remove" />
+              <span>Removed</span>
+            </label>
+            <label class="ui-radio dispBlock" style="padding-left:5px;font-size:13px;">
+              <input type="radio" name="paramFill.${paramFillProp || field}" value="empty" />
+              <span>Empty</span>
+            </label>
+          </div>
+        </fieldset>
+      `;
+    }
+
     modalService.confirm(`Preload ${ucFirst(type)} Template`, `
           <div class="info-notice">
             <p>This will <em>completely</em> overwrite any existing wikitext you have for the VO ${ucFirst(type)} template.
@@ -33,57 +56,11 @@ export function VoAppToolbar(state: VoAppState) {
             <div class="content spacer10-top" style="padding-bottom:0;">
               <hr class="spacer10-bottom opacity50p" />
               <p>The options below apply after any field swaps if swapping is enabled.</p>
-              <fieldset class="spacer10-top">
-                <legend><code>file</code> field mode</legend>
-                <div class="field spacer5-horiz" style="padding-right:30px">
-                  <label class="ui-radio dispBlock" style="padding-left:5px;font-size:13px;">
-                    <input type="radio" name="paramFill.file" value="fill" checked />
-                    <span>Filled</span>
-                  </label>
-                  <label class="ui-radio dispBlock" style="padding-left:5px;font-size:13px;">
-                    <input type="radio" name="paramFill.file" value="remove" />
-                    <span>Removed</span>
-                  </label>
-                  <label class="ui-radio dispBlock" style="padding-left:5px;font-size:13px;">
-                    <input type="radio" name="paramFill.file" value="empty" />
-                    <span>Empty</span>
-                  </label>
-                </div>
-              </fieldset>
-              <fieldset class="spacer10-top">
-                <legend><code>tl</code> field mode</legend>
-                <div class="field spacer5-horiz" style="padding-right:30px">
-                  <label class="ui-radio dispBlock" style="padding-left:5px;font-size:13px;">
-                    <input type="radio" name="paramFill.tl" value="fill" checked />
-                    <span>Filled</span>
-                  </label>
-                  <label class="ui-radio dispBlock" style="padding-left:5px;font-size:13px;">
-                    <input type="radio" name="paramFill.tl" value="remove" />
-                    <span>Removed</span>
-                  </label>
-                  <label class="ui-radio dispBlock" style="padding-left:5px;font-size:13px;">
-                    <input type="radio" name="paramFill.tl" value="empty" />
-                    <span>Empty</span>
-                  </label>
-                </div>
-              </fieldset>
-              <fieldset class="spacer10-top">
-                <legend><code>tx</code> field mode</legend>
-                <div class="field spacer5-horiz" style="padding-right:30px">
-                  <label class="ui-radio dispBlock" style="padding-left:5px;font-size:13px;">
-                    <input type="radio" name="paramFill.tx*" value="fill" checked />
-                    <span>Filled</span>
-                  </label>
-                  <label class="ui-radio dispBlock" style="padding-left:5px;font-size:13px;">
-                    <input type="radio" name="paramFill.tx*" value="remove" />
-                    <span>Removed</span>
-                  </label>
-                  <label class="ui-radio dispBlock" style="padding-left:5px;font-size:13px;">
-                    <input type="radio" name="paramFill.tx*" value="empty" />
-                    <span>Empty</span>
-                  </label>
-                </div>
-              </fieldset>
+              ${createFieldModeOption('title')}
+              ${createFieldModeOption('subtitle')}
+              ${createFieldModeOption('file')}
+              ${createFieldModeOption('tl')}
+              ${createFieldModeOption('tx', 'tx*')}
             </div>
           </fieldset>
         `, {

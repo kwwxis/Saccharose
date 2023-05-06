@@ -3,7 +3,7 @@
 import { MwComment, MwNode, MwParamNode, MwTemplateNode, MwWhiteSpace } from '../../../../shared/mediawiki/mwTypes';
 import { mwParse } from '../../../../shared/mediawiki/mwParse';
 import { isStringBlank, splitLimit, uuidv4 } from '../../../../shared/util/stringUtil';
-import { arraySum, sort } from '../../../../shared/util/arrayUtil';
+import { arrayClosestNumber, arrayRemove, arraySum, sort } from '../../../../shared/util/arrayUtil';
 import { isset } from '../../../../shared/util/genericUtil';
 import { constrainNumber, isInt, toInt } from '../../../../shared/util/numberUtil';
 
@@ -11,28 +11,6 @@ interface VoParamKey {
   groupKey: string;
   itemKey: string;
   prop: string;
-}
-
-function arrayMove<T>(arr: T[], fromIndex: number, toIndex: number) {
-  let element = arr[fromIndex];
-  arr.splice(fromIndex, 1);
-  arr.splice(toIndex, 0, element);
-}
-
-// Returns the number in 'arr' that is closest to 'target'
-function arrayClosest(arr: number[], target: number) {
-  return arr.reduce((prev: number, curr: number) => {
-    return (Math.abs(curr - target) < Math.abs(prev - target) ? curr : prev);
-  });
-}
-
-function arrayRemove<T>(arr: T[], items: T[]) {
-  for (let item of items) {
-    let index = arr.indexOf(item);
-    if (index > -1) {
-      arr.splice(index, 1);
-    }
-  }
 }
 
 const enforcePropOrderItem = (item: string) => [item, item + '_s', item + '_t']
@@ -195,7 +173,7 @@ export class VoItem {
       if (!Object.keys(map).length) {
         defaultToLast();
       } else {
-        let closestOrder = arrayClosest(Object.keys(map).map(toInt), propOrder);
+        let closestOrder = arrayClosestNumber(Object.keys(map).map(toInt), propOrder);
         let closestNode = map[closestOrder];
         insertIndex = this.handle.indexOf(closestNode);
         allNodesIndex = this.allNodes.indexOf(closestNode);

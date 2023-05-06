@@ -1,7 +1,7 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import {
-  copyToClipboard, deleteQueryStringParameter, getHiddenElementBounds,
+  copyToClipboard, createElement, deleteQueryStringParameter, getHiddenElementBounds,
   getScrollbarWidth,
   hashFlash,
   setQueryStringParameter, tag,
@@ -14,10 +14,12 @@ import { showJavascriptErrorDialog } from './util/errorHandler';
 import autosize from 'autosize';
 import { isInt } from '../shared/util/numberUtil';
 import { escapeHtml, uuidv4 } from '../shared/util/stringUtil';
-import { highlightReplace, highlightWikitextReplace } from './util/ace/wikitextEditor';
+import { getInputValue, highlightReplace, highlightWikitextReplace } from './util/ace/wikitextEditor';
 import { GeneralEventBus } from './generalEventBus';
 import { languages } from './util/langCodes';
 import { DEFAULT_LANG, LangCode } from '../shared/types/lang-types';
+import { mwParse } from '../shared/mediawiki/mwParse';
+import { MwTemplateNode } from '../shared/mediawiki/mwTypes';
 
 type UiAction = {actionType: string, actionParams: string[]};
 
@@ -221,6 +223,50 @@ const initial_listeners: Listener[] = [
           }
         });
       });
+
+      document.querySelectorAll('.highlighted.ol-result-textarea:not(.ol-result-textarea-processed)').forEach(
+        (contentEditableEl: HTMLElement) => {
+          contentEditableEl.classList.add('ol-result-textarea-processed');
+
+          const newParent: HTMLElement = createElement('div', {class: 'posRel'});
+          contentEditableEl.insertAdjacentElement('afterend', newParent);
+          newParent.append(contentEditableEl);
+
+          const toolbarEl = createElement('div', {
+            class: 'posAbs',
+            style: 'top: 0; right: 0; font-size: 0;'
+          })
+
+          const rmButton = createElement('button', {
+            class: 'secondary small',
+            text: 'Remove RM',
+            style: 'border-bottom-right-radius: 0;'
+          })
+
+          const tlButton = createElement('button', {
+            class: 'secondary small',
+            text: 'Remove TL',
+            style: `border-left: 0;border-bottom-left-radius: 0;`
+          });
+
+          toolbarEl.append(rmButton);
+          toolbarEl.append(tlButton);
+          newParent.append(toolbarEl);
+
+          const createParamRemover = (regex: RegExp) => {
+            return (event: MouseEvent) => {
+              const text = getInputValue(contentEditableEl);
+              const parsed = mwParse(text);
+              let templateNode: MwTemplateNode = parsed.findTemplateNodes()[0];
+              templateNode.removeParams(regex);
+              contentEditableEl = highlightWikitextReplace(contentEditableEl, parsed.toString().trim());
+              (<HTMLButtonElement> event.target).setAttribute('disabled', '');
+            };
+          }
+
+          rmButton.addEventListener('click', createParamRemover(/_rm$/));
+          tlButton.addEventListener('click', createParamRemover(/_tl$/));
+        });
 
       document.querySelectorAll<HTMLElement>('.timestamp.is--formatted.is--unconverted').forEach(el => {
         el.classList.remove('is--unconverted');

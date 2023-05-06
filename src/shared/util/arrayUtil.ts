@@ -1,4 +1,4 @@
-import { isUnset, isEmpty } from './genericUtil';
+import { isEmpty, isUnset } from './genericUtil';
 import { isStringBlank, trim } from './stringUtil';
 import { isInt } from './numberUtil';
 
@@ -297,4 +297,26 @@ Array.prototype.asyncMap = async function<T, U>(callbackfn: (value: T, index: nu
     ret.push(fnRet);
   }
   return ret;
+}
+
+function arrayMove<T>(arr: T[], fromIndex: number, toIndex: number) {
+  let element = arr[fromIndex];
+  arr.splice(fromIndex, 1);
+  arr.splice(toIndex, 0, element);
+}
+
+// Returns the number in 'arr' that is closest to 'target'
+export function arrayClosestNumber(arr: number[], target: number) {
+  return arr.reduce((prev: number, curr: number) => {
+    return (Math.abs(curr - target) < Math.abs(prev - target) ? curr : prev);
+  });
+}
+
+export function arrayRemove<T>(arr: T[], items: T[]) {
+  for (let item of items) {
+    let index = arr.indexOf(item);
+    if (index > -1) {
+      arr.splice(index, 1);
+    }
+  }
 }
