@@ -29,7 +29,7 @@ export abstract class MwNode {
  */
 export class MwParentNode extends MwNode {
   parts: MwNode[] = [];
-  toString(): string {
+  override toString(): string {
     return this.parts.map(p => p.toString()).join('');
   }
   addNode(node: MwNode) {
@@ -60,7 +60,7 @@ export abstract class MwTextNode extends MwNode {
     super();
     this.content = content;
   }
-  toString(): string {
+  override toString(): string {
     return this.content;
   }
 }
@@ -93,7 +93,7 @@ export class MwElement extends MwParentNode {
     this.tagEnd = tagEnd;
   }
 
-  toString(): string {
+  override toString(): string {
     return this.tagStart + super.toString() + this.tagEnd;
   }
 }
@@ -103,7 +103,7 @@ export class MwComment extends MwElement {
     super('comment', tagStart, tagEnd);
     this.content = tagContent;
   }
-  toString(): string {
+  override toString(): string {
     return this.tagStart + this.content + this.tagEnd;
   }
 }
@@ -113,7 +113,7 @@ export class MwNowiki extends MwElement {
     super('nowiki', tagStart, tagEnd);
     this.content = tagContent;
   }
-  toString(): string {
+  override toString(): string {
     return this.tagStart + this.content + this.tagEnd;
   }
 }
@@ -165,7 +165,7 @@ export class MwLinkNode extends MwParentNode {
     return this.type === 'File';
   }
 
-  toString(): string {
+  override toString(): string {
     if (this.type === 'InternalLink' || this.type === 'File') {
       return '[[' + this.linkParts.map(p => p.toString()).join('') + super.toString() + ']]';
     } else if (this.type === 'ExternalLink') {
@@ -250,7 +250,7 @@ export class MwParamNode extends MwParentNode {
     }
   }
 
-  toString() {
+  override toString() {
     if (this.isAnonymous) {
       return this.prefix + this.beforeValueWhitespace.toString() + this.value;
     } else {
@@ -265,7 +265,7 @@ export type MwParamParentType = MwTemplateType | MwLinkType;
 
 export class MwTemplateNode extends MwParentNode {
   templateName: string;
-  parts: MwNode[] = [];
+  override parts: MwNode[] = [];
   type: MwTemplateType = 'Template';
 
   constructor(templateName: string) {
@@ -273,7 +273,7 @@ export class MwTemplateNode extends MwParentNode {
     this.templateName = templateName;
   }
 
-  toString(): string {
+  override toString(): string {
     if (this.type === 'TemplateParam') {
       return '{{{' + super.toString() + '}}}';
     } else {

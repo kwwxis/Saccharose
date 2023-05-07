@@ -53,7 +53,7 @@ function getVoAvatarName(avatar: AvatarExcelConfigData, voiceItems: VoiceItem[])
 
 export async function fetchCharacterFetters(ctrl: GenshinControl): Promise<CharacterFettersByAvatar> {
   return cached('CharacterFetters', async () => {
-    let fetters: FetterExcelConfigData[] = await ctrl.readGenshinDataFile('./ExcelBinOutput/FettersExcelConfigData.json');
+    let fetters: FetterExcelConfigData[] = await ctrl.readDataFile('./ExcelBinOutput/FettersExcelConfigData.json');
     let fettersByAvatar: CharacterFettersByAvatar = {};
     let aggByVoAvatar: {[voAvatarName: string]: CharacterFetters} = {};
 

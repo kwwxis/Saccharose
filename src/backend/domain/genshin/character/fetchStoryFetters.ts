@@ -7,19 +7,19 @@ import { processFetterConds } from './fetterConds';
 import { resolveObjectPath } from '../../../../shared/util/arrayUtil';
 import { FetterStoryExcelConfigData, StoryFetters, StoryFettersByAvatar } from '../../../../shared/types/genshin/fetter-types';
 import { pathToFileURL } from 'url';
-import { normText } from '../genshinNormalizers';
+import { normGenshinText } from '../genshinText';
 
 const sep = '</p><!--\n              --><p>';
 
 async function fetchAllFetterStoryExcelConfigData(ctrl: GenshinControl): Promise<FetterStoryExcelConfigData[]> {
   return await cached('FetterStoryExcelConfigData_'+ctrl.outputLangCode, async () => {
-    let records: FetterStoryExcelConfigData[] = await ctrl.readGenshinDataFile('./ExcelBinOutput/FetterStoryExcelConfigData.json');
+    let records: FetterStoryExcelConfigData[] = await ctrl.readDataFile('./ExcelBinOutput/FetterStoryExcelConfigData.json');
     for (let fetter of records) {
       await processFetterConds(ctrl, fetter, 'OpenConds');
       await processFetterConds(ctrl, fetter, 'FinishConds');
-      fetter.StoryContextHtml = '<p>'+fetter.StoryContextText.split('\\n').map(s => normText(s, ctrl.outputLangCode)).join(sep)+'</p>';
+      fetter.StoryContextHtml = '<p>'+fetter.StoryContextText.split('\\n').map(s => ctrl.normText(s, ctrl.outputLangCode)).join(sep)+'</p>';
       if (fetter.StoryContext2Text) {
-        fetter.StoryContext2Html = '<p>'+fetter.StoryContext2Text.split('\\n').map(s => normText(s, ctrl.outputLangCode)).join(sep)+'</p>';
+        fetter.StoryContext2Html = '<p>'+fetter.StoryContext2Text.split('\\n').map(s => ctrl.normText(s, ctrl.outputLangCode)).join(sep)+'</p>';
       }
     }
     return records;

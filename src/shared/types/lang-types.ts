@@ -1,3 +1,5 @@
+export type TextMapHash = number|string;
+
 export type LangCode =
   'CH'
   | 'CHS'

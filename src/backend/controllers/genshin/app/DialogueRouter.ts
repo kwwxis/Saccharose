@@ -2,7 +2,7 @@ import { create, Request, Response, Router } from '../../../util/router';
 import { reminderGenerateAll } from '../../../domain/genshin/dialogue/reminder_generator';
 import { getGenshinControl } from '../../../domain/genshin/genshinControl';
 import { toInt } from '../../../../shared/util/numberUtil';
-import { ol_gen_from_id } from '../../../domain/genshin/basic/OLgen';
+import { ol_gen_from_id } from '../../../domain/generic/basic/OLgen';
 import { orderChapterQuests } from '../../../domain/genshin/dialogue/dialogue_util';
 
 export default async function(): Promise<Router> {

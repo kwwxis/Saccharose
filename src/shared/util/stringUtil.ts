@@ -1,4 +1,5 @@
-import { isEmpty, isUnset } from './genericUtil';
+import { isUnset } from './genericUtil';
+import { LANG_CODE_TO_LOCALE, LangCode } from '../types/lang-types';
 
 export function toString(x) {
   if (typeof x === 'undefined' || x === null || typeof x === 'string') {
@@ -567,3 +568,12 @@ export class SbOut {
     this.line(`|}`);
   }
 }
+
+export const wordSplit = (langCode: LangCode, text: string): Intl.SegmentData[] => {
+  const segmenter = new Intl.Segmenter(LANG_CODE_TO_LOCALE[langCode], { granularity: 'word' });
+  return Array.from(segmenter.segment(text));
+};
+
+export const wordRejoin = (segments: Intl.SegmentData[]): string => {
+  return segments.map(s => s.segment).join('');
+};

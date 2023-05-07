@@ -18,8 +18,11 @@ export const PUBLIC_DIR = path.resolve(__dirname, '../../public');
 export const SITE_TITLE = 'Saccharose.wiki';
 export const EJS_DELIMITER = '%';
 
-export const DATAFILE_SQLITE_DB = './genshin_data.db';
-export const DATAFILE_VOICE_ITEMS = './voiceItemsNormalized.json';
+export const DATAFILE_GENSHIN_SQLITE_DB = './genshin_data.db';
+export const DATAFILE_HSR_SQLITE_DB = './hsr_data.db';
+export const DATAFILE_ZENLESS_SQLITE_DB = './zenless_data.db';
+
+export const DATAFILE_GENSHIN_VOICE_ITEMS = './voiceItemsNormalized.json';
 
 export const getNodeEnv = (): 'development'|'production' => <any> process.env.NODE_ENV;
 
@@ -40,4 +43,18 @@ export function getGenshinDataFilePath(file: string): string {
     throw 'Access to parent directories disallowed.';
   }
   return path.resolve(process.env.GENSHIN_DATA_ROOT, file).replaceAll('\\', '/');
+}
+
+export function getStarRailDataFilePath(file: string): string {
+  if (file.includes('../') || file.includes('..\\')) {
+    throw 'Access to parent directories disallowed.';
+  }
+  return path.resolve(process.env.HSR_DATA_ROOT, file).replaceAll('\\', '/');
+}
+
+export function getZenlessDataFilePath(file: string): string {
+  if (file.includes('../') || file.includes('..\\')) {
+    throw 'Access to parent directories disallowed.';
+  }
+  return path.resolve(process.env.ZENLESS_DATA_ROOT, file).replaceAll('\\', '/');
 }

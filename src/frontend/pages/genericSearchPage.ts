@@ -1,5 +1,5 @@
 import { flashTippy } from '../util/tooltips';
-import { genshinEndpoints, SaccharoseApiEndpoint } from '../endpoints';
+import { errorHtmlWrap, genshinEndpoints, SaccharoseApiEndpoint } from '../endpoints';
 import { Listener, startListeners } from '../util/eventLoader';
 import { GeneralEventBus } from '../generalEventBus';
 import { HttpError } from '../../shared/util/httpError';
@@ -200,7 +200,7 @@ export function startGenericSearchPageListeners<T>(opts: GenericSearchPageOpts<T
       }
 
       if (!preventDefault) {
-        resultTargetEl.innerHTML = genshinEndpoints.errorHtmlWrap(err.message);
+        resultTargetEl.innerHTML = errorHtmlWrap(err.message);
       }
     }).finally(() => {
       loadingEl.classList.add('hide');

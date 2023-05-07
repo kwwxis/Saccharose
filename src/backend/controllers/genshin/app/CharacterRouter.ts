@@ -5,7 +5,7 @@ import { getGenshinControl } from '../../../domain/genshin/genshinControl';
 import { fetchCharacterStoryByAvatarId } from '../../../domain/genshin/character/fetchStoryFetters';
 import { StoryFetters } from '../../../../shared/types/genshin/fetter-types';
 import { AvatarExcelConfigData } from '../../../../shared/types/genshin/avatar-types';
-import { getAvatar, getAvatars, getCompanion } from '../../../middleware/util/avatarUtil';
+import { getAvatar, getAvatars, getCompanion } from '../../../middleware/genshin/genshinAvatarUtil';
 import { queryTab } from '../../../middleware/util/queryTab';
 
 export default async function(): Promise<Router> {

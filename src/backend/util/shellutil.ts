@@ -271,11 +271,11 @@ export class ShellFlags {
   }
 }
 
-export function createGrepCommand(searchText: string, file: string, extraFlags?: string,
+function createGrepCommand(searchText: string, absoluteFilePath: string, extraFlags?: string,
                                   escapeDoubleQuotes: boolean = true, startFromLine?: number): { line: string, flags: ShellFlags } {
   let flags: ShellFlags = ShellFlags.parseFlags(extraFlags);
 
-  if (escapeDoubleQuotes && file.endsWith('.json')) {
+  if (escapeDoubleQuotes && absoluteFilePath.endsWith('.json')) {
     searchText = searchText.replace(/"/g, `\\"`); // double quotes, assuming searching within a JSON string value
   }
 
@@ -296,14 +296,15 @@ export function createGrepCommand(searchText: string, file: string, extraFlags?:
   let grepCmd = `${env}grep ${flags.stringify()} ${searchText}`;
 
   if (isset(startFromLine)) {
-    return { line: `tail -n +${startFromLine} ${getGenshinDataFilePath(file)} | ${grepCmd} -`, flags: flags };
+    return { line: `tail -n +${startFromLine} ${absoluteFilePath} | ${grepCmd} -`, flags: flags };
   } else {
-    return { line: `${grepCmd} ${getGenshinDataFilePath(file)}`, flags: flags };
+    return { line: `${grepCmd} ${absoluteFilePath}`, flags: flags };
   }
 }
 
-export async function getLineNumberForLineText(lineText: string, file: string) {
-  const matches = await grep(lineText, file, '-n', false);
+export async function getLineNumberForLineText(lineText: string,
+                                               absoluteFilePath: string) {
+  const matches = await grep(lineText, absoluteFilePath, '-n', false);
   for (let match of matches) {
     if (!match)
       continue;
@@ -320,11 +321,14 @@ export async function getLineNumberForLineText(lineText: string, file: string) {
   return -1;
 }
 
-export async function grep(searchText: string, file: string, flags?: string,
-                           escapeDoubleQuotes: boolean = true, startFromLine?: number): Promise<string[]> {
+export async function grep(searchText: string,
+                           absoluteFilePath: string,
+                           flags?: string,
+                           escapeDoubleQuotes: boolean = true,
+                           startFromLine?: number): Promise<string[]> {
   try {
-    const cmd = createGrepCommand(searchText, file, flags, escapeDoubleQuotes, startFromLine);
-    console.log('Command:', cmd.line);
+    const cmd = createGrepCommand(searchText, absoluteFilePath, flags, escapeDoubleQuotes, startFromLine);
+    //console.log('Command:', cmd.line);
 
     // noinspection JSUnusedLocalSymbols
     const { stdout, stderr } = await execPromise(cmd.line, {
@@ -337,7 +341,7 @@ export async function grep(searchText: string, file: string, flags?: string,
       .map(s => {
         s = s.trim();
         if (hasLineNumFlag && isset(startFromLine)) {
-          s = s.replace(/^(\d+):/, (fm, g) => (parseInt(g) + startFromLine - 1) + ':');
+          s = s.replace(/^(\d+):/, (fm, stdoutLineNum) => (parseInt(stdoutLineNum) + startFromLine - 1) + ':');
         }
         return s;
       })
@@ -363,15 +367,20 @@ export async function grep(searchText: string, file: string, flags?: string,
   }
 }
 
-export async function grepStream(searchText: string, file: string, stream: (line: string, kill?: () => void) => Promise<void>|void, flags?: string): Promise<number|Error> {
-  const cmd = createGrepCommand(searchText, file, flags);
+export async function grepStream(searchText: string,
+                                 absoluteFilePath: string,
+                                 stream: (line: string, kill?: () => void) => Promise<void>|void,
+                                 flags?: string): Promise<number|Error> {
+  const cmd = createGrepCommand(searchText, absoluteFilePath, flags);
   return await passthru(cmd.line, stream);
 }
 
-export async function grepIdStartsWith(idProp: string, idPrefix: number | string, file: string): Promise<(number | string)[]> {
+export async function grepIdStartsWith(idProp: string,
+                                       idPrefix: number | string,
+                                       absoluteFilePath: string): Promise<(number | string)[]> {
   let isInt = typeof idPrefix === 'number';
   let grepSearchText = `"${idProp}": ${isInt ? idPrefix : '"' + idPrefix}`;
-  let lines = await grep(grepSearchText, file, '-i', false);
+  let lines = await grep(grepSearchText, absoluteFilePath, '-i', false);
   let out = [];
   for (let line of lines) {
     let parts = /":\s+"?([^",$]+)/.exec(line);
@@ -380,9 +389,9 @@ export async function grepIdStartsWith(idProp: string, idPrefix: number | string
   return out;
 }
 
-export function getTextAtLine(lineNum: number, file: string): string {
+export function getTextAtLine(lineNum: number, absoluteFilePath: string): string {
   try {
-    const cmd = `sed '${lineNum}q;d' ${getGenshinDataFilePath(file)}`;
+    const cmd = `sed '${lineNum}q;d' ${absoluteFilePath}`;
     // noinspection JSUnusedLocalSymbols
     const stdout: string = execSync(cmd, {
       env: { PATH: process.env.SHELL_PATH },

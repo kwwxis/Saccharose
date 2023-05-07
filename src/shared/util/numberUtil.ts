@@ -57,6 +57,10 @@ export function toInt(x: any): number {
   }
 }
 
+export function maybeInt(x: any): any {
+  return isInteger(x) ? toInt(x) : x;
+}
+
 export function constrainNumber(n: number, min: number, max: number) {
   if (n < min) {
     return min;

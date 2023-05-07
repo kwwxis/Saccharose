@@ -14,14 +14,14 @@ import { toBoolean } from '../../../../shared/util/genericUtil';
 import JSON5 from 'json5';
 import { evaluateCustomFormat } from '../../../util/fileFormatOptions';
 import { AchievementExcelConfigData, AchievementGoalExcelConfigData } from '../../../../shared/types/genshin/achievement-types';
-import { normText } from '../genshinNormalizers';
+import { normGenshinText } from '../genshinText';
 import { getLineNumberForLineText } from '../../../util/shellutil';
 import { getGenshinDataFilePath } from '../../../loadenv';
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   const ctrl = getGenshinControl();
 
-  console.log(await getLineNumberForLineText('2559502579', './TextMap/Plain/PlainTextMapEN_Hash.dat'));
+  //console.log(await getLineNumberForLineText('2559502579', './TextMap/Plain/PlainTextMapEN_Hash.dat'));
 
   /*
   let goals: AchievementGoalExcelConfigData[] = await ctrl.readGenshinDataFile('./ExcelBinOutput/AchievementGoalExcelConfigData.json');

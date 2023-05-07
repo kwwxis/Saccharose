@@ -6,7 +6,7 @@ import { defaultMap, isset } from '../../../../shared/util/genericUtil';
 import { fileFormatOptionsApply, fileFormatOptionsCheck } from '../../../util/fileFormatOptions';
 import { WorldAreaConfigData } from '../../../../shared/types/genshin/general-types';
 import { ViewCodexExcelConfigData, ViewpointsByRegion } from '../../../../shared/types/genshin/viewpoint-types';
-import { normText } from '../genshinNormalizers';
+import { normGenshinText } from '../genshinText';
 
 export const VIEWPOINT_FILE_FORMAT_PARAMS: string[] = [
   'Id',
@@ -54,7 +54,7 @@ export async function getCityIdsWithViewpoints(ctrl: GenshinControl): Promise<Se
 }
 
 export async function selectViewpoints(ctrl: GenshinControl, cityIdConstraint?: number): Promise<ViewpointsByRegion> {
-  let viewpoints: ViewCodexExcelConfigData[] = await ctrl.readGenshinDataFile('./ExcelBinOutput/ViewCodexExcelConfigData.json');
+  let viewpoints: ViewCodexExcelConfigData[] = await ctrl.readDataFile('./ExcelBinOutput/ViewCodexExcelConfigData.json');
   let areas: WorldAreaConfigData[] = await ctrl.selectWorldAreas();
 
   let ret: ViewpointsByRegion = defaultMap('Array');
@@ -81,7 +81,7 @@ export async function selectViewpoints(ctrl: GenshinControl, cityIdConstraint?: 
 |area    = ${viewpoint.ParentWorldArea ? viewpoint.ParentWorldArea.AreaNameText : ''}
 |region  = ${viewpoint.CityNameText}
 |note    = 
-|text    = ${viewpoint.DescText ? normText(viewpoint.DescText, ctrl.outputLangCode) : ''}
+|text    = ${viewpoint.DescText ? ctrl.normText(viewpoint.DescText, ctrl.outputLangCode) : ''}
 |image   = ${viewpoint.DownloadImage}
 |map     = ${await fileFormatOptionsApply(ctrl, viewpoint, 'FileFormat.viewpoint.map', VIEWPOINT_DEFAULT_FILE_FORMAT_MAP)}
 }}`);

@@ -14,7 +14,7 @@ import {
   LoadingTipsByCategory,
   LoadingTipsExcelConfigData,
 } from '../../../../shared/types/genshin/loading-types';
-import { normText } from '../genshinNormalizers';
+import { normGenshinText } from '../genshinText';
 
 async function determineLoadingTipCategory(ctrl: GenshinControl, tip: LoadingTipsExcelConfigData,
                                      situations: LoadingSituationExcelConfigData[], worldAreas: WorldAreaConfigData[]): Promise<string> {
@@ -93,9 +93,9 @@ export function generateLoadingTipsWikiText(ctrl: GenshinControl, tipsByCategory
         } else {
           sbOut.emptyLine();
         }
-        sbOut.line(`====${normText(tip.TipsTitleText, ctrl.outputLangCode)}====`);
+        sbOut.line(`====${ctrl.normText(tip.TipsTitleText, ctrl.outputLangCode)}====`);
       }
-      sbOut.line('* ' + normText(tip.TipsDescText, ctrl.outputLangCode));
+      sbOut.line('* ' + ctrl.normText(tip.TipsDescText, ctrl.outputLangCode));
     }
     ret[cat] = sbOut.toString();
   }
@@ -132,13 +132,13 @@ async function createLoadingTipsByCategoryObject(ctrl: GenshinControl): Promise<
 
 export async function selectLoadingTips(ctrl: GenshinControl): Promise<LoadingTipsByCategory> {
   const areas: WorldAreaConfigData[] = await ctrl.selectWorldAreas();
-  const situations: LoadingSituationExcelConfigData[] = await ctrl.readGenshinDataFile('./ExcelBinOutput/LoadingSituationExcelConfigData.json');
+  const situations: LoadingSituationExcelConfigData[] = await ctrl.readDataFile('./ExcelBinOutput/LoadingSituationExcelConfigData.json');
   const situationsByStageId: {[stageId: number]: LoadingSituationExcelConfigData} = {};
   for (let sit of situations) {
     situationsByStageId[sit.StageId] = sit;
   }
 
-  const tips: LoadingTipsExcelConfigData[] = await ctrl.readGenshinDataFile('./ExcelBinOutput/LoadingTipsExcelConfigData.json');
+  const tips: LoadingTipsExcelConfigData[] = await ctrl.readDataFile('./ExcelBinOutput/LoadingTipsExcelConfigData.json');
   const ret: LoadingTipsByCategory = await createLoadingTipsByCategoryObject(ctrl);
 
   for (let tip of tips) {

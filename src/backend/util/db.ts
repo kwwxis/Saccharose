@@ -1,18 +1,21 @@
 import  knex, { Knex } from 'knex';
 import exitHook from 'async-exit-hook';
 import path from 'path';
-import { DATAFILE_SQLITE_DB } from '../loadenv';
+import { DATAFILE_GENSHIN_SQLITE_DB, DATAFILE_HSR_SQLITE_DB, DATAFILE_ZENLESS_SQLITE_DB } from '../loadenv';
 
-let singleton: Knex = null;
+export type SaccharoseDb = {
+  genshin: Knex,
+  hsr: Knex,
+  zenless: Knex,
+}
 
-export function openKnex(): Knex {
-  if (singleton) {
-    return singleton;
-  }
-  singleton = knex({
+let singleton: SaccharoseDb = null;
+
+function createKnexConnection(dbFilePath: string): Knex {
+  return knex({
     client: 'sqlite3',
     connection: {
-      filename: path.resolve(process.env.GENSHIN_DATA_ROOT, DATAFILE_SQLITE_DB),
+      filename: dbFilePath,
     },
     useNullAsDefault: true,
     pool: {
@@ -27,12 +30,24 @@ export function openKnex(): Knex {
       }
     }
   });
+}
+
+export function openKnex(): SaccharoseDb {
+  if (singleton) {
+    return singleton;
+  }
+  singleton = {
+    genshin: createKnexConnection(path.resolve(process.env.GENSHIN_DATA_ROOT, DATAFILE_GENSHIN_SQLITE_DB)),
+    hsr: createKnexConnection(path.resolve(process.env.HSR_DATA_ROOT, DATAFILE_HSR_SQLITE_DB)),
+    zenless: createKnexConnection(path.resolve(process.env.ZENLESS_DATA_ROOT, DATAFILE_ZENLESS_SQLITE_DB)),
+  };
   return singleton;
 }
 
 export async function closeKnex(): Promise<boolean> {
   if (singleton) {
-    return singleton.destroy().then(() => {
+    let destroyPromises = Object.values(singleton).filter(knex => !!knex).map(knex => knex.destroy());
+    return Promise.all(destroyPromises).then(() => {
       singleton = null;
       return true;
     });

@@ -29,41 +29,40 @@
     <span id="top" style="height:0;width:0;opacity:0"></span>
     <header id="header" class="thin-border">
       <div class="left">
-        <a id="site-title" href="<%= req.context.siteHome %>" aria-label="Site title">
+        <a id="site-title" href="<%= req.context.siteHome || '/' %>" aria-label="Site title">
           <div id="site-logo-bg"></div>
           <div id="site-logo-fg">
-            <% if (req.context.siteMode === 'genshin') { %>
-              <img src="/images/Sucrose.png" style="width:45px;height:auto" />
-            <% } else if (req.context.siteMode === 'hsr') { %>
-                <img src="/images/March_7th_Sticker_1.png" style="width:45px;height:auto" />
-            <% } else if (req.context.siteMode === 'zenless') { %>
-                <img src="/images/Belle.png" style="width:38px;height:auto;border-radius:50%" />
-            <% } %>
+            <img src="/images/Sucrose.png" style="width:45px;height:auto" />
           </div>
           <span style="line-height:21px"><%= req.context.siteTitle %></span>
         </a>
-        <% if (req.context.isDevelopment) { %>
-          <div id="site-mode-selector" class="valign spacer10-left posRel">
-            <button id="site-mode-dropdown-button" class="secondary border-light no-active-style" ui-action="dropdown: #site-mode-dropdown">
-              <span class="spacer5-right"><%= req.context.siteModeName %></span>
-              <%- icon('chevron-down') %>
-            </button>
-            <div id="site-mode-dropdown" class="ui-dropdown">
-              <a href="/" class="option valign" ui-action="close-dropdowns">
-                <img src="/images/Sucrose.png" style="width:16px;height:auto" />
-                <span class="spacer5-left">Genshin Impact</span>
-              </a>
-              <a href="/hsr" class="option valign" ui-action="close-dropdowns">
-                <img src="/images/March_7th_Sticker_1.png" style="width:16px;height:auto" />
-                <span class="spacer5-left">Honkai Star Rail</span>
-              </a>
-              <a href="/zenless" class="option valign" ui-action="close-dropdowns">
-                <img src="/images/Belle.png" style="width:16px;height:auto;border-radius:50%" />
-                <span class="spacer5-left">Zenless Zone Zero</span>
-              </a>
-            </div>
+        <div id="site-mode-selector" class="valign spacer10-left posRel">
+          <button id="site-mode-dropdown-button" class="secondary border-light no-active-style" ui-action="dropdown: #site-mode-dropdown">
+            <% if (req.context.siteMode === 'genshin') { %>
+              <img src="/images/Sucrose.png" style="width:24px;height:auto;margin:-1px 0 -1px -5px" />
+            <% } else if (req.context.siteMode === 'hsr') { %>
+              <img src="/images/March_7th_Sticker_1.png" style="width:24px;height:auto;margin:-1px 0 -1px -5px" />
+            <% } else if (req.context.siteMode === 'zenless') { %>
+              <img src="/images/Belle.png" style="width:24px;height:auto;border-radius:50%;margin:-1px 0 -1px -5px" />
+            <% } %>
+            <span class="spacer10-left spacer5-right"><%= req.context.siteModeName %></span>
+            <%- icon('chevron-down') %>
+          </button>
+          <div id="site-mode-dropdown" class="ui-dropdown">
+            <a href="/" class="option valign" ui-action="close-dropdowns">
+              <img src="/images/Sucrose.png" style="width:16px;height:auto" />
+              <span class="spacer5-left">Genshin Impact</span>
+            </a>
+            <a href="/hsr" class="option valign" ui-action="close-dropdowns">
+              <img src="/images/March_7th_Sticker_1.png" style="width:16px;height:auto" />
+              <span class="spacer5-left">Honkai Star Rail</span>
+            </a>
+            <a href="/zenless" class="option valign" ui-action="close-dropdowns">
+              <img src="/images/Belle.png" style="width:16px;height:auto;border-radius:50%" />
+              <span class="spacer5-left">Zenless Zone Zero</span>
+            </a>
           </div>
-        <% } %>
+        </div>
       </div>
       <div class="right">
         <%- include('partials/layout/app-language-selectors') %>

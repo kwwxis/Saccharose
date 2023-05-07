@@ -1,7 +1,7 @@
 import '../../../loadenv';
 import { closeKnex } from '../../../util/db';
 import { GenshinControl, getGenshinControl } from '../genshinControl';
-import { ol_gen_from_id } from '../basic/OLgen';
+import { ol_gen_from_id } from '../../generic/basic/OLgen';
 import { NpcExcelConfigData } from '../../../../shared/types/genshin/general-types';
 import { arrayEmpty, arrayUnique } from '../../../../shared/util/arrayUtil';
 import {
@@ -24,7 +24,7 @@ import { pathToFileURL } from 'url';
 import { SbOut } from '../../../../shared/util/stringUtil';
 import { dialogueCompareApply, SimilarityGroups } from './dialogue_compare';
 import { custom } from '../../../util/logger';
-import { normText } from '../genshinNormalizers';
+import { normGenshinText } from '../genshinText';
 
 export class QuestGenerateResult {
   mainQuest: MainQuestExcelConfigData = null;
@@ -175,13 +175,13 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
   result.mainQuest = mainQuest;
   result.npc = {
     names: arrayUnique(
-      Object.values(ctrl.getPrefs().npcCache)
+      Object.values(ctrl.state.npcCache)
         .filter(x => !x.Invisiable && !x.JsonName?.startsWith('ReadableNPC'))
-        .map(x => normText(x.NameText, ctrl.outputLangCode))
+        .map(x => ctrl.normText(x.NameText, ctrl.outputLangCode))
         .concat('Traveler')
         .sort()
     ),
-    data: ctrl.getPrefs().npcCache,
+    data: ctrl.state.npcCache,
   };
 
   // WIKI TEXT GENERATION
@@ -195,7 +195,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
   out.clearOut();
   for (let questSub of mainQuest.QuestExcelConfigDataList) {
     if (questSub.DescText)
-      out.line('# ' + normText(questSub.DescText, ctrl.outputLangCode));
+      out.line('# ' + ctrl.normText(questSub.DescText, ctrl.outputLangCode));
   }
   result.stepsWikitext = out.toString();
 
@@ -345,7 +345,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
   for (let summaryItem of QuestSummaryItems) {
 
     if (String(summaryItem.Id).startsWith(String(mainQuest.Id))) {
-      let text = normText(summaryItem.DescText, ctrl.outputLangCode);
+      let text = ctrl.normText(summaryItem.DescText, ctrl.outputLangCode);
       if (text.includes('<br')) {
         result.travelLogSummary.push('{{Cutscene Description|'+text+'}}');
       } else {

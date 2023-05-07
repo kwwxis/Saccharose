@@ -27,9 +27,10 @@ import { closeKnex } from '../../../util/db';
 import fs from 'fs';
 import { getGenshinDataFilePath } from '../../../loadenv';
 import { talkConfigGenerate } from '../dialogue/basic_dialogue_generator';
-import { schema, SchemaTable } from '../../../importer/import_db';
+import { SchemaTable } from '../../../importer/import_db';
 import { formatTime } from '../../../../shared/types/genshin/general-types';
-import { normText } from '../genshinNormalizers';
+import { normGenshinText } from '../genshinText';
+import { genshinSchema } from '../../../importer/genshin/genshin.schema';
 
 // noinspection JSUnusedGlobalSymbols
 export class GCGControl {
@@ -113,7 +114,7 @@ export class GCGControl {
 
   private async singleSelect<T>(table: string, field: string, value: any, postProcess?: (o: T) => Promise<T>): Promise<T> {
     await this.init();
-    const schemaTable: SchemaTable = schema[table];
+    const schemaTable: SchemaTable = genshinSchema[table];
 
     let record: T = await this.ctrl.knex.select('*').from(table)
       .where({[field]: value}).first().then(row => {
@@ -133,7 +134,7 @@ export class GCGControl {
 
   private async multiSelect<T>(table: string, field: string, value: any|any[], postProcess?: (o: T) => Promise<T>): Promise<T[]> {
     await this.init();
-    const schemaTable: SchemaTable = schema[table];
+    const schemaTable: SchemaTable = genshinSchema[table];
 
     value = Array.isArray(value) ? value : [value];
 
@@ -167,7 +168,7 @@ export class GCGControl {
 
   private async allSelect<T>(table: string, postProcess?: (o: T) => Promise<T>): Promise<T[]> {
     await this.init();
-    let records = await this.ctrl.readGenshinDataFile(`./ExcelBinOutput/${table}.json`) as T[];
+    let records = await this.ctrl.readDataFile(`./ExcelBinOutput/${table}.json`) as T[];
     if (postProcess) {
       postProcess = postProcess.bind(this);
     }
@@ -723,14 +724,14 @@ export class GCGControl {
         });
 
         if (talkDetail.TalkContentText.length === 1) {
-          sect.wikitext = `${talkDetail.VoPrefix}${normText(talkDetail.TalkContentText[0], this.ctrl.outputLangCode)}`;
+          sect.wikitext = `${talkDetail.VoPrefix}${normGenshinText(talkDetail.TalkContentText[0], this.ctrl.outputLangCode)}`;
         } else {
           let texts = [];
           if (talkDetail.VoPrefix) {
             texts.push(talkDetail.VoPrefix);
           }
           for (let text of talkDetail.TalkContentText) {
-            texts.push(normText(text, this.ctrl.outputLangCode));
+            texts.push(normGenshinText(text, this.ctrl.outputLangCode));
           }
           if (texts.length) {
             sect.wikitextArray.push({

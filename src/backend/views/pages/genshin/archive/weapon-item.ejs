@@ -11,11 +11,11 @@
       <table class="article-table">
         <tr>
           <td style="width:150px" class="bold">Name</td>
-          <td><%= normText(weapon.NameText) %></td>
+          <td><%= normGenshinText(weapon.NameText) %></td>
         </tr>
         <tr>
           <td class="bold">Description</td>
-          <td><%- include('partials/util/wikitext', {content: normText(weapon.DescText), seamless: true}) %></td>
+          <td><%- include('partials/util/wikitext', {content: normGenshinText(weapon.DescText), seamless: true}) %></td>
         </tr>
         <tr>
           <td class="bold">Quality</td>

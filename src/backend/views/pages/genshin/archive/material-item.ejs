@@ -20,11 +20,11 @@
         </tr>
         <tr>
           <td class="bold">Name</td>
-          <td><%= normText(material.NameText) %></td>
+          <td><%= normGenshinText(material.NameText) %></td>
         </tr>
         <tr>
           <td class="bold">Description</td>
-          <td colspan="2"><%- use('partials/util/wikitext', {content: normText(material.DescText), seamless: true}) %></td>
+          <td colspan="2"><%- use('partials/util/wikitext', {content: normGenshinText(material.DescText), seamless: true}) %></td>
         </tr>
         <tr>
           <td class="bold">Quality</td>

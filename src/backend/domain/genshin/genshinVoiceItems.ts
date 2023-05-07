@@ -1,7 +1,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { TalkRoleType } from '../../../shared/types/genshin/dialogue-types';
-import { DATAFILE_VOICE_ITEMS } from '../../loadenv';
+import { DATAFILE_GENSHIN_VOICE_ITEMS } from '../../loadenv';
 
 export type VoiceItem = {fileName: string, gender?: 'M' | 'F'};
 export type VoiceItemMap = {[dialogueId: string]: VoiceItem[]};
@@ -10,7 +10,7 @@ const VoiceItems: VoiceItemMap = {};
 
 export async function loadVoiceItems(): Promise<void> {
   console.log('[Init] Loading Voice Items -- starting...');
-  let voiceItemsFilePath = path.resolve(process.env.GENSHIN_DATA_ROOT, DATAFILE_VOICE_ITEMS);
+  let voiceItemsFilePath = path.resolve(process.env.GENSHIN_DATA_ROOT, DATAFILE_GENSHIN_VOICE_ITEMS);
 
   let result: VoiceItemMap = await fs.readFile(voiceItemsFilePath, {encoding: 'utf8'}).then(data => Object.freeze(JSON.parse(data)));
 

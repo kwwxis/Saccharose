@@ -1,53 +1,16 @@
-import '../loadenv';
+import '../../loadenv';
 import fs from 'fs';
-import {promises as fsp} from 'fs';
 import path from 'path';
 import { pathToFileURL } from 'url';
 import commandLineArgs, { OptionDefinition as ArgsOptionDefinition } from 'command-line-args';
 import commandLineUsage, { OptionDefinition as UsageOptionDefinition } from 'command-line-usage';
 import chalk from 'chalk';
-import { getGenshinDataFilePath, getTextMapRelPath } from '../loadenv';
-import { getGenshinControl } from '../domain/genshin/genshinControl';
-import { ReadableView } from '../../shared/types/genshin/readable-types';
-import { closeKnex } from '../util/db';
-import { normText } from '../domain/genshin/genshinNormalizers';
-import { LANG_CODES } from '../../shared/types/lang-types';
-
-async function importNormalize() {
-  const jsonDir = getGenshinDataFilePath('./ExcelBinOutput');
-  const jsonsInDir = (await fsp.readdir(jsonDir)).filter(file => path.extname(file) === '.json');
-  console.log('JSON DIR:', jsonDir);
-
-  let skip = ['ProudSkillExcelConfigData.json'];
-  let numChanged: number = 0;
-
-  for (let file of jsonsInDir) {
-    if (skip.includes(file)) {
-      continue;
-    }
-
-    const filePath = path.join(jsonDir, file);
-    process.stdout.write(chalk.bold('Processing: ' + filePath));
-
-    let fileData = await fsp.readFile(filePath, 'utf8');
-
-    // Convert primitive arrays to be single-line.
-    let newFileData = fileData.replace(/\[(\s*(\d+|\d+\.\d+|"[^"]+"|true|false),?\s*)*]/g, fm => {
-      let s = fm.slice(1, -1).split(',').map(s => s.trim()).join(', ');
-      return s ? '[ ' + s + ' ]' : '[]';
-    });
-
-    if (newFileData !== fileData) {
-      await fsp.writeFile(filePath, newFileData, 'utf8');
-      console.log(chalk.blue(' (modified)'));
-      numChanged++;
-    } else {
-      console.log(chalk.gray(' (unchanged)'));
-    }
-  }
-
-  console.log(chalk.blue(`Done, modified ${numChanged} files.`));
-}
+import { getGenshinDataFilePath, getTextMapRelPath } from '../../loadenv';
+import { getGenshinControl } from '../../domain/genshin/genshinControl';
+import { ReadableView } from '../../../shared/types/genshin/readable-types';
+import { closeKnex } from '../../util/db';
+import { normGenshinText } from '../../domain/genshin/genshinText';
+import { importNormalize, importPlainTextMap } from '../import_file_util';
 
 async function importVoice() {
   const outDir = process.env.GENSHIN_DATA_ROOT;
@@ -122,48 +85,6 @@ async function importVoice() {
   }
   console.log(chalk.blue('Done. Output written to: ' + outDir + '/voiceItemsNormalized.json'));
   fs.writeFileSync(outDir + '/voiceItemsNormalized.json', JSON.stringify(combined, null, 2));
-}
-
-async function importPlainTextMap() {
-  if (!fs.existsSync(getGenshinDataFilePath('./TextMap/Plain/'))) {
-    fs.mkdirSync(getGenshinDataFilePath('./TextMap/Plain/'));
-  }
-
-  for (let langCode of LANG_CODES) {
-    if (langCode === 'CH')
-      continue;
-
-    let textmap: {[hash: string]: string} = await fsp.readFile(getGenshinDataFilePath(getTextMapRelPath(langCode)), {encoding: 'utf8'}).then(data => {
-      return Object.freeze(JSON.parse(data));
-    });
-
-    console.log(chalk.bold.underline('Normalizing TextMap for ' + langCode));
-    let hashList = [];
-    let textList = [];
-
-    for (let [hash, text] of Object.entries(textmap)) {
-      hashList.push(hash);
-      textList.push(normText(text, langCode, true, true).replaceAll(/\r?\n/g, '\\n'));
-
-      if (text.includes('{F#') || text.includes('{M#')) {
-        hashList.push(hash);
-        textList.push(normText(text, langCode, true, true, 'male').replaceAll(/\r?\n/g, '\\n'));
-
-        hashList.push(hash);
-        textList.push(normText(text, langCode, true, true, 'female').replaceAll(/\r?\n/g, '\\n'));
-      }
-    }
-
-    console.log('  Writing to PlainTextMap_Text.dat');
-    fs.writeFileSync(getGenshinDataFilePath('./TextMap/Plain/PlainTextMap' + langCode + '_Text.dat'), textList.join('\n'), 'utf8');
-    console.log('  Writing to PlainTextMap_Hash.dat');
-    fs.writeFileSync(getGenshinDataFilePath('./TextMap/Plain/PlainTextMap' + langCode + '_Hash.dat'), hashList.join('\n'), 'utf8');
-
-    textmap = null;
-
-    console.log(chalk.gray('----------'));
-  }
-  console.log(chalk.blue('Done'));
 }
 
 async function importIndex() {
@@ -278,10 +199,10 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     }
 
     if (options.normalize) {
-      await importNormalize();
+      await importNormalize(getGenshinDataFilePath('./ExcelBinOutput'), ['ProudSkillExcelConfigData.json']);
     }
     if (options.plaintext) {
-      await importPlainTextMap();
+      await importPlainTextMap(getGenshinDataFilePath, normGenshinText);
     }
     if (options.index) {
       await importIndex();

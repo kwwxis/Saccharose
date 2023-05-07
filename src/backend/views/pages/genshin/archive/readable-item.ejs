@@ -28,7 +28,7 @@
           <tr>
             <td class="bold">Desc.</td>
             <td class="w70p">
-              <%- include('partials/util/wikitext', {content: normText(readable?.Material?.DescText), seamless: true}) %>
+              <%- include('partials/util/wikitext', {content: normGenshinText(readable?.Material?.DescText), seamless: true}) %>
             </td>
           </tr>
         </tbody>
@@ -61,7 +61,7 @@
           <tr>
             <td class="bold">Desc.</td>
             <td class="w70p">
-              <%- include('partials/util/wikitext', {content: normText(readable?.Artifact?.DescText), seamless: true}) %>
+              <%- include('partials/util/wikitext', {content: normGenshinText(readable?.Artifact?.DescText), seamless: true}) %>
             </td>
           </tr>
         </tbody>
@@ -89,7 +89,7 @@
             </tr>
             <tr>
               <td class="bold">Name</td>
-              <td class="w70p"><%= normText(readable?.Weapon?.NameText) %></td>
+              <td class="w70p"><%= normGenshinText(readable?.Weapon?.NameText) %></td>
             </tr>
             <tr>
               <td class="bold">Type</td>
@@ -98,7 +98,7 @@
             <tr>
               <td class="bold">Desc.</td>
               <td class="w70p">
-                <%- include('partials/util/wikitext', {content: normText(readable?.Weapon?.DescText), seamless: true}) %>
+                <%- include('partials/util/wikitext', {content: normGenshinText(readable?.Weapon?.DescText), seamless: true}) %>
               </td>
             </tr>
           </tbody>

@@ -15,15 +15,15 @@ import {
 import { MetaProp } from '../../../util/metaProp';
 import { pathToFileURL } from 'url';
 import { Marker } from '../../../../shared/util/highlightMarker';
-import { normText } from '../genshinNormalizers';
-import { LangCode } from '../../../../shared/types/lang-types';
+import { normGenshinText } from '../genshinText';
+import { LangCode, TextMapHash } from '../../../../shared/types/lang-types';
 
 const lc = (s: string) => s ? s.toLowerCase() : s;
 
 function normNpcFilterInput(npcFilterInput: string, langCode: LangCode): string {
   if (!npcFilterInput)
     return undefined;
-  return lc(trim(normText(npcFilterInput, langCode), '()').trim());
+  return lc(trim(normGenshinText(npcFilterInput, langCode), '()').trim());
 }
 
 const npcFilterInclude = async (ctrl: GenshinControl, d: DialogExcelConfigData, npcFilter: string): Promise<boolean> => {
@@ -36,8 +36,8 @@ const npcFilterInclude = async (ctrl: GenshinControl, d: DialogExcelConfigData, 
   if (npcFilter === 'sibling') {
     return d.TalkRole.Type === 'TALK_ROLE_MATE_AVATAR';
   }
-  let npcNameOutputLang = lc(trim(normText(d.TalkRoleNameText, ctrl.outputLangCode), '()'));
-  let npcNameInputLang = lc(trim(normText(await ctrl.getTextMapItem(ctrl.inputLangCode, d.TalkRoleNameTextMapHash), ctrl.inputLangCode), '()'));
+  let npcNameOutputLang = lc(trim(ctrl.normText(d.TalkRoleNameText, ctrl.outputLangCode), '()'));
+  let npcNameInputLang = lc(trim(ctrl.normText(await ctrl.getTextMapItem(ctrl.inputLangCode, d.TalkRoleNameTextMapHash), ctrl.inputLangCode), '()'));
   if (!npcFilter) {
     return true;
   }
@@ -61,9 +61,9 @@ export async function dialogueGenerate(ctrl: GenshinControl, query: number|numbe
     let reFlags: string = ctrl.searchModeFlags.includes('i') ? 'gi' : 'g';
     let isRegexQuery: boolean = ctrl.searchMode === 'R' || ctrl.searchMode === 'RI';
     if (typeof query === 'string') {
-      re = new RegExp(isRegexQuery ? `(?<=:''' .*)` + query : escapeRegExp(normText(query, ctrl.outputLangCode)), reFlags);
+      re = new RegExp(isRegexQuery ? `(?<=:''' .*)` + query : escapeRegExp(ctrl.normText(query, ctrl.outputLangCode)), reFlags);
     } else {
-      re = new RegExp(escapeRegExp(normText(dialogue.TalkContentText, ctrl.outputLangCode)), reFlags);
+      re = new RegExp(escapeRegExp(ctrl.normText(dialogue.TalkContentText, ctrl.outputLangCode)), reFlags);
     }
     for (let marker of Marker.create(re, sect.wikitext)) {
       sect.wikitextMarkers.push(marker);
@@ -157,16 +157,16 @@ export async function dialogueGenerate(ctrl: GenshinControl, query: number|numbe
 
   if (typeof query === 'string') {
     // string
-    let textMapIds: number[] = [];
+    let textMapHashes: TextMapHash[] = [];
 
     await ctrl.streamTextMapMatches(ctrl.inputLangCode, query.trim(),
-      (textMapId: number) => textMapIds.push(textMapId),
+      (textMapHash: TextMapHash) => textMapHashes.push(textMapHash),
       ctrl.searchModeFlags
     );
 
     let acceptedCount = 0;
-    for (let textMapId of textMapIds) {
-      let dialogues = await ctrl.selectDialogsFromTextContentId(textMapId);
+    for (let textMapHash of textMapHashes) {
+      let dialogues = await ctrl.selectDialogsFromTextContentId(textMapHash);
       let accepted: boolean = (await Promise.all(dialogues.map(d => handle(d)))).some(b => !!b);
       if (accepted) {
         acceptedCount++;

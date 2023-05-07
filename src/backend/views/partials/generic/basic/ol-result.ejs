@@ -8,8 +8,8 @@
         <h4 class="valign">
           <span class="expando" ui-action="expando: #ol-result-content-<%= idx %>"><%- icon('chevron-down', 17) %></span>
           <span style="opacity:0.6">TextMapHash:&nbsp;</span>
-          <code><%= olResult.textMapId %></code>
-          <a href="/id-usages?q=<%= olResult.textMapId %>" role="button" class="secondary small spacer5-left fontWeight500" target="_blank">Usages</a>
+          <code><%= olResult.textMapHash %></code>
+          <a href="<%= siteHome %>/id-usages?q=<%= olResult.textMapHash %>" role="button" class="secondary small spacer5-left fontWeight500" target="_blank">Usages</a>
         </h4>
         <div class="valign">
           <button class="secondary ol-result-copy"
@@ -26,14 +26,14 @@
         <% } %>
         <textarea id="ol-result-<%= idx %>" readonly spellcheck="false" translate="no" class="ol-result-textarea wikitext w100p spacer5-top"
                   style="resize:vertical;overflow:auto;font-size:13px;" data-markers="<%= Marker.joinedString(olResult.markers) %>"><%= olResult.result %></textarea>
-        <% if (olResult.duplicateTextMapIds.length) { %>
+        <% if (olResult.duplicateTextMapHashes.length) { %>
           <h5>Duplicate TextMapHashes</h5>
-          <p class="spacer5-bottom">List of TextMapHashes whose values are duplicates of <%= olResult.textMapId %> across all languages.<br>
-            Click on a link to see where that hash is used or see <a href="/id-usages?q=<%= olResult.textMapId %>,<%= olResult.duplicateTextMapIds.join(',') %>" target="_blank">all usages</a>.</p>
+          <p class="spacer5-bottom">List of TextMapHashes whose values are duplicates of <%= olResult.textMapHash %> across all languages.<br>
+            Click on a link to see where that hash is used or see <a href="<%= siteHome %>/id-usages?q=<%= olResult.textMapHash %>,<%= olResult.duplicateTextMapHashes.join(',') %>" target="_blank">all usages</a>.</p>
           <ul style="columns:4">
-            <li><a style="text-decoration:none" href="/id-usages?q=<%= olResult.textMapId %>" target="_blank"><%= olResult.textMapId %></a></li>
-            <% for (let textMapId of olResult.duplicateTextMapIds) { %>
-              <li><a style="text-decoration:none" href="/id-usages?q=<%= textMapId %>" target="_blank"><%= textMapId %></a></li>
+            <li><a style="text-decoration:none" href="<%= siteHome %>/id-usages?q=<%= olResult.textMapHash %>" target="_blank"><%= olResult.textMapHash %></a></li>
+            <% for (let textMapHash of olResult.duplicateTextMapHashes) { %>
+              <li><a style="text-decoration:none" href="<%= siteHome %>/id-usages?q=<%= textMapHash %>" target="_blank"><%= textMapHash %></a></li>
             <% } %>
           </ul>
         <% } %>

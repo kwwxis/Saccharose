@@ -12,6 +12,7 @@
     "removeComments": true,
     "target": "ESNext",
     "noImplicitAny": false,
+    "noImplicitOverride": true,
     "resolveJsonModule": true,
     "sourceMap": true,
     "allowJs": true,

@@ -1,7 +1,7 @@
 import { create, Request, Response, Router } from '../../../util/router';
 import { getGenshinControl } from '../../../domain/genshin/genshinControl';
 import { BookSuitExcelConfigData, ReadableView } from '../../../../shared/types/genshin/readable-types';
-import { ol_gen_from_id } from '../../../domain/genshin/basic/OLgen';
+import { ol_gen_from_id } from '../../../domain/generic/basic/OLgen';
 import {
   getCityIdsWithViewpoints,
   selectViewpoints, VIEWPOINT_DEFAULT_FILE_FORMAT_IMAGE, VIEWPOINT_DEFAULT_FILE_FORMAT_MAP,

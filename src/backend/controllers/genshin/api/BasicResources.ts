@@ -1,100 +1,31 @@
 import { create, NextFunction, Request, Response, Router } from '../../../util/router';
 import { getGenshinControl } from '../../../domain/genshin/genshinControl';
-import { add_ol_markers, ol_gen, OLResult } from '../../../domain/genshin/basic/OLgen';
-import { isset, toBoolean } from '../../../../shared/util/genericUtil';
-import { HttpError } from '../../../../shared/util/httpError';
-import { isInt, toInt } from '../../../../shared/util/numberUtil';
 import path from 'path';
 import fs from 'fs';
 import { PUBLIC_DIR } from '../../../loadenv';
-import { normText } from '../../../domain/genshin/genshinNormalizers';
-import { IdUsages } from '../../../util/searchUtil';
+import {
+  handleIdUsagesEndpoint,
+  handleOlEndpoint,
+  handleTextMapSearchEndpoint,
+} from '../../generic/basicResourcesUtil';
 
 const router: Router = create();
 
-router.restful('/ping', {
-  get: async (_req: Request, _res: Response) => {
-    return 'pong!';
-  }
-});
-
 router.restful('/search-textmap', {
   get: async (req: Request, res: Response) => {
-    const ctrl = getGenshinControl(req);
-    const startFromLine: number = isset(req.query.startFromLine) && isInt(req.query.startFromLine) ? toInt(req.query.startFromLine) : undefined;
-    const resultSetNum: number = isset(req.query.resultSetNum) && isInt(req.query.resultSetNum) ? toInt(req.query.resultSetNum) : 0;
-    const SEARCH_TEXTMAP_MAX = 100;
-
-    // "-m" flag -> max count
-    const items = await ctrl.getTextMapMatches(ctrl.inputLangCode, <string> req.query.text, `-m ${SEARCH_TEXTMAP_MAX+1} ${ctrl.searchModeFlags}`, startFromLine);
-    let hasMoreResults: boolean = false;
-
-    if (items.length > SEARCH_TEXTMAP_MAX) {
-      hasMoreResults = true;
-      items.pop();
-    }
-
-    let lastLine: number = items.length ? items[items.length - 1].line : null;
-
-    if (ctrl.inputLangCode !== ctrl.outputLangCode) {
-      for (let item of items) {
-        item.text = await ctrl.getTextMapItem(ctrl.outputLangCode, item.hash);
-      }
-    }
-
-    for (let item of items) {
-      item.text = normText(item.text, ctrl.outputLangCode);
-    }
-
-    if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
-      return res.render('partials/genshin/basic/textmap-search-result', { items, lastLine, hasMoreResults, resultSetNum, SEARCH_TEXTMAP_MAX });
-    } else {
-      return items;
-    }
+    await handleTextMapSearchEndpoint(getGenshinControl(req), req, res)
   }
 });
 
 router.restful('/OL/generate', {
   get: async (req: Request, res: Response) => {
-    const ctrl = getGenshinControl(req);
-
-    let results: OLResult[] = await ol_gen(ctrl, <string> req.query.text, {
-      hideTl: toBoolean(req.query.hideTl),
-      hideRm: toBoolean(req.query.hideRm),
-      addDefaultHidden: toBoolean(req.query.addDefaultHidden),
-    });
-
-    if (!results) {
-      throw HttpError.badRequest('NotFound', req.query.text as string);
-    }
-
-    add_ol_markers(results);
-
-    if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
-      return res.render('partials/genshin/basic/ol-result', { olResults: results, searchText: <string> req.query.text });
-    } else {
-      return results;
-    }
+    await handleOlEndpoint(getGenshinControl(req), req, res);
   }
 });
 
 router.restful('/id-usages', {
   get: async (req: Request, res: Response) => {
-    const ctrl = getGenshinControl(req);
-    const ids: number[] = String(req.query.q).split(/[ ,]/g).map(s => s.trim()).filter(s => !!s && isInt(s)).map(toInt);
-    const idToUsages: {[id: number]: IdUsages} = {};
-
-    await Promise.all(ids.map(id => {
-      return ctrl.getIdUsages(id).then(usages => {
-        idToUsages[id] = usages;
-      });
-    }));
-
-    if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
-      return res.render('partials/genshin/basic/id-usages-result', { idToUsages });
-    } else {
-      return idToUsages;
-    }
+    await handleIdUsagesEndpoint(getGenshinControl(req), req, res);
   }
 });
 

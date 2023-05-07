@@ -4,10 +4,11 @@ import { getVoPrefix, loadVoiceItems} from "../genshinVoiceItems";
 import { closeKnex } from '../../../util/db';
 import { DialogExcelConfigData } from '../../../../shared/types/genshin/dialogue-types';
 import {promises as fs} from 'fs';
-import{schema, normalizeRawJson} from '../../../importer/import_db';
+import{normalizeRawJson} from '../../../importer/import_db';
 import { getGenshinDataFilePath } from '../../../loadenv';
 import { pathToFileURL } from 'url';
-import { normText } from '../genshinNormalizers';
+import { normGenshinText } from '../genshinText';
+import { genshinSchema } from '../../../importer/genshin/genshin.schema';
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
@@ -20,8 +21,8 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     let out = '';
 
     for (let row of result) {
-      let dialog: DialogExcelConfigData = normalizeRawJson(row, schema.DialogExcelConfigData);
-      let text: string = normText(await ctrl.getTextMapItem('EN', dialog.TalkContentTextMapHash), 'EN');
+      let dialog: DialogExcelConfigData = normalizeRawJson(row, genshinSchema.DialogExcelConfigData);
+      let text: string = ctrl.normText(await ctrl.getTextMapItem('EN', dialog.TalkContentTextMapHash), 'EN');
       let voPrefix = getVoPrefix('Dialog', dialog.Id, text, dialog.TalkRole.Type);
 
       if (!voPrefix || !voPrefix.includes('<!--') || !text) {

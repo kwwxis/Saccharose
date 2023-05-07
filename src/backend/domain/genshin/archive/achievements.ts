@@ -12,7 +12,7 @@ import {
 import { toInt } from '../../../../shared/util/numberUtil';
 
 export async function selectAchievementGoals(ctrl: GenshinControl): Promise<AchievementGoalExcelConfigData[]> {
-  let goals: AchievementGoalExcelConfigData[] = await ctrl.readGenshinDataFile('./ExcelBinOutput/AchievementGoalExcelConfigData.json');
+  let goals: AchievementGoalExcelConfigData[] = await ctrl.readDataFile('./ExcelBinOutput/AchievementGoalExcelConfigData.json');
   sort(goals, 'OrderId');
   for (let goal of goals) {
     if (!goal.Id) {
@@ -29,7 +29,7 @@ export async function selectAchievementGoals(ctrl: GenshinControl): Promise<Achi
 export async function selectAchievements(ctrl: GenshinControl, goalIdConstraint?: number): Promise<AchievementsByGoals> {
   let goals: AchievementGoalExcelConfigData[] = await selectAchievementGoals(ctrl);
 
-  let achievements: AchievementExcelConfigData[] = await ctrl.readGenshinDataFile('./ExcelBinOutput/AchievementExcelConfigData.json');
+  let achievements: AchievementExcelConfigData[] = await ctrl.readDataFile('./ExcelBinOutput/AchievementExcelConfigData.json');
   sort(achievements, 'OrderId');
 
   let ret: AchievementsByGoals = defaultMap((goalId: number) => ({

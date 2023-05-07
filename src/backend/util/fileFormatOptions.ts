@@ -162,7 +162,7 @@ export function evaluateCustomFormat(obj: Object, parentNode: MwParentNode): str
 }
 
 export async function fileFormatOptionsApply(ctrl: AbstractControl, obj: Object, cookieName: string, defaultFormat: string): Promise<string> {
-  const req = ctrl.state.Request;
+  const req = ctrl.state.request;
   let pref: FileFormatOption = req.cookies[cookieName] || 'default';
   let customFormat: string;
   if (pref === 'remove') {

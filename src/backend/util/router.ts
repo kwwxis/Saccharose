@@ -11,7 +11,6 @@ import {
   icon,
   dragHandle,
   printTimestamp,
-  TemplateLink,
   toParam,
   spriteTagIconize,
 } from './viewUtilities';
@@ -33,6 +32,7 @@ import { Marker } from '../../shared/util/highlightMarker';
 import pluralize from 'pluralize';
 import { SEARCH_MODES, SearchMode } from './searchUtil';
 import { DEFAULT_LANG, LANG_CODES, LANG_CODES_TO_NAME, LangCode } from '../../shared/types/lang-types';
+import createHtmlElement from 'create-html-element';
 
 //#region Types
 export type IncludeFunction = (view: string, locals?: RequestLocals) => string;
@@ -92,7 +92,7 @@ class RequestContext {
         return '/zenless';
       case 'genshin':
       default:
-        return '/';
+        return '';
     }
   }
 
@@ -106,6 +106,31 @@ class RequestContext {
       default:
         return 'Genshin Impact';
     }
+  }
+
+  templateLink(template: string): string {
+    let wikiDomain: string;
+    switch (this.siteMode) {
+      case 'hsr':
+        wikiDomain = 'honkai-star-rail.fandom.com';
+        break;
+      case 'zenless':
+        wikiDomain = 'zenless-zone-zero.fandom.com';
+        break;
+      case 'genshin':
+      default:
+        wikiDomain = 'genshin-impact.fandom.com';
+        break;
+    }
+    return '{{' + createHtmlElement({
+      name: 'a',
+      attributes: {
+        href: 'https://' + wikiDomain + '/wiki/Template:' + template.replaceAll(' ', '_'),
+        target: '_blank',
+        style: 'text-decoration:none'
+      },
+      text: template
+    }) + '}}';
   }
 
   get isDevelopment() {
@@ -260,7 +285,6 @@ export const DEFAULT_GLOBAL_LOCALS = {
   printTimestamp,
   printHumanTiming,
   ternary,
-  TemplateLink,
   escapeHtml,
   escapeHtmlAllowEntities,
   spriteTagIconize,
@@ -291,6 +315,7 @@ function createIncludeFunction(req: Request, viewStackPointer: RequestViewStack)
         bodyClassTernary: req.context.bodyClassTernary.bind(req.context),
         cookieTernary: req.context.cookieTernary.bind(req.context),
         cookie: req.context.cookie.bind(req.context),
+        siteHome: req.context.siteHome,
       }, DEFAULT_GLOBAL_LOCALS, viewStackPointer, typeof locals !== 'object' ? {} : locals),
       { delimiter: EJS_DELIMITER }
     );

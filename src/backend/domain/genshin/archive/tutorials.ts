@@ -13,7 +13,7 @@ import {
   TutorialExcelConfigData,
   TutorialsByType,
 } from '../../../../shared/types/genshin/tutorial-types';
-import { normText } from '../genshinNormalizers';
+import { normGenshinText } from '../genshinText';
 
 export function pushTipCodexTypeName(type: PushTipsCodexType): string {
   switch (type) {
@@ -65,11 +65,11 @@ export const TUTORIAL_FILE_FORMAT_PARAMS: string[] = [
 export const TUTORIAL_DEFAULT_FILE_FORMAT_IMAGE = 'Tutorial {PushTip.TitleText.EN}{{If|DetailCount > 1| {CurrentDetail.Index1based}|}}.png';
 
 export async function selectTutorials(ctrl: GenshinControl, codexTypeConstraint?: PushTipsCodexType): Promise<TutorialsByType> {
-  let tutorials: TutorialExcelConfigData[] = await ctrl.readGenshinDataFile('./ExcelBinOutput/TutorialExcelConfigData.json');
-  let tutorialDetails: TutorialDetailExcelConfigData[] = await ctrl.readGenshinDataFile('./ExcelBinOutput/TutorialDetailExcelConfigData.json');
+  let tutorials: TutorialExcelConfigData[] = await ctrl.readDataFile('./ExcelBinOutput/TutorialExcelConfigData.json');
+  let tutorialDetails: TutorialDetailExcelConfigData[] = await ctrl.readDataFile('./ExcelBinOutput/TutorialDetailExcelConfigData.json');
 
-  let pushTips: PushTipsConfigData[] = await ctrl.readGenshinDataFile('./ExcelBinOutput/PushTipsConfigData.json');
-  let pushTipsCodex: PushTipsCodexExcelConfigData[] = await ctrl.readGenshinDataFile('./ExcelBinOutput/PushTipsCodexExcelConfigData.json');
+  let pushTips: PushTipsConfigData[] = await ctrl.readDataFile('./ExcelBinOutput/PushTipsConfigData.json');
+  let pushTipsCodex: PushTipsCodexExcelConfigData[] = await ctrl.readDataFile('./ExcelBinOutput/PushTipsCodexExcelConfigData.json');
 
   for (let pushTip of pushTips) {
     pushTip.Codex = pushTipsCodex.find(c => c.PushTipId === pushTip.PushTipsId);
@@ -111,7 +111,7 @@ export async function selectTutorials(ctrl: GenshinControl, codexTypeConstraint?
         'FileFormat.tutorial.image',
         TUTORIAL_DEFAULT_FILE_FORMAT_IMAGE
       );
-      text += '\n|' + ('text' + (i+1)).padEnd(9, ' ') + '= ' + normText(detail.DescriptText, ctrl.outputLangCode);
+      text += '\n|' + ('text' + (i+1)).padEnd(9, ' ') + '= ' + ctrl.normText(detail.DescriptText, ctrl.outputLangCode);
       text += '\n|' + ('image' + (i+1)).padEnd(9, ' ') + '= ' + (imageName || '');
       for (let originalName of detail.ImageNameList) {
         tutorial.Images.push({ originalName, downloadName: imageName });

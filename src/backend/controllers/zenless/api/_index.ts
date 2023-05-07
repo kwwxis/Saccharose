@@ -1,7 +1,6 @@
 import { create, Router } from '../../../util/router';
+import BasicResources from './BasicResources';
 
-export default async function(): Promise<Router> {
-  const router: Router = create();
-
-  return router;
+export default function(router: Router): void {
+  router.use('/zenless', BasicResources);
 }

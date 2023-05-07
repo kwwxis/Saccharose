@@ -8,7 +8,7 @@ import { ReminderExcelConfigData } from '../../../../shared/types/genshin/dialog
 import { DialogueSectionResult } from './dialogue_util';
 import { MetaProp } from '../../../util/metaProp';
 import { pathToFileURL } from 'url';
-import { normText } from '../genshinNormalizers';
+import { normGenshinText } from '../genshinText';
 
 export async function reminderGenerateAll(ctrl: GenshinControl): Promise<DialogueSectionResult> {
   let sect = new DialogueSectionResult(null, 'All Reminders');
@@ -22,8 +22,8 @@ export async function reminderGenerateAll(ctrl: GenshinControl): Promise<Dialogu
         continue;
       }
 
-      let speaker = normText(reminder.SpeakerText, ctrl.outputLangCode);
-      let text = normText(reminder.ContentText, ctrl.outputLangCode);
+      let speaker = ctrl.normText(reminder.SpeakerText, ctrl.outputLangCode);
+      let text = ctrl.normText(reminder.ContentText, ctrl.outputLangCode);
       let voPrefix = getVoPrefix('Reminder', reminder.Id, text);
 
       if (!reminder.SpeakerText) {
@@ -39,7 +39,7 @@ export async function reminderGenerateAll(ctrl: GenshinControl): Promise<Dialogu
 }
 
 export function reminderWikitext(ctrl: GenshinControl, reminder: ReminderExcelConfigData) {
-  let text = normText(reminder.ContentText, ctrl.outputLangCode);
+  let text = ctrl.normText(reminder.ContentText, ctrl.outputLangCode);
   let voPrefix = getVoPrefix('Reminder', reminder.Id, text);
 
   if (!reminder.SpeakerText) {
@@ -84,9 +84,9 @@ export async function reminderGenerate(ctrl: GenshinControl, query: number|strin
 
   if (typeof query === 'string') {
     // string
-    const textMapIds = (await ctrl.getTextMapMatches(ctrl.inputLangCode, query.trim(), ctrl.searchModeFlags)).map(x => x.hash);
-    if (textMapIds.length) {
-      let reminders = await Promise.all(textMapIds.map(textMapId => ctrl.selectReminderByContentTextMapId(textMapId)));
+    const textMapHashes = (await ctrl.getTextMapMatches(ctrl.inputLangCode, query.trim(), ctrl.searchModeFlags)).map(x => x.hash);
+    if (textMapHashes.length) {
+      let reminders = await Promise.all(textMapHashes.map(textMapHash => ctrl.selectReminderByContentTextMapHash(textMapHash)));
       for (let reminder of reminders) {
         await handle(reminder, subsequentAmount);
       }

@@ -117,59 +117,63 @@ If you don't want to use SSL locally, you can use these settings:
       ```
       Application would be accessed at http://saccharose.localhost/
            
-### Genshin Data Setup
+### Game Data Setup
        
 You'll need to repeat this step after every new Genshin Impact version.
 
-1.  **Obtain Genshin Data folder**
+1.  **Obtain data folders for GI/HSR/ZZZ**
    
-    * Obtain the Genshin Data folder and specify the location to it in the `GENSHIN_DATA_ROOT` property of `.env`
+    * Obtain the GI Data folder and specify the location to it in the `GENSHIN_DATA_ROOT` property of `.env`
+      * The Genshin Data folder should contain these folders: `ExcelBinOutput`, `Readable`, `Subtitle`, `TextMap`.
+          * The `Readable` folder should contain sub-folders where each sub-folder name is `<LangCode>` for each language code.
+          * The `Subtitle` folder should contain sub-folders where each sub-folder name is `<LangCode>` for each language code.
+            Within each language code folder there should be SRT files with the file extension `.txt` or `.srt`
+          * The `TextMap` folder should contain JSON files in the format of `TextMap<LangCode>.json` where `<LangCode>`
+            is one of these: `'CHS', 'CHT', 'DE', 'EN', 'ES', 'FR', 'ID', 'IT', 'JP', 'KR', 'PT', 'RU', 'TH', 'TR', 'VI'`.
+            For example `TextMapCHS.json`.
+      * And also the `BinOutput/Voice/Items` folder. None of the other folders in BinOutput are needed.
+      * 
+    * Obtain the HSR Data folder and specify the location to it in the `HSR_DATA_ROOT` property of `.env`
+    * Obtain the ZZZ Data folder and specify the location to it in the `ZENLESS_DATA_ROOT` property of `.env`
 
-    * The Genshin Data folder should contain these folders: `ExcelBinOutput`, `Readable`, `Subtitle`, `TextMap`.
-        
-        * The `Readable` folder should contain sub-folders where each sub-folder name is `<LangCode>` for each language code.
-        * The `Subtitle` folder should contain sub-folders where each sub-folder name is `<LangCode>` for each language code.
-          Within each language code folder there should be SRT files with the file extension `.txt` or `.srt`
-        * The `TextMap` folder should contain JSON files in the format of `TextMap<LangCode>.json` where `<LangCode>`
-          is one of these: `'CHS', 'CHT', 'DE', 'EN', 'ES', 'FR', 'ID', 'IT', 'JP', 'KR', 'PT', 'RU', 'TH', 'TR', 'VI'`.
-          For example `TextMapCHS.json`.
-
-    * And also the `BinOutput/Voice/Items` folder. None of the other folders in BinOutput are needed.
-
-2.  **Run import_files (normalize)**
+2.  **Import files (normalize)**
     
-    * Run with: `ts-node ./src/backend/scripts/import_files.ts --normalize`.
+    * Run with: `ts-node ./src/backend/importer/genshin/import_genshin_files.ts --normalize`
+    * Run with: `ts-node ./src/backend/importer/hsr/import_hsr_files.ts --normalize`
+    * Run with: `ts-node ./src/backend/importer/zenless/import_zenless_files.ts --normalize`
 
-3.  **Run import_db**
+3.  **Import files (plaintext)**
+    
+    This will create a new folder called Plain at `{DATA_ROOT}/TextMap/Plain` and will fill
+    this folder with files called `PlainTextMap<LangCode>.json` for each language code.<br><br>
+    
+    * Run with: `ts-node ./src/backend/importer/genshin/import_genshin_files.ts --plaintext`.
+    * Run with: `ts-node ./src/backend/importer/hsr/import_hsr_files.ts --plaintext`
+    * Run with: `ts-node ./src/backend/importer/zenless/import_zenless_files.ts --plaintext`
+
+4.  **Import files (voice)**
+    
+    This will create or overwrite a file called `voiceItemsNormalized.json` in
+    your `GENSHIN_DATA_ROOT` folder.<br><br>
+    
+    * Run with: `ts-node ./src/backend/importer/genshin/import_genshin_files.ts --voice`.
+
+5.  **Run import_db**
    
-    * This will create or modify a file called`genshin_data.db` in your `GENSHIN_DATA_ROOT` folder.
-      This file is a sqlite database.
+    This will create or modify a file called`genshin_data.db` in your `GENSHIN_DATA_ROOT` folder.
+    This file is a sqlite database.<br><br>
    
     * Run with: `ts-node ./src/backend/importer/import_db.ts`.
         * Use the `--help` flag to see your options.
         * You can use `--run-all` to first time you run it.
         * Other options such as `--run-only` can regenerate specific tables on the existing database.
-   
-4.  **Run import_files (voice)**
-   
-    * This will create or overwrite a file called `voiceItemsNormalized.json` in
-      your `GENSHIN_DATA_ROOT` folder.
 
-    * Run with: `ts-node ./src/backend/importer/import_files.ts --voice`.
-
-5.  **Run import_files (plaintext)**
+6.  **Import files (index)**
     
-    * This will create a new folder called Plain at `{GENSHIN_DATA_ROOT}/TextMap/Plain` and will fill
-      this folder with files called `PlainTextMap<LangCode>.json` for each language code.
+    This will create a new folder called Index at `{GENSHIN_DATA_ROOT}/TextMap/Index` and will fill
+    this folder with files called `TextIndex_<Name>.json` for various entities.<br><br>
     
-    * Run with: `ts-node ./src/backend/importer/import_files.ts --plaintext`.
-
-6.  **Run import_files (index)**
-    
-    * This will create a new folder called Index at `{GENSHIN_DATA_ROOT}/TextMap/Index` and will fill
-      this folder with files called `TextIndex_<Name>.json` for various entities.
-    
-    * Run with: `ts-node ./src/backend/importer/import_files.ts --index`.
+    * Run with: `ts-node ./src/backend/importer/genshin/import_genshin_files.ts --index`.
     
 ## Development
 

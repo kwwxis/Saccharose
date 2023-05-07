@@ -1,14 +1,24 @@
-import { genshinEndpoints } from '../../../endpoints';
+import { genshinEndpoints, SaccharoseApiEndpoint, starRailEndpoints, zenlessEndpoints } from '../../../endpoints';
 import { pageMatch } from '../../../pageMatch';
 import { GenericSearchPageHandle, startGenericSearchPageListeners } from '../../genericSearchPage';
 import { toInt } from '../../../../shared/util/numberUtil';
 import { frag } from '../../../util/domutil';
 
-pageMatch('pages/genshin/basic/textmap', () => {
+pageMatch('pages/generic/basic/textmap', () => {
   let handle: GenericSearchPageHandle;
 
+  let endpoint: SaccharoseApiEndpoint<any>;
+
+  if (document.body.classList.contains('page--genshin')) {
+    endpoint = genshinEndpoints.searchTextMap;
+  } else if (document.body.classList.contains('page--hsr')) {
+    endpoint = starRailEndpoints.searchTextMap;
+  } else if (document.body.classList.contains('page--zenless')) {
+    endpoint = zenlessEndpoints.searchTextMap;
+  }
+
   startGenericSearchPageListeners({
-    endpoint: genshinEndpoints.searchTextMap,
+    endpoint,
 
     inputs: [
       {

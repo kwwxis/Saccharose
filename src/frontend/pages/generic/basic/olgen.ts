@@ -1,11 +1,27 @@
 import { Listener, startListeners } from '../../../util/eventLoader';
 import Cookies from 'js-cookie';
 import { flashTippy } from '../../../util/tooltips';
-import { genshinEndpoints } from '../../../endpoints';
+import {
+  errorHtmlWrap,
+  genshinEndpoints,
+  SaccharoseApiEndpoint,
+  starRailEndpoints,
+  zenlessEndpoints,
+} from '../../../endpoints';
 import { pageMatch } from '../../../pageMatch';
 import { HttpError } from '../../../../shared/util/httpError';
 
-pageMatch('pages/genshin/basic/olgen', () => {
+pageMatch('pages/generic/basic/olgen', () => {
+  let endpoint: SaccharoseApiEndpoint<any>;
+
+  if (document.body.classList.contains('page--genshin')) {
+    endpoint = genshinEndpoints.generateOL;
+  } else if (document.body.classList.contains('page--hsr')) {
+    endpoint = starRailEndpoints.generateOL;
+  } else if (document.body.classList.contains('page--zenless')) {
+    endpoint = zenlessEndpoints.generateOL;
+  }
+
   function loadResultFromURL() {
     const url = new URL(window.location.href);
     const query = url.searchParams.get('q');
@@ -54,7 +70,7 @@ pageMatch('pages/genshin/basic/olgen', () => {
       window.history.pushState({q: text}, null, url.href);
     }
 
-    genshinEndpoints.generateOL.get({
+    endpoint.get({
       text,
       hideTl: tlOptionValue === 'exclude_tl',
       addDefaultHidden: tlOptionValue === 'exclude_tl',
@@ -63,9 +79,9 @@ pageMatch('pages/genshin/basic/olgen', () => {
       document.querySelector('#ol-results-list').innerHTML = result;
     }).catch((err: HttpError) => {
       if (err.type === 'NotFound') {
-        document.querySelector('#ol-results-list').innerHTML = genshinEndpoints.errorHtmlWrap('Not Found: ' + err.message);
+        document.querySelector('#ol-results-list').innerHTML = errorHtmlWrap('Not Found: ' + err.message);
       } else {
-        document.querySelector('#ol-results-list').innerHTML = genshinEndpoints.errorHtmlWrap(err.message);
+        document.querySelector('#ol-results-list').innerHTML = errorHtmlWrap(err.message);
       }
     }).finally(() => {
       loadingEl.classList.add('hide');

@@ -74,14 +74,14 @@
           <tr>
             <td class="no-border">&nbsp;</td>
             <td class="bold">Intro Text</td>
-            <td class="w70p"><%- include('partials/util/wikitext', { content: normText(stage.Reward.IntroText), seamless: true }) %></td>
+            <td class="w70p"><%- include('partials/util/wikitext', { content: normGenshinText(stage.Reward.IntroText), seamless: true }) %></td>
           </tr>
         <% } %>
         <% if (stage?.WorldLevel?.MapDescText) { %>
           <tr>
             <td class="no-border">&nbsp;</td>
             <td class="bold">Map Description<br /><small class="fontWeight600 opacity70p"><em>Not included in wikitext</em></small></td>
-            <td class="w70p"><%- include('partials/util/wikitext', { content: '{{Description|' + normText(stage.WorldLevel.MapDescText) + '|[[Map]] description}}', seamless: true }) %></td>
+            <td class="w70p"><%- include('partials/util/wikitext', { content: '{{Description|' + normGenshinText(stage.WorldLevel.MapDescText) + '|[[Map]] description}}', seamless: true }) %></td>
           </tr>
         <% } %>
       </table>
@@ -101,7 +101,7 @@
             <tr>
               <td class="no-border">&nbsp;</td>
               <td class="bold">Description</td>
-              <td class="w70p"><%- include('partials/util/wikitext', { content: normText(stage.LevelLock.UnlockDescText), seamless: true }) %></td>
+              <td class="w70p"><%- include('partials/util/wikitext', { content: normGenshinText(stage.LevelLock.UnlockDescText), seamless: true }) %></td>
             </tr>
           <% } %>
           <% if (stage.LevelLock.UnlockMainQuestId) { %>

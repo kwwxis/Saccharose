@@ -1,4 +1,4 @@
-import { genshinEndpoints } from '../../../endpoints';
+import { errorHtmlWrap, genshinEndpoints } from '../../../endpoints';
 import { startListeners } from '../../../util/eventLoader';
 import { modalService } from '../../../util/modalService';
 import { flashTippy } from '../../../util/tooltips';
@@ -89,7 +89,7 @@ pageMatch('pages/genshin/dialogue/quests', () => {
       })
       startListeners(questResultListeners, '#quest-generate-result');
     }).catch((err: HttpError) => {
-      document.querySelector('#quest-generate-result').innerHTML = genshinEndpoints.errorHtmlWrap(err.message);
+      document.querySelector('#quest-generate-result').innerHTML = errorHtmlWrap(err.message);
     });
   }
 

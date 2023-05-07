@@ -23,7 +23,7 @@ let username_pass = function(value: string) {
   return last_part;
 };
 
-pageMatch('pages/genshin/basic/asi-test', () => {
+pageMatch('pages/generic/basic/asi-test', () => {
   let asi = new ASI('#AdvancedSearchInput').init({
     placeholder: 'filter results',
     active_placeholder: 'press enter to search',

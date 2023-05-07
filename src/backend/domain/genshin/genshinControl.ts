@@ -20,9 +20,8 @@ import {
   sort,
 } from '../../../shared/util/arrayUtil';
 import { isInt, toInt, toNumber } from '../../../shared/util/numberUtil';
-import { normalizeRawJson, normalizeRawJsonKey, schema, SchemaTable } from '../../importer/import_db';
+import { normalizeRawJson, normalizeRawJsonKey, SchemaTable } from '../../importer/import_db';
 import {
-  escapeRegExp,
   extractRomanNumeral,
   isStringBlank,
   replaceAsync,
@@ -64,13 +63,10 @@ import {
   HomeWorldFurnitureTypeExcelConfigData,
   HomeWorldNPCExcelConfigData,
 } from '../../../shared/types/genshin/homeworld-types';
-import { getLineNumberForLineText, grep, grepIdStartsWith, grepStream } from '../../util/shellutil';
+import { grep, grepIdStartsWith, grepStream } from '../../util/shellutil';
 import {
   getGenshinDataFilePath,
-  getPlainTextMapRelPath,
   getReadableRelPath,
-  getTextIndexRelPath,
-  getTextMapRelPath,
 } from '../../loadenv';
 import {
   BooksCodexExcelConfigData,
@@ -92,7 +88,6 @@ import {
 } from '../../../shared/types/genshin/artifact-types';
 import { WeaponExcelConfigData, WeaponLoadConf } from '../../../shared/types/genshin/weapon-types';
 import { AvatarExcelConfigData } from '../../../shared/types/genshin/avatar-types';
-import { basename } from 'path';
 import { MonsterExcelConfigData } from '../../../shared/types/genshin/monster-types';
 import { isEmpty, isset } from '../../../shared/util/genericUtil';
 import { NewActivityExcelConfigData } from '../../../shared/types/genshin/activity-types';
@@ -100,11 +95,11 @@ import { Marker } from '../../../shared/util/highlightMarker';
 import { ElementType, ManualTextMapHashes } from '../../../shared/types/genshin/manual-text-map';
 import { custom } from '../../util/logger';
 import { DialogBranchingCache } from './dialogue/dialogue_util';
-import { normText } from './genshinNormalizers';
-import { IdUsages, SearchMode } from '../../util/searchUtil';
+import { normGenshinText } from './genshinText';
+import { IdUsages } from '../../util/searchUtil';
 import { AbstractControl, AbstractControlState } from '../abstractControl';
 import debug from 'debug';
-import { LANG_CODES, LangCode, LangCodeMap } from '../../../shared/types/lang-types';
+import { LangCode, TextMapHash } from '../../../shared/types/lang-types';
 
 /**
  * State/cache for only a single control
@@ -125,14 +120,23 @@ export class GenshinControlState extends AbstractControlState {
   ExcludeOrphanedDialogue: boolean = false;
 }
 
-export function getGenshinControl(controlState?: Request|GenshinControlState) {
-  return new GenshinControl(controlState);
+export function getGenshinControl(request?: Request) {
+  return new GenshinControl(request);
 }
 
 // TODO: Make this not a god object
 export class GenshinControl extends AbstractControl<GenshinControlState> {
-  constructor(controlState: Request|GenshinControlState) {
-    super(controlState, GenshinControlState);
+  constructor(request?: Request) {
+    super('genshin', GenshinControlState, request);
+    this.excelPath = './ExcelBinOutput';
+  }
+
+  override getDataFilePath(file: string): string {
+    return getGenshinDataFilePath(file);
+  }
+
+  override normText(text: string, langCode: LangCode, decolor: boolean = false, plaintext: boolean = false): string {
+    return normGenshinText(text, langCode, decolor, plaintext);
   }
 
   postProcessCondProp(obj: any, prop: string) {
@@ -158,7 +162,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     }
   }
 
-  async postProcess<T>(object: T, triggerNormalize?: SchemaTable): Promise<T> {
+  override async postProcess<T>(object: T, triggerNormalize?: SchemaTable): Promise<T> {
     if (!object)
       return object;
     if (triggerNormalize) {
@@ -180,7 +184,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
           }
           objAsAny[prop] = newOriginalArray;
         } else {
-          let text = await this.getTextMapItem(this.outputLangCode, object[prop]);
+          let text = await this.getTextMapItem(this.outputLangCode, <TextMapHash> object[prop]);
           if (!!text) {
             object[textProp] = text;
           }
@@ -270,20 +274,6 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return object;
   }
 
-  readonly commonLoad = async (result: any[], triggerNormalize?: SchemaTable) => await Promise.all(
-    result.map(record => {
-      return !record || !record.json_data
-        ? this.postProcess(record, triggerNormalize)
-        : this.postProcess(JSON.parse(record.json_data), triggerNormalize);
-    })
-  );
-
-  readonly commonLoadFirst = async (record: any, triggerNormalize?: SchemaTable) => {
-    return !record || !record.json_data
-      ? this.postProcess(record, triggerNormalize)
-      : await this.postProcess(JSON.parse(record.json_data), triggerNormalize);
-  };
-
   async getNpc(npcId: number): Promise<NpcExcelConfigData> {
     if (!npcId) return null;
     return await this.getNpcList([ npcId ]).then(x => x && x.length ? x[0] : null);
@@ -330,50 +320,13 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
   async selectMainQuestsByNameOrId(name: string|number, limit: number = 25): Promise<MainQuestExcelConfigData[]> {
     if (typeof name === 'string') {
-      let textMapIds: number[] = (await this.getTextMapMatches(this.inputLangCode, name, '-i')).map(x => x.hash);
+      let textMapHashes: TextMapHash[] = (await this.getTextMapMatches(this.inputLangCode, name, '-i')).map(x => x.hash);
       return await this.knex.select('*').from('MainQuestExcelConfigData')
-        .whereIn('TitleTextMapHash', textMapIds)
+        .whereIn('TitleTextMapHash', textMapHashes)
         .limit(limit).then(this.commonLoad).then(x => this.postProcessMainQuests(x));
     } else {
       return [await this.selectMainQuestById(name)];
     }
-  }
-
-  async getTextMapItem(langCode: LangCode, hash: any): Promise<string> {
-    if (typeof hash === 'number') {
-      hash = String(hash);
-    }
-    if (typeof hash !== 'string') {
-      return undefined;
-    }
-    if (langCode === 'CH') {
-      langCode = 'CHS';
-    }
-    return await this.knex.select('Text').from('TextMap'+langCode)
-      .where({Hash: hash}).first().then(x => x.Text);
-  }
-  
-  async createLangCodeMap(hash: any, doNormText: boolean = true): Promise<LangCodeMap> {
-    let map = {};
-    let promises: Promise<void>[] = [];
-    for (let langCode of LANG_CODES) {
-      promises.push(this.getTextMapItem(langCode, hash).then(text => {
-        map[langCode] = text;
-        if (doNormText) {
-          map[langCode] = normText(map[langCode], langCode);
-        }
-      }))
-    }
-    await Promise.all(promises);
-    return map as LangCodeMap;
-  }
-
-  async getTextMapHashFromPlainLineMap(langCode: LangCode, lineNum: number): Promise<number> {
-    if (langCode === 'CH') {
-      langCode = 'CHS';
-    }
-    return await this.knex.select('Hash').from('PlainLineMap'+langCode)
-      .where({Line: lineNum}).first().then(x => x.Hash);
   }
 
   async getElementName(elementType: ElementType, langCode: LangCode = 'EN'): Promise<string> {
@@ -448,7 +401,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
   async selectTalkExcelConfigDataIdsByPrefix(idPrefix: number|string): Promise<number[]> {
     let allTalkExcelTalkConfigIds = this.state.ExcludeOrphanedDialogue ? []
-      : await grepIdStartsWith('Id', idPrefix, './ExcelBinOutput/TalkExcelConfigData.json');
+      : await grepIdStartsWith('Id', idPrefix, this.getDataFilePath('./ExcelBinOutput/TalkExcelConfigData.json'));
     return allTalkExcelTalkConfigIds.map(i => toNumber(i));
   }
 
@@ -463,8 +416,10 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   }
 
   async addOrphanedDialogueAndQuestMessages(mainQuest: MainQuestExcelConfigData) {
-    let allDialogueIds = this.state.ExcludeOrphanedDialogue ? [] : await grepIdStartsWith('id', mainQuest.Id, './ExcelBinOutput/DialogExcelConfigData.json');
-    let allQuestMessageIds = await grepIdStartsWith('TextMapId', 'QUEST_Message_Q' + mainQuest.Id, './ExcelBinOutput/ManualTextMapConfigData.json');
+    let allDialogueIds = this.state.ExcludeOrphanedDialogue ? []
+      : await grepIdStartsWith('id', mainQuest.Id, this.getDataFilePath('./ExcelBinOutput/DialogExcelConfigData.json'));
+    let allQuestMessageIds = await grepIdStartsWith('TextMapId', 'QUEST_Message_Q' + mainQuest.Id,
+      this.getDataFilePath('./ExcelBinOutput/ManualTextMapConfigData.json'));
     let consumedQuestMessageIds = [];
 
     const handleOrphanedDialog = async (quest: MainQuestExcelConfigData|QuestExcelConfigData, id: number) => {
@@ -571,9 +526,9 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return copy;
   }
 
-  async selectDialogsFromTextContentId(textMapId: number): Promise<DialogExcelConfigData[]> {
+  async selectDialogsFromTextContentId(textMapHash: TextMapHash): Promise<DialogExcelConfigData[]> {
     let results: DialogExcelConfigData[] = await this.knex.select('*').from('DialogExcelConfigData')
-      .where({TalkContentTextMapHash: textMapId})
+      .where({TalkContentTextMapHash: textMapHash})
       .then(this.commonLoad);
     for (let result of results) {
       result = this.postProcessDialog(result);
@@ -660,15 +615,15 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return currBranch;
   }
 
-  async selectNpcListByName(nameOrTextMapId: number|string|number[]): Promise<NpcExcelConfigData[]> {
-    if (typeof nameOrTextMapId === 'string') {
-      nameOrTextMapId = await this.findTextMapIdsByExactName(nameOrTextMapId);
+  async selectNpcListByName(nameOrTextMapHash: TextMapHash|TextMapHash[]): Promise<NpcExcelConfigData[]> {
+    if (typeof nameOrTextMapHash === 'string') {
+      nameOrTextMapHash = await this.findTextMapHashesByExactName(nameOrTextMapHash);
     }
-    if (typeof nameOrTextMapId === 'number') {
-      nameOrTextMapId = [ nameOrTextMapId ];
+    if (typeof nameOrTextMapHash === 'number') {
+      nameOrTextMapHash = [ nameOrTextMapHash ];
     }
     return await this.knex.select('*').from('NpcExcelConfigData')
-      .whereIn('NameTextMapHash', <number[]>nameOrTextMapId).then(this.commonLoad);
+      .whereIn('NameTextMapHash', nameOrTextMapHash).then(this.commonLoad);
   }
 
   doesDialogHaveNpc(dialog: DialogExcelConfigData, npcNames: string[]) {
@@ -744,7 +699,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       }
 
       let prefix: string = ':'.repeat(dialogDepth);
-      let text: string = normText(dialog.TalkContentText, this.outputLangCode);
+      let text: string = this.normText(dialog.TalkContentText, this.outputLangCode);
 
       // Traveler SEXPRO
       // ~~~~~~~~~~~~~~~
@@ -805,14 +760,14 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
             out += `\n${diconPrefix}${voPrefix}'''(Traveler):''' ${text}`;
           } else {
             if (dialog.TalkRoleNameText) {
-              let name = normText(dialog.TalkRoleNameText, this.outputLangCode);
+              let name = this.normText(dialog.TalkRoleNameText, this.outputLangCode);
               out += `\n${prefix}'''${name}:''' ${text}`;
             } else {
               out += `\n${diconPrefix}${':'.repeat(numSubsequentNonBranchPlayerDialogOption)}{{DIcon}} ${text}`;
             }
           }
         } else if (dialog.TalkRole.Type === 'TALK_ROLE_NPC' || dialog.TalkRole.Type === 'TALK_ROLE_GADGET') {
-          let name = normText(dialog.TalkRoleNameText, this.outputLangCode);
+          let name = this.normText(dialog.TalkRoleNameText, this.outputLangCode);
           out += `\n${prefix}${voPrefix}'''${name}:''' ${text}`;
         } else if (dialog.TalkRole.Type === 'TALK_ROLE_MATE_AVATAR') {
           out += `\n${prefix}${voPrefix}'''(Traveler's Sibling):''' ${text}`;
@@ -860,120 +815,6 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return out.trim();
   }
 
-  getPrefs(): GenshinControlState {
-    return this.state;
-  }
-
-  get inputLangCode(): LangCode {
-    return this.state.inputLangCode;
-  }
-
-  get outputLangCode(): LangCode {
-    return this.state.outputLangCode;
-  }
-
-  get searchMode(): SearchMode {
-    return this.state.searchMode;
-  }
-
-  get searchModeFlags(): string {
-    switch (this.searchMode) {
-      case 'W':
-        return '-w';
-      case 'WI':
-        return '-wi';
-      case 'C':
-        return '';
-      case 'CI':
-        return '-i';
-      case 'R':
-        return '-P';
-      case 'RI':
-        return '-Pi';
-      default:
-        return '-wi';
-    }
-  }
-
-  async getIdUsages(id: number): Promise<IdUsages> {
-    let out: IdUsages = {};
-
-    let decimalRegex = new RegExp(`(\\.${id}|${id}\\.)`)
-    let fieldRegex = new RegExp(`"([^"]+)":\\s*["\\[]?`);
-
-    let results = await grep(String(id), './ExcelBinOutput', '-wrn');
-    for (let result of results) {
-      if (decimalRegex.test(result)) {
-        continue;
-      }
-
-      let exec = /\/([^\/]+).json:(\d+)/.exec(result);
-      if (exec && exec.length >= 3) {
-        let fileName = exec[1];
-        let lineNum = parseInt(exec[2]);
-        if (!out[fileName]) {
-          out[fileName] = [];
-        }
-
-        let fieldExec = fieldRegex.exec(result);
-        let fieldName = fieldExec && fieldExec.length >= 2 && fieldExec[1];
-        let refObject: any = undefined;
-
-        if (fieldName && schema[fileName]) {
-          let table: SchemaTable = schema[fileName];
-          fieldName = normalizeRawJsonKey(fieldName, table);
-          for (let column of table.columns) {
-            if (column.name === fieldName && (column.isPrimary || column.isIndex)) {
-
-              refObject = await this.knex.select('*').from(table.name)
-                .where({[column.name]: id}).first().then(this.commonLoadFirst);
-            }
-          }
-        }
-
-        out[fileName].push({
-          lineNumber: lineNum,
-          field: fieldName,
-          refObject: refObject,
-        });
-      }
-    }
-
-    return out;
-  }
-
-  async getTextMapMatches(langCode: LangCode, searchText: string, flags?: string, startFromLine?: number): Promise<{hash: number, text: string, line: number}[]> {
-    if (isStringBlank(searchText)) {
-      return [];
-    }
-
-    const out: {hash: number, text: string, line: number}[] = [];
-
-    if (isInt(searchText.trim())) {
-      const hash = toInt(searchText.trim());
-      const text = await this.getTextMapItem(langCode, searchText);
-      if (text) {
-        out.push({ hash, text, line: await getLineNumberForLineText(String(hash), getPlainTextMapRelPath(langCode, 'Hash')) });
-      }
-    }
-
-    const textFile = getPlainTextMapRelPath(langCode, 'Text');
-    const matches = await grep(searchText, textFile, flags + ' -n', true, startFromLine);
-
-    for (let match of matches) {
-      if (!match)
-        continue;
-
-      let lineNum = toInt(match.split(':', 2)[0]);
-      if (isNaN(lineNum))
-        continue;
-
-      const textMapId: number = await this.getTextMapHashFromPlainLineMap(langCode, lineNum);
-      out.push({ hash: textMapId, text: await this.getTextMapItem(langCode, textMapId), line: lineNum });
-    }
-    return out;
-  }
-
   async getReadableMatches(langCode: LangCode, searchText: string, flags?: string): Promise<string[]> {
     if (isStringBlank(searchText)) {
       return [];
@@ -981,7 +822,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
     let out: string[] = [];
 
-    await grepStream(searchText, getReadableRelPath(langCode), line => {
+    await grepStream(searchText, this.getDataFilePath(getReadableRelPath(langCode)), line => {
       let exec = /\/([^\/]+)\.txt/.exec(line);
       if (exec) {
         out.push(exec[1]);
@@ -989,111 +830,6 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     }, '-r ' + flags);
 
     return out;
-  }
-
-  async streamTextMapMatchesWithIndex(langCode: LangCode,
-                                      searchText: string,
-                                      textIndexName: string,
-                                      stream: (id: number, textMapHash: number) => void,
-                                      flags?: string): Promise<number|Error> {
-    const textIndexFile = getTextIndexRelPath(textIndexName);
-    const promises: Promise<void>[] = [];
-    const batchMax = 100;
-
-    let batch = [];
-
-    const processBatch = () => {
-      if (!batch.length) {
-        return;
-      }
-      const regex = `"(` + batch.join('|') + `)":`;
-      batch = [];
-      promises.push((async () => {
-        const matches = await grep(regex, textIndexFile, '-E', false);
-        for (let match of matches) {
-          let parts = /"(\d+)":\s+(\d+),?$/.exec(match);
-          let textMapId = toInt(parts[1]);
-          let id = toInt(parts[2]);
-          stream(id, textMapId);
-        }
-      })());
-    };
-
-    const ret = await this.streamTextMapMatches(langCode, searchText, (textMapHash: number, _text: string) => {
-      batch.push(textMapHash);
-      if (batch.length >= batchMax) {
-        processBatch();
-      }
-    }, flags);
-
-    processBatch();
-
-    await Promise.all(promises);
-
-    return ret;
-  }
-
-  async streamTextMapMatches(langCode: LangCode,
-                             searchText: string,
-                             stream: (textMapHash: number, text?: string, kill?: () => void) => void,
-                             flags?: string): Promise<number|Error> {
-    if (isStringBlank(searchText)) {
-      return 0;
-    }
-
-    if (isInt(searchText.trim())) {
-      let didKill = false;
-      const hash = toInt(searchText.trim());
-      const text = await this.getTextMapItem(langCode, searchText);
-      if (text) {
-        stream(hash, text, () => didKill = true);
-      }
-      if (didKill) {
-        return 0;
-      }
-    }
-
-    const textFile = getPlainTextMapRelPath(langCode, 'Text');
-
-    return await grepStream(searchText, textFile, async (match: string, kill: () => void) => {
-      if (!match)
-        return;
-
-      const lineNum = toInt(match.split(':', 2)[0]);
-      if (isNaN(lineNum))
-        return;
-
-      const textMapId: number = await this.getTextMapHashFromPlainLineMap(langCode, lineNum);
-      const text: string = await this.getTextMapItem(langCode, textMapId);
-      stream(textMapId, text, kill);
-    }, flags + ' -n');
-  }
-
-  async findTextMapIdsByExactName(name: string): Promise<number[]> {
-    let results = [];
-
-    const cmp = (a: string, b: string) => {
-      return normText(a, this.inputLangCode, true, true)?.toLowerCase() ===
-        normText(b, this.inputLangCode, true, true)?.toLowerCase();
-    }
-
-    await this.streamTextMapMatches(this.inputLangCode, name, (id: number, value: string) => {
-      if (cmp(value, name)) {
-        results.push(id);
-      }
-    }, '-wi');
-
-    if (!results.length) {
-      let searchRegex = escapeRegExp(name).split(/\s+/g).join('.*?').split(/(')/g).join('.*?');
-
-      await this.streamTextMapMatches(this.inputLangCode, searchRegex, (id: number, value: string) => {
-        if (cmp(value, name)) {
-          results.push(id);
-        }
-      }, '-Pi');
-    }
-
-    return results;
   }
 
   equivDialog(d1: DialogExcelConfigData, d2: DialogExcelConfigData): boolean {
@@ -1158,7 +894,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       .where({Id: id}).first().then(this.commonLoadFirst);
   }
 
-  async selectReminderByContentTextMapId(id: number): Promise<ReminderExcelConfigData> {
+  async selectReminderByContentTextMapHash(id: TextMapHash): Promise<ReminderExcelConfigData> {
     return await this.knex.select('*').from('ReminderExcelConfigData')
       .where({ContentTextMapHash: id}).first().then(this.commonLoadFirst);
   }
@@ -1291,22 +1027,8 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       .first().then(this.commonLoadFirst).then(x => this.postProcessChapter(x));
   }
 
-  async readGenshinDataFile<T>(filePath: string): Promise<T> {
-    let fileContents: string = await fs.readFile(getGenshinDataFilePath(filePath), {encoding: 'utf8'});
-    let json = JSON.parse(fileContents);
-    let fileBaseName = '/' + basename(filePath);
-    let schemaTable = Object.values(schema).find(s => s.jsonFile.endsWith(fileBaseName));
-    json = normalizeRawJson(json, schemaTable);
-    if (Array.isArray(json)) {
-      json = await this.commonLoad(json);
-    } else {
-      json = await this.commonLoadFirst(json);
-    }
-    return json;
-  }
-
   async loadCutsceneSubtitlesByQuestId(questId: number): Promise<{[fileName: string]: string}> {
-    let fileNames: string[] = await fs.readdir(getGenshinDataFilePath('./Subtitle/'+this.outputLangCode));
+    let fileNames: string[] = await fs.readdir(this.getDataFilePath('./Subtitle/'+this.outputLangCode));
 
     let targetFileNames: string[] = [];
     for (let fileName of fileNames) {
@@ -1337,14 +1059,14 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
     for (let inputKey of Object.keys(inputs)) {
       let input = inputs[inputKey];
-      let filePath1: string = getGenshinDataFilePath('./Subtitle/'+this.outputLangCode+'/'+input[0]);
+      let filePath1: string = this.getDataFilePath('./Subtitle/'+this.outputLangCode+'/'+input[0]);
       let fileData1: string = await fs.readFile(filePath1, {encoding: 'utf8'});
 
       let srt1: SrtLine[] = parser.fromSrt(fileData1);
       let srt2: SrtLine[] = [];
 
       if (input.length > 1) {
-        let filePath2: string = getGenshinDataFilePath('./Subtitle/'+this.outputLangCode+'/'+input[1]);
+        let filePath2: string = this.getDataFilePath('./Subtitle/'+this.outputLangCode+'/'+input[1]);
         let fileData2: string = await fs.readFile(filePath2, {encoding: 'utf8'});
         srt2 = parser.fromSrt(fileData2);
       }
@@ -1376,7 +1098,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       let out = [];
       out.push(';(A cinematic plays)');
       for (let srtLine of srtLines) {
-        out.push(`::'''CS_CHAR:''' ` + normText(srtLine.text, this.outputLangCode));
+        out.push(`::'''CS_CHAR:''' ` + this.normText(srtLine.text, this.outputLangCode));
       }
       out.push(':;(Cinematic ends)');
       formattedResults[srtFile] = out.join('\n');
@@ -1674,7 +1396,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   }
 
   async selectCityNameById(cityId: number, forceLangCode?: LangCode): Promise<string> {
-    let textMapHash: number = await this.knex.select('CityNameTextMapHash')
+    let textMapHash: TextMapHash = await this.knex.select('CityNameTextMapHash')
       .from('CityConfigData').where({CityId: cityId}).first().then(x => x && x.CityNameTextMapHash);
     return textMapHash ? await this.getTextMapItem(forceLangCode || this.outputLangCode, textMapHash) : 'n/a';
   }
@@ -1889,7 +1611,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
           return;
         }
         for (let item of view.Items) {
-          item.Markers = Marker.create(normText(searchText, this.inputLangCode), item.ReadableText);
+          item.Markers = Marker.create(this.normText(searchText, this.inputLangCode), item.ReadableText);
         }
         return view;
       });
@@ -1921,8 +1643,8 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       && typeof localization[pathVar] === 'string' && localization[pathVar].includes('/Readable/')) {
       let filePath = './Readable/' + localization[pathVar].split('/Readable/')[1] + '.txt';
       try {
-        let fileText = await fs.readFile(getGenshinDataFilePath(filePath), { encoding: 'utf8' });
-        let fileNormText = normText(fileText, this.outputLangCode).replace(/<br \/>/g, '<br />\n');
+        let fileText = await fs.readFile(this.getDataFilePath(filePath), { encoding: 'utf8' });
+        let fileNormText = this.normText(fileText, this.outputLangCode).replace(/<br \/>/g, '<br />\n');
         ret = {Localization: localization, ReadableText: fileNormText};
       } catch (ignore) {}
     }
@@ -2009,7 +1731,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       Weapons: [],
     };
 
-    for (let document of await this.readGenshinDataFile<DocumentExcelConfigData[]>('./ExcelBinOutput/DocumentExcelConfigData.json')) {
+    for (let document of await this.readDataFile<DocumentExcelConfigData[]>('./ExcelBinOutput/DocumentExcelConfigData.json')) {
       let view = await this.selectReadableView(document.Id, loadReadables);
 
       if (view.BookSuit) {

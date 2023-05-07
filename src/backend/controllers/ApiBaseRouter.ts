@@ -4,6 +4,8 @@ import { apiErrorHandler } from '../middleware/response/globalErrorHandler';
 import apiAccessControlHeaders from '../middleware/api/apiAccessControlHeaders';
 import apiAuth from '../middleware/api/apiAuth';
 import GenshinResources from './genshin/api/_index';
+import StarRailResources from './hsr/api/_index';
+import ZenlessResources from './zenless/api/_index';
 
 export default async function(): Promise<Router> {
   const router: Router = create({ layouts: ['layouts/empty-layout'] });
@@ -16,7 +18,9 @@ export default async function(): Promise<Router> {
 
   // Add API Resources
   // ~~~~~~~~~~~~~~~~~
-  GenshinResources(router);
+  GenshinResources(router)
+  StarRailResources(router);
+  ZenlessResources(router);
 
   // Client Error Handlers
   // ~~~~~~~~~~~~~~~~~~~~~

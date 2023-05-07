@@ -12,6 +12,7 @@ import { toBoolean } from '../../../../shared/util/genericUtil';
 import { pathToFileURL } from 'url';
 import { sort } from '../../../../shared/util/arrayUtil';
 import { toLower } from '../../../../shared/util/stringUtil';
+import { getGenshinDataFilePath } from '../../../loadenv';
 
 export async function getHomeWorldCompanions(ctrl: GenshinControl): Promise<HomeWorldNPCExcelConfigData[]> {
   return cached('HomeWorldCompanions_'+ctrl.outputLangCode, async () => {
@@ -30,7 +31,7 @@ export async function getHomeWorldCompanions(ctrl: GenshinControl): Promise<Home
     }
 
     // Load grep result into map
-    const grepResult = await grep('QuestDialogue/HomeWorld/', './ExcelBinOutput/TalkExcelConfigData.json');
+    const grepResult = await grep('QuestDialogue/HomeWorld/', getGenshinDataFilePath('./ExcelBinOutput/TalkExcelConfigData.json'));
     let npcIdToTalkIds: {[npcId: number]: number[]} = {};
     for (let item of grepResult) {
       let substr = item.split('HomeWorld/')[1];

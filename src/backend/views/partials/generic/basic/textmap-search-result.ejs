@@ -20,10 +20,10 @@
         <span style="opacity:0.6">TextMapHash:&nbsp;</span><code style="margin-top:1px;margin-bottom:-1px"><%= item.hash %></code>
         <span class="grow"></span>
         <small class="fontWeight400 spacer10-right" style="opacity:0.5">Result #<%= (resultSetNum * SEARCH_TEXTMAP_MAX) +  (i+1) %></small>
-        <a role="button" class="secondary small fontWeight500 spacer5-right" href="/OL?q=<%= item.hash %>" target="_blank">
+        <a role="button" class="secondary small fontWeight500 spacer5-right" href="<%= siteHome %>/OL?q=<%= item.hash %>" target="_blank">
           <span class="spacer5-right">OL Result</span><%- icon('external-link') %>
         </a>
-        <a role="button" class="secondary small fontWeight500" href="/id-usages?q=<%= item.hash %>" target="_blank">
+        <a role="button" class="secondary small fontWeight500" href="<%= siteHome %>/id-usages?q=<%= item.hash %>" target="_blank">
           <span class="spacer5-right">Usages</span><%- icon('external-link') %>
         </a>
       </h2>

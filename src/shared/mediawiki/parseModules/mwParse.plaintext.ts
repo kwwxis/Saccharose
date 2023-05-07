@@ -49,7 +49,7 @@ export class MwParsePlaintextModule extends MwParseModule {
     return true;
   }
 
-  afterParse() {
+  override afterParse() {
     this.sb_push();
   }
 

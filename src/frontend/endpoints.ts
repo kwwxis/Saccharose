@@ -139,24 +139,23 @@ export class GenshinApiEndpoint<T extends Object, R = any> extends SaccharoseApi
   }
 }
 
-export class HsrApiEndpoint<T extends Object, R = any> extends SaccharoseApiEndpoint<T, R> {
+export class StarRailApiEndpoint<T extends Object, R = any> extends SaccharoseApiEndpoint<T, R> {
   constructor(uri: string) {
     super('/api/hsr', uri);
   }
 }
 
-export class ZzzApiEndpoint<T extends Object, R = any> extends SaccharoseApiEndpoint<T, R> {
+export class ZenlessApiEndpoint<T extends Object, R = any> extends SaccharoseApiEndpoint<T, R> {
   constructor(uri: string) {
     super('/api/zenless', uri);
   }
 }
 
-export const genshinEndpoints = {
-  errorHtmlWrap: (str: string) => {
-    return `<div class="card"><div class="content">${escapeHtml(str)}</div></div>`;
-  },
+export const errorHtmlWrap = (str: string) => {
+  return `<div class="card"><div class="content">${escapeHtml(str)}</div></div>`;
+};
 
-  ping: new GenshinApiEndpoint('/ping'),
+export const genshinEndpoints = {
   testGeneralErrorHandler: new GenshinApiEndpoint('/nonexistant_endpoint'),
 
   findMainQuest: new GenshinApiEndpoint<{name: string|number}>('/quests/findMainQuest'),
@@ -193,9 +192,35 @@ export const genshinEndpoints = {
   searchWeapons: new GenshinApiEndpoint<{text: string}>('/weapons/search'),
 };
 
-export const hsrEndpoints = {};
+export const starRailEndpoints = {
+  generateOL: new StarRailApiEndpoint<{
+    text: string,
+    hideTl: boolean,
+    hideRm: boolean,
+    addDefaultHidden: boolean,
+  }>('/OL/generate'),
+  searchTextMap: new StarRailApiEndpoint<{
+    text: string,
+    startFromLine: number,
+    resultSetNum: number,
+  }>('/search-textmap'),
+  getIdUsages: new StarRailApiEndpoint<{q: string}>('/id-usages'),
+};
 
-export const zenlessEndpoints = {};
+export const zenlessEndpoints = {
+  generateOL: new ZenlessApiEndpoint<{
+    text: string,
+    hideTl: boolean,
+    hideRm: boolean,
+    addDefaultHidden: boolean,
+  }>('/OL/generate'),
+  searchTextMap: new ZenlessApiEndpoint<{
+    text: string,
+    startFromLine: number,
+    resultSetNum: number,
+  }>('/search-textmap'),
+  getIdUsages: new ZenlessApiEndpoint<{q: string}>('/id-usages'),
+};
 
 (<any> window).genshinEndpoints = genshinEndpoints;
 (<any> window).hsrEndpoints = genshinEndpoints;
