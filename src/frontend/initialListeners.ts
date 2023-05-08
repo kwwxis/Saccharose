@@ -794,7 +794,7 @@ function recalculateDesktopStickyHeader() {
   let width = window.innerWidth;
   let hasClass = document.body.classList.contains('desktop-sticky-header');
 
-  if (scrollY > 60 && width > 880) {
+  if (scrollY > 60 && width > 950) {
     if (!hasClass) {
       document.body.classList.add('desktop-sticky-header');
     }

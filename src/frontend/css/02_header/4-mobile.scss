@@ -97,7 +97,7 @@ body.nightmode #mobile-menu-button {
   }
 }
 
-@media (max-width: 880px) {
+@media (max-width: 950px) {
   #mobile-menu-trigger {
     display: flex !important;
     margin-right: 15px;
@@ -124,6 +124,10 @@ body.nightmode #mobile-menu-button {
 
     & > .right .header-language-selector,
     & > .right .app-menu-buttons {
+      display: none !important;
+    }
+
+    .site-mode-selector {
       display: none !important;
     }
   }
@@ -199,6 +203,32 @@ body.nightmode #mobile-menu-button {
     .card h4 {
       font-size: 16px;
     }
+
+    .site-mode-selector {
+      margin: -10px 0 10px 0 !important;
+
+      .site-mode-dropdown-button {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+    #site-mode-dropdown-mobile {
+      width: 100%;
+      border-top: 0 !important;
+      padding: 0;
+      .option {
+        padding: 11px 11px;
+        border-bottom: 1px solid #d5d5d5;
+
+        body.nightmode & {
+          border-bottom-color: hsl(253deg 13% 4%);;
+        }
+
+        &:last-child {
+          border-bottom: 0;
+        }
+      }
+    }
   }
 
   body.nightmode #mobile-menu {
@@ -213,3 +243,4 @@ body.nightmode #mobile-menu-button {
     }
   }
 }
+

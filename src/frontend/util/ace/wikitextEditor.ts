@@ -298,7 +298,10 @@ export function highlightReplace(original: HTMLElement, mode: string, textOverri
   }
 
   for (let attributeName of original.getAttributeNames()) {
-    if (attributeName.toUpperCase() === 'CLASS' || attributeName.toUpperCase() === 'ID') {
+    if (attributeName.toUpperCase() === 'CLASS') {
+      continue;
+    }
+    if (attributeName.toUpperCase() === 'ID' && element.hasAttribute('ID')) {
       continue;
     }
     element.setAttribute(attributeName, original.getAttribute(attributeName))

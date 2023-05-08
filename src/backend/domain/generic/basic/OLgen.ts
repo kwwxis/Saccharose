@@ -33,9 +33,9 @@ async function ol_gen_internal(ctrl: AbstractControl, textMapHash: TextMapHash, 
   ];
   let sbOut = new SbOut();
   if (addDefaultHidden) {
-    sbOut.line('{{Other Languages');
-  } else {
     sbOut.line('{{Other Languages|default_hidden=1');
+  } else {
+    sbOut.line('{{Other Languages');
   }
   for (let item of templateConfig) {
     if (ctrl.disabledLangCodes.has(item.langCode)) {

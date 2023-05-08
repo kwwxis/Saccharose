@@ -206,13 +206,13 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
   out.clearOut();
 
   if (mainQuest.DescText) {
-    result.questDescriptions.push('{{Quest Description|'+mainQuest.DescText+'}}');
+    result.questDescriptions.push('{{Quest Description|'+ctrl.normText(mainQuest.DescText, ctrl.outputLangCode)+'}}');
   }
   for (let questSub of mainQuest.QuestExcelConfigDataList) {
     if (!questSub.StepDescText) {
       continue;
     }
-    let desc = '{{Quest Description|update|'+questSub.StepDescText+'}}';
+    let desc = '{{Quest Description|update|'+ctrl.normText(questSub.StepDescText, ctrl.outputLangCode)+'}}';
     if (!result.questDescriptions.includes(desc)) {
       result.questDescriptions.push(desc);
     }
