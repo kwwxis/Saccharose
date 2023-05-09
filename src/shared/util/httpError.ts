@@ -45,7 +45,7 @@ export const HTTP_STATUS_CODE_TO_NAME = {
 }
 
 export function isHttpErrorLike(o: any): boolean {
-  return !!o && typeof o === 'object' && (typeof o.status === 'number' || typeof o.code  === 'number') && o.type && o.message;
+  return !!o && typeof o === 'object' && (typeof o.status === 'number' || typeof o.code  === 'number') && (o.hasOwnProperty('type') || o.hasOwnProperty('message'));
 }
 
 export class HttpError extends Error {

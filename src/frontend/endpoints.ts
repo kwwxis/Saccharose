@@ -92,7 +92,7 @@ export abstract class SaccharoseApiEndpoint<T extends Object, R = any> {
     const data: any = err.response.data;
     const httpError: HttpError = HttpError.fromJson(data);
 
-    if (httpError && (httpError.status >= 500 || httpError.status <= 599)) {
+    if (httpError && (httpError.status >= 500 && httpError.status <= 599)) {
       showInternalErrorDialog(data);
       return;
     }
