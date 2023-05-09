@@ -279,7 +279,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
         if (typeof questMessage.TextMapContentText === 'string') {
           subsect.wikitextArray.push({
             wikitext: questMessage
-              .TextMapContentText.replace(/\\n/g, '\n').split('\n').map(line => `:'''${line}'''`).join('\n'),
+              .TextMapContentText.replace(/\\n/g, '\n').split('\n').map(line => `:{{Black Screen|${line}}}`).join('\n'),
           });
         }
       }

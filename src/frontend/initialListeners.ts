@@ -228,6 +228,10 @@ const initial_listeners: Listener[] = [
         (contentEditableEl: HTMLElement) => {
           contentEditableEl.classList.add('ol-result-textarea-processed');
 
+          if (!document.body.classList.contains('page--genshin')) {
+            return;
+          }
+
           const newParent: HTMLElement = createElement('div', {class: 'posRel'});
           contentEditableEl.insertAdjacentElement('afterend', newParent);
           newParent.append(contentEditableEl);
