@@ -13,13 +13,19 @@ import { HttpError } from '../../../../shared/util/httpError';
 
 pageMatch('pages/generic/basic/olgen', () => {
   let endpoint: SaccharoseApiEndpoint<any>;
+  let tlRmDisabled: boolean = false;
+  let neverDefaultHidden: boolean = false;
 
   if (document.body.classList.contains('page--genshin')) {
     endpoint = genshinEndpoints.generateOL;
   } else if (document.body.classList.contains('page--hsr')) {
     endpoint = starRailEndpoints.generateOL;
+    tlRmDisabled = true;
+    neverDefaultHidden = true;
   } else if (document.body.classList.contains('page--zenless')) {
     endpoint = zenlessEndpoints.generateOL;
+    tlRmDisabled = true;
+    neverDefaultHidden = true;
   }
 
   function loadResultFromURL() {
@@ -72,9 +78,9 @@ pageMatch('pages/generic/basic/olgen', () => {
 
     endpoint.get({
       text,
-      hideTl: tlOptionValue === 'exclude_tl',
-      addDefaultHidden: tlOptionValue === 'exclude_tl',
-      hideRm: rmOptionValue === 'exclude_rm',
+      hideTl: tlRmDisabled || tlOptionValue === 'exclude_tl',
+      addDefaultHidden: !neverDefaultHidden && tlOptionValue === 'exclude_tl',
+      hideRm: tlRmDisabled || rmOptionValue === 'exclude_rm',
     }, true).then(result => {
       document.querySelector('#ol-results-list').innerHTML = result;
     }).catch((err: HttpError) => {

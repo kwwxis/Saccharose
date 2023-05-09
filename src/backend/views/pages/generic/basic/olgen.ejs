@@ -12,7 +12,7 @@
       </div>
       <div class="ol-submit-pending hide loading small spacer5-left"></div>
     </div>
-    <div class="alignStart spacer15-top flexWrap">
+    <div class="alignStart spacer15-top flexWrap<% if (req.context.siteMode !== 'genshin') { %> hide<% } %>">
       <fieldset>
         <legend><code>_tl</code> options</legend>
         <div class="field spacer5-horiz" style="padding-right:30px">
