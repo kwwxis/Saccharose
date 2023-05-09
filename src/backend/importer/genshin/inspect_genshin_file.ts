@@ -40,7 +40,7 @@ const presets = {
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
     const ctrl = getGenshinControl();
-    //await inspectGenshinDataFile(ctrl, presets.CookRecipeExcelConfigData);
+    //await inspectDataFile(ctrl, presets.CookRecipeExcelConfigData);
     await inspectDataFile(ctrl, { file: excel('ForgeExcelConfigData') });
 
     await closeKnex();

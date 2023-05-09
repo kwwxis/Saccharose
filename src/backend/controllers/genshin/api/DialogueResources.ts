@@ -101,6 +101,7 @@ router.restful('/dialogue/single-branch-generate', {
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
       return res.render('partials/genshin/dialogue/single-branch-dialogue-generate-result', {
         sections: result,
+        query,
       });
     } else {
       return removeCyclicRefs(result, ApiCyclicValueReplacer);
@@ -141,11 +142,13 @@ router.restful('/dialogue/reminder-dialogue-generate', {
       subsequentAmount = toInt(req.query.subsequentAmount);
     }
 
-    let result: DialogueSectionResult[] = await reminderGenerate(ctrl, <string> req.query.text, subsequentAmount);
+    const query = (<string> req.query.text)?.trim();
+    let result: DialogueSectionResult[] = await reminderGenerate(ctrl, query, subsequentAmount);
 
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
       return res.render('partials/genshin/dialogue/single-branch-dialogue-generate-result', {
         sections: result,
+        query,
       });
     } else {
       return result;

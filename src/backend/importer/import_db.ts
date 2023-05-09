@@ -213,6 +213,9 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
         totalRows = json.length;
       } else {
         json = JSON.parse(fileContents);
+        if (!Array.isArray(json)) {
+          json = Object.values(json);
+        }
         totalRows = json.length;
       }
 
@@ -253,7 +256,8 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
       {name: 'game', alias: 'g', type: String, description: 'One of "genshin", "hsr", or "zenless"', typeLabel: '<game>'},
       {name: 'run-only', alias: 'o', type: String, multiple: true, description: 'Import only the specified tables (comma-separated).', typeLabel: '<tables>'},
       {name: 'run-includes', alias: 'i', type: String, multiple: true, description: 'Import only tables whose name contains any one of the specified texts (comma-separated, case-insensitive, not a regex).', typeLabel: '<texts>'},
-      {name: 'run-all-except', alias: 'e', type: String, multiple: true, description: 'Import all tables except the specified (comma-separated).', typeLabel: '<tables>'},
+      {name: 'run-excludes', alias: 'x', type: String, multiple: true, description: 'Import all tables except those whose name contains any one of the specified texts (comma-separated, case-insensitive, not a regex).', typeLabel: '<text>'},
+      {name: 'run-all-except', alias: 'e', type: String, multiple: true, description: 'Import all tables except the specified exact table names (comma-separated, case-insensitive).', typeLabel: '<tables>'},
       {name: 'run-all', alias: 'a', type: Boolean, description: 'Import all tables.'},
       {name: 'run-vacuum', alias: 'v', type: Boolean, description: 'Vacuum the database'},
       {name: 'list', alias: 'l', type: Boolean, description: 'List all table names.'},
@@ -263,10 +267,10 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     const options = commandLineArgs(optionDefinitions);
 
     if (Object.keys(options).filter(k => k.startsWith('run')).length > 1) {
-      console.error(chalk.red('\nThese options are mutually exclusive: --run-only, --run-includes, --run-all-except, --run-all, --run-vacuum'));
+      console.error(chalk.red('\nThese options are mutually exclusive: --run-only, --run-includes, --run-excludes, --run-all-except, --run-all, --run-vacuum'));
       options.help = true;
     } else if (!Object.keys(options).length) {
-      console.warn(chalk.yellow('\nMust specify one of: --run-only, --run-includes, --run-all-except, --run-all, or --run-vacuum'));
+      console.warn(chalk.yellow('\nMust specify one of: --run-only, --run-includes, --run-excludes, --run-all-except, --run-all, or --run-vacuum'));
       options.help = true;
     }
 
@@ -362,6 +366,16 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
       for (let text of input) {
         for (let table of Object.values(schemaSet)) {
           if (table.name.toLowerCase().includes(text.toLowerCase())) {
+            tablesToRun.push(table.name);
+          }
+        }
+      }
+    } else if (options['run-excludes']) {
+      let input = (options['run-excludes'] as string[]).map(s => s.split(/[,;]/g)).flat(Infinity) as string[];
+      tablesToRun = [];
+      for (let text of input) {
+        for (let table of Object.values(schemaSet)) {
+          if (!table.name.toLowerCase().includes(text.toLowerCase())) {
             tablesToRun.push(table.name);
           }
         }

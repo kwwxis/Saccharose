@@ -1,4 +1,4 @@
-import { plainLineMapSchema, textMapSchema } from '../import_db';
+import { plainLineMapSchema, SchemaTable, textMapSchema } from '../import_db';
 
 export const starRailSchema = {
 
@@ -29,4 +29,17 @@ export const starRailSchema = {
   PlainLineMapRU: plainLineMapSchema('RU'),
   PlainLineMapTH: plainLineMapSchema('TH'),
   PlainLineMapVI: plainLineMapSchema('VI'),
+
+  MainMission: <SchemaTable> {
+    name: 'MainMission',
+    jsonFile: './ExcelBinOutput/MainMission.json',
+    columns: [
+      {name: 'Type', type: 'string', isIndex: true},
+      {name: 'MainMissionId', type: 'integer', isPrimary: true},
+      {name: 'RewardId', type: 'integer', isIndex: true},
+      {name: 'DisplayRewardId', type: 'integer', isIndex: true},
+      {name: 'ChapterId', type: 'integer', isIndex: true},
+    ]
+  },
+
 }

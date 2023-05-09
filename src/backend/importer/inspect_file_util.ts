@@ -147,7 +147,7 @@ export async function inspectDataFile(ctrl: AbstractControl, opt: InspectOpt): P
   }
   console.log(chalk.underline.bold(`Interface:`));
   console.log(`export interface ${tableName} {`);
-  for (let field of Object.keys(fieldsToType)) {
+  for (let field of Object.keys(fieldsToType).sort()) {
     console.log(`  ${field}${fieldsToType[field].canBeNil ? '?' : ''}: ${fieldsToType[field].type},`);
   }
   console.log('}')

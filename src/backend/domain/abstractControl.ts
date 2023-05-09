@@ -171,6 +171,9 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
   async readDataFile<T>(filePath: string): Promise<T> {
     let fileContents: string = await fs.readFile(this.getDataFilePath(filePath), {encoding: 'utf8'});
     let json = JSON.parse(fileContents);
+    if (!Array.isArray(json)) {
+      json = Object.values(json);
+    }
     let fileBaseName = '/' + basename(filePath);
     let schemaTable = Object.values(this.schema).find(s => s.jsonFile.endsWith(fileBaseName));
     json = normalizeRawJson(json, schemaTable);

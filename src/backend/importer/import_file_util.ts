@@ -5,6 +5,51 @@ import {promises as fsp} from 'fs';
 import { LANG_CODES } from '../../shared/types/lang-types';
 import { TextNormalizer } from '../domain/generic/genericNormalizers';
 import { getTextMapRelPath } from '../loadenv';
+import { isInt } from '../../shared/util/numberUtil';
+
+const isOnePropObj = (o: any, key: string) => o && typeof o === 'object' && Object.keys(o).length === 1 && Object.keys(o)[0] === key;
+
+const isEmptyObj = (o: any) => o && typeof o === 'object' && Object.keys(o).length === 0;
+
+function normalizeRecord<T>(record: T): T {
+  if (!record || typeof record !== 'object') {
+    return record;
+  }
+  for (let key of Object.keys(record)) {
+    let value = record[key];
+
+    if (isOnePropObj(value, 'Hash')) {
+      delete record[key];
+      record[key + 'Hash'] = value['Hash'];
+
+    } else if (isOnePropObj(value, 'Value')) {
+      delete record[key];
+      record[key + 'Value'] = value['Value'];
+
+    } else if (Array.isArray(value) && value.length) {
+      value = value.filter(v => !isEmptyObj(v)).map(v => normalizeRecord(v));
+      record[key] = value;
+
+      if (value.length && value.every(v => isOnePropObj(v, 'Value'))) {
+        delete record[key];
+        if (key.endsWith('List')) {
+          key = key.slice(0, -4);
+        }
+        record[key + 'ValueList'] = value.map(v => v.Value);
+
+      } else if (value.length && value.every(v => isOnePropObj(v, 'Hash'))) {
+        delete record[key];
+        if (key.endsWith('List')) {
+          key = key.slice(0, -4);
+        }
+        record[key + 'HashList'] = value.map(v => v.Hash);
+      }
+    } else if (value && typeof value === 'object') {
+      record[key] = normalizeRecord(value)
+    }
+  }
+  return record;
+}
 
 export async function importNormalize(jsonDir: string, skip: string[]) {
   const jsonsInDir = (await fsp.readdir(jsonDir)).filter(file => path.extname(file) === '.json');
@@ -22,8 +67,37 @@ export async function importNormalize(jsonDir: string, skip: string[]) {
 
     let fileData = await fsp.readFile(filePath, 'utf8');
 
+    let json = JSON.parse(fileData);
+    if (Array.isArray(json)) {
+      json.forEach(row => normalizeRecord(row));
+    } else {
+      json = Object.values(json).map(row => normalizeRecord(row));
+    }
+
+    let newJson = [];
+    for (let row of json) {
+      if (!row || typeof row !== 'object') {
+        newJson.push(row);
+        continue;
+      }
+
+      let queue = [row];
+      while (queue.length) {
+        let curr = queue.shift();
+
+        if (curr && typeof curr === 'object' && Object.keys(curr).every(key => isInt(key))) {
+          queue.push(... Object.values(curr));
+        } else {
+          newJson.push(curr);
+        }
+      }
+    }
+    json = newJson;
+
+    let newFileData = JSON.stringify(json, null, 2);
+
     // Convert primitive arrays to be single-line.
-    let newFileData = fileData.replace(/\[(\s*(\d+|\d+\.\d+|"[^"]+"|true|false),?\s*)*]/g, fm => {
+    newFileData = newFileData.replace(/\[(\s*(\d+|\d+\.\d+|"[^"]+"|true|false),?\s*)*]/g, fm => {
       let s = fm.slice(1, -1).split(',').map(s => s.trim()).join(', ');
       return s ? '[ ' + s + ' ]' : '[]';
     });

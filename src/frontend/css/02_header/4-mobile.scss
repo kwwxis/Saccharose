@@ -115,6 +115,10 @@ body.nightmode #mobile-menu-button {
     padding-top: 52px;
   }
 
+  #app-sidebar__header {
+    display: none;
+  }
+
   #header {
     position: fixed;
     z-index: 9990;

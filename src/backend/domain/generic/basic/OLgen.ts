@@ -49,7 +49,7 @@ async function ol_gen_internal(ctrl: AbstractControl, textMapHash: TextMapHash, 
     }
     if (item.tl && (item.langCode === 'CHS' || item.langCode === 'CHT')) {
       if (item.langCode === 'CHT') {
-        sbOut.line('|' + ('zh_rm').padEnd(8, ' ') + `= {}`);
+        sbOut.line('|' + ('zh_tl').padEnd(8, ' ') + `= {}`);
       }
     } else if (item.tl && !hideTl) {
       sbOut.line('|' + (wikiCode + '_tl').padEnd(8, ' ') + `= {}`);

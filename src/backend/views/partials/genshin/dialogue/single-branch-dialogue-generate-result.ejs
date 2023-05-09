@@ -11,8 +11,12 @@
     <section class="card">
       <div class="content">
         <strong>Dialogue not found.</strong>
-        <p>If it's an auto-disappearing overworld line and you're pretty sure you typed it correctly,
-          then it might be a <code>ReminderExcelConfigData</code> rather than a <code>DialogExcelConfigData</code>, in which case this tool cannot help you.</p>
+        <p class="spacer5-bottom">Suggestions:</p>
+        <ul>
+          <li>Make sure you typed it correctly.</li>
+          <li>If it's an autoplaying overworld line, it may be in <a href="/reminders?q=<%= query %>" target="_blank">ReminderExcelConfigData</a></li>
+          <li>Try <a href="/textmap?q=<%= query %>" target="_blank">TextMap Search</a> as well.</li>
+        </ul>
       </div>
     </section>
   <% } %>
