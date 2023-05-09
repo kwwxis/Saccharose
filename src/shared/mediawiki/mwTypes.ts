@@ -289,6 +289,21 @@ export class MwTemplateNode extends MwParentNode {
     return this.params.find(param => param.key == key);
   }
 
+  getLongestParamKeyLen(ignoring: string[] = []) {
+    return Math.max(... this.params
+      .filter(p => typeof p.key === 'string' && !ignoring.includes(p.key))
+      .map(p => String(p.key).length)
+    );
+  }
+
+  readjustPropPad(ignoring: string[] = []) {
+    const propPad = this.getLongestParamKeyLen(ignoring) + 2;
+
+    for (let param of this.params.filter(p => typeof p.key === 'string')) {
+      param.key = String(param.key).padEnd(propPad, ' ');
+    }
+  }
+
   removeParam(key: string | number): MwParamNode {
     let param = this.getParam(key);
 

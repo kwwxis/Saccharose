@@ -259,6 +259,10 @@ const initial_listeners: Listener[] = [
               const parsed = mwParse(text);
               let templateNode: MwTemplateNode = parsed.findTemplateNodes()[0];
               templateNode.removeParams(regex);
+              if (contentEditableEl.hasAttribute('data-markers')) {
+                contentEditableEl.removeAttribute('data-markers');
+              }
+              templateNode.readjustPropPad(['default_hidden']);
               contentEditableEl = highlightWikitextReplace(contentEditableEl, parsed.toString().trim());
               (<HTMLButtonElement> event.target).setAttribute('disabled', '');
             };

@@ -37,22 +37,23 @@ async function ol_gen_internal(ctrl: AbstractControl, textMapHash: TextMapHash, 
   } else {
     sbOut.line('{{Other Languages');
   }
+  sbOut.setPropPad(hideTl && hideRm ? 5 : 8);
   for (let item of templateConfig) {
     if (ctrl.disabledLangCodes.has(item.langCode)) {
       continue;
     }
     const wikiCode = LANG_CODE_TO_WIKI_CODE[item.langCode].toLowerCase();
-    sbOut.line('|' + wikiCode.padEnd(8, ' ') + `= {${item.langCode}_official_name}`);
+    sbOut.prop(wikiCode, `{${item.langCode}_official_name}`);
 
     if (item.rm && !hideRm) {
-      sbOut.line('|' + (wikiCode + '_rm').padEnd(8, ' ') + `= {}`);
+      sbOut.prop(wikiCode + '_rm', `{}`);
     }
     if (item.tl && (item.langCode === 'CHS' || item.langCode === 'CHT')) {
       if (item.langCode === 'CHT' && !hideTl) {
-        sbOut.line('|' + ('zh_tl').padEnd(8, ' ') + `= {}`);
+        sbOut.prop('zh_tl', '{}');
       }
     } else if (item.tl && !hideTl) {
-      sbOut.line('|' + (wikiCode + '_tl').padEnd(8, ' ') + `= {}`);
+      sbOut.prop(wikiCode + '_tl', '{}');
     }
   }
   sbOut.line('}}')
