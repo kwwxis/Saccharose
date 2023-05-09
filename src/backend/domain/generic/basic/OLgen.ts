@@ -48,7 +48,7 @@ async function ol_gen_internal(ctrl: AbstractControl, textMapHash: TextMapHash, 
       sbOut.line('|' + (wikiCode + '_rm').padEnd(8, ' ') + `= {}`);
     }
     if (item.tl && (item.langCode === 'CHS' || item.langCode === 'CHT')) {
-      if (item.langCode === 'CHT') {
+      if (item.langCode === 'CHT' && !hideTl) {
         sbOut.line('|' + ('zh_tl').padEnd(8, ' ') + `= {}`);
       }
     } else if (item.tl && !hideTl) {
