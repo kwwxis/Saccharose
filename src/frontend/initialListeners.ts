@@ -20,6 +20,7 @@ import { languages } from './util/langCodes';
 import { DEFAULT_LANG, LangCode } from '../shared/types/lang-types';
 import { mwParse } from '../shared/mediawiki/mwParse';
 import { MwTemplateNode } from '../shared/mediawiki/mwTypes';
+import { pageMatch } from './pageMatch';
 
 type UiAction = {actionType: string, actionParams: string[]};
 
@@ -228,7 +229,7 @@ const initial_listeners: Listener[] = [
         (contentEditableEl: HTMLElement) => {
           contentEditableEl.classList.add('ol-result-textarea-processed');
 
-          if (!document.body.classList.contains('page--genshin')) {
+          if (!pageMatch.isGenshin) {
             return;
           }
 
@@ -300,9 +301,9 @@ const initial_listeners: Listener[] = [
       }
 
       const qs = <T extends HTMLElement = HTMLElement>(selector: string): T =>
-        (selector === 'this') ? (actionEl as T): document.querySelector<T>(selector);
+        (selector === 'this' || selector === 'self') ? (actionEl as T): document.querySelector<T>(selector);
       const qsAll = <T extends HTMLElement = HTMLElement>(selector: string): T[] =>
-        (selector === 'this') ? ([actionEl as T]): Array.from(document.querySelectorAll<T>(selector));
+        (selector === 'this' || selector === 'self') ? ([actionEl as T]): Array.from(document.querySelectorAll<T>(selector));
 
       if (actionEl) {
         const actions: UiAction[] = parseUiAction(actionEl);

@@ -5,7 +5,11 @@ import { copyToClipboard } from './domutil';
 let handlingJavascriptError = false;
 
 export function showJavascriptErrorDialog(message, source, lineno?: number, colno?: number, error?: any) {
-  console.error('Javascript Error:', error || message);
+  const msg = error || message;
+  console.error('Javascript Error:', msg);
+  if (typeof msg === 'string' && msg.includes('ResizeObserver')) {
+    return;
+  }
 
   if (handlingJavascriptError) {
     return;

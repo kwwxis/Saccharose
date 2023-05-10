@@ -34,7 +34,7 @@ export class ZenlessControl extends AbstractControl<ZenlessControlState> {
     return normZenlessText(text, langCode, decolor, plaintext);
   }
 
-  override async postProcess<T>(object: T, triggerNormalize?: SchemaTable): Promise<T> {
+  override async postProcess<T>(object: T, triggerNormalize?: SchemaTable, doNormText: boolean = false): Promise<T> {
     if (!object)
       return object;
     if (triggerNormalize) {

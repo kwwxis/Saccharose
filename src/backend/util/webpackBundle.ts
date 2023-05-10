@@ -2,7 +2,12 @@ import path from 'path';
 import fs from 'fs';
 import { PUBLIC_DIR } from '../loadenv';
 
-export type WebpackBundles = {appCssBundle: string, appJsBundle: string, vendorJsBundle: string};
+export type WebpackBundles = {
+  appCssBundle: string,
+  appJsBundle: string,
+  vendorCssBundle: string,
+  vendorJsBundle: string
+};
 
 let cache: WebpackBundles = null;
 
@@ -16,6 +21,7 @@ export function getWebpackBundleFileNames(): WebpackBundles {
   let result: WebpackBundles = {
     appCssBundle: '',
     appJsBundle: '',
+    vendorCssBundle: '',
     vendorJsBundle: '',
   };
 
@@ -28,6 +34,9 @@ export function getWebpackBundleFileNames(): WebpackBundles {
     }
     if (/^vendor(\..*)?.bundle\.js$/.test(file)) {
       result.vendorJsBundle = `/dist/${file}`;
+    }
+    if (/^vendor(\..*)?.bundle\.css$/.test(file)) {
+      result.vendorCssBundle = `/dist/${file}`;
     }
   }
   cache = result;

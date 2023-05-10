@@ -1,5 +1,5 @@
 import { GenshinControl } from '../genshinControl';
-import { replace_prefix, sentenceJoin } from '../../../../shared/util/stringUtil';
+import { replacePrefix, sentenceJoin } from '../../../../shared/util/stringUtil';
 import { MainQuestExcelConfigData } from '../../../../shared/types/genshin/quest-types';
 import {
   FetterCond,
@@ -82,7 +82,7 @@ export async function processFetterConds(ctrl: GenshinControl, fetter: FetterWit
 
     if (langCode === 'EN') {
       summaryObj.Waypoint = sentenceJoin(waypointArray);
-      summaryObj.Statue = replace_prefix(sentenceJoin(statueArray), 'Statue of the Seven ', '');
+      summaryObj.Statue = replacePrefix(sentenceJoin(statueArray), 'Statue of the Seven ', '');
     } else {
       summaryObj.Waypoint = waypointArray.join(', ');
       summaryObj.Statue = statueArray.join(', ');

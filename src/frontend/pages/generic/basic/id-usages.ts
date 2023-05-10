@@ -5,11 +5,11 @@ import { genshinEndpoints, starRailEndpoints, SaccharoseApiEndpoint, zenlessEndp
 pageMatch('pages/generic/basic/id-usages', () => {
   let endpoint: SaccharoseApiEndpoint<any>;
 
-  if (document.body.classList.contains('page--genshin')) {
+  if (pageMatch.isGenshin) {
     endpoint = genshinEndpoints.getIdUsages;
-  } else if (document.body.classList.contains('page--hsr')) {
+  } else if (pageMatch.isStarRail) {
     endpoint = starRailEndpoints.getIdUsages;
-  } else if (document.body.classList.contains('page--zenless')) {
+  } else if (pageMatch.isZenless) {
     endpoint = zenlessEndpoints.getIdUsages;
   }
 

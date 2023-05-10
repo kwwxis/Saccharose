@@ -16,13 +16,13 @@ pageMatch('pages/generic/basic/olgen', () => {
   let tlRmDisabled: boolean = false;
   let neverDefaultHidden: boolean = false;
 
-  if (document.body.classList.contains('page--genshin')) {
+  if (pageMatch.isGenshin) {
     endpoint = genshinEndpoints.generateOL;
-  } else if (document.body.classList.contains('page--hsr')) {
+  } else if (pageMatch.isStarRail) {
     endpoint = starRailEndpoints.generateOL;
     tlRmDisabled = true;
     neverDefaultHidden = true;
-  } else if (document.body.classList.contains('page--zenless')) {
+  } else if (pageMatch.isZenless) {
     endpoint = zenlessEndpoints.generateOL;
     tlRmDisabled = true;
     neverDefaultHidden = true;

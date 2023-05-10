@@ -162,7 +162,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     }
   }
 
-  override async postProcess<T>(object: T, triggerNormalize?: SchemaTable): Promise<T> {
+  override async postProcess<T>(object: T, triggerNormalize?: SchemaTable, doNormText: boolean = false): Promise<T> {
     if (!object)
       return object;
     if (triggerNormalize) {
@@ -177,6 +177,9 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
           object[textProp] = [];
           for (let id of <any[]> object[prop]) {
             let text = await this.getTextMapItem(this.outputLangCode, id);
+            if (doNormText) {
+              text = this.normText(text, this.outputLangCode);
+            }
             if (text) {
               object[textProp].push(text);
               newOriginalArray.push(id);
@@ -185,6 +188,9 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
           objAsAny[prop] = newOriginalArray;
         } else {
           let text = await this.getTextMapItem(this.outputLangCode, <TextMapHash> object[prop]);
+          if (doNormText) {
+            text = this.normText(text, this.outputLangCode);
+          }
           if (!!text) {
             object[textProp] = text;
           }
@@ -196,6 +202,9 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
         object[textProp] = [];
         for (let id of <any[]> object[prop]) {
           let text = await this.getTextMapItem(this.outputLangCode, id);
+          if (doNormText) {
+            text = this.normText(text, this.outputLangCode);
+          }
           if (text) {
             object[textProp].push(text);
             newOriginalArray.push(id);

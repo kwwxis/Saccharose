@@ -1,0 +1,28 @@
+<% if (locals.json) { %>
+  <script nonce="<%= req.context.nonce %>">window.excelData = [].concat(<%- JSON.stringify(json) %>);</script>
+
+  <section class="card" style="margin-bottom:0;">
+    <h2 class="valign" style="padding: 4px 10px;">
+      <span>Excel Viewer &ndash; <strong><%= fileName %></strong></span>
+      <span class="grow"></span>
+      <a role="button" class="secondary small" href="<%= siteHome %>/excel-viewer">Back to excel list</a>
+    </h2>
+    <div class="content">
+      <button data-grid-toggle="text-map-hash" class="secondary small">
+        <span class="inactive-only">Show&nbsp;</span>
+        <span class="active-only">Hide&nbsp;</span>
+        TextMapHash Fields
+      </button>
+    </div>
+  </section>
+
+  <div id="excelViewerGrid" style="height: 80vh; width: 100%" class="ag-theme-alpine"></div>
+
+<% } else { %>
+  <section class="card">
+    <h2>Excel Viewer</h2>
+    <div class="content">
+      <p>File not found: <%= fileName %></p>
+    </div>
+  </section>
+<% } %>

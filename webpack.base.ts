@@ -81,6 +81,7 @@ export default (env: 'development'|'production') => <webpack.Configuration> {
         include: [
           path.resolve(__dirname, './src/frontend'),
           path.resolve(__dirname, './node_modules/tippy.js'),
+          path.resolve(__dirname, './node_modules/ag-grid-community'),
         ],
         use: [
           MiniCssExtractPlugin.loader,

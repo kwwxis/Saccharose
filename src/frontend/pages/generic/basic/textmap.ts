@@ -9,11 +9,11 @@ pageMatch('pages/generic/basic/textmap', () => {
 
   let endpoint: SaccharoseApiEndpoint<any>;
 
-  if (document.body.classList.contains('page--genshin')) {
+  if (pageMatch.isGenshin) {
     endpoint = genshinEndpoints.searchTextMap;
-  } else if (document.body.classList.contains('page--hsr')) {
+  } else if (pageMatch.isStarRail) {
     endpoint = starRailEndpoints.searchTextMap;
-  } else if (document.body.classList.contains('page--zenless')) {
+  } else if (pageMatch.isZenless) {
     endpoint = zenlessEndpoints.searchTextMap;
   }
 

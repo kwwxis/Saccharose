@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="<%= cookieTernary('nightmode').isTruthy().then('nightmode') %>">
+<html lang="en" class="<%= cookieTernary('nightmode').isTruthy().then('nightmode') %>" data-site-mode="<%= req.context.siteMode %>">
   <head>
     <meta charset="utf-8" />
     <title><%= req.context.getFormattedPageTitle() %></title>
@@ -21,11 +21,12 @@
     <% if (env.NODE_ENV === 'development') { %>
       <script async src="<%= toBoolean(env.SSL_ENABLED) ? 'https' : 'http' %>://<%= env.VHOST %>:35729/livereload.js"></script>
     <% } %>
+    <link rel="stylesheet" href="<%= req.context.webpackBundles.vendorCssBundle %>">
     <link rel="stylesheet" href="<%= req.context.webpackBundles.appCssBundle %>">
     <script src="<%= req.context.webpackBundles.vendorJsBundle %>"></script>
     <script src="<%= req.context.webpackBundles.appJsBundle %>"></script>
   </head>
-  <body class="<%= req.context.bodyClassString %> <%= cookieTernary('nightmode').isTruthy().then('nightmode') %><% if (req.context.siteMode === 'genshin') { %> page--genshin <% } else if (req.context.siteMode === 'hsr') { %> page--hsr <% } else if (req.context.siteMode === 'zenless') { %> page--zenless <% } %>">
+  <body class="<%= req.context.bodyClassString %> <%= cookieTernary('nightmode').isTruthy().then('nightmode') %> <%= req.context.siteModeCssClass %>">
     <span id="top" style="height:0;width:0;opacity:0"></span>
     <header id="header" class="thin-border">
       <div class="left">

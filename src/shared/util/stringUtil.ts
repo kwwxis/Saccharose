@@ -64,8 +64,14 @@ export function sentenceJoin(s: string[], disableOxfordComma: boolean = false) {
   return s.slice(0, -1).join(', ') + (disableOxfordComma ? '' : ',') + ' and ' + s[s.length - 1];
 }
 
+const titleCase_allUppercaseWords: Set<string> = new Set<string>(['ID']);
 export function titleCase(s: string) {
-  return !s ? s : s.replace(/(^|\b(?!(and?|at?|the|for|to|but|by|of)\b))\w+/g, word => word[0].toUpperCase() + word.slice(1));
+  return !s ? s : s.replace(/(^|\b(?!(and?|at?|the|for|to|but|by|of)\b))\w+/g, word => {
+    if (titleCase_allUppercaseWords.has(word.toUpperCase())) {
+      return word.toUpperCase();
+    }
+    return word[0].toUpperCase() + word.slice(1);
+  });
 }
 
 const entityMap = {
@@ -225,7 +231,7 @@ export function uuidv4(): string {
  * @param {string} replacement
  * @returns {string}
  */
-export function replace_prefix(str: string, prefix: string, replacement: string = ''): string {
+export function replacePrefix(str: string, prefix: string, replacement: string = ''): string {
   if (str.slice(0, prefix.length) == prefix) {
     str = replacement + str.slice(prefix.length);
   }
@@ -239,8 +245,8 @@ export function replace_prefix(str: string, prefix: string, replacement: string 
  * @param {string} prefix
  * @returns {string}
  */
-export function remove_prefix(str: string, prefix: string): string {
-  return replace_prefix(str, prefix);
+export function removePrefix(str: string, prefix: string): string {
+  return replacePrefix(str, prefix);
 }
 
 /**
@@ -252,7 +258,7 @@ export function remove_prefix(str: string, prefix: string): string {
  * @param {string} replacement
  * @returns {string}
  */
-export function replace_suffix(str: string, suffix: string, replacement: string = ''): string {
+export function replaceSuffix(str: string, suffix: string, replacement: string = ''): string {
   if (str.slice(-suffix.length) == suffix) {
     str = str.slice(0, -suffix.length) + replacement;
   }
@@ -266,8 +272,8 @@ export function replace_suffix(str: string, suffix: string, replacement: string 
  * @param {string} suffix
  * @returns {string}
  */
-export function remove_suffix(str: string, suffix: string): string {
-  return replace_suffix(str, suffix);
+export function removeSuffix(str: string, suffix: string): string {
+  return replaceSuffix(str, suffix);
 }
 
 /**

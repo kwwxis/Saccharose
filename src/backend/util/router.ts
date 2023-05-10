@@ -17,12 +17,13 @@ import {
 import { cachedSync } from './cache';
 import crypto from 'crypto';
 import {
+  camelCaseToTitleCase,
   escapeHtml,
   escapeHtmlAllowEntities,
-  ltrim,
-  remove_suffix,
+  ltrim, removePrefix,
+  removeSuffix, replacePrefix, replaceSuffix,
   sentenceJoin,
-  snakeToTitleCase,
+  snakeToTitleCase, snakeToUpperCamelCase, splitCamelcase, titleCase, toLower, toUpper, ucFirst,
 } from '../../shared/util/stringUtil';
 import { getWebpackBundleFileNames, WebpackBundles } from './webpackBundle';
 import { EJS_DELIMITER, getNodeEnv, SITE_TITLE, VIEWS_ROOT } from '../loadenv';
@@ -107,6 +108,19 @@ class RequestContext {
         return 'Genshin Impact';
     }
   }
+
+  get siteModeCssClass() {
+    switch (this.siteMode) {
+      case 'hsr':
+        return 'page--hsr';
+      case 'zenless':
+        return 'page--zenless';
+      case 'genshin':
+      default:
+        return 'page--genshin';
+    }
+  }
+
 
   templateLink(template: string): string {
     let wikiDomain: string;
@@ -274,7 +288,7 @@ export type Router = express.Router & {
 //#endregion
 
 export function resolveViewPath(view: string): string {
-  view = remove_suffix(view, '.ejs');
+  view = removeSuffix(view, '.ejs');
   view = ltrim(view, '/\\');
   return path.resolve(VIEWS_ROOT, view + '.ejs');
 }
@@ -294,8 +308,20 @@ export const DEFAULT_GLOBAL_LOCALS = {
   toInt: toInt,
   Marker: Marker,
   toParam: toParam,
+
+  ucFirst,
+  toLower,
+  toUpper,
+  removePrefix,
+  removeSuffix,
+  replacePrefix,
+  replaceSuffix,
   sentenceJoin,
+  titleCase,
+  camelCaseToTitleCase,
   snakeToTitleCase,
+  snakeToUpperCamelCase,
+  splitCamelcase,
 };
 
 function createIncludeFunction(req: Request, viewStackPointer: RequestViewStack): IncludeFunction {

@@ -4,7 +4,7 @@ import { AbstractControl, AbstractControlState } from '../abstractControl';
 import { Request } from '../../util/router';
 import { getStarRailDataFilePath } from '../../loadenv';
 import { normalizeRawJson, SchemaTable } from '../../importer/import_db';
-import { LangCode } from '../../../shared/types/lang-types';
+import { LangCode, TextMapHash } from '../../../shared/types/lang-types';
 import { normStarRailText } from './starRailText';
 
 /**
@@ -34,11 +34,40 @@ export class StarRailControl extends AbstractControl<StarRailControlState> {
     return normStarRailText(text, langCode, decolor, plaintext);
   }
 
-  override async postProcess<T>(object: T, triggerNormalize?: SchemaTable): Promise<T> {
+  override async postProcess<T>(object: T, triggerNormalize?: SchemaTable, doNormText: boolean = false): Promise<T> {
     if (!object)
       return object;
     if (triggerNormalize) {
       object = normalizeRawJson(object, triggerNormalize);
+    }
+    const objAsAny = object as any;
+    for (let prop in object) {
+      if (prop.endsWith('Hash') || prop.endsWith('HashList')) {
+        let textProp = prop.endsWith('List') ? prop.slice(0, -8) + 'List' : prop.slice(0, -4);
+        if (Array.isArray(object[prop])) {
+          let newOriginalArray = [];
+          object[textProp] = [];
+          for (let id of <any[]>object[prop]) {
+            let text = await this.getTextMapItem(this.outputLangCode, id);
+            if (doNormText) {
+              text = this.normText(text, this.outputLangCode);
+            }
+            if (text) {
+              object[textProp].push(text);
+              newOriginalArray.push(id);
+            }
+          }
+          objAsAny[prop] = newOriginalArray;
+        } else {
+          let text = await this.getTextMapItem(this.outputLangCode, <TextMapHash>object[prop]);
+          if (doNormText) {
+            text = this.normText(text, this.outputLangCode);
+          }
+          if (!!text) {
+            object[textProp] = text;
+          }
+        }
+      }
     }
     return object;
   }

@@ -9,10 +9,30 @@ let loadedViews: Set<string> = (() => {
 
 console.log('[Init] Loaded views:', loadedViews);
 
-export function pageMatch(pageName: string, callback: Function) {
-  let didPageMatch: boolean = loadedViews.has(pageName);
-  if (didPageMatch) {
-    console.log(`[Init] Page Match - ${pageName}`);
-    runWhenDOMContentLoaded(() => callback());
-  }
+export interface PageMatch {
+  (pageName: string, callback: Function): void;
+  get isGenshin(): boolean,
+  get isStarRail(): boolean,
+  get isZenless(): boolean,
 }
+
+export const pageMatch: PageMatch = Object.assign(
+  (pageName: string, callback: Function) => {
+    let didPageMatch: boolean = loadedViews.has(pageName);
+    if (didPageMatch) {
+      console.log(`[Init] Page Match - ${pageName}`);
+      runWhenDOMContentLoaded(() => callback());
+    }
+  },
+  {
+    get isGenshin() {
+      return document.documentElement.getAttribute('data-site-mode') === 'genshin';
+    },
+    get isStarRail() {
+      return document.documentElement.getAttribute('data-site-mode') === 'hsr';
+    },
+    get isZenless() {
+      return document.documentElement.getAttribute('data-site-mode') === 'zenless';
+    }
+  }
+)

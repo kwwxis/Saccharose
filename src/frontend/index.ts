@@ -11,6 +11,7 @@ import './pages/generic/basic/olgen';
 import './pages/generic/basic/textmap';
 import './pages/generic/basic/id-usages';
 import './pages/generic/basic/asi-test';
+import './pages/generic/basic/excel-viewer';
 
 import './pages/genshin/dialogue/branch_dialogue';
 import './pages/genshin/dialogue/npc_dialogue';

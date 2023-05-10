@@ -36,3 +36,17 @@ body.nightmode .tippy-box {
   background-color: hsl(255deg 12% 20%);
   border: 1px solid hsl(255deg 13% 42%);
 }
+
+.page--wide {
+  #app-wrapper {
+    max-width: initial;
+  }
+
+  aside#app-sidebar {
+    flex-basis: 20%;
+  }
+
+  main#app-main {
+    flex-basis: 80%;
+  }
+}

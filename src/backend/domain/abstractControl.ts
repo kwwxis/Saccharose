@@ -10,9 +10,9 @@ import {
   SchemaTable,
   SchemaTableSet,
 } from '../importer/import_db';
-import { promises as fs } from 'fs';
+import { promises as fsp, promises as fs } from 'fs';
 import { getPlainTextMapRelPath, getTextIndexRelPath } from '../loadenv';
-import { basename } from 'path';
+import path, { basename } from 'path';
 import { escapeRegExp, isStringBlank } from '../../shared/util/stringUtil';
 import { isInt, maybeInt, toInt } from '../../shared/util/numberUtil';
 import { getLineNumberForLineText, grep, grepStream } from '../util/shellutil';
@@ -102,20 +102,20 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     }
   }
 
-  abstract postProcess<T>(object: T, triggerNormalize?: SchemaTable): Promise<T>;
+  abstract postProcess<T>(object: T, triggerNormalize?: SchemaTable, doNormText?: boolean): Promise<T>;
 
-  readonly commonLoad = async (result: any[], triggerNormalize?: SchemaTable) => await Promise.all(
+  readonly commonLoad = async (result: any[], triggerNormalize?: SchemaTable, doNormText: boolean = false) => await Promise.all(
     result.map(record => {
       return !record || !record.json_data
-        ? this.postProcess(record, triggerNormalize)
-        : this.postProcess(JSON.parse(record.json_data), triggerNormalize);
+        ? this.postProcess(record, triggerNormalize, doNormText)
+        : this.postProcess(JSON.parse(record.json_data), triggerNormalize, doNormText);
     })
   );
 
-  readonly commonLoadFirst = async (record: any, triggerNormalize?: SchemaTable) => {
+  readonly commonLoadFirst = async (record: any, triggerNormalize?: SchemaTable, doNormText: boolean = false) => {
     return !record || !record.json_data
-      ? this.postProcess(record, triggerNormalize)
-      : await this.postProcess(JSON.parse(record.json_data), triggerNormalize);
+      ? this.postProcess(record, triggerNormalize, doNormText)
+      : await this.postProcess(JSON.parse(record.json_data), triggerNormalize, doNormText);
   };
 
   abstract getDataFilePath(file: string): string;
@@ -168,7 +168,11 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       .where({Line: lineNum}).first().then(x => x?.Hash);
   }
 
-  async readDataFile<T>(filePath: string): Promise<T> {
+  getExcelPath(): string {
+    return this.excelPath;
+  }
+
+  async readDataFile<T>(filePath: string, doNormText: boolean = false): Promise<T> {
     let fileContents: string = await fs.readFile(this.getDataFilePath(filePath), {encoding: 'utf8'});
     let json = JSON.parse(fileContents);
     if (!Array.isArray(json)) {
@@ -178,9 +182,9 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     let schemaTable = Object.values(this.schema).find(s => s.jsonFile.endsWith(fileBaseName));
     json = normalizeRawJson(json, schemaTable);
     if (Array.isArray(json)) {
-      json = await this.commonLoad(json);
+      json = await this.commonLoad(json, null, doNormText);
     } else {
-      json = await this.commonLoadFirst(json);
+      json = await this.commonLoadFirst(json, null, doNormText);
     }
     return json;
   }
@@ -321,6 +325,12 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     }
 
     return results;
+  }
+
+  async getExcelFileNames(): Promise<string[]> {
+    return (await fsp.readdir(this.getDataFilePath(this.excelPath)))
+      .filter(file => path.extname(file) === '.json')
+      .map(file => file.slice(0, -5));
   }
 
   async getIdUsages(id: number|string): Promise<IdUsages> {
