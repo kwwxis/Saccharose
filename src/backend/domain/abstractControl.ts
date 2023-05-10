@@ -189,6 +189,10 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     return json;
   }
 
+  async getDataFileSize(filePath: string): Promise<number> {
+    return fs.stat(this.getDataFilePath(filePath)).then(ret => ret.size);
+  }
+
   async getTextMapMatches(langCode: LangCode, searchText: string, flags?: string, startFromLine?: number): Promise<{hash: TextMapHash, text: string, line: number}[]> {
     if (isStringBlank(searchText)) {
       return [];

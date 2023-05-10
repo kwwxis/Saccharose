@@ -22,7 +22,12 @@
   <section class="card">
     <h2>Excel Viewer</h2>
     <div class="content">
-      <p>File not found: <%= fileName %></p>
+      <% if (locals.fileSize) { %>
+        <p>File not supported for excel viewer (file too big): <%= fileName %></p>
+        <p>Max size is 9 MB</p>
+      <% } else { %>
+        <p>File not found: <%= fileName %></p>
+      <% } %>
     </div>
   </section>
 <% } %>

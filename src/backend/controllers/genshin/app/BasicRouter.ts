@@ -53,15 +53,24 @@ export default async function(): Promise<Router> {
     const ctrl = getGenshinControl(req);
     const excels = await ctrl.getExcelFileNames();
     const fileName = removeSuffix(String(req.params.file), '.json');
-    const json = excels.includes(fileName) ? await ctrl.readDataFile(ctrl.getExcelPath() + '/' + fileName + '.json', true) : null;
+    const filePath = ctrl.getExcelPath() + '/' + fileName + '.json';
+
+    let fileSize: number = null;
+    let json: any[] = null;
+
+    if (excels.includes(fileName)) {
+      fileSize = await ctrl.getDataFileSize(filePath);
+      json = fileSize < 9_000_000 ? await ctrl.readDataFile(filePath, true) : null;
+    }
 
     res.render('pages/generic/basic/excel-viewer-table', {
       title: 'Excel Viewer',
       bodyClass: ['page--excel-viewer', 'page--wide'],
       fileName,
+      fileSize,
       excels,
       json
-    })
+    });
   });
 
   return router;
