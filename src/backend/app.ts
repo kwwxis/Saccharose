@@ -111,7 +111,7 @@ export async function appInit(): Promise<Express> {
   // 404 handler must come after all other routers are loaded
   console.log(`[Init] Registering 404 handler`);
   app.get('*', function(_req: Request, res: Response) {
-    res.status(404).render('errorPages/404');
+    res.status(404).render('errors/404');
   });
 
   // Application loading complete

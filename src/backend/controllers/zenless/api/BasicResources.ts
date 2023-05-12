@@ -3,7 +3,7 @@ import {
   handleIdUsagesEndpoint,
   handleOlEndpoint,
   handleTextMapSearchEndpoint,
-} from '../../generic/basicResourcesUtil';
+} from '../../generic/api/basicResourceResources';
 import { getZenlessControl } from '../../../domain/zenless/zenlessControl';
 
 const router: Router = create();

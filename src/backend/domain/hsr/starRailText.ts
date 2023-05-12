@@ -45,6 +45,7 @@ export const normStarRailText: TextNormalizer = (text: string, langCode: LangCod
   }
 
   text = genericNormText(text, langCode, decolor, plaintext, plaintextMcMode, trailblazerPlaceholder);
+  text = text.replace(/<\/?unbreak>/g, '');
 
   if (!decolor && !plaintext) {
     text = text.replace(/<color=#\{0}>(.*?)<\/color>/g, `'''$1'''`);

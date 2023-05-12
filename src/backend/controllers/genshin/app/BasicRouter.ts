@@ -1,7 +1,7 @@
 import { create, Request, Response, Router } from '../../../util/router';
 import { getGenshinControl } from '../../../domain/genshin/genshinControl';
-import { exec } from 'child_process';
-import { removeSuffix } from '../../../../shared/util/stringUtil';
+
+import { sendExcelViewerTableResponse } from '../../generic/app/abstractBasicRouter';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -50,27 +50,7 @@ export default async function(): Promise<Router> {
   });
 
   router.get('/excel-viewer/:file', async (req: Request, res: Response) => {
-    const ctrl = getGenshinControl(req);
-    const excels = await ctrl.getExcelFileNames();
-    const fileName = removeSuffix(String(req.params.file), '.json');
-    const filePath = ctrl.getExcelPath() + '/' + fileName + '.json';
-
-    let fileSize: number = null;
-    let json: any[] = null;
-
-    if (excels.includes(fileName)) {
-      fileSize = await ctrl.getDataFileSize(filePath);
-      json = fileSize < 9_000_000 ? await ctrl.readDataFile(filePath, true) : null;
-    }
-
-    res.render('pages/generic/basic/excel-viewer-table', {
-      title: 'Excel Viewer',
-      bodyClass: ['page--excel-viewer', 'page--wide'],
-      fileName,
-      fileSize,
-      excels,
-      json
-    });
+    await sendExcelViewerTableResponse(getGenshinControl(req), req, res);
   });
 
   return router;

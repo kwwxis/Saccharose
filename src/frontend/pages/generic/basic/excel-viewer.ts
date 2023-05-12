@@ -9,6 +9,12 @@ import { camelCaseToTitleCase } from '../../../../shared/util/stringUtil';
 import { ColGroupDef } from 'ag-grid-community/dist/lib/entities/colDef';
 import { sort } from '../../../../shared/util/arrayUtil';
 import { startListeners } from '../../../util/eventLoader';
+import { getTextWidth } from '../../../util/domutil';
+import { ICellRendererParams } from 'ag-grid-community/dist/lib/rendering/cellRenderers/iCellRenderer';
+import { highlightJson, highlightWikitext } from '../../../util/ace/wikitextEditor';
+import { isUnset } from '../../../../shared/util/genericUtil';
+import { DOMClassWatcher } from '../../../util/domClassWatcher';
+import * as ace from 'brace';
 
 const booleanFilter: INumberFilterParams = {
   filterOptions: [
@@ -34,6 +40,17 @@ pageMatch('pages/generic/basic/excel-viewer-table', () => {
   if (!gridEl) {
     return;
   }
+
+
+  new DOMClassWatcher('body', 'nightmode',
+    () => {
+      gridEl.classList.remove('ag-theme-alpine');
+      gridEl.classList.add('ag-theme-alpine-dark');
+    },
+    () => {
+      gridEl.classList.remove('ag-theme-alpine-dark');
+      gridEl.classList.add('ag-theme-alpine');
+    });
 
   let excelData: any[] = (<any> window).excelData;
 
@@ -102,9 +119,16 @@ pageMatch('pages/generic/basic/excel-viewer-table', () => {
               filterParams: typeof row[key][subKey] === 'boolean' ? booleanFilter : undefined,
               width: typeof row[key][subKey] === 'string' ? 200 : 100,
               hide: subKey.includes('TextMapHash') || subKey.endsWith('Hash'),
+              cellClass: 'cell-type-' + (typeof row[key][subKey])
             }))
           };
         } else {
+          let initialWidth = typeof row[key] === 'string' ? 200 : 100;
+          let headerWidth = getTextWidth(camelCaseToTitleCase(key), `bold 13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif`);
+          headerWidth += (18 * 2) + 16; // 18px left and right padding + filter icon width
+          initialWidth = Math.max(initialWidth, headerWidth);
+          console.log('headerWidth', key, headerWidth);
+
           colDefForKey[key] = <ColDef> {
             headerName: camelCaseToTitleCase(key),
             headerTooltip: camelCaseToTitleCase(key),
@@ -112,9 +136,27 @@ pageMatch('pages/generic/basic/excel-viewer-table', () => {
             filter: typeof row[key] === 'number' || typeof row[key] === 'boolean' ? 'agNumberColumnFilter' : 'agTextColumnFilter',
             filterParams: typeof row[key] === 'boolean' ? booleanFilter : undefined,
             spanHeaderHeight: true,
-            width: typeof row[key] === 'string' ? 200 : 100,
+            width: initialWidth,
             hide: key.includes('TextMapHash') || key.endsWith('Hash'),
+            cellClass: 'cell-type-' + (isUnset(row[key]) ? 'null' : typeof row[key])
           };
+          if (typeof row[key] === 'string') {
+            if ((key.endsWith('Text') || key.endsWith('Name') || key.endsWith('Title') || key.endsWith('Desc'))) {
+              (<ColDef> colDefForKey[key]).cellRenderer = function(params: ICellRendererParams) {
+                if (!params.value) {
+                  return '';
+                }
+                return highlightWikitext(params.value).outerHTML;
+              };
+            } else if (row[key].startsWith('{') || row[key].startsWith('[')) {
+              (<ColDef> colDefForKey[key]).cellRenderer = function(params: ICellRendererParams) {
+                if (!params.value) {
+                  return '';
+                }
+                return highlightJson(params.value).outerHTML;
+              };
+            }
+          }
         }
 
         columnDefs.push(colDefForKey[key]);

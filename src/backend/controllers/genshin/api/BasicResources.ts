@@ -7,7 +7,7 @@ import {
   handleIdUsagesEndpoint,
   handleOlEndpoint,
   handleTextMapSearchEndpoint,
-} from '../../generic/basicResourcesUtil';
+} from '../../generic/api/basicResourceResources';
 
 const router: Router = create();
 

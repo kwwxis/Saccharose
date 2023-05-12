@@ -43,7 +43,7 @@ export class StarRailControl extends AbstractControl<StarRailControlState> {
     const objAsAny = object as any;
     for (let prop in object) {
       if (prop.endsWith('Hash') || prop.endsWith('HashList')) {
-        let textProp = prop.endsWith('List') ? prop.slice(0, -8) + 'List' : prop.slice(0, -4);
+        let textProp: string = prop.endsWith('HashList') ? prop.slice(0, -8) + 'List' : prop.slice(0, -4);
         if (Array.isArray(object[prop])) {
           let newOriginalArray = [];
           object[textProp] = [];
@@ -59,7 +59,7 @@ export class StarRailControl extends AbstractControl<StarRailControlState> {
           }
           objAsAny[prop] = newOriginalArray;
         } else {
-          let text = await this.getTextMapItem(this.outputLangCode, <TextMapHash>object[prop]);
+          let text = await this.getTextMapItem(this.outputLangCode, <TextMapHash> object[prop]);
           if (doNormText) {
             text = this.normText(text, this.outputLangCode);
           }

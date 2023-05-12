@@ -4,7 +4,7 @@ import { HttpError } from '../../../shared/util/httpError';
 
 export async function pageLoadErrorHandler(err: any, req: Request, res: Response, next: NextFunction) {
   if (err && typeof err === 'object' && (err.code === 'EBADCSRFTOKEN' || err.type === 'EBADCSRFTOKEN')) {
-    res.status(400).sendFile(`${VIEWS_ROOT}/errorPages/csrfTokenDenied.html`);
+    res.status(400).sendFile(`${VIEWS_ROOT}/errors/csrfTokenDenied.html`);
     return;
   }
 
@@ -16,7 +16,7 @@ export async function pageLoadErrorHandler(err: any, req: Request, res: Response
 
   do {
     try {
-      await res.status(500).render('errorPages/500', null, null, true);
+      await res.status(500).render('errors/500', null, null, true);
       return;
     } catch (e) {
       req.context.popViewStack();
@@ -24,9 +24,9 @@ export async function pageLoadErrorHandler(err: any, req: Request, res: Response
     }
   } while (req.context.canPopViewStack());
 
-  // Depending on what causes the error, attempting to render 'errorPages/500.ejs' might cause an error too.
+  // Depending on what causes the error, attempting to render 'errors/500.ejs' might cause an error too.
   // In that case then just send an HTML file as the safe option.
-  res.status(500).sendFile(`${VIEWS_ROOT}/errorPages/500.html`);
+  res.status(500).sendFile(`${VIEWS_ROOT}/errors/500.html`);
 }
 
 export async function apiErrorHandler(err: any, req: Request, res: Response, next: NextFunction) {

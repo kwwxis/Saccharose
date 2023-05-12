@@ -11,6 +11,22 @@ const isOnePropObj = (o: any, key: string) => o && typeof o === 'object' && Obje
 
 const isEmptyObj = (o: any) => o && typeof o === 'object' && Object.keys(o).length === 0;
 
+// Some text map keys are strings instead of numbers, which are then converted to numbers for the final TextMap
+// Use this function to get the numeric text map hash from the string key.
+function getStableHash(str: string): number {
+  let hash1 = 5381n;
+  let hash2 = 5381n;
+
+  for (let i = 0; i < str.length && typeof str[i] !== 'undefined'; i += 2) {
+    hash1 = ((hash1 << 5n) + hash1) ^ BigInt(str.charCodeAt(i));
+    if (i + 1 < str.length) {
+      hash2 = ((hash2 << 5n) + hash2) ^ BigInt(str.charCodeAt(i + 1));
+    }
+  }
+
+  return Number(BigInt.asIntN(32, (hash1 + (hash2 * 1566083941n)) | 0n));
+}
+
 function normalizeRecord<T>(record: T): T {
   if (!record || typeof record !== 'object') {
     return record;
@@ -20,11 +36,11 @@ function normalizeRecord<T>(record: T): T {
 
     if (isOnePropObj(value, 'Hash')) {
       delete record[key];
-      record[key + 'Hash'] = value['Hash'];
+      record[key = key + 'Hash'] = value['Hash'];
 
     } else if (isOnePropObj(value, 'Value')) {
       delete record[key];
-      record[key + 'Value'] = value['Value'];
+      record[key = key + 'Value'] = value['Value'];
 
     } else if (Array.isArray(value) && value.length) {
       value = value.filter(v => !isEmptyObj(v)).map(v => normalizeRecord(v));
@@ -35,17 +51,33 @@ function normalizeRecord<T>(record: T): T {
         if (key.endsWith('List')) {
           key = key.slice(0, -4);
         }
-        record[key + 'ValueList'] = value.map(v => v.Value);
+        record[key = key + 'ValueList'] = value.map(v => v.Value);
 
       } else if (value.length && value.every(v => isOnePropObj(v, 'Hash'))) {
         delete record[key];
         if (key.endsWith('List')) {
           key = key.slice(0, -4);
         }
-        record[key + 'HashList'] = value.map(v => v.Hash);
+        record[key = key + 'HashList'] = value.map(v => v.Hash);
       }
     } else if (value && typeof value === 'object') {
       record[key] = normalizeRecord(value)
+    }
+
+    if ((key.endsWith('Hash') || key.includes('Name') || key.includes('Title') || key.includes('Desc')) && typeof record[key] === 'string') {
+      record[key] = getStableHash(record[key]);
+    }
+
+    if (!key.endsWith('Hash') && (key.includes('Name') || key.includes('Title') || key.includes('Desc')) && typeof record[key] === 'number') {
+      let prevKey = key;
+      record[key = key + 'Hash'] = record[prevKey];
+      delete record[prevKey];
+    }
+
+    if (key.endsWith('Hash') && !key.endsWith('TextHash') && typeof record[key] === 'number') {
+      let prevKey = key;
+      record[key = key.slice(0, -4) + 'TextHash'] = record[prevKey];
+      delete record[prevKey];
     }
   }
   return record;

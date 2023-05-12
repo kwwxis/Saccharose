@@ -3,7 +3,7 @@ import {
   handleIdUsagesEndpoint,
   handleOlEndpoint,
   handleTextMapSearchEndpoint,
-} from '../../generic/basicResourcesUtil';
+} from '../../generic/api/basicResourceResources';
 import { getStarRailControl } from '../../../domain/hsr/starRailControl';
 
 const router: Router = create();

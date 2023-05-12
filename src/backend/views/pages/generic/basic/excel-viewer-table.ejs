@@ -16,7 +16,7 @@
     </div>
   </section>
 
-  <div id="excelViewerGrid" style="height: 80vh; width: 100%" class="ag-theme-alpine"></div>
+  <div id="excelViewerGrid" style="height: 80vh; width: 100%" class="ag-theme-alpine<%= cookieTernary('nightmode').isTruthy().then('-dark') %>"></div>
 
 <% } else { %>
   <section class="card">

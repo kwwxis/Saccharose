@@ -1,6 +1,6 @@
 import '../../../loadenv';
 import { getGenshinControl } from '../../genshin/genshinControl';
-import { isInt, maybeInt } from '../../../../shared/util/numberUtil';
+import { maybeInt } from '../../../../shared/util/numberUtil';
 import { mwParse } from '../../../../shared/mediawiki/mwParse';
 import { MwTemplateNode } from '../../../../shared/mediawiki/mwTypes';
 import { pathToFileURL } from 'url';
