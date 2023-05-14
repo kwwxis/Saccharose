@@ -18,6 +18,10 @@ export const PUBLIC_DIR = path.resolve(__dirname, '../../public');
 export const SITE_TITLE = 'Saccharose.wiki';
 export const EJS_DELIMITER = '%';
 
+export const IMAGEDIR_GENSHIN = path.resolve(PUBLIC_DIR, './images/genshin');
+export const IMAGEDIR_HSR = path.resolve(PUBLIC_DIR, './images/hsr');
+export const IMAGEDIR_ZENLESS = path.resolve(PUBLIC_DIR, './images/zenless');
+
 export const DATAFILE_GENSHIN_SQLITE_DB = './genshin_data.db';
 export const DATAFILE_HSR_SQLITE_DB = './hsr_data.db';
 export const DATAFILE_ZENLESS_SQLITE_DB = './zenless_data.db';

@@ -24,6 +24,11 @@
       z-index: 60;
     }
 
+    h2 > * {
+      position: relative;
+      z-index: 2;
+    }
+
     h2:after {
       background: url('/images/Namecard_Banner_Sucrose_Bio-Alchemy.png') top right / contain no-repeat;
       content: '';
@@ -34,6 +39,7 @@
       bottom: 0;
       left: 0;
       pointer-events: none;
+      z-index: 0;
     }
 
     .divider {

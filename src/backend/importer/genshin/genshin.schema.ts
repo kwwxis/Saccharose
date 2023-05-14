@@ -841,6 +841,7 @@ export const genshinSchema = {
     ],
     normalizeFixFields: {
       GLCONCDPNCI: 'ImagePath',
+      GMNEJKJKIBP: 'ImagePath',
       DEPNICHKLNH: 'SpinePaths',
     },
   },
@@ -933,6 +934,9 @@ export const genshinSchema = {
       { name: 'NameTextMapHash', type: 'integer', isIndex: true },
       { name: 'DescTextMapHash', type: 'integer', isIndex: true },
     ],
+    normalizeFixFields: {
+      ODACBHLGCIN: 'InternalName',
+    }
   },
   GCGChooseExcelConfigData: <SchemaTable>{
     name: 'GCGChooseExcelConfigData',

@@ -143,10 +143,8 @@ export async function passthru(command: string,
 
 /**
  * Escape a string to be used as the argument to a command.
- *
- * @param s The unescaped command argument.
  */
-export function shellEscapeArg(s: string): string {
+export function shellEscapeArg(s: string, prefix: string = '', suffix: string = ''): string {
   s = s.replace(/\x00+/g, '');
   s = s.replace(/\b/g, '');
 
@@ -158,7 +156,7 @@ export function shellEscapeArg(s: string): string {
   s = s.replace(/\t/g, '\\\\t');
   s = s.replace(/\v/g, '\\\\v');
 
-  return `'` + s + `'`;
+  return `'` + prefix + s + suffix + `'`;
 }
 
 export class ShellFlags {
@@ -398,6 +396,30 @@ export function getTextAtLine(lineNum: number, absoluteFilePath: string): string
       shell: process.env.SHELL_EXEC,
     }).toString();
     return stdout.trim();
+  } catch (err) {
+    console.error('\x1b[4m\x1b[1mshell error:\x1b[0m\n', err);
+    throw 'Search error occurred.';
+  }
+}
+
+export function findFiles(fileSearch: string, absoluteFilePath: string): string[] {
+  try {
+    absoluteFilePath = absoluteFilePath.replace(/\\/g, '/');
+    const cmd = `find ${shellEscapeArg(absoluteFilePath)} -iname ${shellEscapeArg(fileSearch, '*', '*')} -print`;
+    // noinspection JSUnusedLocalSymbols
+    const stdout: string = execSync(cmd, {
+      env: { PATH: process.env.SHELL_PATH },
+      shell: process.env.SHELL_EXEC,
+    }).toString();
+    return stdout.trim().split('\n').map(f => {
+      if (f.startsWith(absoluteFilePath)) {
+        f = f.slice(absoluteFilePath.length);
+      }
+      if (f.startsWith('/')) {
+        f = f.slice(1);
+      }
+      return f;
+    });
   } catch (err) {
     console.error('\x1b[4m\x1b[1mshell error:\x1b[0m\n', err);
     throw 'Search error occurred.';

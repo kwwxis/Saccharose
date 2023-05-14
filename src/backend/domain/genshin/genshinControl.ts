@@ -86,7 +86,12 @@ import {
   ReliquaryExcelConfigData,
   ReliquarySetExcelConfigData,
 } from '../../../shared/types/genshin/artifact-types';
-import { WeaponExcelConfigData, WeaponLoadConf } from '../../../shared/types/genshin/weapon-types';
+import {
+  WeaponExcelConfigData,
+  WeaponLoadConf,
+  WeaponType,
+  WeaponTypeEN,
+} from '../../../shared/types/genshin/weapon-types';
 import { AvatarExcelConfigData } from '../../../shared/types/genshin/avatar-types';
 import { MonsterExcelConfigData } from '../../../shared/types/genshin/monster-types';
 import { isEmpty, isset } from '../../../shared/util/genericUtil';
@@ -100,6 +105,12 @@ import { IdUsages } from '../../util/searchUtil';
 import { AbstractControl, AbstractControlState } from '../abstractControl';
 import debug from 'debug';
 import { LangCode, TextMapHash } from '../../../shared/types/lang-types';
+import {
+  GCGTagCampType,
+  GCGTagElementType,
+  GCGTagNationType,
+  GCGTagWeaponType,
+} from '../../../shared/types/genshin/gcg-types';
 
 /**
  * State/cache for only a single control
@@ -338,8 +349,24 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     }
   }
 
-  async getElementName(elementType: ElementType, langCode: LangCode = 'EN'): Promise<string> {
+  async getFactionName(factionType: GCGTagNationType|GCGTagCampType, langCode: LangCode = 'EN'): Promise<string> {
+    let hash = ManualTextMapHashes[factionType];
+    if (!hash) {
+      hash = ManualTextMapHashes['None'];
+    }
+    return await this.getTextMapItem(langCode, hash);
+  }
+
+  async getElementName(elementType: ElementType|GCGTagElementType, langCode: LangCode = 'EN'): Promise<string> {
     let hash = ManualTextMapHashes[elementType];
+    if (!hash) {
+      hash = ManualTextMapHashes['None'];
+    }
+    return await this.getTextMapItem(langCode, hash);
+  }
+
+  async getWeaponType(weaponType: WeaponType|WeaponTypeEN|GCGTagWeaponType, langCode: LangCode = 'EN'): Promise<string> {
+    let hash = ManualTextMapHashes[weaponType];
     if (!hash) {
       hash = ManualTextMapHashes['None'];
     }

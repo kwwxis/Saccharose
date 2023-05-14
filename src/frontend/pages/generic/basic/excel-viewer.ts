@@ -14,7 +14,6 @@ import { ICellRendererParams } from 'ag-grid-community/dist/lib/rendering/cellRe
 import { highlightJson, highlightWikitext } from '../../../util/ace/wikitextEditor';
 import { isUnset } from '../../../../shared/util/genericUtil';
 import { DOMClassWatcher } from '../../../util/domClassWatcher';
-import * as ace from 'brace';
 
 const booleanFilter: INumberFilterParams = {
   filterOptions: [
@@ -31,7 +30,7 @@ const booleanFilter: INumberFilterParams = {
       numberOfInputs: 0,
     }
   ] as IFilterOptionDef[],
-  suppressAndOrCondition: true,
+  maxNumConditions: 1,
 };
 
 pageMatch('pages/generic/basic/excel-viewer-table', () => {
@@ -141,7 +140,7 @@ pageMatch('pages/generic/basic/excel-viewer-table', () => {
             cellClass: 'cell-type-' + (isUnset(row[key]) ? 'null' : typeof row[key])
           };
           if (typeof row[key] === 'string') {
-            if ((key.endsWith('Text') || key.endsWith('Name') || key.endsWith('Title') || key.endsWith('Desc'))) {
+            if (key.includes('Text') || key.includes('Name') || key.includes('Title') || key.includes('Desc') || key.includes('Story')) {
               (<ColDef> colDefForKey[key]).cellRenderer = function(params: ICellRendererParams) {
                 if (!params.value) {
                   return '';

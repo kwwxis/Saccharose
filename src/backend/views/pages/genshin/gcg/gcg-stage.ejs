@@ -266,10 +266,10 @@
       <% } %>
     </div>
     <div role="tabpanel" aria-labelledby="tab-wikitext" class="tabpanel <%= tab === 'wikitext' ? 'active' : 'hide' %>" id="tabpanel-wikitext">
-      Not implemented yet.
+      <%- use('partials/util/wikitext', { text: wikitext }) %>
     </div>
     <div role="tabpanel" aria-labelledby="tab-json" class="tabpanel <%= tab === 'json' ? 'active' : 'hide' %> content" id="tabpanel-json">
-      <textarea class="code json w100p autosize" spellcheck="false" translate="no"><%= JSON.stringify(stageForJson, null, 2) %></textarea>
+      <%- use('partials/util/json', { text: stageForJson }) %>
     </div>
   </section>
 <% } else { %>

@@ -17,11 +17,16 @@ import {
 import { PushTipsCodexType, PushTipsCodexTypeList, TutorialsByType } from '../../../../shared/types/genshin/tutorial-types';
 import { ViewpointsByRegion } from '../../../../shared/types/genshin/viewpoint-types';
 import { selectAchievementGoals, selectAchievements } from '../../../domain/genshin/archive/achievements';
-import { AchievementsByGoals } from '../../../../shared/types/genshin/achievement-types';
+import {
+  AchievementExcelConfigData,
+  AchievementGoalExcelConfigData,
+  AchievementsByGoals,
+} from '../../../../shared/types/genshin/achievement-types';
 import { paramCmp } from '../../../util/viewUtilities';
 import { generateLoadingTipsWikiText, selectLoadingTips } from '../../../domain/genshin/archive/loadingTips';
 import { LoadingTipsByCategory } from '../../../../shared/types/genshin/loading-types';
-import { toInt } from '../../../../shared/util/numberUtil';
+import { isInt, toInt } from '../../../../shared/util/numberUtil';
+import { SbOut } from '../../../../shared/util/stringUtil';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -169,9 +174,78 @@ export default async function(): Promise<Router> {
       title: goalName ? `Achievements - ${goalName}` : 'Achievements',
       bodyClass: ['page--achievements'],
       goals,
-      achievements,
+      achievements
     });
   });
+
+  router.get('/achievements/:category/:id', async (req: Request, res: Response) => {
+    const ctrl = getGenshinControl(req);
+    const goals = await selectAchievementGoals(ctrl);
+    let goal: AchievementGoalExcelConfigData;
+    let achievements: AchievementExcelConfigData[];
+
+    if (req.params.category) {
+      goal = goals.find(goal =>
+        paramCmp(goal.NameTextEN, req.params.category) ||
+        paramCmp(goal.NameText, req.params.category) ||
+        paramCmp(goal.Id, req.params.category)
+      );
+      if (goal) {
+        achievements = Object.values(await selectAchievements(ctrl, goal.Id))[0].Achievements;
+      }
+    }
+    let achievement: AchievementExcelConfigData = achievements.find(a => a.Id === toInt(req.params.id));
+
+    const sb = new SbOut();
+    if (achievement) {
+      let achievementsWithSameName = achievements
+        .filter(a => a.TitleText === achievement.TitleText); // should include self
+
+      sb.line('{{Achievement Infobox');
+      sb.setPropPad(13);
+      sb.prop('title', achievement.TitleText);
+      sb.prop('id', achievement.Id);
+      sb.prop('order id', achievement.OrderId);
+      sb.prop('category', goal.NameText);
+      sb.prop('description', achievement.DescText);
+      sb.prop('requirements');
+      sb.prop('primogems', achievement.FinishReward.RewardSummary.PrimogemCount);
+      sb.prop('tracking');
+      sb.prop('topic');
+      if (goal.Id === 0) {
+        sb.prop('type');
+      }
+      sb.prop('quest');
+      sb.prop('hidden');
+      if (achievementsWithSameName.length > 1) {
+        sb.prop('set', achievement.TitleText);
+        sb.prop('tier', achievementsWithSameName.findIndex(a => a.Id === achievement.Id) + 1);
+        sb.prop('tiers_total', achievementsWithSameName.length);
+      }
+      sb.line('}}');
+      sb.line(`'''${achievement.TitleText}''' is an [[Achievement]] in the category ''[[${goal.NameText}]]''. To complete this achievement, the player must <!-- achieve steps -->.`);
+      sb.line();
+      sb.line('==Other Languages==');
+      sb.line((await ol_gen_from_id(ctrl, achievement.TitleTextMapHash)).result);
+      sb.line();
+      sb.line('==Change History==');
+      sb.line('{{Change History|<!-- version -->}}');
+      sb.line();
+      sb.line('==Navigation==');
+      sb.line('{{Achievement Navbox}}');
+      sb.line();
+    }
+
+    res.render('pages/genshin/archive/achievement-page', {
+      title: 'Achievement: ' + (achievement?.TitleText || 'Not Found'),
+      bodyClass: ['page--achievements'],
+      goal,
+      achievement,
+      wikitext: sb.toString(),
+      id: req.params.id,
+    });
+  });
+
 
   // Readables
   // ~~~~~~~~~

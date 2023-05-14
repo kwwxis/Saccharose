@@ -27,6 +27,7 @@ const presets = {
   AchievementGoalExcelConfigData: <InspectOpt> { file: excel('AchievementGoalExcelConfigData') },
   GCGGameRewardExcelConfigData: <InspectOpt> { file: excel('GCGGameRewardExcelConfigData'), inspectFieldValues: ['GroupId'] },
   GCGChallengeExcelConfigData: <InspectOpt> { file: excel('GCGChallengeExcelConfigData'), inspectFieldValues: ['Type', 'ParamList[#ALL]'] },
+  GCGTagExcelConfigData: <InspectOpt> { file: excel('GCGTagExcelConfigData'), inspectFieldValues: ['Type', 'CategoryType'] },
   WorldAreaConfigData: <InspectOpt> { file: excel('WorldAreaConfigData'), inspectFieldValues: ['ElementType', 'TerrainType', 'AreaType'] },
   NewActivityExcelConfigData: <InspectOpt> { file: excel('NewActivityExcelConfigData') },
   LoadingSituationExcelConfigData: <InspectOpt> { file: excel('LoadingSituationExcelConfigData'), inspectFieldValues: ['LoadingSituationType', 'AreaTerrainType', 'PicPath'] },
@@ -41,7 +42,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
     const ctrl = getGenshinControl();
     //await inspectDataFile(ctrl, presets.CookRecipeExcelConfigData);
-    await inspectDataFile(ctrl, { file: excel('ForgeExcelConfigData') });
+    await inspectDataFile(ctrl, presets.GCGTagExcelConfigData);
 
     await closeKnex();
   })();

@@ -1,2 +1,3 @@
 <textarea readonly class="w100p wikitext autosize<%= locals.seamless ? ' seamless-input' : '' %>" spellcheck="false"
+          data-gutters="<%= locals.gutters ? 'true' : 'false' %>"
           translate="no"><%= locals.wikitext || locals.text || locals.content || '' %></textarea>

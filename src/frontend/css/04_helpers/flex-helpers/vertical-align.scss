@@ -14,3 +14,7 @@
   display: flex !important;
   align-items: stretch !important;
 }
+
+.flexColumn {
+  flex-direction: column;
+}

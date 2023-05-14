@@ -50,3 +50,10 @@ body.nightmode .tippy-box {
     flex-basis: 80%;
   }
 }
+@media (max-width: 950px) {
+  .page--wide {
+    main#app-main {
+      flex-basis: 100%;
+    }
+  }
+}

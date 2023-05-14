@@ -1,0 +1,28 @@
+<% if (locals.achievement) { %>
+  <section class="card">
+    <h2 class="valign">
+      <img class="framed-icon x42" src="/images/genshin/<%= goal?.IconPath %>.png" loading="lazy" decoding="async" />
+      <span class="spacer15-left"><%= achievement.TitleText %></span>
+      <span class="grow"></span>
+      <span class="alignEnd flexColumn">
+        <a href="/achievements" role="button" class="secondary small dispBlock spacer5-bottom">Back to all categories</a>
+        <a href="/achievements/<%= req.params.category %>" role="button" class="secondary small dispBlock">Back to <%= goal.NameText %></a>
+      </span>
+    </h2>
+    <div class="content">
+      <%- use('partials/util/wikitext', { wikitext: wikitext }) %>
+    </div>
+  </section>
+<% } else { %>
+  <section class="card">
+    <h2>Achievement not found</h2>
+    <div class="content">
+      <div class="flexColumn alignStart">
+        <a href="/achievements" role="button" class="secondary dispBlock spacer5-bottom">Back to all categories</a>
+        <% if (locals.goal) { %>
+          <a href="/achievements/<%= req.params.category %>" role="button" class="secondary dispBlock">Back to <%= goal.NameText %></a>
+        <% } %>
+      </div>
+    </div>
+  </section>
+<% } %>

@@ -12,6 +12,7 @@ import { defaultMap } from '../../../../shared/util/genericUtil';
 import { isInt, toInt } from '../../../../shared/util/numberUtil';
 import { sort } from '../../../../shared/util/arrayUtil';
 import { queryTab } from '../../../middleware/util/queryTab';
+import { generateCardPage, generateSkillPage, generateStagePage } from '../../../domain/genshin/gcg/gcg_wikitext';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -33,6 +34,9 @@ export default async function(): Promise<Router> {
       bodyClass: ['page--tcg-tutorial-text']
     });
   });
+
+  // Stages
+  // --------------------------------------------------------------------------------------------------------------
 
   router.get('/TCG/stages', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
@@ -60,38 +64,18 @@ export default async function(): Promise<Router> {
     const stageId = isInt(req.params.stageId) ? toInt(req.params.stageId) : null;
     const stage = await gcg.selectStage(stageId);
 
-    const stageForJson: GCGGameExcelConfigData = Object.assign({}, stage);
-    if (stageForJson.EnemyCardGroup) {
-      stageForJson.EnemyCardGroup = Object.assign({}, stageForJson.EnemyCardGroup);
-      delete stageForJson.EnemyCardGroup.MappedCardList;
-      delete stageForJson.EnemyCardGroup.MappedCharacterList;
-      delete stageForJson.EnemyCardGroup.MappedWaitingCharacterList;
-    }
-    if (stageForJson.CardGroup) {
-      stageForJson.CardGroup = Object.assign({}, stageForJson.CardGroup);
-      delete stageForJson.CardGroup.MappedCardList;
-      delete stageForJson.CardGroup.MappedCharacterList;
-      delete stageForJson.CardGroup.MappedWaitingCharacterList;
-    }
-    if (stageForJson.LevelTalk) {
-      stageForJson.LevelTalk = Object.assign({}, stageForJson.LevelTalk);
-      for (let [key, value] of Object.entries(stageForJson.LevelTalk)) {
-        if (key.endsWith('Talk')) {
-          stageForJson.LevelTalk[key] = Object.assign({}, value);
-          delete stageForJson.LevelTalk[key]['Avatar'];
-        }
-      }
-    }
-
     res.render('pages/genshin/gcg/gcg-stage', {
       title: (stage?.WikiCombinedTitle || 'Not Found') + ' | TCG Stage',
       stage,
-      stageForJson,
+      stageForJson: gcg.getStageForJson(stage),
+      wikitext: await generateStagePage(stage),
       bodyClass: ['page--tcg-stage'],
       tab: queryTab(req, 'display', 'wikitext', 'json'),
     });
   });
 
+  // Cards
+  // --------------------------------------------------------------------------------------------------------------
 
   router.get('/TCG/cards', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
@@ -147,10 +131,19 @@ export default async function(): Promise<Router> {
       title: (card?.WikiName || 'Not Found') + ' | TCG Card',
       bodyClass: ['page--tcg-card'],
       card: card,
+      wikitext: await generateCardPage(gcg, card),
+      skills: await (card.MappedSkillList || []).asyncMap(async (skill, index) => ({
+        skill: skill,
+        wikitext: await generateSkillPage(gcg, card, skill, index),
+        index,
+      })),
       tab: queryTab(req, 'display', 'wikitext', 'json'),
       GCG_TAGS_WITHOUT_ICONS
     });
   });
+
+  // Rules
+  // --------------------------------------------------------------------------------------------------------------
 
   router.get('/TCG/rules', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);

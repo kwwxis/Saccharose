@@ -4,6 +4,7 @@ import { MonsterExcelConfigData } from './monster-types';
 import { TalkExcelConfigData } from './dialogue-types';
 import { MainQuestExcelConfigData, QuestExcelConfigData } from './quest-types';
 import { MaterialExcelConfigData, RewardExcelConfigData } from './material-types';
+import { Subset } from '../utility-types';
 
 // GCG TALK
 // --------------------------------------------------------------------------------------------------------------
@@ -102,7 +103,12 @@ export interface GCGElementReactionExcelConfigData {
 
 // GCG SKILLS, TAGS, & SKILL TAGS
 // --------------------------------------------------------------------------------------------------------------
-export type SkillTag = 'GCG_SKILL_TAG_A' | 'GCG_SKILL_TAG_E' | 'GCG_SKILL_TAG_NONE' | 'GCG_SKILL_TAG_PASSIVE' | 'GCG_SKILL_TAG_Q';
+export type SkillTagType =
+  'GCG_SKILL_TAG_A' | // Normal Attack
+  'GCG_SKILL_TAG_E' | // Elemental Skill
+  'GCG_SKILL_TAG_NONE' |
+  'GCG_SKILL_TAG_PASSIVE' |
+  'GCG_SKILL_TAG_Q'; // Elemental Brust
 
 export interface GCGSkillExcelConfigData {
   Id: number,
@@ -110,14 +116,15 @@ export interface GCGSkillExcelConfigData {
   NameTextMapHash: number,
   DescTextMapHash: number,
   CostList: { CostType: GCGCostType, CostData?: GCGCostExcelConfigData, Count: number }[],
-  SkillTagList: SkillTag[],
+  SkillTagList: SkillTagType[],
+  MappedSkillTagList?: GCGSkillTagExcelConfigData[],
   DescText: string,
   NameText: string,
   EnergyRecharge: number,
   BlockAiCardId: number,
   IsHidden: boolean,
 
-  ODACBHLGCIN: string, // card internal id
+  InternalName: string, // skill internal id
   GOOGPDHGMGN: string, // JsonPathHash
   PHNMFFMECLK: 0 | 0.4 | 0.8,
 
@@ -126,35 +133,99 @@ export interface GCGSkillExcelConfigData {
   FOHLOAAPBEJ: boolean,
 
   KPPDPJPILLC?: 'OnBannerShow' | 'OnBehaviorStart' | 'OnHitLanded',
-  OHGMCNABLOD?: string, // skill internal name
-  NGLIJEOOBBB?: string, // card internal name
+  OHGMCNABLOD?: string,
+  NGLIJEOOBBB?: string,
+
+  WikiType?: string,
+  WikiDesc?: string,
+  SkillDamage?: GCGCharSkillDamage;
 }
 
 export interface GCGSkillTagExcelConfigData {
-  Type: SkillTag,
+  Type: SkillTagType,
   NameText: string,
   NameTextMapHash: number,
   KeywordId: number,
   Keyword?: GCGKeywordExcelConfigData,
 }
 
+export interface GCGCharSkillDamage {
+  Name: string,
+  Damage?: number,
+  IndirectDamage?: number,
+  ElementTag?: string,
+  Element?: string
+  ElementKeywordId?: number,
+  ElementKeyword?: GCGKeywordExcelConfigData,
+}
+
+export type GCGTagType =
+  // General Tags
+  'GCG_TAG_ALLY'              |
+  'GCG_TAG_ARTIFACT'          |
+  'GCG_TAG_DENDRO_PRODUCE'    |
+  'GCG_TAG_FOOD'              |
+  'GCG_TAG_FORBIDDEN_ATTACK'  |
+  'GCG_TAG_IMMUNE_CONTROL'    |
+  'GCG_TAG_IMMUNE_FREEZING'   |
+  'GCG_TAG_ITEM'              |
+  'GCG_TAG_PLACE'             |
+  'GCG_TAG_RESONANCE'         |
+  'GCG_TAG_SHEILD'            |
+  'GCG_TAG_SLOWLY'            |
+  'GCG_TAG_TALENT'            |
+  'GCG_TAG_UNIQUE'            |
+
+  // Elements
+  'GCG_TAG_ELEMENT_ANEMO'     |
+  'GCG_TAG_ELEMENT_CRYO'      |
+  'GCG_TAG_ELEMENT_DENDRO'    |
+  'GCG_TAG_ELEMENT_ELECTRO'   |
+  'GCG_TAG_ELEMENT_GEO'       |
+  'GCG_TAG_ELEMENT_HYDRO'     |
+  'GCG_TAG_ELEMENT_NONE'      |
+  'GCG_TAG_ELEMENT_PYRO'      |
+
+  // Nations/Camps
+  'GCG_TAG_NATION_FONTAINE'   |
+  'GCG_TAG_NATION_INAZUMA'    |
+  'GCG_TAG_NATION_KHAENRIAH'  |
+  'GCG_TAG_NATION_LIYUE'      |
+  'GCG_TAG_NATION_MONDSTADT'  |
+  'GCG_TAG_NATION_NATLAN'     |
+  'GCG_TAG_NATION_SNEZHNAYA'  |
+  'GCG_TAG_NATION_SUMERU'     |
+  'GCG_TAG_CAMP_FATUI'        |
+  'GCG_TAG_CAMP_HILICHURL'    |
+  'GCG_TAG_CAMP_KAIRAGI'      |
+  'GCG_TAG_CAMP_MONSTER'      |
+
+  // Weapons
+  'GCG_TAG_WEAPON'            |
+  'GCG_TAG_WEAPON_BOW'        |
+  'GCG_TAG_WEAPON_CATALYST'   |
+  'GCG_TAG_WEAPON_CLAYMORE'   |
+  'GCG_TAG_WEAPON_NONE'       |
+  'GCG_TAG_WEAPON_POLE'       |
+  'GCG_TAG_WEAPON_SWORD'      ;
+
 export type GCGTagCategoryType =
-    'GCG_TAG_IDENTIFIER_NONE'
-  | 'GCG_TAG_IDENTIFIER_CHAR' // char camp
-  | 'GCG_TAG_IDENTIFIER_WEAPON' // char weapon
-  | 'GCG_TAG_IDENTIFIER_ELEMENT' // char element
-  | 'GCG_TAG_IDENTIFIER_MODIFY' // equipment cards
-  | 'GCG_TAG_IDENTIFIER_ASSIST' // support cards
-  | 'GCG_TAG_IDENTIFIER_EVENT' // event cards
+  'GCG_TAG_IDENTIFIER_ASSIST' | // support cards
+  'GCG_TAG_IDENTIFIER_CHAR'   | // char camp
+  'GCG_TAG_IDENTIFIER_ELEMENT'| // char element
+  'GCG_TAG_IDENTIFIER_EVENT'  | // event cards
+  'GCG_TAG_IDENTIFIER_MODIFY' | // equipment cards
+  'GCG_TAG_IDENTIFIER_NONE'   |
+  'GCG_TAG_IDENTIFIER_WEAPON' ; // char weapon
 
 export interface GCGTagExcelConfigData {
-  Type: string,
+  Type: GCGTagType,
   CategoryType: GCGTagCategoryType,
   NameText: string,
   NameTextMapHash: number,
 }
 
-export const GCG_TAGS_WITHOUT_ICONS: Set<string> = new Set([
+export const GCG_TAGS_WITHOUT_ICONS: Set<GCGTagType> = new Set<GCGTagType>([
 
   // GCG_TAG_IDENTIFIER_NONE:
   'GCG_TAG_UNIQUE',
@@ -179,6 +250,40 @@ export interface GCGKeywordExcelConfigData {
   TitleText: string,
   DescText: string,
 }
+
+export type GCGTagWeaponType = Subset<GCGTagType,
+  'GCG_TAG_WEAPON_NONE' |
+  'GCG_TAG_WEAPON_CATALYST' |
+  'GCG_TAG_WEAPON_BOW' |
+  'GCG_TAG_WEAPON_CLAYMORE' |
+  'GCG_TAG_WEAPON_POLE' |
+  'GCG_TAG_WEAPON_SWORD'>;
+
+export type GCGTagElementType = Subset<GCGTagType,
+  'GCG_TAG_ELEMENT_NONE' |
+  'GCG_TAG_ELEMENT_CRYO' |
+  'GCG_TAG_ELEMENT_HYDRO' |
+  'GCG_TAG_ELEMENT_PYRO' |
+  'GCG_TAG_ELEMENT_ELECTRO' |
+  'GCG_TAG_ELEMENT_ANEMO' |
+  'GCG_TAG_ELEMENT_GEO' |
+  'GCG_TAG_ELEMENT_DENDRO'>;
+
+export type GCGTagNationType = Subset<GCGTagType,
+  'GCG_TAG_NATION_MONDSTADT' |
+  'GCG_TAG_NATION_LIYUE' |
+  'GCG_TAG_NATION_INAZUMA' |
+  'GCG_TAG_NATION_SUMERU' |
+  'GCG_TAG_NATION_FONTAINE' |
+  'GCG_TAG_NATION_NATLAN' |
+  'GCG_TAG_NATION_SNEZHNAYA' |
+  'GCG_TAG_NATION_KHAENRIAH'>;
+
+export type GCGTagCampType = Subset<GCGTagType,
+  'GCG_TAG_CAMP_FATUI' |
+  'GCG_TAG_CAMP_HILICHURL' |
+  'GCG_TAG_CAMP_MONSTER' |
+  'GCG_TAG_CAMP_KAIRAGI'>;
 
 // GCG GAME / LEVEL
 // --------------------------------------------------------------------------------------------------------------
@@ -475,9 +580,9 @@ export type GCGCardStateBuffType =
   'GCG_STATE_BUFF_PYRO'       ;
 export type GCGChooseTargetType = 'GCG_CHOOSE_ARTIFACT_MOVE' | 'GCG_CHOOSE_WEAPON_MOVE';
 export type GCGCardType =
-  'GCG_CARD_ASSIST'    |
-  'GCG_CARD_EVENT'     |
-  'GCG_CARD_MODIFY'    |
+  'GCG_CARD_ASSIST'    | // Support cards
+  'GCG_CARD_EVENT'     | // Event cards
+  'GCG_CARD_MODIFY'    | // Equipment cards
   'GCG_CARD_ONSTAGE'   |
   'GCG_CARD_STATE'     |
   'GCG_CARD_SUMMON'    |
@@ -508,10 +613,17 @@ export interface GCGCommonCard {
   TagList: string[],
   MappedTagList: GCGTagExcelConfigData[],
   SkillList: number[],
-  MappedMappedSkillList: GCGSkillExcelConfigData[],
+  MappedSkillList: GCGSkillExcelConfigData[],
 
   WikiName?: string,
+  WikiNameTextMapHash?: number,
+  WikiDesc?: string,
   WikiImage?: string,
+  WikiGoldenImage?: string,
+  WikiType?: string,
+  WikiElement?: string,
+  WikiWeapon?: string,
+  WikiFaction?: string,
 }
 
 export interface GCGCardExcelConfigData extends GCGCommonCard {
@@ -653,10 +765,19 @@ export interface GCGCharExcelConfigData extends GCGCommonCard {
   Hp: number,
   CardType: 'GCG_CARD_CHARACTER',
   IsRemoveAfterDie: boolean,
+  CharIcon?: string;
 
   BPHBKAGLFCE: number, // JsonPathHash
   HLKMHIIIFHA: string,
   IAPINBOEJCO: string,
+}
+
+export function isCharacterCard(commonCard: GCGCommonCard): commonCard is GCGCharExcelConfigData {
+  return commonCard.CardType === 'GCG_CARD_CHARACTER';
+}
+
+export function isActionCard(commonCard: GCGCommonCard): commonCard is GCGCardExcelConfigData {
+  return commonCard.CardType !== 'GCG_CARD_CHARACTER';
 }
 
 // GCG CARD GROUP/DECK

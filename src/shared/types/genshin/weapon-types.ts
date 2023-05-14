@@ -2,6 +2,7 @@ import { ItemRelationMap } from './material-types';
 import { ReadableView } from './readable-types';
 
 export type WeaponType = 'WEAPON_BOW' | 'WEAPON_CATALYST' | 'WEAPON_CLAYMORE' | 'WEAPON_POLE' | 'WEAPON_SWORD_ONE_HAND';
+export type WeaponTypeEN = 'Bow' | 'Catalyst' | 'Claymore' | 'Polearm' | 'Sword';
 
 export type WeaponLoadConf = { LoadRelations?: boolean, LoadReadable?: boolean };
 

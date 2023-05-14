@@ -103,6 +103,7 @@ export const normGenshinText: TextNormalizer = (text: string, langCode: LangCode
 
     text = text.replace(/<color=#FFE14BFF>(.*?)<\/color>/g, '{{color|help|$1}}');
 
+    text = text.replace(/<color=#FFFFFFFF>(.*?)<\/color>/g, '\'\'\'$1\'\'\'');
     text = text.replace(/<color=#37FFFF>(.*?) ?<\/color>/g, '\'\'\'$1\'\'\'');
     text = text.replace(/<color=(#[0-9a-fA-F]{6})FF>(.*?)<\/color>/g, '{{color|$1|$2}}');
   }

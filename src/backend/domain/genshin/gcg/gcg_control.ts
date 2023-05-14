@@ -1,9 +1,9 @@
 import '../../../loadenv';
 import { GenshinControl, getGenshinControl } from '../genshinControl';
 import {
-  GCGCardExcelConfigData, GCGCardViewExcelConfigData,
+  GCGCardExcelConfigData, GCGCardFaceExcelConfigData, GCGCardViewExcelConfigData,
   GCGChallengeExcelConfigData,
-  GCGCharacterLevelExcelConfigData, GCGCharExcelConfigData, GCGCommonCard,
+  GCGCharacterLevelExcelConfigData, GCGCharExcelConfigData, GCGCharSkillDamage, GCGCommonCard,
   GCGCostExcelConfigData, GCGDeckCardExcelConfigData, GCGDeckExcelConfigData,
   GCGElementReactionExcelConfigData,
   GCGGameExcelConfigData,
@@ -12,7 +12,7 @@ import {
   GcgOtherLevelExcelConfigData,
   GCGRuleExcelConfigData,
   GCGRuleTextDetailExcelConfigData,
-  GCGRuleTextExcelConfigData,
+  GCGRuleTextExcelConfigData, GCGSkillExcelConfigData,
   GCGSkillTagExcelConfigData,
   GCGTagExcelConfigData,
   GCGTalkDetailExcelConfigData,
@@ -25,12 +25,21 @@ import { DialogueSectionResult } from '../dialogue/dialogue_util';
 import { pathToFileURL } from 'url';
 import { closeKnex } from '../../../util/db';
 import fs from 'fs';
-import { getGenshinDataFilePath } from '../../../loadenv';
+import { getGenshinDataFilePath, IMAGEDIR_GENSHIN } from '../../../loadenv';
 import { talkConfigGenerate } from '../dialogue/basic_dialogue_generator';
 import { SchemaTable } from '../../../importer/import_db';
 import { formatTime } from '../../../../shared/types/genshin/general-types';
 import { normGenshinText } from '../genshinText';
 import { genshinSchema } from '../../../importer/genshin/genshin.schema';
+import { LangCode } from '../../../../shared/types/lang-types';
+import { isInt, toInt } from '../../../../shared/util/numberUtil';
+import { replaceAsync, splitLimit } from '../../../../shared/util/stringUtil';
+import { isUnset } from '../../../../shared/util/genericUtil';
+import { findFiles } from '../../../util/shellutil';
+import { distance as strdist } from 'fastest-levenshtein';
+import { ElementTypeArray, standardElementCode } from '../../../../shared/types/genshin/manual-text-map';
+import { icon } from '../../../util/viewUtilities';
+import path from 'path';
 
 // noinspection JSUnusedGlobalSymbols
 export class GCGControl {
@@ -44,6 +53,8 @@ export class GCGControl {
   keywordList: GCGKeywordExcelConfigData[];
   costDataList: GCGCostExcelConfigData[];
   worldWorkTime: GcgWorldWorkTimeExcelConfigData[];
+  charSkillDamageList: GCGCharSkillDamage[];
+  charIcons: string[];
 
   constructor(readonly ctrl: GenshinControl, readonly enableElementalReactionMapping: boolean = false) {}
 
@@ -53,6 +64,9 @@ export class GCGControl {
     } else {
       this.didInit = true;
     }
+
+    this.charIcons = findFiles('UI_Gcg_Char_', IMAGEDIR_GENSHIN);
+    this.charSkillDamageList = await this.ctrl.readDataFile('./GCGCharSkillDamage.json');
 
     this.keywordList = await this.allSelect('GCGKeywordExcelConfigData');
     this.icons = await this.allSelect('GCGTalkDetailIconExcelConfigData');
@@ -82,15 +96,44 @@ export class GCGControl {
     }
   }
 
+  async normGcgText(text: string, stripSprite: boolean = true, outputLangCode?: LangCode): Promise<string> {
+    if (!text) {
+      return text || '';
+    }
+    text = this.ctrl.normText(text, outputLangCode || this.ctrl.outputLangCode);
+
+    text = text.replace(/\$\[K(\d+)]/g, (fm: string, g: string) => {
+      const id = toInt(g);
+      const kwText = this.keywordList.find(kw => kw.Id === id).TitleText;
+      return this.ctrl.normText(kwText, outputLangCode || this.ctrl.outputLangCode).replace(/^'''(.*)'''$/, '$1');
+    });
+
+    text = await replaceAsync(text, /\$\[A(\d+)]/g, async (fm: string, g: string) => {
+      const id = toInt(g);
+      return (await this.selectCharWithoutPostProcess(id)).NameText;
+    });
+
+    text = await replaceAsync(text, /\$\[S(\d+)]/g, async (fm: string, g: string) => {
+      const id = toInt(g);
+      return (await this.selectSkillWithoutPostProcess(id)).NameText;
+    })
+
+    text = await replaceAsync(text, /\$\[C(\d+)]/g, async (fm: string, g: string) => {
+      const id = toInt(g);
+      return '[[' + (await this.selectCardWithoutPostProcess(id)).NameText + ']]';
+    });
+
+    text = text.replace(/\{\{color\|#FFD780\|(.*?)}}/g, '[[$1]]');
+
+    if (stripSprite) {
+      text = text.replace(/\{\{Sprite\|.*?}}/g, '');
+    }
+    return text;
+  }
+
   private async defaultPostProcess(o: any): Promise<any> {
     if ('KeywordId' in o) {
       o.Keyword = await this.singleSelect('GCGKeywordExcelConfigData', 'Id', o['KeywordId']);
-    }
-    if ('SkillId' in o) {
-      o.MappedSkill = await this.singleSelect('GCGSkillExcelConfigData', 'Id', o['SkillId']);
-    }
-    if ('SkillList' in o) {
-      o.MappedSkillList = await this.multiSelect('GCGSkillExcelConfigData', 'Id', o['SkillList']);
     }
     if ('TagList' in o) {
       o.MappedTagList = o.TagList.map(tagType => this.tagList.find(tag => tag.Type == tagType)).filter(x => !!x);
@@ -109,10 +152,16 @@ export class GCGControl {
         costItem.CostData = this.costDataList.find(x => x.Type === costItem.CostType);
       }
     }
+    if ('SkillId' in o) {
+      o.MappedSkill = await this.singleSelect('GCGSkillExcelConfigData', 'Id', o['SkillId'], this.postProcessSkill);
+    }
+    if ('SkillList' in o) {
+      o.MappedSkillList = await this.multiSelect('GCGSkillExcelConfigData', 'Id', o['SkillList'], this.postProcessSkill);
+    }
     return o;
   }
 
-  private async singleSelect<T>(table: string, field: string, value: any, postProcess?: (o: T) => Promise<T>): Promise<T> {
+  private async singleSelect<T>(table: string, field: string, value: any, postProcess?: false|((o: T) => Promise<T>)): Promise<T> {
     await this.init();
     const schemaTable: SchemaTable = genshinSchema[table];
 
@@ -121,10 +170,15 @@ export class GCGControl {
         return this.ctrl.commonLoadFirst(row, schemaTable);
       });
 
+    if (postProcess) {
+      postProcess = postProcess.bind(this);
+    }
+
     if (record) {
-      record = await this.defaultPostProcess(record);
+      if (postProcess !== false) {
+        record = await this.defaultPostProcess(record);
+      }
       if (postProcess) {
-        postProcess = postProcess.bind(this);
         record = await postProcess(record);
       }
     }
@@ -132,7 +186,7 @@ export class GCGControl {
     return record;
   }
 
-  private async multiSelect<T>(table: string, field: string, value: any|any[], postProcess?: (o: T) => Promise<T>): Promise<T[]> {
+  private async multiSelect<T>(table: string, field: string, value: any|any[], postProcess?: false|((o: T) => Promise<T>)): Promise<T[]> {
     await this.init();
     const schemaTable: SchemaTable = genshinSchema[table];
 
@@ -148,7 +202,9 @@ export class GCGControl {
     }
 
     for (let record of records) {
-      await this.defaultPostProcess(record);
+      if (postProcess !== false) {
+        await this.defaultPostProcess(record);
+      }
       if (postProcess) {
         await postProcess(record);
       }
@@ -172,7 +228,9 @@ export class GCGControl {
     if (postProcess) {
       postProcess = postProcess.bind(this);
     }
+    let i = 0;
     for (let record of records) {
+      i++;
       await this.defaultPostProcess(record);
       if (postProcess) {
         await postProcess(record);
@@ -462,6 +520,32 @@ export class GCGControl {
     return await this.singleSelect('GCGGameExcelConfigData', 'Id', id, o => this.postProcessStage(o, disableLoad));
   }
 
+  getStageForJson(stage: GCGGameExcelConfigData): GCGGameExcelConfigData {
+    const stageForJson: GCGGameExcelConfigData = Object.assign({}, stage);
+    if (stageForJson.EnemyCardGroup) {
+      stageForJson.EnemyCardGroup = Object.assign({}, stageForJson.EnemyCardGroup);
+      delete stageForJson.EnemyCardGroup.MappedCardList;
+      delete stageForJson.EnemyCardGroup.MappedCharacterList;
+      delete stageForJson.EnemyCardGroup.MappedWaitingCharacterList;
+    }
+    if (stageForJson.CardGroup) {
+      stageForJson.CardGroup = Object.assign({}, stageForJson.CardGroup);
+      delete stageForJson.CardGroup.MappedCardList;
+      delete stageForJson.CardGroup.MappedCharacterList;
+      delete stageForJson.CardGroup.MappedWaitingCharacterList;
+    }
+    if (stageForJson.LevelTalk) {
+      stageForJson.LevelTalk = Object.assign({}, stageForJson.LevelTalk);
+      for (let [key, value] of Object.entries(stageForJson.LevelTalk)) {
+        if (key.endsWith('Talk')) {
+          stageForJson.LevelTalk[key] = Object.assign({}, value);
+          delete stageForJson.LevelTalk[key]['Avatar'];
+        }
+      }
+    }
+    return stageForJson;
+  }
+
   // GCG REWARD
   // --------------------------------------------------------------------------------------------------------------
 
@@ -497,12 +581,47 @@ export class GCGControl {
     if (card.DeckCard) {
       card.WikiImage = card.DeckCard.ItemMaterial.Icon;
       card.WikiName = card.DeckCard.ItemMaterial.NameText;
+      card.WikiNameTextMapHash = card.DeckCard.ItemMaterial.NameTextMapHash;
     } else if (card.CardView) {
       card.WikiImage = card.CardView.Image;
       card.WikiName = card.NameText || String(card.Id).padStart(6, '0');
+      card.WikiNameTextMapHash = card.NameTextMapHash;
     } else {
       card.WikiName = card.NameText || String(card.Id).padStart(6, '0');
+      card.WikiNameTextMapHash = card.NameTextMapHash;
     }
+
+    if (card.WikiImage && fs.existsSync(path.resolve(IMAGEDIR_GENSHIN, './' + card.WikiImage + '_Golden.png'))) {
+      card.WikiGoldenImage = card.WikiImage + '_Golden';
+    }
+
+    card.WikiDesc = await this.normGcgText(card.DescText);
+
+    switch (card.CardType) {
+      case 'GCG_CARD_ASSIST':
+        card.WikiType = 'Support Card';
+        break;
+      case 'GCG_CARD_EVENT':
+        card.WikiType = 'Event Card';
+        break;
+      case 'GCG_CARD_MODIFY':
+        card.WikiType = 'Equipment Card';
+        break;
+      case 'GCG_CARD_ONSTAGE':
+        break;
+      case 'GCG_CARD_STATE':
+        break;
+      case 'GCG_CARD_SUMMON':
+        card.WikiType = 'Summon';
+        break;
+      case 'GCG_CARD_CHARACTER':
+        card.WikiType = 'Character Card';
+        break;
+    }
+
+    card.WikiElement = card.MappedTagList.find(tag => tag.Type.startsWith('GCG_TAG_ELEMENT'))?.NameText || '';
+    card.WikiWeapon = card.MappedTagList.find(tag => tag.Type.startsWith('GCG_TAG_WEAPON'))?.NameText || '';
+    card.WikiFaction = card.MappedTagList.find(tag => tag.Type.startsWith('GCG_TAG_NATION') || tag.Type.startsWith('GCG_TAG_CAMP'))?.NameText || '';
 
     return card;
   }
@@ -517,6 +636,13 @@ export class GCGControl {
     return cardView;
   }
 
+  private async postProcessCardFace(cardFace: GCGCardFaceExcelConfigData): Promise<GCGCardFaceExcelConfigData> {
+    if (cardFace && cardFace.ItemId) {
+      cardFace.ItemMaterial = await this.ctrl.selectMaterialExcelConfigData(cardFace.ItemId);
+    }
+    return cardFace;
+  }
+
   private async postProcessCard(card: GCGCardExcelConfigData): Promise<GCGCardExcelConfigData> {
     card.MappedChooseTargetList = await this.multiSelect('GCGChooseExcelConfigData', 'Id', card.ChooseTargetList);
 
@@ -524,12 +650,8 @@ export class GCGControl {
       card.TokenDesc = await this.singleSelect('GCGTokenDescConfigData', 'Id', card.TokenDescId);
     }
 
-    card.CardFace = await this.singleSelect('GCGCardFaceExcelConfigData', 'CardId', card.Id);
+    card.CardFace = await this.singleSelect('GCGCardFaceExcelConfigData', 'CardId', card.Id, this.postProcessCardFace);
     card.CardView = await this.singleSelect('GCGCardViewExcelConfigData', 'Id', card.Id, this.postProcessCardView);
-
-    if (card.CardFace && card.CardFace.ItemId) {
-      card.CardFace.ItemMaterial = await this.ctrl.selectMaterialExcelConfigData(card.CardFace.ItemId);
-    }
 
     let deckCard = await this.selectDeckCard(card.Id);
     if (deckCard) {
@@ -553,10 +675,14 @@ export class GCGControl {
     return await this.singleSelect('GCGCardExcelConfigData', 'Id', id, this.postProcessCard);
   }
 
+  private async selectCardWithoutPostProcess(id: number): Promise<GCGCardExcelConfigData> {
+    return await this.singleSelect('GCGCardExcelConfigData', 'Id', id, false);
+  }
+
   // GCG CHAR
   // --------------------------------------------------------------------------------------------------------------
   async postProcessChar(char: GCGCharExcelConfigData): Promise<GCGCharExcelConfigData> {
-    char.CardFace = await this.singleSelect('GCGCardFaceExcelConfigData', 'CardId', char.Id);
+    char.CardFace = await this.singleSelect('GCGCardFaceExcelConfigData', 'CardId', char.Id, this.postProcessCardFace);
     char.CardView = await this.singleSelect('GCGCardViewExcelConfigData', 'Id', char.Id, this.postProcessCardView);
 
     let deckCard = await this.selectDeckCard(char.Id);
@@ -565,6 +691,67 @@ export class GCGControl {
     }
 
     await this.postProcessCommonCard(char);
+
+    if (!isInt(char.WikiName)) {
+      //const charNameLc = (await this.ctrl.getTextMapItem('EN', char.WikiNameTextMapHash)).toLowerCase();
+      const isAvatar = char.TagList.some(s => s.startsWith('GCG_TAG_NATION'));
+      const eligibleCharIcons = this.charIcons.filter(icon => isAvatar ? icon.startsWith('UI_Gcg_Char_Avatar') : !icon.startsWith('UI_Gcg_Char_Avatar'));
+      const charCmpLc = splitLimit(char.CardView.ImagePath, '_', 5)[4].toLowerCase();
+
+      // let charSwitchLc = char.IAPINBOEJCO.toLowerCase();
+      // if (charSwitchLc.startsWith('switch_')) {
+      //   charSwitchLc = charSwitchLc.slice('switch_'.length);
+      // }
+      // if (charSwitchLc.startsWith('gcg_')) {
+      //   charSwitchLc = charSwitchLc.slice('gcg_'.length);
+      // }
+      // charSwitchLc = charSwitchLc.replace(/_/g, '');
+      // charSwitchLc = charSwitchLc.replace(/samurai/g, '');
+
+
+      const iconCandidates: string[] = [];
+
+      for (let icon of eligibleCharIcons) {
+        let iconLc = icon.toLowerCase();
+        if (iconLc.includes('_'+charCmpLc+'.')) {
+          iconCandidates.push(icon);
+        } else if (iconLc.endsWith('_bruteaxefire.png') && charCmpLc === 'bruteaxe') {
+          iconCandidates.push(icon);
+        } else if (iconLc.endsWith('_bruteaxeelec.png') && charCmpLc === 'bruteeleaxe') {
+          iconCandidates.push(icon);
+        } else if (iconLc.endsWith('ronin01.png') && charCmpLc === 'roninwater') {
+          iconCandidates.push(icon);
+        } else if (iconLc.endsWith('ronin02.png') && charCmpLc === 'roninfire') {
+          iconCandidates.push(icon);
+        } else if (iconLc.endsWith('ronin03.png') && charCmpLc === 'roninele') {
+          iconCandidates.push(icon);
+        } else if (iconLc.endsWith('hilirangeelec.png') && charCmpLc === 'hilielectric') {
+          iconCandidates.push(icon);
+        }
+      }
+
+      if (!iconCandidates.length) {
+        let lowestDist = 1000;
+        let lowestIcon;
+        for (let icon of eligibleCharIcons) {
+          let iconLc = splitLimit(icon.toLowerCase(), '_', 5)[4].split('.')[0]
+            .replace(/samurai/g, '')
+            .replace(/unuanudatta/g, 'undelta');
+          let dist = strdist(iconLc, charCmpLc);
+          if (dist <= lowestDist) {
+            lowestDist = dist;
+            lowestIcon = icon;
+          }
+        }
+        if (lowestIcon) {
+          iconCandidates.push(lowestIcon);
+        }
+      }
+
+      if (iconCandidates[0]) {
+        char.CharIcon = iconCandidates[0].replace('.png', '');
+      }
+    }
 
     return char;
   }
@@ -575,6 +762,81 @@ export class GCGControl {
 
   async selectChar(id: number): Promise<GCGCharExcelConfigData> {
     return await this.singleSelect('GCGCharExcelConfigData', 'Id', id, this.postProcessChar);
+  }
+
+  private async selectCharWithoutPostProcess(id: number): Promise<GCGCharExcelConfigData> {
+    return await this.singleSelect('GCGCharExcelConfigData', 'Id', id, false);
+  }
+
+  // Skills
+  // --------------------------------------------------------------------------------------------------------------
+  async selectSkill(skillId: number): Promise<GCGSkillExcelConfigData> {
+    return await this.singleSelect('GCGSkillExcelConfigData', 'Id', skillId, this.postProcessSkill);
+  }
+
+  private async selectSkillWithoutPostProcess(skillId: number): Promise<GCGSkillExcelConfigData> {
+    return await this.singleSelect('GCGSkillExcelConfigData', 'Id', skillId, false);
+  }
+
+  private async setSkillWikiText(skill: GCGSkillExcelConfigData): Promise<void> {
+    skill.SkillDamage = this.charSkillDamageList.find(x => x.Name === skill.InternalName);
+
+    if (skill.DescText && skill.SkillDamage) {
+      skill.DescText = skill.DescText.replace(/\$\[D__KEY__DAMAGE]/g, (fm: string) => {
+        return isUnset(skill.SkillDamage.Damage) ? fm : String(skill.SkillDamage.Damage);
+      });
+      skill.DescText = skill.DescText.replace(/\$\[D__KEY__ELEMENT]/g, (fm: string) => {
+        let keyword = this.keywordList.find(kw => kw.Id === skill.SkillDamage.ElementKeywordId);
+        return keyword ? keyword.TitleText : fm;
+      });
+    }
+
+    skill.WikiDesc = await this.normGcgText(skill.DescText);
+  }
+
+  private async postProcessSkill(skill: GCGSkillExcelConfigData): Promise<GCGSkillExcelConfigData> {
+    await this.setSkillWikiText(skill);
+
+    skill.WikiType = skill.MappedSkillTagList?.find(tag => tag.Type !== 'GCG_SKILL_TAG_NONE')?.NameText;
+
+    const seenAlready: Set<string> = new Set();
+
+    const extractEffectIds = (desc: string, set: Set<{ type: string, id: number }>) =>
+      desc && [... desc.matchAll(/\$\[([CS])(\d+)]/g)]
+        .filter(m => !seenAlready.has(m[1] + m[2]))
+        .forEach(m => {
+          set.add({ type: m[1], id: toInt(m[2]) });
+          seenAlready.add(m[1] + m[2]);
+        });
+
+    let effectCardIds: Set<{ type: string, id: number }> = new Set();
+    extractEffectIds(skill.DescText, effectCardIds);
+
+    while (effectCardIds.size) {
+      const newIds: Set<{ type: string, id: number }> = new Set();
+
+      for (let effectItem of effectCardIds) {
+        let effectName: string;
+        let effectDesc: string;
+
+        if (effectItem.type === 'C') {
+          let effectCard = await this.selectCardWithoutPostProcess(effectItem.id);
+          effectName = effectCard.NameText;
+          effectDesc = await this.normGcgText(effectCard.DescText);
+          extractEffectIds(effectCard.DescText, newIds);
+        } else if (effectItem.type === 'S') {
+          let effectSkill = await this.selectSkillWithoutPostProcess(effectItem.id);
+          await this.setSkillWikiText(effectSkill);
+          effectName = effectSkill.NameText;
+          effectDesc = effectSkill.WikiDesc;
+        }
+        skill.WikiDesc += `<br /><br />'''` + effectName + `'''<br />` + await this.normGcgText(effectDesc);
+      }
+      effectCardIds = newIds;
+    }
+
+
+    return skill;
   }
 
   // GCG DECK CARD GROUP
@@ -605,8 +867,8 @@ export class GCGControl {
   // --------------------------------------------------------------------------------------------------------------
 
   private async postProcessDeckCard(card: GCGDeckCardExcelConfigData): Promise<GCGDeckCardExcelConfigData> {
-    card.CardFaceList = await this.multiSelect('GCGCardFaceExcelConfigData', 'CardId', card.CardFaceIdList);
-    card.CardFace = await this.singleSelect('GCGCardFaceExcelConfigData', 'CardId', card.Id);
+    card.CardFaceList = await this.multiSelect('GCGCardFaceExcelConfigData', 'CardId', card.CardFaceIdList, this.postProcessCardFace);
+    card.CardFace = await this.singleSelect('GCGCardFaceExcelConfigData', 'CardId', card.Id, this.postProcessCardFace);
     card.CardView = await this.singleSelect('GCGCardViewExcelConfigData', 'Id', card.Id, this.postProcessCardView);
 
     card.ProficiencyReward = await this.singleSelect('GCGProficiencyRewardExcelConfigData', 'CardId', card.Id);
