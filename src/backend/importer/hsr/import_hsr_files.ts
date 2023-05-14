@@ -7,6 +7,7 @@ import { getStarRailDataFilePath } from '../../loadenv';
 import { closeKnex } from '../../util/db';
 import { importNormalize, importPlainTextMap } from '../import_file_util';
 import { normStarRailText } from '../../domain/hsr/starRailText';
+import fs from 'fs';
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
@@ -44,6 +45,11 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     }
 
     if (options.normalize) {
+      const textMapCN = getStarRailDataFilePath('./TextMap/TextMapCN.json');
+      if (fs.existsSync(textMapCN)) {
+        fs.renameSync(textMapCN, getStarRailDataFilePath('./TextMap/TextMapCHS.json'));
+        console.log('Moved TextMapCN.json to TextMapCHS.json');
+      }
       await importNormalize(getStarRailDataFilePath('./ExcelOutput'), []);
     }
     if (options.plaintext) {
