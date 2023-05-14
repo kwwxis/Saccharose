@@ -37,9 +37,8 @@ import { replaceAsync, splitLimit } from '../../../../shared/util/stringUtil';
 import { isUnset } from '../../../../shared/util/genericUtil';
 import { findFiles } from '../../../util/shellutil';
 import { distance as strdist } from 'fastest-levenshtein';
-import { ElementTypeArray, standardElementCode } from '../../../../shared/types/genshin/manual-text-map';
-import { icon } from '../../../util/viewUtilities';
 import path from 'path';
+import { cached } from '../../../util/cache';
 
 // noinspection JSUnusedGlobalSymbols
 export class GCGControl {
@@ -65,21 +64,49 @@ export class GCGControl {
       this.didInit = true;
     }
 
-    this.charIcons = findFiles('UI_Gcg_Char_', IMAGEDIR_GENSHIN);
-    this.charSkillDamageList = await this.ctrl.readDataFile('./GCGCharSkillDamage.json');
+    this.charIcons = await cached('GCG_charIcons', async () => {
+      return findFiles('UI_Gcg_Char_', IMAGEDIR_GENSHIN);
+    });
 
-    this.keywordList = await this.allSelect('GCGKeywordExcelConfigData');
-    this.icons = await this.allSelect('GCGTalkDetailIconExcelConfigData');
-    this.rules = await this.allSelect('GCGRuleExcelConfigData');
+    this.charSkillDamageList = await cached('GCG_charSkillDamageList', async () => {
+      return await this.ctrl.readDataFile('./GCGCharSkillDamage.json');
+    });
 
-    this.challenges = await this.allSelect('GCGChallengeExcelConfigData');
+    this.keywordList = await cached('GCG_keywordList', async () => {
+      return await this.allSelect('GCGKeywordExcelConfigData');
+    });
 
-    this.tagList = await this.allSelect('GCGTagExcelConfigData');
-    this.skillTagList = await this.allSelect('GCGSkillTagExcelConfigData');
-    this.costDataList = await this.allSelect('GCGCostExcelConfigData');
-    this.worldWorkTime = await this.allSelect('GcgWorldWorkTimeExcelConfigData');
+    this.icons = await cached('GCG_icons', async () => {
+      return await this.allSelect('GCGTalkDetailIconExcelConfigData');
+    });
 
-    this.elementReactions = await this.allSelect('GCGElementReactionExcelConfigData'); // must come after skillTagList
+    this.rules = await cached('GCG_rules', async () => {
+      return await this.allSelect('GCGRuleExcelConfigData');
+    });
+
+    this.challenges = await cached('GCG_challenges', async () => {
+      return await this.allSelect('GCGChallengeExcelConfigData');
+    });
+
+    this.tagList = await cached('GCG_tagList', async () => {
+      return await this.allSelect('GCGTagExcelConfigData');
+    });
+
+    this.skillTagList = await cached('GCG_skillTagList', async () => {
+      return await this.allSelect('GCGSkillTagExcelConfigData');
+    });
+
+    this.costDataList = await cached('GCG_costDataList', async () => {
+      return await this.allSelect('GCGCostExcelConfigData');
+    });
+
+    this.worldWorkTime = await cached('GCG_worldWorkTime', async () => {
+      return await this.allSelect('GcgWorldWorkTimeExcelConfigData');
+    });
+
+    this.elementReactions = await cached('GCG_elementReactions', async () => {
+      return await this.allSelect('GCGElementReactionExcelConfigData'); // must come after skillTagList
+    });
 
     for (let rule of this.rules) {
       if (this.enableElementalReactionMapping) {
