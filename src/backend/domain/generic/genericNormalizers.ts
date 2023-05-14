@@ -89,10 +89,6 @@ export function genericNormText(text: string, langCode: LangCode, decolor: boole
     text = text.replace(/(?<=\S) (:|%|\.\.\.)/g, '&nbsp;$1');
   }
 
-  if (text.includes('back to the Vourukasha Oasis')) {
-    console.log(text, plaintext);
-  }
-
   text = text.replace(/\\"/g, '"');
   text = text.replace(/\r/g, '');
   text = text.replace(/\\?\\n|\\\n|\n/g, plaintext ? '\n' : '<br />')

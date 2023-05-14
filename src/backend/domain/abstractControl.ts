@@ -343,8 +343,6 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     let decimalRegex = new RegExp(`(\\.${id}|${id}\\.)`)
     let fieldRegex = new RegExp(`"([^"]+)":\\s*["\\[]?`);
 
-    console.log(id);
-
     let grepQuery = String(id);
     let grepFlags: string;
 

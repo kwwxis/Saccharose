@@ -32,7 +32,7 @@ export const starRailSchema = {
 
   MainMission: <SchemaTable> {
     name: 'MainMission',
-    jsonFile: './ExcelBinOutput/MainMission.json',
+    jsonFile: './ExcelOutput/MainMission.json',
     columns: [
       {name: 'Type', type: 'string', isIndex: true},
       {name: 'MainMissionId', type: 'integer', isPrimary: true},
