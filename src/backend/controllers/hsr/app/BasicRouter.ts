@@ -54,7 +54,7 @@ export default async function(): Promise<Router> {
     for (let [category, tips] of Object.entries(loadingTips)) {
       sb.line(`===${category}===`);
       for (let tip of tips) {
-        sb.line(` - ${tip}`);
+        sb.line(` * ${tip}`);
       }
       sb.line();
     }
