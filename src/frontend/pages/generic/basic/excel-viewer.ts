@@ -154,7 +154,7 @@ pageMatch('pages/generic/basic/excel-viewer-table', () => {
               };
             } else if (pageMatch.isStarRail && (key.includes('Image') || key.includes('Icon') || key.includes('Path'))) {
               (<ColDef> colDefForKey[key]).cellRenderer = function(params: ICellRendererParams) {
-                if (!params.value || typeof params.value !== 'string' || (!params.value.startsWith('SpriteOutput/') && !params.value.startsWith('UI/'))) {
+                if (!params.value || typeof params.value !== 'string' || !params.value.endsWith('.png')) {
                   return '';
                 }
                 let safeValue = escapeHtml(params.value);
