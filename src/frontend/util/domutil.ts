@@ -251,10 +251,10 @@ export function removeSessionStorageObject(key: string): void {
 }
 
 export async function pasteFromClipboard(target: HTMLInputElement|HTMLTextAreaElement): Promise<string> {
-  if (navigator.clipboard) {
+  if (navigator.clipboard && navigator.clipboard.readText) {
     return navigator.clipboard.readText().then(text => target.value = text);
   } else {
-    return Promise.reject();
+    // not supported by firefox
   }
 }
 

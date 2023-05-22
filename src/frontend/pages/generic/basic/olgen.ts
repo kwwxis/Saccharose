@@ -10,6 +10,7 @@ import {
 } from '../../../endpoints';
 import { pageMatch } from '../../../pageMatch';
 import { HttpError } from '../../../../shared/util/httpError';
+import { pasteFromClipboard } from '../../../util/domutil';
 
 pageMatch('pages/generic/basic/olgen', () => {
   let endpoint: SaccharoseApiEndpoint<any>;
@@ -102,6 +103,12 @@ pageMatch('pages/generic/basic/olgen', () => {
     });
   }
 
+  if (/firefox/i.test(navigator.userAgent)) {
+    document.querySelector('.ol-input-paste').remove();
+  } else {
+    document.querySelector('.ol-input-clear').classList.add('with-paste-button');
+  }
+
   const listeners: Listener[] = [
     {
       ev: 'ready',
@@ -146,6 +153,21 @@ pageMatch('pages/generic/basic/olgen', () => {
         inputEl.value = '';
         inputEl.focus();
         document.querySelector('.ol-input-clear').classList.add('hide');
+      }
+    },
+    {
+      el: '.ol-input-paste',
+      ev: 'click',
+      fn: async function(_event) {
+        let inputEl = document.querySelector<HTMLInputElement>('.ol-input');
+        inputEl.value = '';
+        inputEl.focus();
+        await pasteFromClipboard(inputEl);
+        if (inputEl.value.length) {
+          document.querySelector('.ol-input-clear').classList.remove('hide');
+        } else {
+          document.querySelector('.ol-input-clear').classList.add('hide');
+        }
       }
     },
     {

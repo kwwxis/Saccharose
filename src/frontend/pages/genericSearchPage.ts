@@ -217,6 +217,8 @@ export function startGenericSearchPageListeners<T>(opts: GenericSearchPageOpts<T
     }
   });
 
+  const isFirefox: boolean = /firefox/i.test(navigator.userAgent);
+
   const listeners: Listener[] = [
     {
       ev: 'ready',
@@ -259,7 +261,7 @@ export function startGenericSearchPageListeners<T>(opts: GenericSearchPageOpts<T
       }
     })),
     ... opts.inputs.filter(x => x.clearButton).map(optInput => {
-      if (optInput.pasteButton) {
+      if (optInput.pasteButton && !isFirefox) {
         document.querySelector(optInput.clearButton).classList.add('with-paste-button');
       }
       document.querySelector(optInput.clearButton).setAttribute('ui-tippy', 'Clear');
@@ -288,17 +290,29 @@ export function startGenericSearchPageListeners<T>(opts: GenericSearchPageOpts<T
       }
     ])),
     ... opts.inputs.filter(x => x.pasteButton).map(optInput => {
-      document.querySelector(optInput.pasteButton).setAttribute('ui-tippy', 'Paste');
-      return optInput;
-    }).flatMap((optInput) => ([
+      if (isFirefox) {
+        document.querySelector(optInput.pasteButton).remove();
+        return null;
+      } else {
+        document.querySelector(optInput.pasteButton).setAttribute('ui-tippy', 'Paste');
+        return optInput;
+      }
+    }).filter(x => !!x).flatMap((optInput) => ([
       {
         el: optInput.pasteButton,
         ev: 'click',
-        fn: function(_event, _target) {
+        fn: async function(_event, _target) {
           let inputEl = document.querySelector<HTMLInputElement>(optInput.selector);
           inputEl.value = '';
           inputEl.focus();
-          pasteFromClipboard(inputEl);
+          await pasteFromClipboard(inputEl);
+          if (optInput.clearButton) {
+            if (inputEl.value.length) {
+              document.querySelector(optInput.clearButton).classList.remove('hide');
+            } else {
+              document.querySelector(optInput.clearButton).classList.add('hide');
+            }
+          }
         }
       },
       {
