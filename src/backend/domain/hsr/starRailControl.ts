@@ -2,10 +2,18 @@
 
 import { AbstractControl, AbstractControlState } from '../abstractControl';
 import { Request } from '../../util/router';
-import { getStarRailDataFilePath } from '../../loadenv';
+import { DATAFILE_HSR_VOICE_ITEMS, getStarRailDataFilePath } from '../../loadenv';
 import { normalizeRawJson, SchemaTable } from '../../importer/import_db';
-import { LangCode, TextMapHash } from '../../../shared/types/lang-types';
+import {
+  LangCode,
+  TextMapHash,
+  VoiceItem,
+  VoiceItemArrayMap,
+  VoiceItemFlatMap,
+} from '../../../shared/types/lang-types';
 import { normStarRailText } from './starRailText';
+import path from 'path';
+import { promises as fs } from 'fs';
 
 /**
  * State/cache for only a single control
@@ -19,6 +27,8 @@ export function getStarRailControl(request?: Request) {
 }
 
 export class StarRailControl extends AbstractControl<StarRailControlState> {
+  readonly voice: StarRailVoice;
+
   constructor(request?: Request) {
     super('hsr', StarRailControlState, request);
     this.excelPath = './ExcelOutput';
@@ -70,5 +80,80 @@ export class StarRailControl extends AbstractControl<StarRailControlState> {
       }
     }
     return object;
+  }
+}
+
+const HSR_VOICE_ITEMS: VoiceItemFlatMap = {};
+
+export type StarRailVoiceItemType = 'Archive' | 'Cutscene' | 'NPC_Far' | 'NPC_Near' | 'NPC_Normal';
+
+interface StarRailVoiceConfig {
+  IsPlayerInvolved: boolean,
+  VoiceId: number,
+  VoicePath: string,
+  VoiceType?: string,
+}
+
+export async function loadStarRailVoiceItems(): Promise<void> {
+  console.log('[Init] Loading HSR Voice Items -- starting...');
+
+  const voiceItemsFilePath = path.resolve(process.env.HSR_DATA_ROOT, DATAFILE_HSR_VOICE_ITEMS);
+  const result: StarRailVoiceConfig[] = await fs.readFile(voiceItemsFilePath, {encoding: 'utf8'}).then(data => JSON.parse(data));
+
+  for (let item of result) {
+    HSR_VOICE_ITEMS[item.VoiceId] = {
+      id: item.VoiceId,
+      fileName: item.VoicePath.replace(/_/g, ' ').toLowerCase() + '.ogg',
+      isGendered: item.IsPlayerInvolved,
+      type: item.VoiceType
+    };
+  }
+
+  Object.freeze(HSR_VOICE_ITEMS);
+  console.log('[Init] Loading HSR Voice Items -- done!');
+}
+
+export class StarRailVoice {
+
+  getVoiceItemsByType(type: StarRailVoiceItemType): VoiceItem[] {
+    let items: VoiceItem[] = [];
+    for (let item of Object.values(HSR_VOICE_ITEMS)) {
+      if (item.type === type) {
+        items.push(item)
+      }
+    }
+    return items;
+  }
+
+  getVoiceItemByFile(voFile: string): VoiceItem {
+    voFile = voFile.toLowerCase();
+    for (let item of Object.values(HSR_VOICE_ITEMS)) {
+      if (item.fileName === voFile) {
+        return item;
+      }
+    }
+    return null;
+  }
+
+  getVoiceItem(id: number|string): VoiceItem {
+    return HSR_VOICE_ITEMS[id];
+  }
+
+  getVoPrefix(id: number|string, text?: string): string {
+    let voItem: VoiceItem = HSR_VOICE_ITEMS[id];
+    let voPrefix = '';
+    if (voItem) {
+      let tmp = [];
+
+      if (voItem.isGendered && (!text || (/{{MC/i.test(text)))) {
+        tmp.push(`{{A|${voItem.fileName} M}}`);
+        tmp.push(`{{A|${voItem.fileName} F}}`);
+      } else {
+        tmp.push(`{{A|${voItem.fileName}}}`);
+      }
+
+      return tmp.join(' ') + ' ';
+    }
+    return voPrefix;
   }
 }

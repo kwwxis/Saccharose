@@ -49,7 +49,6 @@ export abstract class AbstractControlState {
     }
     return DEFAULT_SEARCH_MODE;
   }
-
 }
 
 export abstract class AbstractControl<T extends AbstractControlState = AbstractControlState>  {

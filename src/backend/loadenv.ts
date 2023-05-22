@@ -27,6 +27,7 @@ export const DATAFILE_HSR_SQLITE_DB = './hsr_data.db';
 export const DATAFILE_ZENLESS_SQLITE_DB = './zenless_data.db';
 
 export const DATAFILE_GENSHIN_VOICE_ITEMS = './voiceItemsNormalized.json';
+export const DATAFILE_HSR_VOICE_ITEMS = './ExcelOutput/VoiceConfig.json';
 
 export const getNodeEnv = (): 'development'|'production' => <any> process.env.NODE_ENV;
 

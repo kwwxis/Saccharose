@@ -11,6 +11,7 @@ pageMatch('pages/genshin/archive/weapon-search', () => {
         selector: '.search-input',
         apiParam: 'text',
         queryParam: 'q',
+        pasteButton: '.search-input-paste',
         clearButton: '.search-input-clear'
       }
     ],

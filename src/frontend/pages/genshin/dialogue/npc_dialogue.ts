@@ -11,6 +11,7 @@ pageMatch('pages/genshin/dialogue/npc-dialogue', () => {
         selector: '.dialogue-generate-input',
         apiParam: 'name',
         queryParam: 'q',
+        pasteButton: '.dialogue-generate-input-paste',
         clearButton: '.dialogue-generate-input-clear',
       }
     ],

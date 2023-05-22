@@ -3,6 +3,7 @@ import { errorHtmlWrap, genshinEndpoints, SaccharoseApiEndpoint } from '../endpo
 import { Listener, startListeners } from '../util/eventLoader';
 import { GeneralEventBus } from '../generalEventBus';
 import { HttpError } from '../../shared/util/httpError';
+import { pasteFromClipboard } from '../util/domutil';
 
 export interface GenericSearchPageHandle {
   generateResult(caller: string): void;
@@ -16,6 +17,7 @@ export type GenericSearchPageParamOpt<T> = {
   apiParam: keyof T,
   queryParam?: string,
   clearButton?: string,
+  pasteButton?: string,
   guards?: ((text: string|number) => string)[],
   mapper?: (text: string) => string|number,
   required?: boolean
@@ -256,7 +258,13 @@ export function startGenericSearchPageListeners<T>(opts: GenericSearchPageOpts<T
         generateResult('inputEnter');
       }
     })),
-    ... opts.inputs.filter(x => x.clearButton).flatMap((optInput) => ([
+    ... opts.inputs.filter(x => x.clearButton).map(optInput => {
+      if (optInput.pasteButton) {
+        document.querySelector(optInput.clearButton).classList.add('with-paste-button');
+      }
+      document.querySelector(optInput.clearButton).setAttribute('ui-tippy', 'Clear');
+      return optInput;
+    }).flatMap((optInput) => ([
       {
         el: optInput.clearButton,
         ev: 'click',
@@ -275,6 +283,32 @@ export function startGenericSearchPageListeners<T>(opts: GenericSearchPageOpts<T
             document.querySelector(optInput.clearButton).classList.remove('hide');
           } else {
             document.querySelector(optInput.clearButton).classList.add('hide');
+          }
+        }
+      }
+    ])),
+    ... opts.inputs.filter(x => x.pasteButton).map(optInput => {
+      document.querySelector(optInput.pasteButton).setAttribute('ui-tippy', 'Paste');
+      return optInput;
+    }).flatMap((optInput) => ([
+      {
+        el: optInput.pasteButton,
+        ev: 'click',
+        fn: function(_event, _target) {
+          let inputEl = document.querySelector<HTMLInputElement>(optInput.selector);
+          inputEl.value = '';
+          inputEl.focus();
+          pasteFromClipboard(inputEl);
+        }
+      },
+      {
+        el: optInput.selector,
+        ev: 'input',
+        fn: function(_event, target) {
+          if (target.value.trim().length) {
+            document.querySelector(optInput.pasteButton).setAttribute('ui-tippy', 'Clear and Paste');
+          } else {
+            document.querySelector(optInput.pasteButton).setAttribute('ui-tippy', 'Paste');
           }
         }
       }

@@ -78,6 +78,7 @@ pageMatch('pages/generic/basic/excel-viewer-table', () => {
     },
     enableCellTextSelection: true,
     ensureDomOrder: true,
+    enableRangeSelection: true
   };
 
   function getColumnDefs(): (ColDef | ColGroupDef)[] {
@@ -134,7 +135,6 @@ pageMatch('pages/generic/basic/excel-viewer-table', () => {
             field: key,
             filter: typeof row[key] === 'number' || typeof row[key] === 'boolean' ? 'agNumberColumnFilter' : 'agTextColumnFilter',
             filterParams: typeof row[key] === 'boolean' ? booleanFilter : undefined,
-            spanHeaderHeight: true,
             width: initialWidth,
             hide: key.includes('TextMapHash') || key.endsWith('Hash'),
             cellClass: 'cell-type-' + (isUnset(row[key]) ? 'null' : typeof row[key])

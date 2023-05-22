@@ -177,9 +177,9 @@ export async function importPlainTextMap(getDataFilePath: (relPath: string) => s
         }
       }
 
-      console.log('  Writing to PlainTextMap<lang>_Text.dat');
+      console.log(`  Writing to PlainTextMap${langCode}_Text.dat`);
       fs.writeFileSync(getDataFilePath('./TextMap/Plain/PlainTextMap' + langCode + '_Text.dat'), textList.join('\n'), 'utf8');
-      console.log('  Writing to PlainTextMap<lang>_Hash.dat');
+      console.log(`  Writing to PlainTextMap${langCode}_Hash.dat`);
       fs.writeFileSync(getDataFilePath('./TextMap/Plain/PlainTextMap' + langCode + '_Hash.dat'), hashList.join('\n'), 'utf8');
 
       textmap = null;

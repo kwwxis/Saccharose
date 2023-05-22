@@ -7,9 +7,10 @@ import { isInt } from '../../../../shared/util/numberUtil';
 import { DialogExcelConfigData, TalkExcelConfigData } from '../../../../shared/types/genshin/dialogue-types';
 import { escapeRegExp, trim } from '../../../../shared/util/stringUtil';
 import {
-  DialogueSectionResult, dialogueToQuestId,
+  DialogueSectionResult,
+  dialogueToQuestId,
   TalkConfigAccumulator,
-  talkConfigToDialogueSectionResult,
+  talkConfigGenerate,
   traceBack,
 } from './dialogue_util';
 import { MetaProp } from '../../../util/metaProp';
@@ -18,6 +19,8 @@ import { Marker } from '../../../../shared/util/highlightMarker';
 import { normGenshinText } from '../genshinText';
 import { LangCode, TextMapHash } from '../../../../shared/types/lang-types';
 
+// NPC Filtering for Single Branch Dialogue
+// --------------------------------------------------------------------------------------------------------------
 const lc = (s: string) => s ? s.toLowerCase() : s;
 
 function normNpcFilterInput(npcFilterInput: string, langCode: LangCode): string {
@@ -44,6 +47,8 @@ const npcFilterInclude = async (ctrl: GenshinControl, d: DialogExcelConfigData, 
   return npcNameOutputLang === npcFilter || npcNameInputLang === npcFilter;
 };
 
+// Single Branch Dialogue
+// --------------------------------------------------------------------------------------------------------------
 export const DIALOGUE_GENERATE_MAX = 100;
 
 export async function dialogueGenerate(ctrl: GenshinControl, query: number|number[]|string, npcFilter?: string): Promise<DialogueSectionResult[]> {
@@ -60,11 +65,13 @@ export async function dialogueGenerate(ctrl: GenshinControl, query: number|numbe
     let re: RegExp;
     let reFlags: string = ctrl.searchModeFlags.includes('i') ? 'gi' : 'g';
     let isRegexQuery: boolean = ctrl.searchMode === 'R' || ctrl.searchMode === 'RI';
-    if (typeof query === 'string') {
+
+    if (typeof query === 'string' && ctrl.inputLangCode === ctrl.outputLangCode) {
       re = new RegExp(isRegexQuery ? `(?<=:''' .*)` + query : escapeRegExp(ctrl.normText(query, ctrl.outputLangCode)), reFlags);
     } else {
       re = new RegExp(escapeRegExp(ctrl.normText(dialogue.TalkContentText, ctrl.outputLangCode)), reFlags);
     }
+
     for (let marker of Marker.create(re, sect.wikitext)) {
       sect.wikitextMarkers.push(marker);
     }
@@ -188,22 +195,8 @@ export async function dialogueGenerate(ctrl: GenshinControl, query: number|numbe
   return result;
 }
 
-export async function talkConfigGenerate(ctrl: GenshinControl, talkConfigId: number|TalkExcelConfigData, acc?: TalkConfigAccumulator): Promise<DialogueSectionResult> {
-  let initTalkConfig = typeof talkConfigId === 'number' ? await ctrl.selectTalkExcelConfigDataByQuestSubId(talkConfigId) : talkConfigId;
-
-  if (!initTalkConfig) {
-    return undefined;
-  }
-
-  if (!acc) acc = new TalkConfigAccumulator(ctrl);
-
-  let talkConfig: TalkExcelConfigData = await acc.handleTalkConfig(initTalkConfig);
-  if (!talkConfig) {
-    return undefined;
-  }
-  return await talkConfigToDialogueSectionResult(ctrl, null, 'Talk', null, talkConfig);
-}
-
+// NPC Dialogue
+// --------------------------------------------------------------------------------------------------------------
 export type NpcDialogueResultMap = {[npcId: number]: NpcDialogueResult};
 export class NpcDialogueResult {
   npcId: number;
@@ -271,6 +264,8 @@ export async function dialogueGenerateByNpc(ctrl: GenshinControl, npcNameOrId: s
   return resultMap;
 }
 
+// CLI TESTING
+// --------------------------------------------------------------------------------------------------------------
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
     //console.log(await dialogueGenerate(`Uh, why are you two fighting?`));

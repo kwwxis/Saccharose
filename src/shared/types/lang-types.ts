@@ -100,3 +100,7 @@ export type LangCodeMap<T = string> = {
   TR: T,
   VI: T,
 };
+
+export type VoiceItem = { id: number, fileName: string, type?: string, isGendered?: boolean, gender?: 'M' | 'F' };
+export type VoiceItemArrayMap = { [voiceId: string]: VoiceItem[] };
+export type VoiceItemFlatMap = { [voiceId: string]: VoiceItem };

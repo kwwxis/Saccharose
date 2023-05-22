@@ -10,7 +10,6 @@ import { Request, Response } from './util/router';
 import sessions from './middleware/sessions';
 import appBaseRouter from './controllers/AppBaseRouter';
 import apiBaseRouter from './controllers/ApiBaseRouter';
-import { loadVoiceItems } from './domain/genshin/genshinVoiceItems';
 import { isStringNotBlank } from '../shared/util/stringUtil';
 import requestIp from 'request-ip';
 import jsonResponse from './middleware/response/jsonResponse';
@@ -22,6 +21,8 @@ import { PUBLIC_DIR, VIEWS_ROOT } from './loadenv';
 import { csrfMiddleware } from './middleware/request/csrf';
 import { pageLoadErrorHandler } from './middleware/response/globalErrorHandler';
 import { loadSpriteTags } from './domain/genshin/misc/spriteTags';
+import { loadGenshinVoiceItems } from './domain/genshin/genshinControl';
+import { loadStarRailVoiceItems } from './domain/hsr/starRailControl';
 
 const app: Express = express();
 let didInit: boolean = false;
@@ -42,17 +43,32 @@ export async function appInit(): Promise<Express> {
 
   // Load Genshin data resources
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  console.log(`[Init] Opening sqlite database and loading Genshin data resources`);
+  console.log(`[Init] Opening sqlite database and loading data resources`);
   openKnex();
-  await loadVoiceItems();
+  await loadGenshinVoiceItems();
+  await loadStarRailVoiceItems();
   await loadSpriteTags();
 
   // Serve static directories
   // ~~~~~~~~~~~~~~~~~~~~~~~~
   app.use(express.static(PUBLIC_DIR));
+
   if (isStringNotBlank(process.env.EXT_PUBLIC_DIR)) {
     console.log('[Init] Serving external public directory');
     app.use(express.static(process.env.EXT_PUBLIC_DIR));
+  }
+
+  if (isStringNotBlank(process.env.EXT_GENSHIN_IMAGES)) {
+    console.log('[Init] Serving external Genshin images');
+    app.use('/images/genshin', express.static(process.env.EXT_GENSHIN_IMAGES));
+  }
+  if (isStringNotBlank(process.env.EXT_HSR_IMAGES)) {
+    console.log('[Init] Serving external HSR images');
+    app.use('/images/hsr', express.static(process.env.EXT_HSR_IMAGES));
+  }
+  if (isStringNotBlank(process.env.EXT_ZENLESS_IMAGES)) {
+    console.log('[Init] Serving external Zenless images');
+    app.use('/images/zenless', express.static(process.env.EXT_ZENLESS_IMAGES));
   }
 
   // Initialize sessions

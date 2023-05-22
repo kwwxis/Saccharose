@@ -80,9 +80,10 @@ export default async function(): Promise<Router> {
   router.get('/TCG/cards', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
     const gcg = getGCGControl(ctrl);
+    gcg.disableSkillSelect = true;
 
-    const charCards = await gcg.selectAllChar();
-    const actionCards = await gcg.selectAllCard();
+    const charCards = await gcg.selectAllCharacterCards();
+    const actionCards = await gcg.selectAllCards();
 
     sort(charCards, '-IsCanObtain', 'Id');
     sort(actionCards, 'IsHidden', '-IsCanObtain', 'Id');
@@ -125,7 +126,7 @@ export default async function(): Promise<Router> {
     const ctrl = getGenshinControl(req);
     const gcg = getGCGControl(ctrl);
     const cardId = isInt(req.params.cardId) ? toInt(req.params.cardId) : null;
-    const card: GCGCommonCard = (await gcg.selectChar(cardId)) || (await gcg.selectCard(cardId));
+    const card: GCGCommonCard = (await gcg.selectCharacterCard(cardId)) || (await gcg.selectCard(cardId));
 
     res.render('pages/genshin/gcg/gcg-card', {
       title: (card?.WikiName || 'Not Found') + ' | TCG Card',

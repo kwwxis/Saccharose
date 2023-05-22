@@ -47,7 +47,7 @@ export async function generateSkillPage(gcg: GCGControl, parentCard: GCGCommonCa
   sb.line((await ol_gen_from_id(gcg.ctrl, skill.NameTextMapHash)).result);
   sb.line();
   sb.line('==Change History==');
-  sb.line('{{Change History|REPLACE_ME}}');
+  sb.line('{{Change History|<!-- version -->}}');
   sb.line();
   sb.line('==Navigation==');
   sb.line(`{{Genius Invokation TCG Skill Infobox|${parentCard.WikiName}}}`);
@@ -203,7 +203,7 @@ export async function generateCardPage(gcg: GCGControl, card: GCGCommonCard): Pr
   }
   sb.line();
   sb.line('==Change History==');
-  sb.line('{{Change History|REPLACE_ME}}');
+  sb.line('{{Change History|<!-- version -->}}');
   sb.line();
   sb.line('==Navigation==');
   if (isCharacterCard(card)) {

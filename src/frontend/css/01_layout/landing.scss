@@ -64,7 +64,7 @@
   }
 }
 
-.page--hsr {
+.page--hsr, .page--zenless {
   #landing-header {
 
     .bg {
@@ -130,6 +130,29 @@
       p {
         font-size: 14px;
       }
+    }
+  }
+}
+
+.page--zenless {
+  #landing-header {
+    .bg {
+      height: 250px;
+      background: url(/images/C00_03_09.png) center / cover;
+    }
+
+    .bg3 {
+      background: #535cc2;
+    }
+
+    h2 {
+      text-shadow: 0 0 15px #282e71;
+    }
+
+    img {
+      width: 300px;
+      top: 30px;
+      right: 40px;
     }
   }
 }

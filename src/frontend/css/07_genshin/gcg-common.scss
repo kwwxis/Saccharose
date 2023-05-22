@@ -140,3 +140,18 @@
     font-family: 'Open Sans', sans-serif;
   }
 }
+
+.tcg-card-image {
+  height:85px;
+  width:55px;
+  overflow:hidden;
+  position: relative;
+
+  img {
+    height:85px;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}

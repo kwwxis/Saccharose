@@ -134,7 +134,8 @@ textarea.code, [contenteditable].code, .input-style.code {
 
 // Input Clear Button
 // --------------------------------------------------------------------------------------------------------------
-.input-clear-button {
+.input-clear-button,
+.input-paste-button {
   border: 0;
   background: 0;
   position: absolute;
@@ -146,25 +147,32 @@ textarea.code, [contenteditable].code, .input-style.code {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f4f4fb;
+  background: #f8f8fc;
   border-left: 1px solid #e1e1f4;
   cursor: pointer;
+
+  svg {
+    width: 18px;
+    height: 18px;
+    color: #45454e;
+    opacity: 0.6;
+  }
+
+  &:hover svg {
+    opacity: 1;
+  }
 }
 
-.input-clear-button svg {
-  width: 18px;
-  height: 18px;
-  color: #45454e;
-  opacity: 0.6;
-}
-.input-clear-button:hover svg {
-  opacity: 1;
+.input-clear-button.with-paste-button {
+  right: 41px;
 }
 
-body.nightmode .input-clear-button {
-  background: #2a2a36;
+body.nightmode .input-clear-button,
+body.nightmode .input-paste-button {
+  background: #2f2f3c;
   border-left-color: hsla(232, 20%, 60%, 0.25);
-}
-body.nightmode .input-clear-button svg {
-  color: hsl(255deg 5% 58.97%);
+
+  svg {
+    color: hsl(255deg 5% 58.97%);
+  }
 }

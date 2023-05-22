@@ -1,14 +1,12 @@
 import '../../../loadenv';
 import { closeKnex } from '../../../util/db';
 import { GenshinControl, getGenshinControl } from '../genshinControl';
-import { getVoPrefix } from '../genshinVoiceItems';
 import { cached } from '../../../util/cache';
 import { isInt } from '../../../../shared/util/numberUtil';
 import { ReminderExcelConfigData } from '../../../../shared/types/genshin/dialogue-types';
 import { DialogueSectionResult } from './dialogue_util';
 import { MetaProp } from '../../../util/metaProp';
 import { pathToFileURL } from 'url';
-import { normGenshinText } from '../genshinText';
 
 export async function reminderGenerateAll(ctrl: GenshinControl): Promise<DialogueSectionResult> {
   let sect = new DialogueSectionResult(null, 'All Reminders');
@@ -24,7 +22,7 @@ export async function reminderGenerateAll(ctrl: GenshinControl): Promise<Dialogu
 
       let speaker = ctrl.normText(reminder.SpeakerText, ctrl.outputLangCode);
       let text = ctrl.normText(reminder.ContentText, ctrl.outputLangCode);
-      let voPrefix = getVoPrefix('Reminder', reminder.Id, text);
+      let voPrefix = ctrl.voice.getVoPrefix('Reminder', reminder.Id, text);
 
       if (!reminder.SpeakerText) {
         out += '\n' + voPrefix + text;
@@ -40,7 +38,7 @@ export async function reminderGenerateAll(ctrl: GenshinControl): Promise<Dialogu
 
 export function reminderWikitext(ctrl: GenshinControl, reminder: ReminderExcelConfigData) {
   let text = ctrl.normText(reminder.ContentText, ctrl.outputLangCode);
-  let voPrefix = getVoPrefix('Reminder', reminder.Id, text);
+  let voPrefix = ctrl.voice.getVoPrefix('Reminder', reminder.Id, text);
 
   if (!reminder.SpeakerText) {
     return '\n' + voPrefix + text;

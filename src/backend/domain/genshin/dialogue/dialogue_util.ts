@@ -153,6 +153,22 @@ export class TalkConfigAccumulator {
   }
 }
 
+export async function talkConfigGenerate(ctrl: GenshinControl, talkConfigId: number | TalkExcelConfigData, acc?: TalkConfigAccumulator): Promise<DialogueSectionResult> {
+  let initTalkConfig = typeof talkConfigId === 'number' ? await ctrl.selectTalkExcelConfigDataByQuestSubId(talkConfigId) : talkConfigId;
+
+  if (!initTalkConfig) {
+    return undefined;
+  }
+
+  if (!acc) acc = new TalkConfigAccumulator(ctrl);
+
+  let talkConfig: TalkExcelConfigData = await acc.handleTalkConfig(initTalkConfig);
+  if (!talkConfig) {
+    return undefined;
+  }
+  return await talkConfigToDialogueSectionResult(ctrl, null, 'Talk', null, talkConfig);
+}
+
 export async function talkConfigToDialogueSectionResult(ctrl: GenshinControl, parentSect: DialogueSectionResult | QuestGenerateResult,
                                                         sectName: string, sectHelptext: string, talkConfig: TalkExcelConfigData, dialogueDepth: number = 1): Promise<DialogueSectionResult> {
   let mysect = new DialogueSectionResult('Talk_' + talkConfig.Id, sectName, sectHelptext);
@@ -307,7 +323,6 @@ export async function traceBack(ctrl: GenshinControl, dialog: DialogExcelConfigD
   }
   return ret;
 }
-
 
 export async function guessQuestFromDialogueId(ctrl: GenshinControl, id: number | string): Promise<number> {
   if (typeof id === 'string') {
@@ -497,6 +512,8 @@ export async function orderChapterQuests(ctrl: GenshinControl, chapter: ChapterE
   return result;
 }
 
+// CLI TESTING
+// --------------------------------------------------------------------------------------------------------------
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
     let ctrl: GenshinControl = getGenshinControl();

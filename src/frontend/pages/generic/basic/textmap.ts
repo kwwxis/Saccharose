@@ -25,6 +25,7 @@ pageMatch('pages/generic/basic/textmap', () => {
         selector: '.search-input',
         apiParam: 'text',
         queryParam: 'q',
+        pasteButton: '.search-input-paste',
         clearButton: '.search-input-clear',
       },
       {

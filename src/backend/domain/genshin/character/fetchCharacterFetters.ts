@@ -1,12 +1,6 @@
 import '../../../loadenv';
-import { GenshinControl, getGenshinControl } from '../genshinControl';
+import { GenshinControl, getGenshinControl, loadGenshinVoiceItems } from '../genshinControl';
 import { processFetterConds } from './fetterConds';
-import {
-  getAllVoiceItemsOfType,
-  getVoiceItems,
-  loadVoiceItems,
-  VoiceItem,
-} from '../genshinVoiceItems';
 import { closeKnex } from '../../../util/db';
 import { CharacterFetters, CharacterFettersByAvatar, FetterExcelConfigData } from '../../../../shared/types/genshin/fetter-types';
 import { cached } from '../../../util/cache';
@@ -15,6 +9,7 @@ import { fetchCharacterStories } from './fetchStoryFetters';
 import chalk from 'chalk';
 import { distance as strdist } from 'fastest-levenshtein';
 import { AvatarExcelConfigData, isTraveler } from '../../../../shared/types/genshin/avatar-types';
+import { VoiceItem } from '../../../../shared/types/lang-types';
 
 function getVoAvatarName(avatar: AvatarExcelConfigData, voiceItems: VoiceItem[]): string {
   if (isTraveler(avatar, 'male')) {
@@ -67,14 +62,14 @@ export async function fetchCharacterFetters(ctrl: GenshinControl): Promise<Chara
         agg.avatarName = await ctrl.createLangCodeMap(fetter.Avatar.NameTextMapHash);
       }
       if (agg.avatar && !agg.voAvatarName && fetter.VoiceFile) {
-        let voItems = getVoiceItems('Fetter', fetter.VoiceFile);
+        let voItems = ctrl.voice.getVoiceItems('Fetter', fetter.VoiceFile);
         if (voItems && voItems.length) {
           agg.voAvatarName = getVoAvatarName(agg.avatar, voItems);
           aggByVoAvatar[agg.voAvatarName] = agg;
         }
       }
       if (agg.voAvatarName && fetter.VoiceFile) {
-        let voItems = getVoiceItems('Fetter', fetter.VoiceFile);
+        let voItems = ctrl.voice.getVoiceItems('Fetter', fetter.VoiceFile);
         fetter.VoiceFilePath = voItems.find(item => item.fileName.startsWith('vo ' + agg.voAvatarName))?.fileName;
       }
       if (fetter.Type === 1) {
@@ -101,8 +96,8 @@ export async function fetchCharacterFetters(ctrl: GenshinControl): Promise<Chara
       await processFetterConds(ctrl, fetter, 'FinishConds');
     }
 
-    let fetterVos = getAllVoiceItemsOfType('Fetter');
-    let animatorVos = getAllVoiceItemsOfType('AnimatorEvent');
+    let fetterVos = ctrl.voice.getVoiceItemsByType('Fetter');
+    let animatorVos = ctrl.voice.getVoiceItemsByType('AnimatorEvent');
     for (let item of fetterVos) {
       let voAvatarName = /^vo (\S+)/.exec(item.fileName)?.[1];
       let agg = aggByVoAvatar[voAvatarName];
@@ -129,12 +124,12 @@ export async function fetchCharacterFettersByAvatarId(ctrl: GenshinControl, avat
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
-    await loadVoiceItems();
+    await loadGenshinVoiceItems();
 
     const ctrl = getGenshinControl();
 
     let avatars = Object.values(await fetchCharacterStories(ctrl)).map(x => x.avatar);
-    let fetterVOs = getAllVoiceItemsOfType('Fetter');
+    let fetterVOs = ctrl.voice.getVoiceItemsByType('Fetter');
     for (let avatar of avatars) {
       console.log(avatar.NameText, chalk.bold(getVoAvatarName(avatar, fetterVOs)));
     }

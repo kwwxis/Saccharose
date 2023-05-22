@@ -1,5 +1,5 @@
 import '../../../loadenv';
-import { GenshinControl, getGenshinControl } from '../genshinControl';
+import { GenshinControl, getGenshinControl, loadGenshinVoiceItems } from '../genshinControl';
 import {
   GCGCardExcelConfigData, GCGCardFaceExcelConfigData, GCGCardViewExcelConfigData,
   GCGChallengeExcelConfigData,
@@ -20,13 +20,11 @@ import {
   GCGTalkExcelConfigData,
   GCGWeekLevelExcelConfigData, GcgWorldWorkTimeExcelConfigData,
 } from '../../../../shared/types/genshin/gcg-types';
-import { getVoPrefix, loadVoiceItems } from '../genshinVoiceItems';
-import { DialogueSectionResult } from '../dialogue/dialogue_util';
+import { DialogueSectionResult, talkConfigGenerate } from '../dialogue/dialogue_util';
 import { pathToFileURL } from 'url';
 import { closeKnex } from '../../../util/db';
 import fs from 'fs';
 import { getGenshinDataFilePath, IMAGEDIR_GENSHIN } from '../../../loadenv';
-import { talkConfigGenerate } from '../dialogue/basic_dialogue_generator';
 import { SchemaTable } from '../../../importer/import_db';
 import { formatTime } from '../../../../shared/types/genshin/general-types';
 import { normGenshinText } from '../genshinText';
@@ -38,11 +36,13 @@ import { isUnset } from '../../../../shared/util/genericUtil';
 import { findFiles } from '../../../util/shellutil';
 import { distance as strdist } from 'fastest-levenshtein';
 import path from 'path';
-import { cached } from '../../../util/cache';
+import { cached, cachedSync } from '../../../util/cache';
 
 // noinspection JSUnusedGlobalSymbols
 export class GCGControl {
   private didInit: boolean = false;
+
+  // Preloaded Data
   icons: GCGTalkDetailIconExcelConfigData[];
   rules: GCGRuleExcelConfigData[];
   challenges: GCGChallengeExcelConfigData[];
@@ -54,6 +54,9 @@ export class GCGControl {
   worldWorkTime: GcgWorldWorkTimeExcelConfigData[];
   charSkillDamageList: GCGCharSkillDamage[];
   charIcons: string[];
+
+  // Settings
+  disableSkillSelect: boolean = false;
 
   constructor(readonly ctrl: GenshinControl, readonly enableElementalReactionMapping: boolean = false) {}
 
@@ -171,19 +174,21 @@ export class GCGControl {
     if ('RelatedCharacterId' in o) {
       o.RelatedCharacter = await this.singleSelect('GCGCharExcelConfigData', 'Id', o['RelatedCharacterId']);
     }
-    if ('SkillTagList' in o) {
-      o.MappedSkillTagList = o.SkillTagList.map(tagType => this.skillTagList.find(tag => tag.Type == tagType)).filter(x => !!x);
-    }
     if ('CostList' in o && Array.isArray(o.CostList)) {
       for (let costItem of o.CostList) {
         costItem.CostData = this.costDataList.find(x => x.Type === costItem.CostType);
       }
     }
-    if ('SkillId' in o) {
-      o.MappedSkill = await this.singleSelect('GCGSkillExcelConfigData', 'Id', o['SkillId'], this.postProcessSkill);
-    }
-    if ('SkillList' in o) {
-      o.MappedSkillList = await this.multiSelect('GCGSkillExcelConfigData', 'Id', o['SkillList'], this.postProcessSkill);
+    if (!this.disableSkillSelect) {
+      if ('SkillTagList' in o) {
+        o.MappedSkillTagList = o.SkillTagList.map(tagType => this.skillTagList.find(tag => tag.Type == tagType)).filter(x => !!x);
+      }
+      if ('SkillId' in o) {
+        o.MappedSkill = await this.singleSelect('GCGSkillExcelConfigData', 'Id', o['SkillId'], this.postProcessSkill);
+      }
+      if ('SkillList' in o) {
+        o.MappedSkillList = await this.multiSelect('GCGSkillExcelConfigData', 'Id', o['SkillList'], this.postProcessSkill);
+      }
     }
     return o;
   }
@@ -270,7 +275,7 @@ export class GCGControl {
   // --------------------------------------------------------------------------------------------------------------
 
   private async postProcessTalkDetail(talkDetail: GCGTalkDetailExcelConfigData): Promise<GCGTalkDetailExcelConfigData> {
-    talkDetail.VoPrefix = getVoPrefix('Card', talkDetail.TalkDetailId, null, null, false);
+    talkDetail.VoPrefix = this.ctrl.voice.getVoPrefix('Card', talkDetail.TalkDetailId, null, null, false);
     if (talkDetail.TalkDetailIconId) {
       talkDetail.Avatar = await this.ctrl.selectAvatarById(talkDetail.TalkDetailIconId);
       talkDetail.TalkDetailIcon = this.icons.find(icon => icon.Id === talkDetail.TalkDetailIconId);
@@ -611,14 +616,17 @@ export class GCGControl {
       card.WikiNameTextMapHash = card.DeckCard.ItemMaterial.NameTextMapHash;
     } else if (card.CardView) {
       card.WikiImage = card.CardView.Image;
-      card.WikiName = card.NameText || String(card.Id).padStart(6, '0');
+      card.WikiName = card.NameText || '(Unnamed)';
       card.WikiNameTextMapHash = card.NameTextMapHash;
     } else {
-      card.WikiName = card.NameText || String(card.Id).padStart(6, '0');
+      card.WikiName = card.NameText || '(Unnamed)';
       card.WikiNameTextMapHash = card.NameTextMapHash;
     }
 
-    if (card.WikiImage && fs.existsSync(path.resolve(IMAGEDIR_GENSHIN, './' + card.WikiImage + '_Golden.png'))) {
+    const goldenImageExists: boolean = cachedSync('GCG_goldenImageExists_' + card.Id, () => {
+      return !!card.WikiImage && fs.existsSync(path.resolve(IMAGEDIR_GENSHIN, './' + card.WikiImage + '_Golden.png'));
+    });
+    if (goldenImageExists) {
       card.WikiGoldenImage = card.WikiImage + '_Golden';
     }
 
@@ -670,7 +678,7 @@ export class GCGControl {
     return cardFace;
   }
 
-  private async postProcessCard(card: GCGCardExcelConfigData): Promise<GCGCardExcelConfigData> {
+  private async postProcessActionCard(card: GCGCardExcelConfigData): Promise<GCGCardExcelConfigData> {
     card.MappedChooseTargetList = await this.multiSelect('GCGChooseExcelConfigData', 'Id', card.ChooseTargetList);
 
     if (card.TokenDescId) {
@@ -694,12 +702,12 @@ export class GCGControl {
     return card;
   }
 
-  async selectAllCard(): Promise<GCGCardExcelConfigData[]> {
-    return await this.allSelect('GCGCardExcelConfigData', this.postProcessCard)
+  async selectAllCards(): Promise<GCGCardExcelConfigData[]> {
+    return await this.allSelect('GCGCardExcelConfigData', this.postProcessActionCard)
   }
 
   async selectCard(id: number): Promise<GCGCardExcelConfigData> {
-    return await this.singleSelect('GCGCardExcelConfigData', 'Id', id, this.postProcessCard);
+    return await this.singleSelect('GCGCardExcelConfigData', 'Id', id, this.postProcessActionCard);
   }
 
   private async selectCardWithoutPostProcess(id: number): Promise<GCGCardExcelConfigData> {
@@ -708,7 +716,7 @@ export class GCGControl {
 
   // GCG CHAR
   // --------------------------------------------------------------------------------------------------------------
-  async postProcessChar(char: GCGCharExcelConfigData): Promise<GCGCharExcelConfigData> {
+  async postProcessCharacterCard(char: GCGCharExcelConfigData): Promise<GCGCharExcelConfigData> {
     char.CardFace = await this.singleSelect('GCGCardFaceExcelConfigData', 'CardId', char.Id, this.postProcessCardFace);
     char.CardView = await this.singleSelect('GCGCardViewExcelConfigData', 'Id', char.Id, this.postProcessCardView);
 
@@ -720,21 +728,9 @@ export class GCGControl {
     await this.postProcessCommonCard(char);
 
     if (!isInt(char.WikiName)) {
-      //const charNameLc = (await this.ctrl.getTextMapItem('EN', char.WikiNameTextMapHash)).toLowerCase();
       const isAvatar = char.TagList.some(s => s.startsWith('GCG_TAG_NATION'));
       const eligibleCharIcons = this.charIcons.filter(icon => isAvatar ? icon.startsWith('UI_Gcg_Char_Avatar') : !icon.startsWith('UI_Gcg_Char_Avatar'));
       const charCmpLc = splitLimit(char.CardView.ImagePath, '_', 5)[4].toLowerCase();
-
-      // let charSwitchLc = char.IAPINBOEJCO.toLowerCase();
-      // if (charSwitchLc.startsWith('switch_')) {
-      //   charSwitchLc = charSwitchLc.slice('switch_'.length);
-      // }
-      // if (charSwitchLc.startsWith('gcg_')) {
-      //   charSwitchLc = charSwitchLc.slice('gcg_'.length);
-      // }
-      // charSwitchLc = charSwitchLc.replace(/_/g, '');
-      // charSwitchLc = charSwitchLc.replace(/samurai/g, '');
-
 
       const iconCandidates: string[] = [];
 
@@ -783,12 +779,12 @@ export class GCGControl {
     return char;
   }
 
-  async selectAllChar(): Promise<GCGCharExcelConfigData[]> {
-    return await this.allSelect('GCGCharExcelConfigData', this.postProcessChar);
+  async selectAllCharacterCards(): Promise<GCGCharExcelConfigData[]> {
+    return await this.allSelect('GCGCharExcelConfigData', this.postProcessCharacterCard);
   }
 
-  async selectChar(id: number): Promise<GCGCharExcelConfigData> {
-    return await this.singleSelect('GCGCharExcelConfigData', 'Id', id, this.postProcessChar);
+  async selectCharacterCard(id: number): Promise<GCGCharExcelConfigData> {
+    return await this.singleSelect('GCGCharExcelConfigData', 'Id', id, this.postProcessCharacterCard);
   }
 
   private async selectCharWithoutPostProcess(id: number): Promise<GCGCharExcelConfigData> {
@@ -871,13 +867,13 @@ export class GCGControl {
 
   private async postProcessDeck(deck: GCGDeckExcelConfigData): Promise<GCGDeckExcelConfigData> {
     deck.MappedCharacterList = await this.multiSelect('GCGCharExcelConfigData', 'Id',
-      deck.CharacterList, this.postProcessChar);
+      deck.CharacterList, this.postProcessCharacterCard);
 
     deck.MappedWaitingCharacterList = await this.multiSelect('GCGCharExcelConfigData', 'Id',
-      deck.WaitingCharacterList.map(x => x.Id).filter(x => !!x), this.postProcessChar);
+      deck.WaitingCharacterList.map(x => x.Id).filter(x => !!x), this.postProcessCharacterCard);
 
     deck.MappedCardList = await this.multiSelect('GCGCardExcelConfigData', 'Id',
-      deck.CardList, this.postProcessCard);
+      deck.CardList, this.postProcessActionCard);
 
     return deck;
   }
@@ -1080,7 +1076,7 @@ export function getGCGControl(ctrl: GenshinControl) {
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
-    await loadVoiceItems();
+    await loadGenshinVoiceItems();
 
     const ctrl = getGenshinControl();
     const gcg = getGCGControl(ctrl);
@@ -1106,7 +1102,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
       }
     }
 
-    const cards = await gcg.selectAllCard();
+    const cards = await gcg.selectAllCards();
     fs.writeFileSync(getGenshinDataFilePath('./cards.json'), JSON.stringify(cards, null, 2), 'utf8');
 
     const deckCards = await gcg.selectAllDeckCard();
@@ -1115,7 +1111,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     // const decks = await gcg.selectAllDeck();
     // fs.writeFileSync(getGenshinDataFilePath('./decks.json'), JSON.stringify(decks, null, 2), 'utf8');
 
-    const chars = await gcg.selectAllChar();
+    const chars = await gcg.selectAllCharacterCards();
     // fs.writeFileSync(getGenshinDataFilePath('./characters.json'), JSON.stringify(chars, null, 2), 'utf8');
 
     const stage1 = await gcg.selectStage(2011);

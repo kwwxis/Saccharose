@@ -7,7 +7,6 @@ import {
   WorldAreaConfigData,
   WorldAreaType,
 } from '../../../shared/types/genshin/general-types';
-import { getVoPrefix } from './genshinVoiceItems';
 import { Request } from '../../util/router';
 import SrtParser, { SrtLine } from '../../util/srtParser';
 import { promises as fs } from 'fs';
@@ -34,7 +33,7 @@ import {
   ReminderExcelConfigData,
   TalkExcelConfigData,
   TalkLoadType,
-  TalkRole,
+  TalkRole, TalkRoleType,
 } from '../../../shared/types/genshin/dialogue-types';
 import {
   ChapterCollection,
@@ -65,6 +64,7 @@ import {
 } from '../../../shared/types/genshin/homeworld-types';
 import { grep, grepIdStartsWith, grepStream } from '../../util/shellutil';
 import {
+  DATAFILE_GENSHIN_VOICE_ITEMS,
   getGenshinDataFilePath,
   getReadableRelPath,
 } from '../../loadenv';
@@ -104,13 +104,14 @@ import { normGenshinText } from './genshinText';
 import { IdUsages } from '../../util/searchUtil';
 import { AbstractControl, AbstractControlState } from '../abstractControl';
 import debug from 'debug';
-import { LangCode, TextMapHash } from '../../../shared/types/lang-types';
+import { LangCode, TextMapHash, VoiceItem, VoiceItemArrayMap } from '../../../shared/types/lang-types';
 import {
   GCGTagCampType,
   GCGTagElementType,
   GCGTagNationType,
   GCGTagWeaponType,
 } from '../../../shared/types/genshin/gcg-types';
+import path from 'path';
 
 /**
  * State/cache for only a single control
@@ -137,6 +138,8 @@ export function getGenshinControl(request?: Request) {
 
 // TODO: Make this not a god object
 export class GenshinControl extends AbstractControl<GenshinControlState> {
+  readonly voice = new GenshinVoice();
+
   constructor(request?: Request) {
     super('genshin', GenshinControlState, request);
     this.excelPath = './ExcelBinOutput';
@@ -773,7 +776,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
       // Voice-Overs
       // ~~~~~~~~~~~
-      let voPrefix = getVoPrefix('Dialog', dialog.Id, text, dialog.TalkRole.Type);
+      let voPrefix = this.voice.getVoPrefix('Dialog', dialog.Id, text, dialog.TalkRole.Type);
 
       // Output Append
       // ~~~~~~~~~~~~~
@@ -1811,5 +1814,81 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       .where({ActivityId: id}).first().then(async res => res ? await this.getTextMapItem(this.outputLangCode, res.NameTextMapHash) : undefined);
     this.state.newActivityNameCache[id] = name;
     return name;
+  }
+}
+
+const GENSHIN_VOICE_ITEMS: VoiceItemArrayMap = {};
+
+export async function loadGenshinVoiceItems(): Promise<void> {
+  console.log('[Init] Loading Genshin Voice Items -- starting...');
+
+  const voiceItemsFilePath = path.resolve(process.env.GENSHIN_DATA_ROOT, DATAFILE_GENSHIN_VOICE_ITEMS);
+  const result: VoiceItemArrayMap = await fs.readFile(voiceItemsFilePath, {encoding: 'utf8'}).then(data => JSON.parse(data));
+
+  Object.assign(GENSHIN_VOICE_ITEMS, result);
+  Object.freeze(GENSHIN_VOICE_ITEMS);
+  console.log('[Init] Loading Genshin Voice Items -- done!');
+}
+
+export type GenshinVoiceItemType = 'Dialog'|'Reminder'|'Fetter'|'AnimatorEvent'|'WeatherMonologue'|'JoinTeam'|'Card';
+
+export class GenshinVoice {
+
+  getVoiceItemsByType(type: GenshinVoiceItemType): VoiceItem[] {
+    let items: VoiceItem[] = [];
+    for (let [key, item] of Object.entries(GENSHIN_VOICE_ITEMS)) {
+      if (key.startsWith(type)) {
+        items.push(... item)
+      }
+    }
+    return items;
+  }
+
+  getVoiceItemByFile(voFile: string): VoiceItem {
+    voFile = voFile.toLowerCase();
+    for (let key of Object.keys(GENSHIN_VOICE_ITEMS)) {
+      let voiceItemArray = GENSHIN_VOICE_ITEMS[key];
+      for (let voiceItem of voiceItemArray) {
+        if (voiceItem.fileName.toLowerCase() == voFile) {
+          return voiceItem;
+        }
+      }
+    }
+    return null;
+  }
+
+  getVoiceItems(type: GenshinVoiceItemType, id: number|string): VoiceItem[] {
+    return GENSHIN_VOICE_ITEMS[type+'_'+id];
+  }
+
+  getVoPrefix(type: GenshinVoiceItemType, id: number|string, text?: string, talkRoleType?: TalkRoleType, commentOutDupes: boolean = true): string {
+    let voItems = GENSHIN_VOICE_ITEMS[type+'_'+id];
+    let voPrefix = '';
+    if (voItems) {
+      let maleVo = voItems.find(voItem => voItem.gender === 'M');
+      let femaleVo = voItems.find(voItem => voItem.gender === 'F');
+      let noGenderVo = voItems.filter(voItem => !voItem.gender);
+      let tmp = [];
+
+      if (maleVo) {
+        tmp.push(`{{A|${maleVo.fileName}}}`);
+      }
+      if (femaleVo) {
+        tmp.push(`{{A|${femaleVo.fileName}}}`);
+      }
+      if (noGenderVo) {
+        noGenderVo.forEach(x => tmp.push(`{{A|${x.fileName}}}`));
+      }
+      if (tmp.length) {
+        if (!commentOutDupes) {
+          voPrefix = tmp.join(' ') + ' ';
+        } else if (text && (/{{MC/i.test(text) || talkRoleType === 'TALK_ROLE_PLAYER' || talkRoleType === 'TALK_ROLE_MATE_AVATAR')) {
+          voPrefix = tmp.join(' ') + ' ';
+        } else {
+          voPrefix = tmp.shift() + tmp.map(x => `<!--${x}-->`).join('') + ' ';
+        }
+      }
+    }
+    return voPrefix;
   }
 }

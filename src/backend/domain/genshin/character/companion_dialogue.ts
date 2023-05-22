@@ -1,12 +1,11 @@
 import '../../../loadenv';
 import { closeKnex } from '../../../util/db';
 import { GenshinControl, getGenshinControl } from '../genshinControl';
-import { talkConfigGenerate } from '../dialogue/basic_dialogue_generator';
 import { cached } from '../../../util/cache';
 import { toInt } from '../../../../shared/util/numberUtil';
 import { HomeWorldEventExcelConfigData, HomeWorldNPCExcelConfigData } from '../../../../shared/types/genshin/homeworld-types';
 import { grep } from '../../../util/shellutil';
-import { DialogueSectionResult, TalkConfigAccumulator } from '../dialogue/dialogue_util';
+import { DialogueSectionResult, TalkConfigAccumulator, talkConfigGenerate } from '../dialogue/dialogue_util';
 import util from 'util';
 import { toBoolean } from '../../../../shared/util/genericUtil';
 import { pathToFileURL } from 'url';

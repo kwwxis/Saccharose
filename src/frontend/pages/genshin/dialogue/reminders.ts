@@ -11,6 +11,7 @@ pageMatch('pages/genshin/dialogue/reminders', () => {
         selector: '.reminder-generate-input',
         apiParam: 'text',
         queryParam: 'q',
+        pasteButton: '.reminder-generate-input-paste',
         clearButton: '.reminder-generate-input-clear'
       },
       {

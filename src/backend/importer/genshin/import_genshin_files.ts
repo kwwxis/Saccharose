@@ -11,9 +11,9 @@ import { ReadableView } from '../../../shared/types/genshin/readable-types';
 import { closeKnex } from '../../util/db';
 import { normGenshinText } from '../../domain/genshin/genshinText';
 import { importNormalize, importPlainTextMap } from '../import_file_util';
-import { defaultMap } from '../../../shared/util/genericUtil';
 import { GCGCharSkillDamage } from '../../../shared/types/genshin/gcg-types';
 import { standardElementCode } from '../../../shared/types/genshin/manual-text-map';
+import { VoiceItem, VoiceItemArrayMap } from '../../../shared/types/lang-types';
 
 async function importGcgSkill() {
   const outDir = process.env.GENSHIN_DATA_ROOT;
@@ -94,8 +94,7 @@ async function importVoice() {
   const outDir = process.env.GENSHIN_DATA_ROOT;
   const jsonDir = getGenshinDataFilePath('./BinOutput/Voice/Items');
 
-  type VoiceOver = {fileName: string, gender?: 'M'|'F'};
-  const combined: {[id: string]: VoiceOver[]} = {};
+  const combined: VoiceItemArrayMap = {};
 
   const jsonsInDir = fs.readdirSync(jsonDir).filter(file => path.extname(file) === '.json');
   const unknownTriggers: Set<string> = new Set();
@@ -135,11 +134,16 @@ async function importVoice() {
       for (let voiceSource of voiceItem._sourceNames) {
         let fileName: string = voiceSource.sourceFileName.split('\\').pop().toLowerCase().replace(/_/g, ' ').replace('.wem', '.ogg');
         let gender: number = voiceSource.gender;
-        let voiceSourceNorm: VoiceOver = {fileName};
+        let voiceSourceNorm: VoiceItem = {id: voiceItem.gameTriggerArgs, fileName};
+        if (voiceItem._gameTrigger) {
+          voiceSourceNorm.type = voiceItem._gameTrigger;
+        }
         if (gender === 1) {
           voiceSourceNorm.gender = 'F';
+          voiceSourceNorm.isGendered = true;
         } else  if (gender === 2) {
           voiceSourceNorm.gender = 'M';
+          voiceSourceNorm.isGendered = true;
         }
         let alreadyExisting = combined[key].find(x => x.fileName === voiceSourceNorm.fileName);
         if (alreadyExisting) {
@@ -150,6 +154,7 @@ async function importVoice() {
           // In which case we want to only have one of them and remove the gender.
           if (voiceSourceNorm.gender && alreadyExisting.gender) {
             delete alreadyExisting.gender;
+            delete voiceSourceNorm.isGendered;
           }
           continue;
         }

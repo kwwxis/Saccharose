@@ -12,6 +12,7 @@ pageMatch('pages/genshin/dialogue/branch-dialogue', () => {
         selector: '.dialogue-generate-input',
         apiParam: 'text',
         queryParam: 'q',
+        pasteButton: '.dialogue-generate-input-paste',
         clearButton: '.dialogue-generate-input-clear',
       },
       {

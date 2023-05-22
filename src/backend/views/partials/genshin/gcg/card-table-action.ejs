@@ -16,7 +16,9 @@
       <tr>
         <td>
           <% if (card.WikiImage) { %>
-            <div style="min-height:86px"><img src="/images/genshin/<%= card.WikiImage %>.png" style="width:50px" /></div>
+            <div class="tcg-card-image">
+              <img src="/images/genshin/<%= card.WikiImage %>.png" />
+            </div>
           <% } %>
         </td>
         <td><code style="font-size:15px"><%= String(card.Id).padStart(6, '0') %></code></td>

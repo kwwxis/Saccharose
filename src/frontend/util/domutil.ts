@@ -250,12 +250,20 @@ export function removeSessionStorageObject(key: string): void {
   window.sessionStorage.removeItem(key);
 }
 
+export async function pasteFromClipboard(target: HTMLInputElement|HTMLTextAreaElement): Promise<string> {
+  if (navigator.clipboard) {
+    return navigator.clipboard.readText().then(text => target.value = text);
+  } else {
+    return Promise.reject();
+  }
+}
+
 /**
  * Should be called from a user-interaction event listener such as `click`.
  *
  * Copied from https://stackoverflow.com/a/33928558
  */
-export function copyToClipboard(text: string): Promise<void> {
+export async function copyToClipboard(text: string): Promise<void> {
     if (navigator.clipboard) {
         return navigator.clipboard.writeText(text);
     } else if (document.queryCommandSupported && document.queryCommandSupported('copy')) {

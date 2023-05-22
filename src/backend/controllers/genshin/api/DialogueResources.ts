@@ -12,8 +12,8 @@ import {
   NpcDialogueResultMap,
 } from '../../../domain/genshin/dialogue/basic_dialogue_generator';
 import { reminderGenerate, reminderWikitext } from '../../../domain/genshin/dialogue/reminder_generator';
-import { getIdFromVoFile } from '../../../domain/genshin/genshinVoiceItems';
 import { ApiCyclicValueReplacer } from '../../../middleware/api/apiCyclicValueReplacer';
+import { VoiceItem } from '../../../../shared/types/lang-types';
 
 const router: Router = create();
 
@@ -172,9 +172,9 @@ router.restful('/dialogue/vo-to-dialogue', {
       input = input.replaceAll('_', ' ');
       input = input.replace('File:', '');
 
-      let result = getIdFromVoFile(input);
-      let type = result?.[0];
-      let id = result?.[1];
+      let result: VoiceItem = ctrl.voice.getVoiceItemByFile(input);
+      let type = result?.type;
+      let id = result?.id;
       let text = '';
 
       if (type === 'Dialog') {
