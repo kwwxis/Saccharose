@@ -6,7 +6,7 @@ import cookieParser from 'cookie-parser';
 import useragent from 'express-useragent';
 import helmet from 'helmet';
 import { openKnex } from './util/db';
-import { Request, Response } from './util/router';
+import { NextFunction, Request, Response } from './util/router';
 import sessions from './middleware/sessions';
 import appBaseRouter from './controllers/AppBaseRouter';
 import apiBaseRouter from './controllers/ApiBaseRouter';
@@ -64,7 +64,12 @@ export async function appInit(): Promise<Express> {
   }
   if (isStringNotBlank(process.env.EXT_HSR_IMAGES)) {
     console.log('[Init] Serving external HSR images');
-    app.use('/images/hsr', express.static(process.env.EXT_HSR_IMAGES));
+    const staticHandler = express.static(process.env.EXT_HSR_IMAGES);
+    app.use('/images/hsr', (req: Request, res: Response, next: NextFunction) => {
+      req.originalUrl = req.originalUrl.replace(/(?<=\/images\/hsr\/).*(?=\/[^\/]+$)/, fm => fm.toLowerCase());
+      req.url = req.url.replace(/.*(?=\/[^\/]+$)/, fm => fm.toLowerCase());
+      return staticHandler(req, res, next);
+    });
   }
   if (isStringNotBlank(process.env.EXT_ZENLESS_IMAGES)) {
     console.log('[Init] Serving external Zenless images');
