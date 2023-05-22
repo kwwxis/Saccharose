@@ -40,7 +40,6 @@ const presets = {
   DialogueIcon: <InspectOpt> { file: excel('DialogueIcon'), inspectFieldValues: [] },
   DialogueNPC: <InspectOpt> { file: excel('DialogueNPC'), inspectFieldValues: [] },
   DialogueProp: <InspectOpt> { file: excel('DialogueProp'), inspectFieldValues: [] },
-  VoiceConfig: <InspectOpt> { file: excel('VoiceConfig'), inspectFieldValues: ['VoiceType'] },
 
   // Talk:
   TalkBehavior: <InspectOpt> { file: excel('TalkBehavior'), inspectFieldValues: [] },
@@ -50,13 +49,16 @@ const presets = {
   TalkReward: <InspectOpt> { file: excel('TalkReward'), inspectFieldValues: [] },
   RewardData: <InspectOpt> { file: excel('RewardData'), inspectFieldValues: [] },
 
+  // Misc:
+  VoiceConfig: <InspectOpt> { file: excel('VoiceConfig'), inspectFieldValues: ['VoiceType'] },
+  LoadingDesc: <InspectOpt> { file: excel('LoadingDesc'), inspectFieldValues: [] },
 };
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
     const ctrl = getStarRailControl();
 
-    await inspectDataFile(ctrl, presets.VoiceConfig);
+    await inspectDataFile(ctrl, presets.LoadingDesc);
 
     await closeKnex();
   })();

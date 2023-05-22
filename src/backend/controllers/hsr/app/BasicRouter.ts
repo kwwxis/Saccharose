@@ -1,7 +1,7 @@
 import { create, Request, Response, Router } from '../../../util/router';
 import { getStarRailControl } from '../../../domain/hsr/starRailControl';
-
 import { sendExcelViewerTableResponse } from '../../generic/app/abstractBasicRouter';
+import { SbOut } from '../../../../shared/util/stringUtil';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -41,6 +41,29 @@ export default async function(): Promise<Router> {
 
   router.get('/excel-viewer/:file', async (req: Request, res: Response) => {
     await sendExcelViewerTableResponse(getStarRailControl(req), req, res);
+  });
+
+  // Loading Tips
+  // ~~~~~~~~~~~~
+
+  router.get('/loading-tips', async (req: Request, res: Response) => {
+    const ctrl = getStarRailControl(req);
+    let sb: SbOut = new SbOut();
+
+    let loadingTips: {[category: string]: string[]} = await ctrl.getLoadingTips();
+    for (let [category, tips] of Object.entries(loadingTips)) {
+      sb.line(`===${category}===`);
+      for (let tip of tips) {
+        sb.line(` - ${tip}`);
+      }
+      sb.line();
+    }
+
+    res.render('pages/hsr/archive/loading-tips', {
+      title: 'Loading Tips',
+      wikitext: sb.toString(),
+      bodyClass: ['page--loading-tips']
+    });
   });
 
   return router;

@@ -74,9 +74,10 @@ function normalizeRecord<T>(record: T): T {
       delete record[prevKey];
     }
 
-    if (key.endsWith('Hash') && !key.endsWith('TextHash') && typeof record[key] === 'number') {
+    if (key.endsWith('Hash') && !key.endsWith('TextMapHash') && typeof record[key] === 'number') {
       let prevKey = key;
-      record[key = key.slice(0, -4) + 'TextHash'] = record[prevKey];
+      key = key.replace(/(TextmapID)?(Text)?(Id|Map)?Hash$/i, 'TextMapHash');
+      record[key] = record[prevKey];
       delete record[prevKey];
     }
   }

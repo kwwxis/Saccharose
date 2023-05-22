@@ -171,6 +171,10 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     return this.excelPath;
   }
 
+  async readExcelDataFile<T>(filePath: string, doNormText: boolean = false): Promise<T> {
+    return this.readDataFile(path.join(this.excelPath, filePath), doNormText);
+  }
+
   async readDataFile<T>(filePath: string, doNormText: boolean = false): Promise<T> {
     let fileContents: string = await fs.readFile(this.getDataFilePath(filePath), {encoding: 'utf8'});
     let json = JSON.parse(fileContents);

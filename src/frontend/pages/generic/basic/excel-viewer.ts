@@ -5,7 +5,7 @@ import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import './ag-grid-custom.scss';
 
-import { camelCaseToTitleCase } from '../../../../shared/util/stringUtil';
+import { camelCaseToTitleCase, escapeHtml } from '../../../../shared/util/stringUtil';
 import { ColGroupDef } from 'ag-grid-community/dist/lib/entities/colDef';
 import { sort } from '../../../../shared/util/arrayUtil';
 import { startListeners } from '../../../util/eventLoader';
@@ -77,8 +77,7 @@ pageMatch('pages/generic/basic/excel-viewer-table', () => {
       wrapHeaderText: true,
     },
     enableCellTextSelection: true,
-    ensureDomOrder: true,
-    enableRangeSelection: true
+    ensureDomOrder: true
   };
 
   function getColumnDefs(): (ColDef | ColGroupDef)[] {
@@ -127,7 +126,6 @@ pageMatch('pages/generic/basic/excel-viewer-table', () => {
           let headerWidth = getTextWidth(camelCaseToTitleCase(key), `bold 13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif`);
           headerWidth += (18 * 2) + 16; // 18px left and right padding + filter icon width
           initialWidth = Math.max(initialWidth, headerWidth);
-          console.log('headerWidth', key, headerWidth);
 
           colDefForKey[key] = <ColDef> {
             headerName: camelCaseToTitleCase(key),
@@ -154,6 +152,14 @@ pageMatch('pages/generic/basic/excel-viewer-table', () => {
                 }
                 return highlightJson(params.value).outerHTML;
               };
+            } else if (pageMatch.isStarRail && (key.includes('Image') || key.includes('Icon') || key.includes('Path'))) {
+              (<ColDef> colDefForKey[key]).cellRenderer = function(params: ICellRendererParams) {
+                if (!params.value || typeof params.value !== 'string' || (!params.value.startsWith('SpriteOutput/') && !params.value.startsWith('UI/'))) {
+                  return '';
+                }
+                let safeValue = escapeHtml(params.value);
+                return `<img src="/images/hsr/${safeValue}" loading="lazy" decoding="async" style="max-height:80px;background:#333" /><span class="code spacer5-left">${safeValue}</span>`;
+              };
             }
           }
         }
@@ -161,7 +167,8 @@ pageMatch('pages/generic/basic/excel-viewer-table', () => {
         columnDefs.push(colDefForKey[key]);
       }
     }
-    console.log('Unique Keys:', uniqueKeys);
+
+    //console.log('Unique Keys:', uniqueKeys);
     sort(columnDefs,  (a, b): number => {
       if (a.headerName === 'ID') {
         return -1;

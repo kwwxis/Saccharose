@@ -1817,6 +1817,9 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   }
 }
 
+// Voice Items
+// --------------------------------------------------------------------------------------------------------------
+
 const GENSHIN_VOICE_ITEMS: VoiceItemArrayMap = {};
 
 export async function loadGenshinVoiceItems(): Promise<void> {

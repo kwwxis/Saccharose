@@ -14,6 +14,9 @@ import {
 import { normStarRailText } from './starRailText';
 import path from 'path';
 import { promises as fs } from 'fs';
+import { defaultMap } from '../../../shared/util/genericUtil';
+import { LoadingDesc } from '../../../shared/types/hsr/hsr-misc-types';
+import { sort } from '../../../shared/util/arrayUtil';
 
 /**
  * State/cache for only a single control
@@ -52,8 +55,8 @@ export class StarRailControl extends AbstractControl<StarRailControlState> {
     }
     const objAsAny = object as any;
     for (let prop in object) {
-      if (prop.endsWith('Hash') || prop.endsWith('HashList')) {
-        let textProp: string = prop.endsWith('HashList') ? prop.slice(0, -8) + 'List' : prop.slice(0, -4);
+      if (prop.endsWith('MapHash') || prop.endsWith('MapHashList')) {
+        let textProp: string = prop.endsWith('List') ? prop.slice(0, -11) + 'List' : prop.slice(0, -7);
         if (Array.isArray(object[prop])) {
           let newOriginalArray = [];
           object[textProp] = [];
@@ -81,7 +84,26 @@ export class StarRailControl extends AbstractControl<StarRailControlState> {
     }
     return object;
   }
+
+  async getLoadingTips(): Promise<{[category: string]: string[]}> {
+    const out: {[category: string]: string[]} = defaultMap('Array');
+
+    let loadingTips: LoadingDesc[] = await this.readExcelDataFile('./LoadingDesc.json');
+    sort(loadingTips, 'TitleText', 'DescText');
+
+    for (let loadingTip of loadingTips) {
+      let title = this.normText(loadingTip.TitleText, this.outputLangCode);
+      let desc = this.normText(loadingTip.DescText, this.outputLangCode);
+
+      out[title].push(desc);
+    }
+
+    return out;
+  }
 }
+
+// Voice Items
+// --------------------------------------------------------------------------------------------------------------
 
 const HSR_VOICE_ITEMS: VoiceItemFlatMap = {};
 
