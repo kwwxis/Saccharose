@@ -88,7 +88,7 @@ function normalizeRecord<T>(record: T): T {
   return record;
 }
 
-export async function importNormalize(jsonDir: string, skip: string[]) {
+export async function importNormalize(jsonDir: string, skip: string[], specialNormalize: boolean = false) {
   const jsonsInDir = (await fsp.readdir(jsonDir)).filter(file => path.extname(file) === '.json');
   console.log('JSON DIR:', jsonDir);
 
@@ -105,31 +105,34 @@ export async function importNormalize(jsonDir: string, skip: string[]) {
     let fileData = await fsp.readFile(filePath, 'utf8');
 
     let json = JSON.parse(fileData);
-    if (Array.isArray(json)) {
-      json.forEach(row => normalizeRecord(row));
-    } else {
-      json = Object.values(json).map(row => normalizeRecord(row));
-    }
 
-    let newJson = [];
-    for (let row of json) {
-      if (!row || typeof row !== 'object') {
-        newJson.push(row);
-        continue;
+    if (specialNormalize) {
+      if (Array.isArray(json)) {
+        json.forEach(row => normalizeRecord(row));
+      } else {
+        json = Object.values(json).map(row => normalizeRecord(row));
       }
 
-      let queue = [row];
-      while (queue.length) {
-        let curr = queue.shift();
+      let newJson = [];
+      for (let row of json) {
+        if (!row || typeof row !== 'object') {
+          newJson.push(row);
+          continue;
+        }
 
-        if (curr && typeof curr === 'object' && Object.keys(curr).every(key => isInt(key))) {
-          queue.push(... Object.values(curr));
-        } else {
-          newJson.push(curr);
+        let queue = [row];
+        while (queue.length) {
+          let curr = queue.shift();
+
+          if (curr && typeof curr === 'object' && Object.keys(curr).every(key => isInt(key))) {
+            queue.push(... Object.values(curr));
+          } else {
+            newJson.push(curr);
+          }
         }
       }
+      json = newJson;
     }
-    json = newJson;
 
     let newFileData = JSON.stringify(json, null, 2);
 

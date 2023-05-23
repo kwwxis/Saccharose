@@ -802,6 +802,11 @@ export const genshinSchema = {
       { name: 'NpcType', type: 'string', isIndex: true },
       { name: 'OpenQuestId', type: 'integer', isIndex: true },
     ],
+    normalizeFixFields: {
+      OPEAIDGALDL: 'NpcType',
+      GGHJEFNBDFK: 'LevelCondList',
+      BGNBBBHMLLO: 'GcgLevel',
+    }
   },
   GCGCardExcelConfigData: <SchemaTable>{
     name: 'GCGCardExcelConfigData',
@@ -890,6 +895,11 @@ export const genshinSchema = {
       }
       return ret;
     },
+    normalizeFixFields: {
+      OPEAIDGALDL: 'NpcType',
+      GGHJEFNBDFK: 'LevelCondList',
+      BGNBBBHMLLO: 'GcgLevel',
+    }
   },
   Relation_GCGCharacterLevel: <SchemaTable>{
     name: 'Relation_GCGCharacterLevel',

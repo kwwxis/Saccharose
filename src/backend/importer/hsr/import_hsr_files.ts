@@ -50,7 +50,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
         fs.renameSync(textMapCN, getStarRailDataFilePath('./TextMap/TextMapCHS.json'));
         console.log('Moved TextMapCN.json to TextMapCHS.json');
       }
-      await importNormalize(getStarRailDataFilePath('./ExcelOutput'), []);
+      await importNormalize(getStarRailDataFilePath('./ExcelOutput'), [], true);
     }
     if (options.plaintext) {
       await importPlainTextMap(getStarRailDataFilePath, normStarRailText);
