@@ -223,7 +223,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
       let batchNum = 1;
       let batchMax = 500;
 
-      if (table.name === 'Relation_DialogToNext') {
+      if (table.name.startsWith('Relation')) {
         batchMax = 200;
       }
 
