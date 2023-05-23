@@ -377,12 +377,16 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     } else if (options['run-excludes']) {
       let input = (options['run-excludes'] as string[]).map(s => s.split(/[,;]/g)).flat(Infinity) as string[];
       tablesToRun = [];
-      for (let text of input) {
-        for (let table of Object.values(schemaSet)) {
-          if (!table.name.toLowerCase().includes(text.toLowerCase())) {
-            tablesToRun.push(table.name);
-          }
+      console.log(input);
+
+      for (let table of Object.values(schemaSet)) {
+        let anyExclude = input.find(x => table.name.toLowerCase().includes(x.toLowerCase()));
+
+        if (!anyExclude) {
+          tablesToRun.push(table.name);
         }
+      }
+      for (let text of input) {
       }
     } else if (options['run-vacuum']) {
       await knex.raw('VACUUM').then();
