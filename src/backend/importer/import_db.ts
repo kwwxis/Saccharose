@@ -223,6 +223,10 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
       let batchNum = 1;
       let batchMax = 500;
 
+      if (table.name === 'Relation_DialogToNext') {
+        batchMax = 200;
+      }
+
       async function commitBatch() {
         await knex.transaction(function(tx) {
           return knex.batchInsert(table.name, batch).transacting(tx);
