@@ -36,14 +36,18 @@ function normalizeRecord<T>(record: T): T {
 
     if (isOnePropObj(value, 'Hash')) {
       delete record[key];
-      record[key = key + 'Hash'] = value['Hash'];
+      value = value['Hash'];
+      record[key = key + 'Hash'] = value;
 
     } else if (isOnePropObj(value, 'Value')) {
       delete record[key];
-      record[key = key + 'Value'] = value['Value'];
+      value = value['Value'];
+      record[key = key + 'Value'] = value;
 
     } else if (Array.isArray(value) && value.length) {
-      value = value.filter(v => !isEmptyObj(v)).map(v => normalizeRecord(v));
+      value = value.filter(v => !isEmptyObj(v)).map(v => {
+        return normalizeRecord(v);
+      });
       record[key] = value;
 
       if (value.length && value.every(v => isOnePropObj(v, 'Value'))) {
@@ -130,7 +134,7 @@ export async function importNormalize(jsonDir: string, skip: string[]) {
     let newFileData = JSON.stringify(json, null, 2);
 
     // Convert primitive arrays to be single-line.
-    newFileData = newFileData.replace(/\[(\s*(\d+|\d+\.\d+|"[^"]+"|true|false),?\s*)*]/g, fm => {
+    newFileData = newFileData.replace(/\[(\s*(\d+(\.\d+)?|"[^"]+"|true|false),?\n\s*)*]/g, fm => {
       let s = fm.slice(1, -1).split(',').map(s => s.trim()).join(', ');
       return s ? '[ ' + s + ' ]' : '[]';
     });

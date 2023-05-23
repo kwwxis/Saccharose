@@ -18,6 +18,12 @@ import { DOMClassWatcher } from '../../../util/domClassWatcher';
 const booleanFilter: INumberFilterParams = {
   filterOptions: [
     {
+      displayKey: 'none',
+      displayName: 'Either',
+      predicate: (_, cellValue) => true,
+      numberOfInputs: 0,
+    },
+    {
       displayKey: 'true',
       displayName: 'True',
       predicate: (_, cellValue) => +cellValue === 1,
@@ -158,7 +164,7 @@ pageMatch('pages/generic/basic/excel-viewer-table', () => {
                   return '';
                 }
                 let safeValue = escapeHtml(params.value);
-                return `<img src="/images/hsr/${safeValue}" loading="lazy" decoding="async" style="max-height:80px;background:#333" /><span class="code spacer5-left">${safeValue}</span>`;
+                return `<img src="/images/hsr/${safeValue}" loading="lazy" decoding="async" style="max-height:80px;background:#333" /><span class="code">${safeValue}</span>`;
               };
             }
           }
