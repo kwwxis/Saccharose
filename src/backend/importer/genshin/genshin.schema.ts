@@ -57,6 +57,9 @@ export const genshinSchema = {
       { name: 'TalkRoleNameTextMapHash', type: 'integer', isIndex: true },
       { name: 'GroupId', type: 'integer', isIndex: true },
     ],
+    normalizeFixFields: {
+      GFLDJMJKIKE: 'Id'
+    }
   },
   Relation_DialogToNext: <SchemaTable>{
     name: 'Relation_DialogToNext',
