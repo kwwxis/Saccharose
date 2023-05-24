@@ -542,6 +542,8 @@ const initial_listeners: Listener[] = [
                 actionEl.classList.remove('expand');
                 actionEl.classList.add('collapse');
 
+                container.classList.remove('hide');
+
                 let height;
                 if (container.hasAttribute('data-original-height')) {
                   // Use data-original-height (if it exists)
@@ -596,6 +598,9 @@ const initial_listeners: Listener[] = [
                   container.classList.add('collapsed');
                   container.classList.remove('collapsing', 'collapsing-' + animId);
                   styleEl.remove();
+                  setTimeout(() => {
+                    container.classList.add('hide');
+                  });
                 }, duration);
               }
 
