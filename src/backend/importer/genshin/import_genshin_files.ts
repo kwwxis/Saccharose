@@ -14,6 +14,7 @@ import { importNormalize, importPlainTextMap } from '../import_file_util';
 import { GCGCharSkillDamage } from '../../../shared/types/genshin/gcg-types';
 import { standardElementCode } from '../../../shared/types/genshin/manual-text-map';
 import { VoiceItem, VoiceItemArrayMap } from '../../../shared/types/lang-types';
+import { fetchCharacterFetters } from '../../domain/genshin/character/fetchCharacterFetters';
 
 async function importGcgSkill() {
   const outDir = process.env.GENSHIN_DATA_ROOT;
@@ -170,6 +171,16 @@ async function importVoice() {
   fs.writeFileSync(outDir + '/voiceItemsNormalized.json', JSON.stringify(combined, null, 2));
 }
 
+async function importFetters() {
+  const outDir = process.env.GENSHIN_DATA_ROOT;
+
+  const ctrl = getGenshinControl();
+  const allFetters = await fetchCharacterFetters(ctrl, true);
+
+  console.log(chalk.blue('Done. Output written to: ' + outDir + '/CharacterFettersCombined.json'));
+  fs.writeFileSync(outDir + '/CharacterFettersCombined.json', JSON.stringify(allFetters, null, 2));
+}
+
 async function importIndex() {
   if (!fs.existsSync(getGenshinDataFilePath('./TextMap/Index/'))) {
     fs.mkdirSync(getGenshinDataFilePath('./TextMap/Index/'));
@@ -252,6 +263,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
       {name: 'index', type: Boolean, description: 'Creates the index files for PlainTextMap.'},
       {name: 'voice', type: Boolean, description: 'Creates the normalized voice items file.'},
       {name: 'gcg-skill', type: Boolean, description: 'Creates file for GCG skill data'},
+      {name: 'fetters', type: Boolean, description: 'Creates file for character fetters data'},
       {name: 'help', type: Boolean, description: 'Display this usage guide.'},
     ];
 
@@ -296,6 +308,9 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     }
     if (options['gcg-skill']) {
       await importGcgSkill();
+    }
+    if (options.fetters) {
+      await importFetters();
     }
 
     await closeKnex();

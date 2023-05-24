@@ -10,6 +10,9 @@ import chalk from 'chalk';
 import { distance as strdist } from 'fastest-levenshtein';
 import { AvatarExcelConfigData, isTraveler } from '../../../../shared/types/genshin/avatar-types';
 import { VoiceItem } from '../../../../shared/types/lang-types';
+import { DATAFILE_GENSHIN_FETTERS } from '../../../loadenv';
+import path from 'path';
+import { promises as fs } from 'fs';
 
 function getVoAvatarName(avatar: AvatarExcelConfigData, voiceItems: VoiceItem[]): string {
   if (isTraveler(avatar, 'male')) {
@@ -46,7 +49,14 @@ function getVoAvatarName(avatar: AvatarExcelConfigData, voiceItems: VoiceItem[])
   return null;
 }
 
-export async function fetchCharacterFetters(ctrl: GenshinControl): Promise<CharacterFettersByAvatar> {
+export async function fetchCharacterFetters(ctrl: GenshinControl, skipCache: boolean = false): Promise<CharacterFettersByAvatar> {
+  if (!skipCache) {
+    return cached('CharacterFetters', async () => {
+      const fettersFilePath = path.resolve(process.env.GENSHIN_DATA_ROOT, DATAFILE_GENSHIN_FETTERS);
+      const result: CharacterFettersByAvatar = await fs.readFile(fettersFilePath, {encoding: 'utf8'}).then(data => JSON.parse(data));
+      return result;
+    });
+  }
   return cached('CharacterFetters', async () => {
     let fetters: FetterExcelConfigData[] = await ctrl.readDataFile('./ExcelBinOutput/FettersExcelConfigData.json');
     let fettersByAvatar: CharacterFettersByAvatar = {};
