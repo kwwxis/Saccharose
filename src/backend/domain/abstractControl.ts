@@ -2,7 +2,14 @@ import { Knex } from 'knex';
 import { Request } from '../util/router';
 import { DEFAULT_SEARCH_MODE, IdUsages, SEARCH_MODES, SearchMode } from '../util/searchUtil';
 import { openKnex, SaccharoseDb } from '../util/db';
-import { DEFAULT_LANG, LANG_CODES, LangCode, LangCodeMap, TextMapHash } from '../../shared/types/lang-types';
+import {
+  DEFAULT_LANG,
+  LANG_CODES,
+  LangCode,
+  LangCodeMap,
+  NON_SPACE_DELIMITED_LANG_CODES,
+  TextMapHash,
+} from '../../shared/types/lang-types';
 import {
   normalizeRawJson,
   normalizeRawJsonKey,
@@ -83,7 +90,16 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
   }
 
   get searchModeFlags(): string {
-    switch (this.searchMode) {
+    let searchMode = this.searchMode;
+    if (NON_SPACE_DELIMITED_LANG_CODES.includes(this.inputLangCode)) {
+      if (searchMode === 'W') {
+        searchMode = 'C';
+      }
+      if (searchMode === 'WI') {
+        searchMode = 'CI';
+      }
+    }
+    switch (searchMode) {
       case 'W':
         return '-w';
       case 'WI':

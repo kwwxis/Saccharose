@@ -140,17 +140,17 @@ export class GCGControl {
 
     text = await replaceAsync(text, /\$\[A(\d+)]/g, async (fm: string, g: string) => {
       const id = toInt(g);
-      return (await this.selectCharWithoutPostProcess(id)).NameText;
+      return (await this.selectCharWithoutPostProcess(id))?.NameText;
     });
 
     text = await replaceAsync(text, /\$\[S(\d+)]/g, async (fm: string, g: string) => {
       const id = toInt(g);
-      return (await this.selectSkillWithoutPostProcess(id)).NameText;
+      return (await this.selectSkillWithoutPostProcess(id))?.NameText;
     })
 
     text = await replaceAsync(text, /\$\[C(\d+)]/g, async (fm: string, g: string) => {
       const id = toInt(g);
-      return '[[' + (await this.selectCardWithoutPostProcess(id)).NameText + ']]';
+      return '[[' + (await this.selectCardWithoutPostProcess(id))?.NameText + ']]';
     });
 
     text = text.replace(/\{\{color\|#FFD780\|(.*?)}}/g, '[[$1]]');
