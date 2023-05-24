@@ -38,7 +38,7 @@ async function importGcgSkill() {
 
     if (typeof json === 'object' && typeof json.name === 'string' && skillInternalNames.has(json.name)) {
       const name: string = json.name;
-      const data: any = json['NGKMIMDBNPC'];
+      const data: any = json['NGKMIMDBNPC'] || json['ACMGJEOBIEK'];
       if (!combined[name]) {
         combined[name] = {Name: name};
       }
