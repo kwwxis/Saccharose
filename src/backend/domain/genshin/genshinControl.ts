@@ -984,6 +984,8 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
         chapter.Summary.ActType = 'Part';
       } else if (actPartEN && actPartEN.includes('Day')) {
         chapter.Summary.ActType = 'Day';
+      } else if (actPartEN && actPartEN.includes('Round')) {
+        chapter.Summary.ActType = 'Round';
       } else {
         chapter.Summary.ActType = 'None';
       }

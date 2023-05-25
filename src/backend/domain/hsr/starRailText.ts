@@ -4,11 +4,11 @@ import { genericNormText, mergeMcTemplate, TextNormalizer } from '../generic/gen
 function trailblazerPlaceholder(langCode: LangCode = 'EN', degender: boolean = false): string {
   switch (langCode) {
     case 'CH':
-      return '(開拓者)';
-    case 'CHS':
-      return '(開拓者)';
-    case 'CHT':
       return '(开拓者)';
+    case 'CHS':
+      return '(开拓者)';
+    case 'CHT':
+      return '(開拓者)';
     case 'DE':
       return '(Trailblazer)';
     case 'EN':
