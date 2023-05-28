@@ -103,7 +103,7 @@
         <% for (let { skill } of skills) { %>
           <tr>
             <td class="bold" style="width:150px;line-height:1em">
-              <div class="spacer5-top"><%= skill.NameText %></div>
+              <div class="spacer5-top"><%= skill.WikiName %></div>
               <small class="fontWeight500"><%= skill.WikiType %></small>
               <div class="valign spacer5-top spacer10-bottom">
                 <% if (skill.CostList && Array.isArray(skill.CostList)) { %>
@@ -143,7 +143,7 @@
               <div class="w100p">
                 <a role="button" class="spacer5-all secondary dispBlock textAlignLeft clearfix"
                    href="#wikitext-skill-<%= index %>">
-                  <span><b>Skill</b> / <%= skill.NameText %></span>
+                  <span><b>Skill</b> / <%= skill.WikiName %></span>
                   <span class="secondary-label small spacer10-left fr"><%= skill.WikiType %></span>
                 </a>
               </div>
@@ -159,7 +159,7 @@
     </section>
     <% for (let { skill, wikitext, index } of skills) { %>
       <section class="card" id="wikitext-skill-<%= index %>">
-        <h2>Skill Page: <strong><%= skill.NameText %></strong> <span class="secondary-label small spacer10-left"><%= skill.WikiType %></span></h2>
+        <h2>Skill Page: <strong><%= skill.WikiName %></strong> <span class="secondary-label small spacer10-left"><%= skill.WikiType %></span></h2>
         <%- use('partials/util/wikitext', { wikitext: wikitext, gutters: true }) %>
       </section>
     <% } %>

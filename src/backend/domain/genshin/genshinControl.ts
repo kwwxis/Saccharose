@@ -149,8 +149,8 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return getGenshinDataFilePath(file);
   }
 
-  override normText(text: string, langCode: LangCode, decolor: boolean = false, plaintext: boolean = false): string {
-    return normGenshinText(text, langCode, decolor, plaintext);
+  override normText(text: string, langCode: LangCode, decolor: boolean = false, plaintext: boolean = false, sNum?: number): string {
+    return normGenshinText(text, langCode, decolor, plaintext, 'both', sNum);
   }
 
   postProcessCondProp(obj: any, prop: string) {

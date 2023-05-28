@@ -6,7 +6,7 @@ export type McPlaceholderProvider = (langCode: LangCode, degender?: boolean) => 
 
 export type McPlainTextMode = 'both' | 'male' | 'female';
 
-export type TextNormalizer = (text: string, langCode: LangCode, decolor?: boolean, plaintext?: boolean, plaintextMcMode?: McPlainTextMode) => string;
+export type TextNormalizer = (text: string, langCode: LangCode, decolor?: boolean, plaintext?: boolean, plaintextMcMode?: McPlainTextMode, sNum?: number) => string;
 
 export function mergeMcTemplate(text: string, langCode: LangCode, plaintext: boolean): string {
   if (langCode && !plaintext && text.includes('{{MC')) {

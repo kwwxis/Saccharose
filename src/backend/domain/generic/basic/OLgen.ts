@@ -66,22 +66,22 @@ async function ol_gen_internal(ctrl: AbstractControl, textMapHash: TextMapHash, 
       continue;
     }
 
-    let textInLang = await ctrl.getTextMapItem(langCode, textMapHash);
+    let rawText = await ctrl.getTextMapItem(langCode, textMapHash);
 
-    if (isUnset(textInLang) && langCode === 'EN') {
+    if (isUnset(rawText) && langCode === 'EN') {
       return {wikitext: null, warnings: []};
     }
 
-    textInLang = textInLang || '';
+    rawText = rawText || '';
 
-    if (textInLang.includes('|')) {
-      textInLang = textInLang.replaceAll(/\|/g, '{{!}}');
-      warnings.push(`The parameter value for <code>${LANG_CODE_TO_WIKI_CODE[langCode].toLowerCase()}</code> contains a non-template pipe character (<code>|</code>). It has been replaced with <code>{{!}}</code>.<br />If pipe character was part of a special code, then it'll require manual editor intervention.`)
-    }
+    // if (rawText.includes('|')) {
+    //   rawText = rawText.replaceAll(/\|/g, '{{!}}');
+    //   warnings.push(`The parameter value for <code>${LANG_CODE_TO_WIKI_CODE[langCode].toLowerCase()}</code> contains a non-template pipe character (<code>|</code>). It has been replaced with <code>{{!}}</code>.<br />If pipe character was part of a special code, then it'll require manual editor intervention.`)
+    // }
 
-    olMap[langCode] = textInLang;
+    olMap[langCode] = rawText;
 
-    let langText = ctrl.normText(textInLang, langCode, true);
+    let langText = ctrl.normText(rawText, langCode, true);
 
     if (langCode === 'CHS' || langCode === 'CHT' || langCode === 'KR' || langCode === 'JP') {
       // replacing this character at the request of kalexchu
@@ -100,7 +100,7 @@ async function ol_gen_internal(ctrl: AbstractControl, textMapHash: TextMapHash, 
 
     template = template.replace(`{${langCode}_official_name}`, langText);
 
-    let isFullAscii = /^[\u0000-\u007f]*$/.test(textInLang);
+    let isFullAscii = /^[\u0000-\u007f]*$/.test(rawText);
     if (langCode === 'TH' && isFullAscii) {
       template = template.replace(/\|th_rm\s*=\s*\{}/, '');
       template = template.replace(/\|th_tl\s*=\s*\{}/, '');

@@ -132,25 +132,49 @@ export class GCGControl {
     }
     text = this.ctrl.normText(text, outputLangCode || this.ctrl.outputLangCode);
 
-    text = text.replace(/\$\[K(\d+)]/g, (fm: string, g: string) => {
+    text = text.replace(/\$\[K(\d+)(?:\|s(\d+))?]/g, (fm: string, g: string, sNumStr: string) => {
       const id = toInt(g);
       const kwText = this.keywordList.find(kw => kw.Id === id).TitleText;
       return this.ctrl.normText(kwText, outputLangCode || this.ctrl.outputLangCode).replace(/^'''(.*)'''$/, '$1');
     });
 
-    text = await replaceAsync(text, /\$\[A(\d+)]/g, async (fm: string, g: string) => {
+    text = await replaceAsync(text, /\$\[A(\d+)(?:\|s(\d+))?]/g, async (fm: string, g: string, sNumStr: string) => {
       const id = toInt(g);
-      return (await this.selectCharWithoutPostProcess(id))?.NameText;
+      const char = await this.selectCharWithoutPostProcess(id);
+      char.WikiName = await this.normGcgText(char.NameText);
+      if (!isInt(sNumStr)) {
+        return char.WikiName;
+      } else {
+        const rawText = await this.ctrl.getTextMapItem(this.ctrl.outputLangCode, char.NameTextMapHash);
+        const normText = this.ctrl.normText(rawText, this.ctrl.outputLangCode, false, false, toInt(sNumStr));
+        return char.WikiName !== normText ? `[[${char.WikiName}|${normText}]]` : `[[${normText}]]`;
+      }
     });
 
-    text = await replaceAsync(text, /\$\[S(\d+)]/g, async (fm: string, g: string) => {
+    text = await replaceAsync(text, /\$\[S(\d+)(?:\|s(\d+))?]/g, async (fm: string, g: string, sNumStr: string) => {
       const id = toInt(g);
-      return (await this.selectSkillWithoutPostProcess(id))?.NameText;
+      const skill = await this.selectSkillWithoutPostProcess(id);
+      skill.WikiName = await this.normGcgText(skill.NameText);
+      if (!isInt(sNumStr)) {
+        return skill.WikiName;
+      } else {
+        const rawText = await this.ctrl.getTextMapItem(this.ctrl.outputLangCode, skill.NameTextMapHash);
+        const normText = this.ctrl.normText(rawText, this.ctrl.outputLangCode, false, false, toInt(sNumStr));
+        return skill.WikiName !== normText ? `[[${skill.WikiName}|${normText}]]` : `[[${normText}]]`;
+      }
     })
 
-    text = await replaceAsync(text, /\$\[C(\d+)]/g, async (fm: string, g: string) => {
+    text = await replaceAsync(text, /\$\[C(\d+)(?:\|s(\d+))?]/g, async (fm: string, g: string, sNumStr: string) => {
       const id = toInt(g);
-      return '[[' + (await this.selectCardWithoutPostProcess(id))?.NameText + ']]';
+      const card = await this.selectCardWithoutPostProcess(id);
+      card.WikiName = await this.normGcgText(card.NameText);
+      if (!isInt(sNumStr)) {
+        return '[[' + card.WikiName + ']]';
+      } else {
+        const rawText = await this.ctrl.getTextMapItem(this.ctrl.outputLangCode, card.NameTextMapHash);
+        const normText = this.ctrl.normText(rawText, this.ctrl.outputLangCode, false, false, toInt(sNumStr));
+        return card.WikiName !== normText ? `[[${card.WikiName}|${normText}]]` : `[[${normText}]]`;
+      }
     });
 
     text = text.replace(/\{\{color\|#FFD780\|(.*?)}}/g, '[[$1]]');
@@ -612,14 +636,14 @@ export class GCGControl {
   private async postProcessCommonCard(card: GCGCardExcelConfigData|GCGCharExcelConfigData): Promise<GCGCommonCard> {
     if (card.DeckCard) {
       card.WikiImage = card.DeckCard.ItemMaterial.Icon;
-      card.WikiName = card.DeckCard.ItemMaterial.NameText;
+      card.WikiName = await this.normGcgText(card.DeckCard.ItemMaterial.NameText);
       card.WikiNameTextMapHash = card.DeckCard.ItemMaterial.NameTextMapHash;
     } else if (card.CardView) {
       card.WikiImage = card.CardView.Image;
-      card.WikiName = card.NameText || '(Unnamed)';
+      card.WikiName = await this.normGcgText(card.NameText || '(Unnamed)');
       card.WikiNameTextMapHash = card.NameTextMapHash;
     } else {
-      card.WikiName = card.NameText || '(Unnamed)';
+      card.WikiName = await this.normGcgText(card.NameText || '(Unnamed)');
       card.WikiNameTextMapHash = card.NameTextMapHash;
     }
 
@@ -634,23 +658,23 @@ export class GCGControl {
 
     switch (card.CardType) {
       case 'GCG_CARD_ASSIST':
-        card.WikiType = 'Support Card';
+        card.WikiType = (await this.ctrl.selectManualTextMapConfigDataById('UI_GCG_CARD_TYPE_SUPPORT')).TextMapContentText;
         break;
       case 'GCG_CARD_EVENT':
-        card.WikiType = 'Event Card';
+        card.WikiType = (await this.ctrl.selectManualTextMapConfigDataById('UI_GCG_CARD_TYPE_EVENT')).TextMapContentText;
         break;
       case 'GCG_CARD_MODIFY':
-        card.WikiType = 'Equipment Card';
+        card.WikiType = (await this.ctrl.selectManualTextMapConfigDataById('UI_GCG_CARD_TYPE_EQUIP')).TextMapContentText;
         break;
       case 'GCG_CARD_ONSTAGE':
         break;
       case 'GCG_CARD_STATE':
         break;
       case 'GCG_CARD_SUMMON':
-        card.WikiType = 'Summon';
+        card.WikiType = (await this.ctrl.selectManualTextMapConfigDataById('UI_GCG_CARD_TYPE_SUMMON')).TextMapContentText;
         break;
       case 'GCG_CARD_CHARACTER':
-        card.WikiType = 'Character Card';
+        card.WikiType = (await this.ctrl.selectManualTextMapConfigDataById('UI_GCG_CARD_TYPE_CHAR')).TextMapContentText;
         break;
     }
 
@@ -805,13 +829,22 @@ export class GCGControl {
     skill.SkillDamage = this.charSkillDamageList.find(x => x.Name === skill.InternalName);
 
     if (skill.DescText && skill.SkillDamage) {
-      skill.DescText = skill.DescText.replace(/\$\[D__KEY__DAMAGE]/g, (fm: string) => {
+      skill.DescText = skill.DescText.replace(/\$\[D__KEY__DAMAGE(\|nc)?]/g, (fm: string) => {
         return isUnset(skill.SkillDamage.Damage) ? fm : String(skill.SkillDamage.Damage);
       });
-      skill.DescText = skill.DescText.replace(/\$\[D__KEY__ELEMENT]/g, (fm: string) => {
+      skill.DescText = skill.DescText.replace(/\$\[D__KEY__ELEMENT(\|nc)?]/g, (fm: string) => {
         let keyword = this.keywordList.find(kw => kw.Id === skill.SkillDamage.ElementKeywordId);
         return keyword ? keyword.TitleText : fm;
       });
+      skill.DescText = skill.DescText.replaceAll(/\{PLURAL#(\d+)\|(.*?)\|(.*?)}/g,
+        (fm: string, numStr: string, ifSingular: string, ifPlural: string) => {
+          let num = toInt(numStr);
+          if (num > 1) {
+            return ifPlural;
+          } else {
+            return ifSingular;
+          }
+        });
     }
 
     skill.WikiDesc = await this.normGcgText(skill.DescText);
@@ -820,6 +853,8 @@ export class GCGControl {
   private async postProcessSkill(skill: GCGSkillExcelConfigData): Promise<GCGSkillExcelConfigData> {
     await this.setSkillWikiText(skill);
 
+    skill.WikiName = await this.normGcgText(skill.NameText);
+    skill.WikiDesc = await this.normGcgText(skill.DescText);
     skill.WikiType = skill.MappedSkillTagList?.find(tag => tag.Type !== 'GCG_SKILL_TAG_NONE')?.NameText;
 
     const seenAlready: Set<string> = new Set();

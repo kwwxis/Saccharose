@@ -81,7 +81,12 @@ function travelerPlaceholder(langCode: LangCode = 'EN', degender: boolean = fals
   return '(Traveler)';
 }
 
-export const normGenshinText: TextNormalizer = (text: string, langCode: LangCode, decolor: boolean = false, plaintext: boolean = false, plaintextMcMode: 'both' | 'male' | 'female' = 'both'): string => {
+export const normGenshinText: TextNormalizer = (text: string,
+                                                langCode: LangCode,
+                                                decolor: boolean = false,
+                                                plaintext: boolean = false,
+                                                plaintextMcMode: 'both' | 'male' | 'female' = 'both',
+                                                sNum?: number): string => {
   if (!text) {
     return text;
   }
@@ -122,7 +127,16 @@ export const normGenshinText: TextNormalizer = (text: string, langCode: LangCode
     text = convertGenshinRubi(langCode, text);
   }
 
-  text = mergeMcTemplate(text, langCode, plaintext)
+  text = mergeMcTemplate(text, langCode, plaintext);
+
+  if (/\|s1:/.test(text)) {
+    let parts = text.split(/\|s\d+:/);
+    if (sNum && sNum <= parts.length - 1) {
+      text = parts[sNum];
+    } else {
+      text = parts[0];
+    }
+  }
 
   return text;
 };
