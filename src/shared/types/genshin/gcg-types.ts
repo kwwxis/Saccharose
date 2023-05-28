@@ -139,7 +139,6 @@ export interface GCGSkillExcelConfigData {
   WikiName?: string,
   WikiDesc?: string,
   WikiType?: string,
-  WikiDesc?: string,
   SkillDamage?: GCGCharSkillDamage;
 }
 
