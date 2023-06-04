@@ -418,7 +418,7 @@ export async function dialogueToQuestId(ctrl: GenshinControl, query: string | nu
 // --------------------------------------------------------------------------------------------------------------
 export interface QuestOrderItem {
   quest: MainQuestExcelConfigData;
-  subquests?: MainQuestExcelConfigData[];
+  subquests?: QuestOrderItem[];
 }
 
 export async function orderChapterQuests(ctrl: GenshinControl, chapter: ChapterExcelConfigData): Promise<QuestOrderItem[]> {
@@ -497,19 +497,20 @@ export async function orderChapterQuests(ctrl: GenshinControl, chapter: ChapterE
   sort(undirectedQuests, '__globalVarPos', 'Id');
 
   let combinedOrder: MainQuestExcelConfigData[] = [].concat(...undirectedQuests, ...directedQuests);
-  let result: QuestOrderItem[] = [];
 
-  for (let quest of combinedOrder) {
-    let item: QuestOrderItem = { quest };
-    if (subquests[quest.Id]) {
-      item.subquests = [];
-      for (let subquest of subquests[quest.Id]) {
-        item.subquests.push(subquest);
+  function convertToOrderItem(quests: MainQuestExcelConfigData[]): QuestOrderItem[] {
+    let orderItems: QuestOrderItem[] = [];
+    for (let quest of quests) {
+      let item: QuestOrderItem = { quest };
+      if (subquests[quest.Id]) {
+        item.subquests = convertToOrderItem(subquests[quest.Id]);
       }
+      orderItems.push(item);
     }
-    result.push(item);
+    return orderItems;
   }
-  return result;
+
+  return convertToOrderItem(combinedOrder);
 }
 
 // CLI TESTING

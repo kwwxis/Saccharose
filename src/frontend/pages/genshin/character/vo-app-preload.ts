@@ -90,6 +90,18 @@ export function preloadFromFetters(characterFetters: CharacterFetters, mode: 'st
       title = title.replace(/:/g, ' -');
       title = title.replace(avatarName.EN, '{character}');
       title = replaceRomanNumerals(title, roman => String(romanToInt(roman)).padStart(2, '0'));
+
+      if (title === `{character}'s Hobbies`) {
+        title = 'Hobbies';
+      }
+
+      if (title.startsWith('Feelings About Ascension - ')) {
+        title = title.replace('Feelings About Ascension - Intro', 'Feelings About Ascension - 01');
+        title = title.replace('Feelings About Ascension - Building Up', 'Feelings About Ascension - 02');
+        title = title.replace('Feelings About Ascension - Climax', 'Feelings About Ascension - 03');
+        title = title.replace('Feelings About Ascension - Conclusion', 'Feelings About Ascension - 04');
+      }
+
       return prefix + title + '.ogg';
     }
 

@@ -3,7 +3,7 @@
     <span class="dialogue-section-expando" ui-action="expando: #dialogue-section-content-<%= id %>"><%- icon('chevron-down', 17) %></span>
     <span class="dialogue-section-title"><%= title %></span>
     <% if (locals.helptext) { %>
-      <span ui-tippy-hover="<%= locals.helptext %>" class="dispInlineBlock spacer5-left" style="height:18px;width:18px;"><%- icon('info', 18) %></span>
+      <span ui-tippy-hover="<%= locals.helptext %>" ui-tippy-html="true" class="dispInlineFlex spacer5-left" style="height:14px;width:14px;opacity:0.8"><%- icon('info', 14) %></span>
     <% } %>
     <% if (locals.similarityGroupId) { %>
       <div class="grow"></div>
@@ -45,6 +45,14 @@
                   ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
                   style="margin:0 0 5px 5px; white-space: nowrap;">Copy All</button>
         <% } %>
+        <div class="valign">
+          <button class="dialogue-indent-button secondary small plus" ui-tippy-hover="Increase indent"
+                  ui-action="wikitext-indent: #wikitext-<%= id %>, increase"
+                  style="margin:0 0 5px 5px"><%- icon('plus', 16) %></button>
+          <button class="dialogue-indent-button secondary small minus" ui-tippy-hover="Decrease indent"
+                  ui-action="wikitext-indent: #wikitext-<%= id %>, decrease"
+                  style="margin:0 0 5px 0"><%- icon('minus', 16) %></button>
+        </div>
       <% } %>
     </div>
     <% if (locals.htmlMessage) { %>

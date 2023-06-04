@@ -12,7 +12,7 @@ import { enableTippy, flashTippy, getTippyOpts, hideTippy, showTippy } from './u
 import { Listener, runWhenDOMContentLoaded, startListeners } from './util/eventLoader';
 import { showJavascriptErrorDialog } from './util/errorHandler';
 import autosize from 'autosize';
-import { isInt } from '../shared/util/numberUtil';
+import { isInt, toInt } from '../shared/util/numberUtil';
 import { escapeHtml, uuidv4 } from '../shared/util/stringUtil';
 import { getInputValue, highlightReplace, highlightWikitextReplace } from './util/ace/wikitextEditor';
 import { GeneralEventBus } from './generalEventBus';
@@ -312,7 +312,7 @@ const initial_listeners: Listener[] = [
           let actionParams = action.actionParams;
 
           switch (actionType) {
-            case 'add-class':
+            case 'add-class': {
               let addClassTarget = qs(actionParams[0]);
               if (addClassTarget) {
                 for (let cls of actionParams.slice(1)) {
@@ -320,7 +320,8 @@ const initial_listeners: Listener[] = [
                 }
               }
               break;
-            case 'remove-class':
+            }
+            case 'remove-class': {
               let removeClassTarget = qs(actionParams[0]);
               if (removeClassTarget) {
                 for (let cls of actionParams.slice(1)) {
@@ -328,7 +329,8 @@ const initial_listeners: Listener[] = [
                 }
               }
               break;
-            case 'toggle-class':
+            }
+            case 'toggle-class': {
               let toggleClassTarget = qs(actionParams[0]);
               if (toggleClassTarget) {
                 for (let cls of actionParams.slice(1)) {
@@ -336,7 +338,8 @@ const initial_listeners: Listener[] = [
                 }
               }
               break;
-            case 'show':
+            }
+            case 'show': {
               let showEase = 0;
               if (isInt(actionParams[0])) {
                 showEase = parseInt(actionParams[0]);
@@ -352,7 +355,8 @@ const initial_listeners: Listener[] = [
                 }
               }
               break;
-            case 'hide':
+            }
+            case 'hide': {
               let hideEase = 0;
               if (isInt(actionParams[0])) {
                 hideEase = parseInt(actionParams[0]);
@@ -368,8 +372,9 @@ const initial_listeners: Listener[] = [
                 }
               }
               break;
+            }
             case 'toggle-dropdown':
-            case 'dropdown':
+            case 'dropdown': {
               const dropdown = qs(actionParams[0]);
               const bounds = getHiddenElementBounds(dropdown);
               const actionElPosX = actionEl.getBoundingClientRect().left;
@@ -385,7 +390,7 @@ const initial_listeners: Listener[] = [
               }
 
               if (dropdown) {
-                (<any> dropdown)._toggledBy = actionEl;
+                (<any>dropdown)._toggledBy = actionEl;
                 if (dropdown.classList.contains('active')) {
                   dropdown.classList.remove('active');
                   actionEl.classList.remove('active');
@@ -399,11 +404,12 @@ const initial_listeners: Listener[] = [
                 }
               }
               break;
+            }
             case 'dropdown-close':
             case 'close-dropdown':
-            case 'close-dropdowns':
+            case 'close-dropdowns': {
               qsAll('.ui-dropdown.active').forEach(dropdownEl => {
-                const toggledBy = (<any> dropdownEl)._toggledBy;
+                const toggledBy = (<any>dropdownEl)._toggledBy;
                 dropdownEl.classList.remove('active');
                 if (toggledBy) {
                   toggledBy.classList.remove('active');
@@ -411,7 +417,8 @@ const initial_listeners: Listener[] = [
                 setTimeout(() => dropdownEl.classList.add('hide'), 110);
               });
               break;
-            case 'toggle':
+            }
+            case 'toggle': {
               let toggleEase = 0;
               if (isInt(actionParams[0])) {
                 toggleEase = parseInt(actionParams[0]);
@@ -420,7 +427,7 @@ const initial_listeners: Listener[] = [
               for (let selector of actionParams) {
                 const toggleTarget = qs(selector);
                 if (toggleTarget) {
-                  (<any> toggleTarget)._toggledBy = actionEl;
+                  (<any>toggleTarget)._toggledBy = actionEl;
 
                   if (toggleTarget.classList.contains('hide')) {
                     toggleTarget.classList.remove('hide');
@@ -438,18 +445,21 @@ const initial_listeners: Listener[] = [
                 }
               }
               break;
-            case 'refresh-page':
+            }
+            case 'refresh-page': {
               window.location.reload();
               break;
-            case 'close-modals':
+            }
+            case 'close-modals': {
               modalService.closeAll();
               break;
-            case 'copy':
+            }
+            case 'copy': {
               let copyTarget = qs(actionParams[0]);
 
-              if ((<any> copyTarget).value) {
+              if ((<any>copyTarget).value) {
                 // noinspection JSIgnoredPromiseFromCall
-                copyToClipboard((<any> copyTarget).value.trim());
+                copyToClipboard((<any>copyTarget).value.trim());
               }
 
               if (copyTarget.hasAttribute('contenteditable')) {
@@ -461,13 +471,14 @@ const initial_listeners: Listener[] = [
                 copyToClipboard(value.trim());
               }
               break;
-            case 'copy-all':
+            }
+            case 'copy-all': {
               let copyTargets: HTMLInputElement[] = actionParams.map(sel => qsAll<HTMLInputElement>(sel)).flat(Infinity) as HTMLInputElement[];
               let combinedValues: string[] = [];
               let sep = actions.find(a => a.actionType === 'copy-sep')?.actionParams?.[0].replace(/\\n/g, '\n') || '\n';
               if (copyTargets) {
                 for (let copyTarget of copyTargets) {
-                  if ((<any> copyTarget).value) {
+                  if ((<any>copyTarget).value) {
                     combinedValues.push(copyTarget.value.trim());
                   }
                   if (copyTarget.hasAttribute('contenteditable')) {
@@ -482,7 +493,8 @@ const initial_listeners: Listener[] = [
                 copyToClipboard(combinedValues.join(sep));
               }
               break;
-            case 'tab':
+            }
+            case 'tab': {
               const tabpanel = qs(actionParams[0]);
               const tabgroup = actionParams[1];
               if (tabpanel) {
@@ -503,6 +515,7 @@ const initial_listeners: Listener[] = [
                 }
               }
               break;
+            }
             case 'set-query-param': {
               const kvPairs: string[] = actionParams.map(x => x.split('&')).flat(Infinity) as string[];
               for (let kvPair of kvPairs) {
@@ -529,7 +542,7 @@ const initial_listeners: Listener[] = [
               copyToClipboard(newUrl);
               break;
             }
-            case 'expando':
+            case 'expando': {
               const animId = uuidv4();
               const container = qs(actionParams[0]);
 
@@ -586,7 +599,7 @@ const initial_listeners: Listener[] = [
                   .collapsing-${animId} { overflow: hidden; animation: collapsing-${animId} ${duration}ms ease forwards; }
                   @keyframes collapsing-${animId} { 100% { height: 0; } }
                 `;
-                container.style.height = height+'px';
+                container.style.height = height + 'px';
                 container.style.overflow = 'hidden';
 
                 document.head.append(styleEl);
@@ -605,14 +618,17 @@ const initial_listeners: Listener[] = [
               }
 
               break;
-            case 'set-cookie':
-              Cookies.set(actionParams[0].trim(), actionParams[1].trim(), {expires: 365});
+            }
+            case 'set-cookie': {
+              Cookies.set(actionParams[0].trim(), actionParams[1].trim(), { expires: 365 });
               break;
+            }
             case 'remove-cookie':
-            case 'delete-cookie':
+            case 'delete-cookie': {
               Cookies.remove(actionParams[0].trim());
               break;
-            case 'lazy-image-click':
+            }
+            case 'lazy-image-click': {
               let a = document.createElement('a');
               a.classList.add('image-loaded');
               a.href = actionEl.getAttribute('data-src');
@@ -631,6 +647,39 @@ const initial_listeners: Listener[] = [
 
               actionEl.replaceWith(a);
               break;
+            }
+            case 'wikitext-indent': {
+              if (actionParams[1] !== 'increase' && actionParams[1] !== 'decrease') {
+                return;
+              }
+              const contentEditableEl: HTMLElement = qs(actionParams[0]);
+              const indentAction: 'increase' | 'decrease' = actionParams[1];
+              let lines: string[] = getInputValue(contentEditableEl).split(/\n/g);
+
+              const lowestIndent = Math.min(... lines.filter(line => line.startsWith(':')).map(line => {
+                let indent: string = /^:*/.exec(line)[0];
+                return indent.length;
+              }));
+
+              if (lowestIndent === 1 && indentAction === 'decrease') {
+                flashTippy(actionEl, {content: 'Cannot decrease indent any further.'});
+                return;
+              }
+
+              lines = lines.map(line => {
+                if (!line.startsWith(':')) {
+                  return line;
+                }
+                if (indentAction === 'decrease') {
+                  line = line.slice(1);
+                } else {
+                  line = ':' + line;
+                }
+                return line;
+              });
+              highlightWikitextReplace(contentEditableEl, lines.join('\n').trim());
+              break;
+            }
             default:
               break;
           }

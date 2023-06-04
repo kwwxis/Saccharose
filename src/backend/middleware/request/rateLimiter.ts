@@ -9,6 +9,8 @@ export default rateLimit({
   keyGenerator: (req: Request, _res: Response) => {
     return req.clientIp // IP address from requestIp.mw(), as opposed to req.ip
   },
+  requestWasSuccessful: () => true,
+  skipFailedRequests: true,
   skip: (req: Request, _res: Response) => {
     return rateLimitSkipRegex.test(req.url);
   }

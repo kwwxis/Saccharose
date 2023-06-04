@@ -150,8 +150,15 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     if (this.disabledLangCodes.has(langCode)) {
       return null;
     }
-    return await this.knex.select('Text').from('TextMap'+langCode)
+    let text = await this.knex.select('Text').from('TextMap'+langCode)
       .where({Hash: hash}).first().then(x => x?.Text);
+
+    if (text && text.includes('REGEX#')) {
+      text = text.replace(/\{REGEX#OVERSEA\[Server_BrandTips_Oversea.*?}/, await this.getTextMapItem(langCode, 2874657049));
+      text = text.replace(/\{REGEX#OVERSEA\[Server_Email_Ask_Oversea.*?}/, await this.getTextMapItem(langCode, 2535673454));
+    }
+
+    return text;
   }
 
   async createLangCodeMap(hash: TextMapHash, doNormText: boolean = true): Promise<LangCodeMap> {

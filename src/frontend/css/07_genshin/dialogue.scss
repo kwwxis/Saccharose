@@ -25,6 +25,24 @@
   padding: 5px 15px;
 }
 
+button.secondary.small.dialogue-indent-button {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  height: 23.6px;
+  width: 23.6px;
+  text-align: center;
+
+  &.plus {
+    border-radius: 3px 0 0 3px;
+  }
+  &.minus {
+    border-radius: 0 3px 3px 0;
+    border-left: 0;
+  }
+}
+
 /*------------------------------*/
 
 .meta-props {

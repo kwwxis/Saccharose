@@ -123,27 +123,12 @@
   <section class="card">
     <h2>Quests</h2>
     <div class="content">
-      <p class="spacer20-bottom">
-        The quests are usually in the correct order, but you should double-check. The Excel data doesn't make it obvious
-        what order quests are in. So they need to be programmatically ordered based on various clues. Whether this
-        tool can correct identify subquests is a hit-or-miss (e.g. <a href="/chapters/10070">Vimana Agama</a> is correctly
-        ordered but <a href="/chapters/10055">From Dusk to Dawn in Byakuyakoku</a> is not.)</p>
-      <% for (let item of quests) { %>
-        <a role="button" class="secondary dispBlock spacer5-bottom textAlignLeft" href="/quests/<%= item.quest.Id %>" data-id="<%= item.quest.Id %>">
-          <strong>ID <%= item.quest.Id %>:&nbsp;</strong>
-          <span><%= item.quest.TitleText %></span>
-        </a>
-        <% if (item.subquests && item.subquests.length) { %>
-          <div class="spacer15-left">
-            <% for (let subquest of item.subquests) { %>
-              <a role="button" class="secondary dispBlock spacer5-bottom textAlignLeft" href="/quests/<%= subquest.Id %>" data-id="<%= subquest.Id %>">
-                <strong>ID <%= subquest.Id %>:&nbsp;</strong>
-                <span><%= subquest.TitleText %></span>
-              </a>
-            <% } %>
-          </div>
-        <% } %>
-      <% } %>
+      <p class="info-notice spacer20-bottom">
+        Saccharose usually puts quests in the right order in most cases, but you should double-check. The Excel data doesn't make it obvious
+        what order quests are in. So they need to be programmatically ordered based on various clues. Whether subquests can be correctly
+        identified is a hit-or-miss (e.g. <a href="/chapters/10070">Vimana Agama</a> is correctly ordered but
+        <a href="/chapters/10055">From Dusk to Dawn in Byakuyakoku</a> is not). Saccharose's ordering for hangout chapters is completely unreliable.</p>
+      <%- use('partials/genshin/dialogue/chapter-list-item', { quests: quests }) %>
     </div>
   </section>
 <section class="card">

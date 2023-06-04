@@ -1,5 +1,6 @@
 import { default as tippy, Instance as Tippy, Props as TippyProps } from 'tippy.js';
 import JSON5 from 'json5';
+import { toBoolean } from '../../shared/util/genericUtil';
 
 export function enableTippy(el: HTMLElement, props: Partial<TippyProps> = {}) {
   if (!props.content) {
@@ -91,6 +92,9 @@ export function getTippyOpts(el: HTMLElement, attrName: string): Partial<TippyPr
   }
   if (!opts.delay) {
     opts.delay = [100,100];
+  }
+  if (el.hasAttribute('ui-tippy-html')) {
+    opts.allowHTML = toBoolean(el.getAttribute('ui-tippy-html'));
   }
 
   return opts;

@@ -130,6 +130,7 @@ export class GCGControl {
     if (!text) {
       return text || '';
     }
+
     text = this.ctrl.normText(text, outputLangCode || this.ctrl.outputLangCode);
 
     text = text.replace(/\$\[K(\d+)(?:\|s(\d+))?]/g, (fm: string, g: string, sNumStr: string) => {
@@ -138,44 +139,31 @@ export class GCGControl {
       return this.ctrl.normText(kwText, outputLangCode || this.ctrl.outputLangCode).replace(/^'''(.*)'''$/, '$1');
     });
 
-    text = await replaceAsync(text, /\$\[A(\d+)(?:\|s(\d+))?]/g, async (fm: string, g: string, sNumStr: string) => {
-      const id = toInt(g);
-      const char = await this.selectCharWithoutPostProcess(id);
-      char.WikiName = await this.normGcgText(char.NameText);
-      if (!isInt(sNumStr)) {
-        return char.WikiName;
-      } else {
-        const rawText = await this.ctrl.getTextMapItem(this.ctrl.outputLangCode, char.NameTextMapHash);
-        const normText = this.ctrl.normText(rawText, this.ctrl.outputLangCode, false, false, toInt(sNumStr));
-        return char.WikiName !== normText ? `[[${char.WikiName}|${normText}]]` : `[[${normText}]]`;
+    const commonReplace = async (obj: GCGCharExcelConfigData|GCGSkillExcelConfigData|GCGCardExcelConfigData, fm: string, sNumStr: string) => {
+      if (!obj) {
+        return fm;
       }
-    });
+      obj.WikiName = await this.normGcgText(obj.NameText);
+      if (!isInt(sNumStr)) {
+        return obj.WikiName;
+      } else {
+        const rawText = await this.ctrl.getTextMapItem(this.ctrl.outputLangCode, obj.NameTextMapHash);
+        const normText = this.ctrl.normText(rawText, this.ctrl.outputLangCode, false, false, toInt(sNumStr));
+        return obj.WikiName !== normText ? `[[${obj.WikiName}|${normText}]]` : `[[${normText}]]`;
+      }
+    };
 
-    text = await replaceAsync(text, /\$\[S(\d+)(?:\|s(\d+))?]/g, async (fm: string, g: string, sNumStr: string) => {
-      const id = toInt(g);
-      const skill = await this.selectSkillWithoutPostProcess(id);
-      skill.WikiName = await this.normGcgText(skill.NameText);
-      if (!isInt(sNumStr)) {
-        return skill.WikiName;
-      } else {
-        const rawText = await this.ctrl.getTextMapItem(this.ctrl.outputLangCode, skill.NameTextMapHash);
-        const normText = this.ctrl.normText(rawText, this.ctrl.outputLangCode, false, false, toInt(sNumStr));
-        return skill.WikiName !== normText ? `[[${skill.WikiName}|${normText}]]` : `[[${normText}]]`;
-      }
-    })
+    text = await replaceAsync(text, /\$\[A(\d+)(?:\|s(\d+))?]/g, async (fm: string, g: string, sNumStr: string) =>
+      commonReplace(await this.selectCharWithoutPostProcess(toInt(g)), fm, sNumStr)
+    );
 
-    text = await replaceAsync(text, /\$\[C(\d+)(?:\|s(\d+))?]/g, async (fm: string, g: string, sNumStr: string) => {
-      const id = toInt(g);
-      const card = await this.selectCardWithoutPostProcess(id);
-      card.WikiName = await this.normGcgText(card.NameText);
-      if (!isInt(sNumStr)) {
-        return '[[' + card.WikiName + ']]';
-      } else {
-        const rawText = await this.ctrl.getTextMapItem(this.ctrl.outputLangCode, card.NameTextMapHash);
-        const normText = this.ctrl.normText(rawText, this.ctrl.outputLangCode, false, false, toInt(sNumStr));
-        return card.WikiName !== normText ? `[[${card.WikiName}|${normText}]]` : `[[${normText}]]`;
-      }
-    });
+    text = await replaceAsync(text, /\$\[S(\d+)(?:\|s(\d+))?]/g, async (fm: string, g: string, sNumStr: string) =>
+      commonReplace(await this.selectSkillWithoutPostProcess(toInt(g)), fm, sNumStr)
+    )
+
+    text = await replaceAsync(text, /\$\[C(\d+)(?:\|s(\d+))?]/g, async (fm: string, g: string, sNumStr: string) =>
+      commonReplace(await this.selectCardWithoutPostProcess(toInt(g)), fm, sNumStr)
+    );
 
     text = text.replace(/\{\{color\|#FFD780\|(.*?)}}/g, '[[$1]]');
 

@@ -63,7 +63,6 @@ export function createWikitextEditor(editorElementId: string|HTMLElement): ace.E
     behavioursEnabled: false,
     wrapBehavioursEnabled: true,
     wrap: true,
-    useWrapMode: true,
     scrollPastEnd: 1,
   });
 
