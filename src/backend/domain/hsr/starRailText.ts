@@ -56,6 +56,10 @@ export const normStarRailText: TextNormalizer = (text: string, langCode: LangCod
     text = text.replace(/\{RUBY_B#(.*?)}(.*?)\{RUBY_E#}/g, '{{Rubi|$2|$1}}');
   }
 
+  if (langCode === 'KR') {
+    text = text.replace(/&nbsp;/g, ' ');
+  }
+
   text = mergeMcTemplate(text, langCode, plaintext)
 
   return text;
