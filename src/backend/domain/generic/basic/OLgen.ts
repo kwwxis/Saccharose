@@ -98,6 +98,10 @@ async function ol_gen_internal(ctrl: AbstractControl, textMapHash: TextMapHash, 
       warnings.push(`The parameter value for <code>${LANG_CODE_TO_WIKI_CODE[langCode].toLowerCase()}</code> contains a dollar character (<code>$</code>).<br />If this is a special code, then it'll require manual editor intervention.`)
     }
 
+    if (langText.includes('|')) {
+      langText = langText.replace(/\|/g, '<nowiki>|</nowiki>');
+    }
+
     template = template.replace(`{${langCode}_official_name}`, langText);
 
     let isFullAscii = /^[\u0000-\u007f]*$/.test(rawText);
