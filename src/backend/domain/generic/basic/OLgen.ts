@@ -2,7 +2,7 @@ import '../../../loadenv';
 import { getGenshinControl } from '../../genshin/genshinControl';
 import { maybeInt } from '../../../../shared/util/numberUtil';
 import { mwParse } from '../../../../shared/mediawiki/mwParse';
-import { MwTemplateNode } from '../../../../shared/mediawiki/mwTypes';
+import { MwTemplateNode, MwTextNode } from '../../../../shared/mediawiki/mwTypes';
 import { pathToFileURL } from 'url';
 import { Marker } from '../../../../shared/util/highlightMarker';
 import { LANG_CODE_TO_WIKI_CODE, LANG_CODES, LangCode, TextMapHash } from '../../../../shared/types/lang-types';
@@ -99,7 +99,13 @@ async function ol_gen_internal(ctrl: AbstractControl, textMapHash: TextMapHash, 
     }
 
     if (langText.includes('|')) {
-      langText = langText.replace(/\|/g, '<nowiki>|</nowiki>');
+      let parsed = mwParse(langText);
+      for (let part of parsed.parts) {
+        if (part instanceof MwTextNode) {
+          part.content = part.content.replace(/\|/g, '<nowiki>|</nowiki>');;
+        }
+      }
+      langText = parsed.toString();
     }
 
     template = template.replace(`{${langCode}_official_name}`, langText);
