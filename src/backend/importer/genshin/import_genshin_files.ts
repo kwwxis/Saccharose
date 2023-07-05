@@ -15,6 +15,7 @@ import { GCGCharSkillDamage } from '../../../shared/types/genshin/gcg-types';
 import { standardElementCode } from '../../../shared/types/genshin/manual-text-map';
 import { VoiceItem, VoiceItemArrayMap } from '../../../shared/types/lang-types';
 import { fetchCharacterFetters } from '../../domain/genshin/character/fetchCharacterFetters';
+import { normalizeRawJson, SchemaTable } from '../import_db';
 
 async function importGcgSkill() {
   const outDir = process.env.GENSHIN_DATA_ROOT;
@@ -91,6 +92,20 @@ async function importGcgSkill() {
   fs.writeFileSync(outDir + '/GCGCharSkillDamage.json', JSON.stringify(combined, null, 2));
 }
 
+const VoiceSchema = <SchemaTable> {
+  name: 'VoiceItems',
+  columns: [],
+  jsonFile: '',
+  normalizeFixFields: {
+    KMMBCJDNDNM: 'GameTrigger',
+    JAOANONPLDI: 'GameTriggerArgs',
+    IIFPKNOPNFI: 'PersonalConfig',
+    EDNNCHGNMHO: 'SourceNames',
+    EEFLLCGNDCG: 'SourceFileName',
+    NJNEOOGNPKH: 'Gender',
+  }
+}
+
 async function importVoice() {
   const outDir = process.env.GENSHIN_DATA_ROOT;
   const jsonDir = getGenshinDataFilePath('./BinOutput/Voice/Items');
@@ -105,39 +120,41 @@ async function importVoice() {
     const json: {[guid: string]: any} = JSON.parse(fileData.toString());
 
     for (let voiceItem of Object.values(json)) {
-      if (!voiceItem.gameTriggerArgs || !voiceItem._sourceNames) {
+      voiceItem = normalizeRawJson(voiceItem, VoiceSchema);
+      
+      if (!voiceItem.GameTriggerArgs || !voiceItem.SourceNames) {
         continue;
       }
 
       let key: string;
 
-      if (voiceItem._gameTrigger === 'Dialog') {
-        key = 'Dialog_' + voiceItem.gameTriggerArgs;
-      } else if (voiceItem._gameTrigger === 'DungeonReminder') {
-        key = 'Reminder_' + voiceItem.gameTriggerArgs;
-      } else if (voiceItem._gameTrigger === 'Fetter') {
-        key = 'Fetter_' + voiceItem.gameTriggerArgs;
-      } else if (voiceItem._gameTrigger === 'AnimatorEvent') {
-        key = 'AnimatorEvent_' + voiceItem.gameTriggerArgs;
-      } else if (voiceItem._gameTrigger === 'JoinTeam') {
-        key = 'JoinTeam_' + voiceItem.gameTriggerArgs;
-      } else if (voiceItem._gameTrigger === 'WeatherMonologue') {
-        key = 'WeatherMonologue_' + voiceItem.gameTriggerArgs;
-      } else if (voiceItem._gameTrigger === 'Card') {
-        key = 'Card_' + voiceItem.gameTriggerArgs;
+      if (voiceItem.GameTrigger === 'Dialog') {
+        key = 'Dialog_' + voiceItem.GameTriggerArgs;
+      } else if (voiceItem.GameTrigger === 'DungeonReminder') {
+        key = 'Reminder_' + voiceItem.GameTriggerArgs;
+      } else if (voiceItem.GameTrigger === 'Fetter') {
+        key = 'Fetter_' + voiceItem.GameTriggerArgs;
+      } else if (voiceItem.GameTrigger === 'AnimatorEvent') {
+        key = 'AnimatorEvent_' + voiceItem.GameTriggerArgs;
+      } else if (voiceItem.GameTrigger === 'JoinTeam') {
+        key = 'JoinTeam_' + voiceItem.GameTriggerArgs;
+      } else if (voiceItem.GameTrigger === 'WeatherMonologue') {
+        key = 'WeatherMonologue_' + voiceItem.GameTriggerArgs;
+      } else if (voiceItem.GameTrigger === 'Card') {
+        key = 'Card_' + voiceItem.GameTriggerArgs;
       } else {
-        unknownTriggers.add(voiceItem._gameTrigger);
+        unknownTriggers.add(voiceItem.GameTrigger);
         continue;
       }
 
       combined[key] = [];
 
-      for (let voiceSource of voiceItem._sourceNames) {
-        let fileName: string = voiceSource.sourceFileName.split('\\').pop().toLowerCase().replace(/_/g, ' ').replace('.wem', '.ogg');
-        let gender: number = voiceSource.gender;
-        let voiceSourceNorm: VoiceItem = {id: voiceItem.gameTriggerArgs, fileName};
-        if (voiceItem._gameTrigger) {
-          voiceSourceNorm.type = voiceItem._gameTrigger;
+      for (let voiceSource of voiceItem.SourceNames) {
+        let fileName: string = voiceSource.SourceFileName.split('\\').pop().toLowerCase().replace(/_/g, ' ').replace('.wem', '.ogg');
+        let gender: number = voiceSource.Gender;
+        let voiceSourceNorm: VoiceItem = {id: voiceItem.GameTriggerArgs, fileName};
+        if (voiceItem.GameTrigger) {
+          voiceSourceNorm.type = voiceItem.GameTrigger;
         }
         if (gender === 1) {
           voiceSourceNorm.gender = 'F';

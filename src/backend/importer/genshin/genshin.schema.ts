@@ -1111,7 +1111,7 @@ export const genshinSchema = {
       KPINCGJPICF: 'SourceTextMapHash',
     },
   },
-  FettersExcelConfigData: <SchemaTable>{
+  FettersExcelConfigData: <SchemaTable> {
     name: 'FettersExcelConfigData',
     jsonFile: './ExcelBinOutput/FettersExcelConfigData.json',
     columns: [
@@ -1124,6 +1124,7 @@ export const genshinSchema = {
     ],
     normalizeFixFields: {
       IsHiden: 'IsHidden',
+      JDJHGLGFHMC: 'Type',
     },
   },
   TutorialExcelConfigData: <SchemaTable>{
