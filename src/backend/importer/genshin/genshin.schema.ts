@@ -78,6 +78,9 @@ export const genshinSchema = {
         return [];
       }
     },
+    normalizeFixFields: {
+      GFLDJMJKIKE: 'Id'
+    }
   },
   ManualTextMapConfigData: <SchemaTable>{
     name: 'ManualTextMapConfigData',
@@ -172,6 +175,9 @@ export const genshinSchema = {
       { name: 'StepDescTextMapHash', type: 'integer', isIndex: true },
       { name: 'GuideTipsTextMapHash', type: 'integer', isIndex: true },
     ],
+    normalizeFixFields: {
+      FailParent: 'DescTextMapHash'
+    }
   },
   LoadingTipsExcelConfigData: <SchemaTable>{
     name: 'LoadingTipsExcelConfigData',
@@ -893,8 +899,10 @@ export const genshinSchema = {
     ],
     customRowResolve: (row: GCGWeekLevelExcelConfigData) => {
       let ret = [];
-      for (let levelCond of row.LevelCondList) {
-        ret.push({ LevelId: levelCond.LevelId, WeekLevelId: row.Id, GcgLevel: levelCond.GcgLevel });
+      if (row.LevelCondList) {
+        for (let levelCond of row.LevelCondList) {
+          ret.push({ LevelId: levelCond.LevelId, WeekLevelId: row.Id, GcgLevel: levelCond.GcgLevel });
+        }
       }
       return ret;
     },
@@ -902,6 +910,9 @@ export const genshinSchema = {
       OPEAIDGALDL: 'NpcType',
       GGHJEFNBDFK: 'LevelCondList',
       BGNBBBHMLLO: 'GcgLevel',
+      DIPKFKOKPOP: 'LevelCondList',
+      AKCIHJOKMNI: 'Id',
+      EIDEKLFIOCM: 'GcgLevel',
     }
   },
   Relation_GCGCharacterLevel: <SchemaTable>{
