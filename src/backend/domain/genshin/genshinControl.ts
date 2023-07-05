@@ -112,6 +112,11 @@ import {
   GCGTagWeaponType,
 } from '../../../shared/types/genshin/gcg-types';
 import path from 'path';
+import {
+  RAW_DIALOG_EXCEL_ID_PROP,
+  RAW_MANUAL_TEXTMAP_ID_PROP,
+  RAW_TALK_EXCEL_ID_PROP,
+} from '../../importer/genshin/genshin.schema';
 
 /**
  * State/cache for only a single control
@@ -440,7 +445,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
   async selectTalkExcelConfigDataIdsByPrefix(idPrefix: number|string): Promise<number[]> {
     let allTalkExcelTalkConfigIds = this.state.ExcludeOrphanedDialogue ? []
-      : await grepIdStartsWith('Id', idPrefix, this.getDataFilePath('./ExcelBinOutput/TalkExcelConfigData.json'));
+      : await grepIdStartsWith(RAW_TALK_EXCEL_ID_PROP, idPrefix, this.getDataFilePath('./ExcelBinOutput/TalkExcelConfigData.json'));
     return allTalkExcelTalkConfigIds.map(i => toNumber(i));
   }
 
@@ -456,8 +461,8 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
   async addOrphanedDialogueAndQuestMessages(mainQuest: MainQuestExcelConfigData) {
     let allDialogueIds = this.state.ExcludeOrphanedDialogue ? []
-      : await grepIdStartsWith('id', mainQuest.Id, this.getDataFilePath('./ExcelBinOutput/DialogExcelConfigData.json'));
-    let allQuestMessageIds = await grepIdStartsWith('TextMapId', 'QUEST_Message_Q' + mainQuest.Id,
+      : await grepIdStartsWith(RAW_DIALOG_EXCEL_ID_PROP, mainQuest.Id, this.getDataFilePath('./ExcelBinOutput/DialogExcelConfigData.json'));
+    let allQuestMessageIds = await grepIdStartsWith(RAW_MANUAL_TEXTMAP_ID_PROP, 'QUEST_Message_Q' + mainQuest.Id,
       this.getDataFilePath('./ExcelBinOutput/ManualTextMapConfigData.json'));
     let consumedQuestMessageIds = [];
 

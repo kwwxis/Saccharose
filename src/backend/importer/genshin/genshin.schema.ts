@@ -11,6 +11,10 @@ import { FurnitureMakeExcelConfigData } from '../../../shared/types/genshin/home
 import { GCGCharacterLevelExcelConfigData, GCGWeekLevelExcelConfigData } from '../../../shared/types/genshin/gcg-types';
 import { SchemaTable, textMapSchema, plainLineMapSchema } from '../import_db';
 
+export const RAW_DIALOG_EXCEL_ID_PROP: string = 'GFLDJMJKIKE';
+export const RAW_TALK_EXCEL_ID_PROP: string = 'id';
+export const RAW_MANUAL_TEXTMAP_ID_PROP: string = 'textMapId';
+
 export const genshinSchema = {
 
   TextMapCHS: textMapSchema('CHS'),
