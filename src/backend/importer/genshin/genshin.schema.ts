@@ -198,6 +198,12 @@ export const genshinSchema = {
       { name: 'LoadingSituationType', type: 'string', isIndex: true },
       { name: 'AreaTerrainType', type: 'string', isIndex: true },
     ],
+    normalizeFixFields: {
+      DMDEJCOKACP: 'LoadingSituationType',
+      JGFENLJMOAB: 'AreaTerrainType',
+      ADLGEKIGIKG: 'SceneId',
+      PPMNJJNLPEF: 'Area1Id'
+    }
   },
   ReminderExcelConfigData: <SchemaTable>{
     name: 'ReminderExcelConfigData',
@@ -279,6 +285,13 @@ export const genshinSchema = {
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
     ],
+    normalizeFixFields: {
+      PBJLENGJPAO: 'JumpList',
+      JNBEOBPDNND: 'DungeonGroup',
+      KEEONLHHNLA: 'JumpTargets',
+      IOEBJLNIIEC: 'JumpParams',
+      JumpList: 'JumpDescs',
+    }
   },
   DailyTaskExcelConfigData: <SchemaTable>{
     name: 'DailyTaskExcelConfigData',
