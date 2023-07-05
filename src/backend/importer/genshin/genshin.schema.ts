@@ -372,6 +372,14 @@ export const genshinSchema = {
       { name: 'ShowNameTextMapHash', type: 'integer', isIndex: true },
       { name: 'DescTextMapHash', type: 'integer', isIndex: true },
     ],
+    normalizeFixFields: {
+      BIDIBKDGBGA: 'NpcId',
+      OJBGFOEHOJG: 'TalkIds',
+      CLANGEOGPFM: 'HeadIcon',
+      PHGFNLOBNBO: 'FrontIcon',
+      LNEDGGEJKJB: 'SideIcon',
+      PLCKDHCGBKE: 'ShowNameTextMapHash',
+    }
   },
   ReputationQuestExcelConfigData: <SchemaTable>{
     name: 'ReputationQuestExcelConfigData',
@@ -1125,6 +1133,21 @@ export const genshinSchema = {
     normalizeFixFields: {
       IsHiden: 'IsHidden',
       JDJHGLGFHMC: 'Type',
+    },
+  },
+  FetterStoryExcelConfigData: <SchemaTable> {
+    name: 'FetterStoryExcelConfigData',
+    jsonFile: './ExcelBinOutput/FetterStoryExcelConfigData.json',
+    columns: [
+      { name: 'Type', type: 'integer', isIndex: true },
+      { name: 'VoiceTitleTextMapHash', type: 'integer', isIndex: true },
+      { name: 'VoiceFileTextMapHash', type: 'integer', isIndex: true },
+      { name: 'VoiceTitleLockedTextMapHash', type: 'integer', isIndex: true },
+      { name: 'FetterId', type: 'integer', isPrimary: true },
+      { name: 'AvatarId', type: 'integer', isIndex: true },
+    ],
+    normalizeFixFields: {
+      PPPLDLPKPFA: 'FinishConds',
     },
   },
   TutorialExcelConfigData: <SchemaTable>{
