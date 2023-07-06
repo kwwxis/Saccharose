@@ -10,10 +10,18 @@ import {
 import { FurnitureMakeExcelConfigData } from '../../../shared/types/genshin/homeworld-types';
 import { GCGCharacterLevelExcelConfigData, GCGWeekLevelExcelConfigData } from '../../../shared/types/genshin/gcg-types';
 import { SchemaTable, textMapSchema, plainLineMapSchema } from '../import_db';
+import { getGenshinDataFilePath } from '../../loadenv';
+import fs from 'fs';
 
 export const RAW_DIALOG_EXCEL_ID_PROP: string = 'GFLDJMJKIKE';
 export const RAW_TALK_EXCEL_ID_PROP: string = 'id';
 export const RAW_MANUAL_TEXTMAP_ID_PROP: string = 'textMapId';
+
+const schemaTranslationFilePath = getGenshinDataFilePath('./SchemaTranslation.json');
+const schemaTranslation: {[tableName: string]: {[key: string]: string}} =
+  fs.existsSync(schemaTranslationFilePath)
+    ? JSON.parse(fs.readFileSync(schemaTranslationFilePath, { encoding: 'utf8' }))
+    : {};
 
 export const genshinSchema = {
 
@@ -1518,3 +1526,9 @@ export const genshinSchema = {
     ],
   },
 };
+
+for (let [tableName, schemaTranslationData] of Object.entries(schemaTranslation)) {
+  if (genshinSchema.hasOwnProperty(tableName) && Object.keys(schemaTranslationData).length) {
+    genshinSchema[tableName].preliminaryNormalizeFixFields = schemaTranslationData;
+  }
+}

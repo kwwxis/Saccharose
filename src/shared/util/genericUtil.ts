@@ -504,7 +504,7 @@ export function throttle<T extends Function>(fn: T, delayMs: number): T {
   };
 }
 
-export function defaultMap<T extends object>(defaultValue: ((prop: keyof T) => T[keyof T])|'Set'|'Map'|'Array'|'Object', initialObj?: T): T {
+export function defaultMap<T extends object>(defaultValue: ((prop: keyof T) => T[keyof T])|'Set'|'Map'|'Array'|'Object'|'Zero', initialObj?: T): T {
   return new Proxy<T>(initialObj || {} as T, {
     get(obj: T, prop: string|symbol) {
       if (prop in obj || prop === 'then' || prop === 'catch' || prop === 'finally') {
@@ -518,6 +518,8 @@ export function defaultMap<T extends object>(defaultValue: ((prop: keyof T) => T
           obj[prop] = [];
         } else if (defaultValue === 'Object') {
           obj[prop] = {};
+        } else if (defaultValue === 'Zero') {
+          obj[prop] = 0;
         } else {
           obj[prop] = defaultValue(prop as keyof T);
         }

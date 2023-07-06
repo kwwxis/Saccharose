@@ -18,7 +18,7 @@ import {
   GCGTalkDetailExcelConfigData,
   GCGTalkDetailIconExcelConfigData,
   GCGTalkExcelConfigData,
-  GCGWeekLevelExcelConfigData, GcgWorldWorkTimeExcelConfigData,
+  GCGWeekLevelExcelConfigData, GcgWorldWorkTimeExcelConfigData, standardElementCodeToGcgKeywordId,
 } from '../../../../shared/types/genshin/gcg-types';
 import { DialogueSectionResult, talkConfigGenerate } from '../dialogue/dialogue_util';
 import { pathToFileURL } from 'url';
@@ -37,6 +37,7 @@ import { findFiles } from '../../../util/shellutil';
 import { distance as strdist } from 'fastest-levenshtein';
 import path from 'path';
 import { cached, cachedSync } from '../../../util/cache';
+import { standardElementCode } from '../../../../shared/types/genshin/manual-text-map';
 
 // noinspection JSUnusedGlobalSymbols
 export class GCGControl {
@@ -822,7 +823,19 @@ export class GCGControl {
       });
       skill.DescText = skill.DescText.replace(/\$\[D__KEY__ELEMENT(\|nc)?]/g, (fm: string) => {
         let keyword = this.keywordList.find(kw => kw.Id === skill.SkillDamage.ElementKeywordId);
-        return keyword ? keyword.TitleText : fm;
+        if (keyword) {
+          return keyword.TitleText;
+        }
+        let guessKwId = skill.CostList
+          .map(c => standardElementCodeToGcgKeywordId(standardElementCode(c.CostType)))
+          .filter(x => !!x)[0];
+
+        keyword = this.keywordList.find(kw => kw.Id === guessKwId);
+        if (keyword) {
+          return keyword.TitleText;
+        }
+
+        return fm;
       });
       skill.DescText = skill.DescText.replaceAll(/\{PLURAL#(\d+)\|(.*?)\|(.*?)}/g,
         (fm: string, numStr: string, ifSingular: string, ifPlural: string) => {

@@ -23,6 +23,7 @@ export type SchemaTable = {
   columns: SchemaColumn[],
   jsonFile: string,
   customRowResolve?: (row: any, allRows?: any[]) => any[],
+  preliminaryNormalizeFixFields?: { [oldName: string]: string },
   normalizeFixFields?: { [oldName: string]: string },
   singularize?: string[],
   isKvPair?: boolean,
@@ -92,7 +93,7 @@ export function plainLineMapSchema(langCode: LangCode, hashType: string = 'integ
   }
 }
 
-export function normalizeRawJsonKey(key: string, table: SchemaTable) {
+export function normalizeRawJsonKey(key: string, table?: SchemaTable) {
   if (key.startsWith('_')) {
     key = key.slice(1);
   }
@@ -102,6 +103,16 @@ export function normalizeRawJsonKey(key: string, table: SchemaTable) {
   }
   key = key.replace(/TextText/g, 'Text');
   key = key.replace(/_(\w)/g, (fm: string, g: string) => g.toUpperCase()); // snake to camel
+
+  if (table && table.preliminaryNormalizeFixFields) {
+    if (key in table.preliminaryNormalizeFixFields) {
+      key = table.preliminaryNormalizeFixFields[key];
+    }
+    if (key.toUpperCase() in table.preliminaryNormalizeFixFields) {
+      key = table.preliminaryNormalizeFixFields[key.toUpperCase()];
+    }
+  }
+
   if (table && table.normalizeFixFields) {
     if (key in table.normalizeFixFields) {
       key = table.normalizeFixFields[key];

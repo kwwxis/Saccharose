@@ -595,6 +595,28 @@ export interface GCGTokenDescConfigData {
   NameText: string,
 }
 
+export function standardElementCodeToGcgKeywordId(elementCode: string): number {
+  switch (elementCode) {
+    case 'PYRO':
+      return 103;
+    case 'HYDRO':
+      return 102;
+    case 'DENDRO':
+      return 107;
+    case 'ELECTRO':
+      return 104;
+    case 'ANEMO':
+      return 105;
+    case 'CRYO':
+      return 101;
+    case 'GEO':
+      return 106;
+    case 'PHYSICAL':
+      return 100;
+  }
+  return undefined;
+}
+
 // GCG CARD
 // --------------------------------------------------------------------------------------------------------------
 export interface GCGCommonCard {

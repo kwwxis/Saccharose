@@ -12,7 +12,7 @@ export default async function(): Promise<Router> {
   router.use('/', await DialogueRouter());
   router.use('/', await ItemRouter());
   router.use('/', await CharacterRouter());
-  //router.use('/', await TcgRouter());
+  router.use('/', await TcgRouter());
 
   return router;
 }

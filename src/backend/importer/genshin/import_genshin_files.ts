@@ -16,6 +16,8 @@ import { standardElementCode } from '../../../shared/types/genshin/manual-text-m
 import { VoiceItem, VoiceItemArrayMap } from '../../../shared/types/lang-types';
 import { fetchCharacterFetters } from '../../domain/genshin/character/fetchCharacterFetters';
 import { normalizeRawJson, SchemaTable } from '../import_db';
+import { genshinSchema } from './genshin.schema';
+import { translateSchema } from '../translate_schema';
 
 async function importGcgSkill() {
   const outDir = process.env.GENSHIN_DATA_ROOT;
@@ -24,8 +26,8 @@ async function importGcgSkill() {
   const skillExcelJson: any[] = JSON.parse(skillExcelStr);
   const skillInternalNames: Set<string> = new Set<string>();
   for (let skillExcel of skillExcelJson) {
-    if (skillExcel['ODACBHLGCIN']) {
-      skillInternalNames.add(skillExcel['ODACBHLGCIN']);
+    if (skillExcel['ODACBHLGCIN'] || skillExcel['CCKMLPCNHFL']) {
+      skillInternalNames.add(skillExcel['ODACBHLGCIN'] || skillExcel['CCKMLPCNHFL']);
     }
   }
 
@@ -38,16 +40,20 @@ async function importGcgSkill() {
     const fileData = fs.readFileSync(path.join(binOutputUnknownDir, file), 'utf8');
     const json: any = JSON.parse(fileData.toString());
 
+    if (json['EONPAHCMPOI']) {
+      json.name = json['EONPAHCMPOI'];
+    }
+
     if (typeof json === 'object' && typeof json.name === 'string' && skillInternalNames.has(json.name)) {
       const name: string = json.name;
-      const data: any = json['NGKMIMDBNPC'] || json['ACMGJEOBIEK'];
+      const data: any = json['NGKMIMDBNPC'] || json['ACMGJEOBIEK'] || json['ANFAJNNDLFF'];
       if (!combined[name]) {
         combined[name] = {Name: name};
       }
       if (data) {
-        combined[name].Damage = data["-2060930438"]?.value;
-        combined[name].IndirectDamage = data["-1921818039"]?.value;
-        combined[name].ElementTag = data["476224977"]?.ratio;
+        combined[name].Damage = data["-2060930438"]?.value || data["-2060930438"]?.['DLLBGDKBMIL'];
+        combined[name].IndirectDamage = data["-1921818039"]?.value || data["-1921818039"]?.['DLLBGDKBMIL'];
+        combined[name].ElementTag = data["476224977"]?.ratio || data["476224977"]?.['HPDLNIPCGHB'];
 
         if (name.startsWith('Effect_Damage_')) {
           combined[name].Element = standardElementCode(name.split('_')[2].toLowerCase());
@@ -194,8 +200,36 @@ async function importFetters() {
   const ctrl = getGenshinControl();
   const allFetters = await fetchCharacterFetters(ctrl, true);
 
-  console.log(chalk.blue('Done. Output written to: ' + outDir + '/CharacterFettersCombined.json'));
   fs.writeFileSync(outDir + '/CharacterFettersCombined.json', JSON.stringify(allFetters, null, 2));
+  console.log(chalk.blue('Done. Output written to: ' + outDir + '/CharacterFettersCombined.json'));
+}
+
+export async function importTranslateSchema() {
+  function getExcelFiles(filePath: string) {
+    return {
+      impExcelPath: path.resolve(process.env.IMPACTFUL_DATA_ROOT, filePath.replaceAll('\\', '/')),
+      agdExcelPath: getGenshinDataFilePath(filePath),
+    };
+  }
+
+  const fullResult = {};
+
+  for (let schemaTable of Object.values(genshinSchema)) {
+    if (!schemaTable.jsonFile.includes('ExcelBinOutput') || schemaTable.jsonFile.includes('DialogExcel')) {
+      continue;
+    }
+
+    console.log('Processing ' + schemaTable.name + '...');
+    let files = getExcelFiles(schemaTable.jsonFile);
+    let schemaKeys = await translateSchema(files.impExcelPath, files.agdExcelPath);
+
+    fullResult[schemaTable.name] = schemaKeys;
+  }
+
+  console.log('Writing output...');
+  const outDir = process.env.GENSHIN_DATA_ROOT;
+  fs.writeFileSync(outDir + '/SchemaTranslation.json', JSON.stringify(fullResult, null, 2));
+  console.log(chalk.blue('Done. Output written to: ' + outDir + '/SchemaTranslation.json'));
 }
 
 async function importIndex() {
@@ -281,6 +315,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
       {name: 'voice', type: Boolean, description: 'Creates the normalized voice items file.'},
       {name: 'gcg-skill', type: Boolean, description: 'Creates file for GCG skill data'},
       {name: 'fetters', type: Boolean, description: 'Creates file for character fetters data'},
+      {name: 'translate-schema', type: Boolean, description: 'Creates the SchemaTranslation file.'},
       {name: 'help', type: Boolean, description: 'Display this usage guide.'},
     ];
 
@@ -328,6 +363,9 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     }
     if (options.fetters) {
       await importFetters();
+    }
+    if (options['translate-schema']) {
+      await importTranslateSchema();
     }
 
     await closeKnex();
