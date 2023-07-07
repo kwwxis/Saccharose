@@ -236,6 +236,7 @@ export async function importTranslateSchema() {
 async function maximizeImages() {
   let dupeSet: string[] = [];
   let dupeKey: string = null;
+  let affected: number = 0;
 
   async function processDupeSet() {
     let sizes: {[fileName: string]: number} = {};
@@ -267,6 +268,8 @@ async function maximizeImages() {
       let actualFile = largestFile.replace(/#\d+\.png$/, '.png');
       fs.renameSync(largestFile, actualFile);
     }
+
+    affected++;
   }
 
   for (let fileName of fs.readdirSync(IMAGEDIR_GENSHIN)) {
@@ -290,7 +293,7 @@ async function maximizeImages() {
     dupeSet.push(fileName);
   }
 
-  console.log('Done');
+  console.log('Done. Affected ' + affected + ' entries.');
 }
 
 async function importIndex() {

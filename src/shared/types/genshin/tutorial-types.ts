@@ -6,16 +6,16 @@ export type PushTipsCodexType =
   | 'CODEX_ELEMENT'
   | 'CODEX_ENEMY'
   | 'CODEX_SYSTEM'
-  | 'CODEX_UNRECORDED';
+  | 'CODEX_UNRECORDED'
+  | 'CODEX_NEWACTIVITY'
+  | 'CODEX_NONPUSH';
 
-export const PushTipsCodexTypeList: PushTipsCodexType[] = ['CODEX_ADVENTURE', 'CODEX_ARANARA', 'CODEX_ELEMENT', 'CODEX_ENEMY', 'CODEX_SYSTEM', 'CODEX_UNRECORDED'];
+export const PushTipsCodexTypeList: PushTipsCodexType[] = ['CODEX_ADVENTURE', 'CODEX_ARANARA', 'CODEX_ELEMENT',
+  'CODEX_ENEMY', 'CODEX_SYSTEM', 'CODEX_UNRECORDED', 'CODEX_NEWACTIVITY', 'CODEX_NONPUSH'];
 
-export interface PushTipsConfigData {
+export interface GenericPushTip {
   PushTipsId: number,
   TutorialId: number,
-  RewardId: number,
-
-  PushTipsType: 'PUSH_TIPS_MONSTER' | 'PUSH_TIPS_TUTORIAL',
   CodexType?: PushTipsCodexType,
 
   TitleTextMapHash: number,
@@ -23,12 +23,20 @@ export interface PushTipsConfigData {
   TitleText: string,
   SubtitleText: string,
 
-  ShowImmediately: boolean,
-  GroupId: number,
   ShowIcon?: string,
-  TabIcon: string,
-
+  TabIcon?: string,
+  ShowImmediately: boolean,
   Codex?: PushTipsCodexExcelConfigData,
+}
+
+export interface PushTipsConfigData extends GenericPushTip {
+  RewardId: number,
+  PushTipsType: 'PUSH_TIPS_MONSTER' | 'PUSH_TIPS_TUTORIAL',
+  GroupId: number,
+}
+
+export interface NewActivityPushTipsConfigData extends GenericPushTip {
+  ActivityId: number,
 }
 
 export interface PushTipsCodexExcelConfigData {
@@ -45,8 +53,10 @@ export interface TutorialExcelConfigData {
   PauseGame: boolean,
   IsMultiPlatform: boolean,
 
+  CodexType: PushTipsCodexType,
+
   DetailList?: TutorialDetailExcelConfigData[],
-  PushTip?: PushTipsConfigData,
+  PushTip?: GenericPushTip,
   Wikitext?: string,
   Images?: GenshinImage[]
 }

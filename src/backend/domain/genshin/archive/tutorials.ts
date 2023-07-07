@@ -6,6 +6,7 @@ import { closeKnex } from '../../../util/db';
 import { defaultMap } from '../../../../shared/util/genericUtil';
 import { fileFormatOptionsApply, fileFormatOptionsCheck } from '../../../util/fileFormatOptions';
 import {
+  NewActivityPushTipsConfigData,
   PushTipsCodexExcelConfigData,
   PushTipsCodexType,
   PushTipsConfigData,
@@ -13,9 +14,11 @@ import {
   TutorialExcelConfigData,
   TutorialsByType,
 } from '../../../../shared/types/genshin/tutorial-types';
-import { normGenshinText } from '../genshinText';
 
 export function pushTipCodexTypeName(type: PushTipsCodexType): string {
+  if (!type) {
+    return 'Non-PushTip';
+  }
   switch (type) {
     case 'CODEX_ADVENTURE':
       return 'Adventure';
@@ -29,26 +32,27 @@ export function pushTipCodexTypeName(type: PushTipsCodexType): string {
       return 'System';
     case 'CODEX_UNRECORDED':
       return 'Unrecorded';
+    case 'CODEX_NEWACTIVITY':
+      return 'Event';
+    case 'CODEX_NONPUSH':
+      return 'Non-PushTip';
     default:
       return '';
   }
 }
 function pushTipsIcon(iconName: string) {
-  return 'Icon Tutorial '+iconName.split('_').pop() + '.png';
+  return iconName ? 'Icon Tutorial '+iconName.split('_').pop() + '.png' : '';
 }
 
 export const TUTORIAL_FILE_FORMAT_PARAMS: string[] = [
   'Id',
   'PushTip.PushTipsId',
   'PushTip.TutorialId',
-  'PushTip.RewardId',
-  'PushTip.PushTipsType',
   'PushTip.CodexType',
   'PushTip.TitleTextMapHash',
   'PushTip.SubtitleTextMapHash',
   'PushTip.TitleText',
   'PushTip.SubtitleText',
-  'PushTip.GroupId',
   'PushTip.ShowIcon',
   'PushTip.TabIcon',
   'PushTip.Codex.Id',
@@ -71,6 +75,8 @@ export async function selectTutorials(ctrl: GenshinControl, codexTypeConstraint?
   let pushTips: PushTipsConfigData[] = await ctrl.readDataFile('./ExcelBinOutput/PushTipsConfigData.json');
   let pushTipsCodex: PushTipsCodexExcelConfigData[] = await ctrl.readDataFile('./ExcelBinOutput/PushTipsCodexExcelConfigData.json');
 
+  let eventPushTips: NewActivityPushTipsConfigData[] = await ctrl.readDataFile('./ExcelBinOutput/NewActivityPushTipsConfigData.json');
+
   for (let pushTip of pushTips) {
     pushTip.Codex = pushTipsCodex.find(c => c.PushTipId === pushTip.PushTipsId);
   }
@@ -79,27 +85,49 @@ export async function selectTutorials(ctrl: GenshinControl, codexTypeConstraint?
 
   for (let tutorial of tutorials) {
     tutorial.PushTip = pushTips.find(p => p.TutorialId === tutorial.Id);
-    tutorial.DetailList = tutorial.DetailIdList.map(id => tutorialDetails.find(d => d.Id === id));
-    tutorial.Images = [];
 
     if (!tutorial.PushTip) {
+      tutorial.PushTip = eventPushTips.find(p => p.TutorialId === tutorial.Id);
+      if (tutorial.PushTip) {
+        tutorial.PushTip.CodexType = 'CODEX_NEWACTIVITY';
+      }
+    }
+    if (tutorial.PushTip) {
+      tutorial.CodexType = tutorial.PushTip.CodexType;
+    } else {
+      tutorial.CodexType = 'CODEX_NONPUSH';
+    }
+
+    tutorial.DetailList = tutorial.DetailIdList
+      .map(id => tutorialDetails.find(d => d.Id === id))
+      .filter(x => !!x);
+    tutorial.Images = [];
+
+    let codexTypeName = pushTipCodexTypeName(tutorial.CodexType);
+    let tipsIcon = pushTipsIcon(tutorial.PushTip?.TabIcon);
+
+    if (codexTypeConstraint &&tutorial.CodexType !== codexTypeConstraint) {
       continue;
     }
 
-    let codexType = pushTipCodexTypeName(tutorial.PushTip.CodexType);
-    let tipsIcon = pushTipsIcon(tutorial.PushTip.TabIcon);
+    let text = `{{Tutorial`;
 
-    if (codexTypeConstraint && tutorial.PushTip.CodexType !== codexTypeConstraint) {
-      continue;
+    if (tutorial.CodexType === 'CODEX_NONPUSH') {
+      text += `\n|title    = `;
+    } else {
+      text += `\n|title    = ${tutorial.PushTip?.TitleText || ''}`;
+      text += `\n|subtitle = ${tutorial.PushTip?.SubtitleText || ''}`;
+      if (tutorial.CodexType !== 'CODEX_NEWACTIVITY') {
+        text += `\n|type     = ${codexTypeName || ''}`;
+      }
+      text += `\n|icon     = ${tipsIcon || ''}`;
+    }
+    if (tutorial.CodexType === 'CODEX_NEWACTIVITY') {
+      text += `\n|about    = ` + await ctrl.selectNewActivityName((<NewActivityPushTipsConfigData> tutorial.PushTip).ActivityId);
+    } else {
+      text += `\n|about    = `;
     }
 
-    let text = `
-{{Tutorial
-|title    = ${tutorial.PushTip.TitleText || ''}
-|subtitle = ${tutorial.PushTip.SubtitleText || ''}
-|type     = ${codexType || ''}
-|icon     = ${tipsIcon || ''}
-|about    =`;
     for (let i = 0; i < tutorial.DetailList.length; i++) {
       let detail = tutorial.DetailList[i];
       let imageName = await fileFormatOptionsApply(
@@ -117,13 +145,15 @@ export async function selectTutorials(ctrl: GenshinControl, codexTypeConstraint?
         tutorial.Images.push({ originalName, downloadName: imageName });
       }
     }
-    text += '\n|sort     = ' + (tutorial.PushTip?.Codex?.SortOrder || '');
+    if (tutorial.CodexType !== 'CODEX_NONPUSH' && tutorial.CodexType !== 'CODEX_NEWACTIVITY') {
+      text += '\n|sort     = ' + (tutorial.PushTip?.Codex?.SortOrder || '');
+    }
     text += '\n}}';
     tutorial.Wikitext = fileFormatOptionsCheck(text);
-    if (!codexType) {
-      codexType = 'Uncategorized';
+    if (!codexTypeName) {
+      codexTypeName = 'Uncategorized';
     }
-    ret[codexType].push(tutorial);
+    ret[codexTypeName].push(tutorial);
   }
 
   return ret;
