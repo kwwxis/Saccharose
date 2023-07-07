@@ -1,11 +1,12 @@
 import '../../loadenv';
 import fs from 'fs';
+import { promises as fsp } from 'fs';
 import path from 'path';
 import { pathToFileURL } from 'url';
 import commandLineArgs, { OptionDefinition as ArgsOptionDefinition } from 'command-line-args';
 import commandLineUsage, { OptionDefinition as UsageOptionDefinition } from 'command-line-usage';
 import chalk from 'chalk';
-import { getGenshinDataFilePath } from '../../loadenv';
+import { getGenshinDataFilePath, IMAGEDIR_GENSHIN } from '../../loadenv';
 import { getGenshinControl } from '../../domain/genshin/genshinControl';
 import { ReadableView } from '../../../shared/types/genshin/readable-types';
 import { closeKnex } from '../../util/db';
@@ -232,6 +233,66 @@ export async function importTranslateSchema() {
   console.log(chalk.blue('Done. Output written to: ' + outDir + '/SchemaTranslation.json'));
 }
 
+async function maximizeImages() {
+  let dupeSet: string[] = [];
+  let dupeKey: string = null;
+
+  async function processDupeSet() {
+    let sizes: {[fileName: string]: number} = {};
+
+    await Promise.all(dupeSet.map(f => {
+      const absPath = path.join(IMAGEDIR_GENSHIN, f);
+      return fsp.stat(absPath).then(stats => {
+        sizes[absPath] = stats.size;
+      });
+    }));
+
+    let largestFile: string = Object.keys(sizes).find(f => !f.includes('#')); // prefer non-hashtag file first
+    let currLargestSize: number = 0;
+
+    for (let [absPath, byteSize] of Object.entries(sizes)) {
+      if (byteSize > currLargestSize) {
+        largestFile = absPath;
+        currLargestSize = byteSize;
+      }
+    }
+
+    for (let absPath of Object.keys(sizes)) {
+      if (absPath !== largestFile) {
+        fs.unlinkSync(absPath);
+      }
+    }
+
+    if (largestFile.includes('#')) {
+      let actualFile = largestFile.replace(/#\d+\.png$/, '.png');
+      fs.renameSync(largestFile, actualFile);
+    }
+  }
+
+  for (let fileName of fs.readdirSync(IMAGEDIR_GENSHIN)) {
+
+    let imageName: string;
+
+    if (fileName.includes('#')) {
+      imageName = fileName.split('#')[0];
+    } else {
+      imageName = fileName.split('.')[0];
+    }
+
+    if (dupeKey !== imageName) {
+      dupeKey = imageName;
+      if (dupeSet.length > 1) {
+        await processDupeSet();
+      }
+      dupeSet = [];
+    }
+
+    dupeSet.push(fileName);
+  }
+
+  console.log('Done');
+}
+
 async function importIndex() {
   if (!fs.existsSync(getGenshinDataFilePath('./TextMap/Index/'))) {
     fs.mkdirSync(getGenshinDataFilePath('./TextMap/Index/'));
@@ -316,6 +377,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
       {name: 'gcg-skill', type: Boolean, description: 'Creates file for GCG skill data'},
       {name: 'fetters', type: Boolean, description: 'Creates file for character fetters data'},
       {name: 'translate-schema', type: Boolean, description: 'Creates the SchemaTranslation file.'},
+      {name: 'maximize-images', type: Boolean, description: 'Compares images with duplicate names to choose the image with the largest size.'},
       {name: 'help', type: Boolean, description: 'Display this usage guide.'},
     ];
 
@@ -366,6 +428,9 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     }
     if (options['translate-schema']) {
       await importTranslateSchema();
+    }
+    if (options['maximize-images']) {
+      await maximizeImages();
     }
 
     await closeKnex();

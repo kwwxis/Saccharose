@@ -826,6 +826,8 @@ export class GCGControl {
         if (keyword) {
           return keyword.TitleText;
         }
+
+        // Fallback: guess from element in cost list
         let guessKwId = skill.CostList
           .map(c => standardElementCodeToGcgKeywordId(standardElementCode(c.CostType)))
           .filter(x => !!x)[0];
