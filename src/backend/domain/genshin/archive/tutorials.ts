@@ -25,7 +25,7 @@ export function pushTipCodexTypeName(type: PushTipsCodexType): string {
     case 'CODEX_ARANARA':
       return 'Aranara';
     case 'CODEX_ELEMENT':
-      return 'Elemental Reactions';
+      return 'Elements';
     case 'CODEX_ENEMY':
       return 'Enemies';
     case 'CODEX_SYSTEM':
