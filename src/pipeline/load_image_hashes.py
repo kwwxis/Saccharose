@@ -7,7 +7,7 @@ from PIL import Image
 import imagehash
 from dotenv import load_dotenv
 
-approot_path = os.path.join(dirname(__file__), '../../')
+approot_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../')
 dotenv_path = os.path.join(approot_path, './.env')
 genshin_images_path = os.path.join(approot_path, './public/images/genshin')
 
@@ -40,5 +40,5 @@ for entry in os.scandir(genshin_images_path):
 		cursor.execute("INSERT INTO genshin_hashes(hash, name) VALUES (%s, %s)", (hashInt, entry.name))
 		conn.commit()
 		print(f"Added image {entry.name} with hash {hashInt}")
-		
+
 print("Done")
