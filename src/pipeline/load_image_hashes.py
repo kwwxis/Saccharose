@@ -38,6 +38,8 @@ cursor.execute("TRUNCATE TABLE genshin_hashes RESTART IDENTITY")
 print("Starting file iteration...")
 for entry in os.scandir(genshin_images_path):
 	with open(entry.path, "rb") as imageBinary:
+	    if not entry.name.endswith('.png'):
+	        continue
 		img = Image.open(imageBinary)
 		imgHash = str(imagehash.dhash(img))
 		hashInt = twos_complement(imgHash, 64) #convert from hexadecimal to 64 bit signed integer
