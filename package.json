@@ -8,7 +8,7 @@
   "scripts": {
     "backend:clean": "ts-node src/pipeline/clean.ts",
     "backend:tsc": "tsc",
-    "backend:copy-assets": "copyfiles -u 1 \"src/**/*.css\" \"src/**/*.html\" \"src/**/*.ejs\" \"src/**/*.sql\" dist/",
+    "backend:copy-assets": "copyfiles -u 1 \"src/**/*.css\" \"src/**/*.html\" \"src/**/*.ejs\" \"src/**/*.py\" \"src/**/*.sql\" dist/",
     "backend:build": "npm-run-all backend:clean backend:tsc backend:copy-assets",
     "webpack:prod": "cross-env NODE_OPTIONS=\"--loader ts-node/esm\" webpack --config webpack.prod.ts",
     "webpack:dev": "cross-env NODE_OPTIONS=\"--loader ts-node/esm\" webpack --config webpack.dev.ts",
