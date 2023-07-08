@@ -16,8 +16,9 @@ import './css/static_highlight.scss';
 import Cookies from 'js-cookie';
 import { toBoolean } from '../../../shared/util/genericUtil';
 import { DOMClassWatcher } from '../domClassWatcher';
-import { escapeHtml, uuidv4 } from '../../../shared/util/stringUtil';
+import { escapeHtml } from '../../../shared/util/stringUtil';
 import { Marker, MarkerAggregate } from '../../../shared/util/highlightMarker';
+import { uuidv4 } from '../uuidv4';
 
 let aceEditors: ace.Editor[] = [];
 

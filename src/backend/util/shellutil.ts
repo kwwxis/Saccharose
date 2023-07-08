@@ -1,11 +1,13 @@
 import util from 'util';
 import { exec, execSync, spawn } from 'child_process';
-import { getGenshinDataFilePath } from '../loadenv';
+import { getGenshinDataFilePath, PIPELINE_DIR } from '../loadenv';
 import { pathToFileURL } from 'url';
 import treeKill from 'tree-kill';
 import { isPromise, isset } from '../../shared/util/genericUtil';
 import { toInt } from '../../shared/util/numberUtil';
 import { splitLimit } from '../../shared/util/stringUtil';
+import path from 'path';
+import { sort } from '../../shared/util/arrayUtil';
 
 const execPromise = util.promisify(exec);
 
@@ -420,6 +422,43 @@ export function findFiles(fileSearch: string, absoluteFilePath: string): string[
       }
       return f;
     });
+  } catch (err) {
+    console.error('\x1b[4m\x1b[1mshell error:\x1b[0m\n', err);
+    throw 'Search error occurred.';
+  }
+}
+
+export interface MediaSearchResult {
+  fileHash: string,
+  matches: { name: string, hash: number, distance: number }[]
+}
+
+export function mediaSearch(imageName: string, maxHammingDistance: number): MediaSearchResult {
+  try {
+    const pyFile = path.resolve(PIPELINE_DIR, './search_image_hashes.py').replace(/\\/g, '/');
+    const cmd = `${process.env.PYTHON_COMMAND} ${pyFile} ${maxHammingDistance} ${shellEscapeArg(imageName)}`;
+
+    const stdout: string = execSync(cmd, {
+      env: { PATH: process.env.SHELL_PATH },
+      shell: process.env.SHELL_EXEC,
+    }).toString();
+
+    const lines = stdout.trim().split('\n').map(f => {
+      return f.trim();
+    });
+
+    const fileHash = lines.shift();
+    return {
+      fileHash,
+      matches: sort(lines.map(line => {
+        let lineSplit = line.split('|');
+        return {
+          name: lineSplit[0],
+          hash: parseInt(lineSplit[1]),
+          distance: parseInt(lineSplit[2])
+        }
+      }), 'distance')
+    };
   } catch (err) {
     console.error('\x1b[4m\x1b[1mshell error:\x1b[0m\n', err);
     throw 'Search error occurred.';

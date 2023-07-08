@@ -2,10 +2,11 @@
 
 import { MwComment, MwNode, MwParamNode, MwTemplateNode, MwWhiteSpace } from '../../../../shared/mediawiki/mwTypes';
 import { mwParse } from '../../../../shared/mediawiki/mwParse';
-import { isStringBlank, splitLimit, uuidv4 } from '../../../../shared/util/stringUtil';
+import { isStringBlank, splitLimit } from '../../../../shared/util/stringUtil';
 import { arrayClosestNumber, arrayRemove, arraySum, sort } from '../../../../shared/util/arrayUtil';
 import { isset } from '../../../../shared/util/genericUtil';
 import { constrainNumber, isInt, toInt } from '../../../../shared/util/numberUtil';
+import { uuidv4 } from '../../../util/uuidv4';
 
 interface VoParamKey {
   groupKey: string;

@@ -190,6 +190,22 @@ export const genshinEndpoints = {
 
   searchItems: new GenshinApiEndpoint<{text: string}>('/items/search'),
   searchWeapons: new GenshinApiEndpoint<{text: string}>('/weapons/search'),
+
+  // mediaUpload: function() {
+  //
+  //   return axios
+  //     .request({
+  //       url: this.uri,
+  //       method: method,
+  //       params: cleanedParams,
+  //       headers: {
+  //         'Accept': asHTML ? 'text/html' : 'application/json',
+  //         'Content-Type': asHTML ? 'text/html' : 'application/json',
+  //       }
+  //     })
+  //     .then(response => response.data)
+  //     .catch(this.errorHandler);
+  // }
 };
 
 export const starRailEndpoints = {

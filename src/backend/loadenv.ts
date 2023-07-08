@@ -15,6 +15,7 @@ dotenv.config({ path: envFile });
 
 export const VIEWS_ROOT = path.resolve(__dirname, './views');
 export const PUBLIC_DIR = path.resolve(__dirname, '../../public');
+export const PIPELINE_DIR = path.resolve(__dirname, '../pipeline');
 export const SITE_TITLE = 'Saccharose.wiki';
 export const EJS_DELIMITER = '%';
 

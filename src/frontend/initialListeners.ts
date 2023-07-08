@@ -13,7 +13,7 @@ import { Listener, runWhenDOMContentLoaded, startListeners } from './util/eventL
 import { showJavascriptErrorDialog } from './util/errorHandler';
 import autosize from 'autosize';
 import { isInt, toInt } from '../shared/util/numberUtil';
-import { escapeHtml, uuidv4 } from '../shared/util/stringUtil';
+import { escapeHtml } from '../shared/util/stringUtil';
 import { getInputValue, highlightReplace, highlightWikitextReplace } from './util/ace/wikitextEditor';
 import { GeneralEventBus } from './generalEventBus';
 import { languages } from './util/langCodes';
@@ -21,6 +21,7 @@ import { DEFAULT_LANG, LangCode } from '../shared/types/lang-types';
 import { mwParse } from '../shared/mediawiki/mwParse';
 import { MwTemplateNode } from '../shared/mediawiki/mwTypes';
 import { pageMatch } from './pageMatch';
+import { uuidv4 } from './util/uuidv4';
 
 type UiAction = {actionType: string, actionParams: string[]};
 

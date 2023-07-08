@@ -4,6 +4,7 @@ import DialogueRouter from './DialogueRouter';
 import ItemRouter from './ArchiveRouter';
 import CharacterRouter from './CharacterRouter';
 import TcgRouter from './TcgRouter';
+import MediaRouter from './MediaRouter';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -13,6 +14,7 @@ export default async function(): Promise<Router> {
   router.use('/', await ItemRouter());
   router.use('/', await CharacterRouter());
   router.use('/', await TcgRouter());
+  router.use('/', await MediaRouter());
 
   return router;
 }

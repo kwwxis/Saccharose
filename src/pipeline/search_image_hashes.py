@@ -70,8 +70,8 @@ with open(fileName, "rb") as imageBinary:
     imgHash = str(imagehash.phash(img))
     hashInt = twos_complement(imgHash, 64) # convert from hexadecimal to 64 bit signed integer
     print(hashInt)
-    cursor.execute(f"SELECT name FROM genshin_hashes WHERE hash <@ ({hashInt}, {maxDifference})")
+    cursor.execute(f"SELECT name, hash FROM genshin_hashes WHERE hash <@ ({hashInt}, {maxDifference})")
     hashRows = cursor.fetchall()
-    names = [x[0] for x in hashRows]
-    for name in names:
-        print(name)
+    for x in hashRows:
+        xHash = x[1]
+        print(x[0] + "|" + str(xHash) + "|" + str(abs(xHash - hashInt)))
