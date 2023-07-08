@@ -7,11 +7,11 @@ from PIL import Image
 import imagehash
 from dotenv import load_dotenv
 
-approot_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../')
-dotenv_path = os.path.join(approot_path, './.env')
-genshin_images_path = os.path.join(approot_path, './public/images/genshin')
+approot_path = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../'))
+dotenv_path = os.path.join(approot_path, '.env')
+genshin_images_path = os.path.join(approot_path, 'public/images/genshin')
 
-print("Root Path" + root_path)
+print("Root Path" + approot_path)
 print("Dotenv Path" + dotenv_path)
 print("Dotenv Path" + dotenv_path)
 
