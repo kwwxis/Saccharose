@@ -167,7 +167,7 @@
   <section id="tabpanel-json" class="tabpanel <%= tab === 'json' ? 'active' : 'hide' %>">
     <section class="card">
       <h2>JSON</h2>
-      <%- use('partials/util/json', { json: card }) %>
+      <%- use('partials/util/json', { content: card }) %>
     </section>
   </section>
 <% } else { %>

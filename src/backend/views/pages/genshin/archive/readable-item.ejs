@@ -28,7 +28,7 @@
           <tr>
             <td class="bold">Desc.</td>
             <td class="w70p">
-              <%- include('partials/util/wikitext', {content: normGenshinText(readable?.Material?.DescText), seamless: true}) %>
+              <%- include('partials/util/wikitext', {wikitext: normGenshinText(readable?.Material?.DescText), seamless: true}) %>
             </td>
           </tr>
         </tbody>
@@ -61,7 +61,7 @@
           <tr>
             <td class="bold">Desc.</td>
             <td class="w70p">
-              <%- include('partials/util/wikitext', {content: normGenshinText(readable?.Artifact?.DescText), seamless: true}) %>
+              <%- include('partials/util/wikitext', {wikitext: normGenshinText(readable?.Artifact?.DescText), seamless: true}) %>
             </td>
           </tr>
         </tbody>
@@ -98,7 +98,7 @@
             <tr>
               <td class="bold">Desc.</td>
               <td class="w70p">
-                <%- include('partials/util/wikitext', {content: normGenshinText(readable?.Weapon?.DescText), seamless: true}) %>
+                <%- include('partials/util/wikitext', {wikitext: normGenshinText(readable?.Weapon?.DescText), seamless: true}) %>
               </td>
             </tr>
           </tbody>

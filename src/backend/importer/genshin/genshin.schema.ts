@@ -1015,6 +1015,10 @@ export const genshinSchema = {
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
     ],
+    normalizeFixFields: {
+      KGCAJNCAHGJ: 'WaitingCharacterList',
+      IBBLAOCNBNG: 'CondCount'
+    }
   },
   GCGDeckCardExcelConfigData: <SchemaTable>{
     name: 'GCGDeckCardExcelConfigData',
