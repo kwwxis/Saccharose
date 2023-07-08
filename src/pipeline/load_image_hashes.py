@@ -49,7 +49,7 @@ for entry in os.scandir(genshin_images_path):
         if not entry.name.endswith('.png'):
             continue
         img = Image.open(imageBinary)
-        imgHash = str(imagehash.phash(img))
+        imgHash = str(imagehash.ahash(img))
         hashInt = twos_complement(imgHash, 64) # convert from hexadecimal to 64 bit signed integer
         cursor.execute("INSERT INTO genshin_hashes(hash, name) VALUES (%s, %s)", (hashInt, entry.name))
         conn.commit()
