@@ -454,10 +454,12 @@ export async function mediaSearch(imageName: string, maxHammingDistance: number)
     await new Promise<void>((resolve, reject) => {
       child.stdout.on('data', (data) => {
         stdout += data.toString();
+        console.error('STDOUT', data.toString());
       });
 
       child.stderr.on('data', (data) => {
         stderr += data.toString();
+        console.error('STDERR', data.toString());
       });
 
       child.on('error', error => {
