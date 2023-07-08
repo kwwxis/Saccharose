@@ -40,6 +40,22 @@ fileName = TMP_UPLOAD_DIR + '/' + fileName
 conn = psycopg2.connect(database = POSTGRES_DATABASE, user = POSTGRES_USER, password = POSTGRES_PASSWORD, host = POSTGRES_HOST)
 cursor = conn.cursor()
 
+def remove_transparency(img, bg_colour=(255, 255, 255)):
+    # Only process if image has transparency (http://stackoverflow.com/a/1963146)
+    if img.mode in ('RGBA', 'LA') or (img.mode == 'P' and 'transparency' in img.info):
+
+        # Need to convert to RGBA if LA format due to a bug in PIL (http://stackoverflow.com/a/1963146)
+        alpha = img.convert('RGBA').split()[-1]
+
+        # Create a new background image of our matt color.
+        # Must be RGBA because paste requires both images have the same format
+        # (http://stackoverflow.com/a/8720632  and  http://stackoverflow.com/a/9459208)
+        bg = Image.new("RGBA", img.size, bg_colour + (255,))
+        bg.paste(img, mask=alpha)
+        return bg
+    else:
+        return img
+
 def twos_complement(hexstr, bits):
     value = int(hexstr,16) # convert hexadecimal to integer
 
@@ -50,6 +66,7 @@ def twos_complement(hexstr, bits):
 
 with open(fileName, "rb") as imageBinary:
     img = Image.open(imageBinary)
+    img = remove_transparency(img)
     imgHash = str(imagehash.average_hash(img))
     hashInt = twos_complement(imgHash, 64) # convert from hexadecimal to 64 bit signed integer
     print(hashInt)

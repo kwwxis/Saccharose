@@ -28,6 +28,23 @@ POSTGRES_DATABASE = os.environ.get("POSTGRES_DATABASE")
 POSTGRES_USER = os.environ.get("POSTGRES_USER")
 POSTGRES_PASSWORD = os.environ.get("POSTGRES_PASSWORD")
 
+def remove_transparency(img, bg_colour=(255, 255, 255)):
+    # Only process if image has transparency (http://stackoverflow.com/a/1963146)
+    if img.mode in ('RGBA', 'LA') or (img.mode == 'P' and 'transparency' in img.info):
+
+        # Need to convert to RGBA if LA format due to a bug in PIL (http://stackoverflow.com/a/1963146)
+        alpha = img.convert('RGBA').split()[-1]
+
+        # Create a new background image of our matt color.
+        # Must be RGBA because paste requires both images have the same format
+        # (http://stackoverflow.com/a/8720632  and  http://stackoverflow.com/a/9459208)
+        bg = Image.new("RGBA", img.size, bg_colour + (255,))
+        bg.paste(img, mask=alpha)
+        return bg
+
+    else:
+        return img
+
 def twos_complement(hexstr, bits):
     value = int(hexstr, 16) # convert hexadecimal to integer
 
@@ -49,6 +66,7 @@ for entry in os.scandir(genshin_images_path):
         if not entry.name.endswith('.png'):
             continue
         img = Image.open(imageBinary)
+        img = remove_transparency(img)
         imgHash = str(imagehash.average_hash(img))
         hashInt = twos_complement(imgHash, 64) # convert from hexadecimal to 64 bit signed integer
         cursor.execute("INSERT INTO genshin_hashes(hash, name) VALUES (%s, %s)", (hashInt, entry.name))
