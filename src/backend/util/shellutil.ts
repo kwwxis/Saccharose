@@ -433,18 +433,42 @@ export interface MediaSearchResult {
   matches: { name: string, hash: number, distance: number }[]
 }
 
-export function mediaSearch(imageName: string, maxHammingDistance: number): MediaSearchResult {
+export async function mediaSearch(imageName: string, maxHammingDistance: number): Promise<MediaSearchResult> {
   try {
     const pyFile = path.resolve(PIPELINE_DIR, './search_image_hashes.py').replace(/\\/g, '/');
-    const cmd = `${process.env.PYTHON_COMMAND} ${pyFile} ${maxHammingDistance} ${shellEscapeArg(imageName)}`;
 
-    const stdout: string = execSync(cmd, {
-      env: Object.assign({}, process.env, {
-        PATH: process.env.SHELL_PATH,
-        PYTHONPATH: PIPELINE_DIR
-      }),
-      shell: process.env.SHELL_EXEC,
-    }).toString();
+    //const cmd = `${process.env.PYTHON_COMMAND} ${pyFile} ${maxHammingDistance} ${shellEscapeArg(imageName)}`;
+    // const stdout: string = execSync(cmd, {
+    //   env: Object.assign({}, process.env, {
+    //     PATH: process.env.SHELL_PATH,
+    //     PYTHONPATH: PIPELINE_DIR
+    //   }),
+    //   shell: process.env.SHELL_EXEC,
+    // }).toString();
+
+    const child = spawn(process.env.PYTHON_COMMAND, [pyFile, String(maxHammingDistance), imageName]);
+
+    let stdout = '';
+    let stderr = '';
+
+    await new Promise<void>((resolve, reject) => {
+      child.stdout.on('data', (data) => {
+        stdout += data.toString();
+      });
+
+      child.stderr.on('data', (data) => {
+        stderr += data.toString();
+      });
+
+      child.on('error', error => {
+        console.error('\x1b[4m\x1b[1mshell error:\x1b[0m\n', error);
+        reject();
+      });
+
+      child.on('close', exitCode => {
+        resolve();
+      });
+    });
 
     const lines = stdout.trim().split('\n').map(f => {
       return f.trim();

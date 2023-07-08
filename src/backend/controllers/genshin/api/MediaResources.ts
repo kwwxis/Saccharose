@@ -54,7 +54,7 @@ router.post('/media-search', (req: Request, res: Response) => {
       maxHammingDistance = 3;
     }
 
-    const result = mediaSearch(file.filename, maxHammingDistance);
+    const result = await mediaSearch(file.filename, maxHammingDistance);
 
     const uploadedFilePath = path.resolve(process.env.TMP_UPLOAD_DIR, file.filename);
     fs.unlinkSync(uploadedFilePath);
