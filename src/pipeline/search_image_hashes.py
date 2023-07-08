@@ -3,6 +3,7 @@ from PIL import Image
 import imagehash
 from dotenv import load_dotenv
 import sys
+import os
 
 if len(sys.argv) < 3:
     print("Not enough arguments")
