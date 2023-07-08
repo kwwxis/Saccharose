@@ -34,3 +34,6 @@ import JSON5 from 'json5';
 
 import { resolveObjectPath } from '../shared/util/arrayUtil';
 (<any> window).resolveObjectPath = resolveObjectPath;
+
+import { mwParse } from '../shared/mediawiki/mwParse';
+(<any> window).mwParse = mwParse;
