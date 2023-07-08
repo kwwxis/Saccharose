@@ -67,7 +67,7 @@ def twos_complement(hexstr, bits):
 with open(fileName, "rb") as imageBinary:
     img = Image.open(imageBinary)
     img = remove_transparency(img)
-    imgHash = str(imagehash.crop_resistant_hash(img))
+    imgHash = str(imagehash.phash(img))
     hashInt = twos_complement(imgHash, 64) # convert from hexadecimal to 64 bit signed integer
     print(hashInt)
     cursor.execute(f"SELECT name FROM genshin_hashes WHERE hash <@ ({hashInt}, {maxDifference})")
