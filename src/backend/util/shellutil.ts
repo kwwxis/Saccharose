@@ -439,9 +439,9 @@ export function mediaSearch(imageName: string, maxHammingDistance: number): Medi
     const cmd = `${process.env.PYTHON_COMMAND} ${pyFile} ${maxHammingDistance} ${shellEscapeArg(imageName)}`;
 
     const stdout: string = execSync(cmd, {
-      env: Object.assign({}, process.env, {
+      env: {
         PATH: process.env.SHELL_PATH,
-      }),
+      },
       shell: process.env.SHELL_EXEC,
     }).toString();
 
