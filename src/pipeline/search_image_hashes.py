@@ -52,6 +52,7 @@ with open(fileName, "rb") as imageBinary:
     img = Image.open(imageBinary)
     imgHash = str(imagehash.dhash(img))
     hashInt = twos_complement(imgHash, 64) # convert from hexadecimal to 64 bit signed integer
+    print(hashInt)
     cursor.execute(f"SELECT name FROM genshin_hashes WHERE hash <@ ({hashInt}, {maxDifference})")
     hashRows = cursor.fetchall()
     names = [x[0] for x in hashRows]
