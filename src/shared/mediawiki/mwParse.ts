@@ -235,3 +235,5 @@ export function extractTrailingEmptySpaceToParentParts(parent: MwParentNode) {
   }
   parent.parts = newParts;
 }
+
+(<any> window).mwParse = mwParse;
