@@ -75,3 +75,5 @@ with open(fileName, "rb") as imageBinary:
     for x in hashRows:
         xHash = x[1]
         print(x[0] + "|" + str(xHash) + "|" + str(abs(xHash - hashInt)))
+
+sys.stdout.flush()
