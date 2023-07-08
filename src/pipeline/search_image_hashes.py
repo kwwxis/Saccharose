@@ -20,6 +20,10 @@ POSTGRES_USER = os.environ.get("POSTGRES_USER")
 POSTGRES_PASSWORD = os.environ.get("POSTGRES_PASSWORD")
 TMP_UPLOAD_DIR = os.environ.get("TMP_UPLOAD_DIR")
 
+if not sys.argv[1].isdigit():
+    print("The max hamming distance supplied is invalid. Must be an integer.")
+    sys.exit(1)
+
 maxDifference = int(sys.argv[1])
 fileName = sys.argv[2]
 
