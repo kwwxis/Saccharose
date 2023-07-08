@@ -79,4 +79,3 @@ with open(fileName, "rb") as imageBinary:
         output += "\n" + x[0] + "|" + str(xHash) + "|" + str(abs(xHash - hashInt))
 
 print(output)
-sys.stdout.flush()
