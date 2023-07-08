@@ -13,7 +13,7 @@ genshin_images_path = os.path.join(approot_path, 'public/images/genshin')
 
 print("Root Path" + approot_path)
 print("Dotenv Path" + dotenv_path)
-print("Dotenv Path" + dotenv_path)
+print("Genshin Images Path" + genshin_images_path)
 
 load_dotenv(dotenv_path)
 
