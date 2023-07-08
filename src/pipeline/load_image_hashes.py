@@ -37,14 +37,14 @@ cursor.execute("TRUNCATE TABLE genshin_hashes RESTART IDENTITY")
 
 print("Starting file iteration...")
 for entry in os.scandir(genshin_images_path):
-	with open(entry.path, "rb") as imageBinary:
-	    if not entry.name.endswith('.png'):
-	        continue
-		img = Image.open(imageBinary)
-		imgHash = str(imagehash.dhash(img))
-		hashInt = twos_complement(imgHash, 64) #convert from hexadecimal to 64 bit signed integer
-		cursor.execute("INSERT INTO genshin_hashes(hash, name) VALUES (%s, %s)", (hashInt, entry.name))
-		conn.commit()
-		print(f"Added image {entry.name} with hash {hashInt}")
+    with open(entry.path, "rb") as imageBinary:
+        if not entry.name.endswith('.png'):
+            continue
+        img = Image.open(imageBinary)
+        imgHash = str(imagehash.dhash(img))
+        hashInt = twos_complement(imgHash, 64) #convert from hexadecimal to 64 bit signed integer
+        cursor.execute("INSERT INTO genshin_hashes(hash, name) VALUES (%s, %s)", (hashInt, entry.name))
+        conn.commit()
+        print(f"Added image {entry.name} with hash {hashInt}")
 
 print("Done")
