@@ -11,9 +11,9 @@ approot_path = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__fi
 dotenv_path = os.path.join(approot_path, '.env')
 genshin_images_path = os.path.join(approot_path, 'public/images/genshin')
 
-print("Root Path" + approot_path)
-print("Dotenv Path" + dotenv_path)
-print("Genshin Images Path" + genshin_images_path)
+print("Root Path: " + approot_path)
+print("Dotenv Path: " + dotenv_path)
+print("Genshin Images Path: " + genshin_images_path)
 
 load_dotenv(dotenv_path)
 
@@ -32,6 +32,10 @@ conn = psycopg2.connect(database = "saccharose", user = POSTGRES_USER, password 
 cursor = conn.cursor()
 print("Connection Successful to PostgreSQL")
 
+print("Truncating table and restarting sequence")
+cursor.execute("TRUNCATE TABLE genshin_hashes RESTART IDENTITY")
+
+print("Starting file iteration...")
 for entry in os.scandir(genshin_images_path):
 	with open(entry.path, "rb") as imageBinary:
 		img = Image.open(imageBinary)
