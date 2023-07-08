@@ -67,7 +67,7 @@ for entry in os.scandir(genshin_images_path):
             continue
         img = Image.open(imageBinary)
         img = remove_transparency(img)
-        imgHash = str(imagehash.average_hash(img))
+        imgHash = str(imagehash.crop_resistant_hash(img))
         hashInt = twos_complement(imgHash, 64) # convert from hexadecimal to 64 bit signed integer
         cursor.execute("INSERT INTO genshin_hashes(hash, name) VALUES (%s, %s)", (hashInt, entry.name))
         conn.commit()
