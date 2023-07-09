@@ -1,10 +1,16 @@
 # Requires pip libraries: imagehash, psycopg2, python-dotenv
 
 # Useful Info:
-#  https://github.com/JohannesBuchner/imagehash
-#  https://github.com/JohannesBuchner/imagehash/issues/127
-#  https://github.com/JohannesBuchner/imagehash#efficient-database-search
-#  https://github.com/KDJDEV/imagehash-reverse-image-search-tutorial
+#  - https://github.com/JohannesBuchner/imagehash
+#  - https://github.com/JohannesBuchner/imagehash/issues/127
+#  - https://github.com/JohannesBuchner/imagehash#efficient-database-search
+#  - https://github.com/KDJDEV/imagehash-reverse-image-search-tutorial
+
+# Other potentially useful info:
+#  - https://github.com/soruly/trace.moe-api/tree/master
+#  - https://github.com/RAHUL-KAD/Reverse-Image-Search-Engine
+#  - https://github.com/cqcore/Image-Research-OSINT
+#  - https://fireship.io/lessons/image-search-engine/
 
 import psycopg2
 import os

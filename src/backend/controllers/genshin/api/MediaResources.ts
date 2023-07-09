@@ -11,7 +11,7 @@ import fs from 'fs';
 const router: Router = create();
 router.use(bodyParser.urlencoded({extended: true}));
 
-const MAX_FILE_SIZE = 500000; // in bytes
+const MAX_FILE_SIZE = 1_000_000 * 10; // 10 MB in bytes
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {

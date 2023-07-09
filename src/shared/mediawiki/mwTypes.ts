@@ -1,9 +1,9 @@
 
 // MwNode
-//  ├─ MwTextNode
+//  ├─ MwCharSequence
 //  │   ├─ MwBehaviorSwitch
-//  │   ├─ MwGlyphSpace
-//  │   └─ MwWhiteSpace
+//  │   ├─ MwTextNode
+//  │   └─ MwEOL
 //  ├─ MwParent
 //      ├─ MwTemplateParam
 //      ├─ MwTemplateCall
@@ -44,7 +44,7 @@ export class MwParentNode extends MwNode {
         ret.push(node);
       }
       for (let child of node.parts) {
-        if (child instanceof MwTemplateNode) {
+        if (child instanceof MwParentNode) {
           stack.push(child);
         }
       }
@@ -54,7 +54,7 @@ export class MwParentNode extends MwNode {
 }
 
 // ------------------------------------------------------------------------------------------
-export abstract class MwTextNode extends MwNode {
+export abstract class MwCharSequence extends MwNode {
   content: string;
   protected constructor(content: string) {
     super();
@@ -65,17 +65,17 @@ export abstract class MwTextNode extends MwNode {
   }
 }
 
-export class MwWhiteSpace extends MwTextNode {
+export class MwEOL extends MwCharSequence {
   constructor(content: string) {
     super(content);
   }
 }
-export class MwGlyphSpace extends MwTextNode {
+export class MwTextNode extends MwCharSequence {
   constructor(content: string) {
     super(content);
   }
 }
-export class MwBehaviorSwitch extends MwTextNode {
+export class MwBehaviorSwitch extends MwCharSequence {
   constructor(content: string) {
     super(content);
   }
@@ -121,20 +121,30 @@ export class MwHeading extends MwElement {
   constructor(tagName: string, tagStart: string, tagEnd: string) {
     super(tagName, tagStart, tagEnd);
   }
+  getLevel(): number {
+    // tagName is always H1, H2, H3, H4, H5, or H6
+    return parseInt(this.tagName.slice(1));
+  }
+  get innerText(): string {
+    return this.parts.map(p => p.toString()).join('');
+  }
+  set innerText(wikitext: string) {
+    this.parts = mwParse(wikitext).parts;
+  }
 }
 
 export class MwSection extends MwParentNode {
-  getHeading(): MwHeading {
-    if (!(this.parts[0] instanceof MwHeading)) {
-      throw 'Implementation error: first item of parts should be an MwHeading.';
-    }
-    return this.parts[0];
+  constructor(readonly level, readonly heading: MwHeading) {
+    super();
+  }
+  override toString(): string {
+    return this.heading.toString() + super.toString();
   }
 }
 
 export class MwLinkNode extends MwParentNode {
   private _link: string = '';
-  linkParts: MwTextNode[] = [];
+  linkParts: MwCharSequence[] = [];
   hasParams: boolean = false;
   type: MwLinkType;
 
@@ -197,12 +207,13 @@ export class MwParamNode extends MwParentNode {
 
   prefix: MwParamNodePrefixType = '';
 
-  beforeValueWhitespace: MwWhiteSpace = new MwWhiteSpace('');
+  beforeValueWhitespace: MwTextNode = new MwTextNode('');
+  afterValueWhitespace: MwTextNode = new MwTextNode('');
 
   /**
    * Key parts. Only present for numbered/named parameters.
    */
-  keyParts: MwTextNode[] = [];
+  keyParts: MwCharSequence[] = [];
 
   constructor(prefix: MwParamNodePrefixType, key: string|number, simpleTextValue?: string) {
     super();
@@ -252,10 +263,49 @@ export class MwParamNode extends MwParentNode {
 
   override toString() {
     if (this.isAnonymous) {
-      return this.prefix + this.beforeValueWhitespace.toString() + this.value;
+      return this.prefix + this.beforeValueWhitespace.toString() + this.value + this.afterValueWhitespace.toString();
     } else {
-      return this.prefix + this.keyParts.map(x => x.toString()).join('') + '=' + this.beforeValueWhitespace.toString() + this.value;
+      return this.prefix + this.keyParts.map(x => x.toString()).join('') + '=' + this.beforeValueWhitespace.toString() + this.value + this.afterValueWhitespace.toString();
     }
+  }
+
+  _evaluateAfterValueWhitespace(): this {
+    const parts: MwNode[] = this.parts;
+    const afterValueWhitespace: MwTextNode = new MwTextNode('');
+
+    while (true) {
+      if (!parts.length) {
+        break;
+      }
+      const lastPart = parts[parts.length - 1];
+      if (lastPart instanceof MwEOL) {
+        afterValueWhitespace.content = lastPart.content + afterValueWhitespace.content;
+        parts.pop();
+        continue;
+      }
+
+      if (!(lastPart instanceof MwTextNode)) {
+        break;
+      }
+
+      if (!/\s*$/.test(lastPart.content)) {
+        break;
+      }
+
+      if (/^\s*$/.test(lastPart.content)) {
+        afterValueWhitespace.content = lastPart.content + afterValueWhitespace.content;
+        parts.pop();
+        continue;
+      }
+
+      const match = /^(.*?)(\s*)$/.exec(lastPart.content);
+      afterValueWhitespace.content = match[2] + afterValueWhitespace.content;
+      lastPart.content = match[1];
+      break;
+    }
+
+    this.afterValueWhitespace = afterValueWhitespace;
+    return this;
   }
 }
 
@@ -310,7 +360,7 @@ export class MwTemplateNode extends MwParentNode {
     if (param) {
       let index = this.parts.indexOf(param);
       let nextNode = this.parts[index + 1];
-      if (nextNode instanceof MwWhiteSpace && nextNode.content === '\n') {
+      if (nextNode instanceof MwEOL && nextNode.content === '\n') {
         arrayRemove(this.parts, [param, nextNode]);
       } else {
         arrayRemove(this.parts, [param]);

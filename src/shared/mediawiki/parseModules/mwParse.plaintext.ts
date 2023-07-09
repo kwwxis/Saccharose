@@ -1,45 +1,50 @@
-import { MwGlyphSpace, MwWhiteSpace } from '../mwTypes';
+import { MwTextNode, MwEOL } from '../mwTypes';
 import { MwParseModule } from '../mwParseModule';
 
+/**
+ * The plaintext module is always last within the parse context, and it *always* accepts the offer.
+ * This means that if none of the other modules accepted the offer, then the offered character will be assumed to
+ * be plaintext.
+ */
 export class MwParsePlaintextModule extends MwParseModule {
-  sb_text: string = '';
+  buffer: string = '';
 
-  isWhitespace(ch: string): boolean {
-    return /\s/.test(ch);
+  isEol(ch: string): boolean {
+    return /\n/.test(ch);
   }
 
   sb_push(): void {
-    if (!this.sb_text) {
+    if (!this.buffer) {
       return;
     }
-    let sbWsMode = this.isWhitespace(this.sb_text.charAt(0));
-    if (sbWsMode) {
-      this.ctx.addNode(new MwWhiteSpace(this.sb_text), false);
+    let eolMode = this.isEol(this.buffer.charAt(0));
+    if (eolMode) {
+      this.ctx.addNode(new MwEOL(this.buffer), false);
     } else {
-      this.ctx.addNode(new MwGlyphSpace(this.sb_text), false);
+      this.ctx.addNode(new MwTextNode(this.buffer), false);
     }
-    this.sb_text = '';
+    this.buffer = '';
   };
 
   sb_append(ch: string): void {
-    if (!this.sb_text) {
-      this.sb_text = ch;
+    if (!this.buffer) {
+      this.buffer = ch;
       return;
     }
-    let sbWsMode = this.isWhitespace(this.sb_text.charAt(0));
-    if (this.isWhitespace(ch)) {
-      if (sbWsMode) {
-        this.sb_text += ch;
+    let eolMode = this.isEol(this.buffer.charAt(0));
+    if (this.isEol(ch)) {
+      if (eolMode) {
+        this.buffer += ch;
       } else {
-        this.ctx.addNode(new MwGlyphSpace(this.sb_text), false);
-        this.sb_text = ch;
+        this.ctx.addNode(new MwTextNode(this.buffer), false);
+        this.buffer = ch;
       }
     } else {
-      if (sbWsMode) {
-        this.ctx.addNode(new MwWhiteSpace(this.sb_text), false);
-        this.sb_text = ch;
+      if (eolMode) {
+        this.ctx.addNode(new MwEOL(this.buffer), false);
+        this.buffer = ch;
       } else {
-        this.sb_text += ch;
+        this.buffer += ch;
       }
     }
   }

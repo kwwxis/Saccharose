@@ -1,6 +1,7 @@
 import { MwParseModule } from '../mwParseModule';
-import { MwBehaviorSwitch, MwHeading, MwRedirect, MwSection } from '../mwTypes';
-import { mwParse, mwSimpleTextParse } from '../mwParse';
+import { MwHeading, MwSection } from '../mwTypes';
+import { mwParse } from '../mwParse';
+import { tag } from '../../../frontend/util/domutil';
 
 /**
  * Parse module for sections.
@@ -40,28 +41,66 @@ import { mwParse, mwSimpleTextParse } from '../mwParse';
  *      ```
  */
 export class MwParseSectionModule extends MwParseModule {
-  private sectionHeadingRegex: RegExp = /^((={1,6}).*?(={1,6}))(\n|\r\n|$)/;
+  private equalsHeadingRegex: RegExp = /^(={1,6})(.*?)(\1)(?=\n|$)/;
 
-  // TODO: not functional yet (WIP)
+  // noinspection RegExpSuspiciousBackref (backref warning not an issue)
+  private htmlHeadingRegex: RegExp = /^(<h([1-6])(?:>|\s.*?>))(.*?)(<\/h\2(?:>|\s.*?>))/i;
+
   offer(ch: string): boolean {
     const ctx = this.ctx;
 
-    if (this.lineStartMatch(this.sectionHeadingRegex)) {
-      const match = this.sectionHeadingRegex.exec(ctx.iter.peek());
-      const headingLevel = Math.min(match[2].length, match[3].length);
-      const headingInner = match[1].slice(headingLevel, -headingLevel);
+    if (ctx !== this.ctx.iter.currentContext) {
+      return false;
+    }
 
-      const section = new MwSection();
+    if (this.lineStartMatch(this.equalsHeadingRegex)) {
+      const match = this.equalsHeadingRegex.exec(ctx.iter.peek());
+      const fullMatch = match[0];
+      const tagStart = match[1];
+      const headingLevel = tagStart.length;
+      const headingInner = match[2];
+      const tagEnd = match[3];
+      return this.processMatch(headingLevel, fullMatch, tagStart, headingInner, tagEnd);
+    }
 
-      const heading = new MwHeading('H'+headingLevel, '='.repeat(headingLevel), '='.repeat(headingLevel));
-      heading.parts = mwParse(headingInner).parts;
-
-      section.parts.push(heading);
-
-      return true;
+    if (this.lineStartMatch(this.htmlHeadingRegex)) {
+      const match = this.htmlHeadingRegex.exec(ctx.iter.peek());
+      const fullMatch = match[0];
+      const tagStart = match[1];
+      const headingLevel = parseInt(match[2]);
+      const headingInner = match[3];
+      const tagEnd = match[4];
+      return this.processMatch(headingLevel, fullMatch, tagStart, headingInner, tagEnd);
     }
 
     return false;
+  }
+
+  processMatch(headingLevel: number, fullMatch: string, tagStart: string, headingInner: string, tagEnd: string) {
+    const ctx = this.ctx;
+    const ctxLevel = ctx.node instanceof MwSection ? ctx.node.level : 0;
+
+    if (ctxLevel === headingLevel) {
+      ctx.exit();
+      ctx.iter.rollback(1);
+      return true;
+    } else if (ctxLevel) {
+      if (headingLevel > ctxLevel) {
+      } else {
+        ctx.exit();
+        ctx.iter.rollback(1);
+        return true;
+      }
+    }
+
+    const heading = new MwHeading('H'+headingLevel, tagStart, tagEnd);
+    heading.parts = mwParse(headingInner).parts;
+
+    const section = new MwSection(headingLevel, heading);
+    this.ctx.enter(section, null);
+    this.ctx.iter.skip(fullMatch);
+
+    return true;
   }
 
 

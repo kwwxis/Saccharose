@@ -13,7 +13,7 @@ export class MwParseHtmlModule extends MwParseModule {
           return true;
         }
       }
-      if (ctx.iter.peek(8) === '<nowiki>') { // TODO self closing (must have "/")
+      if (ctx.iter.peek(8) === '<nowiki>') {
         let match = /^(<nowiki>)(.*?)(<\/nowiki>)/si.exec(ctx.iter.peek());
         if (match) {
           ctx.addNode(new MwNowiki(match[1], match[2], match[3]));

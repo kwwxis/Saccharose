@@ -1,7 +1,7 @@
 import { resolveObjectPath } from '../../shared/util/arrayUtil';
 import { isset, toBoolean } from '../../shared/util/genericUtil';
 import { mwParse } from '../../shared/mediawiki/mwParse';
-import { MwParentNode, MwTemplateNode, MwWhiteSpace } from '../../shared/mediawiki/mwTypes';
+import { MwEOL, MwParentNode, MwTemplateNode } from '../../shared/mediawiki/mwTypes';
 import { isNumeric, toNumber } from '../../shared/util/numberUtil';
 import { replaceAsync, splitArgs } from '../../shared/util/stringUtil';
 import JSON5 from 'json5';
@@ -38,17 +38,13 @@ export function evaluateCustomFormat(obj: Object, parentNode: MwParentNode): str
 
         if (thenParam) {
           thenParam.parts.unshift(thenParam.beforeValueWhitespace);
+          thenParam.parts.push(thenParam.afterValueWhitespace);
           const tmp = node.parts[node.parts.indexOf(thenParam) + 1];
-          if (tmp instanceof MwWhiteSpace) {
-            thenParam.parts.push(tmp);
-          }
         }
         if (elseParam) {
           elseParam.parts.unshift(elseParam.beforeValueWhitespace);
+          elseParam.parts.push(elseParam.afterValueWhitespace);
           const tmp = node.parts[node.parts.indexOf(elseParam) + 1];
-          if (tmp instanceof MwWhiteSpace) {
-            elseParam.parts.push(tmp);
-          }
         }
 
         const condOpRegex = /^(:={1,3}|<=?|>=?|!={1,2}|~|\*=|\^=|\$=)$/;

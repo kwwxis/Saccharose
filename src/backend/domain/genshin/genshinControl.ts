@@ -1822,6 +1822,16 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     this.state.newActivityNameCache[id] = name;
     return name;
   }
+
+  async selectMaterialIdFromFurnitureSuiteId(furnitureSuitId: number): Promise<number> {
+    return await this.knex.select('MaterialId').from('Relation_FurnitureSuiteToMaterial')
+      .where({FurnitureSuiteId: furnitureSuitId}).first().then(x => x.MaterialId);
+  }
+
+  async selectMaterialIdFromFurnitureId(furnitureId: number): Promise<number> {
+    return await this.knex.select('MaterialId').from('Relation_FurnitureToMaterial')
+      .where({FurnitureId: furnitureId}).first().then(x => x.MaterialId);
+  }
 }
 
 // Voice Items

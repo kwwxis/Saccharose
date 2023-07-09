@@ -771,13 +771,18 @@ const initial_listeners: Listener[] = [
     }
   },
   {
-    el: '.file-format-options input[type="text"]',
-    ev: 'change',
+    el: '.file-format-options-custom-format-input',
+    ev: 'input',
     multiple: true,
     fn: function(event, target: HTMLInputElement) {
       let name = target.name;
       let value = target.value;
-      Cookies.set(name, value, { expires: 365 });
+
+      clearTimeout((<any> target)._timeout);
+
+      (<any> target)._timeout = setTimeout(() => {
+        Cookies.set(name, value, { expires: 365 });
+      }, 50);
     }
   },
   {

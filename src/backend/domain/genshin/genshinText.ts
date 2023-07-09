@@ -81,12 +81,12 @@ function travelerPlaceholder(langCode: LangCode = 'EN', degender: boolean = fals
   return '(Traveler)';
 }
 
-export const normGenshinText: TextNormalizer = (text: string,
+export const normGenshinText: TextNormalizer = function (text: string,
                                                 langCode: LangCode,
                                                 decolor: boolean = false,
                                                 plaintext: boolean = false,
                                                 plaintextMcMode: 'both' | 'male' | 'female' = 'both',
-                                                sNum?: number): string => {
+                                                sNum?: number): string {
   if (!text) {
     return text;
   }

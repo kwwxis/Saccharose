@@ -37,6 +37,7 @@ export function MW_LINK_START_REGEX(): RegExp {
  *   bare links
  *   templates in links
  *   interlanguage links [[en:link]] or [[:en:link]]
+ *   magic links
  *
  * Caveats:
  *   Templates are assumed to be part of links when unclear.

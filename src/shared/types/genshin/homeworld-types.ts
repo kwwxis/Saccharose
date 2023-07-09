@@ -2,6 +2,8 @@ import { NpcExcelConfigData } from './general-types';
 import { AvatarExcelConfigData } from './avatar-types';
 import { MaterialVecItem } from './material-types';
 
+// HomeWorld NPC/Avatar
+// --------------------------------------------------------------------------------------------------------------
 export interface HomeWorldEventExcelConfigData {
   EventId: number,
   EventType: 'HOME_AVATAR_SUMMON_EVENT' | 'HOME_AVATAR_REWARD_EVENT',
@@ -42,6 +44,8 @@ export interface HomeWorldNPCExcelConfigData {
   SideIcon?: string,
 }
 
+// Furniture Types
+// --------------------------------------------------------------------------------------------------------------
 export type FurnitureSurfaceType =
   'Animal' |
   'Apartment' |
@@ -78,6 +82,8 @@ export type SpecialFurnitureType =
   'TeleportPoint' |
   'VirtualFurnitrue';
 
+// Furniture
+// --------------------------------------------------------------------------------------------------------------
 export interface HomeWorldFurnitureExcelConfigData {
   Id: number,
   FurnitureGadgetId: number[],
@@ -131,6 +137,8 @@ export interface HomeWorldFurnitureTypeExcelConfigData {
   BagPageOnly: number,
 }
 
+// Furniture Set
+// --------------------------------------------------------------------------------------------------------------
 export interface FurnitureSuiteExcelConfigData {
   SuiteId: number,
   JsonName: string,
@@ -146,6 +154,8 @@ export interface FurnitureSuiteExcelConfigData {
   MapIcon: string,
 }
 
+// Furniture Make Config
+// --------------------------------------------------------------------------------------------------------------
 export interface FurnitureMakeExcelConfigData {
   ConfigId: number,
   FurnitureItemId: number,

@@ -1,3 +1,5 @@
+# Requires pip libraries: imagehash, psycopg2, python-dotenv
+
 import psycopg2
 from PIL import Image
 import imagehash

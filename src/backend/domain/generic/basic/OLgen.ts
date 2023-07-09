@@ -2,7 +2,7 @@ import '../../../loadenv';
 import { getGenshinControl } from '../../genshin/genshinControl';
 import { maybeInt } from '../../../../shared/util/numberUtil';
 import { mwParse } from '../../../../shared/mediawiki/mwParse';
-import { MwTemplateNode, MwTextNode } from '../../../../shared/mediawiki/mwTypes';
+import { MwTemplateNode, MwCharSequence } from '../../../../shared/mediawiki/mwTypes';
 import { pathToFileURL } from 'url';
 import { Marker } from '../../../../shared/util/highlightMarker';
 import { LANG_CODE_TO_WIKI_CODE, LANG_CODES, LangCode, TextMapHash } from '../../../../shared/types/lang-types';
@@ -101,7 +101,7 @@ async function ol_gen_internal(ctrl: AbstractControl, textMapHash: TextMapHash, 
     if (langText.includes('|')) {
       let parsed = mwParse(langText);
       for (let part of parsed.parts) {
-        if (part instanceof MwTextNode) {
+        if (part instanceof MwCharSequence) {
           part.content = part.content.replace(/\|/g, '<nowiki>|</nowiki>');;
         }
       }

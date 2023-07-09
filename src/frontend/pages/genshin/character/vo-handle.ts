@@ -1,6 +1,12 @@
 // noinspection JSUnusedGlobalSymbols
 
-import { MwComment, MwNode, MwParamNode, MwTemplateNode, MwWhiteSpace } from '../../../../shared/mediawiki/mwTypes';
+import {
+  MwComment,
+  MwEOL,
+  MwNode,
+  MwParamNode,
+  MwTemplateNode, MwTextNode,
+} from '../../../../shared/mediawiki/mwTypes';
 import { mwParse } from '../../../../shared/mediawiki/mwParse';
 import { isStringBlank, splitLimit } from '../../../../shared/util/stringUtil';
 import { arrayClosestNumber, arrayRemove, arraySum, sort } from '../../../../shared/util/arrayUtil';
@@ -124,17 +130,8 @@ export class VoItem {
     let paramNode = this.propToParam[propName];
     delete this.propToParam[propName];
 
-    let allNodesIndex = this.allNodes.indexOf(paramNode);
-    let eolNode = this.allNodes[allNodesIndex + 1];
-
-    if (eolNode instanceof MwWhiteSpace && (eolNode.content === '\n' || eolNode.content === '\n\n')) {
-      arrayRemove(this.allNodes, [eolNode]);
-      this.handle.removeNode(eolNode);
-    }
-
     arrayRemove(this.allNodes, [paramNode]);
     this.handle.removeNode(paramNode);
-
     this.handle.recalculate();
     return paramNode;
   }
@@ -147,8 +144,8 @@ export class VoItem {
     let key = this.handle.compileKey({groupKey: this.group.groupKey, itemKey: this._itemKey, prop: propName});
     let propOrder = obtainPropOrder(propName);
     let paramNode = new MwParamNode('|', (key + ' ').padEnd(this.handle.keyPadLen, ' '));
-    let eolNode = new MwWhiteSpace('\n');
-    paramNode.beforeValueWhitespace = new MwWhiteSpace(' ');
+    paramNode.beforeValueWhitespace = new MwTextNode(' ');
+    paramNode.afterValueWhitespace = new MwTextNode('\n');
     paramNode.value = newValue;
 
     let allNodesIndex = -1;
@@ -183,18 +180,13 @@ export class VoItem {
           // If it's after, then we'll want to insert before the closestNode (next sibling node)
           insertIndex++;
           allNodesIndex++;
-          if (this.allNodes[allNodesIndex] instanceof MwWhiteSpace) {
-            // Increment again to go past the EOL whitespace of the closestNode (previous sibling node)
-            insertIndex++;
-            allNodesIndex++;
-          }
         }
       }
     }
 
     this.propToParam[propName] = paramNode;
-    this.allNodes.splice(allNodesIndex, 0, paramNode, eolNode);
-    this.handle.insertNodes(insertIndex, [paramNode, eolNode]);
+    this.allNodes.splice(allNodesIndex, 0, paramNode);
+    this.handle.insertNodes(insertIndex, [paramNode]);
 
     this.handle.recalculate();
     return paramNode;
@@ -264,53 +256,28 @@ export class VoItem {
 
     let isLastItemOfGroup = this.position === this.group.items.length - 1;
     let isLastItemOfLastGroup = isLastItemOfGroup && this.group.position === this.handle.groups.length - 1;
-    let newAllNodes = [];
 
-    for (let i = 0; i < this.allNodes.length; i++) {
-      let prevNode = i === 0 ? null : this.allNodes[i - 1];
-      let thisNode = this.allNodes[i];
-      let isLastNode = i === this.allNodes.length - 1;
+    const paramNodes: MwParamNode[] = this.paramNodes;
+    for (let i = 0; i < paramNodes.length; i++) {
+      let thisNode = paramNodes[i];
+      let isLastNode = i === paramNodes.length - 1;
 
-      newAllNodes.push(thisNode);
-
-      if (thisNode instanceof MwParamNode) {
-        thisNode.beforeValueWhitespace = new MwWhiteSpace(' ');
-      }
-
-      if (!isLastNode && prevNode instanceof MwParamNode) {
-        if (thisNode instanceof MwWhiteSpace) {
-          thisNode.content = '\n';
-        } else {
-          let newWhiteSpace = new MwWhiteSpace('\n');
-          newAllNodes.push(newWhiteSpace);
-          this.handle.insertNodes(this.handle.indexOf(thisNode) + 1, [newWhiteSpace]);
-        }
-      }
+      thisNode.beforeValueWhitespace = new MwTextNode(' ');
+      thisNode.afterValueWhitespace = new MwTextNode('\n');
 
       if (isLastNode) {
-        let lastNodeText;
+        let lastNodeEOL;
         if (this.handle.isCombat) {
           if (isLastItemOfLastGroup) {
-            lastNodeText = '\n';
+            lastNodeEOL = '\n';
           } else {
-            lastNodeText = isLastItemOfGroup ? '\n\n' : '\n';
+            lastNodeEOL = isLastItemOfGroup ? '\n\n' : '\n';
           }
         } else {
-          lastNodeText = isLastItemOfLastGroup ? '\n' : '\n\n';
+          lastNodeEOL = isLastItemOfLastGroup ? '\n' : '\n\n';
         }
-
-        if (thisNode instanceof MwWhiteSpace) {
-          thisNode.content = lastNodeText;
-        } else {
-          let newWhiteSpace = new MwWhiteSpace(lastNodeText);
-          newAllNodes.push(newWhiteSpace);
-          this.handle.insertNodes(this.handle.indexOf(thisNode) + 1, [newWhiteSpace]);
-        }
+        thisNode.afterValueWhitespace = lastNodeEOL;
       }
-    }
-
-    if (newAllNodes.length > this.allNodes.length) {
-      this.allNodes = newAllNodes;
     }
 
     this.processKeyChange();
@@ -381,10 +348,10 @@ export class VoGroupTitle {
       return;
     }
     let lastNode = this.allNodes[this.allNodes.length - 1];
-    if (lastNode instanceof MwWhiteSpace) {
+    if (lastNode instanceof MwEOL) {
       lastNode.content = '\n';
     } else {
-      let newWhitespace = new MwWhiteSpace('\n');
+      let newWhitespace = new MwEOL('\n');
       this.allNodes.push(newWhitespace);
       this.handle.insertNodes(this.handle.indexOf(lastNode) + 1, [newWhitespace]);
     }
@@ -399,7 +366,7 @@ export class VoGroupTitle {
       this.titleNode = new MwComment('<!--', ' '+newTitle+' ', '-->');
       let newNodes = [
         this.titleNode,
-        new MwWhiteSpace('\n'),
+        new MwEOL('\n'),
       ];
       if (this.group.isEmpty()) {
         this.handle.insertNodes(this.group.lastNodeIndex + 1, newNodes);

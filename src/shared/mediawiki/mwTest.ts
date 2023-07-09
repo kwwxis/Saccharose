@@ -58,7 +58,7 @@ function basicTest() {
   const input = `Surrounding text${templateCall0} More <\!-- a comment --> surrounding\n\n` +
     `text ${templateCall1} Lorem ipsum [https://www.google.com] asdf [https://www.bing.com link text] [[https://youtube.com]]\n\n` +
     `asdf [[File:MyFile.png|thumb|30px|link=|alt=my alt text]].\n\n` +
-    `Lorem ipsum <nowiki>test {{Anemo}} no [[wiki]] ''markup''</nowiki> test {{DISPLAYTITLE:foobar}}` +
+    `Lorem ipsum <nowiki>test {{Anemo}} no [[wiki]] ''markup''</nowiki> test {{DISPLAYTITLE:foobar}} {{{MY_VARIABLE}}} {{{OTHER_VARIABLE|foobar}}}\n` +
     `{{ #if : thing|foo|bar}} testing {{subst:Name}} {{ns:1}} {{=}} {{!}} {{NAMESPACE}} {{NAMESPACE:MediaWiki}} {{#if}}\n\n` +
     `#REDIRECT [[Foobar]] asdf __NOTOC__ asdf.`;
 
@@ -74,6 +74,33 @@ function basicTest() {
   console.log('Input same as result.toString?', input === result.toString());
   console.log('  Template0.toString same as input?', templateCall0 === result0_str);
   console.log('  Template1.toString same as input?', templateCall1 === result1_str);
+}
+
+function headingTest() {
+  const wikitext: string =
+  `==Header A:H2==
+  foobar A:C2
+  ===Header A:H3===
+  foobar A:C3
+  ===Header A:H3===
+  foobar A:C3
+  
+  ==Header B:H2==
+  ===Header B:H3===
+  ===Header B:H3===
+  ====Header B:H4====
+  ===Header B:H3===
+  foobar
+  
+  ==Header C:H2==
+  stuff
+  `.split('\n').map(s => s.trim()).join('\n');
+
+  const result: MwParentNode = mwParse(wikitext);
+  console.log(util.inspect(result, false, null, true));
+
+  console.log('Stringified same as input?', result.toString() === wikitext);
+  console.log(result.toString());
 }
 
 /*
@@ -98,5 +125,7 @@ function basicTest() {
  */
 
 (async () => {
-  await basicTest();
+  //await basicTest();
+  //await dplTest();
+  await headingTest();
 })();

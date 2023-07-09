@@ -21,11 +21,12 @@
     </label>
     <div class="file-format-options-custom-format <%= cookieTernary(cookieName).equals('custom').then('', 'hide') %>" style="margin-left: 29px;">
       <div class="posRel">
-        <input type="text" name="<%= cookieName + '.CustomFormat' %>" value="<%= cookie(cookieName + '.CustomFormat') %>"
-               placeholder="File format" class="code" style="min-width:350px;padding-right:25px" />
+        <textarea name="<%= cookieName + '.CustomFormat' %>"
+                  placeholder="File format" class="code file-format-options-custom-format-input"
+                  style="min-width:450px;min-height:100px;padding-right:25px"><%= cookie(cookieName + '.CustomFormat') %></textarea>
         <span ui-tippy="{content: 'Click to show options.',delay:[200, 100]}"
               class="file-format-options-custom-format-help-button dispInlineBlock spacer5-left posAbs"
-              style="height:16px;width:16px;font-size:0;opacity:0.5;right:5px;top:0;bottom:0;margin:auto 0;cursor:pointer;">
+              style="height:16px;width:16px;font-size:0;opacity:0.5;right:5px;top:5px;margin:auto 0;cursor:pointer;">
           <%- icon('info', 16) %>
         </span>
       </div>
