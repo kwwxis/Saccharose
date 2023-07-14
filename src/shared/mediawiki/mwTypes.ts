@@ -29,12 +29,54 @@ export abstract class MwNode {
  */
 export class MwParentNode extends MwNode {
   parts: MwNode[] = [];
+
   override toString(): string {
     return this.parts.map(p => p.toString()).join('');
   }
+
   addNode(node: MwNode) {
     this.parts.push(node);
   }
+
+  indexOf(node: number|MwNode): number {
+    let index;
+    if (node instanceof MwNode) {
+      index = this.parts.indexOf(node);
+    } else {
+      index = node;
+    }
+    if (index > this.parts.length - 1) {
+      return -1;
+    }
+    return index;
+  }
+
+  insertNodes(index: number, newItems: MwNode[]) {
+    this.parts.splice(index, 0, ... newItems);
+  }
+
+  removeNodes(nodes: (number|MwNode)[]): boolean {
+    return nodes.map(node => this.removeNode(node)).some(res => !!res);
+  }
+
+  removeNode(node: number|MwNode): boolean {
+    let index = this.indexOf(node);
+    if (index > -1) {
+      this.parts.splice(index, 1);
+      return true;
+    }
+    return false;
+  }
+
+  replaceNode(node: number|MwNode, newNode: MwNode): boolean {
+    let index = this.indexOf(node);
+    if (index > -1) {
+      this.parts[index] = newNode;
+      return true;
+    }
+    return false;
+  }
+
   findTemplateNodes(): MwTemplateNode[] {
     let ret: MwTemplateNode[] = [];
     let stack: MwParentNode[] = [this];
@@ -215,12 +257,18 @@ export class MwParamNode extends MwParentNode {
    */
   keyParts: MwCharSequence[] = [];
 
-  constructor(prefix: MwParamNodePrefixType, key: string|number, simpleTextValue?: string) {
+  constructor(prefix: MwParamNodePrefixType, key: string|number, simpleTextValue?: string, beforeValueWhitespace?: string, afterValueWhitespace?: string) {
     super();
     this.prefix = prefix;
     this.key = key;
     if (!!simpleTextValue) {
       this.parts = mwSimpleTextParse(simpleTextValue);
+    }
+    if (beforeValueWhitespace) {
+      this.beforeValueWhitespace.content = beforeValueWhitespace;
+    }
+    if (afterValueWhitespace) {
+      this.afterValueWhitespace.content = afterValueWhitespace;
     }
   }
 
@@ -331,12 +379,36 @@ export class MwTemplateNode extends MwParentNode {
     }
   }
 
+  addParamBefore(param: MwParamNode, ref: string | number): boolean {
+    const refParam = this.getParam(ref);
+    if (refParam) {
+      const refIndex = this.indexOf(refParam);
+      this.insertNodes(refIndex, [param]);
+      return true;
+    }
+    return false;
+  }
+
+  addParamAfter(param: MwParamNode, ref: string | number): boolean {
+    const refParam = this.getParam(ref);
+    if (refParam) {
+      const refIndex = this.indexOf(refParam);
+      this.insertNodes(refIndex + 1, [param]);
+      return true;
+    }
+    return false;
+  }
+
+  getTemplateNameNode(): MwParamNode {
+    return <MwParamNode> this.parts.filter(part => part instanceof MwParamNode && part.key === 0)[0];
+  }
+
   get params(): MwParamNode[] {
     return this.parts.filter(part => part instanceof MwParamNode && part.key !== 0) as MwParamNode[];
   }
 
   getParam(key: string | number): MwParamNode {
-    return this.params.find(param => param.key == key);
+    return key === 0 ? this.getTemplateNameNode() : this.params.find(param => param.key == key);
   }
 
   getLongestParamKeyLen(ignoring: string[] = []) {
@@ -356,17 +428,9 @@ export class MwTemplateNode extends MwParentNode {
 
   removeParam(key: string | number): MwParamNode {
     let param = this.getParam(key);
-
     if (param) {
-      let index = this.parts.indexOf(param);
-      let nextNode = this.parts[index + 1];
-      if (nextNode instanceof MwEOL && nextNode.content === '\n') {
-        arrayRemove(this.parts, [param, nextNode]);
-      } else {
-        arrayRemove(this.parts, [param]);
-      }
+      arrayRemove(this.parts, [param]);
     }
-
     return param;
   }
 

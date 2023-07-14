@@ -93,7 +93,7 @@ export function plainLineMapSchema(langCode: LangCode, hashType: string = 'integ
   }
 }
 
-export function normalizeRawJsonKey(key: string, table?: SchemaTable) {
+export function normalizeRawJsonKey(key: string, table?: SchemaTable, schemaTranslation?: {[key: string]: string}) {
   if (key.startsWith('_')) {
     key = key.slice(1);
   }
@@ -121,21 +121,31 @@ export function normalizeRawJsonKey(key: string, table?: SchemaTable) {
       key = table.normalizeFixFields[key.toUpperCase()];
     }
   }
+
+  if (schemaTranslation) {
+    if (key in schemaTranslation) {
+      key = schemaTranslation[key];
+    }
+    if (key.toUpperCase() in schemaTranslation) {
+      key = schemaTranslation[key.toUpperCase()];
+    }
+  }
+
   return key;
 }
 
-export function normalizeRawJson(row: any, table?: SchemaTable) {
+export function normalizeRawJson(row: any, table?: SchemaTable, schemaTranslation?: {[key: string]: string}) {
   if (typeof row === 'undefined' || typeof row === null || typeof row !== 'object') {
     return row;
   }
   if (Array.isArray(row)) {
-    return row.map(item => normalizeRawJson(item, table));
+    return row.map(item => normalizeRawJson(item, table, schemaTranslation));
   }
   let newRow = {};
   for (let key of Object.keys(row)) {
     let originalKey = key;
-    key = normalizeRawJsonKey(key, table);
-    newRow[key] = normalizeRawJson(row[originalKey], table);
+    key = normalizeRawJsonKey(key, table, schemaTranslation);
+    newRow[key] = normalizeRawJson(row[originalKey], table, schemaTranslation);
     if (table && table.singularize && table.singularize.includes(key) && Array.isArray(newRow[key])) {
       newRow[key] = newRow[key].find(x => !!x);
     }

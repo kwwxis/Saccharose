@@ -44,7 +44,7 @@ export async function generateSkillPage(gcg: GCGControl, parentCard: GCGCommonCa
   sb.line();
 
   sb.line('==Other Languages==');
-  sb.line((await ol_gen_from_id(gcg.ctrl, skill.NameTextMapHash)).result);
+  sb.line((await ol_gen_from_id(gcg.ctrl, skill.NameTextMapHash))?.result);
   sb.line();
   sb.line('==Change History==');
   sb.line('{{Change History|<!-- version -->}}');

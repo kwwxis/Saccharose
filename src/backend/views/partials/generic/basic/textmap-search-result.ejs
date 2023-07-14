@@ -15,11 +15,16 @@
 </div>
 <div class="dialogue-container" data-last-line="<%= lastLine %>" data-page="<%= resultSetNum + 1 %>" data-result-set-num="<%= resultSetNum %>">
   <% items.forEach((item, i) => { %>
+    <% let itemId = (resultSetNum * SEARCH_TEXTMAP_MAX) +  (i+1); %>
     <section class="card">
       <h2 class="valign" style="font-size: 16px;padding: 3px 10px;">
         <span style="opacity:0.6">TextMapHash:&nbsp;</span><code style="margin-top:1px;margin-bottom:-1px"><%= item.hash %></code>
         <span class="grow"></span>
-        <small class="fontWeight400 spacer10-right" style="opacity:0.5">Result #<%= (resultSetNum * SEARCH_TEXTMAP_MAX) +  (i+1) %></small>
+        <small class="fontWeight400 spacer10-right" style="opacity:0.5">Result #<%= itemId %></small>
+        <button class="secondary small fontWeight500 spacer5-right" ui-action="copy: #wikitext-<%= itemId %>"
+                ui-tippy-hover="Click to copy to clipboard"
+                ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
+                style="margin:5px 0">Copy</button>
         <a role="button" class="secondary small fontWeight500 spacer5-right" href="<%= siteHome %>/OL?q=<%= item.hash %>" target="_blank">
           <span class="spacer5-right">OL Result</span><%- icon('external-link') %>
         </a>
@@ -28,7 +33,7 @@
         </a>
       </h2>
       <div class="dialogue-section content" style="padding:7px">
-        <textarea readonly class="w100p wikitext autosize spacer0-all" spellcheck="false" translate="no"><%= item.text %></textarea>
+        <textarea id="wikitext-<%= itemId %>" readonly class="w100p wikitext autosize spacer0-all" spellcheck="false" translate="no"><%= item.text %></textarea>
       </div>
     </section>
   <% }) %>

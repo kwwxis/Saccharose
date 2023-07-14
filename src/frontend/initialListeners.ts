@@ -19,7 +19,7 @@ import { GeneralEventBus } from './generalEventBus';
 import { languages } from './util/langCodes';
 import { DEFAULT_LANG, LangCode } from '../shared/types/lang-types';
 import { mwParse } from '../shared/mediawiki/mwParse';
-import { MwTemplateNode } from '../shared/mediawiki/mwTypes';
+import { MwParamNode, MwTemplateNode } from '../shared/mediawiki/mwTypes';
 import { pageMatch } from './pageMatch';
 import { uuidv4 } from './util/uuidv4';
 
@@ -259,7 +259,7 @@ const initial_listeners: Listener[] = [
           toolbarEl.append(tlButton);
           newParent.append(toolbarEl);
 
-          const createParamRemover = (regex: RegExp) => {
+          const createParamRemover = (regex: RegExp, addDefaultHidden: boolean = false) => {
             return (event: MouseEvent) => {
               const text = getInputValue(contentEditableEl);
               const parsed = mwParse(text);
@@ -269,13 +269,17 @@ const initial_listeners: Listener[] = [
                 contentEditableEl.removeAttribute('data-markers');
               }
               templateNode.readjustPropPad(['default_hidden']);
+              if (addDefaultHidden) {
+                templateNode.getParam(0).afterValueWhitespace.content = '';
+                templateNode.addParamAfter(new MwParamNode('|', 'default_hidden', '1', ' ', '\n'), 0);
+              }
               contentEditableEl = highlightWikitextReplace(contentEditableEl, parsed.toString().trim());
               (<HTMLButtonElement> event.target).setAttribute('disabled', '');
             };
           }
 
           rmButton.addEventListener('click', createParamRemover(/_rm$/));
-          tlButton.addEventListener('click', createParamRemover(/_tl$/));
+          tlButton.addEventListener('click', createParamRemover(/_tl$/, true));
         });
 
       document.querySelectorAll<HTMLElement>('.timestamp.is--formatted.is--unconverted').forEach(el => {

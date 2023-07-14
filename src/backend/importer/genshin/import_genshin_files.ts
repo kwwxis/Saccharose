@@ -1,6 +1,5 @@
 import '../../loadenv';
-import fs from 'fs';
-import { promises as fsp } from 'fs';
+import fs, { promises as fsp } from 'fs';
 import path from 'path';
 import { pathToFileURL } from 'url';
 import commandLineArgs, { OptionDefinition as ArgsOptionDefinition } from 'command-line-args';
@@ -206,31 +205,72 @@ async function importFetters() {
 }
 
 export async function importTranslateSchema() {
-  function getExcelFiles(filePath: string) {
+  function getExcelFilePair(filePath: string) {
     return {
       impExcelPath: path.resolve(process.env.IMPACTFUL_DATA_ROOT, filePath.replaceAll('\\', '/')),
       agdExcelPath: getGenshinDataFilePath(filePath),
     };
   }
 
-  const fullResult = {};
+  const excelDirPath = getGenshinDataFilePath('./ExcelBinOutput');
 
-  for (let schemaTable of Object.values(genshinSchema)) {
-    if (!schemaTable.jsonFile.includes('ExcelBinOutput') || schemaTable.jsonFile.includes('DialogExcel')) {
+  const schemaResult = {};
+
+  // for (let schemaTable of Object.values(genshinSchema)) {
+  //   if (!schemaTable.jsonFile.includes('ExcelBinOutput') || schemaTable.jsonFile.includes('DialogExcel')) {
+  //     continue;
+  //   }
+  //   console.log('Processing schema table: ' + schemaTable.name + '...');
+  //   let files = getExcelFilePair(schemaTable.jsonFile);
+  //   schemaResult[schemaTable.name] = await translateSchema(files.impExcelPath, files.agdExcelPath);
+  // }
+
+  const jsonsInDir = fs.readdirSync(excelDirPath).filter(file => path.extname(file) === '.json');
+  for (let jsonFile of jsonsInDir) {
+    const schemaName = path.basename(jsonFile).split('.')[0];
+    if (genshinSchema[schemaName]) {
       continue;
     }
-
-    console.log('Processing ' + schemaTable.name + '...');
-    let files = getExcelFiles(schemaTable.jsonFile);
-    let schemaKeys = await translateSchema(files.impExcelPath, files.agdExcelPath);
-
-    fullResult[schemaTable.name] = schemaKeys;
+    console.log('Processing excel json: ' + schemaName + '...');
+    try {
+      let files = getExcelFilePair('./ExcelBinOutput/' + schemaName + '.json');
+      schemaResult[schemaName] = await translateSchema(files.impExcelPath, files.agdExcelPath);
+    } catch (e) {
+      console.log('Skipping ' + schemaName + ' - no file');
+      continue;
+    }
   }
 
   console.log('Writing output...');
   const outDir = process.env.GENSHIN_DATA_ROOT;
-  fs.writeFileSync(outDir + '/SchemaTranslation.json', JSON.stringify(fullResult, null, 2));
+  fs.writeFileSync(outDir + '/SchemaTranslation.json', JSON.stringify(schemaResult, null, 2));
   console.log(chalk.blue('Done. Output written to: ' + outDir + '/SchemaTranslation.json'));
+}
+
+async function translateExcel(outputDirectory: string) {
+  const excelDirPath = getGenshinDataFilePath('./ExcelBinOutput');
+
+  fs.mkdirSync(outputDirectory, { recursive: true });
+
+  const schemaTranslationFilePath = getGenshinDataFilePath('./SchemaTranslation.json');
+  const schemaTranslation: {[tableName: string]: {[key: string]: string}} =
+    fs.existsSync(schemaTranslationFilePath)
+      ? JSON.parse(fs.readFileSync(schemaTranslationFilePath, { encoding: 'utf8' }))
+      : {};
+
+  const jsonsInDir = fs.readdirSync(excelDirPath).filter(file => path.extname(file) === '.json');
+  for (let jsonFile of jsonsInDir) {
+    const schemaName = path.basename(jsonFile).split('.')[0];
+    console.log('Processing ' + schemaName + ' has translation? ' + (schemaTranslation[schemaName] ? 'yes' : 'no'));
+
+    const absJsonPath = getGenshinDataFilePath('./ExcelBinOutput/' + jsonFile);
+    const json = await fsp.readFile(absJsonPath, {encoding: 'utf8'}).then(data => JSON.parse(data));
+
+    const normJson = normalizeRawJson(json, genshinSchema[schemaName], schemaTranslation[schemaName]);
+    fs.writeFileSync(path.resolve(outputDirectory, './' + schemaName + '.json'), JSON.stringify(normJson, null, 2));
+  }
+
+  console.log('Done');
 }
 
 async function maximizeImages() {
@@ -380,6 +420,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
       {name: 'gcg-skill', type: Boolean, description: 'Creates file for GCG skill data'},
       {name: 'fetters', type: Boolean, description: 'Creates file for character fetters data'},
       {name: 'translate-schema', type: Boolean, description: 'Creates the SchemaTranslation file.'},
+      {name: 'translate-excel', type: String, description: 'Translate excel to output directory. Requires translate-schema to be completed first.'},
       {name: 'maximize-images', type: Boolean, description: 'Compares images with duplicate names to choose the image with the largest size.'},
       {name: 'help', type: Boolean, description: 'Display this usage guide.'},
     ];
@@ -431,6 +472,9 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     }
     if (options['translate-schema']) {
       await importTranslateSchema();
+    }
+    if (options['translate-excel']) {
+      await translateExcel(options['translate-excel']);
     }
     if (options['maximize-images']) {
       await maximizeImages();

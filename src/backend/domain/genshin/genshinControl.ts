@@ -215,6 +215,22 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
           }
         }
       }
+      if (prop.endsWith('Desc') && Array.isArray(object[prop]) && (<any[]> object[prop]).every(x => isInt(x))) {
+        let textProp = 'Mapped' + prop;
+        let newOriginalArray = [];
+        object[textProp] = [];
+        for (let id of <any[]> object[prop]) {
+          let text = await this.getTextMapItem(this.outputLangCode, id);
+          if (doNormText) {
+            text = this.normText(text, this.outputLangCode);
+          }
+          if (text) {
+            object[textProp].push(text);
+            newOriginalArray.push(id);
+          }
+        }
+        objAsAny[prop] = newOriginalArray;
+      }
       if (prop.endsWith('Tips') && Array.isArray(object[prop])) {
         let textProp = 'Mapped' + prop;
         let newOriginalArray = [];

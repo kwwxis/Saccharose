@@ -19,7 +19,7 @@ export function isNumeric(value: any): boolean {
 
 export function isInteger(value: any): boolean {
   if (typeof value === 'number') {
-    return (value | 0) === value;
+    return Math.trunc(value) === value;
   } else if (typeof value === 'string') {
     return /^-?\d+$/.test(value);
   } else {

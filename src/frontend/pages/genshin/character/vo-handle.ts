@@ -643,42 +643,23 @@ export class VoHandle {
   }
 
   indexOf(node: number|MwNode): number {
-    let index;
-    if (node instanceof MwNode) {
-      index = this.templateNode.parts.indexOf(node);
-    } else {
-      index = node;
-    }
-    if (index > this.templateNode.parts.length - 1) {
-      return -1;
-    }
-    return index;
+    return this.templateNode.indexOf(node);
   }
 
   insertNodes(index: number, newItems: MwNode[]) {
-    this.templateNode.parts.splice(index, 0, ... newItems);
+    this.templateNode.insertNodes(index, newItems);
   }
 
   removeNodes(nodes: (number|MwNode)[]): boolean {
-    return nodes.map(node => this.removeNode(node)).some(res => !!res);
+    return this.templateNode.removeNodes(nodes);
   }
 
   removeNode(node: number|MwNode): boolean {
-    let index = this.indexOf(node);
-    if (index > -1) {
-      this.templateNode.parts.splice(index, 1);
-      return true;
-    }
-    return false;
+    return this.templateNode.removeNode(node);
   }
 
   replaceNode(node: number|MwNode, newNode: MwNode): boolean {
-    let index = this.indexOf(node);
-    if (index > -1) {
-      this.templateNode.parts[index] = newNode;
-      return true;
-    }
-    return false;
+    return this.templateNode.replaceNode(node, newNode);
   }
 
   /**
