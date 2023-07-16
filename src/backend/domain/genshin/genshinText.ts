@@ -117,7 +117,7 @@ export function __normGenshinText(text: string, langCode: LangCode, opts: NormTe
 
     text = text.replace(/<color=#FFFFFFFF>(.*?)<\/color>/g, '\'\'\'$1\'\'\'');
     text = text.replace(/<color=#37FFFF>(.*?) ?<\/color>/g, '\'\'\'$1\'\'\'');
-    text = text.replace(/<color=(#[0-9a-fA-F]{6})FF>(.*?)<\/color>/g, '{{color|$1|$2}}');
+    text = text.replace(/<color=(#[0-9a-fA-F]{6})(?:FF)?>(.*?)<\/color>/g, '{{color|$1|$2}}');
   }
 
   text = text.replace(/\{REALNAME\[ID\(1\)(\|HOSTONLY\(true\))?]}/g, '(Wanderer)');
