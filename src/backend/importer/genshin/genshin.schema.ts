@@ -374,6 +374,9 @@ export const genshinSchema = {
       { name: 'TabIcon', type: 'integer' },
       { name: 'SceneType', type: 'string' },
     ],
+    normalizeFixFields: {
+      FECBGNMOGHK: 'TypeCategoryId'
+    }
   },
   HomeWorldEventExcelConfigData: <SchemaTable>{
     name: 'HomeWorldEventExcelConfigData',

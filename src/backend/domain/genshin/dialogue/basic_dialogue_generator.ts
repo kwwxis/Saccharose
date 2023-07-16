@@ -16,17 +16,16 @@ import {
 import { MetaProp } from '../../../util/metaProp';
 import { pathToFileURL } from 'url';
 import { Marker } from '../../../../shared/util/highlightMarker';
-import { normGenshinText } from '../genshinText';
 import { LangCode, TextMapHash } from '../../../../shared/types/lang-types';
 
 // NPC Filtering for Single Branch Dialogue
 // --------------------------------------------------------------------------------------------------------------
 const lc = (s: string) => s ? s.toLowerCase() : s;
 
-function normNpcFilterInput(npcFilterInput: string, langCode: LangCode): string {
+function normNpcFilterInput(ctrl: GenshinControl, npcFilterInput: string, langCode: LangCode): string {
   if (!npcFilterInput)
     return undefined;
-  return lc(trim(normGenshinText(npcFilterInput, langCode), '()').trim());
+  return lc(trim(ctrl.normText(npcFilterInput, langCode), '()').trim());
 }
 
 const npcFilterInclude = async (ctrl: GenshinControl, d: DialogExcelConfigData, npcFilter: string): Promise<boolean> => {
@@ -53,7 +52,7 @@ export const DIALOGUE_GENERATE_MAX = 100;
 
 export async function dialogueGenerate(ctrl: GenshinControl, query: number|number[]|string, npcFilter?: string): Promise<DialogueSectionResult[]> {
   let result: DialogueSectionResult[] = [];
-  npcFilter = normNpcFilterInput(npcFilter, ctrl.inputLangCode);
+  npcFilter = normNpcFilterInput(ctrl, npcFilter, ctrl.inputLangCode);
 
   if (typeof query === 'string' && isInt(query)) {
     query = parseInt(query);

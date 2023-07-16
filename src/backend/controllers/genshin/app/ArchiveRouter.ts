@@ -321,5 +321,23 @@ export default async function(): Promise<Router> {
     });
   });
 
+  // Furniture
+  // ~~~~~~~~~
+
+  router.get('/furnishings', async (req: Request, res: Response) => {
+    const ctrl = getGenshinControl(req);
+
+    const furnitureList = await ctrl.selectAllFurniture();
+
+    const typeTree = await ctrl.selectFurnitureTypeTree();
+
+    res.render('pages/genshin/archive/furniture-list', {
+      title: 'Furnishings',
+      furnitureList,
+      typeTree,
+      bodyClass: ['page--furniture']
+    });
+  });
+
   return router;
 }

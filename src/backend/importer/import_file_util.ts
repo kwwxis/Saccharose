@@ -3,9 +3,9 @@ import chalk from 'chalk';
 import fs from 'fs';
 import {promises as fsp} from 'fs';
 import { LANG_CODES } from '../../shared/types/lang-types';
-import { TextNormalizer } from '../domain/generic/genericNormalizers';
 import { getTextMapRelPath } from '../loadenv';
 import { isInt } from '../../shared/util/numberUtil';
+import { AbstractControl } from '../domain/abstractControl';
 
 const isOnePropObj = (o: any, key: string) => o && typeof o === 'object' && Object.keys(o).length === 1 && Object.keys(o)[0] === key;
 
@@ -154,7 +154,7 @@ export async function importNormalize(jsonDir: string, skip: string[], specialNo
   console.log(chalk.blue(`Done, modified ${numChanged} files.`));
 }
 
-export async function importPlainTextMap(getDataFilePath: (relPath: string) => string, normTextFn: TextNormalizer) {
+export async function importPlainTextMap(ctrl: AbstractControl, getDataFilePath: (relPath: string) => string) {
   if (!fs.existsSync(getDataFilePath('./TextMap/Plain/'))) {
     fs.mkdirSync(getDataFilePath('./TextMap/Plain/'));
   }
@@ -174,14 +174,14 @@ export async function importPlainTextMap(getDataFilePath: (relPath: string) => s
 
       for (let [hash, text] of Object.entries(textmap)) {
         hashList.push(hash);
-        textList.push(normTextFn(text, langCode, true, true).replaceAll(/\r?\n/g, '\\n'));
+        textList.push(ctrl.normText(text, langCode, { decolor: true, plaintext: true, plaintextMcMode: 'both' }).replaceAll(/\r?\n/g, '\\n'));
 
         if (text.includes('{F#') || text.includes('{M#')) {
           hashList.push(hash);
-          textList.push(normTextFn(text, langCode, true, true, 'male').replaceAll(/\r?\n/g, '\\n'));
+          textList.push(ctrl.normText(text, langCode, { decolor: true, plaintext: true, plaintextMcMode: 'male' }).replaceAll(/\r?\n/g, '\\n'));
 
           hashList.push(hash);
-          textList.push(normTextFn(text, langCode, true, true, 'female').replaceAll(/\r?\n/g, '\\n'));
+          textList.push(ctrl.normText(text, langCode, { decolor: true, plaintext: true, plaintextMcMode: 'female' }).replaceAll(/\r?\n/g, '\\n'));
         }
       }
 

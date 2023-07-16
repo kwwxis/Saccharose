@@ -11,7 +11,7 @@ export default rateLimit({
   },
   requestWasSuccessful: () => true,
   skipFailedRequests: true,
-  skip: (req: Request, _res: Response) => {
-    return rateLimitSkipRegex.test(req.url);
+  skip: (req: Request, res: Response) => {
+    return rateLimitSkipRegex.test(req.url) || res.statusCode === 404;
   }
 });

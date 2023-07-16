@@ -23,6 +23,7 @@ import path, { basename } from 'path';
 import { escapeRegExp, isStringBlank } from '../../shared/util/stringUtil';
 import { isInt, maybeInt, toInt } from '../../shared/util/numberUtil';
 import { getLineNumberForLineText, grep, grepStream } from '../util/shellutil';
+import { NormTextOptions } from './generic/genericNormalizers';
 
 export abstract class AbstractControlState {
   public request: Request = null;
@@ -135,7 +136,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
 
   abstract getDataFilePath(file: string): string;
 
-  abstract normText(text: string, langCode: LangCode, decolor?: boolean, plaintext?: boolean): string;
+  abstract normText(text: string, langCode: LangCode, opts?: NormTextOptions): string;
 
   async getTextMapItem(langCode: LangCode, hash: TextMapHash): Promise<string> {
     if (typeof hash === 'number') {
@@ -334,8 +335,8 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     let results = [];
 
     const cmp = (a: string, b: string) => {
-      return this.normText(a, this.inputLangCode, true, true)?.toLowerCase() ===
-        this.normText(b, this.inputLangCode, true, true)?.toLowerCase();
+      return this.normText(a, this.inputLangCode, { plaintext: true, decolor: true })?.toLowerCase() ===
+        this.normText(b, this.inputLangCode, { plaintext: true, decolor: true })?.toLowerCase();
     }
 
     await this.streamTextMapMatches(this.inputLangCode, name, (id: TextMapHash, value: string) => {

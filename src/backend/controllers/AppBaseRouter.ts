@@ -1,22 +1,24 @@
 import helmet from 'helmet';
 import { create, Router, Request, Response, NextFunction } from '../util/router';
 import { toBoolean } from '../../shared/util/genericUtil';
-import { normGenshinText } from '../domain/genshin/genshinText';
-
 import GenshinRouter from './genshin/app/_index';
 import StarRailRouter from './hsr/app/_index';
-import ZenlessRouter from './zenless/app/_index';
-import { normStarRailText } from '../domain/hsr/starRailText';
-import { normZenlessText } from '../domain/zenless/zenlessText';
+import ZenlessRouter from './zenless/app/_index'
+import { getGenshinControl } from '../domain/genshin/genshinControl';
+import { getStarRailControl } from '../domain/hsr/starRailControl';
+import { getZenlessControl } from '../domain/zenless/zenlessControl';
 
 export default async function(): Promise<Router> {
   const router: Router = create({
     layouts: ['layouts/base-layout', 'layouts/app-layout'],
     locals: async (req: Request) => {
+      const genshinControl = getGenshinControl(req);
+      const starRailControl = getStarRailControl(req);
+      const zenlessControl = getZenlessControl(req);
       return {
-        normGenshinText: (s: string) => normGenshinText(s, req.context.outputLangCode),
-        normStarRailText: (s: string) => normStarRailText(s, req.context.outputLangCode),
-        normZenlessText: (s: string) => normZenlessText(s, req.context.outputLangCode),
+        normGenshinText: (s: string) => genshinControl.normText(s, req.context.outputLangCode),
+        normStarRailText: (s: string) => starRailControl.normText(s, req.context.outputLangCode),
+        normZenlessText: (s: string) => zenlessControl.normText(s, req.context.outputLangCode),
         outputLangCode: req.context.outputLangCode,
         inputLangCode: req.context.inputLangCode,
         csrfToken: req.csrfToken(),

@@ -27,7 +27,6 @@ import fs from 'fs';
 import { getGenshinDataFilePath, IMAGEDIR_GENSHIN } from '../../../loadenv';
 import { SchemaTable } from '../../../importer/import_db';
 import { formatTime } from '../../../../shared/types/genshin/general-types';
-import { normGenshinText } from '../genshinText';
 import { genshinSchema } from '../../../importer/genshin/genshin.schema';
 import { LangCode } from '../../../../shared/types/lang-types';
 import { isInt, toInt } from '../../../../shared/util/numberUtil';
@@ -149,7 +148,7 @@ export class GCGControl {
         return obj.WikiName;
       } else {
         const rawText = await this.ctrl.getTextMapItem(this.ctrl.outputLangCode, obj.NameTextMapHash);
-        const normText = this.ctrl.normText(rawText, this.ctrl.outputLangCode, false, false, toInt(sNumStr));
+        const normText = this.ctrl.normText(rawText, this.ctrl.outputLangCode, { plaintext: false, decolor: false, sNum: toInt(sNumStr) });
         return obj.WikiName !== normText ? `[[${obj.WikiName}|${normText}]]` : `[[${normText}]]`;
       }
     };
@@ -1047,14 +1046,14 @@ export class GCGControl {
         });
 
         if (talkDetail.TalkContentText.length === 1) {
-          sect.wikitext = `${talkDetail.VoPrefix}${normGenshinText(talkDetail.TalkContentText[0], this.ctrl.outputLangCode)}`;
+          sect.wikitext = `${talkDetail.VoPrefix}${this.ctrl.normText(talkDetail.TalkContentText[0], this.ctrl.outputLangCode)}`;
         } else {
           let texts = [];
           if (talkDetail.VoPrefix) {
             texts.push(talkDetail.VoPrefix);
           }
           for (let text of talkDetail.TalkContentText) {
-            texts.push(normGenshinText(text, this.ctrl.outputLangCode));
+            texts.push(this.ctrl.normText(text, this.ctrl.outputLangCode));
           }
           if (texts.length) {
             sect.wikitextArray.push({

@@ -2,9 +2,9 @@ import { toInt } from '../../../shared/util/numberUtil';
 import { LangCode } from '../../../shared/types/lang-types';
 import { SPRITE_TAGS } from './misc/spriteTags';
 import { wordRejoin, wordSplit } from '../../../shared/util/stringUtil';
-import { genericNormText, mergeMcTemplate, TextNormalizer } from '../generic/genericNormalizers';
+import { genericNormText, mergeMcTemplate, NormTextOptions } from '../generic/genericNormalizers';
 
-function convertGenshinRubi(langCode: LangCode, text: string): string {
+function __convertGenshinRubi(langCode: LangCode, text: string): string {
   const rubiMap: { [index: number]: string } = {};
   const rubiRegex = /{RUBY#\[([SD])]([^}]+)}/;
 
@@ -43,7 +43,7 @@ function convertGenshinRubi(langCode: LangCode, text: string): string {
   return wordRejoin(parts);
 }
 
-function travelerPlaceholder(langCode: LangCode = 'EN', degender: boolean = false): string {
+function __travelerPlaceholder(langCode: LangCode = 'EN', degender: boolean = false): string {
   switch (langCode) {
     case 'CH':
       return '(旅行者)';
@@ -81,19 +81,26 @@ function travelerPlaceholder(langCode: LangCode = 'EN', degender: boolean = fals
   return '(Traveler)';
 }
 
-export const normGenshinText: TextNormalizer = function (text: string,
-                                                langCode: LangCode,
-                                                decolor: boolean = false,
-                                                plaintext: boolean = false,
-                                                plaintextMcMode: 'both' | 'male' | 'female' = 'both',
-                                                sNum?: number): string {
+/**
+ * **Never use this function directly!!!**
+ *
+ * Always go through {@link AbstractControl#normText|AbstractControl.normText()}
+ *
+ * There are options that the Control may add on depending on user preferences.
+ */
+export function __normGenshinText(text: string, langCode: LangCode, opts: NormTextOptions = {}): string {
   if (!text) {
     return text;
   }
 
-  text = genericNormText(text, langCode, decolor, plaintext, plaintextMcMode, travelerPlaceholder);
+  if (!opts)
+    opts = {};
+  if (!opts.mcPlaceholderProvider)
+    opts.mcPlaceholderProvider = __travelerPlaceholder;
 
-  if (!decolor && !plaintext) {
+  text = genericNormText(text, langCode, opts);
+
+  if (!opts.decolor && !opts.plaintext) {
     text = text.replace(/<color=#\{0}>(.*?)<\/color>/g, `'''$1'''`);
     text = text.replace(/<color=#00E1FFFF>(.*?)<\/color>/g, '{{color|buzzword|$1}}');
     text = text.replace(/<color=#FFCC33FF>(.*?)<\/color>/g, '{{color|help|$1}}');
@@ -115,7 +122,7 @@ export const normGenshinText: TextNormalizer = function (text: string,
 
   text = text.replace(/\{REALNAME\[ID\(1\)(\|HOSTONLY\(true\))?]}/g, '(Wanderer)');
 
-  if (!plaintext) {
+  if (!opts.plaintext) {
     text = text.replace(/\{SPRITE_PRESET#(\d+)}/g, (fm: string, g1: string) => {
       let image = SPRITE_TAGS[parseInt(g1)].Image;
       image = image.split('/').pop();
@@ -124,19 +131,19 @@ export const normGenshinText: TextNormalizer = function (text: string,
   }
 
   if (text.includes('RUBY#[')) {
-    text = convertGenshinRubi(langCode, text);
+    text = __convertGenshinRubi(langCode, text);
   }
 
-  text = mergeMcTemplate(text, langCode, plaintext);
+  text = mergeMcTemplate(text, langCode, opts.plaintext);
 
   if (/\|s1:/.test(text)) {
     let parts = text.split(/\|s\d+:/);
-    if (sNum && sNum <= parts.length - 1) {
-      text = parts[sNum];
+    if (opts.sNum && opts.sNum <= parts.length - 1) {
+      text = parts[opts.sNum];
     } else {
       text = parts[0];
     }
   }
 
   return text;
-};
+}

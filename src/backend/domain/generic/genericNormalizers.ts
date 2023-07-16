@@ -2,12 +2,14 @@ import { LangCode } from '../../../shared/types/lang-types';
 import { wordRejoin, wordSplit } from '../../../shared/util/stringUtil';
 import { toInt } from '../../../shared/util/numberUtil';
 
-export type McPlaceholderProvider = (langCode: LangCode, degender?: boolean) => string;
 
-export type McPlainTextMode = 'both' | 'male' | 'female';
-
-export interface TextNormalizer {
-  (text: string, langCode: LangCode, decolor?: boolean, plaintext?: boolean, plaintextMcMode?: McPlainTextMode, sNum?: number): string
+export interface NormTextOptions {
+  decolor?: boolean,
+  plaintext?: boolean,
+  plaintextMcMode?: 'both' | 'male' | 'female',
+  sNum?: number,
+  mcPlaceholderProvider?: (langCode: LangCode, degender?: boolean) => string,
+  mcPlaceholderForceLangCode?: LangCode
 }
 
 export function mergeMcTemplate(text: string, langCode: LangCode, plaintext: boolean): string {
@@ -51,25 +53,29 @@ export function mergeMcTemplate(text: string, langCode: LangCode, plaintext: boo
   return text;
 }
 
-export function genericNormText(text: string, langCode: LangCode, decolor: boolean, plaintext: boolean,
-                                plaintextMcMode: McPlainTextMode, mcPlaceholderProvider: McPlaceholderProvider): string {
+export function genericNormText(text: string, langCode: LangCode, opts: NormTextOptions): string {
   if (!text) {
     return text;
   }
 
-  text = text.replace(/—/g, plaintext ? '-' : '&mdash;').trim();
-  text = text.replace(/{NICKNAME}/g, mcPlaceholderProvider(langCode, true));
-  text = text.replace(/{NON_BREAK_SPACE}/g, plaintext ? ' ' : '&nbsp;');
-  text = text.replace(/\u00A0/g, plaintext ? ' ' : '&nbsp;');
+  if (!opts.plaintextMcMode)
+    opts.plaintextMcMode = 'both';
+  if (!opts.mcPlaceholderProvider)
+    throw new Error('mcPlaceholderProvider is required');
+
+  text = text.replace(/—/g, opts.plaintext ? '-' : '&mdash;').trim();
+  text = text.replace(/{NICKNAME}/g, opts.mcPlaceholderProvider(opts.mcPlaceholderForceLangCode || langCode, true));
+  text = text.replace(/{NON_BREAK_SPACE}/g, opts.plaintext ? ' ' : '&nbsp;');
+  text = text.replace(/\u00A0/g, opts.plaintext ? ' ' : '&nbsp;');
   text = text.replace(/<size=[^>]+>(.*?)<\/size>/gs, '$1');
-  text = text.replace(/<i>(.*?)<\/i>/gs, plaintext ? '$1' : `''$1''`);
+  text = text.replace(/<i>(.*?)<\/i>/gs, opts.plaintext ? '$1' : `''$1''`);
   text = text.replace(/<\/?c\d>/g, '');
 
-  if (plaintext) {
-    if (plaintextMcMode === 'male') {
+  if (opts.plaintext) {
+    if (opts.plaintextMcMode === 'male') {
       text = text.replace(/{F#([^}]*)}{M#([^}]*)}/g, '$2');
       text = text.replace(/{M#([^}]*)}{F#([^}]*)}/g, '$1');
-    } else if (plaintextMcMode === 'female') {
+    } else if (opts.plaintextMcMode === 'female') {
       text = text.replace(/{F#([^}]*)}{M#([^}]*)}/g, '$1');
       text = text.replace(/{M#([^}]*)}{F#([^}]*)}/g, '$2');
     } else {
@@ -81,11 +87,11 @@ export function genericNormText(text: string, langCode: LangCode, decolor: boole
     text = text.replace(/{M#([^}]*)}{F#([^}]*)}/g, '{{MC|m=$1|f=$2}}');
   }
 
-  if (decolor || plaintext) {
+  if (opts.decolor || opts.plaintext) {
     text = text.replace(/<color=#[^>]+>(.*?)<\/color>/gs, '$1');
   }
 
-  if (!plaintext) {
+  if (!opts.plaintext) {
     text = text.replace(/« /g, '«&nbsp;');
     text = text.replace(/ »/g, '&nbsp;»');
     text = text.replace(/(?<=\S) (:|%|\.\.\.)/g, '&nbsp;$1');
@@ -93,7 +99,7 @@ export function genericNormText(text: string, langCode: LangCode, decolor: boole
 
   text = text.replace(/\\"/g, '"');
   text = text.replace(/\r/g, '');
-  text = text.replace(/\\?\\n|\\\n|\n/g, plaintext ? '\n' : '<br />')
+  text = text.replace(/\\?\\n|\\\n|\n/g, opts.plaintext ? '\n' : '<br />')
     .replace(/<br \/><br \/>/g, '\n\n');
 
   if (text.startsWith('#')) {

@@ -6,7 +6,7 @@ import chalk from 'chalk';
 import { getZenlessDataFilePath } from '../../loadenv';
 import { closeKnex } from '../../util/db';
 import { importNormalize, importPlainTextMap } from '../import_file_util';
-import { normZenlessText } from '../../domain/zenless/zenlessText';
+import { getZenlessControl } from '../../domain/zenless/zenlessControl';
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
@@ -47,7 +47,8 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
       await importNormalize(getZenlessDataFilePath('./ExcelConfigData'), []);
     }
     if (options.plaintext) {
-      await importPlainTextMap(getZenlessDataFilePath, normZenlessText);
+      const ctrl = getZenlessControl();
+      await importPlainTextMap(ctrl, getZenlessDataFilePath);
     }
 
     await closeKnex();

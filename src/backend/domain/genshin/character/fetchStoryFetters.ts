@@ -7,7 +7,6 @@ import { processFetterConds } from './fetterConds';
 import { resolveObjectPath } from '../../../../shared/util/arrayUtil';
 import { FetterStoryExcelConfigData, StoryFetters, StoryFettersByAvatar } from '../../../../shared/types/genshin/fetter-types';
 import { pathToFileURL } from 'url';
-import { normGenshinText } from '../genshinText';
 
 const sep = '</p><!--\n              --><p>';
 

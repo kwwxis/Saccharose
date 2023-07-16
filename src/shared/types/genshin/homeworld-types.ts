@@ -1,6 +1,6 @@
 import { NpcExcelConfigData } from './general-types';
 import { AvatarExcelConfigData } from './avatar-types';
-import { MaterialVecItem } from './material-types';
+import { MaterialExcelConfigData, MaterialVecItem } from './material-types';
 
 // HomeWorld NPC/Avatar
 // --------------------------------------------------------------------------------------------------------------
@@ -86,37 +86,60 @@ export type SpecialFurnitureType =
 // --------------------------------------------------------------------------------------------------------------
 export interface HomeWorldFurnitureExcelConfigData {
   Id: number,
-  FurnitureGadgetId: number[],
-  FurnType: number[],
-  SurfaceType: FurnitureSurfaceType,
-  GridStyle: number,
-  Comfort: number,          // Adeptal Energy
-  StackLimit: number,
-  Cost: number,             // Load
-  DiscountCost: number,     // Reduced Load
-  Height: number,
-  ItemIcon: string,
-  ClampDistance: number,
-  EditorClampDistance: number,
-  RankLevel: number,
+
+  // Name:
   NameTextMapHash: number,
   DescTextMapHash: number,
   NameText: string,
   DescText: string,
+
+  // Icon:
   Icon: string,
+  ItemIcon: string,
+  EffectIcon: string,
+
+  // Type Data:
   ItemType: 'ITEM_FURNITURE', // always "ITEM_FURNITURE"
-  Rank: number,
   SpecialFurnitureType: SpecialFurnitureType,
+  FurnType: number[],
+  SurfaceType: FurnitureSurfaceType,
+
+  // Furniture Data:
+  RankLevel: number,
+  FurnitureGadgetId: number[],
+  GridStyle: number,
+  Comfort: number,          // Adeptal Energy
+  Cost: number,             // Load
+  DiscountCost: number,     // Reduced Load
+  StackLimit: number,
+  PushTipsId: number,
+
+  // Custom Properties:
+  MappedFurnType: HomeWorldFurnitureTypeExcelConfigData[],
+  MakeData: FurnitureMakeExcelConfigData,
+  RelatedMaterialId?: number,
+  RelatedMaterial?: MaterialExcelConfigData,
+  CategoryId?: number,
+  CategoryNameText?: string;
+  TypeId?: number,
+  TypeNameText?: string;
+  IsExterior?: boolean,
+  IsInterior?: boolean,
+  FilterTokens?: string[],
+
+  // Internal Data:
+  Rank: number,
+  Height: number,
+  ClampDistance: number,
+  EditorClampDistance: number,
   IsUnique: number,
   IsSpecialFurniture: number,
   DeployGlitchIndex: number,
   IsCombinableLight: number,
   RoomSceneId: number,
   ArrangeLimit: number,
-  EffectIcon: string,
   CanFloat: number,
   JsonName: string,
-  PushTipsId: number,
   GroupRecordType?:
     'GROUP_RECORD_TYPE_BALLOON' |
     'GROUP_RECORD_TYPE_RACING' |
@@ -127,15 +150,38 @@ export interface HomeWorldFurnitureExcelConfigData {
 export interface HomeWorldFurnitureTypeExcelConfigData {
   TypeId: number,
   TypeCategoryId: number,
+
   TypeNameTextMapHash: number,
   TypeName2TextMapHash: number,
   TypeNameText: string,
   TypeName2Text: string,
+
   TabIcon: string,
   IsShowInBag: boolean,
+
   SceneType?: 'Exterior' | undefined,
   BagPageOnly: number,
 }
+
+export type HomeWorldFurnitureTypeTree = {
+  Interior: HomeWorldFurnitureTypeSubTree,
+  Exterior: HomeWorldFurnitureTypeSubTree,
+};
+
+export type HomeWorldFurnitureTypeSubTree = {
+  [categoryId: number]: {
+    categoryId: number,
+    categoryName: string,
+    types: {
+      [typeId: number]: {
+        typeId: number,
+        typeName: string,
+        typeIcon: string,
+      }
+    }
+  }
+};
+
 
 // Furniture Set
 // --------------------------------------------------------------------------------------------------------------

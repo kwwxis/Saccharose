@@ -89,7 +89,7 @@ export async function appInit(): Promise<Express> {
   app.use(useragent.express());                             // parses user-agent header
   app.use(express.urlencoded({extended: true}));     // parses url-encoded POST/PUT bodies
   app.use(requestIp.mw());                                  // enable request-ip
-  app.use(rateLimiter);                                     // rate-limits requests
+  //app.use(rateLimiter);                                     // rate-limits requests
   app.use(accessLogging);                                   // access logging
 
   // Middleware for responses

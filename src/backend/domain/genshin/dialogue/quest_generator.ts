@@ -24,7 +24,6 @@ import { pathToFileURL } from 'url';
 import { SbOut } from '../../../../shared/util/stringUtil';
 import { dialogueCompareApply, SimilarityGroups } from './dialogue_compare';
 import { custom } from '../../../util/logger';
-import { normGenshinText } from '../genshinText';
 
 export class QuestGenerateResult {
   mainQuest: MainQuestExcelConfigData = null;

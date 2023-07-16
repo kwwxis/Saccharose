@@ -18,6 +18,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=Source+Sans+Pro:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600;1,700&display=swap" rel="stylesheet">
     <template id="template-info-icon"><%- icon('info') %></template>
     <template id="template-alert-icon"><%- icon('alert-triangle') %></template>
+    <template id="template-chevron-down"><%- icon('chevron-down') %></template>
+    <template id="template-chevron-right"><%- icon('chevron-right') %></template>
     <% if (env.NODE_ENV === 'development') { %>
       <script async src="<%= toBoolean(env.SSL_ENABLED) ? 'https' : 'http' %>://<%= env.VHOST %>:35729/livereload.js"></script>
     <% } %>

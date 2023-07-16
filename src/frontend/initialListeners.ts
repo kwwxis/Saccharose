@@ -557,8 +557,11 @@ const initial_listeners: Listener[] = [
               }
 
               if (container.classList.contains('collapsed')) {
-                actionEl.classList.remove('expand');
-                actionEl.classList.add('collapse');
+                actionEl.classList.remove('expand-action');
+                actionEl.classList.add('collapse-action');
+
+                actionEl.classList.add('expanded-state');
+                actionEl.classList.remove('collapsed-state');
 
                 container.classList.remove('hide');
 
@@ -592,8 +595,11 @@ const initial_listeners: Listener[] = [
                   styleEl.remove();
                 }, duration);
               } else {
-                actionEl.classList.add('expand');
-                actionEl.classList.remove('collapse');
+                actionEl.classList.add('expand-action');
+                actionEl.classList.remove('collapse-action');
+
+                actionEl.classList.remove('expanded-state');
+                actionEl.classList.add('collapsed-state');
 
                 const styleEl = document.createElement('style');
                 const height = container.getBoundingClientRect().height;

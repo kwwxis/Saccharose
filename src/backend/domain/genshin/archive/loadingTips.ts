@@ -14,7 +14,6 @@ import {
   LoadingTipsByCategory,
   LoadingTipsExcelConfigData,
 } from '../../../../shared/types/genshin/loading-types';
-import { normGenshinText } from '../genshinText';
 
 async function determineLoadingTipCategory(ctrl: GenshinControl, tip: LoadingTipsExcelConfigData,
                                      situations: LoadingSituationExcelConfigData[], worldAreas: WorldAreaConfigData[]): Promise<string> {

@@ -6,8 +6,8 @@ import chalk from 'chalk';
 import { getStarRailDataFilePath } from '../../loadenv';
 import { closeKnex } from '../../util/db';
 import { importNormalize, importPlainTextMap } from '../import_file_util';
-import { normStarRailText } from '../../domain/hsr/starRailText';
 import fs from 'fs';
+import { getStarRailControl } from '../../domain/hsr/starRailControl';
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
@@ -53,7 +53,8 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
       await importNormalize(getStarRailDataFilePath('./ExcelOutput'), [], true);
     }
     if (options.plaintext) {
-      await importPlainTextMap(getStarRailDataFilePath, normStarRailText);
+      const ctrl = getStarRailControl();
+      await importPlainTextMap(ctrl, getStarRailDataFilePath);
     }
 
     await closeKnex();

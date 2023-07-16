@@ -56,10 +56,11 @@ import {
   RewardExcelConfigData,
 } from '../../../shared/types/genshin/material-types';
 import {
+  FurnitureMakeExcelConfigData,
   FurnitureSuiteExcelConfigData,
   HomeWorldEventExcelConfigData,
   HomeWorldFurnitureExcelConfigData,
-  HomeWorldFurnitureTypeExcelConfigData,
+  HomeWorldFurnitureTypeExcelConfigData, HomeWorldFurnitureTypeTree,
   HomeWorldNPCExcelConfigData,
 } from '../../../shared/types/genshin/homeworld-types';
 import { grep, grepIdStartsWith, grepStream } from '../../util/shellutil';
@@ -94,14 +95,13 @@ import {
 } from '../../../shared/types/genshin/weapon-types';
 import { AvatarExcelConfigData } from '../../../shared/types/genshin/avatar-types';
 import { MonsterExcelConfigData } from '../../../shared/types/genshin/monster-types';
-import { isEmpty, isset } from '../../../shared/util/genericUtil';
+import { defaultMap, isEmpty, isset } from '../../../shared/util/genericUtil';
 import { NewActivityExcelConfigData } from '../../../shared/types/genshin/activity-types';
 import { Marker } from '../../../shared/util/highlightMarker';
 import { ElementType, ManualTextMapHashes } from '../../../shared/types/genshin/manual-text-map';
 import { custom } from '../../util/logger';
 import { DialogBranchingCache } from './dialogue/dialogue_util';
-import { normGenshinText } from './genshinText';
-import { IdUsages } from '../../util/searchUtil';
+import { __normGenshinText } from './genshinText';
 import { AbstractControl, AbstractControlState } from '../abstractControl';
 import debug from 'debug';
 import { LangCode, TextMapHash, VoiceItem, VoiceItemArrayMap } from '../../../shared/types/lang-types';
@@ -117,6 +117,8 @@ import {
   RAW_MANUAL_TEXTMAP_ID_PROP,
   RAW_TALK_EXCEL_ID_PROP,
 } from '../../importer/genshin/genshin.schema';
+import { cached } from '../../util/cache';
+import { NormTextOptions } from '../generic/genericNormalizers';
 
 /**
  * State/cache for only a single control
@@ -154,8 +156,8 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return getGenshinDataFilePath(file);
   }
 
-  override normText(text: string, langCode: LangCode, decolor: boolean = false, plaintext: boolean = false, sNum?: number): string {
-    return normGenshinText(text, langCode, decolor, plaintext, 'both', sNum);
+  override normText(text: string, langCode: LangCode, opts: NormTextOptions = {}): string {
+    return __normGenshinText(text, langCode, opts);
   }
 
   postProcessCondProp(obj: any, prop: string) {
@@ -1196,8 +1198,12 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   }
 
   async selectFurniture(id: number): Promise<HomeWorldFurnitureExcelConfigData> {
-    return await this.knex.select('*').from('HomeWorldFurnitureExcelConfigData')
+    const furn: HomeWorldFurnitureExcelConfigData = await this.knex.select('*')
+      .from('HomeWorldFurnitureExcelConfigData')
       .where({Id: id}).first().then(this.commonLoadFirst);
+    const typeMap = await this.selectFurnitureTypeMap();
+    const makeMap = await this.selectFurnitureMakeMap();
+    return this.postProcessFurniture(furn, typeMap, makeMap);
   }
   async selectFurnitureType(typeId: number): Promise<HomeWorldFurnitureTypeExcelConfigData> {
     return await this.knex.select('*').from('HomeWorldFurnitureTypeExcelConfigData')
@@ -1208,15 +1214,112 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       .where({SuiteId: suiteId}).first().then(this.commonLoadFirst);
   }
 
-
   async selectAllFurniture(): Promise<HomeWorldFurnitureExcelConfigData[]> {
-    return await this.knex.select('*').from('HomeWorldFurnitureExcelConfigData').then(this.commonLoad);
+    const arr: HomeWorldFurnitureExcelConfigData[] = await this.readExcelDataFile('HomeWorldFurnitureExcelConfigData.json', true);
+    const typeMap = await this.selectFurnitureTypeMap();
+    const makeMap = await this.selectFurnitureMakeMap();
+    await Promise.all(arr.map(furn => this.postProcessFurniture(furn, typeMap, makeMap)));
+    sort(arr, 'IsExterior', 'CategoryNameText', 'TypeNameText');
+    return arr
   }
+
+  async selectAllFurnitureSuite(): Promise<FurnitureSuiteExcelConfigData[]> {
+    return await this.knex.select('*').from('FurnitureSuiteExcelConfigData').then(this.commonLoad);
+  }
+
   async selectAllFurnitureType(): Promise<HomeWorldFurnitureTypeExcelConfigData[]> {
     return await this.knex.select('*').from('HomeWorldFurnitureTypeExcelConfigData').then(this.commonLoad);
   }
-  async selectAllFurnitureSuite(): Promise<FurnitureSuiteExcelConfigData[]> {
-    return await this.knex.select('*').from('FurnitureSuiteExcelConfigData').then(this.commonLoad);
+
+  async selectFurnitureTypeTree(): Promise<HomeWorldFurnitureTypeTree> {
+    const types = await this.selectAllFurnitureType();
+    const tree: HomeWorldFurnitureTypeTree = {
+      Interior: {},
+      Exterior: {},
+    };
+
+    for (let type of types) {
+      const subTree = type.SceneType === 'Exterior' ? tree.Exterior : tree.Interior;
+
+      if (!subTree[type.TypeCategoryId]) {
+        subTree[type.TypeCategoryId] = {
+          categoryId: type.TypeCategoryId,
+          categoryName: type.TypeNameText,
+          types: {}
+        };
+      }
+
+      subTree[type.TypeCategoryId].types[type.TypeId] = {
+        typeId: type.TypeId,
+        typeName: type.TypeName2Text,
+        typeIcon: type.TabIcon
+      };
+    }
+    return tree;
+  }
+
+  async selectFurnitureTypeMap(): Promise<{[typeId: number]: HomeWorldFurnitureTypeExcelConfigData}> {
+    return await cached('FurnitureTypeMap', async () => {
+      const arr: HomeWorldFurnitureTypeExcelConfigData[] = await this.selectAllFurnitureType();
+      const map: {[typeId: number]: HomeWorldFurnitureTypeExcelConfigData} = {};
+      for (let item of arr) {
+        map[item.TypeId] = item;
+      }
+      return map;
+    });
+  }
+
+  async selectFurnitureMakeMap(): Promise<{[furnId: number]: FurnitureMakeExcelConfigData}> {
+    return await cached('FurnitureMakeMap', async () => {
+      const arr: FurnitureMakeExcelConfigData[] = await this.readExcelDataFile('FurnitureMakeExcelConfigData.json', true);
+      const map: {[furnId: number]: FurnitureMakeExcelConfigData} = {};
+      for (let item of arr) {
+        map[item.FurnitureItemId] = item;
+      }
+      return map;
+    });
+  }
+
+  private async postProcessFurniture(furn: HomeWorldFurnitureExcelConfigData,
+                                     typeMap: {[typeId: number]: HomeWorldFurnitureTypeExcelConfigData},
+                                     makeMap: {[furnId: number]: FurnitureMakeExcelConfigData}): Promise<HomeWorldFurnitureExcelConfigData> {
+    furn.MappedFurnType = furn.FurnType.filter(typeId => !!typeId).map(typeId => typeMap[typeId]);
+    furn.MakeData = makeMap[furn.Id];
+    furn.RelatedMaterialId = await this.selectMaterialIdFromFurnitureId(furn.Id);
+    if (furn.RelatedMaterialId) {
+      furn.RelatedMaterial = await this.selectMaterialExcelConfigData(furn.RelatedMaterialId);
+    }
+
+    furn.IsInterior = furn.MappedFurnType.some(x => x.SceneType !== 'Exterior');
+    furn.IsExterior = furn.MappedFurnType.some(x => x.SceneType === 'Exterior');
+
+    if (furn.MappedFurnType[0]) {
+      furn.CategoryId = furn.MappedFurnType[0].TypeCategoryId;
+      furn.CategoryNameText = furn.MappedFurnType[0].TypeNameText;
+
+      furn.TypeId = furn.MappedFurnType[0].TypeId;
+      furn.TypeNameText = furn.MappedFurnType[0].TypeName2Text;
+    }
+
+    furn.FilterTokens = [];
+    if (furn.IsInterior) furn.FilterTokens.push('Interior');
+    if (furn.IsExterior) furn.FilterTokens.push('Exterior');
+    for (let type of furn.MappedFurnType) {
+      furn.FilterTokens.push('category-'+type.TypeCategoryId);
+      furn.FilterTokens.push('subcategory-'+type.TypeId);
+    }
+
+    return furn;
+  }
+
+  async selectMaterialIdFromFurnitureSuiteId(furnitureSuitId: number): Promise<number> {
+    return await this.knex.select('MaterialId').from('Relation_FurnitureSuiteToMaterial')
+      .where({FurnitureSuiteId: furnitureSuitId}).first().then(x => x.MaterialId);
+  }
+
+  async selectMaterialIdFromFurnitureId(furnitureId: number): Promise<number> {
+    return await this.knex.select('MaterialId').from('Relation_FurnitureToMaterial')
+      .where({FurnitureId: furnitureId}).first().then(x => x?.MaterialId);
   }
 
   async selectMaterialSourceDataExcelConfigData(id: number): Promise<MaterialSourceDataExcelConfigData> {
@@ -1837,16 +1940,6 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       .where({ActivityId: id}).first().then(async res => res ? await this.getTextMapItem(this.outputLangCode, res.NameTextMapHash) : undefined);
     this.state.newActivityNameCache[id] = name;
     return name;
-  }
-
-  async selectMaterialIdFromFurnitureSuiteId(furnitureSuitId: number): Promise<number> {
-    return await this.knex.select('MaterialId').from('Relation_FurnitureSuiteToMaterial')
-      .where({FurnitureSuiteId: furnitureSuitId}).first().then(x => x.MaterialId);
-  }
-
-  async selectMaterialIdFromFurnitureId(furnitureId: number): Promise<number> {
-    return await this.knex.select('MaterialId').from('Relation_FurnitureToMaterial')
-      .where({FurnitureId: furnitureId}).first().then(x => x.MaterialId);
   }
 }
 

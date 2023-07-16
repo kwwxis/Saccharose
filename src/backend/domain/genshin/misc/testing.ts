@@ -13,7 +13,6 @@ import { toBoolean } from '../../../../shared/util/genericUtil';
 import JSON5 from 'json5';
 import { evaluateCustomFormat } from '../../../util/fileFormatOptions';
 import { AchievementExcelConfigData, AchievementGoalExcelConfigData } from '../../../../shared/types/genshin/achievement-types';
-import { normGenshinText } from '../genshinText';
 import { getLineNumberForLineText } from '../../../util/shellutil';
 import { getGenshinDataFilePath } from '../../../loadenv';
 

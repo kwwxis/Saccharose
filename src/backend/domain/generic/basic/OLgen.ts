@@ -81,7 +81,7 @@ async function ol_gen_internal(ctrl: AbstractControl, textMapHash: TextMapHash, 
 
     olMap[langCode] = rawText;
 
-    let langText = ctrl.normText(rawText, langCode, true);
+    let langText = ctrl.normText(rawText, langCode, { decolor: true });
 
     if (langCode === 'CHS' || langCode === 'CHT' || langCode === 'KR' || langCode === 'JP') {
       // replacing this character at the request of kalexchu

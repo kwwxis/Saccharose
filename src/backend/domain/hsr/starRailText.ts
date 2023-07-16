@@ -1,7 +1,7 @@
 import { LangCode } from '../../../shared/types/lang-types';
-import { genericNormText, mergeMcTemplate, TextNormalizer } from '../generic/genericNormalizers';
+import { genericNormText, mergeMcTemplate, NormTextOptions } from '../generic/genericNormalizers';
 
-function trailblazerPlaceholder(langCode: LangCode = 'EN', degender: boolean = false): string {
+function __trailblazerPlaceholder(langCode: LangCode = 'EN', degender: boolean = false): string {
   switch (langCode) {
     case 'CH':
       return '(开拓者)';
@@ -39,15 +39,27 @@ function trailblazerPlaceholder(langCode: LangCode = 'EN', degender: boolean = f
   return '(Traveler)';
 }
 
-export const normStarRailText: TextNormalizer = (text: string, langCode: LangCode, decolor: boolean = false, plaintext: boolean = false, plaintextMcMode: 'both' | 'male' | 'female' = 'both'): string => {
+/**
+ * **Never use this function directly!!!**
+ *
+ * Always go through {@link AbstractControl#normText|AbstractControl.normText()}
+ *
+ * There are options that the Control may add on depending on user preferences.
+ */
+export function __normStarRailText(text: string, langCode: LangCode, opts: NormTextOptions = {}): string {
   if (!text) {
     return text;
   }
 
-  text = genericNormText(text, langCode, decolor, plaintext, plaintextMcMode, trailblazerPlaceholder);
+  if (!opts)
+    opts = {};
+  if (!opts.mcPlaceholderProvider)
+    opts.mcPlaceholderProvider = __trailblazerPlaceholder;
+
+  text = genericNormText(text, langCode, opts);
   text = text.replace(/<\/?unbreak>/g, '');
 
-  if (!decolor && !plaintext) {
+  if (!opts.decolor && !opts.plaintext) {
     text = text.replace(/<color=#\{0}>(.*?)<\/color>/g, `'''$1'''`);
     text = text.replace(/<color=(#[0-9a-fA-F]{6})FF>(.*?)<\/color>/g, '{{color|$1|$2}}');
   }
@@ -60,7 +72,7 @@ export const normStarRailText: TextNormalizer = (text: string, langCode: LangCod
     text = text.replace(/&nbsp;/g, ' ');
   }
 
-  text = mergeMcTemplate(text, langCode, plaintext)
+  text = mergeMcTemplate(text, langCode, opts.plaintext)
 
   return text;
-};
+}

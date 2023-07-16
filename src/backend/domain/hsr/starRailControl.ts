@@ -8,15 +8,15 @@ import {
   LangCode,
   TextMapHash,
   VoiceItem,
-  VoiceItemArrayMap,
   VoiceItemFlatMap,
 } from '../../../shared/types/lang-types';
-import { normStarRailText } from './starRailText';
+import { __normStarRailText } from './starRailText';
 import path from 'path';
 import { promises as fs } from 'fs';
 import { defaultMap } from '../../../shared/util/genericUtil';
 import { LoadingDesc } from '../../../shared/types/hsr/hsr-misc-types';
 import { sort } from '../../../shared/util/arrayUtil';
+import { NormTextOptions } from '../generic/genericNormalizers';
 
 /**
  * State/cache for only a single control
@@ -43,8 +43,12 @@ export class StarRailControl extends AbstractControl<StarRailControlState> {
     return getStarRailDataFilePath(file);
   }
 
-  override normText(text: string, langCode: LangCode, decolor: boolean = false, plaintext: boolean = false): string {
-    return normStarRailText(text, langCode, decolor, plaintext);
+  override normText(text: string, langCode: LangCode, opts: NormTextOptions = {}): string {
+    if (!opts) opts = {};
+    if (this.outputLangCode === 'EN') {
+      opts.mcPlaceholderForceLangCode = 'EN';
+    }
+    return __normStarRailText(text, langCode, opts);
   }
 
   override async postProcess<T>(object: T, triggerNormalize?: SchemaTable, doNormText: boolean = false): Promise<T> {

@@ -2,6 +2,7 @@ import {promises as fsp} from 'fs';
 import { ucFirst } from '../../shared/util/stringUtil';
 import { defaultMap } from '../../shared/util/genericUtil';
 import { pathToFileURL } from 'url';
+import { isInt } from '../../shared/util/numberUtil';
 
 // Abbreviations:
 //  imp -> Impactful
@@ -54,7 +55,7 @@ function unpackRecord(record: any, normalizeKey: boolean): KvPair[] {
       if (normalizeKey) {
         key = normalizeRawJsonKey(key);
       }
-      result.push({ key, value, valueHash: createValueHash(value) });
+      result.push({ key, value, valueHash: createValueHash(key, value) });
     }
   }
 
@@ -146,21 +147,41 @@ function combinedCandidateKeysLength(candidate: Candidate) {
   return Object.values(candidate.candidateKeys).reduce((a, b) => a + b, 0);
 }
 
-function createValueHash(v: any) {
+function createValueHash(key: string, v: any) {
   if (Array.isArray(v)) {
-    return '[' + v.map(vv => createValueHash(vv)).join(',') + ']';
+    return '[' + v.map(vv => createValueHash(null, vv)).join(',') + ']';
   } else if (typeof v === 'object') {
-    return '{' + Object.values(v).map(vv => createValueHash(vv)).join(',') + '}';
+    return '{' + Object.entries(v).map(([vk, vv] )=> createValueHash(vk, vv)).join(',') + '}';
   } else {
+    if (
+      (
+        (key && key.endsWith("Hash")) ||
+        (key && key.toUpperCase() === key)
+      )
+      && isInt(v)
+      && String(v).length > 10
+    ) {
+      console.log('Hash?', key, String(v), BigInt(String(v)).toString(16));
+      return BigInt(String(v)).toString(16).slice(0,14);
+    } else if (
+      (key && key.endsWith("Hash")) && typeof v === 'string' && !isInt(v)
+    ) {
+      return v.slice(0,14);
+    }
     return String(v);
   }
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
+    // const schema = await translateSchema(
+    //   'C:\\Shared\\git\\Impactful-Data\\textData\\ExcelBinOutput\\Live\\GCGCharacterLevelExcelConfigData.json',
+    //   'C:\\Shared\\git\\AnimeGameData\\ExcelBinOutput\\GCGCharacterLevelExcelConfigData.json'
+    // );
+
     const schema = await translateSchema(
-      'C:\\Shared\\git\\Impactful-Data\\textData\\ExcelBinOutput\\Live\\GCGCharacterLevelExcelConfigData.json',
-      'C:\\Shared\\git\\AnimeGameData\\ExcelBinOutput\\GCGCharacterLevelExcelConfigData.json'
+      'C:\\Shared\\GenshinData\\ExcelBinOutput\\MonsterExcelConfigData.json',
+      'C:\\Shared\\git\\AnimeGameData\\ExcelBinOutput\\MonsterExcelConfigData.json'
     );
 
     console.log(schema);
