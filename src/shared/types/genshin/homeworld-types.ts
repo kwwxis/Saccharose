@@ -126,6 +126,7 @@ export interface HomeWorldFurnitureExcelConfigData {
   IsExterior?: boolean,
   IsInterior?: boolean,
   FilterTokens?: string[],
+  HomeWorldNPC?: HomeWorldNPCExcelConfigData,
 
   // Internal Data:
   Rank: number,
@@ -166,6 +167,7 @@ export interface HomeWorldFurnitureTypeExcelConfigData {
 export type HomeWorldFurnitureTypeTree = {
   Interior: HomeWorldFurnitureTypeSubTree,
   Exterior: HomeWorldFurnitureTypeSubTree,
+  InteriorAndExterior: HomeWorldFurnitureTypeSubTree,
 };
 
 export type HomeWorldFurnitureTypeSubTree = {

@@ -378,7 +378,19 @@ export const genshinSchema = {
       FECBGNMOGHK: 'TypeCategoryId'
     }
   },
-  HomeWorldEventExcelConfigData: <SchemaTable>{
+  HomeWorldPlantExcelConfigData: <SchemaTable> {
+    name: 'HomeWorldPlantExcelConfigData',
+    jsonFile: './ExcelBinOutput/HomeWorldPlantExcelConfigData.json',
+    columns: [
+      { name: 'SeedId', type: 'integer', isPrimary: true },
+      { name: 'BundleId', type: 'integer', isIndex: true },
+      { name: 'SproutGadgetId', type: 'integer', isIndex: true },
+      { name: 'FieldId', type: 'integer', isIndex: true },
+      { name: 'HomeGatherId', type: 'integer', isIndex: true },
+      { name: 'InteeNameTextMapHash', type: 'integer', isIndex: true },
+    ]
+  },
+  HomeWorldEventExcelConfigData: <SchemaTable> {
     name: 'HomeWorldEventExcelConfigData',
     jsonFile: './ExcelBinOutput/HomeWorldEventExcelConfigData.json',
     columns: [

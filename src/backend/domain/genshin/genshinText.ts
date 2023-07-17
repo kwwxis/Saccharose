@@ -101,22 +101,27 @@ export function __normGenshinText(text: string, langCode: LangCode, opts: NormTe
   text = genericNormText(text, langCode, opts);
 
   if (!opts.decolor && !opts.plaintext) {
+    // Bold:
     text = text.replace(/<color=#\{0}>(.*?)<\/color>/g, `'''$1'''`);
-    text = text.replace(/<color=#00E1FFFF>(.*?)<\/color>/g, '{{color|buzzword|$1}}');
-    text = text.replace(/<color=#FFCC33FF>(.*?)<\/color>/g, '{{color|help|$1}}');
+    text = text.replace(/<color=#FFFFFF(?:FF)?>(.*?)<\/color>/g, `'''$1'''`);
+    text = text.replace(/<color=#37FFFF(?:FF)?>(.*?) ?<\/color>/g, `'''$1'''`);
 
-    text = text.replace(/<color=#FFACFFFF>(.*?)<\/color>/g, '{{Electro|$1}}');
-    text = text.replace(/<color=#99FFFFFF>(.*?)<\/color>/g, '{{Cryo|$1}}');
-    text = text.replace(/<color=#80C0FFFF>(.*?)<\/color>/g, '{{Hydro|$1}}');
-    text = text.replace(/<color=#FF9999FF>(.*?)<\/color>/g, '{{Pyro|$1}}');
-    text = text.replace(/<color=#99FF88FF>(.*?)<\/color>/g, '{{Dendro|$1}}');
-    text = text.replace(/<color=#80FFD7FF>(.*?)<\/color>/g, '{{Anemo|$1}}');
-    text = text.replace(/<color=#FFE699FF>(.*?)<\/color>/g, '{{Geo|$1}}');
+    // Misc:
+    text = text.replace(/<color=#00E1FF(?:FF)?>(.*?)<\/color>/g, '{{color|buzzword|$1}}');
+    text = text.replace(/<color=#FFCC33(?:FF)?>(.*?)<\/color>/g, '{{color|help|$1}}');
+    text = text.replace(/<color=#FFE14B(?:FF)?>(.*?)<\/color>/g, '{{color|help|$1}}');
+    text = text.replace(/<color=#CC8000(?:FF)?>(.*?)<\/color>/g, '{{color|bp|$1}}');
 
-    text = text.replace(/<color=#FFE14BFF>(.*?)<\/color>/g, '{{color|help|$1}}');
+    // Elements:
+    text = text.replace(/<color=#FFACFF(?:FF)?>(.*?)<\/color>/g, '{{Electro|$1}}');
+    text = text.replace(/<color=#99FFFF(?:FF)?>(.*?)<\/color>/g, '{{Cryo|$1}}');
+    text = text.replace(/<color=#80C0FF(?:FF)?>(.*?)<\/color>/g, '{{Hydro|$1}}');
+    text = text.replace(/<color=#FF9999(?:FF)?>(.*?)<\/color>/g, '{{Pyro|$1}}');
+    text = text.replace(/<color=#99FF88(?:FF)?>(.*?)<\/color>/g, '{{Dendro|$1}}');
+    text = text.replace(/<color=#80FFD7(?:FF)?>(.*?)<\/color>/g, '{{Anemo|$1}}');
+    text = text.replace(/<color=#FFE699(?:FF)?>(.*?)<\/color>/g, '{{Geo|$1}}');
 
-    text = text.replace(/<color=#FFFFFFFF>(.*?)<\/color>/g, '\'\'\'$1\'\'\'');
-    text = text.replace(/<color=#37FFFF>(.*?) ?<\/color>/g, '\'\'\'$1\'\'\'');
+    // Unknown:
     text = text.replace(/<color=(#[0-9a-fA-F]{6})(?:FF)?>(.*?)<\/color>/g, '{{color|$1|$2}}');
   }
 

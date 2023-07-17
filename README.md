@@ -222,6 +222,7 @@ All files in `Texture2D` starting with (case insensitive):
 - `UI_FlycloakIcon`
 - `UI_Gacha`
 - `UI_Gcg`
+- `UI_Homeworld`
 - `UI_ItemIcon`
 - `UI_Monster`
 - `UI_NameCard`
@@ -235,6 +236,7 @@ All files in `Sprite` starting with:
 - `UI_Gcg_Dice`
 - `UI_Gcg_Buff`
 - `UI_Gcg_Tag`
+- `UI_HomeWorldTabIcon`
 
 Having these images isn't necessary for the application to run, but you'll have a bunch of broken images without them
 in certain areas of the UI. If you don't know where to get these images, you can ask for them in the "Saccharose.wiki"
@@ -242,10 +244,10 @@ Discord editing forums post.
 
 **Commands:**
 
-- **Print Texture2D:** `find ./Texture2D/ -type f -regextype posix-extended -iregex '.*/(UI_Achievement|UI_AnimalIcon|UI_AvatarIcon|UI_Activity|UI_ChapterIcon|UI_Codex|UI_EquipIcon|UI_FlycloakIcon|UI_Gacha|UI_Gcg|UI_ItemIcon|UI_Monster|UI_NameCard|UI_Reputation|UI_RelicIcon|.*Tutorial).*'`<br /><br />
+- **Print Texture2D:** `find ./Texture2D/ -type f -regextype posix-extended -iregex '.*/(UI_Achievement|UI_AnimalIcon|UI_AvatarIcon|UI_Activity|UI_ChapterIcon|UI_Codex|UI_EquipIcon|UI_FlycloakIcon|UI_Gacha|UI_Gcg|UI_Homeworld|UI_ItemIcon|UI_Monster|UI_NameCard|UI_Reputation|UI_RelicIcon|.*Tutorial).*'`<br /><br />
 
-- **Copy Texture2D:** `find ./Texture2D/ -type f -regextype posix-extended -iregex '.*/(UI_Achievement|UI_AnimalIcon|UI_AvatarIcon|UI_Activity|UI_ChapterIcon|UI_Codex|UI_EquipIcon|UI_FlycloakIcon|UI_Gacha|UI_Gcg|UI_ItemIcon|UI_Monster|UI_NameCard|UI_Reputation|UI_RelicIcon|.*Tutorial).*' -exec cp '{}' dist ';'`<br /><br />
+- **Copy Texture2D:** `find ./Texture2D/ -type f -regextype posix-extended -iregex '.*/(UI_Achievement|UI_AnimalIcon|UI_AvatarIcon|UI_Activity|UI_ChapterIcon|UI_Codex|UI_EquipIcon|UI_FlycloakIcon|UI_Gacha|UI_Gcg|UI_Homeworld|UI_ItemIcon|UI_Monster|UI_NameCard|UI_Reputation|UI_RelicIcon|.*Tutorial).*' -exec cp '{}' dist ';'`<br /><br />
 
-- **Copy Sprite:** `find ./Sprite/ -type f -regextype posix-extended -iregex '.*/(UI_Gcg_Dice|UI_Gcg_Buff|UI_Gcg_Tag).*' -exec cp '{}' dist ';'`
+- **Copy Sprite:** `find ./Sprite/ -type f -regextype posix-extended -iregex '.*/(UI_Gcg_Dice|UI_Gcg_Buff|UI_Gcg_Tag|UI_HomeWorldTabIcon).*' -exec cp '{}' dist ';'`
 
 - **Transfer:**: `rsync -avP ./dist hostname:/dest/path`

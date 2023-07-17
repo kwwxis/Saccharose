@@ -1175,26 +1175,36 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return await this.knex.select('*').from('HomeWorldEventExcelConfigData').then(this.commonLoad);
   }
 
+  async selectHomeWorldNPC(furnitureId: number): Promise<HomeWorldNPCExcelConfigData> {
+    return await this.knex.select('*').from('HomeWorldNPCExcelConfigData')
+      .where({FurnitureId: furnitureId}).first().then(this.commonLoadFirst)
+      .then((npc: HomeWorldNPCExcelConfigData) => {
+        return this.postProcessHomeWorldNPC(npc);
+      });
+  }
+
   async selectAllHomeWorldNPCs(): Promise<HomeWorldNPCExcelConfigData[]> {
     return await this.knex.select('*').from('HomeWorldNPCExcelConfigData').then(this.commonLoad)
       .then((rows: HomeWorldNPCExcelConfigData[]) => {
-        for (let npc of rows) {
-          npc.SummonEvents = [];
-          npc.RewardEvents = [];
-          if (npc.Avatar) {
-            npc.CommonId = npc.AvatarId;
-            npc.CommonName = npc.Avatar.NameText;
-            npc.CommonIcon = npc.Avatar.IconName;
-            npc.CommonNameTextMapHash = npc.Avatar.NameTextMapHash;
-          } else {
-            npc.CommonId = npc.NpcId;
-            npc.CommonName = npc.Npc.NameText;
-            npc.CommonIcon = npc.FrontIcon;
-            npc.CommonNameTextMapHash = npc.Npc.NameTextMapHash;
-          }
-        }
-        return rows;
+        return rows.map(npc => this.postProcessHomeWorldNPC(npc));
       });
+  }
+
+  private postProcessHomeWorldNPC(npc: HomeWorldNPCExcelConfigData): HomeWorldNPCExcelConfigData {
+    npc.SummonEvents = [];
+    npc.RewardEvents = [];
+    if (npc.Avatar) {
+      npc.CommonId = npc.AvatarId;
+      npc.CommonName = npc.Avatar.NameText;
+      npc.CommonIcon = npc.Avatar.IconName;
+      npc.CommonNameTextMapHash = npc.Avatar.NameTextMapHash;
+    } else {
+      npc.CommonId = npc.NpcId;
+      npc.CommonName = npc.Npc.NameText;
+      npc.CommonIcon = npc.FrontIcon;
+      npc.CommonNameTextMapHash = npc.Npc.NameTextMapHash;
+    }
+    return npc;
   }
 
   async selectFurniture(id: number): Promise<HomeWorldFurnitureExcelConfigData> {
@@ -1215,7 +1225,9 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   }
 
   async selectAllFurniture(): Promise<HomeWorldFurnitureExcelConfigData[]> {
-    const arr: HomeWorldFurnitureExcelConfigData[] = await this.readExcelDataFile('HomeWorldFurnitureExcelConfigData.json', true);
+    let arr: HomeWorldFurnitureExcelConfigData[] = await this.readExcelDataFile('HomeWorldFurnitureExcelConfigData.json', true);
+    arr = arr.filter(x => !!x.NameText);
+
     const typeMap = await this.selectFurnitureTypeMap();
     const makeMap = await this.selectFurnitureMakeMap();
     await Promise.all(arr.map(furn => this.postProcessFurniture(furn, typeMap, makeMap)));
@@ -1236,10 +1248,15 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     const tree: HomeWorldFurnitureTypeTree = {
       Interior: {},
       Exterior: {},
+      InteriorAndExterior: {},
     };
 
     for (let type of types) {
-      const subTree = type.SceneType === 'Exterior' ? tree.Exterior : tree.Interior;
+      let subTree = type.SceneType === 'Exterior' ? tree.Exterior : tree.Interior;
+
+      if (type.TypeCategoryId === 10) { // companion
+        subTree = tree.InteriorAndExterior;
+      }
 
       if (!subTree[type.TypeCategoryId]) {
         subTree[type.TypeCategoryId] = {
@@ -1247,6 +1264,13 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
           categoryName: type.TypeNameText,
           types: {}
         };
+      }
+
+      const isDupe: boolean = subTree === tree.InteriorAndExterior &&
+        Object.values(subTree[type.TypeCategoryId].types).some(t => t.typeName === type.TypeName2Text);
+
+      if (isDupe) {
+        continue;
       }
 
       subTree[type.TypeCategoryId].types[type.TypeId] = {
@@ -1271,18 +1295,31 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
   async selectFurnitureMakeMap(): Promise<{[furnId: number]: FurnitureMakeExcelConfigData}> {
     return await cached('FurnitureMakeMap', async () => {
-      const arr: FurnitureMakeExcelConfigData[] = await this.readExcelDataFile('FurnitureMakeExcelConfigData.json', true);
-      const map: {[furnId: number]: FurnitureMakeExcelConfigData} = {};
-      for (let item of arr) {
-        map[item.FurnitureItemId] = item;
+      const makeArr: FurnitureMakeExcelConfigData[] = await this.readExcelDataFile('FurnitureMakeExcelConfigData.json', true);
+      const makeMap: {[furnId: number]: FurnitureMakeExcelConfigData} = {};
+
+      for (let make of makeArr) {
+        makeMap[make.FurnitureItemId] = make;
+        if (make.MaterialItems) {
+          make.MaterialItems = await make.MaterialItems
+            .filter(x => !!Object.keys(x).length)
+            .asyncMap(async x => {
+              x.Material = await this.selectMaterialExcelConfigData(x.Id);
+              return x;
+            });
+        }
       }
-      return map;
+
+      return makeMap;
     });
   }
 
   private async postProcessFurniture(furn: HomeWorldFurnitureExcelConfigData,
                                      typeMap: {[typeId: number]: HomeWorldFurnitureTypeExcelConfigData},
                                      makeMap: {[furnId: number]: FurnitureMakeExcelConfigData}): Promise<HomeWorldFurnitureExcelConfigData> {
+    if (!furn) {
+      return furn;
+    }
     furn.MappedFurnType = furn.FurnType.filter(typeId => !!typeId).map(typeId => typeMap[typeId]);
     furn.MakeData = makeMap[furn.Id];
     furn.RelatedMaterialId = await this.selectMaterialIdFromFurnitureId(furn.Id);
@@ -1307,6 +1344,14 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     for (let type of furn.MappedFurnType) {
       furn.FilterTokens.push('category-'+type.TypeCategoryId);
       furn.FilterTokens.push('subcategory-'+type.TypeId);
+    }
+
+    if (furn.SurfaceType === 'NPC') {
+      furn.HomeWorldNPC = await this.selectHomeWorldNPC(furn.Id);
+      if (furn.HomeWorldNPC) {
+        furn.Icon = furn.HomeWorldNPC.CommonIcon;
+        furn.ItemIcon = furn.HomeWorldNPC.CommonIcon;
+      }
     }
 
     return furn;
@@ -1416,11 +1461,28 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     if (!material || !loadConf) {
       return material;
     }
+    if (material.ItemUse) {
+      material.ItemUse = material.ItemUse.map(use => {
+        if (use.UseParam) {
+          use.UseParam = use.UseParam.filter(x => isset(x) && x !== '');
+        }
+        return use;
+      }).filter(use => !!use.UseOp || (use.UseParam && use.UseParam.length));
+    }
     if (loadConf.LoadSourceData) {
       material.SourceData = await this.selectMaterialSourceDataExcelConfigData(material.Id);
     }
     if (loadConf.LoadRelations) {
       material.Relations = await this.selectItemRelations(material.Id);
+    }
+    if (loadConf.LoadItemUse) {
+      material.LoadedItemUse = {};
+
+      const furnId = toInt(material.ItemUse
+        .find(x => x.UseOp === 'ITEM_USE_UNLOCK_FURNITURE_FORMULA')?.UseParam[0]);
+      if (furnId) {
+        material.LoadedItemUse.Furniture = await this.selectFurniture(furnId);
+      }
     }
     return material;
   }

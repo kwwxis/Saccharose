@@ -131,6 +131,15 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
         }
       },
       {
+        token: 'comment.start.xml',
+        regex: /<!--/,
+        next: 'wt_comment',
+        onMatch: function(val, currentState, stack) {
+          stack.unshift('wt_comment');
+          return 'comment.start.xml';
+        }
+      },
+      {
         token: 'wikitext.hr',
         regex: /^-{4}-*/,
       },
@@ -457,6 +466,18 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
           allowEmptyToken: true
         },
         { defaultToken: 'wikitext.pre.pre-text' }
+      ],
+      wt_comment: [
+        {
+          regex: /-->/,
+          next: 'start',
+          onMatch: function(value, currentState, stack) {
+            stack.shift();
+            this.next = stack[0] || 'start';
+            return 'comment.end.xml';
+          }
+        },
+        { defaultToken: 'comment.xml' }
       ],
       wt_table: [
         {

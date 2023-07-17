@@ -52,6 +52,16 @@
           <td class="bold">Item Type</td>
           <td colspan="2"><code><%= pluralize(material.TypeDescText) %></code></td>
         </tr>
+        <% if (material.LoadedItemUse && Object.keys(material.LoadedItemUse).length) { %>
+          <tr>
+            <td class="bold">Item Use</td>
+            <td colspan="2">
+              <% if (material.LoadedItemUse.Furniture) { %>
+                <%- use('partials/genshin/archive/item', { material: material.LoadedItemUse.Furniture }) %>
+              <% } %>
+            </td>
+          </tr>
+        <% } %>
       </table>
     </div>
   </section>
@@ -128,7 +138,7 @@
       <h2 class="valign">
         <span>OL</span>
         <span class="grow"></span>
-        <button class="ol-result-textarea secondary small" ui-action="copy: #ol"
+        <button class="secondary small" ui-action="copy: #ol"
                 ui-tippy-hover="Click to copy to clipboard"
                 ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">Copy</button>
       </h2>

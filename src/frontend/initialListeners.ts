@@ -263,7 +263,8 @@ const initial_listeners: Listener[] = [
             return (event: MouseEvent) => {
               const text = getInputValue(contentEditableEl);
               const parsed = mwParse(text);
-              let templateNode: MwTemplateNode = parsed.findTemplateNodes()[0];
+              let templateNode: MwTemplateNode = parsed.findTemplateNodes()
+                .find(t => t.templateName.toLowerCase() === 'other_languages');
               templateNode.removeParams(regex);
               if (contentEditableEl.hasAttribute('data-markers')) {
                 contentEditableEl.removeAttribute('data-markers');

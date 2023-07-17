@@ -123,11 +123,11 @@ export class CheckTree {
     }
   }
 
-  _opt(path, defaultValue = undefined) {
+  private _opt(path, defaultValue = undefined) {
     return path.split('.').reduce((o,i) => o && o[i], this.opts) || defaultValue;
   }
 
-  _callOpt(path, args=[]) {
+  private _callOpt(path, args=[]) {
     if (path === 'cbChanged' && this.isLoading) {
       // Don't run cbChanged listeners until done loading.
       return;
@@ -148,13 +148,13 @@ export class CheckTree {
     if (fn) fn.apply(this, args);
   }
 
-  _listItemParent(el) {
+  private _listItemParent(el: Element): CheckTreeLI {
     if (!el) return undefined;
-    let li = el.closest('li');
+    let li: CheckTreeLI = <CheckTreeLI> el.closest('li');
     return li && li._tree === this ? li : undefined;
   }
 
-  _checkIndeterminate(li, recurse= false, clicked= false) {
+  private _checkIndeterminate(li, recurseUpwards= false, clicked= false) {
     if (!li) return;
     let checkbox = li._checkbox;
     if (!checkbox) return;
@@ -170,6 +170,8 @@ export class CheckTree {
           checked.forEach(chk => {
             if (chk.disabled) return;
             chk.checked = false;
+            chk.indeterminate = false;
+            chk.classList.remove('is--indeterminate');
             if (checkbox._li)
               this._callOpt('cbChanged', [chk._li, chk._li._ul, chk]);
             numUnchecked++;
@@ -179,6 +181,8 @@ export class CheckTree {
           unchecked.forEach(chk => {
             if (chk.disabled) return;
             chk.checked = true;
+            chk.indeterminate = false;
+            chk.classList.remove('is--indeterminate');
             if (checkbox._li)
               this._callOpt('cbChanged', [chk._li, chk._li._ul, chk]);
             numChecked++;
@@ -214,13 +218,13 @@ export class CheckTree {
       }
     }
 
-    if (recurse) {
+    if (recurseUpwards) {
       this._checkIndeterminate(this._listItemParent(li.parentNode), true);
     }
   }
 
   /** @param {Element} ul */
-  _setFromHTML(ul?: HTMLUListElement) {
+  private _setFromHTML(ul?: HTMLUListElement) {
     if (!ul) ul = this.el;
 
     if (ul.tagName !== 'UL' && ul.tagName !== 'OL') {
@@ -370,7 +374,7 @@ export class CheckTree {
     });
   }
 
-  fromJSON(nodeList: CheckTreeNode[], container?: HTMLElement, forceCheckState?: boolean): void {
+  fromJSON(nodeList: CheckTreeNode[], container?: HTMLElement, forceCheckState?: boolean, depth: number = 0): void {
     if (!container) container = this.el;
     container.innerHTML = '';
     container.classList.remove('check-tree-did-init');
@@ -433,13 +437,14 @@ export class CheckTree {
           p.innerText = node.text || node.label;
       }
 
+      li.setAttribute('data-depth', String(depth));
       li.append(p);
       applyCustom(li, node.customLiClass, node.customLiAttr);
 
       if (node.children) {
         let ul = document.createElement('ul');
         li.append(ul);
-        this.fromJSON(node.children, ul, checkedState);
+        this.fromJSON(node.children, ul, checkedState, depth + 1);
       }
 
       container.append(li);

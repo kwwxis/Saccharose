@@ -1,0 +1,128 @@
+<% if (locals.furn) { %>
+  <section class="card">
+    <h2>
+      <span class="dispBlock" style="margin-top:-5px"><a role="button" class="secondary fontWeight600" style="font-size:14px;padding:3px 8px" href="/furnishings">Back to furnishings list</a></span>
+      <span class="valign spacer10-top">
+        <img class="framed-icon x50" src="/images/genshin/<%= furn.Icon %>.png" loading="lazy" decoding="async" />
+        <span class="spacer15-left"><%= furn.NameText %></span>
+      </span>
+    </h2>
+    <div class="content">
+      <table class="article-table">
+        <tr>
+          <td style="width:150px" class="bold">ID</td>
+          <td><%= String(furn.Id).padStart(6, '0') %></td>
+        </tr>
+        <tr>
+          <td class="bold">Name</td>
+          <td><%= furn.NameText %></td>
+        </tr>
+        <tr>
+          <td class="bold">Description</td>
+          <td>
+            <%- use('partials/util/wikitext', {wikitext: normGenshinText(furn.DescText), seamless: true}) %>
+          </td>
+        </tr>
+        <tr>
+          <td class="bold">Interior/Exterior?</td>
+          <td><span><%= (furn.IsInterior && furn.IsExterior) ? 'Interior & Exterior' : (furn.IsInterior ? 'Interior' : 'Exterior') %></span></td>
+        </tr>
+        <tr>
+          <td class="bold">Category</td>
+          <td><%= furn.CategoryNameText %></td>
+        </tr>
+        <tr>
+          <td class="bold">Subcategory</td>
+          <td><%= furn.TypeNameText %></td>
+        </tr>
+        <tr>
+          <td class="bold">Adeptal Energy</td>
+          <td><%= furn.Comfort %></td>
+        </tr>
+        <tr>
+          <td class="bold">Load</td>
+          <td><%= furn.Cost %></td>
+        </tr>
+        <tr>
+          <td class="bold">Reduced Load</td>
+          <td><%= furn.DiscountCost %></td>
+        </tr>
+        <tr>
+          <td class="bold">Related Item<br />or Blueprint</td>
+          <td>
+            <% if (furn.RelatedMaterial) { %>
+              <%- use('partials/genshin/archive/item', { material: furn.RelatedMaterial }) %>
+            <% } else { %>
+              <span>n/a</span>
+            <% } %>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </section>
+  <% if (furn.MakeData) { %>
+    <section class="card">
+      <h2>Creation</h2>
+      <div class="content">
+        <p>First time creation grants <%= furn.MakeData.Exp %> trust.</p>
+      </div>
+      <div class="content alignStart">
+        <% for (let inputItem of furn.MakeData.MaterialItems) { %>
+          <%- use('partials/genshin/archive/item', { material: inputItem.Material, itemCount: inputItem.Count }) %>
+        <% } %>
+      </div>
+    </section>
+  <% } %>
+  <section class="card">
+    <h2 class="valign">
+      <span>Wikitext</span>
+      <span class="grow"></span>
+      <button class="secondary small" ui-action="copy: #wikitext"
+              ui-tippy-hover="Click to copy to clipboard"
+              ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">Copy</button>
+    </h2>
+    <div class="content">
+      <p class="info-notice spacer5-bottom">Review the wikitext carefully to make sure it's correct before saving anywhere to the actual wiki.</p>
+      <p class="info-notice spacer10-bottom">Remember to add the version to the <code>{{Change History}}</code> template.</p>
+      <textarea id="wikitext" readonly class="ol-result-textarea w100p wikitext autosize" spellcheck="false" translate="no"><%= wikitext %></textarea>
+    </div>
+  </section>
+  <% if (locals.ol) { %>
+    <section class="card">
+      <h2 class="valign">
+        <span>OL Standalone</span>
+        <span class="grow"></span>
+        <button class="secondary small" ui-action="copy: #ol"
+                ui-tippy-hover="Click to copy to clipboard"
+                ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">Copy</button>
+      </h2>
+      <div class="content">
+        <textarea id="ol" readonly class="ol-result-textarea w100p wikitext autosize" spellcheck="false" translate="no"><%= ol.result %></textarea>
+      </div>
+    </section>
+  <% } %>
+  <section class="card">
+    <h2 class="valign">
+      <span>Raw JSON</span>
+      <span class="grow"></span>
+      <button class="secondary" ui-action="toggle: #json-outer">
+        <span class="inactive-only">Show</span>
+        <span class="active-only">Hide</span>
+      </button>
+    </h2>
+    <div id="json-outer" class="content hide">
+      <textarea class="code json w100p autosize" spellcheck="false"
+                translate="no"><%= JSON.stringify(furn, null, 2) %></textarea>
+    </div>
+  </section>
+<% } else { %>
+  <section class="card">
+    <h2>Furnishing not found.</h2>
+    <div class="content">
+      <a role="button" class="secondary fontWeight600" style="font-size:14px;padding:3px 8px" href="/furnishings">
+        <%- icon('chevron-left') %>
+        <span>Back to furnishings list</span>
+      </a>
+    </div>
+  </section>
+<% } %>

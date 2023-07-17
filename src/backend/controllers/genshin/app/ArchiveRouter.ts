@@ -1,7 +1,7 @@
 import { create, Request, Response, Router } from '../../../util/router';
 import { getGenshinControl } from '../../../domain/genshin/genshinControl';
 import { BookSuitExcelConfigData, ReadableView } from '../../../../shared/types/genshin/readable-types';
-import { ol_gen_from_id } from '../../../domain/generic/basic/OLgen';
+import { ol_gen_from_id, OLResult } from '../../../domain/generic/basic/OLgen';
 import {
   getCityIdsWithViewpoints,
   selectViewpoints, VIEWPOINT_DEFAULT_FILE_FORMAT_IMAGE, VIEWPOINT_DEFAULT_FILE_FORMAT_MAP,
@@ -25,7 +25,7 @@ import {
 import { paramCmp } from '../../../util/viewUtilities';
 import { generateLoadingTipsWikiText, selectLoadingTips } from '../../../domain/genshin/archive/loadingTips';
 import { LoadingTipsByCategory } from '../../../../shared/types/genshin/loading-types';
-import { isInt, toInt } from '../../../../shared/util/numberUtil';
+import { toInt } from '../../../../shared/util/numberUtil';
 import { SbOut } from '../../../../shared/util/stringUtil';
 
 export default async function(): Promise<Router> {
@@ -46,7 +46,8 @@ export default async function(): Promise<Router> {
     if (req.params.itemId) {
       const material = await ctrl.selectMaterialExcelConfigData(req.params.itemId, {
         LoadRelations: true,
-        LoadSourceData: true
+        LoadSourceData: true,
+        LoadItemUse: true,
       });
 
       res.render('pages/genshin/archive/material-item', {
@@ -336,6 +337,89 @@ export default async function(): Promise<Router> {
       furnitureList,
       typeTree,
       bodyClass: ['page--furniture']
+    });
+  });
+
+  router.get('/furnishings/:furnId', async (req: Request, res: Response) => {
+    const ctrl = getGenshinControl(req);
+    const furn = await ctrl.selectFurniture(req.params.furnId);
+    const sb: SbOut = new SbOut();
+    const ol: OLResult = furn ? (await ol_gen_from_id(ctrl, furn.NameTextMapHash)) : null;
+
+    if (furn) {
+      sb.setPropPad(15);
+      sb.line('{{Furnishing Infobox');
+      sb.prop('id', furn.Id);
+      sb.prop('image', `Item ${furn.NameText}.png`);
+      sb.prop('category', furn.CategoryNameText);
+      sb.prop('subcategory', furn.TypeNameText);
+      sb.prop('quality', furn.RankLevel);
+      sb.prop('adeptal_energy', furn.Comfort);
+      sb.prop('load', furn.Cost);
+      sb.prop('reduced_load', furn.DiscountCost);
+      sb.prop('description', ctrl.normText(furn.DescText, ctrl.outputLangCode));
+      sb.prop('blueprint', '');
+      sb.line('}}');
+      sb.line(`'''${furn.NameText}''' is a${furn.MakeData ? ' creatable' : ''} [[Furnishing]] item that can be used in the [[Serenitea Pot]].`);
+      sb.line();
+      if (furn.MakeData) {
+        sb.line('==Creation==');
+        sb.line(`First time creation grants {{Item|Trust|24|x=${furn.MakeData.Exp}}}.`);
+        sb.setPropPad(1);
+        sb.line('{{Recipe');
+        sb.prop('type', 'Creation');
+        sb.prop('time', String(furn.MakeData.MakeTime).slice(0,2)+'h');
+        for (let vec of furn.MakeData.MaterialItems) {
+          sb.prop(vec.Material.NameText, vec.Count);
+        }
+        sb.prop('sort', furn.MakeData.MaterialItems.map(vec => vec.Material.NameText).join(';'));
+        sb.line('}}');
+        sb.line();
+      }
+      sb.line('==Furnishing Sets==');
+      sb.line('{{Craft Usage}}');
+      sb.line();
+      sb.line('===Other Languages==');
+      sb.line(ol?.result);
+      sb.line();
+      sb.line('==Change History==');
+      sb.line('{{Change History|<!-- version -->}}');
+      sb.line();
+      sb.line('==Navigation==');
+      if (
+        furn.TypeId === 7011 ||  // Curio
+        furn.TypeId === 14002 || // Dreambloom
+        furn.TypeId === 14003 || // Snowman Component
+        furn.TypeId === 14004 || // Floral Scene
+        furn.TypeId === 14005 || // Main Flower
+        furn.TypeId === 14006 || // Carving Component
+        furn.TypeId === 14007    // Shop Components
+      ) {
+        sb.line('{{Furnishing Navbox/Subsystems|Curio}}');
+      } else if (
+        furn.TypeId === 3007 || // Fish Tank
+        furn.TypeId === 14001 // Ornamental Fish
+      ) {
+        sb.line('{{Furnishing Navbox/Subsystems|Fish Pond}}');
+      } else if (
+        furn.TypeId === 9001 || // Indoor Creature
+        furn.TypeId === 9002    // Outdoor Creature
+      ) {
+        sb.line('{{Furnishing Navbox/Living|Animal}}');
+      } else if (furn.CategoryId === 10) {
+        sb.line('{{Furnishing Navbox/Living|Companion}}');
+      } else {
+        sb.line(`{{Furnishing Navbox|${furn.IsInterior ? 'interior' : 'exterior'}}}`);
+      }
+      sb.line();
+    }
+
+    res.render('pages/genshin/archive/furniture-page', {
+      title: 'Furnishings',
+      furn,
+      wikitext: sb.toString(),
+      bodyClass: ['page--furniture'],
+      ol,
     });
   });
 

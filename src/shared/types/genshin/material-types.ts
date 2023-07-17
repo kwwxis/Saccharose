@@ -1,5 +1,5 @@
 // The Material IDs of some useful items:
-import { FurnitureMakeExcelConfigData } from './homeworld-types';
+import { FurnitureMakeExcelConfigData, HomeWorldFurnitureExcelConfigData } from './homeworld-types';
 
 export const ADVENTURE_EXP_ID = 102;
 export const PRIMOGEM_ID = 201;
@@ -117,7 +117,7 @@ export type MaterialItemUseOp =
   'ITEM_USE_UNLOCK_HOME_MODULE' |
   'ITEM_USE_UNLOCK_PAID_BATTLE_PASS_NORMAL';
 
-export type MaterialLoadConf = {LoadSourceData?: boolean, LoadRelations?: boolean};
+export type MaterialLoadConf = {LoadSourceData?: boolean, LoadRelations?: boolean, LoadItemUse?: boolean};
 
 export interface MaterialExcelConfigData {
   Id: number,
@@ -161,6 +161,9 @@ export interface MaterialExcelConfigData {
     // ITEM_USE_UNLOCK_FURNITURE_FORMULA => ["371119"]]
     // ITEM_USE_ADD_SERVER_BUFF => ["500202", "900"]
   }[],
+  LoadedItemUse?: {
+    Furniture?: HomeWorldFurnitureExcelConfigData,
+  },
   InteractionTitleText?: string,
   InteractionTitleTextMapHash?: number,
   FoodQuality?: 'FOOD_QUALITY_STRANGE' | 'FOOD_QUALITY_ORDINARY' | 'FOOD_QUALITY_DELICIOUS',

@@ -10,12 +10,13 @@
     <div role="button" class="secondary dispInlineFlex valign no-active-style" ui-action="toggle: #filter-tree-panel" style="font-size:0;">
       <%- icon('chevron-right', 17, {class: 'inactive-only', style: 'font-size:14px;margin-left:-0.5em'}) %>
       <%- icon('chevron-down', 17, {class: 'active-only', style: 'font-size:14px;margin-left:-0.5em'}) %>
-      <span class="spacer5-left inactive-only" style="font-size:15px">Open filters</span>
-      <span class="spacer5-left active-only" style="font-size:15px">Close filters</span>
+      <span class="spacer5-left inactive-only" style="font-size:15px">Open category filters</span>
+      <span class="spacer5-left active-only" style="font-size:15px">Close category filters</span>
     </div>
+    <input id="filter-quick-search" class="grow spacer5-left" type="text" placeholder="Quick search" />
   </div>
   <div id="filter-tree-panel" class="content hide" style="padding-top:0;">
-    <ul id="type-tree" style="padding-left:25px !important;"></ul>
+    <ul id="type-tree"></ul>
   </div>
 </section>
 <section class="card">
@@ -25,7 +26,7 @@
         <th>Icon</th>
         <th>ID</th>
         <th>Name</th>
-        <th>Category</th>
+        <th>Categories</th>
         <th>Quality</th>
         <th>Adeptal<br />Energy</th>
         <th>Load</th>
@@ -34,14 +35,19 @@
     </thead>
     <tbody>
       <% for (let furn of furnitureList) { %>
-        <tr class="furnishing-row" style="font-size:15px" data-id="<%= furn.Id %>" data-filter-tokens="<%= furn.FilterTokens.join(',') %>">
+        <tr class="furnishing-row" style="font-size:15px"
+            data-id="<%= furn.Id %>"
+            data-name="<%= furn.NameText %>"
+            data-category="<%= furn.CategoryNameText %>"
+            data-subcategory="<%= furn.TypeNameText %>"
+            data-filter-tokens="<%= furn.FilterTokens.join(',') %>">
           <td>
             <% if (furn.Icon || furn.ItemIcon) { %>
               <img class="framed-icon x42" src="/images/genshin/<%= furn.Icon || furn.ItemIcon %>.png" loading="lazy" decoding="async" />
             <% } %>
           </td>
-          <td><span class="code" style="font-size:14px"><%= furn.Id %></span></td>
-          <td><span><%= furn.NameText %></span></td>
+          <td><span class="code" style="font-size:14px"><%= String(furn.Id).padStart(6, '0') %></span></td>
+          <td><a href="/furnishings/<%= furn.Id %>" role="button" class="secondary border-light textAlignLeft"><%= furn.NameText %></a></td>
           <td style="font-size:14px;line-height:20px;">
             <span><%= (furn.IsInterior && furn.IsExterior) ? 'Interior & Exterior' : (furn.IsInterior ? 'Interior' : 'Exterior') %></span><br />
             <span><%= furn.CategoryNameText %></span><br />
