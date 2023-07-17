@@ -1283,7 +1283,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   }
 
   async selectFurnitureTypeMap(): Promise<{[typeId: number]: HomeWorldFurnitureTypeExcelConfigData}> {
-    return await cached('FurnitureTypeMap', async () => {
+    return await cached('FurnitureTypeMap_' + this.outputLangCode, async () => {
       const arr: HomeWorldFurnitureTypeExcelConfigData[] = await this.selectAllFurnitureType();
       const map: {[typeId: number]: HomeWorldFurnitureTypeExcelConfigData} = {};
       for (let item of arr) {
@@ -1294,7 +1294,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   }
 
   async selectFurnitureMakeMap(): Promise<{[furnId: number]: FurnitureMakeExcelConfigData}> {
-    return await cached('FurnitureMakeMap', async () => {
+    return await cached('FurnitureMakeMap_' + this.outputLangCode, async () => {
       const makeArr: FurnitureMakeExcelConfigData[] = await this.readExcelDataFile('FurnitureMakeExcelConfigData.json', true);
       const makeMap: {[furnId: number]: FurnitureMakeExcelConfigData} = {};
 
