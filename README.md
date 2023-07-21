@@ -7,7 +7,7 @@
 
 1. Clone the repo from GitHub (`git clone git@github.com:kwwxis/Saccharose.git`)
 2. Run `npm install` in the repo
-3. Copy `.env.example` to new file `.env` and configure it according to the comments.
+3. Copy `.env.example` to new file `.env` and configure it according to the comments and this readme.
 
 ### shell setup
        
@@ -121,6 +121,8 @@ If you don't want to use SSL locally, you can use these settings:
        
 You'll need to repeat this step after every new Genshin Impact version.
 
+It's recommended you install `ts-node` globally with `npm install -g ts-node`
+
 1.  **Obtain data folders for GI/HSR/ZZZ**
    
     * Obtain the GI Data folder and specify the location to it in the `GENSHIN_DATA_ROOT` property of `.env`
@@ -147,35 +149,35 @@ You'll need to repeat this step after every new Genshin Impact version.
 3.  **Import files (plaintext)**
     
     This will create a new folder called Plain at `{DATA_ROOT}/TextMap/Plain` and will fill
-    this folder with files called `PlainTextMap<LangCode>.json` for each language code.<br><br>
+    this folder with files called `PlainTextMap<LangCode>_Hash.dat` and `PlainTextMap<LangCode>_Text.dat`
+    for each language code.<br><br>
     
     * Run with: `ts-node ./src/backend/importer/genshin/import_genshin_files.ts --plaintext`.
     * Run with: `ts-node ./src/backend/importer/hsr/import_hsr_files.ts --plaintext`
     * Run with: `ts-node ./src/backend/importer/zenless/import_zenless_files.ts --plaintext`
 
-4.  **Import files (voice)**
+4.  **Import files (voice) [genshin only]**
     
     This will create or overwrite a file called `voiceItemsNormalized.json` in
     your `GENSHIN_DATA_ROOT` folder.<br><br>
     
     * Run with: `ts-node ./src/backend/importer/genshin/import_genshin_files.ts --voice`.
 
-5.  **Run import_db**
-   
-    This will create or modify a file called`genshin_data.db` in your `GENSHIN_DATA_ROOT` folder.
-    This file is a sqlite database.<br><br>
+5.  **Run import_db for each game**
    
     * Run with: `ts-node ./src/backend/importer/import_db.ts`.
-        * Use the `--help` flag to see your options.
-        * You can use `--run-all` to first time you run it.
-        * Other options such as `--run-only` can regenerate specific tables on the existing database.
+        * Use the `--help` flag to see all the options
+        * Use the `--game` flag with one of these values: `genshin`, `hsr`, `zenless`
+        * You can use `--run-all` to first time you run it
+        * Other options such as `--run-only` can regenerate specific tables on the existing database
 
 6.  **Import files (index)**
     
-    This will create a new folder called Index at `{GENSHIN_DATA_ROOT}/TextMap/Index` and will fill
-    this folder with files called `TextIndex_<Name>.json` for various entities.<br><br>
+    There are various other files to import after importing the database.
     
-    * Run with: `ts-node ./src/backend/importer/genshin/import_genshin_files.ts --index`.
+    * `ts-node ./src/backend/importer/genshin/import_genshin_files.ts --index`
+    * `ts-node ./src/backend/importer/genshin/import_genshin_files.ts --gcg-skill`
+    * `ts-node ./src/backend/importer/genshin/import_genshin_files.ts --fetters`
     
 ## Development
 

@@ -120,3 +120,17 @@
     </div>
   <% } %>
 </section>
+<section class="card">
+  <h2 class="valign">
+    <span>Raw JSON</span>
+    <span class="grow"></span>
+    <button class="secondary" ui-action="toggle: #json-outer">
+      <span class="inactive-only">Show</span>
+      <span class="active-only">Hide</span>
+    </button>
+  </h2>
+  <div id="json-outer" class="content hide">
+      <textarea class="code json w100p autosize" spellcheck="false"
+                translate="no"><%= JSON.stringify(readable, null, 2) %></textarea>
+  </div>
+</section>

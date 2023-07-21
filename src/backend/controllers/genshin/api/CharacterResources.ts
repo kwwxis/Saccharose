@@ -6,7 +6,7 @@ import { fetchCharacterFettersByAvatarId } from '../../../domain/genshin/charact
 const router: Router = create();
 
 router.restful('/character/fetters', {
-  get: async (req: Request, res: Response) => {
+  get: async (req: Request, _res: Response) => {
     const ctrl = getGenshinControl(req);
     const avatarId = toInt(req.query.avatarId);
 
