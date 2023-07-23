@@ -289,7 +289,14 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
       {name: 'help', alias: 'h', type: Boolean, description: 'Display this usage guide.'},
     ];
 
-    const options = commandLineArgs(optionDefinitions);
+    let options: commandLineArgs.CommandLineOptions;
+
+    try {
+      options = commandLineArgs(optionDefinitions);
+    } catch (e) {
+      console.error(chalk.red('\n' + e?.message || e));
+      return;
+    }
 
     if (Object.keys(options).filter(k => k.startsWith('run')).length > 1) {
       console.error(chalk.red('\nThese options are mutually exclusive: --run-only, --run-includes, --run-excludes, --run-all-except, --run-all, --run-vacuum'));

@@ -773,7 +773,8 @@ export const genshinSchema = {
     name: 'GCGTutorialTextExcelConfigData',
     jsonFile: './ExcelBinOutput/GCGTutorialTextExcelConfigData.json',
     columns: [
-      { name: 'TutorialTextId', type: 'integer', isPrimary: true },
+      { name: 'Id', type: 'integer', isPrimary: true },
+      { name: 'TutorialTextId', type: 'integer', isIndex: true },
       { name: 'TutorialTextMapHash', type: 'integer', isIndex: true },
     ],
     normalizeFixFields: {
@@ -1045,6 +1046,7 @@ export const genshinSchema = {
       GKHGDCBALPE: 'CardFaceIdList',
       PEBMEKJKGOB: 'StoryContextTextMapHash',
       FLLIMNKBNNC: 'SourceTextMapHash',
+      BENFOJNLODC: 'RelatedCharacterId'
     },
   },
   GCGProficiencyRewardExcelConfigData: <SchemaTable>{

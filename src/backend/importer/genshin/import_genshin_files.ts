@@ -18,6 +18,7 @@ import { fetchCharacterFetters } from '../../domain/genshin/character/fetchChara
 import { normalizeRawJson, SchemaTable } from '../import_db';
 import { genshinSchema } from './genshin.schema';
 import { translateSchema } from '../translate_schema';
+import { sort } from '../../../shared/util/arrayUtil';
 
 async function importGcgSkill() {
   const outDir = process.env.GENSHIN_DATA_ROOT;
@@ -273,6 +274,212 @@ async function translateExcel(outputDirectory: string) {
   console.log('Done');
 }
 
+function *walkSync(dir): Generator<string> {
+  const files = fs.readdirSync(dir, { withFileTypes: true });
+  for (const file of files) {
+    if (file.isDirectory()) {
+      yield* walkSync(path.join(dir, file.name));
+    } else {
+      yield path.join(dir, file.name);
+    }
+  }
+}
+
+async function importMakeExcels() {
+  const binOutputPath = getGenshinDataFilePath('./BinOutput');
+  const excelDirPath = getGenshinDataFilePath('./ExcelBinOutput');
+
+  const binOutputQuestPath = path.resolve(binOutputPath, './Quest');
+  const binOutputTalkPath = path.resolve(binOutputPath, './Talk');
+
+  const mainQuestExcelArray = [];
+  const questExcelArray = [];
+  const talkExcelArray = [];
+  const dialogExcelArray = [];
+
+  const mainQuestById: {[id: string]: any} = {};
+  const questExcelById: {[id: string]: any} = {};
+  const talkExcelById: {[id: string]: any} = {};
+  const dialogExcelById: {[id: string]: any} = {};
+
+  // ----------------------------------------------------------------------
+  // Enqueue Functions
+
+  function enqueueMainQuestExcel(obj: any) {
+    if (!obj) {
+      return;
+    }
+    if (mainQuestById[obj.id]) {
+      console.log('Got duplicate of main quest ' + obj.id);
+      Object.assign(mainQuestById[obj.id], obj);
+      return;
+    }
+    obj = Object.assign({}, obj);
+    delete obj['talks'];
+    delete obj['dialogList'];
+    delete obj['subQuests'];
+    mainQuestExcelArray.push(obj);
+    mainQuestById[obj.id] = obj;
+
+  }
+
+  function enqueueQuestExcel(obj: any) {
+    if (!obj) {
+      return;
+    }
+    if (questExcelById[obj.subId]) {
+      console.log('Got duplicate of quest ' + obj.subId);
+      Object.assign(questExcelById[obj.subId], obj);
+      return;
+    }
+    questExcelArray.push(obj);
+    questExcelById[obj.subId] = obj;
+  }
+
+  function enqueueTalkExcel(obj: any) {
+    if (!obj) {
+      return;
+    }
+    if (talkExcelById[obj.id]) {
+      console.log('Got duplicate of talk ' + obj.id);
+      Object.assign(talkExcelById[obj.id], obj);
+      return;
+    }
+    talkExcelArray.push(obj);
+    talkExcelById[obj.id] = obj;
+  }
+
+  function enqueueDialogExcel(obj: any, extraProps: any = {}) {
+    if (!obj) {
+      return;
+    }
+    if (dialogExcelById[obj.id]) {
+      console.log('Got duplicate of dialog ' + obj.id);
+      Object.assign(dialogExcelById[obj.id], obj);
+      return;
+    }
+    dialogExcelArray.push(Object.assign(obj, extraProps));
+    dialogExcelById[obj.id] = obj;
+  }
+
+  // ----------------------------------------------------------------------
+  // Process Functions
+
+  function processJsonObject(json: any) {
+    if (!json) {
+      return;
+    }
+    if (json.initDialog) {
+      enqueueTalkExcel(json);
+    }
+    if (json.talkRole) {
+      enqueueDialogExcel(json);
+    }
+    if (Array.isArray(json.dialogList)) {
+      let extraProps: any = {};
+      if (json.talkId) {
+        extraProps.talkId = json.talkId;
+      }
+      if (json.type) {
+        extraProps.talkType = json.type;
+      }
+      json.dialogList.forEach(obj => enqueueDialogExcel(obj, extraProps));
+    }
+    if (Array.isArray(json.talks)) {
+      json.talks.forEach(obj => enqueueTalkExcel(obj));
+    }
+    if (Array.isArray(json.subQuests)) {
+      json.subQuests.forEach(obj => enqueueQuestExcel(obj));
+    }
+  }
+
+  // ----------------------------------------------------------------------
+  // Process Loop Stage
+
+  for (let fileName of walkSync(binOutputQuestPath)) {
+    if (!fileName.endsWith('.json')) {
+      continue;
+    }
+    let json = await fsp.readFile(fileName, {encoding: 'utf8'}).then(data => JSON.parse(data));
+    processJsonObject(json);
+    enqueueMainQuestExcel(json);
+  }
+  for (let fileName of walkSync(binOutputTalkPath)) {
+    if (!fileName.endsWith('.json')) {
+      continue;
+    }
+    let json = await fsp.readFile(fileName, {encoding: 'utf8'}).then(data => JSON.parse(data));
+    processJsonObject(json);
+    if (json.id && json.type && json.subQuests) {
+      enqueueMainQuestExcel(json);
+    }
+  }
+
+  // ----------------------------------------------------------------------
+  // Sort Stage
+
+  console.log('Sorting MainQuestExcelConfigData');
+  sort(mainQuestExcelArray, 'id');
+
+  console.log('Sorting QuestExcelConfigData');
+  sort(questExcelArray, 'id');
+
+  console.log('Sorting TalkExcelConfigData');
+  sort(talkExcelArray, 'id');
+
+  console.log('Sorting DialogExcelConfigData');
+  sort(dialogExcelArray, 'id');
+
+  // ----------------------------------------------------------------------
+  // Verify Stage
+
+  const generatedMainQuestIds: Set<number> = new Set(mainQuestExcelArray.map(x => x.id));
+  const generatedQuestIds: Set<number> = new Set(questExcelArray.map(x => x.subId));
+  const generatedTalkIds: Set<number> = new Set(talkExcelArray.map(x => x.id));
+  const generatedDialogIds: Set<number> = new Set(dialogExcelArray.map(x => x.id));
+
+  let verifyMainQuestIds: number[] = await fsp.readFile(path.resolve(excelDirPath, './MainQuestExcelConfigData.json'), {encoding: 'utf8'})
+    .then(data => JSON.parse(data)).then(arr => arr.map(x => x.id || x.Id));
+
+  let verifyQuestIds: number[] = await fsp.readFile(path.resolve(excelDirPath, './QuestExcelConfigData.json'), {encoding: 'utf8'})
+    .then(data => JSON.parse(data)).then(arr => arr.map(x => x.subId || x.SubId));
+
+  let verifyTalkIds: number[] = await fsp.readFile(path.resolve(excelDirPath, './TalkExcelConfigData.json'), {encoding: 'utf8'})
+    .then(data => JSON.parse(data)).then(arr => arr.map(x => x.id || x.Id));
+
+  let verifyDialogIds: number[] = await fsp.readFile(path.resolve(excelDirPath, './DialogExcelConfigData.json'), {encoding: 'utf8'})
+    .then(data => JSON.parse(data)).then(arr => arr.map(x => x.id || x.Id || x['GFLDJMJKIKE']));
+
+  verifyMainQuestIds = verifyMainQuestIds.filter(id => !generatedMainQuestIds.has(id));
+  verifyQuestIds = verifyQuestIds.filter(id => !generatedQuestIds.has(id));
+  verifyTalkIds = verifyTalkIds.filter(id => !generatedTalkIds.has(id));
+  verifyDialogIds = verifyDialogIds.filter(id => !generatedDialogIds.has(id));
+
+  console.log('Missing Main Quest IDs:', verifyMainQuestIds);
+  console.log('Missing Quest IDs:', verifyQuestIds);
+  console.log('Missing Talk IDs:', verifyTalkIds);
+  console.log('Missing Dialog IDs:', verifyDialogIds);
+
+  // ----------------------------------------------------------------------
+  // Write Stage
+
+  console.log('Writing to MainQuestExcelConfigData');
+  fs.writeFileSync(path.resolve(excelDirPath, './MainQuestExcelConfigData.json'), JSON.stringify(mainQuestExcelArray, null, 2));
+
+  console.log('Writing to QuestExcelConfigData');
+  fs.writeFileSync(path.resolve(excelDirPath, './QuestExcelConfigData.json'), JSON.stringify(questExcelArray, null, 2));
+
+  console.log('Writing to TalkExcelConfigData');
+  fs.writeFileSync(path.resolve(excelDirPath, './TalkExcelConfigData.json'), JSON.stringify(talkExcelArray, null, 2));
+
+  console.log('Writing to DialogExcelConfigData');
+  fs.writeFileSync(path.resolve(excelDirPath, './DialogExcelConfigData.json'), JSON.stringify(dialogExcelArray, null, 2));
+
+  // ----------------------------------------------------------------------
+
+  console.log('Done');
+}
+
 async function maximizeImages() {
   let dupeSet: string[] = [];
   let dupeKey: string = null;
@@ -419,6 +626,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
       {name: 'voice', type: Boolean, description: 'Creates the normalized voice items file.'},
       {name: 'gcg-skill', type: Boolean, description: 'Creates file for GCG skill data'},
       {name: 'fetters', type: Boolean, description: 'Creates file for character fetters data'},
+      {name: 'make-excels', type: Boolean, description: 'Creates some of the excels that are no longer updated by the game client'},
       {name: 'translate-schema', type: Boolean, description: 'Creates the SchemaTranslation file.'},
       {name: 'translate-excel', type: String, description: 'Translate excel to output directory. Requires translate-schema to be completed first.'},
       {name: 'maximize-images', type: Boolean, description: 'Compares images with duplicate names to choose the image with the largest size.'},
@@ -479,6 +687,9 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     }
     if (options['maximize-images']) {
       await maximizeImages();
+    }
+    if (options['make-excels']) {
+      await importMakeExcels();
     }
 
     await closeKnex();
