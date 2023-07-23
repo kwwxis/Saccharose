@@ -345,6 +345,14 @@ async function importMakeExcels() {
       Object.assign(talkExcelById[obj.id], obj);
       return;
     }
+
+    if (!obj.nextTalks) {
+      obj.nextTalks = [];
+    }
+    if (!obj.npcId) {
+      obj.npcId = [];
+    }
+
     talkExcelArray.push(obj);
     talkExcelById[obj.id] = obj;
   }
@@ -358,6 +366,14 @@ async function importMakeExcels() {
       Object.assign(dialogExcelById[obj.id], obj);
       return;
     }
+
+    if (!obj.nextDialogs) {
+      obj.nextDialogs = [];
+    }
+    if (!obj.talkRole) {
+      obj.talkRole = {};
+    }
+
     dialogExcelArray.push(Object.assign(obj, extraProps));
     dialogExcelById[obj.id] = obj;
   }

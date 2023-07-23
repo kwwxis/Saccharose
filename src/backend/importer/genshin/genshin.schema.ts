@@ -13,7 +13,7 @@ import { SchemaTable, textMapSchema, plainLineMapSchema } from '../import_db';
 import { getGenshinDataFilePath } from '../../loadenv';
 import fs from 'fs';
 
-export const RAW_DIALOG_EXCEL_ID_PROP: string = 'GFLDJMJKIKE';
+export const RAW_DIALOG_EXCEL_ID_PROP: string = 'id';
 export const RAW_TALK_EXCEL_ID_PROP: string = 'id';
 export const RAW_MANUAL_TEXTMAP_ID_PROP: string = 'textMapId';
 
