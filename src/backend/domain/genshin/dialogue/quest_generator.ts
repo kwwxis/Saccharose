@@ -364,7 +364,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
   // Rewards
   // -------
   debug('Generating rewards');
-  let rewards: RewardExcelConfigData[] = await Promise.all(mainQuest.RewardIdList.map(rewardId => ctrl.selectRewardExcelConfigData(rewardId)));
+  let rewards: RewardExcelConfigData[] = await Promise.all((mainQuest.RewardIdList || []).map(rewardId => ctrl.selectRewardExcelConfigData(rewardId)));
   result.reward = ctrl.combineRewardExcelConfigData(... rewards);
   result.reputation = await ctrl.selectReputationQuestExcelConfigData(mainQuest.Id);
 
