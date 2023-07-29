@@ -383,10 +383,9 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       grepFlags = '-rn';
     }
 
-    let results = await grep(grepQuery, this.getDataFilePath(this.excelPath), grepFlags);
-    for (let result of results) {
+    await grepStream(grepQuery, this.getDataFilePath(this.excelPath), async (result) => {
       if (decimalRegex.test(result)) {
-        continue;
+        return;
       }
 
       let exec = /\/([^\/]+).json:(\d+)/.exec(result);
@@ -419,7 +418,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
           refObject: refObject,
         });
       }
-    }
+    }, grepFlags);
 
     return out;
   }

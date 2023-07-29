@@ -6,7 +6,7 @@ import { inspectDataFile, InspectOpt } from '../inspect_file_util';
 const excel = (file: string) => `./ExcelBinOutput/${file}.json`;
 
 const presets = {
-  DialogExcelConfigData: <InspectOpt> { file: excel('DialogExcelConfigData'), inspectFieldValues: ['TalkRole.Type'] },
+  DialogExcelConfigData: <InspectOpt> { file: excel('DialogExcelConfigData'), inspectFieldValues: ['TalkRole.Type', 'Type'] },
   MaterialExcelConfigData: <InspectOpt> { file: excel('MaterialExcelConfigData'), inspectFieldValues: ['MaterialType', 'ItemType', 'UseTarget', 'ItemUse[#ALL].UseOp'] },
   CityConfigData: <InspectOpt> { file: excel('CityConfigData') },
   DungeonExcelConfigData: <InspectOpt> { file: excel('DungeonExcelConfigData'), inspectFieldValues: ['Type', 'SubType', 'InvolveType', 'SettleUIType', 'SettleShows[#ALL]', 'RecommendElementTypes[#ALL]', 'StateType', 'PlayType'] },
@@ -42,7 +42,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
     const ctrl = getGenshinControl();
     //await inspectDataFile(ctrl, presets.CookRecipeExcelConfigData);
-    await inspectDataFile(ctrl, presets.GCGTagExcelConfigData);
+    await inspectDataFile(ctrl, presets.CookRecipeExcelConfigData);
 
     await closeKnex();
   })();

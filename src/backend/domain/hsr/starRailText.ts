@@ -1,5 +1,7 @@
 import { LangCode } from '../../../shared/types/lang-types';
 import { genericNormText, mergeMcTemplate, NormTextOptions } from '../generic/genericNormalizers';
+import { TextJoinConfig, TextJoinItem } from '../../../shared/types/hsr/hsr-misc-types';
+import { getStarRailControl } from './starRailControl';
 
 function __trailblazerPlaceholder(langCode: LangCode = 'EN', degender: boolean = false): string {
   switch (langCode) {
@@ -64,6 +66,14 @@ export function __normStarRailText(text: string, langCode: LangCode, opts: NormT
     text = text.replace(/<color=(#[0-9a-fA-F]{6})FF>(.*?)<\/color>/g, '{{color|$1|$2}}');
   }
 
+  text = text.replace(/\{TEXTJOIN#(\d+)}/g, (fm: string, g: string) => {
+    const id = parseInt(g);
+    if (!textJoinConfigMap[id]) {
+      return fm;
+    }
+    return '(' + textJoinConfigMap[id].TextJoinItemListMapped.map(x => x.TextJoinTextMap[langCode]).join('/') + ')';
+  });
+
   if (text.includes('{RUBY')) {
     text = text.replace(/\{RUBY_B#(.*?)}(.*?)\{RUBY_E#}/g, '{{Rubi|$2|$1}}');
   }
@@ -75,4 +85,24 @@ export function __normStarRailText(text: string, langCode: LangCode, opts: NormT
   text = mergeMcTemplate(text, langCode, opts.plaintext)
 
   return text;
+}
+
+const textJoinConfigMap: {[id: number]: TextJoinConfig} = {};
+
+export async function loadStarRailTextJoin() {
+  const ctrl = getStarRailControl();
+  const textJoinItems: TextJoinItem[] = await ctrl.readExcelDataFile('TextJoinItem.json');
+  const textJoinItemMap: {[id: number]: TextJoinItem} = {};
+
+  for (let textJoinItem of textJoinItems) {
+    textJoinItem.TextJoinTextMap = await ctrl.createLangCodeMap(textJoinItem.TextJoinTextMapHash);
+    textJoinItemMap[textJoinItem.TextJoinItemId] = textJoinItem;
+  }
+
+  const textJoinConfigList: TextJoinConfig[] = await ctrl.readExcelDataFile('TextJoinConfig.json');
+
+  for (let textJoinConfig of textJoinConfigList) {
+    textJoinConfig.TextJoinItemListMapped = textJoinConfig.TextJoinItemList.map(id => textJoinItemMap[id]);
+    textJoinConfigMap[textJoinConfig.TextJoinId] = textJoinConfig;
+  }
 }

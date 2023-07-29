@@ -6,7 +6,7 @@ import { genshinSchema } from '../../../importer/genshin/genshin.schema';
 
 export const SPRITE_TAGS: { [spriteId: number]: SpriteTagExcelConfigData } = {};
 
-export async function loadSpriteTags(): Promise<void> {
+export async function loadGenshinSpriteTags(): Promise<void> {
   let filePath = getGenshinDataFilePath('./ExcelBinOutput/SpriteTagExcelConfigData.json');
   let result: SpriteTagExcelConfigData[] = await fs.readFile(filePath, { encoding: 'utf8' }).then(data => {
     let rows = JSON.parse(data);

@@ -1,3 +1,4 @@
+import { LangCodeMap } from '../lang-types';
 
 export interface LoadingDesc {
   Id: number,
@@ -14,4 +15,18 @@ export interface LoadingDesc {
   MinLevel: number,
   MissionId: number,
   Weight: number,
+}
+
+export interface TextJoinConfig {
+  TextJoinId: number,
+  DefaultItem: number,
+  TextJoinItemList: number[],
+  TextJoinItemListMapped?: TextJoinItem[],
+}
+
+export interface TextJoinItem {
+  TextJoinItemId: number,
+  TextJoinTextMapHash: number
+  TextJoinText: string,
+  TextJoinTextMap: LangCodeMap,
 }

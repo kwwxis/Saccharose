@@ -3,7 +3,7 @@ import path from 'path';
 import webpack from 'webpack';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import { CleanWebpackPlugin } from 'clean-webpack-plugin';
-import sass from 'sass';
+import * as sass from 'sass';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 

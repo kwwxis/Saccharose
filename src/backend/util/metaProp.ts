@@ -28,6 +28,10 @@ export class MetaProp {
     }
   }
 
+  getValue(idx: number) {
+    return this.values[idx];
+  }
+
   addValues(values: MetaPropAcceptValue, link?: string): this {
     const getLink = (v: string|number, overrideLink?: string) => {
       if (!overrideLink) {

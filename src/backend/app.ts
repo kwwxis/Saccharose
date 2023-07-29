@@ -20,9 +20,10 @@ import defaultResponseHeaders from './middleware/response/defaultResponseHeaders
 import { PUBLIC_DIR, VIEWS_ROOT } from './loadenv';
 import { csrfMiddleware } from './middleware/request/csrf';
 import { pageLoadErrorHandler } from './middleware/response/globalErrorHandler';
-import { loadSpriteTags } from './domain/genshin/misc/spriteTags';
+import { loadGenshinSpriteTags } from './domain/genshin/misc/spriteTags';
 import { loadGenshinVoiceItems } from './domain/genshin/genshinControl';
 import { loadStarRailVoiceItems } from './domain/hsr/starRailControl';
+import { loadStarRailTextJoin } from './domain/hsr/starRailText';
 
 const app: Express = express();
 let didInit: boolean = false;
@@ -47,7 +48,8 @@ export async function appInit(): Promise<Express> {
   openKnex();
   await loadGenshinVoiceItems();
   await loadStarRailVoiceItems();
-  await loadSpriteTags();
+  await loadGenshinSpriteTags();
+  await loadStarRailTextJoin();
 
   // Serve static directories
   // ~~~~~~~~~~~~~~~~~~~~~~~~

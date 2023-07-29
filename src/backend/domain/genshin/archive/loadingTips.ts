@@ -81,6 +81,7 @@ export function generateLoadingTipsWikiText(ctrl: GenshinControl, tipsByCategory
 
     let firstTip: boolean = true;
     let prevTitle: string = null;
+
     for (let tip of tips) {
       if (limitTipToIds && !limitTipToIds.includes(tip.Id)) {
         continue;
@@ -112,6 +113,7 @@ async function createLoadingTipsByCategoryObject(ctrl: GenshinControl): Promise<
     'Serenitea Pot',
     'Golden Apple Archipelago',
     'Three Realms Gateway Offering',
+    'Veluriyam Mirage',
     'General',
   ];
 
@@ -147,7 +149,7 @@ export async function selectLoadingTips(ctrl: GenshinControl): Promise<LoadingTi
   }
 
   for (let cat of Object.keys(ret)) {
-    ret[cat] = sort(ret[cat], 'TipsTitleText', 'Id');
+    ret[cat] = sort(ret[cat], 'TipsTitleText', 'TipsDescText');
   }
 
   return ret;

@@ -1045,15 +1045,18 @@ export class GCGControl {
           }
         });
 
+        const talker = talkDetail.Avatar?.NameText || parentSect.getMetaProp('Enemy Name')?.getValue(0)?.value;
+
         if (talkDetail.TalkContentText.length === 1) {
-          sect.wikitext = `${talkDetail.VoPrefix}${this.ctrl.normText(talkDetail.TalkContentText[0], this.ctrl.outputLangCode)}`;
+          const talkDetailVo = talkDetail.VoPrefix ? talkDetail.VoPrefix + ' ' : '';
+          sect.wikitext = `:${talkDetailVo}'''${talker}''': ` + this.ctrl.normText(talkDetail.TalkContentText[0], this.ctrl.outputLangCode);
         } else {
           let texts = [];
           if (talkDetail.VoPrefix) {
-            texts.push(talkDetail.VoPrefix);
+            texts.push(':'+talkDetail.VoPrefix);
           }
           for (let text of talkDetail.TalkContentText) {
-            texts.push(this.ctrl.normText(text, this.ctrl.outputLangCode));
+            texts.push(`:'''${talker}''': ` + this.ctrl.normText(text, this.ctrl.outputLangCode));
           }
           if (texts.length) {
             sect.wikitextArray.push({

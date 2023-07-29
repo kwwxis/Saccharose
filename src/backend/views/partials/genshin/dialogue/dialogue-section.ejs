@@ -40,7 +40,7 @@
                 ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
                 style="margin:0 0 5px">Copy</button>
         <% if (children && children.length) { %>
-          <button class="secondary small" ui-action="copy-all: #wikitext-<%= id %>, .wikitext-childOf-<%= id %>; copy-sep: \n"
+          <button class="secondary small" ui-action="copy-all: #wikitext-<%= id %>, .wikitext-array-<%= id %>, .wikitext-childOf-<%= id %>; copy-sep: \n"
                   ui-tippy-hover="Click to copy to clipboard (including child sections)"
                   ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
                   style="margin:0 0 5px 5px; white-space: nowrap;">Copy All</button>
@@ -59,30 +59,44 @@
       <div class="dialogue-section-info-message"><%- htmlMessage %></div>
     <% } %>
     <% if (locals.wikitext) { %>
-      <textarea readonly id="wikitext-<%= id %>" class="wikitext dialogue-section-wikitext w100p autosize <%= (locals.parentIds || []).map(s => 'wikitext-childOf-' + s).join(' ') %>"
-                data-gutters="<%= locals.showGutter ? 'true' : 'false' %>" data-markers="<%= Marker.joinedString(locals.wikitextMarkers) %>"
-                style="resize:vertical;min-height:40px;" spellcheck="false" translate="no"><%= wikitext %></textarea>
+      <textarea readonly
+                id="wikitext-<%= id %>"
+                class="wikitext dialogue-section-wikitext w100p autosize <%= (locals.parentIds || []).map(s => 'wikitext-childOf-' + s).join(' ') %>"
+                data-gutters="<%= locals.showGutter ? 'true' : 'false' %>"
+                data-markers="<%= Marker.joinedString(locals.wikitextMarkers) %>"
+                style="resize:vertical;min-height:40px;"
+                spellcheck="false"
+                translate="no"><%= wikitext %></textarea>
     <% } %>
     <% if (locals.wikitextArray) { %>
       <% wikitextArray.forEach((item, idx) => { %>
-        <% if (item.title) { %>
-          <div class="valign">
-            <strong class="spacer5-top"><%= item.title %></strong>
-            <div class="grow"></div>
-            <button class="secondary small" ui-action="copy: #wikitext-<%= id %>-<%= idx %>"
-                    ui-tippy-hover="Click to copy to clipboard"
-                    ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
-                    style="margin:0 0 5px">Copy</button>
-          </div>
-        <% } %>
-        <textarea readonly id="wikitext-<%= id %>-<%= idx %>" class="wikitext wikitext-array-<%= id %> dialogue-section-wikitext w100p autosize"
-                  data-gutters="<%= locals.showGutter ? 'true' : 'false' %>" data-markers="<%= Marker.joinedString(item.markers) %>"
-                  style="resize:vertical;min-height:40px;" spellcheck="false" translate="no"><%= item.wikitext %></textarea>
+        <div class="valign">
+          <h4 class="spacer5-top"><%= item.title || `Array Item ${idx + 1}` %></h4>
+          <div class="grow"></div>
+          <button class="secondary small" ui-action="copy: #wikitext-<%= id %>-<%= idx %>"
+                  ui-tippy-hover="Click to copy to clipboard"
+                  ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
+                  style="margin:0 0 5px">Copy</button>
+          <button class="dialogue-indent-button secondary small plus" ui-tippy-hover="Increase indent"
+                  ui-action="wikitext-indent: #wikitext-<%= id %>-<%= idx %>, increase"
+                  style="margin:0 0 5px 5px"><%- icon('plus', 16) %></button>
+          <button class="dialogue-indent-button secondary small minus" ui-tippy-hover="Decrease indent"
+                  ui-action="wikitext-indent: #wikitext-<%= id %>-<%= idx %>, decrease"
+                  style="margin:0 0 5px 0"><%- icon('minus', 16) %></button>
+        </div>
+        <textarea readonly
+                  id="wikitext-<%= id %>-<%= idx %>"
+                  class="wikitext wikitext-array-<%= id %> dialogue-section-wikitext w100p autosize <%= (locals.parentIds || []).map(s => 'wikitext-childOf-' + s).join(' ') %>"
+                  data-gutters="<%= locals.showGutter ? 'true' : 'false' %>"
+                  data-markers="<%= Marker.joinedString(item.markers) %>"
+                  style="resize:vertical;min-height:40px;"
+                  spellcheck="false"
+                  translate="no"><%= item.wikitext %></textarea>
       <% }) %>
     <% } %>
     <div class="dialogue-section-children">
       <% children.forEach(section => { %>
-        <%- include('partials/genshin/dialogue/dialogue-section', Object.assign(section, {parentIds: (locals.parentIds || []).concat(id) })) %>
+        <%- use('partials/genshin/dialogue/dialogue-section', Object.assign(section, {parentIds: (locals.parentIds || []).concat(id) })) %>
       <% }) %>
     </div>
   </div>

@@ -318,6 +318,20 @@ async function importMakeExcels() {
     delete obj['talks'];
     delete obj['dialogList'];
     delete obj['subQuests'];
+
+    if (!obj.rewardIdList) {
+      obj.rewardIdList = [];
+    }
+    if (!obj.suggestTrackMainQuestList) {
+      obj.suggestTrackMainQuestList = [];
+    }
+    if (!obj.specialShowRewardId) {
+      obj.specialShowRewardId = [];
+    }
+    if (!obj.specialShowCondIdList) {
+      obj.specialShowCondIdList = [];
+    }
+
     mainQuestExcelArray.push(obj);
     mainQuestById[obj.id] = obj;
 
