@@ -225,6 +225,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       return [];
     }
 
+    const hashSeen: Set<TextMapHash> = new Set();
     const out: {hash: TextMapHash, text: string, line: number}[] = [];
 
     {
@@ -247,6 +248,13 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
         continue;
 
       const textMapHash: TextMapHash = await this.getTextMapHashFromPlainLineMap(langCode, lineNum);
+
+      if (hashSeen.has(textMapHash)) {
+        continue;
+      } else {
+        hashSeen.add(textMapHash);
+      }
+
       out.push({ hash: textMapHash, text: await this.getTextMapItem(langCode, textMapHash), line: lineNum });
     }
     return out;
@@ -261,6 +269,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     const textIndexFile = getTextIndexRelPath(textIndexName);
     const promises: Promise<void>[] = [];
     const batchMax = 100;
+    const hashSeen: Set<TextMapHash> = new Set();
 
     let batch = [];
 
@@ -276,6 +285,11 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
           let parts = /"(.*?)":\s+(\d+),?$/.exec(match);
           let textMapHash = maybeInt(parts[1]);
           let entityId = toInt(parts[2]);
+          if (hashSeen.has(textMapHash)) {
+            continue;
+          } else {
+            hashSeen.add(textMapHash);
+          }
           stream(entityId, textMapHash);
         }
       })());
@@ -303,6 +317,8 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       return 0;
     }
 
+    const hashSeen: Set<TextMapHash> = new Set();
+
     if (isInt(searchText.trim())) {
       let didKill = false;
       const hash = maybeInt(searchText.trim());
@@ -327,6 +343,12 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
 
       const textMapHash: TextMapHash = await this.getTextMapHashFromPlainLineMap(langCode, lineNum);
       const text: string = await this.getTextMapItem(langCode, textMapHash);
+
+      if (hashSeen.has(textMapHash)) {
+        return;
+      } else {
+        hashSeen.add(textMapHash);
+      }
       stream(textMapHash, text, kill);
     }, flags + ' -n');
   }
