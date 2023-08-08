@@ -1,6 +1,7 @@
-import { isEmpty, isUnset } from './genericUtil';
+import { isEmpty, isNotEmpty, isPromise, isset, isUnset } from './genericUtil';
 import { isStringBlank, trim } from './stringUtil';
 import { isInt } from './numberUtil';
+import { ArrayElement, KeysMatching, NonArray } from '../types/utility-types';
 
 export type SortComparator<T> = (a: T, b: T) => number;
 export type ElementComparator<T> = (arrayElement: T, expectedElement: T) => boolean;
@@ -105,6 +106,100 @@ export function resolveObjectPath(o: any, s: string, mode: 'get' | 'set' | 'dele
   return o;
 }
 
+export class ArrayStream<T> {
+  private arr: T[] = [];
+  private promiseChain: Promise<any> = Promise.resolve();
+
+  constructor(arr: T[]|Promise<T[]>) {
+    if (isPromise(arr)) {
+      this.chain(async () => {
+        this.arr = await arr;
+      });
+    } else {
+      this.arr = arr;
+    }
+  }
+
+  private chain(fn: () => void|Promise<any>) {
+    this.promiseChain = this.promiseChain.then(fn);
+  }
+
+  retain(fn: 'isset' | 'nonEmpty' | ((v: T) => boolean) = 'nonEmpty'): this {
+    this.chain(() => {
+      let cb: (v: T) => boolean = undefined;
+      if (fn === 'isset') {
+        cb = v => isset(v);
+      } else if (fn === 'nonEmpty') {
+        cb = v => isNotEmpty(v);
+      } else {
+        cb = fn;
+      }
+      this.arr = this.arr.filter(cb);
+    });
+    return this;
+  }
+
+  mappingVector<A extends KeysMatching<T, Array<any>>, B extends KeysMatching<T, Array<any>>>
+  (inProp: A, outProp: B, mapper: (value: ArrayElement<T[A]>) => ArrayElement<T[B]>|Promise<ArrayElement<T[B]>>): this {
+    this.chain(() => {
+      let myPromises: Promise<any>[] = [];
+      for (let item of this.arr) {
+        if (Array.isArray(item[inProp])) {
+          let newArray = [];
+
+          (<any[]> item[inProp]).forEach((arrItem: any, arrIdx: number) => {
+            let ret = mapper(arrItem);
+            if (isPromise(ret)) {
+              myPromises.push(ret.then(pRet => newArray[arrIdx] = pRet));
+            } else {
+              newArray[arrIdx] = ret;
+            }
+          });
+
+          item[outProp] = <any> newArray;
+        } else {
+          item[outProp] = <any> item[inProp];
+        }
+      }
+      return Promise.all(myPromises);
+    });
+    return this;
+  }
+
+  mappingScalar<A extends KeysMatching<T, NonArray>, B extends KeysMatching<T, NonArray>>
+  (inProp: A, outProp: B, mapper: (value: T[A]) => T[B]|Promise<T[B]>): this {
+    this.chain(() => {
+      let myPromises: Promise<any>[] = [];
+      for (let item of this.arr) {
+        let ret = mapper(item[inProp]);
+
+        if (isPromise(ret)) {
+          myPromises.push(ret.then(pRet => item[outProp] = <any> pRet));
+        } else {
+          item[outProp] = <any> ret;
+        }
+      }
+      return Promise.all(myPromises);
+    })
+    return this;
+  }
+
+  async toArray(): Promise<T[]> {
+    return this.promiseChain.then(() => this.arr);
+  }
+
+  async toMap<K extends KeysMatching<T, string | number>>(keyProp: K, out?: { [key: string|number]: T }): Promise<{ [key: string|number]: T }> {
+    return this.promiseChain.then(() => {
+      out = out || {};
+      for (let item of this.arr) {
+        let k: number|string = <any> item[keyProp];
+        out[k] = item;
+      }
+      return out;
+    });
+  }
+}
+
 export function groupBy<T>(array: T[], property: string): { [groupedBy: string]: T[] } {
     let grouped = {};
     for (let obj of array) {
@@ -114,6 +209,15 @@ export function groupBy<T>(array: T[], property: string): { [groupedBy: string]:
         grouped[obj[property]].push(obj);
     }
     return grouped;
+}
+
+export function toMap<T, K extends KeysMatching<T, string | number>>(array: T[], keyProp: K, out?: { [key: string|number]: T }): { [key: string|number]: T } {
+  out = out || {};
+  for (let item of array) {
+    let k: number|string = <any> item[keyProp];
+    out[k] = item;
+  }
+  return out;
 }
 
 export function compare<T>(a: T, b: T, field?: string|SortComparator<T>, nullsLast: boolean = false): number {

@@ -2,6 +2,7 @@ import { LangCode } from '../../../shared/types/lang-types';
 import { genericNormText, mergeMcTemplate, NormTextOptions } from '../generic/genericNormalizers';
 import { TextJoinConfig, TextJoinItem } from '../../../shared/types/hsr/hsr-misc-types';
 import { getStarRailControl } from './starRailControl';
+import { toMap, ArrayStream } from '../../../shared/util/arrayUtil';
 
 function __trailblazerPlaceholder(langCode: LangCode = 'EN', degender: boolean = false): string {
   switch (langCode) {
@@ -89,20 +90,18 @@ export function __normStarRailText(text: string, langCode: LangCode, opts: NormT
 
 const textJoinConfigMap: {[id: number]: TextJoinConfig} = {};
 
-export async function loadStarRailTextJoin() {
+export async function loadStarRailTextSupportingData() {
+  console.log('[Init:Data] Loading HSR-supporting text data -- starting...');
+
   const ctrl = getStarRailControl();
-  const textJoinItems: TextJoinItem[] = await ctrl.readExcelDataFile('TextJoinItem.json');
-  const textJoinItemMap: {[id: number]: TextJoinItem} = {};
 
-  for (let textJoinItem of textJoinItems) {
-    textJoinItem.TextJoinTextMap = await ctrl.createLangCodeMap(textJoinItem.TextJoinTextMapHash);
-    textJoinItemMap[textJoinItem.TextJoinItemId] = textJoinItem;
-  }
+  const textJoinItemMap = await ctrl.readExcelDataFileToStream<TextJoinItem>('TextJoinItem.json')
+    .mappingScalar('TextJoinTextMapHash', 'TextJoinTextMap', hash => ctrl.createLangCodeMap(hash))
+    .toMap('TextJoinItemId');
 
-  const textJoinConfigList: TextJoinConfig[] = await ctrl.readExcelDataFile('TextJoinConfig.json');
+  await ctrl.readExcelDataFileToStream<TextJoinConfig>('TextJoinConfig.json')
+    .mappingVector('TextJoinItemList', 'TextJoinItemListMapped', id => textJoinItemMap[id])
+    .toMap('TextJoinId', textJoinConfigMap);
 
-  for (let textJoinConfig of textJoinConfigList) {
-    textJoinConfig.TextJoinItemListMapped = textJoinConfig.TextJoinItemList.map(id => textJoinItemMap[id]);
-    textJoinConfigMap[textJoinConfig.TextJoinId] = textJoinConfig;
-  }
+  console.log('[Init:Data] Loading HSR-supporting text data -- Done!');
 }

@@ -24,6 +24,8 @@ import { escapeRegExp, isStringBlank } from '../../shared/util/stringUtil';
 import { isInt, maybeInt, toInt } from '../../shared/util/numberUtil';
 import { getLineNumberForLineText, grep, grepStream } from '../util/shellutil';
 import { NormTextOptions } from './generic/genericNormalizers';
+import { ExtractScalar } from '../../shared/types/utility-types';
+import { ArrayStream } from '../../shared/util/arrayUtil';
 
 export abstract class AbstractControlState {
   public request: Request = null;
@@ -151,15 +153,8 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     if (this.disabledLangCodes.has(langCode)) {
       return null;
     }
-    let text = await this.knex.select('Text').from('TextMap'+langCode)
+    return await this.knex.select('Text').from('TextMap'+langCode)
       .where({Hash: hash}).first().then(x => x?.Text);
-
-    if (text && text.includes('REGEX#')) {
-      text = text.replace(/\{REGEX#OVERSEA\[Server_BrandTips_Oversea.*?}/, await this.getTextMapItem(langCode, 2874657049));
-      text = text.replace(/\{REGEX#OVERSEA\[Server_Email_Ask_Oversea.*?}/, await this.getTextMapItem(langCode, 2535673454));
-    }
-
-    return text;
   }
 
   async createLangCodeMap(hash: TextMapHash, doNormText: boolean = true): Promise<LangCodeMap> {
@@ -195,11 +190,15 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     return this.excelPath;
   }
 
-  async readExcelDataFile<T>(filePath: string, doNormText: boolean = false): Promise<T> {
+  async readExcelDataFile<T>(filePath: string, doNormText: boolean = false): Promise<ExtractScalar<T>[]> {
     return this.readDataFile(path.join(this.excelPath, filePath), doNormText);
   }
 
-  async readDataFile<T>(filePath: string, doNormText: boolean = false): Promise<T> {
+  readExcelDataFileToStream<T>(filePath: string, doNormText: boolean = false): ArrayStream<ExtractScalar<T>> {
+    return new ArrayStream<ExtractScalar<T>>(this.readDataFile(path.join(this.excelPath, filePath), doNormText));
+  }
+
+  async readDataFile<T>(filePath: string, doNormText: boolean = false): Promise<ExtractScalar<T>[]> {
     let fileContents: string = await fs.readFile(this.getDataFilePath(filePath), {encoding: 'utf8'});
     let json = JSON.parse(fileContents);
     if (!Array.isArray(json)) {

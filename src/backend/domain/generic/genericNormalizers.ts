@@ -9,7 +9,8 @@ export interface NormTextOptions {
   plaintextMcMode?: 'both' | 'male' | 'female',
   sNum?: number,
   mcPlaceholderProvider?: (langCode: LangCode, degender?: boolean) => string,
-  mcPlaceholderForceLangCode?: LangCode
+  mcPlaceholderForceLangCode?: LangCode,
+  plaintextDash?: string;
 }
 
 export function mergeMcTemplate(text: string, langCode: LangCode, plaintext: boolean): string {
@@ -63,7 +64,7 @@ export function genericNormText(text: string, langCode: LangCode, opts: NormText
   if (!opts.mcPlaceholderProvider)
     throw new Error('mcPlaceholderProvider is required');
 
-  text = text.replace(/—/g, opts.plaintext ? '-' : '&mdash;').trim();
+  text = text.replace(/—/g, opts.plaintext ? (opts.plaintextDash || '-') : '&mdash;').trim();
   text = text.replace(/{NICKNAME}/g, opts.mcPlaceholderProvider(opts.mcPlaceholderForceLangCode || langCode, true));
   text = text.replace(/{NON_BREAK_SPACE}/g, opts.plaintext ? ' ' : '&nbsp;');
   text = text.replace(/\u00A0/g, opts.plaintext ? ' ' : '&nbsp;');

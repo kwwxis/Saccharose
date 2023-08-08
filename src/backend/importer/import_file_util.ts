@@ -6,6 +6,7 @@ import { LANG_CODES } from '../../shared/types/lang-types';
 import { getTextMapRelPath } from '../loadenv';
 import { isInt } from '../../shared/util/numberUtil';
 import { AbstractControl } from '../domain/abstractControl';
+import { NormTextOptions } from '../domain/generic/genericNormalizers';
 
 const isOnePropObj = (o: any, key: string) => o && typeof o === 'object' && Object.keys(o).length === 1 && Object.keys(o)[0] === key;
 
@@ -154,7 +155,9 @@ export async function importNormalize(jsonDir: string, skip: string[], specialNo
   console.log(chalk.blue(`Done, modified ${numChanged} files.`));
 }
 
-export async function importPlainTextMap(ctrl: AbstractControl, getDataFilePath: (relPath: string) => string) {
+export async function importPlainTextMap(ctrl: AbstractControl, getDataFilePath: (relPath: string) => string, loadSupportingData: () => Promise<void>) {
+  await loadSupportingData();
+
   if (!fs.existsSync(getDataFilePath('./TextMap/Plain/'))) {
     fs.mkdirSync(getDataFilePath('./TextMap/Plain/'));
   }
@@ -173,15 +176,26 @@ export async function importPlainTextMap(ctrl: AbstractControl, getDataFilePath:
       let textList = [];
 
       for (let [hash, text] of Object.entries(textmap)) {
-        hashList.push(hash);
-        textList.push(ctrl.normText(text, langCode, { decolor: true, plaintext: true, plaintextMcMode: 'both' }).replaceAll(/\r?\n/g, '\\n'));
+        let variations: NormTextOptions[] = [
+          { decolor: true, plaintext: true, plaintextMcMode: 'both' }
+        ];
 
         if (text.includes('{F#') || text.includes('{M#')) {
-          hashList.push(hash);
-          textList.push(ctrl.normText(text, langCode, { decolor: true, plaintext: true, plaintextMcMode: 'male' }).replaceAll(/\r?\n/g, '\\n'));
+          variations.push({ decolor: true, plaintext: true, plaintextMcMode: 'male' });
+          variations.push({ decolor: true, plaintext: true, plaintextMcMode: 'female' });
+        }
 
+        const addSingleVariation = (variation: NormTextOptions) => {
+          variations.push(... variations.map(v => Object.assign({}, v, variation)));
+        };
+
+        if (text.includes('—')) {
+          addSingleVariation({ plaintextDash: '—' });
+        }
+
+        for (let variation of variations) {
           hashList.push(hash);
-          textList.push(ctrl.normText(text, langCode, { decolor: true, plaintext: true, plaintextMcMode: 'female' }).replaceAll(/\r?\n/g, '\\n'));
+          textList.push(ctrl.normText(text, langCode, variation).replaceAll(/\r?\n/g, '\\n'));
         }
       }
 
@@ -192,7 +206,8 @@ export async function importPlainTextMap(ctrl: AbstractControl, getDataFilePath:
 
       textmap = null;
     } catch (e) {
-      console.log(chalk.yellow('Could not process TextMap for ' + langCode + ' (may not exist)'));
+      console.log(chalk.yellow('Could not process TextMap for ' + langCode + ' (may not exist) -- ' + getDataFilePath(getTextMapRelPath(langCode))));
+      console.error(e);
     }
     console.log(chalk.gray('----------'));
   }

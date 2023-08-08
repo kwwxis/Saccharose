@@ -9,7 +9,7 @@ import { getGenshinDataFilePath, IMAGEDIR_GENSHIN } from '../../loadenv';
 import { getGenshinControl } from '../../domain/genshin/genshinControl';
 import { ReadableView } from '../../../shared/types/genshin/readable-types';
 import { closeKnex } from '../../util/db';
-import { __normGenshinText } from '../../domain/genshin/genshinText';
+import { __normGenshinText, loadGenshinTextSupportingData } from '../../domain/genshin/genshinText';
 import { importNormalize, importPlainTextMap } from '../import_file_util';
 import { GCGCharSkillDamage } from '../../../shared/types/genshin/gcg-types';
 import { standardElementCode } from '../../../shared/types/genshin/manual-text-map';
@@ -695,7 +695,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     }
     if (options.plaintext) {
       const ctrl = getGenshinControl();
-      await importPlainTextMap(ctrl, getGenshinDataFilePath);
+      await importPlainTextMap(ctrl, getGenshinDataFilePath, loadGenshinTextSupportingData);
     }
     if (options.index) {
       await importIndex();

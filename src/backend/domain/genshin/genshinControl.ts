@@ -2011,14 +2011,14 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 const GENSHIN_VOICE_ITEMS: VoiceItemArrayMap = {};
 
 export async function loadGenshinVoiceItems(): Promise<void> {
-  console.log('[Init] Loading Genshin Voice Items -- starting...');
+  console.log('[Init:Data] Loading Genshin Voice Items -- starting...');
 
   const voiceItemsFilePath = path.resolve(process.env.GENSHIN_DATA_ROOT, DATAFILE_GENSHIN_VOICE_ITEMS);
   const result: VoiceItemArrayMap = await fs.readFile(voiceItemsFilePath, {encoding: 'utf8'}).then(data => JSON.parse(data));
 
   Object.assign(GENSHIN_VOICE_ITEMS, result);
   Object.freeze(GENSHIN_VOICE_ITEMS);
-  console.log('[Init] Loading Genshin Voice Items -- done!');
+  console.log('[Init:Data] Loading Genshin Voice Items -- done!');
 }
 
 export type GenshinVoiceItemType = 'Dialog'|'Reminder'|'Fetter'|'AnimatorEvent'|'WeatherMonologue'|'JoinTeam'|'Card';

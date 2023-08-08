@@ -8,6 +8,7 @@ import { closeKnex } from '../../util/db';
 import { importNormalize, importPlainTextMap } from '../import_file_util';
 import fs from 'fs';
 import { getStarRailControl } from '../../domain/hsr/starRailControl';
+import { loadStarRailTextSupportingData } from '../../domain/hsr/starRailText';
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
@@ -54,7 +55,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     }
     if (options.plaintext) {
       const ctrl = getStarRailControl();
-      await importPlainTextMap(ctrl, getStarRailDataFilePath);
+      await importPlainTextMap(ctrl, getStarRailDataFilePath, loadStarRailTextSupportingData);
     }
 
     await closeKnex();

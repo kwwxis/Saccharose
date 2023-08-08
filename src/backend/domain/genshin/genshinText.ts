@@ -1,8 +1,10 @@
 import { toInt } from '../../../shared/util/numberUtil';
-import { LangCode } from '../../../shared/types/lang-types';
-import { SPRITE_TAGS } from './misc/spriteTags';
+import { LangCode, LangCodeMap } from '../../../shared/types/lang-types';
 import { wordRejoin, wordSplit } from '../../../shared/util/stringUtil';
 import { genericNormText, mergeMcTemplate, NormTextOptions } from '../generic/genericNormalizers';
+import { SpriteTagExcelConfigData } from '../../../shared/types/genshin/general-types';
+import { getGenshinControl } from './genshinControl';
+import { toMap } from '../../../shared/util/arrayUtil';
 
 function __convertGenshinRubi(langCode: LangCode, text: string): string {
   const rubiMap: { [index: number]: string } = {};
@@ -129,7 +131,7 @@ export function __normGenshinText(text: string, langCode: LangCode, opts: NormTe
 
   if (!opts.plaintext) {
     text = text.replace(/\{SPRITE_PRESET#(\d+)}/g, (fm: string, g1: string) => {
-      let image = SPRITE_TAGS[parseInt(g1)].Image;
+      let image = GENSHIN_SPRITE_TAGS[parseInt(g1)].Image;
       image = image.split('/').pop();
       return '{{Sprite|' + image + '}}';
     });
@@ -137,6 +139,11 @@ export function __normGenshinText(text: string, langCode: LangCode, opts: NormTe
 
   if (text.includes('RUBY#[')) {
     text = __convertGenshinRubi(langCode, text);
+  }
+
+  if (text && text.includes('REGEX#OVERSEA')) {
+    text = text.replace(/\{REGEX#OVERSEA\[Server_BrandTips_Oversea.*?}/, serverBrandTipsOverseas[langCode]);
+    text = text.replace(/\{REGEX#OVERSEA\[Server_Email_Ask_Oversea.*?}/, serverEmailAskOverseas[langCode]);
   }
 
   text = mergeMcTemplate(text, langCode, opts.plaintext);
@@ -151,4 +158,22 @@ export function __normGenshinText(text: string, langCode: LangCode, opts: NormTe
   }
 
   return text;
+}
+
+export const GENSHIN_SPRITE_TAGS: { [spriteId: number]: SpriteTagExcelConfigData } = {};
+
+let serverBrandTipsOverseas: LangCodeMap = null;
+let serverEmailAskOverseas: LangCodeMap = null;
+
+export async function loadGenshinTextSupportingData(): Promise<void> {
+  console.log('[Init:Data] Loading Genshin-supporting text data -- starting...');
+
+  const ctrl = getGenshinControl();
+
+  serverBrandTipsOverseas = await ctrl.createLangCodeMap(2874657049);
+  serverEmailAskOverseas = await ctrl.createLangCodeMap(2535673454);
+
+  toMap(await ctrl.readExcelDataFile<SpriteTagExcelConfigData[]>('SpriteTagExcelConfigData.json'), 'Id', GENSHIN_SPRITE_TAGS);
+
+  console.log('[Init:Data] Loading Genshin-supporting text data -- done!');
 }

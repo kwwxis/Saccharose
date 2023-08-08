@@ -15,8 +15,11 @@ import { evaluateCustomFormat } from '../../../util/fileFormatOptions';
 import { AchievementExcelConfigData, AchievementGoalExcelConfigData } from '../../../../shared/types/genshin/achievement-types';
 import { getLineNumberForLineText } from '../../../util/shellutil';
 import { getGenshinDataFilePath } from '../../../loadenv';
+import { uuidv4 } from '../../../../shared/util/uuidv4';
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+  console.log(uuidv4());
+
   const ctrl = getGenshinControl();
 
   //console.log(await getLineNumberForLineText('2559502579', './TextMap/Plain/PlainTextMapEN_Hash.dat'));

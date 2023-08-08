@@ -121,7 +121,7 @@ interface StarRailVoiceConfig {
 }
 
 export async function loadStarRailVoiceItems(): Promise<void> {
-  console.log('[Init] Loading HSR Voice Items -- starting...');
+  console.log('[Init:Data] Loading HSR Voice Items -- starting...');
 
   const voiceItemsFilePath = path.resolve(process.env.HSR_DATA_ROOT, DATAFILE_HSR_VOICE_ITEMS);
   const result: StarRailVoiceConfig[] = await fs.readFile(voiceItemsFilePath, {encoding: 'utf8'}).then(data => JSON.parse(data));
@@ -136,7 +136,7 @@ export async function loadStarRailVoiceItems(): Promise<void> {
   }
 
   Object.freeze(HSR_VOICE_ITEMS);
-  console.log('[Init] Loading HSR Voice Items -- done!');
+  console.log('[Init:Data] Loading HSR Voice Items -- done!');
 }
 
 export class StarRailVoice {

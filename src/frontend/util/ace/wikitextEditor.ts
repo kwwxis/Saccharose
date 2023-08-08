@@ -18,7 +18,7 @@ import { toBoolean } from '../../../shared/util/genericUtil';
 import { DOMClassWatcher } from '../domClassWatcher';
 import { escapeHtml } from '../../../shared/util/stringUtil';
 import { Marker, MarkerAggregate } from '../../../shared/util/highlightMarker';
-import { uuidv4 } from '../uuidv4';
+import { uuidv4 } from '../../../shared/util/uuidv4';
 
 let aceEditors: ace.Editor[] = [];
 

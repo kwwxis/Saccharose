@@ -7,6 +7,7 @@ import { getZenlessDataFilePath } from '../../loadenv';
 import { closeKnex } from '../../util/db';
 import { importNormalize, importPlainTextMap } from '../import_file_util';
 import { getZenlessControl } from '../../domain/zenless/zenlessControl';
+import { loadZenlessTextSupportingData } from '../../domain/zenless/zenlessText';
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
@@ -48,7 +49,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     }
     if (options.plaintext) {
       const ctrl = getZenlessControl();
-      await importPlainTextMap(ctrl, getZenlessDataFilePath);
+      await importPlainTextMap(ctrl, getZenlessDataFilePath, loadZenlessTextSupportingData);
     }
 
     await closeKnex();

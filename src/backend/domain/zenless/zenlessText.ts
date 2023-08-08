@@ -71,3 +71,7 @@ export function __normZenlessText(text: string, langCode: LangCode, opts: NormTe
 
   return text;
 }
+
+export async function loadZenlessTextSupportingData() {
+
+}

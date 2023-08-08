@@ -12,7 +12,7 @@ import { enableTippy, flashTippy, getTippyOpts, hideTippy, showTippy } from './u
 import { Listener, runWhenDOMContentLoaded, startListeners } from './util/eventLoader';
 import { showJavascriptErrorDialog } from './util/errorHandler';
 import autosize from 'autosize';
-import { isInt, toInt } from '../shared/util/numberUtil';
+import { isInt } from '../shared/util/numberUtil';
 import { escapeHtml } from '../shared/util/stringUtil';
 import { getInputValue, highlightReplace, highlightWikitextReplace } from './util/ace/wikitextEditor';
 import { GeneralEventBus } from './generalEventBus';
@@ -21,7 +21,7 @@ import { DEFAULT_LANG, LangCode } from '../shared/types/lang-types';
 import { mwParse } from '../shared/mediawiki/mwParse';
 import { MwParamNode, MwTemplateNode } from '../shared/mediawiki/mwTypes';
 import { pageMatch } from './pageMatch';
-import { uuidv4 } from './util/uuidv4';
+import { uuidv4 } from '../shared/util/uuidv4';
 
 type UiAction = {actionType: string, actionParams: string[]};
 

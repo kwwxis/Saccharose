@@ -12,7 +12,7 @@ import { isStringBlank, splitLimit } from '../../../../shared/util/stringUtil';
 import { arrayClosestNumber, arrayRemove, arraySum, sort } from '../../../../shared/util/arrayUtil';
 import { isset } from '../../../../shared/util/genericUtil';
 import { constrainNumber, isInt, toInt } from '../../../../shared/util/numberUtil';
-import { uuidv4 } from '../../../util/uuidv4';
+import { uuidv4 } from '../../../../shared/util/uuidv4';
 
 interface VoParamKey {
   groupKey: string;
