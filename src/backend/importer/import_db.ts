@@ -327,6 +327,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
       case 'gi':
       case 'genshin':
       case 'genshinimpact':
+      case 'genshin-impact':
         if (isStringBlank(process.env.GENSHIN_DATA_ROOT)) {
           console.error(chalk.red('\n"GENSHIN_DATA_ROOT" must be set in .env\n'));
           return;
@@ -337,6 +338,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
         break;
       case 'hsr':
       case 'starrail':
+      case 'star-rail':
       case 'honkaistarrail':
         if (isStringBlank(process.env.HSR_DATA_ROOT)) {
           console.error(chalk.red('\n"HSR_DATA_ROOT" must be set in .env\n'));

@@ -1,3 +1,55 @@
+@mixin ace_token_tooltip($tokenCls, $hoverBg, $hoverBgNightmode) {
+  #{$tokenCls} {
+    position: relative;
+  }
+  #{$tokenCls}:hover {
+    background: $hoverBg;
+    transition: background 50ms ease;
+    transition-delay: 100ms;
+
+    body.nightmode & {
+      background: $hoverBgNightmode;
+      transition: background 50ms ease;
+      transition-delay: 100ms;
+    }
+  }
+  #{$tokenCls}:after {
+    content: "Ctrl/Meta-click to open in new tab.";
+    background: #FFF;
+    border: 1px solid #333;
+    color: #111;
+    font-size: 11px;
+    line-height: 18px;
+    position: absolute;
+    top: 100%;
+    white-space: nowrap;
+    left: 50%;
+    // transform: translateX(-50%);
+    margin-top: 5px;
+    padding: 0 5px;
+    pointer-events: none;
+    opacity: 0;
+    z-index: 9999;
+    transition: all 50ms ease;
+    transition-delay: 100ms;
+    body.nightmode & {
+      background: #555;
+      color: #eee;
+      border-color: #ccc;
+    }
+  }
+  #{$tokenCls}:hover:after {
+    opacity: 1;
+    transition: all 300ms ease;
+    transition-delay: 700ms;
+  }
+  body.keydown-control, body.keydown-meta {
+    #{$tokenCls}:hover {
+      cursor: pointer;
+    }
+  }
+}
+
 // Headers
 // --------------------------------------------------------------------------------------------------------------
 .ace_header-open,
@@ -30,6 +82,8 @@ body.nightmode .ace_template-color {
 .ace_template-delimiter {
   font-weight: bold;
 }
+
+@include ace_token_tooltip('.ace_template-name', rgba(#80c, 0.07), rgba(#D2A8FF, 0.2));
 
 // Parser Functions
 // --------------------------------------------------------------------------------------------------------------
@@ -81,18 +135,22 @@ body.nightmode .ace_template-color {
 body.nightmode .ace_link {
   background-color: hsl(247deg 75% 93% / 6%);
 }
+
 .ace_link-color,
 .ace_external-link-color,
 .ace_bare-link-color,
 .ace_magic-link-color {
   color: #327b9a;
 }
+
 body.nightmode .ace_link-color,
 body.nightmode .ace_external-link-color,
 body.nightmode .ace_bare-link-color,
 body.nightmode .ace_magic-link-color {
   color: #e4c179;
 }
+
+@include ace_token_tooltip('.ace_link-name', rgba(34,17,153,0.08), hsl(247deg 75% 93% / 12%));
 
 // Bold and Italic
 // --------------------------------------------------------------------------------------------------------------

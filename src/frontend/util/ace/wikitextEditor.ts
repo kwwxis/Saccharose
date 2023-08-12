@@ -1,3 +1,6 @@
+// Ace imports
+// --------------------------------------------------------------------------------------------------------------
+
 import * as ace from 'brace';
 import 'brace/mode/text';
 import 'brace/mode/javascript';
@@ -13,46 +16,24 @@ import 'brace/ext/static_highlight';
 import 'brace/ext/searchbox';
 import './css/static_highlight.scss';
 
+// Other imports
+// --------------------------------------------------------------------------------------------------------------
+
 import Cookies from 'js-cookie';
 import { toBoolean } from '../../../shared/util/genericUtil';
 import { DOMClassWatcher } from '../domClassWatcher';
 import { escapeHtml } from '../../../shared/util/stringUtil';
 import { Marker, MarkerAggregate } from '../../../shared/util/highlightMarker';
 import { uuidv4 } from '../../../shared/util/uuidv4';
+import { getInputValue } from '../domutil';
+import { createAceDomClassWatcher } from './wikitextListeners';
 
-let aceEditors: ace.Editor[] = [];
-
-let createdDomClassWatcher = false;
-
-function createDomClassWatcher() {
-  if (!createdDomClassWatcher) {
-    createdDomClassWatcher = true;
-    new DOMClassWatcher('body', 'nightmode',
-      () => {
-        aceEditors.forEach(editor => editor.setTheme('ace/theme/tomorrow_night'));
-
-        let TomorrowNightTheme = ace.acequire('ace/theme/tomorrow_night');
-        let TextmateTheme = ace.acequire('ace/theme/textmate');
-        document.querySelectorAll('.highlighted').forEach(el => {
-          el.classList.remove(TextmateTheme.cssClass);
-          el.classList.add(TomorrowNightTheme.cssClass);
-        });
-      },
-      () => {
-        aceEditors.forEach(editor => editor.setTheme('ace/theme/textmate'));
-
-        let TomorrowNightTheme = ace.acequire('ace/theme/tomorrow_night');
-        let TextmateTheme = ace.acequire('ace/theme/textmate');
-        document.querySelectorAll('.highlighted').forEach(el => {
-          el.classList.remove(TomorrowNightTheme.cssClass);
-          el.classList.add(TextmateTheme.cssClass);
-        });
-      });
-  }
-}
+// Create wikitext editor
+// --------------------------------------------------------------------------------------------------------------
+export const aceEditors: ace.Editor[] = [];
 
 export function createWikitextEditor(editorElementId: string|HTMLElement): ace.Editor {
-  createDomClassWatcher();
+  createAceDomClassWatcher();
 
   const editor: ace.Editor = editorElementId instanceof HTMLElement
     ? ace.edit(editorElementId)
@@ -87,6 +68,8 @@ export function createWikitextEditor(editorElementId: string|HTMLElement): ace.E
   return editor;
 }
 
+// Static highlight
+// --------------------------------------------------------------------------------------------------------------
 export function highlightWikitext(text: string, gutters: boolean = false, markers: Marker[] = []): HTMLElement {
   return highlight(text, 'ace/mode/wikitext', gutters, markers);
 }
@@ -96,7 +79,7 @@ export function highlightJson(text: string, gutters: boolean = false, markers: M
 }
 
 export function highlight(text: string, mode: string, gutters: boolean = true, markers: Marker[] = []): HTMLElement {
-  createDomClassWatcher();
+  createAceDomClassWatcher();
 
   // Create unique ID for highlight element
   let guid = 'highlight-'+uuidv4();
@@ -246,22 +229,10 @@ export function highlight(text: string, mode: string, gutters: boolean = true, m
   return document.createRange().createContextualFragment(result.html).firstElementChild as HTMLElement;
 }
 
+// Static highlight replace
+// --------------------------------------------------------------------------------------------------------------
 export function highlightWikitextReplace(original: HTMLElement, textOverride?: string): HTMLElement {
   return highlightReplace(original, 'ace/mode/wikitext', textOverride, false);
-}
-
-export function getInputValue(element: HTMLElement) {
-  if (element instanceof HTMLTextAreaElement || element instanceof HTMLInputElement || element.hasOwnProperty('value')) {
-    return (<any> element).value;
-  } else if (element.hasAttribute('contenteditable')) {
-    let copyTarget: HTMLElement = element;
-    if (element.querySelector('.ace_static_text_layer')) {
-      copyTarget = copyTarget.querySelector('.ace_static_text_layer');
-    }
-    return copyTarget.textContent;
-  } else {
-    return element.textContent;
-  }
 }
 
 export function highlightReplace(original: HTMLElement, mode: string, textOverride?: string,
@@ -313,6 +284,8 @@ export function highlightReplace(original: HTMLElement, mode: string, textOverri
   return element;
 }
 
+// Window exports
+// --------------------------------------------------------------------------------------------------------------1
 (<any> window).highlight = highlight;
 (<any> window).highlightReplace = highlightReplace;
 

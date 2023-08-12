@@ -6,103 +6,101 @@
   padding: 3px 10px;
   position: relative;
   overflow: hidden;
+
+  &.dispBlock {
+    display: flex !important;
+  }
+
+  &:hover {
+    background: #f7f9fb;
+
+    body.nightmode & {
+      background: hsl(255deg 12% 16%);
+    }
+  }
+
+  input {
+    content: "";
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 1em;
+    height: 1em;
+    box-sizing: border-box;
+    border: 0.5px solid hsla(232, 20%, 32%, 0.3);
+    box-shadow: 0 0 5px hsla(232, 20%, 32%, 0.3);
+    background: #fff;
+    opacity: 1;
+    position: relative;
+    left: auto;
+
+    &:focus {
+      box-shadow: 0 0 0 3px rgba(0, 140, 221, 0.2);
+      border-color: #3daaf5;
+    }
+  }
+
+  span {
+    display: inline-block;
+    padding-left: 0.5em;
+    color: hsla(232, 20%, 32%, 0.8);
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-weight: 600;
+    position: relative;
+    line-height: 1.5em;
+
+    body.nightmode & {
+      color: hsl(255deg 5% 73%);
+    }
+  }
 }
 
-.ui-radio:hover,
-.ui-checkbox:hover {
-  background: #f7f9fb;
-}
-
-.ui-radio input,
-.ui-checkbox input {
-  width: 1px;
-  height: 1px;
-  opacity: 0;
-  position: absolute;
-  left: -9999px;
-}
-
-.ui-radio input + *,
-.ui-checkbox input + * {
-  display: inline-block;
-  padding-left: 1.8em;
-  color: hsla(232, 20%, 32%, 0.8);
-  font-family: 'Open Sans', Arial, sans-serif;
-  font-weight: 600;
-  position: relative;
-  line-height: 1.5em;
-}
-
-.ui-radio input + *:before,
-.ui-checkbox input + *:before {
-  content: '';
-  display: inline-table;
-  width: 1em;
-  height: 1em;
-  max-width: 1em;
-  max-height: 1em;
-  box-sizing: border-box;
-  border: 0.5px solid hsla(232, 20%, 32%, 0.3);
-  box-shadow: 0 0 5px hsla(232, 20%, 32%, 0.3);
-  background: #fff;
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-.ui-radio:hover input:not(:checked):not(:focus):not(:indeterminate):not(.indeterminate):not(.is--indeterminate) + *:before,
-.ui-checkbox:hover input:not(:checked):not(:focus):not(:indeterminate):not(.indeterminate):not(.is--indeterminate) + *:before {
+.ui-radio:hover input:not(:checked):not(:focus):not(:indeterminate):not(.indeterminate):not(.is--indeterminate),
+.ui-checkbox:hover input:not(:checked):not(:focus):not(:indeterminate):not(.indeterminate):not(.is--indeterminate) {
   border-color: hsla(232, 20%, 32%, 0.4);
 }
 
-.ui-radio input + *:before {
+.ui-radio input {
   border-radius: 50%;
+
+  &:checked {
+    border-color: #3daaf5;
+    background: radial-gradient(
+                    0.6em 0.6em at center center,
+                    #3daaf5 49%,
+                    hsla(204, 90%, 60%, 0.5) 50%,
+                    #fff 55%
+    ) no-repeat;
+  }
 }
 
-.ui-checkbox input:checked + *:before {
-  border-color: #3daaf5;
-  background: linear-gradient(#3daaf5, #3daaf5) center center / 0.6em 0.6em no-repeat;
-}
+.ui-checkbox input {
+  &:checked {
+    border-color: #3daaf5;
+  }
+  &:checked:before {
+    content: '';
+    display: block;
+    width: 0.55em;
+    height: 0.55em;
+    background: #3daaf5;
+  }
 
-.ui-radio input:checked + *:before {
-  border-color: #3daaf5;
-  background: radial-gradient(
-                  0.6em 0.6em at center center,
-                  #3daaf5 49%,
-                  hsla(204, 90%, 60%, 0.5) 50%,
-                  #fff 55%
-  ) no-repeat;
-}
-
-.ui-radio input:focus + *:before,
-.ui-checkbox input:focus + *:before {
-  box-shadow: 0 0 0 3px rgba(0, 140, 221, 0.2);
-  border-color: #3daaf5;
-}
-
-
-//noinspection CssReplaceWithShorthandSafely
-.ui-checkbox input:indeterminate + *:before,
-.ui-checkbox input:checked:indeterminate + *:before,
-.ui-checkbox input.is--indeterminate + *:before,
-.ui-checkbox input.is--indeterminate:checked + *:before,
-.ui-checkbox input.indeterminate + *:before,
-.ui-checkbox input.indeterminate:checked + *:before {
-  border-color: #3daaf5;
-  background-color: #fff;
-  background: linear-gradient(#fff, #fff) center center / 0.35em 0.15em,
+  //noinspection CssReplaceWithShorthandSafely
+  &:indeterminate,
+  &:checked:indeterminate,
+  &.is--indeterminate,
+  &.is--indeterminate:checked,
+  &.indeterminate,
+  &.indeterminate:checked {
+    border-color: #3daaf5;
+    background-color: #fff;
+    background: linear-gradient(#fff, #fff) center center / 0.35em 0.15em,
     linear-gradient(hsla(204, 90%, 60%, 0.85), hsla(204, 90%, 60%, 0.85)) center center / 0.6em 0.6em;
-  background-repeat: no-repeat;
+    background-repeat: no-repeat;
+  }
 }
 
-
-body.nightmode .ui-radio input + *,
-body.nightmode .ui-checkbox input + * {
-  color: hsl(255deg 5% 73%);
-}
-
-body.nightmode .ui-radio:hover,
-body.nightmode .ui-checkbox:hover {
-  background: hsl(255deg 12% 16%);
-}

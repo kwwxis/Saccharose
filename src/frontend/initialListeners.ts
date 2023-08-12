@@ -1,7 +1,7 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import {
-  copyToClipboard, createElement, deleteQueryStringParameter, getHiddenElementBounds,
+  copyToClipboard, createElement, deleteQueryStringParameter, getHiddenElementBounds, getInputValue,
   getScrollbarWidth,
   hashFlash,
   setQueryStringParameter, tag,
@@ -14,7 +14,7 @@ import { showJavascriptErrorDialog } from './util/errorHandler';
 import autosize from 'autosize';
 import { isInt } from '../shared/util/numberUtil';
 import { escapeHtml } from '../shared/util/stringUtil';
-import { getInputValue, highlightReplace, highlightWikitextReplace } from './util/ace/wikitextEditor';
+import { highlightReplace, highlightWikitextReplace } from './util/ace/wikitextEditor';
 import { GeneralEventBus } from './generalEventBus';
 import { languages } from './util/langCodes';
 import { DEFAULT_LANG, LangCode } from '../shared/types/lang-types';
@@ -293,6 +293,36 @@ const initial_listeners: Listener[] = [
         el.innerText = humanTiming(parseInt(el.getAttribute('data-timestamp')));
       });
     },
+  },
+  {
+    el: document,
+    ev: 'keydown',
+    fn: function(e: KeyboardEvent) {
+      if (e.key === 'Shift') {
+        document.body.classList.add('keydown-shift');
+      } else if (e.key === 'Control') {
+        document.body.classList.add('keydown-control');
+      } else if (e.key === 'Alt') {
+        document.body.classList.add('keydown-alt');
+      } else if (e.key === 'Meta') {
+        document.body.classList.add('keydown-meta');
+      }
+    }
+  },
+  {
+    el: document,
+    ev: 'keyup',
+    fn: function(e: KeyboardEvent) {
+      if (e.key === 'Shift') {
+        document.body.classList.remove('keydown-shift');
+      } else if (e.key === 'Control') {
+        document.body.classList.remove('keydown-control');
+      } else if (e.key === 'Alt') {
+        document.body.classList.remove('keydown-alt');
+      } else if (e.key === 'Meta') {
+        document.body.classList.remove('keydown-meta');
+      }
+    }
   },
   {
     el: document,

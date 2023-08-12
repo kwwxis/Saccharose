@@ -143,7 +143,7 @@ export async function generateCardPage(gcg: GCGControl, card: GCGCommonCard): Pr
     if (card.IsCanObtain) {
       sb.line(`'''${card.WikiName}''' is ${wta} ${preType}[[${card.WikiType}]] obtained in [[Genius Invokation TCG]].`);
     } else {
-      sb.line(`'''${card.WikiName}''' is ${wta} unobtainable ${preType}[[${card.WikiType}]] in [[Genius Invokation TCG]].`);
+      sb.line(`'''${card.WikiName}''' is an unobtainable ${preType}[[${card.WikiType}]] in [[Genius Invokation TCG]].`);
     }
   } else {
     let addendum = '';

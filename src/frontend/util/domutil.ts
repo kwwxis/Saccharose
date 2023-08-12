@@ -543,3 +543,17 @@ export function getCanvasFont(el = document.body) {
 
   return `${fontWeight} ${fontSize} ${fontFamily}`;
 }
+
+export function getInputValue(element: HTMLElement) {
+  if (element instanceof HTMLTextAreaElement || element instanceof HTMLInputElement || element.hasOwnProperty('value')) {
+    return (<any>element).value;
+  } else if (element.hasAttribute('contenteditable')) {
+    let copyTarget: HTMLElement = element;
+    if (element.querySelector('.ace_static_text_layer')) {
+      copyTarget = copyTarget.querySelector('.ace_static_text_layer');
+    }
+    return copyTarget.textContent;
+  } else {
+    return element.textContent;
+  }
+}

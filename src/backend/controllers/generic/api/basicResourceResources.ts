@@ -54,6 +54,7 @@ export async function handleOlEndpoint(ctrl: AbstractControl, req: Request, res:
     hideTl: toBoolean(req.query.hideTl),
     hideRm: toBoolean(req.query.hideRm),
     addDefaultHidden: toBoolean(req.query.addDefaultHidden),
+    includeHeader: toBoolean(req.query.includeHeader),
   });
 
   if (!results) {

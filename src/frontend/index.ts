@@ -4,6 +4,7 @@ import 'tippy.js';
 import 'tippy.js/dist/tippy.css';
 import 'tippy.js/themes/light.css';
 import 'tippy.js/themes/light-border.css';
+import './siteMode';
 import './initialListeners';
 import './generalEventBus';
 

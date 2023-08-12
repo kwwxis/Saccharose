@@ -58,6 +58,7 @@ pageMatch('pages/generic/basic/olgen', () => {
     let loadingEl = document.querySelector<HTMLElement>('.ol-submit-pending');
     let tlOptionValue = document.querySelector<HTMLInputElement>('input[type="radio"][name="tl_options"]:checked').value;
     let rmOptionValue = document.querySelector<HTMLInputElement>('input[type="radio"][name="rm_options"]:checked').value;
+    let includeHeader = document.querySelector<HTMLInputElement>('input[type="checkbox"][name="ol_header"]').checked;
     let text = inputEl.value.trim();
 
     if (!text) {
@@ -82,6 +83,7 @@ pageMatch('pages/generic/basic/olgen', () => {
       hideTl: tlRmDisabled || tlOptionValue === 'exclude_tl',
       addDefaultHidden: !neverDefaultHidden && tlOptionValue === 'exclude_tl',
       hideRm: tlRmDisabled || rmOptionValue === 'exclude_rm',
+      includeHeader: includeHeader ? '1' : undefined,
     }, true).then(result => {
       document.querySelector('#ol-results-list').innerHTML = result;
     }).catch((err: HttpError) => {
@@ -178,6 +180,18 @@ pageMatch('pages/generic/basic/olgen', () => {
         let name = target.name;
         let value = target.value;
         Cookies.set('OL.'+name, value, { expires: 365 });
+      }
+    },
+    {
+      el: 'input[type="checkbox"][name="ol_header"]',
+      ev: 'input',
+      multiple: true,
+      fn: function(event, target: HTMLInputElement) {
+        if (target.checked) {
+          Cookies.set('OL.includeHeader', '1', { expires: 365 });
+        } else {
+          Cookies.remove('OL.includeHeader');
+        }
       }
     },
     {

@@ -336,7 +336,11 @@ import { quotifyWikitextTokens } from './quotify';
         },
         {
           token: 'wikitext.link.link-name.link-text.link-color',
-          regex: /(?<=\[\[).*?(?=\||]]|$)\|?/,
+          regex: /(?<=\[\[).*?(?=\||]]|$)/,
+        },
+        {
+          token: 'wikitext.link.link-delimiter.link-color',
+          regex: /\|/,
         },
         { include: 'start' },
         {
@@ -359,7 +363,6 @@ import { quotifyWikitextTokens } from './quotify';
         {
           token: 'wikitext.external-link.external-link-name.external-link-text.external-link-color',
           regex: new RegExp(`(?:${MW_URL_SCHEME_REGEX()}).*?(?= |]|$)`),
-          // MW_URL_SCHEME_REGEX
         },
         { include: 'start' },
         {

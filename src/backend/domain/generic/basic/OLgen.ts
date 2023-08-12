@@ -10,7 +10,12 @@ import { AbstractControl } from '../../abstractControl';
 import { SbOut } from '../../../../shared/util/stringUtil';
 import { isUnset } from '../../../../shared/util/genericUtil';
 
-async function ol_gen_internal(ctrl: AbstractControl, textMapHash: TextMapHash, hideTl: boolean = false, addDefaultHidden: boolean = false, hideRm: boolean = false): Promise<{
+async function ol_gen_internal(ctrl: AbstractControl,
+                               textMapHash: TextMapHash,
+                               hideTl: boolean = false,
+                               addDefaultHidden: boolean = false,
+                               hideRm: boolean = false,
+                               includeHeader: boolean = false): Promise<{
   wikitext: string,
   warnings: string[],
 }> {
@@ -32,6 +37,9 @@ async function ol_gen_internal(ctrl: AbstractControl, textMapHash: TextMapHash, 
     { langCode: 'IT', rm: false, tl: true },
   ];
   let sbOut = new SbOut();
+  if (includeHeader) {
+    sbOut.line('==Other Languages==');
+  }
   if (addDefaultHidden) {
     sbOut.line('{{Other Languages|default_hidden=1');
   } else {
@@ -102,7 +110,7 @@ async function ol_gen_internal(ctrl: AbstractControl, textMapHash: TextMapHash, 
       let parsed = mwParse(langText);
       for (let part of parsed.parts) {
         if (part instanceof MwCharSequence) {
-          part.content = part.content.replace(/\|/g, '<nowiki>|</nowiki>');;
+          part.content = part.content.replace(/\|/g, '<nowiki>|</nowiki>');
         }
       }
       langText = parsed.toString();
@@ -162,6 +170,7 @@ export interface OLGenOptions {
   addDefaultHidden?: boolean,
   langCode?: LangCode,
   hideRm?: boolean,
+  includeHeader?: boolean,
 }
 
 export interface OLResult {
@@ -188,7 +197,7 @@ export async function ol_gen(ctrl: AbstractControl, name: string, options: OLGen
   let seen: {[result: string]: OLResult} = {};
 
   for (let textMapHash of textMapHashList) {
-    let { wikitext: result, warnings } = await ol_gen_internal(ctrl, textMapHash, options.hideTl, options.addDefaultHidden, options.hideRm);
+    let { wikitext: result, warnings } = await ol_gen_internal(ctrl, textMapHash, options.hideTl, options.addDefaultHidden, options.hideRm, options.includeHeader);
     if (!result || result.includes('{EN_official_name}')) {
       continue;
     }
@@ -207,7 +216,7 @@ export async function ol_gen_from_id(ctrl: AbstractControl, textMapHash: TextMap
   if (!textMapHash) {
     return null;
   }
-  let { wikitext: result, warnings } = await ol_gen_internal(ctrl, textMapHash, options.hideTl, options.addDefaultHidden, options.hideRm);
+  let { wikitext: result, warnings } = await ol_gen_internal(ctrl, textMapHash, options.hideTl, options.addDefaultHidden, options.hideRm, options.includeHeader);
   if (!result || !result.trim()) {
     return null;
   }
@@ -217,7 +226,7 @@ export async function ol_gen_from_id(ctrl: AbstractControl, textMapHash: TextMap
 export function add_ol_markers(olResults: OLResult[]): OLResult[] {
   for (let olResult of olResults) {
     let mwParseResult = mwParse(olResult.result);
-    olResult.templateNode = mwParseResult.parts.find(p => p instanceof MwTemplateNode) as MwTemplateNode;
+    olResult.templateNode = mwParseResult.findTemplateNodes()[0];
   }
 
   let diffKeys = [];

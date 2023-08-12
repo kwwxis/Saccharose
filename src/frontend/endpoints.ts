@@ -166,6 +166,7 @@ export const genshinEndpoints = {
     hideTl: boolean,
     hideRm: boolean,
     addDefaultHidden: boolean,
+    includeHeader: boolean,
   }>('/OL/generate'),
 
   generateSingleDialogueBranch: new GenshinApiEndpoint<{text: string, npcFilter?: string}>('/dialogue/single-branch-generate'),
@@ -214,12 +215,15 @@ export const starRailEndpoints = {
     hideTl: boolean,
     hideRm: boolean,
     addDefaultHidden: boolean,
+    includeHeader: boolean,
   }>('/OL/generate'),
+
   searchTextMap: new StarRailApiEndpoint<{
     text: string,
     startFromLine: number,
     resultSetNum: number,
   }>('/search-textmap'),
+
   getIdUsages: new StarRailApiEndpoint<{q: string}>('/id-usages'),
 };
 
@@ -229,12 +233,15 @@ export const zenlessEndpoints = {
     hideTl: boolean,
     hideRm: boolean,
     addDefaultHidden: boolean,
+    includeHeader: boolean,
   }>('/OL/generate'),
+
   searchTextMap: new ZenlessApiEndpoint<{
     text: string,
     startFromLine: number,
     resultSetNum: number,
   }>('/search-textmap'),
+
   getIdUsages: new ZenlessApiEndpoint<{q: string}>('/id-usages'),
 };
 

@@ -83,9 +83,13 @@ class RequestContext {
     } else {
       this.siteMode = 'genshin';
     }
+    this.htmlMetaProps['x-site-mode'] = this.siteMode;
+    this.htmlMetaProps['x-site-mode-home'] = this.siteHome;
+    this.htmlMetaProps['x-site-mode-name'] = this.siteModeName;
+    this.htmlMetaProps['x-site-mode-wiki-domain'] = this.siteModeWikiDomain;
   }
 
-  get siteHome() {
+  get siteHome(): string {
     switch (this.siteMode) {
       case 'hsr':
         return '/hsr';
@@ -97,7 +101,7 @@ class RequestContext {
     }
   }
 
-  get siteModeName() {
+  get siteModeName(): string {
     switch (this.siteMode) {
       case 'hsr':
         return 'Honkai Star Rail';
@@ -109,7 +113,7 @@ class RequestContext {
     }
   }
 
-  get siteModeCssClass() {
+  get siteModeCssClass(): string {
     switch (this.siteMode) {
       case 'hsr':
         return 'page--hsr';
@@ -121,8 +125,7 @@ class RequestContext {
     }
   }
 
-
-  templateLink(template: string): string {
+  get siteModeWikiDomain(): string {
     let wikiDomain: string;
     switch (this.siteMode) {
       case 'hsr':
@@ -136,10 +139,14 @@ class RequestContext {
         wikiDomain = 'genshin-impact.fandom.com';
         break;
     }
+    return wikiDomain;
+  }
+
+  templateLink(template: string): string {
     return '{{' + createHtmlElement({
       name: 'a',
       attributes: {
-        href: 'https://' + wikiDomain + '/wiki/Template:' + template.replaceAll(' ', '_'),
+        href: 'https://' + this.siteModeWikiDomain + '/wiki/Template:' + template.replaceAll(' ', '_'),
         target: '_blank',
         style: 'text-decoration:none'
       },
