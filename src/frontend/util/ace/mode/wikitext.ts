@@ -1,10 +1,12 @@
-// noinspection JSUnusedGlobalSymbols,JSUnusedLocalSymbols
+// noinspection JSUnusedGlobalSymbols,JSUnusedLocalSymbols,TypeScriptValidateJSTypes,JSFunctionExpressionToArrowFunction,ES6ShorthandObjectProperty
 
 import * as ace from 'brace';
 import { MW_BEHAVIOR_SWITCHES_REGEX } from '../../../../shared/mediawiki/parseModules/mwParse.specialText';
 import { MW_URL_SCHEME_REGEX } from '../../../../shared/mediawiki/parseModules/mwParse.link';
-import { getQuotePos } from '../../../../shared/mediawiki/mwQuotes';
+import { getQuotePosMap, getQuoteTypes } from '../../../../shared/mediawiki/mwQuotes';
 import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mwParse.template';
+import { filterInPlace } from '../../../../shared/util/arrayUtil';
+import { quotifyWikitextTokens } from './quotify';
 
 // <any> cast because brace doesn't expose the 'define' method in its types.
 // In fact, most of the acequire() internal stuff don't seem to have any available types in brace.
@@ -12,12 +14,12 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
   'use strict';
 
   let oop = acequire('../lib/oop');
-  let lang = acequire('../lib/lang');
+  //let lang = acequire('../lib/lang');
   let TextHighlightRules = acequire('./text_highlight_rules').TextHighlightRules;
-  let JavaScriptHighlightRules = acequire('./javascript_highlight_rules').JavaScriptHighlightRules;
-  let XmlHighlightRules = acequire('./xml_highlight_rules').XmlHighlightRules;
+  //let JavaScriptHighlightRules = acequire('./javascript_highlight_rules').JavaScriptHighlightRules;
+  //let XmlHighlightRules = acequire('./xml_highlight_rules').XmlHighlightRules;
   let HtmlHighlightRules = acequire('./html_highlight_rules').HtmlHighlightRules;
-  let CssHighlightRules = acequire('./css_highlight_rules').CssHighlightRules;
+  //let CssHighlightRules = acequire('./css_highlight_rules').CssHighlightRules;
 
   let WikitextHighlightRules: any = function() {
     // regexp must not have capturing parentheses. Use (?:) instead.
@@ -36,7 +38,7 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
         },
         regex: /^(={1,6})(?=.*?\1\s*$)/,
         next: 'wt_header',
-        onMatch: function(val, state, stack) {
+        onMatch: function(_val: string, _currentState: string, stack: string[]) {
           stack.unshift('wt_header');
           return 'wikitext.header.header-open';
         }
@@ -45,7 +47,7 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
         token: 'wikitext.magic-variable.magic-variable-open',
         regex: new RegExp(`{{(?=\s*(?:${MW_VARIABLES_REGEX()}))`),
         next: 'wt_magic_variable',
-        onMatch: function(val, state, stack) {
+        onMatch: function(_val: string, _currentState: string, stack: string[]) {
           stack.unshift('wt_magic_variable');
           return 'wikitext.magic-variable.magic-variable-open.magic-variable-color';
         }
@@ -54,7 +56,7 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
         token: 'wikitext.variable.variable-open',
         regex: /{{{/,
         next: 'wt_variable',
-        onMatch: function(val, state, stack) {
+        onMatch: function(_val: string, _currentState: string, stack: string[]) {
           stack.unshift('wt_variable');
           return 'wikitext.variable.variable-open.variable-color';
         }
@@ -63,7 +65,7 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
         token: 'wikitext.parserFn.parserFn-open',
         regex: /{{(?=\s*#)/,
         next: 'wt_parserFn',
-        onMatch: function(val, currentState, stack) {
+        onMatch: function(_val: string, _currentState: string, stack: string[]) {
           stack.unshift('wt_parserFn');
           return 'wikitext.parserFn.parserFn-open.parserFn-color';
         }
@@ -72,7 +74,7 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
         token: 'wikitext.template.template-open',
         regex: /{{/,
         next: 'wt_template',
-        onMatch: function(val, currentState, stack) {
+        onMatch: function(_val: string, _currentState: string, stack: string[]) {
           stack.unshift('wt_template');
           return 'wikitext.template.template-open.template-color';
         }
@@ -81,7 +83,7 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
         token: 'wikitext.link.link-open',
         regex: new RegExp(`\\[\\[(?!${MW_URL_SCHEME_REGEX()})`),
         next: 'wt_link',
-        onMatch: function(val, currentState, stack) {
+        onMatch: function(_val: string, _currentState: string, stack: string[]) {
           stack.unshift('wt_link');
           return 'wikitext.link.link-open.link-color';
         }
@@ -90,7 +92,7 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
         token: 'wikitext.external-link.external-link-open',
         regex: new RegExp(`\\[(?=(?:${MW_URL_SCHEME_REGEX()})[^ |]*?(?: |]|$))`),
         next: 'wt_external_link',
-        onMatch: function(val, currentState, stack) {
+        onMatch: function(_val: string, _currentState: string, stack: string[]) {
           stack.unshift('wt_external_link');
           return 'wikitext.external-link.external-link-open.external-link-color';
         }
@@ -103,11 +105,10 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
         token: 'wikitext.magic-link.magic-link-color',
         regex: new RegExp(`(?<=\\b)(?:ISBN|PMID|RFC)\\s+[\\d-]+(?=\\b)`),
       },
-      { include: 'wt_quotes_open' },
       {
         token: 'wikitext.table.table-open.table-color',
         regex: /(?<=^\s*)\{\|.*$/,
-        onMatch: function(val, currentState, stack) {
+        onMatch: function(_val: string, _currentState: string, stack: string[]) {
           stack.unshift('wt_table');
           return 'wikitext.table.table-open.table-color';
         }
@@ -116,7 +117,7 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
         token: 'wikitext.nowiki.nowiki-open',
         regex: /<nowiki[^>]*>/,
         next: 'wt_nowiki',
-        onMatch: function(val, currentState, stack) {
+        onMatch: function(_val: string, _currentState: string, stack: string[]) {
           stack.unshift('wt_nowiki');
           return 'wikitext.nowiki.nowiki-open';
         }
@@ -125,7 +126,7 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
         token: 'wikitext.pre.pre-open',
         regex: /<pre[^>]*>/,
         next: 'wt_pre',
-        onMatch: function(val, currentState, stack) {
+        onMatch: function(_val: string, _currentState: string, stack: string[]) {
           stack.unshift('wt_pre');
           return 'wikitext.pre.pre-open';
         }
@@ -134,7 +135,7 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
         token: 'comment.start.xml',
         regex: /<!--/,
         next: 'wt_comment',
-        onMatch: function(val, currentState, stack) {
+        onMatch: function(_val: string, _currentState: string, stack: string[]) {
           stack.unshift('wt_comment');
           return 'comment.start.xml';
         }
@@ -153,7 +154,7 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
       }
     );
 
-    function stack_tokens(initialToken, stack, exclude: string[]|string = []) {
+    function stack_tokens(initialToken: string, stack: string[], exclude: string[]|string = []) {
       if (typeof exclude === 'string') {
         exclude = exclude.split('.');
       }
@@ -186,43 +187,14 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
     }
 
     this.addRules({
-      wt_quotes_open: [
-        {
-          regex: /'''/,
-          next: 'wt_quotes',
-          onMatch: function(val, currentState, stack, line, match) {
-            if (getQuotePos(line, match.index) === 'BOLD_OPEN') {
-              stack.unshift('wt_bold');
-              return 'wikitext.bold.bold-open';
-            }
-            return false;
-          }
-        },
-        {
-          regex: /''/,
-          next: 'wt_quotes',
-          onMatch: function(val, currentState, stack, line, match) {
-            if (getQuotePos(line, match.index) === 'ITALIC_OPEN') {
-              stack.unshift('wt_italic');
-              return 'wikitext.italic.italic-open';
-            }
-            return false;
-          },
-          matchFailBehaviorAdvanceIf: function(val, currentState, stack, line, match) {
-            let leftOver = line.slice(match.index + 1);
-            return leftOver.startsWith(`''`);
-          },
-          matchFailBehaviorAdvanceDelta: -2
-        }
-      ],
       wt_header: [
         {
-          token: function(value) {
+          token: function(value: string) {
             return 'wikitext.header.header-close.' + value.length;
           },
           regex: /={1,6}\s*$/,
           next: 'start',
-          onMatch: function(value, currentState, stack) {
+          onMatch: function(_value: string, _currentState: string, stack: string[]) {
             stack.shift();
             this.next = stack[0] || 'start';
             return 'wikitext.header.header-close';
@@ -230,7 +202,7 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
         },
         { include: 'start' },
         {
-          defaultToken: function(currentState, stack) {
+          defaultToken: function(_currentState: string, stack: string[]) {
             return stack_tokens('wikitext.header.header-text', stack);
           }
         }
@@ -240,7 +212,7 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
           token: 'wikitext.parserFn.parserFn-close.parserFn-color',
           regex: /}}/,
           next: 'start',
-          onMatch: function(value, currentState, stack) {
+          onMatch: function(_value: string, _currentState: string, stack: string[]) {
             stack.shift();
             this.next = stack[0] || 'start';
             return 'wikitext.parserFn.parserFn-close.parserFn-color';
@@ -260,7 +232,7 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
         },
         { include: 'start' },
         {
-          defaultToken: function(currentState, stack) {
+          defaultToken: function(_currentState: string, stack: string[]) {
             return stack_tokens('wikitext.parserFn.parserFn-text', stack, ['variable-color', 'template-color']);
           }
         }
@@ -270,7 +242,7 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
           token: 'wikitext.template.template-close.template-color',
           regex: /}}/,
           next: 'start',
-          onMatch: function(value, currentState, stack) {
+          onMatch: function(_value: string, _currentState: string, stack: string[]) {
             stack.shift();
             this.next = stack[0] || 'start';
             return 'wikitext.template.template-close.template-color';
@@ -294,7 +266,7 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
           regex: /\{\s*[^\s{}]+\s*}/,
         },
         {
-          defaultToken: function(currentState, stack) {
+          defaultToken: function(_currentState: string, stack: string[]) {
             return stack_tokens('wikitext.template.template-text.template-color', stack, 'variable-color');
           }
         }
@@ -304,7 +276,7 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
           token: 'wikitext.variable.variable-close.variable-color',
           regex: /}}}/,
           next: 'start',
-          onMatch: function(value, currentState, stack) {
+          onMatch: function(_value: string, _currentState: string, stack: string[]) {
             stack.shift();
             this.next = stack[0] || 'start';
             return 'wikitext.variable.variable-close.variable-color';
@@ -320,7 +292,7 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
         },
         { include: 'start' },
         {
-          defaultToken: function(currentState, stack) {
+          defaultToken: function(_currentState: string, stack: string[]) {
             return stack_tokens('wikitext.variable.variable-text.variable-color', stack, 'template-color');
           }
         }
@@ -330,7 +302,7 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
           token: 'wikitext.magic-variable.magic-variable-close.magic-variable-color',
           regex: /}}/,
           next: 'start',
-          onMatch: function(value, currentState, stack) {
+          onMatch: function(_value: string, _currentState: string, stack: string[]) {
             stack.shift();
             this.next = stack[0] || 'start';
             return 'wikitext.magic-variable.magic-variable-close.magic-variable-color';
@@ -346,7 +318,7 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
         },
         { include: 'start' },
         {
-          defaultToken: function(currentState, stack) {
+          defaultToken: function(_currentState: string, stack: string[]) {
             return stack_tokens('wikitext.variable.variable-text.variable-color', stack, 'template-color');
           }
         }
@@ -356,7 +328,7 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
           token: 'wikitext.link.link-close.link-color',
           regex: /]]/,
           next: 'start',
-          onMatch: function(value, currentState, stack) {
+          onMatch: function(_value: string, _currentState: string, stack: string[]) {
             stack.shift();
             this.next = stack[0] || 'start';
             return 'wikitext.link.link-close.link-color';
@@ -368,7 +340,7 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
         },
         { include: 'start' },
         {
-          defaultToken: function(currentState, stack) {
+          defaultToken: function(_currentState: string, stack: string[]) {
             return stack_tokens('wikitext.link.link-text', stack);
           }
         }
@@ -378,7 +350,7 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
           token: 'wikitext.external-link.external-link-close.link-external-color',
           regex: /]/,
           next: 'start',
-          onMatch: function(value, currentState, stack) {
+          onMatch: function(_value: string, _currentState: string, stack: string[]) {
             stack.shift();
             this.next = stack[0] || 'start';
             return 'wikitext.external-link.external-link-close.external-link-color';
@@ -391,45 +363,8 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
         },
         { include: 'start' },
         {
-          defaultToken: function(currentState, stack) {
+          defaultToken: function(_currentState: string, stack: string[]) {
             return stack_tokens('wikitext.external-link.external-link-text', stack);
-          }
-        }
-      ],
-      wt_quotes: [
-        {
-          regex: /'''/,
-          next: 'start',
-          onMatch: function(val, currentState, stack, line, match) {
-            if (getQuotePos(line, match.index) === 'BOLD_CLOSE') {
-              stack.shift();
-              this.next = stack[0] || 'start';
-              return 'wikitext.bold.bold-close';
-            }
-            return false;
-          }
-        },
-        {
-          regex: /''/,
-          next: 'start',
-          onMatch: function(val, currentState, stack, line, match) {
-            if (getQuotePos(line, match.index) === 'ITALIC_CLOSE') {
-              stack.shift();
-              this.next = stack[0] || 'start';
-              return 'wikitext.italic.italic-close';
-            }
-            return false;
-          },
-          matchFailBehaviorAdvanceIf: function(val, currentState, stack, line, match) {
-            let leftOver = line.slice(match.index + 1);
-            return leftOver.startsWith(`''`);
-          },
-          matchFailBehaviorAdvanceDelta: -2
-        },
-        { include: 'start' },
-        {
-          defaultToken: function(currentState, stack) {
-            return stack_tokens('wikitext', stack);
           }
         }
       ],
@@ -437,7 +372,7 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
         {
           regex: /<\/nowiki\s*>/,
           next: 'start',
-          onMatch: function(value, currentState, stack) {
+          onMatch: function(_value: string, _currentState: string, stack: string[]) {
             stack.shift();
             this.next = stack[0] || 'start';
             return 'wikitext.nowiki.nowiki-close';
@@ -454,7 +389,7 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
         {
           regex: /<\/pre\s*>/,
           next: 'start',
-          onMatch: function(value, currentState, stack) {
+          onMatch: function(_value: string, _currentState: string, stack: string[]) {
             stack.shift();
             this.next = stack[0] || 'start';
             return 'wikitext.pre.pre-close';
@@ -471,7 +406,7 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
         {
           regex: /-->/,
           next: 'start',
-          onMatch: function(value, currentState, stack) {
+          onMatch: function(_value: string, _currentState: string, stack: string[]) {
             stack.shift();
             this.next = stack[0] || 'start';
             return 'comment.end.xml';
@@ -483,7 +418,7 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
         {
           regex: /(?<=^\s*)\|}/,
           next: 'start',
-          onMatch: function(value, currentState, stack) {
+          onMatch: function(_value: string, _currentState: string, stack: string[]) {
             stack.shift();
             this.next = stack[0] || 'start';
             return 'wikitext.table.table-close.table-color';
@@ -507,7 +442,7 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
         },
         { include: 'start' },
         {
-          defaultToken: function(currentState, stack) {
+          defaultToken: function(_currentState: string, stack: string[]) {
             return stack_tokens('wikitext.table.table-text', stack);
           }
         }
@@ -529,7 +464,7 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
 });
 
 (<any> ace).define('ace/mode/wikitext', ['require', 'exports', 'module', 'ace/lib/oop', 'ace/lib/lang', 'ace/tokenizer', 'ace/layer/text',
-  'ace/mode/text', 'ace/mode/javascript',  'ace/mode/xml', 'ace/mode/html', 'ace/mode/wikitext_highlight_rules'], function(acequire, exports, module) {
+  'ace/mode/text', 'ace/mode/javascript',  'ace/mode/xml', 'ace/mode/html', 'ace/mode/wikitext_highlight_rules'], function(acequire, exports, _module) {
 
   'use strict';
 
@@ -539,8 +474,8 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
   let XmlMode = acequire('./xml').Mode;
   let HtmlMode = acequire('./html').Mode;
   let Tokenizer = acequire("../tokenizer").Tokenizer;
-  let TextLayer = acequire('../layer/text').Text;
-  let lang = acequire('../lib/lang');
+  // let TextLayer = acequire('../layer/text').Text;
+  // let lang = acequire('../lib/lang');
 
   let WikitextHighlightRules = acequire('./wikitext_highlight_rules').WikitextHighlightRules;
 
@@ -563,8 +498,8 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
     this.blockComment = { start: '<!--', end: '-->' };
 
     function splitNotInParens(s, del) {
-      var current = '';
-      var parenthesis = 0;
+      let current = '';
+      let parenthesis = 0;
       let res = [];
       for (var i = 0, l = s.length; i < l; i++) {
         if (s[i] === '(') {
@@ -586,7 +521,7 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
       return res;
     }
 
-    this.getNextLineIndent = function(state, line, tab) {
+    this.getNextLineIndent = function(_state, _line: string, _tab) {
       return '';
     };
 
@@ -619,39 +554,40 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
             stack = [];
           }
 
-          var currentState = startState || "start";
-          var state = this.states[currentState];
+          let currentState = startState || "start";
+          let state = this.states[currentState];
           if (!state) {
             currentState = "start";
             state = this.states[currentState];
           }
-          var mapping = this.matchMappings[currentState];
-          var re = this.regExps[currentState];
+          let mapping = this.matchMappings[currentState];
+          let re: RegExp = this.regExps[currentState];
           re.lastIndex = 0;
 
-          var match, tokens = [];
-          var lastIndex = 0;
-          var matchAttempts = 0;
+          let match: RegExpExecArray, tokens = [];
+          let lastIndex = 0;
+          let matchAttempts = 0;
 
-          var token = {type: null, value: ""};
+          let token = {type: null, value: ""};
 
           main_loop: while (match = re.exec(line)) {
-            var type = mapping.defaultToken;
-            var rule = null;
-            var value = match[0];
-            var index = re.lastIndex;
+            let type = mapping.defaultToken;
+            let rule = null;
+            let value = match[0];
+            let index = re.lastIndex;
 
-            // This if statement was added:
+            // BEGIN CUSTOM:
             if (typeof type === 'function') {
-              // It allows the "defaultToken" property to also accept a function value
+              // This allows the "defaultToken" property to also accept a function value instead of just string
               type = type(currentState, stack, line);
             }
 
             let tokenBefore = Object.assign({}, token); // added this line
             let tokensBefore = tokens.slice(); // added this line
+            // END CUSTOM
 
             if (index - value.length > lastIndex) {
-              var skipped = line.substring(lastIndex, index - value.length);
+              let skipped = line.substring(lastIndex, index - value.length);
               if (token.type === type) {
                 token.value += skipped;
               } else {
@@ -674,30 +610,16 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
               else
                 type = rule.token;
 
-              // added this if statement and the stuff inside it
+              // BEGIN CUSTOM (onMatch failing)
               if (type === false) {
                 let reSplit = splitNotInParens(re.source, '|');
 
                 if (reSplit[mapping[i]] !== '($.)') {
                   reSplit[mapping[i]] = '($.)';
 
-                  let isEndOfLine = match.index + value.length === line.length;
-
-                  let hasAdvanceBehavior = rule
-                    && typeof rule.matchFailBehaviorAdvanceDelta === 'number'
-                    && typeof rule.matchFailBehaviorAdvanceIf === 'function'
-                    && !isEndOfLine;
-
-                  if (hasAdvanceBehavior && rule.matchFailBehaviorAdvanceIf(value, currentState, stack, line, match)) {
-                    re = this.regExps[currentState];
-                    let oldIndex = re.lastIndex;
-
-                    re.lastIndex = re.lastIndex + rule.matchFailBehaviorAdvanceDelta;
-                  } else {
-                    let newRe = new RegExp(reSplit.join('|'), re.flags);
-                    newRe.lastIndex = lastIndex;
-                    re = newRe;
-                  }
+                  let newRe = new RegExp(reSplit.join('|'), re.flags);
+                  newRe.lastIndex = lastIndex;
+                  re = newRe;
 
                   token = tokenBefore;
                   tokens = tokensBefore;
@@ -707,20 +629,21 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
                 }
               }
 
-              if (type.includes('meta') && rule.next === 'start' && stack.length) {
-                rule.next = stack[0] || 'start';
+              let nextState = rule.next; // Copy to variable, can't set "rule.next" itself as it'll break things
+
+              // For the inherited rules (from HTML/XML syntax highlight rules, they don't use the stack for the next
+              // state so overwrite their behavior to use the stack.
+              if (type.includes('meta') && nextState === 'start' && stack.length) {
+                nextState = stack[0] || 'start';
               }
+              // END CUSTOM
 
-              if (rule.next) {
-                if (typeof rule.next == "string") {
-                  currentState = rule.next;
+              // CUSTOM NOTE: changed usages of "rule.next" within this if statement below to use "nextState" instead
+              if (nextState) {
+                if (typeof nextState == "string") {
+                  currentState = nextState;
                 } else {
-                  currentState = rule.next(currentState, stack);
-                }
-
-                // Added this if statement:
-                if (currentState === 'wt_bold' || currentState === 'wt_italic') {
-                  currentState = 'wt_quotes';
+                  currentState = nextState(currentState, stack);
                 }
 
                 state = this.states[currentState];
@@ -739,11 +662,13 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
               break;
             }
 
+            // BEGIN CUSTOM
             if (!value && rule && rule.allowEmptyToken) {
               // Need space for value otherwise a token with 0-length value will be ignored by the renderer.
               // But the space won't become part of the actual text, so it's okay.
               tokens.push({type: type, value: ' '});
             }
+            // END CUSTOM
 
             if (value) {
               if (typeof type === "string") {
@@ -796,11 +721,17 @@ import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mw
             if (stack[0] !== currentState)
               stack.unshift("#tmp", currentState);
           }
+
+          // BEGIN CUSTOM
+          tokens = quotifyWikitextTokens(tokens);
+          // END CUSTOM
+
           return {
             tokens : tokens,
             state : stack.length ? stack : currentState
           };
         };
+        // END: getLineTokens
       }
       return this.$tokenizer;
     };

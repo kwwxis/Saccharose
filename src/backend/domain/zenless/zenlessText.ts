@@ -1,5 +1,10 @@
 import { LangCode } from '../../../shared/types/lang-types';
-import { genericNormText, mergeMcTemplate, NormTextOptions } from '../generic/genericNormalizers';
+import {
+  genericNormText,
+  mergeMcTemplate,
+  NormTextOptions,
+  postProcessBoldItalic,
+} from '../generic/genericNormalizers';
 
 function __proxyPlaceholder(langCode: LangCode = 'EN', _degender: boolean = false): string {
   switch (langCode) {
@@ -59,7 +64,8 @@ export function __normZenlessText(text: string, langCode: LangCode, opts: NormTe
   text = genericNormText(text, langCode, opts);
 
   if (!opts.decolor && !opts.plaintext) {
-    text = text.replace(/<color=#\{0}>(.*?)<\/color>/g, `'''$1'''`);
+    text = text.replace(/<color=#\{0}>(.*?)<\/color>/g, `<b>$1</b>`);
+    text = postProcessBoldItalic(text, opts);
     text = text.replace(/<color=(#[0-9a-fA-F]{6})FF>(.*?)<\/color>/g, '{{color|$1|$2}}');
   }
 

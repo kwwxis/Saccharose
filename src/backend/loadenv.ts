@@ -7,6 +7,7 @@ import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { LangCode } from '../shared/types/lang-types';
 import crypto from 'crypto';
+import util from 'util';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -69,3 +70,22 @@ export function getZenlessDataFilePath(file: string): string {
 
 // Makes it so that "crypto" is global and doesn't need to be imported when running in Node.js
 global.crypto = crypto;
+
+declare global {
+  // noinspection JSUnusedGlobalSymbols
+  interface Console {
+    inspect(... args: any[]): void;
+  }
+}
+
+console.inspect = (... args: any[]): void => {
+  let newArgs = [];
+  for (let arg of args) {
+    if (typeof arg === 'undefined' || arg === null || typeof arg === 'number' || typeof arg === 'boolean' || typeof arg === 'string') {
+      newArgs.push(arg);
+    } else {
+      newArgs.push(util.inspect(arg, false, null, true))
+    }
+  }
+  console.log(... newArgs);
+};

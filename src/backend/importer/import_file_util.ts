@@ -172,10 +172,13 @@ export async function importPlainTextMap(ctrl: AbstractControl, getDataFilePath:
       });
 
       console.log(chalk.bold.underline('Creating PlainTextMap for ' + langCode));
-      let hashList = [];
-      let textList = [];
+      let hashList: string[] = []; // entry format: "<hash>" or "<hash>,<type>"
+      let textList: string[] = [];
 
       for (let [hash, text] of Object.entries(textmap)) {
+        hashList.push(hash+',raw');
+        textList.push(text.replaceAll(/\r?\n/g, '\\n'));
+
         let variations: NormTextOptions[] = [
           { decolor: true, plaintext: true, plaintextMcMode: 'both' }
         ];

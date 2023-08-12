@@ -37,6 +37,9 @@ import { distance as strdist } from 'fastest-levenshtein';
 import path from 'path';
 import { cached, cachedSync } from '../../../util/cache';
 import { standardElementCode } from '../../../../shared/types/genshin/manual-text-map';
+import { NormTextOptions } from '../../generic/genericNormalizers';
+import { html2quotes, unnestHtmlTags } from '../../../../shared/mediawiki/mwQuotes';
+import { loadGenshinTextSupportingData } from '../genshinText';
 
 // noinspection JSUnusedGlobalSymbols
 export class GCGControl {
@@ -47,13 +50,13 @@ export class GCGControl {
   rules: GCGRuleExcelConfigData[];
   challenges: GCGChallengeExcelConfigData[];
   elementReactions: GCGElementReactionExcelConfigData[];
-  tagList: GCGTagExcelConfigData[];
-  skillTagList: GCGSkillTagExcelConfigData[];
-  keywordList: GCGKeywordExcelConfigData[];
   costDataList: GCGCostExcelConfigData[];
   worldWorkTime: GcgWorldWorkTimeExcelConfigData[];
   charSkillDamageList: GCGCharSkillDamage[];
   charIcons: string[];
+  tagList: GCGTagExcelConfigData[];
+  skillTagList: GCGSkillTagExcelConfigData[];
+  keywordList: GCGKeywordExcelConfigData[];
 
   // Settings
   disableSkillSelect: boolean = false;
@@ -75,7 +78,7 @@ export class GCGControl {
       return await this.ctrl.readDataFile('./GCGCharSkillDamage.json');
     });
 
-    this.keywordList = await cached('GCG_keywordList', async () => {
+    this.keywordList = await cached('GCG_keywordList_' + this.ctrl.outputLangCode, async () => {
       return await this.allSelect('GCGKeywordExcelConfigData');
     });
 
@@ -91,11 +94,11 @@ export class GCGControl {
       return await this.allSelect('GCGChallengeExcelConfigData');
     });
 
-    this.tagList = await cached('GCG_tagList', async () => {
+    this.tagList = await cached('GCG_tagList_' + this.ctrl.outputLangCode, async () => {
       return await this.allSelect('GCGTagExcelConfigData');
     });
 
-    this.skillTagList = await cached('GCG_skillTagList', async () => {
+    this.skillTagList = await cached('GCG_skillTagList_' + this.ctrl.outputLangCode, async () => {
       return await this.allSelect('GCGSkillTagExcelConfigData');
     });
 
@@ -131,12 +134,12 @@ export class GCGControl {
       return text || '';
     }
 
-    text = this.ctrl.normText(text, outputLangCode || this.ctrl.outputLangCode);
+    text = this.ctrl.normText(text, outputLangCode || this.ctrl.outputLangCode, {skipHtml2Quotes: true});
 
     text = text.replace(/\$\[K(\d+)(?:\|s(\d+))?]/g, (fm: string, g: string, sNumStr: string) => {
       const id = toInt(g);
       const kwText = this.keywordList.find(kw => kw.Id === id).TitleText;
-      return this.ctrl.normText(kwText, outputLangCode || this.ctrl.outputLangCode).replace(/^'''(.*)'''$/, '$1');
+      return this.ctrl.normText(kwText, outputLangCode || this.ctrl.outputLangCode, {skipHtml2Quotes: true});
     });
 
     const commonReplace = async (obj: GCGCharExcelConfigData|GCGSkillExcelConfigData|GCGCardExcelConfigData, fm: string, sNumStr: string) => {
@@ -148,7 +151,7 @@ export class GCGControl {
         return obj.WikiName;
       } else {
         const rawText = await this.ctrl.getTextMapItem(this.ctrl.outputLangCode, obj.NameTextMapHash);
-        const normText = this.ctrl.normText(rawText, this.ctrl.outputLangCode, { plaintext: false, decolor: false, sNum: toInt(sNumStr) });
+        const normText = this.ctrl.normText(rawText, this.ctrl.outputLangCode, { plaintext: false, decolor: false, sNum: toInt(sNumStr), skipHtml2Quotes: true });
         return obj.WikiName !== normText ? `[[${obj.WikiName}|${normText}]]` : `[[${normText}]]`;
       }
     };
@@ -170,6 +173,10 @@ export class GCGControl {
     if (stripSprite) {
       text = text.replace(/\{\{Sprite\|.*?}}/g, '');
     }
+
+    text = unnestHtmlTags(text);
+    text = html2quotes(text);
+
     return text;
   }
 
@@ -1116,74 +1123,61 @@ export function getGCGControl(ctrl: GenshinControl) {
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
+    await loadGenshinTextSupportingData();
     await loadGenshinVoiceItems();
 
     const ctrl = getGenshinControl();
     const gcg = getGCGControl(ctrl);
     await gcg.init();
 
-    const stages = await gcg.selectAllStage();
-    fs.writeFileSync(getGenshinDataFilePath('./stages.json'), JSON.stringify(stages, null, 2), 'utf8');
+    console.inspect(await gcg.selectSkill(16033));
 
-    for (let stage of stages) {
-      if (stage.Reward) {
-        for (let hash of stage.Reward.OACBEKOLDFI) {
-          let text = await ctrl.getTextMapItem('EN', hash);
-          if (text) {
-            console.log('OACBEKOLDFI', text);
-          }
-        }
-        for (let hash of stage.Reward.HGDLKEHAKCE) {
-          let text = await ctrl.getTextMapItem('EN', hash);
-          if (text) {
-            console.log('HGDLKEHAKCE', text);
-          }
-        }
-      }
-    }
 
-    const cards = await gcg.selectAllCards();
-    fs.writeFileSync(getGenshinDataFilePath('./cards.json'), JSON.stringify(cards, null, 2), 'utf8');
-
-    const deckCards = await gcg.selectAllDeckCard();
-    fs.writeFileSync(getGenshinDataFilePath('./deck-cards.json'), JSON.stringify(deckCards, null, 2), 'utf8');
-
-    // const decks = await gcg.selectAllDeck();
-    // fs.writeFileSync(getGenshinDataFilePath('./decks.json'), JSON.stringify(decks, null, 2), 'utf8');
-
-    const chars = await gcg.selectAllCharacterCards();
-    // fs.writeFileSync(getGenshinDataFilePath('./characters.json'), JSON.stringify(chars, null, 2), 'utf8');
-
-    const stage1 = await gcg.selectStage(2011);
-    fs.writeFileSync(getGenshinDataFilePath('./single-stage-2011.json'), JSON.stringify(stage1, null, 2), 'utf8');
-
-    const stage2 = await gcg.selectStage(11003);
-    fs.writeFileSync(getGenshinDataFilePath('./single-stage-11003.json'), JSON.stringify(stage2, null, 2), 'utf8');
-
-    const stage3 = await gcg.selectStage(12105);
-    fs.writeFileSync(getGenshinDataFilePath('./single-stage-12105.json'), JSON.stringify(stage3, null, 2), 'utf8');
-
-    const cardIds: number[] = [];
-    for (let card of cards) {
-      cardIds.push(card.Id);
-    }
-
-    const deckCardIds: number[] = [];
-    for (let deckCard of deckCards) {
-      deckCardIds.push(deckCard.Id);
-    }
-
-    const charIds: number[] = [];
-    for (let char of chars) {
-      charIds.push(char.Id);
-    }
-
-    console.log('Total CardExcel:', cardIds.length);
-    console.log('Total DeckCardExcel:', deckCardIds.length);
-    console.log('Total CharExcel:', charIds.length);
-    console.log('DeckCardExcels that have a CardExcel with same ID:', deckCardIds.filter(id => cardIds.includes(id)).length);
-    console.log('DeckCardExcels that have a CharExcel with same ID:', deckCardIds.filter(id => charIds.includes(id)).length);
-    console.log('CardExcels that have a CharExcel with same ID (should be zero - no overlap):', cardIds.filter(id => charIds.includes(id)).length);
+    // const stages = await gcg.selectAllStage();
+    // fs.writeFileSync(getGenshinDataFilePath('./stages.json'), JSON.stringify(stages, null, 2), 'utf8');
+    //
+    // const cards = await gcg.selectAllCards();
+    // fs.writeFileSync(getGenshinDataFilePath('./cards.json'), JSON.stringify(cards, null, 2), 'utf8');
+    //
+    // const deckCards = await gcg.selectAllDeckCard();
+    // fs.writeFileSync(getGenshinDataFilePath('./deck-cards.json'), JSON.stringify(deckCards, null, 2), 'utf8');
+    //
+    // // const decks = await gcg.selectAllDeck();
+    // // fs.writeFileSync(getGenshinDataFilePath('./decks.json'), JSON.stringify(decks, null, 2), 'utf8');
+    //
+    // const chars = await gcg.selectAllCharacterCards();
+    // // fs.writeFileSync(getGenshinDataFilePath('./characters.json'), JSON.stringify(chars, null, 2), 'utf8');
+    //
+    // const stage1 = await gcg.selectStage(2011);
+    // fs.writeFileSync(getGenshinDataFilePath('./single-stage-2011.json'), JSON.stringify(stage1, null, 2), 'utf8');
+    //
+    // const stage2 = await gcg.selectStage(11003);
+    // fs.writeFileSync(getGenshinDataFilePath('./single-stage-11003.json'), JSON.stringify(stage2, null, 2), 'utf8');
+    //
+    // const stage3 = await gcg.selectStage(12105);
+    // fs.writeFileSync(getGenshinDataFilePath('./single-stage-12105.json'), JSON.stringify(stage3, null, 2), 'utf8');
+    //
+    // const cardIds: number[] = [];
+    // for (let card of cards) {
+    //   cardIds.push(card.Id);
+    // }
+    //
+    // const deckCardIds: number[] = [];
+    // for (let deckCard of deckCards) {
+    //   deckCardIds.push(deckCard.Id);
+    // }
+    //
+    // const charIds: number[] = [];
+    // for (let char of chars) {
+    //   charIds.push(char.Id);
+    // }
+    //
+    // console.log('Total CardExcel:', cardIds.length);
+    // console.log('Total DeckCardExcel:', deckCardIds.length);
+    // console.log('Total CharExcel:', charIds.length);
+    // console.log('DeckCardExcels that have a CardExcel with same ID:', deckCardIds.filter(id => cardIds.includes(id)).length);
+    // console.log('DeckCardExcels that have a CharExcel with same ID:', deckCardIds.filter(id => charIds.includes(id)).length);
+    // console.log('CardExcels that have a CharExcel with same ID (should be zero - no overlap):', cardIds.filter(id => charIds.includes(id)).length);
 
     await closeKnex();
   })();

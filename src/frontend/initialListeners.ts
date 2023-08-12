@@ -515,8 +515,10 @@ const initial_listeners: Listener[] = [
                   if (otherTabAction.actionParams[1] == tabgroup && otherTabAction.actionParams[0] !== actionParams[0]) {
                     otherTabEl.classList.remove('active');
                     const otherTabPanel = qs(otherTabAction.actionParams[0]);
-                    otherTabPanel.classList.remove('active');
-                    otherTabPanel.classList.add('hide');
+                    if (otherTabPanel) {
+                      otherTabPanel.classList.remove('active');
+                      otherTabPanel.classList.add('hide');
+                    }
                   }
                 }
               }

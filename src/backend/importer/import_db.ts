@@ -68,8 +68,8 @@ export function textMapSchema(langCode: LangCode, hashType: string = 'integer'):
     name: 'TextMap' + langCode,
     jsonFile: './TextMap/TextMap'+langCode+'.json',
     columns: [
-      {name: 'Hash', type: hashType, isPrimary: true, resolve: 'Key'},
-      {name: 'Text', type: 'text', resolve: 'Value'}
+      {name: 'Hash', type: hashType, isPrimary: true},
+      {name: 'Text', type: 'text'}
     ],
     customRowResolve(row) {
       return [{Hash: row.Key, Text: row.Value}];
@@ -83,11 +83,13 @@ export function plainLineMapSchema(langCode: LangCode, hashType: string = 'integ
     name: 'PlainLineMap' + langCode,
     jsonFile: `./TextMap/Plain/PlainTextMap${langCode}_Hash.dat`,
     columns: [
-      {name: 'Line', type: 'integer', isPrimary: true, resolve: 'LineNumber' },
-      {name: 'Hash', type: hashType, resolve: 'LineText' }
+      {name: 'Line', type: 'integer', isPrimary: true },
+      {name: 'Hash', type: hashType },
+      {name: 'LineType', type: 'text', isIndex: true }
     ],
     customRowResolve(row) {
-      return [{Line: row.LineNumber, Hash: row.LineText}];
+      const linePair = row.LineText.split(',');
+      return [{Line: row.LineNumber, Hash: linePair[0], LineType: linePair[1] || null}];
     },
     isDatFile: true,
   }

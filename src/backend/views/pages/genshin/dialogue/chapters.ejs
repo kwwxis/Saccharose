@@ -131,23 +131,27 @@
       <%- use('partials/genshin/dialogue/chapter-list-item', { quests: quests }) %>
     </div>
   </section>
-<section class="card">
-  <h2>Other Languages</h2>
-  <div class="content">
-    <% if (OL.mainChapterName) { %>
-      <strong class="dispBlock spacer5-top">TextMapHash: <%= OL.mainChapterName.textMapHash %></strong>
-      <textarea readonly spellcheck="false" translate="no" class="ol-result-textarea wikitext w100p" style="resize:vertical;min-height:300px"><%= OL.mainChapterName.result %></textarea>
-    <% } %>
-    <% if (OL.subChapterName && OL.subChapterName !== OL.mainChapterName) { %>
-        <strong class="dispBlock spacer5-top">TextMapHash: <%= OL.subChapterName.textMapHash %></strong>
-      <textarea readonly spellcheck="false" translate="no" class="ol-result-textarea wikitext w100p" style="resize:vertical;min-height:300px"><%= OL.subChapterName.result %></textarea>
-    <% } %>
-    <% if (OL.actName) { %>
-      <strong class="dispBlock spacer5-top">TextMapHash: <%= OL.actName.textMapHash %></strong>
-      <textarea readonly spellcheck="false" translate="no" class="ol-result-textarea wikitext w100p" style="resize:vertical;min-height:300px"><%= OL.actName.result %></textarea>
-    <% } %>
-  </div>
-</section>
+  <section class="card">
+    <h2>Other Languages</h2>
+    <div class="content">
+      <% if (OL.mainChapterName) { %>
+        <strong class="dispBlock spacer5-top">TextMapHash: <%= OL.mainChapterName.textMapHash %></strong>
+        <textarea readonly spellcheck="false" translate="no" class="ol-result-textarea wikitext w100p" style="resize:vertical;min-height:300px"><%= OL.mainChapterName.result %></textarea>
+      <% } %>
+      <% if (OL.subChapterName && OL.subChapterName !== OL.mainChapterName) { %>
+          <strong class="dispBlock spacer5-top">TextMapHash: <%= OL.subChapterName.textMapHash %></strong>
+        <textarea readonly spellcheck="false" translate="no" class="ol-result-textarea wikitext w100p" style="resize:vertical;min-height:300px"><%= OL.subChapterName.result %></textarea>
+      <% } %>
+      <% if (OL.actName) { %>
+        <strong class="dispBlock spacer5-top">TextMapHash: <%= OL.actName.textMapHash %></strong>
+        <textarea readonly spellcheck="false" translate="no" class="ol-result-textarea wikitext w100p" style="resize:vertical;min-height:300px"><%= OL.actName.result %></textarea>
+      <% } %>
+    </div>
+  </section>
+  <section class="card">
+    <h2>JSON</h2>
+    <%- use('partials/util/json', { content: chapter }) %>
+  </section>
 <% } else { %>
   <section class="card">
     <h2>Archon Quest</h2>

@@ -1,10 +1,16 @@
 import { toInt } from '../../../shared/util/numberUtil';
 import { LangCode, LangCodeMap } from '../../../shared/types/lang-types';
 import { wordRejoin, wordSplit } from '../../../shared/util/stringUtil';
-import { genericNormText, mergeMcTemplate, NormTextOptions } from '../generic/genericNormalizers';
+import {
+  genericNormText,
+  mergeMcTemplate,
+  NormTextOptions,
+  postProcessBoldItalic,
+} from '../generic/genericNormalizers';
 import { SpriteTagExcelConfigData } from '../../../shared/types/genshin/general-types';
 import { getGenshinControl } from './genshinControl';
 import { toMap } from '../../../shared/util/arrayUtil';
+import { html2quotes, unnestHtmlTags } from '../../../shared/mediawiki/mwQuotes';
 
 function __convertGenshinRubi(langCode: LangCode, text: string): string {
   const rubiMap: { [index: number]: string } = {};
@@ -104,9 +110,10 @@ export function __normGenshinText(text: string, langCode: LangCode, opts: NormTe
 
   if (!opts.decolor && !opts.plaintext) {
     // Bold:
-    text = text.replace(/<color=#\{0}>(.*?)<\/color>/g, `'''$1'''`);
-    text = text.replace(/<color=#FFFFFF(?:FF)?>(.*?)<\/color>/g, `'''$1'''`);
-    text = text.replace(/<color=#37FFFF(?:FF)?>(.*?) ?<\/color>/g, `'''$1'''`);
+    text = text.replace(/<color=#\{0}>(.*?)<\/color>/g, `<b>$1</b>`);
+    text = text.replace(/<color=#FFFFFF(?:FF)?>(.*?)<\/color>/g, `<b>$1</b>`);
+    text = text.replace(/<color=#37FFFF(?:FF)?>(.*?) ?<\/color>/g, `<b>$1</b>`);
+    text = postProcessBoldItalic(text, opts);
 
     // Misc:
     text = text.replace(/<color=#00E1FF(?:FF)?>(.*?)<\/color>/g, '{{color|buzzword|$1}}');

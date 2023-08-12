@@ -1,5 +1,10 @@
 import { LangCode } from '../../../shared/types/lang-types';
-import { genericNormText, mergeMcTemplate, NormTextOptions } from '../generic/genericNormalizers';
+import {
+  genericNormText,
+  mergeMcTemplate,
+  NormTextOptions,
+  postProcessBoldItalic,
+} from '../generic/genericNormalizers';
 import { TextJoinConfig, TextJoinItem } from '../../../shared/types/hsr/hsr-misc-types';
 import { getStarRailControl } from './starRailControl';
 import { toMap, ArrayStream } from '../../../shared/util/arrayUtil';
@@ -63,7 +68,8 @@ export function __normStarRailText(text: string, langCode: LangCode, opts: NormT
   text = text.replace(/<\/?unbreak>/g, '');
 
   if (!opts.decolor && !opts.plaintext) {
-    text = text.replace(/<color=#\{0}>(.*?)<\/color>/g, `'''$1'''`);
+    text = text.replace(/<color=#\{0}>(.*?)<\/color>/g, `<b>$1</b>`);
+    text = postProcessBoldItalic(text, opts);
     text = text.replace(/<color=(#[0-9a-fA-F]{6})FF>(.*?)<\/color>/g, '{{color|$1|$2}}');
   }
 

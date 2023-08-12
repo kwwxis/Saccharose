@@ -392,8 +392,7 @@ input.asi-search-for--input[type=text] {
   color: hsl(217, 11%, 78%);
 }
 .asi-desc code {
-  font-family: Consolas, Menlo, Monaco, 'Lucida Console', 'Liberation Mono', 'DejaVu Sans Mono',
-  'Bitstream Vera Sans Mono', 'Courier New', monospace, serif;
+  font-family: Consolas, Menlo, 'Monaco', 'Lucida Console', 'Liberation Mono', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Courier New', sans-serif;
   color: #333;
   padding: 2px 3px;
   background: #f1f1f1;
@@ -404,8 +403,7 @@ input.asi-search-for--input[type=text] {
 .asi-desc pre {
   white-space: pre;
   display: block;
-  font-family: Consolas, Menlo, Monaco, 'Lucida Console', 'Liberation Mono', 'DejaVu Sans Mono',
-  'Bitstream Vera Sans Mono', 'Courier New', monospace, serif;
+  font-family: Consolas, Menlo, 'Monaco', 'Lucida Console', 'Liberation Mono', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Courier New', sans-serif;
   color: #333;
   font-size: 13px;
   line-height: 23px;

@@ -120,8 +120,7 @@ code,
 .code,
 input[type=text].code,
 input[type=search].code {
-  font-family: Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono,
-  Bitstream Vera Sans Mono, Courier New, monospace, sans-serif;
+  font-family: Consolas, Menlo, 'Monaco', 'Lucida Console', 'Liberation Mono', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Courier New', sans-serif;
 }
 
 textarea.code, [contenteditable].code, .input-style.code {

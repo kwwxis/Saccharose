@@ -1,4 +1,7 @@
 
+// "doQuotes" from https://phabricator.wikimedia.org/source/mediawiki/browse/master/includes/parser/Parser.php
+import { defaultMap } from '../util/genericUtil';
+
 export function doQuotes(text: string): string {
   let arr: string[] = text.split(/(''+)/g);
   let countArr = arr.length;
@@ -179,54 +182,97 @@ export function doQuotes(text: string): string {
   return output;
 }
 
-export type MW_QUOTE_POS = 'BOLD_OPEN'|'BOLD_CLOSE'|'ITALIC_OPEN'|'ITALIC_CLOSE';
-export const MW_QUOTE_POS_TO_TAG = {
+export type MW_QUOTE_TYPE = 'BOLD_OPEN' | 'BOLD_CLOSE' | 'ITALIC_OPEN' | 'ITALIC_CLOSE';
+export type MW_QUOTE_POSMAP = {[index: number]: MW_QUOTE_TYPE[]};
+export const MW_QUOTE_TYPE_TO_TAG = {
   BOLD_OPEN: '<b>',
   BOLD_CLOSE: '</b>',
   ITALIC_OPEN: '<i>',
-  ITALIC_CLOSE: '</i>'
+  ITALIC_CLOSE: '</i>',
 };
-export const MW_TAG_TO_QUOTE_POS: {[tag: string]: MW_QUOTE_POS} = {
+export const MW_QUOTE_TYPE_TO_QUOTES = {
+  BOLD_OPEN:  `'''`,
+  BOLD_CLOSE: `'''`,
+  ITALIC_OPEN:  `''`,
+  ITALIC_CLOSE: `''`,
+};
+export const MW_TAG_TO_QUOTE_TYPE: {[tag: string]: MW_QUOTE_TYPE} = {
   '<b>': 'BOLD_OPEN',
   '</b>': 'BOLD_CLOSE',
   '<i>': 'ITALIC_OPEN',
   '</i>': 'ITALIC_CLOSE'
 };
 
-const replacePart = s => s.replace(/<\/?i>/g, `''`).replace(/<\/?b>/g, `'''`);
-
-export function getQuotePos(s: string, i: number): MW_QUOTE_POS {
-  let parts = doQuotes(s).split(/(<\/?b>|<\/?i>)/g).filter(x => !!x);
-  let pos = 0;
-  for (let part of parts) {
-    if (MW_TAG_TO_QUOTE_POS[part]) {
-      if (i === pos) {
-        return MW_TAG_TO_QUOTE_POS[part];
-      } else {
-        pos += replacePart(part).length;
-      }
-    } else {
-      pos += replacePart(part).length;
-    }
-  }
-  return null;
+export function html2quotes(s: string) {
+  return s.replace(/<\/?i>/g, `''`).replace(/<\/?b>/g, `'''`);
 }
 
-export function checkQuotePos(s: string, i: number, type: MW_QUOTE_POS) {
-  let checkTag = MW_QUOTE_POS_TO_TAG[type];
+export function getQuoteTypes(s: string, i: number): MW_QUOTE_TYPE[] {
+  return getQuotePosMap(s)[i] || [];
+}
 
-  let parts = doQuotes(s).split(new RegExp('('+checkTag+')', 'g')).filter(x => !!x);
-  let pos = 0;
-  for (let part of parts) {
-    if (part === checkTag) {
-      if (i === pos) {
-        return true;
-      } else {
-        pos += replacePart(part).length;
+export function getQuotePosMap(s: string): MW_QUOTE_POSMAP {
+  let parts: string[] = doQuotes(s).split(/(<\/?b>|<\/?i>)/g).filter(x => !!x);
+  let pos: number = 0;
+  let out: MW_QUOTE_POSMAP = defaultMap('Array');
+
+  for (let i = 0; i < parts.length; i++) {
+    const part = parts[i];
+    const quoteType = MW_TAG_TO_QUOTE_TYPE[part];
+    if (quoteType) {
+      if (pos > (s.length - 1)) {
+        pos = s.length - 1;
+      }
+      out[pos].push(quoteType);
+
+      const quotes: string = MW_QUOTE_TYPE_TO_QUOTES[quoteType];
+
+      //console.log(`QUOTE[${i}]`, s.slice(pos, pos+quotes.length), pos, quotes.length, quoteType, quotes);
+      if (s.slice(pos, pos+quotes.length) === quotes) {
+        pos += quotes.length;
       }
     } else {
-      pos += replacePart(part).length;
+      while (s.slice(pos, pos+part.length) !== part) {
+        pos++;
+      }
+      pos += part.length;
     }
   }
-  return false;
+
+  return out;
+}
+
+export function unnestHtmlTags(s: string) {
+  let bold_open: number = 0;
+  let italic_open: number = 0;
+  let parts: string[] = s.split(/(<\/?[bi]>)/g);
+  let out: string = '';
+
+  for (let part of parts) {
+    if (part === '<b>') {
+      if (bold_open === 0) {
+        out += '<b>';
+      }
+      bold_open++;
+    } else if (part === '</b>') {
+      bold_open--;
+      if (bold_open === 0) {
+        out += '</b>';
+      }
+    } else if (part === '<i>') {
+      if (italic_open === 0) {
+        out += '<i>';
+      }
+      italic_open++;
+    } else if (part === '</i>') {
+      italic_open--;
+      if (italic_open === 0) {
+        out += '</i>';
+      }
+    } else {
+      out += part;
+    }
+  }
+
+  return out;
 }

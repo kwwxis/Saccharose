@@ -1,6 +1,8 @@
 import { LangCode } from '../../../shared/types/lang-types';
 import { wordRejoin, wordSplit } from '../../../shared/util/stringUtil';
 import { toInt } from '../../../shared/util/numberUtil';
+import { pathToFileURL } from 'url';
+import { doQuotes, html2quotes, unnestHtmlTags } from '../../../shared/mediawiki/mwQuotes';
 
 
 export interface NormTextOptions {
@@ -10,7 +12,8 @@ export interface NormTextOptions {
   sNum?: number,
   mcPlaceholderProvider?: (langCode: LangCode, degender?: boolean) => string,
   mcPlaceholderForceLangCode?: LangCode,
-  plaintextDash?: string;
+  plaintextDash?: string,
+  skipHtml2Quotes?: boolean,
 }
 
 export function mergeMcTemplate(text: string, langCode: LangCode, plaintext: boolean): string {
@@ -49,6 +52,16 @@ export function mergeMcTemplate(text: string, langCode: LangCode, plaintext: boo
       text = text.replace(regex, (s, maleText1, femaleText1, whitespace, maleText2, femaleText2) => {
         return `{{MC|m=${maleText1}${whitespace}${maleText2}|f=${femaleText1}${whitespace}${femaleText2}}}`;
       });
+    }
+  }
+  return text;
+}
+
+export function postProcessBoldItalic(text: string, opts: NormTextOptions): string {
+  if (text.includes('<b>') || text.includes('<i>')) {
+    text = unnestHtmlTags(text);
+    if (!opts.skipHtml2Quotes) {
+      text = html2quotes(text);
     }
   }
   return text;

@@ -1,0 +1,1 @@
+'''Estela de Pedra'''<br />'''Fase Final: '''Causa 1 ponto de {{Geo|Dano Geo}}.<br />'''Usos: 2'''<br /><br />'''Escudo de Jade'''<br />Da '''2 pontos de '''Escudo'''
