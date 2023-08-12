@@ -57,6 +57,10 @@ export async function generateSkillPage(gcg: GCGControl, parentCard: GCGCommonCa
 }
 
 export async function generateCardPage(gcg: GCGControl, card: GCGCommonCard): Promise<string> {
+  if (!card) {
+    return '';
+  }
+
   const sb = new SbOut();
 
   sb.line(`{{Genius Invokation TCG Infobox`);

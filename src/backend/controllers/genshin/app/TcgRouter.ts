@@ -133,7 +133,7 @@ export default async function(): Promise<Router> {
       bodyClass: ['page--tcg-card'],
       card: card,
       wikitext: await generateCardPage(gcg, card),
-      skills: await (card.MappedSkillList || []).asyncMap(async (skill, index) => ({
+      skills: await (card?.MappedSkillList || []).asyncMap(async (skill, index) => ({
         skill: skill,
         wikitext: await generateSkillPage(gcg, card, skill, index),
         index,

@@ -171,9 +171,12 @@
     </section>
   </section>
 <% } else { %>
-  <section>
+  <section class="card">
     <div class="content">
-      <p>Card not found.</p>
+      <p>Card not found for ID <code><%= req.params.cardId %></code></p>
+      <div class="spacer10-top">
+        <a role="button" class="secondary fontWeight600" style="font-size:14px;padding:3px 8px" href="/TCG/cards">Return back to cards list</a>
+      </div>
     </div>
   </section>
 <% } %>

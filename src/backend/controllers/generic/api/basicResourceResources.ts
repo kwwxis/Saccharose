@@ -9,10 +9,18 @@ import { HttpError } from '../../../../shared/util/httpError';
 export async function handleTextMapSearchEndpoint(ctrl: AbstractControl, req: Request, res: Response) {
   const startFromLine: number = isset(req.query.startFromLine) && isInt(req.query.startFromLine) ? toInt(req.query.startFromLine) : undefined;
   const resultSetNum: number = isset(req.query.resultSetNum) && isInt(req.query.resultSetNum) ? toInt(req.query.resultSetNum) : 0;
+  const isRawInput: boolean = isset(req.query.isRawInput) && toBoolean(req.query.isRawInput);
+  const isRawOutput: boolean = isset(req.query.isRawOutput) && toBoolean(req.query.isRawOutput);
   const SEARCH_TEXTMAP_MAX = 100;
 
   // "-m" flag -> max count
-  const items = await ctrl.getTextMapMatches(ctrl.inputLangCode, <string> req.query.text, `-m ${SEARCH_TEXTMAP_MAX+1} ${ctrl.searchModeFlags}`, startFromLine);
+  const items = await ctrl.getTextMapMatches(
+    ctrl.inputLangCode,
+    <string> req.query.text,
+    `-m ${SEARCH_TEXTMAP_MAX+1} ${ctrl.searchModeFlags}`,
+    startFromLine,
+    isRawInput
+  );
   let hasMoreResults: boolean = false;
 
   if (items.length > SEARCH_TEXTMAP_MAX) {
@@ -28,8 +36,10 @@ export async function handleTextMapSearchEndpoint(ctrl: AbstractControl, req: Re
     }
   }
 
-  for (let item of items) {
-    item.text = ctrl.normText(item.text, ctrl.outputLangCode);
+  if (!isRawOutput) {
+    for (let item of items) {
+      item.text = ctrl.normText(item.text, ctrl.outputLangCode);
+    }
   }
 
   if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {

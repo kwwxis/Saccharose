@@ -7,7 +7,7 @@ import {
   LANG_CODES,
   LangCode,
   LangCodeMap,
-  NON_SPACE_DELIMITED_LANG_CODES,
+  NON_SPACE_DELIMITED_LANG_CODES, PlainLineMapItem,
   TextMapHash,
 } from '../../shared/types/lang-types';
 import {
@@ -26,6 +26,7 @@ import { getLineNumberForLineText, grep, grepStream } from '../util/shellutil';
 import { NormTextOptions } from './generic/genericNormalizers';
 import { ExtractScalar } from '../../shared/types/utility-types';
 import { ArrayStream } from '../../shared/util/arrayUtil';
+import { toBoolean } from '../../shared/util/genericUtil';
 
 export abstract class AbstractControlState {
   public request: Request = null;
@@ -175,15 +176,15 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     return map as LangCodeMap;
   }
 
-  async getTextMapHashFromPlainLineMap(langCode: LangCode, lineNum: number): Promise<TextMapHash> {
+  async selectPlainLineMapItem(langCode: LangCode, lineNum: number): Promise<PlainLineMapItem> {
     if (langCode === 'CH') {
       langCode = 'CHS';
     }
     if (this.disabledLangCodes.has(langCode)) {
-      return 0;
+      return {Hash: 0, Line: 0, LineType: null};
     }
-    return await this.knex.select('Hash').from('PlainLineMap'+langCode)
-      .where({Line: lineNum}).first().then(x => x?.Hash);
+    return await this.knex.select('*').from('PlainLineMap'+langCode)
+      .where({Line: lineNum}).first().then();
   }
 
   getExcelPath(): string {
@@ -219,7 +220,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     return fs.stat(this.getDataFilePath(filePath)).then(ret => ret.size);
   }
 
-  async getTextMapMatches(langCode: LangCode, searchText: string, flags?: string, startFromLine?: number): Promise<{hash: TextMapHash, text: string, line: number}[]> {
+  async getTextMapMatches(langCode: LangCode, searchText: string, flags?: string, startFromLine?: number, isRawInput?: boolean): Promise<{hash: TextMapHash, text: string, line: number}[]> {
     if (isStringBlank(searchText)) {
       return [];
     }
@@ -246,7 +247,11 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       if (isNaN(lineNum))
         continue;
 
-      const textMapHash: TextMapHash = await this.getTextMapHashFromPlainLineMap(langCode, lineNum);
+      const { Hash: textMapHash, LineType: lineType } = await this.selectPlainLineMapItem(langCode, lineNum);
+
+      if (isRawInput && lineType !== 'raw') {
+        continue;
+      }
 
       if (hashSeen.has(textMapHash)) {
         continue;
@@ -311,7 +316,8 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
   async streamTextMapMatches(langCode: LangCode,
                              searchText: string,
                              stream: (textMapHash: TextMapHash, text?: string, kill?: () => void) => void,
-                             flags?: string): Promise<number|Error> {
+                             flags?: string,
+                             isRawInput?: boolean): Promise<number|Error> {
     if (isStringBlank(searchText)) {
       return 0;
     }
@@ -340,8 +346,12 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       if (isNaN(lineNum))
         return;
 
-      const textMapHash: TextMapHash = await this.getTextMapHashFromPlainLineMap(langCode, lineNum);
+      const { Hash: textMapHash, LineType: lineType } = await this.selectPlainLineMapItem(langCode, lineNum);
       const text: string = await this.getTextMapItem(langCode, textMapHash);
+
+      if (isRawInput && lineType !== 'raw') {
+        return;
+      }
 
       if (hashSeen.has(textMapHash)) {
         return;

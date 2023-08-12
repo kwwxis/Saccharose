@@ -4,6 +4,7 @@ import { Listener, startListeners } from '../util/eventLoader';
 import { GeneralEventBus } from '../generalEventBus';
 import { HttpError } from '../../shared/util/httpError';
 import { pasteFromClipboard } from '../util/domutil';
+import { toBoolean } from '../../shared/util/genericUtil';
 
 export interface GenericSearchPageHandle {
   generateResult(caller: string): void;
@@ -61,12 +62,24 @@ export function startGenericSearchPageListeners<T>(opts: GenericSearchPageOpts<T
       stateData[opt.queryParam] = val;
 
       const el = document.querySelector<HTMLInputElement>(opt.selector);
-      if (val) {
-        el.value = val;
+
+      if (el.type.toLowerCase() === 'checkbox' || el.type.toLowerCase() === 'radio') {
+        if (toBoolean(val)) {
+          el.checked = true;
+        } else {
+          el.checked = false;
+          if (opt.required) {
+            doGenerate = false;
+          }
+        }
       } else {
-        el.value = '';
-        if (opt.required) {
-          doGenerate = false;
+        if (val) {
+          el.value = val;
+        } else {
+          el.value = '';
+          if (opt.required) {
+            doGenerate = false;
+          }
         }
       }
     }
@@ -94,7 +107,11 @@ export function startGenericSearchPageListeners<T>(opts: GenericSearchPageOpts<T
       const val = state[opt.queryParam];
       const el = document.querySelector<HTMLInputElement>(opt.selector);
 
-      el.value = val || '';
+      if (el.type.toLowerCase() === 'checkbox' || el.type.toLowerCase() === 'radio') {
+        el.checked = toBoolean(val);
+      } else {
+        el.value = val || '';
+      }
 
       if (!val && opt.required) {
         doGenerate = false;
@@ -125,6 +142,12 @@ export function startGenericSearchPageListeners<T>(opts: GenericSearchPageOpts<T
       const el = document.querySelector<HTMLInputElement>(opt.selector);
       let val: string|number = el.value.trim();
 
+      if (el.type.toLowerCase() === 'checkbox' || el.type.toLowerCase() === 'radio') {
+        if (!el.checked) {
+          val = '';
+        }
+      }
+
       inputEls.push(el);
 
       if (opt.mapper) {
@@ -147,7 +170,13 @@ export function startGenericSearchPageListeners<T>(opts: GenericSearchPageOpts<T
       apiPayload[opt.apiParam as string] = val;
 
       if (opt.queryParam) {
-        stateData[opt.queryParam] = String(val);
+        if (el.type.toLowerCase() === 'checkbox' || el.type.toLowerCase() === 'radio') {
+          if (el.checked) {
+            stateData[opt.queryParam] = String(val);
+          }
+        } else {
+          stateData[opt.queryParam] = String(val);
+        }
       }
     }
 

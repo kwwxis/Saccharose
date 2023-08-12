@@ -11,6 +11,16 @@
       </div>
       <%- include('partials/util/search-mode-input') %>
     </div>
+    <div class="field valign">
+      <label class="ui-checkbox dispBlock" style="padding-left:5px;font-size:13px;">
+        <input id="isRawInput" type="checkbox" name="isRawInput" value="1" <%= cookieTernary('TextMapSearch.isRawInput').isTruthy().then('checked') %> />
+        <span>Use raw input</span>
+      </label>
+      <label class="ui-checkbox dispBlock" style="padding-left:5px;font-size:13px;">
+        <input id="isRawOutput" type="checkbox" name="isRawOutput" value="1" <%= cookieTernary('TextMapSearch.isRawOutput').isTruthy().then('checked') %> />
+        <span>Use raw output</span>
+      </label>
+    </div>
     <div class="field valign spacer10-top">
       <button class="search-submit primary primary--2">Search</button>
       <div class="search-submit-pending hide loading small spacer5-left"></div>

@@ -35,6 +35,16 @@ pageMatch('pages/generic/basic/textmap', () => {
       {
         selector: '#resultSetNum',
         apiParam: 'resultSetNum',
+      },
+      {
+        selector: '#isRawInput',
+        apiParam: 'isRawInput',
+        queryParam: 'isRawInput',
+      },
+      {
+        selector: '#isRawOutput',
+        apiParam: 'isRawOutput',
+        queryParam: 'isRawOutput',
       }
     ],
 

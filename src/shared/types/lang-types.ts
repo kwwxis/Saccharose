@@ -1,5 +1,8 @@
 export type TextMapHash = number|string;
 
+
+export type PlainLineMapItem = {Line: number, Hash: TextMapHash, LineType?: string };
+
 export type LangCode =
   'CH'
   | 'CHS'
