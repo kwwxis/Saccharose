@@ -643,7 +643,7 @@ import { quotifyWikitextTokens } from './quotify';
                 if (typeof nextState == "string") {
                   currentState = nextState;
                 } else {
-                  currentState = nextState(currentState, stack);
+                  currentState = nextState.call(rule, currentState, stack);
                 }
 
                 state = this.states[currentState];
