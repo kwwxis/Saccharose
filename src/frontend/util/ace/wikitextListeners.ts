@@ -39,7 +39,7 @@ runWhenDOMContentLoaded(() => {
       el: document,
       ev: 'click',
       fn: function(event: KeyboardEvent) {
-        if (!(event.ctrlKey || event.metaKey) || !event.target || typeof event.target['closest'] !== 'function') {
+        if (!(event.ctrlKey || event.metaKey || event.altKey) || !event.target || typeof event.target['closest'] !== 'function') {
           return;
         }
 

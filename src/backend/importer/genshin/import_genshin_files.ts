@@ -27,8 +27,8 @@ async function importGcgSkill() {
   const skillExcelJson: any[] = JSON.parse(skillExcelStr);
   const skillInternalNames: Set<string> = new Set<string>();
   for (let skillExcel of skillExcelJson) {
-    if (skillExcel['ODACBHLGCIN'] || skillExcel['CCKMLPCNHFL']) {
-      skillInternalNames.add(skillExcel['ODACBHLGCIN'] || skillExcel['CCKMLPCNHFL']);
+    if (skillExcel['ODACBHLGCIN'] || skillExcel['CCKMLPCNHFL'] || skillExcel['HHHMJFBFAKD']) {
+      skillInternalNames.add(skillExcel['ODACBHLGCIN'] || skillExcel['CCKMLPCNHFL'] || skillExcel['HHHMJFBFAKD']);
     }
   }
 
@@ -47,7 +47,7 @@ async function importGcgSkill() {
 
     if (typeof json === 'object' && typeof json.name === 'string' && skillInternalNames.has(json.name)) {
       const name: string = json.name;
-      const data: any = json['NGKMIMDBNPC'] || json['ACMGJEOBIEK'] || json['ANFAJNNDLFF'];
+      const data: any = json['NGKMIMDBNPC'] || json['ACMGJEOBIEK'] || json['ANFAJNNDLFF'] || json['CLFPJIMIPNN'];
       if (!combined[name]) {
         combined[name] = {Name: name};
       }
@@ -217,14 +217,14 @@ export async function importTranslateSchema() {
 
   const schemaResult = {};
 
-  // for (let schemaTable of Object.values(genshinSchema)) {
-  //   if (!schemaTable.jsonFile.includes('ExcelBinOutput') || schemaTable.jsonFile.includes('DialogExcel')) {
-  //     continue;
-  //   }
-  //   console.log('Processing schema table: ' + schemaTable.name + '...');
-  //   let files = getExcelFilePair(schemaTable.jsonFile);
-  //   schemaResult[schemaTable.name] = await translateSchema(files.impExcelPath, files.agdExcelPath);
-  // }
+  for (let schemaTable of Object.values(genshinSchema)) {
+    if (!schemaTable.jsonFile.includes('ExcelBinOutput') || schemaTable.jsonFile.includes('DialogExcel')) {
+      continue;
+    }
+    console.log('Processing schema table: ' + schemaTable.name + '...');
+    let files = getExcelFilePair(schemaTable.jsonFile);
+    schemaResult[schemaTable.name] = await translateSchema(files.impExcelPath, files.agdExcelPath);
+  }
 
   const jsonsInDir = fs.readdirSync(excelDirPath).filter(file => path.extname(file) === '.json');
   for (let jsonFile of jsonsInDir) {

@@ -161,7 +161,7 @@ function createValueHash(key: string, v: any) {
       && isInt(v)
       && String(v).length > 10
     ) {
-      console.log('Hash?', key, String(v), BigInt(String(v)).toString(16));
+      //console.log('Hash?', key, String(v), BigInt(String(v)).toString(16));
       return BigInt(String(v)).toString(16).slice(0,14);
     } else if (
       (key && key.endsWith("Hash")) && typeof v === 'string' && !isInt(v)

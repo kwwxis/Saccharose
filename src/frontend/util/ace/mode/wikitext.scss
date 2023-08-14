@@ -14,7 +14,7 @@
     }
   }
   #{$tokenCls}:after {
-    content: "Ctrl/Meta-click to open in new tab.";
+    content: "Ctrl/Meta-click to open in new tab (alt-click to focus)";
     background: #FFF;
     border: 1px solid #333;
     color: #111;
@@ -43,7 +43,7 @@
     transition: all 300ms ease;
     transition-delay: 700ms;
   }
-  body.keydown-control, body.keydown-meta {
+  body.keydown-control, body.keydown-meta, body.keydown-alt {
     #{$tokenCls}:hover {
       cursor: pointer;
     }
