@@ -81,7 +81,7 @@ body.nightmode .ace_template-color {
   font-weight: bold;
 }
 
-@include ace_token_tooltip('.ace_template-name', rgba(#80c, 0.07), rgba(#D2A8FF, 0.2));
+//@include ace_token_tooltip('.ace_template-name', rgba(#80c, 0.07), rgba(#D2A8FF, 0.2));
 
 // Parser Functions
 // --------------------------------------------------------------------------------------------------------------
@@ -148,7 +148,7 @@ body.nightmode .ace_magic-link-color {
   color: #e4c179;
 }
 
-@include ace_token_tooltip('.ace_link-name', rgba(34,17,153,0.08), hsl(247deg 75% 93% / 12%));
+// @include ace_token_tooltip('.ace_link-name', rgba(34,17,153,0.08), hsl(247deg 75% 93% / 12%));
 
 // Bold and Italic
 // --------------------------------------------------------------------------------------------------------------
