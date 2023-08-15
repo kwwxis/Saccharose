@@ -32,7 +32,7 @@ export function createAceDomClassWatcher() {
       });
   }
 }
-
+/*
 runWhenDOMContentLoaded(() => {
   startListeners([
     {
@@ -55,4 +55,4 @@ runWhenDOMContentLoaded(() => {
       }
     }
   ]);
-});
+});*/
