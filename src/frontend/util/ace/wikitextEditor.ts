@@ -18,17 +18,16 @@ import './css/static_highlight.scss';
 
 // Other imports
 // --------------------------------------------------------------------------------------------------------------
-
 import Cookies from 'js-cookie';
 import { toBoolean } from '../../../shared/util/genericUtil';
-import { DOMClassWatcher } from '../domClassWatcher';
 import { escapeHtml } from '../../../shared/util/stringUtil';
 import { Marker, MarkerAggregate } from '../../../shared/util/highlightMarker';
 import { uuidv4 } from '../../../shared/util/uuidv4';
 import { getInputValue } from '../domutil';
 import { createAceDomClassWatcher } from './wikitextListeners';
+import { SITE_MODE_WIKI_DOMAIN } from '../../siteMode';
 
-// Create wikitext editor
+// region Create wikitext editor
 // --------------------------------------------------------------------------------------------------------------
 export const aceEditors: ace.Editor[] = [];
 
@@ -67,8 +66,9 @@ export function createWikitextEditor(editorElementId: string|HTMLElement): ace.E
   aceEditors.push(editor);
   return editor;
 }
+// endregion
 
-// Static highlight
+// region Static highlight
 // --------------------------------------------------------------------------------------------------------------
 export function highlightWikitext(text: string, gutters: boolean = false, markers: Marker[] = []): HTMLElement {
   return highlight(text, 'ace/mode/wikitext', gutters, markers);
@@ -226,10 +226,30 @@ export function highlight(text: string, mode: string, gutters: boolean = true, m
     });
 
   // Convert to element
-  return document.createRange().createContextualFragment(result.html).firstElementChild as HTMLElement;
-}
+  let element = document.createRange().createContextualFragment(result.html).firstElementChild as HTMLElement;
 
-// Static highlight replace
+  // Post-process element
+  element.querySelectorAll('.ace_template-name, .ace_link-name').forEach((el: HTMLElement) => {
+    let prefix = '';
+    if (el.classList.contains('ace_template-name')) {
+      prefix = 'Template:';
+    }
+    const page = el.innerText.replace(/\s/g, '_');
+    const url = `https://${SITE_MODE_WIKI_DOMAIN}/wiki/${prefix}${page}`;
+    el.setAttribute('data-href', url);
+
+    const span = document.createElement('span');
+    span.classList.add('ace_token-tooltip');
+    span.innerHTML = `<span>Ctrl/Meta-click to open in new tab (alt-click to focus)</span><br />` +
+      `<a>${escapeHtml(url)}</a>`;
+    el.append(span);
+  });
+
+  return element;
+}
+// endregion
+
+// region Static highlight replace
 // --------------------------------------------------------------------------------------------------------------
 export function highlightWikitextReplace(original: HTMLElement, textOverride?: string): HTMLElement {
   return highlightReplace(original, 'ace/mode/wikitext', textOverride, false);
@@ -283,9 +303,10 @@ export function highlightReplace(original: HTMLElement, mode: string, textOverri
   original.replaceWith(element);
   return element;
 }
+// endregion
 
 // Window exports
-// --------------------------------------------------------------------------------------------------------------1
+// --------------------------------------------------------------------------------------------------------------
 (<any> window).highlight = highlight;
 (<any> window).highlightReplace = highlightReplace;
 

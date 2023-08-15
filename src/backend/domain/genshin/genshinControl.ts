@@ -27,7 +27,7 @@ import {
   romanToInt,
 } from '../../../shared/util/stringUtil';
 import {
-  DialogExcelConfigData,
+  DialogExcelConfigData, DialogUnparented,
   ManualTextMapConfigData,
   QuestSummarizationTextExcelConfigData,
   ReminderExcelConfigData,
@@ -136,7 +136,7 @@ export class GenshinControlState extends AbstractControlState {
   // Preferences:
   DisableNpcCache: boolean = false;
   DisableAvatarCache: boolean = false;
-  ExcludeOrphanedDialogue: boolean = false;
+  DisableOrphanedDialogueSearchViaGrep: boolean = true;
 }
 
 export function getGenshinControl(request?: Request) {
@@ -462,7 +462,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   }
 
   async selectTalkExcelConfigDataIdsByPrefix(idPrefix: number|string): Promise<number[]> {
-    let allTalkExcelTalkConfigIds = this.state.ExcludeOrphanedDialogue ? []
+    let allTalkExcelTalkConfigIds = this.state.DisableOrphanedDialogueSearchViaGrep ? []
       : await grepIdStartsWith(RAW_TALK_EXCEL_ID_PROP, idPrefix, this.getDataFilePath('./ExcelBinOutput/TalkExcelConfigData.json'));
     return allTalkExcelTalkConfigIds.map(i => toNumber(i));
   }
@@ -478,11 +478,23 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   }
 
   async addOrphanedDialogueAndQuestMessages(mainQuest: MainQuestExcelConfigData) {
-    let allDialogueIds = this.state.ExcludeOrphanedDialogue ? []
-      : await grepIdStartsWith(RAW_DIALOG_EXCEL_ID_PROP, mainQuest.Id, this.getDataFilePath('./ExcelBinOutput/DialogExcelConfigData.json'));
-    let allQuestMessageIds = await grepIdStartsWith(RAW_MANUAL_TEXTMAP_ID_PROP, 'QUEST_Message_Q' + mainQuest.Id,
-      this.getDataFilePath('./ExcelBinOutput/ManualTextMapConfigData.json'));
-    let consumedQuestMessageIds = [];
+    const disableGrepSearch = this.state.DisableOrphanedDialogueSearchViaGrep;
+    const allDialogueIds: number[] = [];
+    const allQuestMessageIds: string[] = [];
+
+    const unparented: DialogUnparented[] = await this.knex.select('*').from('DialogUnparentedExcelConfigData')
+      .where({MainQuestId: mainQuest.Id}).then(this.commonLoad);
+    for (let item of unparented) {
+      allDialogueIds.push(item.DialogId);
+    }
+
+    if (!disableGrepSearch) {
+      allDialogueIds.push(... await grepIdStartsWith<number>(RAW_DIALOG_EXCEL_ID_PROP, mainQuest.Id,
+        this.getDataFilePath('./ExcelBinOutput/DialogExcelConfigData.json')));
+    }
+
+    allQuestMessageIds.push(... await grepIdStartsWith<string>(RAW_MANUAL_TEXTMAP_ID_PROP, 'QUEST_Message_Q' + mainQuest.Id,
+      this.getDataFilePath('./ExcelBinOutput/ManualTextMapConfigData.json')));
 
     const handleOrphanedDialog = async (quest: MainQuestExcelConfigData|QuestExcelConfigData, id: number) => {
       if (this.state.dialogueIdCache.has(id))
@@ -500,27 +512,24 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       for (let id of allDialogueIds) {
         if (!id.toString().startsWith(quest.SubId.toString()))
           continue;
-        await handleOrphanedDialog(quest, id as number);
+        await handleOrphanedDialog(quest, id);
       }
       if (allQuestMessageIds && allQuestMessageIds.length) {
         quest.QuestMessages = [];
         for (let id of allQuestMessageIds) {
-          if (!id.toString().startsWith('QUEST_Message_Q' + quest.SubId.toString()))
-            continue;
-          quest.QuestMessages.push(await this.selectManualTextMapConfigDataById(id as string));
-          consumedQuestMessageIds.push(id);
+          if (id === 'QUEST_Message_Q' + quest.SubId.toString() || id.startsWith('QUEST_Message_Q' + quest.SubId.toString() + '_'))
+             quest.QuestMessages.push(await this.selectManualTextMapConfigDataById(id));
         }
       }
     }
     for (let id of allDialogueIds) {
-      await handleOrphanedDialog(mainQuest, id as number);
+      await handleOrphanedDialog(mainQuest, id);
     }
     if (allQuestMessageIds && allQuestMessageIds.length) {
       mainQuest.QuestMessages = [];
       for (let id of allQuestMessageIds) {
-        if (consumedQuestMessageIds.includes(id))
-          continue;
-        mainQuest.QuestMessages.push(await this.selectManualTextMapConfigDataById(id as string));
+        if (id === 'QUEST_Message_Q' + mainQuest.Id.toString() || id.startsWith('QUEST_Message_Q' + mainQuest.Id.toString() + '_'))
+           mainQuest.QuestMessages.push(await this.selectManualTextMapConfigDataById(id));
       }
     }
   }
@@ -547,6 +556,12 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   async selectDialogExcelConfigDataByTalkRoleId(talkRoleId: number): Promise<DialogExcelConfigData[]> {
     let dialogs: DialogExcelConfigData[] = await this.knex.select('*').from('DialogExcelConfigData')
       .where({TalkRoleId: talkRoleId}).then(this.commonLoad);
+    return dialogs.map(d => this.postProcessDialog(d));
+  }
+
+  async selectDialogExcelConfigDataByTalkId(talkId: number): Promise<DialogExcelConfigData[]> {
+    let dialogs: DialogExcelConfigData[] = await this.knex.select('*').from('DialogExcelConfigData')
+      .where({TalkId: talkId}).then(this.commonLoad);
     return dialogs.map(d => this.postProcessDialog(d));
   }
 

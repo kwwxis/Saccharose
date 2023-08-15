@@ -32,7 +32,7 @@ export interface MainQuestExcelConfigData {
   RewardIdList: number[],
   ShowType: string,
   QuestExcelConfigDataList?: QuestExcelConfigData[],
-  OrphanedTalkExcelConfigDataList?: TalkExcelConfigData[],
+  NonSubQuestTalks?: TalkExcelConfigData[],
   OrphanedDialog?: DialogExcelConfigData[][],
   QuestMessages?: ManualTextMapConfigData[],
   __globalVarPos?: number,

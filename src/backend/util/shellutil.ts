@@ -375,9 +375,9 @@ export async function grepStream(searchText: string,
   return await passthru(cmd.line, stream);
 }
 
-export async function grepIdStartsWith(idProp: string,
+export async function grepIdStartsWith<T = number | string>(idProp: string,
                                        idPrefix: number | string,
-                                       absoluteFilePath: string): Promise<(number | string)[]> {
+                                       absoluteFilePath: string): Promise<T[]> {
   let isInt = typeof idPrefix === 'number';
   let grepSearchText = `"${idProp}": ${isInt ? idPrefix : '"' + idPrefix}`;
   let lines = await grep(grepSearchText, absoluteFilePath, '-i', false);

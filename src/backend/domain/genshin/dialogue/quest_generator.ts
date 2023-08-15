@@ -71,7 +71,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
     throw 'Main Quest not found.';
   }
   mainQuest.QuestExcelConfigDataList = await ctrl.selectAllQuestExcelConfigDataByMainQuestId(mainQuest.Id);
-  mainQuest.OrphanedTalkExcelConfigDataList = [];
+  mainQuest.NonSubQuestTalks = [];
 
   const debug = custom('quest:' + mainQuest.Id);
   debug('Generating MainQuest');
@@ -139,7 +139,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
       return;
     }
     if (!talkConfig.QuestId || talkConfig.QuestId === mainQuest.Id) {
-      mainQuest.OrphanedTalkExcelConfigDataList.push(talkConfig);
+      mainQuest.NonSubQuestTalks.push(talkConfig);
     }
   }
 
@@ -306,8 +306,8 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
 
   debug('Generating quest dialogue (Orphaned Talks)');
 
-  if (mainQuest.OrphanedTalkExcelConfigDataList && mainQuest.OrphanedTalkExcelConfigDataList.length) {
-    for (let talkConfig of mainQuest.OrphanedTalkExcelConfigDataList) {
+  if (mainQuest.NonSubQuestTalks && mainQuest.NonSubQuestTalks.length) {
+    for (let talkConfig of mainQuest.NonSubQuestTalks) {
       await talkConfigToDialogueSectionResult(ctrl, result, 'Unsectioned Talk',
         'These are Talks that are part of the quest but not part of any section.', talkConfig);
     }

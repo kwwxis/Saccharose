@@ -379,7 +379,7 @@ export default async function(): Promise<Router> {
       sb.line('==Furnishing Sets==');
       sb.line('{{Craft Usage}}');
       sb.line();
-      sb.line('===Other Languages==');
+      sb.line('==Other Languages==');
       sb.line(ol?.result);
       sb.line();
       sb.line('==Change History==');

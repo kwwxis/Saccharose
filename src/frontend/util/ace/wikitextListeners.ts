@@ -44,17 +44,13 @@ runWhenDOMContentLoaded(() => {
         }
 
         let target: HTMLElement = event.target as HTMLElement;
+        let token = target.closest('.ace_template-name, .ace_link-name');
 
-        if (target.closest('.ace_template-name')) {
-          const page = 'Template:' + target.innerText.replace(/\s/g, '_');
-          const url = `https://${SITE_MODE_WIKI_DOMAIN}/wiki/${page}`;
-          window.open(url, '_blank');
-        }
-
-        if (target.closest('.ace_link-name')) {
-          const page = target.innerText.replace(/\s/g, '_');
-          const url = `https://${SITE_MODE_WIKI_DOMAIN}/wiki/${page}`;
-          window.open(url, '_blank');
+        if (token) {
+          const url = token.getAttribute('data-href');
+          if (url) {
+            window.open(url, '_blank');
+          }
         }
       }
     }

@@ -38,6 +38,13 @@ export interface DialogExcelConfigData {
   Branches?: DialogExcelConfigData[][],
   Recurse?: boolean,
   GroupId?: number,
+  TalkId?: number,
+  TalkType?: string,
+}
+
+export interface DialogUnparented {
+  MainQuestId: number,
+  DialogId: number,
 }
 
 export interface ManualTextMapConfigData {
@@ -163,6 +170,7 @@ export interface TalkExcelConfigData {
   NextTalksDataList: TalkExcelConfigData[],
   InitDialog: number,
   Dialog?: DialogExcelConfigData[],
+  OtherDialog?: DialogExcelConfigData[][],
 
   NpcId: number[],
   NpcDataList?: NpcExcelConfigData[],

@@ -13,8 +13,7 @@
       transition-delay: 100ms;
     }
   }
-  #{$tokenCls}:after {
-    content: "Ctrl/Meta-click to open in new tab (alt-click to focus)";
+  #{$tokenCls} .ace_token-tooltip {
     background: #FFF;
     border: 1px solid #333;
     color: #111;
@@ -22,9 +21,8 @@
     line-height: 18px;
     position: absolute;
     top: 100%;
-    white-space: nowrap;
+    white-space: pre;
     left: 50%;
-    // transform: translateX(-50%);
     margin-top: 5px;
     padding: 0 5px;
     pointer-events: none;
@@ -38,7 +36,7 @@
       border-color: #ccc;
     }
   }
-  #{$tokenCls}:hover:after {
+  #{$tokenCls}:hover .ace_token-tooltip {
     opacity: 1;
     transition: all 300ms ease;
     transition-delay: 700ms;

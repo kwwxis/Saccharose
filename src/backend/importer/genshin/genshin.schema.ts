@@ -67,11 +67,19 @@ export const genshinSchema = {
       { name: 'TalkContentTextMapHash', type: 'integer', isIndex: true },
       { name: 'TalkTitleTextMapHash', type: 'integer', isIndex: true },
       { name: 'TalkRoleNameTextMapHash', type: 'integer', isIndex: true },
-      { name: 'GroupId', type: 'integer', isIndex: true },
+      { name: 'TalkId', type: 'integer', isIndex: true },
     ],
     normalizeFixFields: {
       GFLDJMJKIKE: 'Id'
     }
+  },
+  DialogUnparentedExcelConfigData: <SchemaTable>{
+    name: 'DialogUnparentedExcelConfigData',
+    jsonFile: './ExcelBinOutput/DialogUnparentedExcelConfigData.json',
+    columns: [
+      { name: 'MainQuestId', type: 'integer', isIndex: true },
+      { name: 'DialogId', type: 'integer' },
+    ]
   },
   Relation_DialogToNext: <SchemaTable>{
     name: 'Relation_DialogToNext',

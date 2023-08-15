@@ -115,8 +115,12 @@ export class TalkConfigAccumulator {
     if (!talkConfig || this.fetchedTalkConfigIds.has(talkConfig.Id)) {
       return null; // skip if not found or if already found
     }
+
     const debug: debug.Debugger = custom('talk-config-acc:' + talkConfig.Id);
     this.fetchedTalkConfigIds.add(talkConfig.Id);
+
+    // Handle self:
+    // ------------
     debug(`Fetching dialogue branch for ${talkConfig.Id} (${isTopLevel ? 'Top Level' : 'Child'}) [Init Dialog: ${talkConfig.InitDialog}]`);
     if (!!talkConfig.InitDialog) {
       talkConfig.Dialog = await this.ctrl.selectDialogBranch(await this.ctrl.selectSingleDialogExcelConfigData(talkConfig.InitDialog), null, talkConfig.Id);
@@ -126,6 +130,20 @@ export class TalkConfigAccumulator {
     if (isTopLevel) {
       this.fetchedTopLevelTalkConfigs.push(talkConfig);
     }
+
+    const flatDialogs = await this.ctrl.selectDialogExcelConfigDataByTalkId(talkConfig.Id);
+    for (let dialog of flatDialogs) {
+      if (this.ctrl.state.dialogueIdCache.has(dialog.Id))
+        continue;
+      let dialogs = await this.ctrl.selectDialogBranch(dialog);
+      if (!talkConfig.OtherDialog) {
+        talkConfig.OtherDialog = [];
+      }
+      talkConfig.OtherDialog.push(dialogs);
+    }
+
+    // Handle Next Talks
+    // -----------------
     debug(`Fetched dialogue branch - has ${talkConfig.NextTalks.length} Next Talks`);
     if (talkConfig.NextTalks) {
       if (!talkConfig.NextTalksDataList) {
@@ -249,6 +267,22 @@ export async function talkConfigToDialogueSectionResult(ctrl: GenshinControl, pa
   let out = new SbOut();
   out.append(await ctrl.generateDialogueWikiText(talkConfig.Dialog, dialogueDepth));
   mysect.wikitext = out.toString();
+
+  if (talkConfig.OtherDialog && talkConfig.OtherDialog.length) {
+    for (let dialog of talkConfig.OtherDialog) {
+      let otherSect = new DialogueSectionResult('OtherDialogue_'+dialog[0].Id, 'Other Dialogue');
+      otherSect.originalData.dialogBranch = dialog;
+      otherSect.metadata.push(new MetaProp('First Dialogue ID', dialog[0].Id, `/branch-dialogue?q=${dialog[0].Id}`));
+      if (dialog[0].TalkType) {
+        otherSect.metadata.push(new MetaProp('First Dialogue Talk Type', dialog[0].TalkType));
+      }
+      out.clearOut();
+      out.append(await ctrl.generateDialogueWikiText(dialog));
+      out.line();
+      otherSect.wikitext = out.toString();
+      mysect.children.push(otherSect);
+    }
+  }
 
   if (talkConfig.NextTalksDataList) {
     for (let nextTalkConfig of talkConfig.NextTalksDataList) {

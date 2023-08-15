@@ -296,6 +296,7 @@ async function importMakeExcels() {
   const questExcelArray = [];
   const talkExcelArray = [];
   const dialogExcelArray = [];
+  const dialogUnparentedExcelArray = [];
 
   const mainQuestById: {[id: string]: any} = {};
   const questExcelById: {[id: string]: any} = {};
@@ -314,6 +315,13 @@ async function importMakeExcels() {
       Object.assign(mainQuestById[obj.id], obj);
       return;
     }
+
+    if (Array.isArray(obj.dialogList)) {
+      for (let dialog of obj.dialogList) {
+        dialogUnparentedExcelArray.push({ MainQuestId: obj.id, DialogId: dialog.id });
+      }
+    }
+
     obj = Object.assign({}, obj);
     delete obj['talks'];
     delete obj['dialogList'];
@@ -334,7 +342,6 @@ async function importMakeExcels() {
 
     mainQuestExcelArray.push(obj);
     mainQuestById[obj.id] = obj;
-
   }
 
   function enqueueQuestExcel(obj: any) {
@@ -460,6 +467,9 @@ async function importMakeExcels() {
   console.log('Sorting DialogExcelConfigData');
   sort(dialogExcelArray, 'id');
 
+  console.log('Sorting DialogUnparentedExcelConfigData');
+  sort(dialogUnparentedExcelArray, 'MainQuestId', 'DialogId');
+
   // ----------------------------------------------------------------------
   // Verify Stage
 
@@ -504,6 +514,9 @@ async function importMakeExcels() {
 
   console.log('Writing to DialogExcelConfigData');
   fs.writeFileSync(path.resolve(excelDirPath, './DialogExcelConfigData.json'), JSON.stringify(dialogExcelArray, null, 2));
+
+  console.log('Writing to DialogUnparentedExcelConfigData');
+  fs.writeFileSync(path.resolve(excelDirPath, './DialogUnparentedExcelConfigData.json'), JSON.stringify(dialogUnparentedExcelArray, null, 2));
 
   // ----------------------------------------------------------------------
 

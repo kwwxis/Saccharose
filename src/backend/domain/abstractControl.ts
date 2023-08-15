@@ -22,11 +22,10 @@ import { getPlainTextMapRelPath, getTextIndexRelPath } from '../loadenv';
 import path, { basename } from 'path';
 import { escapeRegExp, isStringBlank } from '../../shared/util/stringUtil';
 import { isInt, maybeInt, toInt } from '../../shared/util/numberUtil';
-import { getLineNumberForLineText, grep, grepStream } from '../util/shellutil';
+import { getLineNumberForLineText, grep, grepStream, ShellFlags } from '../util/shellutil';
 import { NormTextOptions } from './generic/genericNormalizers';
 import { ExtractScalar } from '../../shared/types/utility-types';
 import { ArrayStream } from '../../shared/util/arrayUtil';
-import { toBoolean } from '../../shared/util/genericUtil';
 
 export abstract class AbstractControlState {
   public request: Request = null;
@@ -237,29 +236,42 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     }
 
     const textFile = getPlainTextMapRelPath(langCode, 'Text');
-    const matches = await grep(searchText, this.getDataFilePath(textFile), flags + ' -n', true, startFromLine);
+    const max = toInt(ShellFlags.parseFlags(flags).getFlagValue('-m'));
 
-    for (let match of matches) {
-      if (!match)
-        continue;
+    while (true) {
+      const matches = await grep(searchText, this.getDataFilePath(textFile), flags + ' -n', true, startFromLine);
+      let numAdded = 0;
 
-      let lineNum = toInt(match.split(':', 2)[0]);
-      if (isNaN(lineNum))
-        continue;
+      for (let match of matches) {
+        if (!match)
+          continue;
 
-      const { Hash: textMapHash, LineType: lineType } = await this.selectPlainLineMapItem(langCode, lineNum);
+        let lineNum = toInt(match.split(':', 2)[0]);
+        if (isNaN(lineNum))
+          continue;
 
-      if (isRawInput && lineType !== 'raw') {
+        const { Hash: textMapHash, LineType: lineType } = await this.selectPlainLineMapItem(langCode, lineNum);
+
+        if (isRawInput && lineType !== 'raw') {
+          continue;
+        }
+
+        if (hashSeen.has(textMapHash)) {
+          continue;
+        } else {
+          hashSeen.add(textMapHash);
+        }
+
+        out.push({ hash: textMapHash, text: await this.getTextMapItem(langCode, textMapHash), line: lineNum });
+        numAdded++;
+      }
+
+      if (!isNaN(max) && matches.length > 0 && matches.length === max && numAdded < matches.length) {
+        startFromLine = out[out.length - 1].line;
         continue;
       }
 
-      if (hashSeen.has(textMapHash)) {
-        continue;
-      } else {
-        hashSeen.add(textMapHash);
-      }
-
-      out.push({ hash: textMapHash, text: await this.getTextMapItem(langCode, textMapHash), line: lineNum });
+      break;
     }
     return out;
   }
