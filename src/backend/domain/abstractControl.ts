@@ -238,7 +238,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     const textFile = getPlainTextMapRelPath(langCode, 'Text');
     const max = toInt(ShellFlags.parseFlags(flags).getFlagValue('-m'));
 
-    while (true) {
+    outerLoop: while (true) {
       const matches = await grep(searchText, this.getDataFilePath(textFile), flags + ' -n', true, startFromLine);
       let numAdded = 0;
 
@@ -264,10 +264,14 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
 
         out.push({ hash: textMapHash, text: await this.getTextMapItem(langCode, textMapHash), line: lineNum });
         numAdded++;
+
+        if (!isNaN(max) && out.length >= max) {
+          break outerLoop;
+        }
       }
 
-      if (!isNaN(max) && matches.length > 0 && matches.length === max && numAdded < matches.length) {
-        startFromLine = out[out.length - 1].line;
+      if (!isNaN(max) && matches.length > 0 && matches.length === max && numAdded < matches.length && out.length < max) {
+        startFromLine = out[out.length - 1].line + 1;
         continue;
       }
 
