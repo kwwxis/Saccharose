@@ -241,12 +241,15 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     outerLoop: while (true) {
       const matches = await grep(searchText, this.getDataFilePath(textFile), flags + ' -n', true, startFromLine);
       let numAdded = 0;
+      let lastLineNum = 0;
 
       for (let match of matches) {
         if (!match)
           continue;
 
         let lineNum = toInt(match.split(':', 2)[0]);
+        lastLineNum = lineNum;
+
         if (isNaN(lineNum))
           continue;
 
@@ -271,7 +274,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       }
 
       if (!isNaN(max) && matches.length > 0 && matches.length === max && numAdded < matches.length && out.length < max) {
-        startFromLine = out[out.length - 1].line + 1;
+        startFromLine = lastLineNum + 1;
         continue;
       }
 
