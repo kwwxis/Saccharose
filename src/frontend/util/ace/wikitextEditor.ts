@@ -229,7 +229,7 @@ export function highlight(text: string, mode: string, gutters: boolean = true, m
   let element = document.createRange().createContextualFragment(result.html).firstElementChild as HTMLElement;
 
   // Post-process element
-  element.querySelectorAll('.ace_template-name, .ace_link-name').forEach((el: HTMLElement) => {
+  /* element.querySelectorAll('.ace_template-name, .ace_link-name').forEach((el: HTMLElement) => {
     let prefix = '';
     if (el.classList.contains('ace_template-name')) {
       prefix = 'Template:';
@@ -243,7 +243,7 @@ export function highlight(text: string, mode: string, gutters: boolean = true, m
     span.innerHTML = `<span>Ctrl/Meta-click to open in new tab (alt-click to focus)</span><br />` +
       `<a>${escapeHtml(url)}</a>`;
     el.append(span);
-  });
+  });*/
 
   return element;
 }
