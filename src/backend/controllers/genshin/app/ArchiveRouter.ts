@@ -350,7 +350,7 @@ export default async function(): Promise<Router> {
       sb.setPropPad(15);
       sb.line('{{Furnishing Infobox');
       sb.prop('id', furn.Id);
-      sb.prop('image', `Item ${furn.NameText}.png`);
+      sb.prop('image', `Item ${furn.NameText}.png`, true);
       sb.prop('category', furn.CategoryNameText);
       sb.prop('subcategory', furn.TypeNameText);
       sb.prop('quality', furn.RankLevel);

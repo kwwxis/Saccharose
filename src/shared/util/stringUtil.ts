@@ -513,7 +513,7 @@ export class SbOut {
     }
   }
 
-  prop(propName: string, propValue: any = '') {
+  prop(propName: string, propValue: any = '', isFileValue: boolean = false) {
     if (typeof propValue !== 'string') {
       propValue = String(propValue);
     }
@@ -522,6 +522,9 @@ export class SbOut {
     }
     if (isUnset(propValue)) {
       return;
+    }
+    if (isFileValue) {
+      propValue = String(propValue).replace(/[\\\/:*?"<>|]/g, '');
     }
     this.line('|' + (this.propPrefix + propName + ' ').padEnd(this.propPadLen) + '= ' + propValue);
   }

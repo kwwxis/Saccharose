@@ -272,7 +272,7 @@ const initial_listeners: Listener[] = [
               templateNode.readjustPropPad(['default_hidden']);
               if (addDefaultHidden) {
                 templateNode.getParam(0).afterValueWhitespace.content = '';
-                templateNode.addParamAfter(new MwParamNode('|', 'default_hidden', '1', ' ', '\n'), 0);
+                templateNode.addParamAfter(new MwParamNode('|', 'default_hidden', '1', '', '\n'), 0);
               }
               contentEditableEl = highlightWikitextReplace(contentEditableEl, parsed.toString().trim());
               (<HTMLButtonElement> event.target).setAttribute('disabled', '');

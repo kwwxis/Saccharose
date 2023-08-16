@@ -13,7 +13,10 @@
       <span class="spacer5-left inactive-only" style="font-size:15px">Open category filters</span>
       <span class="spacer5-left active-only" style="font-size:15px">Close category filters</span>
     </div>
-    <input id="filter-quick-search" class="grow spacer5-left" type="text" placeholder="Quick search" />
+    <div class="posRel valign grow">
+      <input id="filter-quick-search" class="grow spacer5-left" type="text" placeholder="Quick search" />
+      <span id="filter-quick-search-pending" class="loading small posAbs hide" style="right:10px;top:0;bottom:0;margin:auto"></span>
+    </div>
   </div>
   <div id="filter-tree-panel" class="content hide" style="padding-top:0;">
     <ul id="type-tree"></ul>

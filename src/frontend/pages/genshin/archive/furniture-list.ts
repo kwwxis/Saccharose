@@ -1,10 +1,9 @@
 import { pageMatch } from '../../../pageMatch';
 import { HomeWorldFurnitureTypeTree } from '../../../../shared/types/genshin/homeworld-types';
 import { CheckTree } from '../../../util/checkTree';
-import { escapeHtml, ltrim, rtrim } from '../../../../shared/util/stringUtil';
+import { escapeHtml } from '../../../../shared/util/stringUtil';
 import { sort } from '../../../../shared/util/arrayUtil';
 import { defaultMap } from '../../../../shared/util/genericUtil';
-import lunr from 'lunr';
 import { startListeners } from '../../../util/eventLoader';
 
 pageMatch('pages/genshin/archive/furniture-list', () => {
@@ -12,32 +11,6 @@ pageMatch('pages/genshin/archive/furniture-list', () => {
 
   const tokensToId: {[token: string]: Set<number>} = defaultMap('Set');
   const allRows: HTMLTableRowElement[] = Array.from(document.querySelectorAll('.furnishing-row'));
-
-  const furnIdx: lunr.Index = lunr(function() {
-    this.ref('id');
-    this.field('name');
-    this.field('category');
-    this.field('subcategory');
-
-    for (let row of allRows) {
-      const furnId = parseInt(row.getAttribute('data-id'));
-      const furnName = row.getAttribute('data-name');
-      const furnCategory = row.getAttribute('data-category');
-      const furnSubcategory = row.getAttribute('data-subcategory');
-
-      const tokens = row.getAttribute('data-filter-tokens').split(',');
-      for (let token of tokens) {
-        tokensToId[token].add(furnId);
-      }
-
-      this.add({
-        id: furnId,
-        name: furnName,
-        category: furnCategory,
-        subcategory: furnSubcategory
-      })
-    }
-  });
 
   const myTree = new CheckTree(document.querySelector('#type-tree'), {
     data: Object.entries(typeTree).map(([subTreeName, subTree]) => ({
@@ -54,7 +27,7 @@ pageMatch('pages/genshin/archive/furniture-list', () => {
           value: 'subcategory-' + type.typeId,
           label: type.typeName,
           html: `<div class="valign">
-            <span class="alignCenter justifyCenter" style="width:20px;height:20px;background:#2a2a36;border-radius:50%">
+            <span class="alignCenter justifyCenter" style="width:20px;height:20px;background:#2a2a36;border-radius:50%;padding:0;">
               `+(type.typeIcon ? `<img src="/images/genshin/${type.typeIcon}.png" style="width:16px;height:16px" />` : '')+`
             </span>
             <span class="spacer5-left">${escapeHtml(type.typeName)}</span>
@@ -81,32 +54,43 @@ pageMatch('pages/genshin/archive/furniture-list', () => {
       document.getElementById('filter-loading-panel').classList.add('hide');
       document.getElementById('filter-toggle-panel').classList.remove('hide');
     }
-  })
+  });
+
+  const lc = (s: string) => s ? s.toLowerCase() : '';
+  let debounceId: any;
 
   startListeners([
     {
       el: '#filter-quick-search',
       ev: 'input',
       fn: function(event: InputEvent, target: HTMLInputElement) {
-        let searchText = target.value.trim();
-        if (!searchText) {
-          document.querySelectorAll('.furnishing-row.lunr-hide')
-            .forEach(el => el.classList.remove('lunr-hide'));
-          return;
-        }
+        clearTimeout(debounceId);
+        document.getElementById('filter-quick-search-pending').classList.remove('hide');
+        debounceId = setTimeout(() => {
+          let searchText = target.value.trim().toLowerCase();
 
-        let query = '';
-        query += rtrim(searchText, '*') + '^2 '
-        query += rtrim(searchText, '*') + '*' + ' '
-        query += ltrim(searchText, '*') + '~1';
+          if (!searchText) {
+            setTimeout(() => {
+              allRows.forEach(el => el.classList.remove('lunr-hide'));
+              document.getElementById('filter-quick-search-pending').classList.add('hide');
+            });
+            return;
+          }
 
-        let results: lunr.Index.Result[] = furnIdx.search(query);
+          for (let row of allRows) {
+            let name = lc(row.getAttribute('data-name'));
+            let category = lc(row.getAttribute('data-category'));
+            let subcategory = lc(row.getAttribute('data-subcategory'));
 
-        document.querySelectorAll('.furnishing-row').forEach(el => el.classList.add('lunr-hide'));
-
-        for (let result of results) {
-          document.querySelector(`.furnishing-row[data-id="${result.ref}"]`).classList.remove('lunr-hide');
-        }
+            let isMatch = name.includes(searchText) || category.includes(searchText) || subcategory.includes(searchText);
+            if (isMatch) {
+              row.classList.remove('lunr-hide');
+            } else {
+              row.classList.add('lunr-hide');
+            }
+          }
+          document.getElementById('filter-quick-search-pending').classList.add('hide');
+        }, 250);
       }
     },
   ]);

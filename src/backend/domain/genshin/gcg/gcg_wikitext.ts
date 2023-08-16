@@ -21,7 +21,7 @@ export async function generateSkillPage(gcg: GCGControl, parentCard: GCGCommonCa
   sb.line(`{{Genius Invokation TCG Skill Infobox`);
   sb.setPropPad(11);
   sb.prop('id', skill.Id);
-  sb.prop('image', `${skill.WikiName} ${parentCard.WikiType} Skill.png`);
+  sb.prop('image', `${skill.WikiName} ${parentCard.WikiType} Skill.png`, true);
   sb.prop('type', skill.WikiType);
   sb.prop('character', parentCard.WikiName);
   sb.prop('element', parentCard.WikiElement);
@@ -71,7 +71,7 @@ export async function generateCardPage(gcg: GCGControl, card: GCGCommonCard): Pr
 
   sb.prop('id', card.Id);
   sb.prop('title', card.WikiName);
-  sb.prop('image', `${card.WikiName} ${card.WikiType}.png`);
+  sb.prop('image', `${card.WikiName} ${card.WikiType}.png`, true);
   sb.prop('type', card.WikiType);
   if (isActionCard(card)) {
     sb.prop('group', card.MappedTagList.filter(x => !!x.Type).map(x => x.NameText).join(';'));
