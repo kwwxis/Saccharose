@@ -139,7 +139,9 @@ export class TalkConfigAccumulator {
       if (!talkConfig.OtherDialog) {
         talkConfig.OtherDialog = [];
       }
-      talkConfig.OtherDialog.push(dialogs);
+      if (dialogs.length) {
+        talkConfig.OtherDialog.push(dialogs);
+      }
     }
 
     // Handle Next Talks
@@ -269,15 +271,18 @@ export async function talkConfigToDialogueSectionResult(ctrl: GenshinControl, pa
   mysect.wikitext = out.toString();
 
   if (talkConfig.OtherDialog && talkConfig.OtherDialog.length) {
-    for (let dialog of talkConfig.OtherDialog) {
-      let otherSect = new DialogueSectionResult('OtherDialogue_'+dialog[0].Id, 'Other Dialogue');
-      otherSect.originalData.dialogBranch = dialog;
-      otherSect.metadata.push(new MetaProp('First Dialogue ID', dialog[0].Id, `/branch-dialogue?q=${dialog[0].Id}`));
-      if (dialog[0].TalkType) {
-        otherSect.metadata.push(new MetaProp('First Dialogue Talk Type', dialog[0].TalkType));
+    for (let dialogs of talkConfig.OtherDialog) {
+      if (!dialogs.length) {
+        continue;
+      }
+      let otherSect = new DialogueSectionResult('OtherDialogue_'+dialogs[0].Id, 'Other Dialogue');
+      otherSect.originalData.dialogBranch = dialogs;
+      otherSect.metadata.push(new MetaProp('First Dialogue ID', dialogs[0].Id, `/branch-dialogue?q=${dialogs[0].Id}`));
+      if (dialogs[0].TalkType) {
+        otherSect.metadata.push(new MetaProp('First Dialogue Talk Type', dialogs[0].TalkType));
       }
       out.clearOut();
-      out.append(await ctrl.generateDialogueWikiText(dialog));
+      out.append(await ctrl.generateDialogueWikiText(dialogs));
       out.line();
       otherSect.wikitext = out.toString();
       mysect.children.push(otherSect);
