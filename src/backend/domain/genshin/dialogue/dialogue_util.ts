@@ -15,6 +15,8 @@ import { closeKnex } from '../../../util/db';
 import { isInt } from '../../../../shared/util/numberUtil';
 import { custom } from '../../../util/logger';
 
+// region Class: DialogBranchingCache
+// --------------------------------------------------------------------------------------------------------------
 export class DialogBranchingCache {
   dialogToBranch: {[id: number]: DialogExcelConfigData[]} = {};
   dialogSeenAlready: Set<number>;
@@ -28,8 +30,9 @@ export class DialogBranchingCache {
     return new DialogBranchingCache(self.dialogToBranch, self.dialogSeenAlready);
   }
 }
+// endregion
 
-// "DialogueSectionResult" CLASS
+// region Class: DialogueSectionResult
 // --------------------------------------------------------------------------------------------------------------
 export class DialogueSectionResult {
   id: string = null;
@@ -102,8 +105,9 @@ export class DialogueSectionResult {
     return this.metadata.some(x => x.label === label);
   }
 }
+// endregion
 
-// TALK EXCEL CONFIG DATA STUFF
+// region Talk Config Utils
 // --------------------------------------------------------------------------------------------------------------
 export class TalkConfigAccumulator {
   readonly fetchedTalkConfigIds: Set<number> = new Set();
@@ -320,8 +324,9 @@ export async function talkConfigToDialogueSectionResult(ctrl: GenshinControl, pa
   }
   return mysect;
 }
+// endregion
 
-// TRACE BACK AND REVERSE QUEST
+// region Trace-Back and Reverse Quest
 // --------------------------------------------------------------------------------------------------------------
 
 /**
@@ -329,7 +334,7 @@ export async function talkConfigToDialogueSectionResult(ctrl: GenshinControl, pa
  *
  * There can be multiple results if there are multiple first dialogs that lead to the same dialog.
  */
-export async function traceBack(ctrl: GenshinControl, dialog: DialogExcelConfigData): Promise<DialogExcelConfigData[]> {
+export async function dialogTraceBack(ctrl: GenshinControl, dialog: DialogExcelConfigData): Promise<DialogExcelConfigData[]> {
   if (!dialog) {
     return undefined;
   }
@@ -363,7 +368,7 @@ export async function traceBack(ctrl: GenshinControl, dialog: DialogExcelConfigD
   return ret;
 }
 
-export async function guessQuestFromDialogueId(ctrl: GenshinControl, id: number | string): Promise<number> {
+async function _guessQuestFromDialogueId(ctrl: GenshinControl, id: number | string): Promise<number> {
   if (typeof id === 'string') {
     if (isInt(id)) {
       id = parseInt(id);
@@ -432,7 +437,7 @@ export async function dialogueToQuestId(ctrl: GenshinControl, query: string | nu
     return [];
   }
   let ret = [];
-  let firstDialogs = await traceBack(ctrl, dialog);
+  let firstDialogs = await dialogTraceBack(ctrl, dialog);
   for (let d of firstDialogs) {
     let talks = await ctrl.selectTalkExcelConfigDataListByFirstDialogueId(d.Id);
     for (let t of talks) {
@@ -445,15 +450,16 @@ export async function dialogueToQuestId(ctrl: GenshinControl, query: string | nu
     return ret;
   }
   for (let d of firstDialogs) {
-    let qId = await guessQuestFromDialogueId(ctrl, d.Id);
+    let qId = await _guessQuestFromDialogueId(ctrl, d.Id);
     if (qId) {
       ret.push(qId);
     }
   }
   return ret;
 }
+// endregion
 
-// QUEST ORDERING
+// region Quest Ordering
 // --------------------------------------------------------------------------------------------------------------
 export interface QuestOrderItem {
   quest: MainQuestExcelConfigData;
@@ -551,8 +557,9 @@ export async function orderChapterQuests(ctrl: GenshinControl, chapter: ChapterE
 
   return convertToOrderItem(combinedOrder);
 }
+// endregion
 
-// CLI TESTING
+// region CLI Testing
 // --------------------------------------------------------------------------------------------------------------
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
@@ -577,3 +584,4 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     await closeKnex();
   })();
 }
+// endregion

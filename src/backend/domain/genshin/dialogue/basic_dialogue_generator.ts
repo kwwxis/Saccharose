@@ -11,7 +11,7 @@ import {
   dialogueToQuestId,
   TalkConfigAccumulator,
   talkConfigGenerate,
-  traceBack,
+  dialogTraceBack,
 } from './dialogue_util';
 import { MetaProp } from '../../../util/metaProp';
 import { pathToFileURL } from 'url';
@@ -104,7 +104,7 @@ export async function dialogueGenerate(ctrl: GenshinControl, query: number|numbe
     let talkConfigs: TalkExcelConfigData[] = await ctrl.selectTalkExcelConfigDataListByFirstDialogueId(dialogue.Id);
     let firstDialogs: DialogExcelConfigData[] = null;
     if (!talkConfigs.length) {
-      firstDialogs = await traceBack(ctrl, dialogue);
+      firstDialogs = await dialogTraceBack(ctrl, dialogue);
       for (let d of firstDialogs) {
         talkConfigs.push(... await ctrl.selectTalkExcelConfigDataListByFirstDialogueId(d.Id));
       }
@@ -132,7 +132,7 @@ export async function dialogueGenerate(ctrl: GenshinControl, query: number|numbe
     } else {
       let foundDialogs: boolean = false;
       if (!firstDialogs) {
-        firstDialogs = await traceBack(ctrl, dialogue);
+        firstDialogs = await dialogTraceBack(ctrl, dialogue);
       }
       for (let firstDialog of firstDialogs) {
         if (seenFirstDialogueIds.has(firstDialog.Id)) {
