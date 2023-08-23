@@ -11,6 +11,7 @@ pageMatch('pages/genshin/archive/furniture-list', () => {
 
   const tokensToId: {[token: string]: Set<number>} = defaultMap('Set');
   const allRows: HTMLTableRowElement[] = Array.from(document.querySelectorAll('.furnishing-row'));
+  const pendingIconEl = document.getElementById('filter-quick-search-pending');
 
   const myTree = new CheckTree(document.querySelector('#type-tree'), {
     data: Object.entries(typeTree).map(([subTreeName, subTree]) => ({
@@ -65,14 +66,15 @@ pageMatch('pages/genshin/archive/furniture-list', () => {
       ev: 'input',
       fn: function(event: InputEvent, target: HTMLInputElement) {
         clearTimeout(debounceId);
-        document.getElementById('filter-quick-search-pending').classList.remove('hide');
+        pendingIconEl.classList.remove('hide');
+
         debounceId = setTimeout(() => {
           let searchText = target.value.trim().toLowerCase();
 
           if (!searchText) {
             setTimeout(() => {
-              allRows.forEach(el => el.classList.remove('lunr-hide'));
-              document.getElementById('filter-quick-search-pending').classList.add('hide');
+              allRows.forEach(el => el.classList.remove('search-hide'));
+              pendingIconEl.classList.add('hide');
             });
             return;
           }
@@ -84,12 +86,13 @@ pageMatch('pages/genshin/archive/furniture-list', () => {
 
             let isMatch = name.includes(searchText) || category.includes(searchText) || subcategory.includes(searchText);
             if (isMatch) {
-              row.classList.remove('lunr-hide');
+              row.classList.remove('search-hide');
             } else {
-              row.classList.add('lunr-hide');
+              row.classList.add('search-hide');
             }
           }
-          document.getElementById('filter-quick-search-pending').classList.add('hide');
+
+          pendingIconEl.classList.add('hide');
         }, 250);
       }
     },

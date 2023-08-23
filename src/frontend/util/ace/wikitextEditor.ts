@@ -300,6 +300,10 @@ export function highlightReplace(original: HTMLElement, mode: string, textOverri
 
   element.setAttribute('contenteditable', '');
 
+  if (element.classList.contains('readonly-contenteditable-processed')) {
+    element.classList.remove('readonly-contenteditable-processed');
+  }
+
   original.replaceWith(element);
   return element;
 }

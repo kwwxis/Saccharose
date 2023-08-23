@@ -119,6 +119,10 @@ import {
 } from '../../importer/genshin/genshin.schema';
 import { cached } from '../../util/cache';
 import { NormTextOptions } from '../generic/genericNormalizers';
+import {
+  AchievementExcelConfigData,
+  AchievementGoalExcelConfigData, AchievementsByGoals,
+} from '../../../shared/types/genshin/achievement-types';
 
 /**
  * State/cache for only a single control
@@ -2017,6 +2021,125 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       .where({ActivityId: id}).first().then(async res => res ? await this.getTextMapItem(this.outputLangCode, res.NameTextMapHash) : undefined);
     this.state.newActivityNameCache[id] = name;
     return name;
+  }
+
+  async selectAchievementGoals(): Promise<AchievementGoalExcelConfigData[]> {
+    return await cached('AchievementGoals_' + this.outputLangCode, async () => {
+      let goals: AchievementGoalExcelConfigData[] = await this.readDataFile('./ExcelBinOutput/AchievementGoalExcelConfigData.json');
+      sort(goals, 'OrderId');
+      for (let goal of goals) {
+        if (!goal.Id) {
+          goal.Id = 0;
+        }
+        if (goal.FinishRewardId) {
+          goal.FinishReward = await this.selectRewardExcelConfigData(goal.FinishRewardId);
+        }
+        goal.NameTextEN = await this.getTextMapItem('EN', goal.NameTextMapHash);
+      }
+      return goals;
+    });
+  }
+
+  async selectAchievements(goalIdConstraint?: number): Promise<AchievementsByGoals> {
+    const goals: AchievementGoalExcelConfigData[] = await this.selectAchievementGoals();
+
+    const achievements: AchievementExcelConfigData[] = await this.readDataFile('./ExcelBinOutput/AchievementExcelConfigData.json');
+    sort(achievements, 'OrderId');
+
+    const ret: AchievementsByGoals = defaultMap((goalId: number) => ({
+      Goal: goals.find(g => g.Id === toInt(goalId)),
+      Achievements: []
+    }));
+
+    for (let achievement of achievements) {
+      achievement = await this.postProcessAchievement(achievement, goalIdConstraint);
+      if (achievement) {
+        ret[achievement.GoalId].Achievements.push(achievement);
+      }
+    }
+
+    return ret;
+  }
+
+  async selectAchievement(id: number): Promise<AchievementExcelConfigData> {
+    let achievement: AchievementExcelConfigData = await this.knex.select('*').from('AchievementExcelConfigData')
+      .where({Id: id}).first().then(this.commonLoadFirst);
+    return this.postProcessAchievement(achievement);
+  }
+
+  async selectAchievementsBySearch(searchText: string, searchFlags: string): Promise<AchievementExcelConfigData[]> {
+    if (!searchText || !searchText.trim()) {
+      return []
+    } else {
+      searchText = searchText.trim();
+    }
+
+    const ids = [];
+
+    if (isInt(searchText)) {
+      ids.push(toInt(searchText));
+    }
+
+    await this.streamTextMapMatchesWithIndex(this.inputLangCode, searchText, 'Achievement', (id) => {
+      ids.push(id);
+    }, searchFlags);
+
+    let achievements: AchievementExcelConfigData[] = await this.knex.select('*').from('AchievementExcelConfigData')
+      .whereIn('Id', ids).then(this.commonLoad);
+
+    achievements = await achievements.asyncMap(a => this.postProcessAchievement(a));
+    achievements = achievements.filter(a => !!a);
+
+    return achievements;
+  }
+
+  async postProcessAchievement(achievement: AchievementExcelConfigData, goalIdConstraint?: number) {
+    if (!achievement || !achievement.TitleText) {
+      return null;
+    }
+    if (!achievement.GoalId) {
+      achievement.GoalId = 0;
+    }
+    if (isset(goalIdConstraint) && achievement.GoalId !== goalIdConstraint) {
+      return null;
+    }
+
+    const goals: AchievementGoalExcelConfigData[] = await this.selectAchievementGoals();
+    achievement.Goal = goals.find(g => g.Id === achievement.GoalId);
+
+    if (achievement.FinishRewardId) {
+      achievement.FinishReward = await this.selectRewardExcelConfigData(achievement.FinishRewardId);
+    }
+    if (achievement.IsShow === 'SHOWTYPE_HIDE') {
+      achievement.IsHidden = true;
+    }
+    if (achievement.TriggerConfig) {
+      achievement.TriggerConfig.ParamList = achievement.TriggerConfig.ParamList.filter(s => s !== '');
+      achievement.TriggerConfig.TriggerQuests = [];
+      if (achievement.TriggerConfig.TriggerType === 'TRIGGER_FINISH_PARENT_QUEST_AND' || achievement.TriggerConfig.TriggerType == 'TRIGGER_FINISH_PARENT_QUEST_OR') {
+        for (let qid of achievement.TriggerConfig.ParamList.flatMap(p => p.split(','))) {
+          let mainQuest = await this.selectMainQuestById(toInt(qid));
+          if (mainQuest) {
+            achievement.TriggerConfig.TriggerQuests.push(mainQuest);
+          }
+        }
+      }
+      if (achievement.TriggerConfig.TriggerType === 'TRIGGER_FINISH_QUEST_AND' || achievement.TriggerConfig.TriggerType == 'TRIGGER_FINISH_QUEST_OR') {
+        for (let qid of achievement.TriggerConfig.ParamList.flatMap(p => p.split(','))) {
+          let quest = await this.selectQuestExcelConfigData(toInt(qid));
+          if (quest) {
+            let mainQuest = await this.selectMainQuestById(quest.MainId);
+            if (mainQuest) {
+              achievement.TriggerConfig.TriggerQuests.push(mainQuest);
+            }
+          }
+        }
+      }
+      if (achievement.TriggerConfig.TriggerType.startsWith('TRIGGER_CITY')) {
+        achievement.TriggerConfig.CityNameText = await this.selectCityNameById(toInt(achievement.TriggerConfig.ParamList[0]));
+      }
+    }
+    return achievement;
   }
 }
 

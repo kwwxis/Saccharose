@@ -14,7 +14,7 @@
       <% } %>
       <% questDescriptions.forEach((questDescription, idx) => { %>
         <div class="posRel">
-        <textarea id="quest-desc-<%= idx %>" readonly class="wikitext w100p autosize"
+          <textarea id="quest-desc-<%= idx %>" readonly class="wikitext w100p autosize"
                   style="resize:vertical;min-height:40px;padding-right:45px" spellcheck="false" translate="no"><%= questDescription %></textarea>
           <button class="secondary small posAbs" ui-action="copy: #quest-desc-<%= idx %>"
                   ui-tippy-hover="Click to copy to clipboard"

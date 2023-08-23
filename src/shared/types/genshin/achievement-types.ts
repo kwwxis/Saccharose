@@ -111,6 +111,7 @@ export interface AchievementExcelConfigData {
   Id: number,
   GoalId: number,
   OrderId: number,
+  Goal?: AchievementGoalExcelConfigData;
 
   TitleText: string,
   TitleTextMapHash: number,

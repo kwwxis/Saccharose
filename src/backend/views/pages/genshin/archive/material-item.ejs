@@ -24,7 +24,17 @@
         </tr>
         <tr>
           <td class="bold">Description</td>
-          <td colspan="2"><%- use('partials/util/wikitext', { wikitext: normGenshinText(material.DescText), seamless: true}) %></td>
+          <td colspan="2">
+            <div class="posRel spacer5-top">
+              <div style="padding-right:50px;">
+                <%- use('partials/util/wikitext', { id: 'item-desc', wikitext: normGenshinText(material.DescText), seamless: true}) %>
+              </div>
+              <button class="secondary small posAbs" ui-action="copy: #item-desc"
+                      style="right: 0; top: 0;"
+                      ui-tippy-hover="Click to copy to clipboard"
+                      ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">Copy</button>
+            </div>
+          </td>
         </tr>
         <tr>
           <td class="bold">Quality</td>

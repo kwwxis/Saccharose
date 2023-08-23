@@ -1,0 +1,17 @@
+<div class="code" style="word-break:break-all;max-width:300px;font-size:0.8em"><%=
+  achievement?.TriggerConfig?.TriggerType?.startsWith('TRIGGER_')
+          ? achievement?.TriggerConfig?.TriggerType?.slice('TRIGGER_'.length)
+          : (achievement?.TriggerConfig?.TriggerType || 'n/a')
+  %></div>
+<% if (achievement?.TriggerConfig?.TriggerType === 'TRIGGER_OPEN_WORLD_CHEST') { %>
+<% } else { %>
+  <div class="code" style="word-break:break-all;max-width:300px;font-size:0.8em"><%= JSON.stringify(achievement?.TriggerConfig?.ParamList || 'n/a') %></div>
+<% } %>
+<% if (achievement.TriggerConfig.TriggerQuests.length) { %>
+  <% for (let mainQuest of achievement.TriggerConfig.TriggerQuests) { %>
+    <a class="dispBlock" href="/quests/<%= mainQuest.Id %>"><%= mainQuest.TitleText || `${mainQuest.Id}: (No title)` %></a>
+  <% } %>
+<% } %>
+<% if (achievement.TriggerConfig.CityNameText) { %>
+  <div><b>City Name:</b> <%= achievement.TriggerConfig.CityNameText %></div>
+<%} %>

@@ -19,6 +19,7 @@ import { normalizeRawJson, SchemaTable } from '../import_db';
 import { genshinSchema } from './genshin.schema';
 import { translateSchema } from '../translate_schema';
 import { sort } from '../../../shared/util/arrayUtil';
+import { AchievementExcelConfigData } from '../../../shared/types/genshin/achievement-types';
 
 async function importGcgSkill() {
   const outDir = process.env.GENSHIN_DATA_ROOT;
@@ -657,6 +658,20 @@ async function importIndex() {
       weaponIndex[weapon.DescTextMapHash] = weapon.Id;
     }
     writeOutput('Weapon', weaponIndex);
+  }
+  {
+    process.stdout.write(chalk.bold('Generating achievement index...'));
+    const achievementList: AchievementExcelConfigData[] = await ctrl.readDataFile('./ExcelBinOutput/AchievementExcelConfigData.json');
+    const achievementIndex: { [id: number]: number } = {};
+
+    for (let achievement of achievementList) {
+      if (!achievement.TitleText) {
+        continue;
+      }
+      achievementIndex[achievement.TitleTextMapHash] = achievement.Id;
+      achievementIndex[achievement.DescTextMapHash] = achievement.Id;
+    }
+    writeOutput('Achievement', achievementIndex);
   }
 }
 

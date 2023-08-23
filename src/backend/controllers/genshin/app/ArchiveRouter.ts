@@ -16,7 +16,6 @@ import {
 } from '../../../domain/genshin/archive/tutorials';
 import { PushTipsCodexType, PushTipsCodexTypeList, TutorialsByType } from '../../../../shared/types/genshin/tutorial-types';
 import { ViewpointsByRegion } from '../../../../shared/types/genshin/viewpoint-types';
-import { selectAchievementGoals, selectAchievements } from '../../../domain/genshin/archive/achievements';
 import {
   AchievementExcelConfigData,
   AchievementGoalExcelConfigData,
@@ -153,9 +152,16 @@ export default async function(): Promise<Router> {
   // Achievements
   // ~~~~~~~~~~~~
 
+  router.get('/achievements/search', async (req: Request, res: Response) => {
+    res.render('pages/genshin/archive/achievements-search', {
+      title: 'Achievements',
+      bodyClass: ['page--achievements', 'page--achievements-search'],
+    });
+  });
+
   router.get('/achievements/:category?', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
-    const goals = await selectAchievementGoals(ctrl);
+    const goals = await ctrl.selectAchievementGoals();
     let goalName: string = '';
     let achievements: AchievementsByGoals = null;
 
@@ -167,13 +173,13 @@ export default async function(): Promise<Router> {
       );
       if (goal) {
         goalName = goal.NameText;
-        achievements = await selectAchievements(ctrl, goal.Id);
+        achievements = await ctrl.selectAchievements(goal.Id);
       }
     }
 
     res.render('pages/genshin/archive/achievements', {
       title: goalName ? `Achievements - ${goalName}` : 'Achievements',
-      bodyClass: ['page--achievements'],
+      bodyClass: ['page--achievements', 'page--achievements-categories'],
       goals,
       achievements
     });
@@ -181,25 +187,12 @@ export default async function(): Promise<Router> {
 
   router.get('/achievements/:category/:id', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
-    const goals = await selectAchievementGoals(ctrl);
-    let goal: AchievementGoalExcelConfigData;
-    let achievements: AchievementExcelConfigData[];
-
-    if (req.params.category) {
-      goal = goals.find(goal =>
-        paramCmp(goal.NameTextEN, req.params.category) ||
-        paramCmp(goal.NameText, req.params.category) ||
-        paramCmp(goal.Id, req.params.category)
-      );
-      if (goal) {
-        achievements = Object.values(await selectAchievements(ctrl, goal.Id))[0].Achievements;
-      }
-    }
-    let achievement: AchievementExcelConfigData = achievements.find(a => a.Id === toInt(req.params.id));
+    const achievement = await ctrl.selectAchievement(toInt(req.params.id));
 
     const sb = new SbOut();
     if (achievement) {
-      let achievementsWithSameName = achievements
+      const achievements = Object.values(await ctrl.selectAchievements(achievement.GoalId))[0].Achievements;
+      const achievementsWithSameName = achievements
         .filter(a => a.TitleText === achievement.TitleText); // should include self
 
       sb.line('{{Achievement Infobox');
@@ -207,13 +200,13 @@ export default async function(): Promise<Router> {
       sb.prop('title', achievement.TitleText);
       sb.prop('id', achievement.Id);
       sb.prop('order id', achievement.OrderId);
-      sb.prop('category', goal.NameText);
+      sb.prop('category', achievement.Goal.NameText);
       sb.prop('description', achievement.DescText);
       sb.prop('requirements');
       sb.prop('primogems', achievement.FinishReward.RewardSummary.PrimogemCount);
       sb.prop('tracking');
       sb.prop('topic');
-      if (goal.Id === 0) {
+      if (achievement.Goal.Id === 0) {
         sb.prop('type');
       }
       sb.prop('quest');
@@ -224,7 +217,7 @@ export default async function(): Promise<Router> {
         sb.prop('tiers_total', achievementsWithSameName.length);
       }
       sb.line('}}');
-      sb.line(`'''${achievement.TitleText}''' is an [[Achievement]] in the category ''[[${goal.NameText}]]''. To complete this achievement, the player must <!-- achieve steps -->.`);
+      sb.line(`'''${achievement.TitleText}''' is an [[Achievement]] in the category ''[[${achievement.Goal.NameText}]]''. To complete this achievement, the player must <!-- achieve steps -->.`);
       sb.line();
       sb.line('==Other Languages==');
       sb.line((await ol_gen_from_id(ctrl, achievement.TitleTextMapHash)).result);
@@ -239,8 +232,7 @@ export default async function(): Promise<Router> {
 
     res.render('pages/genshin/archive/achievement-page', {
       title: 'Achievement: ' + (achievement?.TitleText || 'Not Found'),
-      bodyClass: ['page--achievements'],
-      goal,
+      bodyClass: ['page--achievements', 'page--achievements-single'],
       achievement,
       wikitext: sb.toString(),
       id: req.params.id,

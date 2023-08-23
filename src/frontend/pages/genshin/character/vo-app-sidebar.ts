@@ -1,40 +1,43 @@
-import lunr from 'lunr';
 import { startListeners } from '../../../util/eventLoader';
-import { ltrim, rtrim } from '../../../../shared/util/stringUtil';
 import { VoAppState } from './vo-tool';
 
 export function VoAppSidebar(state: VoAppState) {
-  const avatarIdx: lunr.Index = lunr(function() {
-    this.ref('Id');
-    this.field('NameText');
-    state.avatars.forEach(doc => {
-      this.add(doc);
-    });
-  });
+  const allRows: HTMLElement[] = Array.from(document.querySelectorAll('.vo-toolbar-sidebar-avatar'));
+  const pendingIconEl = document.getElementById('vo-toolbar-sidebar-search-pending');
+
+  const lc = (s: string) => s ? s.toLowerCase() : '';
+  let debounceId: any;
 
   startListeners([
     {
       el: '#vo-toolbar-sidebar-search',
       ev: 'input',
       fn: function(event: InputEvent, target: HTMLInputElement) {
-        let searchText = target.value.trim();
-        if (!searchText) {
-          document.querySelectorAll('.vo-toolbar-sidebar-avatar').forEach(el => el.classList.remove('hide'));
-          return;
-        }
+        clearTimeout(debounceId);
+        pendingIconEl.classList.remove('hide');
 
-        let query = '';
-        query += rtrim(searchText, '*') + '^2 '
-        query += rtrim(searchText, '*') + '*' + ' '
-        query += ltrim(searchText, '*') + '~1';
+        debounceId = setTimeout(() => {
+          let searchText = target.value.trim().toLowerCase();
 
-        let results: lunr.Index.Result[] = avatarIdx.search(query);
+          if (!searchText) {
+            setTimeout(() => {
+              allRows.forEach(el => el.classList.remove('search-hide'));
+              pendingIconEl.classList.add('hide');
+            });
+            return;
+          }
 
-        document.querySelectorAll('.vo-toolbar-sidebar-avatar').forEach(el => el.classList.add('hide'));
+          for (let row of allRows) {
+            let name = lc(row.getAttribute('data-name'));
+            if (name.includes(searchText)) {
+              row.classList.remove('search-hide');
+            } else {
+              row.classList.add('search-hide');
+            }
+          }
 
-        for (let result of results) {
-          document.querySelector('#vo-toolbar-sidebar-avatar-' + result.ref).classList.remove('hide');
-        }
+          pendingIconEl.classList.add('hide');
+        }, 150);
       }
     },
   ]);

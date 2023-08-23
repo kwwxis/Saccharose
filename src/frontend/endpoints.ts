@@ -191,6 +191,7 @@ export const genshinEndpoints = {
 
   searchItems: new GenshinApiEndpoint<{text: string}>('/items/search'),
   searchWeapons: new GenshinApiEndpoint<{text: string}>('/weapons/search'),
+  searchAchievements: new GenshinApiEndpoint<{text: string}>('/achievements/search'),
 
   // mediaUpload: function() {
   //

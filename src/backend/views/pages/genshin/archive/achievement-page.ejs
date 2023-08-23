@@ -1,16 +1,61 @@
 <% if (locals.achievement) { %>
   <section class="card">
     <h2 class="valign">
-      <img class="framed-icon x42" src="/images/genshin/<%= goal?.IconPath %>.png" loading="lazy" decoding="async" />
+      <img class="framed-icon x42" src="/images/genshin/<%= achievement.Goal.IconPath %>.png" loading="lazy" decoding="async" />
       <span class="spacer15-left"><%= achievement.TitleText %></span>
       <span class="grow"></span>
       <span class="alignEnd flexColumn">
         <a href="/achievements" role="button" class="secondary small dispBlock spacer5-bottom">Back to all categories</a>
-        <a href="/achievements/<%= req.params.category %>" role="button" class="secondary small dispBlock">Back to <%= goal.NameText %></a>
+        <a href="/achievements/<%= req.params.category %>" role="button" class="secondary small dispBlock">Back to <%= achievement.Goal.NameText %></a>
       </span>
     </h2>
     <div class="content">
-      <%- use('partials/util/wikitext', { wikitext: wikitext }) %>
+      <table class="article-table">
+        <thead>
+          <tr>
+            <th colspan="2">Property Table</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="bold">ID</td>
+            <td class="w70p"><%= achievement.Id %></td>
+          </tr>
+          <tr>
+            <td class="bold">Name</td>
+            <td class="w70p"><%= achievement.TitleText %></td>
+          </tr>
+          <tr>
+            <td class="bold">Category</td>
+            <td class="w70p"><%= achievement.Goal.NameText %></td>
+          </tr>
+          <tr>
+            <td class="bold">Description</td>
+            <td class="w70p">
+              <%- use('partials/util/wikitext', { id: 'achievement-desc', wikitext: normGenshinText(achievement.DescText), seamless: true}) %>
+            </td>
+          </tr>
+          <tr>
+            <td class="bold">Order ID</td>
+            <td class="w70p"><%= achievement.OrderId %></td>
+          </tr>
+          <tr>
+            <td class="bold">Primogem Count</td>
+            <td class="w70p"><%= achievement?.FinishReward?.RewardSummary?.PrimogemCount || 'n/a' %></td>
+          </tr>
+          <tr>
+            <td class="bold">Is Hidden?</td>
+            <td class="w70p"><%= achievement.IsHidden ? 'Yes' : 'No' %></td>
+          </tr>
+          <tr>
+            <td class="bold">Trigger Info</td>
+            <td class="w70p"><%- use('partials/genshin/archive/achievement-trigger-desc', {achievement}) %></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="spacer10-top">
+        <%- use('partials/util/wikitext', { wikitext: wikitext }) %>
+      </div>
     </div>
   </section>
 <% } else { %>
@@ -19,9 +64,6 @@
     <div class="content">
       <div class="flexColumn alignStart">
         <a href="/achievements" role="button" class="secondary dispBlock spacer5-bottom">Back to all categories</a>
-        <% if (locals.goal) { %>
-          <a href="/achievements/<%= req.params.category %>" role="button" class="secondary dispBlock">Back to <%= goal.NameText %></a>
-        <% } %>
       </div>
     </div>
   </section>

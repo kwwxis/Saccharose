@@ -10,7 +10,10 @@
       </h2>
       <div id="vo-tool-sidebar-search" class="content">
         <div class="field">
-          <input id="vo-toolbar-sidebar-search" type="text" class="w100p" placeholder="Search characters..." />
+          <div class="posRel">
+            <input id="vo-toolbar-sidebar-search" type="text" class="w100p" placeholder="Search characters..." />
+            <span id="vo-toolbar-sidebar-search-pending" class="loading small posAbs hide" style="right:10px;top:0;bottom:0;margin:auto"></span>
+          </div>
         </div>
       </div>
       <div id="vo-tool-sidebar-list" class="content">
@@ -19,7 +22,7 @@
           <span class="spacer10-left">VO Tool Home</span>
         </a>
         <% for (let avatar of avatars) { %>
-          <a id="vo-toolbar-sidebar-avatar-<%= avatar.Id %>"
+          <a id="vo-toolbar-sidebar-avatar-<%= avatar.Id %>" data-name="<%= avatar.NameText %>"
              class="vo-toolbar-sidebar-avatar secondary dispFlex textAlignLeft"
              href="/character/VO/<%= avatar.NameText.replace(' ', '_') %>"
              role="button">

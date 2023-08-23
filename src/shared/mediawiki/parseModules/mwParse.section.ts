@@ -1,7 +1,6 @@
 import { MwParseModule } from '../mwParseModule';
 import { MwHeading, MwSection } from '../mwTypes';
 import { mwParse } from '../mwParse';
-import { tag } from '../../../frontend/util/domutil';
 
 /**
  * Parse module for sections.

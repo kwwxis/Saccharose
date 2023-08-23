@@ -4,7 +4,10 @@
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
   position: relative;
 
-  button {
+  button, a {
+    display: inline-block;
+    text-decoration: none;
+    font-size: 13.333px;
     border: 0;
     height: 32px;
     color: #fff;
@@ -59,7 +62,7 @@ body .tab-list {
   box-shadow: 0 -0.5px 2px hsla(223, 67%, 18%, 0.2),
     0 1px 2px hsla(223, 67%, 18%, 0.2);
 
-  button {
+  button, a {
     background: hsl(240, 30%, 95%);
     color: hsla(223, 67%, 18%, 0.9);
 
@@ -81,7 +84,7 @@ body .tab-list {
 body.nightmode .tab-list {
   background: hsl(255deg 8% 8%);
 
-  button {
+  button, a {
     background: hsl(255deg 8% 14%);
     color: #fff;
 

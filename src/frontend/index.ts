@@ -20,6 +20,7 @@ import './pages/genshin/dialogue/quests';
 import './pages/genshin/dialogue/reminders';
 import './pages/genshin/dialogue/vo-to-dialogue';
 
+import './pages/genshin/archive/achievements';
 import './pages/genshin/archive/readables-search';
 import './pages/genshin/archive/material-search';
 import './pages/genshin/archive/weapon-search';
