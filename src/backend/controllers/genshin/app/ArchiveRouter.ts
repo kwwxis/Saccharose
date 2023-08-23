@@ -159,33 +159,7 @@ export default async function(): Promise<Router> {
     });
   });
 
-  router.get('/achievements/:category?', async (req: Request, res: Response) => {
-    const ctrl = getGenshinControl(req);
-    const goals = await ctrl.selectAchievementGoals();
-    let goalName: string = '';
-    let achievements: AchievementsByGoals = null;
-
-    if (req.params.category) {
-      let goal = goals.find(goal =>
-        paramCmp(goal.NameTextEN, req.params.category) ||
-        paramCmp(goal.NameText, req.params.category) ||
-        paramCmp(goal.Id, req.params.category)
-      );
-      if (goal) {
-        goalName = goal.NameText;
-        achievements = await ctrl.selectAchievements(goal.Id);
-      }
-    }
-
-    res.render('pages/genshin/archive/achievements', {
-      title: goalName ? `Achievements - ${goalName}` : 'Achievements',
-      bodyClass: ['page--achievements', 'page--achievements-categories'],
-      goals,
-      achievements
-    });
-  });
-
-  router.get('/achievements/:category/:id', async (req: Request, res: Response) => {
+  router.get('/achievements/:id(\\d+)/', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
     const achievement = await ctrl.selectAchievement(toInt(req.params.id));
 
@@ -239,6 +213,31 @@ export default async function(): Promise<Router> {
     });
   });
 
+  router.get('/achievements/:category?', async (req: Request, res: Response) => {
+    const ctrl = getGenshinControl(req);
+    const goals = await ctrl.selectAchievementGoals();
+    let goalName: string = '';
+    let achievements: AchievementsByGoals = null;
+
+    if (req.params.category) {
+      let goal = goals.find(goal =>
+        paramCmp(goal.NameTextEN, req.params.category) ||
+        paramCmp(goal.NameText, req.params.category) ||
+        paramCmp(goal.Id, req.params.category)
+      );
+      if (goal) {
+        goalName = goal.NameText;
+        achievements = await ctrl.selectAchievements(goal.Id);
+      }
+    }
+
+    res.render('pages/genshin/archive/achievements', {
+      title: goalName ? `Achievements - ${goalName}` : 'Achievements',
+      bodyClass: ['page--achievements', 'page--achievements-categories'],
+      goals,
+      achievements
+    });
+  });
 
   // Readables
   // ~~~~~~~~~
