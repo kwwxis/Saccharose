@@ -6,7 +6,7 @@
       <span class="grow"></span>
       <span class="alignEnd flexColumn">
         <a href="/achievements" role="button" class="secondary small dispBlock spacer5-bottom">Back to all categories</a>
-        <a href="/achievements/<%= req.params.category %>" role="button" class="secondary small dispBlock">Back to <%= achievement.Goal.NameText %></a>
+        <a href="/achievements/<%= toParam(achievement.Goal.NameText) %>" role="button" class="secondary small dispBlock">Back to <%= achievement.Goal.NameText %></a>
       </span>
     </h2>
     <div class="content">
