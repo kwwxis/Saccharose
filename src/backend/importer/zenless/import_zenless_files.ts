@@ -49,7 +49,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     }
     if (options.plaintext) {
       const ctrl = getZenlessControl();
-      await importPlainTextMap(ctrl, getZenlessDataFilePath, loadZenlessTextSupportingData);
+      await importPlainTextMap(ctrl, getZenlessDataFilePath);
     }
 
     await closeKnex();

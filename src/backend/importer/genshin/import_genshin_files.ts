@@ -723,7 +723,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     }
     if (options.plaintext) {
       const ctrl = getGenshinControl();
-      await importPlainTextMap(ctrl, getGenshinDataFilePath, loadGenshinTextSupportingData);
+      await importPlainTextMap(ctrl, getGenshinDataFilePath);
     }
     if (options.index) {
       await importIndex();

@@ -155,9 +155,7 @@ export async function importNormalize(jsonDir: string, skip: string[], specialNo
   console.log(chalk.blue(`Done, modified ${numChanged} files.`));
 }
 
-export async function importPlainTextMap(ctrl: AbstractControl, getDataFilePath: (relPath: string) => string, loadSupportingData: () => Promise<void>) {
-  await loadSupportingData();
-
+export async function importPlainTextMap(ctrl: AbstractControl, getDataFilePath: (relPath: string) => string) {
   if (!fs.existsSync(getDataFilePath('./TextMap/Plain/'))) {
     fs.mkdirSync(getDataFilePath('./TextMap/Plain/'));
   }
@@ -210,7 +208,9 @@ export async function importPlainTextMap(ctrl: AbstractControl, getDataFilePath:
       textmap = null;
     } catch (e) {
       console.log(chalk.yellow('Could not process TextMap for ' + langCode + ' (may not exist) -- ' + getDataFilePath(getTextMapRelPath(langCode))));
-      console.error(e);
+      if (!String(e).includes('no such file or directory')) {
+        console.error(e);
+      }
     }
     console.log(chalk.gray('----------'));
   }

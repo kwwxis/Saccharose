@@ -55,7 +55,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     }
     if (options.plaintext) {
       const ctrl = getStarRailControl();
-      await importPlainTextMap(ctrl, getStarRailDataFilePath, loadStarRailTextSupportingData);
+      await importPlainTextMap(ctrl, getStarRailDataFilePath);
     }
 
     await closeKnex();
