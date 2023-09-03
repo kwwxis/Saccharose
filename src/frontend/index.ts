@@ -40,3 +40,6 @@ import { resolveObjectPath } from '../shared/util/arrayUtil';
 
 import { mwParse } from '../shared/mediawiki/mwParse';
 (<any> window).mwParse = mwParse;
+
+import { uuidv4 } from '../shared/util/uuidv4';
+(<any> window).uuidv4 = uuidv4;

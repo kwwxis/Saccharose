@@ -78,7 +78,7 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/DialogUnparentedExcelConfigData.json',
     columns: [
       { name: 'MainQuestId', type: 'integer', isIndex: true },
-      { name: 'DialogId', type: 'integer' },
+      { name: 'DialogId', type: 'integer', isIndex: true },
     ]
   },
   Relation_DialogToNext: <SchemaTable>{

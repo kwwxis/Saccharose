@@ -1,9 +1,10 @@
-import { create, Request, Response, Router } from '../../../util/router';
+import { create } from '../../../routing/router';
 import { reminderGenerateAll } from '../../../domain/genshin/dialogue/reminder_generator';
 import { getGenshinControl } from '../../../domain/genshin/genshinControl';
 import { toInt } from '../../../../shared/util/numberUtil';
 import { ol_gen_from_id } from '../../../domain/generic/basic/OLgen';
 import { orderChapterQuests } from '../../../domain/genshin/dialogue/dialogue_util';
+import { Request, Response, Router } from 'express';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -64,7 +65,7 @@ export default async function(): Promise<Router> {
   });
 
   router.get('/quests/:id', async (req: Request, res: Response) => {
-    let mainQuest = await getGenshinControl(req).selectMainQuestById(req.params.id);
+    let mainQuest = await getGenshinControl(req).selectMainQuestById(toInt(req.params.id));
     res.render('pages/genshin/dialogue/quests', {
       title: mainQuest ? mainQuest.TitleText + ' - Quests' : 'Quest Not Found',
       bodyClass: ['page--quests']

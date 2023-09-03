@@ -1,5 +1,4 @@
 import { Knex } from 'knex';
-import { Request } from '../util/router';
 import { DEFAULT_SEARCH_MODE, IdUsages, SEARCH_MODES, SearchMode } from '../util/searchUtil';
 import { openKnex, SaccharoseDb } from '../util/db';
 import {
@@ -26,6 +25,7 @@ import { getLineNumberForLineText, grep, grepStream, ShellFlags } from '../util/
 import { NormTextOptions } from './generic/genericNormalizers';
 import { ExtractScalar } from '../../shared/types/utility-types';
 import { ArrayStream } from '../../shared/util/arrayUtil';
+import { Request } from 'express';
 
 export abstract class AbstractControlState {
   public request: Request = null;

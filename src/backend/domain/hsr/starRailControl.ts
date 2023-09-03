@@ -1,7 +1,6 @@
 // noinspection JSUnusedGlobalSymbols
 
 import { AbstractControl, AbstractControlState } from '../abstractControl';
-import { Request } from '../../util/router';
 import { DATAFILE_HSR_VOICE_ITEMS, getStarRailDataFilePath } from '../../loadenv';
 import { normalizeRawJson, SchemaTable } from '../../importer/import_db';
 import {
@@ -17,6 +16,8 @@ import { defaultMap } from '../../../shared/util/genericUtil';
 import { LoadingDesc } from '../../../shared/types/hsr/hsr-misc-types';
 import { sort } from '../../../shared/util/arrayUtil';
 import { NormTextOptions } from '../generic/genericNormalizers';
+import { Request } from 'express';
+import { logInitData } from '../../util/logger';
 
 /**
  * State/cache for only a single control
@@ -121,7 +122,7 @@ interface StarRailVoiceConfig {
 }
 
 export async function loadStarRailVoiceItems(): Promise<void> {
-  console.log('[Init:Data] Loading HSR Voice Items -- starting...');
+  logInitData('Loading HSR Voice Items -- starting...');
 
   const voiceItemsFilePath = path.resolve(process.env.HSR_DATA_ROOT, DATAFILE_HSR_VOICE_ITEMS);
   const result: StarRailVoiceConfig[] = await fs.readFile(voiceItemsFilePath, {encoding: 'utf8'}).then(data => JSON.parse(data));
@@ -136,7 +137,7 @@ export async function loadStarRailVoiceItems(): Promise<void> {
   }
 
   Object.freeze(HSR_VOICE_ITEMS);
-  console.log('[Init:Data] Loading HSR Voice Items -- done!');
+  logInitData('Loading HSR Voice Items -- done!');
 }
 
 export class StarRailVoice {

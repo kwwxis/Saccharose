@@ -1,5 +1,5 @@
 import jsonMask from 'json-mask';
-import { Request, Response, NextFunction } from '../../util/router';
+import { NextFunction, Request, Response } from 'express';
 
 function isBadCode(statusCode: number) {
   return statusCode < 200 || statusCode >= 300;

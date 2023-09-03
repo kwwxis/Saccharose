@@ -1,4 +1,4 @@
-import { create, Request, Response, Router } from '../../../util/router';
+import { create } from '../../../routing/router';
 import { HomeWorldNPCExcelConfigData } from '../../../../shared/types/genshin/homeworld-types';
 import { fetchCompanionDialogue, getHomeWorldCompanions } from '../../../domain/genshin/character/companion_dialogue';
 import { getGenshinControl } from '../../../domain/genshin/genshinControl';
@@ -7,6 +7,7 @@ import { StoryFetters } from '../../../../shared/types/genshin/fetter-types';
 import { AvatarExcelConfigData } from '../../../../shared/types/genshin/avatar-types';
 import { getAvatar, getAvatars, getCompanion } from '../../../middleware/genshin/genshinAvatarUtil';
 import { queryTab } from '../../../middleware/util/queryTab';
+import { Request, Response, Router } from 'express';
 
 export default async function(): Promise<Router> {
   const router: Router = create();

@@ -1,10 +1,10 @@
-import { Request, Response } from '../../../util/router';
 import { isInt, maybeInt, toInt } from '../../../../shared/util/numberUtil';
 import { IdUsages } from '../../../util/searchUtil';
 import { AbstractControl } from '../../../domain/abstractControl';
 import { add_ol_markers, ol_gen, OLResult } from '../../../domain/generic/basic/OLgen';
 import { isset, toBoolean } from '../../../../shared/util/genericUtil';
 import { HttpError } from '../../../../shared/util/httpError';
+import { Request, Response } from 'express';
 
 export async function handleTextMapSearchEndpoint(ctrl: AbstractControl, req: Request, res: Response) {
   const startFromLine: number = isset(req.query.startFromLine) && isInt(req.query.startFromLine) ? toInt(req.query.startFromLine) : undefined;

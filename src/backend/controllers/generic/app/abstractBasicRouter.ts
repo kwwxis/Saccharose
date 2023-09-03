@@ -1,6 +1,6 @@
 import { AbstractControl } from '../../../domain/abstractControl';
-import { Request, Response } from '../../../util/router';
 import { removeSuffix } from '../../../../shared/util/stringUtil';
+import { Request, Response } from 'express';
 
 export async function sendExcelViewerTableResponse(ctrl: AbstractControl, req: Request, res: Response) {
   const excels = await ctrl.getExcelFileNames();

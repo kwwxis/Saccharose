@@ -1,4 +1,4 @@
-import { create, NextFunction, Request, Response, Router } from '../../../util/router';
+import { create } from '../../../routing/router';
 import { getGenshinControl } from '../../../domain/genshin/genshinControl';
 import path from 'path';
 import fs from 'fs';
@@ -8,28 +8,29 @@ import {
   handleOlEndpoint,
   handleTextMapSearchEndpoint,
 } from '../../generic/api/basicResourceResources';
+import { NextFunction, Request, Response, Router } from 'express';
 
 const router: Router = create();
 
-router.restful('/search-textmap', {
+router.endpoint('/search-textmap', {
   get: async (req: Request, res: Response) => {
     await handleTextMapSearchEndpoint(getGenshinControl(req), req, res)
   }
 });
 
-router.restful('/OL/generate', {
+router.endpoint('/OL/generate', {
   get: async (req: Request, res: Response) => {
     await handleOlEndpoint(getGenshinControl(req), req, res);
   }
 });
 
-router.restful('/id-usages', {
+router.endpoint('/id-usages', {
   get: async (req: Request, res: Response) => {
     await handleIdUsagesEndpoint(getGenshinControl(req), req, res);
   }
 });
 
-router.restful('/serve-image', {
+router.endpoint('/serve-image', {
   get: async (req: Request, res: Response, _next: NextFunction) => {
     const genshinImagesRoot = path.resolve(PUBLIC_DIR, 'images/genshin');
     const mime = {

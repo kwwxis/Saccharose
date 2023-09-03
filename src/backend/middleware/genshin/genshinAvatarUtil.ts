@@ -2,12 +2,12 @@ import { GenshinControl } from '../../domain/genshin/genshinControl';
 import { AvatarExcelConfigData } from '../../../shared/types/genshin/avatar-types';
 import { cached } from '../../util/cache';
 import { fetchCharacterStories } from '../../domain/genshin/character/fetchStoryFetters';
-import { Request } from '../../util/router';
 import { isInt, toInt } from '../../../shared/util/numberUtil';
 import { isString } from '../../../shared/util/stringUtil';
 import jsonMask from 'json-mask';
 import { HomeWorldNPCExcelConfigData } from '../../../shared/types/genshin/homeworld-types';
 import { getHomeWorldCompanions } from '../../domain/genshin/character/companion_dialogue';
+import { Request } from 'express';
 
 export const avatarMaskProps = 'Id,' +
   'QualityType,' +
@@ -35,7 +35,8 @@ export async function getAvatars(ctrl: GenshinControl): Promise<AvatarExcelConfi
 
 export async function getAvatar(ctrl: GenshinControl, req: Request): Promise<AvatarExcelConfigData> {
   const avatars = await getAvatars(ctrl);
-  const arg: string|number = ['avatarId', 'avatarName', 'avatar', 'id'].map(key => req.params[key] || req.query[key]).find(val => !!val);
+  const arg: string|number = ['avatarId', 'avatarName', 'avatar', 'id']
+    .map(key => req.params[key] || <string> req.query[key]).find(val => !!val);
 
   if (!arg) {
     return null;
@@ -63,7 +64,8 @@ export async function getAvatar(ctrl: GenshinControl, req: Request): Promise<Ava
 
 export async function getCompanion(ctrl: GenshinControl, req: Request): Promise<HomeWorldNPCExcelConfigData> {
   const companions = await getHomeWorldCompanions(ctrl);
-  const arg: string|number = ['avatarId', 'avatarName', 'avatar', 'id'].map(key => req.params[key] || req.query[key]).find(val => !!val);
+  const arg: string|number = ['avatarId', 'avatarName', 'avatar', 'id']
+    .map(key => req.params[key] || <string> req.query[key]).find(val => !!val);
 
   if (!arg) {
     return null;

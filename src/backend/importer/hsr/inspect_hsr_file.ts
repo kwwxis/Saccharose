@@ -1,6 +1,6 @@
 import { pathToFileURL } from 'url';
 import { closeKnex } from '../../util/db';
-import { inspectDataFile, InspectOpt } from '../inspect_file_util';
+import { inspectDataFile, InspectOpt } from '../util/inspect_file_util';
 import { getStarRailControl } from '../../domain/hsr/starRailControl';
 
 const excel = (file: string) => `./ExcelOutput/${file}.json`;

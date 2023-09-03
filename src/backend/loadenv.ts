@@ -12,7 +12,6 @@ import util from 'util';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const envFile = path.resolve(__dirname, '../../.env');
-console.log('[Init] envFile:', envFile);
 dotenv.config({ path: envFile });
 
 export const VIEWS_ROOT = path.resolve(__dirname, './views');

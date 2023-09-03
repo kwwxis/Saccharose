@@ -148,7 +148,10 @@ export async function dialogueGenerate(ctrl: GenshinControl, query: number|numbe
 
         let questIds = await dialogueToQuestId(ctrl, firstDialog);
         if (questIds.length) {
-          sect.metadata.push(new MetaProp('Quest ID', questIds, '/quests/{}'));
+          sect.metadata.push(new MetaProp('Quest ID', await questIds.asyncMap(async id => ({
+            value: id,
+            tooltip: await ctrl.selectMainQuestName(id)
+          })), '/quests/{}'));
         }
         sect.wikitext = (await ctrl.generateDialogueWikiText(dialogueBranch)).trim();
         addHighlightMarkers(dialogue, sect);

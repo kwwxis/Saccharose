@@ -1,7 +1,8 @@
-import { create, Request, Response, Router } from '../../../util/router';
+import { create } from '../../../routing/router';
 import { getGenshinControl } from '../../../domain/genshin/genshinControl';
 
 import { sendExcelViewerTableResponse } from '../../generic/app/abstractBasicRouter';
+import { Request, Response, Router } from 'express';
 
 export default async function(): Promise<Router> {
   const router: Router = create();

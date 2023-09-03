@@ -1,5 +1,5 @@
 import bodyParser from 'body-parser';
-import { create, Request, Response, Router } from '../util/router';
+import { create } from '../routing/router';
 import { apiErrorHandler } from '../middleware/response/globalErrorHandler';
 import apiAccessControlHeaders from '../middleware/api/apiAccessControlHeaders';
 import apiAuth from '../middleware/api/apiAuth';
@@ -9,6 +9,7 @@ import ZenlessResources from './zenless/api/_index';
 import { getGenshinControl } from '../domain/genshin/genshinControl';
 import { getStarRailControl } from '../domain/hsr/starRailControl';
 import { getZenlessControl } from '../domain/zenless/zenlessControl';
+import { Request, Response, Router } from 'express';
 
 export default async function(): Promise<Router> {
   const router: Router = create({

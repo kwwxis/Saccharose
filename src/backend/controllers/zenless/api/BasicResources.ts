@@ -1,26 +1,27 @@
-import { create, Request, Response, Router } from '../../../util/router';
+import { create } from '../../../routing/router';
 import {
   handleIdUsagesEndpoint,
   handleOlEndpoint,
   handleTextMapSearchEndpoint,
 } from '../../generic/api/basicResourceResources';
 import { getZenlessControl } from '../../../domain/zenless/zenlessControl';
+import { Request, Response, Router } from 'express';
 
 const router: Router = create();
 
-router.restful('/search-textmap', {
+router.endpoint('/search-textmap', {
   get: async (req: Request, res: Response) => {
     await handleTextMapSearchEndpoint(getZenlessControl(req), req, res)
   }
 });
 
-router.restful('/OL/generate', {
+router.endpoint('/OL/generate', {
   get: async (req: Request, res: Response) => {
     await handleOlEndpoint(getZenlessControl(req), req, res);
   }
 });
 
-router.restful('/id-usages', {
+router.endpoint('/id-usages', {
   get: async (req: Request, res: Response) => {
     await handleIdUsagesEndpoint(getZenlessControl(req), req, res);
   }

@@ -1,5 +1,6 @@
-import { NextFunction, Request, Response } from '../../util/router';
+
 import rateLimit from 'express-rate-limit';
+import { Request, Response } from 'express';
 
 const rateLimitSkipRegex: RegExp = /\.css|\.js|\.png|\.svg|\.ico|\.jpg|\.woff|\.env/ig;
 

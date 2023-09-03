@@ -368,94 +368,103 @@ export async function dialogTraceBack(ctrl: GenshinControl, dialog: DialogExcelC
   return ret;
 }
 
-async function _guessQuestFromDialogueId(ctrl: GenshinControl, id: number | string): Promise<number> {
-  if (typeof id === 'string') {
-    if (isInt(id)) {
-      id = parseInt(id);
-    } else {
-      return undefined;
-    }
-  }
-  if (!id || id < 100) {
-    return undefined; // minimum quest id is 3 digits
-  }
-
-  let strId = id.toString().padStart(9, '0');
-
-  // Most dialogue IDs are in the format of xxxxx|yy|zz (9 digits)
-  //  xxxxx - quest ID
-  //  yy - step id
-  //  zz - line id (sometimes can be 3 digits as "zzz")
-  // when the dialogue ID is less than 9 digits, it should be '0'-padded to the left
-
-  // largest quest ID has 5 digits
-  // smallest quest ID has 3
-  for (let n of [3, 4, 5]) {
-    let sub = parseInt(strId.slice(0, n));
-    if (await ctrl.doesQuestExist(sub)) {
-      return sub;
-    }
-  }
-  return undefined;
-}
-
 /**
- *
  * @param ctrl Control
  * @param query Either dialogue text, dialogue/talk id, or instance.
  */
-export async function dialogueToQuestId(ctrl: GenshinControl, query: string | number | DialogExcelConfigData | TalkExcelConfigData): Promise<number[]> {
+export async function dialogueToQuestId(ctrl: GenshinControl,
+                                        query: string | number | DialogExcelConfigData | TalkExcelConfigData): Promise<number[]> {
   let talk: TalkExcelConfigData;
   let dialog: DialogExcelConfigData;
 
+  // Step 1: Normalize input query
+  // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  // If the query is a string that's integer-like, then convert it to an int
   if (typeof query === 'string' && isInt(query)) {
     query = parseInt(query);
   }
+
+  // If the query is a string then consider it as dialog text, and find the corresponding textmap hash and dialog
   if (typeof query === 'string') {
     let textmapHashes = (await ctrl.getTextMapMatches(ctrl.inputLangCode, query, '-m 1')).map(x => x.hash); // only get one match
     if (!textmapHashes.length) {
-      return [];
+      return []; // if no textmap results, then no results overall
     }
-    dialog = (await ctrl.selectDialogsFromTextContentId(textmapHashes[0]))[0];
+    dialog = (await ctrl.selectDialogsFromTextContentId(textmapHashes[0]))[0]; // if multiple results, then get first only
   }
+
+  // If the query is a number, then it might be a dialog or talk id
   if (typeof query === 'number') {
     talk = await ctrl.selectTalkExcelConfigDataById(query);
     dialog = await ctrl.selectSingleDialogExcelConfigData(query);
   }
+
+  // If the query is an object, then figure out if it's a Talk or Dialog
   if (typeof query === 'object') {
-    if (query.hasOwnProperty('QuestId') || query.hasOwnProperty('InitDialog')) {
+    if (query.hasOwnProperty('InitDialog')) {
       talk = query as TalkExcelConfigData;
     }
     if (query.hasOwnProperty('TalkContentTextMapHash')) {
       dialog = query as DialogExcelConfigData;
     }
   }
+
+  // Step 2: Find Quest ID
+  // ~~~~~~~~~~~~~~~~~~~~~
+
+  // If we found a talk and the talk has a quest ID, then we're done
   if (talk && talk.QuestId) {
     return [talk.QuestId];
   }
+
+  // If no dialog, then nothing else we can do
   if (!dialog) {
     return [];
   }
-  let ret = [];
-  let firstDialogs = await dialogTraceBack(ctrl, dialog);
+
+  // If dialog has a TalkId, try fetching that
+  if (dialog.TalkId) {
+    talk = await ctrl.selectTalkExcelConfigDataById(dialog.TalkId);
+    if (talk && talk.QuestId) {
+      return [talk.QuestId];
+    }
+  }
+
+  // Check if unparented main quest dialog
+  {
+    let unparented = await ctrl.selectDialogUnparentedByDialogId(dialog.Id);
+    if (unparented) {
+      return [unparented.MainQuestId];
+    }
+  }
+
+  // Step 3: Find Quest ID (continued)
+  // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  const questIds: Set<number> = new Set();
+  const firstDialogs = await dialogTraceBack(ctrl, dialog);
+
+  // Trace the dialog back to the first dialog
   for (let d of firstDialogs) {
-    let talks = await ctrl.selectTalkExcelConfigDataListByFirstDialogueId(d.Id);
-    for (let t of talks) {
+    let unparented = await ctrl.selectDialogUnparentedByDialogId(d.Id);
+    if (unparented) {
+      questIds.add(unparented.MainQuestId);
+    } else if (d.TalkId) {
+      let t = await ctrl.selectTalkExcelConfigDataById(d.TalkId);
       if (t && t.QuestId) {
-        ret.push(t.QuestId);
+        questIds.add(t.QuestId);
+      }
+    } else {
+      for (let t of await ctrl.selectTalkExcelConfigDataListByFirstDialogueId(d.Id)) {
+        if (t && t.QuestId) {
+          questIds.add(t.QuestId);
+        }
       }
     }
   }
-  if (ret.length) {
-    return ret;
-  }
-  for (let d of firstDialogs) {
-    let qId = await _guessQuestFromDialogueId(ctrl, d.Id);
-    if (qId) {
-      ret.push(qId);
-    }
-  }
-  return ret;
+
+  return Array.from(questIds);
 }
 // endregion
 

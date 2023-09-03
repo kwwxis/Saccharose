@@ -3,12 +3,14 @@
   "ignore": [
     ".git",
     "node_modules/**",
+    "dist/",
+    "public/",
     "test/",
-    "src/frontend",
-    "public"
+    "src/frontend"
   ],
+  "watch": ["src", ".env"],
   "execMap": {
-    "ts": "node --loader ts-node/esm"
+    "ts": "etsc --config=etsc.config.cjs && npm run start"
   },
   "ext": "ts,js,json"
 }

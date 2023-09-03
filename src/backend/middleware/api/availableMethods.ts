@@ -1,4 +1,4 @@
-import { Request, Response } from '../../util/router';
+import { Request, Response } from 'express';
 
 export default function(statusCode: number, methods: string[]) {
   return (req: Request, res: Response) => {

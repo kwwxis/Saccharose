@@ -106,23 +106,14 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
 
   debug('Fetching Talks (by MainQuest ID Prefix)');
 
-  // Fetch Talk Configs by Main Quest ID (prefix)
-  let talkConfigIdsByMainQuestIdPrefix: number[] = await ctrl.selectTalkExcelConfigDataIdsByPrefix(mainQuest.Id);
-  for (let talkConfigId of talkConfigIdsByMainQuestIdPrefix) {
-    if (talkConfigAcc.fetchedTalkConfigIds.has(talkConfigId)) {
-      continue;
-    }
-    let talkConfig = await ctrl.selectTalkExcelConfigDataById(talkConfigId, 'TALK_DEFAULT');
-    await talkConfigAcc.handleTalkConfig(talkConfig);
-  }
-
   // Find orphaned dialogue
   // ----------------------
 
-  debug('Fetching orphaned dialogue');
+  debug('Fetching unparented dialogue');
+  await ctrl.addUnparentedDialogue(mainQuest);
 
-  // Add other orphaned dialogue and quest messages (after fetching talk configs)
-  await ctrl.addOrphanedDialogueAndQuestMessages(mainQuest);
+  debug('Fetching quest messages');
+  await ctrl.addQuestMessages(mainQuest);
 
   // Sort Talk Configs to quest subs
   // -------------------------------

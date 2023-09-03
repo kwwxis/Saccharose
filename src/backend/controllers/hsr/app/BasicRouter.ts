@@ -1,7 +1,8 @@
-import { create, Request, Response, Router } from '../../../util/router';
+import { create } from '../../../routing/router';
 import { getStarRailControl } from '../../../domain/hsr/starRailControl';
 import { sendExcelViewerTableResponse } from '../../generic/app/abstractBasicRouter';
 import { SbOut } from '../../../../shared/util/stringUtil';
+import { Request, Response, Router } from 'express';
 
 export default async function(): Promise<Router> {
   const router: Router = create();

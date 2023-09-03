@@ -2,6 +2,7 @@ import  knex, { Knex } from 'knex';
 import exitHook from 'async-exit-hook';
 import path from 'path';
 import { DATAFILE_GENSHIN_SQLITE_DB, DATAFILE_HSR_SQLITE_DB, DATAFILE_ZENLESS_SQLITE_DB } from '../loadenv';
+import { logShutdown } from './logger';
 
 export type SaccharoseDb = {
   genshin: Knex,
@@ -56,12 +57,12 @@ export async function closeKnex(): Promise<boolean> {
 }
 
 exitHook(callback => {
-  console.log('Exit signal received, closing database...')
+  logShutdown('Exit signal received, closing database...')
   closeKnex().then(b => {
     if (b) {
-      console.log('Successfully closed database.');
+      logShutdown('Successfully closed database.');
     } else {
-      console.log('Database already closed.');
+      logShutdown('Database already closed.');
     }
     callback();
   })

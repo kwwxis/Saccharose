@@ -1,6 +1,6 @@
-import { NextFunction, Request, Response } from '../../util/router';
 import { VIEWS_ROOT } from '../../loadenv';
 import { HttpError } from '../../../shared/util/httpError';
+import { NextFunction, Request, Response } from 'express';
 
 export async function pageLoadErrorHandler(err: any, req: Request, res: Response, next: NextFunction) {
   if (err && typeof err === 'object' && (err.code === 'EBADCSRFTOKEN' || err.type === 'EBADCSRFTOKEN')) {
@@ -16,7 +16,9 @@ export async function pageLoadErrorHandler(err: any, req: Request, res: Response
 
   do {
     try {
-      await res.status(500).render('errors/500', null, null, true);
+      res.status(500).render('errors/500', {
+        throwOnError: true
+      });
       return;
     } catch (e) {
       req.context.popViewStack();

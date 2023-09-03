@@ -14,7 +14,7 @@ export interface ChapterCollection {
   SQ: {[chapterName: string]: {[subChapterName: string]: ChapterExcelConfigData[]}},
   EQ: {[chapterName: string]: ChapterExcelConfigData[]},
   WQ: {[chapterName: string]: ChapterExcelConfigData[]},
-};
+}
 
 export interface MainQuestExcelConfigData {
   Id: number,

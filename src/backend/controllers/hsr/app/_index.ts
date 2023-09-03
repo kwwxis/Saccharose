@@ -1,5 +1,6 @@
-import { create, Router } from '../../../util/router';
+import { create } from '../../../routing/router';
 import BasicRouter from './BasicRouter';
+import { Router } from 'express';
 
 export default async function(): Promise<Router> {
   const router: Router = create();

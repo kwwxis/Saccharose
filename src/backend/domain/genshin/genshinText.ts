@@ -11,6 +11,7 @@ import { SpriteTagExcelConfigData } from '../../../shared/types/genshin/general-
 import { getGenshinControl } from './genshinControl';
 import { toMap } from '../../../shared/util/arrayUtil';
 import { html2quotes, unnestHtmlTags } from '../../../shared/mediawiki/mwQuotes';
+import { logInitData } from '../../util/logger';
 
 function __convertGenshinRubi(langCode: LangCode, text: string): string {
   const rubiMap: { [index: number]: string } = {};
@@ -173,7 +174,7 @@ let serverBrandTipsOverseas: LangCodeMap = null;
 let serverEmailAskOverseas: LangCodeMap = null;
 
 export async function loadGenshinTextSupportingData(): Promise<void> {
-  console.log('[Init:Data] Loading Genshin-supporting text data -- starting...');
+  logInitData('Loading Genshin-supporting text data -- starting...');
 
   const ctrl = getGenshinControl();
 
@@ -182,5 +183,5 @@ export async function loadGenshinTextSupportingData(): Promise<void> {
 
   toMap(await ctrl.readExcelDataFile<SpriteTagExcelConfigData[]>('SpriteTagExcelConfigData.json'), 'Id', GENSHIN_SPRITE_TAGS);
 
-  console.log('[Init:Data] Loading Genshin-supporting text data -- done!');
+  logInitData('Loading Genshin-supporting text data -- done!');
 }

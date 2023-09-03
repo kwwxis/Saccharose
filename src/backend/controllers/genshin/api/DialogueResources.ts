@@ -1,4 +1,4 @@
-import { create, Request, Response, Router } from '../../../util/router';
+import { create } from '../../../routing/router';
 import { getGenshinControl } from '../../../domain/genshin/genshinControl';
 import { MainQuestExcelConfigData } from '../../../../shared/types/genshin/quest-types';
 import { isInt, toInt } from '../../../../shared/util/numberUtil';
@@ -14,10 +14,11 @@ import {
 import { reminderGenerate, reminderWikitext } from '../../../domain/genshin/dialogue/reminder_generator';
 import { ApiCyclicValueReplacer } from '../../../middleware/api/apiCyclicValueReplacer';
 import { VoiceItem } from '../../../../shared/types/lang-types';
+import { Request, Response, Router } from 'express';
 
 const router: Router = create();
 
-router.restful('/quests/findMainQuest', {
+router.endpoint('/quests/findMainQuest', {
   get: async (req: Request, res: Response) => {
     let questNameOrId: string|number = <string|number> (req.query.name || req.query.id);
 
@@ -48,7 +49,7 @@ router.restful('/quests/findMainQuest', {
   }
 });
 
-router.restful('/quests/generate', {
+router.endpoint('/quests/generate', {
   get: async (req: Request, res: Response) => {
     let param: number|string;
 
@@ -87,7 +88,7 @@ router.restful('/quests/generate', {
   }
 });
 
-router.restful('/dialogue/single-branch-generate', {
+router.endpoint('/dialogue/single-branch-generate', {
   get: async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
     const query = (<string> req.query.text)?.trim();
@@ -109,7 +110,7 @@ router.restful('/dialogue/single-branch-generate', {
   }
 });
 
-router.restful('/dialogue/npc-dialogue-generate', {
+router.endpoint('/dialogue/npc-dialogue-generate', {
   get: async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
     const query = (<string> req.query.name)?.trim();
@@ -134,7 +135,7 @@ router.restful('/dialogue/npc-dialogue-generate', {
   }
 });
 
-router.restful('/dialogue/reminder-dialogue-generate', {
+router.endpoint('/dialogue/reminder-dialogue-generate', {
   get: async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
     let subsequentAmount = 0;
@@ -156,7 +157,7 @@ router.restful('/dialogue/reminder-dialogue-generate', {
   }
 });
 
-router.restful('/dialogue/vo-to-dialogue', {
+router.endpoint('/dialogue/vo-to-dialogue', {
   get: async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
     const inputs: string[] = (<string> req.query.text).trim().split(/\n/g).map(s => s.trim()).filter(s => !!s);

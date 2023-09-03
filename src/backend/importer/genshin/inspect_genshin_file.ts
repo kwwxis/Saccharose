@@ -1,7 +1,7 @@
 import { pathToFileURL } from 'url';
 import { getGenshinControl } from '../../domain/genshin/genshinControl';
 import { closeKnex } from '../../util/db';
-import { inspectDataFile, InspectOpt } from '../inspect_file_util';
+import { inspectDataFile, InspectOpt } from '../util/inspect_file_util';
 
 const excel = (file: string) => `./ExcelBinOutput/${file}.json`;
 

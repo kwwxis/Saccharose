@@ -8,7 +8,7 @@
       <ul>
         <% for (let detail of rule.DetailList) { %>
           <li>
-            <strong class="valign"><%- spriteTagIconize(detail.TitleText || '(No title)') %></strong>
+            <strong class="valign"><%- genshinSpriteTagIconize(detail.TitleText || '(No title)') %></strong>
             <%- include('partials/util/wikitext', {wikitext: normGenshinText(detail.ContentText), seamless: true}) %>
           </li>
         <% } %>

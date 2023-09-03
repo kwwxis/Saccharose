@@ -3,6 +3,7 @@
     "module": "ESNext",
     "moduleResolution": "node",
     "declaration": true,
+    "jsx": "react",
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
@@ -21,10 +22,7 @@
     "noFallthroughCasesInSwitch": true,
     "baseUrl": "./src",
     "skipLibCheck": true,
-    "lib": [
-      "ESNext",
-      "dom"
-    ]
+    "lib": [ "ESNext" ]
   },
   "ts-node": {
     "esm": true,

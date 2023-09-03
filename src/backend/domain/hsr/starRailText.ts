@@ -8,6 +8,7 @@ import {
 import { TextJoinConfig, TextJoinItem } from '../../../shared/types/hsr/hsr-misc-types';
 import { getStarRailControl } from './starRailControl';
 import { toMap, ArrayStream } from '../../../shared/util/arrayUtil';
+import { logInitData } from '../../util/logger';
 
 function __trailblazerPlaceholder(langCode: LangCode = 'EN', degender: boolean = false): string {
   switch (langCode) {
@@ -97,7 +98,7 @@ export function __normStarRailText(text: string, langCode: LangCode, opts: NormT
 const textJoinConfigMap: {[id: number]: TextJoinConfig} = {};
 
 export async function loadStarRailTextSupportingData() {
-  console.log('[Init:Data] Loading HSR-supporting text data -- starting...');
+  logInitData('Loading HSR-supporting text data -- starting...');
 
   const ctrl = getStarRailControl();
 
@@ -109,5 +110,5 @@ export async function loadStarRailTextSupportingData() {
     .mappingVector('TextJoinItemList', 'TextJoinItemListMapped', id => textJoinItemMap[id])
     .toMap('TextJoinId', textJoinConfigMap);
 
-  console.log('[Init:Data] Loading HSR-supporting text data -- Done!');
+  logInitData('Loading HSR-supporting text data -- Done!');
 }

@@ -6,7 +6,6 @@ import cookieParser from 'cookie-parser';
 import useragent from 'express-useragent';
 import helmet from 'helmet';
 import { openKnex } from './util/db';
-import { NextFunction, Request, Response } from './util/router';
 import sessions from './middleware/sessions';
 import appBaseRouter from './controllers/AppBaseRouter';
 import apiBaseRouter from './controllers/ApiBaseRouter';
@@ -25,6 +24,8 @@ import { loadStarRailVoiceItems } from './domain/hsr/starRailControl';
 import { loadStarRailTextSupportingData } from './domain/hsr/starRailText';
 import { loadGenshinTextSupportingData } from './domain/genshin/genshinText';
 import { loadZenlessTextSupportingData } from './domain/zenless/zenlessText';
+import { NextFunction, Request, Response } from 'express';
+import { logInit } from './util/logger';
 
 const app: Express = express();
 let didInit: boolean = false;
@@ -38,14 +39,14 @@ export async function appInit(): Promise<Express> {
   if (didInit) return app;
   didInit = true;
 
-  console.log(`[Init] Configuring dependencies`);
+  logInit(`Configuring dependencies`);
   app.set('trust proxy', true);
   app.set('views', VIEWS_ROOT);
   app.set('view engine', 'ejs');
 
   // Load Genshin data resources
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  console.log(`[Init] Opening sqlite database and loading data resources`);
+  logInit(`Opening sqlite database and loading data resources`);
   openKnex();
   await loadGenshinVoiceItems();
   await loadStarRailVoiceItems();
@@ -58,16 +59,16 @@ export async function appInit(): Promise<Express> {
   app.use(express.static(PUBLIC_DIR));
 
   if (isStringNotBlank(process.env.EXT_PUBLIC_DIR)) {
-    console.log('[Init] Serving external public directory');
+    logInit('Serving external public directory');
     app.use(express.static(process.env.EXT_PUBLIC_DIR));
   }
 
   if (isStringNotBlank(process.env.EXT_GENSHIN_IMAGES)) {
-    console.log('[Init] Serving external Genshin images');
+    logInit('Serving external Genshin images');
     app.use('/images/genshin', express.static(process.env.EXT_GENSHIN_IMAGES));
   }
   if (isStringNotBlank(process.env.EXT_HSR_IMAGES)) {
-    console.log('[Init] Serving external HSR images');
+    logInit('Serving external HSR images');
     const staticHandler = express.static(process.env.EXT_HSR_IMAGES);
     app.use('/images/hsr', (req: Request, res: Response, next: NextFunction) => {
       req.originalUrl = req.originalUrl.replace(/(?<=\/images\/hsr\/).*(?=\/[^\/]+$)/, fm => fm.toLowerCase());
@@ -76,18 +77,18 @@ export async function appInit(): Promise<Express> {
     });
   }
   if (isStringNotBlank(process.env.EXT_ZENLESS_IMAGES)) {
-    console.log('[Init] Serving external Zenless images');
+    logInit('Serving external Zenless images');
     app.use('/images/zenless', express.static(process.env.EXT_ZENLESS_IMAGES));
   }
 
   // Initialize sessions
   // ~~~~~~~~~~~~~~~~~~~
-  console.log(`[Init] Initializing sessions`);
+  logInit(`Initializing sessions`);
   app.use(sessions);
 
   // Middleware for requests
   // ~~~~~~~~~~~~~~~~~~~~~~~
-  console.log(`[Init] Adding middleware for incoming requests`);
+  logInit(`Adding middleware for incoming requests`);
   app.use(antiBots);                                        // rejects bot-like requests
   app.use(cookieParser(process.env.SESSION_SECRET));        // parses cookies
   app.use(useragent.express());                             // parses user-agent header
@@ -98,7 +99,7 @@ export async function appInit(): Promise<Express> {
 
   // Middleware for responses
   // ~~~~~~~~~~~~~~~~~~~~~~~~
-  console.log(`[Init] Adding middleware for outgoing responses`);
+  logInit(`Adding middleware for outgoing responses`);
   app.use(compression());                                   // payload compression
   app.use(helmet({                                   // security-related headers
     contentSecurityPolicy: false,                           // CSP header is set in base router
@@ -113,20 +114,20 @@ export async function appInit(): Promise<Express> {
 
   // Load API router
   // ~~~~~~~~~~~~~~~
-  console.log(`[Init] Loading API router`);
+  logInit(`Loading API router`);
   app.use('/api', await apiBaseRouter());
 
   // Load BaseRouter and CSRF protection
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // We must load CSRF protection after we load the API router
   // because the API does not necessarily use CSRF protection (only for same-site AJAX requests).
-  console.log(`[Init] Loading application router`);
+  logInit(`Loading application router`);
   app.use(csrfMiddleware);
   app.use('/', await appBaseRouter());
 
   // Global Error Handler
   // ~~~~~~~~~~~~~~~~~~~~
-  console.log(`[Init] Adding global error handlers`);
+  logInit(`Adding global error handlers`);
   process.on('uncaughtException', (err) => console.error('UncaughtException!', err));
   process.on('unhandledRejection', (err) => console.error('UnhandledRejection!', err));
   app.use(pageLoadErrorHandler);
@@ -134,13 +135,13 @@ export async function appInit(): Promise<Express> {
   // 404-Handler
   // ~~~~~~~~~~~
   // 404 handler must come after all other routers are loaded
-  console.log(`[Init] Registering 404 handler`);
+  logInit(`Registering 404 handler`);
   app.get('*', function(_req: Request, res: Response) {
     res.status(404).render('errors/404');
   });
 
   // Application loading complete
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  console.log(`[Init] Application code fully loaded`);
+  logInit(`Application code fully loaded`);
   return app;
 }

@@ -1,4 +1,4 @@
-import { create, Request, Response, Router } from '../../../util/router';
+import { create } from '../../../routing/router';
 import { getGenshinControl } from '../../../domain/genshin/genshinControl';
 import { BookSuitExcelConfigData, ReadableView } from '../../../../shared/types/genshin/readable-types';
 import { ol_gen_from_id, OLResult } from '../../../domain/generic/basic/OLgen';
@@ -21,11 +21,12 @@ import {
   AchievementGoalExcelConfigData,
   AchievementsByGoals,
 } from '../../../../shared/types/genshin/achievement-types';
-import { paramCmp } from '../../../util/viewUtilities';
+import { paramCmp } from '../../../routing/viewUtilities';
 import { generateLoadingTipsWikiText, selectLoadingTips } from '../../../domain/genshin/archive/loadingTips';
 import { LoadingTipsByCategory } from '../../../../shared/types/genshin/loading-types';
 import { toInt } from '../../../../shared/util/numberUtil';
 import { SbOut } from '../../../../shared/util/stringUtil';
+import { Request, Response, Router } from 'express';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -43,7 +44,7 @@ export default async function(): Promise<Router> {
     const ctrl = getGenshinControl(req);
 
     if (req.params.itemId) {
-      const material = await ctrl.selectMaterialExcelConfigData(req.params.itemId, {
+      const material = await ctrl.selectMaterialExcelConfigData(toInt(req.params.itemId), {
         LoadRelations: true,
         LoadSourceData: true,
         LoadItemUse: true,
@@ -76,7 +77,7 @@ export default async function(): Promise<Router> {
     const ctrl = getGenshinControl(req);
 
     if (req.params.weaponId) {
-      const weapon = await ctrl.selectWeaponById(req.params.weaponId, {LoadRelations: true, LoadReadable: true});
+      const weapon = await ctrl.selectWeaponById(toInt(req.params.weaponId), {LoadRelations: true, LoadReadable: true});
 
       res.render('pages/genshin/archive/weapon-item', {
         title: weapon ? weapon.NameText : 'Item not found',
@@ -262,7 +263,7 @@ export default async function(): Promise<Router> {
 
   router.get('/readables/book-collection/:suitId', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
-    const collection: BookSuitExcelConfigData = await ctrl.selectBookCollection(req.params.suitId);
+    const collection: BookSuitExcelConfigData = await ctrl.selectBookCollection(toInt(req.params.suitId));
 
     let infobox = `{{Book Collection Infobox
 |image     = Book ${collection.SuitNameText}.png
@@ -286,7 +287,7 @@ export default async function(): Promise<Router> {
 
   router.get('/readables/item/:itemId', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
-    const readable: ReadableView = await ctrl.selectReadableView(req.params.itemId);
+    const readable: ReadableView = await ctrl.selectReadableView(toInt(req.params.itemId));
 
     res.render('pages/genshin/archive/readable-item', {
       title: readable.TitleText,
@@ -333,7 +334,7 @@ export default async function(): Promise<Router> {
 
   router.get('/furnishings/:furnId', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
-    const furn = await ctrl.selectFurniture(req.params.furnId);
+    const furn = await ctrl.selectFurniture(toInt(req.params.furnId));
     const sb: SbOut = new SbOut();
     const ol: OLResult = furn ? (await ol_gen_from_id(ctrl, furn.NameTextMapHash)) : null;
 

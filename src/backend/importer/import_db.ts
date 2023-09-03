@@ -3,7 +3,7 @@ import { closeKnex, openKnex } from '../util/db';
 import commandLineArgs, { OptionDefinition as ArgsOptionDefinition } from 'command-line-args';
 import commandLineUsage, { OptionDefinition as UsageOptionDefinition } from 'command-line-usage';
 import { getGenshinDataFilePath, getStarRailDataFilePath, getZenlessDataFilePath } from '../loadenv';
-import { humanTiming, isEmpty, timeConvert } from '../../shared/util/genericUtil';
+import { humanTiming, timeConvert } from '../../shared/util/genericUtil';
 import { promises as fs } from 'fs';
 import ora from 'ora';
 import { pathToFileURL } from 'url';
@@ -292,12 +292,15 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     ];
 
     let options: commandLineArgs.CommandLineOptions;
-
     try {
       options = commandLineArgs(optionDefinitions);
     } catch (e) {
-      console.error(chalk.red('\n' + e?.message || e));
-      return;
+      if (typeof e === 'object' && e.name === 'UNKNOWN_OPTION') {
+        console.warn(chalk.red('\nUnknown option: ' + e.optionName));
+      } else {
+        console.error(chalk.red('\n' + e?.message || e));
+      }
+      options = { help: true };
     }
 
     if (Object.keys(options).filter(k => k.startsWith('run')).length > 1) {

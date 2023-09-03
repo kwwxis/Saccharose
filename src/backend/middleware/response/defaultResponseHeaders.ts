@@ -1,5 +1,5 @@
 import { toBoolean } from '../../../shared/util/genericUtil';
-import { NextFunction, Request, Response } from '../../util/router';
+import { NextFunction, Request, Response } from 'express';
 
 const sendHstsHeader: boolean = toBoolean(process.env.SSL_ENABLED) && process.env.NODE_ENV !== 'development';
 

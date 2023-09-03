@@ -1,8 +1,8 @@
 import {promises as fsp} from 'fs';
-import { ucFirst } from '../../shared/util/stringUtil';
-import { defaultMap } from '../../shared/util/genericUtil';
+import { ucFirst } from '../../../shared/util/stringUtil';
+import { defaultMap } from '../../../shared/util/genericUtil';
 import { pathToFileURL } from 'url';
-import { isInt } from '../../shared/util/numberUtil';
+import { isInt } from '../../../shared/util/numberUtil';
 
 // Abbreviations:
 //  imp -> Impactful

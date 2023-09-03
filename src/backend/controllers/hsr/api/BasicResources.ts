@@ -1,26 +1,27 @@
-import { create, Request, Response, Router } from '../../../util/router';
+import { create } from '../../../routing/router';
 import {
   handleIdUsagesEndpoint,
   handleOlEndpoint,
   handleTextMapSearchEndpoint,
 } from '../../generic/api/basicResourceResources';
 import { getStarRailControl } from '../../../domain/hsr/starRailControl';
+import { Request, Response, Router } from 'express';
 
 const router: Router = create();
 
-router.restful('/search-textmap', {
+router.endpoint('/search-textmap', {
   get: async (req: Request, res: Response) => {
     await handleTextMapSearchEndpoint(getStarRailControl(req), req, res)
   }
 });
 
-router.restful('/OL/generate', {
+router.endpoint('/OL/generate', {
   get: async (req: Request, res: Response) => {
     await handleOlEndpoint(getStarRailControl(req), req, res);
   }
 });
 
-router.restful('/id-usages', {
+router.endpoint('/id-usages', {
   get: async (req: Request, res: Response) => {
     await handleIdUsagesEndpoint(getStarRailControl(req), req, res);
   }

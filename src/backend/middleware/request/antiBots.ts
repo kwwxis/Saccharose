@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from '../../util/router';
+import { NextFunction, Request, Response } from 'express';
 
 export const BAD_PATH_REGEX: RegExp = /\/wp-|\baws\b|\.env|cgi-|php|\.git|\.asp|\.cgi|\.axd|\.bak|\.html|geoserver|boaform|reportserver|(health|web)[_\-]?check/i;
 export const BAD_URI_REGEX: RegExp = /:80\/|:443\//g;

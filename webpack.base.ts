@@ -65,16 +65,10 @@ export default (env: 'development'|'production') => <webpack.Configuration> {
   module: {
     rules: [
       {
-        test: /\.ts$/,
+        test: /\.[jt]sx?$/,
         include: path.resolve(__dirname, './src'),
         exclude: path.resolve(__dirname, './src/backend'),
-        use: [{
-          loader: 'ts-loader',
-          options: {
-            transpileOnly: true,
-            experimentalWatchApi: true,
-          },
-        }],
+        loader: 'esbuild-loader'
       },
       {
         test: /\.(sa|sc|c)ss$/,
@@ -100,4 +94,8 @@ export default (env: 'development'|'production') => <webpack.Configuration> {
       contextRegExp: /moment$/,
     }),
   ],
+  performance: {
+    maxEntrypointSize: 3_000_000,
+    maxAssetSize: 3_000_000
+  },
 };

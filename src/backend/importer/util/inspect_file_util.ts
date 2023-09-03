@@ -1,10 +1,10 @@
-import '../loadenv';
-import { defaultMap, isEmpty } from '../../shared/util/genericUtil';
-import { resolveObjectPath, toArray } from '../../shared/util/arrayUtil';
+import '../../loadenv';
+import { defaultMap, isEmpty } from '../../../shared/util/genericUtil';
+import { resolveObjectPath, toArray } from '../../../shared/util/arrayUtil';
 import { basename } from 'path';
-import { isInt } from '../../shared/util/numberUtil';
+import { isInt } from '../../../shared/util/numberUtil';
 import chalk from 'chalk';
-import { AbstractControl } from '../domain/abstractControl';
+import { AbstractControl } from '../../domain/abstractControl';
 
 export type InspectOpt = {file: string, inspectFieldValues?: string[], printRecordIfFieldNotEmpty?: string[]};
 

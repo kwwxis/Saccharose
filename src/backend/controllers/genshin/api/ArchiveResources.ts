@@ -1,13 +1,14 @@
-import { create, Request, Response, Router } from '../../../util/router';
+import { create } from '../../../routing/router';
 import { getGenshinControl } from '../../../domain/genshin/genshinControl';
 import { ReadableSearchView } from '../../../../shared/types/genshin/readable-types';
 import { MaterialExcelConfigData } from '../../../../shared/types/genshin/material-types';
 import { WeaponExcelConfigData } from '../../../../shared/types/genshin/weapon-types';
 import { AchievementExcelConfigData } from '../../../../shared/types/genshin/achievement-types';
+import { Request, Response, Router } from 'express';
 
 const router: Router = create();
 
-router.restful('/readables/search', {
+router.endpoint('/readables/search', {
   get: async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
 
@@ -24,7 +25,7 @@ router.restful('/readables/search', {
   }
 });
 
-router.restful('/items/search', {
+router.endpoint('/items/search', {
   get: async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
 
@@ -41,7 +42,7 @@ router.restful('/items/search', {
   }
 });
 
-router.restful('/weapons/search', {
+router.endpoint('/weapons/search', {
   get: async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
 
@@ -58,7 +59,7 @@ router.restful('/weapons/search', {
   }
 });
 
-router.restful('/achievements/search', {
+router.endpoint('/achievements/search', {
   get: async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
 

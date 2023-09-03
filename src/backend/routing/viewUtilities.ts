@@ -92,7 +92,7 @@ export function paramCmp(a: any, b: any) {
   return String(a).trim().toLowerCase().replace(/_/g, ' ') === String(b).trim().toLowerCase().replace(/_/g, ' ');
 }
 
-export function spriteTagIconize(s: string, escapeHtmlFirst: boolean = true) {
+export function genshinSpriteTagIconize(s: string, escapeHtmlFirst: boolean = true) {
   if (escapeHtmlFirst) {
     s = escapeHtmlAllowEntities(s);
   }

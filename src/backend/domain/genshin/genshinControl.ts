@@ -7,7 +7,6 @@ import {
   WorldAreaConfigData,
   WorldAreaType,
 } from '../../../shared/types/genshin/general-types';
-import { Request } from '../../util/router';
 import SrtParser, { SrtLine } from '../../util/srtParser';
 import { promises as fs } from 'fs';
 import {
@@ -99,7 +98,7 @@ import { defaultMap, isEmpty, isset } from '../../../shared/util/genericUtil';
 import { NewActivityExcelConfigData } from '../../../shared/types/genshin/activity-types';
 import { Marker } from '../../../shared/util/highlightMarker';
 import { ElementType, ManualTextMapHashes } from '../../../shared/types/genshin/manual-text-map';
-import { custom } from '../../util/logger';
+import { custom, logInitData } from '../../util/logger';
 import { DialogBranchingCache } from './dialogue/dialogue_util';
 import { __normGenshinText } from './genshinText';
 import { AbstractControl, AbstractControlState } from '../abstractControl';
@@ -123,6 +122,7 @@ import {
   AchievementExcelConfigData,
   AchievementGoalExcelConfigData, AchievementsByGoals,
 } from '../../../shared/types/genshin/achievement-types';
+import { Request } from 'express';
 
 /**
  * State/cache for only a single control
@@ -140,7 +140,6 @@ export class GenshinControlState extends AbstractControlState {
   // Preferences:
   DisableNpcCache: boolean = false;
   DisableAvatarCache: boolean = false;
-  DisableOrphanedDialogueSearchViaGrep: boolean = true;
 }
 
 export function getGenshinControl(request?: Request) {
@@ -465,12 +464,6 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       .orWhere(cleanEmpty({QuestCondStateEqualFirst: id, LoadType: loadType})).first().then(this.commonLoadFirst);
   }
 
-  async selectTalkExcelConfigDataIdsByPrefix(idPrefix: number|string): Promise<number[]> {
-    let allTalkExcelTalkConfigIds = this.state.DisableOrphanedDialogueSearchViaGrep ? []
-      : await grepIdStartsWith(RAW_TALK_EXCEL_ID_PROP, idPrefix, this.getDataFilePath('./ExcelBinOutput/TalkExcelConfigData.json'));
-    return allTalkExcelTalkConfigIds.map(i => toNumber(i));
-  }
-
   async selectTalkExcelConfigDataByFirstDialogueId(firstDialogueId: number, loadType: TalkLoadType = null): Promise<TalkExcelConfigData> {
     return await this.knex.select('*').from('TalkExcelConfigData')
       .where(cleanEmpty({InitDialog: firstDialogueId, LoadType: loadType})).first().then(this.commonLoadFirst);
@@ -481,24 +474,23 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       .where(cleanEmpty({InitDialog: firstDialogueId, LoadType: loadType})).then(this.commonLoad);
   }
 
-  async addOrphanedDialogueAndQuestMessages(mainQuest: MainQuestExcelConfigData) {
-    const disableGrepSearch = this.state.DisableOrphanedDialogueSearchViaGrep;
-    const allDialogueIds: number[] = [];
-    const allQuestMessageIds: string[] = [];
+  async selectDialogUnparentedByMainQuestId(mainQuestId: number): Promise<DialogUnparented[]> {
+    return await this.knex.select('*').from('DialogUnparentedExcelConfigData')
+      .where({MainQuestId: mainQuestId}).then(this.commonLoad);
+  }
 
-    const unparented: DialogUnparented[] = await this.knex.select('*').from('DialogUnparentedExcelConfigData')
-      .where({MainQuestId: mainQuest.Id}).then(this.commonLoad);
+  async selectDialogUnparentedByDialogId(dialogId: number): Promise<DialogUnparented> {
+    return await this.knex.select('*').from('DialogUnparentedExcelConfigData')
+      .where({DialogId: dialogId}).first().then(this.commonLoadFirst);
+  }
+
+  async addUnparentedDialogue(mainQuest: MainQuestExcelConfigData) {
+    const allDialogueIds: number[] = [];
+
+    const unparented: DialogUnparented[] = await this.selectDialogUnparentedByMainQuestId(mainQuest.Id);
     for (let item of unparented) {
       allDialogueIds.push(item.DialogId);
     }
-
-    if (!disableGrepSearch) {
-      allDialogueIds.push(... await grepIdStartsWith<number>(RAW_DIALOG_EXCEL_ID_PROP, mainQuest.Id,
-        this.getDataFilePath('./ExcelBinOutput/DialogExcelConfigData.json')));
-    }
-
-    allQuestMessageIds.push(... await grepIdStartsWith<string>(RAW_MANUAL_TEXTMAP_ID_PROP, 'QUEST_Message_Q' + mainQuest.Id,
-      this.getDataFilePath('./ExcelBinOutput/ManualTextMapConfigData.json')));
 
     const handleOrphanedDialog = async (quest: MainQuestExcelConfigData|QuestExcelConfigData, id: number) => {
       if (this.state.dialogueIdCache.has(id))
@@ -518,6 +510,19 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
           continue;
         await handleOrphanedDialog(quest, id);
       }
+    }
+    for (let id of allDialogueIds) {
+      await handleOrphanedDialog(mainQuest, id);
+    }
+  }
+
+  async addQuestMessages(mainQuest: MainQuestExcelConfigData) {
+    const allQuestMessageIds: string[] = [];
+
+    allQuestMessageIds.push(... await grepIdStartsWith<string>(RAW_MANUAL_TEXTMAP_ID_PROP, 'QUEST_Message_Q' + mainQuest.Id,
+      this.getDataFilePath('./ExcelBinOutput/ManualTextMapConfigData.json')));
+
+    for (let quest of mainQuest.QuestExcelConfigDataList) {
       if (allQuestMessageIds && allQuestMessageIds.length) {
         quest.QuestMessages = [];
         for (let id of allQuestMessageIds) {
@@ -525,9 +530,6 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
              quest.QuestMessages.push(await this.selectManualTextMapConfigDataById(id));
         }
       }
-    }
-    for (let id of allDialogueIds) {
-      await handleOrphanedDialog(mainQuest, id);
     }
     if (allQuestMessageIds && allQuestMessageIds.length) {
       mainQuest.QuestMessages = [];
@@ -2149,14 +2151,14 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 const GENSHIN_VOICE_ITEMS: VoiceItemArrayMap = {};
 
 export async function loadGenshinVoiceItems(): Promise<void> {
-  console.log('[Init:Data] Loading Genshin Voice Items -- starting...');
+  logInitData('Loading Genshin Voice Items -- starting...');
 
   const voiceItemsFilePath = path.resolve(process.env.GENSHIN_DATA_ROOT, DATAFILE_GENSHIN_VOICE_ITEMS);
   const result: VoiceItemArrayMap = await fs.readFile(voiceItemsFilePath, {encoding: 'utf8'}).then(data => JSON.parse(data));
 
   Object.assign(GENSHIN_VOICE_ITEMS, result);
   Object.freeze(GENSHIN_VOICE_ITEMS);
-  console.log('[Init:Data] Loading Genshin Voice Items -- done!');
+  logInitData('Loading Genshin Voice Items -- done!');
 }
 
 export type GenshinVoiceItemType = 'Dialog'|'Reminder'|'Fetter'|'AnimatorEvent'|'WeatherMonologue'|'JoinTeam'|'Card';

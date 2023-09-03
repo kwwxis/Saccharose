@@ -1,8 +1,8 @@
 import morgan from 'morgan';
-import { Request, Response } from '../../util/router';
 
 import { DEFAULT_LANG } from '../../../shared/types/lang-types';
 import { DEFAULT_SEARCH_MODE } from '../../util/searchUtil';
+import { Request, Response } from 'express';
 
 const logSkipRegex: RegExp = /\.css|\.js|\.png|\.svg|\.ico|\.jpg|\.woff|\.env/g;
 

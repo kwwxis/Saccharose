@@ -1,4 +1,4 @@
-import { create, Request, Response, Router } from '../../../util/router';
+import { create } from '../../../routing/router';
 import { getGenshinControl } from '../../../domain/genshin/genshinControl';
 import { getGCGControl } from '../../../domain/genshin/gcg/gcg_control';
 import { generateGCGTutorialDialogue } from '../../../domain/genshin/gcg/gcg_tutorial_text';
@@ -13,6 +13,7 @@ import { isInt, toInt } from '../../../../shared/util/numberUtil';
 import { sort } from '../../../../shared/util/arrayUtil';
 import { queryTab } from '../../../middleware/util/queryTab';
 import { generateCardPage, generateSkillPage, generateStagePage } from '../../../domain/genshin/gcg/gcg_wikitext';
+import { Request, Response, Router } from 'express';
 
 export default async function(): Promise<Router> {
   const router: Router = create();

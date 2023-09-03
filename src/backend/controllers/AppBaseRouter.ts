@@ -1,5 +1,5 @@
 import helmet from 'helmet';
-import { create, Router, Request, Response, NextFunction } from '../util/router';
+import { create } from '../routing/router';
 import { toBoolean } from '../../shared/util/genericUtil';
 import GenshinRouter from './genshin/app/_index';
 import StarRailRouter from './hsr/app/_index';
@@ -7,6 +7,7 @@ import ZenlessRouter from './zenless/app/_index'
 import { getGenshinControl } from '../domain/genshin/genshinControl';
 import { getStarRailControl } from '../domain/hsr/starRailControl';
 import { getZenlessControl } from '../domain/zenless/zenlessControl';
+import { NextFunction, Request, Response, Router } from 'express';
 
 export default async function(): Promise<Router> {
   const router: Router = create({
