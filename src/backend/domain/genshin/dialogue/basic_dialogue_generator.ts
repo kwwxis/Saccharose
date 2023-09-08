@@ -17,8 +17,11 @@ import { MetaProp } from '../../../util/metaProp';
 import { pathToFileURL } from 'url';
 import { Marker } from '../../../../shared/util/highlightMarker';
 import { LangCode, TextMapHash } from '../../../../shared/types/lang-types';
+import { _ } from 'ag-grid-community';
+import { defaultMap } from '../../../../shared/util/genericUtil';
+import { reminderGenerateFromSpeakerTextMapHashes } from './reminder_generator';
 
-// NPC Filtering for Single Branch Dialogue
+// region NPC Filtering for Single Branch Dialogue
 // --------------------------------------------------------------------------------------------------------------
 const lc = (s: string) => s ? s.toLowerCase() : s;
 
@@ -45,8 +48,9 @@ const npcFilterInclude = async (ctrl: GenshinControl, d: DialogExcelConfigData, 
   }
   return npcNameOutputLang === npcFilter || npcNameInputLang === npcFilter;
 };
+// endregion
 
-// Single Branch Dialogue
+// region Single Branch Dialogue
 // --------------------------------------------------------------------------------------------------------------
 export const DIALOGUE_GENERATE_MAX = 100;
 
@@ -152,6 +156,8 @@ export async function dialogueGenerate(ctrl: GenshinControl, query: number|numbe
             value: id,
             tooltip: await ctrl.selectMainQuestName(id)
           })), '/quests/{}'));
+          sect.originalData.questId = questIds[0];
+          sect.originalData.questName = await ctrl.selectMainQuestName(questIds[0]);
         }
         sect.wikitext = (await ctrl.generateDialogueWikiText(dialogueBranch)).trim();
         addHighlightMarkers(dialogue, sect);
@@ -196,26 +202,35 @@ export async function dialogueGenerate(ctrl: GenshinControl, query: number|numbe
 
   return result;
 }
+// endregion
 
-// NPC Dialogue
+// region NPC Dialogue
 // --------------------------------------------------------------------------------------------------------------
-export type NpcDialogueResultMap = {[npcId: number]: NpcDialogueResult};
+export class NpcDialogueResultSet {
+  resultMap: {[npcId: number]: NpcDialogueResult} = {};
+  reminders: DialogueSectionResult[] = [];
+}
+
 export class NpcDialogueResult {
   npcId: number;
   npc: NpcExcelConfigData;
-  talkConfigs: TalkExcelConfigData[];
-  questDialogueSections: DialogueSectionResult[];
-  dialogueSections: DialogueSectionResult[];
+
+  questDialogue: DialogueSectionResult[] = [];
+  nonQuestDialogue: DialogueSectionResult[] = [];
+  reminders: DialogueSectionResult[] = [];
+
+  constructor(npc: NpcExcelConfigData) {
+    this.npc = npc;
+    this.npcId = npc.Id;
+  }
 }
 
-export async function dialogueGenerateByNpc(ctrl: GenshinControl, npcNameOrId: string|number, acc?: TalkConfigAccumulator): Promise<NpcDialogueResultMap> {
-  if (!acc) acc = new TalkConfigAccumulator(ctrl);
-
+async function npcListFromInput(ctrl: GenshinControl, npcNameOrId: string|number): Promise<NpcExcelConfigData[]> {
   if (typeof npcNameOrId === 'string' && isInt(npcNameOrId)) {
     npcNameOrId = parseInt(npcNameOrId);
   }
 
-  let npcList = [];
+  let npcList: NpcExcelConfigData[] = [];
   if (typeof npcNameOrId === 'string') {
     npcList = await ctrl.selectNpcListByName(npcNameOrId);
   } else {
@@ -224,49 +239,80 @@ export async function dialogueGenerateByNpc(ctrl: GenshinControl, npcNameOrId: s
       npcList.push(npc);
     }
   }
+  return npcList;
+}
 
-  let resultMap: NpcDialogueResultMap = {};
+export async function dialogueGenerateByNpc(ctrl: GenshinControl,
+                                            npcNameOrId: string|number,
+                                            acc?: TalkConfigAccumulator): Promise<NpcDialogueResultSet> {
+  if (!acc) {
+    acc = new TalkConfigAccumulator(ctrl);
+  }
+
+  const npcList: NpcExcelConfigData[] = await npcListFromInput(ctrl, npcNameOrId);
+  const resultSet: NpcDialogueResultSet = new NpcDialogueResultSet();
 
   for (let npc of npcList) {
-    let res = new NpcDialogueResult();
-    res.npcId = npc.Id;
-    res.npc = npc;
+    const res: NpcDialogueResult = new NpcDialogueResult(npc);
+    const questIdToSection: {[questId: number]: DialogueSectionResult} = {};
 
-    res.talkConfigs = await ctrl.selectTalkExcelConfigDataByNpcId(npc.Id);
-    res.questDialogueSections = [];
-    res.dialogueSections = [];
+    const getQuestSection = (questId: number, questName: string): DialogueSectionResult => {
+      if (questIdToSection[questId]) {
+        return questIdToSection[questId];
+      }
+      const sect = new DialogueSectionResult('Quest_'+questId, questId + ': ' + (questName || '(No title)'));
+      sect.originalData.questId = questId;
+      sect.originalData.questName = questName;
+      questIdToSection[questId] = sect;
+      res.questDialogue.push(sect);
+      return sect;
+    };
 
-    for (let talkConfig of res.talkConfigs) {
-      let sect = await talkConfigGenerate(ctrl, talkConfig, acc);
-      if (sect && sect.hasMetaProp('Quest ID')) {
-        res.questDialogueSections.push(sect);
+    for (let talkConfig of await ctrl.selectTalkExcelConfigDataByNpcId(npc.Id)) {
+      const sect = await talkConfigGenerate(ctrl, talkConfig, acc);
+      if (sect && sect.originalData.questId) {
+        getQuestSection(sect.originalData.questId, sect.originalData.questName).children.push(sect);
       } else if (sect) {
-        res.dialogueSections.push(sect);
+        res.nonQuestDialogue.push(sect);
       }
     }
 
-    let dialogOrphaned: DialogExcelConfigData[] = await ctrl.selectDialogExcelConfigDataByTalkRoleId(npc.Id);
-    for (let dialogue of dialogOrphaned) {
+    for (let dialogue of await ctrl.selectDialogExcelConfigDataByTalkRoleId(npc.Id)) {
       if (ctrl.isInDialogIdCache(dialogue)) {
         continue;
+      } else {
+        ctrl.saveToDialogIdCache(dialogue);
       }
-      ctrl.saveToDialogIdCache(dialogue);
 
-      let dialogueBranch = await ctrl.selectDialogBranch(dialogue);
+      const dialogueBranch = await ctrl.selectDialogBranch(dialogue);
       const sect = new DialogueSectionResult('Dialogue_'+dialogue.Id, 'Dialogue');
       sect.originalData.dialogBranch = dialogueBranch;
       sect.metadata.push(new MetaProp('First Dialogue ID', dialogue.Id, `/branch-dialogue?q=${dialogue.Id}`));
       sect.wikitext = (await ctrl.generateDialogueWikiText(dialogueBranch)).trim();
-      res.dialogueSections.push(sect);
+
+      const questId = await dialogueToQuestId(ctrl, dialogue);
+      if (questId.length) {
+        const questName = await ctrl.selectMainQuestName(questId[0]);
+        sect.addMetaProp('Quest ID', {value: questId[0], tooltip: questName}, '/quests/{}');
+        sect.originalData.questId = questId[0];
+        sect.originalData.questName = questName;
+        getQuestSection(sect.originalData.questId, sect.originalData.questName).children.push(sect);
+      } else {
+        res.nonQuestDialogue.push(sect);
+      }
     }
 
-    resultMap[npc.Id] = res;
+    resultSet.resultMap[npc.Id] = res;
   }
 
-  return resultMap;
-}
+  const nameHashes: TextMapHash[] = (await Promise.all(npcList.map(npc => ctrl.findTextMapHashesByExactName(npc.NameText)))).flat();
+  resultSet.reminders = await reminderGenerateFromSpeakerTextMapHashes(ctrl, nameHashes);
 
-// CLI TESTING
+  return resultSet;
+}
+// endregion
+
+// region CLI Testing
 // --------------------------------------------------------------------------------------------------------------
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
@@ -277,3 +323,4 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     await closeKnex();
   })();
 }
+// endregion

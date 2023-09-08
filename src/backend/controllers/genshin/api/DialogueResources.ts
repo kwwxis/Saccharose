@@ -9,7 +9,7 @@ import { DialogueSectionResult } from '../../../domain/genshin/dialogue/dialogue
 import {
   dialogueGenerate,
   dialogueGenerateByNpc,
-  NpcDialogueResultMap,
+  NpcDialogueResultSet,
 } from '../../../domain/genshin/dialogue/basic_dialogue_generator';
 import { reminderGenerate, reminderWikitext } from '../../../domain/genshin/dialogue/reminder_generator';
 import { ApiCyclicValueReplacer } from '../../../middleware/api/apiCyclicValueReplacer';
@@ -118,19 +118,20 @@ router.endpoint('/dialogue/npc-dialogue-generate', {
     switch (query.toLowerCase()) {
       case 'paimon':
       case '1005':
-        throw HttpError.badRequest('UnsupportedOperation', 'Unfortunately, NPC dialogue generator does not support Paimon (id: 1005). The operation would be too intensive.');
+        throw HttpError.badRequest('UnsupportedOperation', 'Unfortunately the NPC Dialogue generator does not support Paimon (id: 1005). The operation would be too intensive.');
       case '???':
-        throw HttpError.badRequest('UnsupportedOperation', 'Unfortunately, NPC dialogue generator does not support search for "???"');
+        throw HttpError.badRequest('UnsupportedOperation', 'Unfortunately the NPC Dialogue generator does not support search for "???"');
     }
 
-    let resultMap: NpcDialogueResultMap = await dialogueGenerateByNpc(ctrl, query);
+    let resultSet: NpcDialogueResultSet = await dialogueGenerateByNpc(ctrl, query);
 
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
       return res.render('partials/genshin/dialogue/npc-dialogue-result', {
-        resultMap: resultMap,
+        resultMap: resultSet.resultMap,
+        reminders: resultSet.reminders,
       });
     } else {
-      return removeCyclicRefs(resultMap, ApiCyclicValueReplacer);
+      return removeCyclicRefs(resultSet, ApiCyclicValueReplacer);
     }
   }
 });

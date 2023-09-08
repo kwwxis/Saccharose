@@ -4,15 +4,6 @@
   #app-wrapper {
     max-width: initial;
   }
-
-  aside#app-sidebar {
-    flex-basis: 20%;
-  }
-
-  main#app-main {
-    flex-basis: 80%;
-  }
-
   #vo-tool-outer {
     display: flex;
     align-items: flex-start;
@@ -71,14 +62,6 @@
       .toggle-show-text {
         display: none;
       }
-    }
-  }
-}
-
-@media (max-width: 950px) {
-  .page--vo-tool {
-    main#app-main {
-      flex-basis: 100%;
     }
   }
 }

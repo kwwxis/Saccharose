@@ -15,7 +15,7 @@ export default async function(): Promise<Router> {
   router.get('/character/VO', async (req: Request, res: Response) => {
     res.render('pages/genshin/character/vo-tool', {
       title: 'Character VO',
-      bodyClass: ['page--vo-tool'],
+      bodyClass: ['page--wide', 'page--vo-tool'],
       avatars: await getAvatars(getGenshinControl(req)),
       avatar: null
     });
@@ -27,7 +27,7 @@ export default async function(): Promise<Router> {
 
     res.render('pages/genshin/character/vo-tool', {
       title: (avatar ? avatar.NameText +  ' - ' : '') + 'Character VO',
-      bodyClass: ['page--vo-tool'],
+      bodyClass: ['page--wide', 'page--vo-tool'],
       avatars: await getAvatars(ctrl),
       avatar: avatar,
       tab: queryTab(req, 'visual', 'wikitext'),

@@ -44,7 +44,7 @@ export class DialogueSectionResult {
   wikitextArray: { title?: string, wikitext: string, markers?: Marker[] }[] = [];
   children: DialogueSectionResult[] = [];
   htmlMessage: string = null;
-  originalData: { talkConfig?: TalkExcelConfigData, dialogBranch?: DialogExcelConfigData[] } = {};
+  originalData: { talkConfig?: TalkExcelConfigData, dialogBranch?: DialogExcelConfigData[], questId?: number, questName?: string } = {};
   showGutter: boolean = false;
   similarityGroupId: number = null;
 
@@ -195,7 +195,7 @@ export async function talkConfigGenerate(ctrl: GenshinControl, talkConfigId: num
 
 export async function talkConfigToDialogueSectionResult(ctrl: GenshinControl, parentSect: DialogueSectionResult | QuestGenerateResult,
                                                         sectName: string, sectHelptext: string, talkConfig: TalkExcelConfigData, dialogueDepth: number = 1): Promise<DialogueSectionResult> {
-  let mysect = new DialogueSectionResult('Talk_' + talkConfig.Id, sectName, sectHelptext);
+  const mysect = new DialogueSectionResult('Talk_' + talkConfig.Id, sectName, sectHelptext);
   mysect.originalData.talkConfig = talkConfig;
 
   mysect.addMetaProp('Talk ID', talkConfig.Id, '/branch-dialogue?q={}');
@@ -204,7 +204,10 @@ export async function talkConfigToDialogueSectionResult(ctrl: GenshinControl, pa
     if (talkConfig.LoadType === 'TALK_ACTIVITY') {
       mysect.addMetaProp('Activity ID', {value: talkConfig.QuestId, tooltip: await ctrl.selectNewActivityName(talkConfig.QuestId)});
     } else {
-      mysect.addMetaProp('Quest ID', {value: talkConfig.QuestId, tooltip: await ctrl.selectMainQuestName(talkConfig.QuestId)}, '/quests/{}');
+      const questName = await ctrl.selectMainQuestName(talkConfig.QuestId);
+      mysect.addMetaProp('Quest ID', {value: talkConfig.QuestId, tooltip: questName}, '/quests/{}');
+      mysect.originalData.questId = talkConfig.QuestId;
+      mysect.originalData.questName = questName;
     }
   } else {
     let questIds = await dialogueToQuestId(ctrl, talkConfig);
@@ -213,6 +216,8 @@ export async function talkConfigToDialogueSectionResult(ctrl: GenshinControl, pa
         value: id,
         tooltip: await ctrl.selectMainQuestName(id)
       })), '/quests/{}');
+      mysect.originalData.questId = questIds[0];
+      mysect.originalData.questName = await ctrl.selectMainQuestName(questIds[0]);
     }
   }
   mysect.addMetaProp('Quest Idle Talk', talkConfig.QuestIdleTalk ? 'yes' : null);

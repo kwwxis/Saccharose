@@ -977,9 +977,24 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       .where({Id: id}).first().then(this.commonLoadFirst);
   }
 
+  async selectReminderBySpeakerTextMapHash(id: TextMapHash): Promise<ReminderExcelConfigData> {
+    return await this.knex.select('*').from('ReminderExcelConfigData')
+      .where({SpeakerTextMapHash: id}).first().then(this.commonLoadFirst);
+  }
+
   async selectReminderByContentTextMapHash(id: TextMapHash): Promise<ReminderExcelConfigData> {
     return await this.knex.select('*').from('ReminderExcelConfigData')
       .where({ContentTextMapHash: id}).first().then(this.commonLoadFirst);
+  }
+
+  async selectPreviousReminder(reminderId: number): Promise<ReminderExcelConfigData> {
+    let ret: {ReminderId: number, NextReminderId: number} = await this.knex.select('*').from('Relation_ReminderToNext')
+      .where({NextReminderId: reminderId}).first().then();
+    if (ret && ret.ReminderId) {
+      return this.selectReminderById(ret.ReminderId);
+    } else {
+      return null;
+    }
   }
 
   private async postProcessChapter(chapter: ChapterExcelConfigData): Promise<ChapterExcelConfigData> {

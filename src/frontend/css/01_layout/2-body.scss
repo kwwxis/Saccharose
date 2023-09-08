@@ -17,6 +17,9 @@ body {
   color: hsla(223, 67%, 18%, 0.75);
 }
 
+#app-main {
+  flex-grow: 1;
+}
 
 html.nightmode {
   color-scheme: dark;
@@ -40,20 +43,5 @@ body.nightmode .tippy-box {
 .page--wide {
   #app-wrapper {
     max-width: initial;
-  }
-
-  aside#app-sidebar {
-    flex-basis: 20%;
-  }
-
-  main#app-main {
-    flex-basis: 80%;
-  }
-}
-@media (max-width: 950px) {
-  .page--wide {
-    main#app-main {
-      flex-basis: 100%;
-    }
   }
 }

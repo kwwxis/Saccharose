@@ -1,4 +1,8 @@
-import { DialogExcelConfigData, TalkExcelConfigData } from '../../../shared/types/genshin/dialogue-types';
+import {
+  DialogExcelConfigData,
+  ReminderExcelConfigData,
+  TalkExcelConfigData,
+} from '../../../shared/types/genshin/dialogue-types';
 import {
   CombineExcelConfigData,
   CompoundExcelConfigData,
@@ -234,6 +238,21 @@ export const genshinSchema = {
       { name: 'ContentTextMapHash', type: 'integer', isIndex: true },
       { name: 'NextReminderId', type: 'integer', isIndex: true },
     ],
+  },
+  Relation_ReminderToNext: <SchemaTable>{
+    name: 'Relation_ReminderToNext',
+    jsonFile: './ExcelBinOutput/ReminderExcelConfigData.json',
+    columns: [
+      { name: 'ReminderId', type: 'integer', isIndex: true },
+      { name: 'NextReminderId', type: 'integer', isIndex: true },
+    ],
+    customRowResolve: (row: ReminderExcelConfigData) => {
+      if (row.NextReminderId && row.NextReminderId) {
+        return [{ReminderId: row.Id, NextReminderId: row.NextReminderId}];
+      } else {
+        return [];
+      }
+    }
   },
   MaterialExcelConfigData: <SchemaTable>{
     name: 'MaterialExcelConfigData',

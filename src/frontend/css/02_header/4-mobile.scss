@@ -72,13 +72,15 @@ body.nightmode #mobile-menu-button {
     padding: 15px;
   }
 
-  #app-main {
-    flex-basis: 72%;
-  }
+  #app-sidebar, .sidebar {
+    width: 315px;
 
-  #app-sidebar {
-    flex-basis: 28%;
-    padding-left: 15px;
+    &.left {
+      padding-right: 10px;
+    }
+    &.right {
+      padding-left: 15px;
+    }
   }
 }
 
@@ -87,13 +89,15 @@ body.nightmode #mobile-menu-button {
     padding: 10px;
   }
 
-  #app-main {
-    flex-basis: 75%;
-  }
+  #app-sidebar, .sidebar {
+    width: 235px;
 
-  #app-sidebar {
-    flex-basis: 25%;
-    padding-left: 10px;
+    &.left {
+      padding-right: 10px;
+    }
+    &.right {
+      padding-left: 10px;
+    }
   }
 }
 
@@ -107,16 +111,12 @@ body.nightmode #mobile-menu-button {
     display: none;
   }
 
-  #app-main {
-    flex-basis: 100%;
+  #app-sidebar__header {
+    display: none;
   }
 
   body {
     padding-top: 52px;
-  }
-
-  #app-sidebar__header {
-    display: none;
   }
 
   #header {

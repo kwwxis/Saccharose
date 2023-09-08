@@ -20,7 +20,7 @@ export default <Configuration> merge(baseConfig('production'), {
         minifyWhitespace: true,
         minifyIdentifiers: true,
         minifySyntax: true,
-        legalComments: 'none',
+        legalComments: 'none'
       })
     ]
   },

@@ -1,6 +1,15 @@
 
-#app-sidebar {
-  padding-left: 30px;
+#app-sidebar, .sidebar {
+  width: 348px;
+  flex-shrink: 0;
+  transition: width 100ms linear;
+
+  &.left {
+    padding-right: 30px;
+  }
+  &.right {
+    padding-left: 30px;
+  }
 
   .secondary {
     font-size: 17px;
@@ -9,13 +18,15 @@
 
 
 @media (max-width: 1050px) {
-  #app-sidebar .content a.secondary {
+  #app-sidebar .content a.secondary,
+  .sidebar .content a.secondary {
     font-size: 16px;
   }
 }
 
 @media (max-width: 1000px) {
-  #app-sidebar .content a.secondary {
+  #app-sidebar .content a.secondary,
+  .sidebar .content a.secondary {
     font-size: 15px;
     padding: 6px 6px;
     height: auto;

@@ -11,10 +11,10 @@
     </div>
   <% } %>
   <div class="alignStart">
-    <main id="app-main" class="f70p">
+    <main id="app-main">
       <%- include(subviewName, subviewStack) %>
     </main>
-    <aside id="app-sidebar" class="f30p">
+    <aside id="app-sidebar" class="right">
       <% if (req.context.siteMode === 'genshin') { %>
         <%- include('partials/genshin/genshin-menu') %>
       <% } else if (req.context.siteMode === 'hsr') { %>

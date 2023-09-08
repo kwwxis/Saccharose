@@ -248,6 +248,8 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
         let subsect = new DialogueSectionResult('OrphanedDialogue_'+dialog[0].Id, 'Orphaned Dialogue', orphanedHelpText);
         subsect.metadata.push(new MetaProp('First Dialogue ID', dialog[0].Id, `/branch-dialogue?q=${dialog[0].Id}`));
         subsect.metadata.push(new MetaProp('Quest ID', {value: mainQuest.Id, tooltip: mainQuest.TitleText}, `/quests/{}`));
+        subsect.originalData.questId = mainQuest.Id;
+        subsect.originalData.questName = mainQuest.TitleText;
         out.clearOut();
         out.append(await ctrl.generateDialogueWikiText(dialog));
         subsect.wikitext = out.toString();
@@ -287,6 +289,8 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
       sect.originalData.dialogBranch = dialog;
       sect.metadata.push(new MetaProp('First Dialogue ID', dialog[0].Id, `/branch-dialogue?q=${dialog[0].Id}`));
       sect.metadata.push(new MetaProp('Quest ID', {value: mainQuest.Id, tooltip: mainQuest.TitleText}, `/quests/{}`));
+      sect.originalData.questId = mainQuest.Id;
+      sect.originalData.questName = mainQuest.TitleText;
       out.clearOut();
       out.append(await ctrl.generateDialogueWikiText(dialog));
       out.line();
