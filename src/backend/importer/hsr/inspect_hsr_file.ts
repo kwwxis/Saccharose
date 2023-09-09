@@ -6,7 +6,6 @@ import { getStarRailControl } from '../../domain/hsr/starRailControl';
 const excel = (file: string) => `./ExcelOutput/${file}.json`;
 
 const presets = {
-
   // region Mission:
   DailyMissionCount: <InspectOpt> { file: excel('DailyMissionCount'), inspectFieldValues: [] },
   DailyMissionData: <InspectOpt> { file: excel('DailyMissionData'), inspectFieldValues: [] },
@@ -22,44 +21,40 @@ const presets = {
   ScheduleDataMission: <InspectOpt> { file: excel('ScheduleDataMission'), inspectFieldValues: [] },
   SubMission: <InspectOpt> { file: excel('SubMission'), inspectFieldValues: [] },
   // endregion
-
   // region Messages:
   MessageContactsCamp: <InspectOpt> { file: excel('MessageContactsCamp'), inspectFieldValues: [] },
   MessageContactsCondition: <InspectOpt> { file: excel('MessageContactsCondition'), inspectFieldValues: [] },
   MessageContactsConfig: <InspectOpt> { file: excel('MessageContactsConfig'), inspectFieldValues: [] },
   MessageContactsType: <InspectOpt> { file: excel('MessageContactsType'), inspectFieldValues: [] },
   MessageGroupConfig: <InspectOpt> { file: excel('MessageGroupConfig'), inspectFieldValues: [] },
-  MessageItemConfig: <InspectOpt> { file: excel('MessageItemConfig'), inspectFieldValues: [] },
+  MessageItemConfig: <InspectOpt> { file: excel('MessageItemConfig'), inspectFieldValues: ['ItemType', 'Sender'] },
   MessageItemImage: <InspectOpt> { file: excel('MessageItemImage'), inspectFieldValues: [] },
   MessageItemRaidEntrance: <InspectOpt> { file: excel('MessageItemRaidEntrance'), inspectFieldValues: [] },
   MessageSectionConfig: <InspectOpt> { file: excel('MessageSectionConfig'), inspectFieldValues: [] },
   MessageStateIcon: <InspectOpt> { file: excel('MessageStateIcon'), inspectFieldValues: [] },
   // endregion
-
   // region Dialogue:
-  DialogueCondition: <InspectOpt> { file: excel('DialogueCondition'), inspectFieldValues: [] },
-  DialogueDynamicContent: <InspectOpt> { file: excel('DialogueDynamicContent'), inspectFieldValues: [] },
-  DialogueEvent: <InspectOpt> { file: excel('DialogueEvent'), inspectFieldValues: [] },
+  DialogueCondition: <InspectOpt> { file: excel('DialogueCondition'), inspectFieldValues: ['Type'] },
+  DialogueDynamicContent: <InspectOpt> { file: excel('DialogueDynamicContent'), inspectFieldValues: ['DynamicParamType'] },
+  DialogueEvent: <InspectOpt> { file: excel('DialogueEvent'), inspectFieldValues: ['AeonOption', 'CostType', 'EffectType'] },
   DialogueEventDisplay: <InspectOpt> { file: excel('DialogueEventDisplay'), inspectFieldValues: [] },
-  DialogueIcon: <InspectOpt> { file: excel('DialogueIcon'), inspectFieldValues: [] },
-  DialogueNPC: <InspectOpt> { file: excel('DialogueNPC'), inspectFieldValues: [] },
-  DialogueProp: <InspectOpt> { file: excel('DialogueProp'), inspectFieldValues: [] },
+  DialogueIcon: <InspectOpt> { file: excel('DialogueIcon'), inspectFieldValues: ['Type'] },
+  DialogueNPC: <InspectOpt> { file: excel('DialogueNPC'), inspectFieldValues: ['GroupType', 'IconType'] },
+  DialogueProp: <InspectOpt> { file: excel('DialogueProp'), inspectFieldValues: ['GroupType', 'IconType'] },
   RogueNPCDialogue: <InspectOpt> { file: excel('RogueNPCDialogue'), inspectFieldValues: [] },
   // endregion
-
   // region Talk:
   TalkBehavior: <InspectOpt> { file: excel('TalkBehavior'), inspectFieldValues: ['ParaType'] },
   TalkReward: <InspectOpt> { file: excel('TalkReward'), inspectFieldValues: [] },
   TalkSentenceConfig: <InspectOpt> { file: excel('TalkSentenceConfig'), inspectFieldValues: [] },
   TalkSentenceMultiVoice: <InspectOpt> { file: excel('TalkSentenceMultiVoice'), inspectFieldValues: [] },
   TutorialGuideTalkData: <InspectOpt> { file: excel('TutorialGuideTalkData'), inspectFieldValues: [] },
-  RewardData: <InspectOpt> { file: excel('RewardData'), inspectFieldValues: [] },
   // endregion
-
   // region Misc:
   AvatarConfig: <InspectOpt> { file: excel('AvatarConfig'), inspectFieldValues: ['AvatarBaseType', 'DamageType'] },
   VoiceConfig: <InspectOpt> { file: excel('VoiceConfig'), inspectFieldValues: ['VoiceType'] },
   LoadingDesc: <InspectOpt> { file: excel('LoadingDesc'), inspectFieldValues: [] },
+  RewardData: <InspectOpt> { file: excel('RewardData'), inspectFieldValues: [] },
   // endregion
 };
 
@@ -67,7 +62,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
     const ctrl = getStarRailControl();
 
-    await inspectDataFile(ctrl, presets.RewardData);
+    await inspectDataFile(ctrl, presets.MessageStateIcon);
 
     await closeKnex();
   })();

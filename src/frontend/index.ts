@@ -26,7 +26,7 @@ import './pages/genshin/archive/material-search';
 import './pages/genshin/archive/weapon-search';
 import './pages/genshin/archive/furniture-list';
 
-import './pages/genshin/character/vo-tool';
+import './pages/genshin/character/genshin-vo-tool';
 import './pages/genshin/media/media-search.page';
 
 import { escapeHtml } from '../shared/util/stringUtil';

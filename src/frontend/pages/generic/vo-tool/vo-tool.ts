@@ -1,4 +1,3 @@
-import { pageMatch } from '../../../pageMatch';
 import './vo-common.scss';
 import { VoAppWelcome } from './vo-app-welcome';
 import Cookies from 'js-cookie';
@@ -75,7 +74,7 @@ export class VoAppState {
   }
 }
 
-pageMatch('pages/genshin/character/vo-tool', () => {
+export function initializeVoTool(): void {
   const state = new VoAppState();
 
   VoAppSidebar(state);
@@ -87,4 +86,4 @@ pageMatch('pages/genshin/character/vo-tool', () => {
     VoAppVisualEditor(state);
     VoAppWikitextEditor(state);
   }
-});
+}

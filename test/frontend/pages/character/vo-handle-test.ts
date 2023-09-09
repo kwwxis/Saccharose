@@ -1,6 +1,6 @@
 import util from 'util';
 import { loadResourceAsString } from '../../../spec-util';
-import { createVoHandle } from '../../../../src/frontend/pages/genshin/character/vo-handle';
+import { createVoHandle } from '../../../../src/frontend/pages/generic/vo-tool/vo-handle';
 import { pathToFileURL } from 'url'
 import { resolveObjectPath } from '../../../../src/shared/util/arrayUtil';
 

@@ -1,7 +1,7 @@
 import '../../loadenv';
 import { defaultMap, isEmpty } from '../../../shared/util/genericUtil';
 import { resolveObjectPath, toArray } from '../../../shared/util/arrayUtil';
-import { basename } from 'path';
+import path, { basename } from 'path';
 import { isInt } from '../../../shared/util/numberUtil';
 import chalk from 'chalk';
 import { AbstractControl } from '../../domain/abstractControl';
@@ -138,32 +138,41 @@ export async function inspectDataFile(ctrl: AbstractControl, opt: InspectOpt): P
       values = values.map(v => v.padEnd(padEndNum));
     }
 
-    let valueStr = values.join(singleLineThreshold ? ' | ' : '|\n  ') + ';';
+    let valueStr = values.map(v => chalk.green(v)).join(singleLineThreshold ? ' | ' : '|\n  ') + ';';
     if (!singleLineThreshold) {
-      valueStr = '  ' + valueStr;
+      valueStr = chalk.blue('export type ') + path.basename(opt.file).split('.')[0] + field + ' =\n  ' + valueStr;
+    } else {
+      valueStr = chalk.blue('export type ') + path.basename(opt.file).split('.')[0] + field + ' = ' + valueStr;
     }
-    console.log(`${opt.file} - Unique values for field "${field}":${isOptionalField ? ' (optional field)' : ''}\n` + valueStr);
-    console.log();
+    // console.log(`Unique values for field "${chalk.bold(field)}":${isOptionalField ? ' (optional field)' : ''}\n`
+    //   + valueStr);
+    console.log(valueStr);
   }
-  console.log(chalk.underline.bold(`Interface:`));
-  console.log(`export interface ${tableName} {`);
+  console.log('\n'+chalk.underline.bold(`Interface:`));
+  console.log(chalk.blue('export interface') + ' ' + `${tableName} {`);
   for (let field of Object.keys(fieldsToType).sort()) {
-    console.log(`  ${field}${fieldsToType[field].canBeNil ? '?' : ''}: ${fieldsToType[field].type},`);
+    let fieldColored = chalk.magenta(field);
+    let optionalMark = fieldsToType[field].canBeNil ? '?' : '';
+    let typeColored = fieldsToType[field].type.endsWith('[]')
+      ? chalk.blue(fieldsToType[field].type.slice(0, -2)) + '[]'
+      : chalk.blue(fieldsToType[field].type)
+
+    console.log(`  ${fieldColored}${optionalMark}: ${typeColored},`);
   }
-  console.log('}')
+  console.log(chalk.gray('}'))
   console.log();
   console.log(chalk.underline.bold(`Potential schema:`));
-  console.log(`  ${tableName}: <SchemaTable> {`);
-  console.log(`    name: '${tableName}',`);
-  console.log(`    jsonFile: './ExcelBinOutput/${tableName}.json',`);
-  console.log(`    columns: [`);
+  console.log(`  ${chalk.magenta(tableName)}: <SchemaTable> {`);
+  console.log(`    ${chalk.magenta('name')}: ${chalk.green(`'${tableName}'`)},`);
+  console.log(`    ${chalk.magenta('jsonFile')}: ${chalk.green(`'./ExcelBinOutput/${tableName}.json'`)},`);
+  console.log(`    ${chalk.magenta('columns')}: [`);
   let foundPrimary = false;
   for (let field of Object.keys(fieldsToType)) {
     let fieldHasUniqueValues = fieldsWithUniqueValues.has(field);
     let fieldHasMultipleValues = fieldsToValues[field].size > 1;
-    let fieldHasPotentialIndexName = (field.endsWith('TextMapHash') || field.endsWith('Id') || field.endsWith('Type') || field.endsWith('Quality') || field.endsWith('Level') || field.endsWith('Order'))
+    let fieldHasPotentialIndexName = (field.endsWith('TextMapHash') || field.endsWith('Id') || field.endsWith('Type') || field.endsWith('Quality') || field.endsWith('Level') || field.endsWith('Order') || field.endsWith('Camp'))
       && !(field.includes('Path') || field.includes('Json') || field.includes('Icon'));
-    let fieldHasPotentialPrimaryName = fieldHasPotentialIndexName && !(field.includes('Hash') || field.includes('Type') || field.endsWith('Quality') || field.endsWith('Level') || field.endsWith('Order'));
+    let fieldHasPotentialPrimaryName = fieldHasPotentialIndexName && !(field.includes('Hash') || field.includes('Type') || field.endsWith('Quality') || field.endsWith('Level') || field.endsWith('Order') || field.includes('SortId'));
 
     let schemaType = fieldsToType[field].type;
     if (schemaType.endsWith('[]')) {
@@ -179,9 +188,9 @@ export async function inspectDataFile(ctrl: AbstractControl, opt: InspectOpt): P
 
     if (fieldHasUniqueValues && fieldHasMultipleValues && fieldHasPotentialPrimaryName && !foundPrimary) {
       foundPrimary = true;
-      console.log(`      {name: '${field}', type: '${schemaType}', isPrimary: true},`);
+      console.log(`      {${chalk.magenta('name')}: ${chalk.green(`'${field}'`)}, ${chalk.magenta('type')}: ${chalk.green(`'${schemaType}'`)}, ${chalk.magenta('isPrimary')}: ${chalk.blue('true')}},`);
     } else if (fieldHasPotentialIndexName && fieldHasMultipleValues) {
-      console.log(`      {name: '${field}', type: '${schemaType}', isIndex: true},`);
+      console.log(`      {${chalk.magenta('name')}: ${chalk.green(`'${field}'`)}, ${chalk.magenta('type')}: ${chalk.green(`'${schemaType}'`)}, ${chalk.magenta('isIndex')}: ${chalk.blue('true')}},`);
     }
   }
   console.log(`    ]`);
