@@ -26,7 +26,6 @@ import { Marker, MarkerAggregate } from '../../../shared/util/highlightMarker';
 import { uuidv4 } from '../../../shared/util/uuidv4';
 import { getInputValue } from '../domutil';
 import { createAceDomClassWatcher } from './wikitextListeners';
-import { SITE_MODE_WIKI_DOMAIN } from '../../siteMode';
 
 // region Create wikitext editor
 // --------------------------------------------------------------------------------------------------------------
@@ -56,7 +55,7 @@ export function createWikitextEditor(editorElementId: string|HTMLElement): ace.E
   editor.setHighlightActiveLine(false);
   editor.setBehavioursEnabled(false);
   editor.setWrapBehavioursEnabled(true);
-  editor.getSession().setMode('ace/mode/wikitext');
+  editor.getSession().setMode(toBoolean(Cookies.get('avoid_wikitext_highlight')) ? 'ace/mode/plain_text' : 'ace/mode/wikitext');
   editor.setShowPrintMargin(false);
   if (toBoolean(Cookies.get('nightmode'))) {
     editor.setTheme('ace/theme/tomorrow_night');
@@ -80,181 +79,176 @@ export function highlightJson(text: string, gutters: boolean = false, markers: M
 }
 
 export function highlight(text: string, mode: string, gutters: boolean = true, markers: Marker[] = []): HTMLElement {
-  try {
-    createAceDomClassWatcher();
+  if (mode === 'ace/mode/wikitext' && toBoolean(Cookies.get('avoid_wikitext_highlight'))) {
+    mode = 'ace/mode/plain_text';
+  }
+  createAceDomClassWatcher();
 
-    // Create unique ID for highlight element
-    let guid = 'highlight-'+uuidv4();
+  // Create unique ID for highlight element
+  let guid = 'highlight-'+uuidv4();
 
-    // Load EditSession/TextLayer
-    let EditSession = ace.acequire('ace/edit_session').EditSession;
-    let TextLayer = ace.acequire('ace/layer/text').Text;
-    let SimpleTextLayer = function(config: any = {}) {
-      this.config = config;
-    };
-    SimpleTextLayer.prototype = TextLayer.prototype;
+  // Load EditSession/TextLayer
+  let EditSession = ace.acequire('ace/edit_session').EditSession;
+  let TextLayer = ace.acequire('ace/layer/text').Text;
+  let SimpleTextLayer = function(config: any = {}) {
+    this.config = config;
+  };
+  SimpleTextLayer.prototype = TextLayer.prototype;
 
-    // Override default implementation of Highlight.renderSync
-    let Highlight = ace.acequire('ace/ext/static_highlight').highlight;
+  // Override default implementation of Highlight.renderSync
+  let Highlight = ace.acequire('ace/ext/static_highlight').highlight;
 
-    Highlight.renderSync = function(input, mode, theme, lineStart, gutters: boolean = true) {
-      lineStart = parseInt(lineStart || 1, 10);
+  Highlight.renderSync = function(input, mode, theme, lineStart, gutters: boolean = true) {
+    lineStart = parseInt(lineStart || 1, 10);
 
-      let session = new EditSession("");
-      session.setUseWorker(false);
-      session.setMode(mode);
+    let session = new EditSession("");
+    session.setUseWorker(false);
+    session.setMode(mode);
 
-      let textLayer = new SimpleTextLayer();
-      textLayer.setSession(session);
+    let textLayer = new SimpleTextLayer();
+    textLayer.setSession(session);
 
-      session.setValue(input);
+    session.setValue(input);
 
-      let textLayerSb = [];
-      let length: number = session.getLength();
-      let rawLines: string[] = input.split(/\r?\n/g);
+    let textLayerSb = [];
+    let length: number = session.getLength();
+    let rawLines: string[] = input.split(/\r?\n/g);
 
-      let markerFrontLayerSb = [];
-      let markerBackLayerSb = [];
-      let anyMarkersInFront: boolean = false;
-      let anyMarkersInBack: boolean = false;
+    let markerFrontLayerSb = [];
+    let markerBackLayerSb = [];
+    let anyMarkersInFront: boolean = false;
+    let anyMarkersInBack: boolean = false;
 
-      const markerAggs = MarkerAggregate.from(markers);
-      const markerText = str => !str ? ' ' : escapeHtml(str);
+    const markerAggs = MarkerAggregate.from(markers);
+    const markerText = str => !str ? ' ' : escapeHtml(str);
 
-      for(let ix = 0; ix < length; ix++) {
-        textLayerSb.push("<div class='ace_line'>");
-        if (gutters)
-          textLayerSb.push(`<span class="ace_gutter ace_gutter-cell">` + /*(ix + lineStart) + */ `</span>`);
-        textLayer.$renderLine(textLayerSb, ix, true, false);
-        textLayerSb.push(`\n</div>`);
+    for(let ix = 0; ix < length; ix++) {
+      textLayerSb.push("<div class='ace_line'>");
+      if (gutters)
+        textLayerSb.push(`<span class="ace_gutter ace_gutter-cell">` + /*(ix + lineStart) + */ `</span>`);
+      textLayer.$renderLine(textLayerSb, ix, true, false);
+      textLayerSb.push(`\n</div>`);
 
-        let markerFrontAgg = markerAggs.front.get(ix + 1);
-        let markerBackAgg = markerAggs.back.get(ix + 1);
-        let line: string = rawLines[ix];
-        let lineBlank = `<span class="ace_static_marker" data-text="${markerText(line)}"></span>`; //blankify(line);
+      let markerFrontAgg = markerAggs.front.get(ix + 1);
+      let markerBackAgg = markerAggs.back.get(ix + 1);
+      let line: string = rawLines[ix];
+      let lineBlank = `<span class="ace_static_marker" data-text="${markerText(line)}"></span>`; //blankify(line);
 
-        function processMarkerAgg(agg: MarkerAggregate, isFront: boolean) {
-          if (!agg || !agg.ranges.length) {
-            if (isFront) {
-              markerFrontLayerSb.push(`<div class="ace_line">${lineBlank}</div>`);
-            } else {
-              markerBackLayerSb.push(`<div class="ace_line">${lineBlank}</div>`);
-            }
-            return;
-          }
-
-          let markerHtml = '';
-          let prevRangeEnd = 0;
-          for (let range of agg.ranges) {
-            let clazz = range.token.split('.').join(' ');
-            let beforeText = line.slice(prevRangeEnd, range.startCol);
-            let rangeText = range.endCol <= range.startCol ? '' : line.slice(range.startCol, range.endCol);
-            prevRangeEnd = range.endCol;
-
-            if (range.fullLine) {
-              markerHtml = `<span class="ace_static_marker ${clazz}" style="width:100%;display:inline-block;" data-text="${markerText(line)}"></span>`;
-              prevRangeEnd = line.length;
-              break;
-            }
-
-            if (beforeText) {
-              markerHtml += `<span class="ace_static_marker range-norm-text" data-text="${markerText(beforeText)}"></span>`;
-            }
-
-            if (rangeText) {
-              markerHtml += `<span class="ace_static_marker range-token-text ${clazz}" data-text="${markerText(rangeText)}"></span>`;
-            }
-          }
-          let lastText = line.slice(prevRangeEnd);
-          if (lastText) {
-            markerHtml += `<span class="ace_static_marker range-norm-text" data-text="${markerText(lastText)}"></span>`;
-          }
-
-          if (agg.isFront) {
-            markerFrontLayerSb.push(`<div class="ace_line">${markerHtml}</div>`);
-            anyMarkersInFront = true;
+      function processMarkerAgg(agg: MarkerAggregate, isFront: boolean) {
+        if (!agg || !agg.ranges.length) {
+          if (isFront) {
+            markerFrontLayerSb.push(`<div class="ace_line">${lineBlank}</div>`);
           } else {
-            markerBackLayerSb.push(`<div class="ace_line">${markerHtml}</div>`);
-            anyMarkersInBack = true;
+            markerBackLayerSb.push(`<div class="ace_line">${lineBlank}</div>`);
           }
+          return;
         }
 
-        processMarkerAgg(markerFrontAgg, true);
-        processMarkerAgg(markerBackAgg, false);
+        let markerHtml = '';
+        let prevRangeEnd = 0;
+        for (let range of agg.ranges) {
+          let clazz = range.token.split('.').join(' ');
+          let beforeText = line.slice(prevRangeEnd, range.startCol);
+          let rangeText = range.endCol <= range.startCol ? '' : line.slice(range.startCol, range.endCol);
+          prevRangeEnd = range.endCol;
+
+          if (range.fullLine) {
+            markerHtml = `<span class="ace_static_marker ${clazz}" style="width:100%;display:inline-block;" data-text="${markerText(line)}"></span>`;
+            prevRangeEnd = line.length;
+            break;
+          }
+
+          if (beforeText) {
+            markerHtml += `<span class="ace_static_marker range-norm-text" data-text="${markerText(beforeText)}"></span>`;
+          }
+
+          if (rangeText) {
+            markerHtml += `<span class="ace_static_marker range-token-text ${clazz}" data-text="${markerText(rangeText)}"></span>`;
+          }
+        }
+        let lastText = line.slice(prevRangeEnd);
+        if (lastText) {
+          markerHtml += `<span class="ace_static_marker range-norm-text" data-text="${markerText(lastText)}"></span>`;
+        }
+
+        if (agg.isFront) {
+          markerFrontLayerSb.push(`<div class="ace_line">${markerHtml}</div>`);
+          anyMarkersInFront = true;
+        } else {
+          markerBackLayerSb.push(`<div class="ace_line">${markerHtml}</div>`);
+          anyMarkersInBack = true;
+        }
       }
 
-      if (!anyMarkersInBack) {
-        markerBackLayerSb = [];
-      }
+      processMarkerAgg(markerFrontAgg, true);
+      processMarkerAgg(markerBackAgg, false);
+    }
 
-      if (!anyMarkersInFront) {
-        markerFrontLayerSb = [];
-      }
+    if (!anyMarkersInBack) {
+      markerBackLayerSb = [];
+    }
 
-      let html =
-        `<div data-ace-highlight-id="${guid}" class="highlighted ${gutters ? 'highlighted-has-gutters' : ''} ${theme.cssClass}" style="position:relative">` +
-        `<div class="ace_static_highlight${gutters ? ' ace_show_gutter' : ''}" style="counter-reset:ace_line ${lineStart - 1}">` +
-        `<div class="ace_static_layer ace_static_marker_layer ace_static_marker_back_layer">${markerBackLayerSb.join('')}</div>` +
-        `<div class="ace_static_layer ace_static_text_layer">${textLayerSb.join('').replace(/\s*style=['"]width:NaNpx['"]/g, '')}</div>` +
-        `<div class="ace_static_layer ace_static_marker_layer ace_static_marker_front_layer">${markerFrontLayerSb.join('')}</div>` +
-        `</div>` +
-        `</div>`;
+    if (!anyMarkersInFront) {
+      markerFrontLayerSb = [];
+    }
 
-      textLayer.destroy();
+    let html =
+      `<div data-ace-highlight-id="${guid}" class="highlighted ${gutters ? 'highlighted-has-gutters' : ''} ${theme.cssClass}" style="position:relative">` +
+      `<div class="ace_static_highlight${gutters ? ' ace_show_gutter' : ''}" style="counter-reset:ace_line ${lineStart - 1}">` +
+      `<div class="ace_static_layer ace_static_marker_layer ace_static_marker_back_layer">${markerBackLayerSb.join('')}</div>` +
+      `<div class="ace_static_layer ace_static_text_layer">${textLayerSb.join('').replace(/\s*style=['"]width:NaNpx['"]/g, '')}</div>` +
+      `<div class="ace_static_layer ace_static_marker_layer ace_static_marker_front_layer">${markerFrontLayerSb.join('')}</div>` +
+      `</div>` +
+      `</div>`;
 
-      return {
-        css: theme.cssText,
-        html: html,
-        session: session
-      };
+    textLayer.destroy();
+
+    return {
+      css: theme.cssText,
+      html: html,
+      session: session
     };
+  };
 
-    // Load Theme
-    let TextmateTheme = ace.acequire('ace/theme/textmate');
-    let TomorrowNightTheme = ace.acequire('ace/theme/tomorrow_night');
-    let Range = ace.acequire('ace/range').Range;
+  // Load Theme
+  let TextmateTheme = ace.acequire('ace/theme/textmate');
+  let TomorrowNightTheme = ace.acequire('ace/theme/tomorrow_night');
+  let Range = ace.acequire('ace/range').Range;
 
-    let theme;
-    if (toBoolean(Cookies.get('nightmode'))) {
-      theme = TomorrowNightTheme;
-    } else {
-      theme = TextmateTheme;
-    }
-
-    // Run highlight
-    let result: {html: string, session: ace.IEditSession} = Highlight.renderSync(text, mode, theme, 1, gutters,
-      (editSession) => {
-        editSession.addMarker(new Range(1, 0, 2, 1), 'highlight', 'line', false);
-      });
-
-    // Convert to element
-    let element = document.createRange().createContextualFragment(result.html).firstElementChild as HTMLElement;
-
-    // Post-process element
-    /* element.querySelectorAll('.ace_template-name, .ace_link-name').forEach((el: HTMLElement) => {
-      let prefix = '';
-      if (el.classList.contains('ace_template-name')) {
-        prefix = 'Template:';
-      }
-      const page = el.innerText.replace(/\s/g, '_');
-      const url = `https://${SITE_MODE_WIKI_DOMAIN}/wiki/${prefix}${page}`;
-      el.setAttribute('data-href', url);
-
-      const span = document.createElement('span');
-      span.classList.add('ace_token-tooltip');
-      span.innerHTML = `<span>Ctrl/Meta-click to open in new tab (alt-click to focus)</span><br />` +
-        `<a>${escapeHtml(url)}</a>`;
-      el.append(span);
-    });*/
-
-    return element;
-  } catch (e) {
-    if (mode !== 'ace/mode/plain_text') {
-      return highlight(text, 'ace/mode/plain_text', gutters, markers);
-    } else {
-      throw e;
-    }
+  let theme;
+  if (toBoolean(Cookies.get('nightmode'))) {
+    theme = TomorrowNightTheme;
+  } else {
+    theme = TextmateTheme;
   }
+
+  // Run highlight
+  let result: {html: string, session: ace.IEditSession} = Highlight.renderSync(text, mode, theme, 1, gutters,
+    (editSession) => {
+      editSession.addMarker(new Range(1, 0, 2, 1), 'highlight', 'line', false);
+    });
+
+  // Convert to element
+  let element = document.createRange().createContextualFragment(result.html).firstElementChild as HTMLElement;
+
+  // Post-process element
+  /* element.querySelectorAll('.ace_template-name, .ace_link-name').forEach((el: HTMLElement) => {
+    let prefix = '';
+    if (el.classList.contains('ace_template-name')) {
+      prefix = 'Template:';
+    }
+    const page = el.innerText.replace(/\s/g, '_');
+    const url = `https://${SITE_MODE_WIKI_DOMAIN}/wiki/${prefix}${page}`;
+    el.setAttribute('data-href', url);
+
+    const span = document.createElement('span');
+    span.classList.add('ace_token-tooltip');
+    span.innerHTML = `<span>Ctrl/Meta-click to open in new tab (alt-click to focus)</span><br />` +
+      `<a>${escapeHtml(url)}</a>`;
+    el.append(span);
+  });*/
+
+  return element;
 }
 // endregion
 
