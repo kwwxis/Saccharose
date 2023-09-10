@@ -45,7 +45,7 @@ export const starRailSchema = {
       {name: 'FullNameTextMapHash', type: 'integer', isIndex: true},
       {name: 'CutinIntroTextMapHash', type: 'integer', isIndex: true},
     ],
-    normalizeFixFields: {
+    renameFields: {
       'AvatarId': 'Id',
       'AvatarBaseType': 'BaseType',
       'AvatarVOTag': 'VOTag',
@@ -117,7 +117,7 @@ export const starRailSchema = {
       {name: 'ChapterId', type: 'integer', isIndex: true},
       {name: 'NameTextMapHash', type: 'integer', isIndex: true},
     ],
-    normalizeFixFields: {
+    renameFields: {
       'MainMissionId': 'Id'
     }
   },
@@ -163,7 +163,7 @@ export const starRailSchema = {
       {name: 'TargetTextMapHash', type: 'integer', isIndex: true},
       {name: 'DescTextMapHash', type: 'integer', isIndex: true},
     ],
-    normalizeFixFields: {
+    renameFields: {
       'DescrptionText:': 'DescText',
       'DescrptionTextMapHash': 'DescTextMapHash'
     }

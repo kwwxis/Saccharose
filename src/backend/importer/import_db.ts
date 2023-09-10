@@ -23,8 +23,8 @@ export type SchemaTable = {
   columns: SchemaColumn[],
   jsonFile: string,
   customRowResolve?: (row: any, allRows?: any[]) => any[],
-  preliminaryNormalizeFixFields?: { [oldName: string]: string },
-  normalizeFixFields?: { [oldName: string]: string },
+  preliminaryRenameFields?: { [oldName: string]: string },
+  renameFields?: { [oldName: string]: string },
   singularize?: string[],
   isKvPair?: boolean,
   isDatFile?: boolean,
@@ -106,21 +106,21 @@ export function normalizeRawJsonKey(key: string, table?: SchemaTable, schemaTran
   key = key.replace(/TextText/g, 'Text');
   key = key.replace(/_(\w)/g, (fm: string, g: string) => g.toUpperCase()); // snake to camel
 
-  if (table && table.preliminaryNormalizeFixFields) {
-    if (key in table.preliminaryNormalizeFixFields) {
-      key = table.preliminaryNormalizeFixFields[key];
+  if (table && table.preliminaryRenameFields) {
+    if (key in table.preliminaryRenameFields) {
+      key = table.preliminaryRenameFields[key];
     }
-    if (key.toUpperCase() in table.preliminaryNormalizeFixFields) {
-      key = table.preliminaryNormalizeFixFields[key.toUpperCase()];
+    if (key.toUpperCase() in table.preliminaryRenameFields) {
+      key = table.preliminaryRenameFields[key.toUpperCase()];
     }
   }
 
-  if (table && table.normalizeFixFields) {
-    if (key in table.normalizeFixFields) {
-      key = table.normalizeFixFields[key];
+  if (table && table.renameFields) {
+    if (key in table.renameFields) {
+      key = table.renameFields[key];
     }
-    if (key.toUpperCase() in table.normalizeFixFields) {
-      key = table.normalizeFixFields[key.toUpperCase()];
+    if (key.toUpperCase() in table.renameFields) {
+      key = table.renameFields[key.toUpperCase()];
     }
   }
 

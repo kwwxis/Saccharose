@@ -9,7 +9,7 @@ const VoiceSchema = <SchemaTable>{
   name: 'VoiceItems',
   columns: [],
   jsonFile: '',
-  normalizeFixFields: {
+  renameFields: {
     KMMBCJDNDNM: 'GameTrigger',
     JAOANONPLDI: 'GameTriggerArgs',
     IIFPKNOPNFI: 'PersonalConfig',

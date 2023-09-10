@@ -71,7 +71,7 @@ export const genshinSchema = {
       { name: 'TalkRoleNameTextMapHash', type: 'integer', isIndex: true },
       { name: 'TalkId', type: 'integer', isIndex: true },
     ],
-    normalizeFixFields: {
+    renameFields: {
       GFLDJMJKIKE: 'Id'
     }
   },
@@ -100,7 +100,7 @@ export const genshinSchema = {
         return [];
       }
     },
-    normalizeFixFields: {
+    renameFields: {
       GFLDJMJKIKE: 'Id'
     }
   },
@@ -197,7 +197,7 @@ export const genshinSchema = {
       { name: 'StepDescTextMapHash', type: 'integer', isIndex: true },
       { name: 'GuideTipsTextMapHash', type: 'integer', isIndex: true },
     ],
-    normalizeFixFields: {
+    renameFields: {
       FailParent: 'DescTextMapHash'
     }
   },
@@ -220,7 +220,7 @@ export const genshinSchema = {
       { name: 'LoadingSituationType', type: 'string', isIndex: true },
       { name: 'AreaTerrainType', type: 'string', isIndex: true },
     ],
-    normalizeFixFields: {
+    renameFields: {
       DMDEJCOKACP: 'LoadingSituationType',
       JGFENLJMOAB: 'AreaTerrainType',
       ADLGEKIGIKG: 'SceneId',
@@ -322,7 +322,7 @@ export const genshinSchema = {
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
     ],
-    normalizeFixFields: {
+    renameFields: {
       PBJLENGJPAO: 'JumpList',
       JNBEOBPDNND: 'DungeonGroup',
       KEEONLHHNLA: 'JumpTargets',
@@ -399,7 +399,7 @@ export const genshinSchema = {
       { name: 'TabIcon', type: 'integer' },
       { name: 'SceneType', type: 'string' },
     ],
-    normalizeFixFields: {
+    renameFields: {
       FECBGNMOGHK: 'TypeCategoryId'
     }
   },
@@ -437,7 +437,7 @@ export const genshinSchema = {
       { name: 'ShowNameTextMapHash', type: 'integer', isIndex: true },
       { name: 'DescTextMapHash', type: 'integer', isIndex: true },
     ],
-    normalizeFixFields: {
+    renameFields: {
       BIDIBKDGBGA: 'NpcId',
       OJBGFOEHOJG: 'TalkIds',
       CLANGEOGPFM: 'HeadIcon',
@@ -552,7 +552,7 @@ export const genshinSchema = {
       { name: 'AltContentLocalizationId_0', type: 'integer', isIndex: true, resolve: 'AltContentLocalizedIds[0]' },
       { name: 'TitleTextMapHash', type: 'integer', isIndex: true },
     ],
-    normalizeFixFields: {
+    renameFields: {
       NHNENGFHDEG: 'AltContentLocalizedQuestConds',
       HGHPAKBJLMN: 'AltContentLocalizedIds',
     },
@@ -708,7 +708,7 @@ export const genshinSchema = {
       { name: 'LowHealthTalkId', type: 'integer', isIndex: true },
       { name: 'LowHealthConfigId', type: 'integer', isIndex: true },
     ],
-    normalizeFixFields: {
+    renameFields: {
       ElementBrustTalkId: 'ElementBurstTalkId',
     },
   },
@@ -719,7 +719,7 @@ export const genshinSchema = {
       { name: 'TalkDetailId', type: 'integer', isPrimary: true },
       { name: 'TalkDetailIconId', type: 'integer', isIndex: true },
     ],
-    normalizeFixFields: {
+    renameFields: {
       OKFHEMAKLNN: 'TalkContentTextMapHash',
       CPBEMEKHDCO: 'TalkDetailIconId',
       PGFENJJPNBG: 'TalkEmoji',
@@ -744,7 +744,7 @@ export const genshinSchema = {
       { name: 'EnemyCardGroupId', type: 'integer', isIndex: true },
       { name: 'GameType', type: 'string', isIndex: true },
     ],
-    normalizeFixFields: {
+    renameFields: {
       MBJIAMCDJLJ: 'EnemyNameTextMapHash',
     },
   },
@@ -761,7 +761,7 @@ export const genshinSchema = {
       { name: 'MonsterId', type: 'integer', isIndex: true },
       { name: 'MonsterTitleTextMapHash', type: 'integer', isIndex: true },
     ],
-    normalizeFixFields: {
+    renameFields: {
       JECHMICDJBE: 'NpcId',
       OAPOAACBKHJ: 'MonsterTitleTextMapHash',
       LKOILEBONPH: 'UnlockGcgLevel',
@@ -777,7 +777,7 @@ export const genshinSchema = {
       { name: 'IntroTextMapHash', type: 'integer', isIndex: true },
       { name: 'GroupId', type: 'integer', isIndex: true },
     ],
-    normalizeFixFields: {
+    renameFields: {
       ILOGAIHBHNE: 'IntroTextMapHash',
       CNMAEJMKIJG: 'TalkDetailIconId',
       IDJCJFFHJEE: 'ObjectiveTextMapHashList',
@@ -790,7 +790,7 @@ export const genshinSchema = {
       { name: 'Id', type: 'integer', isPrimary: true },
       { name: 'Type', type: 'string', isIndex: true },
     ],
-    normalizeFixFields: {
+    renameFields: {
       MIPOKBOGHGJ: 'ParamTarget',
     },
   },
@@ -802,7 +802,7 @@ export const genshinSchema = {
       { name: 'TutorialTextId', type: 'integer', isIndex: true },
       { name: 'TutorialTextMapHash', type: 'integer', isIndex: true },
     ],
-    normalizeFixFields: {
+    renameFields: {
       LFJMKDDJPNH: 'TutorialTextId',
       AFBOPFJIDKP: 'TutorialTextMapHash',
     },
@@ -830,7 +830,7 @@ export const genshinSchema = {
       { name: 'TitleTextMapHash', type: 'integer', isIndex: true },
       { name: 'ContentTextMapHash', type: 'integer', isIndex: true },
     ],
-    normalizeFixFields: {
+    renameFields: {
       IFJNLHHKLME: 'Icon',
     },
   },
@@ -872,7 +872,7 @@ export const genshinSchema = {
       { name: 'MapDescTextMapHash', type: 'integer', isIndex: true },
       { name: 'TalkId', type: 'integer', isIndex: true },
     ],
-    normalizeFixFields: {
+    renameFields: {
       ILOGAIHBHNE: 'MapDescTextMapHash',
     },
   },
@@ -885,7 +885,7 @@ export const genshinSchema = {
       { name: 'NpcType', type: 'string', isIndex: true },
       { name: 'OpenQuestId', type: 'integer', isIndex: true },
     ],
-    normalizeFixFields: {
+    renameFields: {
       OPEAIDGALDL: 'NpcType',
       GGHJEFNBDFK: 'LevelCondList',
       BGNBBBHMLLO: 'GcgLevel',
@@ -901,7 +901,7 @@ export const genshinSchema = {
       { name: 'NameTextMapHash', type: 'integer', isIndex: true },
       { name: 'DescTextMapHash', type: 'integer', isIndex: true },
     ],
-    normalizeFixFields: {
+    renameFields: {
       PMEAKELAHJJ: 'StateBuffType',
       BBNNKHIKEEB: 'PersistEffectType',
       EJLBDGICGCA: 'TokenIconToShow',
@@ -927,7 +927,7 @@ export const genshinSchema = {
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
     ],
-    normalizeFixFields: {
+    renameFields: {
       GLCONCDPNCI: 'ImagePath',
       GMNEJKJKIBP: 'ImagePath',
       DEPNICHKLNH: 'SpinePaths',
@@ -956,7 +956,7 @@ export const genshinSchema = {
       { name: 'WinHardLevelTalkId', type: 'integer', isIndex: true },
       { name: 'LoseHardLevelTalkId', type: 'integer', isIndex: true },
     ],
-    normalizeFixFields: {
+    renameFields: {
       NIDONEPDAOP: 'WinNormalLevelTalkId',
       HEGBPOCJBCF: 'LoseNormalLevelTalkId',
       GLAAKALKCEJ: 'WinHardLevelTalkId',
@@ -980,7 +980,7 @@ export const genshinSchema = {
       }
       return ret;
     },
-    normalizeFixFields: {
+    renameFields: {
       OPEAIDGALDL: 'NpcType',
       GGHJEFNBDFK: 'LevelCondList',
       BGNBBBHMLLO: 'GcgLevel',
@@ -1032,7 +1032,7 @@ export const genshinSchema = {
       { name: 'NameTextMapHash', type: 'integer', isIndex: true },
       { name: 'DescTextMapHash', type: 'integer', isIndex: true },
     ],
-    normalizeFixFields: {
+    renameFields: {
       ODACBHLGCIN: 'InternalName',
     }
   },
@@ -1045,7 +1045,7 @@ export const genshinSchema = {
       { name: 'TargetCamp', type: 'string', isIndex: true },
       { name: 'ChooseType', type: 'string', isIndex: true },
     ],
-    normalizeFixFields: {
+    renameFields: {
       HMHHABHDBAG: 'ChooseTextMapHash',
       FABKBPGPHII: 'ChooseType',
     },
@@ -1056,7 +1056,7 @@ export const genshinSchema = {
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
     ],
-    normalizeFixFields: {
+    renameFields: {
       KGCAJNCAHGJ: 'WaitingCharacterList',
       IBBLAOCNBNG: 'CondCount'
     }
@@ -1067,7 +1067,7 @@ export const genshinSchema = {
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
     ],
-    normalizeFixFields: {
+    renameFields: {
       GKHGDCBALPE: 'CardFaceIdList',
       PEBMEKJKGOB: 'StoryContextTextMapHash',
       FLLIMNKBNNC: 'SourceTextMapHash',
@@ -1088,7 +1088,7 @@ export const genshinSchema = {
       { name: 'CardId', type: 'integer', isIndex: true },
       { name: 'DeckCardId', type: 'integer', isIndex: true },
     ],
-    normalizeFixFields: {
+    renameFields: {
       KFDMIAPDCEG: 'CardId',
       AGBEBLBIMGD: 'DeckCardId',
     },
@@ -1109,7 +1109,7 @@ export const genshinSchema = {
       { name: 'NameTextMapHash', type: 'integer', isIndex: true },
       { name: 'KeywordId', type: 'integer', isIndex: true },
     ],
-    normalizeFixFields: {
+    renameFields: {
       BNKFFFCCNGF: 'KeywordId',
     },
   },
@@ -1121,7 +1121,7 @@ export const genshinSchema = {
       { name: 'CategoryType', type: 'string', isIndex: true },
       { name: 'NameTextMapHash', type: 'integer', isIndex: true },
     ],
-    normalizeFixFields: {
+    renameFields: {
       PHMOLEPKEIB: 'CategoryType',
     },
     singularize: ['CategoryType'],
@@ -1142,7 +1142,7 @@ export const genshinSchema = {
       { name: 'Type', type: 'string', isPrimary: true },
       { name: 'KeywordId', type: 'integer', isIndex: true },
     ],
-    normalizeFixFields: {
+    renameFields: {
       BNKFFFCCNGF: 'KeywordId',
     },
   },
@@ -1155,7 +1155,7 @@ export const genshinSchema = {
       { name: 'UnlockParam', type: 'integer', isIndex: true },
       { name: 'SourceTextMapHash', type: 'integer', isIndex: true },
     ],
-    normalizeFixFields: {
+    renameFields: {
       KPINCGJPICF: 'SourceTextMapHash',
     },
   },
@@ -1169,7 +1169,7 @@ export const genshinSchema = {
       { name: 'DescTextMapHash', type: 'integer', isIndex: true },
       { name: 'Order', type: 'integer', isIndex: true },
     ],
-    normalizeFixFields: {
+    renameFields: {
       DameTextMapHash: 'NameTextMapHash',
     },
   },
@@ -1186,7 +1186,7 @@ export const genshinSchema = {
       { name: 'BattleTableId', type: 'integer', isIndex: true },
       { name: 'DiceTableId', type: 'integer', isIndex: true },
     ],
-    normalizeFixFields: {
+    renameFields: {
       KPINCGJPICF: 'SourceTextMapHash',
     },
   },
@@ -1201,7 +1201,7 @@ export const genshinSchema = {
       { name: 'FetterId', type: 'integer', isPrimary: true },
       { name: 'AvatarId', type: 'integer', isIndex: true },
     ],
-    normalizeFixFields: {
+    renameFields: {
       IsHiden: 'IsHidden',
       JDJHGLGFHMC: 'Type',
     },
@@ -1217,7 +1217,7 @@ export const genshinSchema = {
       { name: 'FetterId', type: 'integer', isPrimary: true },
       { name: 'AvatarId', type: 'integer', isIndex: true },
     ],
-    normalizeFixFields: {
+    renameFields: {
       PPPLDLPKPFA: 'FinishConds',
     },
   },
@@ -1333,7 +1333,7 @@ export const genshinSchema = {
       { name: 'AvatarVisionAfterTextMapHash', type: 'integer', isIndex: true },
       { name: 'AvatarConstellationAfterTextMapHash', type: 'integer', isIndex: true },
     ],
-    normalizeFixFields: {
+    renameFields: {
       'AvatarVisionBeforText': 'AvatarVisionBeforeText',
       'AvatarConstellationBeforText': 'AvatarConstellationBeforeText',
     },
@@ -1419,7 +1419,7 @@ export const genshinSchema = {
       { name: 'Id', type: 'integer', isPrimary: true },
       { name: 'Image', type: 'string' },
     ],
-    normalizeFixFields: {
+    renameFields: {
       'EAFDGIBBIJD': 'Image',
     },
   },
@@ -1575,6 +1575,6 @@ export const genshinSchema = {
 
 for (let [tableName, schemaTranslationData] of Object.entries(schemaTranslation)) {
   if (genshinSchema.hasOwnProperty(tableName) && Object.keys(schemaTranslationData).length) {
-    genshinSchema[tableName].preliminaryNormalizeFixFields = schemaTranslationData;
+    genshinSchema[tableName].preliminaryRenameFields = schemaTranslationData;
   }
 }
