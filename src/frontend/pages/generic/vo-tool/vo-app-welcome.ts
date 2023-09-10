@@ -10,13 +10,19 @@ import { sort } from '../../../../shared/util/arrayUtil';
 import { LangCode } from '../../../../shared/types/lang-types';
 
 export function VoAppWelcome(state: VoAppState) {
-  const recentEl = document.querySelector('#vo-app-welcome-recent');
-  const recentListEl = document.querySelector('#vo-app-welcome-recent-list');
+  const recentEl: HTMLElement = document.querySelector('#vo-app-welcome-recent');
+  const recentListEl: HTMLElement = document.querySelector('#vo-app-welcome-recent-list');
+  const welcomeNoticeEl: HTMLElement = document.querySelector('#vo-app-welcome-notice');
+  const welcomeNoticeContentEl: HTMLElement = document.querySelector('#vo-app-welcome-notice-content');
 
   let locallySavedAvatars: {avatarId: number, langCode: LangCode, lastUpdateTime: number, recentListHtml: string}[] = [];
+  let unconvertedKeys: string[] = [];
 
   for (let i = 0; i < localStorage.length; i++){
     let key = localStorage.key(i);
+    if (key.startsWith('CHAR_VO')) {
+      unconvertedKeys.push(key);
+    }
     if (key.startsWith(state.config.storagePrefix + 'CHAR_VO_WIKITEXT_') && !key.endsWith('_UPDATETIME')) {
       let keyParts: string[] = key.split('_');
       let avatarId: number = toInt(keyParts.pop());
@@ -44,6 +50,32 @@ export function VoAppWelcome(state: VoAppState) {
       }
     }
   }
+
+  if (unconvertedKeys.length) {
+    welcomeNoticeEl.classList.remove('hide');
+    welcomeNoticeContentEl.innerHTML = `
+      <p class="info-notice">
+        <span class="dispBlock">You have local data stored in an old format, and as such it was not loaded.</span>
+        <span class="dispBlock spacer10-top">To convert it to the new format, click the button below:</span>
+      </p>
+      <button id="vo-app-welcome-notice-submit" class="primary spacer10-top">Convert to new format</button>
+    `;
+    startListeners([
+      {
+        el: '#vo-app-welcome-notice-submit',
+        ev: 'click',
+        fn: function() {
+          for (let key of unconvertedKeys) {
+            let value = localStorage.getItem(key);
+            localStorage.removeItem(key);
+            localStorage.setItem('GENSHIN_' + key, value);
+          }
+          location.reload();
+        }
+      }
+    ], welcomeNoticeContentEl);
+  }
+
   if (locallySavedAvatars.length) {
     sort(locallySavedAvatars, '-lastUpdateTime');
     for (let locallySavedAvatar of locallySavedAvatars) {
