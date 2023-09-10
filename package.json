@@ -6,10 +6,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "backend:clean": "ts-node src/pipeline/clean.ts",
-    "backend:tsc": "etsc --config=etsc.config.cjs",
-    "backend:copy-assets": "copyfiles -u 1 \"src/**/*.css\" \"src/**/*.html\" \"src/**/*.ejs\" \"src/**/*.py\" dist/",
-    "backend:build": "npm-run-all backend:clean backend:tsc backend:copy-assets",
+    "backend:build": "etsc --config=etsc.config.cjs",
     "webpack:prod": "cross-env NODE_OPTIONS=\"--loader ts-node/esm\" webpack --config webpack.prod.ts",
     "webpack:dev": "cross-env NODE_OPTIONS=\"--loader ts-node/esm\" webpack --config webpack.dev.ts",
     "build:dev": "npm-run-all --parallel backend:build webpack:dev",
