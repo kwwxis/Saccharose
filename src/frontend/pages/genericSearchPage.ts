@@ -22,6 +22,7 @@ export type GenericSearchPageParamOpt<T> = {
   guards?: ((text: string|number) => string)[],
   mapper?: (text: string) => string|number,
   required?: boolean
+  disableEnterKeySubmit?: boolean,
 }
 
 export type GenericSearchPageOpts<T> =  {
@@ -282,7 +283,7 @@ export function startGenericSearchPageListeners<T>(opts: GenericSearchPageOpts<T
         loadResultFromState(event.state);
       }
     },
-    ... opts.inputs.map(optInput => ({
+    ... opts.inputs.filter(optInput => !optInput.disableEnterKeySubmit).map(optInput => ({
       el: optInput.selector,
       ev: 'enter',
       fn: function(_event, _target) {

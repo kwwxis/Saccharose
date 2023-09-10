@@ -1,40 +1,20 @@
-import { CharacterFetters, FetterExcelConfigData } from '../../../../shared/types/genshin/fetter-types';
+import { FetterExcelConfigData } from '../../../../shared/types/genshin/fetter-types';
 import { replaceRomanNumerals, romanize, romanToInt, SbOut } from '../../../../shared/util/stringUtil';
 import { defaultMap } from '../../../../shared/util/genericUtil';
-import { isTraveler as checkIsTraveler } from '../../../../shared/types/genshin/avatar-types';
 import { LangCode } from '../../../../shared/types/lang-types';
+import { VoAppState } from '../../generic/vo-tool/vo-tool';
+import { createSbOutForVoPreload, VoAppPreloadOptions, VoAppPreloadResult } from '../../generic/vo-tool/vo-preload-support';
 
-export type PropFillMode = 'fill' | 'remove' | 'empty';
-
-export type VoAppPreloadOptions = {
-  swapTitleSubtitle?: boolean,
-  paramFill?: {[paramName: string]: PropFillMode},
-}
-
-export type VoAppPreloadResult = { templateName: string, wikitext: string };
-
-export function preloadFromFetters(characterFetters: CharacterFetters, mode: 'story' | 'combat', lang: LangCode, userLang: LangCode,
-                                   opts: VoAppPreloadOptions = {}): VoAppPreloadResult {
-  const out = new SbOut();
-  out.setPropPad(20);
-  out.setPropFilter((propName: string, propValue: string) => {
-    let mode: PropFillMode = Object.entries(opts.paramFill).find(([key, _value]) => {
-      return new RegExp('^' + key + '$').test(propName);
-    })?.[1];
-    if (mode === 'remove') {
-      return undefined;
-    } else if (mode === 'empty') {
-      return '';
-    } else {
-      return propValue;
-    }
-  });
+export function genshinVoPreload(state: VoAppState, mode: 'story' | 'combat', lang: LangCode, userLang: LangCode,
+                                   opts: VoAppPreloadOptions): VoAppPreloadResult {
+  const out: SbOut = createSbOutForVoPreload(opts);
 
   const isStory: boolean = mode === 'story';
   const isCombat: boolean = mode === 'combat';
-  const avatarName = characterFetters.avatarName;
-  const fetters: FetterExcelConfigData[] = isStory ? characterFetters.storyFetters : characterFetters.combatFetters;
-  const isTraveler: boolean = checkIsTraveler(characterFetters.avatar.Id);
+  const avatarName = state.voiceItems.avatarName;
+  const fetters: FetterExcelConfigData[] = (isStory ? state.voiceItems.storyItems : state.voiceItems.combatItems)
+    .map(f => f.Original);
+  const isTraveler: boolean = state.isMainCharacter(state.voiceItems.avatar);
 
   let templateName: string;
   if (isTraveler) {
@@ -213,7 +193,7 @@ export function preloadFromFetters(characterFetters: CharacterFetters, mode: 'st
 
   if (isCombat) {
     function getCombatFileName(animEvtFileMatch: RegExp, filePrefix: string): string {
-      let animEvtFiles = characterFetters.animatorEventFiles;
+      let animEvtFiles = state.voiceItems.animatorEventFiles;
       let files = [];
       for (let file of animEvtFiles) {
         if (animEvtFileMatch.test(file)) {

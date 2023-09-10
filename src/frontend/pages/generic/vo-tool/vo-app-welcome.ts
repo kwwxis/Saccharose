@@ -33,7 +33,7 @@ export function VoAppWelcome(state: VoAppState) {
              class="vo-app-welcome-recent-avatar secondary dispFlex textAlignLeft spacer5-all"
              href="/character/VO/${avatar.NameText.replace(' ', '_')}"
              role="button">
-            <img class="icon x32" src="/images/genshin/${avatar.IconName}.png" loading="lazy" decoding="async" />
+            <img class="icon x32" src="${state.config.imagePathPrefix}${avatar.IconName}.png" loading="lazy" decoding="async" />
             <div class="spacer10-left spacer5-top" style="line-height:1em">
               <div>${avatar.NameText}</div>
               <small><strong>${langCode} Text</strong> Last updated: ${humanTiming(lastUpdateTime)}</small>

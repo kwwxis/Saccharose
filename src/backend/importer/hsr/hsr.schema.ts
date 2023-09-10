@@ -46,27 +46,148 @@ export const starRailSchema = {
       {name: 'AvatarCutinIntroTextMapHash', type: 'integer', isIndex: true},
     ]
   },
-  VoiceConfig: <SchemaTable> {
-    name: 'VoiceConfig',
-    jsonFile: './ExcelBinOutput/VoiceConfig.json',
+  AvatarVO: <SchemaTable> {
+    name: 'AvatarVO',
+    jsonFile: './ExcelBinOutput/AvatarVO.json',
     columns: [
-      {name: 'VoiceType', type: 'string', isIndex: true},
-      {name: 'VoiceId', type: 'integer', isPrimary: true},
+      {name: 'VOTag', type: 'string', isPrimary: true},
+    ]
+  },
+  VoiceAtlas: <SchemaTable> {
+    name: 'VoiceAtlas',
+    jsonFile: './ExcelBinOutput/VoiceAtlas.json',
+    columns: [
+      {name: 'AvatarId', type: 'integer', isIndex: true},
+      {name: 'VoiceId', type: 'integer', isIndex: true},
+      {name: 'AudioId', type: 'integer', isIndex: true},
+      {name: 'VoiceTitleTextMapHash', type: 'integer', isIndex: true},
+      {name: 'VoiceMTextMapHash', type: 'integer', isIndex: true},
+      {name: 'VoiceFTextMapHash', type: 'integer', isIndex: true},
+      {name: 'UnlockDescTextMapHash', type: 'integer', isIndex: true},
+    ]
+  },
+  AtlasUnlockData: <SchemaTable> {
+    name: 'AtlasUnlockData',
+    jsonFile: './ExcelBinOutput/AtlasUnlockData.json',
+    columns: [
+      {name: 'UnlockId', type: 'integer', isPrimary: true},
     ]
   },
   // endregion
 
-  // region Mission
-  // --------------
+  // region Main Mission
+  // -------------------
   MainMission: <SchemaTable> {
     name: 'MainMission',
     jsonFile: './ExcelOutput/MainMission.json',
     columns: [
-      {name: 'Type', type: 'string', isIndex: true},
       {name: 'MainMissionId', type: 'integer', isPrimary: true},
+      {name: 'Type', type: 'string', isIndex: true},
       {name: 'RewardId', type: 'integer', isIndex: true},
       {name: 'DisplayRewardId', type: 'integer', isIndex: true},
       {name: 'ChapterId', type: 'integer', isIndex: true},
+      {name: 'NameTextMapHash', type: 'integer', isIndex: true},
+    ]
+  },
+  MainMissionSchedule: <SchemaTable> {
+    name: 'MainMissionSchedule',
+    jsonFile: './ExcelBinOutput/MainMissionSchedule.json',
+    columns: [
+      {name: 'MainMissionId', type: 'integer', isPrimary: true},
+      {name: 'ActivityModuleId', type: 'integer', isIndex: true},
+      {name: 'ScheduleDataId', type: 'integer', isIndex: true},
+    ]
+  },
+  MainMissionType: <SchemaTable> {
+    name: 'MainMissionType',
+    jsonFile: './ExcelBinOutput/MainMissionType.json',
+    columns: [
+      {name: 'Type', type: 'string', isPrimary: true},
+      {name: 'TypeNameTextMapHash', type: 'integer', isIndex: true},
+    ]
+  },
+  MissionChapterConfig: <SchemaTable> {
+    name: 'MissionChapterConfig',
+    jsonFile: './ExcelBinOutput/MissionChapterConfig.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'ChapterNameTextMapHash', type: 'integer', isIndex: true},
+      {name: 'StageNameTextMapHash', type: 'integer', isIndex: true},
+      {name: 'ChapterDescTextMapHash', type: 'integer', isIndex: true},
+    ]
+  },
+  ScheduleDataMission: <SchemaTable> {
+    name: 'ScheduleDataMission',
+    jsonFile: './ExcelBinOutput/ScheduleDataMission.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+    ]
+  },
+  SubMission: <SchemaTable> {
+    name: 'SubMission',
+    jsonFile: './ExcelBinOutput/SubMission.json',
+    columns: [
+      {name: 'SubMissionId', type: 'integer', isPrimary: true},
+      {name: 'TargetTextMapHash', type: 'integer', isIndex: true},
+      {name: 'DescTextMapHash', type: 'integer', isIndex: true},
+    ],
+    normalizeFixFields: {
+      'DescrptionText:': 'DescText',
+      'DescrptionTextMapHash': 'DescTextMapHash'
+    }
+  },
+  // endreigon
+
+  // region Event Mission
+  // --------------------
+  EventMission: <SchemaTable> {
+    name: 'EventMission',
+    jsonFile: './ExcelBinOutput/EventMission.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'Type', type: 'string', isIndex: true},
+      {name: 'TakeType', type: 'string', isIndex: true},
+      {name: 'FinishWayId', type: 'integer', isIndex: true},
+      {name: 'MazePlaneId', type: 'integer', isIndex: true},
+      {name: 'MazeFloorId', type: 'integer', isIndex: true},
+      {name: 'RewardId', type: 'integer', isIndex: true},
+      {name: 'TitleTextMapHash', type: 'integer', isIndex: true},
+      {name: 'DescTextMapHash', type: 'integer', isIndex: true},
+    ]
+  },
+  EventMissionChallenge: <SchemaTable> {
+    name: 'EventMissionChallenge',
+    jsonFile: './ExcelBinOutput/EventMissionChallenge.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+    ]
+  },
+  FinishWayEventMission: <SchemaTable> {
+    name: 'FinishWayEventMission',
+    jsonFile: './ExcelBinOutput/FinishWayEventMission.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'FinishType', type: 'string', isIndex: true},
+      {name: 'ParamType', type: 'string', isIndex: true},
+    ]
+  },
+  // endregion
+
+  // region Daily Mission
+  // --------------------
+  DailyMissionCount: <SchemaTable> {
+    name: 'DailyMissionCount',
+    jsonFile: './ExcelBinOutput/DailyMissionCount.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+    ]
+  },
+  DailyMissionData: <SchemaTable> {
+    name: 'DailyMissionData',
+    jsonFile: './ExcelBinOutput/DailyMissionData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'GroupId', type: 'integer', isIndex: true},
     ]
   },
   // endregion
@@ -108,6 +229,14 @@ export const starRailSchema = {
     jsonFile: './ExcelBinOutput/TalkSentenceMultiVoice.json',
     columns: [
       {name: 'TalkSentenceId', type: 'integer', isPrimary: true},
+    ]
+  },
+  VoiceConfig: <SchemaTable> {
+    name: 'VoiceConfig',
+    jsonFile: './ExcelBinOutput/VoiceConfig.json',
+    columns: [
+      {name: 'VoiceType', type: 'string', isIndex: true},
+      {name: 'VoiceId', type: 'integer', isPrimary: true},
     ]
   },
   // endregion

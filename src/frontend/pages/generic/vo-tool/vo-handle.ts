@@ -1,5 +1,3 @@
-// noinspection JSUnusedGlobalSymbols
-
 import {
   MwComment,
   MwEOL,
@@ -91,6 +89,7 @@ export class VoItem {
     this.processKeyChange();
   }
 
+  // noinspection JSUnusedGlobalSymbols
   get htmlId(): string {
     return (this.handle.isCombat ? 'combat_' : 'story_') + this._itemKey;
   }
@@ -266,7 +265,7 @@ export class VoItem {
       thisNode.afterValueWhitespace = new MwTextNode('\n');
 
       if (isLastNode) {
-        let lastNodeEOL;
+        let lastNodeEOL: string;
         if (this.handle.isCombat) {
           if (isLastItemOfLastGroup) {
             lastNodeEOL = '\n';
@@ -276,7 +275,7 @@ export class VoItem {
         } else {
           lastNodeEOL = isLastItemOfLastGroup ? '\n' : '\n\n';
         }
-        thisNode.afterValueWhitespace = lastNodeEOL;
+        thisNode.afterValueWhitespace = new MwTextNode(lastNodeEOL);
       }
     }
 
@@ -433,6 +432,7 @@ export class VoGroup {
     }
   }
 
+  // noinspection JSUnusedGlobalSymbols
   get htmlId(): string {
     return (this.handle.isCombat ? 'combat_' : 'story_') + this._groupKey;
   }
@@ -650,6 +650,7 @@ export class VoHandle {
     this.templateNode.insertNodes(index, newItems);
   }
 
+  // noinspection JSUnusedGlobalSymbols
   removeNodes(nodes: (number|MwNode)[]): boolean {
     return this.templateNode.removeNodes(nodes);
   }
@@ -658,6 +659,7 @@ export class VoHandle {
     return this.templateNode.removeNode(node);
   }
 
+  // noinspection JSUnusedGlobalSymbols
   replaceNode(node: number|MwNode, newNode: MwNode): boolean {
     return this.templateNode.replaceNode(node, newNode);
   }

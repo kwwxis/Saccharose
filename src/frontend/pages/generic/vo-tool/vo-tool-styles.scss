@@ -1,4 +1,4 @@
-// Layout Adjust
+// region Layout Adjust
 // --------------------------------------------------------------------------------------------------------------
 .page--vo-tool {
   #app-wrapper {
@@ -80,8 +80,9 @@
   left: 0;
   z-index: 99999;
 }
+// endregion
 
-// Sidebar
+// region Sidebar
 // --------------------------------------------------------------------------------------------------------------
 #vo-tool-sidebar {
   font-size: 15px;
@@ -109,8 +110,9 @@
     }
   }
 }
+// endregion
 
-// Toolbar
+// region Toolbar
 // --------------------------------------------------------------------------------------------------------------
 #vo-app-toolbar {
   .vo-app-toolbar-avatarName {
@@ -146,8 +148,9 @@ body.nightmode #vo-app-toolbar .vo-app-toolbar-avatarName {
     border: 2px solid hsl(255deg, 8%, 35%);
   }
 }
+// endregion
 
-// VO Group / Item Containers
+// region VO Group / Item Containers
 // --------------------------------------------------------------------------------------------------------------
 .vo-group-body {
   overflow: hidden;
@@ -189,8 +192,9 @@ body.vo-item-dragging .vo-group.empty-group .vo-group-body {
   line-height: 38px;
   padding: 0 5px;
 }
+// endregion
 
-// Sortable
+// region Sortable
 // --------------------------------------------------------------------------------------------------------------
 .sortable-ghost {
   background: lightblue;
@@ -232,9 +236,9 @@ svg.icon.icon-drag-handle {
   width: auto;
   fill: rgba(0,0,0,0.6);
 }
+// endregion
 
-
-// Seamless Input
+// region Seamless Input
 // --------------------------------------------------------------------------------------------------------------
 .seamless-input:not(:hover):not(:focus),
 .seamless-input.no-hover {
@@ -244,8 +248,9 @@ body.vo-dragging .seamless-input {
   background: transparent !important;
   border-color: transparent !important;
 }
+// endregion
 
-// VO Item Header
+// region VO Item Header
 // --------------------------------------------------------------------------------------------------------------
 .vo-item-remove, .vo-group-remove {
   cursor: pointer;
@@ -285,8 +290,9 @@ body.vo-dragging .seamless-input {
     height: 16px;
   }
 }
+// endregion
 
-// VO Item Params
+// region VO Item Params
 // --------------------------------------------------------------------------------------------------------------
 .vo-item-params {
   padding-left: 35px;
@@ -336,8 +342,9 @@ body.vo-dragging .seamless-input {
     margin: 0 5px;
   }
 }
+// endregion
 
-// Nightmode
+// region Nightmode
 // --------------------------------------------------------------------------------------------------------------
 body.nightmode .vo-item {
   background: hsl(240deg 12% 25%);
@@ -359,3 +366,4 @@ body.nightmode svg.icon.icon-drag-handle {
 body.nightmode .seamless-input {
   background: transparent !important;
 }
+// endregion

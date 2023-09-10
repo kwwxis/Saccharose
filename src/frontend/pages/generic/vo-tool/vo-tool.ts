@@ -1,26 +1,35 @@
-import './vo-common.scss';
-import { VoAppWelcome } from './vo-app-welcome';
+import './vo-tool-styles.scss';
 import Cookies from 'js-cookie';
+import { VoAppWelcome } from './vo-app-welcome';
 import { VoAppSidebar } from './vo-app-sidebar';
 import { VoAppToolbar } from './vo-app-toolbar';
 import { VoAppWikitextEditor } from './vo-app-wikitext';
 import { VoAppVisualEditor } from './vo-app-visual';
+import { VoAppPreloadFunction } from './vo-preload-support';
 import { EventBus } from '../../../util/eventBus';
-import { CharacterFetters } from '../../../../shared/types/genshin/fetter-types';
-import { AvatarExcelConfigData, isTraveler } from '../../../../shared/types/genshin/avatar-types';
-import { genshinEndpoints } from '../../../endpoints';
 import { GeneralEventBus } from '../../../generalEventBus';
 import { DEFAULT_LANG, LANG_CODES, LANG_CODES_TO_NAME, LangCode } from '../../../../shared/types/lang-types';
+import { CommonAvatar, CommonVoiceCollection } from '../../../../shared/types/common-types';
+
+export interface VoAppConfig {
+  imagePathPrefix: string,
+  preloader: VoAppPreloadFunction,
+  fetchVoiceCollection: (avatar: CommonAvatar) => Promise<CommonVoiceCollection>,
+  isMainCharacter: (avatar: CommonAvatar) => boolean,
+}
 
 export class VoAppState {
-  avatars: AvatarExcelConfigData[];
-  avatar: AvatarExcelConfigData;
-  fetters: CharacterFetters;
+  avatars: CommonAvatar[];
+  avatar: CommonAvatar;
+  voiceItems: CommonVoiceCollection;
   voLang: LangCode;
   interfaceLang: LangCode;
   eventBus: EventBus;
+  config: VoAppConfig;
 
-  constructor() {
+  constructor(configure: () => VoAppConfig) {
+    this.config = configure();
+
     this.avatars = (<any> window).avatars;
     this.avatar = (<any> window).avatar;
     this.voLang = (Cookies.get('VO-App-LangCode') as LangCode) || DEFAULT_LANG;
@@ -34,17 +43,20 @@ export class VoAppState {
     this.init();
   }
 
-  get isTraveler() {
-    return isTraveler(this.avatar);
+  isMainCharacter(avatar?: CommonAvatar) {
+    return this.config.isMainCharacter(avatar || this.avatar);
   }
 
   init() {
+    console.log('[VO-App] VoAppState init invoked', this);
+
     if (this.avatar) {
-      genshinEndpoints.getFetters.get({ avatarId: this.avatar.Id }).then((fetters: CharacterFetters) => {
-        this.fetters = fetters;
-        this.fetters.avatar = this.avatar;
-        this.eventBus.emit('VO-FettersLoaded');
-        document.querySelector('#vo-app-loadingFettersStatus').classList.add('hide');
+      this.config.fetchVoiceCollection(this.avatar).then((collection: CommonVoiceCollection) => {
+        this.voiceItems = collection;
+        this.voiceItems.avatar = this.avatar;
+        this.eventBus.emit('VO-VoiceItemsLoaded');
+        document.querySelector('#vo-app-loading-status').classList.add('hide');
+        console.log('[VO-App] Voice items loaded');
       });
     }
 
@@ -74,8 +86,8 @@ export class VoAppState {
   }
 }
 
-export function initializeVoTool(): void {
-  const state = new VoAppState();
+export function initializeVoTool(configure: () => VoAppConfig): void {
+  const state = new VoAppState(configure);
 
   VoAppSidebar(state);
   if (document.querySelector('#vo-app-welcome')) {

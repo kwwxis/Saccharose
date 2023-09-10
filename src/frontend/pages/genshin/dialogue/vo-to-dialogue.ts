@@ -11,6 +11,7 @@ pageMatch('pages/genshin/dialogue/vo-to-dialogue', () => {
         selector: '.search-input',
         apiParam: 'text',
         queryParam: 'q',
+        disableEnterKeySubmit: true
       }
     ],
 

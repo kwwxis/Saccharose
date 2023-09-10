@@ -9,15 +9,13 @@ const presets = {
   // region Mission:
   DailyMissionCount: <InspectOpt> { file: excel('DailyMissionCount'), inspectFieldValues: [] },
   DailyMissionData: <InspectOpt> { file: excel('DailyMissionData'), inspectFieldValues: [] },
-  DailyMissionRandomData: <InspectOpt> { file: excel('DailyMissionRandomData'), inspectFieldValues: [] },
-  EventMission: <InspectOpt> { file: excel('EventMission'), inspectFieldValues: [] },
+  EventMission: <InspectOpt> { file: excel('EventMission'), inspectFieldValues: ['Type', 'TakeType'] },
   EventMissionChallenge: <InspectOpt> { file: excel('EventMissionChallenge'), inspectFieldValues: [] },
-  FinishWayEventMission: <InspectOpt> { file: excel('FinishWayEventMission'), inspectFieldValues: [] },
-  MainMission: <InspectOpt> { file: excel('MainMission'), inspectFieldValues: ['Type', 'TakeTypeA', 'TakeTypeB', 'BeginOperation', 'BeginParam[#ALL].Type', 'AudioEmotionState'] },
+  FinishWayEventMission: <InspectOpt> { file: excel('FinishWayEventMission'), inspectFieldValues: ['ParamType', 'FinishType'] },
+  MainMission: <InspectOpt> { file: excel('MainMission'), inspectFieldValues: ['Type', 'TakeOperation', 'BeginOperation', 'BeginParam[#ALL].Type', 'TakeParam[#ALL].Type', 'AudioEmotionState'] },
   MainMissionSchedule: <InspectOpt> { file: excel('MainMissionSchedule'), inspectFieldValues: [] },
   MainMissionType: <InspectOpt> { file: excel('MainMissionType'), inspectFieldValues: [] },
   MissionChapterConfig: <InspectOpt> { file: excel('MissionChapterConfig'), inspectFieldValues: [] },
-  MissionDisable: <InspectOpt> { file: excel('MissionDisable'), inspectFieldValues: [] },
   ScheduleDataMission: <InspectOpt> { file: excel('ScheduleDataMission'), inspectFieldValues: [] },
   SubMission: <InspectOpt> { file: excel('SubMission'), inspectFieldValues: [] },
   // endregion
@@ -49,10 +47,13 @@ const presets = {
   TalkSentenceConfig: <InspectOpt> { file: excel('TalkSentenceConfig'), inspectFieldValues: [] },
   TalkSentenceMultiVoice: <InspectOpt> { file: excel('TalkSentenceMultiVoice'), inspectFieldValues: [] },
   TutorialGuideTalkData: <InspectOpt> { file: excel('TutorialGuideTalkData'), inspectFieldValues: [] },
+  VoiceConfig: <InspectOpt> { file: excel('VoiceConfig'), inspectFieldValues: ['VoiceType'] },
   // endregion
   // region Misc:
-  AvatarConfig: <InspectOpt> { file: excel('AvatarConfig'), inspectFieldValues: ['AvatarBaseType', 'DamageType'] },
-  VoiceConfig: <InspectOpt> { file: excel('VoiceConfig'), inspectFieldValues: ['VoiceType'] },
+  AvatarConfig: <InspectOpt> { file: excel('AvatarConfig'), inspectFieldValues: ['AvatarBaseType', 'DamageType', 'Rarity'] },
+  AvatarVO: <InspectOpt> { file: excel('AvatarVO'), inspectFieldValues: [] },
+  VoiceAtlas: <InspectOpt> { file: excel('VoiceAtlas'), inspectFieldValues: [] },
+  AtlasUnlockData: <InspectOpt> { file: excel('AtlasUnlockData'), inspectFieldValues: ['Conditions[#ALL].Type'] },
   LoadingDesc: <InspectOpt> { file: excel('LoadingDesc'), inspectFieldValues: [] },
   RewardData: <InspectOpt> { file: excel('RewardData'), inspectFieldValues: [] },
   // endregion
@@ -62,7 +63,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
     const ctrl = getStarRailControl();
 
-    await inspectDataFile(ctrl, presets.MessageStateIcon);
+    await inspectDataFile(ctrl, presets.SubMission);
 
     await closeKnex();
   })();

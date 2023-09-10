@@ -55,7 +55,7 @@ export function createWikitextEditor(editorElementId: string|HTMLElement): ace.E
   editor.setHighlightActiveLine(false);
   editor.setBehavioursEnabled(false);
   editor.setWrapBehavioursEnabled(true);
-  editor.getSession().setMode(toBoolean(Cookies.get('avoid_wikitext_highlight')) ? 'ace/mode/plain_text' : 'ace/mode/wikitext');
+  editor.getSession().setMode(toBoolean(Cookies.get('disable_wikitext_highlight')) ? 'ace/mode/plain_text' : 'ace/mode/wikitext');
   editor.setShowPrintMargin(false);
   if (toBoolean(Cookies.get('nightmode'))) {
     editor.setTheme('ace/theme/tomorrow_night');
@@ -79,7 +79,7 @@ export function highlightJson(text: string, gutters: boolean = false, markers: M
 }
 
 export function highlight(text: string, mode: string, gutters: boolean = true, markers: Marker[] = []): HTMLElement {
-  if (mode === 'ace/mode/wikitext' && toBoolean(Cookies.get('avoid_wikitext_highlight'))) {
+  if (mode === 'ace/mode/wikitext' && toBoolean(Cookies.get('disable_wikitext_highlight'))) {
     mode = 'ace/mode/plain_text';
   }
   createAceDomClassWatcher();
@@ -286,7 +286,6 @@ export function highlightReplace(original: HTMLElement, mode: string, textOverri
   }
 
   let element = highlight(textOverride || getInputValue(original), mode, gutters, markers as Marker[]);
-  console.log(element);
 
   if (original.hasAttribute('class')) {
     element.classList.add(... Array.from(original.classList));

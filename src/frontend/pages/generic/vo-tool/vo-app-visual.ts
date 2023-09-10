@@ -3,7 +3,6 @@ import Sortable, { SortableEvent } from 'sortablejs';
 import {
   createVoHandles,
   enforcePropOrder,
-  obtainPropOrder,
   VoGroup,
   VoHandle,
   VoItem,
@@ -593,10 +592,10 @@ export function VoAppVisualEditor(state: VoAppState) {
         }
       }
       if (!storyHandle) {
-        storyHandle = new VoHandle(new MwTemplateNode(state.isTraveler ? 'VO/Traveler' : 'VO/Story'));
+        storyHandle = new VoHandle(new MwTemplateNode(state.isMainCharacter() ? 'VO/Traveler' : 'VO/Story'));
       }
       if (!combatHandle) {
-        combatHandle = new VoHandle(new MwTemplateNode(state.isTraveler ? 'VO/Combat' : 'Combat VO'));
+        combatHandle = new VoHandle(new MwTemplateNode(state.isMainCharacter() ? 'VO/Combat' : 'Combat VO'));
       }
 
       console.log('[VO-App] VoHandle STORY:', storyHandle);

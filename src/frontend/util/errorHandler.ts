@@ -11,11 +11,6 @@ export function showJavascriptErrorDialog(message, source, lineno?: number, coln
     return;
   }
 
-  if (typeof msg === 'string' && msg.toLowerCase().includes('regular expression') && msg.toLowerCase().includes('invalid group')) {
-    Cookies.set('avoid_wikitext_highlight', '1');
-    return;
-  }
-
   if (handlingJavascriptError) {
     return;
   }

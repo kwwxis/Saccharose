@@ -2,49 +2,115 @@ export type AvatarBaseType = 'Knight' | 'Mage' | 'Priest' | 'Rogue' | 'Shaman' |
 
 export type AvatarDamageType = 'Fire' | 'Ice' | 'Imaginary' | 'Physical' | 'Quantum' | 'Thunder' | 'Wind';
 
+export type AvatarConfigRarity = 'CombatPowerAvatarRarityType4' | 'CombatPowerAvatarRarityType5';
+
 export interface AvatarConfig {
-  AIPath: string,
-  ActionAvatarHeadIconPath: string,
+  AvatarId: number,
+  AvatarVOTag: string,
   AdventurePlayerId: number,
-  AssistBgOffset: number[],
-  AssistOffset: number[],
   AvatarBaseType: AvatarBaseType,
+  DamageType: AvatarDamageType,
+  Rarity: AvatarConfigRarity,
+  MaxPromotion: number,
+  MaxRank: number,
+  RankIdList: number[],
+  Release: boolean,
+  SPNeedValue: number,
+
+  // Icons:
+  ActionAvatarHeadIconPath: string,
+  AvatarMiniIconPath: string,
+  AvatarSideIconPath: string,
+  DefaultAvatarHeadIconPath: string,
+  SideAvatarHeadIconPath: string,
+  WaitingAvatarHeadIconPath: string,
+  AvatarGachaResultImgPath: string,
   AvatarCutinBgImgPath: string,
   AvatarCutinFrontImgPath: string,
   AvatarCutinImgPath: string,
-  AvatarCutinIntroTextMapHash: number,
-  AvatarDescTextMapHash: number,
-  AvatarDropOffset: number[],
-  AvatarFullNameTextMapHash: number,
-  AvatarGachaResultImgPath: string,
-  AvatarId: number,
-  AvatarMiniIconPath: string,
+
+  // Texts:
   AvatarNameText: string,
   AvatarNameTextMapHash: number,
+
+  AvatarDescText: string,
+  AvatarDescTextMapHash: number,
+
+  AvatarFullNameText: string,
+  AvatarFullNameTextMapHash: number,
+
+  AvatarCutinIntroText: string,
+  AvatarCutinIntroTextMapHash: number,
+
+  // Offets:
+  AssistBgOffset: number[],
+  AssistOffset: number[],
+  AvatarDropOffset: number[],
   AvatarSelfShowOffset: number[],
-  AvatarSideIconPath: string,
   AvatarTrialOffset: number[],
-  AvatarVOTag: string,
-  DamageType: AvatarDamageType,
+  PlayerCardOffset: number[],
+
+  // Other:
+  AIPath: string,
   DamageTypeResistance: never,
-  DefaultAvatarHeadIconPath: string,
   DefaultAvatarModelPath: string,
   ExpGroup: number,
   JsonPath: string,
   ManikinJsonPath: string,
-  MaxPromotion: number,
-  MaxRank: number,
-  PlayerCardOffset: number[],
-  RankIdList: number[],
-  Rarity: string,
-  Release: boolean,
+
+  // Reward:
   RewardList: { ItemId: number, ItemNum: number }[],
   RewardListMax: { ItemId: number, ItemNum: number }[],
-  SPNeedValue: number,
-  SideAvatarHeadIconPath: string,
+
+  // Skill:
   SkillList: number[],
   SkilltreePrefabPath: string,
   UIAvatarModelPath: string,
   UltraSkillCutInPrefabPath: string,
-  WaitingAvatarHeadIconPath: string,
+}
+
+export interface AvatarVO {
+  VOTag: string,
+
+  ActionBegin: number,
+  ActionBeginAdvantage: number,
+  ActionBeginHighThreat: number,
+  LightHit: number,
+  ReceiveHealing: number,
+  Revived: number,
+  StandBy: number,
+  UltraReady: number,
+}
+
+export interface AtlasUnlockData {
+  UnlockId: number,
+  Conditions: {
+    Type: 'AvatarLevel' | 'FinishMainMission',
+    Param: string
+  }[],
+  ShowCondition: never,
+}
+
+export interface VoiceAtlas {
+  AvatarId: number,
+  VoiceId: number,
+  AudioId: number,
+  IsBattleVoice: boolean,
+
+  AudioEvent: string,
+
+  Unlock: number, // AtlasUnlockData -> UnlockId
+  UnlockData?: AtlasUnlockData, // custom
+
+  VoiceTitleText: string,
+  VoiceTitleTextMapHash: number,
+
+  UnlockDescText: string,
+  UnlockDescTextMapHash: number,
+
+  VoiceMText: string,
+  VoiceMTextMapHash: number,
+
+  VoiceFText: string,
+  VoiceFTextMapHash: number,
 }

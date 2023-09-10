@@ -8,28 +8,38 @@ import { AvatarExcelConfigData } from '../../../../shared/types/genshin/avatar-t
 import { getAvatar, getAvatars, getCompanion } from '../../../middleware/genshin/genshinAvatarUtil';
 import { queryTab } from '../../../middleware/util/queryTab';
 import { Request, Response, Router } from 'express';
+import {
+  CommonAvatar,
+  toCommonAvatarFromGenshin,
+  toCommonAvatarsFromGenshin,
+} from '../../../../shared/types/common-types';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
 
   router.get('/character/VO', async (req: Request, res: Response) => {
+    const ctrl = getGenshinControl(req);
+    const avatars: CommonAvatar[] = toCommonAvatarsFromGenshin(await getAvatars(ctrl));
+
     res.render('pages/genshin/character/vo-tool', {
       title: 'Character VO',
       bodyClass: ['page--wide', 'page--vo-tool'],
-      avatars: await getAvatars(getGenshinControl(req)),
-      avatar: null
+      avatars,
+      avatar: null,
+      tab: null
     });
   });
 
   router.get('/character/VO/:avatar', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
-    const avatar: AvatarExcelConfigData = await getAvatar(ctrl, req);
+    const avatars: CommonAvatar[] = toCommonAvatarsFromGenshin(await getAvatars(ctrl));
+    const avatar: CommonAvatar = toCommonAvatarFromGenshin(await getAvatar(ctrl, req));
 
     res.render('pages/genshin/character/vo-tool', {
       title: (avatar ? avatar.NameText +  ' - ' : '') + 'Character VO',
       bodyClass: ['page--wide', 'page--vo-tool'],
-      avatars: await getAvatars(ctrl),
-      avatar: avatar,
+      avatars,
+      avatar,
       tab: queryTab(req, 'visual', 'wikitext'),
     });
   });

@@ -93,8 +93,8 @@ export interface FetterExcelConfigData extends FetterWithConditions {
   VoiceFilePath?: string,
 
   // Custom Other Languages:
-  VoiceTitleTextMap?: LangCodeMap,
-  VoiceFileTextMap?: LangCodeMap,
+  VoiceTitleTextMap?: LangCodeMap, // used by VO-Tool
+  VoiceFileTextMap?: LangCodeMap, // used by VO-Tool
   VoiceTitleLockedTextMap?: LangCodeMap,
 
   // Custom:

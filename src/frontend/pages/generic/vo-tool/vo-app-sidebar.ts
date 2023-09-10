@@ -1,7 +1,7 @@
 import { startListeners } from '../../../util/eventLoader';
 import { VoAppState } from './vo-tool';
 
-export function VoAppSidebar(state: VoAppState) {
+export function VoAppSidebar(_state: VoAppState) {
   const allRows: HTMLElement[] = Array.from(document.querySelectorAll('.vo-toolbar-sidebar-avatar'));
   const pendingIconEl = document.getElementById('vo-toolbar-sidebar-search-pending');
 
@@ -12,7 +12,7 @@ export function VoAppSidebar(state: VoAppState) {
     {
       el: '#vo-toolbar-sidebar-search',
       ev: 'input',
-      fn: function(event: InputEvent, target: HTMLInputElement) {
+      fn: function(_event: InputEvent, target: HTMLInputElement) {
         clearTimeout(debounceId);
         pendingIconEl.classList.remove('hide');
 

@@ -5,14 +5,14 @@ import { copyToClipboard, downloadObjectAsJson, downloadTextAsFile } from '../..
 import { ModalRef, modalService } from '../../../util/modalService';
 import { ucFirst } from '../../../../shared/util/stringUtil';
 import { GeneralEventBus } from '../../../generalEventBus';
-import { VoAppPreloadOptions } from './vo-app-preload';
 import { resolveObjectPath } from '../../../../shared/util/arrayUtil';
 import { LANG_CODE_TO_WIKI_CODE, LangCode } from '../../../../shared/types/lang-types';
+import { VoAppPreloadOptions } from './vo-preload-support';
 
 export function VoAppToolbar(state: VoAppState) {
   function overwriteModal(type: 'story' | 'combat') {
-    if (!state.fetters) {
-      alert('Fetters not yet loaded. Please wait a bit and then retry.');
+    if (!state.voiceItems) {
+      alert('Voice items not yet loaded. Please wait a bit and then retry.');
       return;
     }
     let opts: VoAppPreloadOptions = {};
@@ -78,7 +78,7 @@ export function VoAppToolbar(state: VoAppState) {
           resolveObjectPath(opts, inputEl.name, 'set', inputEl.value);
         }
       });
-      state.eventBus.emit('VO-Wikitext-OverwriteFromFetters', type, opts);
+      state.eventBus.emit('VO-Wikitext-OverwriteFromVoiceItems', type, opts);
     });
   }
   startListeners([
@@ -111,22 +111,22 @@ export function VoAppToolbar(state: VoAppState) {
       }
     },
     {
-      el: '#vo-app-load-fromStoryFetters',
+      el: '#vo-app-load-from-story',
       ev: 'click',
       fn: function() {
-        if (!state.fetters) {
-          alert('Fetters not yet loaded. Please wait a bit and then retry.');
+        if (!state.voiceItems) {
+          alert('Voice items not yet loaded. Please wait a bit and then retry.');
           return;
         }
         overwriteModal('story');
       }
     },
     {
-      el: '#vo-app-load-fromCombatFetters',
+      el: '#vo-app-load-from-combat',
       ev: 'click',
       fn: function() {
-        if (!state.fetters) {
-          alert('Fetters not yet loaded. Please wait a bit and then retry.');
+        if (!state.voiceItems) {
+          alert('Voice items not yet loaded. Please wait a bit and then retry.');
           return;
         }
         overwriteModal('combat');
@@ -156,15 +156,15 @@ export function VoAppToolbar(state: VoAppState) {
       }
     },
     {
-      el: '#vo-app-export-fetters',
+      el: '#vo-app-export-json',
       ev: 'click',
       fn: function() {
-        if (!state.fetters) {
-          alert('Fetters not yet loaded. Please wait a bit and then retry.');
+        if (!state.voiceItems) {
+          alert('Voice items not yet loaded. Please wait a bit and then retry.');
           return;
         }
         let wtAvatarName = state.avatar.NameText.replace(/ /g, '_');
-        downloadObjectAsJson(state.fetters, `${wtAvatarName}_Fetters.json`, 2);
+        downloadObjectAsJson(state.voiceItems, `${wtAvatarName}_VoiceItems.json`, 2);
       }
     }
   ]);

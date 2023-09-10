@@ -6,8 +6,8 @@ import { VoHandle } from './vo-handle';
 import { mwParse } from '../../../../shared/mediawiki/mwParse';
 import { MwTemplateNode } from '../../../../shared/mediawiki/mwTypes';
 import Cookies from 'js-cookie';
-import { preloadFromFetters, VoAppPreloadOptions } from './vo-app-preload';
 import { DEFAULT_LANG, LangCode } from '../../../../shared/types/lang-types';
+import { VoAppPreloadOptions, VoAppPreloadResult } from './vo-preload-support';
 
 function compareTemplateName(t1: string, t2: string) {
   return t1?.toLowerCase()?.replace(/_/g, ' ') === t2?.toLowerCase()?.replace(/_/g, ' ');
@@ -118,11 +118,11 @@ export function VoAppWikitextEditor(state: VoAppState) {
       localSave();
     }
   });
-  state.eventBus.on('VO-Wikitext-OverwriteFromFetters', (requestedMode: string, opts: VoAppPreloadOptions = {}) => {
-    if (!state.fetters) {
+  state.eventBus.on('VO-Wikitext-OverwriteFromVoiceItems', (requestedMode: string, opts: VoAppPreloadOptions = {}) => {
+    if (!state.voiceItems) {
       return;
     }
-    console.log('[VO-App] Received OverwriteFromFetters with mode ' + requestedMode + ' and options:', opts);
+    console.log('[VO-App] Received OverwriteFromVoiceItems with mode ' + requestedMode + ' and options:', opts);
     let voLang: LangCode = state.voLang;
     let userLang: LangCode = (Cookies.get('outputLangCode') || DEFAULT_LANG) as LangCode;
     let mode: 'story' | 'combat' = null;
@@ -134,7 +134,7 @@ export function VoAppWikitextEditor(state: VoAppState) {
       return;
     }
 
-    let result = preloadFromFetters(state.fetters, mode, voLang, userLang, opts);
+    let result: VoAppPreloadResult = state.config.preloader(state, mode, voLang, userLang, opts);
     let parsedResult: MwTemplateNode = mwParse(result.wikitext).findTemplateNodes()[0];
 
     let wikitext = mwParse(editor.getValue());
@@ -149,7 +149,7 @@ export function VoAppWikitextEditor(state: VoAppState) {
     let scrollTop = editor.session.getScrollTop();
     if (templateFound) {
       let stringified = wikitext.toString();
-      console.log('[VO-App] Replaced {{' + templateFound.templateName + '}} in wikitext with load from fetters.', { stringified });
+      console.log('[VO-App] Replaced {{' + templateFound.templateName + '}} in wikitext with load from voice items.', { stringified });
       editor.setValue(stringified, -1);
       editor.resize();
       editor.session.setScrollTop(scrollTop);
@@ -157,7 +157,7 @@ export function VoAppWikitextEditor(state: VoAppState) {
       state.eventBus.emit('VO-Visual-Reload', editor.getValue());
     } else {
       let stringified = (editor.getValue() + '\n\n' + result.wikitext).trimStart();
-      console.log('[VO-App] Appended {{' + result.templateName + '}} to wikitext with load from fetters.', { stringified });
+      console.log('[VO-App] Appended {{' + result.templateName + '}} to wikitext with load from voice items.', { stringified });
       editor.setValue(stringified, -1);
       editor.resize();
       editor.session.setScrollTop(scrollTop);

@@ -1,0 +1,198 @@
+<div id="vo-tool-outer">
+  <div id="vo-tool-sidebar" class="card">
+    <h2 class="valign">
+      <span>Character VO Tool</span>
+      <span class="grow"></span>
+      <button id="vo-tool-sidebar-mobile-toggle" class="secondary" ui-action="toggle-class: #vo-tool-sidebar, mobile">
+        <span class="toggle-show-text">Show Character List</span>
+        <span class="toggle-hide-text">Hide Character List</span>
+      </button>
+    </h2>
+    <div id="vo-tool-sidebar-search" class="content">
+      <div class="field">
+        <div class="posRel">
+          <input id="vo-toolbar-sidebar-search" type="text" class="w100p" placeholder="Search characters..." />
+          <span id="vo-toolbar-sidebar-search-pending" class="loading small posAbs hide" style="right:10px;top:0;bottom:0;margin:auto"></span>
+        </div>
+      </div>
+    </div>
+    <div id="vo-tool-sidebar-list" class="content">
+      <a role="button" class="secondary dispFlex textAlignLeft" href="/character/VO">
+        <span class="icon framed valign halign"><%- icon('home') %></span>
+        <span class="spacer10-left">VO Tool Home</span>
+      </a>
+      <% for (let avatar of avatars) { %>
+        <a id="vo-toolbar-sidebar-avatar-<%= avatar.Id %>" data-name="<%= avatar.NameText %>"
+           class="vo-toolbar-sidebar-avatar secondary dispFlex textAlignLeft"
+           href="/character/VO/<%= avatar.NameText.replace(' ', '_') %>"
+           role="button">
+          <img class="icon x28" src="<%= avatar.ImagePathPrefix %><%= avatar.IconName %>.png" loading="lazy" decoding="async" />
+          <span class="spacer10-left"><%= avatar.NameText %></span>
+        </a>
+      <% } %>
+    </div>
+  </div>
+  <script nonce="<%= req.context.nonce %>">window.avatars = [].concat(<%- JSON.stringify(avatars) %>);</script>
+  <% if (avatar) { %>
+    <script nonce="<%= req.context.nonce %>">window.avatar = Object.assign({}, <%- JSON.stringify(avatar) %>);</script>
+  <% } else { %>
+    <script nonce="<%= req.context.nonce %>">window.avatar = null;</script>
+  <% } %>
+  <template id="drag-handle-template"><%- dragHandle() %></template>
+  <template id="icon-add"><%- icon('plus') %></template>
+  <template id="icon-trash"><%- icon('trash-2') %></template>
+  <template id="icon-chevron-up"><%- icon('chevron-up') %></template>
+  <template id="icon-chevron-down"><%- icon('chevron-down') %></template>
+  <template id="file-prop-config">
+    <%- include('partials/util/file-format-options', {paramName: 'image', cookieName: 'FileFormat.viewpoint.image', fileFormatParams: locals.fileFormatParams, fileFormatDefault: locals.fileFormatDefault_image}) %>
+  </template>
+  <div id="vo-app">
+    <% if (!avatar) { %>
+      <div id="vo-app-welcome">
+        <div class="card">
+          <h2>Welcome to the character VO app</h2>
+          <div class="content" style="max-width:800px">
+            <p>To get started, select a character in the left-hand sidebar.</p>
+            <div id="vo-app-welcome-recent" class="hide">
+              <hr class="spacer15-vert" />
+              <p class="spacer5-bottom">Characters you have saved local data for:</p>
+              <div id="vo-app-welcome-recent-list" class="alignStart flexWrap"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Start from wikitext</h2>
+          <div class="content" style="max-width:800px">
+            <p>
+              Or if you have an existing VO template, you can paste it below, and it'll identify the character
+              from the template parameters.</p>
+            <p>You can also paste the entire article, and it'll find the correct template.</p>
+          </div>
+          <div>
+            <hr />
+            <div id="welcome-wt-input" style="width:100%;height:40vh"></div>
+            <hr />
+          </div>
+          <div class="content">
+            <div class="buttons valign">
+              <button id="welcome-wt-submit" class="primary">Go!</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% } else { %>
+      <div id="vo-app-toolbar" class="card alignStretch spacer15-bottom">
+        <div class="vo-app-toolbar-avatarName valign secondary-label">
+          <img class="icon x32" src="<%= avatar.ImagePathPrefix %><%= avatar.IconName %>.png" loading="lazy" decoding="async" />
+          <strong><%= avatar.NameText %></strong>
+        </div>
+        <div class="vo-app-toolbar-buttons valign">
+          <div class="vo-app-toolbar-button valign spacer10-left posRel">
+            <button id="vo-app-load-button" class="secondary border-light" ui-action="dropdown: #vo-app-load-dropdown">
+              <span class="spacer5-right">Load</span>
+              <%- icon('chevron-down') %>
+            </button>
+            <div id="vo-app-load-dropdown" class="ui-dropdown">
+              <div id="vo-app-load-fromWikitext" class="option" ui-action="close-dropdowns">Load from wikitext</div>
+              <div class="option-sep"></div>
+              <div id="vo-app-load-from-story" class="option" ui-action="close-dropdowns">Load from story voice items</div>
+              <div id="vo-app-load-from-combat" class="option" ui-action="close-dropdowns">Load from combat voice items</div>
+            </div>
+          </div>
+          <div class="vo-app-toolbar-button valign spacer10-left posRel">
+            <button id="vo-app-export-button" class="secondary border-light" ui-action="dropdown: #vo-app-export-dropdown">
+              <span class="spacer5-right">Export</span>
+              <%- icon('chevron-down') %>
+            </button>
+            <div id="vo-app-export-dropdown" class="ui-dropdown">
+              <div id="vo-app-export-copyText" class="option" ui-action="close-dropdowns">Copy Wikitext</div>
+              <div id="vo-app-export-saveFile" class="option" ui-action="close-dropdowns">Save Wikitext to file</div>
+              <div class="option-sep"></div>
+              <div id="vo-app-export-json" class="option" ui-action="close-dropdowns">Export Voice Items JSON to file</div>
+            </div>
+          </div>
+          <div class="vo-app-toolbar-button valign spacer10-left posRel">
+            <button id="vo-app-language-button" class="secondary border-light" ui-action="dropdown: #vo-app-language-dropdown">
+              <b>VO Language:&nbsp;</b>
+              <span id="vo-app-language-current" class="spacer5-right current-option"><%= cookie('VO-App-LangText', 'English') %></span>
+              <%- icon('chevron-down') %>
+            </button>
+            <div id="vo-app-language-dropdown" class="ui-dropdown">
+              <div class="vo-app-language-option option <%= cookieTernary('VO-App-LangCode').equals('EN').or.isEmpty().then('selected') %>"
+                   ui-action="close-dropdowns" data-value="EN">English</div>
+              <div class="vo-app-language-option option <%= cookieTernary('VO-App-LangCode').equals('CH').then('selected') %>"
+                   ui-action="close-dropdowns" data-value="CH">Chinese</div>
+              <div class="vo-app-language-option option <%= cookieTernary('VO-App-LangCode').equals('JP').then('selected') %>"
+                   ui-action="close-dropdowns" data-value="JP">Japanese</div>
+              <div class="vo-app-language-option option <%= cookieTernary('VO-App-LangCode').equals('KR').then('selected') %>"
+                   ui-action="close-dropdowns" data-value="KR">Korean</div>
+            </div>
+          </div>
+
+          <div class="vo-app-toolbar-button valign spacer10-left posRel" data-control="outputLangCode" ui-tippy="Same as &quot;Output Language&quot;">
+            <button id="vo-app-interfacelang-button" class="secondary border-light" ui-action="dropdown: #vo-app-interfacelang-dropdown">
+              <b>Interface Language:&nbsp;</b>
+              <span id="vo-app-interfacelang-current" class="spacer5-right current-option"
+                    data-value="<%= req.context.outputLangCode %>">
+                  <%= req.context.languages[req.context.outputLangCode] %>
+                </span>
+              <%- icon('chevron-down') %>
+            </button>
+            <div id="vo-app-interfacelang-dropdown" class="ui-dropdown">
+              <% Object.keys(req.context.languages).forEach(langCode => { %>
+                <div class="vo-app-interfacelang-option option <%= req.context.outputLangCode === langCode ? 'selected' : '' %>"
+                     ui-action="close-dropdowns" data-value="<%= langCode %>"><%= req.context.languages[langCode] %></div>
+              <% }) %>
+            </div>
+          </div>
+        </div>
+        <div class="grow"></div>
+        <div class="vo-app-toolbar-buttons valign">
+          <div id="vo-app-loading-status" class="valign">
+            <div class="loading"></div>
+            <div class="spacer5-left">Loading voice items...</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-list" role="tablist">
+        <button role="tab" id="tab-visual" class="tab <%= tab === 'visual' ? 'active' : '' %>"
+                ui-action="tab: #tabpanel-visual, voAppTabs; set-query-param: tab=visual">Visual Editor</button>
+        <button role="tab" id="tab-wikitext" class="tab <%= tab === 'wikitext' ? 'active' : '' %>"
+                ui-action="tab: #tabpanel-wikitext, voAppTabs; set-query-param: tab=wikitext">Wikitext Editor</button>
+      </div>
+      <div id="vo-app-visualEditorReloadError-story" class="card hide" style="margin-bottom:1px">
+        <div class="content"></div>
+      </div>
+      <div id="vo-app-visualEditorReloadError-combat" class="card hide" style="margin-bottom:1px">
+        <div class="content"></div>
+      </div>
+      <div role="tabpanel" aria-labelledby="tab-visual" class="tabpanel <%= tab === 'visual' ? 'active' : 'hide' %>" id="tabpanel-visual">
+        <div class="card" id="vo-editor">
+          <h2>Story Groups</h2>
+          <div class="content">
+            <div id="vo-story-groups" class="vo-handle-area"></div>
+          </div>
+          <h2>Combat Groups</h2>
+          <div class="content">
+            <div id="vo-combat-groups" class="vo-handle-area"></div>
+          </div>
+        </div>
+      </div>
+      <div role="tabpanel" aria-labelledby="tab-wikitext" class="tabpanel <%= tab === 'wikitext' ? 'active' : 'hide' %>" id="tabpanel-wikitext">
+        <div class="card">
+          <div class="content valign" style="padding:5px;">
+            <p class="info-notice grow spacer10-right" style="font-size:14px;line-height:14px">
+              Any changes made here with be automatically be reflected in the visual editor, and vice-versa.
+            </p>
+            <button id="wikitext-reformat-button" class="secondary">Reformat</button>
+          </div>
+          <div>
+            <hr />
+            <div id="wikitext-editor" style="width:100%;height:75vh"></div>
+          </div>
+        </div>
+      </div>
+    <% } %>
+  </div>
+</div>
