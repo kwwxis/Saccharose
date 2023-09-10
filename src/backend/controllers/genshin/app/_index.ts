@@ -1,10 +1,10 @@
 import { create } from '../../../routing/router';
-import BasicRouter from './BasicRouter';
-import DialogueRouter from './DialogueRouter';
-import ItemRouter from './ArchiveRouter';
-import CharacterRouter from './CharacterRouter';
+import BasicRouter from './GenshinBasicRouter';
+import DialogueRouter from './GenshinDialogueRouter';
+import ItemRouter from './GenshinArchiveRouter';
+import CharacterRouter from './GenshinCharacterRouter';
 import TcgRouter from './TcgRouter';
-import MediaRouter from './MediaRouter';
+import MediaRouter from './GenshinMediaRouter';
 import { Router } from 'express';
 
 export default async function(): Promise<Router> {

@@ -1,5 +1,5 @@
 import { flashTippy } from '../util/tooltips';
-import { errorHtmlWrap, genshinEndpoints, SaccharoseApiEndpoint } from '../endpoints';
+import { errorHtmlWrap, SaccharoseApiEndpoint } from '../endpoints';
 import { Listener, startListeners } from '../util/eventLoader';
 import { GeneralEventBus } from '../generalEventBus';
 import { HttpError } from '../../shared/util/httpError';
@@ -8,9 +8,9 @@ import { toBoolean } from '../../shared/util/genericUtil';
 
 export interface GenericSearchPageHandle {
   generateResult(caller: string): void;
-  loadResultFromURL();
-  loadResultFromState(state: any);
-  clearResult();
+  loadResultFromURL(): void;
+  loadResultFromState(state: any): void;
+  clearResult(): void;
 }
 
 export type GenericSearchPageParamOpt<T> = {

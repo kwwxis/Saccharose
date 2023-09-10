@@ -18,19 +18,31 @@ import { sort } from '../../../shared/util/arrayUtil';
 import { NormTextOptions } from '../generic/genericNormalizers';
 import { Request } from 'express';
 import { logInitData } from '../../util/logger';
+import { AvatarConfig } from '../../../shared/types/hsr/hsr-avatar-types';
+
+// region Control State
+// --------------------------------------------------------------------------------------------------------------
 
 /**
  * State/cache for only a single control
  */
 export class StarRailControlState extends AbstractControlState {
+  // Cache:
+  avatarCache:   {[Id: number]: AvatarConfig} = {};
 
+  // Preferences:
+  DisableAvatarCache: boolean = false;
 }
 
 export function getStarRailControl(request?: Request) {
   return new StarRailControl(request);
 }
+// endregion
 
+// region Control Object
+// --------------------------------------------------------------------------------------------------------------
 export class StarRailControl extends AbstractControl<StarRailControlState> {
+  // region Constructor
   readonly voice: StarRailVoice;
 
   constructor(request?: Request) {
@@ -51,7 +63,9 @@ export class StarRailControl extends AbstractControl<StarRailControlState> {
     }
     return __normStarRailText(text, langCode, opts);
   }
+  // endregion
 
+  // region Post Process
   override async postProcess<T>(object: T, triggerNormalize?: SchemaTable, doNormText: boolean = false): Promise<T> {
     if (!object)
       return object;
@@ -89,6 +103,34 @@ export class StarRailControl extends AbstractControl<StarRailControlState> {
     }
     return object;
   }
+  // endregion
+
+  // region Avatars
+  private async postProcessAvatar(avatar: AvatarConfig): Promise<AvatarConfig> {
+    avatar.BaseTypeData = await this.knex.select('*').from('AvatarBaseType')
+      .where({Id: avatar.BaseType}).first().then(this.commonLoadFirst);
+    return avatar;
+  }
+
+  async selectAllAvatars(): Promise<AvatarConfig[]> {
+    return await this.knex.select('*').from('AvatarConfig')
+      .then(this.commonLoad)
+      .then((avatars: AvatarConfig[]) => avatars.asyncMap(a => this.postProcessAvatar(a)));
+  }
+
+  async selectAvatarById(id: number): Promise<AvatarConfig> {
+    if (this.state.avatarCache.hasOwnProperty(id)) {
+      return this.state.avatarCache[id];
+    }
+    let avatar: AvatarConfig = await this.knex.select('*').from('AvatarConfig')
+      .where({Id: id}).first().then(this.commonLoadFirst);
+    avatar = await this.postProcessAvatar(avatar);
+    if (!this.state.DisableAvatarCache) {
+      this.state.avatarCache[id] = avatar;
+    }
+    return avatar;
+  }
+  // endregion
 
   async getLoadingTips(): Promise<{[category: string]: string[]}> {
     const out: {[category: string]: string[]} = defaultMap('Array');
@@ -106,8 +148,9 @@ export class StarRailControl extends AbstractControl<StarRailControlState> {
     return out;
   }
 }
+// endregion
 
-// Voice Items
+// region Voice Items
 // --------------------------------------------------------------------------------------------------------------
 
 const HSR_VOICE_ITEMS: VoiceItemFlatMap = {};
@@ -184,3 +227,4 @@ export class StarRailVoice {
     return voPrefix;
   }
 }
+// endregion

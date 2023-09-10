@@ -29,6 +29,8 @@ import './pages/genshin/archive/furniture-list';
 import './pages/genshin/character/genshin-vo-tool';
 import './pages/genshin/media/media-search.page';
 
+import './pages/hsr/character/hsr-vo-tool';
+
 import { escapeHtml } from '../shared/util/stringUtil';
 (<any> window).escapeHtml = escapeHtml;
 

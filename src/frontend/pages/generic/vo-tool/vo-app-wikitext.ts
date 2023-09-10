@@ -37,7 +37,7 @@ export function VoAppWikitextEditor(state: VoAppState) {
 
   function localLoad(isFirstLoad: boolean = false) {
     console.log('[VO-App] Wikitext Local Load');
-    let localStorageValue = window.localStorage.getItem('CHAR_VO_WIKITEXT_' + state.voLang + '_' + state.avatar.Id);
+    let localStorageValue = window.localStorage.getItem(state.config.storagePrefix + 'CHAR_VO_WIKITEXT_' + state.voLang + '_' + state.avatar.Id);
 
     if (localStorageValue) {
       editor.setValue(localStorageValue, -1);
@@ -54,7 +54,7 @@ export function VoAppWikitextEditor(state: VoAppState) {
   function localSave() {
     console.log('[VO-App] Wikitext Local Save');
     let editorValue = editor.getValue();
-    let localKey = 'CHAR_VO_WIKITEXT_' + state.voLang + '_' + state.avatar.Id;
+    let localKey = state.config.storagePrefix + 'CHAR_VO_WIKITEXT_' + state.voLang + '_' + state.avatar.Id;
     let timeKey = localKey + '_UPDATETIME';
 
     if (!editorValue || !editorValue.trim()) {

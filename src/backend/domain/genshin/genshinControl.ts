@@ -17,8 +17,8 @@ import {
   pairArrays,
   sort,
 } from '../../../shared/util/arrayUtil';
-import { isInt, toInt, toNumber } from '../../../shared/util/numberUtil';
-import { normalizeRawJson, normalizeRawJsonKey, SchemaTable } from '../../importer/import_db';
+import { isInt, toInt } from '../../../shared/util/numberUtil';
+import { normalizeRawJson, SchemaTable } from '../../importer/import_db';
 import {
   extractRomanNumeral,
   isStringBlank,
@@ -62,7 +62,7 @@ import {
   HomeWorldFurnitureTypeExcelConfigData, HomeWorldFurnitureTypeTree,
   HomeWorldNPCExcelConfigData,
 } from '../../../shared/types/genshin/homeworld-types';
-import { grep, grepIdStartsWith, grepStream } from '../../util/shellutil';
+import { grepIdStartsWith, grepStream } from '../../util/shellutil';
 import {
   DATAFILE_GENSHIN_VOICE_ITEMS,
   getGenshinDataFilePath,
@@ -105,16 +105,12 @@ import { AbstractControl, AbstractControlState } from '../abstractControl';
 import debug from 'debug';
 import { LangCode, TextMapHash, VoiceItem, VoiceItemArrayMap } from '../../../shared/types/lang-types';
 import {
-  GCGTagCampType,
   GCGTagElementType,
-  GCGTagNationType,
   GCGTagWeaponType,
 } from '../../../shared/types/genshin/gcg-types';
 import path from 'path';
 import {
-  RAW_DIALOG_EXCEL_ID_PROP,
   RAW_MANUAL_TEXTMAP_ID_PROP,
-  RAW_TALK_EXCEL_ID_PROP,
 } from '../../importer/genshin/genshin.schema';
 import { cached } from '../../util/cache';
 import { NormTextOptions } from '../generic/genericNormalizers';
@@ -123,6 +119,9 @@ import {
   AchievementGoalExcelConfigData, AchievementsByGoals,
 } from '../../../shared/types/genshin/achievement-types';
 import { Request } from 'express';
+
+// region Control State
+// --------------------------------------------------------------------------------------------------------------
 
 /**
  * State/cache for only a single control
@@ -145,9 +144,14 @@ export class GenshinControlState extends AbstractControlState {
 export function getGenshinControl(request?: Request) {
   return new GenshinControl(request);
 }
+// endregion
 
+// region Control Object
+// --------------------------------------------------------------------------------------------------------------
 // TODO: Make this not a god object
 export class GenshinControl extends AbstractControl<GenshinControlState> {
+
+  // region Constructor
   readonly voice = new GenshinVoice();
 
   constructor(request?: Request) {
@@ -162,7 +166,9 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   override normText(text: string, langCode: LangCode, opts: NormTextOptions = {}): string {
     return __normGenshinText(text, langCode, opts);
   }
+  // endregion
 
+  // region Post Process
   postProcessCondProp(obj: any, prop: string) {
     if (!Array.isArray(obj[prop])) {
       return;
@@ -323,6 +329,16 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return object;
   }
 
+  async getElementName(elementType: ElementType|GCGTagElementType, langCode: LangCode = 'EN'): Promise<string> {
+    let hash = ManualTextMapHashes[elementType];
+    if (!hash) {
+      hash = ManualTextMapHashes['None'];
+    }
+    return await this.getTextMapItem(langCode, hash);
+  }
+  // endregion
+
+  // region NPC
   async getNpc(npcId: number): Promise<NpcExcelConfigData> {
     if (!npcId) return null;
     return await this.getNpcList([ npcId ]).then(x => x && x.length ? x[0] : null);
@@ -344,6 +360,19 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return cachedList.concat(uncachedList);
   }
 
+  async selectNpcListByName(nameOrTextMapHash: TextMapHash|TextMapHash[]): Promise<NpcExcelConfigData[]> {
+    if (typeof nameOrTextMapHash === 'string') {
+      nameOrTextMapHash = await this.findTextMapHashesByExactName(nameOrTextMapHash);
+    }
+    if (typeof nameOrTextMapHash === 'number') {
+      nameOrTextMapHash = [ nameOrTextMapHash ];
+    }
+    return await this.knex.select('*').from('NpcExcelConfigData')
+      .whereIn('NameTextMapHash', nameOrTextMapHash).then(this.commonLoad);
+  }
+  // endregion
+
+  // region Main Quest Excel
   private postProcessMainQuest(mainQuest: MainQuestExcelConfigData): MainQuestExcelConfigData {
     if (!mainQuest) {
       return mainQuest;
@@ -378,30 +407,6 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     }
   }
 
-  async getFactionName(factionType: GCGTagNationType|GCGTagCampType, langCode: LangCode = 'EN'): Promise<string> {
-    let hash = ManualTextMapHashes[factionType];
-    if (!hash) {
-      hash = ManualTextMapHashes['None'];
-    }
-    return await this.getTextMapItem(langCode, hash);
-  }
-
-  async getElementName(elementType: ElementType|GCGTagElementType, langCode: LangCode = 'EN'): Promise<string> {
-    let hash = ManualTextMapHashes[elementType];
-    if (!hash) {
-      hash = ManualTextMapHashes['None'];
-    }
-    return await this.getTextMapItem(langCode, hash);
-  }
-
-  async getWeaponType(weaponType: WeaponType|WeaponTypeEN|GCGTagWeaponType, langCode: LangCode = 'EN'): Promise<string> {
-    let hash = ManualTextMapHashes[weaponType];
-    if (!hash) {
-      hash = ManualTextMapHashes['None'];
-    }
-    return await this.getTextMapItem(langCode, hash);
-  }
-
   async doesQuestExist(id: number): Promise<boolean> {
     let result = await this.knex.select('*').from('MainQuestExcelConfigData')
       .where({Id: id}).first();
@@ -433,6 +438,31 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       .where({Series: series}).then(this.commonLoad).then(x => this.postProcessMainQuests(x));
   }
 
+  async selectReputationQuestExcelConfigData(parentQuestId: number): Promise<ReputationQuestExcelConfigData> {
+    let rep: ReputationQuestExcelConfigData = await this.knex.select('*')
+      .from('ReputationQuestExcelConfigData')
+      .where({ParentQuestId: parentQuestId})
+      .first().then(this.commonLoadFirst);
+
+    if (!rep) {
+      return null;
+    }
+
+    let cityName = await this.selectCityNameById(rep.CityId);
+    let reward = await this.selectRewardExcelConfigData(rep.RewardId);
+
+    rep.QuestForm =
+      `|rep           = ${cityName}\n` +
+      `|repAmt        = ${reward.RewardItemList[0].ItemCount}\n` +
+      `|repOrder      = ${rep.Order}`;
+    rep.QuestFormWithTitle = rep.QuestForm + `\n` +
+      `|repTitle      = ${rep.TitleText}`;
+
+    return rep;
+  }
+  // endregion
+
+  // region Quest Excel
   async selectAllQuestExcelConfigDataByMainQuestId(id: number): Promise<QuestExcelConfigData[]> {
     return await this.knex.select('*').from('QuestExcelConfigData')
       .where({MainId: id}).then(this.commonLoad)
@@ -446,12 +476,16 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return await this.knex.select('*').from('QuestExcelConfigData')
       .where({SubId: id}).first().then(this.commonLoadFirst);
   }
+  // endregion
 
+  // region Manual Text Map
   async selectManualTextMapConfigDataById(id: string): Promise<ManualTextMapConfigData> {
     return await this.knex.select('*').from('ManualTextMapConfigData')
       .where({TextMapId: id}).first().then(this.commonLoadFirst);
   }
+  // endregion
 
+  // region Talk Excel
   async selectTalkExcelConfigDataById(id: number, loadType: TalkLoadType = null): Promise<TalkExcelConfigData> {
     return await this.knex.select('*').from('TalkExcelConfigData')
       .where(cleanEmpty({Id: id, LoadType: loadType}))
@@ -474,6 +508,20 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       .where(cleanEmpty({InitDialog: firstDialogueId, LoadType: loadType})).then(this.commonLoad);
   }
 
+  async selectTalkExcelConfigDataByQuestId(questId: number, loadType: TalkLoadType = null): Promise<TalkExcelConfigData[]> {
+    return await this.knex.select('*').from('TalkExcelConfigData')
+      .where(cleanEmpty({QuestId: questId, LoadType: loadType}))
+      .orWhere(cleanEmpty({QuestCondStateEqualFirst: questId, LoadType: loadType})).then(this.commonLoad);
+  }
+
+  async selectTalkExcelConfigDataByNpcId(npcId: number): Promise<TalkExcelConfigData[]> {
+    let talkIds: number[] = await this.knex.select('TalkId').from('Relation_NpcToTalk')
+      .where({NpcId: npcId}).pluck('TalkId').then();
+    return Promise.all(talkIds.map(talkId => this.selectTalkExcelConfigDataById(talkId)));
+  }
+  // endregion
+
+  // region Dialog Excel
   async selectDialogUnparentedByMainQuestId(mainQuestId: number): Promise<DialogUnparented[]> {
     return await this.knex.select('*').from('DialogUnparentedExcelConfigData')
       .where({MainQuestId: mainQuestId}).then(this.commonLoad);
@@ -484,6 +532,87 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       .where({DialogId: dialogId}).first().then(this.commonLoadFirst);
   }
 
+  private postProcessDialog(dialog: DialogExcelConfigData): DialogExcelConfigData {
+    if (dialog.TalkRole.Type !== 'TALK_ROLE_PLAYER' && !this.isBlackScreenDialog(dialog) && !dialog.TalkRole.Id) {
+      dialog.TalkRole.Type = 'TALK_ROLE_PLAYER';
+    }
+    return dialog;
+  }
+
+  async selectDialogExcelConfigDataByTalkRoleId(talkRoleId: number): Promise<DialogExcelConfigData[]> {
+    let dialogs: DialogExcelConfigData[] = await this.knex.select('*').from('DialogExcelConfigData')
+      .where({TalkRoleId: talkRoleId}).then(this.commonLoad);
+    return dialogs.map(d => this.postProcessDialog(d));
+  }
+
+  async selectDialogExcelConfigDataByTalkId(talkId: number): Promise<DialogExcelConfigData[]> {
+    let dialogs: DialogExcelConfigData[] = await this.knex.select('*').from('DialogExcelConfigData')
+      .where({TalkId: talkId}).then(this.commonLoad);
+    return dialogs.map(d => this.postProcessDialog(d));
+  }
+
+  async selectPreviousDialogs(nextId: number): Promise<DialogExcelConfigData[]> {
+    let ids: number[] = await this.knex.select('*').from('Relation_DialogToNext')
+      .where({NextId: nextId}).pluck('DialogId').then();
+    return this.selectMultipleDialogExcelConfigData(arrayUnique(ids));
+  }
+
+  async selectSingleDialogExcelConfigData(id: number): Promise<DialogExcelConfigData> {
+    let result: DialogExcelConfigData = await this.knex.select('*').from('DialogExcelConfigData')
+      .where({Id: id}).first().then(this.commonLoadFirst);
+    if (!result) {
+      return result;
+    }
+    result = this.postProcessDialog(result);
+    this.saveToDialogIdCache(result);
+    return result && result.TalkContentText ? result : null;
+  }
+
+  saveToDialogIdCache(x: DialogExcelConfigData): void {
+    this.state.dialogueIdCache.add(x.Id);
+  }
+  isInDialogIdCache(x: number|DialogExcelConfigData): boolean {
+    return this.state.dialogueIdCache.has(typeof x === 'number' ? x : x.Id);
+  }
+
+
+  async selectMultipleDialogExcelConfigData(ids: number[]): Promise<DialogExcelConfigData[]> {
+    if (!ids.length) {
+      return [];
+    }
+    return await Promise.all(ids.map(id => this.selectSingleDialogExcelConfigData(id)))
+      .then(arr => arr.filter(x => !!x && !!x.TalkContentText));
+  }
+
+  copyDialogForRecurse(node: DialogExcelConfigData) {
+    let copy: DialogExcelConfigData = JSON.parse(JSON.stringify(node));
+    copy.Recurse = true;
+    return copy;
+  }
+
+  async selectDialogsFromTextContentId(textMapHash: TextMapHash): Promise<DialogExcelConfigData[]> {
+    let results: DialogExcelConfigData[] = await this.knex.select('*').from('DialogExcelConfigData')
+      .where({TalkContentTextMapHash: textMapHash})
+      .then(this.commonLoad);
+    for (let result of results) {
+      result = this.postProcessDialog(result);
+      this.saveToDialogIdCache(result);
+    }
+    return results;
+  }
+
+  isPlayerDialogueOption(dialog: DialogExcelConfigData): boolean {
+    return dialog.TalkRole.Type === 'TALK_ROLE_PLAYER'; // && dialog.TalkShowType && dialog.TalkShowType === 'TALK_SHOW_FORCE_SELECT';
+  }
+
+  equivDialog(d1: DialogExcelConfigData, d2: DialogExcelConfigData): boolean {
+    if (!d1 || !d2) return false;
+
+    return d1.TalkContentText === d2.TalkContentText && d1.TalkRoleNameText === d2.TalkRoleNameText && d1.TalkRole.Type === d2.TalkRole.Type;
+  }
+  // endregion
+
+  // region Dialog Logic
   async addUnparentedDialogue(mainQuest: MainQuestExcelConfigData) {
     const allDialogueIds: number[] = [];
 
@@ -538,90 +667,6 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
            mainQuest.QuestMessages.push(await this.selectManualTextMapConfigDataById(id));
       }
     }
-  }
-
-  async selectTalkExcelConfigDataByQuestId(questId: number, loadType: TalkLoadType = null): Promise<TalkExcelConfigData[]> {
-    return await this.knex.select('*').from('TalkExcelConfigData')
-      .where(cleanEmpty({QuestId: questId, LoadType: loadType}))
-      .orWhere(cleanEmpty({QuestCondStateEqualFirst: questId, LoadType: loadType})).then(this.commonLoad);
-  }
-
-  async selectTalkExcelConfigDataByNpcId(npcId: number): Promise<TalkExcelConfigData[]> {
-    let talkIds: number[] = await this.knex.select('TalkId').from('Relation_NpcToTalk')
-      .where({NpcId: npcId}).pluck('TalkId').then();
-    return Promise.all(talkIds.map(talkId => this.selectTalkExcelConfigDataById(talkId)));
-  }
-
-  private postProcessDialog(dialog: DialogExcelConfigData): DialogExcelConfigData {
-    if (dialog.TalkRole.Type !== 'TALK_ROLE_PLAYER' && !this.isBlackScreenDialog(dialog) && !dialog.TalkRole.Id) {
-      dialog.TalkRole.Type = 'TALK_ROLE_PLAYER';
-    }
-    return dialog;
-  }
-
-  async selectDialogExcelConfigDataByTalkRoleId(talkRoleId: number): Promise<DialogExcelConfigData[]> {
-    let dialogs: DialogExcelConfigData[] = await this.knex.select('*').from('DialogExcelConfigData')
-      .where({TalkRoleId: talkRoleId}).then(this.commonLoad);
-    return dialogs.map(d => this.postProcessDialog(d));
-  }
-
-  async selectDialogExcelConfigDataByTalkId(talkId: number): Promise<DialogExcelConfigData[]> {
-    let dialogs: DialogExcelConfigData[] = await this.knex.select('*').from('DialogExcelConfigData')
-      .where({TalkId: talkId}).then(this.commonLoad);
-    return dialogs.map(d => this.postProcessDialog(d));
-  }
-
-  async selectPreviousDialogs(nextId: number): Promise<DialogExcelConfigData[]> {
-    let ids: number[] = await this.knex.select('*').from('Relation_DialogToNext')
-      .where({NextId: nextId}).pluck('DialogId').then();
-    return this.selectMultipleDialogExcelConfigData(arrayUnique(ids));
-  }
-
-  async selectSingleDialogExcelConfigData(id: number): Promise<DialogExcelConfigData> {
-    let result: DialogExcelConfigData = await this.knex.select('*').from('DialogExcelConfigData')
-      .where({Id: id}).first().then(this.commonLoadFirst);
-    if (!result) {
-      return result;
-    }
-    result = this.postProcessDialog(result);
-    this.saveToDialogIdCache(result);
-    return result && result.TalkContentText ? result : null;
-  }
-
-  saveToDialogIdCache(x: DialogExcelConfigData): void {
-    this.state.dialogueIdCache.add(x.Id);
-  }
-  isInDialogIdCache(x: number|DialogExcelConfigData): boolean {
-    return this.state.dialogueIdCache.has(typeof x === 'number' ? x : x.Id);
-  }
-
-  async selectMultipleDialogExcelConfigData(ids: number[]): Promise<DialogExcelConfigData[]> {
-    if (!ids.length) {
-      return [];
-    }
-    return await Promise.all(ids.map(id => this.selectSingleDialogExcelConfigData(id)))
-      .then(arr => arr.filter(x => !!x && !!x.TalkContentText));
-  }
-
-  copyDialogForRecurse(node: DialogExcelConfigData) {
-    let copy: DialogExcelConfigData = JSON.parse(JSON.stringify(node));
-    copy.Recurse = true;
-    return copy;
-  }
-
-  async selectDialogsFromTextContentId(textMapHash: TextMapHash): Promise<DialogExcelConfigData[]> {
-    let results: DialogExcelConfigData[] = await this.knex.select('*').from('DialogExcelConfigData')
-      .where({TalkContentTextMapHash: textMapHash})
-      .then(this.commonLoad);
-    for (let result of results) {
-      result = this.postProcessDialog(result);
-      this.saveToDialogIdCache(result);
-    }
-    return results;
-  }
-
-  isPlayerDialogueOption(dialog: DialogExcelConfigData): boolean {
-    return dialog.TalkRole.Type === 'TALK_ROLE_PLAYER'; // && dialog.TalkShowType && dialog.TalkShowType === 'TALK_SHOW_FORCE_SELECT';
   }
 
   async selectDialogBranch(start: DialogExcelConfigData, cache?: DialogBranchingCache, debugSource?: string|number): Promise<DialogExcelConfigData[]> {
@@ -696,17 +741,6 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       }
     }
     return currBranch;
-  }
-
-  async selectNpcListByName(nameOrTextMapHash: TextMapHash|TextMapHash[]): Promise<NpcExcelConfigData[]> {
-    if (typeof nameOrTextMapHash === 'string') {
-      nameOrTextMapHash = await this.findTextMapHashesByExactName(nameOrTextMapHash);
-    }
-    if (typeof nameOrTextMapHash === 'number') {
-      nameOrTextMapHash = [ nameOrTextMapHash ];
-    }
-    return await this.knex.select('*').from('NpcExcelConfigData')
-      .whereIn('NameTextMapHash', nameOrTextMapHash).then(this.commonLoad);
   }
 
   doesDialogHaveNpc(dialog: DialogExcelConfigData, npcNames: string[]) {
@@ -898,41 +932,17 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return out.trim();
   }
 
-  async getReadableMatches(langCode: LangCode, searchText: string, flags?: string): Promise<string[]> {
-    if (isStringBlank(searchText)) {
-      return [];
+  async selectAllQuestSummary(): Promise<QuestSummarizationTextExcelConfigData[]> {
+    if (this.state.questSummaryCache) {
+      return this.state.questSummaryCache;
     }
-
-    let out: string[] = [];
-
-    await grepStream(searchText, this.getDataFilePath(getReadableRelPath(langCode)), line => {
-      let exec = /\/([^\/]+)\.txt/.exec(line);
-      if (exec) {
-        out.push(exec[1]);
-      }
-    }, '-r ' + flags);
-
-    return out;
+    let items = await this.knex.select('*').from('QuestSummarizationTextExcelConfigData').then(this.commonLoad);
+    this.state.questSummaryCache = items;
+    return items;
   }
+  // endregion
 
-  equivDialog(d1: DialogExcelConfigData, d2: DialogExcelConfigData): boolean {
-    if (!d1 || !d2) return false;
-
-    return d1.TalkContentText === d2.TalkContentText && d1.TalkRoleNameText === d2.TalkRoleNameText && d1.TalkRole.Type === d2.TalkRole.Type;
-  }
-
-  async selectAvatarById(id: number): Promise<AvatarExcelConfigData> {
-    if (this.state.avatarCache.hasOwnProperty(id)) {
-      return this.state.avatarCache[id];
-    }
-    let avatar: AvatarExcelConfigData = await this.knex.select('*').from('AvatarExcelConfigData')
-      .where({Id: id}).first().then(this.commonLoadFirst);
-    if (!this.state.DisableAvatarCache) {
-      this.state.avatarCache[id] = avatar;
-    }
-    return avatar;
-  }
-
+  // region Monster
   async selectMonsterById(id: number): Promise<MonsterExcelConfigData> {
     let monster: MonsterExcelConfigData = await this.knex.select('*').from('MonsterExcelConfigData')
       .where({Id: id}).first().then(this.commonLoadFirst);
@@ -954,20 +964,27 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
     return monster;
   }
+  // endregion
 
-  async selectAllQuestSummary(): Promise<QuestSummarizationTextExcelConfigData[]> {
-    if (this.state.questSummaryCache) {
-      return this.state.questSummaryCache;
-    }
-    let items = await this.knex.select('*').from('QuestSummarizationTextExcelConfigData').then(this.commonLoad);
-    this.state.questSummaryCache = items;
-    return items;
-  }
-
+  // region Avatars
   async selectAllAvatars(): Promise<AvatarExcelConfigData[]> {
     return await this.knex.select('*').from('AvatarExcelConfigData').then(this.commonLoad);
   }
 
+  async selectAvatarById(id: number): Promise<AvatarExcelConfigData> {
+    if (this.state.avatarCache.hasOwnProperty(id)) {
+      return this.state.avatarCache[id];
+    }
+    let avatar: AvatarExcelConfigData = await this.knex.select('*').from('AvatarExcelConfigData')
+      .where({Id: id}).first().then(this.commonLoadFirst);
+    if (!this.state.DisableAvatarCache) {
+      this.state.avatarCache[id] = avatar;
+    }
+    return avatar;
+  }
+  // endregion
+
+  // region Reminders
   async selectAllReminders(): Promise<ReminderExcelConfigData[]> {
     return await this.knex.select('*').from('ReminderExcelConfigData').then(this.commonLoad);
   }
@@ -996,7 +1013,9 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       return null;
     }
   }
+  // endregion
 
+  // region Quest Chapters
   private async postProcessChapter(chapter: ChapterExcelConfigData): Promise<ChapterExcelConfigData> {
     if (!chapter)
       return chapter;
@@ -1126,7 +1145,9 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return await this.knex.select('*').from('ChapterExcelConfigData').where({Id: id})
       .first().then(this.commonLoadFirst).then(x => this.postProcessChapter(x));
   }
+  // endregion
 
+  // region Cutscene & SRT
   async loadCutsceneSubtitlesByQuestId(questId: number): Promise<{[fileName: string]: string}> {
     let fileNames: string[] = await fs.readdir(this.getDataFilePath('./Subtitle/'+this.outputLangCode));
 
@@ -1206,7 +1227,9 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
     return formattedResults;
   }
+  // endregion
 
+  // region HomeWorld NPC & Events
   async selectAllHomeWorldEvents(): Promise<HomeWorldEventExcelConfigData[]> {
     return await this.knex.select('*').from('HomeWorldEventExcelConfigData').then(this.commonLoad);
   }
@@ -1242,7 +1265,9 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     }
     return npc;
   }
+  // endregion
 
+  // region HomeWorld Furniture
   async selectFurniture(id: number): Promise<HomeWorldFurnitureExcelConfigData> {
     const furn: HomeWorldFurnitureExcelConfigData = await this.knex.select('*')
       .from('HomeWorldFurnitureExcelConfigData')
@@ -1392,7 +1417,9 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
     return furn;
   }
+  // endregion
 
+  // region Materials & Items
   async selectMaterialIdFromFurnitureSuiteId(furnitureSuitId: number): Promise<number> {
     return await this.knex.select('MaterialId').from('Relation_FurnitureSuiteToMaterial')
       .where({FurnitureSuiteId: furnitureSuitId}).first().then(x => x.MaterialId);
@@ -1492,7 +1519,6 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return relationMap;
   }
 
-
   private async postProcessMaterial(material: MaterialExcelConfigData, loadConf: MaterialLoadConf): Promise<MaterialExcelConfigData> {
     if (!material || !loadConf) {
       return material;
@@ -1565,7 +1591,9 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     }
     return materials;
   }
+  // endregion
 
+  // region Rewards
   async selectRewardExcelConfigData(rewardId: number): Promise<RewardExcelConfigData> {
     let reward: RewardExcelConfigData = await this.knex.select('*').from('RewardExcelConfigData')
       .where({RewardId: rewardId}).first().then(this.commonLoadFirst);
@@ -1657,7 +1685,9 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
     return reward;
   }
+  // endregion
 
+  // region City & World Area
   async selectCityNameById(cityId: number, forceLangCode?: LangCode): Promise<string> {
     let textMapHash: TextMapHash = await this.knex.select('CityNameTextMapHash')
       .from('CityConfigData').where({CityId: cityId}).first().then(x => x && x.CityNameTextMapHash);
@@ -1725,50 +1755,9 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     }
     return 0;
   }
+  // endregion
 
-  async selectReputationQuestExcelConfigData(parentQuestId: number): Promise<ReputationQuestExcelConfigData> {
-    let rep: ReputationQuestExcelConfigData = await this.knex.select('*')
-      .from('ReputationQuestExcelConfigData')
-      .where({ParentQuestId: parentQuestId})
-      .first().then(this.commonLoadFirst);
-
-    if (!rep) {
-      return null;
-    }
-
-    let cityName = await this.selectCityNameById(rep.CityId);
-    let reward = await this.selectRewardExcelConfigData(rep.RewardId);
-
-    rep.QuestForm =
-      `|rep           = ${cityName}\n` +
-      `|repAmt        = ${reward.RewardItemList[0].ItemCount}\n` +
-      `|repOrder      = ${rep.Order}`;
-    rep.QuestFormWithTitle = rep.QuestForm + `\n` +
-      `|repTitle      = ${rep.TitleText}`;
-
-    return rep;
-  }
-
-  async selectArtifactById(id: number): Promise<ReliquaryExcelConfigData> {
-    let artifact: ReliquaryExcelConfigData = await this.knex.select('*').from('ReliquaryExcelConfigData')
-      .where({Id: id}).first().then(this.commonLoadFirst);
-    if (!artifact) {
-      return artifact;
-    }
-    artifact.EquipName = RELIC_EQUIP_TYPE_TO_NAME[artifact.EquipType];
-    return artifact;
-  }
-
-  async selectArtifactByStoryId(storyId: number): Promise<ReliquaryExcelConfigData> {
-    let artifact: ReliquaryExcelConfigData = await this.knex.select('*').from('ReliquaryExcelConfigData')
-      .where({StoryId: storyId}).first().then(this.commonLoadFirst);
-    if (!artifact) {
-      return artifact;
-    }
-    artifact.EquipName = RELIC_EQUIP_TYPE_TO_NAME[artifact.EquipType];
-    return artifact;
-  }
-
+  // region Weapons
   private async postProcessWeapon(weapon: WeaponExcelConfigData, loadConf: WeaponLoadConf): Promise<WeaponExcelConfigData> {
     if (!weapon || !loadConf) {
       return weapon;
@@ -1780,6 +1769,14 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       weapon.Story = await this.selectReadableView(weapon.StoryId, true);
     }
     return weapon;
+  }
+
+  async getWeaponType(weaponType: WeaponType|WeaponTypeEN|GCGTagWeaponType, langCode: LangCode = 'EN'): Promise<string> {
+    let hash = ManualTextMapHashes[weaponType];
+    if (!hash) {
+      hash = ManualTextMapHashes['None'];
+    }
+    return await this.getTextMapItem(langCode, hash);
   }
 
   async selectWeaponById(id: number, loadConf: WeaponLoadConf = {}): Promise<WeaponExcelConfigData> {
@@ -1816,6 +1813,28 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return await this.knex.select('*').from('WeaponExcelConfigData')
       .whereIn('Id', ids).then(this.commonLoad);
   }
+  // endregion
+
+  // region Artifacts
+  async selectArtifactById(id: number): Promise<ReliquaryExcelConfigData> {
+    let artifact: ReliquaryExcelConfigData = await this.knex.select('*').from('ReliquaryExcelConfigData')
+      .where({Id: id}).first().then(this.commonLoadFirst);
+    if (!artifact) {
+      return artifact;
+    }
+    artifact.EquipName = RELIC_EQUIP_TYPE_TO_NAME[artifact.EquipType];
+    return artifact;
+  }
+
+  async selectArtifactByStoryId(storyId: number): Promise<ReliquaryExcelConfigData> {
+    let artifact: ReliquaryExcelConfigData = await this.knex.select('*').from('ReliquaryExcelConfigData')
+      .where({StoryId: storyId}).first().then(this.commonLoadFirst);
+    if (!artifact) {
+      return artifact;
+    }
+    artifact.EquipName = RELIC_EQUIP_TYPE_TO_NAME[artifact.EquipType];
+    return artifact;
+  }
 
   async selectArtifactCodexById(id: number): Promise<ReliquaryCodexExcelConfigData> {
     return await this.knex.select('*').from('ReliquaryCodexExcelConfigData')
@@ -1826,7 +1845,9 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return await this.knex.select('*').from('ReliquarySetExcelConfigData')
       .where({SetId: id}).first().then(this.commonLoadFirst);
   }
+  // endregion
 
+  // region Books & Readables
   private async selectBookSuitById(id: number): Promise<BookSuitExcelConfigData> {
     if (this.state.bookSuitCache[id]) {
       return this.state.bookSuitCache[id];
@@ -2018,6 +2039,25 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return archive;
   }
 
+  async getReadableMatches(langCode: LangCode, searchText: string, flags?: string): Promise<string[]> {
+    if (isStringBlank(searchText)) {
+      return [];
+    }
+
+    let out: string[] = [];
+
+    await grepStream(searchText, this.getDataFilePath(getReadableRelPath(langCode)), line => {
+      let exec = /\/([^\/]+)\.txt/.exec(line);
+      if (exec) {
+        out.push(exec[1]);
+      }
+    }, '-r ' + flags);
+
+    return out;
+  }
+  // endregion
+
+  // region New Activity
   async selectNewActivityById(id: number) {
     const activity: NewActivityExcelConfigData = await this.knex.select('*').from('NewActivityExcelConfigData')
       .where({ActivityId: id}).first().then(this.commonLoadFirst);
@@ -2039,7 +2079,9 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     this.state.newActivityNameCache[id] = name;
     return name;
   }
+  // endregion
 
+  // region Achievements
   async selectAchievementGoals(): Promise<AchievementGoalExcelConfigData[]> {
     return await cached('AchievementGoals_' + this.outputLangCode, async () => {
       let goals: AchievementGoalExcelConfigData[] = await this.readDataFile('./ExcelBinOutput/AchievementGoalExcelConfigData.json');
@@ -2158,9 +2200,11 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     }
     return achievement;
   }
+  // endregion
 }
+// endregion
 
-// Voice Items
+// region Voice Items
 // --------------------------------------------------------------------------------------------------------------
 
 const GENSHIN_VOICE_ITEMS: VoiceItemArrayMap = {};
@@ -2238,3 +2282,4 @@ export class GenshinVoice {
     return voPrefix;
   }
 }
+// endregion

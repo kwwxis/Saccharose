@@ -8,6 +8,9 @@ import { __normZenlessText } from './zenlessText';
 import { NormTextOptions } from '../generic/genericNormalizers';
 import { Request } from 'express';
 
+// region Control State
+// --------------------------------------------------------------------------------------------------------------
+
 /**
  * State/cache for only a single control
  */
@@ -19,6 +22,8 @@ export function getZenlessControl(request?: Request) {
   return new ZenlessControl(request);
 }
 
+// region Control Object
+// --------------------------------------------------------------------------------------------------------------
 export class ZenlessControl extends AbstractControl<ZenlessControlState> {
   constructor(request?: Request) {
     super('zenless', ZenlessControlState, request);
@@ -44,3 +49,4 @@ export class ZenlessControl extends AbstractControl<ZenlessControlState> {
     return object;
   }
 }
+// endregion

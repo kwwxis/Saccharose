@@ -5,7 +5,7 @@ import { getGenshinControl } from '../../../domain/genshin/genshinControl';
 import { fetchCharacterStoryByAvatarId } from '../../../domain/genshin/character/fetchStoryFetters';
 import { StoryFetters } from '../../../../shared/types/genshin/fetter-types';
 import { AvatarExcelConfigData } from '../../../../shared/types/genshin/avatar-types';
-import { getAvatar, getAvatars, getCompanion } from '../../../middleware/genshin/genshinAvatarUtil';
+import { getGenshinAvatar, getGenshinAvatars, getCompanion } from '../../../middleware/game/genshinAvatarUtil';
 import { queryTab } from '../../../middleware/util/queryTab';
 import { Request, Response, Router } from 'express';
 import {
@@ -19,21 +19,22 @@ export default async function(): Promise<Router> {
 
   router.get('/character/VO', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
-    const avatars: CommonAvatar[] = toCommonAvatarsFromGenshin(await getAvatars(ctrl));
+    const avatars: CommonAvatar[] = toCommonAvatarsFromGenshin(await getGenshinAvatars(ctrl));
 
     res.render('pages/genshin/character/vo-tool', {
       title: 'Character VO',
       bodyClass: ['page--wide', 'page--vo-tool'],
       avatars,
       avatar: null,
-      tab: null
+      tab: null,
+      normText: ctrl.normText.bind(ctrl)
     });
   });
 
   router.get('/character/VO/:avatar', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
-    const avatars: CommonAvatar[] = toCommonAvatarsFromGenshin(await getAvatars(ctrl));
-    const avatar: CommonAvatar = toCommonAvatarFromGenshin(await getAvatar(ctrl, req));
+    const avatars: CommonAvatar[] = toCommonAvatarsFromGenshin(await getGenshinAvatars(ctrl));
+    const avatar: CommonAvatar = toCommonAvatarFromGenshin(await getGenshinAvatar(ctrl, req));
 
     res.render('pages/genshin/character/vo-tool', {
       title: (avatar ? avatar.NameText +  ' - ' : '') + 'Character VO',
@@ -41,6 +42,7 @@ export default async function(): Promise<Router> {
       avatars,
       avatar,
       tab: queryTab(req, 'visual', 'wikitext'),
+      normText: ctrl.normText.bind(ctrl)
     });
   });
 
@@ -68,14 +70,14 @@ export default async function(): Promise<Router> {
   router.get('/character/stories', async (req: Request, res: Response) => {
     res.render('pages/genshin/character/character-stories', {
       title: 'Character Stories',
-      avatars: await getAvatars(getGenshinControl(req)),
+      avatars: await getGenshinAvatars(getGenshinControl(req)),
       bodyClass: ['page--character-stories']
     });
   });
 
   router.get('/character/stories/:avatar', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
-    const avatar: AvatarExcelConfigData = await getAvatar(ctrl, req);
+    const avatar: AvatarExcelConfigData = await getGenshinAvatar(ctrl, req);
     const story: StoryFetters = await fetchCharacterStoryByAvatarId(ctrl, avatar?.Id);
 
     res.render('pages/genshin/character/character-stories', {

@@ -36,26 +36,55 @@ export const starRailSchema = {
   // ---------------------
   AvatarConfig: <SchemaTable> {
     name: 'AvatarConfig',
-    jsonFile: './ExcelBinOutput/AvatarConfig.json',
+    jsonFile: './ExcelOutput/AvatarConfig.json',
     columns: [
-      {name: 'AvatarId', type: 'integer', isPrimary: true},
-      {name: 'AvatarBaseType', type: 'string', isIndex: true},
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'BaseType', type: 'string', isIndex: true},
       {name: 'DamageType', type: 'string', isIndex: true},
-      {name: 'AvatarNameTextMapHash', type: 'integer', isIndex: true},
-      {name: 'AvatarFullNameTextMapHash', type: 'integer', isIndex: true},
-      {name: 'AvatarCutinIntroTextMapHash', type: 'integer', isIndex: true},
+      {name: 'NameTextMapHash', type: 'integer', isIndex: true},
+      {name: 'FullNameTextMapHash', type: 'integer', isIndex: true},
+      {name: 'CutinIntroTextMapHash', type: 'integer', isIndex: true},
+    ],
+    normalizeFixFields: {
+      'AvatarId': 'Id',
+      'AvatarBaseType': 'BaseType',
+      'AvatarVOTag': 'VOTag',
+      'AvatarNameTextMapHash': 'NameTextMapHash',
+      'AvatarDescTextMapHash': 'DescTextMapHash',
+      'AvatarFullNameTextMapHash': 'FullNameTextMapHash',
+      'AvatarCutinIntroTextMapHash': 'CutinIntroTextMapHash',
+
+      'ActionAvatarHeadIconPath': 'ActionHeadIconPath',
+      'AvatarMiniIconPath': 'MiniIconPath',
+      'AvatarSideIconPath': 'SideIconPath',
+      'DefaultAvatarHeadIconPath': 'DefaultHeadIconPath',
+      'SideAvatarHeadIconPath': 'SideHeadIconPath',
+      'WaitingAvatarHeadIconPath': 'WaitingHeadIconPath',
+      'AvatarGachaResultImgPath': 'GachaResultImgPath',
+      'AvatarCutinBgImgPath': 'CutinBgImgPath',
+      'AvatarCutinFrontImgPath': 'CutinFrontImgPath',
+      'AvatarCutinImgPath': 'CutinImgPath',
+    }
+  },
+  AvatarBaseType: <SchemaTable> {
+    name: 'AvatarBaseType',
+    jsonFile: './ExcelOutput/AvatarBaseType.json',
+    columns: [
+      {name: 'Id', type: 'string', isPrimary: true},
+      {name: 'BaseTypeTextMapHash', type: 'integer', isIndex: true},
+      {name: 'BaseTypeDescTextMapHash', type: 'integer', isIndex: true},
     ]
   },
   AvatarVO: <SchemaTable> {
     name: 'AvatarVO',
-    jsonFile: './ExcelBinOutput/AvatarVO.json',
+    jsonFile: './ExcelOutput/AvatarVO.json',
     columns: [
       {name: 'VOTag', type: 'string', isPrimary: true},
     ]
   },
   VoiceAtlas: <SchemaTable> {
     name: 'VoiceAtlas',
-    jsonFile: './ExcelBinOutput/VoiceAtlas.json',
+    jsonFile: './ExcelOutput/VoiceAtlas.json',
     columns: [
       {name: 'AvatarId', type: 'integer', isIndex: true},
       {name: 'VoiceId', type: 'integer', isIndex: true},
@@ -68,7 +97,7 @@ export const starRailSchema = {
   },
   AtlasUnlockData: <SchemaTable> {
     name: 'AtlasUnlockData',
-    jsonFile: './ExcelBinOutput/AtlasUnlockData.json',
+    jsonFile: './ExcelOutput/AtlasUnlockData.json',
     columns: [
       {name: 'UnlockId', type: 'integer', isPrimary: true},
     ]
@@ -81,17 +110,20 @@ export const starRailSchema = {
     name: 'MainMission',
     jsonFile: './ExcelOutput/MainMission.json',
     columns: [
-      {name: 'MainMissionId', type: 'integer', isPrimary: true},
+      {name: 'Id', type: 'integer', isPrimary: true},
       {name: 'Type', type: 'string', isIndex: true},
       {name: 'RewardId', type: 'integer', isIndex: true},
       {name: 'DisplayRewardId', type: 'integer', isIndex: true},
       {name: 'ChapterId', type: 'integer', isIndex: true},
       {name: 'NameTextMapHash', type: 'integer', isIndex: true},
-    ]
+    ],
+    normalizeFixFields: {
+      'MainMissionId': 'Id'
+    }
   },
   MainMissionSchedule: <SchemaTable> {
     name: 'MainMissionSchedule',
-    jsonFile: './ExcelBinOutput/MainMissionSchedule.json',
+    jsonFile: './ExcelOutput/MainMissionSchedule.json',
     columns: [
       {name: 'MainMissionId', type: 'integer', isPrimary: true},
       {name: 'ActivityModuleId', type: 'integer', isIndex: true},
@@ -100,7 +132,7 @@ export const starRailSchema = {
   },
   MainMissionType: <SchemaTable> {
     name: 'MainMissionType',
-    jsonFile: './ExcelBinOutput/MainMissionType.json',
+    jsonFile: './ExcelOutput/MainMissionType.json',
     columns: [
       {name: 'Type', type: 'string', isPrimary: true},
       {name: 'TypeNameTextMapHash', type: 'integer', isIndex: true},
@@ -108,7 +140,7 @@ export const starRailSchema = {
   },
   MissionChapterConfig: <SchemaTable> {
     name: 'MissionChapterConfig',
-    jsonFile: './ExcelBinOutput/MissionChapterConfig.json',
+    jsonFile: './ExcelOutput/MissionChapterConfig.json',
     columns: [
       {name: 'Id', type: 'integer', isPrimary: true},
       {name: 'ChapterNameTextMapHash', type: 'integer', isIndex: true},
@@ -118,14 +150,14 @@ export const starRailSchema = {
   },
   ScheduleDataMission: <SchemaTable> {
     name: 'ScheduleDataMission',
-    jsonFile: './ExcelBinOutput/ScheduleDataMission.json',
+    jsonFile: './ExcelOutput/ScheduleDataMission.json',
     columns: [
       {name: 'Id', type: 'integer', isPrimary: true},
     ]
   },
   SubMission: <SchemaTable> {
     name: 'SubMission',
-    jsonFile: './ExcelBinOutput/SubMission.json',
+    jsonFile: './ExcelOutput/SubMission.json',
     columns: [
       {name: 'SubMissionId', type: 'integer', isPrimary: true},
       {name: 'TargetTextMapHash', type: 'integer', isIndex: true},
@@ -136,13 +168,13 @@ export const starRailSchema = {
       'DescrptionTextMapHash': 'DescTextMapHash'
     }
   },
-  // endreigon
+  // endregion
 
   // region Event Mission
   // --------------------
   EventMission: <SchemaTable> {
     name: 'EventMission',
-    jsonFile: './ExcelBinOutput/EventMission.json',
+    jsonFile: './ExcelOutput/EventMission.json',
     columns: [
       {name: 'Id', type: 'integer', isPrimary: true},
       {name: 'Type', type: 'string', isIndex: true},
@@ -157,14 +189,14 @@ export const starRailSchema = {
   },
   EventMissionChallenge: <SchemaTable> {
     name: 'EventMissionChallenge',
-    jsonFile: './ExcelBinOutput/EventMissionChallenge.json',
+    jsonFile: './ExcelOutput/EventMissionChallenge.json',
     columns: [
       {name: 'Id', type: 'integer', isPrimary: true},
     ]
   },
   FinishWayEventMission: <SchemaTable> {
     name: 'FinishWayEventMission',
-    jsonFile: './ExcelBinOutput/FinishWayEventMission.json',
+    jsonFile: './ExcelOutput/FinishWayEventMission.json',
     columns: [
       {name: 'Id', type: 'integer', isPrimary: true},
       {name: 'FinishType', type: 'string', isIndex: true},
@@ -177,14 +209,14 @@ export const starRailSchema = {
   // --------------------
   DailyMissionCount: <SchemaTable> {
     name: 'DailyMissionCount',
-    jsonFile: './ExcelBinOutput/DailyMissionCount.json',
+    jsonFile: './ExcelOutput/DailyMissionCount.json',
     columns: [
       {name: 'Id', type: 'integer', isPrimary: true},
     ]
   },
   DailyMissionData: <SchemaTable> {
     name: 'DailyMissionData',
-    jsonFile: './ExcelBinOutput/DailyMissionData.json',
+    jsonFile: './ExcelOutput/DailyMissionData.json',
     columns: [
       {name: 'Id', type: 'integer', isPrimary: true},
       {name: 'GroupId', type: 'integer', isIndex: true},
@@ -196,7 +228,7 @@ export const starRailSchema = {
   // -----------
   TalkBehavior: <SchemaTable> {
     name: 'TalkBehavior',
-    jsonFile: './ExcelBinOutput/TalkBehavior.json',
+    jsonFile: './ExcelOutput/TalkBehavior.json',
     columns: [
       {name: 'Id', type: 'integer', isPrimary: true},
       {name: 'ParaType', type: 'string', isIndex: true},
@@ -204,7 +236,7 @@ export const starRailSchema = {
   },
   TalkReward: <SchemaTable> {
     name: 'TalkReward',
-    jsonFile: './ExcelBinOutput/TalkReward.json',
+    jsonFile: './ExcelOutput/TalkReward.json',
     columns: [
       {name: 'Id', type: 'integer', isPrimary: true},
       {name: 'PlaneId', type: 'integer', isIndex: true},
@@ -216,7 +248,7 @@ export const starRailSchema = {
   },
   TalkSentenceConfig: <SchemaTable> {
     name: 'TalkSentenceConfig',
-    jsonFile: './ExcelBinOutput/TalkSentenceConfig.json',
+    jsonFile: './ExcelOutput/TalkSentenceConfig.json',
     columns: [
       {name: 'TalkSentenceId', type: 'integer', isPrimary: true},
       {name: 'TextmapTalkSentenceNameTextMapHash', type: 'integer', isIndex: true},
@@ -226,14 +258,14 @@ export const starRailSchema = {
   },
   TalkSentenceMultiVoice: <SchemaTable> {
     name: 'TalkSentenceMultiVoice',
-    jsonFile: './ExcelBinOutput/TalkSentenceMultiVoice.json',
+    jsonFile: './ExcelOutput/TalkSentenceMultiVoice.json',
     columns: [
       {name: 'TalkSentenceId', type: 'integer', isPrimary: true},
     ]
   },
   VoiceConfig: <SchemaTable> {
     name: 'VoiceConfig',
-    jsonFile: './ExcelBinOutput/VoiceConfig.json',
+    jsonFile: './ExcelOutput/VoiceConfig.json',
     columns: [
       {name: 'VoiceType', type: 'string', isIndex: true},
       {name: 'VoiceId', type: 'integer', isPrimary: true},
@@ -246,7 +278,7 @@ export const starRailSchema = {
 
   DialogueCondition: <SchemaTable> {
     name: 'DialogueCondition',
-    jsonFile: './ExcelBinOutput/DialogueCondition.json',
+    jsonFile: './ExcelOutput/DialogueCondition.json',
     columns: [
       {name: 'Id', type: 'integer', isPrimary: true},
       {name: 'Type', type: 'string', isIndex: true},
@@ -254,7 +286,7 @@ export const starRailSchema = {
   },
   DialogueDynamicContent: <SchemaTable> {
     name: 'DialogueDynamicContent',
-    jsonFile: './ExcelBinOutput/DialogueDynamicContent.json',
+    jsonFile: './ExcelOutput/DialogueDynamicContent.json',
     columns: [
       {name: 'DynamicContentId', type: 'integer', isIndex: true},
       {name: 'ArgId', type: 'integer', isIndex: true},
@@ -264,7 +296,7 @@ export const starRailSchema = {
   },
   DialogueEvent: <SchemaTable> {
     name: 'DialogueEvent',
-    jsonFile: './ExcelBinOutput/DialogueEvent.json',
+    jsonFile: './ExcelOutput/DialogueEvent.json',
     columns: [
       {name: 'EventId', type: 'integer', isPrimary: true},
       {name: 'EffectType', type: 'string', isIndex: true},
@@ -277,7 +309,7 @@ export const starRailSchema = {
   },
   DialogueEventDisplay: <SchemaTable> {
     name: 'DialogueEventDisplay',
-    jsonFile: './ExcelBinOutput/DialogueEventDisplay.json',
+    jsonFile: './ExcelOutput/DialogueEventDisplay.json',
     columns: [
       {name: 'EventDisplayId', type: 'integer', isPrimary: true},
       {name: 'EventTitleTextMapHash', type: 'integer', isIndex: true},
@@ -288,14 +320,14 @@ export const starRailSchema = {
 
   DialogueIcon: <SchemaTable> {
     name: 'DialogueIcon',
-    jsonFile: './ExcelBinOutput/DialogueIcon.json',
+    jsonFile: './ExcelOutput/DialogueIcon.json',
     columns: [
       {name: 'Type', type: 'string', isIndex: true},
     ]
   },
   DialogueNPC: <SchemaTable> {
     name: 'DialogueNPC',
-    jsonFile: './ExcelBinOutput/DialogueNPC.json',
+    jsonFile: './ExcelOutput/DialogueNPC.json',
     columns: [
       {name: 'GroupId', type: 'integer', isPrimary: true},
       {name: 'GroupType', type: 'string', isIndex: true},
@@ -304,7 +336,7 @@ export const starRailSchema = {
   },
   DialogueProp: <SchemaTable> {
     name: 'DialogueProp',
-    jsonFile: './ExcelBinOutput/DialogueProp.json',
+    jsonFile: './ExcelOutput/DialogueProp.json',
     columns: [
       {name: 'GroupId', type: 'integer', isPrimary: true},
       {name: 'GroupType', type: 'string', isIndex: true},
@@ -313,10 +345,10 @@ export const starRailSchema = {
   },
   RogueNPCDialogue: <SchemaTable> {
     name: 'RogueNPCDialogue',
-    jsonFile: './ExcelBinOutput/RogueNPCDialogue.json',
+    jsonFile: './ExcelOutput/RogueNPCDialogue.json',
     columns: [
       {name: 'RogueNPCId', type: 'integer', isIndex: true},
-      {name: 'HandbookEventId', type: 'integer', isPrimary: true},
+      {name: 'HandbookEventId', type: 'integer', isIndex: true},
     ]
   },
   // endregion
@@ -326,7 +358,7 @@ export const starRailSchema = {
 
   MessageContactsCamp: <SchemaTable> {
     name: 'MessageContactsCamp',
-    jsonFile: './ExcelBinOutput/MessageContactsCamp.json',
+    jsonFile: './ExcelOutput/MessageContactsCamp.json',
     columns: [
       {name: 'ContactsCamp', type: 'integer', isPrimary: true},
       {name: 'SortId', type: 'integer', isIndex: true},
@@ -335,7 +367,7 @@ export const starRailSchema = {
   },
   MessageContactsCondition: <SchemaTable> {
     name: 'MessageContactsCondition',
-    jsonFile: './ExcelBinOutput/MessageContactsCondition.json',
+    jsonFile: './ExcelOutput/MessageContactsCondition.json',
     columns: [
       {name: 'Id', type: 'integer', isPrimary: true},
       {name: 'FakeContactId', type: 'integer', isIndex: true},
@@ -343,7 +375,7 @@ export const starRailSchema = {
   },
   MessageContactsConfig: <SchemaTable> {
     name: 'MessageContactsConfig',
-    jsonFile: './ExcelBinOutput/MessageContactsConfig.json',
+    jsonFile: './ExcelOutput/MessageContactsConfig.json',
     columns: [
       {name: 'Id', type: 'integer', isPrimary: true},
       {name: 'ContactsType', type: 'integer', isIndex: true},
@@ -354,7 +386,7 @@ export const starRailSchema = {
   },
   MessageContactsType: <SchemaTable> {
     name: 'MessageContactsType',
-    jsonFile: './ExcelBinOutput/MessageContactsType.json',
+    jsonFile: './ExcelOutput/MessageContactsType.json',
     columns: [
       {name: 'ContactsType', type: 'integer', isPrimary: true},
       {name: 'SortId', type: 'integer', isIndex: true},
@@ -363,7 +395,7 @@ export const starRailSchema = {
   },
   MessageGroupConfig: <SchemaTable> {
     name: 'MessageGroupConfig',
-    jsonFile: './ExcelBinOutput/MessageGroupConfig.json',
+    jsonFile: './ExcelOutput/MessageGroupConfig.json',
     columns: [
       {name: 'Id', type: 'integer', isPrimary: true},
       {name: 'MessageContactsId', type: 'integer', isIndex: true},
@@ -372,7 +404,7 @@ export const starRailSchema = {
   },
   MessageItemConfig: <SchemaTable> {
     name: 'MessageItemConfig',
-    jsonFile: './ExcelBinOutput/MessageItemConfig.json',
+    jsonFile: './ExcelOutput/MessageItemConfig.json',
     columns: [
       {name: 'Id', type: 'integer', isPrimary: true},
       {name: 'ItemType', type: 'string', isIndex: true},
@@ -385,14 +417,14 @@ export const starRailSchema = {
   },
   MessageItemImage: <SchemaTable> {
     name: 'MessageItemImage',
-    jsonFile: './ExcelBinOutput/MessageItemImage.json',
+    jsonFile: './ExcelOutput/MessageItemImage.json',
     columns: [
       {name: 'Id', type: 'integer', isPrimary: true},
     ]
   },
   MessageItemRaidEntrance: <SchemaTable> {
     name: 'MessageItemRaidEntrance',
-    jsonFile: './ExcelBinOutput/MessageItemRaidEntrance.json',
+    jsonFile: './ExcelOutput/MessageItemRaidEntrance.json',
     columns: [
       {name: 'Id', type: 'integer', isPrimary: true},
       {name: 'RaidId', type: 'integer', isIndex: true},
@@ -400,14 +432,14 @@ export const starRailSchema = {
   },
   MessageSectionConfig: <SchemaTable> {
     name: 'MessageSectionConfig',
-    jsonFile: './ExcelBinOutput/MessageSectionConfig.json',
+    jsonFile: './ExcelOutput/MessageSectionConfig.json',
     columns: [
       {name: 'Id', type: 'integer', isPrimary: true},
     ]
   },
   MessageStateIcon: <SchemaTable> {
     name: 'MessageStateIcon',
-    jsonFile: './ExcelBinOutput/MessageStateIcon.json',
+    jsonFile: './ExcelOutput/MessageStateIcon.json',
     columns: [
       {name: 'Id', type: 'string', isPrimary: true},
     ]
@@ -418,7 +450,7 @@ export const starRailSchema = {
   // ------------
   TutorialGuideTalkData: <SchemaTable> {
     name: 'TutorialGuideTalkData',
-    jsonFile: './ExcelBinOutput/TutorialGuideTalkData.json',
+    jsonFile: './ExcelOutput/TutorialGuideTalkData.json',
     columns: [
       {name: 'Id', type: 'integer', isPrimary: true},
       {name: 'TalkDataTextMapHash', type: 'integer', isIndex: true},
@@ -426,7 +458,7 @@ export const starRailSchema = {
   },
   RewardData: <SchemaTable> {
     name: 'RewardData',
-    jsonFile: './ExcelBinOutput/RewardData.json',
+    jsonFile: './ExcelOutput/RewardData.json',
     columns: [
       {name: 'RewardId', type: 'integer', isPrimary: true},
     ]

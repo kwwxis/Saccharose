@@ -30,6 +30,7 @@ export function isCommonAvatarFromStarRail(avatar: CommonAvatar): avatar is Comm
 }
 
 export function toCommonAvatarFromGenshin(avatar: AvatarExcelConfigData): CommonAvatar<AvatarExcelConfigData> {
+  if (!avatar) return null;
   return {
     Id: avatar.Id,
     Game: 'genshin',
@@ -52,18 +53,19 @@ export function toCommonAvatarsFromGenshin(avatars: AvatarExcelConfigData[]): Co
 }
 
 export function toCommonAvatarFromStarRail(avatar: AvatarConfig): CommonAvatar<AvatarConfig> {
+  if (!avatar) return null;
   return {
-    Id: avatar.AvatarId,
+    Id: avatar.Id,
     Game: 'hsr',
 
-    NameText: avatar.AvatarNameText,
-    NameTextMapHash: avatar.AvatarNameTextMapHash,
+    NameText: avatar.NameText,
+    NameTextMapHash: avatar.NameTextMapHash,
 
-    DescText: avatar.AvatarDescText,
-    DescTextMapHash: avatar.AvatarDescTextMapHash,
+    DescText: avatar.DescText,
+    DescTextMapHash: avatar.DescTextMapHash,
 
-    IconName: avatar.DefaultAvatarHeadIconPath,
-    SideIconName: avatar.AvatarSideIconPath,
+    IconName: avatar.DefaultHeadIconPath,
+    SideIconName: avatar.SideIconPath,
     ImagePathPrefix: '/images/hsr/',
 
     Original: avatar
@@ -108,9 +110,6 @@ export class CommonVoiceCollection<T = any> {
   storyItems: CommonVoiceItem[] = [];
   combatItems: CommonVoiceItem[] = [];
 
-  voiceItemFiles: string[] = [];
-  animatorEventFiles: string[] = [];
-
   original: T;
 }
 
@@ -122,9 +121,6 @@ export function toCommonVoiceCollectionFromGenshin(fetters: CharacterFetters): C
 
     storyItems: toCommonVoiceItemsFromGenshin(fetters.storyFetters),
     combatItems: toCommonVoiceItemsFromGenshin(fetters.combatFetters),
-
-    voiceItemFiles: fetters.fetterFiles,
-    animatorEventFiles: fetters.animatorEventFiles,
 
     original: fetters
   }

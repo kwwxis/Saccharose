@@ -1,14 +1,15 @@
-export type AvatarBaseType = 'Knight' | 'Mage' | 'Priest' | 'Rogue' | 'Shaman' | 'Warlock' | 'Warrior';
+export type AvatarBaseTypeEnum = 'Knight' | 'Mage' | 'Priest' | 'Rogue' | 'Shaman' | 'Warlock' | 'Warrior';
 
 export type AvatarDamageType = 'Fire' | 'Ice' | 'Imaginary' | 'Physical' | 'Quantum' | 'Thunder' | 'Wind';
 
 export type AvatarConfigRarity = 'CombatPowerAvatarRarityType4' | 'CombatPowerAvatarRarityType5';
 
 export interface AvatarConfig {
-  AvatarId: number,
-  AvatarVOTag: string,
+  Id: number,
+  VOTag: string,
   AdventurePlayerId: number,
-  AvatarBaseType: AvatarBaseType,
+  BaseType: AvatarBaseTypeEnum,
+  BaseTypeData?: AvatarBaseType, // custom
   DamageType: AvatarDamageType,
   Rarity: AvatarConfigRarity,
   MaxPromotion: number,
@@ -18,29 +19,29 @@ export interface AvatarConfig {
   SPNeedValue: number,
 
   // Icons:
-  ActionAvatarHeadIconPath: string,
-  AvatarMiniIconPath: string,
-  AvatarSideIconPath: string,
-  DefaultAvatarHeadIconPath: string,
-  SideAvatarHeadIconPath: string,
-  WaitingAvatarHeadIconPath: string,
-  AvatarGachaResultImgPath: string,
-  AvatarCutinBgImgPath: string,
-  AvatarCutinFrontImgPath: string,
-  AvatarCutinImgPath: string,
+  ActionHeadIconPath: string,
+  MiniIconPath: string,
+  SideIconPath: string,
+  DefaultHeadIconPath: string,
+  SideHeadIconPath: string,
+  WaitingHeadIconPath: string,
+  GachaResultImgPath: string,
+  CutinBgImgPath: string,
+  CutinFrontImgPath: string,
+  CutinImgPath: string,
 
   // Texts:
-  AvatarNameText: string,
-  AvatarNameTextMapHash: number,
+  NameText: string,
+  NameTextMapHash: number,
 
-  AvatarDescText: string,
-  AvatarDescTextMapHash: number,
+  DescText: string,
+  DescTextMapHash: number,
 
-  AvatarFullNameText: string,
-  AvatarFullNameTextMapHash: number,
+  FullNameText: string,
+  FullNameTextMapHash: number,
 
-  AvatarCutinIntroText: string,
-  AvatarCutinIntroTextMapHash: number,
+  CutinIntroText: string,
+  CutinIntroTextMapHash: number,
 
   // Offets:
   AssistBgOffset: number[],
@@ -67,6 +68,42 @@ export interface AvatarConfig {
   SkilltreePrefabPath: string,
   UIAvatarModelPath: string,
   UltraSkillCutInPrefabPath: string,
+}
+
+export function isTrailblazer(avatar: number|AvatarConfig, checkMode: 'male' | 'female' | 'either' = 'either'): boolean {
+  if (!avatar) {
+    return false;
+  }
+  if (typeof avatar !== 'number') {
+    avatar = avatar.Id;
+  }
+
+  const maleIds = [8001, 8003];
+  const femaleIds = [8002, 8004];
+
+  if (checkMode === 'either') {
+    return [... maleIds, ... femaleIds].includes(avatar);
+  } else if (checkMode === 'male') {
+    return maleIds.includes(avatar);
+  } else {
+    return femaleIds.includes(avatar);
+  }
+}
+
+export interface AvatarBaseType {
+  Id: string,
+  BaseTypeDescText: string,
+  BaseTypeDescTextMapHash: number,
+  BaseTypeIcon: string,
+  BaseTypeIconMiddle: string,
+  BaseTypeIconPathTalk: string,
+  BaseTypeIconSmall: string,
+  BaseTypeText: string,
+  BaseTypeTextMapHash: number,
+  BgPath: string,
+  Equipment3DTgaPath: string,
+  EquipmentLightMatPath: string,
+  FirstWordText: string,
 }
 
 export interface AvatarVO {

@@ -12,6 +12,7 @@ import { DEFAULT_LANG, LANG_CODES, LANG_CODES_TO_NAME, LangCode } from '../../..
 import { CommonAvatar, CommonVoiceCollection } from '../../../../shared/types/common-types';
 
 export interface VoAppConfig {
+  storagePrefix: string,
   imagePathPrefix: string,
   preloader: VoAppPreloadFunction,
   fetchVoiceCollection: (avatar: CommonAvatar) => Promise<CommonVoiceCollection>,
@@ -27,8 +28,8 @@ export class VoAppState {
   eventBus: EventBus;
   config: VoAppConfig;
 
-  constructor(configure: () => VoAppConfig) {
-    this.config = configure();
+  constructor(configSupplier: () => VoAppConfig) {
+    this.config = configSupplier();
 
     this.avatars = (<any> window).avatars;
     this.avatar = (<any> window).avatar;
@@ -86,8 +87,8 @@ export class VoAppState {
   }
 }
 
-export function initializeVoTool(configure: () => VoAppConfig): void {
-  const state = new VoAppState(configure);
+export function initializeVoTool(configSupplier: () => VoAppConfig): void {
+  const state = new VoAppState(configSupplier);
 
   VoAppSidebar(state);
   if (document.querySelector('#vo-app-welcome')) {

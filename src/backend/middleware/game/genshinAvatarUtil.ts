@@ -9,7 +9,8 @@ import { HomeWorldNPCExcelConfigData } from '../../../shared/types/genshin/homew
 import { getHomeWorldCompanions } from '../../domain/genshin/character/companion_dialogue';
 import { Request } from 'express';
 
-export const avatarMaskProps = 'Id,' +
+const avatarMaskProps: string =
+  'Id,' +
   'QualityType,' +
   'NameText,' +
   'NameTextMapHash,' +
@@ -24,8 +25,8 @@ export const avatarMaskProps = 'Id,' +
   'ImageName,' +
   'SideIconName';
 
-export async function getAvatars(ctrl: GenshinControl): Promise<AvatarExcelConfigData[]> {
-  return cached('AvatarListCache_' + ctrl.outputLangCode, async () => {
+export async function getGenshinAvatars(ctrl: GenshinControl): Promise<AvatarExcelConfigData[]> {
+  return cached('Genshin_AvatarListCache_' + ctrl.outputLangCode, async () => {
     let storiesByAvatar = await fetchCharacterStories(ctrl);
     return Object.values(storiesByAvatar)
       .map(x => jsonMask(x.avatar, avatarMaskProps))
@@ -33,8 +34,8 @@ export async function getAvatars(ctrl: GenshinControl): Promise<AvatarExcelConfi
   });
 }
 
-export async function getAvatar(ctrl: GenshinControl, req: Request): Promise<AvatarExcelConfigData> {
-  const avatars = await getAvatars(ctrl);
+export async function getGenshinAvatar(ctrl: GenshinControl, req: Request): Promise<AvatarExcelConfigData> {
+  const avatars = await getGenshinAvatars(ctrl);
   const arg: string|number = ['avatarId', 'avatarName', 'avatar', 'id']
     .map(key => req.params[key] || <string> req.query[key]).find(val => !!val);
 

@@ -247,5 +247,5 @@ export const zenlessEndpoints = {
 };
 
 (<any> window).genshinEndpoints = genshinEndpoints;
-(<any> window).hsrEndpoints = genshinEndpoints;
-(<any> window).zenlessEndpoints = genshinEndpoints;
+(<any> window).starRailEndpoints = starRailEndpoints;
+(<any> window).zenlessEndpoints = zenlessEndpoints;

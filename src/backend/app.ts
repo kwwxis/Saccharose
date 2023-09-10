@@ -58,6 +58,12 @@ export async function appInit(): Promise<Express> {
   // ~~~~~~~~~~~~~~~~~~~~~~~~
   app.use(express.static(PUBLIC_DIR));
 
+  app.use((req: Request, _res: Response, next: NextFunction) => {
+    while (req.url.endsWith('.png.png'))
+      req.url = req.url.slice(0, -4);
+    next();
+  });
+
   if (isStringNotBlank(process.env.EXT_PUBLIC_DIR)) {
     logInit('Serving external public directory');
     app.use(express.static(process.env.EXT_PUBLIC_DIR));

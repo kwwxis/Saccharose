@@ -193,7 +193,7 @@ export function genshinVoPreload(state: VoAppState, mode: 'story' | 'combat', la
 
   if (isCombat) {
     function getCombatFileName(animEvtFileMatch: RegExp, filePrefix: string): string {
-      let animEvtFiles = state.voiceItems.animatorEventFiles;
+      let animEvtFiles = state.voiceItems.original.animatorEventFiles;
       let files = [];
       for (let file of animEvtFiles) {
         if (animEvtFileMatch.test(file)) {

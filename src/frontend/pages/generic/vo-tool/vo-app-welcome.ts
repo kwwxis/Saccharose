@@ -17,7 +17,7 @@ export function VoAppWelcome(state: VoAppState) {
 
   for (let i = 0; i < localStorage.length; i++){
     let key = localStorage.key(i);
-    if (key.startsWith('CHAR_VO_WIKITEXT_') && !key.endsWith('_UPDATETIME')) {
+    if (key.startsWith(state.config.storagePrefix + 'CHAR_VO_WIKITEXT_') && !key.endsWith('_UPDATETIME')) {
       let keyParts: string[] = key.split('_');
       let avatarId: number = toInt(keyParts.pop());
       let langCode: LangCode = keyParts.pop() as LangCode;
@@ -110,8 +110,8 @@ export function VoAppWelcome(state: VoAppState) {
 
         function go() {
           state.eventBus.emit('VO-Lang-Changed', langCode);
-          window.localStorage.setItem('CHAR_VO_WIKITEXT_' + langCode + '_' + avatar.Id, wikitext);
-          window.localStorage.setItem('CHAR_VO_WIKITEXT_' + langCode + '_' + avatar.Id + '_UPDATETIME', String(Date.now()));
+          window.localStorage.setItem(state.config.storagePrefix + 'CHAR_VO_WIKITEXT_' + langCode + '_' + avatar.Id, wikitext);
+          window.localStorage.setItem(state.config.storagePrefix + 'CHAR_VO_WIKITEXT_' + langCode + '_' + avatar.Id + '_UPDATETIME', String(Date.now()));
           setTimeout(() => window.location.href = '/character/VO/' + avatar.NameText);
         }
 

@@ -164,7 +164,7 @@ export async function inspectDataFile(ctrl: AbstractControl, opt: InspectOpt): P
   console.log(chalk.underline.bold(`Potential schema:`));
   console.log(`  ${chalk.magenta(tableName)}: <SchemaTable> {`);
   console.log(`    ${chalk.magenta('name')}: ${chalk.green(`'${tableName}'`)},`);
-  console.log(`    ${chalk.magenta('jsonFile')}: ${chalk.green(`'./ExcelBinOutput/${tableName}.json'`)},`);
+  console.log(`    ${chalk.magenta('jsonFile')}: ${chalk.green(`'${ctrl.getExcelPath()}/${tableName}.json'`)},`);
   console.log(`    ${chalk.magenta('columns')}: [`);
   let foundPrimary = false;
   for (let field of Object.keys(fieldsToType)) {

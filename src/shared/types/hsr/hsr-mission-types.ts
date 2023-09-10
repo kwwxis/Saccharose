@@ -6,7 +6,7 @@ export type MainMissionBeginParamType = 'Auto' | 'MultiSequence' | 'PlayerLevel'
 export type MainMissionTakeParamType = 'Auto' | 'Manual' | 'MultiSequence' | 'MuseumPhaseRenewPointReach' | 'PlayerLevel' | 'SequenceNextDay';
 
 export interface MainMission {
-  MainMissionId: number,
+  Id: number,
   ChapterId: number,
   Type: MainMissionTypeEnum,
   TypeData: MainMissionType,
@@ -68,6 +68,7 @@ export interface MainMissionSchedule {
   ScheduleDataId: number,
 }
 export interface MissionChapterConfig {
+  Id: number,
   ChapterDescText: string,
   ChapterDescTextMapHash: number,
   ChapterDisplayPriority: number,
@@ -77,7 +78,6 @@ export interface MissionChapterConfig {
   ChapterNameTextMapHash: number,
   ChapterType: string,
   FinalMainMission: number,
-  Id: number,
   OriginMainMission: number,
   StageNameText: string,
   StageNameTextMapHash: number,

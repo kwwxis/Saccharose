@@ -50,8 +50,9 @@ const presets = {
   VoiceConfig: <InspectOpt> { file: excel('VoiceConfig'), inspectFieldValues: ['VoiceType'] },
   // endregion
   // region Misc:
-  AvatarConfig: <InspectOpt> { file: excel('AvatarConfig'), inspectFieldValues: ['AvatarBaseType', 'DamageType', 'Rarity'] },
+  AvatarConfig: <InspectOpt> { file: excel('AvatarConfig'), inspectFieldValues: ['BaseType', 'DamageType', 'Rarity'] },
   AvatarVO: <InspectOpt> { file: excel('AvatarVO'), inspectFieldValues: [] },
+  AvatarBaseType: <InspectOpt> { file: excel('AvatarBaseType'), inspectFieldValues: [] },
   VoiceAtlas: <InspectOpt> { file: excel('VoiceAtlas'), inspectFieldValues: [] },
   AtlasUnlockData: <InspectOpt> { file: excel('AtlasUnlockData'), inspectFieldValues: ['Conditions[#ALL].Type'] },
   LoadingDesc: <InspectOpt> { file: excel('LoadingDesc'), inspectFieldValues: [] },
@@ -63,7 +64,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
     const ctrl = getStarRailControl();
 
-    await inspectDataFile(ctrl, presets.SubMission);
+    await inspectDataFile(ctrl, presets.AvatarConfig);
 
     await closeKnex();
   })();

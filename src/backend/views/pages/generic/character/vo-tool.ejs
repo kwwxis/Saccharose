@@ -17,17 +17,17 @@
       </div>
     </div>
     <div id="vo-tool-sidebar-list" class="content">
-      <a role="button" class="secondary dispFlex textAlignLeft" href="/character/VO">
+      <a role="button" class="secondary dispFlex textAlignLeft" href="<%= siteHome %>/character/VO">
         <span class="icon framed valign halign"><%- icon('home') %></span>
         <span class="spacer10-left">VO Tool Home</span>
       </a>
       <% for (let avatar of avatars) { %>
-        <a id="vo-toolbar-sidebar-avatar-<%= avatar.Id %>" data-name="<%= avatar.NameText %>"
+        <a id="vo-toolbar-sidebar-avatar-<%= avatar.Id %>" data-name="<%= normText(avatar.NameText) %>"
            class="vo-toolbar-sidebar-avatar secondary dispFlex textAlignLeft"
-           href="/character/VO/<%= avatar.NameText.replace(' ', '_') %>"
+           href="<%= siteHome %>/character/VO/<%= toParam(normText(avatar.NameText)) %>"
            role="button">
           <img class="icon x28" src="<%= avatar.ImagePathPrefix %><%= avatar.IconName %>.png" loading="lazy" decoding="async" />
-          <span class="spacer10-left"><%= avatar.NameText %></span>
+          <span class="spacer10-left"><%= normText(avatar.NameText) %></span>
         </a>
       <% } %>
     </div>
@@ -84,7 +84,7 @@
       <div id="vo-app-toolbar" class="card alignStretch spacer15-bottom">
         <div class="vo-app-toolbar-avatarName valign secondary-label">
           <img class="icon x32" src="<%= avatar.ImagePathPrefix %><%= avatar.IconName %>.png" loading="lazy" decoding="async" />
-          <strong><%= avatar.NameText %></strong>
+          <strong><%= normText(avatar.NameText) %></strong>
         </div>
         <div class="vo-app-toolbar-buttons valign">
           <div class="vo-app-toolbar-button valign spacer10-left posRel">
