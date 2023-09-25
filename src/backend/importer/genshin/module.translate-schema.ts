@@ -19,7 +19,11 @@ export async function importTranslateSchema() {
   const schemaResult = {};
 
   for (let schemaTable of Object.values(genshinSchema)) {
-    if (!schemaTable.jsonFile.includes('ExcelBinOutput') || schemaTable.jsonFile.includes('DialogExcel')) {
+    if (!schemaTable.jsonFile.includes('ExcelBinOutput') || schemaTable.jsonFile.includes('DialogExcel')
+      || schemaTable.name.includes('MainQuestExcel')
+      || schemaTable.name.includes('QuestExcel')
+      || schemaTable.name.includes('TalkExcel')
+      || schemaTable.name.includes('Relation_')) {
       continue;
     }
     console.log('Processing schema table: ' + schemaTable.name + '...');
