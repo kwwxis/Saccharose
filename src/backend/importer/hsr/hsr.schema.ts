@@ -3,6 +3,7 @@ import { plainLineMapSchema, SchemaTable, textMapSchema } from '../import_db';
 export const starRailSchema = {
 
   // region TextMap & PlainLineMap
+  // -----------------------------
   TextMapCHS: textMapSchema('CHS'),
   TextMapCHT: textMapSchema('CHT'),
   TextMapDE: textMapSchema('DE'),

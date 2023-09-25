@@ -7,7 +7,6 @@ import {
 } from '../generic/genericNormalizers';
 import { TextJoinConfig, TextJoinItem } from '../../../shared/types/hsr/hsr-misc-types';
 import { getStarRailControl } from './starRailControl';
-import { toMap, ArrayStream } from '../../../shared/util/arrayUtil';
 import { logInitData } from '../../util/logger';
 
 function __trailblazerPlaceholder(langCode: LangCode = 'EN', degender: boolean = false): string {

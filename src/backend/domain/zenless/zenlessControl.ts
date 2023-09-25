@@ -15,7 +15,9 @@ import { Request } from 'express';
  * State/cache for only a single control
  */
 export class ZenlessControlState extends AbstractControlState {
-
+  override copy(): ZenlessControlState {
+    return new ZenlessControlState(this.request);
+  }
 }
 
 export function getZenlessControl(request?: Request) {
@@ -25,8 +27,8 @@ export function getZenlessControl(request?: Request) {
 // region Control Object
 // --------------------------------------------------------------------------------------------------------------
 export class ZenlessControl extends AbstractControl<ZenlessControlState> {
-  constructor(request?: Request) {
-    super('zenless', ZenlessControlState, request);
+  constructor(requestOrState?: Request|ZenlessControlState) {
+    super('zenless', ZenlessControlState, requestOrState);
     this.excelPath = './ExcelConfigData';
     this.disabledLangCodes.add('IT');
     this.disabledLangCodes.add('TR');
@@ -38,6 +40,10 @@ export class ZenlessControl extends AbstractControl<ZenlessControlState> {
 
   override normText(text: string, langCode: LangCode, opts: NormTextOptions = {}): string {
     return __normZenlessText(text, langCode, opts);
+  }
+
+  override copy(): ZenlessControl {
+    return new ZenlessControl(this.state.copy());
   }
 
   override async postProcess<T>(object: T, triggerNormalize?: SchemaTable, doNormText: boolean = false): Promise<T> {

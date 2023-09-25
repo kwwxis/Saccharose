@@ -1,3 +1,5 @@
+import { LangCodeMap, VoiceItem } from '../lang-types';
+
 export type AvatarBaseTypeEnum = 'Knight' | 'Mage' | 'Priest' | 'Rogue' | 'Shaman' | 'Warlock' | 'Warrior';
 
 export type AvatarDamageType = 'Fire' | 'Ice' | 'Imaginary' | 'Physical' | 'Quantum' | 'Thunder' | 'Wind';
@@ -131,23 +133,41 @@ export interface AtlasUnlockData {
 export interface VoiceAtlas {
   AvatarId: number,
   VoiceId: number,
-  AudioId: number,
+  AudioId: number, // -> VoiceConfig.VoiceId
+  VoiceItem?: VoiceItem,
   IsBattleVoice: boolean,
 
   AudioEvent: string,
 
+  // Unlocks:
+
   Unlock: number, // AtlasUnlockData -> UnlockId
   UnlockData?: AtlasUnlockData, // custom
 
-  VoiceTitleText: string,
+  // Texts:
+
+  VoiceTitleTextMap: LangCodeMap,
   VoiceTitleTextMapHash: number,
 
-  UnlockDescText: string,
+  UnlockDescTextMap: LangCodeMap,
   UnlockDescTextMapHash: number,
 
-  VoiceMText: string,
+  VoiceMTextMap: LangCodeMap,
   VoiceMTextMapHash: number,
 
-  VoiceFText: string,
+  VoiceFTextMap: LangCodeMap,
   VoiceFTextMapHash: number,
 }
+
+export class VoiceAtlasGroup {
+  avatarId: number;
+  avatarName: LangCodeMap;
+  storyAtlases: VoiceAtlas[] = [];
+  combatAtlases: VoiceAtlas[] = [];
+
+  constructor(avatarId: number) {
+    this.avatarId = avatarId;
+  }
+}
+
+export type VoiceAtlasGroupByAvatar = {[avatarId: number]: VoiceAtlasGroup};

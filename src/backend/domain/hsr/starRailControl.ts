@@ -32,6 +32,19 @@ export class StarRailControlState extends AbstractControlState {
 
   // Preferences:
   DisableAvatarCache: boolean = false;
+
+  // Autoload Preferences:
+  AutoloadText: boolean = true;
+  AutoloadAvatar: boolean = true;
+
+  copy(): StarRailControlState {
+    const state = new StarRailControlState(this.request);
+    state.avatarCache = Object.assign({}, this.avatarCache);
+    state.DisableAvatarCache = this.DisableAvatarCache;
+    state.AutoloadText = this.AutoloadText;
+    state.AutoloadAvatar = this.AutoloadAvatar;
+    return undefined;
+  }
 }
 
 export function getStarRailControl(request?: Request) {
@@ -43,10 +56,10 @@ export function getStarRailControl(request?: Request) {
 // --------------------------------------------------------------------------------------------------------------
 export class StarRailControl extends AbstractControl<StarRailControlState> {
   // region Constructor
-  readonly voice: StarRailVoice;
+  readonly voice: StarRailVoice = new StarRailVoice();
 
-  constructor(request?: Request) {
-    super('hsr', StarRailControlState, request);
+  constructor(requestOrState?: Request|StarRailControlState) {
+    super('hsr', StarRailControlState, requestOrState);
     this.excelPath = './ExcelOutput';
     this.disabledLangCodes.add('IT');
     this.disabledLangCodes.add('TR');
@@ -63,6 +76,14 @@ export class StarRailControl extends AbstractControl<StarRailControlState> {
     }
     return __normStarRailText(text, langCode, opts);
   }
+
+  override async isEmptyTextMapItem(langCode: LangCode, hash: TextMapHash): Promise<boolean> {
+    return hash === 371857150 || super.isEmptyTextMapItem(langCode, hash);
+  }
+
+  override copy(): StarRailControl {
+    return new StarRailControl(this.state.copy());
+  }
   // endregion
 
   // region Post Process
@@ -74,7 +95,7 @@ export class StarRailControl extends AbstractControl<StarRailControlState> {
     }
     const objAsAny = object as any;
     for (let prop in object) {
-      if (prop.endsWith('MapHash') || prop.endsWith('MapHashList')) {
+      if (this.state.AutoloadText && (prop.endsWith('MapHash') || prop.endsWith('MapHashList'))) {
         let textProp: string = prop.endsWith('List') ? prop.slice(0, -11) + 'List' : prop.slice(0, -7);
         if (Array.isArray(object[prop])) {
           let newOriginalArray = [];
@@ -99,6 +120,12 @@ export class StarRailControl extends AbstractControl<StarRailControlState> {
             object[textProp] = text;
           }
         }
+      }
+      if (prop === 'AvatarId' && typeof objAsAny[prop] === 'number' && this.state.AutoloadAvatar) {
+        objAsAny.Avatar = await this.selectAvatarById(objAsAny[prop]);
+      }
+      if (object[prop] === null || objAsAny[prop] === '') {
+        delete object[prop];
       }
     }
     return object;
@@ -157,23 +184,28 @@ const HSR_VOICE_ITEMS: VoiceItemFlatMap = {};
 
 export type StarRailVoiceItemType = 'Archive' | 'Cutscene' | 'NPC_Far' | 'NPC_Near' | 'NPC_Normal';
 
-interface StarRailVoiceConfig {
+interface StarRailVoiceConfigRaw {
   IsPlayerInvolved: boolean,
-  VoiceId: number,
+  VoiceID: number,
   VoicePath: string,
   VoiceType?: string,
+}
+
+export function normalizeStarRailVoicePath(voicePath: string): string {
+  return voicePath.replace(/_/g, ' ').toLowerCase() + '.ogg'
 }
 
 export async function loadStarRailVoiceItems(): Promise<void> {
   logInitData('Loading HSR Voice Items -- starting...');
 
   const voiceItemsFilePath = path.resolve(process.env.HSR_DATA_ROOT, DATAFILE_HSR_VOICE_ITEMS);
-  const result: StarRailVoiceConfig[] = await fs.readFile(voiceItemsFilePath, {encoding: 'utf8'}).then(data => JSON.parse(data));
+  const result: StarRailVoiceConfigRaw[] = await fs.readFile(voiceItemsFilePath, {encoding: 'utf8'})
+    .then(data => JSON.parse(data));
 
   for (let item of result) {
-    HSR_VOICE_ITEMS[item.VoiceId] = {
-      id: item.VoiceId,
-      fileName: item.VoicePath.replace(/_/g, ' ').toLowerCase() + '.ogg',
+    HSR_VOICE_ITEMS[item.VoiceID] = {
+      id: item.VoiceID,
+      fileName: normalizeStarRailVoicePath(item.VoicePath),
       isGendered: item.IsPlayerInvolved,
       type: item.VoiceType
     };

@@ -9,12 +9,25 @@ import { getStarRailDataFilePath } from '../../loadenv';
 import { closeKnex } from '../../util/db';
 import { importNormalize, importPlainTextMap } from '../util/import_file_util';
 import fs from 'fs';
-import { getStarRailControl } from '../../domain/hsr/starRailControl';
+import { getStarRailControl, loadStarRailVoiceItems } from '../../domain/hsr/starRailControl';
+import { fetchVoiceAtlases } from '../../domain/hsr/character/fetchVoiceAtlas';
+
+async function importVoiceOvers() {
+  const outDir = process.env.HSR_DATA_ROOT;
+  await loadStarRailVoiceItems();
+
+  const ctrl = getStarRailControl();
+  const voiceAtlases = await fetchVoiceAtlases(ctrl, true);
+
+  fs.writeFileSync(outDir + '/VoiceOvers.json', JSON.stringify(voiceAtlases, null, 2));
+  console.log(chalk.blue('Done. Output written to: ' + outDir + '/VoiceOvers.json'));
+}
 
 export async function importHsrFilesCli() {
   const optionDefinitions: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
     {name: 'normalize', type: Boolean, description: 'Normalizes the JSON files.'},
     {name: 'plaintext', type: Boolean, description: 'Creates the PlainTextMap files.'},
+    {name: 'voice-overs', type: Boolean, description: 'Creates the VoiceOvers file.'},
     {name: 'help', type: Boolean, description: 'Display this usage guide.'},
   ];
 
@@ -62,6 +75,9 @@ export async function importHsrFilesCli() {
       console.log('Moved TextMapCN.json to TextMapCHS.json');
     }
     await importNormalize(getStarRailDataFilePath('./ExcelOutput'), [], true);
+  }
+  if (options['voice-overs']) {
+    await importVoiceOvers();
   }
   if (options.plaintext) {
     const ctrl = getStarRailControl();

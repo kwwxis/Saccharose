@@ -200,15 +200,16 @@ export class ArrayStream<T> {
   }
 }
 
-export function groupBy<T>(array: T[], property: string): { [groupedBy: string]: T[] } {
-    let grouped = {};
-    for (let obj of array) {
-        if (!grouped.hasOwnProperty(obj[property])) {
-            grouped[obj[property]] = [];
-        }
-        grouped[obj[property]].push(obj);
+export function groupBy<T, K extends KeysMatching<T, string | number>>(array: T[], property: K, out?: { [key: string|number]: T[] }): { [groupedBy: string|number]: T[] } {
+  out = out || {};
+  for (let obj of array) {
+    let k: string|number = <any> obj[property];
+    if (!out.hasOwnProperty(k)) {
+      out[k] = [];
     }
-    return grouped;
+    out[k].push(obj);
+  }
+  return out;
 }
 
 export function toMap<T, K extends KeysMatching<T, string | number>>(array: T[], keyProp: K, out?: { [key: string|number]: T }): { [key: string|number]: T } {

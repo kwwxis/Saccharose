@@ -8,6 +8,7 @@ import { createWikitextEditor } from '../../../util/ace/wikitextEditor';
 import { humanTiming } from '../../../../shared/util/genericUtil';
 import { sort } from '../../../../shared/util/arrayUtil';
 import { LangCode } from '../../../../shared/types/lang-types';
+import { SITE_MODE_HOME } from '../../../siteMode';
 
 export function VoAppWelcome(state: VoAppState) {
   const recentEl: HTMLElement = document.querySelector('#vo-app-welcome-recent');
@@ -37,7 +38,7 @@ export function VoAppWelcome(state: VoAppState) {
         <div class="w50p">
           <a id="vo-app-welcome-recent-avatar-${avatar.Id}"
              class="vo-app-welcome-recent-avatar secondary dispFlex textAlignLeft spacer5-all"
-             href="/character/VO/${avatar.NameText.replace(' ', '_')}"
+             href="${SITE_MODE_HOME}/character/VO/${avatar.NameText.replace(' ', '_')}"
              role="button">
             <img class="icon x32" src="${state.config.imagePathPrefix}${avatar.IconName}.png" loading="lazy" decoding="async" />
             <div class="spacer10-left spacer5-top" style="line-height:1em">

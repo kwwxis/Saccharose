@@ -7,7 +7,8 @@ import { mwParse } from '../../../../shared/mediawiki/mwParse';
 import { MwTemplateNode } from '../../../../shared/mediawiki/mwTypes';
 import Cookies from 'js-cookie';
 import { DEFAULT_LANG, LangCode } from '../../../../shared/types/lang-types';
-import { VoAppPreloadOptions, VoAppPreloadResult } from './vo-preload-support';
+import { VoAppPreloadConfig, VoAppPreloadInput, VoAppPreloadOptions, VoAppPreloadResult } from './vo-preload-types';
+import { voPreload } from './vo-preload-support';
 
 function compareTemplateName(t1: string, t2: string) {
   return t1?.toLowerCase()?.replace(/_/g, ' ') === t2?.toLowerCase()?.replace(/_/g, ' ');
@@ -118,11 +119,11 @@ export function VoAppWikitextEditor(state: VoAppState) {
       localSave();
     }
   });
-  state.eventBus.on('VO-Wikitext-OverwriteFromVoiceItems', (requestedMode: string, opts: VoAppPreloadOptions = {}) => {
-    if (!state.voiceItems) {
+  state.eventBus.on('VO-Wikitext-OverwriteFromVoiceOvers', (requestedMode: string, opts: VoAppPreloadOptions = {}) => {
+    if (!state.voiceOverGroup) {
       return;
     }
-    console.log('[VO-App] Received OverwriteFromVoiceItems with mode ' + requestedMode + ' and options:', opts);
+    console.log('[VO-App] Received OverwriteFromVoiceOvers with mode ' + requestedMode + ' and options:', opts);
     let voLang: LangCode = state.voLang;
     let userLang: LangCode = (Cookies.get('outputLangCode') || DEFAULT_LANG) as LangCode;
     let mode: 'story' | 'combat' = null;
@@ -134,10 +135,13 @@ export function VoAppWikitextEditor(state: VoAppState) {
       return;
     }
 
-    let result: VoAppPreloadResult = state.config.preloader(state, mode, voLang, userLang, opts);
-    let parsedResult: MwTemplateNode = mwParse(result.wikitext).findTemplateNodes()[0];
+    const preloadInput: VoAppPreloadInput = new VoAppPreloadInput(state, mode, voLang, userLang, opts);
+    const preloadConf: VoAppPreloadConfig = state.config.preloadConfig;
+    const result: VoAppPreloadResult = voPreload(preloadInput, preloadConf);
 
-    let wikitext = mwParse(editor.getValue());
+    const parsedResult: MwTemplateNode = mwParse(result.wikitext).findTemplateNodes()[0];
+
+    const wikitext = mwParse(editor.getValue());
     let templateFound: MwTemplateNode = null;
     for (let wikitextTemplate of wikitext.findTemplateNodes()) {
       if (compareTemplateName(wikitextTemplate.templateName, result.templateName)) {

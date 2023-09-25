@@ -136,9 +136,33 @@ export class GenshinControlState extends AbstractControlState {
   newActivityNameCache: {[Id: number]: string} = {};
   questSummaryCache: QuestSummarizationTextExcelConfigData[] = null;
 
-  // Preferences:
-  DisableNpcCache: boolean = false;
+  // Cache Preferences:
   DisableAvatarCache: boolean = false;
+  DisableNpcCache: boolean = false;
+
+  // Autoload Preferences:
+  AutoloadText: boolean = true;
+  AutoloadAvatar: boolean = true;
+  AutoloadMonster: boolean = true;
+  AutoloadNPC: boolean = true;
+
+  override copy(): GenshinControlState {
+    const state = new GenshinControlState(this.request);
+    state.dialogueIdCache = new Set(this.dialogueIdCache);
+    state.npcCache = Object.assign({}, this.npcCache);
+    state.avatarCache = Object.assign({}, this.avatarCache);
+    state.bookSuitCache = Object.assign({}, this.bookSuitCache);
+    state.mqNameCache = Object.assign({}, this.mqNameCache);
+    state.newActivityNameCache = Object.assign({}, this.newActivityNameCache);
+    state.questSummaryCache = Object.assign({}, this.questSummaryCache);
+    state.DisableAvatarCache = this.DisableAvatarCache;
+    state.DisableNpcCache = this.DisableNpcCache;
+    state.AutoloadText = this.AutoloadText;
+    state.AutoloadAvatar = this.AutoloadAvatar;
+    state.AutoloadMonster = this.AutoloadMonster;
+    state.AutoloadNPC = this.AutoloadNPC;
+    return undefined;
+  }
 }
 
 export function getGenshinControl(request?: Request) {
@@ -150,12 +174,11 @@ export function getGenshinControl(request?: Request) {
 // --------------------------------------------------------------------------------------------------------------
 // TODO: Make this not a god object
 export class GenshinControl extends AbstractControl<GenshinControlState> {
-
   // region Constructor
-  readonly voice = new GenshinVoice();
+  readonly voice: GenshinVoice = new GenshinVoice();
 
-  constructor(request?: Request) {
-    super('genshin', GenshinControlState, request);
+  constructor(requestOrState?: Request|GenshinControlState) {
+    super('genshin', GenshinControlState, requestOrState);
     this.excelPath = './ExcelBinOutput';
   }
 
@@ -165,6 +188,10 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
   override normText(text: string, langCode: LangCode, opts: NormTextOptions = {}): string {
     return __normGenshinText(text, langCode, opts);
+  }
+
+  override copy(): GenshinControl {
+    return new GenshinControl(this.state.copy());
   }
   // endregion
 
@@ -200,7 +227,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     }
     const objAsAny = object as any;
     for (let prop in object) {
-      if (prop.endsWith('MapHash') || prop.endsWith('MapHashList')) {
+      if (this.state.AutoloadText && (prop.endsWith('MapHash') || prop.endsWith('MapHashList'))) {
         let textProp = prop.endsWith('List') ? prop.slice(0, -11) + 'List' : prop.slice(0, -7);
         if (Array.isArray(object[prop])) {
           let newOriginalArray = [];
@@ -226,7 +253,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
           }
         }
       }
-      if (prop.endsWith('Desc') && Array.isArray(object[prop]) && (<any[]> object[prop]).every(x => isInt(x))) {
+      if (this.state.AutoloadText && prop.endsWith('Desc') && Array.isArray(object[prop]) && (<any[]> object[prop]).every(x => isInt(x))) {
         let textProp = 'Mapped' + prop;
         let newOriginalArray = [];
         object[textProp] = [];
@@ -242,7 +269,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
         }
         objAsAny[prop] = newOriginalArray;
       }
-      if (prop.endsWith('Tips') && Array.isArray(object[prop])) {
+      if (this.state.AutoloadText && prop.endsWith('Tips') && Array.isArray(object[prop])) {
         let textProp = 'Mapped' + prop;
         let newOriginalArray = [];
         object[textProp] = [];
@@ -258,7 +285,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
         }
         objAsAny[prop] = newOriginalArray;
       }
-      if (prop.endsWith('ElementType') || prop.endsWith('ElementTypes')) {
+      if (this.state.AutoloadText && prop.endsWith('ElementType') || prop.endsWith('ElementTypes')) {
         let newProp = prop.replace('ElementType', 'ElementName');
         if (typeof object[prop] === 'string') {
           object[newProp] = await this.getElementName(object[prop] as ElementType, this.outputLangCode);
@@ -278,44 +305,20 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       if (prop.endsWith('Exec') && objAsAny[prop]) {
         this.postProcessCondProp(objAsAny, prop);
       }
-      if ((prop.endsWith('NpcList') || prop.endsWith('NpcId')) && Array.isArray(objAsAny[prop])) {
+      if (this.state.AutoloadNPC && (prop.endsWith('NpcList') || prop.endsWith('NpcId')) && Array.isArray(objAsAny[prop])) {
         let slicedProp = prop.endsWith('NpcList') ? prop.slice(0, -4) : prop.slice(0, -2);
         let dataList: NpcExcelConfigData[] = (await this.getNpcList(object[prop] as any, false));
         object[slicedProp+'DataList'] = dataList;
         object[slicedProp+'NameList'] = dataList.map(x => x.NameText);
       }
-      if (prop.endsWith('NpcId') && !Array.isArray(objAsAny[prop])) {
+      if (this.state.AutoloadNPC && prop.endsWith('NpcId') && !Array.isArray(objAsAny[prop])) {
         let slicedProp = prop.slice(0, -2);
         object[slicedProp] = await this.getNpc(objAsAny[prop]);
       }
-      if (prop == 'TalkRole') {
-        let TalkRole = (<any> object[prop]) as TalkRole;
-        let TalkRoleId: number = null;
-
-        if (typeof TalkRole.Id === 'string') {
-          TalkRoleId = parseInt(TalkRole.Id);
-          if (isNaN(TalkRoleId)) {
-            TalkRole.NameText = TalkRole.Id as string;
-          }
-        } else {
-          TalkRoleId = TalkRole.Id;
-        }
-
-        if (TalkRole.Type === 'TALK_ROLE_PLAYER') {
-          delete TalkRole.Id;
-          continue;
-        }
-
-        let npc = await this.getNpc(TalkRoleId);
-        if (npc) {
-          TalkRole.NameTextMapHash = npc.NameTextMapHash;
-          TalkRole.NameText = npc.NameText;
-        }
-      }
-      if (prop === 'AvatarId' && typeof objAsAny[prop] === 'number') {
+      if (this.state.AutoloadAvatar && prop === 'AvatarId' && typeof objAsAny[prop] === 'number') {
         objAsAny.Avatar = await this.selectAvatarById(objAsAny[prop]);
       }
-      if (prop === 'MonsterId' && typeof objAsAny[prop] === 'number') {
+      if (this.state.AutoloadMonster && prop === 'MonsterId' && typeof objAsAny[prop] === 'number') {
         objAsAny.Monster = await this.selectMonsterById(objAsAny[prop]);
       }
       if (object[prop] === null || objAsAny[prop] === '') {
@@ -532,9 +535,36 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       .where({DialogId: dialogId}).first().then(this.commonLoadFirst);
   }
 
-  private postProcessDialog(dialog: DialogExcelConfigData): DialogExcelConfigData {
-    if (dialog.TalkRole.Type !== 'TALK_ROLE_PLAYER' && !this.isBlackScreenDialog(dialog) && !dialog.TalkRole.Id) {
-      dialog.TalkRole.Type = 'TALK_ROLE_PLAYER';
+  private async postProcessDialog(dialog: DialogExcelConfigData): Promise<DialogExcelConfigData> {
+    if (!dialog) {
+      return dialog;
+    }
+    if (dialog.TalkRole) {
+      let TalkRole = dialog.TalkRole;
+      let TalkRoleId: number = null;
+
+      if (typeof TalkRole.Id === 'string') {
+        TalkRoleId = parseInt(TalkRole.Id);
+        if (isNaN(TalkRoleId)) {
+          TalkRole.NameText = TalkRole.Id as string;
+        }
+      } else {
+        TalkRoleId = TalkRole.Id;
+      }
+
+      if (TalkRole.Type !== 'TALK_ROLE_PLAYER' && !this.isBlackScreenDialog(dialog) && !TalkRole.Id) {
+        TalkRole.Type = 'TALK_ROLE_PLAYER';
+      }
+
+      if (TalkRole.Type === 'TALK_ROLE_PLAYER') {
+        delete TalkRole.Id;
+      } else {
+        let npc = await this.getNpc(TalkRoleId);
+        if (npc) {
+          TalkRole.NameTextMapHash = npc.NameTextMapHash;
+          TalkRole.NameText = npc.NameText;
+        }
+      }
     }
     return dialog;
   }
@@ -542,13 +572,13 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   async selectDialogExcelConfigDataByTalkRoleId(talkRoleId: number): Promise<DialogExcelConfigData[]> {
     let dialogs: DialogExcelConfigData[] = await this.knex.select('*').from('DialogExcelConfigData')
       .where({TalkRoleId: talkRoleId}).then(this.commonLoad);
-    return dialogs.map(d => this.postProcessDialog(d));
+    return dialogs.asyncMap(d => this.postProcessDialog(d));
   }
 
   async selectDialogExcelConfigDataByTalkId(talkId: number): Promise<DialogExcelConfigData[]> {
     let dialogs: DialogExcelConfigData[] = await this.knex.select('*').from('DialogExcelConfigData')
       .where({TalkId: talkId}).then(this.commonLoad);
-    return dialogs.map(d => this.postProcessDialog(d));
+    return dialogs.asyncMap(d => this.postProcessDialog(d));
   }
 
   async selectPreviousDialogs(nextId: number): Promise<DialogExcelConfigData[]> {
@@ -563,7 +593,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     if (!result) {
       return result;
     }
-    result = this.postProcessDialog(result);
+    result = await this.postProcessDialog(result);
     this.saveToDialogIdCache(result);
     return result && result.TalkContentText ? result : null;
   }
@@ -594,8 +624,8 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     let results: DialogExcelConfigData[] = await this.knex.select('*').from('DialogExcelConfigData')
       .where({TalkContentTextMapHash: textMapHash})
       .then(this.commonLoad);
+    results = await results.asyncMap(d => this.postProcessDialog(d));
     for (let result of results) {
-      result = this.postProcessDialog(result);
       this.saveToDialogIdCache(result);
     }
     return results;

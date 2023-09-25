@@ -2,7 +2,7 @@ import '../../../loadenv';
 import { GenshinControl, getGenshinControl, loadGenshinVoiceItems } from '../genshinControl';
 import { processFetterConds } from './fetterConds';
 import { closeKnex } from '../../../util/db';
-import { CharacterFetters, CharacterFettersByAvatar, FetterExcelConfigData } from '../../../../shared/types/genshin/fetter-types';
+import { FetterGroup, FetterGroupByAvatar, FetterExcelConfigData } from '../../../../shared/types/genshin/fetter-types';
 import { cached } from '../../../util/cache';
 import { pathToFileURL } from 'url';
 import { fetchCharacterStories } from './fetchStoryFetters';
@@ -13,6 +13,8 @@ import { VoiceItem } from '../../../../shared/types/lang-types';
 import { DATAFILE_GENSHIN_FETTERS } from '../../../loadenv';
 import path from 'path';
 import { promises as fs } from 'fs';
+import { defaultMap } from '../../../../shared/util/genericUtil';
+import { toMap } from '../../../../shared/util/arrayUtil';
 
 function getVoAvatarName(avatar: AvatarExcelConfigData, voiceItems: VoiceItem[]): string {
   if (isTraveler(avatar, 'male')) {
@@ -49,49 +51,53 @@ function getVoAvatarName(avatar: AvatarExcelConfigData, voiceItems: VoiceItem[])
   return null;
 }
 
-export async function fetchCharacterFetters(ctrl: GenshinControl, skipCache: boolean = false): Promise<CharacterFettersByAvatar> {
+export async function fetchCharacterFetters(ctrl: GenshinControl, skipCache: boolean = false): Promise<FetterGroupByAvatar> {
   if (!skipCache) {
-    return cached('CharacterFetters', async () => {
-      const fettersFilePath = path.resolve(process.env.GENSHIN_DATA_ROOT, DATAFILE_GENSHIN_FETTERS);
-      const result: CharacterFettersByAvatar = await fs.readFile(fettersFilePath, {encoding: 'utf8'}).then(data => JSON.parse(data));
+    return cached('Genshin_FetterGroup', async () => {
+      const filePath = path.resolve(process.env.GENSHIN_DATA_ROOT, DATAFILE_GENSHIN_FETTERS);
+      const result: FetterGroupByAvatar = await fs.readFile(filePath, {encoding: 'utf8'})
+        .then(data => JSON.parse(data));
       return result;
     });
   }
-  return cached('CharacterFetters', async () => {
+
+  ctrl = ctrl.copy();
+  ctrl.state.AutoloadAvatar = false;
+  ctrl.state.AutoloadText = false;
+
+  const avatarMap: {[avatarId: number]: AvatarExcelConfigData} = toMap(await ctrl.selectAllAvatars(), 'Id');
+
+  return cached('Genshin_FetterGroup', async () => {
     let fetters: FetterExcelConfigData[] = await ctrl.readDataFile('./ExcelBinOutput/FettersExcelConfigData.json');
-    let fettersByAvatar: CharacterFettersByAvatar = {};
-    let aggByVoAvatar: {[voAvatarName: string]: CharacterFetters} = {};
+    let fettersByAvatar: FetterGroupByAvatar = defaultMap((avatarId: number) => new FetterGroup(avatarId));
+    let aggByVoAvatar: {[voAvatarName: string]: FetterGroup} = {};
 
     for (let fetter of fetters) {
-      if (!fettersByAvatar[fetter.AvatarId]) {
-        fettersByAvatar[fetter.AvatarId] = new CharacterFetters();
-      }
       let agg = fettersByAvatar[fetter.AvatarId];
-      if (!agg.avatar && fetter.Avatar) {
-        agg.avatar = fetter.Avatar;
-        agg.avatarName = await ctrl.createLangCodeMap(fetter.Avatar.NameTextMapHash);
+
+      if (!agg.avatarName) {
+        agg.avatarName = await ctrl.createLangCodeMap(avatarMap[fetter.AvatarId].NameTextMapHash);
       }
-      if (agg.avatar && !agg.voAvatarName && fetter.VoiceFile) {
+
+      if (agg.avatarName && !agg.voAvatarName && fetter.VoiceFile) {
         let voItems = ctrl.voice.getVoiceItems('Fetter', fetter.VoiceFile);
         if (voItems && voItems.length) {
-          agg.voAvatarName = getVoAvatarName(agg.avatar, voItems);
+          agg.voAvatarName = getVoAvatarName(avatarMap[agg.avatarId], voItems);
           aggByVoAvatar[agg.voAvatarName] = agg;
         }
       }
+
       if (agg.voAvatarName && fetter.VoiceFile) {
         let voItems = ctrl.voice.getVoiceItems('Fetter', fetter.VoiceFile);
         fetter.VoiceFilePath = voItems.find(item => item.fileName.startsWith('vo ' + agg.voAvatarName))?.fileName;
       }
+
       if (fetter.Type === 1) {
         agg.storyFetters.push(fetter);
       }
       if (fetter.Type === 2) {
         agg.combatFetters.push(fetter);
       }
-
-      delete (<any> fetter).VoiceTitleText;
-      delete (<any> fetter).VoiceFileText;
-      delete (<any> fetter).VoiceTitleLockedText;
 
       if (fetter.VoiceTitleTextMapHash) {
         fetter.VoiceTitleTextMap = await ctrl.createLangCodeMap(fetter.VoiceTitleTextMapHash);
@@ -127,9 +133,8 @@ export async function fetchCharacterFetters(ctrl: GenshinControl, skipCache: boo
   });
 }
 
-export async function fetchCharacterFettersByAvatarId(ctrl: GenshinControl, avatarId: number): Promise<CharacterFetters> {
-  let fettersByAvatar = await fetchCharacterFetters(ctrl);
-  return fettersByAvatar[avatarId];
+export async function fetchCharacterFettersByAvatarId(ctrl: GenshinControl, avatarId: number): Promise<FetterGroup> {
+  return (await fetchCharacterFetters(ctrl))[avatarId];
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
@@ -141,7 +146,8 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     let avatars = Object.values(await fetchCharacterStories(ctrl)).map(x => x.avatar);
     let fetterVOs = ctrl.voice.getVoiceItemsByType('Fetter');
     for (let avatar of avatars) {
-      console.log(avatar.NameText, chalk.bold(getVoAvatarName(avatar, fetterVOs)));
+      let voAvatarName = getVoAvatarName(avatar, fetterVOs);
+      console.log(avatar.NameText, voAvatarName === null ? chalk.red.bold(voAvatarName) : chalk.bold(voAvatarName));
     }
 
     // let res = cleanEmpty(await fetchCharacterFettersByAvatarName(ctrl, 'nahida'));

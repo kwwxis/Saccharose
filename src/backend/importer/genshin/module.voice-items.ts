@@ -19,7 +19,7 @@ const VoiceSchema = <SchemaTable>{
   },
 };
 
-export async function importVoice() {
+export async function importVoiceItems() {
   const outDir = process.env.GENSHIN_DATA_ROOT;
   const jsonDir = getGenshinDataFilePath('./BinOutput/Voice/Items');
 
@@ -97,6 +97,6 @@ export async function importVoice() {
   if (unknownTriggers.size) {
     console.log(chalk.red('Unknown game triggers:', unknownTriggers));
   }
-  console.log(chalk.blue('Done. Output written to: ' + outDir + '/voiceItemsNormalized.json'));
-  fs.writeFileSync(outDir + '/voiceItemsNormalized.json', JSON.stringify(combined, null, 2));
+  console.log(chalk.blue('Done. Output written to: ' + outDir + '/VoiceItems.json'));
+  fs.writeFileSync(outDir + '/VoiceItems.json', JSON.stringify(combined, null, 2));
 }

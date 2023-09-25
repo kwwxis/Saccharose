@@ -13,7 +13,7 @@ import { AvatarConfig } from '../../../../shared/types/hsr/hsr-avatar-types';
 export default async function(): Promise<Router> {
   const router: Router = create();
 
-  router.get('/messages', async (req: Request, res: Response) => {
+  router.get('/avatar-test', async (req: Request, res: Response) => {
     const ctrl = getStarRailControl(req);
     const avatars: AvatarConfig[] = await getStarRailAvatars(ctrl);
 

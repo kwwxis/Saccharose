@@ -158,10 +158,10 @@ It's recommended you install `ts-node` globally with `npm install -g ts-node`
 
 4.  **Import files (voice) [genshin only]**
     
-    This will create or overwrite a file called `voiceItemsNormalized.json` in
+    This will create or overwrite a file called `VoiceItems.json` in
     your `GENSHIN_DATA_ROOT` folder.<br><br>
     
-    * Run with: `ts-node ./src/backend/importer/genshin/import_genshin_files.ts --voice`.
+    * Run with: `ts-node ./src/backend/importer/genshin/import_genshin_files.ts --voice-items`.
 
 5.  **Run import_db for each game**
    
@@ -177,7 +177,7 @@ It's recommended you install `ts-node` globally with `npm install -g ts-node`
     
     * `ts-node ./src/backend/importer/genshin/import_genshin_files.ts --index`
     * `ts-node ./src/backend/importer/genshin/import_genshin_files.ts --gcg-skill`
-    * `ts-node ./src/backend/importer/genshin/import_genshin_files.ts --fetters`
+    * `ts-node ./src/backend/importer/genshin/import_genshin_files.ts --voice-overs`
     
 ## Development
 

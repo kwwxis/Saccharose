@@ -5,24 +5,24 @@ import { VoAppSidebar } from './vo-app-sidebar';
 import { VoAppToolbar } from './vo-app-toolbar';
 import { VoAppWikitextEditor } from './vo-app-wikitext';
 import { VoAppVisualEditor } from './vo-app-visual';
-import { VoAppPreloadFunction } from './vo-preload-support';
 import { EventBus } from '../../../util/eventBus';
 import { GeneralEventBus } from '../../../generalEventBus';
 import { DEFAULT_LANG, LANG_CODES, LANG_CODES_TO_NAME, LangCode } from '../../../../shared/types/lang-types';
-import { CommonAvatar, CommonVoiceCollection } from '../../../../shared/types/common-types';
+import { CommonAvatar, CommonVoiceOverGroup } from '../../../../shared/types/common-types';
+import { VoAppPreloadConfig } from './vo-preload-types';
 
 export interface VoAppConfig {
   storagePrefix: string,
   imagePathPrefix: string,
-  preloader: VoAppPreloadFunction,
-  fetchVoiceCollection: (avatar: CommonAvatar) => Promise<CommonVoiceCollection>,
+  fetchVoiceCollection: (avatar: CommonAvatar) => Promise<CommonVoiceOverGroup>,
   isMainCharacter: (avatar: CommonAvatar) => boolean,
+  preloadConfig: VoAppPreloadConfig,
 }
 
 export class VoAppState {
   avatars: CommonAvatar[];
   avatar: CommonAvatar;
-  voiceItems: CommonVoiceCollection;
+  voiceOverGroup: CommonVoiceOverGroup;
   voLang: LangCode;
   interfaceLang: LangCode;
   eventBus: EventBus;
@@ -49,15 +49,13 @@ export class VoAppState {
   }
 
   init() {
-    console.log('[VO-App] VoAppState init invoked', this);
+    this.eventBus.emit('VO-Init-Called', this);
 
     if (this.avatar) {
-      this.config.fetchVoiceCollection(this.avatar).then((collection: CommonVoiceCollection) => {
-        this.voiceItems = collection;
-        this.voiceItems.avatar = this.avatar;
-        this.eventBus.emit('VO-VoiceItemsLoaded');
+      this.config.fetchVoiceCollection(this.avatar).then((collection: CommonVoiceOverGroup) => {
+        this.voiceOverGroup = collection;
+        this.eventBus.emit('VO-Init-VoiceOversLoaded');
         document.querySelector('#vo-app-loading-status').classList.add('hide');
-        console.log('[VO-App] Voice items loaded');
       });
     }
 

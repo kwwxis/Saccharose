@@ -2,37 +2,26 @@ import { pageMatch } from '../../../pageMatch';
 import { initializeVoTool } from '../../generic/vo-tool/vo-tool';
 import {
   CommonAvatar,
-  CommonVoiceCollection,
+  CommonVoiceOverGroup,
+  toCommonVoiceOverGroupFromStarRail,
 } from '../../../../shared/types/common-types';
-import { AvatarConfig, isTrailblazer } from '../../../../shared/types/hsr/hsr-avatar-types';
-import { VoAppPreloadResult } from '../../generic/vo-tool/vo-preload-support';
+import { AvatarConfig, isTrailblazer, VoiceAtlasGroup } from '../../../../shared/types/hsr/hsr-avatar-types';
+import { starRailEndpoints } from '../../../endpoints';
 
 pageMatch('pages/hsr/character/vo-tool', () => {
-  initializeVoTool(() => {
-    return {
-      storagePrefix: 'HSR_',
-      imagePathPrefix: '/images/hsr/',
+  initializeVoTool(() => ({
+    storagePrefix: 'HSR_',
+    imagePathPrefix: '/images/hsr/',
 
-      preloader(state, mode, lang, userLang, opts): VoAppPreloadResult {
-        return { templateName: 'VO', wikitext: '(Not implemented)' };
-      },
+    async fetchVoiceCollection(avatar: CommonAvatar): Promise<CommonVoiceOverGroup> {
+      const atlasGroup: VoiceAtlasGroup = await starRailEndpoints.getVoiceAtlasGroup.get({ avatarId: avatar.Id });
+      return toCommonVoiceOverGroupFromStarRail(atlasGroup);
+    },
 
-      async fetchVoiceCollection(avatar: CommonAvatar): Promise<CommonVoiceCollection> {
-        // const fetters: CharacterFetters = await genshinEndpoints.getFetters.get({ avatarId: avatar.Id });
-        // return toCommonVoiceCollectionFromGenshin(fetters);
-        return {
-          avatar: avatar,
-          avatarName: null,
-          voAvatarName: '',
-          storyItems: [],
-          combatItems: [],
-          original: null
-        }
-      },
+    isMainCharacter(avatar: CommonAvatar<AvatarConfig>): boolean {
+      return isTrailblazer(avatar.Original);
+    },
 
-      isMainCharacter(avatar: CommonAvatar<AvatarConfig>): boolean {
-        return isTrailblazer(avatar.Original);
-      }
-    }
-  });
+    preloadConfig: null,
+  }));
 });

@@ -28,9 +28,10 @@ export const DATAFILE_GENSHIN_SQLITE_DB = './genshin_data.db';
 export const DATAFILE_HSR_SQLITE_DB = './hsr_data.db';
 export const DATAFILE_ZENLESS_SQLITE_DB = './zenless_data.db';
 
-export const DATAFILE_GENSHIN_VOICE_ITEMS = './voiceItemsNormalized.json';
-export const DATAFILE_GENSHIN_FETTERS = './CharacterFettersCombined.json';
+export const DATAFILE_GENSHIN_VOICE_ITEMS = './VoiceItems.json';
+export const DATAFILE_GENSHIN_FETTERS = './VoiceOvers.json';
 export const DATAFILE_HSR_VOICE_ITEMS = './ExcelOutput/VoiceConfig.json';
+export const DATAFILE_HSR_VOICE_ATLASES = './VoiceOvers.json';
 
 export const getNodeEnv = (): 'development'|'production' => <any> process.env.NODE_ENV;
 
@@ -46,21 +47,30 @@ export const getTextIndexRelPath = (textIndexName: string): string =>
 export const getReadableRelPath = (langCode: LangCode): string =>
   './Readable/'+langCode;
 
-export function getGenshinDataFilePath(file: string): string {
+export function getGenshinDataFilePath(file?: string): string {
+  if (!file) {
+    return process.env.GENSHIN_DATA_ROOT.replaceAll('\\', '/');
+  }
   if (file.includes('../') || file.includes('..\\')) {
     throw 'Access to parent directories disallowed.';
   }
   return path.resolve(process.env.GENSHIN_DATA_ROOT, file).replaceAll('\\', '/');
 }
 
-export function getStarRailDataFilePath(file: string): string {
+export function getStarRailDataFilePath(file?: string): string {
+  if (!file) {
+    return process.env.HSR_DATA_ROOT.replaceAll('\\', '/');
+  }
   if (file.includes('../') || file.includes('..\\')) {
     throw 'Access to parent directories disallowed.';
   }
   return path.resolve(process.env.HSR_DATA_ROOT, file).replaceAll('\\', '/');
 }
 
-export function getZenlessDataFilePath(file: string): string {
+export function getZenlessDataFilePath(file?: string): string {
+  if (!file) {
+    return process.env.ZENLESS_DATA_ROOT.replaceAll('\\', '/');
+  }
   if (file.includes('../') || file.includes('..\\')) {
     throw 'Access to parent directories disallowed.';
   }

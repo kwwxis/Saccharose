@@ -30,6 +30,10 @@ import { Request } from 'express';
 export abstract class AbstractControlState {
   public request: Request = null;
 
+  constructor(request?: Request) {
+    this.request = request || null;
+  }
+
   get inputLangCode(): LangCode {
     if (this.request) {
       if (typeof this.request.query['input'] === 'string' && (LANG_CODES as string[]).includes(this.request.query['input'])) {
@@ -59,6 +63,8 @@ export abstract class AbstractControlState {
     }
     return DEFAULT_SEARCH_MODE;
   }
+
+  abstract copy(): AbstractControlState;
 }
 
 export abstract class AbstractControl<T extends AbstractControlState = AbstractControlState>  {
@@ -73,12 +79,13 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     return a.Order - b.Order || a.Order - b.Order;
   };
 
-  protected constructor(dbName: keyof SaccharoseDb, stateConstructor: {new(): T}, request?: Request) {
-    this.state = new stateConstructor();
-    this.state.request = request;
+  protected constructor(dbName: keyof SaccharoseDb, stateConstructor: {new(request?: Request): T}, requestOrState?: Request|T) {
+    this.state = requestOrState instanceof AbstractControlState ? requestOrState : new stateConstructor(requestOrState);
     this.knex = openKnex()[dbName];
     this.schema = schemaForDbName(dbName);
   }
+
+  abstract copy(): AbstractControl<T>;
 
   get inputLangCode(): LangCode {
     return this.state.inputLangCode;
@@ -155,6 +162,10 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     }
     return await this.knex.select('Text').from('TextMap'+langCode)
       .where({Hash: hash}).first().then(x => x?.Text);
+  }
+
+  async isEmptyTextMapItem(langCode: LangCode, hash: TextMapHash): Promise<boolean> {
+    return isStringBlank(await this.getTextMapItem(langCode, hash));
   }
 
   async createLangCodeMap(hash: TextMapHash, doNormText: boolean = true): Promise<LangCodeMap> {

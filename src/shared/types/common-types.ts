@@ -1,13 +1,12 @@
 import { LangCodeMap } from './lang-types';
 import { AvatarExcelConfigData } from './genshin/avatar-types';
-import { AvatarConfig } from './hsr/hsr-avatar-types';
-import { CharacterFetters, FetterExcelConfigData } from './genshin/fetter-types';
+import { AvatarConfig, VoiceAtlas, VoiceAtlasGroup } from './hsr/hsr-avatar-types';
+import { FetterGroup, FetterExcelConfigData } from './genshin/fetter-types';
 
 // region Common Avatar
 // --------------------------------------------------------------------------------------------------------------
 export interface CommonAvatar<T = any> {
   Id: number,
-  Game: 'genshin' | 'hsr' | 'zenless',
 
   NameText: string,
   NameTextMapHash: number,
@@ -22,18 +21,10 @@ export interface CommonAvatar<T = any> {
   Original: T,
 }
 
-export function isCommonAvatarFromGenshin(avatar: CommonAvatar): avatar is CommonAvatar<AvatarExcelConfigData> {
-  return avatar.Game === 'genshin';
-}
-export function isCommonAvatarFromStarRail(avatar: CommonAvatar): avatar is CommonAvatar<AvatarConfig> {
-  return avatar.Game === 'hsr';
-}
-
 export function toCommonAvatarFromGenshin(avatar: AvatarExcelConfigData): CommonAvatar<AvatarExcelConfigData> {
   if (!avatar) return null;
   return {
     Id: avatar.Id,
-    Game: 'genshin',
 
     NameText: avatar.NameText,
     NameTextMapHash: avatar.NameTextMapHash,
@@ -56,7 +47,6 @@ export function toCommonAvatarFromStarRail(avatar: AvatarConfig): CommonAvatar<A
   if (!avatar) return null;
   return {
     Id: avatar.Id,
-    Game: 'hsr',
 
     NameText: avatar.NameText,
     NameTextMapHash: avatar.NameTextMapHash,
@@ -78,7 +68,7 @@ export function toCommonAvatarsFromStarRail(avatars: AvatarConfig[]): CommonAvat
 
 // region Common Voice Item
 // --------------------------------------------------------------------------------------------------------------
-export interface CommonVoiceItem<T = any> {
+export interface CommonVoiceOver<T = any> {
   VoiceFile: string,
   TitleTextMap?: LangCodeMap,
   DescTextMap?: LangCodeMap,
@@ -86,7 +76,7 @@ export interface CommonVoiceItem<T = any> {
   Original: T,
 }
 
-export function toCommonVoiceItemFromGenshin(fetter: FetterExcelConfigData): CommonVoiceItem<FetterExcelConfigData> {
+export function toCommonVoiceOverFromGenshin(fetter: FetterExcelConfigData): CommonVoiceOver<FetterExcelConfigData> {
   return {
     VoiceFile: fetter.VoiceFile,
     TitleTextMap: fetter.VoiceTitleTextMap,
@@ -95,34 +85,60 @@ export function toCommonVoiceItemFromGenshin(fetter: FetterExcelConfigData): Com
     Original: fetter
   };
 }
-export function toCommonVoiceItemsFromGenshin(fetters: FetterExcelConfigData[]): CommonVoiceItem<FetterExcelConfigData>[] {
-  return fetters.map(f => toCommonVoiceItemFromGenshin(f));
+export function toCommonVoiceOversFromGenshin(fetters: FetterExcelConfigData[]): CommonVoiceOver<FetterExcelConfigData>[] {
+  return fetters.map(f => toCommonVoiceOverFromGenshin(f));
+}
+
+export function toCommonVoiceOverFromStarRail(atlas: VoiceAtlas): CommonVoiceOver<VoiceAtlas> {
+  return {
+    VoiceFile: atlas.VoiceItem?.fileName,
+    TitleTextMap: atlas.VoiceTitleTextMap,
+    DescTextMap: atlas.VoiceMTextMap,
+    LockedTextMap: atlas.UnlockDescTextMap,
+    Original: atlas
+  };
+}
+export function toCommonVoiceOversFromStarRail(atlases: VoiceAtlas[]): CommonVoiceOver<VoiceAtlas>[] {
+  return atlases.map(a => toCommonVoiceOverFromStarRail(a));
 }
 // endregion
 
-// region Common Voice Collection
+// region Common Voice Over Group
 // --------------------------------------------------------------------------------------------------------------
-export class CommonVoiceCollection<T = any> {
-  avatar?: CommonAvatar = null;
+export class CommonVoiceOverGroup<T = any> {
+  avatarId: number;
   avatarName: LangCodeMap;
-  voAvatarName: string = null;
 
-  storyItems: CommonVoiceItem[] = [];
-  combatItems: CommonVoiceItem[] = [];
+  storyVoiceOvers: CommonVoiceOver[] = [];
+  combatVoiceOvers: CommonVoiceOver[] = [];
+  animatorEventFiles: string[] = [];
 
   original: T;
 }
 
-export function toCommonVoiceCollectionFromGenshin(fetters: CharacterFetters): CommonVoiceCollection<CharacterFetters> {
+export function toCommonVoiceOverGroupFromGenshin(fetterGroup: FetterGroup): CommonVoiceOverGroup<FetterGroup> {
   return {
-    avatar: fetters.avatar ? toCommonAvatarFromGenshin(fetters.avatar) : null,
-    avatarName: fetters.avatarName,
-    voAvatarName: fetters.voAvatarName,
+    avatarId: fetterGroup.avatarId,
+    avatarName: fetterGroup.avatarName,
 
-    storyItems: toCommonVoiceItemsFromGenshin(fetters.storyFetters),
-    combatItems: toCommonVoiceItemsFromGenshin(fetters.combatFetters),
+    storyVoiceOvers: toCommonVoiceOversFromGenshin(fetterGroup.storyFetters),
+    combatVoiceOvers: toCommonVoiceOversFromGenshin(fetterGroup.combatFetters),
+    animatorEventFiles: fetterGroup.animatorEventFiles,
 
-    original: fetters
+    original: fetterGroup
+  }
+}
+
+export function toCommonVoiceOverGroupFromStarRail(atlasGroup: VoiceAtlasGroup): CommonVoiceOverGroup<VoiceAtlasGroup> {
+  return {
+    avatarId: atlasGroup.avatarId,
+    avatarName: atlasGroup.avatarName,
+
+    storyVoiceOvers: toCommonVoiceOversFromStarRail(atlasGroup.storyAtlases),
+    combatVoiceOvers: toCommonVoiceOversFromStarRail(atlasGroup.combatAtlases),
+    animatorEventFiles: [],
+
+    original: atlasGroup
   }
 }
 // endregion

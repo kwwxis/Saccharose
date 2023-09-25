@@ -8,21 +8,21 @@ import { getGenshinControl } from '../../domain/genshin/genshinControl';
 import { closeKnex } from '../../util/db';
 import { importNormalize, importPlainTextMap } from '../util/import_file_util';
 import { importGcgSkill } from './module.gcg-skill';
-import { importVoice } from './module.voice';
+import { importVoiceItems } from './module.voice-items';
 import { importTranslateSchema, translateExcel } from './module.translate-schema';
-import { importFetters } from './module.fetters';
+import { importVoiceOvers } from './module.voice-overs';
 import { maximizeImages } from './module.maximize-images';
 import { importSearchIndex } from './module.search-index';
-import { importMakeExcels } from './module.make-excels';
+import { generateQuestDialogExcels } from './module.make-excels';
 
 export async function importGenshinFilesCli() {
   const optionDefinitions: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
     {name: 'normalize', type: Boolean, description: 'Normalizes the JSON files.'},
     {name: 'plaintext', type: Boolean, description: 'Creates the PlainTextMap files.'},
     {name: 'index', type: Boolean, description: 'Creates the index files for PlainTextMap.'},
-    {name: 'voice', type: Boolean, description: 'Creates the normalized voice items file.'},
+    {name: 'voice-items', type: Boolean, description: 'Creates the normalized voice items file.'},
     {name: 'gcg-skill', type: Boolean, description: 'Creates file for GCG skill data'},
-    {name: 'fetters', type: Boolean, description: 'Creates file for character fetters data'},
+    {name: 'voice-overs', type: Boolean, description: 'Creates file for character voice over data (aka fetters)'},
     {name: 'make-excels', type: Boolean, description: 'Creates some of the excels that are no longer updated by the game client'},
     {name: 'translate-schema', type: Boolean, description: 'Creates the SchemaTranslation file.'},
     {name: 'translate-excel', type: String, description: 'Translate excel to output directory. Requires translate-schema to be completed first.'},
@@ -77,14 +77,14 @@ export async function importGenshinFilesCli() {
   if (options.index) {
     await importSearchIndex();
   }
-  if (options.voice) {
-    await importVoice();
+  if (options['voice-items']) {
+    await importVoiceItems();
   }
   if (options['gcg-skill']) {
     await importGcgSkill();
   }
-  if (options.fetters) {
-    await importFetters();
+  if (options['voice-overs']) {
+    await importVoiceOvers();
   }
   if (options['translate-schema']) {
     await importTranslateSchema();
@@ -96,7 +96,7 @@ export async function importGenshinFilesCli() {
     await maximizeImages();
   }
   if (options['make-excels']) {
-    await importMakeExcels();
+    await generateQuestDialogExcels(getGenshinDataFilePath());
   }
 
   await closeKnex();

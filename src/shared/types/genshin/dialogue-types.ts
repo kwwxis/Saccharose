@@ -13,8 +13,8 @@ export type TalkRoleType =
 export interface TalkRole {
   Type: TalkRoleType,
   Id: number | string,
-  NameTextMapHash?: number,
-  NameText?: string,
+  NameTextMapHash?: number, // custom
+  NameText?: string, // custom
 }
 
 export interface DialogExcelConfigData {

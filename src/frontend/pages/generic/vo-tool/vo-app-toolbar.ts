@@ -7,12 +7,13 @@ import { ucFirst } from '../../../../shared/util/stringUtil';
 import { GeneralEventBus } from '../../../generalEventBus';
 import { resolveObjectPath } from '../../../../shared/util/arrayUtil';
 import { LANG_CODE_TO_WIKI_CODE, LangCode } from '../../../../shared/types/lang-types';
-import { VoAppPreloadOptions } from './vo-preload-support';
+
+import { VoAppPreloadOptions } from './vo-preload-types';
 
 export function VoAppToolbar(state: VoAppState) {
   function overwriteModal(type: 'story' | 'combat') {
-    if (!state.voiceItems) {
-      alert('Voice items not yet loaded. Please wait a bit and then retry.');
+    if (!state.voiceOverGroup) {
+      alert('Voice-overs not yet loaded. Please wait a bit and then retry.');
       return;
     }
     let opts: VoAppPreloadOptions = {};
@@ -78,7 +79,7 @@ export function VoAppToolbar(state: VoAppState) {
           resolveObjectPath(opts, inputEl.name, 'set', inputEl.value);
         }
       });
-      state.eventBus.emit('VO-Wikitext-OverwriteFromVoiceItems', type, opts);
+      state.eventBus.emit('VO-Wikitext-OverwriteFromVoiceOvers', type, opts);
     });
   }
   startListeners([
@@ -114,8 +115,8 @@ export function VoAppToolbar(state: VoAppState) {
       el: '#vo-app-load-from-story',
       ev: 'click',
       fn: function() {
-        if (!state.voiceItems) {
-          alert('Voice items not yet loaded. Please wait a bit and then retry.');
+        if (!state.voiceOverGroup) {
+          alert('Voice-overs not yet loaded. Please wait a bit and then retry.');
           return;
         }
         overwriteModal('story');
@@ -125,8 +126,8 @@ export function VoAppToolbar(state: VoAppState) {
       el: '#vo-app-load-from-combat',
       ev: 'click',
       fn: function() {
-        if (!state.voiceItems) {
-          alert('Voice items not yet loaded. Please wait a bit and then retry.');
+        if (!state.voiceOverGroup) {
+          alert('Voice-overs not yet loaded. Please wait a bit and then retry.');
           return;
         }
         overwriteModal('combat');
@@ -159,12 +160,12 @@ export function VoAppToolbar(state: VoAppState) {
       el: '#vo-app-export-json',
       ev: 'click',
       fn: function() {
-        if (!state.voiceItems) {
-          alert('Voice items not yet loaded. Please wait a bit and then retry.');
+        if (!state.voiceOverGroup) {
+          alert('Voice-overs not yet loaded. Please wait a bit and then retry.');
           return;
         }
         let wtAvatarName = state.avatar.NameText.replace(/ /g, '_');
-        downloadObjectAsJson(state.voiceItems, `${wtAvatarName}_VoiceItems.json`, 2);
+        downloadObjectAsJson(state.voiceOverGroup.original, `${wtAvatarName}_VoiceOvers.json`, 2);
       }
     }
   ]);

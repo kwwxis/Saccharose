@@ -6,7 +6,8 @@ import { showInternalErrorDialog, showJavascriptErrorDialog } from './util/error
 import { modalService } from './util/modalService';
 import { HttpError } from '../shared/util/httpError';
 import { cleanEmpty } from '../shared/util/arrayUtil';
-import { CharacterFetters } from '../shared/types/genshin/fetter-types';
+import { FetterGroup } from '../shared/types/genshin/fetter-types';
+import { VoiceAtlasGroup } from '../shared/types/hsr/hsr-avatar-types';
 
 export abstract class SaccharoseApiEndpoint<T extends Object, R = any> {
   readonly uri: string;
@@ -185,7 +186,7 @@ export const genshinEndpoints = {
 
   voToDialogue: new GenshinApiEndpoint<{text: string}>('/dialogue/vo-to-dialogue'),
 
-  getFetters: new GenshinApiEndpoint<{avatarId: number}, CharacterFetters>('/character/fetters'),
+  getFetters: new GenshinApiEndpoint<{avatarId: number}, FetterGroup>('/character/fetters'),
 
   searchReadables: new GenshinApiEndpoint<{text: string}>('/readables/search'),
 
@@ -226,6 +227,8 @@ export const starRailEndpoints = {
   }>('/search-textmap'),
 
   getIdUsages: new StarRailApiEndpoint<{q: string}>('/id-usages'),
+
+  getVoiceAtlasGroup: new StarRailApiEndpoint<{avatarId: number}, VoiceAtlasGroup>('/character/voice-atlas'),
 };
 
 export const zenlessEndpoints = {

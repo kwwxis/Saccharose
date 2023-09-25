@@ -1,8 +1,8 @@
 
 import { AvatarExcelConfigData } from './avatar-types';
-import { LangCode, LangCodeMap } from '../lang-types';
+import { LangCodeMap } from '../lang-types';
 
-// Fetter Condition Types
+// region Fetter Condition Types
 // ----------------------------------------------------------------------------------------------------
 
 export interface FetterCondSummary {
@@ -38,8 +38,9 @@ export interface FetterWithConditions {
   Tips: number[],
   MappedTips?: string[],
 }
+// endregion
 
-// Character Story Fetter Types
+// region Character Story Fetter Types
 // ----------------------------------------------------------------------------------------------------
 
 export interface FetterStoryExcelConfigData extends FetterWithConditions {
@@ -73,8 +74,9 @@ export class StoryFetters {
 export type StoryFettersByAvatar = {
   [avatarId: number]: StoryFetters
 };
+// endregion
 
-// Character VO Fetter Types
+// region Character VO Fetter Types
 // ----------------------------------------------------------------------------------------------------
 
 export interface FetterExcelConfigData extends FetterWithConditions {
@@ -96,13 +98,10 @@ export interface FetterExcelConfigData extends FetterWithConditions {
   VoiceTitleTextMap?: LangCodeMap, // used by VO-Tool
   VoiceFileTextMap?: LangCodeMap, // used by VO-Tool
   VoiceTitleLockedTextMap?: LangCodeMap,
-
-  // Custom:
-  Avatar?: AvatarExcelConfigData,
 }
 
-export class CharacterFetters {
-  avatar?: AvatarExcelConfigData = null;
+export class FetterGroup {
+  avatarId: number;
   avatarName: LangCodeMap;
   storyFetters: FetterExcelConfigData[] = [];
   combatFetters: FetterExcelConfigData[] = [];
@@ -110,11 +109,16 @@ export class CharacterFetters {
   voAvatarName: string = null;
   fetterFiles: string[] = [];
   animatorEventFiles: string[] = [];
+
+  constructor(avatarId: number) {
+    this.avatarId = avatarId;
+  }
 }
 
-export type CharacterFettersByAvatar = {[avatarId: number]: CharacterFetters};
+export type FetterGroupByAvatar = {[avatarId: number]: FetterGroup};
+// endregion
 
-// Character Info Types
+// region Character Info Types
 // ----------------------------------------------------------------------------------------------------
 export interface FetterInfoExcelConfigData {
   InfoBirthMonth: number,
@@ -148,3 +152,4 @@ export interface FetterInfoExcelConfigData {
   AvatarVisionAfterText: string,
   AvatarConstellationAfterText: string,
 }
+// endregion
