@@ -149,7 +149,7 @@ export function __normGenshinText(text: string, langCode: LangCode, opts: NormTe
     text = __convertGenshinRubi(langCode, text);
   }
 
-  if (text && text.includes('REGEX#OVERSEA')) {
+  if (text && text.includes('REGEX#OVERSEA') && serverBrandTipsOverseas && serverEmailAskOverseas) {
     text = text.replace(/\{REGEX#OVERSEA\[Server_BrandTips_Oversea.*?}/, serverBrandTipsOverseas[langCode]);
     text = text.replace(/\{REGEX#OVERSEA\[Server_Email_Ask_Oversea.*?}/, serverEmailAskOverseas[langCode]);
   }
