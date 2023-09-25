@@ -325,10 +325,6 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
         delete object[prop];
       }
     }
-    if (!objAsAny.TalkRoleNameText && !!objAsAny.TalkRole) {
-      objAsAny.TalkRoleNameText = objAsAny.TalkRole.NameText;
-      objAsAny.TalkRoleNameTextMapHash = objAsAny.TalkRole.NameTextMapHash;
-    }
     return object;
   }
 
@@ -565,6 +561,10 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
           TalkRole.NameText = npc.NameText;
         }
       }
+    }
+    if (!dialog.TalkRoleNameText && !!dialog.TalkRole) {
+      dialog.TalkRoleNameText = dialog.TalkRole.NameText;
+      dialog.TalkRoleNameTextMapHash = dialog.TalkRole.NameTextMapHash;
     }
     return dialog;
   }
