@@ -747,7 +747,7 @@ export class GCGControl {
     await this.postProcessCommonCard(char);
 
     if (!isInt(char.WikiName)) {
-      const isAvatar = char.TagList.some(s => s.startsWith('GCG_TAG_NATION'));
+      const isAvatar = char.CardType === 'GCG_CARD_CHARACTER' || char.TagList.some(s => s.startsWith('GCG_TAG_NATION'));
       const eligibleCharIcons = this.charIcons.filter(icon => isAvatar ? icon.startsWith('UI_Gcg_Char_Avatar') : !icon.startsWith('UI_Gcg_Char_Avatar'));
       const charCmpLc = splitLimit(char.CardView.ImagePath, '_', 5)[4].toLowerCase();
 
@@ -1130,7 +1130,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     const gcg = getGCGControl(ctrl);
     await gcg.init();
 
-    console.inspect(await gcg.selectSkill(16033));
+    console.inspect(await gcg.selectCharacterCard(1506));
 
 
     // const stages = await gcg.selectAllStage();

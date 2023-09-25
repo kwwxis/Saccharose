@@ -16,7 +16,9 @@ async function fetchAllFetterStoryExcelConfigData(ctrl: GenshinControl): Promise
     for (let fetter of records) {
       await processFetterConds(ctrl, fetter, 'OpenConds');
       await processFetterConds(ctrl, fetter, 'FinishConds');
-      fetter.StoryContextHtml = '<p>'+fetter.StoryContextText.split('\\n').map(s => ctrl.normText(s, ctrl.outputLangCode)).join(sep)+'</p>';
+      if (fetter.StoryContextText) {
+        fetter.StoryContextHtml = '<p>'+fetter.StoryContextText.split('\\n').map(s => ctrl.normText(s, ctrl.outputLangCode)).join(sep)+'</p>';
+      }
       if (fetter.StoryContext2Text) {
         fetter.StoryContext2Html = '<p>'+fetter.StoryContext2Text.split('\\n').map(s => ctrl.normText(s, ctrl.outputLangCode)).join(sep)+'</p>';
       }
