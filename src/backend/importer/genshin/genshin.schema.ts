@@ -1061,6 +1061,7 @@ export const genshinSchema = {
       ALLLDMINCMC: 'CardList',
       PKLANNMLIED: 'CardList',
       AAJKIMNCCPN: 'WaitingCharacterList',
+      ALIFJCCLFEK: 'WaitingCharacterList',
       IBBLAOCNBNG: 'CondCount',
       EHGFJIIDJIM: 'CondCount'
     }
