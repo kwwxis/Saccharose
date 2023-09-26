@@ -910,17 +910,32 @@ export class GCGControl {
   // --------------------------------------------------------------------------------------------------------------
 
   private async postProcessDeck(deck: GCGDeckExcelConfigData): Promise<GCGDeckExcelConfigData> {
-    console.log(deck);
+    // Active:
     deck.MappedCharacterList = await this.multiSelect('GCGCharExcelConfigData', 'Id',
       deck.CharacterList, this.postProcessCharacterCard);
 
-    if (deck.WaitingCharacterList) {
-      deck.MappedWaitingCharacterList = await this.multiSelect('GCGCharExcelConfigData', 'Id',
-        deck.WaitingCharacterList.map(x => x.Id).filter(x => !!x), this.postProcessCharacterCard);
-    } else {
-      deck.MappedWaitingCharacterList = [];
-    }
+    // Reserve:
+    deck.MappedWaitingCharacterList = await this.multiSelect('GCGCharExcelConfigData', 'Id',
+      deck.WaitingCharacterList.map(x => x.Id).filter(x => !!x), this.postProcessCharacterCard);
 
+    // Re-sort action card list:
+    let sortActionMap: Map<number, number> = new Map();
+    for (let cardId of deck.CardList) {
+      if (sortActionMap.has(cardId)) {
+        sortActionMap.set(cardId, sortActionMap.get(cardId) + 1);
+      } else {
+        sortActionMap.set(cardId, 1);
+      }
+    }
+    let newCardList: number[] = [];
+    for (let [cardId, count] of sortActionMap) {
+      for (let i = 0; i < count; i++) {
+        newCardList.push(cardId);
+      }
+    }
+    deck.CardList = newCardList;
+
+    // Action:
     deck.MappedCardList = await this.multiSelect('GCGCardExcelConfigData', 'Id',
       deck.CardList, this.postProcessActionCard);
 
