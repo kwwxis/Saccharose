@@ -1058,11 +1058,8 @@ export const genshinSchema = {
     ],
     renameFields: {
       KGCAJNCAHGJ: 'WaitingCharacterList',
-      ALLLDMINCMC: 'CardList',
       PKLANNMLIED: 'CardList',
       AAJKIMNCCPN: 'WaitingCharacterList',
-      ALIFJCCLFEK: 'WaitingCharacterList',
-      IBBLAOCNBNG: 'CondCount',
       EHGFJIIDJIM: 'CondCount'
     }
   },
@@ -1076,7 +1073,9 @@ export const genshinSchema = {
       GKHGDCBALPE: 'CardFaceIdList',
       PEBMEKJKGOB: 'StoryContextTextMapHash',
       FLLIMNKBNNC: 'SourceTextMapHash',
-      BENFOJNLODC: 'RelatedCharacterId'
+      BENFOJNLODC: 'RelatedCharacterId',
+      "DDHKPPONJFN": "InitHpList",
+      "NAGOLEDGJFO": "InitEnergyList",
     },
   },
   GCGProficiencyRewardExcelConfigData: <SchemaTable>{
