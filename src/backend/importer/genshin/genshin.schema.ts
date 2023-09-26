@@ -1058,7 +1058,10 @@ export const genshinSchema = {
     ],
     renameFields: {
       KGCAJNCAHGJ: 'WaitingCharacterList',
-      IBBLAOCNBNG: 'CondCount'
+      PKLANNMLIED: 'CardList',
+      AAJKIMNCCPN: 'WaitingCharacterList',
+      IBBLAOCNBNG: 'CondCount',
+      EHGFJIIDJIM: 'CondCount'
     }
   },
   GCGDeckCardExcelConfigData: <SchemaTable>{

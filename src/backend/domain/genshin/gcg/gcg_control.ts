@@ -913,8 +913,12 @@ export class GCGControl {
     deck.MappedCharacterList = await this.multiSelect('GCGCharExcelConfigData', 'Id',
       deck.CharacterList, this.postProcessCharacterCard);
 
-    deck.MappedWaitingCharacterList = await this.multiSelect('GCGCharExcelConfigData', 'Id',
-      deck.WaitingCharacterList.map(x => x.Id).filter(x => !!x), this.postProcessCharacterCard);
+    if (deck.WaitingCharacterList) {
+      deck.MappedWaitingCharacterList = await this.multiSelect('GCGCharExcelConfigData', 'Id',
+        deck.WaitingCharacterList.map(x => x.Id).filter(x => !!x), this.postProcessCharacterCard);
+    } else {
+      deck.MappedWaitingCharacterList = [];
+    }
 
     deck.MappedCardList = await this.multiSelect('GCGCardExcelConfigData', 'Id',
       deck.CardList, this.postProcessActionCard);
@@ -1154,8 +1158,8 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     // const stage2 = await gcg.selectStage(11003);
     // fs.writeFileSync(getGenshinDataFilePath('./single-stage-11003.json'), JSON.stringify(stage2, null, 2), 'utf8');
     //
-    // const stage3 = await gcg.selectStage(12105);
-    // fs.writeFileSync(getGenshinDataFilePath('./single-stage-12105.json'), JSON.stringify(stage3, null, 2), 'utf8');
+    const stage3 = await gcg.selectStage(12105);
+    fs.writeFileSync(getGenshinDataFilePath('./single-stage-12105.json'), JSON.stringify(stage3, null, 2), 'utf8');
     //
     // const cardIds: number[] = [];
     // for (let card of cards) {
