@@ -78,11 +78,15 @@ export function highlightJson(text: string, gutters: boolean = false, markers: M
   return highlight(text, 'ace/mode/json', gutters, markers);
 }
 
-export function highlight(text: string, mode: string, gutters: boolean = true, markers: Marker[] = []): HTMLElement {
+export function highlight(text: string, mode: string, gutters: boolean = true, markers: Marker[] = [], inTemplate: boolean = false): HTMLElement {
   if (mode === 'ace/mode/wikitext' && toBoolean(Cookies.get('disable_wikitext_highlight'))) {
     mode = 'ace/mode/plain_text';
   }
   createAceDomClassWatcher();
+
+  if (inTemplate) {
+    text = '{{\n' + text + '\n}}';
+  }
 
   // Create unique ID for highlight element
   let guid = 'highlight-'+uuidv4();
@@ -123,6 +127,11 @@ export function highlight(text: string, mode: string, gutters: boolean = true, m
     const markerText = str => !str ? ' ' : escapeHtml(str);
 
     for(let ix = 0; ix < length; ix++) {
+      if (inTemplate && (ix === 0 || ix === length - 1)) {
+        textLayer.$renderLine([], ix, true, false);
+        continue;
+      }
+
       textLayerSb.push("<div class='ace_line'>");
       if (gutters)
         textLayerSb.push(`<span class="ace_gutter ace_gutter-cell">` + /*(ix + lineStart) + */ `</span>`);
@@ -259,7 +268,8 @@ export function highlightWikitextReplace(original: HTMLElement, textOverride?: s
 }
 
 export function highlightReplace(original: HTMLElement, mode: string, textOverride?: string,
-                                 gutters: boolean = true, markers?: (string|Marker)[]|string): HTMLElement {
+                                 gutters: boolean = true, markers?: (string|Marker)[]|string,
+                                 inTemplate: boolean = false): HTMLElement {
   if (original.hasAttribute('data-mode')) {
     mode = original.getAttribute('data-mode');
   }
@@ -268,6 +278,9 @@ export function highlightReplace(original: HTMLElement, mode: string, textOverri
   }
   if (original.hasAttribute('data-gutters')) {
     gutters = toBoolean(original.getAttribute('data-gutters'));
+  }
+  if (original.hasAttribute('data-in-template')) {
+    inTemplate = toBoolean(original.getAttribute('data-in-template'));
   }
 
   if (typeof markers === 'string') {
@@ -285,7 +298,7 @@ export function highlightReplace(original: HTMLElement, mode: string, textOverri
     }).filter(x => !!x);
   }
 
-  let element = highlight(textOverride || getInputValue(original), mode, gutters, markers as Marker[]);
+  let element: HTMLElement = highlight(textOverride || getInputValue(original), mode, gutters, markers as Marker[], inTemplate);
 
   if (original.hasAttribute('class')) {
     element.classList.add(... Array.from(original.classList));

@@ -388,20 +388,27 @@ export function pairArrays<T, U>(arr1: T[], arr2: U[]): [T, U][] {
 
 declare global {
   interface Array<T> {
-    asyncMap<U>(callbackfn: (value: T, index: number, array: T[]) => Promise<U>, skipNilResults?: boolean): Promise<U[]>;
+    asyncMap<U>(callbackfn: (value: T, index: number, array: T[]) => Promise<U|void>, skipNilResults?: boolean): Promise<U[]>;
   }
 }
 
-Array.prototype.asyncMap = async function<T, U>(callbackfn: (value: T, index: number, array: T[]) => Promise<U>, skipNilResults: boolean = true): Promise<U[]> {
-  let ret: U[] = [];
+Array.prototype.asyncMap = async function<T, U>(callbackfn: (value: T, index: number, array: T[]) => Promise<U|void>, skipNilResults: boolean = true): Promise<U[]> {
+  const promises: Promise<U|void>[] = [];
+
   for (let i = 0; i < this.length; i++) {
-    let fnRet = await callbackfn(this[i], i, this);
-    if (skipNilResults && isUnset(fnRet)) {
+    promises.push(callbackfn(this[i], i, this));
+  }
+
+  const results: U[] = [];
+
+  for (let result of await Promise.all(promises)) {
+    if (skipNilResults && isUnset(result)) {
       continue;
     }
-    ret.push(fnRet);
+    results.push(<any> result);
   }
-  return ret;
+
+  return results;
 }
 
 function arrayMove<T>(arr: T[], fromIndex: number, toIndex: number) {

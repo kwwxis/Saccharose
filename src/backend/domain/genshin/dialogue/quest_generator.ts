@@ -359,23 +359,28 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
   // Rewards
   // -------
   debug('Generating rewards');
-  let rewards: RewardExcelConfigData[] = await Promise.all((mainQuest.RewardIdList || []).map(rewardId => ctrl.selectRewardExcelConfigData(rewardId)));
+  const rewards: RewardExcelConfigData[] = await (mainQuest.RewardIdList || []).asyncMap(rewardId => ctrl.selectRewardExcelConfigData(rewardId));
   result.reward = ctrl.combineRewardExcelConfigData(... rewards);
   result.reputation = await ctrl.selectReputationQuestExcelConfigData(mainQuest.Id);
 
+  let sbReward = new SbOut();
+  sbReward.setPropPad(14);
+
   if (result.reward) {
-    result.rewardInfobox = result.reward.RewardSummary.QuestForm;
+    sbReward.prop('rewards', result.reward.RewardSummary.CombinedStrings);
   }
+
   if (result.reputation) {
-    if (result.reward) {
-      result.rewardInfobox += '\n';
-    }
-    if (result.reputation.TitleText === mainQuest.TitleText) {
-      result.rewardInfobox += result.reputation.QuestForm;
-    } else {
-      result.rewardInfobox += result.reputation.QuestFormWithTitle;
+    sbReward.prop('rep', result.reputation.CityName);
+    sbReward.prop('repAmt', result.reputation.Reward.RewardItemList[0].ItemCount);
+    sbReward.prop('repOrder', result.reputation.Order);
+
+    if (result.reputation.TitleText !== mainQuest.TitleText) {
+      sbReward.prop('repTitle', result.reputation.TitleText);
     }
   }
+
+  result.rewardInfobox = sbReward.toString();
 
   debug('Returning result');
   return result;

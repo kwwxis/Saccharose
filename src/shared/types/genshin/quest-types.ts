@@ -1,5 +1,6 @@
 import { DialogExcelConfigData, ManualTextMapConfigData, TalkExcelConfigData } from './dialogue-types';
 import { ConfigCondition } from './general-types';
+import { RewardExcelConfigData } from './material-types';
 
 export type QuestType = 'AQ' | 'SQ' | 'EQ' | 'WQ';
 export type MapByQuestType<T> = {
@@ -116,11 +117,11 @@ export interface ChapterSummary {
 export interface ReputationQuestExcelConfigData {
   ParentQuestId: number,
   CityId: number,
+  CityName?: string,
   RewardId: number,
+  Reward?: RewardExcelConfigData,
   IconName: string,
   TitleText: string,
   TitleTextMapHash: number,
   Order: number
-  QuestForm?: string,
-  QuestFormWithTitle?: string,
 }

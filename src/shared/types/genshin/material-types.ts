@@ -10,10 +10,8 @@ export interface RewardSummary {
   ExpCount: string,
   MoraCount: string,
   PrimogemCount: string,
-  OtherCards: string,
   CombinedStrings: string,
   CombinedCards: string,
-  QuestForm: string,
 }
 
 export interface RewardExcelConfigData {

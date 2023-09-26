@@ -19,20 +19,16 @@ import {
 } from '../../../shared/util/arrayUtil';
 import { isInt, toInt } from '../../../shared/util/numberUtil';
 import { normalizeRawJson, SchemaTable } from '../../importer/import_db';
+import { extractRomanNumeral, isStringBlank, replaceAsync, romanToInt } from '../../../shared/util/stringUtil';
 import {
-  extractRomanNumeral,
-  isStringBlank,
-  replaceAsync,
-  romanToInt,
-} from '../../../shared/util/stringUtil';
-import {
-  DialogExcelConfigData, DialogUnparented,
+  DialogExcelConfigData,
+  DialogUnparented,
   ManualTextMapConfigData,
   QuestSummarizationTextExcelConfigData,
   ReminderExcelConfigData,
   TalkExcelConfigData,
   TalkLoadType,
-  TalkRole, TalkRoleType,
+  TalkRoleType,
 } from '../../../shared/types/genshin/dialogue-types';
 import {
   ChapterCollection,
@@ -59,15 +55,12 @@ import {
   FurnitureSuiteExcelConfigData,
   HomeWorldEventExcelConfigData,
   HomeWorldFurnitureExcelConfigData,
-  HomeWorldFurnitureTypeExcelConfigData, HomeWorldFurnitureTypeTree,
+  HomeWorldFurnitureTypeExcelConfigData,
+  HomeWorldFurnitureTypeTree,
   HomeWorldNPCExcelConfigData,
 } from '../../../shared/types/genshin/homeworld-types';
 import { grepIdStartsWith, grepStream } from '../../util/shellutil';
-import {
-  DATAFILE_GENSHIN_VOICE_ITEMS,
-  getGenshinDataFilePath,
-  getReadableRelPath,
-} from '../../loadenv';
+import { DATAFILE_GENSHIN_VOICE_ITEMS, getGenshinDataFilePath, getReadableRelPath } from '../../loadenv';
 import {
   BooksCodexExcelConfigData,
   BookSuitExcelConfigData,
@@ -104,19 +97,15 @@ import { __normGenshinText } from './genshinText';
 import { AbstractControl, AbstractControlState } from '../abstractControl';
 import debug from 'debug';
 import { LangCode, TextMapHash, VoiceItem, VoiceItemArrayMap } from '../../../shared/types/lang-types';
-import {
-  GCGTagElementType,
-  GCGTagWeaponType,
-} from '../../../shared/types/genshin/gcg-types';
+import { GCGTagElementType, GCGTagWeaponType } from '../../../shared/types/genshin/gcg-types';
 import path from 'path';
-import {
-  RAW_MANUAL_TEXTMAP_ID_PROP,
-} from '../../importer/genshin/genshin.schema';
+import { RAW_MANUAL_TEXTMAP_ID_PROP } from '../../importer/genshin/genshin.schema';
 import { cached } from '../../util/cache';
 import { NormTextOptions } from '../generic/genericNormalizers';
 import {
   AchievementExcelConfigData,
-  AchievementGoalExcelConfigData, AchievementsByGoals,
+  AchievementGoalExcelConfigData,
+  AchievementsByGoals,
 } from '../../../shared/types/genshin/achievement-types';
 import { Request } from 'express';
 
@@ -447,16 +436,8 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       return null;
     }
 
-    let cityName = await this.selectCityNameById(rep.CityId);
-    let reward = await this.selectRewardExcelConfigData(rep.RewardId);
-
-    rep.QuestForm =
-      `|rep           = ${cityName}\n` +
-      `|repAmt        = ${reward.RewardItemList[0].ItemCount}\n` +
-      `|repOrder      = ${rep.Order}`;
-    rep.QuestFormWithTitle = rep.QuestForm + `\n` +
-      `|repTitle      = ${rep.TitleText}`;
-
+    rep.CityName = await this.selectCityNameById(rep.CityId);
+    rep.Reward = await this.selectRewardExcelConfigData(rep.RewardId);
     return rep;
   }
   // endregion
@@ -1632,12 +1613,11 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       return reward;
     }
 
-    await Promise.all(reward.RewardItemList.map(rewardItem => {
-      if (!rewardItem.ItemId) {
-        return Promise.resolve();
+    await reward.RewardItemList.asyncMap(async (rewardItem) => {
+      if (rewardItem.ItemId) {
+        rewardItem.Material = await this.selectMaterialExcelConfigData(rewardItem.ItemId);
       }
-      return this.selectMaterialExcelConfigData(rewardItem.ItemId).then(material => rewardItem.Material = material);
-    }));
+    });
 
     reward.RewardItemList = reward.RewardItemList.filter(x => !isEmpty(x));
 
@@ -1672,16 +1652,14 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     }
 
     reward.RewardSummary = {
-      // Split:
+      // Specific:
       ExpCount: '',
       MoraCount: '',
       PrimogemCount: '',
-      OtherCards: '',
 
       // All:
       CombinedStrings: '',
-      CombinedCards: '',
-      QuestForm: '',
+      CombinedCards: ''
     };
 
     for (let item of reward.RewardItemList) {
@@ -1699,19 +1677,11 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
         reward.RewardSummary.MoraCount = countForm;
       } else if (item.ItemId === PRIMOGEM_ID) {
         reward.RewardSummary.PrimogemCount = countForm;
-      } else {
-        reward.RewardSummary.OtherCards += cardForm;
       }
 
       reward.RewardSummary.CombinedCards += cardForm;
       reward.RewardSummary.CombinedStrings += (reward.RewardSummary.CombinedStrings.length ? ';' : '') + stringForm;
     }
-
-    reward.RewardSummary.QuestForm =
-      `|exp           = ${reward.RewardSummary.ExpCount}\n` +
-      `|mora          = ${reward.RewardSummary.MoraCount}\n` +
-      `|primogems     = ${reward.RewardSummary.PrimogemCount}\n` +
-      `|other         = ${reward.RewardSummary.OtherCards}`;
 
     return reward;
   }
