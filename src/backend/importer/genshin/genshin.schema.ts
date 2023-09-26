@@ -1058,6 +1058,7 @@ export const genshinSchema = {
     ],
     renameFields: {
       KGCAJNCAHGJ: 'WaitingCharacterList',
+      ALLLDMINCMC: 'CardList',
       PKLANNMLIED: 'CardList',
       AAJKIMNCCPN: 'WaitingCharacterList',
       IBBLAOCNBNG: 'CondCount',
