@@ -1057,6 +1057,7 @@ export const genshinSchema = {
       { name: 'Id', type: 'integer', isPrimary: true },
     ],
     renameFields: {
+      DOJNOEJOIKP: 'CharacterList',
       KGCAJNCAHGJ: 'WaitingCharacterList',
       PKLANNMLIED: 'CardList',
       AAJKIMNCCPN: 'WaitingCharacterList',

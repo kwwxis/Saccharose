@@ -910,6 +910,7 @@ export class GCGControl {
   // --------------------------------------------------------------------------------------------------------------
 
   private async postProcessDeck(deck: GCGDeckExcelConfigData): Promise<GCGDeckExcelConfigData> {
+    console.log(deck);
     deck.MappedCharacterList = await this.multiSelect('GCGCharExcelConfigData', 'Id',
       deck.CharacterList, this.postProcessCharacterCard);
 
