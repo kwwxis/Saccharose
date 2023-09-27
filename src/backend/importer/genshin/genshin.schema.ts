@@ -1057,6 +1057,7 @@ export const genshinSchema = {
       { name: 'Id', type: 'integer', isPrimary: true },
     ],
     renameFields: {
+      CAOAPKABBFC: 'DeckNameTextMapHash',
       DOJNOEJOIKP: 'CharacterList',
       KGCAJNCAHGJ: 'WaitingCharacterList',
       PKLANNMLIED: 'CardList',
@@ -1075,8 +1076,8 @@ export const genshinSchema = {
       PEBMEKJKGOB: 'StoryContextTextMapHash',
       FLLIMNKBNNC: 'SourceTextMapHash',
       BENFOJNLODC: 'RelatedCharacterId',
-      "DDHKPPONJFN": "InitHpList",
-      "NAGOLEDGJFO": "InitEnergyList",
+      DDHKPPONJFN: "InitHpList",
+      NAGOLEDGJFO: "InitEnergyList",
     },
   },
   GCGProficiencyRewardExcelConfigData: <SchemaTable>{
@@ -1580,7 +1581,15 @@ export const genshinSchema = {
 };
 
 for (let [tableName, schemaTranslationData] of Object.entries(schemaTranslation)) {
-  if (genshinSchema.hasOwnProperty(tableName) && Object.keys(schemaTranslationData).length) {
-    genshinSchema[tableName].preliminaryRenameFields = schemaTranslationData;
+  if (!Object.keys(schemaTranslationData).length) {
+    continue;
+  }
+
+  for (let schemaTable of Object.values(genshinSchema)) {
+    if (schemaTable.name === tableName) {
+      schemaTable.schemaTranslation = schemaTranslationData;
+    } else if (schemaTable.jsonFile.endsWith('/' + tableName + '.json')) {
+      schemaTable.schemaTranslation = schemaTranslationData;
+    }
   }
 }

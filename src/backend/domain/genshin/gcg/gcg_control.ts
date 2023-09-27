@@ -191,7 +191,7 @@ export class GCGControl {
       o.MappedRelatedCharacterTagList = o.RelatedCharacterTagList.map(tagType => this.tagList.find(tag => tag.Type == tagType)).filter(x => !!x);
     }
     if ('RelatedCharacterId' in o) {
-      o.RelatedCharacter = await this.singleSelect('GCGCharExcelConfigData', 'Id', o['RelatedCharacterId']);
+      o.RelatedCharacter = await this.singleSelect('GCGCharExcelConfigData', 'Id', o['RelatedCharacterId'], this.postProcessCharacterCard);
     }
     if ('CostList' in o && Array.isArray(o.CostList)) {
       for (let costItem of o.CostList) {
@@ -505,8 +505,8 @@ export class GCGControl {
       stage.WikiCombinedTitle = `${stage.WikiCharacter}/${stage.WikiLevelName}`;
     }
     if (!disableLoad.disableWikiTypeGroupLoad) {
-      stage.WikiGroup = 'No Group';
-      stage.WikiType = 'No Type';
+      stage.WikiGroup = null;
+      stage.WikiType = null;
       switch (stage.LevelType) {
         case 'BOSS':
           stage.WikiGroup = 'Tavern Challenge';
@@ -571,19 +571,23 @@ export class GCGControl {
     return await this.singleSelect('GCGGameExcelConfigData', 'Id', id, o => this.postProcessStage(o, disableLoad));
   }
 
-  getStageForJson(stage: GCGGameExcelConfigData): GCGGameExcelConfigData {
+  getStageForJson(stage: GCGGameExcelConfigData, unmap: boolean = false): GCGGameExcelConfigData {
     const stageForJson: GCGGameExcelConfigData = Object.assign({}, stage);
     if (stageForJson.EnemyCardGroup) {
       stageForJson.EnemyCardGroup = Object.assign({}, stageForJson.EnemyCardGroup);
-      delete stageForJson.EnemyCardGroup.MappedCardList;
-      delete stageForJson.EnemyCardGroup.MappedCharacterList;
-      delete stageForJson.EnemyCardGroup.MappedWaitingCharacterList;
+      if (unmap) {
+        delete stageForJson.EnemyCardGroup.MappedCardList;
+        delete stageForJson.EnemyCardGroup.MappedCharacterList;
+        delete stageForJson.EnemyCardGroup.MappedWaitingCharacterList;
+      }
     }
     if (stageForJson.CardGroup) {
       stageForJson.CardGroup = Object.assign({}, stageForJson.CardGroup);
-      delete stageForJson.CardGroup.MappedCardList;
-      delete stageForJson.CardGroup.MappedCharacterList;
-      delete stageForJson.CardGroup.MappedWaitingCharacterList;
+      if (unmap) {
+        delete stageForJson.CardGroup.MappedCardList;
+        delete stageForJson.CardGroup.MappedCharacterList;
+        delete stageForJson.CardGroup.MappedWaitingCharacterList;
+      }
     }
     if (stageForJson.LevelTalk) {
       stageForJson.LevelTalk = Object.assign({}, stageForJson.LevelTalk);
@@ -914,9 +918,13 @@ export class GCGControl {
     deck.MappedCharacterList = await this.multiSelect('GCGCharExcelConfigData', 'Id',
       deck.CharacterList, this.postProcessCharacterCard);
 
+    deck.WikiActiveText = deck.MappedCharacterList.map(card => card.WikiName).join(';');
+
     // Reserve:
     deck.MappedWaitingCharacterList = await this.multiSelect('GCGCharExcelConfigData', 'Id',
       deck.WaitingCharacterList.map(x => x.Id).filter(x => !!x), this.postProcessCharacterCard);
+
+    deck.WikiReserveText = deck.MappedWaitingCharacterList.map(card => card.WikiName).join(';');
 
     // Re-sort action card list:
     let sortActionMap: Map<number, number> = new Map();
@@ -938,6 +946,8 @@ export class GCGControl {
     // Action:
     deck.MappedCardList = await this.multiSelect('GCGCardExcelConfigData', 'Id',
       deck.CardList, this.postProcessActionCard);
+
+    deck.WikiActionText = deck.MappedCardList.map(card => card.WikiName).join(';');
 
     return deck;
   }

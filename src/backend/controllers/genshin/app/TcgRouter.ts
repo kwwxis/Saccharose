@@ -12,7 +12,7 @@ import { defaultMap } from '../../../../shared/util/genericUtil';
 import { isInt, toInt } from '../../../../shared/util/numberUtil';
 import { sort } from '../../../../shared/util/arrayUtil';
 import { queryTab } from '../../../middleware/util/queryTab';
-import { generateCardPage, generateSkillPage, generateStagePage } from '../../../domain/genshin/gcg/gcg_wikitext';
+import { generateCardPage, generateSkillPage, generateStageTemplate } from '../../../domain/genshin/gcg/gcg_wikitext';
 import { Request, Response, Router } from 'express';
 
 export default async function(): Promise<Router> {
@@ -49,7 +49,7 @@ export default async function(): Promise<Router> {
       defaultMap(() => defaultMap('Array'));
 
     for (let stage of stages) {
-      stagesByGroupAndType[stage.WikiGroup][stage.WikiType].push(stage);
+      stagesByGroupAndType[stage.WikiGroup || 'No Group'][stage.WikiType || 'No Type'].push(stage);
     }
 
     res.render('pages/genshin/gcg/gcg-stage-list', {
@@ -68,8 +68,8 @@ export default async function(): Promise<Router> {
     res.render('pages/genshin/gcg/gcg-stage', {
       title: (stage?.WikiCombinedTitle || 'Not Found') + ' | TCG Stage',
       stage,
-      stageForJson: gcg.getStageForJson(stage),
-      wikitext: await generateStagePage(stage),
+      stageForJsonUnmapped: gcg.getStageForJson(stage, true),
+      wikitext: await generateStageTemplate(gcg, stage),
       bodyClass: ['page--tcg-stage'],
       tab: queryTab(req, 'display', 'wikitext', 'json'),
     });

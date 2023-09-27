@@ -6,13 +6,13 @@
     </h2>
     <div class="tab-list" role="tablist">
       <button role="tab" id="tab-display" class="tab <%= tab === 'display' ? 'active' : '' %>"
-              ui-action="tab: #tabpanel-display, storyTabs; delete-query-param: tab">Display</button>
+              ui-action="tab: #tabpanel-display, stageTabs; delete-query-param: tab">Display</button>
 
       <button role="tab" id="tab-wikitext" class="tab <%= tab === 'wikitext' ? 'active' : '' %>"
-              ui-action="tab: #tabpanel-wikitext, storyTabs; set-query-param: tab=wikitext">Wikitext</button>
+              ui-action="tab: #tabpanel-wikitext, stageTabs; set-query-param: tab=wikitext">Wikitext</button>
 
       <button role="tab" id="tab-json" class="tab <%= tab === 'json' ? 'active' : '' %>"
-              ui-action="tab: #tabpanel-json, storyTabs; set-query-param: tab=json">JSON</button>
+              ui-action="tab: #tabpanel-json, stageTabs; set-query-param: tab=json">JSON</button>
     </div>
     <div role="tabpanel" aria-labelledby="tab-display" class="tabpanel <%= tab === 'display' ? 'active' : 'hide' %> content" id="tabpanel-display">
       <table class="article-table">
@@ -41,7 +41,7 @@
         <tr>
           <td class="no-border">&nbsp;</td>
           <td class="bold">Level Name</td>
-          <td class="w70p"><%= stage?.Reward?.LevelNameText || 'n/a' %></td>
+          <td class="w70p"><%= stage?.WikiLevelName || 'n/a' %></td>
         </tr>
         <tr>
           <td class="no-border">&nbsp;</td>
@@ -51,12 +51,12 @@
         <tr>
           <td class="no-border">&nbsp;</td>
           <td class="bold" style="padding-left:20px">Wiki Group</td>
-          <td class="w70p"><%= stage.WikiGroup %></td>
+          <td class="w70p"><%= stage.WikiGroup || 'No Group' %></td>
         </tr>
         <tr>
           <td class="no-border">&nbsp;</td>
           <td class="bold" style="padding-left:20px">Wiki Type</td>
-          <td class="w70p"><%= stage.WikiType %></td>
+          <td class="w70p"><%= stage.WikiType || 'No Type' %></td>
         </tr>
         <% if (stage.LevelDifficulty) { %>
           <tr>
@@ -198,6 +198,11 @@
           </tr>
           <tr>
             <td class="no-border">&nbsp;</td>
+            <td class="bold">Deck Name</td>
+            <td class="w70p"><code><%= stage.CardGroup.DeckNameText || 'n/a' %></code></td>
+          </tr>
+          <tr>
+            <td class="no-border">&nbsp;</td>
             <td class="bold">Active</td>
             <td class="w70p">
               <% for (let characterCard of stage.CardGroup.MappedCharacterList) { %>
@@ -237,10 +242,20 @@
           </tr>
           <tr>
             <td class="no-border">&nbsp;</td>
+            <td class="bold">Deck Name</td>
+            <td class="w70p"><code><%= stage.EnemyCardGroup.DeckNameText || 'n/a' %></code></td>
+          </tr>
+          <tr>
+            <td class="no-border">&nbsp;</td>
             <td class="bold">Active</td>
             <td class="w70p">
-              <% for (let characterCard of stage.EnemyCardGroup.MappedCharacterList) { %>
-                <%- include('partials/genshin/gcg/card', { card: characterCard }) %>
+              <% if (!stage.EnemyCardGroup.MappedCharacterList.length) { %>
+                <code>n/a</code>
+              <% } else { %>
+                <%- use('partials/util/wikitext', { wikitext: stage.EnemyCardGroup.WikiActiveText, seamless: true }) %>
+                <% for (let characterCard of stage.EnemyCardGroup.MappedCharacterList) { %>
+                  <%- include('partials/genshin/gcg/card', { card: characterCard }) %>
+                <% } %>
               <% } %>
             </td>
           </tr>
@@ -248,8 +263,13 @@
             <td class="no-border">&nbsp;</td>
             <td class="bold">Action</td>
             <td class="w70p">
-              <% for (let actionCard of stage.EnemyCardGroup.MappedCardList) { %>
-                <%- include('partials/genshin/gcg/card', { card: actionCard }) %>
+              <% if (!stage.EnemyCardGroup.MappedCardList.length) { %>
+                <code>n/a</code>
+              <% } else { %>
+                <%- use('partials/util/wikitext', { wikitext: stage.EnemyCardGroup.WikiActionText, seamless: true }) %>
+                <% for (let actionCard of stage.EnemyCardGroup.MappedCardList) { %>
+                  <%- include('partials/genshin/gcg/card', { card: actionCard }) %>
+                <% } %>
               <% } %>
             </td>
           </tr>
@@ -257,19 +277,24 @@
             <td class="no-border">&nbsp;</td>
             <td class="bold">Reserve</td>
             <td class="w70p">
-              <% for (let characterCard of stage.EnemyCardGroup.MappedWaitingCharacterList) { %>
-                <%- include('partials/genshin/gcg/card', { card: characterCard }) %>
+              <% if (!stage.EnemyCardGroup.MappedWaitingCharacterList.length) { %>
+                <code>n/a</code>
+              <% } else { %>
+                <%- use('partials/util/wikitext', { wikitext: stage.EnemyCardGroup.WikiReserveText, seamless: true }) %>
+                <% for (let characterCard of stage.EnemyCardGroup.MappedWaitingCharacterList) { %>
+                  <%- include('partials/genshin/gcg/card', { card: characterCard }) %>
+                <% } %>
               <% } %>
             </td>
           </tr>
         </table>
       <% } %>
     </div>
-    <div role="tabpanel" aria-labelledby="tab-wikitext" class="tabpanel <%= tab === 'wikitext' ? 'active' : 'hide' %>" id="tabpanel-wikitext">
+    <div role="tabpanel" aria-labelledby="tab-wikitext" class="tabpanel <%= tab === 'wikitext' ? 'active' : 'hide' %> content" id="tabpanel-wikitext">
       <%- use('partials/util/wikitext', { wikitext: wikitext }) %>
     </div>
     <div role="tabpanel" aria-labelledby="tab-json" class="tabpanel <%= tab === 'json' ? 'active' : 'hide' %> content" id="tabpanel-json">
-      <%- use('partials/util/json', { content: stageForJson }) %>
+      <%- use('partials/util/json', { content: stageForJsonUnmapped }) %>
     </div>
   </section>
 <% } else { %>

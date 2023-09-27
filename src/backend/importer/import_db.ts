@@ -23,7 +23,7 @@ export type SchemaTable = {
   columns: SchemaColumn[],
   jsonFile: string,
   customRowResolve?: (row: any, allRows?: any[]) => any[],
-  preliminaryRenameFields?: { [oldName: string]: string },
+  schemaTranslation?: { [oldName: string]: string },
   renameFields?: { [oldName: string]: string },
   singularize?: string[],
   isKvPair?: boolean,
@@ -106,12 +106,12 @@ export function normalizeRawJsonKey(key: string, table?: SchemaTable, schemaTran
   key = key.replace(/TextText/g, 'Text');
   key = key.replace(/_(\w)/g, (fm: string, g: string) => g.toUpperCase()); // snake to camel
 
-  if (table && table.preliminaryRenameFields) {
-    if (key in table.preliminaryRenameFields) {
-      key = table.preliminaryRenameFields[key];
+  if (table && table.schemaTranslation) {
+    if (key in table.schemaTranslation) {
+      key = table.schemaTranslation[key];
     }
-    if (key.toUpperCase() in table.preliminaryRenameFields) {
-      key = table.preliminaryRenameFields[key.toUpperCase()];
+    if (key.toUpperCase() in table.schemaTranslation) {
+      key = table.schemaTranslation[key.toUpperCase()];
     }
   }
 

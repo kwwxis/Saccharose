@@ -460,15 +460,17 @@ export interface GcgOtherLevelExcelConfigData {
 
 // GCG REWARD
 // --------------------------------------------------------------------------------------------------------------
+export interface GCGGameRewardItem {
+  ChallengeId: number, // -> GCGChallengeExcelConfigData.Id
+  Challenge?: GCGChallengeExcelConfigData,
+  RewardId: number // -> RewardExcelConfigData.RewardId
+  Reward: RewardExcelConfigData,
+}
+
 export interface GCGGameRewardExcelConfigData {
   LevelId: number, // -> GCGGameExcelConfigData.Id
   GroupId: number, // -> ???
-  ChallengeRewardList: {
-    ChallengeId: number, // -> GCGChallengeExcelConfigData.Id
-    Challenge?: GCGChallengeExcelConfigData,
-    RewardId: number // -> RewardExcelConfigData.RewardId
-    Reward: RewardExcelConfigData,
-  }[],
+  ChallengeRewardList: GCGGameRewardItem[],
 
   LevelNameTextMapHash: number,
   LevelNameText: string,
@@ -807,15 +809,20 @@ export function isActionCard(commonCard: GCGCommonCard): commonCard is GCGCardEx
 // --------------------------------------------------------------------------------------------------------------
 export interface GCGDeckExcelConfigData {
   Id: number,
+  DeckNameText?: string,
+  DeckNameTextMapHash?: number,
 
   CharacterList: number[],
   MappedCharacterList: GCGCharExcelConfigData[], // active
+  WikiActiveText: string,
 
   CardList: number[],
   MappedCardList: GCGCardExcelConfigData[], // action
+  WikiActionText: string,
 
   WaitingCharacterList: { Id: number, CondCount: number }[],
   MappedWaitingCharacterList: GCGCharExcelConfigData[], // reserve
+  WikiReserveText: string,
 
   InitHpList: never,
   InitEnergyList: never,

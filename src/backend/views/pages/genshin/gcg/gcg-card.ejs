@@ -11,13 +11,13 @@
     </h2>
     <div class="tab-list" role="tablist">
       <button role="tab" id="tab-display" class="tab <%= tab === 'display' ? 'active' : '' %>"
-              ui-action="tab: #tabpanel-display, storyTabs; delete-query-param: tab">Display</button>
+              ui-action="tab: #tabpanel-display, cardTabs; delete-query-param: tab">Display</button>
 
       <button role="tab" id="tab-wikitext" class="tab <%= tab === 'wikitext' ? 'active' : '' %>"
-              ui-action="tab: #tabpanel-wikitext, storyTabs; set-query-param: tab=wikitext">Wikitext</button>
+              ui-action="tab: #tabpanel-wikitext, cardTabs; set-query-param: tab=wikitext">Wikitext</button>
 
       <button role="tab" id="tab-json" class="tab <%= tab === 'json' ? 'active' : '' %>"
-              ui-action="tab: #tabpanel-json, storyTabs; set-query-param: tab=json">JSON</button>
+              ui-action="tab: #tabpanel-json, cardTabs; set-query-param: tab=json">JSON</button>
     </div>
   </section>
 

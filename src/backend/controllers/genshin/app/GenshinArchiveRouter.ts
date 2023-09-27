@@ -355,12 +355,13 @@ export default async function(): Promise<Router> {
       sb.line(`'''${furn.NameText}''' is a${furn.MakeData ? ' creatable' : ''} [[Furnishing]] item that can be used in the [[Serenitea Pot]].`);
       sb.line();
       if (furn.MakeData) {
+        console.log(furn.MakeData);
         sb.line('==Creation==');
         sb.line(`First time creation grants {{Item|Trust|24|x=${furn.MakeData.Exp}}}.`);
         sb.setPropPad(1);
         sb.line('{{Recipe');
         sb.prop('type', 'Creation');
-        sb.prop('time', String(furn.MakeData.MakeTime).slice(0,2)+'h');
+        sb.prop('time', Math.floor(furn.MakeData.MakeTime / 60 / 60)+'h');
         for (let vec of furn.MakeData.MaterialItems) {
           sb.prop(vec.Material.NameText, vec.Count);
         }

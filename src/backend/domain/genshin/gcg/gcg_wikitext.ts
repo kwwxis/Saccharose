@@ -1,19 +1,13 @@
 import { GCGControl } from './gcg_control';
 import {
-  GCGCharExcelConfigData,
   GCGCommonCard,
-  GCGGameExcelConfigData, GCGSkillExcelConfigData, isActionCard, isCharacterCard,
+  GCGGameExcelConfigData, GCGGameRewardItem, GCGSkillExcelConfigData, isActionCard, isCharacterCard,
 } from '../../../../shared/types/genshin/gcg-types';
 import { SbOut } from '../../../../shared/util/stringUtil';
-import { GenshinControl } from '../genshinControl';
 import { ol_gen_from_id } from '../../generic/basic/OLgen';
 
 // Cards
 // --------------------------------------------------------------------------------------------------------------
-
-export async function generateCardList(control: GCGControl): Promise<string> {
-  return 'Lorem ipsum';
-}
 
 export async function generateSkillPage(gcg: GCGControl, parentCard: GCGCommonCard, skill: GCGSkillExcelConfigData, index: number): Promise<string> {
   const sb = new SbOut();
@@ -77,7 +71,7 @@ export async function generateCardPage(gcg: GCGControl, card: GCGCommonCard): Pr
     sb.prop('group', card.MappedTagList.filter(x => !!x.Type).map(x => x.NameText).join(';'));
   }
   if (deckCard?.RelatedCharacter) {
-    sb.prop('character', deckCard?.RelatedCharacter.NameText);
+    sb.prop('character', deckCard?.RelatedCharacter.WikiName);
   }
   if (isCharacterCard(card)) {
     sb.prop('health', card.Hp);
@@ -148,7 +142,7 @@ export async function generateCardPage(gcg: GCGControl, card: GCGCommonCard): Pr
   } else {
     let addendum = '';
     if (deckCard?.RelatedCharacter) {
-      const relatedCharName = deckCard?.RelatedCharacter?.NameText;
+      const relatedCharName = deckCard?.RelatedCharacter?.WikiName;
       addendum += ` for [[${relatedCharName} (Character Card)|${relatedCharName}]]`;
     }
     sb.line(`'''${card.WikiName}''' is ${wta} ${preType}[[${card.WikiType}]]${addendum} in [[Genius Invokation TCG]].`);
@@ -223,10 +217,43 @@ export async function generateCardPage(gcg: GCGControl, card: GCGCommonCard): Pr
 // Stages
 // --------------------------------------------------------------------------------------------------------------
 
-export async function generateStageList(control: GCGControl): Promise<string> {
-  return 'Lorem ipsum';
-}
+export async function generateStageTemplate(control: GCGControl, stage: GCGGameExcelConfigData): Promise<string> {
+  const sb = new SbOut();
+  sb.setPropPad(13);
+  sb.line('{{Genius Invokation TCG Stage')
+  sb.prop('title', stage.WikiLevelName);
+  sb.prop('type', stage.WikiType);
+  sb.prop('group', stage.WikiGroup);
+  sb.prop('character', stage.WikiCharacter);
+  sb.prop('requirement', stage.MinPlayerLevel);
+  sb.prop('introduction', control.ctrl.normText(stage.Reward.IntroText, control.ctrl.outputLangCode));
 
-export async function generateStagePage(stage: GCGGameExcelConfigData): Promise<string> {
-  return 'Lorem ipsum';
+  if (stage.Reward.ObjectiveTextList && stage.Reward.ObjectiveTextList.length) {
+    for (let index = 0; index < stage.Reward.ObjectiveTextList.length; index++) {
+      const objectiveText = stage.Reward.ObjectiveTextList[index];
+      const reward = stage.Reward.ChallengeRewardList[index];
+
+      sb.prop('objective_' + (index+1), objectiveText);
+      sb.prop('reward_' + (index+1), reward.Reward.RewardSummary.CombinedStrings);
+    }
+  }
+
+  if (stage.EnemyCardGroup) {
+    // Active/Lineup:
+    sb.prop('lineup', stage.EnemyCardGroup.WikiActiveText);
+
+    // Action:
+    sb.prop('action', stage.EnemyCardGroup.WikiActionText);
+
+    // Reserve:
+    sb.prop('reserve', stage.EnemyCardGroup.WikiReserveText);
+  }
+
+  if (stage.CardGroup && stage.CardGroup.DeckNameText) {
+    sb.prop('preset_deck', stage.CardGroup.DeckNameText);
+  }
+
+  sb.line('}}');
+
+  return sb.toString();
 }

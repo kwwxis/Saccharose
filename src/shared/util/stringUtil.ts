@@ -514,6 +514,9 @@ export class SbOut {
   }
 
   prop(propName: string, propValue: any = '', isFileValue: boolean = false) {
+    if (isUnset(propValue)) {
+      return;
+    }
     if (typeof propValue !== 'string') {
       propValue = String(propValue);
     }
