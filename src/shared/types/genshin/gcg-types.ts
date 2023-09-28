@@ -5,6 +5,7 @@ import { TalkExcelConfigData } from './dialogue-types';
 import { MainQuestExcelConfigData, QuestExcelConfigData } from './quest-types';
 import { MaterialExcelConfigData, RewardExcelConfigData } from './material-types';
 import { Subset } from '../utility-types';
+import { DialogueSectionResult } from '../../../backend/domain/genshin/dialogue/dialogue_util';
 
 // GCG TALK
 // --------------------------------------------------------------------------------------------------------------
@@ -298,6 +299,7 @@ export interface GCGGameExcelConfigData {
   EnemyNameTextMapHash: number,
   RuleId: number,
   Rule?: GCGRuleExcelConfigData,
+  NpcId?: number,
 
   // Game Cards:
   CardGroupId: number,
@@ -338,6 +340,7 @@ export interface GCGGameExcelConfigData {
 
   // Dialogue:
   LevelTalk?: GCGTalkExcelConfigData,
+  StageTalk?: DialogueSectionResult,
 
   // Reward object:
   Reward: GCGGameRewardExcelConfigData,

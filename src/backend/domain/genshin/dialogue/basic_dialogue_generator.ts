@@ -217,7 +217,6 @@ export class NpcDialogueResult {
 
   questDialogue: DialogueSectionResult[] = [];
   nonQuestDialogue: DialogueSectionResult[] = [];
-  reminders: DialogueSectionResult[] = [];
 
   constructor(npc: NpcExcelConfigData) {
     this.npc = npc;
@@ -244,7 +243,8 @@ async function npcListFromInput(ctrl: GenshinControl, npcNameOrId: string|number
 
 export async function dialogueGenerateByNpc(ctrl: GenshinControl,
                                             npcNameOrId: string|number,
-                                            acc?: TalkConfigAccumulator): Promise<NpcDialogueResultSet> {
+                                            acc?: TalkConfigAccumulator,
+                                            skipNonIdSpecific: boolean = false): Promise<NpcDialogueResultSet> {
   if (!acc) {
     acc = new TalkConfigAccumulator(ctrl);
   }
@@ -305,8 +305,10 @@ export async function dialogueGenerateByNpc(ctrl: GenshinControl,
     resultSet.resultMap[npc.Id] = res;
   }
 
-  const nameHashes: TextMapHash[] = (await Promise.all(npcList.map(npc => ctrl.findTextMapHashesByExactName(npc.NameText)))).flat();
-  resultSet.reminders = await reminderGenerateFromSpeakerTextMapHashes(ctrl, nameHashes);
+  if (!skipNonIdSpecific) {
+    const nameHashes: TextMapHash[] = (await Promise.all(npcList.map(npc => ctrl.findTextMapHashesByExactName(npc.NameText)))).flat();
+    resultSet.reminders = await reminderGenerateFromSpeakerTextMapHashes(ctrl, nameHashes);
+  }
 
   return resultSet;
 }

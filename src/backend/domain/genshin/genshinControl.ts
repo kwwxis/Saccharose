@@ -2166,6 +2166,9 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     const goals: AchievementGoalExcelConfigData[] = await this.selectAchievementGoals();
     achievement.Goal = goals.find(g => g.Id === achievement.GoalId);
 
+    if (achievement.Progress) {
+      achievement.DescText = achievement.DescText.replace(/\{param0}/g, String(achievement.Progress));
+    }
     if (achievement.FinishRewardId) {
       achievement.FinishReward = await this.selectRewardExcelConfigData(achievement.FinishRewardId);
     }

@@ -74,7 +74,7 @@
 
 // Secondary Header
 // ----------------------------------------------------------------------------------------------------
-.card > h3 {
+.card > h3, .card .secondary-header {
   background: hsla(223, 67%, 18%, 0.06);
   padding: 3px 10px;
   border: 1px solid hsla(223, 67%, 18%, 0.1);

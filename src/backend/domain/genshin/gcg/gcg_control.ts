@@ -20,7 +20,7 @@ import {
   GCGTalkExcelConfigData,
   GCGWeekLevelExcelConfigData, GcgWorldWorkTimeExcelConfigData, standardElementCodeToGcgKeywordId,
 } from '../../../../shared/types/genshin/gcg-types';
-import { DialogueSectionResult, talkConfigGenerate } from '../dialogue/dialogue_util';
+import { DialogueSectionResult, TalkConfigAccumulator, talkConfigGenerate } from '../dialogue/dialogue_util';
 import { pathToFileURL } from 'url';
 import { closeKnex } from '../../../util/db';
 import fs from 'fs';
@@ -28,7 +28,7 @@ import { getGenshinDataFilePath, IMAGEDIR_GENSHIN } from '../../../loadenv';
 import { SchemaTable } from '../../../importer/import_db';
 import { formatTime } from '../../../../shared/types/genshin/general-types';
 import { genshinSchema } from '../../../importer/genshin/genshin.schema';
-import { LangCode } from '../../../../shared/types/lang-types';
+import { LangCode, VoiceItem } from '../../../../shared/types/lang-types';
 import { isInt, toInt } from '../../../../shared/util/numberUtil';
 import { replaceAsync, splitLimit } from '../../../../shared/util/stringUtil';
 import { isUnset } from '../../../../shared/util/genericUtil';
@@ -40,6 +40,8 @@ import { standardElementCode } from '../../../../shared/types/genshin/manual-tex
 import { NormTextOptions } from '../../generic/genericNormalizers';
 import { html2quotes, unnestHtmlTags } from '../../../../shared/mediawiki/mwQuotes';
 import { loadGenshinTextSupportingData } from '../genshinText';
+import { dialogueGenerateByNpc, NpcDialogueResult } from '../dialogue/basic_dialogue_generator';
+import { DialogExcelConfigData } from '../../../../shared/types/genshin/dialogue-types';
 
 // noinspection JSUnusedGlobalSymbols
 export class GCGControl {
@@ -369,16 +371,13 @@ export class GCGControl {
     if (!disableLoad.disableRuleLoad) {
       stage.Rule = this.rules.find(rule => rule.Id === stage.RuleId);
     }
-    if (!disableLoad.disableTalkLoad) {
-      stage.LevelTalk = await this.selectTalkByGameId(stage.Id);
-    }
     if (!disableLoad.disableLevelLockLoad) {
       stage.LevelLock = await this.singleSelect('GCGLevelLockExcelConfigData', 'LevelId', stage.Id);
       if (stage.LevelLock && stage.LevelLock.UnlockLevel) {
         stage.MinPlayerLevel = stage.LevelLock.UnlockLevel;
       }
     }
-    if (!disableLoad.disableDialogTalkLoad) {
+    if (!disableLoad.disableOtherLevelLoad) {
       stage.OtherLevel = await this.singleSelect('GcgOtherLevelExcelConfigData', 'LevelId', stage.Id);
       stage.LevelType = 'OTHER';
       if (stage.OtherLevel && stage.OtherLevel.TalkId) {
@@ -404,12 +403,14 @@ export class GCGControl {
         stage.LevelType = 'BOSS';
         stage.LevelDifficulty = 'NORMAL';
         stage.MinPlayerLevel = stage.BossLevel.UnlockGcgLevel;
+        stage.NpcId = stage.BossLevel.NpcId;
       } else {
         stage.BossLevel = await this.singleSelect('GCGBossLevelExcelConfigData', 'HardLevelId', stage.Id);
         if (stage.BossLevel) {
           stage.LevelType = 'BOSS';
           stage.LevelDifficulty = 'HARD';
           stage.MinPlayerLevel = stage.BossLevel.UnlockGcgLevel;
+          stage.NpcId = stage.BossLevel.NpcId;
         }
       }
     }
@@ -417,6 +418,7 @@ export class GCGControl {
       stage.WorldLevel = await this.singleSelect('GCGWorldLevelExcelConfigData', 'LevelId', stage.Id);
       if (stage.WorldLevel) {
         stage.LevelType = 'WORLD';
+        stage.NpcId = stage.WorldLevel.NpcId;
         if (stage.WorldLevel.TalkId) {
           stage.WorldLevel.Talk = await this.ctrl.selectTalkExcelConfigDataById(stage.WorldLevel.TalkId);
         }
@@ -441,6 +443,7 @@ export class GCGControl {
       if (stage.WeekLevel) {
         stage.LevelType = 'WEEK';
         stage.MinPlayerLevel = weekLevelRelation.GcgLevel;
+        stage.NpcId = stage.WeekLevel.NpcId;
 
         if (stage.WeekLevel.OpenQuestId) {
           stage.WeekLevel.OpenQuest = await this.ctrl.selectQuestExcelConfigData(stage.WeekLevel.OpenQuestId);
@@ -455,6 +458,7 @@ export class GCGControl {
       if (stage.CharacterLevel) {
         stage.LevelType = 'CHARACTER';
         stage.LevelDifficulty = 'NORMAL';
+        stage.NpcId = stage.CharacterLevel.NpcId;
 
         let normalItem = stage.CharacterLevel.NormalLevelList.find(item => item.LevelId === stage.Id);
         if (normalItem) {
@@ -549,6 +553,10 @@ export class GCGControl {
         }
       }
     }
+    if (!disableLoad.disableTalkLoad) {
+      stage.LevelTalk = await this.selectTalkByGameId(stage.Id);
+      stage.StageTalk = await this.generateStageTalk(stage);
+    }
     return stage;
   }
 
@@ -562,8 +570,9 @@ export class GCGControl {
   }
 
   async selectAllStage(disableLoad: GCGStageLoadOptions = {}): Promise<GCGGameExcelConfigData[]> {
-    return await this.allSelect('GCGGameExcelConfigData', o => this.postProcessStage(o, Object.assign({
-      disableDeckLoad: true
+    return await this.allSelect('GCGGameExcelConfigData', o => this.postProcessStage(o, Object.assign(<GCGStageLoadOptions> {
+      disableDeckLoad: true,
+      disableTalkLoad: true,
     }, disableLoad)));
   }
 
@@ -999,142 +1008,175 @@ export class GCGControl {
   // GCG TALKS + DIALOGUE
   // --------------------------------------------------------------------------------------------------------------
 
-  // TODO:
-  // async gcgTalkToDialogueSection(talk: GCGTalkExcelConfigData, stageForTalk: GCGGameExcelConfigData): Promise<DialogueSectionResult> {
-  //
-  // }
+  private pushTalkDetailToStageTalk(result: DialogueSectionResult, mode: string, talk: GCGTalkExcelConfigData, talkDetail: GCGTalkDetailExcelConfigData) {
+    let sect = new DialogueSectionResult('GCGTalk_'+talk.GameId+'_'+talkDetail.TalkDetailIconId, mode).afterConstruct(sect => {
+      sect.addMetaProp('Stage ID', { value: talk.GameId, tooltip: result.title }, '/TCG/stages/'+String(talk.GameId).padStart(6, '0'));
+      sect.addMetaProp('Talk Mode', mode);
+      sect.addMetaProp('Icon ID', talkDetail.TalkDetailIconId);
+      if (talkDetail?.TalkDetailIcon?.Type === 'NPC') {
+        sect.addEmptyMetaProp('NPC');
+      }
+      if (talkDetail.Avatar) {
+        sect.addMetaProp('Avatar ID', talkDetail.Avatar.Id);
+        sect.addMetaProp('Avatar Name', talkDetail.Avatar.NameText);
+      }
+    });
 
-  async generateGCGTalkDialogueSections(): Promise<DialogueSectionResult[]> {
-    let results: {[gameId: number]: DialogueSectionResult} = {};
+    const talker = talkDetail.Avatar?.NameText || result.getMetaProp('Enemy Name')?.getValue(0)?.value;
 
-    let talks = await this.selectAllTalk();
-
-    for (let talk of talks) {
-      let parentSect: DialogueSectionResult;
-      if (!results[talk.GameId]) {
-        let stage = await this.selectStage(talk.GameId, {
-          disableTalkLoad: true,
-          disableLevelLockLoad: true,
-          disableDeckLoad: true,
+    if (talkDetail.TalkContentText.length === 1) {
+      const talkDetailVo = talkDetail.VoPrefix ? talkDetail.VoPrefix + ' ' : '';
+      sect.wikitext = `:${talkDetailVo}'''${talker}''': ` + this.ctrl.normText(talkDetail.TalkContentText[0], this.ctrl.outputLangCode);
+    } else {
+      let texts = [];
+      if (talkDetail.VoPrefix) {
+        texts.push(':'+talkDetail.VoPrefix);
+      }
+      for (let text of talkDetail.TalkContentText) {
+        texts.push(`:'''${talker}''': ` + this.ctrl.normText(text, this.ctrl.outputLangCode));
+      }
+      if (texts.length) {
+        sect.wikitextArray.push({
+          wikitext: texts.join('\n')
         });
-        parentSect = new DialogueSectionResult('GCGTalk_'+talk.GameId, stage.WikiCombinedTitle).afterConstruct(sect => {
-          sect.addMetaProp('Stage ID', { value: talk.GameId, tooltip: stage.WikiCombinedTitle }, '/TCG/stages/' + String(talk.GameId).padStart(6, '0'));
-          sect.addMetaProp('Stage Type', stage.LevelType);
-          sect.addMetaProp('Stage Difficulty', stage.LevelDifficulty === 'NORMAL' ? 'Friendly Fracas' : 'Serious Showdown');
-          sect.addMetaProp('Stage Player Level', stage.MinPlayerLevel);
-          if (stage.EnemyNameText) {
-            sect.addMetaProp('Enemy Name', stage.EnemyNameText);
-          }
-          if (stage?.Reward?.LevelNameText) {
-            sect.addMetaProp('Level Name', stage.Reward.LevelNameText);
-          }
-        });
-        results[talk.GameId] = parentSect;
-        if (stage.OtherLevel && stage.OtherLevel.Talks) {
-          for (let talk of stage.OtherLevel.Talks) {
-            let talkSect = await talkConfigGenerate(this.ctrl, talk);
-            talkSect.title = 'Other Talk';
-            parentSect.children.push(talkSect);
-          }
-        }
-        if (stage.WorldLevel && stage.WorldLevel.Talk) {
-          let talkSect = await talkConfigGenerate(this.ctrl, stage.WorldLevel.Talk);
-          talkSect.title = 'World Talk';
-          parentSect.children.push(talkSect);
-        }
-        if (stage.LevelDifficulty === 'NORMAL') {
-          if (stage.CharacterLevel && stage.CharacterLevel.WinNormalLevelTalk) {
-            let talkSect = await talkConfigGenerate(this.ctrl, stage.CharacterLevel.WinNormalLevelTalk);
-            talkSect.title = 'Win Talk';
-            parentSect.children.push(talkSect);
-          }
-          if (stage.CharacterLevel && stage.CharacterLevel.LoseNormalLevelTalk) {
-            let talkSect = await talkConfigGenerate(this.ctrl, stage.CharacterLevel.LoseNormalLevelTalk);
-            talkSect.title = 'Lose Talk';
-            parentSect.children.push(talkSect);
-          }
-        }
-        if (stage.LevelDifficulty === 'HARD') {
-          if (stage.CharacterLevel && stage.CharacterLevel.WinHardLevelTalk) {
-            let talkSect = await talkConfigGenerate(this.ctrl, stage.CharacterLevel.WinHardLevelTalk);
-            talkSect.title = 'Win Talk';
-            parentSect.children.push(talkSect);
-          }
-          if (stage.CharacterLevel && stage.CharacterLevel.LoseHardLevelTalk) {
-            let talkSect = await talkConfigGenerate(this.ctrl, stage.CharacterLevel.LoseHardLevelTalk);
-            talkSect.title = 'Lose Talk';
-            parentSect.children.push(talkSect);
-          }
-        }
-      }
-      parentSect = results[talk.GameId];
-      const pushTalkDetailSect = (mode: string, talkDetail: GCGTalkDetailExcelConfigData): DialogueSectionResult => {
-        let sect = new DialogueSectionResult('GCGTalk_'+talk.GameId+'_'+talkDetail.TalkDetailIconId, mode).afterConstruct(sect => {
-          sect.addMetaProp('Stage ID', { value: talk.GameId, tooltip: parentSect.title }, '/TCG/stages/'+String(talk.GameId).padStart(6, '0'));
-          sect.addMetaProp('Talk Mode', mode);
-          sect.addMetaProp('Icon ID', talkDetail.TalkDetailIconId);
-          if (talkDetail?.TalkDetailIcon?.Type === 'NPC') {
-            sect.addEmptyMetaProp('NPC');
-          }
-          if (talkDetail.Avatar) {
-            sect.addMetaProp('Avatar ID', talkDetail.Avatar.Id);
-            sect.addMetaProp('Avatar Name', talkDetail.Avatar.NameText);
-          }
-        });
-
-        const talker = talkDetail.Avatar?.NameText || parentSect.getMetaProp('Enemy Name')?.getValue(0)?.value;
-
-        if (talkDetail.TalkContentText.length === 1) {
-          const talkDetailVo = talkDetail.VoPrefix ? talkDetail.VoPrefix + ' ' : '';
-          sect.wikitext = `:${talkDetailVo}'''${talker}''': ` + this.ctrl.normText(talkDetail.TalkContentText[0], this.ctrl.outputLangCode);
-        } else {
-          let texts = [];
-          if (talkDetail.VoPrefix) {
-            texts.push(':'+talkDetail.VoPrefix);
-          }
-          for (let text of talkDetail.TalkContentText) {
-            texts.push(`:'''${talker}''': ` + this.ctrl.normText(text, this.ctrl.outputLangCode));
-          }
-          if (texts.length) {
-            sect.wikitextArray.push({
-              wikitext: texts.join('\n')
-            });
-          }
-        }
-        if (sect.wikitext || sect.wikitextArray.length) {
-          parentSect.children.push(sect);
-        }
-        return sect;
-      }
-      if (talk.HappyTalk) {
-        let sect = pushTalkDetailSect('Happy Talk', talk.HappyTalk);
-      }
-      if (talk.SadTalk) {
-        let sect = pushTalkDetailSect('Sad Talk', talk.SadTalk);
-      }
-      if (talk.ToughTalk) {
-        let sect = pushTalkDetailSect('Tough Talk', talk.ToughTalk);
-      }
-      if (talk.ElementBurstTalk) {
-        let sect = pushTalkDetailSect('Elemental Burst', talk.ElementBurstTalk);
-      }
-      if (talk.HighHealthTalk) {
-        let sect = pushTalkDetailSect('High Health', talk.HighHealthTalk);
-        sect.addMetaProp('High Health Value', talk.HighHealthValue);
-      }
-      if (talk.LowHealthTalk) {
-        let sect = pushTalkDetailSect('Low Health', talk.LowHealthTalk);
-        sect.addMetaProp('Low Health Value', talk.LowHealthValue);
       }
     }
-    return Object.values(results).filter(result => result.children.length);
+    if (sect.wikitext || sect.wikitextArray.length) {
+      result.children.push(sect);
+    }
+    return sect;
+  }
+
+  async generateStageTalk(stage: GCGGameExcelConfigData) {
+    const gcgTalk: GCGTalkExcelConfigData = stage.LevelTalk;
+
+    const result = new DialogueSectionResult('GCGTalk_'+stage.Id, stage.WikiCombinedTitle).afterConstruct(sect => {
+      sect.addMetaProp('Stage ID', { value: stage.Id, tooltip: stage.WikiCombinedTitle },
+        '/TCG/stages/' + String(stage.Id).padStart(6, '0'));
+      sect.addMetaProp('Stage Type', stage.LevelType);
+      sect.addMetaProp('Stage Difficulty', stage.LevelDifficulty === 'NORMAL' ? 'Friendly Fracas' : 'Serious Showdown');
+      sect.addMetaProp('Stage Player Level', stage.MinPlayerLevel);
+      if (stage.EnemyNameText) {
+        sect.addMetaProp('Enemy Name', stage.EnemyNameText);
+      }
+      if (stage?.Reward?.LevelNameText) {
+        sect.addMetaProp('Level Name', stage.Reward.LevelNameText);
+      }
+    });
+
+    const acc = new TalkConfigAccumulator(this.ctrl);
+
+    if (stage.OtherLevel && stage.OtherLevel.Talks) {
+      for (let talk of stage.OtherLevel.Talks) {
+        let talkSect = await talkConfigGenerate(this.ctrl, talk, acc);
+        if (talkSect) {
+          talkSect.title = 'Other Talk';
+          result.children.push(talkSect);
+        }
+      }
+    }
+    if (stage.WorldLevel && stage.WorldLevel.Talk) {
+      let talkSect = await talkConfigGenerate(this.ctrl, stage.WorldLevel.Talk, acc);
+      if (talkSect) {
+        talkSect.title = 'World Talk';
+        result.children.push(talkSect);
+      }
+    }
+    if (stage.LevelDifficulty === 'NORMAL') {
+      if (stage.CharacterLevel && stage.CharacterLevel.WinNormalLevelTalk) {
+        let talkSect = await talkConfigGenerate(this.ctrl, stage.CharacterLevel.WinNormalLevelTalk, acc);
+        if (talkSect) {
+          talkSect.title = 'Win Talk';
+          result.children.push(talkSect);
+        }
+      }
+      if (stage.CharacterLevel && stage.CharacterLevel.LoseNormalLevelTalk) {
+        let talkSect = await talkConfigGenerate(this.ctrl, stage.CharacterLevel.LoseNormalLevelTalk, acc);
+        if (talkSect) {
+          talkSect.title = 'Lose Talk';
+          result.children.push(talkSect);
+        }
+      }
+    }
+    if (stage.LevelDifficulty === 'HARD') {
+      if (stage.CharacterLevel && stage.CharacterLevel.WinHardLevelTalk) {
+        let talkSect = await talkConfigGenerate(this.ctrl, stage.CharacterLevel.WinHardLevelTalk, acc);
+        if (talkSect) {
+          talkSect.title = 'Win Talk';
+          result.children.push(talkSect);
+        }
+      }
+      if (stage.CharacterLevel && stage.CharacterLevel.LoseHardLevelTalk) {
+        let talkSect = await talkConfigGenerate(this.ctrl, stage.CharacterLevel.LoseHardLevelTalk, acc);
+        if (talkSect) {
+          talkSect.title = 'Lose Talk';
+          result.children.push(talkSect);
+        }
+      }
+    }
+
+    if (gcgTalk) {
+      if (gcgTalk.HappyTalk) {
+        this.pushTalkDetailToStageTalk(result, 'Happy Talk', gcgTalk, gcgTalk.HappyTalk);
+      }
+      if (gcgTalk.SadTalk) {
+        this.pushTalkDetailToStageTalk(result, 'Sad Talk', gcgTalk, gcgTalk.SadTalk);
+      }
+      if (gcgTalk.ToughTalk) {
+        this.pushTalkDetailToStageTalk(result, 'Tough Talk', gcgTalk, gcgTalk.ToughTalk);
+      }
+      if (gcgTalk.ElementBurstTalk) {
+        this.pushTalkDetailToStageTalk(result, 'Elemental Burst', gcgTalk, gcgTalk.ElementBurstTalk);
+      }
+      if (gcgTalk.HighHealthTalk) {
+        this.pushTalkDetailToStageTalk(result, 'High Health', gcgTalk, gcgTalk.HighHealthTalk)
+          .addMetaProp('High Health Value', gcgTalk.HighHealthValue);
+      }
+      if (gcgTalk.LowHealthTalk) {
+        this.pushTalkDetailToStageTalk(result, 'Low Health', gcgTalk, gcgTalk.LowHealthTalk)
+          .addMetaProp('Low Health Value', gcgTalk.LowHealthValue);
+      }
+    }
+
+    if (stage.NpcId) {
+      const npcDialogue: NpcDialogueResult = (await dialogueGenerateByNpc(this.ctrl, stage.NpcId, acc, true))?.resultMap[stage.NpcId];
+      if (npcDialogue && npcDialogue.nonQuestDialogue) {
+        const sections = npcDialogue.nonQuestDialogue;
+
+        for (let section of sections) {
+          let mode = '';
+          let voItem: VoiceItem = null;
+          let firstDialog: DialogExcelConfigData = null;
+
+          if (section.originalData.talkConfig) {
+            const talk = section.originalData.talkConfig;
+            mode = 'TALK';
+            firstDialog = section.originalData.talkConfig.Dialog[0];
+            voItem = this.ctrl.voice.getVoiceItems('Dialog', firstDialog.Id,)?.[0];
+          } else if (section.originalData.dialogBranch) {
+            mode = 'DIALOG';
+            firstDialog = section.originalData.dialogBranch[0];
+            voItem = this.ctrl.voice.getVoiceItems('Dialog', firstDialog.Id)?.[0];
+          } else {
+            continue;
+          }
+
+          const voCat1 = voItem?.fileName.split(' ')[3];
+          const voCat2 = voItem?.fileName.split(' ')[4];
+
+          console.log(mode, voCat1, voCat2, firstDialog.TalkContentText);
+        }
+      }
+    }
+
+    return result;
   }
 }
 
 export interface GCGStageLoadOptions {
   disableRuleLoad?: boolean,
   disableTalkLoad?: boolean,
-  disableDialogTalkLoad?: boolean,
+  disableOtherLevelLoad?: boolean,
   disableLevelLockLoad?: boolean,
   disableQuestLevelLoad?: boolean,
   disableBossLevelLoad?: boolean,

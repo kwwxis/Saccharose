@@ -18,15 +18,6 @@ import { Request, Response, Router } from 'express';
 export default async function(): Promise<Router> {
   const router: Router = create();
 
-  router.get('/TCG/talk-detail', async (req: Request, res: Response) => {
-    const ctrl = getGenshinControl(req);
-    res.render('pages/genshin/gcg/gcg-talk-detail', {
-      title: 'TCG Talk Detail',
-      talkSections: await getGCGControl(ctrl).generateGCGTalkDialogueSections(),
-      bodyClass: ['page--tcg-talk-detail']
-    });
-  });
-
   router.get('/TCG/tutorial-text', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
     res.render('pages/genshin/gcg/gcg-tutorial-text', {

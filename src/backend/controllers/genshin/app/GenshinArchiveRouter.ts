@@ -172,7 +172,7 @@ export default async function(): Promise<Router> {
 
       sb.line('{{Achievement Infobox');
       sb.setPropPad(13);
-      sb.prop('title', achievement.TitleText);
+      //sb.prop('title', achievement.TitleText);
       sb.prop('id', achievement.Id);
       sb.prop('order id', achievement.OrderId);
       sb.prop('category', achievement.Goal.NameText);
@@ -185,7 +185,7 @@ export default async function(): Promise<Router> {
         sb.prop('type');
       }
       sb.prop('quest');
-      sb.prop('hidden');
+      sb.prop('hidden', achievement.IsHidden ? '1' : '');
       if (achievementsWithSameName.length > 1) {
         sb.prop('set', achievement.TitleText);
         sb.prop('tier', achievementsWithSameName.findIndex(a => a.Id === achievement.Id) + 1);
