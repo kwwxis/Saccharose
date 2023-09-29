@@ -466,7 +466,6 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
           fieldName = normalizeRawJsonKey(fieldName, table);
           for (let column of table.columns) {
             if (column.name === fieldName && (column.isPrimary || column.isIndex)) {
-
               refObject = await this.knex.select('*').from(table.name)
                 .where({[column.name]: id}).first().then(this.commonLoadFirst);
             }
