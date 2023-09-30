@@ -1686,7 +1686,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
       reward.RewardSummary.CombinedCards += cardForm;
       reward.RewardSummary.CombinedStrings += (reward.RewardSummary.CombinedStrings.length ? ';' : '') + stringForm;
-      reward.RewardSummary.CombinedStringsNoLocale += (reward.RewardSummary.CombinedStrings.length ? ';' : '') + stringFormNoLocale;
+      reward.RewardSummary.CombinedStringsNoLocale += (reward.RewardSummary.CombinedStringsNoLocale.length ? ';' : '') + stringFormNoLocale;
     }
 
     return reward;
