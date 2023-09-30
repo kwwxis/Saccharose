@@ -185,7 +185,7 @@ router.endpoint('/dialogue/vo-to-dialogue', {
         if (dialogue) {
           text = await ctrl.generateDialogueWikiText([dialogue]);
         } else {
-          warn = '(This VO file is supposed to be used for a dialog with ' + id + ', however such a dialog does not exist)';
+          warn = '(This VO file is supposed to be used for a dialog with ID ' + id + ', however such a dialog does not exist)';
         }
       } else if (type === 'Reminder') {
         let reminder = await ctrl.selectReminderById(id);
