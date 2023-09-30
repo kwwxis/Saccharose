@@ -866,6 +866,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       // Voice-Overs
       // ~~~~~~~~~~~
       let voPrefix = this.voice.getVoPrefix('Dialog', dialog.Id, text, dialog.TalkRole.Type);
+      console.log('VO Prefix', dialog.Id, voPrefix);
 
       // Output Append
       // ~~~~~~~~~~~~~
@@ -1659,6 +1660,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
       // All:
       CombinedStrings: '',
+      CombinedStringsNoLocale: '',
       CombinedCards: ''
     };
 
@@ -1667,20 +1669,24 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
         continue;
       }
 
-      let countForm = (item.ItemCount || 1).toLocaleString('en-US');
-      let cardForm = `{{Card|${item.Material.NameText}|${countForm}}}`;
-      let stringForm = `${item.Material.NameText}*${countForm}`;
+      let count = (item.ItemCount || 1);
+      let localeCount = count.toLocaleString('en-US');
+
+      let cardForm = `{{Card|${item.Material.NameText}|${localeCount}}}`;
+      let stringForm = `${item.Material.NameText}*${localeCount}`;
+      let stringFormNoLocale = `${item.Material.NameText}*${count}`;
 
       if (item.ItemId === ADVENTURE_EXP_ID) {
-        reward.RewardSummary.ExpCount = countForm;
+        reward.RewardSummary.ExpCount = localeCount;
       } else if (item.ItemId === MORA_ID) {
-        reward.RewardSummary.MoraCount = countForm;
+        reward.RewardSummary.MoraCount = localeCount;
       } else if (item.ItemId === PRIMOGEM_ID) {
-        reward.RewardSummary.PrimogemCount = countForm;
+        reward.RewardSummary.PrimogemCount = localeCount;
       }
 
       reward.RewardSummary.CombinedCards += cardForm;
       reward.RewardSummary.CombinedStrings += (reward.RewardSummary.CombinedStrings.length ? ';' : '') + stringForm;
+      reward.RewardSummary.CombinedStringsNoLocale += (reward.RewardSummary.CombinedStrings.length ? ';' : '') + stringFormNoLocale;
     }
 
     return reward;

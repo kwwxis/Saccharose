@@ -12,6 +12,7 @@ export interface RewardSummary {
   PrimogemCount: string,
   CombinedStrings: string,
   CombinedCards: string,
+  CombinedStringsNoLocale: string,
 }
 
 export interface RewardExcelConfigData {

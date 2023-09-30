@@ -3,6 +3,7 @@
   padding: 7px 10px;
   body.nightmode & {
     background: hsl(206deg 33% 31% / 20%);
+    border: 1px solid hsla(206, 33%, 31%, 0.45);
   }
 }
 
@@ -14,6 +15,7 @@
 
   body.nightmode & {
     background: #5a2e2e;
+    border: 1px solid #834444;
   }
 
   code {
@@ -22,5 +24,23 @@
       background: rgba(0,0,0,0.25);
     }
   }
+}
 
+.warn-notice, .warning-notice {
+  background: #fbf2d2;
+  padding: 10px;
+  border-radius: 3px;
+  font-weight: 600;
+
+  body.nightmode & {
+    background: #453e2e;
+    border: 1px solid #7c6c47;
+  }
+
+  code {
+    background: rgba(255,255,255,0.6);
+    body.nightmode & {
+      background: rgba(0,0,0,0.25);
+    }
+  }
 }

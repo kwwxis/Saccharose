@@ -162,7 +162,7 @@ router.endpoint('/dialogue/vo-to-dialogue', {
   get: async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
     const inputs: string[] = (<string> req.query.text).trim().split(/\n/g).map(s => s.trim()).filter(s => !!s);
-    const results: {id: number, type: string, text: string, file: string}[] = [];
+    const results: {id: number, voFile: string, type: string, text: string, warn?: string, file: string}[] = [];
 
     for (let input of inputs) {
       if (input.toLowerCase().includes('{{a|')) {
@@ -178,16 +178,25 @@ router.endpoint('/dialogue/vo-to-dialogue', {
       let type = result?.type;
       let id = result?.id;
       let text = '';
+      let warn = '';
 
       if (type === 'Dialog') {
         let dialogue = await ctrl.selectSingleDialogExcelConfigData(id);
-        text = await ctrl.generateDialogueWikiText([dialogue]);
+        if (dialogue) {
+          text = await ctrl.generateDialogueWikiText([dialogue]);
+        } else {
+          warn = '(This VO file is supposed to be used for a dialog with ' + id + ', however such a dialog does not exist)';
+        }
       } else if (type === 'Reminder') {
         let reminder = await ctrl.selectReminderById(id);
-        text = reminderWikitext(ctrl, reminder);
+        if (reminder) {
+          text = reminderWikitext(ctrl, reminder);
+        } else {
+          warn = '(This VO file is supposed to be used for a reminder with ' + id + ', however such a reminder does not exist)';
+        }
       }
 
-      results.push({ id, type, text, file: input });
+      results.push({ id, voFile: input, type, text, warn, file: input });
     }
 
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
