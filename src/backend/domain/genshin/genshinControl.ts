@@ -2025,9 +2025,10 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     const readable = await this.selectReadableByDocumentId(documentId, shouldLoadItems);
     if (readable) {
       Object.assign(view, readable);
+      return view;
+    } else {
+      return null;
     }
-
-    return view;
   }
 
   async selectBookCollection(suitId: number): Promise<BookSuitExcelConfigData> {

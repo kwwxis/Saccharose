@@ -1,3 +1,4 @@
+<% if (readable) { %>
 <section class="card">
   <h2><%= title %></h2>
   <div class="content">
@@ -162,3 +163,8 @@
                 translate="no"><%= JSON.stringify(readable, null, 2) %></textarea>
   </div>
 </section>
+<% } else { %>
+<section class="card">
+  <h2>Readable not found</h2>
+</section>
+<% } %>

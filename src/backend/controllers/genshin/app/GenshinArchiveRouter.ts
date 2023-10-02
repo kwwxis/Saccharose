@@ -296,9 +296,9 @@ export default async function(): Promise<Router> {
     const readable: ReadableView = await ctrl.selectReadableView(toInt(req.params.itemId));
 
     res.render('pages/genshin/archive/readable-item', {
-      title: readable.TitleText,
+      title: readable?.TitleText || 'Not Found',
       readable: readable,
-      ol: await ol_gen_from_id(ctrl, readable.TitleTextMapHash),
+      ol: readable ? await ol_gen_from_id(ctrl, readable.TitleTextMapHash) : null,
       bodyClass: ['page--readables', 'page--readable-item']
     });
   });
