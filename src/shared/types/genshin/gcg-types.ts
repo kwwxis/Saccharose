@@ -46,10 +46,10 @@ export interface GCGTalkExcelConfigData {
   LowHealthTalk: GCGTalkDetailExcelConfigData,
 
   HighHealthValue: number,
-  HighHealthConfigId: number,
+  HighHealthConfigId: number, // card ID
 
   LowHealthValue: number,
-  LowHealthConfigId: number,
+  LowHealthConfigId: number, // card ID
 }
 
 export interface GCGTutorialTextExcelConfigData {
@@ -341,9 +341,15 @@ export interface GCGGameExcelConfigData {
   // Dialogue:
   LevelTalk?: GCGTalkExcelConfigData,
   StageTalk?: DialogueSectionResult,
+  TalkSummary: GCGTalkSummary,
 
   // Reward object:
   Reward: GCGGameRewardExcelConfigData,
+}
+
+export interface GCGTalkSummary {
+  IdleQuotes: string,
+  IntroText: string,
 }
 
 export interface GCGBossLevelExcelConfigData {

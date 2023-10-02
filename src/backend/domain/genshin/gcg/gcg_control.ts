@@ -42,6 +42,7 @@ import { html2quotes, unnestHtmlTags } from '../../../../shared/mediawiki/mwQuot
 import { loadGenshinTextSupportingData } from '../genshinText';
 import { dialogueGenerateByNpc, NpcDialogueResult } from '../dialogue/basic_dialogue_generator';
 import { DialogExcelConfigData } from '../../../../shared/types/genshin/dialogue-types';
+import * as console from 'console';
 
 // noinspection JSUnusedGlobalSymbols
 export class GCGControl {
@@ -1009,7 +1010,7 @@ export class GCGControl {
   // --------------------------------------------------------------------------------------------------------------
 
   private pushTalkDetailToStageTalk(result: DialogueSectionResult, mode: string, talk: GCGTalkExcelConfigData, talkDetail: GCGTalkDetailExcelConfigData) {
-    let sect = new DialogueSectionResult('GCGTalk_'+talk.GameId+'_'+talkDetail.TalkDetailIconId, mode).afterConstruct(sect => {
+    const sect = new DialogueSectionResult('GCGTalk_'+talk.GameId+'_'+talkDetail.TalkDetailIconId, mode).afterConstruct(sect => {
       sect.addMetaProp('Stage ID', { value: talk.GameId, tooltip: result.title }, '/TCG/stages/'+String(talk.GameId).padStart(6, '0'));
       sect.addMetaProp('Talk Mode', mode);
       sect.addMetaProp('Icon ID', talkDetail.TalkDetailIconId);
@@ -1022,28 +1023,20 @@ export class GCGControl {
       }
     });
 
-    const talker = talkDetail.Avatar?.NameText || result.getMetaProp('Enemy Name')?.getValue(0)?.value;
+    const talker: string = talkDetail.Avatar?.NameText || result.getMetaProp('Enemy Name')?.getValue(0)?.value;
+    const texts: string[] = [];
 
-    if (talkDetail.TalkContentText.length === 1) {
-      const talkDetailVo = talkDetail.VoPrefix ? talkDetail.VoPrefix + ' ' : '';
-      sect.wikitext = `:${talkDetailVo}'''${talker}''': ` + this.ctrl.normText(talkDetail.TalkContentText[0], this.ctrl.outputLangCode);
-    } else {
-      let texts = [];
-      if (talkDetail.VoPrefix) {
-        texts.push(':'+talkDetail.VoPrefix);
-      }
-      for (let text of talkDetail.TalkContentText) {
-        texts.push(`:'''${talker}''': ` + this.ctrl.normText(text, this.ctrl.outputLangCode));
-      }
-      if (texts.length) {
-        sect.wikitextArray.push({
-          wikitext: texts.join('\n')
-        });
-      }
+    for (let i = 0; i < talkDetail.TalkContentText.length; i++) {
+      const talkDetailVo = talkDetail.VoPrefix && i === 0 ? talkDetail.VoPrefix : '';
+      const text = talkDetail.TalkContentText[i];
+      texts.push(`:${talkDetailVo}'''${talker}''': ` + this.ctrl.normText(text, this.ctrl.outputLangCode));
     }
-    if (sect.wikitext || sect.wikitextArray.length) {
+
+    if (texts.length) {
+      sect.wikitext = texts.join('\n');
       result.children.push(sect);
     }
+
     return sect;
   }
 
@@ -1147,12 +1140,14 @@ export class GCGControl {
           let mode = '';
           let voItem: VoiceItem = null;
           let firstDialog: DialogExcelConfigData = null;
+          let info: any = null;
 
           if (section.originalData.talkConfig) {
             const talk = section.originalData.talkConfig;
             mode = 'TALK';
             firstDialog = section.originalData.talkConfig.Dialog[0];
             voItem = this.ctrl.voice.getVoiceItems('Dialog', firstDialog.Id,)?.[0];
+            info = talk.BeginCond;
           } else if (section.originalData.dialogBranch) {
             mode = 'DIALOG';
             firstDialog = section.originalData.dialogBranch[0];
@@ -1164,7 +1159,7 @@ export class GCGControl {
           const voCat1 = voItem?.fileName.split(' ')[3];
           const voCat2 = voItem?.fileName.split(' ')[4];
 
-          console.log(mode, voCat1, voCat2, firstDialog.TalkContentText);
+          console.log(mode, '|', voCat1, voCat2, '|', firstDialog.TalkContentText, '|', info);
         }
       }
     }

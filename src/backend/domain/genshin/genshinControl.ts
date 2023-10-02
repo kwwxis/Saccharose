@@ -866,7 +866,6 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       // Voice-Overs
       // ~~~~~~~~~~~
       let voPrefix = this.voice.getVoPrefix('Dialog', dialog.Id, text, dialog.TalkRole.Type);
-      console.log('VO Prefix', dialog.Id, voPrefix);
 
       // Output Append
       // ~~~~~~~~~~~~~

@@ -1,4 +1,14 @@
 <div class="dialogue-container">
+  <div class="card result-count-card">
+    <h2 class="valign">
+      <span><%= results.length %> results</span>
+      <span class="grow"></span>
+      <button class="secondary small" ui-action="copy-all: .wikitext; copy-sep: \n"
+              ui-tippy-hover="Click to copy all to clipboard"
+              ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">Copy All</button>
+    </h2>
+  </div>
+
   <% for (let result of results) { %>
     <% if (result.id) { %>
       <section class="card">
@@ -30,7 +40,7 @@
     <% } else { %>
       <section class="card">
         <div class="content">
-          <p>No results for <code><%= result.file %></code></p>
+          <p>No results for: <code class="fontWeight600"><%= result.file %></code></p>
         </div>
       </section>
     <% } %>
