@@ -9,7 +9,7 @@ import chalk from 'chalk';
 export async function importTranslateSchema() {
   function getExcelFilePair(filePath: string) {
     return {
-      impExcelPath: path.resolve(process.env.IMPACTFUL_DATA_ROOT, filePath.replaceAll('\\', '/')),
+      impExcelPath: path.resolve(process.env.GENSHIN_PREV_DATA_ROOT, filePath.replaceAll('\\', '/')),
       agdExcelPath: getGenshinDataFilePath(filePath),
     };
   }

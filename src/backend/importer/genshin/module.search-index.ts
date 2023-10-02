@@ -30,6 +30,9 @@ export async function importSearchIndex() {
 
     for (let view of readableList) {
       readableIndex[view.TitleTextMapHash] = view.Id;
+      if (view.Document && view.Document.TitleTextMapHash) {
+        readableIndex[view.Document.TitleTextMapHash] = view.Id;
+      }
     }
     writeOutput('Readable', readableIndex);
   }

@@ -4,11 +4,6 @@ import { defaultMap } from '../../../shared/util/genericUtil';
 import { pathToFileURL } from 'url';
 import { isInt } from '../../../shared/util/numberUtil';
 
-// Abbreviations:
-//  imp -> Impactful
-//  agd -> AnimeGameData
-//  obf -> Obfuscated
-
 interface KvPair {
   key: string;
   value: any;
@@ -62,53 +57,53 @@ function unpackRecord(record: any, normalizeKey: boolean): KvPair[] {
   return result;
 }
 
-export async function translateSchema(impFilePath: string, agdFilePath: string): Promise<{[obfProp: string]: string}> {
+export async function translateSchema(prevFilePath: string, currFilePath: string): Promise<{[obfProp: string]: string}> {
 
-  let impFile: any[] = await fsp.readFile(impFilePath, {encoding: 'utf8'})
+  let prevFile: any[] = await fsp.readFile(prevFilePath, {encoding: 'utf8'})
     .then(data => Object.freeze(JSON.parse(data)));
 
-  let agdFile: any[] = await fsp.readFile(agdFilePath, {encoding: 'utf8'})
+  let currFile: any[] = await fsp.readFile(currFilePath, {encoding: 'utf8'})
     .then(data => JSON.parse(data));
 
   const schemaResult: {[obfProp: string]: string} = {};
 
-  let impPropsByKey: {[key: string]: KvPair[]} = defaultMap('Array');
-  let impPropsByValueHash: {[key: string]: KvPair[]} = defaultMap('Array');
+  let prevPropsByKey: {[key: string]: KvPair[]} = defaultMap('Array');
+  let prevPropsByValueHash: {[key: string]: KvPair[]} = defaultMap('Array');
 
-  let agdPropsByKey: {[key: string]: KvPair[]} = defaultMap('Array');
-  let agdPropsByValueHash: {[key: string]: KvPair[]} = defaultMap('Array');
+  let currPropsByKey: {[key: string]: KvPair[]} = defaultMap('Array');
+  let currPropsByValueHash: {[key: string]: KvPair[]} = defaultMap('Array');
 
   console.log('Unpacking records')
-  for (let i = 0; i < Math.max(impFile.length, 25); i++) {
-    let impRecord = impFile[i];
-    let agdRecord = agdFile[i];
+  for (let i = 0; i < Math.max(prevFile.length, 25); i++) {
+    let prevRecord = prevFile[i];
+    let agdRecord = currFile[i];
 
-    if (!impRecord || !agdRecord) {
+    if (!prevRecord || !agdRecord) {
       break;
     }
 
-    for (let pair of unpackRecord(impRecord, true)) {
-      impPropsByKey[pair.key].push(pair);
-      impPropsByValueHash[pair.valueHash].push(pair);
+    for (let pair of unpackRecord(prevRecord, true)) {
+      prevPropsByKey[pair.key].push(pair);
+      prevPropsByValueHash[pair.valueHash].push(pair);
     }
 
     for (let pair of unpackRecord(agdRecord, true)) {
-      agdPropsByKey[pair.key].push(pair);
-      agdPropsByValueHash[pair.valueHash].push(pair);
+      currPropsByKey[pair.key].push(pair);
+      currPropsByValueHash[pair.valueHash].push(pair);
     }
   }
 
-  const obfPropNames = new Set(Object.keys(agdPropsByKey).filter(key => key.toUpperCase() === key));
+  const obfPropNames = new Set(Object.keys(currPropsByKey).filter(key => key.toUpperCase() === key));
   const candidates: Candidate[] = [];
 
   console.log('Gathering candidates', obfPropNames);
   for (let obfPropName of obfPropNames) {
     let candidateKeys: {[key: string]: number} = defaultMap('Zero');
 
-    let agdValueHashes: any[] = agdPropsByKey[obfPropName].map(p => p.valueHash);
+    let agdValueHashes: any[] = currPropsByKey[obfPropName].map(p => p.valueHash);
 
     for (let agdValueHash of agdValueHashes) {
-      for (let candidateKey of impPropsByValueHash[agdValueHash].map(p => p.key)) {
+      for (let candidateKey of prevPropsByValueHash[agdValueHash].map(p => p.key)) {
         candidateKeys[candidateKey]++;
       }
     }
@@ -174,11 +169,6 @@ function createValueHash(key: string, v: any) {
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
-    // const schema = await translateSchema(
-    //   'C:\\Shared\\git\\Impactful-Data\\textData\\ExcelBinOutput\\Live\\GCGCharacterLevelExcelConfigData.json',
-    //   'C:\\Shared\\git\\AnimeGameData\\ExcelBinOutput\\GCGCharacterLevelExcelConfigData.json'
-    // );
-
     const schema = await translateSchema(
       'C:\\Shared\\GenshinData\\ExcelBinOutput\\MonsterExcelConfigData.json',
       'C:\\Shared\\git\\AnimeGameData\\ExcelBinOutput\\MonsterExcelConfigData.json'

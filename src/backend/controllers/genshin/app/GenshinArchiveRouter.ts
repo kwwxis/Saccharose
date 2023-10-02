@@ -246,6 +246,7 @@ export default async function(): Promise<Router> {
   router.get('/readables', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
     const archive = await ctrl.selectReadableArchiveView();
+    console.log(archive);
 
     res.render('pages/genshin/archive/readables', {
       title: 'Books & Readables',

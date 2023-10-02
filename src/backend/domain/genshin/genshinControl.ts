@@ -1870,7 +1870,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       .where({MaterialId: id}).first().then(this.commonLoadFirst);
   }
 
-  async selectReadableViewsByTitle(langCode: LangCode, searchText: string, flags?: string): Promise<number[]> {
+  private async getDocumentIdsByTitleMatch(langCode: LangCode, searchText: string, flags?: string): Promise<number[]> {
     if (isStringBlank(searchText)) {
       return [];
     }
@@ -1881,14 +1881,31 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return ids;
   }
 
+  private async getReadableFileNamesByContentMatch(langCode: LangCode, searchText: string, flags?: string): Promise<string[]> {
+    if (isStringBlank(searchText)) {
+      return [];
+    }
+
+    let out: string[] = [];
+
+    await grepStream(searchText, this.getDataFilePath(getReadableRelPath(langCode)), line => {
+      let exec = /\/([^\/]+)\.txt/.exec(line);
+      if (exec) {
+        out.push(exec[1]);
+      }
+    }, '-r ' + flags);
+
+    return out;
+  }
+
   async searchReadableView(searchText: string): Promise<ReadableSearchView> {
-    const files = await this.getReadableMatches(this.inputLangCode, searchText, this.searchModeFlags);
-    const titleMatchViewIds = await this.selectReadableViewsByTitle(this.inputLangCode, searchText, this.searchModeFlags);
+    const contentMatchFileNames = await this.getReadableFileNamesByContentMatch(this.inputLangCode, searchText, this.searchModeFlags);
+    const titleMatchDocumentIds = await this.getDocumentIdsByTitleMatch(this.inputLangCode, searchText, this.searchModeFlags);
     const ret: ReadableSearchView = { ContentResults: [], TitleResults: [] }
 
-    if (files.length) {
+    if (contentMatchFileNames.length) {
       const pathVar = LANG_CODE_TO_LOCALIZATION_PATH_PROP[this.inputLangCode];
-      const pathVarSearch = files.map(f => 'ART/UI/Readable/' + this.inputLangCode + '/' + f.split('.txt')[0]);
+      const pathVarSearch = contentMatchFileNames.map(f => 'ART/UI/Readable/' + this.inputLangCode + '/' + f.split('.txt')[0]);
 
       let localizations: LocalizationExcelConfigData[] = await this.knex.select('*')
         .from('LocalizationExcelConfigData')
@@ -1907,14 +1924,14 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       });
     }
 
-    if (titleMatchViewIds.length) {
-      ret.TitleResults = await titleMatchViewIds.asyncMap(async id => await this.selectReadableView(id, false));
+    if (titleMatchDocumentIds.length) {
+      ret.TitleResults = await titleMatchDocumentIds.asyncMap(async id => await this.selectReadableView(id, false));
     }
 
     return ret;
   }
 
-  async selectDocumentIdByLocalizationId(localizationId: number) {
+  private async selectDocumentIdByLocalizationId(localizationId: number): Promise<number> {
     return await this.knex.select('Id').from('DocumentExcelConfigData')
       .where({ContentLocalizedId: localizationId})
       .or.where({AltContentLocalizationId_0: localizationId})
@@ -1922,7 +1939,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       .then(res => res ? res.Id : undefined);
   }
 
-  async loadLocalization(contentLocalizedId: number, triggerCond?: number): Promise<ReadableItem> {
+  private async loadLocalization(contentLocalizedId: number, triggerCond?: number): Promise<ReadableItem> {
     const localization: LocalizationExcelConfigData = await this.knex.select('*').from('LocalizationExcelConfigData')
       .where({Id: contentLocalizedId}).first().then(this.commonLoadFirst);
 
@@ -1947,17 +1964,17 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return ret;
   }
 
-  async selectReadableByDocumentId(documentId: number): Promise<Readable> {
+  private async selectReadableByDocumentId(documentId: number, loadItems: boolean = true): Promise<Readable> {
     const Document: DocumentExcelConfigData = await this.knex.select('*').from('DocumentExcelConfigData')
       .where({Id: documentId}).first().then(this.commonLoadFirst);
     return !Document ? null : {
       Document,
-      Items: [
+      Items: loadItems ? [
         await this.loadLocalization(Document.ContentLocalizedId),
         ... await pairArrays(Document.AltContentLocalizedIds, Document.AltContentLocalizedQuestConds).asyncMap(
           async ([id, triggerCond]) => await this.loadLocalization(id, triggerCond)
         )
-      ]
+      ] : []
     };
   }
 
@@ -1986,23 +2003,28 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       view.TitleText = view.Material.NameText;
       view.TitleTextMapHash = view.Material.NameTextMapHash;
       view.Icon = view.Material.Icon;
+      if (!view.TitleText)
+        view.TitleText = '(Unnamed item)';
     } else if (view.Artifact) {
       view.TitleText = view.Artifact.NameText;
       view.TitleTextMapHash = view.Artifact.NameTextMapHash;
       view.Icon = view.Artifact.Icon;
+      if (!view.TitleText)
+        view.TitleText = '(Unnamed artifact)';
     } else if (view.Weapon) {
       view.TitleText = view.Weapon.NameText;
       view.TitleTextMapHash = view.Weapon.NameTextMapHash;
       view.Icon = view.Weapon.Icon;
+      if (!view.TitleText)
+        view.TitleText = '(Unnamed weapon)';
     } else {
-      view.TitleText = '(Unnamed readable)';
+      view.TitleText = '(Unidentifiable readable)';
     }
 
-    if ((typeof loadReadable === 'function' ? loadReadable(view) : loadReadable) === true) {
-      let readable = await this.selectReadableByDocumentId(documentId);
-      if (readable) {
-        Object.assign(view, readable);
-      }
+    const shouldLoadItems = (typeof loadReadable === 'function' ? loadReadable(view) : loadReadable) === true;
+    const readable = await this.selectReadableByDocumentId(documentId, shouldLoadItems);
+    if (readable) {
+      Object.assign(view, readable);
     }
 
     return view;
@@ -2043,23 +2065,6 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     }
 
     return archive;
-  }
-
-  async getReadableMatches(langCode: LangCode, searchText: string, flags?: string): Promise<string[]> {
-    if (isStringBlank(searchText)) {
-      return [];
-    }
-
-    let out: string[] = [];
-
-    await grepStream(searchText, this.getDataFilePath(getReadableRelPath(langCode)), line => {
-      let exec = /\/([^\/]+)\.txt/.exec(line);
-      if (exec) {
-        out.push(exec[1]);
-      }
-    }, '-r ' + flags);
-
-    return out;
   }
   // endregion
 

@@ -19,6 +19,19 @@ const VoiceSchema = <SchemaTable>{
   },
 };
 
+const voFileFirstTwo = (vo: VoiceItem) => vo.fileName.split(' ').slice(0, 2).join(' ');
+
+const allSame = (a: string[]) => {
+  if (!a.length) return true;
+  let first = a[0];
+  for (let str of a.slice(1)) {
+    if (str !== first) {
+      return false;
+    }
+  }
+  return true;
+}
+
 export async function importVoiceItems() {
   const outDir = process.env.GENSHIN_DATA_ROOT;
   const jsonDir = getGenshinDataFilePath('./BinOutput/Voice/Items');
@@ -60,7 +73,9 @@ export async function importVoiceItems() {
         continue;
       }
 
-      combined[key] = [];
+      if (!combined[key]) {
+        combined[key] = [];
+      }
 
       for (let voiceSource of voiceItem.SourceNames) {
         let fileName: string = voiceSource.SourceFileName.split('\\').pop().toLowerCase().replace(/_/g, ' ').replace('.wem', '.ogg');
@@ -89,6 +104,10 @@ export async function importVoiceItems() {
           }
           continue;
         }
+        if (combined[key].length && voiceSourceNorm.type === 'Dialog' && voFileFirstTwo(combined[key][0]) !== voFileFirstTwo(voiceSourceNorm)) {
+          console.warn('Got Voice Item conflict', combined[key], voiceSourceNorm);
+          continue;
+        }
         combined[key].push(voiceSourceNorm);
       }
     }
@@ -97,6 +116,6 @@ export async function importVoiceItems() {
   if (unknownTriggers.size) {
     console.log(chalk.red('Unknown game triggers:', unknownTriggers));
   }
-  console.log(chalk.blue('Done. Output written to: ' + outDir + '/VoiceItems.json'));
   fs.writeFileSync(outDir + '/VoiceItems.json', JSON.stringify(combined, null, 2));
+  console.log(chalk.blue('Done. Output written to: ' + outDir + '/VoiceItems.json'));
 }
