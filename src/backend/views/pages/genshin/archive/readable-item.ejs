@@ -35,6 +35,14 @@
               <%- include('partials/util/wikitext', {wikitext: normGenshinText(readable?.Material?.DescText), seamless: true}) %>
             </td>
           </tr>
+          <% if (readable?.Material) { %>
+            <tr>
+              <td class="bold">Item</td>
+              <td class="w70p">
+                <%- use('partials/genshin/archive/item', { material: readable?.Material, disableName: true }) %>
+              </td>
+            </tr>
+          <% } %>
         </tbody>
       </table>
     <% } %>
@@ -113,6 +121,14 @@
                 <%- include('partials/util/wikitext', {wikitext: normGenshinText(readable?.Weapon?.DescText), seamless: true}) %>
               </td>
             </tr>
+            <% if (readable?.Weapon) { %>
+              <tr>
+                <td class="bold">Weapon</td>
+                <td class="w70p">
+                  <%- use('partials/genshin/archive/item', { material: readable?.Weapon, disableName: true }) %>
+                </td>
+              </tr>
+            <% } %>
           </tbody>
         </table>
       <% } %>

@@ -50,10 +50,16 @@ export default async function(): Promise<Router> {
         LoadItemUse: true,
       });
 
+      let readable = await ctrl.selectReadableView(material.Id);
+      if (!readable || !readable.Material || readable.Material.Id !== material.Id) {
+        readable = null;
+      }
+
       res.render('pages/genshin/archive/material-item', {
         title: material ? material.NameText : 'Item not found',
         bodyClass: ['page--items'],
         material,
+        readable,
         ol: material ? (await ol_gen_from_id(ctrl, material.NameTextMapHash)) : null
       });
     } else {
@@ -246,7 +252,6 @@ export default async function(): Promise<Router> {
   router.get('/readables', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
     const archive = await ctrl.selectReadableArchiveView();
-    console.log(archive);
 
     res.render('pages/genshin/archive/readables', {
       title: 'Books & Readables',

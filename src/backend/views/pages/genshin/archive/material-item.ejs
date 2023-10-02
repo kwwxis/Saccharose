@@ -75,6 +75,18 @@
       </table>
     </div>
   </section>
+  <% if (locals.readable) { %>
+    <section class="card">
+      <h2 class="valign">
+        <span>Readable Text</span>
+        <span class="grow"></span>
+        <a class="valign fontWeight500" href="/readables/item/<%= material.Id %>" style="font-size:18px" target="_blank">
+          <span class="spacer5-right" style="font-size:15px">Readable</span><%- icon('external-link', 16) %>
+        </a>
+      </h2>
+      <%- use('partials/genshin/archive/readable-items', {readable: readable}) %>
+    </section>
+  <% } %>
   <% if (material.Relations.Combine?.length) { %>
     <section class="card">
       <h2>Crafting</h2>
