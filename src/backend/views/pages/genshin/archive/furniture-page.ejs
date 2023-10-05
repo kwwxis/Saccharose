@@ -57,6 +57,14 @@
             <% } %>
           </td>
         </tr>
+        <% if (furn.ObtainTextList) { %>
+          <% for (let obtainText of furn.ObtainTextList) { %>
+            <tr>
+              <td class="bold">How to Obtain</td>
+              <td><%= obtainText %></td>
+            </tr>
+          <% } %>
+        <% } %>
       </table>
     </div>
   </section>

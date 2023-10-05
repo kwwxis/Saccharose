@@ -17,6 +17,19 @@ export interface TalkRole {
   NameText?: string, // custom
 }
 
+export type TalkType =
+  'ACTIVITY' |
+  'BLOSSOM' |
+  'COOP' |
+  'EQ' |
+  'FREE' |
+  'FURNITURE' |
+  'GADGET' |
+  'IQ' |
+  'LQ' |
+  'NARRATOR' |
+  'WQ';
+
 export interface DialogExcelConfigData {
   Id: number,
   NextDialogs: number[],

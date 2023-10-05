@@ -407,6 +407,9 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   }
 
   async selectMainQuestName(id: number): Promise<string> {
+    if (!id) {
+      return undefined;
+    }
     if (!!this.state.mqNameCache[id]) {
       return this.state.mqNameCache[id];
     }
@@ -556,6 +559,12 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return dialogs.asyncMap(d => this.postProcessDialog(d));
   }
 
+  async selectDialogExcelConfigDataByTalkRoleType(talkRoleTypes: string[]): Promise<DialogExcelConfigData[]> {
+    let dialogs: DialogExcelConfigData[] = await this.knex.select('*').from('DialogExcelConfigData')
+      .whereIn('TalkRoleType', talkRoleTypes).then(this.commonLoad);
+    return dialogs.asyncMap(d => this.postProcessDialog(d));
+  }
+
   async selectDialogExcelConfigDataByTalkId(talkId: number): Promise<DialogExcelConfigData[]> {
     let dialogs: DialogExcelConfigData[] = await this.knex.select('*').from('DialogExcelConfigData')
       .where({TalkId: talkId}).then(this.commonLoad);
@@ -612,8 +621,13 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return results;
   }
 
-  isPlayerDialogueOption(dialog: DialogExcelConfigData): boolean {
-    return dialog.TalkRole.Type === 'TALK_ROLE_PLAYER'; // && dialog.TalkShowType && dialog.TalkShowType === 'TALK_SHOW_FORCE_SELECT';
+  isPlayerTalkRole(dialog: DialogExcelConfigData): boolean {
+    return dialog.TalkRole.Type === 'TALK_ROLE_PLAYER';
+  }
+
+  isPlayerDialogOption(dialog: DialogExcelConfigData): boolean {
+    return this.isPlayerTalkRole(dialog) && (!dialog.TalkRoleNameText || dialog.TalkShowType === 'TALK_SHOW_FORCE_SELECT')
+      && !this.voice.hasVoiceItems('Dialog', dialog.Id);
   }
 
   equivDialog(d1: DialogExcelConfigData, d2: DialogExcelConfigData): boolean {
@@ -848,8 +862,8 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       // Subsequent Non-Branch Dialogue Options
       // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-      if (previousDialog && this.isPlayerDialogueOption(dialog) && this.isPlayerDialogueOption(previousDialog) &&
-        (previousDialog.NextDialogs.length === 1 || previousDialog.Branches.map(b => b[0]).every(x => this.isPlayerDialogueOption(x))) &&
+      if (previousDialog && this.isPlayerDialogOption(dialog) && this.isPlayerDialogOption(previousDialog) &&
+        (previousDialog.NextDialogs.length === 1 || previousDialog.Branches.map(b => b[0]).every(x => this.isPlayerTalkRole(x))) &&
         previousDialog.NextDialogs.some(x => x === dialog.Id)) {
         // This is for if you have non-branch subsequent player dialogue options for the purpose of generating an output like:
         // :'''Paimon:''' Blah blah blah
@@ -871,7 +885,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       // ~~~~~~~~~~~~~
 
       if (dialog.Recurse) {
-        if (dialog.TalkRole.Type === 'TALK_ROLE_PLAYER') {
+        if (this.isPlayerTalkRole(dialog)) {
           out += `\n${diconPrefix};(Return to option selection)`;
         } else {
           out += `\n${diconPrefix.slice(0,-1)};(Return to option selection)`;
@@ -881,18 +895,14 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
           // if (!previousDialog || !this.isBlackScreenDialog(previousDialog)) {
           //   out += '\n';
           // }
-          out += `\n${prefix}{{Black Screen|${text}}}`;
+          out += `\n${prefix}{{Black Screen|${voPrefix}${text}}}`;
           // out += '\n';
-        } else if (dialog.TalkRole.Type === 'TALK_ROLE_PLAYER') {
-          if (voPrefix) {
-            out += `\n${diconPrefix}${voPrefix}'''(Traveler):''' ${text}`;
+        } else if (this.isPlayerTalkRole(dialog)) {
+          if (!this.isPlayerDialogOption(dialog)) {
+            let name = this.normText(dialog.TalkRoleNameText || '{NICKNAME}', this.outputLangCode);
+            out += `\n${prefix}${voPrefix}'''${name}:''' ${text}`;
           } else {
-            if (dialog.TalkRoleNameText) {
-              let name = this.normText(dialog.TalkRoleNameText, this.outputLangCode);
-              out += `\n${prefix}'''${name}:''' ${text}`;
-            } else {
-              out += `\n${diconPrefix}${':'.repeat(numSubsequentNonBranchPlayerDialogOption)}{{DIcon}} ${text}`;
-            }
+            out += `\n${diconPrefix}${':'.repeat(numSubsequentNonBranchPlayerDialogOption)}{{DIcon}} ${text}`;
           }
         } else if (dialog.TalkRole.Type === 'TALK_ROLE_NPC' || dialog.TalkRole.Type === 'TALK_ROLE_GADGET') {
           let name = this.normText(dialog.TalkRoleNameText, this.outputLangCode);
@@ -2263,6 +2273,10 @@ export class GenshinVoice {
 
   getVoiceItems(type: GenshinVoiceItemType, id: number|string): VoiceItem[] {
     return GENSHIN_VOICE_ITEMS[type+'_'+id];
+  }
+
+  hasVoiceItems(type: GenshinVoiceItemType, id: number|string): boolean {
+    return !!GENSHIN_VOICE_ITEMS[type+'_'+id] && !!GENSHIN_VOICE_ITEMS[type+'_'+id].length;
   }
 
   getVoPrefix(type: GenshinVoiceItemType, id: number|string, text?: string, talkRoleType?: TalkRoleType, commentOutDupes: boolean = true): string {

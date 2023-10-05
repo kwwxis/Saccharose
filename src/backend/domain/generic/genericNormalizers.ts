@@ -78,6 +78,7 @@ export function genericNormText(text: string, langCode: LangCode, opts: NormText
     throw new Error('mcPlaceholderProvider is required');
 
   text = text.replace(/—/g, opts.plaintext ? (opts.plaintextDash || '-') : '&mdash;').trim();
+  text = text.replace(/–/g, opts.plaintext ? (opts.plaintextDash || '-') : '&ndash;').trim();
   text = text.replace(/{NICKNAME}/g, opts.mcPlaceholderProvider(opts.mcPlaceholderForceLangCode || langCode, true));
   text = text.replace(/{NON_BREAK_SPACE}/g, opts.plaintext ? ' ' : '&nbsp;');
   text = text.replace(/\u00A0/g, opts.plaintext ? ' ' : '&nbsp;');

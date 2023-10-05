@@ -70,6 +70,7 @@ export const genshinSchema = {
       { name: 'TalkTitleTextMapHash', type: 'integer', isIndex: true },
       { name: 'TalkRoleNameTextMapHash', type: 'integer', isIndex: true },
       { name: 'TalkId', type: 'integer', isIndex: true },
+      { name: 'TalkType', type: 'string', isIndex: true },
     ],
     renameFields: {
       GFLDJMJKIKE: 'Id'
@@ -388,6 +389,10 @@ export const genshinSchema = {
       { name: 'RankLevel', type: 'integer', isIndex: true },
       { name: 'ItemType', type: 'string', isIndex: true },
     ],
+    renameFields: {
+      EGAHJDMKAIH: 'ObtainTextMapHashList',
+      BIMHLPMNPDJ: 'ObtainTextMapHashList',
+    }
   },
   HomeWorldFurnitureTypeExcelConfigData: <SchemaTable>{
     name: 'HomeWorldFurnitureTypeExcelConfigData',

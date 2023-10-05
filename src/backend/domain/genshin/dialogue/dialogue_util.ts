@@ -271,7 +271,7 @@ export async function talkConfigToDialogueSectionResult(ctrl: GenshinControl, pa
     }
   }
 
-  if (talkConfig.Dialog.length && ctrl.isPlayerDialogueOption(talkConfig.Dialog[0])) {
+  if (talkConfig.Dialog.length && ctrl.isPlayerTalkRole(talkConfig.Dialog[0])) {
     dialogueDepth += 1;
   }
 
