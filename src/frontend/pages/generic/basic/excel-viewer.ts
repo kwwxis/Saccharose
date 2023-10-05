@@ -158,13 +158,26 @@ pageMatch('pages/generic/basic/excel-viewer-table', () => {
                 }
                 return highlightJson(params.value).outerHTML;
               };
-            } else if (pageMatch.isStarRail && (key.includes('Image') || key.includes('Icon') || key.includes('Path'))) {
+            } else if (pageMatch.isStarRail && (key.includes('Image') || key.includes('Icon') || key.includes('Path') || key.includes('Pic'))) {
               (<ColDef> colDefForKey[key]).cellRenderer = function(params: ICellRendererParams) {
                 if (!params.value || typeof params.value !== 'string' || !params.value.endsWith('.png')) {
                   return '';
                 }
                 let safeValue = escapeHtml(params.value);
                 return `<img src="/images/hsr/${safeValue}" loading="lazy" decoding="async" style="max-height:80px;background:#333" /><span class="code">${safeValue}</span>`;
+              };
+            } else if (pageMatch.isGenshin && (key.includes('Image') || key.includes('Icon') || key.includes('Path') || key.includes('Pic'))) {
+              (<ColDef> colDefForKey[key]).cellRenderer = function(params: ICellRendererParams) {
+                const genshinImageRegex: RegExp =
+                  /(UI_Achievement|UI_AnimalIcon|UI_AvatarIcon|UI_Activity|UI_ChapterIcon|UI_Codex|UI_EquipIcon|UI_FlycloakIcon|UI_Gacha|UI_Gcg|UI_Homeworld|UI_ItemIcon|UI_Monster|UI_NameCard|UI_Reputation|UI_RelicIcon|.*Tutorial).*/i;
+                if (!params.value || typeof params.value !== 'string' || !genshinImageRegex.test(params.value)) {
+                  return '';
+                }
+                let safeValue = escapeHtml(params.value);
+                if (!safeValue.endsWith('.png')) {
+                  safeValue += '.png';
+                }
+                return `<img src="/images/genshin/${safeValue}" loading="lazy" decoding="async" style="max-height:80px;background:#333" /><span class="code">${safeValue}</span>`;
               };
             }
           }
