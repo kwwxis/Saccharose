@@ -14,6 +14,7 @@ import { importVoiceOvers } from './module.voice-overs';
 import { maximizeImages } from './module.maximize-images';
 import { importSearchIndex } from './module.search-index';
 import { generateQuestDialogExcels } from './module.make-excels';
+import { loadInterActionQD } from './module.interaction';
 
 export async function importGenshinFilesCli() {
   const optionDefinitions: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
@@ -24,6 +25,7 @@ export async function importGenshinFilesCli() {
     {name: 'gcg-skill', type: Boolean, description: 'Creates file for GCG skill data'},
     {name: 'voice-overs', type: Boolean, description: 'Creates file for character voice over data (aka fetters)'},
     {name: 'make-excels', type: Boolean, description: 'Creates some of the excels that are no longer updated by the game client'},
+    {name: 'interaction', type: Boolean, description: 'Load QuestDialogue InterActions from BinOutput'},
     {name: 'translate-schema', type: Boolean, description: 'Creates the SchemaTranslation file.'},
     {name: 'translate-excel', type: String, description: 'Translate excel to output directory. Requires translate-schema to be completed first.'},
     {name: 'maximize-images', type: Boolean, description: 'Compares images with duplicate names to choose the image with the largest size.'},
@@ -97,6 +99,9 @@ export async function importGenshinFilesCli() {
   }
   if (options['make-excels']) {
     await generateQuestDialogExcels(getGenshinDataFilePath());
+  }
+  if (options['interaction']) {
+    await loadInterActionQD(getGenshinDataFilePath());
   }
 
   await closeKnex();
