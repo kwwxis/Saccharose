@@ -169,7 +169,7 @@ pageMatch('pages/generic/basic/excel-viewer-table', () => {
             } else if (pageMatch.isGenshin && (key.includes('Image') || key.includes('Icon') || key.includes('Path') || key.includes('Pic'))) {
               (<ColDef> colDefForKey[key]).cellRenderer = function(params: ICellRendererParams) {
                 const genshinImageRegex: RegExp =
-                  /(UI_Achievement|UI_AnimalIcon|UI_AvatarIcon|UI_Activity|UI_ChapterIcon|UI_Codex|UI_EquipIcon|UI_FlycloakIcon|UI_Gacha|UI_Gcg|UI_Homeworld|UI_ItemIcon|UI_Monster|UI_NameCard|UI_Reputation|UI_RelicIcon|.*Tutorial).*/i;
+                  /^(UI_Achievement|UI_AnimalIcon|UI_AvatarIcon|UI_Activity|UI_ChapterIcon|UI_Codex|UI_EquipIcon|UI_FlycloakIcon|UI_Gacha|UI_Gcg|UI_Homeworld|UI_ItemIcon|UI_Monster|UI_NameCard|UI_Reputation|UI_RelicIcon|.*Tutorial).*$/i;
                 if (!params.value || typeof params.value !== 'string' || !genshinImageRegex.test(params.value)) {
                   return '';
                 }

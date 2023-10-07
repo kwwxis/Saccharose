@@ -16,11 +16,7 @@ import {
 } from '../../../domain/genshin/archive/tutorials';
 import { PushTipsCodexType, PushTipsCodexTypeList, TutorialsByType } from '../../../../shared/types/genshin/tutorial-types';
 import { ViewpointsByRegion } from '../../../../shared/types/genshin/viewpoint-types';
-import {
-  AchievementExcelConfigData,
-  AchievementGoalExcelConfigData,
-  AchievementsByGoals,
-} from '../../../../shared/types/genshin/achievement-types';
+import { AchievementsByGoals } from '../../../../shared/types/genshin/achievement-types';
 import { paramCmp } from '../../../routing/viewUtilities';
 import { generateLoadingTipsWikiText, selectLoadingTips } from '../../../domain/genshin/archive/loadingTips';
 import { LoadingTipsByCategory } from '../../../../shared/types/genshin/loading-types';
@@ -198,7 +194,7 @@ export default async function(): Promise<Router> {
         sb.prop('tiers_total', achievementsWithSameName.length);
       }
       sb.line('}}');
-      sb.line(`'''${achievement.TitleText}''' is an [[Achievement]] in the category ''[[${achievement.Goal.NameText}]]''. To complete this achievement, the player must <!-- achieve steps -->.`);
+      sb.line(`'''''${achievement.TitleText}''''' is an [[Achievement]] in the category ''[[${achievement.Goal.NameText}]]''. To complete this achievement, the player must <!-- achieve steps -->.`);
       sb.line();
       sb.line('==Other Languages==');
       sb.line((await ol_gen_from_id(ctrl, achievement.TitleTextMapHash)).result);

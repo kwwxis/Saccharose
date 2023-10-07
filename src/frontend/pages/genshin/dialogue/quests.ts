@@ -6,6 +6,7 @@ import { pageMatch } from '../../../pageMatch';
 import { GeneralEventBus } from '../../../generalEventBus';
 import { HttpError } from '../../../../shared/util/httpError';
 import { isInt } from '../../../../shared/util/numberUtil';
+import { pasteFromClipboard } from '../../../util/domutil';
 
 pageMatch('pages/genshin/dialogue/quests', () => {
   let lastSuccessfulQuestId: number = 0;
@@ -174,6 +175,56 @@ pageMatch('pages/genshin/dialogue/quests', () => {
       ev: 'enter',
       fn: function(_event, _target) {
         document.querySelector<HTMLButtonElement>('.quest-search-submit').click();
+      }
+    },
+    {
+      el: '.quest-search-input',
+      ev: 'input',
+      fn: function(_event, target: HTMLInputElement) {
+        const clearEl = document.querySelector<HTMLInputElement>('.quest-search-input-clear');
+        const pasteEl = document.querySelector<HTMLButtonElement>('.quest-search-input-paste');
+
+        if (target.value.length) {
+          clearEl.classList.remove('hide');
+          pasteEl.setAttribute('ui-tippy', 'Clear and Paste');
+        } else {
+          clearEl.classList.add('hide');
+          pasteEl.setAttribute('ui-tippy', 'Paste');
+        }
+      }
+    },
+    {
+      el: '.quest-search-input-paste',
+      ev: 'click',
+      fn: async function(_event, _target) {
+        const inputEl = document.querySelector<HTMLInputElement>('.quest-search-input');
+        const clearEl = document.querySelector<HTMLButtonElement>('.quest-search-input-clear');
+        const pasteEl = document.querySelector<HTMLButtonElement>('.quest-search-input-paste');
+
+        inputEl.value = '';
+        inputEl.focus();
+        await pasteFromClipboard(inputEl);
+
+        if (inputEl.value.length) {
+          clearEl.classList.remove('hide');
+          pasteEl.setAttribute('ui-tippy', 'Clear and Paste');
+        } else {
+          clearEl.classList.add('hide');
+          pasteEl.setAttribute('ui-tippy', 'Paste');
+        }
+      }
+    },
+    {
+      el: '.quest-search-input-clear',
+      ev: 'click',
+      fn: function(_event, target: HTMLButtonElement) {
+        const inputEl = document.querySelector<HTMLInputElement>('.quest-search-input');
+        const pasteEl = document.querySelector<HTMLButtonElement>('.quest-search-input-paste');
+
+        inputEl.value = '';
+        inputEl.focus();
+        target.classList.add('hide');
+        pasteEl.setAttribute('ui-tippy', 'Paste');
       }
     },
     {
