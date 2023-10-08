@@ -116,7 +116,7 @@ export type MaterialItemUseOp =
   'ITEM_USE_UNLOCK_HOME_MODULE' |
   'ITEM_USE_UNLOCK_PAID_BATTLE_PASS_NORMAL';
 
-export type MaterialLoadConf = {LoadSourceData?: boolean, LoadRelations?: boolean, LoadItemUse?: boolean};
+export type MaterialLoadConf = {LoadSourceData?: boolean, LoadRelations?: boolean, LoadItemUse?: boolean, LoadCodex?: boolean};
 
 export interface MaterialExcelConfigData {
   Id: number,
@@ -172,6 +172,7 @@ export interface MaterialExcelConfigData {
 
   SourceData?: MaterialSourceDataExcelConfigData,
   Relations?: ItemRelationMap,
+  Codex?: MaterialCodexExcelConfigData,
 }
 
 export interface MaterialSourceDataExcelConfigData {
@@ -295,4 +296,27 @@ export interface ForgeExcelConfigData {
   ResultItem?: MaterialExcelConfigData,
   MaterialItems: MaterialVecItem[],
   MainRandomDropId: number,
+}
+
+export interface MaterialCodexExcelConfigData {
+  Id: number,
+  MaterialId: number,
+  SortOrder: number,
+  IsDisuse: boolean,
+
+  NameText: string,
+  NameTextMapHash: number,
+
+  DescText: string,
+  DescTextMapHash: number,
+
+  Icon?: never,
+  ShowOnlyUnlocked: boolean,
+  Type?: 'CODEX_COOKING_FOOD' | 'CODEX_WAR_TROPHIES' | 'CODEX_WIDGET',
+
+  CELECMEPGFI: number,
+  FMFDBLGMOKI: number,
+  GACAKMCNKHI: number,
+  GBHOGPFGPDJ: number,
+  NNMCLALECMM: number,
 }

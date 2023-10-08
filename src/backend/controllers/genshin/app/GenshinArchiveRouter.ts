@@ -23,6 +23,8 @@ import { LoadingTipsByCategory } from '../../../../shared/types/genshin/loading-
 import { toInt } from '../../../../shared/util/numberUtil';
 import { SbOut } from '../../../../shared/util/stringUtil';
 import { Request, Response, Router } from 'express';
+import { ApiCyclicValueReplacer } from '../../../middleware/api/apiCyclicValueReplacer';
+import { removeCyclicRefs } from '../../../../shared/util/genericUtil';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -44,6 +46,7 @@ export default async function(): Promise<Router> {
         LoadRelations: true,
         LoadSourceData: true,
         LoadItemUse: true,
+        LoadCodex: true,
       });
 
       let readable = await ctrl.selectReadableView(material.Id);
@@ -336,7 +339,10 @@ export default async function(): Promise<Router> {
 
   router.get('/furnishings/:furnId', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
-    const furn = await ctrl.selectFurniture(toInt(req.params.furnId));
+    const furn = await ctrl.selectFurniture(toInt(req.params.furnId), {
+      LoadHomeWorldAnimal: true,
+      LoadHomeWorldNPC: true,
+    });
     const sb: SbOut = new SbOut();
     const ol: OLResult = furn ? (await ol_gen_from_id(ctrl, furn.NameTextMapHash)) : null;
 
@@ -357,7 +363,6 @@ export default async function(): Promise<Router> {
       sb.line(`'''${furn.NameText}''' is a${furn.MakeData ? ' creatable' : ''} [[Furnishing]] item that can be used in the [[Serenitea Pot]].`);
       sb.line();
       if (furn.MakeData) {
-        console.log(furn.MakeData);
         sb.line('==Creation==');
         sb.line(`First time creation grants {{Item|Trust|24|x=${furn.MakeData.Exp}}}.`);
         sb.setPropPad(1);
@@ -415,6 +420,79 @@ export default async function(): Promise<Router> {
       wikitext: sb.toString(),
       bodyClass: ['page--furniture'],
       ol,
+    });
+  });
+
+  // Living Beings
+  // ~~~~~~~~~~~~~
+
+  router.get('/enemies', async (req: Request, res: Response) => {
+    const ctrl = getGenshinControl(req);
+    const title = (await ctrl.selectManualTextMapConfigDataById('UI_CODEX_ANIMAL_MONSTER')).TextMapContentText;
+    const archive = await ctrl.selectLivingBeingArchive();
+
+    res.render('pages/genshin/archive/lb-list', {
+      title,
+      lbTable: archive.MonsterCodex,
+      bodyClass: ['page--lb', 'page--enemies']
+    });
+  });
+
+  router.get('/wildlife', async (req: Request, res: Response) => {
+    const ctrl = getGenshinControl(req);
+    const title = (await ctrl.selectManualTextMapConfigDataById('UI_CODEX_ANIMAL_ANIMAL')).TextMapContentText;
+    const archive = await ctrl.selectLivingBeingArchive();
+
+    res.render('pages/genshin/archive/lb-list', {
+      title,
+      lbTable: archive.WildlifeCodex,
+      bodyClass: ['page--lb', 'page--wildlife']
+    });
+  });
+
+  router.get('/enemies/non-codex', async (req: Request, res: Response) => {
+    const ctrl = getGenshinControl(req);
+    const archive = await ctrl.selectLivingBeingArchive();
+
+    res.render('pages/genshin/archive/lb-list', {
+      title: 'Non-Codex Living Beings',
+      introText: 'These are living beings that do not appear in the in-game archive.',
+      lbTable: archive.NonCodexMonsters,
+      bodyClass: ['page--lb', 'page--non-codex-enemies']
+    });
+  });
+
+  router.get('/enemies/:id', async (req: Request, res: Response) => {
+    const ctrl = getGenshinControl(req);
+    let monster = await ctrl.selectMonsterById(toInt(req.params.id), {
+      LoadHomeWorldAnimal: true
+    });
+
+    if (monster && monster.AnimalDescribe) {
+      monster = null;
+    }
+
+    res.render('pages/genshin/archive/lb-page', {
+      title: monster?.NameText || monster?.Describe?.NameText || 'Enemy not found',
+      monster,
+      bodyClass: ['page--lb', 'page--enemies']
+    });
+  });
+
+  router.get('/wildlife/:id', async (req: Request, res: Response) => {
+    const ctrl = getGenshinControl(req);
+    let monster = await ctrl.selectMonsterById(toInt(req.params.id), {
+      LoadHomeWorldAnimal: true
+    });
+
+    if (monster && !monster.AnimalDescribe) {
+      monster = null;
+    }
+
+    res.render('pages/genshin/archive/lb-page', {
+      title: monster?.NameText || monster?.Describe?.NameText || 'Wildlife not found',
+      monster,
+      bodyClass: ['page--lb', 'page--wildlife']
     });
   });
 

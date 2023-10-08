@@ -1,0 +1,57 @@
+<section class="card">
+  <h2><%= title %></h2>
+  <div class="content">
+    <% if (locals.introText) { %>
+      <p class="spacer10-bottom"><%= introText %></p>
+    <% } %>
+    <fieldset>
+      <legend>Quick Jump</legend>
+      <div class="content alignStretch flexWrap" style="padding-top:0;max-width:80%;font-size:15px">
+        <% for (let group of Object.values(lbTable)) { %>
+          <div class="w100p">
+            <a role="button" class="spacer5-all secondary dispBlock textAlignLeft"
+               href="#<%= group.SubType %>">
+              <%= group.NameText %>
+            </a>
+          </div>
+        <% } %>
+      </div>
+    </fieldset>
+  </div>
+</section>
+<% for (let group of Object.values(lbTable)) { %>
+  <section class="card" id="<%= group.SubType %>">
+    <h2><%= group.NameText %></h2>
+    <% if (group.CodexList && group.CodexList.length) { %>
+      <table class="article-table">
+        <thead>
+        <tr style="font-size: 14px;text-align: left;line-height: 16px;">
+          <th>Codex ID</th>
+          <th>Name</th>
+          <th>Variants</th>
+        </tr>
+        </thead>
+        <tbody>
+        <% for (let codex of group.CodexList) { %>
+          <tr>
+            <td><code style="font-size:13px"><%= codex.Id %></code></td>
+            <td><%= codex.NameText %></td>
+            <td>
+              <% for (let monster of codex.Monsters) { %>
+                <%- use('partials/genshin/archive/lb-card', {monster: monster}) %>
+              <% } %>
+            </td>
+          </tr>
+        <% } %>
+        </tbody>
+      </table>
+    <% } %>
+    <% if (group.MonsterList && group.MonsterList.length) { %>
+      <div class="content alignStretch flexWrap">
+        <% for (let monster of group.MonsterList) { %>
+          <%- use('partials/genshin/archive/lb-card', {monster: monster}) %>
+        <% } %>
+      </div>
+    <% } %>
+  </section>
+<% } %>

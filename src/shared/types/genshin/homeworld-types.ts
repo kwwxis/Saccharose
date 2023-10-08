@@ -1,6 +1,7 @@
 import { NpcExcelConfigData } from './general-types';
 import { AvatarExcelConfigData } from './avatar-types';
 import { MaterialExcelConfigData, MaterialVecItem } from './material-types';
+import { MonsterExcelConfigData } from './monster-types';
 
 // HomeWorld NPC/Avatar
 // --------------------------------------------------------------------------------------------------------------
@@ -30,6 +31,7 @@ export interface HomeWorldNPCExcelConfigData {
   Npc?: NpcExcelConfigData,
 
   FurnitureId: number,
+  //Furniture?: HomeWorldFurnitureExcelConfigData,
   TalkIds: number[],
   ShowNameTextMapHash: number,
   DescTextMapHash: number,
@@ -84,6 +86,11 @@ export type SpecialFurnitureType =
 
 // Furniture
 // --------------------------------------------------------------------------------------------------------------
+export interface HomeWorldFurnitureLoadConf {
+  LoadHomeWorldNPC?: boolean,
+  LoadHomeWorldAnimal?: boolean,
+}
+
 export interface HomeWorldFurnitureExcelConfigData {
   Id: number,
 
@@ -129,6 +136,7 @@ export interface HomeWorldFurnitureExcelConfigData {
   IsInterior?: boolean,
   FilterTokens?: string[],
   HomeWorldNPC?: HomeWorldNPCExcelConfigData,
+  HomeWorldAnimal?: HomeworldAnimalExcelConfigData,
 
   // Internal Data:
   Rank: number,
@@ -186,6 +194,14 @@ export type HomeWorldFurnitureTypeSubTree = {
   }
 };
 
+export interface HomeworldAnimalExcelConfigData {
+  FurnitureId: number,
+  Furniture: HomeWorldFurnitureExcelConfigData,
+  IsRebirth: number,
+  Monster?: MonsterExcelConfigData,
+  MonsterId: number,
+  RebirthCD: number,
+}
 
 // Furniture Set
 // --------------------------------------------------------------------------------------------------------------

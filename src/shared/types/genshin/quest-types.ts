@@ -67,12 +67,6 @@ export interface QuestExcelConfigData {
   FinishCondComb: string,
   FinishExec: ConfigCondition[],
 
-  // NPC/Avatar (no longer available?)
-  ExclusiveNpcList: number[],
-  SharedNpcList: number[],
-  TrialAvatarList: any[],
-  ExclusivePlaceList: any[],
-
   // Custom:
   TalkExcelConfigDataList?: TalkExcelConfigData[],
   QuestMessages?: ManualTextMapConfigData[],

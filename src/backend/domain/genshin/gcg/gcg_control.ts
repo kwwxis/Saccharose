@@ -200,6 +200,9 @@ export class GCGControl {
   }
 
   private async defaultPostProcess(o: any): Promise<any> {
+    if ('NpcId' in o) {
+      o.Npc = await this.ctrl.getNpc(o.NpcId);
+    }
     if ('KeywordId' in o) {
       o.Keyword = await this.singleSelect('GCGKeywordExcelConfigData', 'Id', o['KeywordId']);
     }
@@ -429,6 +432,9 @@ export class GCGControl {
           stage.MinPlayerLevel = stage.BossLevel.UnlockGcgLevel;
           stage.NpcId = stage.BossLevel.NpcId;
         }
+      }
+      if (stage.BossLevel && stage.BossLevel.MonsterId) {
+        stage.BossLevel.Monster = await this.ctrl.selectMonsterById(stage.BossLevel.MonsterId);
       }
     }
     if (!disableLoad.disableWorldLevelLoad) {

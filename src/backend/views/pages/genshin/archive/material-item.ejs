@@ -87,6 +87,16 @@
       <%- use('partials/genshin/archive/readable-items', {readable: readable}) %>
     </section>
   <% } %>
+  <% if (material.Codex) { %>
+    <section class="card">
+      <h2 class="valign">
+        <span>Archive Text<%= material.Codex.NameText ? ': ' + normGenshinText(material.Codex.NameText) : '' %></span>
+      </h2>
+      <div class="content">
+        <%- use('partials/util/wikitext', {wikitext: normGenshinText(material.Codex.DescText)}) %>
+      </div>
+    </section>
+  <% } %>
   <% if (material.Relations.Combine?.length) { %>
     <section class="card">
       <h2>Crafting</h2>

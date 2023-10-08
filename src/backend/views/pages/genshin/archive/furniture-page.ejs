@@ -65,6 +65,12 @@
             </tr>
           <% } %>
         <% } %>
+        <% if (furn.HomeWorldAnimal) { %>>
+        <tr>
+          <td class="bold">Related Monster</td>
+          <td><%- use('partials/genshin/archive/lb-card', {monster: furn.HomeWorldAnimal.Monster}) %></td>
+        </tr>
+        <% } %>
       </table>
     </div>
   </section>
@@ -120,7 +126,7 @@
     </h2>
     <div id="json-outer" class="content hide">
       <textarea class="code json w100p autosize" spellcheck="false"
-                translate="no"><%= JSON.stringify(furn, null, 2) %></textarea>
+                translate="no"><%= safeStringify(furn, null, 2) %></textarea>
     </div>
   </section>
 <% } else { %>

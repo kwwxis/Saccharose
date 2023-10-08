@@ -36,6 +36,10 @@ const presets = {
   CombineExcelConfigData: <InspectOpt> { file: excel('CombineExcelConfigData'), inspectFieldValues: ['RecipeType'] },
   CompoundExcelConfigData: <InspectOpt> { file: excel('CompoundExcelConfigData'), inspectFieldValues: ['Type'] },
   CookRecipeExcelConfigData: <InspectOpt> { file: excel('CookRecipeExcelConfigData'), inspectFieldValues: ['FoodType', 'CookMethod'] },
+  MaterialCodexExcelConfigData: <InspectOpt> { file: excel('MaterialCodexExcelConfigData'), inspectFieldValues: ['Type'] },
+  HomeworldAnimalExcelConfigData: <InspectOpt> { file: excel('HomeworldAnimalExcelConfigData') },
+  AnimalCodexExcelConfigData: <InspectOpt> { file: excel('AnimalCodexExcelConfigData'), inspectFieldValues: ['Type', 'SubType', 'CountType'] },
+  AnimalDescribeExcelConfigData: <InspectOpt> { file: excel('AnimalDescribeExcelConfigData') },
 
 };
 
@@ -43,7 +47,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
     const ctrl = getGenshinControl();
     //await inspectDataFile(ctrl, presets.CookRecipeExcelConfigData);
-    await inspectDataFile(ctrl, presets.GCGGameExcelConfigData);
+    await inspectDataFile(ctrl, presets.AnimalDescribeExcelConfigData);
 
     await closeKnex();
   })();

@@ -1,0 +1,12 @@
+<a class="material-item" href="/furnishings/<%= furn.Id %>">
+  <div class="material-card">
+    <div class="material-icon no-text" data-quality="<%= furn.RankLevel || 0 %>">
+      <% if (furn.Icon || furn.ItemIcon) { %>
+        <img src="/images/genshin/<%= furn.Icon || furn.ItemIcon %>.png" loading="lazy" decoding="async" />
+      <% } else { %>
+        <img src="/images/static/Item_Unknown.png" loading="lazy" decoding="async" />
+      <% } %>
+    </div>
+  </div>
+  <span class="material-name"><%= furn.NameText %></span>
+</a>

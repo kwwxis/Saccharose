@@ -1,5 +1,6 @@
 import moment from 'moment/moment';
 import { arrayContains, isArrayLike, isIterable } from './arrayUtil';
+import cloneDeep from 'clone-deep';
 
 export type Type<T> = { new(...args: any[]): T };
 
@@ -242,7 +243,11 @@ export function hasCyclicRefs(obj: any): boolean {
 /**
  * Removes any circular references from an object **in-place**.
  */
-export function removeCyclicRefs<T>(obj: T, cyclicValueReplacer?: CyclicValueReplacer): T {
+export function removeCyclicRefs<T>(obj: T, cyclicValueReplacer?: CyclicValueReplacer, deepCopy: boolean = true): T {
+  if (deepCopy) {
+    obj = cloneDeep(obj);
+  }
+
   let queue: any[] = [obj];
   let cr = getCircularReplacer(cyclicValueReplacer);
 
@@ -284,10 +289,9 @@ function getCircularReplacer(cyclicValueReplacer?: CyclicValueReplacer) {
 
 /**
  * Stringifies JSON with circular references removed.
- * @param data
  */
-export function safeStringify(data: any) {
-  return JSON.stringify(data, getCircularReplacer());
+export function safeStringify(data: any, cyclicValueReplacer?: CyclicValueReplacer, indent?: number) {
+  return JSON.stringify(data, getCircularReplacer(cyclicValueReplacer), indent);
 }
 
 type CompareTernaryMode = 'equals' | 'notEquals' | 'includes' | 'notIncludes' | 'isEmpty' | 'isNotEmpty'

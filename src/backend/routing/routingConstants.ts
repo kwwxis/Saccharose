@@ -1,5 +1,5 @@
 import { dragHandle, icon, printHumanTiming, printTimestamp, genshinSpriteTagIconize, toParam } from './viewUtilities';
-import { ternary, toBoolean } from '../../shared/util/genericUtil';
+import { safeStringify, ternary, toBoolean } from '../../shared/util/genericUtil';
 import {
   camelCaseToTitleCase,
   escapeHtml,
@@ -67,5 +67,18 @@ export const DEFAULT_GLOBAL_LOCALS = {
   snakeToTitleCase,
   snakeToUpperCamelCase,
   splitCamelcase,
-  pluralize: (s: string) => typeof s === 'string' ? pluralize(s) : s,
+  safeStringify,
+  pluralize: (s: string) => {
+    if (typeof s === 'string') {
+      if (s.endsWith(')')) {
+        return s.replace(/^(.*?)( \(.*?\))$/, (_fm: string, g1: string, g2: string) => {
+          return pluralize(g1) + g2;
+        })
+      } else {
+        return pluralize(s);
+      }
+    } else {
+      return s;
+    }
+  },
 };

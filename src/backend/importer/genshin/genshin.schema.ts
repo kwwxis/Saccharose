@@ -59,7 +59,7 @@ export const genshinSchema = {
   PlainLineMapTR: plainLineMapSchema('TR'),
   PlainLineMapVI: plainLineMapSchema('VI'),
 
-  DialogExcelConfigData: <SchemaTable>{
+  DialogExcelConfigData: <SchemaTable> {
     name: 'DialogExcelConfigData',
     jsonFile: './ExcelBinOutput/DialogExcelConfigData.json',
     columns: [
@@ -76,7 +76,7 @@ export const genshinSchema = {
       GFLDJMJKIKE: 'Id'
     }
   },
-  DialogUnparentedExcelConfigData: <SchemaTable>{
+  DialogUnparentedExcelConfigData: <SchemaTable> {
     name: 'DialogUnparentedExcelConfigData',
     jsonFile: './ExcelBinOutput/DialogUnparentedExcelConfigData.json',
     columns: [
@@ -84,7 +84,7 @@ export const genshinSchema = {
       { name: 'DialogId', type: 'integer', isIndex: true },
     ]
   },
-  Relation_DialogToNext: <SchemaTable>{
+  Relation_DialogToNext: <SchemaTable> {
     name: 'Relation_DialogToNext',
     jsonFile: './ExcelBinOutput/DialogExcelConfigData.json',
     columns: [
@@ -105,7 +105,7 @@ export const genshinSchema = {
       GFLDJMJKIKE: 'Id'
     }
   },
-  ManualTextMapConfigData: <SchemaTable>{
+  ManualTextMapConfigData: <SchemaTable> {
     name: 'ManualTextMapConfigData',
     jsonFile: './ExcelBinOutput/ManualTextMapConfigData.json',
     columns: [
@@ -113,7 +113,7 @@ export const genshinSchema = {
       { name: 'TextMapContentTextMapHash', type: 'integer', isIndex: true },
     ],
   },
-  NpcExcelConfigData: <SchemaTable>{
+  NpcExcelConfigData: <SchemaTable> {
     name: 'NpcExcelConfigData',
     jsonFile: './ExcelBinOutput/NpcExcelConfigData.json',
     columns: [
@@ -121,7 +121,7 @@ export const genshinSchema = {
       { name: 'NameTextMapHash', type: 'integer', isIndex: true },
     ],
   },
-  TalkExcelConfigData: <SchemaTable>{
+  TalkExcelConfigData: <SchemaTable> {
     name: 'TalkExcelConfigData',
     jsonFile: './ExcelBinOutput/TalkExcelConfigData.json',
     columns: [
@@ -150,7 +150,7 @@ export const genshinSchema = {
       },
     ],
   },
-  Relation_NpcToTalk: <SchemaTable>{
+  Relation_NpcToTalk: <SchemaTable> {
     name: 'Relation_NpcToTalk',
     jsonFile: './ExcelBinOutput/TalkExcelConfigData.json',
     columns: [
@@ -165,7 +165,7 @@ export const genshinSchema = {
       return [];
     },
   },
-  MainQuestExcelConfigData: <SchemaTable>{
+  MainQuestExcelConfigData: <SchemaTable> {
     name: 'MainQuestExcelConfigData',
     jsonFile: './ExcelBinOutput/MainQuestExcelConfigData.json',
     columns: [
@@ -176,7 +176,7 @@ export const genshinSchema = {
       { name: 'DescTextMapHash', type: 'integer', isIndex: true },
     ],
   },
-  ChapterExcelConfigData: <SchemaTable>{
+  ChapterExcelConfigData: <SchemaTable> {
     name: 'ChapterExcelConfigData',
     jsonFile: './ExcelBinOutput/ChapterExcelConfigData.json',
     columns: [
@@ -187,7 +187,7 @@ export const genshinSchema = {
       { name: 'ChapterTitleTextMapHash', type: 'integer', isIndex: true },
     ],
   },
-  QuestExcelConfigData: <SchemaTable>{
+  QuestExcelConfigData: <SchemaTable> {
     name: 'QuestExcelConfigData',
     jsonFile: './ExcelBinOutput/QuestExcelConfigData.json',
     columns: [
@@ -202,7 +202,7 @@ export const genshinSchema = {
       FailParent: 'DescTextMapHash'
     }
   },
-  LoadingTipsExcelConfigData: <SchemaTable>{
+  LoadingTipsExcelConfigData: <SchemaTable> {
     name: 'LoadingTipsExcelConfigData',
     jsonFile: './ExcelBinOutput/LoadingTipsExcelConfigData.json',
     columns: [
@@ -213,7 +213,7 @@ export const genshinSchema = {
       { name: 'MinLevel', type: 'integer', isIndex: true },
     ],
   },
-  LoadingSituationExcelConfigData: <SchemaTable>{
+  LoadingSituationExcelConfigData: <SchemaTable> {
     name: 'LoadingSituationExcelConfigData',
     jsonFile: './ExcelBinOutput/LoadingSituationExcelConfigData.json',
     columns: [
@@ -228,7 +228,7 @@ export const genshinSchema = {
       PPMNJJNLPEF: 'Area1Id'
     }
   },
-  ReminderExcelConfigData: <SchemaTable>{
+  ReminderExcelConfigData: <SchemaTable> {
     name: 'ReminderExcelConfigData',
     jsonFile: './ExcelBinOutput/ReminderExcelConfigData.json',
     columns: [
@@ -238,7 +238,7 @@ export const genshinSchema = {
       { name: 'NextReminderId', type: 'integer', isIndex: true },
     ],
   },
-  Relation_ReminderToNext: <SchemaTable>{
+  Relation_ReminderToNext: <SchemaTable> {
     name: 'Relation_ReminderToNext',
     jsonFile: './ExcelBinOutput/ReminderExcelConfigData.json',
     columns: [
@@ -253,7 +253,7 @@ export const genshinSchema = {
       }
     }
   },
-  MaterialExcelConfigData: <SchemaTable>{
+  MaterialExcelConfigData: <SchemaTable> {
     name: 'MaterialExcelConfigData',
     jsonFile: './ExcelBinOutput/MaterialExcelConfigData.json',
     columns: [
@@ -269,7 +269,19 @@ export const genshinSchema = {
       { name: 'RankLevel', type: 'string' },
     ],
   },
-  Relation_FurnitureToMaterial: <SchemaTable>{
+  MaterialCodexExcelConfigData: <SchemaTable> {
+    name: 'MaterialCodexExcelConfigData',
+    jsonFile: './ExcelBinOutput/MaterialCodexExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'MaterialId', type: 'integer', isIndex: true},
+      {name: 'SortOrder', type: 'integer', isIndex: true},
+      {name: 'Type', type: 'string', isIndex: true},
+      {name: 'NameTextMapHash', type: 'decimal', isIndex: true},
+      {name: 'DescTextMapHash', type: 'decimal', isIndex: true},
+    ]
+  },
+  Relation_FurnitureToMaterial: <SchemaTable> {
     name: 'Relation_FurnitureToMaterial',
     jsonFile: './ExcelBinOutput/MaterialExcelConfigData.json',
     columns: [
@@ -285,7 +297,7 @@ export const genshinSchema = {
       }
     },
   },
-  Relation_FurnitureSuiteToMaterial: <SchemaTable>{
+  Relation_FurnitureSuiteToMaterial: <SchemaTable> {
     name: 'Relation_FurnitureSuiteToMaterial',
     jsonFile: './ExcelBinOutput/MaterialExcelConfigData.json',
     columns: [
@@ -301,7 +313,7 @@ export const genshinSchema = {
       }
     },
   },
-  Relation_CodexToMaterial: <SchemaTable>{
+  Relation_CodexToMaterial: <SchemaTable> {
     name: 'Relation_CodexToMaterial',
     jsonFile: './ExcelBinOutput/MaterialExcelConfigData.json',
     columns: [
@@ -317,7 +329,7 @@ export const genshinSchema = {
       }
     },
   },
-  MaterialSourceDataExcelConfigData: <SchemaTable>{
+  MaterialSourceDataExcelConfigData: <SchemaTable> {
     name: 'MaterialSourceDataExcelConfigData',
     jsonFile: './ExcelBinOutput/MaterialSourceDataExcelConfigData.json',
     columns: [
@@ -331,7 +343,7 @@ export const genshinSchema = {
       JumpList: 'JumpDescs',
     }
   },
-  DailyTaskExcelConfigData: <SchemaTable>{
+  DailyTaskExcelConfigData: <SchemaTable> {
     name: 'DailyTaskExcelConfigData',
     jsonFile: './ExcelBinOutput/DailyTaskExcelConfigData.json',
     columns: [
@@ -344,7 +356,7 @@ export const genshinSchema = {
       { name: 'TargetTextMapHash', type: 'integer', isIndex: true },
     ],
   },
-  NpcFirstMetExcelConfigData: <SchemaTable>{
+  NpcFirstMetExcelConfigData: <SchemaTable> {
     name: 'NpcFirstMetExcelConfigData',
     jsonFile: './ExcelBinOutput/NpcFirstMetExcelConfigData.json',
     columns: [
@@ -353,7 +365,7 @@ export const genshinSchema = {
       { name: 'AvatarDescriptionTextMapHash', type: 'integer', isIndex: true },
     ],
   },
-  AvatarExcelConfigData: <SchemaTable>{
+  AvatarExcelConfigData: <SchemaTable> {
     name: 'AvatarExcelConfigData',
     jsonFile: './ExcelBinOutput/AvatarExcelConfigData.json',
     columns: [
@@ -366,14 +378,14 @@ export const genshinSchema = {
       { name: 'SideIconName', type: 'string' },
     ],
   },
-  RewardExcelConfigData: <SchemaTable>{
+  RewardExcelConfigData: <SchemaTable> {
     name: 'RewardExcelConfigData',
     jsonFile: './ExcelBinOutput/RewardExcelConfigData.json',
     columns: [
       { name: 'RewardId', type: 'integer', isPrimary: true },
     ],
   },
-  HomeWorldFurnitureExcelConfigData: <SchemaTable>{
+  HomeWorldFurnitureExcelConfigData: <SchemaTable> {
     name: 'HomeWorldFurnitureExcelConfigData',
     jsonFile: './ExcelBinOutput/HomeWorldFurnitureExcelConfigData.json',
     columns: [
@@ -394,7 +406,7 @@ export const genshinSchema = {
       BIMHLPMNPDJ: 'ObtainTextMapHashList',
     }
   },
-  HomeWorldFurnitureTypeExcelConfigData: <SchemaTable>{
+  HomeWorldFurnitureTypeExcelConfigData: <SchemaTable> {
     name: 'HomeWorldFurnitureTypeExcelConfigData',
     jsonFile: './ExcelBinOutput/HomeWorldFurnitureTypeExcelConfigData.json',
     columns: [
@@ -432,7 +444,7 @@ export const genshinSchema = {
       { name: 'FurnitureSuiteId', type: 'integer', isIndex: true },
     ],
   },
-  HomeWorldNPCExcelConfigData: <SchemaTable>{
+  HomeWorldNPCExcelConfigData: <SchemaTable> {
     name: 'HomeWorldNPCExcelConfigData',
     jsonFile: './ExcelBinOutput/HomeWorldNPCExcelConfigData.json',
     columns: [
@@ -451,7 +463,37 @@ export const genshinSchema = {
       PLCKDHCGBKE: 'ShowNameTextMapHash',
     }
   },
-  ReputationQuestExcelConfigData: <SchemaTable>{
+  HomeworldAnimalExcelConfigData: <SchemaTable> {
+    name: 'HomeworldAnimalExcelConfigData',
+    jsonFile: './ExcelBinOutput/HomeworldAnimalExcelConfigData.json',
+    columns: [
+      {name: 'FurnitureId', type: 'integer', isPrimary: true},
+      {name: 'MonsterId', type: 'integer', isIndex: true},
+    ]
+  },
+  AnimalDescribeExcelConfigData: <SchemaTable> {
+    name: 'AnimalDescribeExcelConfigData',
+    jsonFile: './ExcelBinOutput/AnimalDescribeExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'NameTextMapHash', type: 'decimal', isIndex: true},
+    ]
+  },
+  AnimalCodexExcelConfigData: <SchemaTable> {
+    name: 'AnimalCodexExcelConfigData',
+    jsonFile: './ExcelBinOutput/AnimalCodexExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'Type', type: 'string', isIndex: true},
+      {name: 'SubType', type: 'string', isIndex: true},
+      {name: 'CountType', type: 'string', isIndex: true},
+      {name: 'DescribeId', type: 'integer', isIndex: true},
+      {name: 'SortOrder', type: 'integer', isIndex: true},
+      {name: 'DescTextMapHash', type: 'decimal', isIndex: true},
+      {name: 'PushTipsCodexId', type: 'integer', isIndex: true},
+    ]
+  },
+  ReputationQuestExcelConfigData: <SchemaTable> {
     name: 'ReputationQuestExcelConfigData',
     jsonFile: './ExcelBinOutput/ReputationQuestExcelConfigData.json',
     columns: [
@@ -462,7 +504,7 @@ export const genshinSchema = {
       { name: 'Order', type: 'integer' },
     ],
   },
-  CityConfigData: <SchemaTable>{
+  CityConfigData: <SchemaTable> {
     name: 'CityConfigData',
     jsonFile: './ExcelBinOutput/CityConfigData.json',
     columns: [
@@ -472,7 +514,7 @@ export const genshinSchema = {
       { name: 'CityGoddnessDescTextMapHash', type: 'integer', isIndex: true },
     ],
   },
-  FurnitureSuiteExcelConfigData: <SchemaTable>{
+  FurnitureSuiteExcelConfigData: <SchemaTable> {
     name: 'FurnitureSuiteExcelConfigData',
     jsonFile: './ExcelBinOutput/FurnitureSuiteExcelConfigData.json',
     columns: [
@@ -480,7 +522,7 @@ export const genshinSchema = {
       { name: 'SuiteNameText', type: 'integer', isIndex: true },
     ],
   },
-  FurnitureMakeExcelConfigData: <SchemaTable>{
+  FurnitureMakeExcelConfigData: <SchemaTable> {
     name: 'FurnitureMakeExcelConfigData',
     jsonFile: './ExcelBinOutput/FurnitureMakeExcelConfigData.json',
     columns: [
@@ -488,7 +530,7 @@ export const genshinSchema = {
       { name: 'ConfigId', type: 'integer', isIndex: true },
     ],
   },
-  Relation_FurnitureMakeExcelConfigData: <SchemaTable>{
+  Relation_FurnitureMakeExcelConfigData: <SchemaTable> {
     name: 'Relation_FurnitureMakeExcelConfigData',
     jsonFile: './ExcelBinOutput/FurnitureMakeExcelConfigData.json',
     columns: [
@@ -509,7 +551,7 @@ export const genshinSchema = {
       return ret;
     },
   },
-  BooksCodexExcelConfigData: <SchemaTable>{
+  BooksCodexExcelConfigData: <SchemaTable> {
     name: 'BooksCodexExcelConfigData',
     jsonFile: './ExcelBinOutput/BooksCodexExcelConfigData.json',
     columns: [
@@ -517,7 +559,7 @@ export const genshinSchema = {
       { name: 'MaterialId', type: 'integer', isIndex: true },
     ],
   },
-  BookSuitExcelConfigData: <SchemaTable>{
+  BookSuitExcelConfigData: <SchemaTable> {
     name: 'BookSuitExcelConfigData',
     jsonFile: './ExcelBinOutput/BookSuitExcelConfigData.json',
     columns: [
@@ -525,7 +567,7 @@ export const genshinSchema = {
       { name: 'SuitNameTextMapHash', type: 'integer', isIndex: true },
     ],
   },
-  LocalizationExcelConfigData: <SchemaTable>{
+  LocalizationExcelConfigData: <SchemaTable> {
     name: 'LocalizationExcelConfigData',
     jsonFile: './ExcelBinOutput/LocalizationExcelConfigData.json',
     columns: [
@@ -548,7 +590,7 @@ export const genshinSchema = {
       { name: 'ItPath', type: 'string', isIndex: true },
     ],
   },
-  DocumentExcelConfigData: <SchemaTable>{
+  DocumentExcelConfigData: <SchemaTable> {
     name: 'DocumentExcelConfigData',
     jsonFile: './ExcelBinOutput/DocumentExcelConfigData.json',
     columns: [
@@ -562,7 +604,7 @@ export const genshinSchema = {
       HGHPAKBJLMN: 'AltContentLocalizedIds',
     },
   },
-  ReliquaryExcelConfigData: <SchemaTable>{
+  ReliquaryExcelConfigData: <SchemaTable> {
     name: 'ReliquaryExcelConfigData',
     jsonFile: './ExcelBinOutput/ReliquaryExcelConfigData.json',
     columns: [
@@ -572,7 +614,7 @@ export const genshinSchema = {
       { name: 'StoryId', type: 'integer', isIndex: true },
     ],
   },
-  ReliquaryCodexExcelConfigData: <SchemaTable>{
+  ReliquaryCodexExcelConfigData: <SchemaTable> {
     name: 'ReliquaryCodexExcelConfigData',
     jsonFile: './ExcelBinOutput/ReliquaryCodexExcelConfigData.json',
     columns: [
@@ -580,14 +622,14 @@ export const genshinSchema = {
       { name: 'SuitId', type: 'integer', isIndex: true },
     ],
   },
-  ReliquarySetExcelConfigData: <SchemaTable>{
+  ReliquarySetExcelConfigData: <SchemaTable> {
     name: 'ReliquarySetExcelConfigData',
     jsonFile: './ExcelBinOutput/ReliquarySetExcelConfigData.json',
     columns: [
       { name: 'SetId', type: 'integer', isPrimary: true },
     ],
   },
-  WeaponExcelConfigData: <SchemaTable>{
+  WeaponExcelConfigData: <SchemaTable> {
     name: 'WeaponExcelConfigData',
     jsonFile: './ExcelBinOutput/WeaponExcelConfigData.json',
     columns: [
@@ -596,7 +638,7 @@ export const genshinSchema = {
       { name: 'StoryId', type: 'integer', isIndex: true },
     ],
   },
-  WeaponCodexExcelConfigData: <SchemaTable>{
+  WeaponCodexExcelConfigData: <SchemaTable> {
     name: 'WeaponCodexExcelConfigData',
     jsonFile: './ExcelBinOutput/WeaponCodexExcelConfigData.json',
     columns: [
@@ -604,7 +646,7 @@ export const genshinSchema = {
       { name: 'WeaponId', type: 'integer', isIndex: true },
     ],
   },
-  AchievementExcelConfigData: <SchemaTable>{
+  AchievementExcelConfigData: <SchemaTable> {
     name: 'AchievementExcelConfigData',
     jsonFile: './ExcelBinOutput/AchievementExcelConfigData.json',
     columns: [
@@ -616,7 +658,7 @@ export const genshinSchema = {
       { name: 'FinishRewardId', type: 'integer', isIndex: true },
     ],
   },
-  AchievementGoalExcelConfigData: <SchemaTable>{
+  AchievementGoalExcelConfigData: <SchemaTable> {
     name: 'AchievementGoalExcelConfigData',
     jsonFile: './ExcelBinOutput/AchievementGoalExcelConfigData.json',
     columns: [
@@ -627,7 +669,7 @@ export const genshinSchema = {
   },
 
 
-  MonsterExcelConfigData: <SchemaTable>{
+  MonsterExcelConfigData: <SchemaTable> {
     name: 'MonsterExcelConfigData',
     jsonFile: './ExcelBinOutput/MonsterExcelConfigData.json',
     columns: [
@@ -639,7 +681,7 @@ export const genshinSchema = {
       { name: 'VisionLevel', type: 'string', isIndex: true },
     ],
   },
-  MonsterDescribeExcelConfigData: <SchemaTable>{
+  MonsterDescribeExcelConfigData: <SchemaTable> {
     name: 'MonsterDescribeExcelConfigData',
     jsonFile: './ExcelBinOutput/MonsterDescribeExcelConfigData.json',
     columns: [
@@ -649,7 +691,7 @@ export const genshinSchema = {
       { name: 'SpecialNameLabId', type: 'integer', isIndex: true },
     ],
   },
-  MonsterSpecialNameExcelConfigData: <SchemaTable>{
+  MonsterSpecialNameExcelConfigData: <SchemaTable> {
     name: 'MonsterSpecialNameExcelConfigData',
     jsonFile: './ExcelBinOutput/MonsterSpecialNameExcelConfigData.json',
     columns: [
@@ -658,7 +700,7 @@ export const genshinSchema = {
       { name: 'SpecialNameTextMapHash', type: 'decimal', isIndex: true },
     ],
   },
-  MonsterTitleExcelConfigData: <SchemaTable>{
+  MonsterTitleExcelConfigData: <SchemaTable> {
     name: 'MonsterTitleExcelConfigData',
     jsonFile: './ExcelBinOutput/MonsterTitleExcelConfigData.json',
     columns: [
@@ -667,7 +709,7 @@ export const genshinSchema = {
     ],
   },
 
-  AvatarCodexExcelConfigData: <SchemaTable>{
+  AvatarCodexExcelConfigData: <SchemaTable> {
     name: 'AvatarCodexExcelConfigData',
     jsonFile: './ExcelBinOutput/AvatarCodexExcelConfigData.json',
     columns: [
@@ -676,7 +718,7 @@ export const genshinSchema = {
       { name: 'AvatarId', type: 'integer', isIndex: true },
     ],
   },
-  AvatarFlycloakExcelConfigData: <SchemaTable>{
+  AvatarFlycloakExcelConfigData: <SchemaTable> {
     name: 'AvatarFlycloakExcelConfigData',
     jsonFile: './ExcelBinOutput/AvatarFlycloakExcelConfigData.json',
     columns: [
@@ -686,7 +728,7 @@ export const genshinSchema = {
       { name: 'MaterialId', type: 'integer', isIndex: true },
     ],
   },
-  AvatarCostumeExcelConfigData: <SchemaTable>{
+  AvatarCostumeExcelConfigData: <SchemaTable> {
     name: 'AvatarCostumeExcelConfigData',
     jsonFile: './ExcelBinOutput/AvatarCostumeExcelConfigData.json',
     columns: [
@@ -699,7 +741,7 @@ export const genshinSchema = {
       { name: 'Quality', type: 'integer', isIndex: true },
     ],
   },
-  GCGTalkExcelConfigData: <SchemaTable>{
+  GCGTalkExcelConfigData: <SchemaTable> {
     name: 'GCGTalkExcelConfigData',
     jsonFile: './ExcelBinOutput/GCGTalkExcelConfigData.json',
     columns: [
@@ -717,7 +759,7 @@ export const genshinSchema = {
       ElementBrustTalkId: 'ElementBurstTalkId',
     },
   },
-  GCGTalkDetailExcelConfigData: <SchemaTable>{
+  GCGTalkDetailExcelConfigData: <SchemaTable> {
     name: 'GCGTalkDetailExcelConfigData',
     jsonFile: './ExcelBinOutput/GCGTalkDetailExcelConfigData.json',
     columns: [
@@ -731,7 +773,7 @@ export const genshinSchema = {
     },
     singularize: ['TalkDetailIconId'],
   },
-  GCGTalkDetailIconExcelConfigData: <SchemaTable>{
+  GCGTalkDetailIconExcelConfigData: <SchemaTable> {
     name: 'GCGTalkDetailIconExcelConfigData',
     jsonFile: './ExcelBinOutput/GCGTalkDetailIconExcelConfigData.json',
     columns: [
@@ -739,7 +781,7 @@ export const genshinSchema = {
       { name: 'Type', type: 'string', isIndex: true },
     ],
   },
-  GCGGameExcelConfigData: <SchemaTable>{
+  GCGGameExcelConfigData: <SchemaTable> {
     name: 'GCGGameExcelConfigData',
     jsonFile: './ExcelBinOutput/GCGGameExcelConfigData.json',
     columns: [
@@ -753,7 +795,7 @@ export const genshinSchema = {
       MBJIAMCDJLJ: 'EnemyNameTextMapHash',
     },
   },
-  GCGBossLevelExcelConfigData: <SchemaTable>{
+  GCGBossLevelExcelConfigData: <SchemaTable> {
     name: 'GCGBossLevelExcelConfigData',
     jsonFile: './ExcelBinOutput/GCGBossLevelExcelConfigData.json',
     columns: [
@@ -773,7 +815,7 @@ export const genshinSchema = {
       AIIDKAAKFNL: 'UnlockTipTextMapHash',
     },
   },
-  GCGGameRewardExcelConfigData: <SchemaTable>{
+  GCGGameRewardExcelConfigData: <SchemaTable> {
     name: 'GCGGameRewardExcelConfigData',
     jsonFile: './ExcelBinOutput/GCGGameRewardExcelConfigData.json',
     columns: [
@@ -788,7 +830,7 @@ export const genshinSchema = {
       IDJCJFFHJEE: 'ObjectiveTextMapHashList',
     },
   },
-  GCGChallengeExcelConfigData: <SchemaTable>{
+  GCGChallengeExcelConfigData: <SchemaTable> {
     name: 'GCGChallengeExcelConfigData',
     jsonFile: './ExcelBinOutput/GCGChallengeExcelConfigData.json',
     columns: [
@@ -799,7 +841,7 @@ export const genshinSchema = {
       MIPOKBOGHGJ: 'ParamTarget',
     },
   },
-  GCGTutorialTextExcelConfigData: <SchemaTable>{
+  GCGTutorialTextExcelConfigData: <SchemaTable> {
     name: 'GCGTutorialTextExcelConfigData',
     jsonFile: './ExcelBinOutput/GCGTutorialTextExcelConfigData.json',
     columns: [
@@ -812,14 +854,14 @@ export const genshinSchema = {
       AFBOPFJIDKP: 'TutorialTextMapHash',
     },
   },
-  GCGRuleExcelConfigData: <SchemaTable>{
+  GCGRuleExcelConfigData: <SchemaTable> {
     name: 'GCGRuleExcelConfigData',
     jsonFile: './ExcelBinOutput/GCGRuleExcelConfigData.json',
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
     ],
   },
-  GCGRuleTextExcelConfigData: <SchemaTable>{
+  GCGRuleTextExcelConfigData: <SchemaTable> {
     name: 'GCGRuleTextExcelConfigData',
     jsonFile: './ExcelBinOutput/GCGRuleTextExcelConfigData.json',
     columns: [
@@ -827,7 +869,7 @@ export const genshinSchema = {
       { name: 'TitleTextMapHash', type: 'integer', isIndex: true },
     ],
   },
-  GCGRuleTextDetailExcelConfigData: <SchemaTable>{
+  GCGRuleTextDetailExcelConfigData: <SchemaTable> {
     name: 'GCGRuleTextDetailExcelConfigData',
     jsonFile: './ExcelBinOutput/GCGRuleTextDetailExcelConfigData.json',
     columns: [
@@ -839,7 +881,7 @@ export const genshinSchema = {
       IFJNLHHKLME: 'Icon',
     },
   },
-  GCGLevelLockExcelConfigData: <SchemaTable>{
+  GCGLevelLockExcelConfigData: <SchemaTable> {
     name: 'GCGLevelLockExcelConfigData',
     jsonFile: './ExcelBinOutput/GCGLevelLockExcelConfigData.json',
     columns: [
@@ -851,14 +893,14 @@ export const genshinSchema = {
       { name: 'QuestDescTextMapHash', type: 'integer', isIndex: true },
     ],
   },
-  GcgOtherLevelExcelConfigData: <SchemaTable>{
+  GcgOtherLevelExcelConfigData: <SchemaTable> {
     name: 'GcgOtherLevelExcelConfigData',
     jsonFile: './ExcelBinOutput/GcgOtherLevelExcelConfigData.json',
     columns: [
       { name: 'LevelId', type: 'integer', isPrimary: true },
     ],
   },
-  GCGQuestLevelExcelConfigData: <SchemaTable>{
+  GCGQuestLevelExcelConfigData: <SchemaTable> {
     name: 'GCGQuestLevelExcelConfigData',
     jsonFile: './ExcelBinOutput/GCGQuestLevelExcelConfigData.json',
     columns: [
@@ -866,7 +908,7 @@ export const genshinSchema = {
       { name: 'QuestId', type: 'integer', isIndex: true },
     ],
   },
-  GCGWorldLevelExcelConfigData: <SchemaTable>{
+  GCGWorldLevelExcelConfigData: <SchemaTable> {
     name: 'GCGWorldLevelExcelConfigData',
     jsonFile: './ExcelBinOutput/GCGWorldLevelExcelConfigData.json',
     columns: [
@@ -881,7 +923,7 @@ export const genshinSchema = {
       ILOGAIHBHNE: 'MapDescTextMapHash',
     },
   },
-  GCGWeekLevelExcelConfigData: <SchemaTable>{
+  GCGWeekLevelExcelConfigData: <SchemaTable> {
     name: 'GCGWeekLevelExcelConfigData',
     jsonFile: './ExcelBinOutput/GCGWeekLevelExcelConfigData.json',
     columns: [
@@ -896,7 +938,7 @@ export const genshinSchema = {
       BGNBBBHMLLO: 'GcgLevel',
     }
   },
-  GCGCardExcelConfigData: <SchemaTable>{
+  GCGCardExcelConfigData: <SchemaTable> {
     name: 'GCGCardExcelConfigData',
     jsonFile: './ExcelBinOutput/GCGCardExcelConfigData.json',
     columns: [
@@ -914,7 +956,7 @@ export const genshinSchema = {
       IKKGAPALFCH: 'TokenDescId',
     },
   },
-  GCGCardFaceExcelConfigData: <SchemaTable>{
+  GCGCardFaceExcelConfigData: <SchemaTable> {
     name: 'GCGCardFaceExcelConfigData',
     jsonFile: './ExcelBinOutput/GCGCardFaceExcelConfigData.json',
     columns: [
@@ -926,7 +968,7 @@ export const genshinSchema = {
       { name: 'DescTextMapHash', type: 'integer', isIndex: true },
     ],
   },
-  GCGCardViewExcelConfigData: <SchemaTable>{
+  GCGCardViewExcelConfigData: <SchemaTable> {
     name: 'GCGCardViewExcelConfigData',
     jsonFile: './ExcelBinOutput/GCGCardViewExcelConfigData.json',
     columns: [
@@ -938,7 +980,7 @@ export const genshinSchema = {
       DEPNICHKLNH: 'SpinePaths',
     },
   },
-  GCGCharExcelConfigData: <SchemaTable>{
+  GCGCharExcelConfigData: <SchemaTable> {
     name: 'GCGCharExcelConfigData',
     jsonFile: './ExcelBinOutput/GCGCharExcelConfigData.json',
     columns: [
@@ -951,7 +993,7 @@ export const genshinSchema = {
       IAPINBOEJCO: 'AvatarName'
     }
   },
-  GCGCharacterLevelExcelConfigData: <SchemaTable>{
+  GCGCharacterLevelExcelConfigData: <SchemaTable> {
     name: 'GCGCharacterLevelExcelConfigData',
     jsonFile: './ExcelBinOutput/GCGCharacterLevelExcelConfigData.json',
     columns: [
@@ -972,7 +1014,7 @@ export const genshinSchema = {
       FMDNIFOPMGP: 'LoseHardLevelTalkId',
     },
   },
-  Relation_GCGGameToWeekLevel: <SchemaTable>{
+  Relation_GCGGameToWeekLevel: <SchemaTable> {
     name: 'Relation_GCGGameToWeekLevel',
     jsonFile: './ExcelBinOutput/GCGWeekLevelExcelConfigData.json',
     columns: [
@@ -998,7 +1040,7 @@ export const genshinSchema = {
       EIDEKLFIOCM: 'GcgLevel',
     }
   },
-  Relation_GCGCharacterLevel: <SchemaTable>{
+  Relation_GCGCharacterLevel: <SchemaTable> {
     name: 'Relation_GCGCharacterLevel',
     jsonFile: './ExcelBinOutput/GCGCharacterLevelExcelConfigData.json',
     columns: [
@@ -1023,7 +1065,7 @@ export const genshinSchema = {
       return ret;
     },
   },
-  GCGElementReactionExcelConfigData: <SchemaTable>{
+  GCGElementReactionExcelConfigData: <SchemaTable> {
     name: 'GCGElementReactionExcelConfigData',
     jsonFile: './ExcelBinOutput/GCGElementReactionExcelConfigData.json',
     columns: [
@@ -1033,7 +1075,7 @@ export const genshinSchema = {
       { name: 'SkillId', type: 'integer', isIndex: true },
     ],
   },
-  GCGSkillExcelConfigData: <SchemaTable>{
+  GCGSkillExcelConfigData: <SchemaTable> {
     name: 'GCGSkillExcelConfigData',
     jsonFile: './ExcelBinOutput/GCGSkillExcelConfigData.json',
     columns: [
@@ -1045,7 +1087,7 @@ export const genshinSchema = {
       ODACBHLGCIN: 'InternalName',
     }
   },
-  GCGChooseExcelConfigData: <SchemaTable>{
+  GCGChooseExcelConfigData: <SchemaTable> {
     name: 'GCGChooseExcelConfigData',
     jsonFile: './ExcelBinOutput/GCGChooseExcelConfigData.json',
     columns: [
@@ -1059,7 +1101,7 @@ export const genshinSchema = {
       FABKBPGPHII: 'ChooseType',
     },
   },
-  GCGDeckExcelConfigData: <SchemaTable>{
+  GCGDeckExcelConfigData: <SchemaTable> {
     name: 'GCGDeckExcelConfigData',
     jsonFile: './ExcelBinOutput/GCGDeckExcelConfigData.json',
     columns: [
@@ -1074,7 +1116,7 @@ export const genshinSchema = {
       EHGFJIIDJIM: 'CondCount'
     }
   },
-  GCGDeckCardExcelConfigData: <SchemaTable>{
+  GCGDeckCardExcelConfigData: <SchemaTable> {
     name: 'GCGDeckCardExcelConfigData',
     jsonFile: './ExcelBinOutput/GCGDeckCardExcelConfigData.json',
     columns: [
@@ -1089,14 +1131,14 @@ export const genshinSchema = {
       NAGOLEDGJFO: "InitEnergyList",
     },
   },
-  GCGProficiencyRewardExcelConfigData: <SchemaTable>{
+  GCGProficiencyRewardExcelConfigData: <SchemaTable> {
     name: 'GCGProficiencyRewardExcelConfigData',
     jsonFile: './ExcelBinOutput/GCGProficiencyRewardExcelConfigData.json',
     columns: [
       { name: 'CardId', type: 'integer', isPrimary: true },
     ],
   },
-  GCGDeckFaceLinkExcelConfigData: <SchemaTable>{
+  GCGDeckFaceLinkExcelConfigData: <SchemaTable> {
     name: 'GCGDeckFaceLinkExcelConfigData',
     jsonFile: './ExcelBinOutput/GCGDeckFaceLinkExcelConfigData.json',
     columns: [
@@ -1108,7 +1150,7 @@ export const genshinSchema = {
       AGBEBLBIMGD: 'DeckCardId',
     },
   },
-  GCGTokenDescConfigData: <SchemaTable>{
+  GCGTokenDescConfigData: <SchemaTable> {
     name: 'GCGTokenDescConfigData',
     jsonFile: './ExcelBinOutput/GCGTokenDescConfigData.json',
     columns: [
@@ -1116,7 +1158,7 @@ export const genshinSchema = {
       { name: 'NameTextMapHash', type: 'integer', isIndex: true },
     ],
   },
-  GCGSkillTagExcelConfigData: <SchemaTable>{
+  GCGSkillTagExcelConfigData: <SchemaTable> {
     name: 'GCGSkillTagExcelConfigData',
     jsonFile: './ExcelBinOutput/GCGSkillTagExcelConfigData.json',
     columns: [
@@ -1128,7 +1170,7 @@ export const genshinSchema = {
       BNKFFFCCNGF: 'KeywordId',
     },
   },
-  GCGTagExcelConfigData: <SchemaTable>{
+  GCGTagExcelConfigData: <SchemaTable> {
     name: 'GCGTagExcelConfigData',
     jsonFile: './ExcelBinOutput/GCGTagExcelConfigData.json',
     columns: [
@@ -1142,7 +1184,7 @@ export const genshinSchema = {
     },
     singularize: ['CategoryType'],
   },
-  GCGKeywordExcelConfigData: <SchemaTable>{
+  GCGKeywordExcelConfigData: <SchemaTable> {
     name: 'GCGKeywordExcelConfigData',
     jsonFile: './ExcelBinOutput/GCGKeywordExcelConfigData.json',
     columns: [
@@ -1151,7 +1193,7 @@ export const genshinSchema = {
       { name: 'DescTextMapHash', type: 'integer', isIndex: true },
     ],
   },
-  GCGCostExcelConfigData: <SchemaTable>{
+  GCGCostExcelConfigData: <SchemaTable> {
     name: 'GCGCostExcelConfigData',
     jsonFile: './ExcelBinOutput/GCGCostExcelConfigData.json',
     columns: [
@@ -1162,7 +1204,7 @@ export const genshinSchema = {
       BNKFFFCCNGF: 'KeywordId',
     },
   },
-  GCGDeckStorageExcelConfigData: <SchemaTable>{ // Configuration for deck-saving slots for player level rewards
+  GCGDeckStorageExcelConfigData: <SchemaTable> { // Configuration for deck-saving slots for player level rewards
     name: 'GCGDeckStorageExcelConfigData',
     jsonFile: './ExcelBinOutput/GCGDeckStorageExcelConfigData.json',
     columns: [
@@ -1175,7 +1217,7 @@ export const genshinSchema = {
       KPINCGJPICF: 'SourceTextMapHash',
     },
   },
-  GCGDeckBackExcelConfigData: <SchemaTable>{ // "Card Back" items, e.g. [[Dandelion_Seed_(Card_Back)]] or [[Legend]]
+  GCGDeckBackExcelConfigData: <SchemaTable> { // "Card Back" items, e.g. [[Dandelion_Seed_(Card_Back)]] or [[Legend]]
     name: 'GCGDeckBackExcelConfigData',
     jsonFile: './ExcelBinOutput/GCGDeckBackExcelConfigData.json',
     columns: [
@@ -1189,7 +1231,7 @@ export const genshinSchema = {
       DameTextMapHash: 'NameTextMapHash',
     },
   },
-  GCGDeckFieldExcelConfigData: <SchemaTable>{ // "Card Box" items, e.g. [[Liyue_(Card_Box)]]
+  GCGDeckFieldExcelConfigData: <SchemaTable> { // "Card Box" items, e.g. [[Liyue_(Card_Box)]]
     name: 'GCGDeckFieldExcelConfigData',
     jsonFile: './ExcelBinOutput/GCGDeckFieldExcelConfigData.json',
     columns: [
@@ -1237,14 +1279,14 @@ export const genshinSchema = {
       PPPLDLPKPFA: 'FinishConds',
     },
   },
-  TutorialExcelConfigData: <SchemaTable>{
+  TutorialExcelConfigData: <SchemaTable> {
     name: 'TutorialExcelConfigData',
     jsonFile: './ExcelBinOutput/TutorialExcelConfigData.json',
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
     ],
   },
-  TutorialDetailExcelConfigData: <SchemaTable>{
+  TutorialDetailExcelConfigData: <SchemaTable> {
     name: 'TutorialDetailExcelConfigData',
     jsonFile: './ExcelBinOutput/TutorialDetailExcelConfigData.json',
     columns: [
@@ -1252,7 +1294,7 @@ export const genshinSchema = {
       { name: 'DescriptTextMapHash', type: 'integer', isIndex: true },
     ],
   },
-  TutorialCatalogExcelConfigData: <SchemaTable>{
+  TutorialCatalogExcelConfigData: <SchemaTable> {
     name: 'TutorialCatalogExcelConfigData',
     jsonFile: './ExcelBinOutput/TutorialCatalogExcelConfigData.json',
     columns: [
@@ -1262,7 +1304,7 @@ export const genshinSchema = {
     ],
   },
 
-  PushTipsConfigData: <SchemaTable>{
+  PushTipsConfigData: <SchemaTable> {
     name: 'PushTipsConfigData',
     jsonFile: './ExcelBinOutput/PushTipsConfigData.json',
     columns: [
@@ -1275,7 +1317,7 @@ export const genshinSchema = {
       { name: 'GroupId', type: 'integer', isIndex: true },
     ],
   },
-  PushTipsCodexExcelConfigData: <SchemaTable>{
+  PushTipsCodexExcelConfigData: <SchemaTable> {
     name: 'PushTipsCodexExcelConfigData',
     jsonFile: './ExcelBinOutput/PushTipsCodexExcelConfigData.json',
     columns: [
@@ -1284,7 +1326,7 @@ export const genshinSchema = {
       { name: 'SortOrder', type: 'integer', isIndex: true },
     ],
   },
-  ViewCodexExcelConfigData: <SchemaTable>{
+  ViewCodexExcelConfigData: <SchemaTable> {
     name: 'ViewCodexExcelConfigData',
     jsonFile: './ExcelBinOutput/ViewCodexExcelConfigData.json',
     columns: [
@@ -1299,7 +1341,7 @@ export const genshinSchema = {
       { name: 'SortOrder', type: 'integer', isIndex: true },
     ],
   },
-  WorldAreaConfigData: <SchemaTable>{
+  WorldAreaConfigData: <SchemaTable> {
     name: 'WorldAreaConfigData',
     jsonFile: './ExcelBinOutput/WorldAreaConfigData.json',
     columns: [
@@ -1312,7 +1354,7 @@ export const genshinSchema = {
       { name: 'TowerPointId', type: 'integer', isIndex: true },
     ],
   },
-  NewActivityExcelConfigData: <SchemaTable>{
+  NewActivityExcelConfigData: <SchemaTable> {
     name: 'NewActivityExcelConfigData',
     jsonFile: './ExcelBinOutput/NewActivityExcelConfigData.json',
     columns: [
@@ -1321,7 +1363,7 @@ export const genshinSchema = {
       { name: 'NameTextMapHash', type: 'integer', isIndex: true },
     ],
   },
-  NewActivityEntryConfigData: <SchemaTable>{
+  NewActivityEntryConfigData: <SchemaTable> {
     name: 'NewActivityEntryConfigData',
     jsonFile: './ExcelBinOutput/NewActivityEntryConfigData.json',
     columns: [
@@ -1330,7 +1372,7 @@ export const genshinSchema = {
       { name: 'TabNameTextMapHash', type: 'integer', isIndex: true },
     ],
   },
-  FetterInfoExcelConfigData: <SchemaTable>{
+  FetterInfoExcelConfigData: <SchemaTable> {
     name: 'FetterInfoExcelConfigData',
     jsonFile: './ExcelBinOutput/FetterInfoExcelConfigData.json',
     columns: [
@@ -1354,7 +1396,7 @@ export const genshinSchema = {
       'AvatarConstellationBeforText': 'AvatarConstellationBeforeText',
     },
   },
-  DungeonExcelConfigData: <SchemaTable>{
+  DungeonExcelConfigData: <SchemaTable> {
     name: 'DungeonExcelConfigData',
     jsonFile: './ExcelBinOutput/DungeonExcelConfigData.json',
     columns: [
@@ -1377,7 +1419,7 @@ export const genshinSchema = {
       { name: 'FirstPassRewardPreviewId', type: 'integer', isIndex: true },
     ],
   },
-  DungeonPassExcelConfigData: <SchemaTable>{
+  DungeonPassExcelConfigData: <SchemaTable> {
     name: 'DungeonPassExcelConfigData',
     jsonFile: './ExcelBinOutput/DungeonPassExcelConfigData.json',
     columns: [
@@ -1385,7 +1427,7 @@ export const genshinSchema = {
       { name: 'LogicType', type: 'string', isIndex: true },
     ],
   },
-  DungeonEntryExcelConfigData: <SchemaTable>{
+  DungeonEntryExcelConfigData: <SchemaTable> {
     name: 'DungeonEntryExcelConfigData',
     jsonFile: './ExcelBinOutput/DungeonEntryExcelConfigData.json',
     columns: [
@@ -1397,7 +1439,7 @@ export const genshinSchema = {
       { name: 'RewardDataId', type: 'integer', isIndex: true },
     ],
   },
-  DungeonElementChallengeExcelConfigData: <SchemaTable>{
+  DungeonElementChallengeExcelConfigData: <SchemaTable> {
     name: 'DungeonElementChallengeExcelConfigData',
     jsonFile: './ExcelBinOutput/DungeonElementChallengeExcelConfigData.json',
     columns: [
@@ -1405,7 +1447,7 @@ export const genshinSchema = {
       { name: 'TutorialId', type: 'integer', isIndex: true },
     ],
   },
-  DungeonChallengeConfigData: <SchemaTable>{
+  DungeonChallengeConfigData: <SchemaTable> {
     name: 'DungeonChallengeConfigData',
     jsonFile: './ExcelBinOutput/DungeonChallengeConfigData.json',
     columns: [
@@ -1418,7 +1460,7 @@ export const genshinSchema = {
       { name: 'InterruptButtonType', type: 'string', isIndex: true },
     ],
   },
-  DungeonLevelEntityConfigData: <SchemaTable>{
+  DungeonLevelEntityConfigData: <SchemaTable> {
     name: 'DungeonLevelEntityConfigData',
     jsonFile: './ExcelBinOutput/DungeonLevelEntityConfigData.json',
     columns: [
@@ -1428,7 +1470,7 @@ export const genshinSchema = {
       { name: 'SwitchTitleTextMapHash', type: 'integer', isIndex: true },
     ],
   },
-  SpriteTagExcelConfigData: <SchemaTable>{
+  SpriteTagExcelConfigData: <SchemaTable> {
     name: 'SpriteTagExcelConfigData',
     jsonFile: './ExcelBinOutput/SpriteTagExcelConfigData.json',
     columns: [
@@ -1440,7 +1482,7 @@ export const genshinSchema = {
     },
   },
 
-  CombineExcelConfigData: <SchemaTable>{
+  CombineExcelConfigData: <SchemaTable> {
     name: 'CombineExcelConfigData',
     jsonFile: './ExcelBinOutput/CombineExcelConfigData.json',
     columns: [
@@ -1454,7 +1496,7 @@ export const genshinSchema = {
       { name: 'EffectDescTextMapHash', type: 'integer', isIndex: true },
     ],
   },
-  Relation_CombineExcelConfigData: <SchemaTable>{
+  Relation_CombineExcelConfigData: <SchemaTable> {
     name: 'Relation_CombineExcelConfigData',
     jsonFile: './ExcelBinOutput/CombineExcelConfigData.json',
     columns: [
@@ -1475,7 +1517,7 @@ export const genshinSchema = {
       return ret;
     },
   },
-  CompoundExcelConfigData: <SchemaTable>{
+  CompoundExcelConfigData: <SchemaTable> {
     name: 'CompoundExcelConfigData',
     jsonFile: './ExcelBinOutput/CompoundExcelConfigData.json',
     columns: [
@@ -1488,7 +1530,7 @@ export const genshinSchema = {
       { name: 'CountDescTextMapHash', type: 'integer', isIndex: true },
     ],
   },
-  Relation_CompoundExcelConfigData: <SchemaTable>{
+  Relation_CompoundExcelConfigData: <SchemaTable> {
     name: 'Relation_CompoundExcelConfigData',
     jsonFile: './ExcelBinOutput/CompoundExcelConfigData.json',
     columns: [
@@ -1511,7 +1553,7 @@ export const genshinSchema = {
       return ret;
     },
   },
-  CookRecipeExcelConfigData: <SchemaTable>{
+  CookRecipeExcelConfigData: <SchemaTable> {
     name: 'CookRecipeExcelConfigData',
     jsonFile: './ExcelBinOutput/CookRecipeExcelConfigData.json',
     columns: [
@@ -1522,7 +1564,7 @@ export const genshinSchema = {
       { name: 'DescTextMapHash', type: 'integer', isIndex: true },
     ],
   },
-  Relation_CookRecipeExcelConfigData: <SchemaTable>{
+  Relation_CookRecipeExcelConfigData: <SchemaTable> {
     name: 'Relation_CookRecipeExcelConfigData',
     jsonFile: './ExcelBinOutput/CookRecipeExcelConfigData.json',
     columns: [
@@ -1545,7 +1587,7 @@ export const genshinSchema = {
       return ret;
     },
   },
-  ForgeExcelConfigData: <SchemaTable>{
+  ForgeExcelConfigData: <SchemaTable> {
     name: 'ForgeExcelConfigData',
     jsonFile: './ExcelBinOutput/ForgeExcelConfigData.json',
     columns: [
@@ -1558,7 +1600,7 @@ export const genshinSchema = {
       { name: 'ForgePointNoticeTextMapHash', type: 'integer', isIndex: true },
     ],
   },
-  Relation_ForgeExcelConfigData: <SchemaTable>{
+  Relation_ForgeExcelConfigData: <SchemaTable> {
     name: 'Relation_ForgeExcelConfigData',
     jsonFile: './ExcelBinOutput/ForgeExcelConfigData.json',
     columns: [
@@ -1579,7 +1621,7 @@ export const genshinSchema = {
       return ret;
     },
   },
-  QuestSummarizationTextExcelConfigData: <SchemaTable>{
+  QuestSummarizationTextExcelConfigData: <SchemaTable> {
     name: 'QuestSummarizationTextExcelConfigData',
     jsonFile: './ExcelBinOutput/QuestSummarizationTextExcelConfigData.json',
     columns: [
