@@ -47,11 +47,38 @@ export class DialogueSectionResult {
   originalData: { talkConfig?: TalkExcelConfigData, dialogBranch?: DialogExcelConfigData[], questId?: number, questName?: string } = {};
   showGutter: boolean = false;
   similarityGroupId: number = null;
+  copyAllSep: string = '\n';
 
   constructor(id: string, title: string, helptext: string = null) {
     this.id = id;
     this.title = title;
     this.helptext = helptext;
+  }
+
+  toString(includeDTemplate: boolean = false): string {
+    const sep = this.copyAllSep.replace(/\\n/g, '\n');
+    let str = '';
+
+    if (this.wikitext) {
+      str += this.wikitext;
+    }
+    if (this.wikitextArray && this.wikitextArray.length) {
+      for (let wikitextArrayElement of this.wikitextArray) {
+        str += sep + wikitextArrayElement.wikitext;
+      }
+    }
+
+    if (this.children && this.children.length) {
+      for (let child of this.children) {
+        str += sep + child.toString();
+      }
+    }
+
+    if (includeDTemplate) {
+      str = '{{Dialogue Start}}\n' + str.trim() + '\n{{Dialogue End}}';
+    }
+
+    return str.trim();
   }
 
   afterConstruct(fn: (sect: this) => void): this {
@@ -112,10 +139,20 @@ export class DialogueSectionResult {
 export class TalkConfigAccumulator {
   readonly fetchedTalkConfigIds: Set<number> = new Set();
   readonly fetchedTopLevelTalkConfigs: TalkExcelConfigData[] = [];
+  private maxDepth: number = -1;
 
   constructor(private ctrl: GenshinControl) {}
 
-  async handleTalkConfig(talkConfig: TalkExcelConfigData, isTopLevel: boolean = true): Promise<TalkExcelConfigData> {
+  setMaxDepth(maxDepth: number): this {
+    this.maxDepth = maxDepth;
+    return this;
+  }
+
+  getMaxDepth(): number {
+    return this.maxDepth;
+  }
+
+  async handleTalkConfig(talkConfig: TalkExcelConfigData, depth: number = 0): Promise<TalkExcelConfigData> {
     if (!talkConfig || this.fetchedTalkConfigIds.has(talkConfig.Id)) {
       return null; // skip if not found or if already found
     }
@@ -125,6 +162,7 @@ export class TalkConfigAccumulator {
 
     // Handle self:
     // ------------
+    const isTopLevel: boolean = depth === 0;
     debug(`Fetching dialogue branch for ${talkConfig.Id} (${isTopLevel ? 'Top Level' : 'Child'}) [Init Dialog: ${talkConfig.InitDialog}]`);
     if (!!talkConfig.InitDialog) {
       talkConfig.Dialog = await this.ctrl.selectDialogBranch(await this.ctrl.selectSingleDialogExcelConfigData(talkConfig.InitDialog), null, talkConfig.Id);
@@ -152,12 +190,19 @@ export class TalkConfigAccumulator {
     // -----------------
     debug(`Fetched dialogue branch - has ${talkConfig.NextTalks.length} Next Talks`);
     if (talkConfig.NextTalks) {
+      if (this.maxDepth >= 0 && depth >= this.maxDepth) {
+        talkConfig.NextTalks = [];
+        talkConfig.NextTalksDataList = [];
+      }
       if (!talkConfig.NextTalksDataList) {
         talkConfig.NextTalksDataList = [];
       }
       let finalNextTalks: number[] = [];
       for (let nextTalkId of talkConfig.NextTalks) {
-        let nextTalkConfig = await this.handleTalkConfig(await this.ctrl.selectTalkExcelConfigDataByQuestSubId(nextTalkId), false);
+        let nextTalkConfig = await this.handleTalkConfig(
+          await this.ctrl.selectTalkExcelConfigDataByQuestSubId(nextTalkId),
+          depth + 1
+        );
         if (nextTalkConfig) {
           debug(`Adding Next Talk data for ` + nextTalkId);
           let prevTalkConfig: TalkExcelConfigData = null;
@@ -177,8 +222,12 @@ export class TalkConfigAccumulator {
   }
 }
 
-export async function talkConfigGenerate(ctrl: GenshinControl, talkConfigId: number | TalkExcelConfigData, acc?: TalkConfigAccumulator): Promise<DialogueSectionResult> {
-  let initTalkConfig = typeof talkConfigId === 'number' ? await ctrl.selectTalkExcelConfigDataByQuestSubId(talkConfigId) : talkConfigId;
+export async function talkConfigGenerate(ctrl: GenshinControl,
+                                         talkConfigId: number | TalkExcelConfigData,
+                                         acc?: TalkConfigAccumulator): Promise<DialogueSectionResult> {
+  const initTalkConfig = typeof talkConfigId === 'number'
+    ? await ctrl.selectTalkExcelConfigDataByQuestSubId(talkConfigId)
+    : talkConfigId;
 
   if (!initTalkConfig) {
     return undefined;
@@ -193,8 +242,12 @@ export async function talkConfigGenerate(ctrl: GenshinControl, talkConfigId: num
   return await talkConfigToDialogueSectionResult(ctrl, null, 'Talk', null, talkConfig);
 }
 
-export async function talkConfigToDialogueSectionResult(ctrl: GenshinControl, parentSect: DialogueSectionResult | QuestGenerateResult,
-                                                        sectName: string, sectHelptext: string, talkConfig: TalkExcelConfigData, dialogueDepth: number = 1): Promise<DialogueSectionResult> {
+export async function talkConfigToDialogueSectionResult(ctrl: GenshinControl,
+                                                        parentSect: DialogueSectionResult | QuestGenerateResult,
+                                                        sectName: string,
+                                                        sectHelptext: string,
+                                                        talkConfig: TalkExcelConfigData,
+                                                        dialogueDepth: number = 1): Promise<DialogueSectionResult> {
   const mysect = new DialogueSectionResult('Talk_' + talkConfig.Id, sectName, sectHelptext);
   mysect.originalData.talkConfig = talkConfig;
 
@@ -300,16 +353,19 @@ export async function talkConfigToDialogueSectionResult(ctrl: GenshinControl, pa
 
   if (talkConfig.NextTalksDataList) {
     for (let nextTalkConfig of talkConfig.NextTalksDataList) {
-      await talkConfigToDialogueSectionResult(ctrl, mysect, 'Next Talk', 'An immediate (but possibly conditional) continuation from the parent talk.<br>' +
+      await talkConfigToDialogueSectionResult(ctrl, mysect, 'Next Talk',
+        'An immediate (but possibly conditional) continuation from the parent talk.<br>' +
         'This can happen for conditional dialogues and branching.<br><br>' +
         'Example 1: multiple talks leading to the same next talk.<br>' +
         'Example 2: a branch that might lead to one of the next talks depending on some condition.', nextTalkConfig, dialogueDepth);
     }
   }
 
-  if (talkConfig.NextTalks) {
+  if (talkConfig.NextTalks && talkConfig.NextTalksDataList) {
     // Get a list of next talk ids that are *not* in NextTalksDataList
-    let skippedNextTalkIds = talkConfig.NextTalks.filter(myId => !talkConfig.NextTalksDataList.find(x => x.Id === myId));
+    const skippedNextTalkIds = talkConfig.NextTalks
+      .filter(myId => !talkConfig.NextTalksDataList.find(x => x.Id === myId));
+
     for (let nextTalkId of skippedNextTalkIds) {
       let placeholderSect = new DialogueSectionResult(null, 'Next Talk');
       placeholderSect.metadata.push(new MetaProp('Talk ID', nextTalkId, `/branch-dialogue?q=${nextTalkId}`));

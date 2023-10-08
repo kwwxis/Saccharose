@@ -43,9 +43,13 @@ import { loadGenshinTextSupportingData } from '../genshinText';
 import { dialogueGenerateByNpc, NpcDialogueResult } from '../dialogue/basic_dialogue_generator';
 import { DialogExcelConfigData } from '../../../../shared/types/genshin/dialogue-types';
 import * as console from 'console';
+import { sort } from '../../../../shared/util/arrayUtil';
 
 // noinspection JSUnusedGlobalSymbols
 export class GCGControl {
+
+  // region GCG Init
+  // --------------------------------------------------------------------------------------------------------------
   private didInit: boolean = false;
 
   // Preloaded Data
@@ -57,6 +61,10 @@ export class GCGControl {
   worldWorkTime: GcgWorldWorkTimeExcelConfigData[];
   charSkillDamageList: GCGCharSkillDamage[];
   charIcons: string[];
+  charIconsLcSet: Set<string> = new Set();
+  charIconsAvatar: string[];
+  charIconsMonster: string[];
+  charIconsEnemy: string[];
   tagList: GCGTagExcelConfigData[];
   skillTagList: GCGSkillTagExcelConfigData[];
   keywordList: GCGKeywordExcelConfigData[];
@@ -76,6 +84,11 @@ export class GCGControl {
     this.charIcons = await cached('GCG_charIcons', async () => {
       return findFiles('UI_Gcg_Char_', IMAGEDIR_GENSHIN);
     });
+
+    this.charIconsLcSet = new Set<string>(this.charIcons.map(s => s.toLowerCase().replace('.png', '')));
+    this.charIconsAvatar = this.charIcons.filter(s => s.includes('AvatarIcon')).map(s => s.replace('.png', ''));
+    this.charIconsMonster = this.charIcons.filter(s => s.includes('MonsterIcon')).map(s => s.replace('.png', ''));
+    this.charIconsEnemy = this.charIcons.filter(s => s.includes('EnemyIcon')).map(s => s.replace('.png', ''));
 
     this.charSkillDamageList = await cached('GCG_charSkillDamageList', async () => {
       return await this.ctrl.readDataFile('./GCGCharSkillDamage.json');
@@ -131,7 +144,10 @@ export class GCGControl {
       }
     }
   }
+  // endregion
 
+  // region GCG Util
+  // --------------------------------------------------------------------------------------------------------------
   async normGcgText(text: string, stripSprite: boolean = true, outputLangCode?: LangCode): Promise<string> {
     if (!text) {
       return text || '';
@@ -292,8 +308,9 @@ export class GCGControl {
     }
     return records;
   }
+  // endregion
 
-  // GCG TALK DETAIL
+  // region GCG Talk & Talk Detail
   // --------------------------------------------------------------------------------------------------------------
 
   private async postProcessTalkDetail(talkDetail: GCGTalkDetailExcelConfigData): Promise<GCGTalkDetailExcelConfigData> {
@@ -313,9 +330,6 @@ export class GCGControl {
     return await this.singleSelect('GCGTalkDetailExcelConfigData', 'TalkDetailId', id, this.postProcessTalkDetail);
   }
 
-  // GCG TALK
-  // --------------------------------------------------------------------------------------------------------------
-
   private async postProcessTalk(talk: GCGTalkExcelConfigData): Promise<GCGTalkExcelConfigData> {
     for (let key of Object.keys(talk)) {
       if (key.endsWith('TalkId')) {
@@ -333,8 +347,9 @@ export class GCGControl {
   async selectTalkByGameId(gameId: number): Promise<GCGTalkExcelConfigData> {
     return await this.singleSelect('GCGTalkExcelConfigData', 'GameId', gameId, this.postProcessTalk);
   }
+  // endregion
 
-  // GCG RULE TEXT
+  // region GCG Rules
   // --------------------------------------------------------------------------------------------------------------
 
   private async postProcessRuleText(ruleText: GCGRuleTextExcelConfigData): Promise<GCGRuleTextExcelConfigData> {
@@ -359,8 +374,9 @@ export class GCGControl {
   async selectRuleTextDetail(id: number): Promise<GCGRuleTextDetailExcelConfigData> {
     return await this.singleSelect('GCGRuleTextDetailExcelConfigData', 'Id', id);
   }
+  // endregion
 
-  // GCG GAME/LEVEL/STAGE
+  // region GCG Game/Level/Stage
   // --------------------------------------------------------------------------------------------------------------
   private async postProcessStage(stage: GCGGameExcelConfigData, disableLoad: GCGStageLoadOptions = {}): Promise<GCGGameExcelConfigData> {
     stage.QuestLevel = null;
@@ -556,7 +572,7 @@ export class GCGControl {
     }
     if (!disableLoad.disableTalkLoad) {
       stage.LevelTalk = await this.selectTalkByGameId(stage.Id);
-      stage.StageTalk = await this.generateStageTalk(stage);
+      await this.populateStageTalk(stage);
     }
     return stage;
   }
@@ -610,8 +626,9 @@ export class GCGControl {
     }
     return stageForJson;
   }
+  // endregion
 
-  // GCG REWARD
+  // region GCG Reward
   // --------------------------------------------------------------------------------------------------------------
 
   private async postProcessReward(reward: GCGGameRewardExcelConfigData, loadRewardExcel: boolean = true): Promise<GCGGameRewardExcelConfigData> {
@@ -639,8 +656,9 @@ export class GCGControl {
   async selectReward(levelId: number, loadRewardExcel: boolean = true): Promise<GCGGameRewardExcelConfigData> {
     return await this.singleSelect('GCGGameRewardExcelConfigData', 'LevelId', levelId, o => this.postProcessReward(o, loadRewardExcel));
   }
+  // endregion
 
-  // GCG COMMON CARD
+  // region GCG Common Card
   // --------------------------------------------------------------------------------------------------------------
   private async postProcessCommonCard(card: GCGCardExcelConfigData|GCGCharExcelConfigData): Promise<GCGCommonCard> {
     if (card.DeckCard) {
@@ -693,8 +711,9 @@ export class GCGControl {
 
     return card;
   }
+  // endregion
 
-  // GCG CARD
+  // region GCG Action Card
   // --------------------------------------------------------------------------------------------------------------
 
   private async postProcessCardView(cardView: GCGCardViewExcelConfigData): Promise<GCGCardViewExcelConfigData> {
@@ -746,12 +765,18 @@ export class GCGControl {
   private async selectCardWithoutPostProcess(id: number): Promise<GCGCardExcelConfigData> {
     return await this.singleSelect('GCGCardExcelConfigData', 'Id', id, false);
   }
+  // endregion
 
-  // GCG CHAR
+  // region GCG Character Card
   // --------------------------------------------------------------------------------------------------------------
-  async postProcessCharacterCard(char: GCGCharExcelConfigData): Promise<GCGCharExcelConfigData> {
+  private async postProcessCharacterCard(char: GCGCharExcelConfigData): Promise<GCGCharExcelConfigData> {
     char.CardFace = await this.singleSelect('GCGCardFaceExcelConfigData', 'CardId', char.Id, this.postProcessCardFace);
     char.CardView = await this.singleSelect('GCGCardViewExcelConfigData', 'Id', char.Id, this.postProcessCardView);
+    char.VoiceItems = [];
+
+    if (char.AvatarName) {
+      char.VoiceItems = this.ctrl.voice.getVoiceItemsByType('Card', char.AvatarName);
+    }
 
     let deckCard = await this.selectDeckCard(char.Id);
     if (deckCard) {
@@ -760,56 +785,49 @@ export class GCGControl {
 
     await this.postProcessCommonCard(char);
 
-    if (!isInt(char.WikiName)) {
-      const isAvatar = char.CardType === 'GCG_CARD_CHARACTER' || char.TagList.some(s => s.startsWith('GCG_TAG_NATION'));
-      const eligibleCharIcons = this.charIcons.filter(icon => isAvatar ? icon.startsWith('UI_Gcg_Char_Avatar') : !icon.startsWith('UI_Gcg_Char_Avatar'));
-      const charCmpLc = splitLimit(char.CardView.ImagePath, '_', 5)[4].toLowerCase();
+    char.CharIcon = this.manualOverrideCharIcon(char.Id);
 
-      const iconCandidates: string[] = [];
+    if (char.CardView && !char.CharIcon) {
+      char.CharIcon = char.CardView.Image
+        .replace(/CardFace_Char_Avatar_/, 'Char_AvatarIcon_')
+        .replace(/CardFace_Char_Monster_/, 'Char_MonsterIcon_')
+        .replace(/CardFace_Char_Enemy_/, 'Char_EnemyIcon_');
 
-      for (let icon of eligibleCharIcons) {
-        let iconLc = icon.toLowerCase();
-        if (iconLc.includes('_'+charCmpLc+'.')) {
-          iconCandidates.push(icon);
-        } else if (iconLc.endsWith('_bruteaxefire.png') && charCmpLc === 'bruteaxe') {
-          iconCandidates.push(icon);
-        } else if (iconLc.endsWith('_bruteaxeelec.png') && charCmpLc === 'bruteeleaxe') {
-          iconCandidates.push(icon);
-        } else if (iconLc.endsWith('ronin01.png') && charCmpLc === 'roninwater') {
-          iconCandidates.push(icon);
-        } else if (iconLc.endsWith('ronin02.png') && charCmpLc === 'roninfire') {
-          iconCandidates.push(icon);
-        } else if (iconLc.endsWith('ronin03.png') && charCmpLc === 'roninele') {
-          iconCandidates.push(icon);
-        } else if (iconLc.endsWith('hilirangeelec.png') && charCmpLc === 'hilielectric') {
-          iconCandidates.push(icon);
-        }
-      }
-
-      if (!iconCandidates.length) {
-        let lowestDist = 1000;
-        let lowestIcon;
-        for (let icon of eligibleCharIcons) {
-          let iconLc = splitLimit(icon.toLowerCase(), '_', 5)[4].split('.')[0]
-            .replace(/samurai/g, '')
-            .replace(/unuanudatta/g, 'undelta');
-          let dist = strdist(iconLc, charCmpLc);
-          if (dist <= lowestDist) {
-            lowestDist = dist;
-            lowestIcon = icon;
-          }
-        }
-        if (lowestIcon) {
-          iconCandidates.push(lowestIcon);
-        }
-      }
-
-      if (iconCandidates[0]) {
-        char.CharIcon = iconCandidates[0].replace('.png', '');
+      if (!this.charIconsLcSet.has(char.CharIcon.toLowerCase()) && char.AvatarName) {
+        char.CharIcon = char.CharIcon.replace(/Icon_.*$/, 'Icon_' + char.AvatarName
+          .replace(/Switch_GCG_/i, '')
+          .replace(/_/g, ''))
       }
     }
 
     return char;
+  }
+  
+  private manualOverrideCharIcon(charId: number): string {
+    switch (charId) {
+      case 1304:
+        return 'UI_Gcg_Char_AvatarIcon_Amber';
+      case 3104:
+        return 'UI_Gcg_Char_EnemyIcon_SkirmisherIce';
+      case 3203:
+        return 'UI_Gcg_Char_MonsterIcon_SkirmisherWater';
+      case 3302:
+        return 'UI_Gcg_Char_EnemyIcon_BruteAxeFire';
+      case 3401:
+        return 'UI_Gcg_Char_EnemyIcon_KairagiElec';
+      case 3402:
+        return 'UI_Gcg_Char_EnemyIcon_HiliRangeElec';
+      case 3403:
+        return 'UI_Gcg_Char_EnemyIcon_BruteAxeElec';
+      case 3406:
+        return 'UI_Gcg_Char_EnemyIcon_SlimeElec';
+      case 3502:
+        return 'UI_Gcg_Char_MonsterIcon_SkirmisherWind';
+      case 3701:
+        return 'UI_Gcg_Char_EnemyIcon_UnuAnudattaGrass';
+      default:
+        return undefined;
+    }
   }
 
   async selectAllCharacterCards(): Promise<GCGCharExcelConfigData[]> {
@@ -823,8 +841,9 @@ export class GCGControl {
   private async selectCharWithoutPostProcess(id: number): Promise<GCGCharExcelConfigData> {
     return await this.singleSelect('GCGCharExcelConfigData', 'Id', id, false);
   }
+  // endregion
 
-  // Skills
+  // region GCG Skills
   // --------------------------------------------------------------------------------------------------------------
   async selectSkill(skillId: number): Promise<GCGSkillExcelConfigData> {
     return await this.singleSelect('GCGSkillExcelConfigData', 'Id', skillId, this.postProcessSkill);
@@ -919,8 +938,9 @@ export class GCGControl {
 
     return skill;
   }
+  // endregion
 
-  // GCG DECK CARD GROUP
+  // region GCG Deck Card Group
   // --------------------------------------------------------------------------------------------------------------
 
   private async postProcessDeck(deck: GCGDeckExcelConfigData): Promise<GCGDeckExcelConfigData> {
@@ -969,8 +989,9 @@ export class GCGControl {
   async selectDeck(id: number): Promise<GCGDeckExcelConfigData> {
     return await this.singleSelect('GCGDeckExcelConfigData', 'Id', id, this.postProcessDeck);
   }
+  // endregion
 
-  // GCG DECK CARD
+  // region GCG Deck Card
   // --------------------------------------------------------------------------------------------------------------
 
   private async postProcessDeckCard(card: GCGDeckCardExcelConfigData): Promise<GCGDeckCardExcelConfigData> {
@@ -998,32 +1019,38 @@ export class GCGControl {
     return card;
   }
 
-  async selectAllDeckCard(): Promise<GCGDeckCardExcelConfigData[]> {
+  private async selectAllDeckCard(): Promise<GCGDeckCardExcelConfigData[]> {
     return await this.allSelect('GCGDeckCardExcelConfigData', this.postProcessDeckCard)
   }
 
-  async selectDeckCard(id: number): Promise<GCGDeckCardExcelConfigData> {
+  private async selectDeckCard(id: number): Promise<GCGDeckCardExcelConfigData> {
     return await this.singleSelect('GCGDeckCardExcelConfigData', 'Id', id, this.postProcessDeckCard);
   }
+  // endregion
 
-  // GCG TALKS + DIALOGUE
+  // region GCG Talks + Dialogue
   // --------------------------------------------------------------------------------------------------------------
 
-  private pushTalkDetailToStageTalk(result: DialogueSectionResult, mode: string, talk: GCGTalkExcelConfigData, talkDetail: GCGTalkDetailExcelConfigData) {
-    const sect = new DialogueSectionResult('GCGTalk_'+talk.GameId+'_'+talkDetail.TalkDetailIconId, mode).afterConstruct(sect => {
-      sect.addMetaProp('Stage ID', { value: talk.GameId, tooltip: result.title }, '/TCG/stages/'+String(talk.GameId).padStart(6, '0'));
-      sect.addMetaProp('Talk Mode', mode);
-      sect.addMetaProp('Icon ID', talkDetail.TalkDetailIconId);
-      if (talkDetail?.TalkDetailIcon?.Type === 'NPC') {
-        sect.addEmptyMetaProp('NPC');
-      }
-      if (talkDetail.Avatar) {
-        sect.addMetaProp('Avatar ID', talkDetail.Avatar.Id);
-        sect.addMetaProp('Avatar Name', talkDetail.Avatar.NameText);
-      }
-    });
+  private pushTalkDetailToStageTalk(stage: GCGGameExcelConfigData,
+                                    title: string,
+                                    talk: GCGTalkExcelConfigData,
+                                    talkDetail: GCGTalkDetailExcelConfigData) {
+    const sect = new DialogueSectionResult('GCGTalk_'+talk.GameId+'_'+talkDetail.TalkDetailIconId, title)
+      .afterConstruct(sect => {
+        sect.addMetaProp('Stage ID', { value: talk.GameId, tooltip: stage.StageTalk.title },
+          '/TCG/stages/'+String(talk.GameId).padStart(6, '0'));
+        sect.addMetaProp('Talk Mode', title);
+        sect.addMetaProp('Icon ID', talkDetail.TalkDetailIconId);
+        if (talkDetail?.TalkDetailIcon?.Type === 'NPC') {
+          sect.addEmptyMetaProp('NPC');
+        }
+        if (talkDetail.Avatar) {
+          sect.addMetaProp('Avatar ID', talkDetail.Avatar.Id);
+          sect.addMetaProp('Avatar Name', talkDetail.Avatar.NameText);
+        }
+      });
 
-    const talker: string = talkDetail.Avatar?.NameText || result.getMetaProp('Enemy Name')?.getValue(0)?.value;
+    const talker: string = talkDetail.Avatar?.NameText || stage.EnemyNameText;
     const texts: string[] = [];
 
     for (let i = 0; i < talkDetail.TalkContentText.length; i++) {
@@ -1034,28 +1061,23 @@ export class GCGControl {
 
     if (texts.length) {
       sect.wikitext = texts.join('\n');
-      result.children.push(sect);
+      stage.StageTalk.children.push(sect);
     }
 
     return sect;
   }
 
-  async generateStageTalk(stage: GCGGameExcelConfigData) {
+  private async populateStageTalk(stage: GCGGameExcelConfigData): Promise<void> {
     const gcgTalk: GCGTalkExcelConfigData = stage.LevelTalk;
 
-    const result = new DialogueSectionResult('GCGTalk_'+stage.Id, stage.WikiCombinedTitle).afterConstruct(sect => {
+    stage.StageTalk = new DialogueSectionResult('GCGStageTalk_'+stage.Id, stage.WikiCombinedTitle).afterConstruct(sect => {
       sect.addMetaProp('Stage ID', { value: stage.Id, tooltip: stage.WikiCombinedTitle },
         '/TCG/stages/' + String(stage.Id).padStart(6, '0'));
       sect.addMetaProp('Stage Type', stage.LevelType);
-      sect.addMetaProp('Stage Difficulty', stage.LevelDifficulty === 'NORMAL' ? 'Friendly Fracas' : 'Serious Showdown');
-      sect.addMetaProp('Stage Player Level', stage.MinPlayerLevel);
-      if (stage.EnemyNameText) {
-        sect.addMetaProp('Enemy Name', stage.EnemyNameText);
-      }
-      if (stage?.Reward?.LevelNameText) {
-        sect.addMetaProp('Level Name', stage.Reward.LevelNameText);
-      }
+      sect.copyAllSep = '\n\n';
     });
+
+    stage.IdleTalk = new DialogueSectionResult('GCGIdleTalk_'+stage.Id, stage.WikiCombinedTitle);
 
     const acc = new TalkConfigAccumulator(this.ctrl);
 
@@ -1064,7 +1086,7 @@ export class GCGControl {
         let talkSect = await talkConfigGenerate(this.ctrl, talk, acc);
         if (talkSect) {
           talkSect.title = 'Other Talk';
-          result.children.push(talkSect);
+          stage.StageTalk.children.push(talkSect);
         }
       }
     }
@@ -1072,22 +1094,64 @@ export class GCGControl {
       let talkSect = await talkConfigGenerate(this.ctrl, stage.WorldLevel.Talk, acc);
       if (talkSect) {
         talkSect.title = 'World Talk';
-        result.children.push(talkSect);
+        stage.StageTalk.children.push(talkSect);
       }
     }
+
+    if (gcgTalk) {
+      if (gcgTalk.LowHealthTalk) {
+        const sect = this.pushTalkDetailToStageTalk(stage, 'Low Health', gcgTalk, gcgTalk.LowHealthTalk);
+        sect.addMetaProp('Low Health Value', gcgTalk.LowHealthValue);
+
+        const lowHealthCard = await this.selectCharacterCard(gcgTalk.LowHealthConfigId);
+        if (lowHealthCard) {
+          sect.wikitext = `;(When ${stage.EnemyNameText}'s ${lowHealthCard.WikiName}'s Health drops to ${gcgTalk.LowHealthValue} or lower)\n`
+            + sect.wikitext;
+        }
+      }
+      if (gcgTalk.HighHealthTalk) {
+        const sect = this.pushTalkDetailToStageTalk(stage, 'High Health', gcgTalk, gcgTalk.HighHealthTalk);
+        sect.addMetaProp('High Health Value', gcgTalk.HighHealthValue);
+
+        const highHealthCard = await this.selectCharacterCard(gcgTalk.LowHealthConfigId);
+        if (highHealthCard) {
+          sect.wikitext = `;(When ${stage.EnemyNameText}'s ${highHealthCard.WikiName}'s Health drops to ${gcgTalk.HighHealthValue} or lower)\n`
+            + sect.wikitext;
+        }
+      }
+      if (gcgTalk.SadTalk) {
+        const sect = this.pushTalkDetailToStageTalk(stage, 'Sad Talk', gcgTalk, gcgTalk.SadTalk);
+        sect.wikitext = `;(When the player defeats one of ${stage.EnemyNameText}'s Character Cards)\n` + sect.wikitext;
+      }
+      if (gcgTalk.ToughTalk) {
+        const sect = this.pushTalkDetailToStageTalk(stage, 'Tough Talk', gcgTalk, gcgTalk.ToughTalk);
+        sect.wikitext = `;(When the player defeats two of ${stage.EnemyNameText}'s Character Cards)\n` + sect.wikitext;
+      }
+      if (gcgTalk.HappyTalk) {
+        const sect = this.pushTalkDetailToStageTalk(stage, 'Happy Talk', gcgTalk, gcgTalk.HappyTalk);
+        sect.wikitext = `;(When ${stage.EnemyNameText} defeats one of the player's Character Cards)\n` + sect.wikitext;
+      }
+      if (gcgTalk.ElementBurstTalk) {
+        const sect = this.pushTalkDetailToStageTalk(stage, 'Elemental Burst', gcgTalk, gcgTalk.ElementBurstTalk);
+        sect.wikitext = `;(When ${stage.EnemyNameText} uses an Elemental Burst)\n` + sect.wikitext;
+      }
+    }
+
     if (stage.LevelDifficulty === 'NORMAL') {
       if (stage.CharacterLevel && stage.CharacterLevel.WinNormalLevelTalk) {
         let talkSect = await talkConfigGenerate(this.ctrl, stage.CharacterLevel.WinNormalLevelTalk, acc);
         if (talkSect) {
           talkSect.title = 'Win Talk';
-          result.children.push(talkSect);
+          talkSect.wikitext = `;(If the player wins the match)\n` + talkSect.wikitext;
+          stage.StageTalk.children.push(talkSect);
         }
       }
       if (stage.CharacterLevel && stage.CharacterLevel.LoseNormalLevelTalk) {
         let talkSect = await talkConfigGenerate(this.ctrl, stage.CharacterLevel.LoseNormalLevelTalk, acc);
         if (talkSect) {
           talkSect.title = 'Lose Talk';
-          result.children.push(talkSect);
+          talkSect.wikitext = `;(If the player loses the match)\n` + talkSect.wikitext;
+          stage.StageTalk.children.push(talkSect);
         }
       }
     }
@@ -1096,38 +1160,17 @@ export class GCGControl {
         let talkSect = await talkConfigGenerate(this.ctrl, stage.CharacterLevel.WinHardLevelTalk, acc);
         if (talkSect) {
           talkSect.title = 'Win Talk';
-          result.children.push(talkSect);
+          talkSect.wikitext = `;(If the player wins the match)\n` + talkSect.wikitext;
+          stage.StageTalk.children.push(talkSect);
         }
       }
       if (stage.CharacterLevel && stage.CharacterLevel.LoseHardLevelTalk) {
         let talkSect = await talkConfigGenerate(this.ctrl, stage.CharacterLevel.LoseHardLevelTalk, acc);
         if (talkSect) {
           talkSect.title = 'Lose Talk';
-          result.children.push(talkSect);
+          talkSect.wikitext = `;(If the player loses the match)\n` + talkSect.wikitext;
+          stage.StageTalk.children.push(talkSect);
         }
-      }
-    }
-
-    if (gcgTalk) {
-      if (gcgTalk.HappyTalk) {
-        this.pushTalkDetailToStageTalk(result, 'Happy Talk', gcgTalk, gcgTalk.HappyTalk);
-      }
-      if (gcgTalk.SadTalk) {
-        this.pushTalkDetailToStageTalk(result, 'Sad Talk', gcgTalk, gcgTalk.SadTalk);
-      }
-      if (gcgTalk.ToughTalk) {
-        this.pushTalkDetailToStageTalk(result, 'Tough Talk', gcgTalk, gcgTalk.ToughTalk);
-      }
-      if (gcgTalk.ElementBurstTalk) {
-        this.pushTalkDetailToStageTalk(result, 'Elemental Burst', gcgTalk, gcgTalk.ElementBurstTalk);
-      }
-      if (gcgTalk.HighHealthTalk) {
-        this.pushTalkDetailToStageTalk(result, 'High Health', gcgTalk, gcgTalk.HighHealthTalk)
-          .addMetaProp('High Health Value', gcgTalk.HighHealthValue);
-      }
-      if (gcgTalk.LowHealthTalk) {
-        this.pushTalkDetailToStageTalk(result, 'Low Health', gcgTalk, gcgTalk.LowHealthTalk)
-          .addMetaProp('Low Health Value', gcgTalk.LowHealthValue);
       }
     }
 
@@ -1137,35 +1180,78 @@ export class GCGControl {
         const sections = npcDialogue.nonQuestDialogue;
 
         for (let section of sections) {
-          let mode = '';
-          let voItem: VoiceItem = null;
-          let firstDialog: DialogExcelConfigData = null;
-          let info: any = null;
-
           if (section.originalData.talkConfig) {
             const talk = section.originalData.talkConfig;
-            mode = 'TALK';
-            firstDialog = section.originalData.talkConfig.Dialog[0];
-            voItem = this.ctrl.voice.getVoiceItems('Dialog', firstDialog.Id,)?.[0];
-            info = talk.BeginCond;
+            const firstDialog = section.originalData.talkConfig.Dialog[0];
+
+            if (talk.BeginCond) {
+              const npcType: number = toInt(talk.BeginCond.find(c => c.Type === 'QUEST_COND_GCG_NPC_TYPE')?.Param?.[1]);
+              const inviteType: number = toInt(talk.BeginCond.find(c => c.Type === 'QUEST_COND_GCG_INVITE_TYPE')?.Param?.[0]);
+
+              // npcType = 1 -> CHARACTER
+              // npcType = 2 -> WEEK
+              // inviteType = 0 -> EASY
+              // inviteType = 1 -> HARD
+
+              let talkSect: DialogueSectionResult;
+
+              if (npcType === 1 && stage.LevelType === 'CHARACTER') {
+                let talkAcc = new TalkConfigAccumulator(this.ctrl).setMaxDepth(1);
+                talkSect = await talkConfigGenerate(this.ctrl, talk.Id, talkAcc);
+
+                if (inviteType === 0 && stage.LevelDifficulty === 'HARD') {
+                  talkSect = null;
+                }
+                if (inviteType === 1 && stage.LevelDifficulty === 'NORMAL') {
+                  talkSect = null;
+                }
+              }
+
+              if (npcType === 2 && stage.LevelType === 'WEEK') {
+                let talkAcc = new TalkConfigAccumulator(this.ctrl).setMaxDepth(1);
+                talkSect = await talkConfigGenerate(this.ctrl, talk.Id, talkAcc);
+              }
+
+              if (talkSect) {
+                talkSect.title = 'Intro';
+                talkSect.wikitext = `;(Talk to ${stage.EnemyNameText})\n` + talkSect.wikitext;
+                stage.StageTalk.children.unshift(talkSect);
+              }
+            }
+
+            if (talk.BeginCond && stage.LevelType === 'WEEK') {
+              let challengeResult: number = toInt(talk.BeginCond.find(c => c.Type === 'QUEST_COND_GCG_WORLD_CHALLENGE_RESULT')?.Param?.[0]);
+              let talkSect: DialogueSectionResult;
+
+              if (challengeResult === 1) {
+                talkSect = await talkConfigGenerate(this.ctrl, talk.Id);
+                talkSect.title = 'Win Talk';
+                talkSect.wikitext = `;(If the player wins the match)\n` + talkSect.wikitext;
+              }
+
+              if (challengeResult === -1) {
+                talkSect = await talkConfigGenerate(this.ctrl, talk.Id);
+                talkSect.title = 'Lose Talk';
+                talkSect.wikitext = `;(If the player loses the match)\n` + talkSect.wikitext;
+              }
+
+              if (talkSect) {
+                stage.StageTalk.children.push(talkSect);
+              }
+            }
           } else if (section.originalData.dialogBranch) {
-            mode = 'DIALOG';
-            firstDialog = section.originalData.dialogBranch[0];
-            voItem = this.ctrl.voice.getVoiceItems('Dialog', firstDialog.Id)?.[0];
-          } else {
-            continue;
+            let dialog = section.originalData.dialogBranch[0];
+            let idleSect = new DialogueSectionResult('Dialog_'+dialog.Id, 'Idle Quote');
+            idleSect.addMetaProp('Dialogue ID', dialog.Id);
+            idleSect.wikitext = ':{{DIcon|Idle}} ' + dialog.TalkContentText;
+
+            stage.IdleTalk.children.unshift(idleSect);
           }
-
-          const voCat1 = voItem?.fileName.split(' ')[3];
-          const voCat2 = voItem?.fileName.split(' ')[4];
-
-          console.log(mode, '|', voCat1, voCat2, '|', firstDialog.TalkContentText, '|', info);
         }
       }
     }
-
-    return result;
   }
+  // endregion
 }
 
 export interface GCGStageLoadOptions {
@@ -1188,6 +1274,8 @@ export function getGCGControl(ctrl: GenshinControl) {
   return new GCGControl(ctrl);
 }
 
+// region CLI
+// --------------------------------------------------------------------------------------------------------------
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
     await loadGenshinTextSupportingData();
@@ -1249,3 +1337,4 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     await closeKnex();
   })();
 }
+// endregion

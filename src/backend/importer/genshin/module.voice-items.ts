@@ -84,6 +84,9 @@ export async function importVoiceItems() {
         if (voiceItem.GameTrigger) {
           voiceSourceNorm.type = voiceItem.GameTrigger;
         }
+        if (voiceSource.AvatarName) {
+          voiceSourceNorm.avatar = voiceSource.AvatarName;
+        }
         if (gender === 1) {
           voiceSourceNorm.gender = 'F';
           voiceSourceNorm.isGendered = true;

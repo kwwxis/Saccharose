@@ -33,14 +33,16 @@
           <% } %>
         </div>
       <% } %>
-      <% if (locals.wikitext) { %>
+      <% if (locals.wikitext || (children && children.length)) { %>
         <div class="grow"></div>
-        <button class="secondary small" ui-action="copy: #wikitext-<%= id %>"
-                ui-tippy-hover="Click to copy to clipboard"
-                ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
-                style="margin:0 0 5px">Copy</button>
+        <% if (locals.wikitext) { %>
+            <button class="secondary small" ui-action="copy: #wikitext-<%= id %>"
+                  ui-tippy-hover="Click to copy to clipboard"
+                  ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
+                  style="margin:0 0 5px">Copy</button>
+        <% } %>
         <% if (children && children.length) { %>
-          <button class="secondary small" ui-action="copy-all: #wikitext-<%= id %>, .wikitext-array-<%= id %>, .wikitext-childOf-<%= id %>; copy-sep: \n"
+          <button class="secondary small" ui-action="copy-all: #wikitext-<%= id %>, .wikitext-array-<%= id %>, .wikitext-childOf-<%= id %>; copy-sep: <%= copyAllSep.replace(/\n/g, '\\n') %>"
                   ui-tippy-hover="Click to copy to clipboard (including child sections)"
                   ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
                   style="margin:0 0 5px 5px; white-space: nowrap;">Copy All</button>

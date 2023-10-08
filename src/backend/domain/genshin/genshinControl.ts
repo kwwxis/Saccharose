@@ -2248,14 +2248,22 @@ export type GenshinVoiceItemType = 'Dialog'|'Reminder'|'Fetter'|'AnimatorEvent'|
 
 export class GenshinVoice {
 
-  getVoiceItemsByType(type: GenshinVoiceItemType): VoiceItem[] {
-    let items: VoiceItem[] = [];
-    for (let [key, item] of Object.entries(GENSHIN_VOICE_ITEMS)) {
+  getVoiceItemsByType(type: GenshinVoiceItemType, avatar?: string): VoiceItem[] {
+    let resultItems: VoiceItem[] = [];
+    for (let [key, items] of Object.entries(GENSHIN_VOICE_ITEMS)) {
       if (key.startsWith(type)) {
-        items.push(... item)
+        if (avatar) {
+          for (let item of items) {
+            if (item.avatar === avatar) {
+              resultItems.push(item);
+            }
+          }
+        } else {
+          resultItems.push(... items);
+        }
       }
     }
-    return items;
+    return resultItems;
   }
 
   getVoiceItemByFile(voFile: string): VoiceItem {

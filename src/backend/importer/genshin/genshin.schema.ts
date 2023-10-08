@@ -946,6 +946,10 @@ export const genshinSchema = {
       { name: 'NameTextMapHash', type: 'integer', isIndex: true },
       { name: 'DescTextMapHash', type: 'integer', isIndex: true },
     ],
+    renameFields: {
+      BHGNBKPJDII: 'AvatarName',
+      IAPINBOEJCO: 'AvatarName'
+    }
   },
   GCGCharacterLevelExcelConfigData: <SchemaTable>{
     name: 'GCGCharacterLevelExcelConfigData',

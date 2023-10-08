@@ -61,6 +61,7 @@ export default async function(): Promise<Router> {
       stage,
       stageForJsonUnmapped: gcg.getStageForJson(stage, true),
       wikitext: await generateStageTemplate(gcg, stage),
+      dialogueWikitext: stage.StageTalk.toString(true),
       bodyClass: ['page--tcg-stage'],
       tab: queryTab(req, 'display', 'wikitext', 'json'),
     });
@@ -131,6 +132,7 @@ export default async function(): Promise<Router> {
         index,
       })),
       tab: queryTab(req, 'display', 'wikitext', 'json'),
+      voiceItemsWikitext: card.VoiceItems && card.VoiceItems.length ? card.VoiceItems.map(vo => `{{A|${vo.fileName}}}`).join('\n') : '',
       GCG_TAGS_WITHOUT_ICONS
     });
   });

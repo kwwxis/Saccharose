@@ -226,9 +226,9 @@ export async function generateStageTemplate(control: GCGControl, stage: GCGGameE
   sb.prop('group', stage.WikiGroup);
   sb.prop('character', stage.WikiCharacter);
   sb.prop('requirement', stage.MinPlayerLevel);
-  sb.prop('introduction', control.ctrl.normText(stage.Reward.IntroText, control.ctrl.outputLangCode));
+  sb.prop('introduction', control.ctrl.normText(stage.Reward?.IntroText || '', control.ctrl.outputLangCode));
 
-  if (stage.Reward.ObjectiveTextList && stage.Reward.ObjectiveTextList.length) {
+  if (stage.Reward && stage.Reward.ObjectiveTextList && stage.Reward.ObjectiveTextList.length) {
     for (let index = 0; index < stage.Reward.ObjectiveTextList.length; index++) {
       const objectiveText = stage.Reward.ObjectiveTextList[index];
       const reward = stage.Reward.ChallengeRewardList[index];

@@ -6,6 +6,7 @@ import { MainQuestExcelConfigData, QuestExcelConfigData } from './quest-types';
 import { MaterialExcelConfigData, RewardExcelConfigData } from './material-types';
 import { Subset } from '../utility-types';
 import { DialogueSectionResult } from '../../../backend/domain/genshin/dialogue/dialogue_util';
+import { VoiceItem } from '../lang-types';
 
 // GCG TALK
 // --------------------------------------------------------------------------------------------------------------
@@ -341,15 +342,15 @@ export interface GCGGameExcelConfigData {
   // Dialogue:
   LevelTalk?: GCGTalkExcelConfigData,
   StageTalk?: DialogueSectionResult,
-  TalkSummary: GCGTalkSummary,
+  IdleTalk?: DialogueSectionResult,
 
   // Reward object:
   Reward: GCGGameRewardExcelConfigData,
 }
 
 export interface GCGTalkSummary {
-  IdleQuotes: string,
-  IntroText: string,
+  IdleQuotes?: string,
+  IntroText?: string,
 }
 
 export interface GCGBossLevelExcelConfigData {
@@ -658,6 +659,7 @@ export interface GCGCommonCard {
   WikiElement?: string,
   WikiWeapon?: string,
   WikiFaction?: string,
+  VoiceItems?: VoiceItem[],
 }
 
 export interface GCGCardExcelConfigData extends GCGCommonCard {
@@ -800,10 +802,10 @@ export interface GCGCharExcelConfigData extends GCGCommonCard {
   CardType: 'GCG_CARD_CHARACTER',
   IsRemoveAfterDie: boolean,
   CharIcon?: string;
+  AvatarName: string,
 
   BPHBKAGLFCE: number, // JsonPathHash
   HLKMHIIIFHA: string,
-  IAPINBOEJCO: string,
 }
 
 export function isCharacterCard(commonCard: GCGCommonCard): commonCard is GCGCharExcelConfigData {

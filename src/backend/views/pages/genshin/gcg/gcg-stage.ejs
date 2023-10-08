@@ -291,15 +291,46 @@
           </table>
         <% } %>
       </div>
-      <h3 class="secondary-header spacer10-top">Stage Dialogue</h3>
+
+      <h3 class="secondary-header spacer10-top">Idle Quotes</h3>
       <div class="content">
-        <% if (stage.StageTalk) { %>
-          <%- use('partials/genshin/dialogue/dialogue-section', stage.StageTalk) %>
+        <p class="spacer10-bottom">Idle quotes are the same for every stage of the same character (not unique to only this stage).</p>
+        <% if (stage.IdleTalk && stage.IdleTalk.children) { %>
+          <% for (let sect of stage.IdleTalk.children) { %>
+            <%- use('partials/genshin/dialogue/dialogue-section', sect) %>
+          <% } %>
+        <% } %>
+      </div>
+
+      <h3 class="secondary-header valign spacer10-top">
+        <span>Stage Dialogue</span>
+        <span class="grow"></span>
+        <button class="secondary small" ui-action="copy: #wikitext-stage-dialogue"
+                ui-tippy-hover="Click to copy to clipboard"
+                ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">Copy All</button>
+      </h3>
+      <div class="content">
+        <% if (stage.StageTalk && stage.StageTalk.children) { %>
+          <% for (let sect of stage.StageTalk.children) { %>
+            <%- use('partials/genshin/dialogue/dialogue-section', sect) %>
+          <% } %>
         <% } %>
       </div>
     </div>
-    <div role="tabpanel" aria-labelledby="tab-wikitext" class="tabpanel <%= tab === 'wikitext' ? 'active' : 'hide' %> content" id="tabpanel-wikitext">
-      <%- use('partials/util/wikitext', { wikitext: wikitext }) %>
+    <div role="tabpanel" aria-labelledby="tab-wikitext" class="tabpanel <%= tab === 'wikitext' ? 'active' : 'hide' %>" id="tabpanel-wikitext">
+      <h3 class="secondary-header valign">
+        <span>Stage Template</span>
+      </h3>
+      <div class="content">
+        <%- use('partials/util/wikitext', { id: 'wikitext-stage-template', wikitext: wikitext }) %>
+      </div>
+
+      <h3 class="secondary-header valign spacer10-top">
+        <span>Stage Dialogue</span>
+      </h3>
+      <div class="content">
+        <%- use('partials/util/wikitext', { id: 'wikitext-stage-dialogue', wikitext: dialogueWikitext }) %>
+      </div>
     </div>
     <div role="tabpanel" aria-labelledby="tab-json" class="tabpanel <%= tab === 'json' ? 'active' : 'hide' %> content" id="tabpanel-json">
       <%- use('partials/util/json', { content: stageForJsonUnmapped }) %>

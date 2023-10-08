@@ -15,6 +15,7 @@ import { maximizeImages } from './module.maximize-images';
 import { importSearchIndex } from './module.search-index';
 import { generateQuestDialogExcels } from './module.make-excels';
 import { loadInterActionQD } from './module.interaction';
+import { createChangelog } from './module.changelog';
 
 export async function importGenshinFilesCli() {
   const optionDefinitions: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
@@ -27,7 +28,8 @@ export async function importGenshinFilesCli() {
     {name: 'make-excels', type: Boolean, description: 'Creates some of the excels that are no longer updated by the game client'},
     {name: 'interaction', type: Boolean, description: 'Load QuestDialogue InterActions from BinOutput'},
     {name: 'translate-schema', type: Boolean, description: 'Creates the SchemaTranslation file.'},
-    {name: 'translate-excel', type: String, description: 'Translate excel to output directory. Requires translate-schema to be completed first.'},
+    {name: 'translate-excel', type: String, typeLabel: '<outputDir>', description: 'Translate excel to output directory. Requires translate-schema to be completed first.'},
+    {name: 'changelog', type: String, typeLabel: '<version>', description: 'Create changelog'},
     {name: 'maximize-images', type: Boolean, description: 'Compares images with duplicate names to choose the image with the largest size.'},
     {name: 'help', type: Boolean, description: 'Display this usage guide.'},
   ];
@@ -102,6 +104,9 @@ export async function importGenshinFilesCli() {
   }
   if (options['interaction']) {
     await loadInterActionQD(getGenshinDataFilePath());
+  }
+  if (options['changelog']) {
+    await createChangelog(options['changelog']);
   }
 
   await closeKnex();

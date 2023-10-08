@@ -10,8 +10,8 @@ import {
 import { SpriteTagExcelConfigData } from '../../../shared/types/genshin/general-types';
 import { getGenshinControl } from './genshinControl';
 import { toMap } from '../../../shared/util/arrayUtil';
-import { html2quotes, unnestHtmlTags } from '../../../shared/mediawiki/mwQuotes';
 import { logInitData } from '../../util/logger';
+import fs, { promises as fsp } from 'fs';
 
 function __convertGenshinRubi(langCode: LangCode, text: string): string {
   const rubiMap: { [index: number]: string } = {};
@@ -169,6 +169,7 @@ export function __normGenshinText(text: string, langCode: LangCode, opts: NormTe
 }
 
 export const GENSHIN_SPRITE_TAGS: { [spriteId: number]: SpriteTagExcelConfigData } = {};
+export const INTER_ACTION_D2F: {[dialogId: string]: string} = {};
 
 let serverBrandTipsOverseas: LangCodeMap = null;
 let serverEmailAskOverseas: LangCodeMap = null;
@@ -182,6 +183,12 @@ export async function loadGenshinTextSupportingData(): Promise<void> {
   serverEmailAskOverseas = await ctrl.createLangCodeMap(2535673454);
 
   toMap(await ctrl.readExcelDataFile<SpriteTagExcelConfigData[]>('SpriteTagExcelConfigData.json'), 'Id', GENSHIN_SPRITE_TAGS);
+
+  const interActionD2FName = ctrl.getDataFilePath('InterActionD2F.json');
+  if (fs.existsSync(interActionD2FName)) {
+    let json = await fsp.readFile(interActionD2FName, {encoding: 'utf8'}).then(data => JSON.parse(data));
+    Object.assign(INTER_ACTION_D2F, json);
+  }
 
   logInitData('Loading Genshin-supporting text data -- done!');
 }

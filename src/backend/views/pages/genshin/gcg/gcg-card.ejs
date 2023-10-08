@@ -95,6 +95,12 @@
           <td class="bold">Description/Effect</td>
           <td><%- use('partials/util/wikitext', { wikitext: card.WikiDesc, seamless: true }) %></td>
         </tr>
+        <% if (voiceItemsWikitext) { %>
+          <tr>
+            <td class="bold">Voice Items</td>
+            <td><%- use('partials/util/wikitext', { wikitext: voiceItemsWikitext, seamless: true }) %></td>
+          </tr>
+        <% } %>
       </table>
       <table class="article-table">
         <tr>
