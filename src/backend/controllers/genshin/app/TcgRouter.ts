@@ -61,7 +61,8 @@ export default async function(): Promise<Router> {
       stage,
       stageForJsonUnmapped: gcg.getStageForJson(stage, true),
       wikitext: await generateStageTemplate(gcg, stage),
-      dialogueWikitext: stage.StageTalk.toString(true),
+      dialogueWikitext: stage.StageTalk ? stage.StageTalk.toString(true) : null,
+      idleWikitext: stage.IdleTalk ? stage.IdleTalk.toString(true) : null,
       bodyClass: ['page--tcg-stage'],
       tab: queryTab(req, 'display', 'wikitext', 'json'),
     });

@@ -292,30 +292,30 @@
         <% } %>
       </div>
 
-      <h3 class="secondary-header spacer10-top">Idle Quotes</h3>
-      <div class="content">
-        <p class="spacer10-bottom">Idle quotes are the same for every stage of the same character (not unique to only this stage).</p>
-        <% if (stage.IdleTalk && stage.IdleTalk.children) { %>
-          <% for (let sect of stage.IdleTalk.children) { %>
-            <%- use('partials/genshin/dialogue/dialogue-section', sect) %>
-          <% } %>
-        <% } %>
-      </div>
+      <% if (stage.IdleTalk && stage.IdleTalk.children && stage.IdleTalk.children.length) { %>
+        <h3 class="secondary-header spacer10-top">Idle Quotes</h3>
+        <div class="content">
+          <p class="spacer10-bottom">Idle quotes are the same for every stage of the same character (not unique to only this stage).</p>
+            <% for (let sect of stage.IdleTalk.children) { %>
+              <%- use('partials/genshin/dialogue/dialogue-section', sect) %>
+            <% } %>
+        </div>
+      <% } %>
 
-      <h3 class="secondary-header valign spacer10-top">
-        <span>Stage Dialogue</span>
-        <span class="grow"></span>
-        <button class="secondary small" ui-action="copy: #wikitext-stage-dialogue"
-                ui-tippy-hover="Click to copy to clipboard"
-                ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">Copy All</button>
-      </h3>
-      <div class="content">
-        <% if (stage.StageTalk && stage.StageTalk.children) { %>
+      <% if (stage.StageTalk && stage.StageTalk.children && stage.StageTalk.children.length) { %>
+        <h3 class="secondary-header valign spacer10-top">
+          <span>Stage Dialogue</span>
+          <span class="grow"></span>
+          <button class="secondary small" ui-action="copy: #wikitext-stage-dialogue"
+                  ui-tippy-hover="Click to copy to clipboard"
+                  ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">Copy All</button>
+        </h3>
+        <div class="content">
           <% for (let sect of stage.StageTalk.children) { %>
             <%- use('partials/genshin/dialogue/dialogue-section', sect) %>
           <% } %>
-        <% } %>
-      </div>
+        </div>
+      <% } %>
     </div>
     <div role="tabpanel" aria-labelledby="tab-wikitext" class="tabpanel <%= tab === 'wikitext' ? 'active' : 'hide' %>" id="tabpanel-wikitext">
       <h3 class="secondary-header valign">
@@ -325,12 +325,23 @@
         <%- use('partials/util/wikitext', { id: 'wikitext-stage-template', wikitext: wikitext }) %>
       </div>
 
-      <h3 class="secondary-header valign spacer10-top">
-        <span>Stage Dialogue</span>
-      </h3>
-      <div class="content">
-        <%- use('partials/util/wikitext', { id: 'wikitext-stage-dialogue', wikitext: dialogueWikitext }) %>
-      </div>
+      <% if (stage.IdleTalk && stage.IdleTalk.children && stage.IdleTalk.children.length) { %>
+        <h3 class="secondary-header valign spacer10-top">
+          <span>Idle Quotes</span>
+        </h3>
+        <div class="content">
+          <%- use('partials/util/wikitext', { id: 'wikitext-stage-idles', wikitext: idleWikitext }) %>
+        </div>
+      <% } %>
+
+      <% if (stage.StageTalk && stage.StageTalk.children && stage.StageTalk.children.length) { %>
+        <h3 class="secondary-header valign spacer10-top">
+          <span>Stage Dialogue</span>
+        </h3>
+        <div class="content">
+          <%- use('partials/util/wikitext', { id: 'wikitext-stage-dialogue', wikitext: dialogueWikitext }) %>
+        </div>
+      <% } %>
     </div>
     <div role="tabpanel" aria-labelledby="tab-json" class="tabpanel <%= tab === 'json' ? 'active' : 'hide' %> content" id="tabpanel-json">
       <%- use('partials/util/json', { content: stageForJsonUnmapped }) %>
