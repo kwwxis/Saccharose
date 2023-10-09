@@ -13,6 +13,7 @@ import {
   LoadingTipsExcelConfigData,
 } from '../../../../shared/types/genshin/loading-types';
 import { LangCodeMap } from '../../../../shared/types/lang-types';
+import { isInt, toInt } from '../../../../shared/util/numberUtil';
 
 // region Category Check
 // --------------------------------------------------------------------------------------------------------------
@@ -87,7 +88,7 @@ async function getCategoryForTip(ctrl: GenshinControl,
 
 // region Wikitext
 // --------------------------------------------------------------------------------------------------------------
-export function generateLoadingTipsWikiText(ctrl: GenshinControl, cat: LoadingCat, depth: number = 0): string {
+export function generateLoadingTipsWikiText(ctrl: GenshinControl, cat: LoadingCat, depth: number = 0, enableNewFormat: boolean = false): string {
   if (!cat) {
     return '';
   }
@@ -109,15 +110,47 @@ export function generateLoadingTipsWikiText(ctrl: GenshinControl, cat: LoadingCa
       if (firstTip) {
         firstTip = false;
       } else {
+        if (enableNewFormat) {
+          sbOut.line(`|}`);
+        }
         sbOut.emptyLine();
       }
       sbOut.line(`${indent2}${ctrl.normText(tip.TipsTitleText, ctrl.outputLangCode)}${indent2}`);
+      if (enableNewFormat) {
+        sbOut.line(`{| class="article-table" style="width:100%"`);
+        sbOut.line(`! style="width:80%" | Tip`);
+        sbOut.line(`! style="width:20%" | Quest Condition`);
+      }
     }
-    sbOut.line('* ' + ctrl.normText(tip.TipsDescText, ctrl.outputLangCode));
+
+    if (enableNewFormat) {
+      sbOut.line(`|-`);
+      sbOut.line(`| ${ctrl.normText(tip.TipsDescText, ctrl.outputLangCode)}`);
+
+      if (tip.EnableMainQuestId || tip.DisableMainQuestId) {
+        sbOut.append(' || ');
+        if (tip.EnableMainQuestId) {
+          sbOut.append(`Enabled by<br />[[${tip.EnableMainQuestName}]]`);
+        }
+        if (tip.DisableMainQuestId) {
+          if (tip.EnableMainQuestId) {
+            sbOut.append('<br />');
+          }
+          sbOut.append(`Disabled by<br />[[${tip.DisableMainQuestName}]]`);
+        }
+      } else {
+        sbOut.append(' ||');
+      }
+    } else {
+      sbOut.line('* ' + ctrl.normText(tip.TipsDescText, ctrl.outputLangCode));
+    }
+  }
+  if (cat.tips.length && enableNewFormat) {
+    sbOut.line(`|}`);
   }
 
   for (let innerCat of cat.subCats) {
-    sbOut.line(generateLoadingTipsWikiText(ctrl, innerCat, depth + 1));
+    sbOut.line(generateLoadingTipsWikiText(ctrl, innerCat, depth + 1, enableNewFormat));
   }
   return sbOut.toString(depth > 0).replace(/\n\n\n+/g, '\n\n').replace(/=\n\n+=/g, '=\n=');
 }
@@ -201,6 +234,41 @@ function sortResultObject(result: LoadingCat) {
   }
 }
 
+export async function postProcessLoadingTip(ctrl: GenshinControl, tip: LoadingTipsExcelConfigData): Promise<LoadingTipsExcelConfigData> {
+  if (!tip) {
+    return tip;
+  }
+
+  let enableMainId: number;
+  let disableMainId: number;
+
+  if (isInt(tip.PreMainQuestIds)) {
+    enableMainId = toInt(tip.PreMainQuestIds);
+  } else if (tip.PreQuestIdList && tip.PreQuestIdList.length) {
+    enableMainId = await ctrl.selectMainQuestIdByQuestExcelId(tip.PreQuestIdList[0]);
+  }
+
+  if (enableMainId) {
+    tip.EnableMainQuestName = await ctrl.selectMainQuestName(enableMainId);
+    if (tip.EnableMainQuestName) {
+      tip.EnableMainQuestId = enableMainId;
+    }
+  }
+
+  if (tip.DisableQuestIdList) {
+    disableMainId = await ctrl.selectMainQuestIdByQuestExcelId(tip.DisableQuestIdList[0]);
+  }
+
+  if (disableMainId) {
+    tip.DisableMainQuestName = await ctrl.selectMainQuestName(disableMainId);
+    if (tip.DisableMainQuestName) {
+      tip.DisableMainQuestId = disableMainId;
+    }
+  }
+
+  return tip;
+}
+
 export async function selectLoadingTips(ctrl: GenshinControl): Promise<LoadingCat> {
   const areas: WorldAreaConfigData[] = await ctrl.selectWorldAreas();
   const situations: LoadingSituationExcelConfigData[] = await ctrl.readDataFile('./ExcelBinOutput/LoadingSituationExcelConfigData.json');
@@ -209,6 +277,8 @@ export async function selectLoadingTips(ctrl: GenshinControl): Promise<LoadingCa
 
   const tips: LoadingTipsExcelConfigData[] = await ctrl.readDataFile('./ExcelBinOutput/LoadingTipsExcelConfigData.json');
   const ret: LoadingCat = await createResultObject(ctrl);
+
+  await tips.asyncMap(tip => postProcessLoadingTip(ctrl, tip));
 
   for (let tip of tips) {
     const situations: LoadingSituationExcelConfigData[] = tip.StageId ? tip.StageId.split(',')
@@ -232,9 +302,6 @@ export async function selectLoadingTips(ctrl: GenshinControl): Promise<LoadingCa
         otherCat.subCats.push(otherSubCat);
       }
       otherSubCat.tips.push(tip);
-      if (tip.Id === 1625) {
-        console.log(otherSubCat);
-      }
     }
   }
   sortResultObject(ret);

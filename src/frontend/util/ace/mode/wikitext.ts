@@ -435,12 +435,30 @@ import { quotifyWikitextTokens } from './quotify';
           regex: /(?<=^\s*)\|-/,
           token: 'wikitext.table.table-row-boundary.table-color',
         },
+
         {
           regex: /(?<=^\s*)\|/,
           token: 'wikitext.table.table-data-cell.table-color'
         },
         {
+          regex: /(?<=^\s*\|[^\-].*)\|\|/,
+          token: 'wikitext.table.table-data-cell.table-color'
+        },
+        {
+          regex: /(?<=^\s*\|[^|]+)\|(?!\|)/,
+          token: 'wikitext.table.table-data-cell.table-color'
+        },
+
+        {
           regex: /(?<=^\s*)!/,
+          token: 'wikitext.table.table-header-cell.table-color'
+        },
+        {
+          regex: /(?<=^\s*!.*)!!/,
+          token: 'wikitext.table.table-header-cell.table-color'
+        },
+        {
+          regex: /(?<=^\s*![^!|]+)\|(?!\|)/,
           token: 'wikitext.table.table-header-cell.table-color'
         },
         { include: 'start' },

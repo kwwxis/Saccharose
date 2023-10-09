@@ -15,6 +15,12 @@ export interface LoadingTipsExcelConfigData {
   DisableQuestIdList: number[],
   EnableDungeonId: never,
 
+  // Custom:
+  EnableMainQuestId?: number,
+  EnableMainQuestName?: string,
+  DisableMainQuestId?: number,
+  DisableMainQuestName?: string,
+
   // Data:
   StageId: string,
   Weight: number,

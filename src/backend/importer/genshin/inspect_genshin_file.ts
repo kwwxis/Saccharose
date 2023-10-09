@@ -2,6 +2,7 @@ import { pathToFileURL } from 'url';
 import { getGenshinControl } from '../../domain/genshin/genshinControl';
 import { closeKnex } from '../../util/db';
 import { inspectDataFile, InspectOpt } from '../util/inspect_file_util';
+import { LoadingTipsExcelConfigData } from '../../../shared/types/genshin/loading-types';
 
 const excel = (file: string) => `./ExcelBinOutput/${file}.json`;
 
@@ -40,6 +41,7 @@ const presets = {
   HomeworldAnimalExcelConfigData: <InspectOpt> { file: excel('HomeworldAnimalExcelConfigData') },
   AnimalCodexExcelConfigData: <InspectOpt> { file: excel('AnimalCodexExcelConfigData'), inspectFieldValues: ['Type', 'SubType', 'CountType'] },
   AnimalDescribeExcelConfigData: <InspectOpt> { file: excel('AnimalDescribeExcelConfigData') },
+  LoadingTipsExcelConfigData: <InspectOpt> { file: excel('LoadingTipsExcelConfigData'), inspectFieldValues: ['PreMainQuestIds', 'PreQuestIdList', 'DisableQuestIdList'] },
 
 };
 
@@ -47,7 +49,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
     const ctrl = getGenshinControl();
     //await inspectDataFile(ctrl, presets.CookRecipeExcelConfigData);
-    await inspectDataFile(ctrl, presets.AnimalDescribeExcelConfigData);
+    await inspectDataFile(ctrl, presets.LoadingTipsExcelConfigData);
 
     await closeKnex();
   })();

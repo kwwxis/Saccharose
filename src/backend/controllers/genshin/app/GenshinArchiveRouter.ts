@@ -27,6 +27,7 @@ import { LoadingCat } from '../../../../shared/types/genshin/loading-types';
 import { toInt } from '../../../../shared/util/numberUtil';
 import { SbOut } from '../../../../shared/util/stringUtil';
 import { Request, Response, Router } from 'express';
+import { toBoolean } from '../../../../shared/util/genericUtil';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -320,6 +321,7 @@ export default async function(): Promise<Router> {
   router.get('/loading-tips/:category', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
     const catName: string = String(req.params.category);
+    const tableFormat: boolean = toBoolean(req.query.table);
 
     const allCat: LoadingCat = await selectLoadingTips(ctrl);
 
@@ -333,7 +335,8 @@ export default async function(): Promise<Router> {
       title: cat ? cat.catName + ' Loading Tips' : 'Loading Tips Not Found',
       catNames: await selectLoadingMainCatNames(ctrl),
       selectedCat: cat?.catName || catName,
-      wikitext: generateLoadingTipsWikiText(ctrl, cat),
+      tableFormat,
+      wikitext: generateLoadingTipsWikiText(ctrl, cat, 0, tableFormat),
       bodyClass: ['page--loading-tips']
     });
   });

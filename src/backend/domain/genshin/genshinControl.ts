@@ -454,6 +454,14 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return await this.knex.select('*').from('QuestExcelConfigData')
       .where({SubId: id}).first().then(this.commonLoadFirst);
   }
+
+  async selectMainQuestIdByQuestExcelId(id: number): Promise<number> {
+    if (!id) {
+      return undefined;
+    }
+    return await this.knex.select('MainId').from('QuestExcelConfigData')
+      .where({SubId: id}).first().then(res => res.MainId);
+  }
   // endregion
 
   // region Manual Text Map
