@@ -1,27 +1,31 @@
 <section class="card">
   <h2>Loading Tips</h2>
-  <div class="content">
-    <fieldset>
-      <legend>Category Jump</legend>
-      <div class="content alignStretch flexWrap" style="padding-top:0;">
-        <% for (let cat of Object.keys(wikitextByCategory)) { %>
-          <div class="w60p">
-            <a role="button" class="spacer5-all secondary dispBlock textAlignLeft"
-               href="#<%= toParam(cat) %>"><%= cat %></a>
-          </div>
-        <% } %>
-      </div>
-    </fieldset>
+  <div class="tab-list" role="tablist">
+    <% for (let catName of catNames) { %>
+      <a href="/loading-tips/<%= catName %>" role="tab" class="tab<%= catName === locals.selectedCat ? ' active' : '' %>"><%= catName %></a>
+    <% } %>
   </div>
 </section>
 
-<% Object.keys(wikitextByCategory).forEach(cat => { %>
-  <section class="card" id="<%= toParam(cat) %>">
-    <h2><%= cat %></h2>
+<% if (locals.selectedCat && locals.wikitext) { %>
+  <section class="card">
+    <h2><%= selectedCat %></h2>
     <div class="content">
       <div class="dialogue-container">
-        <textarea readonly class="w100p wikitext autosize" spellcheck="false" translate="no"><%= wikitextByCategory[cat] %></textarea>
+        <textarea readonly class="w100p wikitext autosize" spellcheck="false" translate="no"><%= wikitext %></textarea>
       </div>
     </div>
   </section>
-<% }) %>
+<% } else if (!locals.wikitext && locals.selectedCat) { %>
+  <section class="card">
+    <div class="content">
+      <p>Category not found: <strong><%= selectedCat %></strong></p>
+    </div>
+  </section>
+<% } else { %>
+  <section class="card">
+    <div class="content">
+      <p>Choose a category.</p>
+    </div>
+  </section>
+<% } %>

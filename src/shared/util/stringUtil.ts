@@ -507,7 +507,7 @@ export class SbOut {
 
   line(text?: string) {
     if (!this.out) {
-      this.out += text;
+      this.out += (text || '\n');
     } else {
       this.out += '\n' + (text || '');
     }

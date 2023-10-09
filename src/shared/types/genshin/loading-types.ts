@@ -1,3 +1,5 @@
+import { LangCodeMap } from '../lang-types';
+
 export interface LoadingTipsExcelConfigData {
   Id: number,
 
@@ -38,6 +40,7 @@ export type LoadingSituationType =
   'SITUATION_TYPE_LOGOUT' |
   'SITUATION_TYPE_REVIVE';
 export type LoadingTerrainType = 'LOADING_AREA_CITY' | 'LOADING_AREA_OUTDOOR';
+
 export type LoadingPicPath =
   'UI_LoadingPic_Deshret' |
   'UI_LoadingPic_Dragonspine' |
@@ -60,7 +63,12 @@ export interface LoadingSituationExcelConfigData {
   LoadingSituationType: LoadingSituationType,
 
   SceneId: number[],
-  PicPath: string,
+  PicPath: LoadingPicPath,
 }
 
-export type LoadingTipsByCategory = { [category: string]: LoadingTipsExcelConfigData[] };
+export interface LoadingCat {
+  catName: string,
+  catNameMap: LangCodeMap,
+  subCats: LoadingCat[],
+  tips: LoadingTipsExcelConfigData[]
+}

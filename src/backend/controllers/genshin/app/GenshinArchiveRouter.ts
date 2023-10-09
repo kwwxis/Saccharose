@@ -17,14 +17,16 @@ import {
 import { PushTipsCodexType, PushTipsCodexTypeList, TutorialsByType } from '../../../../shared/types/genshin/tutorial-types';
 import { ViewpointsByRegion } from '../../../../shared/types/genshin/viewpoint-types';
 import { AchievementsByGoals } from '../../../../shared/types/genshin/achievement-types';
-import { paramCmp } from '../../../routing/viewUtilities';
-import { generateLoadingTipsWikiText, selectLoadingTips } from '../../../domain/genshin/archive/loadingTips';
-import { LoadingTipsByCategory } from '../../../../shared/types/genshin/loading-types';
+import { paramCmp, toParam } from '../../../routing/viewUtilities';
+import {
+  generateLoadingTipsWikiText,
+  selectLoadingMainCatNames,
+  selectLoadingTips,
+} from '../../../domain/genshin/archive/loadingTips';
+import { LoadingCat } from '../../../../shared/types/genshin/loading-types';
 import { toInt } from '../../../../shared/util/numberUtil';
 import { SbOut } from '../../../../shared/util/stringUtil';
 import { Request, Response, Router } from 'express';
-import { ApiCyclicValueReplacer } from '../../../middleware/api/apiCyclicValueReplacer';
-import { removeCyclicRefs } from '../../../../shared/util/genericUtil';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -307,14 +309,31 @@ export default async function(): Promise<Router> {
 
   router.get('/loading-tips', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
-    const limitTips: number[] = typeof req.query.ids === 'string' ? req.query.ids.split(',')
-      .map(x => x.trim()).filter(x => !!x).map(x => toInt(x)) : null;
-    const loadingTipsByCategory: LoadingTipsByCategory = await selectLoadingTips(ctrl);
-    const wikitextByCategory: { [cat: string]: string } = generateLoadingTipsWikiText(ctrl, loadingTipsByCategory, limitTips);
 
     res.render('pages/genshin/archive/loading-tips', {
       title: 'Loading Tips',
-      wikitextByCategory,
+      catNames: await selectLoadingMainCatNames(ctrl),
+      bodyClass: ['page--loading-tips']
+    });
+  });
+
+  router.get('/loading-tips/:category', async (req: Request, res: Response) => {
+    const ctrl = getGenshinControl(req);
+    const catName: string = String(req.params.category);
+
+    const allCat: LoadingCat = await selectLoadingTips(ctrl);
+
+    let cat = allCat.subCats.find(c => toParam(c.catName).toLowerCase() === toParam(catName).toLowerCase());
+    if (!cat) {
+      cat = allCat.subCats.find(c => Object.values(c.catNameMap).some(x => toParam(x).toLowerCase() === toParam(catName).toLowerCase()));
+      req.context.htmlMetaProps['X-ReplaceInUrl'] = catName + ';' + cat.catName;
+    }
+
+    res.render('pages/genshin/archive/loading-tips', {
+      title: cat ? cat.catName + ' Loading Tips' : 'Loading Tips Not Found',
+      catNames: await selectLoadingMainCatNames(ctrl),
+      selectedCat: cat?.catName || catName,
+      wikitext: generateLoadingTipsWikiText(ctrl, cat),
       bodyClass: ['page--loading-tips']
     });
   });

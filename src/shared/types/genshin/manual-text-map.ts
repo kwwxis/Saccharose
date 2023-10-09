@@ -5,6 +5,10 @@ export const ManualTextMapHashes = {
   'GCG_TAG_WEAPON_NONE': 3053155130,
   'GCG_TAG_ELEMENT_NONE': 3053155130,
 
+  // All:
+  'All': 4081188009,
+  'Other': 4294312844,
+
   // Regions / Maps / Nations / Factions
   // --------------------------------------------------------------------------------------------------------------
   // Monstadt
@@ -46,6 +50,7 @@ export const ManualTextMapHashes = {
   'Three Realms Gateway Offering': 2887066388,
   'Spiral Abyss': 2284786655,
   'Enkanomiya': 1862653596,
+  'Veluriyam Mirage': 2220487485,
 
   // Other Factions
   'Fatui': 243035471,
@@ -129,7 +134,6 @@ export const ManualTextMapHashes = {
   'WEAPON_BOW': 3537421225,
   'GCG_TAG_WEAPON_BOW': 3537421225,
 };
-
 
 export const ElementTypeToNation = {
   'None': 'None',

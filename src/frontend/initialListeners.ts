@@ -82,10 +82,12 @@ const initial_listeners: Listener[] = [
       };
       csrfElement.remove();
 
-      const changeAvatarNameInURL: HTMLMetaElement = document.querySelector('meta[name="X-ChangeAvatarNameInURL"]');
-      if (changeAvatarNameInURL) {
-        let [oldName, newName] = changeAvatarNameInURL.content.split(';');
-        window.history.replaceState({}, null, window.location.href.replace(oldName, newName).replace(encodeURIComponent(oldName), newName));
+      const replaceInUrl: HTMLMetaElement = document.querySelector('meta[name="X-ReplaceInUrl"]');
+      if (replaceInUrl) {
+        let [oldName, newName] = replaceInUrl.content.split(';');
+        window.history.replaceState({}, null, window.location.href
+          .replace(oldName, newName)
+          .replace(encodeURIComponent(oldName), newName));
       }
 
       const scrollbarWidth = getScrollbarWidth();

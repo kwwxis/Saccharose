@@ -61,7 +61,7 @@ export async function getStarRailAvatar(ctrl: StarRailControl, req: Request): Pr
         const langCodeMap = await ctrl.createLangCodeMap(avatar.NameTextMapHash, false);
         for (let name of Object.values(langCodeMap)) {
           if (nameCmp === name?.toLowerCase()) {
-            req.context.htmlMetaProps['X-ChangeAvatarNameInURL'] = arg + ';' + avatar.NameText;
+            req.context.htmlMetaProps['X-ReplaceInUrl'] = arg + ';' + avatar.NameText;
             return avatar;
           }
         }
