@@ -1804,9 +1804,10 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       return material;
     }
     if (material.Icon) {
-      material.IconUrl = '/serve-image/genshin?imageName=' + material.Icon;
       if (material.FoodQuality) {
-        material.IconUrl += '&convert=' + material.FoodQuality;
+        material.IconUrl = '/serve-image/genshin?imageName=' + material.Icon + '&convert=' + material.FoodQuality;
+      } else {
+        material.IconUrl = '/images/genshin/' + material.Icon + '.png';
       }
     }
     if (material.ItemUse) {
