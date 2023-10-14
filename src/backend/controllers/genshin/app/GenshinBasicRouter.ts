@@ -3,6 +3,7 @@ import { getGenshinControl } from '../../../domain/genshin/genshinControl';
 
 import { sendExcelViewerTableResponse } from '../../generic/app/abstractBasicRouter';
 import { Request, Response, Router } from 'express';
+import { renderToStaticNodeStream } from 'react-dom/server';
 
 export default async function(): Promise<Router> {
   const router: Router = create();

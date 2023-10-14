@@ -15,6 +15,7 @@ import {
   RequestViewStack,
   RouterRestfulHandlers,
 } from './routingTypes';
+import { ReactElement } from 'react';
 
 function resolveViewPath(view: string): string {
   view = removeSuffix(view, '.ejs');
@@ -24,6 +25,10 @@ function resolveViewPath(view: string): string {
 
 function createIncludeFunction(req: Request, viewStackPointer: RequestViewStack): IncludeFunction {
   return function include(view: string, locals: RequestLocals = {}): string {
+    if (req.context.virtualStaticViews[view]) {
+      return req.context.virtualStaticViews[view];
+    }
+
     const viewPath = resolveViewPath(view);
     const viewContent = process.env.NODE_ENV === 'development'
       ? fs.readFileSync(viewPath, 'utf8')
@@ -59,9 +64,11 @@ async function updateReqContext(req: Request, res: Response, payload: Readonly<R
   const locals: any = typeof payload.locals === 'function' ? await payload.locals(req, res) : payload.locals;
   let numLayoutsProcessed = 0;
 
-  for (let viewName of (payload.layouts || [])) {
+  for (let layout of (payload.layouts || [])) {
     if (locals && typeof locals === 'object')
       Object.assign(req.context.viewStackPointer, locals);
+
+    const viewName: string = typeof layout === 'string' && !layout.startsWith('<') ? layout : req.context.createStaticVirtualView(layout);
 
     req.context.viewStackPointer.subviewName = viewName;
 
@@ -94,7 +101,9 @@ export function create(context?: Readonly<RequestContextUpdate>): Router {
     if (context)
       await updateReqContext(req, res, context);
 
-    res.render = async function(view: string, locals?: RequestLocals, callback?: (err: Error, html: string) => void): Promise<string|Error> {
+    res.render = async function(view: string|ReactElement,
+                                locals?: RequestLocals,
+                                callback?: (err: Error, html: string) => void): Promise<string|Error> {
       try {
         await updateReqContext(req, res, {
           locals,

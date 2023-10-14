@@ -3,7 +3,7 @@
     <h2>
       <span class="dispBlock" style="margin-top:-5px"><a role="button" class="secondary fontWeight600" style="font-size:14px;padding:3px 8px" href="/items">Back to items search</a></span>
       <span class="valign spacer10-top">
-        <img class="framed-icon x36" src="/images/genshin/<%= material.Icon %>.png" loading="lazy" decoding="async" />
+        <img class="framed-icon x36" src="<%= material.IconUrl %>" loading="lazy" decoding="async" />
         <span class="spacer15-left"><%= material.NameText %></span>
       </span>
     </h2>
@@ -87,7 +87,7 @@
       <%- use('partials/genshin/archive/readable-items', {readable: readable}) %>
     </section>
   <% } %>
-  <% if (material.Codex) { %>
+  <% if (material.Codex && material.Codex.DescText) { %>
     <section class="card">
       <h2 class="valign">
         <span>Archive Text<%= material.Codex.NameText ? ': ' + normGenshinText(material.Codex.NameText) : '' %></span>

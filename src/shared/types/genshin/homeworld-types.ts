@@ -49,40 +49,40 @@ export interface HomeWorldNPCExcelConfigData {
 // Furniture Types
 // --------------------------------------------------------------------------------------------------------------
 export type FurnitureSurfaceType =
-  'Animal' |
-  'Apartment' |
-  'Carpet' |
-  'Ceil' |
-  'Chandelier' |
-  'Door' |
-  'Floor' |
-  'FurnitureSuite' |
-  'LegoRockery' |
-  'NPC' |
-  'Road' |
+  'Animal'        |
+  'Apartment'     |
+  'Carpet'        |
+  'Ceil'          |
+  'Chandelier'    |
+  'Door'          |
+  'Floor'         |
+  'FurnitureSuite'|
+  'LegoRockery'   |
+  'NPC'           |
+  'Road'          |
   'StackObjPlane' |
-  'Stair' |
-  'Wall' |
-  'WallBody';
+  'Stair'         |
+  'Wall'          |
+  'WallBody'      ;
 
 export type SpecialFurnitureType =
-  'Apartment' |
-  'BlockDependent' |
-  'ChangeBgmFurniture' |
-  'CoopPictureFrame' |
-  'CustomBaseFurnitrue' |
-  'CustomNodeFurnitrue' |
-  'FarmField' |
-  'Fish' |
-  'Fishpond' |
-  'Fishtank' |
-  'FurnitureSuite' |
-  'GroupFurnitrue' |
-  'NPC' |
-  'Paimon' |
-  'ServerGadget' |
-  'TeleportPoint' |
-  'VirtualFurnitrue';
+  'Apartment'             |
+  'BlockDependent'        |
+  'ChangeBgmFurniture'    |
+  'CoopPictureFrame'      |
+  'CustomBaseFurnitrue'   |
+  'CustomNodeFurnitrue'   |
+  'FarmField'             |
+  'Fish'                  |
+  'Fishpond'              |
+  'Fishtank'              |
+  'FurnitureSuite'        |
+  'GroupFurnitrue'        |
+  'NPC'                   |
+  'Paimon'                |
+  'ServerGadget'          |
+  'TeleportPoint'         |
+  'VirtualFurnitrue'      ;
 
 // Furniture
 // --------------------------------------------------------------------------------------------------------------
@@ -103,7 +103,7 @@ export interface HomeWorldFurnitureExcelConfigData {
   // Icon:
   Icon: string,
   ItemIcon: string,
-  EffectIcon: string,
+  EffectIcon?: 'UI_Buff_Furniture_MarkTransPoint',
 
   // Type Data:
   ItemType: 'ITEM_FURNITURE', // always "ITEM_FURNITURE"
@@ -152,10 +152,11 @@ export interface HomeWorldFurnitureExcelConfigData {
   CanFloat: number,
   JsonName: string,
   GroupRecordType?:
-    'GROUP_RECORD_TYPE_BALLOON' |
-    'GROUP_RECORD_TYPE_RACING' |
-    'GROUP_RECORD_TYPE_SEEK' |
-    'GROUP_RECORD_TYPE_STAKE',
+    'GROUP_RECORD_TYPE_BALLOON'     |
+    'GROUP_RECORD_TYPE_EXPLOSION'   |
+    'GROUP_RECORD_TYPE_RACING'      |
+    'GROUP_RECORD_TYPE_SEEK'        |
+    'GROUP_RECORD_TYPE_STAKE'       ,
 }
 
 export interface HomeWorldFurnitureTypeExcelConfigData {

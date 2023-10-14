@@ -26,6 +26,7 @@ import { loadGenshinTextSupportingData } from './domain/genshin/genshinText';
 import { loadZenlessTextSupportingData } from './domain/zenless/zenlessText';
 import { NextFunction, Request, Response } from 'express';
 import { logInit } from './util/logger';
+import imageBaseRouter from './controllers/ImageBaseRouter';
 
 const app: Express = express();
 let didInit: boolean = false;
@@ -117,6 +118,11 @@ export async function appInit(): Promise<Express> {
   }));
   app.use(jsonResponse);                                    // JSON response field masking
   app.use(defaultResponseHeaders);                          // Add default response headers
+
+  // Load image router
+  // ~~~~~~~~~~~~~~~
+  logInit(`Loading image router`);
+  app.use('/serve-image', await imageBaseRouter());
 
   // Load API router
   // ~~~~~~~~~~~~~~~

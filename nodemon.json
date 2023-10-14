@@ -10,5 +10,5 @@
   "execMap": {
     "ts": "node --loader ts-node/esm"
   },
-  "ext": "ts,js,json"
+  "ext": "ts,tsx,js,json"
 }

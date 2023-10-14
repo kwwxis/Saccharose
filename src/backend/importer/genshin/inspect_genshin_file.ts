@@ -3,12 +3,13 @@ import { getGenshinControl } from '../../domain/genshin/genshinControl';
 import { closeKnex } from '../../util/db';
 import { inspectDataFile, InspectOpt } from '../util/inspect_file_util';
 import { LoadingTipsExcelConfigData } from '../../../shared/types/genshin/loading-types';
+import { HomeWorldFurnitureExcelConfigData } from '../../../shared/types/genshin/homeworld-types';
 
 const excel = (file: string) => `./ExcelBinOutput/${file}.json`;
 
 const presets = {
   DialogExcelConfigData: <InspectOpt> { file: excel('DialogExcelConfigData'), inspectFieldValues: ['TalkRole.Type', 'Type'] },
-  MaterialExcelConfigData: <InspectOpt> { file: excel('MaterialExcelConfigData'), inspectFieldValues: ['MaterialType', 'ItemType', 'UseTarget', 'ItemUse[#ALL].UseOp'] },
+  MaterialExcelConfigData: <InspectOpt> { file: excel('MaterialExcelConfigData'), inspectFieldValues: ['EffectIcon', 'MaterialType', 'ItemType', 'UseTarget', 'ItemUse[#ALL].UseOp'] },
   CityConfigData: <InspectOpt> { file: excel('CityConfigData') },
   DungeonExcelConfigData: <InspectOpt> { file: excel('DungeonExcelConfigData'), inspectFieldValues: ['Type', 'SubType', 'InvolveType', 'SettleUIType', 'SettleShows[#ALL]', 'RecommendElementTypes[#ALL]', 'StateType', 'PlayType'] },
   DungeonPassExcelConfigData: <InspectOpt> { file: excel('DungeonPassExcelConfigData'), inspectFieldValues: ['Conds[#ALL].CondType', 'LogicType'] },
@@ -39,6 +40,7 @@ const presets = {
   CookRecipeExcelConfigData: <InspectOpt> { file: excel('CookRecipeExcelConfigData'), inspectFieldValues: ['FoodType', 'CookMethod'] },
   MaterialCodexExcelConfigData: <InspectOpt> { file: excel('MaterialCodexExcelConfigData'), inspectFieldValues: ['Type'] },
   HomeworldAnimalExcelConfigData: <InspectOpt> { file: excel('HomeworldAnimalExcelConfigData') },
+  HomeWorldFurnitureExcelConfigData: <InspectOpt> { file: excel('HomeWorldFurnitureExcelConfigData'), inspectFieldValues: ['EffectIcon', 'SpecialFurnitureType', 'SurfaceType', 'GroupRecordType'] },
   AnimalCodexExcelConfigData: <InspectOpt> { file: excel('AnimalCodexExcelConfigData'), inspectFieldValues: ['Type', 'SubType', 'CountType'] },
   AnimalDescribeExcelConfigData: <InspectOpt> { file: excel('AnimalDescribeExcelConfigData') },
   LoadingTipsExcelConfigData: <InspectOpt> { file: excel('LoadingTipsExcelConfigData'), inspectFieldValues: ['PreMainQuestIds', 'PreQuestIdList', 'DisableQuestIdList'] },
@@ -49,7 +51,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
     const ctrl = getGenshinControl();
     //await inspectDataFile(ctrl, presets.CookRecipeExcelConfigData);
-    await inspectDataFile(ctrl, presets.LoadingTipsExcelConfigData);
+    await inspectDataFile(ctrl, presets.HomeWorldFurnitureExcelConfigData);
 
     await closeKnex();
   })();

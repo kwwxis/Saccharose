@@ -250,6 +250,6 @@ Discord editing forums post.
 
 - **Copy Texture2D:** `find ./Texture2D/ -type f -regextype posix-extended -iregex '.*/(UI_Achievement|UI_AnimalIcon|UI_AvatarIcon|UI_Activity|UI_ChapterIcon|UI_Codex|UI_EquipIcon|UI_FlycloakIcon|UI_Gacha|UI_Gcg|UI_Homeworld|UI_ItemIcon|UI_Monster|UI_NameCard|UI_Reputation|UI_RelicIcon|.*Tutorial).*' -exec cp '{}' dist ';'`<br /><br />
 
-- **Copy Sprite:** `find ./Sprite/ -type f -regextype posix-extended -iregex '.*/(UI_Gcg_Dice|UI_Gcg_Buff|UI_Gcg_Tag|UI_HomeWorldTabIcon).*' -exec cp '{}' dist ';'`
+- **Copy Sprite:** `find ./Sprite/ -type f -regextype posix-extended -iregex '.*/(UI_Buff|UI_Gcg_Dice|UI_Gcg_Buff|UI_Gcg_Tag|UI_HomeWorldTabIcon).*' -exec cp '{}' dist ';'`
 
 - **Transfer:**: `rsync -avP ./dist hostname:/dest/path`

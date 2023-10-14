@@ -1803,6 +1803,12 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     if (!material || !loadConf) {
       return material;
     }
+    if (material.Icon) {
+      material.IconUrl = '/serve-image/genshin?imageName=' + material.Icon;
+      if (material.FoodQuality) {
+        material.IconUrl += '&convert=' + material.FoodQuality;
+      }
+    }
     if (material.ItemUse) {
       material.ItemUse = material.ItemUse.map(use => {
         if (use.UseParam) {
@@ -1861,22 +1867,14 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
     const materials: MaterialExcelConfigData[] = await this.knex.select('*').from('MaterialExcelConfigData')
       .whereIn('Id', ids).then(this.commonLoad);
-    if (Object.values(loadConf).some(bool => !!bool)) {
-      for (let material of materials) {
-        await this.postProcessMaterial(material, loadConf);
-      }
-    }
+    await materials.asyncMap(material => this.postProcessMaterial(material, loadConf));
     return materials;
   }
 
   async selectAllMaterialExcelConfigData(loadConf: MaterialLoadConf = {}): Promise<MaterialExcelConfigData[]> {
     const materials: MaterialExcelConfigData[] = await this.knex.select('*').from('MaterialExcelConfigData')
       .then(this.commonLoad);
-    if (Object.values(loadConf).some(bool => !!bool)) {
-      for (let material of materials) {
-        await this.postProcessMaterial(material, loadConf);
-      }
-    }
+    await materials.asyncMap(material => this.postProcessMaterial(material, loadConf));
     return materials;
   }
   // endregion

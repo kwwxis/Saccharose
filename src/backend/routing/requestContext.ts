@@ -10,6 +10,8 @@ import {
   RequestLocals,
   RequestViewStack,
 } from './routingTypes';
+import { ReactElement } from 'react';
+import { renderToString } from 'react-dom/server';
 
 export type RequestSiteMode = 'genshin' | 'hsr' | 'zenless';
 
@@ -18,7 +20,7 @@ export type RequestSiteMode = 'genshin' | 'hsr' | 'zenless';
  */
 export type RequestContextUpdate = {
   title?: string | ((req: Request) => Promise<string>);
-  layouts?: string[];
+  layouts?: (string|ReactElement)[];
   bodyClass?: string[];
   locals?: RequestLocals;
 };
@@ -29,14 +31,22 @@ export type RequestContextUpdate = {
  */
 export class RequestContext {
   private _req: Request;
+
+  // Data Properties:
   title: string;
   bodyClass: string[];
-  viewStack: RequestViewStack;
-  viewStackPointer: RequestViewStack;
-  nonce = crypto.randomBytes(16).toString('hex');
-  webpackBundles: WebpackBundles;
   htmlMetaProps: { [name: string]: string } = {};
   siteMode: RequestSiteMode;
+
+  // Internal Views:
+  viewStack: RequestViewStack;
+  viewStackPointer: RequestViewStack;
+  virtualStaticViews: {[vname: string]: string} = {};
+  private virtualStaticViewCounter: number = 0;
+
+  // Technical Properties:
+  nonce = crypto.randomBytes(16).toString('hex');
+  webpackBundles: WebpackBundles;
 
   constructor(req: Request) {
     this._req = req;
@@ -57,6 +67,15 @@ export class RequestContext {
     this.htmlMetaProps['x-site-mode-home'] = this.siteHome;
     this.htmlMetaProps['x-site-mode-name'] = this.siteModeName;
     this.htmlMetaProps['x-site-mode-wiki-domain'] = this.siteModeWikiDomain;
+  }
+
+  createStaticVirtualView(html: string|ReactElement): string {
+    const viewName = 'virtual-static-views/' + this.virtualStaticViewCounter++;
+    if (typeof html !== 'string') {
+      html = renderToString(html);
+    }
+    this.virtualStaticViews[viewName] = html;
+    return viewName;
   }
 
   get siteHome(): string {

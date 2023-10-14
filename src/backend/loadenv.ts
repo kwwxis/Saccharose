@@ -20,6 +20,7 @@ export const PIPELINE_DIR = path.resolve(__dirname, '../pipeline');
 export const SITE_TITLE = 'Saccharose.wiki';
 export const EJS_DELIMITER = '%';
 
+export const IMAGEDIR_STATIC = path.resolve(PUBLIC_DIR, './images/static');
 export const IMAGEDIR_GENSHIN = path.resolve(PUBLIC_DIR, './images/genshin');
 export const IMAGEDIR_HSR = path.resolve(PUBLIC_DIR, './images/hsr');
 export const IMAGEDIR_ZENLESS = path.resolve(PUBLIC_DIR, './images/zenless');
