@@ -15,8 +15,8 @@
   <% } %>
   <% if (locals.story) { %>
     <h2 class="valign">
-      <img class="framed-icon x42" src="/images/genshin/<%= story.avatar.IconName %>.png" loading="lazy" decoding="async" />
-      <span class="spacer15-left">Character Story &mdash; <%= story.avatar.NameText %></span>
+      <img class="framed-icon x42" src="/images/genshin/<%= avatar.IconName %>.png" loading="lazy" decoding="async" />
+      <span class="spacer15-left">Character Story &mdash; <%= avatar.NameText %></span>
     </h2>
     <div class="tab-list" role="tablist">
       <button role="tab" id="tab-display" class="tab <%= tab === 'display' ? 'active' : '' %>"

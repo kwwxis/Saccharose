@@ -170,6 +170,11 @@ export function deselectText() {
     }
 }
 
+export function hasSelection(): boolean {
+  const sel = window.getSelection();
+  return sel.rangeCount > 0 && !!sel.getRangeAt(0).toString();
+}
+
 /**
  * Get the closest parent that matches the given selector, or `null` if not found.
  * @param element
@@ -556,4 +561,12 @@ export function getInputValue(element: HTMLElement) {
   } else {
     return element.textContent;
   }
+}
+
+export function textNodesUnder(el: Element): Text[] {
+  const a: Text[] = [];
+  const walk= document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null);
+  let n: Text;
+  while(n = <Text> walk.nextNode()) a.push(n);
+  return a;
 }

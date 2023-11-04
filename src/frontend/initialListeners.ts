@@ -925,6 +925,7 @@ const desktopStickerHeaderListeners: Listener[] = [
     ev: 'scroll',
     fn: function(_event) {
       recalculateDesktopStickyHeader();
+      document.querySelectorAll('.ace_token-tooltip').forEach(el => el.remove());
     }
   },
   {

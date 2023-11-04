@@ -82,6 +82,7 @@ export default async function(): Promise<Router> {
 
     res.render('pages/genshin/character/character-stories', {
       title: 'Character Stories - ' + (story?.avatar?.NameText || 'N/A'),
+      avatar,
       avatarId: req.params.avatar,
       story: story,
       bodyClass: ['page--character-stories'],

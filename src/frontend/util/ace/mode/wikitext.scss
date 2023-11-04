@@ -1,31 +1,38 @@
-@mixin ace_token_tooltip($tokenCls, $hoverBg, $hoverBgNightmode) {
-  #{$tokenCls} {
-    position: relative;
-  }
-  #{$tokenCls}:hover {
-    background: $hoverBg;
-    transition: background 50ms ease;
-    transition-delay: 100ms;
-
-    body.nightmode & {
-      background: $hoverBgNightmode;
+@mixin ace_token_tooltip($tooltipType, $tokenCls: null, $hoverBg: null, $hoverBgNightmode: null) {
+  @if $tokenCls {
+    #{$tokenCls} {
+      position: relative;
+    }
+    #{$tokenCls}:hover {
+      background: $hoverBg;
       transition: background 50ms ease;
       transition-delay: 100ms;
+
+      body.nightmode & {
+        background: $hoverBgNightmode;
+        transition: background 50ms ease;
+        transition-delay: 100ms;
+      }
+    }
+
+    body.keydown-control, body.keydown-meta, body.keydown-alt {
+      #{$tokenCls}:hover {
+        cursor: pointer;
+      }
     }
   }
-  #{$tokenCls} .ace_token-tooltip {
+
+  .ace_token-tooltip[data-type="#{$tooltipType}"] {
     background: #FFF;
     border: 1px solid #333;
     color: #111;
-    font-size: 11px;
+    font-size: 12px;
     line-height: 18px;
-    position: absolute;
-    top: 100%;
+    position: fixed;
     white-space: pre;
-    left: 50%;
-    margin-top: 5px;
     padding: 0 5px;
     pointer-events: none;
+    user-select: none;
     opacity: 0;
     z-index: 9999;
     transition: all 50ms ease;
@@ -35,15 +42,24 @@
       color: #eee;
       border-color: #ccc;
     }
+    &.active {
+      opacity: 1;
+      transition: all 300ms ease;
+      transition-delay: 700ms;
+    }
   }
-  #{$tokenCls}:hover .ace_token-tooltip {
-    opacity: 1;
-    transition: all 300ms ease;
-    transition-delay: 700ms;
+}
+
+@mixin ace_token_tooltip_styles($tooltipType) {
+  .ace_token-tooltip[data-type="#{$tooltipType}"] {
+    @content
   }
-  body.keydown-control, body.keydown-meta, body.keydown-alt {
-    #{$tokenCls}:hover {
-      cursor: pointer;
+}
+
+@mixin ace_token_tooltip_nightmode_styles($tooltipType) {
+  .ace_token-tooltip[data-type="#{$tooltipType}"] {
+    body.nightmode & {
+      @content
     }
   }
 }
@@ -81,7 +97,7 @@ body.nightmode .ace_template-color {
   font-weight: bold;
 }
 
-//@include ace_token_tooltip('.ace_template-name', rgba(#80c, 0.07), rgba(#D2A8FF, 0.2));
+@include ace_token_tooltip('template', '.ace_template-name', rgba(#80c, 0.07), rgba(#D2A8FF, 0.2));
 
 // Parser Functions
 // --------------------------------------------------------------------------------------------------------------
@@ -148,7 +164,7 @@ body.nightmode .ace_magic-link-color {
   color: #e4c179;
 }
 
-// @include ace_token_tooltip('.ace_link-name', rgba(34,17,153,0.08), hsl(247deg 75% 93% / 12%));
+@include ace_token_tooltip('link', '.ace_link-name', rgba(34,17,153,0.08), hsl(247deg 75% 93% / 12%));
 
 // Bold and Italic
 // --------------------------------------------------------------------------------------------------------------
@@ -228,4 +244,16 @@ body.nightmode .ace_signature {
 // --------------------------------------------------------------------------------------------------------------
 .ace_table-color {
   color: #e0e;
+}
+
+// Other Tooltips
+// --------------------------------------------------------------------------------------------------------------
+@include ace_token_tooltip('error');
+@include ace_token_tooltip_styles('error') {
+  color: red;
+}
+@include ace_token_tooltip_nightmode_styles('error') {
+  color: #e39d9d;
+  background: #6c1f1f;
+  border-color: #e39d9d;
 }

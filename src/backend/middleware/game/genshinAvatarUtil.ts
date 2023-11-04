@@ -1,5 +1,5 @@
 import { GenshinControl } from '../../domain/genshin/genshinControl';
-import { AvatarExcelConfigData } from '../../../shared/types/genshin/avatar-types';
+import { AvatarExcelConfigData, isTraveler } from '../../../shared/types/genshin/avatar-types';
 import { cached } from '../../util/cache';
 import { fetchCharacterStories } from '../../domain/genshin/character/fetchStoryFetters';
 import { isInt, toInt } from '../../../shared/util/numberUtil';
@@ -27,9 +27,22 @@ const avatarMaskProps: string =
 
 export async function getGenshinAvatars(ctrl: GenshinControl): Promise<AvatarExcelConfigData[]> {
   return cached('Genshin_AvatarListCache_' + ctrl.outputLangCode, async () => {
-    let storiesByAvatar = await fetchCharacterStories(ctrl);
+    const storiesByAvatar = await fetchCharacterStories(ctrl);
+    let foundTraveler = false;
+
     return Object.values(storiesByAvatar)
       .map(x => jsonMask(x.avatar, avatarMaskProps))
+      .filter((x: AvatarExcelConfigData) => {
+        if (isTraveler(x)) {
+          if (foundTraveler) {
+            return false;
+          } else {
+            foundTraveler = true;
+            x.IconName = 'UI_AvatarIcon_PlayerEpicene';
+          }
+        }
+        return true;
+      })
       .sort((a,b) => a.NameText.localeCompare(b.NameText));
   });
 }

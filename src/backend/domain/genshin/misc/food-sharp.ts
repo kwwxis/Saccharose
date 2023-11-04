@@ -1,9 +1,8 @@
 // noinspection PointlessArithmeticExpressionJS
 
 import '../../../loadenv';
-import { pathToFileURL } from 'url';
 import sharp from 'sharp';
-import space from 'color-space';
+import colorspace from 'color-space';
 import UPNG from 'upng-js';
 import { IMAGEDIR_GENSHIN, IMAGEDIR_STATIC } from '../../../loadenv';
 import path from 'path';
@@ -65,7 +64,7 @@ export async function convertFoodImageToSuspicious(imageNameOrBuffer: string|Buf
   let frames: ArrayBuffer[] = UPNG.toRGBA8(png);
 
   // Create the top layer (50% opacity black at RGB rather than RGBA)
-  const [composite_l, composite_c, composite_h] = space.rgb.lchab([128, 128, 128]);
+  const [composite_l, composite_c, composite_h] = colorspace.rgb.lchab([128, 128, 128]);
 
   // Loop over frames in the PNG:
   for (let frame of frames) {
@@ -84,13 +83,13 @@ export async function convertFoodImageToSuspicious(imageNameOrBuffer: string|Buf
       const a: number = dataView.getUint8(byteOffset + 3);
 
       // From wikipedia: The Color blend mode preserves the luma of the bottom layer, while adopting the hue and chroma of the top layer.
-      let [l, c, h] = space.rgb.lchab([r, g, b]);
+      let [l, c, h] = colorspace.rgb.lchab([r, g, b]);
       c = composite_c; // top layer chroma
       h = composite_h; // top layer hue
       // luma of bottom layer is preserved
 
       // Update the RGBA for this pixel:
-      const [r2, g2, b2] = space.lchab.rgb([l, c, h]);
+      const [r2, g2, b2] = colorspace.lchab.rgb([l, c, h]);
       dataView.setUint8(byteOffset + 0, r2);
       dataView.setUint8(byteOffset + 1, g2);
       dataView.setUint8(byteOffset + 2, b2);
