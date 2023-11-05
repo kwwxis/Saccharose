@@ -1,9 +1,15 @@
+import '../../loadenv';
 import { LangCode } from '../../../shared/types/lang-types';
-import { wordRejoin, wordSplit } from '../../../shared/util/stringUtil';
+import {
+  takeFromStartUntilFirstWord,
+  takeFromEndUntilLastWord,
+  wordRejoin,
+  wordSplit,
+} from '../../../shared/util/stringUtil';
 import { toInt } from '../../../shared/util/numberUtil';
 import { pathToFileURL } from 'url';
-import { doQuotes, html2quotes, unnestHtmlTags } from '../../../shared/mediawiki/mwQuotes';
-
+import { html2quotes, unnestHtmlTags } from '../../../shared/mediawiki/mwQuotes';
+import { Change, diffChars, diffWords, diffWordsWithSpace } from 'diff';
 
 export interface NormTextOptions {
   decolor?: boolean,
@@ -122,4 +128,68 @@ export function genericNormText(text: string, langCode: LangCode, opts: NormText
   }
 
   return text;
+}
+
+export function mcify(lang: LangCode, maleText: string, femaleText: string): string {
+  if (maleText === femaleText) {
+    return maleText;
+  }
+  if (!maleText && !femaleText) {
+    return null;
+  }
+
+  const changes: Change[] = diffWordsWithSpace(maleText || '', femaleText || '');
+  const out: Change[] = [];
+
+  // removed -> male text
+  // added -> female text
+
+  for (let i = 0; i < changes.length; i++) {
+    let change = changes[i];
+    let prevChange = changes[i - 1];
+    let nextChange = changes[i + 1];
+
+    if (change.removed && nextChange && nextChange.added) {
+      out.push({value: `{{MC|${change.value}|${nextChange.value}}}`});
+      i++;
+    } else if (change.removed) {
+      let maleText = change.value;
+      let femaleText =  '';
+
+      if (nextChange) {
+        const words = wordSplit(lang, nextChange.value);
+        const extra = wordRejoin(takeFromStartUntilFirstWord(words));
+        femaleText = extra;
+        maleText += extra;
+        nextChange.value = wordRejoin(words);
+      }
+      out.push({value: `{{MC|${maleText}|${femaleText}}}`});
+    } else if (change.added) {
+      let maleText = '';
+      let femaleText = change.value;
+
+      if (prevChange) {
+        const words = wordSplit(lang, prevChange.value);
+        const extra = wordRejoin(takeFromEndUntilLastWord(words));
+        maleText = extra;
+        femaleText = extra + femaleText;
+        prevChange.value = wordRejoin(words);
+      }
+      out.push({value: `{{MC|${maleText}|${femaleText}}}`});
+    } else {
+      out.push(change);
+    }
+  }
+
+  return out.map(c => c.value).join('');
+}
+
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+  const maleText = `'''Paimon:''' Mondstadt has so many windmills, doesn't it?<br />'''(Traveler):''' Well, the city is built above water, so it probably relies on the windmills to draw water upwards.<br />'''Paimon:''' That's correct! The winds blow through Mondstadt all year, so this supply of water is very stable.<br />'''Paimon:''' Also, the windmills are what they call "visible winds" &mdash; and wind chimes are called the "audible winds."<br />'''Paimon:''' Paimon guesses they can be thought of as mascots and prayers to the Anemo Archon for protection.<br />'''(Traveler):''' Ah, mascots. So, like you then, Paimon?<br />'''Paimon:''' No! Not at all! They're made of wood, and you can't eat them in an emergency either, 'cause all you'll do is grind your teeth down!<br />'''(Traveler):''' Uhh...<br />'''(Traveler):'''&nbsp;...I don't know what to say to that.`;
+  const femaleText = `'''Paimon:''' Mondstadt has so many windmills, doesn't it?<br />'''(Traveler):''' Well, the city is built above water, so it probably relies on windmills to draw the water upwards.<br />'''Paimon:''' That's correct! The winds blow through Mondstadt all year, so this supply of water is very stable.<br />'''Paimon:''' Also, the windmills are what they call "visible winds" &mdash; and wind chimes are called the "audible winds."<br />'''Paimon:''' Paimon guesses they can be thought of as mascots and prayers to the Anemo Archon for protection.<br />'''(Traveler):''' Ah, mascots. So, like you then, Paimon?<br />'''Paimon:''' No! Not at all! They're made of wood, and you can't eat them in an emergency either, 'cause all you'll do is grind your teeth down!<br />'''(Traveler):''' Umm...<br />'''(Traveler):'''&nbsp;...I don't know what to say to that.`;
+
+  const split = wordSplit('EN', ' Hello world!');
+  console.log(wordRejoin(takeFromEndUntilLastWord(split)));
+  console.log(wordRejoin(split));
+  console.log(mcify('EN', maleText, femaleText));
 }

@@ -9,6 +9,10 @@ export const ManualTextMapHashes = {
   'All': 4081188009,
   'Other': 4294312844,
 
+  // Lumine/Aether:
+  'Lumine': 3241049361,
+  'Aether': 2329553598,
+
   // Regions / Maps / Nations / Factions
   // --------------------------------------------------------------------------------------------------------------
   // Monstadt

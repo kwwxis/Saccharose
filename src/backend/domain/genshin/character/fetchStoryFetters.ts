@@ -7,8 +7,10 @@ import { processFetterConds } from './fetterConds';
 import { resolveObjectPath } from '../../../../shared/util/arrayUtil';
 import { FetterStoryExcelConfigData, StoryFetters, StoryFettersByAvatar } from '../../../../shared/types/genshin/fetter-types';
 import { pathToFileURL } from 'url';
+import { isTraveler } from '../../../../shared/types/genshin/avatar-types';
+import { mcify } from '../../generic/genericNormalizers';
 
-const sep = '</p><!--\n              --><p>';
+const sep: string = '</p><!--\n              --><p>';
 
 async function fetchAllFetterStoryExcelConfigData(ctrl: GenshinControl): Promise<FetterStoryExcelConfigData[]> {
   return await cached('FetterStoryExcelConfigData_'+ctrl.outputLangCode, async () => {
@@ -16,15 +18,21 @@ async function fetchAllFetterStoryExcelConfigData(ctrl: GenshinControl): Promise
     for (let fetter of records) {
       await processFetterConds(ctrl, fetter, 'OpenConds');
       await processFetterConds(ctrl, fetter, 'FinishConds');
-      if (fetter.StoryContextText) {
-        fetter.StoryContextHtml = '<p>'+fetter.StoryContextText.split('\\n').map(s => ctrl.normText(s, ctrl.outputLangCode)).join(sep)+'</p>';
-      }
-      if (fetter.StoryContext2Text) {
-        fetter.StoryContext2Html = '<p>'+fetter.StoryContext2Text.split('\\n').map(s => ctrl.normText(s, ctrl.outputLangCode)).join(sep)+'</p>';
-      }
+      updateStoryContextHtml(ctrl, fetter);
     }
     return records;
   });
+}
+
+function updateStoryContextHtml(ctrl: GenshinControl, fetter: FetterStoryExcelConfigData) {
+  if (fetter.StoryContextText) {
+    fetter.StoryContextText = fetter.StoryContextText.replace(/\\n/g, '\n');
+    fetter.StoryContextHtml = '<p>'+fetter.StoryContextText.split('\n').map(s => ctrl.normText(s, ctrl.outputLangCode)).join(sep)+'</p>';
+  }
+  if (fetter.StoryContext2Text) {
+    fetter.StoryContext2Text = fetter.StoryContext2Text.replace(/\\n/g, '\n');
+    fetter.StoryContext2Html = '<p>'+fetter.StoryContext2Text.split('\n').map(s => ctrl.normText(s, ctrl.outputLangCode)).join(sep)+'</p>';
+  }
 }
 
 export async function fetchCharacterStories(ctrl: GenshinControl): Promise<StoryFettersByAvatar> {
@@ -32,14 +40,47 @@ export async function fetchCharacterStories(ctrl: GenshinControl): Promise<Story
     let fettersByAvatar: StoryFettersByAvatar = {};
     let allFetters = await fetchAllFetterStoryExcelConfigData(ctrl);
 
+    let maleMcStoryFetters: StoryFetters;
+    let femaleMcStoryFetters: StoryFetters;
+
     for (let fetter of allFetters) {
       if (!fettersByAvatar.hasOwnProperty(fetter.AvatarId)) {
         fettersByAvatar[fetter.AvatarId] = new StoryFetters();
+
+        if (isTraveler(fetter.AvatarId, 'male'))
+          maleMcStoryFetters = fettersByAvatar[fetter.AvatarId];
+        if (isTraveler(fetter.AvatarId, 'female'))
+          femaleMcStoryFetters = fettersByAvatar[fetter.AvatarId];
       }
       if (!fettersByAvatar[fetter.AvatarId].avatar && fetter.Avatar) {
         fettersByAvatar[fetter.AvatarId].avatar = fetter.Avatar;
       }
       fettersByAvatar[fetter.AvatarId].fetters.push(fetter);
+    }
+
+    if (maleMcStoryFetters && femaleMcStoryFetters) {
+      for (let i = 0; i < maleMcStoryFetters.fetters.length; i++) {
+        const fm = maleMcStoryFetters.fetters[i];
+        const ff = femaleMcStoryFetters.fetters[i];
+
+        fm.StoryTitleText = mcify(ctrl.outputLangCode, fm.StoryTitleText, ff.StoryTitleText);
+        fm.StoryContextText = mcify(ctrl.outputLangCode, fm.StoryContextText, ff.StoryContextText);
+
+        fm.StoryTitle2Text = mcify(ctrl.outputLangCode, fm.StoryTitle2Text, ff.StoryTitle2Text);
+        fm.StoryContext2Text = mcify(ctrl.outputLangCode, fm.StoryContext2Text, ff.StoryContext2Text);
+
+        if (fm.StoryTitleText === 'Character Story 2') {
+          console.log(fm.StoryContextText);
+        }
+
+        ff.StoryTitleText = fm.StoryTitleText;
+        ff.StoryContextText = fm.StoryContextText;
+        ff.StoryTitle2Text = fm.StoryTitle2Text;
+        ff.StoryContext2Text = fm.StoryContext2Text;
+
+        updateStoryContextHtml(ctrl, ff);
+        updateStoryContextHtml(ctrl, fm);
+      }
     }
 
     for (let agg of Object.values(fettersByAvatar)) {
@@ -87,6 +128,7 @@ export async function fetchCharacterStories(ctrl: GenshinControl): Promise<Story
         agg.alteredWikitext = alteredWikitext;
       }
     }
+
     return fettersByAvatar;
   });
 }

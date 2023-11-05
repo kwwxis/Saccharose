@@ -19,7 +19,7 @@ export default async function(): Promise<Router> {
 
   router.get('/character/VO', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
-    const avatars: CommonAvatar[] = toCommonAvatarsFromGenshin(await getGenshinAvatars(ctrl));
+    const avatars: CommonAvatar[] = toCommonAvatarsFromGenshin(await getGenshinAvatars(ctrl, false));
 
     res.render('pages/genshin/character/vo-tool', {
       title: 'Character VO',
@@ -33,8 +33,8 @@ export default async function(): Promise<Router> {
 
   router.get('/character/VO/:avatar', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
-    const avatars: CommonAvatar[] = toCommonAvatarsFromGenshin(await getGenshinAvatars(ctrl));
-    const avatar: CommonAvatar = toCommonAvatarFromGenshin(await getGenshinAvatar(ctrl, req));
+    const avatars: CommonAvatar[] = toCommonAvatarsFromGenshin(await getGenshinAvatars(ctrl, false));
+    const avatar: CommonAvatar = toCommonAvatarFromGenshin(await getGenshinAvatar(ctrl, req, false));
 
     res.render('pages/genshin/character/vo-tool', {
       title: (avatar ? avatar.NameText +  ' - ' : '') + 'Character VO',
@@ -70,14 +70,14 @@ export default async function(): Promise<Router> {
   router.get('/character/stories', async (req: Request, res: Response) => {
     res.render('pages/genshin/character/character-stories', {
       title: 'Character Stories',
-      avatars: await getGenshinAvatars(getGenshinControl(req)),
+      avatars: await getGenshinAvatars(getGenshinControl(req), true),
       bodyClass: ['page--character-stories']
     });
   });
 
   router.get('/character/stories/:avatar', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
-    const avatar: AvatarExcelConfigData = await getGenshinAvatar(ctrl, req);
+    const avatar: AvatarExcelConfigData = await getGenshinAvatar(ctrl, req, true);
     const story: StoryFetters = await fetchCharacterStoryByAvatarId(ctrl, avatar?.Id);
 
     res.render('pages/genshin/character/character-stories', {

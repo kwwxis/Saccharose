@@ -25,20 +25,32 @@ const avatarMaskProps: string =
   'ImageName,' +
   'SideIconName';
 
-export async function getGenshinAvatars(ctrl: GenshinControl): Promise<AvatarExcelConfigData[]> {
-  return cached('Genshin_AvatarListCache_' + ctrl.outputLangCode, async () => {
+export async function getGenshinAvatars(ctrl: GenshinControl, combineTraveler: boolean): Promise<AvatarExcelConfigData[]> {
+  return cached('Genshin_AvatarListCache_' + ctrl.outputLangCode + '_' + combineTraveler, async () => {
     const storiesByAvatar = await fetchCharacterStories(ctrl);
     let foundTraveler = false;
+
+    const lumineName = await ctrl.selectManualTextMapConfigDataById('INFO_FEMALE_PRONOUN_YING');
+    const aetherName = await ctrl.selectManualTextMapConfigDataById('INFO_MALE_PRONOUN_KONG');
 
     return Object.values(storiesByAvatar)
       .map(x => jsonMask(x.avatar, avatarMaskProps))
       .filter((x: AvatarExcelConfigData) => {
-        if (isTraveler(x)) {
+        if (isTraveler(x) && combineTraveler) {
           if (foundTraveler) {
             return false;
           } else {
             foundTraveler = true;
             x.IconName = 'UI_AvatarIcon_PlayerEpicene';
+          }
+        }
+        if (isTraveler(x) && !combineTraveler) {
+          if (isTraveler(x, 'male')) {
+            x.NameTextMapHash = aetherName.TextMapContentTextMapHash;
+            x.NameText = aetherName.TextMapContentText;
+          } else {
+            x.NameTextMapHash = lumineName.TextMapContentTextMapHash;
+            x.NameText = lumineName.TextMapContentText;
           }
         }
         return true;
@@ -47,8 +59,8 @@ export async function getGenshinAvatars(ctrl: GenshinControl): Promise<AvatarExc
   });
 }
 
-export async function getGenshinAvatar(ctrl: GenshinControl, req: Request): Promise<AvatarExcelConfigData> {
-  const avatars = await getGenshinAvatars(ctrl);
+export async function getGenshinAvatar(ctrl: GenshinControl, req: Request, combineTraveler: boolean): Promise<AvatarExcelConfigData> {
+  const avatars = await getGenshinAvatars(ctrl, combineTraveler);
   const arg: string|number = ['avatarId', 'avatarName', 'avatar', 'id']
     .map(key => req.params[key] || <string> req.query[key]).find(val => !!val);
 

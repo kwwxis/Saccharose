@@ -112,4 +112,8 @@ export async function processQuestConds(ctrl: GenshinControl, fetter: FetterWith
       }
     }
   }
+
+  if (!summaryObj.QuestTitleTextMap.EN) {
+    summaryObj.QuestTitleTextMap = null;
+  }
 }

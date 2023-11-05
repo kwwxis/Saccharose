@@ -579,3 +579,39 @@ export const wordSplit = (langCode: LangCode, text: string): Intl.SegmentData[] 
 export const wordRejoin = (segments: Intl.SegmentData[]): string => {
   return segments.map(s => s.segment).join('');
 };
+
+/**
+ * Removes the first word at the start of the segments.
+ *
+ * Modifies the segments passed in and returns the removed word segments.
+ *
+ * @param segments
+ */
+export function takeFromStartUntilFirstWord(segments: Intl.SegmentData[]): Intl.SegmentData[] {
+  let i = 0;
+  for (let segment of segments) {
+    i++;
+    if (segment.isWordLike) {
+      break;
+    }
+  }
+  return segments.splice(0, i);
+}
+
+/**
+ * Removes the last word at the end of the segments.
+ *
+ * Modifies the segments passed in and returns the removed word segments.
+ *
+ * @param segments
+ */
+export function takeFromEndUntilLastWord(segments: Intl.SegmentData[]): Intl.SegmentData[] {
+  let i = 0;
+  for (let segment of segments.slice().reverse()) {
+    i++;
+    if (segment.isWordLike) {
+      break;
+    }
+  }
+  return segments.splice(-i);
+}
