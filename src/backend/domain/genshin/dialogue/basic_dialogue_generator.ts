@@ -182,7 +182,7 @@ export async function dialogueGenerate(ctrl: GenshinControl, query: number|numbe
     let acceptedCount = 0;
     for (let textMapHash of textMapHashes) {
       let dialogues = await ctrl.selectDialogsFromTextContentId(textMapHash);
-      let accepted: boolean = (await Promise.all(dialogues.map(d => handle(d)))).some(b => !!b);
+      let accepted: boolean = (await dialogues.asyncMap(d => handle(d))).some(b => !!b);
       if (accepted) {
         acceptedCount++;
       }

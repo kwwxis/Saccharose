@@ -425,6 +425,10 @@ export async function dialogTraceBack(ctrl: GenshinControl, dialog: DialogExcelC
       break;
     }
   }
+  if (!ret.length && seenIds.size) {
+    const dId = Math.min(... Array.from(seenIds));
+    return [await ctrl.selectSingleDialogExcelConfigData(dId)];
+  }
   return ret;
 }
 
