@@ -670,15 +670,15 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       allDialogueIds.push(item.DialogId);
     }
 
-    const handleOrphanedDialog = async (quest: MainQuestExcelConfigData|QuestExcelConfigData, id: number) => {
+    const handleUnparentedDialog = async (quest: MainQuestExcelConfigData|QuestExcelConfigData, id: number) => {
       if (this.state.dialogueIdCache.has(id))
         return;
       let dialog = await this.selectSingleDialogExcelConfigData(id as number);
       if (dialog) {
-        if (!quest.OrphanedDialog)
-          quest.OrphanedDialog = [];
+        if (!quest.NonTalkDialog)
+          quest.NonTalkDialog = [];
         let dialogs = await this.selectDialogBranch(dialog);
-        quest.OrphanedDialog.push(dialogs);
+        quest.NonTalkDialog.push(dialogs);
       }
     }
 
@@ -686,11 +686,11 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       for (let id of allDialogueIds) {
         if (!id.toString().startsWith(quest.SubId.toString()))
           continue;
-        await handleOrphanedDialog(quest, id);
+        await handleUnparentedDialog(quest, id);
       }
     }
     for (let id of allDialogueIds) {
-      await handleOrphanedDialog(mainQuest, id);
+      await handleUnparentedDialog(mainQuest, id);
     }
   }
 
@@ -790,44 +790,6 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       }
     }
     return currBranch;
-  }
-
-  doesDialogHaveNpc(dialog: DialogExcelConfigData, npcNames: string[]) {
-    if (npcNames.includes(dialog.TalkRole.NameText)) {
-      return true;
-    }
-    if (dialog.Branches) {
-      for (let branch of dialog.Branches) {
-        for (let branchDialog of branch) {
-          if (this.doesDialogHaveNpc(branchDialog, npcNames)) {
-            return true;
-          }
-        }
-      }
-    }
-    return false;
-  }
-
-  doesQuestSubHaveNpc(questSub: QuestExcelConfigData, npcNames: string[]) {
-    if (questSub.TalkExcelConfigDataList) {
-      for (let talkConfig of questSub.TalkExcelConfigDataList) {
-        for (let dialog of talkConfig.Dialog) {
-          if (this.doesDialogHaveNpc(dialog, npcNames)) {
-            return true;
-          }
-        }
-      }
-    }
-    if (questSub.OrphanedDialog) {
-      for (let dialogs of questSub.OrphanedDialog) {
-        for (let dialog of dialogs) {
-          if (this.doesDialogHaveNpc(dialog, npcNames)) {
-            return true;
-          }
-        }
-      }
-    }
-    return false;
   }
 
   isBlackScreenDialog(dialog: DialogExcelConfigData): boolean {

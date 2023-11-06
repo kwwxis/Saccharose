@@ -177,11 +177,10 @@ export class TalkConfigAccumulator {
     for (let dialog of flatDialogs) {
       if (this.ctrl.state.dialogueIdCache.has(dialog.Id))
         continue;
-      let dialogs = await this.ctrl.selectDialogBranch(dialog);
-      if (!talkConfig.OtherDialog) {
-        talkConfig.OtherDialog = [];
-      }
+      const dialogs = await this.ctrl.selectDialogBranch(dialog);
       if (dialogs.length) {
+        if (!talkConfig.OtherDialog)
+          talkConfig.OtherDialog = [];
         talkConfig.OtherDialog.push(dialogs);
       }
     }

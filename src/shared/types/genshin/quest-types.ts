@@ -32,9 +32,10 @@ export interface MainQuestExcelConfigData {
   SuggestTrackMainQuestList?: number[],
   RewardIdList: number[],
   ShowType: string,
+
   QuestExcelConfigDataList?: QuestExcelConfigData[],
-  NonSubQuestTalks?: TalkExcelConfigData[],
-  OrphanedDialog?: DialogExcelConfigData[][],
+  UnsectionedTalks?: TalkExcelConfigData[],
+  NonTalkDialog?: DialogExcelConfigData[][],
   QuestMessages?: ManualTextMapConfigData[],
   __globalVarPos?: number,
 }
@@ -70,7 +71,7 @@ export interface QuestExcelConfigData {
   // Custom:
   TalkExcelConfigDataList?: TalkExcelConfigData[],
   QuestMessages?: ManualTextMapConfigData[],
-  OrphanedDialog?: DialogExcelConfigData[][],
+  NonTalkDialog?: DialogExcelConfigData[][],
 }
 
 export interface ChapterExcelConfigData {

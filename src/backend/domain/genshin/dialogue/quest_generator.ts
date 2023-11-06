@@ -71,7 +71,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
     throw 'Main Quest not found.';
   }
   mainQuest.QuestExcelConfigDataList = await ctrl.selectAllQuestExcelConfigDataByMainQuestId(mainQuest.Id);
-  mainQuest.NonSubQuestTalks = [];
+  mainQuest.UnsectionedTalks = [];
 
   const debug = custom('quest:' + mainQuest.Id);
   debug('Generating MainQuest');
@@ -82,32 +82,45 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
   debug('Fetching Talks (by MainQuest ID)');
 
   // Fetch talk configs
-  const talkConfigAcc = new TalkConfigAccumulator(ctrl);
+  const acc: TalkConfigAccumulator = new TalkConfigAccumulator(ctrl);
 
   // Fetch Talk Configs by Main Quest ID (exact)
-  const talkConfigsByMainQuestId = await ctrl.selectTalkExcelConfigDataByQuestId(mainQuest.Id, 'TALK_DEFAULT');
-
+  const talkConfigsByMainQuestId: TalkExcelConfigData[] = await ctrl.selectTalkExcelConfigDataByQuestId(mainQuest.Id, 'TALK_DEFAULT');
   debug(`Fetching Talks (by MainQuest ID) - obtained ${talkConfigsByMainQuestId.length} talks, processing...`);
 
   for (let talkConfig of talkConfigsByMainQuestId) {
-    await talkConfigAcc.handleTalkConfig(talkConfig);
+    await acc.handleTalkConfig(talkConfig);
   }
 
   debug('Fetching Talks (by SubQuest ID)');
 
   // Find Talk Configs by Quest Sub ID
   for (let questExcelConfigData of mainQuest.QuestExcelConfigDataList) {
-    if (talkConfigAcc.fetchedTalkConfigIds.has(questExcelConfigData.SubId)) {
+    if (acc.fetchedTalkConfigIds.has(questExcelConfigData.SubId)) {
       continue;
     }
     let talkConfig = await ctrl.selectTalkExcelConfigDataByQuestSubId(questExcelConfigData.SubId, 'TALK_DEFAULT');
-    await talkConfigAcc.handleTalkConfig(talkConfig);
+    await acc.handleTalkConfig(talkConfig);
+
+    if (!talkConfig) {
+      const dialogs = await ctrl.selectDialogExcelConfigDataByTalkId(questExcelConfigData.SubId);
+      for (let dialog of dialogs) {
+        if (ctrl.state.dialogueIdCache.has(dialog.Id))
+          continue;
+        const dialogs = await ctrl.selectDialogBranch(dialog);
+        if (dialogs.length) {
+          if (!questExcelConfigData.NonTalkDialog)
+            questExcelConfigData.NonTalkDialog = [];
+          questExcelConfigData.NonTalkDialog.push(dialogs);
+        }
+      }
+    }
   }
 
   debug('Fetching Talks (by MainQuest ID Prefix)');
 
-  // Find orphaned dialogue
-  // ----------------------
+  // Find unparented dialogue
+  // ------------------------
 
   debug('Fetching unparented dialogue');
   await ctrl.addUnparentedDialogue(mainQuest);
@@ -130,12 +143,12 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
       return;
     }
     if (!talkConfig.QuestId || talkConfig.QuestId === mainQuest.Id) {
-      mainQuest.NonSubQuestTalks.push(talkConfig);
+      mainQuest.UnsectionedTalks.push(talkConfig);
     }
   }
 
-  // Push Talk Configs to appropriate sections (after fetching orphaned dialogue)
-  for (let talkConfig of talkConfigAcc.fetchedTopLevelTalkConfigs) {
+  // Push Talk Configs to appropriate sections (after fetching unparented dialogue)
+  for (let talkConfig of acc.fetchedTopLevelTalkConfigs) {
     pushTalkConfigToCorrespondingQuestSub(talkConfig);
   }
 
@@ -147,7 +160,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
   // Skip quest subs without dialogue/DescTest/StepDescTest.
   let newQuestSubs: QuestExcelConfigData[] = [];
   for (let questSub of mainQuest.QuestExcelConfigDataList) {
-    if (arrayEmpty(questSub.OrphanedDialog) && arrayEmpty(questSub.QuestMessages) && arrayEmpty(questSub.TalkExcelConfigDataList)) {
+    if (arrayEmpty(questSub.NonTalkDialog) && arrayEmpty(questSub.QuestMessages) && arrayEmpty(questSub.TalkExcelConfigDataList)) {
       if (questSub.DescText || questSub.StepDescText) {
         newQuestSubs.push(questSub);
       }
@@ -228,7 +241,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
 
   out.clearOut();
 
-  const orphanedHelpText = `"Orphaned" means that the script didn't find anything conclusive in the JSON associating this dialogue to the quest. The tool assumes it's associated based on the dialogue IDs.`;
+  const nonTalkDialogHelpMessage = `Dialogues that are not part of a Talk.`;
   const questMessageHelpText = `These are usually black-screen transition lines. There isn't any info in the JSON to show where these lines go chronologically within the section, so you'll have to figure that out.`;
 
   for (let questSub of mainQuest.QuestExcelConfigDataList) {
@@ -243,9 +256,9 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
     sect.addCondMetaProp('FinishCond', questSub.FinishCondComb, questSub.FinishCond);
     sect.addCondMetaProp('FailCond', questSub.FailCondComb, questSub.FailCond);
 
-    if (questSub.OrphanedDialog && questSub.OrphanedDialog.length) {
-      for (let dialog of questSub.OrphanedDialog) {
-        let subsect = new DialogueSectionResult('OrphanedDialogue_'+dialog[0].Id, 'Orphaned Dialogue', orphanedHelpText);
+    if (questSub.NonTalkDialog && questSub.NonTalkDialog.length) {
+      for (let dialog of questSub.NonTalkDialog) {
+        let subsect = new DialogueSectionResult('NonTalkDialogue_'+dialog[0].Id, 'Non-Talk Dialogue', nonTalkDialogHelpMessage);
         subsect.metadata.push(new MetaProp('First Dialogue ID', dialog[0].Id, `/branch-dialogue?q=${dialog[0].Id}`));
         subsect.metadata.push(new MetaProp('Quest ID', {value: mainQuest.Id, tooltip: mainQuest.TitleText}, `/quests/{}`));
         subsect.originalData.questId = mainQuest.Id;
@@ -283,9 +296,9 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
     result.dialogue.push(sect);
   }
 
-  if (mainQuest.OrphanedDialog && mainQuest.OrphanedDialog.length) {
-    for (let dialog of mainQuest.OrphanedDialog) {
-      let sect = new DialogueSectionResult('OrphanedDialogue_'+dialog[0].Id, 'Orphaned Dialogue', orphanedHelpText);
+  if (mainQuest.NonTalkDialog && mainQuest.NonTalkDialog.length) {
+    for (let dialog of mainQuest.NonTalkDialog) {
+      let sect = new DialogueSectionResult('NonTalkDialogue_'+dialog[0].Id, 'Non-Talk Dialogue', nonTalkDialogHelpMessage);
       sect.originalData.dialogBranch = dialog;
       sect.metadata.push(new MetaProp('First Dialogue ID', dialog[0].Id, `/branch-dialogue?q=${dialog[0].Id}`));
       sect.metadata.push(new MetaProp('Quest ID', {value: mainQuest.Id, tooltip: mainQuest.TitleText}, `/quests/{}`));
@@ -299,10 +312,10 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
     }
   }
 
-  debug('Generating quest dialogue (Orphaned Talks)');
+  debug('Generating quest dialogue (Unsectioned Talks)');
 
-  if (mainQuest.NonSubQuestTalks && mainQuest.NonSubQuestTalks.length) {
-    for (let talkConfig of mainQuest.NonSubQuestTalks) {
+  if (mainQuest.UnsectionedTalks && mainQuest.UnsectionedTalks.length) {
+    for (let talkConfig of mainQuest.UnsectionedTalks) {
       await talkConfigToDialogueSectionResult(ctrl, result, 'Unsectioned Talk',
         'These are Talks that are part of the quest but not part of any section.', talkConfig);
     }
