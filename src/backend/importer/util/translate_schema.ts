@@ -131,6 +131,9 @@ export async function translateSchema(prevFilePath: string, currFilePath: string
     let sortedCandidateKeys = Object.entries(candidate.candidateKeys).sort((a,b) => b[1] - a[1]);
 
     const topCandidateKey = sortedCandidateKeys[0][0];
+    if (topCandidateKey === 'Id' && currFile[0] && currFile[0].hasOwnProperty('id')) {
+      continue;
+    }
     schemaResult[candidate.obfPropName] = topCandidateKey;
     eliminatedCandidateKeys.push(topCandidateKey);
   }

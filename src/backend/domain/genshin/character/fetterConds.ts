@@ -104,7 +104,7 @@ export async function processQuestConds(ctrl: GenshinControl, fetter: FetterWith
         summaryObj.QuestType = 'Chapter';
       } else {
         let subQuest = await ctrl.selectQuestExcelConfigData(chapter.EndQuestId);
-        if (subQuest.MainId === mainQuest.Id) {
+        if (subQuest && subQuest.MainId === mainQuest.Id) {
           summaryObj.QuestId = chapter.Id;
           summaryObj.QuestTitleTextMap = await ctrl.createLangCodeMap(chapter.ChapterTitleTextMapHash);
           summaryObj.QuestType = 'Chapter';

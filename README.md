@@ -213,7 +213,7 @@ It doesn't matter which order you run those two commands in.
 
 You'll want to create the `public/images/genshin` folder and add the images matching these conditions.
 
-All files in `Texture2D` starting with (case insensitive):
+All files in `Texture2D` starting with (case-insensitive):
 - `UI_AchievementIcon`
 - `UI_AnimalIcon`
 - `UI_AvatarIcon`

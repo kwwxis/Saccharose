@@ -21,6 +21,7 @@ export async function importTranslateSchema() {
   for (let schemaTable of Object.values(genshinSchema)) {
     if (!schemaTable.jsonFile.includes('ExcelBinOutput')
       || schemaTable.jsonFile.includes('DialogExcel')
+      || schemaTable.jsonFile.includes('DialogUnparented')
       || schemaTable.name.includes('MainQuestExcel')
       || schemaTable.name.includes('QuestExcel')
       || schemaTable.name.includes('TalkExcel')
