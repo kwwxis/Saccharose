@@ -26,10 +26,10 @@ const InterActionSchema = <SchemaTable>{
   columns: [],
   jsonFile: '',
   renameFields: {
-    CIOBDALMHGN: 'DialogOptions',
-    MCAHMAIKDKH: 'DialogNextGroup',
-    GBAPKLGILDP: 'DialogId',
-    EDFJOBOJFBD: 'CutsceneId'
+    MLAABINGLAA: 'DialogOptions',
+    HPBPDBFGKID: 'DialogNextGroup',
+    KICBIOMGHIN: 'DialogId',
+    LMHLEOPOLEK: 'CutsceneId'
   },
 };
 
