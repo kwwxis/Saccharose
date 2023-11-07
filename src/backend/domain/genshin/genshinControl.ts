@@ -2169,11 +2169,10 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   }
 
   private async selectDocumentIdByLocalizationId(localizationId: number): Promise<number> {
-    return await this.knex.select('Id').from('DocumentExcelConfigData')
-      .where({ContentLocalizedId: localizationId})
-      .or.where({AltContentLocalizationId_0: localizationId})
+    return await this.knex.select('DocumentId').from('Relation_LocalizationIdToDocumentId')
+      .where({LocalizationId: localizationId})
       .first()
-      .then(res => res ? res.Id : undefined);
+      .then(res => res ? res.DocumentId : undefined);
   }
 
   private async loadLocalization(contentLocalizedId: number, triggerCond?: number): Promise<ReadableItem> {
@@ -2207,7 +2206,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return !Document ? null : {
       Document,
       Items: loadItems ? [
-        await this.loadLocalization(Document.ContentLocalizedId),
+        ... await Document.ContentLocalizedIds.asyncMap(id => this.loadLocalization(id)),
         ... await pairArrays(Document.AltContentLocalizedIds, Document.AltContentLocalizedQuestConds).asyncMap(
           async ([id, triggerCond]) => await this.loadLocalization(id, triggerCond)
         )

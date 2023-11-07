@@ -7,7 +7,7 @@
  * MaterialExcelConfigData.SetId               -> BookSuitExcelConfigData.Id
  * BooksCodexExcelConfigData.MaterialId        -> DocumentExcelConfigData.Id
  * ReliquaryExcelConfigData.StoryId            -> DocumentExcelConfigData.Id
- * DocumentExcelConfigData.ContentLocalizedId  -> LocalizationExcelConfigData.Id
+ * DocumentExcelConfigData.ContentLocalizedIds -> LocalizationExcelConfigData.Id
  */
 
 import { MaterialExcelConfigData } from './material-types';
@@ -127,12 +127,12 @@ export interface DocumentExcelConfigData {
   Id: number,
   TitleTextMapHash: number,
   TitleText?: string,
-  ContentLocalizedId: number,
   PreviewPath: string,
   DocumentType?: 'Video' | undefined,
   VideoPath?: string,
   SubtitleId?: number,
 
+  ContentLocalizedIds: number[],
   AltContentLocalizedQuestConds: number[], // Quest trigger condition for alternate
   AltContentLocalizedIds: number[], // Alternate ContentLocalizedIds
 }

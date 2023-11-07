@@ -16,6 +16,7 @@ import { GCGCharacterLevelExcelConfigData, GCGWeekLevelExcelConfigData } from '.
 import { SchemaTable, textMapSchema, plainLineMapSchema } from '../import_db';
 import { getGenshinDataFilePath } from '../../loadenv';
 import fs from 'fs';
+import { DocumentExcelConfigData } from '../../../shared/types/genshin/readable-types';
 
 export const RAW_MANUAL_TEXTMAP_ID_PROP: string = 'textMapId';
 
@@ -595,14 +596,39 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/DocumentExcelConfigData.json',
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
-      { name: 'ContentLocalizedId', type: 'integer', isIndex: true },
-      { name: 'AltContentLocalizationId_0', type: 'integer', isIndex: true, resolve: 'AltContentLocalizedIds[0]' },
       { name: 'TitleTextMapHash', type: 'integer', isIndex: true },
     ],
     renameFields: {
+      HJGOCFKEBEJ: 'ContentLocalizedIds',
+      HGHPAKBJLMN: 'AltContentLocalizedIds',
       NHNENGFHDEG: 'AltContentLocalizedQuestConds',
+    },
+  },
+  Relation_LocalizationIdToDocumentId: <SchemaTable> {
+    name: 'Relation_LocalizationIdToDocumentId',
+    jsonFile: './ExcelBinOutput/DocumentExcelConfigData.json',
+    columns: [
+      { name: 'LocalizationId', type: 'integer', isIndex: true },
+      { name: 'DocumentId', type: 'integer', isIndex: true },
+    ],
+    renameFields: {
+      HJGOCFKEBEJ: 'ContentLocalizedIds',
       HGHPAKBJLMN: 'AltContentLocalizedIds',
     },
+    customRowResolve: (row: DocumentExcelConfigData) => {
+      let ret = [];
+      if (row.ContentLocalizedIds) {
+        for (let contentLocalizedId of row.ContentLocalizedIds) {
+          ret.push({LocalizationId: contentLocalizedId, DocumentId: row.Id});
+        }
+      }
+      if (row.AltContentLocalizedIds) {
+        for (let contentLocalizedId of row.AltContentLocalizedIds) {
+          ret.push({LocalizationId: contentLocalizedId, DocumentId: row.Id});
+        }
+      }
+      return ret;
+    }
   },
   ReliquaryExcelConfigData: <SchemaTable> {
     name: 'ReliquaryExcelConfigData',
