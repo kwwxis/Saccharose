@@ -12,8 +12,8 @@ export async function importGcgSkill() {
   const skillExcelJson: any[] = JSON.parse(skillExcelStr);
   const skillInternalNames: Set<string> = new Set<string>();
   for (let skillExcel of skillExcelJson) {
-    if (skillExcel['ODACBHLGCIN'] || skillExcel['CCKMLPCNHFL'] || skillExcel['HHHMJFBFAKD'] || skillExcel['PMMNFCHEICF']) {
-      skillInternalNames.add(skillExcel['ODACBHLGCIN'] || skillExcel['CCKMLPCNHFL'] || skillExcel['HHHMJFBFAKD'] || skillExcel['PMMNFCHEICF']);
+    if (skillExcel['ODACBHLGCIN'] || skillExcel['CCKMLPCNHFL'] || skillExcel['HHHMJFBFAKD'] || skillExcel['PMMNFCHEICF'] || skillExcel['MFLFOBHEELP']) {
+      skillInternalNames.add(skillExcel['ODACBHLGCIN'] || skillExcel['CCKMLPCNHFL'] || skillExcel['HHHMJFBFAKD'] || skillExcel['PMMNFCHEICF'] || skillExcel['MFLFOBHEELP']);
     }
   }
 
@@ -32,10 +32,12 @@ export async function importGcgSkill() {
 
     if (typeof json === 'object' && typeof json.name === 'string' && skillInternalNames.has(json.name)) {
       const name: string = json.name;
-      const data: any = json['NGKMIMDBNPC'] || json['ACMGJEOBIEK'] || json['ANFAJNNDLFF'] || json['CLFPJIMIPNN'] || json['IICPHNNCBPL'];
+      const data: any = json['NGKMIMDBNPC'] || json['ACMGJEOBIEK'] || json['ANFAJNNDLFF'] || json['CLFPJIMIPNN']
+        || json['IICPHNNCBPL'] || json['LBJBMKBADGI'];
       if (!combined[name]) {
         combined[name] = { Name: name };
       }
+
       if (data) {
         combined[name].Damage = data['-2060930438']?.value || data['-2060930438']?.['DLLBGDKBMIL'];
         combined[name].IndirectDamage = data['-1921818039']?.value || data['-1921818039']?.['DLLBGDKBMIL'];
