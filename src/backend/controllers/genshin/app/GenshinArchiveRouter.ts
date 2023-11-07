@@ -313,6 +313,7 @@ export default async function(): Promise<Router> {
 
     res.render('pages/genshin/archive/loading-tips', {
       title: 'Loading Tips',
+      tableFormat: false,
       catNames: await selectLoadingMainCatNames(ctrl),
       bodyClass: ['page--loading-tips']
     });
