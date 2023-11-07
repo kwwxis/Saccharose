@@ -103,15 +103,17 @@ export async function importNormalize(jsonDir: string, skip: string[], specialNo
     const filePath = path.join(jsonDir, file);
     process.stdout.write(chalk.bold('Processing: ' + filePath));
 
-    if (file === 'DialogExcelConfigData.json') {
-      process.stdout.write(chalk.bold('Deleted: ' + filePath));
-      fs.unlinkSync(filePath);
-      continue;
-    }
-
     let fileData = await fsp.readFile(filePath, 'utf8');
 
-    let json = JSON.parse(fileData);
+    let json;
+
+    try {
+      json = JSON.parse(fileData);
+    } catch (e) {
+      if (file === 'DialogExcelConfigData.json') {
+        continue;
+      }
+    }
 
     if (specialNormalize) {
       if (Array.isArray(json)) {
