@@ -1136,11 +1136,17 @@ export const genshinSchema = {
       { name: 'Id', type: 'integer', isPrimary: true },
     ],
     renameFields: {
+      AKHNGALMPIM: 'DeckNameTextMapHash',
+      NONCKOEBEAI: 'DeckNameTextMapHash',
       CAOAPKABBFC: 'DeckNameTextMapHash',
       DOJNOEJOIKP: 'CharacterList',
-      KGCAJNCAHGJ: 'WaitingCharacterList',
       PKLANNMLIED: 'CardList',
+      OMGIGFANODA: 'CardList',
+      ALLLDMINCMC: 'CardList',
+      KGCAJNCAHGJ: 'WaitingCharacterList',
       AAJKIMNCCPN: 'WaitingCharacterList',
+      ALIFJCCLFEK: 'WaitingCharacterList',
+      HHHBIFFDHPL: 'WaitingCharacterList',
       EHGFJIIDJIM: 'CondCount'
     }
   },

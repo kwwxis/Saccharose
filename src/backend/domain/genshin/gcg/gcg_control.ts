@@ -964,6 +964,7 @@ export class GCGControl {
 
     // Re-sort action card list:
     let sortActionMap: Map<number, number> = new Map();
+    console.log(deck);
     for (let cardId of deck.CardList) {
       if (sortActionMap.has(cardId)) {
         sortActionMap.set(cardId, sortActionMap.get(cardId) + 1);

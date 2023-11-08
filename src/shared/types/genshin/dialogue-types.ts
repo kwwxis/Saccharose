@@ -213,6 +213,17 @@ export interface TalkExcelConfigData {
   ForceNpcNotDestroy: boolean,
 }
 
+export type ReminderStyle =
+  'Banner'                |
+  'DialogueWithPortrait'  |
+  'EventPromptDown'       |
+  'InfoTextDialog'        |
+  'PenumbraInfo'          |
+  'PenumbraMiniStory'     |
+  'PenumbraStory'         |
+  'PenumbraTarget'        |
+  'WhiteMessage'          ;
+
 export interface ReminderExcelConfigData {
   Id: number,
   SpeakerText: string,
@@ -224,6 +235,7 @@ export interface ReminderExcelConfigData {
   NextReminderId: number,
   SoundEffect: string,
   HasAudio: boolean,
+  Style?: ReminderStyle,
 }
 
 export interface QuestSummarizationTextExcelConfigData {
