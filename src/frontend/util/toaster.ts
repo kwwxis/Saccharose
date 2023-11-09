@@ -102,17 +102,17 @@ export function makeToast(opts: ToastOpts) {
   }
 }
 
-export function toastInfo(opts) {
+export function toastInfo(opts: ToastOpts) {
   opts.type = TOAST_INFO;
   makeToast(opts);
 }
 
-export function toastSuccess(opts) {
+export function toastSuccess(opts: ToastOpts) {
   opts.type = TOAST_SUCCESS;
   makeToast(opts);
 }
 
-export function toastError(opts) {
+export function toastError(opts: ToastOpts) {
   opts.type = TOAST_ERROR;
   makeToast(opts);
 }

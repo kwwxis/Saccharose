@@ -82,6 +82,7 @@ import {
   ReliquarySetExcelConfigData,
 } from '../../../shared/types/genshin/artifact-types';
 import {
+  EquipAffixExcelConfigData,
   WeaponExcelConfigData,
   WeaponLoadConf,
   WeaponType,
@@ -947,6 +948,14 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     this.state.questSummaryCache = items;
     return items;
   }
+  // endregion
+
+  // region InterAction Loader
+
+  async getDialogueToInterActionMap() {
+
+  }
+
   // endregion
 
   // region Monster
@@ -2011,7 +2020,15 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     if (loadConf.LoadReadable && weapon.StoryId) {
       weapon.Story = await this.selectReadableView(weapon.StoryId, true);
     }
+    if (loadConf.LoadEquipAffix && weapon.SkillAffix && weapon.SkillAffix.length && isInt(weapon.SkillAffix[0]) && weapon.SkillAffix[0] !== 0) {
+      weapon.EquipAffixList = await this.selectEquipAffixListById(weapon.SkillAffix[0]);
+    }
     return weapon;
+  }
+
+  async selectEquipAffixListById(id: number): Promise<EquipAffixExcelConfigData[]> {
+    return await this.knex.select('*').from('EquipAffixExcelConfigData')
+      .where({Id: id}).then(this.commonLoad);
   }
 
   async getWeaponType(weaponType: WeaponType|WeaponTypeEN|GCGTagWeaponType, langCode: LangCode = 'EN'): Promise<string> {

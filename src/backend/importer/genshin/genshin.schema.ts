@@ -672,6 +672,17 @@ export const genshinSchema = {
       { name: 'WeaponId', type: 'integer', isIndex: true },
     ],
   },
+  EquipAffixExcelConfigData: <SchemaTable> {
+    name: 'EquipAffixExcelConfigData',
+    jsonFile: './ExcelBinOutput/EquipAffixExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isIndex: true},
+      {name: 'AffixId', type: 'integer', isPrimary: true},
+      {name: 'NameTextMapHash', type: 'decimal', isIndex: true},
+      {name: 'DescTextMapHash', type: 'decimal', isIndex: true},
+      {name: 'Level', type: 'integer', isIndex: true},
+    ]
+  },
   AchievementExcelConfigData: <SchemaTable> {
     name: 'AchievementExcelConfigData',
     jsonFile: './ExcelBinOutput/AchievementExcelConfigData.json',

@@ -5,7 +5,7 @@ import {
   MwParentNode,
   MwSection,
   MwCharSequence,
-  MwTextNode,
+  MwTextNode, MwContainer,
 } from './mwTypes';
 import { MwParseHtmlModule } from './parseModules/mwParse.html';
 import { MwParseTemplateModule } from './parseModules/mwParse.template';
@@ -366,7 +366,7 @@ export function mwSimpleTextParse(str: string): MwCharSequence[] {
 export function mwParse(str: string): MwParentNode {
   if (!str) {
     // If the input string is null/undefined/empty, then return an empty MwParentNode
-    return new MwParentNode();
+    return new MwContainer();
   }
 
   // Remove any '\r' so there's only '\n'
@@ -378,7 +378,7 @@ export function mwParse(str: string): MwParentNode {
   // Create root context and add it to the iterator's parse context stack
   // The root context will be always be the first context in the stack and will start off as the only context in the
   // stack, thereby making it the last and current context until more contexts are pushed onto the stack.
-  let rootContext = iter.pushContext(new MwParentNode(), null);
+  let rootContext = iter.pushContext(new MwContainer(), null);
 
   // Main parse loop:
   for (iter.i = 0; iter.i < str.length; iter.i++) {

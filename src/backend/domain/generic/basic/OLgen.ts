@@ -1,21 +1,19 @@
 import '../../../loadenv';
 import { getGenshinControl } from '../../genshin/genshinControl';
-import { maybeInt } from '../../../../shared/util/numberUtil';
+import { isInt, maybeInt } from '../../../../shared/util/numberUtil';
 import { mwParse } from '../../../../shared/mediawiki/mwParse';
-import { MwTemplateNode, MwCharSequence } from '../../../../shared/mediawiki/mwTypes';
+import { MwTemplateNode, MwCharSequence, MwEOL } from '../../../../shared/mediawiki/mwTypes';
 import { pathToFileURL } from 'url';
 import { Marker } from '../../../../shared/util/highlightMarker';
 import { LANG_CODE_TO_WIKI_CODE, LANG_CODES, LangCode, TextMapHash } from '../../../../shared/types/lang-types';
 import { AbstractControl } from '../../abstractControl';
 import { SbOut } from '../../../../shared/util/stringUtil';
 import { isUnset } from '../../../../shared/util/genericUtil';
+import { closeKnex } from '../../../util/db';
 
 async function ol_gen_internal(ctrl: AbstractControl,
                                textMapHash: TextMapHash,
-                               hideTl: boolean = false,
-                               addDefaultHidden: boolean = false,
-                               hideRm: boolean = false,
-                               includeHeader: boolean = false): Promise<{
+                               opts: OLGenOptions): Promise<{
   wikitext: string,
   warnings: string[],
 }> {
@@ -37,15 +35,15 @@ async function ol_gen_internal(ctrl: AbstractControl,
     { langCode: 'IT', rm: false, tl: true },
   ];
   let sbOut = new SbOut();
-  if (includeHeader) {
+  if (opts.includeHeader) {
     sbOut.line('==Other Languages==');
   }
-  if (addDefaultHidden) {
+  if (opts.addDefaultHidden) {
     sbOut.line('{{Other Languages|default_hidden=1');
   } else {
     sbOut.line('{{Other Languages');
   }
-  sbOut.setPropPad(hideTl && hideRm ? 5 : 8);
+  sbOut.setPropPad(opts.hideTl && opts.hideRm ? 5 : 8);
   for (let item of templateConfig) {
     if (ctrl.disabledLangCodes.has(item.langCode)) {
       continue;
@@ -53,14 +51,14 @@ async function ol_gen_internal(ctrl: AbstractControl,
     const wikiCode = LANG_CODE_TO_WIKI_CODE[item.langCode].toLowerCase();
     sbOut.prop(wikiCode, `{${item.langCode}_official_name}`);
 
-    if (item.rm && !hideRm) {
+    if (item.rm && !opts.hideRm) {
       sbOut.prop(wikiCode + '_rm', `{}`);
     }
     if (item.tl && (item.langCode === 'CHS' || item.langCode === 'CHT')) {
-      if (item.langCode === 'CHT' && !hideTl) {
+      if (item.langCode === 'CHT' && !opts.hideTl) {
         sbOut.prop('zh_tl', '{}');
       }
-    } else if (item.tl && !hideTl) {
+    } else if (item.tl && !opts.hideTl) {
       sbOut.prop(wikiCode + '_tl', '{}');
     }
   }
@@ -81,11 +79,6 @@ async function ol_gen_internal(ctrl: AbstractControl,
     }
 
     rawText = rawText || '';
-
-    // if (rawText.includes('|')) {
-    //   rawText = rawText.replaceAll(/\|/g, '{{!}}');
-    //   warnings.push(`The parameter value for <code>${LANG_CODE_TO_WIKI_CODE[langCode].toLowerCase()}</code> contains a non-template pipe character (<code>|</code>). It has been replaced with <code>{{!}}</code>.<br />If pipe character was part of a special code, then it'll require manual editor intervention.`)
-    // }
 
     olMap[langCode] = rawText;
 
@@ -182,22 +175,73 @@ export interface OLResult {
   duplicateTextMapHashes: TextMapHash[];
 }
 
-export async function ol_gen(ctrl: AbstractControl, name: string, options: OLGenOptions = {}): Promise<OLResult[]> {
-  const maybeIdResult = await ol_gen_from_id(ctrl, maybeInt(name), options);
-  if (maybeIdResult) {
-    return [maybeIdResult];
+export interface OLCombinedResult {
+  textMapHashList: TextMapHash[],
+  result: string,
+  templateNode: MwTemplateNode
+}
+
+export function ol_combine_results(olResults: OLResult[]): OLCombinedResult {
+  if (olResults) {
+    olResults = olResults.filter(x => !!x);
+  }
+  if (!olResults || olResults.length === 0){
+    return {
+      textMapHashList: [],
+      result: '',
+      templateNode: null
+    }
+  }
+  if (olResults.length === 1) {
+    return {
+      textMapHashList: [olResults[0].textMapHash],
+      result: olResults[0].result,
+      templateNode: olResults[0].templateNode
+    }
   }
 
-  let textMapHashList: TextMapHash[] = await ctrl.findTextMapHashesByExactName(name);
-  if (!textMapHashList || !textMapHashList.length) {
+  populateOlTemplateNode(olResults);
+
+  const resultNode = new MwTemplateNode('Other Languages\n');
+
+  for (let i = 0; i < olResults.length; i++) {
+    const olResult = olResults[i];
+
+    if (i > 0) {
+      resultNode.addNode(new MwEOL('\n'));
+    }
+
+    for (let param of olResult.templateNode.params) {
+      param = param.copy();
+      param.key = `${i + 1}_${param.rawKey}`;
+      resultNode.addParam(param);
+    }
+  }
+  return {
+    textMapHashList: olResults.map(r => r.textMapHash),
+    result: resultNode.toString(),
+    templateNode: resultNode
+  };
+}
+
+export async function ol_gen(ctrl: AbstractControl, name: string, options: OLGenOptions = {}): Promise<OLResult[]> {
+  if (isInt(name)) {
+    const maybeIdResult: OLResult = await ol_gen_from_id(ctrl, maybeInt(name), options);
+    if (maybeIdResult) {
+      return [maybeIdResult];
+    }
+  }
+
+  const textMapHashList: TextMapHash[] = await ctrl.findTextMapHashesByExactName(name);
+  if (!textMapHashList.length) {
     return [];
   }
 
-  let allResults: OLResult[] = [];
-  let seen: {[result: string]: OLResult} = {};
+  const allResults: OLResult[] = [];
+  const seen: {[result: string]: OLResult} = {};
 
   for (let textMapHash of textMapHashList) {
-    let { wikitext: result, warnings } = await ol_gen_internal(ctrl, textMapHash, options.hideTl, options.addDefaultHidden, options.hideRm, options.includeHeader);
+    let { wikitext: result, warnings } = await ol_gen_internal(ctrl, textMapHash, options);
     if (!result || result.includes('{EN_official_name}')) {
       continue;
     }
@@ -216,18 +260,24 @@ export async function ol_gen_from_id(ctrl: AbstractControl, textMapHash: TextMap
   if (!textMapHash) {
     return null;
   }
-  let { wikitext: result, warnings } = await ol_gen_internal(ctrl, textMapHash, options.hideTl, options.addDefaultHidden, options.hideRm, options.includeHeader);
+  let { wikitext: result, warnings } = await ol_gen_internal(ctrl, textMapHash, options);
   if (!result || !result.trim()) {
     return null;
   }
   return {textMapHash, result, warnings, markers: [], duplicateTextMapHashes: []};
 }
 
-export function add_ol_markers(olResults: OLResult[]): OLResult[] {
+function populateOlTemplateNode(olResults: OLResult[]) {
   for (let olResult of olResults) {
-    let mwParseResult = mwParse(olResult.result);
-    olResult.templateNode = mwParseResult.findTemplateNodes()[0];
+    if (!olResult.templateNode) {
+      let mwParseResult = mwParse(olResult.result);
+      olResult.templateNode = mwParseResult.findTemplateNodes()[0];
+    }
   }
+}
+
+export function add_ol_markers(olResults: OLResult[]): OLResult[] {
+  populateOlTemplateNode(olResults);
 
   let diffKeys = [];
 
@@ -265,71 +315,13 @@ export function add_ol_markers(olResults: OLResult[]): OLResult[] {
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
-    console.log(await ol_gen(getGenshinControl(), `"Outlander Brigade!"`));
+    //console.log(await ol_gen(getGenshinControl(), `"Outlander Brigade!"`));
 
-    console.log(await ol_gen(getGenshinControl(), `A letter given to you by Sumida.\\nGive this letter to Kama in Ritou.`))
-    // console.log(await ol_gen(getControl(), `Master Chef: Vanarana`, {
-    //   hideTl: true,
-    // }));
+    const res1 = await ol_gen(getGenshinControl(), `Nahida`);
+    const res2 = await ol_gen(getGenshinControl(), `Furina`);
+    const comb = await ol_combine_results([... res1, ... res2]);
+    console.log(comb.toString());
 
-//     let out = highlight_ol_differences([{
-//       textMapHash: 1861052848,
-//       result: `{{Other Languages
-// |en      = Iris
-// |zhs     = 伊丽丝
-// |zhs_rm  =
-// |zht     = 伊麗絲
-// |zht_rm  =
-// |zh_tl   =
-// |ja      = イリス
-// |ja_rm   =
-// |ja_tl   =
-// |ko      = 이리스
-// |ko_rm   =
-// |ko_tl   =
-// |es      = Iris
-// |fr      = Iris
-// |ru      = Ирис
-// |ru_tl   =
-// |th      = Iris
-// |vi      = Iris
-// |de      = Iris
-// |id      = Iris
-// |pt      = Iris
-// |tr      = Iris
-// |it      = Iris
-// }}`
-//   }, {
-//       textMapHash: 1892768677,
-//       result: `{{Other Languages
-// |en      = Iris
-// |zhs     = 玉霞
-// |zhs_rm  =
-// |zht     = 玉霞
-// |zht_rm  =
-// |zh_tl   =
-// |ja      = 玉霞
-// |ja_rm   =
-// |ja_tl   =
-// |ko      = 옥희
-// |ko_rm   =
-// |ko_tl   =
-// |es      = Iris
-// |fr      = Iris
-// |ru      = Юй Ся
-// |ru_tl   =
-// |th      = Iris
-// |vi      = Iris
-// |de      = Iris
-// |id      = Iris
-// |pt      = Yuxia
-// |pt_tl   =
-// |tr      = Iris
-// |it      = Iris
-// }}`
-//     }]);
-//
-//     console.log(out[0].result);
-//     console.log(out[1].result);
+    await closeKnex();
   })();
 }

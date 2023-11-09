@@ -18,17 +18,22 @@
 
 import { isInt } from '../util/numberUtil';
 import { mwParse, mwSimpleTextParse } from './mwParse';
-import { arrayRemove } from '../util/arrayUtil';
 
 export abstract class MwNode {
   abstract toString(): string;
+  abstract copy(): MwNode;
 }
 
 /**
  * An MwNode that can contain children.
  */
-export class MwParentNode extends MwNode {
+export abstract class MwParentNode extends MwNode {
   parts: MwNode[] = [];
+
+  public copyPartsFrom(other: MwParentNode): this {
+    this.parts = other.parts.map(part => part.copy());
+    return this;
+  }
 
   override toString(): string {
     return this.parts.map(p => p.toString()).join('');
@@ -95,6 +100,12 @@ export class MwParentNode extends MwNode {
   }
 }
 
+export class MwContainer extends MwParentNode {
+  override copy(): MwContainer {
+    return new MwContainer().copyPartsFrom(this);
+  }
+}
+
 // ------------------------------------------------------------------------------------------
 export abstract class MwCharSequence extends MwNode {
   content: string;
@@ -111,15 +122,24 @@ export class MwEOL extends MwCharSequence {
   constructor(content: string) {
     super(content);
   }
+  override copy(): MwEOL {
+    return new MwEOL(this.content);
+  }
 }
 export class MwTextNode extends MwCharSequence {
   constructor(content: string) {
     super(content);
   }
+  override copy(): MwTextNode {
+    return new MwTextNode(this.content);
+  }
 }
 export class MwBehaviorSwitch extends MwCharSequence {
   constructor(content: string) {
     super(content);
+  }
+  override copy(): MwBehaviorSwitch {
+    return new MwBehaviorSwitch(this.content);
   }
 }
 // ------------------------------------------------------------------------------------------
@@ -138,6 +158,10 @@ export class MwElement extends MwParentNode {
   override toString(): string {
     return this.tagStart + super.toString() + this.tagEnd;
   }
+
+  override copy(): MwElement {
+    return new MwElement(this.tagName, this.tagStart, this.tagEnd).copyPartsFrom(this);
+  }
 }
 export class MwComment extends MwElement {
   content: string;
@@ -148,6 +172,9 @@ export class MwComment extends MwElement {
   override toString(): string {
     return this.tagStart + this.content + this.tagEnd;
   }
+  override copy(): MwComment {
+    return new MwComment(this.tagStart, this.content, this.tagEnd).copyPartsFrom(this);
+  }
 }
 export class MwNowiki extends MwElement {
   content: string;
@@ -157,6 +184,9 @@ export class MwNowiki extends MwElement {
   }
   override toString(): string {
     return this.tagStart + this.content + this.tagEnd;
+  }
+  override copy(): MwNowiki {
+    return new MwNowiki(this.tagStart, this.content, this.tagEnd).copyPartsFrom(this);
   }
 }
 export class MwHeading extends MwElement {
@@ -173,6 +203,9 @@ export class MwHeading extends MwElement {
   set innerText(wikitext: string) {
     this.parts = mwParse(wikitext).parts;
   }
+  override copy(): MwHeading {
+    return new MwHeading(this.tagName, this.tagStart, this.tagEnd).copyPartsFrom(this);
+  }
 }
 
 export class MwSection extends MwParentNode {
@@ -181,6 +214,9 @@ export class MwSection extends MwParentNode {
   }
   override toString(): string {
     return this.heading.toString() + super.toString();
+  }
+  override copy(): MwSection {
+    return new MwSection(this.level, this.heading).copyPartsFrom(this);
   }
 }
 
@@ -224,6 +260,10 @@ export class MwLinkNode extends MwParentNode {
       return '[' + this.linkParts.map(p => p.toString()).join('') + super.toString() + ']';
     }
   }
+
+  override copy(): MwLinkNode {
+    return new MwLinkNode(this.type, this.link).copyPartsFrom(this);
+  }
 }
 
 export class MwRedirect extends MwParentNode {
@@ -233,6 +273,9 @@ export class MwRedirect extends MwParentNode {
   }
   getLinkNode(): MwLinkNode {
     return this.parts.find(part => part instanceof MwLinkNode) as MwLinkNode;
+  }
+  override copy(): MwRedirect {
+    return new MwRedirect([]).copyPartsFrom(this);
   }
 }
 
@@ -272,6 +315,10 @@ export class MwParamNode extends MwParentNode {
     }
   }
 
+  override copy(): MwParamNode {
+    return new MwParamNode(this.prefix, this.rawKey, null, this.beforeValueWhitespace?.content, this.afterValueWhitespace?.content).copyPartsFrom(this);
+  }
+
   get trimmedValue() {
     return this.value.trim();
   }
@@ -298,6 +345,10 @@ export class MwParamNode extends MwParentNode {
 
   get key() {
     return this._key;
+  }
+
+  get rawKey(): string {
+    return this.keyParts.map(x => x.toString()).join('');
   }
 
   set key(newKey: number|string) {
@@ -365,10 +416,13 @@ export class MwTemplateNode extends MwParentNode {
   templateName: string;
   override parts: MwNode[] = [];
   type: MwTemplateType = 'Template';
+  private originalTemplateName: string;
 
   constructor(templateName: string) {
     super();
-    this.templateName = templateName;
+    this.originalTemplateName = templateName;
+    this.templateName = templateName.trim().replace(/ /g, '_');
+    this.addNode(new MwParamNode('', 0, templateName)._evaluateAfterValueWhitespace());
   }
 
   override toString(): string {
@@ -377,6 +431,14 @@ export class MwTemplateNode extends MwParentNode {
     } else {
       return '{{' + super.toString() + '}}';
     }
+  }
+
+  override copy(): MwTemplateNode {
+    return new MwTemplateNode(this.originalTemplateName).copyPartsFrom(this);
+  }
+
+  addParam(param: MwParamNode) {
+    this.addNode(param);
   }
 
   addParamBefore(param: MwParamNode, ref: string | number): boolean {
@@ -426,10 +488,10 @@ export class MwTemplateNode extends MwParentNode {
     }
   }
 
-  removeParam(key: string | number): MwParamNode {
-    let param = this.getParam(key);
+  removeParam(key: string | number | MwParamNode): MwParamNode {
+    let param: MwParamNode = typeof key === 'string' || typeof key === 'number' ? this.getParam(key) : key;
     if (param) {
-      arrayRemove(this.parts, [param]);
+      this.removeNode(param);
     }
     return param;
   }

@@ -47,6 +47,7 @@ const presets = {
   LoadingTipsExcelConfigData: <InspectOpt> { file: excel('LoadingTipsExcelConfigData'), inspectFieldValues: ['PreMainQuestIds', 'PreQuestIdList', 'DisableQuestIdList'] },
 
   ReminderExcelConfigData: <InspectOpt> { file: excel('ReminderExcelConfigData'), inspectFieldValues: ['Style'] },
+  EquipAffixExcelConfigData: <InspectOpt> { file: excel('EquipAffixExcelConfigData'), inspectFieldValues: ['AddProps[#ALL].PropType'] },
 
 };
 
@@ -54,7 +55,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
     const ctrl = getGenshinControl();
     //await inspectDataFile(ctrl, presets.CookRecipeExcelConfigData);
-    await inspectDataFile(ctrl, presets.ReminderExcelConfigData);
+    await inspectDataFile(ctrl, presets.EquipAffixExcelConfigData);
 
     await closeKnex();
   })();

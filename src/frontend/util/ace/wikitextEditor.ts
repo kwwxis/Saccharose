@@ -27,6 +27,7 @@ import { uuidv4 } from '../../../shared/util/uuidv4';
 import { getInputValue, hasSelection } from '../domutil';
 import { createAceDomClassWatcher } from './wikitextListeners';
 import { SITE_MODE_WIKI_DOMAIN } from '../../siteMode';
+import { toastError } from '../toaster';
 
 // region Create wikitext editor
 // --------------------------------------------------------------------------------------------------------------
@@ -47,6 +48,34 @@ export function createWikitextEditor(editorElementId: string|HTMLElement): ace.E
     wrap: true,
     scrollPastEnd: 1,
   });
+
+  editor.commands.addCommand({
+    name: 'wikiLink',
+    bindKey: {
+      win: 'Ctrl-K',
+      mac: 'Command-K'
+    },
+    exec: (editor: ace.Editor) => {
+      const selRange = editor.selection.getRange();
+      const selText = editor.session.doc.getTextRange(selRange);
+      console.log('Sel', selText)
+
+      if (selText.includes('\n')) {
+        toastError({title: 'Cannot link', content: 'Cannot create a link over multiple lines.'})
+      } else if (selText.includes('[[') && selText.includes(']]')) {
+        if (selText.match(/\[\[/g).length >= 2 || selText.match(/]]/g).length >= 2) {
+          toastError({title: 'Cannot unlink', content: 'Selection contains multiple links.'})
+          return;
+        }
+        editor.session.replace(selRange, selText.replace(/\[\[/g, '').replace(/]]/g, ''));
+      } else if (selText.includes('[[') || selText.includes(']]')) {
+        toastError({title: 'Cannot unlink', content: 'Selection contains partial link.<br />Select an entire link to unlink.', allowHTML: true});
+      } else {
+        const [fm, spaceBefore, content, spaceAfter] = /^(\s*)(.*?)(\s*)$/.exec(selText);
+        editor.session.replace(selRange, spaceBefore + '[[' + content + ']]' + spaceAfter);
+      }
+    }
+  })
 
   // Set this variable to `Infinity` to deal with this console warning:
   //   "Automatically scrolling cursor into view after selection change this will be disabled in the next version

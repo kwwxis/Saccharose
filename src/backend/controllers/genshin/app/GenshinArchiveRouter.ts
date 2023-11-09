@@ -1,7 +1,7 @@
 import { create } from '../../../routing/router';
 import { getGenshinControl } from '../../../domain/genshin/genshinControl';
 import { BookSuitExcelConfigData, ReadableView } from '../../../../shared/types/genshin/readable-types';
-import { ol_gen_from_id, OLResult } from '../../../domain/generic/basic/OLgen';
+import { ol_combine_results, ol_gen_from_id, OLResult } from '../../../domain/generic/basic/OLgen';
 import {
   getCityIdsWithViewpoints,
   selectViewpoints, VIEWPOINT_DEFAULT_FILE_FORMAT_IMAGE, VIEWPOINT_DEFAULT_FILE_FORMAT_MAP,
@@ -85,13 +85,21 @@ export default async function(): Promise<Router> {
     const ctrl = getGenshinControl(req);
 
     if (req.params.weaponId) {
-      const weapon = await ctrl.selectWeaponById(toInt(req.params.weaponId), {LoadRelations: true, LoadReadable: true});
+      const weapon = await ctrl.selectWeaponById(toInt(req.params.weaponId), {
+        LoadRelations: true,
+        LoadReadable: true,
+        LoadEquipAffix: true
+      });
+
+      const weaponOl = weapon ? (await ol_gen_from_id(ctrl, weapon.NameTextMapHash)) : null;
+      const passiveOl = weapon && weapon?.EquipAffixList?.[0]?.NameTextMapHash
+        ? (await ol_gen_from_id(ctrl, weapon.EquipAffixList[0].NameTextMapHash)) : null;
 
       res.render('pages/genshin/archive/weapon-item', {
         title: weapon ? weapon.NameText : 'Item not found',
         bodyClass: ['page--weapons'],
         weapon,
-        ol: weapon ? (await ol_gen_from_id(ctrl, weapon.NameTextMapHash)) : null
+        ol: ol_combine_results([weaponOl, passiveOl])
       });
     } else {
       res.render('pages/genshin/archive/weapon-item', {

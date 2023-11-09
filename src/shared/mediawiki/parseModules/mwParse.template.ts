@@ -34,8 +34,7 @@ export class MwParseTemplateModule extends MwParseModule {
       const name = regexRes[2];
       const nameEnd = regexRes[3];
 
-      const templateNode = new MwTemplateNode(name.trim().replace(/ /g, '_'));
-      templateNode.addNode(new MwParamNode('', 0, name)._evaluateAfterValueWhitespace());
+      const templateNode = new MwTemplateNode(name);
       if (nameEnd === ':' || name.includes('#')) {
         templateNode.type = 'ParserFunction';
       } else if (MW_VARIABLES.has(name)) {

@@ -10,15 +10,15 @@
     <div class="content">
       <table class="article-table">
         <tr>
-          <td style="width:150px" class="bold">Name</td>
+          <td style="width:150px;min-width:150px;" class="bold" colspan="2">Name</td>
           <td><%= normGenshinText(weapon.NameText) %></td>
         </tr>
         <tr>
-          <td class="bold">Description</td>
+          <td class="bold" colspan="2">Description</td>
           <td><%- include('partials/util/wikitext', {wikitext: normGenshinText(weapon.DescText), seamless: true}) %></td>
         </tr>
         <tr>
-          <td class="bold">Quality</td>
+          <td class="bold" colspan="2">Quality</td>
           <td>
             <div class="valign">
               <code class="spacer10-right"><%= weapon.RankLevel %></code>
@@ -27,7 +27,7 @@
           </td>
         </tr>
         <tr>
-          <td class="bold">Icon</td>
+          <td class="bold" colspan="2">Icon</td>
           <td>
             <img src="/images/genshin/<%= weapon.Icon %>.png" style="max-height:74px" loading="lazy"
                    decoding="async" />
@@ -35,7 +35,7 @@
         </tr>
         <% if (weapon.AwakenIcon) { %>
           <tr>
-            <td class="bold">2nd Ascension Icon</td>
+            <td class="bold" colspan="2">2nd Ascension Icon</td>
             <td>
               <img src="/images/genshin/<%= weapon.AwakenIcon %>.png" style="max-height:74px" loading="lazy"
                    decoding="async" />
@@ -43,13 +43,26 @@
           </tr>
         <% } %>
         <tr>
-          <td class="bold">Item Type</td>
+          <td class="bold" colspan="2">Item Type</td>
           <td><code><%= weapon.ItemType %></code></td>
         </tr>
         <tr>
-          <td class="bold">Weapon Type</td>
+          <td class="bold" colspan="2">Weapon Type</td>
           <td><code><%= weapon.WeaponType %></code></td>
         </tr>
+        <% if (weapon.EquipAffixList && weapon.EquipAffixList.length) { %>
+          <tr>
+            <td class="bold" colspan="2">Passive</td>
+            <td><%= weapon.EquipAffixList[0].NameText %></td>
+          </tr>
+          <% for (let affix of weapon.EquipAffixList) { %>
+            <tr>
+              <td></td>
+              <td class="bold">Level <%= affix.Level || 0 %></td>
+              <td><%- use('partials/util/wikitext', { wikitext: normGenshinText(affix.DescText), seamless: true }) %></td>
+            </tr>
+          <% } %>
+        <% } %>
       </table>
     </div>
   </section>
