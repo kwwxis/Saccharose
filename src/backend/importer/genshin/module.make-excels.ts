@@ -33,6 +33,7 @@ import path from 'path';
 import { pathToFileURL } from 'url';
 import * as process from 'process';
 import { sort } from '../../../shared/util/arrayUtil';
+import { toInt } from '../../../shared/util/numberUtil';
 
 // region Walk Sync
 // --------------------------------------------------------------------------------------------------------------
@@ -59,15 +60,18 @@ export async function generateQuestDialogExcels(repoRoot: string) {
 
   const binOutputQuestPath: string = path.resolve(binOutputPath, './Quest');
   const binOutputTalkPath: string = path.resolve(binOutputPath, './Talk');
+  const binOutputCodexQuestPath: string = path.resolve(binOutputPath, './CodexQuest');
 
   if (!fs.existsSync(binOutputQuestPath)) throw new Error('BinOutput/Quest path does not exist!');
   if (!fs.existsSync(binOutputTalkPath)) throw new Error('BinOutput/Talk path does not exist!');
+  if (!fs.existsSync(binOutputCodexQuestPath)) throw new Error('BinOutput/CodexQuest path does not exist!');
 
   const mainQuestExcelArray: any[] = [];
   const questExcelArray: any[] = [];
   const talkExcelArray: any[] = [];
   const dialogExcelArray: any[] = [];
   const dialogUnparentedExcelArray: any[] = [];
+  const codexQuestArray: any[] = [];
 
   const mainQuestById: { [id: string]: any } = {};
   const questExcelById: { [id: string]: any } = {};
@@ -201,6 +205,56 @@ export async function generateQuestDialogExcels(repoRoot: string) {
     }
   }
 
+  function processCodexQuestObject(json: any) {
+    if (!json.mainQuestId || !Array.isArray(json.subQuests)) {
+      return;
+    }
+    const mqId = json.mainQuestId;
+    for (let subQuest of json.subQuests) {
+      if (!subQuest.items) {
+        continue;
+      }
+      for (let item of subQuest.items) {
+        if (!item) {
+          continue;
+        }
+
+        const initialObj: any = {
+          mainQuestId: mqId,
+          itemId: item.itemId,
+          speakerTextMapHash: item.speakerText?.textId,
+          speakerTextType: item.speakerText?.textType,
+        };
+
+        if (item.dialogs) {
+          let i = 0;
+          for (let dialog of item.dialogs) {
+            codexQuestArray.push(Object.assign({}, initialObj, {
+              id: (mqId + "-" + item.itemId + "-" + i),
+              contentTextMapHash: dialog.text?.textId,
+              contentTextType: dialog.text?.textType,
+
+              soundId: dialog.soundId,
+              nextItemId: dialog.nextItemId,
+            }));
+            i++;
+          }
+        }
+        if (item.texts) {
+          let i = 0;
+          for (let text of item.texts) {
+            codexQuestArray.push(Object.assign({}, initialObj, {
+              id: (mqId + "-" + item.itemId + "-" + i),
+              contentTextMapHash: text.textId,
+              contentTextType: text.textType,
+            }));
+            i++;
+          }
+        }
+      }
+    }
+  }
+
   // ----------------------------------------------------------------------
   // Process Loop Stage
 
@@ -224,6 +278,15 @@ export async function generateQuestDialogExcels(repoRoot: string) {
     if (json.id && json.type && json.subQuests) {
       enqueueMainQuestExcel(json);
     }
+  }
+
+  console.log('Processing BinOutput/CodexQuest');
+  for (let fileName of walkSync(binOutputCodexQuestPath)) {
+    if (!fileName.endsWith('.json')) {
+      continue;
+    }
+    let json = await fsp.readFile(fileName, { encoding: 'utf8' }).then(data => JSON.parse(data));
+    processCodexQuestObject(json);
   }
 
   // ----------------------------------------------------------------------
@@ -261,6 +324,9 @@ export async function generateQuestDialogExcels(repoRoot: string) {
 
   console.log('Writing to DialogUnparentedExcelConfigData');
   fs.writeFileSync(path.resolve(excelDirPath, './DialogUnparentedExcelConfigData.json'), JSON.stringify(dialogUnparentedExcelArray, null, 2));
+
+  console.log('Writing to CodexQuestExcelConfigData');
+  fs.writeFileSync(path.resolve(excelDirPath, './CodexQuestExcelConfigData.json'), JSON.stringify(codexQuestArray, null, 2));
 
   // ----------------------------------------------------------------------
 

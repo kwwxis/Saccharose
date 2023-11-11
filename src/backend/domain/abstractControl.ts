@@ -201,17 +201,12 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     return this.excelPath;
   }
 
-  async readExcelDataFile<T>(filePath: string, doNormText: boolean = false): Promise<ExtractScalar<T>[]> {
-    return this.readDataFile(path.join(this.excelPath, filePath), doNormText);
-  }
-
-  readExcelDataFileToStream<T>(filePath: string, doNormText: boolean = false): ArrayStream<ExtractScalar<T>> {
-    return new ArrayStream<ExtractScalar<T>>(this.readDataFile(path.join(this.excelPath, filePath), doNormText));
+  async readJsonFile<T>(filePath: string): Promise<any> {
+    return JSON.parse(await fs.readFile(this.getDataFilePath(filePath), {encoding: 'utf8'}));
   }
 
   async readDataFile<T>(filePath: string, doNormText: boolean = false): Promise<ExtractScalar<T>[]> {
-    let fileContents: string = await fs.readFile(this.getDataFilePath(filePath), {encoding: 'utf8'});
-    let json = JSON.parse(fileContents);
+    let json = await this.readJsonFile(filePath);
     if (!Array.isArray(json)) {
       json = Object.values(json);
     }
@@ -224,6 +219,14 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       json = await this.commonLoadFirst(json, null, doNormText);
     }
     return json;
+  }
+
+  async readExcelDataFile<T>(filePath: string, doNormText: boolean = false): Promise<ExtractScalar<T>[]> {
+    return this.readDataFile(path.join(this.excelPath, filePath), doNormText);
+  }
+
+  readExcelDataFileToStream<T>(filePath: string, doNormText: boolean = false): ArrayStream<ExtractScalar<T>> {
+    return new ArrayStream<ExtractScalar<T>>(this.readDataFile(path.join(this.excelPath, filePath), doNormText));
   }
 
   async getDataFileSize(filePath: string): Promise<number> {

@@ -5,7 +5,6 @@ import { ol_gen_from_id } from '../../generic/basic/OLgen';
 import { NpcExcelConfigData } from '../../../../shared/types/genshin/general-types';
 import { arrayEmpty, arrayUnique } from '../../../../shared/util/arrayUtil';
 import {
-  QuestSummarizationTextExcelConfigData,
   TalkExcelConfigData,
 } from '../../../../shared/types/genshin/dialogue-types';
 import {
@@ -38,7 +37,6 @@ export class QuestGenerateResult {
   questDescriptions: string[] = [];
   otherLanguagesWikitext: string = null;
   dialogue: DialogueSectionResult[] = [];
-  travelLogSummary: string[] = [];
   cutscenes: {file: string, text: string}[] = [];
   similarityGroups: SimilarityGroups;
 
@@ -343,23 +341,6 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
   // ----------------------------------
   debug('Generating quest similarity groups');
   result.similarityGroups = dialogueCompareApply(result.dialogue);
-
-  // Travel Log Summary
-  // ------------------
-  debug('Generating travel log summary');
-
-  const QuestSummaryItems: QuestSummarizationTextExcelConfigData[] = await ctrl.selectAllQuestSummary();
-  for (let summaryItem of QuestSummaryItems) {
-
-    if (String(summaryItem.Id).startsWith(String(mainQuest.Id))) {
-      let text = ctrl.normText(summaryItem.DescText, ctrl.outputLangCode);
-      if (text.includes('<br')) {
-        result.travelLogSummary.push('{{Cutscene Description|'+text+'}}');
-      } else {
-        result.travelLogSummary.push(':{{color|menu|'+text+'}}');
-      }
-    }
-  }
 
   // Cutscenes
   // ---------

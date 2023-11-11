@@ -58,7 +58,6 @@ export function createWikitextEditor(editorElementId: string|HTMLElement): ace.E
     exec: (editor: ace.Editor) => {
       const selRange = editor.selection.getRange();
       const selText = editor.session.doc.getTextRange(selRange);
-      console.log('Sel', selText)
 
       if (selText.includes('\n')) {
         toastError({title: 'Cannot link', content: 'Cannot create a link over multiple lines.'})

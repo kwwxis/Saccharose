@@ -492,7 +492,11 @@ export const genshinSchema = {
       {name: 'SortOrder', type: 'integer', isIndex: true},
       {name: 'DescTextMapHash', type: 'decimal', isIndex: true},
       {name: 'PushTipsCodexId', type: 'integer', isIndex: true},
-    ]
+    ],
+    renameFields: {
+      'EMDHIKMMGAG': 'AltDescTextMapHashList',
+      'IGHPADAKNEI': 'AltDescTextQuestCondIds',
+    }
   },
   ReputationQuestExcelConfigData: <SchemaTable> {
     name: 'ReputationQuestExcelConfigData',
@@ -1666,13 +1670,13 @@ export const genshinSchema = {
       return ret;
     },
   },
-  QuestSummarizationTextExcelConfigData: <SchemaTable> {
-    name: 'QuestSummarizationTextExcelConfigData',
-    jsonFile: './ExcelBinOutput/QuestSummarizationTextExcelConfigData.json',
+  CodexQuestExcelConfigData: <SchemaTable> {
+    name: 'CodexQuestExcelConfigData',
+    jsonFile: './ExcelBinOutput/CodexQuestExcelConfigData.json',
     columns: [
-      { name: 'Id', type: 'integer', isPrimary: true },
-      { name: 'DescTextMapHash', type: 'integer', isIndex: true },
-    ],
+      {name: 'Id', type: 'string', isPrimary: true},
+      {name: 'MainQuestId', type: 'integer', isIndex: true},
+    ]
   },
 };
 

@@ -13,6 +13,24 @@
     </div>
   </div>
   <div class="content">
+    <% if (Array.isArray(monster?.AnimalCodex?.AltDescTextList)) { %>
+      <% monster.AnimalCodex.AltDescTextList.forEach((descText, idx) => { %>
+        <fieldset class="spacer10-bottom">
+          <legend>Alternate Description</legend>
+          <div class="content">
+            <% if (monster.AnimalCodex.AltDescTextQuestConds[idx]) { %>
+              <span class="secondary-label spacer5-bottom" style="font-size:14px">
+                <strong>Unlocked by:</strong>&nbsp;
+                <a href="/quests/<%= monster.AnimalCodex.AltDescTextQuestConds[idx].MainQuestId %>">
+                  <%= monster.AnimalCodex.AltDescTextQuestConds[idx].NameText %>
+                </a>
+              </span>
+            <% } %>
+            <%- use('partials/util/wikitext', { wikitext: normGenshinText(descText), seamless: true }) %>
+          </div>
+        </fieldset>
+      <% }) %>
+    <% } %>
     <fieldset style="font-size:16px">
       <legend>Info</legend>
       <div class="content">
@@ -52,6 +70,14 @@
               </span>
             </div>
           <% } %>
+        </div>
+      </fieldset>
+    <% } %>
+    <% if (monster?.AnimalCodex?.ModelArtPath) { %>
+      <fieldset class="spacer10-top">
+        <legend>Model Art</legend>
+        <div class="content alignStretch flexWrap" style="padding-top:0;font-size:15px">
+          <img src="/images/genshin/<%= monster.AnimalCodex.ModelArtPath %>.png" style="max-width: 500px" />
         </div>
       </fieldset>
     <% } %>

@@ -74,7 +74,6 @@ router.endpoint('/quests/generate', {
       locals.questDescriptions = result.questDescriptions;
       locals.otherLanguagesWikitext = result.otherLanguagesWikitext;
       locals.dialogue = result.dialogue;
-      locals.travelLogSummary = result.travelLogSummary;
       locals.cutscenes = result.cutscenes;
       locals.reward = result.reward;
       locals.reputation = result.reputation;

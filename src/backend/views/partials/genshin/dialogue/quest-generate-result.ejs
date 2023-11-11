@@ -102,26 +102,6 @@
       <% } %>
     </div>
   </div>
-  <% if (travelLogSummary.length) { %>
-    <div id="travel-log-section" class="content">
-      <h4 class="valign">
-        <span class="expando spacer5-right" ui-action="expando: #travel-log-content"><%- icon('chevron-down', 17) %></span>
-        <span>Travel Log Summarization</span>
-      </h4>
-      <div id="travel-log-content">
-        <% travelLogSummary.forEach((travelLogSummaryItem, idx) => { %>
-          <div class="posRel">
-            <textarea id="travel-log-summary-item-<%= idx %>" readonly class="wikitext w100p autosize"
-                    style="resize:vertical;min-height:40px;padding-right:45px" spellcheck="false" translate="no"><%= travelLogSummaryItem %></textarea>
-            <button class="secondary small posAbs" ui-action="copy: #travel-log-summary-item-<%= idx %>"
-                    ui-tippy-hover="Click to copy to clipboard"
-                    ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
-                    style="right: 0; top: 0;">Copy</button>
-          </div>
-        <% }) %>
-      </div>
-    </div>
-  <% } %>
   <% if (cutscenes.length) { %>
     <div id="cutscene-section" class="content">
       <h4 class="valign">

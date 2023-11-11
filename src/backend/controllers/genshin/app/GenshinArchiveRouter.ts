@@ -208,8 +208,24 @@ export default async function(): Promise<Router> {
         sb.prop('tiers_total', achievementsWithSameName.length);
       }
       sb.line('}}');
-      sb.line(`'''''${achievement.TitleText}''''' is an [[Achievement]] in the category ''[[${achievement.Goal.NameText}]]''. To complete this achievement, the player must <!-- achieve steps -->.`);
-      sb.line();
+      sb.line(`'''''${achievement.TitleText}''''' is an [[Achievement]] in the category ''[[${achievement.Goal.NameText}]]''. To complete this achievement, the player needs to <!-- achieve steps -->.`);
+      sb.line(`<!--
+==Gameplay Notes==
+* 
+
+==Gallery==
+{{Preview
+|size=300px
+|file=
+|caption=
+}}
+
+==Video Guides==
+{{EVT
+|video1   = 
+|caption1 = 
+}}
+-->`);
       sb.line('==Other Languages==');
       sb.line((await ol_gen_from_id(ctrl, achievement.TitleTextMapHash)).result);
       sb.line();
@@ -496,7 +512,8 @@ export default async function(): Promise<Router> {
   router.get('/enemies/:id', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
     let monster = await ctrl.selectMonsterById(toInt(req.params.id), {
-      LoadHomeWorldAnimal: true
+      LoadHomeWorldAnimal: true,
+      LoadModelArtPath: true,
     });
 
     if (monster && monster.AnimalDescribe) {
@@ -513,7 +530,8 @@ export default async function(): Promise<Router> {
   router.get('/wildlife/:id', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
     let monster = await ctrl.selectMonsterById(toInt(req.params.id), {
-      LoadHomeWorldAnimal: true
+      LoadHomeWorldAnimal: true,
+      LoadModelArtPath: true,
     });
 
     if (monster && !monster.AnimalDescribe) {

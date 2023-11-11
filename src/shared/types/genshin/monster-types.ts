@@ -5,6 +5,7 @@ import { HomeworldAnimalExcelConfigData } from './homeworld-types';
 
 export interface MonsterLoadConf {
   LoadHomeWorldAnimal?: boolean,
+  LoadModelArtPath?: boolean,
 }
 
 export interface MonsterExcelConfigData {
@@ -184,11 +185,16 @@ export interface AnimalCodexExcelConfigData {
   DescText: string,
   DescTextMapHash: number,
 
+  AltDescTextList: string[],
+  AltDescTextMapHashList: number[],
+  AltDescTextQuestCondIds: number[],
+  AltDescTextQuestConds: {NameText: string, MainQuestId: number}[],
+
   IsDisuse: boolean,
   IsSeenActive: boolean,
   ModelPath: string,
+  ModelArtPath: string,
   ShowOnlyUnlocked: boolean,
-  LGCPHNKLBOE: number,
 
   // Custom
   TypeName?: string,

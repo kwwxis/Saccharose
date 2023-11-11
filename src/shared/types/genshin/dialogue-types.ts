@@ -35,24 +35,36 @@ export interface DialogExcelConfigData {
   NextDialogs: number[],
   TalkShowType?: 'TALK_SHOW_FORCE_SELECT',
   TalkRole: TalkRole,
+
   TalkContentTextMapHash: number,
   TalkContentText?: string,
+  OptionIcon: string,
+
   TalkTitleTextMapHash: number,
   TalkTitleTextMap?: string,
+
   TalkRoleNameTextMapHash: number,
   TalkRoleNameText?: string,
+
+  // Misc:
   TalkAssetPath: string,
   TalkAssetPathAlter: string,
   TalkAudioName: string,
   ActionBefore: string,
   ActionWhile: string,
   ActionAfter: string,
-  OptionIcon: string,
+  GroupId?: number,
+
+  // Custom:
   Branches?: DialogExcelConfigData[][],
   Recurse?: boolean,
-  GroupId?: number,
   TalkId?: number,
   TalkType?: string,
+
+  CustomTravelLogMenuText: string,
+  CustomImageName: string,
+  CustomImagePath: string,
+  CustomImageSacchPath: string,
 }
 
 export interface DialogUnparented {
@@ -238,8 +250,28 @@ export interface ReminderExcelConfigData {
   Style?: ReminderStyle,
 }
 
-export interface QuestSummarizationTextExcelConfigData {
-  Id: number,
-  DescTextMapHash: number,
-  DescText: string,
+export type CodexQuestSpeakerTextType = 'Aside' | 'IPCustomizedWhole' | 'Narratage' | 'SpeakerKnown' | 'SpeakerPlayer';
+export type CodexQuestContentTextType = 'Aside' | 'DialogNormal' | 'IPCustomizedWhole' | 'Narratage';
+
+export interface CodexQuestExcelConfigData {
+  Id: string,
+  MainQuestId: number,
+
+  ItemId: number,
+  NextItemId: number,
+  SoundId?: number,
+
+  SpeakerText: string,
+  SpeakerTextMapHash: number,
+  SpeakerTextType?: CodexQuestSpeakerTextType,
+
+  ContentText: string,
+  ContentTextMapHash: number,
+  ContentTextType: CodexQuestContentTextType,
+}
+
+export interface CodexQuestGroup {
+  Items: CodexQuestExcelConfigData[],
+  ByContentTextMapHash: {[hash: string]: CodexQuestExcelConfigData},
+  ByItemId: {[itemId: number]: CodexQuestExcelConfigData},
 }

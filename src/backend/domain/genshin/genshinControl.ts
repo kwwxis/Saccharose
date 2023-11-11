@@ -8,23 +8,23 @@ import {
   WorldAreaType,
 } from '../../../shared/types/genshin/general-types';
 import SrtParser, { SrtLine } from '../../util/srtParser';
-import { promises as fs } from 'fs';
+import fs, { promises as fsp } from 'fs';
 import {
   arrayIndexOf,
   arrayIntersect,
   arrayUnique,
   cleanEmpty,
   pairArrays,
-  sort,
+  sort, toMap,
 } from '../../../shared/util/arrayUtil';
 import { isInt, toInt } from '../../../shared/util/numberUtil';
 import { normalizeRawJson, SchemaTable } from '../../importer/import_db';
-import { extractRomanNumeral, isStringBlank, replaceAsync, romanToInt } from '../../../shared/util/stringUtil';
+import { extractRomanNumeral, isStringBlank, replaceAsync, romanToInt, rtrim } from '../../../shared/util/stringUtil';
 import {
+  CodexQuestExcelConfigData, CodexQuestGroup,
   DialogExcelConfigData,
   DialogUnparented,
   ManualTextMapConfigData,
-  QuestSummarizationTextExcelConfigData,
   ReminderExcelConfigData,
   TalkExcelConfigData,
   TalkLoadType, TalkRole,
@@ -62,7 +62,12 @@ import {
   HomeWorldNPCExcelConfigData,
 } from '../../../shared/types/genshin/homeworld-types';
 import { grepIdStartsWith, grepStream } from '../../util/shellutil';
-import { DATAFILE_GENSHIN_VOICE_ITEMS, getGenshinDataFilePath, getReadableRelPath } from '../../loadenv';
+import {
+  DATAFILE_GENSHIN_VOICE_ITEMS,
+  getGenshinDataFilePath,
+  getReadableRelPath,
+  IMAGEDIR_GENSHIN,
+} from '../../loadenv';
 import {
   BooksCodexExcelConfigData,
   BookSuitExcelConfigData,
@@ -115,6 +120,7 @@ import {
   AchievementsByGoals,
 } from '../../../shared/types/genshin/achievement-types';
 import { Request } from 'express';
+import { InterActionGroup } from '../../../shared/types/genshin/interaction-types';
 
 // region Control State
 // --------------------------------------------------------------------------------------------------------------
@@ -130,11 +136,12 @@ export class GenshinControlState extends AbstractControlState {
   bookSuitCache: {[Id: number]: BookSuitExcelConfigData} = {};
   mqNameCache:   {[Id: number]: string} = {};
   newActivityNameCache: {[Id: number]: string} = {};
-  questSummaryCache: QuestSummarizationTextExcelConfigData[] = null;
   monsterCache:         {[Id: number]: MonsterExcelConfigData} = {};
   monsterDescribeCache: {[DescribeId: number]: MonsterDescribeExcelConfigData} = {};
   animalCodexCache:  {[Id: number]: AnimalCodexExcelConfigData} = {};
   animalCodexDCache: {[Id: number]: AnimalCodexExcelConfigData} = {};
+  interActionCache: {[InterActionFile: string]: InterActionGroup[]} = {};
+  codexQuestCache: {[mainQuestId: number]: CodexQuestGroup} = {};
 
   // Cache Preferences:
   DisableAvatarCache: boolean = false;
@@ -153,7 +160,6 @@ export class GenshinControlState extends AbstractControlState {
     state.bookSuitCache = Object.assign({}, this.bookSuitCache);
     state.mqNameCache = Object.assign({}, this.mqNameCache);
     state.newActivityNameCache = Object.assign({}, this.newActivityNameCache);
-    state.questSummaryCache = Object.assign({}, this.questSummaryCache);
     state.DisableAvatarCache = this.DisableAvatarCache;
     state.DisableNpcCache = this.DisableNpcCache;
     state.DisableMonsterCache = this.DisableMonsterCache;
@@ -654,12 +660,6 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return this.isPlayerTalkRole(dialog) && (!dialog.TalkRoleNameText || dialog.TalkShowType === 'TALK_SHOW_FORCE_SELECT')
       && !this.voice.hasVoiceItems('Dialog', dialog.Id);
   }
-
-  equivDialog(d1: DialogExcelConfigData, d2: DialogExcelConfigData): boolean {
-    if (!d1 || !d2) return false;
-
-    return d1.TalkContentText === d2.TalkContentText && d1.TalkRoleNameText === d2.TalkRoleNameText && d1.TalkRole.Type === d2.TalkRole.Type;
-  }
   // endregion
 
   // region Dialog Logic
@@ -939,23 +939,53 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     }
     return out.trim();
   }
-
-  async selectAllQuestSummary(): Promise<QuestSummarizationTextExcelConfigData[]> {
-    if (this.state.questSummaryCache) {
-      return this.state.questSummaryCache;
-    }
-    let items = await this.knex.select('*').from('QuestSummarizationTextExcelConfigData').then(this.commonLoad);
-    this.state.questSummaryCache = items;
-    return items;
-  }
   // endregion
 
   // region InterAction Loader
+  private async fetchInterActionD2F(): Promise<{[dialogueId: number]: string}> {
+    return cached('InterActionD2F', async () => {
+      return await this.readJsonFile("InterActionD2F.json");
+    });
+  }
 
-  async getDialogueToInterActionMap() {
+  private async loadInterActionFile(dialogueId: number): Promise<InterActionGroup[]> {
+    const fileName = (await this.fetchInterActionD2F())[dialogueId];
+    if (fileName) {
+      if (this.state.interActionCache[fileName]) {
+        return this.state.interActionCache[fileName];
+      } else {
+        const groups: InterActionGroup[] = await this.readJsonFile('./InterAction/' + fileName);
+        this.state.interActionCache[fileName] = groups;
+        return groups;
+      }
+    }
+    return null;
+  }
+
+  async selectInterAction() {
 
   }
 
+  // endregion
+
+  // region CodexQuest Loader
+  async selectCodexQuest(mainQuestId: number): Promise<CodexQuestGroup> {
+    if (this.state.codexQuestCache[mainQuestId]) {
+      return this.state.codexQuestCache[mainQuestId];
+    }
+    const group: CodexQuestGroup = {
+      Items: [],
+      ByContentTextMapHash: {},
+      ByItemId: {}
+    };
+    const array: CodexQuestExcelConfigData[] = await this.knex.select('*').from('CodexQuestExcelConfigData')
+      .where({MainQuestId: mainQuestId}).then(this.commonLoad);
+    group.Items = array;
+    group.ByContentTextMapHash = toMap(array, 'ContentTextMapHash');
+    group.ByItemId = toMap(array, 'ItemId');
+    this.state.codexQuestCache[mainQuestId] = group;
+    return group;
+  }
   // endregion
 
   // region Monster
@@ -977,6 +1007,18 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     }
     if (loadConf.LoadHomeWorldAnimal) {
       monster.HomeWorldAnimal = await this.selectHomeWorldAnimalByMonster(monster);
+    }
+    if (loadConf.LoadModelArtPath && !!monster?.AnimalCodex?.ModelPath) {
+      let modelPath = monster.AnimalCodex.ModelPath;
+
+      if (fs.existsSync(path.resolve(IMAGEDIR_GENSHIN, `./UI_${modelPath}.png`))) {
+        monster.AnimalCodex.ModelArtPath = 'UI_' + modelPath;
+      } else {
+        modelPath = rtrim(monster.AnimalCodex.ModelPath, '_0123456789');
+        if (fs.existsSync(path.resolve(IMAGEDIR_GENSHIN, `./UI_${modelPath}.png`))) {
+          monster.AnimalCodex.ModelArtPath = 'UI_' + modelPath;
+        }
+      }
     }
     return monster;
   }
@@ -1063,6 +1105,21 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       codex.TypeName = codexTextMap['UI_CODEX_ANIMAL_MONSTER'];
     }
 
+    if (Array.isArray(codex.AltDescTextQuestCondIds)) {
+      codex.AltDescTextQuestConds = [];
+      for (let condId of codex.AltDescTextQuestCondIds) {
+        const questExcel = await this.selectQuestExcelConfigData(condId);
+        if (questExcel && questExcel.MainId) {
+          const mainQuestName = await this.selectMainQuestName(questExcel.MainId);
+          codex.AltDescTextQuestConds.push({
+            NameText: mainQuestName,
+            MainQuestId: questExcel.MainId
+          });
+        } else {
+          codex.AltDescTextQuestConds.push({NameText: undefined, MainQuestId: undefined});
+        }
+      }
+    }
 
     return codex;
   }
@@ -1369,7 +1426,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
   // region Cutscene & SRT
   async loadCutsceneSubtitlesByQuestId(questId: number): Promise<{[fileName: string]: string}> {
-    let fileNames: string[] = await fs.readdir(this.getDataFilePath('./Subtitle/'+this.outputLangCode));
+    let fileNames: string[] = await fsp.readdir(this.getDataFilePath('./Subtitle/'+this.outputLangCode));
 
     let targetFileNames: string[] = [];
     for (let fileName of fileNames) {
@@ -1401,14 +1458,14 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     for (let inputKey of Object.keys(inputs)) {
       let input = inputs[inputKey];
       let filePath1: string = this.getDataFilePath('./Subtitle/'+this.outputLangCode+'/'+input[0]);
-      let fileData1: string = await fs.readFile(filePath1, {encoding: 'utf8'});
+      let fileData1: string = await fsp.readFile(filePath1, {encoding: 'utf8'});
 
       let srt1: SrtLine[] = parser.fromSrt(fileData1);
       let srt2: SrtLine[] = [];
 
       if (input.length > 1) {
         let filePath2: string = this.getDataFilePath('./Subtitle/'+this.outputLangCode+'/'+input[1]);
-        let fileData2: string = await fs.readFile(filePath2, {encoding: 'utf8'});
+        let fileData2: string = await fsp.readFile(filePath2, {encoding: 'utf8'});
         srt2 = parser.fromSrt(fileData2);
       }
 
@@ -2203,7 +2260,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       && typeof localization[pathVar] === 'string' && localization[pathVar].includes('/Readable/')) {
       let filePath = './Readable/' + localization[pathVar].split('/Readable/')[1] + '.txt';
       try {
-        let fileText = await fs.readFile(this.getDataFilePath(filePath), { encoding: 'utf8' });
+        let fileText = await fsp.readFile(this.getDataFilePath(filePath), { encoding: 'utf8' });
         let fileNormText = this.normText(fileText, this.outputLangCode).replace(/<br \/>/g, '<br />\n');
         ret = {Localization: localization, ReadableText: fileNormText};
       } catch (ignore) {}
@@ -2481,7 +2538,7 @@ export async function loadGenshinVoiceItems(): Promise<void> {
   logInitData('Loading Genshin Voice Items -- starting...');
 
   const voiceItemsFilePath = path.resolve(process.env.GENSHIN_DATA_ROOT, DATAFILE_GENSHIN_VOICE_ITEMS);
-  const result: VoiceItemArrayMap = await fs.readFile(voiceItemsFilePath, {encoding: 'utf8'}).then(data => JSON.parse(data));
+  const result: VoiceItemArrayMap = await fsp.readFile(voiceItemsFilePath, {encoding: 'utf8'}).then(data => JSON.parse(data));
 
   Object.assign(GENSHIN_VOICE_ITEMS, result);
   Object.freeze(GENSHIN_VOICE_ITEMS);

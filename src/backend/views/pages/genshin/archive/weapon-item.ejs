@@ -58,7 +58,7 @@
           <% for (let affix of weapon.EquipAffixList) { %>
             <tr>
               <td></td>
-              <td class="bold">Level <%= affix.Level || 0 %></td>
+              <td class="bold">Level <%= (affix.Level || 0) + 1 %></td>
               <td><%- use('partials/util/wikitext', { wikitext: normGenshinText(affix.DescText), seamless: true }) %></td>
             </tr>
           <% } %>
