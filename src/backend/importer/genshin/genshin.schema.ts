@@ -1229,7 +1229,8 @@ export const genshinSchema = {
     ],
     renameFields: {
       PHMOLEPKEIB: 'CategoryType',
-      PBCDLDCHKMK: 'CategoryType'
+      PBCDLDCHKMK: 'CategoryType',
+      EBJAELDKAAJ: 'CategoryType'
     },
     singularize: ['CategoryType'],
   },
