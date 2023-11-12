@@ -108,6 +108,8 @@ export function __normGenshinText(text: string, langCode: LangCode, opts: NormTe
     opts.mcPlaceholderProvider = __travelerPlaceholder;
 
   text = genericNormText(text, langCode, opts);
+  text = text.replace(/<right>/g, '<div class="align-right">');
+  text = text.replace(/<\/right>/g, '</div>');
 
   if (!opts.decolor && !opts.plaintext) {
     // Bold:

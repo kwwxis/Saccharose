@@ -535,7 +535,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   }
   // endregion
 
-  // region Dialog Excel
+  // region Dialog Unparented Select
   async selectDialogUnparentedByMainQuestId(mainQuestId: number): Promise<DialogUnparented[]> {
     return await this.knex.select('*').from('DialogUnparentedExcelConfigData')
       .where({MainQuestId: mainQuestId}).then(this.commonLoad);
@@ -545,7 +545,9 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return await this.knex.select('*').from('DialogUnparentedExcelConfigData')
       .where({DialogId: dialogId}).first().then(this.commonLoadFirst);
   }
+  // endregion
 
+  // region Dialog Excel Select
   private async postProcessDialog(dialog: DialogExcelConfigData): Promise<DialogExcelConfigData> {
     if (!dialog) {
       return dialog;
@@ -585,31 +587,29 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   }
 
   async selectDialogExcelConfigDataByTalkRoleId(talkRoleId: number): Promise<DialogExcelConfigData[]> {
-    let dialogs: DialogExcelConfigData[] = await this.knex.select('*').from('DialogExcelConfigData')
+    const dialogs: DialogExcelConfigData[] = await this.knex.select('*')
+      .from('DialogExcelConfigData')
       .where({TalkRoleId: talkRoleId}).then(this.commonLoad);
     return dialogs.asyncMap(d => this.postProcessDialog(d));
   }
 
-  async selectDialogExcelConfigDataByTalkRoleType(talkRoleTypes: string[]): Promise<DialogExcelConfigData[]> {
-    let dialogs: DialogExcelConfigData[] = await this.knex.select('*').from('DialogExcelConfigData')
-      .whereIn('TalkRoleType', talkRoleTypes).then(this.commonLoad);
-    return dialogs.asyncMap(d => this.postProcessDialog(d));
-  }
-
   async selectDialogExcelConfigDataByTalkId(talkId: number): Promise<DialogExcelConfigData[]> {
-    let dialogs: DialogExcelConfigData[] = await this.knex.select('*').from('DialogExcelConfigData')
+    const dialogs: DialogExcelConfigData[] = await this.knex.select('*')
+      .from('DialogExcelConfigData')
       .where({TalkId: talkId}).then(this.commonLoad);
     return dialogs.asyncMap(d => this.postProcessDialog(d));
   }
 
   async selectPreviousDialogs(nextId: number): Promise<DialogExcelConfigData[]> {
-    let ids: number[] = await this.knex.select('*').from('Relation_DialogToNext')
+    const ids: number[] = await this.knex.select('*')
+      .from('Relation_DialogToNext')
       .where({NextId: nextId}).pluck('DialogId').then();
     return this.selectMultipleDialogExcelConfigData(arrayUnique(ids));
   }
 
   async selectSingleDialogExcelConfigData(id: number): Promise<DialogExcelConfigData> {
-    let result: DialogExcelConfigData = await this.knex.select('*').from('DialogExcelConfigData')
+    let result: DialogExcelConfigData = await this.knex.select('*')
+      .from('DialogExcelConfigData')
       .where({Id: id}).first().then(this.commonLoadFirst);
     if (!result) {
       return result;
@@ -619,39 +619,51 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return result && result.TalkContentText ? result : null;
   }
 
+  async selectDialogsFromTextMapHash(textMapHash: TextMapHash): Promise<DialogExcelConfigData[]> {
+    let results: DialogExcelConfigData[] = await this.knex.select('*')
+      .from('DialogExcelConfigData')
+      .where({TalkContentTextMapHash: textMapHash})
+      .then(this.commonLoad);
+    await results.asyncMap(async d => {
+      await this.postProcessDialog(d);
+      this.saveToDialogIdCache(d);
+    });
+    return results;
+  }
+
+  async selectMultipleDialogExcelConfigData(ids: number[]): Promise<DialogExcelConfigData[]> {
+    if (!ids.length) {
+      return [];
+    }
+    let results: DialogExcelConfigData[] = await this.knex.select('*')
+      .from('DialogExcelConfigData')
+      .whereIn('Id', ids)
+      .then(this.commonLoad);
+
+    await results.asyncMap(async d => {
+      await this.postProcessDialog(d);
+      this.saveToDialogIdCache(d);
+    });
+
+    return results.filter(x => !!x && !!x.TalkContentText);
+  }
+  // endregion
+
+  // region Dialog Cache Ops
   saveToDialogIdCache(x: DialogExcelConfigData): void {
     this.state.dialogueIdCache.add(x.Id);
   }
   isInDialogIdCache(x: number|DialogExcelConfigData): boolean {
     return this.state.dialogueIdCache.has(typeof x === 'number' ? x : x.Id);
   }
-
-
-  async selectMultipleDialogExcelConfigData(ids: number[]): Promise<DialogExcelConfigData[]> {
-    if (!ids.length) {
-      return [];
-    }
-    return await Promise.all(ids.map(id => this.selectSingleDialogExcelConfigData(id)))
-      .then(arr => arr.filter(x => !!x && !!x.TalkContentText));
-  }
-
   copyDialogForRecurse(node: DialogExcelConfigData) {
     let copy: DialogExcelConfigData = JSON.parse(JSON.stringify(node));
     copy.Recurse = true;
     return copy;
   }
+  // endregion
 
-  async selectDialogsFromTextContentId(textMapHash: TextMapHash): Promise<DialogExcelConfigData[]> {
-    let results: DialogExcelConfigData[] = await this.knex.select('*').from('DialogExcelConfigData')
-      .where({TalkContentTextMapHash: textMapHash})
-      .then(this.commonLoad);
-    results = await results.asyncMap(d => this.postProcessDialog(d));
-    for (let result of results) {
-      this.saveToDialogIdCache(result);
-    }
-    return results;
-  }
-
+  // region Dialog Checks
   isPlayerTalkRole(dialog: DialogExcelConfigData): boolean {
     return dialog.TalkRole.Type === 'TALK_ROLE_PLAYER';
   }
@@ -660,66 +672,15 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return this.isPlayerTalkRole(dialog) && (!dialog.TalkRoleNameText || dialog.TalkShowType === 'TALK_SHOW_FORCE_SELECT')
       && !this.voice.hasVoiceItems('Dialog', dialog.Id);
   }
+
+  isBlackScreenDialog(dialog: DialogExcelConfigData): boolean {
+    return dialog.TalkRole.Type === 'TALK_ROLE_BLACK_SCREEN' || dialog.TalkRole.Type === 'TALK_ROLE_CONSEQUENT_BLACK_SCREEN'
+      || dialog.TalkRole.Type === 'TALK_ROLE_NEED_CLICK_BLACK_SCREEN' || dialog.TalkRole.Type === 'TALK_ROLE_CONSEQUENT_NEED_CLICK_BLACK_SCREEN';
+  }
   // endregion
 
   // region Dialog Logic
-  async addUnparentedDialogue(mainQuest: MainQuestExcelConfigData) {
-    const allDialogueIds: number[] = [];
-
-    const unparented: DialogUnparented[] = await this.selectDialogUnparentedByMainQuestId(mainQuest.Id);
-    for (let item of unparented) {
-      allDialogueIds.push(item.DialogId);
-    }
-
-    const handleUnparentedDialog = async (quest: MainQuestExcelConfigData|QuestExcelConfigData, id: number) => {
-      if (this.state.dialogueIdCache.has(id))
-        return;
-      let dialog = await this.selectSingleDialogExcelConfigData(id as number);
-      if (dialog) {
-        if (!quest.NonTalkDialog)
-          quest.NonTalkDialog = [];
-        let dialogs = await this.selectDialogBranch(dialog);
-        quest.NonTalkDialog.push(dialogs);
-      }
-    }
-
-    for (let quest of mainQuest.QuestExcelConfigDataList) {
-      for (let id of allDialogueIds) {
-        if (!id.toString().startsWith(quest.SubId.toString()))
-          continue;
-        await handleUnparentedDialog(quest, id);
-      }
-    }
-    for (let id of allDialogueIds) {
-      await handleUnparentedDialog(mainQuest, id);
-    }
-  }
-
-  async addQuestMessages(mainQuest: MainQuestExcelConfigData) {
-    const allQuestMessageIds: string[] = [];
-
-    allQuestMessageIds.push(... await grepIdStartsWith<string>(RAW_MANUAL_TEXTMAP_ID_PROP, 'QUEST_Message_Q' + mainQuest.Id,
-      this.getDataFilePath('./ExcelBinOutput/ManualTextMapConfigData.json')));
-
-    for (let quest of mainQuest.QuestExcelConfigDataList) {
-      if (allQuestMessageIds && allQuestMessageIds.length) {
-        quest.QuestMessages = [];
-        for (let id of allQuestMessageIds) {
-          if (id === 'QUEST_Message_Q' + quest.SubId.toString() || id.startsWith('QUEST_Message_Q' + quest.SubId.toString() + '_'))
-             quest.QuestMessages.push(await this.selectManualTextMapConfigDataById(id));
-        }
-      }
-    }
-    if (allQuestMessageIds && allQuestMessageIds.length) {
-      mainQuest.QuestMessages = [];
-      for (let id of allQuestMessageIds) {
-        if (id === 'QUEST_Message_Q' + mainQuest.Id.toString() || id.startsWith('QUEST_Message_Q' + mainQuest.Id.toString() + '_'))
-           mainQuest.QuestMessages.push(await this.selectManualTextMapConfigDataById(id));
-      }
-    }
-  }
-
-  async selectDialogBranch(start: DialogExcelConfigData, cache?: DialogBranchingCache, debugSource?: string|number): Promise<DialogExcelConfigData[]> {
+  async selectDialogBranch(mainQuestId: number, start: DialogExcelConfigData, cache?: DialogBranchingCache, debugSource?: string|number): Promise<DialogExcelConfigData[]> {
     if (!start)
       return [];
     if (!debugSource)
@@ -764,7 +725,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
         const branches: DialogExcelConfigData[][] = await Promise.all(
           nextNodes.map((node: DialogExcelConfigData) => {
-            return this.selectDialogBranch(node, DialogBranchingCache.from(cache), debugSource + ':' + start.Id);
+            return this.selectDialogBranch(mainQuestId, node, DialogBranchingCache.from(cache), debugSource + ':' + start.Id);
           })
         );
 
@@ -791,11 +752,6 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       }
     }
     return currBranch;
-  }
-
-  isBlackScreenDialog(dialog: DialogExcelConfigData): boolean {
-    return dialog.TalkRole.Type === 'TALK_ROLE_BLACK_SCREEN' || dialog.TalkRole.Type === 'TALK_ROLE_CONSEQUENT_BLACK_SCREEN'
-      || dialog.TalkRole.Type === 'TALK_ROLE_NEED_CLICK_BLACK_SCREEN' || dialog.TalkRole.Type === 'TALK_ROLE_CONSEQUENT_NEED_CLICK_BLACK_SCREEN';
   }
 
   async generateDialogueWikiText(dialogLines: DialogExcelConfigData[], dialogDepth = 1,

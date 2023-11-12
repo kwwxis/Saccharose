@@ -144,13 +144,14 @@ export async function dialogueGenerate(ctrl: GenshinControl, query: number|numbe
         } else {
           seenFirstDialogueIds.add(firstDialog.Id);
         }
-        const dialogueBranch = await ctrl.selectDialogBranch(firstDialog);
+
+        const questIds: number[] = await dialogueToQuestId(ctrl, firstDialog);
+        const dialogueBranch = await ctrl.selectDialogBranch(questIds?.[0], firstDialog);
         const sect = new DialogueSectionResult('Dialogue_'+firstDialog.Id, 'Dialogue');
         sect.originalData.dialogBranch = dialogueBranch;
         sect.metadata.push(new MetaProp('First Dialogue ID', firstDialog.Id, `/branch-dialogue?q=${firstDialog.Id}`));
         sect.metadata.push(new MetaProp('First Match Dialogue ID', dialogue.Id, `/branch-dialogue?q=${dialogue.Id}`));
 
-        let questIds = await dialogueToQuestId(ctrl, firstDialog);
         if (questIds.length) {
           sect.metadata.push(new MetaProp('Quest ID', await questIds.asyncMap(async id => ({
             value: id,
@@ -181,7 +182,7 @@ export async function dialogueGenerate(ctrl: GenshinControl, query: number|numbe
 
     let acceptedCount = 0;
     for (let textMapHash of textMapHashes) {
-      let dialogues = await ctrl.selectDialogsFromTextContentId(textMapHash);
+      let dialogues = await ctrl.selectDialogsFromTextMapHash(textMapHash);
       let accepted: boolean = (await dialogues.asyncMap(d => handle(d))).some(b => !!b);
       if (accepted) {
         acceptedCount++;
@@ -284,17 +285,17 @@ export async function dialogueGenerateByNpc(ctrl: GenshinControl,
         ctrl.saveToDialogIdCache(dialogue);
       }
 
-      const dialogueBranch = await ctrl.selectDialogBranch(dialogue);
+      const questId: number = (await dialogueToQuestId(ctrl, dialogue))?.[0];
+      const dialogueBranch = await ctrl.selectDialogBranch(questId, dialogue);
       const sect = new DialogueSectionResult('Dialogue_'+dialogue.Id, 'Dialogue');
       sect.originalData.dialogBranch = dialogueBranch;
       sect.metadata.push(new MetaProp('First Dialogue ID', dialogue.Id, `/branch-dialogue?q=${dialogue.Id}`));
       sect.wikitext = (await ctrl.generateDialogueWikiText(dialogueBranch)).trim();
 
-      const questId = await dialogueToQuestId(ctrl, dialogue);
-      if (questId.length) {
-        const questName = await ctrl.selectMainQuestName(questId[0]);
-        sect.addMetaProp('Quest ID', {value: questId[0], tooltip: questName}, '/quests/{}');
-        sect.originalData.questId = questId[0];
+      if (questId) {
+        const questName = await ctrl.selectMainQuestName(questId);
+        sect.addMetaProp('Quest ID', {value: questId, tooltip: questName}, '/quests/{}');
+        sect.originalData.questId = questId;
         sect.originalData.questName = questName;
         getQuestSection(sect.originalData.questId, sect.originalData.questName).children.push(sect);
       } else {

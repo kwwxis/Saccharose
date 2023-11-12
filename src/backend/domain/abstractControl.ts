@@ -26,6 +26,7 @@ import { NormTextOptions } from './generic/genericNormalizers';
 import { ExtractScalar } from '../../shared/types/utility-types';
 import { ArrayStream } from '../../shared/util/arrayUtil';
 import { Request } from 'express';
+import { Marker } from '../../shared/util/highlightMarker';
 
 export abstract class AbstractControlState {
   public request: Request = null;
@@ -233,7 +234,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     return fs.stat(this.getDataFilePath(filePath)).then(ret => ret.size);
   }
 
-  async getTextMapMatches(langCode: LangCode, searchText: string, flags?: string, startFromLine?: number, isRawInput?: boolean): Promise<{hash: TextMapHash, text: string, line: number}[]> {
+  async getTextMapMatches(langCode: LangCode, searchText: string, flags?: string, startFromLine?: number, isRawInput?: boolean): Promise<{hash: TextMapHash, text: string, line: number, markers?: Marker[]}[]> {
     if (isStringBlank(searchText)) {
       return [];
     }

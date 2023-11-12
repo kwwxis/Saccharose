@@ -33,7 +33,8 @@
         </a>
       </h2>
       <div class="dialogue-section content" style="padding:7px">
-        <textarea id="wikitext-<%= itemId %>" readonly class="w100p wikitext autosize spacer0-all" spellcheck="false" translate="no"><%= item.text %></textarea>
+        <textarea id="wikitext-<%= itemId %>" data-markers="<%= Marker.joinedString(item.markers) %>"
+                  readonly class="w100p wikitext autosize spacer0-all" spellcheck="false" translate="no"><%= item.text %></textarea>
       </div>
     </section>
   <% }) %>

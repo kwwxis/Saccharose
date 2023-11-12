@@ -5,6 +5,7 @@ import { ol_gen_from_id } from '../../generic/basic/OLgen';
 import { NpcExcelConfigData } from '../../../../shared/types/genshin/general-types';
 import { arrayEmpty, arrayUnique } from '../../../../shared/util/arrayUtil';
 import {
+  DialogUnparented,
   TalkExcelConfigData,
 } from '../../../../shared/types/genshin/dialogue-types';
 import {
@@ -23,6 +24,8 @@ import { pathToFileURL } from 'url';
 import { SbOut } from '../../../../shared/util/stringUtil';
 import { dialogueCompareApply, SimilarityGroups } from './dialogue_compare';
 import { custom } from '../../../util/logger';
+import { grepIdStartsWith } from '../../../util/shellutil';
+import { RAW_MANUAL_TEXTMAP_ID_PROP } from '../../../importer/genshin/genshin.schema';
 
 export class QuestGenerateResult {
   mainQuest: MainQuestExcelConfigData = null;
@@ -45,6 +48,14 @@ export class QuestGenerateResult {
   rewardInfobox?: string;
 }
 
+async function findMainQuest(ctrl: GenshinControl, questNameOrId: string|number, questIndex: number) {
+  const mainQuests: MainQuestExcelConfigData[] = typeof questNameOrId === 'string'
+    ? await ctrl.selectMainQuestsByNameOrId(questNameOrId.trim())
+    : [await ctrl.selectMainQuestById(questNameOrId)];
+
+  return mainQuests.length ? mainQuests[questIndex] : null;
+}
+
 /**
  * Generates quest dialogue.
  *
@@ -55,16 +66,13 @@ export class QuestGenerateResult {
 export async function questGenerate(questNameOrId: string|number, ctrl: GenshinControl, mainQuestIndex: number = 0): Promise<QuestGenerateResult> {
   const result = new QuestGenerateResult();
 
+  // ==============================================================================================================
   // MAIN QUEST GENERATION
-  // ~~~~~~~~~~~~~~~~~~~~~
+  // ==============================================================================================================
 
   // Find Main Quest and Quest Subs
-  const mainQuests: MainQuestExcelConfigData[] = typeof questNameOrId === 'string'
-      ? await ctrl.selectMainQuestsByNameOrId(questNameOrId.trim())
-      : [await ctrl.selectMainQuestById(questNameOrId)];
-
-  const mainQuest = mainQuests.length ? mainQuests[mainQuestIndex] : null;
-
+  // --------------------------------------------------------------------------------------------------------------
+  const mainQuest = await findMainQuest(ctrl, questNameOrId, mainQuestIndex);
   if (!mainQuest || !mainQuest.Id) {
     throw 'Main Quest not found.';
   }
@@ -74,8 +82,8 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
   const debug = custom('quest:' + mainQuest.Id);
   debug('Generating MainQuest');
 
-  // Fetch talk configs
-  // ------------------
+  // Fetch talk configs (By MainQuest ID)
+  // --------------------------------------------------------------------------------------------------------------
 
   debug('Fetching Talks (by MainQuest ID)');
 
@@ -90,6 +98,8 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
     await acc.handleTalkConfig(talkConfig);
   }
 
+  // Fetch talk configs (By SubQuest ID)
+  // --------------------------------------------------------------------------------------------------------------
   debug('Fetching Talks (by SubQuest ID)');
 
   // Find Talk Configs by Quest Sub ID
@@ -105,7 +115,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
       for (let dialog of dialogs) {
         if (ctrl.state.dialogueIdCache.has(dialog.Id))
           continue;
-        const dialogs = await ctrl.selectDialogBranch(dialog);
+        const dialogs = await ctrl.selectDialogBranch(mainQuest.Id, dialog);
         if (dialogs.length) {
           if (!questExcelConfigData.NonTalkDialog)
             questExcelConfigData.NonTalkDialog = [];
@@ -115,19 +125,17 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
     }
   }
 
-  debug('Fetching Talks (by MainQuest ID Prefix)');
-
   // Find unparented dialogue
-  // ------------------------
+  // --------------------------------------------------------------------------------------------------------------
 
   debug('Fetching unparented dialogue');
-  await ctrl.addUnparentedDialogue(mainQuest);
+  await addUnparentedDialogue(ctrl, mainQuest);
 
   debug('Fetching quest messages');
-  await ctrl.addQuestMessages(mainQuest);
+  await addQuestMessages(ctrl, mainQuest);
 
   // Sort Talk Configs to quest subs
-  // -------------------------------
+  // --------------------------------------------------------------------------------------------------------------
 
   debug('Sorting Talks');
 
@@ -151,7 +159,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
   }
 
   // Filter quest subs
-  // -----------------
+  // --------------------------------------------------------------------------------------------------------------
 
   debug('Filtering SubQuests');
 
@@ -168,7 +176,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
   }
 
   // Finalize result
-  // ---------------
+  // --------------------------------------------------------------------------------------------------------------
   debug('Preparing result');
   mainQuest.QuestExcelConfigDataList = newQuestSubs;
   result.questId = mainQuest.Id;
@@ -185,34 +193,27 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
     data: ctrl.state.npcCache,
   };
 
+  // ==============================================================================================================
   // WIKI TEXT GENERATION
-  // ~~~~~~~~~~~~~~~~~~~~
-  let out = new SbOut();
+  // ==============================================================================================================
 
   // Quest Steps
-  // -----------
+  // --------------------------------------------------------------------------------------------------------------
   debug('Generating quest steps');
 
-  out.clearOut();
-  for (let questSub of mainQuest.QuestExcelConfigDataList) {
-    if (questSub.DescText)
-      out.line('# ' + ctrl.normText(questSub.DescText, ctrl.outputLangCode));
-  }
-  result.stepsWikitext = out.toString();
+  result.stepsWikitext = mainQuest.QuestExcelConfigDataList
+    .filter(q => !!q.DescText)
+    .map(q => '# ' + ctrl.normText(q.DescText, ctrl.outputLangCode))
+    .join('\n');
 
   // Quest Descriptions
-  // ------------------
+  // --------------------------------------------------------------------------------------------------------------
   debug('Generating quest descriptions');
-
-  out.clearOut();
 
   if (mainQuest.DescText) {
     result.questDescriptions.push('{{Quest Description|'+ctrl.normText(mainQuest.DescText, ctrl.outputLangCode)+'}}');
   }
-  for (let questSub of mainQuest.QuestExcelConfigDataList) {
-    if (!questSub.StepDescText) {
-      continue;
-    }
+  for (let questSub of mainQuest.QuestExcelConfigDataList.filter(q => !!q.StepDescText)) {
     let desc = '{{Quest Description|update|'+ctrl.normText(questSub.StepDescText, ctrl.outputLangCode)+'}}';
     if (!result.questDescriptions.includes(desc)) {
       result.questDescriptions.push(desc);
@@ -220,24 +221,16 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
   }
 
   // Other Languages
-  // ---------------
+  // --------------------------------------------------------------------------------------------------------------
   debug('Generating OL');
-
-  out.clearOut();
-  let olResult = await ol_gen_from_id(ctrl, mainQuest.TitleTextMapHash, {
+  result.otherLanguagesWikitext = (await ol_gen_from_id(ctrl, mainQuest.TitleTextMapHash, {
     hideTl: false,
     addDefaultHidden: false,
-  });
-  if (olResult) {
-    out.append(olResult.result);
-    result.otherLanguagesWikitext = out.toString();
-  }
+  }))?.result;
 
-  // Quest Dialogue
-  // --------------
+  // Quest Dialogue (SubQuests)
+  // --------------------------------------------------------------------------------------------------------------
   debug('Generating quest dialogue (SubQuests)');
-
-  out.clearOut();
 
   const nonTalkDialogHelpMessage = `Dialogues that are not part of a Talk.`;
   const questMessageHelpText = `These are usually black-screen transition lines. There isn't any info in the JSON to show where these lines go chronologically within the section, so you'll have to figure that out.`;
@@ -245,7 +238,6 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
   for (let questSub of mainQuest.QuestExcelConfigDataList) {
     let sect = new DialogueSectionResult('Section_'+questSub.SubId, 'Section');
 
-    out.clearOut();
     sect.addMetaProp('Section ID', questSub.SubId);
     sect.addMetaProp('Section Order', questSub.Order);
     sect.addMetaProp('Quest Step', questSub.DescText);
@@ -261,9 +253,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
         subsect.metadata.push(new MetaProp('Quest ID', {value: mainQuest.Id, tooltip: mainQuest.TitleText}, `/quests/{}`));
         subsect.originalData.questId = mainQuest.Id;
         subsect.originalData.questName = mainQuest.TitleText;
-        out.clearOut();
-        out.append(await ctrl.generateDialogueWikiText(dialog));
-        subsect.wikitext = out.toString();
+        subsect.wikitext = await ctrl.generateDialogueWikiText(dialog);
         sect.children.push(subsect);
       }
     }
@@ -277,7 +267,6 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
 
     if (questSub.QuestMessages && questSub.QuestMessages.length) {
       let subsect = new DialogueSectionResult('SectionQuestMessages_'+questSub.SubId, 'Section Quest Messages', questMessageHelpText);
-      out.clearOut();
       for (let questMessage of questSub.QuestMessages) {
         if (typeof questMessage.TextMapContentText === 'string') {
           subsect.wikitextArray.push({
@@ -294,6 +283,8 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
     result.dialogue.push(sect);
   }
 
+  // Quest Dialogue (Main Quest Non-Talks)
+  // --------------------------------------------------------------------------------------------------------------
   if (mainQuest.NonTalkDialog && mainQuest.NonTalkDialog.length) {
     for (let dialog of mainQuest.NonTalkDialog) {
       let sect = new DialogueSectionResult('NonTalkDialogue_'+dialog[0].Id, 'Non-Talk Dialogue', nonTalkDialogHelpMessage);
@@ -302,14 +293,13 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
       sect.metadata.push(new MetaProp('Quest ID', {value: mainQuest.Id, tooltip: mainQuest.TitleText}, `/quests/{}`));
       sect.originalData.questId = mainQuest.Id;
       sect.originalData.questName = mainQuest.TitleText;
-      out.clearOut();
-      out.append(await ctrl.generateDialogueWikiText(dialog));
-      out.line();
-      sect.wikitext = out.toString();
+      sect.wikitext = await ctrl.generateDialogueWikiText(dialog);
       result.dialogue.push(sect);
     }
   }
 
+  // Quest Dialogue (Unsectioned Talks)
+  // --------------------------------------------------------------------------------------------------------------
   debug('Generating quest dialogue (Unsectioned Talks)');
 
   if (mainQuest.UnsectionedTalks && mainQuest.UnsectionedTalks.length) {
@@ -319,11 +309,12 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
     }
   }
 
-  debug('Generating quest dialogue (Quest Messages)');
+  // Quest Messages
+  // --------------------------------------------------------------------------------------------------------------
+  debug('Generating Quest Messages');
 
   if (mainQuest.QuestMessages && mainQuest.QuestMessages.length) {
     let sect = new DialogueSectionResult('MainQuestMessages', 'Quest Messages', questMessageHelpText);
-    out.clearOut();
     for (let questMessage of mainQuest.QuestMessages) {
       if (typeof questMessage.TextMapContentText === 'string') {
         sect.wikitextArray.push({
@@ -338,12 +329,12 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
   }
 
   // Dialogue Section Similarity Groups
-  // ----------------------------------
+  // --------------------------------------------------------------------------------------------------------------
   debug('Generating quest similarity groups');
   result.similarityGroups = dialogueCompareApply(result.dialogue);
 
   // Cutscenes
-  // ---------
+  // --------------------------------------------------------------------------------------------------------------
   debug('Generating cutscenes');
   let srtData = await ctrl.loadCutsceneSubtitlesByQuestId(mainQuest.Id);
   for (let srtFile of Object.keys(srtData)) {
@@ -351,7 +342,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
   }
 
   // Rewards
-  // -------
+  // --------------------------------------------------------------------------------------------------------------
   debug('Generating rewards');
   const rewards: RewardExcelConfigData[] = await (mainQuest.RewardIdList || []).asyncMap(rewardId => ctrl.selectRewardExcelConfigData(rewardId));
   result.reward = ctrl.combineRewardExcelConfigData(... rewards);
@@ -376,9 +367,68 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
 
   result.rewardInfobox = sbReward.toString();
 
+  // Return result
+  // --------------------------------------------------------------------------------------------------------------
   debug('Returning result');
   return result;
 }
+
+async function addUnparentedDialogue(ctrl: GenshinControl, mainQuest: MainQuestExcelConfigData) {
+  const allDialogueIds: number[] = [];
+
+  const unparented: DialogUnparented[] = await ctrl.selectDialogUnparentedByMainQuestId(mainQuest.Id);
+  for (let item of unparented) {
+    allDialogueIds.push(item.DialogId);
+  }
+
+  const handleUnparentedDialog = async (quest: MainQuestExcelConfigData|QuestExcelConfigData, id: number) => {
+    if (ctrl.state.dialogueIdCache.has(id))
+      return;
+    let dialog = await ctrl.selectSingleDialogExcelConfigData(id as number);
+    if (dialog) {
+      if (!quest.NonTalkDialog)
+        quest.NonTalkDialog = [];
+      let dialogs = await ctrl.selectDialogBranch(mainQuest.Id, dialog);
+      quest.NonTalkDialog.push(dialogs);
+    }
+  }
+
+  for (let quest of mainQuest.QuestExcelConfigDataList) {
+    for (let id of allDialogueIds) {
+      if (!id.toString().startsWith(quest.SubId.toString()))
+        continue;
+      await handleUnparentedDialog(quest, id);
+    }
+  }
+  for (let id of allDialogueIds) {
+    await handleUnparentedDialog(mainQuest, id);
+  }
+}
+
+async function addQuestMessages(ctrl: GenshinControl, mainQuest: MainQuestExcelConfigData) {
+  const allQuestMessageIds: string[] = [];
+
+  allQuestMessageIds.push(... await grepIdStartsWith<string>(RAW_MANUAL_TEXTMAP_ID_PROP, 'QUEST_Message_Q' + mainQuest.Id,
+    ctrl.getDataFilePath('./ExcelBinOutput/ManualTextMapConfigData.json')));
+
+  for (let quest of mainQuest.QuestExcelConfigDataList) {
+    if (allQuestMessageIds && allQuestMessageIds.length) {
+      quest.QuestMessages = [];
+      for (let id of allQuestMessageIds) {
+        if (id === 'QUEST_Message_Q' + quest.SubId.toString() || id.startsWith('QUEST_Message_Q' + quest.SubId.toString() + '_'))
+          quest.QuestMessages.push(await ctrl.selectManualTextMapConfigDataById(id));
+      }
+    }
+  }
+  if (allQuestMessageIds && allQuestMessageIds.length) {
+    mainQuest.QuestMessages = [];
+    for (let id of allQuestMessageIds) {
+      if (id === 'QUEST_Message_Q' + mainQuest.Id.toString() || id.startsWith('QUEST_Message_Q' + mainQuest.Id.toString() + '_'))
+        mainQuest.QuestMessages.push(await ctrl.selectManualTextMapConfigDataById(id));
+    }
+  }
+}
+
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {

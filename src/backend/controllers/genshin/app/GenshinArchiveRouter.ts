@@ -25,7 +25,7 @@ import {
 } from '../../../domain/genshin/archive/loadingTips';
 import { LoadingCat } from '../../../../shared/types/genshin/loading-types';
 import { toInt } from '../../../../shared/util/numberUtil';
-import { SbOut } from '../../../../shared/util/stringUtil';
+import { SbOut, sentenceJoin } from '../../../../shared/util/stringUtil';
 import { Request, Response, Router } from 'express';
 import { toBoolean } from '../../../../shared/util/genericUtil';
 
@@ -186,14 +186,26 @@ export default async function(): Promise<Router> {
       const achievementsWithSameName = achievements
         .filter(a => a.TitleText === achievement.TitleText); // should include self
 
+      let questReqNames: string[] = [];
+      let achieveSteps: string = '<!-- achieve steps -->';
+      let achieveReq: string = undefined;
+
+      if (achievement.TriggerConfig.TriggerQuests.length) {
+        questReqNames = achievement.TriggerConfig.TriggerQuests.map(q => q.TitleText);
+        achieveReq = 'Complete ' + sentenceJoin(questReqNames.map(t => `[[${t}]]`));
+        achieveSteps = 'complete ' + sentenceJoin(questReqNames.map(t => `{{Quest|${t}}}`));
+      }
+
       sb.line('{{Achievement Infobox');
       sb.setPropPad(13);
-      //sb.prop('title', achievement.TitleText);
+      if (achievementsWithSameName.length > 1) {
+        sb.prop('title', achievement.TitleText);
+      }
       sb.prop('id', achievement.Id);
       sb.prop('order id', achievement.OrderId);
       sb.prop('category', achievement.Goal.NameText);
       sb.prop('description', achievement.DescText);
-      sb.prop('requirements');
+      sb.prop('requirements', achieveReq);
       sb.prop('primogems', achievement.FinishReward.RewardSummary.PrimogemCount);
       sb.prop('tracking');
       sb.prop('topic');
@@ -208,7 +220,7 @@ export default async function(): Promise<Router> {
         sb.prop('tiers_total', achievementsWithSameName.length);
       }
       sb.line('}}');
-      sb.line(`'''''${achievement.TitleText}''''' is an [[Achievement]] in the category ''[[${achievement.Goal.NameText}]]''. To complete this achievement, the player needs to <!-- achieve steps -->.`);
+      sb.line(`'''''${achievement.TitleText}''''' is an [[Achievement]] in the category ''[[${achievement.Goal.NameText}]]''. To complete this achievement, the player needs to ${achieveSteps}.`);
       sb.line(`<!--
 ==Gameplay Notes==
 * 

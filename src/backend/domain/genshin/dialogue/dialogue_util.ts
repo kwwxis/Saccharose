@@ -162,10 +162,11 @@ export class TalkConfigAccumulator {
 
     // Handle self:
     // ------------
+    const questId: number = (await dialogueToQuestId(this.ctrl, talkConfig))?.[0];
     const isTopLevel: boolean = depth === 0;
     debug(`Fetching dialogue branch for ${talkConfig.Id} (${isTopLevel ? 'Top Level' : 'Child'}) [Init Dialog: ${talkConfig.InitDialog}]`);
     if (!!talkConfig.InitDialog) {
-      talkConfig.Dialog = await this.ctrl.selectDialogBranch(await this.ctrl.selectSingleDialogExcelConfigData(talkConfig.InitDialog), null, talkConfig.Id);
+      talkConfig.Dialog = await this.ctrl.selectDialogBranch(questId, await this.ctrl.selectSingleDialogExcelConfigData(talkConfig.InitDialog), null, talkConfig.Id);
     } else {
       talkConfig.Dialog = [];
     }
@@ -177,7 +178,7 @@ export class TalkConfigAccumulator {
     for (let dialog of flatDialogs) {
       if (this.ctrl.state.dialogueIdCache.has(dialog.Id))
         continue;
-      const dialogs = await this.ctrl.selectDialogBranch(dialog);
+      const dialogs = await this.ctrl.selectDialogBranch(questId, dialog);
       if (dialogs.length) {
         if (!talkConfig.OtherDialog)
           talkConfig.OtherDialog = [];
@@ -455,7 +456,7 @@ export async function dialogueToQuestId(ctrl: GenshinControl,
     if (!textmapHashes.length) {
       return []; // if no textmap results, then no results overall
     }
-    dialog = (await ctrl.selectDialogsFromTextContentId(textmapHashes[0]))[0]; // if multiple results, then get first only
+    dialog = (await ctrl.selectDialogsFromTextMapHash(textmapHashes[0]))[0]; // if multiple results, then get first only
   }
 
   // If the query is a number, then it might be a dialog or talk id
