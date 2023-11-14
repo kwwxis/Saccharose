@@ -6,10 +6,11 @@ import { getGenshinDataFilePath } from '../../loadenv';
 import { normalizeRawJson, SchemaTable } from '../import_db';
 import {
   InterAction,
-  INTERACTION_KEEP_TYPES,
+  INTERACTION_KEEP_TYPES, InterActionD2F,
   InterActionGroup,
   InterActionSchema,
 } from '../../../shared/types/genshin/interaction-types';
+import { reformatPrimitiveArrays } from '../util/import_file_util';
 
 // region Walk Sync
 // --------------------------------------------------------------------------------------------------------------
@@ -33,7 +34,7 @@ function* walkSync(dir: string): Generator<string> {
 // region Main Function
 // --------------------------------------------------------------------------------------------------------------
 const allTypes: Set<string> = new Set();
-const d2f: {[id: number]: string} = {};
+const d2f: InterActionD2F = {};
 
 export async function loadInterActionQD(repoRoot: string) {
   const binOutputPath: string = path.resolve(repoRoot, './BinOutput');
@@ -73,24 +74,24 @@ export async function loadInterActionQD(repoRoot: string) {
     fs.writeFileSync(outFile, JSON.stringify(groups, null, 2));
   }
 
-  fs.writeFileSync(path.resolve(repoRoot, './InterActionD2F.json'), JSON.stringify(d2f, null, 2));
+  fs.writeFileSync(path.resolve(repoRoot, './InterActionD2F.json'), reformatPrimitiveArrays(JSON.stringify(d2f, null, 2)));
   console.log('Done');
 }
 
 
-function processInterAction(fileName: string, a: any): InterAction {
-  let action: InterAction = normalizeRawJson(a, InterActionSchema);
+function processInterAction(fileName: string, groupId: number, groupIndex: number, _action: any): InterAction {
+  let action: InterAction = normalizeRawJson(_action, InterActionSchema);
   allTypes.add(action.Type);
   if (action.Type === 'DIALOG') {
     if (typeof action.DialogId === 'number') {
-      d2f[action.DialogId] = fileName;
+      d2f[action.DialogId] = [fileName, groupId, groupIndex];
     } else {
       return null;
     }
   } else if (action.Type === 'DIALOG_SELECT') {
     if (Array.isArray(action.DialogOptions)) {
       for (let dialogOption of action.DialogOptions) {
-        d2f[dialogOption] = fileName;
+        d2f[dialogOption] = [fileName, groupId, groupIndex];
       }
     } else {
       return null;
@@ -107,10 +108,11 @@ function processJsonObject(fileName: string, json: any): InterActionGroup[] {
   let groups: InterActionGroup[] = [];
 
   for (let i = 0; i < json.group.length; i++) {
-    let _actions: any[] = json.group[i];
-    let actions: InterAction[] = [];
-    for (let _action of _actions) {
-      let action = processInterAction(fileName, _action);
+    const groupId: any = json.groupId[i];
+    const actions: InterAction[] = [];
+
+    for (let _action of json.group[i]) {
+      let action = processInterAction(fileName, groupId.grpId, groupId.index || 0, _action);
       if (!action) {
         continue;
       }
@@ -120,7 +122,6 @@ function processJsonObject(fileName: string, json: any): InterActionGroup[] {
       actions.push(action);
     }
 
-    let groupId: any = json.groupId[i];
     let group: InterActionGroup = {
       Index: groupId.index || 0,
       GroupId: groupId.grpId,

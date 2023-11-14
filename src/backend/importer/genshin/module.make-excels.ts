@@ -219,11 +219,14 @@ export async function generateQuestDialogExcels(repoRoot: string) {
           continue;
         }
 
+        const defaultNextItemId: number = Object.values(item).find(x => Array.isArray(x) && typeof x[0] === 'number')?.[0];
+
         const initialObj: any = {
           mainQuestId: mqId,
           itemId: item.itemId,
           speakerTextMapHash: item.speakerText?.textId,
           speakerTextType: item.speakerText?.textType,
+          nextItemId: defaultNextItemId,
         };
 
         if (item.dialogs) {

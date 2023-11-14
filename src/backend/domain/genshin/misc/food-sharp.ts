@@ -4,13 +4,13 @@ import '../../../loadenv';
 import sharp from 'sharp';
 import colorspace from 'color-space';
 import UPNG from 'upng-js';
-import { IMAGEDIR_GENSHIN, IMAGEDIR_STATIC } from '../../../loadenv';
+import { IMAGEDIR_GENSHIN_EXT, IMAGEDIR_GENSHIN_STATIC } from '../../../loadenv';
 import path from 'path';
 import { cached } from '../../../util/cache';
 
 async function getDeliciousCompositeBuffer(): Promise<Buffer> {
   return cached('UI_CookIcon_Delicious', async () => {
-    const filePath = path.resolve(IMAGEDIR_STATIC, './UI_CookIcon_Delicious.png');
+    const filePath = path.resolve(IMAGEDIR_GENSHIN_STATIC, './UI_CookIcon_Delicious.png');
     return await sharp(filePath).toBuffer();
   });
 }
@@ -22,7 +22,7 @@ export async function convertFoodImageToDelicious(imageNameOrBuffer: string|Buff
     }
   }
   const filePathOrBuffer: string|Buffer = typeof imageNameOrBuffer === 'string'
-    ? path.resolve(IMAGEDIR_GENSHIN, + './' + imageNameOrBuffer)
+    ? path.resolve(IMAGEDIR_GENSHIN_EXT, + './' + imageNameOrBuffer)
     : imageNameOrBuffer;
   return await sharp(filePathOrBuffer).composite([
     {
@@ -54,7 +54,7 @@ export async function convertFoodImageToSuspicious(imageNameOrBuffer: string|Buf
 
   // Get file buffer:
   const fileBuffer: Buffer = typeof imageNameOrBuffer === 'string'
-    ? await sharp(path.resolve(IMAGEDIR_GENSHIN, + './' + imageNameOrBuffer)).toBuffer()
+    ? await sharp(path.resolve(IMAGEDIR_GENSHIN_EXT, + './' + imageNameOrBuffer)).toBuffer()
     : imageNameOrBuffer;
 
   // Decode the image:

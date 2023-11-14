@@ -69,10 +69,6 @@ export async function fetchCharacterStories(ctrl: GenshinControl): Promise<Story
         fm.StoryTitle2Text = mcify(ctrl.outputLangCode, fm.StoryTitle2Text, ff.StoryTitle2Text);
         fm.StoryContext2Text = mcify(ctrl.outputLangCode, fm.StoryContext2Text, ff.StoryContext2Text);
 
-        if (fm.StoryTitleText === 'Character Story 2') {
-          console.log(fm.StoryContextText);
-        }
-
         ff.StoryTitleText = fm.StoryTitleText;
         ff.StoryContextText = fm.StoryContextText;
         ff.StoryTitle2Text = fm.StoryTitle2Text;

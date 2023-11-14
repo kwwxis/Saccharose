@@ -98,3 +98,59 @@ body.nightmode .tab-list {
     background: hsl(255deg 8% 22%);
   }
 }
+
+.card > h3 + .tab-list.secondary,
+.card .secondary-header + .tab-list.secondary {
+  margin-top: -2px;
+}
+
+body .tab-list.secondary {
+  background: #f1f2f5;
+  box-shadow: none;
+
+  button, a {
+    background: transparent;
+    height: 26px;
+    line-height: 28px;
+    margin: 0 0 -2px 0;
+
+    &.active {
+      background: #fff;
+      border: 1px solid hsla(223, 67%, 18%, 0.1);
+      border-bottom: 1px solid #fff;
+    }
+
+    &:focus {
+      color: #2168f8;
+    }
+
+    &:focus:before,
+    &:before {
+      display: none;
+    }
+  }
+
+  > :first-child {
+    margin-left: 10px;
+  }
+
+  &:after {
+    display: none;
+  }
+}
+
+body.nightmode .tab-list.secondary {
+  background: #353645;
+
+  button, a {
+    &.active {
+      background: #211f28;
+      border: 0;
+    }
+    &:focus {
+      color: #87aaf1;
+      text-shadow: none;
+    }
+  }
+}
+

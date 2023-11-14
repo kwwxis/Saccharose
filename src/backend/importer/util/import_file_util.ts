@@ -146,10 +146,7 @@ export async function importNormalize(jsonDir: string, skip: string[], specialNo
     let newFileData = JSON.stringify(json, null, 2);
 
     // Convert primitive arrays to be single-line.
-    newFileData = newFileData.replace(/\[(\s*(\d+(\.\d+)?|"[^"]+"|true|false),?\n\s*)*]/g, fm => {
-      let s = fm.slice(1, -1).split(',').map(s => s.trim()).join(', ');
-      return s ? '[ ' + s + ' ]' : '[]';
-    });
+    newFileData = reformatPrimitiveArrays(newFileData);
 
     if (newFileData !== fileData) {
       await fsp.writeFile(filePath, newFileData, 'utf8');
@@ -161,6 +158,13 @@ export async function importNormalize(jsonDir: string, skip: string[], specialNo
   }
 
   console.log(chalk.blue(`Done, modified ${numChanged} files.`));
+}
+
+export function reformatPrimitiveArrays(jsonStr: string) {
+  return jsonStr.replace(/\[(\s*(\d+(\.\d+)?|"[^"]+"|true|false),?\n\s*)*]/g, fm => {
+    let s = fm.slice(1, -1).split(',').map(s => s.trim()).join(', ');
+    return s ? '[ ' + s + ' ]' : '[]';
+  });
 }
 
 export async function importPlainTextMap(ctrl: AbstractControl, getDataFilePath: (relPath: string) => string) {

@@ -17,13 +17,13 @@
   &.GCG_CHAR_HP {
     height: 24px;
     line-height: 25px;
-    background-image: url(/images/static/TCG/GCG_COST/GCG_CHAR_HP.png);
+    background-image: url(/images/genshin/static/TCG/GCG_COST/GCG_CHAR_HP.png);
   }
 
   &.GCG_COST_ENERGY {
     height: 24px;
     line-height: 21px;
-    background-image: url(/images/static/TCG/GCG_COST/GCG_COST_ENERGY.png);
+    background-image: url(/images/genshin/static/TCG/GCG_COST/GCG_COST_ENERGY.png);
   }
 
   &[class*=GCG_COST_DICE] {
@@ -32,39 +32,39 @@
   }
 
   &.GCG_COST_DICE_VOID {
-    background-image: url(/images/static/TCG/GCG_COST/GCG_COST_DICE_VOID.png)
+    background-image: url(/images/genshin/static/TCG/GCG_COST/GCG_COST_DICE_VOID.png)
   }
 
   &.GCG_COST_DICE_SAME {
-    background-image: url(/images/static/TCG/GCG_COST/GCG_COST_DICE_SAME.png)
+    background-image: url(/images/genshin/static/TCG/GCG_COST/GCG_COST_DICE_SAME.png)
   }
 
   &.GCG_COST_DICE_ANEMO {
-    background-image: url(/images/static/TCG/GCG_COST/GCG_COST_DICE_ANEMO.png)
+    background-image: url(/images/genshin/static/TCG/GCG_COST/GCG_COST_DICE_ANEMO.png)
   }
 
   &.GCG_COST_DICE_CRYO {
-    background-image: url(/images/static/TCG/GCG_COST/GCG_COST_DICE_CRYO.png)
+    background-image: url(/images/genshin/static/TCG/GCG_COST/GCG_COST_DICE_CRYO.png)
   }
 
   &.GCG_COST_DICE_DENDRO {
-    background-image: url(/images/static/TCG/GCG_COST/GCG_COST_DICE_DENDRO.png)
+    background-image: url(/images/genshin/static/TCG/GCG_COST/GCG_COST_DICE_DENDRO.png)
   }
 
   &.GCG_COST_DICE_ELECTRO {
-    background-image: url(/images/static/TCG/GCG_COST/GCG_COST_DICE_ELECTRO.png)
+    background-image: url(/images/genshin/static/TCG/GCG_COST/GCG_COST_DICE_ELECTRO.png)
   }
 
   &.GCG_COST_DICE_GEO {
-    background-image: url(/images/static/TCG/GCG_COST/GCG_COST_DICE_GEO.png)
+    background-image: url(/images/genshin/static/TCG/GCG_COST/GCG_COST_DICE_GEO.png)
   }
 
   &.GCG_COST_DICE_HYDRO {
-    background-image: url(/images/static/TCG/GCG_COST/GCG_COST_DICE_HYDRO.png)
+    background-image: url(/images/genshin/static/TCG/GCG_COST/GCG_COST_DICE_HYDRO.png)
   }
 
   &.GCG_COST_DICE_PYRO {
-    background-image: url(/images/static/TCG/GCG_COST/GCG_COST_DICE_PYRO.png)
+    background-image: url(/images/genshin/static/TCG/GCG_COST/GCG_COST_DICE_PYRO.png)
   }
 }
 

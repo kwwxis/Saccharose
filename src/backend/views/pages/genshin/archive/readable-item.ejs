@@ -1,154 +1,154 @@
 <% if (readable) { %>
 <section class="card">
   <h2><%= title %></h2>
-  <div class="content">
-    <% if (readable.Material) { %>
-      <table class="article-table">
-        <tbody>
+  <% if (readable.Material) { %>
+    <table class="article-table" style="border:0">
+      <tbody>
+        <tr>
+          <td class="bold">Item Icon</td>
+          <td class="w70p"><img class="icon x36" src="/images/genshin/<%= readable?.Material?.Icon %>.png" loading="lazy" decoding="async" /></td>
+        </tr>
+        <tr>
+          <td class="bold">Item Quality</td>
+          <td class="w70p">
+            <div class="valign">
+              <code class="spacer10-right"><%= readable?.Material?.RankLevel %></code>
+              <%- include('partials/genshin/stars', { quality: readable?.Material?.RankLevel }) %>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="bold">Item Name</td>
+          <td class="w70p"><%= readable?.Material?.NameText %></td>
+        </tr>
+        <tr>
+          <td class="bold">Document Title</td>
+          <td class="w70p"><%= readable?.Document?.TitleText %></td>
+        </tr>
+        <tr>
+          <td class="bold">Type</td>
+          <td class="w70p"><%= readable?.Material?.TypeDescText %></td>
+        </tr>
+        <tr>
+          <td class="bold">Desc.</td>
+          <td class="w70p">
+            <%- include('partials/util/wikitext', {wikitext: normGenshinText(readable?.Material?.DescText), seamless: true}) %>
+          </td>
+        </tr>
+        <% if (readable?.Material) { %>
           <tr>
-            <td class="bold">Image</td>
-            <td class="w70p"><img class="icon x36" src="/images/genshin/<%= readable?.Material?.Icon %>.png" loading="lazy" decoding="async" /></td>
-          </tr>
-          <tr>
-            <td class="bold">Quality</td>
+            <td class="bold">Item</td>
             <td class="w70p">
-              <div class="valign">
-                <code class="spacer10-right"><%= readable?.Material?.RankLevel %></code>
-                <%- include('partials/genshin/stars', { quality: readable?.Material?.RankLevel }) %>
-              </div>
+              <%- use('partials/genshin/archive/item', { material: readable?.Material, disableName: true }) %>
             </td>
           </tr>
+        <% } %>
+      </tbody>
+    </table>
+  <% } %>
+  <% if (readable.Artifact) { %>
+    <table class="article-table">
+      <tbody>
+        <tr>
+          <td class="bold">Image</td>
+          <td class="w70p"><img class="icon x36" src="/images/genshin/<%= readable?.Artifact?.Icon %>.png" loading="lazy" decoding="async" /></td>
+        </tr>
+        <tr>
+          <td class="bold">Quality</td>
+          <td class="w70p">
+            <div class="valign">
+              <code class="spacer10-right"><%= readable?.Artifact?.RankLevel %></code>
+              <%- include('partials/genshin/stars', { quality: readable?.Artifact?.RankLevel }) %>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="bold">Artifact Name</td>
+          <td class="w70p"><%= readable?.Artifact?.NameText %></td>
+        </tr>
+        <tr>
+          <td class="bold">Document Title</td>
+          <td class="w70p"><%= readable?.Document?.TitleText %></td>
+        </tr>
+        <tr>
+          <td class="bold">Type</td>
+          <td class="w70p"><%= readable?.Artifact?.EquipName %></td>
+        </tr>
+        <tr>
+          <td class="bold">Desc.</td>
+          <td class="w70p">
+            <%- include('partials/util/wikitext', {wikitext: normGenshinText(readable?.Artifact?.DescText), seamless: true}) %>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  <% } %>
+  <% if (readable.Weapon) { %>
+    <table class="article-table">
+      <tbody>
+        <tr>
+          <td class="bold">Image</td>
+          <td class="w70p"><img class="icon x36" src="/images/genshin/<%= readable?.Weapon?.Icon %>.png" loading="lazy" decoding="async" /></td>
+        </tr>
+        <tr>
+          <td class="bold">Awaken Image</td>
+          <td class="w70p"><img class="icon x36" src="/images/genshin/<%= readable?.Weapon?.AwakenIcon %>.png" loading="lazy" decoding="async" /></td>
+        </tr>
+        <tr>
+          <td class="bold">Quality</td>
+          <td class="w70p">
+            <div class="valign">
+              <code class="spacer10-right"><%= readable?.Weapon?.RankLevel %></code>
+              <%- include('partials/genshin/stars', { quality: readable?.Weapon?.RankLevel }) %>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="bold">Weapon Name</td>
+          <td class="w70p"><%= normGenshinText(readable?.Weapon?.NameText) %></td>
+        </tr>
+        <tr>
+          <td class="bold">Document Title</td>
+          <td class="w70p"><%= readable?.Document?.TitleText %></td>
+        </tr>
+        <tr>
+          <td class="bold">Type</td>
+          <td class="w70p code"><%= readable?.Weapon?.WeaponType %></td>
+        </tr>
+        <tr>
+          <td class="bold">Desc.</td>
+          <td class="w70p">
+            <%- include('partials/util/wikitext', {wikitext: normGenshinText(readable?.Weapon?.DescText), seamless: true}) %>
+          </td>
+        </tr>
+        <% if (readable?.Weapon) { %>
           <tr>
-            <td class="bold">Item Name</td>
-            <td class="w70p"><%= readable?.Material?.NameText %></td>
-          </tr>
-          <tr>
-            <td class="bold">Document Title</td>
-            <td class="w70p"><%= readable?.Document?.TitleText %></td>
-          </tr>
-          <tr>
-            <td class="bold">Type</td>
-            <td class="w70p"><%= readable?.Material?.TypeDescText %></td>
-          </tr>
-          <tr>
-            <td class="bold">Desc.</td>
+            <td class="bold">Weapon</td>
             <td class="w70p">
-              <%- include('partials/util/wikitext', {wikitext: normGenshinText(readable?.Material?.DescText), seamless: true}) %>
+              <%- use('partials/genshin/archive/item', { material: readable?.Weapon, disableName: true }) %>
             </td>
           </tr>
-          <% if (readable?.Material) { %>
-            <tr>
-              <td class="bold">Item</td>
-              <td class="w70p">
-                <%- use('partials/genshin/archive/item', { material: readable?.Material, disableName: true }) %>
-              </td>
-            </tr>
-          <% } %>
-        </tbody>
-      </table>
-    <% } %>
-    <% if (readable.Artifact) { %>
-      <table class="article-table">
-        <tbody>
-          <tr>
-            <td class="bold">Image</td>
-            <td class="w70p"><img class="icon x36" src="/images/genshin/<%= readable?.Artifact?.Icon %>.png" loading="lazy" decoding="async" /></td>
-          </tr>
-          <tr>
-            <td class="bold">Quality</td>
-            <td class="w70p">
-              <div class="valign">
-                <code class="spacer10-right"><%= readable?.Artifact?.RankLevel %></code>
-                <%- include('partials/genshin/stars', { quality: readable?.Artifact?.RankLevel }) %>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td class="bold">Artifact Name</td>
-            <td class="w70p"><%= readable?.Artifact?.NameText %></td>
-          </tr>
-          <tr>
-            <td class="bold">Document Title</td>
-            <td class="w70p"><%= readable?.Document?.TitleText %></td>
-          </tr>
-          <tr>
-            <td class="bold">Type</td>
-            <td class="w70p"><%= readable?.Artifact?.EquipName %></td>
-          </tr>
-          <tr>
-            <td class="bold">Desc.</td>
-            <td class="w70p">
-              <%- include('partials/util/wikitext', {wikitext: normGenshinText(readable?.Artifact?.DescText), seamless: true}) %>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    <% } %>
-      <% if (readable.Weapon) { %>
-        <table class="article-table">
-          <tbody>
-            <tr>
-              <td class="bold">Image</td>
-              <td class="w70p"><img class="icon x36" src="/images/genshin/<%= readable?.Weapon?.Icon %>.png" loading="lazy" decoding="async" /></td>
-            </tr>
-            <tr>
-              <td class="bold">Awaken Image</td>
-              <td class="w70p"><img class="icon x36" src="/images/genshin/<%= readable?.Weapon?.AwakenIcon %>.png" loading="lazy" decoding="async" /></td>
-            </tr>
-            <tr>
-              <td class="bold">Quality</td>
-              <td class="w70p">
-                <div class="valign">
-                  <code class="spacer10-right"><%= readable?.Weapon?.RankLevel %></code>
-                  <%- include('partials/genshin/stars', { quality: readable?.Weapon?.RankLevel }) %>
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <td class="bold">Weapon Name</td>
-              <td class="w70p"><%= normGenshinText(readable?.Weapon?.NameText) %></td>
-            </tr>
-            <tr>
-              <td class="bold">Document Title</td>
-              <td class="w70p"><%= readable?.Document?.TitleText %></td>
-            </tr>
-            <tr>
-              <td class="bold">Type</td>
-              <td class="w70p code"><%= readable?.Weapon?.WeaponType %></td>
-            </tr>
-            <tr>
-              <td class="bold">Desc.</td>
-              <td class="w70p">
-                <%- include('partials/util/wikitext', {wikitext: normGenshinText(readable?.Weapon?.DescText), seamless: true}) %>
-              </td>
-            </tr>
-            <% if (readable?.Weapon) { %>
-              <tr>
-                <td class="bold">Weapon</td>
-                <td class="w70p">
-                  <%- use('partials/genshin/archive/item', { material: readable?.Weapon, disableName: true }) %>
-                </td>
-              </tr>
-            <% } %>
-          </tbody>
-        </table>
-      <% } %>
-  </div>
-  <%- include('partials/genshin/archive/readable-texts', {readable: readable}) %>
-  <% if (locals.ol) { %>
-    <div class="content">
-      <div class="valign">
-        <h3>OL</h3>
-        <div class="grow"></div>
-        <button class="secondary small" ui-action="copy: #ol"
-                ui-tippy-hover="Click to copy to clipboard"
-                ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
-                style="margin:5px 0">Copy</button>
-      </div>
-      <textarea id="ol" readonly class="ol-result-textarea w100p wikitext autosize" spellcheck="false" translate="no"><%= ol.result %></textarea>
-    </div>
+        <% } %>
+      </tbody>
+    </table>
   <% } %>
 </section>
+<div class="spacer20-bottom"><%- include('partials/genshin/archive/readable-texts', {readable: readable}) %></div>
+<% if (locals.ol) { %>
+  <section class="card">
+    <h2 class="valign">
+      <span>OL</span>
+      <span class="grow"></span>
+      <button class="secondary small" ui-action="copy: #ol"
+              ui-tippy-hover="Click to copy to clipboard"
+              ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
+              style="margin:5px 0">Copy</button>
+    </h2>
+    <div class="content">
+      <textarea id="ol" readonly class="ol-result-textarea w100p wikitext autosize" spellcheck="false" translate="no"><%= ol.result %></textarea>
+    </div>
+  </section>
+<% } %>
 <section class="card">
   <h2 class="valign">
     <span>Raw JSON</span>

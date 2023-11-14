@@ -12,6 +12,8 @@ export const InterActionSchema = <SchemaTable>{
   },
 };
 
+export type InterActionD2F = {[id: number]: [string, number, number]};
+
 export type InterActionType =
   // Camera
   'CAMERA_FOCUS' |
@@ -143,4 +145,28 @@ export interface InterActionGroup {
   GroupId: number,
   NextGroupId?: number,
   Actions: InterAction[]
+}
+
+export class InterActionFile {
+  Groups: InterActionGroup[] = [];
+  Target: InterActionGroup = null;
+
+  constructor(groups?: InterActionGroup[], target?: InterActionGroup) {
+    this.Groups = groups || [];
+    this.Target = target || null;
+  }
+
+  findForDialog(dialogueId: number): InterAction {
+    if (this.Target) {
+      let ia = this.Target.Actions.find(a => a.DialogId === dialogueId);
+      if (ia)
+        return ia;
+    }
+    for (let group of this.Groups) {
+      let ia = group.Actions.find(a => a.DialogId === dialogueId);
+      if (ia)
+        return ia;
+    }
+    return null;
+  }
 }

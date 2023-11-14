@@ -27,6 +27,7 @@ import { loadZenlessTextSupportingData } from './domain/zenless/zenlessText';
 import { NextFunction, Request, Response } from 'express';
 import { logInit } from './util/logger';
 import imageBaseRouter from './controllers/ImageBaseRouter';
+import { createStaticImagesHandler } from './middleware/request/staticImagesHandler';
 
 const app: Express = express();
 let didInit: boolean = false;
@@ -59,12 +60,6 @@ export async function appInit(): Promise<Express> {
   // ~~~~~~~~~~~~~~~~~~~~~~~~
   app.use(express.static(PUBLIC_DIR));
 
-  app.use((req: Request, _res: Response, next: NextFunction) => {
-    while (req.url.endsWith('.png.png'))
-      req.url = req.url.slice(0, -4);
-    next();
-  });
-
   if (isStringNotBlank(process.env.EXT_PUBLIC_DIR)) {
     logInit('Serving external public directory');
     app.use(express.static(process.env.EXT_PUBLIC_DIR));
@@ -72,20 +67,21 @@ export async function appInit(): Promise<Express> {
 
   if (isStringNotBlank(process.env.EXT_GENSHIN_IMAGES)) {
     logInit('Serving external Genshin images');
-    app.use('/images/genshin', express.static(process.env.EXT_GENSHIN_IMAGES));
+    app.use('/images/genshin', createStaticImagesHandler(process.env.EXT_GENSHIN_IMAGES, '/images/genshin/'));
+  } else {
+    throw 'EXT_GENSHIN_IMAGES is required!';
   }
   if (isStringNotBlank(process.env.EXT_HSR_IMAGES)) {
     logInit('Serving external HSR images');
-    const staticHandler = express.static(process.env.EXT_HSR_IMAGES);
-    app.use('/images/hsr', (req: Request, res: Response, next: NextFunction) => {
-      req.originalUrl = req.originalUrl.replace(/(?<=\/images\/hsr\/).*(?=\/[^\/]+$)/, fm => fm.toLowerCase());
-      req.url = req.url.replace(/.*(?=\/[^\/]+$)/, fm => fm.toLowerCase());
-      return staticHandler(req, res, next);
-    });
+    app.use('/images/hsr', createStaticImagesHandler(process.env.EXT_HSR_IMAGES, '/images/hsr/'));
+  } else {
+    throw 'EXT_HSR_IMAGES is required!';
   }
   if (isStringNotBlank(process.env.EXT_ZENLESS_IMAGES)) {
     logInit('Serving external Zenless images');
-    app.use('/images/zenless', express.static(process.env.EXT_ZENLESS_IMAGES));
+    app.use('/images/zenless', createStaticImagesHandler(process.env.EXT_ZENLESS_IMAGES, '/images/zenless/'));
+  } else {
+    throw 'EXT_ZENLESS_IMAGES is required!';
   }
 
   // Initialize sessions

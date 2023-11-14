@@ -69,8 +69,11 @@ export interface BookSuitExcelConfigData {
 // --------------------------------------------------------------------------------------------------------------
 
 export interface ReadableItem {
+  Index: number,
+  IsAlternate: boolean,
   Localization: LocalizationExcelConfigData,
   ReadableText: string,
+  ReadableImages: string[],
   MainQuestTrigger?: MainQuestExcelConfigData,
   Markers?: Marker[]
 }

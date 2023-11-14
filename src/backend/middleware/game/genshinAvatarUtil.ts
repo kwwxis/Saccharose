@@ -41,7 +41,7 @@ export async function getGenshinAvatars(ctrl: GenshinControl, combineTraveler: b
             return false;
           } else {
             foundTraveler = true;
-            x.IconName = 'UI_AvatarIcon_PlayerEpicene';
+            x.IconName = 'static/PlayerCombinedIcon';
           }
         }
         if (isTraveler(x) && !combineTraveler) {

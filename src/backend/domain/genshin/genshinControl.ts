@@ -21,7 +21,7 @@ import { isInt, toInt } from '../../../shared/util/numberUtil';
 import { normalizeRawJson, SchemaTable } from '../../importer/import_db';
 import { extractRomanNumeral, isStringBlank, replaceAsync, romanToInt, rtrim } from '../../../shared/util/stringUtil';
 import {
-  CodexQuestExcelConfigData, CodexQuestGroup,
+  CodexQuestExcelConfigData, CodexQuestGroup, CodexQuestNarratageTypes,
   DialogExcelConfigData,
   DialogUnparented,
   ManualTextMapConfigData,
@@ -66,7 +66,7 @@ import {
   DATAFILE_GENSHIN_VOICE_ITEMS,
   getGenshinDataFilePath,
   getReadableRelPath,
-  IMAGEDIR_GENSHIN,
+  IMAGEDIR_GENSHIN_EXT,
 } from '../../loadenv';
 import {
   BooksCodexExcelConfigData,
@@ -120,7 +120,12 @@ import {
   AchievementsByGoals,
 } from '../../../shared/types/genshin/achievement-types';
 import { Request } from 'express';
-import { InterActionGroup } from '../../../shared/types/genshin/interaction-types';
+import {
+  InterAction,
+  InterActionD2F,
+  InterActionFile,
+  InterActionGroup,
+} from '../../../shared/types/genshin/interaction-types';
 
 // region Control State
 // --------------------------------------------------------------------------------------------------------------
@@ -565,7 +570,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
         TalkRoleId = TalkRole.Id;
       }
 
-      if (TalkRole.Type !== 'TALK_ROLE_PLAYER' && !this.isBlackScreenDialog(dialog) && !TalkRole.Id) {
+      if (TalkRole.Type !== 'TALK_ROLE_PLAYER' && TalkRole.Type !== 'TALK_ROLE_WIKI_CUSTOM' && !this.isBlackScreenDialog(dialog) && !TalkRole.Id) {
         TalkRole.Type = 'TALK_ROLE_PLAYER';
       }
 
@@ -584,6 +589,17 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       dialog.TalkRoleNameTextMapHash = dialog.TalkRole.NameTextMapHash;
     }
     return dialog;
+  }
+
+  private async makeFakeDialog(addon: Partial<DialogExcelConfigData>): Promise<DialogExcelConfigData> {
+    return await this.postProcessDialog(Object.assign({
+      Id: 0,
+      NextDialogs: [],
+      TalkRole: {
+        Type: 'TALK_ROLE_WIKI_CUSTOM',
+        Id: 0
+      }
+    }, addon));
   }
 
   async selectDialogExcelConfigDataByTalkRoleId(talkRoleId: number): Promise<DialogExcelConfigData[]> {
@@ -665,15 +681,21 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
   // region Dialog Checks
   isPlayerTalkRole(dialog: DialogExcelConfigData): boolean {
+    if (!dialog)
+      return false;
     return dialog.TalkRole.Type === 'TALK_ROLE_PLAYER';
   }
 
   isPlayerDialogOption(dialog: DialogExcelConfigData): boolean {
+    if (!dialog)
+      return false;
     return this.isPlayerTalkRole(dialog) && (!dialog.TalkRoleNameText || dialog.TalkShowType === 'TALK_SHOW_FORCE_SELECT')
       && !this.voice.hasVoiceItems('Dialog', dialog.Id);
   }
 
   isBlackScreenDialog(dialog: DialogExcelConfigData): boolean {
+    if (!dialog)
+      return false;
     return dialog.TalkRole.Type === 'TALK_ROLE_BLACK_SCREEN' || dialog.TalkRole.Type === 'TALK_ROLE_CONSEQUENT_BLACK_SCREEN'
       || dialog.TalkRole.Type === 'TALK_ROLE_NEED_CLICK_BLACK_SCREEN' || dialog.TalkRole.Type === 'TALK_ROLE_CONSEQUENT_NEED_CLICK_BLACK_SCREEN';
   }
@@ -689,21 +711,23 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       cache = new DialogBranchingCache(null, null);
 
     const debug: debug.Debugger = custom('dialog:' + debugSource);
+    const CQG: CodexQuestGroup = await this.selectCodexQuest(mainQuestId);
 
     const currBranch: DialogExcelConfigData[] = [];
 
     if (cache.dialogToBranch.hasOwnProperty(start.Id)) {
       debug('Selecting dialog branch for ' + start.Id + ' (already seen)');
-      //currBranch.push(this.copyDialogForRecurse(start));
       return cache.dialogToBranch[start.Id];
     } else {
       debug('Selecting dialog branch for ' + start.Id);
       cache.dialogToBranch[start.Id] = currBranch;
     }
 
-    let currNode = start;
+    let currNode: DialogExcelConfigData = start;
 
+    // Loop over dialog nodes:
     while (currNode) {
+      // Handle if seen already:
       if (cache.dialogSeenAlready.has(currNode.Id)) {
         currBranch.push(this.copyDialogForRecurse(currNode));
         break;
@@ -711,12 +735,35 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
         cache.dialogSeenAlready.add(currNode.Id);
       }
 
+      // Load InterAction
+      const IAF: InterActionFile = await this.loadInterActionFile(currNode.Id);
+      const IA: InterAction = IAF.findForDialog(currNode.Id);
+      console.log(IA);
+
+      // Handle self:
       if (currNode.TalkContentText) {
         currBranch.push(currNode);
       }
 
+      // Fetch next nodes:
       const nextNodes: DialogExcelConfigData[] = await this.selectMultipleDialogExcelConfigData(currNode.NextDialogs);
 
+      // Handle special:
+      const selfCodexQuest = CQG.ByContentTextMapHash[currNode.TalkContentTextMapHash];
+      if (selfCodexQuest) {
+        let nextCodexQuest = CQG.ByItemId[selfCodexQuest.NextItemId];
+        while (!!nextCodexQuest && CodexQuestNarratageTypes.has(nextCodexQuest.ContentTextType)) {
+          const isBlackScreen = this.isBlackScreenDialog(nextNodes.find(n => n.TalkContentTextMapHash === nextCodexQuest.ContentTextMapHash));
+          if (!isBlackScreen) {
+            currBranch.push(await this.makeFakeDialog({
+              CustomTravelLogMenuText: nextCodexQuest.ContentText
+            }));
+          }
+          nextCodexQuest = CQG.ByItemId[nextCodexQuest.NextItemId];
+        }
+      }
+
+      // Handle next nodes:
       if (nextNodes.length === 1) {
         // If only one next node -> same branch
         currNode = nextNodes[0];
@@ -747,7 +794,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
           currNode = rejoinNode;
         }
       } else {
-        // No more dialog
+        // If zero next nodes -> no more dialog
         currNode = null;
       }
     }
@@ -784,12 +831,14 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       }
 
       let prefix: string = ':'.repeat(dialogDepth);
-      let text: string = this.normText(dialog.TalkContentText, this.outputLangCode);
+      let text: string = dialog.CustomTravelLogMenuText
+        ? this.normText(dialog.CustomTravelLogMenuText, this.outputLangCode)
+        : this.normText(dialog.TalkContentText, this.outputLangCode);
 
       // Traveler SEXPRO
       // ~~~~~~~~~~~~~~~
 
-      if (text.includes('SEXPRO')) {
+      if (text && text.includes('SEXPRO')) {
         text = await replaceAsync(text, /\{(MATEAVATAR|PLAYERAVATAR)#SEXPRO\[(.*?)\|(.*?)]}/g, async (_fullMatch, g0, g1, g2) => {
           let g1e = await this.selectManualTextMapConfigDataById(g1);
           let g2e = await this.selectManualTextMapConfigDataById(g2);
@@ -834,7 +883,9 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
           out += `\n${diconPrefix.slice(0,-1)};(Return to option selection)`;
         }
       } else {
-        if (this.isBlackScreenDialog(dialog)) {
+        if (dialog.CustomTravelLogMenuText) {
+          out += `\n${prefix}{{Color|menu|${text}}}`;
+        } else if (this.isBlackScreenDialog(dialog)) {
           // if (!previousDialog || !this.isBlackScreenDialog(previousDialog)) {
           //   out += '\n';
           // }
@@ -898,34 +949,43 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   // endregion
 
   // region InterAction Loader
-  private async fetchInterActionD2F(): Promise<{[dialogueId: number]: string}> {
+  private async fetchInterActionD2F(): Promise<InterActionD2F> {
     return cached('InterActionD2F', async () => {
       return await this.readJsonFile("InterActionD2F.json");
     });
   }
 
-  private async loadInterActionFile(dialogueId: number): Promise<InterActionGroup[]> {
-    const fileName = (await this.fetchInterActionD2F())[dialogueId];
+  async loadInterActionFile(dialogueId: number): Promise<InterActionFile> {
+    const refD2F = (await this.fetchInterActionD2F())[dialogueId];
+    if (!refD2F) {
+      return new InterActionFile();
+    }
+
+    const [fileName, groupId, groupIndex] = refD2F;
+    let fileGroups: InterActionGroup[] = [];
+
     if (fileName) {
       if (this.state.interActionCache[fileName]) {
-        return this.state.interActionCache[fileName];
+        fileGroups = this.state.interActionCache[fileName];
       } else {
         const groups: InterActionGroup[] = await this.readJsonFile('./InterAction/' + fileName);
         this.state.interActionCache[fileName] = groups;
-        return groups;
+        fileGroups = groups;
       }
     }
-    return null;
+    return new InterActionFile(fileGroups, fileGroups[groupIndex]?.GroupId === groupId ? fileGroups[groupIndex] : fileGroups.find(g => g.GroupId === groupId));
   }
-
-  async selectInterAction() {
-
-  }
-
   // endregion
 
   // region CodexQuest Loader
   async selectCodexQuest(mainQuestId: number): Promise<CodexQuestGroup> {
+    if (!mainQuestId) {
+      return {
+        Items: [],
+        ByContentTextMapHash: {},
+        ByItemId: {},
+      }
+    }
     if (this.state.codexQuestCache[mainQuestId]) {
       return this.state.codexQuestCache[mainQuestId];
     }
@@ -967,11 +1027,11 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     if (loadConf.LoadModelArtPath && !!monster?.AnimalCodex?.ModelPath) {
       let modelPath = monster.AnimalCodex.ModelPath;
 
-      if (fs.existsSync(path.resolve(IMAGEDIR_GENSHIN, `./UI_${modelPath}.png`))) {
+      if (fs.existsSync(path.resolve(IMAGEDIR_GENSHIN_EXT, `./UI_${modelPath}.png`))) {
         monster.AnimalCodex.ModelArtPath = 'UI_' + modelPath;
       } else {
         modelPath = rtrim(monster.AnimalCodex.ModelPath, '_0123456789');
-        if (fs.existsSync(path.resolve(IMAGEDIR_GENSHIN, `./UI_${modelPath}.png`))) {
+        if (fs.existsSync(path.resolve(IMAGEDIR_GENSHIN_EXT, `./UI_${modelPath}.png`))) {
           monster.AnimalCodex.ModelArtPath = 'UI_' + modelPath;
         }
       }
@@ -1386,7 +1446,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
     let targetFileNames: string[] = [];
     for (let fileName of fileNames) {
-      if (fileName.includes(`Q${questId}`) || fileName.includes(`Q_${questId}`)) {
+      if (fileName.includes(`Q${questId}`) || fileName.includes(`Q_${questId}`) || fileName.includes(`D${questId}`)) {
         if (fileName.endsWith('.txt') && targetFileNames.includes(fileName.slice(0, -4)+'.srt')) {
           // If targetFileNames already contains the .srt version of the .txt file, then skip
           continue;
@@ -2205,12 +2265,12 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       .then(res => res ? res.DocumentId : undefined);
   }
 
-  private async loadLocalization(contentLocalizedId: number, triggerCond?: number): Promise<ReadableItem> {
+  private async loadLocalization(itemIndex: number, itemIsAlt: boolean, contentLocalizedId: number, triggerCond?: number): Promise<ReadableItem> {
     const localization: LocalizationExcelConfigData = await this.knex.select('*').from('LocalizationExcelConfigData')
       .where({Id: contentLocalizedId}).first().then(this.commonLoadFirst);
 
     const pathVar = LANG_CODE_TO_LOCALIZATION_PATH_PROP[this.outputLangCode];
-    let ret: ReadableItem = {Localization: localization, ReadableText: null};
+    let ret: ReadableItem = {Index: itemIndex, IsAlternate: itemIsAlt, Localization: localization, ReadableText: null, ReadableImages: []};
 
     if (localization && localization.AssetType === 'LOC_TEXT'
       && typeof localization[pathVar] === 'string' && localization[pathVar].includes('/Readable/')) {
@@ -2218,7 +2278,10 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       try {
         let fileText = await fsp.readFile(this.getDataFilePath(filePath), { encoding: 'utf8' });
         let fileNormText = this.normText(fileText, this.outputLangCode).replace(/<br \/>/g, '<br />\n');
-        ret = {Localization: localization, ReadableText: fileNormText};
+        ret = {Index: itemIndex, IsAlternate: itemIsAlt, Localization: localization, ReadableText: fileNormText, ReadableImages: []};
+        for (let match of fileNormText.matchAll(/<image\s*name=([^ \/]+)\s*\/>/g)) {
+          ret.ReadableImages.push(match[1]);
+        }
       } catch (ignore) {}
     }
     if (triggerCond) {
@@ -2236,9 +2299,9 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return !Document ? null : {
       Document,
       Items: loadItems ? [
-        ... await Document.ContentLocalizedIds.asyncMap(id => this.loadLocalization(id)),
+        ... await Document.ContentLocalizedIds.asyncMap((id: number, idx: number) => this.loadLocalization(idx, false, id)),
         ... await pairArrays(Document.AltContentLocalizedIds, Document.AltContentLocalizedQuestConds).asyncMap(
-          async ([id, triggerCond]) => await this.loadLocalization(id, triggerCond)
+          async ([id, triggerCond], idx: number) => await this.loadLocalization(idx, true, id, triggerCond)
         )
       ] : []
     };

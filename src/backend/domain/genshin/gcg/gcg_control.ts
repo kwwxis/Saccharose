@@ -24,7 +24,7 @@ import { DialogueSectionResult, TalkConfigAccumulator, talkConfigGenerate } from
 import { pathToFileURL } from 'url';
 import { closeKnex } from '../../../util/db';
 import fs from 'fs';
-import { getGenshinDataFilePath, IMAGEDIR_GENSHIN } from '../../../loadenv';
+import { getGenshinDataFilePath, IMAGEDIR_GENSHIN_EXT } from '../../../loadenv';
 import { SchemaTable } from '../../../importer/import_db';
 import { formatTime } from '../../../../shared/types/genshin/general-types';
 import { genshinSchema } from '../../../importer/genshin/genshin.schema';
@@ -82,7 +82,7 @@ export class GCGControl {
     }
 
     this.charIcons = await cached('GCG_charIcons', async () => {
-      return findFiles('UI_Gcg_Char_', IMAGEDIR_GENSHIN);
+      return findFiles('UI_Gcg_Char_', IMAGEDIR_GENSHIN_EXT);
     });
 
     this.charIconsLcSet = new Set<string>(this.charIcons.map(s => s.toLowerCase().replace('.png', '')));
@@ -681,7 +681,7 @@ export class GCGControl {
     }
 
     const goldenImageExists: boolean = cachedSync('GCG_goldenImageExists_' + card.Id, () => {
-      return !!card.WikiImage && fs.existsSync(path.resolve(IMAGEDIR_GENSHIN, './' + card.WikiImage + '_Golden.png'));
+      return !!card.WikiImage && fs.existsSync(path.resolve(IMAGEDIR_GENSHIN_EXT, './' + card.WikiImage + '_Golden.png'));
     });
     if (goldenImageExists) {
       card.WikiGoldenImage = card.WikiImage + '_Golden';

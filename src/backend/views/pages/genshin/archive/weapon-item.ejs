@@ -84,7 +84,7 @@
     </section>
   <% } %>
   <% if (weapon.Story) { %>
-    <section class="card">
+    <section class="card" style="margin:0">
       <h2 class="valign">
         <span>Story</span>
         <span class="grow"></span>
@@ -92,8 +92,8 @@
           <span class="spacer5-right" style="font-size:15px">Readable</span><%- icon('external-link', 16) %>
         </a>
       </h2>
-      <%- include('partials/genshin/archive/readable-texts', {readable: weapon.Story}) %>
     </section>
+    <%- include('partials/genshin/archive/readable-texts', {readable: weapon.Story}) %>
   <% } %>
   <% if (locals.ol) { %>
     <section class="card">

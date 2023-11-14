@@ -1,40 +1,65 @@
-<% readable.Items.forEach((item, itemIdx) => { %>
-  <div class="content">
-    <div class="valign">
-      <h3>Text<%- itemIdx > 0 ? ' &ndash; Version ' + (itemIdx + 1)  : '' %></h3>
-      <div class="grow"></div>
-      <button class="secondary small" ui-action="copy: #wikitext-<%= locals.itemIdPrefix ? locals.itemIdPrefix + '-' : ''  %><%= itemIdx %>"
-              ui-tippy-hover="Click to copy to clipboard"
-              ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
-              style="margin:5px 0">Copy</button>
+<div>
+  <% readable.Items.forEach((item, itemIdx) => {
+    let itemRef = (locals.itemIdPrefix ? locals.itemIdPrefix + '-' : '') + itemIdx;
+  %>
+  <div class="card" style="margin:0">
+    <h3><%= item.IsAlternate ? 'Alternate ' : '' %>Page &ndash; <%= item.Index + 1 %></h3>
+    <div class="tab-list secondary" role="tablist">
+      <button role="tab" id="tab-<%= itemRef %>-text" class="tab active"
+              ui-action="tab: #tabpanel-<%= itemRef %>-text, tabgroup-<%= itemRef %>">Text</button>
+      <button role="tab" id="tab-<%= itemRef %>-template" class="tab"
+              ui-action="tab: #tabpanel-<%= itemRef %>-template, tabgroup-<%= itemRef %>">As Template</button>
+      <% if (item.ReadableImages && item.ReadableImages.length) { %>
+        <button role="tab" id="tab-<%= itemRef %>-images" class="tab"
+                ui-action="tab: #tabpanel-<%= itemRef %>-images, tabgroup-<%= itemRef %>">Images</button>
+      <% } %>
     </div>
-    <% if (item.MainQuestTrigger) { %>
-      <div class="valign meta-props">
-        <div class="prop">
-          <span class="prop-label">Quest Condition</span>
-          <span class="prop-values">
+    <div role="tabpanel" aria-labelledby="tab-<%= itemRef %>-text" class="tabpanel content active" id="tabpanel-<%= itemRef %>-text">
+      <% if (item.MainQuestTrigger) { %>
+        <div class="valign meta-props">
+          <div class="prop">
+            <span class="prop-label">Quest Condition</span>
+            <span class="prop-values">
                 <a href="/quests/<%= item.MainQuestTrigger.Id %>" class="prop-value"><%= item.MainQuestTrigger.Id %></a>
                 <span class="prop-value"><%= item.MainQuestTrigger.TitleText %></span>
               </span>
+          </div>
         </div>
+      <% } %>
+      <div class="posRel">
+        <textarea id="wikitext-<%= itemRef %>" readonly
+                  data-markers="<%= Marker.joinedString(item.Markers) %>"
+                  class="w100p wikitext autosize" spellcheck="false" translate="no"
+                  style="padding-right:46px"><%= item.ReadableText %></textarea>
+        <button class="secondary small posAbs" ui-action="copy: #wikitext-<%= itemRef %>"
+                ui-tippy-hover="Click to copy to clipboard"
+                ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
+                style="right: 0; top: 0">Copy</button>
+      </div>
+    </div>
+    <div role="tabpanel" aria-labelledby="tab-<%= itemRef %>-template" class="tabpanel content hide" id="tabpanel-<%= itemRef %>-template">
+      <div class="posRel">
+        <textarea id="wikitext-<%= itemRef %>-template" readonly
+                  data-markers="<%= Marker.joinedString(item.Markers) %>"
+                  class="w100p wikitext autosize" spellcheck="false" translate="no"><%=
+            `{{Readable|title=${readable?.Document?.TitleText || ''}\n|text=<!--\n-->` + item.ReadableText.replace(/\n\n+/g, '<br /><br /><!--\n-->').replace(/\n/g, '<!--\n-->') + '}}'
+          %></textarea>
+        <button class="secondary small posAbs" ui-action="copy: #wikitext-<%= itemRef %>-template"
+                ui-tippy-hover="Click to copy to clipboard"
+                ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
+                style="right: 0; top: 0">Copy</button>
+      </div>
+    </div>
+    <% if (item.ReadableImages && item.ReadableImages.length) { %>
+      <div role="tabpanel" aria-labelledby="tab-<%= itemRef %>-images" class="tabpanel content hide" id="tabpanel-<%= itemRef %>-images">
+        <% for (let image of item.ReadableImages) { %>
+          <fieldset class="spacer5-top">
+            <legend><%= image %></legend>
+            <img src="/images/genshin/<%= image %>.png" />
+          </fieldset>
+        <% } %>
       </div>
     <% } %>
-    <textarea id="wikitext-<%= locals.itemIdPrefix ? locals.itemIdPrefix + '-' : ''  %><%= itemIdx %>" readonly
-              data-markers="<%= Marker.joinedString(item.Markers) %>"
-              class="w100p wikitext autosize" spellcheck="false" translate="no"><%= item.ReadableText %></textarea>
-
-    <div class="valign">
-      <h3>As Template<%- itemIdx > 0 ? ' &ndash; Version ' + (itemIdx + 1)  : '' %></h3>
-      <div class="grow"></div>
-      <button class="secondary small" ui-action="copy: #wikitext-<%= locals.itemIdPrefix ? locals.itemIdPrefix + '-' : ''  %><%= itemIdx %>-template"
-              ui-tippy-hover="Click to copy to clipboard"
-              ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
-              style="margin:5px 0">Copy</button>
-    </div>
-    <textarea id="wikitext-<%= locals.itemIdPrefix ? locals.itemIdPrefix + '-' : ''  %><%= itemIdx %>-template" readonly
-              data-markers="<%= Marker.joinedString(item.Markers) %>"
-              class="w100p wikitext autosize" spellcheck="false" translate="no"><%=
-        `{{Readable|title=${readable?.Document?.TitleText || ''}\n|text=<!--\n-->` + item.ReadableText.replace(/\n\n+/g, '<br /><br /><!--\n-->').replace(/\n/g, '<!--\n-->') + '}}'
-      %></textarea>
   </div>
-<% })%>
+  <% })%>
+</div>

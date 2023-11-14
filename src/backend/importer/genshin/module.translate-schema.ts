@@ -56,6 +56,10 @@ export async function importTranslateSchema() {
 }
 
 export async function translateExcel(outputDirectory: string) {
+  if (/^C:[^\\/]/g.test(outputDirectory)) {
+    console.error('Invalid path: ' + outputDirectory);
+    return;
+  }
   const excelDirPath = getGenshinDataFilePath('./ExcelBinOutput');
 
   fs.mkdirSync(outputDirectory, { recursive: true });

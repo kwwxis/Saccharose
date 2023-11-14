@@ -56,7 +56,3 @@ node_modules/
 
 # Build output
 dist/
-
-# Genshin Images
-/public/images/genshin/*.png
-!/public/images/genshin/UI_AvatarIcon_PlayerEpicene.png

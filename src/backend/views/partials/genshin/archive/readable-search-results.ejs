@@ -19,7 +19,9 @@
       <h2>Content Match Result #<%= idx + 1 %></h2>
       <div class="content">
         <%- use('partials/genshin/archive/readable-link', { readableView }) %>
-        <%- use('partials/genshin/archive/readable-texts', {readable: readableView, itemIdPrefix: idx}) %>
+        <div class="spacer3-all">
+          <%- use('partials/genshin/archive/readable-texts', {readable: readableView, itemIdPrefix: idx}) %>
+        </div>
       </div>
     </section>
   <% }) %>

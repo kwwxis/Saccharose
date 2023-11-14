@@ -1,5 +1,5 @@
 import path from 'path';
-import { IMAGEDIR_GENSHIN } from '../../loadenv';
+import { IMAGEDIR_GENSHIN_EXT } from '../../loadenv';
 import fs, { promises as fsp } from 'fs';
 
 export async function maximizeImages() {
@@ -11,7 +11,7 @@ export async function maximizeImages() {
     let sizes: {[fileName: string]: number} = {};
 
     await Promise.all(dupeSet.map(f => {
-      const absPath = path.join(IMAGEDIR_GENSHIN, f);
+      const absPath = path.join(IMAGEDIR_GENSHIN_EXT, f);
       return fsp.stat(absPath).then(stats => {
         sizes[absPath] = stats.size;
       });
@@ -41,7 +41,7 @@ export async function maximizeImages() {
     affected++;
   }
 
-  for (let fileName of fs.readdirSync(IMAGEDIR_GENSHIN)) {
+  for (let fileName of fs.readdirSync(IMAGEDIR_GENSHIN_EXT)) {
 
     let imageName: string;
 

@@ -81,9 +81,9 @@
   &[data-quality='1'] {
     background: #a4a4a4;
     background: linear-gradient(0deg,#a4a4a4 0%,#76787c 100%);
-    background: url('/images/static/ItemQualityBg_1.png') 0 0 / 100% auto;
+    background: url('/images/genshin/static/ItemQualityBg_1.png') 0 0 / 100% auto;
     &.no-text {
-      background-image: url('/images/static/Quality/UI_QualityBg_1.png');
+      background-image: url('/images/genshin/static/Quality/UI_QualityBg_1.png');
     }
   }
   &[data-quality='123'],
@@ -92,14 +92,14 @@
     background: #a4a4a4;
     background: linear-gradient(0deg,#a4a4a4 0%,#76787c 100%);
     background: conic-gradient(#76787c 0deg 60deg,#658CAF 60deg 180deg,#5D8C81 180deg 300deg,#76787c 300deg);
-    background: url('/images/static/ItemQualityBg_1-3.png') 0 0 / 100% auto;
+    background: url('/images/genshin/static/ItemQualityBg_1-3.png') 0 0 / 100% auto;
   }
   &[data-quality='2'] {
     background: #5D8C81;
     background: linear-gradient(0deg,#5D8C81 0%,#4E7E6C 100%);
-    background: url('/images/static/ItemQualityBg_2.png') 0 0 / 100% auto;
+    background: url('/images/genshin/static/ItemQualityBg_2.png') 0 0 / 100% auto;
     &.no-text {
-      background-image: url('/images/static/Quality/UI_QualityBg_2.png');
+      background-image: url('/images/genshin/static/Quality/UI_QualityBg_2.png');
     }
   }
   &[data-quality='23'],
@@ -107,14 +107,14 @@
     background: #5D8C81;
     background: linear-gradient(0deg,#5D8C81 0%,#4E7E6C 100%);
     background: conic-gradient(#5D8C81 0deg 45deg,#658CAF 45deg 225deg,#5D8C81 225deg 360deg);
-    background: url('/images/static/ItemQualityBg_2-3.png') 0 0 / 100% auto;
+    background: url('/images/genshin/static/ItemQualityBg_2-3.png') 0 0 / 100% auto;
   }
   &[data-quality='3'] {
     background: #6faaca;
     background: linear-gradient(0deg,#6faaca 0%,#697b9b 100%);
-    background: url('/images/static/ItemQualityBg_3.png') 0 0 / 100% auto;
+    background: url('/images/genshin/static/ItemQualityBg_3.png') 0 0 / 100% auto;
     &.no-text {
-      background-image: url('/images/static/Quality/UI_QualityBg_3.png');
+      background-image: url('/images/genshin/static/Quality/UI_QualityBg_3.png');
     }
   }
   &[data-quality='34'],
@@ -122,14 +122,14 @@
     background: #6faaca;
     background: linear-gradient(0deg,#6faaca 0%,#697b9b 100%);
     background: conic-gradient(#697b9b 0deg 45deg,#917ab1 45deg 225deg,#697b9b 225deg 360deg);
-    background: url('/images/static/ItemQualityBg_3-4.png') 0 0 / 100% auto;
+    background: url('/images/genshin/static/ItemQualityBg_3-4.png') 0 0 / 100% auto;
   }
   &[data-quality='4'] {
     background: #917ab1;
     background: linear-gradient(0deg,#917ab1 0%,#6c6192 100%);
-    background: url('/images/static/ItemQualityBg_4.png') 0 0 / 100% auto;
+    background: url('/images/genshin/static/ItemQualityBg_4.png') 0 0 / 100% auto;
     &.no-text {
-      background-image: url('/images/static/Quality/UI_QualityBg_4.png');
+      background-image: url('/images/genshin/static/Quality/UI_QualityBg_4.png');
     }
   }
   &[data-quality='45'],
@@ -137,22 +137,22 @@
     background: #78609E;
     background: linear-gradient(0deg,#78609E 0%,#78609E 100%);
     background: conic-gradient(#6c6192 0deg 45deg,#de9552 45deg 225deg,#6c6192 225deg 360deg);
-    background: url('/images/static/ItemQualityBg_4-5.png') 0 0 / 100% auto;
+    background: url('/images/genshin/static/ItemQualityBg_4-5.png') 0 0 / 100% auto;
   }
   &[data-quality='5'] {
     background: #9a6d43;
     background: linear-gradient(0deg,#de9552 0%,#9a6d43 100%);
-    background: url('/images/static/ItemQualityBg_5.png') 0 0 / 100% auto;
+    background: url('/images/genshin/static/ItemQualityBg_5.png') 0 0 / 100% auto;
     &.no-text {
-      background-image: url('/images/static/Quality/UI_QualityBg_5.png');
+      background-image: url('/images/genshin/static/Quality/UI_QualityBg_5.png');
     }
   }
   &[data-quality='5a'] {
     background: #AF5155;
     background: linear-gradient(0deg,#DA4F55 0%,#AF5155 100%);
-    background: url('/images/static/ItemQualityBg_5a.png') 0 0 / 100% auto;
+    background: url('/images/genshin/static/ItemQualityBg_5a.png') 0 0 / 100% auto;
     &.no-text {
-      background-image: url('/images/static/Quality/UI_QualityBg_5a.png');
+      background-image: url('/images/genshin/static/Quality/UI_QualityBg_5a.png');
     }
   }
 }

@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response, Router } from 'express';
 import { create } from '../routing/router';
 import path from 'path';
-import { IMAGEDIR_GENSHIN, PUBLIC_DIR } from '../loadenv';
+import { IMAGEDIR_GENSHIN_EXT } from '../loadenv';
 import fs from 'fs';
 import { convertFoodImageToDelicious, convertFoodImageToSuspicious } from '../domain/genshin/misc/food-sharp';
 
@@ -40,9 +40,9 @@ export default async function(): Promise<Router> {
       while (imageName.endsWith('.png.png'))
         imageName = imageName.slice(0, -4);
 
-      const filePath = path.join(IMAGEDIR_GENSHIN, imageName);
+      const filePath = path.join(IMAGEDIR_GENSHIN_EXT, imageName);
 
-      if (filePath.indexOf(IMAGEDIR_GENSHIN + path.sep) !== 0) {
+      if (filePath.indexOf(IMAGEDIR_GENSHIN_EXT + path.sep) !== 0) {
         return res.status(403).end('Forbidden');
       }
 

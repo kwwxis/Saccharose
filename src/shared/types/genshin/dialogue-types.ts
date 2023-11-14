@@ -8,7 +8,8 @@ export type TalkRoleType =
   | 'TALK_ROLE_GADGET'
   | 'TALK_ROLE_CONSEQUENT_BLACK_SCREEN'
   | 'TALK_ROLE_NEED_CLICK_BLACK_SCREEN'
-  | 'TALK_ROLE_CONSEQUENT_NEED_CLICK_BLACK_SCREEN';
+  | 'TALK_ROLE_CONSEQUENT_NEED_CLICK_BLACK_SCREEN'
+  | 'TALK_ROLE_WIKI_CUSTOM';
 
 export interface TalkRole {
   Type: TalkRoleType,
@@ -36,23 +37,23 @@ export interface DialogExcelConfigData {
   TalkShowType?: 'TALK_SHOW_FORCE_SELECT',
   TalkRole: TalkRole,
 
-  TalkContentTextMapHash: number,
+  TalkContentTextMapHash?: number,
   TalkContentText?: string,
-  OptionIcon: string,
+  OptionIcon?: string,
 
-  TalkTitleTextMapHash: number,
+  TalkTitleTextMapHash?: number,
   TalkTitleTextMap?: string,
 
-  TalkRoleNameTextMapHash: number,
+  TalkRoleNameTextMapHash?: number,
   TalkRoleNameText?: string,
 
   // Misc:
-  TalkAssetPath: string,
-  TalkAssetPathAlter: string,
-  TalkAudioName: string,
-  ActionBefore: string,
-  ActionWhile: string,
-  ActionAfter: string,
+  TalkAssetPath?: string,
+  TalkAssetPathAlter?: string,
+  TalkAudioName?: string,
+  ActionBefore?: string,
+  ActionWhile?: string,
+  ActionAfter?: string,
   GroupId?: number,
 
   // Custom:
@@ -61,10 +62,10 @@ export interface DialogExcelConfigData {
   TalkId?: number,
   TalkType?: string,
 
-  CustomTravelLogMenuText: string,
-  CustomImageName: string,
-  CustomImagePath: string,
-  CustomImageSacchPath: string,
+  CustomTravelLogMenuText?: string,
+  CustomImageName?: string,
+  CustomImagePath?: string,
+  CustomImageSacchPath?: string,
 }
 
 export interface DialogUnparented {
@@ -252,6 +253,8 @@ export interface ReminderExcelConfigData {
 
 export type CodexQuestSpeakerTextType = 'Aside' | 'IPCustomizedWhole' | 'Narratage' | 'SpeakerKnown' | 'SpeakerPlayer';
 export type CodexQuestContentTextType = 'Aside' | 'DialogNormal' | 'IPCustomizedWhole' | 'Narratage';
+
+export const CodexQuestNarratageTypes: Set<CodexQuestContentTextType> = new Set(['Narratage', 'IPCustomizedWhole']);
 
 export interface CodexQuestExcelConfigData {
   Id: string,
