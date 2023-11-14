@@ -738,7 +738,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       // Load InterAction
       const IAF: InterActionFile = await this.loadInterActionFile(currNode.Id);
       const IA: InterAction = IAF.findForDialog(currNode.Id);
-      console.log(IA);
+      //console.log(IA);
 
       // Handle self:
       if (currNode.TalkContentText) {
