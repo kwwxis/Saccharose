@@ -10,6 +10,9 @@ import { getGenshinControl } from '../domain/genshin/genshinControl';
 import { getStarRailControl } from '../domain/hsr/starRailControl';
 import { getZenlessControl } from '../domain/zenless/zenlessControl';
 import { Request, Response, Router } from 'express';
+import { handleTextMapSearchEndpoint } from './generic/api/basicResourceResources';
+import router from './genshin/api/BasicResources';
+import { langDetect } from '../util/shellutil';
 
 export default async function(): Promise<Router> {
   const router: Router = create({
@@ -39,6 +42,12 @@ export default async function(): Promise<Router> {
   GenshinResources(router)
   StarRailResources(router);
   ZenlessResources(router);
+
+  router.endpoint('/lang-detect', {
+    get: async (req: Request, res: Response) => {
+      return res.json(langDetect(String(req.query.text)));
+    }
+  });
 
   // Client Error Handlers
   // ~~~~~~~~~~~~~~~~~~~~~

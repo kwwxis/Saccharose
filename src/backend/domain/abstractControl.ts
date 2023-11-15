@@ -2,10 +2,11 @@ import { Knex } from 'knex';
 import { DEFAULT_SEARCH_MODE, IdUsages, SEARCH_MODES, SearchMode } from '../util/searchUtil';
 import { openKnex, SaccharoseDb } from '../util/db';
 import {
+  CLD2_TO_LANG_CODE,
   DEFAULT_LANG,
   LANG_CODES,
   LangCode,
-  LangCodeMap,
+  LangCodeMap, LangSuggest,
   NON_SPACE_DELIMITED_LANG_CODES, PlainLineMapItem,
   TextMapHash,
 } from '../../shared/types/lang-types';
@@ -19,9 +20,16 @@ import {
 import { promises as fsp, promises as fs } from 'fs';
 import { getPlainTextMapRelPath, getTextIndexRelPath } from '../loadenv';
 import path, { basename } from 'path';
-import { escapeRegExp, isStringBlank } from '../../shared/util/stringUtil';
+import { escapeRegExp, isStringBlank, titleCase, ucFirst } from '../../shared/util/stringUtil';
 import { isInt, maybeInt, toInt } from '../../shared/util/numberUtil';
-import { getLineNumberForLineText, grep, grepStream, ShellFlags } from '../util/shellutil';
+import {
+  getLineNumberForLineText,
+  grep,
+  grepStream,
+  langDetect,
+  LangDetectResult,
+  ShellFlags,
+} from '../util/shellutil';
 import { NormTextOptions } from './generic/genericNormalizers';
 import { ExtractScalar } from '../../shared/types/utility-types';
 import { ArrayStream } from '../../shared/util/arrayUtil';
@@ -98,6 +106,21 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
 
   get searchMode(): SearchMode {
     return this.state.searchMode;
+  }
+
+  langSuggest(query: string): LangSuggest {
+    const result = langDetect(query);
+    const code = CLD2_TO_LANG_CODE[result?.details?.[0]?.langCode?.toLowerCase()] ||
+      result?.details?.[0]?.langCode?.toUpperCase();
+    return {
+      matchesInputLangCode: code === this.inputLangCode,
+      detected: {
+        langCode: code,
+        langName: titleCase(result?.details?.[0]?.langName?.toLowerCase()),
+        confidence: result?.details?.[0]?.confidence,
+      },
+      result
+    };
   }
 
   get searchModeFlags(): string {

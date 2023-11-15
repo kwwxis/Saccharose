@@ -1,3 +1,5 @@
+import { LangDetectResult } from '../../backend/util/shellutil';
+
 export type TextMapHash = number|string;
 
 
@@ -85,6 +87,33 @@ export const LANG_CODE_TO_LOCALE = {
   TH: 'th-TH',
   TR: 'tr-TR',
   VI: 'vi-VN',
+};
+
+export interface LangSuggest {
+  matchesInputLangCode: boolean,
+  detected: {
+    langCode: LangCode,
+    langName: string,
+    confidence: number,
+  },
+  result: LangDetectResult
+}
+
+export const CLD2_TO_LANG_CODE = {
+  zh: 'CHS',
+  de: 'DE',
+  en: 'EN',
+  es: 'ES',
+  fr: 'FR',
+  id: 'ID',
+  it: 'IT',
+  ja: 'JP',
+  ko: 'KR',
+  pt: 'PT',
+  ru: 'RU',
+  th: 'TH',
+  tr: 'TR',
+  vi: 'VI'
 };
 
 export type LangCodeMap<T = string> = {

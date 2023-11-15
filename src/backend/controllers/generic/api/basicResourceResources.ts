@@ -56,7 +56,14 @@ export async function handleTextMapSearchEndpoint(ctrl: AbstractControl, req: Re
   }
 
   if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
-    return res.render('partials/generic/basic/textmap-search-result', { items, lastLine, hasMoreResults, resultSetNum, SEARCH_TEXTMAP_MAX });
+    return res.render('partials/generic/basic/textmap-search-result', {
+      items,
+      lastLine,
+      hasMoreResults,
+      resultSetNum,
+      SEARCH_TEXTMAP_MAX,
+      langSuggest: items.length ? null : ctrl.langSuggest(query)
+    });
   } else {
     return items;
   }

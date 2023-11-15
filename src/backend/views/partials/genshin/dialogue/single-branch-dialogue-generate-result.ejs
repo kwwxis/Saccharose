@@ -16,6 +16,14 @@
           <li>Make sure you typed it correctly.</li>
           <li>If it's an autoplaying overworld line, it may be in <a href="/reminders?q=<%= query %>" target="_blank">ReminderExcelConfigData</a></li>
           <li>Try <a href="/textmap?q=<%= query %>" target="_blank">TextMap Search</a> as well.</li>
+          <li>Is your input language correct?
+            <% if (langSuggest && !langSuggest.matchesInputLangCode) { %>
+              <p class="error-notice spacer10-top">
+                Your input language is <strong style="font-size:1.2em"><%= req.context.languages[req.context.inputLangCode] %></strong>
+                but the query you entered was detected to be <strong style="font-size:1.2em"><%= langSuggest.detected.langName %></strong>
+              </p>
+            <% } %>
+          </li>
         </ul>
       </div>
     </section>

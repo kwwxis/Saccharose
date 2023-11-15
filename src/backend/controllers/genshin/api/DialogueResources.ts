@@ -102,6 +102,7 @@ router.endpoint('/dialogue/single-branch-generate', {
       return res.render('partials/genshin/dialogue/single-branch-dialogue-generate-result', {
         sections: result,
         query,
+        langSuggest: result.length ? null : ctrl.langSuggest(query)
       });
     } else {
       return removeCyclicRefs(result, ApiCyclicValueReplacer);
@@ -150,6 +151,7 @@ router.endpoint('/dialogue/reminder-dialogue-generate', {
       return res.render('partials/genshin/dialogue/single-branch-dialogue-generate-result', {
         sections: result,
         query,
+        langSuggest: result.length ? null : ctrl.langSuggest(query)
       });
     } else {
       return result;

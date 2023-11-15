@@ -3,6 +3,18 @@
 **Saccharose.wiki** is a web app that provides various tools to auto-generate wikitext for use by the editors of the
 [Genshin Impact Fandom Wiki](https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki)
 
+## Prerequisites
+
+- Git
+- Node.js
+- Python 3
+- PIP package: `pycld2`
+  - On Linux, run: `pip install pycld2`
+  - On Windows, pip installing does not work!
+    
+    Instead, clone [the repo](https://github.com/aboSamoor/pycld2), `cd` into it, and run `./setup.py install` as admin.
+- Other PIP packages: imagehash, psycopg2, python-dotenv
+
 ## Setup
 
 1. Clone the repo from GitHub (`git clone git@github.com:kwwxis/Saccharose.git`)
@@ -213,26 +225,9 @@ It doesn't matter which order you run those two commands in.
 
 You'll want to create the `public/images/genshin` folder and add the images matching these conditions.
 
-All files in `Texture2D` starting with (case-insensitive):
-- `UI_AchievementIcon`
-- `UI_AnimalIcon`
-- `UI_AvatarIcon`
-- `UI_Activity`
-- `UI_ChapterIcon`
-- `UI_Codex`
-- `UI_EquipIcon`
-- `UI_FlycloakIcon`
-- `UI_Gacha`
-- `UI_Gcg`
-- `UI_Homeworld`
-- `UI_ItemIcon`
-- `UI_Monster`
-- `UI_NameCard`
-- `UI_Reputation`
-- `UI_RelicIcon`
-
-All files in `Texture2D` containing (case insensitive):
-- `Tutorial`, e.g. `7z e Texture2D.zip -o'/dest/path' '*Tutorial*' -r`
+All files in `Texture2D` starting with:
+- `UI_`
+- `Eff_UI_Talent`
 
 All files in `Sprite` starting with:
 - `UI_Gcg_Dice`
@@ -246,9 +241,9 @@ Discord editing forums post.
 
 **Commands:**
 
-- **Print Texture2D:** `find ./Texture2D/ -type f -regextype posix-extended -iregex '.*/(UI_Achievement|UI_AnimalIcon|UI_AvatarIcon|UI_Activity|UI_ChapterIcon|UI_Codex|UI_EquipIcon|UI_FlycloakIcon|UI_Gacha|UI_Gcg|UI_Homeworld|UI_ItemIcon|UI_Monster|UI_NameCard|UI_Reputation|UI_RelicIcon|.*Tutorial).*'`<br /><br />
+- **Print Texture2D:** `find ./Texture2D/ -type f -regextype posix-extended -iregex '.*/(UI_|Eff_UI_Talent|.*Tutorial).*'`<br /><br />
 
-- **Copy Texture2D:** `find ./Texture2D/ -type f -regextype posix-extended -iregex '.*/(UI_Achievement|UI_AnimalIcon|UI_AvatarIcon|UI_Activity|UI_ChapterIcon|UI_Codex|UI_EquipIcon|UI_FlycloakIcon|UI_Gacha|UI_Gcg|UI_Homeworld|UI_ItemIcon|UI_Monster|UI_NameCard|UI_Reputation|UI_RelicIcon|.*Tutorial).*' -exec cp '{}' dist ';'`<br /><br />
+- **Copy Texture2D:**  `find ./Texture2D/ -type f -regextype posix-extended -iregex '.*/(UI_|Eff_UI_Talent|.*Tutorial).*' -exec cp '{}' dist ';'`<br /><br />
 
 - **Copy Sprite:** `find ./Sprite/ -type f -regextype posix-extended -iregex '.*/(UI_Buff|UI_Gcg_Dice|UI_Gcg_Buff|UI_Gcg_Tag|UI_HomeWorldTabIcon).*' -exec cp '{}' dist ';'`
 

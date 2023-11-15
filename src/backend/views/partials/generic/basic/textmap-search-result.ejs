@@ -49,6 +49,12 @@
     <section class="card">
       <div class="content">
         <strong>No matches found.</strong>
+        <% if (langSuggest && !langSuggest.matchesInputLangCode) { %>
+          <p class="error-notice spacer10-top">
+            Your input language is <strong style="font-size:1.2em"><%= req.context.languages[req.context.inputLangCode] %></strong>
+            but the query you entered was detected to be <strong style="font-size:1.2em"><%= langSuggest.detected.langName %></strong>
+          </p>
+        <% } %>
       </div>
     </section>
   <% } %>

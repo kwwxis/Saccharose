@@ -433,6 +433,30 @@ export interface MediaSearchResult {
   matches: { name: string, hash: number, distance: number }[]
 }
 
+export interface LangDetectResult {
+  isReliable: boolean,
+  details: {langName: string, langCode: string, confidence: number}[]
+}
+
+export function langDetect(text: string): LangDetectResult {
+  try {
+    const pyFile = path.resolve(PIPELINE_DIR, './detect_language.py').replace(/\\/g, '/');
+    const cmd = `${process.env.PYTHON_COMMAND} ${pyFile} ${shellEscapeArg(text)}`;
+
+    const stdout: string = execSync(cmd, {
+      env: {
+        PATH: process.env.SHELL_PATH,
+      },
+      shell: process.env.SHELL_EXEC,
+    }).toString();
+
+    return JSON.parse(stdout);
+  } catch (err) {
+    console.error('\x1b[4m\x1b[1mshell error:\x1b[0m\n', err);
+    throw 'Shell error occurred.';
+  }
+}
+
 export function mediaSearch(imageName: string, maxHammingDistance: number): MediaSearchResult {
   try {
     const pyFile = path.resolve(PIPELINE_DIR, './search_image_hashes.py').replace(/\\/g, '/');
@@ -463,7 +487,7 @@ export function mediaSearch(imageName: string, maxHammingDistance: number): Medi
     };
   } catch (err) {
     console.error('\x1b[4m\x1b[1mshell error:\x1b[0m\n', err);
-    throw 'Search error occurred.';
+    throw 'Shell error occurred.';
   }
 }
 
