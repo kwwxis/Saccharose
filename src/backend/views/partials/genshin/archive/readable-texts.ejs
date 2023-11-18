@@ -7,6 +7,8 @@
     <div class="tab-list secondary" role="tablist">
       <button role="tab" id="tab-<%= itemRef %>-text" class="tab active"
               ui-action="tab: #tabpanel-<%= itemRef %>-text, tabgroup-<%= itemRef %>">Text</button>
+      <button role="tab" id="tab-<%= itemRef %>-dialogue" class="tab"
+              ui-action="tab: #tabpanel-<%= itemRef %>-dialogue, tabgroup-<%= itemRef %>">As Dialogue</button>
       <button role="tab" id="tab-<%= itemRef %>-template" class="tab"
               ui-action="tab: #tabpanel-<%= itemRef %>-template, tabgroup-<%= itemRef %>">As Template</button>
       <% if (item.ReadableImages && item.ReadableImages.length) { %>
@@ -15,41 +17,80 @@
       <% } %>
     </div>
     <div role="tabpanel" aria-labelledby="tab-<%= itemRef %>-text" class="tabpanel content active" id="tabpanel-<%= itemRef %>-text">
-      <% if (item.MainQuestTrigger) { %>
-        <div class="valign meta-props">
+      <div class="valign spacer5-bottom">
+        <div class="valign meta-props no-margin">
           <div class="prop">
-            <span class="prop-label">Quest Condition</span>
+            <span class="prop-label">Loc Name</span>
             <span class="prop-values">
-                <a href="/quests/<%= item.MainQuestTrigger.Id %>" class="prop-value"><%= item.MainQuestTrigger.Id %></a>
+              <span class="prop-value"><%= item.LocalizationName %></span>
+            </span>
+          </div>
+          <% if (item.MainQuestTrigger) { %>
+            <div class="prop">
+              <span class="prop-label">Quest Condition</span>
+              <span class="prop-values">
+                <a href="/quests/<%= item.MainQuestTrigger.Id %>" class="prop-value"
+                   ui-tippy-hover="<%= item.MainQuestTrigger.TitleText %>"><%= item.MainQuestTrigger.Id %></a>
                 <span class="prop-value"><%= item.MainQuestTrigger.TitleText %></span>
               </span>
+            </div>
+          <% } %>
+        </div>
+        <div class="grow"></div>
+        <button class="secondary small" ui-action="copy: #wikitext-<%= itemRef %>-text"
+                ui-tippy-hover="Click to copy to clipboard"
+                ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">Copy</button>
+      </div>
+      <textarea id="wikitext-<%= itemRef %>-text" readonly
+                data-markers="<%= Marker.joinedString(item.Markers.ReadableText) %>"
+                class="w100p wikitext autosize" spellcheck="false" translate="no"
+                style="padding-right:46px"><%= item.ReadableText %></textarea>
+    </div>
+
+    <div role="tabpanel" aria-labelledby="tab-<%= itemRef %>-dialogue" class="tabpanel content hide" id="tabpanel-<%= itemRef %>-dialogue">
+      <div class="valign spacer5-bottom">
+        <div class="valign meta-props no-margin">
+          <div class="prop">
+            <span class="prop-label">Loc Name</span>
+            <span class="prop-values">
+              <span class="prop-value"><%= item.LocalizationName %></span>
+            </span>
           </div>
         </div>
-      <% } %>
-      <div class="posRel">
-        <textarea id="wikitext-<%= itemRef %>" readonly
-                  data-markers="<%= Marker.joinedString(item.Markers) %>"
-                  class="w100p wikitext autosize" spellcheck="false" translate="no"
-                  style="padding-right:46px"><%= item.ReadableText %></textarea>
-        <button class="secondary small posAbs" ui-action="copy: #wikitext-<%= itemRef %>"
+        <div class="grow"></div>
+        <button class="dialogue-indent-button secondary small plus" ui-tippy-hover="Increase indent"
+                ui-action="wikitext-indent: #wikitext-<%= itemRef %>-dialogue, increase"><%- icon('plus', 16) %></button>
+        <button class="dialogue-indent-button secondary small minus" ui-tippy-hover="Decrease indent"
+                ui-action="wikitext-indent: #wikitext-<%= itemRef %>-dialogue, decrease"><%- icon('minus', 16) %></button>
+        <button class="secondary small spacer3-left" ui-action="copy: #wikitext-<%= itemRef %>-dialogue"
                 ui-tippy-hover="Click to copy to clipboard"
-                ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
-                style="right: 0; top: 0">Copy</button>
+                ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">Copy</button>
       </div>
+      <textarea id="wikitext-<%= itemRef %>-dialogue" readonly
+                data-markers="<%= Marker.joinedString(item.Markers.ReadableTextAsDialogue) %>"
+                class="w100p wikitext autosize" spellcheck="false" translate="no"><%= item.ReadableTextAsDialogue %></textarea>
     </div>
+
     <div role="tabpanel" aria-labelledby="tab-<%= itemRef %>-template" class="tabpanel content hide" id="tabpanel-<%= itemRef %>-template">
-      <div class="posRel">
-        <textarea id="wikitext-<%= itemRef %>-template" readonly
-                  data-markers="<%= Marker.joinedString(item.Markers) %>"
-                  class="w100p wikitext autosize" spellcheck="false" translate="no"><%=
-            `{{Readable|title=${readable?.Document?.TitleText || ''}\n|text=<!--\n-->` + item.ReadableText.replace(/\n\n+/g, '<br /><br /><!--\n-->').replace(/\n/g, '<!--\n-->') + '}}'
-          %></textarea>
-        <button class="secondary small posAbs" ui-action="copy: #wikitext-<%= itemRef %>-template"
+      <div class="valign spacer5-bottom">
+        <div class="valign meta-props no-margin">
+          <div class="prop">
+            <span class="prop-label">Loc Name</span>
+            <span class="prop-values">
+              <span class="prop-value"><%= item.LocalizationName %></span>
+            </span>
+          </div>
+        </div>
+        <div class="grow"></div>
+        <button class="secondary small" ui-action="copy: #wikitext-<%= itemRef %>-template"
                 ui-tippy-hover="Click to copy to clipboard"
-                ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
-                style="right: 0; top: 0">Copy</button>
+                ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">Copy</button>
       </div>
+      <textarea id="wikitext-<%= itemRef %>-template" readonly
+                data-markers="<%= Marker.joinedString(item.Markers.ReadableTextAsTemplate) %>"
+                class="w100p wikitext autosize" spellcheck="false" translate="no"><%= item.ReadableTextAsTemplate %></textarea>
     </div>
+
     <% if (item.ReadableImages && item.ReadableImages.length) { %>
       <div role="tabpanel" aria-labelledby="tab-<%= itemRef %>-images" class="tabpanel content hide" id="tabpanel-<%= itemRef %>-images">
         <% for (let image of item.ReadableImages) { %>

@@ -48,6 +48,10 @@ button.secondary.small.dialogue-indent-button {
 .meta-props {
   flex-wrap: wrap;
 
+  &.no-margin .prop {
+    margin-bottom: 0;
+  }
+
   .prop {
     display: flex;
     align-items: stretch;

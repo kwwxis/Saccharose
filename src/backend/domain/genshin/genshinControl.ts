@@ -2239,13 +2239,19 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
         .whereIn(pathVar, pathVarSearch)
         .then(this.commonLoad);
 
+      const normSearchText: string = this.normText(searchText, this.inputLangCode);
+
       ret.ContentResults = await localizations.asyncMap(async localization => {
         let view = await this.selectReadableViewByLocalizationId(localization.Id, true);
         if (!view) {
           return;
         }
         for (let item of view.Items) {
-          item.Markers = Marker.create(this.normText(searchText, this.inputLangCode), item.ReadableText);
+          item.Markers = {
+            ReadableText: Marker.create(normSearchText, item.ReadableText),
+            ReadableTextAsDialogue: Marker.create(normSearchText, item.ReadableTextAsDialogue),
+            ReadableTextAsTemplate: Marker.create(normSearchText, item.ReadableTextAsTemplate),
+          }
         }
         return view;
       });
@@ -2265,20 +2271,48 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       .then(res => res ? res.DocumentId : undefined);
   }
 
-  private async loadLocalization(itemIndex: number, itemIsAlt: boolean, contentLocalizedId: number, triggerCond?: number): Promise<ReadableItem> {
+  private async loadLocalization(document: DocumentExcelConfigData, itemIndex: number, itemIsAlt: boolean, contentLocalizedId: number, triggerCond?: number): Promise<ReadableItem> {
     const localization: LocalizationExcelConfigData = await this.knex.select('*').from('LocalizationExcelConfigData')
       .where({Id: contentLocalizedId}).first().then(this.commonLoadFirst);
 
     const pathVar = LANG_CODE_TO_LOCALIZATION_PATH_PROP[this.outputLangCode];
-    let ret: ReadableItem = {Index: itemIndex, IsAlternate: itemIsAlt, Localization: localization, ReadableText: null, ReadableImages: []};
+    let ret: ReadableItem = {
+      Index: itemIndex, IsAlternate: itemIsAlt, Localization: localization, LocalizationName: null,
+      ReadableText: null, ReadableTextAsDialogue: null, ReadableTextAsTemplate: null, ReadableImages: []
+    };
 
     if (localization && localization.AssetType === 'LOC_TEXT'
       && typeof localization[pathVar] === 'string' && localization[pathVar].includes('/Readable/')) {
+      let fileName = path.basename(localization[pathVar].split('/Readable/')[1]);
       let filePath = './Readable/' + localization[pathVar].split('/Readable/')[1] + '.txt';
       try {
         let fileText = await fsp.readFile(this.getDataFilePath(filePath), { encoding: 'utf8' });
-        let fileNormText = this.normText(fileText, this.outputLangCode).replace(/<br \/>/g, '<br />\n');
-        ret = {Index: itemIndex, IsAlternate: itemIsAlt, Localization: localization, ReadableText: fileNormText, ReadableImages: []};
+        let fileNormText = this.normText(fileText, this.outputLangCode)
+          .replace(/<br \/>/g, '<br />\n')
+          .replace(/^\n\n+/gm, fm => {
+            return '<br />\n'.repeat(fm.length);
+          });
+        ret = {
+          Index: itemIndex,
+          IsAlternate: itemIsAlt,
+          Localization: localization,
+          LocalizationName: fileName,
+          ReadableText: fileNormText,
+          ReadableTextAsTemplate: `{{Readable|title=${document.TitleText || ''}\n|text=<!--\n-->`
+            + fileNormText
+              .replace(/\n\n+/g, '<br /><br />\n')
+              .replace(/\n/g, '<!--\n-->') + '}}',
+          ReadableTextAsDialogue: fileNormText.split(/\n/g).map(line => {
+            if (line.endsWith('<br />')) {
+              line = line.slice(0, -6);
+            }
+            if (!line) {
+              return '::&nbsp;'
+            }
+            return '::' + line;
+          }).join('\n'),
+          ReadableImages: []
+        };
         for (let match of fileNormText.matchAll(/<image\s*name=([^ \/]+)\s*\/>/g)) {
           ret.ReadableImages.push(match[1]);
         }
@@ -2299,9 +2333,9 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return !Document ? null : {
       Document,
       Items: loadItems ? [
-        ... await Document.ContentLocalizedIds.asyncMap((id: number, idx: number) => this.loadLocalization(idx, false, id)),
+        ... await Document.ContentLocalizedIds.asyncMap((id: number, idx: number) => this.loadLocalization(Document, idx, false, id)),
         ... await pairArrays(Document.AltContentLocalizedIds, Document.AltContentLocalizedQuestConds).asyncMap(
-          async ([id, triggerCond], idx: number) => await this.loadLocalization(idx, true, id, triggerCond)
+          async ([id, triggerCond], idx: number) => await this.loadLocalization(Document, idx, true, id, triggerCond)
         )
       ] : []
     };

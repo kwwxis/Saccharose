@@ -72,10 +72,17 @@ export interface ReadableItem {
   Index: number,
   IsAlternate: boolean,
   Localization: LocalizationExcelConfigData,
+  LocalizationName: string,
   ReadableText: string,
+  ReadableTextAsDialogue: string,
+  ReadableTextAsTemplate: string,
   ReadableImages: string[],
   MainQuestTrigger?: MainQuestExcelConfigData,
-  Markers?: Marker[]
+  Markers?: {
+    ReadableText?: Marker[],
+    ReadableTextAsDialogue?: Marker[],
+    ReadableTextAsTemplate?: Marker[],
+  }
 }
 
 export interface Readable {

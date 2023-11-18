@@ -333,11 +333,11 @@ export default async function(): Promise<Router> {
     const ctrl = getGenshinControl(req);
     const readable: ReadableView = await ctrl.selectReadableView(toInt(req.params.itemId));
 
-    res.render('pages/genshin/archive/readable-item', {
+    res.render('pages/genshin/archive/readable-single', {
       title: readable?.TitleText || 'Not Found',
       readable: readable,
       ol: readable ? await ol_gen_from_id(ctrl, readable.TitleTextMapHash) : null,
-      bodyClass: ['page--readables', 'page--readable-item']
+      bodyClass: ['page--readables', 'page--readable-single']
     });
   });
 

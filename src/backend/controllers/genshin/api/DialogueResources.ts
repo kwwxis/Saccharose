@@ -188,7 +188,7 @@ router.endpoint('/dialogue/vo-to-dialogue', {
         } else {
           warn = '(This VO file is supposed to be used for a dialog with ID ' + id + ', however such a dialog does not exist)';
         }
-      } else if (type === 'Reminder') {
+      } else if (type === 'DungeonReminder') {
         let reminder = await ctrl.selectReminderById(id);
         if (reminder) {
           text = reminderWikitext(ctrl, reminder);
