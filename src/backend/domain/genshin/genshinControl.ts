@@ -2291,7 +2291,9 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
           .replace(/<br \/>/g, '<br />\n')
           .replace(/^\n\n+/gm, fm => {
             return '<br />\n'.repeat(fm.length);
-          });
+          })
+          .replace(/[ \t]+<br \/>/g, '<br />')
+          .replace(/[ \t]+$/gm, '');
         ret = {
           Index: itemIndex,
           IsAlternate: itemIsAlt,

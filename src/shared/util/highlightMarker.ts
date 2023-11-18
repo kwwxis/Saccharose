@@ -120,4 +120,11 @@ export class Marker {
   static joinedString(markers: Marker[]) {
     return markers && Array.isArray(markers) && markers.length ? markers.map(m => m.toString()).join(';') : '';
   }
+
+  static fromJoinedString(s: string): Marker[] {
+    if (!s || !s.trim().length) {
+      return [];
+    }
+    return s.split(';').map(x => this.fromString(x));
+  }
 }

@@ -22,6 +22,7 @@ import { mwParse } from '../shared/mediawiki/mwParse';
 import { MwParamNode, MwTemplateNode } from '../shared/mediawiki/mwTypes';
 import { pageMatch } from './pageMatch';
 import { uuidv4 } from '../shared/util/uuidv4';
+import { Marker } from '../shared/util/highlightMarker';
 
 type UiAction = {actionType: string, actionParams: string[]};
 
@@ -710,6 +711,20 @@ const initial_listeners: Listener[] = [
               if (lowestIndent === 1 && indentAction === 'decrease') {
                 flashTippy(actionEl, {content: 'Cannot decrease indent any further.'});
                 return;
+              }
+
+              if (contentEditableEl.hasAttribute('data-markers')) {
+                const markers = Marker.fromJoinedString(contentEditableEl.getAttribute('data-markers'));
+                markers.filter(m => !m.fullLine).forEach(m => {
+                  if (indentAction === 'decrease') {
+                    m.startCol--;
+                    m.endCol--;
+                  } else {
+                    m.startCol++;
+                    m.endCol++;
+                  }
+                });
+                contentEditableEl.setAttribute('data-markers', Marker.joinedString(markers));
               }
 
               lines = lines.map(line => {
