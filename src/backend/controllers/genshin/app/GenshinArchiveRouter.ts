@@ -186,14 +186,15 @@ export default async function(): Promise<Router> {
       const achievementsWithSameName = achievements
         .filter(a => a.TitleText === achievement.TitleText); // should include self
 
-      let questReqNames: string[] = [];
       let achieveSteps: string = '<!-- achieve steps -->';
       let achieveReq: string = undefined;
 
       if (achievement.TriggerConfig.TriggerQuests.length) {
-        questReqNames = achievement.TriggerConfig.TriggerQuests.map(q => q.TitleText);
-        achieveReq = 'Complete ' + sentenceJoin(questReqNames.map(t => `[[${t}]]`));
-        achieveSteps = 'complete ' + sentenceJoin(questReqNames.map(t => `{{Quest|${t}}}`));
+        let questReqNames: string[] = achievement.TriggerConfig.TriggerQuests.map(q => q.TitleText);
+        if (questReqNames.some(s => s && !!s.length)) {
+          achieveReq = 'Complete ' + sentenceJoin(questReqNames.map(t => `[[${t}]]`));
+          achieveSteps = 'complete ' + sentenceJoin(questReqNames.map(t => `{{Quest|${t}}}`));
+        }
       }
 
       sb.line('{{Achievement Infobox');

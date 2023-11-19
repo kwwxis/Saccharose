@@ -31,17 +31,23 @@
         <div class="card result-count-card">
           <h2>Total: <span><%= tutorials.length %></span></h2>
         </div>
-        <% for (let tutorial of tutorials) { %>
-          <div class="tutorial">
+      </div>
+      <% for (let tutorial of tutorials) { %>
+        <div class="tutorial">
+          <h3 class="secondary-header"><%= tutorial.PushTip?.TitleText || '(No title)' %></h3>
+          <div class="content">
             <textarea readonly class="w100p wikitext autosize" spellcheck="false" translate="no"><%= tutorial.Wikitext %></textarea>
+            <% if (tutorial.PushTip?.TitleText) { %>
+              <textarea readonly class="w100p wikitext autosize" spellcheck="false" translate="no">{{Transclude|Tutorial/<%= tutorial.PushTip?.TitleText %>}}</textarea>
+            <% } %>
             <div class="tutorial-images spacer15-bottom">
               <% for (let image of tutorial.Images) { %>
                 <a role="button" class="image-loader" ui-action="lazy-image-click" data-src="/images/genshin/<%= image.originalName %>.png" data-download="<%= image.downloadName %>"></a>
               <% } %>
             </div>
           </div>
-        <% } %>
-      </div>
+        </div>
+      <% } %>
     </section>
   <% } %>
 <% } %>

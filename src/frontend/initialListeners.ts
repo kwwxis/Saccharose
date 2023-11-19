@@ -855,10 +855,10 @@ const initial_listeners: Listener[] = [
       const params = target.closest('.file-format-options').getAttribute('data-file-format-params').split(',').map(x => x.trim());
       const langCodes = target.closest('.file-format-options').getAttribute('data-lang-codes').split(',').map(x => x.trim());
 
-      modalService.modal(`Custom Format Options for <code>${escapeHtml(paramName)}</code>`, `
+      modalService.modal(`<span>Custom Format Options for <code>${escapeHtml(paramName)}</code></span>`, `
         <p class="info-notice">Parameters must be in curly braces, for example:<br/><code>{NameText.EN} Map Location.png</code></p>
         <p class="info-notice spacer5-top">
-          <strong>English wiki format for <code>${escapeHtml(paramName)}</code>:</strong><br />
+          <strong>English wiki default format for <code>${escapeHtml(paramName)}</code>:</strong><br />
           <textarea class="code autosize w100p" readonly style="background:transparent">${escapeHtml(fileFormatDefault)}</textarea>
         </p>
         <fieldset class="spacer5-top">

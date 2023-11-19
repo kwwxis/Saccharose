@@ -18,7 +18,7 @@ import {
   GCGTalkDetailExcelConfigData,
   GCGTalkDetailIconExcelConfigData,
   GCGTalkExcelConfigData,
-  GCGWeekLevelExcelConfigData, GcgWorldWorkTimeExcelConfigData, standardElementCodeToGcgKeywordId,
+  GcgWorldWorkTimeExcelConfigData, standardElementCodeToGcgKeywordId,
 } from '../../../../shared/types/genshin/gcg-types';
 import { DialogueSectionResult, TalkConfigAccumulator, talkConfigGenerate } from '../dialogue/dialogue_util';
 import { pathToFileURL } from 'url';
