@@ -6,7 +6,6 @@ import dotenv from 'dotenv';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { LangCode } from '../shared/types/lang-types';
-import crypto from 'crypto';
 import util from 'util';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -75,9 +74,6 @@ export function getZenlessDataFilePath(file?: string): string {
   }
   return path.resolve(process.env.ZENLESS_DATA_ROOT, file).replaceAll('\\', '/');
 }
-
-// Makes it so that "crypto" is global and doesn't need to be imported when running in Node.js
-global.crypto = crypto;
 
 declare global {
   // noinspection JSUnusedGlobalSymbols
