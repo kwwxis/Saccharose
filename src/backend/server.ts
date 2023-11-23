@@ -1,4 +1,4 @@
-import './loadenv';
+import './loadenv.js';
 import sslcreds from './sslcreds';
 import express from 'express';
 import spdy from 'spdy';

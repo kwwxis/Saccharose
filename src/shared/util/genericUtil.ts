@@ -1,4 +1,4 @@
-import moment from 'moment/moment';
+import moment from 'moment';
 import { arrayContains, isArrayLike, isIterable } from './arrayUtil';
 import cloneDeep from 'clone-deep';
 

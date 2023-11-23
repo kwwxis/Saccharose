@@ -11,7 +11,7 @@
     "webpack:dev": "cross-env NODE_OPTIONS=\"--loader ts-node/esm\" webpack --config webpack.dev.ts",
     "build:dev": "npm-run-all --parallel backend:build webpack:dev",
     "build:prod": "npm-run-all --parallel backend:build webpack:prod",
-    "start": "node --experimental-modules --experimental-specifier-resolution=node --experimental-json-modules .",
+    "start": "node .",
     "ts-serve": "ts-node src/backend/server.ts",
     "ts-serve:dev": "nodemon src/backend/server.ts",
     "webpack:dev-watch": "cross-env NODE_OPTIONS=\"--loader ts-node/esm\" webpack --config webpack.dev.ts --watch",
