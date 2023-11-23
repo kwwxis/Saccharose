@@ -112,6 +112,9 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     const result = langDetect(query);
     const code = CLD2_TO_LANG_CODE[result?.details?.[0]?.langCode?.toLowerCase()] ||
       result?.details?.[0]?.langCode?.toUpperCase();
+    if (code === 'UN') {
+      return null;
+    }
     return {
       matchesInputLangCode: code === this.inputLangCode,
       detected: {

@@ -292,10 +292,19 @@ function createGrepCommand(searchText: string, absoluteFilePath: string, extraFl
     flags.remove('--with-filename');
   }
 
+  // Command format:
+  //   {envVars} grep {flags} -- {searchText} {file}
+
   let env = `LC_ALL=en_US.utf8 `;
-  let grepCmd = `${env}grep ${flags.stringify()} ${searchText}`;
+  let grepCmd = `${env}grep ${flags.stringify()} -- ${searchText}`;
 
   if (isset(startFromLine)) {
+    // In order to grep on standard input (i.e. grep from the output of tail), the file of the grep command must be "-"
+    //
+    // From https://man7.org/linux/man-pages/man1/grep.1.html
+    // >  A FILE of “-” stands for standard input.  If no FILE is given,
+    // >       recursive searches examine the working directory, and
+    // >       non-recursive searches read standard input.
     return { line: `tail -n +${startFromLine} ${absoluteFilePath} | ${grepCmd} -`, flags: flags };
   } else {
     return { line: `${grepCmd} ${absoluteFilePath}`, flags: flags };
