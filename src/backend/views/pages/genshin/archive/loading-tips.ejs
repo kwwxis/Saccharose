@@ -11,9 +11,7 @@
   <section class="card">
     <h2><%= selectedCat %></h2>
     <div class="content">
-      <div class="dialogue-container">
-        <textarea readonly class="w100p wikitext autosize" spellcheck="false" translate="no"><%= wikitext %></textarea>
-      </div>
+      <textarea readonly class="w100p wikitext autosize" spellcheck="false" translate="no"><%= wikitext %></textarea>
     </div>
   </section>
 <% } else if (!locals.wikitext && locals.selectedCat) { %>

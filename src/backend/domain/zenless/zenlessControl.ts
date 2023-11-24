@@ -46,11 +46,11 @@ export class ZenlessControl extends AbstractControl<ZenlessControlState> {
     return new ZenlessControl(this.state.copy());
   }
 
-  override async postProcess<T>(object: T, triggerNormalize?: SchemaTable, doNormText: boolean = false): Promise<T> {
+  override async postProcess<T>(object: T, triggerNormalize?: SchemaTable|boolean, doNormText: boolean = false): Promise<T> {
     if (!object)
       return object;
     if (triggerNormalize) {
-      object = normalizeRawJson(object, triggerNormalize);
+      object = normalizeRawJson(object, typeof triggerNormalize === 'boolean' ? null : triggerNormalize);
     }
     return object;
   }

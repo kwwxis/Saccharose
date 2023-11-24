@@ -94,14 +94,14 @@ export async function handleIdUsagesEndpoint(ctrl: AbstractControl, req: Request
   const ids: (number|string)[] = String(req.query.q).split(/,/g).map(s => s.trim()).filter(s => /^-?[a-zA-Z0-9_]+$/.test(s)).map(maybeInt);
   const idToUsages: {[id: number|string]: IdUsages} = {};
 
-  await Promise.all(ids.map(id => {
-    return ctrl.getIdUsages(id).then(usages => {
+  await ids.asyncMap(async id => {
+    await ctrl.getIdUsages(id).then(usages => {
       idToUsages[id] = usages;
     });
-  }));
+  });
 
   if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
-    return res.render('partials/generic/basic/id-usages-result', { idToUsages });
+    return res.render('partials/generic/basic/id-usages-result', { idToUsages, v2: toBoolean(req.query.v2) });
   } else {
     return idToUsages;
   }

@@ -13,10 +13,10 @@
     </div>
   </h2>
 </div>
-<div class="dialogue-container" data-last-line="<%= lastLine %>" data-page="<%= resultSetNum + 1 %>" data-result-set-num="<%= resultSetNum %>">
+<div class="result-wrapper" data-last-line="<%= lastLine %>" data-page="<%= resultSetNum + 1 %>" data-result-set-num="<%= resultSetNum %>">
   <% items.forEach((item, i) => { %>
     <% let itemId = (resultSetNum * SEARCH_TEXTMAP_MAX) +  (i+1); %>
-    <section class="card">
+    <section data-hash="<%= item.hash %>" class="card">
       <h2 class="valign" style="font-size: 16px;padding: 3px 10px;">
         <span style="opacity:0.6">TextMapHash:&nbsp;</span><code style="margin-top:1px;margin-bottom:-1px"><%= item.hash %></code>
         <span class="grow"></span>
@@ -28,13 +28,19 @@
         <a role="button" class="secondary small fontWeight500 spacer5-right" href="<%= siteHome %>/OL?q=<%= item.hash %>" target="_blank">
           <span class="spacer5-right">OL Result</span><%- icon('external-link') %>
         </a>
-        <a role="button" class="secondary small fontWeight500" href="<%= siteHome %>/id-usages?q=<%= item.hash %>" target="_blank">
-          <span class="spacer5-right">Usages</span><%- icon('external-link') %>
-        </a>
+        <button class="id-usages-trigger secondary small fontWeight500 expand-action collapsed-state" data-hash="<%= item.hash %>" data-result-target="id-usages-<%= itemId %>" ui-tippy-hover="Load usages">
+          <span class="spacer3-right">Usages</span>
+          <span class="id-usages-trigger-icon collapsed-only valign"><%- icon('chevrons-down') %></span>
+          <span class="id-usages-trigger-icon expanded-only valign"><%- icon('chevrons-up') %></span>
+          <span class="id-usages-loading-icon valign justifyCenter hide" style="width:13.75px">
+            <span class="loading small"></span>
+          </span>
+        </button>
       </h2>
       <div class="dialogue-section content" style="padding:7px">
         <textarea id="wikitext-<%= itemId %>" data-markers="<%= Marker.joinedString(item.markers) %>"
                   readonly class="w100p wikitext autosize spacer0-all" spellcheck="false" translate="no"><%= item.text %></textarea>
+        <div id="id-usages-<%= itemId %>" class="id-usages-result collapsed hide"></div>
       </div>
     </section>
   <% }) %>

@@ -1,5 +1,5 @@
 import { Knex } from 'knex';
-import { DEFAULT_SEARCH_MODE, IdUsages, SEARCH_MODES, SearchMode } from '../util/searchUtil';
+import { DEFAULT_SEARCH_MODE, IdUsages, IdUsagesItem, SEARCH_MODES, SearchMode } from '../util/searchUtil';
 import { openKnex, SaccharoseDb } from '../util/db';
 import {
   CLD2_TO_LANG_CODE,
@@ -35,6 +35,7 @@ import { ExtractScalar } from '../../shared/types/utility-types';
 import { ArrayStream } from '../../shared/util/arrayUtil';
 import { Request } from 'express';
 import { Marker } from '../../shared/util/highlightMarker';
+import { defaultMap } from '../../shared/util/genericUtil';
 
 export abstract class AbstractControlState {
   public request: Request = null;
@@ -154,9 +155,9 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     }
   }
 
-  abstract postProcess<T>(object: T, triggerNormalize?: SchemaTable, doNormText?: boolean): Promise<T>;
+  abstract postProcess<T>(object: T, triggerNormalize?: SchemaTable|boolean, doNormText?: boolean): Promise<T>;
 
-  readonly commonLoad = async (result: any[], triggerNormalize?: SchemaTable, doNormText: boolean = false) => await Promise.all(
+  readonly commonLoad = async (result: any[], triggerNormalize?: SchemaTable|boolean, doNormText: boolean = false) => await Promise.all(
     result.map(record => {
       return !record || !record.json_data
         ? this.postProcess(record, triggerNormalize, doNormText)
@@ -164,7 +165,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     })
   );
 
-  readonly commonLoadFirst = async (record: any, triggerNormalize?: SchemaTable, doNormText: boolean = false) => {
+  readonly commonLoadFirst = async (record: any, triggerNormalize?: SchemaTable|boolean, doNormText: boolean = false) => {
     return !record || !record.json_data
       ? this.postProcess(record, triggerNormalize, doNormText)
       : await this.postProcess(JSON.parse(record.json_data), triggerNormalize, doNormText);
@@ -459,7 +460,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     let out: IdUsages = {};
 
     let decimalRegex = new RegExp(`(\\.${id}|${id}\\.)`)
-    let fieldRegex = new RegExp(`"([^"]+)":\\s*["\\[]?`);
+    let fieldRegex = new RegExp(`(\\s*)"([^"]+)":\\s*["\\[]?`);
 
     let grepQuery = String(id);
     let grepFlags: string;
@@ -468,11 +469,13 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       grepQuery = grepQuery.slice(1);
     }
 
-    if (/^[a-zA-Z0-9_]$/.test(grepQuery)) {
+    if (/^[a-zA-Z0-9_]+$/.test(grepQuery)) {
       grepFlags = '-wrn';
     } else {
       grepFlags = '-rn';
     }
+
+    const unresolvedRefs: {[fileName: string]: Set<IdUsagesItem>} = defaultMap('Set');
 
     await grepStream(grepQuery, this.getDataFilePath(this.excelPath), async (result) => {
       if (decimalRegex.test(result)) {
@@ -488,27 +491,60 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
         }
 
         let fieldExec = fieldRegex.exec(result);
-        let fieldName = fieldExec && fieldExec.length >= 2 && fieldExec[1];
+        let fieldWhitespace = fieldExec && fieldExec[1];
+        let fieldName = fieldExec && fieldExec[2]; // doesn't include file extension
         let refObject: any = undefined;
+
+        if (!fieldName) {
+          return;
+        }
 
         if (fieldName && this.schema[fileName]) {
           let table: SchemaTable = this.schema[fileName];
-          fieldName = normalizeRawJsonKey(fieldName, table);
+          let normFieldName = normalizeRawJsonKey(fieldName, table);
           for (let column of table.columns) {
-            if (column.name === fieldName && (column.isPrimary || column.isIndex)) {
+            if (column.name === normFieldName && (column.isPrimary || column.isIndex)) {
               refObject = await this.knex.select('*').from(table.name)
                 .where({[column.name]: id}).first().then(this.commonLoadFirst);
             }
           }
         }
 
-        out[fileName].push({
+        const outObj: IdUsagesItem = {
           lineNumber: lineNum,
-          field: fieldName,
+          field: normalizeRawJsonKey(fieldName),
+          originalField: fieldName,
           refObject: refObject,
-        });
+        };
+
+        out[fileName].push(outObj);
+
+        // Check fieldWhitespace for only top-level field matches (4 spaces or fewer)
+        if (!outObj.refObject && fieldWhitespace && fieldWhitespace.length <= 4) {
+          unresolvedRefs[fileName].add(outObj);
+        }
       }
     }, grepFlags);
+
+    if (Object.keys(unresolvedRefs).length) {
+      for (let fileName of Object.keys(unresolvedRefs)) {
+        let json: any[] = await this.readJsonFile(path.join(this.excelPath, fileName + '.json'));
+        let resolvedCount = 0;
+        for (let obj of json) {
+          for (let usageItem of unresolvedRefs[fileName]) {
+            if (obj[usageItem.originalField] === id) {
+              usageItem.refObject = await this.commonLoadFirst(obj, true);
+              resolvedCount++;
+              unresolvedRefs[fileName].delete(usageItem);
+              break;
+            }
+          }
+          if (resolvedCount === unresolvedRefs[fileName].size) {
+            break;
+          }
+        }
+      }
+    }
 
     return out;
   }

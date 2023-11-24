@@ -21,10 +21,6 @@
   }
 }
 
-.dialogue-container > .dialogue-section {
-  padding: 5px 15px;
-}
-
 button.secondary.small.dialogue-indent-button {
   display: inline-flex;
   justify-content: center;
@@ -154,10 +150,9 @@ button.secondary.small.dialogue-indent-button {
   }
 }
 
-.expando-parent.collapsed-state .expanded-only, .expando.collapsed-state .expanded-only {
-  display: none;
+.collapsed-state .expanded-only {
+  display: none !important;
 }
-
-.expando-parent.expanded-state .collapsed-only, .expando.expanded-state .collapsed-only {
-  display: none;
+.expanded-state .collapsed-only {
+  display: none !important;
 }

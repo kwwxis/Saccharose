@@ -1,10 +1,16 @@
-<div class="card result-count-card">
-  <h2>Total Results: <span><%= Object.keys(idToUsages).length %></span></h2>
-</div>
+
+<% if (!v2) { %>
+  <div class="card result-count-card">
+    <h2>Total Results: <span><%= Object.keys(idToUsages).length %></span></h2>
+  </div>
+<% } %>
+<div <% if (v2) { %>style="margin-top:10px"<% } %>>
 <% Object.keys(idToUsages).forEach(id => { %>
+  <% if (!v2) { %>
   <section class="card">
     <h2>ID: <strong><%= id %></strong></h2>
     <div class="content">
+  <% } %>
       <% if (Object.keys(idToUsages[id]).length) { %>
         <ul>
           <% Object.keys(idToUsages[id]).forEach(file => { %>
@@ -31,9 +37,12 @@
           <li>No usages</li>
         </ul>
       <% } %>
+  <% if (!v2) { %>
     </div>
   </section>
+  <% } %>
 <% }) %>
+</div>
 <% if (!Object.keys(idToUsages).length) { %>
   <section class="card">
     <div class="content">

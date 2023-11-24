@@ -1,55 +1,53 @@
-<div class="dialogue-container">
-  <div class="card result-count-card">
-    <h2 class="valign">
-      <span><%= results.length %> results</span>
-      <span class="grow"></span>
-      <button class="secondary small" ui-action="copy-all: .wikitext; copy-sep: \n"
-              ui-tippy-hover="Click to copy all to clipboard"
-              ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">Copy All</button>
-    </h2>
-  </div>
+<div class="card result-count-card">
+  <h2 class="valign">
+    <span><%= results.length %> results</span>
+    <span class="grow"></span>
+    <button class="secondary small" ui-action="copy-all: .wikitext; copy-sep: \n"
+            ui-tippy-hover="Click to copy all to clipboard"
+            ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">Copy All</button>
+  </h2>
+</div>
 
-  <% for (let result of results) { %>
-    <% if (result.id) { %>
-      <section class="card">
-        <h2 class="valign">
-          <span class="expando" ui-action="expando: #result-<%= result.id %>"><%- icon('chevron-down', 17) %></span>
-          <span><%= result.type %>:</span>&nbsp;<strong><%= result.id %></strong>
-          <span class="secondary-label small spacer10-left"><%= result.voFile %></span>
-          <span class="grow"></span>
-          <% if (result.text) { %>
-            <button class="secondary" ui-action="copy: #wikitext-<%= result.id %>"
-                    ui-tippy-hover="Click to copy to clipboard"
-                    ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
-                    style="margin:-5px 0">Copy</button>
-          <% } %>
-        </h2>
-        <div id="result-<%= result.id %>">
-          <% if (result.warn) { %>
-            <div class="content">
-              <p class="warning-notice"><%= result.warn %></p>
-            </div>
-          <% } %>
-          <% if (result.text) { %>
-            <div class="dialogue-section content">
-              <textarea id="wikitext-<%= result.id %>" readonly class="w100p wikitext autosize" spellcheck="false" translate="no"><%= result.text %></textarea>
-            </div>
-          <% } %>
-        </div>
-      </section>
-    <% } else { %>
-      <section class="card">
-        <div class="content">
-          <p>No results for: <code class="fontWeight600"><%= result.file %></code></p>
-        </div>
-      </section>
-    <% } %>
-  <% } %>
-  <% if (!results.length) { %>
+<% for (let result of results) { %>
+  <% if (result.id) { %>
+    <section class="card">
+      <h2 class="valign">
+        <span class="expando" ui-action="expando: #result-<%= result.id %>"><%- icon('chevron-down', 17) %></span>
+        <span><%= result.type %>:</span>&nbsp;<strong><%= result.id %></strong>
+        <span class="secondary-label small spacer10-left"><%= result.voFile %></span>
+        <span class="grow"></span>
+        <% if (result.text) { %>
+          <button class="secondary" ui-action="copy: #wikitext-<%= result.id %>"
+                  ui-tippy-hover="Click to copy to clipboard"
+                  ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
+                  style="margin:-5px 0">Copy</button>
+        <% } %>
+      </h2>
+      <div id="result-<%= result.id %>">
+        <% if (result.warn) { %>
+          <div class="content">
+            <p class="warning-notice"><%= result.warn %></p>
+          </div>
+        <% } %>
+        <% if (result.text) { %>
+          <div class="dialogue-section content">
+            <textarea id="wikitext-<%= result.id %>" readonly class="w100p wikitext autosize" spellcheck="false" translate="no"><%= result.text %></textarea>
+          </div>
+        <% } %>
+      </div>
+    </section>
+  <% } else { %>
     <section class="card">
       <div class="content">
-        <strong>No input entered.</strong>
+        <p>No results for: <code class="fontWeight600"><%= result.file %></code></p>
       </div>
     </section>
   <% } %>
-</div>
+<% } %>
+<% if (!results.length) { %>
+  <section class="card">
+    <div class="content">
+      <strong>No input entered.</strong>
+    </div>
+  </section>
+<% } %>

@@ -1,6 +1,7 @@
 import { escapeRegExp } from '../../shared/util/stringUtil';
 
-export type IdUsages = { [fileName: string]: { field: string, lineNumber: number, refObject?: any }[] };
+export type IdUsages = { [fileName: string]: IdUsagesItem[] };
+export type IdUsagesItem = { field: string, originalField: string, lineNumber: number, refObject?: any };
 export type SearchMode = 'W' | 'WI' | 'C' | 'CI' | 'R' | 'RI';
 export const SEARCH_MODES: SearchMode[] = ['W', 'WI', 'C', 'CI', 'R', 'RI'];
 export const DEFAULT_SEARCH_MODE: SearchMode = 'WI';
