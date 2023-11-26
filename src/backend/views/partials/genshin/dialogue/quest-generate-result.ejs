@@ -126,6 +126,21 @@
       </div>
     </div>
   <% } %>
+  <% if (questStills && questStills.length) { %>
+    <h2>Quest Stills</h2>
+    <div class="content">
+      <div class="alignStart flexWrap">
+        <% for (let questStill of questStills) { %>
+          <div class="w50p">
+            <div class="image-frame spacer3-all">
+              <img src="/serve-image/genshin/<%= questStill.imageName %>.png/<%= questStill.wikiName %>.png" class="w100p" />
+              <span class="image-label"><%= questStill.wikiName %>.png</span>
+            </div>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  <% } %>
   <% if (similarityGroups && Object.keys(similarityGroups).length) { %>
     <h2>Similar Dialogue Groups</h2>
     <div class="content">

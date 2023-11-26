@@ -46,6 +46,7 @@ export class QuestGenerateResult {
   reward?: RewardExcelConfigData;
   reputation?: ReputationQuestExcelConfigData;
   rewardInfobox?: string;
+  questStills?: {imageName: string, wikiName: string}[];
 }
 
 async function findMainQuest(ctrl: GenshinControl, questNameOrId: string|number, questIndex: number) {
@@ -366,6 +367,10 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
   }
 
   result.rewardInfobox = sbReward.toString();
+
+  // Other
+  // --------------------------------------------------------------------------------------------------------------
+  result.questStills = ctrl.state.questStills?.[mainQuest.Id] || [];
 
   // Return result
   // --------------------------------------------------------------------------------------------------------------

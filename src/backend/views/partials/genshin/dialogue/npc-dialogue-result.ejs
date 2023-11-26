@@ -63,6 +63,7 @@
     </div>
   <% } %>
 </section>
+<%- use('partials/genshin/dialogue/quest-stills-helper', { questsStillsByMainQuest, questsStillsMainQuestNames }) %>
 <div class="result-wrapper">
   <% Object.values(resultMap).forEach(res => { %>
     <section class="card">

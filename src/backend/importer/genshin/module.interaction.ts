@@ -3,10 +3,11 @@ import path from 'path';
 import fs, { promises as fsp } from 'fs';
 import { pathToFileURL } from 'url';
 import { getGenshinDataFilePath } from '../../loadenv';
-import { normalizeRawJson, SchemaTable } from '../import_db';
+import { normalizeRawJson } from '../import_db';
 import {
   InterAction,
-  INTERACTION_KEEP_TYPES, InterActionD2F,
+  INTERACTION_KEEP_TYPES,
+  InterActionD2F,
   InterActionGroup,
   InterActionSchema,
 } from '../../../shared/types/genshin/interaction-types';
@@ -34,6 +35,7 @@ function* walkSync(dir: string): Generator<string> {
 // region Main Function
 // --------------------------------------------------------------------------------------------------------------
 const allTypes: Set<string> = new Set();
+const uiTriggerContextNames: Set<string> = new Set();
 const d2f: InterActionD2F = {};
 
 export async function loadInterActionQD(repoRoot: string) {
@@ -96,6 +98,8 @@ function processInterAction(fileName: string, groupId: number, groupIndex: numbe
     } else {
       return null;
     }
+  } else if (action.Type === 'UI_TRIGGER') {
+    uiTriggerContextNames.add(action.ContextName);
   }
   return action;
 }

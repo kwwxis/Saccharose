@@ -1,0 +1,20 @@
+<% if (questsStillsByMainQuest) { %>
+  <section class="card">
+    <h2>Quest Stills</h2>
+    <% for (let [mainQuestId, questStills] of Object.entries(questsStillsByMainQuest)) { %>
+      <h3><%= questsStillsMainQuestNames[mainQuestId] || '(Non-quest)' %></h3>
+      <div class="content">
+        <div class="alignStart flexWrap">
+          <% for (let questStill of questStills) { %>
+            <div class="w50p">
+              <div class="image-frame spacer3-all">
+                <img src="/serve-image/genshin/<%= questStill.imageName %>.png/<%= questStill.wikiName %>.png" class="w100p" />
+                <span class="image-label"><%= questStill.wikiName %>.png</span>
+              </div>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    <% } %>
+  </section>
+<% } %>

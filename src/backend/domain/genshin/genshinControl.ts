@@ -122,9 +122,9 @@ import {
 import { Request } from 'express';
 import {
   InterAction,
-  InterActionD2F,
+  InterActionD2F, InterActionDialog,
   InterActionFile,
-  InterActionGroup,
+  InterActionGroup, InterActionNextDialogs,
 } from '../../../shared/types/genshin/interaction-types';
 
 // region Control State
@@ -148,6 +148,11 @@ export class GenshinControlState extends AbstractControlState {
   interActionCache: {[InterActionFile: string]: InterActionGroup[]} = {};
   codexQuestCache: {[mainQuestId: number]: CodexQuestGroup} = {};
 
+  // Quest BG Metadata
+  questBgPicCounter: {[mainQuestId: number]: number} = defaultMap('One');
+  questBgPicSeen: {[mainQuestId: number]: {[imageName: string]: number}} = defaultMap('Object');
+  questBgPicImageToWikiName: {[mainQuestId: number]: {[imageName: string]: string}} = defaultMap('Object');
+
   // Cache Preferences:
   DisableAvatarCache: boolean = false;
   DisableNpcCache: boolean = false;
@@ -156,6 +161,19 @@ export class GenshinControlState extends AbstractControlState {
   // Autoload Preferences:
   AutoloadText: boolean = true;
   AutoloadAvatar: boolean = true;
+
+  get questStills(): {[mainQuestId: number]: {imageName: string, wikiName: string}[]} {
+    if (!Object.keys(this.questBgPicImageToWikiName).length) {
+      return null;
+    }
+    let out: {[mainQuestId: number]: {imageName: string, wikiName: string}[]} = defaultMap('Array');
+    for (let [mqId, submap] of Object.entries(this.questBgPicImageToWikiName)) {
+      for (let [imageName, wikiName] of Object.entries(submap)) {
+        out[mqId].push({imageName, wikiName});
+      }
+    }
+    return out;
+  }
 
   override copy(): GenshinControlState {
     const state = new GenshinControlState(this.request);
@@ -689,8 +707,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   isPlayerDialogOption(dialog: DialogExcelConfigData): boolean {
     if (!dialog)
       return false;
-    return this.isPlayerTalkRole(dialog) && (!dialog.TalkRoleNameText || dialog.TalkShowType === 'TALK_SHOW_FORCE_SELECT')
-      && !this.voice.hasVoiceItems('Dialog', dialog.Id);
+    return this.isPlayerTalkRole(dialog) && !dialog.PlayerNonOption && !this.voice.hasVoiceItems('Dialog', dialog.Id);
   }
 
   isBlackScreenDialog(dialog: DialogExcelConfigData): boolean {
@@ -712,6 +729,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
     const debug: debug.Debugger = custom('dialog:' + debugSource);
     const CQG: CodexQuestGroup = await this.selectCodexQuest(mainQuestId);
+    const mqName: string = await this.selectMainQuestName(mainQuestId);
 
     const currBranch: DialogExcelConfigData[] = [];
 
@@ -736,9 +754,12 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       }
 
       // Load InterAction
-      const IAF: InterActionFile = await this.loadInterActionFile(currNode.Id);
-      const IA: InterAction = IAF.findForDialog(currNode.Id);
-      //console.log(IA);
+      const iaFile: InterActionFile = await this.loadInterActionFile(currNode.Id);
+      const iaDialog: InterActionDialog = iaFile.findDialog(currNode.Id);
+
+      if (iaDialog.isPresent() && this.isPlayerTalkRole(currNode) && iaDialog.Action.Type === 'DIALOG') {
+        currNode.PlayerNonOption = true;
+      }
 
       // Handle self:
       if (currNode.TalkContentText) {
@@ -746,9 +767,83 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       }
 
       // Fetch next nodes:
-      const nextNodes: DialogExcelConfigData[] = await this.selectMultipleDialogExcelConfigData(currNode.NextDialogs);
+      const iaNextDialogs: InterActionNextDialogs = iaDialog.next();
+      const nextNodes: DialogExcelConfigData[] = await this.selectMultipleDialogExcelConfigData(
+        iaNextDialogs.NextDialogs.length
+          ? iaNextDialogs.NextDialogs
+          : currNode.NextDialogs
+      );
 
-      // Handle special:
+      // Handle InterAction intermediates
+      if (iaNextDialogs.Intermediates.length) {
+        for (let i = 0; i < iaNextDialogs.Intermediates.length; i++) {
+          const action = iaNextDialogs.Intermediates[i];
+          if (action.Type === 'SHOW_BG_PIC' || (action.Type === 'UI_TRIGGER' && action.ContextName === 'ShowCGDialog')) {
+            const CustomImageName: string =
+              action.ContextName === 'ShowCGDialog'
+                ? path.basename(String(action.Param))
+                : path.basename(action.PicPath);
+
+            let imageNumber: number;
+            if (this.state.questBgPicSeen[mainQuestId][CustomImageName]) {
+              imageNumber = this.state.questBgPicSeen[mainQuestId][CustomImageName];
+            } else {
+              imageNumber = this.state.questBgPicCounter[mainQuestId];
+              this.state.questBgPicCounter[mainQuestId] = imageNumber + 1;
+              this.state.questBgPicSeen[mainQuestId][CustomImageName] = imageNumber;
+            }
+
+            const genWikiName = (o: InterAction): string => {
+              let wikiName = (mqName ? mqName + ' ' : '') + 'Quest Still ' + imageNumber;
+              if (o.Flag === 1)
+                wikiName += ' Aether';
+              if (o.Flag === 2)
+                wikiName += ' Lumine';
+              return wikiName;
+            };
+
+            const addon: Partial<DialogExcelConfigData> = {};
+
+            if (action.Flag === 2) {
+              addon.CustomSecondImageName = CustomImageName;
+              addon.CustomSecondImageWikiName = genWikiName(action);
+              this.state.questBgPicImageToWikiName[mainQuestId][addon.CustomSecondImageName] = addon.CustomSecondImageWikiName;
+            } else {
+              addon.CustomImageName = CustomImageName;
+              addon.CustomImageWikiName = genWikiName(action);
+              this.state.questBgPicImageToWikiName[mainQuestId][addon.CustomImageName] = addon.CustomImageWikiName;
+            }
+
+            if (action.Flag === 1 || action.Flag === 2) {
+              let nextAction = iaNextDialogs.Intermediates[i + 1];
+              if (nextAction && nextAction.Type === 'SHOW_BG_PIC' && (nextAction.Flag === 1 || nextAction.Flag === 2)) {
+                if (nextAction.Flag === 2) {
+                  addon.CustomSecondImageName = path.basename(nextAction.PicPath);
+                  addon.CustomSecondImageWikiName = genWikiName(nextAction);
+                  this.state.questBgPicImageToWikiName[mainQuestId][addon.CustomSecondImageName] = addon.CustomSecondImageWikiName;
+                } else {
+                  addon.CustomImageName = path.basename(nextAction.PicPath);
+                  addon.CustomImageWikiName = genWikiName(nextAction);
+                  this.state.questBgPicImageToWikiName[mainQuestId][addon.CustomImageName] = addon.CustomImageWikiName;
+                }
+                i++; // skip next action as we've just handled it
+              }
+            }
+
+            currBranch.push(await this.makeFakeDialog(addon));
+          } else if (action.Type === 'CUTSCENE') {
+
+          } else if (action.Type === 'VIDEO_PLAY') {
+
+          } else if (action.Type === 'UI_TRIGGER' && action.ContextName === 'QuestPictureDialog') {
+            currBranch.push(await this.makeFakeDialog({
+              CustomWikiTx: 'Missing quest item picture',
+            }));
+          }
+        }
+      }
+
+      // Handle codex quest (Travel Log):
       const selfCodexQuest = CQG.ByContentTextMapHash[currNode.TalkContentTextMapHash];
       if (selfCodexQuest) {
         let nextCodexQuest = CQG.ByItemId[selfCodexQuest.NextItemId];
@@ -831,9 +926,25 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       }
 
       let prefix: string = ':'.repeat(dialogDepth);
-      let text: string = dialog.CustomTravelLogMenuText
-        ? this.normText(dialog.CustomTravelLogMenuText, this.outputLangCode)
-        : this.normText(dialog.TalkContentText, this.outputLangCode);
+      let text: string = this.normText(dialog.TalkContentText, this.outputLangCode);
+
+      if (dialog.CustomTravelLogMenuText) {
+        text = this.normText(dialog.CustomTravelLogMenuText, this.outputLangCode);
+      } else if (dialog.CustomImageName || dialog.CustomSecondImageName) {
+        text = `<gallery>`;
+        if (dialog.CustomImageWikiName) {
+          text += `\n${dialog.CustomImageWikiName}.png`;
+        }
+        if (dialog.CustomSecondImageWikiName) {
+          text += `\n${dialog.CustomSecondImageWikiName}.png`
+        }
+        text += `\n</gallery>`
+      } else if (dialog.CustomWikiTx) {
+        text = `{{tx|${dialog.CustomWikiTx}}}`;
+        if (dialog.CustomWikiTxComment) {
+          text += `<!-- ${dialog.CustomWikiTxComment} -->`
+        }
+      }
 
       // Traveler SEXPRO
       // ~~~~~~~~~~~~~~~
@@ -885,6 +996,8 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       } else {
         if (dialog.CustomTravelLogMenuText) {
           out += `\n${prefix}{{Color|menu|${text}}}`;
+        } else if (dialog.CustomImageName || dialog.CustomWikiTx) {
+          out += `\n${prefix}${text}`;
         } else if (this.isBlackScreenDialog(dialog)) {
           // if (!previousDialog || !this.isBlackScreenDialog(previousDialog)) {
           //   out += '\n';
@@ -1849,7 +1962,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     }
     if (material.Icon) {
       if (material.FoodQuality) {
-        material.IconUrl = '/serve-image/genshin?imageName=' + material.Icon + '&convert=' + material.FoodQuality;
+        material.IconUrl = '/serve-image/genshin/' + material.Icon + '?convert=' + material.FoodQuality;
       } else {
         material.IconUrl = '/images/genshin/' + material.Icon + '.png';
       }

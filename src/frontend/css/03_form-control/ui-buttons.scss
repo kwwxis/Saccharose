@@ -456,3 +456,20 @@ button.discord-button:hover,
 body.nightmode .image-loaded:before {
   background: rgba(255,255,255,0.15);
 }
+
+/* Image Frame
+------------------------------------------------------------------------------------------------- */
+.image-frame {
+  display: flex;
+  flex-direction: column;
+}
+.image-label {
+  background: #eee;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  font-size: 15px;
+}
+body.nightmode .image-label {
+  background: rgba(255,255,255,0.15);
+}

@@ -108,6 +108,99 @@ export type InterActionType =
   'LUA_ACTION'
   ;
 
+export type InterActionContextName =
+  'ActivityChessPage' |
+  'ActivityGachaForgingPage' |
+  'ActivityMiniTomoItemDialog' |
+
+  'AkaFesArchitectDungeonPage' |
+  'AkaFesAstrolabeInLevelPage' |
+  'AkaFesReasoningAddCorrectQuestNum' |
+  'AkaFesReasoningClearCorrectQuestNum' |
+  'AkaFesReasoningFinishLevel' |
+  'AkaFesReasoningKeyword' |
+  'AkaFesReasoningLevelFail' |
+  'AkaFesReasoningLevel' |
+  'AkaFesReasoningQuestion' |
+  'AkaFesRhythmSelectLevel' |
+
+  'BargainDialog' |
+  'BlessingV2GiftSlideDialog' |
+  'ChannellerSlabStagePageContext' |
+  'ChapterBeginDialog' |
+
+  'ChapterCompleteDialog' |
+  'CharterRankingClose' |
+  'CharterRankingFinal' |
+  'CharterRankingTeam' |
+
+  'CoopDefeatDialog' |
+  'CoopItemAdsorbDialog' |
+  'CoopPressureMax' |
+
+  'DrawLotsPage' |
+  'DuelHeartSelectDifficulty' |
+  'FishblasterDetailedPage' |
+  'FleurFairV2PhotoStagePageContext' |
+  'ForceHideHandbookBtn' |
+  'FungusV2DungeonEntryPage' |
+  'GcgCardGroupName' |
+  'GcgLevelPage' |
+  'GivenDialog' |
+  'GravenInnocenceActivityShopPage' |
+  'HerculesBattleSelectPageContext' |
+  'InLevelAvatarNamePageFirst' |
+  'InLevelAvatarNamePage' |
+  'InLevelPhotographContext' |
+
+  'IrodoriChessEntryPage' |
+  'IrodoriFlowerPopUpDialog' |
+  'IrodoriMasterDifficultyDialog' |
+  'IrodoriPoetryDialog' |
+  'IrodoriPoetryPopUpDialog' |
+
+  'JourneyDiceDungeonPage' |
+  'JourneyGcgPickPage' |
+  'LuminanceStonePage' |
+  'MPHideandSeekPage' |
+
+  'MusicCalibration' |
+  'MusicDifficultyDialog' |
+  'MusicInstrument' |
+  'MusicV3SelectPageContext' |
+
+  'PacmanChallengePage' |
+  'PenAdvShuffleBoardLevelPage' |
+  'PenAdvTargetShootingStagePage' |
+  'PlotInferenceDialog' |
+  'ProjectionGamePage' |
+
+  'QuestEventItemFirstGetDialog' |
+  'QuestEventsHandBookPageContext' |
+  'QuestInferenceDialog' |
+  'QuestPictureDialog' |
+  'QuestProgressGuideDialog' |
+  'QuestReadingDialog' |
+  'QuestRefuteDialog' |
+  'QuestTutorialDialog' |
+
+  'RainbowPrinceHandbookActive' |
+  'ResumeQuestRefuteDialog' |
+  'SandWormCannonStartGallery' |
+  'ShowCGDialog' |
+  'ShowQuestEventHandbookNoSubmit' |
+  'SynthesisPage' |
+
+  'TalkCloseReminder' |
+  'TalkItemClose' |
+  'TalkItemShow' |
+  'TalkShowReminder' |
+
+  'TheatreMechanicusEntryPage' |
+  'ToyBattleQteSelectPage' |
+  'VintageCampChallengePage' |
+  'VintageHunting' ;
+
 export const INTERACTION_KEEP_TYPES: Set<InterActionType> = new Set([
   'DIALOG',
   'DIALOG_SELECT',
@@ -117,8 +210,16 @@ export const INTERACTION_KEEP_TYPES: Set<InterActionType> = new Set([
   'CHANGE_TIME',
   'SHOW_BG_PIC',
   'CUTSCENE',
-  'VIDEO_PLAY'
-])
+  'VIDEO_PLAY',
+  'UI_TRIGGER'
+]);
+
+export const INTERACTION_INTERMEDIATE_TYPES: Set<InterActionType> = new Set([
+  'SHOW_BG_PIC',
+  'CUTSCENE',
+  'VIDEO_PLAY',
+  'UI_TRIGGER'
+]);
 
 export interface InterAction {
   Type: InterActionType,
@@ -133,11 +234,16 @@ export interface InterAction {
   VideoName?: string,
   SubtitleId?: number,
 
-  // Cutscene:
+  // CUTSCENE:
   CutsceneId?: number,
 
   // SHOW_BG_PIC:
   PicPath?: string,
+  Flag?: number, // 1 -> Boy, 2 -> Girl
+
+  // UI_TRIGGER:
+  ContextName: InterActionContextName,
+  Param: number|string,
 }
 
 export interface InterActionGroup {
@@ -150,23 +256,111 @@ export interface InterActionGroup {
 export class InterActionFile {
   Groups: InterActionGroup[] = [];
   Target: InterActionGroup = null;
+  private GroupIdToGroup: {[groupId: number]: InterActionGroup} = {};
 
   constructor(groups?: InterActionGroup[], target?: InterActionGroup) {
     this.Groups = groups || [];
     this.Target = target || null;
+    for (let group of this.Groups) {
+      this.GroupIdToGroup[group.GroupId] = group;
+    }
   }
 
-  findForDialog(dialogueId: number): InterAction {
+  findGroup(groupId: number): InterActionGroup {
+    return this.GroupIdToGroup[groupId];
+  }
+
+  private actionMatchesDialog(a: InterAction, dialogId: number) {
+    return a.DialogId === dialogId || (a.DialogOptions && a.DialogOptions.includes(dialogId));
+  }
+
+  findDialog(dialogId: number): InterActionDialog {
     if (this.Target) {
-      let ia = this.Target.Actions.find(a => a.DialogId === dialogueId);
-      if (ia)
-        return ia;
+      let actionIndex = this.Target.Actions.findIndex(a => this.actionMatchesDialog(a, dialogId));
+      if (actionIndex >= 0) {
+        return new InterActionDialog(this, this.Target, this.Target.Actions[actionIndex], actionIndex, dialogId);
+      }
     }
     for (let group of this.Groups) {
-      let ia = group.Actions.find(a => a.DialogId === dialogueId);
-      if (ia)
-        return ia;
+      let actionIndex = group.Actions.findIndex(a => this.actionMatchesDialog(a, dialogId));
+      if (actionIndex >= 0) {
+        return new InterActionDialog(this, group, group.Actions[actionIndex], actionIndex, dialogId);
+      }
     }
-    return null;
+    return new InterActionDialog(this, null, null, null, dialogId);
+  }
+}
+
+export interface InterActionNextDialogs {
+  NextDialogs: number[];
+  Intermediates: InterAction[];
+}
+
+export class InterActionDialog {
+  File: InterActionFile;
+  Group: InterActionGroup;
+  Action: InterAction;
+  ActionIndex: number;
+  DialogId: number;
+
+  constructor(File: InterActionFile, Group: InterActionGroup, Action: InterAction, ActionIndex: number, DialogId: number) {
+    this.File = File;
+    this.Group = Group;
+    this.Action = Action;
+    this.ActionIndex = ActionIndex;
+    this.DialogId = DialogId;
+  }
+
+  isPresent(): boolean {
+    return !!this.Group && !!this.Action;
+  }
+
+  next(): InterActionNextDialogs {
+    if (!this.isPresent()) {
+      return {NextDialogs: [], Intermediates: []};
+    }
+
+    let nextGroupId: number;
+    let Intermediates: InterAction[] = [];
+
+    if (this.Action.Type === 'DIALOG_SELECT') {
+      const optIndex = this.Action.DialogOptions.indexOf(this.DialogId);
+      nextGroupId = this.Action.DialogNextGroup[optIndex];
+    } else if (this.Action.Type === 'DIALOG') {
+      if (this.ActionIndex < this.Group.Actions.length - 1) { // if this is the second-to-last action or before
+        for (let i = this.ActionIndex + 1; i < this.Group.Actions.length; i++) {
+          let other = this.Group.Actions[i];
+          if (other.Type === 'DIALOG') {
+            return { NextDialogs: [other.DialogId], Intermediates };
+          } else if (other.Type === 'DIALOG_SELECT') {
+            return { NextDialogs: other.DialogOptions, Intermediates} ;
+          }
+          if (INTERACTION_INTERMEDIATE_TYPES.has(other.Type)) {
+            Intermediates.push(other);
+          }
+        }
+      }
+      nextGroupId = this.Group.NextGroupId;
+    }
+
+    while (nextGroupId) {
+      const nextGroup = this.File.findGroup(nextGroupId);
+      if (!nextGroup)
+        break;
+
+      for (let other of nextGroup.Actions) {
+        if (other.Type === 'DIALOG') {
+          return { NextDialogs: [other.DialogId], Intermediates };
+        } else if (other.Type === 'DIALOG_SELECT') {
+          return { NextDialogs: other.DialogOptions, Intermediates };
+        }
+        if (INTERACTION_INTERMEDIATE_TYPES.has(other.Type)) {
+          Intermediates.push(other);
+        }
+      }
+      nextGroupId = nextGroup.NextGroupId;
+    }
+
+    return { NextDialogs: [], Intermediates };
   }
 }

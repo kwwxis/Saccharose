@@ -9,7 +9,7 @@ export default async function(): Promise<Router> {
 
   const router: Router = create();
 
-  router.endpoint('/genshin', {
+  router.endpoint('/genshin/:imageName/:downloadName?', {
     get: async (req: Request, res: Response, _next: NextFunction) => {
       const mime = {
         html: 'text/html',
@@ -22,11 +22,11 @@ export default async function(): Promise<Router> {
         js: 'application/javascript'
       };
 
-      if (!req.query.imageName) {
+      if (!req.params.imageName) {
         return res.status(400).end('BadRequest: "imageName" parameter is required.');
       }
 
-      let imageName = String(req.query.imageName).replaceAll(/\\/g, '/');
+      let imageName = String(req.params.imageName).replaceAll(/\\/g, '/');
       const downloadAs = req.query.downloadAs ? String(req.query.downloadAs).replaceAll(/\\/g, '/') : null;
 
       if (imageName.includes('/') || (downloadAs && downloadAs.includes('/'))) {

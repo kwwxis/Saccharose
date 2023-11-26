@@ -1,5 +1,5 @@
 import { create } from '../../../routing/router';
-import { getGenshinControl } from '../../../domain/genshin/genshinControl';
+import { GenshinControl, getGenshinControl } from '../../../domain/genshin/genshinControl';
 import { MainQuestExcelConfigData } from '../../../../shared/types/genshin/quest-types';
 import { isInt, toInt } from '../../../../shared/util/numberUtil';
 import { questGenerate, QuestGenerateResult } from '../../../domain/genshin/dialogue/quest_generator';
@@ -79,6 +79,7 @@ router.endpoint('/quests/generate', {
       locals.reputation = result.reputation;
       locals.rewardInfobox = result.rewardInfobox;
       locals.similarityGroups = result.similarityGroups;
+      locals.questStills = result.questStills;
 
       return res.render('partials/genshin/dialogue/quest-generate-result', locals);
     } else {
@@ -86,6 +87,17 @@ router.endpoint('/quests/generate', {
     }
   }
 });
+
+async function questStillsHelper(ctrl: GenshinControl) {
+  const questsStillsByMainQuest = ctrl.state.questStills
+  const questsStillsMainQuestNames: {[mainQuestId: number]: string} = {};
+  if (questsStillsByMainQuest) {
+    for (let mainQuestId of Object.keys(questsStillsByMainQuest)) {
+      questsStillsMainQuestNames[mainQuestId] = await ctrl.selectMainQuestName(toInt(mainQuestId));
+    }
+  }
+  return {questsStillsByMainQuest, questsStillsMainQuestNames};
+}
 
 router.endpoint('/dialogue/single-branch-generate', {
   get: async (req: Request, res: Response) => {
@@ -102,6 +114,7 @@ router.endpoint('/dialogue/single-branch-generate', {
       return res.render('partials/genshin/dialogue/single-branch-dialogue-generate-result', {
         sections: result,
         query,
+        ... await questStillsHelper(ctrl),
         langSuggest: result.length ? null : ctrl.langSuggest(query)
       });
     } else {
@@ -129,6 +142,7 @@ router.endpoint('/dialogue/npc-dialogue-generate', {
       return res.render('partials/genshin/dialogue/npc-dialogue-result', {
         resultMap: resultSet.resultMap,
         reminders: resultSet.reminders,
+        ... await questStillsHelper(ctrl),
       });
     } else {
       return removeCyclicRefs(resultSet, ApiCyclicValueReplacer);

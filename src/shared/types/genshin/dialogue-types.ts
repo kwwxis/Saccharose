@@ -61,11 +61,20 @@ export interface DialogExcelConfigData {
   Recurse?: boolean,
   TalkId?: number,
   TalkType?: string,
+  PlayerNonOption?: boolean,
 
+  // Custom Travel Log
   CustomTravelLogMenuText?: string,
+
+  // Custom Image:
   CustomImageName?: string,
-  CustomImagePath?: string,
-  CustomImageSacchPath?: string,
+  CustomImageWikiName?: string,
+  CustomSecondImageName?: string,
+  CustomSecondImageWikiName?: string,
+
+  // Custom Tx:
+  CustomWikiTx?: string,
+  CustomWikiTxComment?: string,
 }
 
 export interface DialogUnparented {

@@ -233,6 +233,7 @@ All files in `Sprite` starting with:
 - `UI_Gcg_Dice`
 - `UI_Gcg_Buff`
 - `UI_Gcg_Tag`
+- `UI_Buff`
 - `UI_HomeWorldTabIcon`
 
 Having these images isn't necessary for the application to run, but you'll have a bunch of broken images without them
