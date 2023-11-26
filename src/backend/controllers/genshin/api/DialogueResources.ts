@@ -165,7 +165,9 @@ router.endpoint('/dialogue/reminder-dialogue-generate', {
       return res.render('partials/genshin/dialogue/single-branch-dialogue-generate-result', {
         sections: result,
         query,
-        langSuggest: result.length ? null : ctrl.langSuggest(query)
+        langSuggest: result.length ? null : ctrl.langSuggest(query),
+        questsStillsByMainQuest: null,
+        questsStillsMainQuestNames: null
       });
     } else {
       return result;
