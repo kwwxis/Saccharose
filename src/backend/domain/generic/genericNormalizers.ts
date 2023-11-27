@@ -112,11 +112,12 @@ export function genericNormText(text: string, langCode: LangCode, opts: NormText
     text = text.replace(/<color=#[^>]+>(.*?)<\/color>/gs, '$1');
   }
 
-  if (!opts.plaintext) {
-    text = text.replace(/« /g, '«&nbsp;');
-    text = text.replace(/ »/g, '&nbsp;»');
-    text = text.replace(/(?<=\S) (:|%|\.\.\.)/g, '&nbsp;$1');
-  }
+  // No longer needed as these are now automatically converted by Fandom or the OL module:
+  // if (!opts.plaintext) {
+  //   text = text.replace(/« /g, '«&nbsp;');
+  //   text = text.replace(/ »/g, '&nbsp;»');
+  //   text = text.replace(/(?<=\S) (:|%|\.\.\.)/g, '&nbsp;$1');
+  // }
 
   text = text.replace(/\\"/g, '"');
   text = text.replace(/\r/g, '');

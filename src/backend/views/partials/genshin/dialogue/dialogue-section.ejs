@@ -96,10 +96,10 @@
                   translate="no"><%= item.wikitext %></textarea>
       <% }) %>
     <% } %>
-    <div class="dialogue-section-children">
-      <% children.forEach(section => { %>
-        <%- use('partials/genshin/dialogue/dialogue-section', Object.assign(section, {parentIds: (locals.parentIds || []).concat(id) })) %>
-      <% }) %>
-    </div>
+  </div>
+  <div class="dialogue-section-children">
+    <% children.forEach(section => { %>
+      <%- use('partials/genshin/dialogue/dialogue-section', Object.assign(section, {parentIds: (locals.parentIds || []).concat(id) })) %>
+    <% }) %>
   </div>
 </div>
