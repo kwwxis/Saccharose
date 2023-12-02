@@ -7,20 +7,24 @@
   "private": true,
   "scripts": {
     "backend:build": "etsc --config=etsc.config.cjs",
-    "webpack:prod": "cross-env NODE_OPTIONS=\"--loader ts-node/esm\" webpack --config webpack.prod.ts",
-    "webpack:dev": "cross-env NODE_OPTIONS=\"--loader ts-node/esm\" webpack --config webpack.dev.ts",
+    "ts-serve": "node --no-warnings=ExperimentalWarning --loader ts-node/esm src/backend/server.ts",
+    "ts-serve:dev": "nodemon src/backend/server.ts",
+    "webpack:prod": "cross-env NODE_OPTIONS=\"--no-warnings=ExperimentalWarning --loader ts-node/esm\" webpack --config webpack.prod.ts",
+    "webpack:dev": "cross-env NODE_OPTIONS=\"--no-warnings=ExperimentalWarning --loader ts-node/esm\" webpack --config webpack.dev.ts",
+    "webpack:dev-watch": "cross-env NODE_OPTIONS=\"--no-warnings=ExperimentalWarning --loader ts-node/esm\" webpack --config webpack.dev.ts --watch",
     "build:dev": "npm-run-all --parallel backend:build webpack:dev",
     "build:prod": "npm-run-all --parallel backend:build webpack:prod",
     "start": "node .",
-    "ts-serve": "ts-node src/backend/server.ts",
-    "ts-serve:dev": "nodemon src/backend/server.ts",
-    "webpack:dev-watch": "cross-env NODE_OPTIONS=\"--loader ts-node/esm\" webpack --config webpack.dev.ts --watch",
     "test": "jest"
+  },
+  "engines": {
+    "node": ">=20"
   },
   "author": "kwwxis",
   "license": "MIT",
   "dependencies": {
     "ag-grid-community": "^30.2.1",
+    "ag-grid-enterprise": "^30.2.1",
     "async-exit-hook": "^2.0.1",
     "async-lock": "^1.4.0",
     "autosize": "^6.0.1",

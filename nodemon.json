@@ -8,7 +8,7 @@
     "public"
   ],
   "execMap": {
-    "ts": "node --loader ts-node/esm"
+    "ts": "node --no-warnings=ExperimentalWarning --loader ts-node/esm"
   },
   "ext": "ts,tsx,js,json"
 }

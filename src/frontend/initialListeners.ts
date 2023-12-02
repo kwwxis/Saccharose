@@ -417,8 +417,9 @@ const initial_listeners: Listener[] = [
               const dropdown = qs(actionParams[0]);
               const bounds = getHiddenElementBounds(dropdown);
               const actionElPosX = actionEl.getBoundingClientRect().left;
+              const posRight: boolean = dropdown.classList.contains('right');
 
-              if (actionElPosX + bounds.width > window.innerWidth) {
+              if (posRight || actionElPosX + bounds.width > window.innerWidth) {
                 dropdown.style.left = 'auto';
                 dropdown.style.right = '0';
                 dropdown.style.transformOrigin = 'right top';

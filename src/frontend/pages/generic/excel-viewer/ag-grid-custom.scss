@@ -1,0 +1,81 @@
+
+.ag-cell-wrap-text {
+  word-break: break-word;
+  line-height: 1.6em;
+}
+.ag-cell-value {
+  cursor: text;
+}
+
+.ag-cell.cell-type-number .ag-cell-value {
+  font-family: Consolas, Menlo, 'Monaco', 'Lucida Console', 'Liberation Mono', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Courier New', sans-serif;
+}
+
+.ag-cell .highlighted {
+  background: transparent !important;
+}
+
+.ag-theme-alpine .ag-row, .ag-theme-alpine-dark .ag-row {
+  font-size: 13px;
+}
+
+.ag-cell .ace_static_highlight {
+  font-size: 13px;
+}
+
+.excel-image {
+  max-height:80px;
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAA1SURBVDhPY9y/f/9/BjzAwcEBysIOmKA02WDUgMFgAON/IICysYIDBw5AWdjBaCAOAwMYGACl4ApXGpjuLwAAAABJRU5ErkJggg==) repeat;
+  &.excel-image-error {
+    background: none;
+  }
+}
+
+#excelViewerTop {
+  box-shadow: none;
+  border: var(--ag-borders-critical) var(--ag-border-color);
+  margin-bottom: 0;
+
+  .content input {
+    border: var(--ag-borders-critical) var(--ag-border-color);
+  }
+
+  button, a[role=button] {
+    border: var(--ag-borders-critical) var(--ag-border-color);
+  }
+
+  .excel-quick-filter-box {
+    flex-shrink: 0;
+    flex-grow: 0;
+    label {
+      font-size: 14px;
+      font-weight: 600;
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+    input {
+      width: 500px;
+      flex-shrink: 0;
+    }
+  }
+
+  h2 {
+    font-family: var(--ag-font-family);
+    border: 0;
+    background-color: var(--ag-header-background-color);
+    border-bottom: var(--ag-borders-critical) var(--ag-border-color);
+  }
+}
+
+#excelViewerGrid .ag-root-wrapper {
+  border-top: 0;
+}
+
+.ag-status-bar {
+  line-height: 32px;
+  padding-bottom: 2px;
+
+  .ag-status-name-value {
+    padding: 0;
+  }
+}

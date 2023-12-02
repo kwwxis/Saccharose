@@ -14,6 +14,11 @@
   transition: transform 100ms ease, opacity 100ms ease;
   visibility: hidden;
 
+  &.right {
+    left: auto;
+    right: 0;
+  }
+
   &.active {
     transform: scale(1.0);
     opacity: 1;
