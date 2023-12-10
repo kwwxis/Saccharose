@@ -3,31 +3,14 @@ import Cookies from 'js-cookie';
 import { flashTippy } from '../../../util/tooltips';
 import {
   errorHtmlWrap,
-  genshinEndpoints,
-  SaccharoseApiEndpoint,
-  starRailEndpoints,
-  zenlessEndpoints,
+  getOLEndpoint,
 } from '../../../endpoints';
 import { pageMatch } from '../../../pageMatch';
 import { HttpError } from '../../../../shared/util/httpError';
 import { pasteFromClipboard } from '../../../util/domutil';
 
 pageMatch('pages/generic/basic/olgen', () => {
-  let endpoint: SaccharoseApiEndpoint<any>;
-  let tlRmDisabled: boolean = false;
-  let neverDefaultHidden: boolean = false;
-
-  if (pageMatch.isGenshin) {
-    endpoint = genshinEndpoints.generateOL;
-  } else if (pageMatch.isStarRail) {
-    endpoint = starRailEndpoints.generateOL;
-    tlRmDisabled = true;
-    neverDefaultHidden = true;
-  } else if (pageMatch.isZenless) {
-    endpoint = zenlessEndpoints.generateOL;
-    tlRmDisabled = true;
-    neverDefaultHidden = true;
-  }
+  const {endpoint, tlRmDisabled, neverDefaultHidden} = getOLEndpoint();
 
   function loadResultFromURL() {
     const url = new URL(window.location.href);

@@ -200,7 +200,7 @@ router.endpoint('/dialogue/vo-to-dialogue', {
       if (type === 'Dialog') {
         let dialogue = await ctrl.selectSingleDialogExcelConfigData(id);
         if (dialogue) {
-          text = await ctrl.generateDialogueWikiText([dialogue]);
+          text = (await ctrl.generateDialogueWikitext([dialogue])).wikitext;
         } else {
           warn = '(This VO file is supposed to be used for a dialog with ID ' + id + ', however such a dialog does not exist)';
         }

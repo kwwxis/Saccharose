@@ -50,6 +50,18 @@ export class MarkerAggregate {
   }
 }
 
+export type MarkerLineProcessor = (line: string, lineNum?: number) => {
+  /**
+   * If set to true, the default marker processing for this line will be skipped.
+   */
+  skip?: boolean,
+
+  /**
+   * Add additional markers.
+   */
+  markers?: Marker[]
+};
+
 export class Marker {
   token: string;
   line: number;
@@ -101,12 +113,25 @@ export class Marker {
     }
   }
 
-  static create(searchText: string|RegExp, contentText: string): Marker[] {
+  static create(searchText: string|RegExp, contentText: string, customProcessor?: MarkerLineProcessor): Marker[] {
     let re = typeof searchText === 'string' ? new RegExp(escapeRegExp(searchText), 'gi') : searchText;
     let ret: Marker[] = [];
 
     let lineNum = 1;
     for (let line of contentText.split('\n')) {
+      if (customProcessor) {
+        let procRet = customProcessor(line, lineNum);
+        if (procRet) {
+          if (procRet.markers && procRet.markers.length) {
+            ret.push(... procRet.markers);
+          }
+          if (procRet.skip) {
+            lineNum++;
+            continue;
+          }
+        }
+      }
+
       let match: RegExpMatchArray;
       re.lastIndex = 0;
       while ((match = re.exec(line)) !== null) {

@@ -56,6 +56,7 @@
 
 .ace_static_highlight .ace_line {
   position: relative;
+  transition: margin-bottom 100ms linear;
 }
 
 .ace_static_highlight .ace_gutter-cell {
@@ -83,4 +84,173 @@
 //}
 .ace_static_marker:before {
   content: attr(data-text);
+}
+
+
+
+.ace_line.ace_line-selected {
+  outline: 1px solid #3daaf5;
+  border-radius: 3px;
+  padding: 0 3px 1px 3px;
+  margin: 0 -3px -1px -3px;
+  body.nightmode & {
+    outline-color: hsl(204deg 90% 32%);
+  }
+}
+
+.ace_line-info {
+  width: 0;
+  height: 0;
+  position: absolute;
+  overflow: visible;
+  opacity: 1;
+  transition: top 50ms linear, opacity 100ms linear;
+
+  .ace_line-info-inner {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+
+  .ace_line-info-buttons {
+    display: flex;
+    align-items: stretch;
+    margin-right: 8px;
+    background: #fff;
+
+    body.nightmode & {
+      background: hsl(255, 8%, 22%);
+      color: hsl(255, 5%, 73%);
+    }
+
+    > button {
+      width: 28px;
+      height: 28px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: 0;
+      font-size: 11px;
+      border: 1px solid hsla(232, 20%, 32%, 0.25);
+      background: #fff;
+      line-height: 18px;
+      text-align: center;
+      padding: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      transition: all 50ms linear;
+      box-sizing: border-box;
+      cursor: pointer;
+
+      body.nightmode & {
+        background: hsl(255, 8%, 22%);
+        color: hsl(255, 5%, 73%);
+        border-color: hsla(232, 20%, 60%, 0.25);
+      }
+
+      .icon {
+        opacity: 0.5;
+      }
+
+      &.copy-line .icon {
+        width: 14px;
+        height: 14px;
+        margin-right: -2px;
+        margin-bottom: -1px;
+      }
+
+      &.show-info .icon {
+        width: 19px;
+        height: 19px;
+      }
+
+      &:first-child {
+        border-radius: 3px 0 0 3px;
+      }
+
+      &:hover {
+        background: hsla(232, 20%, 32%, 0.05);
+        body.nightmode & {
+          background: hsl(255, 8%, 24%);
+        }
+        .icon {
+          opacity: 0.9;
+        }
+      }
+
+      &.active {
+        background: #3daaf5 !important;
+        color: #fff !important;
+        .icon {
+          opacity: 0.9 !important;
+          &:hover {
+            opacity: 1 !important;
+          }
+        }
+      }
+
+      + button {
+        border-left: 0 !important;
+      }
+    }
+  }
+}
+
+.ace_line-info-panel-outer {
+  display: block;
+  position: absolute;
+  z-index: 9999;
+  margin-top: -2px;
+  padding-top: 5px;
+  opacity: 1;
+  transition: opacity 100ms linear;
+
+  .ace_line-info-panel {
+    display: block;
+    background: #fff;
+    padding: 10px;
+
+    box-shadow: 0 0 8px hsla(223, 67%, 18%, 0.35), 0 1px 20px hsla(223, 67%, 18%, 0.2);
+    border-radius: 7px;
+
+    body.nightmode & {
+      background: hsl(255deg 13% 14%);
+      box-shadow: 0 0 10px rgba(174, 180, 193, 0.15), 0 1px 20px rgba(174, 180, 193, 0.1);
+      border: 1px solid hsl(255, 13%, 35%);
+    }
+
+    .ace_line-info-toolbar .prop {
+      margin-right: 15px;
+
+      button.copy-button {
+        border: 0;
+        background: 0;
+        width: 14px;
+        height: 14px;
+        margin-left: 4px;
+        cursor: pointer;
+
+        .icon {
+          width: 14px;
+          height: 14px;
+          opacity: 0.5;
+        }
+
+        &:hover .icon {
+          opacity: 0.7;
+        }
+      }
+    }
+
+    .close {
+      opacity: 0.8;
+      &:hover {
+        opacity: 1;
+      }
+    }
+
+    [contenteditable] {
+      padding: 4px 8px;
+    }
+  }
 }

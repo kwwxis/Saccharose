@@ -1,4 +1,5 @@
 import { GenshinImage } from './general-types';
+import { Marker } from '../../util/highlightMarker';
 
 export type PushTipsCodexType =
   'CODEX_ADVENTURE'
@@ -58,6 +59,7 @@ export interface TutorialExcelConfigData {
   DetailList?: TutorialDetailExcelConfigData[],
   PushTip?: GenericPushTip,
   Wikitext?: string,
+  WikitextMarkers: Marker[],
   Images?: GenshinImage[]
 }
 

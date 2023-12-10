@@ -24,10 +24,13 @@ import { toBoolean } from '../../../shared/util/genericUtil';
 import { escapeHtml } from '../../../shared/util/stringUtil';
 import { Marker, MarkerAggregate } from '../../../shared/util/highlightMarker';
 import { uuidv4 } from '../../../shared/util/uuidv4';
-import { getInputValue, hasSelection } from '../domutil';
+import { copyToClipboard, frag1, getElementOffset, getInputValue, hasSelection } from '../domutil';
 import { createAceDomClassWatcher } from './wikitextListeners';
 import { SITE_MODE_WIKI_DOMAIN } from '../../siteMode';
 import { toastError } from '../toaster';
+import { CommonLineId, parseCommonLineIds } from '../../../shared/types/common-types';
+import { applyWikitextClickableLinks } from './listeners/wikitextClickableLinks';
+import { applyWikitextLineActions } from './listeners/wikitextLineActions';
 
 // region Create wikitext editor
 // --------------------------------------------------------------------------------------------------------------
@@ -99,17 +102,20 @@ export function createWikitextEditor(editorElementId: string|HTMLElement): ace.E
 
 // region Static highlight
 // --------------------------------------------------------------------------------------------------------------
-export function highlightWikitext(text: string, gutters: boolean = false, markers: Marker[] = []): HTMLElement {
-  return highlight(text, 'ace/mode/wikitext', gutters, markers);
+export function highlightWikitext(text: string, gutters: boolean = false, markers: Marker[] = [], commonLineIds: CommonLineId[] = []): HTMLElement {
+  return highlight(text, 'ace/mode/wikitext', gutters, markers, commonLineIds);
 }
 
-export function highlightJson(text: string, gutters: boolean = false, markers: Marker[] = []): HTMLElement {
-  return highlight(text, 'ace/mode/json', gutters, markers);
+export function highlightJson(text: string, gutters: boolean = false, markers: Marker[] = [], commonLineIds: CommonLineId[] = []): HTMLElement {
+  return highlight(text, 'ace/mode/json', gutters, markers, commonLineIds);
 }
 
-export function highlight(text: string, mode: string, gutters: boolean = true, markers: Marker[] = [], inTemplate: boolean = false): HTMLElement {
+export function highlight(text: string, mode: string, gutters: boolean = true, markers: Marker[] = [], commonLineIds: CommonLineId[] = [], inTemplate: boolean = false): HTMLElement {
   if (mode === 'ace/mode/wikitext' && toBoolean(Cookies.get('disable_wikitext_highlight'))) {
     mode = 'ace/mode/plain_text';
+  }
+  if (!commonLineIds) {
+    commonLineIds = [];
   }
   createAceDomClassWatcher();
 
@@ -161,7 +167,16 @@ export function highlight(text: string, mode: string, gutters: boolean = true, m
         continue;
       }
 
-      textLayerSb.push("<div class='ace_line'>");
+      const commonLineId = commonLineIds[ix];
+      if (commonLineId) {
+        textLayerSb.push(`<div class="ace_line"${
+          commonLineId.commonId ? ` data-id="${commonLineId.commonId}"` : ''
+        }${
+          commonLineId.textMapHash ? ` data-textMapHash="${commonLineId.textMapHash}"` : ''
+        }>`);
+      } else {
+        textLayerSb.push(`<div class="ace_line">`);
+      }
       if (gutters)
         textLayerSb.push(`<span class="ace_gutter ace_gutter-cell">` + /*(ix + lineStart) + */ `</span>`);
       textLayer.$renderLine(textLayerSb, ix, true, false);
@@ -269,48 +284,9 @@ export function highlight(text: string, mode: string, gutters: boolean = true, m
   // Convert to element
   let element = document.createRange().createContextualFragment(result.html).firstElementChild as HTMLElement;
 
-  // Post-process element
-  const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
-
-  element.querySelectorAll('.ace_template-name, .ace_link-name').forEach((el: HTMLElement) => {
-    let linkPrefix = '';
-    let tooltipType = '';
-
-    if (el.classList.contains('ace_template-name')) {
-      linkPrefix = 'Template:';
-      tooltipType = 'template';
-    } else {
-      tooltipType = 'link';
-    }
-
-    const page = el.innerText.replace(/\s/g, '_');
-    const url = `https://${SITE_MODE_WIKI_DOMAIN}/wiki/${linkPrefix}${page}`;
-    el.setAttribute('data-href', url);
-
-    const tooltipEl = document.createElement('span');
-    tooltipEl.classList.add('ace_token-tooltip');
-    tooltipEl.setAttribute('data-type', tooltipType);
-    tooltipEl.innerHTML = `<span>${isMac ? 'Meta' : 'Ctrl'}-click to open in new tab (alt-click to focus)</span><br />` +
-      `<a>${escapeHtml(url)}</a>`;
-
-    el.addEventListener('mouseenter', () => {
-      if (hasSelection()) {
-        return;
-      }
-      const elRect = el.getBoundingClientRect();
-      const tooltipTop = elRect.top + document.body.scrollTop + elRect.height + 5;
-      const tooltipLeft = elRect.left + (elRect.width / 2);
-      tooltipEl.style.top = tooltipTop + 'px';
-      tooltipEl.style.left = tooltipLeft + 'px';
-      document.body.append(tooltipEl);
-      setTimeout(() => tooltipEl.classList.add('active'));
-    });
-    el.addEventListener('mouseleave', () => {
-      tooltipEl.classList.remove('active');
-      tooltipEl.remove();
-    });
-
-  });
+  // Add action listeners
+  applyWikitextClickableLinks(element);
+  applyWikitextLineActions(element, commonLineIds);
 
   return element;
 }
@@ -322,8 +298,11 @@ export function highlightWikitextReplace(original: HTMLElement, textOverride?: s
   return highlightReplace(original, 'ace/mode/wikitext', textOverride, false);
 }
 
-export function highlightReplace(original: HTMLElement, mode: string, textOverride?: string,
-                                 gutters: boolean = true, markers?: (string|Marker)[]|string,
+export function highlightReplace(original: HTMLElement, mode: string,
+                                 textOverride?: string,
+                                 gutters: boolean = true,
+                                 markers?: (string|Marker)[]|string,
+                                 commonLineIds?: CommonLineId[],
                                  inTemplate: boolean = false): HTMLElement {
   if (original.hasAttribute('data-mode')) {
     mode = original.getAttribute('data-mode');
@@ -336,6 +315,9 @@ export function highlightReplace(original: HTMLElement, mode: string, textOverri
   }
   if (original.hasAttribute('data-in-template')) {
     inTemplate = toBoolean(original.getAttribute('data-in-template'));
+  }
+  if (original.hasAttribute('data-line-ids')) {
+    commonLineIds = parseCommonLineIds(original.getAttribute('data-line-ids'));
   }
 
   if (typeof markers === 'string') {
@@ -353,7 +335,7 @@ export function highlightReplace(original: HTMLElement, mode: string, textOverri
     }).filter(x => !!x);
   }
 
-  let element: HTMLElement = highlight(textOverride || getInputValue(original), mode, gutters, markers as Marker[], inTemplate);
+  let element: HTMLElement = highlight(textOverride || getInputValue(original), mode, gutters, markers as Marker[], commonLineIds, inTemplate);
 
   if (original.hasAttribute('class')) {
     element.classList.add(... Array.from(original.classList));

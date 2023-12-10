@@ -58,16 +58,16 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   console.log(Array.from(optionIcons).sort());
 
 
-  let files: string[] = fs.readdirSync("C:/Shared/git/localweb/Saccharose/public/images/DIcons");
-  for (let f of files) {
-    console.log(f);
-    if (f.endsWith('.png')) {
-      f = f.slice(0, -4);
-    }
-    if (!optionIcons.has(f)) {
-      fs.unlinkSync("C:/Shared/git/localweb/Saccharose/public/images/DIcons/" + f + ".png");
-    }
-  }
+  // let files: string[] = fs.readdirSync("C:/Shared/git/localweb/Saccharose/public/images/DIcons");
+  // for (let f of files) {
+  //   console.log(f);
+  //   if (f.endsWith('.png')) {
+  //     f = f.slice(0, -4);
+  //   }
+  //   if (!optionIcons.has(f)) {
+  //     fs.unlinkSync("C:/Shared/git/localweb/Saccharose/public/images/DIcons/" + f + ".png");
+  //   }
+  // }
 
   await closeKnex();
 }

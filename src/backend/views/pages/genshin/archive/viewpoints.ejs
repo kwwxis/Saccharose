@@ -36,7 +36,9 @@
         <div class="viewpoint">
           <textarea readonly class="w100p wikitext autosize" spellcheck="false" translate="no"><%= viewpoint.Wikitext %></textarea>
           <div class="viewpoint-image spacer15-bottom">
-            <a role="button" class="image-loader" ui-action="lazy-image-click" data-src="/images/genshin/<%= viewpoint.Image %>.png" data-download="<%= viewpoint.DownloadImage %>"></a>
+            <a role="button" class="image-loader" ui-action="lazy-image-click"
+               data-src="/serve-image/genshin/<%= viewpoint.Image %>.png/<%= viewpoint.DownloadImage %>"
+               data-name="<%= viewpoint.DownloadImage %>"></a>
           </div>
         </div>
         <% } %>

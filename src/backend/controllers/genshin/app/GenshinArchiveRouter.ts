@@ -142,25 +142,32 @@ export default async function(): Promise<Router> {
   // Tutorials
   // ~~~~~~~~~
 
+  router.get('/tutorials/search', async (req: Request, res: Response) => {
+    res.render('pages/genshin/archive/tutorials-search', {
+      title: 'Tutorials',
+      bodyClass: ['page--tutorials', 'page--tutorials-search'],
+    });
+  });
+
   router.get('/tutorials/:category?', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
     const codexTypes: PushTipsCodexType[] = PushTipsCodexTypeList;
     let codexTypeName: string = null;
-    let tutorialsList: TutorialsByType = null;
+    let tutorialsByType: TutorialsByType = null;
 
     if (req.params.category) {
       let codexType = codexTypes.find(codexType => paramCmp(pushTipCodexTypeName(codexType), req.params.category));
       if (codexType) {
         codexTypeName = pushTipCodexTypeName(codexType);
-        tutorialsList = await selectTutorials(ctrl, codexType);
+        tutorialsByType = await selectTutorials(ctrl, codexType);
       }
     }
 
     res.render('pages/genshin/archive/tutorials', {
       title: codexTypeName ? `Tutorials - ${codexTypeName}` : 'Tutorials',
-      bodyClass: ['page--tutorials'],
+      bodyClass: ['page--tutorials', 'page--tutorials-categories'],
       categoryNames: codexTypes.map(pushTipCodexTypeName),
-      tutorialsList,
+      tutorialsByType,
       fileFormatParams: TUTORIAL_FILE_FORMAT_PARAMS.join(','),
       fileFormatDefault_image: TUTORIAL_DEFAULT_FILE_FORMAT_IMAGE,
     });

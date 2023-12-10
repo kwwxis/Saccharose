@@ -12,10 +12,11 @@ export class MetaPropValue {
   }
 }
 
-export type MetaPropAcceptValue =
-  string | number | MetaPropValue | {value: string|number, tooltip?: string, link?: string} |
+export type IMetaPropValue = {value: string|number, tooltip?: string, link?: string};
 
-  (string | number | MetaPropValue | {value: string|number, tooltip?: string, link?: string})[];
+export type MetaPropAcceptValue =
+  string | number | MetaPropValue | IMetaPropValue |
+  (string | number | MetaPropValue | IMetaPropValue)[];
 
 export class MetaProp {
   label: string;

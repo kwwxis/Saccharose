@@ -1,5 +1,9 @@
 <section class="card">
   <h2>Tutorials</h2>
+  <div class="tab-list" role="tablist">
+    <a href="/tutorials" role="tab" id="tab-categories" class="tab <%= bodyClassTernary('page--tutorials-categories', 'active') %>">Categories</a>
+    <a href="/tutorials/search" role="tab" id="tab-search" class="tab <%= bodyClassTernary('page--tutorials-search', 'active') %>">Search</a>
+  </div>
   <div class="content">
     <fieldset>
       <legend>Categories</legend>
@@ -14,44 +18,10 @@
     </fieldset>
   </div>
 </section>
-<% if (tutorialsList) { %>
-  <% for (let [type, tutorials] of Object.entries(tutorialsList)) { %>
-    <section class="card">
-      <h2>File Format parameter options</h2>
-      <div class="content">
-        <p>Reload page after changing options to see effect.</p>
-        <div class="alignStart spacer15-top flexWrap">
-          <%- include('partials/util/file-format-options', {paramName: 'image', cookieName: 'FileFormat.tutorial.image', fileFormatParams: locals.fileFormatParams, fileFormatDefault: locals.fileFormatDefault_image}) %>
-        </div>
-      </div>
-    </section>
-    <section class="card" id="<%= toParam(type) %>">
-      <h2><%= type %></h2>
-      <div class="content">
-        <div class="card result-count-card">
-          <h2>Total: <span><%= tutorials.length %></span></h2>
-        </div>
-      </div>
-      <% for (let tutorial of tutorials) { %>
-        <div class="tutorial">
-          <h3 class="secondary-header"><%= tutorial.PushTip?.TitleText || '(No title)' %></h3>
-          <div class="content">
-            <textarea readonly class="w100p wikitext autosize" spellcheck="false" translate="no"><%= tutorial.Wikitext %></textarea>
-            <% if (tutorial.PushTip?.TitleText) { %>
-              <textarea readonly class="w100p wikitext autosize" spellcheck="false" translate="no">{{Transclude|Tutorial/<%= tutorial.PushTip?.TitleText %>}}</textarea>
-            <% } %>
-            <div class="tutorial-images spacer15-bottom">
-              <% for (let image of tutorial.Images) { %>
-                <a role="button" class="image-loader" ui-action="lazy-image-click" data-src="/images/genshin/<%= image.originalName %>.png" data-download="<%= image.downloadName %>"></a>
-              <% } %>
-            </div>
-          </div>
-        </div>
-      <% } %>
-    </section>
-  <% } %>
+<% if (tutorialsByType) { %>
+  <%- use('partials/genshin/archive/tutorial-list', {tutorialsByType, fileFormatParams, fileFormatDefault_image}) %>
 <% } %>
-<% if (req.params.category && !tutorialsList) { %>
+<% if (req.params.category && !tutorialsByType) { %>
   <section class="card">
     <div class="content">
       <p>Category not found: <%= req.params.category %></p>

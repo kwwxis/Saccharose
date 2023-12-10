@@ -22,9 +22,7 @@ import { normalizeRawJson, SchemaTable } from '../../importer/import_db';
 import { extractRomanNumeral, isStringBlank, replaceAsync, romanToInt, rtrim } from '../../../shared/util/stringUtil';
 import {
   CodexQuestExcelConfigData, CodexQuestGroup, CodexQuestNarratageTypes,
-  DialogExcelConfigData,
-  DialogUnparented,
-  ManualTextMapConfigData,
+  DialogExcelConfigData, DialogUnparented, DialogWikitextResult, ManualTextMapConfigData, OptionIconMap,
   ReminderExcelConfigData,
   TalkExcelConfigData,
   TalkLoadType, TalkRole,
@@ -126,6 +124,7 @@ import {
   InterActionFile,
   InterActionGroup, InterActionNextDialogs,
 } from '../../../shared/types/genshin/interaction-types';
+import { CommonLineId } from '../../../shared/types/common-types';
 
 // region Control State
 // --------------------------------------------------------------------------------------------------------------
@@ -851,7 +850,8 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
           const isBlackScreen = this.isBlackScreenDialog(nextNodes.find(n => n.TalkContentTextMapHash === nextCodexQuest.ContentTextMapHash));
           if (!isBlackScreen) {
             currBranch.push(await this.makeFakeDialog({
-              CustomTravelLogMenuText: nextCodexQuest.ContentText
+              CustomTravelLogMenuText: nextCodexQuest.ContentText,
+              CustomTravelLogMenuTextMapHash: nextCodexQuest.ContentTextMapHash,
             }));
           }
           nextCodexQuest = CQG.ByItemId[nextCodexQuest.NextItemId];
@@ -896,10 +896,11 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return currBranch;
   }
 
-  async generateDialogueWikiText(dialogLines: DialogExcelConfigData[], dialogDepth = 1,
+  async generateDialogueWikitext(dialogLines: DialogExcelConfigData[], dialogDepth = 1,
                                  originatorDialog: DialogExcelConfigData = null, originatorIsFirstOfBranch: boolean = false,
-                                 firstDialogOfBranchVisited: Set<number> = new Set()): Promise<string> {
+                                 firstDialogOfBranchVisited: Set<number> = new Set()): Promise<DialogWikitextResult> {
     let out = '';
+    let outIds: CommonLineId[] = [];
     let numSubsequentNonBranchPlayerDialogOption = 0;
     let previousDialog: DialogExcelConfigData = null;
 
@@ -987,6 +988,22 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       // Output Append
       // ~~~~~~~~~~~~~
 
+      if (dialog.Id === 0) {
+        if (dialog.CustomTravelLogMenuText) {
+          outIds.push({textMapHash: dialog.CustomTravelLogMenuTextMapHash});
+        } else {
+          outIds.push(null);
+        }
+      } else {
+        outIds.push({commonId: dialog.Id, textMapHash: dialog.TalkContentTextMapHash});
+      }
+
+      if (text && text.includes('\n')) {
+        for (let _m of (text.match(/\n/g) || [])) {
+          outIds.push(null);
+        }
+      }
+
       if (dialog.Recurse) {
         if (this.isPlayerTalkRole(dialog)) {
           out += `\n${diconPrefix};(Return to option selection)`;
@@ -999,17 +1016,17 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
         } else if (dialog.CustomImageName || dialog.CustomWikiTx) {
           out += `\n${prefix}${text}`;
         } else if (this.isBlackScreenDialog(dialog)) {
-          // if (!previousDialog || !this.isBlackScreenDialog(previousDialog)) {
-          //   out += '\n';
-          // }
           out += `\n${prefix}{{Black Screen|${voPrefix}${text}}}`;
-          // out += '\n';
         } else if (this.isPlayerTalkRole(dialog)) {
           if (!this.isPlayerDialogOption(dialog)) {
             let name = this.normText(dialog.TalkRoleNameText || '{NICKNAME}', this.outputLangCode);
             out += `\n${prefix}${voPrefix}'''${name}:''' ${text}`;
           } else {
-            out += `\n${diconPrefix}${':'.repeat(numSubsequentNonBranchPlayerDialogOption)}{{DIcon}} ${text}`;
+            let dicon: string = '{{DIcon}}';
+            if (OptionIconMap[dialog.OptionIcon]) {
+              dicon = '{{DIcon|' + OptionIconMap[dialog.OptionIcon] + '}}';
+            }
+            out += `\n${diconPrefix}${':'.repeat(numSubsequentNonBranchPlayerDialogOption)}${dicon} ${text}`;
           }
         } else if (dialog.TalkRole.Type === 'TALK_ROLE_NPC' || dialog.TalkRole.Type === 'TALK_ROLE_GADGET') {
           let name = this.normText(dialog.TalkRoleNameText, this.outputLangCode);
@@ -1048,16 +1065,22 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
             continue;
           }
           includedCount++;
-          out += '\n' + await this.generateDialogueWikiText(dialogBranch, dialogDepth + 1, dialog, i === 0, temp);
+          const branchRet = await this.generateDialogueWikitext(dialogBranch, dialogDepth + 1, dialog, i === 0, temp);
+          out += '\n' + branchRet.wikitext;
+          outIds.push(... branchRet.ids);
         }
         if (includedCount === 0 && excludedCount > 0) {
           out += `\n${diconPrefix};(Return to option selection)`;
+          outIds.push(null);
         }
       }
 
       previousDialog = dialog;
     }
-    return out.trim();
+    return {
+      wikitext: out.trim(),
+      ids: outIds,
+    };
   }
   // endregion
 

@@ -1,6 +1,6 @@
 import { pageMatch } from '../../../pageMatch';
 
-import { ColDef, Grid, GridApi, GridOptions, IFilterOptionDef, INumberFilterParams } from 'ag-grid-community';
+import { ColDef, Grid, GridApi, GridOptions } from 'ag-grid-community';
 import { LicenseManager } from 'ag-grid-enterprise';
 LicenseManager.prototype.validateLicense = function() {};
 LicenseManager.prototype.isDisplayWatermark = function() {return false};

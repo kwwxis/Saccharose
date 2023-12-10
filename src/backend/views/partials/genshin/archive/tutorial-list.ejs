@@ -1,0 +1,74 @@
+<section class="card" style="border-radius:10px">
+  <% if (locals.searchText) { %>
+    <div class="content">
+      <strong>Search Summary & Quick Jump</strong>
+      <p>Total results: <%= arraySum(Object.values(tutorialsByType).map(tutorials => tutorials.length)) %></p>
+      <ul>
+        <% for (let [type, tutorials] of Object.entries(tutorialsByType)) { %>
+          <li><%= type %> (<%= tutorials.length%>)</li>
+          <ul style="columns:2">
+            <% for (let tutorial of tutorials) { %>
+              <li>
+                <a href="#tutorial-<%= tutorial.Id %>"><%= tutorial.PushTip?.TitleText || `Unnamed tutorial (#${tutorial.Id})` %></a>
+              </li>
+            <% } %>
+          </ul>
+        <% } %>
+      </ul>
+    </div>
+  <% } %>
+  <div class="content">
+    <strong>File Format parameter options</strong>
+    <p>Reload page after changing options to see effect.</p>
+    <div class="alignStart spacer15-top flexWrap">
+      <%- use('partials/util/file-format-options', {
+        paramName: 'image',
+        cookieName: 'FileFormat.tutorial.image',
+        fileFormatParams: fileFormatParams,
+        fileFormatDefault: fileFormatDefault_image
+      }) %>
+    </div>
+  </div>
+</section>
+<% for (let [type, tutorials] of Object.entries(tutorialsByType)) { %>
+  <section class="card" id="<%= toParam(type) %>">
+    <h2 class="valign">
+      <span><%= type %></span>
+      <span class="grow"></span>
+      <span class="secondary-label small">
+        Total:&nbsp;<span><%= tutorials.length %></span>
+      </span>
+    </h2>
+    <% for (let tutorial of tutorials) { %>
+      <div class="tutorial" id="tutorial-<%= tutorial.Id %>">
+        <h3 class="valign secondary-header">
+          <span><%= tutorial.PushTip?.TitleText || '(No title)' %></span>
+          <span class="grow"></span>
+          <span style="opacity: 0.65; font-size: 12px;">ID <%= tutorial.Id %></span>
+        </h3>
+        <div class="content">
+          <textarea readonly class="w100p wikitext autosize" spellcheck="false" translate="no"
+                    data-markers="<%= Marker.joinedString(tutorial.WikitextMarkers) %>"><%= tutorial.Wikitext %></textarea>
+          <% if (tutorial.PushTip?.TitleText) { %>
+            <textarea readonly class="w100p wikitext autosize"
+                      spellcheck="false" translate="no">{{Transclude|Tutorial/<%= tutorial.PushTip?.TitleText %>}}</textarea>
+          <% } %>
+          <div class="tutorial-images spacer15-bottom">
+            <% for (let image of tutorial.Images) { %>
+              <a role="button" class="image-loader" ui-action="lazy-image-click"
+                 data-src="/serve-image/genshin/<%= image.originalName %>.png/<%= image.downloadName %>"
+                 data-name="<%= image.downloadName %>"></a>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    <% } %>
+  </section>
+<% } %>
+<% if (!Object.keys(tutorialsByType).length && locals.searchText) { %>
+  <div class="card no-results-found">
+    <div class="content">
+      <p>No results found for <b><%= searchText %></b></p>
+    </div>
+  </div>
+<% } %>

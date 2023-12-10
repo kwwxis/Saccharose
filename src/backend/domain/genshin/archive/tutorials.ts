@@ -14,6 +14,9 @@ import {
   TutorialExcelConfigData,
   TutorialsByType,
 } from '../../../../shared/types/genshin/tutorial-types';
+import { isInt, toInt } from '../../../../shared/util/numberUtil';
+import { escapeRegExp } from '../../../../shared/util/stringUtil';
+import { Marker } from '../../../../shared/util/highlightMarker';
 
 export function pushTipCodexTypeName(type: PushTipsCodexType): string {
   if (!type) {
@@ -66,9 +69,34 @@ export const TUTORIAL_FILE_FORMAT_PARAMS: string[] = [
   'CurrentDetail.DescriptText'
 ];
 
-export const TUTORIAL_DEFAULT_FILE_FORMAT_IMAGE = 'Tutorial {PushTip.TitleText.EN}{{If|DetailCount > 1| {CurrentDetail.Index1based}|}}.png';
+export const TUTORIAL_DEFAULT_FILE_FORMAT_IMAGE =
+  'Tutorial {{Var|PushTip.TitleText.EN|{Id}}}{{If|DetailCount > 1| {CurrentDetail.Index1based}|}}.png';
 
-export async function selectTutorials(ctrl: GenshinControl, codexTypeConstraint?: PushTipsCodexType): Promise<TutorialsByType> {
+/**
+ * Searches tutorials, returning a list of tutorial IDs.
+ */
+export async function searchTutorials(ctrl: GenshinControl, searchText: string): Promise<number[]> {
+  const ids = [];
+
+  if (isInt(searchText)) {
+    ids.push(toInt(searchText));
+  }
+
+  await ctrl.streamTextMapMatchesWithIndex(ctrl.inputLangCode, searchText, 'Tutorial', (id) => {
+    ids.push(id);
+  }, ctrl.searchModeFlags);
+
+  return ids;
+}
+
+export async function selectTutorials(ctrl: GenshinControl,
+                                      codexTypeConstraint?: PushTipsCodexType,
+                                      tutorialIdConstraint?: number[],
+                                      highlightQuery?: string): Promise<TutorialsByType> {
+  if (tutorialIdConstraint && tutorialIdConstraint.length === 0) {
+    return {};
+  }
+
   let tutorials: TutorialExcelConfigData[] = await ctrl.readDataFile('./ExcelBinOutput/TutorialExcelConfigData.json');
   let tutorialDetails: TutorialDetailExcelConfigData[] = await ctrl.readDataFile('./ExcelBinOutput/TutorialDetailExcelConfigData.json');
 
@@ -84,6 +112,10 @@ export async function selectTutorials(ctrl: GenshinControl, codexTypeConstraint?
   let ret: TutorialsByType = defaultMap('Array');
 
   for (let tutorial of tutorials) {
+    if (tutorialIdConstraint && !tutorialIdConstraint.includes(tutorial.Id)) {
+      continue;
+
+    }
     tutorial.PushTip = pushTips.find(p => p.TutorialId === tutorial.Id);
 
     if (!tutorial.PushTip) {
@@ -106,7 +138,7 @@ export async function selectTutorials(ctrl: GenshinControl, codexTypeConstraint?
     let codexTypeName = pushTipCodexTypeName(tutorial.CodexType);
     let tipsIcon = pushTipsIcon(tutorial.PushTip?.TabIcon);
 
-    if (codexTypeConstraint &&tutorial.CodexType !== codexTypeConstraint) {
+    if (codexTypeConstraint && tutorial.CodexType !== codexTypeConstraint) {
       continue;
     }
 
@@ -150,6 +182,24 @@ export async function selectTutorials(ctrl: GenshinControl, codexTypeConstraint?
     }
     text += '\n}}';
     tutorial.Wikitext = fileFormatOptionsCheck(text);
+
+    if (highlightQuery && ctrl.inputLangCode === ctrl.outputLangCode) {
+      let reFlags: string = ctrl.searchModeFlags.includes('i') ? 'gi' : 'g';
+      let isRegexQuery: boolean = ctrl.searchMode === 'R' || ctrl.searchMode === 'RI';
+      let re = new RegExp(isRegexQuery ? highlightQuery : escapeRegExp(highlightQuery), reFlags);
+
+      let inMarkableLine: boolean  = false;
+
+      tutorial.WikitextMarkers = Marker.create(re, tutorial.Wikitext, (line) => {
+        if (line.startsWith('|title') || line.startsWith('|text')) {
+          inMarkableLine = true;
+        } else if (line.startsWith('|')) {
+          inMarkableLine = false;
+        }
+        return {skip: !inMarkableLine};
+      });
+    }
+
     if (!codexTypeName) {
       codexTypeName = 'Uncategorized';
     }

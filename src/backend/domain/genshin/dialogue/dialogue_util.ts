@@ -1,4 +1,7 @@
-import { DialogExcelConfigData, TalkExcelConfigData } from '../../../../shared/types/genshin/dialogue-types';
+import {
+  DialogExcelConfigData, DialogWikitextResult,
+  TalkExcelConfigData,
+} from '../../../../shared/types/genshin/dialogue-types';
 import { ConfigCondition } from '../../../../shared/types/genshin/general-types';
 import { GenshinControl, getGenshinControl } from '../genshinControl';
 import { QuestGenerateResult } from './quest_generator';
@@ -14,6 +17,7 @@ import { pathToFileURL } from 'url';
 import { closeKnex } from '../../../util/db';
 import { isInt } from '../../../../shared/util/numberUtil';
 import { custom } from '../../../util/logger';
+import { CommonLineId } from '../../../../shared/types/common-types';
 
 // region Class: DialogBranchingCache
 // --------------------------------------------------------------------------------------------------------------
@@ -40,6 +44,7 @@ export class DialogueSectionResult {
   metadata: MetaProp[] = [];
   helptext: string = '';
   wikitext: string = '';
+  wikitextLineIds: CommonLineId[] = [];
   wikitextMarkers: Marker[] = [];
   wikitextArray: { title?: string, wikitext: string, markers?: Marker[] }[] = [];
   children: DialogueSectionResult[] = [];
@@ -328,9 +333,9 @@ export async function talkConfigToDialogueSectionResult(ctrl: GenshinControl,
     dialogueDepth += 1;
   }
 
-  let out = new SbOut();
-  out.append(await ctrl.generateDialogueWikiText(talkConfig.Dialog, dialogueDepth));
-  mysect.wikitext = out.toString();
+  const talkWikitextRet: DialogWikitextResult = await ctrl.generateDialogueWikitext(talkConfig.Dialog, dialogueDepth);
+  mysect.wikitext = talkWikitextRet.wikitext;
+  mysect.wikitextLineIds = talkWikitextRet.ids;
 
   if (talkConfig.OtherDialog && talkConfig.OtherDialog.length) {
     for (let dialogs of talkConfig.OtherDialog) {
@@ -343,10 +348,9 @@ export async function talkConfigToDialogueSectionResult(ctrl: GenshinControl,
       if (dialogs[0].TalkType) {
         otherSect.metadata.push(new MetaProp('First Dialogue Talk Type', dialogs[0].TalkType));
       }
-      out.clearOut();
-      out.append(await ctrl.generateDialogueWikiText(dialogs));
-      out.line();
-      otherSect.wikitext = out.toString();
+      const otherWikitextRet: DialogWikitextResult = await ctrl.generateDialogueWikitext(dialogs);
+      otherSect.wikitext = otherWikitextRet.wikitext;
+      otherSect.wikitextLineIds = otherWikitextRet.ids;
       mysect.children.push(otherSect);
     }
   }

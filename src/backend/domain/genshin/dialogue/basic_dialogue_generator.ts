@@ -4,7 +4,10 @@ import { GenshinControl, getGenshinControl } from '../genshinControl';
 import { NpcExcelConfigData } from '../../../../shared/types/genshin/general-types';
 import util from 'util';
 import { isInt } from '../../../../shared/util/numberUtil';
-import { DialogExcelConfigData, TalkExcelConfigData } from '../../../../shared/types/genshin/dialogue-types';
+import {
+  DialogExcelConfigData, DialogWikitextResult,
+  TalkExcelConfigData,
+} from '../../../../shared/types/genshin/dialogue-types';
 import { escapeRegExp, trim } from '../../../../shared/util/stringUtil';
 import {
   DialogueSectionResult,
@@ -13,7 +16,7 @@ import {
   talkConfigGenerate,
   dialogTraceBack,
 } from './dialogue_util';
-import { MetaProp } from '../../../util/metaProp';
+import { IMetaPropValue, MetaProp } from '../../../util/metaProp';
 import { pathToFileURL } from 'url';
 import { Marker } from '../../../../shared/util/highlightMarker';
 import { LangCode, TextMapHash } from '../../../../shared/types/lang-types';
@@ -124,7 +127,13 @@ export async function dialogueGenerate(ctrl: GenshinControl, query: number|numbe
         const talkConfigResult = await talkConfigGenerate(ctrl, talkConfig);
         if (talkConfigResult) {
           talkConfigResult.metadata.push(new MetaProp('First Dialogue ID', talkConfig.InitDialog));
-          talkConfigResult.metadata.push(new MetaProp('First Match Dialogue ID', dialogue.Id));
+          talkConfigResult.metadata.push(new MetaProp('First Match Dialogue ID', [
+            dialogue.Id,
+            <IMetaPropValue> {
+              value: 'OL',
+              link: '/OL?q=' + dialogue.TalkContentTextMapHash
+            }
+          ]));
           addHighlightMarkers(dialogue, talkConfigResult);
           result.push(talkConfigResult);
           foundTalks = true;
@@ -150,7 +159,16 @@ export async function dialogueGenerate(ctrl: GenshinControl, query: number|numbe
         const sect = new DialogueSectionResult('Dialogue_'+firstDialog.Id, 'Dialogue');
         sect.originalData.dialogBranch = dialogueBranch;
         sect.metadata.push(new MetaProp('First Dialogue ID', firstDialog.Id, `/branch-dialogue?q=${firstDialog.Id}`));
-        sect.metadata.push(new MetaProp('First Match Dialogue ID', dialogue.Id, `/branch-dialogue?q=${dialogue.Id}`));
+        sect.metadata.push(new MetaProp('First Match Dialogue ID', [
+          <IMetaPropValue> {
+            value: dialogue.Id,
+            link: `/branch-dialogue?q=${dialogue.Id}`,
+          },
+          <IMetaPropValue> {
+            value: 'OL',
+            link: '/OL?q=' + dialogue.TalkContentTextMapHash
+          }
+        ]));
 
         if (questIds.length) {
           sect.metadata.push(new MetaProp('Quest ID', await questIds.asyncMap(async id => ({
@@ -160,7 +178,9 @@ export async function dialogueGenerate(ctrl: GenshinControl, query: number|numbe
           sect.originalData.questId = questIds[0];
           sect.originalData.questName = await ctrl.selectMainQuestName(questIds[0]);
         }
-        sect.wikitext = (await ctrl.generateDialogueWikiText(dialogueBranch)).trim();
+        const dialogWikitextRet: DialogWikitextResult = await ctrl.generateDialogueWikitext(dialogueBranch);
+        sect.wikitext = dialogWikitextRet.wikitext;
+        sect.wikitextLineIds = dialogWikitextRet.ids;
         addHighlightMarkers(dialogue, sect);
         result.push(sect);
       }
@@ -290,7 +310,10 @@ export async function dialogueGenerateByNpc(ctrl: GenshinControl,
       const sect = new DialogueSectionResult('Dialogue_'+dialogue.Id, 'Dialogue');
       sect.originalData.dialogBranch = dialogueBranch;
       sect.metadata.push(new MetaProp('First Dialogue ID', dialogue.Id, `/branch-dialogue?q=${dialogue.Id}`));
-      sect.wikitext = (await ctrl.generateDialogueWikiText(dialogueBranch)).trim();
+
+      const dialogWikitextRet: DialogWikitextResult = await ctrl.generateDialogueWikitext(dialogueBranch);
+      sect.wikitext = dialogWikitextRet.wikitext.trim();
+      sect.wikitextLineIds = dialogWikitextRet.ids;
 
       if (questId) {
         const questName = await ctrl.selectMainQuestName(questId);

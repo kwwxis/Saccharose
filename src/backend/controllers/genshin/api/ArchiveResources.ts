@@ -5,6 +5,12 @@ import { MaterialExcelConfigData } from '../../../../shared/types/genshin/materi
 import { WeaponExcelConfigData } from '../../../../shared/types/genshin/weapon-types';
 import { AchievementExcelConfigData } from '../../../../shared/types/genshin/achievement-types';
 import { Request, Response, Router } from 'express';
+import {
+  pushTipCodexTypeName,
+  searchTutorials,
+  selectTutorials, TUTORIAL_DEFAULT_FILE_FORMAT_IMAGE,
+  TUTORIAL_FILE_FORMAT_PARAMS,
+} from '../../../domain/genshin/archive/tutorials';
 
 const router: Router = create();
 
@@ -72,6 +78,26 @@ router.endpoint('/achievements/search', {
       });
     } else {
       return achievements;
+    }
+  }
+});
+
+router.endpoint('/tutorials/search', {
+  get: async (req: Request, res: Response) => {
+    const ctrl = getGenshinControl(req);
+
+    let tutorialIds: number[] = await searchTutorials(ctrl, <string> req.query.text);
+    let tutorialsByType = await selectTutorials(ctrl, null, tutorialIds, <string> req.query.text);
+
+    if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
+      return res.render('partials/genshin/archive/tutorial-list', {
+        tutorialsByType,
+        fileFormatParams: TUTORIAL_FILE_FORMAT_PARAMS.join(','),
+        fileFormatDefault_image: TUTORIAL_DEFAULT_FILE_FORMAT_IMAGE,
+        searchText: <string> req.query.text
+      });
+    } else {
+      return tutorialsByType;
     }
   }
 });

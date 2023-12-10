@@ -1,5 +1,5 @@
 import { resolveObjectPath } from '../../shared/util/arrayUtil';
-import { isset, toBoolean } from '../../shared/util/genericUtil';
+import { isEmpty, isNotEmpty, isset, toBoolean } from '../../shared/util/genericUtil';
 import { mwParse } from '../../shared/mediawiki/mwParse';
 import { MwEOL, MwParentNode, MwTemplateNode } from '../../shared/mediawiki/mwTypes';
 import { isNumeric, toNumber } from '../../shared/util/numberUtil';
@@ -20,11 +20,22 @@ export function fileFormatOptionsCheck(templateStr: string) {
   }).filter(s => isset(s)).join('\n').trim();
 }
 
-export function evaluateCustomFormat(obj: Object, parentNode: MwParentNode): string {
+export async function evaluateCustomFormat(ctrl: AbstractControl, obj: Object, parentNode: MwParentNode): Promise<string> {
   let out = '';
   for (let node of parentNode.parts) {
     if (node instanceof MwTemplateNode) {
-      if (node.templateName.toLowerCase() === 'if' || node.templateName.toLowerCase() === 'ifcase') {
+      if (node.templateName.toLowerCase() === 'var') {
+        const valueParam = node.getParam(1);
+        const defaultValueParam = node.getParam(2);
+
+        let resolveValue = await evaluateVariable(ctrl, obj, valueParam.trimmedValue);
+
+        if (isEmpty(resolveValue) && defaultValueParam) {
+          resolveValue = await evaluateCustomFormat(ctrl, obj, defaultValueParam);
+        }
+
+        out += resolveValue;
+      } else if (node.templateName.toLowerCase() === 'if' || node.templateName.toLowerCase() === 'ifcase') {
         const caseSensitive = node.templateName.toLowerCase() === 'ifcase';
         const cond = node.getParam(1) || node.getParam('cond');
 
@@ -142,9 +153,9 @@ export function evaluateCustomFormat(obj: Object, parentNode: MwParentNode): str
               break;
           }
           if (condResult) {
-            out += !thenParam ? '' : evaluateCustomFormat(obj, thenParam);
+            out += !thenParam ? '' : await evaluateCustomFormat(ctrl, obj, thenParam);
           } else {
-            out += !elseParam ? '' : evaluateCustomFormat(obj, elseParam);
+            out += !elseParam ? '' : await evaluateCustomFormat(ctrl, obj, elseParam);
           }
         }
       } else {
@@ -157,9 +168,31 @@ export function evaluateCustomFormat(obj: Object, parentNode: MwParentNode): str
   return out;
 }
 
+async function evaluateVariable(ctrl: AbstractControl, obj: Object, expr: string): Promise<string> {
+  const possibleLangCode: string = expr.includes('.') ? expr.split('.').pop() : null;
+
+  if (isLangCode(possibleLangCode)) {
+    const textMapHashParamName = expr.split('.').slice(0, -1).join('.') + 'MapHash';
+    const langCode: LangCode = possibleLangCode as LangCode;
+    let value = resolveObjectPath(obj, textMapHashParamName);
+    if (isNotEmpty(value)) {
+      return await ctrl.getTextMapItem(langCode, value)
+    } else {
+      return '';
+    }
+  }
+
+  let value = resolveObjectPath(obj, expr);
+  if (isNotEmpty(value)) {
+    return value;
+  } else {
+    return '';
+  }
+}
+
 export async function fileFormatOptionsApply(ctrl: AbstractControl, obj: Object, cookieName: string, defaultFormat: string): Promise<string> {
   const req = ctrl.state.request;
-  let pref: FileFormatOption = req.cookies[cookieName] || 'default';
+  let pref: FileFormatOption = req?.cookies?.[cookieName] || 'default';
   let customFormat: string;
   if (pref === 'remove') {
     return null;
@@ -170,28 +203,10 @@ export async function fileFormatOptionsApply(ctrl: AbstractControl, obj: Object,
   }
 
   const parsed = mwParse(customFormat);
-  const evaluatedFormat = evaluateCustomFormat(obj, parsed);
+  const evaluatedFormat = await evaluateCustomFormat(ctrl, obj, parsed);
 
 
   return await replaceAsync(evaluatedFormat, /\{([^}]*?)}/g, async (fm: string, g1: string) => {
-    const possibleLangCode: string = g1.includes('.') ? g1.split('.').pop() : null;
-
-    if (isLangCode(possibleLangCode)) {
-      const textMapHashParamName = g1.split('.').slice(0, -1).join('.') + 'MapHash';
-      const langCode: LangCode = possibleLangCode as LangCode;
-      let value = resolveObjectPath(obj, textMapHashParamName);
-      if (value) {
-        return await ctrl.getTextMapItem(langCode, value)
-      } else {
-        return fm;
-      }
-    }
-
-    let value = resolveObjectPath(obj, g1);
-    if (value) {
-      return value;
-    } else {
-      return fm;
-    }
+    return await evaluateVariable(ctrl, obj, g1);
   });
 }

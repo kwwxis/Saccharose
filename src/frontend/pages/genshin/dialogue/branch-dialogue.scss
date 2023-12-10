@@ -15,9 +15,12 @@
   #branch-dialogue-inputs {
     flex-wrap: wrap;
   }
+  .main-inputs {
+    width: 100%;
+    margin-bottom: 10px;
+  }
   .dialogue-generate-input {
     flex-basis: 100%;
-    margin-bottom: 10px;
   }
   .npc-filter-input {
     border-top-right-radius: 0 !important;

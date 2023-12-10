@@ -2,9 +2,9 @@ import { default as tippy, Instance as Tippy, Props as TippyProps } from 'tippy.
 import JSON5 from 'json5';
 import { toBoolean } from '../../shared/util/genericUtil';
 
-export function enableTippy(el: HTMLElement, props: Partial<TippyProps> = {}) {
-  if (!props.content) {
-    return;
+export function enableTippy(el: HTMLElement, props: Partial<TippyProps> = {}): Tippy<TippyProps> {
+  if (!el || !props.content) {
+    return undefined;
   }
   let tip: Tippy<TippyProps> = (<any> el)._tippy;
   if (!tip) {
@@ -12,14 +12,15 @@ export function enableTippy(el: HTMLElement, props: Partial<TippyProps> = {}) {
   } else {
     tip.setProps(props);
   }
+  return tip;
 }
 
-export function showTippy(el: HTMLElement, props: Partial<TippyProps> = {}) {
-  if (!props.content) {
-    return;
+export function showTippy(el: HTMLElement, props: Partial<TippyProps> = {}): Tippy<TippyProps> {
+  if (!el || !props.content) {
+    return undefined;
   }
 
-  if ((<any> el)._tippyTimeout) return;
+  if ((<any> el)._tippyTimeout) return undefined;
 
   let tip: Tippy<TippyProps> = (<any> el)._tippy;
 
@@ -33,18 +34,22 @@ export function showTippy(el: HTMLElement, props: Partial<TippyProps> = {}) {
 
   tip.setProps(props);
   tip.show();
+  return tip;
 }
 
-export function hideTippy(el: HTMLElement) {
-  if ((<any> el)._tippyTimeout) return;
+export function hideTippy(el: HTMLElement, force: boolean = false): Tippy<TippyProps> {
+  if (!el) return undefined;
+  if ((<any> el)._tippyTimeout && !force) return undefined;
   if ((<any> el)._tippy) {
     (<Tippy<TippyProps>> (<any> el)._tippy).hide();
+    return (<any> el)._tippy;
   }
+  return undefined;
 }
 
-export function flashTippy(el: HTMLElement, props: Partial<TippyProps> = {}) {
-  if (!props.content) {
-    return;
+export function flashTippy(el: HTMLElement, props: Partial<TippyProps> = {}): Tippy<TippyProps> {
+  if (!el || !props.content) {
+    return undefined;
   }
 
   let tip: Tippy<TippyProps> = (<any> el)._tippy;
@@ -70,9 +75,12 @@ export function flashTippy(el: HTMLElement, props: Partial<TippyProps> = {}) {
     tip.hide();
     (<any> el)._tippyTimeout = undefined;
   }, tip.props.delay[1] || 0);
+
+  return tip;
 }
 
 export function getTippyOpts(el: HTMLElement, attrName: string): Partial<TippyProps> {
+  if (!el) return {};
   const attrVal = el.getAttribute(attrName).trim();
   el.removeAttribute(attrName);
 

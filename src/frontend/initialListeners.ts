@@ -23,6 +23,7 @@ import { MwParamNode, MwTemplateNode } from '../shared/mediawiki/mwTypes';
 import { pageMatch } from './pageMatch';
 import { uuidv4 } from '../shared/util/uuidv4';
 import { Marker } from '../shared/util/highlightMarker';
+import { recalculateAceLinePanelPositions } from './util/ace/listeners/wikitextLineActions';
 
 type UiAction = {actionType: string, actionParams: string[]};
 
@@ -260,6 +261,21 @@ const initial_listeners: Listener[] = [
 
           toolbarEl.append(rmButton);
           toolbarEl.append(tlButton);
+
+          if (contentEditableEl.classList.contains('ol-result-textarea--with-copy-button')) {
+            const copyButton = createElement('button', {
+              class: 'secondary small',
+              text: 'Copy',
+              style: `border-left: 0;border-bottom-left-radius: 0;`,
+              'ui-tippy-hover': "Click to copy to clipboard",
+              'ui-tippy-flash': "{content:'Copied!', delay: [0,2000]}",
+            });
+            copyButton.addEventListener('click', async () => {
+              await copyToClipboard(contentEditableEl.querySelector('.ace_static_text_layer').textContent.trim());
+            });
+            toolbarEl.append(copyButton);
+          }
+
           newParent.append(toolbarEl);
 
           const createParamRemover = (regex: RegExp, addDefaultHidden: boolean = false) => {
@@ -500,15 +516,15 @@ const initial_listeners: Listener[] = [
               if ((<any>copyTarget).value) {
                 // noinspection JSIgnoredPromiseFromCall
                 copyToClipboard((<any>copyTarget).value.trim());
-              }
-
-              if (copyTarget.hasAttribute('contenteditable')) {
+              } else if (copyTarget.hasAttribute('contenteditable')) {
                 if (copyTarget.querySelector('.ace_static_text_layer')) {
                   copyTarget = copyTarget.querySelector('.ace_static_text_layer');
                 }
-                let value = copyTarget.textContent;
                 // noinspection JSIgnoredPromiseFromCall
-                copyToClipboard(value.trim());
+                copyToClipboard(copyTarget.textContent.trim());
+              } else {
+                // noinspection JSIgnoredPromiseFromCall
+                copyToClipboard(copyTarget.textContent.trim());
               }
               break;
             }
@@ -520,12 +536,13 @@ const initial_listeners: Listener[] = [
                 for (let copyTarget of copyTargets) {
                   if ((<any>copyTarget).value) {
                     combinedValues.push(copyTarget.value.trim());
-                  }
-                  if (copyTarget.hasAttribute('contenteditable')) {
+                  } else if (copyTarget.hasAttribute('contenteditable')) {
                     if (copyTarget.querySelector('.ace_static_text_layer')) {
                       copyTarget = copyTarget.querySelector('.ace_static_text_layer');
                     }
                     console.log('Copy target', copyTarget);
+                    combinedValues.push(copyTarget.textContent.trim());
+                  } else {
                     combinedValues.push(copyTarget.textContent.trim());
                   }
                 }
@@ -680,15 +697,19 @@ const initial_listeners: Listener[] = [
               let a = document.createElement('a');
               a.classList.add('image-loaded');
               a.href = actionEl.getAttribute('data-src');
-              if (actionEl.hasAttribute('data-download')) {
-                a.download = actionEl.getAttribute('data-download');
-              }
+              a.target = '_blank';
 
               let div = document.createElement('div');
 
               let img = document.createElement('img');
               img.src = actionEl.getAttribute('data-src');
               img.style.maxWidth = '100%';
+
+              if (a.hasAttribute('data-name')) {
+                a.setAttribute('data-name', decodeURIComponent(a.getAttribute('data-name')));
+              } else {
+                a.setAttribute('data-name', decodeURIComponent(img.src.split('/').reverse()[0]));
+              }
 
               div.append(img);
               a.append(div);
@@ -815,6 +836,9 @@ const initial_listeners: Listener[] = [
       Cookies.set('search-mode', val, { expires: 365 });
     }
   },
+];
+
+export const fileFormatListeners: Listener[] = [
   {
     el: '.file-format-options input[type="radio"]',
     ev: 'input',
@@ -857,13 +881,28 @@ const initial_listeners: Listener[] = [
       const langCodes = target.closest('.file-format-options').getAttribute('data-lang-codes').split(',').map(x => x.trim());
 
       modalService.modal(`<span>Custom Format Options for <code>${escapeHtml(paramName)}</code></span>`, `
-        <p class="info-notice">Parameters must be in curly braces, for example:<br/><code>{NameText.EN} Map Location.png</code></p>
         <p class="info-notice spacer5-top">
           <strong>English wiki default format for <code>${escapeHtml(paramName)}</code>:</strong><br />
           <textarea class="code autosize w100p" readonly style="background:transparent">${escapeHtml(fileFormatDefault)}</textarea>
         </p>
+        <fieldset>
+          <legend>Variable usage</legend>
+          <div class="content">
+            <p class="spacer10-bottom">Variables must be wrapped in single curly braces, for example:<br />
+            <code>{NameText.EN} Map Location.png</code></p>
+            
+            <p class="spacer10-bottom">Alternatively, you can use the syntax:<br />
+            <code>{{Var|NameText.EN}} Map Location.png</code></p>
+            
+            <p class="spacer10-bottom">If you want to specify a default value if a variable is empty, you can specify a second parameter to <code>{{Var}}</code>:<br />
+            <code>{{Var|NameText.EN|default value}} Map Location.png</code></p>
+            
+            <p class="spacer10-bottom">The second parameter will be evaluted the same as the top-level format, so you can have nested conditionals and variables inside.
+            Default values cannot be specified with the single curly brace format.</p>
+          </div>
+        </fieldset>
         <fieldset class="spacer5-top">
-          <legend>Available parameters:</legend>
+          <legend>Available variables:</legend>
           <div class="content spacer20-horiz">
             <ul style="columns:2;">${params.map(param => `<li><code>${escapeHtml(param)}</code></li>`).join('')}</ul>
           </div>
@@ -877,7 +916,7 @@ const initial_listeners: Listener[] = [
         <fieldset class="spacer5-top">
           <legend>Specify Specific Language</legend>
           <div class="content">
-            <p>For in-game text parameters, you can specify a specific language by appending it with <code>.{Langcode}</code>. For example,
+            <p>For in-game text variables, you can specify a specific language by appending it with <code>.{Langcode}</code>. For example,
             for a <code>NameText</code> param, you can use <code>NameText.JP</code>. Otherwise, without any specific language code, just <code>NameText</code>
             would use your selected <strong>Output Language</strong>.</p>
           </div>
@@ -893,19 +932,21 @@ const initial_listeners: Listener[] = [
             <code class="dispBlock spacer20-left">operator = ":=" | "!=" | "&lt;=" | "&gt;=" | "&lt;" | "&gt;" | "*=" | "^=" | "$=" | "~"</code>
             <br />
             
-            <p>The <code>left-param</code> and <code>right-param</code> are evaluated the same as the top-level format,
-            so you can use parameters inside of them and have nested conditionals.</p>
+            <li>The <code>left-param</code> and <code>right-param</code> are evaluated the same as the top-level format,
+            so you can use variables inside of them and have nested conditionals.</li>
             
-            <p>The condition follows different logic such that parameters do not need to be wrapped in curly braces.</p>
+            <li>The <code>condition</code> follows different logic such that variables do not need to be wrapped in curly braces.</li>
             
-            <p>Strings do not need to be wrapped in quotes, but you should put them in quotes to prevent them from
-            being evaluated as parameters or operators.</p>
+            <li>Strings do not need to be wrapped in quotes, but you should put them in quotes to prevent them from
+            being evaluated as variables or operators.</li>
             
-            <p>String condition operators: <code>*=</code> is string includes,
+            <li><code>:=</code> is equals whereas <code>!=</code> is not equals.</li>
+            
+            <li>String condition operators: <code>*=</code> is string includes,
             <code>^=</code> is string starts with, <code>"$="</code> is string ends with, and <code>~=</code> is regex
-            (left param is test string, right param is regex).</p>
+            (left param is test string, right param is regex).</li>
             
-            <p>These operations are case-insensitive. For case-sensitive operations, use <code>{{IfCase|...}}</code> instead of <code>{{If|...}}</code></p>
+            <li><code>{{If|...}}</code> is case-insensitive. For case-sensitive operations, use <code>{{IfCase|...}}</code> instead.</li>
           </div>
         </fieldset>
       `, {
@@ -915,9 +956,12 @@ const initial_listeners: Listener[] = [
       });
     }
   }
-];
+]
 
-runWhenDOMContentLoaded(() => startListeners(initial_listeners, document));
+runWhenDOMContentLoaded(() => {
+  startListeners(initial_listeners, document);
+  startListeners(fileFormatListeners, document);
+});
 
 function recalculateDesktopStickyHeader() {
   let scrollY = window.scrollY;
@@ -947,7 +991,10 @@ const desktopStickerHeaderListeners: Listener[] = [
   {
     el: 'window',
     ev: 'resize',
-    fn: throttle((_event: UIEvent) => recalculateDesktopStickyHeader(), 250)
+    fn: (_event: UIEvent) => {
+      recalculateDesktopStickyHeader();
+      recalculateAceLinePanelPositions();
+    }
   }
 ];
 

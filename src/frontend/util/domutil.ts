@@ -570,3 +570,41 @@ export function textNodesUnder(el: Element): Text[] {
   while(n = <Text> walk.nextNode()) a.push(n);
   return a;
 }
+
+/**
+ * Similar to {@link Element#getBoundingClientRect} but gets the positions relative to the document rather than
+ * the viewport.
+ * @param el
+ */
+export function getElementOffset(el: HTMLElement): DOMRect {
+  const boundingRect = el.getBoundingClientRect();
+  var _docHeight = document.body.offsetHeight;
+  var _docWidth = document.body.offsetWidth;
+
+  var _x = 0;
+  var _y = 0;
+  while( el && !isNaN( el.offsetLeft ) && !isNaN( el.offsetTop ) ) {
+    _x += el.offsetLeft - el.scrollLeft;
+    _y += el.offsetTop - el.scrollTop;
+    el = el.offsetParent as HTMLElement;
+  }
+
+  const obj = {
+    top: _y,
+    left: _x,
+    x: _x,
+    y: _y,
+    width: boundingRect.width,
+    height: boundingRect.height,
+
+    bottom: _docHeight - _y -  boundingRect.height,
+    right: _docWidth - _x - boundingRect.width,
+  };
+
+  return {
+    ... obj,
+    toJSON(): any {
+      return obj;
+    }
+  };
+}

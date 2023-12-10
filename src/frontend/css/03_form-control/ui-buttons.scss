@@ -439,7 +439,7 @@ button.discord-button:hover,
 }
 
 .image-loader:after {
-  content: attr(data-download);
+  content: attr(data-name);
   font-weight: 600;
 }
 
@@ -449,7 +449,7 @@ button.discord-button:hover,
   display: block;
 }
 .image-loaded:before {
-  content: attr(download) ' (Click to download with this name)';
+  content: attr(data-name);
   background: #eee;
   display: inline-block;
 }

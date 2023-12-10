@@ -8,6 +8,7 @@ import { HttpError } from '../shared/util/httpError';
 import { cleanEmpty } from '../shared/util/arrayUtil';
 import { FetterGroup } from '../shared/types/genshin/fetter-types';
 import { VoiceAtlasGroup } from '../shared/types/hsr/hsr-avatar-types';
+import { pageMatch } from './pageMatch';
 
 export abstract class SaccharoseApiEndpoint<T extends Object, R = any> {
   readonly uri: string;
@@ -193,6 +194,7 @@ export const genshinEndpoints = {
   searchItems: new GenshinApiEndpoint<{text: string}>('/items/search'),
   searchWeapons: new GenshinApiEndpoint<{text: string}>('/weapons/search'),
   searchAchievements: new GenshinApiEndpoint<{text: string}>('/achievements/search'),
+  searchTutorials: new GenshinApiEndpoint<{text: string}>('/tutorials/search'),
 
   // mediaUpload: function() {
   //
@@ -248,6 +250,25 @@ export const zenlessEndpoints = {
 
   getIdUsages: new ZenlessApiEndpoint<{q: string}>('/id-usages'),
 };
+
+export function getOLEndpoint(): {endpoint: SaccharoseApiEndpoint<any>, tlRmDisabled: boolean, neverDefaultHidden: boolean} {
+  let endpoint: SaccharoseApiEndpoint<any>;
+  let tlRmDisabled: boolean = false;
+  let neverDefaultHidden: boolean = false;
+
+  if (pageMatch.isGenshin) {
+    endpoint = genshinEndpoints.generateOL;
+  } else if (pageMatch.isStarRail) {
+    endpoint = starRailEndpoints.generateOL;
+    tlRmDisabled = true;
+    neverDefaultHidden = true;
+  } else if (pageMatch.isZenless) {
+    endpoint = zenlessEndpoints.generateOL;
+    tlRmDisabled = true;
+    neverDefaultHidden = true;
+  }
+  return {endpoint, tlRmDisabled, neverDefaultHidden};
+}
 
 (<any> window).genshinEndpoints = genshinEndpoints;
 (<any> window).starRailEndpoints = starRailEndpoints;

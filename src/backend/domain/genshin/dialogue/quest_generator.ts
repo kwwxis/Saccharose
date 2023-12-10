@@ -254,7 +254,9 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
         subsect.metadata.push(new MetaProp('Quest ID', {value: mainQuest.Id, tooltip: mainQuest.TitleText}, `/quests/{}`));
         subsect.originalData.questId = mainQuest.Id;
         subsect.originalData.questName = mainQuest.TitleText;
-        subsect.wikitext = await ctrl.generateDialogueWikiText(dialog);
+        const dialogWikitextRet = await ctrl.generateDialogueWikitext(dialog);
+        sect.wikitext = dialogWikitextRet.wikitext;
+        sect.wikitextLineIds = dialogWikitextRet.ids;
         sect.children.push(subsect);
       }
     }
@@ -294,7 +296,9 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
       sect.metadata.push(new MetaProp('Quest ID', {value: mainQuest.Id, tooltip: mainQuest.TitleText}, `/quests/{}`));
       sect.originalData.questId = mainQuest.Id;
       sect.originalData.questName = mainQuest.TitleText;
-      sect.wikitext = await ctrl.generateDialogueWikiText(dialog);
+      const dialogWikitextRet = await ctrl.generateDialogueWikitext(dialog);
+      sect.wikitext = dialogWikitextRet.wikitext;
+      sect.wikitextLineIds = dialogWikitextRet.ids;
       result.dialogue.push(sect);
     }
   }

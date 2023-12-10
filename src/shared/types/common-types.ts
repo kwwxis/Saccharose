@@ -1,7 +1,8 @@
-import { LangCodeMap } from './lang-types';
+import { LangCodeMap, TextMapHash } from './lang-types';
 import { AvatarExcelConfigData } from './genshin/avatar-types';
 import { AvatarConfig, VoiceAtlas, VoiceAtlasGroup } from './hsr/hsr-avatar-types';
-import { FetterGroup, FetterExcelConfigData } from './genshin/fetter-types';
+import { FetterExcelConfigData, FetterGroup } from './genshin/fetter-types';
+import { toInt } from '../util/numberUtil';
 
 // region Common Avatar
 // --------------------------------------------------------------------------------------------------------------
@@ -140,5 +141,40 @@ export function toCommonVoiceOverGroupFromStarRail(atlasGroup: VoiceAtlasGroup):
 
     original: atlasGroup
   }
+}
+// endregion
+
+// region Common Line IDs
+// --------------------------------------------------------------------------------------------------------------
+export type CommonLineId = { commonId?: number, textMapHash?: TextMapHash };
+
+export function stringifyCommonLineIds(dialogLineIds: CommonLineId[]): string {
+  if (!dialogLineIds || !dialogLineIds.length) {
+    return '';
+  }
+  return dialogLineIds.map(x => {
+    if (x) {
+      return (x.commonId || '') + ',' + (x.textMapHash || '');
+    } else {
+      return '';
+    }
+  }).join(';');
+}
+
+export function parseCommonLineIds(str: string): CommonLineId[] {
+  if (!str) {
+    return [];
+  }
+  return str.split(';').map(s => {
+    if (!s) {
+      return null;
+    } else {
+      let parts = s.split(',');
+      return {
+        commonId: parts[0] ? toInt(parts[0]) : undefined,
+        textMapHash: (parts[1] || undefined) as TextMapHash,
+      };
+    }
+  });
 }
 // endregion

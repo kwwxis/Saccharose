@@ -20,6 +20,8 @@ import {
 import pluralize from 'pluralize';
 import { toInt } from '../../shared/util/numberUtil';
 import { Marker } from '../../shared/util/highlightMarker';
+import { arraySum } from '../../shared/util/arrayUtil';
+import { parseCommonLineIds, stringifyCommonLineIds } from '../../shared/types/common-types';
 
 // noinspection JSUnusedGlobalSymbols
 export const DEFAULT_GLOBAL_LOCALS = {
@@ -50,7 +52,15 @@ export const DEFAULT_GLOBAL_LOCALS = {
   escapeHtmlAllowEntities,
   Marker: Marker,
 
+  // Genshin-Specific Utilities
+  // ~~~~~~~~~~~~~~~~~~~~~~~~~~
   genshinSpriteTagIconize,
+  stringifyCommonLineIds,
+  parseCommonLineIds,
+
+  // Array Utilities
+  // ~~~~~~~~~~~~~~~
+  arraySum,
 
   // String Utilities
   // ~~~~~~~~~~~~~~~~

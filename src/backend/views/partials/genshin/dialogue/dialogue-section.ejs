@@ -66,6 +66,7 @@
                 class="wikitext dialogue-section-wikitext w100p autosize <%= (locals.parentIds || []).map(s => 'wikitext-childOf-' + s).join(' ') %>"
                 data-gutters="<%= locals.showGutter ? 'true' : 'false' %>"
                 data-markers="<%= Marker.joinedString(locals.wikitextMarkers) %>"
+                data-line-ids="<%= stringifyCommonLineIds(locals.wikitextLineIds) %>"
                 style="resize:vertical;min-height:40px;"
                 spellcheck="false"
                 translate="no"><%= wikitext %></textarea>

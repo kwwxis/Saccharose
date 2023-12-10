@@ -20,11 +20,12 @@ import './pages/genshin/dialogue/quests';
 import './pages/genshin/dialogue/reminders';
 import './pages/genshin/dialogue/vo-to-dialogue';
 
-import './pages/genshin/archive/achievements';
+import './pages/genshin/archive/achievements-search';
 import './pages/genshin/archive/readables-search';
 import './pages/genshin/archive/material-search';
 import './pages/genshin/archive/weapon-search';
 import './pages/genshin/archive/furniture-list';
+import './pages/genshin/archive/tutorials-search';
 
 import './pages/genshin/character/genshin-vo-tool';
 import './pages/genshin/media/media-search.page';
