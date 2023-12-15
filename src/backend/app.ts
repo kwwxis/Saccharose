@@ -13,7 +13,7 @@ import { isStringNotBlank } from '../shared/util/stringUtil';
 import requestIp from 'request-ip';
 import jsonResponse from './middleware/response/jsonResponse';
 import antiBots from './middleware/request/antiBots';
-import rateLimiter from './middleware/request/rateLimiter';
+import { traceMiddleware } from './middleware/request/tracer';
 import accessLogging from './middleware/request/accessLogging';
 import defaultResponseHeaders from './middleware/response/defaultResponseHeaders';
 import { PUBLIC_DIR, VIEWS_ROOT } from './loadenv';
@@ -24,7 +24,7 @@ import { loadStarRailVoiceItems } from './domain/hsr/starRailControl';
 import { loadStarRailTextSupportingData } from './domain/hsr/starRailText';
 import { loadGenshinTextSupportingData } from './domain/genshin/genshinText';
 import { loadZenlessTextSupportingData } from './domain/zenless/zenlessText';
-import { NextFunction, Request, Response } from 'express';
+import { Request, Response } from 'express';
 import { logInit } from './util/logger';
 import imageBaseRouter from './controllers/ImageBaseRouter';
 import { createStaticImagesHandler } from './middleware/request/staticImagesHandler';
@@ -97,7 +97,7 @@ export async function appInit(): Promise<Express> {
   app.use(useragent.express());                             // parses user-agent header
   app.use(express.urlencoded({extended: true}));     // parses url-encoded POST/PUT bodies
   app.use(requestIp.mw());                                  // enable request-ip
-  //app.use(rateLimiter);                                     // rate-limits requests
+  app.use(traceMiddleware);
   app.use(accessLogging);                                   // access logging
 
   // Middleware for responses

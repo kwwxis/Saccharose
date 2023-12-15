@@ -2,7 +2,7 @@
   <h2>TCG Talk Detail</h2>
   <div class="content">
     <% for (let stageTalk of stageTalks) { %>
-      <%- include('partials/genshin/dialogue/dialogue-section', stageTalk) %>
+      <%- use('partials/genshin/dialogue/dialogue-section', stageTalk) %>
     <% } %>
   </div>
 </section>

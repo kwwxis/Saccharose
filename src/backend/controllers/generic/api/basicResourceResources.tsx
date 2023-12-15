@@ -14,7 +14,7 @@ export async function handleTextMapSearchEndpoint(ctrl: AbstractControl, req: Re
   const isRawInput: boolean = isset(req.query.isRawInput) && toBoolean(req.query.isRawInput);
   const isRawOutput: boolean = isset(req.query.isRawOutput) && toBoolean(req.query.isRawOutput);
   const SEARCH_TEXTMAP_MAX = 100;
-  const query: string = <string> req.query.text;
+  const query: string = req.query.text as string;
 
   // "-m" flag -> max count
   const items = await ctrl.getTextMapMatches(
@@ -70,7 +70,7 @@ export async function handleTextMapSearchEndpoint(ctrl: AbstractControl, req: Re
 }
 
 export async function handleOlEndpoint(ctrl: AbstractControl, req: Request, res: Response) {
-  let results: OLResult[] = await ol_gen(ctrl, <string> req.query.text, {
+  let results: OLResult[] = await ol_gen(ctrl, req.query.text as string, {
     hideTl: toBoolean(req.query.hideTl),
     hideRm: toBoolean(req.query.hideRm),
     addDefaultHidden: toBoolean(req.query.addDefaultHidden),
@@ -85,9 +85,9 @@ export async function handleOlEndpoint(ctrl: AbstractControl, req: Request, res:
 
   if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
     if (toBoolean(req.query.singleResultSimpleHtml)) {
-      return res.render('partials/generic/basic/ol-result-simple', { olResult: results?.[0], searchText: <string> req.query.text });
+      return res.render('partials/generic/basic/ol-result-simple', { olResult: results?.[0], searchText: req.query.text as string });
     }
-    return res.render('partials/generic/basic/ol-result', { olResults: results, searchText: <string> req.query.text });
+    return res.render('partials/generic/basic/ol-result', { olResults: results, searchText: req.query.text as string });
   } else {
     return results;
   }

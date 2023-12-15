@@ -8,7 +8,7 @@
       <% for (let material of materials) { %>
         <div class="w100p">
           <a href="/items/<%= material.Id %>" class="secondary spacer3-all valign textAlignLeft" role="button" style="padding:5px">
-            <%- include('partials/genshin/archive/item', {material, disableName: true, noText: true, noLink: true}) %>
+            <%- use('partials/genshin/archive/item', {material, disableName: true, noText: true, noLink: true}) %>
             <span class="spacer10-left"><%= material.NameText %></span>
           </a>
         </div>

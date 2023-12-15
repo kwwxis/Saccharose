@@ -491,6 +491,10 @@ export class CompareTernary<T> extends CompareTernaryGroup<T> {
     }
     return this.cmpResult() ? thenValue : elseValue;
   }
+
+  get(): boolean {
+    return !!this.cmpResult();
+  }
 }
 
 export function ternary<T>(value: T): CompareTernary<T> {

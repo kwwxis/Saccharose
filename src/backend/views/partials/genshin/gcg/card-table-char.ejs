@@ -39,17 +39,17 @@
         </td>
         <td style="font-size:14px;line-height:1.1em">
           <% for (let tag of card.MappedTagList.filter(x => !!x.Type && x.CategoryType === 'GCG_TAG_IDENTIFIER_ELEMENT')) { %>
-            <%- include('partials/genshin/gcg/tag', { tag, GCG_TAGS_WITHOUT_ICONS }) %>
+            <%- use('partials/genshin/gcg/tag', { tag, GCG_TAGS_WITHOUT_ICONS }) %>
           <% } %>
         </td>
         <td style="font-size:14px;line-height:1.1em">
           <% for (let tag of card.MappedTagList.filter(x => !!x.Type && x.CategoryType === 'GCG_TAG_IDENTIFIER_WEAPON')) { %>
-            <%- include('partials/genshin/gcg/tag', { tag, GCG_TAGS_WITHOUT_ICONS }) %>
+            <%- use('partials/genshin/gcg/tag', { tag, GCG_TAGS_WITHOUT_ICONS }) %>
           <% } %>
         </td>
         <td style="font-size:14px;line-height:1.1em">
           <% for (let tag of card.MappedTagList.filter(x => !!x.Type && x.CategoryType === 'GCG_TAG_IDENTIFIER_CHAR')) { %>
-            <%- include('partials/genshin/gcg/tag', { tag, GCG_TAGS_WITHOUT_ICONS }) %>
+            <%- use('partials/genshin/gcg/tag', { tag, GCG_TAGS_WITHOUT_ICONS }) %>
           <% } %>
         </td>
         <td class="textAlignCenter" style="font-size:14px"><%- card.IsCanObtain ? '<span style="color:green">Yes</span>' : '<span style="color:red">No</span>'%></td>

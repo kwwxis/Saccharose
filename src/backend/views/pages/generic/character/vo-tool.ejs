@@ -44,7 +44,7 @@
   <template id="icon-chevron-up"><%- icon('chevron-up') %></template>
   <template id="icon-chevron-down"><%- icon('chevron-down') %></template>
   <template id="file-prop-config">
-    <%- include('partials/util/file-format-options', {paramName: 'image', cookieName: 'FileFormat.viewpoint.image', fileFormatParams: locals.fileFormatParams, fileFormatDefault: locals.fileFormatDefault_image}) %>
+    <%- use('partials/util/file-format-options', {paramName: 'image', cookieName: 'FileFormat.viewpoint.image', fileFormatParams: locals.fileFormatParams, fileFormatDefault: locals.fileFormatDefault_image}) %>
   </template>
   <div id="vo-app">
     <% if (!avatar) { %>

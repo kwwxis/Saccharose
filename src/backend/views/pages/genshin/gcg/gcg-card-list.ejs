@@ -32,26 +32,26 @@
     </fieldset>
   </div>
 </section>
-<%- include('partials/genshin/gcg/card-table-char', {
+<%- use('partials/genshin/gcg/card-table-char', {
   section_id: 'character_cards',
   section_name: 'Character Cards',
   cards: charCardsBySection.Obtainable
 }) %>
-<%- include('partials/genshin/gcg/card-table-char', {
+<%- use('partials/genshin/gcg/card-table-char', {
   section_id: 'character_cards_unobtainable',
   section_name: 'Character Cards &mdash; Unobtainable',
   cards: charCardsBySection.Unobtainable
 }) %>
 <% for (let [sectionName, actionCardsByObtainability] of Object.entries(actionCardsBySection)) { %>
   <% if (actionCardsByObtainability.Obtainable.length) { %>
-    <%- include('partials/genshin/gcg/card-table-action', {
+    <%- use('partials/genshin/gcg/card-table-action', {
       section_id: toParam(sectionName),
       section_name: escapeHtml(sectionName),
       cards: actionCardsByObtainability.Obtainable
     }) %>
   <% } %>
   <% if (actionCardsByObtainability.Unobtainable.length) { %>
-    <%- include('partials/genshin/gcg/card-table-action', {
+    <%- use('partials/genshin/gcg/card-table-action', {
       section_id: toParam(sectionName) + '_unobtainable',
       section_name: escapeHtml(sectionName) + ' &mdash; Unobtainable',
       cards: actionCardsByObtainability.Unobtainable

@@ -13,7 +13,7 @@
           <td class="w70p">
             <div class="valign">
               <code class="spacer10-right"><%= readable?.Material?.RankLevel %></code>
-              <%- include('partials/genshin/stars', { quality: readable?.Material?.RankLevel }) %>
+              <%- use('partials/genshin/stars', { quality: readable?.Material?.RankLevel }) %>
             </div>
           </td>
         </tr>
@@ -32,7 +32,7 @@
         <tr>
           <td class="bold">Desc.</td>
           <td class="w70p">
-            <%- include('partials/util/wikitext', {wikitext: normGenshinText(readable?.Material?.DescText), seamless: true}) %>
+            <%- use('partials/util/wikitext', {wikitext: normGenshinText(readable?.Material?.DescText), seamless: true}) %>
           </td>
         </tr>
         <% if (readable?.Material) { %>
@@ -58,7 +58,7 @@
           <td class="w70p">
             <div class="valign">
               <code class="spacer10-right"><%= readable?.Artifact?.RankLevel %></code>
-              <%- include('partials/genshin/stars', { quality: readable?.Artifact?.RankLevel }) %>
+              <%- use('partials/genshin/stars', { quality: readable?.Artifact?.RankLevel }) %>
             </div>
           </td>
         </tr>
@@ -77,7 +77,7 @@
         <tr>
           <td class="bold">Desc.</td>
           <td class="w70p">
-            <%- include('partials/util/wikitext', {wikitext: normGenshinText(readable?.Artifact?.DescText), seamless: true}) %>
+            <%- use('partials/util/wikitext', {wikitext: normGenshinText(readable?.Artifact?.DescText), seamless: true}) %>
           </td>
         </tr>
       </tbody>
@@ -99,7 +99,7 @@
           <td class="w70p">
             <div class="valign">
               <code class="spacer10-right"><%= readable?.Weapon?.RankLevel %></code>
-              <%- include('partials/genshin/stars', { quality: readable?.Weapon?.RankLevel }) %>
+              <%- use('partials/genshin/stars', { quality: readable?.Weapon?.RankLevel }) %>
             </div>
           </td>
         </tr>
@@ -118,7 +118,7 @@
         <tr>
           <td class="bold">Desc.</td>
           <td class="w70p">
-            <%- include('partials/util/wikitext', {wikitext: normGenshinText(readable?.Weapon?.DescText), seamless: true}) %>
+            <%- use('partials/util/wikitext', {wikitext: normGenshinText(readable?.Weapon?.DescText), seamless: true}) %>
           </td>
         </tr>
         <% if (readable?.Weapon) { %>
@@ -133,7 +133,7 @@
     </table>
   <% } %>
 </section>
-<div class="spacer20-bottom"><%- include('partials/genshin/archive/readable-texts', {readable: readable}) %></div>
+<div class="spacer20-bottom"><%- use('partials/genshin/archive/readable-texts', {readable: readable}) %></div>
 <% if (locals.ol) { %>
   <section class="card">
     <h2 class="valign">

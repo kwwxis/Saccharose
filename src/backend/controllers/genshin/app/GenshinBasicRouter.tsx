@@ -3,7 +3,6 @@ import { getGenshinControl } from '../../../domain/genshin/genshinControl';
 
 import { sendExcelViewerTableResponse } from '../../generic/app/abstractBasicRouter';
 import { Request, Response, Router } from 'express';
-import { renderToStaticNodeStream } from 'react-dom/server';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -35,12 +34,6 @@ export default async function(): Promise<Router> {
       title: 'Identifier usages',
       bodyClass: ['page--id-usages']
     });
-  });
-
-  router.get('/asi-test', async (req: Request, res: Response) => {
-    res.render('pages/generic/basic/asi-test', {
-      title: 'ASI Test',
-    })
   });
 
   router.get('/excel-viewer', async (req: Request, res: Response) => {

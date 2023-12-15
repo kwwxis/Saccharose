@@ -13,11 +13,10 @@ import { camelCaseToTitleCase, escapeHtml } from '../../../../shared/util/string
 import { ColGroupDef } from 'ag-grid-community/dist/lib/entities/colDef';
 import { sort } from '../../../../shared/util/arrayUtil';
 import { startListeners } from '../../../util/eventLoader';
-import { downloadObjectAsJson, getTextWidth } from '../../../util/domutil';
+import { DOMClassWatcher, downloadObjectAsJson, getTextWidth } from '../../../util/domutil';
 import { ICellRendererParams } from 'ag-grid-community/dist/lib/rendering/cellRenderers/iCellRenderer';
 import { highlightJson, highlightWikitext } from '../../../util/ace/wikitextEditor';
 import { isNotEmpty, isUnset } from '../../../../shared/util/genericUtil';
-import { DOMClassWatcher } from '../../../util/domClassWatcher';
 import { booleanFilter } from './excel-custom-filters';
 
 function initializeThemeWatcher(gridEl: HTMLElement, topEl: HTMLElement) {

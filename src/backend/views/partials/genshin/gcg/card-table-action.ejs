@@ -27,7 +27,7 @@
         </td>
         <td>
           <% for (let tag of card.MappedTagList.filter(x => !!x.Type)) { %>
-            <%- include('partials/genshin/gcg/tag', { tag, GCG_TAGS_WITHOUT_ICONS }) %>
+            <%- use('partials/genshin/gcg/tag', { tag, GCG_TAGS_WITHOUT_ICONS }) %>
           <% } %>
         </td>
         <td class="textAlignCenter">

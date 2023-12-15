@@ -7,7 +7,8 @@ export default async function(): Promise<Router> {
   const router: Router = create();
 
   router.get('/react-test', async (req: Request, res: Response) => {
-    res.render(<Page content="hello world!" />);
+    let myContent ='Hello World!';
+    res.render(<Page content="hello world!" content2={myContent} />);
   });
 
   return router;

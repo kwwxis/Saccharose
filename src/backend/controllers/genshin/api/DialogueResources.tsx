@@ -20,7 +20,7 @@ const router: Router = create();
 
 router.endpoint('/quests/findMainQuest', {
   get: async (req: Request, res: Response) => {
-    let questNameOrId: string|number = <string|number> (req.query.name || req.query.id);
+    let questNameOrId: string|number = (req.query.name || req.query.id) as string|number;
 
     if (!isset(questNameOrId)) {
       throw HttpError.badRequest('InvalidParameter', 'The "name" or "id" query parameter must be given');
@@ -102,13 +102,13 @@ async function questStillsHelper(ctrl: GenshinControl) {
 router.endpoint('/dialogue/single-branch-generate', {
   get: async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
-    const query = (<string> req.query.text)?.trim();
+    const query = (req.query.text as string)?.trim();
 
     if (query.toLowerCase() === 'paimon') {
       throw HttpError.badRequest('UnsupportedOperation', 'Unfortunately, you cannot search for just "Paimon" as the operation would be too intensive.');
     }
 
-    let result: DialogueSectionResult[] = await dialogueGenerate(ctrl, query, <string> req.query.npcFilter);
+    let result: DialogueSectionResult[] = await dialogueGenerate(ctrl, query, req.query.npcFilter as string);
 
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
       return res.render('partials/genshin/dialogue/single-branch-dialogue-generate-result', {
@@ -126,7 +126,7 @@ router.endpoint('/dialogue/single-branch-generate', {
 router.endpoint('/dialogue/npc-dialogue-generate', {
   get: async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
-    const query = (<string> req.query.name)?.trim();
+    const query = (req.query.name as string)?.trim();
 
     switch (query.toLowerCase()) {
       case 'paimon':
@@ -158,7 +158,7 @@ router.endpoint('/dialogue/reminder-dialogue-generate', {
       subsequentAmount = toInt(req.query.subsequentAmount);
     }
 
-    const query = (<string> req.query.text)?.trim();
+    const query = (req.query.text as string)?.trim();
     let result: DialogueSectionResult[] = await reminderGenerate(ctrl, query, subsequentAmount);
 
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
@@ -178,7 +178,7 @@ router.endpoint('/dialogue/reminder-dialogue-generate', {
 router.endpoint('/dialogue/vo-to-dialogue', {
   get: async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
-    const inputs: string[] = (<string> req.query.text).trim().split(/\n/g).map(s => s.trim()).filter(s => !!s);
+    const inputs: string[] = (req.query.text as string).trim().split(/\n/g).map(s => s.trim()).filter(s => !!s);
     const results: {id: number, voFile: string, type: string, text: string, warn?: string, file: string}[] = [];
 
     for (let input of inputs) {

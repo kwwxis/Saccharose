@@ -6,7 +6,7 @@ import {
   hashFlash,
   setQueryStringParameter, tag,
 } from './util/domutil';
-import { humanTiming, throttle, timeConvert, toBoolean } from '../shared/util/genericUtil';
+import { humanTiming, timeConvert } from '../shared/util/genericUtil';
 import { modalService } from './util/modalService';
 import { enableTippy, flashTippy, getTippyOpts, hideTippy, showTippy } from './util/tooltips';
 import { Listener, runWhenDOMContentLoaded, startListeners } from './util/eventLoader';

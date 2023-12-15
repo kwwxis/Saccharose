@@ -173,7 +173,7 @@
   <h2>Dialogue</h2>
   <div class="dialogue-container">
     <% dialogue.forEach(section => { %>
-      <%- include('partials/genshin/dialogue/dialogue-section', section) %>
+      <%- use('partials/genshin/dialogue/dialogue-section', section) %>
     <% }) %>
   </div>
 </section>

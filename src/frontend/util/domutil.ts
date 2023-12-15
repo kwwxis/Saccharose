@@ -3,6 +3,9 @@
 import { saveAs } from 'file-saver';
 import { isset } from '../../shared/util/genericUtil';
 
+/**
+ * Returns the tag name of an element in all-lowercase.
+ */
 export function tag(el: Element): string {
   return el ? el.tagName.toLowerCase() : null;
 }
@@ -119,6 +122,9 @@ export function getElementPercentageInViewport(element: Element, viewportTopOffs
     return ((e - s) / boundingRect.height) * 100;
 }
 
+/**
+ * Scroll to a particular element.
+ */
 export function scrollToElement(scrollEl: Element) {
     if (!scrollEl || isElementPartiallyInViewport(scrollEl))
         return;
@@ -170,6 +176,9 @@ export function deselectText() {
     }
 }
 
+/**
+ * Checks if there is any selection anywhere in the page.
+ */
 export function hasSelection(): boolean {
   const sel = window.getSelection();
   return sel.rangeCount > 0 && !!sel.getRangeAt(0).toString();
@@ -528,7 +537,7 @@ export function frag1<T extends Element = HTMLElement>(html: string|Node|NodeLis
  *
  * @see https://stackoverflow.com/questions/118241/calculate-text-width-with-javascript/21015393#21015393
  */
-export function getTextWidth(text, font) {
+export function getTextWidth(text: string, font: string): number {
   // re-use canvas object for better performance
   const canvas: HTMLCanvasElement = (<any> getTextWidth).canvas || ((<any> getTextWidth).canvas = document.createElement("canvas"));
   const context = canvas.getContext("2d");
@@ -537,7 +546,7 @@ export function getTextWidth(text, font) {
   return metrics.width;
 }
 
-function getCssStyle(element, prop) {
+function getCssStyle(element: Element, prop: string): string {
   return window.getComputedStyle(element, null).getPropertyValue(prop);
 }
 
@@ -605,6 +614,59 @@ export function getElementOffset(el: HTMLElement): DOMRect {
     ... obj,
     toJSON(): any {
       return obj;
+    }
+  };
+}
+
+export class DOMClassWatcher {
+  private readonly targetNode: HTMLElement;
+  private readonly classToWatch: string;
+  private readonly classAddedCallback: () => void;
+  private readonly classRemovedCallback: () => void;
+  private observer: MutationObserver;
+  private lastClassState: boolean;
+
+  constructor(targetNode: HTMLElement | string, classToWatch: string, classAddedCallback: () => void, classRemovedCallback: () => void) {
+    if (typeof targetNode === 'string') {
+      this.targetNode = document.querySelector<HTMLElement>(targetNode);
+    } else {
+      this.targetNode = targetNode;
+    }
+    this.classToWatch = classToWatch;
+    this.classAddedCallback = classAddedCallback;
+    this.classRemovedCallback = classRemovedCallback;
+    this.observer = null;
+    this.lastClassState = this.targetNode.classList.contains(this.classToWatch);
+
+    this.init();
+  }
+
+  init() {
+    this.observer = new MutationObserver(this.mutationCallback);
+    this.observe();
+  }
+
+  observe() {
+    this.observer.observe(this.targetNode, { attributes: true });
+  }
+
+  disconnect() {
+    this.observer.disconnect();
+  }
+
+  mutationCallback = mutationsList => {
+    for (let mutation of mutationsList) {
+      if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+        let currentClassState = mutation.target.classList.contains(this.classToWatch);
+        if (this.lastClassState !== currentClassState) {
+          this.lastClassState = currentClassState;
+          if (currentClassState) {
+            this.classAddedCallback();
+          } else {
+            this.classRemovedCallback();
+          }
+        }
+      }
     }
   };
 }

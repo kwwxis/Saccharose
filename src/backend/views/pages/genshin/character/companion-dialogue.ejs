@@ -24,7 +24,7 @@
     <div class="content">
       <div class="dialogue-container">
         <% dialogue.forEach(section => { %>
-          <%- include('partials/genshin/dialogue/dialogue-section', section) %>
+          <%- use('partials/genshin/dialogue/dialogue-section', section) %>
         <% }) %>
       </div>
     </div>

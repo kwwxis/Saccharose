@@ -38,20 +38,24 @@ export function openKnex(): SaccharoseDb {
     return singleton;
   }
   singleton = {
-    genshin: createKnexConnection(path.resolve(process.env.GENSHIN_DATA_ROOT, DATAFILE_GENSHIN_SQLITE_DB)),
-    hsr: createKnexConnection(path.resolve(process.env.HSR_DATA_ROOT, DATAFILE_HSR_SQLITE_DB)),
-    zenless: createKnexConnection(path.resolve(process.env.ZENLESS_DATA_ROOT, DATAFILE_ZENLESS_SQLITE_DB)),
+    genshin:  createKnexConnection(path.resolve(process.env.GENSHIN_DATA_ROOT,  DATAFILE_GENSHIN_SQLITE_DB)),
+    hsr:      createKnexConnection(path.resolve(process.env.HSR_DATA_ROOT,      DATAFILE_HSR_SQLITE_DB)),
+    zenless:  createKnexConnection(path.resolve(process.env.ZENLESS_DATA_ROOT,  DATAFILE_ZENLESS_SQLITE_DB)),
   };
   return singleton;
 }
 
 export async function closeKnex(): Promise<boolean> {
   if (singleton) {
-    let destroyPromises = Object.values(singleton).filter(knex => !!knex).map(knex => knex.destroy());
-    return Promise.all(destroyPromises).then(() => {
-      singleton = null;
-      return true;
-    });
+    const destroyPromises: Promise<void>[] = Object.values(singleton)
+      .filter(knex => !!knex)
+      .map(knex => knex.destroy());
+    if (destroyPromises.length) {
+      return Promise.all(destroyPromises).then(() => {
+        singleton = null;
+        return true;
+      });
+    }
   }
   return Promise.resolve(false);
 }

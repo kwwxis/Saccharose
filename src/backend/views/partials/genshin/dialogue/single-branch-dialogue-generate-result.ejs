@@ -3,7 +3,7 @@
   <section class="card">
     <h2>Match ID: <strong><%= section.id %></strong></h2>
     <div class="content">
-      <%- include('partials/genshin/dialogue/dialogue-section', section) %>
+      <%- use('partials/genshin/dialogue/dialogue-section', section) %>
     </div>
   </section>
 <% }) %>

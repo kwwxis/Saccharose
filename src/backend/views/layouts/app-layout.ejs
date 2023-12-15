@@ -12,15 +12,15 @@
   <% } %>
   <div class="alignStart">
     <main id="app-main">
-      <%- include(subviewName, subviewStack) %>
+      <%- use(subviewName, subviewStack) %>
     </main>
     <aside id="app-sidebar" class="right">
       <% if (req.context.siteMode === 'genshin') { %>
-        <%- include('partials/genshin/genshin-menu') %>
+        <%- use('partials/genshin/genshin-menu') %>
       <% } else if (req.context.siteMode === 'hsr') { %>
-        <%- include('partials/hsr/hsr-menu') %>
+        <%- use('partials/hsr/hsr-menu') %>
       <% } else if (req.context.siteMode === 'zenless') { %>
-        <%- include('partials/zenless/zenless-menu') %>
+        <%- use('partials/zenless/zenless-menu') %>
       <% } %>
     </aside>
   </div>

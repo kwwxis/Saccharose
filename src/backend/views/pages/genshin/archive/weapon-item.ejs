@@ -15,14 +15,14 @@
         </tr>
         <tr>
           <td class="bold" colspan="2">Description</td>
-          <td><%- include('partials/util/wikitext', {wikitext: normGenshinText(weapon.DescText), seamless: true}) %></td>
+          <td><%- use('partials/util/wikitext', {wikitext: normGenshinText(weapon.DescText), seamless: true}) %></td>
         </tr>
         <tr>
           <td class="bold" colspan="2">Quality</td>
           <td>
             <div class="valign">
               <code class="spacer10-right"><%= weapon.RankLevel %></code>
-              <%- include('partials/genshin/stars', { quality: weapon.RankLevel }) %>
+              <%- use('partials/genshin/stars', { quality: weapon.RankLevel }) %>
             </div>
           </td>
         </tr>
@@ -72,11 +72,11 @@
       <% for (let relation of weapon.Relations.Forge) { %>
         <div class="content alignStart">
           <% for (let inputItem of relation.RelationData.MaterialItems) { %>
-            <%- include('partials/genshin/archive/item', { material: inputItem.Material, itemCount: inputItem.Count }) %>
+            <%- use('partials/genshin/archive/item', { material: inputItem.Material, itemCount: inputItem.Count }) %>
           <% } %>
           <div class="material-sep"><%- icon('chevron-right', 28); %></div>
           <% if (relation.RelationData.ResultItem) { %>
-            <%- include('partials/genshin/archive/item', { material: relation.RelationData.ResultItem, itemCount: relation.RelationData.ResultItemCount }) %>
+            <%- use('partials/genshin/archive/item', { material: relation.RelationData.ResultItem, itemCount: relation.RelationData.ResultItemCount }) %>
           <% } %>
         </div>
         <hr>
@@ -93,7 +93,7 @@
         </a>
       </h2>
     </section>
-    <%- include('partials/genshin/archive/readable-texts', {readable: weapon.Story}) %>
+    <%- use('partials/genshin/archive/readable-texts', {readable: weapon.Story}) %>
   <% } %>
   <% if (locals.ol) { %>
     <section class="card">

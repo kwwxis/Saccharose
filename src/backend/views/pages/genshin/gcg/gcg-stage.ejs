@@ -102,7 +102,7 @@
               <tr>
                 <td class="no-border">&nbsp;</td>
                 <td class="bold">Description</td>
-                <td class="w70p"><%- include('partials/util/wikitext', { wikitext: normGenshinText(stage.LevelLock.UnlockDescText), seamless: true }) %></td>
+                <td class="w70p"><%- use('partials/util/wikitext', { wikitext: normGenshinText(stage.LevelLock.UnlockDescText), seamless: true }) %></td>
               </tr>
             <% } %>
             <% if (stage.LevelLock.UnlockMainQuestId) { %>
@@ -132,7 +132,7 @@
                   <td class="w70p">
                     <div class="spacer10-all">
                       <% for (let reward of stage.Reward.ChallengeRewardList[index].Reward.RewardItemList) { %>
-                        <%- include('partials/genshin/archive/item', { material: reward.Material, itemCount: reward.ItemCount }) %>
+                        <%- use('partials/genshin/archive/item', { material: reward.Material, itemCount: reward.ItemCount }) %>
                       <% } %>
                     </div>
                   </td>
@@ -207,7 +207,7 @@
               <td class="bold">Active</td>
               <td class="w70p">
                 <% for (let characterCard of stage.CardGroup.MappedCharacterList) { %>
-                  <%- include('partials/genshin/gcg/card', { card: characterCard }) %>
+                  <%- use('partials/genshin/gcg/card', { card: characterCard }) %>
                 <% } %>
               </td>
             </tr>
@@ -216,7 +216,7 @@
               <td class="bold">Action</td>
               <td class="w70p">
                 <% for (let actionCard of stage.CardGroup.MappedCardList) { %>
-                  <%- include('partials/genshin/gcg/card', { card: actionCard }) %>
+                  <%- use('partials/genshin/gcg/card', { card: actionCard }) %>
                 <% } %>
               </td>
             </tr>
@@ -225,7 +225,7 @@
               <td class="bold">Reserve</td>
               <td class="w70p">
                 <% for (let characterCard of stage.CardGroup.MappedWaitingCharacterList) { %>
-                  <%- include('partials/genshin/gcg/card', { card: characterCard }) %>
+                  <%- use('partials/genshin/gcg/card', { card: characterCard }) %>
                 <% } %>
               </td>
             </tr>
@@ -255,7 +255,7 @@
                 <% } else { %>
                   <%- use('partials/util/wikitext', { wikitext: stage.EnemyCardGroup.WikiActiveText, seamless: true }) %>
                   <% for (let characterCard of stage.EnemyCardGroup.MappedCharacterList) { %>
-                    <%- include('partials/genshin/gcg/card', { card: characterCard }) %>
+                    <%- use('partials/genshin/gcg/card', { card: characterCard }) %>
                   <% } %>
                 <% } %>
               </td>
@@ -269,7 +269,7 @@
                 <% } else { %>
                   <%- use('partials/util/wikitext', { wikitext: stage.EnemyCardGroup.WikiActionText, seamless: true }) %>
                   <% for (let actionCard of stage.EnemyCardGroup.MappedCardList) { %>
-                    <%- include('partials/genshin/gcg/card', { card: actionCard }) %>
+                    <%- use('partials/genshin/gcg/card', { card: actionCard }) %>
                   <% } %>
                 <% } %>
               </td>
@@ -283,7 +283,7 @@
                 <% } else { %>
                   <%- use('partials/util/wikitext', { wikitext: stage.EnemyCardGroup.WikiReserveText, seamless: true }) %>
                   <% for (let characterCard of stage.EnemyCardGroup.MappedWaitingCharacterList) { %>
-                    <%- include('partials/genshin/gcg/card', { card: characterCard }) %>
+                    <%- use('partials/genshin/gcg/card', { card: characterCard }) %>
                   <% } %>
                 <% } %>
               </td>

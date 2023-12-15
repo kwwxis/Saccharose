@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="LanguageInjectionConfiguration">
+    <injection language="HTML" injector-id="js">
+      <display-name>CSS function for React inline style</display-name>
+      <prefix>&lt;div style=&quot;</prefix>
+      <suffix>&quot;&gt;&lt;/div&gt;</suffix>
+      <single-file value="false" />
+      <place><![CDATA[jsLiteralExpression(jsArgument(jsReferenceExpression().withQualifiedName("styles"), 0))]]></place>
+    </injection>
+  </component>
+</project>

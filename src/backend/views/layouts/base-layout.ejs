@@ -41,7 +41,7 @@
         <a id="site-title" href="<%= req.context.siteHome || '/' %>" aria-label="Site title">
           <div id="site-logo-bg"></div>
           <div id="site-logo-fg">
-            <img src="/images/site/logo/Sucrose.png" style="width:45px;height:auto" />
+            <img src="/images/site/logo/Sucrose.webp" style="width:45px;height:auto" />
           </div>
           <span style="line-height:21px"><%= req.context.siteTitle %></span>
         </a>
@@ -67,7 +67,7 @@
         </div>
       </div>
     </header>
-    <div class="content"><%- include(subviewName, subviewStack) %></div>
+    <div class="content"><%- use(subviewName, subviewStack) %></div>
     <div id="mobile-menu" class="hide thin-border">
       <%- use('partials/layout/app-mode-selector', {dropdownId: 'site-mode-dropdown-mobile', noBorderLight: true, dropdownExtraClass: 'secondary-label no-active-style'}) %>
       <%- use('partials/layout/app-menu-buttons') %>

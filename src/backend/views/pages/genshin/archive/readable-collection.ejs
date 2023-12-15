@@ -57,7 +57,7 @@
       <% } %>
     </div>
     <div class="content">
-      <%- include('partials/genshin/archive/readable-texts', {readable: book, itemIdPrefix: idx}) %>
+      <%- use('partials/genshin/archive/readable-texts', {readable: book, itemIdPrefix: idx}) %>
     </div>
   </section>
 <% }) %>

@@ -18,8 +18,8 @@
     <div class="content">
       <p>Reload page after changing options to see effect.</p>
       <div class="alignStart spacer15-top flexWrap">
-        <%- include('partials/util/file-format-options', {paramName: 'image', cookieName: 'FileFormat.viewpoint.image', fileFormatParams: locals.fileFormatParams, fileFormatDefault: locals.fileFormatDefault_image}) %>
-        <%- include('partials/util/file-format-options', {paramName: 'map', cookieName: 'FileFormat.viewpoint.map', fileFormatParams: locals.fileFormatParams, fileFormatDefault: locals.fileFormatDefault_map}) %>
+        <%- use('partials/util/file-format-options', {paramName: 'image', cookieName: 'FileFormat.viewpoint.image', fileFormatParams: locals.fileFormatParams, fileFormatDefault: locals.fileFormatDefault_image}) %>
+        <%- use('partials/util/file-format-options', {paramName: 'map', cookieName: 'FileFormat.viewpoint.map', fileFormatParams: locals.fileFormatParams, fileFormatDefault: locals.fileFormatDefault_map}) %>
       </div>
     </div>
   </section>

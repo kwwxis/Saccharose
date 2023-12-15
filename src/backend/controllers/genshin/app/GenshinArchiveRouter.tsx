@@ -28,6 +28,8 @@ import { toInt } from '../../../../shared/util/numberUtil';
 import { SbOut, sentenceJoin } from '../../../../shared/util/stringUtil';
 import { Request, Response, Router } from 'express';
 import { toBoolean } from '../../../../shared/util/genericUtil';
+import AchievementPage from '../../../components/genshin/achievements/AchievementPage';
+import React from 'react';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -257,13 +259,18 @@ export default async function(): Promise<Router> {
       sb.line();
     }
 
-    res.render('pages/genshin/archive/achievement-page', {
+    res.render(<AchievementPage achievement={achievement} wikitext={sb.toString()} ctrl={ctrl} />, {
       title: 'Achievement: ' + (achievement?.TitleText || 'Not Found'),
-      bodyClass: ['page--achievements', 'page--achievements-single'],
-      achievement,
-      wikitext: sb.toString(),
-      id: req.params.id,
+      bodyClass: ['page--achievements', 'page--achievements-single', 'page--react'],
     });
+
+    // res.render('pages/genshin/archive/achievement-page', {
+    //   title: 'Achievement: ' + (achievement?.TitleText || 'Not Found'),
+    //   bodyClass: ['page--achievements', 'page--achievements-single'],
+    //   achievement,
+    //   wikitext: sb.toString(),
+    //   id: req.params.id,
+    // });
   });
 
   router.get('/achievements/:category?', async (req: Request, res: Response) => {

@@ -41,7 +41,7 @@
           <td colspan="2">
             <div class="valign">
               <code class="spacer10-right"><%= material.RankLevel || 0 %></code>
-              <%- include('partials/genshin/stars', { quality: material.RankLevel || 0 }) %>
+              <%- use('partials/genshin/stars', { quality: material.RankLevel || 0 }) %>
             </div>
           </td>
         </tr>
@@ -105,11 +105,11 @@
       <% for (let relation of material.Relations.Combine) { %>
         <div class="content alignStart">
           <% for (let inputItem of relation.RelationData.MaterialItems) { %>
-            <%- include('partials/genshin/archive/item', { material: inputItem.Material, itemCount: inputItem.Count }) %>
+            <%- use('partials/genshin/archive/item', { material: inputItem.Material, itemCount: inputItem.Count }) %>
           <% } %>
           <div class="material-sep"><%- icon('chevron-right', 28); %></div>
           <% if (relation.RelationData.ResultItem) { %>
-            <%- include('partials/genshin/archive/item', { material: relation.RelationData.ResultItem, itemCount: relation.RelationData.ResultItemCount }) %>
+            <%- use('partials/genshin/archive/item', { material: relation.RelationData.ResultItem, itemCount: relation.RelationData.ResultItemCount }) %>
           <% }%>
         </div>
         <hr>
@@ -122,11 +122,11 @@
       <% for (let relation of material.Relations.Compound) { %>
         <div class="content alignStart">
           <% for (let inputItem of relation.RelationData.InputVec) { %>
-            <%- include('partials/genshin/archive/item', { material: inputItem.Material, itemCount: inputItem.Count }) %>
+            <%- use('partials/genshin/archive/item', { material: inputItem.Material, itemCount: inputItem.Count }) %>
           <% } %>
           <div class="material-sep"><%- icon('chevron-right', 28); %></div>
           <% for (let inputItem of relation.RelationData.OutputVec) { %>
-            <%- include('partials/genshin/archive/item', { material: inputItem.Material, itemCount: inputItem.Count }) %>
+            <%- use('partials/genshin/archive/item', { material: inputItem.Material, itemCount: inputItem.Count }) %>
           <% } %>
         </div>
         <hr>
@@ -139,11 +139,11 @@
       <% for (let relation of material.Relations.CookRecipe) { %>
         <div class="content alignStart">
           <% for (let inputItem of relation.RelationData.InputVec) { %>
-            <%- include('partials/genshin/archive/item', { material: inputItem.Material, itemCount: inputItem.Count }) %>
+            <%- use('partials/genshin/archive/item', { material: inputItem.Material, itemCount: inputItem.Count }) %>
           <% } %>
           <div class="material-sep"><%- icon('chevron-right', 28); %></div>
           <% for (let inputItem of relation.RelationData.QualityOutputVec) { %>
-            <%- include('partials/genshin/archive/item', { material: inputItem.Material, itemCount: inputItem.Count }) %>
+            <%- use('partials/genshin/archive/item', { material: inputItem.Material, itemCount: inputItem.Count }) %>
           <% } %>
         </div>
         <hr>
@@ -156,11 +156,11 @@
       <% for (let relation of material.Relations.Forge) { %>
         <div class="content alignStart">
           <% for (let inputItem of relation.RelationData.MaterialItems) { %>
-            <%- include('partials/genshin/archive/item', { material: inputItem.Material, itemCount: inputItem.Count }) %>
+            <%- use('partials/genshin/archive/item', { material: inputItem.Material, itemCount: inputItem.Count }) %>
           <% } %>
           <div class="material-sep"><%- icon('chevron-right', 28); %></div>
           <% if (relation.RelationData.ResultItem) { %>
-            <%- include('partials/genshin/archive/item', { material: relation.RelationData.ResultItem, itemCount: relation.RelationData.ResultItemCount }) %>
+            <%- use('partials/genshin/archive/item', { material: relation.RelationData.ResultItem, itemCount: relation.RelationData.ResultItemCount }) %>
           <% } %>
         </div>
         <hr>

@@ -72,7 +72,7 @@ export function __normStarRailText(text: string, langCode: LangCode, opts: NormT
   if (!opts.decolor && !opts.plaintext) {
     text = text.replace(/<color=#\{0}>(.*?)<\/color>/g, `<b>$1</b>`);
     text = postProcessBoldItalic(text, opts);
-    text = text.replace(/<color=(#[0-9a-fA-F]{6})FF>(.*?)<\/color>/g, '{{color|$1|$2}}');
+    text = text.replace(/<color=(#[0-9a-fA-F]{6,8})>(.*?)<\/color>/g, '<span style="color:$1">$2</span>');
   }
 
   text = text.replace(/\{TEXTJOIN#(\d+)}/g, (fm: string, g: string) => {

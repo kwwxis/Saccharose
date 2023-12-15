@@ -1,9 +1,9 @@
-import { DOMClassWatcher } from '../domClassWatcher';
+
 import * as ace from 'brace';
 import { aceEditors, highlightWikitextReplace } from './wikitextEditor';
 import { runWhenDOMContentLoaded, startListeners } from '../eventLoader';
 import { SITE_MODE_WIKI_DOMAIN } from '../../siteMode';
-import { isElement, textNodesUnder } from '../domutil';
+import { DOMClassWatcher, isElement, textNodesUnder } from '../domutil';
 
 let createdDomClassWatcher = false;
 

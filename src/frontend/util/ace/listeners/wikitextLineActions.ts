@@ -34,7 +34,7 @@ export function applyWikitextLineActions(element: HTMLElement, commonLineIds: Co
       }
     });
 
-    cursorEl.querySelector('.show-info').addEventListener('click', async (event) => {
+    cursorEl.querySelector('.show-info').addEventListener('click', async (_event) => {
       if (!lastHoveredLine)
         return;
 
