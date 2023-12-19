@@ -6,7 +6,8 @@ export type WebpackBundles = {
   appCssBundle: string,
   appJsBundle: string,
   vendorCssBundle: string,
-  vendorJsBundle: string
+  vendorJsBundle: string,
+  vueCssBundle: string,
 };
 
 let cache: WebpackBundles = null;
@@ -23,6 +24,7 @@ export function getWebpackBundleFileNames(): WebpackBundles {
     appJsBundle: '',
     vendorCssBundle: '',
     vendorJsBundle: '',
+    vueCssBundle: '',
   };
 
   for (let file of files) {
@@ -37,6 +39,9 @@ export function getWebpackBundleFileNames(): WebpackBundles {
     }
     if (/^vendor(\..*)?.bundle\.css$/.test(file)) {
       result.vendorCssBundle = `/dist/${file}`;
+    }
+    if (/^vue(\..*)?.bundle\.css$/.test(file)) {
+      result.vueCssBundle = `/dist/${file}`;
     }
   }
   cache = result;

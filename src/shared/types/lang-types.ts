@@ -1,7 +1,14 @@
 import { LangDetectResult } from '../../backend/util/shellutil';
+import { Marker } from '../util/highlightMarker';
 
 export type TextMapHash = number|string;
 
+export type TextMapSearchResult = {
+  hash: TextMapHash,
+  text: string,
+  line: number,
+  markers?: Marker[]
+};
 
 export type PlainLineMapItem = {Line: number, Hash: TextMapHash, LineType?: string };
 
@@ -101,6 +108,7 @@ export interface LangSuggest {
 
 export const CLD2_TO_LANG_CODE = {
   zh: 'CHS',
+  'zh-Hant': 'CHT',
   de: 'DE',
   en: 'EN',
   es: 'ES',

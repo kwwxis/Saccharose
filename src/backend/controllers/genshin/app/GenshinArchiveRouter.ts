@@ -28,8 +28,7 @@ import { toInt } from '../../../../shared/util/numberUtil';
 import { SbOut, sentenceJoin } from '../../../../shared/util/stringUtil';
 import { Request, Response, Router } from 'express';
 import { toBoolean } from '../../../../shared/util/genericUtil';
-import AchievementPage from '../../../components/genshin/achievements/AchievementPage';
-import React from 'react';
+import AchievementPage from '../../../components/genshin/achievements/AchievementPage.vue';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -259,10 +258,15 @@ export default async function(): Promise<Router> {
       sb.line();
     }
 
-    res.render(<AchievementPage achievement={achievement} wikitext={sb.toString()} ctrl={ctrl} />, {
+    res.render(AchievementPage, {
+      achievement,
+      wikitext: sb.toString(),
       title: 'Achievement: ' + (achievement?.TitleText || 'Not Found'),
-      bodyClass: ['page--achievements', 'page--achievements-single', 'page--react'],
-    });
+      bodyClass: ['page--achievements', 'page--achievements-single', 'page--vue'],
+    })
+
+    // res.render(<AchievementPage achievement={achievement} wikitext={sb.toString()} ctrl={ctrl} />, {
+    // });
 
     // res.render('pages/genshin/archive/achievement-page', {
     //   title: 'Achievement: ' + (achievement?.TitleText || 'Not Found'),

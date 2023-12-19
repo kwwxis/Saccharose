@@ -15,7 +15,21 @@ import {
   RequestViewStack,
   RouterRestfulHandlers,
 } from './routingTypes';
-import { ReactElement } from 'react';
+import { isValidElement as isValidReactElement, ReactElement } from 'react';
+import { Component } from '@vue/runtime-core';
+import { App, createSSRApp } from 'vue';
+
+export function isReactElement<P>(object: any): object is ReactElement<P> {
+  return isValidReactElement<P>(object);
+}
+
+export function isVueComponent(object: any): object is Component {
+  return !!(<any> object).__name && (!!(<any> object).ssrRender || !!(<any> object).render);
+}
+
+export function isVueApp(object: any): object is App {
+  return !!(<any> object)._component && !!(<any> object)._context && !!(<any> object).version;
+}
 
 function resolveViewPath(view: string): string {
   view = removeSuffix(view, '.ejs');
@@ -68,7 +82,9 @@ async function updateReqContext(req: Request, res: Response, payload: Readonly<R
     if (locals && typeof locals === 'object')
       Object.assign(req.context.viewStackPointer, locals);
 
-    const viewName: string = typeof layout === 'string' && !layout.startsWith('<') ? layout : req.context.createStaticVirtualView(layout);
+    const viewName: string = typeof layout === 'string' && !layout.startsWith('<')
+      ? layout
+      : await req.context.createStaticVirtualView(layout);
 
     req.context.viewStackPointer.subviewName = viewName;
 
@@ -101,13 +117,13 @@ export function create(context?: Readonly<RequestContextUpdate>): Router {
     if (context)
       await updateReqContext(req, res, context);
 
-    res.render = async function(view: string|ReactElement,
+    res.render = async function(view: string|ReactElement|Component,
                                 locals?: RequestLocals,
                                 callback?: (err: Error, html: string) => void): Promise<string|Error> {
       try {
         await updateReqContext(req, res, {
           locals,
-          layouts: [view],
+          layouts: [isVueComponent(view) ? createSSRApp(view, locals) : view],
           title: locals && (<any> locals).title,
           bodyClass: locals && (<any> locals).bodyClass,
         });

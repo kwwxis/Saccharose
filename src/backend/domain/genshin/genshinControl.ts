@@ -227,14 +227,18 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       return;
     }
     let condArray = obj[prop] as ConfigCondition[];
-    let newCondArray = [];
+    let newCondArray: any[] = [];
     for (let cond of condArray) {
-      if (cond.Param) {
+      if (!cond || typeof cond !== 'object' || Object.keys(cond).length === 0) {
+        continue;
+      }
+      if (Array.isArray(cond.Param)) {
         cond.Param = cond.Param.filter(x => !!x);
         if (cond.Param.length) {
           newCondArray.push(cond);
         }
       } else {
+        console.log(cond);
         newCondArray.push(cond);
       }
     }

@@ -1,14 +1,14 @@
 {
   "restartable": "rs",
-  "ignore": [
-    ".git",
-    "node_modules/**",
-    "test/",
-    "src/frontend",
-    "public"
+  "watch": [
+    "src/backend",
+    "src/shared"
   ],
-  "execMap": {
-    "ts": "node --no-warnings=ExperimentalWarning --loader ts-node/esm"
-  },
-  "ext": "ts,tsx,js,json"
+  "ignore": [
+    "*.vue.ts",
+    "*.vue.script.ts",
+    "*.vue.template.ts"
+  ],
+  "exec": "node --no-warnings=ExperimentalWarning --loader ts-node/esm ./src/pipeline/vue-sfc-compile.ts --compile && etsc --config=etsc.config.cjs && node --no-warnings=ExperimentalWarning --loader ts-node/esm ./src/pipeline/vue-sfc-compile.ts --clean && node ./dist/backend/server.js",
+  "ext": "ts,tsx,js,json,vue"
 }

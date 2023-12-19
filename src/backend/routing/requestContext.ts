@@ -10,8 +10,11 @@ import {
   RequestLocals,
   RequestViewStack,
 } from './routingTypes';
-import { ReactElement } from 'react';
-import { renderToString } from 'react-dom/server';
+import { isValidElement as isValidReactElement, ReactElement } from 'react';
+import { renderToString as renderReactToString } from 'react-dom/server';
+import { renderToString as renderVueToString } from 'vue/server-renderer';
+import { App } from 'vue';
+import { isVueApp } from './router';
 
 export type RequestSiteMode = 'genshin' | 'hsr' | 'zenless';
 
@@ -20,7 +23,7 @@ export type RequestSiteMode = 'genshin' | 'hsr' | 'zenless';
  */
 export type RequestContextUpdate = {
   title?: string | ((req: Request) => Promise<string>);
-  layouts?: (string|ReactElement)[];
+  layouts?: (string|ReactElement|App)[];
   bodyClass?: string[];
   locals?: RequestLocals;
 };
@@ -69,11 +72,20 @@ export class RequestContext {
     this.htmlMetaProps['x-site-mode-wiki-domain'] = this.siteModeWikiDomain;
   }
 
-  createStaticVirtualView(html: string|ReactElement): string {
+  async createStaticVirtualView(html: string|ReactElement|App): Promise<string> {
     const viewName = 'virtual-static-views/' + this.virtualStaticViewCounter++;
+
     if (typeof html !== 'string') {
-      html = renderToString(html);
+      if (isValidReactElement(html)) {
+        html = renderReactToString(html);
+      } else if (isVueApp(html)) {
+        html = await renderVueToString(html);
+      } else {
+        console.error('createStaticVirtualView: illegal argument', html);
+        throw 'createStaticVirtualView: illegal argument';
+      }
     }
+
     this.virtualStaticViews[viewName] = html;
     return viewName;
   }

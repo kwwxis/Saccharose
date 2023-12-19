@@ -10,6 +10,10 @@ if len(sys.argv) > 2:
     print("Too many arguments")
     sys.exit(1)
 
+if sys.argv[1] == '--list':
+    print(json.dumps(cld2.LANGUAGES))
+    sys.exit(0)
+
 isReliable, textBytesFound, details = cld2.detect(sys.argv[1])
 
 print(json.dumps({

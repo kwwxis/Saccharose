@@ -6,7 +6,7 @@ import CharacterRouter from './GenshinCharacterRouter';
 import TcgRouter from './TcgRouter';
 import MediaRouter from './GenshinMediaRouter';
 import { Router } from 'express';
-import GenshinReactRouter from './GenshinReactRouter';
+import TestRouter from './TestRouter';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -17,7 +17,7 @@ export default async function(): Promise<Router> {
   router.use('/', await CharacterRouter());
   router.use('/', await TcgRouter());
   router.use('/', await MediaRouter());
-  router.use('/', await GenshinReactRouter());
+  router.use('/', await TestRouter());
 
   return router;
 }

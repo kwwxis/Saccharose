@@ -1,6 +1,5 @@
 import { create } from '../../../routing/router';
 import multer from 'multer';
-import { HttpError } from '../../../../shared/util/httpError';
 import bodyParser from 'body-parser';
 import { mediaSearch } from '../../../util/shellutil';
 import { isInt } from '../../../../shared/util/numberUtil';

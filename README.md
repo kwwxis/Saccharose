@@ -19,7 +19,12 @@
 
 1. Clone the repo from GitHub (`git clone git@github.com:kwwxis/Saccharose.git`)
 2. Run `npm install` in the repo
-3. Copy `.env.example` to new file `.env` and configure it according to the comments and this readme.
+3. If on Windows, run this command to configure Bash as the script shell:
+
+   - 32bit: `npm config set script-shell "C:\\Program Files (x86)\\git\\bin\\bash.exe" `
+   - 64bit: `npm config set script-shell "C:\\Program Files\\git\\bin\\bash.exe"`
+
+4. Copy `.env.example` to new file `.env` and configure it according to the comments and this readme.
 
 ### shell setup
        

@@ -1,31 +1,4 @@
-/**
- *
- * @param {import('esbuild').OnResolveArgs} args
- * @param {import('esbuild').PluginBuild} build
- * @returns {import('esbuild').OnResolveResult|undefined}
- */
-function handleResolve(args, build) {
-  if (args.kind !== 'import-statement' && args.kind !== 'dynamic-import') {
-    return;
-  }
-  if (args.importer && args.path.startsWith('.')) {
-    const pathAlreadyHasExt = args.path.endsWith('.js');
-
-    if (!pathAlreadyHasExt) {
-      return {
-        path: `${args.path}.js`,
-        external: true,
-        namespace: undefined
-      };
-    }
-  }
-
-  return {
-    path: args.path,
-    external: true,
-    namespace: undefined,
-  };
-}
+const JsExtPlugin = require('./etsc-jsext.cjs');
 
 /** @type {import('esbuild-node-tsc/dist/config').Config} */
 module.exports = {
@@ -35,15 +8,9 @@ module.exports = {
     format: 'esm',
     treeShaking: true,
     platform: 'node',
+    packages: 'external',
     plugins: [
-      {
-        name: 'esbuild-jsext',
-        setup(build) {
-          const filter = /.*/;
-          const namespace = undefined;
-          build.onResolve({ filter, namespace }, (args) => handleResolve(args, build));
-        }
-      }
+      JsExtPlugin({ method: 'resolve' })
     ]
   },
 

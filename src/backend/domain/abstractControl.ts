@@ -8,7 +8,7 @@ import {
   LangCode,
   LangCodeMap, LangSuggest,
   NON_SPACE_DELIMITED_LANG_CODES, PlainLineMapItem,
-  TextMapHash,
+  TextMapHash, TextMapSearchResult,
 } from '../../shared/types/lang-types';
 import {
   normalizeRawJson,
@@ -113,14 +113,26 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     const result = langDetect(query);
     const code = CLD2_TO_LANG_CODE[result?.details?.[0]?.langCode?.toLowerCase()] ||
       result?.details?.[0]?.langCode?.toUpperCase();
-    if (code === 'UN') {
+
+    if (code === 'UN') { // UN is undefined/non-determinable
       return null;
     }
+
+    let langName = result?.details?.[0]?.langName?.toLowerCase();
+
+    if (langName === 'ChineseT'.toLowerCase()) {
+      langName = 'Chinese (Traditional)';
+    } else if (langName === 'Chinese'.toLowerCase()) {
+      langName = 'Chinese (Simplified)';
+    } else {
+      langName = titleCase(langName);
+    }
+
     return {
       matchesInputLangCode: code === this.inputLangCode,
       detected: {
         langCode: code,
-        langName: titleCase(result?.details?.[0]?.langName?.toLowerCase()),
+        langName: langName,
         confidence: result?.details?.[0]?.confidence,
       },
       result
@@ -261,13 +273,13 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     return fs.stat(this.getDataFilePath(filePath)).then(ret => ret.size);
   }
 
-  async getTextMapMatches(langCode: LangCode, searchText: string, flags?: string, startFromLine?: number, isRawInput?: boolean): Promise<{hash: TextMapHash, text: string, line: number, markers?: Marker[]}[]> {
+  async getTextMapMatches(langCode: LangCode, searchText: string, flags?: string, startFromLine?: number, isRawInput?: boolean): Promise<TextMapSearchResult[]> {
     if (isStringBlank(searchText)) {
       return [];
     }
 
     const hashSeen: Set<TextMapHash> = new Set();
-    const out: {hash: TextMapHash, text: string, line: number}[] = [];
+    const out: TextMapSearchResult[] = [];
 
     {
       const hash: TextMapHash = maybeInt(searchText.trim());

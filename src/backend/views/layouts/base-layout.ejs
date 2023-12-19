@@ -33,6 +33,7 @@
     <% } %>
     <link rel="stylesheet" href="<%= req.context.webpackBundles.vendorCssBundle %>">
     <link rel="stylesheet" href="<%= req.context.webpackBundles.appCssBundle %>">
+    <link rel="stylesheet" href="<%= req.context.webpackBundles.vueCssBundle %>">
   </head>
   <body class="<%= req.context.bodyClassString %> <%= cookieTernary('nightmode').isTruthy().then('nightmode') %> <%= req.context.siteModeCssClass %>">
     <span id="top" style="height:0;width:0;opacity:0"></span>

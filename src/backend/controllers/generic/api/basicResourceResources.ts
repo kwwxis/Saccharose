@@ -7,6 +7,7 @@ import { HttpError } from '../../../../shared/util/httpError';
 import { Request, Response } from 'express';
 import { escapeRegExp } from '../../../../shared/util/stringUtil';
 import { Marker } from '../../../../shared/util/highlightMarker';
+import { TextMapSearchResult } from '../../../../shared/types/lang-types';
 
 export async function handleTextMapSearchEndpoint(ctrl: AbstractControl, req: Request, res: Response) {
   const startFromLine: number = isset(req.query.startFromLine) && isInt(req.query.startFromLine) ? toInt(req.query.startFromLine) : undefined;
@@ -17,7 +18,7 @@ export async function handleTextMapSearchEndpoint(ctrl: AbstractControl, req: Re
   const query: string = req.query.text as string;
 
   // "-m" flag -> max count
-  const items = await ctrl.getTextMapMatches(
+  const items: TextMapSearchResult[] = await ctrl.getTextMapMatches(
     ctrl.inputLangCode,
     query,
     `-m ${SEARCH_TEXTMAP_MAX+1} ${ctrl.searchModeFlags}`,

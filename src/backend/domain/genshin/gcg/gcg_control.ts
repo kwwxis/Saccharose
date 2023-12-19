@@ -9,7 +9,6 @@ import {
   GCGGameExcelConfigData,
   GCGGameRewardExcelConfigData,
   GCGKeywordExcelConfigData,
-  GcgOtherLevelExcelConfigData,
   GCGRuleExcelConfigData,
   GCGRuleTextDetailExcelConfigData,
   GCGRuleTextExcelConfigData, GCGSkillExcelConfigData,
@@ -28,22 +27,18 @@ import { getGenshinDataFilePath, IMAGEDIR_GENSHIN_EXT } from '../../../loadenv';
 import { SchemaTable } from '../../../importer/import_db';
 import { formatTime } from '../../../../shared/types/genshin/general-types';
 import { genshinSchema } from '../../../importer/genshin/genshin.schema';
-import { LangCode, VoiceItem } from '../../../../shared/types/lang-types';
+import { LangCode } from '../../../../shared/types/lang-types';
 import { isInt, toInt } from '../../../../shared/util/numberUtil';
-import { replaceAsync, splitLimit } from '../../../../shared/util/stringUtil';
+import { replaceAsync } from '../../../../shared/util/stringUtil';
 import { isUnset } from '../../../../shared/util/genericUtil';
 import { findFiles } from '../../../util/shellutil';
-import { distance as strdist } from 'fastest-levenshtein';
 import path from 'path';
 import { cached, cachedSync } from '../../../util/cache';
 import { standardElementCode } from '../../../../shared/types/genshin/manual-text-map';
-import { NormTextOptions } from '../../generic/genericNormalizers';
 import { html2quotes, unnestHtmlTags } from '../../../../shared/mediawiki/mwQuotes';
 import { loadGenshinTextSupportingData } from '../genshinText';
 import { dialogueGenerateByNpc, NpcDialogueResult } from '../dialogue/basic_dialogue_generator';
-import { DialogExcelConfigData } from '../../../../shared/types/genshin/dialogue-types';
 import * as console from 'console';
-import { sort } from '../../../../shared/util/arrayUtil';
 
 // noinspection JSUnusedGlobalSymbols
 export class GCGControl {

@@ -1,6 +1,7 @@
 import { RequestContext } from './requestContext';
 import { NextFunction, Request, Response } from 'express';
 import { ReactElement } from 'react';
+import { Component } from '@vue/runtime-core';
 
 declare module 'express-serve-static-core' {
   interface Request {
@@ -8,7 +9,7 @@ declare module 'express-serve-static-core' {
   }
   interface Response {
     //csv(data: any, csvHeaders?: boolean, headers?: any, statusCode?: number): Response,
-    render(view: string|ReactElement, options?: object, callback?: (err: Error, html: string) => void): void;
+    render(view: string|ReactElement|Component, options?: object, callback?: (err: Error, html: string) => void): void;
   }
   interface Router {
     endpoint(route: string | string[], handlers: RouterRestfulHandlers): void,

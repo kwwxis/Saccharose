@@ -1,7 +1,5 @@
 import {merge} from 'webpack-merge';
 import {Configuration} from 'webpack';
-// import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
-// import TerserPlugin from 'terser-webpack-plugin';
 import baseConfig from './webpack.base';
 import { EsbuildPlugin } from 'esbuild-loader';
 
