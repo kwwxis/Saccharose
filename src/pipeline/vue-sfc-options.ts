@@ -2,8 +2,6 @@ import { DirectiveNode, ElementNode, TransformContext } from '@vue/compiler-core
 import { CompilerOptions } from '@vue/compiler-sfc';
 import * as core from '@vue/compiler-core';
 
-
-
 export type SfcOptions = {
   /**
    * Vue's options API is enabled by default, but it can be disabled in order to save space.

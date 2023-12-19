@@ -219,6 +219,14 @@ export async function generateQuestDialogExcels(repoRoot: string) {
           continue;
         }
 
+        if (item.IIJAJFHKJEO) {
+          item.itemID = item.IIJAJFHKJEO;
+        }
+
+        if (!item.itemId) {
+          throw 'Error getting CodexQuest item ID!';
+        }
+
         const defaultNextItemId: number = Object.values(item).find(x => Array.isArray(x) && typeof x[0] === 'number')?.[0];
 
         const initialObj: any = {

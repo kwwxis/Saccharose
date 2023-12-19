@@ -16,6 +16,20 @@ const VoiceSchema = <SchemaTable>{
     EDNNCHGNMHO: 'SourceNames',
     EEFLLCGNDCG: 'SourceFileName',
     NJNEOOGNPKH: 'Gender',
+
+    BFKCDJLLGNJ: 'GameTrigger',
+    FMHLBONJKPJ: 'GameTriggerArgs',
+    JPMLINEFNCM: 'PersonalConfig',
+    OFEEIPOMNKD: 'SourceNames',
+    CBGLAJNLFCB: 'SourceFileName',
+    HCAIPGAELFP: 'Gender',
+
+    BEHKGKMMAPD: 'GameTrigger',
+    FFDHLEAFBLM: 'GameTriggerArgs',
+    LFIFIPFFFKO: 'PersonalConfig',
+    EIKJKDICKMJ: 'SourceNames',
+    HLGOMILNFNK: 'SourceFileName',
+    BBKIPNLMMCL: 'Gender',
   },
 };
 

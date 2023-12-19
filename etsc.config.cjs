@@ -16,14 +16,14 @@ module.exports = {
 
   // Prebuild hook
   prebuild: async () => {
-    console.log("Prebuild");
+    console.log("ETSC prebuild");
     const rimraf = await import("rimraf");
     rimraf.sync("./dist"); // clean up dist folder
   },
 
   // Postbuild hook
   postbuild: async () => {
-    console.log("Postbuild");
+    console.log("ETSC postbuild");
     const cpy = (await import("cpy")).default;
 
     await cpy(
