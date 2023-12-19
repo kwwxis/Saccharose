@@ -5,7 +5,7 @@ import fs from 'fs';
 import path from 'path';
 import chalk from 'chalk';
 
-const VoiceSchema = <SchemaTable>{
+const VoiceSchema = <SchemaTable> {
   name: 'VoiceItems',
   columns: [],
   jsonFile: '',

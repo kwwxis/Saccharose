@@ -1,14 +1,14 @@
 import { SchemaTable } from '../../../backend/importer/import_db';
 
-export const InterActionSchema = <SchemaTable>{
+export const InterActionSchema = <SchemaTable> {
   name: 'InterAction',
   columns: [],
   jsonFile: '',
   renameFields: {
-    MLAABINGLAA: 'DialogOptions',
-    HPBPDBFGKID: 'DialogNextGroup',
-    KICBIOMGHIN: 'DialogId',
-    LMHLEOPOLEK: 'CutsceneId'
+    BCOOIEMOMBL: 'DialogOptions',
+    DLIPJKNKANK: 'DialogNextGroup',
+    KPKFJANJAJM: 'DialogId',
+    MGKDCJOKIGC: 'CutsceneId'
   },
 };
 
