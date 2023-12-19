@@ -1,5 +1,4 @@
 <template>
-
   <section class="card">
     <h2 class="valign">
       <img class="framed-icon x42" :src="`/images/genshin/${achievement.Goal.IconPath}.png`" loading="lazy" decoding="async" />

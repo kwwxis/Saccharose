@@ -215,7 +215,7 @@ const initial_listeners: Listener[] = [
           event.preventDefault();
         });
         el.addEventListener('keydown', (event: KeyboardEvent) => {
-          if (event.metaKey || event.ctrlKey || event.altKey || event.shiftKey || allowReadonlyKeys.has(event.key)) {
+          if (event.metaKey || event.ctrlKey || event.altKey || allowReadonlyKeys.has(event.key)) {
             return;
           }
           event.stopPropagation();

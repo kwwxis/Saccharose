@@ -32,15 +32,18 @@ const srcRoot = path.resolve(projectRoot, './src').replace(/\\/g, '/');
 const publicDistDir = path.resolve(projectRoot, './public/dist/');
 
 export async function cleanVueSfc() {
+  const promises: Promise<void>[] = [];
   for await (let file of getFiles(srcRoot)) {
     if (file.endsWith('.vue.ts') || file.endsWith('.vue.script.ts') || file.endsWith('.vue.style.scss') || file.endsWith('.vue.template.ts')) {
-      await fs.promises.unlink(file);
+      promises.push(fs.promises.unlink(file));
     }
   }
+  await Promise.all(promises);
 }
 
 export async function compileVueSfc() {
-  let allStyles: string[] = [];
+  const allStyles: string[] = [];
+  const promises: Promise<void>[] = [];
 
   for await (let file of getFiles(srcRoot)) {
     if (file.endsWith('.vue')) {
@@ -48,13 +51,15 @@ export async function compileVueSfc() {
       let relPath = './' + path.relative(projectRoot, file).replace(/\\/g, '/');
       let baseName = path.basename(relPath);
 
-      let result = await doIt({ absPath, relPath, baseName });
-
-      if (result?.styles) {
-        allStyles.push(... result.styles);
-      }
+      promises.push(doIt({ absPath, relPath, baseName }).then(result => {
+        if (result?.styles) {
+          allStyles.push(... result.styles);
+        }
+      }));
     }
   }
+
+  await Promise.all(promises);
 
   if (allStyles.length) {
     let style: string = allStyles.join('\n\n');
