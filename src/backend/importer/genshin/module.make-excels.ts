@@ -81,8 +81,12 @@ export async function generateQuestDialogExcels(repoRoot: string) {
   // ----------------------------------------------------------------------
   // Enqueue Functions
 
-  function enqueueMainQuestExcel(obj: any) {
+  function enqueueMainQuestExcel(obj: any, fileName: string) {
     if (!obj) {
+      return;
+    }
+    if (obj && !obj.id) {
+      console.log('Encountered obfuscated MQ:', fileName);
       return;
     }
     if (mainQuestById[obj.id]) {
@@ -220,10 +224,11 @@ export async function generateQuestDialogExcels(repoRoot: string) {
         }
 
         if (item.IIJAJFHKJEO) {
-          item.itemID = item.IIJAJFHKJEO;
+          item.itemId = item.IIJAJFHKJEO;
         }
 
         if (!item.itemId) {
+          console.log(item);
           throw 'Error getting CodexQuest item ID!';
         }
 
@@ -276,7 +281,7 @@ export async function generateQuestDialogExcels(repoRoot: string) {
     }
     let json = await fsp.readFile(fileName, { encoding: 'utf8' }).then(data => JSON.parse(data));
     processJsonObject(json);
-    enqueueMainQuestExcel(json);
+    enqueueMainQuestExcel(json, fileName);
   }
 
   console.log('Processing BinOutput/Talk');
@@ -287,7 +292,7 @@ export async function generateQuestDialogExcels(repoRoot: string) {
     let json = await fsp.readFile(fileName, { encoding: 'utf8' }).then(data => JSON.parse(data));
     processJsonObject(json);
     if (json.id && json.type && json.subQuests) {
-      enqueueMainQuestExcel(json);
+      enqueueMainQuestExcel(json, fileName);
     }
   }
 
@@ -299,6 +304,12 @@ export async function generateQuestDialogExcels(repoRoot: string) {
     let json = await fsp.readFile(fileName, { encoding: 'utf8' }).then(data => JSON.parse(data));
     processCodexQuestObject(json);
   }
+
+  console.log('Processed ' + mainQuestExcelArray.length + ' main quests');
+  console.log('Processed ' + questExcelArray.length + ' quests');
+  console.log('Processed ' + talkExcelArray.length + ' talks');
+  console.log('Processed ' + dialogExcelArray.length + ' dialogs');
+  console.log('Processed ' + codexQuestArray.length + ' codex quests');
 
   // ----------------------------------------------------------------------
   // Sort Stage
