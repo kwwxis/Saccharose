@@ -221,6 +221,10 @@ export function toMap<T, K extends KeysMatching<T, string | number>>(array: T[],
   return out;
 }
 
+export function mapBy<T, K extends KeysMatching<T, string | number>>(array: T[], keyProp: K, out?: { [key: string|number]: T }): { [key: string|number]: T } {
+  return toMap(array, keyProp, out);
+}
+
 export function compare<T>(a: T, b: T, field?: string|SortComparator<T>, nullsLast: boolean = false): number {
     if (isUnset(a) && !isUnset(b)) return nullsLast ? 1 : -1;
     if (!isUnset(a) && isUnset(b)) return nullsLast ? -1 : 1;

@@ -29,6 +29,7 @@ import { SbOut, sentenceJoin } from '../../../../shared/util/stringUtil';
 import { Request, Response, Router } from 'express';
 import { toBoolean } from '../../../../shared/util/genericUtil';
 import AchievementPage from '../../../components/genshin/achievements/AchievementPage.vue';
+import FurnishingSetListingPage from '../../../components/genshin/furnishings/FurnishingSetListingPage.vue';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -400,12 +401,24 @@ export default async function(): Promise<Router> {
   // Furniture
   // ~~~~~~~~~
 
+  router.get('/furnishing-sets', async (req: Request, res: Response) => {
+    const ctrl = getGenshinControl(req);
+    const suites = await ctrl.selectAllFurnitureSuite();
+
+    res.render(FurnishingSetListingPage, {
+      title: 'Furnishing Sets',
+      bodyClass: ['page--furniture-sets'],
+      suites,
+    });
+  });
+
   router.get('/furnishings', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
 
-    const furnitureList = await ctrl.selectAllFurniture();
-
-    const typeTree = await ctrl.selectFurnitureTypeTree();
+    const [furnitureList, typeTree] = await Promise.all([
+      ctrl.selectAllFurniture(),
+      ctrl.selectFurnitureTypeTree(),
+    ]);
 
     res.render('pages/genshin/archive/furniture-list', {
       title: 'Furnishings',
@@ -420,6 +433,7 @@ export default async function(): Promise<Router> {
     const furn = await ctrl.selectFurniture(toInt(req.params.furnId), {
       LoadHomeWorldAnimal: true,
       LoadHomeWorldNPC: true,
+      LoadMakeData: true,
     });
     const sb: SbOut = new SbOut();
     const ol: OLResult = furn ? (await ol_gen_from_id(ctrl, furn.NameTextMapHash)) : null;

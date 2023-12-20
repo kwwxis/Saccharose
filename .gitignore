@@ -56,3 +56,4 @@ node_modules/
 
 # Build output
 dist/
+v-dist/

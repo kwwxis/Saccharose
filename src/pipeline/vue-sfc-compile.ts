@@ -29,7 +29,7 @@ const projectRoot = (() => {
   }
 })();
 const srcRoot = path.resolve(projectRoot, './src').replace(/\\/g, '/');
-const publicDistDir = path.resolve(projectRoot, './public/dist/');
+const publicVueDistDir = path.resolve(projectRoot, './public/v-dist/');
 
 export async function cleanVueSfc() {
   const promises: Promise<void>[] = [];
@@ -64,7 +64,10 @@ export async function compileVueSfc() {
   if (allStyles.length) {
     let style: string = allStyles.join('\n\n');
     let compileResult = sass.compileString(style);
-    await fs.promises.writeFile(path.resolve(publicDistDir, './vue.bundle.css'), compileResult.css, {encoding: 'utf-8'})
+    if (!fs.existsSync(publicVueDistDir)) {
+      await fs.promises.mkdir(publicVueDistDir);
+    }
+    await fs.promises.writeFile(path.resolve(publicVueDistDir, './vue.bundle.css'), compileResult.css, {encoding: 'utf-8'})
   }
 }
 

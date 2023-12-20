@@ -63,6 +63,8 @@ export class GCGControl {
 
   // Settings
   disableSkillSelect: boolean = false;
+  disableNpcLoad: boolean = false;
+  disableRelatedCharacterLoad: boolean = false;
 
   constructor(readonly ctrl: GenshinControl, readonly enableElementalReactionMapping: boolean = false) {}
 
@@ -189,20 +191,26 @@ export class GCGControl {
   }
 
   private async defaultPostProcess(o: any): Promise<any> {
-    if ('NpcId' in o) {
+    if ('NpcId' in o && !this.disableNpcLoad) {
       o.Npc = await this.ctrl.getNpc(o.NpcId);
     }
     if ('KeywordId' in o) {
-      o.Keyword = await this.singleSelect('GCGKeywordExcelConfigData', 'Id', o['KeywordId']);
+      if (this.keywordList && this.keywordList.length) {
+        o.Keyword = this.keywordList.find(kw => kw.Id === o['KeywordId']);
+      } else {
+        o.Keyword = await this.singleSelect('GCGKeywordExcelConfigData', 'Id', o['KeywordId']);
+      }
     }
     if ('TagList' in o) {
       o.MappedTagList = o.TagList.map(tagType => this.tagList.find(tag => tag.Type == tagType)).filter(x => !!x);
     }
-    if ('RelatedCharacterTagList' in o) {
-      o.MappedRelatedCharacterTagList = o.RelatedCharacterTagList.map(tagType => this.tagList.find(tag => tag.Type == tagType)).filter(x => !!x);
-    }
-    if ('RelatedCharacterId' in o) {
-      o.RelatedCharacter = await this.singleSelect('GCGCharExcelConfigData', 'Id', o['RelatedCharacterId'], this.postProcessCharacterCard);
+    if (!this.disableRelatedCharacterLoad) {
+      if ('RelatedCharacterTagList' in o) {
+        o.MappedRelatedCharacterTagList = o.RelatedCharacterTagList.map(tagType => this.tagList.find(tag => tag.Type == tagType)).filter(x => !!x);
+      }
+      if ('RelatedCharacterId' in o) {
+        o.RelatedCharacter = await this.singleSelect('GCGCharExcelConfigData', 'Id', o['RelatedCharacterId'], this.postProcessCharacterCard);
+      }
     }
     if ('CostList' in o && Array.isArray(o.CostList)) {
       for (let costItem of o.CostList) {
@@ -290,14 +298,16 @@ export class GCGControl {
     if (postProcess) {
       postProcess = postProcess.bind(this);
     }
-    let i = 0;
+    let promises: Promise<any>[] = [];
     for (let record of records) {
-      i++;
-      await this.defaultPostProcess(record);
-      if (postProcess) {
-        await postProcess(record);
-      }
+      promises.push((async () => {
+        await this.defaultPostProcess(record);
+        if (postProcess) {
+          await postProcess(record);
+        }
+      })());
     }
+    await Promise.all(promises);
     return records;
   }
   // endregion
@@ -729,19 +739,52 @@ export class GCGControl {
   }
 
   private async postProcessActionCard(card: GCGCardExcelConfigData): Promise<GCGCardExcelConfigData> {
-    card.MappedChooseTargetList = await this.multiSelect('GCGChooseExcelConfigData', 'Id', card.ChooseTargetList);
+    let promises: Promise<any>[] = [];
+
+    promises.push(
+      this.multiSelect('GCGChooseExcelConfigData', 'Id', card.ChooseTargetList)
+        .then(ret => card.MappedChooseTargetList = ret as any[])
+    );
 
     if (card.TokenDescId) {
+      promises.push(
+        this.singleSelect('GCGTokenDescConfigData', 'Id', card.TokenDescId)
+          .then(ret => card.TokenDesc = ret as any)
+      );
       card.TokenDesc = await this.singleSelect('GCGTokenDescConfigData', 'Id', card.TokenDescId);
     }
 
-    card.CardFace = await this.singleSelect('GCGCardFaceExcelConfigData', 'CardId', card.Id, this.postProcessCardFace);
-    card.CardView = await this.singleSelect('GCGCardViewExcelConfigData', 'Id', card.Id, this.postProcessCardView);
+    promises.push(
+      this.singleSelect('GCGCardFaceExcelConfigData', 'CardId', card.Id, this.postProcessCardFace)
+        .then(ret => card.CardFace = ret as any)
+    );
+    promises.push(
+      this.singleSelect('GCGCardViewExcelConfigData', 'Id', card.Id, this.postProcessCardView)
+        .then(ret => card.CardView = ret as any)
+    );
 
-    let deckCard = await this.selectDeckCard(card.Id);
-    if (deckCard) {
-      card.DeckCard = deckCard;
-    }
+    // card.MappedChooseTargetList = await this.multiSelect('GCGChooseExcelConfigData', 'Id', card.ChooseTargetList);
+    //
+    // if (card.TokenDescId) {
+    //   card.TokenDesc = await this.singleSelect('GCGTokenDescConfigData', 'Id', card.TokenDescId);
+    // }
+    //
+    // card.CardFace = await this.singleSelect('GCGCardFaceExcelConfigData', 'CardId', card.Id, this.postProcessCardFace);
+    // card.CardView = await this.singleSelect('GCGCardViewExcelConfigData', 'Id', card.Id, this.postProcessCardView);
+
+    promises.push(
+      this.selectDeckCard(card.Id).then(ret => {
+        if (ret) {
+          card.DeckCard = ret;
+        }
+      })
+    );
+    // let deckCard = await this.selectDeckCard(card.Id);
+    // if (deckCard) {
+    //   card.DeckCard = deckCard;
+    // }
+
+    await Promise.all(promises);
 
     card.IsEquipment = card.MappedTagList.some(tag => tag.CategoryType === 'GCG_TAG_IDENTIFIER_MODIFY');
     card.IsSupport = card.MappedTagList.some(tag => tag.CategoryType === 'GCG_TAG_IDENTIFIER_ASSIST');
@@ -768,18 +811,39 @@ export class GCGControl {
   // region GCG Character Card
   // --------------------------------------------------------------------------------------------------------------
   private async postProcessCharacterCard(char: GCGCharExcelConfigData): Promise<GCGCharExcelConfigData> {
-    char.CardFace = await this.singleSelect('GCGCardFaceExcelConfigData', 'CardId', char.Id, this.postProcessCardFace);
-    char.CardView = await this.singleSelect('GCGCardViewExcelConfigData', 'Id', char.Id, this.postProcessCardView);
+    const promises: Promise<any>[] = [];
+
+    promises.push(
+      this.singleSelect('GCGCardFaceExcelConfigData', 'CardId', char.Id, this.postProcessCardFace)
+        .then(ret => char.CardFace = ret as any)
+    );
+
+    promises.push(
+      this.singleSelect('GCGCardViewExcelConfigData', 'Id', char.Id, this.postProcessCardView)
+        .then(ret => char.CardView = ret as any)
+    );
+
+    // char.CardFace = await this.singleSelect('GCGCardFaceExcelConfigData', 'CardId', char.Id, this.postProcessCardFace);
+    // char.CardView = await this.singleSelect('GCGCardViewExcelConfigData', 'Id', char.Id, this.postProcessCardView);
     char.VoiceItems = [];
 
     if (char.AvatarName) {
       char.VoiceItems = this.ctrl.voice.getVoiceItemsByType('Card', char.AvatarName);
     }
 
-    let deckCard = await this.selectDeckCard(char.Id);
-    if (deckCard) {
-      char.DeckCard = deckCard;
-    }
+    promises.push(
+      this.selectDeckCard(char.Id).then(ret => {
+        if (ret) {
+          char.DeckCard = ret;
+        }
+      })
+    );
+    // let deckCard = await this.selectDeckCard(char.Id);
+    // if (deckCard) {
+    //   char.DeckCard = deckCard;
+    // }
+
+    await Promise.all(promises);
 
     await this.postProcessCommonCard(char);
 

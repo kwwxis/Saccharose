@@ -13,7 +13,7 @@ import {
   arrayIndexOf,
   arrayIntersect,
   arrayUnique,
-  cleanEmpty,
+  cleanEmpty, mapBy,
   pairArrays,
   sort, toMap,
 } from '../../../shared/util/arrayUtil';
@@ -126,6 +126,7 @@ import {
 } from '../../../shared/types/genshin/interaction-types';
 import { CommonLineId } from '../../../shared/types/common-types';
 import { genshin_i18n, GENSHIN_I18N_MAP } from '../i18n';
+import * as console from 'console';
 
 // region Control State
 // --------------------------------------------------------------------------------------------------------------
@@ -1760,18 +1761,12 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     const furn: HomeWorldFurnitureExcelConfigData = await this.knex.select('*')
       .from('HomeWorldFurnitureExcelConfigData')
       .where({Id: id}).first().then(this.commonLoadFirst);
-    const typeMap = await this.selectFurnitureTypeMap();
-    const makeMap = await this.selectFurnitureMakeMap();
-    return this.postProcessFurniture(furn, typeMap, makeMap, loadConf);
-  }
 
-  async selectFurnitureType(typeId: number): Promise<HomeWorldFurnitureTypeExcelConfigData> {
-    return await this.knex.select('*').from('HomeWorldFurnitureTypeExcelConfigData')
-      .where({TypeId: typeId}).first().then(this.commonLoadFirst);
-  }
-  async selectFurnitureSuite(suiteId: number): Promise<FurnitureSuiteExcelConfigData> {
-    return await this.knex.select('*').from('FurnitureSuiteExcelConfigData')
-      .where({SuiteId: suiteId}).first().then(this.commonLoadFirst);
+    const [typeMap, makeMap] = await Promise.all([
+      this.selectFurnitureTypeMap(),
+      loadConf?.LoadMakeData ? this.selectFurnitureMakeMap() : Promise.resolve(undefined)
+    ]);
+    return this.postProcessFurniture(furn, typeMap, makeMap, loadConf);
   }
 
   async selectAllFurniture(): Promise<HomeWorldFurnitureExcelConfigData[]> {
@@ -1779,38 +1774,86 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     arr = arr.filter(x => !!x.NameText);
 
     const typeMap = await this.selectFurnitureTypeMap();
-    const makeMap = await this.selectFurnitureMakeMap();
-    await Promise.all(arr.map(furn => this.postProcessFurniture(furn, typeMap, makeMap)));
+
+    await arr.asyncMap(furn => this.postProcessFurniture(furn, typeMap, null));
     sort(arr, 'IsExterior', 'CategoryNameText', 'TypeNameText');
+
     return arr
+  }
+
+  private async postProcessFurniture(furn: HomeWorldFurnitureExcelConfigData,
+                                     typeMap: {[typeId: number]: HomeWorldFurnitureTypeExcelConfigData},
+                                     makeMap: {[furnId: number]: FurnitureMakeExcelConfigData},
+                                     loadConf?: HomeWorldFurnitureLoadConf): Promise<HomeWorldFurnitureExcelConfigData> {
+    if (!furn) {
+      return furn;
+    }
+    if (!loadConf) {
+      loadConf = {};
+    }
+    furn.MappedFurnType = furn.FurnType.filter(typeId => !!typeId).map(typeId => typeMap[typeId]);
+    if (makeMap && loadConf.LoadMakeData) {
+      furn.MakeData = makeMap[furn.Id];
+    }
+    furn.RelatedMaterialId = await this.selectMaterialIdFromFurnitureId(furn.Id);
+    if (furn.RelatedMaterialId) {
+      furn.RelatedMaterial = await this.selectMaterialExcelConfigData(furn.RelatedMaterialId);
+    }
+
+    furn.IsInterior = furn.MappedFurnType.some(x => x.SceneType !== 'Exterior');
+    furn.IsExterior = furn.MappedFurnType.some(x => x.SceneType === 'Exterior');
+
+    if (furn.MappedFurnType[0]) {
+      furn.CategoryId = furn.MappedFurnType[0].TypeCategoryId;
+      furn.CategoryNameText = furn.MappedFurnType[0].TypeNameText;
+
+      furn.TypeId = furn.MappedFurnType[0].TypeId;
+      furn.TypeNameText = furn.MappedFurnType[0].TypeName2Text;
+    }
+
+    furn.FilterTokens = [];
+    if (furn.IsInterior) furn.FilterTokens.push('Interior');
+    if (furn.IsExterior) furn.FilterTokens.push('Exterior');
+    for (let type of furn.MappedFurnType) {
+      furn.FilterTokens.push('category-'+type.TypeCategoryId);
+      furn.FilterTokens.push('subcategory-'+type.TypeId);
+    }
+
+    if (loadConf.LoadHomeWorldNPC && furn.SurfaceType === 'NPC') {
+      furn.HomeWorldNPC = await this.selectHomeWorldNPC(furn.Id);
+      if (furn.HomeWorldNPC) {
+        furn.Icon = furn.HomeWorldNPC.CommonIcon;
+        furn.ItemIcon = furn.HomeWorldNPC.CommonIcon;
+      }
+    }
+
+    if (loadConf.LoadHomeWorldAnimal) {
+      furn.HomeWorldAnimal = await this.selectHomeWorldAnimalByFurniture(furn);
+    }
+
+    return furn;
+  }
+  //endregion
+
+  // region HomeWorld Furniture Suite
+  async selectFurnitureSuite(suiteId: number): Promise<FurnitureSuiteExcelConfigData> {
+    return await this.knex.select('*').from('FurnitureSuiteExcelConfigData')
+      .where({SuiteId: suiteId}).first().then(this.commonLoadFirst);
   }
 
   async selectAllFurnitureSuite(): Promise<FurnitureSuiteExcelConfigData[]> {
     return await this.knex.select('*').from('FurnitureSuiteExcelConfigData').then(this.commonLoad);
   }
+  //endregion
+
+  // region HomeWorld Furniture Type & Make
+  async selectFurnitureType(typeId: number): Promise<HomeWorldFurnitureTypeExcelConfigData> {
+    return await this.knex.select('*').from('HomeWorldFurnitureTypeExcelConfigData')
+      .where({TypeId: typeId}).first().then(this.commonLoadFirst);
+  }
 
   async selectAllFurnitureType(): Promise<HomeWorldFurnitureTypeExcelConfigData[]> {
     return await this.knex.select('*').from('HomeWorldFurnitureTypeExcelConfigData').then(this.commonLoad);
-  }
-
-  async selectHomeWorldAnimalByFurniture(furniture: HomeWorldFurnitureExcelConfigData): Promise<HomeworldAnimalExcelConfigData> {
-    const ret: HomeworldAnimalExcelConfigData = await this.knex.select('*').from('HomeworldAnimalExcelConfigData')
-      .where({FurnitureId: furniture.Id}).first().then(this.commonLoadFirst);
-    if (ret) {
-      ret.Furniture = furniture;
-      ret.Monster = await this.selectMonsterById(ret.MonsterId);
-    }
-    return ret;
-  }
-
-  async selectHomeWorldAnimalByMonster(monster: MonsterExcelConfigData): Promise<HomeworldAnimalExcelConfigData> {
-    const ret: HomeworldAnimalExcelConfigData = await this.knex.select('*').from('HomeworldAnimalExcelConfigData')
-      .where({MonsterId: monster.Id}).first().then(this.commonLoadFirst);
-    if (ret) {
-      ret.Monster = monster;
-      ret.Furniture = await this.selectFurniture(ret.FurnitureId);
-    }
-    return ret;
   }
 
   async selectFurnitureTypeTree(): Promise<HomeWorldFurnitureTypeTree> {
@@ -1854,12 +1897,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
   async selectFurnitureTypeMap(): Promise<{[typeId: number]: HomeWorldFurnitureTypeExcelConfigData}> {
     return await cached('FurnitureTypeMap_' + this.outputLangCode, async () => {
-      const arr: HomeWorldFurnitureTypeExcelConfigData[] = await this.selectAllFurnitureType();
-      const map: {[typeId: number]: HomeWorldFurnitureTypeExcelConfigData} = {};
-      for (let item of arr) {
-        map[item.TypeId] = item;
-      }
-      return map;
+      return mapBy(await this.selectAllFurnitureType(), 'TypeId');
     });
   }
 
@@ -1868,7 +1906,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       const makeArr: FurnitureMakeExcelConfigData[] = await this.readExcelDataFile('FurnitureMakeExcelConfigData.json', true);
       const makeMap: {[furnId: number]: FurnitureMakeExcelConfigData} = {};
 
-      for (let make of makeArr) {
+      await makeArr.asyncMap(async (make) => {
         makeMap[make.FurnitureItemId] = make;
         if (make.MaterialItems) {
           make.MaterialItems = await make.MaterialItems
@@ -1878,61 +1916,32 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
               return x;
             });
         }
-      }
+      });
 
       return makeMap;
     });
   }
+  //endregion
 
-  private async postProcessFurniture(furn: HomeWorldFurnitureExcelConfigData,
-                                     typeMap: {[typeId: number]: HomeWorldFurnitureTypeExcelConfigData},
-                                     makeMap: {[furnId: number]: FurnitureMakeExcelConfigData},
-                                     loadConf?: HomeWorldFurnitureLoadConf): Promise<HomeWorldFurnitureExcelConfigData> {
-    if (!furn) {
-      return furn;
+  // region HomeWorld Furniture Animal
+  async selectHomeWorldAnimalByFurniture(furniture: HomeWorldFurnitureExcelConfigData): Promise<HomeworldAnimalExcelConfigData> {
+    const ret: HomeworldAnimalExcelConfigData = await this.knex.select('*').from('HomeworldAnimalExcelConfigData')
+      .where({FurnitureId: furniture.Id}).first().then(this.commonLoadFirst);
+    if (ret) {
+      ret.Furniture = furniture;
+      ret.Monster = await this.selectMonsterById(ret.MonsterId);
     }
-    if (!loadConf) {
-      loadConf = {};
+    return ret;
+  }
+
+  async selectHomeWorldAnimalByMonster(monster: MonsterExcelConfigData): Promise<HomeworldAnimalExcelConfigData> {
+    const ret: HomeworldAnimalExcelConfigData = await this.knex.select('*').from('HomeworldAnimalExcelConfigData')
+      .where({MonsterId: monster.Id}).first().then(this.commonLoadFirst);
+    if (ret) {
+      ret.Monster = monster;
+      ret.Furniture = await this.selectFurniture(ret.FurnitureId);
     }
-    furn.MappedFurnType = furn.FurnType.filter(typeId => !!typeId).map(typeId => typeMap[typeId]);
-    furn.MakeData = makeMap[furn.Id];
-    furn.RelatedMaterialId = await this.selectMaterialIdFromFurnitureId(furn.Id);
-    if (furn.RelatedMaterialId) {
-      furn.RelatedMaterial = await this.selectMaterialExcelConfigData(furn.RelatedMaterialId);
-    }
-
-    furn.IsInterior = furn.MappedFurnType.some(x => x.SceneType !== 'Exterior');
-    furn.IsExterior = furn.MappedFurnType.some(x => x.SceneType === 'Exterior');
-
-    if (furn.MappedFurnType[0]) {
-      furn.CategoryId = furn.MappedFurnType[0].TypeCategoryId;
-      furn.CategoryNameText = furn.MappedFurnType[0].TypeNameText;
-
-      furn.TypeId = furn.MappedFurnType[0].TypeId;
-      furn.TypeNameText = furn.MappedFurnType[0].TypeName2Text;
-    }
-
-    furn.FilterTokens = [];
-    if (furn.IsInterior) furn.FilterTokens.push('Interior');
-    if (furn.IsExterior) furn.FilterTokens.push('Exterior');
-    for (let type of furn.MappedFurnType) {
-      furn.FilterTokens.push('category-'+type.TypeCategoryId);
-      furn.FilterTokens.push('subcategory-'+type.TypeId);
-    }
-
-    if (loadConf.LoadHomeWorldNPC && furn.SurfaceType === 'NPC') {
-      furn.HomeWorldNPC = await this.selectHomeWorldNPC(furn.Id);
-      if (furn.HomeWorldNPC) {
-        furn.Icon = furn.HomeWorldNPC.CommonIcon;
-        furn.ItemIcon = furn.HomeWorldNPC.CommonIcon;
-      }
-    }
-
-    if (loadConf.LoadHomeWorldAnimal) {
-      furn.HomeWorldAnimal = await this.selectHomeWorldAnimalByFurniture(furn);
-    }
-
-    return furn;
+    return ret;
   }
   // endregion
 

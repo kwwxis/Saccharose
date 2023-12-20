@@ -17,8 +17,11 @@ export function getWebpackBundleFileNames(): WebpackBundles {
     return cache;
   }
   let distDir = path.resolve(PUBLIC_DIR, './dist');
+  let vueDistDir = path.resolve(PUBLIC_DIR, './dist');
 
   let files: string[] = fs.readdirSync(distDir);
+  let vueFiles: string[] = fs.readdirSync(vueDistDir);
+
   let result: WebpackBundles = {
     appCssBundle: '',
     appJsBundle: '',
@@ -40,10 +43,14 @@ export function getWebpackBundleFileNames(): WebpackBundles {
     if (/^vendor(\..*)?.bundle\.css$/.test(file)) {
       result.vendorCssBundle = `/dist/${file}`;
     }
+  }
+
+  for (let file of vueFiles) {
     if (/^vue(\..*)?.bundle\.css$/.test(file)) {
-      result.vueCssBundle = `/dist/${file}`;
+      result.vueCssBundle = `/v-dist/${file}`;
     }
   }
+
   cache = result;
   return result;
 }

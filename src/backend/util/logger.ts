@@ -2,7 +2,7 @@ import debug from 'debug';
 
 function createDebugger(namespace: string): debug.Debugger {
   const log: debug.Debugger = debug(namespace);
-  //log.log = console.log.bind(console);
+  log.log = console.log.bind(console);
   return log;
 }
 

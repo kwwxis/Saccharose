@@ -89,6 +89,7 @@ export type SpecialFurnitureType =
 export interface HomeWorldFurnitureLoadConf {
   LoadHomeWorldNPC?: boolean,
   LoadHomeWorldAnimal?: boolean,
+  LoadMakeData?: boolean,
 }
 
 export interface HomeWorldFurnitureExcelConfigData {
