@@ -243,8 +243,8 @@ export function hasCyclicRefs(obj: any): boolean {
 /**
  * Removes any circular references from an object **in-place**.
  */
-export function removeCyclicRefs<T>(obj: T, cyclicValueReplacer?: CyclicValueReplacer, deepCopy: boolean = true): T {
-  if (deepCopy) {
+export function removeCyclicRefs<T>(obj: T, cyclicValueReplacer?: CyclicValueReplacer, deepCopy: boolean = true, tryClone: boolean = true): T {
+  if (tryClone && deepCopy) {
     obj = cloneDeep(obj);
   }
 

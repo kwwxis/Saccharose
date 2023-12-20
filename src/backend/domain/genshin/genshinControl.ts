@@ -984,6 +984,55 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
         numSubsequentNonBranchPlayerDialogOption = 0;
       }
 
+      // Special wiki descriptions
+      // ~~~~~~~~~~~~~~~~~~~~~~~~~
+
+      /*
+      GCG Action Befores:
+      'GCG/open_GcgBossChallengesPage',
+      'GCG/open_GcgCardSettingPage',
+      'GCG/open_GcgLevelPage',
+      'GCG/open_GcgLevelPage_CatBar',
+      'GCG/open_GcgLevelPage_CatBar_1',
+      'GCG/open_GcgLevelPage_Invitation',
+      'GCG/open_GcgLevelPage_Invitation_End',
+      'GCG/open_GcgLevelPage_Invitation_Start',
+      'GCG/open_GcgPVEInfinitePage',
+      'GCG/open_GcgPVEPuzzlePage',
+      'GCG/open_GcgPlayerLevelPage',
+      'GCG/open_GcgPvePage',
+      'GCG/open_GcgReplayPage',
+      'GCG/open_GcgShopPage',
+      'GCG/open_Ggccard_page',
+
+      GCG Action Afters:
+      'GCG/open_GcgLevelPage_Bigworld',
+      'GCG/open_GcgLevelPage_Bigworld_1',
+      'GCG/open_GcgLevelPage_CatBar',
+      'GCG/open_GcgLevelPage_CatBar_2',
+      'GCG/open_GcgQuestLevelPage_1',
+      'GCG/open_GcgTestQuestChallengesPage_1',
+      'GCG/open_GcgTestQuestChallengesPage_2',
+       */
+
+      if (this.isPlayerTalkRole(dialog) && this.isPlayerDialogOption(dialog)) {
+        if (dialog.OptionIcon === 'UI_Icon_Intee_GcgZhanDou' && (
+          dialog.ActionBefore === 'GCG/open_GcgLevelPage'
+          || dialog.ActionBefore === 'GCG/open_GcgLevelPage_CatBar_1'
+          || dialog.ActionBefore === 'GCG/open_GcgLevelPage_Invitation'
+          || dialog.ActionAfter === 'GCG/open_GcgLevelPage_Bigworld'
+          || dialog.ActionAfter === 'GCG/open_GcgLevelPage_Bigworld_1'
+          || dialog.ActionAfter === 'GCG/open_GcgLevelPage_CatBar'
+          || dialog.ActionAfter === 'GCG/open_GcgLevelPage_CatBar_2'
+        )) {
+          text += `\n${diconPrefix}${':'.repeat(numSubsequentNonBranchPlayerDialogOption)};(Open Genius Invokation TCG match interface)`;
+        }
+
+        if (dialog.ActionBefore === 'GCG/open_GcgCardSettingPage') {
+          text += `\n${diconPrefix}${':'.repeat(numSubsequentNonBranchPlayerDialogOption)};(Open Genius Invokation TCG deck interface)`;
+        }
+      }
+
       // Voice-Overs
       // ~~~~~~~~~~~
       let voPrefix = this.voice.getVoPrefix('Dialog', dialog.Id, text, dialog.TalkRole.Type);

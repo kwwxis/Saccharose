@@ -131,7 +131,7 @@
                   <td class="bold"><%= objectiveText %></td>
                   <td class="w70p">
                     <div class="spacer10-all">
-                      <% for (let reward of stage.Reward.ChallengeRewardList[index].Reward.RewardItemList) { %>
+                      <% for (let reward of (stage.Reward.ChallengeRewardList?.[index]?.Reward?.RewardItemList || [])) { %>
                         <%- use('partials/genshin/archive/item', { material: reward.Material, itemCount: reward.ItemCount }) %>
                       <% } %>
                     </div>

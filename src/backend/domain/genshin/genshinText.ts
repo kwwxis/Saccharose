@@ -137,7 +137,7 @@ export function __normGenshinText(text: string, langCode: LangCode, opts: NormTe
     text = text.replace(/<color=(#[0-9a-fA-F]{6})(?:FF)?>(.*?)<\/color>/g, '{{color|$1|$2}}');
   }
 
-  text = text.replace(/\{REALNAME\[ID\(1\)(\|HOSTONLY\(true\))?]}/g, '(Wanderer)');
+  text = text.replace(/\{REALNAME\[ID\(1\)(\|HOSTONLY\(true\))?(\|DELAYHANDLE\((true|false)\))?]}/g, '(Wanderer)');
 
   if (!opts.plaintext) {
     text = text.replace(/\{SPRITE_PRESET#(\d+)}/g, (fm: string, g1: string) => {

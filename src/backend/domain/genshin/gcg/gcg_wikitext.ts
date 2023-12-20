@@ -234,7 +234,7 @@ export async function generateStageTemplate(control: GCGControl, stage: GCGGameE
       const reward = stage.Reward.ChallengeRewardList[index];
 
       sb.prop('objective_' + (index+1), objectiveText);
-      sb.prop('reward_' + (index+1), reward.Reward.RewardSummary.CombinedStringsNoLocale);
+      sb.prop('reward_' + (index+1), reward?.Reward?.RewardSummary?.CombinedStringsNoLocale);
     }
   }
 

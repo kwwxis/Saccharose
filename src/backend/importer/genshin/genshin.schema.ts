@@ -798,6 +798,28 @@ export const genshinSchema = {
     ],
     renameFields: {
       ElementBrustTalkId: 'ElementBurstTalkId',
+
+      LGPAEEOJHAE: 'GameId',
+
+      LBFILGPEDGK: 'HappyTalkId',
+      PKOAHFOPJDD: '1',
+
+      NNKJEHOHMBO: 'SadTalkId',
+      CJFHOABHDCK: '1',
+
+      MLEFDDEHBBL: 'ToughTalkId',
+      COCGDKCMMPM: '1',
+
+      CFGEPIGEJCK: 'ElementBurstTalkId',
+      DPKOJONFJPB: '1',
+
+      IKOEPPHFOEB: 'HighHealthTalkId',
+      PAKILBFPCCL: 'HighHealthValue',
+      BCKNCBHEDGB: 'HighHealthConfigId',
+
+      PDNAEHFAFIJ: 'LowHealthTalkId',
+      ODHDEGNOJKH: 'LowHealthValue',
+      NLHKBFOGJMM: 'LowHealthConfigId'
     },
   },
   GCGTalkDetailExcelConfigData: <SchemaTable> {

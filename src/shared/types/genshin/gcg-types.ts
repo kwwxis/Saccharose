@@ -178,6 +178,8 @@ export type GCGTagType =
   'GCG_TAG_SLOWLY'            |
   'GCG_TAG_TALENT'            |
   'GCG_TAG_UNIQUE'            |
+  'GCG_TAG_ARKHE_PNEUMA'      |
+  'GCG_TAG_ARKHE_OUSIA'       |
 
   // Elements
   'GCG_TAG_ELEMENT_ANEMO'     |
@@ -202,6 +204,7 @@ export type GCGTagType =
   'GCG_TAG_CAMP_HILICHURL'    |
   'GCG_TAG_CAMP_KAIRAGI'      |
   'GCG_TAG_CAMP_MONSTER'      |
+  'GCG_TAG_CAMP_EREMITE'      |
 
   // Weapons
   'GCG_TAG_WEAPON'            |

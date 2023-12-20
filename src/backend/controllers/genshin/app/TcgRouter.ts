@@ -8,12 +8,13 @@ import {
   GCGCommonCard,
   GCGGameExcelConfigData,
 } from '../../../../shared/types/genshin/gcg-types';
-import { defaultMap } from '../../../../shared/util/genericUtil';
+import { defaultMap, removeCyclicRefs } from '../../../../shared/util/genericUtil';
 import { isInt, toInt } from '../../../../shared/util/numberUtil';
 import { sort } from '../../../../shared/util/arrayUtil';
 import { queryTab } from '../../../middleware/util/queryTab';
 import { generateCardPage, generateSkillPage, generateStageTemplate } from '../../../domain/genshin/gcg/gcg_wikitext';
 import { Request, Response, Router } from 'express';
+import { ApiCyclicValueReplacer } from '../../../middleware/api/apiCyclicValueReplacer';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -59,7 +60,7 @@ export default async function(): Promise<Router> {
     res.render('pages/genshin/gcg/gcg-stage', {
       title: (stage?.WikiCombinedTitle || 'Not Found') + ' | TCG Stage',
       stage,
-      stageForJsonUnmapped: gcg.getStageForJson(stage, true),
+      stageForJsonUnmapped: removeCyclicRefs(gcg.getStageForJson(stage, true), ApiCyclicValueReplacer, false),
       wikitext: await generateStageTemplate(gcg, stage),
       dialogueWikitext: stage.StageTalk ? stage.StageTalk.toString(true) : null,
       idleWikitext: stage.IdleTalk ? stage.IdleTalk.toString(true) : null,

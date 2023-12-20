@@ -10,5 +10,5 @@
     "*.vue.template.ts"
   ],
   "exec": "node --no-warnings=ExperimentalWarning --loader ts-node/esm ./src/pipeline/vue-sfc-compile.ts --compile && etsc --config=etsc.config.cjs && node --no-warnings=ExperimentalWarning --loader ts-node/esm ./src/pipeline/vue-sfc-compile.ts --clean && node ./dist/backend/server.js",
-  "ext": "ts,tsx,js,json,vue"
+  "ext": "ts,tsx,js,json,vue,ejs"
 }

@@ -392,24 +392,44 @@ declare global {
   }
 }
 
-Array.prototype.asyncMap = async function<T, U>(callbackfn: (value: T, index: number, array: T[]) => Promise<U|void>, skipNilResults: boolean = true): Promise<U[]> {
-  const promises: Promise<U|void>[] = [];
+Object.defineProperty(Array.prototype, 'asyncMap', {
+  value: async function<T, U>(callbackfn: (value: T, index: number, array: T[]) => Promise<U|void>, skipNilResults: boolean = true): Promise<U[]> {
+    const promises: Promise<U|void>[] = [];
 
-  for (let i = 0; i < this.length; i++) {
-    promises.push(callbackfn(this[i], i, this));
-  }
-
-  const results: U[] = [];
-
-  for (let result of await Promise.all(promises)) {
-    if (skipNilResults && isUnset(result)) {
-      continue;
+    for (let i = 0; i < this.length; i++) {
+      promises.push(callbackfn(this[i], i, this));
     }
-    results.push(<any> result);
-  }
 
-  return results;
-}
+    const results: U[] = [];
+
+    for (let result of await Promise.all(promises)) {
+      if (skipNilResults && isUnset(result)) {
+        continue;
+      }
+      results.push(<any> result);
+    }
+
+    return results;
+  }
+})
+// Array.prototype.asyncMap = async function<T, U>(callbackfn: (value: T, index: number, array: T[]) => Promise<U|void>, skipNilResults: boolean = true): Promise<U[]> {
+//   const promises: Promise<U|void>[] = [];
+//
+//   for (let i = 0; i < this.length; i++) {
+//     promises.push(callbackfn(this[i], i, this));
+//   }
+//
+//   const results: U[] = [];
+//
+//   for (let result of await Promise.all(promises)) {
+//     if (skipNilResults && isUnset(result)) {
+//       continue;
+//     }
+//     results.push(<any> result);
+//   }
+//
+//   return results;
+// }
 
 function arrayMove<T>(arr: T[], fromIndex: number, toIndex: number) {
   let element = arr[fromIndex];

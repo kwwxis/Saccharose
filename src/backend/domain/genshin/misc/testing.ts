@@ -48,14 +48,36 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   // }
 
   const optionIcons: Set<string> = new Set();
+  const actionBefores: Set<string> = new Set();
+  const actionWhiles: Set<string> = new Set();
+  const actionAfters: Set<string> = new Set();
   const data: any[] = await ctrl.readJsonFile('./ExcelBinOutput/DialogExcelConfigData.json');
 
   for (let row of data) {
     if (row.optionIcon) {
       optionIcons.add(row.optionIcon);
     }
+    if (row.actionBefore) {
+      actionBefores.add(row.actionBefore);
+    }
+    if (row.actionWhile) {
+      actionWhiles.add(row.actionWhile);
+    }
+    if (row.actionAfter) {
+      actionAfters.add(row.actionAfter);
+    }
   }
+  console.log('\nOPTION ICONS:')
   console.log(Array.from(optionIcons).sort());
+
+  console.log('\nACTION BEFORES:')
+  console.log(Array.from(actionBefores).sort());
+
+  console.log('\nACTION WHILES:')
+  console.log(Array.from(actionWhiles).sort());
+
+  console.log('\nACTION AFTERS:')
+  console.log(Array.from(actionAfters).sort());
 
 
   // let files: string[] = fs.readdirSync("C:/Shared/git/localweb/Saccharose/public/images/DIcons");

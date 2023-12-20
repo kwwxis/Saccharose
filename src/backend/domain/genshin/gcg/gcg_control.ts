@@ -107,7 +107,7 @@ export class GCGControl {
       return await this.allSelect('GCGSkillTagExcelConfigData');
     });
 
-    this.costDataList = await cached('GCG_costDataList', async () => {
+    this.costDataList = await cached('GCG_costDataList_' + this.ctrl.outputLangCode, async () => {
       return await this.allSelect('GCGCostExcelConfigData');
     });
 
@@ -115,7 +115,7 @@ export class GCGControl {
       return await this.allSelect('GcgWorldWorkTimeExcelConfigData');
     });
 
-    this.elementReactions = await cached('GCG_elementReactions', async () => {
+    this.elementReactions = await cached('GCG_elementReactions_' + this.ctrl.outputLangCode, async () => {
       return await this.allSelect('GCGElementReactionExcelConfigData'); // must come after skillTagList
     });
 
@@ -377,6 +377,9 @@ export class GCGControl {
     stage.CharacterLevel = null;
     stage.WeekLevel = null;
 
+    if (stage.EnemyNameText && stage.EnemyNameText.includes('#')) {
+      stage.EnemyNameText = this.ctrl.normText(stage.EnemyNameText, this.ctrl.outputLangCode);
+    }
     if (!disableLoad.disableRuleLoad) {
       stage.Rule = this.rules.find(rule => rule.Id === stage.RuleId);
     }
@@ -793,6 +796,10 @@ export class GCGControl {
           .replace(/Switch_GCG_/i, '')
           .replace(/_/g, ''))
       }
+
+      if (!this.charIconsLcSet.has(char.CharIcon.toLowerCase()) && /\d\d$/.test(char.CharIcon)) {
+        char.CharIcon = char.CharIcon.replace(/\d\d$/, '');
+      }
     }
 
     return char;
@@ -1098,8 +1105,9 @@ export class GCGControl {
       if (gcgTalk.LowHealthTalk) {
         const sect = this.pushTalkDetailToStageTalk(stage, 'Low Health', gcgTalk, gcgTalk.LowHealthTalk);
         sect.addMetaProp('Low Health Value', gcgTalk.LowHealthValue);
+        sect.addMetaProp('Low Health Card ID', gcgTalk.LowHealthConfigId);
 
-        const lowHealthCard = await this.selectCharacterCard(gcgTalk.LowHealthConfigId);
+        const lowHealthCard = gcgTalk.LowHealthConfigId && await this.selectCharacterCard(gcgTalk.LowHealthConfigId);
         if (lowHealthCard) {
           sect.wikitext = `;(When ${stage.EnemyNameText}'s ${lowHealthCard.WikiName}'s Health drops to ${gcgTalk.LowHealthValue} or lower)\n`
             + sect.wikitext;
@@ -1108,8 +1116,9 @@ export class GCGControl {
       if (gcgTalk.HighHealthTalk) {
         const sect = this.pushTalkDetailToStageTalk(stage, 'High Health', gcgTalk, gcgTalk.HighHealthTalk);
         sect.addMetaProp('High Health Value', gcgTalk.HighHealthValue);
+        sect.addMetaProp('High Health Card ID', gcgTalk.LowHealthConfigId);
 
-        const highHealthCard = await this.selectCharacterCard(gcgTalk.LowHealthConfigId);
+        const highHealthCard = gcgTalk.LowHealthConfigId && await this.selectCharacterCard(gcgTalk.LowHealthConfigId);
         if (highHealthCard) {
           sect.wikitext = `;(When ${stage.EnemyNameText}'s ${highHealthCard.WikiName}'s Health drops to ${gcgTalk.HighHealthValue} or lower)\n`
             + sect.wikitext;
@@ -1235,7 +1244,7 @@ export class GCGControl {
                 stage.StageTalk.children.push(talkSect);
               }
             }
-          } else if (section.originalData.dialogBranch) {
+          } else if (section.originalData.dialogBranch && section.originalData.dialogBranch[0]) {
             let dialog = section.originalData.dialogBranch[0];
             let idleSect = new DialogueSectionResult('Dialog_'+dialog.Id, 'Idle Quote');
             idleSect.addMetaProp('Dialogue ID', dialog.Id);
