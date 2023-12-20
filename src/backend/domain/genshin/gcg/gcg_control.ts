@@ -57,9 +57,6 @@ export class GCGControl {
   charSkillDamageList: GCGCharSkillDamage[];
   charIcons: string[];
   charIconsLcSet: Set<string> = new Set();
-  charIconsAvatar: string[];
-  charIconsMonster: string[];
-  charIconsEnemy: string[];
   tagList: GCGTagExcelConfigData[];
   skillTagList: GCGSkillTagExcelConfigData[];
   keywordList: GCGKeywordExcelConfigData[];
@@ -81,9 +78,6 @@ export class GCGControl {
     });
 
     this.charIconsLcSet = new Set<string>(this.charIcons.map(s => s.toLowerCase().replace('.png', '')));
-    this.charIconsAvatar = this.charIcons.filter(s => s.includes('AvatarIcon')).map(s => s.replace('.png', ''));
-    this.charIconsMonster = this.charIcons.filter(s => s.includes('MonsterIcon')).map(s => s.replace('.png', ''));
-    this.charIconsEnemy = this.charIcons.filter(s => s.includes('EnemyIcon')).map(s => s.replace('.png', ''));
 
     this.charSkillDamageList = await cached('GCG_charSkillDamageList', async () => {
       return await this.ctrl.readDataFile('./GCGCharSkillDamage.json');

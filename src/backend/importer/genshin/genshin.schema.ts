@@ -810,6 +810,7 @@ export const genshinSchema = {
     renameFields: {
       OKFHEMAKLNN: 'TalkContentTextMapHash',
       CPBEMEKHDCO: 'TalkDetailIconId',
+      JKPKBLJAMAG: 'TalkDetailIconId',
       PGFENJJPNBG: 'TalkEmoji',
     },
     singularize: ['TalkDetailIconId'],
@@ -1230,7 +1231,8 @@ export const genshinSchema = {
     renameFields: {
       PHMOLEPKEIB: 'CategoryType',
       PBCDLDCHKMK: 'CategoryType',
-      EBJAELDKAAJ: 'CategoryType'
+      EBJAELDKAAJ: 'CategoryType',
+      NEAJPKMAMOF: 'CategoryType'
     },
     singularize: ['CategoryType'],
   },
