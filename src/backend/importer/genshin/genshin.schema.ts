@@ -1055,8 +1055,12 @@ export const genshinSchema = {
     renameFields: {
       BHGNBKPJDII: 'AvatarName',
       IAPINBOEJCO: 'AvatarName',
-      LEKAGJLNGLH: "IsRemoveAfterDie",
-      KCOKMGBEMJB: "IsCanObtain",
+      FMDPDBBKOKM: 'AvatarName',
+      NBLPFBBIEGE: 'IsRemoveAfterDie',
+      LEKAGJLNGLH: 'IsRemoveAfterDie',
+      OOCDMOAACAH: 'TagList',
+      KCOKMGBEMJB: 'IsCanObtain',
+      LHJBJHKKJED: 'IsCanObtain',
     }
   },
   GCGCharacterLevelExcelConfigData: <SchemaTable> {
