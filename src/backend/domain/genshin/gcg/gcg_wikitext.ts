@@ -44,7 +44,7 @@ export async function generateSkillPage(gcg: GCGControl, parentCard: GCGCommonCa
   sb.line('{{Change History|<!-- version -->}}');
   sb.line();
   sb.line('==Navigation==');
-  sb.line(`{{Genius Invokation TCG Skill Infobox|${parentCard.WikiName}}}`);
+  sb.line(`{{Genius Invokation TCG Skill Navbox|${parentCard.WikiName}}}`);
   sb.line();
 
   return sb.toString();
