@@ -238,7 +238,6 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
           newCondArray.push(cond);
         }
       } else {
-        console.log(cond);
         newCondArray.push(cond);
       }
     }
