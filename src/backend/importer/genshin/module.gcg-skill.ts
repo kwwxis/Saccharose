@@ -1,19 +1,21 @@
+import '../../loadenv';
 import fs from 'fs';
 import { getGenshinDataFilePath } from '../../loadenv';
 import path from 'path';
-import { GCGCharSkillDamage } from '../../../shared/types/genshin/gcg-types';
+import { GCGCharSkillDamage, GCGSkillExcelConfigData } from '../../../shared/types/genshin/gcg-types';
 import { standardElementCode } from '../../../shared/types/genshin/manual-text-map';
 import chalk from 'chalk';
+import { getGenshinControl } from '../../domain/genshin/genshinControl';
 
 export async function importGcgSkill() {
-  const outDir = process.env.GENSHIN_DATA_ROOT;
+  const outDir = process.env.GENSHIN_DATA_ROOT
+  const ctrl = getGenshinControl();
 
-  const skillExcelStr = fs.readFileSync(getGenshinDataFilePath('./ExcelBinOutput/GCGSkillExcelConfigData.json'), 'utf8');
-  const skillExcelJson: any[] = JSON.parse(skillExcelStr);
+  const skillExcelJson: GCGSkillExcelConfigData[] = await ctrl.readExcelDataFile('GCGSkillExcelConfigData.json');
   const skillInternalNames: Set<string> = new Set<string>();
   for (let skillExcel of skillExcelJson) {
-    if (skillExcel['ODACBHLGCIN'] || skillExcel['CCKMLPCNHFL'] || skillExcel['HHHMJFBFAKD'] || skillExcel['PMMNFCHEICF'] || skillExcel['MFLFOBHEELP']) {
-      skillInternalNames.add(skillExcel['ODACBHLGCIN'] || skillExcel['CCKMLPCNHFL'] || skillExcel['HHHMJFBFAKD'] || skillExcel['PMMNFCHEICF'] || skillExcel['MFLFOBHEELP']);
+    if (skillExcel.InternalName) {
+      skillInternalNames.add(skillExcel.InternalName);
     }
   }
 
@@ -26,59 +28,107 @@ export async function importGcgSkill() {
     const fileData = fs.readFileSync(path.join(binOutputUnknownDir, file), 'utf8');
     const json: any = JSON.parse(fileData.toString());
 
-    if (json['EONPAHCMPOI']) {
-      json.name = json['EONPAHCMPOI'];
+    if (!json || typeof json !== 'object') {
+      continue;
     }
 
-    if (typeof json === 'object' && typeof json.name === 'string' && skillInternalNames.has(json.name)) {
-      const name: string = json.name;
-      const data: any = json['NGKMIMDBNPC'] || json['ACMGJEOBIEK'] || json['ANFAJNNDLFF'] || json['CLFPJIMIPNN']
-        || json['IICPHNNCBPL'] || json['LBJBMKBADGI'];
-      if (!combined[name]) {
-        combined[name] = { Name: name };
+    for (let [_key, value] of Object.entries(json)) {
+      if (typeof value === 'string' && skillInternalNames.has(value)) {
+        json.name = value;
+      }
+    }
+
+    if (typeof json.name !== 'string' || !skillInternalNames.has(json.name)) {
+      continue;
+    }
+
+    const name: string = json.name;
+    const data: any = Object.values(json).find(v => typeof v === 'object');
+
+    if (!data) {
+      console.log('No data:' + name + ' in ' + file);
+      continue;
+    }
+    console.log('Encountered: ' + name + ' in ' + file);
+
+    if (!combined[name]) {
+      combined[name] = { Name: name };
+    }
+
+    function getPropValue<T>(propObject: any, propType: string|'NoType', valueMatch: (v: any) => boolean): T {
+      for (let prop of Object.values(propObject)) {
+        const obj = Object.assign({}, propObject);
+        let typeMatch: boolean = false;
+
+        for (let [key, value] of Object.entries(prop)) {
+          if (value === propType) {
+            delete obj[key];
+            typeMatch = true;
+            break;
+          }
+        }
+
+        if (propType === 'NoType' && !typeMatch) {
+          typeMatch = true;
+        }
+
+        if (!typeMatch) {
+          continue;
+        }
+
+        delete obj['$type'];
+
+        for (let [key, value] of Object.entries(obj)) {
+          if (valueMatch(value)) {
+            return value as T;
+          }
+        }
+
+        return undefined;
+      }
+      return undefined;
+    }
+
+    for (let propObj of Object.values(data).filter(v => !!v && typeof v === 'object')) {
+      combined[name].Damage = getPropValue(propObj, 'NoType', v => typeof v === 'number');
+      combined[name].IndirectDamage = getPropValue(propObj, 'IndirectDamage', v => typeof v === 'number');
+      combined[name].ElementTag = getPropValue(propObj, 'Element', v => typeof v === 'string' && v.startsWith('GCG_ELEMENT'));
+
+      if (name.startsWith('Effect_Damage_')) {
+        combined[name].Element = standardElementCode(name.split('_')[2].toLowerCase());
+      } else {
+        combined[name].Element = standardElementCode(combined[name].ElementTag);
       }
 
-      if (data) {
-        combined[name].Damage = data['-2060930438']?.value || data['-2060930438']?.['DLLBGDKBMIL'];
-        combined[name].IndirectDamage = data['-1921818039']?.value || data['-1921818039']?.['DLLBGDKBMIL'];
-        combined[name].ElementTag = data['476224977']?.ratio || data['476224977']?.['HPDLNIPCGHB'];
+      if (combined[name].Element === null) {
+        delete combined[name].Element;
+      }
 
-        if (name.startsWith('Effect_Damage_')) {
-          combined[name].Element = standardElementCode(name.split('_')[2].toLowerCase());
-        } else {
-          combined[name].Element = standardElementCode(combined[name].ElementTag);
-        }
-
-        if (combined[name].Element === null) {
-          delete combined[name].Element;
-        }
-
-        switch (combined[name].Element) {
-          case 'PYRO':
-            combined[name].ElementKeywordId = 103;
-            break;
-          case 'HYDRO':
-            combined[name].ElementKeywordId = 102;
-            break;
-          case 'DENDRO':
-            combined[name].ElementKeywordId = 107;
-            break;
-          case 'ELECTRO':
-            combined[name].ElementKeywordId = 104;
-            break;
-          case 'ANEMO':
-            combined[name].ElementKeywordId = 105;
-            break;
-          case 'CRYO':
-            combined[name].ElementKeywordId = 101;
-            break;
-          case 'GEO':
-            combined[name].ElementKeywordId = 106;
-            break;
-          case 'PHYSICAL':
-            combined[name].ElementKeywordId = 100;
-            break;
-        }
+      switch (combined[name].Element) {
+        case 'PYRO':
+          combined[name].ElementKeywordId = 103;
+          break;
+        case 'HYDRO':
+          combined[name].ElementKeywordId = 102;
+          break;
+        case 'DENDRO':
+          combined[name].ElementKeywordId = 107;
+          break;
+        case 'ELECTRO':
+          combined[name].ElementKeywordId = 104;
+          break;
+        case 'ANEMO':
+          combined[name].ElementKeywordId = 105;
+          break;
+        case 'CRYO':
+          combined[name].ElementKeywordId = 101;
+          break;
+        case 'GEO':
+          combined[name].ElementKeywordId = 106;
+          break;
+        case 'PHYSICAL':
+          combined[name].ElementKeywordId = 100;
+          break;
       }
     }
   }
