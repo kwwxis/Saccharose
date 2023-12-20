@@ -12,6 +12,7 @@ import { getGenshinControl } from './genshinControl';
 import { toMap } from '../../../shared/util/arrayUtil';
 import { logInitData } from '../../util/logger';
 import fs, { promises as fsp } from 'fs';
+import { ManualTextMapHashes } from '../../../shared/types/genshin/manual-text-map';
 
 function __convertGenshinRubi(langCode: LangCode, text: string): string {
   const rubiMap: { [index: number]: string } = {};
@@ -125,13 +126,26 @@ export function __normGenshinText(text: string, langCode: LangCode, opts: NormTe
     text = text.replace(/<color=#CC8000(?:FF)?>(.*?)<\/color>/g, '{{color|bp|$1}}');
 
     // Elements:
-    text = text.replace(/<color=#FFACFF(?:FF)?>(.*?)<\/color>/g, '{{Electro|$1}}');
-    text = text.replace(/<color=#99FFFF(?:FF)?>(.*?)<\/color>/g, '{{Cryo|$1}}');
-    text = text.replace(/<color=#80C0FF(?:FF)?>(.*?)<\/color>/g, '{{Hydro|$1}}');
-    text = text.replace(/<color=#FF9999(?:FF)?>(.*?)<\/color>/g, '{{Pyro|$1}}');
-    text = text.replace(/<color=#99FF88(?:FF)?>(.*?)<\/color>/g, '{{Dendro|$1}}');
-    text = text.replace(/<color=#80FFD7(?:FF)?>(.*?)<\/color>/g, '{{Anemo|$1}}');
-    text = text.replace(/<color=#FFE699(?:FF)?>(.*?)<\/color>/g, '{{Geo|$1}}');
+    text = text.replace(/<color=#FFACFF(?:FF)?>(.*?)<\/color>/g,
+      (fm, g1) => elementColorTemplate(langCode, 'ELECTRO', 'Electro', fm, g1));
+
+    text = text.replace(/<color=#99FFFF(?:FF)?>(.*?)<\/color>/g,
+      (fm, g1) => elementColorTemplate(langCode, 'ELECTRO', 'Electro', fm, g1));
+
+    text = text.replace(/<color=#80C0FF(?:FF)?>(.*?)<\/color>/g,
+      (fm, g1) => elementColorTemplate(langCode, 'HYDRO', 'Hydro', fm, g1));
+
+    text = text.replace(/<color=#FF9999(?:FF)?>(.*?)<\/color>/g,
+      (fm, g1) => elementColorTemplate(langCode, 'PYRO', 'Pyro', fm, g1));
+
+    text = text.replace(/<color=#99FF88(?:FF)?>(.*?)<\/color>/g,
+      (fm, g1) => elementColorTemplate(langCode, 'DENDRO', 'Dendro', fm, g1));
+
+    text = text.replace(/<color=#80FFD7(?:FF)?>(.*?)<\/color>/g,
+      (fm, g1) => elementColorTemplate(langCode, 'ANEMO', 'Anemo', fm, g1));
+
+    text = text.replace(/<color=#FFE699(?:FF)?>(.*?)<\/color>/g,
+      (fm, g1) => elementColorTemplate(langCode, 'GEO', 'Geo', fm, g1));
 
     // Unknown:
     text = text.replace(/<color=(#[0-9a-fA-F]{6})(?:FF)?>(.*?)<\/color>/g, '{{color|$1|$2}}');
@@ -170,11 +184,60 @@ export function __normGenshinText(text: string, langCode: LangCode, opts: NormTe
   return text;
 }
 
+// Wikis that use Module:Color and have "_searchTextForKeyword" function and updated their "colors" map
+// to include their language keywords and not just English keywords
+const wikisSupportingInTextColorKeyword: Set<LangCode> = new Set(['EN', 'JP', 'RU', 'TH', 'TR', 'VI']);
+
+// Wikis supporting the element name as template name, e.g. {{Hydro}} or {{水}}
+const wikisSupportingElementNameTemplates: Set<LangCode> = new Set(['EN', 'JP', 'TH', 'TR', 'VI']);
+
+function elementColorTemplate(langCode: LangCode,
+                              ELEMENT_TEXTMAP_KEY: keyof typeof ELEMENT_TEXTMAP,
+                              TPL_COLOR_NAME: string,
+                              _fullMatch: string, g1: string) {
+  const elementName: LangCodeMap = ELEMENT_TEXTMAP[ELEMENT_TEXTMAP_KEY];
+
+  // Exact element name match: <color>Hydro</color> --> {{Hydro}}
+  if (wikisSupportingElementNameTemplates.has(langCode) && g1.toLowerCase() === elementName.EN.toLowerCase()) {
+    return `{{${TPL_COLOR_NAME}}}`;
+  }
+
+  // Contains element name: <color>Hydro DMG</color> --> {{color|Hydro DMG}}
+  else if (wikisSupportingInTextColorKeyword.has(langCode) && g1.toLowerCase().includes(elementName.EN.toLowerCase())) {
+    return `{{color|${g1}}}`;
+  }
+
+  // Does not contain element name: <color>Lorem ipsum</color> --> {{color|hydro|Lorem ipsum}}
+  else {
+    return `{{color|${TPL_COLOR_NAME.toLowerCase()}|${g1}}}`;
+  }
+}
+
 export const GENSHIN_SPRITE_TAGS: { [spriteId: number]: SpriteTagExcelConfigData } = {};
 export const INTER_ACTION_D2F: {[dialogId: string]: string} = {};
 
 let serverBrandTipsOverseas: LangCodeMap = null;
 let serverEmailAskOverseas: LangCodeMap = null;
+
+let ELEMENT_TEXTMAP: {
+  PYRO: LangCodeMap,
+  HYDRO: LangCodeMap,
+  DENDRO: LangCodeMap,
+  ELECTRO: LangCodeMap,
+  ANEMO: LangCodeMap,
+  CRYO: LangCodeMap,
+  GEO: LangCodeMap,
+  PHYSICAL: LangCodeMap,
+} = {
+  PYRO: null,
+  HYDRO: null,
+  DENDRO: null,
+  ELECTRO: null,
+  ANEMO: null,
+  CRYO: null,
+  GEO: null,
+  PHYSICAL: null,
+};
 
 export async function loadGenshinTextSupportingData(): Promise<void> {
   logInitData('Loading Genshin-supporting text data -- starting...');
@@ -183,6 +246,15 @@ export async function loadGenshinTextSupportingData(): Promise<void> {
 
   serverBrandTipsOverseas = await ctrl.createLangCodeMap(2874657049);
   serverEmailAskOverseas = await ctrl.createLangCodeMap(2535673454);
+
+  ELEMENT_TEXTMAP.PYRO = await ctrl.createLangCodeMap(ManualTextMapHashes.Pyro);
+  ELEMENT_TEXTMAP.HYDRO = await ctrl.createLangCodeMap(ManualTextMapHashes.Hydro);
+  ELEMENT_TEXTMAP.DENDRO = await ctrl.createLangCodeMap(ManualTextMapHashes.Dendro);
+  ELEMENT_TEXTMAP.ELECTRO = await ctrl.createLangCodeMap(ManualTextMapHashes.Electro);
+  ELEMENT_TEXTMAP.ANEMO = await ctrl.createLangCodeMap(ManualTextMapHashes.Anemo);
+  ELEMENT_TEXTMAP.CRYO = await ctrl.createLangCodeMap(ManualTextMapHashes.Cryo);
+  ELEMENT_TEXTMAP.GEO = await ctrl.createLangCodeMap(ManualTextMapHashes.Geo);
+  ELEMENT_TEXTMAP.PHYSICAL = await ctrl.createLangCodeMap(ManualTextMapHashes.Physical);
 
   toMap(await ctrl.readExcelDataFile<SpriteTagExcelConfigData[]>('SpriteTagExcelConfigData.json'), 'Id', GENSHIN_SPRITE_TAGS);
 

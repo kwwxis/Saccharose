@@ -125,6 +125,7 @@ import {
   InterActionGroup, InterActionNextDialogs,
 } from '../../../shared/types/genshin/interaction-types';
 import { CommonLineId } from '../../../shared/types/common-types';
+import { genshin_i18n, GENSHIN_I18N_MAP } from '../i18n';
 
 // region Control State
 // --------------------------------------------------------------------------------------------------------------
@@ -218,6 +219,10 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
   override copy(): GenshinControl {
     return new GenshinControl(this.state.copy());
+  }
+
+  override i18n(key: keyof typeof GENSHIN_I18N_MAP, vars?: Record<string, string>): string {
+    return genshin_i18n(key, this.outputLangCode, vars);
   }
   // endregion
 
@@ -1058,7 +1063,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
       if (dialog.Recurse) {
         if (this.isPlayerTalkRole(dialog)) {
-          out += `\n${diconPrefix};(Return to option selection)`;
+          out += `\n${diconPrefix};(${this.i18n('ReturnToDialogueOption')})`;
         } else {
           out += `\n${diconPrefix.slice(0,-1)};(Return to option selection)`;
         }

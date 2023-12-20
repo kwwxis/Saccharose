@@ -109,6 +109,8 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     return this.state.searchMode;
   }
 
+  abstract i18n(key: string, vars?: Record<string, string>): string;
+
   langSuggest(query: string): LangSuggest {
     const result = langDetect(query);
     const code = CLD2_TO_LANG_CODE[result?.details?.[0]?.langCode?.toLowerCase()] ||

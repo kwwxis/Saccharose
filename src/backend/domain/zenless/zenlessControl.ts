@@ -7,6 +7,7 @@ import { LangCode } from '../../../shared/types/lang-types';
 import { __normZenlessText } from './zenlessText';
 import { NormTextOptions } from '../generic/genericNormalizers';
 import { Request } from 'express';
+import { zenless_i18n, ZENLESS_I18N_MAP } from '../i18n';
 
 // region Control State
 // --------------------------------------------------------------------------------------------------------------
@@ -53,6 +54,10 @@ export class ZenlessControl extends AbstractControl<ZenlessControlState> {
       object = normalizeRawJson(object, typeof triggerNormalize === 'boolean' ? null : triggerNormalize);
     }
     return object;
+  }
+
+  override i18n(key: keyof typeof ZENLESS_I18N_MAP, vars?: Record<string, string>): string {
+    return zenless_i18n(key, this.outputLangCode, vars);
   }
 }
 // endregion

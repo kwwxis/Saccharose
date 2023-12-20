@@ -19,6 +19,7 @@ import { NormTextOptions } from '../generic/genericNormalizers';
 import { Request } from 'express';
 import { logInitData } from '../../util/logger';
 import { AvatarConfig } from '../../../shared/types/hsr/hsr-avatar-types';
+import { hsr_i18n, HSR_I18N_MAP } from '../i18n';
 
 // region Control State
 // --------------------------------------------------------------------------------------------------------------
@@ -83,6 +84,10 @@ export class StarRailControl extends AbstractControl<StarRailControlState> {
 
   override copy(): StarRailControl {
     return new StarRailControl(this.state.copy());
+  }
+
+  override i18n(key: keyof typeof HSR_I18N_MAP, vars?: Record<string, string>): string {
+    return hsr_i18n(key, this.outputLangCode, vars);
   }
   // endregion
 

@@ -873,6 +873,11 @@ export class GCGControl {
           .map(c => standardElementCodeToGcgKeywordId(standardElementCode(c.CostType)))
           .filter(x => !!x)[0];
 
+        // Fallback to physical if still no match:
+        if (!guessKwId) {
+          guessKwId = standardElementCodeToGcgKeywordId('PHYSICAL');
+        }
+
         keyword = this.keywordList.find(kw => kw.Id === guessKwId);
         if (keyword) {
           return keyword.TitleText;
