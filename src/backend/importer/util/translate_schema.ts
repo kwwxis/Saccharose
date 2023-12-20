@@ -50,6 +50,9 @@ function unpackRecord(record: any, normalizeKey: boolean): KvPair[] {
       if (normalizeKey) {
         key = normalizeRawJsonKey(key);
       }
+      if (isInt(key)) {
+        continue;
+      }
       result.push({ key, value, valueHash: createValueHash(key, value) });
     }
   }
