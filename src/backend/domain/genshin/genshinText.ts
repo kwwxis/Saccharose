@@ -130,7 +130,7 @@ export function __normGenshinText(text: string, langCode: LangCode, opts: NormTe
       (fm, g1) => elementColorTemplate(langCode, 'ELECTRO', 'Electro', fm, g1));
 
     text = text.replace(/<color=#99FFFF(?:FF)?>(.*?)<\/color>/g,
-      (fm, g1) => elementColorTemplate(langCode, 'ELECTRO', 'Electro', fm, g1));
+      (fm, g1) => elementColorTemplate(langCode, 'CRYO', 'Cryo', fm, g1));
 
     text = text.replace(/<color=#80C0FF(?:FF)?>(.*?)<\/color>/g,
       (fm, g1) => elementColorTemplate(langCode, 'HYDRO', 'Hydro', fm, g1));
