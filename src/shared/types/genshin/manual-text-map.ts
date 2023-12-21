@@ -153,16 +153,17 @@ export const ElementTypeToNation = {
 export type ElementType = 'Electric' | 'Fire' | 'Grass' | 'Ice' | 'None' | 'Rock' | 'Water' | 'Wind';
 export const ElementTypeArray: ElementType[] = [ 'Electric', 'Fire', 'Grass', 'Ice', 'None', 'Rock', 'Water', 'Wind' ];
 
-export function standardElementCode(element: string): string {
-  if (!element) {
+export function standardElementCode(input: string): string {
+  if (!input) {
     return null;
   }
-  let out = STANDARD_ELEMENT_MAP[element.toLowerCase()];
+  let out = STANDARD_ELEMENT_MAP[input.toLowerCase()];
   if (out) {
     return out;
   }
+  const words = input.toLowerCase().split(/[\s_]+/g);
   for (let [key, value] of Object.entries(STANDARD_ELEMENT_MAP)) {
-    if (element.toLowerCase().includes(key)) {
+    if (words.includes(key)) {
       return value;
     }
   }
