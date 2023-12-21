@@ -120,10 +120,10 @@ export function __normGenshinText(text: string, langCode: LangCode, opts: NormTe
     text = postProcessBoldItalic(text, opts);
 
     // Misc:
-    text = text.replace(/<color=#00E1FF(?:FF)?>(.*?)<\/color>/g, '{{color|buzzword|$1}}');
-    text = text.replace(/<color=#FFCC33(?:FF)?>(.*?)<\/color>/g, '{{color|help|$1}}');
-    text = text.replace(/<color=#FFE14B(?:FF)?>(.*?)<\/color>/g, '{{color|help|$1}}');
-    text = text.replace(/<color=#CC8000(?:FF)?>(.*?)<\/color>/g, '{{color|bp|$1}}');
+    text = text.replace(/<color=#00E1FF(?:FF)?>(.*?)<\/color>/g, '{{Color|buzzword|$1}}');
+    text = text.replace(/<color=#FFCC33(?:FF)?>(.*?)<\/color>/g, '{{Color|help|$1}}');
+    text = text.replace(/<color=#FFE14B(?:FF)?>(.*?)<\/color>/g, '{{Color|help|$1}}');
+    text = text.replace(/<color=#CC8000(?:FF)?>(.*?)<\/color>/g, '{{Color|bp|$1}}');
 
     // Elements:
     text = text.replace(/<color=#FFACFF(?:FF)?>(.*?)<\/color>/g,
@@ -204,12 +204,12 @@ function elementColorTemplate(langCode: LangCode,
 
   // Contains element name: <color>Hydro DMG</color> --> {{color|Hydro DMG}}
   else if (wikisSupportingInTextColorKeyword.has(langCode) && g1.toLowerCase().includes(elementName.EN.toLowerCase())) {
-    return `{{color|${g1}}}`;
+    return `{{Color|${g1}}}`;
   }
 
   // Does not contain element name: <color>Lorem ipsum</color> --> {{color|hydro|Lorem ipsum}}
   else {
-    return `{{color|${TPL_COLOR_NAME.toLowerCase()}|${g1}}}`;
+    return `{{Color|${TPL_COLOR_NAME.toLowerCase()}|${g1}}}`;
   }
 }
 

@@ -1721,9 +1721,21 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return await this.knex.select('*').from('HomeWorldEventExcelConfigData').then(this.commonLoad);
   }
 
-  async selectHomeWorldNPC(furnitureId: number): Promise<HomeWorldNPCExcelConfigData> {
+  async selectHomeWorldNPCByFurnitureId(furnitureId: number): Promise<HomeWorldNPCExcelConfigData> {
     return await this.knex.select('*').from('HomeWorldNPCExcelConfigData')
       .where({FurnitureId: furnitureId}).first().then(this.commonLoadFirst)
+      .then((npc: HomeWorldNPCExcelConfigData) => this.postProcessHomeWorldNPC(npc));
+  }
+
+  async selectHomeWorldNPCByNpcId(npcId: number): Promise<HomeWorldNPCExcelConfigData> {
+    return await this.knex.select('*').from('HomeWorldNPCExcelConfigData')
+      .where({NpcId: npcId}).first().then(this.commonLoadFirst)
+      .then((npc: HomeWorldNPCExcelConfigData) => this.postProcessHomeWorldNPC(npc));
+  }
+
+  async selectHomeWorldNPCByAvatarId(avatarId: number): Promise<HomeWorldNPCExcelConfigData> {
+    return await this.knex.select('*').from('HomeWorldNPCExcelConfigData')
+      .where({AvatarId: avatarId}).first().then(this.commonLoadFirst)
       .then((npc: HomeWorldNPCExcelConfigData) => this.postProcessHomeWorldNPC(npc));
   }
 
@@ -1820,7 +1832,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     }
 
     if (loadConf.LoadHomeWorldNPC && furn.SurfaceType === 'NPC') {
-      furn.HomeWorldNPC = await this.selectHomeWorldNPC(furn.Id);
+      furn.HomeWorldNPC = await this.selectHomeWorldNPCByFurnitureId(furn.Id);
       if (furn.HomeWorldNPC) {
         furn.Icon = furn.HomeWorldNPC.CommonIcon;
         furn.ItemIcon = furn.HomeWorldNPC.CommonIcon;
@@ -1838,11 +1850,22 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   // region HomeWorld Furniture Suite
   async selectFurnitureSuite(suiteId: number): Promise<FurnitureSuiteExcelConfigData> {
     return await this.knex.select('*').from('FurnitureSuiteExcelConfigData')
-      .where({SuiteId: suiteId}).first().then(this.commonLoadFirst);
+      .where({SuiteId: suiteId}).first().then(this.commonLoadFirst).then(suite => this.postProcessFurnitureSuite(suite));
   }
 
   async selectAllFurnitureSuite(): Promise<FurnitureSuiteExcelConfigData[]> {
-    return await this.knex.select('*').from('FurnitureSuiteExcelConfigData').then(this.commonLoad);
+    const suites: FurnitureSuiteExcelConfigData[] = await this.knex.select('*').from('FurnitureSuiteExcelConfigData').then(this.commonLoad);
+    await suites.asyncMap(suite => this.postProcessFurnitureSuite(suite));
+    return suites;
+  }
+
+  private async postProcessFurnitureSuite(suite: FurnitureSuiteExcelConfigData): Promise<FurnitureSuiteExcelConfigData> {
+    if (suite.FavoriteNpcExcelIdVec && suite.FavoriteNpcExcelIdVec.length) {
+      suite.FavoriteNpcVec = await suite.FavoriteNpcExcelIdVec.asyncMap(id => this.selectHomeWorldNPCByAvatarId(id));
+    } else {
+      suite.FavoriteNpcVec = [];
+    }
+    return suite;
   }
   //endregion
 

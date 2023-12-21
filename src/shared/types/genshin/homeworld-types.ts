@@ -218,6 +218,7 @@ export interface FurnitureSuiteExcelConfigData {
   ItemIcon: string,
   InterRatio: number,
   FavoriteNpcExcelIdVec: number[],
+  FavoriteNpcVec: HomeWorldNPCExcelConfigData[],
   TransStr: string,
   MapIcon: string,
 }

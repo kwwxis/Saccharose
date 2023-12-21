@@ -1,7 +1,7 @@
 import { startListeners } from '../../../util/eventLoader';
 import { VoAppState } from './vo-tool';
 import { flashTippy } from '../../../util/tooltips';
-import { copyToClipboard, downloadObjectAsJson, downloadTextAsFile } from '../../../util/domutil';
+import { copyTextToClipboard, downloadObjectAsJson, downloadTextAsFile } from '../../../util/domutil';
 import { ModalRef, modalService } from '../../../util/modalService';
 import { ucFirst } from '../../../../shared/util/stringUtil';
 import { GeneralEventBus } from '../../../generalEventBus';
@@ -138,7 +138,7 @@ export function VoAppToolbar(state: VoAppState) {
       ev: 'click',
       fn: function() {
         state.eventBus.emit('VO-Wikitext-RequestValue', (value: string) => {
-          copyToClipboard(value);
+          copyTextToClipboard(value);
 
           let exportButton = document.querySelector<HTMLButtonElement>('#vo-app-export-button');
           flashTippy(exportButton, {content: 'Copied!', delay:[0,2000]});

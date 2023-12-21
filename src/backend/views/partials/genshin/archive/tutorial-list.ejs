@@ -47,11 +47,25 @@
           <span style="opacity: 0.65; font-size: 12px;">ID <%= tutorial.Id %></span>
         </h3>
         <div class="content">
-          <textarea readonly class="w100p wikitext autosize" spellcheck="false" translate="no"
-                    data-markers="<%= Marker.joinedString(tutorial.WikitextMarkers) %>"><%= tutorial.Wikitext %></textarea>
+          <div class="posRel">
+            <textarea id="tutorial-<%= tutorial.Id %>-wikitext"
+                      readonly class="w100p wikitext autosize" spellcheck="false" translate="no"
+                      data-markers="<%= Marker.joinedString(tutorial.WikitextMarkers) %>"><%= tutorial.Wikitext %></textarea>
+            <button class="secondary small posAbs" ui-action="copy: #tutorial-<%= tutorial.Id %>-wikitext"
+                    style="right: 0; top: 0;"
+                    ui-tippy-hover="Click to copy to clipboard"
+                    ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">Copy</button>
+          </div>
           <% if (tutorial.PushTip?.TitleText) { %>
-            <textarea readonly class="w100p wikitext autosize"
-                      spellcheck="false" translate="no">{{Transclude|Tutorial/<%= tutorial.PushTip?.TitleText %>}}</textarea>
+            <div class="posRel">
+              <textarea id="tutorial-<%= tutorial.Id %>-transclude"
+                        readonly class="w100p wikitext autosize"
+                        spellcheck="false" translate="no">{{Tutorial|<%= tutorial.PushTip?.TitleText %>}}</textarea>
+              <button class="secondary small posAbs" ui-action="copy: #tutorial-<%= tutorial.Id %>-transclude"
+                      style="right: 0; top: 0;"
+                      ui-tippy-hover="Click to copy to clipboard"
+                      ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">Copy</button>
+            </div>
           <% } %>
           <div class="tutorial-images spacer15-bottom">
             <% for (let image of tutorial.Images) { %>

@@ -1,6 +1,6 @@
 import { pageMatch } from '../../../pageMatch';
 
-import { ColDef, Grid, GridApi, GridOptions } from 'ag-grid-community';
+import { ColDef, GetContextMenuItemsParams, Grid, GridApi, GridOptions, MenuItemDef } from 'ag-grid-community';
 import { LicenseManager } from 'ag-grid-enterprise';
 LicenseManager.prototype.validateLicense = function() {};
 LicenseManager.prototype.isDisplayWatermark = function() {return false};
@@ -13,7 +13,13 @@ import { camelCaseToTitleCase, escapeHtml } from '../../../../shared/util/string
 import { ColGroupDef } from 'ag-grid-community/dist/lib/entities/colDef';
 import { sort } from '../../../../shared/util/arrayUtil';
 import { startListeners } from '../../../util/eventLoader';
-import { DOMClassWatcher, downloadObjectAsJson, getTextWidth } from '../../../util/domutil';
+import {
+  copyImageToClipboard,
+  DOMClassWatcher,
+  downloadImage,
+  downloadObjectAsJson,
+  getTextWidth,
+} from '../../../util/domutil';
 import { ICellRendererParams } from 'ag-grid-community/dist/lib/rendering/cellRenderers/iCellRenderer';
 import { highlightJson, highlightWikitext } from '../../../util/ace/wikitextEditor';
 import { isNotEmpty, isUnset } from '../../../../shared/util/genericUtil';
@@ -73,7 +79,7 @@ function makeSingleColumnDef(fieldKey: string, fieldName: string, data: any) {
       }
       let safeValue = escapeHtml(params.value);
       return `<img class="excel-image" src="/images/hsr/${safeValue}" loading="lazy" decoding="async"
-          alt="Image not found" onerror="this.classList.add('excel-image-error')" />
+          alt="Image not found" onerror="this.classList.add('excel-image-error')" data-file-name="${safeValue}.png" />
         <span class="code">${safeValue}</span>`;
     };
   } else if (typeof data === 'string' && pageMatch.isGenshin && (fieldName.includes('Image') || fieldName.includes('Icon')
@@ -86,7 +92,7 @@ function makeSingleColumnDef(fieldKey: string, fieldName: string, data: any) {
       }
       const safeValue = escapeHtml(params.value);
       return `<img class="excel-image" src="/images/genshin/${safeValue}.png" loading="lazy" decoding="async"
-          alt="Image not found" onerror="this.classList.add('excel-image-error')" />
+          alt="Image not found" onerror="this.classList.add('excel-image-error')" data-file-name="${safeValue}.png" />
         <span class="code">${safeValue}</span>`;
     };
   } else if (typeof data === 'string' && (fieldName.includes('Text') || fieldName.includes('Name')
@@ -257,6 +263,37 @@ pageMatch('pages/generic/basic/excel-viewer-table', () => {
         }
       ],
       //defaultToolPanel: 'columns',
+    },
+    getContextMenuItems(params: GetContextMenuItemsParams): (string | MenuItemDef)[] {
+      const cellEl: HTMLElement = document.querySelector(`.ag-body-viewport .ag-row[row-id="${params.node.id}"] .ag-cell[col-id="${params.column.getColId()}"]`);
+      const cellImage: HTMLImageElement = cellEl.querySelector('.excel-image:not(.excel-image-error)');
+
+      const result: (string | MenuItemDef)[] = [
+        'copy',
+        'copyWithHeaders'
+      ];
+
+      if (cellImage) {
+        result.push(... [
+          'separator',
+          {
+            name: 'Save image as',
+            action: () => downloadImage(cellImage, cellImage.getAttribute('data-file-name'))
+          },
+          {
+            name: 'Copy image',
+            action: () => copyImageToClipboard(cellImage)
+          },
+        ])
+      }
+
+
+      result.push(... [
+        'separator',
+        'export'
+      ]);
+
+      return result;
     }
   };
 

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import {
-  copyToClipboard, createElement, deleteQueryStringParameter, getHiddenElementBounds, getInputValue,
+  copyTextToClipboard, createElement, deleteQueryStringParameter, getHiddenElementBounds, getInputValue,
   getScrollbarWidth,
   hashFlash,
   setQueryStringParameter, tag,
@@ -271,7 +271,7 @@ const initial_listeners: Listener[] = [
               'ui-tippy-flash': "{content:'Copied!', delay: [0,2000]}",
             });
             copyButton.addEventListener('click', async () => {
-              await copyToClipboard(contentEditableEl.querySelector('.ace_static_text_layer').textContent.trim());
+              await copyTextToClipboard(contentEditableEl.querySelector('.ace_static_text_layer').textContent.trim());
             });
             toolbarEl.append(copyButton);
           }
@@ -515,16 +515,16 @@ const initial_listeners: Listener[] = [
 
               if ((<any>copyTarget).value) {
                 // noinspection JSIgnoredPromiseFromCall
-                copyToClipboard((<any>copyTarget).value.trim());
+                copyTextToClipboard((<any>copyTarget).value.trim());
               } else if (copyTarget.hasAttribute('contenteditable')) {
                 if (copyTarget.querySelector('.ace_static_text_layer')) {
                   copyTarget = copyTarget.querySelector('.ace_static_text_layer');
                 }
                 // noinspection JSIgnoredPromiseFromCall
-                copyToClipboard(copyTarget.textContent.trim());
+                copyTextToClipboard(copyTarget.textContent.trim());
               } else {
                 // noinspection JSIgnoredPromiseFromCall
-                copyToClipboard(copyTarget.textContent.trim());
+                copyTextToClipboard(copyTarget.textContent.trim());
               }
               break;
             }
@@ -547,7 +547,7 @@ const initial_listeners: Listener[] = [
                   }
                 }
                 // noinspection JSIgnoredPromiseFromCall
-                copyToClipboard(combinedValues.join(sep));
+                copyTextToClipboard(combinedValues.join(sep));
               }
               break;
             }
@@ -598,7 +598,7 @@ const initial_listeners: Listener[] = [
               params.set('searchMode', Cookies.get('search-mode') || 'WI');
 
               const newUrl = `${window.location.protocol}//${window.location.host}${window.location.pathname}?${params.toString()}`;
-              copyToClipboard(newUrl);
+              copyTextToClipboard(newUrl);
               break;
             }
             case 'expando': {

@@ -24,7 +24,7 @@ import { toBoolean } from '../../../shared/util/genericUtil';
 import { escapeHtml } from '../../../shared/util/stringUtil';
 import { Marker, MarkerAggregate } from '../../../shared/util/highlightMarker';
 import { uuidv4 } from '../../../shared/util/uuidv4';
-import { copyToClipboard, frag1, getElementOffset, getInputValue, hasSelection } from '../domutil';
+import { copyTextToClipboard, frag1, getElementOffset, getInputValue, hasSelection } from '../domutil';
 import { createAceDomClassWatcher } from './wikitextListeners';
 import { SITE_MODE_WIKI_DOMAIN } from '../../siteMode';
 import { toastError } from '../toaster';

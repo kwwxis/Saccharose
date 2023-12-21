@@ -1,4 +1,4 @@
-import { copyToClipboard, frag1, getElementOffset } from '../../domutil';
+import { copyTextToClipboard, frag1, getElementOffset } from '../../domutil';
 import { CommonLineId } from '../../../../shared/types/common-types';
 import { errorHtmlWrap, getOLEndpoint } from '../../../endpoints';
 import { HttpError } from '../../../../shared/util/httpError';
@@ -30,7 +30,7 @@ export function applyWikitextLineActions(element: HTMLElement, commonLineIds: Co
 
     cursorEl.querySelector('.copy-line').addEventListener('click', async () => {
       if (lastHoveredLine) {
-        await copyToClipboard(lastHoveredLine.textContent.trim());
+        await copyTextToClipboard(lastHoveredLine.textContent.trim());
       }
     });
 

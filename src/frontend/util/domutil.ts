@@ -272,12 +272,42 @@ export async function pasteFromClipboard(target: HTMLInputElement|HTMLTextAreaEl
   }
 }
 
+async function imageAsBlob(image: HTMLImageElement|Blob): Promise<Blob> {
+  let blob: Blob;
+
+  if (isElement(image)) {
+    const canvas = document.createElement('canvas');
+    canvas.width = image.naturalWidth;
+    canvas.height = image.naturalHeight;
+
+    const context = canvas.getContext('2d');
+    context.drawImage(image, 0, 0);
+
+    blob = await new Promise((resolve) => {
+      canvas.toBlob(canvasBlob => resolve(canvasBlob), 'image/png', 1);
+    });
+  } else {
+    blob = image;
+  }
+
+  return blob;
+}
+
+export async function copyImageToClipboard(image: HTMLImageElement|Blob): Promise<void> {
+  const blob: Blob = await imageAsBlob(image);
+  return navigator.clipboard.write([
+    new ClipboardItem({
+      [blob.type]: blob
+    })
+  ]);
+}
+
 /**
  * Should be called from a user-interaction event listener such as `click`.
  *
  * Copied from https://stackoverflow.com/a/33928558
  */
-export async function copyToClipboard(text: string): Promise<void> {
+export async function copyTextToClipboard(text: string): Promise<void> {
     if (navigator.clipboard) {
         return navigator.clipboard.writeText(text);
     } else if (document.queryCommandSupported && document.queryCommandSupported('copy')) {
@@ -323,24 +353,29 @@ export async function copyToClipboard(text: string): Promise<void> {
  * @param {number} indentation indentation level
  */
 export function downloadObjectAsJson(exportObj: any, exportName: string, indentation: number = 0) {
-    if (exportName.toLowerCase().endsWith('.json')) exportName = exportName.slice(0, -5);
-    let text = JSON.stringify(exportObj, null, indentation);
-    let blob = new Blob([ text ], { type: "application/json;charset=utf-8" });
-    saveAs(blob, exportName + '.json');
+  if (exportName.toLowerCase().endsWith('.json')) exportName = exportName.slice(0, -5);
+  let text = JSON.stringify(exportObj, null, indentation);
+  let blob = new Blob([ text ], { type: "application/json;charset=utf-8" });
+  saveAs(blob, exportName + '.json');
 }
 
-export function downloadTextAsFile(filename: string, text: string) {
-    let blob = new Blob([ text ], { type: "text/plain;charset=utf-8" });
-    saveAs(blob, filename);
+export function downloadTextAsFile(fileName: string, text: string) {
+  let blob = new Blob([ text ], { type: "text/plain;charset=utf-8" });
+  saveAs(blob, fileName);
+}
+
+export async function downloadImage(image: HTMLImageElement|Blob, fileName: string) {
+  const blob: Blob = await imageAsBlob(image);
+  saveAs(blob, fileName);
 }
 
 /**
  * Set current url query string parameter without moving the browser history state forward.
  */
 export function setQueryStringParameter(name: string, value: string) {
-    const params = new URLSearchParams(window.location.search);
-    params.set(name, value);
-    window.history.replaceState({}, '', decodeURIComponent(`${window.location.pathname}?${params}`));
+  const params = new URLSearchParams(window.location.search);
+  params.set(name, value);
+  window.history.replaceState({}, '', decodeURIComponent(`${window.location.pathname}?${params}`));
 }
 
 /**
