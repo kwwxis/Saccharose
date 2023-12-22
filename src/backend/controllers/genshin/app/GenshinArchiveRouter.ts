@@ -453,6 +453,7 @@ export default async function(): Promise<Router> {
       for (let unit of suite.Units) {
         recipeWikitext.line(`|${unit.Furniture.NameText.replace(/\|/g, '{{!}}')} = ${unit.Count}`);
       }
+      recipeWikitext.line(`|sort = ${suite.Units.map(unit => unit.Furniture.NameText).join(';')}`)
       recipeWikitext.line('|yield = 0');
       recipeWikitext.line('}}');
     }
