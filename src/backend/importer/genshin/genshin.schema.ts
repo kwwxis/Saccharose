@@ -987,6 +987,13 @@ export const genshinSchema = {
       ILOGAIHBHNE: 'MapDescTextMapHash',
     },
   },
+  GcgWorldWorkTimeExcelConfigData: <SchemaTable> {
+    name: 'GcgWorldWorkTimeExcelConfigData',
+    jsonFile: './ExcelBinOutput/GcgWorldWorkTimeExcelConfigData.json',
+    columns: [
+      { name: 'Id', type: 'integer', isPrimary: true },
+    ]
+  },
   GCGWeekLevelExcelConfigData: <SchemaTable> {
     name: 'GCGWeekLevelExcelConfigData',
     jsonFile: './ExcelBinOutput/GCGWeekLevelExcelConfigData.json',

@@ -1815,25 +1815,21 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return this.postProcessFurniture(furn, typeMap, makeMap, loadConf);
   }
 
-  async selectAllFurniture(): Promise<HomeWorldFurnitureExcelConfigData[]> {
-    console.time('furn read');
-    let arr: HomeWorldFurnitureExcelConfigData[] = await this.readExcelDataFile('HomeWorldFurnitureExcelConfigData.json', true);
-    console.timeEnd('furn read');
+  async selectAllFurniture(): Promise<HomeWorldFurnitureExcelConfigData[]> {;
+    let furnList: HomeWorldFurnitureExcelConfigData[] = await this.knex.select('*').from('HomeWorldFurnitureExcelConfigData');
 
-    console.time('furn filter');
-    arr = arr.filter(x => !!x.NameText);
-    console.timeEnd('furn filter');
-
-    console.time('furn type map');
     const typeMap = await this.selectFurnitureTypeMap();
-    console.timeEnd('furn type map');
 
-    console.time('furn post process');
-    await arr.asyncMap(furn => this.postProcessFurniture(furn, typeMap, null));
-    console.timeEnd('furn post process');
-    sort(arr, 'IsExterior', 'CategoryNameText', 'TypeNameText');
+    furnList = await furnList.asyncMap(async furn => {
+      furn = await this.commonLoadFirst(furn, null, true);
+      await this.postProcessFurniture(furn, typeMap, null);
+      return furn;
+    });
 
-    return arr
+    furnList = furnList.filter(x => !!x.NameText);
+    sort(furnList, 'IsExterior', 'CategoryNameText', 'TypeNameText');
+
+    return furnList;
   }
 
   private async postProcessFurniture(furn: HomeWorldFurnitureExcelConfigData,

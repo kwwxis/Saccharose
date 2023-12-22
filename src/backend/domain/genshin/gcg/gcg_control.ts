@@ -39,6 +39,7 @@ import { html2quotes, unnestHtmlTags } from '../../../../shared/mediawiki/mwQuot
 import { loadGenshinTextSupportingData } from '../genshinText';
 import { dialogueGenerateByNpc, NpcDialogueResult } from '../dialogue/basic_dialogue_generator';
 import * as console from 'console';
+import { mapBy } from '../../../../shared/util/arrayUtil';
 
 // noinspection JSUnusedGlobalSymbols
 export class GCGControl {
@@ -48,23 +49,25 @@ export class GCGControl {
   private didInit: boolean = false;
 
   // Preloaded Data
-  icons: GCGTalkDetailIconExcelConfigData[];
-  rules: GCGRuleExcelConfigData[];
-  challenges: GCGChallengeExcelConfigData[];
-  elementReactions: GCGElementReactionExcelConfigData[];
-  costDataList: GCGCostExcelConfigData[];
-  worldWorkTime: GcgWorldWorkTimeExcelConfigData[];
-  charSkillDamageList: GCGCharSkillDamage[];
+  talkDetailIconTable:  {[id: number]: GCGTalkDetailIconExcelConfigData};
+  ruleTable:            {[id: number]: GCGRuleExcelConfigData};
+  challengeTable:       {[id: number]: GCGChallengeExcelConfigData};
+  elementReactionTable: {[id: number]: GCGElementReactionExcelConfigData};
+  worldWorkTimeTable:   {[id: number]: GcgWorldWorkTimeExcelConfigData};
+  costDataTable:        {[type: string]: GCGCostExcelConfigData};
+  charSkillDamageTable: {[name: string]: GCGCharSkillDamage};
+  tagTable:             {[type: string]: GCGTagExcelConfigData};
+  skillTagTable:        {[type: string]: GCGSkillTagExcelConfigData};
+  keywordTable:         {[kwId: number]: GCGKeywordExcelConfigData};
+
   charIcons: string[];
   charIconsLcSet: Set<string> = new Set();
-  tagList: GCGTagExcelConfigData[];
-  skillTagList: GCGSkillTagExcelConfigData[];
-  keywordList: GCGKeywordExcelConfigData[];
 
   // Settings
   disableSkillSelect: boolean = false;
   disableNpcLoad: boolean = false;
   disableRelatedCharacterLoad: boolean = false;
+  disableVoiceItemsLoad: boolean = false;
 
   constructor(readonly ctrl: GenshinControl, readonly enableElementalReactionMapping: boolean = false) {}
 
@@ -81,51 +84,61 @@ export class GCGControl {
 
     this.charIconsLcSet = new Set<string>(this.charIcons.map(s => s.toLowerCase().replace('.png', '')));
 
-    this.charSkillDamageList = await cached('GCG_charSkillDamageList', async () => {
-      return await this.ctrl.readDataFile('./GCGCharSkillDamage.json');
+    this.charSkillDamageTable = await cached('GCG_charSkillDamageList', async () => {
+      const arr: GCGCharSkillDamage[] = await this.ctrl.readDataFile('./GCGCharSkillDamage.json');
+      return mapBy(arr, 'Name');
     });
 
-    this.keywordList = await cached('GCG_keywordList_' + this.ctrl.outputLangCode, async () => {
-      return await this.allSelect('GCGKeywordExcelConfigData');
+    this.keywordTable = await cached('GCG_keywordList_' + this.ctrl.outputLangCode, async () => {
+      const arr: GCGKeywordExcelConfigData[] = await this.allSelect('GCGKeywordExcelConfigData');
+      return mapBy(arr, 'Id');
     });
 
-    this.icons = await cached('GCG_icons', async () => {
-      return await this.allSelect('GCGTalkDetailIconExcelConfigData');
+    this.talkDetailIconTable = await cached('GCG_talkDetailIcons', async () => {
+      const arr: GCGTalkDetailIconExcelConfigData[] = await this.allSelect('GCGTalkDetailIconExcelConfigData');
+      return mapBy(arr, 'Id');
     });
 
-    this.rules = await cached('GCG_rules', async () => {
-      return await this.allSelect('GCGRuleExcelConfigData');
+    this.ruleTable = await cached('GCG_rules', async () => {
+      const arr: GCGRuleExcelConfigData[] = await this.allSelect('GCGRuleExcelConfigData');
+      return mapBy(arr, 'Id');
     });
 
-    this.challenges = await cached('GCG_challenges', async () => {
-      return await this.allSelect('GCGChallengeExcelConfigData');
+    this.challengeTable = await cached('GCG_challenges', async () => {
+      const arr: GCGChallengeExcelConfigData[] = await this.allSelect('GCGChallengeExcelConfigData');
+      return mapBy(arr, 'Id');
     });
 
-    this.tagList = await cached('GCG_tagList_' + this.ctrl.outputLangCode, async () => {
-      return await this.allSelect('GCGTagExcelConfigData');
+    this.tagTable = await cached('GCG_tagList_' + this.ctrl.outputLangCode, async () => {
+      const arr: GCGTagExcelConfigData[] = await this.allSelect('GCGTagExcelConfigData');
+      return mapBy(arr, 'Type');
     });
 
-    this.skillTagList = await cached('GCG_skillTagList_' + this.ctrl.outputLangCode, async () => {
-      return await this.allSelect('GCGSkillTagExcelConfigData');
+    this.skillTagTable = await cached('GCG_skillTagList_' + this.ctrl.outputLangCode, async () => {
+      const arr: GCGSkillTagExcelConfigData[] = await this.allSelect('GCGSkillTagExcelConfigData');
+      return mapBy(arr, 'Type');
     });
 
-    this.costDataList = await cached('GCG_costDataList_' + this.ctrl.outputLangCode, async () => {
-      return await this.allSelect('GCGCostExcelConfigData');
+    this.costDataTable = await cached('GCG_costDataList_' + this.ctrl.outputLangCode, async () => {
+      const arr: GCGCostExcelConfigData[] = await this.allSelect('GCGCostExcelConfigData');
+      return mapBy(arr, 'Type');
     });
 
-    this.worldWorkTime = await cached('GCG_worldWorkTime', async () => {
-      return await this.allSelect('GcgWorldWorkTimeExcelConfigData');
+    this.worldWorkTimeTable = await cached('GCG_worldWorkTime', async () => {
+      const arr: GcgWorldWorkTimeExcelConfigData[] = await this.allSelect('GcgWorldWorkTimeExcelConfigData');
+      return mapBy(arr, 'Id');
     });
 
-    this.elementReactions = await cached('GCG_elementReactions_' + this.ctrl.outputLangCode, async () => {
-      return await this.allSelect('GCGElementReactionExcelConfigData'); // must come after skillTagList
+    this.elementReactionTable = await cached('GCG_elementReactions_' + this.ctrl.outputLangCode, async () => {
+      const arr: GCGElementReactionExcelConfigData[] = await this.allSelect('GCGElementReactionExcelConfigData'); // must come after skillTagList
+      return mapBy(arr, 'Id');
     });
 
-    for (let rule of this.rules) {
+    for (let rule of Object.values(this.ruleTable)) {
       if (this.enableElementalReactionMapping) {
         rule.MappedElementReactionList = [];
         for (let elementReactionId of rule.ElementReactionList) {
-          let mapped = this.elementReactions.find(x => x.Id === elementReactionId);
+          let mapped = this.elementReactionTable[elementReactionId];
           if (mapped) {
             rule.MappedElementReactionList.push(mapped);
           }
@@ -148,7 +161,7 @@ export class GCGControl {
 
     text = text.replace(/\$\[K(\d+)(?:\|s(\d+))?]/g, (fm: string, g: string, sNumStr: string) => {
       const id = toInt(g);
-      const kwText = this.keywordList.find(kw => kw.Id === id).TitleText;
+      const kwText = this.keywordTable[id]?.TitleText;
       return this.ctrl.normText(kwText, outputLangCode || this.ctrl.outputLangCode, {skipHtml2Quotes: true});
     });
 
@@ -175,7 +188,7 @@ export class GCGControl {
     )
 
     text = await replaceAsync(text, /\$\[C(\d+)(?:\|s(\d+))?]/g, async (fm: string, g: string, sNumStr: string) =>
-      commonReplace(await this.selectCardWithoutPostProcess(toInt(g)), fm, sNumStr)
+      commonReplace(await this.selectActionCardWithoutPostProcess(toInt(g)), fm, sNumStr)
     );
 
     text = text.replace(/\{\{color\|#FFD780\|(.*?)}}/g, '[[$1]]');
@@ -195,18 +208,18 @@ export class GCGControl {
       o.Npc = await this.ctrl.getNpc(o.NpcId);
     }
     if ('KeywordId' in o) {
-      if (this.keywordList && this.keywordList.length) {
-        o.Keyword = this.keywordList.find(kw => kw.Id === o['KeywordId']);
+      if (this.keywordTable) {
+        o.Keyword = this.keywordTable[o['KeywordId']];
       } else {
         o.Keyword = await this.singleSelect('GCGKeywordExcelConfigData', 'Id', o['KeywordId']);
       }
     }
     if ('TagList' in o) {
-      o.MappedTagList = o.TagList.map(tagType => this.tagList.find(tag => tag.Type == tagType)).filter(x => !!x);
+      o.MappedTagList = o.TagList.map(tagType => this.tagTable[tagType]).filter(x => !!x);
     }
     if (!this.disableRelatedCharacterLoad) {
       if ('RelatedCharacterTagList' in o) {
-        o.MappedRelatedCharacterTagList = o.RelatedCharacterTagList.map(tagType => this.tagList.find(tag => tag.Type == tagType)).filter(x => !!x);
+        o.MappedRelatedCharacterTagList = o.RelatedCharacterTagList.map(tagType => this.tagTable[tagType]).filter(x => !!x);
       }
       if ('RelatedCharacterId' in o) {
         o.RelatedCharacter = await this.singleSelect('GCGCharExcelConfigData', 'Id', o['RelatedCharacterId'], this.postProcessCharacterCard);
@@ -214,12 +227,12 @@ export class GCGControl {
     }
     if ('CostList' in o && Array.isArray(o.CostList)) {
       for (let costItem of o.CostList) {
-        costItem.CostData = this.costDataList.find(x => x.Type === costItem.CostType);
+        costItem.CostData = this.costDataTable[costItem.CostType];
       }
     }
     if (!this.disableSkillSelect) {
       if ('SkillTagList' in o) {
-        o.MappedSkillTagList = o.SkillTagList.map(tagType => this.skillTagList.find(tag => tag.Type == tagType)).filter(x => !!x);
+        o.MappedSkillTagList = o.SkillTagList.map(tagType => this.skillTagTable[tagType]).filter(x => !!x);
       }
       if ('SkillId' in o) {
         o.MappedSkill = await this.singleSelect('GCGSkillExcelConfigData', 'Id', o['SkillId'], this.postProcessSkill);
@@ -294,18 +307,15 @@ export class GCGControl {
 
   private async allSelect<T>(table: string, postProcess?: (o: T) => Promise<T>): Promise<T[]> {
     await this.init();
-    let records = await this.ctrl.readDataFile(`./ExcelBinOutput/${table}.json`) as T[];
+    const records: T[] = await this.ctrl.knex.select('*').from(table).then(this.ctrl.commonLoad);
     if (postProcess) {
       postProcess = postProcess.bind(this);
     }
-    let promises: Promise<any>[] = [];
+    const promises: Promise<any>[] = [];
     for (let record of records) {
-      promises.push((async () => {
-        await this.defaultPostProcess(record);
-        if (postProcess) {
-          await postProcess(record);
-        }
-      })());
+      let p: Promise<T> = this.defaultPostProcess(record);
+      p = postProcess ? p.then(pRecord => postProcess(pRecord)) : p;
+      promises.push(p);
     }
     await Promise.all(promises);
     return records;
@@ -319,7 +329,7 @@ export class GCGControl {
     talkDetail.VoPrefix = this.ctrl.voice.getVoPrefix('Card', talkDetail.TalkDetailId, null, null, false);
     if (talkDetail.TalkDetailIconId) {
       talkDetail.Avatar = await this.ctrl.selectAvatarById(talkDetail.TalkDetailIconId);
-      talkDetail.TalkDetailIcon = this.icons.find(icon => icon.Id === talkDetail.TalkDetailIconId);
+      talkDetail.TalkDetailIcon = this.talkDetailIconTable[talkDetail.TalkDetailIconId];
     }
     return talkDetail;
   }
@@ -391,7 +401,7 @@ export class GCGControl {
       stage.EnemyNameText = this.ctrl.normText(stage.EnemyNameText, this.ctrl.outputLangCode);
     }
     if (!disableLoad.disableRuleLoad) {
-      stage.Rule = this.rules.find(rule => rule.Id === stage.RuleId);
+      stage.Rule = this.ruleTable[stage.RuleId];
     }
     if (!disableLoad.disableLevelLockLoad) {
       stage.LevelLock = await this.singleSelect('GCGLevelLockExcelConfigData', 'LevelId', stage.Id);
@@ -450,7 +460,7 @@ export class GCGControl {
         if (stage.WorldLevel.UnlockCond === 'GCG_LEVEL_UNLOCK_QUEST') {
           stage.WorldLevel.UnlockMainQuest = await this.ctrl.selectMainQuestById(stage.WorldLevel.UnlockParam);
         }
-        stage.WorldLevel.WorldWorkTime = this.worldWorkTime.find(wt => wt.Id === stage.WorldLevel.NpcId);
+        stage.WorldLevel.WorldWorkTime = this.worldWorkTimeTable[stage.WorldLevel.NpcId];
         if (stage.WorldLevel.WorldWorkTime && stage.WorldLevel.MapDescText) {
           stage.WorldLevel.MapDescText = stage.WorldLevel.MapDescText.replace(/\{0}/g, formatTime(stage.WorldLevel.WorldWorkTime.StartTime));
           stage.WorldLevel.MapDescText = stage.WorldLevel.MapDescText.replace(/\{1}/g, formatTime(stage.WorldLevel.WorldWorkTime.EndTime));
@@ -645,14 +655,14 @@ export class GCGControl {
     }
     for (let item of reward.ChallengeRewardList) {
       if (item.ChallengeId) {
-        item.Challenge = this.challenges.find(c => c.Id == item.ChallengeId);
+        item.Challenge = this.challengeTable[item.ChallengeId];
       }
       if (item.RewardId && loadRewardExcel) {
         item.Reward = await this.ctrl.selectRewardExcelConfigData(item.RewardId);
       }
     }
     if (reward.TalkDetailIconId) {
-      reward.TalkDetailIcon = this.icons.find(icon => icon.Id === reward.TalkDetailIconId);
+      reward.TalkDetailIcon = this.talkDetailIconTable[reward.TalkDetailIconId];
     }
     return reward;
   }
@@ -763,15 +773,6 @@ export class GCGControl {
         .then(ret => card.CardView = ret as any)
     );
 
-    // card.MappedChooseTargetList = await this.multiSelect('GCGChooseExcelConfigData', 'Id', card.ChooseTargetList);
-    //
-    // if (card.TokenDescId) {
-    //   card.TokenDesc = await this.singleSelect('GCGTokenDescConfigData', 'Id', card.TokenDescId);
-    // }
-    //
-    // card.CardFace = await this.singleSelect('GCGCardFaceExcelConfigData', 'CardId', card.Id, this.postProcessCardFace);
-    // card.CardView = await this.singleSelect('GCGCardViewExcelConfigData', 'Id', card.Id, this.postProcessCardView);
-
     promises.push(
       this.selectDeckCard(card.Id).then(ret => {
         if (ret) {
@@ -779,10 +780,6 @@ export class GCGControl {
         }
       })
     );
-    // let deckCard = await this.selectDeckCard(card.Id);
-    // if (deckCard) {
-    //   card.DeckCard = deckCard;
-    // }
 
     await Promise.all(promises);
 
@@ -795,15 +792,15 @@ export class GCGControl {
     return card;
   }
 
-  async selectAllCards(): Promise<GCGCardExcelConfigData[]> {
+  async selectAllActionCards(): Promise<GCGCardExcelConfigData[]> {
     return await this.allSelect('GCGCardExcelConfigData', this.postProcessActionCard)
   }
 
-  async selectCard(id: number): Promise<GCGCardExcelConfigData> {
+  async selectActionCard(id: number): Promise<GCGCardExcelConfigData> {
     return await this.singleSelect('GCGCardExcelConfigData', 'Id', id, this.postProcessActionCard);
   }
 
-  private async selectCardWithoutPostProcess(id: number): Promise<GCGCardExcelConfigData> {
+  private async selectActionCardWithoutPostProcess(id: number): Promise<GCGCardExcelConfigData> {
     return await this.singleSelect('GCGCardExcelConfigData', 'Id', id, false);
   }
   // endregion
@@ -823,11 +820,9 @@ export class GCGControl {
         .then(ret => char.CardView = ret as any)
     );
 
-    // char.CardFace = await this.singleSelect('GCGCardFaceExcelConfigData', 'CardId', char.Id, this.postProcessCardFace);
-    // char.CardView = await this.singleSelect('GCGCardViewExcelConfigData', 'Id', char.Id, this.postProcessCardView);
     char.VoiceItems = [];
 
-    if (char.AvatarName) {
+    if (char.AvatarName && !this.disableVoiceItemsLoad) {
       char.VoiceItems = this.ctrl.voice.getVoiceItemsByType('Card', char.AvatarName);
     }
 
@@ -838,10 +833,6 @@ export class GCGControl {
         }
       })
     );
-    // let deckCard = await this.selectDeckCard(char.Id);
-    // if (deckCard) {
-    //   char.DeckCard = deckCard;
-    // }
 
     await Promise.all(promises);
 
@@ -920,14 +911,14 @@ export class GCGControl {
   }
 
   private async setSkillWikiText(skill: GCGSkillExcelConfigData): Promise<void> {
-    skill.SkillDamage = this.charSkillDamageList.find(x => x.Name === skill.InternalName);
+    skill.SkillDamage = this.charSkillDamageTable[skill.InternalName];
 
     if (skill.DescText && skill.SkillDamage) {
       skill.DescText = skill.DescText.replace(/\$\[D__KEY__DAMAGE(\|nc)?]/g, (fm: string) => {
         return isUnset(skill.SkillDamage.Damage) ? fm : String(skill.SkillDamage.Damage);
       });
       skill.DescText = skill.DescText.replace(/\$\[D__KEY__ELEMENT(\|nc)?]/g, (fm: string) => {
-        let keyword = this.keywordList.find(kw => kw.Id === skill.SkillDamage.ElementKeywordId);
+        let keyword = this.keywordTable[skill.SkillDamage.ElementKeywordId];
         if (keyword) {
           return keyword.TitleText;
         }
@@ -942,7 +933,7 @@ export class GCGControl {
           guessKwId = standardElementCodeToGcgKeywordId('PHYSICAL');
         }
 
-        keyword = this.keywordList.find(kw => kw.Id === guessKwId);
+        keyword = this.keywordTable[guessKwId];
         if (keyword) {
           return keyword.TitleText;
         }
@@ -991,7 +982,7 @@ export class GCGControl {
         let effectDesc: string;
 
         if (effectItem.type === 'C') {
-          let effectCard = await this.selectCardWithoutPostProcess(effectItem.id);
+          let effectCard = await this.selectActionCardWithoutPostProcess(effectItem.id);
           effectName = effectCard.NameText;
           effectDesc = await this.normGcgText(effectCard.DescText);
           extractEffectIds(effectCard.DescText, newIds);

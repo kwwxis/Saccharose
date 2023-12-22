@@ -80,25 +80,13 @@ export default async function(): Promise<Router> {
     gcg.disableSkillSelect = true;
     gcg.disableNpcLoad = true;
     gcg.disableRelatedCharacterLoad = true;
-
-    console.time('[TCG] Cards init');
+    gcg.disableVoiceItemsLoad = true;
     await gcg.init();
-    console.timeEnd('[TCG] Cards init');
 
-    console.time('TCG] Select char cards');
-    const charCards = await gcg.selectAllCharacterCards();
-    console.timeEnd('TCG] Select char cards');
-
-    console.time('TCG] Select action cards');
-    const actionCards = await gcg.selectAllCards();
-    console.timeEnd('TCG] Select action cards');
-
-    // console.time('select cards');
-    // const [charCards, actionCards] = await Promise.all([
-    //   gcg.selectAllCharacterCards(),
-    //   gcg.selectAllCards(),
-    // ]);
-    // console.timeEnd('select cards');
+    const [charCards, actionCards] = await Promise.all([
+      gcg.selectAllCharacterCards(),
+      gcg.selectAllActionCards(),
+    ]);
 
     sort(charCards, '-IsCanObtain', 'Id');
     sort(actionCards, 'IsHidden', '-IsCanObtain', 'Id');
@@ -141,7 +129,7 @@ export default async function(): Promise<Router> {
     const ctrl = getGenshinControl(req);
     const gcg = getGCGControl(ctrl);
     const cardId = isInt(req.params.cardId) ? toInt(req.params.cardId) : null;
-    const card: GCGCommonCard = (await gcg.selectCharacterCard(cardId)) || (await gcg.selectCard(cardId));
+    const card: GCGCommonCard = (await gcg.selectCharacterCard(cardId)) || (await gcg.selectActionCard(cardId));
 
     res.render('pages/genshin/gcg/gcg-card', {
       title: (card?.WikiName || 'Not Found') + ' | TCG Card',

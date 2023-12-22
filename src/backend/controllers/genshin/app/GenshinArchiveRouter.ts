@@ -32,7 +32,7 @@ import AchievementPage from '../../../components/genshin/achievements/Achievemen
 import FurnishingSetListingPage from '../../../components/genshin/furnishings/FurnishingSetListingPage.vue';
 import {
   FurnitureSuiteExcelConfigData,
-  FurnitureSuiteTree, HomeWorldEventExcelConfigData,
+  FurnitureSuiteTree, HomeWorldEventExcelConfigData, HomeWorldFurnitureExcelConfigData, HomeWorldFurnitureTypeTree,
   HomeWorldNPCExcelConfigData,
 } from '../../../../shared/types/genshin/homeworld-types';
 import FurnishingSetSinglePage from '../../../components/genshin/furnishings/FurnishingSetSinglePage.vue';
@@ -44,6 +44,7 @@ import {
 import { DialogExcelConfigData } from '../../../../shared/types/genshin/dialogue-types';
 import { ManualTextMapHashes } from '../../../../shared/types/genshin/manual-text-map';
 import { MetaProp } from '../../../util/metaProp';
+import { cached } from '../../../util/cache';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -501,10 +502,12 @@ export default async function(): Promise<Router> {
   router.get('/furnishings', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
 
-    const [furnitureList, typeTree] = await Promise.all([
-      ctrl.selectAllFurniture(),
-      ctrl.selectFurnitureTypeTree(),
-    ]);
+    const [furnitureList, typeTree] = await cached('FurnishingsList_' + ctrl.outputLangCode, async () => {
+      return await Promise.all([
+        ctrl.selectAllFurniture(),
+        ctrl.selectFurnitureTypeTree(),
+      ]);
+    });
 
     res.render('pages/genshin/archive/furniture-list', {
       title: 'Furnishings',
