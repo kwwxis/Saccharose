@@ -173,9 +173,6 @@ export class GenshinControlState extends AbstractControlState {
         out[mqId].push({imageName, wikiName});
       }
     }
-    console.log(this.questBgPicCounter);
-    console.log(this.questBgPicSeen);
-    console.log(this.questBgPicImageToWikiName);
     return out;
   }
 
@@ -980,7 +977,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
       if (previousDialog && this.isPlayerDialogOption(dialog) && this.isPlayerDialogOption(previousDialog) &&
-        (previousDialog.NextDialogs.length === 1 || previousDialog.Branches.map(b => b[0]).every(x => this.isPlayerTalkRole(x))) &&
+        (previousDialog.NextDialogs.length === 1 || previousDialog.Branches?.map(b => b[0]).every(x => this.isPlayerTalkRole(x))) &&
         previousDialog.NextDialogs.some(x => x === dialog.Id)) {
         // This is for if you have non-branch subsequent player dialogue options for the purpose of generating an output like:
         // :'''Paimon:''' Blah blah blah
