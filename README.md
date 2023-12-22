@@ -14,6 +14,7 @@
     
     Instead, clone [the repo](https://github.com/aboSamoor/pycld2), `cd` into it, and run `./setup.py install` as admin.
 - Other PIP packages: imagehash, psycopg2, python-dotenv
+  - You'll need to apt-get install `libpq-dev` and `python3-dev` first to install psycopg2. Having postgres installed is also required.
 
 ## Setup
 

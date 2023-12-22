@@ -520,6 +520,7 @@ export default async function(): Promise<Router> {
       LoadHomeWorldAnimal: true,
       LoadHomeWorldNPC: true,
       LoadMakeData: true,
+      LoadRelatedMaterial: true,
     });
     const sb: SbOut = new SbOut();
     const ol: OLResult = furn ? (await ol_gen_from_id(ctrl, furn.NameTextMapHash)) : null;

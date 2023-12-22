@@ -173,6 +173,9 @@ export class GenshinControlState extends AbstractControlState {
         out[mqId].push({imageName, wikiName});
       }
     }
+    console.log(this.questBgPicCounter);
+    console.log(this.questBgPicSeen);
+    console.log(this.questBgPicImageToWikiName);
     return out;
   }
 
@@ -800,6 +803,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
               this.state.questBgPicCounter[mainQuestId] = imageNumber + 1;
               this.state.questBgPicSeen[mainQuestId][CustomImageName] = imageNumber;
             }
+            console.log('IA', CustomImageName, imageNumber, iaNextDialogs.Intermediates);
 
             const genWikiName = (o: InterAction): string => {
               let wikiName = (mqName ? mqName + ' ' : '') + 'Quest Still ' + imageNumber;
@@ -941,7 +945,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       if (dialog.CustomTravelLogMenuText) {
         text = this.normText(dialog.CustomTravelLogMenuText, this.outputLangCode);
       } else if (dialog.CustomImageName || dialog.CustomSecondImageName) {
-        text = `<gallery>`;
+        text = `<gallery widths="350">`;
         if (dialog.CustomImageWikiName) {
           text += `\n${dialog.CustomImageWikiName}.png`;
         }
@@ -1812,12 +1816,21 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   }
 
   async selectAllFurniture(): Promise<HomeWorldFurnitureExcelConfigData[]> {
+    console.time('furn read');
     let arr: HomeWorldFurnitureExcelConfigData[] = await this.readExcelDataFile('HomeWorldFurnitureExcelConfigData.json', true);
+    console.timeEnd('furn read');
+
+    console.time('furn filter');
     arr = arr.filter(x => !!x.NameText);
+    console.timeEnd('furn filter');
 
+    console.time('furn type map');
     const typeMap = await this.selectFurnitureTypeMap();
+    console.timeEnd('furn type map');
 
+    console.time('furn post process');
     await arr.asyncMap(furn => this.postProcessFurniture(furn, typeMap, null));
+    console.timeEnd('furn post process');
     sort(arr, 'IsExterior', 'CategoryNameText', 'TypeNameText');
 
     return arr
@@ -1833,17 +1846,42 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     if (!loadConf) {
       loadConf = {};
     }
-    furn.MappedFurnType = furn.FurnType.filter(typeId => !!typeId).map(typeId => typeMap[typeId]);
+
+    furn.MappedFurnType = [];
+    furn.FilterTokens = [];
+    furn.IsInterior = false;
+    furn.IsExterior = false;
+
+    for (let furnTypeId of furn.FurnType) {
+      if (!furnTypeId)
+        continue;
+      const furnType = typeMap[furnTypeId];
+      if (!furnType)
+        continue;
+      furn.MappedFurnType.push(furnType);
+      if (furnType.SceneType !== 'Exterior') {
+        furn.IsInterior = true;
+      }
+      if (furnType.SceneType === 'Exterior') {
+        furn.IsExterior = true;
+      }
+      furn.FilterTokens.push('category-'+furnType.TypeCategoryId);
+      furn.FilterTokens.push('subcategory-'+furnType.TypeId);
+    }
+
+    if (furn.IsInterior) furn.FilterTokens.unshift('Interior');
+    if (furn.IsExterior) furn.FilterTokens.unshift('Exterior');
+
     if (makeMap && loadConf.LoadMakeData) {
       furn.MakeData = makeMap[furn.Id];
     }
-    furn.RelatedMaterialId = await this.selectMaterialIdFromFurnitureId(furn.Id);
-    if (furn.RelatedMaterialId) {
-      furn.RelatedMaterial = await this.selectMaterialExcelConfigData(furn.RelatedMaterialId);
-    }
 
-    furn.IsInterior = furn.MappedFurnType.some(x => x.SceneType !== 'Exterior');
-    furn.IsExterior = furn.MappedFurnType.some(x => x.SceneType === 'Exterior');
+    if (loadConf?.LoadRelatedMaterial) {
+      furn.RelatedMaterialId = await this.selectMaterialIdFromFurnitureId(furn.Id);
+      if (furn.RelatedMaterialId) {
+        furn.RelatedMaterial = await this.selectMaterialExcelConfigData(furn.RelatedMaterialId);
+      }
+    }
 
     if (furn.MappedFurnType[0]) {
       furn.CategoryId = furn.MappedFurnType[0].TypeCategoryId;
@@ -1851,14 +1889,6 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
       furn.TypeId = furn.MappedFurnType[0].TypeId;
       furn.TypeNameText = furn.MappedFurnType[0].TypeName2Text;
-    }
-
-    furn.FilterTokens = [];
-    if (furn.IsInterior) furn.FilterTokens.push('Interior');
-    if (furn.IsExterior) furn.FilterTokens.push('Exterior');
-    for (let type of furn.MappedFurnType) {
-      furn.FilterTokens.push('category-'+type.TypeCategoryId);
-      furn.FilterTokens.push('subcategory-'+type.TypeId);
     }
 
     if (loadConf.LoadHomeWorldNPC && furn.SurfaceType === 'NPC') {

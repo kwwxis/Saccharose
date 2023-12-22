@@ -89,7 +89,7 @@ router.endpoint('/quests/generate', {
 });
 
 async function questStillsHelper(ctrl: GenshinControl) {
-  const questsStillsByMainQuest = ctrl.state.questStills
+  const questsStillsByMainQuest = ctrl.state.questStills;
   const questsStillsMainQuestNames: {[mainQuestId: number]: string} = {};
   if (questsStillsByMainQuest) {
     for (let mainQuestId of Object.keys(questsStillsByMainQuest)) {

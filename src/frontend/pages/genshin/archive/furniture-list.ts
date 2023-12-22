@@ -13,6 +13,14 @@ pageMatch('pages/genshin/archive/furniture-list', () => {
   const allRows: HTMLTableRowElement[] = Array.from(document.querySelectorAll('.furnishing-row'));
   const pendingIconEl = document.getElementById('filter-quick-search-pending');
 
+  for (let row of allRows) {
+    const furnId = parseInt(row.getAttribute('data-id'));
+    const tokens = row.getAttribute('data-filter-tokens').split(',');
+    for (let token of tokens) {
+      tokensToId[token].add(furnId);
+    }
+  }
+
   const myTree = new CheckTree(document.querySelector('#type-tree'), {
     data: Object.entries(typeTree).map(([subTreeName, subTree]) => ({
       checked: true,

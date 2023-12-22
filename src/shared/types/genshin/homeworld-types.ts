@@ -96,6 +96,7 @@ export interface HomeWorldFurnitureLoadConf {
   LoadHomeWorldNPC?: boolean,
   LoadHomeWorldAnimal?: boolean,
   LoadMakeData?: boolean,
+  LoadRelatedMaterial?: boolean,
 }
 
 export interface HomeWorldFurnitureExcelConfigData {
