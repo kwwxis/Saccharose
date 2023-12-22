@@ -94,7 +94,7 @@ export async function fetchCompanionDialogue(ctrl: GenshinControl, avatarNameOrI
       for (let child of sect.children) {
         let friendshipCond = child.originalData.talkConfig?.BeginCond?.find(cond => cond.Type === 'QUEST_COND_AVATAR_FETTER_GT');
         if (friendshipCond) {
-          child.wikitext = `;(Unlocks at Friendship Level ${toInt(friendshipCond.Param[1]) + 1})\n` + child.wikitext.trimStart();
+          child.wikitext = `;(${ctrl.i18n('UnlocksAtFriendshipLevel', {level: toInt(friendshipCond.Param[1]) + 1})})\n` + child.wikitext.trimStart();
         }
 
         let daytimeCond = child.originalData.talkConfig?.BeginCond?.find(cond => cond.Type === 'QUEST_COND_IS_DAYTIME');

@@ -225,7 +225,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return new GenshinControl(this.state.copy());
   }
 
-  override i18n(key: keyof typeof GENSHIN_I18N_MAP, vars?: Record<string, string>): string {
+  override i18n(key: keyof typeof GENSHIN_I18N_MAP, vars?: Record<string, string|number>): string {
     return genshin_i18n(key, this.outputLangCode, vars);
   }
   // endregion
@@ -803,7 +803,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
               this.state.questBgPicCounter[mainQuestId] = imageNumber + 1;
               this.state.questBgPicSeen[mainQuestId][CustomImageName] = imageNumber;
             }
-            console.log('IA', CustomImageName, imageNumber, iaNextDialogs.Intermediates);
+            //console.log('IA', CustomImageName, imageNumber, iaNextDialogs.Intermediates); // TODO
 
             const genWikiName = (o: InterAction): string => {
               let wikiName = (mqName ? mqName + ' ' : '') + 'Quest Still ' + imageNumber;
@@ -1070,7 +1070,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
         if (this.isPlayerTalkRole(dialog)) {
           out += `\n${diconPrefix};(${this.i18n('ReturnToDialogueOption')})`;
         } else {
-          out += `\n${diconPrefix.slice(0,-1)};(Return to option selection)`;
+          out += `\n${diconPrefix.slice(0,-1)};(${this.i18n('ReturnToDialogueOption')})`;
         }
       } else {
         if (dialog.CustomTravelLogMenuText) {
@@ -1132,7 +1132,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
           outIds.push(... branchRet.ids);
         }
         if (includedCount === 0 && excludedCount > 0) {
-          out += `\n${diconPrefix};(Return to option selection)`;
+          out += `\n${diconPrefix};(${this.i18n('ReturnToDialogueOption')})`;
           outIds.push(null);
         }
       }
@@ -1708,11 +1708,11 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     for (let srtFile of Object.keys(srtMap)) {
       let srtLines = srtMap[srtFile];
       let out = [];
-      out.push(';(A cinematic plays)');
+      out.push(`;(${this.i18n('CinematicPlays')})`);
       for (let srtLine of srtLines) {
         out.push(`::'''CS_CHAR:''' ` + this.normText(srtLine.text, this.outputLangCode));
       }
-      out.push(':;(Cinematic ends)');
+      out.push(`:;(${this.i18n('CinematicEnds')})`);
       formattedResults[srtFile] = out.join('\n');
     }
 

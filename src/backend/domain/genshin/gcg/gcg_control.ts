@@ -1169,8 +1169,11 @@ export class GCGControl {
 
         const lowHealthCard = gcgTalk.LowHealthConfigId && await this.selectCharacterCard(gcgTalk.LowHealthConfigId);
         if (lowHealthCard) {
-          sect.wikitext = `;(When ${stage.EnemyNameText}'s ${lowHealthCard.WikiName}'s Health drops to ${gcgTalk.LowHealthValue} or lower)\n`
-            + sect.wikitext;
+          sect.wikitext = `;(${this.ctrl.i18n('TCG_WhenEnemyHealthDrops', {
+            name: stage.EnemyNameText,
+            card: lowHealthCard.WikiName,
+            hp: gcgTalk.LowHealthValue,
+          })})\n` + sect.wikitext;
         }
       }
       if (gcgTalk.HighHealthTalk) {
@@ -1180,25 +1183,28 @@ export class GCGControl {
 
         const highHealthCard = gcgTalk.LowHealthConfigId && await this.selectCharacterCard(gcgTalk.LowHealthConfigId);
         if (highHealthCard) {
-          sect.wikitext = `;(When ${stage.EnemyNameText}'s ${highHealthCard.WikiName}'s Health drops to ${gcgTalk.HighHealthValue} or lower)\n`
-            + sect.wikitext;
+          sect.wikitext = `;(${this.ctrl.i18n('TCG_WhenEnemyHealthDrops', {
+            name: stage.EnemyNameText,
+            card: highHealthCard.WikiName,
+            hp: gcgTalk.HighHealthValue,
+          })})\n` + sect.wikitext;
         }
       }
       if (gcgTalk.SadTalk) {
         const sect = this.pushTalkDetailToStageTalk(stage, 'Sad Talk', gcgTalk, gcgTalk.SadTalk);
-        sect.wikitext = `;(When the player defeats one of ${stage.EnemyNameText}'s Character Cards)\n` + sect.wikitext;
+        sect.wikitext = `;(${this.ctrl.i18n('TCG_WhenOneEnemyCardDefeated', {name: stage.EnemyNameText})})\n` + sect.wikitext;
       }
       if (gcgTalk.ToughTalk) {
         const sect = this.pushTalkDetailToStageTalk(stage, 'Tough Talk', gcgTalk, gcgTalk.ToughTalk);
-        sect.wikitext = `;(When the player defeats two of ${stage.EnemyNameText}'s Character Cards)\n` + sect.wikitext;
+        sect.wikitext = `;(${this.ctrl.i18n('TCG_WhenTwoEnemyCardsDefeated', {name: stage.EnemyNameText})})\n` + sect.wikitext;
       }
       if (gcgTalk.HappyTalk) {
         const sect = this.pushTalkDetailToStageTalk(stage, 'Happy Talk', gcgTalk, gcgTalk.HappyTalk);
-        sect.wikitext = `;(When ${stage.EnemyNameText} defeats one of the player's Character Cards)\n` + sect.wikitext;
+        sect.wikitext = `;(${this.ctrl.i18n('TCG_WhenOnePlayerCardDefeated', {name: stage.EnemyNameText})})\n` + sect.wikitext;
       }
       if (gcgTalk.ElementBurstTalk) {
         const sect = this.pushTalkDetailToStageTalk(stage, 'Elemental Burst', gcgTalk, gcgTalk.ElementBurstTalk);
-        sect.wikitext = `;(When ${stage.EnemyNameText} uses an Elemental Burst)\n` + sect.wikitext;
+        sect.wikitext = `;(${this.ctrl.i18n('TCG_WhenEnemyUsesBurst', {name: stage.EnemyNameText})})\n` + sect.wikitext;
       }
     }
 
@@ -1207,7 +1213,7 @@ export class GCGControl {
         let talkSect = await talkConfigGenerate(this.ctrl, stage.CharacterLevel.WinNormalLevelTalk, acc);
         if (talkSect) {
           talkSect.title = 'Win Talk';
-          talkSect.wikitext = `;(If the player wins the match)\n` + talkSect.wikitext;
+          talkSect.wikitext = `;(${this.ctrl.i18n('TCG_IfPlayerWinsMatch')})\n` + talkSect.wikitext;
           stage.StageTalk.children.push(talkSect);
         }
       }
@@ -1215,7 +1221,7 @@ export class GCGControl {
         let talkSect = await talkConfigGenerate(this.ctrl, stage.CharacterLevel.LoseNormalLevelTalk, acc);
         if (talkSect) {
           talkSect.title = 'Lose Talk';
-          talkSect.wikitext = `;(If the player loses the match)\n` + talkSect.wikitext;
+          talkSect.wikitext = `;(${this.ctrl.i18n('TCG_IfPlayerLosesMatch')})\n` + talkSect.wikitext;
           stage.StageTalk.children.push(talkSect);
         }
       }
@@ -1225,7 +1231,7 @@ export class GCGControl {
         let talkSect = await talkConfigGenerate(this.ctrl, stage.CharacterLevel.WinHardLevelTalk, acc);
         if (talkSect) {
           talkSect.title = 'Win Talk';
-          talkSect.wikitext = `;(If the player wins the match)\n` + talkSect.wikitext;
+          talkSect.wikitext = `;(${this.ctrl.i18n('TCG_IfPlayerWinsMatch')})\n` + talkSect.wikitext;
           stage.StageTalk.children.push(talkSect);
         }
       }
@@ -1233,7 +1239,7 @@ export class GCGControl {
         let talkSect = await talkConfigGenerate(this.ctrl, stage.CharacterLevel.LoseHardLevelTalk, acc);
         if (talkSect) {
           talkSect.title = 'Lose Talk';
-          talkSect.wikitext = `;(If the player loses the match)\n` + talkSect.wikitext;
+          talkSect.wikitext = `;(${this.ctrl.i18n('TCG_IfPlayerLosesMatch')})\n` + talkSect.wikitext;
           stage.StageTalk.children.push(talkSect);
         }
       }
@@ -1279,7 +1285,7 @@ export class GCGControl {
 
               if (talkSect) {
                 talkSect.title = 'Intro';
-                talkSect.wikitext = `;(Talk to ${stage.EnemyNameText})\n` + talkSect.wikitext;
+                talkSect.wikitext = `;(${this.ctrl.i18n('TalkToNpc', {npcName: stage.EnemyNameText})})\n` + talkSect.wikitext;
                 stage.StageTalk.children.unshift(talkSect);
               }
             }
@@ -1291,13 +1297,13 @@ export class GCGControl {
               if (challengeResult === 1) {
                 talkSect = await talkConfigGenerate(this.ctrl, talk.Id);
                 talkSect.title = 'Win Talk';
-                talkSect.wikitext = `;(If the player wins the match)\n` + talkSect.wikitext;
+                talkSect.wikitext = `;(${this.ctrl.i18n('TCG_IfPlayerWinsMatch')})\n` + talkSect.wikitext;
               }
 
               if (challengeResult === -1) {
                 talkSect = await talkConfigGenerate(this.ctrl, talk.Id);
                 talkSect.title = 'Lose Talk';
-                talkSect.wikitext = `;(If the player loses the match)\n` + talkSect.wikitext;
+                talkSect.wikitext = `;(${this.ctrl.i18n('TCG_IfPlayerLosesMatch')})\n` + talkSect.wikitext;
               }
 
               if (talkSect) {
