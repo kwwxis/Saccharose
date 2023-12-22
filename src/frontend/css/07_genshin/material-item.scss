@@ -9,6 +9,18 @@
     width: 74px;
   }
 
+  &.small {
+    width: 50px;
+    .material-card .material-icon {
+      width: 50px;
+      height: 50px;
+    }
+    .material-card .material-count {
+      font-size: 12px;
+      line-height: 15px;
+    }
+  }
+
   .material-card {
     display: block;
     width: min-content;
@@ -40,7 +52,7 @@
       left: 0;
       width: 20px;
     }
-    .material-text {
+    .material-count {
       font-size: 13px;
       font-family: 'Open Sans', sans-serif;
       line-height: 20px;
@@ -74,7 +86,7 @@
 }
 
 .material-icon {
-  &.no-text {
+  &.no-count {
     border-radius: 0 !important;
   }
   &[data-quality='0'],
@@ -82,7 +94,7 @@
     background: #a4a4a4;
     background: linear-gradient(0deg,#a4a4a4 0%,#76787c 100%);
     background: url('/images/genshin/static/ItemQualityBg_1.png') 0 0 / 100% auto;
-    &.no-text {
+    &.no-count {
       background-image: url('/images/genshin/static/Quality/UI_QualityBg_1.png');
     }
   }
@@ -98,7 +110,7 @@
     background: #5D8C81;
     background: linear-gradient(0deg,#5D8C81 0%,#4E7E6C 100%);
     background: url('/images/genshin/static/ItemQualityBg_2.png') 0 0 / 100% auto;
-    &.no-text {
+    &.no-count {
       background-image: url('/images/genshin/static/Quality/UI_QualityBg_2.png');
     }
   }
@@ -113,7 +125,7 @@
     background: #6faaca;
     background: linear-gradient(0deg,#6faaca 0%,#697b9b 100%);
     background: url('/images/genshin/static/ItemQualityBg_3.png') 0 0 / 100% auto;
-    &.no-text {
+    &.no-count {
       background-image: url('/images/genshin/static/Quality/UI_QualityBg_3.png');
     }
   }
@@ -128,7 +140,7 @@
     background: #917ab1;
     background: linear-gradient(0deg,#917ab1 0%,#6c6192 100%);
     background: url('/images/genshin/static/ItemQualityBg_4.png') 0 0 / 100% auto;
-    &.no-text {
+    &.no-count {
       background-image: url('/images/genshin/static/Quality/UI_QualityBg_4.png');
     }
   }
@@ -143,7 +155,7 @@
     background: #9a6d43;
     background: linear-gradient(0deg,#de9552 0%,#9a6d43 100%);
     background: url('/images/genshin/static/ItemQualityBg_5.png') 0 0 / 100% auto;
-    &.no-text {
+    &.no-count {
       background-image: url('/images/genshin/static/Quality/UI_QualityBg_5.png');
     }
   }
@@ -151,7 +163,7 @@
     background: #AF5155;
     background: linear-gradient(0deg,#DA4F55 0%,#AF5155 100%);
     background: url('/images/genshin/static/ItemQualityBg_5a.png') 0 0 / 100% auto;
-    &.no-text {
+    &.no-count {
       background-image: url('/images/genshin/static/Quality/UI_QualityBg_5a.png');
     }
   }

@@ -10,24 +10,14 @@ import util from 'util';
 import { toBoolean } from '../../../../shared/util/genericUtil';
 import { pathToFileURL } from 'url';
 import { sort } from '../../../../shared/util/arrayUtil';
-import { toLower } from '../../../../shared/util/stringUtil';
+import { escapeHtml, toLower } from '../../../../shared/util/stringUtil';
 import { getGenshinDataFilePath } from '../../../loadenv';
 
 export async function getHomeWorldCompanions(ctrl: GenshinControl): Promise<HomeWorldNPCExcelConfigData[]> {
   return cached('HomeWorldCompanions_'+ctrl.outputLangCode, async () => {
-    const homeWorldNPCs: HomeWorldNPCExcelConfigData[] = await ctrl.selectAllHomeWorldNPCs();
-    const homeWorldEvents: HomeWorldEventExcelConfigData[] = await ctrl.selectAllHomeWorldEvents();
-
-    // Load events into HomeWorldNPCExcelConfigData
-    for (let homeWorldEvent of homeWorldEvents) {
-      const npc = homeWorldNPCs.find(npc => npc.AvatarId === homeWorldEvent.AvatarId);
-
-      if (homeWorldEvent.EventType === 'HOME_AVATAR_SUMMON_EVENT') {
-        npc.SummonEvents.push(homeWorldEvent);
-      } else if (homeWorldEvent.EventType === 'HOME_AVATAR_REWARD_EVENT') {
-        npc.RewardEvents.push(homeWorldEvent);
-      }
-    }
+    const companions: HomeWorldNPCExcelConfigData[] = await ctrl.selectAllHomeWorldNPCs({
+      LoadHomeWorldEvents: true
+    });
 
     // Load grep result into map
     const grepResult = await grep('QuestDialogue/HomeWorld/', getGenshinDataFilePath('./ExcelBinOutput/TalkExcelConfigData.json'));
@@ -48,7 +38,7 @@ export async function getHomeWorldCompanions(ctrl: GenshinControl): Promise<Home
     // Process grep result
     for (let npcId of Object.keys(npcIdToTalkIds).map(toInt)) {
       let talkIds: number[] = npcIdToTalkIds[npcId];
-      let npc = homeWorldNPCs.find(x => x.NpcId === npcId);
+      let npc = companions.find(x => x.NpcId === npcId);
       for (let talkId of talkIds) {
         if (npc.TalkIds.includes(talkId) || npc.RewardEvents.find(x => x.TalkId == talkId)) {
           // Don't add talk ids already in the HomeWorld NPC or the events
@@ -59,9 +49,9 @@ export async function getHomeWorldCompanions(ctrl: GenshinControl): Promise<Home
       npc.TalkIds.sort();
     }
 
-    sort(homeWorldNPCs, 'CommonName');
+    sort(companions, 'CommonName');
 
-    return homeWorldNPCs;
+    return companions;
   });
 }
 
@@ -128,16 +118,18 @@ export async function fetchCompanionDialogue(ctrl: GenshinControl, avatarNameOrI
         continue;
       }
 
-      let rewardInfo = await ctrl.selectRewardExcelConfigData(rewardEvent.RewardId);
-      section.wikitextArray.push({
-        title: 'Rewards',
-        wikitext: rewardInfo.RewardSummary.CombinedCards
-      });
+      if (rewardEvent.Reward) {
+        section.wikitextArray.push({
+          title: 'Rewards',
+          wikitext: rewardEvent.Reward.RewardSummary.CombinedCards
+        });
+      }
 
       if (rewardEvent.FurnitureSuitId) {
         let furnitureSuite = await ctrl.selectFurnitureSuite(rewardEvent.FurnitureSuitId);
         if (furnitureSuite) {
-          section.title = 'Special Dialogue for Favorite Furnishing Set: ' + furnitureSuite.SuiteNameText;
+          section.title = `Special Dialogue for Favorite Furnishing Set: <a href="/furnishing-sets/${furnitureSuite.SuiteId}">${escapeHtml(furnitureSuite.SuiteNameText)}</a>`;
+          section.isHtmlTitle = true;
         }
       }
 

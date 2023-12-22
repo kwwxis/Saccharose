@@ -6,7 +6,7 @@ import { MW_URL_SCHEME_REGEX } from '../../../../shared/mediawiki/parseModules/m
 import { getQuotePosMap, getQuoteTypes } from '../../../../shared/mediawiki/mwQuotes';
 import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mwParse.template';
 import { filterInPlace } from '../../../../shared/util/arrayUtil';
-import { quotifyWikitextTokens } from './quotify';
+import { quotifyWikitextTokens } from './aceWikitextQuotify';
 
 // <any> cast because brace doesn't expose the 'define' method in its types.
 // In fact, most of the acequire() internal stuff don't seem to have any available types in brace.

@@ -1,7 +1,8 @@
 import { NpcExcelConfigData } from './general-types';
 import { AvatarExcelConfigData } from './avatar-types';
-import { MaterialExcelConfigData, MaterialVecItem } from './material-types';
+import { MaterialExcelConfigData, MaterialVecItem, RewardExcelConfigData } from './material-types';
 import { MonsterExcelConfigData } from './monster-types';
+import { DialogueSectionResult } from '../../../backend/domain/genshin/dialogue/dialogue_util';
 
 // HomeWorld NPC/Avatar
 // --------------------------------------------------------------------------------------------------------------
@@ -12,8 +13,13 @@ export interface HomeWorldEventExcelConfigData {
   Avatar?: AvatarExcelConfigData,
   TalkId: number,
   RewardId: number,
+  Reward?: RewardExcelConfigData,
   FurnitureSuitId: number,
   Order: number,
+}
+
+export interface HomeWorldNPCLoadConf {
+  LoadHomeWorldEvents?: boolean,
 }
 
 export interface HomeWorldNPCExcelConfigData {
@@ -207,6 +213,16 @@ export interface HomeworldAnimalExcelConfigData {
 
 // Furniture Set
 // --------------------------------------------------------------------------------------------------------------
+export type FurnitureSuiteLoadConf = {
+  LoadUnits?: boolean
+}
+
+export interface FurnitureSuiteUnit {
+  FurnitureId: number,
+  Furniture: HomeWorldFurnitureExcelConfigData,
+  Count: number
+}
+
 export interface FurnitureSuiteExcelConfigData {
   SuiteId: number,
   JsonName: string,
@@ -215,13 +231,21 @@ export interface FurnitureSuiteExcelConfigData {
   SuiteNameText: string,
   SuiteDescText: string,
   FurnType: number[],
+  MappedFurnType: HomeWorldFurnitureTypeExcelConfigData[],
+  MainFurnType: HomeWorldFurnitureTypeExcelConfigData,
   ItemIcon: string,
   InterRatio: number,
   FavoriteNpcExcelIdVec: number[],
   FavoriteNpcVec: HomeWorldNPCExcelConfigData[],
   TransStr: string,
   MapIcon: string,
+
+  RelatedMaterialId?: number,
+  RelatedMaterial?: MaterialExcelConfigData,
+  Units?: FurnitureSuiteUnit[]
 }
+
+export type FurnitureSuiteTree = {[cat1: string]: {[cat2: string]: FurnitureSuiteExcelConfigData[]}};
 
 // Furniture Make Config
 // --------------------------------------------------------------------------------------------------------------

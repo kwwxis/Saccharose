@@ -40,9 +40,15 @@
     <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--weapons', 'selected') %>" role="button" href="/weapons">Weapons</a>
 
     <h4 class="spacer10-top">General Archive</h4>
-    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--achievements', 'selected') %>" role="button" href="/achievements">Achievements</a>
+    <div class="valign button-group">
+      <a class="secondary dispBlock spacer3 textAlignLeft grow <%= bodyClassTernary('page--achievements', 'selected') %>" role="button" href="/achievements">Achievements</a>
+      <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--achievements', 'selected') %>" role="button" href="/achievements/search" style="font-size:15.5px">Search</a>
+    </div>
     <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--loading-tips', 'selected') %>" role="button" href="/loading-tips">Loading Tips</a>
-    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--tutorials', 'selected') %>" role="button" href="/tutorials">Tutorials</a>
+    <div class="valign button-group">
+      <a class="secondary dispBlock spacer3 textAlignLeft grow <%= bodyClassTernary('page--tutorials', 'selected') %>" role="button" href="/tutorials">Tutorials</a>
+      <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--tutorials', 'selected') %>" role="button" href="/tutorials/search" style="font-size:15.5px">Search</a>
+    </div>
     <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--viewpoints', 'selected') %>" role="button" href="/viewpoints">Viewpoints</a>
 
     <h4 class="spacer10-top">Living Beings</h4>
@@ -56,6 +62,7 @@
 
     <h4 class="spacer10-top">Serenitea Pot</h4>
     <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--furniture', 'selected') %>" role="button" href="/furnishings">Furnishings</a>
+    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--furniture-set', 'selected') %>" role="button" href="/furnishing-sets">Furnishing Sets</a>
   </div>
 </section>
 <section id="app-sidebar__character" class="card">

@@ -39,7 +39,7 @@
           <tr>
             <td class="bold">Item</td>
             <td class="w70p">
-              <%- use('partials/genshin/archive/item', { material: readable?.Material, disableName: true }) %>
+              <%- use('partials/genshin/archive/item', { material: readable?.Material, noName: true }) %>
             </td>
           </tr>
         <% } %>
@@ -125,7 +125,7 @@
           <tr>
             <td class="bold">Weapon</td>
             <td class="w70p">
-              <%- use('partials/genshin/archive/item', { material: readable?.Weapon, disableName: true }) %>
+              <%- use('partials/genshin/archive/item', { material: readable?.Weapon, noName: true }) %>
             </td>
           </tr>
         <% } %>

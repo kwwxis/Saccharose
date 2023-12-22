@@ -12,7 +12,7 @@
     <div class="content dispFlex flexWrap alignStart">
       <% companions.forEach(companion => { %>
         <div class="w50p">
-          <a class="secondary spacer3-all valign textAlignLeft" role="button" href="/character/companion-dialogue/<%= companion.CommonName.replace(/ /g, '_') %>">
+          <a class="secondary spacer3-all valign textAlignLeft" role="button" href="/character/companion-dialogue/<%= toParam(companion.CommonName) %>">
             <img class="icon x32" src="/images/genshin/<%= companion.CommonIcon %>.png" loading="lazy" decoding="async" />
             <span class="spacer10-left"><%= companion.CommonName %></span>
           </a>

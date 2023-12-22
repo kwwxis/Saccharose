@@ -51,13 +51,13 @@ import {
 } from '../../../shared/types/genshin/material-types';
 import {
   FurnitureMakeExcelConfigData,
-  FurnitureSuiteExcelConfigData,
+  FurnitureSuiteExcelConfigData, FurnitureSuiteLoadConf,
   HomeworldAnimalExcelConfigData,
   HomeWorldEventExcelConfigData,
   HomeWorldFurnitureExcelConfigData, HomeWorldFurnitureLoadConf,
   HomeWorldFurnitureTypeExcelConfigData,
   HomeWorldFurnitureTypeTree,
-  HomeWorldNPCExcelConfigData,
+  HomeWorldNPCExcelConfigData, HomeWorldNPCLoadConf,
 } from '../../../shared/types/genshin/homeworld-types';
 import { grepIdStartsWith, grepStream } from '../../util/shellutil';
 import {
@@ -1716,35 +1716,61 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   }
   // endregion
 
-  // region HomeWorld NPC & Events
+  // region HomeWorld Events
   async selectAllHomeWorldEvents(): Promise<HomeWorldEventExcelConfigData[]> {
-    return await this.knex.select('*').from('HomeWorldEventExcelConfigData').then(this.commonLoad);
+    const events: HomeWorldEventExcelConfigData[] = await this.knex.select('*').from('HomeWorldEventExcelConfigData').then(this.commonLoad);
+    return events.asyncMap(event => this.postProcessHomeWorldEvent(event))
+      .then(events => events.filter(x => !!x));
   }
 
-  async selectHomeWorldNPCByFurnitureId(furnitureId: number): Promise<HomeWorldNPCExcelConfigData> {
+  async selectHomeWorldEventById(eventId: number): Promise<HomeWorldEventExcelConfigData> {
+    return await this.knex.select('*').from('HomeWorldEventExcelConfigData')
+      .where({EventId: eventId}).then(this.commonLoadFirst).then(event => this.postProcessHomeWorldEvent(event));
+  }
+
+  async selectHomeWorldEventsByAvatarId(avatarId: number): Promise<HomeWorldEventExcelConfigData[]> {
+    const events: HomeWorldEventExcelConfigData[] = await this.knex.select('*').from('HomeWorldEventExcelConfigData')
+      .where({AvatarId: avatarId}).then(this.commonLoad);
+    return events.asyncMap(event => this.postProcessHomeWorldEvent(event))
+      .then(events => events.filter(x => !!x));
+  }
+
+  private async postProcessHomeWorldEvent(event: HomeWorldEventExcelConfigData): Promise<HomeWorldEventExcelConfigData> {
+    if (event.EventId === 1 || event.EventId === 5) {
+      return null;
+    }
+    if (event.RewardId) {
+      event.Reward = await this.selectRewardExcelConfigData(event.RewardId);
+    }
+    return event;
+  }
+  // endregion
+
+  // region HomeWorld NPC
+  async selectHomeWorldNPCByFurnitureId(furnitureId: number, loadConf?: HomeWorldNPCLoadConf): Promise<HomeWorldNPCExcelConfigData> {
     return await this.knex.select('*').from('HomeWorldNPCExcelConfigData')
       .where({FurnitureId: furnitureId}).first().then(this.commonLoadFirst)
-      .then((npc: HomeWorldNPCExcelConfigData) => this.postProcessHomeWorldNPC(npc));
+      .then((npc: HomeWorldNPCExcelConfigData) => this.postProcessHomeWorldNPC(npc, loadConf));
   }
 
-  async selectHomeWorldNPCByNpcId(npcId: number): Promise<HomeWorldNPCExcelConfigData> {
+  async selectHomeWorldNPCByNpcId(npcId: number, loadConf?: HomeWorldNPCLoadConf): Promise<HomeWorldNPCExcelConfigData> {
     return await this.knex.select('*').from('HomeWorldNPCExcelConfigData')
       .where({NpcId: npcId}).first().then(this.commonLoadFirst)
-      .then((npc: HomeWorldNPCExcelConfigData) => this.postProcessHomeWorldNPC(npc));
+      .then((npc: HomeWorldNPCExcelConfigData) => this.postProcessHomeWorldNPC(npc, loadConf));
   }
 
-  async selectHomeWorldNPCByAvatarId(avatarId: number): Promise<HomeWorldNPCExcelConfigData> {
+  async selectHomeWorldNPCByAvatarId(avatarId: number, loadConf?: HomeWorldNPCLoadConf): Promise<HomeWorldNPCExcelConfigData> {
     return await this.knex.select('*').from('HomeWorldNPCExcelConfigData')
       .where({AvatarId: avatarId}).first().then(this.commonLoadFirst)
-      .then((npc: HomeWorldNPCExcelConfigData) => this.postProcessHomeWorldNPC(npc));
+      .then((npc: HomeWorldNPCExcelConfigData) => this.postProcessHomeWorldNPC(npc, loadConf));
   }
 
-  async selectAllHomeWorldNPCs(): Promise<HomeWorldNPCExcelConfigData[]> {
+  async selectAllHomeWorldNPCs(loadConf?: HomeWorldNPCLoadConf): Promise<HomeWorldNPCExcelConfigData[]> {
     return await this.knex.select('*').from('HomeWorldNPCExcelConfigData').then(this.commonLoad)
-      .then((rows: HomeWorldNPCExcelConfigData[]) => rows.asyncMap(npc => this.postProcessHomeWorldNPC(npc)));
+      .then((rows: HomeWorldNPCExcelConfigData[]) => rows.asyncMap(npc => this.postProcessHomeWorldNPC(npc, loadConf)));
   }
 
-  private async postProcessHomeWorldNPC(npc: HomeWorldNPCExcelConfigData): Promise<HomeWorldNPCExcelConfigData> {
+  private async postProcessHomeWorldNPC(npc: HomeWorldNPCExcelConfigData, loadConf: HomeWorldNPCLoadConf): Promise<HomeWorldNPCExcelConfigData> {
     if (npc.NpcId) {
       npc.Npc = await this.getNpc(npc.NpcId);
     }
@@ -1755,12 +1781,16 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       npc.CommonName = npc.Avatar.NameText;
       npc.CommonIcon = npc.Avatar.IconName;
       npc.CommonNameTextMapHash = npc.Avatar.NameTextMapHash;
+      if (loadConf?.LoadHomeWorldEvents) {
+        npc.RewardEvents = await this.selectHomeWorldEventsByAvatarId(npc.AvatarId);
+      }
     } else {
       npc.CommonId = npc.NpcId;
       npc.CommonName = npc.Npc.NameText;
       npc.CommonIcon = npc.FrontIcon;
       npc.CommonNameTextMapHash = npc.Npc.NameTextMapHash;
     }
+
     if (npc.FurnitureId) {
       // npc.Furniture = await this.selectFurniture(npc.FurnitureId); // FIXME: trying to load furniture here causes it to hang for a really long time for some reason
     }
@@ -1848,22 +1878,65 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   //endregion
 
   // region HomeWorld Furniture Suite
-  async selectFurnitureSuite(suiteId: number): Promise<FurnitureSuiteExcelConfigData> {
+  async selectFurnitureSuite(suiteId: number, loadConf?: FurnitureSuiteLoadConf): Promise<FurnitureSuiteExcelConfigData> {
     return await this.knex.select('*').from('FurnitureSuiteExcelConfigData')
-      .where({SuiteId: suiteId}).first().then(this.commonLoadFirst).then(suite => this.postProcessFurnitureSuite(suite));
+      .where({SuiteId: suiteId}).first().then(this.commonLoadFirst).then(suite => this.postProcessFurnitureSuite(suite, loadConf));
   }
 
-  async selectAllFurnitureSuite(): Promise<FurnitureSuiteExcelConfigData[]> {
+  async selectAllFurnitureSuite(loadConf?: FurnitureSuiteLoadConf): Promise<FurnitureSuiteExcelConfigData[]> {
     const suites: FurnitureSuiteExcelConfigData[] = await this.knex.select('*').from('FurnitureSuiteExcelConfigData').then(this.commonLoad);
-    await suites.asyncMap(suite => this.postProcessFurnitureSuite(suite));
-    return suites;
+    return (await suites.asyncMap(suite => this.postProcessFurnitureSuite(suite, loadConf))).filter(x => !!x);
   }
 
-  private async postProcessFurnitureSuite(suite: FurnitureSuiteExcelConfigData): Promise<FurnitureSuiteExcelConfigData> {
+  private async postProcessFurnitureSuite(suite: FurnitureSuiteExcelConfigData, loadConf?: FurnitureSuiteLoadConf): Promise<FurnitureSuiteExcelConfigData> {
+    if (!suite) {
+      return suite;
+    }
+    if (suite.SuiteId === 31 || suite.SuiteId === 32) { // internal test suites
+      return null;
+    }
+    suite.RelatedMaterialId = await this.selectMaterialIdFromFurnitureSuiteId(suite.SuiteId);
+    if (suite.RelatedMaterialId) {
+      suite.RelatedMaterial = await this.selectMaterialExcelConfigData(suite.RelatedMaterialId);
+    }
     if (suite.FavoriteNpcExcelIdVec && suite.FavoriteNpcExcelIdVec.length) {
-      suite.FavoriteNpcVec = await suite.FavoriteNpcExcelIdVec.asyncMap(id => this.selectHomeWorldNPCByAvatarId(id));
+      suite.FavoriteNpcVec = await suite.FavoriteNpcExcelIdVec.asyncMap(id => this.selectHomeWorldNPCByAvatarId(id, { LoadHomeWorldEvents: true }));
+      suite.FavoriteNpcVec = suite.FavoriteNpcVec.filter(npc =>
+        npc.RewardEvents.some(evt => evt.FurnitureSuitId === suite.SuiteId && evt.TalkId));
+      suite.FavoriteNpcExcelIdVec = suite.FavoriteNpcVec.map(npc => npc.AvatarId);
     } else {
       suite.FavoriteNpcVec = [];
+    }
+    if (suite.FurnType && suite.FurnType.length) {
+      suite.MappedFurnType = await suite.FurnType.filter(x => !!x).asyncMap(id => this.selectFurnitureType(id));
+    }
+    if (!suite.MappedFurnType || !suite.MappedFurnType.length) {
+      suite.MappedFurnType = [await this.selectFurnitureType(771)]; // outdoor set (non gift)
+    }
+    suite.MainFurnType = suite.MappedFurnType[0];
+    suite.Units = [];
+    if (loadConf?.LoadUnits && suite.JsonName) {
+      const path = `./BinOutput/HomeworldFurnitureSuit/${suite.JsonName}.json`;
+      if (this.fileExists(path)) {
+        const data: any = await this.readJsonFile(path);
+        if (data && Array.isArray(data.furnitureUnits)) {
+          const unitMap: Map<number, {furn: HomeWorldFurnitureExcelConfigData, count: number}> = new Map();
+          for (let furnUnit of data.furnitureUnits) {
+            const furnId = furnUnit.furnitureID;
+            if (!unitMap.has(furnId)) {
+              unitMap.set(furnId, {furn: await this.selectFurniture(furnId), count: 0});
+            }
+            unitMap.get(furnId).count++;
+          }
+          for (let [furnId, unitInfo] of unitMap) {
+            suite.Units.push({
+              FurnitureId: toInt(furnId),
+              Furniture: unitInfo.furn,
+              Count: unitInfo.count,
+            })
+          }
+        }
+      }
     }
     return suite;
   }
@@ -2100,6 +2173,12 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
         .find(x => x.UseOp === 'ITEM_USE_UNLOCK_FURNITURE_FORMULA')?.UseParam[0]);
       if (furnId) {
         material.LoadedItemUse.Furniture = await this.selectFurniture(furnId);
+      }
+
+      const furnSuiteId = toInt(material.ItemUse
+        .find(x => x.UseOp === 'ITEM_USE_UNLOCK_FURNITURE_SUITE')?.UseParam[0])
+      if (furnSuiteId) {
+        material.LoadedItemUse.FurnitureSet = await this.selectFurnitureSuite(furnSuiteId);
       }
     }
     if (loadConf.LoadCodex) {

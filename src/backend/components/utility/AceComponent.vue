@@ -1,7 +1,8 @@
 <template>
-    <textarea id={props.id} readonly
+    <textarea :id="props.id" readonly
               class="w100p autosize"
               :class="{ 'seamless-input': props.seamless, ... additionalClasses }"
+              :style="extraStyle"
               spellCheck="false"
               translate="no"
               :data-mode="props.mode"
@@ -28,6 +29,7 @@ export type AceProps = {
 
   mode?: string,
   extraClassNames?: string|string[],
+  extraStyle?: string,
   forOl?: boolean,
   forOlWithCopyButton?: boolean,
 

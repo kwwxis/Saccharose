@@ -1,15 +1,15 @@
 <%-
 locals.noLink
-        ? `<div class="material-item${locals.disableName ? ' no-name' : ''}">`
+        ? `<div class="material-item${locals.noName ? ' no-name' : ''}">`
         : `<a href="/${
                 (material.ItemType === 'ITEM_WEAPON' ? 'weapons' : '') ||
                 (material.ItemType === 'ITEM_FURNITURE' ? 'furnishings' : '') ||
                 'items'
-        }/${material.Id}" class="material-item${locals.disableName ? ' no-name' : ''}">`
+        }/${material.Id}" class="material-item${locals.noName ? ' no-name' : ''}">`
 %>
 
 <div class="material-card">
-  <div class="material-icon<%= locals.noText ? ' no-text' : '' %>" data-quality="<%= material.RankLevel || 0 %>">
+  <div class="material-icon<%= locals.noCount ? ' no-count' : '' %>" data-quality="<%= material.RankLevel || 0 %>">
     <% if (material.Icon) { %>
       <img src="<%= material.IconUrl ? material.IconUrl : `/images/genshin/${material.Icon}.png` %>" loading="lazy" decoding="async" />
     <% } else { %>
@@ -19,11 +19,11 @@ locals.noLink
   <% if (material.EffectIcon) { %>
     <img class="effect-icon" src="/images/genshin/<%= material.EffectIcon %>.png" loading="lazy" decoding="async" />
   <% } %>
-  <% if (!locals.noText) { %>
-    <div class="material-text"><%- locals.itemCount ? escapeHtml(itemCount) : '&mdash;' %></div>
+  <% if (!locals.noCount) { %>
+    <div class="material-count"><%- locals.itemCount ? escapeHtml(itemCount) : '&mdash;' %></div>
   <% } %>
 </div>
-<% if (!locals.disableName) { %>
+<% if (!locals.noName) { %>
   <span class="material-name"><%= material.NameText %></span>
 <% } %>
 

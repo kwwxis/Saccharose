@@ -8,7 +8,7 @@
       <% for (let weapon of weapons) { %>
         <div class="w100p">
           <a href="/weapons/<%= weapon.Id %>" class="secondary spacer3-all valign textAlignLeft" role="button" style="padding:5px">
-            <%- use('partials/genshin/archive/item', {material: weapon, disableName: true, noText: true, noLink: true}) %>
+            <%- use('partials/genshin/archive/item', {material: weapon, noName: true, noCount: true, noLink: true}) %>
             <span class="spacer10-left"><%= weapon.NameText %></span>
           </a>
         </div>

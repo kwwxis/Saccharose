@@ -1,6 +1,6 @@
 <a class="material-item" href="/<%= monster.AnimalDescribe ? 'wildlife' : 'enemies' %>/<%= monster.Id %>">
   <div class="material-card">
-    <div class="material-icon no-text" data-quality="0">
+    <div class="material-icon no-count" data-quality="0">
       <% if (monster.Describe?.Icon) { %>
         <img src="/images/genshin/<%= monster.Describe?.Icon %>.png" loading="lazy" decoding="async" />
       <% } else { %>

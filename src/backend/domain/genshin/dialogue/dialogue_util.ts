@@ -18,6 +18,7 @@ import { closeKnex } from '../../../util/db';
 import { isInt } from '../../../../shared/util/numberUtil';
 import { custom } from '../../../util/logger';
 import { CommonLineId } from '../../../../shared/types/common-types';
+import { RewardExcelConfigData } from '../../../../shared/types/genshin/material-types';
 
 // region Class: DialogBranchingCache
 // --------------------------------------------------------------------------------------------------------------
@@ -41,6 +42,7 @@ export class DialogBranchingCache {
 export class DialogueSectionResult {
   id: string = null;
   title: string = '';
+  isHtmlTitle: boolean = false;
   metadata: MetaProp[] = [];
   helptext: string = '';
   wikitext: string = '';
@@ -49,7 +51,12 @@ export class DialogueSectionResult {
   wikitextArray: { title?: string, wikitext: string, markers?: Marker[] }[] = [];
   children: DialogueSectionResult[] = [];
   htmlMessage: string = null;
-  originalData: { talkConfig?: TalkExcelConfigData, dialogBranch?: DialogExcelConfigData[], questId?: number, questName?: string } = {};
+  originalData: {
+    talkConfig?: TalkExcelConfigData,
+    dialogBranch?: DialogExcelConfigData[],
+    questId?: number,
+    questName?: string
+  } = {};
   showGutter: boolean = false;
   similarityGroupId: number = null;
   copyAllSep: string = '\n';

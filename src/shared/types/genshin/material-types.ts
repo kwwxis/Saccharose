@@ -1,5 +1,9 @@
 // The Material IDs of some useful items:
-import { FurnitureMakeExcelConfigData, HomeWorldFurnitureExcelConfigData } from './homeworld-types';
+import {
+  FurnitureMakeExcelConfigData,
+  FurnitureSuiteExcelConfigData,
+  HomeWorldFurnitureExcelConfigData,
+} from './homeworld-types';
 
 export const ADVENTURE_EXP_ID = 102;
 export const PRIMOGEM_ID = 201;
@@ -163,6 +167,7 @@ export interface MaterialExcelConfigData {
   }[],
   LoadedItemUse?: {
     Furniture?: HomeWorldFurnitureExcelConfigData,
+    FurnitureSet?: FurnitureSuiteExcelConfigData
   },
   InteractionTitleText?: string,
   InteractionTitleTextMapHash?: number,

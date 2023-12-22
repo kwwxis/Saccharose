@@ -27,9 +27,23 @@ import { LoadingCat } from '../../../../shared/types/genshin/loading-types';
 import { toInt } from '../../../../shared/util/numberUtil';
 import { SbOut, sentenceJoin } from '../../../../shared/util/stringUtil';
 import { Request, Response, Router } from 'express';
-import { toBoolean } from '../../../../shared/util/genericUtil';
+import { defaultMap, toBoolean } from '../../../../shared/util/genericUtil';
 import AchievementPage from '../../../components/genshin/achievements/AchievementPage.vue';
 import FurnishingSetListingPage from '../../../components/genshin/furnishings/FurnishingSetListingPage.vue';
+import {
+  FurnitureSuiteExcelConfigData,
+  FurnitureSuiteTree, HomeWorldEventExcelConfigData,
+  HomeWorldNPCExcelConfigData,
+} from '../../../../shared/types/genshin/homeworld-types';
+import FurnishingSetSinglePage from '../../../components/genshin/furnishings/FurnishingSetSinglePage.vue';
+import {
+  DialogueSectionResult,
+  TalkConfigAccumulator,
+  talkConfigGenerate,
+} from '../../../domain/genshin/dialogue/dialogue_util';
+import { DialogExcelConfigData } from '../../../../shared/types/genshin/dialogue-types';
+import { ManualTextMapHashes } from '../../../../shared/types/genshin/manual-text-map';
+import { MetaProp } from '../../../util/metaProp';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -405,10 +419,81 @@ export default async function(): Promise<Router> {
     const ctrl = getGenshinControl(req);
     const suites = await ctrl.selectAllFurnitureSuite();
 
+    const suiteTree: FurnitureSuiteTree = defaultMap(_cat1 => defaultMap('Array'));
+
+    for (let suite of suites) {
+      suiteTree[suite.MainFurnType.TypeName2Text][suite.MainFurnType.TypeNameText].push(suite);
+    }
+
     res.render(FurnishingSetListingPage, {
       title: 'Furnishing Sets',
-      bodyClass: ['page--furniture-sets'],
-      suites,
+      bodyClass: ['page--furniture-set'],
+      suiteTree,
+    });
+  });
+
+  router.get('/furnishing-sets/:suiteId', async (req: Request, res: Response) => {
+    const ctrl = getGenshinControl(req);
+    const suite = await ctrl.selectFurnitureSuite(toInt(req.params.suiteId), {
+      LoadUnits: true
+    });
+
+    const companionFavorsWikitext: SbOut = new SbOut();
+    const companionFavors: {npc: HomeWorldNPCExcelConfigData, event: HomeWorldEventExcelConfigData, dialogue: DialogueSectionResult}[] = [];
+    const recipeWikitext: SbOut = new SbOut();
+
+    // Unit Recipe:
+    if (suite) {
+      recipeWikitext.line('{{Recipe');
+      if (suite.MainFurnType.TypeId == 772 || suite.MainFurnType.TypeId == 672) {
+        recipeWikitext.line(`|type = ${await ctrl.getTextMapItem(ctrl.outputLangCode, ManualTextMapHashes['Gift Set'])}`);
+      } else {
+        recipeWikitext.line(`|type = ${await ctrl.getTextMapItem(ctrl.outputLangCode, ManualTextMapHashes['Furnishing Set'])}`);
+      }
+      for (let unit of suite.Units) {
+        recipeWikitext.line(`|${unit.Furniture.NameText.replace(/\|/g, '{{!}}')} = ${unit.Count}`);
+      }
+      recipeWikitext.line('|yield = 0');
+      recipeWikitext.line('}}');
+    }
+
+    // Companion Favors:
+    if (suite) {
+      companionFavorsWikitext.line(`{{Companion/Header}}`);
+      const acc = new TalkConfigAccumulator(ctrl);
+      for (let npc of suite.FavoriteNpcVec) {
+        for (let rewardEvent of npc.RewardEvents) {
+          if (!rewardEvent.TalkId || rewardEvent.FurnitureSuitId !== suite.SuiteId)
+            continue;
+
+          const section: DialogueSectionResult = await talkConfigGenerate(ctrl, rewardEvent.TalkId, acc);
+          if (!section || !rewardEvent.Reward)
+            continue
+
+          section.title = `${npc.Avatar.NameText}'s Dialogue`;
+          section.metadata.unshift(new MetaProp('Event ID', rewardEvent.EventId))
+          companionFavors.push({
+            npc,
+            dialogue: section,
+            event: rewardEvent
+          });
+
+          companionFavorsWikitext.line(`{{Companion`);
+          companionFavorsWikitext.line(`|character = ${npc.Avatar.NameText}`);
+          companionFavorsWikitext.line(`|rewards = ${rewardEvent.Reward.RewardSummary.CombinedCards}`);
+          companionFavorsWikitext.line(`}}`);
+        }
+      }
+      companionFavorsWikitext.line(`{{Companion/Footer}}`);
+    }
+
+    res.render(FurnishingSetSinglePage, {
+      title: 'Furnishing Sets',
+      bodyClass: ['page--furniture-set'],
+      suite,
+      companionFavors,
+      companionFavorsWikitext: companionFavorsWikitext.toString(),
+      recipeWikitext: recipeWikitext.toString(),
     });
   });
 

@@ -73,10 +73,8 @@ import { getTrace } from '../../../middleware/request/tracer';
 
 const { normGenshinText } = getTrace();
 
-const props = defineProps<{
+defineProps<{
   achievement: AchievementExcelConfigData,
   wikitext: string,
 }>();
-
-const { achievement, wikitext } = props;
 </script>

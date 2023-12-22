@@ -114,8 +114,8 @@
           <div class="cutscene-info">
             <p><strong><%= item.file %></strong></p>
             <div class="posRel">
-            <textarea id="cutscene-<%= idx %>" readonly class="wikitext w100p autosize"
-                      style="resize:vertical;min-height:40px;padding-right:45px" spellcheck="false" translate="no"><%= item.text %></textarea>
+              <textarea id="cutscene-<%= idx %>" readonly class="wikitext w100p autosize"
+                        style="resize:vertical;min-height:40px;padding-right:45px" spellcheck="false" translate="no"><%= item.text %></textarea>
               <button class="secondary small posAbs" ui-action="copy: #cutscene-<%= idx %>"
                       ui-tippy-hover="Click to copy to clipboard"
                       ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"

@@ -1,7 +1,11 @@
 <div class="dialogue-section" id="<%= id %>"<%- locals.similarityGroupId ? ` data-similarity-group="${locals.similarityGroupId}"` : ''  %>>
   <h4 class="dialogue-section-header valign">
     <span class="dialogue-section-expando" ui-action="expando: #dialogue-section-content-<%= id %>"><%- icon('chevron-down', 17) %></span>
-    <span class="dialogue-section-title"><%= title %></span>
+    <% if (!locals.isHtmlTitle) { %>
+      <span class="dialogue-section-title"><%= title %></span>
+    <% } else { %>
+      <span class="dialogue-section-title"><%- title %></span>
+    <% } %>
     <% if (locals.helptext) { %>
       <span ui-tippy-hover="<%= locals.helptext %>" ui-tippy-html="true" class="dispInlineFlex spacer5-left" style="height:14px;width:14px;opacity:0.8"><%- icon('info', 14) %></span>
     <% } %>

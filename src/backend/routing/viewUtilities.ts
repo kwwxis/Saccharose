@@ -4,6 +4,7 @@ import { escapeHtmlAllowEntities } from '../../shared/util/stringUtil';
 
 import { GENSHIN_SPRITE_TAGS } from '../domain/genshin/genshinText';
 
+export function icon(iconName: string);
 export function icon(iconName: string, size: number);
 export function icon(iconName: string, props: Partial<FeatherAttributes>);
 export function icon(iconName: string, size: number, props: Partial<FeatherAttributes>);

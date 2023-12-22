@@ -9,8 +9,8 @@ import 'brace/mode/html';
 import 'brace/mode/css';
 import 'brace/mode/json';
 import 'brace/mode/plain_text';
-import './mode/wikitext';
-import './mode/wikitext.scss';
+import './mode/aceWikiMode';
+import './mode/aceWikitext.scss';
 import 'brace/theme/textmate';
 import 'brace/theme/tomorrow_night';
 import 'brace/ext/static_highlight';
@@ -35,13 +35,32 @@ import { applyWikitextLineActions } from './listeners/wikitextLineActions';
 // region Create wikitext editor
 // --------------------------------------------------------------------------------------------------------------
 export const aceEditors: ace.Editor[] = [];
+export const aceEditorsById: {[aceId: string]: ace.Editor} = {};
+
+export function getWikitextEditor(editorElementId: string|HTMLElement): ace.Editor {
+  const editorEl: HTMLElement = typeof editorElementId === 'string'
+    ? document.getElementById(editorElementId)
+    : editorElementId;
+
+  const editorId = editorEl.getAttribute('data-editor-id');
+  return aceEditorsById[editorId];
+}
 
 export function createWikitextEditor(editorElementId: string|HTMLElement): ace.Editor {
   createAceDomClassWatcher();
 
+  const editorEl: HTMLElement = typeof editorElementId === 'string'
+    ? document.getElementById(editorElementId)
+    : editorElementId;
+
+  const editorId = uuidv4();
+  editorEl.setAttribute('data-editor-id', editorId);
+
   const editor: ace.Editor = editorElementId instanceof HTMLElement
     ? ace.edit(editorElementId)
     : ace.edit(editorElementId);
+
+  aceEditorsById[editorId] = editor;
 
   editor.setOptions({
     printMargin: false,

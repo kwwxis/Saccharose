@@ -4,7 +4,7 @@ import { DEFAULT_LANG } from '../../../shared/types/lang-types';
 import { DEFAULT_SEARCH_MODE } from '../../util/searchUtil';
 import { Request, Response } from 'express';
 
-const logSkipRegex: RegExp = /\.css|\.js|\.png|\.svg|\.ico|\.jpg|\.woff|\.env/g;
+const logSkipRegex: RegExp = /\.css|\.js|\.png|\.svg|\.ico|\.jpg|\.woff|\.env|serve-image/g;
 
 morgan.token('date', function(){
   return new Date().toLocaleString('en-US', {timeZone: 'America/Los_Angeles'});

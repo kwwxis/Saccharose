@@ -12,7 +12,7 @@ import { escapeHtml, romanize, ucFirst } from '../../../../shared/util/stringUti
 import { createElement, createPlaintextContenteditable, flashElement } from '../../../util/domutil';
 import { startListeners } from '../../../util/eventLoader';
 import { flashTippy } from '../../../util/tooltips';
-import { createWikitextEditor } from '../../../util/ace/wikitextEditor';
+import { createWikitextEditor, getWikitextEditor } from '../../../util/ace/wikitextEditor';
 
 const sortableDefaultOptions: Sortable.Options = {
   scroll: true,
@@ -293,9 +293,10 @@ export function VoAppVisualEditor(state: VoAppState) {
             notifyWikitext(type);
 
             let paramEl = itemEl.querySelector(`.vo-item-param[data-prop-name="${titlePropName}"]`);
+            console.log('title thing blur', itemTitleInput.innerText, paramEl);
             if (paramEl) {
-              let propValueEl: HTMLInputElement = paramEl.querySelector('.prop-value');
-              propValueEl.value = itemTitleInput.innerText;
+              let propValueEditorEl: HTMLInputElement = paramEl.querySelector('.prop-value .ace_editor');
+              getWikitextEditor(propValueEditorEl).setValue(itemTitleInput.innerText, -1);
             }
           });
 
@@ -340,7 +341,7 @@ export function VoAppVisualEditor(state: VoAppState) {
             propValueEditor.setHighlightActiveLine(false);
             propValueEditor.setOption('fontSize', 13);
             propValueEditor.setOption('maxLines', PARAM_VALUE_EDIT_MAX_LINES);
-            propValueEditor.setValue(paramNode.value, -1)
+            propValueEditor.setValue(paramNode.value, -1);
 
             propValueEditor.on('blur', (e) => {
               console.log(`[VO-App] Item param value change:`, { item, propName, paramNode });

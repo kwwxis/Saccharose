@@ -115,7 +115,7 @@ async function doIt(paths: {
     filename: relPath
   });
 
-  if (!descriptor || !descriptor.template?.content) {
+  if (!descriptor) {
     return;
   }
 
@@ -137,9 +137,11 @@ async function doIt(paths: {
     // }
 
     // Import template:
-    const renderFuncName = opts.renderSSR ? "ssrRender" : "render";
-    code += `\nimport { ${renderFuncName} } from "./${baseName}.template.js";`;
-    code += `\nscript.${renderFuncName} = ${renderFuncName};`
+    if (descriptor.template?.content) {
+      const renderFuncName = opts.renderSSR ? "ssrRender" : "render";
+      code += `\nimport { ${renderFuncName} } from "./${baseName}.template.js";`;
+      code += `\nscript.${renderFuncName} = ${renderFuncName};`
+    }
 
     // Finalize:
     code += `\nscript.__file = ${JSON.stringify(relPath)};`;
@@ -169,7 +171,7 @@ async function doIt(paths: {
       })
       : undefined;
 
-    const templateResults = sfc.compileTemplate({
+    const templateResults = descriptor.template?.content ? sfc.compileTemplate({
       id,
       source: descriptor.template.content,
       filename: relPath,
@@ -184,11 +186,11 @@ async function doIt(paths: {
         bindingMetadata: script?.bindings,
         ...opts.compilerOptions
       }
-    });
+    }) : null;
 
     return {
-      script: script.content,
-      template: templateResults.code
+      script: script?.content || '',
+      template: templateResults?.code || ''
     };
   }
 

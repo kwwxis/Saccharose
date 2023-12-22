@@ -1,20 +1,25 @@
-<template>
-  <template v-html="html"></template>
-</template>
-
-<script setup lang="ts">
+<script lang="ts">
+import { defineComponent, PropType } from 'vue';
 import { icon } from '../../routing/viewUtilities';
 import { FeatherAttributes } from 'feather-icons';
 
-const props = defineProps<{
-  name: string,
-  size?: number,
-  props?: FeatherAttributes
-}>();
-
-const html = icon(props.name, props.size, props.props);
+export default defineComponent({
+  name: 'MyIcon',
+  props: {
+    name: { type: String, required: true },
+    size: { type: Number, required: false },
+    props: { type: Object as PropType<Partial<FeatherAttributes>>, required: false },
+  },
+  setup(__props, { expose: __expose }) {
+    __expose();
+    const props = __props;
+    const html = icon(props.name, props.size, props.props);
+    const __returned__ = { props, html };
+    Object.defineProperty(__returned__, "__isScriptSetup", { enumerable: false, value: true });
+    return __returned__;
+  },
+  ssrRender(_ctx, _push, _parent, _attrs, $props, $setup, $data, $options) {
+    _push($setup.html);
+  }
+});
 </script>
-
-<style scoped lang="scss">
-
-</style>

@@ -17,7 +17,7 @@ import {
   SchemaTable,
   SchemaTableSet,
 } from '../importer/import_db';
-import { promises as fsp, promises as fs } from 'fs';
+import fs, { promises as fsp } from 'fs';
 import { getPlainTextMapRelPath, getTextIndexRelPath } from '../loadenv';
 import path, { basename } from 'path';
 import { escapeRegExp, isStringBlank, titleCase, ucFirst } from '../../shared/util/stringUtil';
@@ -243,8 +243,12 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     return this.excelPath;
   }
 
+  fileExists(filePath: string): boolean {
+    return fs.existsSync(this.getDataFilePath(filePath));
+  }
+
   async readJsonFile<T>(filePath: string): Promise<any> {
-    return JSON.parse(await fs.readFile(this.getDataFilePath(filePath), {encoding: 'utf8'}));
+    return JSON.parse(await fsp.readFile(this.getDataFilePath(filePath), {encoding: 'utf8'}));
   }
 
   async readDataFile<T>(filePath: string, doNormText: boolean = false): Promise<ExtractScalar<T>[]> {
@@ -272,7 +276,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
   }
 
   async getDataFileSize(filePath: string): Promise<number> {
-    return fs.stat(this.getDataFilePath(filePath)).then(ret => ret.size);
+    return fsp.stat(this.getDataFilePath(filePath)).then(ret => ret.size);
   }
 
   async getTextMapMatches(langCode: LangCode, searchText: string, flags?: string, startFromLine?: number, isRawInput?: boolean): Promise<TextMapSearchResult[]> {
