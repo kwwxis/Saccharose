@@ -3,8 +3,6 @@ import { LangCode, LangCodeMap } from '../../shared/types/lang-types';
 export const GENSHIN_I18N_MAP = {
   TalkToNpc: <LangCodeMap> {
     CH: ``,
-    CHS: ``,
-    CHT: ``,
     DE: ``,
     EN: `Talk to {npcName}`,
     ES: ``,
@@ -21,8 +19,6 @@ export const GENSHIN_I18N_MAP = {
   },
   ReturnToDialogueOption: <LangCodeMap> {
     CH: ``,
-    CHS: ``,
-    CHT: ``,
     DE: ``,
     EN: `Dialogue returns to option selection`,
     ES: ``,
@@ -39,8 +35,6 @@ export const GENSHIN_I18N_MAP = {
   },
   CinematicPlays: <LangCodeMap> {
     CH: ``,
-    CHS: ``,
-    CHT: ``,
     DE: ``,
     EN: `A cinematic plays`,
     ES: ``,
@@ -57,8 +51,6 @@ export const GENSHIN_I18N_MAP = {
   },
   CinematicEnds: <LangCodeMap> {
     CH: ``,
-    CHS: ``,
-    CHT: ``,
     DE: ``,
     EN: `Cinematic ends`,
     ES: ``,
@@ -75,8 +67,6 @@ export const GENSHIN_I18N_MAP = {
   },
   UnlocksAtFriendshipLevel: <LangCodeMap> {
     CH: ``,
-    CHS: ``,
-    CHT: ``,
     DE: ``,
     EN: `Unlocks at Friendship Level {level}`,
     ES: ``,
@@ -91,10 +81,41 @@ export const GENSHIN_I18N_MAP = {
     TR: ``,
     VI: ``,
   },
+
+  TCG_OpenMatchInterface: <LangCodeMap> {
+    CH: ``,
+    DE: ``,
+    EN: `Open Genius Invokation TCG match interface`,
+    ES: ``,
+    FR: ``,
+    ID: ``,
+    IT: ``,
+    JP: ``,
+    KR: ``,
+    PT: ``,
+    RU: ``,
+    TH: ``,
+    TR: ``,
+    VI: ``,
+  },
+  TCG_OpenDeckInterface: <LangCodeMap> {
+    CH: ``,
+    DE: ``,
+    EN: `Open Genius Invokation TCG deck interface`,
+    ES: ``,
+    FR: ``,
+    ID: ``,
+    IT: ``,
+    JP: ``,
+    KR: ``,
+    PT: ``,
+    RU: ``,
+    TH: ``,
+    TR: ``,
+    VI: ``,
+  },
   TCG_IfPlayerWinsMatch: <LangCodeMap> {
     CH: ``,
-    CHS: ``,
-    CHT: ``,
     DE: ``,
     EN: `If the player wins the match`,
     ES: ``,
@@ -111,8 +132,6 @@ export const GENSHIN_I18N_MAP = {
   },
   TCG_IfPlayerLosesMatch: <LangCodeMap> {
     CH: ``,
-    CHS: ``,
-    CHT: ``,
     DE: ``,
     EN: `If the player loses the match`,
     ES: ``,
@@ -129,8 +148,6 @@ export const GENSHIN_I18N_MAP = {
   },
   TCG_WhenEnemyHealthDrops: <LangCodeMap> {
     CH: ``,
-    CHS: ``,
-    CHT: ``,
     DE: ``,
     EN: `When {name}'s {card}'s Health drops to {hp} or lower`,
     ES: ``,
@@ -147,8 +164,6 @@ export const GENSHIN_I18N_MAP = {
   },
   TCG_WhenOneEnemyCardDefeated: <LangCodeMap> {
     CH: ``,
-    CHS: ``,
-    CHT: ``,
     DE: ``,
     EN: `When the player defeats one of {name}'s Character Cards`,
     ES: ``,
@@ -165,8 +180,6 @@ export const GENSHIN_I18N_MAP = {
   },
   TCG_WhenTwoEnemyCardsDefeated: <LangCodeMap> {
     CH: ``,
-    CHS: ``,
-    CHT: ``,
     DE: ``,
     EN: `When the player defeats two of {name}'s Character Cards`,
     ES: ``,
@@ -183,8 +196,6 @@ export const GENSHIN_I18N_MAP = {
   },
   TCG_WhenOnePlayerCardDefeated: <LangCodeMap> {
     CH: ``,
-    CHS: ``,
-    CHT: ``,
     DE: ``,
     EN: `When {name} defeats one of the player's Character Cards`,
     ES: ``,
@@ -201,8 +212,6 @@ export const GENSHIN_I18N_MAP = {
   },
   TCG_WhenEnemyUsesBurst: <LangCodeMap> {
     CH: ``,
-    CHS: ``,
-    CHT: ``,
     DE: ``,
     EN: `When {name} uses an Elemental Burst`,
     ES: ``,
@@ -228,6 +237,8 @@ export const ZENLESS_I18N_MAP = {
 }
 
 export function genshin_i18n(key: keyof typeof GENSHIN_I18N_MAP, langCode: LangCode, vars?: Record<string, string|number>): string {
+  if (langCode === 'CHS' || langCode === 'CHT')
+    langCode = 'CH';
   let text = GENSHIN_I18N_MAP[key][langCode] || GENSHIN_I18N_MAP[key]['EN'];
 
   if (vars) {
@@ -240,12 +251,16 @@ export function genshin_i18n(key: keyof typeof GENSHIN_I18N_MAP, langCode: LangC
 }
 
 export function hsr_i18n(key: keyof typeof HSR_I18N_MAP, langCode: LangCode, vars?: Record<string, string|number>): string {
+  if (langCode === 'CHS' || langCode === 'CHT')
+    langCode = 'CH';
   let text = HSR_I18N_MAP[key][langCode] || HSR_I18N_MAP[key]['EN'];
 
   return text;
 }
 
 export function zenless_i18n(key: keyof typeof ZENLESS_I18N_MAP, langCode: LangCode, vars?: Record<string, string|number>): string {
+  if (langCode === 'CHS' || langCode === 'CHT')
+    langCode = 'CH';
   let text = ZENLESS_I18N_MAP[key][langCode] || ZENLESS_I18N_MAP[key]['EN'];
 
   return text;

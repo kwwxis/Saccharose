@@ -1035,11 +1035,11 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
           || dialog.ActionAfter === 'GCG/open_GcgLevelPage_CatBar'
           || dialog.ActionAfter === 'GCG/open_GcgLevelPage_CatBar_2'
         )) {
-          text += `\n${diconPrefix}${':'.repeat(numSubsequentNonBranchPlayerDialogOption)};(Open Genius Invokation TCG match interface)`;
+          text += `\n${diconPrefix}${':'.repeat(numSubsequentNonBranchPlayerDialogOption)};(${this.i18n('TCG_OpenMatchInterface')})`;
         }
 
         if (dialog.ActionBefore === 'GCG/open_GcgCardSettingPage') {
-          text += `\n${diconPrefix}${':'.repeat(numSubsequentNonBranchPlayerDialogOption)};(Open Genius Invokation TCG deck interface)`;
+          text += `\n${diconPrefix}${':'.repeat(numSubsequentNonBranchPlayerDialogOption)};(${this.i18n('TCG_OpenDeckInterface')})`;
         }
       }
 
