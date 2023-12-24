@@ -1,11 +1,10 @@
-import { flashTippy } from '../util/tooltips';
-import { errorHtmlWrap, SaccharoseApiEndpoint } from '../endpoints';
-import { Listener, startListeners } from '../util/eventLoader';
-import { GeneralEventBus } from '../generalEventBus';
-import { HttpError } from '../../shared/util/httpError';
-import { pasteFromClipboard } from '../util/domutil';
-import { toBoolean } from '../../shared/util/genericUtil';
-
+import { flashTippy } from '../util/tooltips.ts';
+import { errorHtmlWrap, SaccharoseApiEndpoint } from '../endpoints.ts';
+import { Listener, startListeners } from '../util/eventLoader.ts';
+import { GeneralEventBus } from '../generalEventBus.ts';
+import { HttpError } from '../../shared/util/httpError.ts';
+import { pasteFromClipboard } from '../util/domutil.ts';
+import { toBoolean } from '../../shared/util/genericUtil.ts';
 export interface GenericSearchPageHandle {
   generateResult(caller: string): void;
   loadResultFromURL(): void;

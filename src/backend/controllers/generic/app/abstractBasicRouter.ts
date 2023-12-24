@@ -1,5 +1,5 @@
-import { AbstractControl } from '../../../domain/abstractControl';
-import { removeSuffix } from '../../../../shared/util/stringUtil';
+import { AbstractControl } from '../../../domain/abstractControl.ts';
+import { removeSuffix } from '../../../../shared/util/stringUtil.ts';
 import { Request, Response } from 'express';
 
 export async function sendExcelViewerTableResponse(ctrl: AbstractControl, req: Request, res: Response) {

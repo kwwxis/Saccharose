@@ -1,8 +1,7 @@
-import { GenshinControl } from '../genshinControl';
-import { DialogueSectionResult } from '../dialogue/dialogue_util';
-import { cached } from '../../../util/cache';
-import { GCGTutorialTextExcelConfigData } from '../../../../shared/types/genshin/gcg-types';
-
+import { GenshinControl } from '../genshinControl.ts';
+import { DialogueSectionResult } from '../dialogue/dialogue_util.ts';
+import { cached } from '../../../util/cache.ts';
+import { GCGTutorialTextExcelConfigData } from '../../../../shared/types/genshin/gcg-types.ts';
 export async function generateGCGTutorialDialogue(ctrl: GenshinControl): Promise<DialogueSectionResult> {
   return cached('GCGTutorialText_' + ctrl.outputLangCode, async () => {
     let json: GCGTutorialTextExcelConfigData[] = await ctrl.readDataFile('./ExcelBinOutput/GCGTutorialTextExcelConfigData.json');

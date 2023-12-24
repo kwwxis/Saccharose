@@ -1,5 +1,4 @@
-import { HomeworldAnimalExcelConfigData } from './homeworld-types';
-
+import { HomeworldAnimalExcelConfigData } from './homeworld-types.ts';
 // Monster
 // --------------------------------------------------------------------------------------------------------------
 

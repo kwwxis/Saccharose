@@ -1,10 +1,10 @@
-import { LangCode } from '../../../shared/types/lang-types';
+import { LangCode } from '../../../shared/types/lang-types.ts';
 import {
   genericNormText,
   mergeMcTemplate,
   NormTextOptions,
   postProcessBoldItalic,
-} from '../generic/genericNormalizers';
+} from '../generic/genericNormalizers.ts';
 
 function __proxyPlaceholder(langCode: LangCode = 'EN', _degender: boolean = false): string {
   switch (langCode) {

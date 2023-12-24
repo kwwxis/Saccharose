@@ -16,9 +16,8 @@
 //      │   ├─ MwPre
 //      │   └─ MwNowiki
 
-import { isInt } from '../util/numberUtil';
-import { mwParse, mwSimpleTextParse } from './mwParse';
-
+import { isInt } from '../util/numberUtil.ts';
+import { mwParse, mwSimpleTextParse } from './mwParse.ts';
 export abstract class MwNode {
   abstract toString(): string;
   abstract copy(): MwNode;

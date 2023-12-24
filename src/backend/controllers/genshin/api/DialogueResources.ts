@@ -1,19 +1,19 @@
-import { create } from '../../../routing/router';
-import { GenshinControl, getGenshinControl } from '../../../domain/genshin/genshinControl';
-import { MainQuestExcelConfigData } from '../../../../shared/types/genshin/quest-types';
-import { isInt, toInt } from '../../../../shared/util/numberUtil';
-import { questGenerate, QuestGenerateResult } from '../../../domain/genshin/dialogue/quest_generator';
-import { isset, removeCyclicRefs } from '../../../../shared/util/genericUtil';
-import { HttpError } from '../../../../shared/util/httpError';
-import { DialogueSectionResult } from '../../../domain/genshin/dialogue/dialogue_util';
+import { create } from '../../../routing/router.ts';
+import { GenshinControl, getGenshinControl } from '../../../domain/genshin/genshinControl.ts';
+import { MainQuestExcelConfigData } from '../../../../shared/types/genshin/quest-types.ts';
+import { isInt, toInt } from '../../../../shared/util/numberUtil.ts';
+import { questGenerate, QuestGenerateResult } from '../../../domain/genshin/dialogue/quest_generator.ts';
+import { isset, removeCyclicRefs } from '../../../../shared/util/genericUtil.ts';
+import { HttpError } from '../../../../shared/util/httpError.ts';
+import { DialogueSectionResult } from '../../../domain/genshin/dialogue/dialogue_util.ts';
 import {
   dialogueGenerate,
   dialogueGenerateByNpc,
   NpcDialogueResultSet,
-} from '../../../domain/genshin/dialogue/basic_dialogue_generator';
-import { reminderGenerate, reminderWikitext } from '../../../domain/genshin/dialogue/reminder_generator';
-import { ApiCyclicValueReplacer } from '../../../middleware/api/apiCyclicValueReplacer';
-import { VoiceItem } from '../../../../shared/types/lang-types';
+} from '../../../domain/genshin/dialogue/basic_dialogue_generator.ts';
+import { reminderGenerate, reminderWikitext } from '../../../domain/genshin/dialogue/reminder_generator.ts';
+import { ApiCyclicValueReplacer } from '../../../middleware/api/apiCyclicValueReplacer.ts';
+import { VoiceItem } from '../../../../shared/types/lang-types.ts';
 import { Request, Response, Router } from 'express';
 
 const router: Router = create();

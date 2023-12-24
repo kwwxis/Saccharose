@@ -1,51 +1,49 @@
-import { create } from '../../../routing/router';
-import { getGenshinControl } from '../../../domain/genshin/genshinControl';
-import { BookSuitExcelConfigData, ReadableView } from '../../../../shared/types/genshin/readable-types';
-import { ol_combine_results, ol_gen_from_id, OLResult } from '../../../domain/generic/basic/OLgen';
+import { create } from '../../../routing/router.ts';
+import { getGenshinControl } from '../../../domain/genshin/genshinControl.ts';
+import { BookSuitExcelConfigData, ReadableView } from '../../../../shared/types/genshin/readable-types.ts';
+import { ol_combine_results, ol_gen_from_id, OLResult } from '../../../domain/generic/basic/OLgen.ts';
 import {
   getCityIdsWithViewpoints,
   selectViewpoints, VIEWPOINT_DEFAULT_FILE_FORMAT_IMAGE, VIEWPOINT_DEFAULT_FILE_FORMAT_MAP,
   VIEWPOINT_FILE_FORMAT_PARAMS,
 
-} from '../../../domain/genshin/archive/viewpoints';
+} from '../../../domain/genshin/archive/viewpoints.ts';
 import {
   selectTutorials,
   TUTORIAL_FILE_FORMAT_PARAMS,
   TUTORIAL_DEFAULT_FILE_FORMAT_IMAGE, pushTipCodexTypeName,
 
-} from '../../../domain/genshin/archive/tutorials';
-import { PushTipsCodexType, PushTipsCodexTypeList, TutorialsByType } from '../../../../shared/types/genshin/tutorial-types';
-import { ViewpointsByRegion } from '../../../../shared/types/genshin/viewpoint-types';
-import { AchievementsByGoals } from '../../../../shared/types/genshin/achievement-types';
-import { paramCmp, toParam } from '../../../routing/viewUtilities';
+} from '../../../domain/genshin/archive/tutorials.ts';
+import { PushTipsCodexType, PushTipsCodexTypeList, TutorialsByType } from '../../../../shared/types/genshin/tutorial-types.ts';
+import { ViewpointsByRegion } from '../../../../shared/types/genshin/viewpoint-types.ts';
+import { AchievementsByGoals } from '../../../../shared/types/genshin/achievement-types.ts';
 import {
   generateLoadingTipsWikiText,
   selectLoadingMainCatNames,
   selectLoadingTips,
-} from '../../../domain/genshin/archive/loadingTips';
-import { LoadingCat } from '../../../../shared/types/genshin/loading-types';
-import { toInt } from '../../../../shared/util/numberUtil';
-import { SbOut, sentenceJoin } from '../../../../shared/util/stringUtil';
+} from '../../../domain/genshin/archive/loadingTips.ts';
+import { LoadingCat } from '../../../../shared/types/genshin/loading-types.ts';
+import { toInt } from '../../../../shared/util/numberUtil.ts';
+import { paramCmp, SbOut, sentenceJoin, toParam } from '../../../../shared/util/stringUtil.ts';
 import { Request, Response, Router } from 'express';
-import { defaultMap, toBoolean } from '../../../../shared/util/genericUtil';
+import { defaultMap, toBoolean } from '../../../../shared/util/genericUtil.ts';
 import AchievementPage from '../../../components/genshin/achievements/AchievementPage.vue';
 import FurnishingSetListingPage from '../../../components/genshin/furnishings/FurnishingSetListingPage.vue';
 import {
   FurnitureSuiteExcelConfigData,
   FurnitureSuiteTree, HomeWorldEventExcelConfigData, HomeWorldFurnitureExcelConfigData, HomeWorldFurnitureTypeTree,
   HomeWorldNPCExcelConfigData,
-} from '../../../../shared/types/genshin/homeworld-types';
+} from '../../../../shared/types/genshin/homeworld-types.ts';
 import FurnishingSetSinglePage from '../../../components/genshin/furnishings/FurnishingSetSinglePage.vue';
 import {
   DialogueSectionResult,
   TalkConfigAccumulator,
   talkConfigGenerate,
-} from '../../../domain/genshin/dialogue/dialogue_util';
-import { DialogExcelConfigData } from '../../../../shared/types/genshin/dialogue-types';
-import { ManualTextMapHashes } from '../../../../shared/types/genshin/manual-text-map';
-import { MetaProp } from '../../../util/metaProp';
-import { cached } from '../../../util/cache';
-
+} from '../../../domain/genshin/dialogue/dialogue_util.ts';
+import { DialogExcelConfigData } from '../../../../shared/types/genshin/dialogue-types.ts';
+import { ManualTextMapHashes } from '../../../../shared/types/genshin/manual-text-map.ts';
+import { MetaProp } from '../../../util/metaProp.ts';
+import { cached } from '../../../util/cache.ts';
 export default async function(): Promise<Router> {
   const router: Router = create();
 

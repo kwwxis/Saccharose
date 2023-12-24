@@ -1,18 +1,17 @@
-import '../../../loadenv';
-import { closeKnex } from '../../../util/db';
-import { GenshinControl, getGenshinControl } from '../genshinControl';
-import { cached } from '../../../util/cache';
-import { toInt } from '../../../../shared/util/numberUtil';
-import { HomeWorldEventExcelConfigData, HomeWorldNPCExcelConfigData } from '../../../../shared/types/genshin/homeworld-types';
-import { grep } from '../../../util/shellutil';
-import { DialogueSectionResult, TalkConfigAccumulator, talkConfigGenerate } from '../dialogue/dialogue_util';
+import '../../../loadenv.ts';
+import { closeKnex } from '../../../util/db.ts';
+import { GenshinControl, getGenshinControl } from '../genshinControl.ts';
+import { cached } from '../../../util/cache.ts';
+import { toInt } from '../../../../shared/util/numberUtil.ts';
+import { HomeWorldEventExcelConfigData, HomeWorldNPCExcelConfigData } from '../../../../shared/types/genshin/homeworld-types.ts';
+import { grep } from '../../../util/shellutil.ts';
+import { DialogueSectionResult, TalkConfigAccumulator, talkConfigGenerate } from '../dialogue/dialogue_util.ts';
 import util from 'util';
-import { toBoolean } from '../../../../shared/util/genericUtil';
+import { toBoolean } from '../../../../shared/util/genericUtil.ts';
 import { pathToFileURL } from 'url';
-import { sort } from '../../../../shared/util/arrayUtil';
-import { escapeHtml, toLower } from '../../../../shared/util/stringUtil';
-import { getGenshinDataFilePath } from '../../../loadenv';
-
+import { sort } from '../../../../shared/util/arrayUtil.ts';
+import { escapeHtml, toLower } from '../../../../shared/util/stringUtil.ts';
+import { getGenshinDataFilePath } from '../../../loadenv.ts';
 export async function getHomeWorldCompanions(ctrl: GenshinControl): Promise<HomeWorldNPCExcelConfigData[]> {
   return cached('HomeWorldCompanions_'+ctrl.outputLangCode, async () => {
     const companions: HomeWorldNPCExcelConfigData[] = await ctrl.selectAllHomeWorldNPCs({

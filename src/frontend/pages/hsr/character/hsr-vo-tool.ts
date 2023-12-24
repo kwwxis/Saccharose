@@ -1,13 +1,12 @@
-import { pageMatch } from '../../../pageMatch';
-import { initializeVoTool } from '../../generic/vo-tool/vo-tool';
+import { pageMatch } from '../../../pageMatch.ts';
+import { initializeVoTool } from '../../generic/vo-tool/vo-tool.ts';
 import {
   CommonAvatar,
   CommonVoiceOverGroup,
   toCommonVoiceOverGroupFromStarRail,
-} from '../../../../shared/types/common-types';
-import { AvatarConfig, isTrailblazer, VoiceAtlasGroup } from '../../../../shared/types/hsr/hsr-avatar-types';
-import { starRailEndpoints } from '../../../endpoints';
-
+} from '../../../../shared/types/common-types.ts';
+import { AvatarConfig, isTrailblazer, VoiceAtlasGroup } from '../../../../shared/types/hsr/hsr-avatar-types.ts';
+import { starRailEndpoints } from '../../../endpoints.ts';
 pageMatch('pages/hsr/character/vo-tool', () => {
   initializeVoTool(() => ({
     storagePrefix: 'HSR_',

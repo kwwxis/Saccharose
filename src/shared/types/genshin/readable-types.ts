@@ -10,12 +10,11 @@
  * DocumentExcelConfigData.ContentLocalizedIds -> LocalizationExcelConfigData.Id
  */
 
-import { MaterialExcelConfigData } from './material-types';
-import { ReliquaryCodexExcelConfigData, ReliquaryExcelConfigData, ReliquarySetExcelConfigData } from './artifact-types';
-import { WeaponExcelConfigData } from './weapon-types';
-import { MainQuestExcelConfigData } from './quest-types';
-import { Marker } from '../../util/highlightMarker';
-
+import { MaterialExcelConfigData } from './material-types.ts';
+import { ReliquaryCodexExcelConfigData, ReliquaryExcelConfigData, ReliquarySetExcelConfigData } from './artifact-types.ts';
+import { WeaponExcelConfigData } from './weapon-types.ts';
+import { MainQuestExcelConfigData } from './quest-types.ts';
+import { Marker } from '../../util/highlightMarker.ts';
 export interface ReadableSearchView {
   TitleResults: ReadableView[]
   ContentResults: ReadableView[]

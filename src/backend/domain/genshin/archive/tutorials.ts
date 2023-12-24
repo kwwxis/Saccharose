@@ -1,10 +1,10 @@
-import '../../../loadenv';
-import { GenshinControl, getGenshinControl } from '../genshinControl';
+import '../../../loadenv.ts';
+import { GenshinControl, getGenshinControl } from '../genshinControl.ts';
 import { pathToFileURL } from 'url';
 import util from 'util';
-import { closeKnex } from '../../../util/db';
-import { defaultMap } from '../../../../shared/util/genericUtil';
-import { fileFormatOptionsApply, fileFormatOptionsCheck } from '../../../util/fileFormatOptions';
+import { closeKnex } from '../../../util/db.ts';
+import { defaultMap } from '../../../../shared/util/genericUtil.ts';
+import { fileFormatOptionsApply, fileFormatOptionsCheck } from '../../../util/fileFormatOptions.ts';
 import {
   NewActivityPushTipsConfigData,
   PushTipsCodexExcelConfigData,
@@ -13,11 +13,10 @@ import {
   TutorialDetailExcelConfigData,
   TutorialExcelConfigData,
   TutorialsByType,
-} from '../../../../shared/types/genshin/tutorial-types';
-import { isInt, toInt } from '../../../../shared/util/numberUtil';
-import { escapeRegExp } from '../../../../shared/util/stringUtil';
-import { Marker } from '../../../../shared/util/highlightMarker';
-
+} from '../../../../shared/types/genshin/tutorial-types.ts';
+import { isInt, toInt } from '../../../../shared/util/numberUtil.ts';
+import { escapeRegExp } from '../../../../shared/util/stringUtil.ts';
+import { Marker } from '../../../../shared/util/highlightMarker.ts';
 export function pushTipCodexTypeName(type: PushTipsCodexType): string {
   if (!type) {
     return 'Non-PushTip';

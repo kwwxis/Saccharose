@@ -1,5 +1,5 @@
-import { VIEWS_ROOT } from '../../loadenv';
-import { HttpError } from '../../../shared/util/httpError';
+import { VIEWS_ROOT } from '../../loadenv.ts';
+import { HttpError } from '../../../shared/util/httpError.ts';
 import { NextFunction, Request, Response } from 'express';
 
 export async function pageLoadErrorHandler(err: any, req: Request, res: Response, next: NextFunction) {

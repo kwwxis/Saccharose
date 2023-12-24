@@ -1,5 +1,5 @@
-import { create } from '../../../routing/router';
-import ZenlessBasicRouter from './ZenlessBasicRouter';
+import { create } from '../../../routing/router.ts';
+import ZenlessBasicRouter from './ZenlessBasicRouter.ts';
 import { Router } from 'express';
 
 export default async function(): Promise<Router> {

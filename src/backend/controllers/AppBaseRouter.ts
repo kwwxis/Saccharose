@@ -1,12 +1,12 @@
 import helmet from 'helmet';
-import { create } from '../routing/router';
-import { toBoolean } from '../../shared/util/genericUtil';
-import GenshinRouter from './genshin/app/_index';
-import StarRailRouter from './hsr/app/_index';
-import ZenlessRouter from './zenless/app/_index'
-import { getGenshinControl } from '../domain/genshin/genshinControl';
-import { getStarRailControl } from '../domain/hsr/starRailControl';
-import { getZenlessControl } from '../domain/zenless/zenlessControl';
+import { create } from '../routing/router.ts';
+import { toBoolean } from '../../shared/util/genericUtil.ts';
+import GenshinRouter from './genshin/app/_index.ts';
+import StarRailRouter from './hsr/app/_index.ts';
+import ZenlessRouter from './zenless/app/_index.ts';
+import { getGenshinControl } from '../domain/genshin/genshinControl.ts';
+import { getStarRailControl } from '../domain/hsr/starRailControl.ts';
+import { getZenlessControl } from '../domain/zenless/zenlessControl.ts';
 import { NextFunction, Request, Response, Router } from 'express';
 
 export default async function(): Promise<Router> {

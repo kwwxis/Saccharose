@@ -1,6 +1,5 @@
-import { createElement } from './domutil';
-import { runWhenDOMContentLoaded } from './eventLoader';
-
+import { createElement } from './domutil.ts';
+import { runWhenDOMContentLoaded } from './eventLoader.ts';
 export type EventBusListener = (...args: any[]) => void;
 
 // noinspection JSUnusedGlobalSymbols

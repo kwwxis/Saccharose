@@ -1,10 +1,10 @@
-import { create } from '../../../routing/router';
+import { create } from '../../../routing/router.ts';
 import {
   handleIdUsagesEndpoint,
   handleOlEndpoint,
   handleTextMapSearchEndpoint,
-} from '../../generic/api/basicResourceResources';
-import { getStarRailControl } from '../../../domain/hsr/starRailControl';
+} from '../../generic/api/basicResourceResources.ts';
+import { getStarRailControl } from '../../../domain/hsr/starRailControl.ts';
 import { Request, Response, Router } from 'express';
 
 const router: Router = create();

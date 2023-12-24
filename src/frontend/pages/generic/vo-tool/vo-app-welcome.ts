@@ -1,91 +1,110 @@
-import { startListeners } from '../../../util/eventLoader';
-import { flashTippy } from '../../../util/tooltips';
-import { createVoHandle } from './vo-handle';
-import { VoAppState } from './vo-tool';
-import { toInt } from '../../../../shared/util/numberUtil';
-import { modalService } from '../../../util/modalService';
-import { createWikitextEditor } from '../../../util/ace/wikitextEditor';
-import { humanTiming } from '../../../../shared/util/genericUtil';
-import { sort } from '../../../../shared/util/arrayUtil';
-import { LangCode } from '../../../../shared/types/lang-types';
-import { SITE_MODE_HOME } from '../../../siteMode';
-
+import { startListeners } from '../../../util/eventLoader.ts';
+import { flashTippy } from '../../../util/tooltips.ts';
+import { createVoHandle } from './vo-handle.ts';
+import { VoAppState } from './vo-tool.ts';
+import { toInt } from '../../../../shared/util/numberUtil.ts';
+import { modalService } from '../../../util/modalService.ts';
+import { createWikitextEditor } from '../../../util/ace/wikitextEditor.ts';
+import { humanTiming } from '../../../../shared/util/genericUtil.ts';
+import { sort } from '../../../../shared/util/arrayUtil.ts';
+import { LangCode } from '../../../../shared/types/lang-types.ts';
+import { SITE_MODE_HOME } from '../../../siteMode.ts';
+import { frag1 } from '../../../util/domutil.ts';
+import { toParam } from '../../../../shared/util/stringUtil.ts';
 export function VoAppWelcome(state: VoAppState) {
   const recentEl: HTMLElement = document.querySelector('#vo-app-welcome-recent');
   const recentListEl: HTMLElement = document.querySelector('#vo-app-welcome-recent-list');
-  const welcomeNoticeEl: HTMLElement = document.querySelector('#vo-app-welcome-notice');
-  const welcomeNoticeContentEl: HTMLElement = document.querySelector('#vo-app-welcome-notice-content');
 
-  let locallySavedAvatars: {avatarId: number, langCode: LangCode, lastUpdateTime: number, recentListHtml: string}[] = [];
-  let unconvertedKeys: string[] = [];
+  const locallySavedAvatars: {
+    avatarId: number,
+    langCode: LangCode,
+    lastUpdateTime: number,
+    element: HTMLElement
+  }[] = [];
+
+  const trashIconHtml = document.querySelector('#icon-trash').innerHTML;
 
   for (let i = 0; i < localStorage.length; i++){
-    let key = localStorage.key(i);
-    if (key.startsWith('CHAR_VO')) {
-      unconvertedKeys.push(key);
-    }
+    const key = localStorage.key(i);
     if (key.startsWith(state.config.storagePrefix + 'CHAR_VO_WIKITEXT_') && !key.endsWith('_UPDATETIME')) {
-      let keyParts: string[] = key.split('_');
-      let avatarId: number = toInt(keyParts.pop());
-      let langCode: LangCode = keyParts.pop() as LangCode;
+      const keyParts: string[] = key.split('_');
+      const avatarId: number = toInt(keyParts.pop());
+      const langCode: LangCode = keyParts.pop() as LangCode;
 
-      let lastUpdatedTimeStr: string = localStorage.getItem(key+'_UPDATETIME');
-      let lastUpdateTime: number = lastUpdatedTimeStr ? parseInt(lastUpdatedTimeStr) : 0;
+      const lastUpdatedTimeStr: string = localStorage.getItem(key+'_UPDATETIME');
+      const lastUpdateTime: number = lastUpdatedTimeStr ? parseInt(lastUpdatedTimeStr) : 0;
 
-      let avatar = state.avatars.find(avatar => avatar.Id === avatarId);
-      if (avatar) {
-        locallySavedAvatars.push({ avatarId: avatar.Id, langCode, lastUpdateTime, recentListHtml: `
-        <div class="w50p">
+      const avatar = state.avatars.find(avatar => avatar.Id === avatarId);
+      if (!avatar)
+        continue;
+
+      const element: HTMLElement = frag1(`
+        <div class="vo-app-welcome-recent-avatar-wrapper w50p">
           <a id="vo-app-welcome-recent-avatar-${avatar.Id}"
              class="vo-app-welcome-recent-avatar secondary dispFlex textAlignLeft spacer5-all"
-             href="${SITE_MODE_HOME}/character/VO/${avatar.NameText.replace(' ', '_')}"
+             href="${SITE_MODE_HOME}/character/VO/${toParam(avatar.NameText)}/${langCode}"
              role="button">
             <img class="icon x32" src="${state.config.imagePathPrefix}${avatar.IconName}.png" loading="lazy" decoding="async" />
             <div class="spacer10-left spacer5-top" style="line-height:1em">
               <div>${avatar.NameText}</div>
               <small><strong>${langCode} Text</strong> Last updated: ${humanTiming(lastUpdateTime)}</small>
             </div>
+            <div class="grow"></div>
+            <button class="vo-app-welcome-recent-avatar-delete alignCenter justifyCenter" role="button"
+                    ui-tippy-hover="Delete this data">${trashIconHtml}</button>
           </a>
         </div>
-      ` });
-      }
-    }
-  }
+      `);
 
-  if (unconvertedKeys.length) {
-    welcomeNoticeEl.classList.remove('hide');
-    welcomeNoticeContentEl.innerHTML = `
-      <p class="info-notice">
-        <span class="dispBlock">You have local data stored in an old format, and as such it was not loaded.</span>
-        <span class="dispBlock spacer10-top">To convert it to the new format, click the button below:</span>
-      </p>
-      <button id="vo-app-welcome-notice-submit" class="primary spacer10-top">Convert to new format</button>
-    `;
-    startListeners([
-      {
-        el: '#vo-app-welcome-notice-submit',
-        ev: 'click',
-        fn: function() {
-          for (let key of unconvertedKeys) {
-            let value = localStorage.getItem(key);
-            localStorage.removeItem(key);
-            localStorage.setItem('GENSHIN_' + key, value);
-          }
-          location.reload();
-        }
+      function fancyDelete() {
+        localStorage.removeItem(key);
+        localStorage.removeItem(key + '_UPDATETIME');
+
+        const inner: HTMLElement = element.querySelector('.vo-app-welcome-recent-avatar');
+        const rect = element.getBoundingClientRect();
+        const innerRect = inner.getBoundingClientRect();
+
+        element.classList.add('posRel');
+        element.setAttribute('style',
+          `width:${rect.width}px;height:${rect.height}px;overflow:hidden;opacity:1;pointer-events:none;` +
+          `transition:width 200ms ease-out,opacity 1000ms linear`);
+
+        inner.setAttribute('style', `position:absolute;top:0;left:0;width:${innerRect.width}px;height:${innerRect.height}px`);
+        window.requestAnimationFrame(() => {
+          element.style.width = '0px';
+          element.style.opacity = '0';
+        });
       }
-    ], welcomeNoticeContentEl);
+
+      const deleteButton: HTMLElement = element.querySelector('.vo-app-welcome-recent-avatar-delete');
+      deleteButton.addEventListener('click', evt => {
+        evt.stopPropagation();
+        evt.preventDefault();
+        modalService.confirm('Confirm delete?', `Confirm you want to delete ${langCode} text for ${avatar.NameText} VOs.`)
+          .onConfirm(() => fancyDelete());
+      })
+
+
+      locallySavedAvatars.push({
+        avatarId: avatar.Id,
+        langCode,
+        lastUpdateTime,
+        element
+      });
+    }
   }
 
   if (locallySavedAvatars.length) {
+    recentListEl.innerHTML = '';
     sort(locallySavedAvatars, '-lastUpdateTime');
     for (let locallySavedAvatar of locallySavedAvatars) {
-      recentListEl.insertAdjacentHTML('beforeend', locallySavedAvatar.recentListHtml);
+      recentListEl.insertAdjacentElement('beforeend', locallySavedAvatar.element);
     }
-    recentEl.classList.remove('hide');
+  } else {
+    recentListEl.innerHTML = '<p>(None)</p>';
   }
 
-  let inputEditor = createWikitextEditor('welcome-wt-input');
+  const inputEditor = createWikitextEditor('welcome-wt-input');
 
   startListeners([
     {

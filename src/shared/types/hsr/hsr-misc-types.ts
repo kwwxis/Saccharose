@@ -1,5 +1,4 @@
-import { LangCodeMap } from '../lang-types';
-
+import { LangCodeMap } from '../lang-types.ts';
 export interface LoadingDesc {
   Id: number,
 

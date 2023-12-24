@@ -1,6 +1,5 @@
-import { MwComment, MwNowiki } from '../mwTypes';
-import { MwParseModule } from '../mwParseModule';
-
+import { MwComment, MwNowiki } from '../mwTypes.ts';
+import { MwParseModule } from '../mwParseModule.ts';
 export class MwParseHtmlModule extends MwParseModule {
   offer(ch: string): boolean {
     const ctx = this.ctx;

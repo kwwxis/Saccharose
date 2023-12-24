@@ -1,5 +1,4 @@
-import { camelCaseToTitleCase } from './stringUtil';
-
+import { camelCaseToTitleCase } from './stringUtil.ts';
 export const HTTP_STATUS_CODE_TO_NAME = {
   400: 'BadRequest',
   401: 'Unauthorized',

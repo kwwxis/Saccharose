@@ -1,21 +1,20 @@
-import '../../../loadenv';
-import { GenshinControl, getGenshinControl, loadGenshinVoiceItems } from '../genshinControl';
-import { processFetterConds } from './fetterConds';
-import { closeKnex } from '../../../util/db';
-import { FetterGroup, FetterGroupByAvatar, FetterExcelConfigData } from '../../../../shared/types/genshin/fetter-types';
-import { cached } from '../../../util/cache';
+import '../../../loadenv.ts';
+import { GenshinControl, getGenshinControl, loadGenshinVoiceItems } from '../genshinControl.ts';
+import { processFetterConds } from './fetterConds.ts';
+import { closeKnex } from '../../../util/db.ts';
+import { FetterGroup, FetterGroupByAvatar, FetterExcelConfigData } from '../../../../shared/types/genshin/fetter-types.ts';
+import { cached } from '../../../util/cache.ts';
 import { pathToFileURL } from 'url';
-import { fetchCharacterStories } from './fetchStoryFetters';
+import { fetchCharacterStories } from './fetchStoryFetters.ts';
 import chalk from 'chalk';
 import { distance as strdist } from 'fastest-levenshtein';
-import { AvatarExcelConfigData, isTraveler } from '../../../../shared/types/genshin/avatar-types';
-import { VoiceItem } from '../../../../shared/types/lang-types';
-import { DATAFILE_GENSHIN_FETTERS } from '../../../loadenv';
+import { AvatarExcelConfigData, isTraveler } from '../../../../shared/types/genshin/avatar-types.ts';
+import { VoiceItem } from '../../../../shared/types/lang-types.ts';
+import { DATAFILE_GENSHIN_FETTERS } from '../../../loadenv.ts';
 import path from 'path';
 import { promises as fs } from 'fs';
-import { defaultMap } from '../../../../shared/util/genericUtil';
-import { toMap } from '../../../../shared/util/arrayUtil';
-
+import { defaultMap } from '../../../../shared/util/genericUtil.ts';
+import { toMap } from '../../../../shared/util/arrayUtil.ts';
 function getVoAvatarName(avatar: AvatarExcelConfigData, voiceItems: VoiceItem[]): string {
   if (isTraveler(avatar, 'male')) {
     return 'hero';

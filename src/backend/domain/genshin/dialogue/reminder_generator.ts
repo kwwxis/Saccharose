@@ -1,14 +1,13 @@
-import '../../../loadenv';
-import { closeKnex } from '../../../util/db';
-import { GenshinControl, getGenshinControl } from '../genshinControl';
-import { cached } from '../../../util/cache';
-import { isInt } from '../../../../shared/util/numberUtil';
-import { ReminderExcelConfigData } from '../../../../shared/types/genshin/dialogue-types';
-import { DialogueSectionResult } from './dialogue_util';
-import { MetaProp } from '../../../util/metaProp';
+import '../../../loadenv.ts';
+import { closeKnex } from '../../../util/db.ts';
+import { GenshinControl, getGenshinControl } from '../genshinControl.ts';
+import { cached } from '../../../util/cache.ts';
+import { isInt } from '../../../../shared/util/numberUtil.ts';
+import { ReminderExcelConfigData } from '../../../../shared/types/genshin/dialogue-types.ts';
+import { DialogueSectionResult } from './dialogue_util.ts';
+import { MetaProp } from '../../../util/metaProp.ts';
 import { pathToFileURL } from 'url';
-import { TextMapHash } from '../../../../shared/types/lang-types';
-
+import { TextMapHash } from '../../../../shared/types/lang-types.ts';
 export async function reminderGenerateAll(ctrl: GenshinControl): Promise<DialogueSectionResult> {
   let sect = new DialogueSectionResult(null, 'All Reminders');
   sect.showGutter = true;

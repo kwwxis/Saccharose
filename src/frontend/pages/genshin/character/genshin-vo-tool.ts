@@ -1,20 +1,19 @@
-import { pageMatch } from '../../../pageMatch';
-import { initializeVoTool } from '../../generic/vo-tool/vo-tool';
+import { pageMatch } from '../../../pageMatch.ts';
+import { initializeVoTool } from '../../generic/vo-tool/vo-tool.ts';
 import {
   CommonAvatar,
   CommonVoiceOverGroup,
   toCommonVoiceOverGroupFromGenshin,
-} from '../../../../shared/types/common-types';
-import { genshinEndpoints } from '../../../endpoints';
-import { FetterGroup } from '../../../../shared/types/genshin/fetter-types';
-import { AvatarExcelConfigData, isTraveler } from '../../../../shared/types/genshin/avatar-types';
+} from '../../../../shared/types/common-types.ts';
+import { genshinEndpoints } from '../../../endpoints.ts';
+import { FetterGroup } from '../../../../shared/types/genshin/fetter-types.ts';
+import { AvatarExcelConfigData, isTraveler } from '../../../../shared/types/genshin/avatar-types.ts';
 import {
   VoAppPreloadCombatGroupCodeConf,
   VoAppPreloadConfig,
   VoAppPreloadInput,
-} from '../../generic/vo-tool/vo-preload-types';
-import { replaceRomanNumerals, romanize, romanToInt } from '../../../../shared/util/stringUtil';
-
+} from '../../generic/vo-tool/vo-preload-types.ts';
+import { replaceRomanNumerals, romanize, romanToInt } from '../../../../shared/util/stringUtil.ts';
 // region General Config
 // --------------------------------------------------------------------------------------------------------------
 pageMatch('pages/genshin/character/vo-tool', () => {

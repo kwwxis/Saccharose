@@ -1,32 +1,31 @@
-import '../../../loadenv';
-import { closeKnex } from '../../../util/db';
-import { GenshinControl, getGenshinControl } from '../genshinControl';
-import { ol_gen_from_id } from '../../generic/basic/OLgen';
-import { NpcExcelConfigData } from '../../../../shared/types/genshin/general-types';
-import { arrayEmpty, arrayUnique } from '../../../../shared/util/arrayUtil';
+import '../../../loadenv.ts';
+import { closeKnex } from '../../../util/db.ts';
+import { GenshinControl, getGenshinControl } from '../genshinControl.ts';
+import { ol_gen_from_id } from '../../generic/basic/OLgen.ts';
+import { NpcExcelConfigData } from '../../../../shared/types/genshin/general-types.ts';
+import { arrayEmpty, arrayUnique } from '../../../../shared/util/arrayUtil.ts';
 import {
   DialogUnparented,
   TalkExcelConfigData,
-} from '../../../../shared/types/genshin/dialogue-types';
+} from '../../../../shared/types/genshin/dialogue-types.ts';
 import {
   MainQuestExcelConfigData,
   QuestExcelConfigData,
   ReputationQuestExcelConfigData,
-} from '../../../../shared/types/genshin/quest-types';
-import { RewardExcelConfigData } from '../../../../shared/types/genshin/material-types';
+} from '../../../../shared/types/genshin/quest-types.ts';
+import { RewardExcelConfigData } from '../../../../shared/types/genshin/material-types.ts';
 import {
   DialogueSectionResult,
   TalkConfigAccumulator,
   talkConfigToDialogueSectionResult,
-} from './dialogue_util';
-import { MetaProp } from '../../../util/metaProp';
+} from './dialogue_util.ts';
+import { MetaProp } from '../../../util/metaProp.ts';
 import { pathToFileURL } from 'url';
-import { SbOut } from '../../../../shared/util/stringUtil';
-import { dialogueCompareApply, SimilarityGroups } from './dialogue_compare';
-import { custom } from '../../../util/logger';
-import { grepIdStartsWith } from '../../../util/shellutil';
-import { RAW_MANUAL_TEXTMAP_ID_PROP } from '../../../importer/genshin/genshin.schema';
-
+import { SbOut } from '../../../../shared/util/stringUtil.ts';
+import { dialogueCompareApply, SimilarityGroups } from './dialogue_compare.ts';
+import { custom } from '../../../util/logger.ts';
+import { grepIdStartsWith } from '../../../util/shellutil.ts';
+import { RAW_MANUAL_TEXTMAP_ID_PROP } from '../../../importer/genshin/genshin.schema.ts';
 export class QuestGenerateResult {
   mainQuest: MainQuestExcelConfigData = null;
   questTitle: string;

@@ -1,9 +1,6 @@
 import feather, { FeatherAttributes, FeatherIconNames } from 'feather-icons';
-import { isUnset } from '../../shared/util/genericUtil';
-import { escapeHtmlAllowEntities } from '../../shared/util/stringUtil';
-
-import { GENSHIN_SPRITE_TAGS } from '../domain/genshin/genshinText';
-
+import { escapeHtmlAllowEntities } from '../../shared/util/stringUtil.ts';
+import { GENSHIN_SPRITE_TAGS } from '../domain/genshin/genshinText.ts';
 export function icon(iconName: string);
 export function icon(iconName: string, size: number);
 export function icon(iconName: string, props: Partial<FeatherAttributes>);
@@ -73,24 +70,6 @@ export function printHumanTiming(ts: Date|number): string {
   let placeholder = ts > now ? 'some time from now' : 'some time ago';
 
   return `<span class="timestamp is--humanTiming" data-timestamp="${ts}">${placeholder}</span>`;
-}
-
-export function toParam(x: any): string {
-  if (isUnset(x)) {
-    return '';
-  }
-  x = String(x);
-  if (typeof x === 'string') {
-    return x.replace(/ /g, '_');
-  }
-  return x;
-}
-
-export function paramCmp(a: any, b: any) {
-  if (a === b) {
-    return true;
-  }
-  return String(a).trim().toLowerCase().replace(/_/g, ' ') === String(b).trim().toLowerCase().replace(/_/g, ' ');
 }
 
 export function genshinSpriteTagIconize(s: string, escapeHtmlFirst: boolean = true) {

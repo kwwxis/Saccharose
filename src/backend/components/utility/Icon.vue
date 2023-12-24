@@ -1,6 +1,6 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue';
-import { icon } from '../../routing/viewUtilities';
+import { icon } from '../../routing/viewUtilities.ts';
 import { FeatherAttributes } from 'feather-icons';
 
 export default defineComponent({

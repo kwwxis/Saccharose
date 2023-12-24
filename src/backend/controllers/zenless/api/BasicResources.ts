@@ -1,10 +1,10 @@
-import { create } from '../../../routing/router';
+import { create } from '../../../routing/router.ts';
 import {
   handleIdUsagesEndpoint,
   handleOlEndpoint,
   handleTextMapSearchEndpoint,
-} from '../../generic/api/basicResourceResources';
-import { getZenlessControl } from '../../../domain/zenless/zenlessControl';
+} from '../../generic/api/basicResourceResources.ts';
+import { getZenlessControl } from '../../../domain/zenless/zenlessControl.ts';
 import { Request, Response, Router } from 'express';
 
 const router: Router = create();

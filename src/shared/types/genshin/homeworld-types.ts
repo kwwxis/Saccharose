@@ -1,9 +1,8 @@
-import { NpcExcelConfigData } from './general-types';
-import { AvatarExcelConfigData } from './avatar-types';
-import { MaterialExcelConfigData, MaterialVecItem, RewardExcelConfigData } from './material-types';
-import { MonsterExcelConfigData } from './monster-types';
-import { DialogueSectionResult } from '../../../backend/domain/genshin/dialogue/dialogue_util';
-
+import { NpcExcelConfigData } from './general-types.ts';
+import { AvatarExcelConfigData } from './avatar-types.ts';
+import { MaterialExcelConfigData, MaterialVecItem, RewardExcelConfigData } from './material-types.ts';
+import { MonsterExcelConfigData } from './monster-types.ts';
+import { DialogueSectionResult } from '../../../backend/domain/genshin/dialogue/dialogue_util.ts';
 // HomeWorld NPC/Avatar
 // --------------------------------------------------------------------------------------------------------------
 export interface HomeWorldEventExcelConfigData {

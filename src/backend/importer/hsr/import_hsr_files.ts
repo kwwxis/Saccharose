@@ -1,17 +1,16 @@
 // noinspection DuplicatedCode
 
-import '../../loadenv';
+import '../../loadenv.ts';
 import { pathToFileURL } from 'url';
 import commandLineArgs, { OptionDefinition as ArgsOptionDefinition } from 'command-line-args';
 import commandLineUsage, { OptionDefinition as UsageOptionDefinition } from 'command-line-usage';
 import chalk from 'chalk';
-import { getStarRailDataFilePath } from '../../loadenv';
-import { closeKnex } from '../../util/db';
-import { importNormalize, importPlainTextMap } from '../util/import_file_util';
+import { getStarRailDataFilePath } from '../../loadenv.ts';
+import { closeKnex } from '../../util/db.ts';
+import { importNormalize, importPlainTextMap } from '../util/import_file_util.ts';
 import fs from 'fs';
-import { getStarRailControl, loadStarRailVoiceItems } from '../../domain/hsr/starRailControl';
-import { fetchVoiceAtlases } from '../../domain/hsr/character/fetchVoiceAtlas';
-
+import { getStarRailControl, loadStarRailVoiceItems } from '../../domain/hsr/starRailControl.ts';
+import { fetchVoiceAtlases } from '../../domain/hsr/character/fetchVoiceAtlas.ts';
 async function importVoiceOvers() {
   const outDir = process.env.HSR_DATA_ROOT;
   await loadStarRailVoiceItems();

@@ -1,18 +1,17 @@
-import '../../loadenv';
+import '../../loadenv.ts';
 import path from 'path';
 import fs, { promises as fsp } from 'fs';
 import { pathToFileURL } from 'url';
-import { getGenshinDataFilePath } from '../../loadenv';
-import { normalizeRawJson } from '../import_db';
+import { getGenshinDataFilePath } from '../../loadenv.ts';
+import { normalizeRawJson } from '../import_db.ts';
 import {
   InterAction,
   INTERACTION_KEEP_TYPES,
   InterActionD2F,
   InterActionGroup,
   InterActionSchema,
-} from '../../../shared/types/genshin/interaction-types';
-import { reformatPrimitiveArrays } from '../util/import_file_util';
-
+} from '../../../shared/types/genshin/interaction-types.ts';
+import { reformatPrimitiveArrays } from '../util/import_file_util.ts';
 // region Walk Sync
 // --------------------------------------------------------------------------------------------------------------
 function* walkSync(dir: string): Generator<string> {

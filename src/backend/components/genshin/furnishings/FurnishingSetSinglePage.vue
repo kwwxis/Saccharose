@@ -95,14 +95,13 @@
 import {
   FurnitureSuiteExcelConfigData, HomeWorldEventExcelConfigData,
   HomeWorldNPCExcelConfigData,
-} from '../../../../shared/types/genshin/homeworld-types';
+} from '../../../../shared/types/genshin/homeworld-types.ts';
 import DialogueSection from '../dialogue/DialogueSection.vue';
 import GenshinItem from '../../utility/GenshinItem.vue';
 import Wikitext from '../../utility/Wikitext.vue';
-import { toParam } from '../../../routing/viewUtilities';
-import { DialogueSectionResult } from '../../../domain/genshin/dialogue/dialogue_util';
+import { DialogueSectionResult } from '../../../domain/genshin/dialogue/dialogue_util.ts';
 import Icon from '../../utility/Icon.vue';
-
+import { toParam } from '../../../../shared/util/stringUtil.ts';
 const { suite } = defineProps<{
   suite: FurnitureSuiteExcelConfigData,
   companionFavors: {npc: HomeWorldNPCExcelConfigData, event: HomeWorldEventExcelConfigData, dialogue: DialogueSectionResult}[],

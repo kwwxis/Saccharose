@@ -68,9 +68,17 @@ async function handleResolve(args) {
   if (args.importer && args.path.startsWith('.')) {
     const pathAlreadyHasExt = args.path.endsWith('.js');
 
+    let newImportName = args.path;
+
+    if (/\.ts$/i.test(newImportName))
+      newImportName = newImportName.slice(0, -3);
+    if (/\.(mts|cts|tsx)$/i.test(newImportName))
+      newImportName = newImportName.slice(0, -4);
+    newImportName += '.js';
+
     if (!pathAlreadyHasExt) {
       return {
-        path: `${args.path}.js`,
+        path: newImportName,
         external: true,
         namespace: undefined
       };

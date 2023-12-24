@@ -8,19 +8,21 @@
       opacity: 0.5;">Honkai Star Rail</span>
   </h2>
 </section>
-<section id="app-sidebar__basic" class="card">
-  <h2>Basic Tools</h2>
-  <div class="content">
-    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--textmap', 'selected') %>" role="button" href="/hsr/textmap">TextMap Search</a>
-    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--OL', 'selected') %>" role="button" href="/hsr/OL">Other Languages Generator</a>
-    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--id-usages', 'selected') %>" role="button" href="/hsr/id-usages">Identifier Usages</a>
-    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--excel-viewer', 'selected') %>" role="button" href="/hsr/excel-viewer">Excel Viewer</a>
-  </div>
-</section>
-<section id="app-sidebar__misc" class="card">
-  <h2>Misc Tools</h2>
-  <div class="content">
-    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--loading-tips', 'selected') %>" role="button" href="/hsr/loading-tips">Loading Tips</a>
-    <a class="hide secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--vo-tool', 'selected') %>" role="button" href="/hsr/character/VO">VO Tool</a>
-  </div>
-</section>
+<div id="app-sidebar__content"<%- locals.appSidebarOverlayScroll ? ' data-overlayscrollbars-initialize' : '' %>>
+  <section id="app-sidebar__basic" class="card">
+    <h2>Basic Tools</h2>
+    <div class="content">
+      <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--textmap', 'selected') %>" role="button" href="/hsr/textmap">TextMap Search</a>
+      <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--OL', 'selected') %>" role="button" href="/hsr/OL">Other Languages Generator</a>
+      <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--id-usages', 'selected') %>" role="button" href="/hsr/id-usages">Identifier Usages</a>
+      <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--excel-viewer', 'selected') %>" role="button" href="/hsr/excel-viewer">Excel Viewer</a>
+    </div>
+  </section>
+  <section id="app-sidebar__misc" class="card">
+    <h2>Misc Tools</h2>
+    <div class="content">
+      <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--loading-tips', 'selected') %>" role="button" href="/hsr/loading-tips">Loading Tips</a>
+      <a class="hide secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--vo-tool', 'selected') %>" role="button" href="/hsr/character/VO">VO Tool</a>
+    </div>
+  </section>
+</div>

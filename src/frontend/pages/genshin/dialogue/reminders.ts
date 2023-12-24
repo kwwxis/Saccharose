@@ -1,7 +1,6 @@
-import { genshinEndpoints } from '../../../endpoints';
-import { pageMatch } from '../../../pageMatch';
-import { startGenericSearchPageListeners } from '../../genericSearchPage';
-
+import { genshinEndpoints } from '../../../endpoints.ts';
+import { pageMatch } from '../../../pageMatch.ts';
+import { startGenericSearchPageListeners } from '../../genericSearchPage.ts';
 pageMatch('pages/genshin/dialogue/reminders', () => {
   startGenericSearchPageListeners({
     endpoint: genshinEndpoints.generateReminderDialogue,

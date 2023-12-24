@@ -1,12 +1,11 @@
-import '../../loadenv';
+import '../../loadenv.ts';
 import fs from 'fs';
-import { getGenshinDataFilePath } from '../../loadenv';
+import { getGenshinDataFilePath } from '../../loadenv.ts';
 import path from 'path';
-import { GCGCharSkillDamage, GCGSkillExcelConfigData } from '../../../shared/types/genshin/gcg-types';
-import { standardElementCode } from '../../../shared/types/genshin/manual-text-map';
+import { GCGCharSkillDamage, GCGSkillExcelConfigData } from '../../../shared/types/genshin/gcg-types.ts';
+import { standardElementCode } from '../../../shared/types/genshin/manual-text-map.ts';
 import chalk from 'chalk';
-import { getGenshinControl } from '../../domain/genshin/genshinControl';
-
+import { getGenshinControl } from '../../domain/genshin/genshinControl.ts';
 export async function importGcgSkill() {
   const outDir = process.env.GENSHIN_DATA_ROOT
   const ctrl = getGenshinControl();

@@ -1,7 +1,6 @@
-import { pageMatch } from '../../../pageMatch';
+import { pageMatch } from '../../../pageMatch.ts';
 import axios, { AxiosResponse } from 'axios';
-import { escapeHtml } from '../../../../shared/util/stringUtil';
-
+import { escapeHtml } from '../../../../shared/util/stringUtil.ts';
 interface Result {
   originalName: string,
   fileName: string,

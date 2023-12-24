@@ -1,15 +1,14 @@
-import '../../../loadenv';
+import '../../../loadenv.ts';
 import util from 'util';
-import { closeKnex } from '../../../util/db';
-import { GenshinControl, getGenshinControl } from '../genshinControl';
-import { cached } from '../../../util/cache';
-import { processFetterConds } from './fetterConds';
-import { resolveObjectPath } from '../../../../shared/util/arrayUtil';
-import { FetterStoryExcelConfigData, StoryFetters, StoryFettersByAvatar } from '../../../../shared/types/genshin/fetter-types';
+import { closeKnex } from '../../../util/db.ts';
+import { GenshinControl, getGenshinControl } from '../genshinControl.ts';
+import { cached } from '../../../util/cache.ts';
+import { processFetterConds } from './fetterConds.ts';
+import { resolveObjectPath } from '../../../../shared/util/arrayUtil.ts';
+import { FetterStoryExcelConfigData, StoryFetters, StoryFettersByAvatar } from '../../../../shared/types/genshin/fetter-types.ts';
 import { pathToFileURL } from 'url';
-import { isTraveler } from '../../../../shared/types/genshin/avatar-types';
-import { mcify } from '../../generic/genericNormalizers';
-
+import { isTraveler } from '../../../../shared/types/genshin/avatar-types.ts';
+import { mcify } from '../../generic/genericNormalizers.ts';
 const sep: string = '</p><!--\n              --><p>';
 
 async function fetchAllFetterStoryExcelConfigData(ctrl: GenshinControl): Promise<FetterStoryExcelConfigData[]> {

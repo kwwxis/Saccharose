@@ -1,9 +1,9 @@
-import { create } from '../../../routing/router';
-import { reminderGenerateAll } from '../../../domain/genshin/dialogue/reminder_generator';
-import { getGenshinControl } from '../../../domain/genshin/genshinControl';
-import { toInt } from '../../../../shared/util/numberUtil';
-import { ol_gen_from_id } from '../../../domain/generic/basic/OLgen';
-import { orderChapterQuests } from '../../../domain/genshin/dialogue/dialogue_util';
+import { create } from '../../../routing/router.ts';
+import { reminderGenerateAll } from '../../../domain/genshin/dialogue/reminder_generator.ts';
+import { getGenshinControl } from '../../../domain/genshin/genshinControl.ts';
+import { toInt } from '../../../../shared/util/numberUtil.ts';
+import { ol_gen_from_id } from '../../../domain/generic/basic/OLgen.ts';
+import { orderChapterQuests } from '../../../domain/genshin/dialogue/dialogue_util.ts';
 import { Request, Response, Router } from 'express';
 
 export default async function(): Promise<Router> {

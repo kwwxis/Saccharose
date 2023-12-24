@@ -1,12 +1,11 @@
 import { pathToFileURL } from 'url';
-import { GenshinControl, getGenshinControl } from '../genshinControl';
+import { GenshinControl, getGenshinControl } from '../genshinControl.ts';
 import util from 'util';
-import { closeKnex } from '../../../util/db';
-import { defaultMap, isset } from '../../../../shared/util/genericUtil';
-import { fileFormatOptionsApply, fileFormatOptionsCheck } from '../../../util/fileFormatOptions';
-import { WorldAreaConfigData } from '../../../../shared/types/genshin/general-types';
-import { ViewCodexExcelConfigData, ViewpointsByRegion } from '../../../../shared/types/genshin/viewpoint-types';
-
+import { closeKnex } from '../../../util/db.ts';
+import { defaultMap, isset } from '../../../../shared/util/genericUtil.ts';
+import { fileFormatOptionsApply, fileFormatOptionsCheck } from '../../../util/fileFormatOptions.ts';
+import { WorldAreaConfigData } from '../../../../shared/types/genshin/general-types.ts';
+import { ViewCodexExcelConfigData, ViewpointsByRegion } from '../../../../shared/types/genshin/viewpoint-types.ts';
 export const VIEWPOINT_FILE_FORMAT_PARAMS: string[] = [
   'Id',
   'GadgetId',

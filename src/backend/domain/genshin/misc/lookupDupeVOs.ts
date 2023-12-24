@@ -1,13 +1,12 @@
-import '../../../loadenv';
-import { GenshinControl, getGenshinControl, loadGenshinVoiceItems } from '../genshinControl';
-import { closeKnex } from '../../../util/db';
-import { DialogExcelConfigData } from '../../../../shared/types/genshin/dialogue-types';
+import '../../../loadenv.ts';
+import { GenshinControl, getGenshinControl, loadGenshinVoiceItems } from '../genshinControl.ts';
+import { closeKnex } from '../../../util/db.ts';
+import { DialogExcelConfigData } from '../../../../shared/types/genshin/dialogue-types.ts';
 import {promises as fs} from 'fs';
-import{normalizeRawJson} from '../../../importer/import_db';
-import { getGenshinDataFilePath } from '../../../loadenv';
+import{normalizeRawJson} from '../../../importer/import_db.ts';
+import { getGenshinDataFilePath } from '../../../loadenv.ts';
 import { pathToFileURL } from 'url';
-import { genshinSchema } from '../../../importer/genshin/genshin.schema';
-
+import { genshinSchema } from '../../../importer/genshin/genshin.schema.ts';
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
     await loadGenshinVoiceItems();

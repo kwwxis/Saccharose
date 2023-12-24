@@ -1,5 +1,5 @@
 import path from 'path';
-import { IMAGEDIR_GENSHIN_EXT } from '../../loadenv';
+import { IMAGEDIR_GENSHIN_EXT } from '../../loadenv.ts';
 import fs, { promises as fsp } from 'fs';
 
 export async function maximizeImages() {

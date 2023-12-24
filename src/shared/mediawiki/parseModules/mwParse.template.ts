@@ -1,9 +1,8 @@
-import { MwTemplateNode, MwParamNode, MwNode, MwComment, MwTextNode } from '../mwTypes';
-import { MwParseModule } from '../mwParseModule';
-import { MW_VARIABLES } from '../mwContants';
-import { escapeRegExp } from '../../util/stringUtil';
-import { mwSimpleTextParse } from '../mwParse';
-
+import { MwTemplateNode, MwParamNode, MwNode, MwComment, MwTextNode } from '../mwTypes.ts';
+import { MwParseModule } from '../mwParseModule.ts';
+import { MW_VARIABLES } from '../mwContants.ts';
+import { escapeRegExp } from '../../util/stringUtil.ts';
+import { mwSimpleTextParse } from '../mwParse.ts';
 export function MW_VARIABLES_REGEX(prepend: string = '', append: string = ''): string {
   return Array.from(MW_VARIABLES).map(scheme => prepend + escapeRegExp(scheme) + append).join('|');
 }

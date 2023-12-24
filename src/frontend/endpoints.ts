@@ -1,15 +1,14 @@
 // noinspection JSUnusedGlobalSymbols
 
-import { escapeHtml } from '../shared/util/stringUtil';
+import { escapeHtml } from '../shared/util/stringUtil.ts';
 import axios, { AxiosError, Method } from 'axios';
-import { showInternalErrorDialog, showJavascriptErrorDialog } from './util/errorHandler';
-import { modalService } from './util/modalService';
-import { HttpError } from '../shared/util/httpError';
-import { cleanEmpty } from '../shared/util/arrayUtil';
-import { FetterGroup } from '../shared/types/genshin/fetter-types';
-import { VoiceAtlasGroup } from '../shared/types/hsr/hsr-avatar-types';
-import { pageMatch } from './pageMatch';
-
+import { showInternalErrorDialog, showJavascriptErrorDialog } from './util/errorHandler.ts';
+import { modalService } from './util/modalService.ts';
+import { HttpError } from '../shared/util/httpError.ts';
+import { cleanEmpty } from '../shared/util/arrayUtil.ts';
+import { FetterGroup } from '../shared/types/genshin/fetter-types.ts';
+import { VoiceAtlasGroup } from '../shared/types/hsr/hsr-avatar-types.ts';
+import { pageMatch } from './pageMatch.ts';
 export abstract class SaccharoseApiEndpoint<T extends Object, R = any> {
   readonly uri: string;
 

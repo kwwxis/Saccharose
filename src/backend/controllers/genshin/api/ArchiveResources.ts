@@ -1,16 +1,16 @@
-import { create } from '../../../routing/router';
-import { getGenshinControl } from '../../../domain/genshin/genshinControl';
-import { ReadableSearchView } from '../../../../shared/types/genshin/readable-types';
-import { MaterialExcelConfigData } from '../../../../shared/types/genshin/material-types';
-import { WeaponExcelConfigData } from '../../../../shared/types/genshin/weapon-types';
-import { AchievementExcelConfigData } from '../../../../shared/types/genshin/achievement-types';
+import { create } from '../../../routing/router.ts';
+import { getGenshinControl } from '../../../domain/genshin/genshinControl.ts';
+import { ReadableSearchView } from '../../../../shared/types/genshin/readable-types.ts';
+import { MaterialExcelConfigData } from '../../../../shared/types/genshin/material-types.ts';
+import { WeaponExcelConfigData } from '../../../../shared/types/genshin/weapon-types.ts';
+import { AchievementExcelConfigData } from '../../../../shared/types/genshin/achievement-types.ts';
 import { Request, Response, Router } from 'express';
 import {
   pushTipCodexTypeName,
   searchTutorials,
   selectTutorials, TUTORIAL_DEFAULT_FILE_FORMAT_IMAGE,
   TUTORIAL_FILE_FORMAT_PARAMS,
-} from '../../../domain/genshin/archive/tutorials';
+} from '../../../domain/genshin/archive/tutorials.ts';
 
 const router: Router = create();
 

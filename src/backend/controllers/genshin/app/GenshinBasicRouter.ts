@@ -1,7 +1,6 @@
-import { create } from '../../../routing/router';
-import { getGenshinControl } from '../../../domain/genshin/genshinControl';
-
-import { sendExcelViewerTableResponse } from '../../generic/app/abstractBasicRouter';
+import { create } from '../../../routing/router.ts';
+import { getGenshinControl } from '../../../domain/genshin/genshinControl.ts';
+import { sendExcelViewerTableResponse } from '../../generic/app/abstractBasicRouter.ts';
 import { Request, Response, Router } from 'express';
 
 export default async function(): Promise<Router> {

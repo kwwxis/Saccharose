@@ -1,6 +1,5 @@
-import '../../../../loadenv';
-import {TEXT_WIDTH_LOOKUP_TABLE} from './text_width_lookup';
-
+import '../../../../loadenv.ts';
+import {TEXT_WIDTH_LOOKUP_TABLE} from './text_width_lookup.ts';
 import { init } from 'server-text-width';
 
 const { getTextWidth } = init(TEXT_WIDTH_LOOKUP_TABLE);

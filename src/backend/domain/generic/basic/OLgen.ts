@@ -1,16 +1,15 @@
-import '../../../loadenv';
-import { getGenshinControl } from '../../genshin/genshinControl';
-import { isInt, maybeInt } from '../../../../shared/util/numberUtil';
-import { mwParse } from '../../../../shared/mediawiki/mwParse';
-import { MwTemplateNode, MwCharSequence, MwEOL } from '../../../../shared/mediawiki/mwTypes';
+import '../../../loadenv.ts';
+import { getGenshinControl } from '../../genshin/genshinControl.ts';
+import { isInt, maybeInt } from '../../../../shared/util/numberUtil.ts';
+import { mwParse } from '../../../../shared/mediawiki/mwParse.ts';
+import { MwTemplateNode, MwCharSequence, MwEOL } from '../../../../shared/mediawiki/mwTypes.ts';
 import { pathToFileURL } from 'url';
-import { Marker } from '../../../../shared/util/highlightMarker';
-import { LANG_CODE_TO_WIKI_CODE, LANG_CODES, LangCode, TextMapHash } from '../../../../shared/types/lang-types';
-import { AbstractControl } from '../../abstractControl';
-import { SbOut } from '../../../../shared/util/stringUtil';
-import { isUnset } from '../../../../shared/util/genericUtil';
-import { closeKnex } from '../../../util/db';
-
+import { Marker } from '../../../../shared/util/highlightMarker.ts';
+import { LANG_CODE_TO_WIKI_CODE, LANG_CODES, LangCode, TextMapHash } from '../../../../shared/types/lang-types.ts';
+import { AbstractControl } from '../../abstractControl.ts';
+import { SbOut } from '../../../../shared/util/stringUtil.ts';
+import { isUnset } from '../../../../shared/util/genericUtil.ts';
+import { closeKnex } from '../../../util/db.ts';
 async function ol_gen_internal(ctrl: AbstractControl,
                                textMapHash: TextMapHash,
                                opts: OLGenOptions): Promise<{

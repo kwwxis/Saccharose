@@ -1,21 +1,20 @@
 import crypto from 'crypto';
-import { getWebpackBundleFileNames, WebpackBundles } from './webpackBundle';
+import { getWebpackBundleFileNames, WebpackBundles } from './webpackBundle.ts';
 import createHtmlElement from 'create-html-element';
-import { getNodeEnv, SITE_TITLE } from '../loadenv';
-import { CompareTernary, ternary } from '../../shared/util/genericUtil';
-import { DEFAULT_LANG, LANG_CODES, LANG_CODES_TO_NAME } from '../../shared/types/lang-types';
-import { SEARCH_MODES } from '../util/searchUtil';
+import { getNodeEnv, SITE_TITLE } from '../loadenv.ts';
+import { CompareTernary, ternary } from '../../shared/util/genericUtil.ts';
+import { DEFAULT_LANG, LANG_CODES, LANG_CODES_TO_NAME } from '../../shared/types/lang-types.ts';
+import { SEARCH_MODES } from '../util/searchUtil.ts';
 import { Request } from 'express';
 import {
   RequestLocals,
   RequestViewStack,
-} from './routingTypes';
+} from './routingTypes.ts';
 import { isValidElement as isValidReactElement, ReactElement } from 'react';
 import { renderToString as renderReactToString } from 'react-dom/server';
 import { renderToString as renderVueToString } from 'vue/server-renderer';
 import { App } from 'vue';
-import { isVueApp } from './router';
-
+import { isVueApp } from './router.ts';
 export type RequestSiteMode = 'genshin' | 'hsr' | 'zenless';
 
 /**

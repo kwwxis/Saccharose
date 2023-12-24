@@ -1,10 +1,9 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { NextFunction, Request, Response } from 'express';
-import { RequestContext } from '../../routing/requestContext';
-import { GenshinControl, getGenshinControl } from '../../domain/genshin/genshinControl';
-import { getStarRailControl, StarRailControl } from '../../domain/hsr/starRailControl';
-import { getZenlessControl, ZenlessControl } from '../../domain/zenless/zenlessControl';
-
+import { RequestContext } from '../../routing/requestContext.ts';
+import { GenshinControl, getGenshinControl } from '../../domain/genshin/genshinControl.ts';
+import { getStarRailControl, StarRailControl } from '../../domain/hsr/starRailControl.ts';
+import { getZenlessControl, ZenlessControl } from '../../domain/zenless/zenlessControl.ts';
 export type ITrace = {
   req: Request,
   res: Response,

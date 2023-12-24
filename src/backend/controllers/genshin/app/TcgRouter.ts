@@ -1,21 +1,20 @@
-import { create } from '../../../routing/router';
-import { getGenshinControl } from '../../../domain/genshin/genshinControl';
-import { getGCGControl } from '../../../domain/genshin/gcg/gcg_control';
-import { generateGCGTutorialDialogue } from '../../../domain/genshin/gcg/gcg_tutorial_text';
+import { create } from '../../../routing/router.ts';
+import { getGenshinControl } from '../../../domain/genshin/genshinControl.ts';
+import { getGCGControl } from '../../../domain/genshin/gcg/gcg_control.ts';
+import { generateGCGTutorialDialogue } from '../../../domain/genshin/gcg/gcg_tutorial_text.ts';
 import {
   GCG_TAGS_WITHOUT_ICONS,
   GCGCardExcelConfigData,
   GCGCommonCard,
   GCGGameExcelConfigData,
-} from '../../../../shared/types/genshin/gcg-types';
-import { defaultMap, removeCyclicRefs } from '../../../../shared/util/genericUtil';
-import { isInt, toInt } from '../../../../shared/util/numberUtil';
-import { sort } from '../../../../shared/util/arrayUtil';
-import { queryTab } from '../../../middleware/util/queryTab';
-import { generateCardPage, generateSkillPage, generateStageTemplate } from '../../../domain/genshin/gcg/gcg_wikitext';
+} from '../../../../shared/types/genshin/gcg-types.ts';
+import { defaultMap, removeCyclicRefs } from '../../../../shared/util/genericUtil.ts';
+import { isInt, toInt } from '../../../../shared/util/numberUtil.ts';
+import { sort } from '../../../../shared/util/arrayUtil.ts';
+import { queryTab } from '../../../middleware/util/queryTab.ts';
+import { generateCardPage, generateSkillPage, generateStageTemplate } from '../../../domain/genshin/gcg/gcg_wikitext.ts';
 import { Request, Response, Router } from 'express';
-import { ApiCyclicValueReplacer } from '../../../middleware/api/apiCyclicValueReplacer';
-
+import { ApiCyclicValueReplacer } from '../../../middleware/api/apiCyclicValueReplacer.ts';
 export default async function(): Promise<Router> {
   const router: Router = create();
 

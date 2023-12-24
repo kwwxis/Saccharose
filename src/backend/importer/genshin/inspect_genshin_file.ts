@@ -1,11 +1,10 @@
 import { pathToFileURL } from 'url';
-import { getGenshinControl } from '../../domain/genshin/genshinControl';
-import { closeKnex } from '../../util/db';
-import { inspectDataFile, InspectOpt } from '../util/inspect_file_util';
-import { LoadingTipsExcelConfigData } from '../../../shared/types/genshin/loading-types';
-import { HomeWorldFurnitureExcelConfigData } from '../../../shared/types/genshin/homeworld-types';
-import { ReminderExcelConfigData } from '../../../shared/types/genshin/dialogue-types';
-
+import { getGenshinControl } from '../../domain/genshin/genshinControl.ts';
+import { closeKnex } from '../../util/db.ts';
+import { inspectDataFile, InspectOpt } from '../util/inspect_file_util.ts';
+import { LoadingTipsExcelConfigData } from '../../../shared/types/genshin/loading-types.ts';
+import { HomeWorldFurnitureExcelConfigData } from '../../../shared/types/genshin/homeworld-types.ts';
+import { ReminderExcelConfigData } from '../../../shared/types/genshin/dialogue-types.ts';
 const excel = (file: string) => `./ExcelBinOutput/${file}.json`;
 
 const presets = {

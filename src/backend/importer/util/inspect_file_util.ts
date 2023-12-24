@@ -1,11 +1,10 @@
-import '../../loadenv';
-import { defaultMap, isEmpty } from '../../../shared/util/genericUtil';
-import { resolveObjectPath, toArray } from '../../../shared/util/arrayUtil';
+import '../../loadenv.ts';
+import { defaultMap, isEmpty } from '../../../shared/util/genericUtil.ts';
+import { resolveObjectPath, toArray } from '../../../shared/util/arrayUtil.ts';
 import path, { basename } from 'path';
-import { isInt } from '../../../shared/util/numberUtil';
+import { isInt } from '../../../shared/util/numberUtil.ts';
 import chalk from 'chalk';
-import { AbstractControl } from '../../domain/abstractControl';
-
+import { AbstractControl } from '../../domain/abstractControl.ts';
 export type InspectOpt = {file: string, inspectFieldValues?: string[], printRecordIfFieldNotEmpty?: string[]};
 
 export async function inspectDataFile(ctrl: AbstractControl, opt: InspectOpt): Promise<any[]> {

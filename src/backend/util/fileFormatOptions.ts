@@ -1,13 +1,12 @@
-import { resolveObjectPath } from '../../shared/util/arrayUtil';
-import { isEmpty, isNotEmpty, isset, toBoolean } from '../../shared/util/genericUtil';
-import { mwParse } from '../../shared/mediawiki/mwParse';
-import { MwEOL, MwParentNode, MwTemplateNode } from '../../shared/mediawiki/mwTypes';
-import { isNumeric, toNumber } from '../../shared/util/numberUtil';
-import { replaceAsync, splitArgs } from '../../shared/util/stringUtil';
+import { resolveObjectPath } from '../../shared/util/arrayUtil.ts';
+import { isEmpty, isNotEmpty, isset, toBoolean } from '../../shared/util/genericUtil.ts';
+import { mwParse } from '../../shared/mediawiki/mwParse.ts';
+import { MwEOL, MwParentNode, MwTemplateNode } from '../../shared/mediawiki/mwTypes.ts';
+import { isNumeric, toNumber } from '../../shared/util/numberUtil.ts';
+import { replaceAsync, splitArgs } from '../../shared/util/stringUtil.ts';
 import JSON5 from 'json5';
-import { isLangCode, LangCode } from '../../shared/types/lang-types';
-import { AbstractControl } from '../domain/abstractControl';
-
+import { isLangCode, LangCode } from '../../shared/types/lang-types.ts';
+import { AbstractControl } from '../domain/abstractControl.ts';
 export type FileFormatOption = 'default' | 'remove' | 'custom';
 
 export function fileFormatOptionsCheck(templateStr: string) {

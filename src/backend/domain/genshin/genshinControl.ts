@@ -6,8 +6,8 @@ import {
   NpcExcelConfigData,
   WorldAreaConfigData,
   WorldAreaType,
-} from '../../../shared/types/genshin/general-types';
-import SrtParser, { SrtLine } from '../../util/srtParser';
+} from '../../../shared/types/genshin/general-types.ts';
+import SrtParser, { SrtLine } from '../../util/srtParser.ts';
 import fs, { promises as fsp } from 'fs';
 import {
   arrayIndexOf,
@@ -16,10 +16,10 @@ import {
   cleanEmpty, mapBy,
   pairArrays,
   sort, toMap,
-} from '../../../shared/util/arrayUtil';
-import { isInt, toInt } from '../../../shared/util/numberUtil';
-import { normalizeRawJson, SchemaTable } from '../../importer/import_db';
-import { extractRomanNumeral, isStringBlank, replaceAsync, romanToInt, rtrim } from '../../../shared/util/stringUtil';
+} from '../../../shared/util/arrayUtil.ts';
+import { isInt, toInt } from '../../../shared/util/numberUtil.ts';
+import { normalizeRawJson, SchemaTable } from '../../importer/import_db.ts';
+import { extractRomanNumeral, isStringBlank, replaceAsync, romanToInt, rtrim } from '../../../shared/util/stringUtil.ts';
 import {
   CodexQuestExcelConfigData, CodexQuestGroup, CodexQuestNarratageTypes,
   DialogExcelConfigData, DialogUnparented, DialogWikitextResult, ManualTextMapConfigData, OptionIconMap,
@@ -27,7 +27,7 @@ import {
   TalkExcelConfigData,
   TalkLoadType, TalkRole,
   TalkRoleType,
-} from '../../../shared/types/genshin/dialogue-types';
+} from '../../../shared/types/genshin/dialogue-types.ts';
 import {
   ChapterCollection,
   ChapterExcelConfigData,
@@ -35,7 +35,7 @@ import {
   QuestExcelConfigData,
   QuestType,
   ReputationQuestExcelConfigData,
-} from '../../../shared/types/genshin/quest-types';
+} from '../../../shared/types/genshin/quest-types.ts';
 import {
   ADVENTURE_EXP_ID,
   ItemRelationMap,
@@ -48,7 +48,7 @@ import {
   MORA_ID,
   PRIMOGEM_ID,
   RewardExcelConfigData,
-} from '../../../shared/types/genshin/material-types';
+} from '../../../shared/types/genshin/material-types.ts';
 import {
   FurnitureMakeExcelConfigData,
   FurnitureSuiteExcelConfigData, FurnitureSuiteLoadConf,
@@ -58,14 +58,14 @@ import {
   HomeWorldFurnitureTypeExcelConfigData,
   HomeWorldFurnitureTypeTree,
   HomeWorldNPCExcelConfigData, HomeWorldNPCLoadConf,
-} from '../../../shared/types/genshin/homeworld-types';
-import { grepIdStartsWith, grepStream } from '../../util/shellutil';
+} from '../../../shared/types/genshin/homeworld-types.ts';
+import { grepIdStartsWith, grepStream } from '../../util/shellutil.ts';
 import {
   DATAFILE_GENSHIN_VOICE_ITEMS,
   getGenshinDataFilePath,
   getReadableRelPath,
   IMAGEDIR_GENSHIN_EXT,
-} from '../../loadenv';
+} from '../../loadenv.ts';
 import {
   BooksCodexExcelConfigData,
   BookSuitExcelConfigData,
@@ -77,55 +77,55 @@ import {
   ReadableItem,
   ReadableSearchView,
   ReadableView,
-} from '../../../shared/types/genshin/readable-types';
+} from '../../../shared/types/genshin/readable-types.ts';
 import {
   RELIC_EQUIP_TYPE_TO_NAME,
   ReliquaryCodexExcelConfigData,
   ReliquaryExcelConfigData,
   ReliquarySetExcelConfigData,
-} from '../../../shared/types/genshin/artifact-types';
+} from '../../../shared/types/genshin/artifact-types.ts';
 import {
   EquipAffixExcelConfigData,
   WeaponExcelConfigData,
   WeaponLoadConf,
   WeaponType,
   WeaponTypeEN,
-} from '../../../shared/types/genshin/weapon-types';
-import { AvatarExcelConfigData } from '../../../shared/types/genshin/avatar-types';
+} from '../../../shared/types/genshin/weapon-types.ts';
+import { AvatarExcelConfigData } from '../../../shared/types/genshin/avatar-types.ts';
 import {
   AnimalCodexExcelConfigData,
   AnimalDescribeExcelConfigData, LivingBeingArchive, LivingBeingArchiveGroup, MonsterDescribeExcelConfigData,
   MonsterExcelConfigData, MonsterLoadConf,
-} from '../../../shared/types/genshin/monster-types';
-import { defaultMap, isEmpty, isset } from '../../../shared/util/genericUtil';
-import { NewActivityExcelConfigData } from '../../../shared/types/genshin/activity-types';
-import { Marker } from '../../../shared/util/highlightMarker';
-import { ElementType, ManualTextMapHashes } from '../../../shared/types/genshin/manual-text-map';
-import { custom, logInitData } from '../../util/logger';
-import { DialogBranchingCache } from './dialogue/dialogue_util';
-import { __normGenshinText } from './genshinText';
-import { AbstractControl, AbstractControlState } from '../abstractControl';
+} from '../../../shared/types/genshin/monster-types.ts';
+import { defaultMap, isEmpty, isset } from '../../../shared/util/genericUtil.ts';
+import { NewActivityExcelConfigData } from '../../../shared/types/genshin/activity-types.ts';
+import { Marker } from '../../../shared/util/highlightMarker.ts';
+import { ElementType, ManualTextMapHashes } from '../../../shared/types/genshin/manual-text-map.ts';
+import { custom, logInitData } from '../../util/logger.ts';
+import { DialogBranchingCache } from './dialogue/dialogue_util.ts';
+import { __normGenshinText } from './genshinText.ts';
+import { AbstractControl, AbstractControlState } from '../abstractControl.ts';
 import debug from 'debug';
-import { LangCode, TextMapHash, VoiceItem, VoiceItemArrayMap } from '../../../shared/types/lang-types';
-import { GCGTagElementType, GCGTagWeaponType } from '../../../shared/types/genshin/gcg-types';
+import { LangCode, TextMapHash, VoiceItem, VoiceItemArrayMap } from '../../../shared/types/lang-types.ts';
+import { GCGTagElementType, GCGTagWeaponType } from '../../../shared/types/genshin/gcg-types.ts';
 import path from 'path';
-import { RAW_MANUAL_TEXTMAP_ID_PROP } from '../../importer/genshin/genshin.schema';
-import { cached } from '../../util/cache';
-import { NormTextOptions } from '../generic/genericNormalizers';
+import { RAW_MANUAL_TEXTMAP_ID_PROP } from '../../importer/genshin/genshin.schema.ts';
+import { cached } from '../../util/cache.ts';
+import { NormTextOptions } from '../generic/genericNormalizers.ts';
 import {
   AchievementExcelConfigData,
   AchievementGoalExcelConfigData,
   AchievementsByGoals,
-} from '../../../shared/types/genshin/achievement-types';
+} from '../../../shared/types/genshin/achievement-types.ts';
 import { Request } from 'express';
 import {
   InterAction,
   InterActionD2F, InterActionDialog,
   InterActionFile,
   InterActionGroup, InterActionNextDialogs,
-} from '../../../shared/types/genshin/interaction-types';
-import { CommonLineId } from '../../../shared/types/common-types';
-import { genshin_i18n, GENSHIN_I18N_MAP } from '../i18n';
+} from '../../../shared/types/genshin/interaction-types.ts';
+import { CommonLineId } from '../../../shared/types/common-types.ts';
+import { genshin_i18n, GENSHIN_I18N_MAP } from '../i18n.ts';
 import * as console from 'console';
 
 // region Control State

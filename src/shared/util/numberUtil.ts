@@ -1,5 +1,4 @@
-import { isUnset } from './genericUtil';
-
+import { isUnset } from './genericUtil.ts';
 /**
  * Returns true if empty (false, null, undefined), otherwise returns false if non-empty (zero is considered non-empty).
  */

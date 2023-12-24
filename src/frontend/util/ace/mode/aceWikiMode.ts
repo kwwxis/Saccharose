@@ -1,13 +1,12 @@
 // noinspection JSUnusedGlobalSymbols,JSUnusedLocalSymbols,TypeScriptValidateJSTypes,JSFunctionExpressionToArrowFunction,ES6ShorthandObjectProperty
 
 import * as ace from 'brace';
-import { MW_BEHAVIOR_SWITCHES_REGEX } from '../../../../shared/mediawiki/parseModules/mwParse.specialText';
-import { MW_URL_SCHEME_REGEX } from '../../../../shared/mediawiki/parseModules/mwParse.link';
-import { getQuotePosMap, getQuoteTypes } from '../../../../shared/mediawiki/mwQuotes';
-import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mwParse.template';
-import { filterInPlace } from '../../../../shared/util/arrayUtil';
-import { quotifyWikitextTokens } from './aceWikitextQuotify';
-
+import { MW_BEHAVIOR_SWITCHES_REGEX } from '../../../../shared/mediawiki/parseModules/mwParse.specialText.ts';
+import { MW_URL_SCHEME_REGEX } from '../../../../shared/mediawiki/parseModules/mwParse.link.ts';
+import { getQuotePosMap, getQuoteTypes } from '../../../../shared/mediawiki/mwQuotes.ts';
+import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mwParse.template.ts';
+import { filterInPlace } from '../../../../shared/util/arrayUtil.ts';
+import { quotifyWikitextTokens } from './aceWikitextQuotify.ts';
 // <any> cast because brace doesn't expose the 'define' method in its types.
 // In fact, most of the acequire() internal stuff don't seem to have any available types in brace.
 (<any> ace).define('ace/mode/wikitext_highlight_rules', ['require', 'exports', 'module', 'ace/lib/oop', 'ace/lib/lang', 'ace/mode/text_highlight_rules', 'ace/mode/javascript_highlight_rules', 'ace/mode/xml_highlight_rules', 'ace/mode/html_highlight_rules', 'ace/mode/css_highlight_rules'], function(acequire, exports, module) {

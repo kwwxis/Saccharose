@@ -1,6 +1,5 @@
-import { startListeners } from '../../../util/eventLoader';
-import { VoAppState } from './vo-tool';
-
+import { startListeners } from '../../../util/eventLoader.ts';
+import { VoAppState } from './vo-tool.ts';
 export function VoAppSidebar(_state: VoAppState) {
   const allRows: HTMLElement[] = Array.from(document.querySelectorAll('.vo-toolbar-sidebar-avatar'));
   const pendingIconEl = document.getElementById('vo-toolbar-sidebar-search-pending');

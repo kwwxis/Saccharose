@@ -2,12 +2,11 @@ import path from 'path';
 import chalk from 'chalk';
 import fs from 'fs';
 import {promises as fsp} from 'fs';
-import { LANG_CODES } from '../../../shared/types/lang-types';
-import { getTextMapRelPath } from '../../loadenv';
-import { isInt } from '../../../shared/util/numberUtil';
-import { AbstractControl } from '../../domain/abstractControl';
-import { NormTextOptions } from '../../domain/generic/genericNormalizers';
-
+import { LANG_CODES } from '../../../shared/types/lang-types.ts';
+import { getTextMapRelPath } from '../../loadenv.ts';
+import { isInt } from '../../../shared/util/numberUtil.ts';
+import { AbstractControl } from '../../domain/abstractControl.ts';
+import { NormTextOptions } from '../../domain/generic/genericNormalizers.ts';
 const isOnePropObj = (o: any, key: string) => o && typeof o === 'object' && Object.keys(o).length === 1 && Object.keys(o)[0] === key;
 
 const isEmptyObj = (o: any) => o && typeof o === 'object' && Object.keys(o).length === 0;

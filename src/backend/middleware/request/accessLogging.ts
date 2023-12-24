@@ -1,7 +1,7 @@
 import morgan from 'morgan';
 
-import { DEFAULT_LANG } from '../../../shared/types/lang-types';
-import { DEFAULT_SEARCH_MODE } from '../../util/searchUtil';
+import { DEFAULT_LANG } from '../../../shared/types/lang-types.ts';
+import { DEFAULT_SEARCH_MODE } from '../../util/searchUtil.ts';
 import { Request, Response } from 'express';
 
 const logSkipRegex: RegExp = /\.css|\.js|\.png|\.svg|\.ico|\.jpg|\.woff|\.env|serve-image/g;

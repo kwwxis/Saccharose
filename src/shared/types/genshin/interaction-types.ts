@@ -1,5 +1,4 @@
-import { SchemaTable } from '../../../backend/importer/import_db';
-
+import { SchemaTable } from '../../../backend/importer/import_db.ts';
 export const InterActionSchema = <SchemaTable> {
   name: 'InterAction',
   columns: [],

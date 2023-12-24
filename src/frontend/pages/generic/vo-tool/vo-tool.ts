@@ -1,16 +1,17 @@
 import './vo-tool-styles.scss';
 import Cookies from 'js-cookie';
-import { VoAppWelcome } from './vo-app-welcome';
-import { VoAppSidebar } from './vo-app-sidebar';
-import { VoAppToolbar } from './vo-app-toolbar';
-import { VoAppWikitextEditor } from './vo-app-wikitext';
-import { VoAppVisualEditor } from './vo-app-visual';
-import { EventBus } from '../../../util/eventBus';
-import { GeneralEventBus } from '../../../generalEventBus';
-import { DEFAULT_LANG, LANG_CODES, LANG_CODES_TO_NAME, LangCode } from '../../../../shared/types/lang-types';
-import { CommonAvatar, CommonVoiceOverGroup } from '../../../../shared/types/common-types';
-import { VoAppPreloadConfig } from './vo-preload-types';
-
+import { VoAppWelcome } from './vo-app-welcome.ts';
+import { VoAppSidebar } from './vo-app-sidebar.ts';
+import { VoAppToolbar } from './vo-app-toolbar.ts';
+import { VoAppWikitextEditor } from './vo-app-wikitext.ts';
+import { VoAppVisualEditor } from './vo-app-visual.ts';
+import { EventBus } from '../../../util/eventBus.ts';
+import { GeneralEventBus } from '../../../generalEventBus.ts';
+import { DEFAULT_LANG, LANG_CODES, LANG_CODES_TO_NAME, LangCode } from '../../../../shared/types/lang-types.ts';
+import { CommonAvatar, CommonVoiceOverGroup } from '../../../../shared/types/common-types.ts';
+import { VoAppPreloadConfig } from './vo-preload-types.ts';
+import { OverlayScrollbars } from 'overlayscrollbars';
+import { toBoolean } from '../../../../shared/util/genericUtil.ts';
 export interface VoAppConfig {
   storagePrefix: string,
   imagePathPrefix: string,
@@ -23,7 +24,6 @@ export class VoAppState {
   avatars: CommonAvatar[];
   avatar: CommonAvatar;
   voiceOverGroup: CommonVoiceOverGroup;
-  voLang: LangCode;
   interfaceLang: LangCode;
   eventBus: EventBus;
   config: VoAppConfig;
@@ -33,7 +33,6 @@ export class VoAppState {
 
     this.avatars = (<any> window).avatars;
     this.avatar = (<any> window).avatar;
-    this.voLang = (Cookies.get('VO-App-LangCode') as LangCode) || DEFAULT_LANG;
     this.interfaceLang = (Cookies.get('outputLangCode') as LangCode) || DEFAULT_LANG;
     this.eventBus = new EventBus('VO-App-EventBus');
 
@@ -41,11 +40,61 @@ export class VoAppState {
       this.eventBus.emit('VO-Lang-Changed', DEFAULT_LANG);
     }
 
+    this.scrollInit();
     this.init();
+  }
+
+  get voLang(): LangCode {
+    return (<any> window).voLangCode;
+  }
+
+  set voLang(newCode: LangCode) {
+    const prevCode = this.voLang;
+
+    if (newCode === 'CHS' || newCode === 'CHT') {
+      newCode = 'CH';
+    }
+    if (newCode !== 'EN' && newCode !== 'CH' && newCode !== 'JP' && newCode !== 'KR') {
+      newCode = 'EN';
+    }
+    (<any> window).voLangCode = newCode;
+    (<any> window).voLangName = LANG_CODES_TO_NAME[newCode];
+
+    console.log(window.location.href, prevCode, newCode);
+    window.history.replaceState({}, null,
+      window.location.href.replace(new RegExp(`\\/${prevCode}\\b`), `/${newCode}`));
+  }
+
+  get voLangName(): string {
+    return (<any> window).voLangName;
   }
 
   isMainCharacter(avatar?: CommonAvatar) {
     return this.config.isMainCharacter(avatar || this.avatar);
+  }
+
+  scrollInit() {
+    const isNightmode = toBoolean(Cookies.get('nightmode'));
+    setTimeout(() => {
+      OverlayScrollbars(document.querySelector<HTMLElement>('#vo-tool-sidebar-list'), {
+        scrollbars: {
+          theme: isNightmode ? 'os-theme-light' : 'os-theme-dark',
+          autoHide: 'leave'
+        },
+        overflow: {
+          x: 'hidden'
+        }
+      });
+      OverlayScrollbars(document.querySelector<HTMLElement>('#app-sidebar__content'), {
+        scrollbars: {
+          theme: isNightmode ? 'os-theme-light' : 'os-theme-dark',
+          autoHide: 'leave'
+        },
+        overflow: {
+          x: 'hidden'
+        }
+      });
+    });
   }
 
   init() {
@@ -64,20 +113,14 @@ export class VoAppState {
     });
 
     this.eventBus.on('VO-Lang-Changed', (langCode: LangCode) => {
-      console.log('[VO-App] Lang Code Changed:', langCode);
-      if (!LANG_CODES.includes(langCode)) {
-        langCode = DEFAULT_LANG;
-      }
-
+      const prevCode = this.voLang;
       this.voLang = langCode;
-      let langText = LANG_CODES_TO_NAME[langCode];
-      Cookies.set('VO-App-LangText', langText, { expires: 365 });
-      Cookies.set('VO-App-LangCode', langCode, { expires: 365 });
+      console.log('[VO-App] Lang Code Changed:', 'from', prevCode, 'to', this.voLang, '('+this.voLangName+')');
 
       if (document.querySelector('#vo-app-toolbar')) {
         document.querySelectorAll('.vo-app-language-option').forEach(el => el.classList.remove('selected'));
         document.querySelector(`.vo-app-language-option[data-value="${langCode}"]`).classList.add('selected');
-        document.querySelector('#vo-app-language-current').innerHTML = langText;
+        document.querySelector('#vo-app-language-current').innerHTML = this.voLangName;
       }
 
       this.eventBus.emit('VO-Wikitext-LocalLoad');

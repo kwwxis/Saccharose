@@ -1,6 +1,6 @@
 
-import { HttpError } from '../../../shared/util/httpError';
-import { csrfMiddleware } from '../request/csrf';
+import { HttpError } from '../../../shared/util/httpError.ts';
+import { csrfMiddleware } from '../request/csrf.ts';
 import { NextFunction, Request, Response } from 'express';
 
 const devApiKey: string = process.env.DEV_API_KEY || undefined;

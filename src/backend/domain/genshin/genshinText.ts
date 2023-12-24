@@ -1,19 +1,18 @@
-import { toInt } from '../../../shared/util/numberUtil';
-import { LangCode, LangCodeMap } from '../../../shared/types/lang-types';
-import { wordRejoin, wordSplit } from '../../../shared/util/stringUtil';
+import { toInt } from '../../../shared/util/numberUtil.ts';
+import { LangCode, LangCodeMap } from '../../../shared/types/lang-types.ts';
+import { wordRejoin, wordSplit } from '../../../shared/util/stringUtil.ts';
 import {
   genericNormText,
   mergeMcTemplate,
   NormTextOptions,
   postProcessBoldItalic,
-} from '../generic/genericNormalizers';
-import { SpriteTagExcelConfigData } from '../../../shared/types/genshin/general-types';
-import { getGenshinControl } from './genshinControl';
-import { toMap } from '../../../shared/util/arrayUtil';
-import { logInitData } from '../../util/logger';
+} from '../generic/genericNormalizers.ts';
+import { SpriteTagExcelConfigData } from '../../../shared/types/genshin/general-types.ts';
+import { getGenshinControl } from './genshinControl.ts';
+import { toMap } from '../../../shared/util/arrayUtil.ts';
+import { logInitData } from '../../util/logger.ts';
 import fs, { promises as fsp } from 'fs';
-import { ManualTextMapHashes } from '../../../shared/types/genshin/manual-text-map';
-
+import { ManualTextMapHashes } from '../../../shared/types/genshin/manual-text-map.ts';
 function __convertGenshinRubi(langCode: LangCode, text: string): string {
   const rubiMap: { [index: number]: string } = {};
   const rubiRegex = /{RUBY#\[([SD])]([^}]+)}/;

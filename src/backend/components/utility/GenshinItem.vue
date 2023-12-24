@@ -9,12 +9,11 @@
 </template>
 
 <script setup lang="ts">
-import { MaterialExcelConfigData } from '../../../shared/types/genshin/material-types';
-import { WeaponExcelConfigData } from '../../../shared/types/genshin/weapon-types';
-import { HomeWorldFurnitureExcelConfigData } from '../../../shared/types/genshin/homeworld-types';
-import { ReliquaryExcelConfigData } from '../../../shared/types/genshin/artifact-types';
+import { MaterialExcelConfigData } from '../../../shared/types/genshin/material-types.ts';
+import { WeaponExcelConfigData } from '../../../shared/types/genshin/weapon-types.ts';
+import { HomeWorldFurnitureExcelConfigData } from '../../../shared/types/genshin/homeworld-types.ts';
+import { ReliquaryExcelConfigData } from '../../../shared/types/genshin/artifact-types.ts';
 import GenshinItemInner from './GenshinItemInner.vue';
-
 export type GenshinItemComponentProps = {
   item: MaterialExcelConfigData|WeaponExcelConfigData|HomeWorldFurnitureExcelConfigData|ReliquaryExcelConfigData,
   itemCount?: number,

@@ -1,14 +1,13 @@
-import { GenshinControl } from '../genshinControl';
-import { replacePrefix, sentenceJoin } from '../../../../shared/util/stringUtil';
-import { MainQuestExcelConfigData } from '../../../../shared/types/genshin/quest-types';
+import { GenshinControl } from '../genshinControl.ts';
+import { replacePrefix, sentenceJoin } from '../../../../shared/util/stringUtil.ts';
+import { MainQuestExcelConfigData } from '../../../../shared/types/genshin/quest-types.ts';
 import {
   FetterCond,
   FetterCondSummary,
   FetterCondType,
   FetterWithConditions,
-} from '../../../../shared/types/genshin/fetter-types';
-import { LangCode } from '../../../../shared/types/lang-types';
-
+} from '../../../../shared/types/genshin/fetter-types.ts';
+import { LangCode } from '../../../../shared/types/lang-types.ts';
 async function doWithCond(fetterConds: FetterCond[], condType: FetterCondType, callback: (fetterCond: FetterCond) => Promise<void>) {
   let cond = fetterConds.find(x => x.CondType === condType);
   if (cond) {

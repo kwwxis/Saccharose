@@ -1,4 +1,4 @@
-import { VoAppState } from './vo-tool';
+import { VoAppState } from './vo-tool.ts';
 import Sortable, { SortableEvent } from 'sortablejs';
 import {
   createVoHandles,
@@ -6,14 +6,14 @@ import {
   VoGroup,
   VoHandle,
   VoItem,
-} from './vo-handle';
-import { MwParamNode, MwTemplateNode } from '../../../../shared/mediawiki/mwTypes';
-import { escapeHtml, romanize, ucFirst } from '../../../../shared/util/stringUtil';
-import { createElement, createPlaintextContenteditable, flashElement } from '../../../util/domutil';
-import { startListeners } from '../../../util/eventLoader';
-import { flashTippy } from '../../../util/tooltips';
-import { createWikitextEditor, getWikitextEditor } from '../../../util/ace/wikitextEditor';
-
+} from './vo-handle.ts';
+import { MwParamNode, MwTemplateNode } from '../../../../shared/mediawiki/mwTypes.ts';
+import { escapeHtml, romanize, ucFirst } from '../../../../shared/util/stringUtil.ts';
+import { createElement, createPlaintextContenteditable, flashElement } from '../../../util/domutil.ts';
+import { startListeners } from '../../../util/eventLoader.ts';
+import { flashTippy } from '../../../util/tooltips.ts';
+import { createWikitextEditor, getWikitextEditor } from '../../../util/ace/wikitextEditor.ts';
+import { modalService } from '../../../util/modalService.ts';
 const sortableDefaultOptions: Sortable.Options = {
   scroll: true,
   animation: 150,
@@ -242,13 +242,19 @@ export function VoAppVisualEditor(state: VoAppState) {
       let groupRemoveButton = createElement('button', {class: 'secondary vo-group-remove', html: getIconHtml('trash'), 'ui-tippy': 'Remove this group'});
       voGroupHeaderEl.append(groupRemoveButton);
       groupRemoveButton.addEventListener('click', () => {
-        if (confirm(`Are you sure you want to remove this group?\n\nGroup to remove: "${group.title.text}"`)) {
+        modalService.confirm(
+          'Confirm removal',
+          `
+            <p>Are you sure you want to remove this group?</p>
+            <p class="spacer10-top">Group to remove: <strong>${escapeHtml(group.title.text || '(Untitled group)')}</strong></p>
+          `
+        ).onConfirm(() => {
           console.log('[VO-App] Group removed', { group });
           group.remove();
           groupEl.remove();
           notifyWikitext(type);
           groupRemoveButton.blur();
-        }
+        });
       });
 
       // Item Add Method
@@ -286,17 +292,27 @@ export function VoAppVisualEditor(state: VoAppState) {
             'ui-tippy': JSON.stringify({content: `Same as "${titlePropName}" property`, delay: [500, 100]})
           });
 
-          itemTitleInput.innerText = item.getParam(titlePropName);
+          itemTitleInput.innerText = item.getParam(titlePropName) || '';
 
           itemTitleInput.addEventListener('blur', () => {
-            item.setParam(titlePropName, itemTitleInput.innerText);
-            notifyWikitext(type);
+            const titleText: string = itemTitleInput.innerText;
+            if (!item.hasParam(titlePropName) && !titleText) {
+              return;
+            }
+            if (!item.hasParam(titlePropName)) {
+              const paramNode = item.addParam(titlePropName, titleText);
+              notifyWikitext(type);
 
-            let paramEl = itemEl.querySelector(`.vo-item-param[data-prop-name="${titlePropName}"]`);
-            console.log('title thing blur', itemTitleInput.innerText, paramEl);
-            if (paramEl) {
-              let propValueEditorEl: HTMLInputElement = paramEl.querySelector('.prop-value .ace_editor');
-              getWikitextEditor(propValueEditorEl).setValue(itemTitleInput.innerText, -1);
+              addVisualParamElement(titlePropName, paramNode, true);
+            } else {
+              item.setParam(titlePropName, titleText);
+              notifyWikitext(type);
+
+              const paramEl = itemEl.querySelector(`.vo-item-param[data-prop-name="${titlePropName}"]`);
+              if (paramEl) {
+                let propValueEditorEl: HTMLInputElement = paramEl.querySelector('.prop-value .ace_editor');
+                getWikitextEditor(propValueEditorEl).setValue(titleText, -1);
+              }
             }
           });
 
@@ -312,13 +328,19 @@ export function VoAppVisualEditor(state: VoAppState) {
         itemHeaderEl.append(itemRemoveButton);
         itemRemoveButton.addEventListener('click', () => {
           let itemTitle = type === 'combat' ? getCombatItemHeader(item) : item.getParam(titlePropName);
-          if (confirm(`Are you sure you want to remove this item?\n\nItem to remove: "${itemTitle}"`)) {
+          modalService.confirm(
+            'Confirm removal',
+            `
+              <p>Are you sure you want to remove this item?</p>
+              <p class="spacer10-top">Item to remove: <strong>${escapeHtml(itemTitle || '(Untitled item)')}</strong></p>
+            `
+          ).onConfirm(() => {
             console.log('[VO-App] Item removed', { item });
             item.remove();
             itemEl.remove();
             notifyWikitext(type);
             itemRemoveButton.blur();
-          }
+          });
         });
 
         const PARAM_VALUE_EDIT_MAX_LINES: number = 10; // max display lines before scrolling is enabled
@@ -356,11 +378,29 @@ export function VoAppVisualEditor(state: VoAppState) {
             });
 
             removeEl.addEventListener('click', () => {
+              if (item.numParams() === 1) {
+                let itemTitle = type === 'combat' ? getCombatItemHeader(item) : item.getParam(titlePropName);
+                modalService.confirm(
+                  'Confirm removal',
+                  `
+                    <p>Removing every property from an item will delete it. Are you sure you want to delete this item?</p>
+                    <p class="spacer10-top">Item that will be removed: <strong>${escapeHtml(itemTitle || '(Untitled item)')}</strong></p>
+                  `
+                ).onConfirm(() => {
+                  item.remove();
+                  itemEl.remove();
+                  notifyWikitext(type);
+                });
+                return;
+              }
               console.log(`[VO-App] Item param remove click:`, { item, propName, paramNode });
               item.removeParam(propName);
               propValueEditor.destroy();
               paramDiv.remove();
               notifyWikitext(type);
+              if (propName === titlePropName) {
+                itemTitleInput.innerText = '';
+              }
             });
           });
 

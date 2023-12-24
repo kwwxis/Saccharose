@@ -1,7 +1,6 @@
-import { escapeHtml } from '../../shared/util/stringUtil';
-import { getFocusableSelector, isElement } from './domutil';
-import { runWhenDOMContentLoaded } from './eventLoader';
-
+import { escapeHtml } from '../../shared/util/stringUtil.ts';
+import { getFocusableSelector, isElement } from './domutil.ts';
+import { runWhenDOMContentLoaded } from './eventLoader.ts';
 const TYPE_ALERT = 0;
 const TYPE_MODAL = 1;
 const TYPE_CONFIRM = 4;
@@ -31,11 +30,19 @@ export class ModalRef {
     })
   }
 
+  /**
+   * The close listener is always called when the modal is closed, regardless if the user confirmed or cancelled.
+   * @param listener
+   */
   onClose(listener: ModalCloseListener): this {
     this.closeListeners.push(listener);
     return this;
   }
 
+  /**
+   * Called if the user clicks a confirm button in the modal.
+   * @param listener
+   */
   onConfirm(listener: ModalCloseListener): this {
     this.outerEl.querySelectorAll(`.confirm`).forEach(confirmBtn => {
       confirmBtn.addEventListener('click', () => {
@@ -45,6 +52,10 @@ export class ModalRef {
     return this;
   }
 
+  /**
+   * Called if the user clicks a cancel button in the modal or clicks the "X" button in the modal header.
+   * @param listener
+   */
   onCancel(listener: ModalCloseListener): this {
     this.outerEl.querySelectorAll(`.cancel`).forEach(cancelBtn => {
       cancelBtn.addEventListener('click', () => {

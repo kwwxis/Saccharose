@@ -1,14 +1,14 @@
-import '../../loadenv';
-import { LangCode } from '../../../shared/types/lang-types';
+import '../../loadenv.ts';
+import { LangCode } from '../../../shared/types/lang-types.ts';
 import {
   takeFromStartUntilFirstWord,
   takeFromEndUntilLastWord,
   wordRejoin,
   wordSplit,
-} from '../../../shared/util/stringUtil';
-import { toInt } from '../../../shared/util/numberUtil';
+} from '../../../shared/util/stringUtil.ts';
+import { toInt } from '../../../shared/util/numberUtil.ts';
 import { pathToFileURL } from 'url';
-import { html2quotes, unnestHtmlTags } from '../../../shared/mediawiki/mwQuotes';
+import { html2quotes, unnestHtmlTags } from '../../../shared/mediawiki/mwQuotes.ts';
 import { Change, diffChars, diffWords, diffWordsWithSpace } from 'diff';
 
 export interface NormTextOptions {

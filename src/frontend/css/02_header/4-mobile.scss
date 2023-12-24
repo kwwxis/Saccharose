@@ -175,7 +175,7 @@ body.nightmode #mobile-menu-button {
     }
 
     .app-menu-buttons {
-      margin: 0;
+      margin: 0 !important;
       width: 100%;
       .toggle-theme-buttons {
         flex-grow: 1;

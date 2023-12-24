@@ -1,5 +1,4 @@
-import { plainLineMapSchema, SchemaTable, textMapSchema } from '../import_db';
-
+import { plainLineMapSchema, SchemaTable, textMapSchema } from '../import_db.ts';
 export const starRailSchema = {
 
   // region TextMap & PlainLineMap

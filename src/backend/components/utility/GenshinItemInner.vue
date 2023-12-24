@@ -15,7 +15,6 @@
 
 <script setup lang="ts">
 import { GenshinItemComponentProps } from './GenshinItem.vue';
-
 const { item, itemCount } = defineProps<GenshinItemComponentProps>();
 const effectIcon: string = (<any> item).EffectIcon;
 const imageUrl = (<any> item).IconUrl ? (<any> item).IconUrl : `/images/genshin/${item.Icon}.png`;

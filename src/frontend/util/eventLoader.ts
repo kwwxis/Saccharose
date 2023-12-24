@@ -1,5 +1,4 @@
-import { waitForElement } from './domutil';
-
+import { waitForElement } from './domutil.ts';
 export interface ListenerCallback {
   (evt: Event, target?: HTMLElement): void;
 }

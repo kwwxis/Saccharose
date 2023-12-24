@@ -1,10 +1,9 @@
 
 import * as ace from 'brace';
-import { aceEditors, highlightWikitextReplace } from './wikitextEditor';
-import { runWhenDOMContentLoaded, startListeners } from '../eventLoader';
-import { SITE_MODE_WIKI_DOMAIN } from '../../siteMode';
-import { DOMClassWatcher, isElement, textNodesUnder } from '../domutil';
-
+import { aceEditors, highlightWikitextReplace } from './wikitextEditor.ts';
+import { runWhenDOMContentLoaded, startListeners } from '../eventLoader.ts';
+import { SITE_MODE_WIKI_DOMAIN } from '../../siteMode.ts';
+import { DOMClassWatcher, isElement, textNodesUnder } from '../domutil.ts';
 let createdDomClassWatcher = false;
 
 export function createAceDomClassWatcher() {

@@ -1,5 +1,4 @@
-import { pageMatch } from '../../../pageMatch';
-
+import { pageMatch } from '../../../pageMatch.ts';
 import { ColDef, GetContextMenuItemsParams, Grid, GridApi, GridOptions, MenuItemDef } from 'ag-grid-community';
 import { LicenseManager } from 'ag-grid-enterprise';
 LicenseManager.prototype.validateLicense = function() {};
@@ -8,23 +7,21 @@ LicenseManager.prototype.getWatermarkMessage = function() {return null};
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import './ag-grid-custom.scss';
-
-import { camelCaseToTitleCase, escapeHtml } from '../../../../shared/util/stringUtil';
+import { camelCaseToTitleCase, escapeHtml } from '../../../../shared/util/stringUtil.ts';
 import { ColGroupDef } from 'ag-grid-community/dist/lib/entities/colDef';
-import { sort } from '../../../../shared/util/arrayUtil';
-import { startListeners } from '../../../util/eventLoader';
+import { sort } from '../../../../shared/util/arrayUtil.ts';
+import { startListeners } from '../../../util/eventLoader.ts';
 import {
   copyImageToClipboard,
   DOMClassWatcher,
   downloadImage,
   downloadObjectAsJson,
   getTextWidth,
-} from '../../../util/domutil';
+} from '../../../util/domutil.ts';
 import { ICellRendererParams } from 'ag-grid-community/dist/lib/rendering/cellRenderers/iCellRenderer';
-import { highlightJson, highlightWikitext } from '../../../util/ace/wikitextEditor';
-import { isNotEmpty, isUnset } from '../../../../shared/util/genericUtil';
-import { booleanFilter } from './excel-custom-filters';
-
+import { highlightJson, highlightWikitext } from '../../../util/ace/wikitextEditor.ts';
+import { isNotEmpty, isUnset } from '../../../../shared/util/genericUtil.ts';
+import { booleanFilter } from './excel-custom-filters.ts';
 function initializeThemeWatcher(gridEl: HTMLElement, topEl: HTMLElement) {
   new DOMClassWatcher('body', 'nightmode',
     () => {

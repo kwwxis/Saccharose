@@ -1,25 +1,24 @@
 import {
   DialogExcelConfigData, DialogWikitextResult,
   TalkExcelConfigData,
-} from '../../../../shared/types/genshin/dialogue-types';
-import { ConfigCondition } from '../../../../shared/types/genshin/general-types';
-import { GenshinControl, getGenshinControl } from '../genshinControl';
-import { QuestGenerateResult } from './quest_generator';
-import { MetaProp, MetaPropAcceptValue } from '../../../util/metaProp';
-import { toBoolean } from '../../../../shared/util/genericUtil';
-import { Marker } from '../../../../shared/util/highlightMarker';
-import { SbOut } from '../../../../shared/util/stringUtil';
-import { ChapterExcelConfigData, MainQuestExcelConfigData } from '../../../../shared/types/genshin/quest-types';
-import { cached } from '../../../util/cache';
+} from '../../../../shared/types/genshin/dialogue-types.ts';
+import { ConfigCondition } from '../../../../shared/types/genshin/general-types.ts';
+import { GenshinControl, getGenshinControl } from '../genshinControl.ts';
+import { QuestGenerateResult } from './quest_generator.ts';
+import { MetaProp, MetaPropAcceptValue } from '../../../util/metaProp.ts';
+import { toBoolean } from '../../../../shared/util/genericUtil.ts';
+import { Marker } from '../../../../shared/util/highlightMarker.ts';
+import { SbOut } from '../../../../shared/util/stringUtil.ts';
+import { ChapterExcelConfigData, MainQuestExcelConfigData } from '../../../../shared/types/genshin/quest-types.ts';
+import { cached } from '../../../util/cache.ts';
 import toposort from 'toposort';
-import { sort } from '../../../../shared/util/arrayUtil';
+import { sort } from '../../../../shared/util/arrayUtil.ts';
 import { pathToFileURL } from 'url';
-import { closeKnex } from '../../../util/db';
-import { isInt } from '../../../../shared/util/numberUtil';
-import { custom } from '../../../util/logger';
-import { CommonLineId } from '../../../../shared/types/common-types';
-import { RewardExcelConfigData } from '../../../../shared/types/genshin/material-types';
-
+import { closeKnex } from '../../../util/db.ts';
+import { isInt } from '../../../../shared/util/numberUtil.ts';
+import { custom } from '../../../util/logger.ts';
+import { CommonLineId } from '../../../../shared/types/common-types.ts';
+import { RewardExcelConfigData } from '../../../../shared/types/genshin/material-types.ts';
 // region Class: DialogBranchingCache
 // --------------------------------------------------------------------------------------------------------------
 export class DialogBranchingCache {

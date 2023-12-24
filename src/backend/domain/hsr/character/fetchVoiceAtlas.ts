@@ -1,6 +1,6 @@
-import '../../../loadenv';
-import { closeKnex } from '../../../util/db';
-import { cached } from '../../../util/cache';
+import '../../../loadenv.ts';
+import { closeKnex } from '../../../util/db.ts';
+import { cached } from '../../../util/cache.ts';
 import { pathToFileURL } from 'url';
 import path from 'path';
 import { promises as fs } from 'fs';
@@ -9,17 +9,16 @@ import {
   VoiceAtlas,
   VoiceAtlasGroup,
   VoiceAtlasGroupByAvatar,
-} from '../../../../shared/types/hsr/hsr-avatar-types';
+} from '../../../../shared/types/hsr/hsr-avatar-types.ts';
 import {
   getStarRailControl,
   loadStarRailVoiceItems,
   normalizeStarRailVoicePath,
   StarRailControl,
-} from '../starRailControl';
-import { DATAFILE_HSR_VOICE_ATLASES } from '../../../loadenv';
-import { defaultMap } from '../../../../shared/util/genericUtil';
-import { toMap } from '../../../../shared/util/arrayUtil';
-
+} from '../starRailControl.ts';
+import { DATAFILE_HSR_VOICE_ATLASES } from '../../../loadenv.ts';
+import { defaultMap } from '../../../../shared/util/genericUtil.ts';
+import { toMap } from '../../../../shared/util/arrayUtil.ts';
 export async function fetchVoiceAtlases(ctrl: StarRailControl, skipCache: boolean = false): Promise<VoiceAtlasGroupByAvatar> {
   if (!skipCache) {
     return cached('StarRail_VoiceAtlasGroup', async () => {

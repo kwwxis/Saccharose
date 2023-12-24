@@ -1,4 +1,4 @@
-import { modalService } from './modalService';
+import { modalService } from './modalService.ts';
 import Cookies from 'js-cookie';
 
 let handlingJavascriptError = false;

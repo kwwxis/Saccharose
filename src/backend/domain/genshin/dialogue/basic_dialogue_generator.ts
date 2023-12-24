@@ -1,29 +1,28 @@
-import '../../../loadenv';
-import { closeKnex } from '../../../util/db';
-import { GenshinControl, getGenshinControl } from '../genshinControl';
-import { NpcExcelConfigData } from '../../../../shared/types/genshin/general-types';
+import '../../../loadenv.ts';
+import { closeKnex } from '../../../util/db.ts';
+import { GenshinControl, getGenshinControl } from '../genshinControl.ts';
+import { NpcExcelConfigData } from '../../../../shared/types/genshin/general-types.ts';
 import util from 'util';
-import { isInt } from '../../../../shared/util/numberUtil';
+import { isInt } from '../../../../shared/util/numberUtil.ts';
 import {
   DialogExcelConfigData, DialogWikitextResult,
   TalkExcelConfigData,
-} from '../../../../shared/types/genshin/dialogue-types';
-import { escapeRegExp, trim } from '../../../../shared/util/stringUtil';
+} from '../../../../shared/types/genshin/dialogue-types.ts';
+import { escapeRegExp, trim } from '../../../../shared/util/stringUtil.ts';
 import {
   DialogueSectionResult,
   dialogueToQuestId,
   TalkConfigAccumulator,
   talkConfigGenerate,
   dialogTraceBack,
-} from './dialogue_util';
-import { IMetaPropValue, MetaProp } from '../../../util/metaProp';
+} from './dialogue_util.ts';
+import { IMetaPropValue, MetaProp } from '../../../util/metaProp.ts';
 import { pathToFileURL } from 'url';
-import { Marker } from '../../../../shared/util/highlightMarker';
-import { LangCode, TextMapHash } from '../../../../shared/types/lang-types';
+import { Marker } from '../../../../shared/util/highlightMarker.ts';
+import { LangCode, TextMapHash } from '../../../../shared/types/lang-types.ts';
 import { _ } from 'ag-grid-community';
-import { defaultMap } from '../../../../shared/util/genericUtil';
-import { reminderGenerateFromSpeakerTextMapHashes } from './reminder_generator';
-
+import { defaultMap } from '../../../../shared/util/genericUtil.ts';
+import { reminderGenerateFromSpeakerTextMapHashes } from './reminder_generator.ts';
 // region NPC Filtering for Single Branch Dialogue
 // --------------------------------------------------------------------------------------------------------------
 const lc = (s: string) => s ? s.toLowerCase() : s;

@@ -1,14 +1,13 @@
-import { isInt, maybeInt, toInt } from '../../../../shared/util/numberUtil';
-import { IdUsages } from '../../../util/searchUtil';
-import { AbstractControl } from '../../../domain/abstractControl';
-import { add_ol_markers, ol_gen, OLResult } from '../../../domain/generic/basic/OLgen';
-import { isset, toBoolean } from '../../../../shared/util/genericUtil';
-import { HttpError } from '../../../../shared/util/httpError';
+import { isInt, maybeInt, toInt } from '../../../../shared/util/numberUtil.ts';
+import { IdUsages } from '../../../util/searchUtil.ts';
+import { AbstractControl } from '../../../domain/abstractControl.ts';
+import { add_ol_markers, ol_gen, OLResult } from '../../../domain/generic/basic/OLgen.ts';
+import { isset, toBoolean } from '../../../../shared/util/genericUtil.ts';
+import { HttpError } from '../../../../shared/util/httpError.ts';
 import { Request, Response } from 'express';
-import { escapeRegExp } from '../../../../shared/util/stringUtil';
-import { Marker } from '../../../../shared/util/highlightMarker';
-import { TextMapSearchResult } from '../../../../shared/types/lang-types';
-
+import { escapeRegExp } from '../../../../shared/util/stringUtil.ts';
+import { Marker } from '../../../../shared/util/highlightMarker.ts';
+import { TextMapSearchResult } from '../../../../shared/types/lang-types.ts';
 export async function handleTextMapSearchEndpoint(ctrl: AbstractControl, req: Request, res: Response) {
   const startFromLine: number = isset(req.query.startFromLine) && isInt(req.query.startFromLine) ? toInt(req.query.startFromLine) : undefined;
   const resultSetNum: number = isset(req.query.resultSetNum) && isInt(req.query.resultSetNum) ? toInt(req.query.resultSetNum) : 0;

@@ -2,7 +2,7 @@ import {
   DialogExcelConfigData,
   ReminderExcelConfigData,
   TalkExcelConfigData,
-} from '../../../shared/types/genshin/dialogue-types';
+} from '../../../shared/types/genshin/dialogue-types.ts';
 import {
   CombineExcelConfigData,
   CompoundExcelConfigData,
@@ -10,14 +10,13 @@ import {
   ForgeExcelConfigData,
   MaterialExcelConfigData,
   MaterialRelation,
-} from '../../../shared/types/genshin/material-types';
-import { FurnitureMakeExcelConfigData } from '../../../shared/types/genshin/homeworld-types';
-import { GCGCharacterLevelExcelConfigData, GCGWeekLevelExcelConfigData } from '../../../shared/types/genshin/gcg-types';
-import { SchemaTable, textMapSchema, plainLineMapSchema } from '../import_db';
-import { getGenshinDataFilePath } from '../../loadenv';
+} from '../../../shared/types/genshin/material-types.ts';
+import { FurnitureMakeExcelConfigData } from '../../../shared/types/genshin/homeworld-types.ts';
+import { GCGCharacterLevelExcelConfigData, GCGWeekLevelExcelConfigData } from '../../../shared/types/genshin/gcg-types.ts';
+import { SchemaTable, textMapSchema, plainLineMapSchema } from '../import_db.ts';
+import { getGenshinDataFilePath } from '../../loadenv.ts';
 import fs from 'fs';
-import { DocumentExcelConfigData } from '../../../shared/types/genshin/readable-types';
-
+import { DocumentExcelConfigData } from '../../../shared/types/genshin/readable-types.ts';
 export const RAW_MANUAL_TEXTMAP_ID_PROP: string = 'textMapId';
 
 const schemaTranslationFilePath = getGenshinDataFilePath('./SchemaTranslation.json');

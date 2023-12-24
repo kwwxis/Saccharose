@@ -1,6 +1,5 @@
-import { GenshinImage } from './general-types';
-import { Marker } from '../../util/highlightMarker';
-
+import { GenshinImage } from './general-types.ts';
+import { Marker } from '../../util/highlightMarker.ts';
 export type PushTipsCodexType =
   'CODEX_ADVENTURE'
   | 'CODEX_ARANARA'

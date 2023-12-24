@@ -1,11 +1,10 @@
-import { pageMatch } from '../../../pageMatch';
-import { HomeWorldFurnitureTypeTree } from '../../../../shared/types/genshin/homeworld-types';
-import { CheckTree } from '../../../util/checkTree';
-import { escapeHtml } from '../../../../shared/util/stringUtil';
-import { sort } from '../../../../shared/util/arrayUtil';
-import { defaultMap } from '../../../../shared/util/genericUtil';
-import { startListeners } from '../../../util/eventLoader';
-
+import { pageMatch } from '../../../pageMatch.ts';
+import { HomeWorldFurnitureTypeTree } from '../../../../shared/types/genshin/homeworld-types.ts';
+import { CheckTree } from '../../../util/checkTree.ts';
+import { escapeHtml } from '../../../../shared/util/stringUtil.ts';
+import { sort } from '../../../../shared/util/arrayUtil.ts';
+import { defaultMap } from '../../../../shared/util/genericUtil.ts';
+import { startListeners } from '../../../util/eventLoader.ts';
 pageMatch('pages/genshin/archive/furniture-list', () => {
   const typeTree: HomeWorldFurnitureTypeTree = (<any> window).typeTree;
 

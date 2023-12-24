@@ -1,15 +1,14 @@
-import { VoAppState } from './vo-tool';
+import { VoAppState } from './vo-tool.ts';
 import * as ace from 'brace';
-import { flashTippy } from '../../../util/tooltips';
-import { createWikitextEditor } from '../../../util/ace/wikitextEditor';
-import { VoHandle } from './vo-handle';
-import { mwParse } from '../../../../shared/mediawiki/mwParse';
-import { MwTemplateNode } from '../../../../shared/mediawiki/mwTypes';
+import { flashTippy } from '../../../util/tooltips.ts';
+import { createWikitextEditor } from '../../../util/ace/wikitextEditor.ts';
+import { VoHandle } from './vo-handle.ts';
+import { mwParse } from '../../../../shared/mediawiki/mwParse.ts';
+import { MwTemplateNode } from '../../../../shared/mediawiki/mwTypes.ts';
 import Cookies from 'js-cookie';
-import { DEFAULT_LANG, LangCode } from '../../../../shared/types/lang-types';
-import { VoAppPreloadConfig, VoAppPreloadInput, VoAppPreloadOptions, VoAppPreloadResult } from './vo-preload-types';
-import { voPreload } from './vo-preload-support';
-
+import { DEFAULT_LANG, LangCode } from '../../../../shared/types/lang-types.ts';
+import { VoAppPreloadConfig, VoAppPreloadInput, VoAppPreloadOptions, VoAppPreloadResult } from './vo-preload-types.ts';
+import { voPreload } from './vo-preload-support.ts';
 function compareTemplateName(t1: string, t2: string) {
   return t1?.toLowerCase()?.replace(/_/g, ' ') === t2?.toLowerCase()?.replace(/_/g, ' ');
 }

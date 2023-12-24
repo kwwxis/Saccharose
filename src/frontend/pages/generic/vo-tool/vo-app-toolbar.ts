@@ -1,15 +1,13 @@
-import { startListeners } from '../../../util/eventLoader';
-import { VoAppState } from './vo-tool';
-import { flashTippy } from '../../../util/tooltips';
-import { copyTextToClipboard, downloadObjectAsJson, downloadTextAsFile } from '../../../util/domutil';
-import { ModalRef, modalService } from '../../../util/modalService';
-import { ucFirst } from '../../../../shared/util/stringUtil';
-import { GeneralEventBus } from '../../../generalEventBus';
-import { resolveObjectPath } from '../../../../shared/util/arrayUtil';
-import { LANG_CODE_TO_WIKI_CODE, LangCode } from '../../../../shared/types/lang-types';
-
-import { VoAppPreloadOptions } from './vo-preload-types';
-
+import { startListeners } from '../../../util/eventLoader.ts';
+import { VoAppState } from './vo-tool.ts';
+import { flashTippy } from '../../../util/tooltips.ts';
+import { copyTextToClipboard, downloadObjectAsJson, downloadTextAsFile } from '../../../util/domutil.ts';
+import { ModalRef, modalService } from '../../../util/modalService.ts';
+import { ucFirst } from '../../../../shared/util/stringUtil.ts';
+import { GeneralEventBus } from '../../../generalEventBus.ts';
+import { resolveObjectPath } from '../../../../shared/util/arrayUtil.ts';
+import { LANG_CODE_TO_WIKI_CODE, LangCode } from '../../../../shared/types/lang-types.ts';
+import { VoAppPreloadOptions } from './vo-preload-types.ts';
 export function VoAppToolbar(state: VoAppState) {
   function overwriteModal(type: 'story' | 'combat') {
     if (!state.voiceOverGroup) {

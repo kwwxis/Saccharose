@@ -1,4 +1,4 @@
-import { MwParseModule } from '../mwParseModule';
+import { MwParseModule } from '../mwParseModule.ts';
 import {
   MwCharSequence,
   MwEOL,
@@ -7,9 +7,8 @@ import {
   MwParamNodePrefixType,
   MwParamParentType,
   MwTextNode,
-} from '../mwTypes';
-import { MwParseContext } from '../mwParse';
-
+} from '../mwTypes.ts';
+import { MwParseContext } from '../mwParse.ts';
 /**
  * This parser module handles parameters for a few different types of parent nodes:
  *   - Templates, e.g. `{{MyTemplate|myParam=myValue}}`

@@ -1,11 +1,11 @@
 // File to set 'use strict' and load environment variables
 import 'use-strict';
-import '../shared/polyfills';
+import '../shared/polyfills.ts';
 import path from 'path';
 import dotenv from 'dotenv';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { LangCode } from '../shared/types/lang-types';
+import { LangCode } from '../shared/types/lang-types.ts';
 import util from 'util';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));

@@ -1,12 +1,12 @@
-import { GenshinControl } from '../../domain/genshin/genshinControl';
-import { AvatarExcelConfigData, isTraveler } from '../../../shared/types/genshin/avatar-types';
-import { cached } from '../../util/cache';
-import { fetchCharacterStories } from '../../domain/genshin/character/fetchStoryFetters';
-import { isInt, toInt } from '../../../shared/util/numberUtil';
-import { isString } from '../../../shared/util/stringUtil';
+import { GenshinControl } from '../../domain/genshin/genshinControl.ts';
+import { AvatarExcelConfigData, isTraveler } from '../../../shared/types/genshin/avatar-types.ts';
+import { cached } from '../../util/cache.ts';
+import { fetchCharacterStories } from '../../domain/genshin/character/fetchStoryFetters.ts';
+import { isInt, toInt } from '../../../shared/util/numberUtil.ts';
+import { isString } from '../../../shared/util/stringUtil.ts';
 import jsonMask from 'json-mask';
-import { HomeWorldNPCExcelConfigData } from '../../../shared/types/genshin/homeworld-types';
-import { getHomeWorldCompanions } from '../../domain/genshin/character/companion_dialogue';
+import { HomeWorldNPCExcelConfigData } from '../../../shared/types/genshin/homeworld-types.ts';
+import { getHomeWorldCompanions } from '../../domain/genshin/character/companion_dialogue.ts';
 import { Request } from 'express';
 
 const avatarMaskProps: string =

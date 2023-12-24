@@ -8,80 +8,82 @@
       opacity: 0.5;">Genshin Impact</span>
   </h2>
 </section>
-<section id="app-sidebar__basic" class="card">
-  <h2>Basic Tools</h2>
-  <div class="content">
-    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--textmap', 'selected') %>" role="button" href="/textmap">TextMap Search</a>
-    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--OL', 'selected') %>" role="button" href="/OL">Other Languages Generator</a>
-    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--id-usages', 'selected') %>" role="button" href="/id-usages">Identifier Usages</a>
-    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--excel-viewer', 'selected') %>" role="button" href="/excel-viewer">Excel Viewer</a>
-  </div>
-</section>
-<section id="app-sidebar__dialogue" class="card">
-  <h2>Quests &amp; Dialogue</h2>
-  <div class="content">
-    <h4>Dialogue Generators</h4>
-    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--quests', 'selected') %>" role="button" href="/quests">Quest Dialogue</a>
-    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--branch-dialogue', 'selected') %>" role="button" href="/branch-dialogue">Single Branch Dialogue</a>
-    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--npc-dialogue', 'selected') %>" role="button" href="/npc-dialogue">NPC Dialogue</a>
-    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--reminders', 'selected') %>" role="button" href="/reminders">Reminder Dialogue</a>
-    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--vo-to-dialogue', 'selected') %>" role="button" href="/vo-to-dialogue">VO File to Dialogue</a>
-
-    <h4 class="spacer10-top">Lists</h4>
-    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--chapters', 'selected') %>" role="button" href="/chapters">Chapters & Acts</a>
-    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--all-reminders', 'selected') %>" role="button" href="/reminders/all">All Reminder Dialogue</a>
-  </div>
-</section>
-<section id="app-sidebar__items" class="card">
-  <h2>Items &amp; Archive</h2>
-  <div class="content">
-    <h4>Items</h4>
-    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--items', 'selected') %>" role="button" href="/items">Items</a>
-    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--weapons', 'selected') %>" role="button" href="/weapons">Weapons</a>
-
-    <h4 class="spacer10-top">General Archive</h4>
-    <div class="valign button-group">
-      <a class="secondary dispBlock spacer3 textAlignLeft grow <%= bodyClassTernary('page--achievements', 'selected') %>" role="button" href="/achievements">Achievements</a>
-      <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--achievements', 'selected') %>" role="button" href="/achievements/search" style="font-size:15.5px">Search</a>
+<div id="app-sidebar__content"<%- locals.appSidebarOverlayScroll ? ' data-overlayscrollbars-initialize' : '' %>>
+  <section id="app-sidebar__basic" class="card">
+    <h2>Basic Tools</h2>
+    <div class="content">
+      <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--textmap', 'selected') %>" role="button" href="/textmap">TextMap Search</a>
+      <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--OL', 'selected') %>" role="button" href="/OL">Other Languages Generator</a>
+      <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--id-usages', 'selected') %>" role="button" href="/id-usages">Identifier Usages</a>
+      <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--excel-viewer', 'selected') %>" role="button" href="/excel-viewer">Excel Viewer</a>
     </div>
-    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--loading-tips', 'selected') %>" role="button" href="/loading-tips">Loading Tips</a>
-    <div class="valign button-group">
-      <a class="secondary dispBlock spacer3 textAlignLeft grow <%= bodyClassTernary('page--tutorials', 'selected') %>" role="button" href="/tutorials">Tutorials</a>
-      <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--tutorials', 'selected') %>" role="button" href="/tutorials/search" style="font-size:15.5px">Search</a>
+  </section>
+  <section id="app-sidebar__dialogue" class="card">
+    <h2>Quests &amp; Dialogue</h2>
+    <div class="content">
+      <h4>Dialogue Generators</h4>
+      <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--quests', 'selected') %>" role="button" href="/quests">Quest Dialogue</a>
+      <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--branch-dialogue', 'selected') %>" role="button" href="/branch-dialogue">Single Branch Dialogue</a>
+      <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--npc-dialogue', 'selected') %>" role="button" href="/npc-dialogue">NPC Dialogue</a>
+      <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--reminders', 'selected') %>" role="button" href="/reminders">Reminder Dialogue</a>
+      <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--vo-to-dialogue', 'selected') %>" role="button" href="/vo-to-dialogue">VO File to Dialogue</a>
+
+      <h4 class="spacer10-top">Lists</h4>
+      <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--chapters', 'selected') %>" role="button" href="/chapters">Chapters & Acts</a>
+      <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--all-reminders', 'selected') %>" role="button" href="/reminders/all">All Reminder Dialogue</a>
     </div>
-    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--viewpoints', 'selected') %>" role="button" href="/viewpoints">Viewpoints</a>
+  </section>
+  <section id="app-sidebar__items" class="card">
+    <h2>Items &amp; Archive</h2>
+    <div class="content">
+      <h4>Items</h4>
+      <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--items', 'selected') %>" role="button" href="/items">Items</a>
+      <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--weapons', 'selected') %>" role="button" href="/weapons">Weapons</a>
 
-    <h4 class="spacer10-top">Living Beings</h4>
-    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--enemies', 'selected') %>" role="button" href="/enemies">Enemies</a>
-    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--wildlife', 'selected') %>" role="button" href="/wildlife">Wildlife</a>
-    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--non-codex-enemies', 'selected') %>" role="button" href="/enemies/non-codex">Non-Codex</a>
+      <h4 class="spacer10-top">General Archive</h4>
+      <div class="valign button-group">
+        <a class="secondary dispBlock spacer3 textAlignLeft grow <%= bodyClassTernary('page--achievements', 'selected') %>" role="button" href="/achievements">Achievements</a>
+        <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--achievements', 'selected') %>" role="button" href="/achievements/search" style="font-size:15.5px">Search</a>
+      </div>
+      <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--loading-tips', 'selected') %>" role="button" href="/loading-tips">Loading Tips</a>
+      <div class="valign button-group">
+        <a class="secondary dispBlock spacer3 textAlignLeft grow <%= bodyClassTernary('page--tutorials', 'selected') %>" role="button" href="/tutorials">Tutorials</a>
+        <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--tutorials', 'selected') %>" role="button" href="/tutorials/search" style="font-size:15.5px">Search</a>
+      </div>
+      <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--viewpoints', 'selected') %>" role="button" href="/viewpoints">Viewpoints</a>
 
-    <h4 class="spacer10-top">Readables</h4>
-    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--readables-search', 'selected') %>" role="button" href="/readables/search">Search Readables</a>
-    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--readables', 'selected') %>" role="button" href="/readables">Books &amp; Readables</a>
+      <h4 class="spacer10-top">Living Beings</h4>
+      <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--enemies', 'selected') %>" role="button" href="/enemies">Enemies</a>
+      <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--wildlife', 'selected') %>" role="button" href="/wildlife">Wildlife</a>
+      <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--non-codex-enemies', 'selected') %>" role="button" href="/enemies/non-codex">Non-Codex</a>
 
-    <h4 class="spacer10-top">Serenitea Pot</h4>
-    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--furniture', 'selected') %>" role="button" href="/furnishings">Furnishings</a>
-    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--furniture-set', 'selected') %>" role="button" href="/furnishing-sets">Furnishing Sets</a>
-  </div>
-</section>
-<section id="app-sidebar__character" class="card">
-  <h2>Character Info</h2>
-  <div class="content">
-    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--character-stories', 'selected') %>" role="button" href="/character/stories">Character Stories</a>
-    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--companion-dialogue', 'selected') %>" role="button" href="/character/companion-dialogue">Serenitea Pot Dialogue</a>
-    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--vo-tool', 'selected') %>" role="button" href="/character/VO">Character VO Tool</a>
-  </div>
-</section>
-<section id="app-sidebar__character" class="card">
-  <h2>Genius Invokation TCG</h2>
-  <div class="content">
-    <h4>Main Data</h4>
-    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--tcg-card', 'selected') %>" role="button" href="/TCG/cards">TCG Cards</a>
-    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--tcg-stage', 'selected') %>" role="button" href="/TCG/stages">TCG Stages</a>
+      <h4 class="spacer10-top">Readables</h4>
+      <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--readables-search', 'selected') %>" role="button" href="/readables/search">Search Readables</a>
+      <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--readables', 'selected') %>" role="button" href="/readables">Books &amp; Readables</a>
 
-    <h4 class="spacer10-top">Other Data</h4>
-    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--tcg-rules', 'selected') %>" role="button" href="/TCG/rules">TCG Rules</a>
-    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--tcg-tutorial-text', 'selected') %>" role="button" href="/TCG/tutorial-text">TCG Tutorial Text</a>
-  </div>
-</section>
+      <h4 class="spacer10-top">Serenitea Pot</h4>
+      <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--furniture', 'selected') %>" role="button" href="/furnishings">Furnishings</a>
+      <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--furniture-set', 'selected') %>" role="button" href="/furnishing-sets">Furnishing Sets</a>
+    </div>
+  </section>
+  <section id="app-sidebar__character" class="card">
+    <h2>Character Info</h2>
+    <div class="content">
+      <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--character-stories', 'selected') %>" role="button" href="/character/stories">Character Stories</a>
+      <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--companion-dialogue', 'selected') %>" role="button" href="/character/companion-dialogue">Serenitea Pot Dialogue</a>
+      <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--vo-tool', 'selected') %>" role="button" href="/character/VO">Character VO Tool</a>
+    </div>
+  </section>
+  <section id="app-sidebar__character" class="card">
+    <h2>Genius Invokation TCG</h2>
+    <div class="content">
+      <h4>Main Data</h4>
+      <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--tcg-card', 'selected') %>" role="button" href="/TCG/cards">TCG Cards</a>
+      <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--tcg-stage', 'selected') %>" role="button" href="/TCG/stages">TCG Stages</a>
+
+      <h4 class="spacer10-top">Other Data</h4>
+      <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--tcg-rules', 'selected') %>" role="button" href="/TCG/rules">TCG Rules</a>
+      <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--tcg-tutorial-text', 'selected') %>" role="button" href="/TCG/tutorial-text">TCG Tutorial Text</a>
+    </div>
+  </section>
+</div>

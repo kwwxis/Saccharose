@@ -1,6 +1,5 @@
-import { LangDetectResult } from '../../backend/util/shellutil';
-import { Marker } from '../util/highlightMarker';
-
+import { LangDetectResult } from '../../backend/util/shellutil.ts';
+import { Marker } from '../util/highlightMarker.ts';
 export type TextMapHash = number|string;
 
 export type TextMapSearchResult = {

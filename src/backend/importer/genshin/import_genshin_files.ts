@@ -1,22 +1,21 @@
-import '../../loadenv';
+import '../../loadenv.ts';
 import { pathToFileURL } from 'url';
 import commandLineArgs, { OptionDefinition as ArgsOptionDefinition } from 'command-line-args';
 import commandLineUsage, { OptionDefinition as UsageOptionDefinition } from 'command-line-usage';
 import chalk from 'chalk';
-import { getGenshinDataFilePath } from '../../loadenv';
-import { getGenshinControl } from '../../domain/genshin/genshinControl';
-import { closeKnex } from '../../util/db';
-import { importNormalize, importPlainTextMap } from '../util/import_file_util';
-import { importGcgSkill } from './module.gcg-skill';
-import { importVoiceItems } from './module.voice-items';
-import { importTranslateSchema, translateExcel } from './module.translate-schema';
-import { importVoiceOvers } from './module.voice-overs';
-import { maximizeImages } from './module.maximize-images';
-import { importSearchIndex } from './module.search-index';
-import { generateQuestDialogExcels } from './module.make-excels';
-import { loadInterActionQD } from './module.interaction';
-import { createChangelog } from './module.changelog';
-
+import { getGenshinDataFilePath } from '../../loadenv.ts';
+import { getGenshinControl } from '../../domain/genshin/genshinControl.ts';
+import { closeKnex } from '../../util/db.ts';
+import { importNormalize, importPlainTextMap } from '../util/import_file_util.ts';
+import { importGcgSkill } from './module.gcg-skill.ts';
+import { importVoiceItems } from './module.voice-items.ts';
+import { importTranslateSchema, translateExcel } from './module.translate-schema.ts';
+import { importVoiceOvers } from './module.voice-overs.ts';
+import { maximizeImages } from './module.maximize-images.ts';
+import { importSearchIndex } from './module.search-index.ts';
+import { generateQuestDialogExcels } from './module.make-excels.ts';
+import { loadInterActionQD } from './module.interaction.ts';
+import { createChangelog } from './module.changelog.ts';
 export async function importGenshinFilesCli() {
   const optionDefinitions: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
     {name: 'normalize', type: Boolean, description: 'Normalizes the JSON files.'},

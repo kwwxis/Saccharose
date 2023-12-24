@@ -1,13 +1,13 @@
-import { SbOut } from '../../../../shared/util/stringUtil';
-import { CommonVoiceOver } from '../../../../shared/types/common-types';
-import { defaultMap } from '../../../../shared/util/genericUtil';
+import { SbOut } from '../../../../shared/util/stringUtil.ts';
+import { CommonVoiceOver } from '../../../../shared/types/common-types.ts';
+import { defaultMap } from '../../../../shared/util/genericUtil.ts';
 import {
   PropFillMode, VoAppPreloadCombatContext,
   VoAppPreloadConfig,
   VoAppPreloadInput,
   VoAppPreloadOptions,
   VoAppPreloadResult, VoAppPreloadStoryContext,
-} from './vo-preload-types';
+} from './vo-preload-types.ts';
 
 // region Main Function
 // --------------------------------------------------------------------------------------------------------------

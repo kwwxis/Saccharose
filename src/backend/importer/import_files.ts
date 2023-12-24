@@ -2,10 +2,10 @@ import chalk from 'chalk';
 import commandLineArgs, { OptionDefinition as ArgsOptionDefinition } from 'command-line-args';
 import commandLineUsage, { OptionDefinition as UsageOptionDefinition } from 'command-line-usage';
 import { pathToFileURL } from 'url';
-import { isStringBlank } from '../../shared/util/stringUtil';
-import { importGenshinFilesCli } from './genshin/import_genshin_files';
-import { importHsrFilesCli } from './hsr/import_hsr_files';
-import { importZenlessFilesCli } from './zenless/import_zenless_files';
+import { isStringBlank } from '../../shared/util/stringUtil.ts';
+import { importGenshinFilesCli } from './genshin/import_genshin_files.ts';
+import { importHsrFilesCli } from './hsr/import_hsr_files.ts';
+import { importZenlessFilesCli } from './zenless/import_zenless_files.ts';
 import * as process from 'process';
 
 async function importFilesCli() {

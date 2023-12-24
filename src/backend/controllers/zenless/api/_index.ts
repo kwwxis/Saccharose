@@ -1,4 +1,4 @@
-import BasicResources from './BasicResources';
+import BasicResources from './BasicResources.ts';
 import { Router } from 'express';
 
 export default function(router: Router): void {

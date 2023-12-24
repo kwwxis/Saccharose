@@ -4,14 +4,13 @@ import {
   MwNode,
   MwParamNode,
   MwTemplateNode, MwTextNode,
-} from '../../../../shared/mediawiki/mwTypes';
-import { mwParse } from '../../../../shared/mediawiki/mwParse';
-import { isStringBlank, splitLimit } from '../../../../shared/util/stringUtil';
-import { arrayClosestNumber, arrayRemove, arraySum, sort } from '../../../../shared/util/arrayUtil';
-import { isset } from '../../../../shared/util/genericUtil';
-import { constrainNumber, isInt, toInt } from '../../../../shared/util/numberUtil';
-import { uuidv4 } from '../../../../shared/util/uuidv4';
-
+} from '../../../../shared/mediawiki/mwTypes.ts';
+import { mwParse } from '../../../../shared/mediawiki/mwParse.ts';
+import { isStringBlank, splitLimit } from '../../../../shared/util/stringUtil.ts';
+import { arrayClosestNumber, arrayRemove, arraySum, sort } from '../../../../shared/util/arrayUtil.ts';
+import { isset } from '../../../../shared/util/genericUtil.ts';
+import { constrainNumber, isInt, toInt } from '../../../../shared/util/numberUtil.ts';
+import { uuidv4 } from '../../../../shared/util/uuidv4.ts';
 interface VoParamKey {
   groupKey: string;
   itemKey: string;
@@ -94,12 +93,20 @@ export class VoItem {
     return (this.handle.isCombat ? 'combat_' : 'story_') + this._itemKey;
   }
 
+  numParams(): number {
+    return Object.keys(this.propToParam).length;
+  }
+
   getParam(propName: string): string {
     if (this.propToParam[propName]) {
       return this.propToParam[propName].value;
     } else {
       return undefined;
     }
+  }
+
+  hasParam(propName: string): boolean {
+    return !!this.propToParam[propName];
   }
 
   setParam(propName: string, newValue: string): MwParamNode {

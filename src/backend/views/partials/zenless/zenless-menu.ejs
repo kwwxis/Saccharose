@@ -8,11 +8,13 @@
       opacity: 0.5;">Zenless Zone Zero</span>
   </h2>
 </section>
-<section id="app-sidebar__basic" class="card">
-  <h2>Basic Tools</h2>
-  <div class="content">
-    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--textmap', 'selected') %>" role="button" href="/zenless/textmap">TextMap Search</a>
-    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--OL', 'selected') %>" role="button" href="/zenless/OL">Other Languages Generator</a>
-    <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--id-usages', 'selected') %>" role="button" href="/zenless/id-usages">Identifier Usages</a>
-  </div>
-</section>
+<div id="app-sidebar__content"<%- locals.appSidebarOverlayScroll ? ' data-overlayscrollbars-initialize' : '' %>>
+  <section id="app-sidebar__basic" class="card">
+    <h2>Basic Tools</h2>
+    <div class="content">
+      <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--textmap', 'selected') %>" role="button" href="/zenless/textmap">TextMap Search</a>
+      <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--OL', 'selected') %>" role="button" href="/zenless/OL">Other Languages Generator</a>
+      <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--id-usages', 'selected') %>" role="button" href="/zenless/id-usages">Identifier Usages</a>
+    </div>
+  </section>
+</div>

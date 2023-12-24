@@ -1,5 +1,4 @@
-import { MwParseContext } from './mwParse';
-
+import { MwParseContext } from './mwParse.ts';
 export abstract class MwParseModule {
   /**
    * The parent context of this parse module.

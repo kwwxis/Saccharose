@@ -1,5 +1,5 @@
-import { dragHandle, icon, printHumanTiming, printTimestamp, genshinSpriteTagIconize, toParam } from './viewUtilities';
-import { safeStringify, ternary, toBoolean } from '../../shared/util/genericUtil';
+import { dragHandle, icon, printHumanTiming, printTimestamp, genshinSpriteTagIconize } from './viewUtilities.ts';
+import { safeStringify, ternary, toBoolean } from '../../shared/util/genericUtil.ts';
 import {
   camelCaseToTitleCase,
   escapeHtml,
@@ -13,16 +13,15 @@ import {
   snakeToUpperCamelCase,
   splitCamelcase,
   titleCase,
-  toLower,
+  toLower, toParam,
   toUpper,
   ucFirst,
-} from '../../shared/util/stringUtil';
+} from '../../shared/util/stringUtil.ts';
 import pluralize from 'pluralize';
-import { toInt } from '../../shared/util/numberUtil';
-import { Marker } from '../../shared/util/highlightMarker';
-import { arraySum } from '../../shared/util/arrayUtil';
-import { parseCommonLineIds, stringifyCommonLineIds } from '../../shared/types/common-types';
-
+import { toInt } from '../../shared/util/numberUtil.ts';
+import { Marker } from '../../shared/util/highlightMarker.ts';
+import { arraySum } from '../../shared/util/arrayUtil.ts';
+import { parseCommonLineIds, stringifyCommonLineIds } from '../../shared/types/common-types.ts';
 // noinspection JSUnusedGlobalSymbols
 export const DEFAULT_GLOBAL_LOCALS = {
   // Environment

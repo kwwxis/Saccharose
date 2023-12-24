@@ -1,7 +1,7 @@
-import { create } from '../../../routing/router';
-import { getStarRailControl } from '../../../domain/hsr/starRailControl';
-import { sendExcelViewerTableResponse } from '../../generic/app/abstractBasicRouter';
-import { SbOut } from '../../../../shared/util/stringUtil';
+import { create } from '../../../routing/router.ts';
+import { getStarRailControl } from '../../../domain/hsr/starRailControl.ts';
+import { sendExcelViewerTableResponse } from '../../generic/app/abstractBasicRouter.ts';
+import { SbOut } from '../../../../shared/util/stringUtil.ts';
 import { Request, Response, Router } from 'express';
 
 export default async function(): Promise<Router> {

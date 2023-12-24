@@ -1,11 +1,10 @@
-import { StarRailControl } from '../../domain/hsr/starRailControl';
-import { AvatarConfig } from '../../../shared/types/hsr/hsr-avatar-types';
-import { cached } from '../../util/cache';
+import { StarRailControl } from '../../domain/hsr/starRailControl.ts';
+import { AvatarConfig } from '../../../shared/types/hsr/hsr-avatar-types.ts';
+import { cached } from '../../util/cache.ts';
 import jsonMask from 'json-mask';
 import { Request } from 'express';
-import { isInt, toInt } from '../../../shared/util/numberUtil';
-import { isString } from '../../../shared/util/stringUtil';
-
+import { isInt, toInt } from '../../../shared/util/numberUtil.ts';
+import { isString } from '../../../shared/util/stringUtil.ts';
 const avatarMaskProps: string =
   'Id,' +
   'BaseType,' +

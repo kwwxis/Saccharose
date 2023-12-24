@@ -2,7 +2,7 @@ import * as sfc from '@vue/compiler-sfc';
 import fs from 'fs';
 import crypto from 'crypto';
 import path from 'path';
-import { getSfcTransforms, SfcOptions } from './vue-sfc-options';
+import { getSfcTransforms, SfcOptions } from './vue-sfc-options.ts';
 import { fileURLToPath, pathToFileURL } from 'url';
 import * as sass from 'sass';
 

@@ -1,14 +1,13 @@
 import util from 'util';
 import { exec, execSync, spawn } from 'child_process';
-import { getGenshinDataFilePath, PIPELINE_DIR } from '../loadenv';
+import { getGenshinDataFilePath, PIPELINE_DIR } from '../loadenv.ts';
 import { pathToFileURL } from 'url';
 import treeKill from 'tree-kill';
-import { isPromise, isset } from '../../shared/util/genericUtil';
-import { toInt } from '../../shared/util/numberUtil';
-import { splitLimit } from '../../shared/util/stringUtil';
+import { isPromise, isset } from '../../shared/util/genericUtil.ts';
+import { toInt } from '../../shared/util/numberUtil.ts';
+import { splitLimit } from '../../shared/util/stringUtil.ts';
 import path from 'path';
-import { sort } from '../../shared/util/arrayUtil';
-
+import { sort } from '../../shared/util/arrayUtil.ts';
 const execPromise = util.promisify(exec);
 
 /**

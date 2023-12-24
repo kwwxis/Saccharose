@@ -1,26 +1,25 @@
 // noinspection JSUnusedGlobalSymbols
 
-import { AbstractControl, AbstractControlState } from '../abstractControl';
-import { DATAFILE_HSR_VOICE_ITEMS, getStarRailDataFilePath } from '../../loadenv';
-import { normalizeRawJson, SchemaTable } from '../../importer/import_db';
+import { AbstractControl, AbstractControlState } from '../abstractControl.ts';
+import { DATAFILE_HSR_VOICE_ITEMS, getStarRailDataFilePath } from '../../loadenv.ts';
+import { normalizeRawJson, SchemaTable } from '../../importer/import_db.ts';
 import {
   LangCode,
   TextMapHash,
   VoiceItem,
   VoiceItemFlatMap,
-} from '../../../shared/types/lang-types';
-import { __normStarRailText } from './starRailText';
+} from '../../../shared/types/lang-types.ts';
+import { __normStarRailText } from './starRailText.ts';
 import path from 'path';
 import { promises as fs } from 'fs';
-import { defaultMap } from '../../../shared/util/genericUtil';
-import { LoadingDesc } from '../../../shared/types/hsr/hsr-misc-types';
-import { sort } from '../../../shared/util/arrayUtil';
-import { NormTextOptions } from '../generic/genericNormalizers';
+import { defaultMap } from '../../../shared/util/genericUtil.ts';
+import { LoadingDesc } from '../../../shared/types/hsr/hsr-misc-types.ts';
+import { sort } from '../../../shared/util/arrayUtil.ts';
+import { NormTextOptions } from '../generic/genericNormalizers.ts';
 import { Request } from 'express';
-import { logInitData } from '../../util/logger';
-import { AvatarConfig } from '../../../shared/types/hsr/hsr-avatar-types';
-import { hsr_i18n, HSR_I18N_MAP } from '../i18n';
-
+import { logInitData } from '../../util/logger.ts';
+import { AvatarConfig } from '../../../shared/types/hsr/hsr-avatar-types.ts';
+import { hsr_i18n, HSR_I18N_MAP } from '../i18n.ts';
 // region Control State
 // --------------------------------------------------------------------------------------------------------------
 

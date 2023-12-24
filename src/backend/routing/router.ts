@@ -1,20 +1,20 @@
 import fs from 'fs';
 import ejs from 'ejs';
 import path from 'path';
-import availableMethods from '../middleware/api/availableMethods';
+import availableMethods from '../middleware/api/availableMethods.ts';
 import * as express from 'express';
-import { cachedSync } from '../util/cache';
-import { ltrim, removeSuffix } from '../../shared/util/stringUtil';
-import { EJS_DELIMITER, VIEWS_ROOT } from '../loadenv';
-import { RequestContext, RequestContextUpdate } from './requestContext';
-import { DEFAULT_GLOBAL_LOCALS } from './routingConstants';
+import { cachedSync } from '../util/cache.ts';
+import { ltrim, removeSuffix } from '../../shared/util/stringUtil.ts';
+import { EJS_DELIMITER, VIEWS_ROOT } from '../loadenv.ts';
+import { RequestContext, RequestContextUpdate } from './requestContext.ts';
+import { DEFAULT_GLOBAL_LOCALS } from './routingConstants.ts';
 import { Request, Response, NextFunction, Router } from 'express';
 import {
   IncludeFunction,
   RequestLocals,
   RequestViewStack,
   RouterRestfulHandlers,
-} from './routingTypes';
+} from './routingTypes.ts';
 import { isValidElement as isValidReactElement, ReactElement } from 'react';
 import { Component } from '@vue/runtime-core';
 import { App, createSSRApp } from 'vue';

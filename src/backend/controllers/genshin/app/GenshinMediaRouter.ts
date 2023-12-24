@@ -1,4 +1,4 @@
-import { create } from '../../../routing/router';
+import { create } from '../../../routing/router.ts';
 import { Request, Response, Router } from 'express';
 
 export default async function(): Promise<Router> {

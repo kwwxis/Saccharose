@@ -1,5 +1,4 @@
-import { frag } from './domutil';
-
+import { frag } from './domutil.ts';
 export interface CheckTreeNode {
   text?: string;
   html?: string;

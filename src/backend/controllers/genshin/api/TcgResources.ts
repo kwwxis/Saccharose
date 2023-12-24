@@ -1,4 +1,4 @@
-import { create } from '../../../routing/router';
+import { create } from '../../../routing/router.ts';
 import { Router } from 'express';
 
 const router: Router = create();

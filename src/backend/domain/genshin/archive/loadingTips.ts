@@ -1,20 +1,19 @@
 import util from 'util';
 import { pathToFileURL } from 'url';
-import { GenshinControl, getGenshinControl } from '../genshinControl';
-import { closeKnex } from '../../../util/db';
-import { defaultMap } from '../../../../shared/util/genericUtil';
-import { WorldAreaConfigData } from '../../../../shared/types/genshin/general-types';
-import { sort, toMap } from '../../../../shared/util/arrayUtil';
-import { SbOut } from '../../../../shared/util/stringUtil';
-import { ManualTextMapHashes } from '../../../../shared/types/genshin/manual-text-map';
+import { GenshinControl, getGenshinControl } from '../genshinControl.ts';
+import { closeKnex } from '../../../util/db.ts';
+import { defaultMap } from '../../../../shared/util/genericUtil.ts';
+import { WorldAreaConfigData } from '../../../../shared/types/genshin/general-types.ts';
+import { sort, toMap } from '../../../../shared/util/arrayUtil.ts';
+import { SbOut } from '../../../../shared/util/stringUtil.ts';
+import { ManualTextMapHashes } from '../../../../shared/types/genshin/manual-text-map.ts';
 import {
   LoadingSituationExcelConfigData,
   LoadingCat,
   LoadingTipsExcelConfigData,
-} from '../../../../shared/types/genshin/loading-types';
-import { LangCodeMap } from '../../../../shared/types/lang-types';
-import { isInt, toInt } from '../../../../shared/util/numberUtil';
-
+} from '../../../../shared/types/genshin/loading-types.ts';
+import { LangCodeMap } from '../../../../shared/types/lang-types.ts';
+import { isInt, toInt } from '../../../../shared/util/numberUtil.ts';
 // region Category Check
 // --------------------------------------------------------------------------------------------------------------
 async function getCategoryForTip(ctrl: GenshinControl,

@@ -32,9 +32,8 @@ import fs, { promises as fsp } from 'fs';
 import path from 'path';
 import { pathToFileURL } from 'url';
 import * as process from 'process';
-import { sort } from '../../../shared/util/arrayUtil';
-import { toInt } from '../../../shared/util/numberUtil';
-
+import { sort } from '../../../shared/util/arrayUtil.ts';
+import { toInt } from '../../../shared/util/numberUtil.ts';
 // region Walk Sync
 // --------------------------------------------------------------------------------------------------------------
 function* walkSync(dir: string): Generator<string> {

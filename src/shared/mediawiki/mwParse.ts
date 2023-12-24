@@ -6,17 +6,16 @@ import {
   MwSection,
   MwCharSequence,
   MwTextNode, MwContainer,
-} from './mwTypes';
-import { MwParseHtmlModule } from './parseModules/mwParse.html';
-import { MwParseTemplateModule } from './parseModules/mwParse.template';
-import { MwParsePlaintextModule } from './parseModules/mwParse.plaintext';
-import { MwParseModule } from './mwParseModule';
-import { MwParseLinkModule } from './parseModules/mwParse.link';
-import { isStringBlank } from '../util/stringUtil';
-import { MwParseParamModule } from './parseModules/mwParse.param';
-import { MwParseSpecialTextModule } from './parseModules/mwParse.specialText';
-import { MwParseSectionModule } from './parseModules/mwParse.section';
-
+} from './mwTypes.ts';
+import { MwParseHtmlModule } from './parseModules/mwParse.html.ts';
+import { MwParseTemplateModule } from './parseModules/mwParse.template.ts';
+import { MwParsePlaintextModule } from './parseModules/mwParse.plaintext.ts';
+import { MwParseModule } from './mwParseModule.ts';
+import { MwParseLinkModule } from './parseModules/mwParse.link.ts';
+import { isStringBlank } from '../util/stringUtil.ts';
+import { MwParseParamModule } from './parseModules/mwParse.param.ts';
+import { MwParseSpecialTextModule } from './parseModules/mwParse.specialText.ts';
+import { MwParseSectionModule } from './parseModules/mwParse.section.ts';
 // Helpful Documentation:
 // https://www.mediawiki.org/wiki/Help:Formatting
 // https://www.mediawiki.org/wiki/Help:Links

@@ -1,7 +1,6 @@
 
-import { AvatarExcelConfigData } from './avatar-types';
-import { LangCodeMap } from '../lang-types';
-
+import { AvatarExcelConfigData } from './avatar-types.ts';
+import { LangCodeMap } from '../lang-types.ts';
 // region Fetter Condition Types
 // ----------------------------------------------------------------------------------------------------
 

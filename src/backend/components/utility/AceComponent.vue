@@ -14,9 +14,8 @@
 </template>
 
 <script setup lang="ts">
-import { Marker } from '../../../shared/util/highlightMarker';
-import { CommonLineId, stringifyCommonLineIds } from '../../../shared/types/common-types';
-
+import { Marker } from '../../../shared/util/highlightMarker.ts';
+import { CommonLineId, stringifyCommonLineIds } from '../../../shared/types/common-types.ts';
 export type AceProps = {
   id?: string,
 

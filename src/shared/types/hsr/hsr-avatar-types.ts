@@ -1,5 +1,4 @@
-import { LangCodeMap, VoiceItem } from '../lang-types';
-
+import { LangCodeMap, VoiceItem } from '../lang-types.ts';
 export type AvatarBaseTypeEnum = 'Knight' | 'Mage' | 'Priest' | 'Rogue' | 'Shaman' | 'Warlock' | 'Warrior';
 
 export type AvatarDamageType = 'Fire' | 'Ice' | 'Imaginary' | 'Physical' | 'Quantum' | 'Thunder' | 'Wind';

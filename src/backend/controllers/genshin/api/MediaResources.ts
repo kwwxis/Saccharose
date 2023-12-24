@@ -1,11 +1,11 @@
-import { create } from '../../../routing/router';
+import { create } from '../../../routing/router.ts';
 import multer from 'multer';
 import bodyParser from 'body-parser';
-import { mediaSearch } from '../../../util/shellutil';
-import { isInt } from '../../../../shared/util/numberUtil';
+import { mediaSearch } from '../../../util/shellutil.ts';
+import { isInt } from '../../../../shared/util/numberUtil.ts';
 import path from 'path';
 import fs from 'fs';
-import { uuidv4 } from '../../../../shared/util/uuidv4';
+import { uuidv4 } from '../../../../shared/util/uuidv4.ts';
 import { Request, Response, Router } from 'express';
 
 const router: Router = create();

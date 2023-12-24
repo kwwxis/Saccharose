@@ -1,6 +1,5 @@
-import { RewardExcelConfigData } from './material-types';
-import { MainQuestExcelConfigData } from './quest-types';
-
+import { RewardExcelConfigData } from './material-types.ts';
+import { MainQuestExcelConfigData } from './quest-types.ts';
 export type AchievementTriggerType =
   'TRIGGER_ABILITY_STATE_PASS_TIME'               |
   'TRIGGER_ARRANGEMENT_FURNITURE'                 |

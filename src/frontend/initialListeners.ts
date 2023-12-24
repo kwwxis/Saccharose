@@ -5,26 +5,25 @@ import {
   getScrollbarWidth,
   hashFlash,
   setQueryStringParameter, tag,
-} from './util/domutil';
-import { humanTiming, timeConvert } from '../shared/util/genericUtil';
-import { modalService } from './util/modalService';
-import { enableTippy, flashTippy, getTippyOpts, hideTippy, showTippy } from './util/tooltips';
-import { Listener, runWhenDOMContentLoaded, startListeners } from './util/eventLoader';
-import { showJavascriptErrorDialog } from './util/errorHandler';
+} from './util/domutil.ts';
+import { humanTiming, timeConvert } from '../shared/util/genericUtil.ts';
+import { modalService } from './util/modalService.ts';
+import { enableTippy, flashTippy, getTippyOpts, hideTippy, showTippy } from './util/tooltips.ts';
+import { Listener, runWhenDOMContentLoaded, startListeners } from './util/eventLoader.ts';
+import { showJavascriptErrorDialog } from './util/errorHandler.ts';
 import autosize from 'autosize';
-import { isInt } from '../shared/util/numberUtil';
-import { escapeHtml } from '../shared/util/stringUtil';
-import { highlightReplace, highlightWikitextReplace } from './util/ace/wikitextEditor';
-import { GeneralEventBus } from './generalEventBus';
-import { languages } from './util/langCodes';
-import { DEFAULT_LANG, LangCode } from '../shared/types/lang-types';
-import { mwParse } from '../shared/mediawiki/mwParse';
-import { MwParamNode, MwTemplateNode } from '../shared/mediawiki/mwTypes';
-import { pageMatch } from './pageMatch';
-import { uuidv4 } from '../shared/util/uuidv4';
-import { Marker } from '../shared/util/highlightMarker';
-import { recalculateAceLinePanelPositions } from './util/ace/listeners/wikitextLineActions';
-
+import { isInt } from '../shared/util/numberUtil.ts';
+import { escapeHtml } from '../shared/util/stringUtil.ts';
+import { highlightReplace, highlightWikitextReplace } from './util/ace/wikitextEditor.ts';
+import { GeneralEventBus } from './generalEventBus.ts';
+import { languages } from './util/langCodes.ts';
+import { DEFAULT_LANG, LangCode } from '../shared/types/lang-types.ts';
+import { mwParse } from '../shared/mediawiki/mwParse.ts';
+import { MwParamNode, MwTemplateNode } from '../shared/mediawiki/mwTypes.ts';
+import { pageMatch } from './pageMatch.ts';
+import { uuidv4 } from '../shared/util/uuidv4.ts';
+import { Marker } from '../shared/util/highlightMarker.ts';
+import { recalculateAceLinePanelPositions } from './util/ace/listeners/wikitextLineActions.ts';
 type UiAction = {actionType: string, actionParams: string[]};
 
 function parseUiAction(actionEl: HTMLElement): UiAction[] {
@@ -94,8 +93,10 @@ const initial_listeners: Listener[] = [
 
       const scrollbarWidth = getScrollbarWidth();
       document.head.insertAdjacentHTML('beforeend',
-        `<style>body.mobile-menu-open { margin-right: ${scrollbarWidth}px; }\n` +
+        `<style>body.mobile-menu-open, body.disable-scroll { margin-right: ${scrollbarWidth}px; }\n` +
         `body.mobile-menu-open #header { padding-right: ${scrollbarWidth}px; }\n` +
+        `body.disable-scroll { overflow-y: hidden; }\n` +
+        `body.desktop-sticky-header.disable-scroll #header {margin-right: ${scrollbarWidth}px} ` +
         `.collapsed { height: 0; overflow: hidden; }\n` +
         `</style>`
       );
@@ -806,10 +807,18 @@ const initial_listeners: Listener[] = [
         document.body.classList.remove('nightmode');
         document.documentElement.classList.remove('nightmode');
         Cookies.remove('nightmode');
+        document.querySelectorAll('.os-scrollbar').forEach(scrollbar => {
+          scrollbar.classList.remove('os-theme-light');
+          scrollbar.classList.add('os-theme-dark');
+        });
       } else if (value === 'nightmode') {
         document.body.classList.add('nightmode');
         document.documentElement.classList.add('nightmode');
         Cookies.set('nightmode', '1', { expires: 365 });
+        document.querySelectorAll('.os-scrollbar').forEach(scrollbar => {
+          scrollbar.classList.remove('os-theme-dark');
+          scrollbar.classList.add('os-theme-light');
+        });
       }
     }
   },

@@ -1,5 +1,5 @@
-import { getGenshinControl, loadGenshinVoiceItems } from '../../domain/genshin/genshinControl';
-import { fetchCharacterFetters } from '../../domain/genshin/character/fetchCharacterFetters';
+import { getGenshinControl, loadGenshinVoiceItems } from '../../domain/genshin/genshinControl.ts';
+import { fetchCharacterFetters } from '../../domain/genshin/character/fetchCharacterFetters.ts';
 import fs from 'fs';
 import chalk from 'chalk';
 

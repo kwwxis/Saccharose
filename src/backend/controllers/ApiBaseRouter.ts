@@ -1,17 +1,16 @@
 import bodyParser from 'body-parser';
-import { create } from '../routing/router';
-import { apiErrorHandler } from '../middleware/response/globalErrorHandler';
-import apiAccessControlHeaders from '../middleware/api/apiAccessControlHeaders';
-import apiAuth from '../middleware/api/apiAuth';
-import GenshinResources from './genshin/api/_index';
-import StarRailResources from './hsr/api/_index';
-import ZenlessResources from './zenless/api/_index';
-import { getGenshinControl } from '../domain/genshin/genshinControl';
-import { getStarRailControl } from '../domain/hsr/starRailControl';
-import { getZenlessControl } from '../domain/zenless/zenlessControl';
+import { create } from '../routing/router.ts';
+import { apiErrorHandler } from '../middleware/response/globalErrorHandler.ts';
+import apiAccessControlHeaders from '../middleware/api/apiAccessControlHeaders.ts';
+import apiAuth from '../middleware/api/apiAuth.ts';
+import GenshinResources from './genshin/api/_index.ts';
+import StarRailResources from './hsr/api/_index.ts';
+import ZenlessResources from './zenless/api/_index.ts';
+import { getGenshinControl } from '../domain/genshin/genshinControl.ts';
+import { getStarRailControl } from '../domain/hsr/starRailControl.ts';
+import { getZenlessControl } from '../domain/zenless/zenlessControl.ts';
 import { Request, Response, Router } from 'express';
-import { langDetect } from '../util/shellutil';
-
+import { langDetect } from '../util/shellutil.ts';
 export default async function(): Promise<Router> {
   const router: Router = create({
     layouts: ['layouts/empty-layout'],

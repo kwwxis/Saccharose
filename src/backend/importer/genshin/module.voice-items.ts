@@ -1,6 +1,6 @@
-import { normalizeRawJson, SchemaTable } from '../import_db';
-import { getGenshinDataFilePath } from '../../loadenv';
-import { VoiceItem, VoiceItemArrayMap } from '../../../shared/types/lang-types';
+import { normalizeRawJson, SchemaTable } from '../import_db.ts';
+import { getGenshinDataFilePath } from '../../loadenv.ts';
+import { VoiceItem, VoiceItemArrayMap } from '../../../shared/types/lang-types.ts';
 import fs from 'fs';
 import path from 'path';
 import chalk from 'chalk';

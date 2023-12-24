@@ -1,21 +1,20 @@
-import '../loadenv';
-import { closeKnex, openKnex } from '../util/db';
+import '../loadenv.ts';
+import { closeKnex, openKnex } from '../util/db.ts';
 import commandLineArgs, { OptionDefinition as ArgsOptionDefinition } from 'command-line-args';
 import commandLineUsage, { OptionDefinition as UsageOptionDefinition } from 'command-line-usage';
-import { getGenshinDataFilePath, getStarRailDataFilePath, getZenlessDataFilePath } from '../loadenv';
-import { humanTiming, timeConvert } from '../../shared/util/genericUtil';
+import { getGenshinDataFilePath, getStarRailDataFilePath, getZenlessDataFilePath } from '../loadenv.ts';
+import { humanTiming, timeConvert } from '../../shared/util/genericUtil.ts';
 import { promises as fs } from 'fs';
 import ora from 'ora';
 import { pathToFileURL } from 'url';
 import chalk from 'chalk';
-import { resolveObjectPath } from '../../shared/util/arrayUtil';
-import { isStringBlank, ucFirst } from '../../shared/util/stringUtil';
-import { LangCode } from '../../shared/types/lang-types';
-import { genshinSchema } from './genshin/genshin.schema';
+import { resolveObjectPath } from '../../shared/util/arrayUtil.ts';
+import { isStringBlank, ucFirst } from '../../shared/util/stringUtil.ts';
+import { LangCode } from '../../shared/types/lang-types.ts';
+import { genshinSchema } from './genshin/genshin.schema.ts';
 import { Knex } from 'knex';
-import { starRailSchema } from './hsr/hsr.schema';
-import { zenlessSchema } from './zenless/zenless.schema';
-
+import { starRailSchema } from './hsr/hsr.schema.ts';
+import { zenlessSchema } from './zenless/zenless.schema.ts';
 export type SchemaTableSet = {[tableName: string]: SchemaTable};
 
 export type SchemaTable = {

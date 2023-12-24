@@ -1,7 +1,6 @@
 import { Request, Response, Router } from 'express';
-import { create } from '../../../routing/router';
+import { create } from '../../../routing/router.ts';
 import VuePageTest from '../../../components/VuePageTest.vue';
-
 export default async function(): Promise<Router> {
   const router: Router = create();
 

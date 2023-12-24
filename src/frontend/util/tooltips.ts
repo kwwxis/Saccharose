@@ -1,7 +1,6 @@
 import { default as tippy, Instance as Tippy, Props as TippyProps } from 'tippy.js';
 import JSON5 from 'json5';
-import { toBoolean } from '../../shared/util/genericUtil';
-
+import { toBoolean } from '../../shared/util/genericUtil.ts';
 export function enableTippy(el: HTMLElement, props: Partial<TippyProps> = {}): Tippy<TippyProps> {
   if (!el || !props.content) {
     return undefined;

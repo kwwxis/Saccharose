@@ -9,29 +9,27 @@ import 'brace/mode/html';
 import 'brace/mode/css';
 import 'brace/mode/json';
 import 'brace/mode/plain_text';
-import './mode/aceWikiMode';
+import './mode/aceWikiMode.ts';
 import './mode/aceWikitext.scss';
 import 'brace/theme/textmate';
 import 'brace/theme/tomorrow_night';
 import 'brace/ext/static_highlight';
 import 'brace/ext/searchbox';
 import './css/static_highlight.scss';
-
 // Other imports
 // --------------------------------------------------------------------------------------------------------------
 import Cookies from 'js-cookie';
-import { toBoolean } from '../../../shared/util/genericUtil';
-import { escapeHtml } from '../../../shared/util/stringUtil';
-import { Marker, MarkerAggregate } from '../../../shared/util/highlightMarker';
-import { uuidv4 } from '../../../shared/util/uuidv4';
-import { copyTextToClipboard, frag1, getElementOffset, getInputValue, hasSelection } from '../domutil';
-import { createAceDomClassWatcher } from './wikitextListeners';
-import { SITE_MODE_WIKI_DOMAIN } from '../../siteMode';
-import { toastError } from '../toaster';
-import { CommonLineId, parseCommonLineIds } from '../../../shared/types/common-types';
-import { applyWikitextClickableLinks } from './listeners/wikitextClickableLinks';
-import { applyWikitextLineActions } from './listeners/wikitextLineActions';
-
+import { toBoolean } from '../../../shared/util/genericUtil.ts';
+import { escapeHtml } from '../../../shared/util/stringUtil.ts';
+import { Marker, MarkerAggregate } from '../../../shared/util/highlightMarker.ts';
+import { uuidv4 } from '../../../shared/util/uuidv4.ts';
+import { copyTextToClipboard, frag1, getElementOffset, getInputValue, hasSelection } from '../domutil.ts';
+import { createAceDomClassWatcher } from './wikitextListeners.ts';
+import { SITE_MODE_WIKI_DOMAIN } from '../../siteMode.ts';
+import { toastError } from '../toaster.ts';
+import { CommonLineId, parseCommonLineIds } from '../../../shared/types/common-types.ts';
+import { applyWikitextClickableLinks } from './listeners/wikitextClickableLinks.ts';
+import { applyWikitextLineActions } from './listeners/wikitextLineActions.ts';
 // region Create wikitext editor
 // --------------------------------------------------------------------------------------------------------------
 export const aceEditors: ace.Editor[] = [];
@@ -41,7 +39,9 @@ export function getWikitextEditor(editorElementId: string|HTMLElement): ace.Edit
   const editorEl: HTMLElement = typeof editorElementId === 'string'
     ? document.getElementById(editorElementId)
     : editorElementId;
-
+  if (!editorEl) {
+    return undefined;
+  }
   const editorId = editorEl.getAttribute('data-editor-id');
   return aceEditorsById[editorId];
 }
@@ -68,7 +68,7 @@ export function createWikitextEditor(editorElementId: string|HTMLElement): ace.E
     behavioursEnabled: false,
     wrapBehavioursEnabled: true,
     wrap: true,
-    scrollPastEnd: 1,
+    scrollPastEnd: true
   });
 
   editor.commands.addCommand({
@@ -391,3 +391,4 @@ export function highlightReplace(original: HTMLElement, mode: string,
 (<any> window).highlightWikitextReplace = highlightWikitextReplace;
 
 (<any> window).aceEditors = aceEditors;
+(<any> window).getWikitextEditor = getWikitextEditor;

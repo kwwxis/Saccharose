@@ -1,6 +1,5 @@
-import { MwTextNode, MwEOL } from '../mwTypes';
-import { MwParseModule } from '../mwParseModule';
-
+import { MwTextNode, MwEOL } from '../mwTypes.ts';
+import { MwParseModule } from '../mwParseModule.ts';
 /**
  * The plaintext module is always last within the parse context, and it *always* accepts the offer.
  * This means that if none of the other modules accepted the offer, then the offered character will be assumed to

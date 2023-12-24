@@ -1,9 +1,8 @@
-import { create } from '../../../routing/router';
+import { create } from '../../../routing/router.ts';
 import { Request, Response, Router } from 'express';
-import { toInt } from '../../../../shared/util/numberUtil';
-import { getStarRailControl } from '../../../domain/hsr/starRailControl';
-import { fetchVoiceAtlasByAvatarId } from '../../../domain/hsr/character/fetchVoiceAtlas';
-
+import { toInt } from '../../../../shared/util/numberUtil.ts';
+import { getStarRailControl } from '../../../domain/hsr/starRailControl.ts';
+import { fetchVoiceAtlasByAvatarId } from '../../../domain/hsr/character/fetchVoiceAtlas.ts';
 const router: Router = create();
 
 router.endpoint('/character/voice-atlas', {

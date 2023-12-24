@@ -3,7 +3,7 @@ import {
   FurnitureMakeExcelConfigData,
   FurnitureSuiteExcelConfigData,
   HomeWorldFurnitureExcelConfigData,
-} from './homeworld-types';
+} from './homeworld-types.ts';
 
 export const ADVENTURE_EXP_ID = 102;
 export const PRIMOGEM_ID = 201;

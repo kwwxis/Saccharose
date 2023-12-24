@@ -1,7 +1,7 @@
-import { create } from '../../../routing/router';
-import { getGenshinControl } from '../../../domain/genshin/genshinControl';
-import { toInt } from '../../../../shared/util/numberUtil';
-import { fetchCharacterFettersByAvatarId } from '../../../domain/genshin/character/fetchCharacterFetters';
+import { create } from '../../../routing/router.ts';
+import { getGenshinControl } from '../../../domain/genshin/genshinControl.ts';
+import { toInt } from '../../../../shared/util/numberUtil.ts';
+import { fetchCharacterFettersByAvatarId } from '../../../domain/genshin/character/fetchCharacterFetters.ts';
 import { Request, Response, Router } from 'express';
 
 const router: Router = create();

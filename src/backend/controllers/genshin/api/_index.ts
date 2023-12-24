@@ -1,8 +1,8 @@
-import BasicResources from './BasicResources';
-import DialogueResources from './DialogueResources';
-import ItemResources from './ArchiveResources';
-import CharacterResources from './CharacterResources';
-import MediaResources from './MediaResources';
+import BasicResources from './BasicResources.ts';
+import DialogueResources from './DialogueResources.ts';
+import ItemResources from './ArchiveResources.ts';
+import CharacterResources from './CharacterResources.ts';
+import MediaResources from './MediaResources.ts';
 import { Router } from 'express';
 
 export default function(router: Router): void {

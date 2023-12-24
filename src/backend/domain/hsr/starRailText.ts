@@ -1,14 +1,13 @@
-import { LangCode } from '../../../shared/types/lang-types';
+import { LangCode } from '../../../shared/types/lang-types.ts';
 import {
   genericNormText,
   mergeMcTemplate,
   NormTextOptions,
   postProcessBoldItalic,
-} from '../generic/genericNormalizers';
-import { TextJoinConfig, TextJoinItem } from '../../../shared/types/hsr/hsr-misc-types';
-import { getStarRailControl } from './starRailControl';
-import { logInitData } from '../../util/logger';
-
+} from '../generic/genericNormalizers.ts';
+import { TextJoinConfig, TextJoinItem } from '../../../shared/types/hsr/hsr-misc-types.ts';
+import { getStarRailControl } from './starRailControl.ts';
+import { logInitData } from '../../util/logger.ts';
 function __trailblazerPlaceholder(langCode: LangCode = 'EN', degender: boolean = false): string {
   switch (langCode) {
     case 'CH':

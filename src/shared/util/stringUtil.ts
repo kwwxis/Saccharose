@@ -1,6 +1,5 @@
-import { isUnset } from './genericUtil';
-import { LANG_CODE_TO_LOCALE, LangCode } from '../types/lang-types';
-
+import { isUnset } from './genericUtil.ts';
+import { LANG_CODE_TO_LOCALE, LangCode } from '../types/lang-types.ts';
 export function toString(x) {
   if (typeof x === 'undefined' || x === null || typeof x === 'string') {
     return x;
@@ -614,4 +613,22 @@ export function takeFromEndUntilLastWord(segments: Intl.SegmentData[]): Intl.Seg
     }
   }
   return segments.splice(-i);
+}
+
+export function toParam(x: any): string {
+  if (isUnset(x)) {
+    return '';
+  }
+  x = String(x);
+  if (typeof x === 'string') {
+    return x.replace(/ /g, '_');
+  }
+  return x;
+}
+
+export function paramCmp(a: any, b: any) {
+  if (a === b) {
+    return true;
+  }
+  return String(a).trim().toLowerCase().replace(/_/g, ' ') === String(b).trim().toLowerCase().replace(/_/g, ' ');
 }

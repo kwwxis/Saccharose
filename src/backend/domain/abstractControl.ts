@@ -1,6 +1,6 @@
 import { Knex } from 'knex';
-import { DEFAULT_SEARCH_MODE, IdUsages, IdUsagesItem, SEARCH_MODES, SearchMode } from '../util/searchUtil';
-import { openKnex, SaccharoseDb } from '../util/db';
+import { DEFAULT_SEARCH_MODE, IdUsages, IdUsagesItem, SEARCH_MODES, SearchMode } from '../util/searchUtil.ts';
+import { openKnex, SaccharoseDb } from '../util/db.ts';
 import {
   CLD2_TO_LANG_CODE,
   DEFAULT_LANG,
@@ -9,19 +9,19 @@ import {
   LangCodeMap, LangSuggest,
   NON_SPACE_DELIMITED_LANG_CODES, PlainLineMapItem,
   TextMapHash, TextMapSearchResult,
-} from '../../shared/types/lang-types';
+} from '../../shared/types/lang-types.ts';
 import {
   normalizeRawJson,
   normalizeRawJsonKey,
   schemaForDbName,
   SchemaTable,
   SchemaTableSet,
-} from '../importer/import_db';
+} from '../importer/import_db.ts';
 import fs, { promises as fsp } from 'fs';
-import { getPlainTextMapRelPath, getTextIndexRelPath } from '../loadenv';
+import { getPlainTextMapRelPath, getTextIndexRelPath } from '../loadenv.ts';
 import path, { basename } from 'path';
-import { escapeRegExp, isStringBlank, titleCase, ucFirst } from '../../shared/util/stringUtil';
-import { isInt, maybeInt, toInt } from '../../shared/util/numberUtil';
+import { escapeRegExp, isStringBlank, titleCase, ucFirst } from '../../shared/util/stringUtil.ts';
+import { isInt, maybeInt, toInt } from '../../shared/util/numberUtil.ts';
 import {
   getLineNumberForLineText,
   grep,
@@ -29,14 +29,13 @@ import {
   langDetect,
   LangDetectResult,
   ShellFlags,
-} from '../util/shellutil';
-import { NormTextOptions } from './generic/genericNormalizers';
-import { ExtractScalar } from '../../shared/types/utility-types';
-import { ArrayStream } from '../../shared/util/arrayUtil';
+} from '../util/shellutil.ts';
+import { NormTextOptions } from './generic/genericNormalizers.ts';
+import { ExtractScalar } from '../../shared/types/utility-types.ts';
+import { ArrayStream } from '../../shared/util/arrayUtil.ts';
 import { Request } from 'express';
-import { Marker } from '../../shared/util/highlightMarker';
-import { defaultMap } from '../../shared/util/genericUtil';
-
+import { Marker } from '../../shared/util/highlightMarker.ts';
+import { defaultMap } from '../../shared/util/genericUtil.ts';
 export abstract class AbstractControlState {
   public request: Request = null;
 

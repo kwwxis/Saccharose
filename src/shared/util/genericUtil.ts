@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { arrayContains, isArrayLike, isIterable } from './arrayUtil';
+import { arrayContains, isArrayLike, isIterable } from './arrayUtil.ts';
 import cloneDeep from 'clone-deep';
 
 export type Type<T> = { new(...args: any[]): T };

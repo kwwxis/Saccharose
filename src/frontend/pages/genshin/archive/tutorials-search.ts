@@ -1,9 +1,8 @@
-import { genshinEndpoints } from '../../../endpoints';
-import { pageMatch } from '../../../pageMatch';
-import { startGenericSearchPageListeners } from '../../genericSearchPage';
-import { startListeners } from '../../../util/eventLoader';
-import { fileFormatListeners } from '../../../initialListeners';
-
+import { genshinEndpoints } from '../../../endpoints.ts';
+import { pageMatch } from '../../../pageMatch.ts';
+import { startGenericSearchPageListeners } from '../../genericSearchPage.ts';
+import { startListeners } from '../../../util/eventLoader.ts';
+import { fileFormatListeners } from '../../../initialListeners.ts';
 pageMatch('pages/genshin/archive/tutorials-search', () => {
   startGenericSearchPageListeners({
     endpoint: genshinEndpoints.searchTutorials,

@@ -1,10 +1,10 @@
-import { create } from '../../../routing/router';
-import { getGenshinControl } from '../../../domain/genshin/genshinControl';
+import { create } from '../../../routing/router.ts';
+import { getGenshinControl } from '../../../domain/genshin/genshinControl.ts';
 import {
   handleIdUsagesEndpoint,
   handleOlEndpoint,
   handleTextMapSearchEndpoint,
-} from '../../generic/api/basicResourceResources';
+} from '../../generic/api/basicResourceResources.ts';
 import { NextFunction, Request, Response, Router } from 'express';
 
 const router: Router = create();

@@ -1,11 +1,10 @@
-import { genshinEndpoints, SaccharoseApiEndpoint, starRailEndpoints, zenlessEndpoints } from '../../../endpoints';
-import { pageMatch } from '../../../pageMatch';
-import { GenericSearchPageHandle, startGenericSearchPageListeners } from '../../genericSearchPage';
-import { toInt } from '../../../../shared/util/numberUtil';
-import { frag } from '../../../util/domutil';
-import { startListeners } from '../../../util/eventLoader';
-import { highlightReplace, highlightWikitextReplace } from '../../../util/ace/wikitextEditor';
-
+import { genshinEndpoints, SaccharoseApiEndpoint, starRailEndpoints, zenlessEndpoints } from '../../../endpoints.ts';
+import { pageMatch } from '../../../pageMatch.ts';
+import { GenericSearchPageHandle, startGenericSearchPageListeners } from '../../genericSearchPage.ts';
+import { toInt } from '../../../../shared/util/numberUtil.ts';
+import { frag } from '../../../util/domutil.ts';
+import { startListeners } from '../../../util/eventLoader.ts';
+import { highlightReplace, highlightWikitextReplace } from '../../../util/ace/wikitextEditor.ts';
 pageMatch('pages/generic/basic/textmap', () => {
   let handle: GenericSearchPageHandle;
 

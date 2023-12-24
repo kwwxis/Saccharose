@@ -1,14 +1,13 @@
-import { Listener, startListeners } from '../../../util/eventLoader';
+import { Listener, startListeners } from '../../../util/eventLoader.ts';
 import Cookies from 'js-cookie';
-import { flashTippy } from '../../../util/tooltips';
+import { flashTippy } from '../../../util/tooltips.ts';
 import {
   errorHtmlWrap,
   getOLEndpoint,
-} from '../../../endpoints';
-import { pageMatch } from '../../../pageMatch';
-import { HttpError } from '../../../../shared/util/httpError';
-import { pasteFromClipboard } from '../../../util/domutil';
-
+} from '../../../endpoints.ts';
+import { pageMatch } from '../../../pageMatch.ts';
+import { HttpError } from '../../../../shared/util/httpError.ts';
+import { pasteFromClipboard } from '../../../util/domutil.ts';
 pageMatch('pages/generic/basic/olgen', () => {
   const {endpoint, tlRmDisabled, neverDefaultHidden} = getOLEndpoint();
 

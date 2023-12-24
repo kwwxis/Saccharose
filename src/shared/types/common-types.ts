@@ -1,9 +1,8 @@
-import { LangCodeMap, TextMapHash } from './lang-types';
-import { AvatarExcelConfigData } from './genshin/avatar-types';
-import { AvatarConfig, VoiceAtlas, VoiceAtlasGroup } from './hsr/hsr-avatar-types';
-import { FetterExcelConfigData, FetterGroup } from './genshin/fetter-types';
-import { toInt } from '../util/numberUtil';
-
+import { LangCodeMap, TextMapHash } from './lang-types.ts';
+import { AvatarExcelConfigData } from './genshin/avatar-types.ts';
+import { AvatarConfig, VoiceAtlas, VoiceAtlasGroup } from './hsr/hsr-avatar-types.ts';
+import { FetterExcelConfigData, FetterGroup } from './genshin/fetter-types.ts';
+import { toInt } from '../util/numberUtil.ts';
 // region Common Avatar
 // --------------------------------------------------------------------------------------------------------------
 export interface CommonAvatar<T = any> {

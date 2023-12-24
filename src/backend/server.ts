@@ -1,13 +1,12 @@
-import './loadenv.js';
-import sslcreds from './sslcreds';
+import './loadenv.ts';
+import sslcreds from './sslcreds.ts';
 import express from 'express';
 import spdy from 'spdy';
 import vhost from 'vhost';
-import { appInit } from './app';
-import { toBoolean } from '../shared/util/genericUtil';
-import { toInt } from '../shared/util/numberUtil';
-import { logInit } from './util/logger';
-
+import { appInit } from './app.ts';
+import { toBoolean } from '../shared/util/genericUtil.ts';
+import { toInt } from '../shared/util/numberUtil.ts';
+import { logInit } from './util/logger.ts';
 // You shouldn't need to change anything in this file.
 // Application init code should go in `app.ts`, not here.
 

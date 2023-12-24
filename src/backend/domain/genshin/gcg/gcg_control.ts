@@ -1,5 +1,5 @@
-import '../../../loadenv';
-import { GenshinControl, getGenshinControl, loadGenshinVoiceItems } from '../genshinControl';
+import '../../../loadenv.ts';
+import { GenshinControl, getGenshinControl, loadGenshinVoiceItems } from '../genshinControl.ts';
 import {
   GCGCardExcelConfigData, GCGCardFaceExcelConfigData, GCGCardViewExcelConfigData,
   GCGChallengeExcelConfigData,
@@ -18,29 +18,28 @@ import {
   GCGTalkDetailIconExcelConfigData,
   GCGTalkExcelConfigData,
   GcgWorldWorkTimeExcelConfigData, standardElementCodeToGcgKeywordId,
-} from '../../../../shared/types/genshin/gcg-types';
-import { DialogueSectionResult, TalkConfigAccumulator, talkConfigGenerate } from '../dialogue/dialogue_util';
+} from '../../../../shared/types/genshin/gcg-types.ts';
+import { DialogueSectionResult, TalkConfigAccumulator, talkConfigGenerate } from '../dialogue/dialogue_util.ts';
 import { pathToFileURL } from 'url';
-import { closeKnex } from '../../../util/db';
+import { closeKnex } from '../../../util/db.ts';
 import fs from 'fs';
-import { getGenshinDataFilePath, IMAGEDIR_GENSHIN_EXT } from '../../../loadenv';
-import { SchemaTable } from '../../../importer/import_db';
-import { formatTime } from '../../../../shared/types/genshin/general-types';
-import { genshinSchema } from '../../../importer/genshin/genshin.schema';
-import { LangCode } from '../../../../shared/types/lang-types';
-import { isInt, toInt } from '../../../../shared/util/numberUtil';
-import { replaceAsync } from '../../../../shared/util/stringUtil';
-import { isUnset } from '../../../../shared/util/genericUtil';
-import { findFiles } from '../../../util/shellutil';
+import { getGenshinDataFilePath, IMAGEDIR_GENSHIN_EXT } from '../../../loadenv.ts';
+import { SchemaTable } from '../../../importer/import_db.ts';
+import { formatTime } from '../../../../shared/types/genshin/general-types.ts';
+import { genshinSchema } from '../../../importer/genshin/genshin.schema.ts';
+import { LangCode } from '../../../../shared/types/lang-types.ts';
+import { isInt, toInt } from '../../../../shared/util/numberUtil.ts';
+import { replaceAsync } from '../../../../shared/util/stringUtil.ts';
+import { isUnset } from '../../../../shared/util/genericUtil.ts';
+import { findFiles } from '../../../util/shellutil.ts';
 import path from 'path';
-import { cached, cachedSync } from '../../../util/cache';
-import { standardElementCode } from '../../../../shared/types/genshin/manual-text-map';
-import { html2quotes, unnestHtmlTags } from '../../../../shared/mediawiki/mwQuotes';
-import { loadGenshinTextSupportingData } from '../genshinText';
-import { dialogueGenerateByNpc, NpcDialogueResult } from '../dialogue/basic_dialogue_generator';
+import { cached, cachedSync } from '../../../util/cache.ts';
+import { standardElementCode } from '../../../../shared/types/genshin/manual-text-map.ts';
+import { html2quotes, unnestHtmlTags } from '../../../../shared/mediawiki/mwQuotes.ts';
+import { loadGenshinTextSupportingData } from '../genshinText.ts';
+import { dialogueGenerateByNpc, NpcDialogueResult } from '../dialogue/basic_dialogue_generator.ts';
 import * as console from 'console';
-import { mapBy } from '../../../../shared/util/arrayUtil';
-
+import { mapBy } from '../../../../shared/util/arrayUtil.ts';
 // noinspection JSUnusedGlobalSymbols
 export class GCGControl {
 

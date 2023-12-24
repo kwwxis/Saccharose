@@ -1,6 +1,5 @@
-import { isInt } from './numberUtil';
-import { escapeRegExp } from './stringUtil';
-
+import { isInt } from './numberUtil.ts';
+import { escapeRegExp } from './stringUtil.ts';
 /**
  * Aggregate of all markers in a single line.
  */

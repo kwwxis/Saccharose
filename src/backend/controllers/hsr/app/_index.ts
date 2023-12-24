@@ -1,8 +1,7 @@
-import { create } from '../../../routing/router';
-import BasicRouter from './StarRailBasicRouter';
+import { create } from '../../../routing/router.ts';
+import BasicRouter from './StarRailBasicRouter.ts';
 import { Router } from 'express';
-import StarRailCharacterRouter from './StarRailCharacterRouter';
-
+import StarRailCharacterRouter from './StarRailCharacterRouter.ts';
 export default async function(): Promise<Router> {
   const router: Router = create();
 

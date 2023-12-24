@@ -1,5 +1,4 @@
-import { plainLineMapSchema, textMapSchema } from '../import_db';
-
+import { plainLineMapSchema, textMapSchema } from '../import_db.ts';
 const hashType = 'text';
 
 export const zenlessSchema = {

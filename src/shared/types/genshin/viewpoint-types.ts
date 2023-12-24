@@ -1,5 +1,4 @@
-import { WorldAreaConfigData } from './general-types';
-
+import { WorldAreaConfigData } from './general-types.ts';
 export interface ViewCodexExcelConfigData {
   Id: number,
   GadgetId: number,

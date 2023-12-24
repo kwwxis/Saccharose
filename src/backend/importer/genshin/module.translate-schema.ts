@@ -1,9 +1,9 @@
-import { getGenshinDataFilePath } from '../../loadenv';
+import { getGenshinDataFilePath } from '../../loadenv.ts';
 import fs, { promises as fsp } from 'fs';
 import path from 'path';
-import { normalizeRawJson } from '../import_db';
-import { genshinSchema } from './genshin.schema';
-import { translateSchema } from '../util/translate_schema';
+import { normalizeRawJson } from '../import_db.ts';
+import { genshinSchema } from './genshin.schema.ts';
+import { translateSchema } from '../util/translate_schema.ts';
 import chalk from 'chalk';
 
 export async function importTranslateSchema() {

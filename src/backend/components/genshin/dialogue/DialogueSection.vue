@@ -103,11 +103,10 @@
 </template>
 
 <script setup lang="ts">
-import { DialogueSectionResult } from '../../../domain/genshin/dialogue/dialogue_util';
+import { DialogueSectionResult } from '../../../domain/genshin/dialogue/dialogue_util.ts';
 import Wikitext from '../../utility/Wikitext.vue';
-import { icon } from '../../../routing/viewUtilities';
-import { uuidv4 } from '../../../../shared/util/uuidv4';
-
+import { icon } from '../../../routing/viewUtilities.ts';
+import { uuidv4 } from '../../../../shared/util/uuidv4.ts';
 let customStyle: {[prop: string]: string} = {};
 
 const props = defineProps<{

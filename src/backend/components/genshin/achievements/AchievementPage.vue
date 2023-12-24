@@ -67,10 +67,9 @@
 <script setup lang="ts">
 import AchievementTriggerDesc from './AchievementTriggerDesc.vue';
 import Wikitext from '../../utility/Wikitext.vue';
-import { AchievementExcelConfigData } from '../../../../shared/types/genshin/achievement-types';
-import { toParam } from '../../../routing/viewUtilities';
-import { getTrace } from '../../../middleware/request/tracer';
-
+import { AchievementExcelConfigData } from '../../../../shared/types/genshin/achievement-types.ts';
+import { getTrace } from '../../../middleware/request/tracer.ts';
+import { toParam } from '../../../../shared/util/stringUtil.ts';
 const { normGenshinText } = getTrace();
 
 defineProps<{
