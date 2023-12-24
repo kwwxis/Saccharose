@@ -14,7 +14,7 @@ export const GENSHIN_I18N_MAP = {
     RU: ``,
     TH: ``,
     TR: ``,
-    VI: ``,
+    VI: `Nói chuyện với {npcName}`,
   },
   ReturnToDialogueOption: <LangCodeMap> {
     CH: ``,
@@ -30,7 +30,7 @@ export const GENSHIN_I18N_MAP = {
     RU: ``,
     TH: ``,
     TR: ``,
-    VI: ``,
+    VI: `Lời thoại trở về điểm lựa chọn trước`,
   },
   CinematicPlays: <LangCodeMap> {
     CH: ``,
@@ -46,7 +46,7 @@ export const GENSHIN_I18N_MAP = {
     RU: ``,
     TH: ``,
     TR: ``,
-    VI: ``,
+    VI: `Hoạt cảnh bắt đầu`,
   },
   CinematicEnds: <LangCodeMap> {
     CH: ``,
@@ -62,7 +62,7 @@ export const GENSHIN_I18N_MAP = {
     RU: ``,
     TH: ``,
     TR: ``,
-    VI: ``,
+    VI: `Hoạt cảnh kết thúc`,
   },
   UnlocksAtFriendshipLevel: <LangCodeMap> {
     CH: ``,
@@ -78,7 +78,7 @@ export const GENSHIN_I18N_MAP = {
     RU: ``,
     TH: ``,
     TR: ``,
-    VI: ``,
+    VI: `Mở khóa khi Độ Yêu Thích đạt Cấp {level}`,
   },
 
   TCG_OpenMatchInterface: <LangCodeMap> {
@@ -95,7 +95,7 @@ export const GENSHIN_I18N_MAP = {
     RU: ``,
     TH: ``,
     TR: ``,
-    VI: ``,
+    VI: `Mở giao diện khiêu chiến Thất Thánh Triệu Hồi`,
   },
   TCG_OpenDeckInterface: <LangCodeMap> {
     CH: ``,
@@ -111,7 +111,7 @@ export const GENSHIN_I18N_MAP = {
     RU: ``,
     TH: ``,
     TR: ``,
-    VI: ``,
+    VI: `Mở giao diện hộp bài Thất Thánh Triệu Hồi`,
   },
   TCG_IfPlayerWinsMatch: <LangCodeMap> {
     CH: ``,
@@ -127,7 +127,7 @@ export const GENSHIN_I18N_MAP = {
     RU: ``,
     TH: ``,
     TR: ``,
-    VI: ``,
+    VI: `Nếu người chơi thắng trận đấu`,
   },
   TCG_IfPlayerLosesMatch: <LangCodeMap> {
     CH: ``,
@@ -143,7 +143,7 @@ export const GENSHIN_I18N_MAP = {
     RU: ``,
     TH: ``,
     TR: ``,
-    VI: ``,
+    VI: `Nếu người chơi thua trận đấu`,
   },
   TCG_WhenEnemyHealthDrops: <LangCodeMap> {
     CH: ``,
@@ -159,7 +159,7 @@ export const GENSHIN_I18N_MAP = {
     RU: ``,
     TH: ``,
     TR: ``,
-    VI: ``,
+    VI: `Khi HP thẻ {card} của {name} hạ xuống {hp} hoặc thấp hơn`,
   },
   TCG_WhenOneEnemyCardDefeated: <LangCodeMap> {
     CH: ``,
@@ -175,7 +175,7 @@ export const GENSHIN_I18N_MAP = {
     RU: ``,
     TH: ``,
     TR: ``,
-    VI: ``,
+    VI: `Khi người chơi đánh bại một Thẻ Nhân Vật của {name}`,
   },
   TCG_WhenTwoEnemyCardsDefeated: <LangCodeMap> {
     CH: ``,
@@ -191,7 +191,7 @@ export const GENSHIN_I18N_MAP = {
     RU: ``,
     TH: ``,
     TR: ``,
-    VI: ``,
+    VI: `Khi người chơi đánh bại hai Thẻ Nhân Vật của {name}`,
   },
   TCG_WhenOnePlayerCardDefeated: <LangCodeMap> {
     CH: ``,
@@ -207,7 +207,7 @@ export const GENSHIN_I18N_MAP = {
     RU: ``,
     TH: ``,
     TR: ``,
-    VI: ``,
+    VI: `Khi {name} đánh bại một Thẻ Nhân Vật của người chơi`,
   },
   TCG_WhenEnemyUsesBurst: <LangCodeMap> {
     CH: ``,
@@ -223,7 +223,7 @@ export const GENSHIN_I18N_MAP = {
     RU: ``,
     TH: ``,
     TR: ``,
-    VI: ``,
+    VI: `Khi {name} sử dụng Kỹ Năng Nộ`,
   }
 }
 
