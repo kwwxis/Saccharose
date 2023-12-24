@@ -4,11 +4,6 @@
     "src/backend",
     "src/shared"
   ],
-  "ignore": [
-    "*.vue.ts",
-    "*.vue.script.ts",
-    "*.vue.template.ts"
-  ],
-  "exec": "node --no-warnings=ExperimentalWarning --loader ts-node/esm ./src/pipeline/vue-sfc-compile.ts --compile && etsc --config=etsc.config.cjs && node --no-warnings=ExperimentalWarning --loader ts-node/esm ./src/pipeline/vue-sfc-compile.ts --clean && node ./dist/backend/server.js",
+  "exec": "node --import=node-esm-loader/register ./src/backend/server.ts",
   "ext": "ts,tsx,js,json,vue,ejs"
 }
