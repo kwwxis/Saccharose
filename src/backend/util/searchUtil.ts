@@ -1,4 +1,5 @@
 import { escapeRegExp } from '../../shared/util/stringUtil.ts';
+
 export type IdUsages = { [fileName: string]: IdUsagesItem[] };
 export type IdUsagesItem = { field: string, originalField: string, lineNumber: number, refObject?: any };
 export type SearchMode = 'W' | 'WI' | 'C' | 'CI' | 'R' | 'RI';

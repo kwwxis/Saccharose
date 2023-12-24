@@ -1,4 +1,5 @@
 import { isEmpty } from '../../shared/util/genericUtil.ts';
+
 export class MetaPropValue {
   value: string;
   link?: string;

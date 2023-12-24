@@ -10,6 +10,7 @@ import { AbstractControl } from '../../abstractControl.ts';
 import { SbOut } from '../../../../shared/util/stringUtil.ts';
 import { isUnset } from '../../../../shared/util/genericUtil.ts';
 import { closeKnex } from '../../../util/db.ts';
+
 async function ol_gen_internal(ctrl: AbstractControl,
                                textMapHash: TextMapHash,
                                opts: OLGenOptions): Promise<{

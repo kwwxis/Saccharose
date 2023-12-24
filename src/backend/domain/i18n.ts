@@ -1,4 +1,5 @@
 import { LangCode, LangCodeMap } from '../../shared/types/lang-types.ts';
+
 export const GENSHIN_I18N_MAP = {
   TalkToNpc: <LangCodeMap> {
     CH: ``,

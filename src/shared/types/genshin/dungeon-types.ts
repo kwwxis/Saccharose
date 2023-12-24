@@ -1,4 +1,5 @@
 import { ElementType } from './manual-text-map.ts';
+
 export type DungeonType =
   'DUNGEON_ACTIVITY'                  |
   'DUNGEON_BIGWORLD_MIRROR'           |

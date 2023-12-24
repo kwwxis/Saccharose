@@ -23,6 +23,7 @@ import { LangCode, TextMapHash } from '../../../../shared/types/lang-types.ts';
 import { _ } from 'ag-grid-community';
 import { defaultMap } from '../../../../shared/util/genericUtil.ts';
 import { reminderGenerateFromSpeakerTextMapHashes } from './reminder_generator.ts';
+
 // region NPC Filtering for Single Branch Dialogue
 // --------------------------------------------------------------------------------------------------------------
 const lc = (s: string) => s ? s.toLowerCase() : s;

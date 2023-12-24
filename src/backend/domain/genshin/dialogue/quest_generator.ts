@@ -26,6 +26,7 @@ import { dialogueCompareApply, SimilarityGroups } from './dialogue_compare.ts';
 import { custom } from '../../../util/logger.ts';
 import { grepIdStartsWith } from '../../../util/shellutil.ts';
 import { RAW_MANUAL_TEXTMAP_ID_PROP } from '../../../importer/genshin/genshin.schema.ts';
+
 export class QuestGenerateResult {
   mainQuest: MainQuestExcelConfigData = null;
   questTitle: string;

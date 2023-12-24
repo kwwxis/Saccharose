@@ -8,6 +8,7 @@ import {
 import { TextJoinConfig, TextJoinItem } from '../../../shared/types/hsr/hsr-misc-types.ts';
 import { getStarRailControl } from './starRailControl.ts';
 import { logInitData } from '../../util/logger.ts';
+
 function __trailblazerPlaceholder(langCode: LangCode = 'EN', degender: boolean = false): string {
   switch (langCode) {
     case 'CH':

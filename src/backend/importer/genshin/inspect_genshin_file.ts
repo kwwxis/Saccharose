@@ -5,6 +5,7 @@ import { inspectDataFile, InspectOpt } from '../util/inspect_file_util.ts';
 import { LoadingTipsExcelConfigData } from '../../../shared/types/genshin/loading-types.ts';
 import { HomeWorldFurnitureExcelConfigData } from '../../../shared/types/genshin/homeworld-types.ts';
 import { ReminderExcelConfigData } from '../../../shared/types/genshin/dialogue-types.ts';
+
 const excel = (file: string) => `./ExcelBinOutput/${file}.json`;
 
 const presets = {

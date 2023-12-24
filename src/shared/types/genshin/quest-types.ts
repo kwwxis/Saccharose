@@ -1,6 +1,7 @@
 import { DialogExcelConfigData, ManualTextMapConfigData, TalkExcelConfigData } from './dialogue-types.ts';
 import { ConfigCondition } from './general-types.ts';
 import { RewardExcelConfigData } from './material-types.ts';
+
 export type QuestType = 'AQ' | 'SQ' | 'EQ' | 'WQ';
 export type MapByQuestType<T> = {
   AQ: T,

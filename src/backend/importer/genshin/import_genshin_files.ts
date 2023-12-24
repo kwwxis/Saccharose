@@ -16,6 +16,7 @@ import { importSearchIndex } from './module.search-index.ts';
 import { generateQuestDialogExcels } from './module.make-excels.ts';
 import { loadInterActionQD } from './module.interaction.ts';
 import { createChangelog } from './module.changelog.ts';
+
 export async function importGenshinFilesCli() {
   const optionDefinitions: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
     {name: 'normalize', type: Boolean, description: 'Normalizes the JSON files.'},

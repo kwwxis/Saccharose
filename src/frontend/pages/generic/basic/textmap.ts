@@ -5,27 +5,28 @@ import { toInt } from '../../../../shared/util/numberUtil.ts';
 import { frag } from '../../../util/domutil.ts';
 import { startListeners } from '../../../util/eventLoader.ts';
 import { highlightReplace, highlightWikitextReplace } from '../../../util/ace/wikitextEditor.ts';
+import SiteMode from '../../../siteMode.ts';
 
 pageMatch('pages/generic/basic/textmap', () => {
   let handle: GenericSearchPageHandle;
 
   let endpoint: SaccharoseApiEndpoint<any>;
 
-  if (pageMatch.isGenshin) {
+  if (SiteMode.isGenshin) {
     endpoint = genshinEndpoints.searchTextMap;
-  } else if (pageMatch.isStarRail) {
+  } else if (SiteMode.isStarRail) {
     endpoint = starRailEndpoints.searchTextMap;
-  } else if (pageMatch.isZenless) {
+  } else if (SiteMode.isZenless) {
     endpoint = zenlessEndpoints.searchTextMap;
   }
 
   let idUsagesEndpoint: SaccharoseApiEndpoint<any>;
 
-  if (pageMatch.isGenshin) {
+  if (SiteMode.isGenshin) {
     idUsagesEndpoint = genshinEndpoints.getIdUsages;
-  } else if (pageMatch.isStarRail) {
+  } else if (SiteMode.isStarRail) {
     idUsagesEndpoint = starRailEndpoints.getIdUsages;
-  } else if (pageMatch.isZenless) {
+  } else if (SiteMode.isZenless) {
     idUsagesEndpoint = zenlessEndpoints.getIdUsages;
   }
 

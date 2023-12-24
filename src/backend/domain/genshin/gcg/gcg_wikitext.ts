@@ -5,6 +5,7 @@ import {
 } from '../../../../shared/types/genshin/gcg-types.ts';
 import { SbOut } from '../../../../shared/util/stringUtil.ts';
 import { ol_gen_from_id } from '../../generic/basic/OLgen.ts';
+
 // Cards
 // --------------------------------------------------------------------------------------------------------------
 

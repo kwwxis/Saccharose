@@ -1,6 +1,7 @@
 import { MwParseModule } from '../mwParseModule.ts';
 import { MwHeading, MwSection } from '../mwTypes.ts';
 import { mwParse } from '../mwParse.ts';
+
 /**
  * Parse module for sections.
  *

@@ -8,6 +8,7 @@ import { Request, Response } from 'express';
 import { escapeRegExp } from '../../../../shared/util/stringUtil.ts';
 import { Marker } from '../../../../shared/util/highlightMarker.ts';
 import { TextMapSearchResult } from '../../../../shared/types/lang-types.ts';
+
 export async function handleTextMapSearchEndpoint(ctrl: AbstractControl, req: Request, res: Response) {
   const startFromLine: number = isset(req.query.startFromLine) && isInt(req.query.startFromLine) ? toInt(req.query.startFromLine) : undefined;
   const resultSetNum: number = isset(req.query.resultSetNum) && isInt(req.query.resultSetNum) ? toInt(req.query.resultSetNum) : 0;

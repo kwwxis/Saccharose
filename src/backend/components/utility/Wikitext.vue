@@ -4,6 +4,7 @@
 
 <script setup lang="ts">
 import AceComponent, { AceProps } from './AceComponent.vue';
+
 const myProps = defineProps<AceProps>();
 const yourProps: AceProps = Object.assign({}, myProps);
 

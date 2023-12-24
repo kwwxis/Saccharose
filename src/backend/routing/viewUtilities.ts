@@ -1,6 +1,7 @@
 import feather, { FeatherAttributes, FeatherIconNames } from 'feather-icons';
 import { escapeHtmlAllowEntities } from '../../shared/util/stringUtil.ts';
 import { GENSHIN_SPRITE_TAGS } from '../domain/genshin/genshinText.ts';
+
 export function icon(iconName: string);
 export function icon(iconName: string, size: number);
 export function icon(iconName: string, props: Partial<FeatherAttributes>);

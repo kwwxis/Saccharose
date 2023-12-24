@@ -17,6 +17,7 @@ import { SchemaTable, textMapSchema, plainLineMapSchema } from '../import_db.ts'
 import { getGenshinDataFilePath } from '../../loadenv.ts';
 import fs from 'fs';
 import { DocumentExcelConfigData } from '../../../shared/types/genshin/readable-types.ts';
+
 export const RAW_MANUAL_TEXTMAP_ID_PROP: string = 'textMapId';
 
 const schemaTranslationFilePath = getGenshinDataFilePath('./SchemaTranslation.json');

@@ -1,6 +1,7 @@
 import fs from 'fs';
 import { ServerOptions } from 'spdy';
 import { toBoolean } from '../shared/util/genericUtil.ts';
+
 const sslEnabled: boolean = toBoolean(process.env.SSL_ENABLED);
 
 export default <ServerOptions> {

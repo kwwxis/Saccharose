@@ -4,6 +4,7 @@ import path from 'path';
 import { IMAGEDIR_GENSHIN_EXT, IMAGEDIR_HSR_EXT, IMAGEDIR_ZENLESS_EXT } from '../loadenv.ts';
 import fs from 'fs';
 import { convertFoodImageToDelicious, convertFoodImageToSuspicious } from '../domain/genshin/misc/food-sharp.ts';
+
 export default async function(): Promise<Router> {
 
   const router: Router = create();

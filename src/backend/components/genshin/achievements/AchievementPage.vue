@@ -70,6 +70,7 @@ import Wikitext from '../../utility/Wikitext.vue';
 import { AchievementExcelConfigData } from '../../../../shared/types/genshin/achievement-types.ts';
 import { getTrace } from '../../../middleware/request/tracer.ts';
 import { toParam } from '../../../../shared/util/stringUtil.ts';
+
 const { normGenshinText } = getTrace();
 
 defineProps<{

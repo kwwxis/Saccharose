@@ -3,6 +3,7 @@ import { Request, Response, Router } from 'express';
 import { toInt } from '../../../../shared/util/numberUtil.ts';
 import { getStarRailControl } from '../../../domain/hsr/starRailControl.ts';
 import { fetchVoiceAtlasByAvatarId } from '../../../domain/hsr/character/fetchVoiceAtlas.ts';
+
 const router: Router = create();
 
 router.endpoint('/character/voice-atlas', {

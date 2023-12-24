@@ -11,6 +11,7 @@ import { LangCode } from '../../../../shared/types/lang-types.ts';
 import { SITE_MODE_HOME } from '../../../siteMode.ts';
 import { frag1 } from '../../../util/domutil.ts';
 import { toParam } from '../../../../shared/util/stringUtil.ts';
+
 export function VoAppWelcome(state: VoAppState) {
   const recentEl: HTMLElement = document.querySelector('#vo-app-welcome-recent');
   const recentListEl: HTMLElement = document.querySelector('#vo-app-welcome-recent-list');

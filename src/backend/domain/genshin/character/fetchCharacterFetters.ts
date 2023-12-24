@@ -15,6 +15,7 @@ import path from 'path';
 import { promises as fs } from 'fs';
 import { defaultMap } from '../../../../shared/util/genericUtil.ts';
 import { toMap } from '../../../../shared/util/arrayUtil.ts';
+
 function getVoAvatarName(avatar: AvatarExcelConfigData, voiceItems: VoiceItem[]): string {
   if (isTraveler(avatar, 'male')) {
     return 'hero';

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="<%= cookieTernary('nightmode').isTruthy().then('nightmode') %>" data-site-mode="<%= req.context.siteMode %>">
+<html lang="en" class="<%= cookieTernary('nightmode').isTruthy().then('nightmode') %>">
   <head>
     <meta charset="utf-8" />
     <title><%= req.context.getFormattedPageTitle() %></title>

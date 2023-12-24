@@ -20,6 +20,7 @@ import { Request } from 'express';
 import { logInitData } from '../../util/logger.ts';
 import { AvatarConfig } from '../../../shared/types/hsr/hsr-avatar-types.ts';
 import { hsr_i18n, HSR_I18N_MAP } from '../i18n.ts';
+
 // region Control State
 // --------------------------------------------------------------------------------------------------------------
 

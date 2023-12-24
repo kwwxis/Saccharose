@@ -1,21 +1,22 @@
 import { pageMatch } from '../../../pageMatch.ts';
 import { startGenericSearchPageListeners } from '../../genericSearchPage.ts';
 import { genshinEndpoints, starRailEndpoints, SaccharoseApiEndpoint, zenlessEndpoints } from '../../../endpoints.ts';
+import SiteMode from '../../../siteMode.ts';
 
 pageMatch('pages/generic/basic/id-usages', () => {
   let endpoint: SaccharoseApiEndpoint<any>;
 
-  if (pageMatch.isGenshin) {
+  if (SiteMode.isGenshin) {
     endpoint = genshinEndpoints.getIdUsages;
-  } else if (pageMatch.isStarRail) {
+  } else if (SiteMode.isStarRail) {
     endpoint = starRailEndpoints.getIdUsages;
-  } else if (pageMatch.isZenless) {
+  } else if (SiteMode.isZenless) {
     endpoint = zenlessEndpoints.getIdUsages;
   }
 
   startGenericSearchPageListeners({
     endpoint,
-    
+
     inputs: [
       {
         selector: '.search-input',

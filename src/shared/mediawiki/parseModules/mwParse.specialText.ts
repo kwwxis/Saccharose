@@ -3,6 +3,7 @@ import { MwBehaviorSwitch, MwRedirect } from '../mwTypes.ts';
 import { escapeRegExp } from '../../util/stringUtil.ts';
 import { mwSimpleTextParse } from '../mwParse.ts';
 import { MW_BEHAVIOR_SWITCHES } from '../mwContants.ts';
+
 export function MW_BEHAVIOR_SWITCHES_REGEX(prepend: string = '', append: string = ''): string {
   return MW_BEHAVIOR_SWITCHES.map(scheme => prepend + escapeRegExp(scheme) + append).join('|');
 }

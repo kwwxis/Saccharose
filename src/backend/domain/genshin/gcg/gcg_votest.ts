@@ -1,6 +1,7 @@
 import { pathToFileURL } from 'url';
 import { getGenshinControl, loadGenshinVoiceItems } from '../genshinControl.ts';
 import { defaultMap } from '../../../../shared/util/genericUtil.ts';
+
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   await loadGenshinVoiceItems();
 

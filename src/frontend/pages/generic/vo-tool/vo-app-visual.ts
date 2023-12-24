@@ -14,6 +14,7 @@ import { startListeners } from '../../../util/eventLoader.ts';
 import { flashTippy } from '../../../util/tooltips.ts';
 import { createWikitextEditor, getWikitextEditor } from '../../../util/ace/wikitextEditor.ts';
 import { modalService } from '../../../util/modalService.ts';
+
 const sortableDefaultOptions: Sortable.Options = {
   scroll: true,
   animation: 150,

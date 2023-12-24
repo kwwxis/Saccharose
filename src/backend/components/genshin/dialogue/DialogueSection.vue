@@ -107,6 +107,7 @@ import { DialogueSectionResult } from '../../../domain/genshin/dialogue/dialogue
 import Wikitext from '../../utility/Wikitext.vue';
 import { icon } from '../../../routing/viewUtilities.ts';
 import { uuidv4 } from '../../../../shared/util/uuidv4.ts';
+
 let customStyle: {[prop: string]: string} = {};
 
 const props = defineProps<{

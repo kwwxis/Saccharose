@@ -7,6 +7,7 @@ import UPNG from 'upng-js';
 import { IMAGEDIR_GENSHIN_EXT, IMAGEDIR_GENSHIN_STATIC } from '../../../loadenv.ts';
 import path from 'path';
 import { cached } from '../../../util/cache.ts';
+
 async function getDeliciousCompositeBuffer(): Promise<Buffer> {
   return cached('UI_CookIcon_Delicious', async () => {
     const filePath = path.resolve(IMAGEDIR_GENSHIN_STATIC, './UI_CookIcon_Delicious.png');

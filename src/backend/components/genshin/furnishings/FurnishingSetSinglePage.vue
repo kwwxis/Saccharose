@@ -102,6 +102,7 @@ import Wikitext from '../../utility/Wikitext.vue';
 import { DialogueSectionResult } from '../../../domain/genshin/dialogue/dialogue_util.ts';
 import Icon from '../../utility/Icon.vue';
 import { toParam } from '../../../../shared/util/stringUtil.ts';
+
 const { suite } = defineProps<{
   suite: FurnitureSuiteExcelConfigData,
   companionFavors: {npc: HomeWorldNPCExcelConfigData, event: HomeWorldEventExcelConfigData, dialogue: DialogueSectionResult}[],

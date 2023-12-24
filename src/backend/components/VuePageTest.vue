@@ -6,6 +6,7 @@
 
 <script setup lang="ts">
 import { getTrace } from '../middleware/request/tracer.ts';
+
 defineProps<{
   msg: string,
 }>();

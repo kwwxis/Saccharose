@@ -8,6 +8,7 @@ import {
   FetterWithConditions,
 } from '../../../../shared/types/genshin/fetter-types.ts';
 import { LangCode } from '../../../../shared/types/lang-types.ts';
+
 async function doWithCond(fetterConds: FetterCond[], condType: FetterCondType, callback: (fetterCond: FetterCond) => Promise<void>) {
   let cond = fetterConds.find(x => x.CondType === condType);
   if (cond) {

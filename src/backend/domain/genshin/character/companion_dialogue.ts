@@ -12,6 +12,7 @@ import { pathToFileURL } from 'url';
 import { sort } from '../../../../shared/util/arrayUtil.ts';
 import { escapeHtml, toLower } from '../../../../shared/util/stringUtil.ts';
 import { getGenshinDataFilePath } from '../../../loadenv.ts';
+
 export async function getHomeWorldCompanions(ctrl: GenshinControl): Promise<HomeWorldNPCExcelConfigData[]> {
   return cached('HomeWorldCompanions_'+ctrl.outputLangCode, async () => {
     const companions: HomeWorldNPCExcelConfigData[] = await ctrl.selectAllHomeWorldNPCs({

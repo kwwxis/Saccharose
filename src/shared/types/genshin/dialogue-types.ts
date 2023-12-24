@@ -1,5 +1,6 @@
 import { ConfigCondition, NpcExcelConfigData } from './general-types.ts';
 import { CommonLineId } from '../common-types.ts';
+
 export type TalkRoleType =
   'TALK_ROLE_NPC'
   | 'TALK_ROLE_PLAYER'

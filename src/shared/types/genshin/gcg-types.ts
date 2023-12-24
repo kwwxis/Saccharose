@@ -7,6 +7,7 @@ import { MaterialExcelConfigData, RewardExcelConfigData } from './material-types
 import { Subset } from '../utility-types.ts';
 import { DialogueSectionResult } from '../../../backend/domain/genshin/dialogue/dialogue_util.ts';
 import { VoiceItem } from '../lang-types.ts';
+
 // GCG TALK
 // --------------------------------------------------------------------------------------------------------------
 

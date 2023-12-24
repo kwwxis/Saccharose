@@ -3,6 +3,7 @@ import exitHook from 'async-exit-hook';
 import path from 'path';
 import { DATAFILE_GENSHIN_SQLITE_DB, DATAFILE_HSR_SQLITE_DB, DATAFILE_ZENLESS_SQLITE_DB } from '../loadenv.ts';
 import { logShutdown } from './logger.ts';
+
 export type SaccharoseDb = {
   genshin: Knex,
   hsr: Knex,

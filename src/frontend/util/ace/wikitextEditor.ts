@@ -16,6 +16,7 @@ import 'brace/theme/tomorrow_night';
 import 'brace/ext/static_highlight';
 import 'brace/ext/searchbox';
 import './css/static_highlight.scss';
+
 // Other imports
 // --------------------------------------------------------------------------------------------------------------
 import Cookies from 'js-cookie';
@@ -30,6 +31,7 @@ import { toastError } from '../toaster.ts';
 import { CommonLineId, parseCommonLineIds } from '../../../shared/types/common-types.ts';
 import { applyWikitextClickableLinks } from './listeners/wikitextClickableLinks.ts';
 import { applyWikitextLineActions } from './listeners/wikitextLineActions.ts';
+
 // region Create wikitext editor
 // --------------------------------------------------------------------------------------------------------------
 export const aceEditors: ace.Editor[] = [];

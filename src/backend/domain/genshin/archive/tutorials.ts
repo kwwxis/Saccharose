@@ -17,6 +17,7 @@ import {
 import { isInt, toInt } from '../../../../shared/util/numberUtil.ts';
 import { escapeRegExp } from '../../../../shared/util/stringUtil.ts';
 import { Marker } from '../../../../shared/util/highlightMarker.ts';
+
 export function pushTipCodexTypeName(type: PushTipsCodexType): string {
   if (!type) {
     return 'Non-PushTip';

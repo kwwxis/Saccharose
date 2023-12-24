@@ -2,6 +2,7 @@ import { pathToFileURL } from 'url';
 import { closeKnex } from '../../util/db.ts';
 import { inspectDataFile, InspectOpt } from '../util/inspect_file_util.ts';
 import { getStarRailControl } from '../../domain/hsr/starRailControl.ts';
+
 const excel = (file: string) => `./ExcelOutput/${file}.json`;
 
 const presets = {

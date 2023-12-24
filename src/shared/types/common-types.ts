@@ -3,6 +3,7 @@ import { AvatarExcelConfigData } from './genshin/avatar-types.ts';
 import { AvatarConfig, VoiceAtlas, VoiceAtlasGroup } from './hsr/hsr-avatar-types.ts';
 import { FetterExcelConfigData, FetterGroup } from './genshin/fetter-types.ts';
 import { toInt } from '../util/numberUtil.ts';
+
 // region Common Avatar
 // --------------------------------------------------------------------------------------------------------------
 export interface CommonAvatar<T = any> {

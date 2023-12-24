@@ -2,6 +2,7 @@ import { escapeRegExp } from '../../util/stringUtil.ts';
 import { MwParseModule } from '../mwParseModule.ts';
 import { MwLinkNode, MwLinkType, MwRedirect } from '../mwTypes.ts';
 import { MW_URL_SCHEMES } from '../mwContants.ts';
+
 export function MW_URL_SCHEME_REGEX(prepend: string = '', append: string =''): string {
   return MW_URL_SCHEMES.map(scheme => prepend + escapeRegExp(scheme) + append).join('|');
 }

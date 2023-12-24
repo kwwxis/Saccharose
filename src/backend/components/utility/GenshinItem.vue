@@ -14,6 +14,7 @@ import { WeaponExcelConfigData } from '../../../shared/types/genshin/weapon-type
 import { HomeWorldFurnitureExcelConfigData } from '../../../shared/types/genshin/homeworld-types.ts';
 import { ReliquaryExcelConfigData } from '../../../shared/types/genshin/artifact-types.ts';
 import GenshinItemInner from './GenshinItemInner.vue';
+
 export type GenshinItemComponentProps = {
   item: MaterialExcelConfigData|WeaponExcelConfigData|HomeWorldFurnitureExcelConfigData|ReliquaryExcelConfigData,
   itemCount?: number,

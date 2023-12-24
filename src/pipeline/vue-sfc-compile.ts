@@ -127,6 +127,7 @@ async function doIt(paths: {
     if (descriptor.script || descriptor.scriptSetup) {
       const src = (descriptor.script && !descriptor.scriptSetup && descriptor.script.src) || relPath;
       code += `import script from "./${baseName}.script";`;
+
     } else {
       code += "const script = {};";
     }
@@ -134,12 +135,14 @@ async function doIt(paths: {
     // Import styles:
     // if (descriptor.styles && descriptor.styles.length) {
     //   code += `\nimport "./${baseName}.style.scss";`;
+
     // }
 
     // Import template:
     if (descriptor.template?.content) {
       const renderFuncName = opts.renderSSR ? "ssrRender" : "render";
       code += `\nimport { ${renderFuncName} } from "./${baseName}.template.js";`;
+
       code += `\nscript.${renderFuncName} = ${renderFuncName};`
     }
 

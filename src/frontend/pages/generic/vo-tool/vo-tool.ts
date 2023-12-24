@@ -12,6 +12,7 @@ import { CommonAvatar, CommonVoiceOverGroup } from '../../../../shared/types/com
 import { VoAppPreloadConfig } from './vo-preload-types.ts';
 import { OverlayScrollbars } from 'overlayscrollbars';
 import { toBoolean } from '../../../../shared/util/genericUtil.ts';
+
 export interface VoAppConfig {
   storagePrefix: string,
   imagePathPrefix: string,

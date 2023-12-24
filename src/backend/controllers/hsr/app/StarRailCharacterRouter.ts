@@ -10,6 +10,7 @@ import { getStarRailControl } from '../../../domain/hsr/starRailControl.ts';
 import { getStarRailAvatar, getStarRailAvatars } from '../../../middleware/game/starRailAvatarUtil.ts';
 import { AvatarConfig } from '../../../../shared/types/hsr/hsr-avatar-types.ts';
 import { LANG_CODES_TO_NAME, LangCode } from '../../../../shared/types/lang-types.ts';
+
 export default async function(): Promise<Router> {
   const router: Router = create();
 

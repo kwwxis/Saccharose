@@ -1,5 +1,6 @@
 import express, { NextFunction, Request, Response } from 'express';
 import { escapeRegExp } from '../../../shared/util/stringUtil.ts';
+
 export function createStaticImagesHandler(SERVER_IMAGES_ROOT: string, HTTP_PATH: string) {
   if (!HTTP_PATH.endsWith('/'))
     HTTP_PATH += '/';

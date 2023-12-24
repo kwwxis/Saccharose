@@ -9,6 +9,7 @@ import Cookies from 'js-cookie';
 import { DEFAULT_LANG, LangCode } from '../../../../shared/types/lang-types.ts';
 import { VoAppPreloadConfig, VoAppPreloadInput, VoAppPreloadOptions, VoAppPreloadResult } from './vo-preload-types.ts';
 import { voPreload } from './vo-preload-support.ts';
+
 function compareTemplateName(t1: string, t2: string) {
   return t1?.toLowerCase()?.replace(/_/g, ' ') === t2?.toLowerCase()?.replace(/_/g, ' ');
 }

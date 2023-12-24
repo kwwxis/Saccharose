@@ -8,6 +8,7 @@ import { DialogueSectionResult } from './dialogue_util.ts';
 import { MetaProp } from '../../../util/metaProp.ts';
 import { pathToFileURL } from 'url';
 import { TextMapHash } from '../../../../shared/types/lang-types.ts';
+
 export async function reminderGenerateAll(ctrl: GenshinControl): Promise<DialogueSectionResult> {
   let sect = new DialogueSectionResult(null, 'All Reminders');
   sect.showGutter = true;

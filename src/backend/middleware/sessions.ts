@@ -1,8 +1,11 @@
 // import passport from 'passport';
+
 // import passport_discord from 'passport-discord';
+
 // const DiscordStrategy = passport_discord.Strategy;
 import session from 'express-session';
 import { toBoolean } from '../../shared/util/genericUtil.ts';
+
 // passport.serializeUser(function(user, done) {
 //   done(null, user);
 // });

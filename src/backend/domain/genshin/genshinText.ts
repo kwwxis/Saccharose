@@ -13,6 +13,7 @@ import { toMap } from '../../../shared/util/arrayUtil.ts';
 import { logInitData } from '../../util/logger.ts';
 import fs, { promises as fsp } from 'fs';
 import { ManualTextMapHashes } from '../../../shared/types/genshin/manual-text-map.ts';
+
 function __convertGenshinRubi(langCode: LangCode, text: string): string {
   const rubiMap: { [index: number]: string } = {};
   const rubiRegex = /{RUBY#\[([SD])]([^}]+)}/;

@@ -11,6 +11,7 @@ import { importNormalize, importPlainTextMap } from '../util/import_file_util.ts
 import fs from 'fs';
 import { getStarRailControl, loadStarRailVoiceItems } from '../../domain/hsr/starRailControl.ts';
 import { fetchVoiceAtlases } from '../../domain/hsr/character/fetchVoiceAtlas.ts';
+
 async function importVoiceOvers() {
   const outDir = process.env.HSR_DATA_ROOT;
   await loadStarRailVoiceItems();

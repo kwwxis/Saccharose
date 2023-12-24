@@ -6,6 +6,7 @@ import { defaultMap, isset } from '../../../../shared/util/genericUtil.ts';
 import { fileFormatOptionsApply, fileFormatOptionsCheck } from '../../../util/fileFormatOptions.ts';
 import { WorldAreaConfigData } from '../../../../shared/types/genshin/general-types.ts';
 import { ViewCodexExcelConfigData, ViewpointsByRegion } from '../../../../shared/types/genshin/viewpoint-types.ts';
+
 export const VIEWPOINT_FILE_FORMAT_PARAMS: string[] = [
   'Id',
   'GadgetId',

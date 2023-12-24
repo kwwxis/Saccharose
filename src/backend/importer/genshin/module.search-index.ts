@@ -6,6 +6,7 @@ import { ReadableView } from '../../../shared/types/genshin/readable-types.ts';
 import { AchievementExcelConfigData } from '../../../shared/types/genshin/achievement-types.ts';
 import { selectTutorials } from '../../domain/genshin/archive/tutorials.ts';
 import { TutorialsByType } from '../../../shared/types/genshin/tutorial-types.ts';
+
 export async function importSearchIndex() {
   if (!fs.existsSync(getGenshinDataFilePath('./TextMap/Index/'))) {
     fs.mkdirSync(getGenshinDataFilePath('./TextMap/Index/'));

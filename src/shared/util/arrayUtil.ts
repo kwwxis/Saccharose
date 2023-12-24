@@ -2,6 +2,7 @@ import { isEmpty, isNotEmpty, isPromise, isset, isUnset } from './genericUtil.ts
 import { isStringBlank, trim } from './stringUtil.ts';
 import { isInt } from './numberUtil.ts';
 import { ArrayElement, KeysMatching, NonArray } from '../types/utility-types.ts';
+
 export type SortComparator<T> = (a: T, b: T) => number;
 export type ElementComparator<T> = (arrayElement: T, expectedElement: T) => boolean;
 

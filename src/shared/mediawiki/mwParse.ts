@@ -16,6 +16,7 @@ import { isStringBlank } from '../util/stringUtil.ts';
 import { MwParseParamModule } from './parseModules/mwParse.param.ts';
 import { MwParseSpecialTextModule } from './parseModules/mwParse.specialText.ts';
 import { MwParseSectionModule } from './parseModules/mwParse.section.ts';
+
 // Helpful Documentation:
 // https://www.mediawiki.org/wiki/Help:Formatting
 // https://www.mediawiki.org/wiki/Help:Links

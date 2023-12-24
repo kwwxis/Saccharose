@@ -20,10 +20,11 @@ import { languages } from './util/langCodes.ts';
 import { DEFAULT_LANG, LangCode } from '../shared/types/lang-types.ts';
 import { mwParse } from '../shared/mediawiki/mwParse.ts';
 import { MwParamNode, MwTemplateNode } from '../shared/mediawiki/mwTypes.ts';
-import { pageMatch } from './pageMatch.ts';
 import { uuidv4 } from '../shared/util/uuidv4.ts';
 import { Marker } from '../shared/util/highlightMarker.ts';
 import { recalculateAceLinePanelPositions } from './util/ace/listeners/wikitextLineActions.ts';
+import SiteMode from './siteMode.ts';
+
 type UiAction = {actionType: string, actionParams: string[]};
 
 function parseUiAction(actionEl: HTMLElement): UiAction[] {
@@ -235,7 +236,7 @@ const initial_listeners: Listener[] = [
         (contentEditableEl: HTMLElement) => {
           contentEditableEl.classList.add('ol-result-textarea-processed');
 
-          if (!pageMatch.isGenshin) {
+          if (!SiteMode.isGenshin) {
             return;
           }
 

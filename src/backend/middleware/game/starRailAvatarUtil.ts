@@ -5,6 +5,7 @@ import jsonMask from 'json-mask';
 import { Request } from 'express';
 import { isInt, toInt } from '../../../shared/util/numberUtil.ts';
 import { isString } from '../../../shared/util/stringUtil.ts';
+
 const avatarMaskProps: string =
   'Id,' +
   'BaseType,' +

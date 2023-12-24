@@ -7,6 +7,7 @@ import { replaceAsync, splitArgs } from '../../shared/util/stringUtil.ts';
 import JSON5 from 'json5';
 import { isLangCode, LangCode } from '../../shared/types/lang-types.ts';
 import { AbstractControl } from '../domain/abstractControl.ts';
+
 export type FileFormatOption = 'default' | 'remove' | 'custom';
 
 export function fileFormatOptionsCheck(templateStr: string) {

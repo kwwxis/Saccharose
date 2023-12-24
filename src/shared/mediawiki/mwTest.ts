@@ -1,6 +1,7 @@
 import { MwNode, MwParentNode, MwTemplateNode } from './mwTypes.ts';
 import util from 'util';
 import { mwParse } from './mwParse.ts';
+
 async function dplTest() {
   const dplCall0 = `{{#DPL:
 |mode=userformat

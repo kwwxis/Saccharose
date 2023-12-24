@@ -6,6 +6,7 @@ import { GCGCharSkillDamage, GCGSkillExcelConfigData } from '../../../shared/typ
 import { standardElementCode } from '../../../shared/types/genshin/manual-text-map.ts';
 import chalk from 'chalk';
 import { getGenshinControl } from '../../domain/genshin/genshinControl.ts';
+
 export async function importGcgSkill() {
   const outDir = process.env.GENSHIN_DATA_ROOT
   const ctrl = getGenshinControl();

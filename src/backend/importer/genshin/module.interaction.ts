@@ -12,6 +12,7 @@ import {
   InterActionSchema,
 } from '../../../shared/types/genshin/interaction-types.ts';
 import { reformatPrimitiveArrays } from '../util/import_file_util.ts';
+
 // region Walk Sync
 // --------------------------------------------------------------------------------------------------------------
 function* walkSync(dir: string): Generator<string> {

@@ -1,4 +1,5 @@
 import { getQuotePosMap, MW_QUOTE_POSMAP, MW_QUOTE_TYPE } from '../../../../shared/mediawiki/mwQuotes.ts';
+
 export type AceToken = {type: string, value: string};
 
 function addTokenType(token: AceToken|AceToken[], types: string|string[]) {

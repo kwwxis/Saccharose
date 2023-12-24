@@ -19,6 +19,7 @@ import {
 import { DATAFILE_HSR_VOICE_ATLASES } from '../../../loadenv.ts';
 import { defaultMap } from '../../../../shared/util/genericUtil.ts';
 import { toMap } from '../../../../shared/util/arrayUtil.ts';
+
 export async function fetchVoiceAtlases(ctrl: StarRailControl, skipCache: boolean = false): Promise<VoiceAtlasGroupByAvatar> {
   if (!skipCache) {
     return cached('StarRail_VoiceAtlasGroup', async () => {

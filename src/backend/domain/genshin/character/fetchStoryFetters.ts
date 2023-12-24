@@ -9,6 +9,7 @@ import { FetterStoryExcelConfigData, StoryFetters, StoryFettersByAvatar } from '
 import { pathToFileURL } from 'url';
 import { isTraveler } from '../../../../shared/types/genshin/avatar-types.ts';
 import { mcify } from '../../generic/genericNormalizers.ts';
+
 const sep: string = '</p><!--\n              --><p>';
 
 async function fetchAllFetterStoryExcelConfigData(ctrl: GenshinControl): Promise<FetterStoryExcelConfigData[]> {

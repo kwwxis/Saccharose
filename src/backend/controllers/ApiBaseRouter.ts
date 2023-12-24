@@ -11,6 +11,7 @@ import { getStarRailControl } from '../domain/hsr/starRailControl.ts';
 import { getZenlessControl } from '../domain/zenless/zenlessControl.ts';
 import { Request, Response, Router } from 'express';
 import { langDetect } from '../util/shellutil.ts';
+
 export default async function(): Promise<Router> {
   const router: Router = create({
     layouts: ['layouts/empty-layout'],

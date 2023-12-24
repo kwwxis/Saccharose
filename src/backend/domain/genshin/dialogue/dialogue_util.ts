@@ -19,6 +19,7 @@ import { isInt } from '../../../../shared/util/numberUtil.ts';
 import { custom } from '../../../util/logger.ts';
 import { CommonLineId } from '../../../../shared/types/common-types.ts';
 import { RewardExcelConfigData } from '../../../../shared/types/genshin/material-types.ts';
+
 // region Class: DialogBranchingCache
 // --------------------------------------------------------------------------------------------------------------
 export class DialogBranchingCache {

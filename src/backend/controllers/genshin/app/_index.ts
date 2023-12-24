@@ -7,6 +7,7 @@ import TcgRouter from './TcgRouter.ts';
 import MediaRouter from './GenshinMediaRouter.ts';
 import { Router } from 'express';
 import TestRouter from './TestRouter.ts';
+
 export default async function(): Promise<Router> {
   const router: Router = create();
 

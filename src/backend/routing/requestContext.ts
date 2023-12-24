@@ -15,6 +15,7 @@ import { renderToString as renderReactToString } from 'react-dom/server';
 import { renderToString as renderVueToString } from 'vue/server-renderer';
 import { App } from 'vue';
 import { isVueApp } from './router.ts';
+
 export type RequestSiteMode = 'genshin' | 'hsr' | 'zenless';
 
 /**

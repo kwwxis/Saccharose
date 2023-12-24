@@ -14,6 +14,7 @@ import {
 } from '../../../../shared/types/genshin/loading-types.ts';
 import { LangCodeMap } from '../../../../shared/types/lang-types.ts';
 import { isInt, toInt } from '../../../../shared/util/numberUtil.ts';
+
 // region Category Check
 // --------------------------------------------------------------------------------------------------------------
 async function getCategoryForTip(ctrl: GenshinControl,
@@ -217,7 +218,7 @@ async function createResultObject(ctrl: GenshinControl): Promise<LoadingCat> {
       tips: []
     });
   }
-  
+
   return result;
 }
 

@@ -15,6 +15,7 @@ import { ReliquaryCodexExcelConfigData, ReliquaryExcelConfigData, ReliquarySetEx
 import { WeaponExcelConfigData } from './weapon-types.ts';
 import { MainQuestExcelConfigData } from './quest-types.ts';
 import { Marker } from '../../util/highlightMarker.ts';
+
 export interface ReadableSearchView {
   TitleResults: ReadableView[]
   ContentResults: ReadableView[]

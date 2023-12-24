@@ -15,6 +15,7 @@ import { queryTab } from '../../../middleware/util/queryTab.ts';
 import { generateCardPage, generateSkillPage, generateStageTemplate } from '../../../domain/genshin/gcg/gcg_wikitext.ts';
 import { Request, Response, Router } from 'express';
 import { ApiCyclicValueReplacer } from '../../../middleware/api/apiCyclicValueReplacer.ts';
+
 export default async function(): Promise<Router> {
   const router: Router = create();
 

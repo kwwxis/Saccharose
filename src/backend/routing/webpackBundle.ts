@@ -1,6 +1,7 @@
 import path from 'path';
 import fs from 'fs';
 import { PUBLIC_DIR } from '../loadenv.ts';
+
 export type WebpackBundles = {
   appCssBundle: string,
   appJsBundle: string,

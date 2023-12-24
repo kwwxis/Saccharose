@@ -5,6 +5,7 @@ import { GeneralEventBus } from '../generalEventBus.ts';
 import { HttpError } from '../../shared/util/httpError.ts';
 import { pasteFromClipboard } from '../util/domutil.ts';
 import { toBoolean } from '../../shared/util/genericUtil.ts';
+
 export interface GenericSearchPageHandle {
   generateResult(caller: string): void;
   loadResultFromURL(): void;

@@ -34,16 +34,21 @@ import './pages/genshin/media/media-search.page.ts';
 import './pages/hsr/character/hsr-vo-tool.ts';
 
 import { escapeHtml } from '../shared/util/stringUtil.ts';
+
 (<any> window).escapeHtml = escapeHtml;
 
 import JSON5 from 'json5';
+
 (<any> window).JSON5 = JSON5;
 
 import { resolveObjectPath } from '../shared/util/arrayUtil.ts';
+
 (<any> window).resolveObjectPath = resolveObjectPath;
 
 import { mwParse } from '../shared/mediawiki/mwParse.ts';
+
 (<any> window).mwParse = mwParse;
 
 import { uuidv4 } from '../shared/util/uuidv4.ts';
+
 (<any> window).uuidv4 = uuidv4;

@@ -7,6 +7,7 @@ import { appInit } from './app.ts';
 import { toBoolean } from '../shared/util/genericUtil.ts';
 import { toInt } from '../shared/util/numberUtil.ts';
 import { logInit } from './util/logger.ts';
+
 // You shouldn't need to change anything in this file.
 // Application init code should go in `app.ts`, not here.
 

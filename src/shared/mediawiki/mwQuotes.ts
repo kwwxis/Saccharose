@@ -1,6 +1,7 @@
 
 // "doQuotes" from https://phabricator.wikimedia.org/source/mediawiki/browse/master/includes/parser/Parser.php
 import { defaultMap } from '../util/genericUtil.ts';
+
 export function doQuotes(text: string): string {
   let arr: string[] = text.split(/(''+)/g);
   let countArr = arr.length;

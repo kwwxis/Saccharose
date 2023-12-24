@@ -40,6 +40,7 @@ import { loadGenshinTextSupportingData } from '../genshinText.ts';
 import { dialogueGenerateByNpc, NpcDialogueResult } from '../dialogue/basic_dialogue_generator.ts';
 import * as console from 'console';
 import { mapBy } from '../../../../shared/util/arrayUtil.ts';
+
 // noinspection JSUnusedGlobalSymbols
 export class GCGControl {
 

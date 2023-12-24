@@ -28,6 +28,7 @@ import { Request, Response } from 'express';
 import { logInit } from './util/logger.ts';
 import imageBaseRouter from './controllers/ImageBaseRouter.ts';
 import { createStaticImagesHandler } from './middleware/request/staticImagesHandler.ts';
+
 const app: Express = express();
 let didInit: boolean = false;
 

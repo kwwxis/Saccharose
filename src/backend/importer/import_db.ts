@@ -15,6 +15,7 @@ import { genshinSchema } from './genshin/genshin.schema.ts';
 import { Knex } from 'knex';
 import { starRailSchema } from './hsr/hsr.schema.ts';
 import { zenlessSchema } from './zenless/zenless.schema.ts';
+
 export type SchemaTableSet = {[tableName: string]: SchemaTable};
 
 export type SchemaTable = {

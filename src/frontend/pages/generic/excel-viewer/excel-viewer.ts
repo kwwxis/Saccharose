@@ -1,6 +1,7 @@
 import { pageMatch } from '../../../pageMatch.ts';
 import { ColDef, GetContextMenuItemsParams, Grid, GridApi, GridOptions, MenuItemDef } from 'ag-grid-community';
 import { LicenseManager } from 'ag-grid-enterprise';
+
 LicenseManager.prototype.validateLicense = function() {};
 LicenseManager.prototype.isDisplayWatermark = function() {return false};
 LicenseManager.prototype.getWatermarkMessage = function() {return null};
@@ -22,6 +23,8 @@ import { ICellRendererParams } from 'ag-grid-community/dist/lib/rendering/cellRe
 import { highlightJson, highlightWikitext } from '../../../util/ace/wikitextEditor.ts';
 import { isNotEmpty, isUnset } from '../../../../shared/util/genericUtil.ts';
 import { booleanFilter } from './excel-custom-filters.ts';
+import SiteMode from '../../../siteMode.ts';
+
 function initializeThemeWatcher(gridEl: HTMLElement, topEl: HTMLElement) {
   new DOMClassWatcher('body', 'nightmode',
     () => {
@@ -68,7 +71,7 @@ function makeSingleColumnDef(fieldKey: string, fieldName: string, data: any) {
     floatingFilter: true
   };
 
-  if (typeof data === 'string' && pageMatch.isStarRail && (fieldName.includes('Image')
+  if (typeof data === 'string' && SiteMode.isStarRail && (fieldName.includes('Image')
       || fieldName.includes('Icon') || fieldName.includes('Path') || fieldName.includes('Pic') || fieldName.includes('Map'))) {
     colDef.cellRenderer = function(params: ICellRendererParams) {
       if (!params.value || typeof params.value !== 'string' || !params.value.endsWith('.png')) {
@@ -79,7 +82,7 @@ function makeSingleColumnDef(fieldKey: string, fieldName: string, data: any) {
           alt="Image not found" onerror="this.classList.add('excel-image-error')" data-file-name="${safeValue}.png" />
         <span class="code">${safeValue}</span>`;
     };
-  } else if (typeof data === 'string' && pageMatch.isGenshin && (fieldName.includes('Image') || fieldName.includes('Icon')
+  } else if (typeof data === 'string' && SiteMode.isGenshin && (fieldName.includes('Image') || fieldName.includes('Icon')
       || fieldName.includes('Path') || fieldName.includes('Pic') || fieldName.includes('Map') || data.startsWith('UI_'))) {
     colDef.cellRenderer = function(params: ICellRendererParams) {
       const genshinImageRegex: RegExp =

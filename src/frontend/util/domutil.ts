@@ -2,6 +2,7 @@
 
 import { saveAs } from 'file-saver';
 import { isset } from '../../shared/util/genericUtil.ts';
+
 /**
  * Returns the tag name of an element in all-lowercase.
  */

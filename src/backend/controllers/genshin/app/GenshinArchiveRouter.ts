@@ -40,10 +40,10 @@ import {
   TalkConfigAccumulator,
   talkConfigGenerate,
 } from '../../../domain/genshin/dialogue/dialogue_util.ts';
-import { DialogExcelConfigData } from '../../../../shared/types/genshin/dialogue-types.ts';
 import { ManualTextMapHashes } from '../../../../shared/types/genshin/manual-text-map.ts';
 import { MetaProp } from '../../../util/metaProp.ts';
 import { cached } from '../../../util/cache.ts';
+
 export default async function(): Promise<Router> {
   const router: Router = create();
 

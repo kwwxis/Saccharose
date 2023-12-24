@@ -22,6 +22,7 @@ import { toInt } from '../../shared/util/numberUtil.ts';
 import { Marker } from '../../shared/util/highlightMarker.ts';
 import { arraySum } from '../../shared/util/arrayUtil.ts';
 import { parseCommonLineIds, stringifyCommonLineIds } from '../../shared/types/common-types.ts';
+
 // noinspection JSUnusedGlobalSymbols
 export const DEFAULT_GLOBAL_LOCALS = {
   // Environment

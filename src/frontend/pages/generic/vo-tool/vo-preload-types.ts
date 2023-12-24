@@ -2,6 +2,7 @@ import { VoAppState } from './vo-tool.ts';
 import { LangCode, LangCodeMap } from '../../../../shared/types/lang-types.ts';
 import { CommonVoiceOver } from '../../../../shared/types/common-types.ts';
 import { SbOut } from '../../../../shared/util/stringUtil.ts';
+
 export type PropFillMode = 'fill' | 'remove' | 'empty';
 
 export type VoAppPreloadOptions = {

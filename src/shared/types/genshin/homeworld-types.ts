@@ -3,6 +3,7 @@ import { AvatarExcelConfigData } from './avatar-types.ts';
 import { MaterialExcelConfigData, MaterialVecItem, RewardExcelConfigData } from './material-types.ts';
 import { MonsterExcelConfigData } from './monster-types.ts';
 import { DialogueSectionResult } from '../../../backend/domain/genshin/dialogue/dialogue_util.ts';
+
 // HomeWorld NPC/Avatar
 // --------------------------------------------------------------------------------------------------------------
 export interface HomeWorldEventExcelConfigData {

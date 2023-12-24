@@ -34,8 +34,8 @@ import { NormTextOptions } from './generic/genericNormalizers.ts';
 import { ExtractScalar } from '../../shared/types/utility-types.ts';
 import { ArrayStream } from '../../shared/util/arrayUtil.ts';
 import { Request } from 'express';
-import { Marker } from '../../shared/util/highlightMarker.ts';
 import { defaultMap } from '../../shared/util/genericUtil.ts';
+
 export abstract class AbstractControlState {
   public request: Request = null;
 

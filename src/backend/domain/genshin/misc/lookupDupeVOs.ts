@@ -7,6 +7,7 @@ import{normalizeRawJson} from '../../../importer/import_db.ts';
 import { getGenshinDataFilePath } from '../../../loadenv.ts';
 import { pathToFileURL } from 'url';
 import { genshinSchema } from '../../../importer/genshin/genshin.schema.ts';
+
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
     await loadGenshinVoiceItems();

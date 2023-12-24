@@ -1,4 +1,5 @@
 import { LangCodeMap } from '../lang-types.ts';
+
 export interface LoadingTipsExcelConfigData {
   Id: number,
 

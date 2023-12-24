@@ -1,5 +1,4 @@
 // noinspection JSUnusedGlobalSymbols
-
 import { escapeHtml } from '../shared/util/stringUtil.ts';
 import axios, { AxiosError, Method } from 'axios';
 import { showInternalErrorDialog, showJavascriptErrorDialog } from './util/errorHandler.ts';
@@ -8,7 +7,8 @@ import { HttpError } from '../shared/util/httpError.ts';
 import { cleanEmpty } from '../shared/util/arrayUtil.ts';
 import { FetterGroup } from '../shared/types/genshin/fetter-types.ts';
 import { VoiceAtlasGroup } from '../shared/types/hsr/hsr-avatar-types.ts';
-import { pageMatch } from './pageMatch.ts';
+import SiteMode from './siteMode.ts';
+
 export abstract class SaccharoseApiEndpoint<T extends Object, R = any> {
   readonly uri: string;
 
@@ -255,13 +255,13 @@ export function getOLEndpoint(): {endpoint: SaccharoseApiEndpoint<any>, tlRmDisa
   let tlRmDisabled: boolean = false;
   let neverDefaultHidden: boolean = false;
 
-  if (pageMatch.isGenshin) {
+  if (SiteMode.isGenshin) {
     endpoint = genshinEndpoints.generateOL;
-  } else if (pageMatch.isStarRail) {
+  } else if (SiteMode.isStarRail) {
     endpoint = starRailEndpoints.generateOL;
     tlRmDisabled = true;
     neverDefaultHidden = true;
-  } else if (pageMatch.isZenless) {
+  } else if (SiteMode.isZenless) {
     endpoint = zenlessEndpoints.generateOL;
     tlRmDisabled = true;
     neverDefaultHidden = true;
