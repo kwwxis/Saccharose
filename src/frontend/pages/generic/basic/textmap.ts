@@ -5,6 +5,7 @@ import { toInt } from '../../../../shared/util/numberUtil.ts';
 import { frag } from '../../../util/domutil.ts';
 import { startListeners } from '../../../util/eventLoader.ts';
 import { highlightReplace, highlightWikitextReplace } from '../../../util/ace/wikitextEditor.ts';
+
 pageMatch('pages/generic/basic/textmap', () => {
   let handle: GenericSearchPageHandle;
 

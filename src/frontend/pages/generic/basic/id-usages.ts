@@ -1,6 +1,7 @@
 import { pageMatch } from '../../../pageMatch.ts';
 import { startGenericSearchPageListeners } from '../../genericSearchPage.ts';
 import { genshinEndpoints, starRailEndpoints, SaccharoseApiEndpoint, zenlessEndpoints } from '../../../endpoints.ts';
+
 pageMatch('pages/generic/basic/id-usages', () => {
   let endpoint: SaccharoseApiEndpoint<any>;
 

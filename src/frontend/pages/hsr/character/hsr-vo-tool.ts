@@ -7,6 +7,7 @@ import {
 } from '../../../../shared/types/common-types.ts';
 import { AvatarConfig, isTrailblazer, VoiceAtlasGroup } from '../../../../shared/types/hsr/hsr-avatar-types.ts';
 import { starRailEndpoints } from '../../../endpoints.ts';
+
 pageMatch('pages/hsr/character/vo-tool', () => {
   initializeVoTool(() => ({
     storagePrefix: 'HSR_',

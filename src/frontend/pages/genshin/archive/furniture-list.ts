@@ -5,6 +5,7 @@ import { escapeHtml } from '../../../../shared/util/stringUtil.ts';
 import { sort } from '../../../../shared/util/arrayUtil.ts';
 import { defaultMap } from '../../../../shared/util/genericUtil.ts';
 import { startListeners } from '../../../util/eventLoader.ts';
+
 pageMatch('pages/genshin/archive/furniture-list', () => {
   const typeTree: HomeWorldFurnitureTypeTree = (<any> window).typeTree;
 

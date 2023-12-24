@@ -52,13 +52,22 @@ const npcFilterInclude = async (ctrl: GenshinControl, d: DialogExcelConfigData, 
 };
 // endregion
 
+// region Options
+// --------------------------------------------------------------------------------------------------------------
+export type DialogueGenerateOpts = {
+  voicedOnly?: boolean;
+  npcFilter?: string;
+}
+// endregion
+
 // region Single Branch Dialogue
 // --------------------------------------------------------------------------------------------------------------
 export const DIALOGUE_GENERATE_MAX = 100;
 
-export async function dialogueGenerate(ctrl: GenshinControl, query: number|number[]|string, npcFilter?: string): Promise<DialogueSectionResult[]> {
-  let result: DialogueSectionResult[] = [];
-  npcFilter = normNpcFilterInput(ctrl, npcFilter, ctrl.inputLangCode);
+export async function dialogueGenerate(ctrl: GenshinControl, query: number|number[]|string, opts: DialogueGenerateOpts = {}): Promise<DialogueSectionResult[]> {
+  const result: DialogueSectionResult[] = [];
+  const npcFilter: string = normNpcFilterInput(ctrl, opts?.npcFilter, ctrl.inputLangCode);
+  const voicedOnly: boolean = opts?.voicedOnly || false;
 
   if (typeof query === 'string' && isInt(query)) {
     query = parseInt(query);
@@ -103,6 +112,9 @@ export async function dialogueGenerate(ctrl: GenshinControl, query: number|numbe
     const dialogue: DialogExcelConfigData = typeof id === 'number' ? await ctrl.selectSingleDialogExcelConfigData(id) : id;
     if (!dialogue) {
       throw 'No Talk or Dialogue found for ID: ' + id;
+    }
+    if (voicedOnly && !ctrl.voice.hasVoiceItems('Dialog', dialogue.Id)) {
+      return false;
     }
     if (!(await npcFilterInclude(ctrl, dialogue, npcFilter))) {
       return false;
@@ -190,33 +202,35 @@ export async function dialogueGenerate(ctrl: GenshinControl, query: number|numbe
     return false;
   }
 
-  if (typeof query === 'string') {
-    // string
-    let textMapHashes: TextMapHash[] = [];
+  {
+    if (typeof query === 'string') {
+      // string
+      let textMapHashes: TextMapHash[] = [];
 
-    await ctrl.streamTextMapMatches(ctrl.inputLangCode, query.trim(),
-      (textMapHash: TextMapHash) => textMapHashes.push(textMapHash),
-      ctrl.searchModeFlags
-    );
+      await ctrl.streamTextMapMatches(ctrl.inputLangCode, query.trim(),
+        (textMapHash: TextMapHash) => textMapHashes.push(textMapHash),
+        ctrl.searchModeFlags
+      );
 
-    let acceptedCount = 0;
-    for (let textMapHash of textMapHashes) {
-      let dialogues = await ctrl.selectDialogsFromTextMapHash(textMapHash);
-      let accepted: boolean = (await dialogues.asyncMap(d => handle(d))).some(b => !!b);
-      if (accepted) {
-        acceptedCount++;
+      let acceptedCount = 0;
+      for (let textMapHash of textMapHashes) {
+        let dialogues = await ctrl.selectDialogsFromTextMapHash(textMapHash);
+        let accepted: boolean = (await dialogues.asyncMap(d => handle(d))).some(b => !!b);
+        if (accepted) {
+          acceptedCount++;
+        }
+        if (acceptedCount > DIALOGUE_GENERATE_MAX) {
+          break;
+        }
       }
-      if (acceptedCount > DIALOGUE_GENERATE_MAX) {
-        break;
+    } else if (typeof query === 'number') {
+      // number
+      await handle(query);
+    } else {
+      // number[]
+      for (let id of query) {
+        await handle(id);
       }
-    }
-  } else if (typeof query === 'number') {
-    // number
-    await handle(query);
-  } else {
-    // number[]
-    for (let id of query) {
-      await handle(id);
     }
   }
 

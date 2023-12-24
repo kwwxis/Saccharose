@@ -1,6 +1,7 @@
 import { genshinEndpoints } from '../../../endpoints.ts';
 import { pageMatch } from '../../../pageMatch.ts';
 import { startGenericSearchPageListeners } from '../../genericSearchPage.ts';
+
 pageMatch('pages/genshin/archive/material-search', () => {
   startGenericSearchPageListeners({
     endpoint: genshinEndpoints.searchItems,

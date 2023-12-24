@@ -2,6 +2,7 @@ import { genshinEndpoints } from '../../../endpoints.ts';
 import { pageMatch } from '../../../pageMatch.ts';
 import { startGenericSearchPageListeners } from '../../genericSearchPage.ts';
 import './branch-dialogue.scss';
+
 pageMatch('pages/genshin/dialogue/branch-dialogue', () => {
   startGenericSearchPageListeners({
     endpoint: genshinEndpoints.generateSingleDialogueBranch,
@@ -19,6 +20,11 @@ pageMatch('pages/genshin/dialogue/branch-dialogue', () => {
         apiParam: 'npcFilter',
         queryParam: 'npc',
         clearButton: '.npc-filter-input-clear',
+      },
+      {
+        selector: '#voicedOnly',
+        apiParam: 'voicedOnly',
+        queryParam: 'voicedOnly',
       }
     ],
 

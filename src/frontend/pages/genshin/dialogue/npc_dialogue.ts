@@ -1,6 +1,7 @@
 import { genshinEndpoints } from '../../../endpoints.ts';
 import { pageMatch } from '../../../pageMatch.ts';
 import { startGenericSearchPageListeners } from '../../genericSearchPage.ts';
+
 pageMatch('pages/genshin/dialogue/npc-dialogue', () => {
   startGenericSearchPageListeners({
     endpoint: genshinEndpoints.generateNpcDialogue,

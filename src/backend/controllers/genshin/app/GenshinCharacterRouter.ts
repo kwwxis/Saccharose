@@ -14,6 +14,7 @@ import {
   toCommonAvatarsFromGenshin,
 } from '../../../../shared/types/common-types.ts';
 import { LANG_CODES_TO_NAME, LangCode } from '../../../../shared/types/lang-types.ts';
+
 export default async function(): Promise<Router> {
   const router: Router = create();
 

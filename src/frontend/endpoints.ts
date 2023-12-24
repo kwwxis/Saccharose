@@ -170,7 +170,7 @@ export const genshinEndpoints = {
     includeHeader: boolean,
   }>('/OL/generate'),
 
-  generateSingleDialogueBranch: new GenshinApiEndpoint<{text: string, npcFilter?: string}>('/dialogue/single-branch-generate'),
+  generateSingleDialogueBranch: new GenshinApiEndpoint<{text: string, npcFilter?: string, voicedOnly?: string}>('/dialogue/single-branch-generate'),
 
   generateNpcDialogue: new GenshinApiEndpoint<{name: string}>('/dialogue/npc-dialogue-generate'),
 

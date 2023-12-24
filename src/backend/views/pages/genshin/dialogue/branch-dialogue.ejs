@@ -1,6 +1,6 @@
 <section class="card">
   <h2>Single Branch Dialogue Generator</h2>
-  <div class="content">
+  <div class="content form-box">
     <p class="spacer10-bottom">Generate dialogue after a specific line within a single dialogue section. You can also enter a specific Talk ID or Dialogue ID.<br />
     Only shows up to 100 results. More specific searches will be faster than broad searches.</p>
     <div id="branch-dialogue-inputs" class="field valign">
@@ -18,6 +18,12 @@
         <button class="npc-filter-input-clear input-clear-button hide"><%- icon('x-circle') %></button>
       </div>
       <%- use('partials/util/search-mode-input') %>
+    </div>
+    <div class="field valign">
+      <label class="ui-checkbox dispBlock" style="padding-left:5px;font-size:13px;">
+        <input id="voicedOnly" type="checkbox" name="voicedOnly" value="1" <%= cookieTernary('BranchDialogue.voicedOnly').isTruthy().then('checked') %> />
+        <span>Voiced only</span>
+      </label>
     </div>
     <div class="field valign spacer10-top">
       <button class="dialogue-generate-submit primary primary--2">Generate</button>

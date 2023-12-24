@@ -7,6 +7,7 @@ import { GeneralEventBus } from '../../../generalEventBus.ts';
 import { HttpError } from '../../../../shared/util/httpError.ts';
 import { isInt } from '../../../../shared/util/numberUtil.ts';
 import { pasteFromClipboard } from '../../../util/domutil.ts';
+
 pageMatch('pages/genshin/dialogue/quests', () => {
   let lastSuccessfulQuestId: number = 0;
 

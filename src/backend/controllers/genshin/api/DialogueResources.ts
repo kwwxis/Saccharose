@@ -3,7 +3,7 @@ import { GenshinControl, getGenshinControl } from '../../../domain/genshin/gensh
 import { MainQuestExcelConfigData } from '../../../../shared/types/genshin/quest-types.ts';
 import { isInt, toInt } from '../../../../shared/util/numberUtil.ts';
 import { questGenerate, QuestGenerateResult } from '../../../domain/genshin/dialogue/quest_generator.ts';
-import { isset, removeCyclicRefs } from '../../../../shared/util/genericUtil.ts';
+import { isset, removeCyclicRefs, toBoolean } from '../../../../shared/util/genericUtil.ts';
 import { HttpError } from '../../../../shared/util/httpError.ts';
 import { DialogueSectionResult } from '../../../domain/genshin/dialogue/dialogue_util.ts';
 import {
@@ -108,7 +108,10 @@ router.endpoint('/dialogue/single-branch-generate', {
       throw HttpError.badRequest('UnsupportedOperation', 'Unfortunately, you cannot search for just "Paimon" as the operation would be too intensive.');
     }
 
-    let result: DialogueSectionResult[] = await dialogueGenerate(ctrl, query, req.query.npcFilter as string);
+    let result: DialogueSectionResult[] = await dialogueGenerate(ctrl, query, {
+      npcFilter: req.query.npcFilter as string,
+      voicedOnly: toBoolean(req.query.voicedOnly)
+    });
 
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
       return res.render('partials/genshin/dialogue/single-branch-dialogue-generate-result', {

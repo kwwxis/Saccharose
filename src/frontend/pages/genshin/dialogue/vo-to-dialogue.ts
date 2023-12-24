@@ -1,6 +1,7 @@
 import { genshinEndpoints } from '../../../endpoints.ts';
 import { pageMatch } from '../../../pageMatch.ts';
 import { startGenericSearchPageListeners } from '../../genericSearchPage.ts';
+
 pageMatch('pages/genshin/dialogue/vo-to-dialogue', () => {
   startGenericSearchPageListeners({
     endpoint: genshinEndpoints.voToDialogue,

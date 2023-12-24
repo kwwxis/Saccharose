@@ -3,6 +3,7 @@ import { pageMatch } from '../../../pageMatch.ts';
 import { startGenericSearchPageListeners } from '../../genericSearchPage.ts';
 import { startListeners } from '../../../util/eventLoader.ts';
 import { fileFormatListeners } from '../../../initialListeners.ts';
+
 pageMatch('pages/genshin/archive/tutorials-search', () => {
   startGenericSearchPageListeners({
     endpoint: genshinEndpoints.searchTutorials,
