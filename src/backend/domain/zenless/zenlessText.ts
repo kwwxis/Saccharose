@@ -66,7 +66,7 @@ export function __normZenlessText(text: string, langCode: LangCode, opts: NormTe
   if (!opts.decolor && !opts.plaintext) {
     text = text.replace(/<color=#\{0}>(.*?)<\/color>/g, `<b>$1</b>`);
     text = postProcessBoldItalic(text, opts);
-    text = text.replace(/<color=(#[0-9a-fA-F]{6})FF>(.*?)<\/color>/g, '{{color|$1|$2}}');
+    text = text.replace(/<color=(#[0-9a-fA-F]{6})FF>(.*?)<\/color>/g, '{{Color|$1|$2}}');
   }
 
   // if (text.includes('{RUBY')) {

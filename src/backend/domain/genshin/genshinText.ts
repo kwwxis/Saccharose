@@ -148,7 +148,7 @@ export function __normGenshinText(text: string, langCode: LangCode, opts: NormTe
       (fm, g1) => elementColorTemplate(langCode, 'GEO', 'Geo', fm, g1));
 
     // Unknown:
-    text = text.replace(/<color=(#[0-9a-fA-F]{6})(?:FF)?>(.*?)<\/color>/g, '{{color|$1|$2}}');
+    text = text.replace(/<color=(#[0-9a-fA-F]{6})(?:FF)?>(.*?)<\/color>/g, '{{Color|$1|$2}}');
   }
 
   text = text.replace(/\{REALNAME\[ID\(1\)(\|HOSTONLY\(true\))?(\|DELAYHANDLE\((true|false)\))?]}/g, '(Wanderer)');
@@ -202,12 +202,12 @@ function elementColorTemplate(langCode: LangCode,
     return `{{${TPL_COLOR_NAME}}}`;
   }
 
-  // Contains element name: <color>Hydro DMG</color> --> {{color|Hydro DMG}}
+  // Contains element name: <color>Hydro DMG</color> --> {{Color|Hydro DMG}}
   else if (wikisSupportingInTextColorKeyword.has(langCode) && g1.toLowerCase().includes(elementName.EN.toLowerCase())) {
     return `{{Color|${g1}}}`;
   }
 
-  // Does not contain element name: <color>Lorem ipsum</color> --> {{color|hydro|Lorem ipsum}}
+  // Does not contain element name: <color>Lorem ipsum</color> --> {{Color|hydro|Lorem ipsum}}
   else {
     return `{{Color|${TPL_COLOR_NAME.toLowerCase()}|${g1}}}`;
   }
