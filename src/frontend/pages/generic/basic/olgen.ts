@@ -1,4 +1,4 @@
-import { Listener, startListeners } from '../../../util/eventLoader.ts';
+import { Listener, listen } from '../../../util/eventListen.ts';
 import Cookies from 'js-cookie';
 import { flashTippy } from '../../../util/tooltips.ts';
 import {
@@ -94,17 +94,18 @@ pageMatch('pages/generic/basic/olgen', () => {
     document.querySelector('.ol-input-clear').classList.add('with-paste-button');
   }
 
-  const listeners: Listener[] = [
+  listen([
     {
-      ev: 'ready',
-      fn: function() {
+      selector: 'document',
+      event: 'ready',
+      handle: function() {
         loadResultFromURL();
       }
     },
     {
-      el: 'window',
-      ev: 'popstate', // user clicks browser back/forward buttons
-      fn: function(event: PopStateEvent) {
+      selector: 'window',
+      event: 'popstate', // user clicks browser back/forward buttons
+      handle: function(event: PopStateEvent) {
         if (!event.state) {
           return;
         }
@@ -113,16 +114,16 @@ pageMatch('pages/generic/basic/olgen', () => {
       }
     },
     {
-      el: '.ol-input',
-      ev: 'enter',
-      fn: function(_event, _target) {
+      selector: '.ol-input',
+      event: 'enter',
+      handle: function(_event, _target) {
         generateResult();
       }
     },
     {
-      el: '.ol-input',
-      ev: 'input',
-      fn: function(_event, target: HTMLInputElement) {
+      selector: '.ol-input',
+      event: 'input',
+      handle: function(_event, target: HTMLInputElement) {
         if (target.value.trim().length) {
           document.querySelector('.ol-input-clear').classList.remove('hide');
         } else {
@@ -131,9 +132,9 @@ pageMatch('pages/generic/basic/olgen', () => {
       }
     },
     {
-      el: '.ol-input-clear',
-      ev: 'click',
-      fn: function(_event) {
+      selector: '.ol-input-clear',
+      event: 'click',
+      handle: function(_event) {
         let inputEl = document.querySelector<HTMLInputElement>('.ol-input');
         inputEl.value = '';
         inputEl.focus();
@@ -141,9 +142,9 @@ pageMatch('pages/generic/basic/olgen', () => {
       }
     },
     {
-      el: '.ol-input-paste',
-      ev: 'click',
-      fn: async function(_event) {
+      selector: '.ol-input-paste',
+      event: 'click',
+      handle: async function(_event) {
         let inputEl = document.querySelector<HTMLInputElement>('.ol-input');
         inputEl.value = '';
         inputEl.focus();
@@ -156,20 +157,20 @@ pageMatch('pages/generic/basic/olgen', () => {
       }
     },
     {
-      el: 'input[type="radio"][name="tl_options"],input[type="radio"][name="rm_options"]',
-      ev: 'input',
+      selector: 'input[type="radio"][name="tl_options"],input[type="radio"][name="rm_options"]',
+      event: 'input',
       multiple: true,
-      fn: function(event, target: HTMLInputElement) {
+      handle: function(event, target: HTMLInputElement) {
         let name = target.name;
         let value = target.value;
         Cookies.set('OL.'+name, value, { expires: 365 });
       }
     },
     {
-      el: 'input[type="checkbox"][name="ol_header"]',
-      ev: 'input',
+      selector: 'input[type="checkbox"][name="ol_header"]',
+      event: 'input',
       multiple: true,
-      fn: function(event, target: HTMLInputElement) {
+      handle: function(event, target: HTMLInputElement) {
         if (target.checked) {
           Cookies.set('OL.includeHeader', '1', { expires: 365 });
         } else {
@@ -178,13 +179,11 @@ pageMatch('pages/generic/basic/olgen', () => {
       }
     },
     {
-      el: '.ol-submit',
-      ev: 'click',
-      fn: function(_event, _target) {
+      selector: '.ol-submit',
+      event: 'click',
+      handle: function(_event, _target) {
         generateResult();
       }
     },
-  ];
-
-  startListeners(listeners);
+  ]);
 });

@@ -9,7 +9,7 @@ import {
 import { humanTiming, timeConvert } from '../shared/util/genericUtil.ts';
 import { modalService } from './util/modalService.ts';
 import { enableTippy, flashTippy, getTippyOpts, hideTippy, showTippy } from './util/tooltips.ts';
-import { Listener, runWhenDOMContentLoaded, startListeners } from './util/eventLoader.ts';
+import { Listener, runWhenDOMContentLoaded, listen } from './util/eventListen.ts';
 import { showJavascriptErrorDialog } from './util/errorHandler.ts';
 import autosize from 'autosize';
 import { isInt } from '../shared/util/numberUtil.ts';
@@ -59,10 +59,11 @@ const allowReadonlyKeys = new Set(['ArrowUp', 'ArrowRight', 'ArrowDown', 'ArrowL
 // noinspection JSIgnoredPromiseFromCall
 const initial_listeners: Listener[] = [
   {
-    ev: 'ready',
+    selector: 'document',
+    event: 'ready',
     intervalId: null,
     intervalMS: 500,
-    fn: function() {
+    handle: function() {
       this.intervalFunction(); // run immediately at start
       this.intervalId = setInterval(this.intervalFunction, this.intervalMS);
 
@@ -316,9 +317,9 @@ const initial_listeners: Listener[] = [
     },
   },
   {
-    el: document,
-    ev: 'keydown',
-    fn: function(e: KeyboardEvent) {
+    selector: document,
+    event: 'keydown',
+    handle: function(e: KeyboardEvent) {
       if (e.key === 'Shift') {
         document.body.classList.add('keydown-shift');
       } else if (e.key === 'Control') {
@@ -331,9 +332,9 @@ const initial_listeners: Listener[] = [
     }
   },
   {
-    el: document,
-    ev: 'keyup',
-    fn: function(e: KeyboardEvent) {
+    selector: document,
+    event: 'keyup',
+    handle: function(e: KeyboardEvent) {
       if (e.key === 'Shift') {
         document.body.classList.remove('keydown-shift');
       } else if (e.key === 'Control') {
@@ -346,9 +347,9 @@ const initial_listeners: Listener[] = [
     }
   },
   {
-    el: document,
-    ev: 'click',
-    fn: function(e: Event) {
+    selector: document,
+    event: 'click',
+    handle: function(e: Event) {
       const target: HTMLElement = e.target as HTMLElement;
       const actionEl = target.closest<HTMLElement>('[ui-action]');
 
@@ -794,10 +795,10 @@ const initial_listeners: Listener[] = [
     },
   },
   {
-    el: '.toggle-theme-buttons button',
-    ev: 'click',
+    selector: '.toggle-theme-buttons button',
+    event: 'click',
     multiple: true,
-    fn: function(event: MouseEvent, target: HTMLButtonElement) {
+    handle: function(event: MouseEvent, target: HTMLButtonElement) {
       let value = target.value;
       console.log('Toggle theme button clicked with value:', value);
 
@@ -824,20 +825,20 @@ const initial_listeners: Listener[] = [
     }
   },
   {
-    el: '.header-language-selector select',
-    ev: 'change',
+    selector: '.header-language-selector select',
+    event: 'change',
     multiple: true,
-    fn: function(event: Event, target: HTMLSelectElement) {
+    handle: function(event: Event, target: HTMLSelectElement) {
       let name = target.name;
       let value = target.value;
       GeneralEventBus.emit(name + 'Changed', value);
     }
   },
   {
-    el: '#search-mode-dropdown .option',
-    ev: 'click',
+    selector: '#search-mode-dropdown .option',
+    event: 'click',
     multiple: true,
-    fn: function(event: Event, target: HTMLElement) {
+    handle: function(event: Event, target: HTMLElement) {
       document.querySelectorAll('#search-mode-dropdown .option').forEach(el => el.classList.remove('selected'));
       target.classList.add('selected');
 
@@ -850,10 +851,10 @@ const initial_listeners: Listener[] = [
 
 export const fileFormatListeners: Listener[] = [
   {
-    el: '.file-format-options input[type="radio"]',
-    ev: 'input',
+    selector: '.file-format-options input[type="radio"]',
+    event: 'input',
     multiple: true,
-    fn: function(event, target: HTMLInputElement) {
+    handle: function(event, target: HTMLInputElement) {
       let parent = target.closest('.file-format-options');
       let name = target.name;
       let value = target.value;
@@ -866,10 +867,10 @@ export const fileFormatListeners: Listener[] = [
     }
   },
   {
-    el: '.file-format-options-custom-format-input',
-    ev: 'input',
+    selector: '.file-format-options-custom-format-input',
+    event: 'input',
     multiple: true,
-    fn: function(event, target: HTMLInputElement) {
+    handle: function(event, target: HTMLInputElement) {
       let name = target.name;
       let value = target.value;
 
@@ -881,10 +882,10 @@ export const fileFormatListeners: Listener[] = [
     }
   },
   {
-    el: '.file-format-options .file-format-options-custom-format-help-button',
-    ev: 'click',
+    selector: '.file-format-options .file-format-options-custom-format-help-button',
+    event: 'click',
     multiple: true,
-    fn: function(event, target: HTMLInputElement) {
+    handle: function(event, target: HTMLInputElement) {
       const paramName = target.closest('.file-format-options').getAttribute('data-param-name');
       const fileFormatDefault = target.closest('.file-format-options').getAttribute('data-file-format-default');
       const params = target.closest('.file-format-options').getAttribute('data-file-format-params').split(',').map(x => x.trim());
@@ -969,8 +970,8 @@ export const fileFormatListeners: Listener[] = [
 ]
 
 runWhenDOMContentLoaded(() => {
-  startListeners(initial_listeners, document);
-  startListeners(fileFormatListeners, document);
+  listen(initial_listeners, document);
+  listen(fileFormatListeners, document);
 });
 
 function recalculateDesktopStickyHeader() {
@@ -991,17 +992,17 @@ function recalculateDesktopStickyHeader() {
 
 const desktopStickerHeaderListeners: Listener[] = [
   {
-    el: 'window',
-    ev: 'scroll',
-    fn: function(_event) {
+    selector: 'window',
+    event: 'scroll',
+    handle: function(_event) {
       recalculateDesktopStickyHeader();
       document.querySelectorAll('.ace_token-tooltip').forEach(el => el.remove());
     }
   },
   {
-    el: 'window',
-    ev: 'resize',
-    fn: (_event: UIEvent) => {
+    selector: 'window',
+    event: 'resize',
+    handle: (_event) => {
       recalculateDesktopStickyHeader();
       recalculateAceLinePanelPositions();
     }
@@ -1009,6 +1010,6 @@ const desktopStickerHeaderListeners: Listener[] = [
 ];
 
 runWhenDOMContentLoaded(() => {
-  startListeners(desktopStickerHeaderListeners, document);
+  listen(desktopStickerHeaderListeners, document);
   recalculateDesktopStickyHeader();
 });

@@ -1,7 +1,7 @@
 import { genshinEndpoints } from '../../../endpoints.ts';
 import { pageMatch } from '../../../pageMatch.ts';
 import { startGenericSearchPageListeners } from '../../genericSearchPage.ts';
-import { startListeners } from '../../../util/eventLoader.ts';
+import { listen } from '../../../util/eventListen.ts';
 import { fileFormatListeners } from '../../../initialListeners.ts';
 
 pageMatch('pages/genshin/archive/tutorials-search', () => {
@@ -23,7 +23,7 @@ pageMatch('pages/genshin/archive/tutorials-search', () => {
     resultTarget: '#search-result',
 
     afterProcessResult(caller, resultContainer) {
-      startListeners(fileFormatListeners, resultContainer);
+      listen(fileFormatListeners, resultContainer);
     }
   });
 });

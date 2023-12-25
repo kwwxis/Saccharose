@@ -1,6 +1,6 @@
 import { escapeHtml } from '../../shared/util/stringUtil.ts';
 import { getFocusableSelector, isElement } from './domutil.ts';
-import { runWhenDOMContentLoaded } from './eventLoader.ts';
+import { runWhenDOMContentLoaded } from './eventListen.ts';
 
 const TYPE_ALERT = 0;
 const TYPE_MODAL = 1;

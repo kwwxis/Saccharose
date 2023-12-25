@@ -1,4 +1,4 @@
-import { startListeners } from '../../../util/eventLoader.ts';
+import { listen } from '../../../util/eventListen.ts';
 import { VoAppState } from './vo-tool.ts';
 import { flashTippy } from '../../../util/tooltips.ts';
 import { copyTextToClipboard, downloadObjectAsJson, downloadTextAsFile } from '../../../util/domutil.ts';
@@ -10,6 +10,9 @@ import { LANG_CODE_TO_WIKI_CODE, LangCode } from '../../../../shared/types/lang-
 import { VoAppPreloadOptions } from './vo-preload-types.ts';
 
 export function VoAppToolbar(state: VoAppState) {
+  if (!state.avatar)
+    return;
+
   function overwriteModal(type: 'story' | 'combat') {
     if (!state.voiceOverGroup) {
       alert('Voice-overs not yet loaded. Please wait a bit and then retry.');
@@ -81,29 +84,29 @@ export function VoAppToolbar(state: VoAppState) {
       state.eventBus.emit('VO-Wikitext-OverwriteFromVoiceOvers', type, opts);
     });
   }
-  startListeners([
+  listen([
     {
-      el: '.vo-app-language-option',
-      ev: 'click',
+      selector: '.vo-app-language-option',
+      event: 'click',
       multiple: true,
-      fn: function(event, target) {
+      handle: function(event, target) {
         let targetValue = target.getAttribute('data-value');
         state.eventBus.emit('VO-Lang-Changed', targetValue as LangCode);
       }
     },
     {
-      el: '.vo-app-interfacelang-option',
-      ev: 'click',
+      selector: '.vo-app-interfacelang-option',
+      event: 'click',
       multiple: true,
-      fn: function(event, target) {
+      handle: function(event, target) {
         let targetValue = target.getAttribute('data-value');
         GeneralEventBus.emit('outputLangCodeChanged', targetValue as LangCode);
       }
     },
     {
-      el: '#vo-app-load-fromWikitext',
-      ev: 'click',
-      fn: function() {
+      selector: '#vo-app-load-fromWikitext',
+      event: 'click',
+      handle: function() {
         let tabButton = document.querySelector<HTMLButtonElement>('#tab-wikitext');
         tabButton.click();
         let wikitext = document.querySelector<HTMLElement>('#wikitext-editor');
@@ -111,9 +114,9 @@ export function VoAppToolbar(state: VoAppState) {
       }
     },
     {
-      el: '#vo-app-load-from-story',
-      ev: 'click',
-      fn: function() {
+      selector: '#vo-app-load-from-story',
+      event: 'click',
+      handle: function() {
         if (!state.voiceOverGroup) {
           alert('Voice-overs not yet loaded. Please wait a bit and then retry.');
           return;
@@ -122,9 +125,9 @@ export function VoAppToolbar(state: VoAppState) {
       }
     },
     {
-      el: '#vo-app-load-from-combat',
-      ev: 'click',
-      fn: function() {
+      selector: '#vo-app-load-from-combat',
+      event: 'click',
+      handle: function() {
         if (!state.voiceOverGroup) {
           alert('Voice-overs not yet loaded. Please wait a bit and then retry.');
           return;
@@ -133,9 +136,9 @@ export function VoAppToolbar(state: VoAppState) {
       }
     },
     {
-      el: '#vo-app-export-copyText',
-      ev: 'click',
-      fn: function() {
+      selector: '#vo-app-export-copyText',
+      event: 'click',
+      handle: function() {
         state.eventBus.emit('VO-Wikitext-RequestValue', (value: string) => {
           copyTextToClipboard(value);
 
@@ -145,9 +148,9 @@ export function VoAppToolbar(state: VoAppState) {
       }
     },
     {
-      el: '#vo-app-export-saveFile',
-      ev: 'click',
-      fn: function() {
+      selector: '#vo-app-export-saveFile',
+      event: 'click',
+      handle: function() {
         state.eventBus.emit('VO-Wikitext-RequestValue', (value: string) => {
           let wtAvatarName = state.avatar.NameText.replace(/ /g, '_');
           let wtLangCode = LANG_CODE_TO_WIKI_CODE[state.voLang];
@@ -156,9 +159,9 @@ export function VoAppToolbar(state: VoAppState) {
       }
     },
     {
-      el: '#vo-app-export-json',
-      ev: 'click',
-      fn: function() {
+      selector: '#vo-app-export-json',
+      event: 'click',
+      handle: function() {
         if (!state.voiceOverGroup) {
           alert('Voice-overs not yet loaded. Please wait a bit and then retry.');
           return;

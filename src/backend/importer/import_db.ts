@@ -3,7 +3,7 @@ import { closeKnex, openKnex } from '../util/db.ts';
 import commandLineArgs, { OptionDefinition as ArgsOptionDefinition } from 'command-line-args';
 import commandLineUsage, { OptionDefinition as UsageOptionDefinition } from 'command-line-usage';
 import { getGenshinDataFilePath, getStarRailDataFilePath, getZenlessDataFilePath } from '../loadenv.ts';
-import { humanTiming, timeConvert } from '../../shared/util/genericUtil.ts';
+import { humanTiming, isPromise, timeConvert } from '../../shared/util/genericUtil.ts';
 import { promises as fs } from 'fs';
 import ora from 'ora';
 import { pathToFileURL } from 'url';
@@ -20,15 +20,58 @@ export type SchemaTableSet = {[tableName: string]: SchemaTable};
 
 export type SchemaTable = {
   name: string,
-  columns: SchemaColumn[],
   jsonFile: string,
-  customRowResolve?: (row: any, allRows?: any[]) => any[],
-  schemaTranslation?: { [oldName: string]: string },
-  renameFields?: { [oldName: string]: string },
-  singularize?: string[],
-  isKvPair?: boolean,
-  isDatFile?: boolean,
+
+  /**
+   * How the file is read in (default: `record_array`)
+   */
+  jsonFileType?: 'record_array' | 'kv_pairs' | 'line_dat',
+
+  // Normalize Options
+  // --------------------------------------------------------------------------------------------------------------
+
+  /**
+   * Table creation schema.
+   */
+  columns: SchemaColumn[],
+
+  /**
+   * By default, a `json_data` column is always added to the table. Setting this option to false will prevent that.
+   *
+   * Note: if `customRowResolve` is implemented, that also disables the `json_data` column.
+   */
   noIncludeJson?: boolean,
+
+  /**
+   * Custom row resolve. Gets passed in the current row and may return one or more rows to insert.
+   *
+   * The row passed in already has had `schemaTranslation` and `renameFields` applied to it.
+   *
+   * @param row The current row
+   * @param allRows The list of all rows
+   * @param acc An accumulator object. It starts off as an empty object and the same object is passed to every call
+   * to `customRowResolve`. What is done with this object is up to the implementer.
+   */
+  customRowResolve?: (row: any, allRows?: any[], acc?: Record<string, any>) => any[]|Promise<any>,
+
+  // Normalize Options
+  // --------------------------------------------------------------------------------------------------------------
+
+  /**
+   * Recursively renames any fields in the payload.
+   */
+  renameFields?: { [oldName: string]: string },
+
+  /**
+   * Has the same functionality as renameFields, but this will be applied first before renameFields.
+   */
+  schemaTranslation?: { [oldName: string]: string },
+
+  /**
+   * Provide a list of field names. When a field with a name in this array is encountered, and if the value of that
+   * field is an array, then the value of that field will be converted to the first non-falsy value in that array.
+   */
+  singularize?: string[],
 };
 export type SchemaColumnType =
   'string'
@@ -67,14 +110,14 @@ export function textMapSchema(langCode: LangCode, hashType: string = 'integer'):
   return <SchemaTable> {
     name: 'TextMap' + langCode,
     jsonFile: './TextMap/TextMap'+langCode+'.json',
+    jsonFileType: 'kv_pairs',
     columns: [
       {name: 'Hash', type: hashType, isPrimary: true},
       {name: 'Text', type: 'text'}
     ],
     customRowResolve(row) {
       return [{Hash: row.Key, Text: row.Value}];
-    },
-    isKvPair: true
+    }
   };
 }
 
@@ -82,6 +125,7 @@ export function plainLineMapSchema(langCode: LangCode, hashType: string = 'integ
   return <SchemaTable> {
     name: 'PlainLineMap' + langCode,
     jsonFile: `./TextMap/Plain/PlainTextMap${langCode}_Hash.dat`,
+    jsonFileType: 'line_dat',
     columns: [
       {name: 'Line', type: 'integer', isPrimary: true },
       {name: 'Hash', type: hashType },
@@ -90,8 +134,7 @@ export function plainLineMapSchema(langCode: LangCode, hashType: string = 'integ
     customRowResolve(row) {
       const linePair = row.LineText.split(',');
       return [{Line: row.LineNumber, Hash: linePair[0], LineType: linePair[1] || null}];
-    },
-    isDatFile: true,
+    }
   }
 }
 
@@ -184,10 +227,11 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
       console.log('  (done)');
     }
 
-    function createRowPayload(table: SchemaTable, row: any, allRows: any[]): any[] {
+    async function createRowPayload(table: SchemaTable, row: any, allRows: any[], acc: Record<string, any>): Promise<any[]> {
       row = normalizeRawJson(row, table);
       if (table.customRowResolve) {
-        return table.customRowResolve(row, allRows);
+        const ret = table.customRowResolve(row, allRows, acc);
+        return isPromise(ret) ? ret : Promise.resolve(ret);
       } else {
         let payload = {};
         if (!table.noIncludeJson) {
@@ -223,13 +267,13 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
       let json: any[];
       let totalRows: number;
 
-      if (table.isKvPair) {
+      if (table.jsonFileType === 'kv_pairs') {
         json = Object.entries(JSON.parse(fileContents)).map(([Key, Value]) => ({Key, Value}));
         totalRows = json.length;
-      } else if (table.isDatFile) {
+      } else if (table.jsonFileType === 'line_dat') {
         let lines: string[] = fileContents.split(/\n/g);
         json = [];
-        
+
         for (let i: number = 0; i < lines.length; i++) {
           json.push({LineNumber: i + 1, LineText: lines[i]});
         }
@@ -259,8 +303,9 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
       }
 
       let currentRow = 1;
+      let acc: Record<string, any> = {};
       for (let row of json) {
-        batch.push(... createRowPayload(table, row, json));
+        batch.push(... await createRowPayload(table, row, json, acc));
         if (batch.length >= batchMax) {
           await commitBatch();
         }

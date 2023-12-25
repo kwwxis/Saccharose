@@ -73,13 +73,17 @@ export class RequestContext {
   }
 
   async createStaticVirtualView(html: string|ReactElement|App): Promise<string> {
-    const viewName = 'virtual-static-views/' + this.virtualStaticViewCounter++;
+    let viewName: string = 'virtual-static-views/' + this.virtualStaticViewCounter++;
 
     if (typeof html !== 'string') {
       if (isValidReactElement(html)) {
-        html = renderReactToString(html);
+        const reactElement: ReactElement = html;
+        html = renderReactToString(reactElement);
       } else if (isVueApp(html)) {
-        html = await renderVueToString(html);
+        const vueApp: App = html;
+        html = await renderVueToString(vueApp);
+        if (vueApp._component?.__name)
+          viewName = 'vue/' + vueApp._component.__name;
       } else {
         console.error('createStaticVirtualView: illegal argument', html);
         throw 'createStaticVirtualView: illegal argument';

@@ -1,6 +1,6 @@
 import { flashTippy } from '../util/tooltips.ts';
 import { errorHtmlWrap, SaccharoseApiEndpoint } from '../endpoints.ts';
-import { Listener, startListeners } from '../util/eventLoader.ts';
+import { Listener, ListenerEventMap, listen } from '../util/eventListen.ts';
 import { GeneralEventBus } from '../generalEventBus.ts';
 import { HttpError } from '../../shared/util/httpError.ts';
 import { pasteFromClipboard } from '../util/domutil.ts';
@@ -249,10 +249,11 @@ export function startGenericSearchPageListeners<T>(opts: GenericSearchPageOpts<T
 
   const isFirefox: boolean = /firefox/i.test(navigator.userAgent);
 
-  const listeners: Listener[] = [
+  listen([
     {
-      ev: 'ready',
-      fn: function() {
+      selector: 'document',
+      event: 'ready',
+      handle: function() {
         loadResultFromURL();
         if (opts.afterInit) {
           opts.afterInit({
@@ -273,9 +274,9 @@ export function startGenericSearchPageListeners<T>(opts: GenericSearchPageOpts<T
       }
     },
     {
-      el: 'window',
-      ev: 'popstate', // user clicks browser back/forward buttons
-      fn: function(event: PopStateEvent) {
+      selector: 'window',
+      event: 'popstate', // user clicks browser back/forward buttons
+      handle: function(event: PopStateEvent) {
         if (!event.state) {
           return;
         }
@@ -283,14 +284,29 @@ export function startGenericSearchPageListeners<T>(opts: GenericSearchPageOpts<T
         loadResultFromState(event.state);
       }
     },
-    ... opts.inputs.filter(optInput => !optInput.disableEnterKeySubmit).map(optInput => ({
-      el: optInput.selector,
-      ev: 'enter',
-      fn: function(_event, _target) {
-        generateResult('inputEnter');
+    {
+      selector: opts.submitButtonTarget,
+      event: 'click',
+      handle: function(_event, _target) {
+        generateResult('submitButtonClick');
       }
-    })),
-    ... opts.inputs.filter(x => x.clearButton).map(optInput => {
+    },
+  ]);
+
+  listen(
+    opts.inputs
+      .filter(optInput => !optInput.disableEnterKeySubmit)
+      .map(optInput => ({
+        selector: optInput.selector,
+        event: 'enter',
+        handle: function(_event: Event, _target) {
+          generateResult('inputEnter');
+        }
+      }))
+  );
+
+  listen(
+    opts.inputs.filter(x => x.clearButton).map(optInput => {
       if (optInput.pasteButton && !isFirefox) {
         document.querySelector(optInput.clearButton).classList.add('with-paste-button');
       }
@@ -298,9 +314,9 @@ export function startGenericSearchPageListeners<T>(opts: GenericSearchPageOpts<T
       return optInput;
     }).flatMap((optInput) => ([
       {
-        el: optInput.clearButton,
-        ev: 'click',
-        fn: function(_event, _target) {
+        selector: optInput.clearButton,
+        event: 'click',
+        handle: function(_event, _target) {
           let inputEl = document.querySelector<HTMLInputElement>(optInput.selector);
           inputEl.value = '';
           inputEl.focus();
@@ -308,9 +324,9 @@ export function startGenericSearchPageListeners<T>(opts: GenericSearchPageOpts<T
         }
       },
       {
-        el: optInput.selector,
-        ev: 'input',
-        fn: function(_event, target) {
+        selector: optInput.selector,
+        event: 'input',
+        handle: function(_event, target: HTMLInputElement) {
           if (target.value.trim().length) {
             document.querySelector(optInput.clearButton).classList.remove('hide');
           } else {
@@ -318,8 +334,11 @@ export function startGenericSearchPageListeners<T>(opts: GenericSearchPageOpts<T
           }
         }
       }
-    ])),
-    ... opts.inputs.filter(x => x.pasteButton).map(optInput => {
+    ]))
+  );
+
+  listen(
+    opts.inputs.filter(x => x.pasteButton).map(optInput => {
       if (isFirefox) {
         document.querySelector(optInput.pasteButton).remove();
         return null;
@@ -329,9 +348,9 @@ export function startGenericSearchPageListeners<T>(opts: GenericSearchPageOpts<T
       }
     }).filter(x => !!x).flatMap((optInput) => ([
       {
-        el: optInput.pasteButton,
-        ev: 'click',
-        fn: async function(_event, _target) {
+        selector: optInput.pasteButton,
+        event: 'click',
+        handle: async function(_event, _target) {
           let inputEl = document.querySelector<HTMLInputElement>(optInput.selector);
           inputEl.value = '';
           inputEl.focus();
@@ -346,9 +365,9 @@ export function startGenericSearchPageListeners<T>(opts: GenericSearchPageOpts<T
         }
       },
       {
-        el: optInput.selector,
-        ev: 'input',
-        fn: function(_event, target) {
+        selector: optInput.selector,
+        event: 'input',
+        handle: function(_event, target: HTMLInputElement) {
           if (target.value.trim().length) {
             document.querySelector(optInput.pasteButton).setAttribute('ui-tippy', 'Clear and Paste');
           } else {
@@ -356,15 +375,6 @@ export function startGenericSearchPageListeners<T>(opts: GenericSearchPageOpts<T
           }
         }
       }
-    ])),
-    {
-      el: opts.submitButtonTarget,
-      ev: 'click',
-      fn: function(_event, _target) {
-        generateResult('submitButtonClick');
-      }
-    },
-  ];
-
-  startListeners(listeners);
+    ]))
+  );
 }

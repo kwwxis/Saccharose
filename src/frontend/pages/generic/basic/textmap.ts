@@ -3,8 +3,8 @@ import { pageMatch } from '../../../pageMatch.ts';
 import { GenericSearchPageHandle, startGenericSearchPageListeners } from '../../genericSearchPage.ts';
 import { toInt } from '../../../../shared/util/numberUtil.ts';
 import { frag } from '../../../util/domutil.ts';
-import { startListeners } from '../../../util/eventLoader.ts';
-import { highlightReplace, highlightWikitextReplace } from '../../../util/ace/wikitextEditor.ts';
+import { listen } from '../../../util/eventListen.ts';
+import { highlightReplace } from '../../../util/ace/wikitextEditor.ts';
 import SiteMode from '../../../siteMode.ts';
 
 pageMatch('pages/generic/basic/textmap', () => {
@@ -94,12 +94,12 @@ pageMatch('pages/generic/basic/textmap', () => {
         });
       }
 
-      startListeners([
+      listen([
         {
-          el: '.id-usages-trigger',
-          ev: 'click',
+          selector: '.id-usages-trigger',
+          event: 'click',
           multiple: true,
-          fn(event, buttonEl) {
+          handle(event, buttonEl) {
             if (buttonEl.classList.contains('triggered')) {
               if (buttonEl.classList.contains('expanded-state')) {
                 buttonEl.setAttribute('ui-tippy-hover', 'Expand usage results');

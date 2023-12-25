@@ -1,5 +1,5 @@
 import { errorHtmlWrap, genshinEndpoints } from '../../../endpoints.ts';
-import { startListeners } from '../../../util/eventLoader.ts';
+import { Listener, listen } from '../../../util/eventListen.ts';
 import { modalService } from '../../../util/modalService.ts';
 import { flashTippy } from '../../../util/tooltips.ts';
 import { pageMatch } from '../../../pageMatch.ts';
@@ -26,12 +26,12 @@ pageMatch('pages/genshin/dialogue/quests', () => {
       }
     }
 
-    startListeners([
+    listen([
       {
-        el: '[data-filter-similarity-group]',
-        ev: 'click',
+        selector: '[data-filter-similarity-group]',
+        event: 'click',
         multiple: true,
-        fn: function(event, target) {
+        handle: function(event, target) {
           const targetIsActive: boolean = target.classList.contains('active');
 
           document.querySelectorAll('[data-filter-similarity-group]')
@@ -88,7 +88,7 @@ pageMatch('pages/genshin/dialogue/quests', () => {
           document.title = questTitleEl.getAttribute('data-document-title');
         }
       })
-      startListeners(questResultListeners, '#quest-generate-result');
+      listen(questResultListeners, '#quest-generate-result');
     }).catch((err: HttpError) => {
       document.querySelector('#quest-generate-result').innerHTML = errorHtmlWrap(err.message);
     });
@@ -127,12 +127,12 @@ pageMatch('pages/genshin/dialogue/quests', () => {
     }
   });
 
-  const questResultListeners = [
+  const questResultListeners: Listener[] = [
     {
-      el: '.help-info',
-      ev: 'click',
+      selector: '.help-info',
+      event: 'click',
       multiple: true,
-      fn: function(_event, _target) {
+      handle: function(_event, _target) {
         modalService.modal('Notes', `
           <ul class="padding">
             <li>The order of dialogue sections is not guaranteed to be in the correct chronological order nor are the "Section Order" parameters reliable.
@@ -150,20 +150,21 @@ pageMatch('pages/genshin/dialogue/quests', () => {
           </ul>`,
           { modalClass: 'modal-lg' });
       }
-    },
+    }
   ];
 
-  const listeners = [
+  const listeners: Listener[] = [
     {
-      ev: 'ready',
-      fn: function() {
+      selector: 'document',
+      event: 'ready',
+      handle: function() {
         loadQuestGenerateResultFromUrl();
       }
     },
     {
-      el: 'window',
-      ev: 'popstate', // user clicks browser back/forward buttons
-      fn: function(event) {
+      selector: 'window',
+      event: 'popstate', // user clicks browser back/forward buttons
+      handle: function(event) {
         if (!event.state) {
           return;
         }
@@ -171,16 +172,16 @@ pageMatch('pages/genshin/dialogue/quests', () => {
       }
     },
     {
-      el: '.quest-search-input',
-      ev: 'enter',
-      fn: function(_event, _target) {
+      selector: '.quest-search-input',
+      event: 'enter',
+      handle: function(_event, _target) {
         document.querySelector<HTMLButtonElement>('.quest-search-submit').click();
       }
     },
     {
-      el: '.quest-search-input',
-      ev: 'input',
-      fn: function(_event, target: HTMLInputElement) {
+      selector: '.quest-search-input',
+      event: 'input',
+      handle: function(_event, target: HTMLInputElement) {
         const clearEl = document.querySelector<HTMLInputElement>('.quest-search-input-clear');
         const pasteEl = document.querySelector<HTMLButtonElement>('.quest-search-input-paste');
 
@@ -194,9 +195,9 @@ pageMatch('pages/genshin/dialogue/quests', () => {
       }
     },
     {
-      el: '.quest-search-input-paste',
-      ev: 'click',
-      fn: async function(_event, _target) {
+      selector: '.quest-search-input-paste',
+      event: 'click',
+      handle: async function(_event, _target) {
         const inputEl = document.querySelector<HTMLInputElement>('.quest-search-input');
         const clearEl = document.querySelector<HTMLButtonElement>('.quest-search-input-clear');
         const pasteEl = document.querySelector<HTMLButtonElement>('.quest-search-input-paste');
@@ -215,9 +216,9 @@ pageMatch('pages/genshin/dialogue/quests', () => {
       }
     },
     {
-      el: '.quest-search-input-clear',
-      ev: 'click',
-      fn: function(_event, target: HTMLButtonElement) {
+      selector: '.quest-search-input-clear',
+      event: 'click',
+      handle: function(_event, target: HTMLButtonElement) {
         const inputEl = document.querySelector<HTMLInputElement>('.quest-search-input');
         const pasteEl = document.querySelector<HTMLButtonElement>('.quest-search-input-paste');
 
@@ -228,9 +229,9 @@ pageMatch('pages/genshin/dialogue/quests', () => {
       }
     },
     {
-      el: '.quest-search-submit',
-      ev: 'click',
-      fn: function(event, target) {
+      selector: '.quest-search-submit',
+      event: 'click',
+      handle: function(event, target: HTMLButtonElement) {
         let inputEl = document.querySelector<HTMLInputElement>('.quest-search-input');
         let loadingEl = document.querySelector('.quest-search-submit-pending');
         let text = inputEl.value.trim();
@@ -248,11 +249,11 @@ pageMatch('pages/genshin/dialogue/quests', () => {
           document.querySelector('.quest-search-result-wrapper').classList.remove('hide');
           document.querySelector('.quest-search-result').innerHTML = result;
 
-          startListeners([
+          listen([
             {
-              el: '.quest-search-result',
-              ev: 'click',
-              fn: function(event: MouseEvent) {
+              selector: '.quest-search-result',
+              event: 'click',
+              handle: function(event: MouseEvent) {
                 console.log('Search result clicked', event);
 
                 let target: HTMLAnchorElement = (event.target as HTMLElement).closest('a');
@@ -279,8 +280,8 @@ pageMatch('pages/genshin/dialogue/quests', () => {
           target.disabled = false;
         });
       }
-    },
+    }
   ];
 
-  startListeners(listeners);
+  listen(listeners);
 });

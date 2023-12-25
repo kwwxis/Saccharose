@@ -1,4 +1,4 @@
-import { runWhenDOMContentLoaded } from './util/eventLoader.ts';
+import { runWhenDOMContentLoaded } from './util/eventListen.ts';
 
 const viewStackMeta: HTMLMetaElement = document.querySelector('meta[name="view-stack"]');
 const loadedViews: Set<string> = new Set(viewStackMeta.content.split(','));

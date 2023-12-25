@@ -15,6 +15,9 @@ function compareTemplateName(t1: string, t2: string) {
 }
 
 export function VoAppWikitextEditor(state: VoAppState) {
+  if (!state.avatar)
+    return;
+
   const editor: ace.Editor = createWikitextEditor('wikitext-editor');
 
   let editorEl = document.getElementById('wikitext-editor');

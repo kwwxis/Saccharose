@@ -39,6 +39,14 @@ import { defaultMap } from '../../shared/util/genericUtil.ts';
 export abstract class AbstractControlState {
   public request: Request = null;
 
+  /**
+   * Disables establishing database connection on instance construction.
+   *
+   * This only has effect if it is set to true before the `Control` instance is created.
+   * If it is changed the instance is created, then it has no effect.
+   */
+  public NoDbConnect: boolean = false;
+
   constructor(request?: Request) {
     this.request = request || null;
   }
@@ -90,7 +98,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
 
   protected constructor(dbName: keyof SaccharoseDb, stateConstructor: {new(request?: Request): T}, requestOrState?: Request|T) {
     this.state = requestOrState instanceof AbstractControlState ? requestOrState : new stateConstructor(requestOrState);
-    this.knex = openKnex()[dbName];
+    this.knex = this.state.NoDbConnect ? null : openKnex()[dbName];
     this.schema = schemaForDbName(dbName);
   }
 

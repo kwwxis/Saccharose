@@ -130,15 +130,10 @@ export class VoAppState {
 }
 
 export function initializeVoTool(configSupplier: () => VoAppConfig): void {
-  const state = new VoAppState(configSupplier);
-
+  const state: VoAppState = new VoAppState(configSupplier);
   VoAppSidebar(state);
-  if (document.querySelector('#vo-app-welcome')) {
-    VoAppWelcome(state);
-  }
-  if (state.avatar) {
-    VoAppToolbar(state);
-    VoAppVisualEditor(state);
-    VoAppWikitextEditor(state);
-  }
+  VoAppWelcome(state);
+  VoAppToolbar(state);
+  VoAppVisualEditor(state);
+  VoAppWikitextEditor(state);
 }

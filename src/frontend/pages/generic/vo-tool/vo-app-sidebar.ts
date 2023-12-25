@@ -1,4 +1,4 @@
-import { startListeners } from '../../../util/eventLoader.ts';
+import { listen } from '../../../util/eventListen.ts';
 import { VoAppState } from './vo-tool.ts';
 
 export function VoAppSidebar(_state: VoAppState) {
@@ -8,11 +8,11 @@ export function VoAppSidebar(_state: VoAppState) {
   const lc = (s: string) => s ? s.toLowerCase() : '';
   let debounceId: any;
 
-  startListeners([
+  listen([
     {
-      el: '#vo-toolbar-sidebar-search',
-      ev: 'input',
-      fn: function(_event: InputEvent, target: HTMLInputElement) {
+      selector: '#vo-toolbar-sidebar-search',
+      event: 'input',
+      handle: function(_event: InputEvent, target: HTMLInputElement) {
         clearTimeout(debounceId);
         pendingIconEl.classList.remove('hide');
 

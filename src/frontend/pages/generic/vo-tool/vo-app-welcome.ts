@@ -1,4 +1,4 @@
-import { startListeners } from '../../../util/eventLoader.ts';
+import { listen } from '../../../util/eventListen.ts';
 import { flashTippy } from '../../../util/tooltips.ts';
 import { createVoHandle } from './vo-handle.ts';
 import { VoAppState } from './vo-tool.ts';
@@ -13,6 +13,9 @@ import { frag1 } from '../../../util/domutil.ts';
 import { toParam } from '../../../../shared/util/stringUtil.ts';
 
 export function VoAppWelcome(state: VoAppState) {
+  if (!document.querySelector('#vo-app-welcome'))
+    return;
+
   const recentEl: HTMLElement = document.querySelector('#vo-app-welcome-recent');
   const recentListEl: HTMLElement = document.querySelector('#vo-app-welcome-recent-list');
 
@@ -107,11 +110,11 @@ export function VoAppWelcome(state: VoAppState) {
 
   const inputEditor = createWikitextEditor('welcome-wt-input');
 
-  startListeners([
+  listen([
     {
-      el: '#welcome-wt-submit',
-      ev: 'click',
-      fn: function() {
+      selector: '#welcome-wt-submit',
+      event: 'click',
+      handle: function() {
         let wikitext = inputEditor.getValue();
         let submitEl = document.querySelector<HTMLButtonElement>('#welcome-wt-submit');
 

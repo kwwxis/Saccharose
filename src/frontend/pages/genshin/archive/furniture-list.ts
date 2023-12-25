@@ -4,7 +4,7 @@ import { CheckTree } from '../../../util/checkTree.ts';
 import { escapeHtml } from '../../../../shared/util/stringUtil.ts';
 import { sort } from '../../../../shared/util/arrayUtil.ts';
 import { defaultMap } from '../../../../shared/util/genericUtil.ts';
-import { startListeners } from '../../../util/eventLoader.ts';
+import { listen } from '../../../util/eventListen.ts';
 
 pageMatch('pages/genshin/archive/furniture-list', () => {
   const typeTree: HomeWorldFurnitureTypeTree = (<any> window).typeTree;
@@ -68,11 +68,11 @@ pageMatch('pages/genshin/archive/furniture-list', () => {
   const lc = (s: string) => s ? s.toLowerCase() : '';
   let debounceId: any;
 
-  startListeners([
+  listen([
     {
-      el: '#filter-quick-search',
-      ev: 'input',
-      fn: function(event: InputEvent, target: HTMLInputElement) {
+      selector: '#filter-quick-search',
+      event: 'input',
+      handle: function(event: InputEvent, target: HTMLInputElement) {
         clearTimeout(debounceId);
         pendingIconEl.classList.remove('hide');
 

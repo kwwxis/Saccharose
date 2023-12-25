@@ -1,7 +1,7 @@
 
 import * as ace from 'brace';
 import { aceEditors, highlightWikitextReplace } from './wikitextEditor.ts';
-import { runWhenDOMContentLoaded, startListeners } from '../eventLoader.ts';
+import { runWhenDOMContentLoaded, listen } from '../eventListen.ts';
 import { DOMClassWatcher, isElement, textNodesUnder } from '../domutil.ts';
 
 let createdDomClassWatcher = false;
@@ -34,11 +34,11 @@ export function createAceDomClassWatcher() {
 }
 
 runWhenDOMContentLoaded(() => {
-  startListeners([
+  listen([
     {
-      el: document,
-      ev: 'click',
-      fn: function(event: KeyboardEvent) {
+      selector: document,
+      event: 'click',
+      handle: function(event: KeyboardEvent) {
         if (!(event.ctrlKey || event.metaKey || event.altKey) || !event.target || typeof event.target['closest'] !== 'function') {
           return;
         }
@@ -55,9 +55,9 @@ runWhenDOMContentLoaded(() => {
       },
     },
     {
-      el: document,
-      ev: 'keydown',
-      fn: function(event: KeyboardEvent) {
+      selector: document,
+      event: 'keydown',
+      handle: function(event: KeyboardEvent) {
         if (!(event.key === 'k' && (event.ctrlKey || event.metaKey))) {
           return;
         }

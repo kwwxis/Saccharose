@@ -1,5 +1,5 @@
 import { createElement } from './domutil.ts';
-import { runWhenDOMContentLoaded } from './eventLoader.ts';
+import { runWhenDOMContentLoaded } from './eventListen.ts';
 
 export type EventBusListener = (...args: any[]) => void;
 

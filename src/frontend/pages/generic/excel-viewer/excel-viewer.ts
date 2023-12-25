@@ -11,7 +11,7 @@ import './ag-grid-custom.scss';
 import { camelCaseToTitleCase, escapeHtml } from '../../../../shared/util/stringUtil.ts';
 import { ColGroupDef } from 'ag-grid-community/dist/lib/entities/colDef';
 import { sort } from '../../../../shared/util/arrayUtil.ts';
-import { startListeners } from '../../../util/eventLoader.ts';
+import { listen } from '../../../util/eventListen.ts';
 import {
   copyImageToClipboard,
   DOMClassWatcher,
@@ -302,12 +302,12 @@ pageMatch('pages/generic/basic/excel-viewer-table', () => {
 
   let quickFilterDebounceId: any;
 
-  startListeners([
+  listen([
     {
-      el: '#excel-quick-filter',
-      ev: 'input',
+      selector: '#excel-quick-filter',
+      event: 'input',
       debounceId: 0,
-      fn: (evt, target: HTMLInputElement) => {
+      handle: (evt, target: HTMLInputElement) => {
         if (quickFilterDebounceId) {
           clearTimeout(quickFilterDebounceId);
         }
@@ -317,18 +317,18 @@ pageMatch('pages/generic/basic/excel-viewer-table', () => {
       }
     },
     {
-      el: '#excel-export-csv',
-      ev: 'click',
-      fn: () => {
+      selector: '#excel-export-csv',
+      event: 'click',
+      handle: () => {
         api.exportDataAsCsv({
           fileName: excelFileName+'.csv'
         });
       }
     },
     {
-      el: '#excel-export-excel',
-      ev: 'click',
-      fn: () => {
+      selector: '#excel-export-excel',
+      event: 'click',
+      handle: () => {
         api.exportDataAsExcel({
           sheetName: excelFileName,
           fileName: excelFileName+'.xlsx',
@@ -337,9 +337,9 @@ pageMatch('pages/generic/basic/excel-viewer-table', () => {
       }
     },
     {
-      el: '#excel-export-json',
-      ev: 'click',
-      fn: () => {
+      selector: '#excel-export-json',
+      event: 'click',
+      handle: () => {
         downloadObjectAsJson(excelData, excelFileName + '.json', 2);
       }
     }

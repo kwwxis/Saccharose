@@ -17,6 +17,12 @@ import { SchemaTable, textMapSchema, plainLineMapSchema } from '../import_db.ts'
 import { getGenshinDataFilePath } from '../../loadenv.ts';
 import fs from 'fs';
 import { DocumentExcelConfigData } from '../../../shared/types/genshin/readable-types.ts';
+import { GenshinControl, GenshinControlState } from '../../domain/genshin/genshinControl.ts';
+import {
+  InterActionDialog,
+  InterActionFile,
+  InterActionNextDialogs,
+} from '../../../shared/types/genshin/interaction-types.ts';
 
 export const RAW_MANUAL_TEXTMAP_ID_PROP: string = 'textMapId';
 
@@ -92,9 +98,23 @@ export const genshinSchema = {
       { name: 'DialogId', type: 'integer', isIndex: true },
       { name: 'NextId', type: 'integer', isIndex: true },
     ],
-    customRowResolve: (row: DialogExcelConfigData) => {
-      if (row.NextDialogs && row.NextDialogs.length) {
-        return row.NextDialogs.map(nextDialogId => ({
+    customRowResolve: async (row: DialogExcelConfigData, _allRows, acc: Record<string, any>) => {
+      if (!acc.ctrl) {
+        const myState = new GenshinControlState();
+        myState.NoDbConnect = true;
+        acc.ctrl = new GenshinControl(myState);
+      }
+
+      const ctrl: GenshinControl = acc.ctrl;
+      const iaFile: InterActionFile = await ctrl.loadInterActionFile(row.Id);
+      const iaDialog: InterActionDialog = iaFile.findDialog(row.Id);
+      const iaNextDialogs: InterActionNextDialogs = iaDialog.next();
+      const nextDialogs = iaNextDialogs.NextDialogs.length
+        ? iaNextDialogs.NextDialogs
+        : row.NextDialogs;
+
+      if (nextDialogs && nextDialogs.length) {
+        return nextDialogs.map(nextDialogId => ({
           DialogId: row.Id,
           NextId: nextDialogId,
         }));

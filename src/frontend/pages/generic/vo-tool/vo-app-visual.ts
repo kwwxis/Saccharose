@@ -10,7 +10,7 @@ import {
 import { MwParamNode, MwTemplateNode } from '../../../../shared/mediawiki/mwTypes.ts';
 import { escapeHtml, romanize, ucFirst } from '../../../../shared/util/stringUtil.ts';
 import { createElement, createPlaintextContenteditable, flashElement } from '../../../util/domutil.ts';
-import { startListeners } from '../../../util/eventLoader.ts';
+import { listen } from '../../../util/eventListen.ts';
 import { flashTippy } from '../../../util/tooltips.ts';
 import { createWikitextEditor, getWikitextEditor } from '../../../util/ace/wikitextEditor.ts';
 import { modalService } from '../../../util/modalService.ts';
@@ -36,6 +36,9 @@ export function getIconHtml(icon: 'add' | 'trash' | 'chevron-up' | 'chevron-down
 }
 
 export function VoAppVisualEditor(state: VoAppState) {
+  if (!state.avatar)
+    return;
+
   let storyHandle: VoHandle;
   let combatHandle: VoHandle;
 
@@ -209,11 +212,11 @@ export function VoAppVisualEditor(state: VoAppState) {
         </div>
       `);
 
-      startListeners([
+      listen([
         {
-          el: '.vo-group-add-above',
-          ev: 'click',
-          fn: () => {
+          selector: '.vo-group-add-above',
+          event: 'click',
+          handle: () => {
             const currentGroupPos = voHandle.groups.indexOf(group);
             const newGroup = voHandle.newGroup();
             newGroup.title.text = 'New group';
@@ -225,9 +228,9 @@ export function VoAppVisualEditor(state: VoAppState) {
           }
         },
         {
-          el: '.vo-group-add-below',
-          ev: 'click',
-          fn: () => {
+          selector: '.vo-group-add-below',
+          event: 'click',
+          handle: () => {
             const currentGroupPos = voHandle.groups.indexOf(group);
             const newGroup = voHandle.newGroup();
             newGroup.title.text = 'New group';
@@ -445,11 +448,11 @@ export function VoAppVisualEditor(state: VoAppState) {
           }));
         }
 
-        startListeners([
+        listen([
           {
-            el: 'select',
-            ev: 'change',
-            fn: (ev: Event) => {
+            selector: 'select',
+            event: 'change',
+            handle: (ev: Event) => {
               ev.stopImmediatePropagation();
               let prop = addParamSelect.value;
               if (prop === 'custom') {
@@ -460,9 +463,9 @@ export function VoAppVisualEditor(state: VoAppState) {
             }
           },
           {
-            el: 'select',
-            ev: 'click',
-            fn: () => {
+            selector: 'select',
+            event: 'click',
+            handle: () => {
               const currentValue = addParamSelect.value;
               const usedProps = Object.keys(item.propToParam);
               resetSelect();
@@ -501,9 +504,9 @@ export function VoAppVisualEditor(state: VoAppState) {
             }
           },
           {
-            el: 'button',
-            ev: 'click',
-            fn: () => {
+            selector: 'button',
+            event: 'click',
+            handle: () => {
               let prop = addParamSelect.value;
               if (prop === 'custom') {
                 prop = addParamTextInput.value.trim();
