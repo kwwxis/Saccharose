@@ -46,7 +46,7 @@
 
   .excel-quick-filter-box {
     flex-shrink: 0;
-    flex-grow: 0;
+    flex-grow: 1;
     label {
       font-size: 14px;
       font-weight: 600;
@@ -54,8 +54,9 @@
       flex-shrink: 0;
     }
     input {
-      width: 500px;
-      flex-shrink: 0;
+      max-width: 500px;
+      width: 100%;
+      margin-right: 10px;
     }
   }
 

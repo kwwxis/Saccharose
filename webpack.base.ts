@@ -7,6 +7,7 @@ import * as sass from 'sass';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 
+// @ts-ignore
 const __dirname = dirname(fileURLToPath(import.meta.url));
 dotenv.config();
 
