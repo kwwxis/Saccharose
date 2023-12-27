@@ -123,7 +123,7 @@ export function VoAppWelcome(state: VoAppState) {
           return;
         }
 
-        let voHandle = createVoHandle(wikitext);
+        let voHandle = createVoHandle(wikitext, state.config);
         if (!voHandle || !voHandle.templateNode) {
           flashTippy(submitEl, {content: 'VO template not found!', delay:[0,2000]});
           return;
@@ -168,7 +168,7 @@ export function VoAppWelcome(state: VoAppState) {
           state.eventBus.emit('VO-Lang-Changed', langCode);
           window.localStorage.setItem(state.config.storagePrefix + 'CHAR_VO_WIKITEXT_' + langCode + '_' + avatar.Id, wikitext);
           window.localStorage.setItem(state.config.storagePrefix + 'CHAR_VO_WIKITEXT_' + langCode + '_' + avatar.Id + '_UPDATETIME', String(Date.now()));
-          setTimeout(() => window.location.href = '/character/VO/' + avatar.NameText);
+          setTimeout(() => window.location.href = SITE_MODE_HOME + '/character/VO/' + avatar.NameText);
         }
 
         let locallySavedAvatar = locallySavedAvatars.find(x => x.avatarId === avatar.Id);

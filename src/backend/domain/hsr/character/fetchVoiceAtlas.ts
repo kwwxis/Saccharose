@@ -19,6 +19,7 @@ import {
 import { DATAFILE_HSR_VOICE_ATLASES } from '../../../loadenv.ts';
 import { defaultMap } from '../../../../shared/util/genericUtil.ts';
 import { toMap } from '../../../../shared/util/arrayUtil.ts';
+import { toInt } from '../../../../shared/util/numberUtil.ts';
 
 export async function fetchVoiceAtlases(ctrl: StarRailControl, skipCache: boolean = false): Promise<VoiceAtlasGroupByAvatar> {
   if (!skipCache) {
@@ -82,6 +83,14 @@ export async function fetchVoiceAtlases(ctrl: StarRailControl, skipCache: boolea
       }
       if (voiceAtlas.VoiceFTextMapHash && !(await ctrl.isEmptyTextMapItem(ctrl.outputLangCode, voiceAtlas.VoiceFTextMapHash))) {
         voiceAtlas.VoiceFTextMap = await ctrl.createLangCodeMap(voiceAtlas.VoiceFTextMapHash);
+      }
+
+      if (voiceAtlas.UnlockData?.Conditions) {
+        for (let condition of voiceAtlas.UnlockData.Conditions) {
+          if (condition.Type === 'FinishMainMission') {
+            voiceAtlas.UnlockMissionNameTextMap = await ctrl.selectMainMissionNameTextMap(toInt(condition.Param));
+          }
+        }
       }
     }
 

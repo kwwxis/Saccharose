@@ -115,6 +115,8 @@ function processCombatVO(out: SbOut, input: VoAppPreloadInput, conf: VoAppPreloa
   }
 
   const combatGroupCodes = conf.getCombatGroupCodes(input);
+  let prevGroupTitle: string = null;
+
   for (let groupCode of combatGroupCodes.keys()) {
     let groupMeta = combatGroupCodes.get(groupCode);
     let voiceOvers: CommonVoiceOver[] = combatFettersByGroupCode[groupCode];
@@ -125,8 +127,11 @@ function processCombatVO(out: SbOut, input: VoAppPreloadInput, conf: VoAppPreloa
     }
 
     if (animatorEvtFile || voiceOvers.length) {
-      out.emptyLine();
-      out.htmlComment(groupMeta.groupTitle);
+      if (groupMeta.groupTitle !== prevGroupTitle) {
+        out.emptyLine();
+        out.htmlComment(groupMeta.groupTitle);
+        prevGroupTitle = groupMeta.groupTitle;
+      }
     }
 
     if (animatorEvtFile && voiceOvers.length) {

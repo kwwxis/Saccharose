@@ -13,8 +13,12 @@
   - On Windows, pip installing does not work!
     
     Instead, clone [the repo](https://github.com/aboSamoor/pycld2), `cd` into it, and run `./setup.py install` as admin.
+
+### Optional Prerequisites
+
 - Other PIP packages: imagehash, psycopg2, python-dotenv
   - You'll need to apt-get install `libpq-dev` and `python3-dev` first to install psycopg2. Having postgres installed is also required.
+  - This is only necessary to be installed if you plan to use or develop the "media-search" functionality.
 
 ## Setup
 
@@ -50,7 +54,8 @@ SHELL_EXEC=/bin/bash
 
 ### SSL setup
        
-This project can be run both with and without SSL.
+This project can be run both with and without SSL. For local development, it doesn't really
+matter much, so if you're having trouble getting SSL working or don't want to bother, then you can just skip it.
 
 1. Create a file called `openssl.<VHOST>.cnf` with these contents.
    

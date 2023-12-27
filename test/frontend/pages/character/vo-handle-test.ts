@@ -1,15 +1,37 @@
 import util from 'util';
 import { loadResourceAsString } from '../../../spec-util';
-import { createVoHandle } from '../../../../src/frontend/pages/generic/vo-tool/vo-handle';
+import { createVoHandle, enforcePropOrderItem } from '../../../../src/frontend/pages/generic/vo-tool/vo-handle';
 import { pathToFileURL } from 'url'
 import { resolveObjectPath } from '../../../../src/shared/util/arrayUtil';
+import { VoAppConfig } from '../../../../src/frontend/pages/generic/vo-tool/vo-tool.ts';
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
     process.on('unhandledRejection', (err) => console.error('UnhandledRejection!', err));
 
     const wikitext = loadResourceAsString('Nahida_EN_VO.wt');
-    const handle = createVoHandle(wikitext).compile();
+    const handle = createVoHandle(wikitext, {
+      enforcePropOrder: [
+        ... enforcePropOrderItem('title'),
+        ... enforcePropOrderItem('subtitle'),
+        ... enforcePropOrderItem('waypoint'),
+        ... enforcePropOrderItem('statue'),
+        ... enforcePropOrderItem('friendship'),
+        ... enforcePropOrderItem('ascension'),
+        ... enforcePropOrderItem('quest'),
+        ... enforcePropOrderItem('hidden'),
+        ... enforcePropOrderItem('file'),
+        ... enforcePropOrderItem('file_male'),
+        ... enforcePropOrderItem('file_female'),
+        ... enforcePropOrderItem('tx'),
+        ... enforcePropOrderItem('rm'),
+        ... enforcePropOrderItem('tl'),
+        ... enforcePropOrderItem('actualtx'),
+        ... enforcePropOrderItem('actualrm'),
+        ... enforcePropOrderItem('actualtl'),
+        ... enforcePropOrderItem('mention')
+      ]
+    } as VoAppConfig).compile();
     for (let i = 0; i < 20; i++) {
       console.log('\n');
     }

@@ -143,6 +143,7 @@ export interface VoiceAtlas {
 
   Unlock: number, // AtlasUnlockData -> UnlockId
   UnlockData?: AtlasUnlockData, // custom
+  UnlockMissionNameTextMap: LangCodeMap,
 
   // Texts:
 

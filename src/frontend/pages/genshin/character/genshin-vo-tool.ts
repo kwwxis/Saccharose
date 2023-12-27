@@ -1,19 +1,20 @@
 import { pageMatch } from '../../../pageMatch.ts';
 import { initializeVoTool } from '../../generic/vo-tool/vo-tool.ts';
 import {
-  CommonAvatar,
+  CommonAvatar, CommonVoiceOver,
   CommonVoiceOverGroup,
   toCommonVoiceOverGroupFromGenshin,
 } from '../../../../shared/types/common-types.ts';
 import { genshinEndpoints } from '../../../endpoints.ts';
-import { FetterGroup } from '../../../../shared/types/genshin/fetter-types.ts';
+import { FetterExcelConfigData, FetterGroup } from '../../../../shared/types/genshin/fetter-types.ts';
 import { AvatarExcelConfigData, isTraveler } from '../../../../shared/types/genshin/avatar-types.ts';
 import {
   VoAppPreloadCombatGroupCodeConf,
   VoAppPreloadConfig,
   VoAppPreloadInput,
 } from '../../generic/vo-tool/vo-preload-types.ts';
-import { replaceRomanNumerals, romanize, romanToInt } from '../../../../shared/util/stringUtil.ts';
+import { replaceRomanNumerals, romanize, romanToInt, SbOut } from '../../../../shared/util/stringUtil.ts';
+import { enforcePropOrderItem } from '../../generic/vo-tool/vo-handle.ts';
 
 // region General Config
 // --------------------------------------------------------------------------------------------------------------
@@ -27,11 +28,33 @@ pageMatch('pages/genshin/character/vo-tool', () => {
       return toCommonVoiceOverGroupFromGenshin(fetterGroup);
     },
 
+    mainCharacterLabel: 'Traveler',
     isMainCharacter(avatar: CommonAvatar<AvatarExcelConfigData>): boolean {
       return isTraveler(avatar.Original);
     },
 
     preloadConfig: new GenshinVoAppPreloadConfig(),
+
+    enforcePropOrder: [
+      ... enforcePropOrderItem('title'),
+      ... enforcePropOrderItem('subtitle'),
+      ... enforcePropOrderItem('waypoint'),
+      ... enforcePropOrderItem('statue'),
+      ... enforcePropOrderItem('friendship'),
+      ... enforcePropOrderItem('ascension'),
+      ... enforcePropOrderItem('quest'),
+      ... enforcePropOrderItem('hidden'),
+      ... enforcePropOrderItem('file'),
+      ... enforcePropOrderItem('file_male'),
+      ... enforcePropOrderItem('file_female'),
+      ... enforcePropOrderItem('tx'),
+      ... enforcePropOrderItem('rm'),
+      ... enforcePropOrderItem('tl'),
+      ... enforcePropOrderItem('actualtx'),
+      ... enforcePropOrderItem('actualrm'),
+      ... enforcePropOrderItem('actualtl'),
+      ... enforcePropOrderItem('mention')
+    ]
   }));
 });
 // endregion
@@ -129,7 +152,9 @@ export class GenshinVoAppPreloadConfig extends VoAppPreloadConfig {
   }
 
   override runStoryExtraHook(input: VoAppPreloadInput) {
-    const { out, voiceOver } = input;
+    const out: SbOut = input.out;
+    const voiceOver: CommonVoiceOver<FetterExcelConfigData> = input.voiceOver;
+
     const fetter = voiceOver.Original;
     if (fetter.OpenCondsSummary) {
       if (fetter.OpenCondsSummary.AscensionPhase) {

@@ -4,7 +4,7 @@ import { AbstractControl, AbstractControlState } from '../abstractControl.ts';
 import { DATAFILE_HSR_VOICE_ITEMS, getStarRailDataFilePath } from '../../loadenv.ts';
 import { normalizeRawJson, SchemaTable } from '../../importer/import_db.ts';
 import {
-  LangCode,
+  LangCode, LangCodeMap,
   TextMapHash,
   VoiceItem,
   VoiceItemFlatMap,
@@ -30,6 +30,7 @@ import { hsr_i18n, HSR_I18N_MAP } from '../i18n.ts';
 export class StarRailControlState extends AbstractControlState {
   // Cache:
   avatarCache:   {[Id: number]: AvatarConfig} = {};
+  mmNameCache:   {[Id: number]: string} = {};
 
   // Preferences:
   DisableAvatarCache: boolean = false;
@@ -178,6 +179,27 @@ export class StarRailControl extends AbstractControl<StarRailControlState> {
     }
 
     return out;
+  }
+
+  async selectMainMissionName(id: number): Promise<string> {
+    if (!id) {
+      return undefined;
+    }
+    if (!!this.state.mmNameCache[id]) {
+      return this.state.mmNameCache[id];
+    }
+    let name = await this.knex.select('NameTextMapHash').from('MainMission')
+      .where({Id: id}).first().then(async res => res ? await this.getTextMapItem(this.outputLangCode, res.NameTextMapHash) : undefined);
+    this.state.mmNameCache[id] = name;
+    return name;
+  }
+
+  async selectMainMissionNameTextMap(id: number): Promise<LangCodeMap> {
+    if (!id) {
+      return undefined;
+    }
+    return await this.knex.select('NameTextMapHash').from('MainMission')
+      .where({Id: id}).first().then(async res => res ? await this.createLangCodeMap(res.NameTextMapHash) : undefined);
   }
 }
 // endregion

@@ -17,8 +17,11 @@ export interface VoAppConfig {
   storagePrefix: string,
   imagePathPrefix: string,
   fetchVoiceCollection: (avatar: CommonAvatar) => Promise<CommonVoiceOverGroup>,
+  mainCharacterLabel: string,
   isMainCharacter: (avatar: CommonAvatar) => boolean,
   preloadConfig: VoAppPreloadConfig,
+
+  enforcePropOrder: string[],
 }
 
 export class VoAppState {

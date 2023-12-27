@@ -11,6 +11,7 @@ import { arrayClosestNumber, arrayRemove, arraySum, sort } from '../../../../sha
 import { isset } from '../../../../shared/util/genericUtil.ts';
 import { constrainNumber, isInt, toInt } from '../../../../shared/util/numberUtil.ts';
 import { uuidv4 } from '../../../../shared/util/uuidv4.ts';
+import { VoAppConfig } from './vo-tool.ts';
 
 interface VoParamKey {
   groupKey: string;
@@ -18,29 +19,11 @@ interface VoParamKey {
   prop: string;
 }
 
-const enforcePropOrderItem = (item: string) => [item, item + '_s', item + '_t']
-export const enforcePropOrder = [
-  ... enforcePropOrderItem('title'),
-  ... enforcePropOrderItem('subtitle'),
-  ... enforcePropOrderItem('waypoint'),
-  ... enforcePropOrderItem('statue'),
-  ... enforcePropOrderItem('friendship'),
-  ... enforcePropOrderItem('ascension'),
-  ... enforcePropOrderItem('quest'),
-  ... enforcePropOrderItem('hidden'),
-  ... enforcePropOrderItem('file'),
-  ... enforcePropOrderItem('file_male'),
-  ... enforcePropOrderItem('file_female'),
-  ... enforcePropOrderItem('tx'),
-  ... enforcePropOrderItem('rm'),
-  ... enforcePropOrderItem('tl'),
-  ... enforcePropOrderItem('actualtx'),
-  ... enforcePropOrderItem('actualrm'),
-  ... enforcePropOrderItem('actualtl'),
-  ... enforcePropOrderItem('mention')
-];
+export const enforcePropOrderItem = (item: string) => [item, item + '_s', item + '_t'];
 
-export function obtainPropOrder(propName: string): number {
+export function obtainPropOrder(propName: string, voAppConfig: VoAppConfig): number {
+  const enforcePropOrder = voAppConfig.enforcePropOrder;
+
   propName = propName.toLowerCase();
   for (let i = 0; i < enforcePropOrder.length; i++) {
     if (propName === enforcePropOrder[i]) {
@@ -149,7 +132,7 @@ export class VoItem {
       return;
     }
     let key = this.handle.compileKey({groupKey: this.group.groupKey, itemKey: this._itemKey, prop: propName});
-    let propOrder = obtainPropOrder(propName);
+    let propOrder = obtainPropOrder(propName, this.handle.voAppConfig);
     let paramNode = new MwParamNode('|', (key + ' ').padEnd(this.handle.keyPadLen, ' '));
     paramNode.beforeValueWhitespace = new MwTextNode(' ');
     paramNode.afterValueWhitespace = new MwTextNode('\n');
@@ -170,7 +153,7 @@ export class VoItem {
       let map: {[order: number]: MwParamNode} = {};
       for (let i = 0; i < paramNodes.length; i++) {
         let otherNode = paramNodes[i];
-        let otherNodeOrder = obtainPropOrder(this.handle.parseKey(otherNode.key).prop);
+        let otherNodeOrder = obtainPropOrder(this.handle.parseKey(otherNode.key).prop, this.handle.voAppConfig);
         if (otherNodeOrder >= 0) {
           map[otherNodeOrder] = otherNode;
         }
@@ -561,14 +544,16 @@ export class VoGroup {
 
 export class VoHandle {
   readonly templateNode: MwTemplateNode;
+  readonly voAppConfig: VoAppConfig;
   readonly groups: VoGroup[] = [];
   private uuidMap: {[uuid: string]: any} = {};
   isCombat: boolean = false;
   compileDone: boolean = false;
   keyPadLen: number = 20;
 
-  constructor(templateNode: MwTemplateNode) {
+  constructor(templateNode: MwTemplateNode, voAppConfig: VoAppConfig) {
     this.templateNode = templateNode;
+    this.voAppConfig = voAppConfig;
   }
 
   clear() {
@@ -801,22 +786,22 @@ export class VoHandle {
   }
 }
 
-export function createVoHandle(templateNode: MwTemplateNode|string): VoHandle {
+export function createVoHandle(templateNode: MwTemplateNode|string, voAppConfig: VoAppConfig): VoHandle {
   if (isStringBlank(templateNode)) {
     return null;
   }
   if (typeof templateNode === 'string') {
     templateNode = mwParse(templateNode).findTemplateNodes().find(p => p.templateName.includes('VO'));
   }
-  return templateNode ? new VoHandle(templateNode) : null;
+  return templateNode ? new VoHandle(templateNode, voAppConfig) : null;
 }
 
-export function createVoHandles(templateNodes: MwTemplateNode[]|string): VoHandle[] {
+export function createVoHandles(templateNodes: MwTemplateNode[]|string, voAppConfig: VoAppConfig): VoHandle[] {
   if (isStringBlank(templateNodes)) {
     return [];
   }
   if (typeof templateNodes === 'string') {
     templateNodes = mwParse(templateNodes).findTemplateNodes().filter(p => p.templateName.includes('VO'));
   }
-  return templateNodes.map(templateNode => new VoHandle(templateNode));
+  return templateNodes.map(templateNode => new VoHandle(templateNode, voAppConfig));
 }
