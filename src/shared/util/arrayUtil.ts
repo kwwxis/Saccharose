@@ -1,3 +1,5 @@
+// noinspection JSUnusedGlobalSymbols
+
 import { isEmpty, isNotEmpty, isPromise, isset, isUnset } from './genericUtil.ts';
 import { isStringBlank, trim } from './stringUtil.ts';
 import { isInt } from './numberUtil.ts';
@@ -126,7 +128,7 @@ export class ArrayStream<T> {
 
   retain(fn: 'isset' | 'nonEmpty' | ((v: T) => boolean) = 'nonEmpty'): this {
     this.chain(() => {
-      let cb: (v: T) => boolean = undefined;
+      let cb: (v: T) => boolean;
       if (fn === 'isset') {
         cb = v => isset(v);
       } else if (fn === 'nonEmpty') {
@@ -397,11 +399,11 @@ declare global {
 }
 
 Object.defineProperty(Array.prototype, 'asyncMap', {
-  value: async function<T, U>(callbackfn: (value: T, index: number, array: T[]) => Promise<U|void>, skipNilResults: boolean = true): Promise<U[]> {
+  value: async function<T, U>(callbackFn: (value: T, index: number, array: T[]) => Promise<U|void>, skipNilResults: boolean = true): Promise<U[]> {
     const promises: Promise<U|void>[] = [];
 
     for (let i = 0; i < this.length; i++) {
-      promises.push(callbackfn(this[i], i, this));
+      promises.push(callbackFn(this[i], i, this));
     }
 
     const results: U[] = [];

@@ -1,7 +1,7 @@
 // noinspection JSUnusedGlobalSymbols,JSDeprecatedSymbols
 
 import { saveAs } from 'file-saver';
-import { isset } from '../../shared/util/genericUtil.ts';
+import { isNotEmpty, isset } from '../../shared/util/genericUtil.ts';
 
 /**
  * Returns the tag name of an element in all-lowercase.
@@ -705,3 +705,38 @@ export class DOMClassWatcher {
     }
   };
 }
+
+declare global {
+  interface Storage {
+    getObject<T>(key: string, defaultValue?: T): T;
+    setObject<T>(key: string, value: T): void;
+    removeObject(key: string): void;
+  }
+}
+
+Object.defineProperty(Storage.prototype, 'getObject', {
+  value: function<T>(this: Storage, key: string, defaultValue?: T): T {
+    let value = this.getItem(key);
+    if (typeof value === 'undefined' || value === null) {
+      return isset(defaultValue) ? defaultValue : value as T;
+    }
+    return JSON.parse(value) as T;
+  }
+});
+
+Object.defineProperty(Storage.prototype, 'setObject', {
+  value: function<T>(this: Storage, key: string, value: T): void {
+    if (typeof value === 'undefined' || value === null) {
+      this.removeItem(key);
+    } else {
+      this.setItem(key, JSON.stringify(value));
+    }
+  }
+});
+
+
+Object.defineProperty(Storage.prototype, 'removeObject', {
+  value: function(this: Storage, key: string) {
+    this.removeItem(key);
+  }
+});

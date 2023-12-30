@@ -1,7 +1,14 @@
 import { pageMatch } from '../../../pageMatch.ts';
-import { ColDef, GetContextMenuItemsParams, Grid, GridApi, GridOptions, MenuItemDef } from 'ag-grid-community';
+import {
+  ColDef,
+  ColumnApi, ColumnState,
+  GetContextMenuItemsParams,
+  Grid,
+  GridApi,
+  GridOptions,
+  MenuItemDef,
+} from 'ag-grid-community';
 import { LicenseManager } from 'ag-grid-enterprise';
-
 LicenseManager.prototype.validateLicense = function() {};
 LicenseManager.prototype.isDisplayWatermark = function() {return false};
 LicenseManager.prototype.getWatermarkMessage = function() {return null};
@@ -21,25 +28,27 @@ import {
 } from '../../../util/domutil.ts';
 import { ICellRendererParams } from 'ag-grid-community/dist/lib/rendering/cellRenderers/iCellRenderer';
 import { highlightJson, highlightWikitext } from '../../../util/ace/wikitextEditor.ts';
-import { isNotEmpty, isUnset } from '../../../../shared/util/genericUtil.ts';
+import { isNotEmpty, isUnset, throttle } from '../../../../shared/util/genericUtil.ts';
 import { booleanFilter } from './excel-custom-filters.ts';
 import SiteMode from '../../../siteMode.ts';
+import siteMode from '../../../siteMode.ts';
+import { ExcelViewerDB, invokeExcelViewerDB } from './excel-viewer-storage.ts';
+import { StoreNames } from 'idb/build/entry';
+import { GridReadyEvent } from 'ag-grid-community/dist/lib/events';
 
-function initializeThemeWatcher(gridEl: HTMLElement, topEl: HTMLElement) {
+function initializeThemeWatcher(elements: HTMLElement[]) {
   new DOMClassWatcher('body', 'nightmode',
     () => {
-      gridEl.classList.remove('ag-theme-alpine');
-      gridEl.classList.add('ag-theme-alpine-dark');
-
-      topEl.classList.remove('ag-theme-alpine');
-      topEl.classList.add('ag-theme-alpine-dark');
+      for (let element of elements) {
+        element.classList.remove('ag-theme-alpine');
+        element.classList.add('ag-theme-alpine-dark');
+      }
     },
     () => {
-      gridEl.classList.remove('ag-theme-alpine-dark');
-      gridEl.classList.add('ag-theme-alpine');
-
-      topEl.classList.remove('ag-theme-alpine-dark');
-      topEl.classList.add('ag-theme-alpine');
+      for (let element of elements) {
+        element.classList.remove('ag-theme-alpine-dark');
+        element.classList.add('ag-theme-alpine');
+      }
     });
 }
 
@@ -62,6 +71,7 @@ function makeSingleColumnDef(fieldKey: string, fieldName: string, data: any) {
   const colDef = <ColDef> {
     headerName: camelCaseToTitleCase(fieldName),
     headerTooltip: camelCaseToTitleCase(fieldName),
+    colId: fieldKey,
     field: fieldKey,
     filter: typeof data === 'number' || typeof data === 'boolean' ? 'agNumberColumnFilter' : 'agTextColumnFilter',
     filterParams: typeof data === 'boolean' ? booleanFilter : undefined,
@@ -71,43 +81,42 @@ function makeSingleColumnDef(fieldKey: string, fieldName: string, data: any) {
     floatingFilter: true
   };
 
-  if (typeof data === 'string' && SiteMode.isStarRail && (fieldName.includes('Image')
-      || fieldName.includes('Icon') || fieldName.includes('Path') || fieldName.includes('Pic') || fieldName.includes('Map'))) {
+  const dataType = {
+    isStarRailImage: typeof data === 'string' && SiteMode.isStarRail &&
+      (data.startsWith('SpriteOutput/') || data.startsWith('UI/') || data.endsWith('.png')),
+    isGenshinImage: typeof data === 'string' && SiteMode.isGenshin && /^(UI_|MonsterSkill_|Eff_).*$/.test(data),
+    isWikitext: typeof data === 'string' && (fieldName.includes('Text') || fieldName.includes('Name')
+      || fieldName.includes('Title') || fieldName.includes('Desc') || fieldName.includes('Story')),
+    isJson: typeof data === 'object',
+    isEnum: typeof data === 'string' && data.toUpperCase() === data,
+  };
+
+  if (dataType.isGenshinImage || dataType.isStarRailImage) {
     colDef.cellRenderer = function(params: ICellRendererParams) {
-      if (!params.value || typeof params.value !== 'string' || !params.value.endsWith('.png')) {
+      if (!params.value || typeof params.value !== 'string')
         return '';
-      }
-      let safeValue = escapeHtml(params.value);
-      return `<img class="excel-image" src="/images/hsr/${safeValue}" loading="lazy" decoding="async"
-          alt="Image not found" onerror="this.classList.add('excel-image-error')" data-file-name="${safeValue}.png" />
-        <span class="code">${safeValue}</span>`;
-    };
-  } else if (typeof data === 'string' && SiteMode.isGenshin && (fieldName.includes('Image') || fieldName.includes('Icon')
-      || fieldName.includes('Path') || fieldName.includes('Pic') || fieldName.includes('Map') || data.startsWith('UI_'))) {
-    colDef.cellRenderer = function(params: ICellRendererParams) {
-      const genshinImageRegex: RegExp =
-        /^(UI_|.*Tutorial).*$/i;
-      if (!params.value || typeof params.value !== 'string' || !genshinImageRegex.test(params.value)) {
-        return '';
-      }
       const safeValue = escapeHtml(params.value);
-      return `<img class="excel-image" src="/images/genshin/${safeValue}.png" loading="lazy" decoding="async"
+      let srcValue;
+
+      if (dataType.isGenshinImage) {
+        srcValue = `/images/genshin/${safeValue}.png`;
+      } else if (dataType.isStarRailImage) {
+        srcValue = `/images/hsr/${safeValue}`;
+      }
+
+      // noinspection HtmlDeprecatedAttribute
+      return `<img class="excel-image" src="${srcValue}" loading="lazy" decoding="async"
           alt="Image not found" onerror="this.classList.add('excel-image-error')" data-file-name="${safeValue}.png" />
         <span class="code">${safeValue}</span>`;
     };
-  } else if (typeof data === 'string' && (fieldName.includes('Text') || fieldName.includes('Name')
-    || fieldName.includes('Title') || fieldName.includes('Desc') || fieldName.includes('Story'))) {
+  } else if (dataType.isWikitext) {
     colDef.cellRenderer = function(params: ICellRendererParams) {
-      if (!params.value) {
-        return '';
-      }
-      return highlightWikitext(params.value).outerHTML;
+      return !params.value ? '' : highlightWikitext(params.value).outerHTML;
     };
   } else if (typeof data === 'object') {
     colDef.cellRenderer = function(params: ICellRendererParams) {
-      if (!params.value) {
+      if (!params.value)
         return '';
-      }
       if (Array.isArray(params.value)) {
         params.value = params.value.filter(x => isNotEmpty(x));
         if (!params.value.length) {
@@ -116,12 +125,9 @@ function makeSingleColumnDef(fieldKey: string, fieldName: string, data: any) {
       }
       return highlightJson(JSON.stringify(params.value)).outerHTML;
     };
-  } else if (typeof data === 'string' && data.toUpperCase() === data) {
+  } else if (dataType.isEnum) {
     colDef.cellRenderer = function(params: ICellRendererParams) {
-      if (!params.value) {
-        return '';
-      }
-      return `<code>${escapeHtml(params.value)}</code>`;
+      return !params.value ? '' : `<code>${escapeHtml(params.value)}</code>`;
     };
   }
 
@@ -178,7 +184,6 @@ function getColumnDefs(excelData: any[]): (ColDef | ColGroupDef)[] {
     }
   }
 
-  //console.log('Unique Keys:', uniqueKeys);
   sort(columnDefs,  (a, b): number => {
     if (a.headerName === 'ID' || a.headerName === 'Order ID') {
       return -1;
@@ -213,16 +218,21 @@ function getColumnDefs(excelData: any[]): (ColDef | ColGroupDef)[] {
   return columnDefs;
 }
 
-pageMatch('pages/generic/basic/excel-viewer-table', () => {
+pageMatch('pages/generic/basic/excel-viewer-table', async () => {
   const gridEl: HTMLElement = document.querySelector('#excelViewerGrid');
   const topEl: HTMLElement = document.querySelector('#excelViewerTop');
+  const gridLoadingEl: HTMLElement = document.querySelector('#excelViewerGridLoading');
 
   if (!gridEl) {
     return;
   }
 
-  initializeThemeWatcher(gridEl, topEl);
+  initializeThemeWatcher([gridEl, topEl, gridLoadingEl]);
+
+  // noinspection JSUnresolvedReference
   const excelData: any[] = (<any> window).excelData;
+
+  // noinspection JSUnresolvedReference
   const excelFileName: string = (<any> window).excelFileName;
 
   const gridOptions: GridOptions = {
@@ -261,8 +271,7 @@ pageMatch('pages/generic/basic/excel-viewer-table', () => {
           iconKey: 'filter',
           toolPanel: 'agFiltersToolPanel'
         }
-      ],
-      //defaultToolPanel: 'columns',
+      ]
     },
     getContextMenuItems(params: GetContextMenuItemsParams): (string | MenuItemDef)[] {
       const cellEl: HTMLElement = document.querySelector(`.ag-body-viewport .ag-row[row-id="${params.node.id}"] .ag-cell[col-id="${params.column.getColId()}"]`);
@@ -287,32 +296,74 @@ pageMatch('pages/generic/basic/excel-viewer-table', () => {
         ])
       }
 
-
       result.push(... [
         'separator',
         'export'
       ]);
 
       return result;
+    },
+    async onGridReady(event: GridReadyEvent) {
+      const initialColumnState = await getPreferredColumnState();
+      if (initialColumnState) {
+        event.columnApi.applyColumnState({
+          state: initialColumnState,
+          applyOrder: true
+        });
+      }
+      gridLoadingEl.classList.add('hide');
+      gridEl.classList.remove('hide');
     }
   };
 
-  new Grid(gridEl, gridOptions);
-  const api: GridApi = gridOptions.api;
+  const grid: Grid = new Grid(gridEl, gridOptions);
+  const columnApi: ColumnApi = gridOptions.columnApi;
+  const gridApi: GridApi = gridOptions.api;
+  const storeName: StoreNames<ExcelViewerDB> = `${SiteMode.storagePrefix}.ColumnState`;
+
+  function getCurrentColumnState(): ColumnState[] {
+    return columnApi.getColumnState();
+  }
+
+  async function getPreferredColumnState(): Promise<ColumnState[]> {
+    return await invokeExcelViewerDB(db => {
+      return db.get(storeName, excelFileName);
+    });
+  }
+
+  async function savePreferredColumnState() {
+    await invokeExcelViewerDB(db => {
+      db.put(storeName, getCurrentColumnState(), excelFileName);
+    });
+  }
+
+  (<any> window).grid = grid;
+  (<any> window).gridApi = gridApi;
+  (<any> window).columnApi = columnApi;
+  (<any> window).getCurrentColumnState = getCurrentColumnState;
+  (<any> window).getPreferredColumnState = getPreferredColumnState;
+  (<any> window).savePreferredColumnState = savePreferredColumnState;
 
   let quickFilterDebounceId: any;
 
   listen([
     {
+      selector: 'window',
+      event: 'beforeunload',
+      async handle()  {
+        await savePreferredColumnState();
+      }
+    },
+    {
       selector: '#excel-quick-filter',
       event: 'input',
       debounceId: 0,
-      handle: (evt, target: HTMLInputElement) => {
+      handle: (_evt, target: HTMLInputElement) => {
         if (quickFilterDebounceId) {
           clearTimeout(quickFilterDebounceId);
         }
         quickFilterDebounceId = setTimeout(() => {
-          api.setQuickFilter(target.value);
+          gridApi.setQuickFilter(target.value);
         }, 150);
       }
     },
@@ -320,7 +371,7 @@ pageMatch('pages/generic/basic/excel-viewer-table', () => {
       selector: '#excel-export-csv',
       event: 'click',
       handle: () => {
-        api.exportDataAsCsv({
+        gridApi.exportDataAsCsv({
           fileName: excelFileName+'.csv'
         });
       }
@@ -329,7 +380,7 @@ pageMatch('pages/generic/basic/excel-viewer-table', () => {
       selector: '#excel-export-excel',
       event: 'click',
       handle: () => {
-        api.exportDataAsExcel({
+        gridApi.exportDataAsExcel({
           sheetName: excelFileName,
           fileName: excelFileName+'.xlsx',
           author: null

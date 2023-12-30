@@ -26,6 +26,24 @@ const SiteMode = {
   },
   get isZenless() {
     return SITE_MODE === 'zenless';
+  },
+  get storagePrefix() {
+    if (this.isGenshin) {
+      return 'GENSHIN'
+    } else if (this.isStarRail) {
+      return 'HSR'
+    } else if (this.isZenless) {
+      return 'ZENLESS';
+    }
+  },
+  get imagePathPrefix() {
+    if (this.isGenshin) {
+      return '/images/genshin/'
+    } else if (this.isStarRail) {
+      return '/images/hsr/'
+    } else if (this.isZenless) {
+      return '/images/zenless/';
+    }
   }
 };
 

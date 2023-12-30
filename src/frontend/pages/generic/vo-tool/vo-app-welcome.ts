@@ -8,50 +8,47 @@ import { createWikitextEditor } from '../../../util/ace/wikitextEditor.ts';
 import { humanTiming } from '../../../../shared/util/genericUtil.ts';
 import { sort } from '../../../../shared/util/arrayUtil.ts';
 import { LangCode } from '../../../../shared/types/lang-types.ts';
-import { SITE_MODE_HOME } from '../../../siteMode.ts';
+import SiteMode, { SITE_MODE_HOME } from '../../../siteMode.ts';
 import { frag1 } from '../../../util/domutil.ts';
 import { toParam } from '../../../../shared/util/stringUtil.ts';
+import {
+  getAllVoAppSavedAvatars, putVoAppSavedAvatar,
+  removeVoAppSavedAvatar,
+  VoAppSavedAvatar, VoAppStorageMigration,
+} from './vo-app-storage.ts';
+import { CommonAvatar } from '../../../../shared/types/common-types.ts';
 
-export function VoAppWelcome(state: VoAppState) {
+export async function VoAppWelcome(state: VoAppState) {
   if (!document.querySelector('#vo-app-welcome'))
     return;
 
-  const recentEl: HTMLElement = document.querySelector('#vo-app-welcome-recent');
   const recentListEl: HTMLElement = document.querySelector('#vo-app-welcome-recent-list');
+  const welcomeNoticeEl: HTMLElement = document.querySelector('#vo-app-welcome-notice');
+  const welcomeNoticeContentEl: HTMLElement = document.querySelector('#vo-app-welcome-notice-content');
 
-  const locallySavedAvatars: {
+  const recentAvatarsList: {
     avatarId: number,
     langCode: LangCode,
-    lastUpdateTime: number,
+    lastUpdated: number,
     element: HTMLElement
   }[] = [];
 
   const trashIconHtml = document.querySelector('#icon-trash').innerHTML;
+  const savedAvatars: VoAppSavedAvatar[] = await getAllVoAppSavedAvatars(state.savedAvatarStoreName);
 
-  for (let i = 0; i < localStorage.length; i++){
-    const key = localStorage.key(i);
-    if (key.startsWith(state.config.storagePrefix + 'CHAR_VO_WIKITEXT_') && !key.endsWith('_UPDATETIME')) {
-      const keyParts: string[] = key.split('_');
-      const avatarId: number = toInt(keyParts.pop());
-      const langCode: LangCode = keyParts.pop() as LangCode;
+  for (let savedAvatar of savedAvatars) {
+    const avatar = state.avatars.find(avatar => avatar.Id === savedAvatar.avatarId);
 
-      const lastUpdatedTimeStr: string = localStorage.getItem(key+'_UPDATETIME');
-      const lastUpdateTime: number = lastUpdatedTimeStr ? parseInt(lastUpdatedTimeStr) : 0;
-
-      const avatar = state.avatars.find(avatar => avatar.Id === avatarId);
-      if (!avatar)
-        continue;
-
-      const element: HTMLElement = frag1(`
+    const element: HTMLElement = frag1(`
         <div class="vo-app-welcome-recent-avatar-wrapper w50p">
           <a id="vo-app-welcome-recent-avatar-${avatar.Id}"
              class="vo-app-welcome-recent-avatar secondary dispFlex textAlignLeft spacer5-all"
-             href="${SITE_MODE_HOME}/character/VO/${toParam(avatar.NameText)}/${langCode}"
+             href="${SITE_MODE_HOME}/character/VO/${toParam(avatar.NameText)}/${savedAvatar.langCode}"
              role="button">
-            <img class="icon x32" src="${state.config.imagePathPrefix}${avatar.IconName}.png" loading="lazy" decoding="async" />
+            <img class="icon x32" src="${SiteMode.imagePathPrefix}${avatar.IconName}.png" loading="lazy" decoding="async" />
             <div class="spacer10-left spacer5-top" style="line-height:1em">
               <div>${avatar.NameText}</div>
-              <small><strong>${langCode} Text</strong> Last updated: ${humanTiming(lastUpdateTime)}</small>
+              <small><strong>${savedAvatar.langCode} Text</strong> Last updated: ${humanTiming(savedAvatar.lastUpdated)}</small>
             </div>
             <div class="grow"></div>
             <button class="vo-app-welcome-recent-avatar-delete alignCenter justifyCenter" role="button"
@@ -60,48 +57,68 @@ export function VoAppWelcome(state: VoAppState) {
         </div>
       `);
 
-      function fancyDelete() {
-        localStorage.removeItem(key);
-        localStorage.removeItem(key + '_UPDATETIME');
+    function fancyDelete() {
+      removeVoAppSavedAvatar(state.savedAvatarStoreName, savedAvatar.key);
 
-        const inner: HTMLElement = element.querySelector('.vo-app-welcome-recent-avatar');
-        const rect = element.getBoundingClientRect();
-        const innerRect = inner.getBoundingClientRect();
+      const inner: HTMLElement = element.querySelector('.vo-app-welcome-recent-avatar');
+      const rect = element.getBoundingClientRect();
+      const innerRect = inner.getBoundingClientRect();
 
-        element.classList.add('posRel');
-        element.setAttribute('style',
-          `width:${rect.width}px;height:${rect.height}px;overflow:hidden;opacity:1;pointer-events:none;` +
-          `transition:width 200ms ease-out,opacity 1000ms linear`);
+      element.classList.add('posRel');
+      element.setAttribute('style',
+        `width:${rect.width}px;height:${rect.height}px;overflow:hidden;opacity:1;pointer-events:none;` +
+        `transition:width 200ms ease-out,opacity 1000ms linear`);
 
-        inner.setAttribute('style', `position:absolute;top:0;left:0;width:${innerRect.width}px;height:${innerRect.height}px`);
-        window.requestAnimationFrame(() => {
-          element.style.width = '0px';
-          element.style.opacity = '0';
-        });
-      }
-
-      const deleteButton: HTMLElement = element.querySelector('.vo-app-welcome-recent-avatar-delete');
-      deleteButton.addEventListener('click', evt => {
-        evt.stopPropagation();
-        evt.preventDefault();
-        modalService.confirm('Confirm delete?', `Confirm you want to delete ${langCode} text for ${avatar.NameText} VOs.`)
-          .onConfirm(() => fancyDelete());
-      })
-
-
-      locallySavedAvatars.push({
-        avatarId: avatar.Id,
-        langCode,
-        lastUpdateTime,
-        element
+      inner.setAttribute('style', `position:absolute;top:0;left:0;width:${innerRect.width}px;height:${innerRect.height}px`);
+      window.requestAnimationFrame(() => {
+        element.style.width = '0px';
+        element.style.opacity = '0';
       });
     }
+
+    const deleteButton: HTMLElement = element.querySelector('.vo-app-welcome-recent-avatar-delete');
+    deleteButton.addEventListener('click', evt => {
+      evt.stopPropagation();
+      evt.preventDefault();
+      modalService.confirm('Confirm delete?', `Confirm you want to delete ${savedAvatar.langCode} text for ${avatar.NameText} VOs.`)
+        .onConfirm(() => fancyDelete());
+    });
+
+    recentAvatarsList.push({
+      avatarId: savedAvatar.avatarId,
+      langCode: savedAvatar.langCode,
+      lastUpdated: savedAvatar.lastUpdated,
+      element
+    });
   }
 
-  if (locallySavedAvatars.length) {
+  if (VoAppStorageMigration.needsMigration()) {
+    welcomeNoticeEl.classList.remove('hide');
+    welcomeNoticeContentEl.innerHTML = `
+      <p class="info-notice">
+        <span class="dispBlock">You have local data stored in an old format, and as such it was not loaded.</span>
+        <span class="dispBlock spacer10-top">To convert it to the new format, click the button below:</span>
+      </p>
+      <p class="valign spacer10-top">
+        <button id="vo-app-welcome-notice-submit" class="primary">Convert to new format</button>
+        <span class="spacer5-left">(page will automatically reload)</span>
+      </p>
+    `;
+    listen([
+      {
+        selector: '#vo-app-welcome-notice-submit',
+        event: 'click',
+        async handle() {
+          await VoAppStorageMigration.migrate();
+        }
+      }
+    ], welcomeNoticeContentEl);
+  }
+
+  if (recentAvatarsList.length) {
     recentListEl.innerHTML = '';
-    sort(locallySavedAvatars, '-lastUpdateTime');
-    for (let locallySavedAvatar of locallySavedAvatars) {
+    sort(recentAvatarsList, '-lastUpdated');
+    for (let locallySavedAvatar of recentAvatarsList) {
       recentListEl.insertAdjacentElement('beforeend', locallySavedAvatar.element);
     }
   } else {
@@ -130,11 +147,11 @@ export function VoAppWelcome(state: VoAppState) {
         }
 
         let character: string;
-        let templateName = voHandle.templateNode.templateName;
+        const templateName = voHandle.templateNode.templateName;
         if (templateName.toLowerCase() === 'vo/traveler') {
           character = 'Traveler';
         } else {
-          character = voHandle.templateNode.getParam('character')?.value;
+          character = voHandle.templateNode.getParam('character')?.value?.trim();
         }
 
         if (!character) {
@@ -142,7 +159,7 @@ export function VoAppWelcome(state: VoAppState) {
           return;
         }
 
-        let avatar = state.avatars.find(avatar => avatar.NameText.toLowerCase() === character.toLowerCase());
+        const avatar: CommonAvatar<any> = state.avatars.find(avatar => avatar.NameText.toLowerCase() === character.toLowerCase());
         if (!avatar) {
           flashTippy(submitEl, {content: 'Not a valid character: ' + character, delay:[0,2000]});
           return;
@@ -164,15 +181,20 @@ export function VoAppWelcome(state: VoAppState) {
           return;
         }
 
-        function go() {
+        async function go() {
           state.eventBus.emit('VO-Lang-Changed', langCode);
-          window.localStorage.setItem(state.config.storagePrefix + 'CHAR_VO_WIKITEXT_' + langCode + '_' + avatar.Id, wikitext);
-          window.localStorage.setItem(state.config.storagePrefix + 'CHAR_VO_WIKITEXT_' + langCode + '_' + avatar.Id + '_UPDATETIME', String(Date.now()));
-          setTimeout(() => window.location.href = SITE_MODE_HOME + '/character/VO/' + avatar.NameText);
+          await putVoAppSavedAvatar(state.savedAvatarStoreName, {
+            avatarId: avatar.Id,
+            lastUpdated: Date.now(),
+            langCode: langCode,
+            wikitext: wikitext
+          });
+          setTimeout(() => window.location.href = SITE_MODE_HOME + '/character/VO/' + avatar.NameText + '/' + langCode);
         }
 
-        let locallySavedAvatar = locallySavedAvatars.find(x => x.avatarId === avatar.Id);
-        if (locallySavedAvatar) {
+        const avatarConflict = recentAvatarsList.find(x => x.avatarId === avatar.Id && x.langCode === langCode);
+
+        if (avatarConflict) {
           modalService.confirm(`Are you sure?`, `
             <p>You already have locally-saved wikitext for <strong>${avatar.NameText}</strong> (${langCode})</p>
             <p>If you proceed, then it'll be overwritten with what you just pasted.</p>

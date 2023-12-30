@@ -34,7 +34,7 @@ export function getIconHtml(icon: 'add' | 'trash' | 'chevron-up' | 'chevron-down
   return tpl.innerHTML;
 }
 
-export function VoAppVisualEditor(state: VoAppState) {
+export async function VoAppVisualEditor(state: VoAppState): Promise<void> {
   if (!state.avatar)
     return;
 

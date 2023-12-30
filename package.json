@@ -54,6 +54,7 @@
     "file-saver": "^2.0.5",
     "get-random-values": "^3.0.0",
     "helmet": "^7.1.0",
+    "idb": "^8.0.0",
     "js-cookie": "^3.0.5",
     "json-mask": "^2.0.0",
     "json5": "^2.2.3",

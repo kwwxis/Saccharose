@@ -12,10 +12,11 @@ import { CommonAvatar, CommonVoiceOverGroup } from '../../../../shared/types/com
 import { VoAppPreloadConfig } from './vo-preload-types.ts';
 import { OverlayScrollbars } from 'overlayscrollbars';
 import { toBoolean } from '../../../../shared/util/genericUtil.ts';
+import { StoreNames } from 'idb/build/entry';
+import { VoAppSavedAvatarDatabase } from './vo-app-storage.ts';
+import SiteMode from '../../../siteMode.ts';
 
 export interface VoAppConfig {
-  storagePrefix: string,
-  imagePathPrefix: string,
   fetchVoiceCollection: (avatar: CommonAvatar) => Promise<CommonVoiceOverGroup>,
   mainCharacterLabel: string,
   isMainCharacter: (avatar: CommonAvatar) => boolean,
@@ -31,6 +32,7 @@ export class VoAppState {
   interfaceLang: LangCode;
   eventBus: EventBus;
   config: VoAppConfig;
+  savedAvatarStoreName: StoreNames<VoAppSavedAvatarDatabase>;
 
   constructor(configSupplier: () => VoAppConfig) {
     this.config = configSupplier();
@@ -39,6 +41,7 @@ export class VoAppState {
     this.avatar = (<any> window).avatar;
     this.interfaceLang = (Cookies.get('outputLangCode') as LangCode) || DEFAULT_LANG;
     this.eventBus = new EventBus('VO-App-EventBus');
+    this.savedAvatarStoreName = `${SiteMode.storagePrefix}.SavedAvatars`;
 
     if (!LANG_CODES.includes(this.voLang)) {
       this.eventBus.emit('VO-Lang-Changed', DEFAULT_LANG);
@@ -50,6 +53,10 @@ export class VoAppState {
 
   get voLang(): LangCode {
     return (<any> window).voLangCode;
+  }
+
+  get savedAvatarKey(): string {
+    return this.avatar ? `${this.avatar.Id}_${this.voLang}` : null;
   }
 
   set voLang(newCode: LangCode) {
@@ -64,9 +71,10 @@ export class VoAppState {
     (<any> window).voLangCode = newCode;
     (<any> window).voLangName = LANG_CODES_TO_NAME[newCode];
 
-    console.log(window.location.href, prevCode, newCode);
-    window.history.replaceState({}, null,
-      window.location.href.replace(new RegExp(`\\/${prevCode}\\b`), `/${newCode}`));
+    if (prevCode) {
+      window.history.replaceState({}, null,
+        window.location.href.replace(new RegExp(`\\/${prevCode}\\b`), `/${newCode}`));
+    }
   }
 
   get voLangName(): string {
@@ -132,11 +140,11 @@ export class VoAppState {
   }
 }
 
-export function initializeVoTool(configSupplier: () => VoAppConfig): void {
+export async function initializeVoTool(configSupplier: () => VoAppConfig): Promise<void> {
   const state: VoAppState = new VoAppState(configSupplier);
-  VoAppSidebar(state);
-  VoAppWelcome(state);
-  VoAppToolbar(state);
-  VoAppVisualEditor(state);
-  VoAppWikitextEditor(state);
+  await VoAppSidebar(state);
+  await VoAppWelcome(state);
+  await VoAppToolbar(state);
+  await VoAppVisualEditor(state);
+  await VoAppWikitextEditor(state);
 }

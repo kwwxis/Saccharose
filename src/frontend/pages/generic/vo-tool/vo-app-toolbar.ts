@@ -9,7 +9,7 @@ import { resolveObjectPath } from '../../../../shared/util/arrayUtil.ts';
 import { LANG_CODE_TO_WIKI_CODE, LangCode } from '../../../../shared/types/lang-types.ts';
 import { VoAppPreloadOptions } from './vo-preload-types.ts';
 
-export function VoAppToolbar(state: VoAppState) {
+export async function VoAppToolbar(state: VoAppState): Promise<void> {
   if (!state.avatar)
     return;
 

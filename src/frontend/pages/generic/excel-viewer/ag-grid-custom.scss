@@ -68,6 +68,13 @@
   }
 }
 
+#excelViewerGridLoading {
+  box-shadow: none;
+  border: var(--ag-borders-critical) var(--ag-border-color);
+  margin-bottom: 0;
+  border-top: 0;
+}
+
 #excelViewerGrid .ag-root-wrapper {
   border-top: 0;
 }

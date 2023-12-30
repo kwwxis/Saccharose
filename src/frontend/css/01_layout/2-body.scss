@@ -15,6 +15,9 @@ body {
   font-weight: 400;
   margin: 10px 0 20px;
   color: hsla(223, 67%, 18%, 0.75);
+  body.nightmode & {
+    color: hsla(223, 67%, 96%, 0.75);
+  }
 }
 
 #app-main {

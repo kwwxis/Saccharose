@@ -22,11 +22,8 @@ import { replaceRomanNumerals, romanToInt, SbOut } from '../../../../shared/util
 
 // region General Config
 // --------------------------------------------------------------------------------------------------------------
-pageMatch('pages/hsr/character/vo-tool', () => {
-  initializeVoTool(() => ({
-    storagePrefix: 'HSR_',
-    imagePathPrefix: '/images/hsr/',
-
+pageMatch('pages/hsr/character/vo-tool', async () => {
+  await initializeVoTool(() => ({
     async fetchVoiceCollection(avatar: CommonAvatar): Promise<CommonVoiceOverGroup> {
       const atlasGroup: VoiceAtlasGroup = await starRailEndpoints.getVoiceAtlasGroup.get({ avatarId: avatar.Id });
       return toCommonVoiceOverGroupFromStarRail(atlasGroup);

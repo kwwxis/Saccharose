@@ -9,12 +9,14 @@ import Cookies from 'js-cookie';
 import { DEFAULT_LANG, LangCode } from '../../../../shared/types/lang-types.ts';
 import { VoAppPreloadConfig, VoAppPreloadInput, VoAppPreloadOptions, VoAppPreloadResult } from './vo-preload-types.ts';
 import { voPreload } from './vo-preload-support.ts';
+import SiteMode from '../../../siteMode.ts';
+import { getVoAppSavedAvatar, putVoAppSavedAvatar, removeVoAppSavedAvatar } from './vo-app-storage.ts';
 
 function compareTemplateName(t1: string, t2: string) {
   return t1?.toLowerCase()?.replace(/_/g, ' ') === t2?.toLowerCase()?.replace(/_/g, ' ');
 }
 
-export function VoAppWikitextEditor(state: VoAppState) {
+export async function VoAppWikitextEditor(state: VoAppState): Promise<void> {
   if (!state.avatar)
     return;
 
@@ -39,12 +41,12 @@ export function VoAppWikitextEditor(state: VoAppState) {
     });
   });
 
-  function localLoad(isFirstLoad: boolean = false) {
+  async function localLoad(isFirstLoad: boolean = false) {
     console.log('[VO-App] Wikitext Local Load');
-    let localStorageValue = window.localStorage.getItem(state.config.storagePrefix + 'CHAR_VO_WIKITEXT_' + state.voLang + '_' + state.avatar.Id);
+    const savedAvatar = await getVoAppSavedAvatar(state.savedAvatarStoreName, state.savedAvatarKey);
 
-    if (localStorageValue) {
-      editor.setValue(localStorageValue, -1);
+    if (savedAvatar?.wikitext) {
+      editor.setValue(savedAvatar.wikitext, -1);
     } else {
       editor.setValue('', -1);
     }
@@ -52,46 +54,47 @@ export function VoAppWikitextEditor(state: VoAppState) {
       let langButton = document.querySelector<HTMLElement>('#vo-app-language-button');
       flashTippy(langButton, {content: 'Loaded locally saved text for ' + state.avatar.NameText + ' (' + state.voLang + ')', delay:[0,2000]});
     }
-    state.eventBus.emit('VO-Visual-Reload', localStorageValue || '');
+    state.eventBus.emit('VO-Visual-Reload', savedAvatar?.wikitext || '');
   }
 
-  function localSave() {
+  async function localSave() {
     console.log('[VO-App] Wikitext Local Save');
-    let editorValue = editor.getValue();
-    let localKey = state.config.storagePrefix + 'CHAR_VO_WIKITEXT_' + state.voLang + '_' + state.avatar.Id;
-    let timeKey = localKey + '_UPDATETIME';
+    const editorValue: string = editor.getValue();
 
     if (!editorValue || !editorValue.trim()) {
-      window.localStorage.removeItem(localKey);
-      window.localStorage.removeItem(timeKey);
+      await removeVoAppSavedAvatar(state.savedAvatarStoreName, state.savedAvatarKey);
     } else {
-      window.localStorage.setItem(localKey, editorValue);
-      window.localStorage.setItem(timeKey, String(Date.now()));
+      await putVoAppSavedAvatar(state.savedAvatarStoreName, {
+        avatarId: state.avatar.Id,
+        langCode: state.voLang,
+        lastUpdated: Date.now(),
+        wikitext: editorValue
+      });
     }
   }
 
-  localLoad(true);
+  await localLoad(true);
 
-  editor.on('blur', (e) => {
+  editor.on('blur', async (e) => {
     console.log('Wikitext blur', e);
-    localSave();
+    await localSave();
     state.eventBus.emit('VO-Visual-Reload', editor.getValue());
   });
 
-  state.eventBus.on('VO-Wikitext-LocalLoad', () => {
-    localLoad();
+  state.eventBus.on('VO-Wikitext-LocalLoad', async () => {
+    await localLoad();
   });
-  state.eventBus.on('VO-Wikitext-LocalSave', () => {
-    localSave();
+  state.eventBus.on('VO-Wikitext-LocalSave', async () => {
+    await localSave();
   });
-  state.eventBus.on('VO-Wikitext-SetValue', (newValue: string) => {
+  state.eventBus.on('VO-Wikitext-SetValue', async (newValue: string) => {
     editor.setValue(newValue, -1);
-    localSave();
+    await localSave();
   });
   state.eventBus.on('VO-Wikitext-RequestValue', (cb: (value: string) => void) => {
     cb(editor.getValue());
   });
-  state.eventBus.on('VO-Wikitext-SetFromVoHandle', (voHandleArg: VoHandle|VoHandle[], reformat: boolean = false) => {
+  state.eventBus.on('VO-Wikitext-SetFromVoHandle', async (voHandleArg: VoHandle|VoHandle[], reformat: boolean = false) => {
     let voHandleArray: VoHandle[] = Array.isArray(voHandleArg) ? voHandleArg : [voHandleArg];
     let wikitext = mwParse(editor.getValue());
     let didWork = false;
@@ -119,10 +122,10 @@ export function VoAppWikitextEditor(state: VoAppState) {
       let stringified = wikitext.toString();
       editor.setValue(stringified, -1);
       editor.resize();
-      localSave();
+      await localSave();
     }
   });
-  state.eventBus.on('VO-Wikitext-OverwriteFromVoiceOvers', (requestedMode: string, opts: VoAppPreloadOptions = {}) => {
+  state.eventBus.on('VO-Wikitext-OverwriteFromVoiceOvers', async (requestedMode: string, opts: VoAppPreloadOptions = {}) => {
     if (!state.voiceOverGroup) {
       return;
     }
@@ -160,7 +163,7 @@ export function VoAppWikitextEditor(state: VoAppState) {
       editor.setValue(stringified, -1);
       editor.resize();
       editor.session.setScrollTop(scrollTop);
-      localSave();
+      await localSave();
       state.eventBus.emit('VO-Visual-Reload', editor.getValue());
     } else {
       let stringified = (editor.getValue() + '\n\n' + result.wikitext).trimStart();
@@ -168,13 +171,13 @@ export function VoAppWikitextEditor(state: VoAppState) {
       editor.setValue(stringified, -1);
       editor.resize();
       editor.session.setScrollTop(scrollTop);
-      localSave();
+      await localSave();
       state.eventBus.emit('VO-Visual-Reload', editor.getValue());
     }
   });
 
-  window.addEventListener('beforeunload', () => {
-    localSave();
+  window.addEventListener('beforeunload', async () => {
+    await localSave();
   });
 
   document.querySelector('#tab-wikitext').addEventListener('click', () => {

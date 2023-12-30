@@ -32,7 +32,14 @@
     </div>
   </section>
 
-  <div id="excelViewerGrid" style="height: 80vh; width: 100%" class="ag-theme-alpine<%= cookieTernary('nightmode').isTruthy().then('-dark') %>"></div>
+  <div id="excelViewerGrid" style="height: 80vh; width: 100%" class="hide ag-theme-alpine<%= cookieTernary('nightmode').isTruthy().then('-dark') %>">
+  </div>
+  <div id="excelViewerGridLoading" class="card valign justifyCenter ag-theme-alpine<%= cookieTernary('nightmode').isTruthy().then('-dark') %>" style="height: 80vh; width: 100%">
+    <h1 class="valign justifyCenter">
+      <span class="loading x36"></span>
+      <span class="loading-label spacer15-left">Loading table...</span>
+    </h1>
+  </div>
 
 <% } else { %>
   <section class="card">

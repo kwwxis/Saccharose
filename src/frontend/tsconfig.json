@@ -1,6 +1,7 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "allowImportingTsExtensions": true,
     "lib": [
       "ESNext",
       "dom"

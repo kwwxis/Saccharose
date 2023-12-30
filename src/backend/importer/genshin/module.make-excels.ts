@@ -7,25 +7,9 @@
  *  - TalkExcelConfigData
  *  - DialogExcelConfigData
  *
- * It also generates this too: DialogUnparentedExcelConfigData
- * Which is a custom file that associates dialogs to a main quest for dialogs that aren't part of a talk.
- *
- * === DEPENDENCIES ===
- *
- * Requires Node.js and ts-node.
- *
- * After installing Node.js, you can install ts-node globall with: npm install -g ts-node
- *
- * === USAGE ===
- *
- * This file must be placed in the genshin data repository!
- *
- * Run with ts-node:
- *  ts-node ./generate-quest-dialog-excels.ts <repo-dir>
- *
- * For example:
- *   ts-node ./generate-quest-dialog-excels.ts 'C:/git/AnimeGameData'
- *
+ * It also generates some custom files:
+ *   - DialogUnparentedExcelConfigData: associates dialogs to a main quest for dialogs that aren't part of a talk.
+ *   - CodexQuestExcelConfigData: info from BinOutput/CodexQuest (quest log in the in-game archive)
  */
 
 import fs, { promises as fsp } from 'fs';
@@ -33,7 +17,6 @@ import path from 'path';
 import { pathToFileURL } from 'url';
 import * as process from 'process';
 import { sort } from '../../../shared/util/arrayUtil.ts';
-import { toInt } from '../../../shared/util/numberUtil.ts';
 
 // region Walk Sync
 // --------------------------------------------------------------------------------------------------------------
@@ -75,6 +58,7 @@ export async function generateQuestDialogExcels(repoRoot: string) {
 
   const mainQuestById: { [id: string]: any } = {};
   const questExcelById: { [id: string]: any } = {};
+  const questExcelToMqId: { [id: string]: number } = {};
   const talkExcelById: { [id: string]: any } = {};
   const dialogExcelById: { [id: string]: any } = {};
 
@@ -93,6 +77,10 @@ export async function generateQuestDialogExcels(repoRoot: string) {
       console.log('Got duplicate of main quest ' + obj.id);
       Object.assign(mainQuestById[obj.id], obj);
       return;
+    }
+
+    if (Array.isArray(obj.subQuests)) {
+      obj.subQuests.forEach((questExcel: any) => enqueueQuestExcel(questExcel, obj.id));
     }
 
     if (Array.isArray(obj.dialogList)) {
@@ -123,7 +111,7 @@ export async function generateQuestDialogExcels(repoRoot: string) {
     mainQuestById[obj.id] = obj;
   }
 
-  function enqueueQuestExcel(obj: any) {
+  function enqueueQuestExcel(obj: any, mainQuestId: number) {
     if (!obj) {
       return;
     }
@@ -134,6 +122,7 @@ export async function generateQuestDialogExcels(repoRoot: string) {
     }
     questExcelArray.push(obj);
     questExcelById[obj.subId] = obj;
+    questExcelToMqId[obj.subId] = mainQuestId;
   }
 
   function enqueueTalkExcel(obj: any) {
@@ -151,6 +140,9 @@ export async function generateQuestDialogExcels(repoRoot: string) {
     }
     if (!obj.npcId) {
       obj.npcId = [];
+    }
+    if (!obj.questId && questExcelToMqId[obj.id]) {
+      obj.questId = questExcelToMqId[obj.id];
     }
 
     talkExcelArray.push(obj);
@@ -203,9 +195,6 @@ export async function generateQuestDialogExcels(repoRoot: string) {
     }
     if (Array.isArray(json.talks)) {
       json.talks.forEach((obj: any) => enqueueTalkExcel(obj));
-    }
-    if (Array.isArray(json.subQuests)) {
-      json.subQuests.forEach((obj: any) => enqueueQuestExcel(obj));
     }
   }
 
@@ -280,8 +269,8 @@ export async function generateQuestDialogExcels(repoRoot: string) {
       continue;
     }
     let json = await fsp.readFile(fileName, { encoding: 'utf8' }).then(data => JSON.parse(data));
-    processJsonObject(json);
     enqueueMainQuestExcel(json, fileName);
+    processJsonObject(json);
   }
 
   console.log('Processing BinOutput/Talk');
@@ -290,10 +279,10 @@ export async function generateQuestDialogExcels(repoRoot: string) {
       continue;
     }
     let json = await fsp.readFile(fileName, { encoding: 'utf8' }).then(data => JSON.parse(data));
-    processJsonObject(json);
     if (json.id && json.type && json.subQuests) {
       enqueueMainQuestExcel(json, fileName);
     }
+    processJsonObject(json);
   }
 
   console.log('Processing BinOutput/CodexQuest');
