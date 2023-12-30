@@ -859,7 +859,7 @@ export class GCGControl {
 
     return char;
   }
-  
+
   private manualOverrideCharIcon(charId: number): string {
     switch (charId) {
       case 1304:
@@ -1119,7 +1119,7 @@ export class GCGControl {
     for (let i = 0; i < talkDetail.TalkContentText.length; i++) {
       const talkDetailVo = talkDetail.VoPrefix && i === 0 ? talkDetail.VoPrefix : '';
       const text = talkDetail.TalkContentText[i];
-      texts.push(`:${talkDetailVo}'''${talker}''': ` + this.ctrl.normText(text, this.ctrl.outputLangCode));
+      texts.push(`:${talkDetailVo}'''${talker}:''' ` + this.ctrl.normText(text, this.ctrl.outputLangCode));
     }
 
     if (texts.length) {
