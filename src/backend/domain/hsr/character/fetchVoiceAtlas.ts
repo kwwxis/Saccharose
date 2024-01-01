@@ -3,7 +3,7 @@ import { closeKnex } from '../../../util/db.ts';
 import { cached } from '../../../util/cache.ts';
 import { pathToFileURL } from 'url';
 import path from 'path';
-import { promises as fs } from 'fs';
+import fs from 'fs';
 import {
   AtlasUnlockData, AvatarConfig,
   VoiceAtlas,
@@ -25,8 +25,7 @@ export async function fetchVoiceAtlases(ctrl: StarRailControl, skipCache: boolea
   if (!skipCache) {
     return cached('StarRail_VoiceAtlasGroup', async () => {
       const filePath = path.resolve(process.env.HSR_DATA_ROOT, DATAFILE_HSR_VOICE_ATLASES);
-      const result: VoiceAtlasGroupByAvatar = await fs.readFile(filePath, {encoding: 'utf8'})
-        .then(data => JSON.parse(data));
+      const result: VoiceAtlasGroupByAvatar = JSON.parse(fs.readFileSync(filePath, {encoding: 'utf8'}));
       return result;
     });
   }

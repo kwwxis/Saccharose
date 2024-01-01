@@ -2,7 +2,6 @@ import { listen } from '../../../util/eventListen.ts';
 import { flashTippy } from '../../../util/tooltips.ts';
 import { createVoHandle } from './vo-handle.ts';
 import { VoAppState } from './vo-tool.ts';
-import { toInt } from '../../../../shared/util/numberUtil.ts';
 import { modalService } from '../../../util/modalService.ts';
 import { createWikitextEditor } from '../../../util/ace/wikitextEditor.ts';
 import { humanTiming } from '../../../../shared/util/genericUtil.ts';

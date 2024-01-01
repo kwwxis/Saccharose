@@ -12,7 +12,7 @@ import { AvatarExcelConfigData, isTraveler } from '../../../../shared/types/gens
 import { VoiceItem } from '../../../../shared/types/lang-types.ts';
 import { DATAFILE_GENSHIN_FETTERS } from '../../../loadenv.ts';
 import path from 'path';
-import { promises as fs } from 'fs';
+import fs from 'fs';
 import { defaultMap } from '../../../../shared/util/genericUtil.ts';
 import { toMap } from '../../../../shared/util/arrayUtil.ts';
 
@@ -55,8 +55,7 @@ export async function fetchCharacterFetters(ctrl: GenshinControl, skipCache: boo
   if (!skipCache) {
     return cached('Genshin_FetterGroup', async () => {
       const filePath = path.resolve(process.env.GENSHIN_DATA_ROOT, DATAFILE_GENSHIN_FETTERS);
-      const result: FetterGroupByAvatar = await fs.readFile(filePath, {encoding: 'utf8'})
-        .then(data => JSON.parse(data));
+      const result: FetterGroupByAvatar = JSON.parse(fs.readFileSync(filePath, {encoding: 'utf8'}));
       return result;
     });
   }

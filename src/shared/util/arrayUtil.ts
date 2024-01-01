@@ -1,6 +1,6 @@
 // noinspection JSUnusedGlobalSymbols
 
-import { isEmpty, isNotEmpty, isPromise, isset, isUnset } from './genericUtil.ts';
+import { isEmpty, isNotEmpty, isObject, isPromise, isset, isUnset } from './genericUtil.ts';
 import { isStringBlank, trim } from './stringUtil.ts';
 import { isInt } from './numberUtil.ts';
 import { ArrayElement, KeysMatching, NonArray } from '../types/utility-types.ts';
@@ -62,6 +62,169 @@ export function fromKeysWithFixedValue<T>(keys: string[], value: T): { [key: str
     return obj;
 }
 
+export type PathAndValue = {path: string, basename: string, value: any, isLeaf: boolean};
+
+/**
+ * Checks if two objects are equivalent.
+ * @param a
+ * @param b
+ * @param fieldSkipper If this function returns true, then field passed in will be ignored from the equivalence check
+ */
+export function isEquiv(a: any, b: any, fieldSkipper?: (field: PathAndValue) => boolean): boolean {
+  if (a === b) {
+    return true;
+  }
+  if (isObject(a) && isObject(b) && Object.keys(a).length === Object.keys(b).length) {
+    for (let field of walkObjectGen(a)) {
+      if (fieldSkipper && fieldSkipper(field)) {
+        continue;
+      }
+      if (field.isLeaf && resolveObjectPath(b, field.path) !== field.value) {
+        return false;
+      }
+      if (!field.isLeaf) {
+        const isArray = Array.isArray(field.value);
+        const bValue = resolveObjectPath(b, field.path);
+        const bIsArray = Array.isArray(bValue);
+
+        if (isArray) {
+          if (!bIsArray) {
+            return false;
+          } else if (field.value.length !== bValue.length) {
+            return false;
+          }
+        }
+
+        if (!isArray) {
+          if (!isObject(bValue)) {
+            return false;
+          } else if (Object.keys(field.value).length !== Object.keys(bValue).length) {
+            return false;
+          }
+        }
+      }
+    }
+    return true;
+  } else {
+    return false;
+  }
+}
+
+/**
+ * Same as {@link walkObjectGen} but with only the callback function and not as a generator.
+ * @param o The object to walk through.
+ * @param processor See the `interceptor` parameter on {@link walkObjectGen}
+ */
+export function walkObject(o: any, processor: (curr: PathAndValue) => 'NO-DESCEND'|'QUIT'|'CONTINUE'|'DELETE'|void): void {
+  for (let x of walkObjectGen(o, false, processor)) {}
+}
+
+/**
+ * A generator that walks through all the fields of any object (including within nested objects and arrays).
+ *
+ * @param o The object to walk through.
+ * @param leafsOnly If true, only leaf properties (non-objects and non-arrays) will be yielded.
+ * @param interceptor This function is called with every PathAndValue object (both branches and leafs), regardless of
+ * the setting of the `leafsOnly` parameter.
+ *
+ * <ul>
+ *   <li>Returning <strong><code>'NO-DESCEND'</code></strong>
+ *     <ul>
+ *       <li>If the interceptor was passed a branch field, then the generator will stop walking down that branch's path.
+ *       <li>If the interceptor was passed a leaf field, then there's nothing to walk down anyway, so there'll be no effect.
+ *     </ul>
+ *   </li>
+ *   <li>Returning <strong><code>'CONTINUE'</code></strong> or returning nothing: no effect</li>
+ *   <li>Returning <strong><code>'QUIT'</code></strong>: stops walking down the object, stopping the generator.</li>
+ *   <li>Returning <strong><code>'DELETE'</code></strong>: Delete the field on the object being walked (in-place) and if the field was a branch, then it'll no longer being walked down.
+ *      <p>This action is equivalent to this code:</p>
+ *
+ *      ```ts
+ *      (field: PathAndValue) => {
+ *          resolveObjectPath(o, field.path, 'delete');
+ *          return 'NO-DESCEND';
+ *      }
+ *      ```
+ *   </li>
+ * </ul>
+ */
+export function* walkObjectGen(o: any, leafsOnly: boolean = false, interceptor?: (field: PathAndValue) => 'NO-DESCEND'|'QUIT'|'CONTINUE'|'DELETE'|void): Generator<PathAndValue> {
+  if (typeof o !== 'object') {
+    return;
+  }
+  let queue: PathAndValue[] = [];
+
+  for (let entry of Object.entries(o)) {
+    if (o.hasOwnProperty(entry[0])) {
+      queue.push({
+        path: entry[0],
+        basename: entry[0],
+        value: entry[1],
+        isLeaf: !entry[1] || typeof entry[1] !== 'object'
+      });
+    }
+  }
+
+  while (queue.length) {
+    let curr = queue.shift();
+
+    if (!leafsOnly || (leafsOnly && curr.isLeaf)) {
+      yield curr;
+    }
+
+    if (interceptor) {
+      const stopperResult = interceptor(curr);
+
+      if (stopperResult === 'NO-DESCEND') {
+        continue;
+      } else if (stopperResult === 'QUIT') {
+        break;
+      } else if (stopperResult === 'DELETE') {
+        resolveObjectPath(o, curr.path, 'delete');
+        continue;
+      }
+    }
+
+    if (!!curr.value && typeof curr.value === 'object') {
+      if (Array.isArray(curr.value)) {
+        for (let i = 0; i < curr.value.length; i++) {
+          queue.push({
+            path: curr.path + '[' + i + ']',
+            basename: String(i),
+            value: curr.value[i],
+            isLeaf: !curr.value[i] || typeof curr.value[i] !== 'object'
+          });
+        }
+      } else {
+        for (let entry of Object.entries(curr.value)) {
+          if (curr.value.hasOwnProperty(entry[0])) {
+            queue.push({
+              path: curr.path + '.' + entry[0],
+              basename: entry[0],
+              value: entry[1],
+              isLeaf: !entry[1] || typeof entry[1] !== 'object'
+            });
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Resolves a property in an object
+ *
+ * @param o The object to resolve upon
+ * @param s The path to resolve
+ * @param mode One of `get`, `set`, or `delete` (default: `get`)
+ *  - `get`: gets the value at the path, or `undefined` if not found
+ *  - `set`: sets the property at the path to the parameter `newValue`. If objects within the path don't exist, then they'll be created.
+ *  - `delete`: deletes the property at the path
+ * @param newValue The value to set at the path if the `mode` is `set`
+ *
+ * @example
+ *   resolveObjectPath(`nestedObject.someArray[0].someProperty`)
+ */
 export function resolveObjectPath(o: any, s: string, mode: 'get' | 'set' | 'delete' = 'get', newValue?: any): any {
   if (typeof s !== 'string') return undefined;
   s = s.replace(/\.?\[([^\]]+)]/g, '.$1'); // convert indexes to properties

@@ -11,7 +11,7 @@ import {
 } from '../../../shared/types/lang-types.ts';
 import { __normStarRailText } from './starRailText.ts';
 import path from 'path';
-import { promises as fs } from 'fs';
+import fs from 'fs';
 import { defaultMap } from '../../../shared/util/genericUtil.ts';
 import { LoadingDesc } from '../../../shared/types/hsr/hsr-misc-types.ts';
 import { sort } from '../../../shared/util/arrayUtil.ts';
@@ -226,8 +226,7 @@ export async function loadStarRailVoiceItems(): Promise<void> {
   logInitData('Loading HSR Voice Items -- starting...');
 
   const voiceItemsFilePath = path.resolve(process.env.HSR_DATA_ROOT, DATAFILE_HSR_VOICE_ITEMS);
-  const result: StarRailVoiceConfigRaw[] = await fs.readFile(voiceItemsFilePath, {encoding: 'utf8'})
-    .then(data => JSON.parse(data));
+  const result: StarRailVoiceConfigRaw[] = JSON.parse(fs.readFileSync(voiceItemsFilePath, {encoding: 'utf8'}));
 
   for (let item of result) {
     HSR_VOICE_ITEMS[item.VoiceID] = {

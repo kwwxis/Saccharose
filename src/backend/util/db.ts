@@ -3,6 +3,7 @@ import exitHook from 'async-exit-hook';
 import path from 'path';
 import { DATAFILE_GENSHIN_SQLITE_DB, DATAFILE_HSR_SQLITE_DB, DATAFILE_ZENLESS_SQLITE_DB } from '../loadenv.ts';
 import { logShutdown } from './logger.ts';
+import fs from 'fs';
 
 export type SaccharoseDb = {
   genshin: Knex,
@@ -13,6 +14,9 @@ export type SaccharoseDb = {
 let singleton: SaccharoseDb = null;
 
 function createKnexConnection(dbFilePath: string): Knex {
+  if (!fs.existsSync(dbFilePath)) {
+    return null;
+  }
   return knex({
     client: 'sqlite3',
     connection: {

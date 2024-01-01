@@ -4,7 +4,7 @@ import commandLineArgs, { OptionDefinition as ArgsOptionDefinition } from 'comma
 import commandLineUsage, { OptionDefinition as UsageOptionDefinition } from 'command-line-usage';
 import { getGenshinDataFilePath, getStarRailDataFilePath, getZenlessDataFilePath } from '../loadenv.ts';
 import { humanTiming, isPromise, timeConvert } from '../../shared/util/genericUtil.ts';
-import { promises as fs } from 'fs';
+import fs from 'fs';
 import ora from 'ora';
 import { pathToFileURL } from 'url';
 import chalk from 'chalk';
@@ -26,6 +26,13 @@ export type SchemaTable = {
    * How the file is read in (default: `record_array`)
    */
   jsonFileType?: 'record_array' | 'kv_pairs' | 'line_dat',
+
+  /**
+   * (Only used for schemas for TextMap tables)
+   *
+   * The lang code of the TextMap.
+   */
+  textMapSchemaLangCode?: LangCode,
 
   // Normalize Options
   // --------------------------------------------------------------------------------------------------------------
@@ -73,6 +80,19 @@ export type SchemaTable = {
    */
   singularize?: string[],
 };
+
+export function schemaPrimaryKey(schemaTable: SchemaTable): string {
+  if (!schemaTable?.columns) {
+    return undefined;
+  }
+  for (let column of schemaTable.columns) {
+    if (column.isPrimary) {
+      return column.name;
+    }
+  }
+  return undefined;
+}
+
 export type SchemaColumnType =
   'string'
   | 'integer'
@@ -85,6 +105,7 @@ export type SchemaColumnType =
   | 'json'
   | 'jsonb'
   | 'uuid';
+
 export type SchemaColumn = {
   name: string,
   type: SchemaColumnType,
@@ -111,6 +132,7 @@ export function textMapSchema(langCode: LangCode, hashType: string = 'integer'):
     name: 'TextMap' + langCode,
     jsonFile: './TextMap/TextMap'+langCode+'.json',
     jsonFileType: 'kv_pairs',
+    textMapSchemaLangCode: langCode,
     columns: [
       {name: 'Hash', type: hashType, isPrimary: true},
       {name: 'Text', type: 'text'}
@@ -263,7 +285,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
       const spinner = ora('Starting...').start();
       spinner.indent = 2;
 
-      const fileContents: string = await fs.readFile(getDataFilePath(table.jsonFile), {encoding: 'utf8'});
+      const fileContents: string = fs.readFileSync(getDataFilePath(table.jsonFile), {encoding: 'utf8'});
       let json: any[];
       let totalRows: number;
 

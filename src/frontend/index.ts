@@ -45,6 +45,14 @@ import { resolveObjectPath } from '../shared/util/arrayUtil.ts';
 
 (<any> window).resolveObjectPath = resolveObjectPath;
 
+import { walkObjectGen } from '../shared/util/arrayUtil.ts';
+
+(<any> window).walkObject = walkObjectGen;
+
+import { isEquiv } from '../shared/util/arrayUtil.ts';
+
+(<any> window).isEquiv = isEquiv;
+
 import { mwParse } from '../shared/mediawiki/mwParse.ts';
 
 (<any> window).mwParse = mwParse;

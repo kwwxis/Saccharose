@@ -1,12 +1,7 @@
 import { openDB, DBSchema, IDBPDatabase } from 'idb';
 import { StoreNames } from 'idb/build/entry';
 import { LangCode } from '../../../../shared/types/lang-types.ts';
-import SiteMode, { SITE_MODE_HOME } from '../../../siteMode.ts';
 import { toInt } from '../../../../shared/util/numberUtil.ts';
-import { frag1 } from '../../../util/domutil.ts';
-import { toParam } from '../../../../shared/util/stringUtil.ts';
-import { humanTiming } from '../../../../shared/util/genericUtil.ts';
-import { modalService } from '../../../util/modalService.ts';
 
 export interface VoAppSavedAvatar {
   key: string,

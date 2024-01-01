@@ -6,7 +6,7 @@ import crypto from 'crypto';
 const original = 'E:/HoYoAssets/StarRailAssets/Texture2D_1.0';
 const target = 'E:/HoYoAssets/StarRailAssets/Texture2D_1.1';
 
-async function* getFiles(dir) {
+async function* getFiles(dir: string): AsyncGenerator<string> {
   const dirents = await readdir(dir, { withFileTypes: true });
   for (const dirent of dirents) {
     const res = resolve(dir, dirent.name);

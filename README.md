@@ -42,15 +42,16 @@ If you're on Linux/Unix, you should already have Bash. But on Windows,
 it's recommended that you install [Git Bash](https://git-scm.com/downloads).
 
 After installing Git Bash, you can configure the follow:
-```dotenv
-SHELL_PATH='C:/Program Files/Git/usr/bin'
-SHELL_EXEC='C:/Program Files/Git/usr/bin/bash.exe'
-```
-Or on Linux:
-```dotenv
-SHELL_PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin
-SHELL_EXEC=/bin/bash
-```
+ - On Windows:
+    ```dotenv
+    SHELL_PATH='/mingw64/bin:/usr/local/bin:/usr/bin:/bin:/mingw64/bin:/usr/bin'
+    SHELL_EXEC='C:/Program Files/Git/usr/bin/bash.exe'
+    ```
+ - On Linux:
+    ```dotenv
+    SHELL_PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin
+    SHELL_EXEC=/bin/bash
+    ```
 
 ### SSL setup
        

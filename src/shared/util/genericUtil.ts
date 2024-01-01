@@ -12,6 +12,10 @@ export function isset(x: any): boolean {
   return !isUnset(x);
 }
 
+export function isObject(x: any): boolean {
+  return !!x && typeof x === 'object'; // must check !!x because `typeof null` also returns 'object'
+}
+
 export function isEmpty(x: any): boolean {
   if (typeof x === 'undefined' || x === null) {
     return true;
@@ -512,10 +516,12 @@ export function throttle<T extends Function>(fn: T, delayMs: number): T {
   };
 }
 
-export function defaultMap<T extends object>(defaultValue: ((prop: keyof T) => T[keyof T])|'Set'|'Map'|'Array'|'Object'|'Zero'|'One', initialObj?: T): T {
+export function defaultMap<T extends object>(defaultValue: ((prop: keyof T) => T[keyof T])|'Set'|'Map'|'Array'|'Object'|'Zero'|'One'|{new (prop?: keyof T): T[keyof T]}, initialObj?: T): T {
   return new Proxy<T>(initialObj || {} as T, {
-    get(obj: T, prop: string|symbol) {
-      if (prop in obj || prop === 'then' || prop === 'catch' || prop === 'finally') {
+    get(obj: T, prop: string | symbol) {
+      if (prop === 'toJSON') {
+        return () => obj;
+      } else if (prop in obj || prop === 'then' || prop === 'catch' || prop === 'finally') {
         return obj[prop];
       } else {
         if (defaultValue === 'Set') {
@@ -530,6 +536,8 @@ export function defaultMap<T extends object>(defaultValue: ((prop: keyof T) => T
           obj[prop] = 0;
         } else if (defaultValue === 'One') {
           obj[prop] = 1;
+        } else if (isESClass(defaultValue)) {
+          obj[prop] = new defaultValue(prop as keyof T);
         } else {
           obj[prop] = defaultValue(prop as keyof T);
         }
@@ -537,4 +545,12 @@ export function defaultMap<T extends object>(defaultValue: ((prop: keyof T) => T
       }
     }
   });
+}
+
+export function isESClass(fn: any): fn is Type<any> {
+  return typeof fn === 'function' &&
+    Object.getOwnPropertyDescriptor(
+      fn,
+      'prototype'
+    )?.writable === false
 }

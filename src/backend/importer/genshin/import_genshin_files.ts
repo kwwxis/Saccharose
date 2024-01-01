@@ -18,25 +18,31 @@ import { loadInterActionQD } from './module.interaction.ts';
 import { createChangelog } from './module.changelog.ts';
 
 export async function importGenshinFilesCli() {
-  const optionDefinitions: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
+  const options_beforeDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
+    {name: 'make-excels', type: Boolean, description: 'Creates some of the excels that are no longer updated by the game client (run before normalize)'},
     {name: 'normalize', type: Boolean, description: 'Normalizes the JSON files.'},
     {name: 'plaintext', type: Boolean, description: 'Creates the PlainTextMap files.'},
-    {name: 'index', type: Boolean, description: 'Creates the index files for PlainTextMap.'},
     {name: 'voice-items', type: Boolean, description: 'Creates the normalized voice items file.'},
+    {name: 'translate-schema', type: Boolean, description: 'Creates the SchemaTranslation file.'},
+    {name: 'interaction', type: Boolean, description: 'Load QuestDialogue InterActions from BinOutput'},
+  ];
+
+  const options_afterDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
+    {name: 'index', type: Boolean, description: 'Creates the index files for PlainTextMap.'},
     {name: 'gcg-skill', type: Boolean, description: 'Creates file for GCG skill data'},
     {name: 'voice-overs', type: Boolean, description: 'Creates file for character voice over data (aka fetters)'},
-    {name: 'make-excels', type: Boolean, description: 'Creates some of the excels that are no longer updated by the game client'},
-    {name: 'interaction', type: Boolean, description: 'Load QuestDialogue InterActions from BinOutput'},
-    {name: 'translate-schema', type: Boolean, description: 'Creates the SchemaTranslation file.'},
-    {name: 'translate-excel', type: String, typeLabel: '<outputDir>', description: 'Translate excel to output directory. Requires translate-schema to be completed first.'},
     {name: 'changelog', type: String, typeLabel: '<version>', description: 'Create changelog'},
+  ];
+
+  const options_util: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
     {name: 'maximize-images', type: Boolean, description: 'Compares images with duplicate names to choose the image with the largest size.'},
+    {name: 'translate-excel', type: String, typeLabel: '<outputDir>', description: 'Translate excel to output directory. Requires translate-schema to be completed first.'},
     {name: 'help', type: Boolean, description: 'Display this usage guide.'},
   ];
 
   let options: commandLineArgs.CommandLineOptions;
   try {
-    options = commandLineArgs(optionDefinitions);
+    options = commandLineArgs([... options_beforeDb, ... options_afterDb, ... options_util]);
   } catch (e) {
     if (typeof e === 'object' && e.name === 'UNKNOWN_OPTION') {
       console.warn(chalk.red('\nUnknown option: ' + e.optionName));
@@ -63,8 +69,16 @@ export async function importGenshinFilesCli() {
         content: 'Imports Genshin Data json into other supporting files.'
       },
       {
-        header: 'Options',
-        optionList: optionDefinitions
+        header: 'Must be ran before database import:',
+        optionList: options_beforeDb
+      },
+      {
+        header: 'Must be ran after database import:',
+        optionList: options_afterDb
+      },
+      {
+        header: 'Util',
+        optionList: options_util
       }
     ])
     console.log(usage);
