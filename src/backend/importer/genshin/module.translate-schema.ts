@@ -5,11 +5,13 @@ import { normalizeRawJson } from '../import_db.ts';
 import { genshinSchema } from './genshin.schema.ts';
 import { translateSchema } from '../util/translate_schema.ts';
 import chalk from 'chalk';
+import { CurrentGenshinVersion } from '../../../shared/types/game-versions.ts';
 
 export async function importTranslateSchema() {
   function getExcelFilePair(filePath: string) {
     return {
-      impExcelPath: path.resolve(process.env.GENSHIN_PREV_ARCHIVE, filePath.replaceAll('\\', '/')),
+      impExcelPath: path.resolve(process.env.GENSHIN_ARCHIVES,
+        `./${CurrentGenshinVersion.previous}/`, filePath.replaceAll('\\', '/')),
       agdExcelPath: getGenshinDataFilePath(filePath),
     };
   }

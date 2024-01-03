@@ -21,11 +21,9 @@ from dotenv import load_dotenv
 
 approot_path = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../'))
 dotenv_path = os.path.join(approot_path, '.env')
-genshin_images_path = os.path.join(approot_path, 'public/images/genshin')
 
 print("Root Path: " + approot_path)
 print("Dotenv Path: " + dotenv_path)
-print("Genshin Images Path: " + genshin_images_path)
 
 load_dotenv(dotenv_path)
 
@@ -33,6 +31,9 @@ POSTGRES_HOST = os.environ.get("POSTGRES_HOST")
 POSTGRES_DATABASE = os.environ.get("POSTGRES_DATABASE")
 POSTGRES_USER = os.environ.get("POSTGRES_USER")
 POSTGRES_PASSWORD = os.environ.get("POSTGRES_PASSWORD")
+
+genshin_images_path = os.environ.get("EXT_GENSHIN_IMAGES")
+print("Genshin Images Path: " + genshin_images_path)
 
 def remove_transparency(img, bg_colour=(255, 255, 255)):
     # Only process if image has transparency (http://stackoverflow.com/a/1963146)

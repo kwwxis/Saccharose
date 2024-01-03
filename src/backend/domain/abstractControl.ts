@@ -399,6 +399,19 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     return ret;
   }
 
+  async* generateTextMapMatches(searchText: string): AsyncGenerator<TextMapHash> {
+    let textMapHashes: TextMapHash[] = [];
+
+    await this.streamTextMapMatches(this.inputLangCode, searchText,
+      (textMapHash: TextMapHash) => textMapHashes.push(textMapHash),
+      this.searchModeFlags
+    );
+
+    for (let textMapHash of textMapHashes) {
+      yield textMapHash;
+    }
+  }
+
   async streamTextMapMatches(langCode: LangCode,
                              searchText: string,
                              stream: (textMapHash: TextMapHash, text?: string, kill?: () => void) => void,

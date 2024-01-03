@@ -8,32 +8,36 @@ import { isEquiv, mapBy, resolveObjectPath, walkObject } from '../../../shared/u
 import { schemaPrimaryKey } from '../import_db.ts';
 import {
   ChangeRecordMap,
-  ExcelFileChanges,
+  ExcelFullChangelog,
   newChangeRecordMap,
-  TextMapChanges,
+  TextMapFullChangelog,
 } from '../../../shared/types/changelog-types.ts';
 import { ltrim } from '../../../shared/util/stringUtil.ts';
+import { GameVersion, GenshinVersions } from '../../../shared/types/game-versions.ts';
 
 class CreateChangelogState {
   // Data Holders:
   // --------------------------------------------------------------------------------------------------------------
-  public textmapChangelog: Record<LangCode, TextMapChanges> = defaultMap(langCode => ({
+  public textmapChangelog: TextMapFullChangelog = defaultMap(langCode => ({
     langCode,
     added: {},
     removed: {},
     updated: {},
   }));
 
-  public excelChangelog: Record<string, ExcelFileChanges> = defaultMap(excelFileName => ({
+  public excelChangelog: ExcelFullChangelog = defaultMap(excelFileName => ({
     name: excelFileName,
-    changeRecordMap: newChangeRecordMap()
+    changedRecords: newChangeRecordMap()
   }));
 
   // Constants:
   // --------------------------------------------------------------------------------------------------------------
+  readonly version: GameVersion;
   readonly versionLabel: string;
   readonly textmapChangelogFileName: string;
   readonly excelChangelogFileName: string;
+  readonly prevDataRoot: string;
+  readonly currDataRoot: string;
 
   // Composite Holders:
   // --------------------------------------------------------------------------------------------------------------
@@ -49,12 +53,8 @@ class CreateChangelogState {
       console.error('Must have GENSHIN_CHANGELOGS set in your .env!');
       process.exit(1);
     }
-    if (!process.env.GENSHIN_PREV_ARCHIVE) {
-      console.error('Must have GENSHIN_PREV_ARCHIVE set in your .env!');
-      process.exit(1);
-    }
-    if (!process.env.GENSHIN_CURR_ARCHIVE) {
-      console.error('Must have GENSHIN_CURR_ARCHIVE set in your .env!');
+    if (!process.env.GENSHIN_ARCHIVES) {
+      console.error('Must have GENSHIN_ARCHIVES set in your .env!');
       process.exit(1);
     }
 
@@ -65,9 +65,21 @@ class CreateChangelogState {
       process.exit(1);
     }
 
+    this.version = GenshinVersions.find(v => v.number == this.versionLabel);
+    if (!this.version) {
+      console.error('Invalid version: ' + this.versionLabel);
+      process.exit(1);
+    }
+
     // Set constants:
     this.textmapChangelogFileName = path.resolve(process.env.GENSHIN_CHANGELOGS, `./TextMapChangeLog.${this.versionLabel}.json`);
-    this.excelChangelogFileName = path.resolve(process.env.GENSHIN_CHANGELOGS, `./ExcelChangeLog.${this.versionLabel}.json`);
+    this.excelChangelogFileName = path.resolve(process.env.GENSHIN_CHANGELOGS, `./ExcelChangeLog.${this.versionLabel}.json`);4
+
+    this.prevDataRoot = path.resolve(process.env.GENSHIN_ARCHIVES, `./${this.version.previous}`);
+    this.currDataRoot = path.resolve(process.env.GENSHIN_ARCHIVES, `./${this.version.number}`);
+
+    // Initial message:
+    console.info(`Creating changelog for ${this.version.previous} - ${this.version.number} diff`);
   }
 }
 
@@ -78,7 +90,7 @@ async function computeTextMapChanges(state: CreateChangelogState) {
     return;
   }
 
-  const { textmapChangelog } = state;
+  const { textmapChangelog, prevDataRoot, currDataRoot } = state;
   for (let schemaTable of Object.values(genshinSchema)) {
     if (!schemaTable.textMapSchemaLangCode) {
       continue;
@@ -87,8 +99,8 @@ async function computeTextMapChanges(state: CreateChangelogState) {
     const langCode: LangCode = schemaTable.textMapSchemaLangCode;
     console.log('Computing changes for TextMap' + langCode);
 
-    const prevFile: string = path.resolve(process.env.GENSHIN_PREV_ARCHIVE, schemaTable.jsonFile);
-    const currFile: string = path.resolve(process.env.GENSHIN_CURR_ARCHIVE, schemaTable.jsonFile);
+    const prevFile: string = path.resolve(prevDataRoot, schemaTable.jsonFile);
+    const currFile: string = path.resolve(currDataRoot, schemaTable.jsonFile);
 
     const prevData: Record<TextMapHash, string> = JSON.parse(fs.readFileSync(prevFile, {encoding: 'utf8'}));
     const currData: Record<TextMapHash, string> = JSON.parse(fs.readFileSync(currFile, {encoding: 'utf8'}));
@@ -138,7 +150,7 @@ async function computeExcelFileChanges(state: CreateChangelogState) {
     return;
   }
 
-  const { compositeTextMapHashUpdated } = state;
+  const { compositeTextMapHashUpdated, prevDataRoot, currDataRoot } = state;
 
   for (let schemaTable of Object.values(genshinSchema)) {
     // Skip tables we don't care about:
@@ -155,30 +167,30 @@ async function computeExcelFileChanges(state: CreateChangelogState) {
       continue;
     }
 
-    const prevFilePath: string = path.resolve(process.env.GENSHIN_PREV_ARCHIVE, schemaTable.jsonFile);
-    const currFilePath: string = path.resolve(process.env.GENSHIN_CURR_ARCHIVE, schemaTable.jsonFile);
+    const prevFilePath: string = path.resolve(prevDataRoot, schemaTable.jsonFile);
+    const currFilePath: string = path.resolve(currDataRoot, schemaTable.jsonFile);
 
     const prevData: {[key: string]: any} = mapBy(JSON.parse(fs.readFileSync(prevFilePath, {encoding: 'utf8'})), primaryKey);
     const currData: {[key: string]: any} = mapBy(JSON.parse(fs.readFileSync(currFilePath, {encoding: 'utf8'})), primaryKey);
 
-    console.log(`Computing changelog for SchemaTable: ${schemaTable.name} // pkey: ${primaryKey} //` +
+    console.log(`Computing changelog for SchemaTable: ${schemaTable.name} // pkey: ${primaryKey} // ` +
       'CurrKeyCount:', Object.keys(currData).length, 'PrevKeyCount:', Object.keys(prevData).length);
 
     const addedKeys: Set<string> = new Set(Object.keys(currData).filter(key => !prevData[key]));
     const removedKeys: Set<string> = new Set(Object.keys(prevData).filter(key => !currData[key]));
 
-    const changeRecordMap: ChangeRecordMap = state.excelChangelog[schemaTable.name].changeRecordMap;
+    const changedRecords: ChangeRecordMap = state.excelChangelog[schemaTable.name].changedRecords;
 
     for (let addedKey of addedKeys) {
       walkObject(currData[addedKey], field => isObfFieldName(field.basename) ? 'DELETE' : 'CONTINUE');
-      changeRecordMap[addedKey].changeType = 'added';
-      changeRecordMap[addedKey].addedRecord = currData[addedKey];
+      changedRecords[addedKey].changeType = 'added';
+      changedRecords[addedKey].addedRecord = currData[addedKey];
     }
 
     for (let removedKey of removedKeys) {
       walkObject(prevData[removedKey], field => isObfFieldName(field.basename) ? 'DELETE' : 'CONTINUE');
-      changeRecordMap[removedKey].changeType = 'removed';
-      changeRecordMap[removedKey].removedRecord = prevData[removedKey];
+      changedRecords[removedKey].changeType = 'removed';
+      changedRecords[removedKey].removedRecord = prevData[removedKey];
     }
 
     for (let key of Object.keys(currData)) {
@@ -207,13 +219,13 @@ async function computeExcelFileChanges(state: CreateChangelogState) {
         if (isUnset(valueInPrev)) {
           // Field was added:
           didFindChanges = true;
-          changeRecordMap[key].updatedFields[field.path].newValue = valueInCurr;
+          changedRecords[key].updatedFields[field.path].newValue = valueInCurr;
           ret = 'NO-DESCEND';
         } else if (!isEquiv(valueInCurr, valueInPrev, field => isObfFieldName(field.basename))) {
           // Field was updated:
           didFindChanges = true;
-          changeRecordMap[key].updatedFields[field.path].newValue = valueInCurr;
-          changeRecordMap[key].updatedFields[field.path].oldValue = valueInPrev;
+          changedRecords[key].updatedFields[field.path].newValue = valueInCurr;
+          changedRecords[key].updatedFields[field.path].oldValue = valueInPrev;
           ret = 'CONTINUE';
         }
 
@@ -226,7 +238,7 @@ async function computeExcelFileChanges(state: CreateChangelogState) {
               didFindChanges = true;
               for (let textMapChanges of Object.values(state.textmapChangelog)) {
                 if (textMapChanges.updated[hash]) {
-                  changeRecordMap[key].updatedFields[field.path].textChanges.push({
+                  changedRecords[key].updatedFields[field.path].textChanges.push({
                     langCode: textMapChanges.langCode,
                     oldValue: textMapChanges.updated[hash].oldValue,
                     newValue: textMapChanges.updated[hash].newValue,
@@ -265,7 +277,7 @@ async function computeExcelFileChanges(state: CreateChangelogState) {
 
         // If the path is not in the current record, then that means the field was removed:
         didFindChanges = true;
-        changeRecordMap[key].updatedFields[field.path].oldValue = field.value;
+        changedRecords[key].updatedFields[field.path].oldValue = field.value;
 
         // If the path ends with 'MapHash'/'MapHashList' then we should consider that a leaf field:
         if (field.basename.endsWith('MapHash') || field.basename.endsWith('MapHashList')) {
@@ -274,7 +286,7 @@ async function computeExcelFileChanges(state: CreateChangelogState) {
       });
 
       if (didFindChanges) {
-        changeRecordMap[key].changeType = 'updated';
+        changedRecords[key].changeType = 'updated';
       }
     }
   }

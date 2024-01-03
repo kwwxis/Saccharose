@@ -22,8 +22,8 @@ const execPromise = util.promisify(exec);
  * @param stderrLineStream Stream method for stderr.
  */
 export async function passthru(command: string,
-                                       stdoutLineStream?: (data: string, kill?: () => void) => Promise<void>|void,
-                                       stderrLineStream?: (data: string, kill?: () => void) => Promise<void>|void): Promise<number|Error> {
+                               stdoutLineStream?: (data: string, kill?: () => void) => Promise<void>|void,
+                               stderrLineStream?: (data: string, kill?: () => void) => Promise<void>|void): Promise<number|Error> {
   const partial_line_buffer = {
     stdout: '',
     stderr: '',

@@ -515,6 +515,9 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     if (!talk) {
       return talk;
     }
+    if (!talk.LoadType) {
+      talk.LoadType = 'TALK_DEFAULT';
+    }
     if (talk.NpcId && talk.NpcId.length) {
       let dataList: NpcExcelConfigData[] = await this.getNpcList(talk.NpcId, false);
       talk.NpcDataList = dataList;
@@ -628,28 +631,36 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     }, addon));
   }
 
-  async selectDialogExcelConfigDataByTalkRoleId(talkRoleId: number): Promise<DialogExcelConfigData[]> {
+  async selectDialogExcelConfigDataByTalkRoleId(talkRoleId: number, noAddCache: boolean = false): Promise<DialogExcelConfigData[]> {
     const dialogs: DialogExcelConfigData[] = await this.knex.select('*')
       .from('DialogExcelConfigData')
       .where({TalkRoleId: talkRoleId}).then(this.commonLoad);
-    return dialogs.asyncMap(d => this.postProcessDialog(d));
+    return dialogs.asyncMap(async d => {
+      await this.postProcessDialog(d);
+      this.saveToDialogIdCache(d, noAddCache);
+      return d;
+    });
   }
 
-  async selectDialogExcelConfigDataByTalkId(talkId: number): Promise<DialogExcelConfigData[]> {
+  async selectDialogExcelConfigDataByTalkId(talkId: number, noAddCache: boolean = false): Promise<DialogExcelConfigData[]> {
     const dialogs: DialogExcelConfigData[] = await this.knex.select('*')
       .from('DialogExcelConfigData')
       .where({TalkId: talkId}).then(this.commonLoad);
-    return dialogs.asyncMap(d => this.postProcessDialog(d));
+    return dialogs.asyncMap(async d => {
+      await this.postProcessDialog(d);
+      this.saveToDialogIdCache(d, noAddCache);
+      return d;
+    });
   }
 
-  async selectPreviousDialogs(nextId: number): Promise<DialogExcelConfigData[]> {
+  async selectPreviousDialogs(nextId: number, noAddCache: boolean = false): Promise<DialogExcelConfigData[]> {
     const ids: number[] = await this.knex.select('*')
       .from('Relation_DialogToNext')
       .where({NextId: nextId}).pluck('DialogId').then();
-    return this.selectMultipleDialogExcelConfigData(arrayUnique(ids));
+    return this.selectMultipleDialogExcelConfigData(arrayUnique(ids), noAddCache);
   }
 
-  async selectSingleDialogExcelConfigData(id: number): Promise<DialogExcelConfigData> {
+  async selectSingleDialogExcelConfigData(id: number, noAddCache: boolean = false): Promise<DialogExcelConfigData> {
     let result: DialogExcelConfigData = await this.knex.select('*')
       .from('DialogExcelConfigData')
       .where({Id: id}).first().then(this.commonLoadFirst);
@@ -657,23 +668,23 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       return result;
     }
     result = await this.postProcessDialog(result);
-    this.saveToDialogIdCache(result);
+    this.saveToDialogIdCache(result, noAddCache);
     return result && result.TalkContentText ? result : null;
   }
 
-  async selectDialogsFromTextMapHash(textMapHash: TextMapHash): Promise<DialogExcelConfigData[]> {
+  async selectDialogsFromTextMapHash(textMapHash: TextMapHash, noAddCache: boolean = false): Promise<DialogExcelConfigData[]> {
     let results: DialogExcelConfigData[] = await this.knex.select('*')
       .from('DialogExcelConfigData')
       .where({TalkContentTextMapHash: textMapHash})
       .then(this.commonLoad);
     await results.asyncMap(async d => {
       await this.postProcessDialog(d);
-      this.saveToDialogIdCache(d);
+      this.saveToDialogIdCache(d, noAddCache);
     });
     return results;
   }
 
-  async selectMultipleDialogExcelConfigData(ids: number[]): Promise<DialogExcelConfigData[]> {
+  async selectMultipleDialogExcelConfigData(ids: number[], noAddCache: boolean = false): Promise<DialogExcelConfigData[]> {
     if (!ids.length) {
       return [];
     }
@@ -684,7 +695,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
     await results.asyncMap(async d => {
       await this.postProcessDialog(d);
-      this.saveToDialogIdCache(d);
+      this.saveToDialogIdCache(d, noAddCache);
     });
 
     return results.filter(x => !!x && !!x.TalkContentText);
@@ -692,8 +703,10 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   // endregion
 
   // region Dialog Cache Ops
-  saveToDialogIdCache(x: DialogExcelConfigData): void {
-    this.state.dialogueIdCache.add(x.Id);
+  saveToDialogIdCache(x: DialogExcelConfigData, noAddCache: boolean = false): void {
+    if (!noAddCache) {
+      this.state.dialogueIdCache.add(x.Id);
+    }
   }
   isInDialogIdCache(x: number|DialogExcelConfigData): boolean {
     return this.state.dialogueIdCache.has(typeof x === 'number' ? x : x.Id);
@@ -1360,7 +1373,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return await this.knex.select('*').from('AnimalCodexExcelConfigData')
       .then(this.commonLoad).then(ret => ret.asyncMap(x => this.postProcessAnimalCodex(x)));
   }
-  
+
   private async selectAnimalCodexManualTextMap(): Promise<{[manualTextMapId: string]: string}> {
     return cached('AnimalCodexManualTextMap_' + this.outputLangCode, async () => {
       const ret: {[lookup: string]: string} = {};
@@ -1393,7 +1406,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     const monsterList = await this.selectAllMonster();
     const codexList = await this.selectAllAnimalCodex();
     const codexManualTextMap: {[manualTextMapId: string]: string} = await this.selectAnimalCodexManualTextMap();
-    
+
     const archive: LivingBeingArchive = {
       MonsterCodex: defaultMap((key: string): LivingBeingArchiveGroup => ({
         SubType: key,

@@ -2,18 +2,20 @@ import { LangCode, TextMapHash } from './lang-types.ts';
 import { defaultMap } from '../util/genericUtil.ts';
 import { toString } from '../util/stringUtil.ts';
 
-export type ChangeType = 'added' | 'updated' | 'removed';
+// region Excel Changelog Types
+// --------------------------------------------------------------------------------------------------------------
+export type ExcelFullChangelog = Record<string, ExcelFileChanges>;
 
-export type FieldChange = {
-  field: string,
-  oldValue?: string,
-  newValue?: string,
-  textChanges?: {
-    langCode: LangCode,
-    oldValue?: string,
-    newValue?: string
-  }[];
+export type ExcelFileChanges = {
+  name: string;
+  changedRecords: ChangeRecordMap;
 };
+
+export type ChangeRecordMap = {
+  [key: string]: ChangeRecord
+}
+
+export type ChangeType = 'added' | 'updated' | 'removed';
 
 export type ChangeRecord = {
   /**
@@ -50,14 +52,21 @@ export type ChangeRecord = {
   removedRecord?: any,
 };
 
-export type ChangeRecordMap = {
-  [key: string]: ChangeRecord
-}
-
-export type ExcelFileChanges = {
-  name: string;
-  changeRecordMap: ChangeRecordMap;
+export type FieldChange = {
+  field: string,
+  oldValue?: string,
+  newValue?: string,
+  textChanges?: {
+    langCode: LangCode,
+    oldValue?: string,
+    newValue?: string
+  }[];
 };
+// endregion
+
+// region TextMap Changelog Types
+// --------------------------------------------------------------------------------------------------------------
+export type TextMapFullChangelog = Record<LangCode, TextMapChanges>;
 
 export type TextMapChanges = {
   langCode: LangCode,
@@ -65,7 +74,10 @@ export type TextMapChanges = {
   removed: Record<TextMapHash, string>,
   updated: Record<TextMapHash, { oldValue: string, newValue: string }>
 }
+// endregion
 
+// region Utility Functions
+// --------------------------------------------------------------------------------------------------------------
 export function newChangeRecord(key: string|number): ChangeRecord {
   return {
     key: toString(key),
@@ -79,3 +91,4 @@ export function newChangeRecord(key: string|number): ChangeRecord {
 export function newChangeRecordMap(): ChangeRecordMap {
   return defaultMap(key => newChangeRecord(key));
 }
+// endregion

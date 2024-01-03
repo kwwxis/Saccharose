@@ -16,9 +16,26 @@
 
 ### Optional Prerequisites
 
-- Other PIP packages: imagehash, psycopg2, python-dotenv
-  - You'll need to apt-get install `libpq-dev` and `python3-dev` first to install psycopg2. Having postgres installed is also required.
-  - This is only necessary to be installed if you plan to use or develop the "media-search" functionality.
+This is only necessary to be installed if you plan to use or develop the "media-search" functionality.
+
+- PostgreSQL (must be installed in a Linux system)
+  1. On Windows, install in WSL: https://learn.microsoft.com/en-us/windows/wsl/install-manual
+  2. Install PostgreSQL https://www.postgresql.org/download/linux/ubuntu/
+  3. Modify `postgresql.conf` and set `listen_addresses = '*'`
+  4. In WSL, install apt packages: `make`, `build-essential` (Linux should already have these)
+- Other PIP packages: `imagehash`, `psycopg2`, `python-dotenv`
+  - On Linux, having PostgreSQL installed is required to install `psycopg2`
+  - On Linux, you'll need to apt-get install `libpq-dev` and `python3-dev` first to install psycopg2.
+  - On Windows, you can install these in Windows, not WSL
+- Install `pg-spgist_hamming` on the system with PostgreSQL installed (https://github.com/fake-name/pg-spgist_hamming)
+  - First run: `sudo apt install postgresql-server-dev-XX`
+    - Replace `XX` with your installed version of PostgreSQL
+  - Follow instructions:
+    ```
+    cd bktree
+    make
+    sudo make install
+    ```
 
 ## Setup
 

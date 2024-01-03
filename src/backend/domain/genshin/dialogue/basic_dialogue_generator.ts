@@ -53,189 +53,236 @@ const npcFilterInclude = async (ctrl: GenshinControl, d: DialogExcelConfigData, 
 };
 // endregion
 
-// region Options
+// region Branch Dialogue: Options & State
 // --------------------------------------------------------------------------------------------------------------
 export type DialogueGenerateOpts = {
+  query: number|number[]|string,
   voicedOnly?: boolean;
   npcFilter?: string;
 }
-// endregion
 
-// region Single Branch Dialogue
-// --------------------------------------------------------------------------------------------------------------
 export const DIALOGUE_GENERATE_MAX = 100;
 
-export async function dialogueGenerate(ctrl: GenshinControl, query: number|number[]|string, opts: DialogueGenerateOpts = {}): Promise<DialogueSectionResult[]> {
-  const result: DialogueSectionResult[] = [];
-  const npcFilter: string = normNpcFilterInput(ctrl, opts?.npcFilter, ctrl.inputLangCode);
-  const voicedOnly: boolean = opts?.voicedOnly || false;
+class DialogueGenerateState {
+  readonly result: DialogueSectionResult[] = [];
 
-  if (typeof query === 'string' && isInt(query)) {
-    query = parseInt(query);
+  readonly query: number | number[] | string;
+  readonly npcFilter: string;
+  readonly voicedOnly: boolean;
+
+  readonly seenTalkConfigIds: Set<number> = new Set();
+  readonly seenFirstDialogueIds: Set<number> = new Set();
+
+  constructor(readonly ctrl: GenshinControl, opts: DialogueGenerateOpts) {
+    this.query = opts.query;
+
+    if (typeof this.query === 'string' && isInt(this.query)) {
+      this.query = parseInt(this.query);
+    }
+
+    this.npcFilter = normNpcFilterInput(ctrl, opts?.npcFilter, ctrl.inputLangCode);
+    this.voicedOnly = opts?.voicedOnly || false;
+  }
+}
+// endregion
+
+// region Branch Dialogue: Logic
+// --------------------------------------------------------------------------------------------------------------
+
+function addHighlightMarkers(ctrl: GenshinControl, query: number|number[]|string, dialogue: DialogExcelConfigData, sect: DialogueSectionResult) {
+  let re: RegExp;
+  let reFlags: string = ctrl.searchModeFlags.includes('i') ? 'gi' : 'g';
+  let isRegexQuery: boolean = ctrl.searchMode === 'R' || ctrl.searchMode === 'RI';
+
+  if (typeof query === 'string' && ctrl.inputLangCode === ctrl.outputLangCode) {
+    re = new RegExp(isRegexQuery ? `(?<=:''' .*)` + query : escapeRegExp(ctrl.normText(query, ctrl.outputLangCode)), reFlags);
+  } else {
+    re = new RegExp(escapeRegExp(ctrl.normText(dialogue.TalkContentText, ctrl.outputLangCode)), reFlags);
   }
 
-  ctrl.state.DisableNpcCache = true;
-
-  function addHighlightMarkers(dialogue: DialogExcelConfigData, sect: DialogueSectionResult) {
-    let re: RegExp;
-    let reFlags: string = ctrl.searchModeFlags.includes('i') ? 'gi' : 'g';
-    let isRegexQuery: boolean = ctrl.searchMode === 'R' || ctrl.searchMode === 'RI';
-
-    if (typeof query === 'string' && ctrl.inputLangCode === ctrl.outputLangCode) {
-      re = new RegExp(isRegexQuery ? `(?<=:''' .*)` + query : escapeRegExp(ctrl.normText(query, ctrl.outputLangCode)), reFlags);
-    } else {
-      re = new RegExp(escapeRegExp(ctrl.normText(dialogue.TalkContentText, ctrl.outputLangCode)), reFlags);
-    }
-
-    for (let marker of Marker.create(re, sect.wikitext)) {
-      sect.wikitextMarkers.push(marker);
-    }
+  for (let marker of Marker.create(re, sect.wikitext)) {
+    sect.wikitextMarkers.push(marker);
   }
+}
 
-  const seenTalkConfigIds: Set<number> = new Set();
-  const seenFirstDialogueIds: Set<number> = new Set();
-
-  async function handle(id: number|DialogExcelConfigData): Promise<boolean> {
-    if (!id) {
-      return false;
-    }
-    if (typeof id === 'number') {
-      if (seenTalkConfigIds.has(id) || seenFirstDialogueIds.has(id)) {
-        return false;
-      }
-      const talkConfigResult = await talkConfigGenerate(ctrl, id);
-      if (talkConfigResult) {
-        result.push(talkConfigResult);
-        return true;
-      }
-    }
-
-    const dialogue: DialogExcelConfigData = typeof id === 'number' ? await ctrl.selectSingleDialogExcelConfigData(id) : id;
-    if (!dialogue) {
-      throw 'No Talk or Dialogue found for ID: ' + id;
-    }
-    if (voicedOnly && !ctrl.voice.hasVoiceItems('Dialog', dialogue.Id)) {
-      return false;
-    }
-    if (!(await npcFilterInclude(ctrl, dialogue, npcFilter))) {
-      return false;
-    }
-    let talkConfigs: TalkExcelConfigData[] = await ctrl.selectTalkExcelConfigDataListByFirstDialogueId(dialogue.Id);
-    let firstDialogs: DialogExcelConfigData[] = null;
-    if (!talkConfigs.length) {
-      firstDialogs = await dialogTraceBack(ctrl, dialogue);
-      for (let d of firstDialogs) {
-        talkConfigs.push(... await ctrl.selectTalkExcelConfigDataListByFirstDialogueId(d.Id));
-      }
-    }
-    if (talkConfigs.length) {
-      let foundTalks: boolean = false;
-      for (let talkConfig of talkConfigs) {
-        if (seenTalkConfigIds.has(talkConfig.Id)) {
-          continue;
-        } else {
-          seenTalkConfigIds.add(talkConfig.Id);
-        }
-        const talkConfigResult = await talkConfigGenerate(ctrl, talkConfig);
-        if (talkConfigResult) {
-          talkConfigResult.metadata.push(new MetaProp('First Dialogue ID', talkConfig.InitDialog));
-          talkConfigResult.metadata.push(new MetaProp('First Match Dialogue ID', [
-            dialogue.Id,
-            <IMetaPropValue> {
-              value: 'OL',
-              link: '/OL?q=' + dialogue.TalkContentTextMapHash
-            }
-          ]));
-          addHighlightMarkers(dialogue, talkConfigResult);
-          result.push(talkConfigResult);
-          foundTalks = true;
-        }
-      }
-      if (foundTalks) {
-        return true;
-      }
-    } else {
-      let foundDialogs: boolean = false;
-      if (!firstDialogs) {
-        firstDialogs = await dialogTraceBack(ctrl, dialogue);
-      }
-      for (let firstDialog of firstDialogs) {
-        if (seenFirstDialogueIds.has(firstDialog.Id)) {
-          continue;
-        } else {
-          seenFirstDialogueIds.add(firstDialog.Id);
-        }
-
-        const questIds: number[] = await dialogueToQuestId(ctrl, firstDialog);
-        const dialogueBranch = await ctrl.selectDialogBranch(questIds?.[0], firstDialog);
-        const sect = new DialogueSectionResult('Dialogue_'+firstDialog.Id, 'Dialogue');
-        sect.originalData.dialogBranch = dialogueBranch;
-        sect.metadata.push(new MetaProp('First Dialogue ID', firstDialog.Id, `/branch-dialogue?q=${firstDialog.Id}`));
-        sect.metadata.push(new MetaProp('First Match Dialogue ID', [
-          <IMetaPropValue> {
-            value: dialogue.Id,
-            link: `/branch-dialogue?q=${dialogue.Id}`,
-          },
-          <IMetaPropValue> {
-            value: 'OL',
-            link: '/OL?q=' + dialogue.TalkContentTextMapHash
-          }
-        ]));
-
-        if (questIds.length) {
-          sect.metadata.push(new MetaProp('Quest ID', await questIds.asyncMap(async id => ({
-            value: id,
-            tooltip: await ctrl.selectMainQuestName(id)
-          })), '/quests/{}'));
-          sect.originalData.questId = questIds[0];
-          sect.originalData.questName = await ctrl.selectMainQuestName(questIds[0]);
-        }
-        const dialogWikitextRet: DialogWikitextResult = await ctrl.generateDialogueWikitext(dialogueBranch);
-        sect.wikitext = dialogWikitextRet.wikitext;
-        sect.wikitextLineIds = dialogWikitextRet.ids;
-        addHighlightMarkers(dialogue, sect);
-        result.push(sect);
-      }
-      if (foundDialogs) {
-        return true;
-      }
-    }
+async function handle(state: DialogueGenerateState, id: number|DialogExcelConfigData): Promise<boolean> {
+  if (!id) {
     return false;
   }
 
-  {
-    if (typeof query === 'string') {
-      // string
-      let textMapHashes: TextMapHash[] = [];
+  const {
+    result,
+    ctrl,
 
-      await ctrl.streamTextMapMatches(ctrl.inputLangCode, query.trim(),
-        (textMapHash: TextMapHash) => textMapHashes.push(textMapHash),
-        ctrl.searchModeFlags
-      );
+    seenFirstDialogueIds,
+    seenTalkConfigIds,
 
-      let acceptedCount = 0;
-      for (let textMapHash of textMapHashes) {
-        let dialogues = await ctrl.selectDialogsFromTextMapHash(textMapHash);
-        let accepted: boolean = (await dialogues.asyncMap(d => handle(d))).some(b => !!b);
-        if (accepted) {
-          acceptedCount++;
-        }
-        if (acceptedCount > DIALOGUE_GENERATE_MAX) {
-          break;
-        }
-      }
-    } else if (typeof query === 'number') {
-      // number
-      await handle(query);
-    } else {
-      // number[]
-      for (let id of query) {
-        await handle(id);
+    query,
+    voicedOnly,
+    npcFilter,
+  } = state;
+
+  // Fast case: Talk ID
+  if (typeof id === 'number') {
+    if (seenTalkConfigIds.has(id) || seenFirstDialogueIds.has(id)) {
+      return false;
+    }
+    const talkConfigResult = await talkConfigGenerate(ctrl, id);
+    if (talkConfigResult) {
+      result.push(talkConfigResult);
+      return true;
+    }
+  }
+
+  // Look for dialog excel:
+  const dialog: DialogExcelConfigData = typeof id === 'number' ? await ctrl.selectSingleDialogExcelConfigData(id) : id;
+
+  // If no dialog, then there's nothing we can do:
+  if (!dialog) {
+    throw 'No Talk or Dialogue found for ID: ' + id;
+  }
+
+  // If voicedOnly=true and the dialog is not voiced, then do not accept:
+  if (voicedOnly && !ctrl.voice.hasVoiceItems('Dialog', dialog.Id)) {
+    return false;
+  }
+
+  // If input options has an NPC filter and this dialogue is not of that NPC, then do not accept:
+  if (!(await npcFilterInclude(ctrl, dialog, npcFilter))) {
+    return false;
+  }
+
+  // Find Talks (part 1):
+  const talkConfigs: TalkExcelConfigData[] = await ctrl.selectTalkExcelConfigDataListByFirstDialogueId(dialog.Id);
+  const foundTalkIds: Set<number> = new Set<number>(talkConfigs.map(t => t.Id));
+
+  // Find Talks (part 2):
+  const firstDialogs: DialogExcelConfigData[] = await dialogTraceBack(ctrl, dialog);
+  for (let d of firstDialogs) {
+    const dTalks: TalkExcelConfigData[] = await ctrl.selectTalkExcelConfigDataListByFirstDialogueId(d.Id);
+    for (let dTalk of dTalks) {
+      if (!foundTalkIds.has(dTalk.Id)) {
+        talkConfigs.push(dTalk);
+        foundTalkIds.add(dTalk.Id);
       }
     }
   }
 
-  return result;
+  // Find Talks (part 3):
+  for (let d of [dialog, ...firstDialogs]) {
+    if (isInt(d.TalkId) && !foundTalkIds.has(d.TalkId)) {
+      const dTalk = await ctrl.selectTalkExcelConfigDataById(d.TalkId);
+      if (dTalk) {
+        talkConfigs.push(dTalk);
+        foundTalkIds.add(dTalk.Id);
+      }
+    }
+  }
+
+  // Talk Case
+  // --------------------------------------------------------------------------------------------------------------
+  if (talkConfigs.length) {
+    let foundTalks: boolean = false;
+    for (let talkConfig of talkConfigs) {
+      if (seenTalkConfigIds.has(talkConfig.Id)) {
+        continue;
+      } else {
+        seenTalkConfigIds.add(talkConfig.Id);
+      }
+
+      const talkConfigResult = await talkConfigGenerate(ctrl, talkConfig);
+      if (!talkConfigResult)
+        continue;
+
+      talkConfigResult.metadata.push(new MetaProp('First Dialogue ID', talkConfig.InitDialog));
+      if (talkConfig.Dialog?.[0]?.TalkType) {
+        talkConfigResult.metadata.push(new MetaProp('First Dialogue Talk Type', talkConfig.Dialog[0].TalkType));
+      }
+      talkConfigResult.metadata.push(new MetaProp('First Match Dialogue ID', [
+        dialog.Id,
+        <IMetaPropValue> {
+          value: 'OL',
+          link: '/OL?q=' + dialog.TalkContentTextMapHash
+        }
+      ]));
+      addHighlightMarkers(ctrl, query, dialog, talkConfigResult);
+      result.push(talkConfigResult);
+      foundTalks = true;
+    }
+    return foundTalks;
+  }
+
+  // Non-Talk Case
+  // --------------------------------------------------------------------------------------------------------------
+  else {
+    let foundDialogs: boolean = false;
+    for (let firstDialog of firstDialogs) {
+      if (seenFirstDialogueIds.has(firstDialog.Id)) {
+        continue;
+      } else {
+        seenFirstDialogueIds.add(firstDialog.Id);
+      }
+
+      const questIds: number[] = await dialogueToQuestId(ctrl, firstDialog);
+      const dialogueBranch = await ctrl.selectDialogBranch(questIds?.[0], firstDialog);
+      const sect = new DialogueSectionResult('Dialogue_'+firstDialog.Id, 'Dialogue');
+      sect.originalData.dialogBranch = dialogueBranch;
+      sect.metadata.push(new MetaProp('First Dialogue ID', firstDialog.Id, `/branch-dialogue?q=${firstDialog.Id}`));
+      if (dialog.TalkType) {
+        sect.metadata.push(new MetaProp('First Dialogue Talk Type', dialog.TalkType));
+      }
+      sect.metadata.push(new MetaProp('First Match Dialogue ID', [
+        <IMetaPropValue> {
+          value: dialog.Id,
+          link: `/branch-dialogue?q=${dialog.Id}`,
+        },
+        <IMetaPropValue> {
+          value: 'OL',
+          link: '/OL?q=' + dialog.TalkContentTextMapHash
+        }
+      ]));
+
+      if (questIds.length) {
+        sect.metadata.push(new MetaProp('Quest ID', await questIds.asyncMap(async id => ({
+          value: id,
+          tooltip: await ctrl.selectMainQuestName(id)
+        })), '/quests/{}'));
+        sect.originalData.questId = questIds[0];
+        sect.originalData.questName = await ctrl.selectMainQuestName(questIds[0]);
+      }
+      const dialogWikitextRet: DialogWikitextResult = await ctrl.generateDialogueWikitext(dialogueBranch);
+      sect.wikitext = dialogWikitextRet.wikitext;
+      sect.wikitextLineIds = dialogWikitextRet.ids;
+      addHighlightMarkers(ctrl, query, dialog, sect);
+      result.push(sect);
+    }
+    return foundDialogs;
+  }
+}
+
+export async function dialogueGenerate(ctrl: GenshinControl, opts: DialogueGenerateOpts): Promise<DialogueSectionResult[]> {
+  const state: DialogueGenerateState = new DialogueGenerateState(ctrl, opts);
+  ctrl.state.DisableNpcCache = true;
+
+  if (typeof state.query === 'string') {
+    let acceptedCount = 0;
+    for await (let textMapHash of ctrl.generateTextMapMatches(state.query.trim())) {
+      const dialogues: DialogExcelConfigData[] = await ctrl.selectDialogsFromTextMapHash(textMapHash);
+      const didAccept: boolean = (await dialogues.asyncMap(d => handle(state, d))).some(b => !!b);
+      if (didAccept) {
+        acceptedCount++;
+      }
+      if (acceptedCount > DIALOGUE_GENERATE_MAX) {
+        break;
+      }
+    }
+  } else if (typeof state.query === 'number') {
+    await handle(state, state.query);
+  } else {
+    await state.query.asyncMap(id => handle(state, id));
+  }
+
+  return state.result;
 }
 // endregion
 
@@ -312,7 +359,7 @@ export async function dialogueGenerateByNpc(ctrl: GenshinControl,
       }
     }
 
-    for (let dialogue of await ctrl.selectDialogExcelConfigDataByTalkRoleId(npc.Id)) {
+    for (let dialogue of await ctrl.selectDialogExcelConfigDataByTalkRoleId(npc.Id, true)) {
       if (ctrl.isInDialogIdCache(dialogue)) {
         continue;
       } else {
@@ -324,6 +371,9 @@ export async function dialogueGenerateByNpc(ctrl: GenshinControl,
       const sect = new DialogueSectionResult('Dialogue_'+dialogue.Id, 'Dialogue');
       sect.originalData.dialogBranch = dialogueBranch;
       sect.metadata.push(new MetaProp('First Dialogue ID', dialogue.Id, `/branch-dialogue?q=${dialogue.Id}`));
+      if (dialogue.TalkType) {
+        sect.metadata.push(new MetaProp('First Dialogue Talk Type', dialogue.TalkType));
+      }
 
       const dialogWikitextRet: DialogWikitextResult = await ctrl.generateDialogueWikitext(dialogueBranch);
       sect.wikitext = dialogWikitextRet.wikitext.trim();

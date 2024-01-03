@@ -186,9 +186,9 @@ export class TalkConfigAccumulator {
       this.fetchedTopLevelTalkConfigs.push(talkConfig);
     }
 
-    const flatDialogs = await this.ctrl.selectDialogExcelConfigDataByTalkId(talkConfig.Id);
+    const flatDialogs = await this.ctrl.selectDialogExcelConfigDataByTalkId(talkConfig.Id, true);
     for (let dialog of flatDialogs) {
-      if (this.ctrl.state.dialogueIdCache.has(dialog.Id))
+      if (this.ctrl.isInDialogIdCache(dialog.Id))
         continue;
       const dialogs = await this.ctrl.selectDialogBranch(questId, dialog);
       if (dialogs.length) {
@@ -417,7 +417,7 @@ export async function dialogTraceBack(ctrl: GenshinControl, dialog: DialogExcelC
   while (true) {
     let nextStack = [];
     for (let d of stack) {
-      let prevs: DialogExcelConfigData[] = await ctrl.selectPreviousDialogs(d.Id);
+      let prevs: DialogExcelConfigData[] = await ctrl.selectPreviousDialogs(d.Id, true);
       if (!prevs.length) {
         if (!ret.some(r => r.Id === d.Id)) {
           ret.push(d);
@@ -439,7 +439,7 @@ export async function dialogTraceBack(ctrl: GenshinControl, dialog: DialogExcelC
   }
   if (!ret.length && seenIds.size) {
     const dId = Math.min(... Array.from(seenIds));
-    return [await ctrl.selectSingleDialogExcelConfigData(dId)];
+    return [await ctrl.selectSingleDialogExcelConfigData(dId, true)];
   }
   return ret;
 }
@@ -467,13 +467,13 @@ export async function dialogueToQuestId(ctrl: GenshinControl,
     if (!textmapHashes.length) {
       return []; // if no textmap results, then no results overall
     }
-    dialog = (await ctrl.selectDialogsFromTextMapHash(textmapHashes[0]))[0]; // if multiple results, then get first only
+    dialog = (await ctrl.selectDialogsFromTextMapHash(textmapHashes[0], true))[0]; // if multiple results, then get first only
   }
 
   // If the query is a number, then it might be a dialog or talk id
   if (typeof query === 'number') {
     talk = await ctrl.selectTalkExcelConfigDataById(query);
-    dialog = await ctrl.selectSingleDialogExcelConfigData(query);
+    dialog = await ctrl.selectSingleDialogExcelConfigData(query, true);
   }
 
   // If the query is an object, then figure out if it's a Talk or Dialog

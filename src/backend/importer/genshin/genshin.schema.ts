@@ -32,6 +32,8 @@ const schemaTranslation: {[tableName: string]: {[key: string]: string}} =
     ? JSON.parse(fs.readFileSync(schemaTranslationFilePath, { encoding: 'utf8' }))
     : {};
 
+export type GenshinSchemaNames = keyof typeof genshinSchema;
+
 export const genshinSchema = {
 
   TextMapCHS: textMapSchema('CHS'),

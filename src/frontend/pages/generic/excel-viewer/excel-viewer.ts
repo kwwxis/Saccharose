@@ -84,7 +84,7 @@ function makeSingleColumnDef(fieldKey: string, fieldName: string, data: any) {
   const dataType = {
     isStarRailImage: typeof data === 'string' && SiteMode.isStarRail &&
       (data.startsWith('SpriteOutput/') || data.startsWith('UI/') || data.endsWith('.png')),
-    isGenshinImage: typeof data === 'string' && SiteMode.isGenshin && /^(UI_|MonsterSkill_|Eff_).*$/.test(data),
+    isGenshinImage: typeof data === 'string' && SiteMode.isGenshin && /^(ART\/.*\/)?(UI_|MonsterSkill_|Eff_).*$/.test(data),
     isWikitext: typeof data === 'string' && (fieldName.includes('Text') || fieldName.includes('Name')
       || fieldName.includes('Title') || fieldName.includes('Desc') || fieldName.includes('Story')),
     isJson: typeof data === 'object',
@@ -95,19 +95,26 @@ function makeSingleColumnDef(fieldKey: string, fieldName: string, data: any) {
     colDef.cellRenderer = function(params: ICellRendererParams) {
       if (!params.value || typeof params.value !== 'string')
         return '';
-      const safeValue = escapeHtml(params.value);
-      let srcValue;
+      let fileName: string = escapeHtml(params.value);
+      let srcValue: string;
+
+      if (fileName.endsWith('.png')) {
+        fileName = fileName.slice(0, -4);
+      }
 
       if (dataType.isGenshinImage) {
-        srcValue = `/images/genshin/${safeValue}.png`;
+        if (params.value.includes('/')) {
+          fileName = escapeHtml(params.value.split('/').pop());
+        }
+        srcValue = `/images/genshin/${fileName}.png`;
       } else if (dataType.isStarRailImage) {
-        srcValue = `/images/hsr/${safeValue}`;
+        srcValue = `/images/hsr/${fileName}.png`;
       }
 
       // noinspection HtmlDeprecatedAttribute
       return `<img class="excel-image" src="${srcValue}" loading="lazy" decoding="async"
-          alt="Image not found" onerror="this.classList.add('excel-image-error')" data-file-name="${safeValue}.png" />
-        <span class="code">${safeValue}</span>`;
+          alt="Image not found" onerror="this.classList.add('excel-image-error')" data-file-name="${fileName}.png" />
+        <span class="code">${escapeHtml(params.value)}</span>`;
     };
   } else if (dataType.isWikitext) {
     colDef.cellRenderer = function(params: ICellRendererParams) {

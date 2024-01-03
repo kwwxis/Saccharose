@@ -112,9 +112,9 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
     await acc.handleTalkConfig(talkConfig);
 
     if (!talkConfig) {
-      const dialogs = await ctrl.selectDialogExcelConfigDataByTalkId(questExcelConfigData.SubId);
+      const dialogs = await ctrl.selectDialogExcelConfigDataByTalkId(questExcelConfigData.SubId, true);
       for (let dialog of dialogs) {
-        if (ctrl.state.dialogueIdCache.has(dialog.Id))
+        if (ctrl.isInDialogIdCache(dialog.Id))
           continue;
         const dialogs = await ctrl.selectDialogBranch(mainQuest.Id, dialog);
         if (dialogs.length) {
@@ -262,7 +262,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
     }
 
     if (questSub.TalkExcelConfigDataList && questSub.TalkExcelConfigDataList.length
-          && questSub.TalkExcelConfigDataList.every(x => x.Dialog && x.Dialog.length)) {
+          && questSub.TalkExcelConfigDataList.every(x => !!x.Dialog?.length || !!x.OtherDialog?.length)) {
       for (let talkConfig of questSub.TalkExcelConfigDataList) {
         await talkConfigToDialogueSectionResult(ctrl, sect, 'Talk', null, talkConfig);
       }
@@ -391,7 +391,7 @@ async function addUnparentedDialogue(ctrl: GenshinControl, mainQuest: MainQuestE
   }
 
   const handleUnparentedDialog = async (quest: MainQuestExcelConfigData|QuestExcelConfigData, id: number) => {
-    if (ctrl.state.dialogueIdCache.has(id))
+    if (ctrl.isInDialogIdCache(id))
       return;
     let dialog = await ctrl.selectSingleDialogExcelConfigData(id as number);
     if (dialog) {
