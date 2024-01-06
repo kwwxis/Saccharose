@@ -1,13 +1,13 @@
 // noinspection JSUnusedGlobalSymbols
-import { escapeHtml } from '../shared/util/stringUtil.ts';
+import { escapeHtml } from '../../shared/util/stringUtil.ts';
 import axios, { AxiosError, Method } from 'axios';
-import { showInternalErrorDialog, showJavascriptErrorDialog } from './util/errorHandler.ts';
-import { modalService } from './util/modalService.ts';
-import { HttpError } from '../shared/util/httpError.ts';
-import { cleanEmpty } from '../shared/util/arrayUtil.ts';
-import { FetterGroup } from '../shared/types/genshin/fetter-types.ts';
-import { VoiceAtlasGroup } from '../shared/types/hsr/hsr-avatar-types.ts';
-import SiteMode from './siteMode.ts';
+import { showInternalErrorDialog, showJavascriptErrorDialog } from '../util/errorHandler.ts';
+import { modalService } from '../util/modalService.ts';
+import { HttpError } from '../../shared/util/httpError.ts';
+import { cleanEmpty } from '../../shared/util/arrayUtil.ts';
+import { FetterGroup } from '../../shared/types/genshin/fetter-types.ts';
+import { VoiceAtlasGroup } from '../../shared/types/hsr/hsr-avatar-types.ts';
+import SiteMode from './userPreferences/siteMode.ts';
 
 export abstract class SaccharoseApiEndpoint<T extends Object, R = any> {
   readonly uri: string;
@@ -66,16 +66,22 @@ export abstract class SaccharoseApiEndpoint<T extends Object, R = any> {
     params['output'] = currentUrlParams.get('output');
     params['searchMode'] = currentUrlParams.get('searchMode');
 
+    let uri: string = this.uri;
     let cleanedParams = cleanEmpty(params);
+
     for (let paramKey of Object.keys(cleanedParams)) {
       if (typeof cleanedParams[paramKey] === 'boolean') {
         cleanedParams[paramKey] = cleanedParams[paramKey] ? 'true' : 'false';
+      }
+      if (uri.includes(`{${paramKey}}`)) {
+        uri = uri.replace(`{${paramKey}}`, cleanedParams[paramKey]);
+        delete cleanedParams[paramKey];
       }
     }
 
     return axios
       .request({
-        url: this.uri,
+        url: uri,
         method: method,
         params: cleanedParams,
         headers: {
@@ -149,6 +155,12 @@ export class StarRailApiEndpoint<T extends Object, R = any> extends SaccharoseAp
 export class ZenlessApiEndpoint<T extends Object, R = any> extends SaccharoseApiEndpoint<T, R> {
   constructor(uri: string) {
     super('/api/zenless', uri);
+  }
+}
+
+export class GenericApiEndpoint<T extends Object, R = any> extends SaccharoseApiEndpoint<T, R> {
+  constructor(uri: string) {
+    super('/api', uri);
   }
 }
 
@@ -250,6 +262,21 @@ export const zenlessEndpoints = {
   getIdUsages: new ZenlessApiEndpoint<{q: string}>('/id-usages'),
 };
 
+export const genericEndpoints = {
+  langDetect: new GenericApiEndpoint<{
+    text: string
+  }>('/lang-detect'),
+
+  postJob: new GenericApiEndpoint<{
+    action: string,
+    [arg: string]: string,
+  }>('/jobs/post'),
+
+  getJob: new GenericApiEndpoint<{
+    jobId: string
+  }>('/jobs/{jobId}'),
+};
+
 export function getOLEndpoint(): {endpoint: SaccharoseApiEndpoint<any>, tlRmDisabled: boolean, neverDefaultHidden: boolean} {
   let endpoint: SaccharoseApiEndpoint<any>;
   let tlRmDisabled: boolean = false;
@@ -272,3 +299,4 @@ export function getOLEndpoint(): {endpoint: SaccharoseApiEndpoint<any>, tlRmDisa
 (<any> window).genshinEndpoints = genshinEndpoints;
 (<any> window).starRailEndpoints = starRailEndpoints;
 (<any> window).zenlessEndpoints = zenlessEndpoints;
+(<any> window).genericEndpoints = genericEndpoints;

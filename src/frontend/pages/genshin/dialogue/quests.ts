@@ -1,12 +1,12 @@
-import { errorHtmlWrap, genshinEndpoints } from '../../../endpoints.ts';
+import { errorHtmlWrap, genshinEndpoints } from '../../../core/endpoints.ts';
 import { Listener, listen } from '../../../util/eventListen.ts';
 import { modalService } from '../../../util/modalService.ts';
-import { flashTippy } from '../../../util/tooltips.ts';
-import { pageMatch } from '../../../pageMatch.ts';
-import { GeneralEventBus } from '../../../generalEventBus.ts';
+import { flashTippy } from '../../../util/tooltipUtil.ts';
+import { pageMatch } from '../../../core/pageMatch.ts';
 import { HttpError } from '../../../../shared/util/httpError.ts';
 import { isInt } from '../../../../shared/util/numberUtil.ts';
 import { pasteFromClipboard } from '../../../util/domutil.ts';
+import { onOutputLanguageChanged } from '../../../core/userPreferences/siteLanguage.ts';
 
 pageMatch('pages/genshin/dialogue/quests', () => {
   let lastSuccessfulQuestId: number = 0;
@@ -121,7 +121,7 @@ pageMatch('pages/genshin/dialogue/quests', () => {
     }
   }
 
-  GeneralEventBus.on('outputLangCodeChanged', () => {
+  onOutputLanguageChanged(() => {
     if (lastSuccessfulQuestId) {
       loadQuestGenerateResult(lastSuccessfulQuestId);
     }

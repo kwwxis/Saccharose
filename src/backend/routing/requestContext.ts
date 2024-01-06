@@ -4,7 +4,7 @@ import createHtmlElement from 'create-html-element';
 import { getNodeEnv, SITE_TITLE } from '../loadenv.ts';
 import { CompareTernary, ternary } from '../../shared/util/genericUtil.ts';
 import { DEFAULT_LANG, LANG_CODES, LANG_CODES_TO_NAME } from '../../shared/types/lang-types.ts';
-import { SEARCH_MODES } from '../util/searchUtil.ts';
+import { SEARCH_MODES } from '../../shared/util/searchUtil.ts';
 import { Request } from 'express';
 import {
   RequestLocals,

@@ -1,13 +1,13 @@
 import { listen } from '../../../util/eventListen.ts';
-import { flashTippy } from '../../../util/tooltips.ts';
+import { flashTippy } from '../../../util/tooltipUtil.ts';
 import { createVoHandle } from './vo-handle.ts';
 import { VoAppState } from './vo-tool.ts';
 import { modalService } from '../../../util/modalService.ts';
-import { createWikitextEditor } from '../../../util/ace/wikitextEditor.ts';
+import { createWikitextEditor } from '../../../core/ace/wikitextEditor.ts';
 import { humanTiming } from '../../../../shared/util/genericUtil.ts';
 import { sort } from '../../../../shared/util/arrayUtil.ts';
 import { LangCode } from '../../../../shared/types/lang-types.ts';
-import SiteMode, { SITE_MODE_HOME } from '../../../siteMode.ts';
+import SiteMode, { SITE_MODE_HOME } from '../../../core/userPreferences/siteMode.ts';
 import { frag1 } from '../../../util/domutil.ts';
 import { toParam } from '../../../../shared/util/stringUtil.ts';
 import {

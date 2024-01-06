@@ -6,11 +6,11 @@ import apiAuth from '../middleware/api/apiAuth.ts';
 import GenshinResources from './genshin/api/_index.ts';
 import StarRailResources from './hsr/api/_index.ts';
 import ZenlessResources from './zenless/api/_index.ts';
+import GenericResources from './generic/api/genericResources.ts';
 import { getGenshinControl } from '../domain/genshin/genshinControl.ts';
 import { getStarRailControl } from '../domain/hsr/starRailControl.ts';
 import { getZenlessControl } from '../domain/zenless/zenlessControl.ts';
 import { Request, Response, Router } from 'express';
-import { langDetect } from '../util/shellutil.ts';
 
 export default async function(): Promise<Router> {
   const router: Router = create({
@@ -40,12 +40,7 @@ export default async function(): Promise<Router> {
   GenshinResources(router)
   StarRailResources(router);
   ZenlessResources(router);
-
-  router.endpoint('/lang-detect', {
-    get: async (req: Request, res: Response) => {
-      return res.json(langDetect(String(req.query.text)));
-    }
-  });
+  GenericResources(router);
 
   // Client Error Handlers
   // ~~~~~~~~~~~~~~~~~~~~~

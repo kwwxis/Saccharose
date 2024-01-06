@@ -16,6 +16,7 @@
 
     body.nightmode & {
       background: hsl(255deg 12% 16%);
+      background: #2a2a36;
     }
   }
 
@@ -36,6 +37,7 @@
     opacity: 1;
     position: relative;
     left: auto;
+    flex-shrink: 0;
 
     &:focus {
       box-shadow: 0 0 0 3px rgba(0, 140, 221, 0.2);

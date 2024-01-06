@@ -24,13 +24,13 @@ import { toBoolean } from '../../../shared/util/genericUtil.ts';
 import { escapeHtml } from '../../../shared/util/stringUtil.ts';
 import { Marker, MarkerAggregate } from '../../../shared/util/highlightMarker.ts';
 import { uuidv4 } from '../../../shared/util/uuidv4.ts';
-import { copyTextToClipboard, frag1, getElementOffset, getInputValue, hasSelection } from '../domutil.ts';
+import { getInputValue } from '../../util/domutil.ts';
 import { createAceDomClassWatcher } from './wikitextListeners.ts';
-import { SITE_MODE_WIKI_DOMAIN } from '../../siteMode.ts';
-import { toastError } from '../toaster.ts';
+import { toastError } from '../../util/toasterUtil.ts';
 import { CommonLineId, parseCommonLineIds } from '../../../shared/types/common-types.ts';
 import { applyWikitextClickableLinks } from './listeners/wikitextClickableLinks.ts';
 import { applyWikitextLineActions } from './listeners/wikitextLineActions.ts';
+import { isNightmode } from '../userPreferences/siteTheme.ts';
 
 // region Create wikitext editor
 // --------------------------------------------------------------------------------------------------------------
@@ -110,7 +110,7 @@ export function createWikitextEditor(editorElementId: string|HTMLElement): ace.E
   editor.setWrapBehavioursEnabled(true);
   editor.getSession().setMode(toBoolean(Cookies.get('disable_wikitext_highlight')) ? 'ace/mode/plain_text' : 'ace/mode/wikitext');
   editor.setShowPrintMargin(false);
-  if (toBoolean(Cookies.get('nightmode'))) {
+  if (isNightmode()) {
     editor.setTheme('ace/theme/tomorrow_night');
   } else {
     editor.setTheme('ace/theme/textmate');
@@ -290,7 +290,7 @@ export function highlight(text: string, mode: string, gutters: boolean = true, m
   let Range = ace.acequire('ace/range').Range;
 
   let theme;
-  if (toBoolean(Cookies.get('nightmode'))) {
+  if (isNightmode()) {
     theme = TomorrowNightTheme;
   } else {
     theme = TextmateTheme;

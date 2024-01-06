@@ -10,8 +10,8 @@ import { MwParamNode, MwTemplateNode } from '../../../../shared/mediawiki/mwType
 import { escapeHtml, romanize, ucFirst } from '../../../../shared/util/stringUtil.ts';
 import { createElement, createPlaintextContenteditable, flashElement } from '../../../util/domutil.ts';
 import { listen } from '../../../util/eventListen.ts';
-import { flashTippy } from '../../../util/tooltips.ts';
-import { createWikitextEditor, getWikitextEditor } from '../../../util/ace/wikitextEditor.ts';
+import { flashTippy } from '../../../util/tooltipUtil.ts';
+import { createWikitextEditor, getWikitextEditor } from '../../../core/ace/wikitextEditor.ts';
 import { modalService } from '../../../util/modalService.ts';
 
 const sortableDefaultOptions: Sortable.Options = {

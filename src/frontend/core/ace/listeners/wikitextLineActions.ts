@@ -1,8 +1,8 @@
-import { copyTextToClipboard, frag1, getElementOffset } from '../../domutil.ts';
+import { copyTextToClipboard, frag1, getElementOffset } from '../../../util/domutil.ts';
 import { CommonLineId } from '../../../../shared/types/common-types.ts';
-import { errorHtmlWrap, getOLEndpoint } from '../../../endpoints.ts';
+import { errorHtmlWrap, getOLEndpoint } from '../../endpoints.ts';
 import { HttpError } from '../../../../shared/util/httpError.ts';
-import { hideTippy } from '../../tooltips.ts';
+import { hideTippy } from '../../../util/tooltipUtil.ts';
 import { uuidv4 } from '../../../../shared/util/uuidv4.ts';
 import { DOMRect } from 'sortablejs';
 

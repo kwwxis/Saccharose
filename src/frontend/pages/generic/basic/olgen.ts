@@ -1,11 +1,11 @@
 import { Listener, listen } from '../../../util/eventListen.ts';
 import Cookies from 'js-cookie';
-import { flashTippy } from '../../../util/tooltips.ts';
+import { flashTippy } from '../../../util/tooltipUtil.ts';
 import {
   errorHtmlWrap,
   getOLEndpoint,
-} from '../../../endpoints.ts';
-import { pageMatch } from '../../../pageMatch.ts';
+} from '../../../core/endpoints.ts';
+import { pageMatch } from '../../../core/pageMatch.ts';
 import { HttpError } from '../../../../shared/util/httpError.ts';
 import { pasteFromClipboard } from '../../../util/domutil.ts';
 

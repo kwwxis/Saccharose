@@ -1,16 +1,70 @@
+// noinspection JSUnusedGlobalSymbols
+
 import { frag } from './domutil.ts';
 
-export interface CheckTreeNode {
+/**
+ * The rendered HTML is formatted as:
+ *
+ * ```html
+ * <ul>
+ *   <li>
+ *     <p>
+ *       <label>
+ *         <input type="checkbox />
+ *         <span></span>
+ *       </label>
+ *     </p>
+ *     <ul>
+ *       ...
+ *     </ul>
+ *   </li>
+ * </ul>
+ * ```
+ */
+export interface CheckboxTreeNode {
+  /**
+   * The text for the checkbox label. Is automatically HTML-escaped.
+   */
   text?: string;
+
+  /**
+   * The HTML for the checkbox label.
+   *
+   * If both `html` and `text`/`label` are specified, then `html` takes precedence.
+   */
   html?: string;
+
+  /**
+   * Alias for {@link text}.
+   *
+   * If both are specified, then `text` takes precedence.
+   */
   label?: string;
 
+  /**
+   * Value of the checkbox input.
+   */
   value?: string;
+
+  /**
+   * Checked state of the checkbox input.
+   */
   checked?: boolean;
+
+  /**
+   * Disabled state of the checkbox input.
+   */
   disabled?: boolean;
+
+  /**
+   * Value for the `name` attribute of the checkbox input.
+   */
   name?: string;
 
-  children?: CheckTreeNode[];
+  /**
+   * Child nodes.
+   */
+  children?: CheckboxTreeNode[];
 
   customLiClass?: string;
   customLiAttr?: {[attr: string]: string};
@@ -29,27 +83,27 @@ export interface CheckTreeNode {
 }
 
 export interface CheckTreeOpts {
-  data?: CheckTreeNode[],
-  cbBeforeLoad?:      (this: CheckTree) => void,
-  cbLoaded?:          (this: CheckTree) => void,
-  cbBeforeWalk?:      (this: CheckTree, ul: HTMLUListElement) => void,
-  cbBeforeListItem?:  (this: CheckTree, li: CheckTreeLI, ul: HTMLUListElement) => void,
-  cbToggled?:         (this: CheckTree, li: CheckTreeLI, ul: HTMLUListElement, toggler: HTMLButtonElement) => void,
-  cbTogglerVisit?:    (this: CheckTree, li: CheckTreeLI, ul: HTMLUListElement, toggler: HTMLButtonElement) => void,
-  cbChanged?:         (this: CheckTree, li: CheckTreeLI, ul: HTMLUListElement, checkbox: CheckTreeCheckbox) => void,
-  cbAfterListItem?:   (this: CheckTree, li: CheckTreeLI, ul: HTMLUListElement, checkbox: CheckTreeCheckbox) => void,
-  cbAfterWalk?:       (this: CheckTree, ul: HTMLUListElement) => void,
+  data?: CheckboxTreeNode[],
+  cbBeforeLoad?:      (this: CheckboxTree) => void,
+  cbLoaded?:          (this: CheckboxTree) => void,
+  cbBeforeWalk?:      (this: CheckboxTree, ul: HTMLUListElement) => void,
+  cbBeforeListItem?:  (this: CheckboxTree, li: CheckboxTreeLI, ul: HTMLUListElement) => void,
+  cbToggled?:         (this: CheckboxTree, li: CheckboxTreeLI, ul: HTMLUListElement, toggler: HTMLButtonElement) => void,
+  cbTogglerVisit?:    (this: CheckboxTree, li: CheckboxTreeLI, ul: HTMLUListElement, toggler: HTMLButtonElement) => void,
+  cbChanged?:         (this: CheckboxTree, li: CheckboxTreeLI, ul: HTMLUListElement, checkbox: CheckboxTreeCheckbox) => void,
+  cbAfterListItem?:   (this: CheckboxTree, li: CheckboxTreeLI, ul: HTMLUListElement, checkbox: CheckboxTreeCheckbox) => void,
+  cbAfterWalk?:       (this: CheckboxTree, ul: HTMLUListElement) => void,
 }
 
-export type CheckTreeLI = HTMLLIElement & {_checkbox?: CheckTreeCheckbox, _tree: CheckTree, _ul: HTMLUListElement};
+export type CheckboxTreeLI = HTMLLIElement & {_checkbox?: CheckboxTreeCheckbox, _tree: CheckboxTree, _ul: HTMLUListElement};
 
-export type CheckTreeCheckbox = HTMLInputElement & {_li: CheckTreeLI, _tree: CheckTree};
+export type CheckboxTreeCheckbox = HTMLInputElement & {_li: CheckboxTreeLI, _tree: CheckboxTree};
 
 // noinspection CssUnusedSymbol
-export class CheckTree {
-  private el: HTMLUListElement;
-  private opts: any;
-  private isLoading: boolean = true;
+export class CheckboxTree {
+  private readonly el: HTMLUListElement;
+  private readonly opts: any;
+  private readonly isLoading: boolean = true;
   private debounceCbChanged: any;
 
   constructor(element: HTMLUListElement, opts: CheckTreeOpts = {}) {
@@ -58,7 +112,7 @@ export class CheckTree {
       throw new Error('Tree element must be a UL or OL element.');
 
     this.el = element;
-    this.el.classList.add('check-tree');
+    this.el.classList.add('checkbox-tree');
     this.el.setAttribute('role', 'tree');
     this.opts = opts || {};
 
@@ -73,26 +127,26 @@ export class CheckTree {
     this.isLoading = false;
     this._callOpt('cbLoaded');
 
-    if (!document.querySelector('#check-tree-styles')) {
+    if (!document.querySelector('#checkbox-tree-styles')) {
       const css = document.createElement('style');
       // language=css
       const styles: string = `
-          .check-tree li.is--closed > ul { display: none; }
+          .checkbox-tree li.is--closed > ul { display: none; }
 
-          ul.check-tree, .check-tree ul {
+          ul.checkbox-tree, .checkbox-tree ul {
               list-style-type: none;
           }
-          ul.check-tree {
+          ul.checkbox-tree {
               padding: 0 !important;
           }
-          .check-tree li.has--children ul {
+          .checkbox-tree li.has--children ul {
               padding-left: 3em;
           }
-          .check-tree li > p {
+          .checkbox-tree li > p {
               display: flex;
               align-items: center;
           }
-          .check-tree .check-tree-toggler {
+          .checkbox-tree .checkbox-tree-toggler {
               width: 16px;
               height: 16px;
               border: 0;
@@ -102,17 +156,17 @@ export class CheckTree {
               position: relative;
               z-index: 2;
           }
-          .check-tree .check-tree-toggler:hover {
+          .checkbox-tree .checkbox-tree-toggler:hover {
               opacity: 1;
           }
 
-          .check-tree .check-tree-toggler .icon {
+          .checkbox-tree .checkbox-tree-toggler .icon {
               width: 100%;
               height: 100%;
               cursor: pointer;
           }
 
-          .check-tree .check-tree-toggler:focus {
+          .checkbox-tree .checkbox-tree-toggler:focus {
               outline: 0 !important;
               box-shadow: 0 0 0 2.5px rgba(0, 140, 221, 0.25);
               opacity: 1;
@@ -148,9 +202,9 @@ export class CheckTree {
     if (fn) fn.apply(this, args);
   }
 
-  private _listItemParent(el: Element): CheckTreeLI {
+  private _listItemParent(el: Element): CheckboxTreeLI {
     if (!el) return undefined;
-    let li: CheckTreeLI = <CheckTreeLI> el.closest('li');
+    let li: CheckboxTreeLI = <CheckboxTreeLI> el.closest('li');
     return li && li._tree === this ? li : undefined;
   }
 
@@ -160,8 +214,8 @@ export class CheckTree {
     if (!checkbox) return;
 
     if (li.classList.contains('has--children')) {
-      let checked: CheckTreeCheckbox[] = li.querySelectorAll(':scope > ul input[type=checkbox]:not(:disabled):checked');
-      let unchecked: CheckTreeCheckbox[] = li.querySelectorAll(':scope > ul input[type=checkbox]:not(:disabled):not(:checked)');
+      let checked: CheckboxTreeCheckbox[] = li.querySelectorAll(':scope > ul input[type=checkbox]:not(:disabled):checked');
+      let unchecked: CheckboxTreeCheckbox[] = li.querySelectorAll(':scope > ul input[type=checkbox]:not(:disabled):not(:checked)');
       let numChecked = checked.length;
       let numUnchecked = unchecked.length;
 
@@ -231,7 +285,7 @@ export class CheckTree {
       return;
     }
 
-    if (ul.classList.contains('check-tree-did-init')) return;
+    if (ul.classList.contains('checkbox-tree-did-init')) return;
 
     const cls_closed = 'is--closed';
     const cls_open = 'is--open';
@@ -239,11 +293,11 @@ export class CheckTree {
     const icon_open = document.querySelector('#template-chevron-down').innerHTML;
     const icon_closed = document.querySelector('#template-chevron-right').innerHTML;
 
-    ul.classList.add('check-tree-did-init');
+    ul.classList.add('checkbox-tree-did-init');
 
     this._callOpt('cbBeforeWalk', [ul]);
 
-    ul.querySelectorAll(':scope > li').forEach((li: CheckTreeLI) => {
+    ul.querySelectorAll(':scope > li').forEach((li: CheckboxTreeLI) => {
       li._tree = this;
       li._ul = ul;
       this._callOpt('cbBeforeListItem', [li, ul]);
@@ -251,7 +305,7 @@ export class CheckTree {
       li.setAttribute('role', 'treeitem');
       const childrenContainer: HTMLUListElement = li.querySelector(':scope > ul');
       const isLeafNode: boolean = !childrenContainer;
-      const checkbox: CheckTreeCheckbox = li.querySelector(':scope > input[type=checkbox], :scope > :not(ul) input[type=checkbox]');
+      const checkbox: CheckboxTreeCheckbox = li.querySelector(':scope > input[type=checkbox], :scope > :not(ul) input[type=checkbox]');
 
       if (!isLeafNode) {
         li.classList.add('has--children');
@@ -260,7 +314,7 @@ export class CheckTree {
 
         const toggler = document.createElement('button');
         toggler.innerHTML = isClosed ? icon_closed : icon_open;
-        toggler.classList.add('check-tree-toggler', isClosed ? cls_closed : cls_open);
+        toggler.classList.add('checkbox-tree-toggler', isClosed ? cls_closed : cls_open);
         toggler.setAttribute('aria-label', isClosed ? 'Uncollapse tree items' : 'Collapse tree items');
         toggler.addEventListener('click', event => {
           const altDown = event.altKey;
@@ -314,7 +368,7 @@ export class CheckTree {
         checkbox._tree = this;
         li.classList.add('has--checkbox');
         if (isLeafNode) checkbox.classList.add('is--leaf');
-        checkbox.addEventListener('change', event => {
+        checkbox.addEventListener('change', _event => {
           this._checkIndeterminate(li, true, true);
           this._callOpt('cbChanged', [li, ul, checkbox]);
         });
@@ -329,7 +383,7 @@ export class CheckTree {
 
   getValues(onlyLeafs: boolean = false): string[] {
     let values: string[] = [];
-    this.el.querySelectorAll<CheckTreeCheckbox>('input[type=checkbox]:not(:disabled)').forEach(chk => {
+    this.el.querySelectorAll<CheckboxTreeCheckbox>('input[type=checkbox]:not(:disabled)').forEach(chk => {
       if (chk.checked && chk.value && (!onlyLeafs || chk.classList.contains('is--leaf'))) {
         values.push(chk.value);
       }
@@ -337,10 +391,10 @@ export class CheckTree {
     return values;
   }
 
-  toJSON(ul = undefined, cbText = undefined): CheckTreeNode[] {
+  toJSON(ul = undefined, cbText = undefined): CheckboxTreeNode[] {
     if (!ul) ul = this.el;
-    return Array.from(ul.querySelectorAll(':scope > li')).map((li: CheckTreeLI) => {
-      let node: CheckTreeNode = {};
+    return Array.from(ul.querySelectorAll(':scope > li')).map((li: CheckboxTreeLI) => {
+      let node: CheckboxTreeNode = {};
 
       if (cbText) {
         cbText.apply(this, [li, node]);
@@ -374,10 +428,10 @@ export class CheckTree {
     });
   }
 
-  fromJSON(nodeList: CheckTreeNode[], container?: HTMLElement, forceCheckState?: boolean, depth: number = 0): void {
+  fromJSON(nodeList: CheckboxTreeNode[], container?: HTMLElement, forceCheckState?: boolean, depth: number = 0): void {
     if (!container) container = this.el;
     container.innerHTML = '';
-    container.classList.remove('check-tree-did-init');
+    container.classList.remove('checkbox-tree-did-init');
 
     function applyCustom(element: HTMLElement, tokens: string|string[], attributes: {[attr: string]: string}) {
       if (tokens && tokens.length) {

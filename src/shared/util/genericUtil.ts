@@ -52,7 +52,7 @@ export function includes<T>(obj: any, item: any) {
   } else if (Array.isArray(obj)) {
     return obj.includes(item);
   } else if (isArrayLike(obj)) {
-    return arrayContains(<any>obj, item);
+    return arrayContains(<any> obj, item);
   } else if (obj instanceof Map) {
     return [...obj.entries()].includes(item);
   } else if (obj instanceof Set) {
@@ -413,7 +413,7 @@ export class CompareTernaryGroup<T> {
       return true;
     }
     if (this.flagIgnoreCase && typeof this.value === 'string') {
-      this.value = <T><any>this.value.toUpperCase();
+      this.value = <T> <any> this.value.toUpperCase();
     }
     if (!this.chainMode) {
       this.chainMode = 'or';
@@ -425,7 +425,7 @@ export class CompareTernaryGroup<T> {
         cmpResult = cmp.cmpResult();
       } else {
         if (this.flagIgnoreCase && typeof cmp.value === 'string') {
-          cmp.value = <T><any>cmp.value.toUpperCase();
+          cmp.value = <T> <any> cmp.value.toUpperCase();
         }
         switch (cmp.mode) {
           case 'equals':
@@ -507,7 +507,7 @@ export function ternary<T>(value: T): CompareTernary<T> {
 
 export function throttle<T extends Function>(fn: T, delayMs: number): T {
   let lastTime: number = 0;
-  return <T><any>function(...args) {
+  return <T> <any> function(...args) {
     let now: number = new Date().getTime();
     if (now - lastTime >= delayMs) {
       fn(...args);

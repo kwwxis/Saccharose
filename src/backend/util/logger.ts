@@ -12,3 +12,21 @@ export const logInit: debug.Debugger = createDebugger('init');
 export const logInitData: debug.Debugger = createDebugger('init:data');
 export const logShutdown: debug.Debugger = createDebugger('shutdown');
 export const custom = (namespace: string): debug.Debugger => createDebugger(namespace);
+
+export interface AsyncLog {
+  (... args: any[]): Promise<void>;
+}
+
+export function asyncLogForConsole(): AsyncLog {
+  return (... args: any[]): Promise<void> => {
+    console.log(... args);
+    return Promise.resolve();
+  };
+}
+
+export function asyncLogForDebugger(obj: debug.Debugger): AsyncLog {
+  return (arg0: any, ... args: any[]): Promise<void> => {
+    obj(arg0, ... args);
+    return Promise.resolve();
+  };
+}

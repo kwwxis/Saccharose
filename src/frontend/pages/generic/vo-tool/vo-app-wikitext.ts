@@ -1,7 +1,7 @@
 import { VoAppState } from './vo-tool.ts';
 import * as ace from 'brace';
-import { flashTippy } from '../../../util/tooltips.ts';
-import { createWikitextEditor } from '../../../util/ace/wikitextEditor.ts';
+import { flashTippy } from '../../../util/tooltipUtil.ts';
+import { createWikitextEditor } from '../../../core/ace/wikitextEditor.ts';
 import { VoHandle } from './vo-handle.ts';
 import { mwParse } from '../../../../shared/mediawiki/mwParse.ts';
 import { MwTemplateNode } from '../../../../shared/mediawiki/mwTypes.ts';
@@ -9,8 +9,9 @@ import Cookies from 'js-cookie';
 import { DEFAULT_LANG, LangCode } from '../../../../shared/types/lang-types.ts';
 import { VoAppPreloadConfig, VoAppPreloadInput, VoAppPreloadOptions, VoAppPreloadResult } from './vo-preload-types.ts';
 import { voPreload } from './vo-preload-support.ts';
-import SiteMode from '../../../siteMode.ts';
+import SiteMode from '../../../core/userPreferences/siteMode.ts';
 import { getVoAppSavedAvatar, putVoAppSavedAvatar, removeVoAppSavedAvatar } from './vo-app-storage.ts';
+import { getOutputLanguage } from '../../../core/userPreferences/siteLanguage.ts';
 
 function compareTemplateName(t1: string, t2: string) {
   return t1?.toLowerCase()?.replace(/_/g, ' ') === t2?.toLowerCase()?.replace(/_/g, ' ');
@@ -131,7 +132,7 @@ export async function VoAppWikitextEditor(state: VoAppState): Promise<void> {
     }
     console.log('[VO-App] Received OverwriteFromVoiceOvers with mode ' + requestedMode + ' and options:', opts);
     let voLang: LangCode = state.voLang;
-    let userLang: LangCode = (Cookies.get('outputLangCode') || DEFAULT_LANG) as LangCode;
+    let userLang: LangCode = getOutputLanguage();
     let mode: 'story' | 'combat' = null;
     if (requestedMode === 'story') {
       mode = 'story';

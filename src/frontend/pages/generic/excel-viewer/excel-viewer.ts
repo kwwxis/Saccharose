@@ -1,4 +1,4 @@
-import { pageMatch } from '../../../pageMatch.ts';
+import { pageMatch } from '../../../core/pageMatch.ts';
 import {
   ColDef,
   ColumnApi, ColumnState,
@@ -27,11 +27,10 @@ import {
   getTextWidth,
 } from '../../../util/domutil.ts';
 import { ICellRendererParams } from 'ag-grid-community/dist/lib/rendering/cellRenderers/iCellRenderer';
-import { highlightJson, highlightWikitext } from '../../../util/ace/wikitextEditor.ts';
-import { isNotEmpty, isUnset, throttle } from '../../../../shared/util/genericUtil.ts';
+import { highlightJson, highlightWikitext } from '../../../core/ace/wikitextEditor.ts';
+import { isNotEmpty, isUnset } from '../../../../shared/util/genericUtil.ts';
 import { booleanFilter } from './excel-custom-filters.ts';
-import SiteMode from '../../../siteMode.ts';
-import siteMode from '../../../siteMode.ts';
+import SiteMode from '../../../core/userPreferences/siteMode.ts';
 import { ExcelViewerDB, invokeExcelViewerDB } from './excel-viewer-storage.ts';
 import { StoreNames } from 'idb/build/entry';
 import { GridReadyEvent } from 'ag-grid-community/dist/lib/events';
@@ -50,16 +49,6 @@ function initializeThemeWatcher(elements: HTMLElement[]) {
         element.classList.add('ag-theme-alpine');
       }
     });
-}
-
-function walkColumnDefs(columnDefs: (ColDef | ColGroupDef)[], cb: (colDef: ColDef) => void) {
-  for (let colDef of columnDefs) {
-    if (colDef.hasOwnProperty('children')) {
-      walkColumnDefs((<ColGroupDef> colDef).children, cb);
-    } else {
-      cb(colDef);
-    }
-  }
 }
 
 function makeSingleColumnDef(fieldKey: string, fieldName: string, data: any) {

@@ -1,8 +1,8 @@
 
 import * as ace from 'brace';
 import { aceEditors, highlightWikitextReplace } from './wikitextEditor.ts';
-import { runWhenDOMContentLoaded, listen } from '../eventListen.ts';
-import { DOMClassWatcher, isElement, textNodesUnder } from '../domutil.ts';
+import { runWhenDOMContentLoaded, listen } from '../../util/eventListen.ts';
+import { DOMClassWatcher, isElement, textNodesUnder } from '../../util/domutil.ts';
 
 let createdDomClassWatcher = false;
 

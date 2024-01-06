@@ -49,6 +49,12 @@ export function toUpper(str: any): string {
   return str? str.toUpperCase() : str;
 }
 
+export function strSplice(s: string, start: number, end: number, insert?: string): string {
+  if (start < 0) start = 0;
+  if (end > s.length) end = s.length;
+  return s.slice(0, start) + (insert || '') + s.slice(end);
+}
+
 /**
  * Sentence join.
  *

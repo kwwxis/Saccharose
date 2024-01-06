@@ -22,6 +22,7 @@ import { toInt } from '../../shared/util/numberUtil.ts';
 import { Marker } from '../../shared/util/highlightMarker.ts';
 import { arraySum } from '../../shared/util/arrayUtil.ts';
 import { parseCommonLineIds, stringifyCommonLineIds } from '../../shared/types/common-types.ts';
+import { uuidv4 } from '../../shared/util/uuidv4.ts';
 
 // noinspection JSUnusedGlobalSymbols
 export const DEFAULT_GLOBAL_LOCALS = {
@@ -64,6 +65,7 @@ export const DEFAULT_GLOBAL_LOCALS = {
 
   // String Utilities
   // ~~~~~~~~~~~~~~~~
+  uuidv4,
   ucFirst,
   toLower,
   toUpper,

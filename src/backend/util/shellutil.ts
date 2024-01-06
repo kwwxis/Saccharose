@@ -1,5 +1,5 @@
 import util from 'util';
-import { exec, execSync, spawn } from 'child_process';
+import { ChildProcessWithoutNullStreams, exec, execSync, spawn } from 'child_process';
 import { getGenshinDataFilePath, PIPELINE_DIR } from '../loadenv.ts';
 import { pathToFileURL } from 'url';
 import treeKill from 'tree-kill';
@@ -18,10 +18,12 @@ const execPromise = util.promisify(exec);
  * the command output.
  *
  * @param command The command to execute in the bash shell.
+ * @param postInitialize Callback called with the child process instance after it is instantiated.
  * @param stdoutLineStream Stream method for stdout.
  * @param stderrLineStream Stream method for stderr.
  */
 export async function passthru(command: string,
+                               postInitialize: (childProcess: ChildProcessWithoutNullStreams) => void,
                                stdoutLineStream?: (data: string, kill?: () => void) => Promise<void>|void,
                                stderrLineStream?: (data: string, kill?: () => void) => Promise<void>|void): Promise<number|Error> {
   const partial_line_buffer = {
@@ -84,6 +86,10 @@ export async function passthru(command: string,
       shell: process.env.SHELL_EXEC,
       detached: true,
     });
+
+    if (postInitialize) {
+      postInitialize(child);
+    }
 
     child.stdout.setEncoding('utf8');
     child.stderr.setEncoding('utf8');
@@ -381,7 +387,7 @@ export async function grepStream(searchText: string,
                                  stream: (line: string, kill?: () => void) => Promise<void>|void,
                                  flags?: string): Promise<number|Error> {
   const cmd = createGrepCommand(searchText, absoluteFilePath, flags);
-  return await passthru(cmd.line, stream);
+  return await passthru(cmd.line, null, stream);
 }
 
 export async function grepIdStartsWith<T = number | string>(idProp: string,

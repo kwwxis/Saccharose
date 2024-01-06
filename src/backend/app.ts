@@ -5,7 +5,7 @@ import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import useragent from 'express-useragent';
 import helmet from 'helmet';
-import { openKnex } from './util/db.ts';
+import { openSqlite, openPg, enableDbExitHook } from './util/db.ts';
 import sessions from './middleware/sessions.ts';
 import appBaseRouter from './controllers/AppBaseRouter.ts';
 import apiBaseRouter from './controllers/ApiBaseRouter.ts';
@@ -49,7 +49,9 @@ export async function appInit(): Promise<Express> {
   // Load Genshin data resources
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~
   logInit(`Opening sqlite database and loading data resources`);
-  openKnex();
+  openSqlite();
+  openPg();
+  enableDbExitHook();
   await loadGenshinVoiceItems();
   await loadStarRailVoiceItems();
   await loadGenshinTextSupportingData();

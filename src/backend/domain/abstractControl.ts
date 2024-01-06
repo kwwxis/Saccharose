@@ -1,6 +1,6 @@
 import { Knex } from 'knex';
-import { DEFAULT_SEARCH_MODE, IdUsages, IdUsagesItem, SEARCH_MODES, SearchMode } from '../util/searchUtil.ts';
-import { openKnex, SaccharoseDb } from '../util/db.ts';
+import { DEFAULT_SEARCH_MODE, IdUsages, IdUsagesItem, SEARCH_MODES, SearchMode } from '../../shared/util/searchUtil.ts';
+import { openSqlite, SaccharoseDb } from '../util/db.ts';
 import {
   CLD2_TO_LANG_CODE,
   DEFAULT_LANG,
@@ -98,7 +98,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
 
   protected constructor(dbName: keyof SaccharoseDb, stateConstructor: {new(request?: Request): T}, requestOrState?: Request|T) {
     this.state = requestOrState instanceof AbstractControlState ? requestOrState : new stateConstructor(requestOrState);
-    this.knex = this.state.NoDbConnect ? null : openKnex()[dbName];
+    this.knex = this.state.NoDbConnect ? null : openSqlite()[dbName];
     this.schema = schemaForDbName(dbName);
   }
 

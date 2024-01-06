@@ -1,10 +1,11 @@
-import { pageMatch } from '../../../pageMatch.ts';
+import { pageMatch } from '../../../core/pageMatch.ts';
 import { HomeWorldFurnitureTypeTree } from '../../../../shared/types/genshin/homeworld-types.ts';
-import { CheckTree } from '../../../util/checkTree.ts';
+import { CheckboxTree, CheckboxTreeNode, CheckTreeOpts } from '../../../util/CheckboxTree.ts';
 import { escapeHtml } from '../../../../shared/util/stringUtil.ts';
 import { sort } from '../../../../shared/util/arrayUtil.ts';
 import { defaultMap } from '../../../../shared/util/genericUtil.ts';
 import { listen } from '../../../util/eventListen.ts';
+import { deleteQueryStringParameter, setQueryStringParameter } from '../../../util/domutil.ts';
 
 pageMatch('pages/genshin/archive/furniture-list', () => {
   const typeTree: HomeWorldFurnitureTypeTree = (<any> window).typeTree;
@@ -21,22 +22,22 @@ pageMatch('pages/genshin/archive/furniture-list', () => {
     }
   }
 
-  const myTree = new CheckTree(document.querySelector('#type-tree'), {
-    data: Object.entries(typeTree).map(([subTreeName, subTree]) => ({
+  new CheckboxTree(document.querySelector('#type-tree'), <CheckTreeOpts> {
+    data: Object.entries(typeTree).map(([subTreeName, subTree]) => (<CheckboxTreeNode> {
       checked: true,
       customLabelClass: 'ui-checkbox',
       label: subTreeName === 'InteriorAndExterior' ? 'Interior & Exterior' : subTreeName,
       value: subTreeName,
-      children: sort(Object.values(subTree).map(category => ({
+      children: sort(Object.values(subTree).map(category => (<CheckboxTreeNode> {
         value: 'category-'+category.categoryId,
         label: category.categoryName,
         checked: true,
         customLabelClass: 'ui-checkbox',
-        children: sort(Object.values(category.types).map(type => ({
+        children: sort(Object.values(category.types).map(type => (<CheckboxTreeNode> {
           value: 'subcategory-' + type.typeId,
           label: type.typeName,
           html: `<div class="valign">
-            <span class="alignCenter justifyCenter" style="width:20px;height:20px;background:#2a2a36;border-radius:50%;padding:0;">
+            <span class="alignCenter justifyCenter" style="width:20px;height:20px;background:#2a2a36;border-radius:50%;padding:0;flex-shrink:0;">
               `+(type.typeIcon ? `<img src="/images/genshin/${type.typeIcon}.png" style="width:16px;height:16px" />` : '')+`
             </span>
             <span class="spacer5-left">${escapeHtml(type.typeName)}</span>
@@ -47,7 +48,7 @@ pageMatch('pages/genshin/archive/furniture-list', () => {
       })), 'label'),
     })),
     cbChanged() {
-      const tokens = this.getValues();
+      const tokens: string[] = this.getValues();
       rowLoop: for (let row of allRows) {
         const furnId = parseInt(row.getAttribute('data-id'));
         for (let token of tokens) {
@@ -61,7 +62,6 @@ pageMatch('pages/genshin/archive/furniture-list', () => {
     },
     cbLoaded() {
       document.getElementById('filter-loading-panel').classList.add('hide');
-      document.getElementById('filter-toggle-panel').classList.remove('hide');
     }
   });
 
@@ -72,7 +72,7 @@ pageMatch('pages/genshin/archive/furniture-list', () => {
     {
       selector: '#filter-quick-search',
       event: 'input',
-      handle: function(event: InputEvent, target: HTMLInputElement) {
+      handle: function(_event: InputEvent, target: HTMLInputElement) {
         clearTimeout(debounceId);
         pendingIconEl.classList.remove('hide');
 
@@ -80,12 +80,15 @@ pageMatch('pages/genshin/archive/furniture-list', () => {
           let searchText = target.value.trim().toLowerCase();
 
           if (!searchText) {
+            deleteQueryStringParameter('q');
             setTimeout(() => {
               allRows.forEach(el => el.classList.remove('search-hide'));
               pendingIconEl.classList.add('hide');
             });
             return;
           }
+
+          setQueryStringParameter('q', searchText);
 
           for (let row of allRows) {
             let name = lc(row.getAttribute('data-name'));

@@ -1,13 +1,13 @@
 import { listen } from '../../../util/eventListen.ts';
 import { VoAppState } from './vo-tool.ts';
-import { flashTippy } from '../../../util/tooltips.ts';
+import { flashTippy } from '../../../util/tooltipUtil.ts';
 import { copyTextToClipboard, downloadObjectAsJson, downloadTextAsFile } from '../../../util/domutil.ts';
 import { ModalRef, modalService } from '../../../util/modalService.ts';
 import { ucFirst } from '../../../../shared/util/stringUtil.ts';
-import { GeneralEventBus } from '../../../generalEventBus.ts';
 import { resolveObjectPath } from '../../../../shared/util/arrayUtil.ts';
 import { LANG_CODE_TO_WIKI_CODE, LangCode } from '../../../../shared/types/lang-types.ts';
 import { VoAppPreloadOptions } from './vo-preload-types.ts';
+import { setOutputLanguage } from '../../../core/userPreferences/siteLanguage.ts';
 
 export async function VoAppToolbar(state: VoAppState): Promise<void> {
   if (!state.avatar)
@@ -100,7 +100,7 @@ export async function VoAppToolbar(state: VoAppState): Promise<void> {
       multiple: true,
       handle: function(event, target) {
         let targetValue = target.getAttribute('data-value');
-        GeneralEventBus.emit('outputLangCodeChanged', targetValue as LangCode);
+        setOutputLanguage(targetValue as LangCode);
       }
     },
     {

@@ -1,5 +1,5 @@
 import '../loadenv.ts';
-import { closeKnex, openKnex } from '../util/db.ts';
+import { closeKnex, openSqlite } from '../util/db.ts';
 import commandLineArgs, { OptionDefinition as ArgsOptionDefinition } from 'command-line-args';
 import commandLineUsage, { OptionDefinition as UsageOptionDefinition } from 'command-line-usage';
 import { getGenshinDataFilePath, getStarRailDataFilePath, getZenlessDataFilePath } from '../loadenv.ts';
@@ -222,7 +222,7 @@ export function normalizeRawJson(row: any, table?: SchemaTable, schemaTranslatio
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
-    const databases = openKnex();
+    const databases = openSqlite();
     let knex: Knex;
     let schemaSet: SchemaTableSet;
     let getDataFilePath: (relPath: string) => string = null;

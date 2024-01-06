@@ -1,12 +1,12 @@
-import { genshinEndpoints } from '../../../endpoints.ts';
-import { pageMatch } from '../../../pageMatch.ts';
+import { genshinEndpoints } from '../../../core/endpoints.ts';
+import { pageMatch } from '../../../core/pageMatch.ts';
 import { startGenericSearchPageListeners } from '../../genericSearchPage.ts';
 import './branch-dialogue.scss';
 
 pageMatch('pages/genshin/dialogue/branch-dialogue', () => {
   startGenericSearchPageListeners({
     endpoint: genshinEndpoints.generateSingleDialogueBranch,
-    
+
     inputs: [
       {
         selector: '.dialogue-generate-input',

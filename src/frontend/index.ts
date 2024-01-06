@@ -1,26 +1,39 @@
+// Polyfills & CSS
+// ----------------------------------------------------------------------------------------------------
 import '../shared/polyfills.ts';
 import './css/imports.scss';
+
+// Tippy
+// ----------------------------------------------------------------------------------------------------
 import 'tippy.js';
 import 'tippy.js/dist/tippy.css';
 import 'tippy.js/themes/light.css';
 import 'tippy.js/themes/light-border.css';
 
-import './pageMatch.ts';
-import './siteMode.ts';
-import './initialListeners.ts';
-import './generalEventBus.ts';
+// Core
+// ----------------------------------------------------------------------------------------------------
+import './core/pageMatch.ts';
+import './core/userPreferences/siteMode.ts';
+import './core/siteEvents.ts';
+import './core/generalEventBus.ts';
 
+// Generic Pages
+// ----------------------------------------------------------------------------------------------------
 import './pages/generic/basic/olgen.ts';
 import './pages/generic/basic/textmap.ts';
 import './pages/generic/basic/id-usages.ts';
 import './pages/generic/excel-viewer/excel-viewer.ts';
 
+// Genshin Dialogue Pages
+// ----------------------------------------------------------------------------------------------------
 import './pages/genshin/dialogue/branch_dialogue.ts';
 import './pages/genshin/dialogue/npc_dialogue.ts';
 import './pages/genshin/dialogue/quests.ts';
 import './pages/genshin/dialogue/reminders.ts';
 import './pages/genshin/dialogue/vo-to-dialogue.ts';
 
+// Genshin Archive Pages
+// ----------------------------------------------------------------------------------------------------
 import './pages/genshin/archive/achievements-search.ts';
 import './pages/genshin/archive/readables-search.ts';
 import './pages/genshin/archive/material-search.ts';
@@ -28,11 +41,17 @@ import './pages/genshin/archive/weapon-search.ts';
 import './pages/genshin/archive/furniture-list.ts';
 import './pages/genshin/archive/tutorials-search.ts';
 
+// Genshin VO Tool and Media Pages
+// ----------------------------------------------------------------------------------------------------
 import './pages/genshin/character/genshin-vo-tool.ts';
 import './pages/genshin/media/media-search.page.ts';
 
+// HSR VO Tool
+// ----------------------------------------------------------------------------------------------------
 import './pages/hsr/character/hsr-vo-tool.ts';
 
+// Expose certain functions to global scope for debugging purposes
+// ----------------------------------------------------------------------------------------------------
 import { escapeHtml } from '../shared/util/stringUtil.ts';
 
 (<any> window).escapeHtml = escapeHtml;

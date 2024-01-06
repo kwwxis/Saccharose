@@ -1,7 +1,7 @@
-import { pageMatch } from '../../../pageMatch.ts';
+import { pageMatch } from '../../../core/pageMatch.ts';
 import { startGenericSearchPageListeners } from '../../genericSearchPage.ts';
-import { genshinEndpoints, starRailEndpoints, SaccharoseApiEndpoint, zenlessEndpoints } from '../../../endpoints.ts';
-import SiteMode from '../../../siteMode.ts';
+import { genshinEndpoints, starRailEndpoints, SaccharoseApiEndpoint, zenlessEndpoints } from '../../../core/endpoints.ts';
+import SiteMode from '../../../core/userPreferences/siteMode.ts';
 
 pageMatch('pages/generic/basic/id-usages', () => {
   let endpoint: SaccharoseApiEndpoint<any>;

@@ -1,10 +1,10 @@
-import { flashTippy } from '../util/tooltips.ts';
-import { errorHtmlWrap, SaccharoseApiEndpoint } from '../endpoints.ts';
-import { Listener, ListenerEventMap, listen } from '../util/eventListen.ts';
-import { GeneralEventBus } from '../generalEventBus.ts';
+import { flashTippy } from '../util/tooltipUtil.ts';
+import { errorHtmlWrap, SaccharoseApiEndpoint } from '../core/endpoints.ts';
+import { listen } from '../util/eventListen.ts';
 import { HttpError } from '../../shared/util/httpError.ts';
 import { pasteFromClipboard } from '../util/domutil.ts';
 import { toBoolean } from '../../shared/util/genericUtil.ts';
+import { onOutputLanguageChanged } from '../core/userPreferences/siteLanguage.ts';
 
 export interface GenericSearchPageHandle {
   generateResult(caller: string): void;
@@ -241,7 +241,7 @@ export function startGenericSearchPageListeners<T>(opts: GenericSearchPageOpts<T
     });
   }
 
-  GeneralEventBus.on('outputLangCodeChanged', () => {
+  onOutputLanguageChanged(() => {
     if (lastSuccessfulStateData) {
       loadResultFromState(lastSuccessfulStateData);
     }

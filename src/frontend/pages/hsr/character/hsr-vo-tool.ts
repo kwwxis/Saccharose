@@ -1,4 +1,4 @@
-import { pageMatch } from '../../../pageMatch.ts';
+import { pageMatch } from '../../../core/pageMatch.ts';
 import { initializeVoTool } from '../../generic/vo-tool/vo-tool.ts';
 import {
   CommonAvatar, CommonVoiceOver,
@@ -11,7 +11,7 @@ import {
   VoiceAtlas,
   VoiceAtlasGroup,
 } from '../../../../shared/types/hsr/hsr-avatar-types.ts';
-import { starRailEndpoints } from '../../../endpoints.ts';
+import { starRailEndpoints } from '../../../core/endpoints.ts';
 import {
   VoAppPreloadCombatGroupCodeConf,
   VoAppPreloadConfig,

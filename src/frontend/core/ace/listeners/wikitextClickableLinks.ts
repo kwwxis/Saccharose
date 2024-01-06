@@ -1,6 +1,6 @@
-import { SITE_MODE_WIKI_DOMAIN } from '../../../siteMode.ts';
+import { SITE_MODE_WIKI_DOMAIN } from '../../userPreferences/siteMode.ts';
 import { escapeHtml } from '../../../../shared/util/stringUtil.ts';
-import { hasSelection } from '../../domutil.ts';
+import { hasSelection } from '../../../util/domutil.ts';
 
 export function applyWikitextClickableLinks(element: HTMLElement) {
   const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;

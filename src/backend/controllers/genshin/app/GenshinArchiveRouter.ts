@@ -502,7 +502,7 @@ export default async function(): Promise<Router> {
 
     const [furnitureList, typeTree] = await cached('FurnishingsList_' + ctrl.outputLangCode, async () => {
       return await Promise.all([
-        ctrl.selectAllFurniture(),
+        ctrl.selectAllFurniture({ LoadHomeWorldNPC: true }),
         ctrl.selectFurnitureTypeTree(),
       ]);
     });
@@ -511,7 +511,7 @@ export default async function(): Promise<Router> {
       title: 'Furnishings',
       furnitureList,
       typeTree,
-      bodyClass: ['page--furniture']
+      bodyClass: ['page--furniture', 'page--wide']
     });
   });
 

@@ -4,7 +4,7 @@ import {
   handleIdUsagesEndpoint,
   handleOlEndpoint,
   handleTextMapSearchEndpoint,
-} from '../../generic/api/basicResourceResources.ts';
+} from '../../generic/api/abstractBasicResources.ts';
 import { NextFunction, Request, Response, Router } from 'express';
 
 const router: Router = create();

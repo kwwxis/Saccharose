@@ -1825,14 +1825,15 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return this.postProcessFurniture(furn, typeMap, makeMap, loadConf);
   }
 
-  async selectAllFurniture(): Promise<HomeWorldFurnitureExcelConfigData[]> {;
+  async selectAllFurniture(loadConf?: HomeWorldFurnitureLoadConf): Promise<HomeWorldFurnitureExcelConfigData[]> {;
     let furnList: HomeWorldFurnitureExcelConfigData[] = await this.knex.select('*').from('HomeWorldFurnitureExcelConfigData');
 
     const typeMap = await this.selectFurnitureTypeMap();
+    const makeMap = loadConf?.LoadMakeData ? await this.selectFurnitureMakeMap() : null;
 
     furnList = await furnList.asyncMap(async furn => {
       furn = await this.commonLoadFirst(furn, null, true);
-      await this.postProcessFurniture(furn, typeMap, null);
+      await this.postProcessFurniture(furn, typeMap, makeMap, loadConf);
       return furn;
     });
 

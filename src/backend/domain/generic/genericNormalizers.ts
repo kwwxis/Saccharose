@@ -1,5 +1,5 @@
 import '../../loadenv.ts';
-import { LangCode } from '../../../shared/types/lang-types.ts';
+import { LANG_CODE_TO_LOCALE, LangCode } from '../../../shared/types/lang-types.ts';
 import {
   takeFromStartUntilFirstWord,
   takeFromEndUntilLastWord,
@@ -9,7 +9,8 @@ import {
 import { toInt } from '../../../shared/util/numberUtil.ts';
 import { pathToFileURL } from 'url';
 import { html2quotes, unnestHtmlTags } from '../../../shared/mediawiki/mwQuotes.ts';
-import { Change, diffChars, diffWords, diffWordsWithSpace } from 'diff';
+import { Change } from 'diff';
+import { diffIntlWithSpace } from '../../util/jsIntlDiff.ts';
 
 export interface NormTextOptions {
   decolor?: boolean,
@@ -139,7 +140,9 @@ export function mcify(lang: LangCode, maleText: string, femaleText: string): str
     return null;
   }
 
-  const changes: Change[] = diffWordsWithSpace(maleText || '', femaleText || '');
+  const changes: Change[] = diffIntlWithSpace(maleText || '', femaleText || '', {
+    locale: LANG_CODE_TO_LOCALE[lang]
+  });
   const out: Change[] = [];
 
   // removed -> male text

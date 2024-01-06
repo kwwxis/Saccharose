@@ -1,11 +1,11 @@
-import { pageMatch } from '../../../pageMatch.ts';
+import { pageMatch } from '../../../core/pageMatch.ts';
 import { initializeVoTool } from '../../generic/vo-tool/vo-tool.ts';
 import {
   CommonAvatar, CommonVoiceOver,
   CommonVoiceOverGroup,
   toCommonVoiceOverGroupFromGenshin,
 } from '../../../../shared/types/common-types.ts';
-import { genshinEndpoints } from '../../../endpoints.ts';
+import { genshinEndpoints } from '../../../core/endpoints.ts';
 import { FetterExcelConfigData, FetterGroup } from '../../../../shared/types/genshin/fetter-types.ts';
 import { AvatarExcelConfigData, isTraveler } from '../../../../shared/types/genshin/avatar-types.ts';
 import {

@@ -1,4 +1,4 @@
-import { pageMatch } from '../../../pageMatch.ts';
+import { pageMatch } from '../../../core/pageMatch.ts';
 import axios, { AxiosResponse } from 'axios';
 import { escapeHtml } from '../../../../shared/util/stringUtil.ts';
 
