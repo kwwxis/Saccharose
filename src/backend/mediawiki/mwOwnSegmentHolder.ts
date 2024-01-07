@@ -1,41 +1,15 @@
 import { Optional } from '../../shared/types/utility-types.ts';
 import { strSplice } from '../../shared/util/stringUtil.ts';
 import { Change } from 'diff';
+import { inRange, intersectRange, IndexedRange } from '../../shared/util/arrayUtil.ts';
 
-type IndexedRange = {
-  start: number,
-  end: number,
-  insertAt?: number,
-}
 export type MwOwnChangeMode = 'added' | 'removed' | 'unchanged';
 export type MwOwnSegment = {
   value: string,
   owner: string,
   mode: MwOwnChangeMode
+  insertAt?: number,
 } & IndexedRange;
-
-function intersectRange(a: IndexedRange, b: IndexedRange): IndexedRange {
-  const doOverlap = b.start < a.start
-    ? b.end > a.start
-    : b.start < a.end;
-
-  if (!doOverlap) {
-    return null;
-  }
-
-  let min = a.start < b.start ? a : b;
-  let max = min === a ? b : a;
-
-  return {
-    start: max.start,
-    end: min.end < max.end ? min.end : max.end,
-  };
-}
-
-function inRange(x: number, r: IndexedRange): boolean {
-  return x >= r.start
-    && x <= r.end;
-}
 
 /**
  * Split segment at a specific index.

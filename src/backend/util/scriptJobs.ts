@@ -5,6 +5,13 @@ import { getNodeEnv } from '../loadenv.ts';
 import { uuidv4 } from '../../shared/util/uuidv4.ts';
 import { custom } from './logger.ts';
 import { RequestSiteMode } from '../routing/requestContext.ts';
+import { isEquiv } from '../../shared/util/arrayUtil.ts';
+
+export interface ScriptJobPostResult<T extends ScriptJobAction> {
+  message: string,
+  posted: 'created_ack' | 'created_noack' | 'already_exists',
+  job: ScriptJobState<T>
+}
 
 export interface ScriptJobState<T extends ScriptJobAction> {
   /**
@@ -102,10 +109,55 @@ export type ScriptJobInput<T extends ScriptJobAction> = ScriptJobActionArgs<T> &
 };
 
 export class ScriptJobsCoordinator {
+  readonly MAX_JOB_RUNTIME_MS: number = 60 * 60 * 1000; // 1 hour
   private knex: Knex;
+  private postQueue: {action: ScriptJobAction, args: ScriptJobActionArgs<any>, postComplete: (postResult: ScriptJobPostResult<any>) => void}[] = [];
+  private postIntervalId: any = null;
+  private postIntervalBusy: boolean = false;
+  private debug: debug.Debugger = custom('jobs');
 
   constructor() {
     this.knex = openPg();
+    this.markAllComplete();
+    this.postIntervalId = setInterval(() => {
+      // noinspection JSIgnoredPromiseFromCall
+      this.postIntervalAction();
+    }, 100);
+  }
+
+  // Mark jobs that are incomplete for a while (more than 1 hour) as complete
+  // Likely they failed in some way and didn't update their completion status
+  async markTardyComplete() {
+    await this.knex('script_jobs')
+      .where('run_complete', false)
+      .where('run_start', '<', Date.now() - this.MAX_JOB_RUNTIME_MS)
+      .update({ run_complete: true })
+      .then();
+  }
+
+  async markAllComplete() {
+    await this.knex('script_jobs')
+      .where('run_complete', false)
+      .update({ run_complete: true })
+      .then();
+  }
+
+  async getStatesOfAction<T extends ScriptJobAction>(action: T, completion: 'complete'|'incomplete'|'either'): Promise<ScriptJobState<T>[]> {
+    const params: {run_action: T, run_complete?: boolean} = {
+      run_action: action
+    };
+    switch (completion) {
+      case 'complete':
+        params.run_complete = true;
+        break;
+      case 'incomplete':
+        params.run_complete = false;
+        break;
+      case 'either':
+        // no-op
+        break;
+    }
+    return await this.knex.select('*').from('script_jobs').where(params).then();
   }
 
   async getState<T extends ScriptJobAction>(jobId: string): Promise<ScriptJobState<T>> {
@@ -113,21 +165,55 @@ export class ScriptJobsCoordinator {
   }
 
   async updateState<T extends ScriptJobAction>(jobId: string, state: Partial<ScriptJobState<T>>): Promise<ScriptJobState<T>> {
+    if (!state.run_complete) {
+      state.run_complete = false;
+    }
     await this.knex('script_jobs')
       .where({ job_id: jobId })
       .update(state)
       .then();
-    return this.getState(jobId);
+    return (await this.getState(jobId)) as ScriptJobState<T>;
   }
 
-  async post<T extends ScriptJobAction>(action: T, args: ScriptJobActionArgs<T>): Promise<ScriptJobState<T>> {
+  async post<T extends ScriptJobAction>(action: T, args: ScriptJobActionArgs<T>): Promise<ScriptJobPostResult<T>> {
+    return new Promise((resolve, _reject) => {
+      this.debug('Enqueued new post job');
+      this.postQueue.push({
+        action,
+        args,
+        postComplete: postResult => {
+          resolve(postResult);
+        }
+      })
+    })
+  }
+
+  private async postIntervalAction() {
+    if (this.postIntervalBusy) {
+      return;
+    }
+    this.postIntervalBusy = true;
+    await this.markTardyComplete();
+    try {
+      const postQueueItem = this.postQueue.shift();
+      if (postQueueItem) {
+        this.debug('Executing post job from queue');
+        const postResult = await this.postInternal(postQueueItem.action, postQueueItem.args);
+        postQueueItem.postComplete(postResult);
+      }
+    } finally {
+      this.postIntervalBusy = false;
+    }
+  }
+
+  private async postInternal<T extends ScriptJobAction>(action: T, args: ScriptJobActionArgs<T>): Promise<ScriptJobPostResult<T>> {
     let script: string = SCRIPT_JOB_ACTION_TO_SCRIPT[action];
 
     if (!script) {
       throw 'Invalid action: ' + action;
     }
 
-    const debug = custom('jobs:' + action);
+    const postDebug = custom('jobs:' + action);
     let cmd = `${process.env.NODE_COMMAND} --no-warnings=ExperimentalWarning --loader ts-node/esm`;
 
     if (getNodeEnv() === 'production') {
@@ -141,6 +227,24 @@ export class ScriptJobsCoordinator {
       jobId: uuidv4(),
       action,
     }, args);
+
+    const incompleteJobsOfSameAction: ScriptJobState<T>[] = await this.getStatesOfAction(action, 'incomplete');
+    if (incompleteJobsOfSameAction.length) {
+      const myCmpArgs: any = JSON.parse(JSON.stringify(input));
+      delete myCmpArgs.jobId;
+
+      for (let otherState of incompleteJobsOfSameAction) {
+        const otherCmpArgs: any = JSON.parse(JSON.stringify(otherState.run_args));
+        delete otherCmpArgs.jobId;
+        if (isEquiv(myCmpArgs, otherCmpArgs)) {
+          return {
+            message: 'A job with the same action and arguments is still running, so a new job was not created, instead the job in progress is provided in this result.',
+            posted: 'already_exists',
+            job: otherState
+          }
+        }
+      }
+    }
 
     await this.knex('script_jobs')
       .insert(<ScriptJobState<T>> {
@@ -156,21 +260,26 @@ export class ScriptJobsCoordinator {
     // noinspection ES6MissingAwait (no await here, detached job)
     passthru(`${cmd} ${shellEscapeArg(script)} ${shellEscapeArg(JSON.stringify(input))}`,
       child => {
-        debug(`Spawned job ${input.jobId} with PID ` + child.pid);
+        postDebug(`Spawned job ${input.jobId} with PID ` + child.pid);
       },
       data => {
         if (data.trim().length)
-          debug(data.trim());
+          postDebug(data.trim());
       },
       data => {
         if (data.trim().length)
-          debug(data.trim());
+          postDebug(data.trim());
       });
 
     for (let i = 0; i < 20; i++) {
-      const job: ScriptJobState<T> = await this.get(input.jobId);
+      const job: ScriptJobState<T> = await this.getState(input.jobId);
       if (job && job.run_ack) {
-        return job;
+        postDebug(`Job ${input.jobId} was acknowledged`);
+        return {
+          message: 'Job was created and acknowledged.',
+          posted: 'created_ack',
+          job: job
+        };
       }
       await new Promise<void>(resolve => setTimeout(() => resolve(), 200));
     }
@@ -180,11 +289,12 @@ export class ScriptJobsCoordinator {
       result_error: 'Job was not acknowledged'
     });
 
-    return await this.get(input.jobId);
-  }
-
-  async get<T extends ScriptJobAction>(jobId: string): Promise<ScriptJobState<T>> {
-    return this.knex.select('*').from('script_jobs').where({job_id: jobId}).first().then();
+    postDebug(`Job ${input.jobId} was NOT acknowledged`);
+    return {
+      message: 'Job was created but not acknowledged by the job executor.',
+      posted: 'created_noack',
+      job: await this.getState(input.jobId)
+    };
   }
 }
 
@@ -195,15 +305,15 @@ export class ScriptJob<T extends ScriptJobAction> {
       console.error('uncaughtException!', err);
       this.complete({
         result_msg: 'Unhandled exception!',
-        result_error: 'Unhandled exception!',
-      });
+        result_error: 'Unhandled exception! ' + String(err),
+      }).then(() => this.exit());
     });
     process.on('unhandledRejection', (err) => {
       console.error('unhandledRejection!', err);
       this.complete({
         result_msg: 'Unhandled rejection!',
-        result_error: 'Unhandled rejection!',
-      });
+        result_error: 'Unhandled rejection! ' + String(err),
+      }).then(() => this.exit());
     });
   }
 
@@ -247,17 +357,20 @@ export class ScriptJob<T extends ScriptJobAction> {
     });
   }
 
-  complete(extra?: {
+  async complete(extra?: {
     result_msg?: string,
     result_data? : any,
     result_error? : string
   }) {
-    this.update(Object.assign({
+    await this.update(Object.assign({
       run_complete: true,
       run_end: Date.now(),
-    }, extra || {}))
-      .then(() => closeKnex())
-      .then(() => process.exit(0));
+    }, extra || {}));
+  }
+
+  async exit() {
+    await closeKnex();
+    process.exit(0);
   }
 }
 

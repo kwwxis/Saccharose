@@ -1,19 +1,28 @@
 import { Request, Response, Router } from 'express';
-import { ScriptJobState, ScriptJobAction, ScriptJobActionArgs, ScriptJobCoordinator } from '../../../util/scriptJobs.ts';
+import {
+  ScriptJobState,
+  ScriptJobAction,
+  ScriptJobActionArgs,
+  ScriptJobCoordinator,
+  ScriptJobPostResult,
+} from '../../../util/scriptJobs.ts';
 import { isInt, toInt } from '../../../../shared/util/numberUtil.ts';
 import { HttpError } from '../../../../shared/util/httpError.ts';
-import { isEmpty, isNotEmpty, toBoolean } from '../../../../shared/util/genericUtil.ts';
+import { isEmpty, toBoolean } from '../../../../shared/util/genericUtil.ts';
 import { langDetect } from '../../../util/shellutil.ts';
 import { RequestSiteMode } from '../../../routing/requestContext.ts';
 import {
   getMwClient,
-  MwArticleInfo,
   MwClientInterface,
-  MwRevision,
-  MwSearchResult,
 } from '../../../mediawiki/mwClientInterface.ts';
+import {
+  MwArticleInfo,
+  MwRevision,
+  MwArticleSearchResult, MwRevLoadMode,
+} from '../../../../shared/mediawiki/mwTypes.ts';
+import WikiRevisionSearchResults from '../../../components/mediawiki/WikiRevisionSearchResults.vue';
 
-async function postRevSave(req: Request): Promise<ScriptJobState<'mwRevSave'>> {
+async function postRevSave(req: Request): Promise<ScriptJobPostResult<'mwRevSave'>> {
   const mwClient: MwClientInterface = getMwClient(req.query.siteMode as RequestSiteMode);
   const titleOrId: string|number = (req.query.pageId || req.query.pageid || req.query.title) as string|number;
 
@@ -45,7 +54,8 @@ export default function(router: Router): void {
   });
 
   router.endpoint('/jobs/post', {
-    post: async (req: Request, _res: Response): Promise<ScriptJobState<ScriptJobAction>> => {
+    post: async (req: Request, res: Response): Promise<ScriptJobPostResult<ScriptJobAction>> => {
+      res.status(202);
       switch (String(req.query.action)) {
         case 'mwRevSave':
           return postRevSave(req);
@@ -58,18 +68,27 @@ export default function(router: Router): void {
   router.endpoint('/jobs/:jobId', {
     get: async (req: Request, _res: Response): Promise<ScriptJobState<ScriptJobAction>> => {
       const jobId: string = req.params.jobId;
-      return await ScriptJobCoordinator.get(jobId);
+      return await ScriptJobCoordinator.getState(jobId);
     }
   });
 
   router.endpoint('/mw/:siteMode/articles/search', {
-    get: async (req: Request, _res: Response): Promise<MwSearchResult[]> => {
+    get: async (req: Request, res: Response) => {
       const mwClient: MwClientInterface = getMwClient(req.params.siteMode as RequestSiteMode);
       const query: string = String(req.query.q).trim();
       if (!query) {
         return [];
       }
-      return mwClient.searchArticles(query);
+
+      const searchResults: MwArticleSearchResult[] = await mwClient.searchArticles(query);
+
+      if ((req.headers.accept && req.headers.accept.toLowerCase() === 'text/html')) {
+        return res.render(WikiRevisionSearchResults, {
+          searchResults: searchResults
+        });
+      } else {
+        return searchResults;
+      }
     }
   });
 
@@ -96,19 +115,19 @@ export default function(router: Router): void {
 
   router.endpoint('/mw/:siteMode/revs', {
     get: async (req: Request, _res: Response): Promise<MwRevision[]> => {
-      const revid = toInt(req.query.revid || req.query.revId);
-      const pageid = toInt(req.query.pageid || req.query.pageId);
       const mwClient: MwClientInterface = getMwClient(req.params.siteMode as RequestSiteMode);
+      const loadMode: MwRevLoadMode = req.query.loadMode as MwRevLoadMode;
 
-      if (isInt(revid)) {
-        return Object.values(await mwClient.db.getSavedRevisions([revid]));
-      }
-
+      const pageid = toInt(req.query.pageid || req.query.pageId);
       if (isInt(pageid)) {
-        return mwClient.db.fetchRevisions(pageid);
+        return mwClient.db.getSavedRevisionsByPageId(pageid, loadMode);
       }
 
-      return [];
+      const revids: number[] = String(req.query.revid || req.query.revId || req.query.revids || req.query.revIds)
+        .split(/[\s,;|]+/g)
+        .filter(x => isInt(x))
+        .map(x => toInt(x));
+      return Object.values(await mwClient.db.getSavedRevisions(revids, loadMode));
     }
   });
 }

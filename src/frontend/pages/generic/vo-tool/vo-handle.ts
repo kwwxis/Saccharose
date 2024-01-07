@@ -4,7 +4,7 @@ import {
   MwNode,
   MwParamNode,
   MwTemplateNode, MwTextNode,
-} from '../../../../shared/mediawiki/mwTypes.ts';
+} from '../../../../shared/mediawiki/mwParseTypes.ts';
 import { mwParse } from '../../../../shared/mediawiki/mwParse.ts';
 import { isStringBlank, splitLimit } from '../../../../shared/util/stringUtil.ts';
 import { arrayClosestNumber, arrayRemove, arraySum, sort } from '../../../../shared/util/arrayUtil.ts';

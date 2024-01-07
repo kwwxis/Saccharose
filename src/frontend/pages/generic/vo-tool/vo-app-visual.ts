@@ -6,7 +6,7 @@ import {
   VoHandle,
   VoItem,
 } from './vo-handle.ts';
-import { MwParamNode, MwTemplateNode } from '../../../../shared/mediawiki/mwTypes.ts';
+import { MwParamNode, MwTemplateNode } from '../../../../shared/mediawiki/mwParseTypes.ts';
 import { escapeHtml, romanize, ucFirst } from '../../../../shared/util/stringUtil.ts';
 import { createElement, createPlaintextContenteditable, flashElement } from '../../../util/domutil.ts';
 import { listen } from '../../../util/eventListen.ts';

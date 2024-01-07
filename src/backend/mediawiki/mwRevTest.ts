@@ -3,10 +3,11 @@ import { fileURLToPath, pathToFileURL } from 'url';
 import console from 'console';
 import { diffIntlWithSpace } from '../util/jsIntlDiff.ts';
 import { LANG_CODE_TO_LOCALE } from '../../shared/types/lang-types.ts';
-import { mwGenshinClient, MwRevision } from './mwClientInterface.ts';
+import { mwGenshinClient } from './mwClientInterface.ts';
 import { closeKnex } from '../util/db.ts';
 import fs from 'fs';
 import { MwOwnSegment, MwOwnSegmentHolder } from './mwOwnSegmentHolder.ts';
+import { MwRevision } from '../../shared/mediawiki/mwTypes.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -34,7 +35,7 @@ function test0() {
 async function test1(pageId: number) {
   const segmentHolder: MwOwnSegmentHolder = new MwOwnSegmentHolder();
 
-  const revs: MwRevision[] = await mwGenshinClient.db.fetchRevisions(pageId);
+  const revs: MwRevision[] = await mwGenshinClient.db.getSavedRevisionsByPageId(pageId);
 
   let prevRevContent = '';
 

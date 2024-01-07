@@ -4,7 +4,7 @@ import { icon } from '../../routing/viewUtilities.ts';
 import { FeatherAttributes } from 'feather-icons';
 
 export default defineComponent({
-  name: 'MyIcon',
+  name: 'Icon',
   props: {
     name: { type: String, required: true },
     size: { type: Number, required: false },

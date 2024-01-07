@@ -4,7 +4,7 @@ import { flashTippy } from '../../../util/tooltipUtil.ts';
 import { createWikitextEditor } from '../../../core/ace/wikitextEditor.ts';
 import { VoHandle } from './vo-handle.ts';
 import { mwParse } from '../../../../shared/mediawiki/mwParse.ts';
-import { MwTemplateNode } from '../../../../shared/mediawiki/mwTypes.ts';
+import { MwTemplateNode } from '../../../../shared/mediawiki/mwParseTypes.ts';
 import Cookies from 'js-cookie';
 import { DEFAULT_LANG, LangCode } from '../../../../shared/types/lang-types.ts';
 import { VoAppPreloadConfig, VoAppPreloadInput, VoAppPreloadOptions, VoAppPreloadResult } from './vo-preload-types.ts';

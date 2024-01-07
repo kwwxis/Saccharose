@@ -178,3 +178,16 @@ export function parseCommonLineIds(str: string): CommonLineId[] {
   });
 }
 // endregion
+
+// region Other
+// --------------------------------------------------------------------------------------------------------------
+export interface MediaSearchResult {
+  fileHash: string,
+  matches: { name: string, hash: number, distance: number }[]
+}
+
+export interface LangDetectResult {
+  isReliable: boolean,
+  details: { langName: string, langCode: string, confidence: number }[]
+}
+// endregion

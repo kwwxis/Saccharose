@@ -6,7 +6,7 @@ import {
   MwSection,
   MwCharSequence,
   MwTextNode, MwContainer,
-} from './mwTypes.ts';
+} from './mwParseTypes.ts';
 import { MwParseHtmlModule } from './parseModules/mwParse.html.ts';
 import { MwParseTemplateModule } from './parseModules/mwParse.template.ts';
 import { MwParsePlaintextModule } from './parseModules/mwParse.plaintext.ts';

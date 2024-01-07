@@ -8,6 +8,7 @@ import { toInt } from '../../shared/util/numberUtil.ts';
 import { splitLimit } from '../../shared/util/stringUtil.ts';
 import path from 'path';
 import { sort } from '../../shared/util/arrayUtil.ts';
+import { LangDetectResult, MediaSearchResult } from '../../shared/types/common-types.ts';
 
 const execPromise = util.promisify(exec);
 
@@ -441,16 +442,6 @@ export function findFiles(fileSearch: string, absoluteFilePath: string): string[
     console.error('\x1b[4m\x1b[1mshell error:\x1b[0m\n', err);
     throw 'Search error occurred.';
   }
-}
-
-export interface MediaSearchResult {
-  fileHash: string,
-  matches: { name: string, hash: number, distance: number }[]
-}
-
-export interface LangDetectResult {
-  isReliable: boolean,
-  details: {langName: string, langCode: string, confidence: number}[]
 }
 
 export function langDetect(text: string): LangDetectResult {

@@ -1,5 +1,5 @@
 import { MwParseModule } from '../mwParseModule.ts';
-import { MwHeading, MwSection } from '../mwTypes.ts';
+import { MwHeading, MwSection } from '../mwParseTypes.ts';
 import { mwParse } from '../mwParse.ts';
 
 /**

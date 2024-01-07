@@ -626,11 +626,7 @@ export function toParam(x: any): string {
   if (isUnset(x)) {
     return '';
   }
-  x = String(x);
-  if (typeof x === 'string') {
-    return x.replace(/ /g, '_');
-  }
-  return x;
+  return encodeURIComponent(String(x).replace(/ /g, '_'));
 }
 
 export function paramCmp(a: any, b: any) {

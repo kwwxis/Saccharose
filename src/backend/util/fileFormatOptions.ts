@@ -1,7 +1,7 @@
 import { resolveObjectPath } from '../../shared/util/arrayUtil.ts';
 import { isEmpty, isNotEmpty, isset, toBoolean } from '../../shared/util/genericUtil.ts';
 import { mwParse } from '../../shared/mediawiki/mwParse.ts';
-import { MwEOL, MwParentNode, MwTemplateNode } from '../../shared/mediawiki/mwTypes.ts';
+import { MwEOL, MwParentNode, MwTemplateNode } from '../../shared/mediawiki/mwParseTypes.ts';
 import { isNumeric, toNumber } from '../../shared/util/numberUtil.ts';
 import { replaceAsync, splitArgs } from '../../shared/util/stringUtil.ts';
 import JSON5 from 'json5';

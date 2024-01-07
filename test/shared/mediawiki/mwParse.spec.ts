@@ -1,4 +1,4 @@
-import { MwParentNode } from '../../../src/shared/mediawiki/mwTypes';
+import { MwParentNode } from '../../../src/shared/mediawiki/mwParseTypes.ts';
 import { mwParse } from '../../../src/shared/mediawiki/mwParse';
 import util from 'util';
 import { loadResourceAsString } from '../../spec-util';

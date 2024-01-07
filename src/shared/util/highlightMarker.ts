@@ -7,7 +7,7 @@ import { escapeRegExp } from './stringUtil.ts';
 export class MarkerAggregate {
   line: number;
   isFront: boolean;
-  ranges: {startCol: number, endCol: number, fullLine: boolean, token: string}[] = [];
+  ranges: {startCol: number, endCol: number, fullLine: boolean, token: string, attr: {[attrName: string]: string|number}}[] = [];
 
   private constructor(line: number, isFront: boolean) {
     this.line = line;
@@ -42,7 +42,7 @@ export class MarkerAggregate {
         }
       }
       if (!doOverlap) {
-        agg.ranges.push({startCol: marker.startCol, endCol: marker.endCol, fullLine: marker.fullLine, token: marker.token});
+        agg.ranges.push({startCol: marker.startCol, endCol: marker.endCol, fullLine: marker.fullLine, token: marker.token, attr: marker.attr});
       }
     }
 
@@ -63,12 +63,42 @@ export type MarkerLineProcessor = (line: string, lineNum?: number) => {
 };
 
 export class Marker {
+  /**
+   * CSS classes for the marker, separate with '.'
+   *
+   * For example: `'token1.token2.token3'`
+   */
   token: string;
+
+  /**
+   * Line number (1-based)
+   */
   line: number;
+
+  /**
+   * Column number (0-based)
+   */
   startCol: number;
+
+  /**
+   * Column number (0-based)
+   */
   endCol: number;
+
+  /**
+   * If the marker is for the entire line? If true, then startCol and endCol will be ignored.
+   */
   fullLine?: boolean;
+
+  /**
+   * If true, the marker will be placed in the front layer, otherwise it'll be placed in the back layer.
+   */
   isFront?: boolean;
+
+  /**
+   * Optionally apply HTML attributes to the marker.
+   */
+  attr?: {[attrName: string]: string|number};
 
   constructor(token: string, line: number, startCol: number, endCol: number, fullLine: boolean = false, isFront: boolean = false) {
     this.token = token;

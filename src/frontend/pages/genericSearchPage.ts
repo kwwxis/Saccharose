@@ -31,12 +31,13 @@ export type GenericSearchPageOpts<T> =  {
   inputs: [GenericSearchPageParamOpt<T>, ... GenericSearchPageParamOpt<T>[]],
 
   // Submit Buttons/Result:
-  submitPendingTarget: string,
+  submitPendingTarget?: string,
   submitButtonTarget: string,
   resultTarget: string,
 
   // Events:
   beforeGenerateResult?: (caller?: string) => void,
+  beforeSendRequest?: (caller?: string, apiPayload?: {[apiParam: string]: string|number}) => void,
   onReceiveResult?: (caller?: string, resultContainer?: HTMLElement, html?: string, preventDefault?: () => void) => void,
   onReceiveError?: (caller?: string, resultContainer?: HTMLElement, err?: HttpError, preventDefault?: () => void) => void,
   afterProcessResult?: (caller?: string, resultContainer?: HTMLElement, result?: any) => void,
@@ -182,10 +183,13 @@ export function startGenericSearchPageListeners<T>(opts: GenericSearchPageOpts<T
     }
 
     const buttonEl = document.querySelector<HTMLInputElement>(opts.submitButtonTarget);
-    const loadingEl = document.querySelector(opts.submitPendingTarget);
+    const loadingEl = opts.submitPendingTarget && document.querySelector(opts.submitPendingTarget);
+    const loadingUseVisHide = loadingEl && loadingEl.classList.contains('visHide');
     const resultTargetEl: HTMLElement = document.querySelector(opts.resultTarget);
 
-    loadingEl.classList.remove('hide');
+    if (loadingEl) {
+      loadingEl.classList.remove(loadingUseVisHide ? 'visHide' : 'hide');
+    }
     buttonEl.disabled = true;
     inputEls.forEach(el => el.disabled = true);
 
@@ -204,6 +208,10 @@ export function startGenericSearchPageListeners<T>(opts: GenericSearchPageOpts<T
       window.history.pushState(stateData, null, url.href);
     }
 
+    if (opts.beforeSendRequest) {
+      opts.beforeSendRequest(caller, apiPayload);
+    }
+
     opts.endpoint.get(apiPayload as any, true).then(result => {
       lastSuccessfulStateData = stateData;
 
@@ -217,6 +225,7 @@ export function startGenericSearchPageListeners<T>(opts: GenericSearchPageOpts<T
       if (!preventDefault) {
         if (typeof result === 'string') {
           resultTargetEl.innerHTML = result;
+          resultTargetEl.classList.remove('hide');
         }
       }
 
@@ -233,9 +242,11 @@ export function startGenericSearchPageListeners<T>(opts: GenericSearchPageOpts<T
 
       if (!preventDefault) {
         resultTargetEl.innerHTML = errorHtmlWrap(err.message);
+        resultTargetEl.classList.remove('hide');
       }
     }).finally(() => {
-      loadingEl.classList.add('hide');
+      if (loadingEl)
+        loadingEl.classList.add(loadingUseVisHide ? 'visHide' : 'hide');
       buttonEl.disabled = false;
       inputEls.forEach(el => el.disabled = false);
     });

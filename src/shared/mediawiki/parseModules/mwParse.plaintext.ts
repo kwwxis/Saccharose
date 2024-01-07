@@ -1,4 +1,4 @@
-import { MwTextNode, MwEOL } from '../mwTypes.ts';
+import { MwTextNode, MwEOL } from '../mwParseTypes.ts';
 import { MwParseModule } from '../mwParseModule.ts';
 
 /**

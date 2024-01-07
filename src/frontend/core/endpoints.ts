@@ -8,6 +8,10 @@ import { cleanEmpty } from '../../shared/util/arrayUtil.ts';
 import { FetterGroup } from '../../shared/types/genshin/fetter-types.ts';
 import { VoiceAtlasGroup } from '../../shared/types/hsr/hsr-avatar-types.ts';
 import SiteMode from './userPreferences/siteMode.ts';
+import { LangDetectResult } from '../../shared/types/common-types.ts';
+import { ScriptJobPostResult, ScriptJobState } from '../../backend/util/scriptJobs.ts';
+import { MwArticleInfo, MwArticleSearchResult, MwRevision, MwRevLoadMode } from '../../shared/mediawiki/mwTypes.ts';
+import { RequireOnlyOne } from '../../shared/types/utility-types.ts';
 
 export abstract class SaccharoseApiEndpoint<T extends Object, R = any> {
   readonly uri: string;
@@ -265,16 +269,34 @@ export const zenlessEndpoints = {
 export const genericEndpoints = {
   langDetect: new GenericApiEndpoint<{
     text: string
-  }>('/lang-detect'),
+  }, LangDetectResult>('/lang-detect'),
 
   postJob: new GenericApiEndpoint<{
     action: string,
-    [arg: string]: string,
-  }>('/jobs/post'),
+    [arg: string]: string|number,
+  }, ScriptJobPostResult<any>>('/jobs/post'),
 
   getJob: new GenericApiEndpoint<{
-    jobId: string
-  }>('/jobs/{jobId}'),
+    jobId: string,
+    fields?: string,
+  }, ScriptJobState<any>>('/jobs/{jobId}'),
+
+  getArticleInfo: new GenericApiEndpoint<{
+    siteMode: string,
+    pageid: number
+  }, MwArticleInfo>('/mw/{siteMode}/articles'),
+
+  searchArticles: new GenericApiEndpoint<{
+    siteMode: string,
+    q: string|number
+  }, MwArticleSearchResult>('/mw/{siteMode}/articles/search'),
+
+  getRevisions: new GenericApiEndpoint<RequireOnlyOne<{
+    siteMode: string,
+    revid?: number|string,
+    pageid?: number,
+    loadMode?: MwRevLoadMode,
+  }, 'revid' | 'pageid'>, MwRevision[]>('/mw/{siteMode}/revs'),
 };
 
 export function getOLEndpoint(): {endpoint: SaccharoseApiEndpoint<any>, tlRmDisabled: boolean, neverDefaultHidden: boolean} {

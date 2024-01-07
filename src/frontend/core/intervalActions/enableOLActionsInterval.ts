@@ -1,7 +1,7 @@
 import SiteMode from '../userPreferences/siteMode.ts';
 import { copyTextToClipboard, createElement, getInputValue } from '../../util/domutil.ts';
 import { mwParse } from '../../../shared/mediawiki/mwParse.ts';
-import { MwParamNode, MwTemplateNode } from '../../../shared/mediawiki/mwTypes.ts';
+import { MwParamNode, MwTemplateNode } from '../../../shared/mediawiki/mwParseTypes.ts';
 import { highlightWikitextReplace } from '../ace/wikitextEditor.ts';
 
 export function enableOLActionsInterval() {

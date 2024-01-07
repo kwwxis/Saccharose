@@ -7,7 +7,7 @@ import { cleanEmpty, resolveObjectPath, sort } from '../../../../shared/util/arr
 import { DialogueSectionResult, talkConfigGenerate } from '../dialogue/dialogue_util.ts';
 import { TalkExcelConfigData } from '../../../../shared/types/genshin/dialogue-types.ts';
 import { mwParse } from '../../../../shared/mediawiki/mwParse.ts';
-import { MwParentNode, MwTemplateNode } from '../../../../shared/mediawiki/mwTypes.ts';
+import { MwParentNode, MwTemplateNode } from '../../../../shared/mediawiki/mwParseTypes.ts';
 import { isInt, isNumeric, toNumber } from '../../../../shared/util/numberUtil.ts';
 import { toBoolean } from '../../../../shared/util/genericUtil.ts';
 import JSON5 from 'json5';

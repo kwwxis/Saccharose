@@ -1,4 +1,4 @@
-import { MwTemplateNode, MwParamNode, MwNode, MwComment, MwTextNode } from '../mwTypes.ts';
+import { MwTemplateNode, MwParamNode, MwNode, MwComment, MwTextNode } from '../mwParseTypes.ts';
 import { MwParseModule } from '../mwParseModule.ts';
 import { MW_VARIABLES } from '../mwContants.ts';
 import { escapeRegExp } from '../../util/stringUtil.ts';

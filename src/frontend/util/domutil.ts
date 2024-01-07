@@ -15,7 +15,7 @@ export function createElement<T extends HTMLElement = HTMLElement>(tag: string, 
   for (let attr of Object.keys(attrs)) {
     if (attr === 'text' || attr === 'textContent' || attr === 'innerText') {
       el.innerText = String(attrs[attr]);
-    } else if (attr === 'html' || attr === 'HTML' || attr === 'innerHTML') {
+    } else if (attr === 'html' || attr === 'HTML' || attr === 'innerHTML' || attr === 'innerHtml') {
       el.innerHTML = String(attrs[attr]);
     } else if (typeof attrs[attr] === 'string') {
       el.setAttribute(attr, attrs[attr] as string);

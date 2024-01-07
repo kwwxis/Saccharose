@@ -621,3 +621,28 @@ export function arrayRemove<T>(arr: T[], items: T[]) {
     }
   }
 }
+
+export type IndexedRange = {start: number, end: number};
+
+export function intersectRange(a: IndexedRange, b: IndexedRange): IndexedRange {
+  const doOverlap = b.start < a.start
+    ? b.end > a.start
+    : b.start < a.end;
+
+  if (!doOverlap) {
+    return null;
+  }
+
+  let min = a.start < b.start ? a : b;
+  let max = min === a ? b : a;
+
+  return {
+    start: max.start,
+    end: min.end < max.end ? min.end : max.end,
+  };
+}
+
+export function inRange(n: number, r: IndexedRange): boolean {
+  return n >= r.start
+    && n <= r.end;
+}

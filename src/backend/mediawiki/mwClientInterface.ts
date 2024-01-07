@@ -1,83 +1,14 @@
 import Bot from 'nodemw';
 import { MwArticleInfoEntity, MwDbInterface, mwGenshinDb, mwStarRailDb, mwZenlessDb } from './mwDbInterface.ts';
-import { MwOwnSegment } from './mwOwnSegmentHolder.ts';
 import { pathToFileURL } from 'url';
 import { closeKnex } from '../util/db.ts';
 import { NodeJSCallback } from 'nodemw/lib/types';
 import { RequestSiteMode } from '../routing/requestContext.ts';
 import { HttpError } from '../../shared/util/httpError.ts';
 import { isInt } from '../../shared/util/numberUtil.ts';
-
-// List of namespaces
-// (Ones we don't particularly care about for our use cases are commented out)
-export const MW_NAMESPACES = {
-  // '-2': 'Media',
-  // '-1': 'Special',
-  0: 'Main',
-  // 1: 'Talk',
-  2: 'User',
-  // 3: 'User talk',
-  4: 'Project',
-  // 5: 'Project talk',
-  6: 'File',
-  // 7: 'File talk',
-  8: 'MediaWiki',
-  // 9: 'MediaWiki talk',
-  10:' Template',
-  // 11: 'Template talk',
-  12: 'Help',
-  // 13: 'Help talk',
-  14: 'Category',
-  // 15: 'Category talk',
-  828: 'Module',
-  // 829: 'Module talk',
-};
-
-export type MwNamespace = keyof typeof MW_NAMESPACES | '*';
-
-export type MwArticleInfo = {
-  pageid: number,
-  ns: number,
-  title: string,
-  contentmodel: 'wikitext',
-  pagelanguage: string,
-  pagelanguagehtmlcode: string,
-  pagelanguagedir: string,
-  touched: string, // timestamp
-  lastrevid: number,
-  length: number,
-  protection: any[],
-  restrictiontypes: string[],
-  notificationtimestamp: string,
-  associatedpage: string, // talk page
-  fullurl: string,
-  editurl: string,
-  canonicalurl: string,
-  displaytitle: string,
-  varianttitles: Record<string, string>,
-  missing?: ''
-};
-
-export type MwRevision = {
-  revid: number,
-  pageid: number,
-  parentid: number,
-  minor: boolean,
-  user: string,
-  userid: number,
-  timestamp: string,
-  size: number,
-  comment: string,
-  content?: string,
-  segments?: MwOwnSegment[],
-};
-
-export type MwSearchResult = {
-  ns: number,
-  title: string,
-  pageid: number,
-  timestamp: string,
-}
+import { MwArticleInfo, MwNamespace, MwRevision, MwArticleSearchResult } from '../../shared/mediawiki/mwTypes.ts';
+import { isEmpty } from '../../shared/util/genericUtil.ts';
+import { ucFirst } from '../../shared/util/stringUtil.ts';
 
 export class MwClientInterface {
   private _isLoggedIn: boolean;
@@ -127,8 +58,10 @@ export class MwClientInterface {
     this.bot.getAll(params, key, callback);
   }
 
-  async searchArticles(text: string, limit?: number, ns?: MwNamespace): Promise<MwSearchResult[]> {
-    const searchResults: MwSearchResult[] = await new Promise((resolve, reject) => {
+  async searchArticles(text: string, limit?: number, ns?: MwNamespace): Promise<MwArticleSearchResult[]> {
+    await this.login();
+
+    const searchResults: MwArticleSearchResult[] = await new Promise((resolve, reject) => {
       // https://www.mediawiki.org/wiki/API:Search
       this.getOne(
         {
@@ -166,9 +99,16 @@ export class MwClientInterface {
   async getArticleInfo(titleOrId: string|number, options?: any): Promise<MwArticleInfo> {
     await this.login();
 
+    if (isEmpty(titleOrId)) {
+      return null;
+    }
+
+    if (typeof titleOrId === 'string') {
+      titleOrId = ucFirst(titleOrId);
+    }
+
     const artInfoEntity: MwArticleInfoEntity = await this.db.getArticleInfoEntity(titleOrId);
     if (artInfoEntity) {
-      console.log('Fetched article info from cache');
       return artInfoEntity.json;
     }
 
@@ -208,7 +148,7 @@ export class MwClientInterface {
       params.intestactions = options.intestactions.join("|");
     }
 
-    const artInfo: MwArticleInfo = await (new Promise((resolve, reject) => {
+    const artInfo: MwArticleInfo = await (new Promise((resolve, _reject) => {
       this.getOne(
         params,
         (err, result) => {
@@ -226,7 +166,9 @@ export class MwClientInterface {
       );
     }));
 
-    console.log('Fetched article info from remote API:', artInfo ? 'found' : 'not-found');
+    if (artInfo && (<any> artInfo).from) {
+      return this.getArticleInfo((<any> artInfo).to, options);
+    }
 
     if (artInfo) {
       await this.db.putArticleInfoEntity(artInfo);

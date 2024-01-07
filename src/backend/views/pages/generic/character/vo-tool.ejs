@@ -103,7 +103,7 @@
         <div id="vo-app-toolbar-content" class="valign flexWrap justifySpaceBetween grow">
           <div class="vo-app-toolbar-buttons valign flexWrap">
             <div class="vo-app-toolbar-button valign spacer10-left posRel">
-              <button id="vo-app-load-button" class="secondary border-light" ui-action="dropdown: #vo-app-load-dropdown">
+              <button id="vo-app-load-button" class="secondary border-light no-active-style" ui-action="dropdown: #vo-app-load-dropdown">
                 <span class="spacer5-right">Load</span>
                 <%- icon('chevron-down') %>
               </button>
@@ -115,7 +115,7 @@
               </div>
             </div>
             <div class="vo-app-toolbar-button valign spacer10-left posRel">
-              <button id="vo-app-export-button" class="secondary border-light" ui-action="dropdown: #vo-app-export-dropdown">
+              <button id="vo-app-export-button" class="secondary border-light no-active-style" ui-action="dropdown: #vo-app-export-dropdown">
                 <span class="spacer5-right">Export</span>
                 <%- icon('chevron-down') %>
               </button>
@@ -127,7 +127,7 @@
               </div>
             </div>
             <div class="vo-app-toolbar-button valign spacer10-left posRel">
-              <button id="vo-app-language-button" class="secondary border-light" ui-action="dropdown: #vo-app-language-dropdown">
+              <button id="vo-app-language-button" class="secondary border-light no-active-style" ui-action="dropdown: #vo-app-language-dropdown">
                 <b>VO Language:&nbsp;</b>
                 <span id="vo-app-language-current" class="spacer5-right current-option"><%= voLangName %></span>
                 <%- icon('chevron-down') %>
@@ -145,7 +145,7 @@
             </div>
 
             <div class="vo-app-toolbar-button valign spacer10-left posRel" data-control="outputLangCode" ui-tippy="Same as &quot;Output Language&quot;">
-              <button id="vo-app-interfacelang-button" class="secondary border-light" ui-action="dropdown: #vo-app-interfacelang-dropdown">
+              <button id="vo-app-interfacelang-button" class="secondary border-light no-active-style" ui-action="dropdown: #vo-app-interfacelang-dropdown">
                 <b>Interface Language:&nbsp;</b>
                 <span id="vo-app-interfacelang-current" class="spacer5-right current-option"
                       data-value="<%= req.context.outputLangCode %>">

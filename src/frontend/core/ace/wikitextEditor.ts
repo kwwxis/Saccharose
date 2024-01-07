@@ -206,7 +206,7 @@ export function highlight(text: string, mode: string, gutters: boolean = true, m
       let markerFrontAgg = markerAggs.front.get(ix + 1);
       let markerBackAgg = markerAggs.back.get(ix + 1);
       let line: string = rawLines[ix];
-      let lineBlank = `<span class="ace_static_marker" data-text="${markerText(line)}"></span>`; //blankify(line);
+      let lineBlank = `<span class="ace_static_marker" data-text="${markerText(line)}"></span>`;
 
       function processMarkerAgg(agg: MarkerAggregate, isFront: boolean) {
         if (!agg || !agg.ranges.length) {
@@ -226,8 +226,12 @@ export function highlight(text: string, mode: string, gutters: boolean = true, m
           let rangeText = range.endCol <= range.startCol ? '' : line.slice(range.startCol, range.endCol);
           prevRangeEnd = range.endCol;
 
+          let attrStr = range.attr && Object.keys(range.attr).length ? ' ' + Object.entries(range.attr).map(entry => {
+            return `${entry[0]}="${escapeHtml(String(entry[1]))}"`;
+          }).join(' ') : '';
+
           if (range.fullLine) {
-            markerHtml = `<span class="ace_static_marker ${clazz}" style="width:100%;display:inline-block;" data-text="${markerText(line)}"></span>`;
+            markerHtml = `<span class="ace_static_marker ${clazz}"${attrStr} style="width:100%;display:inline-block;" data-text="${markerText(line)}"></span>`;
             prevRangeEnd = line.length;
             break;
           }
@@ -237,12 +241,16 @@ export function highlight(text: string, mode: string, gutters: boolean = true, m
           }
 
           if (rangeText) {
-            markerHtml += `<span class="ace_static_marker range-token-text ${clazz}" data-text="${markerText(rangeText)}"></span>`;
+            markerHtml += `<span class="ace_static_marker range-token-text ${clazz}"${attrStr} data-text="${markerText(rangeText)}"></span>`;
           }
         }
         let lastText = line.slice(prevRangeEnd);
         if (lastText) {
           markerHtml += `<span class="ace_static_marker range-norm-text" data-text="${markerText(lastText)}"></span>`;
+        }
+
+        if (!markerHtml) {
+          markerHtml = lineBlank;
         }
 
         if (agg.isFront) {
@@ -268,11 +276,11 @@ export function highlight(text: string, mode: string, gutters: boolean = true, m
 
     let html =
       `<div data-ace-highlight-id="${guid}" class="highlighted ${gutters ? 'highlighted-has-gutters' : ''} ${theme.cssClass}" style="position:relative">` +
-      `<div class="ace_static_highlight${gutters ? ' ace_show_gutter' : ''}" style="counter-reset:ace_line ${lineStart - 1}">` +
-      `<div class="ace_static_layer ace_static_marker_layer ace_static_marker_back_layer">${markerBackLayerSb.join('')}</div>` +
-      `<div class="ace_static_layer ace_static_text_layer">${textLayerSb.join('').replace(/\s*style=['"]width:NaNpx['"]/g, '')}</div>` +
-      `<div class="ace_static_layer ace_static_marker_layer ace_static_marker_front_layer">${markerFrontLayerSb.join('')}</div>` +
-      `</div>` +
+        `<div class="ace_static_highlight${gutters ? ' ace_show_gutter' : ''}" style="counter-reset:ace_line ${lineStart - 1}">` +
+          `<div class="ace_static_layer ace_static_marker_layer ace_static_marker_back_layer">${markerBackLayerSb.join('')}</div>` +
+          `<div class="ace_static_layer ace_static_text_layer">${textLayerSb.join('').replace(/\s*style=['"]width:NaNpx['"]/g, '')}</div>` +
+          `<div class="ace_static_layer ace_static_marker_layer ace_static_marker_front_layer">${markerFrontLayerSb.join('')}</div>` +
+        `</div>` +
       `</div>`;
 
     textLayer.destroy();

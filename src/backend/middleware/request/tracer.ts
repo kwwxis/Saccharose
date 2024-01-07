@@ -27,7 +27,9 @@ export function traceMiddleware(req: Request, res: Response, next: NextFunction)
   const store: ITrace = {
     req,
     res,
-    ctx: req.context,
+    get ctx() {
+      return req.context;
+    },
     genshinControl,
     starRailControl,
     zenlessControl,
@@ -38,10 +40,6 @@ export function traceMiddleware(req: Request, res: Response, next: NextFunction)
   asyncLocalStorage.run(store, () => {
     next();
   });
-}
-
-export function getCurrentRequest(): Request {
-  return asyncLocalStorage.getStore().req;
 }
 
 export function getTrace(): ITrace {

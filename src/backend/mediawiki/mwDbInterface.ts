@@ -1,8 +1,11 @@
 import { Knex } from 'knex';
 import { openPg } from '../util/db.ts';
-import { MwArticleInfo, MwRevision } from './mwClientInterface.ts';
 import { MwOwnSegment } from './mwOwnSegmentHolder.ts';
 import { isInt, toInt } from '../../shared/util/numberUtil.ts';
+import { MwArticleInfo, MwRevision, MwRevLoadMode } from '../../shared/mediawiki/mwTypes.ts';
+import { isNotEmpty } from '../../shared/util/genericUtil.ts';
+import { diffIntlWithSpace } from '../util/jsIntlDiff.ts';
+import { LANG_CODE_TO_LOCALE } from '../../shared/types/lang-types.ts';
 
 export type MwRevEntity = {
   pageid: number,
@@ -63,29 +66,73 @@ export class MwDbInterface {
     return article;
   }
 
-  private mapEntity(revEntity: MwRevEntity): MwRevision {
+  private async mapEntity(revEntity: MwRevEntity, loadMode?: MwRevLoadMode): Promise<MwRevision> {
+    if (!revEntity || !revEntity.json) {
+      return null;
+    }
     const rev: MwRevision = revEntity.json;
     rev.revid = toInt(rev.revid);
     rev.pageid = toInt(rev.pageid);
     rev.parentid = toInt(rev.parentid);
     rev.userid = toInt(rev.userid);
-    rev.segments = revEntity.segments;
+    if (loadMode === 'content' || loadMode === 'contentAndPrev') {
+      rev.segments = revEntity.segments;
+    } else {
+      delete rev.content;
+    }
+    if (loadMode === 'contentAndPrev' && isNotEmpty(rev.parentid) && isInt(rev.parentid) && rev.parentid !== 0) {
+      const prev = await this.getSavedRevision(rev.parentid, 'content');
+      rev.prevContent = prev.content;
+      rev.prevDiff = diffIntlWithSpace(prev.content, rev.content, {
+        locale: LANG_CODE_TO_LOCALE['en'] // TODO support other languages
+      });
+    }
     return rev;
   }
 
-  async getSavedRevisions(revids: number[]): Promise<Record<number, MwRevision>> {
+  private revisionCols(loadMode?: MwRevLoadMode) {
+    const mainCols = ['pageid', 'revid', 'parentid', 'json'];
+    if (loadMode === 'content' || loadMode === 'contentAndPrev') {
+      mainCols.push('segments');
+    }
+    return mainCols;
+  }
+
+  async getSavedRevision(revid: number|string, loadMode?: MwRevLoadMode): Promise<MwRevision> {
+    if (!isInt(revid)) {
+      return null;
+    }
+    revid = toInt(revid);
+    const result = await this.knex.select(this.revisionCols(loadMode)).from(this.WIKI_REV_TABLE)
+      .where('revid', revid).first().then();
+    return await this.mapEntity(result, loadMode);
+  }
+
+  async getSavedRevisions(revids: number[], loadMode?: MwRevLoadMode): Promise<Record<number, MwRevision>> {
     const savedRevs: Record<number, MwRevision> = {};
     const chunkSize = 100;
 
     for (let i = 0; i < revids.length; i += chunkSize) {
       const chunk: number[] = revids.slice(i, i + chunkSize);
 
-      const results: MwRevEntity[] = await this.knex.select('*').from(this.WIKI_REV_TABLE)
+      const results: MwRevEntity[] = await this.knex.select(this.revisionCols(loadMode)).from(this.WIKI_REV_TABLE)
         .whereIn('revid', chunk).then();
 
-      for (let revEntity of results) {
-        savedRevs[revEntity.revid] = this.mapEntity(revEntity);
-      }
+      await results.asyncMap(async revEntity => {
+        savedRevs[revEntity.revid] = await this.mapEntity(revEntity, loadMode);
+      });
+    }
+    return savedRevs;
+  }
+
+  async getSavedRevisionsByPageId(pageid: number, loadMode?: MwRevLoadMode): Promise<MwRevision[]> {
+    const results: MwRevEntity[] = await this.knex.select(this.revisionCols(loadMode)).from(this.WIKI_REV_TABLE)
+      .where({pageid: pageid}).orderBy('revid').then();
+
+    const savedRevs: MwRevision[] = [];
+    for (let revEntity of results) {
+      const rev: MwRevision = await this.mapEntity(revEntity, loadMode);
+      savedRevs.push(rev);
     }
     return savedRevs;
   }
@@ -108,18 +155,6 @@ export class MwDbInterface {
         json: Object.assign({}, rev, {segments: undefined})
       }))).transacting(tx);
     }).then();
-  }
-
-  async fetchRevisions(pageid: number): Promise<MwRevision[]> {
-    const results: MwRevEntity[] = await this.knex.select('*').from(this.WIKI_REV_TABLE)
-      .where({pageid: pageid}).orderBy('revid').then();
-
-    const savedRevs: MwRevision[] = [];
-    for (let revEntity of results) {
-      const rev: MwRevision = this.mapEntity(revEntity);
-      savedRevs.push(rev);
-    }
-    return savedRevs;
   }
 }
 

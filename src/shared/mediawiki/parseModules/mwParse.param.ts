@@ -7,7 +7,7 @@ import {
   MwParamNodePrefixType,
   MwParamParentType,
   MwTextNode,
-} from '../mwTypes.ts';
+} from '../mwParseTypes.ts';
 import { MwParseContext } from '../mwParse.ts';
 
 /**

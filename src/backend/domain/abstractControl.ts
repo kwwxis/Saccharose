@@ -27,7 +27,6 @@ import {
   grep,
   grepStream,
   langDetect,
-  LangDetectResult,
   ShellFlags,
 } from '../util/shellutil.ts';
 import { NormTextOptions } from './generic/genericNormalizers.ts';
@@ -35,6 +34,7 @@ import { ExtractScalar } from '../../shared/types/utility-types.ts';
 import { ArrayStream } from '../../shared/util/arrayUtil.ts';
 import { Request } from 'express';
 import { defaultMap } from '../../shared/util/genericUtil.ts';
+import { LangDetectResult } from '../../shared/types/common-types.ts';
 
 export abstract class AbstractControlState {
   public request: Request = null;

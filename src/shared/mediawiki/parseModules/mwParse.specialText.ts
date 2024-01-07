@@ -1,5 +1,5 @@
 import { MwParseModule } from '../mwParseModule.ts';
-import { MwBehaviorSwitch, MwRedirect } from '../mwTypes.ts';
+import { MwBehaviorSwitch, MwRedirect } from '../mwParseTypes.ts';
 import { escapeRegExp } from '../../util/stringUtil.ts';
 import { mwSimpleTextParse } from '../mwParse.ts';
 import { MW_BEHAVIOR_SWITCHES } from '../mwContants.ts';

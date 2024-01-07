@@ -1,0 +1,51 @@
+.mw-rev {
+  padding-bottom: 10px;
+}
+
+.mw-rev-title {
+  border-top: 1px solid hsla(223, 67%, 18%, 0.2);
+  font-weight: 600;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 14px;
+  background: hsl(210, 10%, 92%);
+  padding: 0 5px;
+
+  body.nightmode & {
+    background: hsla(232, 12%, 29%, 0.3);
+    border-top: 1px solid hsla(232, 12%, 50%, 0.35);
+  }
+  .mw-rev-open {
+    cursor: pointer;
+  }
+  .mw-rev-openinwiki {
+    text-decoration: none;
+    font-size: 12px;
+    .icon {
+      width: 12px;
+      margin-left: 5px;
+    }
+  }
+}
+
+.mw-rev-time {
+  padding: 0 5px;
+  font-size: 16px;
+}
+
+.mw-rev-comment {
+  font-size: 15px;
+  opacity: 0.75;
+  line-height: 1.4em;
+  padding: 5px 10px;
+}
+
+.segment-hover-label {
+  display: block;
+  position: absolute;
+  background: rgba(0,0,0,0.8);
+  border-radius: 3px;
+  color: #fff;
+  z-index: 9999;
+  will-change: left, top;
+  transition: left 50ms linear, top 50ms linear;
+}

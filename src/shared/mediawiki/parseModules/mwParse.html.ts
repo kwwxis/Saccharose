@@ -1,4 +1,4 @@
-import { MwComment, MwNowiki } from '../mwTypes.ts';
+import { MwComment, MwNowiki } from '../mwParseTypes.ts';
 import { MwParseModule } from '../mwParseModule.ts';
 
 export class MwParseHtmlModule extends MwParseModule {

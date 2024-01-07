@@ -1,4 +1,4 @@
-import { MwNode, MwParentNode, MwTemplateNode } from './mwTypes.ts';
+import { MwNode, MwParentNode, MwTemplateNode } from './mwParseTypes.ts';
 import util from 'util';
 import { mwParse } from './mwParse.ts';
 
