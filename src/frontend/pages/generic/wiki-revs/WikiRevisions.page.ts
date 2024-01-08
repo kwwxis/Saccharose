@@ -3,7 +3,7 @@ import { pageMatch } from '../../../core/pageMatch.ts';
 import { startGenericSearchPageListeners } from '../../genericSearchPage.ts';
 import { genericEndpoints } from '../../../core/endpoints.ts';
 import { SITE_MODE, SITE_MODE_WIKI_DOMAIN } from '../../../core/userPreferences/siteMode.ts';
-import { isInt, toInt } from '../../../../shared/util/numberUtil.ts';
+import { constrainNumber, isInt, toInt } from '../../../../shared/util/numberUtil.ts';
 import { ScriptJobPostResult, ScriptJobState } from '../../../../backend/util/scriptJobs.ts';
 import { MwArticleInfo, MwRevision } from '../../../../shared/mediawiki/mwTypes.ts';
 import { escapeHtml, toParam } from '../../../../shared/util/stringUtil.ts';
@@ -83,25 +83,43 @@ async function init(pageId: number) {
   `;
 
   console.log('Script Job Posted:', postResult.job);
-  await poll(page, postResult.job.job_id);
+  await (new PollContext(page, postResult.job.job_id)).poll();
 }
 
-async function poll(page: MwArticleInfo, jobId: string) {
-  const jobPoll: Pick<ScriptJobState<'mwRevSave'>, 'job_id' | 'run_complete' | 'run_log' | 'run_end'>
-    = await genericEndpoints.getJob.get({ jobId: jobId, fields: 'job_id,run_complete,run_log,run_end' });
-  console.log('Script Job Poll:', jobPoll);
+class PollContext {
+  private runLogLastSize: number = 0;
+  private runLogNumTimesSameSize: number = 0;
 
-  const runLogEl: HTMLElement = document.querySelector('#run-log');
-  runLogEl.innerHTML = jobPoll.run_log.map(s => `<div>${escapeHtml(s)}</div>`).join('\n');
+  constructor(readonly page: MwArticleInfo, readonly jobId: string) {}
 
-  const timeout: number = runLogEl.innerHTML.includes('Computing ownership segments') ? 1000 : 200;
+  async poll() {
+    const jobPoll: Pick<ScriptJobState<'mwRevSave'>, 'job_id' | 'run_complete' | 'run_log' | 'run_end'>
+      = await genericEndpoints.getJob.get({ jobId: this.jobId, fields: 'job_id,run_complete,run_log,run_end' });
 
-  if (jobPoll.run_complete && jobPoll.run_end) {
-    genericEndpoints.getJob.get({ jobId: jobId }).then(job => load(page, job));
-  } else {
-    setTimeout(() => poll(page, jobId), timeout);
+    const runLogCurrSize: number = jobPoll.run_log.length;
+    const runLogEl: HTMLElement = document.querySelector('#run-log');
+    runLogEl.innerHTML = jobPoll.run_log.map(s => `<div>${escapeHtml(s)}</div>`).join('\n');
+
+    if (runLogCurrSize === this.runLogLastSize) {
+      this.runLogNumTimesSameSize++;
+    } else {
+      this.runLogLastSize = runLogCurrSize;
+      this.runLogNumTimesSameSize = 0;
+    }
+
+    const minTimeout: number = runLogEl.innerHTML.includes('Computing ownership segments') ? 1000 : 200;
+    const timeout: number = minTimeout + constrainNumber(this.runLogNumTimesSameSize * 250, 0, 5000);
+
+    if (jobPoll.run_complete && jobPoll.run_end) {
+      console.log('Script Job Poll:', jobPoll, `Next Poll: n/a (complete)`);
+      genericEndpoints.getJob.get({ jobId: this.jobId }).then(job => load(this.page, job));
+    } else {
+      console.log('Script Job Poll:', jobPoll, `Next Poll: ${timeout} ms`);
+      setTimeout(() => this.poll(), timeout);
+    }
   }
 }
+
 
 async function load(page: MwArticleInfo, job: ScriptJobState<'mwRevSave'>) {
   console.log('Script Job Complete:', job);

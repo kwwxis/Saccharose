@@ -5,7 +5,6 @@ import { isInt, toInt } from '../../shared/util/numberUtil.ts';
 import { MwArticleInfo, MwRevision, MwRevLoadMode } from '../../shared/mediawiki/mwTypes.ts';
 import { isNotEmpty } from '../../shared/util/genericUtil.ts';
 import { diffIntlWithSpace } from '../util/jsIntlDiff.ts';
-import { LANG_CODE_TO_LOCALE } from '../../shared/types/lang-types.ts';
 
 export type MwRevEntity = {
   pageid: number,
@@ -84,17 +83,20 @@ export class MwDbInterface {
       const prev = await this.getSavedRevision(rev.parentid, 'content');
       rev.prevContent = prev.content;
       rev.prevDiff = diffIntlWithSpace(prev.content, rev.content, {
-        locale: LANG_CODE_TO_LOCALE['en'] // TODO support other languages
+        langCode: 'EN' // TODO support other languages
       });
     }
     return rev;
   }
 
-  private revisionCols(loadMode?: MwRevLoadMode) {
-    const mainCols = ['pageid', 'revid', 'parentid', 'json'];
+  private revisionCols(loadMode?: MwRevLoadMode): (string|Knex.Raw)[] {
+    const mainCols: (string|Knex.Raw)[] = ['pageid', 'revid', 'parentid', 'json'];
     if (loadMode === 'content' || loadMode === 'contentAndPrev') {
       mainCols.push('segments');
     }
+    mainCols.push(
+      this.knex.raw(`segments is not null as has_segments`)
+    );
     return mainCols;
   }
 

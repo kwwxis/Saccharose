@@ -64,6 +64,7 @@ export type MwRevision = {
 
   content?: string,
   segments?: MwOwnSegment[],
+  has_segments?: boolean,
 
   prevContent?: string,
   prevDiff?: Change[],

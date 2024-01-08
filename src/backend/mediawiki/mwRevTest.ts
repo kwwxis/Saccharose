@@ -2,7 +2,6 @@ import path, { dirname } from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 import console from 'console';
 import { diffIntlWithSpace } from '../util/jsIntlDiff.ts';
-import { LANG_CODE_TO_LOCALE } from '../../shared/types/lang-types.ts';
 import { mwGenshinClient } from './mwClientInterface.ts';
 import { closeKnex } from '../util/db.ts';
 import fs from 'fs';
@@ -26,7 +25,7 @@ function test0() {
   segmentHolder.apply('Jane', diffIntlWithSpace(
     `The quick brown fox jumps over the lazy dog!`,
     `The very quick red fox jumps over the lazy dog!`,
-    {locale: LANG_CODE_TO_LOCALE['EN']}
+    {langCode: 'EN'}
   ));
 
   console.log('2:', segmentHolder.segments);
@@ -47,7 +46,7 @@ async function test1(pageId: number) {
     lastSegments = JSON.parse(JSON.stringify(segmentHolder.segments));
 
     segmentHolder.apply(rev.user, diffIntlWithSpace(prevRevContent, rev.content, {
-      locale: LANG_CODE_TO_LOCALE['EN']
+      langCode: 'EN'
     }));
 
     if (segmentHolder.rejoin() !== rev.content) {
@@ -59,22 +58,6 @@ async function test1(pageId: number) {
       fs.writeFileSync(path.resolve(__dirname, './article_segments_curr.json'), JSON.stringify(segmentHolder.segments, null, 2),
         {encoding: 'utf-8'});
       fs.writeFileSync(path.resolve(__dirname, './article_rejoin.wt'), segmentHolder.rejoin(), {encoding: 'utf-8'});
-
-      const lastRevs = segmentHolder._lastRevChanges
-        .filter(c => c.mode === 'added' || c.mode === 'removed');
-      fs.writeFileSync(path.resolve(__dirname, './article_revs.json'), JSON.stringify(lastRevs, null, 2),
-        {encoding: 'utf-8'});
-
-      for (let rev of segmentHolder._lastRevChanges) {
-        if (rev.mode === 'added') {
-          continue;
-        }
-        if (rev.value !== prevRevContent.slice(rev.start, rev.end)) {
-          console.log('Bad rev', rev);
-        }
-      }
-
-      //console.log(segmentHolder.segments);
       console.log('rev:', rev.revid, 'counter:', counter, 'valid:', segmentHolder.rejoin() === rev.content, 'author:', rev.user);
       console.log('comment:', rev.comment)
       return;
@@ -97,21 +80,11 @@ async function test2() {
   segmentHolder.setSegments(JSON.parse(fs.readFileSync(path.resolve(__dirname, './article_segments_prev.json'), {encoding: 'utf-8'})));
 
   segmentHolder.apply('DQueenie13', diffIntlWithSpace(prevRevContent, currRevContent, {
-    locale: LANG_CODE_TO_LOCALE['EN']
+    langCode: 'EN'
   }));
 
   //console.log(segmentHolder.segments);
   console.log('Valid: ', segmentHolder.rejoin() === currRevContent);
-
-  for (let rev of segmentHolder._lastRevChanges) {
-    if (rev.mode === 'added') {
-      continue;
-    }
-    if (rev.value !== prevRevContent.slice(rev.start, rev.end)) {
-      console.log('Bad rev', rev);
-    }
-  }
-
   fs.writeFileSync(path.resolve(__dirname, './article_rejoin2.wt'), segmentHolder.rejoin(), {encoding: 'utf-8'});
 }
 

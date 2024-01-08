@@ -51,10 +51,6 @@ function splitSegment(segment: MwOwnSegment, at: number, insert?: MwOwnSegment):
 export class MwOwnSegmentHolder {
   private _segments: MwOwnSegment[] = [];
 
-  // For debug purposes:
-  _lastRevChanges: MwOwnSegment[] = [];
-  _disableInsert: boolean = false;
-
   get segments(): MwOwnSegment[] {
     return JSON.parse(JSON.stringify(this._segments));
   }
@@ -166,12 +162,9 @@ export class MwOwnSegmentHolder {
     }
 
     let revChanges: MwOwnSegment[] = this.asIndexed(revOwner, _changes);
-    this._lastRevChanges = revChanges;
 
     this.removeRanges(revChanges);
-    if (!this._disableInsert) {
-      this.insertRanges(revChanges);
-    }
+    this.insertRanges(revChanges);
     this.clean();
   }
 

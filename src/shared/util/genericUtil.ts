@@ -554,3 +554,42 @@ export function isESClass(fn: any): fn is Type<any> {
       'prototype'
     )?.writable === false
 }
+
+export function getRoughSizeOfObject(object: any) {
+  const seenObjects = [];
+  const stack = [object];
+  let bytes = 0;
+
+  while (stack.length) {
+    const value = stack.pop();
+
+    switch (typeof value) {
+      case 'boolean':
+        bytes += 4;
+        break;
+      case 'string':
+        bytes += value.length * 2;
+        break;
+      case 'number':
+        bytes += 8;
+        break;
+      case 'object':
+        if (!seenObjects.includes(value)) {
+          seenObjects.push(value);
+          if (Array.isArray(value)) {
+            for (let v of value) {
+              stack.push(v);
+            }
+          } else {
+            for (let [k, v] of Object.entries(value)) {
+              bytes += k.length * 2;
+              stack.push(v);
+            }
+          }
+        }
+        break;
+    }
+  }
+  seenObjects.length = 0;
+  return bytes;
+}

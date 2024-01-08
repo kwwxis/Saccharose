@@ -82,8 +82,8 @@ import { getTrace } from '../../middleware/request/tracer.ts';
 import { toParam } from '../../../shared/util/stringUtil.ts';
 
 const {pageid, page} = defineProps<{
-  pageid: number,
-  page: MwArticleInfo,
+  pageid?: number,
+  page?: MwArticleInfo,
 }>();
 
 const has_pageid: boolean = isInt(pageid);

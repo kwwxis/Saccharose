@@ -9,9 +9,10 @@ import { pathToFileURL } from 'url';
 import { ScriptJobInput, ScriptJob } from '../util/scriptJobs.ts';
 import { MwOwnSegmentHolder } from './mwOwnSegmentHolder.ts';
 import { diffIntlWithSpace } from '../util/jsIntlDiff.ts';
-import { LANG_CODE_TO_LOCALE } from '../../shared/types/lang-types.ts';
 import { AsyncLog } from '../util/logger.ts';
 import { MwArticleInfo, MwRevision } from '../../shared/mediawiki/mwTypes.ts';
+import { getRoughSizeOfObject } from '../../shared/util/genericUtil.ts';
+import { Change } from 'diff';
 
 export async function getAndStoreRevisions(mwClient: MwClientInterface, titleOrId: string|number, asyncLog: AsyncLog): Promise<{
   page: MwArticleInfo,
@@ -25,120 +26,121 @@ export async function getAndStoreRevisions(mwClient: MwClientInterface, titleOrI
 
   if (await mwClient.db.hasRevision(mwPage.lastrevid)) {
     await asyncLog('Already have all latest revisions for page saved to database; no need to fetch.');
-    return { page: mwPage, revisions: await mwClient.db.getSavedRevisionsByPageId(mwPage.pageid, 'content') };
+    return { page: mwPage, revisions: await mwClient.db.getSavedRevisionsByPageId(mwPage.pageid) };
   }
 
-  const revisions: MwRevision[] = await mwClient.getArticleRevisions({
+  // Fetch from MediaWiki API:
+  // --------------------------------------------------------------------------------------------------------------
+  const revsFromApi: MwRevision[] = await mwClient.getArticleRevisions({
     pageids: mwPage.pageid
   });
-  await asyncLog(`Fetched page revisions; page has ${revisions.length} total revisions.`);
+  await asyncLog(`Fetched page revisions; page has ${revsFromApi.length} total revisions.`);
 
-  // All revisions accumulator:
-  const allRevs: MwRevision[] = [];
+  // Fetch from Saccharose DB:
+  // --------------------------------------------------------------------------------------------------------------
+  const revsFromDb: Record<number, MwRevision> = await mwClient.db.getSavedRevisions(revsFromApi.map(r => r.revid));
+  await asyncLog(`Of the ${revsFromApi.length} revisions, ${Object.keys(revsFromDb).length} are already saved to database.`);
 
-  // rev id -> revision:
-  const savedRevs: Record<number, MwRevision> = await mwClient.db.getSavedRevisions(revisions.map(r => r.revid), 'content');
-  await asyncLog(`Of the ${revisions.length} revisions, ${Object.keys(savedRevs).length} are already saved to database.`);
-
-  // rev id -> revision:
-  const revsToSave: Record<number, {rev: MwRevision, idx: number}> = {};
-
-  for (let i = 0; i < revisions.length; i++) {
-    const rev = revisions[i];
-    if (savedRevs[rev.revid]) {
-      allRevs[i] = savedRevs[rev.revid];
-    } else {
-      allRevs[i] = null;
-      revsToSave[rev.revid] = {rev, idx: i};
+  // Determine revisions needed to be saved:
+  // --------------------------------------------------------------------------------------------------------------
+  const revsToSave: MwRevision[] = [];
+  for (let i = 0; i < revsFromApi.length; i++) {
+    const rev = revsFromApi[i];
+    if (!revsFromDb[rev.revid]) {
+      revsToSave.push(rev);
     }
   }
 
+  // Save new revisions:
+  // --------------------------------------------------------------------------------------------------------------
   const chunkSize = 50;
-  const revsToSaveArr = Object.values(revsToSave);
-  await asyncLog(Object.keys(revsToSaveArr).length + ' revisions need to be saved to the database.');
+  await asyncLog(revsToSave.length + ' revisions need to be saved to the database.');
 
   let chunkNum: number = 0;
-  const chunkTotal: number = Math.ceil(revsToSaveArr.length / chunkSize);
+  const chunkTotal: number = Math.ceil(revsToSave.length / chunkSize);
 
-  for (let i = 0; i < revsToSaveArr.length; i += chunkSize) {
-    const chunk = revsToSaveArr.slice(i, i + chunkSize);
+  for (let i = 0; i < revsToSave.length; i += chunkSize) {
+    const chunk: MwRevision[] = revsToSave.slice(i, i + chunkSize);
 
     await asyncLog(`Saving revision chunk ${chunkNum+1} of ${chunkTotal}`);
     const contentRevs: MwRevision[] = await mwClient.getArticleRevisions({
-      revids: chunk.map(r => r.rev.revid).join('|')
+      revids: chunk.map(r => r.revid).join('|')
     });
 
     await mwClient.db.saveRevisions(contentRevs);
-
-    for (let rev of contentRevs) {
-      const idx = revsToSave[rev.revid].idx;
-      allRevs[idx] = rev;
-    }
-
     chunkNum++;
   }
 
-  return { page: mwPage, revisions: allRevs };
+  // Return result:
+  // --------------------------------------------------------------------------------------------------------------
+  return { page: mwPage, revisions: await mwClient.db.getSavedRevisionsByPageId(mwPage.pageid) };
 }
 
-export async function computeRevSegments(client: MwClientInterface, allRevs: MwRevision[], args: ScriptJobInput<'mwRevSave'>, asyncLog: AsyncLog): Promise<MwOwnSegmentHolder> {
+export async function computeRevSegments(client: MwClientInterface, allRevs: MwRevision[], args: ScriptJobInput<'mwRevSave'>, asyncLog: AsyncLog): Promise<void> {
   const segmentHolder: MwOwnSegmentHolder = new MwOwnSegmentHolder();
 
-  let prevRevContent: string = '';
+  let updateBatch: {revid: number, segmentsJSON: string}[] = [];
+  const updateBatchMaxLength: number = 50;
 
-  const updateBatch: {revid: number, segmentsJSON: string}[] = [];
-
-  if (!args.resegment && allRevs.every(rev => !!rev.segments)) {
+  if (!args.resegment && allRevs.every(rev => !!rev.has_segments)) {
     await asyncLog(`All revisions already have ownership segments computed, nothing left to do for this job.`);
-    segmentHolder.setSegments(allRevs[allRevs.length - 1].segments);
-    return segmentHolder;
+    return;
   }
 
-  await asyncLog(`Computing ownership segments...`);
+  let prevRevContent: string = '';
+  let chunkNum: number = 0;
+  const chunkSize: number = 50;
+  const chunkTotal: number = Math.ceil(allRevs.length / chunkSize)
+  await asyncLog(`Computing ownership segments... (${allRevs.length} revs, ${chunkTotal} chunks)`);
 
-  let revNum = 1;
-  for (let rev of allRevs) {
+  for (let i = 0; i < allRevs.length; i += chunkSize) {
     try {
-      if (revNum % 25 === 0 || revNum === allRevs.length) {
-        await asyncLog(`Computing ownership segments... (${revNum}/${allRevs.length})`);
+      const chunk: MwRevision[] = Object.values(await client.db.getSavedRevisions(allRevs.slice(i, i + chunkSize).map(r => r.revid), 'content'));
+      await asyncLog(`Computing ownership segments... (chunk ${chunkNum+1} of ${chunkTotal})`);
+
+      for (let _rev of chunk) {
+        const revUser: string = (' ' + _rev.user).slice(1);
+        const revContent: string = (' ' + _rev.content).slice(1);
+        const revSegments = _rev.segments ? JSON.parse(JSON.stringify(_rev.segments)) : null;
+
+        try {
+          if (revSegments && !args.resegment) {
+            segmentHolder.setSegments(revSegments);
+            continue;
+          }
+
+          console.log('Start rev:', _rev.revid);
+          const revChanges: Change[] = diffIntlWithSpace(prevRevContent, revContent, {
+            langCode: 'EN' // TODO use mwPage.pagelanguage
+          });
+          segmentHolder.apply(revUser, revChanges);
+          console.log('End rev:', _rev.revid);
+
+          updateBatch.push({
+            revid: _rev.revid,
+            segmentsJSON: JSON.stringify(segmentHolder.segments)
+          });
+          await flushUpdateBatch();
+        } finally {
+          prevRevContent = revContent;
+        }
       }
-
-      if (rev.segments && !args.resegment) {
-        segmentHolder.setSegments(rev.segments);
-        continue;
-      }
-
-      segmentHolder.apply(rev.user, diffIntlWithSpace(prevRevContent, rev.content, {
-        locale: LANG_CODE_TO_LOCALE['EN'] // TODO use mwPage.pagelanguage
-      }));
-
-      rev.segments = segmentHolder.segments;
-      updateBatch.push({
-        revid: rev.revid,
-        segmentsJSON: JSON.stringify(rev.segments)
-      });
     } finally {
-      prevRevContent = rev.content;
-      revNum++;
+      chunkNum++;
+      for (let j = i; j < i + chunkSize; j++) {
+        delete allRevs[j];
+      }
     }
   }
 
-  await asyncLog(`Finished computing ownership segments; ${updateBatch.length} revisions needed computing, ` +
-    `${allRevs.length - updateBatch.length} revisions already had segments computed.`);
-
-  if (updateBatch.length) {
-    const chunkSize = 50;
-    let chunkNum: number = 0;
-    const chunkTotal: number = Math.ceil(updateBatch.length / chunkSize);
-
-    await asyncLog(`Saving the new ownership segments to database... (${chunkTotal} chunks)`);
-
-    for (let i = 0; i < updateBatch.length; i += chunkSize) {
-      const chunk = updateBatch.slice(i, i + chunkSize);
-      await asyncLog(`Saving ownership segment chunk ${chunkNum+1} of ${chunkTotal}`);
-
+  async function flushUpdateBatch(forceFlush: boolean = false) {
+    if (!updateBatch.length) {
+      return;
+    }
+    if (forceFlush || updateBatch.length >= updateBatchMaxLength) {
+      console.log('Flush start', updateBatch.length);
       await client.db.knex.transaction(function (tx) {
-        return Promise.all(chunk.map(item =>
+        return Promise.all(updateBatch.map(item =>
           client.db.knex(client.db.WIKI_REV_TABLE)
             .where('revid', item.revid)
             .update({
@@ -147,15 +149,15 @@ export async function computeRevSegments(client: MwClientInterface, allRevs: MwR
             .transacting(tx)
         ));
       });
-
-      chunkNum++;
+      updateBatch = [];
+      console.log('Flush end');
     }
-    await asyncLog(`Finished saving ownership segments to database.`);
-  } else {
-    await asyncLog(`No new ownership segments to save to database.`);
   }
 
-  return segmentHolder;
+  await flushUpdateBatch(true);
+
+  await asyncLog(`Finished computing all ownership segments; ${updateBatch.length} revisions needed computing, ` +
+    `${allRevs.length - updateBatch.length} revisions already had segments computed.`);
 }
 
 // Warning!!!
@@ -163,33 +165,43 @@ export async function computeRevSegments(client: MwClientInterface, allRevs: MwR
 //   This file can be programmatically executed as a separate process by the main application.
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   const job: ScriptJob<'mwRevSave'> = await ScriptJob.init();
-  const args = job.input;
+  const args: ScriptJobInput<'mwRevSave'> = job.input;
 
-  await job.log(`Started job with arguments -> PageId: ${args.pageId}; SiteMode: ${args.siteMode}; Re-segment: ${args.resegment}`);
+  try {
+    await job.log(`Started job with arguments -> PageId: ${args.pageId}; SiteMode: ${args.siteMode}; Re-segment: ${args.resegment}`);
 
-  const client: MwClientInterface = (() => {
-    if (args.siteMode === 'genshin') {
-      return mwGenshinClient;
-    } else if (args.siteMode === 'hsr') {
-      return mwStarRailClient;
-    } else {
-      return mwZenlessClient;
-    }
-  })();
+    const client: MwClientInterface = (() => {
+      if (args.siteMode === 'genshin') {
+        return mwGenshinClient;
+      } else if (args.siteMode === 'hsr') {
+        return mwStarRailClient;
+      } else if (args.siteMode === 'zenless') {
+        return mwZenlessClient;
+      } else {
+        throw 'Unsupported site mode: ' + args.siteMode;
+      }
+    })();
 
-  const asyncLog: AsyncLog = async (... args: any[]) => {
-    await job.log(... args);
-  };
+    const asyncLog: AsyncLog = async (... args: any[]) => {
+      await job.log(... args);
+    };
 
-  const { page, revisions } = await getAndStoreRevisions(client, args.pageId, asyncLog);
-  await computeRevSegments(client, revisions, args, asyncLog);
+    const { page, revisions } = await getAndStoreRevisions(client, args.pageId, asyncLog);
+    await computeRevSegments(client, revisions, args, asyncLog);
 
-  await job.log('Job complete!');
+    await job.log('Job complete!');
 
-  await job.complete({
-    result_data: {
-      page
-    }
-  });
-  await job.exit();
+    await job.complete({
+      result_data: {
+        page
+      }
+    });
+    await job.exit();
+  } catch (e) {
+    await job.log('Job failed!');
+    await job.complete({
+      result_error: String(e)
+    });
+    await job.exit();
+  }
 }

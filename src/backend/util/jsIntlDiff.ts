@@ -1,5 +1,6 @@
-import { BaseOptions, Diff, diffWordsWithSpace, WordsOptions } from 'diff';
+import { Diff, diffWords, diffWordsWithSpace, WordsOptions } from 'diff';
 import { pathToFileURL } from 'url';
+import { LANG_CODE_TO_LOCALE, LangCode, NON_SPACE_DELIMITED_LANG_CODES } from '../../shared/types/lang-types.ts';
 
 const reWhitespace = /\S/;
 
@@ -14,40 +15,42 @@ intlDiff.equals = function(left, right) {
 };
 
 intlDiff.tokenize = function(value) {
-  const segmenter = new Intl.Segmenter(this.options.locale, { granularity: 'word' });
-  return Array.from(segmenter.segment(value)).map(s => s.segment);
+  console.log('segmenting...');
+  const segmenter = new Intl.Segmenter(LANG_CODE_TO_LOCALE[this.options.langCode || 'EN'], { granularity: 'word' });
+  const segments = Array.from(segmenter.segment(value)).map(s => s.segment);
+  console.log('segmented!');
+  return segments;
 };
 
-export function generateOptions(options, defaults) {
-  if (typeof options === 'function') {
-    defaults.callback = options;
-  } else if (options) {
-    for (let name in options) {
-      if (options.hasOwnProperty(name)) {
-        defaults[name] = options[name];
-      }
-    }
-  }
-  return defaults;
+export function generateOptions(options, defaults: Partial<JsIntlDiffOptions>) {
+  return Object.assign(defaults, options || {});
 }
 
 export interface JsIntlDiffOptions extends WordsOptions {
-  locale: string
+  langCode: LangCode
 }
 
 export function diffIntl(oldStr, newStr, options: JsIntlDiffOptions) {
   options = generateOptions(options, {
-    locale: 'en-US',
+    langCode: 'EN',
     ignoreWhitespace: true
   });
-  return intlDiff.diff(oldStr, newStr, options);
+  if (NON_SPACE_DELIMITED_LANG_CODES.includes(options.langCode)) {
+    return intlDiff.diff(oldStr, newStr, options);
+  } else {
+    return diffWords(oldStr, newStr, options);
+  }
 }
 
 export function diffIntlWithSpace(oldStr, newStr, options: JsIntlDiffOptions) {
   options = generateOptions(options, {
-    locale: 'en-US'
+    langCode: 'EN'
   });
-  return intlDiff.diff(oldStr, newStr, options);
+  if (NON_SPACE_DELIMITED_LANG_CODES.includes(options.langCode)) {
+    return intlDiff.diff(oldStr, newStr, options);
+  } else {
+    return diffWordsWithSpace(oldStr, newStr, options);
+  }
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
@@ -55,7 +58,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     `The quick brown fox jumps over the lazy dog!`,
     `The very quick red fox jumps over the lazy dog!`,
     {
-      locale: 'en-US'
+      langCode: 'EN'
     }
   ));
 
@@ -70,7 +73,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     '素早い青いキツネが怠惰な犬を飛び越えます。',
     '素早いアカギツネが怠惰な犬を飛び越えます。',
     {
-      locale: 'ja-JP'
+      langCode: 'JP'
     }
   ));
 

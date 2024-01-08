@@ -84,7 +84,7 @@ export class MwClientInterface {
     });
 
     const artInfo: MwArticleInfo = await this.getArticleInfo(text);
-    if (artInfo) {
+    if (artInfo && !searchResults.some(x => x.pageid === artInfo.pageid)) {
       searchResults.unshift({
         ns: artInfo.ns,
         pageid: artInfo.pageid,

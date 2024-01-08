@@ -1,5 +1,5 @@
 import '../../loadenv.ts';
-import { LANG_CODE_TO_LOCALE, LangCode } from '../../../shared/types/lang-types.ts';
+import { LangCode } from '../../../shared/types/lang-types.ts';
 import {
   takeFromStartUntilFirstWord,
   takeFromEndUntilLastWord,
@@ -141,7 +141,7 @@ export function mcify(lang: LangCode, maleText: string, femaleText: string): str
   }
 
   const changes: Change[] = diffIntlWithSpace(maleText || '', femaleText || '', {
-    locale: LANG_CODE_TO_LOCALE[lang]
+    langCode: lang
   });
   const out: Change[] = [];
 
