@@ -118,7 +118,6 @@ export class ScriptJobsCoordinator {
 
   constructor() {
     this.knex = openPg();
-    this.markAllComplete();
     this.postIntervalId = setInterval(() => {
       // noinspection JSIgnoredPromiseFromCall
       this.postIntervalAction();
@@ -131,14 +130,14 @@ export class ScriptJobsCoordinator {
     await this.knex('script_jobs')
       .where('run_complete', false)
       .where('run_start', '<', Date.now() - this.MAX_JOB_RUNTIME_MS)
-      .update({ run_complete: true, result_error: 'Job timed out.' })
+      .update({ run_complete: true, result_error: 'Job timed out (tardy loop)' })
       .then();
   }
 
   async markAllComplete() {
     await this.knex('script_jobs')
       .where('run_complete', false)
-      .update({ run_complete: true, result_error: 'Job timed out.' })
+      .update({ run_complete: true, result_error: 'Job timed out (app startup cleanup)' })
       .then();
   }
 

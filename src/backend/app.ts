@@ -28,6 +28,7 @@ import { Request, Response } from 'express';
 import { logInit } from './util/logger.ts';
 import imageBaseRouter from './controllers/ImageBaseRouter.ts';
 import { createStaticImagesHandler } from './middleware/request/staticImagesHandler.ts';
+import { ScriptJobCoordinator } from './util/scriptJobs.ts';
 
 const app: Express = express();
 let didInit: boolean = false;
@@ -57,6 +58,7 @@ export async function appInit(): Promise<Express> {
   await loadGenshinTextSupportingData();
   await loadStarRailTextSupportingData();
   await loadZenlessTextSupportingData();
+  await ScriptJobCoordinator.markAllComplete();
 
   // Serve static directories
   // ~~~~~~~~~~~~~~~~~~~~~~~~
