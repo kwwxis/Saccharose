@@ -5,6 +5,9 @@ CREATE DATABASE saccharose;
 -- Create extension
 ----------------------------------------------------------------------------------------------------------------
 CREATE EXTENSION bktree;
+ALTER SYSTEM SET wal_level = 'minimal';
+ALTER SYSTEM SET archive_mode = 'off';
+ALTER SYSTEM SET max_wal_senders = 0;
 
 -- IMAGE HASHES
 ----------------------------------------------------------------------------------------------------------------

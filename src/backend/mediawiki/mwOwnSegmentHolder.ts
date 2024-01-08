@@ -161,11 +161,17 @@ export class MwOwnSegmentHolder {
       return;
     }
 
+    console.log('Index start');
     let revChanges: MwOwnSegment[] = this.asIndexed(revOwner, _changes);
+    console.log('Index end');
 
+    console.log('remove ranges');
     this.removeRanges(revChanges);
+    console.log('insert ranges');
     this.insertRanges(revChanges);
+    console.log('clean');
     this.clean();
+    console.log('apply done');
   }
 
   private asIndexed(revOwner: string, _changes: Change[], setOwnerMode: 'addedOnly' | 'addedOrUnchanged' = 'addedOnly'): MwOwnSegment[] {

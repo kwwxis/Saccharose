@@ -113,6 +113,7 @@ export async function computeRevSegments(client: MwClientInterface, allRevs: MwR
           const revChanges: Change[] = diffIntlWithSpace(prevRevContent, revContent, {
             langCode: 'EN' // TODO use mwPage.pagelanguage
           });
+          console.log('Diff done:', _rev.revid);
           segmentHolder.apply(revUser, revChanges);
           console.log('End rev:', _rev.revid);
 
@@ -140,15 +141,14 @@ export async function computeRevSegments(client: MwClientInterface, allRevs: MwR
     }
     if (forceFlush || updateBatch.length >= updateBatchMaxLength) {
       console.log('Flush start', updateBatch.length);
-      await client.db.knex.transaction(function (tx) {
-        return Promise.all(updateBatch.map(item =>
-          client.db.knex(client.db.WIKI_REV_TABLE)
+      await client.db.knex.transaction(async tx => {
+        for (let item of updateBatch) {
+          await tx(client.db.WIKI_REV_TABLE)
             .where('revid', item.revid)
             .update({
               segments: item.segmentsJSON
-            })
-            .transacting(tx)
-        ));
+            });
+        }
       });
       updateBatch = [];
       console.log('Flush end');
