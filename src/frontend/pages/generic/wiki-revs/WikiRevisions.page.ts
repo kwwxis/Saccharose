@@ -7,7 +7,7 @@ import { constrainNumber, isInt, toInt } from '../../../../shared/util/numberUti
 import { ScriptJobPostResult, ScriptJobState } from '../../../../backend/util/scriptJobs.ts';
 import { MwArticleInfo, MwRevision } from '../../../../shared/mediawiki/mwTypes.ts';
 import { escapeHtml, toParam } from '../../../../shared/util/stringUtil.ts';
-import { humanTiming, isEmpty, timeConvert } from '../../../../shared/util/genericUtil.ts';
+import { defaultMap, humanTiming, isEmpty, timeConvert } from '../../../../shared/util/genericUtil.ts';
 import { createElement, getElementOffset } from '../../../util/domutil.ts';
 import { listen } from '../../../util/eventListen.ts';
 import { highlightWikitext } from '../../../core/ace/wikitextEditor.ts';
@@ -270,15 +270,33 @@ async function revSelect(page: MwArticleInfo, revId: number, parentId: number) {
   const segmentMarkers: Marker[] = revSegmentsToMarkers(rev.content, rev.segments);
   console.log('Segment markers:', segmentMarkers);
 
-  const ownerList: Set<string> = new Set<string>();
+  const ownerList: {[owner: string]: number} = defaultMap('Zero');
   for (let segment of rev.segments) {
-    ownerList.add(segment.owner);
+    ownerList[segment.owner] += segment.value.length;
   }
-  revContributorsEl.innerHTML = sort(Array.from(ownerList)).map(owner => {
-    return `
-      <a class="spacer3-all">${escapeHtml(owner)}</a>
-    `;
-  }).join('');
+  revContributorsEl.innerHTML = `
+    <div class="valign meta-props">
+      <div class="prop">
+        <span class="prop-label">Friendship Lv.</span>
+        <span class="prop-values">
+          <span class="prop-value"><%= fetter.OpenCondsSummary.Friendship %></span>
+        </span>
+      </div>
+    </div>
+  `;
+  revContributorsEl.innerHTML =
+    `<div class="valign meta-props">`
+      + sort(Object.entries(ownerList), '0').map(([owner, textSize]) => {
+        return `
+          <div class="prop">
+            <a class="prop-label">${escapeHtml(owner)}</a>
+            <span class="prop-values">
+              <span>${((textSize / rev.content.length) * 100) | 0}%</span>
+            </span>
+          </div>
+        `;
+      }).join('')
+    + `</div>`;
 
   revContentEl.append(
     highlightWikitext(rev.content, true, segmentMarkers)

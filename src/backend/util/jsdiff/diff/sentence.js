@@ -1,5 +1,4 @@
-import Diff from './base';
-
+import Diff from './base.js';
 
 export const sentenceDiff = new Diff();
 sentenceDiff.tokenize = function(value) {
