@@ -11,6 +11,7 @@ export type MwRevEntity = {
   revid: number,
   parentid: number,
   segments: MwOwnSegment[],
+  has_segments?: boolean,
   json: MwRevision
 };
 
@@ -74,11 +75,14 @@ export class MwDbInterface {
     rev.pageid = toInt(rev.pageid);
     rev.parentid = toInt(rev.parentid);
     rev.userid = toInt(rev.userid);
+    rev.has_segments = revEntity.has_segments || false;
+
     if (loadMode === 'content' || loadMode === 'contentAndPrev') {
       rev.segments = revEntity.segments;
     } else {
       delete rev.content;
     }
+
     if (loadMode === 'contentAndPrev' && isNotEmpty(rev.parentid) && isInt(rev.parentid) && rev.parentid !== 0) {
       const prev = await this.getSavedRevision(rev.parentid, 'content');
       rev.prevContent = prev.content;
@@ -86,6 +90,7 @@ export class MwDbInterface {
         langCode: 'EN' // TODO support other languages
       });
     }
+
     return rev;
   }
 
