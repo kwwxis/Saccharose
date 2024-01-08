@@ -291,7 +291,7 @@ async function revSelect(page: MwArticleInfo, revId: number, parentId: number) {
           <div class="prop">
             <a class="prop-label">${escapeHtml(owner)}</a>
             <span class="prop-values">
-              <span>${((textSize / rev.content.length) * 100) | 0}%</span>
+              <span>${((textSize / rev.content.length) * 100.0).toFixed(2)}%</span>
             </span>
           </div>
         `;
