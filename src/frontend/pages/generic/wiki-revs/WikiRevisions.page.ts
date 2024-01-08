@@ -93,12 +93,17 @@ class PollContext {
   constructor(readonly page: MwArticleInfo, readonly jobId: string) {}
 
   async poll() {
-    const jobPoll: Pick<ScriptJobState<'mwRevSave'>, 'job_id' | 'run_complete' | 'run_log' | 'run_end'>
-      = await genericEndpoints.getJob.get({ jobId: this.jobId, fields: 'job_id,run_complete,run_log,run_end' });
+    const jobPoll: Pick<ScriptJobState<'mwRevSave'>, 'job_id' | 'run_complete' | 'run_log' | 'run_end' | 'result_error'>
+      = await genericEndpoints.getJob.get({ jobId: this.jobId, fields: 'job_id,run_complete,run_log,run_end,result_error' });
 
     const runLogCurrSize: number = jobPoll.run_log.length;
     const runLogEl: HTMLElement = document.querySelector('#run-log');
     runLogEl.innerHTML = jobPoll.run_log.map(s => `<div>${escapeHtml(s)}</div>`).join('\n');
+
+    if (jobPoll.result_error) {
+      runLogEl.innerHTML += `<br /><br /><div>Fatal error:</div><div>${escapeHtml(jobPoll.result_error)}</div>`;
+      return;
+    }
 
     if (runLogCurrSize === this.runLogLastSize) {
       this.runLogNumTimesSameSize++;

@@ -131,14 +131,14 @@ export class ScriptJobsCoordinator {
     await this.knex('script_jobs')
       .where('run_complete', false)
       .where('run_start', '<', Date.now() - this.MAX_JOB_RUNTIME_MS)
-      .update({ run_complete: true })
+      .update({ run_complete: true, result_error: 'Job timed out.' })
       .then();
   }
 
   async markAllComplete() {
     await this.knex('script_jobs')
       .where('run_complete', false)
-      .update({ run_complete: true })
+      .update({ run_complete: true, result_error: 'Job timed out.' })
       .then();
   }
 
@@ -304,15 +304,13 @@ export class ScriptJob<T extends ScriptJobAction> {
     process.on('uncaughtException', (err) => {
       console.error('uncaughtException!', err);
       this.complete({
-        result_msg: 'Unhandled exception!',
-        result_error: 'Unhandled exception! ' + String(err),
+        result_error: 'Job failed due to an unhandled exception.'
       }).then(() => this.exit());
     });
     process.on('unhandledRejection', (err) => {
       console.error('unhandledRejection!', err);
       this.complete({
-        result_msg: 'Unhandled rejection!',
-        result_error: 'Unhandled rejection! ' + String(err),
+        result_error: 'Job failed due to an unhandled promise rejection.'
       }).then(() => this.exit());
     });
   }

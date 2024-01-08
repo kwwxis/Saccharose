@@ -15,11 +15,8 @@ intlDiff.equals = function(left, right) {
 };
 
 intlDiff.tokenize = function(value) {
-  console.log('segmenting...');
   const segmenter = new Intl.Segmenter(LANG_CODE_TO_LOCALE[this.options.langCode || 'EN'], { granularity: 'word' });
-  const segments = Array.from(segmenter.segment(value)).map(s => s.segment);
-  console.log('segmented!');
-  return segments;
+  return Array.from(segmenter.segment(value)).map(s => s.segment);
 };
 
 export function generateOptions(options, defaults: Partial<JsIntlDiffOptions>) {

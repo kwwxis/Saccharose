@@ -127,6 +127,7 @@ export async function computeRevSegments(client: MwClientInterface, allRevs: MwR
       }
     } finally {
       chunkNum++;
+      await flushUpdateBatch(true);
       for (let j = i; j < i + chunkSize; j++) {
         delete allRevs[j];
       }
@@ -198,9 +199,9 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     });
     await job.exit();
   } catch (e) {
-    await job.log('Job failed!');
+    await job.log('Job failed!', e);
     await job.complete({
-      result_error: String(e)
+      result_error: 'Job failed due to an unhandled exception.'
     });
     await job.exit();
   }
