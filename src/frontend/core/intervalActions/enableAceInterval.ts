@@ -1,5 +1,6 @@
-import { highlightReplace, highlightWikitextReplace } from '../ace/wikitextEditor.ts';
+
 import autosize from 'autosize';
+import { highlightReplace, highlightWikitextReplace } from '../ace/aceHighlight.ts';
 
 export function enableAceInterval() {
   document.querySelectorAll<HTMLTextAreaElement>('textarea.wikitext').forEach(el => {
@@ -11,7 +12,7 @@ export function enableAceInterval() {
   document.querySelectorAll<HTMLTextAreaElement>('textarea.json').forEach(el => {
     if (el.closest('.hide'))
       return;
-    highlightReplace(el, 'ace/mode/json');
+    highlightReplace(el, { mode: 'ace/mode/json' });
   });
 
   document.querySelectorAll<HTMLTextAreaElement>('textarea.autosize').forEach(el => {

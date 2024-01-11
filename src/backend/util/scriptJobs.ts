@@ -2,14 +2,14 @@ import { closeKnex, openPg } from './db.ts';
 import { Knex } from 'knex';
 import { passthru, shellEscapeArg } from './shellutil.ts';
 import { getNodeEnv } from '../loadenv.ts';
-import { uuidv4 } from '../../shared/util/uuidv4.ts';
+import { NIL_UUID, uuidv4 } from '../../shared/util/uuidv4.ts';
 import { custom } from './logger.ts';
 import { RequestSiteMode } from '../routing/requestContext.ts';
 import { isEquiv } from '../../shared/util/arrayUtil.ts';
 
 export interface ScriptJobPostResult<T extends ScriptJobAction> {
   message: string,
-  posted: 'created_ack' | 'created_noack' | 'already_exists',
+  posted: 'created_ack' | 'created_noack' | 'already_exists' | 'not_needed',
   job: ScriptJobState<T>
 }
 
@@ -18,6 +18,16 @@ export interface ScriptJobState<T extends ScriptJobAction> {
    * Unique ID for the job.
    */
   job_id: string,
+
+  /**
+   * PID of the job process.
+   */
+  job_pid: number,
+
+  /**
+   * Exit code of the job process after completion.
+   */
+  job_exit_code: number,
 
   /**
    * Indicates the job has been received (acknowledged) but is not necessarily complete yet.
@@ -109,6 +119,7 @@ export type ScriptJobInput<T extends ScriptJobAction> = ScriptJobActionArgs<T> &
 };
 
 export class ScriptJobsCoordinator {
+  readonly JOB_DELETE_TIME_MS: number = 60_480_000; // 1 week
   readonly MAX_JOB_RUNTIME_MS: number = 60 * 60 * 1000; // 1 hour
   private knex: Knex;
   private postQueue: {action: ScriptJobAction, args: ScriptJobActionArgs<any>, postComplete: (postResult: ScriptJobPostResult<any>) => void}[] = [];
@@ -134,7 +145,17 @@ export class ScriptJobsCoordinator {
       .then();
   }
 
-  async markAllComplete() {
+  /**
+   * This function should only be run on application startup!!
+   */
+  async cleanup() {
+    // Delete old jobs:
+    await this.knex('script_jobs')
+      .where('run_end', '<', Date.now() - this.JOB_DELETE_TIME_MS)
+      .delete()
+      .then();
+
+    // Mark jobs that are incomplete as complete:
     await this.knex('script_jobs')
       .where('run_complete', false)
       .update({ run_complete: true, result_error: 'Job timed out (app startup cleanup)' })
@@ -160,6 +181,9 @@ export class ScriptJobsCoordinator {
   }
 
   async getState<T extends ScriptJobAction>(jobId: string): Promise<ScriptJobState<T>> {
+    if (jobId === NIL_UUID) {
+      return this.createNotNeededState(null, {});
+    }
     return await this.knex.select('*').from('script_jobs').where({ job_id: jobId }).first().then();
   }
 
@@ -172,6 +196,33 @@ export class ScriptJobsCoordinator {
       .update(state)
       .then();
     return (await this.getState(jobId)) as ScriptJobState<T>;
+  }
+
+  private createNotNeededState<T extends ScriptJobAction>(action: T, args: ScriptJobActionArgs<T>): ScriptJobState<T> {
+    return {
+      job_id: NIL_UUID,
+      job_pid: 0,
+      job_exit_code: 0,
+      run_complete: true,
+      run_ack: true,
+      run_action: null,
+      run_args: {
+        jobId: NIL_UUID,
+        action,
+        ... (args || {})
+      } as any,
+      run_start: Date.now(),
+      run_end: Date.now(),
+      run_log: [],
+    };
+  }
+
+  createNotNeededResult<T extends ScriptJobAction>(action: T, args: ScriptJobActionArgs<T>): ScriptJobPostResult<T> {
+    return {
+      message: 'Posting this job would not be needed due to the intended goal already being satisfied. Thus no job was posted.',
+      posted: 'not_needed',
+      job: this.createNotNeededState(action, args),
+    };
   }
 
   async post<T extends ScriptJobAction>(action: T, args: ScriptJobActionArgs<T>): Promise<ScriptJobPostResult<T>> {
@@ -258,8 +309,17 @@ export class ScriptJobsCoordinator {
 
     // noinspection ES6MissingAwait (no await here, detached job)
     passthru(`${cmd} ${shellEscapeArg(script)} ${shellEscapeArg(JSON.stringify(input))}`,
-      child => {
+      async child => {
         postDebug(`Spawned job ${input.jobId} with PID ` + child.pid);
+        await this.updateState(input.jobId, {
+          job_pid: child.pid,
+        });
+      },
+      async exitCode => {
+        await this.updateState(input.jobId, {
+          run_complete: true,
+          job_exit_code: exitCode,
+        });
       },
       data => {
         if (data.trim().length)

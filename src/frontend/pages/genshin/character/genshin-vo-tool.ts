@@ -91,6 +91,9 @@ export class GenshinVoAppPreloadConfig extends VoAppPreloadConfig {
     if (title === `{character}'s Hobbies`) {
       title = 'Hobbies';
     }
+    if (title === `{character}'s Troubles`) {
+      title = 'Troubles';
+    }
 
     if (title.startsWith('Feelings About Ascension - ')) {
       title = title.replace('Feelings About Ascension - Intro', 'Feelings About Ascension - 01');

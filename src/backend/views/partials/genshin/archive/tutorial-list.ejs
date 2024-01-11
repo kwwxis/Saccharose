@@ -50,7 +50,7 @@
           <div class="posRel">
             <textarea id="tutorial-<%= tutorial.Id %>-wikitext"
                       readonly class="w100p wikitext autosize" spellcheck="false" translate="no"
-                      data-markers="<%= Marker.joinedString(tutorial.WikitextMarkers) %>"><%= tutorial.Wikitext %></textarea>
+                      data-markers="<%= Marker.joining(tutorial.WikitextMarkers) %>"><%= tutorial.Wikitext %></textarea>
             <button class="secondary small posAbs" ui-action="copy: #tutorial-<%= tutorial.Id %>-wikitext"
                     style="right: 0; top: 0;"
                     ui-tippy-hover="Click to copy to clipboard"

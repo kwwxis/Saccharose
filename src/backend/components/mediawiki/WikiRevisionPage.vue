@@ -1,5 +1,6 @@
 <template>
   <meta name="x-pageid" :content="meta_pageid" />
+  <meta name="x-revid" :content="meta_revid" />
   <meta name="x-page" :content="JSON.stringify(page)" />
   <section class="card" v-if="!has_pageid">
     <h2>Wiki Revisions</h2>
@@ -56,8 +57,11 @@
           <fieldset>
             <legend>Contributors list</legend>
             <div class="content">
-              <p class="spacer5-bottom">List of users who have contributions in this revision.
-                If a user had previously contributed to this page, but no longer have any contributions in this revision, then they won't be show in this list.</p>
+              <div class="valign">
+                <p class="spacer5-bottom grow">List of users who have contributions in this revision.
+                  If a user had previously contributed to this page, but no longer have any contributions in this revision, then they won't be show in this list.</p>
+                <div id="rev-contributors-sort-menu" class="posRel no-shrink"></div>
+              </div>
               <div id="rev-contributors"></div>
             </div>
           </fieldset>
@@ -81,13 +85,17 @@ import { MwArticleInfo } from '../../../shared/mediawiki/mwTypes.ts';
 import { getTrace } from '../../middleware/request/tracer.ts';
 import { toParam } from '../../../shared/util/stringUtil.ts';
 
-const {pageid, page} = defineProps<{
+const {pageid, page, revid} = defineProps<{
   pageid?: number,
+  revid?: number,
   page?: MwArticleInfo,
 }>();
 
 const has_pageid: boolean = isInt(pageid);
-const meta_pageid: string = isInt(pageid) ? String(pageid) : '';
+const has_revid: boolean = isInt(revid);
+
+const meta_pageid: string = has_pageid ? String(pageid) : '';
+const meta_revid: string = has_revid ? String(revid) : '';
 
 const { ctx } = getTrace();
 const openPageInWikiLink = has_pageid ? `https://${ctx.siteModeWikiDomain}/wiki/${toParam(page.title)}` : null;

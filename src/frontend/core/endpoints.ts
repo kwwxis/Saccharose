@@ -13,6 +13,11 @@ import { ScriptJobPostResult, ScriptJobState } from '../../backend/util/scriptJo
 import { MwArticleInfo, MwArticleSearchResult, MwRevision, MwRevLoadMode } from '../../shared/mediawiki/mwTypes.ts';
 import { RequireOnlyOne } from '../../shared/types/utility-types.ts';
 
+export type ApiParams<T> = T & {
+  fields?: string,
+  apiKey?: string,
+};
+
 export abstract class SaccharoseApiEndpoint<T extends Object, R = any> {
   readonly uri: string;
 
@@ -23,48 +28,48 @@ export abstract class SaccharoseApiEndpoint<T extends Object, R = any> {
     this.uri = this.base_uri + uri;
   }
 
-  get(params: T): Promise<R>;
-  get(params: T, asHTML: false): Promise<R>;
-  get(params: T, asHTML: true): Promise<string>;
-  get<H extends boolean>(params: T, asHTML: H): Promise<H extends true ? string : R>;
+  get(params: ApiParams<T>): Promise<R>;
+  get(params: ApiParams<T>, asHTML: false): Promise<R>;
+  get(params: ApiParams<T>, asHTML: true): Promise<string>;
+  get<H extends boolean>(params: ApiParams<T>, asHTML: H): Promise<H extends true ? string : R>;
 
-  get(params: T, asHTML: boolean = false): Promise<any> {
+  get(params: ApiParams<T>, asHTML: boolean = false): Promise<any> {
     return this.request('get', params, asHTML);
   }
 
-  post(params: T): Promise<R>;
-  post(params: T, asHTML: false): Promise<R>;
-  post(params: T, asHTML: true): Promise<string>;
-  post<H extends boolean>(params: T, asHTML: H): Promise<H extends true ? string : R>;
+  post(params: ApiParams<T>): Promise<R>;
+  post(params: ApiParams<T>, asHTML: false): Promise<R>;
+  post(params: ApiParams<T>, asHTML: true): Promise<string>;
+  post<H extends boolean>(params: ApiParams<T>, asHTML: H): Promise<H extends true ? string : R>;
 
-  post(params: T, asHTML: boolean = false): Promise<any> {
+  post(params: ApiParams<T>, asHTML: boolean = false): Promise<any> {
     return this.request('post', params, asHTML);
   }
 
-  put(params: T): Promise<R>;
-  put(params: T, asHTML: false): Promise<R>;
-  put(params: T, asHTML: true): Promise<string>;
-  put<H extends boolean>(params: T, asHTML: H): Promise<H extends true ? string : R>;
+  put(params: ApiParams<T>): Promise<R>;
+  put(params: ApiParams<T>, asHTML: false): Promise<R>;
+  put(params: ApiParams<T>, asHTML: true): Promise<string>;
+  put<H extends boolean>(params: ApiParams<T>, asHTML: H): Promise<H extends true ? string : R>;
 
-  put(params: T, asHTML: boolean = false): Promise<any> {
+  put(params: ApiParams<T>, asHTML: boolean = false): Promise<any> {
     return this.request('put', params, asHTML);
   }
 
-  delete(params: T): Promise<R>;
-  delete(params: T, asHTML: false): Promise<R>;
-  delete(params: T, asHTML: true): Promise<string>;
-  delete<H extends boolean>(params: T, asHTML: H): Promise<H extends true ? string : R>;
+  delete(params: ApiParams<T>): Promise<R>;
+  delete(params: ApiParams<T>, asHTML: false): Promise<R>;
+  delete(params: ApiParams<T>, asHTML: true): Promise<string>;
+  delete<H extends boolean>(params: ApiParams<T>, asHTML: H): Promise<H extends true ? string : R>;
 
-  delete(params: T, asHTML: boolean = false) {
+  delete(params: ApiParams<T>, asHTML: boolean = false) {
     return this.request('delete', params, asHTML);
   }
 
-  request(method: Method, params: T): Promise<R>;
-  request(method: Method, params: T, asHTML: false): Promise<R>;
-  request(method: Method, params: T, asHTML: true): Promise<string>;
-  request<H extends boolean>(method: Method, params: T, asHTML: H): Promise<H extends true ? string : R>;
+  request(method: Method, params: ApiParams<T>): Promise<R>;
+  request(method: Method, params: ApiParams<T>, asHTML: false): Promise<R>;
+  request(method: Method, params: ApiParams<T>, asHTML: true): Promise<string>;
+  request<H extends boolean>(method: Method, params: ApiParams<T>, asHTML: H): Promise<H extends true ? string : R>;
 
-  request(method: Method, params: T, asHTML: boolean = false): Promise<any> {
+  request(method: Method, params: ApiParams<T>, asHTML: boolean = false): Promise<any> {
     const currentUrlParams = new URLSearchParams(window.location.search);
     params['input'] = currentUrlParams.get('input');
     params['output'] = currentUrlParams.get('output');
@@ -278,7 +283,6 @@ export const genericEndpoints = {
 
   getJob: new GenericApiEndpoint<{
     jobId: string,
-    fields?: string,
   }, ScriptJobState<any>>('/jobs/{jobId}'),
 
   getArticleInfo: new GenericApiEndpoint<{

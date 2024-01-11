@@ -1,5 +1,5 @@
 import { escapeHtml } from '../../shared/util/stringUtil.ts';
-import { getFocusableSelector, isElement } from './domutil.ts';
+import { getFocusableSelector, isHTMLElement } from './domutil.ts';
 import { runWhenDOMContentLoaded } from './eventListen.ts';
 
 const TYPE_ALERT = 0;
@@ -142,7 +142,7 @@ class ModalService {
     MODAL_REFS[id] = modalRef;
 
     modalOuterEl.addEventListener('click', (event) => {
-      if (isElement(event.target) && !event.target.closest('.modal')) {
+      if (isHTMLElement(event.target) && !event.target.closest('.modal')) {
         modalRef.close();
       }
     })

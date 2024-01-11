@@ -3,7 +3,7 @@ import { flashTippy } from '../../../util/tooltipUtil.ts';
 import { createVoHandle } from './vo-handle.ts';
 import { VoAppState } from './vo-tool.ts';
 import { modalService } from '../../../util/modalService.ts';
-import { createWikitextEditor } from '../../../core/ace/wikitextEditor.ts';
+import { createWikitextEditor } from '../../../core/ace/aceEditor.ts';
 import { humanTiming } from '../../../../shared/util/genericUtil.ts';
 import { sort } from '../../../../shared/util/arrayUtil.ts';
 import { LangCode } from '../../../../shared/types/lang-types.ts';

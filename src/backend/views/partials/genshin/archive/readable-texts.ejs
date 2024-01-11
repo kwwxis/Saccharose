@@ -42,7 +42,7 @@
                 ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">Copy</button>
       </div>
       <textarea id="wikitext-<%= itemRef %>-text" readonly
-                data-markers="<%= Marker.joinedString(item.Markers?.ReadableText) %>"
+                data-markers="<%= Marker.joining(item.Markers?.ReadableText) %>"
                 class="w100p wikitext autosize" spellcheck="false" translate="no"
                 style="padding-right:46px"><%= item.ReadableText %></textarea>
     </div>
@@ -67,7 +67,7 @@
                 ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">Copy</button>
       </div>
       <textarea id="wikitext-<%= itemRef %>-dialogue" readonly
-                data-markers="<%= Marker.joinedString(item.Markers?.ReadableTextAsDialogue) %>"
+                data-markers="<%= Marker.joining(item.Markers?.ReadableTextAsDialogue) %>"
                 class="w100p wikitext autosize" spellcheck="false" translate="no"><%= item.ReadableTextAsDialogue %></textarea>
     </div>
 
@@ -87,7 +87,7 @@
                 ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">Copy</button>
       </div>
       <textarea id="wikitext-<%= itemRef %>-template" readonly
-                data-markers="<%= Marker.joinedString(item.Markers?.ReadableTextAsTemplate) %>"
+                data-markers="<%= Marker.joining(item.Markers?.ReadableTextAsTemplate) %>"
                 class="w100p wikitext autosize" spellcheck="false" translate="no"><%= item.ReadableTextAsTemplate %></textarea>
     </div>
 

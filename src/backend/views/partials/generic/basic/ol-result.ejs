@@ -25,7 +25,7 @@
           <% } %>
         <% } %>
         <textarea id="ol-result-<%= idx %>" readonly spellcheck="false" translate="no" class="ol-result-textarea wikitext w100p spacer5-top"
-                  style="resize:vertical;overflow:auto;font-size:13px;" data-markers="<%= Marker.joinedString(olResult.markers) %>"><%= olResult.result %></textarea>
+                  style="resize:vertical;overflow:auto;font-size:13px;" data-markers="<%= Marker.joining(olResult.markers) %>"><%= olResult.result %></textarea>
         <% if (olResult.duplicateTextMapHashes.length) { %>
           <h5>Duplicate TextMapHashes</h5>
           <p class="spacer5-bottom">List of TextMapHashes whose values are duplicates of <%= olResult.textMapHash %> across all languages.<br>

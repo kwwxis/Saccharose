@@ -32,6 +32,7 @@ async function postRevSave(req: Request): Promise<ScriptJobPostResult<'mwRevSave
 
   const siteMode: RequestSiteMode = String(req.query.siteMode) as RequestSiteMode;
   const articleInfo: MwArticleInfo = await mwClient.getArticleInfo(titleOrId);
+  const hasLatestRevision: boolean = await mwClient.db.hasRevision(articleInfo.lastrevid);
 
   if (!articleInfo) {
     throw HttpError.badRequest('InvalidParameter', `No article found with the provided parameters.`);
@@ -43,7 +44,11 @@ async function postRevSave(req: Request): Promise<ScriptJobPostResult<'mwRevSave
     resegment: toBoolean(req.query.resegment)
   };
 
-  return await ScriptJobCoordinator.post('mwRevSave',  args);
+  if (hasLatestRevision) {
+    return ScriptJobCoordinator.createNotNeededResult('mwRevSave', args);
+  } else {
+    return await ScriptJobCoordinator.post('mwRevSave',  args);
+  }
 }
 
 export default function(router: Router): void {

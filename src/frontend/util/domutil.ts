@@ -275,7 +275,7 @@ export async function pasteFromClipboard(target: HTMLInputElement|HTMLTextAreaEl
 async function imageAsBlob(image: HTMLImageElement|Blob): Promise<Blob> {
   let blob: Blob;
 
-  if (isElement(image)) {
+  if (isHTMLElement(image)) {
     const canvas = document.createElement('canvas');
     canvas.width = image.naturalWidth;
     canvas.height = image.naturalHeight;
@@ -505,10 +505,17 @@ export function isNode(o): o is Node {
   );
 }
 
-export function isElement(o): o is HTMLElement {
+export function isElement(o): o is Element {
+  return (
+    typeof Element === "object" ? o instanceof Element : //DOM2
+      o && typeof o === "object" && o.nodeType === 1 && typeof o.nodeName === "string"
+  );
+}
+
+export function isHTMLElement(o): o is HTMLElement {
   return (
     typeof HTMLElement === "object" ? o instanceof HTMLElement : //DOM2
-      o && typeof o === "object" && o.nodeType === 1 && typeof o.nodeName==="string"
+      o && typeof o === "object" && o.nodeType === 1 && typeof o.nodeName === "string"
   );
 }
 
@@ -535,7 +542,7 @@ export function frag(html: string|Node|NodeList|Node[]|HTMLElement) {
     return document.createDocumentFragment();
   }
 
-  if (isElement(html) && html.tagName.toUpperCase() == 'TEMPLATE') {
+  if (isHTMLElement(html) && html.tagName.toUpperCase() == 'TEMPLATE') {
     html = html.innerHTML.trim();
   }
 
@@ -613,6 +620,37 @@ export function textNodesUnder(el: Element): Text[] {
   let n: Text;
   while(n = <Text> walk.nextNode()) a.push(n);
   return a;
+}
+
+/**
+ * Returns an array of the target element and all it's immediate sibligns that have the same class
+ *
+ * @param target The element to start at.
+ * @param cls The class to check for.
+ *  - If the target doesn't have this class, then this function will return an empty array.
+ *  - If this argument is not set, then an array of just the target element will be returned.
+ */
+export function getSiblingsOfSameClass(target: Element, cls: string) {
+  if (!cls) {
+    return [target];
+  }
+  if (!target.classList.contains(cls)) {
+    return [];
+  }
+  const result: Element[] = [];
+
+  let curr: Element = target.previousElementSibling;
+  while (curr && curr.classList.contains(cls)) {
+    result.unshift(curr);
+    curr = curr.previousElementSibling;
+  }
+
+  curr = target;
+  while (curr && curr.classList.contains(cls)) {
+    result.push(curr);
+    curr = curr.nextElementSibling;
+  }
+  return result;
 }
 
 /**

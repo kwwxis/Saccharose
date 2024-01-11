@@ -7,3 +7,7 @@ export function uuidv4(): string {
     (c ^ global.crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16),
   );
 }
+
+export const NIL_UUID = `0000000-0000-0000-0000-000000000000`;
+
+export const MAX_UUID = `ffffffff-ffff-ffff-ffff-ffffffffffff`;

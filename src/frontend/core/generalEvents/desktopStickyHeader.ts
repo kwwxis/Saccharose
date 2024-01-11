@@ -1,5 +1,5 @@
 import { Listener } from '../../util/eventListen.ts';
-import { recalculateAceLinePanelPositions } from '../ace/listeners/wikitextLineActions.ts';
+import { recalculateAceLinePanelPositions } from '../ace/staticActions/wikitextLineActions.ts';
 
 export function recalculateDesktopStickyHeader() {
   let scrollY = window.scrollY;

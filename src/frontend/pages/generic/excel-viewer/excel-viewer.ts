@@ -21,34 +21,34 @@ import { sort } from '../../../../shared/util/arrayUtil.ts';
 import { listen } from '../../../util/eventListen.ts';
 import {
   copyImageToClipboard,
-  DOMClassWatcher,
   downloadImage,
   downloadObjectAsJson,
   getTextWidth,
 } from '../../../util/domutil.ts';
 import { ICellRendererParams } from 'ag-grid-community/dist/lib/rendering/cellRenderers/iCellRenderer';
-import { highlightJson, highlightWikitext } from '../../../core/ace/wikitextEditor.ts';
 import { isNotEmpty, isUnset } from '../../../../shared/util/genericUtil.ts';
 import { booleanFilter } from './excel-custom-filters.ts';
 import SiteMode from '../../../core/userPreferences/siteMode.ts';
 import { ExcelViewerDB, invokeExcelViewerDB } from './excel-viewer-storage.ts';
 import { StoreNames } from 'idb/build/entry';
 import { GridReadyEvent } from 'ag-grid-community/dist/lib/events';
+import { highlightJson, highlightWikitext } from '../../../core/ace/aceHighlight.ts';
+import { onSiteThemeChange } from '../../../core/userPreferences/siteTheme.ts';
 
 function initializeThemeWatcher(elements: HTMLElement[]) {
-  new DOMClassWatcher('body', 'nightmode',
-    () => {
+  onSiteThemeChange(theme => {
+    if (theme === 'nightmode') {
       for (let element of elements) {
         element.classList.remove('ag-theme-alpine');
         element.classList.add('ag-theme-alpine-dark');
       }
-    },
-    () => {
+    } else {
       for (let element of elements) {
         element.classList.remove('ag-theme-alpine-dark');
         element.classList.add('ag-theme-alpine');
       }
-    });
+    }
+  });
 }
 
 function makeSingleColumnDef(fieldKey: string, fieldName: string, data: any) {
@@ -107,7 +107,7 @@ function makeSingleColumnDef(fieldKey: string, fieldName: string, data: any) {
     };
   } else if (dataType.isWikitext) {
     colDef.cellRenderer = function(params: ICellRendererParams) {
-      return !params.value ? '' : highlightWikitext(params.value).outerHTML;
+      return !params.value ? '' : highlightWikitext({ text: String(params.value) }).outerHTML;
     };
   } else if (typeof data === 'object') {
     colDef.cellRenderer = function(params: ICellRendererParams) {
@@ -119,7 +119,7 @@ function makeSingleColumnDef(fieldKey: string, fieldName: string, data: any) {
           return '';
         }
       }
-      return highlightJson(JSON.stringify(params.value)).outerHTML;
+      return highlightJson({ text: JSON.stringify(params.value) }).outerHTML;
     };
   } else if (dataType.isEnum) {
     colDef.cellRenderer = function(params: ICellRendererParams) {

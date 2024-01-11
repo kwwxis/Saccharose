@@ -10,14 +10,16 @@ import { escapeHtml, toParam } from '../../../../shared/util/stringUtil.ts';
 import { defaultMap, humanTiming, isEmpty, timeConvert } from '../../../../shared/util/genericUtil.ts';
 import { createElement, getElementOffset } from '../../../util/domutil.ts';
 import { listen } from '../../../util/eventListen.ts';
-import { highlightWikitext } from '../../../core/ace/wikitextEditor.ts';
 import { Marker } from '../../../../shared/util/highlightMarker.ts';
 import { MwOwnSegment } from '../../../../backend/mediawiki/mwOwnSegmentHolder.ts';
 import { IndexedRange, inRange, intersectRange, sort } from '../../../../shared/util/arrayUtil.ts';
 import { MouseEvent } from 'react';
+import { isNightmode } from '../../../core/userPreferences/siteTheme.ts';
+import { highlightWikitext } from '../../../core/ace/aceHighlight.ts';
 
 pageMatch('vue/WikiRevisionPage', async () => {
   const pageId: number = toInt(document.querySelector<HTMLMetaElement>('meta[name="x-pageid"]')?.content);
+  const revid: number = toInt(document.querySelector<HTMLMetaElement>('meta[name="x-revid"]')?.content);
 
   if (!isInt(pageId)) {
     startGenericSearchPageListeners({
@@ -42,7 +44,7 @@ pageMatch('vue/WikiRevisionPage', async () => {
     return;
   }
 
-  await init(pageId);
+  await init(pageId, revid);
 });
 
 function setInitError(message: string){
@@ -50,7 +52,7 @@ function setInitError(message: string){
   infoEl.innerHTML = `<div class="content"><p class="warn-notice">${escapeHtml(message)}</p></div>`;
 }
 
-async function init(pageId: number) {
+async function init(pageId: number, initialRevId?: number) {
   const infoEl: HTMLElement = document.getElementById('tabpanel-revHome');
 
   const page: MwArticleInfo = JSON.parse(document.querySelector<HTMLMetaElement>('meta[name="x-page"]')?.content);
@@ -71,26 +73,39 @@ async function init(pageId: number) {
     return;
   }
 
-  infoEl.innerHTML = `
-  <h3 class="secondary-header">Script job run log</h3>
-  <div class="content">
-    <p>Successfully posted script job: ${postResult.message}</p>
-    <p>Job ID: <span class="code">${postResult.job.job_id}</span></p>
-    <p>You can exit this page and come back if it's taking a while. The job will continue running in the background.</p>
-    <div id="run-log" class="code" style="font-size: 12px; line-height: 1.8em; padding: 15px 1px 0"></div>
-  </div>
-  <div id="rev-list"></div>
-  `;
-
+  console.log('Article Info', page);
   console.log('Script Job Posted:', postResult.job);
-  await (new PollContext(page, postResult.job.job_id)).poll();
+
+  if (postResult.posted === 'not_needed') {
+    infoEl.innerHTML = `
+      <h3 class="secondary-header">Script job run log</h3>
+      <div class="content">
+        <p>No need to run job: Saccharose is already at the latest revision for this article.</p>
+      </div>
+      <div id="rev-list"></div>
+    `;
+    await load(page, initialRevId);
+  } else {
+    infoEl.innerHTML = `
+      <h3 class="secondary-header">Script job run log</h3>
+      <div class="content">
+        <p>Successfully posted script job: ${postResult.message}</p>
+        <p>Job ID: <span class="code">${postResult.job.job_id}</span></p>
+        <p>You can exit this page and come back if it's taking a while. The job will continue running in the background.</p>
+        <div id="run-log" class="code" style="font-size: 12px; line-height: 1.8em; padding: 15px 1px 0"></div>
+      </div>
+      <div id="rev-list"></div>
+    `;
+
+    await (new PollContext(page, postResult.job.job_id, initialRevId)).poll();
+  }
 }
 
 class PollContext {
   private runLogLastSize: number = 0;
   private runLogNumTimesSameSize: number = 0;
 
-  constructor(readonly page: MwArticleInfo, readonly jobId: string) {}
+  constructor(readonly page: MwArticleInfo, readonly jobId: string, readonly initialRevId?: number) {}
 
   async poll() {
     const jobPoll: Pick<ScriptJobState<'mwRevSave'>, 'job_id' | 'run_complete' | 'run_log' | 'run_end' | 'result_error'>
@@ -122,7 +137,10 @@ class PollContext {
 
     if (jobPoll.run_complete && jobPoll.run_end) {
       console.log('Script Job Poll:', jobPoll, `Next Poll: n/a (complete)`);
-      genericEndpoints.getJob.get({ jobId: this.jobId }).then(job => load(this.page, job));
+      genericEndpoints.getJob.get({ jobId: this.jobId }).then(async job => {
+        console.log('Script Job Complete:', job);
+        await load(this.page, this.initialRevId);
+      });
     } else {
       console.log('Script Job Poll:', jobPoll, `Next Poll: ${timeout} ms`);
       setTimeout(() => this.poll(), timeout);
@@ -130,11 +148,9 @@ class PollContext {
   }
 }
 
-
-async function load(page: MwArticleInfo, job: ScriptJobState<'mwRevSave'>) {
-  console.log('Script Job Complete:', job);
-
+async function load(page: MwArticleInfo, initialRevId?: number) {
   const infoEl: HTMLElement = document.getElementById('tabpanel-revHome');
+  const chevronDownIconHtml: string = document.getElementById('template-chevron-down').innerHTML;
   const revListEl: HTMLElement = createElement('div', {
     id: 'rev-list',
     innerHTML: `
@@ -143,11 +159,11 @@ async function load(page: MwArticleInfo, job: ScriptJobState<'mwRevSave'>) {
         <span class="grow"></span>
         <div class="posRel fontWeight500">
           <button class="secondary no-active-style small" ui-action="dropdown: #rev-sort-dropdown">
-            <span>Sort: <strong id="rev-sort-dropdown-current">Newest to Oldest</strong></span>
+            <span class="valign">Sort: <strong id="rev-sort-dropdown-current" class="spacer3-horiz">Newest to Oldest</strong> ${chevronDownIconHtml}</span>
           </button>
           <div id="rev-sort-dropdown" class="ui-dropdown">
-            <div data-value="flexColumn" class="option" ui-action="close-dropdown">Oldest to Newest</div>
             <div data-value="flexColumnReverse" class="option selected" ui-action="close-dropdown">Newest to Oldest</div>
+            <div data-value="flexColumn" class="option" ui-action="close-dropdown">Oldest to Newest</div>
           </div>
         </div>
       </h3>
@@ -211,29 +227,32 @@ async function load(page: MwArticleInfo, job: ScriptJobState<'mwRevSave'>) {
 
         const mwRevEl: HTMLElement = target.closest('.mw-rev');
         const revId: number = toInt(mwRevEl.getAttribute('data-revid'));
-        const parentId: number = toInt(mwRevEl.getAttribute('data-parentid'));
-        revSelect(page, revId, parentId);
+        revSelect(page, revisions, revId);
       }
     }
   ]);
 
   document.body.append(segmentHoverLabel);
+
+  if (initialRevId) {
+    await revSelect(page, revisions, initialRevId);
+  }
 }
 
 let segmentHoverListener: Function = null;
 const segmentHoverLabel: HTMLElement = createElement('div', {
-  class: 'segment-hover-label hide'
+  class: 'segment-hover-label',
+  style: 'opacity:0'
 });
 
-async function revSelect(page: MwArticleInfo, revId: number, parentId: number) {
+async function revSelect(page: MwArticleInfo, pageRevisions: MwRevision[], revId: number) {
+  const parentId: number = pageRevisions.find(r => r.revid === revId).parentid;
   document.querySelectorAll<HTMLElement>('.curr-rev-id').forEach(el => el.innerText = String(revId));
   document.querySelectorAll<HTMLElement>('.prev-rev-id').forEach(el => el.innerText = String(parentId));
 
   const tabEl: HTMLButtonElement = document.querySelector('#tab-revSelect');
   tabEl.classList.remove('hide');
   tabEl.click();
-
-  const hasParent: boolean = !isEmpty(parentId) && parentId !== 0;
 
   const rev: MwRevision = (await genericEndpoints.getRevisions.get({
     siteMode: SITE_MODE,
@@ -261,6 +280,7 @@ async function revSelect(page: MwArticleInfo, revId: number, parentId: number) {
   const revContentEl: HTMLElement = document.querySelector('#rev-content');
   const revPrevContentEl: HTMLElement = document.querySelector('#rev-prev-content');
   const revContributorsEl: HTMLElement = document.querySelector('#rev-contributors');
+  const revContributorsSortMenuEl: HTMLElement = document.querySelector('#rev-contributors-sort-menu');
 
   revDiffEl.innerHTML = '';
   revContentEl.innerHTML = '';
@@ -268,42 +288,69 @@ async function revSelect(page: MwArticleInfo, revId: number, parentId: number) {
   revContributorsEl.innerHTML = '';
 
   const segmentMarkers: Marker[] = revSegmentsToMarkers(rev.content, rev.segments);
-  console.log('Segment markers:', segmentMarkers);
 
-  const ownerList: {[owner: string]: number} = defaultMap('Zero');
+  const ownerList: {[owner: string]: {owner: string, textSize: number}} = defaultMap((owner: string) => ({ owner, textSize: 0 }));
   for (let segment of rev.segments) {
-    ownerList[segment.owner] += segment.value.length;
+    ownerList[segment.owner].textSize += segment.value.length;
   }
-  revContributorsEl.innerHTML = `
-    <div class="valign meta-props">
-      <div class="prop">
-        <span class="prop-label">Friendship Lv.</span>
-        <span class="prop-values">
-          <span class="prop-value"><%= fetter.OpenCondsSummary.Friendship %></span>
-        </span>
-      </div>
-    </div>
-  `;
-  revContributorsEl.innerHTML =
-    `<div class="valign meta-props">`
-      + sort(Object.entries(ownerList), '0').map(([owner, textSize]) => {
+  function setOwnersListHtml(sortField: 'owner' | '-owner' | 'textSize' | '-textSize') {
+    revContributorsEl.innerHTML =
+      `<div class="valign meta-props">`
+      + sort(Object.values(ownerList), sortField).map(item => {
         return `
           <div class="prop">
-            <a class="prop-label">${escapeHtml(owner)}</a>
+            <a class="prop-label">${escapeHtml(item.owner)}</a>
             <span class="prop-values">
-              <span>${((textSize / rev.content.length) * 100.0).toFixed(2)}%</span>
+              <span>${((item.textSize / rev.content.length) * 100.0).toFixed(2)}%</span>
             </span>
           </div>
         `;
       }).join('')
-    + `</div>`;
+      + `</div>`;
+  }
+
+  const chevronDownIconHtml: string = document.getElementById('template-chevron-down').innerHTML;
+  revContributorsSortMenuEl.innerHTML = `
+    <button class="secondary no-active-style small" ui-action="dropdown: #rev-contributors-sort-dropdown">
+      <span class="valign">Sort: <strong id="rev-contributors-sort-dropdown-current" class="spacer3-horiz">Percentage (desc.)</strong> ${chevronDownIconHtml}</span>
+    </button>
+    <div id="rev-contributors-sort-dropdown" class="ui-dropdown">
+      <div data-value="-textSize" class="option selected" ui-action="close-dropdown">Percentage (desc.)</div>
+      <div data-value="textSize" class="option" ui-action="close-dropdown">Percentage (asc.)</div>
+      <div data-value="owner" class="option" ui-action="close-dropdown">Username (A to Z)</div>
+      <div data-value="-owner" class="option" ui-action="close-dropdown">Username (Z to A)</div>
+    </div>
+  `;
+
+  listen([
+    {
+      selector: '#rev-contributors-sort-dropdown .option',
+      event: 'click',
+      multiple: true,
+      handle(_event, target) {
+        document.querySelectorAll('#rev-contributors-sort-dropdown .option').forEach(el => el.classList.remove('selected'));
+        document.getElementById('rev-contributors-sort-dropdown-current').innerText = target.innerText;
+        target.classList.add('selected');
+        setOwnersListHtml(target.getAttribute('data-value') as any);
+      }
+    }
+  ], revContributorsSortMenuEl);
+
+  setOwnersListHtml('-textSize');
 
   revContentEl.append(
-    highlightWikitext(rev.content, true, segmentMarkers)
+    highlightWikitext({
+      text: rev.content,
+      gutters: true,
+      markers: segmentMarkers
+    })
   );
 
   revPrevContentEl.append(
-    highlightWikitext(rev.prevContent, true)
+    highlightWikitext({
+      text: rev.prevContent,
+      gutters: true
+    })
   );
 
   if (segmentHoverListener != null) {
@@ -311,104 +358,150 @@ async function revSelect(page: MwArticleInfo, revId: number, parentId: number) {
   }
 
   let unhoverTimeout: any = null;
+  let unhoverTimeout2: any = null;
 
-  function segmentUnhover(useTimeout: boolean = true) {
+  function segmentUnhover() {
     clearTimeout(unhoverTimeout);
+    clearTimeout(unhoverTimeout2);
 
-    const action = () => {
-      document.querySelectorAll('.owner-segment.active').forEach(el => el.classList.remove('active', 'highlight'));
-      segmentHoverLabel.classList.add('hide');
-    };
+    unhoverTimeout = setTimeout(() => {
+      setHighlightOwner(null);
+    }, 70);
 
-    if (useTimeout) {
-      unhoverTimeout = setTimeout(() => action(), 200);
-    } else {
-      action();
-    }
+    unhoverTimeout2 = setTimeout(() => {
+      segmentHoverLabel.style.setProperty('opacity', '0');
+      segmentHoverLabel.classList.remove('active');
+    }, 10);
   }
 
-  function segmentHover(el: HTMLElement, pageX: number, pageY: number) {
-    segmentUnhover(false);
+  function segmentHover(el: HTMLElement) {
+    clearTimeout(unhoverTimeout);
+    clearTimeout(unhoverTimeout2);
 
     const segmentIdx = toInt(el.getAttribute('data-segment-idx'));
     const segment = rev.segments[segmentIdx];
-
-    for (let otherEl of Array.from(document.querySelectorAll(`.owner-segment[data-owner="${escapeHtml(segment.owner)}"]`))) {
-      otherEl.classList.add('active', 'highlight');
+    if (!segment) {
+      console.log('no segment', el);
     }
 
-    segmentHoverLabel.classList.remove('hide');
-    segmentHoverLabel.setAttribute('style', `left:${pageX}px;top:${pageY}px`);
+    setHighlightOwner(segment.owner);
     segmentHoverLabel.innerText = segment.owner;
+    segmentHoverLabel.classList.add('active');
+    segmentHoverLabel.style.setProperty('opacity', '1');
   }
 
   segmentHoverListener = (e: MouseEvent) => {
     // ClientX/ClientY -> coordinates relative to viewport
     // PageX/PageY -> coordinates relative to page (<html> element)
 
-    // elementsFromPoint takes in coordinates relative to viewport:
-    const aceLine: HTMLElement = document.elementsFromPoint(e.clientX, e.clientY).find(el => el.classList.contains('ace_line')) as HTMLElement;
-    if (!aceLine) {
+    segmentHoverLabel.style.setProperty('left', e.clientX+'px');
+    segmentHoverLabel.style.setProperty('top', e.clientY+'px');
+
+    // elementFromPoint takes in coordinates relative to viewport:
+    const aceToken: HTMLElement = document.elementFromPoint(e.clientX, e.clientY)?.closest('.owner-segment') as HTMLElement;
+    if (!aceToken) {
       segmentUnhover();
       return;
-    }
-
-    const aceLineIdx = Array.from(aceLine.parentElement.children).indexOf(aceLine);
-    const aceBackLine = aceLine.closest('.ace_static_highlight').querySelector('.ace_static_marker_back_layer').children.item(aceLineIdx);
-
-    let found: boolean = false;
-    for (let el of Array.from(aceBackLine.querySelectorAll<HTMLElement>('.owner-segment'))) {
-      const rect = getElementOffset(el); // this returns coordinates relative to page, so we must use pageX/pageY below
-
-      const xRange: IndexedRange = {start: rect.x, end: rect.x + rect.width};
-      const yRange: IndexedRange = {start: rect.y, end: rect.y + rect.height};
-      if (inRange(e.pageX, xRange) && inRange(e.pageY, yRange)) {
-        found = true;
-        segmentHover(el, e.pageX, e.pageY);
-      }
-    }
-    if (!found) {
-      segmentUnhover();
+    } else {
+      segmentHover(aceToken);
     }
   };
 
   document.addEventListener('mousemove', segmentHoverListener as any);
 }
 
+function setHighlightOwner(ownerName: string) {
+  let style: HTMLStyleElement = document.getElementById('rev-highlight-style') as HTMLStyleElement;
+  if (!ownerName) {
+    if (style)
+      style.remove();
+    return;
+  }
+  if (!style) {
+    style = document.createElement('style');
+    style.id = 'rev-highlight-style';
+    document.head.append(style);
+  }
+  if (isNightmode()) {
+    style.textContent = `
+    body.nightmode .owner-segment[data-owner="${CSS.escape(ownerName)}"] {
+      background: hsl(41deg 78% 75% / 20%);
+      transition: background 20ms linear;
+    }
+    `;
+  } else {
+    style.textContent = `
+    .owner-segment[data-owner="${CSS.escape(ownerName)}"] {
+      background: #fcfc64;
+      transition: background 20ms linear;
+    }
+    `;
+  }
+}
+
+/**
+ * @example
+ *
+ * skipLinesKeepNL('lorem\nipsum\n\n\nfoobar')
+ *
+ * => [
+ *   'lorem\n',
+ *   'ipsum\n',
+ *   '\n',
+ *   '\n',
+ *   'foobar'
+ * ]
+ */
+function splitLinesKeepNL(content: string) {
+  const contentSplit: string[] = content.split(/(\r?\n)/g);
+  const out: string[] = [];
+  for (let s of contentSplit) {
+    if (/^[\r\n]+$/.test(s)) {
+      if (out.length) {
+        out[out.length - 1] += s;
+      } else {
+        out.push(s);
+      }
+    } else {
+      out.push(s);
+    }
+  }
+  return out.filter(s => !!s.length);
+}
+
 function revSegmentsToMarkers(content: string, segments: MwOwnSegment[]): Marker[] {
-  const lines = content.split(/\n/g);
+  const lines: string[] = splitLinesKeepNL(content);
   const markers: Marker[] = [];
 
-  let idx = 0;
+  let idx: number = 0;
   for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
-    const line = lines[lineIdx];
+    const line: string = lines[lineIdx];
+    const lineLength: number = line.length;
 
     const lineRange: IndexedRange = {
       start: idx,
-      end: idx + line.length,
+      end: idx + lineLength,
     };
 
     for (let i = 0; i < segments.length; i++) {
-      const segment = segments[i];
+      const segment: MwOwnSegment = segments[i];
 
-      const intersect = intersectRange(segment, lineRange);
+      const intersect: IndexedRange = intersectRange(segment, lineRange);
       if (intersect) {
         const relStart = intersect.start - lineRange.start;
         const relEnd = intersect.end - lineRange.start;
-        markers.push({
-          line: lineIdx + 1,
-          startCol: relStart,
-          endCol: relEnd,
-          token: `owner-segment`,
-          attr: {
-            'data-owner': segment.owner,
-            'data-segment-idx': i
-          }
-        })
+        const marker = new Marker('owner-segment', lineIdx + 1, relStart, relEnd, {
+          'data-owner': segment.owner,
+          'data-segment-idx': i
+        });
+        markers.push(marker);
+        if (segment.owner === 'Funds' && segment.value.startsWith(' After the war')) {
+          console.log('Funds', {segment, intersect, relStart, relEnd, line, marker});
+        }
       }
     }
 
-    idx += line.length;
+    idx += lineLength;
   }
 
   return markers;

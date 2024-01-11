@@ -1,7 +1,9 @@
 import Cookies from 'js-cookie';
 import { toBoolean } from '../../../shared/util/genericUtil.ts';
 import { Listener } from '../../util/eventListen.ts';
+import { GeneralEventBus } from '../generalEventBus.ts';
 
+export type SiteTheme = 'daymode' | 'nightmode';
 
 export function isNightmode(): boolean {
   return toBoolean(Cookies.get('nightmode'));
@@ -11,8 +13,14 @@ export function isDaymode(): boolean {
   return !isNightmode();
 }
 
+export function onSiteThemeChange(listener: (theme: SiteTheme) => void) {
+  GeneralEventBus.on('SiteThemeChange', listener);
+}
+
 export function setSiteTheme(theme: 'daymode' | 'nightmode') {
   console.log('Site theme changed to:', theme);
+
+  GeneralEventBus.emit('SiteThemeChange', theme);
 
   document.querySelectorAll<HTMLButtonElement>('.toggle-theme-buttons button').forEach(el => {
     if (el.value === theme) {

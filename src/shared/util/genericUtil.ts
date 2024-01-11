@@ -516,7 +516,7 @@ export function throttle<T extends Function>(fn: T, delayMs: number): T {
   };
 }
 
-export function defaultMap<T extends object>(defaultValue: ((prop: keyof T) => T[keyof T])|'Set'|'Map'|'Array'|'Object'|'Zero'|'One'|{new (prop?: keyof T): T[keyof T]}, initialObj?: T): T {
+export function defaultMap<T extends object>(defaultValue: ((prop: keyof T) => T[keyof T])|'Set'|'Map'|'Array'|'Object'|'Zero'|'One'|'Infinity'|'-Infinity'|{new (prop?: keyof T): T[keyof T]}, initialObj?: T): T {
   return new Proxy<T>(initialObj || {} as T, {
     get(obj: T, prop: string | symbol) {
       if (prop === 'toJSON') {
@@ -536,6 +536,10 @@ export function defaultMap<T extends object>(defaultValue: ((prop: keyof T) => T
           obj[prop] = 0;
         } else if (defaultValue === 'One') {
           obj[prop] = 1;
+        } else if (defaultValue === 'Infinity') {
+          obj[prop] = Infinity;
+        } else if (defaultValue === '-Infinity') {
+          obj[prop] = -Infinity;
         } else if (isESClass(defaultValue)) {
           obj[prop] = new defaultValue(prop as keyof T);
         } else {

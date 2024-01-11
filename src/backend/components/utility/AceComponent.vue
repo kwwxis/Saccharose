@@ -7,9 +7,9 @@
               translate="no"
               :data-mode="props.mode"
               :data-gutters="props.gutters ? 'true' : null"
-              :data-markers="props.markers ? Marker.joinedString(props.markers) : null"
+              :data-markers="props.markers ? Marker.joining(props.markers) : null"
               :data-line-ids="props.lineIds ? stringifyCommonLineIds(props.lineIds) : null"
-              :data-in-template="props.inTemplate ? 'true' : null"
+              :data-is-wiki-template-fragment="props.isWikiTemplateFragment ? 'true' : null"
               :value="props.value"></textarea>
 </template>
 
@@ -22,7 +22,7 @@ export type AceProps = {
 
   gutters?: boolean,
   seamless?: boolean,
-  inTemplate?: boolean,
+  isWikiTemplateFragment?: boolean,
 
   markers?: Marker[],
   lineIds?: CommonLineId[],

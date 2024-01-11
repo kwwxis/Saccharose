@@ -41,11 +41,22 @@
 
 .segment-hover-label {
   display: block;
-  position: absolute;
+  position: fixed;
   background: rgba(0,0,0,0.8);
   border-radius: 3px;
   color: #fff;
   z-index: 9999;
+  pointer-events: none;
   will-change: left, top;
-  transition: left 50ms linear, top 50ms linear;
+  transition: left 20ms linear, top 20ms linear, opacity 200ms ease-out;
+  transform: translate(-50%, -100%);
+  margin-top: -15px;
+
+  &.active {
+    transition: left 20ms linear, top 20ms linear, opacity 20ms linear;
+  }
+}
+
+.owner-segment {
+  transition: background 120ms ease-out;
 }

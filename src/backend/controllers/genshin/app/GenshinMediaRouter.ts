@@ -33,6 +33,20 @@ export default async function(): Promise<Router> {
     });
   });
 
+  router.get('/revs/:pageId/:revId', async (req: Request, res: Response) => {
+    const pageId: number = isInt(req.params.pageId) ? toInt(req.params.pageId) : null;
+    const revId: number = isInt(req.params.revId) ? toInt(req.params.revId) : null;
+    const page = await mwGenshinClient.getArticleInfo(pageId);
+
+    res.render(WikiRevisionPage, {
+      title: 'Wiki Revisions',
+      bodyClass: ['page--revs'],
+      pageid: pageId || null,
+      revid: revId || null,
+      page: page || null,
+    });
+  });
+
 
   return router;
 }

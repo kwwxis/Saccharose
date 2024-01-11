@@ -58,7 +58,7 @@ export async function appInit(): Promise<Express> {
   await loadGenshinTextSupportingData();
   await loadStarRailTextSupportingData();
   await loadZenlessTextSupportingData();
-  await ScriptJobCoordinator.markAllComplete();
+  await ScriptJobCoordinator.cleanup();
 
   // Serve static directories
   // ~~~~~~~~~~~~~~~~~~~~~~~~

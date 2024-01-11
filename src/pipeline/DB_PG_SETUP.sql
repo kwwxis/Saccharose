@@ -1,6 +1,7 @@
--- Create database (switch to 'saccharose' database after running this statement)
-----------------------------------------------------------------------------------------------------------------
-CREATE DATABASE saccharose;
+-- Run this on the "saccharose" database
+-- Use "CREATE DATABASE saccharose;" if not already created.
+
+-- TODO: built-in DB migrations
 
 -- Create extension
 ----------------------------------------------------------------------------------------------------------------
@@ -8,6 +9,15 @@ CREATE EXTENSION bktree;
 ALTER SYSTEM SET wal_level = 'minimal';
 ALTER SYSTEM SET archive_mode = 'off';
 ALTER SYSTEM SET max_wal_senders = 0;
+
+-- Script Jobs
+----------------------------------------------------------------------------------------------------------------
+CREATE TABLE api_keys
+(
+    api_key     TEXT    NOT NULL    PRIMARY KEY,
+    expires     BIGINT,
+    info        TEXT
+);
 
 -- IMAGE HASHES
 ----------------------------------------------------------------------------------------------------------------
@@ -25,6 +35,8 @@ CREATE INDEX bk_index_name ON genshin_hashes USING spgist (hash bktree_ops);
 CREATE TABLE script_jobs
 (
     job_id          TEXT        NOT NULL    PRIMARY KEY,
+    job_pid         INTEGER,
+    job_exit_code   SMALLINT,
     run_ack         BOOLEAN     NOT NULL    DEFAULT FALSE,
     run_complete    BOOLEAN     NOT NULL    DEFAULT FALSE,
 
@@ -41,7 +53,9 @@ CREATE TABLE script_jobs
 );
 
 CREATE INDEX script_jobs_run_action ON script_jobs (run_action);
+CREATE INDEX script_jobs_job_pid ON script_jobs (job_pid);
 CREATE INDEX script_jobs_run_action_incomplete ON script_jobs (run_action) WHERE run_complete IS FALSE;
+CREATE INDEX script_jobs_job_pid_complete ON script_jobs (job_pid) WHERE run_complete IS FALSE;
 -- Genshin Wiki Revisions
 ----------------------------------------------------------------------------------------------------------------
 CREATE TABLE genshin_wiki_revs

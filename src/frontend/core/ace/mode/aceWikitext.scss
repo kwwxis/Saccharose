@@ -3,7 +3,7 @@
     #{$tokenCls} {
       position: relative;
     }
-    #{$tokenCls}:hover {
+    #{$tokenCls}.hovered {
       background: $hoverBg;
       transition: background 50ms ease;
       transition-delay: 100ms;
@@ -16,7 +16,7 @@
     }
 
     body.keydown-control, body.keydown-meta, body.keydown-alt {
-      #{$tokenCls}:hover {
+      #{$tokenCls}.hovered {
         cursor: pointer;
       }
     }

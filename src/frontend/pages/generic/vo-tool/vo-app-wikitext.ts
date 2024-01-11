@@ -1,7 +1,7 @@
 import { VoAppState } from './vo-tool.ts';
 import * as ace from 'brace';
 import { flashTippy } from '../../../util/tooltipUtil.ts';
-import { createWikitextEditor } from '../../../core/ace/wikitextEditor.ts';
+import { createWikitextEditor } from '../../../core/ace/aceEditor.ts';
 import { VoHandle } from './vo-handle.ts';
 import { mwParse } from '../../../../shared/mediawiki/mwParse.ts';
 import { MwTemplateNode } from '../../../../shared/mediawiki/mwParseTypes.ts';

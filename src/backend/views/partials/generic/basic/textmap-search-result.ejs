@@ -38,7 +38,7 @@
         </button>
       </h2>
       <div class="dialogue-section content" style="padding:7px">
-        <textarea id="wikitext-<%= itemId %>" data-markers="<%= Marker.joinedString(item.markers) %>"
+        <textarea id="wikitext-<%= itemId %>" data-markers="<%= Marker.joining(item.markers) %>"
                   readonly class="w100p wikitext autosize spacer0-all" spellcheck="false" translate="no"><%= item.text %></textarea>
         <div id="id-usages-<%= itemId %>" class="id-usages-result collapsed hide"></div>
       </div>

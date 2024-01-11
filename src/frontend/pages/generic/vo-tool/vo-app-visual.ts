@@ -11,7 +11,7 @@ import { escapeHtml, romanize, ucFirst } from '../../../../shared/util/stringUti
 import { createElement, createPlaintextContenteditable, flashElement } from '../../../util/domutil.ts';
 import { listen } from '../../../util/eventListen.ts';
 import { flashTippy } from '../../../util/tooltipUtil.ts';
-import { createWikitextEditor, getWikitextEditor } from '../../../core/ace/wikitextEditor.ts';
+import { createWikitextEditor, getAceEditor } from '../../../core/ace/aceEditor.ts';
 import { modalService } from '../../../util/modalService.ts';
 
 const sortableDefaultOptions: Sortable.Options = {
@@ -314,7 +314,7 @@ export async function VoAppVisualEditor(state: VoAppState): Promise<void> {
               const paramEl = itemEl.querySelector(`.vo-item-param[data-prop-name="${titlePropName}"]`);
               if (paramEl) {
                 let propValueEditorEl: HTMLInputElement = paramEl.querySelector('.prop-value .ace_editor');
-                getWikitextEditor(propValueEditorEl).setValue(titleText, -1);
+                getAceEditor(propValueEditorEl).setValue(titleText, -1);
               }
             }
           });

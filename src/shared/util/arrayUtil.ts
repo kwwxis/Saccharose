@@ -624,6 +624,13 @@ export function arrayRemove<T>(arr: T[], items: T[]) {
 
 export type IndexedRange = {start: number, end: number};
 
+export function rangeLen(range: IndexedRange): number {
+  if (!range || range.end < range.start) {
+    return 0;
+  }
+  return range.end - range.start;
+}
+
 export function intersectRange(a: IndexedRange, b: IndexedRange): IndexedRange {
   const doOverlap = b.start < a.start
     ? b.end > a.start

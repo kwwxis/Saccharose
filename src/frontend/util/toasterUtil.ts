@@ -53,8 +53,11 @@ export function makeToast(opts: ToastOpts) {
     const rect = toast.getBoundingClientRect();
     const prevToast: HTMLElement = toast.previousElementSibling as HTMLElement;
     const bottomPos = toastContainer.clientHeight - (rect.top - toastContainer.offsetTop) - toast.clientHeight;
+    const toastRect = toast.getBoundingClientRect();
 
-    toast.style.cssText = `bottom:${bottomPos}px;left:${rect.left}px;position:absolute;transition:${transitionVal};`;
+    toast.style.cssText = `bottom:${bottomPos}px;left:${rect.left}px;` +
+      `position:absolute;transition:${transitionVal};` +
+      `width:${toastRect.width}px;height:${toastRect.height}px`;
 
     if (prevToast) {
       prevToast.style.removeProperty('transition');

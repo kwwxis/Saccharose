@@ -2,7 +2,8 @@ import SiteMode from '../userPreferences/siteMode.ts';
 import { copyTextToClipboard, createElement, getInputValue } from '../../util/domutil.ts';
 import { mwParse } from '../../../shared/mediawiki/mwParse.ts';
 import { MwParamNode, MwTemplateNode } from '../../../shared/mediawiki/mwParseTypes.ts';
-import { highlightWikitextReplace } from '../ace/wikitextEditor.ts';
+
+import { highlightWikitextReplace } from '../ace/aceHighlight.ts';
 
 export function enableOLActionsInterval() {
 
@@ -69,7 +70,10 @@ export function enableOLActionsInterval() {
             templateNode.getParam(0).afterValueWhitespace.content = '';
             templateNode.addParamAfter(new MwParamNode('|', 'default_hidden', '1', '', '\n'), 0);
           }
-          contentEditableEl = highlightWikitextReplace(contentEditableEl, parsed.toString().trim());
+          contentEditableEl = highlightWikitextReplace(contentEditableEl, {
+            textOverride: parsed.toString().trim(),
+            markers: [], // remove all markers
+          });
           (<HTMLButtonElement> event.target).setAttribute('disabled', '');
         };
       }

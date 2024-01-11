@@ -24,6 +24,7 @@ import './pages/generic/basic/textmap.ts';
 import './pages/generic/basic/id-usages.ts';
 import './pages/generic/excel-viewer/excel-viewer.ts';
 import './pages/generic/wiki-revs/WikiRevisions.page.ts';
+import './pages/generic/basic/VueTest.page.ts';
 
 // Genshin Dialogue Pages
 // ----------------------------------------------------------------------------------------------------
@@ -77,6 +78,12 @@ import { mwParse } from '../shared/mediawiki/mwParse.ts';
 
 (<any> window).mwParse = mwParse;
 
-import { uuidv4 } from '../shared/util/uuidv4.ts';
+import { uuidv4, NIL_UUID, MAX_UUID } from '../shared/util/uuidv4.ts';
 
 (<any> window).uuidv4 = uuidv4;
+(<any> window).NIL_UUID = NIL_UUID;
+(<any> window).MAX_UUID = MAX_UUID;
+
+import { getElementOffset } from './util/domutil.ts';
+
+(<any> window).getElementOffset = getElementOffset;

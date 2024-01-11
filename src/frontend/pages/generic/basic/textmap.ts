@@ -4,8 +4,8 @@ import { GenericSearchPageHandle, startGenericSearchPageListeners } from '../../
 import { toInt } from '../../../../shared/util/numberUtil.ts';
 import { frag } from '../../../util/domutil.ts';
 import { listen } from '../../../util/eventListen.ts';
-import { highlightReplace } from '../../../core/ace/wikitextEditor.ts';
 import SiteMode from '../../../core/userPreferences/siteMode.ts';
+import { highlightReplace } from '../../../core/ace/aceHighlight.ts';
 
 pageMatch('pages/generic/basic/textmap', () => {
   let handle: GenericSearchPageHandle;
@@ -129,7 +129,7 @@ pageMatch('pages/generic/basic/textmap', () => {
               resultEl.innerHTML = result;
 
               resultEl.querySelectorAll<HTMLTextAreaElement>('textarea.json').forEach(el => {
-                highlightReplace(el, 'ace/mode/json');
+                highlightReplace(el, {mode: 'ace/mode/json'});
               });
 
               buttonEl.querySelector('.id-usages-loading-icon').classList.add('hide');

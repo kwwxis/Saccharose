@@ -7,7 +7,7 @@
   <textarea readonly spellcheck="false" translate="no"
             class="ol-result-textarea ol-result-textarea--with-copy-button wikitext w100p spacer5-top"
             style="resize:vertical;overflow:auto;font-size:13px;"
-            data-markers="<%= Marker.joinedString(olResult.markers) %>"><%= olResult.result %></textarea>
+            data-markers="<%= Marker.joining(olResult.markers) %>"><%= olResult.result %></textarea>
 <% } else { %>
   <p class="no-results-found info-notice">No results found for <b><%= searchText %></b></p>
 <% } %>

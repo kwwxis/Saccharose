@@ -9,6 +9,7 @@ import { splitLimit } from '../../shared/util/stringUtil.ts';
 import path from 'path';
 import { sort } from '../../shared/util/arrayUtil.ts';
 import { LangDetectResult, MediaSearchResult } from '../../shared/types/common-types.ts';
+import * as child_process from 'child_process';
 
 const execPromise = util.promisify(exec);
 
@@ -25,6 +26,7 @@ const execPromise = util.promisify(exec);
  */
 export async function passthru(command: string,
                                postInitialize: (childProcess: ChildProcessWithoutNullStreams) => void,
+                               onExit: (exitCode: number, childProcess: ChildProcessWithoutNullStreams) => void,
                                stdoutLineStream?: (data: string, kill?: () => void) => Promise<void>|void,
                                stderrLineStream?: (data: string, kill?: () => void) => Promise<void>|void): Promise<number|Error> {
   const partial_line_buffer = {
@@ -143,8 +145,14 @@ export async function passthru(command: string,
       Promise.all(callback_promises).then(() => reject(error));
     });
 
-    child.on('close', exitCode => {
+    child.on('close', _exitCode => {
       flush_partial_line_buffer();
+    });
+
+    child.on('exit', exitCode => {
+      if (onExit) {
+        onExit(exitCode, child);
+      }
       Promise.all(callback_promises).then(() => resolve(exitCode));
     });
   });
@@ -388,7 +396,7 @@ export async function grepStream(searchText: string,
                                  stream: (line: string, kill?: () => void) => Promise<void>|void,
                                  flags?: string): Promise<number|Error> {
   const cmd = createGrepCommand(searchText, absoluteFilePath, flags);
-  return await passthru(cmd.line, null, stream);
+  return await passthru(cmd.line, null, null, stream);
 }
 
 export async function grepIdStartsWith<T = number | string>(idProp: string,

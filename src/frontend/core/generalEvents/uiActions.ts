@@ -12,8 +12,8 @@ import { uuidv4 } from '../../../shared/util/uuidv4.ts';
 import Cookies from 'js-cookie';
 import { flashTippy } from '../../util/tooltipUtil.ts';
 import { Marker } from '../../../shared/util/highlightMarker.ts';
-import { highlightWikitextReplace } from '../ace/wikitextEditor.ts';
 import { getSiteSearchMode } from '../userPreferences/siteSearchMode.ts';
+import { highlightWikitextReplace } from '../ace/aceHighlight.ts';
 
 function parseUiAction(actionEl: HTMLElement): UiAction[] {
   const actionStr = actionEl.getAttribute('ui-action');
@@ -462,17 +462,17 @@ export function runUiActions(actionEl: HTMLElement, actions: UiAction[]) {
         }
 
         if (contentEditableEl.hasAttribute('data-markers')) {
-          const markers = Marker.fromJoinedString(contentEditableEl.getAttribute('data-markers'));
+          const markers = Marker.splitting(contentEditableEl.getAttribute('data-markers'));
           markers.filter(m => !m.fullLine).forEach(m => {
             if (indentAction === 'decrease') {
-              m.startCol--;
-              m.endCol--;
+              m.start--;
+              m.end--;
             } else {
-              m.startCol++;
-              m.endCol++;
+              m.start++;
+              m.end++;
             }
           });
-          contentEditableEl.setAttribute('data-markers', Marker.joinedString(markers));
+          contentEditableEl.setAttribute('data-markers', Marker.joining(markers));
         }
 
         lines = lines.map(line => {
@@ -486,7 +486,15 @@ export function runUiActions(actionEl: HTMLElement, actions: UiAction[]) {
           }
           return line;
         });
-        highlightWikitextReplace(contentEditableEl, lines.join('\n').trim());
+        highlightWikitextReplace(contentEditableEl, {
+          textOverride: lines.join('\n').trim(),
+          markerAdjustments: lines.map((_line, lineIdx) => ({
+            line: lineIdx + 1,
+            col: 0,
+            count: 1,
+            mode: indentAction === 'decrease' ? 'delete' : 'insert',
+          }))
+        });
         break;
       }
       default:

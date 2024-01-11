@@ -2,6 +2,8 @@
   <div class="hello">
     <p>My message: {{ msg }}</p>
   </div>
+
+  <div id="my-test"></div>
 </template>
 
 <script setup lang="ts">

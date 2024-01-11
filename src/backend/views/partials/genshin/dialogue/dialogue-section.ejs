@@ -69,7 +69,7 @@
                 id="wikitext-<%= id %>"
                 class="wikitext dialogue-section-wikitext w100p autosize <%= (locals.parentIds || []).map(s => 'wikitext-childOf-' + s).join(' ') %>"
                 data-gutters="<%= locals.showGutter ? 'true' : 'false' %>"
-                data-markers="<%= Marker.joinedString(locals.wikitextMarkers) %>"
+                data-markers="<%= Marker.joining(locals.wikitextMarkers) %>"
                 data-line-ids="<%= stringifyCommonLineIds(locals.wikitextLineIds) %>"
                 style="resize:vertical;min-height:40px;"
                 spellcheck="false"
@@ -95,7 +95,7 @@
                   id="wikitext-<%= id %>-<%= idx %>"
                   class="wikitext wikitext-array-<%= id %> dialogue-section-wikitext w100p autosize <%= (locals.parentIds || []).map(s => 'wikitext-childOf-' + s).join(' ') %>"
                   data-gutters="<%= locals.showGutter ? 'true' : 'false' %>"
-                  data-markers="<%= Marker.joinedString(item.markers) %>"
+                  data-markers="<%= Marker.joining(item.markers) %>"
                   style="resize:vertical;min-height:40px;"
                   spellcheck="false"
                   translate="no"><%= item.wikitext %></textarea>
