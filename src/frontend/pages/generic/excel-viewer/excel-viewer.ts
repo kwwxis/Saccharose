@@ -23,7 +23,7 @@ import {
   copyImageToClipboard,
   downloadImage,
   downloadObjectAsJson,
-  getTextWidth,
+  getTextWidth, hasSelection, waitForElementCb,
 } from '../../../util/domutil.ts';
 import { ICellRendererParams } from 'ag-grid-community/dist/lib/rendering/cellRenderers/iCellRenderer';
 import { isNotEmpty, isUnset } from '../../../../shared/util/genericUtil.ts';
@@ -34,6 +34,7 @@ import { StoreNames } from 'idb/build/entry';
 import { GridReadyEvent } from 'ag-grid-community/dist/lib/events';
 import { highlightJson, highlightWikitext } from '../../../core/ace/aceHighlight.ts';
 import { onSiteThemeChange } from '../../../core/userPreferences/siteTheme.ts';
+import { toInt } from '../../../../shared/util/numberUtil.ts';
 
 function initializeThemeWatcher(elements: HTMLElement[]) {
   onSiteThemeChange(theme => {
@@ -309,6 +310,44 @@ pageMatch('pages/generic/basic/excel-viewer-table', async () => {
       }
       gridLoadingEl.classList.add('hide');
       gridEl.classList.remove('hide');
+      document.body.addEventListener('keydown', e => {
+        if (e.code === 'KeyC' && (e.ctrlKey || e.metaKey)) {
+          if (hasSelection()) {
+            return;
+          }
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+          e.preventDefault();
+          event.api.copySelectedRangeToClipboard();
+        }
+      });
+      waitForElementCb(document.body, '.ag-center-cols-container', el => {
+          document.body.addEventListener('mousedown', e => {
+            if (e.shiftKey || e.ctrlKey || e.metaKey || e.altKey) {
+              return;
+            }
+            const el = (e.target as HTMLElement).closest('.ag-cell-value');
+            if (!el) {
+              return;
+            }
+
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+
+            const colId: string = el.closest('[col-id]').getAttribute('col-id');
+            const rowIndex: number = toInt(el.closest('[row-id]').getAttribute('row-index'));
+
+            event.api.clearRangeSelection();
+            event.api.clearFocusedCell();
+            event.api.setFocusedCell(rowIndex, colId);
+            event.api.addCellRange({
+              rowStartIndex: rowIndex,
+              rowEndIndex: rowIndex,
+              columnStart: colId,
+              columnEnd: colId
+            });
+          }, true);
+      });
     }
   };
 
