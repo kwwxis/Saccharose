@@ -49,48 +49,14 @@ function render(state: WikiRevAppState) {
     outputFormat: state.getPrefs().diffMode || 'side-by-side',
     colorScheme: isNightmode() ? ColorSchemeType.DARK : ColorSchemeType.LIGHT,
     synchronizedScroll: true,
-    wordWrap: state.getPrefs().diffWordWrap,
+    wordWrap: true,
     highlightOpts: {
       mode: 'ace/mode/wikitext'
     },
     postRender(instance) {
-      addWordWrapMenu(state, instance);
       addFormatMenu(state, instance);
     }
   });
-}
-
-function addWordWrapMenu(state: WikiRevAppState, ui: DiffUI) {
-  const currentValue: boolean = ui.getConfig().wordWrap || false;
-  listen([
-    {
-      selector: '.option',
-      event: 'click',
-      multiple: true,
-      handle(_event, target) {
-        if (target.getAttribute('data-value') === 'on') {
-          currDiffUI.applyConfig({ wordWrap: true });
-          state.applyPrefs({ diffWordWrap: true });
-        } else {
-          currDiffUI.applyConfig({ wordWrap: false });
-          state.applyPrefs({ diffWordWrap: false });
-        }
-      },
-    },
-  ], frag1(`
-    <div class="valign posRel no-shrink spacer5-left">
-      <button class="secondary small" ui-action="dropdown">
-        <span class="valign">Word-Wrap:
-          <strong class="current-option spacer3-horiz">${currentValue ? 'On' : 'Off'}</strong>
-          ${templateIcon('chevron-down')}
-        </span>
-      </button>
-      <div class="ui-dropdown">
-        <div data-value="on" class="option${currentValue ? ' selected' : ''}" ui-action="dropdown-item">On</div>
-        <div data-value="off" class="option${!currentValue ? ' selected' : ''}" ui-action="dropdown-item">Off</div>
-      </div>
-    </div>
-  `)).appendRelTo('#rev-diff .d2h-file-header');
 }
 
 function addFormatMenu(state: WikiRevAppState, ui: DiffUI) {

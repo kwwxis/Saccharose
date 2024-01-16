@@ -28,14 +28,10 @@ export class WikiRevAppState {
       return this._prefs;
     }
     this._prefs = localStorage.getObject('WikiRevApp.Prefs', {
-      diffWordWrap: true,
       diffHighlightHover: true,
     });
     if (isUnset(this._prefs.diffHighlightHover)) {
       this._prefs.diffHighlightHover = true;
-    }
-    if (isUnset(this._prefs.diffWordWrap)) {
-      this._prefs.diffWordWrap = true;
     }
     return this._prefs;
   }
@@ -48,7 +44,6 @@ export class WikiRevAppState {
 
 export interface WikiRevAppPrefs {
   revTabId?: string,
-  diffWordWrap?: boolean,
   diffMode?: OutputFormatType,
   diffHighlightHover?: boolean,
 }
