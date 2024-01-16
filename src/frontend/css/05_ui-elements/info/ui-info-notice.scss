@@ -1,9 +1,21 @@
 .info-notice {
   background: #eff8ff;
+  border: 1px solid #cce9ff;
   padding: 7px 10px;
   body.nightmode & {
     background: hsl(206deg 33% 31% / 20%);
     border: 1px solid hsla(206, 33%, 31%, 0.45);
+  }
+
+  &.inline {
+    height: 31.33px !important;
+    line-height: 29.33px !important;
+    padding: 0 10px !important;
+
+    .icon {
+      height: 19px;
+      color: #468ec6;
+    }
   }
 }
 

@@ -1,7 +1,7 @@
 import { pageMatch } from '../../../core/pageMatch.ts';
 import { Marker } from '../../../../shared/util/highlightMarker.ts';
-import { highlightWikitext } from '../../../core/ace/aceHighlight.ts';
-import { frag } from '../../../util/domutil.ts';
+import { highlightExistingElement, highlightWikitext } from '../../../core/ace/aceHighlight.ts';
+import { frag, textNodesUnder } from '../../../util/domutil.ts';
 
 pageMatch('vue/VuePageTest', () => {
   const testEl: HTMLElement = document.getElementById('my-test');
@@ -15,7 +15,7 @@ pageMatch('vue/VuePageTest', () => {
         `here that has to be conveyed to potential customers &mdash; items that are on sale!<br />"After much discussion with Paimon, ` +
         `we came to an important decision."<br />"To fire everyone up to support this charity sale, the snacks on offer at Favonian ` +
         `Goodies will be cheaper than that of normal stalls all across the board, so in a manner of speaking, everything here is on sale!"\n`
-        + `:Hello World!`,
+        + `:Hello World! <!-- my comment -->`,
       gutters: true,
       markers: [
         new Marker('highlight', 1, 1 ,1),
@@ -36,5 +36,10 @@ pageMatch('vue/VuePageTest', () => {
         <button class="secondary small minus" ui-tippy-hover="Decrease indent"
                 ui-action="wikitext-indent: #my-wikitext, decrease">-Indent</button>
     `)
-  )
+  );
+
+  const testEl2: HTMLElement = document.getElementById('my-test2');
+  highlightExistingElement(testEl2, {
+    mode: 'ace/mode/wikitext'
+  });
 });

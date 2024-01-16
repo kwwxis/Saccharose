@@ -5,6 +5,7 @@ import { isInt, toInt } from '../../shared/util/numberUtil.ts';
 import { MwArticleInfo, MwRevision, MwRevLoadMode } from '../../shared/mediawiki/mwTypes.ts';
 import { isNotEmpty } from '../../shared/util/genericUtil.ts';
 import { diffIntlWithSpace } from '../util/jsIntlDiff.ts';
+import { createPatch } from '../util/jsdiff/index.js';
 
 export type MwRevEntity = {
   pageid: number,
@@ -23,7 +24,7 @@ export type MwArticleInfoEntity = {
 }
 
 export class MwDbInterface {
-  readonly ARTICLE_CACHE_DURATION_MS: number = 60 * 2 * 1000; // 2 minutes
+  readonly ARTICLE_CACHE_DURATION_MS: number = 1000 * 60 * 10; // 10 minutes
 
   readonly knex: Knex;
   readonly WIKI_REV_TABLE: string;
@@ -35,7 +36,7 @@ export class MwDbInterface {
     this.ARTICLE_CACHE_TABLE = prefix + 'wiki_article_info';
   }
 
-  async putArticleInfoEntity(articleInfo: MwArticleInfo) {
+  async putArticleInfoEntity(articleInfo: MwArticleInfo): Promise<MwArticleInfoEntity> {
     const entity: MwArticleInfoEntity = {
       pageid: articleInfo.pageid,
       title: articleInfo.title,
@@ -43,6 +44,7 @@ export class MwDbInterface {
       json: articleInfo
     };
     await this.knex(this.ARTICLE_CACHE_TABLE).insert(entity).onConflict('pageid').merge().then();
+    return entity;
   }
 
   async getArticleInfoEntity(titleOrId: number|string, ignoreExpiry: boolean = false): Promise<MwArticleInfoEntity> {
@@ -56,9 +58,11 @@ export class MwDbInterface {
           .where('title', titleOrId)
           .first()
           .then();
-
     if (!article) {
       return null;
+    }
+    if (article.json) {
+      article.json.cacheExpiry = article.expires;
     }
     if (article.expires < Date.now() && !ignoreExpiry) {
       return null;
@@ -89,6 +93,8 @@ export class MwDbInterface {
       rev.prevDiff = diffIntlWithSpace(prev.content, rev.content, {
         langCode: 'EN' // TODO support other languages
       });
+      rev.prevSize = prev.size;
+      rev.unifiedDiff = createPatch(`Rev #${rev.revid}`, rev.prevContent, rev.content);
     }
 
     return rev;
@@ -144,10 +150,10 @@ export class MwDbInterface {
     return savedRevs;
   }
 
-  async hasRevision(revid: number): Promise<boolean> {
-    const revEntity: Pick<MwRevEntity, 'revid'> = await this.knex.select('revid').from(this.WIKI_REV_TABLE)
+  async hasRevision(revid: number, withSegments: boolean = false): Promise<boolean> {
+    const revEntity: Pick<MwRevEntity, 'revid' | 'segments'> = await this.knex.select('revid', 'segments').from(this.WIKI_REV_TABLE)
       .where({ 'revid': revid }).first().then();
-    return revEntity && toInt(revEntity.revid) === revid;
+    return revEntity && toInt(revEntity.revid) === revid && (!withSegments || !!revEntity.segments);
   }
 
   async saveRevisions(revs: MwRevision[]) {

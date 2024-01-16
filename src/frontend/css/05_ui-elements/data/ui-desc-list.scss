@@ -37,3 +37,12 @@ dl dd:after {
   display: table;
   clear: both;
 }
+
+body.nightmode dl dt {
+  color: hsl(236 20% 95% / 1);
+}
+
+body.nightmode dl dt,
+body.nightmode dl dd {
+  border-top: 0.5px solid hsl(236 13% 35% / 1);
+}

@@ -19,6 +19,12 @@
     outline: none !important;
     cursor: pointer;
 
+    &.mini {
+      line-height: 30px;
+      height: 28px;
+      font-size: 12.777px;
+    }
+
     &.active {
       background: #fff;
       color: #3f3f3f;
@@ -85,17 +91,17 @@ body.nightmode .tab-list {
   background: hsl(255deg 8% 8%);
 
   button, a {
-    background: hsl(255deg 8% 14%);
+    background: hsl(236 13% 18% / 1);
     color: #fff;
 
     &.active {
-      background: hsl(255deg 8% 22%);
+      background: hsl(236 13% 29% / 1);
       color: #fff;
     }
   }
 
   &:after {
-    background: hsl(255deg 8% 22%);
+    background: hsl(236 13% 29% / 1);
   }
 }
 
@@ -112,7 +118,10 @@ body .tab-list.secondary {
     background: transparent;
     height: 26px;
     line-height: 28px;
-    margin: 0 0 -2px 0;
+    margin: 1px 0 0 0;
+    position: relative;
+    bottom: -1px;
+    z-index: 50;
 
     &.active {
       background: #fff;

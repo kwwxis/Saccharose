@@ -1,0 +1,13 @@
+.d2h-tag {
+  font-family: 'Open Sans', sans-serif;
+  padding: 0 5px;
+  height: 20px;
+  line-height: 19px;
+  display: none;
+}
+.d2h-dark-color-scheme .d2h-code-side-linenumber.d2h-ins,
+.d2h-dark-color-scheme .d2h-code-side-linenumber.d2h-del,
+.d2h-dark-color-scheme .d2h-code-linenumber.d2h-ins,
+.d2h-dark-color-scheme .d2h-code-linenumber.d2h-del {
+  background: transparent !important;
+}

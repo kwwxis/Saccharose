@@ -4,6 +4,16 @@
   </div>
 
   <div id="my-test"></div>
+
+  <br>
+  <br>
+
+  <div id="my-test2">
+    <span>Hello World!
+      <span style="font-style:italic" v-html="`{{My Template<span style='font-weight:bold;font-size:1.2em'>|myarg</span> = foobar}} [[My Link]]`"></span>
+    </span>
+    Testing test
+  </div>
 </template>
 
 <script setup lang="ts">

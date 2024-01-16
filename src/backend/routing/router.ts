@@ -15,13 +15,8 @@ import {
   RequestViewStack,
   RouterRestfulHandlers,
 } from './routingTypes.ts';
-import { isValidElement as isValidReactElement, ReactElement } from 'react';
 import { Component } from '@vue/runtime-core';
 import { App, createSSRApp } from 'vue';
-
-export function isReactElement<P>(object: any): object is ReactElement<P> {
-  return isValidReactElement<P>(object);
-}
 
 export function isVueComponent(object: any): object is Component {
   return !!(<any> object).__name && (!!(<any> object).ssrRender || !!(<any> object).render);
@@ -117,7 +112,7 @@ export function create(context?: Readonly<RequestContextUpdate>): Router {
     if (context)
       await updateReqContext(req, res, context);
 
-    res.render = async function(view: string|ReactElement|Component,
+    res.render = async function(view: string|Component,
                                 locals?: RequestLocals,
                                 callback?: (err: Error, html: string) => void): Promise<string|Error> {
       try {

@@ -1,4 +1,4 @@
-import { waitForElement } from './domutil.ts';
+import { isElement, waitForElement } from './domutil.ts';
 
 export interface ListenerCallback<T extends Event, E extends Element = HTMLElement> {
   (evt: T, target?: E): void;
@@ -157,20 +157,76 @@ export function runWhenDOMContentLoaded(runnable: Function) {
   }
 }
 
+export class ListenRef {
+  protected _rel: HTMLElement|Document;
+  protected _didInit: boolean = false;
+  protected _isEnabled: boolean = false;
+  protected _handles: {element: Element|Document|Window, event: string, listener: Function}[] = [];
+
+  get relElement(): HTMLElement|Document {
+    return this._rel;
+  }
+
+  appendRelTo(target: Element|string) {
+    const targetEl: Element = isElement(target) ? target : document.querySelector(target);
+    targetEl.append(this._rel);
+  }
+
+  isEnabled() {
+    return this._isEnabled;
+  }
+
+  isDisabled() {
+    return !this._isEnabled;
+  }
+
+  enable() {
+    if (!this._didInit) {
+      return;
+    }
+    if (this.isEnabled()) {
+      return;
+    }
+    this._isEnabled = true;
+    for (let handle of this._handles) {
+      handle.element.addEventListener(handle.event, handle.listener as any);
+    }
+  }
+
+  disable() {
+    if (!this._didInit) {
+      return;
+    }
+    if (this.isDisabled()) {
+      return;
+    }
+    this._isEnabled = false;
+    for (let handle of this._handles) {
+      handle.element.removeEventListener(handle.event, handle.listener as any);
+    }
+  }
+}
+
 export function listen(
   listeners: Listener|Listener[],
-  rel: HTMLElement|Document|string = undefined
-): void {
+  rel: Element|HTMLElement|Document|string = undefined,
+  addToRef?: ListenRef
+): ListenRef {
   if (!Array.isArray(listeners)) {
     listeners = [listeners];
   }
+
+  const ref: ListenRef = addToRef || new ListenRef();
+
   if (typeof rel === 'string') {
-    waitForElement(document, rel).then(el => listen(listeners, el));
-    return;
+    waitForElement(document, rel).then(el => listen(listeners, el, ref));
+    return ref;
   } else if (!rel || typeof rel === 'undefined') {
-    listen(listeners, window.document);
-    return;
+    listen(listeners, window.document, ref);
+    return ref;
   }
+
+  (<any> ref)._rel = rel;
 
   listeners.forEach(opts => {
     if (opts.event === 'ready') {
@@ -193,11 +249,13 @@ export function listen(
       } else {
         targets = Array.isArray(opts.selector) ? opts.selector : [opts.selector];
       }
-      Array.from(targets).forEach(target =>
-        target.addEventListener(opts.event, function(event) {
+      Array.from(targets).forEach(target => {
+        const listener = function(event) {
           opts.handle.call(opts, event, target);
-        })
-      );
+        };
+        target.addEventListener(opts.event, listener);
+        (<any> ref)._handles.push({element: target, event: opts.event, listener});
+      });
     } else {
       let target: Element|Document|Window;
       if (opts.selector === 'document') {
@@ -210,9 +268,17 @@ export function listen(
         target = Array.isArray(opts.selector) ? opts.selector[0] : opts.selector;
       }
       if (!target) return;
-      target.addEventListener(opts.event, function(event) {
+
+      const listener = function(event) {
         opts.handle.call(opts, event, target);
-      });
+      };
+      target.addEventListener(opts.event, listener);
+      (<any> ref)._handles.push({element: target, event: opts.event, listener});
     }
   });
+
+  (<any> ref)._didInit = true;
+  (<any> ref)._isEnabled = true;
+
+  return ref;
 }

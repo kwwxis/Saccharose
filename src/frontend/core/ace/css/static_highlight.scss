@@ -79,14 +79,6 @@
 .ace_static_highlight {
   counter-reset: ace_line;
 }
-//.ace_static_highlight .ace_cjk {
-//  font-family: sans-serif;
-//}
-.ace_static_marker:before {
-  content: attr(data-text);
-}
-
-
 
 .ace_line.ace_line-selected {
   outline: 1px solid #3daaf5;

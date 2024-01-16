@@ -23,7 +23,7 @@ import './pages/generic/basic/olgen.ts';
 import './pages/generic/basic/textmap.ts';
 import './pages/generic/basic/id-usages.ts';
 import './pages/generic/excel-viewer/excel-viewer.ts';
-import './pages/generic/wiki-revs/WikiRevisions.page.ts';
+import './pages/generic/wiki-revs/rev-app-main.ts';
 import './pages/generic/basic/VueTest.page.ts';
 
 // Genshin Dialogue Pages

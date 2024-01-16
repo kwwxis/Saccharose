@@ -17,7 +17,7 @@ export default async function(): Promise<Router> {
   router.get('/revs', async (req: Request, res: Response) => {
     res.render(WikiRevisionPage, {
       title: 'Wiki Revisions',
-      bodyClass: ['page--revs']
+      bodyClass: ['page--revs', 'page--wide', 'page--wideWithLeftGutter', 'page--narrow-sidebar']
     });
   });
 
@@ -27,7 +27,7 @@ export default async function(): Promise<Router> {
 
     res.render(WikiRevisionPage, {
       title: 'Wiki Revisions',
-      bodyClass: ['page--revs'],
+      bodyClass: ['page--revs', 'page--wide', 'page--narrow-sidebar'],
       pageid: pageId || null,
       page: page || null,
     });
@@ -40,7 +40,7 @@ export default async function(): Promise<Router> {
 
     res.render(WikiRevisionPage, {
       title: 'Wiki Revisions',
-      bodyClass: ['page--revs'],
+      bodyClass: ['page--revs', 'page--wide', 'page--narrow-sidebar'],
       pageid: pageId || null,
       revid: revId || null,
       page: page || null,

@@ -3,7 +3,8 @@ import { isInt } from '../../../shared/util/numberUtil.ts';
 import {
   copyTextToClipboard,
   deleteQueryStringParameter,
-  getHiddenElementBounds, getInputValue,
+  getHiddenElementBounds,
+  getInputValue,
   setQueryStringParameter,
 } from '../../util/domutil.ts';
 import { modalService } from '../../util/modalService.ts';
@@ -14,6 +15,9 @@ import { flashTippy } from '../../util/tooltipUtil.ts';
 import { Marker } from '../../../shared/util/highlightMarker.ts';
 import { getSiteSearchMode } from '../userPreferences/siteSearchMode.ts';
 import { highlightWikitextReplace } from '../ace/aceHighlight.ts';
+import { isset } from '../../../shared/util/genericUtil.ts';
+import { closeDropdownsIfDefocused, onDropdownItemClick, onDropdownTriggerClick } from './uiDropdown.ts';
+import { GeneralEventBus, GeneralTabEvent } from '../generalEventBus.ts';
 
 function parseUiAction(actionEl: HTMLElement): UiAction[] {
   const actionStr = actionEl.getAttribute('ui-action');
@@ -45,9 +49,9 @@ export type UiAction = {actionType: string, actionParams: string[]};
 
 export function runUiActions(actionEl: HTMLElement, actions: UiAction[]) {
   const qs = <T extends HTMLElement = HTMLElement>(selector: string): T =>
-    (selector === 'this' || selector === 'self') ? (actionEl as T): document.querySelector<T>(selector);
+    (selector === 'this' || selector === 'self') ? (actionEl as T) : document.querySelector<T>(selector);
   const qsAll = <T extends HTMLElement = HTMLElement>(selector: string): T[] =>
-    (selector === 'this' || selector === 'self') ? ([actionEl as T]): Array.from(document.querySelectorAll<T>(selector));
+    (selector === 'this' || selector === 'self') ? ([actionEl as T]) : Array.from(document.querySelectorAll<T>(selector));
   const normClassList = (cls: string): string[] => cls.split(/[\s.]+/g).filter(x => !!x);
 
   for (let action of actions) {
@@ -166,50 +170,12 @@ export function runUiActions(actionEl: HTMLElement, actions: UiAction[]) {
 
       // Dropdown Actions
       // ----------------------------------------------------------------------------------------------------
-      case 'toggle-dropdown':
       case 'dropdown': {
-        const dropdown = qs(actionParams[0]);
-        const bounds = getHiddenElementBounds(dropdown);
-        const actionElPosX = actionEl.getBoundingClientRect().left;
-        const posRight: boolean = dropdown.classList.contains('right');
-
-        if (posRight || actionElPosX + bounds.width > window.innerWidth) {
-          dropdown.style.left = 'auto';
-          dropdown.style.right = '0';
-          dropdown.style.transformOrigin = 'right top';
-        } else {
-          dropdown.style.left = '0';
-          dropdown.style.right = 'auto';
-          dropdown.style.transformOrigin = 'left top';
-        }
-
-        if (dropdown) {
-          (<any> dropdown)._toggledBy = actionEl;
-          if (dropdown.classList.contains('active')) {
-            dropdown.classList.remove('active');
-            actionEl.classList.remove('active');
-            setTimeout(() => dropdown.classList.add('hide'), 110);
-          } else {
-            dropdown.classList.remove('hide');
-            setTimeout(() => {
-              dropdown.classList.add('active');
-              actionEl.classList.add('active');
-            });
-          }
-        }
+        onDropdownTriggerClick(actionEl, isset(actionParams[0]) ? qs(actionParams[0]) : null);
         break;
       }
-      case 'dropdown-close':
-      case 'close-dropdown':
-      case 'close-dropdowns': {
-        qsAll('.ui-dropdown.active').forEach(dropdownEl => {
-          const toggledBy = (<any> dropdownEl)._toggledBy;
-          dropdownEl.classList.remove('active');
-          if (toggledBy) {
-            toggledBy.classList.remove('active');
-          }
-          setTimeout(() => dropdownEl.classList.add('hide'), 110);
-        });
+      case 'dropdown-item': {
+        onDropdownItemClick(actionEl);
         break;
       }
 
@@ -262,25 +228,45 @@ export function runUiActions(actionEl: HTMLElement, actions: UiAction[]) {
       case 'tab': {
         const tabpanel = qs(actionParams[0]);
         const tabgroup = actionParams[1];
+
         if (tabpanel) {
           tabpanel.classList.remove('hide');
           tabpanel.classList.add('active');
           actionEl.classList.add('active');
         }
-        let otherTabEls = qsAll<HTMLElement>('[ui-action*="tab:"]');
-        for (let otherTabEl of otherTabEls) {
-          let otherTabActions = parseUiAction(otherTabEl);
-          for (let otherTabAction of otherTabActions.filter(x => x.actionType === 'tab')) {
-            if (otherTabAction.actionParams[1] == tabgroup && otherTabAction.actionParams[0] !== actionParams[0]) {
-              otherTabEl.classList.remove('active');
-              const otherTabPanel = qs(otherTabAction.actionParams[0]);
-              if (otherTabPanel) {
-                otherTabPanel.classList.remove('active');
-                otherTabPanel.classList.add('hide');
-              }
+
+        const otherTabsInGroup: { tab: HTMLElement, tabpanel: HTMLElement }[] = [];
+
+        for (let otherTabEl of qsAll<HTMLElement>('[ui-action*="tab:"]')) {
+          const otherTabAction = parseUiAction(otherTabEl).find(x => x.actionType === 'tab');
+          if (!otherTabAction) {
+            continue;
+          }
+
+          const otherTabPanel = qs(otherTabAction.actionParams[0]);
+          const otherTabGroup = otherTabAction.actionParams[1];
+          if (!otherTabGroup || !otherTabPanel) {
+            continue;
+          }
+
+          if (otherTabGroup === tabgroup && otherTabEl !== actionEl) {
+            otherTabEl.classList.remove('active');
+            if (otherTabPanel && otherTabPanel !== tabpanel) {
+              otherTabPanel.classList.remove('active');
+              otherTabPanel.classList.add('hide');
             }
+            otherTabsInGroup.push({ tab: otherTabEl, tabpanel: otherTabPanel });
           }
         }
+
+        GeneralEventBus.emit('TabChange', {
+          tabgroup,
+
+          tab: actionEl,
+          tabpanel,
+
+          otherTabs: otherTabsInGroup,
+        });
         break;
       }
 
@@ -524,34 +510,4 @@ function closeMobileMenuIfDefocused(target: HTMLElement) {
     && document.querySelector('#mobile-menu').classList.contains('active')) {
     document.querySelector<HTMLButtonElement>('#mobile-menu-trigger button').click();
   }
-}
-
-/**
- * Close all dropdowns that the user did not click inside.
- * @param target The clicked element
- */
-function closeDropdownsIfDefocused(target: HTMLElement) {
-  // See if the user clicked inside a dropdown:
-  const parentDropdownEl: HTMLElement = target.closest<HTMLElement>('.ui-dropdown');
-
-  // Loop through all open dropdowns:
-  document.querySelectorAll<HTMLElement>('.ui-dropdown.active').forEach(dropdownEl => {
-    // If we clicked inside the dropdown, don't close it.
-    if (dropdownEl === parentDropdownEl) {
-      return;
-    }
-
-    const toggledBy = (<any> dropdownEl)._toggledBy;
-
-    // If we clicked inside the trigger for the dropdown, don't close it.
-    if (toggledBy && (toggledBy === target || toggledBy.contains(target))) {
-      return;
-    }
-
-    dropdownEl.classList.remove('active');
-    if (toggledBy) {
-      toggledBy.classList.remove('active');
-    }
-    setTimeout(() => dropdownEl.classList.add('hide'), 110);
-  });
 }

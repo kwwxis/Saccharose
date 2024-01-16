@@ -5,6 +5,7 @@ import { HttpError } from '../../../../shared/util/httpError.ts';
 import { hideTippy } from '../../../util/tooltipUtil.ts';
 import { uuidv4 } from '../../../../shared/util/uuidv4.ts';
 import { DOMRect } from 'sortablejs';
+import { templateIcon } from '../../../util/templateIcons.ts';
 
 export function applyWikitextLineActions(element: HTMLElement, commonLineIds: CommonLineId[]) {
   if (commonLineIds.length) {
@@ -20,9 +21,9 @@ export function applyWikitextLineActions(element: HTMLElement, commonLineIds: Co
           <div class="ace_line-info-buttons">
             <button class="copy-line"
                 ui-tippy-hover="Copy line"
-                ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">${document.getElementById('template-copy-icon').innerHTML}</button>
+                ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">${templateIcon('copy')}</button>
             <button class="show-info"
-                ui-tippy-hover="Show IDs and OL">${document.getElementById('template-translate-icon').innerHTML}</button>
+                ui-tippy-hover="Show IDs and OL">${templateIcon('translate')}</button>
           </div>
         </div>
       </div>
@@ -66,7 +67,7 @@ export function applyWikitextLineActions(element: HTMLElement, commonLineIds: Co
                 <code class="ace_line-info-panel--dialogId">${lineEl.getAttribute('data-id')}</code>
                 <button class="copy-button" ui-action="copy: #${guid} .ace_line-info-panel--dialogId"
                   ui-tippy-hover="Copy Dialog ID"
-                  ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">${document.getElementById('template-copy-icon').innerHTML}</button>
+                  ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">${templateIcon('copy')}</button>
               </div>
             ` : ''}
             ${hasTextMapHash ? `
@@ -75,7 +76,7 @@ export function applyWikitextLineActions(element: HTMLElement, commonLineIds: Co
                 <code class="ace_line-info-panel--textMapHash">${lineEl.getAttribute('data-textMapHash')}</code>
                 <button class="copy-button" ui-action="copy: #${guid} .ace_line-info-panel--textMapHash"
                   ui-tippy-hover="Copy TextMapHash"
-                  ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">${document.getElementById('template-copy-icon').innerHTML}</button>
+                  ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">${templateIcon('copy')}</button>
               </div>
             ` : ''}
             <div class="grow"></div>

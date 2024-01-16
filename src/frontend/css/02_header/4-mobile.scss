@@ -89,7 +89,8 @@ body.nightmode #mobile-menu-button {
     padding: 10px;
   }
 
-  #app-sidebar, .sidebar {
+  #app-sidebar, .sidebar,
+  .page--narrow-sidebar #app-sidebar{
     width: 235px;
 
     &.left {
@@ -107,7 +108,8 @@ body.nightmode #mobile-menu-button {
     margin-right: 15px;
   }
 
-  #app-sidebar {
+  #app-sidebar,
+  .page--narrow-sidebar #app-sidebar{
     display: none;
   }
 

@@ -22,7 +22,7 @@ function test0() {
 
   console.log('1:', segmentHolder.segments);
 
-  segmentHolder.apply('Jane', diffIntlWithSpace(
+  segmentHolder.apply(1, 'Jane', diffIntlWithSpace(
     `The quick brown fox jumps over the lazy dog!`,
     `The very quick red fox jumps over the lazy dog!`,
     {langCode: 'EN'}
@@ -45,7 +45,7 @@ async function test1(pageId: number) {
   for (let rev of revs) {
     lastSegments = JSON.parse(JSON.stringify(segmentHolder.segments));
 
-    segmentHolder.apply(rev.user, diffIntlWithSpace(prevRevContent, rev.content, {
+    segmentHolder.apply(rev.revid, rev.user, diffIntlWithSpace(prevRevContent, rev.content, {
       langCode: 'EN'
     }));
 
@@ -79,7 +79,7 @@ async function test2() {
 
   segmentHolder.setSegments(JSON.parse(fs.readFileSync(path.resolve(__dirname, './article_segments_prev.json'), {encoding: 'utf-8'})));
 
-  segmentHolder.apply('DQueenie13', diffIntlWithSpace(prevRevContent, currRevContent, {
+  segmentHolder.apply(1, 'DQueenie13', diffIntlWithSpace(prevRevContent, currRevContent, {
     langCode: 'EN'
   }));
 

@@ -7,13 +7,14 @@ import { VoAppVisualEditor } from './vo-app-visual.ts';
 import { EventBus } from '../../../util/eventBus.ts';
 import { DEFAULT_LANG, LANG_CODES, LANG_CODES_TO_NAME, LangCode } from '../../../../shared/types/lang-types.ts';
 import { CommonAvatar, CommonVoiceOverGroup } from '../../../../shared/types/common-types.ts';
-import { VoAppPreloadConfig } from './vo-preload-types.ts';
+import { VoAppPreloadConfig, VoAppPreloadOptions } from './vo-preload-types.ts';
 import { OverlayScrollbars } from 'overlayscrollbars';
 import { StoreNames } from 'idb/build/entry';
 import { VoAppSavedAvatarDatabase } from './vo-app-storage.ts';
 import SiteMode from '../../../core/userPreferences/siteMode.ts';
 import { isNightmode } from '../../../core/userPreferences/siteTheme.ts';
 import { getOutputLanguage, onOutputLanguageChanged } from '../../../core/userPreferences/siteLanguage.ts';
+import { VoHandle } from './vo-handle.ts';
 
 export interface VoAppConfig {
   fetchVoiceCollection: (avatar: CommonAvatar) => Promise<CommonVoiceOverGroup>,
@@ -24,12 +25,29 @@ export interface VoAppConfig {
   enforcePropOrder: string[],
 }
 
+export type VoAppEventBusConfig = {
+  'VO-Init-Called': [VoAppState],
+  'VO-Init-VoiceOversLoaded': [],
+  'VO-Lang-Changed': [LangCode],
+
+  'VO-Visual-RequestHandle': ['story' | 'combat', (value: VoHandle) => void],
+  'VO-Visual-Reload': [string],
+  'VO-Visual-ReloadError': ['story' | 'combat', any, string],
+
+  'VO-Wikitext-OverwriteFromVoiceOvers': ['story' | 'combat', VoAppPreloadOptions],
+  'VO-Wikitext-RequestValue': [(value: string) => void],
+  'VO-Wikitext-SetFromVoHandle': [VoHandle|VoHandle[], boolean?],
+  'VO-Wikitext-LocalLoad': [],
+  'VO-Wikitext-LocalSave': [],
+  'VO-Wikitext-SetValue': [string],
+};
+
 export class VoAppState {
   avatars: CommonAvatar[];
   avatar: CommonAvatar;
   voiceOverGroup: CommonVoiceOverGroup;
   interfaceLang: LangCode;
-  eventBus: EventBus;
+  eventBus: EventBus<VoAppEventBusConfig>;
   config: VoAppConfig;
   savedAvatarStoreName: StoreNames<VoAppSavedAvatarDatabase>;
 
@@ -39,7 +57,7 @@ export class VoAppState {
     this.avatars = (<any> window).avatars;
     this.avatar = (<any> window).avatar;
     this.interfaceLang = getOutputLanguage();
-    this.eventBus = new EventBus('VO-App-EventBus');
+    this.eventBus = new EventBus<VoAppEventBusConfig>('VO-App-EventBus');
     this.savedAvatarStoreName = `${SiteMode.storagePrefix}.SavedAvatars`;
 
     if (!LANG_CODES.includes(this.voLang)) {

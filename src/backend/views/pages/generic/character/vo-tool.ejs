@@ -103,49 +103,49 @@
         <div id="vo-app-toolbar-content" class="valign flexWrap justifySpaceBetween grow">
           <div class="vo-app-toolbar-buttons valign flexWrap">
             <div class="vo-app-toolbar-button valign spacer10-left posRel">
-              <button id="vo-app-load-button" class="secondary border-light no-active-style" ui-action="dropdown: #vo-app-load-dropdown">
+              <button id="vo-app-load-button" class="secondary border-light" ui-action="dropdown: #vo-app-load-dropdown">
                 <span class="spacer5-right">Load</span>
                 <%- icon('chevron-down') %>
               </button>
               <div id="vo-app-load-dropdown" class="ui-dropdown">
-                <div id="vo-app-load-fromWikitext" class="option" ui-action="close-dropdowns">Load from wikitext</div>
+                <div id="vo-app-load-fromWikitext" class="option" ui-action="dropdown-item">Load from wikitext</div>
                 <div class="option-sep"></div>
-                <div id="vo-app-load-from-story" class="option" ui-action="close-dropdowns">Load from story voice-overs</div>
-                <div id="vo-app-load-from-combat" class="option" ui-action="close-dropdowns">Load from combat voice-overs</div>
+                <div id="vo-app-load-from-story" class="option" ui-action="dropdown-item">Load from story voice-overs</div>
+                <div id="vo-app-load-from-combat" class="option" ui-action="dropdown-item">Load from combat voice-overs</div>
               </div>
             </div>
             <div class="vo-app-toolbar-button valign spacer10-left posRel">
-              <button id="vo-app-export-button" class="secondary border-light no-active-style" ui-action="dropdown: #vo-app-export-dropdown">
+              <button id="vo-app-export-button" class="secondary border-light" ui-action="dropdown: #vo-app-export-dropdown">
                 <span class="spacer5-right">Export</span>
                 <%- icon('chevron-down') %>
               </button>
               <div id="vo-app-export-dropdown" class="ui-dropdown">
-                <div id="vo-app-export-copyText" class="option" ui-action="close-dropdowns">Copy Wikitext</div>
-                <div id="vo-app-export-saveFile" class="option" ui-action="close-dropdowns">Save Wikitext to file</div>
+                <div id="vo-app-export-copyText" class="option" ui-action="dropdown-item">Copy Wikitext</div>
+                <div id="vo-app-export-saveFile" class="option" ui-action="dropdown-item">Save Wikitext to file</div>
                 <div class="option-sep"></div>
-                <div id="vo-app-export-json" class="option" ui-action="close-dropdowns">Export voice-overs JSON to file</div>
+                <div id="vo-app-export-json" class="option" ui-action="dropdown-item">Export voice-overs JSON to file</div>
               </div>
             </div>
             <div class="vo-app-toolbar-button valign spacer10-left posRel">
-              <button id="vo-app-language-button" class="secondary border-light no-active-style" ui-action="dropdown: #vo-app-language-dropdown">
+              <button id="vo-app-language-button" class="secondary border-light" ui-action="dropdown: #vo-app-language-dropdown">
                 <b>VO Language:&nbsp;</b>
                 <span id="vo-app-language-current" class="spacer5-right current-option"><%= voLangName %></span>
                 <%- icon('chevron-down') %>
               </button>
               <div id="vo-app-language-dropdown" class="ui-dropdown">
                 <div class="vo-app-language-option option <%= ternary(voLangCode).equals('EN').or.isEmpty().then('selected') %>"
-                     ui-action="close-dropdowns" data-value="EN">English</div>
+                     ui-action="dropdown-item" data-value="EN">English</div>
                 <div class="vo-app-language-option option <%= ternary(voLangCode).equals('CH').then('selected') %>"
-                     ui-action="close-dropdowns" data-value="CH">Chinese</div>
+                     ui-action="dropdown-item" data-value="CH">Chinese</div>
                 <div class="vo-app-language-option option <%= ternary(voLangCode).equals('JP').then('selected') %>"
-                     ui-action="close-dropdowns" data-value="JP">Japanese</div>
+                     ui-action="dropdown-item" data-value="JP">Japanese</div>
                 <div class="vo-app-language-option option <%= ternary(voLangCode).equals('KR').then('selected') %>"
-                     ui-action="close-dropdowns" data-value="KR">Korean</div>
+                     ui-action="dropdown-item" data-value="KR">Korean</div>
               </div>
             </div>
 
             <div class="vo-app-toolbar-button valign spacer10-left posRel" data-control="outputLangCode" ui-tippy="Same as &quot;Output Language&quot;">
-              <button id="vo-app-interfacelang-button" class="secondary border-light no-active-style" ui-action="dropdown: #vo-app-interfacelang-dropdown">
+              <button id="vo-app-interfacelang-button" class="secondary border-light" ui-action="dropdown: #vo-app-interfacelang-dropdown">
                 <b>Interface Language:&nbsp;</b>
                 <span id="vo-app-interfacelang-current" class="spacer5-right current-option"
                       data-value="<%= req.context.outputLangCode %>">
@@ -156,7 +156,7 @@
               <div id="vo-app-interfacelang-dropdown" class="ui-dropdown">
                 <% Object.keys(req.context.languages).forEach(langCode => { %>
                   <div class="vo-app-interfacelang-option option <%= req.context.outputLangCode === langCode ? 'selected' : '' %>"
-                       ui-action="close-dropdowns" data-value="<%= langCode %>"><%= req.context.languages[langCode] %></div>
+                       ui-action="dropdown-item" data-value="<%= langCode %>"><%= req.context.languages[langCode] %></div>
                 <% }) %>
               </div>
             </div>

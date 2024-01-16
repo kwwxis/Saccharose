@@ -114,7 +114,7 @@ export async function computeRevSegments(client: MwClientInterface, allRevs: MwR
             langCode: 'EN' // TODO use mwPage.pagelanguage
           });
           console.log('Diff done:', _rev.revid);
-          segmentHolder.apply(revUser, revChanges);
+          segmentHolder.apply(_rev.revid, revUser, revChanges);
           console.log('End rev:', _rev.revid);
 
           updateBatch.push({

@@ -13,7 +13,8 @@ export function initAceThemeWatcher() {
 
         let TomorrowNightTheme = ace.acequire('ace/theme/tomorrow_night');
         let TextmateTheme = ace.acequire('ace/theme/textmate');
-        document.querySelectorAll('.highlighted').forEach(el => {
+
+        document.querySelectorAll(`.${TextmateTheme.cssClass}`).forEach(el => {
           el.classList.remove(TextmateTheme.cssClass);
           el.classList.add(TomorrowNightTheme.cssClass);
         });
@@ -22,7 +23,8 @@ export function initAceThemeWatcher() {
 
         let TomorrowNightTheme = ace.acequire('ace/theme/tomorrow_night');
         let TextmateTheme = ace.acequire('ace/theme/textmate');
-        document.querySelectorAll('.highlighted').forEach(el => {
+
+        document.querySelectorAll(`.${TomorrowNightTheme.cssClass}`).forEach(el => {
           el.classList.remove(TomorrowNightTheme.cssClass);
           el.classList.add(TextmateTheme.cssClass);
         });

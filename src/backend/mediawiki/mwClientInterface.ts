@@ -96,7 +96,7 @@ export class MwClientInterface {
     return searchResults;
   }
 
-  async getArticleInfo(titleOrId: string|number, options?: any): Promise<MwArticleInfo> {
+  async getArticleInfo(titleOrId: string|number, options?: any, skipArticleCache: boolean = false): Promise<MwArticleInfo> {
     await this.login();
 
     if (isEmpty(titleOrId)) {
@@ -108,7 +108,7 @@ export class MwClientInterface {
     }
 
     const artInfoEntity: MwArticleInfoEntity = await this.db.getArticleInfoEntity(titleOrId);
-    if (artInfoEntity) {
+    if (artInfoEntity && !skipArticleCache) {
       return artInfoEntity.json;
     }
 
@@ -171,7 +171,8 @@ export class MwClientInterface {
     }
 
     if (artInfo) {
-      await this.db.putArticleInfoEntity(artInfo);
+      const entity = await this.db.putArticleInfoEntity(artInfo);
+      artInfo.cacheExpiry = entity.expires;
     }
     return artInfo;
   }
@@ -182,7 +183,7 @@ export class MwClientInterface {
     const params: any = {
       action: "query",
       prop: "revisions",
-      rvprop: ["ids", "timestamp", "size", "flags", "comment", "user", "userid", "size"].join("|"),
+      rvprop: ["ids", "timestamp", "size", "flags", "comment", "user", "userid", "size", "tags"].join("|"),
       rvdir: "newer",
       rvlimit: 500,
     };
@@ -244,7 +245,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   //const results = await mwGenshinClient.getArticleInfo(114663);
   //console.log(results);
 
-  console.log(await mwGenshinClient.db.hasRevision(1447742));
+  console.log(await mwGenshinClient.getArticleRevisions({ revids: '1391412' }));
 
   await closeKnex();
 }

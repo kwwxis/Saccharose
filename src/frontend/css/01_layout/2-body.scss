@@ -47,4 +47,8 @@ body.nightmode .tippy-box {
   #app-wrapper {
     max-width: initial;
   }
+
+  &.page--wideWithLeftGutter #app-wrapper {
+    margin-left: 60px;
+  }
 }

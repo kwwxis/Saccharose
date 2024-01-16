@@ -290,8 +290,8 @@ export class CheckboxTree {
     const cls_closed = 'is--closed';
     const cls_open = 'is--open';
 
-    const icon_open = document.querySelector('#template-chevron-down').innerHTML;
-    const icon_closed = document.querySelector('#template-chevron-right').innerHTML;
+    const icon_open = document.querySelector('#template-chevron-down-icon').innerHTML;
+    const icon_closed = document.querySelector('#template-chevron-right-icon').innerHTML;
 
     ul.classList.add('checkbox-tree-did-init');
 

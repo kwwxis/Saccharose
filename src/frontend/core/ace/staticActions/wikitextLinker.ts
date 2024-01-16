@@ -64,6 +64,10 @@ export function applyWikitextLinker() {
             return;
           }
 
+          if (aceMainElement.classList.contains('disable-wikitext-linker') || aceMainElement.closest('.disable-wikitext-linker')) {
+            return;
+          }
+
           const aceLineElement: HTMLElement = startEl.closest('.ace_line');
           const aceLineIdx: number = toInt(aceLineElement.getAttribute('data-line-idx'));
           const aceLineNumber: number = aceLineIdx + 1;

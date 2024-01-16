@@ -3,7 +3,6 @@
     "module": "ESNext",
     "moduleResolution": "node",
     "declaration": true,
-    "jsx": "react",
     "allowImportingTsExtensions": true,
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,

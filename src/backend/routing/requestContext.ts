@@ -10,8 +10,6 @@ import {
   RequestLocals,
   RequestViewStack,
 } from './routingTypes.ts';
-import { isValidElement as isValidReactElement, ReactElement } from 'react';
-import { renderToString as renderReactToString } from 'react-dom/server';
 import { renderToString as renderVueToString } from 'vue/server-renderer';
 import { App } from 'vue';
 import { isVueApp } from './router.ts';
@@ -23,7 +21,7 @@ export type RequestSiteMode = 'genshin' | 'hsr' | 'zenless';
  */
 export type RequestContextUpdate = {
   title?: string | ((req: Request) => Promise<string>);
-  layouts?: (string|ReactElement|App)[];
+  layouts?: (string|App)[];
   bodyClass?: string[];
   locals?: RequestLocals;
 };
@@ -72,14 +70,15 @@ export class RequestContext {
     this.htmlMetaProps['x-site-mode-wiki-domain'] = this.siteModeWikiDomain;
   }
 
-  async createStaticVirtualView(html: string|ReactElement|App): Promise<string> {
+  async createStaticVirtualView(html: string|App): Promise<string> {
     let viewName: string = 'virtual-static-views/' + this.virtualStaticViewCounter++;
 
     if (typeof html !== 'string') {
-      if (isValidReactElement(html)) {
-        const reactElement: ReactElement = html;
-        html = renderReactToString(reactElement);
-      } else if (isVueApp(html)) {
+      // if (isValidReactElement(html)) {
+      //   const reactElement: ReactElement = html;
+      //   html = renderReactToString(reactElement);
+      // } else
+      if (isVueApp(html)) {
         const vueApp: App = html;
         html = await renderVueToString(vueApp);
         if (vueApp._component?.__name)

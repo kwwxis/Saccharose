@@ -49,7 +49,39 @@ export type MwArticleInfo = {
   displaytitle: string,
   varianttitles: Record<string, string>,
   missing?: ''
+  cacheExpiry?: number,
 };
+
+export const MwTagMap = {
+  'visualeditor-wikitext': 'Source edit',
+  'visualeditor': 'Visual edit',
+  'wikieditor': 'Source edit',
+  'new-user-edit': 'New User',
+  'mw-reverted': 'Reverted',
+  'mw-manual-revert': 'Manual revert',
+  'mw-new-redirect': 'New redirect',
+  'mobile edit': 'Mobile edit',
+  'mobile web edit': 'Mobile web edit',
+  'mw-undo': 'Undo',
+  'mw-changed-redirect-target': 'Redirect target changed',
+  'mw-rollback': 'Rollback',
+  'advanced mobile edit': 'Advanced mobile edit',
+  'mw-removed-redirect': 'Removed redirect',
+  'visualeditor-switched': 'Visual edit: Switched',
+  'mw-replace': 'Replaced',
+  'mw-blank': 'Blanking',
+  'disambiguator-link-added': 'Disambiguation links',
+  'mobile-edit': 'Mobile edit',
+  'single-space': 'Single space edit',
+  'Fancy font detected': 'Fancy font detected',
+  'mw-contentmodelchange': 'content model change',
+  'spam': 'spam',
+  'visualeditor-needcheck': 'Visual edit: Check',
+  'review': 'review',
+  'mw-server-side-upload': 'Server-side upload',
+  'maps-visual-edit': 'Visual map edit',
+  'abusefilter-condition-limit': 'condition limit reached'
+}
 
 export type MwRevision = {
   revid: number,
@@ -60,7 +92,9 @@ export type MwRevision = {
   userid: number,
   timestamp: string,
   size: number,
+  prevSize?: number,
   comment: string,
+  tags: string[],
 
   content?: string,
   segments?: MwOwnSegment[],
@@ -68,6 +102,7 @@ export type MwRevision = {
 
   prevContent?: string,
   prevDiff?: Change[],
+  unifiedDiff?: string,
 };
 
 export type MwRevLoadMode = 'default' | 'content' | 'contentAndPrev';

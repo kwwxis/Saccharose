@@ -7,8 +7,8 @@ import * as ace from 'brace';
 import { isNightmode } from '../userPreferences/siteTheme.ts';
 import { applyWikitextClickableLinks } from './staticActions/wikitextClickableLinks.ts';
 import { applyWikitextLineActions } from './staticActions/wikitextLineActions.ts';
-import { IndexedRange, intersectRange } from '../../../shared/util/arrayUtil.ts';
-import { getInputValue } from '../../util/domutil.ts';
+import { arraySum, IndexedRange, intersectRange } from '../../../shared/util/arrayUtil.ts';
+import { getInputValue, isElement, textNodesUnder } from '../../util/domutil.ts';
 import { initAceThemeWatcher } from './aceThemeWatcher.ts';
 import { applyWikitextLinker } from './staticActions/wikitextLinker.ts';
 import { escapeHtml } from '../../../shared/util/stringUtil.ts';
@@ -34,6 +34,8 @@ export type HighlightOptions = BaseHighlightOptions & {
 export type HighlightReplaceOptions = BaseHighlightOptions & {
   textOverride?: string,
 }
+
+export type HighlightExistingElementOptions = Omit<BaseHighlightOptions, 'gutters' | 'commonLineIds' | 'disableReadonlyContenteditable'>;
 // endregion
 
 // region Static Highlight: Core Function
@@ -113,13 +115,13 @@ export function highlight(opts: HighlightOptions): HTMLElement {
 
       const commonLineId = opts.commonLineIds[ix];
       if (commonLineId) {
-        textLayerSb.push(`<div class="ace_line" data-line-idx="${ix}"${
+        textLayerSb.push(`<div class="ace_line" data-line-idx="${ix}" data-line-num="${ix+1}"${
           commonLineId.commonId ? ` data-id="${commonLineId.commonId}"` : ''
         }${
           commonLineId.textMapHash ? ` data-textMapHash="${commonLineId.textMapHash}"` : ''
         }>`);
       } else {
-        textLayerSb.push(`<div class="ace_line" data-line-idx="${ix}">`);
+        textLayerSb.push(`<div class="ace_line" data-line-idx="${ix}" data-line-num="${ix+1}">`);
       }
       if (gutters)
         textLayerSb.push(`<span class="ace_gutter ace_gutter-cell">` + /*(ix + lineStart) + */ `</span>`);
@@ -199,6 +201,30 @@ export function highlight(opts: HighlightOptions): HTMLElement {
 
 // region Static Highlight: Helpers
 // --------------------------------------------------------------------------------------------------------------
+
+function splitAceTokenInTwo(token: HTMLElement, relPos: number): [HTMLElement, HTMLElement] {
+  relPos = relPos < 0 ? 0 : relPos;
+  relPos = relPos > token.innerText.length ? token.innerText.length : relPos;
+
+  if (relPos === 0 || relPos === token.innerText.length) {
+    return null;
+  }
+
+  const p1: string = token.innerText.slice(0, relPos);
+  const p2: string = token.innerText.slice(relPos);
+
+  const p1_el = token;
+  token.innerText = p1;
+
+  const p2_el = document.createElement('span');
+  p2_el.innerText = p2;
+  for (let attrName of token.getAttributeNames()) {
+    p2_el.setAttribute(attrName, token.getAttribute(attrName));
+  }
+
+  return [p1_el, p2_el];
+}
+
 /**
  * Split an Ace token (expected to be a span element not containing any sub-elements).
  * The split tokens are added to the DOM as needed.
@@ -208,7 +234,7 @@ export function highlight(opts: HighlightOptions): HTMLElement {
  * @param relEnd End position to split the token relative to the start of the token.
  * @returns The element for the split result between relStart and relEnd, or null if not applicable.
  */
-function splitAceToken(token: HTMLElement, relStart: number, relEnd: number): HTMLElement {
+function splitAceTokenForMarker(token: HTMLElement, relStart: number, relEnd: number): HTMLElement {
   relStart = relStart < 0 ? 0 : relStart;
   relEnd = relEnd > token.innerText.length ? token.innerText.length : relEnd;
 
@@ -323,7 +349,7 @@ function markifyTextLayer(element: HTMLElement, aggs: Map<number, MarkerAggregat
           const relStart = intersect.start - tokenRange.start;
           const relEnd = intersect.end - tokenRange.start;
 
-          const markToken = splitAceToken(token, relStart, relEnd);
+          const markToken = splitAceTokenForMarker(token, relStart, relEnd);
           if (markToken) {
             applyMarkerToToken(markToken, marker);
           }
@@ -375,6 +401,77 @@ export function highlightReplace(original: HTMLElement, opts: HighlightReplaceOp
 
   original.replaceWith(element);
   return element;
+}
+// endregion
+
+// region Static Highlight: Existing Element
+// --------------------------------------------------------------------------------------------------------------
+
+export function highlightExistingElement(targetElement: HTMLElement, opts: HighlightExistingElementOptions) {
+  const textNodes: Text[] = textNodesUnder(targetElement);
+  const targetText: string = textNodes.map(n => n.textContent).join('');
+
+  const highlightElement: HTMLElement = highlight({
+    text: targetText,
+    ...opts
+  });
+
+  highlightExistingElementInternal(targetElement, highlightElement);
+}
+
+export function highlightExistingElementInternal(targetElement: HTMLElement, highlightElement: HTMLElement, specificLine?: number) {
+  const textNodes: Text[] = textNodesUnder(targetElement);
+  const aceTokens: HTMLElement[] = specificLine
+    ? Array.from(highlightElement.querySelectorAll<HTMLElement>(`.ace_line[data-line-num="${specificLine}"] > *`))
+    : Array.from(highlightElement.querySelectorAll<HTMLElement>('.ace_line > *'));
+
+  function eatTokens(expectedLength: number): HTMLElement[] {
+    if (expectedLength <= 0) {
+      return [];
+    }
+
+    const myTokens: HTMLElement[] = [];
+    let accLen: number = 0;
+
+    while (true) {
+      const curr: HTMLElement = aceTokens.shift();
+      if (!curr) {
+        break;
+      }
+
+      const newAccLen = accLen + curr.textContent.length;
+
+      if (newAccLen < expectedLength) {
+        myTokens.push(curr);
+        accLen = newAccLen;
+        continue;
+      } else if (newAccLen === expectedLength) {
+        myTokens.push(curr);
+        accLen = newAccLen;
+        break;
+      }
+
+      const delta = newAccLen - expectedLength;
+      const splitPos = curr.textContent.length - delta;
+      const [tok1, tok2] = splitAceTokenInTwo(curr, splitPos);
+
+      myTokens.push(tok1);
+      if (tok2.textContent.length) {
+        aceTokens.unshift(tok2);
+      }
+      break;
+    }
+
+    return myTokens;
+  }
+
+  for (let textNode of textNodes) {
+    const len: number = textNode.textContent.length;
+    if (len === 0)
+      continue;
+    const tokens = eatTokens(len)
+    textNode.replaceWith(... tokens);
+  }
 }
 // endregion
 

@@ -5,6 +5,7 @@ import { inRange, intersectRange, IndexedRange } from '../../shared/util/arrayUt
 
 export type MwOwnChangeMode = 'added' | 'removed' | 'unchanged';
 export type MwOwnSegment = {
+  revId: number,
   value: string,
   owner: string,
   mode: MwOwnChangeMode
@@ -30,6 +31,7 @@ function splitSegment(segment: MwOwnSegment, at: number, insert?: MwOwnSegment):
   const relAt: number = at - segment.start;
 
   const left: MwOwnSegment = {
+    revId: segment.revId,
     value: segment.value.slice(0, relAt),
     owner: segment.owner,
     start: segment.start,
@@ -38,6 +40,7 @@ function splitSegment(segment: MwOwnSegment, at: number, insert?: MwOwnSegment):
   };
 
   const right: MwOwnSegment = {
+    revId: segment.revId,
     value: segment.value.slice(relAt),
     owner: segment.owner,
     start: at,
@@ -80,6 +83,7 @@ export class MwOwnSegmentHolder {
 
     for (let _range of ranges.filter(c => c.mode === 'removed')) {
       const range: MwOwnSegment = {
+        revId: _range.revId,
         start: _range.start,
         end: _range.end,
         mode: _range.mode,
@@ -149,32 +153,27 @@ export class MwOwnSegmentHolder {
   /**
    * Revisions must be applied in order from the oldest revision to newest.
    *
+   * @param revId
    * @param revOwner
    * @param _changes
    */
-  apply(revOwner: string, _changes: Change[]) {
+  apply(revId: number, revOwner: string, _changes: Change[]) {
     if (!this._segments.length) {
       this._segments.push(...
-        this.asIndexed(revOwner, _changes, 'addedOrUnchanged')
+        this.asIndexed(revId, revOwner, _changes, 'addedOrUnchanged')
           .filter(c => c.mode === 'added' || c.mode === 'unchanged'),
       );
       return;
     }
 
-    console.log('Index start');
-    let revChanges: MwOwnSegment[] = this.asIndexed(revOwner, _changes);
-    console.log('Index end');
+    let revChanges: MwOwnSegment[] = this.asIndexed(revId, revOwner, _changes);
 
-    console.log('remove ranges');
     this.removeRanges(revChanges);
-    console.log('insert ranges');
     this.insertRanges(revChanges);
-    console.log('clean');
     this.clean();
-    console.log('apply done');
   }
 
-  private asIndexed(revOwner: string, _changes: Change[], setOwnerMode: 'addedOnly' | 'addedOrUnchanged' = 'addedOnly'): MwOwnSegment[] {
+  private asIndexed(revId: number, revOwner: string, _changes: Change[], setOwnerMode: 'addedOnly' | 'addedOrUnchanged' = 'addedOnly'): MwOwnSegment[] {
     let revChanges: MwOwnSegment[] = [];
     let textCursor: number = 0; // only increment on unchanged or removed
     let addCursor: number = 0; // only increment on unchanged or added
@@ -182,6 +181,7 @@ export class MwOwnSegmentHolder {
     for (let _change of _changes) {
       const value = _change.value;
       const change: MwOwnSegment = Object.assign({
+        revId: null,
         owner: null,
         start: -1,
         end: -1,
@@ -194,6 +194,7 @@ export class MwOwnSegmentHolder {
       if (change.mode === 'added') {
         if (!change.owner) {
           change.owner = revOwner;
+          change.revId = revId;
         }
         // The computed insertAt position accounts for the previous 'added' changes already being inserted.
         // Because of this, the changes must be inserted in order from first to last. If they are inserted out of
@@ -211,6 +212,7 @@ export class MwOwnSegmentHolder {
         if (change.mode === 'unchanged') {
           if (setOwnerMode === 'addedOrUnchanged' && !change.owner) {
             change.owner = revOwner;
+            change.revId = revId;
           }
           addCursor += value.length;
         }

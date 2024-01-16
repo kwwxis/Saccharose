@@ -1,11 +1,7 @@
 <section id="app-sidebar__header" class="card">
   <h2 class="valign" style="padding:6px 10px">
     <img src="/images/site/logo/Sucrose.webp" style="width:28px;height:auto" />
-    <span class="spacer10-left" style="
-      font-family: 'Open Sans', sans-serif;
-      font-size: 16px;
-      text-transform: uppercase;
-      opacity: 0.5;">Genshin Impact</span>
+    <span class="spacer10-left">Genshin Impact</span>
   </h2>
 </section>
 <div id="app-sidebar__content"<%- locals.appSidebarOverlayScroll ? ' data-overlayscrollbars-initialize' : '' %>>
@@ -16,6 +12,7 @@
       <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--OL', 'selected') %>" role="button" href="/OL">Other Languages Generator</a>
       <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--id-usages', 'selected') %>" role="button" href="/id-usages">Identifier Usages</a>
       <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--excel-viewer', 'selected') %>" role="button" href="/excel-viewer">Excel Viewer</a>
+      <a class="secondary dispBlock spacer3 textAlignLeft <%= bodyClassTernary('page--revs', 'selected') %>" role="button" href="/revs">Wiki Revisions</a>
     </div>
   </section>
   <section id="app-sidebar__dialogue" class="card">

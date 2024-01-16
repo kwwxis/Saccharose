@@ -278,7 +278,7 @@ export const genericEndpoints = {
 
   postJob: new GenericApiEndpoint<{
     action: string,
-    [arg: string]: string|number,
+    [arg: string]: string|number|boolean,
   }, ScriptJobPostResult<any>>('/jobs/post'),
 
   getJob: new GenericApiEndpoint<{

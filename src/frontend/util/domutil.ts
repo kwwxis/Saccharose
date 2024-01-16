@@ -13,8 +13,10 @@ export function tag(el: Element): string {
 export function createElement<T extends HTMLElement = HTMLElement>(tag: string, attrs: {[attr: string]: string|number|boolean} = {}): T {
   let el = document.createElement(tag);
   for (let attr of Object.keys(attrs)) {
-    if (attr === 'text' || attr === 'textContent' || attr === 'innerText') {
+    if (attr === 'text' || attr === 'innerText') {
       el.innerText = String(attrs[attr]);
+    } else if (attr === 'textContent') {
+      el.textContent = String(attrs[attr]);
     } else if (attr === 'html' || attr === 'HTML' || attr === 'innerHTML' || attr === 'innerHtml') {
       el.innerHTML = String(attrs[attr]);
     } else if (typeof attrs[attr] === 'string') {
@@ -26,6 +28,20 @@ export function createElement<T extends HTMLElement = HTMLElement>(tag: string, 
     }
   }
   return el as T;
+}
+
+export function clearElements(... targets: (Element|string)[]) {
+  for (let target of targets) {
+    let element: Element;
+    if (typeof target === 'string') {
+      element = document.querySelector(target);
+    } else {
+      element = target;
+    }
+    if (element) {
+      element.innerHTML = '';
+    }
+  }
 }
 
 /**
@@ -485,18 +501,25 @@ export function createPlaintextContenteditable(attrib: {[attr: string]: string|n
     return div;
 }
 
-export function getHiddenElementBounds(el: HTMLElement): { width: number, height: number } {
+/**
+ * Get the bounds of an element that is not in the DOM.
+ *
+ * It does this by copying the HTML to a temporary hidden element that *is* in the DOM. Then it calculates the bounding
+ * client rect. Then it removes the temporary element.
+ *
+ * @param el
+ */
+export function getHiddenElementBounds(el: HTMLElement): DOMRect {
   let tmp = document.createElement('div');
   tmp.setAttribute('style', 'position: fixed; visibility: hidden; top: 0; left: 0; width: 0; height: 0; pointer-events: none; opacity: 0;');
   document.body.append(tmp);
   tmp.innerHTML = el.outerHTML;
   tmp.firstElementChild.setAttribute('style', 'transition:none;transform:none;');
   tmp.firstElementChild.classList.remove('hide');
-  let width = tmp.firstElementChild.getBoundingClientRect().width;
-  let height = tmp.firstElementChild.getBoundingClientRect().height;
-  return { width, height };
+  const rect = tmp.firstElementChild.getBoundingClientRect();
+  tmp.remove();
+  return rect;
 }
-
 
 export function isNode(o): o is Node {
   return (

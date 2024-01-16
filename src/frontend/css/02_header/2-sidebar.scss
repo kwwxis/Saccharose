@@ -12,15 +12,25 @@
   }
 
   .secondary {
-    font-size: 17px;
+    font-size: 16px;
   }
+}
+
+#app-sidebar__header h2 span {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 16px;
+  text-transform: uppercase;
+  opacity: 0.5;
 }
 
 
 @media (max-width: 1050px) {
   #app-sidebar .content a.secondary,
   .sidebar .content a.secondary {
-    font-size: 16px;
+    font-size: 15.5px;
+  }
+  #app-sidebar__header h2 span {
+    font-size: 15px;
   }
 }
 
@@ -31,5 +41,19 @@
     padding: 6px 6px;
     height: auto;
     line-height: 16px;
+  }
+  #app-sidebar__header h2 span {
+    font-size: 14.5px;
+  }
+}
+
+.page--narrow-sidebar #app-sidebar {
+  width: 315px;
+
+  &.left {
+    padding-right: 10px;
+  }
+  &.right {
+    padding-left: 15px;
   }
 }

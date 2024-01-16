@@ -17,7 +17,11 @@ export function onSiteThemeChange(listener: (theme: SiteTheme) => void) {
   GeneralEventBus.on('SiteThemeChange', listener);
 }
 
-export function setSiteTheme(theme: 'daymode' | 'nightmode') {
+export function offSiteThemeChange(listener: (theme: SiteTheme) => void) {
+  GeneralEventBus.off('SiteThemeChange', listener);
+}
+
+export function setSiteTheme(theme: SiteTheme) {
   console.log('Site theme changed to:', theme);
 
   GeneralEventBus.emit('SiteThemeChange', theme);
