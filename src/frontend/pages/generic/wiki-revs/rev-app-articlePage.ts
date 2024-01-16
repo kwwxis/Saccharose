@@ -143,7 +143,7 @@ async function loadRevList(state: WikiRevAppState) {
           <span class="grow valign">Select a revision below. Results may be cached.
             <span class="valign" ui-tippy-hover="${escapeHtml(JSON.stringify({
               content: `New revisions may not be shown as the latest revision number is cached (${
-                isInt(state.page.cacheExpiry)
+                isInt(state.page.cacheExpiry) && toInt(state.page.cacheExpiry) >= Date.now()
                   ? 'refreshes in ' + humanTiming(toInt(state.page.cacheExpiry), '')
                   : 'just refreshed'
               }).<br /><br />Either wait for it to refresh or click the &quot;Force Refresh&quot; button.`,
