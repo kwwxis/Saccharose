@@ -5,8 +5,6 @@ import { revAppArticlePage } from './rev-app-articlePage.ts';
 import { MwArticleInfo, MwRevision } from '../../../../shared/mediawiki/mwTypes.ts';
 import { OutputFormatType } from 'diff2html/lib/types';
 import { isUnset } from '../../../../shared/util/genericUtil.ts';
-import { OverlayScrollbars } from 'overlayscrollbars';
-import { isNightmode } from '../../../core/userPreferences/siteTheme.ts';
 import { GeneralEventBus } from '../../../core/generalEventBus.ts';
 import { revSelect } from './rev-app-revPage.ts';
 import { SITE_MODE_HOME } from '../../../core/userPreferences/siteMode.ts';

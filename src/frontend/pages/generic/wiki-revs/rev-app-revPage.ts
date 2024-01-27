@@ -23,6 +23,11 @@ export async function revSelect(state: WikiRevAppState, selectTab: boolean = tru
     window.history.replaceState({}, null, `${SITE_MODE_HOME}/revs/${state.pageId}/${state.revId}`);
   }
   await fetchRev(state);
+  if (!state.rev) {
+    console.error('Error: rev not found for ' + state.revId);
+    window.history.replaceState({}, null, `${SITE_MODE_HOME}/revs/${state.pageId}`);
+    return;
+  }
   updateSelectedRevButtonsAndLabels(state, selectTab);
   scrollRevAppSide(state);
   moveRevTabWheel(state, selectTab);

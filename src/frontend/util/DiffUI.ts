@@ -103,7 +103,7 @@ class WordWrapModule extends DiffUIInteractiveModule {
           { sideDiff: sideDiff2, lineNumToElemMap: lineNumToElementMap2 }
         ].forEach(({sideDiff, lineNumToElemMap}) => {
           for (let rowTr of Array.from(sideDiff.querySelectorAll('.d2h-diff-tbody > tr'))) {
-            const lineNum = rowTr.querySelector<HTMLElement>('.d2h-code-side-linenumber').innerText.trim();
+            const lineNum = rowTr.querySelector<HTMLElement>('.d2h-code-side-linenumber')?.innerText?.trim();
             if (isInt(lineNum)) {
               lineNumToElemMap[lineNum] = rowTr;
             }
@@ -288,7 +288,7 @@ export class DiffUI {
         const trList2 = sideFile2.querySelectorAll<HTMLElement>('.d2h-diff-tbody > tr');
 
         trList1.forEach(rowTr => {
-          const lineNum: string = rowTr.querySelector<HTMLElement>('.d2h-code-side-linenumber').innerText.trim();
+          const lineNum: string = rowTr.querySelector<HTMLElement>('.d2h-code-side-linenumber')?.innerText?.trim();
           const line: HTMLElement = rowTr.querySelector('.d2h-code-line-ctn');
 
           if (isInt(lineNum)) {
@@ -297,7 +297,7 @@ export class DiffUI {
         });
 
         trList2.forEach(rowTr => {
-          const lineNum: string = rowTr.querySelector<HTMLElement>('.d2h-code-side-linenumber').innerText.trim();
+          const lineNum: string = rowTr.querySelector<HTMLElement>('.d2h-code-side-linenumber')?.innerText?.trim();
           const line: HTMLElement = rowTr.querySelector('.d2h-code-line-ctn');
 
           if (isInt(lineNum)) {

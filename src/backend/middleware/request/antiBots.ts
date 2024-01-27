@@ -4,6 +4,7 @@ export const BAD_PATH_REGEX: RegExp = /\/wp-|\baws\b|\.env|cgi-|php|\.git|\.asp|
 export const BAD_URI_REGEX: RegExp = /:80\/|:443\//g;
 
 export default (req: Request, res: Response, next: NextFunction) => {
+  console.log('AntiBots URL: ', req.path, req.url, req.headers?.host);
   if (BAD_PATH_REGEX.test(req.path) || BAD_URI_REGEX.test(req.url)) {
     res.status(400).send('Bad request');
   } else {

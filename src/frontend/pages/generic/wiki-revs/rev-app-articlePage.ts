@@ -1,11 +1,11 @@
 import './WikiRevisions.styles.scss';
 import { genericEndpoints } from '../../../core/endpoints.ts';
-import { SITE_MODE, SITE_MODE_WIKI_DOMAIN } from '../../../core/userPreferences/siteMode.ts';
+import { SITE_MODE } from '../../../core/userPreferences/siteMode.ts';
 import { constrainNumber, isInt, toInt } from '../../../../shared/util/numberUtil.ts';
 import { ScriptJobPostResult, ScriptJobState } from '../../../../backend/util/scriptJobs.ts';
-import { MwRevision, MwTagMap } from '../../../../shared/mediawiki/mwTypes.ts';
-import { escapeHtml, toParam } from '../../../../shared/util/stringUtil.ts';
-import { humanTiming, isEmpty, timeConvert } from '../../../../shared/util/genericUtil.ts';
+import { MwRevision } from '../../../../shared/mediawiki/mwTypes.ts';
+import { escapeHtml } from '../../../../shared/util/stringUtil.ts';
+import { humanTiming } from '../../../../shared/util/genericUtil.ts';
 import { createElement } from '../../../util/domutil.ts';
 import { listen } from '../../../util/eventListen.ts';
 import { WikiRevAppState } from './rev-app-main.ts';
@@ -58,25 +58,36 @@ export async function revAppArticlePage(state: WikiRevAppState, skipArticleCache
 
   if (postResult.posted === 'not_needed') {
     revHomeEl.innerHTML = `
-      <h3 class="secondary-header">Script job run log</h3>
-      <div class="content">
+      <h3 class="secondary-header">
+        <span>Script job run log</span>
+        <button id="run-log-expando" class="secondary small collapse-action expanded-state spacer5-left"
+                ui-action="expando: #run-log-wrapper">
+          <span class="expanded-only">Collapse</span>
+          <span class="collapsed-only">Expand</span>
+        </button>
+      </h3>
+      <div id="run-log-wrapper" class="content expanded">
         <p>No need to run job: Saccharose is already at the latest revision for this article.</p>
       </div>
-      <div id="rev-list"></div>
     `;
     await loadRevList(state);
   } else {
     revHomeEl.innerHTML = `
-      <h3 class="secondary-header">Script job run log</h3>
-      <div class="content">
+      <h3 class="secondary-header">
+        <span>Script job run log</span>
+        <button id="run-log-expando" class="secondary small collapse-action expanded-state spacer5-left"
+                ui-action="expando: #run-log-wrapper">
+          <span class="expanded-only">Collapse</span>
+          <span class="collapsed-only">Expand</span>
+        </button>
+      </h3>
+      <div id="run-log-wrapper" class="content expanded">
         <p>Successfully posted script job: ${postResult.message}</p>
         <p>Job ID: <span class="code">${postResult.job.job_id}</span></p>
         <p>You can exit this page and come back if it's taking a while. The job will continue running in the background.</p>
         <div id="run-log" class="code" style="font-size: 12px; line-height: 1.8em; padding: 15px 1px 0"></div>
       </div>
-      <div id="rev-list"></div>
     `;
-
     await (new PollContext(postResult.job.job_id, state)).poll();
   }
 }
@@ -129,6 +140,12 @@ class PollContext {
 }
 
 async function loadRevList(state: WikiRevAppState) {
+  window.requestAnimationFrame(() => {
+    if (document.querySelector('#run-log-wrapper').classList.contains('expanded')) {
+      document.querySelector<HTMLElement>('#run-log-expando').click();
+    }
+  });
+
   const revHomeEl: HTMLElement = document.getElementById('tabpanel-revHome');
   const revAppSideContent: HTMLElement = document.querySelector('#revApp-sideContent');
 
