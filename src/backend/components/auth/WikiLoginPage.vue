@@ -4,7 +4,7 @@
       <h2>Next steps: register your wiki username</h2>
       <div class="content">
         <p class="spacer10-bottom">Please register your wiki info <span class="highlight">(you only need to do this once)</span>, but you'll be
-          abel to de-register and re-register with a different wiki user from your settings page if you want.</p>
+          able to de-register and re-register with a different wiki user from your settings page if you want.</p>
         <ol>
           <li>
             <strong>You are registering your Fandom wiki username to this Discord user:</strong>
@@ -39,7 +39,7 @@
               </li>
               <li>
                 <div>Enter in your Discord username and click save</div>
-                <div>(you can remove it from your Fandom profile after registering if you want)</div>
+                <div><span class="highlight">(you can remove it from your Fandom profile after registering if you want)</span></div>
                 <div class="image-frame bordered" style="max-width:400px">
                   <span class="image-label">Example image:</span>
                   <img src="/images/site/auth/FandomProfile-2.png" class="w100p" />

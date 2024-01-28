@@ -1,10 +1,33 @@
 <template>
-  <div class="wrapper">
+  <div class="wrapper" style="max-width:800px">
     <section class="card">
-      <h2>Welcome to Saccharose.wiki</h2>
       <div class="content">
-        <p>Please login with Discord. Saccharose will only have access to your Discord ID, username, avatar, and banner image.</p>
-        <a :href="`/auth/discord?cont=` + myCont" role="button" class="spacer10-top primary primary--2">Login</a>
+        <h2 class="spacer25-bottom open-sans-font dispFlex flexColumn alignCenter">
+          <img src="/images/site/logo/Sucrose.png" style="max-width:50px" class="spacer10-bottom" />
+          <span>Welcome to Saccharose.wiki</span>
+        </h2>
+
+        <div class="justifyCenter spacer10-bottom" style="margin-top:-10px">
+          <hr style="max-width:100px;width:100%" />
+        </div>
+
+        <div class="alignCenter w100p flexColumn">
+          <p style="text-align: center;max-width:400px">
+            This is an internal tool used by the editors of non-official wikis related to HoYoverse games.</p>
+          <p style="text-align: center;max-width:400px" class="info-notice spacer10-vert">
+            To access Saccharose, you must be an <strong>autoconfirmed</strong> editor on at least one of those wikis,
+            or any of its other language interwikis, and have at least <strong>100 edits</strong>.
+          </p>
+        </div>
+
+        <div class="justifyCenter spacer10-vert">
+          <hr style="max-width:100px;width:100%" />
+        </div>
+
+        <div class="alignCenter w100p flexColumn">
+          <p style="text-align: center;max-width:400px">Please login with Discord. Saccharose will only have access to your Discord ID, username, avatar, and banner image.</p>
+          <a :href="`/auth/discord?cont=` + myCont" role="button" class="spacer15-top spacer10-bottom primary primary--2 big">Login</a>
+        </div>
       </div>
     </section>
   </div>
