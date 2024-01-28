@@ -50,7 +50,7 @@
             <strong>Enter your info:</strong>
             <fieldset class="form-box">
               <p class="spacer5-bottom">Leave the <strong>Language Code</strong> field blank for English wiki. If you're for one of the other language
-                wikis like <code>https://genshinimpact.fandom.com/<strong>it</strong>/wiki/</code> then put <code>it</code> in the field value, not the URL.</p>
+                wikis like <code>https://genshinimpact.fandom.com/<strong>it</strong>/wiki/</code> then put <code class="highlight">it</code> in the field value, not the URL.</p>
               <p class="spacer15-bottom">The Language Code field is only used for the purpose of checking the number of edits.
                 It doesn't matter which OL wiki you use if you meet the condition on multiple OL wikis.</p>
 
