@@ -38,6 +38,7 @@
               </li>
               <li>
                 <div>Enter in your Discord username and click save</div>
+                <div>(you can remove it from your Fandom profile afterwards if you want)</div>
                 <div class="image-frame bordered" style="max-width:400px">
                   <span class="image-label">Example image:</span>
                   <img src="/images/site/auth/FandomProfile-2.png" class="w100p" />
