@@ -124,13 +124,17 @@ export default async function(): Promise<Router> {
       });
     }
 
-    let hasPerm: boolean = false;
+    let hasPerm: boolean = await SiteUserProvider.isInReqBypass(firstUser.info.name);
 
-    for (let mwUser of [genshinUser, starRailUser, zenlessUser]) {
-      if (mwUser && mwUser.info && mwUser.info.editcount >= 100 && mwUser.info.groups.includes('autoconfirmed')) {
-        hasPerm = true;
-        break;
+    if (!hasPerm) {
+      for (let mwUser of [genshinUser, starRailUser, zenlessUser]) {
+        if (mwUser && mwUser.info && mwUser.info.editcount >= 100 && mwUser.info.groups.includes('autoconfirmed')) {
+          hasPerm = true;
+          break;
+        }
       }
+    } else {
+      console.log('In Bypass');
     }
 
     if (!hasPerm) {

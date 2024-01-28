@@ -39,6 +39,12 @@ export const SiteUserProvider = {
     return row?.json_data;
   },
 
+  async isInReqBypass(wikiUsername: string): Promise<boolean> {
+    const row: {wiki_username: string} = await pg.select('*').from('site_user_wiki_bypass')
+      .where({wiki_username: wikiUsername}).first().then();
+    return row?.wiki_username === wikiUsername;
+  },
+
   async update(discordId: string, payload: Partial<SiteUser>) {
     const data = await SiteUserProvider.find(discordId);
     if (!data) {

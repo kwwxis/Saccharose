@@ -3,7 +3,8 @@
     <section class="card">
       <h2>Next steps: register your wiki username</h2>
       <div class="content">
-        <p class="spacer10-bottom">Please register your wiki info <span class="highlight">(you only need to do this once)</span>.</p>
+        <p class="spacer10-bottom">Please register your wiki info <span class="highlight">(you only need to do this once)</span>, but you'll be
+          abel to de-register and re-register with a different wiki user from your settings page if you want.</p>
         <ol>
           <li>
             <strong>You are registering your Fandom wiki username to this Discord user:</strong>

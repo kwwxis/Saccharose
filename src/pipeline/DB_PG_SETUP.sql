@@ -22,6 +22,11 @@ CREATE TABLE site_user
     json_data           JSONB NOT NULL
 );
 
+CREATE TABLE site_user_wiki_bypass
+(
+    wiki_username       TEXT NOT NULL PRIMARY KEY
+);
+
 -- Script Jobs
 ----------------------------------------------------------------------------------------------------------------
 CREATE TABLE api_keys
