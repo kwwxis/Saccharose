@@ -173,6 +173,12 @@ export class GenericApiEndpoint<T extends Object, R = any> extends SaccharoseApi
   }
 }
 
+export class BaseUrlEndpoint<T extends Object, R = any> extends SaccharoseApiEndpoint<T, R> {
+  constructor(uri: string) {
+    super('', uri);
+  }
+}
+
 export const errorHtmlWrap = (str: string) => {
   return `<div class="card"><div class="content">${escapeHtml(str)}</div></div>`;
 };
@@ -275,6 +281,16 @@ export const genericEndpoints = {
   langDetect: new GenericApiEndpoint<{
     text: string
   }, LangDetectResult>('/lang-detect'),
+
+  authCheck: new BaseUrlEndpoint<{
+    wikiUsername: string,
+    wikiLang?: string,
+  }, {
+    result: 'denied' | 'approved',
+    reason: string,
+  }>('/auth/check'),
+
+  authUncheck: new BaseUrlEndpoint<{}>('/auth/uncheck'),
 
   postJob: new GenericApiEndpoint<{
     action: string,

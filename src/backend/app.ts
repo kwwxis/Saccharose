@@ -6,7 +6,7 @@ import cookieParser from 'cookie-parser';
 import useragent from 'express-useragent';
 import helmet from 'helmet';
 import { openSqlite, openPg, enableDbExitHook } from './util/db.ts';
-import sessions from './middleware/sessions.ts';
+import sessions from './middleware/auth/sessions.ts';
 import appBaseRouter from './controllers/AppBaseRouter.ts';
 import apiBaseRouter from './controllers/ApiBaseRouter.ts';
 import { isStringNotBlank } from '../shared/util/stringUtil.ts';
@@ -29,6 +29,9 @@ import { logInit } from './util/logger.ts';
 import imageBaseRouter from './controllers/ImageBaseRouter.ts';
 import { createStaticImagesHandler } from './middleware/request/staticImagesHandler.ts';
 import { ScriptJobCoordinator } from './util/scriptJobs.ts';
+import passport from 'passport';
+import authRouter from './controllers/AuthRouter.ts';
+import { createSiteUserMiddlewareRouter } from './middleware/auth/siteUserMiddleware.ts';
 
 const app: Express = express();
 let didInit: boolean = false;
@@ -88,11 +91,6 @@ export async function appInit(): Promise<Express> {
     throw 'EXT_ZENLESS_IMAGES is required!';
   }
 
-  // Initialize sessions
-  // ~~~~~~~~~~~~~~~~~~~
-  logInit(`Initializing sessions`);
-  app.use(sessions);
-
   // Middleware for requests
   // ~~~~~~~~~~~~~~~~~~~~~~~
   logInit(`Adding middleware for incoming requests`);
@@ -103,6 +101,11 @@ export async function appInit(): Promise<Express> {
   app.use(requestIp.mw());                                  // enable request-ip
   app.use(traceMiddleware);
   app.use(accessLogging);                                   // access logging
+
+  // Initialize sessions
+  // ~~~~~~~~~~~~~~~~~~~
+  logInit(`Initializing sessions`);
+  app.use(sessions);
 
   // Middleware for responses
   // ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -119,8 +122,13 @@ export async function appInit(): Promise<Express> {
   app.use(jsonResponse);                                    // JSON response field masking
   app.use(defaultResponseHeaders);                          // Add default response headers
 
+  // Load authorize endpoint
+  // ~~~~~~~~~~~~~~~~~~~~~~~
+  app.use(await authRouter());
+  app.use(createSiteUserMiddlewareRouter());
+
   // Load image router
-  // ~~~~~~~~~~~~~~~
+  // ~~~~~~~~~~~~~~~~~
   logInit(`Loading image router`);
   app.use('/serve-image', await imageBaseRouter());
 

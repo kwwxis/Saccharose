@@ -13,6 +13,7 @@ import {
 import { renderToString as renderVueToString } from 'vue/server-renderer';
 import { App } from 'vue';
 import { isVueApp } from './router.ts';
+import { SiteAuthEnabled, SiteUserProvider } from '../middleware/auth/SiteUserProvider.ts';
 
 export type RequestSiteMode = 'genshin' | 'hsr' | 'zenless';
 
@@ -91,6 +92,14 @@ export class RequestContext {
 
     this.virtualStaticViews[viewName] = html;
     return viewName;
+  }
+
+  get siteAuthEnabled(): boolean {
+    return SiteAuthEnabled;
+  }
+
+  get discordAvatarUrl(): string {
+    return SiteAuthEnabled ? SiteUserProvider.getAvatarUrl(this._req.user) : '';
   }
 
   get siteHome(): string {

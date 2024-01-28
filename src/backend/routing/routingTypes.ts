@@ -1,10 +1,12 @@
 import { RequestContext } from './requestContext.ts';
 import { NextFunction, Request, Response } from 'express';
 import { Component } from '@vue/runtime-core';
+import { SiteUser } from '../middleware/auth/SiteUserProvider.ts';
 
 declare module 'express-serve-static-core' {
   interface Request {
-    context: RequestContext
+    context: RequestContext,
+    user: SiteUser,
   }
   interface Response {
     //csv(data: any, csvHeaders?: boolean, headers?: any, statusCode?: number): Response,

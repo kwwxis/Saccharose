@@ -19,7 +19,7 @@ import { Component } from '@vue/runtime-core';
 import { App, createSSRApp } from 'vue';
 
 export function isVueComponent(object: any): object is Component {
-  return !!(<any> object).__name && (!!(<any> object).ssrRender || !!(<any> object).render);
+  return !!(<any> object).ssrRender || !!(<any> object).render;
 }
 
 export function isVueApp(object: any): object is App {
@@ -118,7 +118,10 @@ export function create(context?: Readonly<RequestContextUpdate>): Router {
       try {
         await updateReqContext(req, res, {
           locals,
-          layouts: [isVueComponent(view) ? createSSRApp(view, locals) : view],
+          layouts: [
+            ... (locals && Array.isArray(locals.layouts) ? locals.layouts : []),
+            isVueComponent(view) ? createSSRApp(view, locals) : view
+          ],
           title: locals && (<any> locals).title,
           bodyClass: locals && (<any> locals).bodyClass,
         });

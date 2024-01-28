@@ -2,27 +2,60 @@ import Bot from 'nodemw';
 import { MwArticleInfoEntity, MwDbInterface, mwGenshinDb, mwStarRailDb, mwZenlessDb } from './mwDbInterface.ts';
 import { pathToFileURL } from 'url';
 import { closeKnex } from '../util/db.ts';
-import { NodeJSCallback } from 'nodemw/lib/types';
+import { NodeJSCallback, UserInfo } from 'nodemw/lib/types';
 import { RequestSiteMode } from '../routing/requestContext.ts';
 import { HttpError } from '../../shared/util/httpError.ts';
 import { isInt } from '../../shared/util/numberUtil.ts';
 import { MwArticleInfo, MwNamespace, MwRevision, MwArticleSearchResult } from '../../shared/mediawiki/mwTypes.ts';
 import { isEmpty } from '../../shared/util/genericUtil.ts';
 import { ucFirst } from '../../shared/util/stringUtil.ts';
+import { httpRequest } from '../util/webrequests.ts';
+
+
+export type FandomUserProfile = {
+  id: number,
+  username: string,
+  avatar: string,
+  name: string,
+  bio: string,
+  website: string,
+  twitter: string,
+  fbPage: string,
+  discordHandle: string,
+  registration: string,
+  edits: string,
+  localEdits: number,
+}
+
+export type MwUser = {
+  info: UserInfo,
+  profile: FandomUserProfile,
+}
 
 export class MwClientInterface {
   private _isLoggedIn: boolean;
   readonly bot: Bot;
+  private server: string;
+  private lang: string;
 
-  constructor(readonly db: MwDbInterface, server: string) {
+  constructor(readonly db: MwDbInterface, server: string, lang?: string) {
+    this.server = server;
+    this.lang = lang;
     this.bot = new Bot({
       protocol: 'https',
       server: server,
-      path: '/',
+      path: lang ? '/' + lang : '/',
       username: process.env.MW_USERNAME,
       password: process.env.MW_PASSWORD,
       debug: false
     });
+  }
+
+  createForInterwiki(lang?: string): MwClientInterface {
+    if (!lang || !lang.trim() || lang.includes('/')) {
+      return this;
+    }
+    return new MwClientInterface(this.db, this.server, lang);
   }
 
   getFirstItem(obj) {
@@ -48,6 +81,45 @@ export class MwClientInterface {
         }
       })
     });
+  }
+
+  async getUser(userName: string): Promise<MwUser> {
+    const info = await this.getUserInfo(userName);
+    if (!info) {
+      return null;
+    }
+
+    const profile = await this.getUserProfile(info.userid);
+    return {
+      info,
+      profile
+    };
+  }
+
+  async getUserInfo(user: string): Promise<UserInfo> {
+    return new Promise((resolve, reject) => {
+      this.bot.whois(user, function(err, obj) {
+        if (err) {
+          resolve(null);
+        } else {
+          if (obj && typeof (<any> obj).missing === 'string') {
+            resolve(null);
+          } else {
+            resolve(obj);
+          }
+        }
+      })
+    });
+  }
+
+  async getUserProfile(userId: string|number): Promise<FandomUserProfile> {
+    const url = 'https://' + this.server + (this.lang ? '/' + this.lang : '') + '/wikia.php?controller=UserProfile&method=getUserData&format=json&userId=' + userId;
+    try {
+      const result = await httpRequest.get(url);
+      return result.data?.userData;
+    } catch (err) {
+      return null;
+    }
   }
 
   private async getOne(params: any, callback: NodeJSCallback<any>) {
@@ -245,7 +317,11 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   //const results = await mwGenshinClient.getArticleInfo(114663);
   //console.log(results);
 
-  console.log(await mwGenshinClient.getArticleRevisions({ revids: '1391412' }));
+  //console.log(await mwGenshinClient.getArticleRevisions({ revids: '1391412' }));
+
+  const user = await mwGenshinClient.createForInterwiki().getUser('Kwwxis');
+  console.log(user);
+
 
   await closeKnex();
 }

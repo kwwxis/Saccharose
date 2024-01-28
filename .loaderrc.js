@@ -5,6 +5,7 @@ import process from 'node:process';
 let tsConfig;
 const vueTsRegex = /lang=ts/;
 
+// noinspection JSUnusedGlobalSymbols
 export default {
   loaders: [
     'esm-loader-typescript',

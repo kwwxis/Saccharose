@@ -1,20 +1,109 @@
-<div id="app-wrapper" class="wrapper">
-  <% if (req.context.hasQuerySettings()) { %>
-    <div class="card">
-      <div class="content valign">
-        <%- icon('link', {style: 'margin-right:10px;flex-shrink:0;'}) %>
-        <div>
-          <p style="font-size:14px"><strong style="font-size:15px">Direct Link:</strong> You have visited a link with a specific <%- sentenceJoin(req.context.getQuerySettings().map(item => item.prop)) %> set in the URL. This has not affected your own user preferences.</p>
-          <p><%- req.context.getQuerySettings().map(item => `<span>${item.prop}: <code class="fontWeight600">${item.value}</code></span>`).join('<code> / </code>') %></p>
+<!DOCTYPE html>
+<html lang="en" class="<%= cookieTernary('nightmode').isTruthy().then('nightmode') %>">
+  <head>
+    <meta charset="utf-8" />
+    <title><%= req.context.getFormattedPageTitle() %></title>
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="csrf-token" content="<%= locals.csrfToken || '' %>" />
+    <meta name="view-stack" content="<%= req.context.getAllViewNames() %>" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="langCodes" content="<%= JSON.stringify(req.context.languages) %>" />
+    <% for (let [propName, propValue] of Object.entries(req.context.htmlMetaProps)) { %>
+      <meta name="<%= propName %>" content="<%= propValue %>" />
+    <% } %>
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=Source+Sans+Pro:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600;1,700&display=swap" rel="stylesheet">
+    <template id="template-info-icon"><%- icon('info') %></template>
+    <template id="template-alert-icon"><%- icon('alert-triangle') %></template>
+    <template id="template-chevron-down-icon"><%- icon('chevron-down') %></template>
+    <template id="template-chevron-right-icon"><%- icon('chevron-right') %></template>
+    <template id="template-search-icon"><%- icon('search') %></template>
+    <template id="template-copy-icon"><%- icon('copy') %></template>
+    <template id="template-external-link-icon"><%- icon('external-link') %></template>
+    <template id="template-translate-icon">
+      <svg class="icon" width="24" height="24" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M2 5H9M16 5H13.5M9 5L13.5 5M9 5V3M13.5 5C12.6795 7.73513 10.9612 10.3206 9 12.5929M4 17.5C5.58541 16.1411 7.376 14.4744 9 12.5929M9 12.5929C8 11.5 6.4 9.3 6 8.5M9 12.5929L12 15.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M13.5 21L14.6429 18M21.5 21L20.3571 18M14.6429 18L17.5 10.5L20.3571 18M14.6429 18H20.3571" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </template>
+    <% if (env.NODE_ENV === 'development') { %>
+      <script async src="<%= toBoolean(env.SSL_ENABLED) ? 'https' : 'http' %>://<%= env.VHOST %>:35729/livereload.js"></script>
+    <% } %>
+    <link rel="stylesheet" href="<%= req.context.webpackBundles.vendorCssBundle %>">
+    <link rel="stylesheet" href="<%= req.context.webpackBundles.appCssBundle %>">
+    <link rel="stylesheet" href="<%= req.context.webpackBundles.vueCssBundle %>">
+  </head>
+  <body class="<%= req.context.bodyClassString %> <%= cookieTernary('nightmode').isTruthy().then('nightmode') %> <%= req.context.siteModeCssClass %>">
+    <span id="top" style="height:0;width:0;opacity:0"></span>
+    <header id="header" class="thin-border">
+      <div class="left">
+        <a id="site-title" href="<%= req.context.siteHome || '/' %>" aria-label="Site title">
+          <div id="site-logo-bg"></div>
+          <div id="site-logo-fg">
+            <img src="/images/site/logo/Sucrose.webp" style="width:45px;height:auto" />
+          </div>
+          <span style="line-height:21px"><%= req.context.siteTitle %></span>
+        </a>
+        <%- use('partials/layout/app-mode-selector', {dropdownId: 'site-mode-dropdown'}) %>
+      </div>
+      <div class="right">
+        <%- use('partials/layout/app-language-selectors') %>
+        <%- use('partials/layout/app-menu-buttons') %>
+        <div id="mobile-menu-trigger" class="alignStretch">
+          <button id="mobile-menu-button" ui-action="toggle: 200, #mobile-menu, #mobile-menu-body-cover; toggle-class: body, mobile-menu-open">
+            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"
+                 stroke-linecap="round" stroke-linejoin="round" shape-rendering="crispEdges" class="icon icon-menu">
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="8" y1="12" x2="21" y2="12"></line>
+              <line x1="13" y1="18" x2="21" y2="18"></line>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"
+                 stroke-linecap="round" stroke-linejoin="round" class="icon icon-close">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </header>
+    <div class="content">
+      <div id="app-wrapper" class="wrapper">
+        <% if (req.context.hasQuerySettings()) { %>
+          <div class="card">
+            <div class="content valign">
+              <%- icon('link', {style: 'margin-right:10px;flex-shrink:0;'}) %>
+              <div>
+                <p style="font-size:14px"><strong style="font-size:15px">Direct Link:</strong> You have visited a link with a specific <%- sentenceJoin(req.context.getQuerySettings().map(item => item.prop)) %> set in the URL. This has not affected your own user preferences.</p>
+                <p><%- req.context.getQuerySettings().map(item => `<span>${item.prop}: <code class="fontWeight600">${item.value}</code></span>`).join('<code> / </code>') %></p>
+              </div>
+            </div>
+          </div>
+        <% } %>
+        <div class="alignStart">
+          <main id="app-main">
+            <%- use(subviewName, subviewStack) %>
+          </main>
+          <aside id="app-sidebar" class="right">
+            <% if (req.context.siteMode === 'genshin') { %>
+              <%- use('partials/genshin/genshin-menu') %>
+            <% } else if (req.context.siteMode === 'hsr') { %>
+              <%- use('partials/hsr/hsr-menu') %>
+            <% } else if (req.context.siteMode === 'zenless') { %>
+              <%- use('partials/zenless/zenless-menu') %>
+            <% } %>
+          </aside>
         </div>
       </div>
     </div>
-  <% } %>
-  <div class="alignStart">
-    <main id="app-main">
-      <%- use(subviewName, subviewStack) %>
-    </main>
-    <aside id="app-sidebar" class="right">
+    <div id="mobile-menu" class="hide thin-border">
+      <%- use('partials/layout/app-mode-selector', {dropdownId: 'site-mode-dropdown-mobile', noBorderLight: true, dropdownExtraClass: 'secondary-label no-active-style'}) %>
+      <%- use('partials/layout/app-menu-buttons') %>
+      <div class="spacer15-vert">
+        <%- use('partials/layout/app-language-selectors') %>
+      </div>
       <% if (req.context.siteMode === 'genshin') { %>
         <%- use('partials/genshin/genshin-menu') %>
       <% } else if (req.context.siteMode === 'hsr') { %>
@@ -22,6 +111,22 @@
       <% } else if (req.context.siteMode === 'zenless') { %>
         <%- use('partials/zenless/zenless-menu') %>
       <% } %>
-    </aside>
-  </div>
-</div>
+    </div>
+    <div id="mobile-menu-body-cover" class="hide"></div>
+    <footer>
+      <div class="wrapper valign">
+        <section class="credit">
+          <p>Saccharose.wiki</p>
+        </section>
+        <section class="footer-links">
+          <a href="https://genshin-impact.fandom.com/">Genshin Wiki</a>
+          <a href="https://honkai-star-rail.fandom.com/">Honkai Star Rail Wiki</a>
+          <a href="https://zenless-zone-zero.fandom.com/">Zenless Zone Zero Wiki</a>
+          <a href="https://github.com/kwwxis/Saccharose">Source Code</a>
+        </section>
+      </div>
+    </footer>
+    <script src="<%= req.context.webpackBundles.vendorJsBundle %>"></script>
+    <script src="<%= req.context.webpackBundles.appJsBundle %>"></script>
+  </body>
+</html>

@@ -507,7 +507,7 @@ export const UIActionListener: Listener = {
 
 function closeMobileMenuIfDefocused(target: HTMLElement) {
   if (!target.closest('#mobile-menu') && !target.closest('#mobile-menu-trigger')
-    && document.querySelector('#mobile-menu').classList.contains('active')) {
+    && document.querySelector('#mobile-menu')?.classList?.contains('active')) {
     document.querySelector<HTMLButtonElement>('#mobile-menu-trigger button').click();
   }
 }

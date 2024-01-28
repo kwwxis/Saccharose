@@ -464,6 +464,14 @@ body.nightmode .image-loaded:before {
 .image-frame {
   display: flex;
   flex-direction: column;
+
+  &.bordered {
+    border: 1px solid #ccc;
+
+    body.nightmode & {
+      border-color: rgba(255,255,255,0.45);
+    }
+  }
 }
 .image-label {
   background: #eee;

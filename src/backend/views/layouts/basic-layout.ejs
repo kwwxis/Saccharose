@@ -47,44 +47,11 @@
           </div>
           <span style="line-height:21px"><%= req.context.siteTitle %></span>
         </a>
-        <%- use('partials/layout/app-mode-selector', {dropdownId: 'site-mode-dropdown'}) %>
-      </div>
-      <div class="right">
-        <%- use('partials/layout/app-language-selectors') %>
-        <%- use('partials/layout/app-menu-buttons') %>
-        <div id="mobile-menu-trigger" class="alignStretch">
-          <button id="mobile-menu-button" ui-action="toggle: 200, #mobile-menu, #mobile-menu-body-cover; toggle-class: body, mobile-menu-open">
-            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"
-                 stroke-linecap="round" stroke-linejoin="round" shape-rendering="crispEdges" class="icon icon-menu">
-              <line x1="3" y1="6" x2="21" y2="6"></line>
-              <line x1="8" y1="12" x2="21" y2="12"></line>
-              <line x1="13" y1="18" x2="21" y2="18"></line>
-            </svg>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"
-                 stroke-linecap="round" stroke-linejoin="round" class="icon icon-close">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-          </button>
-        </div>
       </div>
     </header>
-    <div class="content"><%- use(subviewName, subviewStack) %></div>
-    <div id="mobile-menu" class="hide thin-border">
-      <%- use('partials/layout/app-mode-selector', {dropdownId: 'site-mode-dropdown-mobile', noBorderLight: true, dropdownExtraClass: 'secondary-label no-active-style'}) %>
-      <%- use('partials/layout/app-menu-buttons') %>
-      <div class="spacer15-vert">
-        <%- use('partials/layout/app-language-selectors') %>
-      </div>
-      <% if (req.context.siteMode === 'genshin') { %>
-        <%- use('partials/genshin/genshin-menu') %>
-      <% } else if (req.context.siteMode === 'hsr') { %>
-        <%- use('partials/hsr/hsr-menu') %>
-      <% } else if (req.context.siteMode === 'zenless') { %>
-        <%- use('partials/zenless/zenless-menu') %>
-      <% } %>
+    <div class="content">
+      <%- use(subviewName, subviewStack) %>
     </div>
-    <div id="mobile-menu-body-cover" class="hide"></div>
     <footer>
       <div class="wrapper valign">
         <section class="credit">

@@ -1,5 +1,5 @@
 import https from 'https';
-import axios from 'axios';
+import axios, { AxiosInstance } from 'axios';
 import fs from 'fs';
 
 export const rejectUnauthorizedSetting = !process.env.VHOST.endsWith('.localhost');
@@ -9,4 +9,4 @@ export const httpsAgent = new https.Agent({
   rejectUnauthorized: rejectUnauthorizedSetting,
 });
 
-export const request = axios.create({ httpsAgent });
+export const httpRequest: AxiosInstance = axios.create({ httpsAgent });

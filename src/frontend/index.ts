@@ -25,6 +25,8 @@ import './pages/generic/basic/id-usages.ts';
 import './pages/generic/excel-viewer/excel-viewer.ts';
 import './pages/generic/wiki-revs/rev-app-main.ts';
 import './pages/generic/basic/VueTest.page.ts';
+import './pages/generic/auth/WikiLogin.page.ts';
+import './pages/generic/auth/Settings.page.ts';
 
 // Genshin Dialogue Pages
 // ----------------------------------------------------------------------------------------------------

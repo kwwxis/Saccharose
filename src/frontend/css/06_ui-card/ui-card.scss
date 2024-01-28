@@ -114,12 +114,17 @@ ul.checkbox-tree p {
 
 // Content - UL
 // ----------------------------------------------------------------------------------------------------
-.card .content ul, ul.padding {
+.card .content ul, ul.padding,
+.card .content ol, ol.padding{
   padding-left: 25px;
   font-size: 16px;
   line-height: 24px;
 }
-.card .content ul li, ul.padding li {
+
+.card .content ul li,
+ul.padding li,
+.card .content ol li,
+ol.padding li {
   margin-bottom: 5px;
 }
 

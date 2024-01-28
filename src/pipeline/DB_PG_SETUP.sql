@@ -10,6 +10,18 @@ ALTER SYSTEM SET wal_level = 'minimal';
 ALTER SYSTEM SET archive_mode = 'off';
 ALTER SYSTEM SET max_wal_senders = 0;
 
+
+-- Site User
+----------------------------------------------------------------------------------------------------------------
+CREATE TABLE site_user
+(
+    discord_id          TEXT NOT NULL PRIMARY KEY,
+    discord_username    TEXT,
+    wiki_id             BIGINT,
+    wiki_username       TEXT,
+    json_data           JSONB NOT NULL
+);
+
 -- Script Jobs
 ----------------------------------------------------------------------------------------------------------------
 CREATE TABLE api_keys

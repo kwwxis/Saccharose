@@ -5,6 +5,7 @@ import { DATAFILE_GENSHIN_SQLITE_DB, DATAFILE_HSR_SQLITE_DB, DATAFILE_ZENLESS_SQ
 import { logShutdown } from './logger.ts';
 import fs from 'fs';
 import { isInt, toInt } from '../../shared/util/numberUtil.ts';
+import Pool from 'pg-pool';
 
 export type SaccharoseDb = {
   genshin: Knex,
@@ -38,6 +39,14 @@ function createSqliteConnection(dbFilePath: string): Knex {
     }
   });
 }
+
+export const pgPool = new Pool({
+  host: process.env.POSTGRES_HOST,
+  database: process.env.POSTGRES_DATABASE,
+  user: process.env.POSTGRES_USER,
+  password: process.env.POSTGRES_PASSWORD,
+  port: isInt(process.env.POSTGRES_PORT) ? toInt(process.env.POSTGRES_PORT) : 5432,
+});
 
 function createPostgresConnection() {
   if (!process.env.POSTGRES_HOST) {
