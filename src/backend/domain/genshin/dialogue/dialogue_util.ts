@@ -44,13 +44,15 @@ export class DialogueSectionResult {
   title: string = '';
   isHtmlTitle: boolean = false;
   metadata: MetaProp[] = [];
-  helptext: string = '';
-  wikitext: string = '';
-  wikitextLineIds: CommonLineId[] = [];
+  infoTooltip: string = '';
+  htmlMessage: string = null;
+
+  private _wikitext: string = '';
+  private _wikitextLineIds: CommonLineId[] = [];
   wikitextMarkers: Marker[] = [];
   wikitextArray: { title?: string, wikitext: string, markers?: Marker[] }[] = [];
+
   children: DialogueSectionResult[] = [];
-  htmlMessage: string = null;
   originalData: {
     talkConfig?: TalkExcelConfigData,
     dialogBranch?: DialogExcelConfigData[],
@@ -61,18 +63,77 @@ export class DialogueSectionResult {
   similarityGroupId: number = null;
   copyAllSep: string = '\n';
 
-  constructor(id: string, title: string, helptext: string = null) {
+  constructor(id: string, title: string, infoTooltip: string = null) {
     this.id = id;
     this.title = title;
-    this.helptext = helptext;
+    this.infoTooltip = infoTooltip;
+  }
+
+  get wikitext(): string {
+    return this._wikitext;
+  }
+
+  get wikitextLineIds(): CommonLineId[] {
+    return this._wikitextLineIds;
+  }
+
+  clearWikitext() {
+    this._wikitext = '';
+    this._wikitextLineIds = [];
+  }
+
+  setWikitext(result: DialogWikitextResult) {
+    this._wikitext = result.wikitext;
+    this._wikitextLineIds = result.ids;
+  }
+
+  appendEmptyLine() {
+    this._wikitext += '\n';
+    this._wikitextLineIds.push(null);
+  }
+
+  append(item: DialogWikitextResult) {
+    if (!this._wikitext.length) {
+      this._wikitext += item.wikitext;
+    } else {
+      this._wikitext += '\n' + item.wikitext;
+    }
+    this._wikitextLineIds.push(... item.ids);
+  }
+
+  prepend(item: DialogWikitextResult) {
+    if (!this._wikitext.length) {
+      this._wikitext = item.wikitext;
+    } else {
+      this._wikitext = item.wikitext + '\n' + this._wikitext;
+    }
+    this._wikitextLineIds.unshift(... item.ids);
+  }
+
+  prependFreeForm(text: string) {
+    this._wikitext = text + this._wikitext;
+    if (text && text.includes('\n')) {
+      for (let _m of (text.match(/\n/g) || [])) {
+        this._wikitextLineIds.unshift(null);
+      }
+    }
+  }
+
+  appendFreeForm(text: string) {
+    this._wikitext += text;
+    if (text && text.includes('\n')) {
+      for (let _m of (text.match(/\n/g) || [])) {
+        this._wikitextLineIds.push(null);
+      }
+    }
   }
 
   toString(includeDTemplate: boolean = false): string {
     const sep = this.copyAllSep.replace(/\\n/g, '\n');
     let str = '';
 
-    if (this.wikitext) {
-      str += this.wikitext;
+    if (this._wikitext) {
+      str += this._wikitext;
     }
     if (this.wikitextArray && this.wikitextArray.length) {
       for (let wikitextArrayElement of this.wikitextArray) {
@@ -341,8 +402,7 @@ export async function talkConfigToDialogueSectionResult(ctrl: GenshinControl,
   }
 
   const talkWikitextRet: DialogWikitextResult = await ctrl.generateDialogueWikitext(talkConfig.Dialog, dialogueDepth);
-  mysect.wikitext = talkWikitextRet.wikitext;
-  mysect.wikitextLineIds = talkWikitextRet.ids;
+  mysect.setWikitext(talkWikitextRet);
 
   if (talkConfig.OtherDialog && talkConfig.OtherDialog.length) {
     for (let dialogs of talkConfig.OtherDialog) {
@@ -356,8 +416,7 @@ export async function talkConfigToDialogueSectionResult(ctrl: GenshinControl,
         otherSect.metadata.push(new MetaProp('First Dialogue Talk Type', dialogs[0].TalkType));
       }
       const otherWikitextRet: DialogWikitextResult = await ctrl.generateDialogueWikitext(dialogs);
-      otherSect.wikitext = otherWikitextRet.wikitext;
-      otherSect.wikitextLineIds = otherWikitextRet.ids;
+      otherSect.setWikitext(otherWikitextRet);
       mysect.children.push(otherSect);
     }
   }

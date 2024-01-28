@@ -6,8 +6,8 @@
           v-html="icon('chevron-down', 17)"></span>
     <span v-if="!section.isHtmlTitle" class="dialogue-section-title">{{ section.title }}</span>
     <span v-else class="dialogue-section-title" v-html="section.title"></span>
-    <span v-if="section.helptext"
-          :ui-tippy-hover="section.helptext"
+    <span v-if="section.infoTooltip"
+          :ui-tippy-hover="section.infoTooltip"
           ui-tippy-html="true"
           class="dispInlineFlex spacer5-left"
           style="height:14px;width:14px;opacity:0.8"

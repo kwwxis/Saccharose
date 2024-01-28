@@ -3,7 +3,7 @@ import { closeKnex } from '../../../util/db.ts';
 import { GenshinControl, getGenshinControl } from '../genshinControl.ts';
 import { cached } from '../../../util/cache.ts';
 import { isInt } from '../../../../shared/util/numberUtil.ts';
-import { ReminderExcelConfigData } from '../../../../shared/types/genshin/dialogue-types.ts';
+import { DialogWikitextResult, ReminderExcelConfigData } from '../../../../shared/types/genshin/dialogue-types.ts';
 import { DialogueSectionResult } from './dialogue_util.ts';
 import { MetaProp } from '../../../util/metaProp.ts';
 import { pathToFileURL } from 'url';
@@ -13,38 +13,57 @@ export async function reminderGenerateAll(ctrl: GenshinControl): Promise<Dialogu
   let sect = new DialogueSectionResult(null, 'All Reminders');
   sect.showGutter = true;
 
-  sect.wikitext = await cached('AllRemindersWikitext_'+ctrl.outputLangCode, async () => {
-    let out = '';
-    let reminders = await ctrl.selectAllReminders();
-    for (let reminder of reminders) {
-      if (!reminder.ContentText) {
-        continue;
-      }
+  sect.setWikitext({
+    wikitext: await cached('AllRemindersWikitext_'+ctrl.outputLangCode, async () => {
+      let out = '';
+      let reminders = await ctrl.selectAllReminders();
+      for (let reminder of reminders) {
+        if (!reminder.ContentText) {
+          continue;
+        }
 
-      let speaker = ctrl.normText(reminder.SpeakerText, ctrl.outputLangCode);
-      let text = ctrl.normText(reminder.ContentText, ctrl.outputLangCode);
-      let voPrefix = ctrl.voice.getVoPrefix('Reminder', reminder.Id, text);
+        let speaker = ctrl.normText(reminder.SpeakerText, ctrl.outputLangCode);
+        let text = ctrl.normText(reminder.ContentText, ctrl.outputLangCode);
+        let voPrefix = ctrl.voice.getVoPrefix('Reminder', reminder.Id, text);
 
-      if (!reminder.SpeakerText) {
-        out += '\n' + voPrefix + text;
-      } else {
-        out += `\n:${voPrefix}'''${speaker}:''' ${text}`;
+        if (!reminder.SpeakerText) {
+          out += '\n' + voPrefix + text;
+        } else {
+          out += `\n:${voPrefix}'''${speaker}:''' ${text}`;
+        }
       }
-    }
-    return out.trimStart();
+      return out.trimStart();
+    }),
+    ids: []
   });
 
   return sect;
 }
 
-export function reminderWikitext(ctrl: GenshinControl, reminder: ReminderExcelConfigData) {
+export function reminderWikitext(ctrl: GenshinControl, reminder: ReminderExcelConfigData): DialogWikitextResult {
   let text = ctrl.normText(reminder.ContentText, ctrl.outputLangCode);
   let voPrefix = ctrl.voice.getVoPrefix('Reminder', reminder.Id, text);
 
   if (!reminder.SpeakerText) {
-    return '\n' + voPrefix + text;
+    return {
+      wikitext: '\n' + voPrefix + text,
+      ids: [
+        {
+          commonId: reminder.Id,
+          textMapHash: reminder.ContentTextMapHash
+        }
+      ]
+    }
   } else {
-    return `:${voPrefix}'''${reminder.SpeakerText}:''' ${text}`;
+    return {
+      wikitext: `:${voPrefix}'''${reminder.SpeakerText}:''' ${text}`,
+      ids: [
+        {
+          commonId: reminder.Id,
+          textMapHash: reminder.ContentTextMapHash
+        }
+      ]
+    };
   }
 }
 
@@ -74,13 +93,13 @@ export async function handleSingleReminderGroup(ctrl: GenshinControl,
   if (!sect) {
     sect = new DialogueSectionResult('Reminder_'+reminder.Id, 'Reminder');
     sect.metadata.push(new MetaProp('First Reminder ID', reminder.Id));
-    sect.wikitext = '';
+    sect.clearWikitext();
     output.push(sect);
   } else {
-    sect.wikitext += '\n';
+    sect.appendEmptyLine();
   }
 
-  sect.wikitext += reminderWikitext(ctrl, reminder);
+  sect.append(reminderWikitext(ctrl, reminder))
 
   if (reminder.NextReminderId) {
     let nextReminder = await ctrl.selectReminderById(reminder.NextReminderId);

@@ -211,7 +211,7 @@ router.endpoint('/dialogue/vo-to-dialogue', {
       } else if (type === 'DungeonReminder') {
         let reminder = await ctrl.selectReminderById(id);
         if (reminder) {
-          text = reminderWikitext(ctrl, reminder);
+          text = reminderWikitext(ctrl, reminder).wikitext;
         } else {
           warn = '(This VO file is supposed to be used for a reminder with ' + id + ', however such a reminder does not exist)';
         }

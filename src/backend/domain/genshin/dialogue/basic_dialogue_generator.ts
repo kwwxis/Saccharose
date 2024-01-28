@@ -250,9 +250,10 @@ async function handle(state: DialogueGenerateState, id: number|DialogExcelConfig
         sect.originalData.questId = questIds[0];
         sect.originalData.questName = await ctrl.selectMainQuestName(questIds[0]);
       }
+
       const dialogWikitextRet: DialogWikitextResult = await ctrl.generateDialogueWikitext(dialogueBranch);
-      sect.wikitext = dialogWikitextRet.wikitext;
-      sect.wikitextLineIds = dialogWikitextRet.ids;
+      sect.setWikitext(dialogWikitextRet);
+
       addHighlightMarkers(ctrl, query, dialog, sect);
       result.push(sect);
     }
@@ -376,8 +377,7 @@ export async function dialogueGenerateByNpc(ctrl: GenshinControl,
       }
 
       const dialogWikitextRet: DialogWikitextResult = await ctrl.generateDialogueWikitext(dialogueBranch);
-      sect.wikitext = dialogWikitextRet.wikitext.trim();
-      sect.wikitextLineIds = dialogWikitextRet.ids;
+      sect.setWikitext(dialogWikitextRet);
 
       if (questId) {
         const questName = await ctrl.selectMainQuestName(questId);

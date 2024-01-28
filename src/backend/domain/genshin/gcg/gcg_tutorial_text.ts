@@ -12,11 +12,16 @@ export async function generateGCGTutorialDialogue(ctrl: GenshinControl): Promise
 
     for (let row of json) {
       let voPrefix = ctrl.voice.getVoPrefix('Card', row.TutorialTextId, null, null, false);
-      sect.wikitext += `${voPrefix}${ctrl.normText(row.TutorialText, ctrl.outputLangCode)}\n`;
+      sect.append({
+        wikitext: `${voPrefix}${ctrl.normText(row.TutorialText, ctrl.outputLangCode)}`,
+        ids: [
+          {
+            commonId: row.TutorialTextId,
+            textMapHash: row.TutorialTextMapHash,
+          }
+        ]
+      });
     }
-
-    sect.wikitext = sect.wikitext.trim();
-
     return sect;
   });
 }

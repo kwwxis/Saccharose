@@ -6,8 +6,8 @@
     <% } else { %>
       <span class="dialogue-section-title"><%- title %></span>
     <% } %>
-    <% if (locals.helptext) { %>
-      <span ui-tippy-hover="<%= locals.helptext %>" ui-tippy-html="true" class="dispInlineFlex spacer5-left" style="height:14px;width:14px;opacity:0.8"><%- icon('info', 14) %></span>
+    <% if (locals.infoTooltip) { %>
+      <span ui-tippy-hover="<%= locals.infoTooltip %>" ui-tippy-html="true" class="dispInlineFlex spacer5-left" style="height:14px;width:14px;opacity:0.8"><%- icon('info', 14) %></span>
     <% } %>
     <% if (locals.similarityGroupId) { %>
       <div class="grow"></div>
@@ -37,9 +37,9 @@
           <% } %>
         </div>
       <% } %>
-      <% if (locals.wikitext || (children && children.length)) { %>
+      <% if (locals.wikitext || locals._wikitext || (children && children.length)) { %>
         <div class="grow"></div>
-        <% if (locals.wikitext) { %>
+        <% if (locals.wikitext || locals._wikitext) { %>
             <button class="secondary small" ui-action="copy: #wikitext-<%= id %>"
                   ui-tippy-hover="Click to copy to clipboard"
                   ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
@@ -64,16 +64,16 @@
     <% if (locals.htmlMessage) { %>
       <div class="dialogue-section-info-message"><%- htmlMessage %></div>
     <% } %>
-    <% if (locals.wikitext) { %>
+    <% if (locals.wikitext || locals._wikitext) { %>
       <textarea readonly
                 id="wikitext-<%= id %>"
                 class="wikitext dialogue-section-wikitext w100p autosize <%= (locals.parentIds || []).map(s => 'wikitext-childOf-' + s).join(' ') %>"
                 data-gutters="<%= locals.showGutter ? 'true' : 'false' %>"
                 data-markers="<%= Marker.joining(locals.wikitextMarkers) %>"
-                data-line-ids="<%= stringifyCommonLineIds(locals.wikitextLineIds) %>"
+                data-line-ids="<%= stringifyCommonLineIds(locals.wikitextLineIds || locals._wikitextLineIds) %>"
                 style="resize:vertical;min-height:40px;"
                 spellcheck="false"
-                translate="no"><%= wikitext %></textarea>
+                translate="no"><%= locals.wikitext || locals._wikitext %></textarea>
     <% } %>
     <% if (locals.wikitextArray) { %>
       <% wikitextArray.forEach((item, idx) => { %>
