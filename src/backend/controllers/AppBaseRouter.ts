@@ -33,10 +33,11 @@ export default async function(): Promise<Router> {
     const cspOptions: any = {
       useDefaults: true,
       directives: {
-        defaultSrc: ["'self'", 'cdnjs.cloudflare.com', 'unpkg.com', 'fonts.googleapis.com', 'fonts.gstatic.com', `${process.env.VHOST}:*`],
+        defaultSrc: ["'self'", 'cdnjs.cloudflare.com', 'unpkg.com', 'fonts.googleapis.com', 'fonts.gstatic.com', `${process.env.VHOST}:*`, 'cdn.discordapp.com', 'static.wikia.nocookie.net'],
         styleSrc: ["'self'", "'unsafe-inline'", 'cdnjs.cloudflare.com', 'unpkg.com', 'fonts.googleapis.com', 'fonts.gstatic.com'],
         scriptSrc: ["'self'", "'unsafe-eval'", 'cdnjs.cloudflare.com', 'unpkg.com', `'nonce-${req.context.nonce}'`, `${process.env.VHOST}:*`],
         fontSrc: ["'self'", 'data:', 'fonts.googleapis.com', 'fonts.gstatic.com'],
+        imgSrc: ["'self'", 'data:', `${process.env.VHOST}:*`, 'cdn.discordapp.com', 'static.wikia.nocookie.net'],
         connectSrc: ["'self'", `wss://${process.env.VHOST}:*`],
       },
       reportOnly: false,
