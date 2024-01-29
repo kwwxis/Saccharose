@@ -26,6 +26,9 @@ function getVoAvatarName(avatar: AvatarExcelConfigData, voiceItems: VoiceItem[])
   if (avatar.Id === 10000048) {
     return 'yanfei';
   }
+  if (avatar.Id === 10000093) {
+    return 'xianyun';
+  }
   for (let item of voiceItems) {
     let voAvatarName = /^vo (\S+)/.exec(item.fileName)?.[1];
     let voAvatarNameCmp = voAvatarName?.toLowerCase();
@@ -146,7 +149,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     let fetterVOs = ctrl.voice.getVoiceItemsByType('Fetter');
     for (let avatar of avatars) {
       let voAvatarName = getVoAvatarName(avatar, fetterVOs);
-      console.log(avatar.NameText, voAvatarName === null ? chalk.red.bold(voAvatarName) : chalk.bold(voAvatarName));
+      console.log(avatar.Id, avatar.NameText, voAvatarName === null ? chalk.red.bold(voAvatarName) : chalk.bold(voAvatarName));
     }
 
     // let res = cleanEmpty(await fetchCharacterFettersByAvatarName(ctrl, 'nahida'));
