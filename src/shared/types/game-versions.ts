@@ -34,6 +34,7 @@ export const GenshinVersions: GameVersion[] = [
   {number: '4.1', previous: '4.0', showChangelog: true},
   {number: '4.2', previous: '4.1', showChangelog: true},
   {number: '4.3', previous: '4.2', showChangelog: true},
+  {number: '4.4', previous: '4.3', showChangelog: true},
 ];
 
 // TODO: This needs to be updated with each new Honkai Star Rail version!

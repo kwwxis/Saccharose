@@ -221,6 +221,8 @@ export async function generateQuestDialogExcels(repoRoot: string) {
           item.itemId = item.NKOILEAABME; // 4.1
         if (item.IIJAJFHKJEO)
           item.itemId = item.IIJAJFHKJEO; // 4.3
+        if (item.GCOJFIFNBGB)
+          item.itemId = item.GCOJFIFNBGB; // 4.4
 
         if (!item.itemId) {
           console.log(item);
