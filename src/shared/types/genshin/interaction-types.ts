@@ -10,18 +10,22 @@ export const InterActionSchema = <SchemaTable> {
     CIOBDALMHGN: 'DialogOptions', // 4.1
     MLAABINGLAA: 'DialogOptions', // 4.2
     BCOOIEMOMBL: 'DialogOptions', // 4.3
+    NDMMOPDPKNF: 'DialogOptions', // 4.4
 
     MCAHMAIKDKH: 'DialogNextGroup', // 4.1
     HPBPDBFGKID: 'DialogNextGroup', // 4.2
     DLIPJKNKANK: 'DialogNextGroup', // 4.3
+    FPDBIEGHMCD: 'DialogNextGroup', // 4.4
 
     GBAPKLGILDP: 'DialogId', // 4.1
     KICBIOMGHIN: 'DialogId', // 4.2
     KPKFJANJAJM: 'DialogId', // 4.3
+    NMKEDPFEKBH: 'DialogId', // 4.4
 
     EDFJOBOJFBD: 'CutsceneId', // 4.1
     LMHLEOPOLEK: 'CutsceneId', // 4.2
     MGKDCJOKIGC: 'CutsceneId', // 4.3
+    AKFCJIPDODB: 'CutsceneId', // 4.4
   },
 };
 
