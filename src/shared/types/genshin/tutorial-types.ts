@@ -55,6 +55,7 @@ export interface TutorialExcelConfigData {
   IsMultiPlatform: boolean,
 
   CodexType: PushTipsCodexType,
+  CodexTypeName?: string,
 
   DetailList?: TutorialDetailExcelConfigData[],
   PushTip?: GenericPushTip,

@@ -112,7 +112,7 @@
         what order quests are in. So they need to be programmatically ordered based on various clues. Whether subquests can be correctly
         identified is a hit-or-miss (e.g. <a href="/chapters/10070">Vimana Agama</a> is correctly ordered but
         <a href="/chapters/10055">From Dusk to Dawn in Byakuyakoku</a> is not). Saccharose's ordering for hangout chapters is completely unreliable.</p>
-      <%- use('partials/genshin/dialogue/chapter-list-item', { quests: quests }) %>
+      <%- use('partials/genshin/dialogue/chapter-list-item', { quests: chapter.OrderedQuests }) %>
     </div>
   </section>
   <section class="card">

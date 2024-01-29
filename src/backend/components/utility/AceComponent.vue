@@ -5,6 +5,7 @@
               :style="extraStyle"
               spellCheck="false"
               translate="no"
+              :data-lazy-load="lazyLoad"
               :data-mode="props.mode"
               :data-gutters="props.gutters ? 'true' : null"
               :data-markers="props.markers ? Marker.joining(props.markers) : null"
@@ -23,6 +24,7 @@ export type AceProps = {
   gutters?: boolean,
   seamless?: boolean,
   isWikiTemplateFragment?: boolean,
+  lazyLoad?: boolean,
 
   markers?: Marker[],
   lineIds?: CommonLineId[],

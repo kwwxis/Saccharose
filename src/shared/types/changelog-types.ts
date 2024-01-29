@@ -92,3 +92,8 @@ export function newChangeRecordMap(): ChangeRecordMap {
   return defaultMap(key => newChangeRecord(key));
 }
 // endregion
+
+export type FullChangelog = {
+  textmapChangelog: TextMapFullChangelog,
+  excelChangelog: ExcelFullChangelog,
+}

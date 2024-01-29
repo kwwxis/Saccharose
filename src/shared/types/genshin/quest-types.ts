@@ -1,6 +1,7 @@
 import { DialogExcelConfigData, ManualTextMapConfigData, TalkExcelConfigData } from './dialogue-types.ts';
 import { ConfigCondition } from './general-types.ts';
 import { RewardExcelConfigData } from './material-types.ts';
+import { QuestOrderItem } from '../../../backend/domain/genshin/dialogue/dialogue_util.ts';
 
 export type QuestType = 'AQ' | 'SQ' | 'EQ' | 'WQ';
 export type MapByQuestType<T> = {
@@ -91,6 +92,7 @@ export interface ChapterExcelConfigData {
   NeedPlayerLevel?: number,
   Type?: QuestType,
   Quests?: MainQuestExcelConfigData[],
+  OrderedQuests?: QuestOrderItem[],
   Summary?: ChapterSummary;
 }
 

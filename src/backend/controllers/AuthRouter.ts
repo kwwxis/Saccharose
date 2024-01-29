@@ -132,8 +132,8 @@ export default async function(): Promise<Router> {
       });
     }
 
-    let userName: string = String(req.query.wikiUsername || '');
-    let wikiLang: string = String(req.query.wikiLang || '');
+    let userName: string = String(req.query.wikiUsername || '').trim();
+    let wikiLang: string = String(req.query.wikiLang || '').trim();
 
     if (!userName || !userName.trim()) {
       return res.json({

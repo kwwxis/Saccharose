@@ -1,12 +1,13 @@
 import { create } from '../../../routing/router.ts';
+import { Router } from 'express';
 import BasicRouter from './GenshinBasicRouter.ts';
 import DialogueRouter from './GenshinDialogueRouter.ts';
 import ItemRouter from './GenshinArchiveRouter.ts';
 import CharacterRouter from './GenshinCharacterRouter.ts';
 import TcgRouter from './TcgRouter.ts';
 import MediaRouter from './GenshinMediaRouter.ts';
-import { Router } from 'express';
 import TestRouter from './TestRouter.ts';
+import ChangelogRouter from './GenshinChangelogRouter.ts';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -18,6 +19,7 @@ export default async function(): Promise<Router> {
   router.use('/', await TcgRouter());
   router.use('/', await MediaRouter());
   router.use('/', await TestRouter());
+  router.use('/', await ChangelogRouter());
 
   return router;
 }

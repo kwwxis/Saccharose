@@ -28,7 +28,7 @@ export default async function(): Promise<Router> {
     });
   });
 
-  // Stages
+  // region Stages
   // --------------------------------------------------------------------------------------------------------------
 
   router.get('/TCG/stages', async (req: Request, res: Response) => {
@@ -70,8 +70,9 @@ export default async function(): Promise<Router> {
       tab: queryTab(req, 'display', 'wikitext', 'json'),
     });
   });
+  // endregion
 
-  // Cards
+  // region Cards
   // --------------------------------------------------------------------------------------------------------------
 
   router.get('/TCG/cards', async (req: Request, res: Response) => {
@@ -146,8 +147,9 @@ export default async function(): Promise<Router> {
       GCG_TAGS_WITHOUT_ICONS
     });
   });
+  // endregion
 
-  // Rules
+  // region Rules
   // --------------------------------------------------------------------------------------------------------------
 
   router.get('/TCG/rules', async (req: Request, res: Response) => {
@@ -161,6 +163,7 @@ export default async function(): Promise<Router> {
       rules
     });
   });
+  // endregion
 
   return router;
 }

@@ -114,7 +114,7 @@ import { NewActivityExcelConfigData } from '../../../shared/types/genshin/activi
 import { Marker } from '../../../shared/util/highlightMarker.ts';
 import { ElementType, ManualTextMapHashes } from '../../../shared/types/genshin/manual-text-map.ts';
 import { custom, logInitData } from '../../util/logger.ts';
-import { DialogBranchingCache } from './dialogue/dialogue_util.ts';
+import { DialogBranchingCache, orderChapterQuests } from './dialogue/dialogue_util.ts';
 import { __normGenshinText } from './genshinText.ts';
 import { AbstractControl, AbstractControlState } from '../abstractControl.ts';
 import debug from 'debug';
@@ -139,6 +139,8 @@ import {
 import { CommonLineId } from '../../../shared/types/common-types.ts';
 import { genshin_i18n, GENSHIN_I18N_MAP } from '../i18n.ts';
 import * as console from 'console';
+import { FullChangelog } from '../../../shared/types/changelog-types.ts';
+import { GameVersion } from '../../../shared/types/game-versions.ts';
 
 // region Control State
 // --------------------------------------------------------------------------------------------------------------
@@ -1529,13 +1531,17 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   // endregion
 
   // region Quest Chapters
-  private async postProcessChapter(chapter: ChapterExcelConfigData): Promise<ChapterExcelConfigData> {
+  private async postProcessChapter(chapter: ChapterExcelConfigData, orderQuests: boolean): Promise<ChapterExcelConfigData> {
     if (!chapter)
       return chapter;
     chapter.Quests = await this.selectMainQuestsByChapterId(chapter.Id);
     chapter.Type = chapter.Quests.find(x => x.Type)?.Type;
     if (chapter.Id === 1105) {
       chapter.Type = 'AQ';
+    }
+
+    if (orderQuests) {
+      chapter.OrderedQuests = await orderChapterQuests(this, chapter);
     }
 
     let ChapterNumTextEN = await this.getTextMapItem('EN', chapter.ChapterNumTextMapHash);
@@ -1611,16 +1617,16 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return chapter;
   }
 
-  private async postProcessChapters(chapters: ChapterExcelConfigData[]): Promise<ChapterExcelConfigData[]> {
-    return Promise.all(chapters.map(x => this.postProcessChapter(x))).then(arr => arr.filter(item => !!item));
+  private async postProcessChapters(chapters: ChapterExcelConfigData[], orderQuests: boolean): Promise<ChapterExcelConfigData[]> {
+    return Promise.all(chapters.map(x => this.postProcessChapter(x, orderQuests))).then(arr => arr.filter(item => !!item));
   }
 
   async selectAllChapters(): Promise<ChapterExcelConfigData[]> {
     return await this.knex.select('*').from('ChapterExcelConfigData')
-      .then(this.commonLoad).then(x => this.postProcessChapters(x));
+      .then(this.commonLoad).then(x => this.postProcessChapters(x, false));
   }
 
-  async selectChapterCollection(): Promise<ChapterCollection> {
+  generateChapterCollection(chapters: ChapterExcelConfigData[]): ChapterCollection {
     let map: ChapterCollection = {
       AQ: {},
       SQ: {},
@@ -1628,7 +1634,6 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       WQ: {},
     };
 
-    let chapters = await this.selectAllChapters();
     for (let chapter of chapters) {
       if (!chapter.Type || !chapter.ChapterTitleText) {
         continue;
@@ -1654,9 +1659,13 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return map;
   }
 
-  async selectChapterById(id: number): Promise<ChapterExcelConfigData> {
+  async selectChapterCollection(): Promise<ChapterCollection> {
+    return this.generateChapterCollection(await this.selectAllChapters());
+  }
+
+  async selectChapterById(id: number, orderQuests: boolean = true): Promise<ChapterExcelConfigData> {
     return await this.knex.select('*').from('ChapterExcelConfigData').where({Id: id})
-      .first().then(this.commonLoadFirst).then(x => this.postProcessChapter(x));
+      .first().then(this.commonLoadFirst).then(x => this.postProcessChapter(x, orderQuests));
   }
   // endregion
 
@@ -2892,7 +2901,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return archive.BookCollections[suitId];
   }
 
-  async selectReadableArchiveView(loadReadables: boolean|((readableView: ReadableView) => boolean) = false): Promise<ReadableArchiveView> {
+  generateReadableArchiveView(views: ReadableView[]): ReadableArchiveView {
     const archive: ReadableArchiveView = {
       BookCollections: {},
       Materials: [],
@@ -2900,9 +2909,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       Weapons: [],
     };
 
-    for (let document of await this.readDataFile<DocumentExcelConfigData[]>('./ExcelBinOutput/DocumentExcelConfigData.json')) {
-      let view = await this.selectReadableView(document.Id, loadReadables);
-
+    for (let view of views) {
       if (view.BookSuit) {
         if (!archive.BookCollections[view.BookSuit.Id]) {
           archive.BookCollections[view.BookSuit.Id] = view.BookSuit;
@@ -2922,6 +2929,17 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     }
 
     return archive;
+  }
+
+  async selectReadableArchiveView(loadReadables: boolean|((readableView: ReadableView) => boolean) = false): Promise<ReadableArchiveView> {
+    const views: ReadableView[] = [];
+
+    for (let document of await this.readDataFile<DocumentExcelConfigData[]>('./ExcelBinOutput/DocumentExcelConfigData.json')) {
+      let view = await this.selectReadableView(document.Id, loadReadables);
+      views.push(view);
+    }
+
+    return this.generateReadableArchiveView(views);
   }
   // endregion
 
@@ -2946,6 +2964,22 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       .where({ActivityId: id}).first().then(async res => res ? await this.getTextMapItem(this.outputLangCode, res.NameTextMapHash) : undefined);
     this.state.newActivityNameCache[id] = name;
     return name;
+  }
+  // endregion
+
+  // region Changelog
+  async selectChangelog(version: GameVersion): Promise<FullChangelog> {
+    if (!version || !version.showChangelog) {
+      return null;
+    }
+    return cached('GenshinFullChangelog', async () => {
+      const textmapChangelogFileName = path.resolve(process.env.GENSHIN_CHANGELOGS, `./TextMapChangeLog.${version.number}.json`);
+      const excelChangelogFileName = path.resolve(process.env.GENSHIN_CHANGELOGS, `./ExcelChangeLog.${version.number}.json`);
+
+      const textmapChangelog = JSON.parse(fs.readFileSync(textmapChangelogFileName, {encoding: 'utf-8'}));
+      const excelChangelog = JSON.parse(fs.readFileSync(excelChangelogFileName, {encoding: 'utf-8'}));
+      return <FullChangelog> {textmapChangelog, excelChangelog};
+    });
   }
   // endregion
 

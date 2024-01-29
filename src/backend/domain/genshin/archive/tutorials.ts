@@ -114,8 +114,8 @@ export async function selectTutorials(ctrl: GenshinControl,
   for (let tutorial of tutorials) {
     if (tutorialIdConstraint && !tutorialIdConstraint.includes(tutorial.Id)) {
       continue;
-
     }
+
     tutorial.PushTip = pushTips.find(p => p.TutorialId === tutorial.Id);
 
     if (!tutorial.PushTip) {
@@ -136,6 +136,7 @@ export async function selectTutorials(ctrl: GenshinControl,
     tutorial.Images = [];
 
     let codexTypeName = pushTipCodexTypeName(tutorial.CodexType);
+    tutorial.CodexTypeName = codexTypeName;
     let tipsIcon = pushTipsIcon(tutorial.PushTip?.TabIcon);
 
     if (codexTypeConstraint && tutorial.CodexType !== codexTypeConstraint) {

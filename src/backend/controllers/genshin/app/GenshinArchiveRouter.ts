@@ -47,8 +47,8 @@ import { cached } from '../../../util/cache.ts';
 export default async function(): Promise<Router> {
   const router: Router = create();
 
-  // Material Items
-  // ~~~~~~~~~~~~~~
+  // region Material Items
+  // --------------------------------------------------------------------------------------------------------------
   router.get('/items', async (req: Request, res: Response) => {
     res.render('pages/genshin/archive/material-search', {
       title: 'Items',
@@ -86,9 +86,10 @@ export default async function(): Promise<Router> {
       });
     }
   });
+  // endregion
 
-  // Weapons
-  // ~~~~~~~
+  // region Weapons
+  // --------------------------------------------------------------------------------------------------------------
   router.get('/weapons', async (req: Request, res: Response) => {
     res.render('pages/genshin/archive/weapon-search', {
       title: 'Weapons',
@@ -122,11 +123,11 @@ export default async function(): Promise<Router> {
         bodyClass: ['page--weapons'],
       });
     }
-  })
+  });
+  // endregion
 
-  // Viewpoints
-  // ~~~~~~~~~~
-
+  // region Viewpoints
+  // --------------------------------------------------------------------------------------------------------------
   router.get('/viewpoints/:city?', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
     let cityName: string = '';
@@ -152,11 +153,11 @@ export default async function(): Promise<Router> {
       fileFormatDefault_image: VIEWPOINT_DEFAULT_FILE_FORMAT_IMAGE,
       fileFormatDefault_map: VIEWPOINT_DEFAULT_FILE_FORMAT_MAP,
     });
-  })
+  });
+  // endregion
 
-  // Tutorials
-  // ~~~~~~~~~
-
+  // region Tutorials
+  // --------------------------------------------------------------------------------------------------------------
   router.get('/tutorials/search', async (req: Request, res: Response) => {
     res.render('pages/genshin/archive/tutorials-search', {
       title: 'Tutorials',
@@ -187,9 +188,10 @@ export default async function(): Promise<Router> {
       fileFormatDefault_image: TUTORIAL_DEFAULT_FILE_FORMAT_IMAGE,
     });
   });
+  // endregion
 
-  // Achievements
-  // ~~~~~~~~~~~~
+  // region Achievements
+  // --------------------------------------------------------------------------------------------------------------
 
   router.get('/achievements/search', async (req: Request, res: Response) => {
     res.render('pages/genshin/archive/achievements-search', {
@@ -316,9 +318,10 @@ export default async function(): Promise<Router> {
       achievements
     });
   });
+  // endregion
 
-  // Readables
-  // ~~~~~~~~~
+  // region Readables
+  // --------------------------------------------------------------------------------------------------------------
 
   router.get('/readables', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
@@ -373,9 +376,10 @@ export default async function(): Promise<Router> {
       bodyClass: ['page--readables', 'page--readable-single']
     });
   });
+  // endregion
 
-  // Loading Tips
-  // ~~~~~~~~~~~~
+  // region Loading Tips
+  // --------------------------------------------------------------------------------------------------------------
 
   router.get('/loading-tips', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
@@ -410,9 +414,10 @@ export default async function(): Promise<Router> {
       bodyClass: ['page--loading-tips']
     });
   });
+  // endregion
 
   // Furniture
-  // ~~~~~~~~~
+  // --------------------------------------------------------------------------------------------------------------
 
   router.get('/furnishing-sets', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
@@ -594,9 +599,8 @@ export default async function(): Promise<Router> {
     });
   });
 
-  // Living Beings
-  // ~~~~~~~~~~~~~
-
+  // region Living Beings
+  // --------------------------------------------------------------------------------------------------------------
   router.get('/enemies', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
     const title = (await ctrl.selectManualTextMapConfigDataById('UI_CODEX_ANIMAL_MONSTER')).TextMapContentText;
@@ -668,6 +672,7 @@ export default async function(): Promise<Router> {
       bodyClass: ['page--lb', 'page--wildlife']
     });
   });
+  // endregion
 
   return router;
 }

@@ -197,7 +197,7 @@ export async function generateCardPage(gcg: GCGControl, card: GCGCommonCard): Pr
   if (isCharacterCard(card)) {
     sb.line(`{{Other Languages|Transclude=${card.WikiName}}}`);
   } else {
-    sb.line((await ol_gen_from_id(gcg.ctrl, card.NameTextMapHash)).result);
+    sb.line((await ol_gen_from_id(gcg.ctrl, card.NameTextMapHash))?.result || '');
   }
   sb.line();
   sb.line('==Change History==');

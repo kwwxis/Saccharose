@@ -47,6 +47,5 @@ export default async function(): Promise<Router> {
     });
   });
 
-
   return router;
 }

@@ -38,8 +38,6 @@ export default async function(): Promise<Router> {
       });
     }
 
-    const quests = await orderChapterQuests(ctrl, chapter);
-
     const mainChapterNameOL = await ol_gen_from_id(ctrl, chapter.ChapterNumTextMapHash);
     const subChapterNameOL = await ol_gen_from_id(ctrl, chapter.ChapterImageTitleTextMapHash);
     const actNameOL = await ol_gen_from_id(ctrl, chapter.ChapterTitleTextMapHash);
@@ -47,7 +45,6 @@ export default async function(): Promise<Router> {
     res.render('pages/genshin/dialogue/chapters', {
       title: chapter.Summary.ActName,
       chapter: chapter,
-      quests: quests,
       OL: {
         mainChapterName: mainChapterNameOL,
         subChapterName: subChapterNameOL,

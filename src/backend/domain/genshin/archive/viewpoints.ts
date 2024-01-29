@@ -52,27 +52,19 @@ export async function getCityIdsWithViewpoints(ctrl: GenshinControl): Promise<Se
   return cityIdsWithViewpoints;
 }
 
-export async function selectViewpoints(ctrl: GenshinControl, cityIdConstraint?: number): Promise<ViewpointsByRegion> {
-  let viewpoints: ViewCodexExcelConfigData[] = await ctrl.readDataFile('./ExcelBinOutput/ViewCodexExcelConfigData.json');
-  let areas: WorldAreaConfigData[] = await ctrl.selectWorldAreas();
+async function postProcessViewpoint(ctrl: GenshinControl, viewpoint: ViewCodexExcelConfigData, areas: WorldAreaConfigData[]): Promise<ViewCodexExcelConfigData> {
+  cityIdsWithViewpoints.add(viewpoint.CityId);
 
-  let ret: ViewpointsByRegion = defaultMap('Array');
-
-  for (let viewpoint of viewpoints) {
-    cityIdsWithViewpoints.add(viewpoint.CityId);
-    if (isset(cityIdConstraint) && viewpoint.CityId !== cityIdConstraint) {
-      continue;
-    }
-    viewpoint.CityNameText = await ctrl.selectCityNameById(viewpoint.CityId);
-    viewpoint.WorldArea = areas.find(area => area.Id === viewpoint.WorldAreaId);
-    if (viewpoint.WorldArea.AreaNameText === 'Mondstadt' && viewpoint.WorldArea.TerrainType === 'AREA_TERRAIN_CITY') {
-      viewpoint.WorldArea.AreaNameText = 'City of Mondstadt';
-    }
-    if (viewpoint.WorldArea.AreaType === 'LEVEL_2') {
-      viewpoint.ParentWorldArea = areas.find(area => area.AreaType === 'LEVEL_1' && area.AreaId1 === viewpoint.WorldArea.AreaId1);
-    }
-    viewpoint.DownloadImage = await fileFormatOptionsApply(ctrl, viewpoint, 'FileFormat.viewpoint.image', VIEWPOINT_DEFAULT_FILE_FORMAT_IMAGE);
-    viewpoint.Wikitext = fileFormatOptionsCheck(`{{Viewpoint
+  viewpoint.CityNameText = await ctrl.selectCityNameById(viewpoint.CityId);
+  viewpoint.WorldArea = areas.find(area => area.Id === viewpoint.WorldAreaId);
+  if (viewpoint.WorldArea.AreaNameText === 'Mondstadt' && viewpoint.WorldArea.TerrainType === 'AREA_TERRAIN_CITY') {
+    viewpoint.WorldArea.AreaNameText = 'City of Mondstadt';
+  }
+  if (viewpoint.WorldArea.AreaType === 'LEVEL_2') {
+    viewpoint.ParentWorldArea = areas.find(area => area.AreaType === 'LEVEL_1' && area.AreaId1 === viewpoint.WorldArea.AreaId1);
+  }
+  viewpoint.DownloadImage = await fileFormatOptionsApply(ctrl, viewpoint, 'FileFormat.viewpoint.image', VIEWPOINT_DEFAULT_FILE_FORMAT_IMAGE);
+  viewpoint.Wikitext = fileFormatOptionsCheck(`{{Viewpoint
 |id      = ${viewpoint.SortOrder}
 |title   = ${viewpoint.NameText}
 |title2  = ${viewpoint.WorldArea.AreaNameText || ''}
@@ -84,6 +76,33 @@ export async function selectViewpoints(ctrl: GenshinControl, cityIdConstraint?: 
 |image   = ${viewpoint.DownloadImage}
 |map     = ${await fileFormatOptionsApply(ctrl, viewpoint, 'FileFormat.viewpoint.map', VIEWPOINT_DEFAULT_FILE_FORMAT_MAP)}
 }}`);
+  return viewpoint;
+}
+
+export async function selectViewpointsByIds(ctrl: GenshinControl, viewpointIds: number[]): Promise<ViewCodexExcelConfigData[]> {
+  let viewpoints: ViewCodexExcelConfigData[] = await ctrl.readDataFile('./ExcelBinOutput/ViewCodexExcelConfigData.json');
+  viewpoints = viewpoints.filter(v => viewpointIds.includes(v.Id));
+
+  const areas: WorldAreaConfigData[] = await ctrl.selectWorldAreas();
+  const ret: ViewCodexExcelConfigData[] = [];
+
+  for (let viewpoint of viewpoints) {
+    await postProcessViewpoint(ctrl, viewpoint, areas);
+    ret.push(viewpoint);
+  }
+  return ret;
+}
+
+export async function selectViewpoints(ctrl: GenshinControl, cityIdConstraint?: number): Promise<ViewpointsByRegion> {
+  const viewpoints: ViewCodexExcelConfigData[] = await ctrl.readDataFile('./ExcelBinOutput/ViewCodexExcelConfigData.json');
+  const areas: WorldAreaConfigData[] = await ctrl.selectWorldAreas();
+  const ret: ViewpointsByRegion = defaultMap('Array');
+
+  for (let viewpoint of viewpoints) {
+    if (isset(cityIdConstraint) && viewpoint.CityId !== cityIdConstraint) {
+      continue;
+    }
+    await postProcessViewpoint(ctrl, viewpoint, areas);
     ret[viewpoint.CityNameText].push(viewpoint);
   }
 
