@@ -17,9 +17,6 @@ let singleton: SaccharoseDb = null;
 let pgSingleton: Knex = null;
 
 function createSqliteConnection(dbFilePath: string): Knex {
-  if (!fs.existsSync(dbFilePath)) {
-    return null;
-  }
   return knex({
     client: 'sqlite3',
     connection: {
