@@ -13,7 +13,8 @@ export default async function(): Promise<Router> {
 
   router.get('/changelog', (req: Request, res: Response) => {
     res.render(ChangelogListPage, {
-      title: 'Genshin Changelog'
+      title: 'Genshin Changelog',
+      bodyClass: ['page--changelog']
     });
   });
 
