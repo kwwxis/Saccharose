@@ -17,6 +17,7 @@ import path from 'path';
 import { pathToFileURL } from 'url';
 import * as process from 'process';
 import { sort } from '../../../shared/util/arrayUtil.ts';
+import { renameFields } from '../import_db.ts';
 
 // region Walk Sync
 // --------------------------------------------------------------------------------------------------------------
@@ -70,8 +71,63 @@ export async function generateQuestDialogExcels(repoRoot: string) {
       return;
     }
     if (obj && !obj.id) {
-      console.log('Encountered obfuscated MQ:', fileName);
-      return;
+      obj = renameFields(obj, {
+        CCFPGAKINNB: 'id',
+        FKFBNNHJPDP: 'series',
+        JNMCHAGDLOL: 'type',
+        KBPAAIICBFE: 'luaPath',
+        FLCLAPBOOHF: 'chapterId',
+        GEMDBAMINAF: 'suggestTrackMainQuestList',
+        MHOOJOMLDDB: 'rewardIdList',
+        HLAINHJACPJ: 'titleTextMapHash',
+        CJBHOPEAEPN: 'descTextMapHash',
+        CNJBGFDOLLA: 'showType',
+
+        // QuestExcel props:
+        POJOCEPJPAL: 'subQuests',
+        OHGOECEBPJM: 'subId',
+        DNINOJJPDDG: 'mainId',
+        NKCPJODPKPO: 'order',
+        AODHOADLAJC: 'finishCond',
+        OBKNOBNIEGC: 'param',
+        OALKBEIOAOH: 'guide',
+        KGFIGPLOOGN: 'guideScene',
+        IGOKLNLLAJL: 'guideStyle',
+        CDDKJNJPILI: 'guideHint',
+        DBJJALMJAGP: 'finishParent',
+        IBKCENKCMEM: 'isRewind',
+        JLPDHGIFKMC: 'versionBegin',
+        NADDGOKKJAO: 'versionEnd',
+
+        // Talk props:
+        PCNNNPLAEAI: 'talks',
+        CLHPPLIFPFJ: 'beginWay',
+        AFNAENENCBB: 'beginCond',
+        KPMDGJNJNJC: 'priority',
+        FMFFELFBBJN: 'initDialog',
+        JDOFKFPHIDC: 'npcId',
+        GHHGNCCJOEJ: 'performCfg',
+        GKACCNJHFHH: 'heroTalk',
+        OLLANCCFJKD: 'questId',
+        NKIDPMJGEKA: 'assertIndex',
+        BBMLHKKNIOJ: 'prePerformCfg',
+
+        // Dialog props:
+        AAOAAFLLOJI: 'dialogList',
+        HJLEMJIGNFE: 'talkRole',
+        BDOKCLNNDGN: 'talkContentTextMapHash',
+        LBIALGEBDEF: 'talkAssetPath',
+        OHKKBEPEBKH: 'talkAssetPathAlter',
+        AMNGMAPONHL: 'talkAudioName',
+        IANGBGFBILD: 'actionBefore',
+        ADGDAEPIILL: 'actionWhile',
+        DGJCJLLDMON: 'actionAfter',
+        DOCDFJJIDNG: 'optionIcon'
+      });
+      if (obj && !obj.id) {
+        console.warn('Encountered obfuscated MQ:', fileName);
+        return;
+      }
     }
     if (mainQuestById[obj.id]) {
       console.log('Got duplicate of main quest ' + obj.id);
@@ -115,6 +171,10 @@ export async function generateQuestDialogExcels(repoRoot: string) {
     if (!obj) {
       return;
     }
+    if (obj && !obj.subId) {
+      console.warn('Encountered obfuscated QuestExcel under MQ ID ', mainQuestId);
+      return;
+    }
     if (questExcelById[obj.subId]) {
       console.log('Got duplicate of quest ' + obj.subId);
       Object.assign(questExcelById[obj.subId], obj);
@@ -127,6 +187,10 @@ export async function generateQuestDialogExcels(repoRoot: string) {
 
   function enqueueTalkExcel(obj: any) {
     if (!obj) {
+      return;
+    }
+    if (obj && !obj.id) {
+      console.warn('Encountered obfuscated TalkExcel');
       return;
     }
     if (talkExcelById[obj.id]) {
@@ -151,6 +215,10 @@ export async function generateQuestDialogExcels(repoRoot: string) {
 
   function enqueueDialogExcel(obj: any, extraProps: any = {}) {
     if (!obj) {
+      return;
+    }
+    if (obj && !obj.id) {
+      console.warn('Encountered obfuscated DialogExcel');
       return;
     }
     if (dialogExcelById[obj.id]) {

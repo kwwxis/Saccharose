@@ -221,6 +221,31 @@ export function normalizeRawJson(row: any, table?: SchemaTable, schemaTranslatio
   return newRow;
 }
 
+export function renameFields(row: any, schemaTranslation?: {[key: string]: string}): any {
+  if (typeof row === 'undefined' || typeof row === null || typeof row !== 'object') {
+    return row;
+  }
+  if (Array.isArray(row)) {
+    return row.map(item => renameFields(item, schemaTranslation));
+  }
+  let newRow: any = {};
+  for (let key of Object.keys(row)) {
+    let originalKey = key;
+
+    if (schemaTranslation) {
+      if (key in schemaTranslation) {
+        key = schemaTranslation[key];
+      }
+      if (key.toUpperCase() in schemaTranslation) {
+        key = schemaTranslation[key.toUpperCase()];
+      }
+    }
+
+    newRow[key] = renameFields(row[originalKey], schemaTranslation);
+  }
+  return newRow;
+}
+
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
     const databases = openSqlite();
