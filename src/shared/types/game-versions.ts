@@ -54,8 +54,13 @@ export const ZenlessVersions: GameVersion[] = [
   {number: '0.2.0', previous: '0.13'},
 ];
 
-export const CurrentGenshinVersion: GameVersion = GenshinVersions.find(v => v.number === '4.3');
+// TODO: This needs to be updated with each new Genshin version!
+export const CurrentGenshinVersion: GameVersion = GenshinVersions.find(v => v.number === '4.4');
+
+// TODO: This needs to be updated with each new Honkai Star Rail version!
 export const CurrentStarRailVersion: GameVersion = StarRailVersions.find(v => v.number === '1.6');
+
+// TODO: This needs to be updated with each new Zenless Zone Zero version!
 export const CurrentZenlessVersion: GameVersion = ZenlessVersions.find(v => v.number === '0.2.0');
 
 if (!CurrentGenshinVersion) throw 'Fatal configuration error in setting current Genshin Version';
