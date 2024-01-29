@@ -82,6 +82,10 @@ export async function importVoiceItems() {
         key = 'WeatherMonologue_' + voiceItem.GameTriggerArgs;
       } else if (voiceItem.GameTrigger === 'Card') {
         key = 'Card_' + voiceItem.GameTriggerArgs;
+      } else if (voiceItem.GameTrigger === 'Costume') {
+        key = 'Costume_' + voiceItem.GameTriggerArgs;
+      } else if (voiceItem.GameTrigger === 'Gacha') {
+        key = 'Gacha_' + voiceItem.GameTriggerArgs;
       } else {
         unknownTriggers.add(voiceItem.GameTrigger);
         continue;
@@ -131,7 +135,7 @@ export async function importVoiceItems() {
   });
 
   if (unknownTriggers.size) {
-    console.log(chalk.red('Unknown game triggers:', unknownTriggers));
+    console.log(chalk.red('Unknown game triggers:', Array.from(unknownTriggers)));
   }
   fs.writeFileSync(outDir + '/VoiceItems.json', JSON.stringify(combined, null, 2));
   console.log(chalk.blue('Done. Output written to: ' + outDir + '/VoiceItems.json'));
