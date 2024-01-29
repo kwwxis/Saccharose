@@ -16,8 +16,11 @@
     </div>
 
     <div id="tabpanel-summary" role="tabpanel" aria-labelledby="tab-summary" class="tabpanel active">
-      <h3 class="secondary-header">New Characters</h3>
-      <div class="content alignStart flexWrap">
+      <h3 class="secondary-header valign">
+        <span class="expando spacer5-right" ui-action="expando: #new-characters-content"><Icon name="chevron-down" :size="17" /></span>
+        New Characters
+      </h3>
+      <div id="new-characters-content" class="content alignStart flexWrap">
         <div class="alignStart spacer25-right" v-for="avatar of newSummary.avatars">
           <img class="framed-icon x64" :src="`/images/genshin/${avatar.IconName}.png`" loading="lazy" decoding="async" />
           <div class="spacer5-left">
@@ -29,62 +32,89 @@
         </div>
       </div>
 
-      <h3 class="secondary-header">New Weapons</h3>
-      <div class="content alignStart flexWrap">
+      <h3 class="secondary-header valign">
+        <span class="expando spacer5-right" ui-action="expando: #new-weapons-content"><Icon name="chevron-down" :size="17" /></span>
+        New Weapons
+      </h3>
+      <div id="new-weapons-content" class="content alignStart flexWrap">
         <template v-for="weapon of newSummary.weapons">
           <GenshinItem :item="weapon" />
         </template>
       </div>
 
-      <h3 class="secondary-header">New Materials: Foods</h3>
-      <div class="content alignStart flexWrap">
+      <h3 class="secondary-header valign">
+        <span class="expando spacer5-right" ui-action="expando: #new-foods-content"><Icon name="chevron-down" :size="17" /></span>
+        New Materials: Foods
+      </h3>
+      <div id="new-foods-content" class="content alignStart flexWrap">
         <template v-for="food of newSummary.foods">
           <GenshinItem :item="food" />
         </template>
       </div>
 
-      <h3 class="secondary-header">New Materials: TCG</h3>
-      <div class="content alignStart flexWrap">
+      <h3 class="secondary-header valign">
+        <span class="expando spacer5-right" ui-action="expando: #new-tcg-materials-content"><Icon name="chevron-down" :size="17" /></span>
+        New Materials: TCG
+      </h3>
+      <div id="new-tcg-materials-content" class="content alignStart flexWrap">
         <template v-for="item of newSummary.tcgItems">
           <GenshinItem :item="item" />
         </template>
       </div>
 
-      <h3 class="secondary-header">New Materials: Blueprints</h3>
-      <div class="content alignStart flexWrap">
+      <h3 class="secondary-header valign">
+        <span class="expando spacer5-right" ui-action="expando: #new-blueprints-content"><Icon name="chevron-down" :size="17" /></span>
+        New Materials: Blueprints
+      </h3>
+      <div id="new-blueprints-content" class="content alignStart flexWrap">
         <template v-for="item of newSummary.blueprints">
           <GenshinItem :item="item" />
         </template>
       </div>
 
-      <h3 class="secondary-header">New Materials: Avatar Items, Constellations, &amp; Namecards</h3>
-      <div class="content alignStart flexWrap">
+      <h3 class="secondary-header valign">
+        <span class="expando spacer5-right" ui-action="expando: #new-avatar-material-content"><Icon name="chevron-down" :size="17" /></span>
+        New Materials: Avatar Items, Constellations, &amp; Namecards
+      </h3>
+      <div id="new-avatar-material-content" class="content alignStart flexWrap">
         <template v-for="item of newSummary.avatarItems">
           <GenshinItem :item="item" />
         </template>
       </div>
 
-      <h3 class="secondary-header">New Materials: Items</h3>
-      <div class="content alignStart flexWrap">
+      <h3 class="secondary-header valign">
+        <span class="expando spacer5-right" ui-action="expando: #new-items-content"><Icon name="chevron-down" :size="17" /></span>
+        New Materials: Items
+      </h3>
+      <div id="new-items-content" class="content alignStart flexWrap">
         <template v-for="item of newSummary.items">
           <GenshinItem :item="item" />
         </template>
       </div>
 
-      <h3 class="secondary-header">New Artifacts</h3>
-      <div class="content alignStart flexWrap">
+      <h3 class="secondary-header valign">
+        <span class="expando spacer5-right" ui-action="expando: #new-artifacts-content"><Icon name="chevron-down" :size="17" /></span>
+        New Artifacts
+      </h3>
+      <div id="new-artifacts-content" class="content alignStart flexWrap">
         <p>Artifacts not implemented by Saccharose at this time.</p>
       </div>
 
-      <h3 class="secondary-header">New Furnishings</h3>
-      <div class="content alignStart flexWrap">
+      <h3 class="secondary-header valign">
+        <span class="expando spacer5-right" ui-action="expando: #new-furnishings-content"><Icon name="chevron-down" :size="17" /></span>
+        New Furnishings
+      </h3>
+      <div id="new-furnishings-content" class="content alignStart flexWrap">
         <template v-for="item of newSummary.furnishings">
           <GenshinItem :item="item" />
         </template>
       </div>
 
-      <h3 class="secondary-header">New Furnishing Sets</h3>
-      <div class="content alignStart">
+      <h3 class="secondary-header valign">
+        <span class="expando spacer5-right" ui-action="expando: #new-furnishing-sets-content"><Icon name="chevron-down" :size="17" /></span>
+        New Furnishing Sets
+      </h3>
+      <div id="new-furnishing-sets-content" class="content alignStart">
         <div v-if="newSummary.furnishingSets.length" v-for="setList of [
           newSummary.furnishingSets.slice(0, Math.ceil(newSummary.furnishingSets.length / 2)),
           newSummary.furnishingSets.slice(Math.ceil(newSummary.furnishingSets.length / 2))
@@ -118,31 +148,48 @@
         </div>
       </div>
 
-      <h3 class="secondary-header">New Living Beings: Monsters</h3>
-      <div class="content">
-        <p>May contain special variants of enemies with the same name as an already existing enemy.</p>
-      </div>
-      <div class="content alignStart flexWrap">
-        <GenshinLb v-for="monster of newSummary.monsters" :monster="monster" />
+      <h3 class="secondary-header valign">
+        <span class="expando spacer5-right" ui-action="expando: #new-monsters-content"><Icon name="chevron-down" :size="17" /></span>
+        New Living Beings: Monsters
+      </h3>
+      <div id="new-monsters-content">
+        <div class="content">
+          <p>May contain special variants of enemies with the same name as an already existing enemy.</p>
+        </div>
+        <div class="content alignStart flexWrap">
+          <GenshinLb v-for="monster of newSummary.monsters" :monster="monster" />
+        </div>
       </div>
 
-      <h3 class="secondary-header">New Living Beings: Wildlife</h3>
-      <div class="content alignStart flexWrap">
+      <h3 class="secondary-header valign">
+        <span class="expando spacer5-right" ui-action="expando: #new-wildlife-content"><Icon name="chevron-down" :size="17" /></span>
+        New Living Beings: Wildlife
+      </h3>
+      <div id="new-wildlife-content" class="content alignStart flexWrap">
         <GenshinLb v-for="monster of newSummary.wildlife" :monster="monster" />
       </div>
 
-      <h3 class="secondary-header">New TCG Cards: Character Cards</h3>
-      <div class="content alignStart flexWrap">
+      <h3 class="secondary-header valign">
+        <span class="expando spacer5-right" ui-action="expando: #new-tcg-character-cards-content"><Icon name="chevron-down" :size="17" /></span>
+        New TCG Cards: Character Cards
+      </h3>
+      <div id="new-tcg-character-cards-content" class="content alignStart flexWrap">
         <TcgCard v-for="card of newSummary.tcgCharacterCards" :card="card" />
       </div>
 
-      <h3 class="secondary-header">New TCG Cards: Action Cards</h3>
-      <div class="content alignStart flexWrap">
+      <h3 class="secondary-header valign">
+        <span class="expando spacer5-right" ui-action="expando: #new-tcg-action-cards-content"><Icon name="chevron-down" :size="17" /></span>
+        New TCG Cards: Action Cards
+      </h3>
+      <div id="new-tcg-action-cards-content" class="content alignStart flexWrap">
         <TcgCard v-for="card of newSummary.tcgActionCards" :card="card" />
       </div>
 
-      <h3 class="secondary-header">New TCG Stages</h3>
-      <div class="content">
+      <h3 class="secondary-header valign">
+        <span class="expando spacer5-right" ui-action="expando: #new-tcg-stages-content"><Icon name="chevron-down" :size="17" /></span>
+        New TCG Stages
+      </h3>
+      <div id="new-tcg-stages-content" class="content">
         <table class="article-table" v-if="newSummary.tcgStages.length">
           <tr style="font-size: 14px;text-align: left;line-height: 16px;">
             <th>Icon</th>
@@ -181,8 +228,11 @@
         </table>
       </div>
 
-      <h3 class="secondary-header">New Viewpoints</h3>
-      <div class="content">
+      <h3 class="secondary-header valign">
+        <span class="expando spacer5-right" ui-action="expando: #new-viewpoints-content"><Icon name="chevron-down" :size="17" /></span>
+        New Viewpoints
+      </h3>
+      <div id="new-viewpoints-content" class="content">
         <table class="article-table" v-if="newSummary.viewpoints.length">
           <tr>
             <th>Title</th>
@@ -206,9 +256,12 @@
         </table>
       </div>
 
-      <h3 class="secondary-header">New Loading Tips</h3>
-      <div class="content">
-        <table class="article-table" v-if="newSummary.loadingTips.length">
+      <h3 class="secondary-header valign">
+        <span class="expando spacer5-right" ui-action="expando: #new-loading-tips-content"><Icon name="chevron-down" :size="17" /></span>
+        New Loading Tips
+      </h3>
+      <div id="new-loading-tips-content" class="content">
+        <table class="article-table" v-if="newSummary.loadingTips.length" style="font-size:15px">
           <tr>
             <th>Title</th>
             <th>Description</th>
@@ -224,8 +277,11 @@
         </table>
       </div>
 
-      <h3 class="secondary-header">New Achievements</h3>
-      <div class="content">
+      <h3 class="secondary-header valign">
+        <span class="expando spacer5-right" ui-action="expando: #new-achievements-content"><Icon name="chevron-down" :size="17" /></span>
+        New Achievements
+      </h3>
+      <div id="new-achievements-content" class="content">
         <table class="article-table" v-if="newSummary.achievements.length" style="font-size:15px">
           <tr>
             <th>ID</th>
@@ -244,8 +300,11 @@
         </table>
       </div>
 
-      <h3 class="secondary-header">New Tutorials</h3>
-      <div class="content">
+      <h3 class="secondary-header valign">
+        <span class="expando spacer5-right" ui-action="expando: #new-tutorials-content"><Icon name="chevron-down" :size="17" /></span>
+        New Tutorials
+      </h3>
+      <div id="new-tutorials-content" class="content">
         <table class="article-table" v-if="newSummary.tutorials.length" style="font-size:15px">
           <tr>
             <th>ID</th>
@@ -276,78 +335,137 @@
         </table>
       </div>
 
-      <h3 class="secondary-header">New Readables</h3>
-      <template v-if="Object.values(newSummary.readables.BookCollections).length">
-        <h4 class="content" style="padding-bottom:0">Book Collections</h4>
-        <div class="content">
-          <div class="w100p spacer-top" v-for="collection of Object.values(newSummary.readables.BookCollections)">
-            <a class="secondary spacer3-all valign textAlignLeft" role="button" :href="`/readables/book-collection/${collection.Id}`">
-              <img class="icon x32" :src="`/images/genshin/${collection.Books[0]?.Material?.Icon}.png`" loading="lazy" decoding="async" />
-              <span class="spacer10-left">{{ collection.SuitNameText }}</span>
-            </a>
-            <div style="padding-left:20px">
-              <div class="w100p" v-for="readable of collection.Books">
-                <GenshinReadableLink :readable-view="readable" />
+      <h3 class="secondary-header valign">
+        <span class="expando spacer5-right" ui-action="expando: #new-readables-content"><Icon name="chevron-down" :size="17" /></span>
+        New Readables
+      </h3>
+      <div id="new-readables-content">
+        <template v-if="Object.values(newSummary.readables.BookCollections).length">
+          <h4 class="content" style="padding-bottom:0">Book Collections</h4>
+          <div class="content">
+            <div class="w100p spacer-top" v-for="collection of Object.values(newSummary.readables.BookCollections)">
+              <a class="secondary spacer3-all valign textAlignLeft" role="button" :href="`/readables/book-collection/${collection.Id}`">
+                <img class="icon x32" :src="`/images/genshin/${collection.Books[0]?.Material?.Icon}.png`" loading="lazy" decoding="async" />
+                <span class="spacer10-left">{{ collection.SuitNameText }}</span>
+              </a>
+              <div style="padding-left:20px">
+                <div class="w100p" v-for="readable of collection.Books">
+                  <GenshinReadableLink :readable-view="readable" />
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </template>
-      <template v-if="newSummary.readables.Materials.filter(v => v?.Material?.MaterialType === 'MATERIAL_QUEST').length">
-        <h4 class="content" style="padding-bottom:0">Quest Items</h4>
-        <div class="content dispFlex flexWrap alignStart">
-          <div class="w50p" v-for="readable of newSummary.readables.Materials.filter(v => v?.Material?.MaterialType === 'MATERIAL_QUEST')">
-            <GenshinReadableLink :readable-view="readable" />
+        </template>
+        <template v-if="newSummary.readables.Materials.filter(v => v?.Material?.MaterialType === 'MATERIAL_QUEST').length">
+          <h4 class="content" style="padding-bottom:0">Quest Items</h4>
+          <div class="content dispFlex flexWrap alignStart">
+            <div class="w50p" v-for="readable of newSummary.readables.Materials.filter(v => v?.Material?.MaterialType === 'MATERIAL_QUEST')">
+              <GenshinReadableLink :readable-view="readable" />
+            </div>
           </div>
-        </div>
-      </template>
-      <template v-if="newSummary.readables.Materials.filter(v => v?.Material?.MaterialType === 'MATERIAL_FLYCLOAK').length">
-        <h4 class="content" style="padding-bottom:0">Glider Descriptions</h4>
-        <div class="content dispFlex flexWrap alignStart">
-          <div class="w50p" v-for="readable of newSummary.readables.Materials.filter(v => v?.Material?.MaterialType === 'MATERIAL_FLYCLOAK')">
-            <GenshinReadableLink :readable-view="readable" />
+        </template>
+        <template v-if="newSummary.readables.Materials.filter(v => v?.Material?.MaterialType === 'MATERIAL_FLYCLOAK').length">
+          <h4 class="content" style="padding-bottom:0">Glider Descriptions</h4>
+          <div class="content dispFlex flexWrap alignStart">
+            <div class="w50p" v-for="readable of newSummary.readables.Materials.filter(v => v?.Material?.MaterialType === 'MATERIAL_FLYCLOAK')">
+              <GenshinReadableLink :readable-view="readable" />
+            </div>
           </div>
-        </div>
-      </template>
-      <template v-if="newSummary.readables.Materials.filter(v => v?.Material?.MaterialType === 'MATERIAL_COSTUME').length">
-        <h4 class="content" style="padding-bottom:0">Costume Descriptions</h4>
-        <div class="content dispFlex flexWrap alignStart">
-          <div class="w50p" v-for="readable of newSummary.readables.Materials.filter(v => v?.Material?.MaterialType === 'MATERIAL_COSTUME')">
-            <GenshinReadableLink :readable-view="readable" />
+        </template>
+        <template v-if="newSummary.readables.Materials.filter(v => v?.Material?.MaterialType === 'MATERIAL_COSTUME').length">
+          <h4 class="content" style="padding-bottom:0">Costume Descriptions</h4>
+          <div class="content dispFlex flexWrap alignStart">
+            <div class="w50p" v-for="readable of newSummary.readables.Materials.filter(v => v?.Material?.MaterialType === 'MATERIAL_COSTUME')">
+              <GenshinReadableLink :readable-view="readable" />
+            </div>
           </div>
-        </div>
-      </template>
-      <template v-if="newSummary.readables.Weapons.length">
-        <h4 class="content" style="padding-bottom:0">Weapons</h4>
-        <div class="content dispFlex flexWrap alignStart">
-          <div class="w50p" v-for="readable of newSummary.readables.Weapons">
-            <GenshinReadableLink :readable-view="readable" />
+        </template>
+        <template v-if="newSummary.readables.Weapons.length">
+          <h4 class="content" style="padding-bottom:0">Weapons</h4>
+          <div class="content dispFlex flexWrap alignStart">
+            <div class="w50p" v-for="readable of newSummary.readables.Weapons">
+              <GenshinReadableLink :readable-view="readable" />
+            </div>
           </div>
-        </div>
-      </template>
-      <template v-if="newSummary.readables.Artifacts.length">
-        <h4 class="content" style="padding-bottom:0">Artifacts</h4>
-        <div class="content dispFlex flexWrap alignStart">
-          <div class="w50p" v-for="readable of newSummary.readables.Artifacts">
-            <GenshinReadableLink :readable-view="readable" />
+        </template>
+        <template v-if="newSummary.readables.Artifacts.length">
+          <h4 class="content" style="padding-bottom:0">Artifacts</h4>
+          <div class="content dispFlex flexWrap alignStart">
+            <div class="w50p" v-for="readable of newSummary.readables.Artifacts">
+              <GenshinReadableLink :readable-view="readable" />
+            </div>
           </div>
-        </div>
-      </template>
+        </template>
+      </div>
 
-      <h3 class="secondary-header">New Chapters</h3>
+      <h3 class="secondary-header valign">
+        <span class="expando spacer5-right" ui-action="expando: #new-chapters-content"><Icon name="chevron-down" :size="17" /></span>
+        New Chapters
+      </h3>
+      <div id="new-chapters-content">
+        <template v-if="Object.keys(newSummary.chapters.AQ).length">
+          <h4 class="content" style="padding-bottom:0">New Archon Quest Chapters</h4>
+          <div class="content" v-for="entry1 of chapterGroup1('AQ')">
+            <div v-for="entry2 of chapterGroup2('AQ', entry1.chapterName)">
+              <div class="spacer15-bottom" v-for="chapter of entry2.chapters">
+                <a class="secondary spacer3-all valign textAlignLeft" role="button" :href="`/chapters/${chapter.Id}`">
+                  <img v-if="chapter.ChapterIcon"
+                       :src="`/images/genshin/${chapter.ChapterIcon}.png`" class="spacer10-right" loading="lazy" decoding="async"
+                       style="width:48px;height:48px;background:#333;border-radius:50%;border:1px solid #fff;"/>
+                  <span>{{ entry1.chapterName }}</span>
+                  <span>&nbsp;&mdash;&nbsp;</span>
+                  <span>{{ entry2.subChapterName }}</span>
+                  <span>&nbsp;&mdash;&nbsp;</span>
+                  <template v-if="chapter.Summary.ActNumText">
+                    <span>{{ chapter.Summary.ActNumText }}</span>
+                    <span>:&nbsp;</span>
+                  </template>
+                  <strong>{{ chapter.Summary.ActName }}</strong>
+                </a>
+                <div style="padding-left:72px">
+                  <GenshinChapterListItem :quests="chapter.OrderedQuests" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
 
-      <template v-if="Object.keys(newSummary.chapters.AQ).length">
-        <h4 class="content" style="padding-bottom:0">New Archon Quest Chapters</h4>
-        <div class="content" v-for="entry1 of chapterGroup1('AQ')">
-          <div v-for="entry2 of chapterGroup2('AQ', entry1.chapterName)">
-            <div class="spacer15-bottom" v-for="chapter of entry2.chapters">
+        <template v-if="Object.keys(newSummary.chapters.SQ).length">
+          <h4 class="content" style="padding-bottom:0">New Story Quest Chapters</h4>
+          <div class="content" v-for="entry1 of chapterGroup1('SQ')">
+            <div v-for="entry2 of chapterGroup2('SQ', entry1.chapterName)">
+              <div class="spacer15-bottom" v-for="chapter of entry2.chapters">
+                <a class="secondary spacer3-all valign textAlignLeft" role="button" :href="`/chapters/${chapter.Id}`">
+                  <img v-if="chapter.ChapterIcon"
+                       :src="`/images/genshin/${chapter.ChapterIcon}.png`" class="spacer10-right" loading="lazy" decoding="async"
+                       style="width:48px;height:48px;background:#333;border-radius:50%;border:1px solid #fff;"/>
+                  <span>{{ entry1.chapterName }}</span>
+                  <span>&nbsp;&mdash;&nbsp;</span>
+                  <span>{{ entry2.subChapterName }}</span>
+                  <span>&nbsp;&mdash;&nbsp;</span>
+                  <template v-if="chapter.Summary.ActNumText">
+                    <span>{{ chapter.Summary.ActNumText }}</span>
+                    <span>:&nbsp;</span>
+                  </template>
+                  <strong>{{ chapter.Summary.ActName }}</strong>
+                </a>
+                <div style="padding-left:72px">
+                  <GenshinChapterListItem :quests="chapter.OrderedQuests" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
+
+        <template v-if="Object.keys(newSummary.chapters.EQ).length">
+          <h4 class="content" style="padding-bottom:0">New Event Quest Chapters</h4>
+          <div class="content" v-for="(chapters, chapterName) in newSummary.chapters.EQ">
+            <div class="spacer15-bottom" v-for="chapter of chapters">
               <a class="secondary spacer3-all valign textAlignLeft" role="button" :href="`/chapters/${chapter.Id}`">
                 <img v-if="chapter.ChapterIcon"
                      :src="`/images/genshin/${chapter.ChapterIcon}.png`" class="spacer10-right" loading="lazy" decoding="async"
                      style="width:48px;height:48px;background:#333;border-radius:50%;border:1px solid #fff;"/>
-                <span>{{ entry1.chapterName }}</span>
-                <span>&nbsp;&mdash;&nbsp;</span>
-                <span>{{ entry2.subChapterName }}</span>
+                <span>{{ chapterName }}</span>
                 <span>&nbsp;&mdash;&nbsp;</span>
                 <template v-if="chapter.Summary.ActNumText">
                   <span>{{ chapter.Summary.ActNumText }}</span>
@@ -360,21 +478,17 @@
               </div>
             </div>
           </div>
-        </div>
-      </template>
+        </template>
 
-      <template v-if="Object.keys(newSummary.chapters.SQ).length">
-        <h4 class="content" style="padding-bottom:0">New Story Quest Chapters</h4>
-        <div class="content" v-for="entry1 of chapterGroup1('SQ')">
-          <div v-for="entry2 of chapterGroup2('SQ', entry1.chapterName)">
-            <div class="spacer15-bottom" v-for="chapter of entry2.chapters">
+        <template v-if="Object.keys(newSummary.chapters.WQ).length">
+          <h4 class="content" style="padding-bottom:0">New World Quest Chapters</h4>
+          <div class="content" v-for="(chapters, chapterName) in newSummary.chapters.WQ">
+            <div class="spacer15-bottom" v-for="chapter of chapters">
               <a class="secondary spacer3-all valign textAlignLeft" role="button" :href="`/chapters/${chapter.Id}`">
                 <img v-if="chapter.ChapterIcon"
                      :src="`/images/genshin/${chapter.ChapterIcon}.png`" class="spacer10-right" loading="lazy" decoding="async"
                      style="width:48px;height:48px;background:#333;border-radius:50%;border:1px solid #fff;"/>
-                <span>{{ entry1.chapterName }}</span>
-                <span>&nbsp;&mdash;&nbsp;</span>
-                <span>{{ entry2.subChapterName }}</span>
+                <span>{{ chapterName }}</span>
                 <span>&nbsp;&mdash;&nbsp;</span>
                 <template v-if="chapter.Summary.ActNumText">
                   <span>{{ chapter.Summary.ActNumText }}</span>
@@ -387,57 +501,14 @@
               </div>
             </div>
           </div>
-        </div>
-      </template>
+        </template>
+      </div>
 
-      <template v-if="Object.keys(newSummary.chapters.EQ).length">
-        <h4 class="content" style="padding-bottom:0">New Event Quest Chapters</h4>
-        <div class="content" v-for="(chapters, chapterName) in newSummary.chapters.EQ">
-          <div class="spacer15-bottom" v-for="chapter of chapters">
-            <a class="secondary spacer3-all valign textAlignLeft" role="button" :href="`/chapters/${chapter.Id}`">
-              <img v-if="chapter.ChapterIcon"
-                   :src="`/images/genshin/${chapter.ChapterIcon}.png`" class="spacer10-right" loading="lazy" decoding="async"
-                   style="width:48px;height:48px;background:#333;border-radius:50%;border:1px solid #fff;"/>
-              <span>{{ chapterName }}</span>
-              <span>&nbsp;&mdash;&nbsp;</span>
-              <template v-if="chapter.Summary.ActNumText">
-                <span>{{ chapter.Summary.ActNumText }}</span>
-                <span>:&nbsp;</span>
-              </template>
-              <strong>{{ chapter.Summary.ActName }}</strong>
-            </a>
-            <div style="padding-left:72px">
-              <GenshinChapterListItem :quests="chapter.OrderedQuests" />
-            </div>
-          </div>
-        </div>
-      </template>
-
-      <template v-if="Object.keys(newSummary.chapters.WQ).length">
-        <h4 class="content" style="padding-bottom:0">New World Quest Chapters</h4>
-        <div class="content" v-for="(chapters, chapterName) in newSummary.chapters.WQ">
-          <div class="spacer15-bottom" v-for="chapter of chapters">
-            <a class="secondary spacer3-all valign textAlignLeft" role="button" :href="`/chapters/${chapter.Id}`">
-              <img v-if="chapter.ChapterIcon"
-                   :src="`/images/genshin/${chapter.ChapterIcon}.png`" class="spacer10-right" loading="lazy" decoding="async"
-                   style="width:48px;height:48px;background:#333;border-radius:50%;border:1px solid #fff;"/>
-              <span>{{ chapterName }}</span>
-              <span>&nbsp;&mdash;&nbsp;</span>
-              <template v-if="chapter.Summary.ActNumText">
-                <span>{{ chapter.Summary.ActNumText }}</span>
-                <span>:&nbsp;</span>
-              </template>
-              <strong>{{ chapter.Summary.ActName }}</strong>
-            </a>
-            <div style="padding-left:72px">
-              <GenshinChapterListItem :quests="chapter.OrderedQuests" />
-            </div>
-          </div>
-        </div>
-      </template>
-
-      <h3 class="secondary-header">New Non-Chapter Quests</h3>
-      <div class="content">
+      <h3 class="secondary-header valign">
+        <span class="expando spacer5-right" ui-action="expando: #new-non-chapter-quests-content"><Icon name="chevron-down" :size="17" /></span>
+        New Non-Chapter Quests
+      </h3>
+      <div id="new-non-chapter-quests-content" class="content">
         <div v-for="mainQuest of newSummary.quests.filter(mq => !!mq.TitleText)">
           <a class="secondary dispBlock spacer5-bottom textAlignLeft" role="button" :href="`/quests/${mainQuest.Id}`">
             <strong>ID {{ mainQuest.Id }} {{ mainQuest.Type }}:&nbsp;</strong>
@@ -446,8 +517,11 @@
         </div>
       </div>
 
-      <h3 class="secondary-header">Internal Quests</h3>
-      <div class="content">
+      <h3 class="secondary-header valign">
+        <span class="expando spacer5-right" ui-action="expando: #new-internal-quests-content"><Icon name="chevron-down" :size="17" /></span>
+        Internal Quests
+      </h3>
+      <div id="new-internal-quests-content" class="content">
         <div v-for="mainQuest of newSummary.quests.filter(mq => !mq.TitleText)">
           <a class="secondary dispBlock spacer5-bottom textAlignLeft" role="button" :href="`/quests/${mainQuest.Id}`">
             <strong>ID {{ mainQuest.Id }}:&nbsp;</strong>
@@ -459,7 +533,7 @@
 
     <div id="tabpanel-byExcels" role="tabpanel" aria-labelledby="tab-byExcels" class="tabpanel hide">
       <template v-for="excelFileChanges of sort(Object.values(fullChangelog.excelChangelog), 'name')">
-        <h3 class="secondary-header">{{ excelFileChanges.name }}</h3>
+        <h3 class="secondary-header valign">{{ excelFileChanges.name }}</h3>
         <div class="content">
           <dl>
             <dt>Added records</dt>
