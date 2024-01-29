@@ -5,7 +5,7 @@ import {
 } from '../../../shared/types/genshin/dialogue-types.ts';
 import {
   CombineExcelConfigData,
-  CompoundExcelConfigData,
+  CompoundExcelConfigData, CookBonusExcelConfigData,
   CookRecipeExcelConfigData,
   ForgeExcelConfigData,
   MaterialExcelConfigData,
@@ -13,7 +13,7 @@ import {
 } from '../../../shared/types/genshin/material-types.ts';
 import { FurnitureMakeExcelConfigData } from '../../../shared/types/genshin/homeworld-types.ts';
 import { GCGCharacterLevelExcelConfigData, GCGWeekLevelExcelConfigData } from '../../../shared/types/genshin/gcg-types.ts';
-import { SchemaTable, textMapSchema, plainLineMapSchema } from '../import_db.ts';
+import { SchemaTable, textMapSchema, plainLineMapSchema, normalizeRawJson } from '../import_db.ts';
 import { getGenshinDataFilePath } from '../../loadenv.ts';
 import fs from 'fs';
 import { DocumentExcelConfigData } from '../../../shared/types/genshin/readable-types.ts';
@@ -857,7 +857,7 @@ export const genshinSchema = {
       JKPKBLJAMAG: 'TalkDetailIconId',
       PGFENJJPNBG: 'TalkEmoji',
     },
-    singularize: ['TalkDetailIconId'],
+    singularize: {'TalkDetailIconId': 'TalkDetailIconId'},
   },
   GCGTalkDetailIconExcelConfigData: <SchemaTable> {
     name: 'GCGTalkDetailIconExcelConfigData',
@@ -1289,7 +1289,7 @@ export const genshinSchema = {
       EBJAELDKAAJ: 'CategoryType',
       NEAJPKMAMOF: 'CategoryType'
     },
-    singularize: ['CategoryType'],
+    singularize: {'CategoryType': 'CategoryType'},
   },
   GCGKeywordExcelConfigData: <SchemaTable> {
     name: 'GCGKeywordExcelConfigData',
@@ -1671,6 +1671,18 @@ export const genshinSchema = {
       { name: 'DescTextMapHash', type: 'integer', isIndex: true },
     ],
   },
+  CookBonusExcelConfigData: <SchemaTable> {
+    name: 'CookBonusExcelConfigData',
+    jsonFile: './ExcelBinOutput/CookBonusExcelConfigData.json',
+    columns: [
+      { name: 'RecipeId', type: 'integer', isPrimary: true },
+      { name: 'AvatarId', type: 'integer', isIndex: true },
+      { name: 'ResultItemId', type: 'integer', isIndex: true },
+    ],
+    singularize: {
+      ParamVec: 'ResultItemId'
+    }
+  },
   Relation_CookRecipeExcelConfigData: <SchemaTable> {
     name: 'Relation_CookRecipeExcelConfigData',
     jsonFile: './ExcelBinOutput/CookRecipeExcelConfigData.json',
@@ -1691,6 +1703,39 @@ export const genshinSchema = {
           ret.push({ RelationId: row.Id, RoleId: item.Id, RoleType: 'output' });
         }
       }
+      return ret;
+    },
+  },
+  Relation_CookBonusExcelConfigData: <SchemaTable> {
+    name: 'Relation_CookBonusExcelConfigData',
+    jsonFile: './ExcelBinOutput/CookBonusExcelConfigData.json',
+    columns: [
+      { name: 'RelationId', type: 'integer', isIndex: true },
+      { name: 'RoleId', type: 'integer', isIndex: true },
+      { name: 'RoleType', type: 'string', isIndex: true },
+    ],
+    customRowResolve: async (row: CookBonusExcelConfigData, _allRows: any[], acc: Record<string, any>) => {
+      if (!acc.ctrl) {
+        const myState = new GenshinControlState();
+        myState.NoDbConnect = true;
+        acc.ctrl = new GenshinControl(myState);
+      }
+      if (!acc.cookRecipes) {
+        const ctrl: GenshinControl = acc.ctrl;
+        acc.cookRecipes = (await ctrl.readJsonFile('./ExcelBinOutput/CookRecipeExcelConfigData.json')).map(r => normalizeRawJson(r));
+      }
+
+      let ret: MaterialRelation[] = [];
+
+      if (row.ParamVec) {
+        ret.push({ RelationId: row.RecipeId, RoleId: row.ParamVec[0], RoleType: 'output' });
+      }
+
+      const cookRecipe: CookRecipeExcelConfigData = (<CookRecipeExcelConfigData[]> acc.cookRecipes).find(r => r.Id === row.RecipeId);
+      for (let vecItem of cookRecipe.QualityOutputVec) {
+        ret.push({ RelationId: row.RecipeId, RoleId: vecItem.Id, RoleType: 'substitute' });
+      }
+
       return ret;
     },
   },

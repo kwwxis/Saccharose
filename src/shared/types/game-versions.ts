@@ -1,5 +1,6 @@
-export type GameVersion = {number: string, previous: string};
+export type GameVersion = {number: string, previous: string, showChangelog?: boolean};
 
+// TODO: This needs to be updated with each new Genshin version!
 export const GenshinVersions: GameVersion[] = [
   {number: '1.0', previous: null},
   {number: '1.1', previous: '1.0'},
@@ -29,12 +30,13 @@ export const GenshinVersions: GameVersion[] = [
   {number: '3.7', previous: '3.6'},
   {number: '3.8', previous: '3.7'},
 
-  {number: '4.0', previous: '3.8'},
-  {number: '4.1', previous: '4.0'},
-  {number: '4.2', previous: '4.1'},
-  {number: '4.3', previous: '4.2'},
+  {number: '4.0', previous: '3.8', showChangelog: true},
+  {number: '4.1', previous: '4.0', showChangelog: true},
+  {number: '4.2', previous: '4.1', showChangelog: true},
+  {number: '4.3', previous: '4.2', showChangelog: true},
 ];
 
+// TODO: This needs to be updated with each new Honkai Star Rail version!
 export const StarRailVersions: GameVersion[] = [
   {number: '1.0', previous: null},
   {number: '1.1', previous: '1.0'},
@@ -45,6 +47,7 @@ export const StarRailVersions: GameVersion[] = [
   {number: '1.6', previous: '1.5'},
 ];
 
+// TODO: This needs to be updated with each new Zenless Zone Zero version!
 export const ZenlessVersions: GameVersion[] = [
   {number: '0.13', previous: null},
   {number: '0.2.0', previous: '0.13'},

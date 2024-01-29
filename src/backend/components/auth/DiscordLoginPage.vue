@@ -26,6 +26,15 @@
 
         <div class="alignCenter w100p flexColumn">
           <p style="text-align: center;max-width:400px">Please login with Discord. Saccharose will only have access to your Discord ID, username, avatar, and banner image.</p>
+
+          <p style="text-align: center;
+              max-width: 220px;
+              line-height: 1.2em;
+              margin-top: 10px;">
+            <small>By logging into this site, you agree
+              to the <a href="/terms">Terms of Service</a> and <a href="/privacy">Privacy Policy</a>.</small>
+          </p>
+
           <a :href="`/auth/discord?cont=` + myCont" role="button" class="spacer15-top spacer10-bottom primary primary--2 big">Login</a>
         </div>
       </div>

@@ -544,16 +544,7 @@ export default async function(): Promise<Router> {
       sb.line();
       if (furn.MakeData) {
         sb.line('==Creation==');
-        sb.line(`First time creation grants {{Item|Trust|24|x=${furn.MakeData.Exp}}}.`);
-        sb.setPropPad(1);
-        sb.line('{{Recipe');
-        sb.prop('type', 'Creation');
-        sb.prop('time', Math.floor(furn.MakeData.MakeTime / 60 / 60)+'h');
-        for (let vec of furn.MakeData.MaterialItems) {
-          sb.prop(vec.Material.NameText, vec.Count);
-        }
-        sb.prop('sort', furn.MakeData.MaterialItems.map(vec => vec.Material.NameText).join(';'));
-        sb.line('}}');
+        sb.line(ctrl.generateFurnitureMakeRecipe(furn.MakeData));
         sb.line();
       }
       sb.line('==Furnishing Sets==');

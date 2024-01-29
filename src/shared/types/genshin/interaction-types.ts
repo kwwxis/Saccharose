@@ -4,11 +4,24 @@ export const InterActionSchema = <SchemaTable> {
   name: 'InterAction',
   columns: [],
   jsonFile: '',
+
+  // TODO: This needs to be updated with each new Genshin version!
   renameFields: {
-    BCOOIEMOMBL: 'DialogOptions',
-    DLIPJKNKANK: 'DialogNextGroup',
-    KPKFJANJAJM: 'DialogId',
-    MGKDCJOKIGC: 'CutsceneId'
+    CIOBDALMHGN: 'DialogOptions', // 4.1
+    MLAABINGLAA: 'DialogOptions', // 4.2
+    BCOOIEMOMBL: 'DialogOptions', // 4.3
+
+    MCAHMAIKDKH: 'DialogNextGroup', // 4.1
+    HPBPDBFGKID: 'DialogNextGroup', // 4.2
+    DLIPJKNKANK: 'DialogNextGroup', // 4.3
+
+    GBAPKLGILDP: 'DialogId', // 4.1
+    KICBIOMGHIN: 'DialogId', // 4.2
+    KPKFJANJAJM: 'DialogId', // 4.3
+
+    EDFJOBOJFBD: 'CutsceneId', // 4.1
+    LMHLEOPOLEK: 'CutsceneId', // 4.2
+    MGKDCJOKIGC: 'CutsceneId', // 4.3
   },
 };
 

@@ -99,8 +99,13 @@ async function computeTextMapChanges(state: CreateChangelogState) {
     const langCode: LangCode = schemaTable.textMapSchemaLangCode;
     console.log('Computing changes for TextMap' + langCode);
 
-    const prevFile: string = path.resolve(prevDataRoot, schemaTable.jsonFile);
-    const currFile: string = path.resolve(currDataRoot, schemaTable.jsonFile);
+    let prevFile: string = path.resolve(prevDataRoot, schemaTable.jsonFile).replace(/\\/g, '/');
+    let currFile: string = path.resolve(currDataRoot, schemaTable.jsonFile).replace(/\\/g, '/');
+
+    if (!fs.existsSync(prevFile))
+      prevFile = prevFile.replace(/\/TextMap([A-Z]+)\.json/, '/Text$1.json');
+    if (!fs.existsSync(currFile))
+      currFile = currFile.replace(/\/TextMap([A-Z]+)\.json/, '/Text$1.json');
 
     const prevData: Record<TextMapHash, string> = JSON.parse(fs.readFileSync(prevFile, {encoding: 'utf8'}));
     const currData: Record<TextMapHash, string> = JSON.parse(fs.readFileSync(currFile, {encoding: 'utf8'}));

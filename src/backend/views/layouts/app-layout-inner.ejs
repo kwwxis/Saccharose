@@ -1,0 +1,27 @@
+<div id="app-wrapper" class="wrapper">
+  <% if (req.context.hasQuerySettings()) { %>
+    <div class="card">
+      <div class="content valign">
+        <%- icon('link', {style: 'margin-right:10px;flex-shrink:0;'}) %>
+        <div>
+          <p style="font-size:14px"><strong style="font-size:15px">Direct Link:</strong> You have visited a link with a specific <%- sentenceJoin(req.context.getQuerySettings().map(item => item.prop)) %> set in the URL. This has not affected your own user preferences.</p>
+          <p><%- req.context.getQuerySettings().map(item => `<span>${item.prop}: <code class="fontWeight600">${item.value}</code></span>`).join('<code> / </code>') %></p>
+        </div>
+      </div>
+    </div>
+  <% } %>
+  <div class="alignStart">
+    <main id="app-main">
+      <%- use(subviewName, subviewStack) %>
+    </main>
+    <aside id="app-sidebar" class="right">
+      <% if (req.context.siteMode === 'genshin') { %>
+        <%- use('partials/genshin/genshin-menu') %>
+      <% } else if (req.context.siteMode === 'hsr') { %>
+        <%- use('partials/hsr/hsr-menu') %>
+      <% } else if (req.context.siteMode === 'zenless') { %>
+        <%- use('partials/zenless/zenless-menu') %>
+      <% } %>
+    </aside>
+  </div>
+</div>

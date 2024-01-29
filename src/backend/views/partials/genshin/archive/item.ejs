@@ -10,8 +10,8 @@ locals.noLink
 
 <div class="material-card">
   <div class="material-icon<%= locals.noCount ? ' no-count' : '' %>" data-quality="<%= material.RankLevel || 0 %>">
-    <% if (material.Icon) { %>
-      <img src="<%= material.IconUrl ? material.IconUrl : `/images/genshin/${material.Icon}.png` %>" loading="lazy" decoding="async" />
+    <% if (material.IconUrl || material.Icon || material.IconName) { %>
+      <img src="<%= material.IconUrl ? material.IconUrl : `/images/genshin/${material.Icon || material.IconName}.png` %>" loading="lazy" decoding="async" />
     <% } else { %>
       <img src="/images/genshin/static/Item_Unknown.png" loading="lazy" decoding="async" />
     <% } %>

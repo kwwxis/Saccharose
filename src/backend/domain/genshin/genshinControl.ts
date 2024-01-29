@@ -19,7 +19,14 @@ import {
 } from '../../../shared/util/arrayUtil.ts';
 import { isInt, toInt } from '../../../shared/util/numberUtil.ts';
 import { normalizeRawJson, SchemaTable } from '../../importer/import_db.ts';
-import { extractRomanNumeral, isStringBlank, replaceAsync, romanToInt, rtrim } from '../../../shared/util/stringUtil.ts';
+import {
+  extractRomanNumeral,
+  isStringBlank,
+  replaceAsync,
+  romanToInt,
+  rtrim,
+  SbOut,
+} from '../../../shared/util/stringUtil.ts';
 import {
   CodexQuestExcelConfigData, CodexQuestGroup, CodexQuestNarratageTypes,
   DialogExcelConfigData, DialogUnparented, DialogWikitextResult, ManualTextMapConfigData, OptionIconMap,
@@ -38,6 +45,11 @@ import {
 } from '../../../shared/types/genshin/quest-types.ts';
 import {
   ADVENTURE_EXP_ID,
+  CombineExcelConfigData,
+  CompoundExcelConfigData,
+  CookBonusExcelConfigData,
+  CookRecipeExcelConfigData,
+  ForgeExcelConfigData,
   ItemRelationMap,
   MaterialCodexExcelConfigData,
   MaterialExcelConfigData,
@@ -2034,6 +2046,21 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     });
   }
 
+  generateFurnitureMakeRecipe(makeData: FurnitureMakeExcelConfigData): string {
+    const sb = new SbOut();
+    sb.line(`First time creation grants {{Item|Trust|24|x=${makeData.Exp}}}.`);
+    sb.setPropPad(1);
+    sb.line('{{Recipe');
+    sb.prop('type', 'Creation');
+    sb.prop('time', Math.floor(makeData.MakeTime / 60 / 60)+'h');
+    for (let vec of makeData.MaterialItems) {
+      sb.prop(vec.Material.NameText, vec.Count);
+    }
+    sb.prop('sort', makeData.MaterialItems.map(vec => vec.Material.NameText).join(';'));
+    sb.line('}}');
+    return sb.toString();
+  }
+
   async selectFurnitureMakeMap(): Promise<{[furnId: number]: FurnitureMakeExcelConfigData}> {
     return await cached('FurnitureMakeMap_' + this.outputLangCode, async () => {
       const makeArr: FurnitureMakeExcelConfigData[] = await this.readExcelDataFile('FurnitureMakeExcelConfigData.json', true);
@@ -2117,14 +2144,17 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       Combine: [],
       Compound: [],
       CookRecipe: [],
+      CookBonus: [],
       Forge: [],
       FurnitureMake: []
     };
 
+    // [table name, ID field, output prop, single result prop, material vec props]
     const relationConf: [string, string, keyof ItemRelationMap, string, string[]][] = [
       ['CombineExcelConfigData',        'CombineId',  'Combine',        'ResultItemId',     ['MaterialItems']],
       ['CompoundExcelConfigData',       'Id',         'Compound',       null,               ['InputVec', 'OutputVec']],
       ['CookRecipeExcelConfigData',     'Id',         'CookRecipe',     null,               ['InputVec', 'QualityOutputVec']],
+      ['CookBonusExcelConfigData',      'RecipeId',   'CookBonus',      'ResultItemId',     []],
       ['ForgeExcelConfigData',          'Id',         'Forge',          'ResultItemId',     ['MaterialItems']],
       ['FurnitureMakeExcelConfigData',  'ConfigId',   'FurnitureMake',  'FurnitureItemId',  ['MaterialItems']],
     ];
@@ -2132,43 +2162,163 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     const pList: Promise<void>[] = [];
 
     for (let conf of relationConf) {
-      let [table, idProp, outProp, singleResultProp, materialVecProps] = conf;
-
+      const [table, idProp, outProp, singleResultProp, materialVecProps] = conf;
       pList.push((async () => {
         const relations: MaterialRelation[] = await this.knex.select('*').from(`Relation_${table}`)
           .where({RoleId: id}).then();
 
-        if (relations.length) {
-          const queryIds: number[] = relations.map(rel => rel.RelationId);
-          let rows: any[] = await this.knex.select('*').from(table).whereIn(idProp, queryIds).then(this.commonLoad);
+        if (!relations.length) {
+          relationMap[outProp] = [];
+          return;
+        }
 
-          for (let row of rows) {
-            relations.find(rel => rel.RelationId === row[idProp]).RelationData = row;
+        const queryIds: number[] = relations.map(rel => rel.RelationId);
+        const rows: any[] = await this.knex.select('*').from(table).whereIn(idProp, queryIds).then(this.commonLoad);
 
-            if (singleResultProp) {
-              let outProp = singleResultProp.slice(0, -2); // remove "Id" suffix
-              if (row[singleResultProp]) {
-                if (table === 'FurnitureMakeExcelConfigData') {
-                  row[outProp] = await this.selectFurniture(row[singleResultProp]);
-                } else {
-                  row[outProp] = await this.selectMaterialExcelConfigData(row[singleResultProp], {LoadRelations: false, LoadSourceData: false});
-                }
-                if (table === 'ForgeExcelConfigData' && !row[outProp]) {
-                  row[outProp] = await this.selectWeaponById(row[singleResultProp]);
-                }
+        for (let row of rows) {
+          const relation = relations.find(rel => rel.RelationId === row[idProp]);
+          relation.RelationData = row;
+
+          if (row['ScoinCost']) {
+            row.MaterialItems.push(<MaterialVecItem> {
+              Id: MORA_ID,
+              Count: row['ScoinCost']
+            });
+          }
+
+          if (singleResultProp) {
+            let outProp = singleResultProp.slice(0, -2); // remove "Id" suffix
+            if (row[singleResultProp]) {
+              if (table === 'FurnitureMakeExcelConfigData') {
+                row[outProp] = await this.selectFurniture(row[singleResultProp]);
+              } else {
+                row[outProp] = await this.selectMaterialExcelConfigData(row[singleResultProp], {LoadRelations: false, LoadSourceData: false});
+              }
+              if (table === 'ForgeExcelConfigData' && !row[outProp]) {
+                row[outProp] = await this.selectWeaponById(row[singleResultProp]);
               }
             }
-            for (let vecProp of materialVecProps) {
-              row[vecProp] = row[vecProp].filter(x => !!x.Id);
-              for (let vecItem of (row[vecProp] as MaterialVecItem[])) {
+          }
+
+          for (let vecProp of materialVecProps) {
+            row[vecProp] = row[vecProp].filter(x => !!x.Id);
+            for (let vecItem of (row[vecProp] as MaterialVecItem[])) {
+              if (vecItem.Id) {
+                vecItem.Material = await this.selectMaterialExcelConfigData(vecItem.Id, {LoadRelations: false, LoadSourceData: false});
+              }
+            }
+          }
+
+          relation.RecipeWikitext = [];
+
+          switch (table) {
+            case 'CookBonusExcelConfigData': {
+              const record: CookBonusExcelConfigData = row;
+              record.Avatar = await this.selectAvatarById(record.AvatarId);
+              record.Recipe = await this.knex.select('*').from('CookRecipeExcelConfigData')
+                .where({Id: record.RecipeId}).first().then(this.commonLoadFirst);
+              record.Recipe.InputVec = record.Recipe.InputVec.filter(x => !!x.Id);
+              record.Recipe.QualityOutputVec = record.Recipe.QualityOutputVec.filter(x => !!x.Id);
+              for (let vecItem of record.Recipe.InputVec) {
                 if (vecItem.Id) {
                   vecItem.Material = await this.selectMaterialExcelConfigData(vecItem.Id, {LoadRelations: false, LoadSourceData: false});
                 }
               }
+              for (let vecItem of record.Recipe.QualityOutputVec) {
+                if (vecItem.Id) {
+                  vecItem.Material = await this.selectMaterialExcelConfigData(vecItem.Id, {LoadRelations: false, LoadSourceData: false});
+                }
+              }
+              record.RecipeOrdinaryResult = record.Recipe.QualityOutputVec.find(vecItem => vecItem?.Material?.FoodQuality === 'FOOD_QUALITY_ORDINARY');
+              break;
+            }
+            case 'CombineExcelConfigData': {
+              const record: CombineExcelConfigData = row;
+              const sb = new SbOut();
+              sb.setPropPad(1);
+
+              sb.line('{{Recipe');
+              sb.prop('type', 'Crafting');
+              for (let vec of record.MaterialItems) {
+                sb.prop(vec.Material.NameText, vec.Count);
+              }
+              sb.prop('sort', record.MaterialItems.map(vec => vec.Material.NameText).join(';'));
+              if (record.ResultItemCount > 1) {
+                sb.prop('yield', record.ResultItemCount);
+              }
+              sb.line('}}');
+
+              relation.RecipeWikitext.push(sb.toString());;
+              break;
+            }
+            case 'CompoundExcelConfigData': {
+              const record: CompoundExcelConfigData = row;
+              for (let outVecItem of record.OutputVec) {
+                const sb = new SbOut();
+                sb.setPropPad(1);
+
+                sb.line('{{Recipe');
+                sb.prop('type', 'Processing');
+                for (let vec of record.InputVec) {
+                  sb.prop(vec.Material.NameText, vec.Count);
+                }
+                sb.prop('sort', record.InputVec.map(vec => vec.Material.NameText).join(';'));
+                if (outVecItem.Count > 1) {
+                  sb.prop('yield', outVecItem.Count);
+                }
+                sb.prop('yield', Math.floor(record.CostTime / 60));
+                sb.line('}}');
+
+                relation.RecipeWikitext.push(sb.toString());
+              }
+              break;
+            }
+            case 'CookRecipeExcelConfigData': {
+              const record: CookRecipeExcelConfigData = row;
+              const sb = new SbOut();
+              sb.setPropPad(1);
+
+              sb.line('{{Recipe');
+              sb.prop('type', 'Cooking');
+              for (let vec of record.InputVec) {
+                sb.prop(vec.Material.NameText, vec.Count);
+              }
+              sb.prop('sort', record.InputVec.map(vec => vec.Material.NameText).join(';'));
+              sb.line('}}');
+
+              relation.RecipeWikitext.push(sb.toString());
+              break;
+            }
+            case 'ForgeExcelConfigData': {
+              const record: ForgeExcelConfigData = row;
+              const sb = new SbOut();
+              sb.setPropPad(1);
+
+              sb.line('{{Recipe');
+              sb.prop('type', 'Forging');
+              for (let vec of record.MaterialItems) {
+                sb.prop(vec.Material.NameText, vec.Count);
+              }
+              sb.prop('sort', record.MaterialItems.map(vec => vec.Material.NameText).join(';'));
+              if (record.ResultItemCount > 1) {
+                sb.prop('yield', record.ResultItemCount);
+              }
+              if (record.ForgeTime >= 60) {
+                sb.prop('time', Math.floor(record.ForgeTime / 60));
+              } else {
+                sb.prop('time', record.ForgeTime + 's');
+              }
+              sb.line('}}');
+
+              relation.RecipeWikitext.push(sb.toString())
+              break;
+            }
+            case 'FurnitureMakeExcelConfigData': {
+              relation.RecipeWikitext.push(this.generateFurnitureMakeRecipe(row))
+              break;
             }
           }
         }
-
         relationMap[outProp] = relations;
       })());
     }

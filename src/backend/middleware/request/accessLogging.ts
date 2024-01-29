@@ -2,9 +2,9 @@ import morgan from 'morgan';
 
 import { DEFAULT_LANG } from '../../../shared/types/lang-types.ts';
 import { DEFAULT_SEARCH_MODE } from '../../../shared/util/searchUtil.ts';
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 
-const logSkipRegex: RegExp = /\.css|\.js|\.png|\.svg|\.ico|\.jpg|\.woff|\.env|serve-image/g;
+const logSkipRegex: RegExp = /(\.css|\.js|\.png|\.svg|\.ico|\.jpg|\.woff|\.env)/g;
 
 morgan.token('date', function(){
   return new Date().toLocaleString('en-US', {timeZone: 'America/Los_Angeles'});
@@ -22,8 +22,20 @@ morgan.token('siteUser', (req: Request) => {
   }
 });
 
-export default morgan('[:date[web] PST] [:siteUser] [:inputLanguage::outputLanguage|:searchMode] :status :method :url (:response-time ms)', {
+const morganInstance = morgan('[:date[web] PST] [:siteUser] [:inputLanguage::outputLanguage|:searchMode] :status :method :url (:response-time ms)', {
   skip: function(req: Request, res: Response) {
     return res.statusCode === 304 || logSkipRegex.test(req.url);
   }
 });
+
+export default (req: Request, res: Response, next: NextFunction) => {
+  if (res.statusCode === 304) {
+    next();
+    return;
+  }
+  if (logSkipRegex.test(req.url) || req.url.includes('/serve-image')) {
+    next();
+    return;
+  }
+  morganInstance(req, res, next);
+};

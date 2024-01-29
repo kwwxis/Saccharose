@@ -31,7 +31,7 @@ export async function importGenshinFilesCli() {
     {name: 'index', type: Boolean, description: 'Creates the index files for PlainTextMap.'},
     {name: 'gcg-skill', type: Boolean, description: 'Creates file for GCG skill data'},
     {name: 'voice-overs', type: Boolean, description: 'Creates file for character voice over data (aka fetters)'},
-    {name: 'changelog', type: String, typeLabel: '<version>', description: 'Create changelog'},
+    {name: 'changelog', type: String, typeLabel: '<version>', description: 'Creates changelog between the provided version and the version before it.'},
   ];
 
   const options_util: (ArgsOptionDefinition & UsageOptionDefinition)[] = [

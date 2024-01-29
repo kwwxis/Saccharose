@@ -65,6 +65,10 @@ export async function translateExcel(outputDirectory: string) {
   }
   const excelDirPath = getGenshinDataFilePath('./ExcelBinOutput');
 
+  if (!outputDirectory.endsWith('ExcelBinOutput')) {
+    outputDirectory = path.resolve(outputDirectory, './ExcelBinOutput');
+  }
+
   fs.mkdirSync(outputDirectory, { recursive: true });
 
   const schemaTranslationFilePath = getGenshinDataFilePath('./SchemaTranslation.json');

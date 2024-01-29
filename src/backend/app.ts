@@ -125,17 +125,20 @@ export async function appInit(): Promise<Express> {
   // Load authorize endpoint
   // ~~~~~~~~~~~~~~~~~~~~~~~
   app.use(await authRouter());
-  app.use(createSiteUserMiddlewareRouter());
-
-  // Load image router
-  // ~~~~~~~~~~~~~~~~~
-  logInit(`Loading image router`);
-  app.use('/serve-image', await imageBaseRouter());
 
   // Load API router
   // ~~~~~~~~~~~~~~~
   logInit(`Loading API router`);
   app.use('/api', await apiBaseRouter());
+
+  // Load auth middleware
+  // ~~~~~~~~~~~~~~~~~~~~
+  app.use(createSiteUserMiddlewareRouter());
+
+  // Load serve-image router
+  // ~~~~~~~~~~~~~~~~~~~~~~~
+  logInit(`Loading image router`);
+  app.use('/serve-image', await imageBaseRouter());
 
   // Load BaseRouter and CSRF protection
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

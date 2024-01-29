@@ -10,10 +10,11 @@ import { getZenlessControl } from '../domain/zenless/zenlessControl.ts';
 import { NextFunction, Request, Response, Router } from 'express';
 import SettingsPage from '../components/auth/SettingsPage.vue';
 import { SiteAuthEnabled } from '../middleware/auth/SiteUserProvider.ts';
+import UserRouter from './UserRouter.ts';
 
 export default async function(): Promise<Router> {
   const router: Router = create({
-    layouts: ['layouts/app-layout'],
+    layouts: ['layouts/app-layout', 'layouts/app-layout-inner'],
     locals: async (req: Request) => {
       const genshinControl = getGenshinControl(req);
       const starRailControl = getStarRailControl(req);
@@ -55,15 +56,7 @@ export default async function(): Promise<Router> {
   router.use('/', await GenshinRouter());
   router.use('/hsr', await StarRailRouter());
   router.use('/zenless', await ZenlessRouter());
-
-  router.get('/settings', (req: Request, res: Response) => {
-    if (!SiteAuthEnabled) {
-      return res.status(404).render('errors/404');
-    }
-    res.render(SettingsPage, {
-      title: 'Settings'
-    });
-  });
+  router.use('/', await UserRouter());
 
   return router;
 };

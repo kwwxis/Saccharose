@@ -1,0 +1,53 @@
+<div class="wrapper">
+  <article class="card legal-doc" role="main">
+    <div class="content">
+      <header id="contact-methods">
+        <h1>Saccharose.wiki - Contact</h1>
+      </header>
+      <aside id="toc" class="no-fixed split" aria-label="Table of Contents">
+        <section data-title="Contact">
+          <a role="listitem" href="#contact-methods">Contact Methods</a>
+        </section>
+        <section data-title="Legal Documents and Notices">
+          <a role="listitem" href="/terms">Terms and Conditions</a>
+          <a role="listitem" href="/privacy">Privacy Policy</a>
+          <a role="listitem" href="/contact">Contact</a>
+        </section>
+      </aside>
+      <p>There are three main methods for contact:</p>
+      <ul>
+        <li>
+          <strong>Discord thread:</strong>
+          <p>The <code>Saccharose.wiki</code> thread of <code>editing-forums</code> in the Genshin Impact Fandom Wiki discord server.</p>
+          <p>(Some users may not have access to this method)</p>
+        </li>
+        <li>
+          <strong>Discord message:</strong>
+          <p>DM <code>kwwxis</code> on Discord.</p>
+        </li>
+        <li>
+          <strong id="label1"></strong>
+          <p>
+            <span id="value1" style="cursor:pointer">(click to show)</span>
+          </p>
+        </li>
+      </ul>
+    </div>
+  </article>
+</div>
+<script nonce="<%= req.context.nonce %>">
+  document.querySelector('#label1').innerText = atob('RW1haWw6');
+  document.querySelector('#value1').addEventListener('click', event => {
+    if (!event.isTrusted) {
+      return;
+    }
+    if (event.target.classList.contains('selected')) {
+      return;
+    }
+    event.target.classList.add('selected');
+
+    const proto = atob('bWFpbHRv');
+    const value = atob('a3d3eGlzQGdtYWlsLmNvbQ==');
+    event.target.innerHTML = '<a href="' + proto + ':' + value + '">' + value + '</a>';
+  });
+</script>

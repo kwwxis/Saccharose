@@ -4,11 +4,11 @@ import {
   FurnitureSuiteExcelConfigData,
   HomeWorldFurnitureExcelConfigData,
 } from './homeworld-types.ts';
+import { AvatarExcelConfigData } from './avatar-types.ts';
 
 export const ADVENTURE_EXP_ID = 102;
 export const PRIMOGEM_ID = 201;
 export const MORA_ID = 202;
-
 
 export interface RewardSummary {
   ExpCount: string,
@@ -199,14 +199,16 @@ export interface MaterialVecItem {
 export interface MaterialRelation<T = any> {
   RelationId: number,
   RoleId: number,
-  RoleType: 'input' | 'output',
-  RelationData?: T
+  RoleType: 'input' | 'output' | 'substitute',
+  RelationData?: T,
+  RecipeWikitext?: string[],
 }
 
 export interface ItemRelationMap {
   Combine: MaterialRelation<CombineExcelConfigData>[],
   Compound: MaterialRelation<CompoundExcelConfigData>[],
   CookRecipe: MaterialRelation<CookRecipeExcelConfigData>[],
+  CookBonus: MaterialRelation<CookBonusExcelConfigData>[],
   Forge: MaterialRelation<ForgeExcelConfigData>[],
   FurnitureMake: MaterialRelation<FurnitureMakeExcelConfigData>[],
 }
@@ -227,7 +229,7 @@ export interface CombineExcelConfigData {
   ResultItemCount: number,
   ResultItem?: MaterialExcelConfigData,
   RandomItems: { Count: number }[],
-  MaterialItems: MaterialVecItem[]
+  MaterialItems: MaterialVecItem[],
 }
 
 export interface CompoundExcelConfigData {
@@ -277,6 +279,19 @@ export interface CookRecipeExcelConfigData {
   QteQualityWeightVec: number[],
 }
 
+export interface CookBonusExcelConfigData {
+  AvatarId: number,
+  Avatar?: AvatarExcelConfigData,
+  RecipeId: number,
+  Recipe?: CookRecipeExcelConfigData,
+  RecipeOrdinaryResult: MaterialVecItem,
+  ResultItemId: number,
+  ResultItem?: MaterialExcelConfigData,
+  BonusType: 'COOK_BONUS_REPLACE',
+  ParamVec: number[],
+  ComplexParamVec: [number, number, number]
+}
+
 export interface ForgeExcelConfigData {
   Id: number,
 
@@ -294,9 +309,9 @@ export interface ForgeExcelConfigData {
   ShowConsumeItemId: number,
   ForgeTime: number,
   QueueNum: number,
-  ScoinCost: number,
   RandomItems: never,
 
+  ScoinCost: number,
   ResultItemId: number,
   ResultItemCount: number,
   ResultItem?: MaterialExcelConfigData,

@@ -1,0 +1,146 @@
+article.legal-doc {
+  position: relative;
+  padding: 10px 320px 10px 10px;
+
+  p {
+    margin: 15px 0;
+  }
+
+  h1 {
+    font-size: 40px;
+    font-weight: 300;
+    color: #4c4c4c;
+    margin-bottom: 25px;
+  }
+  h2,
+  h3 {
+    border-bottom: 1px dashed rgba(0, 0, 0, 0.15);
+    padding-bottom: 1px;
+    margin-bottom: 10px;
+    margin-top: 15px;
+  }
+  h3 {
+    margin-top: 25px;
+  }
+  h4 {
+    color: #3577be;
+    margin-top: 15px;
+    body.nightmode & {
+      color: #74a4d8;
+    }
+  }
+  h5 {
+    font-weight: bold;
+    margin-top: 15px;
+    padding-bottom: 1px;
+  }
+
+  section {
+    padding: 10px 0 20px 0;
+
+    &.function {
+      padding: 10px 0 20px 30px;
+    }
+    &.function > h2:first-of-type {
+      margin-left: -30px;
+      margin-bottom: 5px;
+    }
+  }
+
+  .info-notice {
+    font-size: 15px;
+    line-height: 1.5em;
+  }
+
+  ul li, ol li {
+    margin-top: 15px;
+    font-size: 15px;
+  }
+}
+
+#toc {
+  position: fixed;
+  width: 290px;
+  top: 54px;
+  right: 10px;
+  padding: 10px;
+  box-sizing: border-box;
+  background: #f4f7f8;
+  border-radius: 3px;
+  line-height: 17px;
+
+  body.nightmode & {
+    background: hsl(195deg 49.13% 93.11% / 11%);
+  }
+
+  &.no-fixed {
+    position: absolute;
+  }
+
+  &.split {
+    background: transparent !important;
+    padding: 0;
+  }
+  &.split > section {
+    padding: 10px;
+    box-sizing: border-box;
+    background: #f4f7f8;
+    border-radius: 3px;
+    margin-bottom: 10px;
+
+    body.nightmode & {
+      background: hsl(195deg 49.13% 93.11% / 11%);
+    }
+  }
+
+  &:not(.split):before,
+  &.split > section:before {
+    content: 'In this article';
+    display: block;
+    text-transform: uppercase;
+    font-size: 14px;
+    font-weight: bold;
+    color: rgba(0, 0, 0, 0.6);
+    margin-bottom: 5px;
+    body.nightmode & {
+      color: #fff;
+    }
+  }
+  &:not(.split)[data-title]:before,
+  &.split > section[data-title]:before {
+    content: attr(data-title);
+    body.nightmode & {
+      color: #fff;
+    }
+  }
+
+  a,
+  span {
+    display: block;
+    font-size: 14px;
+    text-decoration: none;
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+  & > a,
+  span {
+    font-weight: bold;
+  }
+  & > section {
+    padding: 0 0 0 5px;
+  }
+  & > section section {
+    padding: 0 0 0 15px;
+  }
+}
+
+@media (max-width: 900px) {
+  article.legal-doc {
+  }
+  #toc,
+  #toc.no-fixed {
+    position: static;
+    margin-left: 0;
+  }
+}

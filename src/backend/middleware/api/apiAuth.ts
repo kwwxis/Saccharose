@@ -28,7 +28,7 @@ export default function(req: Request, res: Response, next: NextFunction) {
         next(HttpError.unauthenticated('EBADAPIKEY', 'Invalid API key.'));
       }
     });
-  } else if (req.headers['x-csrf-token']) {
+  } else if (req.isAuthenticated() && req.headers['x-csrf-token']) {
     csrfMiddleware(req, res, next);
   } else {
     next(HttpError.unauthenticated('AuthRequired', 'Must use an API key or CSRF token to authenticate requests.'));

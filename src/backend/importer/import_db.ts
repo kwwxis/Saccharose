@@ -75,10 +75,11 @@ export type SchemaTable = {
   schemaTranslation?: { [oldName: string]: string },
 
   /**
-   * Provide a list of field names. When a field with a name in this array is encountered, and if the value of that
-   * field is an array, then the value of that field will be converted to the first non-falsy value in that array.
+   * When a field with a name in this object is encountered, and if the value of that
+   * field is an array, then the value of that field will be converted to the first non-falsy value in that array and will
+   * be set to the field with the corresponding value in this object.
    */
-  singularize?: string[],
+  singularize?: { [fieldName: string]: string },
 };
 
 export function schemaPrimaryKey(schemaTable: SchemaTable): string {
@@ -213,8 +214,8 @@ export function normalizeRawJson(row: any, table?: SchemaTable, schemaTranslatio
     let originalKey = key;
     key = normalizeRawJsonKey(key, table, schemaTranslation);
     newRow[key] = normalizeRawJson(row[originalKey], table, schemaTranslation);
-    if (table && table.singularize && table.singularize.includes(key) && Array.isArray(newRow[key])) {
-      newRow[key] = newRow[key].find(x => !!x);
+    if (table && table.singularize && table.singularize.hasOwnProperty(key) && Array.isArray(newRow[key])) {
+      newRow[table.singularize[key]] = newRow[key].find(x => !!x);
     }
   }
   return newRow;

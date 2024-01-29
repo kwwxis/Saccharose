@@ -78,126 +78,290 @@
             </td>
           </tr>
         <% } %>
+        <tr>
+          <td class="bold">Quick Jump</td>
+          <td colspan="2">
+            <ul class="dispFlex flexWrap">
+              <% if (locals.readable) { %>
+                <li class="w33p"><a href="#readable-text">Readable Text</a></li>
+              <% } %>
+              <% if (material.Codex && material.Codex.DescText) { %>
+                <li class="w33p"><a href="#archive-text">Archive Text</a></li>
+              <% } %>
+              <% if (material.Relations.Combine?.length) { %>
+                <li class="w33p"><a href="#crafting">Crafting</a></li>
+              <% } %>
+              <% if (material.Relations.Compound?.length) { %>
+                <li class="w33p"><a href="#processing">Processing</a></li>
+              <% } %>
+              <% if (material.Relations.CookRecipe?.length) { %>
+                <li class="w33p"><a href="#cooking">Cooking</a></li>
+              <% } %>
+              <% if (material.Relations.CookBonus?.length) { %>
+                <li class="w33p"><a href="#special-food-recipe">Special Food Recipe</a></li>
+              <% } %>
+              <% if (material.Relations.Forge?.length) { %>
+                <li class="w33p"><a href="#forging">Forging</a></li>
+              <% } %>
+              <% if (locals.ol) { %>
+                <li class="w33p"><a href="#ol">Other Languages</a></li>
+              <% } %>
+              <li class="w33p"><a href="#raw-json">Raw JSON</a></li>
+            </ul>
+          </td>
+        </tr>
       </table>
     </div>
   </section>
   <% if (locals.readable) { %>
-    <section class="card">
+    <section id="readable-text" class="card">
       <h2 class="valign">
+        <span class="expando spacer5-right" ui-action="expando: #readable-text-content"><%- icon('chevron-down', 17) %></span>
         <span>Readable Text</span>
         <span class="grow"></span>
         <a class="valign fontWeight500" href="/readables/item/<%= material.Id %>" style="font-size:18px" target="_blank">
           <span class="spacer5-right" style="font-size:15px">Readable</span><%- icon('external-link', 16) %>
         </a>
       </h2>
-      <div class="content">
+      <div id="readable-text-content" class="content">
         <%- use('partials/genshin/archive/readable-texts', {readable: readable}) %>
       </div>
     </section>
   <% } %>
   <% if (material.Codex && material.Codex.DescText) { %>
-    <section class="card">
+    <section id="archive-text" class="card">
       <h2 class="valign">
+        <span class="expando spacer5-right" ui-action="expando: #archive-text-content"><%- icon('chevron-down', 17) %></span>
         <span>Archive Text<%= material.Codex.NameText ? ': ' + normGenshinText(material.Codex.NameText) : '' %></span>
       </h2>
-      <div class="content">
+      <div id="archive-text-content" class="content">
         <%- use('partials/util/wikitext', {wikitext: normGenshinText(material.Codex.DescText)}) %>
       </div>
     </section>
   <% } %>
   <% if (material.Relations.Combine?.length) { %>
-    <section class="card">
-      <h2>Crafting</h2>
-      <% for (let relation of material.Relations.Combine) { %>
-        <div class="content alignStart">
-          <% for (let inputItem of relation.RelationData.MaterialItems) { %>
-            <%- use('partials/genshin/archive/item', { material: inputItem.Material, itemCount: inputItem.Count }) %>
+    <section id="crafting" class="card">
+      <h2 class="valign">
+        <span class="expando spacer5-right" ui-action="expando: #crafting-content"><%- icon('chevron-down', 17) %></span>
+        Crafting
+      </h2>
+      <div id="crafting-content">
+        <% material.Relations.Combine.forEach((relation, idx) => { %>
+          <h3 class="secondary-header valign">
+            <span>Recipe #<%= relation.RelationId %></span>
+            <span class="grow"></span>
+            <small>Role ID: <strong><%= relation.RoleId %></strong></small>
+            <small class="spacer15-left">Role Type: <strong><%= relation.RoleType %></strong></small>
+          </h3>
+          <div class="content alignStart">
+            <% for (let inputItem of relation.RelationData.MaterialItems) { %>
+              <%- use('partials/genshin/archive/item', { material: inputItem.Material, itemCount: inputItem.Count }) %>
+            <% } %>
+            <div class="material-sep"><%- icon('chevron-right', 28); %></div>
+            <% if (relation.RelationData.ResultItem) { %>
+              <%- use('partials/genshin/archive/item', { material: relation.RelationData.ResultItem, itemCount: relation.RelationData.ResultItemCount }) %>
+            <% }%>
+          </div>
+          <% if (Array.isArray(relation.RecipeWikitext)) { %>
+            <% relation.RecipeWikitext.forEach((recipeWikitext, recipeIdx) => { %>
+              <div class="content">
+                <div class="posRel">
+                  <%- use('partials/util/wikitext', { id: 'crafting-recipe-' + idx + '-' + recipeIdx, wikitext: recipeWikitext}) %>
+                  <button class="secondary small posAbs" ui-action="copy: #crafting-recipe-<%= idx %>-<%= recipeIdx %>"
+                          style="right: 0; top: 0;"
+                          ui-tippy-hover="Click to copy to clipboard"
+                          ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">Copy</button>
+                </div>
+              </div>
+            <% }) %>
           <% } %>
-          <div class="material-sep"><%- icon('chevron-right', 28); %></div>
-          <% if (relation.RelationData.ResultItem) { %>
-            <%- use('partials/genshin/archive/item', { material: relation.RelationData.ResultItem, itemCount: relation.RelationData.ResultItemCount }) %>
-          <% }%>
-        </div>
-        <hr>
-      <% } %>
+          <hr>
+        <% }) %>
+      </div>
     </section>
   <% } %>
   <% if (material.Relations.Compound?.length) { %>
-    <section class="card">
-      <h2>Processing</h2>
-      <% for (let relation of material.Relations.Compound) { %>
-        <div class="content alignStart">
-          <% for (let inputItem of relation.RelationData.InputVec) { %>
-            <%- use('partials/genshin/archive/item', { material: inputItem.Material, itemCount: inputItem.Count }) %>
+    <section id="processing" class="card">
+      <h2 class="valign">
+        <span class="expando spacer5-right" ui-action="expando: #processing-content"><%- icon('chevron-down', 17) %></span>
+        Processing
+      </h2>
+      <div id="processing-content">
+        <% material.Relations.Compound.forEach((relation, idx) => { %>
+          <h3 class="secondary-header valign">
+            <span>Recipe #<%= relation.RelationId %></span>
+            <span class="grow"></span>
+            <small>Role ID: <strong><%= relation.RoleId %></strong></small>
+            <small class="spacer15-left">Role Type: <strong><%= relation.RoleType %></strong></small>
+          </h3>
+          <div class="content alignStart">
+            <% for (let inputItem of relation.RelationData.InputVec) { %>
+              <%- use('partials/genshin/archive/item', { material: inputItem.Material, itemCount: inputItem.Count }) %>
+            <% } %>
+            <div class="material-sep"><%- icon('chevron-right', 28); %></div>
+            <% for (let inputItem of relation.RelationData.OutputVec) { %>
+              <%- use('partials/genshin/archive/item', { material: inputItem.Material, itemCount: inputItem.Count }) %>
+            <% } %>
+          </div>
+          <% if (Array.isArray(relation.RecipeWikitext)) { %>
+            <% relation.RecipeWikitext.forEach((recipeWikitext, recipeIdx) => { %>
+              <div class="content">
+                <div class="posRel">
+                  <%- use('partials/util/wikitext', { id: 'compound-recipe-' + idx + '-' + recipeIdx, wikitext: recipeWikitext}) %>
+                  <button class="secondary small posAbs" ui-action="copy: #compound-recipe-<%= idx %>-<%= recipeIdx %>"
+                          style="right: 0; top: 0;"
+                          ui-tippy-hover="Click to copy to clipboard"
+                          ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">Copy</button>
+                </div>
+              </div>
+            <% }) %>
           <% } %>
-          <div class="material-sep"><%- icon('chevron-right', 28); %></div>
-          <% for (let inputItem of relation.RelationData.OutputVec) { %>
-            <%- use('partials/genshin/archive/item', { material: inputItem.Material, itemCount: inputItem.Count }) %>
-          <% } %>
-        </div>
-        <hr>
-      <% } %>
+          <hr>
+        <% }) %>
+      </div>
     </section>
   <% } %>
   <% if (material.Relations.CookRecipe?.length) { %>
-    <section class="card">
-      <h2>Cooking</h2>
-      <% for (let relation of material.Relations.CookRecipe) { %>
-        <div class="content alignStart">
-          <% for (let inputItem of relation.RelationData.InputVec) { %>
-            <%- use('partials/genshin/archive/item', { material: inputItem.Material, itemCount: inputItem.Count }) %>
+    <section id="cooking" class="card">
+      <h2 class="valign">
+        <span class="expando spacer5-right" ui-action="expando: #cooking-content"><%- icon('chevron-down', 17) %></span>
+        Cooking
+      </h2>
+      <div id="cooking-content">
+        <% material.Relations.CookRecipe.forEach((relation, idx) => { %>
+          <h3 class="secondary-header valign">
+            <span>Recipe #<%= relation.RelationId %></span>
+            <span class="grow"></span>
+            <small>Role ID: <strong><%= relation.RoleId %></strong></small>
+            <small class="spacer15-left">Role Type: <strong><%= relation.RoleType %></strong></small>
+          </h3>
+          <div class="content alignStart">
+            <% for (let inputItem of relation.RelationData.InputVec) { %>
+              <%- use('partials/genshin/archive/item', { material: inputItem.Material, itemCount: inputItem.Count }) %>
+            <% } %>
+            <div class="material-sep"><%- icon('chevron-right', 28); %></div>
+            <% for (let inputItem of relation.RelationData.QualityOutputVec) { %>
+              <%- use('partials/genshin/archive/item', { material: inputItem.Material, itemCount: inputItem.Count }) %>
+            <% } %>
+          </div>
+          <% if (Array.isArray(relation.RecipeWikitext)) { %>
+            <% relation.RecipeWikitext.forEach((recipeWikitext, recipeIdx) => { %>
+              <div class="content">
+                <div class="posRel">
+                  <%- use('partials/util/wikitext', { id: 'cook-recipe-' + idx + '-' + recipeIdx, wikitext: recipeWikitext}) %>
+                  <button class="secondary small posAbs" ui-action="copy: #cook-recipe-<%= idx %>-<%= recipeIdx %>"
+                          style="right: 0; top: 0;"
+                          ui-tippy-hover="Click to copy to clipboard"
+                          ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">Copy</button>
+                </div>
+              </div>
+            <% }) %>
           <% } %>
-          <div class="material-sep"><%- icon('chevron-right', 28); %></div>
-          <% for (let inputItem of relation.RelationData.QualityOutputVec) { %>
-            <%- use('partials/genshin/archive/item', { material: inputItem.Material, itemCount: inputItem.Count }) %>
-          <% } %>
-        </div>
-        <hr>
-      <% } %>
+          <hr>
+        <% }) %>
+      </div>
+    </section>
+  <% } %>
+  <% if (material.Relations.CookBonus?.length) { %>
+    <section id="special-food-recipe" class="card">
+      <h2 class="valign">
+        <span class="expando spacer5-right" ui-action="expando: #special-food-recipe-content"><%- icon('chevron-down', 17) %></span>
+        Special Food Recipe
+      </h2>
+      <div id="special-food-recipe-content">
+        <% material.Relations.CookBonus.forEach((relation, idx) => { %>
+          <h3 class="secondary-header valign">
+            <span>Recipe #<%= relation.RelationId %></span>
+            <span class="grow"></span>
+            <small>Role ID: <strong><%= relation.RoleId %></strong></small>
+            <small class="spacer15-left">Role Type: <strong><%= relation.RoleType %></strong></small>
+          </h3>
+          <div class="content">
+            <p>Instead of receiving <strong><%= relation.RelationData.RecipeOrdinaryResult.Material.NameText %></strong>,
+              when cooked with <strong><%= relation.RelationData.Avatar.NameText %></strong>, there is a chance
+              of receiving <strong><%= relation.RelationData.ResultItem.NameText %></strong> instead.</p>
+          </div>
+          <div class="content alignStart">
+            <% for (let inputItem of relation.RelationData.Recipe.InputVec) { %>
+              <%- use('partials/genshin/archive/item', { material: inputItem.Material, itemCount: inputItem.Count }) %>
+            <% } %>
+            <div class="material-sep"><%- icon('user-check', 22); %></div>
+            <%- use('partials/genshin/archive/item', { material: relation.RelationData.Avatar, noLink: true }) %>
+            <div class="material-sep"><%- icon('chevron-right', 28); %></div>
+            <% if (relation.RelationData.RecipeOrdinaryResult) { %>
+              <%- use('partials/genshin/archive/item', { material: relation.RelationData.RecipeOrdinaryResult.Material, itemCount: relation.RelationData.RecipeOrdinaryResult.Count }) %>
+            <% } %>
+            <div class="material-sep"><%- icon('repeat', 22); %></div>
+            <%- use('partials/genshin/archive/item', { material: relation.RelationData.ResultItem, itemCount: 1 }) %>
+          </div>
+          <hr>
+        <% }) %>
+      </div>
     </section>
   <% } %>
   <% if (material.Relations.Forge?.length) { %>
-    <section class="card">
-      <h2>Forging</h2>
-      <% for (let relation of material.Relations.Forge) { %>
-        <div class="content alignStart">
-          <% for (let inputItem of relation.RelationData.MaterialItems) { %>
-            <%- use('partials/genshin/archive/item', { material: inputItem.Material, itemCount: inputItem.Count }) %>
+    <section id="forging" class="card">
+      <h2 class="valign">
+        <span class="expando spacer5-right" ui-action="expando: #forging-content"><%- icon('chevron-down', 17) %></span>
+        Forging
+      </h2>
+      <div id="forging-content">
+        <% material.Relations.Forge.forEach((relation, idx) => { %>
+          <h3 class="secondary-header valign">
+            <span>Recipe #<%= relation.RelationId %></span>
+            <span class="grow"></span>
+            <small>Role ID: <strong><%= relation.RoleId %></strong></small>
+            <small class="spacer15-left">Role Type: <strong><%= relation.RoleType %></strong></small>
+          </h3>
+          <div class="content alignStart">
+            <% for (let inputItem of relation.RelationData.MaterialItems) { %>
+              <%- use('partials/genshin/archive/item', { material: inputItem.Material, itemCount: inputItem.Count }) %>
+            <% } %>
+            <div class="material-sep"><%- icon('chevron-right', 28); %></div>
+            <% if (relation.RelationData.ResultItem) { %>
+              <%- use('partials/genshin/archive/item', { material: relation.RelationData.ResultItem, itemCount: relation.RelationData.ResultItemCount }) %>
+            <% } %>
+          </div>
+          <% if (Array.isArray(relation.RecipeWikitext)) { %>
+            <% relation.RecipeWikitext.forEach((recipeWikitext, recipeIdx) => { %>
+              <div class="content">
+                <div class="posRel">
+                  <%- use('partials/util/wikitext', { id: 'forge-recipe-' + idx + '-' + recipeIdx, wikitext: recipeWikitext}) %>
+                  <button class="secondary small posAbs" ui-action="copy: #forge-recipe-<%= idx %>-<%= recipeIdx %>"
+                          style="right: 0; top: 0;"
+                          ui-tippy-hover="Click to copy to clipboard"
+                          ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">Copy</button>
+                </div>
+              </div>
+            <% }) %>
           <% } %>
-          <div class="material-sep"><%- icon('chevron-right', 28); %></div>
-          <% if (relation.RelationData.ResultItem) { %>
-            <%- use('partials/genshin/archive/item', { material: relation.RelationData.ResultItem, itemCount: relation.RelationData.ResultItemCount }) %>
-          <% } %>
-        </div>
-        <hr>
-      <% } %>
+          <hr>
+        <% }) %>
+      </div>
     </section>
   <% } %>
   <% if (locals.ol) { %>
-    <section class="card">
+    <section id="ol" class="card">
       <h2 class="valign">
+        <span class="expando spacer5-right" ui-action="expando: #ol-content"><%- icon('chevron-down', 17) %></span>
         <span>OL</span>
         <span class="grow"></span>
         <button class="secondary small" ui-action="copy: #ol"
                 ui-tippy-hover="Click to copy to clipboard"
                 ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">Copy</button>
       </h2>
-      <div class="content">
+      <div id="ol-content" class="content">
         <textarea id="ol" readonly class="ol-result-textarea w100p wikitext autosize" spellcheck="false" translate="no"><%= ol.result %></textarea>
       </div>
     </section>
   <% } %>
-  <section class="card">
+  <section id="raw-json" class="card">
     <h2 class="valign">
-      <span>Raw JSON</span>
-      <span class="grow"></span>
-      <button class="secondary" ui-action="toggle: #json-outer">
-        <span class="inactive-only">Show</span>
-        <span class="active-only">Hide</span>
-      </button>
+      <span class="expando spacer5-right expand-action collapsed-state" ui-action="expando: #json-outer"><%- icon('chevron-down', 17) %></span>
+      Raw JSON
     </h2>
-    <div id="json-outer" class="content hide">
-      <textarea class="code json w100p autosize" spellcheck="false"
+    <div id="json-outer" class="content collapsed hide">
+      <textarea class="code json w100p autosize" spellcheck="false" style="max-width:792px"
                 translate="no"><%= JSON.stringify(material, null, 2) %></textarea>
     </div>
   </section>
