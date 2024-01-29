@@ -2972,7 +2972,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     if (!version || !version.showChangelog) {
       return null;
     }
-    return cached('GenshinFullChangelog_' + version, async () => {
+    return cached('GenshinFullChangelog_' + version.number, async () => {
       const textmapChangelogFileName = path.resolve(process.env.GENSHIN_CHANGELOGS, `./TextMapChangeLog.${version.number}.json`);
       const excelChangelogFileName = path.resolve(process.env.GENSHIN_CHANGELOGS, `./ExcelChangeLog.${version.number}.json`);
 
