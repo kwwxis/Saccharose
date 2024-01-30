@@ -129,8 +129,6 @@ export async function VoAppWikitextEditor(state: VoAppState): Promise<void> {
       return;
     }
     console.log('[VO-App] Received OverwriteFromVoiceOvers with mode ' + requestedMode + ' and options:', opts);
-    let voLang: LangCode = state.voLang;
-    let userLang: LangCode = getOutputLanguage();
     let mode: 'story' | 'combat' = null;
     if (requestedMode === 'story') {
       mode = 'story';
@@ -140,7 +138,7 @@ export async function VoAppWikitextEditor(state: VoAppState): Promise<void> {
       return;
     }
 
-    const preloadInput: VoAppPreloadInput = new VoAppPreloadInput(state, mode, voLang, userLang, opts);
+    const preloadInput: VoAppPreloadInput = new VoAppPreloadInput(state, mode, opts);
     const preloadConf: VoAppPreloadConfig = state.config.preloadConfig;
     const result: VoAppPreloadResult = voPreload(preloadInput, preloadConf);
 

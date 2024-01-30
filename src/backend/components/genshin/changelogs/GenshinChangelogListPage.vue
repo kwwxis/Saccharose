@@ -6,7 +6,7 @@
     <div class="content">
       <p v-if="errorMessage" class="error-notice spacer10-bottom">{{ errorMessage }}</p>
       <ul>
-        <template v-for="version of GenshinVersions">
+        <template v-for="version of gameVersions">
           <li v-if="version.showChangelog">
             <a :href="`/changelog/${version.number}`">{{ version.previous }} &ndash; {{ version.number }}</a>
           </li>
@@ -23,5 +23,5 @@ defineProps<{
   errorMessage?: string
 }>();
 
-const gameVersions = GenshinVersions;
+const gameVersions = GenshinVersions.slice().reverse();
 </script>

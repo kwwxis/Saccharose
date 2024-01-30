@@ -8,6 +8,7 @@ article.legal-doc {
 
   h1 {
     font-size: 40px;
+    line-height: 1em;
     font-weight: 300;
     color: #4c4c4c;
     margin-bottom: 25px;
@@ -137,6 +138,7 @@ article.legal-doc {
 
 @media (max-width: 900px) {
   article.legal-doc {
+    padding: 10px;
   }
   #toc,
   #toc.no-fixed {

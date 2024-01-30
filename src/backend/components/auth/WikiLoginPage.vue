@@ -1,7 +1,9 @@
 <template>
   <div class="wrapper">
     <section class="card">
-      <h2>Next steps: register your wiki username</h2>
+      <h2 class="open-sans-font">Next steps: register your wiki username</h2>
+
+      <h3 class="open-sans-font">Instructions</h3>
       <div class="content">
         <p class="spacer10-bottom">Please register your wiki info <span class="highlight">(you only need to do this once)</span>, but you'll be
           able to de-register and re-register with a different wiki user from your settings page if you want.</p>
@@ -47,32 +49,32 @@
               </li>
             </ol>
           </li>
-          <li>
-            <strong>Enter your info:</strong>
-            <fieldset class="form-box">
-              <p class="spacer5-bottom">Leave the <strong>Language Code</strong> field blank for English wiki. If you're for one of the other language
-                wikis like <code>https://genshinimpact.fandom.com/<strong>it</strong>/wiki/</code> then put <code class="highlight">it</code> in the field value, not the URL.</p>
-              <p class="spacer15-bottom">The Language Code field is only used for the purpose of checking the number of edits.
-                It doesn't matter which OL wiki you use if you meet the condition on multiple OL wikis.</p>
-
-              <div class="field valign">
-                <label style="min-width: 200px">Fandom Wiki username</label>
-                <input id="wiki-username" type="text" style="min-width:350px" />
-              </div>
-              <div class="field valign">
-                <label style="min-width: 200px">Fandom Wiki Language Code</label>
-                <input id="wiki-lang" type="text" style="min-width:350px" />
-              </div>
-              <div class="field valign spacer10-top">
-                <label style="min-width: 200px"></label>
-                <button id="wiki-check" role="button" class="primary primary--2">Check</button>
-                <span id="wiki-check-pending" class="loading spacer5-left hide"></span>
-                <span id="wiki-check-error" class="hide" style="color:red"></span>
-                <span id="wiki-check-complete" class="hide" style="color:green"></span>
-              </div>
-            </fieldset>
-          </li>
         </ol>
+      </div>
+      <h3 class="open-sans-font">Registration Form:</h3>
+      <div class="content">
+        <div class="form-box">
+          <p class="spacer5-bottom">Leave the <strong>Language Code</strong> field blank for English wiki. If you're for one of the other language
+            wikis like <code>https://genshinimpact.fandom.com/<strong>it</strong>/wiki/</code> then put <code class="highlight">it</code> in the field value, not the URL.</p>
+          <p class="spacer20-bottom">The Language Code field is only used for the purpose of checking the number of edits.
+            It doesn't matter which OL wiki you use if you meet the condition on multiple OL wikis.</p>
+
+          <div class="field valign">
+            <label style="min-width: 200px">Fandom Wiki username</label>
+            <input id="wiki-username" type="text" style="max-width:350px;width:100%" />
+          </div>
+          <div class="field valign">
+            <label style="min-width: 200px">Fandom Wiki Language Code</label>
+            <input id="wiki-lang" type="text" style="max-width:350px;width:100%" />
+          </div>
+          <div class="field valign spacer10-top">
+            <label style="min-width: 200px"></label>
+            <button id="wiki-check" role="button" class="primary primary--2">Check</button>
+            <span id="wiki-check-pending" class="loading spacer5-left hide"></span>
+            <span id="wiki-check-error" class="hide" style="color:red"></span>
+            <span id="wiki-check-complete" class="hide" style="color:green"></span>
+          </div>
+        </div>
       </div>
     </section>
   </div>
@@ -95,3 +97,15 @@ if (!myCont) {
 let user: SiteUser = getTrace().req.user;
 let avatarUrl: string = SiteUserProvider.getAvatarUrl(user);
 </script>
+
+<style scoped lang="scss">
+@media (max-width: 800px) {
+  .form-box .field {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    label {
+      min-width: auto !important;
+    }
+  }
+}
+</style>

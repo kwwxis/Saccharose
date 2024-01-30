@@ -177,7 +177,7 @@ function createSbOutForVoPreload(opts: VoAppPreloadOptions): SbOut {
   const out = new SbOut();
   out.setPropPad(20);
   out.setPropFilter((propName: string, propValue: string) => {
-    let mode: PropFillMode = Object.entries(opts.paramFill).find(([key, _value]) => {
+    let mode: PropFillMode = Object.entries(opts.paramFill || {}).find(([key, _value]) => {
       return new RegExp('^' + key + '$').test(propName);
     })?.[1];
     if (mode === 'remove') {

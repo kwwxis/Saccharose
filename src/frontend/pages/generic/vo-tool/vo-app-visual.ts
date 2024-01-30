@@ -1,6 +1,7 @@
 import { VoAppState } from './vo-tool.ts';
 import Sortable, { SortableEvent } from 'sortablejs';
 import {
+  createVoHandle,
   createVoHandles,
   VoGroup,
   VoHandle,
@@ -13,6 +14,7 @@ import { listen } from '../../../util/eventListen.ts';
 import { flashTippy } from '../../../util/tooltipUtil.ts';
 import { createWikitextEditor, getAceEditor } from '../../../core/ace/aceEditor.ts';
 import { modalService } from '../../../util/modalService.ts';
+import { VoAppPreloadInput } from './vo-preload-types.ts';
 
 const sortableDefaultOptions: Sortable.Options = {
   scroll: true,
@@ -638,10 +640,14 @@ export async function VoAppVisualEditor(state: VoAppState): Promise<void> {
         }
       }
       if (!storyHandle) {
-        storyHandle = new VoHandle(new MwTemplateNode(state.isMainCharacter() ? 'VO/Traveler' : 'VO/Story'), state.config);
+        storyHandle = createVoHandle(new MwTemplateNode(state.config.preloadConfig.getTemplateName(
+          new VoAppPreloadInput(state, 'story', null)
+        )), state.config);
       }
       if (!combatHandle) {
-        combatHandle = new VoHandle(new MwTemplateNode(state.isMainCharacter() ? 'VO/Combat' : 'Combat VO'), state.config);
+        combatHandle = createVoHandle(new MwTemplateNode(state.config.preloadConfig.getTemplateName(
+          new VoAppPreloadInput(state, 'combat', null)
+        )), state.config);
       }
 
       console.log('[VO-App] VoHandle STORY:', storyHandle);

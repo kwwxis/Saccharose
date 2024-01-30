@@ -90,7 +90,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
 
   readonly disabledLangCodes: Set<LangCode> = new Set<LangCode>();
   protected excelPath: string;
-  protected schema: SchemaTableSet;
+  readonly schema: SchemaTableSet;
   protected IdComparator = (a: any, b: any) => a.Id === b.Id;
   protected sortByOrder = (a: any, b: any) => {
     return a.Order - b.Order || a.Order - b.Order;

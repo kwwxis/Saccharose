@@ -22,7 +22,7 @@ import { listen } from '../../../util/eventListen.ts';
 import {
   copyImageToClipboard,
   downloadImage,
-  downloadObjectAsJson,
+  downloadObjectAsJson, frag1,
   getTextWidth, hasSelection, waitForElementCb,
 } from '../../../util/domutil.ts';
 import { ICellRendererParams } from 'ag-grid-community/dist/lib/rendering/cellRenderers/iCellRenderer';
@@ -33,8 +33,9 @@ import { ExcelViewerDB, invokeExcelViewerDB } from './excel-viewer-storage.ts';
 import { StoreNames } from 'idb/build/entry';
 import { GridReadyEvent } from 'ag-grid-community/dist/lib/events';
 import { highlightJson, highlightWikitext } from '../../../core/ace/aceHighlight.ts';
-import { onSiteThemeChange } from '../../../core/userPreferences/siteTheme.ts';
+import { isNightmode, onSiteThemeChange } from '../../../core/userPreferences/siteTheme.ts';
 import { toInt } from '../../../../shared/util/numberUtil.ts';
+import { templateIcon } from '../../../util/templateIcons.ts';
 
 function initializeThemeWatcher(elements: HTMLElement[]) {
   onSiteThemeChange(theme => {
@@ -215,22 +216,60 @@ function getColumnDefs(excelData: any[]): (ColDef | ColGroupDef)[] {
   return columnDefs;
 }
 
-pageMatch('pages/generic/basic/excel-viewer-table', async () => {
-  const gridEl: HTMLElement = document.querySelector('#excelViewerGrid');
-  const topEl: HTMLElement = document.querySelector('#excelViewerTop');
-  const gridLoadingEl: HTMLElement = document.querySelector('#excelViewerGridLoading');
+function createExcelViewerHtml(fileName: string, includeExcelListButton: boolean) {
+  return frag1(`
+  <div class="excel-viewer">
+    <section class="excel-viewer-top card ag-theme-alpine${isNightmode() ? '-dark' : ''}">
+      <h2 class="valign">
+        <span>Excel Viewer &ndash; <strong>${escapeHtml(fileName)}</strong></span>
+        <span class="grow"></span>
+        ${includeExcelListButton ? `<a role="button" class="secondary small" href="${SiteMode.home}/excel-viewer">Back to excel list</a>` : ''}
+      </h2>
+      <div class="content">
+        <div class="valign justifySpaceBetween">
+          <div class="excel-quick-filter-box valign">
+            <label>Quick Filter:</label>
+            <input class="excel-quick-filter" type="text" />
+          </div>
+          <div class="excel-export posRel">
+            <button class="secondary border-light" ui-action="dropdown">
+              <span class="spacer5-right">Export</span>
+              ${templateIcon('chevron-down')}
+            </button>
+            <div class="ui-dropdown right">
+              <div class="excel-export-csv option" ui-action="dropdown-item">As CSV</div>
+              <div class="excel-export-excel option" ui-action="dropdown-item">As Excel</div>
+              <div class="option-sep"></div>
+              <div class="excel-export-json option" ui-action="dropdown-item">Original JSON</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  
+    <div style="height: 80vh; width: 100%" class="excel-viewer-grid hide ag-theme-alpine${isNightmode() ? '-dark' : ''}">
+    </div>
+    <div class="excel-viewer-grid-loading card valign justifyCenter ag-theme-alpine${isNightmode() ? '-dark' : ''}" style="height: 80vh; width: 100%">
+      <h1 class="valign justifyCenter">
+        <span class="loading x36"></span>
+        <span class="loading-label spacer15-left">Loading table...</span>
+      </h1>
+    </div>
+  </div>
+  `);
+}
 
-  if (!gridEl) {
-    return;
+export function initExcelViewer(excelFileName: string, excelData: any[], includeExcelListButton: boolean, appendTo?: HTMLElement) {
+  const parentEl: HTMLElement = createExcelViewerHtml(excelFileName, includeExcelListButton);
+  if (appendTo) {
+    appendTo.append(parentEl);
   }
 
-  initializeThemeWatcher([gridEl, topEl, gridLoadingEl]);
+  const topEl: HTMLElement = parentEl.querySelector('.excel-viewer-top');
+  const gridEl: HTMLElement = parentEl.querySelector('.excel-viewer-grid');
+  const gridLoadingEl: HTMLElement = parentEl.querySelector('.excel-viewer-grid-loading');
 
-  // noinspection JSUnresolvedReference
-  const excelData: any[] = (<any> window).excelData;
-
-  // noinspection JSUnresolvedReference
-  const excelFileName: string = (<any> window).excelFileName;
+  initializeThemeWatcher([topEl, gridEl, gridLoadingEl]);
 
   const gridOptions: GridOptions = {
     columnDefs: getColumnDefs(excelData),
@@ -322,31 +361,31 @@ pageMatch('pages/generic/basic/excel-viewer-table', async () => {
         }
       });
       waitForElementCb(document.body, '.ag-center-cols-container', el => {
-          document.body.addEventListener('mousedown', e => {
-            if (e.shiftKey || e.ctrlKey || e.metaKey || e.altKey) {
-              return;
-            }
-            const el = (e.target as HTMLElement).closest('.ag-cell-value');
-            if (!el) {
-              return;
-            }
+        document.body.addEventListener('mousedown', e => {
+          if (e.shiftKey || e.ctrlKey || e.metaKey || e.altKey) {
+            return;
+          }
+          const el = (e.target as HTMLElement).closest('.ag-cell-value');
+          if (!el) {
+            return;
+          }
 
-            e.stopPropagation();
-            e.stopImmediatePropagation();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
 
-            const colId: string = el.closest('[col-id]').getAttribute('col-id');
-            const rowIndex: number = toInt(el.closest('[row-id]').getAttribute('row-index'));
+          const colId: string = el.closest('[col-id]').getAttribute('col-id');
+          const rowIndex: number = toInt(el.closest('[row-id]').getAttribute('row-index'));
 
-            event.api.clearRangeSelection();
-            event.api.clearFocusedCell();
-            event.api.setFocusedCell(rowIndex, colId);
-            event.api.addCellRange({
-              rowStartIndex: rowIndex,
-              rowEndIndex: rowIndex,
-              columnStart: colId,
-              columnEnd: colId
-            });
-          }, true);
+          event.api.clearRangeSelection();
+          event.api.clearFocusedCell();
+          event.api.setFocusedCell(rowIndex, colId);
+          event.api.addCellRange({
+            rowStartIndex: rowIndex,
+            rowEndIndex: rowIndex,
+            columnStart: colId,
+            columnEnd: colId
+          });
+        }, true);
       });
     }
   };
@@ -372,13 +411,6 @@ pageMatch('pages/generic/basic/excel-viewer-table', async () => {
     });
   }
 
-  (<any> window).grid = grid;
-  (<any> window).gridApi = gridApi;
-  (<any> window).columnApi = columnApi;
-  (<any> window).getCurrentColumnState = getCurrentColumnState;
-  (<any> window).getPreferredColumnState = getPreferredColumnState;
-  (<any> window).savePreferredColumnState = savePreferredColumnState;
-
   let quickFilterDebounceId: any;
 
   listen([
@@ -390,7 +422,7 @@ pageMatch('pages/generic/basic/excel-viewer-table', async () => {
       }
     },
     {
-      selector: '#excel-quick-filter',
+      selector: '.excel-quick-filter',
       event: 'input',
       debounceId: 0,
       handle: (_evt, target: HTMLInputElement) => {
@@ -403,7 +435,7 @@ pageMatch('pages/generic/basic/excel-viewer-table', async () => {
       }
     },
     {
-      selector: '#excel-export-csv',
+      selector: '.excel-export-csv',
       event: 'click',
       handle: () => {
         gridApi.exportDataAsCsv({
@@ -412,7 +444,7 @@ pageMatch('pages/generic/basic/excel-viewer-table', async () => {
       }
     },
     {
-      selector: '#excel-export-excel',
+      selector: '.excel-export-excel',
       event: 'click',
       handle: () => {
         gridApi.exportDataAsExcel({
@@ -423,11 +455,55 @@ pageMatch('pages/generic/basic/excel-viewer-table', async () => {
       }
     },
     {
-      selector: '#excel-export-json',
+      selector: '.excel-export-json',
       event: 'click',
       handle: () => {
         downloadObjectAsJson(excelData, excelFileName + '.json', 2);
       }
     }
-  ]);
+  ], parentEl);
+
+  return {
+    parentEl,
+    topEl,
+    gridEl,
+    gridLoadingEl,
+    grid,
+    gridApi,
+    columnApi,
+    getCurrentColumnState,
+    getPreferredColumnState,
+    savePreferredColumnState,
+  };
+}
+
+pageMatch('pages/generic/basic/excel-viewer-table', async () => {
+  const containerEl: HTMLElement = document.querySelector('#excelViewerContainer');
+
+  if (!containerEl) {
+    return;
+  }
+
+  // noinspection JSUnresolvedReference
+  const excelData: any[] = (<any> window).excelData;
+
+  // noinspection JSUnresolvedReference
+  const excelFileName: string = (<any> window).excelFileName;
+
+  const {
+    parentEl,
+    grid,
+    gridApi,
+    columnApi,
+    getCurrentColumnState,
+    getPreferredColumnState,
+    savePreferredColumnState
+  } = initExcelViewer(excelFileName, excelData, true, containerEl);
+
+  (<any> window).grid = grid;
+  (<any> window).gridApi = gridApi;
+  (<any> window).columnApi = columnApi;
+  (<any> window).getCurrentColumnState = getCurrentColumnState;
+  (<any> window).getPreferredColumnState = getPreferredColumnState;
+  (<any> window).savePreferredColumnState = savePreferredColumnState;
 });

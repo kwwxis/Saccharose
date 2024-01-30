@@ -2,6 +2,7 @@ import { VoAppState } from './vo-tool.ts';
 import { LangCode, LangCodeMap } from '../../../../shared/types/lang-types.ts';
 import { CommonVoiceOver } from '../../../../shared/types/common-types.ts';
 import { SbOut } from '../../../../shared/util/stringUtil.ts';
+import { getOutputLanguage } from '../../../core/userPreferences/siteLanguage.ts';
 
 export type PropFillMode = 'fill' | 'remove' | 'empty';
 
@@ -16,12 +17,16 @@ export class VoAppPreloadInput {
   storyContext: VoAppPreloadStoryContext;
   combatContext: VoAppPreloadCombatContext;
   voiceOver: CommonVoiceOver;
+  lang: LangCode;
+  userLang: LangCode;
 
   constructor(readonly state: VoAppState,
               readonly mode: 'story' | 'combat',
-              readonly lang: LangCode,
-              readonly userLang: LangCode,
               readonly opts: VoAppPreloadOptions) {
+    this.lang = state.voLang;
+    this.userLang = getOutputLanguage();
+    if (!this.opts)
+      this.opts = {};
   }
 
   get isStory(): boolean {

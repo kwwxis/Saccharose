@@ -51,6 +51,15 @@ pageMatch('pages/genshin/character/vo-tool', async () => {
       ... enforcePropOrderItem('actualrm'),
       ... enforcePropOrderItem('actualtl'),
       ... enforcePropOrderItem('mention')
+    ],
+
+    storyTemplateNames: [
+      'VO/Story',
+      'VO/Traveler',
+    ],
+    combatTemplateNames: [
+      'VO/Combat',
+      'Combat VO',
     ]
   }));
 });

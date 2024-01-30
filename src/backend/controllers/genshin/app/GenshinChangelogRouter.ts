@@ -7,6 +7,8 @@ import { getGenshinControl } from '../../../domain/genshin/genshinControl.ts';
 import GenshinChangelogSingleExcelPage
   from '../../../components/genshin/changelogs/GenshinChangelogSingleExcelPage.vue';
 import { generateGenshinChangelogNewRecordSummary } from '../../../domain/genshin/changelog/genshinChangelogHelpers.ts';
+import { isInt } from '../../../../shared/util/numberUtil.ts';
+import { LANG_CODES, LangCode, LangCodeMap } from '../../../../shared/types/lang-types.ts';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -37,7 +39,7 @@ export default async function(): Promise<Router> {
       genshinVersion,
       fullChangelog,
       newSummary,
-      bodyClass: ['page--changelog', 'page--wide']
+      bodyClass: ['page--changelog', 'page--wide', 'page--narrow-sidebar']
     });
   });
 
@@ -48,19 +50,54 @@ export default async function(): Promise<Router> {
       return res.render(ChangelogListPage, {
         title: 'Genshin Changelog',
         errorMessage: 'No changelog available for ' + req.params.version,
-        bodyClass: ['page--changelog', 'page--wide']
+        bodyClass: ['page--changelog', 'page--wide', 'page--narrow-sidebar']
       });
     }
 
-    const fullChangelog = await getGenshinControl(req).selectChangelog(genshinVersion);
+    const ctrl = getGenshinControl(req);
+    ctrl.state.AutoloadAvatar = false;
+
+    const fullChangelog = await ctrl.selectChangelog(genshinVersion);
     const excelFileChanges = fullChangelog.excelChangelog[req.params.excelFileName];
+    const schemaTable = ctrl.schema[excelFileChanges.name];
+
+    for (let record of Object.values(excelFileChanges.changedRecords)) {
+      if (record.addedRecord) {
+        record.addedRecord = await ctrl.commonLoadFirst(record.addedRecord, schemaTable, true);
+      }
+      for (let field of Object.values(record.updatedFields)) {
+        if (field.field.endsWith('TextMapHash')) {
+          let oldValueMap: Partial<LangCodeMap> = {};
+          let newValueMap: Partial<LangCodeMap> = {};
+
+          if (isInt(field.oldValue)) {
+            oldValueMap = await ctrl.createLangCodeMap(field.oldValue);
+          }
+          if (isInt(field.newValue)) {
+            newValueMap = await ctrl.createLangCodeMap(field.newValue);
+          }
+          if (!field.textChanges) {
+            field.textChanges = [];
+          }
+          for (let langCode of LANG_CODES) {
+            if (oldValueMap[langCode] || newValueMap[langCode]) {
+              field.textChanges.push({
+                langCode,
+                oldValue: oldValueMap[langCode],
+                newValue: newValueMap[langCode]
+              });
+            }
+          }
+        }
+      }
+    }
 
     res.render(GenshinChangelogSingleExcelPage, {
       title: 'Genshin Changelog',
       genshinVersion,
       fullChangelog,
       excelFileChanges,
-      bodyClass: ['page--changelog', 'page--wide']
+      bodyClass: ['page--changelog', 'page--wide', 'page--narrow-sidebar']
     });
   });
 

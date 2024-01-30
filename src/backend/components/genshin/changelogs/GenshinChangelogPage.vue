@@ -532,6 +532,10 @@
     </div>
 
     <div id="tabpanel-byExcels" role="tabpanel" aria-labelledby="tab-byExcels" class="tabpanel hide">
+      <div class="content">
+        <p class="info-notice">Only certain Excel files are available in this list, if you'd like one that's not present
+        here to be added, let kwwxis know.</p>
+      </div>
       <template v-for="excelFileChanges of sort(Object.values(fullChangelog.excelChangelog), 'name')">
         <h3 class="secondary-header valign">{{ excelFileChanges.name }}</h3>
         <div class="content">

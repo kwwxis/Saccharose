@@ -51,6 +51,15 @@ pageMatch('pages/hsr/character/vo-tool', async () => {
       ... enforcePropOrderItem('actualrm'),
       ... enforcePropOrderItem('actualtl'),
       ... enforcePropOrderItem('mention')
+    ],
+
+    storyTemplateNames: [
+      'VO/Data Bank',
+      'VO/Trailblazer',
+    ],
+    combatTemplateNames: [
+      'Combat VO',
+      'Combat VO/Trailblazer'
     ]
   }));
 });

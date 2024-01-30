@@ -8,7 +8,7 @@ import {
 import { mwParse } from '../../../../shared/mediawiki/mwParse.ts';
 import { isStringBlank, splitLimit } from '../../../../shared/util/stringUtil.ts';
 import { arrayClosestNumber, arrayRemove, arraySum, sort } from '../../../../shared/util/arrayUtil.ts';
-import { isset } from '../../../../shared/util/genericUtil.ts';
+import { isEmpty, isset } from '../../../../shared/util/genericUtil.ts';
 import { constrainNumber, isInt, toInt } from '../../../../shared/util/numberUtil.ts';
 import { uuidv4 } from '../../../../shared/util/uuidv4.ts';
 import { VoAppConfig } from './vo-tool.ts';
@@ -554,6 +554,10 @@ export class VoHandle {
   constructor(templateNode: MwTemplateNode, voAppConfig: VoAppConfig) {
     this.templateNode = templateNode;
     this.voAppConfig = voAppConfig;
+    if (!this.templateNode.isTemplateName(voAppConfig.storyTemplateNames) && !this.templateNode.isTemplateName(voAppConfig.combatTemplateNames)) {
+      throw 'Bad template node for VoHandle! Unexpected template name: ' + templateNode.templateName;
+    }
+    this.isCombat = this.templateNode.isTemplateName(voAppConfig.combatTemplateNames);
   }
 
   clear() {
@@ -684,7 +688,6 @@ export class VoHandle {
     let seenTitleSubseqNodes: Set<MwNode> = new Set();
     let currentGroup: VoGroup = null;
     let currentItem: VoItem = null;
-    this.isCombat = this.templateNode.templateName.toLowerCase().includes('combat');
 
     for (let node of this.templateNode.parts) {
       if (node instanceof MwParamNode && typeof node.key === 'string') {
@@ -787,21 +790,23 @@ export class VoHandle {
 }
 
 export function createVoHandle(templateNode: MwTemplateNode|string, voAppConfig: VoAppConfig): VoHandle {
-  if (isStringBlank(templateNode)) {
+  if (isEmpty(templateNode) || (typeof templateNode === 'string' && isStringBlank(templateNode))) {
     return null;
   }
   if (typeof templateNode === 'string') {
-    templateNode = mwParse(templateNode).findTemplateNodes().find(p => p.templateName.includes('VO'));
+    templateNode = mwParse(templateNode).findTemplateNodes()
+      .find(p => p.isTemplateName(voAppConfig.storyTemplateNames) || p.isTemplateName(voAppConfig.combatTemplateNames));
   }
   return templateNode ? new VoHandle(templateNode, voAppConfig) : null;
 }
 
 export function createVoHandles(templateNodes: MwTemplateNode[]|string, voAppConfig: VoAppConfig): VoHandle[] {
-  if (isStringBlank(templateNodes)) {
+  if (isEmpty(templateNodes) || (typeof templateNodes === 'string' && isStringBlank(templateNodes))) {
     return [];
   }
   if (typeof templateNodes === 'string') {
-    templateNodes = mwParse(templateNodes).findTemplateNodes().filter(p => p.templateName.includes('VO'));
+    templateNodes = mwParse(templateNodes).findTemplateNodes()
+      .filter(p => p.isTemplateName(voAppConfig.storyTemplateNames) || p.isTemplateName(voAppConfig.combatTemplateNames));
   }
   return templateNodes.map(templateNode => new VoHandle(templateNode, voAppConfig));
 }

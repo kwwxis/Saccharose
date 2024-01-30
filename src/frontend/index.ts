@@ -49,6 +49,7 @@ import './pages/genshin/archive/tutorials-search.ts';
 // ----------------------------------------------------------------------------------------------------
 import './pages/genshin/character/genshin-vo-tool.ts';
 import './pages/genshin/media/media-search.page.ts';
+import './pages/genshin/changelog/changelog-single-excel-page.ts';
 
 // HSR VO Tool
 // ----------------------------------------------------------------------------------------------------

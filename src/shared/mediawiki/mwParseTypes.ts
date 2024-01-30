@@ -425,6 +425,14 @@ export class MwTemplateNode extends MwParentNode {
     this.addNode(new MwParamNode('', 0, templateName)._evaluateAfterValueWhitespace());
   }
 
+  isTemplateName(name: string|string[]) {
+    if (Array.isArray(name)) {
+      return name.map(n => n.trim().replace(/ /g, '_')).some(n => this.templateName === n);
+    } else {
+      return this.templateName === name.trim().replace(/ /g, '_');
+    }
+  }
+
   override toString(): string {
     if (this.type === 'TemplateParam') {
       return '{{{' + super.toString() + '}}}';

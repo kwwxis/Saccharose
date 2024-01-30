@@ -44,7 +44,9 @@ export default async function(): Promise<Router> {
   });
 
   router.get('/excel-viewer/:file', async (req: Request, res: Response) => {
-    await sendExcelViewerTableResponse(getGenshinControl(req), req, res);
+    const ctrl = getGenshinControl(req);
+    ctrl.state.AutoloadAvatar = false;
+    await sendExcelViewerTableResponse(ctrl, req, res);
   });
 
   return router;

@@ -7,7 +7,7 @@
   "private": true,
   "scripts": {
     "backend:build": "sh ./build.sh",
-    "ts-serve": "node --import=node-esm-loader/register ./src/backend/server.ts",
+    "ts-serve": "sh ./build.sh && node .",
     "ts-serve:dev": "nodemon",
     "webpack:prod": "cross-env NODE_OPTIONS=\"--no-warnings=ExperimentalWarning --loader ts-node/esm\" webpack --config webpack.prod.ts",
     "webpack:dev": "cross-env NODE_OPTIONS=\"--no-warnings=ExperimentalWarning --loader ts-node/esm\" webpack --config webpack.dev.ts",

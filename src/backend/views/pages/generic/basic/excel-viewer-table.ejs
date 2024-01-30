@@ -3,44 +3,7 @@
     window.excelData = [].concat(<%- JSON.stringify(json) %>);
     window.excelFileName = "<%= fileName %>";
   </script>
-
-  <section id="excelViewerTop" class="card ag-theme-alpine<%= cookieTernary('nightmode').isTruthy().then('-dark') %>">
-    <h2 class="valign">
-      <span>Excel Viewer &ndash; <strong><%= fileName %></strong></span>
-      <span class="grow"></span>
-      <a role="button" class="secondary small" href="<%= siteHome %>/excel-viewer">Back to excel list</a>
-    </h2>
-    <div class="content">
-      <div class="valign justifySpaceBetween">
-        <div class="excel-quick-filter-box valign">
-          <label for="excel-quick-filter">Quick Filter:</label>
-          <input id="excel-quick-filter" type="text" />
-        </div>
-        <div class="excel-export posRel">
-          <button id="excel-export-button" class="secondary border-light" ui-action="dropdown: #excel-export-dropdown">
-            <span class="spacer5-right">Export</span>
-            <%- icon('chevron-down') %>
-          </button>
-          <div id="excel-export-dropdown" class="ui-dropdown right">
-            <div id="excel-export-csv" class="option" ui-action="dropdown-item">As CSV</div>
-            <div id="excel-export-excel" class="option" ui-action="dropdown-item">As Excel</div>
-            <div class="option-sep"></div>
-            <div id="excel-export-json" class="option" ui-action="dropdown-item">Original JSON</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <div id="excelViewerGrid" style="height: 80vh; width: 100%" class="hide ag-theme-alpine<%= cookieTernary('nightmode').isTruthy().then('-dark') %>">
-  </div>
-  <div id="excelViewerGridLoading" class="card valign justifyCenter ag-theme-alpine<%= cookieTernary('nightmode').isTruthy().then('-dark') %>" style="height: 80vh; width: 100%">
-    <h1 class="valign justifyCenter">
-      <span class="loading x36"></span>
-      <span class="loading-label spacer15-left">Loading table...</span>
-    </h1>
-  </div>
-
+  <div id="excelViewerContainer"></div>
 <% } else { %>
   <section class="card">
     <h2>Excel Viewer</h2>

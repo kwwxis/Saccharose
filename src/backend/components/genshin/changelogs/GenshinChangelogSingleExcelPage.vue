@@ -1,4 +1,6 @@
 <template>
+  <meta id="x-addedRecords-excelFileName" name="x-addedRecords-excelFileName" :content="`${excelFileChanges.name} - New Records ${genshinVersion.previous} - ${genshinVersion.number}`" />
+  <meta id="x-addedRecords-excelData" name="x-addedRecords-excelData" :content="JSON.stringify(Object.values(excelFileChanges.changedRecords).filter(r => r.changeType === 'added').map(r => r.addedRecord))" />
   <section class="card">
     <h2 class="valign">
       <a href="/changelog" style="text-decoration: none">Changelogs</a>
@@ -21,17 +23,27 @@
     </div>
 
     <div id="tabpanel-addedRecords" role="tabpanel" aria-labelledby="tab-addedRecords" class="tabpanel active">
-      <template v-for="record of Object.values(excelFileChanges.changedRecords).filter(r => r.changeType === 'added')">
-        <hr />
-        <h3 class="secondary-header">
-          <span>Record ID: <strong>{{ record.key }}</strong></span>
-        </h3>
-        <div>
-          <JsonText :value="JSON.stringify(record.addedRecord, null, 2)" :lazy-load="true" :seamless="true" />
-        </div>
-      </template>
       <div class="content" v-if="Object.values(excelFileChanges.changedRecords).filter(r => r.changeType === 'added').length === 0">
         <p class="info-notice">None</p>
+      </div>
+      <div v-else>
+        <hr />
+        <div id="tablist-addedRecords" class="tab-list secondary" role="tablist">
+          <button id="tab-addedRecords-excelViewer" role="tab" class="tab active" ui-action="tab: #tabpanel-addedRecords-excelViewer, addedRecordsTabs">Excel Viewer</button>
+          <button id="tab-addedRecords-json" role="tab" class="tab" ui-action="tab: #tabpanel-addedRecords-json, addedRecordsTabs">JSON</button>
+        </div>
+        <div id="tabpanel-addedRecords-excelViewer" class="tabpanel active"></div>
+        <div id="tabpanel-addedRecords-json" class="tabpanel hide">
+          <template v-for="record of Object.values(excelFileChanges.changedRecords).filter(r => r.changeType === 'added')">
+            <hr />
+            <h3 class="secondary-header">
+              <span>Record ID: <strong>{{ record.key }}</strong></span>
+            </h3>
+            <div>
+              <JsonText :value="JSON.stringify(record.addedRecord, null, 2)" :lazy-load="true" :seamless="true" />
+            </div>
+          </template>
+        </div>
       </div>
     </div>
     <div id="tabpanel-updatedRecords" role="tabpanel" aria-labelledby="tab-updatedRecords" class="tabpanel hide">
@@ -48,22 +60,34 @@
               <th style="border-top:0;text-align:left">New Value</th>
               <th style="border-top:0;text-align:left">Text Changes</th>
             </tr>
-            <tr v-for="field of (record.updatedFields || [])">
-              <td class="code"><strong>{{ field.field }}</strong></td>
-              <td class="code">{{ field.oldValue || '(none)' }}</td>
-              <td class="code">{{ field.newValue || '(none)' }}</td>
+            <tr v-for="field of updatedFieldsOf(record)">
+              <td class="code" style="vertical-align: top"><strong>{{ field.field }}</strong></td>
+              <td class="code" style="vertical-align: top">
+                <span v-if="isset(field.oldValue)">{{ field.oldValue }}</span>
+                <span v-else style="font-style: italic">(none)</span>
+              </td>
+              <td class="code" style="vertical-align: top">
+                <span v-if="isset(field.newValue)">{{ field.newValue }}</span>
+                <span v-else style="font-style: italic">(none)</span>
+              </td>
               <td style="padding:0">
                 <table class="article-table" style="border-top:0" v-if="field.textChanges?.length">
                   <tr style="border-top:0">
                     <th style="border-top:0">Language</th>
-                    <th style="border-top:0">Old Text</th>
-                    <th style="border-top:0">New Text</th>
+                    <th style="border-top:0;white-space: nowrap">Old Text</th>
+                    <th style="border-top:0;white-space: nowrap">New Text</th>
                   </tr>
                   <template v-for="textChange of field.textChanges">
                     <tr>
-                      <td>{{ LANG_CODES_TO_NAME[textChange.langCode] }} ({{ textChange.langCode }})</td>
-                      <td class="code">{{ textChange.oldValue }}</td>
-                      <td class="code">{{ textChange.newValue }}</td>
+                      <td style="vertical-align: top">{{ LANG_CODES_TO_NAME[textChange.langCode] }} ({{ textChange.langCode }})</td>
+                      <td class="code" style="vertical-align: top">
+                        <Wikitext v-if="textChange.oldValue" :value="textChange.oldValue" :seamless="true" />
+                        <span v-else style="font-style: italic">(none)</span>
+                      </td>
+                      <td class="code" style="vertical-align: top">
+                        <Wikitext v-if="textChange.newValue" :value="textChange.newValue" :seamless="true" />
+                        <span v-else style="font-style: italic">(none)</span>
+                      </td>
                     </tr>
                   </template>
                 </table>
@@ -95,14 +119,29 @@
 
 <script setup lang="ts">
 import { GameVersion } from '../../../../shared/types/game-versions.ts';
-import { ExcelFileChanges, FullChangelog } from '../../../../shared/types/changelog-types.ts';
+import {
+  ChangeRecord,
+  ExcelFileChanges,
+  FieldChange,
+  FullChangelog,
+} from '../../../../shared/types/changelog-types.ts';
 import { LANG_CODES_TO_NAME } from '../../../../shared/types/lang-types.ts';
 import JsonText from '../../utility/JsonText.vue';
 import Icon from '../../utility/Icon.vue';
+import Wikitext from '../../utility/Wikitext.vue';
+import { isset } from '../../../../shared/util/genericUtil.ts';
+import { getTrace } from '../../../middleware/request/tracer.js';
+
+const trace = getTrace();
+const req = trace.req;
 
 defineProps<{
   genshinVersion: GameVersion,
   fullChangelog: FullChangelog,
   excelFileChanges: ExcelFileChanges,
-}>()
+}>();
+
+function updatedFieldsOf(record: ChangeRecord): FieldChange[] {
+  return Object.values(record.updatedFields || {});
+}
 </script>

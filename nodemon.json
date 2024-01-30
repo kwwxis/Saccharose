@@ -4,6 +4,11 @@
     "src/backend",
     "src/shared"
   ],
-  "exec": "node --import=node-esm-loader/register ./src/backend/server.ts",
+  "ignore": [
+    "*.vue.ts",
+    "*.vue.script.ts",
+    "*.vue.template.ts"
+  ],
+  "exec": "sh ./build.sh && node .",
   "ext": "ts,tsx,js,json,vue,ejs"
 }

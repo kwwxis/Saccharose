@@ -17,7 +17,7 @@ export function getWebpackBundleFileNames(): WebpackBundles {
     return cache;
   }
   let distDir = path.resolve(PUBLIC_DIR, './dist');
-  let vueDistDir = path.resolve(PUBLIC_DIR, './dist');
+  let vueDistDir = path.resolve(PUBLIC_DIR, './v-dist');
 
   let files: string[] = fs.readdirSync(distDir);
   let vueFiles: string[] = fs.readdirSync(vueDistDir);

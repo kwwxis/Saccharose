@@ -23,6 +23,9 @@ export interface VoAppConfig {
   preloadConfig: VoAppPreloadConfig,
 
   enforcePropOrder: string[],
+
+  storyTemplateNames: string[],
+  combatTemplateNames: string[],
 }
 
 export type VoAppEventBusConfig = {

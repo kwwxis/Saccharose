@@ -17,7 +17,7 @@ export async function sendExcelViewerTableResponse(ctrl: AbstractControl, req: R
 
   res.render('pages/generic/basic/excel-viewer-table', {
     title: 'Excel Viewer',
-    bodyClass: ['page--excel-viewer', 'page--wide'],
+    bodyClass: ['page--excel-viewer', 'page--wide', 'page--narrow-sidebar'],
     fileName,
     fileSize,
     excels,
