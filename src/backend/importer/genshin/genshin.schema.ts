@@ -818,30 +818,41 @@ export const genshinSchema = {
       { name: 'LowHealthTalkId', type: 'integer', isIndex: true },
       { name: 'LowHealthConfigId', type: 'integer', isIndex: true },
     ],
-    renameFields: {
+    renameFields: { // TODO: Translate Schema doesn't work on this SchemaTable
       ElementBrustTalkId: 'ElementBurstTalkId',
 
       LGPAEEOJHAE: 'GameId',
+      LNFCKAJPIFJ: 'GameId',
 
       LBFILGPEDGK: 'HappyTalkId',
-      PKOAHFOPJDD: '1',
+      OJDBPLCBNEK: 'HappyTalkId',
 
       NNKJEHOHMBO: 'SadTalkId',
-      CJFHOABHDCK: '1',
+      NNDJLJMJGAG: 'SadTalkId',
 
       MLEFDDEHBBL: 'ToughTalkId',
-      COCGDKCMMPM: '1',
+      FPLIDHCBPNA: 'ToughTalkId',
 
       CFGEPIGEJCK: 'ElementBurstTalkId',
-      DPKOJONFJPB: '1',
+      ELKBJDDEGIF: 'ElementBurstTalkId',
 
       IKOEPPHFOEB: 'HighHealthTalkId',
+      HPONHALFHNH: 'HighHealthTalkId',
+
       PAKILBFPCCL: 'HighHealthValue',
+      BIJNIDMFDPF: 'HighHealthValue',
+
       BCKNCBHEDGB: 'HighHealthConfigId',
+      HOMPIFAIKHD: 'HighHealthConfigId',
 
       PDNAEHFAFIJ: 'LowHealthTalkId',
+      BBOCNPMPHAE: 'LowHealthTalkId',
+
       ODHDEGNOJKH: 'LowHealthValue',
-      NLHKBFOGJMM: 'LowHealthConfigId'
+      ECOMDFKLFLP: 'LowHealthValue',
+
+      NLHKBFOGJMM: 'LowHealthConfigId',
+      KLIAJLCEKNC: 'LowHealthConfigId',
     },
   },
   GCGTalkDetailExcelConfigData: <SchemaTable> {
@@ -855,6 +866,8 @@ export const genshinSchema = {
       OKFHEMAKLNN: 'TalkContentTextMapHash',
       CPBEMEKHDCO: 'TalkDetailIconId',
       JKPKBLJAMAG: 'TalkDetailIconId',
+      NAKCEHLACDO: 'TalkDetailIconId',
+      ECMMFFFJBPK: 'TalkDetailIconId',
       PGFENJJPNBG: 'TalkEmoji',
     },
     singularize: {'TalkDetailIconId': 'TalkDetailIconId'},
@@ -1087,9 +1100,12 @@ export const genshinSchema = {
       FMDPDBBKOKM: 'AvatarName',
       NBLPFBBIEGE: 'IsRemoveAfterDie',
       LEKAGJLNGLH: 'IsRemoveAfterDie',
+      LKCGOHOJHME: 'IsRemoveAfterDie',
       OOCDMOAACAH: 'TagList',
+      HBCBGGLBNPB: 'TagList',
       KCOKMGBEMJB: 'IsCanObtain',
       LHJBJHKKJED: 'IsCanObtain',
+      EHNPOPJDLFC: 'IsCanObtain',
     }
   },
   GCGCharacterLevelExcelConfigData: <SchemaTable> {
@@ -1283,11 +1299,12 @@ export const genshinSchema = {
       { name: 'CategoryType', type: 'string', isIndex: true },
       { name: 'NameTextMapHash', type: 'integer', isIndex: true },
     ],
-    renameFields: {
+    renameFields: { // TODO: Translate Schema doesn't work on this SchemaTable
       PHMOLEPKEIB: 'CategoryType',
       PBCDLDCHKMK: 'CategoryType',
       EBJAELDKAAJ: 'CategoryType',
-      NEAJPKMAMOF: 'CategoryType'
+      NEAJPKMAMOF: 'CategoryType',
+      NOGJDCMLDBM: 'CategoryType',
     },
     singularize: {'CategoryType': 'CategoryType'},
   },

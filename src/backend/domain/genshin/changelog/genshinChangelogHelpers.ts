@@ -108,13 +108,13 @@ export async function generateGenshinChangelogNewRecordSummary(ctrl: GenshinCont
   return {
     avatars: await newIntKeysOf('AvatarExcelConfigData').asyncMap(avatarId => ctrl.selectAvatarById(avatarId)),
     weapons: await newIntKeysOf('WeaponExcelConfigData').asyncMap(weaponId => ctrl.selectWeaponById(weaponId)),
-    foods: materials.filter(item => !!item.FoodQuality),
+    foods: materials.filter(item => !!item.FoodQuality || item.MaterialType === 'MATERIAL_FOOD' || item.MaterialType === 'MATERIAL_NOTICE_ADD_HP'),
     tcgItems: materials.filter(item => item.MaterialType && item.MaterialType.startsWith('MATERIAL_GCG')),
     avatarItems: materials.filter(item => item.MaterialType === 'MATERIAL_NAMECARD'
       || item.MaterialType === 'MATERIAL_TALENT' || item.MaterialType === 'MATERIAL_AVATAR'),
     blueprints: materials.filter(item => item.MaterialType === 'MATERIAL_FURNITURE_FORMULA' || item.MaterialType === 'MATERIAL_FURNITURE_SUITE_FORMULA'),
     items: materials.filter(item => (
-      !item.FoodQuality
+      !(!!item.FoodQuality || item.MaterialType === 'MATERIAL_FOOD' || item.MaterialType === 'MATERIAL_NOTICE_ADD_HP')
       && !(item.MaterialType && item.MaterialType.startsWith('MATERIAL_GCG'))
       && !(item.MaterialType === 'MATERIAL_FURNITURE_FORMULA' || item.MaterialType === 'MATERIAL_FURNITURE_SUITE_FORMULA')
       && !(item.MaterialType === 'MATERIAL_NAMECARD' || item.MaterialType === 'MATERIAL_TALENT' || item.MaterialType === 'MATERIAL_AVATAR')

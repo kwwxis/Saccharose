@@ -37,9 +37,9 @@
           <% } %>
         </div>
       <% } %>
-      <% if (locals.wikitext || locals._wikitext || (children && children.length)) { %>
+      <% if (locals._wikitext || (children && children.length)) { %>
         <div class="grow"></div>
-        <% if (locals.wikitext || locals._wikitext) { %>
+        <% if (locals._wikitext) { %>
             <button class="secondary small" ui-action="copy: #wikitext-<%= id %>"
                   ui-tippy-hover="Click to copy to clipboard"
                   ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
@@ -64,7 +64,7 @@
     <% if (locals.htmlMessage) { %>
       <div class="dialogue-section-info-message"><%- htmlMessage %></div>
     <% } %>
-    <% if (locals.wikitext || locals._wikitext) { %>
+    <% if (locals._wikitext) { %>
       <textarea readonly
                 id="wikitext-<%= id %>"
                 class="wikitext dialogue-section-wikitext w100p autosize <%= (locals.parentIds || []).map(s => 'wikitext-childOf-' + s).join(' ') %>"
@@ -73,7 +73,7 @@
                 data-line-ids="<%= stringifyCommonLineIds(locals.wikitextLineIds || locals._wikitextLineIds) %>"
                 style="resize:vertical;min-height:40px;"
                 spellcheck="false"
-                translate="no"><%= locals.wikitext || locals._wikitext %></textarea>
+                translate="no"><%= locals._wikitext %></textarea>
     <% } %>
     <% if (locals.wikitextArray) { %>
       <% wikitextArray.forEach((item, idx) => { %>
