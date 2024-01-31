@@ -11,7 +11,6 @@ import { MwOwnSegmentHolder } from './mwOwnSegmentHolder.ts';
 import { diffIntlWithSpace } from '../util/jsIntlDiff.ts';
 import { AsyncLog } from '../util/logger.ts';
 import { MwArticleInfo, MwRevision } from '../../shared/mediawiki/mwTypes.ts';
-import { getRoughSizeOfObject } from '../../shared/util/genericUtil.ts';
 import { Change } from 'diff';
 
 export async function getAndStoreRevisions(mwClient: MwClientInterface, titleOrId: string|number, asyncLog: AsyncLog): Promise<{

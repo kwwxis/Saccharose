@@ -48,7 +48,8 @@ export type GenshinChangelogNewRecordSummary = {
   readables: ReadableArchiveView,
 
   chapters: ChapterCollection,
-  quests: MainQuestExcelConfigData[],
+  nonChapterQuests: MainQuestExcelConfigData[],
+  hiddenQuests: MainQuestExcelConfigData[],
 
   achievements: AchievementExcelConfigData[],
   loadingTips: LoadingTipsExcelConfigData[],
@@ -105,6 +106,8 @@ export async function generateGenshinChangelogNewRecordSummary(ctrl: GenshinCont
   const chapterQuestIds: Set<number> = new Set(chapters.map(c => c.Quests.map(q => q.Id)).flat());
   const nonChapterQuestIds: number[] = newIntKeysOf('MainQuestExcelConfigData').filter(mqId => !chapterQuestIds.has(mqId));
 
+  const quests: MainQuestExcelConfigData[] = await nonChapterQuestIds.asyncMap(mqId => ctrl.selectMainQuestById(mqId));
+
   return {
     avatars: await newIntKeysOf('AvatarExcelConfigData').asyncMap(avatarId => ctrl.selectAvatarById(avatarId)),
     weapons: await newIntKeysOf('WeaponExcelConfigData').asyncMap(weaponId => ctrl.selectWeaponById(weaponId)),
@@ -143,6 +146,7 @@ export async function generateGenshinChangelogNewRecordSummary(ctrl: GenshinCont
     ),
 
     chapters: chapterCollection,
-    quests: await nonChapterQuestIds.asyncMap(mqId => ctrl.selectMainQuestById(mqId)),
+    nonChapterQuests: quests.filter(mq => !!mq.TitleText),
+    hiddenQuests: quests.filter(mq => !mq.TitleText),
   };
 }

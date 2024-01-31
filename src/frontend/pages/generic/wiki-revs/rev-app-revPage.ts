@@ -6,12 +6,8 @@ import { initRevPrevContentTab } from './rev-tabs/revTab-prevContent.ts';
 import { WikiRevAppState } from './rev-app-main.ts';
 import { initRevContentTab } from './rev-tabs/revTab-content.ts';
 import { initRevDiffTab } from './rev-tabs/revTab-diff.ts';
-import { runUiActions } from '../../../core/generalEvents/uiActions.ts';
-import { GeneralEventBus } from '../../../core/generalEventBus.ts';
 import { moveRevTabWheel } from './rev-tabs/revTab-wheel.ts';
 import { isInt, toInt } from '../../../../shared/util/numberUtil.ts';
-import { arraySum } from '../../../../shared/util/arrayUtil.ts';
-import { isElementPartiallyInViewport } from '../../../util/domutil.ts';
 import { MwTagMap } from '../../../../shared/mediawiki/mwTypes.ts';
 
 export async function revSelect(state: WikiRevAppState, selectTab: boolean = true) {

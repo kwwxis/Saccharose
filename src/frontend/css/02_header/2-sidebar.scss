@@ -2,7 +2,7 @@
 #app-sidebar, .sidebar {
   width: 348px;
   flex-shrink: 0;
-  transition: width 100ms linear;
+  transition: width 100ms linear, opacity 200ms ease;
 
   &.left {
     padding-right: 30px;

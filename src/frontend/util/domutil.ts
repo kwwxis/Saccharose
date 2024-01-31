@@ -716,23 +716,28 @@ export function getElementOffset(el: HTMLElement): DOMRect {
 
 export class DOMClassWatcher {
   private readonly targetNode: HTMLElement;
-  private readonly classToWatch: string;
-  private readonly classAddedCallback: () => void;
-  private readonly classRemovedCallback: () => void;
+  private readonly classesToWatch: string[];
+  private readonly classAddedCallback: (cls?: String, targetNode?: HTMLElement) => void;
+  private readonly classRemovedCallback: (cls?: String, targetNode?: HTMLElement) => void;
   private observer: MutationObserver;
-  private lastClassState: boolean;
+  private lastClassState: { [cls: string]: boolean } = {};
 
-  constructor(targetNode: HTMLElement | string, classToWatch: string, classAddedCallback: () => void, classRemovedCallback: () => void) {
+  constructor(targetNode: HTMLElement | string, classToWatch: string|string[],
+              classAddedCallback: (cls?: string, targetNode?: HTMLElement) => void,
+              classRemovedCallback: (cls?: string, targetNode?: HTMLElement) => void) {
     if (typeof targetNode === 'string') {
       this.targetNode = document.querySelector<HTMLElement>(targetNode);
     } else {
       this.targetNode = targetNode;
     }
-    this.classToWatch = classToWatch;
+    this.classesToWatch = Array.isArray(classToWatch) ? classToWatch : [classToWatch];
     this.classAddedCallback = classAddedCallback;
     this.classRemovedCallback = classRemovedCallback;
     this.observer = null;
-    this.lastClassState = this.targetNode.classList.contains(this.classToWatch);
+    this.lastClassState = {};
+    for (let classToWatch of this.classesToWatch) {
+      this.lastClassState[classToWatch] = this.targetNode.classList.contains(classToWatch);
+    }
 
     this.init();
   }
@@ -753,13 +758,15 @@ export class DOMClassWatcher {
   mutationCallback = mutationsList => {
     for (let mutation of mutationsList) {
       if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-        let currentClassState = mutation.target.classList.contains(this.classToWatch);
-        if (this.lastClassState !== currentClassState) {
-          this.lastClassState = currentClassState;
-          if (currentClassState) {
-            this.classAddedCallback();
-          } else {
-            this.classRemovedCallback();
+        for (let classToWatch of this.classesToWatch) {
+          let currentClassState = mutation.target.classList.contains(classToWatch);
+          if (this.lastClassState[classToWatch] !== currentClassState) {
+            this.lastClassState[classToWatch] = currentClassState;
+            if (currentClassState) {
+              this.classAddedCallback(classToWatch, this.targetNode);
+            } else {
+              this.classRemovedCallback(classToWatch, this.targetNode);
+            }
           }
         }
       }

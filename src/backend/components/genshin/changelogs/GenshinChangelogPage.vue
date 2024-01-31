@@ -1,4 +1,5 @@
 <template>
+  <div id="new-summary-toc-parent"></div>
   <section class="card">
     <h2 class="valign">
       <a href="/changelog" style="text-decoration: none">Changelogs</a>
@@ -7,20 +8,27 @@
     </h2>
 
     <div id="tablist-changelogAreas" class="tab-list" role="tablist">
-      <button id="tab-summary" role="tab" class="tab active" ui-action="tab: #tabpanel-summary, changelogAreas">
-        Summary
+      <button id="tab-newSummary" role="tab" class="tab active" ui-action="tab: #tabpanel-newSummary, changelogAreas">
+        New Summary
       </button>
       <button id="tab-byExcels" role="tab" class="tab" ui-action="tab: #tabpanel-byExcels, changelogAreas">
         By Excels
       </button>
     </div>
 
-    <div id="tabpanel-summary" role="tabpanel" aria-labelledby="tab-summary" class="tabpanel active">
-      <h3 class="secondary-header valign">
+    <div id="tabpanel-newSummary" role="tabpanel" aria-labelledby="tab-newSummary" class="tabpanel active">
+      <div class="info-notice open-sans-font valign" style="font-size:13px">
+        <span>Summary of new records from {{ genshinVersion.previous }} to {{ genshinVersion.number }}.</span>
+        <span class="grow"></span>
+        <button id="new-summary-toc-show-button" class="secondary small hide" ui-action="remove-class: #new-summary-toc, out1">Show Table of Contents</button>
+        <button id="new-summary-collapse-all-button" class="secondary small spacer5-left" >Collapse All</button>
+      </div>
+      <h3 id="new-characters-header" class="new-summary-section-header secondary-header valign">
         <span class="expando spacer5-right" ui-action="expando: #new-characters-content"><Icon name="chevron-down" :size="17" /></span>
-        New Characters
+        <span class="new-summary-section-title">New Characters</span>
+        <span class="new-summary-section-count">{{ newSummary.avatars.length }}</span>
       </h3>
-      <div id="new-characters-content" class="content alignStart flexWrap">
+      <div id="new-characters-content" class="new-summary-section-content content alignStart flexWrap">
         <div class="alignStart spacer25-right" v-for="avatar of newSummary.avatars">
           <img class="framed-icon x64" :src="`/images/genshin/${avatar.IconName}.png`" loading="lazy" decoding="async" />
           <div class="spacer5-left">
@@ -30,91 +38,124 @@
             <a class="dispBlock" style="font-size:15px" :href="`/character/VO/${toParam(avatar.NameText)}`">Character VO</a>
           </div>
         </div>
+        <div v-if="!newSummary.avatars.length">
+          <p>(None)</p>
+        </div>
       </div>
 
-      <h3 class="secondary-header valign">
+      <h3 id="new-weapons-header" class="new-summary-section-header secondary-header valign">
         <span class="expando spacer5-right" ui-action="expando: #new-weapons-content"><Icon name="chevron-down" :size="17" /></span>
-        New Weapons
+        <span class="new-summary-section-title">New Weapons</span>
+        <span class="new-summary-section-count">{{ newSummary.weapons.length }}</span>
       </h3>
-      <div id="new-weapons-content" class="content alignStart flexWrap">
+      <div id="new-weapons-content" class="new-summary-section-content content alignStart flexWrap">
         <template v-for="weapon of newSummary.weapons">
           <GenshinItem :item="weapon" />
         </template>
+        <div v-if="!newSummary.weapons.length">
+          <p>(None)</p>
+        </div>
       </div>
 
-      <h3 class="secondary-header valign">
+      <h3 id="new-foods-header" class="new-summary-section-header secondary-header valign">
         <span class="expando spacer5-right" ui-action="expando: #new-foods-content"><Icon name="chevron-down" :size="17" /></span>
-        New Materials: Foods
+        <span class="new-summary-section-title">New Materials: Foods</span>
+        <span class="new-summary-section-count">{{ newSummary.foods.length }}</span>
       </h3>
-      <div id="new-foods-content" class="content alignStart flexWrap">
+      <div id="new-foods-content" class="new-summary-section-content content alignStart flexWrap">
         <template v-for="food of newSummary.foods">
           <GenshinItem :item="food" />
         </template>
+        <div v-if="!newSummary.foods.length">
+          <p>(None)</p>
+        </div>
       </div>
 
-      <h3 class="secondary-header valign">
+      <h3 id="new-tcg-materials-header" class="new-summary-section-header secondary-header valign">
         <span class="expando spacer5-right" ui-action="expando: #new-tcg-materials-content"><Icon name="chevron-down" :size="17" /></span>
-        New Materials: TCG
+        <span class="new-summary-section-title">New Materials: TCG</span>
+        <span class="new-summary-section-count">{{ newSummary.tcgItems.length }}</span>
       </h3>
-      <div id="new-tcg-materials-content" class="content alignStart flexWrap">
+      <div id="new-tcg-materials-content" class="new-summary-section-content content alignStart flexWrap">
         <template v-for="item of newSummary.tcgItems">
           <GenshinItem :item="item" />
         </template>
+        <div v-if="!newSummary.tcgItems.length">
+          <p>(None)</p>
+        </div>
       </div>
 
-      <h3 class="secondary-header valign">
+      <h3 id="new-blueprints-header" class="new-summary-section-header secondary-header valign">
         <span class="expando spacer5-right" ui-action="expando: #new-blueprints-content"><Icon name="chevron-down" :size="17" /></span>
-        New Materials: Blueprints
+        <span class="new-summary-section-title">New Materials: Blueprints</span>
+        <span class="new-summary-section-count">{{ newSummary.blueprints.length }}</span>
       </h3>
-      <div id="new-blueprints-content" class="content alignStart flexWrap">
+      <div id="new-blueprints-content" class="new-summary-section-content content alignStart flexWrap">
         <template v-for="item of newSummary.blueprints">
           <GenshinItem :item="item" />
         </template>
+        <div v-if="!newSummary.blueprints.length">
+          <p>(None)</p>
+        </div>
       </div>
 
-      <h3 class="secondary-header valign">
+      <h3 id="new-avatar-material-header" class="new-summary-section-header secondary-header valign">
         <span class="expando spacer5-right" ui-action="expando: #new-avatar-material-content"><Icon name="chevron-down" :size="17" /></span>
-        New Materials: Avatar Items, Constellations, &amp; Namecards
+        <span class="new-summary-section-title">New Materials: Avatar Items, Constellations, &amp; Namecards</span>
+        <span class="new-summary-section-count">{{ newSummary.avatarItems.length }}</span>
       </h3>
-      <div id="new-avatar-material-content" class="content alignStart flexWrap">
+      <div id="new-avatar-material-content" class="new-summary-section-content content alignStart flexWrap">
         <template v-for="item of newSummary.avatarItems">
           <GenshinItem :item="item" />
         </template>
+        <div v-if="!newSummary.avatarItems.length">
+          <p>(None)</p>
+        </div>
       </div>
 
-      <h3 class="secondary-header valign">
+      <h3 id="new-items-header" class="new-summary-section-header secondary-header valign">
         <span class="expando spacer5-right" ui-action="expando: #new-items-content"><Icon name="chevron-down" :size="17" /></span>
-        New Materials: Items
+        <span class="new-summary-section-title">New Materials: Items</span>
+        <span class="new-summary-section-count">{{ newSummary.items.length }}</span>
       </h3>
-      <div id="new-items-content" class="content alignStart flexWrap">
+      <div id="new-items-content" class="new-summary-section-content content alignStart flexWrap">
         <template v-for="item of newSummary.items">
           <GenshinItem :item="item" />
         </template>
+        <div v-if="!newSummary.items.length">
+          <p>(None)</p>
+        </div>
       </div>
 
-      <h3 class="secondary-header valign">
+      <h3 id="new-artifacts-header" class="new-summary-section-header secondary-header valign">
         <span class="expando spacer5-right" ui-action="expando: #new-artifacts-content"><Icon name="chevron-down" :size="17" /></span>
-        New Artifacts
+        <span class="new-summary-section-title">New Artifacts</span>
+        <span class="new-summary-section-count">0</span>
       </h3>
-      <div id="new-artifacts-content" class="content alignStart flexWrap">
+      <div id="new-artifacts-content" class="new-summary-section-content content alignStart flexWrap">
         <p>Artifacts not implemented by Saccharose at this time.</p>
       </div>
 
-      <h3 class="secondary-header valign">
+      <h3 id="new-furnishings-header" class="new-summary-section-header secondary-header valign">
         <span class="expando spacer5-right" ui-action="expando: #new-furnishings-content"><Icon name="chevron-down" :size="17" /></span>
-        New Furnishings
+        <span class="new-summary-section-title">New Furnishings</span>
+        <span class="new-summary-section-count">{{ newSummary.furnishings.length }}</span>
       </h3>
-      <div id="new-furnishings-content" class="content alignStart flexWrap">
+      <div id="new-furnishings-content" class="new-summary-section-content content alignStart flexWrap">
         <template v-for="item of newSummary.furnishings">
           <GenshinItem :item="item" />
         </template>
+        <div v-if="!newSummary.furnishings.length">
+          <p>(None)</p>
+        </div>
       </div>
 
-      <h3 class="secondary-header valign">
+      <h3 id="new-furnishing-sets-header" class="new-summary-section-header secondary-header valign">
         <span class="expando spacer5-right" ui-action="expando: #new-furnishing-sets-content"><Icon name="chevron-down" :size="17" /></span>
-        New Furnishing Sets
+        <span class="new-summary-section-title">New Furnishing Sets</span>
+        <span class="new-summary-section-count">{{ newSummary.furnishingSets.length }}</span>
       </h3>
-      <div id="new-furnishing-sets-content" class="content alignStart">
+      <div id="new-furnishing-sets-content" class="new-summary-section-content content alignStart">
         <div v-if="newSummary.furnishingSets.length" v-for="setList of [
           newSummary.furnishingSets.slice(0, Math.ceil(newSummary.furnishingSets.length / 2)),
           newSummary.furnishingSets.slice(Math.ceil(newSummary.furnishingSets.length / 2))
@@ -146,11 +187,15 @@
             </table>
           </div>
         </div>
+        <div v-if="!newSummary.furnishingSets.length">
+          <p>(None)</p>
+        </div>
       </div>
 
-      <h3 class="secondary-header valign">
+      <h3 id="new-monsters-header" class="new-summary-section-header secondary-header valign">
         <span class="expando spacer5-right" ui-action="expando: #new-monsters-content"><Icon name="chevron-down" :size="17" /></span>
-        New Living Beings: Monsters
+        <span class="new-summary-section-title">New Living Beings: Monsters</span>
+        <span class="new-summary-section-count">{{ newSummary.monsters.length }}</span>
       </h3>
       <div id="new-monsters-content">
         <div class="content">
@@ -159,37 +204,53 @@
         <div class="content alignStart flexWrap">
           <GenshinLb v-for="monster of newSummary.monsters" :monster="monster" />
         </div>
+        <div v-if="!newSummary.monsters.length">
+          <p>(None)</p>
+        </div>
       </div>
 
-      <h3 class="secondary-header valign">
+      <h3 id="new-wildlife-header" class="new-summary-section-header secondary-header valign">
         <span class="expando spacer5-right" ui-action="expando: #new-wildlife-content"><Icon name="chevron-down" :size="17" /></span>
-        New Living Beings: Wildlife
+        <span class="new-summary-section-title">New Living Beings: Wildlife</span>
+        <span class="new-summary-section-count">{{ newSummary.wildlife.length }}</span>
       </h3>
-      <div id="new-wildlife-content" class="content alignStart flexWrap">
+      <div id="new-wildlife-content" class="new-summary-section-content content alignStart flexWrap">
         <GenshinLb v-for="monster of newSummary.wildlife" :monster="monster" />
+        <div v-if="!newSummary.wildlife.length">
+          <p>(None)</p>
+        </div>
       </div>
 
-      <h3 class="secondary-header valign">
+      <h3 id="new-tcg-character-cards-header" class="new-summary-section-header secondary-header valign">
         <span class="expando spacer5-right" ui-action="expando: #new-tcg-character-cards-content"><Icon name="chevron-down" :size="17" /></span>
-        New TCG Cards: Character Cards
+        <span class="new-summary-section-title">New TCG Cards: Character Cards</span>
+        <span class="new-summary-section-count">{{ newSummary.tcgCharacterCards.length }}</span>
       </h3>
-      <div id="new-tcg-character-cards-content" class="content alignStart flexWrap">
+      <div id="new-tcg-character-cards-content" class="new-summary-section-content content alignStart flexWrap">
         <TcgCard v-for="card of newSummary.tcgCharacterCards" :card="card" />
+        <div v-if="!newSummary.tcgCharacterCards.length">
+          <p>(None)</p>
+        </div>
       </div>
 
-      <h3 class="secondary-header valign">
+      <h3 id="new-tcg-action-cards-header" class="new-summary-section-header secondary-header valign">
         <span class="expando spacer5-right" ui-action="expando: #new-tcg-action-cards-content"><Icon name="chevron-down" :size="17" /></span>
-        New TCG Cards: Action Cards
+        <span class="new-summary-section-title">New TCG Cards: Action Cards</span>
+        <span class="new-summary-section-count">{{ newSummary.tcgActionCards.length }}</span>
       </h3>
-      <div id="new-tcg-action-cards-content" class="content alignStart flexWrap">
+      <div id="new-tcg-action-cards-content" class="new-summary-section-content content alignStart flexWrap">
         <TcgCard v-for="card of newSummary.tcgActionCards" :card="card" />
+        <div v-if="!newSummary.tcgActionCards.length">
+          <p>(None)</p>
+        </div>
       </div>
 
-      <h3 class="secondary-header valign">
+      <h3 id="new-tcg-stages-header" class="new-summary-section-header secondary-header valign">
         <span class="expando spacer5-right" ui-action="expando: #new-tcg-stages-content"><Icon name="chevron-down" :size="17" /></span>
-        New TCG Stages
+        <span class="new-summary-section-title">New TCG Stages</span>
+        <span class="new-summary-section-count">{{ newSummary.tcgStages.length }}</span>
       </h3>
-      <div id="new-tcg-stages-content" class="content">
+      <div id="new-tcg-stages-content" class="new-summary-section-content content">
         <table class="article-table" v-if="newSummary.tcgStages.length">
           <tr style="font-size: 14px;text-align: left;line-height: 16px;">
             <th>Icon</th>
@@ -226,13 +287,17 @@
             </td>
           </tr>
         </table>
+        <div v-if="!newSummary.tcgStages.length">
+          <p>(None)</p>
+        </div>
       </div>
 
-      <h3 class="secondary-header valign">
+      <h3 id="new-viewpoints-header" class="new-summary-section-header secondary-header valign">
         <span class="expando spacer5-right" ui-action="expando: #new-viewpoints-content"><Icon name="chevron-down" :size="17" /></span>
-        New Viewpoints
+        <span class="new-summary-section-title">New Viewpoints</span>
+        <span class="new-summary-section-count">{{ newSummary.viewpoints.length }}</span>
       </h3>
-      <div id="new-viewpoints-content" class="content">
+      <div id="new-viewpoints-content" class="new-summary-section-content content">
         <table class="article-table" v-if="newSummary.viewpoints.length">
           <tr>
             <th>Title</th>
@@ -254,13 +319,17 @@
             </td>
           </tr>
         </table>
+        <div v-if="!newSummary.viewpoints.length">
+          <p>(None)</p>
+        </div>
       </div>
 
-      <h3 class="secondary-header valign">
+      <h3 id="new-loading-tips-header" class="new-summary-section-header secondary-header valign">
         <span class="expando spacer5-right" ui-action="expando: #new-loading-tips-content"><Icon name="chevron-down" :size="17" /></span>
-        New Loading Tips
+        <span class="new-summary-section-title">New Loading Tips</span>
+        <span class="new-summary-section-count">{{ newSummary.loadingTips.length }}</span>
       </h3>
-      <div id="new-loading-tips-content" class="content">
+      <div id="new-loading-tips-content" class="new-summary-section-content content">
         <table class="article-table" v-if="newSummary.loadingTips.length" style="font-size:15px">
           <tr>
             <th>Title</th>
@@ -275,13 +344,17 @@
             <td><a v-if="tip.DisableMainQuestName" :href="`/quests/${tip.DisableMainQuestId}`">{{ tip.DisableMainQuestName }}</a></td>
           </tr>
         </table>
+        <div v-if="!newSummary.loadingTips.length">
+          <p>(None)</p>
+        </div>
       </div>
 
-      <h3 class="secondary-header valign">
+      <h3 id="new-achievements-header" class="new-summary-section-header secondary-header valign">
         <span class="expando spacer5-right" ui-action="expando: #new-achievements-content"><Icon name="chevron-down" :size="17" /></span>
-        New Achievements
+        <span class="new-summary-section-title">New Achievements</span>
+        <span class="new-summary-section-count">{{ newSummary.achievements.length }}</span>
       </h3>
-      <div id="new-achievements-content" class="content">
+      <div id="new-achievements-content" class="new-summary-section-content content">
         <table class="article-table" v-if="newSummary.achievements.length" style="font-size:15px">
           <tr>
             <th>ID</th>
@@ -298,13 +371,17 @@
             <td>{{ achievement.FinishReward.RewardSummary.PrimogemCount }}</td>
           </tr>
         </table>
+        <div v-if="!newSummary.achievements.length">
+          <p>(None)</p>
+        </div>
       </div>
 
-      <h3 class="secondary-header valign">
+      <h3 id="new-tutorials-header" class="new-summary-section-header secondary-header valign">
         <span class="expando spacer5-right" ui-action="expando: #new-tutorials-content"><Icon name="chevron-down" :size="17" /></span>
-        New Tutorials
+        <span class="new-summary-section-title">New Tutorials</span>
+        <span class="new-summary-section-count">{{ newSummary.tutorials.length }}</span>
       </h3>
-      <div id="new-tutorials-content" class="content">
+      <div id="new-tutorials-content" class="new-summary-section-content content">
         <table class="article-table" v-if="newSummary.tutorials.length" style="font-size:15px">
           <tr>
             <th>ID</th>
@@ -333,13 +410,20 @@
             </td>
           </tr>
         </table>
+        <div v-if="!newSummary.tutorials.length">
+          <p>(None)</p>
+        </div>
       </div>
 
-      <h3 class="secondary-header valign">
+      <h3 id="new-readables-header" class="new-summary-section-header secondary-header valign">
         <span class="expando spacer5-right" ui-action="expando: #new-readables-content"><Icon name="chevron-down" :size="17" /></span>
-        New Readables
+        <span class="new-summary-section-title">New Readables</span>
+        <span class="new-summary-section-count">{{ newReadablesCount }}</span>
       </h3>
       <div id="new-readables-content">
+        <div v-if="!newReadablesCount">
+          <p>(None)</p>
+        </div>
         <template v-if="Object.values(newSummary.readables.BookCollections).length">
           <h4 class="content" style="padding-bottom:0">Book Collections</h4>
           <div class="content">
@@ -398,11 +482,15 @@
         </template>
       </div>
 
-      <h3 class="secondary-header valign">
+      <h3 id="new-chapters-header" class="new-summary-section-header secondary-header valign">
         <span class="expando spacer5-right" ui-action="expando: #new-chapters-content"><Icon name="chevron-down" :size="17" /></span>
-        New Chapters
+        <span class="new-summary-section-title">New Chapters</span>
+        <span class="new-summary-section-count">{{ newChaptersCount }}</span>
       </h3>
       <div id="new-chapters-content">
+        <div v-if="!newChaptersCount">
+          <p>(None)</p>
+        </div>
         <template v-if="Object.keys(newSummary.chapters.AQ).length">
           <h4 class="content" style="padding-bottom:0">New Archon Quest Chapters</h4>
           <div class="content" v-for="entry1 of chapterGroup1('AQ')">
@@ -504,12 +592,16 @@
         </template>
       </div>
 
-      <h3 class="secondary-header valign">
+      <h3 id="new-non-chapter-quests-header" class="new-summary-section-header secondary-header valign">
         <span class="expando spacer5-right" ui-action="expando: #new-non-chapter-quests-content"><Icon name="chevron-down" :size="17" /></span>
-        New Non-Chapter Quests
+        <span class="new-summary-section-title">New Non-Chapter Quests</span>
+        <span class="new-summary-section-count">{{ newSummary.nonChapterQuests.length }}</span>
       </h3>
-      <div id="new-non-chapter-quests-content" class="content">
-        <div v-for="mainQuest of newSummary.quests.filter(mq => !!mq.TitleText)">
+      <div id="new-non-chapter-quests-content" class="new-summary-section-content content">
+        <div v-if="!newSummary.nonChapterQuests.length">
+          <p>(None)</p>
+        </div>
+        <div v-for="mainQuest of newSummary.nonChapterQuests">
           <a class="secondary dispBlock spacer5-bottom textAlignLeft" role="button" :href="`/quests/${mainQuest.Id}`">
             <strong>ID {{ mainQuest.Id }} {{ mainQuest.Type }}:&nbsp;</strong>
             <span>{{ mainQuest.TitleText }}</span>
@@ -517,12 +609,16 @@
         </div>
       </div>
 
-      <h3 class="secondary-header valign">
-        <span class="expando spacer5-right" ui-action="expando: #new-internal-quests-content"><Icon name="chevron-down" :size="17" /></span>
-        Internal Quests
+      <h3 id="new-hidden-quests-header" class="new-summary-section-header secondary-header valign">
+        <span class="expando spacer5-right" ui-action="expando: #new-hidden-quests-content"><Icon name="chevron-down" :size="17" /></span>
+        <span class="new-summary-section-title">New Hidden Quests</span>
+        <span class="new-summary-section-count">{{ newSummary.hiddenQuests.length }}</span>
       </h3>
-      <div id="new-internal-quests-content" class="content">
-        <div v-for="mainQuest of newSummary.quests.filter(mq => !mq.TitleText)">
+      <div id="new-hidden-quests-content" class="new-summary-section-content content">
+        <div v-if="!newSummary.hiddenQuests.length">
+          <p>(None)</p>
+        </div>
+        <div v-for="mainQuest of newSummary.hiddenQuests">
           <a class="secondary dispBlock spacer5-bottom textAlignLeft" role="button" :href="`/quests/${mainQuest.Id}`">
             <strong>ID {{ mainQuest.Id }}:&nbsp;</strong>
             <span>(No title)</span>
@@ -558,7 +654,7 @@
 </template>
 
 <script setup lang="ts">
-import { sort } from '../../../../shared/util/arrayUtil.ts';
+import { arraySum, sort } from '../../../../shared/util/arrayUtil.ts';
 import { GameVersion } from '../../../../shared/types/game-versions.ts';
 import { FullChangelog } from '../../../../shared/types/changelog-types.ts';
 import Icon from '../../utility/Icon.vue';
@@ -594,4 +690,27 @@ function chapterGroup2(code: 'AQ' | 'SQ', chapterName: string): {subChapterName:
     chapters
   }));
 }
+
+let newChaptersCount: number = 0;
+let newReadablesCount: number = 0;
+
+for (let entry1 of chapterGroup1('AQ')) {
+  for (let entry2 of chapterGroup2('AQ', entry1.chapterName)) {
+    newChaptersCount += entry2.chapters.length;
+  }
+}
+for (let entry1 of chapterGroup1('SQ')) {
+  for (let entry2 of chapterGroup2('SQ', entry1.chapterName)) {
+    newChaptersCount += entry2.chapters.length;
+  }
+}
+newChaptersCount += arraySum(Object.values(newSummary.chapters.EQ).map(chapters => chapters.length));
+newChaptersCount += arraySum(Object.values(newSummary.chapters.WQ).map(chapters => chapters.length));
+
+for (let collection of Object.values(newSummary.readables.BookCollections)) {
+  newReadablesCount += collection.Books.length;
+}
+newReadablesCount += newSummary.readables.Materials.length;
+newReadablesCount += newSummary.readables.Weapons.length;
+newReadablesCount += newSummary.readables.Artifacts.length;
 </script>
