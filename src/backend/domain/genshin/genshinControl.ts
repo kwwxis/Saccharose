@@ -634,13 +634,26 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return dialog;
   }
 
-  private async makeFakeDialog(addon: Partial<DialogExcelConfigData>): Promise<DialogExcelConfigData> {
+  // You must set NextDialogs on the returned DialogExcel at some point!
+  private async makeFakeDialog(id: number|string, addon: Partial<DialogExcelConfigData>): Promise<DialogExcelConfigData> {
+    if (typeof id === 'string') {
+      // Simple hash to number:
+      let hash = 0, len = id.length;
+      for (let i = 0; i < len; i++) {
+        hash  = ((hash << 5) - hash) + id.charCodeAt(i);
+        hash |= 0; // to 32bit integer
+      }
+      if (hash < 0) {
+        hash = parseInt('1'+String(hash).slice(1));
+      }
+      id = parseInt('999'+String(hash)); // add extra digits just in case to make sure it doesn't clash with real dialog IDs
+    }
     return await this.postProcessDialog(Object.assign({
-      Id: 0,
-      NextDialogs: [],
+      Id: id,
+      NextDialogs: null,
       TalkRole: {
         Type: 'TALK_ROLE_WIKI_CUSTOM',
-        Id: 0
+        Id: id
       }
     }, addon));
   }
@@ -797,7 +810,8 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       }
 
       // Handle self:
-      if (currNode.TalkContentText) {
+      if (currNode.TalkContentText || currNode.CustomTravelLogMenuText
+          || currNode.CustomImageName || currNode.CustomSecondImageName || currNode.CustomWikiTx) {
         currBranch.push(currNode);
       }
 
@@ -808,6 +822,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
           ? iaNextDialogs.NextDialogs
           : currNode.NextDialogs
       );
+      const fakeDialogs: DialogExcelConfigData[] = [];
 
       // Handle InterAction intermediates
       if (iaNextDialogs.Intermediates.length) {
@@ -866,13 +881,13 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
               }
             }
 
-            currBranch.push(await this.makeFakeDialog(addon));
+            fakeDialogs.push(await this.makeFakeDialog(action.ActionId, addon));
           } else if (action.Type === 'CUTSCENE') {
 
           } else if (action.Type === 'VIDEO_PLAY') {
 
           } else if (action.Type === 'UI_TRIGGER' && action.ContextName === 'QuestPictureDialog') {
-            currBranch.push(await this.makeFakeDialog({
+            fakeDialogs.push(await this.makeFakeDialog(action.ActionId, {
               CustomWikiTx: 'Missing quest item picture',
             }));
           }
@@ -886,13 +901,27 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
         while (!!nextCodexQuest && CodexQuestNarratageTypes.has(nextCodexQuest.ContentTextType)) {
           const isBlackScreen = this.isBlackScreenDialog(nextNodes.find(n => n.TalkContentTextMapHash === nextCodexQuest.ContentTextMapHash));
           if (!isBlackScreen) {
-            currBranch.push(await this.makeFakeDialog({
+            fakeDialogs.push(await this.makeFakeDialog(nextCodexQuest.Id, {
               CustomTravelLogMenuText: nextCodexQuest.ContentText,
               CustomTravelLogMenuTextMapHash: nextCodexQuest.ContentTextMapHash,
             }));
           }
           nextCodexQuest = CQG.ByItemId[nextCodexQuest.NextItemId];
         }
+      }
+
+      // Handle next nodes backfill for fake dialogs (if needed)
+      if (fakeDialogs.length) {
+        for (let i = 0; i < fakeDialogs.length; i++) {
+          let fakeDialog = fakeDialogs[i];
+          let nextFakeDialog = fakeDialogs[i+1];
+          if (nextFakeDialog) {
+            fakeDialog.NextDialogs = [nextFakeDialog.Id];
+          } else {
+            fakeDialog.NextDialogs = nextNodes.map(n => n.Id);
+          }
+        }
+        currBranch.push(... fakeDialogs);
       }
 
       // Handle next nodes:
@@ -909,7 +938,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
         );
 
         const intersect: DialogExcelConfigData[] = arrayIntersect<DialogExcelConfigData>(branches, this.IdComparator)
-          .filter(x => x.TalkRole.Type !== 'TALK_ROLE_PLAYER'); // do not rejoin on a player talk
+          .filter(x => x.TalkRole.Type !== 'TALK_ROLE_PLAYER'); // only rejoin on non-player talks
 
         if (!intersect.length) {
           // branches do not rejoin
@@ -923,6 +952,9 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
             branches[i] = branch.slice(0, arrayIndexOf(branch, rejoinNode, this.IdComparator));
           }
           currNode.Branches = branches;
+          if (currNode.Id === 110330105) {
+            console.log(rejoinNode);
+          }
           currNode = rejoinNode;
         }
       } else {

@@ -20,9 +20,8 @@ import { IMetaPropValue, MetaProp } from '../../../util/metaProp.ts';
 import { pathToFileURL } from 'url';
 import { Marker } from '../../../../shared/util/highlightMarker.ts';
 import { LangCode, TextMapHash } from '../../../../shared/types/lang-types.ts';
-import { _ } from 'ag-grid-community';
-import { defaultMap } from '../../../../shared/util/genericUtil.ts';
 import { reminderGenerateFromSpeakerTextMapHashes } from './reminder_generator.ts';
+import { custom } from '../../../util/logger.ts';
 
 // region NPC Filtering for Single Branch Dialogue
 // --------------------------------------------------------------------------------------------------------------
@@ -107,6 +106,8 @@ function addHighlightMarkers(ctrl: GenshinControl, query: number|number[]|string
 
 async function handle(state: DialogueGenerateState, id: number|DialogExcelConfigData): Promise<boolean> {
   if (!id) {
+    const debug = custom('branch-dialogue');
+    debug('Early exit: no ID');
     return false;
   }
 
@@ -124,11 +125,14 @@ async function handle(state: DialogueGenerateState, id: number|DialogExcelConfig
 
   // Fast case: Talk ID
   if (typeof id === 'number') {
+    const debug = custom('branch-dialogue:' + id);
     if (seenTalkConfigIds.has(id) || seenFirstDialogueIds.has(id)) {
+      debug('Fast case: already seen, exit');
       return false;
     }
     const talkConfigResult = await talkConfigGenerate(ctrl, id);
     if (talkConfigResult) {
+      debug('Fast case: talk config result');
       result.push(talkConfigResult);
       return true;
     }
@@ -139,8 +143,12 @@ async function handle(state: DialogueGenerateState, id: number|DialogExcelConfig
 
   // If no dialog, then there's nothing we can do:
   if (!dialog) {
+    const debug = custom('branch-dialogue:' + id);
+    debug('No Talk or Dialogue found');
     throw 'No Talk or Dialogue found for ID: ' + id;
   }
+
+  const debug = custom('branch-dialogue:' + dialog.Id);
 
   // If voicedOnly=true and the dialog is not voiced, then do not accept:
   if (voicedOnly && !ctrl.voice.hasVoiceItems('Dialog', dialog.Id)) {
@@ -149,6 +157,7 @@ async function handle(state: DialogueGenerateState, id: number|DialogExcelConfig
 
   // If input options has an NPC filter and this dialogue is not of that NPC, then do not accept:
   if (!(await npcFilterInclude(ctrl, dialog, npcFilter))) {
+    debug('Excluded via NPC filter');
     return false;
   }
 
@@ -182,6 +191,7 @@ async function handle(state: DialogueGenerateState, id: number|DialogExcelConfig
   // Talk Case
   // --------------------------------------------------------------------------------------------------------------
   if (talkConfigs.length) {
+    debug('Talk case:', talkConfigs, '/ len:', talkConfigs.length);
     let foundTalks: boolean = false;
     for (let talkConfig of talkConfigs) {
       if (seenTalkConfigIds.has(talkConfig.Id)) {
@@ -215,6 +225,7 @@ async function handle(state: DialogueGenerateState, id: number|DialogExcelConfig
   // Non-Talk Case
   // --------------------------------------------------------------------------------------------------------------
   else {
+    debug('Non-Talk case:', firstDialogs, '/ len:', firstDialogs.length);
     let foundDialogs: boolean = false;
     for (let firstDialog of firstDialogs) {
       if (seenFirstDialogueIds.has(firstDialog.Id)) {
@@ -265,7 +276,11 @@ export async function dialogueGenerate(ctrl: GenshinControl, opts: DialogueGener
   const state: DialogueGenerateState = new DialogueGenerateState(ctrl, opts);
   ctrl.state.DisableNpcCache = true;
 
+  const debug = custom('branch-dialogue');
+  debug('Generating branch dialogue for opts:', opts, '/ query:', state.query);
+
   if (typeof state.query === 'string') {
+    debug('Path 1: string');
     let acceptedCount = 0;
     for await (let textMapHash of ctrl.generateTextMapMatches(state.query.trim())) {
       const dialogues: DialogExcelConfigData[] = await ctrl.selectDialogsFromTextMapHash(textMapHash);
@@ -278,8 +293,10 @@ export async function dialogueGenerate(ctrl: GenshinControl, opts: DialogueGener
       }
     }
   } else if (typeof state.query === 'number') {
+    debug('Path 2: number');
     await handle(state, state.query);
   } else {
+    debug('Path 3: number[]');
     await state.query.asyncMap(id => handle(state, id));
   }
 

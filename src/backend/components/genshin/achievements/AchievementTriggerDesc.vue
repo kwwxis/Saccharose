@@ -6,11 +6,11 @@
     }}</div>
 
   <div class="code" v-if="achievement?.TriggerConfig?.TriggerType !== 'TRIGGER_OPEN_WORLD_CHEST'"
-       style="word-break:break-all;max-width:300px;font-size:0.8em">{{ JSON.stringify(achievement?.TriggerConfig?.ParamList || 'n/a') }}}</div>
+       style="word-break:break-all;max-width:300px;font-size:0.8em">{{ JSON.stringify(achievement?.TriggerConfig?.ParamList || 'n/a') }}</div>
 
   <template v-if="achievement.TriggerConfig.TriggerQuests.length">
     <template v-for="mq of achievement.TriggerConfig.TriggerQuests">
-      <a class="dispBlock" :href="`/quests/${ mq.Id }`">{{ mq.TitleText || `${mq.Id}: (No title)` }}}</a>
+      <a class="dispBlock" :href="`/quests/${ mq.Id }`">{{ mq.TitleText || `${mq.Id}: (No title)` }}</a>
     </template>
   </template>
 
