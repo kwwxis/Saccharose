@@ -346,12 +346,12 @@
         <span class="expando spacer5-right" ui-action="expando: #ol-content"><%- icon('chevron-down', 17) %></span>
         <span>OL</span>
         <span class="grow"></span>
-        <button class="secondary small" ui-action="copy: #ol"
+        <button class="secondary small" ui-action="copy: #ol-textarea"
                 ui-tippy-hover="Click to copy to clipboard"
                 ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">Copy</button>
       </h2>
       <div id="ol-content" class="content">
-        <textarea id="ol" readonly class="ol-result-textarea w100p wikitext autosize" spellcheck="false" translate="no"><%= ol.result %></textarea>
+        <textarea id="ol-textarea" readonly class="ol-result-textarea w100p wikitext autosize" spellcheck="false" translate="no"><%= ol.result %></textarea>
       </div>
     </section>
   <% } %>

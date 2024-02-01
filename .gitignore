@@ -57,3 +57,7 @@ node_modules/
 # Build output
 dist/
 v-dist/
+
+*.vue.ts
+*.vue.script.ts
+*.vue.template.ts

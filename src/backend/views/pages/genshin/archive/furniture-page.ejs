@@ -106,12 +106,12 @@
       <h2 class="valign">
         <span>OL Standalone</span>
         <span class="grow"></span>
-        <button class="secondary small" ui-action="copy: #ol"
+        <button class="secondary small" ui-action="copy: #ol-textarea"
                 ui-tippy-hover="Click to copy to clipboard"
                 ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">Copy</button>
       </h2>
       <div class="content">
-        <textarea id="ol" readonly class="ol-result-textarea w100p wikitext autosize" spellcheck="false" translate="no"><%= ol.result %></textarea>
+        <textarea id="ol-textarea" readonly class="ol-result-textarea w100p wikitext autosize" spellcheck="false" translate="no"><%= ol.result %></textarea>
       </div>
     </section>
   <% } %>
