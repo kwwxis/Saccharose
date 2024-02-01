@@ -248,6 +248,7 @@ export class TalkConfigAccumulator {
     }
 
     const flatDialogs = await this.ctrl.selectDialogExcelConfigDataByTalkId(talkConfig.Id, true);
+    //console.log('FLAT DIALOGS', flatDialogs);
     for (let dialog of flatDialogs) {
       if (this.ctrl.isInDialogIdCache(dialog.Id))
         continue;
@@ -273,7 +274,7 @@ export class TalkConfigAccumulator {
       let finalNextTalks: number[] = [];
       for (let nextTalkId of talkConfig.NextTalks) {
         let nextTalkConfig = await this.handleTalkConfig(
-          await this.ctrl.selectTalkExcelConfigDataByQuestSubId(nextTalkId),
+          await this.ctrl.selectTalkExcelConfigDataById(nextTalkId),
           depth + 1
         );
         if (nextTalkConfig) {
@@ -299,7 +300,7 @@ export async function talkConfigGenerate(ctrl: GenshinControl,
                                          talkConfigId: number | TalkExcelConfigData,
                                          acc?: TalkConfigAccumulator): Promise<DialogueSectionResult> {
   const initTalkConfig = typeof talkConfigId === 'number'
-    ? await ctrl.selectTalkExcelConfigDataByQuestSubId(talkConfigId)
+    ? await ctrl.selectTalkExcelConfigDataById(talkConfigId)
     : talkConfigId;
 
   if (!initTalkConfig) {
@@ -473,10 +474,17 @@ export async function dialogTraceBack(ctrl: GenshinControl, dialog: DialogExcelC
   let ret: DialogExcelConfigData[] = [];
   let seenIds: Set<number> = new Set();
 
+  //console.log(`START: ${dialog.Id}: ${dialog.TalkRoleNameText}: ${dialog.TalkContentText}`)
+
   while (true) {
     let nextStack = [];
     for (let d of stack) {
       let prevs: DialogExcelConfigData[] = await ctrl.selectPreviousDialogs(d.Id, true);
+      // if (!prevs.length) {
+      //   console.log('PREVS: none');
+      // } else {
+      //   console.log('PREVS:\n' + prevs.map(p => `  ${p.Id}: ${p.TalkRoleNameText}: ${p.TalkContentText}`).join(`\n`));
+      // }
       if (!prevs.length) {
         if (!ret.some(r => r.Id === d.Id)) {
           ret.push(d);

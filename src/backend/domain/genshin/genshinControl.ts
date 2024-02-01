@@ -549,11 +549,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   }
 
   async selectTalkExcelConfigDataByQuestSubId(id: number, loadType: TalkLoadType = null): Promise<TalkExcelConfigData> {
-    return await this.knex.select('*').from('TalkExcelConfigData')
-      .where(cleanEmpty({Id: id, LoadType: loadType}))
-      .orWhere(cleanEmpty({QuestCondStateEqualFirst: id, LoadType: loadType})).first()
-      .then(this.commonLoadFirst)
-      .then(x => this.postProcessTalkExcel(x));
+    return this.selectTalkExcelConfigDataById(id, loadType);
   }
 
   async selectTalkExcelConfigDataByFirstDialogueId(firstDialogueId: number, loadType: TalkLoadType = null): Promise<TalkExcelConfigData> {

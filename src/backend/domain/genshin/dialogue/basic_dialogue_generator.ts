@@ -132,14 +132,14 @@ async function handle(state: DialogueGenerateState, id: number|DialogExcelConfig
     }
     const talkConfigResult = await talkConfigGenerate(ctrl, id);
     if (talkConfigResult) {
-      debug('Fast case: talk config result');
+      debug('Fast case: talk config result', talkConfigResult);
       result.push(talkConfigResult);
       return true;
     }
   }
 
   // Look for dialog excel:
-  const dialog: DialogExcelConfigData = typeof id === 'number' ? await ctrl.selectSingleDialogExcelConfigData(id) : id;
+  const dialog: DialogExcelConfigData = typeof id === 'number' ? await ctrl.selectSingleDialogExcelConfigData(id, true) : id;
 
   // If no dialog, then there's nothing we can do:
   if (!dialog) {
@@ -283,7 +283,7 @@ export async function dialogueGenerate(ctrl: GenshinControl, opts: DialogueGener
     debug('Path 1: string');
     let acceptedCount = 0;
     for await (let textMapHash of ctrl.generateTextMapMatches(state.query.trim())) {
-      const dialogues: DialogExcelConfigData[] = await ctrl.selectDialogsFromTextMapHash(textMapHash);
+      const dialogues: DialogExcelConfigData[] = await ctrl.selectDialogsFromTextMapHash(textMapHash, true);
       const didAccept: boolean = (await dialogues.asyncMap(d => handle(state, d))).some(b => !!b);
       if (didAccept) {
         acceptedCount++;

@@ -66,64 +66,73 @@ export async function generateQuestDialogExcels(repoRoot: string) {
   // ----------------------------------------------------------------------
   // Enqueue Functions
 
+  function deobf(obj: any): any {
+    obj = renameFields(obj, {
+      CCFPGAKINNB: 'id',
+      FKFBNNHJPDP: 'series',
+      JNMCHAGDLOL: 'type',
+      KBPAAIICBFE: 'luaPath',
+      FLCLAPBOOHF: 'chapterId',
+      GEMDBAMINAF: 'suggestTrackMainQuestList',
+      MHOOJOMLDDB: 'rewardIdList',
+      HLAINHJACPJ: 'titleTextMapHash',
+      CJBHOPEAEPN: 'descTextMapHash',
+      CNJBGFDOLLA: 'showType',
+
+      // QuestExcel props:
+      POJOCEPJPAL: 'subQuests',
+      OHGOECEBPJM: 'subId',
+      DNINOJJPDDG: 'mainId',
+      NKCPJODPKPO: 'order',
+      AODHOADLAJC: 'finishCond',
+      OBKNOBNIEGC: 'param',
+      OALKBEIOAOH: 'guide',
+      KGFIGPLOOGN: 'guideScene',
+      IGOKLNLLAJL: 'guideStyle',
+      CDDKJNJPILI: 'guideHint',
+      DBJJALMJAGP: 'finishParent',
+      IBKCENKCMEM: 'isRewind',
+      JLPDHGIFKMC: 'versionBegin',
+      NADDGOKKJAO: 'versionEnd',
+
+      // Talk props:
+      FEOACBMDCKJ: 'talkId',
+      PCNNNPLAEAI: 'talks',
+      CLHPPLIFPFJ: 'beginWay',
+      AFNAENENCBB: 'beginCond',
+      KPMDGJNJNJC: 'priority',
+      FMFFELFBBJN: 'initDialog',
+      JDOFKFPHIDC: 'npcId',
+      GHHGNCCJOEJ: 'performCfg',
+      GKACCNJHFHH: 'heroTalk',
+      OLLANCCFJKD: 'questId',
+      NKIDPMJGEKA: 'assertIndex',
+      BBMLHKKNIOJ: 'prePerformCfg',
+      EECDLICEMBF: 'nextTalks',
+      NFLHDPLENGC: 'activeMode',
+
+      // Dialog props:
+      AAOAAFLLOJI: 'dialogList',
+      FNNPCGIAELE: 'nextDialogs',
+      HJLEMJIGNFE: 'talkRole',
+      BDOKCLNNDGN: 'talkContentTextMapHash',
+      LBIALGEBDEF: 'talkAssetPath',
+      OHKKBEPEBKH: 'talkAssetPathAlter',
+      AMNGMAPONHL: 'talkAudioName',
+      IANGBGFBILD: 'actionBefore',
+      ADGDAEPIILL: 'actionWhile',
+      DGJCJLLDMON: 'actionAfter',
+      DOCDFJJIDNG: 'optionIcon'
+    });
+    return obj;
+  }
+
   function enqueueMainQuestExcel(obj: any, fileName: string) {
     if (!obj) {
       return;
     }
     if (obj && !obj.id) {
-      obj = renameFields(obj, {
-        CCFPGAKINNB: 'id',
-        FKFBNNHJPDP: 'series',
-        JNMCHAGDLOL: 'type',
-        KBPAAIICBFE: 'luaPath',
-        FLCLAPBOOHF: 'chapterId',
-        GEMDBAMINAF: 'suggestTrackMainQuestList',
-        MHOOJOMLDDB: 'rewardIdList',
-        HLAINHJACPJ: 'titleTextMapHash',
-        CJBHOPEAEPN: 'descTextMapHash',
-        CNJBGFDOLLA: 'showType',
-
-        // QuestExcel props:
-        POJOCEPJPAL: 'subQuests',
-        OHGOECEBPJM: 'subId',
-        DNINOJJPDDG: 'mainId',
-        NKCPJODPKPO: 'order',
-        AODHOADLAJC: 'finishCond',
-        OBKNOBNIEGC: 'param',
-        OALKBEIOAOH: 'guide',
-        KGFIGPLOOGN: 'guideScene',
-        IGOKLNLLAJL: 'guideStyle',
-        CDDKJNJPILI: 'guideHint',
-        DBJJALMJAGP: 'finishParent',
-        IBKCENKCMEM: 'isRewind',
-        JLPDHGIFKMC: 'versionBegin',
-        NADDGOKKJAO: 'versionEnd',
-
-        // Talk props:
-        PCNNNPLAEAI: 'talks',
-        CLHPPLIFPFJ: 'beginWay',
-        AFNAENENCBB: 'beginCond',
-        KPMDGJNJNJC: 'priority',
-        FMFFELFBBJN: 'initDialog',
-        JDOFKFPHIDC: 'npcId',
-        GHHGNCCJOEJ: 'performCfg',
-        GKACCNJHFHH: 'heroTalk',
-        OLLANCCFJKD: 'questId',
-        NKIDPMJGEKA: 'assertIndex',
-        BBMLHKKNIOJ: 'prePerformCfg',
-
-        // Dialog props:
-        AAOAAFLLOJI: 'dialogList',
-        HJLEMJIGNFE: 'talkRole',
-        BDOKCLNNDGN: 'talkContentTextMapHash',
-        LBIALGEBDEF: 'talkAssetPath',
-        OHKKBEPEBKH: 'talkAssetPathAlter',
-        AMNGMAPONHL: 'talkAudioName',
-        IANGBGFBILD: 'actionBefore',
-        ADGDAEPIILL: 'actionWhile',
-        DGJCJLLDMON: 'actionAfter',
-        DOCDFJJIDNG: 'optionIcon'
-      });
+      obj = deobf(obj);
       if (obj && !obj.id) {
         console.warn('Encountered obfuscated MQ:', fileName);
         return;
@@ -345,6 +354,7 @@ export async function generateQuestDialogExcels(repoRoot: string) {
       continue;
     }
     let json = await fsp.readFile(fileName, { encoding: 'utf8' }).then(data => JSON.parse(data));
+    json = deobf(json);
     enqueueMainQuestExcel(json, fileName);
     processJsonObject(json);
   }
@@ -355,6 +365,7 @@ export async function generateQuestDialogExcels(repoRoot: string) {
       continue;
     }
     let json = await fsp.readFile(fileName, { encoding: 'utf8' }).then(data => JSON.parse(data));
+    json = deobf(json);
     if (json.id && json.type && json.subQuests) {
       enqueueMainQuestExcel(json, fileName);
     }
@@ -367,6 +378,7 @@ export async function generateQuestDialogExcels(repoRoot: string) {
       continue;
     }
     let json = await fsp.readFile(fileName, { encoding: 'utf8' }).then(data => JSON.parse(data));
+    json = deobf(json);
     processCodexQuestObject(json);
   }
 
