@@ -327,6 +327,19 @@ export async function talkConfigToDialogueSectionResult(ctrl: GenshinControl,
 
   mysect.addMetaProp('Talk ID', talkConfig.Id, '/branch-dialogue?q={}');
   mysect.addMetaProp('First Dialogue ID', talkConfig.InitDialog, '/branch-dialogue?q={}');
+  if (talkConfig.Dialog?.[0]?.TalkType) {
+    mysect.addMetaProp('First Dialogue Talk Type', talkConfig.Dialog[0].TalkType);
+  }
+  if (talkConfig.Dialog?.[0]?.TalkBinType) {
+    const values: (string|number)[] = [talkConfig.Dialog[0].TalkBinType];
+    if (talkConfig.Dialog[0].TalkBinType === 'NpcOther') {
+      values.push('Idle Quote');
+    }
+    mysect.addMetaProp('First Dialogue Talk Bin Type', values);
+  }
+  if (talkConfig.LoadType && talkConfig.LoadType !== 'TALK_DEFAULT') {
+    mysect.addMetaProp('Load Type', talkConfig.LoadType);
+  }
   if (talkConfig.QuestId) {
     if (talkConfig.LoadType === 'TALK_ACTIVITY') {
       mysect.addMetaProp('Activity ID', {value: talkConfig.QuestId, tooltip: await ctrl.selectNewActivityName(talkConfig.QuestId)});

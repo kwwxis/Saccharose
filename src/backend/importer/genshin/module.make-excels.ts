@@ -18,6 +18,8 @@ import { pathToFileURL } from 'url';
 import * as process from 'process';
 import { sort } from '../../../shared/util/arrayUtil.ts';
 import { renameFields } from '../import_db.ts';
+import { defaultMap } from '../../../shared/util/genericUtil.ts';
+import { isInt, toInt } from '../../../shared/util/numberUtil.ts';
 
 // region Walk Sync
 // --------------------------------------------------------------------------------------------------------------
@@ -62,6 +64,7 @@ export async function generateQuestDialogExcels(repoRoot: string) {
   const questExcelToMqId: { [id: string]: number } = {};
   const talkExcelById: { [id: string]: any } = {};
   const dialogExcelById: { [id: string]: any } = {};
+  const scannedTalkIds: { [id: string]: {[fileName: string]: any} } = defaultMap('Object');
 
   // ----------------------------------------------------------------------
   // Enqueue Functions
@@ -194,6 +197,34 @@ export async function generateQuestDialogExcels(repoRoot: string) {
     questExcelToMqId[obj.subId] = mainQuestId;
   }
 
+  function createAndEnqueueTalkExcel(talkId: string|number, obj: any) {
+    if (typeof talkId === 'string') {
+      talkId = parseInt(talkId);
+    }
+
+    const firstDialogId = Array.isArray(obj.dialogList) ? obj.dialogList?.[0]?.id : undefined;
+    const npcIds: number[] = [];
+
+    if (Array.isArray(obj.dialogList)) {
+      for (let dialog of obj.dialogList) {
+        if (dialog.talkRole && isInt(dialog.talkRole.id) && dialog.talkRole.type === 'TALK_ROLE_NPC') {
+          const talkRoleId = toInt(dialog.talkRole.id);
+          if (!npcIds.includes(talkRoleId)) {
+            npcIds.push(toInt(dialog.talkRole.id));
+          }
+        }
+      }
+    }
+
+    enqueueTalkExcel({
+      id: talkId,
+      npcId: npcIds,
+      questId: questExcelToMqId[talkId],
+      initDialog: firstDialogId,
+      saccharoseSyntheticTalk: true,
+    });
+  }
+
   function enqueueTalkExcel(obj: any) {
     if (!obj) {
       return;
@@ -222,7 +253,7 @@ export async function generateQuestDialogExcels(repoRoot: string) {
     talkExcelById[obj.id] = obj;
   }
 
-  function enqueueDialogExcel(obj: any, extraProps: any = {}) {
+  function enqueueDialogExcel(obj: any, fileName: string, extraProps: any = {}) {
     if (!obj) {
       return;
     }
@@ -242,6 +273,9 @@ export async function generateQuestDialogExcels(repoRoot: string) {
     if (!obj.talkRole) {
       obj.talkRole = {};
     }
+    if (!obj.talkSubDirectory) {
+      obj.talkBinType = fileName.match(/Talk[\/\\]([^\/\\]+)[\/\\]/)?.[1];
+    }
 
     dialogExcelArray.push(Object.assign(obj, extraProps));
     dialogExcelById[obj.id] = obj;
@@ -250,7 +284,7 @@ export async function generateQuestDialogExcels(repoRoot: string) {
   // ----------------------------------------------------------------------
   // Process Functions
 
-  function processJsonObject(json: any) {
+  function processJsonObject(json: any, fileName: string) {
     if (!json) {
       return;
     }
@@ -258,17 +292,18 @@ export async function generateQuestDialogExcels(repoRoot: string) {
       enqueueTalkExcel(json);
     }
     if (json.talkRole) {
-      enqueueDialogExcel(json);
+      enqueueDialogExcel(json, fileName);
     }
     if (Array.isArray(json.dialogList)) {
       let extraProps: any = {};
       if (json.talkId) {
         extraProps.talkId = json.talkId;
+        scannedTalkIds[json.talkId][fileName] = json;
       }
       if (json.type) {
         extraProps.talkType = json.type;
       }
-      json.dialogList.forEach((obj: any) => enqueueDialogExcel(obj, extraProps));
+      json.dialogList.forEach((obj: any) => enqueueDialogExcel(obj, fileName, extraProps));
     }
     if (Array.isArray(json.talks)) {
       json.talks.forEach((obj: any) => enqueueTalkExcel(obj));
@@ -356,7 +391,7 @@ export async function generateQuestDialogExcels(repoRoot: string) {
     let json = await fsp.readFile(fileName, { encoding: 'utf8' }).then(data => JSON.parse(data));
     json = deobf(json);
     enqueueMainQuestExcel(json, fileName);
-    processJsonObject(json);
+    processJsonObject(json, fileName);
   }
 
   console.log('Processing BinOutput/Talk');
@@ -364,12 +399,28 @@ export async function generateQuestDialogExcels(repoRoot: string) {
     if (!fileName.endsWith('.json')) {
       continue;
     }
+    if (fileName.includes('Talk/Coop') || fileName.includes('Talk\\Coop')) {
+      continue; // Ignoring hangout talks for now -- not implemented
+    }
     let json = await fsp.readFile(fileName, { encoding: 'utf8' }).then(data => JSON.parse(data));
     json = deobf(json);
     if (json.id && json.type && json.subQuests) {
       enqueueMainQuestExcel(json, fileName);
     }
-    processJsonObject(json);
+    processJsonObject(json, fileName);
+  }
+
+  for (let talkId of Object.keys(scannedTalkIds)) {
+    if (!talkExcelById[talkId]) {
+      const fileNameToObject = scannedTalkIds[talkId];
+
+      if (Object.keys(fileNameToObject).length === 1) {
+        createAndEnqueueTalkExcel(talkId, Object.values(fileNameToObject)[0]);
+      } else {
+        const bestKey = Object.keys(fileNameToObject).find(k => /[\/\\]\d+\.json/.test(k)) || Object.keys(fileNameToObject)[0];
+        createAndEnqueueTalkExcel(talkId, fileNameToObject[bestKey]);
+      }
+    }
   }
 
   console.log('Processing BinOutput/CodexQuest');

@@ -895,7 +895,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       if (selfCodexQuest) {
         let nextCodexQuest = CQG.ByItemId[selfCodexQuest.NextItemId];
         while (!!nextCodexQuest && CodexQuestNarratageTypes.has(nextCodexQuest.ContentTextType)) {
-          const isBlackScreen = this.isBlackScreenDialog(nextNodes.find(n => n.TalkContentTextMapHash === nextCodexQuest.ContentTextMapHash));
+          const isBlackScreen: boolean = this.isBlackScreenDialog(nextNodes.find(n => n.TalkContentTextMapHash === nextCodexQuest.ContentTextMapHash));
           if (!isBlackScreen) {
             fakeDialogs.push(await this.makeFakeDialog(nextCodexQuest.Id, {
               CustomTravelLogMenuText: nextCodexQuest.ContentText,

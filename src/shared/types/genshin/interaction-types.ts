@@ -1,4 +1,5 @@
 import { SchemaTable } from '../../../backend/importer/import_db.ts';
+import { isInt } from '../../util/numberUtil.ts';
 
 export const InterActionSchema = <SchemaTable> {
   name: 'InterAction',
@@ -243,7 +244,7 @@ export interface InterAction {
   ActionId: number,
 
   // DIALOG/DIALOG_SELECT
-  DialogId?: number,
+  DialogId?: number, // SIMPLE_BLACK_SCREEN can also have this sometimes
   DialogOptions?: number[],
   DialogNextGroup?: number[],
 
@@ -370,6 +371,10 @@ export class InterActionDialog {
           return { NextDialogs: [other.DialogId], Intermediates };
         } else if (other.Type === 'DIALOG_SELECT') {
           return { NextDialogs: other.DialogOptions, Intermediates };
+        } else if (other.Type === 'SIMPLE_BLACK_SCREEN' && other.DialogId) {
+          return { NextDialogs: [other.DialogId], Intermediates };
+        } else if (isInt(other.DialogId)) {
+          return { NextDialogs: [other.DialogId], Intermediates };
         }
         if (INTERACTION_INTERMEDIATE_TYPES.has(other.Type)) {
           Intermediates.push(other);

@@ -88,6 +88,13 @@ class DialogueGenerateState {
 // region Branch Dialogue: Logic
 // --------------------------------------------------------------------------------------------------------------
 
+/**
+ * Add highlight markers to search result dialogue section.
+ * @param ctrl The control instance.
+ * @param query The original query.
+ * @param dialogue The DialogExcel of the match.
+ * @param sect The section to highlight.
+ */
 function addHighlightMarkers(ctrl: GenshinControl, query: number|number[]|string, dialogue: DialogExcelConfigData, sect: DialogueSectionResult) {
   let re: RegExp;
   let reFlags: string = ctrl.searchModeFlags.includes('i') ? 'gi' : 'g';
@@ -101,6 +108,12 @@ function addHighlightMarkers(ctrl: GenshinControl, query: number|number[]|string
 
   for (let marker of Marker.create(re, sect.wikitext)) {
     sect.wikitextMarkers.push(marker);
+  }
+
+  if (sect.children && sect.children.length) {
+    for (let child of sect.children) {
+      addHighlightMarkers(ctrl, query, dialogue, child);
+    }
   }
 }
 
@@ -132,7 +145,7 @@ async function handle(state: DialogueGenerateState, id: number|DialogExcelConfig
     }
     const talkConfigResult = await talkConfigGenerate(ctrl, id);
     if (talkConfigResult) {
-      debug('Fast case: talk config result', talkConfigResult);
+      debug('Fast case: talk config result');
       result.push(talkConfigResult);
       return true;
     }
@@ -204,10 +217,6 @@ async function handle(state: DialogueGenerateState, id: number|DialogExcelConfig
       if (!talkConfigResult)
         continue;
 
-      talkConfigResult.metadata.push(new MetaProp('First Dialogue ID', talkConfig.InitDialog));
-      if (talkConfig.Dialog?.[0]?.TalkType) {
-        talkConfigResult.metadata.push(new MetaProp('First Dialogue Talk Type', talkConfig.Dialog[0].TalkType));
-      }
       talkConfigResult.metadata.push(new MetaProp('First Match Dialogue ID', [
         dialog.Id,
         <IMetaPropValue> {

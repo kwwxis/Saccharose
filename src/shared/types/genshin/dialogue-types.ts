@@ -32,6 +32,20 @@ export type TalkType =
   'NARRATOR' |
   'WQ';
 
+export type TalkBinType =
+  'Activity' |
+  'ActivityGroup' |
+  'Blossom' |
+  'BlossomGroup' |
+  'Coop' |
+  'FreeGroup' |
+  'Gadget' |
+  'GadgetGroup' |
+  'Npc' |
+  'NpcGroup' |
+  'NpcOther' |
+  'Quest';
+
 export const OptionIconMap = {
   UI_Icon_Intee_ActivityProps: 'Special Souvenir',
   UI_Icon_Intee_AkaFes_Architect: 'Project Connectivity',
@@ -141,7 +155,8 @@ export interface DialogExcelConfigData {
   Branches?: DialogExcelConfigData[][],
   Recurse?: boolean,
   TalkId?: number,
-  TalkType?: string,
+  TalkType?: TalkType,
+  TalkBinType?: TalkBinType,
   PlayerNonOption?: boolean,
 
   // Custom Travel Log
