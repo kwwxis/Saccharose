@@ -38,7 +38,7 @@ const npcFilterInclude = async (ctrl: GenshinControl, d: DialogExcelConfigData, 
     return false;
   }
   if (npcFilter === 'player' || npcFilter === 'traveler') {
-    return d.TalkRole.Type === 'TALK_ROLE_PLAYER';
+    return ctrl.isPlayerTalkRole(d);
   }
   if (npcFilter === 'sibling') {
     return d.TalkRole.Type === 'TALK_ROLE_MATE_AVATAR';
@@ -204,7 +204,7 @@ async function handle(state: DialogueGenerateState, id: number|DialogExcelConfig
   // Talk Case
   // --------------------------------------------------------------------------------------------------------------
   if (talkConfigs.length) {
-    debug('Talk case:', talkConfigs, '/ len:', talkConfigs.length);
+    debug('Talk case:', talkConfigs.length);
     let foundTalks: boolean = false;
     for (let talkConfig of talkConfigs) {
       if (seenTalkConfigIds.has(talkConfig.Id)) {
@@ -234,7 +234,7 @@ async function handle(state: DialogueGenerateState, id: number|DialogExcelConfig
   // Non-Talk Case
   // --------------------------------------------------------------------------------------------------------------
   else {
-    debug('Non-Talk case:', firstDialogs, '/ len:', firstDialogs.length);
+    debug('Non-Talk case:', firstDialogs.length);
     let foundDialogs: boolean = false;
     for (let firstDialog of firstDialogs) {
       if (seenFirstDialogueIds.has(firstDialog.Id)) {

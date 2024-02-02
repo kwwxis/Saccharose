@@ -10,6 +10,7 @@ import {
 import SrtParser, { SrtLine } from '../../util/srtParser.ts';
 import fs, { promises as fsp } from 'fs';
 import {
+  arrayFillRange,
   arrayIndexOf,
   arrayIntersect,
   arrayUnique,
@@ -627,6 +628,9 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       dialog.TalkRoleNameText = dialog.TalkRole.NameText;
       dialog.TalkRoleNameTextMapHash = dialog.TalkRole.NameTextMapHash;
     }
+    if (dialog.ActionAfter && this.givingDialogActions.has(dialog.ActionAfter)) {
+      // TODO
+    }
     return dialog;
   }
 
@@ -745,13 +749,19 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   isPlayerTalkRole(dialog: DialogExcelConfigData): boolean {
     if (!dialog)
       return false;
-    return dialog.TalkRole.Type === 'TALK_ROLE_PLAYER';
+    return dialog.TalkRole.Type === 'TALK_ROLE_PLAYER' || !!dialog.OptionIcon;
   }
+
+  private givingDialogActions: Set<string> = new Set<string>([
+    'SimpleTalk/Open_giving_page_End',
+    'UI/open_giving_page'
+  ]);
 
   isPlayerDialogOption(dialog: DialogExcelConfigData): boolean {
     if (!dialog)
       return false;
-    return this.isPlayerTalkRole(dialog) && !dialog.PlayerNonOption && !this.voice.hasVoiceItems('Dialog', dialog.Id);
+    return this.isPlayerTalkRole(dialog) && !dialog.PlayerNonOption && !this.voice.hasVoiceItems('Dialog', dialog.Id)
+      && !this.givingDialogActions.has(dialog.ActionAfter);
   }
 
   isBlackScreenDialog(dialog: DialogExcelConfigData): boolean {
@@ -771,14 +781,15 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     if (!cache)
       cache = new DialogBranchingCache(null, null);
 
-    const debug: debug.Debugger = custom('dialog:' + debugSource);
+    const debug: debug.Debugger = custom('dialog:' + debugSource+',dialog:' + start.Id);
+    const detailedDebug: debug.Debugger = custom('dialog:' + debugSource+':detailed,dialog:' + start.Id+':detailed');
     const CQG: CodexQuestGroup = await this.selectCodexQuest(mainQuestId);
     const mqName: string = await this.selectMainQuestName(mainQuestId);
 
     const currBranch: DialogExcelConfigData[] = [];
 
     if (cache.dialogToBranch.hasOwnProperty(start.Id)) {
-      debug('Selecting dialog branch for ' + start.Id + ' (already seen)');
+      debug('Selecting dialog branch for ' + start.Id + ' (already seen)', cache.dialogToBranch[start.Id]);
       return cache.dialogToBranch[start.Id];
     } else {
       debug('Selecting dialog branch for ' + start.Id);
@@ -819,6 +830,8 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
           : currNode.NextDialogs
       );
       const fakeDialogs: DialogExcelConfigData[] = [];
+
+      detailedDebug('Curr Node:', currNode.Id, '/ Next Nodes:', nextNodes.map(x => x.Id).join());
 
       // Handle InterAction intermediates
       if (iaNextDialogs.Intermediates.length) {
@@ -927,14 +940,13 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       } else if (nextNodes.length > 1) {
         // If multiple next nodes -> branching
 
-        const branches: DialogExcelConfigData[][] = await Promise.all(
-          nextNodes.map((node: DialogExcelConfigData) => {
-            return this.selectDialogBranch(mainQuestId, node, DialogBranchingCache.from(cache), debugSource + ':' + start.Id);
-          })
-        );
+        const branches: DialogExcelConfigData[][] = [];
+        for (let nextNode of nextNodes) {
+          branches.push(await this.selectDialogBranch(mainQuestId, nextNode, DialogBranchingCache.from(cache), debugSource + ':' + start.Id));
+        }
 
         const intersect: DialogExcelConfigData[] = arrayIntersect<DialogExcelConfigData>(branches, this.IdComparator)
-          .filter(x => x.TalkRole.Type !== 'TALK_ROLE_PLAYER'); // only rejoin on non-player talks
+          .filter(x => !this.isPlayerTalkRole(x)); // only rejoin on non-player talks
 
         if (!intersect.length) {
           // branches do not rejoin
@@ -948,9 +960,6 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
             branches[i] = branch.slice(0, arrayIndexOf(branch, rejoinNode, this.IdComparator));
           }
           currNode.Branches = branches;
-          if (currNode.Id === 110330105) {
-            console.log(rejoinNode);
-          }
           currNode = rejoinNode;
         }
       } else {
@@ -967,7 +976,6 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     let out = '';
     let outIds: CommonLineId[] = [];
     let numSubsequentNonBranchPlayerDialogOption = 0;
-    let previousDialog: DialogExcelConfigData = null;
 
     if (dialogLines.length) {
       firstDialogOfBranchVisited.add(dialogLines[0].Id);
@@ -975,17 +983,19 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
     for (let i = 0; i < dialogLines.length; i++) {
       let dialog: DialogExcelConfigData = dialogLines[i];
+      let previousDialog: DialogExcelConfigData = dialogLines[i - 1];
 
       // DIcon Prefix
       // ~~~~~~~~~~~~
       let diconPrefix: string;
 
-      if (i == 0 && dialog.TalkRole.Type === 'TALK_ROLE_PLAYER') {
-        if (originatorDialog && originatorDialog.TalkRole.Type === 'TALK_ROLE_PLAYER' && !originatorIsFirstOfBranch) {
+      if (this.isPlayerDialogOption(dialog)) {
+        if (originatorDialog && this.isPlayerDialogOption(originatorDialog) && !originatorIsFirstOfBranch) {
           diconPrefix = ':'.repeat(dialogDepth);
-          dialogDepth += 1;
-        } else {
+        } else if (i === 0 || arrayFillRange(0, i - 1).every(j => this.isPlayerDialogOption(dialogLines[j]))) {
           diconPrefix = ':'.repeat((dialogDepth - 1 ) || 1);
+        } else {
+          diconPrefix = ':'.repeat(dialogDepth);
         }
       } else {
         diconPrefix = ':'.repeat(dialogDepth);
@@ -1031,16 +1041,29 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       // Subsequent Non-Branch Dialogue Options
       // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-      if (previousDialog && this.isPlayerDialogOption(dialog) && this.isPlayerDialogOption(previousDialog) &&
-        (previousDialog.NextDialogs.length === 1 || previousDialog.Branches?.map(b => b[0]).every(x => this.isPlayerTalkRole(x))) &&
-        previousDialog.NextDialogs.some(x => x === dialog.Id)) {
-        // This is for if you have non-branch subsequent player dialogue options for the purpose of generating an output like:
-        // :'''Paimon:''' Blah blah blah
-        // :{{DIcon}} Paimon, you're sussy baka
-        // ::{{DIcon}} And you're emergency food too
-        // :'''Paimon:''' Nani!?!?
-        // The second dialogue option is indented to show it is an option that follows the previous option rather than
-        // the player being presented with two dialogue options at the same time.
+      // This is for if you have non-branch subsequent player dialogue options for the purpose of generating an output like:
+      // :'''Paimon:''' Blah blah blah
+      // :{{DIcon}} Paimon, you're sussy baka
+      // ::{{DIcon}} And you're emergency food too
+      // :'''Paimon:''' Nani!?!?
+      // The second dialogue option is indented to show it is an option that follows the previous option rather than
+      // the player being presented with two dialogue options at the same time.
+      if (previousDialog
+
+        // Both the previous and current dialogs must be dialog options:
+        && this.isPlayerDialogOption(dialog)
+        && this.isPlayerDialogOption(previousDialog) &&
+
+        (
+          // The previous dialog must only have had 1 next dialog
+          previousDialog.NextDialogs.length === 1
+
+          // Or the first dialog of every branch from the previous dialog must be a dialog option
+          || previousDialog.Branches?.map(b => b[0]).every(x => this.isPlayerDialogOption(x))
+        )
+
+        // The previous dialog's next dialogs must contain current dialog:
+        && previousDialog.NextDialogs.some(x => x === dialog.Id)) {
         numSubsequentNonBranchPlayerDialogOption++;
       } else {
         numSubsequentNonBranchPlayerDialogOption = 0;
@@ -1188,8 +1211,6 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
           outIds.push(null);
         }
       }
-
-      previousDialog = dialog;
     }
     return {
       wikitext: out.trim(),

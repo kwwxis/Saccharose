@@ -36,8 +36,6 @@ export async function apiErrorHandler(err: any, req: Request, res: Response, nex
     return next(err);
   }
 
-  console.log('uhhhhh');
-
   if (typeof err === 'string') {
     sendHttpError(HttpError.badRequest(null, err), res);
   } else if (err && typeof err === 'object' && (err.code === 'EBADCSRFTOKEN' || err.type === 'EBADCSRFTOKEN')) {

@@ -581,24 +581,6 @@ Object.defineProperty(Array.prototype, 'asyncMap', {
     return results;
   }
 })
-// Array.prototype.asyncMap = async function<T, U>(callbackfn: (value: T, index: number, array: T[]) => Promise<U|void>, skipNilResults: boolean = true): Promise<U[]> {
-//   const promises: Promise<U|void>[] = [];
-//
-//   for (let i = 0; i < this.length; i++) {
-//     promises.push(callbackfn(this[i], i, this));
-//   }
-//
-//   const results: U[] = [];
-//
-//   for (let result of await Promise.all(promises)) {
-//     if (skipNilResults && isUnset(result)) {
-//       continue;
-//     }
-//     results.push(<any> result);
-//   }
-//
-//   return results;
-// }
 
 function arrayMove<T>(arr: T[], fromIndex: number, toIndex: number) {
   let element = arr[fromIndex];
@@ -620,6 +602,14 @@ export function arrayRemove<T>(arr: T[], items: T[]) {
       arr.splice(index, 1);
     }
   }
+}
+
+export function arrayFillRange(start: number, end: number): number[] {
+  let arr: number[] = [];
+  for (let i = start; i <= end; i++) {
+    arr.push(i);
+  }
+  return arr;
 }
 
 export type IndexedRange = {start: number, end: number};

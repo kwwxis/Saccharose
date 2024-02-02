@@ -107,7 +107,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
 
     const ctrl = getStarRailControl();
 
-    console.inspect(await fetchVoiceAtlases(ctrl, true));
+    inspect(await fetchVoiceAtlases(ctrl, true));
 
     await closeKnex();
   })();

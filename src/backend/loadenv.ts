@@ -79,15 +79,8 @@ export function getZenlessDataFilePath(file?: string): string {
   return path.resolve(process.env.ZENLESS_DATA_ROOT, file).replaceAll('\\', '/');
 }
 
-declare global {
-  // noinspection JSUnusedGlobalSymbols
-  interface Console {
-    inspect(... args: any[]): void;
-  }
-}
-
-console.inspect = (... args: any[]): void => {
-  let newArgs = [];
+function consoleInspect(... args: any[]): void {
+  let newArgs: any[] = [];
   for (let arg of args) {
     if (typeof arg === 'undefined' || arg === null || typeof arg === 'number' || typeof arg === 'boolean' || typeof arg === 'string') {
       newArgs.push(arg);
@@ -96,4 +89,10 @@ console.inspect = (... args: any[]): void => {
     }
   }
   console.log(... newArgs);
-};
+}
+
+global.inspect = consoleInspect;
+
+declare global {
+  function inspect(... args: any[]): void;
+}

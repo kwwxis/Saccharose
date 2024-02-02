@@ -1364,7 +1364,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     const gcg = getGCGControl(ctrl);
     await gcg.init();
 
-    console.inspect(await gcg.selectCharacterCard(1506));
+    inspect(await gcg.selectCharacterCard(1506));
 
 
     // const stages = await gcg.selectAllStage();

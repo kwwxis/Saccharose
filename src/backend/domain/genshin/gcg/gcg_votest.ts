@@ -21,7 +21,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     all[split[3]].add(split[4]);
   }
 
-  console.inspect(group);
+  inspect(group);
   console.log('--------')
-  console.inspect(all);
+  inspect(all);
 }
