@@ -760,8 +760,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   isPlayerDialogOption(dialog: DialogExcelConfigData): boolean {
     if (!dialog)
       return false;
-    return this.isPlayerTalkRole(dialog) && !dialog.PlayerNonOption && !this.voice.hasVoiceItems('Dialog', dialog.Id)
-      && !this.givingDialogActions.has(dialog.ActionAfter);
+    return this.isPlayerTalkRole(dialog) && !dialog.PlayerNonOption && !this.voice.hasVoiceItems('Dialog', dialog.Id);
   }
 
   isBlackScreenDialog(dialog: DialogExcelConfigData): boolean {
