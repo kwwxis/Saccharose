@@ -59,7 +59,7 @@ export async function indexImages() {
 
     batch.push({
       image_name: imageName,
-      image_fts_name: imageName.split('_').map(p => splitCamelcase(p)).join(' '),
+      image_fts_name: imageName.split('_').map(p => splitCamelcase(p).join(' ')).join(' '),
       image_size: size,
       image_cat1: cats[0] || null,
       image_cat2: cats[1] || null,

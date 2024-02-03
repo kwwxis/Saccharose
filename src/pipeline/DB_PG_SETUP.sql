@@ -62,7 +62,7 @@ CREATE TABLE genshin_image_index
 );
 
 ALTER TABLE genshin_image_index ADD COLUMN ts tsvector
-    GENERATED ALWAYS AS (to_tsvector('english', image_name)) STORED;
+    GENERATED ALWAYS AS (to_tsvector('english', image_fts_name)) STORED;
 
 CREATE INDEX genshin_image_index_ts_idx ON genshin_image_index USING GIN (ts);
 
