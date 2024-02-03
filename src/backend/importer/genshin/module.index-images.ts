@@ -36,9 +36,7 @@ function getImageNames(): string[] {
   return imageNames;
 }
 
-const dry: boolean = true;
-
-
+const dry: boolean = false;
 
 export async function indexImages() {
   const knex = openPg();
