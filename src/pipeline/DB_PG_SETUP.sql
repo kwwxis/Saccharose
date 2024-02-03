@@ -66,6 +66,11 @@ ALTER TABLE genshin_image_index ADD COLUMN ts tsvector
 
 CREATE INDEX genshin_image_index_ts_idx ON genshin_image_index USING GIN (ts);
 
+CREATE EXTENSION pg_trgm;
+
+CREATE INDEX genshin_image_index_trgm_idx ON genshin_image_index USING GIN (image_name gin_trgm_ops);
+
+CREATE INDEX genshin_image_index_cat_idx ON genshin_image_index (image_cat1, image_cat2, image_cat3, image_cat4, image_cat5);
 
 -- Script Jobs
 ----------------------------------------------------------------------------------------------------------------

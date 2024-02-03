@@ -16,22 +16,8 @@ interface GenshinImageIndexEntity {
   image_cat5?: string,
 }
 
-export async function indexImages() {
-  const knex = openPg();
-
-  await knex.raw('TRUNCATE TABLE genshin_image_index;').then();
-
-  const batch: GenshinImageIndexEntity[] = [];
-  const maxBatchSize: number = 1000;
-
-  async function commitBatch() {
-    await knex.transaction(function(tx) {
-      return knex.batchInsert('genshin_image_index', batch).transacting(tx);
-    }).then();
-    batch.length = 0;
-    console.log('Committed batch');
-  }
-
+function getImageNames(): string[] {
+  const imageNames: string[] = [];
   for (let fileName of fs.readdirSync(IMAGEDIR_GENSHIN_EXT)) {
     let imageName: string;
 
@@ -40,11 +26,47 @@ export async function indexImages() {
     } else {
       imageName = fileName.split('.png')[0];
     }
-
     if (!/^(Eff_|Equip|Flycloak|Gcg|Img|MonsterSkill|Skill_|UI|.*Tutorial).*/.test(imageName)) {
       continue;
     }
+    imageNames.push(imageName);
+  }
+  return imageNames;
+}
 
+const dry: boolean = true;
+
+export async function indexImages() {
+  const knex = openPg();
+
+  if (!dry) {
+    await knex.raw('TRUNCATE TABLE genshin_image_index;').then();
+  }
+
+  const imageNameSet: Set<string> = new Set();
+
+  for (let imageName of getImageNames()) {
+    imageNameSet.add(imageName);
+  }
+
+  for (let fileName of fs.readdirSync(path.resolve(process.env.GENSHIN_DATA_ROOT, './ExcelBinOutput'))) {
+    console.log(fileName);
+  }
+
+  const batch: GenshinImageIndexEntity[] = [];
+  const maxBatchSize: number = 1000;
+
+  async function commitBatch() {
+    if (!dry) {
+      await knex.transaction(function(tx) {
+        return knex.batchInsert('genshin_image_index', batch).transacting(tx);
+      }).then();
+    }
+    batch.length = 0;
+    console.log('Committed batch');
+  }
+
+  for (let imageName of getImageNames()) {
     const size: number = fs.statSync(path.resolve(IMAGEDIR_GENSHIN_EXT, `./${imageName}.png`))?.size || 0;
     const cats: string[] = [];
 
