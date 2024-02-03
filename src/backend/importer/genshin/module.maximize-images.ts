@@ -46,9 +46,9 @@ export async function maximizeImages() {
     let imageName: string;
 
     if (fileName.includes('#')) {
-      imageName = fileName.split('#')[0];
+      imageName = fileName.split('#')[0].trim();
     } else {
-      imageName = fileName.split('.')[0];
+      imageName = fileName.split('.png')[0];
     }
 
     if (dupeKey !== imageName) {

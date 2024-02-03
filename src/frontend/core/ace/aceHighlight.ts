@@ -7,8 +7,8 @@ import * as ace from 'brace';
 import { isNightmode } from '../userPreferences/siteTheme.ts';
 import { applyWikitextClickableLinks } from './staticActions/wikitextClickableLinks.ts';
 import { applyWikitextLineActions } from './staticActions/wikitextLineActions.ts';
-import { arraySum, IndexedRange, intersectRange } from '../../../shared/util/arrayUtil.ts';
-import { getInputValue, isElement, textNodesUnder } from '../../util/domutil.ts';
+import { IndexedRange, intersectRange } from '../../../shared/util/arrayUtil.ts';
+import { getInputValue, isTextNode, textNodesUnder } from '../../util/domutil.ts';
 import { initAceThemeWatcher } from './aceThemeWatcher.ts';
 import { applyWikitextLinker } from './staticActions/wikitextLinker.ts';
 import { escapeHtml } from '../../../shared/util/stringUtil.ts';
@@ -326,9 +326,25 @@ function applyMarkerToToken(token: HTMLElement, marker: Marker) {
 
 function markifyTextLayer(element: HTMLElement, aggs: Map<number, MarkerAggregate>) {
   const aceLines: HTMLElement[] = Array.from(element.querySelectorAll('.ace_static_text_layer .ace_line'));
+  console.log(aggs);
 
   for (let i = 0; i < aceLines.length; i++) {
     const aceLine: HTMLElement = aceLines[i];
+
+    // In order for this markification to work, all the child nodes of every ace_line must be an element, there cannot
+    // be any text nodes.
+    // Additionally, under every child element of every ace_line, there cannot be any further child elements, only text.
+    let aceLineNode = aceLine.firstChild;
+    while (aceLineNode) {
+      const nextSibling = aceLineNode.nextSibling;
+      if (isTextNode(aceLineNode)) {
+        const span: HTMLSpanElement = document.createElement('span');
+        aceLineNode.replaceWith(span);
+        span.append(aceLineNode);
+      }
+      aceLineNode = nextSibling;
+    }
+
     const agg: MarkerAggregate = aggs.get(i + 1);
     if (!agg)
       continue;

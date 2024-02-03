@@ -50,13 +50,15 @@ const presets = {
   EquipAffixExcelConfigData: <InspectOpt> { file: excel('EquipAffixExcelConfigData'), inspectFieldValues: ['AddProps[#ALL].PropType'] },
   CodexQuestExcelConfigData: <InspectOpt> { file: excel('CodexQuestExcelConfigData'), inspectFieldValues: ['SpeakerTextType', 'ContentTextType'] },
 
+  GivingExcelConfigData: <InspectOpt> { file: excel('GivingExcelConfigData'), inspectFieldValues: ['Tab', 'GivingMethod', 'GivingType'] },
+  GivingGroupExcelConfigData: <InspectOpt> { file: excel('GivingGroupExcelConfigData'), inspectFieldValues: [] },
 };
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
     const ctrl = getGenshinControl();
     //await inspectDataFile(ctrl, presets.CookRecipeExcelConfigData);
-    await inspectDataFile(ctrl, presets.DialogExcelConfigData);
+    await inspectDataFile(ctrl, presets.GivingExcelConfigData);
 
     await closeKnex();
   })();

@@ -542,6 +542,13 @@ export function isHTMLElement(o): o is HTMLElement {
   );
 }
 
+export function isTextNode(o): o is Text {
+  return (
+    typeof Text === "object" ? o instanceof Text :
+      o && typeof o === "object" && o.nodeType === 3 && o.nodeName === '#text'
+  );
+}
+
 export function isFragment(o): o is DocumentFragment {
   return (
     typeof DocumentFragment === "object" ? o instanceof DocumentFragment : //DOM2

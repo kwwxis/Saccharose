@@ -1,6 +1,10 @@
 import { isUnset } from './genericUtil.ts';
 import { LANG_CODE_TO_LOCALE, LangCode } from '../types/lang-types.ts';
 
+export function isString(x: any): x is string {
+  return typeof x === 'string';
+}
+
 export function toString(x) {
   if (typeof x === 'undefined' || x === null || typeof x === 'string') {
     return x;
@@ -29,10 +33,6 @@ export function isStringBlank(str) {
 
 export function ucFirst(str: string): string {
   return str == null ? null : str.charAt(0).toUpperCase() + str.slice(1);
-}
-
-export function isString(o: any): o is string {
-  return typeof o === 'string';
 }
 
 export function toLower(str: any): string {

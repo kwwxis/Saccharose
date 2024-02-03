@@ -230,6 +230,10 @@ export class Marker implements IndexedRange {
     let re = typeof searchText === 'string' ? new RegExp(escapeRegExp(searchText), 'gi') : searchText;
     let ret: Marker[] = [];
 
+    if (!re.flags.includes('g')) {
+      throw 'Error: Marker.create() can only be used with regexes containing the \'g\' flag.';
+    }
+
     let lineNum = 1;
     for (let line of contentText.split('\n')) {
       if (customProcessor) {
@@ -248,6 +252,10 @@ export class Marker implements IndexedRange {
       let match: RegExpMatchArray;
       re.lastIndex = 0;
       while ((match = re.exec(line)) !== null) {
+        // This is necessary to avoid infinite loops with zero-width matches:
+        if (match.index === re.lastIndex) {
+          re.lastIndex++;
+        }
         ret.push(new Marker('highlight', lineNum, match.index, match.index + match[0].length));
       }
       lineNum++;

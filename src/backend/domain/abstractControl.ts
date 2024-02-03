@@ -20,7 +20,7 @@ import {
 import fs, { promises as fsp } from 'fs';
 import { getPlainTextMapRelPath, getTextIndexRelPath } from '../loadenv.ts';
 import path, { basename } from 'path';
-import { escapeRegExp, isStringBlank, titleCase, ucFirst } from '../../shared/util/stringUtil.ts';
+import { escapeRegExp, isString, isStringBlank, titleCase, ucFirst } from '../../shared/util/stringUtil.ts';
 import { isInt, maybeInt, toInt } from '../../shared/util/numberUtil.ts';
 import {
   getLineNumberForLineText,
@@ -35,6 +35,7 @@ import { ArrayStream } from '../../shared/util/arrayUtil.ts';
 import { Request } from 'express';
 import { defaultMap } from '../../shared/util/genericUtil.ts';
 import { LangDetectResult } from '../../shared/types/common-types.ts';
+import { Marker } from '../../shared/util/highlightMarker.ts';
 
 export abstract class AbstractControlState {
   public request: Request = null;
@@ -570,7 +571,10 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
         let resolvedCount = 0;
         for (let obj of json) {
           for (let usageItem of unresolvedRefs[fileName]) {
-            if (obj[usageItem.originalField] === id) {
+            if (obj[usageItem.originalField] === id
+              || (isString(obj[usageItem.originalField])
+                && obj[usageItem.originalField].startsWith('ART/') && obj[usageItem.originalField].endsWith(`/${id}`)
+              )) {
               usageItem.refObject = await this.commonLoadFirst(obj, true);
               resolvedCount++;
               unresolvedRefs[fileName].delete(usageItem);
@@ -580,6 +584,15 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
           if (resolvedCount === unresolvedRefs[fileName].size) {
             break;
           }
+        }
+      }
+    }
+
+    for (let items of Object.values(out)) {
+      for (let item of items) {
+        if (item.refObject) {
+          item.refObjectStringified = JSON.stringify(item.refObject, null, 2);
+          item.refObjectMarkers = Marker.create(new RegExp('\\b' + escapeRegExp(grepQuery) +'\\b', 'g'), item.refObjectStringified);
         }
       }
     }

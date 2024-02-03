@@ -38,14 +38,27 @@ CREATE TABLE api_keys
 
 -- IMAGE HASHES
 ----------------------------------------------------------------------------------------------------------------
-CREATE TABLE genshin_hashes
+CREATE TABLE genshin_image_hashes
 (
 	id SERIAL PRIMARY KEY,
 	name text,
 	hash bigint
 );
 
-CREATE INDEX bk_index_name ON genshin_hashes USING spgist (hash bktree_ops);
+CREATE INDEX bk_index_name ON genshin_image_hashes USING spgist (hash bktree_ops);
+
+-- IMAGE INDEX
+----------------------------------------------------------------------------------------------------------------
+CREATE TABLE genshin_image_index
+(
+    image_name      TEXT NOT NULL PRIMARY KEY,
+    image_size      BIGINT NOT NULL,
+    image_cat1      TEXT,
+    image_cat2      TEXT,
+    image_cat3      TEXT,
+    image_cat4      TEXT,
+    image_cat5      TEXT
+);
 
 -- Script Jobs
 ----------------------------------------------------------------------------------------------------------------
@@ -73,6 +86,7 @@ CREATE INDEX script_jobs_run_action ON script_jobs (run_action);
 CREATE INDEX script_jobs_job_pid ON script_jobs (job_pid);
 CREATE INDEX script_jobs_run_action_incomplete ON script_jobs (run_action) WHERE run_complete IS FALSE;
 CREATE INDEX script_jobs_job_pid_complete ON script_jobs (job_pid) WHERE run_complete IS FALSE;
+
 -- Genshin Wiki Revisions
 ----------------------------------------------------------------------------------------------------------------
 CREATE TABLE genshin_wiki_revs

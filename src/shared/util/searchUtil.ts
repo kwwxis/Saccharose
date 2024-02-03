@@ -1,8 +1,16 @@
 import { escapeRegExp } from './stringUtil.ts';
 import { walkObject } from './arrayUtil.ts';
+import { Marker } from './highlightMarker.ts';
 
 export type IdUsages = { [fileName: string]: IdUsagesItem[] };
-export type IdUsagesItem = { field: string, originalField: string, lineNumber: number, refObject?: any };
+export type IdUsagesItem = {
+  field: string,
+  originalField: string,
+  lineNumber: number,
+  refObject?: any,
+  refObjectStringified?: string,
+  refObjectMarkers?: Marker[],
+};
 export type SearchMode = 'W' | 'WI' | 'C' | 'CI' | 'R' | 'RI';
 export const SEARCH_MODES: SearchMode[] = ['W', 'WI', 'C', 'CI', 'R', 'RI'];
 export const DEFAULT_SEARCH_MODE: SearchMode = 'WI';

@@ -256,7 +256,8 @@ You'll want to create the `public/images/genshin` folder and add the images matc
 
 All files in `Texture2D` starting with:
 - `UI_`
-- `Eff_UI`
+- `Eff_`
+- `Skill_`
 - `MonsterSkill`
 
 All files in `Sprite` starting with:

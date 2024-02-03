@@ -65,7 +65,7 @@ cursor = conn.cursor()
 print("Connection Successful to PostgreSQL")
 
 print("Truncating table and restarting sequence")
-cursor.execute("TRUNCATE TABLE genshin_hashes RESTART IDENTITY")
+cursor.execute("TRUNCATE TABLE genshin_image_hashes RESTART IDENTITY")
 
 print("Starting file iteration...")
 for entry in os.scandir(genshin_images_path):
@@ -76,7 +76,7 @@ for entry in os.scandir(genshin_images_path):
         img = remove_transparency(img)
         imgHash = str(imagehash.phash(img))
         hashInt = twos_complement(imgHash, 64) # convert from hexadecimal to 64 bit signed integer
-        cursor.execute("INSERT INTO genshin_hashes(hash, name) VALUES (%s, %s)", (hashInt, entry.name))
+        cursor.execute("INSERT INTO genshin_image_hashes(hash, name) VALUES (%s, %s)", (hashInt, entry.name))
         conn.commit()
         print(f"Added image {entry.name} with hash {hashInt}")
 

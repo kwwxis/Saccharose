@@ -36,6 +36,16 @@ export const SiteUserProvider = {
 
   async find(discordId: string): Promise<SiteUser> {
     const row: SiteUserEntity = await pg.select('*').from('site_user').where({discord_id: discordId}).first().then();
+    if (row.wiki_username && !row.json_data?.wiki_allowed) {
+      const inBypass: boolean = await this.isInReqBypass(row.wiki_username);
+      if (inBypass) {
+        row.json_data.wiki_allowed = true;
+
+        await pg('site_user').where({discord_id: row.discord_id}).update({
+          json_data: JSON.stringify(row.json_data)
+        });
+      }
+    }
     return row?.json_data;
   },
 

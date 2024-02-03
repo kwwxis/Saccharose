@@ -16,6 +16,7 @@ import { importSearchIndex } from './module.search-index.ts';
 import { generateQuestDialogExcels } from './module.make-excels.ts';
 import { loadInterActionQD } from './module.interaction.ts';
 import { createChangelog } from './module.changelog.ts';
+import { indexImages } from './module.index-images.ts';
 
 export async function importGenshinFilesCli() {
   const options_beforeDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
@@ -24,7 +25,9 @@ export async function importGenshinFilesCli() {
     {name: 'plaintext', type: Boolean, description: 'Creates the PlainTextMap files.'},
     {name: 'voice-items', type: Boolean, description: 'Creates the normalized voice items file.'},
     {name: 'translate-schema', type: Boolean, description: 'Creates the SchemaTranslation file.'},
-    {name: 'interaction', type: Boolean, description: 'Load QuestDialogue InterActions from BinOutput'},
+    {name: 'interaction', type: Boolean, description: 'Load QuestDialogue InterActions from BinOutput.'},
+    {name: 'index-images', type: Boolean, description: 'Creates index for asset images. ' +
+        'Must load all wanted Texture2D images into the EXT_GENSHIN_IMAGES directory first though.'},
   ];
 
   const options_afterDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
@@ -112,6 +115,9 @@ export async function importGenshinFilesCli() {
   }
   if (options['maximize-images']) {
     await maximizeImages();
+  }
+  if (options['index-images']) {
+    await indexImages();
   }
   if (options['make-excels']) {
     await generateQuestDialogExcels(getGenshinDataFilePath());
