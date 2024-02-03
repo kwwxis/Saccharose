@@ -12,6 +12,7 @@ import {
   InterActionSchema,
 } from '../../../shared/types/genshin/interaction-types.ts';
 import { reformatPrimitiveArrays } from '../util/import_file_util.ts';
+import { isEquiv } from '../../../shared/util/arrayUtil.ts';
 
 // region Walk Sync
 // --------------------------------------------------------------------------------------------------------------
@@ -108,7 +109,8 @@ function processJsonObject(fileName: string, json: any): InterActionGroup[] {
 
   for (let i = 0; i < json.group.length; i++) {
     const groupId: any = json.groupId[i];
-    const actions: InterAction[] = [];
+    const normalActions: InterAction[] = [];
+    const selectActions: InterAction[] = [];
 
     for (let _action of json.group[i]) {
       let action = processInterAction(fileName, groupId.grpId, groupId.index || 0, _action);
@@ -118,14 +120,34 @@ function processJsonObject(fileName: string, json: any): InterActionGroup[] {
       if (!INTERACTION_KEEP_TYPES.has(action.Type)) {
         continue;
       }
-      actions.push(action);
+      if (action.Type === 'DIALOG_SELECT') {
+        const actionOfSameType = selectActions.find(a => a.Type === action.Type);
+        if (actionOfSameType && isEquiv(actionOfSameType.DialogOptions, action.DialogOptions) && isEquiv(actionOfSameType.DialogNextGroup, action.DialogNextGroup)) {
+          continue; // duplicate, disregard
+        }
+        if (actionOfSameType) {
+          console.error('Found action of same type DIALOG_SELECT:', action);
+        }
+        selectActions.push(action);
+      } else if (action.Type === 'DIALOG') {
+        const actionsOfSameType = selectActions.filter(a => a.Type === action.Type);
+        if (actionsOfSameType.some(a => isEquiv(a.DialogId, action.DialogId))) {
+          continue; // duplicate, disregard
+        }
+        normalActions.push(action);
+      } else {
+        normalActions.push(action);
+      }
     }
 
     let group: InterActionGroup = {
       Index: groupId.index || 0,
       GroupId: groupId.grpId,
       NextGroupId: groupId.nextGrpId,
-      Actions: actions,
+      Actions: [
+        ... normalActions,
+        ... selectActions, // bring down DIALOG_SELECT action to always be last
+      ],
     }
     groups.push(group);
   }

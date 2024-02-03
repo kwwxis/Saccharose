@@ -89,6 +89,8 @@ export async function indexImages() {
     return Array.from(images);
   }
 
+  console.log(Array.from(imageNameSet));
+
   console.log('Computing excel usages...');
   for (let fileName of fs.readdirSync(path.resolve(process.env.GENSHIN_DATA_ROOT, './ExcelBinOutput'))) {
     const json: any[] = JSON.parse(fs.readFileSync(path.resolve(process.env.GENSHIN_DATA_ROOT, './ExcelBinOutput', fileName), 'utf-8'));
