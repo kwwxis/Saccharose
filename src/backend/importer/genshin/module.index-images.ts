@@ -6,11 +6,20 @@ import { isInt } from '../../../shared/util/numberUtil.ts';
 import { splitCamelcase } from '../../../shared/util/stringUtil.ts';
 import { defaultMap } from '../../../shared/util/genericUtil.ts';
 
+interface GenshinImageIndexExcelMeta {
+  [excelFile: string]: GenshinImageIndexExcelMetaEntry
+}
+interface GenshinImageIndexExcelMetaEntry {
+  usageCount: number,
+  rows: number[]
+}
+
 interface GenshinImageIndexEntity {
   image_name: string,
   image_fts_name: string,
   image_size: number,
   excel_usages: string[],
+  excel_meta: GenshinImageIndexExcelMeta,
   image_cat1?: string,
   image_cat2?: string,
   image_cat3?: string,
@@ -45,16 +54,22 @@ export async function indexImages(dryRun: boolean = false) {
 
   const imageNameSet: Set<string> = new Set();
   const imageNameToExcelFileUsages: Record<string, string[]> = defaultMap('Array');
+  const imageNameToExcelMeta: Record<string, GenshinImageIndexExcelMeta> = defaultMap('Object');
 
   console.log('Gathering image names...');
   for (let imageName of getImageNames()) {
     imageNameSet.add(imageName);
   }
 
-  function findImageUsages(rows: any[]): string[] {
+  function findImageUsages(rows: any[]): { images: string[], imagesToExcelMetaEntry: Record<string, GenshinImageIndexExcelMetaEntry> } {
     let images: Set<string> = new Set();
-    for (let row of rows) {
-      let stack = [row];
+    let imagesToExcelMetaEntry: Record<string, GenshinImageIndexExcelMetaEntry> = defaultMap(() => ({
+      usageCount: 0,
+      rows: [],
+    }));
+
+    for (let i = 0; i < rows.length; i++) {
+      let stack = [rows[i]];
       while (stack.length) {
         let obj = stack.shift();
 
@@ -63,13 +78,20 @@ export async function indexImages(dryRun: boolean = false) {
         }
 
         if (typeof obj === 'string') {
+          let matchedImageName: string = null;
           if (imageNameSet.has(obj)) {
             images.add(obj);
+            matchedImageName = obj;
           } else if (obj.startsWith('ART/')) {
             const objBaseName = path.basename(obj);
             if (imageNameSet.has(objBaseName)) {
               images.add(objBaseName);
+              matchedImageName = objBaseName;
             }
+          }
+          if (matchedImageName) {
+            imagesToExcelMetaEntry[matchedImageName].usageCount++;
+            imagesToExcelMetaEntry[matchedImageName].rows.push(i);
           }
         }
 
@@ -82,14 +104,19 @@ export async function indexImages(dryRun: boolean = false) {
         }
       }
     }
-    return Array.from(images);
+    return {
+      images: Array.from(images),
+      imagesToExcelMetaEntry,
+    };
   }
 
   console.log('Computing excel usages...');
   for (let fileName of fs.readdirSync(path.resolve(process.env.GENSHIN_DATA_ROOT, './ExcelBinOutput'))) {
     const json: any[] = JSON.parse(fs.readFileSync(path.resolve(process.env.GENSHIN_DATA_ROOT, './ExcelBinOutput', fileName), 'utf-8'));
-    for (let imageName of findImageUsages(json)) {
+    let { images, imagesToExcelMetaEntry } = findImageUsages(json);
+    for (let imageName of images) {
       imageNameToExcelFileUsages[imageName].push(fileName);
+      imageNameToExcelMeta[imageName][fileName] = imagesToExcelMetaEntry[imageName];
     }
   }
 
@@ -125,6 +152,7 @@ export async function indexImages(dryRun: boolean = false) {
       image_fts_name: imageName.split('_').map(p => splitCamelcase(p).join(' ')).join(' '),
       image_size: size,
       excel_usages: imageNameToExcelFileUsages[imageName] || [],
+      excel_meta: imageNameToExcelMeta[imageName] || {},
       image_cat1: cats[0] || null,
       image_cat2: cats[1] || null,
       image_cat3: cats[2] || null,

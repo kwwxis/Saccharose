@@ -6,8 +6,8 @@ import { getSfcTransforms, SfcOptions } from './vue-sfc-options.ts';
 import { fileURLToPath, pathToFileURL } from 'url';
 import * as sass from 'sass';
 
-async function* getFiles(dir: string): AsyncGenerator<string> {
-  const dirents = await fs.promises.readdir(dir, { withFileTypes: true });
+function* getFiles(dir: string): Generator<string> {
+  const dirents = fs.readdirSync(dir, { withFileTypes: true });
   for (const dirent of dirents) {
     const res = path.resolve(dir, dirent.name);
     if (dirent.isDirectory()) {
@@ -33,7 +33,7 @@ const publicVueDistDir = path.resolve(projectRoot, './public/v-dist/');
 
 export async function cleanVueSfc() {
   const promises: Promise<void>[] = [];
-  for await (let file of getFiles(srcRoot)) {
+  for (let file of getFiles(srcRoot)) {
     if (file.endsWith('.vue.ts') || file.endsWith('.vue.script.ts') || file.endsWith('.vue.style.scss') || file.endsWith('.vue.template.ts')) {
       promises.push(fs.promises.unlink(file));
     }
@@ -45,7 +45,7 @@ export async function compileVueSfc() {
   const allStyles: string[] = [];
   const promises: Promise<void>[] = [];
 
-  for await (let file of getFiles(srcRoot)) {
+  for (let file of getFiles(srcRoot)) {
     if (file.endsWith('.vue')) {
       let absPath = file.replace(/\\/g, '/');
       let relPath = './' + path.relative(projectRoot, file).replace(/\\/g, '/');
@@ -62,7 +62,7 @@ export async function compileVueSfc() {
   await Promise.all(promises);
 
   if (allStyles.length) {
-    let style: string = allStyles.join('\n\n');
+    let style: string = allStyles.join('\n\n').trim();
     let compileResult = sass.compileString(style);
     if (!fs.existsSync(publicVueDistDir)) {
       await fs.promises.mkdir(publicVueDistDir);
