@@ -1923,6 +1923,11 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       loadConf = {};
     }
 
+    if (furn.Icon || furn.ItemIcon) {
+      furn.DownloadIconUrl = '/serve-image/genshin/' + (furn.Icon || furn.ItemIcon)
+        + '/Item ' + this.sanitizeFileName(furn.NameText) + '.png?download=1';
+    }
+
     furn.MappedFurnType = [];
     furn.FilterTokens = [];
     furn.IsInterior = false;
@@ -2394,6 +2399,11 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
         material.IconUrl = '/serve-image/genshin/' + material.Icon + '?convert=' + material.FoodQuality;
       } else {
         material.IconUrl = '/images/genshin/' + material.Icon + '.png';
+      }
+
+      material.DownloadIconUrl = '/serve-image/genshin/' + material.Icon + '/Item ' + this.sanitizeFileName(material.NameText) + '.png?download=1';
+      if (material.FoodQuality) {
+        material.DownloadIconUrl += '&convert=' + material.FoodQuality;
       }
     }
     if (material.ItemUse) {

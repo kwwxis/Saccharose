@@ -45,8 +45,8 @@
               data-subcategory="<%= furn.TypeNameText %>"
               data-filter-tokens="<%= furn.FilterTokens.join(',') %>">
             <td>
-              <% if (furn.Icon || furn.ItemIcon) { %>
-                <img class="framed-icon x42" src="/images/genshin/<%= furn.Icon || furn.ItemIcon %>.png" loading="lazy" decoding="async" />
+              <% if (furn.IconUrl || furn.Icon || furn.ItemIcon) { %>
+                <img class="framed-icon x42" src="/images/genshin/<%= furn.IconUrl || furn.Icon || furn.ItemIcon %>.png" loading="lazy" decoding="async" />
               <% } %>
             </td>
             <td><span class="code" style="font-size:14px"><%= String(furn.Id).padStart(6, '0') %></span></td>

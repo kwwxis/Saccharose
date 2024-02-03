@@ -599,4 +599,8 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
 
     return out;
   }
+
+  sanitizeFileName(fileName: string): string {
+    return fileName ? fileName.replaceAll(/[\\\/:*?"<>|]/g, '') : '';
+  }
 }

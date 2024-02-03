@@ -131,6 +131,7 @@ export interface MaterialExcelConfigData {
   DescTextMapHash?: number,
   Icon?: string,
   IconUrl?: string,
+  DownloadIconUrl?: string,
   ItemType?: 'ITEM_VIRTUAL' | 'ITEM_MATERIAL',
   StackLimit?: number,
   MaxUseCount?: number,

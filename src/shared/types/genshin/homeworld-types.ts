@@ -110,6 +110,8 @@ export interface HomeWorldFurnitureExcelConfigData {
 
   // Icon:
   Icon: string,
+  IconUrl?: string,
+  DownloadIconUrl?: string,
   ItemIcon: string,
   EffectIcon?: 'UI_Buff_Furniture_MarkTransPoint',
 

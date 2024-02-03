@@ -55,6 +55,16 @@ export async function importGenshinFilesCli() {
     options = { help: true };
   }
 
+  let dryRun: boolean = false;
+  if (options['dry']) {
+    dryRun = true;
+    delete options['dry'];
+  }
+  if (options['dry-run']) {
+    dryRun = true;
+    delete options['dry-run'];
+  }
+
   if (!Object.keys(options).length) {
     console.warn(chalk.yellow('\nNot enough arguments.'));
     options.help = true;
@@ -117,7 +127,7 @@ export async function importGenshinFilesCli() {
     await maximizeImages();
   }
   if (options['index-images']) {
-    await indexImages();
+    await indexImages(dryRun);
   }
   if (options['make-excels']) {
     await generateQuestDialogExcels(getGenshinDataFilePath());

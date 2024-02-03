@@ -1,6 +1,6 @@
 import path from 'path';
 import { IMAGEDIR_GENSHIN_EXT } from '../../loadenv.ts';
-import fs, { promises as fsp } from 'fs';
+import fs from 'fs';
 import { closeKnex, openPg } from '../../util/db.ts';
 import { isInt } from '../../../shared/util/numberUtil.ts';
 import { splitCamelcase } from '../../../shared/util/stringUtil.ts';
@@ -36,12 +36,10 @@ function getImageNames(): string[] {
   return imageNames;
 }
 
-const dry: boolean = false;
-
-export async function indexImages() {
+export async function indexImages(dryRun: boolean = false) {
   const knex = openPg();
 
-  if (!dry) {
+  if (!dryRun) {
     await knex.raw('TRUNCATE TABLE genshin_image_index;').then();
   }
 
@@ -87,8 +85,6 @@ export async function indexImages() {
     return Array.from(images);
   }
 
-  console.log(Array.from(imageNameSet));
-
   console.log('Computing excel usages...');
   for (let fileName of fs.readdirSync(path.resolve(process.env.GENSHIN_DATA_ROOT, './ExcelBinOutput'))) {
     const json: any[] = JSON.parse(fs.readFileSync(path.resolve(process.env.GENSHIN_DATA_ROOT, './ExcelBinOutput', fileName), 'utf-8'));
@@ -97,13 +93,11 @@ export async function indexImages() {
     }
   }
 
-  console.log(imageNameToExcelFileUsages);
-
   const batch: GenshinImageIndexEntity[] = [];
   const maxBatchSize: number = 1000;
 
   async function commitBatch() {
-    if (!dry) {
+    if (!dryRun) {
       await knex.transaction(function(tx) {
         return knex.batchInsert('genshin_image_index', batch).transacting(tx);
       }).then();

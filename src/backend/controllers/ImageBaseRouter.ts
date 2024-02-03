@@ -4,6 +4,7 @@ import path from 'path';
 import { IMAGEDIR_GENSHIN_EXT, IMAGEDIR_HSR_EXT, IMAGEDIR_ZENLESS_EXT } from '../loadenv.ts';
 import fs from 'fs';
 import { convertFoodImageToDelicious, convertFoodImageToSuspicious } from '../domain/genshin/misc/food-sharp.ts';
+import { toBoolean } from '../../shared/util/genericUtil.ts';
 
 export default async function(): Promise<Router> {
 
@@ -30,10 +31,27 @@ export default async function(): Promise<Router> {
     }
 
     let imageName = String(req.params.imageName).replaceAll(/\\/g, '/');
-    const downloadAs = req.query.downloadAs ? String(req.query.downloadAs).replaceAll(/\\/g, '/') : null;
+    let downloadName = req.params.downloadName
+      ? String(req.params.downloadName).replaceAll(/\\/g, '/')
+      : undefined;
+    let doDownload: boolean = toBoolean(String(req.query.download));
 
-    if (imageName.includes('/') || (downloadAs && downloadAs.includes('/'))) {
+    const downloadAs = req.query.downloadAs
+      ? String(req.query.downloadAs).replaceAll(/\\/g, '/')
+      : null;
+
+    if (imageName.includes('/') || (downloadAs && downloadAs.includes('/')) || (downloadName && downloadName.includes('/'))) {
       res.status(400).end('BadRequest: "image" cannot include "/" character.');
+      return;
+    }
+
+    if (doDownload && downloadAs) {
+      res.status(400).end('BadRequest: cannot have both "download" and "downloadAs" query parameters set.');
+      return;
+    }
+    if (doDownload && !downloadName) {
+      res.status(400).end('BadRequest: "download" query parameter ' +
+        'can only be set when the "downloadName" path parameter is also set.');
       return;
     }
 
@@ -76,9 +94,10 @@ export default async function(): Promise<Router> {
         return;
       }
 
-      if (downloadAs) {
+      if (downloadAs || doDownload) {
         res.set('Content-Type', 'application/octet-stream');
-        res.set('Content-Disposition', 'attachment; filename=' + downloadAs);
+        res.set('Content-Disposition', 'attachment; filename=' + (
+          doDownload ? downloadName : downloadAs));
       } else {
         res.set('Content-Type', type);
       }
