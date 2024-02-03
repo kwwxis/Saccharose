@@ -3,9 +3,11 @@ import { IMAGEDIR_GENSHIN_EXT } from '../../loadenv.ts';
 import fs, { promises as fsp } from 'fs';
 import { closeKnex, openPg } from '../../util/db.ts';
 import { isInt } from '../../../shared/util/numberUtil.ts';
+import { splitCamelcase } from '../../../shared/util/stringUtil.ts';
 
 interface GenshinImageIndexEntity {
   image_name: string,
+  image_fts_name: string,
   image_size: number,
   image_cat1?: string,
   image_cat2?: string,
@@ -57,6 +59,7 @@ export async function indexImages() {
 
     batch.push({
       image_name: imageName,
+      image_fts_name: imageName.split('_').map(p => splitCamelcase(p)).join(' '),
       image_size: size,
       image_cat1: cats[0] || null,
       image_cat2: cats[1] || null,

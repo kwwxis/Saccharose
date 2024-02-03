@@ -52,6 +52,7 @@ CREATE INDEX bk_index_name ON genshin_image_hashes USING spgist (hash bktree_ops
 CREATE TABLE genshin_image_index
 (
     image_name      TEXT NOT NULL PRIMARY KEY,
+    image_fts_name  TEXT NOT NULL,
     image_size      BIGINT NOT NULL,
     image_cat1      TEXT,
     image_cat2      TEXT,
@@ -59,6 +60,12 @@ CREATE TABLE genshin_image_index
     image_cat4      TEXT,
     image_cat5      TEXT
 );
+
+ALTER TABLE genshin_image_index ADD COLUMN ts tsvector
+    GENERATED ALWAYS AS (to_tsvector('english', image_name)) STORED;
+
+CREATE INDEX genshin_image_index_ts_idx ON genshin_image_index USING GIN (ts);
+
 
 -- Script Jobs
 ----------------------------------------------------------------------------------------------------------------
