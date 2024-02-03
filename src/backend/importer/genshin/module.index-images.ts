@@ -62,7 +62,7 @@ export async function indexImages() {
       while (stack.length) {
         let obj = stack.shift();
 
-        if (!!obj) {
+        if (!obj) {
           continue;
         }
 
