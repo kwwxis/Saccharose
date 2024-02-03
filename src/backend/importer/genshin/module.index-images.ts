@@ -10,6 +10,7 @@ interface GenshinImageIndexEntity {
   image_name: string,
   image_fts_name: string,
   image_size: number,
+  excel_usages: string[],
   image_cat1?: string,
   image_cat2?: string,
   image_cat3?: string,
@@ -49,6 +50,7 @@ export async function indexImages() {
   const imageNameSet: Set<string> = new Set();
   const imageNameToExcelFileUsages: Record<string, string[]> = defaultMap('Array');
 
+  console.log('Gathering image names...');
   for (let imageName of getImageNames()) {
     imageNameSet.add(imageName);
   }
@@ -87,6 +89,7 @@ export async function indexImages() {
     return Array.from(images);
   }
 
+  console.log('Computing excel usages...');
   for (let fileName of fs.readdirSync(path.resolve(process.env.GENSHIN_DATA_ROOT, './ExcelBinOutput'))) {
     const json: any[] = JSON.parse(fs.readFileSync(path.resolve(process.env.GENSHIN_DATA_ROOT, './ExcelBinOutput', fileName), 'utf-8'));
     for (let imageName of findImageUsages(json)) {
@@ -107,6 +110,7 @@ export async function indexImages() {
     console.log('Committed batch');
   }
 
+  console.log('Committing...');
   for (let imageName of getImageNames()) {
     const size: number = fs.statSync(path.resolve(IMAGEDIR_GENSHIN_EXT, `./${imageName}.png`))?.size || 0;
     const cats: string[] = [];
@@ -124,6 +128,7 @@ export async function indexImages() {
       image_name: imageName,
       image_fts_name: imageName.split('_').map(p => splitCamelcase(p).join(' ')).join(' '),
       image_size: size,
+      excel_usages: imageNameToExcelFileUsages[imageName] || [],
       image_cat1: cats[0] || null,
       image_cat2: cats[1] || null,
       image_cat3: cats[2] || null,
