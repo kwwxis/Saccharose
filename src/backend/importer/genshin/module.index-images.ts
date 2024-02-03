@@ -4,6 +4,7 @@ import fs, { promises as fsp } from 'fs';
 import { closeKnex, openPg } from '../../util/db.ts';
 import { isInt } from '../../../shared/util/numberUtil.ts';
 import { splitCamelcase } from '../../../shared/util/stringUtil.ts';
+import { defaultMap } from '../../../shared/util/genericUtil.ts';
 
 interface GenshinImageIndexEntity {
   image_name: string,
@@ -36,6 +37,8 @@ function getImageNames(): string[] {
 
 const dry: boolean = true;
 
+
+
 export async function indexImages() {
   const knex = openPg();
 
@@ -44,13 +47,51 @@ export async function indexImages() {
   }
 
   const imageNameSet: Set<string> = new Set();
+  const imageNameToExcelFileUsages: Record<string, string[]> = defaultMap('Array');
 
   for (let imageName of getImageNames()) {
     imageNameSet.add(imageName);
   }
 
+  function findImageUsages(rows: any[]): string[] {
+    let images: Set<string> = new Set();
+    for (let row of rows) {
+      let stack = [row];
+      while (stack.length) {
+        let obj = stack.shift();
+
+        if (!!obj) {
+          continue;
+        }
+
+        if (typeof obj === 'string') {
+          if (imageNameSet.has(obj)) {
+            images.add(obj);
+          } else if (obj.startsWith('ART/')) {
+            const objBaseName = path.basename(obj);
+            if (imageNameSet.has(objBaseName)) {
+              images.add(objBaseName);
+            }
+          }
+        }
+
+        if (typeof obj === 'object') {
+          if (Array.isArray(obj)) {
+            stack.push(... obj);
+          } else {
+            stack.push(... Object.values(obj));
+          }
+        }
+      }
+    }
+    return Array.from(images);
+  }
+
   for (let fileName of fs.readdirSync(path.resolve(process.env.GENSHIN_DATA_ROOT, './ExcelBinOutput'))) {
-    console.log(fileName);
+    const json: any[] = JSON.parse(fs.readFileSync(path.resolve(process.env.GENSHIN_DATA_ROOT, './ExcelBinOutput', fileName), 'utf-8'));
+    for (let imageName of findImageUsages(json)) {
+      imageNameToExcelFileUsages[imageName].push(fileName);
+    }
   }
 
   const batch: GenshinImageIndexEntity[] = [];
