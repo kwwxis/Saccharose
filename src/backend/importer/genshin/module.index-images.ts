@@ -97,6 +97,8 @@ export async function indexImages() {
     }
   }
 
+  console.log(imageNameToExcelFileUsages);
+
   const batch: GenshinImageIndexEntity[] = [];
   const maxBatchSize: number = 1000;
 
