@@ -61,7 +61,8 @@ CREATE TABLE genshin_image_index
     image_cat3      TEXT,
     image_cat4      TEXT,
     image_cat5      TEXT,
-    excel_usages    TEXT[]
+    excel_usages    TEXT[],
+    excel_meta      JSONB
 );
 
 ALTER TABLE genshin_image_index ADD COLUMN ts tsvector

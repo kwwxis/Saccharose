@@ -13,7 +13,7 @@ import { importTranslateSchema, translateExcel } from './module.translate-schema
 import { importVoiceOvers } from './module.voice-overs.ts';
 import { maximizeImages } from './module.maximize-images.ts';
 import { importSearchIndex } from './module.search-index.ts';
-import { generateQuestDialogExcels } from './module.make-excels.ts';
+import { generateAvatarAnimInteractionGoodBad, generateQuestDialogExcels } from './module.make-excels.ts';
 import { loadInterActionQD } from './module.interaction.ts';
 import { createChangelog } from './module.changelog.ts';
 import { indexImages } from './module.index-images.ts';
@@ -41,6 +41,7 @@ export async function importGenshinFilesCli() {
     {name: 'maximize-images', type: Boolean, description: 'Compares images with duplicate names to choose the image with the largest size.'},
     {name: 'translate-excel', type: String, typeLabel: '<outputDir>', description: 'Translate excel to output directory. Requires translate-schema to be completed first.'},
     {name: 'help', type: Boolean, description: 'Display this usage guide.'},
+    {name: 'avatar-anim-interaction', type: Boolean},
   ];
 
   let options: commandLineArgs.CommandLineOptions;
@@ -131,6 +132,9 @@ export async function importGenshinFilesCli() {
   }
   if (options['make-excels']) {
     await generateQuestDialogExcels(getGenshinDataFilePath());
+  }
+  if (options['avatar-anim-interaction']) {
+    await generateAvatarAnimInteractionGoodBad(getGenshinDataFilePath());
   }
   if (options['interaction']) {
     await loadInterActionQD(getGenshinDataFilePath());

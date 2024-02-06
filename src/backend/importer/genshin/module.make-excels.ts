@@ -16,7 +16,7 @@ import fs, { promises as fsp } from 'fs';
 import path from 'path';
 import { pathToFileURL } from 'url';
 import * as process from 'process';
-import { sort } from '../../../shared/util/arrayUtil.ts';
+import { sort, walkObject } from '../../../shared/util/arrayUtil.ts';
 import { renameFields } from '../import_db.ts';
 import { defaultMap } from '../../../shared/util/genericUtil.ts';
 import { isInt, toInt } from '../../../shared/util/numberUtil.ts';
@@ -34,6 +34,39 @@ function* walkSync(dir: string): Generator<string> {
   }
 }
 // endregion
+
+export async function generateAvatarAnimInteractionGoodBad(repoRoot: string) {
+  const binOutputPath: string = path.resolve(repoRoot, './BinOutput');
+  const binOutputQuestPath: string = path.resolve(binOutputPath, './Avatar');
+
+  for (let fileName of walkSync(binOutputQuestPath)) {
+    if (!fileName.endsWith('.json')) {
+      continue;
+    }
+    let json = await fsp.readFile(fileName, { encoding: 'utf8' }).then(data => JSON.parse(data));
+    let animStates = json?.stateLayers?.defaultLayer?.stateIDs;
+    let hasAnyOutput: boolean = false;
+
+    if (!!animStates) {
+      for (let [stateName, stateProps] of Object.entries(animStates)) {
+        let hasInteractionGood: boolean = false;
+        walkObject(stateProps, proc => {
+          if (proc.value === 'Interaction_Bad') {
+            hasInteractionGood = true;
+            return 'QUIT';
+          }
+        });
+        if (hasInteractionGood) {
+          if (!hasAnyOutput) {
+            console.log(path.basename(fileName) + ':');
+            hasAnyOutput = true;
+          }
+          console.log('  ' + stateName);
+        }
+      }
+    }
+  }
+}
 
 // region Main Function
 // --------------------------------------------------------------------------------------------------------------
