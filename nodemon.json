@@ -9,6 +9,6 @@
     "*.vue.script.ts",
     "*.vue.template.ts"
   ],
-  "exec": "sh ./build.sh && node .",
+  "exec": "node --no-warnings=ExperimentalWarning --loader ts-node/esm build.ts && node .",
   "ext": "ts,tsx,js,json,vue,ejs"
 }

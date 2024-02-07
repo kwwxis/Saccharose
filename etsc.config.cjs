@@ -1,4 +1,9 @@
+// noinspection JSUnusedGlobalSymbols
+
 const JsExtPlugin = require('./etsc-jsext.cjs');
+const fs = require('node:fs');
+const dotenv = require('dotenv');
+dotenv.config();
 
 /** @type {import('esbuild-node-tsc/dist/config').Config} */
 module.exports = {
@@ -16,21 +21,27 @@ module.exports = {
 
   // Prebuild hook
   prebuild: async () => {
-    console.log("ETSC prebuild");
-    const rimraf = await import("rimraf");
-    rimraf.sync("./dist"); // clean up dist folder
+    console.time('ETSC rmdir');
+    fs.rmSync('./dist', {
+      recursive: true,
+      force: true,
+    });
+    console.timeEnd('ETSC rmdir');
+
+    console.time('ETSC build');
   },
 
   // Postbuild hook
   postbuild: async () => {
-    console.log("ETSC postbuild");
-    const cpy = (await import("cpy")).default;
+    console.timeEnd('ETSC build');
 
-    await cpy(
-      [
-        "src/**/*.{css,html,ejs,py}"
-      ],
-      "dist"
-    );
+    console.time('ETSC cpy');
+    fs.cpSync('./src/backend/views', './dist/backend/views', {
+      force: true,
+      recursive: true,
+    });
+    fs.cpSync('./src/pipeline/detect_language.py', './dist/pipeline/detect_language.py', { force: true });
+    fs.cpSync('./src/pipeline/search_image_hashes.py', './dist/pipeline/search_image_hashes.py', { force: true });
+    console.timeEnd('ETSC cpy');
   },
 };

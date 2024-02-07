@@ -9,7 +9,6 @@ import { splitLimit } from '../../shared/util/stringUtil.ts';
 import path from 'path';
 import { sort } from '../../shared/util/arrayUtil.ts';
 import { LangDetectResult, MediaSearchResult } from '../../shared/types/common-types.ts';
-import * as child_process from 'child_process';
 
 const execPromise = util.promisify(exec);
 

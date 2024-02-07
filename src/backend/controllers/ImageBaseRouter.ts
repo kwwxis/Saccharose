@@ -96,8 +96,9 @@ export default async function(): Promise<Router> {
 
       if (downloadAs || doDownload) {
         res.set('Content-Type', 'application/octet-stream');
-        res.set('Content-Disposition', 'attachment; filename=' + (
-          doDownload ? downloadName : downloadAs));
+
+        const dispoName: string = doDownload ? downloadName : downloadAs;
+        res.set('Content-Disposition', `attachment; filename*=''${encodeURIComponent(dispoName)}; filename=${encodeURIComponent(dispoName)}`);
       } else {
         res.set('Content-Type', type);
       }

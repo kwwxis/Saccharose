@@ -50,7 +50,7 @@
               <% } %>
             </td>
             <td><span class="code" style="font-size:14px"><%= String(furn.Id).padStart(6, '0') %></span></td>
-            <td><a href="/furnishings/<%= furn.Id %>" role="button" class="secondary border-light textAlignLeft"><%= furn.NameText %></a></td>
+            <td><a href="/furnishings/<%= furn.Id %>" role="button" class="secondary border-light textAlignLeft"><%- escapeHtmlAllowEntities(furn.NameText) %></a></td>
             <td style="font-size:14px;line-height:20px;">
               <span><%= (furn.IsInterior && furn.IsExterior) ? 'Interior & Exterior' : (furn.IsInterior ? 'Interior' : 'Exterior') %></span><br />
               <span><%= furn.CategoryNameText %></span><br />

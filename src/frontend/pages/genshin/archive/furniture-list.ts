@@ -5,7 +5,7 @@ import { escapeHtml } from '../../../../shared/util/stringUtil.ts';
 import { sort } from '../../../../shared/util/arrayUtil.ts';
 import { defaultMap } from '../../../../shared/util/genericUtil.ts';
 import { listen } from '../../../util/eventListen.ts';
-import { deleteQueryStringParameter, setQueryStringParameter } from '../../../util/domutil.ts';
+import { deleteQueryStringParameter, getQueryStringParameter, setQueryStringParameter } from '../../../util/domutil.ts';
 
 pageMatch('pages/genshin/archive/furniture-list', () => {
   const typeTree: HomeWorldFurnitureTypeTree = (<any> window).typeTree;
@@ -108,4 +108,11 @@ pageMatch('pages/genshin/archive/furniture-list', () => {
       }
     },
   ]);
+
+  const initialQuery = getQueryStringParameter('q');
+  if (initialQuery) {
+    const el = document.querySelector<HTMLInputElement>('#filter-quick-search');
+    el.value = initialQuery;
+    el.dispatchEvent(new Event('input'));
+  }
 });

@@ -385,6 +385,11 @@ export async function downloadImage(image: HTMLImageElement|Blob, fileName: stri
   saveAs(blob, fileName);
 }
 
+export function getQueryStringParameter(name: string) {
+  const params = new URLSearchParams(window.location.search);
+  return params.get(name);
+}
+
 /**
  * Set current url query string parameter without moving the browser history state forward.
  */

@@ -82,11 +82,13 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
 
   if (process.argv[2] === '--compile' || process.argv[2] === '--generate' || process.argv[2] === '--transpile') {
     console.log('Vue-SFC prebuild');
+    console.time('Vue-SFC postbuild');
     await compileVueSfc();
-    console.log('Vue-SFC postbuild');
+    console.timeEnd('Vue-SFC postbuild');
   } else if (process.argv[2] === '--clean' || process.argv[2] === '--cleanup') {
+    console.time('Vue-SFC cleaned');
     await cleanVueSfc();
-    console.log('Vue-SFC cleaned');
+    console.timeEnd('Vue-SFC cleaned');
   } else {
     console.log('Invalid argument: ' + process.argv[2]);
     process.exit(1);
