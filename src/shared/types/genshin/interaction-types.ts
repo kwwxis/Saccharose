@@ -371,9 +371,7 @@ export class InterActionDialog {
           return { NextDialogs: [other.DialogId], Intermediates };
         } else if (other.Type === 'DIALOG_SELECT') {
           return { NextDialogs: other.DialogOptions, Intermediates };
-        } else if (other.Type === 'SIMPLE_BLACK_SCREEN' && other.DialogId) {
-          return { NextDialogs: [other.DialogId], Intermediates };
-        } else if (isInt(other.DialogId)) {
+        } else if ((other.Type === 'SIMPLE_BLACK_SCREEN' || other.Type === 'BLACK_SCREEN' || other.Type === 'SHOW_BG_PIC') && other.DialogId) {
           return { NextDialogs: [other.DialogId], Intermediates };
         }
         if (INTERACTION_INTERMEDIATE_TYPES.has(other.Type)) {
