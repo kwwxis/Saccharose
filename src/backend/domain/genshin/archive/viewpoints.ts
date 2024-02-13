@@ -6,6 +6,8 @@ import { defaultMap, isset } from '../../../../shared/util/genericUtil.ts';
 import { fileFormatOptionsApply, fileFormatOptionsCheck } from '../../../util/fileFormatOptions.ts';
 import { WorldAreaConfigData } from '../../../../shared/types/genshin/general-types.ts';
 import { ViewCodexExcelConfigData, ViewpointsByRegion } from '../../../../shared/types/genshin/viewpoint-types.ts';
+import { isInt } from '../../../../shared/util/numberUtil.ts';
+import { cached } from '../../../util/cache.ts';
 
 export const VIEWPOINT_FILE_FORMAT_PARAMS: string[] = [
   'Id',
@@ -43,18 +45,23 @@ export const VIEWPOINT_FILE_FORMAT_PARAMS: string[] = [
 export const VIEWPOINT_DEFAULT_FILE_FORMAT_IMAGE = 'Viewpoint {NameText.EN}.png';
 export const VIEWPOINT_DEFAULT_FILE_FORMAT_MAP = 'Viewpoint {NameText.EN} Map Location.png';
 
-const cityIdsWithViewpoints: Set<number> = new Set();
+
 
 export async function getCityIdsWithViewpoints(ctrl: GenshinControl): Promise<Set<number>> {
-  if (!cityIdsWithViewpoints.size) {
-    await selectViewpoints(ctrl);
-  }
-  return cityIdsWithViewpoints;
+  return cached('CityIdsWithViewpoints', async () => {
+    const cityIdsWithViewpoints: Set<number> = new Set();
+    const viewpoints: ViewCodexExcelConfigData[] = await ctrl.readJsonFile('./ExcelBinOutput/ViewCodexExcelConfigData.json');
+    for (let viewpoint of viewpoints) {
+      let cityId = viewpoint.CityId || (<any> viewpoint).cityId;
+      if (isInt(cityId)) {
+        cityIdsWithViewpoints.add(cityId)
+      }
+    }
+    return cityIdsWithViewpoints;
+  });
 }
 
 async function postProcessViewpoint(ctrl: GenshinControl, viewpoint: ViewCodexExcelConfigData, areas: WorldAreaConfigData[]): Promise<ViewCodexExcelConfigData> {
-  cityIdsWithViewpoints.add(viewpoint.CityId);
-
   viewpoint.CityNameText = await ctrl.selectCityNameById(viewpoint.CityId);
   viewpoint.WorldArea = areas.find(area => area.Id === viewpoint.WorldAreaId);
   if (viewpoint.WorldArea.AreaNameText === 'Mondstadt' && viewpoint.WorldArea.TerrainType === 'AREA_TERRAIN_CITY') {

@@ -15,7 +15,7 @@ LicenseManager.prototype.getWatermarkMessage = function() {return null};
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import './ag-grid-custom.scss';
-import { camelCaseToTitleCase, escapeHtml } from '../../../../shared/util/stringUtil.ts';
+import { camelCaseToTitleCase, escapeHtml, isString, isStringArray } from '../../../../shared/util/stringUtil.ts';
 import { ColGroupDef } from 'ag-grid-community/dist/lib/entities/colDef';
 import { sort } from '../../../../shared/util/arrayUtil.ts';
 import { listen } from '../../../util/eventListen.ts';
@@ -26,7 +26,7 @@ import {
   getTextWidth, hasSelection, waitForElementCb,
 } from '../../../util/domutil.ts';
 import { ICellRendererParams } from 'ag-grid-community/dist/lib/rendering/cellRenderers/iCellRenderer';
-import { isNotEmpty, isUnset } from '../../../../shared/util/genericUtil.ts';
+import { isEmpty, isNotEmpty, isUnset } from '../../../../shared/util/genericUtil.ts';
 import { booleanFilter } from './excel-custom-filters.ts';
 import SiteMode from '../../../core/userPreferences/siteMode.ts';
 import { ExcelViewerDB, invokeExcelViewerDB } from './excel-viewer-storage.ts';
@@ -72,10 +72,14 @@ function makeSingleColumnDef(fieldKey: string, fieldName: string, data: any) {
     floatingFilter: true
   };
 
+  const isStarRailImage = (datum: any) => typeof datum === 'string' && SiteMode.isStarRail &&
+    (datum.startsWith('SpriteOutput/') || datum.startsWith('UI/') || datum.endsWith('.png'));
+
+  const isGenshinImage = (datum: any) => typeof datum === 'string' && SiteMode.isGenshin && /^(ART\/.*\/)?(UI_|MonsterSkill_|Eff_).*$/.test(datum);
+
   const dataType = {
-    isStarRailImage: typeof data === 'string' && SiteMode.isStarRail &&
-      (data.startsWith('SpriteOutput/') || data.startsWith('UI/') || data.endsWith('.png')),
-    isGenshinImage: typeof data === 'string' && SiteMode.isGenshin && /^(ART\/.*\/)?(UI_|MonsterSkill_|Eff_).*$/.test(data),
+    isStarRailImage: isStarRailImage(data) || (Array.isArray(data) && data.length && data.every(datum => isStarRailImage(datum))),
+    isGenshinImage: isGenshinImage(data) || (Array.isArray(data) && data.length && data.every(datum => isGenshinImage(datum))),
     isWikitext: typeof data === 'string' && (fieldName.includes('Text') || fieldName.includes('Name')
       || fieldName.includes('Title') || fieldName.includes('Desc') || fieldName.includes('Story')),
     isJson: typeof data === 'object',
@@ -84,28 +88,39 @@ function makeSingleColumnDef(fieldKey: string, fieldName: string, data: any) {
 
   if (dataType.isGenshinImage || dataType.isStarRailImage) {
     colDef.cellRenderer = function(params: ICellRendererParams) {
-      if (!params.value || typeof params.value !== 'string')
+      if (!params.value || !(isString(params.value) || isStringArray(params.value)))
         return '';
-      let fileName: string = escapeHtml(params.value);
-      let srcValue: string;
 
-      if (fileName.endsWith('.png')) {
-        fileName = fileName.slice(0, -4);
-      }
+      const args = isStringArray(params.value) ? params.value : [params.value];
+      let outHtml: string = '';
 
-      if (dataType.isGenshinImage) {
-        if (params.value.includes('/')) {
-          fileName = escapeHtml(params.value.split('/').pop());
+      for (let arg of args) {
+        let fileName: string = escapeHtml(arg);
+        let srcValue: string;
+
+        if (fileName.endsWith('.png')) {
+          fileName = fileName.slice(0, -4);
         }
-        srcValue = `/images/genshin/${fileName}.png`;
-      } else if (dataType.isStarRailImage) {
-        srcValue = `/images/hsr/${fileName}.png`;
+
+        if (dataType.isGenshinImage) {
+          if (arg.includes('/')) {
+            fileName = escapeHtml(arg.split('/').pop());
+          }
+          srcValue = `/images/genshin/${fileName}.png`;
+        } else if (dataType.isStarRailImage) {
+          srcValue = `/images/hsr/${fileName}.png`;
+        }
+
+        // noinspection HtmlDeprecatedAttribute
+        outHtml += `<img class="excel-image" src="${srcValue}" loading="lazy" decoding="async"
+          alt="Image not found" onerror="this.classList.add('excel-image-error')" data-file-name="${fileName}.png" />`;
       }
 
-      // noinspection HtmlDeprecatedAttribute
-      return `<img class="excel-image" src="${srcValue}" loading="lazy" decoding="async"
-          alt="Image not found" onerror="this.classList.add('excel-image-error')" data-file-name="${fileName}.png" />
-        <span class="code">${escapeHtml(params.value)}</span>`;
+      if (isStringArray(params.value)) {
+        return outHtml + highlightJson({ text: JSON.stringify(params.value) }).outerHTML;
+      } else {
+        return outHtml + `<span class="code">${escapeHtml(params.value)}</span>`;
+      }
     };
   } else if (dataType.isWikitext) {
     colDef.cellRenderer = function(params: ICellRendererParams) {
@@ -166,14 +181,14 @@ function getColumnDefs(excelData: any[]): (ColDef | ColGroupDef)[] {
         }
         for (let subKey of Object.keys(row[key])) {
           const fullKey: string = key + '.' + subKey;
-          if (colDefForKey[fullKey] || !row[key][subKey]) {
+          if (colDefForKey[fullKey] || !row[key][subKey] || isEmpty(row[key][subKey])) {
             continue;
           }
           colDefForKey[fullKey] = makeSingleColumnDef(fullKey, subKey, row[key][subKey]);
           (<ColGroupDef> colDefForKey[key]).children.push(colDefForKey[fullKey]);
         }
       } else {
-        if (colDefForKey[key] || !row[key]) {
+        if (colDefForKey[key] || !row[key] || isEmpty(row[key])) {
           continue;
         }
         colDefForKey[key] = makeSingleColumnDef(key, key, row[key]);

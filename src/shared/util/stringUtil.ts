@@ -5,6 +5,11 @@ export function isString(x: any): x is string {
   return typeof x === 'string';
 }
 
+export function isStringArray(x: any): x is string[] {
+  return Array.isArray(x) && x.every(s => isString(s));
+}
+
+
 export function toString(x) {
   if (typeof x === 'undefined' || x === null || typeof x === 'string') {
     return x;

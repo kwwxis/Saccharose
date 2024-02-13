@@ -495,7 +495,7 @@ export function highlightExistingElementInternal(targetElement: HTMLElement, hig
 // --------------------------------------------------------------------------------------------------------------
 export function highlightJson(opts: Omit<HighlightOptions, 'mode'>): HTMLElement {
   let realOpts: HighlightOptions = opts as HighlightOptions;
-  realOpts.mode = 'ace/mode/wikitext';
+  realOpts.mode = 'ace/mode/json';
   return highlight(realOpts);
 }
 // endregion
