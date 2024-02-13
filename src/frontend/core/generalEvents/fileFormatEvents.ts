@@ -96,27 +96,27 @@ export const FileFormatListeners: Listener[] = [
             <code class="dispBlock spacer20-left">condition = "&lt;left-param&gt; &lt;operator&gt; &lt;right-param&gt;"</code>
             <code class="dispBlock spacer20-left">operator = ":=" | "!=" | "&lt;=" | "&gt;=" | "&lt;" | "&gt;" | "*=" | "^=" | "$=" | "~"</code>
             <br />
-            
-            <li>The <code>left-param</code> and <code>right-param</code> are evaluated the same as the top-level format,
-            so you can use variables inside of them and have nested conditionals.</li>
-            
-            <li>The <code>condition</code> follows different logic such that variables do not need to be wrapped in curly braces.</li>
-            
-            <li>Strings do not need to be wrapped in quotes, but you should put them in quotes to prevent them from
-            being evaluated as variables or operators.</li>
-            
-            <li><code>:=</code> is equals whereas <code>!=</code> is not equals.</li>
-            
-            <li>String condition operators: <code>*=</code> is string includes,
-            <code>^=</code> is string starts with, <code>"$="</code> is string ends with, and <code>~=</code> is regex
-            (left param is test string, right param is regex).</li>
-            
-            <li><code>{{If|...}}</code> is case-insensitive. For case-sensitive operations, use <code>{{IfCase|...}}</code> instead.</li>
+            <ul class="content spacer20-horiz">
+              <li>The <code>left-param</code> and <code>right-param</code> are evaluated the same as the top-level format,
+              so you can use variables inside of them and have nested conditionals.</li>
+              
+              <li>The <code>condition</code> follows different logic such that variables do not need to be wrapped in curly braces.</li>
+              
+              <li>Strings do not need to be wrapped in quotes, but you should put them in quotes to prevent them from
+              being evaluated as variables or operators.</li>
+              
+              <li><code>:=</code> is equals whereas <code>!=</code> is not equals.</li>
+              
+              <li>String condition operators: <code>*=</code> is string includes,
+              <code>^=</code> is string starts with, <code>"$="</code> is string ends with, and <code>~=</code> is regex
+              (left param is test string, right param is regex).</li>
+              
+              <li><code>{{If|...}}</code> is case-insensitive. For case-sensitive operations, use <code>{{IfCase|...}}</code> instead.</li>
+            </ul>
           </div>
         </fieldset>
       `, {
         modalClass: 'modal-lg',
-        modalCssStyle: 'max-height:750px',
         contentClass: 'modal-inset'
       });
     }

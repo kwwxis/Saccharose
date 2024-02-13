@@ -339,7 +339,7 @@
           </tr>
           <tr v-for="tip of newSummary.loadingTips">
             <td>{{ tip.TipsTitleText }}</td>
-            <td><Wikitext :value="tip.TipsDescText" :seamless="true" /></td>
+            <td><Wikitext :value="trace.normGenshinText(tip.TipsDescText)" :seamless="true" /></td>
             <td><a v-if="tip.EnableMainQuestName" :href="`/quests/${tip.EnableMainQuestId}`">{{ tip.EnableMainQuestName }}</a></td>
             <td><a v-if="tip.DisableMainQuestName" :href="`/quests/${tip.DisableMainQuestId}`">{{ tip.DisableMainQuestName }}</a></td>
           </tr>
@@ -366,7 +366,7 @@
           <tr v-for="achievement of newSummary.achievements">
             <td class="code"><a :href="`/achievements/${achievement.Id}`">{{ achievement.Id }}</a></td>
             <td><a :href="`/achievements/${achievement.Id}`">{{ achievement.TitleText }}</a></td>
-            <td><Wikitext :value="achievement.DescText" :seamless="true" /></td>
+            <td><Wikitext :value="trace.normGenshinText(achievement.DescText)" :seamless="true" /></td>
             <td><a :href="`/achievements/${toParam(achievement.Goal.NameText)}`">{{ achievement.Goal.NameText }}</a></td>
             <td>{{ achievement.FinishReward.RewardSummary.PrimogemCount }}</td>
           </tr>

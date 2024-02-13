@@ -68,7 +68,6 @@ export async function VoAppToolbar(state: VoAppState): Promise<void> {
           </fieldset>
         `, {
       modalClass: 'modal-lg',
-      modalCssStyle: 'max-height:750px',
       contentClass: 'modal-inset'
     }).onConfirm((ref: ModalRef) => {
       ref.outerEl.querySelectorAll<HTMLInputElement>('input[type=checkbox]').forEach(inputEl => {

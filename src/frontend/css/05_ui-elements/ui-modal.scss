@@ -87,6 +87,10 @@ $modal-border-nightmode: hsl(255deg 13% 25%);
       box-shadow: inset 0 11px 8px -10px #ccc, inset 0 -11px 8px -10px #ccc;
       padding: 20px 20px 20px;
       max-height: 65vh;
+
+      body.nightmode & {
+        box-shadow: inset 0 11px 8px -10px rgb(255 255 255 / 10%), inset 0 -11px 8px -10px rgb(255 255 255 / 10%);
+      }
     }
   }
 
