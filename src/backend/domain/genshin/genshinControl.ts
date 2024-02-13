@@ -830,10 +830,6 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       );
       const fakeDialogs: DialogExcelConfigData[] = [];
 
-      if (currNode.Id === 401410502) {
-        console.log({ nextNodes, iaNextDialogs, NextDialogs: currNode.NextDialogs });
-      }
-
       detailedDebug('Curr Node:', currNode.Id, '/ Next Nodes:', nextNodes.map(x => x.Id).join());
 
       // Handle InterAction intermediates
