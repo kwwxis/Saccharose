@@ -1,6 +1,9 @@
 import passport_discord from 'passport-discord';
 import { openPg } from '../../util/db.ts';
 import { toBoolean } from '../../../shared/util/genericUtil.ts';
+import { Request } from 'express';
+import { isEquiv } from '../../../shared/util/arrayUtil.ts';
+import { saveSession, setSessionUser } from './sessions.ts';
 
 export const SiteAuthEnabled: boolean = toBoolean(process.env.AUTH_ENABLED);
 
@@ -34,6 +37,19 @@ export const SiteUserProvider = {
     return `https://cdn.discordapp.com/avatars/${siteUser.id}/${siteUser.discord.avatar}.png`;
   },
 
+  async syncDatabaseStateToRequestUser(req: Request) {
+    if (!req.user?.id) {
+      return;
+    }
+    const dbSiteUser: SiteUser = await this.find(req.user.id);
+
+    if (!isEquiv(dbSiteUser, req.user)) {
+      setSessionUser(req, dbSiteUser);
+      await saveSession(req);
+      req.user = dbSiteUser;
+    }
+  },
+
   async find(discordId: string): Promise<SiteUser> {
     const row: SiteUserEntity = await pg.select('*').from('site_user').where({discord_id: discordId}).first().then();
     if (row.wiki_username && !row.json_data?.wiki_allowed) {
@@ -49,7 +65,22 @@ export const SiteUserProvider = {
     return row?.json_data;
   },
 
+  async isBanned(user: SiteUser): Promise<boolean> {
+    if (!user) {
+      return false;
+    }
+    const row: any = await pg.select('*').from('site_user_banned')
+      .where({wiki_username: user.wiki_username})
+      .or.where({discord_id: user.id})
+      .first()
+      .then();
+    return !!row;
+  },
+
   async isInReqBypass(wikiUsername: string): Promise<boolean> {
+    if (!wikiUsername) {
+      return false;
+    }
     const row: {wiki_username: string} = await pg.select('*').from('site_user_wiki_bypass')
       .where({wiki_username: wikiUsername}).first().then();
     return row?.wiki_username === wikiUsername;
@@ -72,7 +103,7 @@ export const SiteUserProvider = {
   },
 
   async findOrCreate(discordId: string, discordUser: passport_discord.Profile): Promise<SiteUser> {
-    const siteUser: SiteUser = {
+    const newSiteUser: SiteUser = {
       id: discordUser.id,
       discord_username: discordUser.username,
       discord: discordUser,
@@ -83,25 +114,26 @@ export const SiteUserProvider = {
 
     if (row) {
       row.discord_username = discordUser.username;
+
       if (!row.json_data)
-        row.json_data = siteUser;
-      Object.assign(row.json_data, siteUser);
+        row.json_data = newSiteUser;
+      Object.assign(row.json_data, newSiteUser);
 
       await pg('site_user').where({discord_id: discordId}).update({
         discord_username: discordUser.username,
         json_data: JSON.stringify(row.json_data)
       }).then();
+      return row.json_data;
     } else {
       await pg('site_user').insert({
         discord_id: discordId,
         discord_username: discordUser.username,
         wiki_id: null,
         wiki_username: null,
-        json_data: JSON.stringify(siteUser)
+        json_data: JSON.stringify(newSiteUser)
       });
+      return newSiteUser;
     }
-
-    return siteUser;
   }
 }
 

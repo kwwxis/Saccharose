@@ -1723,7 +1723,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
     let targetFileNames: string[] = [];
     for (let fileName of fileNames) {
-      if (fileName.includes(`Q${questId}`) || fileName.includes(`Q_${questId}`) || fileName.includes(`D${questId}`)) {
+      if (fileName.includes(`Q${questId}`) || fileName.includes(`Q_${questId}`) || fileName.includes(`D${questId}`) || fileName.includes(`Cs_${questId}`)) {
         if (fileName.endsWith('.txt') && targetFileNames.includes(fileName.slice(0, -4)+'.srt')) {
           // If targetFileNames already contains the .srt version of the .txt file, then skip
           continue;

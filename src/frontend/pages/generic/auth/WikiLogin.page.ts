@@ -28,6 +28,14 @@ pageMatch('vue/WikiLoginPage', () => {
           wikiCheckPendingEl.classList.add('hide');
           wikiCheckErrorEl.classList.remove('hide');
           wikiCheckErrorEl.innerText = 'Denied: ' + data.reason;
+        } else if (data.result === 'banned') {
+          wikiCheckEl.disabled = false;
+          wikiCheckPendingEl.classList.add('hide');
+          wikiCheckErrorEl.classList.remove('hide');
+          wikiCheckErrorEl.innerText = 'Denied: ' + data.reason;
+          setTimeout(() => {
+            location.reload();
+          }, 2000);
         } else if (data.result === 'approved') {
           wikiCheckEl.disabled = true; // leave check button disabled
           wikiCheckPendingEl.classList.add('hide');

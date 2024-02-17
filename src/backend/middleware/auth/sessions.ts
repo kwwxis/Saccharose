@@ -5,6 +5,7 @@ import { toBoolean } from '../../../shared/util/genericUtil.ts';
 import { SiteAuthEnabled, SiteUser, SiteUserProvider } from './SiteUserProvider.ts';
 import connectPgSimple from 'connect-pg-simple';
 import { pgPool } from '../../util/db.ts';
+import { Request } from 'express';
 const DiscordStrategy = passport_discord.Strategy;
 
 passport.serializeUser(function(user, done) {
@@ -66,3 +67,23 @@ export default [
     passport.session(),
   ] : [])
 ];
+
+export function getSessionUser(req: Request): SiteUser {
+  return req.user;
+}
+
+export function setSessionUser(req: Request, payload: Partial<SiteUser>) {
+  Object.assign((<any> req.session).passport.user, payload);
+}
+
+export function saveSession(req: Request): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
+    req.session.save((err) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  });
+}

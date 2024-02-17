@@ -60,11 +60,6 @@ class CreateChangelogState {
 
     // Set version label:
     this.versionLabel = ltrim(__versionLabel.toLowerCase(), 'v');
-    if (!/^\d\.\d$/.test(this.versionLabel)) {
-      console.error('Invalid version: ' + this.versionLabel);
-      process.exit(1);
-    }
-
     this.version = GenshinVersions.find(v => v.number == this.versionLabel);
     if (!this.version) {
       console.error('Invalid version: ' + this.versionLabel);

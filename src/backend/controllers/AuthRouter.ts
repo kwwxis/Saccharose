@@ -4,6 +4,7 @@ import passport from 'passport';
 import ejs from 'ejs';
 import { mwGenshinClient, mwStarRailClient, MwUser, mwZenlessClient } from '../mediawiki/mwClientInterface.ts';
 import { SiteUserProvider } from '../middleware/auth/SiteUserProvider.ts';
+import { saveSession, setSessionUser } from '../middleware/auth/sessions.ts';
 
 function setReturnTo() {
   return function(req: Request, res: Response, next: NextFunction) {
@@ -57,8 +58,8 @@ export default async function(): Promise<Router> {
     res.send(Buffer.from(ejs.render(html, { cont })));
   });
 
-  router.get('/privacy', (req: Request, res: Response) => {
-    if (!req.isAuthenticated()) {
+  router.get('/privacy', async (req: Request, res: Response) => {
+    if (!req.isAuthenticated() || await SiteUserProvider.isBanned(req.user)) {
       return res.render('pages/generic/legaldocs/privacy-policy', {
         title: 'Privacy Policy',
         layouts: ['layouts/basic-layout'],
@@ -73,8 +74,8 @@ export default async function(): Promise<Router> {
     }
   });
 
-  router.get('/terms', (req: Request, res: Response) => {
-    if (!req.isAuthenticated()) {
+  router.get('/terms', async (req: Request, res: Response) => {
+    if (!req.isAuthenticated() || await SiteUserProvider.isBanned(req.user)) {
       return res.render('pages/generic/legaldocs/terms-of-service', {
         title: 'Terms of Service',
         layouts: ['layouts/basic-layout'],
@@ -89,8 +90,8 @@ export default async function(): Promise<Router> {
     }
   });
 
-  router.get('/contact', (req: Request, res: Response) => {
-    if (!req.isAuthenticated()) {
+  router.get('/contact', async (req: Request, res: Response) => {
+    if (!req.isAuthenticated() || await SiteUserProvider.isBanned(req.user)) {
       return res.render('pages/generic/legaldocs/contact', {
         title: 'Contact',
         layouts: ['layouts/basic-layout'],
@@ -160,6 +161,12 @@ export default async function(): Promise<Router> {
       wiki_username: firstUser.info.name,
       wiki_avatar: firstUser.profile.avatar
     });
+    setSessionUser(req, {
+      wiki_id: firstUser.info.userid,
+      wiki_username: firstUser.info.name,
+      wiki_avatar: firstUser.profile.avatar
+    });
+    await saveSession(req);
 
     if (firstUser.profile.discordHandle !== req.user.discord_username) {
       return res.json({
@@ -177,8 +184,6 @@ export default async function(): Promise<Router> {
           break;
         }
       }
-    } else {
-      console.log('In Bypass');
     }
 
     if (!hasPerm) {
@@ -188,12 +193,23 @@ export default async function(): Promise<Router> {
       });
     }
 
+    if (await SiteUserProvider.isBanned(req.user)) {
+      return res.json({
+        result: 'banned',
+        reason: 'You are banned from accessing Saccharose.wiki.'
+      });
+    }
+
     await SiteUserProvider.update(req.user.id, {
       wiki_id: firstUser.info.userid,
       wiki_username: firstUser.info.name,
       wiki_avatar: firstUser.profile.avatar,
       wiki_allowed: true,
     });
+    setSessionUser(req, {
+      wiki_allowed: true
+    });
+    await saveSession(req);
 
     return res.json({
       result: 'approved',

@@ -15,7 +15,7 @@ morgan.token('inputLanguage', (req: Request) => req.cookies['inputLangCode'] || 
 morgan.token('outputLanguage', (req: Request) => req.cookies['outputLangCode'] || DEFAULT_LANG);
 morgan.token('searchMode', (req: Request) => req.cookies['search-mode'] || DEFAULT_SEARCH_MODE);
 morgan.token('siteUser', (req: Request) => {
-  if (req.isAuthenticated && req.isAuthenticated()) {
+  if (req.hasOwnProperty('isAuthenticated') && req.isAuthenticated()) {
     return '@' + (req.user.discord_username || '-') + ':' +(req.user.wiki_username || '-');
   } else {
     return 'guest';

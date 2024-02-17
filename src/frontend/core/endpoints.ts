@@ -286,7 +286,7 @@ export const genericEndpoints = {
     wikiUsername: string,
     wikiLang?: string,
   }, {
-    result: 'denied' | 'approved',
+    result: 'denied' | 'approved' | 'banned',
     reason: string,
   }>('/auth/check'),
 

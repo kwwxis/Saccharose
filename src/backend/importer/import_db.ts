@@ -378,6 +378,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
       {name: 'run-includes', alias: 'i', type: String, multiple: true, description: 'Import only tables whose name contains any one of the specified texts (comma-separated, case-insensitive, not a regex).', typeLabel: '<texts>'},
       {name: 'run-excludes', alias: 'x', type: String, multiple: true, description: 'Import all tables except those whose name contains any one of the specified texts (comma-separated, case-insensitive, not a regex).', typeLabel: '<text>'},
       {name: 'run-all-except', alias: 'e', type: String, multiple: true, description: 'Import all tables except the specified exact table names (comma-separated, case-insensitive).', typeLabel: '<tables>'},
+      {name: 'run-from', alias: 'f', type: String, description: 'Import all tables starting from a specific one in the import order.', typeLabel: '<tables>'},
       {name: 'run-all', alias: 'a', type: Boolean, description: 'Import all tables.'},
       {name: 'run-vacuum', alias: 'v', type: Boolean, description: 'Vacuum the database'},
       {name: 'list', alias: 'l', type: Boolean, description: 'List all table names.'},
@@ -474,6 +475,24 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
 
     if (options['run-all']) {
       tablesToRun = Object.keys(schemaSet);
+    } else if (options['run-from']) {
+      let table: string = options['run-from'];
+      if (!schemaSet.hasOwnProperty(table)) {
+        console.error(chalk.red('\nNot a valid table name: ' + table + '\n'));
+        return;
+      }
+
+      let thresholdReached: boolean = false;
+      tablesToRun = [];
+
+      for (let schemaTable of Object.keys(schemaSet)) {
+        if (schemaTable === table) {
+          thresholdReached = true; // include self in threshold
+        }
+        if (thresholdReached) {
+          tablesToRun.push(schemaTable);
+        }
+      }
     } else if (options['run-all-except']) {
       let input = (options['run-all-except'] as string[]).map(s => s.split(/[,;]/g)).flat(Infinity) as string[];
       for (let table of input) {

@@ -3,6 +3,7 @@ import { NextFunction, Request, Response } from 'express';
 import DiscordLoginPage from '../../components/auth/DiscordLoginPage.vue';
 import WikiLoginPage from '../../components/auth/WikiLoginPage.vue';
 import { SiteAuthEnabled, SiteUserProvider } from './SiteUserProvider.ts';
+import UserBannedPage from '../../components/auth/UserBannedPage.vue';
 
 export function createSiteUserMiddlewareRouter() {
   const router = create();
@@ -25,7 +26,7 @@ export function createSiteUserMiddlewareRouter() {
       return;
     }
 
-    req.user = await SiteUserProvider.find(req.user.id);
+    await SiteUserProvider.syncDatabaseStateToRequestUser(req);
 
     if (!req.user.discord_username || !req.user?.discord?.avatar) {
       req.logout(() => res.redirect('/'));
@@ -33,7 +34,20 @@ export function createSiteUserMiddlewareRouter() {
     }
 
     if (!req.user.wiki_id || !req.user.wiki_username || !req.user.wiki_allowed) {
-      res.render(WikiLoginPage, {
+      if (await SiteUserProvider.isBanned(req.user)) {
+        res.render(UserBannedPage, {
+          layouts: ['layouts/basic-layout'],
+        });
+      } else {
+        res.render(WikiLoginPage, {
+          layouts: ['layouts/basic-layout'],
+        });
+      }
+      return;
+    }
+
+    if (await SiteUserProvider.isBanned(req.user)) {
+      res.render(UserBannedPage, {
         layouts: ['layouts/basic-layout'],
       });
       return;

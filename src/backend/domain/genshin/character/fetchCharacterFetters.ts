@@ -91,7 +91,7 @@ export async function fetchCharacterFetters(ctrl: GenshinControl, skipCache: boo
 
       if (agg.voAvatarName && fetter.VoiceFile) {
         let voItems = ctrl.voice.getVoiceItems('Fetter', fetter.VoiceFile);
-        fetter.VoiceFilePath = voItems.find(item => item.fileName.startsWith('vo ' + agg.voAvatarName))?.fileName;
+        fetter.VoiceFilePath = voItems && voItems.find(item => item.fileName.startsWith('vo ' + agg.voAvatarName))?.fileName;
       }
 
       if (fetter.Type === 1) {
