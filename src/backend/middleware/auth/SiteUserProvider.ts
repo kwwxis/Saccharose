@@ -34,7 +34,12 @@ export const SiteUserProvider = {
     if (!siteUser) {
       return '';
     }
-    return `https://cdn.discordapp.com/avatars/${siteUser.id}/${siteUser.discord.avatar}.png`;
+    if (siteUser.discord?.avatar) {
+      return `https://cdn.discordapp.com/avatars/${siteUser.id}/${siteUser.discord?.avatar}.png`;
+    } else {
+      const avi_id = (BigInt(siteUser.discord.id) >> 22n) % 6n;
+      return `https://cdn.discordapp.com/embed/avatars/${avi_id}.png`;
+    }
   },
 
   async syncDatabaseStateToRequestUser(req: Request) {

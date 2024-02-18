@@ -36,7 +36,6 @@ export default async function(): Promise<Router> {
   router.get('/auth/callback',
     passport.authenticate('discord', {failureRedirect: '/authorize'}),
     (req: Request, res: Response) => {
-      console.log('Sess ID:', req.sessionID);
       res.redirect('/auth/interstitial?cont=' + getReturnTo(req))
     });
 
@@ -51,7 +50,6 @@ export default async function(): Promise<Router> {
     if (!cont.startsWith('/') || cont.startsWith('//')) {
       cont = '/';
     }
-    console.log('Sess ID:', req.sessionID);
     const html: string = `<!doctype html>
   <html lang="en"><body>
     <script>window.location.href = "<%= cont %>";</script>

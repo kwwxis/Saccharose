@@ -13,7 +13,6 @@ export function createSiteUserMiddlewareRouter() {
       next();
       return;
     }
-    inspect('User Middleware:', req.sessionID, req.session);
 
     if (!req.isAuthenticated()) {
       res.render(DiscordLoginPage, {
@@ -23,27 +22,24 @@ export function createSiteUserMiddlewareRouter() {
     }
 
     if (!req.user || !req.user.id) {
-      console.log('NO USER LOGOUT:', req.sessionID);
       req.logout(() => res.redirect('/'));
       return;
     }
 
     await SiteUserProvider.syncDatabaseStateToRequestUser(req);
 
-    if (!req.user.discord_username || !req.user?.discord?.avatar) {
-      console.log('NO DISCORD USERNAME LOGOUT:', req.sessionID);
+    // No discord username -> failed login
+    if (!req.user.discord_username) {
       req.logout(() => res.redirect('/'));
       return;
     }
 
     if (!req.user.wiki_id || !req.user.wiki_username || !req.user.wiki_allowed) {
       if (await SiteUserProvider.isBanned(req.user)) {
-        console.log('User is banned', req.sessionID);
         res.render(UserBannedPage, {
           layouts: ['layouts/basic-layout'],
         });
       } else {
-        console.log('Trigger wiki login', req.sessionID);
         res.render(WikiLoginPage, {
           layouts: ['layouts/basic-layout'],
         });
@@ -52,7 +48,6 @@ export function createSiteUserMiddlewareRouter() {
     }
 
     if (await SiteUserProvider.isBanned(req.user)) {
-      console.log('User is banned', req.sessionID);
       res.render(UserBannedPage, {
         layouts: ['layouts/basic-layout'],
       });
