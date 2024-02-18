@@ -71,14 +71,16 @@ export const SiteUserProvider = {
   },
 
   async isBanned(user: SiteUser): Promise<boolean> {
-    if (!user) {
+    if (!user || !user.id) {
       return false;
     }
-    const row: any = await pg.select('*').from('site_user_banned')
-      .where({wiki_username: user.wiki_username})
-      .or.where({discord_id: user.id})
-      .first()
-      .then();
+    let qb = pg.select('*').from('site_user_banned');
+    if (user.wiki_username) {
+      qb = qb.where({wiki_username: user.wiki_username}).or.where({discord_id: user.id});
+    } else {
+      qb = qb.where({discord_id: user.id});
+    }
+    const row: any = await qb.first().then();
     return !!row;
   },
 
