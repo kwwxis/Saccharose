@@ -26,6 +26,7 @@ import { dialogueCompareApply, SimilarityGroups } from './dialogue_compare.ts';
 import { custom } from '../../../util/logger.ts';
 import { grepIdStartsWith } from '../../../util/shellutil.ts';
 import { RAW_MANUAL_TEXTMAP_ID_PROP } from '../../../importer/genshin/genshin.schema.ts';
+import { toInt } from '../../../../shared/util/numberUtil.ts';
 
 export class QuestGenerateResult {
   mainQuest: MainQuestExcelConfigData = null;
@@ -204,7 +205,15 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
 
   result.stepsWikitext = mainQuest.QuestExcelConfigDataList
     .filter(q => !!q.DescText)
-    .map(q => '# ' + ctrl.normText(q.DescText, ctrl.outputLangCode))
+    .map(q => {
+      let stepText = '# ' + ctrl.normText(q.DescText, ctrl.outputLangCode);
+
+      const multiProgressCond = q.FinishCond?.find(cond => cond.Type === 'QUEST_CONTENT_ADD_QUEST_PROGRESS' && toInt(cond.Count) >= 2);
+      if (multiProgressCond) {
+        stepText += ` (0/${multiProgressCond.Count})`;
+      }
+      return stepText;
+    })
     .join('\n');
 
   // Quest Descriptions

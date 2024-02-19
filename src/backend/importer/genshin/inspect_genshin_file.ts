@@ -5,6 +5,8 @@ import { inspectDataFile, InspectOpt } from '../util/inspect_file_util.ts';
 import { LoadingTipsExcelConfigData } from '../../../shared/types/genshin/loading-types.ts';
 import { HomeWorldFurnitureExcelConfigData } from '../../../shared/types/genshin/homeworld-types.ts';
 import { ReminderExcelConfigData } from '../../../shared/types/genshin/dialogue-types.ts';
+import { toInt } from '../../../shared/util/numberUtil.ts';
+import { QuestExcelConfigData } from '../../../shared/types/genshin/quest-types.ts';
 
 const excel = (file: string) => `./ExcelBinOutput/${file}.json`;
 
@@ -23,7 +25,7 @@ const presets = {
   FetterInfoExcelConfigData: <InspectOpt> { file: excel('FetterInfoExcelConfigData'), inspectFieldValues: ['AvatarAssocType', 'OpenConds[#ALL].CondType', 'FinishConds[#ALL].CondType'] },
   LocalizationExcelConfigData: <InspectOpt> { file: excel('LocalizationExcelConfigData'), inspectFieldValues: ['AssetType'] },
   TalkExcelConfigData: <InspectOpt> { file: excel('TalkExcelConfigData'), inspectFieldValues: ['BeginCond[#ALL].Type', 'FinishExec[#ALL].Type', 'HeroTalk', 'LoadType', 'TalkMarkType'] },
-  QuestExcelConfigData: <InspectOpt> { file: excel('QuestExcelConfigData'), inspectFieldValues: ['AcceptCond[#ALL].Type', 'BeginExec[#ALL].Type', 'FailCond[#ALL].Type', 'FailExec[#ALL].Type', 'FinishCond[#ALL].Type', 'FinishExec[#ALL].Type',] },
+  QuestExcelConfigData: <InspectOpt> { file: excel('QuestExcelConfigData'), inspectFieldValues: ['FailCond[#ALL].Type', 'FailExec[#ALL].Type', 'FinishCond[#ALL].Type', 'FinishExec[#ALL].Type',] },
   ReliquaryExcelConfigData: <InspectOpt> { file: excel('ReliquaryExcelConfigData'), inspectFieldValues: ['EquipType', 'ItemType', 'DestroyRule'] },
   WeaponExcelConfigData: <InspectOpt> { file: excel('WeaponExcelConfigData'), inspectFieldValues: ['WeaponType', 'DestroyRule', 'ItemType'] },
   AchievementExcelConfigData: <InspectOpt> { file: excel('AchievementExcelConfigData'), inspectFieldValues: ['Ttype', 'IsShow', 'ProgressShowType', 'TriggerConfig.TriggerType'] },
@@ -58,7 +60,23 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
     const ctrl = getGenshinControl();
     //await inspectDataFile(ctrl, presets.CookRecipeExcelConfigData);
-    await inspectDataFile(ctrl, presets.GivingExcelConfigData);
+    const rows: QuestExcelConfigData[] = await inspectDataFile(ctrl, presets.QuestExcelConfigData);
+
+    for (let row of rows) {
+      if (row.ShowType === 'QUEST_HIDDEN') {
+        continue;
+      }
+      if (Array.isArray(row.FinishExec) && row.FinishExec.some(x => x.Type === 'QUEST_EXEC_ADD_QUEST_PROGRESS' && toInt(x.Param[1]) !== 1 )) {
+        console.log(row);
+      }
+      if (Array.isArray(row.FailExec) && row.FailExec.some(x => x.Type === 'QUEST_EXEC_ADD_QUEST_PROGRESS' && toInt(x.Param[1]) !== 1 )) {
+        console.log(row);
+      }
+
+      if (Array.isArray(row.FinishCond) && row.FinishCond.some(x => x.Type === 'QUEST_CONTENT_ADD_QUEST_PROGRESS' && toInt(x.Count) >= 2)) {
+        console.log(row);
+      }
+    }
 
     await closeKnex();
   })();
