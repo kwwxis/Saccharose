@@ -252,7 +252,6 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
     sect.addMetaProp('Section Order', questSub.Order);
     sect.addMetaProp('Quest Step', questSub.DescText);
     sect.addMetaProp('Quest Desc Update', questSub.StepDescText);
-    sect.addCondMetaProp('AcceptCond', questSub.AcceptCondComb, questSub.AcceptCond);
     sect.addCondMetaProp('FinishCond', questSub.FinishCondComb, questSub.FinishCond);
     sect.addCondMetaProp('FailCond', questSub.FailCondComb, questSub.FailCond);
 

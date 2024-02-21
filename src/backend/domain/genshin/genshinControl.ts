@@ -142,6 +142,8 @@ import { genshin_i18n, GENSHIN_I18N_MAP } from '../i18n.ts';
 import * as console from 'console';
 import { FullChangelog } from '../../../shared/types/changelog-types.ts';
 import { GameVersion } from '../../../shared/types/game-versions.ts';
+import { SearchMode } from '../../../shared/util/searchUtil.ts';
+import { openPg } from '../../util/db.ts';
 
 // region Control State
 // --------------------------------------------------------------------------------------------------------------
@@ -3162,6 +3164,46 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       }
     }
     return achievement;
+  }
+  // endregion
+
+  // region Texture2D Media
+  async searchImageIndex(query: string, searchMode: SearchMode) {
+    let results = [];
+    switch (searchMode) {
+      case 'W':
+      case 'WI':
+        results = await openPg().select('*').from('genshin_image_index')
+          .whereRaw(`ts @@ to_tsquery('english', :query)`, { query })
+          .limit(25)
+          .then();
+        break;
+      case 'C':
+        results = await openPg().select('*').from('genshin_image_index')
+          .where('image_name', 'LIKE', '%' + query + '%')
+          .limit(25)
+          .then();
+        break;
+      case 'CI':
+        results = await openPg().select('*').from('genshin_image_index')
+          .where('image_name', 'ILIKE', '%' + query + '%')
+          .limit(25)
+          .then();
+        break;
+      case 'R':
+        results = await openPg().select('*').from('genshin_image_index')
+          .where('image_name', '~', query)
+          .limit(25)
+          .then();
+        break;
+      case 'RI':
+        results = await openPg().select('*').from('genshin_image_index')
+          .where('image_name', '~*', query)
+          .limit(25)
+          .then();
+        break;
+    }
+    return results;
   }
   // endregion
 }

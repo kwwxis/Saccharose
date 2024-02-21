@@ -36,7 +36,7 @@ pageMatch('pages/genshin/media/media-search', () => {
     resultCard.classList.add('hide');
     submitButton.disabled = true;
 
-    axios.post("/api/genshin/media-search", formData, {
+    axios.post("/api/genshin/media/search", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },

@@ -7,6 +7,8 @@ import path from 'path';
 import fs from 'fs';
 import { uuidv4 } from '../../../../shared/util/uuidv4.ts';
 import { Request, Response, Router } from 'express';
+import { getGenshinControl } from '../../../domain/genshin/genshinControl.ts';
+import { SearchMode } from '../../../../shared/util/searchUtil.ts';
 
 const router: Router = create();
 router.use(bodyParser.urlencoded({extended: true}));
@@ -30,7 +32,7 @@ const upload = multer({
   }
 }).single('uploadFile');
 
-router.post('/media-search', (req: Request, res: Response) => {
+router.post('/media/search', (req: Request, res: Response) => {
   upload(req, res, async function (err) {
     if (err) {
       return res.status(400).json({ error: String(err) });
@@ -67,6 +69,16 @@ router.post('/media-search', (req: Request, res: Response) => {
       search: result,
     });
   });
+});
+
+router.endpoint('/media/list', {
+  get: async (req: Request, res: Response) => {
+    const ctrl = getGenshinControl(req);
+    return await ctrl.searchImageIndex(
+      String(req.query.query),
+      (String(req.query.searchMode) as SearchMode) || ctrl.searchMode
+    );
+  }
 });
 
 export default router;

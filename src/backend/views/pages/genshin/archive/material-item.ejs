@@ -39,6 +39,22 @@
             </div>
           </td>
         </tr>
+        <% if (material.EffectDescText) { %>
+          <tr>
+            <td class="bold">Effect Desc.</td>
+            <td colspan="2">
+              <div class="posRel spacer5-top">
+                <div style="padding-right:50px;">
+                  <%- use('partials/util/wikitext', { id: 'item-effect-desc', wikitext: normGenshinText(material.EffectDescText), seamless: true}) %>
+                </div>
+                <button class="secondary small posAbs" ui-action="copy: #item-effect-desc"
+                        style="right: 0; top: 0;"
+                        ui-tippy-hover="Click to copy to clipboard"
+                        ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">Copy</button>
+              </div>
+            </td>
+          </tr>
+        <% } %>
         <tr>
           <td class="bold">Quality</td>
           <td colspan="2">
