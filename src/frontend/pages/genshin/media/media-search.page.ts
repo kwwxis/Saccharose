@@ -32,21 +32,19 @@ pageMatch('vue/MediaSearchPage', () => {
 
     onReceiveResult(caller: string, resultTarget: HTMLElement, result, preventDefault: () => void) {
       preventDefault();
-      resultTarget.classList.remove('hide');
-
-      const resultContent: HTMLElement = document.querySelector('#image-name-search-result-content');
+      document.querySelector('#image-name-search-result-wrapper').classList.remove('hide');
 
       console.log({ result });
 
       if (caller !== 'loadMore') {
-        resultContent.innerHTML = '';
+        resultTarget.innerHTML = '';
       }
       if (caller !== 'loadMore' && !result.results.length) {
-        resultContent.innerHTML = `<p>No results</p`;
+        resultTarget.innerHTML = `<p>No results</p`;
       }
 
       for (let entity of result.results) {
-        resultContent.append(frag1(`
+        resultTarget.append(frag1(`
           <div class="media-image">
             <div class="image-frame bordered">
               <div class="image-obj">
@@ -58,7 +56,7 @@ pageMatch('vue/MediaSearchPage', () => {
         `));
       }
       if (result.hasMore) {
-        resultContent.append(frag1(`<div id="media-search-load-more" style="min-height:1px"></div>`))
+        resultTarget.append(frag1(`<div id="media-search-load-more" style="min-height:1px"></div>`))
       }
 
       document.querySelector<HTMLInputElement>('#mediaSearchOffset').value = String(result.nextOffset);

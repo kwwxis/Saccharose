@@ -22,9 +22,9 @@
     </div>
   </section>
   <input id="mediaSearchOffset" type="text" style="display:none!important;" />
-  <section class="card hide" id="image-name-search-result">
+  <section class="card hide" id="image-name-search-result-wrapper">
     <h2>Results</h2>
-    <div id="image-name-search-result-content" class="content justifyStart alignStart flexWrap"></div>
+    <div id="image-name-search-result" class="content justifyStart alignStart flexWrap"></div>
   </section>
 </template>
 

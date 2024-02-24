@@ -241,6 +241,8 @@ export function startGenericSearchPageListeners<T,R>(opts: GenericSearchPageOpts
     }).catch((err: HttpError) => {
       let preventDefault = false;
 
+      console.error('Error in generic search handler', err);
+
       if (opts.onReceiveError) {
         let preventDefaultFn = () => preventDefault = true;
         opts.onReceiveError(caller, resultTargetEl, err, preventDefaultFn);
