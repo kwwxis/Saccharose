@@ -24,7 +24,7 @@
   <input id="mediaSearchOffset" type="text" style="display:none!important;" />
   <section class="card hide" id="image-name-search-result">
     <h2>Results</h2>
-    <div class="content justifyStart alignStart flexWrap"></div>
+    <div id="image-name-search-result-content" class="content justifyStart alignStart flexWrap"></div>
   </section>
 </template>
 

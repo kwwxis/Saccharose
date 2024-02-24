@@ -34,7 +34,7 @@ pageMatch('vue/MediaSearchPage', () => {
       preventDefault();
       resultTarget.classList.remove('hide');
 
-      const resultContent: HTMLElement = resultTarget.querySelector(':scope > .content');
+      const resultContent: HTMLElement = document.querySelector('#image-name-search-result-content');
 
       console.log({ result });
 
