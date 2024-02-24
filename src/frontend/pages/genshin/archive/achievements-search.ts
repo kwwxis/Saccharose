@@ -5,6 +5,7 @@ import { startGenericSearchPageListeners } from '../../genericSearchPage.ts';
 pageMatch('pages/genshin/archive/achievements-search', () => {
   startGenericSearchPageListeners({
     endpoint: genshinEndpoints.searchAchievements,
+    asHtml: true,
 
     inputs: [
       {

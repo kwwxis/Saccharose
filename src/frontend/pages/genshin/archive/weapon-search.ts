@@ -5,6 +5,7 @@ import { startGenericSearchPageListeners } from '../../genericSearchPage.ts';
 pageMatch('pages/genshin/archive/weapon-search', () => {
   startGenericSearchPageListeners({
     endpoint: genshinEndpoints.searchWeapons,
+    asHtml: true,
 
     inputs: [
       {

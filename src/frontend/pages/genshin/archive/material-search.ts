@@ -5,6 +5,7 @@ import { startGenericSearchPageListeners } from '../../genericSearchPage.ts';
 pageMatch('pages/genshin/archive/material-search', () => {
   startGenericSearchPageListeners({
     endpoint: genshinEndpoints.searchItems,
+    asHtml: true,
 
     inputs: [
       {

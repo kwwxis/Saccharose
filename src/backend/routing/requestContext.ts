@@ -14,6 +14,8 @@ import { renderToString as renderVueToString } from 'vue/server-renderer';
 import { App } from 'vue';
 import { isVueApp } from './router.ts';
 import { SiteAuthEnabled, SiteUserProvider } from '../middleware/auth/SiteUserProvider.ts';
+import { basename } from 'path';
+import { removeSuffix } from '../../shared/util/stringUtil.ts';
 
 export type RequestSiteMode = 'genshin' | 'hsr' | 'zenless';
 
@@ -82,8 +84,12 @@ export class RequestContext {
       if (isVueApp(html)) {
         const vueApp: App = html;
         html = await renderVueToString(vueApp);
-        if (vueApp._component?.__name)
+
+        if (vueApp._component?.__name) {
           viewName = 'vue/' + vueApp._component.__name;
+        } else if (vueApp._component?.__file) {
+          viewName = 'vue/' + removeSuffix(basename(vueApp._component?.__file), '.vue');
+        }
       } else {
         console.error('createStaticVirtualView: illegal argument', html);
         throw 'createStaticVirtualView: illegal argument';

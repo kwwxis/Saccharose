@@ -7,6 +7,7 @@ import { FileFormatListeners } from '../../../core/generalEvents/fileFormatEvent
 pageMatch('pages/genshin/archive/tutorials-search', () => {
   startGenericSearchPageListeners({
     endpoint: genshinEndpoints.searchTutorials,
+    asHtml: true,
 
     inputs: [
       {

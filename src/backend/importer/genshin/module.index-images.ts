@@ -5,27 +5,12 @@ import { closeKnex, openPg } from '../../util/db.ts';
 import { isInt } from '../../../shared/util/numberUtil.ts';
 import { splitCamelcase } from '../../../shared/util/stringUtil.ts';
 import { defaultMap } from '../../../shared/util/genericUtil.ts';
-
-interface GenshinImageIndexExcelMeta {
-  [excelFile: string]: GenshinImageIndexExcelMetaEntry
-}
-interface GenshinImageIndexExcelMetaEntry {
-  usageCount: number,
-  rows: number[]
-}
-
-interface GenshinImageIndexEntity {
-  image_name: string,
-  image_fts_name: string,
-  image_size: number,
-  excel_usages: string[],
-  excel_meta: GenshinImageIndexExcelMeta,
-  image_cat1?: string,
-  image_cat2?: string,
-  image_cat3?: string,
-  image_cat4?: string,
-  image_cat5?: string,
-}
+import {
+  GenshinImageCategoryMap,
+  GenshinImageIndexEntity,
+  GenshinImageIndexExcelMeta,
+  GenshinImageIndexExcelMetaEntry,
+} from '../../../shared/types/genshin/genshin-image-index-types.ts';
 
 function getImageNames(): string[] {
   const imageNames: string[] = [];
@@ -37,7 +22,7 @@ function getImageNames(): string[] {
     } else {
       imageName = fileName.split('.png')[0];
     }
-    if (!/^(Eff_|Equip|Flycloak|Gcg|Img|MonsterSkill|Skill_|UI|.*Tutorial).*/.test(imageName)) {
+    if (!/^(UI_).*/.test(imageName)) {
       continue;
     }
     imageNames.push(imageName);
@@ -55,6 +40,16 @@ export async function indexImages(dryRun: boolean = false) {
   const imageNameSet: Set<string> = new Set();
   const imageNameToExcelFileUsages: Record<string, string[]> = defaultMap('Array');
   const imageNameToExcelMeta: Record<string, GenshinImageIndexExcelMeta> = defaultMap('Object');
+
+  const catmap: GenshinImageCategoryMap = defaultMap(() =>
+    defaultMap(() =>
+      defaultMap(() =>
+        defaultMap(() =>
+          defaultMap(() => null)
+        )
+      )
+    )
+  );
 
   console.log('Gathering image names...');
   for (let imageName of getImageNames()) {
@@ -139,8 +134,16 @@ export async function indexImages(dryRun: boolean = false) {
     const cats: string[] = [];
 
     let catIdx = 0;
-    for (let cat of imageName.split('_')) {
+    let catSplits = imageName.split('_');
+    for (let i = 0; i < catSplits.length; i++) {
+      let cat = catSplits[i];
       if (isInt(cat)) {
+        break;
+      }
+      if (i == catSplits.length - 1) {
+        if (cat.startsWith('EmotionIcon')) {
+          cats[catIdx] = 'EmotionIcon';
+        }
         break;
       }
       cats[catIdx] = cat;
@@ -158,7 +161,23 @@ export async function indexImages(dryRun: boolean = false) {
       image_cat3: cats[2] || null,
       image_cat4: cats[3] || null,
       image_cat5: cats[4] || null,
-    })
+    });
+
+    if (cats[0]) {
+      catmap[cats[0]];
+    }
+    if (cats[1]) {
+      catmap[cats[0]][cats[1]];
+    }
+    if (cats[2]) {
+      catmap[cats[0]][cats[1]][cats[2]];
+    }
+    if (cats[3]) {
+      catmap[cats[0]][cats[1]][cats[2]][cats[3]];
+    }
+    if (cats[4]) {
+      catmap[cats[0]][cats[1]][cats[2]][cats[3]][cats[4]];
+    }
 
     if (batch.length >= maxBatchSize) {
       await commitBatch();
@@ -166,6 +185,8 @@ export async function indexImages(dryRun: boolean = false) {
   }
 
   await commitBatch();
+
+  fs.writeFileSync(path.resolve(process.env.GENSHIN_DATA_ROOT, './ImageIndexCategoryMap.json'), JSON.stringify(catmap, null, 2), 'utf-8');
 
   console.log('Done.');
   await closeKnex();

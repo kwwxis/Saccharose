@@ -11,6 +11,7 @@ export async function revAppArticleSearch(revAppState: WikiRevAppState) {
 
   startGenericSearchPageListeners({
     endpoint: genericEndpoints.searchArticles,
+    asHtml: true,
 
     inputs: [
       {

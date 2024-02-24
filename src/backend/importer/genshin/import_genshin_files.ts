@@ -42,6 +42,7 @@ export async function importGenshinFilesCli() {
     {name: 'translate-excel', type: String, typeLabel: '<outputDir>', description: 'Translate excel to output directory. Requires translate-schema to be completed first.'},
     {name: 'help', type: Boolean, description: 'Display this usage guide.'},
     {name: 'avatar-anim-interaction', type: Boolean},
+    {name: 'dry-run', type: Boolean},
   ];
 
   let options: commandLineArgs.CommandLineOptions;

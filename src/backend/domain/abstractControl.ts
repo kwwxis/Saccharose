@@ -247,8 +247,8 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       .where({Line: lineNum}).first().then();
   }
 
-  getExcelPath(): string {
-    return this.excelPath;
+  getExcelPath(subPath?: string): string {
+    return subPath ? path.join(this.excelPath, subPath) : this.excelPath;
   }
 
   fileExists(filePath: string): boolean {
@@ -259,13 +259,14 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     return JSON.parse(await fsp.readFile(this.getDataFilePath(filePath), {encoding: 'utf8'}));
   }
 
-  async readDataFile<T>(filePath: string, doNormText: boolean = false): Promise<ExtractScalar<T>[]> {
-    let json = await this.readJsonFile(filePath);
-    if (!Array.isArray(json)) {
-      json = Object.values(json);
+  async normalize(json: any|any[], schemaTable: string|SchemaTable, doNormText: boolean = false) {
+    if (typeof schemaTable === 'string') {
+      let fileBaseName = '/' + basename(schemaTable);
+      schemaTable = Object.values(this.schema).find(s => s.jsonFile.endsWith(fileBaseName));
     }
-    let fileBaseName = '/' + basename(filePath);
-    let schemaTable = Object.values(this.schema).find(s => s.jsonFile.endsWith(fileBaseName));
+    if (!schemaTable) {
+      return json;
+    }
     json = normalizeRawJson(json, schemaTable);
     if (Array.isArray(json)) {
       json = await this.commonLoad(json, null, doNormText);
@@ -273,6 +274,14 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       json = await this.commonLoadFirst(json, null, doNormText);
     }
     return json;
+  }
+
+  async readDataFile<T>(filePath: string, doNormText: boolean = false): Promise<ExtractScalar<T>[]> {
+    let json = await this.readJsonFile(filePath);
+    if (!Array.isArray(json)) {
+      json = Object.values(json);
+    }
+    return this.normalize(json, filePath, doNormText);
   }
 
   async readExcelDataFile<T>(filePath: string, doNormText: boolean = false): Promise<ExtractScalar<T>[]> {

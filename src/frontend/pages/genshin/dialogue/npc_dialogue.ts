@@ -5,19 +5,20 @@ import { startGenericSearchPageListeners } from '../../genericSearchPage.ts';
 pageMatch('pages/genshin/dialogue/npc-dialogue', () => {
   startGenericSearchPageListeners({
     endpoint: genshinEndpoints.generateNpcDialogue,
+    asHtml: true,
 
     inputs: [
       {
-        selector: '.dialogue-generate-input',
+        selector: '.npc-dialogue-generate-input',
         apiParam: 'name',
         queryParam: 'q',
-        pasteButton: '.dialogue-generate-input-paste',
-        clearButton: '.dialogue-generate-input-clear',
+        pasteButton: '.npc-dialogue-generate-input-paste',
+        clearButton: '.npc-dialogue-generate-input-clear',
       }
     ],
 
-    submitPendingTarget: '.dialogue-generate-submit-pending',
-    submitButtonTarget: '.dialogue-generate-submit',
-    resultTarget: '#dialogue-generate-result',
+    submitPendingTarget: '.npc-dialogue-generate-submit-pending',
+    submitButtonTarget: '.npc-dialogue-generate-submit',
+    resultTarget: '#npc-dialogue-generate-result',
   });
 });

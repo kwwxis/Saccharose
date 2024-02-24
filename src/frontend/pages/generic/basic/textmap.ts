@@ -32,6 +32,7 @@ pageMatch('pages/generic/basic/textmap', () => {
 
   startGenericSearchPageListeners({
     endpoint,
+    asHtml: true,
 
     inputs: [
       {
@@ -65,7 +66,7 @@ pageMatch('pages/generic/basic/textmap', () => {
     submitButtonTarget: '.search-submit',
     resultTarget: '#search-result',
 
-    onReceiveResult(caller: string, resultTarget: HTMLElement, result: any, preventDefault: () => void) {
+    onReceiveResult(caller: string, resultTarget: HTMLElement, result: string, preventDefault: () => void) {
       preventDefault();
 
       const fragment = frag(result);

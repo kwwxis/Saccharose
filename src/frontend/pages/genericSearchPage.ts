@@ -25,8 +25,8 @@ export type GenericSearchPageParamOpt<T> = {
   disableEnterKeySubmit?: boolean,
 }
 
-export type GenericSearchPageOpts<T> =  {
-  endpoint: SaccharoseApiEndpoint<T>,
+export type GenericSearchPageOpts<T,R> =  {
+  endpoint: SaccharoseApiEndpoint<T,R>,
 
   inputs: [GenericSearchPageParamOpt<T>, ... GenericSearchPageParamOpt<T>[]],
 
@@ -38,13 +38,19 @@ export type GenericSearchPageOpts<T> =  {
   // Events:
   beforeGenerateResult?: (caller?: string) => void,
   beforeSendRequest?: (caller?: string, apiPayload?: {[apiParam: string]: string|number}) => void,
-  onReceiveResult?: (caller?: string, resultContainer?: HTMLElement, html?: string, preventDefault?: () => void) => void,
   onReceiveError?: (caller?: string, resultContainer?: HTMLElement, err?: HttpError, preventDefault?: () => void) => void,
-  afterProcessResult?: (caller?: string, resultContainer?: HTMLElement, result?: any) => void,
   afterInit?: (handle?: GenericSearchPageHandle) => void,
-};
+} & ({
+  asHtml: true,
+  onReceiveResult?: (caller?: string, resultContainer?: HTMLElement, htmlResult?: string, preventDefault?: () => void) => void,
+  afterProcessResult?: (caller?: string, resultContainer?: HTMLElement, htmlResult?: string) => void,
+} | {
+  asHtml: false,
+  onReceiveResult?: (caller?: string, resultContainer?: HTMLElement, result?: R, preventDefault?: () => void) => void,
+  afterProcessResult?: (caller?: string, resultContainer?: HTMLElement, result?: R) => void,
+});
 
-export function startGenericSearchPageListeners<T>(opts: GenericSearchPageOpts<T>) {
+export function startGenericSearchPageListeners<T,R>(opts: GenericSearchPageOpts<T,R>) {
   let lastSuccessfulStateData: any = null;
 
   opts.inputs[0].required = true; // first input always required
@@ -212,14 +218,14 @@ export function startGenericSearchPageListeners<T>(opts: GenericSearchPageOpts<T
       opts.beforeSendRequest(caller, apiPayload);
     }
 
-    opts.endpoint.get(apiPayload as any, true).then(result => {
+    opts.endpoint.get(apiPayload as any, opts.asHtml).then(result => {
       lastSuccessfulStateData = stateData;
 
       let preventDefault = false;
 
       if (opts.onReceiveResult) {
         let preventDefaultFn = () => preventDefault = true;
-        opts.onReceiveResult(caller, resultTargetEl, result, preventDefaultFn);
+        opts.onReceiveResult(caller, resultTargetEl, result as any, preventDefaultFn);
       }
 
       if (!preventDefault) {
@@ -230,7 +236,7 @@ export function startGenericSearchPageListeners<T>(opts: GenericSearchPageOpts<T
       }
 
       if (opts.afterProcessResult) {
-        opts.afterProcessResult(caller, resultTargetEl, result)
+        opts.afterProcessResult(caller, resultTargetEl, result as any)
       }
     }).catch((err: HttpError) => {
       let preventDefault = false;

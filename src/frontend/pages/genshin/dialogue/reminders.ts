@@ -5,6 +5,7 @@ import { startGenericSearchPageListeners } from '../../genericSearchPage.ts';
 pageMatch('pages/genshin/dialogue/reminders', () => {
   startGenericSearchPageListeners({
     endpoint: genshinEndpoints.generateReminderDialogue,
+    asHtml: true,
 
     inputs: [
       {

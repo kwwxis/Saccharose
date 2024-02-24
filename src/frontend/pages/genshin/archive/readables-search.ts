@@ -5,6 +5,7 @@ import { startGenericSearchPageListeners } from '../../genericSearchPage.ts';
 pageMatch('pages/genshin/archive/readables-search', () => {
   startGenericSearchPageListeners({
     endpoint: genshinEndpoints.searchReadables,
+    asHtml: true,
 
     inputs: [
       {

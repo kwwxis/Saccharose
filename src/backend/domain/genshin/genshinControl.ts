@@ -14,9 +14,11 @@ import {
   arrayIndexOf,
   arrayIntersect,
   arrayUnique,
-  cleanEmpty, mapBy,
+  cleanEmpty,
+  mapBy,
   pairArrays,
-  sort, toMap,
+  sort,
+  toMap,
 } from '../../../shared/util/arrayUtil.ts';
 import { isInt, toInt } from '../../../shared/util/numberUtil.ts';
 import { normalizeRawJson, SchemaTable } from '../../importer/import_db.ts';
@@ -29,11 +31,18 @@ import {
   SbOut,
 } from '../../../shared/util/stringUtil.ts';
 import {
-  CodexQuestExcelConfigData, CodexQuestGroup, CodexQuestNarratageTypes,
-  DialogExcelConfigData, DialogUnparented, DialogWikitextResult, ManualTextMapConfigData, OptionIconMap,
+  CodexQuestExcelConfigData,
+  CodexQuestGroup,
+  CodexQuestNarratageTypes,
+  DialogExcelConfigData,
+  DialogUnparented,
+  DialogWikitextResult,
+  ManualTextMapConfigData,
+  OptionIconMap,
   ReminderExcelConfigData,
   TalkExcelConfigData,
-  TalkLoadType, TalkRole,
+  TalkLoadType,
+  TalkRole,
   TalkRoleType,
 } from '../../../shared/types/genshin/dialogue-types.ts';
 import {
@@ -64,15 +73,18 @@ import {
 } from '../../../shared/types/genshin/material-types.ts';
 import {
   FurnitureMakeExcelConfigData,
-  FurnitureSuiteExcelConfigData, FurnitureSuiteLoadConf,
+  FurnitureSuiteExcelConfigData,
+  FurnitureSuiteLoadConf,
   HomeworldAnimalExcelConfigData,
   HomeWorldEventExcelConfigData,
-  HomeWorldFurnitureExcelConfigData, HomeWorldFurnitureLoadConf,
+  HomeWorldFurnitureExcelConfigData,
+  HomeWorldFurnitureLoadConf,
   HomeWorldFurnitureTypeExcelConfigData,
   HomeWorldFurnitureTypeTree,
-  HomeWorldNPCExcelConfigData, HomeWorldNPCLoadConf,
+  HomeWorldNPCExcelConfigData,
+  HomeWorldNPCLoadConf,
 } from '../../../shared/types/genshin/homeworld-types.ts';
-import { grepIdStartsWith, grepStream } from '../../util/shellutil.ts';
+import { grepStream } from '../../util/shellutil.ts';
 import {
   DATAFILE_GENSHIN_VOICE_ITEMS,
   getGenshinDataFilePath,
@@ -107,10 +119,14 @@ import {
 import { AvatarExcelConfigData } from '../../../shared/types/genshin/avatar-types.ts';
 import {
   AnimalCodexExcelConfigData,
-  AnimalDescribeExcelConfigData, LivingBeingArchive, LivingBeingArchiveGroup, MonsterDescribeExcelConfigData,
-  MonsterExcelConfigData, MonsterLoadConf,
+  AnimalDescribeExcelConfigData,
+  LivingBeingArchive,
+  LivingBeingArchiveGroup,
+  MonsterDescribeExcelConfigData,
+  MonsterExcelConfigData,
+  MonsterLoadConf,
 } from '../../../shared/types/genshin/monster-types.ts';
-import { defaultMap, isEmpty, isset } from '../../../shared/util/genericUtil.ts';
+import { defaultMap, isEmpty, isset, isUnset } from '../../../shared/util/genericUtil.ts';
 import { NewActivityExcelConfigData } from '../../../shared/types/genshin/activity-types.ts';
 import { Marker } from '../../../shared/util/highlightMarker.ts';
 import { ElementType, ManualTextMapHashes } from '../../../shared/types/genshin/manual-text-map.ts';
@@ -122,7 +138,6 @@ import debug from 'debug';
 import { LangCode, TextMapHash, VoiceItem, VoiceItemArrayMap } from '../../../shared/types/lang-types.ts';
 import { GCGTagElementType, GCGTagWeaponType } from '../../../shared/types/genshin/gcg-types.ts';
 import path from 'path';
-import { RAW_MANUAL_TEXTMAP_ID_PROP } from '../../importer/genshin/genshin.schema.ts';
 import { cached } from '../../util/cache.ts';
 import { NormTextOptions } from '../generic/genericNormalizers.ts';
 import {
@@ -133,9 +148,11 @@ import {
 import { Request } from 'express';
 import {
   InterAction,
-  InterActionD2F, InterActionDialog,
+  InterActionD2F,
+  InterActionDialog,
   InterActionFile,
-  InterActionGroup, InterActionNextDialogs,
+  InterActionGroup,
+  InterActionNextDialogs,
 } from '../../../shared/types/genshin/interaction-types.ts';
 import { CommonLineId } from '../../../shared/types/common-types.ts';
 import { genshin_i18n, GENSHIN_I18N_MAP } from '../i18n.ts';
@@ -144,6 +161,11 @@ import { FullChangelog } from '../../../shared/types/changelog-types.ts';
 import { GameVersion } from '../../../shared/types/game-versions.ts';
 import { SearchMode } from '../../../shared/util/searchUtil.ts';
 import { openPg } from '../../util/db.ts';
+import { Knex } from 'knex';
+import {
+  GenshinImageCategoryMap,
+  GenshinImageIndexEntity, GenshinImageIndexSearchResult,
+} from '../../../shared/types/genshin/genshin-image-index-types.ts';
 
 // region Control State
 // --------------------------------------------------------------------------------------------------------------
@@ -3168,42 +3190,97 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   // endregion
 
   // region Texture2D Media
-  async searchImageIndex(query: string, searchMode: SearchMode) {
-    let results = [];
-    switch (searchMode) {
-      case 'W':
-      case 'WI':
-        results = await openPg().select('*').from('genshin_image_index')
-          .whereRaw(`ts @@ to_tsquery('english', :query)`, { query })
-          .limit(25)
-          .then();
-        break;
-      case 'C':
-        results = await openPg().select('*').from('genshin_image_index')
-          .where('image_name', 'LIKE', '%' + query + '%')
-          .limit(25)
-          .then();
-        break;
-      case 'CI':
-        results = await openPg().select('*').from('genshin_image_index')
-          .where('image_name', 'ILIKE', '%' + query + '%')
-          .limit(25)
-          .then();
-        break;
-      case 'R':
-        results = await openPg().select('*').from('genshin_image_index')
-          .where('image_name', '~', query)
-          .limit(25)
-          .then();
-        break;
-      case 'RI':
-        results = await openPg().select('*').from('genshin_image_index')
-          .where('image_name', '~*', query)
-          .limit(25)
-          .then();
-        break;
+
+  async listImageCategories(): Promise<GenshinImageCategoryMap> {
+    return cached('GenshinImageIndexCategoryMap', async () => {
+      return this.readJsonFile('ImageIndexCategoryMap.json');
+    });
+  }
+
+  async selectImageIndexEntity(imageName: string): Promise<GenshinImageIndexEntity> {
+    return openPg().select('*').from('genshin_image_index').where({image_name: imageName}).first().then();
+  }
+
+  async searchImageIndex(select: {
+    query: string,
+    cat1?: string,
+    cat2?: string,
+    cat3?: string,
+    cat4?: string,
+    cat5?: string,
+    catPath?: string,
+    catRestrict?: boolean,
+    offset?: number,
+  }, searchMode: SearchMode): Promise<GenshinImageIndexSearchResult> {
+    const query = select.query ? select.query.trim() : null;
+
+    let builder: Knex.QueryBuilder = openPg().select('*').from('genshin_image_index');
+
+    if (query) {
+      switch (searchMode) {
+        case 'W':
+        case 'WI':
+          builder = builder.whereRaw(`ts @@ to_tsquery('english', :query)`, { query });
+          break;
+        case 'C':
+          builder = builder.where('image_name', 'LIKE', '%' + query + '%');
+          break;
+        case 'CI':
+          builder = builder.where('image_name', 'ILIKE', '%' + query + '%');
+          break;
+        case 'R':
+          builder = builder.where('image_name', '~', query);
+          break;
+        case 'RI':
+          builder = builder.where('image_name', '~*', query);
+          break;
+      }
     }
-    return results;
+
+    if (select.catPath) {
+      [select.cat1, select.cat2, select.cat3, select.cat4, select.cat5] = select.catPath.split(/[_.]/g);
+    }
+
+    const catClauseValues = cleanEmpty({
+      image_cat1: select.cat1,
+      image_cat2: select.cat2,
+      image_cat3: select.cat3,
+      image_cat4: select.cat4,
+      image_cat5: select.cat5,
+    });
+
+    for (let key of Object.keys(catClauseValues)) {
+      if (catClauseValues[key] === 'null') {
+        catClauseValues[key] = null;
+      }
+    }
+    if (select.catRestrict) {
+      for (let key of ['image_cat1', 'image_cat2', 'image_cat3', 'image_cat4', 'image_cat5']) {
+        if (isUnset(catClauseValues[key])) {
+          catClauseValues[key] = null;
+        }
+      }
+    }
+
+    if (Object.keys(catClauseValues).length) {
+      builder = builder.where(catClauseValues);
+    }
+
+    const results = await builder.orderBy('image_name').offset(select.offset || 0).limit(51).then((rows: GenshinImageIndexEntity[]) => {
+      rows.forEach(row => {
+        delete row['ts'];
+      })
+      return rows;
+    });
+
+    return {
+      results: results.slice(0, 50),
+      hasMore: results.length === 51,
+      offset: select.offset || 0,
+      nextOffset: results.length === 51
+        ? (select.offset || 0) + 50
+        : undefined,
+    };
   }
   // endregion
 }

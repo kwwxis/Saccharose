@@ -48,7 +48,9 @@ import './pages/genshin/archive/tutorials-search.ts';
 // Genshin VO Tool and Media Pages
 // ----------------------------------------------------------------------------------------------------
 import './pages/genshin/character/genshin-vo-tool.ts';
+import './pages/genshin/media/media-reverse-search.page.ts';
 import './pages/genshin/media/media-search.page.ts';
+import './pages/genshin/media/media-list.page.ts';
 
 // Genshin Changelog Pages
 // ----------------------------------------------------------------------------------------------------

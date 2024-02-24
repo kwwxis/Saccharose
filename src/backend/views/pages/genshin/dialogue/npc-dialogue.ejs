@@ -5,13 +5,13 @@
     <div class="field valign">
       <div class="valign grow" style="max-width:700px">
         <div class="posRel valign grow">
-          <input class="dialogue-generate-input grow" type="text" placeholder="Enter the exact name of an NPC (case insensitive)" style="border-top-right-radius:0;border-bottom-right-radius:0;" />
-          <button class="dialogue-generate-input-paste input-paste-button"><%- icon('clipboard') %></button>
-          <button class="dialogue-generate-input-clear input-clear-button hide"><%- icon('x-circle') %></button>
+          <input class="npc-dialogue-generate-input grow" type="text" placeholder="Enter the exact name of an NPC (case insensitive)" />
+          <button class="npc-dialogue-generate-input-paste input-paste-button"><%- icon('clipboard') %></button>
+          <button class="npc-dialogue-generate-input-clear input-clear-button hide"><%- icon('x-circle') %></button>
         </div>
-        <button class="dialogue-generate-submit primary primary--2 spacer5-left">Generate</button>
+        <button class="npc-dialogue-generate-submit primary primary--2 spacer5-left">Generate</button>
       </div>
-      <div class="dialogue-generate-submit-pending hide loading small spacer5-left"></div>
+      <div class="npc-dialogue-generate-submit-pending hide loading small spacer5-left"></div>
     </div>
     <div style="margin-bottom:-8px">
       <a id="npc-dialogue-info-show" style="font-size:13px;cursor:pointer;opacity:0.8" ui-action="delete-cookie: NPC-Dialogue.info; remove-class: #npc-dialogue-info, hide; add-class: this, hide" class="<%= cookieTernary('NPC-Dialogue.info').isEmpty().then('hide') %>">[Show info]</a>
@@ -28,4 +28,4 @@
     </div>
   </div>
 </section>
-<div id="dialogue-generate-result"></div>
+<div id="npc-dialogue-generate-result"></div>

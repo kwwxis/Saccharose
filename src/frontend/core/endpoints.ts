@@ -12,6 +12,10 @@ import { LangDetectResult } from '../../shared/types/common-types.ts';
 import { ScriptJobPostResult, ScriptJobState } from '../../backend/util/scriptJobs.ts';
 import { MwArticleInfo, MwArticleSearchResult, MwRevision, MwRevLoadMode } from '../../shared/mediawiki/mwTypes.ts';
 import { RequireOnlyOne } from '../../shared/types/utility-types.ts';
+import {
+  GenshinImageCategoryMap,
+  GenshinImageIndexEntity, GenshinImageIndexSearchResult,
+} from '../../shared/types/genshin/genshin-image-index-types.ts';
 
 export type ApiParams<T> = T & {
   fields?: string,
@@ -222,21 +226,19 @@ export const genshinEndpoints = {
   searchAchievements: new GenshinApiEndpoint<{text: string}>('/achievements/search'),
   searchTutorials: new GenshinApiEndpoint<{text: string}>('/tutorials/search'),
 
-  // mediaUpload: function() {
-  //
-  //   return axios
-  //     .request({
-  //       url: this.uri,
-  //       method: method,
-  //       params: cleanedParams,
-  //       headers: {
-  //         'Accept': asHTML ? 'text/html' : 'application/json',
-  //         'Content-Type': asHTML ? 'text/html' : 'application/json',
-  //       }
-  //     })
-  //     .then(response => response.data)
-  //     .catch(this.errorHandler);
-  // }
+  mediaSearch: new GenshinApiEndpoint<{
+    query?: string,
+    cat1?: string,
+    cat2?: string,
+    cat3?: string,
+    cat4?: string,
+    cat5?: string,
+    catPath?: string,
+    catRestrict?: boolean,
+    offset?: number,
+    searchMode?: string,
+  }, GenshinImageIndexSearchResult>('/media/search'),
+  mediaCategory: new GenshinApiEndpoint<{}, GenshinImageCategoryMap>('/media/category'),
 };
 
 export const starRailEndpoints = {

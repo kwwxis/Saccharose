@@ -6,6 +6,7 @@ import './branch-dialogue.scss';
 pageMatch('pages/genshin/dialogue/branch-dialogue', () => {
   startGenericSearchPageListeners({
     endpoint: genshinEndpoints.generateSingleDialogueBranch,
+    asHtml: true,
 
     inputs: [
       {

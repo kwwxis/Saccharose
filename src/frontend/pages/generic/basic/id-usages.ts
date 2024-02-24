@@ -16,6 +16,7 @@ pageMatch('pages/generic/basic/id-usages', () => {
 
   startGenericSearchPageListeners({
     endpoint,
+    asHtml: true,
 
     inputs: [
       {
