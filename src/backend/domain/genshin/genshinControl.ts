@@ -2612,7 +2612,8 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       }
 
       let count = (item.ItemCount || 1);
-      let localeCount = count.toLocaleString(LANG_CODE_TO_LOCALE[this.outputLangCode]);
+      //let localeCount = count.toLocaleString(LANG_CODE_TO_LOCALE[this.outputLangCode]);
+      let localeCount = count.toLocaleString('en-US');
 
       let cardForm = `{{Card|${item.Material.NameText}|${localeCount}}}`;
       let stringForm = `${item.Material.NameText}*${localeCount}`;
