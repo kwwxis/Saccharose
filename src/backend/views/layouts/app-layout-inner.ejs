@@ -1,4 +1,41 @@
 <div id="app-wrapper" class="wrapper">
+  <% if (siteNotices.length) { %>
+    <div class="site-notice-container">
+      <% for (let siteNotice of siteNotices) { %>
+        <div data-site-notice="<%= siteNotice.id %>"
+             class="site-notice <%= siteNotice.notice_type %>-notice open-sans-font spacer10-bottom alignStart"
+             style="font-size: 13.5px;">
+          <div class="site-notice-icon spacer10-right spacer10-top no-shrink">
+            <% if (siteNotice.notice_type === 'info') { %>
+              <%- icon('info') %>
+            <% } %>
+            <% if (siteNotice.notice_type === 'warning') { %>
+              <%- icon('alert-triangle') %>
+            <% } %>
+            <% if (siteNotice.notice_type === 'error') { %>
+              <%- icon('alert-octagon') %>
+            <% } %>
+            <% if (siteNotice.notice_type === 'success') { %>
+              <%- icon('info') %>
+            <% } %>
+          </div>
+          <div class="site-notice-panel grow">
+            <h3 class="site-notice-title"><%- siteNotice.notice_title %></h3>
+            <% if (siteNotice.notice_body) { %>
+              <div class="site-notice-body"><%- siteNotice.notice_body %></div>
+            <% } %>
+          </div>
+          <div class="site-notice-buttons spacer10-top no-shrink">
+            <% if (siteNotice.notice_link) { %>
+              <a role="button" href="<%= siteNotice.notice_link %>" class="primary primary--2 spacer5-right">View notice</a>
+            <% } %>
+            <button class="secondary" ui-action="dismiss-site-notice: <%= siteNotice.id %>">Dismiss</button>
+          </div>
+        </div>
+      <% } %>
+    </div>
+  <% } %>
+
   <% if (req.context.hasQuerySettings()) { %>
     <div class="card">
       <div class="content valign">

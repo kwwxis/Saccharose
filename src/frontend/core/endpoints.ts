@@ -284,6 +284,10 @@ export const genericEndpoints = {
     text: string
   }, LangDetectResult>('/lang-detect'),
 
+  dismissSiteNotice: new GenericApiEndpoint<{
+    noticeId: number
+  }, {result: 'dismissed'}>('/site-notice/dismiss'),
+
   authCheck: new BaseUrlEndpoint<{
     wikiUsername: string,
     wikiLang?: string,

@@ -189,7 +189,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
       Object.values(ctrl.state.npcCache)
         .filter(x => !x.Invisiable && !x.JsonName?.startsWith('ReadableNPC'))
         .map(x => ctrl.normText(x.NameText, ctrl.outputLangCode))
-        .concat('Traveler')
+        .concat(ctrl.travelerPageName)
         .sort()
     ),
     data: ctrl.state.npcCache,

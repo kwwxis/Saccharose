@@ -1,9 +1,8 @@
 import { Listener } from '../../util/eventListen.ts';
-import { isInt } from '../../../shared/util/numberUtil.ts';
+import { isInt, toInt } from '../../../shared/util/numberUtil.ts';
 import {
   copyTextToClipboard,
   deleteQueryStringParameter,
-  getHiddenElementBounds,
   getInputValue,
   setQueryStringParameter,
 } from '../../util/domutil.ts';
@@ -18,6 +17,7 @@ import { highlightWikitextReplace } from '../ace/aceHighlight.ts';
 import { isset } from '../../../shared/util/genericUtil.ts';
 import { closeDropdownsIfDefocused, onDropdownItemClick, onDropdownTriggerClick } from './uiDropdown.ts';
 import { GeneralEventBus, GeneralTabEvent } from '../generalEventBus.ts';
+import { genericEndpoints } from '../endpoints.ts';
 
 function parseUiAction(actionEl: HTMLElement): UiAction[] {
   const actionStr = actionEl.getAttribute('ui-action');
@@ -299,6 +299,23 @@ export function runUiActions(actionEl: HTMLElement, actions: UiAction[]) {
 
         const newUrl = `${window.location.protocol}//${window.location.host}${window.location.pathname}?${params.toString()}`;
         copyTextToClipboard(newUrl);
+        break;
+      }
+
+      // Copy Pref Link
+      // ----------------------------------------------------------------------------------------------------
+      case 'dismiss-site-notice': {
+        actionEl.setAttribute('disabled', 'disabled');
+        const noticeId = toInt(actionParams[0]);
+        genericEndpoints.dismissSiteNotice.post({noticeId}).then(ret => {
+          if (ret.result === 'dismissed') {
+            const noticeEl = document.querySelector(`.site-notice[data-site-notice="${noticeId}"]`);
+            noticeEl.classList.add('dismissed');
+            setTimeout(() => {
+              noticeEl.remove();
+            }, 200);
+          }
+        });
         break;
       }
 

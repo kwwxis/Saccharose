@@ -20,6 +20,7 @@ import { loadGenshinTextSupportingData } from '../genshinText.ts';
 import { getQuotePosMap } from '../../../../shared/mediawiki/mwQuotes.ts';
 import { keys } from 'ag-grid-community/dist/lib/utils/map';
 import fs from 'fs';
+import './testing2.ts';
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   await loadGenshinVoiceItems();

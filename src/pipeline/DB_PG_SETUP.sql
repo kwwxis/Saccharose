@@ -33,6 +33,27 @@ CREATE TABLE site_user_banned
     discord_id          TEXT UNIQUE
 );
 
+-- Site User
+----------------------------------------------------------------------------------------------------------------
+CREATE TYPE site_notice_type AS ENUM ('info', 'success', 'error', 'warning');
+
+CREATE TABLE site_notice
+(
+	id              SERIAL PRIMARY KEY,
+    notice_title    TEXT NOT NULL,
+    notice_type     site_notice_type NOT NULL,
+    notice_body     TEXT,
+    notice_link     TEXT,
+    notice_enabled  BOOLEAN DEFAULT TRUE
+);
+
+CREATE TABLE site_notice_dismissed
+(
+    discord_id          TEXT NOT NULL,
+    notice_id           INTEGER NOT NULL,
+    PRIMARY KEY (discord_id, notice_id)
+);
+
 -- Script Jobs
 ----------------------------------------------------------------------------------------------------------------
 CREATE TABLE api_keys

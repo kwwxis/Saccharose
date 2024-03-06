@@ -135,7 +135,13 @@ import { DialogBranchingCache, orderChapterQuests } from './dialogue/dialogue_ut
 import { __normGenshinText } from './genshinText.ts';
 import { AbstractControl, AbstractControlState } from '../abstractControl.ts';
 import debug from 'debug';
-import { LangCode, TextMapHash, VoiceItem, VoiceItemArrayMap } from '../../../shared/types/lang-types.ts';
+import {
+  LANG_CODE_TO_LOCALE,
+  LangCode,
+  TextMapHash,
+  VoiceItem,
+  VoiceItemArrayMap,
+} from '../../../shared/types/lang-types.ts';
 import { GCGTagElementType, GCGTagWeaponType } from '../../../shared/types/genshin/gcg-types.ts';
 import path from 'path';
 import { cached } from '../../util/cache.ts';
@@ -263,6 +269,41 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
   override i18n(key: keyof typeof GENSHIN_I18N_MAP, vars?: Record<string, string|number>): string {
     return genshin_i18n(key, this.outputLangCode, vars);
+  }
+
+  get travelerPageName() {
+    switch (this.outputLangCode) {
+      case 'CH':
+      case 'CHS':
+      case 'CHT':
+        return '旅行者';
+      case 'DE':
+        return 'Reisende/r';
+      case 'EN':
+        return 'Traveler';
+      case 'ES':
+        return 'Viajero';
+      case 'FR':
+        return 'Voyageur';
+      case 'ID':
+        return 'Pengembara';
+      case 'IT':
+        return 'Viaggiatore';
+      case 'JP':
+        return '旅人';
+      case 'KR':
+        return '여행자';
+      case 'PT':
+        return 'Viajante';
+      case 'RU':
+        return 'Путешественник(ца)';
+      case 'TH':
+        return 'นักเดินทาง';
+      case 'TR':
+        return 'Gezgin';
+      case 'VI':
+        return 'Nhà Lữ Hành';
+    }
   }
   // endregion
 
@@ -2571,7 +2612,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       }
 
       let count = (item.ItemCount || 1);
-      let localeCount = count.toLocaleString('en-US');
+      let localeCount = count.toLocaleString(LANG_CODE_TO_LOCALE[this.outputLangCode]);
 
       let cardForm = `{{Card|${item.Material.NameText}|${localeCount}}}`;
       let stringForm = `${item.Material.NameText}*${localeCount}`;

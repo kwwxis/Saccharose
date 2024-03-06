@@ -21,6 +21,7 @@ import {
   MwArticleSearchResult, MwRevLoadMode,
 } from '../../../../shared/mediawiki/mwTypes.ts';
 import WikiRevisionSearchResults from '../../../components/mediawiki/WikiRevisionSearchResults.vue';
+import { SiteUserProvider } from '../../../middleware/auth/SiteUserProvider.ts';
 
 async function postRevSave(req: Request): Promise<ScriptJobPostResult<'mwRevSave'>> {
   const mwClient: MwClientInterface = getMwClient(req.query.siteMode as RequestSiteMode);
@@ -55,6 +56,21 @@ export default function(router: Router): void {
   router.endpoint('/lang-detect', {
     get: async (req: Request, res: Response) => {
       return res.json(langDetect(String(req.query.text)));
+    }
+  });
+
+  router.endpoint('/site-notice/dismiss', {
+    post: async (req: Request, res: Response) => {
+      if (!req.isAuthenticated() || !req.user?.id) {
+        throw HttpError.badRequest('AuthRequired', 'Must be logged in to perform this request.');
+      }
+      if (!isInt(req.query.noticeId)) {
+        throw HttpError.badRequest('InvalidParameter', 'Must have noticeId integer parameter.');
+      }
+      await SiteUserProvider.dismissSiteNotice(req.user.id, toInt(req.query.noticeId));
+      return res.json({
+        result: 'dismissed'
+      });
     }
   });
 

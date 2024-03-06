@@ -4,6 +4,7 @@ import { toBoolean } from '../../../shared/util/genericUtil.ts';
 import { Request } from 'express';
 import { isEquiv } from '../../../shared/util/arrayUtil.ts';
 import { saveSession, setSessionUser } from './sessions.ts';
+import { Knex } from 'knex';
 
 export const SiteAuthEnabled: boolean = toBoolean(process.env.AUTH_ENABLED);
 
@@ -25,6 +26,17 @@ export type SiteUserEntity = {
   wiki_username: string,
   json_data: SiteUser
 }
+
+export type SiteNoticeType = 'info' | 'success' | 'error' | 'warning';
+
+export type SiteNotice = {
+  id: number,
+  notice_title: string,
+  notice_type: SiteNoticeType,
+  notice_body?: string,
+  notice_link?: string,
+  notice_enabled: boolean,
+};
 
 const pg = openPg();
 
@@ -53,6 +65,31 @@ export const SiteUserProvider = {
       await saveSession(req);
       req.user = dbSiteUser;
     }
+  },
+
+  async getAllSiteNotices(): Promise<SiteNotice[]> {
+    return await pg.select('*').from('site_notice').where({notice_enabled: true})
+      .orderBy('id', 'DESC').then();
+  },
+
+  async getSiteNotices(discordId: string): Promise<SiteNotice[]> {
+    if (!discordId) {
+      return [];
+    }
+    let sql = `
+      SELECT n.id, n.notice_title, n.notice_type, n.notice_body, n.notice_link, n.notice_enabled
+      FROM site_notice n
+      LEFT JOIN site_notice_dismissed d ON (n.id = d.notice_id AND d.discord_id = ?)
+      WHERE n.notice_enabled = true AND d.discord_id IS NULL ORDER BY n.id DESC
+    `;
+    return await pg.raw(sql, [discordId]).then(raw => raw.rows);
+  },
+
+  async dismissSiteNotice(discordId: string, noticeId: number): Promise<void> {
+    await pg('site_notice_dismissed').insert({
+      discord_id: discordId,
+      notice_id: noticeId,
+    });
   },
 
   async find(discordId: string): Promise<SiteUser> {
