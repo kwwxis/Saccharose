@@ -80,7 +80,8 @@ function __travelerPlaceholder(langCode: LangCode = 'EN', degender: boolean = fa
     case 'PT':
       return '(Viajante)';
     case 'RU':
-      return degender ? '(Путешественник)' : '(Путешественник/Путешественница)';
+      //return degender ? '(Путешественник)' : '(Путешественник/Путешественница)';
+      return '{{Имя}}';
     case 'TH':
       return '(นักเดินทาง)';
     case 'TR':

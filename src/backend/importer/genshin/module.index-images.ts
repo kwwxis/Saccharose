@@ -22,9 +22,6 @@ function getImageNames(): string[] {
     } else {
       imageName = fileName.split('.png')[0];
     }
-    if (!/^(UI_).*/.test(imageName)) {
-      continue;
-    }
     imageNames.push(imageName);
   }
   return imageNames;

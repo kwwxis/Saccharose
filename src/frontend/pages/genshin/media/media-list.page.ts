@@ -26,7 +26,7 @@ pageMatch('vue/MediaListPage', async () => {
   const expandoHtml: string = templateIcon('chevron-down');
   const imageLoaders: {[mediaCatId: string]: Function} = {};
 
-  async function loadImages(mediaCatId: string, loadZoneEl: HTMLElement, catPath: string, offset) {
+  async function loadImages(mediaCatId: string, loadZoneEl: HTMLElement, catPath: string, offset: number) {
     const result = await genshinEndpoints.mediaSearch.get({ catPath: catPath, catRestrict: true, offset });
     for (let entity of result.results) {
       loadZoneEl.append(frag1(`
@@ -54,14 +54,14 @@ pageMatch('vue/MediaListPage', async () => {
     }
   }
 
-  function makeCategoryElements(catmap: GenshinImageCategoryMap, parentEl: HTMLElement, parentPath: string, levelsToExpand: number) {
+  function makeCategoryElements(catmap: GenshinImageCategoryMap, parentEl: HTMLElement, parentPath: string, shouldPopulateFn: (myPath: string) => boolean) {
     if (!catmap || !parentEl) {
       return;
     }
     for (let [cat, subcats] of Object.entries(catmap)) {
       const myId: string = 'media-cat-' + uuidv4();
       const myPath: string = parentPath ? parentPath+'.'+cat : cat;
-      const shouldPopulate = levelsToExpand > 0;
+      const shouldPopulate: boolean = shouldPopulateFn && shouldPopulateFn(myPath);
 
       const el: HTMLElement = frag1(`
         <div id="${myId}" class="media-cat" data-cat-name="${escapeHtml(cat)}" data-cat-path="${escapeHtml(myPath)}" data-did-populate="${shouldPopulate ? 'true' : 'false'}">
@@ -85,7 +85,7 @@ pageMatch('vue/MediaListPage', async () => {
       el.querySelector(":scope > .media-cat-header .expando").addEventListener('click', (ev) => {
         if (!toBoolean(el.getAttribute('data-did-populate'))) {
           el.setAttribute('data-did-populate', 'true');
-          makeCategoryElements(subcats, childrenEl, myPath, 0);
+          makeCategoryElements(subcats, childrenEl, myPath, null);
         }
       });
 
@@ -96,13 +96,18 @@ pageMatch('vue/MediaListPage', async () => {
           subcats,
           childrenEl,
           myPath,
-          levelsToExpand - 1
+          shouldPopulateFn,
         );
       }
     }
   }
 
-  makeCategoryElements(rootCatMap, appEl.querySelector('#media-catList'), null,1);
+  makeCategoryElements(rootCatMap, appEl.querySelector('#media-catList'), null,myPath => {
+    if (myPath === 'UI') {
+      return true;
+    }
+    return false;
+  });
   loadingEl.remove();
   appEl.classList.remove('hide');
 
