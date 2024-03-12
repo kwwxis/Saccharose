@@ -823,36 +823,47 @@ export const genshinSchema = {
 
       LGPAEEOJHAE: 'GameId',
       LNFCKAJPIFJ: 'GameId',
+      FEABENINLHJ: 'GameId',
 
       LBFILGPEDGK: 'HappyTalkId',
       OJDBPLCBNEK: 'HappyTalkId',
+      KIHFOLIOPGB: 'HappyTalkId',
 
       NNKJEHOHMBO: 'SadTalkId',
       NNDJLJMJGAG: 'SadTalkId',
+      DIBHCLCGFDB: 'SadTalkId',
 
       MLEFDDEHBBL: 'ToughTalkId',
       FPLIDHCBPNA: 'ToughTalkId',
+      NLHPKPOAEIL: 'ToughTalkId',
 
       CFGEPIGEJCK: 'ElementBurstTalkId',
       ELKBJDDEGIF: 'ElementBurstTalkId',
+      OFOCIJDPJMF: 'ElementBurstTalkId',
 
       IKOEPPHFOEB: 'HighHealthTalkId',
       HPONHALFHNH: 'HighHealthTalkId',
+      OELPOGDANCL: 'HighHealthTalkId',
 
       PAKILBFPCCL: 'HighHealthValue',
       BIJNIDMFDPF: 'HighHealthValue',
+      JNEHNHGBPEB: 'HighHealthValue',
 
       BCKNCBHEDGB: 'HighHealthConfigId',
       HOMPIFAIKHD: 'HighHealthConfigId',
+      BPJCNGCCKKI: 'HighHealthConfigId',
 
       PDNAEHFAFIJ: 'LowHealthTalkId',
       BBOCNPMPHAE: 'LowHealthTalkId',
+      OCGIGBNKILC: 'LowHealthTalkId',
 
       ODHDEGNOJKH: 'LowHealthValue',
       ECOMDFKLFLP: 'LowHealthValue',
+      GOOPCJJBOCP: 'LowHealthValue',
 
       NLHKBFOGJMM: 'LowHealthConfigId',
       KLIAJLCEKNC: 'LowHealthConfigId',
+      LCIAFLGHIEI: 'LowHealthConfigId',
     },
   },
   GCGTalkDetailExcelConfigData: <SchemaTable> {
@@ -863,12 +874,10 @@ export const genshinSchema = {
       { name: 'TalkDetailIconId', type: 'integer', isIndex: true },
     ],
     renameFields: {
-      OKFHEMAKLNN: 'TalkContentTextMapHash',
-      CPBEMEKHDCO: 'TalkDetailIconId',
+      CPBEMEKHDCO: 'TalkDetailIconId', // TODO doesn't work well with this field
       JKPKBLJAMAG: 'TalkDetailIconId',
       NAKCEHLACDO: 'TalkDetailIconId',
-      ECMMFFFJBPK: 'TalkDetailIconId',
-      PGFENJJPNBG: 'TalkEmoji',
+      ECMMFFFJBPK: 'TalkDetailIconId'
     },
     singularize: {'TalkDetailIconId': 'TalkDetailIconId'},
   },
@@ -1095,17 +1104,21 @@ export const genshinSchema = {
       { name: 'DescTextMapHash', type: 'integer', isIndex: true },
     ],
     renameFields: {
-      BHGNBKPJDII: 'AvatarName',
+      BHGNBKPJDII: 'AvatarName', // TODO
       IAPINBOEJCO: 'AvatarName',
       FMDPDBBKOKM: 'AvatarName',
+      PGBDOFBNFKL: 'AvatarName',
       NBLPFBBIEGE: 'IsRemoveAfterDie',
       LEKAGJLNGLH: 'IsRemoveAfterDie',
       LKCGOHOJHME: 'IsRemoveAfterDie',
+      ECJJKALAJED: 'IsRemoveAfterDie',
       OOCDMOAACAH: 'TagList',
       HBCBGGLBNPB: 'TagList',
+      DFKDHEKDAKP: 'TagList',
       KCOKMGBEMJB: 'IsCanObtain',
       LHJBJHKKJED: 'IsCanObtain',
       EHNPOPJDLFC: 'IsCanObtain',
+      AAPELFIMDFG: 'IsCanObtain',
     }
   },
   GCGCharacterLevelExcelConfigData: <SchemaTable> {
@@ -1305,6 +1318,7 @@ export const genshinSchema = {
       EBJAELDKAAJ: 'CategoryType',
       NEAJPKMAMOF: 'CategoryType',
       NOGJDCMLDBM: 'CategoryType',
+      NAIKHCACHBM: 'CategoryType'
     },
     singularize: {'CategoryType': 'CategoryType'},
   },
