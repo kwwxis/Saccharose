@@ -44,7 +44,8 @@ CREATE TABLE site_notice
     notice_type     site_notice_type NOT NULL,
     notice_body     TEXT,
     notice_link     TEXT,
-    notice_enabled  BOOLEAN DEFAULT TRUE
+    notice_enabled  BOOLEAN DEFAULT TRUE,
+    banner_enabled  BOOLEAN DEFAULT FALSE
 );
 
 CREATE TABLE site_notice_dismissed

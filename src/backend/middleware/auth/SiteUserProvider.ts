@@ -36,6 +36,7 @@ export type SiteNotice = {
   notice_body?: string,
   notice_link?: string,
   notice_enabled: boolean,
+  banner_enabled: boolean,
 };
 
 const pg = openPg();
@@ -77,10 +78,10 @@ export const SiteUserProvider = {
       return [];
     }
     let sql = `
-      SELECT n.id, n.notice_title, n.notice_type, n.notice_body, n.notice_link, n.notice_enabled
+      SELECT n.id, n.notice_title, n.notice_type, n.notice_body, n.notice_link, n.notice_enabled, n.banner_enabled
       FROM site_notice n
       LEFT JOIN site_notice_dismissed d ON (n.id = d.notice_id AND d.discord_id = ?)
-      WHERE n.notice_enabled = true AND d.discord_id IS NULL ORDER BY n.id DESC
+      WHERE n.notice_enabled = true AND n.banner_enabled = true AND d.discord_id IS NULL ORDER BY n.id DESC
     `;
     return await pg.raw(sql, [discordId]).then(raw => raw.rows);
   },
