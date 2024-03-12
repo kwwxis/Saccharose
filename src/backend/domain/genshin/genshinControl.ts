@@ -907,6 +907,10 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
                 ? path.basename(String(action.Param))
                 : path.basename(action.PicPath);
 
+            if (!CustomImageName) {
+              continue;
+            }
+
             let imageNumber: number;
             if (this.state.questBgPicSeen[mainQuestId][CustomImageName]) {
               imageNumber = this.state.questBgPicSeen[mainQuestId][CustomImageName];
