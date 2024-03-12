@@ -103,6 +103,7 @@ export async function generateQuestDialogExcels(repoRoot: string) {
   // Enqueue Functions
 
   function deobf(obj: any): any {
+    // TODO: This needs to be updated with each new Genshin version!
     obj = renameFields(obj, {
       CCFPGAKINNB: 'id',
       FKFBNNHJPDP: 'series',

@@ -34,7 +34,7 @@ export async function maximizeImages() {
     }
 
     if (largestFile.includes('#')) {
-      let actualFile = largestFile.replace(/#\d+\.png$/, '.png');
+      let actualFile = largestFile.replace(/\s*#\d+\.png$/, '.png');
       fs.renameSync(largestFile, actualFile);
     }
 
@@ -42,6 +42,11 @@ export async function maximizeImages() {
   }
 
   for (let fileName of fs.readdirSync(IMAGEDIR_GENSHIN_EXT)) {
+    if (/\s+\.png/.test(fileName)) {
+      let oldName = fileName;
+      fileName = fileName.replace(/\s+\.png/, '.png');
+      fs.renameSync(oldName, fileName);
+    }
 
     let imageName: string;
 

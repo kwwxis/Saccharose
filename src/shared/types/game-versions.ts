@@ -35,6 +35,7 @@ export const GenshinVersions: GameVersion[] = [
   {number: '4.2', previous: '4.1', showChangelog: true},
   {number: '4.3', previous: '4.2', showChangelog: true},
   {number: '4.4', previous: '4.3', showChangelog: true},
+  {number: '4.5', previous: '4.4', showChangelog: true},
 ];
 
 // TODO: This needs to be updated with each new Honkai Star Rail version!
@@ -56,7 +57,7 @@ export const ZenlessVersions: GameVersion[] = [
 ];
 
 // TODO: This needs to be updated with each new Genshin version!
-export const CurrentGenshinVersion: GameVersion = GenshinVersions.find(v => v.number === '4.4');
+export const CurrentGenshinVersion: GameVersion = GenshinVersions.find(v => v.number === '4.5');
 
 // TODO: This needs to be updated with each new Honkai Star Rail version!
 export const CurrentStarRailVersion: GameVersion = StarRailVersions.find(v => v.number === '2.0');
