@@ -107,7 +107,7 @@
                 <span v-html="item.name" class="grow"></span>
                 <span class="dispFlex button-group">
                   <button :class="thingClass(conf.id, item.id, 'shown')" :ui-action="`set-user-pref: siteMenuShown, ${conf.id}|${item.id}|shown; remove-class: parent > button, selected; add-class: self, selected`">Shown</button>
-                  <button :class="thingClass(conf.id, item.id, 'collapsed')" :ui-action="`set-user-pref: siteMenuShown, ${conf.id}|${item.id}|collapsed; remove-class: parent > button, selected; add-class: self, selected`">Collapsed</button>
+                  <button disabled :class="thingClass(conf.id, item.id, 'collapsed')" :ui-action="`set-user-pref: siteMenuShown, ${conf.id}|${item.id}|collapsed; remove-class: parent > button, selected; add-class: self, selected`">Collapsed</button>
                   <button :class="thingClass(conf.id, item.id, 'hidden')" :ui-action="`set-user-pref: siteMenuShown, ${conf.id}|${item.id}|hidden; remove-class: parent > button, selected; add-class: self, selected`">Hidden</button>
                 </span>
               </label>
