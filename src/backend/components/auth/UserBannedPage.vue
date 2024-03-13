@@ -53,8 +53,9 @@
 </template>
 
 <script setup lang="ts">
-import { SiteUser, SiteUserProvider } from '../../middleware/auth/SiteUserProvider.ts';
+import { SiteUserProvider } from '../../middleware/auth/SiteUserProvider.ts';
 import { getTrace } from '../../middleware/request/tracer.ts';
+import { SiteUser } from '../../../shared/types/site/site-user-types.ts';
 
 let request = getTrace().req;
 let user: SiteUser = request.user;

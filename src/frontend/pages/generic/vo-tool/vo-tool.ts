@@ -116,7 +116,7 @@ export class VoAppState {
           x: 'hidden'
         }
       });
-      OverlayScrollbars(document.querySelector<HTMLElement>('#app-sidebar__content'), {
+      OverlayScrollbars(document.querySelector<HTMLElement>('#app-sidebar .app-sidebar-content'), {
         scrollbars: {
           theme: isNightmode ? 'os-theme-light' : 'os-theme-dark',
           autoHide: 'leave'

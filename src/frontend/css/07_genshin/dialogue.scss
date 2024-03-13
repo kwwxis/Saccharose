@@ -126,11 +126,22 @@ button.secondary.small.dialogue-indent-button {
   transition: transform 200ms;
   user-select: none;
 
+ &.no-bg {
+    background: transparent;
+    border: 0;
+  }
+
   &.expand-action, .expando-parent.expand-action & {
     transform: rotate(-90deg);
   }
+  &.other-direction {
+    &.expand-action, .expando-parent.expand-action & {
+      transform: rotate(90deg);
+    }
+  }
   &:hover {
     background: #eaeaea;
+    opacity: 1 !important;
   }
   .icon {
     position: absolute;

@@ -3,46 +3,15 @@ import { openPg } from '../../util/db.ts';
 import { Request } from 'express';
 import { isEquiv } from '../../../shared/util/arrayUtil.ts';
 import { saveSession, setSessionUser } from './sessions.ts';
-import { LangCode } from '../../../shared/types/lang-types.ts';
+import { SiteNotice, SiteUser } from '../../../shared/types/site/site-user-types.ts';
 
-export type SiteUser = {
-  id: string,
-  discord_username: string,
-  discord: passport_discord.Profile,
-
-  wiki_id?: number,
-  wiki_username?: string,
-  wiki_avatar?: string,
-  wiki_allowed?: boolean,
-
-  prefs: SiteUserPrefs
-};
-
-export type SiteUserPrefs = {
-  inputLangCode?: LangCode,
-  outputLangCode?: LangCode,
-  isNightmode?: boolean,
-};
-
-export type SiteUserEntity = {
+type SiteUserEntity = {
   discord_id: string,
   discord_username: string,
   wiki_id?: number,
   wiki_username: string,
   json_data: SiteUser
 }
-
-export type SiteNoticeType = 'info' | 'success' | 'error' | 'warning';
-
-export type SiteNotice = {
-  id: number,
-  notice_title: string,
-  notice_type: SiteNoticeType,
-  notice_body?: string,
-  notice_link?: string,
-  notice_enabled: boolean,
-  banner_enabled: boolean,
-};
 
 const pg = openPg();
 

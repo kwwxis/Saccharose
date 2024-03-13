@@ -1,22 +1,25 @@
-import { SearchMode } from '../../../shared/util/searchUtil.ts';
-import Cookies from 'js-cookie';
+import { DEFAULT_SEARCH_MODE, SearchMode } from '../../../shared/util/searchUtil.ts';
 import { Listener } from '../../util/eventListen.ts';
+import { USER_PREFS, setUserPref } from './sitePrefsContainer.ts';
 
 export function getSiteSearchMode(): SearchMode {
-  return (Cookies.get('search-mode') || 'WI') as SearchMode;
+  return USER_PREFS.searchMode || DEFAULT_SEARCH_MODE;
 }
 
 export function setSiteSearchMode(searchMode: SearchMode): void {
-  document.querySelectorAll('.search-mode-dropdown .option').forEach(el => {
-    if (el.getAttribute('data-value') === searchMode) {
-      el.classList.add('selected');
-    } else {
-      el.classList.remove('selected');
-    }
-  });
+  setUserPref('searchMode', searchMode).then(r => {
 
-  document.querySelectorAll<HTMLElement>('.search-mode-button .code').forEach(el => el.innerText = searchMode);
-  Cookies.set('search-mode', searchMode, { expires: 365 });
+    document.querySelectorAll('.search-mode-dropdown .option').forEach(el => {
+      if (el.getAttribute('data-value') === searchMode) {
+        el.classList.add('selected');
+      } else {
+        el.classList.remove('selected');
+      }
+    });
+
+    document.querySelectorAll<HTMLElement>('.search-mode-button .code').forEach(el => el.innerText = searchMode);
+
+  });
 }
 
 export const SiteSearchModeListener: Listener = {

@@ -1,7 +1,7 @@
 <template>
   <section class="card">
-    <h2>Settings</h2>
-    <div class="form-box">
+    <h2>General Settings</h2>
+    <div class="content form-box">
       <div class="field valign">
         <label style="min-width: 150px">Theme</label>
         <div class="toggle-theme-buttons alignStretch button-group">
@@ -49,6 +49,13 @@
       </div>
 
       <div class="field valign spacer20-top">
+        <label style="min-width: 150px">Search Mode</label>
+        <div class="valign">
+          <SearchModeInput :standalone-style="true" />
+        </div>
+      </div>
+
+      <div class="field valign spacer20-top">
         <label style="min-width: 150px">Discord User</label>
         <div class="valign">
           <img :src="avatarUrl" class="framed-icon x48" />
@@ -71,16 +78,71 @@
       </div>
     </div>
   </section>
+
+  <section class="card">
+    <h2>Sidebar Configuration</h2>
+    <div class="user-settings-sidebar-configuration" v-for="conf of sidebarConfigs">
+      <h3 class="secondary-header">{{ conf.header.name }}</h3>
+      <div class="content">
+        <div v-for="section of conf.sections" class="spacer10-left">
+          <label class="valign">
+            <span v-html="section.name" class="grow"></span>
+            <span class="dispFlex button-group">
+              <button :class="thingClass(conf.id, section.id, 'shown')" :ui-action="`set-user-pref: siteMenuShown, ${conf.id}|${section.id}|shown; remove-class: parent > button, selected; add-class: self, selected`">Shown</button>
+              <button :class="thingClass(conf.id, section.id, 'collapsed')" :ui-action="`set-user-pref: siteMenuShown, ${conf.id}|${section.id}|collapsed; remove-class: parent > button, selected; add-class: self, selected`">Collapsed</button>
+              <button :class="thingClass(conf.id, section.id, 'hidden')" :ui-action="`set-user-pref: siteMenuShown, ${conf.id}|${section.id}|hidden; remove-class: parent > button, selected; add-class: self, selected`">Hidden</button>
+            </span>
+          </label>
+          <div v-for="content of section.content" class="spacer10-left">
+            <label v-if="content.name" class="valign">
+              <span v-html="content.name" class="grow"></span>
+              <span class="dispFlex button-group">
+                <button :class="thingClass(conf.id, content.id, 'shown')" :ui-action="`set-user-pref: siteMenuShown, ${conf.id}|${content.id}|shown; remove-class: parent > button, selected; add-class: self, selected`">Shown</button>
+                <button :class="thingClass(conf.id, content.id, 'collapsed')" :ui-action="`set-user-pref: siteMenuShown, ${conf.id}|${content.id}|collapsed; remove-class: parent > button, selected; add-class: self, selected`">Collapsed</button>
+                <button :class="thingClass(conf.id, content.id, 'hidden')" :ui-action="`set-user-pref: siteMenuShown, ${conf.id}|${content.id}|hidden; remove-class: parent > button, selected; add-class: self, selected`">Hidden</button>
+              </span>
+            </label>
+            <div v-for="item of content.items" class="spacer10-left">
+              <label class="valign">
+                <span v-html="item.name" class="grow"></span>
+                <span class="dispFlex button-group">
+                  <button :class="thingClass(conf.id, item.id, 'shown')" :ui-action="`set-user-pref: siteMenuShown, ${conf.id}|${item.id}|shown; remove-class: parent > button, selected; add-class: self, selected`">Shown</button>
+                  <button :class="thingClass(conf.id, item.id, 'collapsed')" :ui-action="`set-user-pref: siteMenuShown, ${conf.id}|${item.id}|collapsed; remove-class: parent > button, selected; add-class: self, selected`">Collapsed</button>
+                  <button :class="thingClass(conf.id, item.id, 'hidden')" :ui-action="`set-user-pref: siteMenuShown, ${conf.id}|${item.id}|hidden; remove-class: parent > button, selected; add-class: self, selected`">Hidden</button>
+                </span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 </template>
 
 <script setup lang="ts">
-import { SiteUser, SiteUserProvider } from '../../middleware/auth/SiteUserProvider.ts';
+import { SiteUserProvider } from '../../middleware/auth/SiteUserProvider.ts';
 import { getTrace } from '../../middleware/request/tracer.ts';
 import Icon from '../utility/Icon.vue';
-import { toBoolean } from '../../../shared/util/genericUtil.ts';
+import { SiteMenuShown, SiteMenuShownType, SiteUser } from '../../../shared/types/site/site-user-types.ts';
+import SearchModeInput from '../utility/SearchModeInput.vue';
+import { SiteSidebar } from '../../../shared/types/site/site-sidebar-types.ts';
 
 let request = getTrace().req;
-let isNightmode: boolean = toBoolean(request.context.cookie('nightmode'));
 let user: SiteUser = request.user;
+
+let isNightmode: boolean = request.user.prefs.isNightmode || false;
 let avatarUrl: string = SiteUserProvider.getAvatarUrl(user);
+let sidebarConfigs: SiteSidebar[] = Object.values(request.context.allSiteSidebarConfig);
+let sidebarShown: SiteMenuShown = request.user.prefs.siteMenuShown || {};
+
+function thingClass(confId: string, thingId: string, thingState: SiteMenuShownType): string {
+  if (sidebarShown[confId]?.[thingId] === thingState) {
+    return 'secondary selected';
+  } if (!sidebarShown[confId]?.[thingId] && thingState === 'shown') {
+    return 'secondary selected';
+  } else {
+    return 'secondary';
+  }
+}
+
 </script>

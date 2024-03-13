@@ -1,10 +1,11 @@
 import { Request, Response, Router } from 'express';
 import { create } from '../routing/router.ts';
-import { SiteNotice, SiteUserProvider } from '../middleware/auth/SiteUserProvider.ts';
+import { SiteUserProvider } from '../middleware/auth/SiteUserProvider.ts';
 import SettingsPage from '../components/auth/SettingsPage.vue';
 import SiteNoticesPage from '../components/site/SiteNoticesPage.vue';
 import NumberFormattingNotice from '../components/site/notices/NumberFormattingNotice.vue';
 import { SiteAuthEnabled } from '../loadenv.ts';
+import { SiteNotice } from '../../shared/types/site/site-user-types.ts';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -14,7 +15,8 @@ export default async function(): Promise<Router> {
       return res.status(404).render('errors/404');
     }
     res.render(SettingsPage, {
-      title: 'Settings'
+      title: 'Settings',
+      bodyClass: ['page--user', 'page-settings'],
     });
   });
 
@@ -30,13 +32,15 @@ export default async function(): Promise<Router> {
     const notices: SiteNotice[] = await SiteUserProvider.getAllSiteNotices();
     res.render(SiteNoticesPage, {
       title: 'Site Notices',
-      notices
+      notices,
+      bodyClass: ['page--user', 'page-notices'],
     });
   });
 
   router.get('/notices/number-formatting', async (req: Request, res: Response) => {
     res.render(NumberFormattingNotice, {
-      title: 'Notice - Upcoming change on how numbers are formatted'
+      title: 'Notice - Upcoming change on how numbers are formatted',
+      bodyClass: ['page--user', 'page-notices'],
     });
   });
 

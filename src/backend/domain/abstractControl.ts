@@ -36,6 +36,7 @@ import { Request } from 'express';
 import { defaultMap } from '../../shared/util/genericUtil.ts';
 import { LangDetectResult } from '../../shared/types/common-types.ts';
 import { Marker } from '../../shared/util/highlightMarker.ts';
+import { SiteSidebar } from '../../shared/types/site/site-sidebar-types.ts';
 
 export abstract class AbstractControlState {
   public request: Request = null;
@@ -57,7 +58,7 @@ export abstract class AbstractControlState {
       if (typeof this.request.query['input'] === 'string' && (LANG_CODES as string[]).includes(this.request.query['input'])) {
         return this.request.query['input'] as LangCode;
       }
-      return this.request.cookies['inputLangCode'] || DEFAULT_LANG;
+      return this.request.user.prefs.inputLangCode || DEFAULT_LANG;
     }
     return DEFAULT_LANG;
   }
@@ -67,7 +68,7 @@ export abstract class AbstractControlState {
       if (typeof this.request.query['output'] === 'string' && (LANG_CODES as string[]).includes(this.request.query['output'])) {
         return this.request.query['output'] as LangCode;
       }
-      return this.request.cookies['outputLangCode'] || DEFAULT_LANG;
+      return this.request.user.prefs.outputLangCode || DEFAULT_LANG;
     }
     return DEFAULT_LANG;
   }
@@ -77,7 +78,7 @@ export abstract class AbstractControlState {
       if (typeof this.request.query['searchMode'] === 'string' && (SEARCH_MODES as string[]).includes(this.request.query['searchMode'])) {
         return this.request.query['searchMode'] as SearchMode;
       }
-      return this.request.cookies['search-mode'] || DEFAULT_SEARCH_MODE;
+      return this.request.user.prefs.searchMode|| DEFAULT_SEARCH_MODE;
     }
     return DEFAULT_SEARCH_MODE;
   }

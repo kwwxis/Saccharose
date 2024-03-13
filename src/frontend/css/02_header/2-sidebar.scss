@@ -16,14 +16,14 @@
   }
 }
 
-#app-sidebar__content h2 {
+.app-sidebar__content h2 {
   padding: 5px 10px;
   font-size: 16.5px;
 }
-#app-sidebar__content h4 {
+.app-sidebar__content h4 {
   opacity: 0.92;
 }
-#app-sidebar__header h2 span {
+.app-sidebar-header h2 span {
   font-family: 'Open Sans', sans-serif;
   font-size: 16px;
   text-transform: uppercase;
@@ -36,7 +36,7 @@
   .sidebar .content a.secondary {
     font-size: 15.5px;
   }
-  #app-sidebar__header h2 span {
+  .app-sidebar-header h2 span {
     font-size: 15px;
   }
 }
@@ -49,7 +49,7 @@
     height: auto;
     line-height: 16px;
   }
-  #app-sidebar__header h2 span {
+  .app-sidebar-header h2 span {
     font-size: 14.5px;
   }
 }

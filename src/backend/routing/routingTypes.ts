@@ -1,7 +1,8 @@
 import { RequestContext } from './requestContext.ts';
 import { NextFunction, Request, Response } from 'express';
 import { Component } from '@vue/runtime-core';
-import { SiteUser } from '../middleware/auth/SiteUserProvider.ts';
+
+import { SiteUser } from '../../shared/types/site/site-user-types.ts';
 
 declare module 'express-serve-static-core' {
   interface Request {

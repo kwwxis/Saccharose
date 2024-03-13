@@ -1,9 +1,6 @@
 import { runWhenDOMContentLoaded, listen } from '../util/eventListen.ts';
 import { SiteThemeListener } from './userPreferences/siteTheme.ts';
-import {
-  initializeSiteLanguageEvents,
-  SiteLanguageListener,
-} from './userPreferences/siteLanguage.ts';
+import { SiteLanguageListener } from './userPreferences/siteLanguage.ts';
 import { UIActionListener } from './generalEvents/uiActions.ts';
 import { BodyKeyEvents } from './generalEvents/bodyKeyEvents.ts';
 import { FileFormatListeners } from './generalEvents/fileFormatEvents.ts';
@@ -34,7 +31,6 @@ runWhenDOMContentLoaded(() => {
   enableUriChecks();
   enableAxiosCsrf();
   enableMobileMenuCSS();
-  initializeSiteLanguageEvents();
   recalculateDesktopStickyHeader();
 
   siteIntervalFunction(); // run immediately at start

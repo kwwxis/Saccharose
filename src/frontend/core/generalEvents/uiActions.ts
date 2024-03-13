@@ -16,8 +16,9 @@ import { getSiteSearchMode } from '../userPreferences/siteSearchMode.ts';
 import { highlightWikitextReplace } from '../ace/aceHighlight.ts';
 import { isset } from '../../../shared/util/genericUtil.ts';
 import { closeDropdownsIfDefocused, onDropdownItemClick, onDropdownTriggerClick } from './uiDropdown.ts';
-import { GeneralEventBus, GeneralTabEvent } from '../generalEventBus.ts';
+import { GeneralEventBus } from '../generalEventBus.ts';
 import { genericEndpoints } from '../endpoints.ts';
+import { setUserPref } from '../userPreferences/sitePrefsContainer.ts';
 
 function parseUiAction(actionEl: HTMLElement): UiAction[] {
   const actionStr = actionEl.getAttribute('ui-action');
@@ -48,10 +49,61 @@ function parseUiAction(actionEl: HTMLElement): UiAction[] {
 export type UiAction = {actionType: string, actionParams: string[]};
 
 export function runUiActions(actionEl: HTMLElement, actions: UiAction[]) {
-  const qs = <T extends HTMLElement = HTMLElement>(selector: string): T =>
-    (selector === 'this' || selector === 'self') ? (actionEl as T) : document.querySelector<T>(selector);
-  const qsAll = <T extends HTMLElement = HTMLElement>(selector: string): T[] =>
-    (selector === 'this' || selector === 'self') ? ([actionEl as T]) : Array.from(document.querySelectorAll<T>(selector));
+  const relQ = (selector: string, initialRel: HTMLElement): {rel: Document|HTMLElement, selector: string} => {
+    let rel: Document|HTMLElement = document;
+
+    if (selector.startsWith('this ') || selector.startsWith('self ')) {
+      rel = (initialRel || actionEl);
+      selector = ':scope '+selector.slice(4);
+    }
+    if (selector.startsWith('parent ')) {
+      rel = (initialRel || actionEl).parentElement;
+      selector = ':scope '+selector.slice('parent'.length);
+    }
+    if (selector.startsWith('next ')) {
+      rel = (initialRel || actionEl).nextElementSibling as HTMLElement;
+      selector = ':scope '+selector.slice('next'.length);
+    }
+    if (selector.startsWith('previous ')) {
+      rel = (initialRel || actionEl).previousElementSibling as HTMLElement;
+      selector = ':scope '+selector.slice('previous'.length);
+    }
+
+    return { rel, selector };
+  };
+  const qs = <T extends HTMLElement = HTMLElement>(selector: string, rel?: HTMLElement): T => {
+    if (selector === 'this' || selector === 'self') {
+      return actionEl as T;
+    }
+    if (selector === 'parent') {
+      return actionEl.parentElement as T;
+    }
+    if (selector === 'next') {
+      return actionEl.nextElementSibling as T;
+    }
+    if (selector === 'previous') {
+      return actionEl.previousElementSibling as T;
+    }
+    let relQRes = relQ(selector, rel);
+    console.log(relQRes)
+    return relQRes.rel.querySelector<T>(relQRes.selector);
+  }
+  const qsAll = <T extends HTMLElement = HTMLElement>(selector: string, rel?: HTMLElement): T[] => {
+    if (selector === 'this' || selector === 'self') {
+      return [actionEl as T];
+    }
+    if (selector === 'parent') {
+      return [actionEl.parentElement as T];
+    }
+    if (selector === 'next') {
+      return [actionEl.nextElementSibling as T];
+    }
+    if (selector === 'previous') {
+      return [actionEl.previousElementSibling as T];
+    }
+    let relQRes = relQ(selector, rel);
+    return Array.from(relQRes.rel.querySelectorAll<T>(relQRes.selector));
+  }
   const normClassList = (cls: string): string[] => cls.split(/[\s.]+/g).filter(x => !!x);
 
   for (let action of actions) {
@@ -74,8 +126,7 @@ export function runUiActions(actionEl: HTMLElement, actions: UiAction[]) {
       // ClassList Actions
       // ----------------------------------------------------------------------------------------------------
       case 'add-class': {
-        let addClassTarget = qs(actionParams[0]);
-        if (addClassTarget) {
+        for (let addClassTarget of qsAll(actionParams[0])) {
           for (let cls of actionParams.slice(1)) {
             addClassTarget.classList.add(... normClassList(cls));
           }
@@ -83,8 +134,7 @@ export function runUiActions(actionEl: HTMLElement, actions: UiAction[]) {
         break;
       }
       case 'remove-class': {
-        let removeClassTarget = qs(actionParams[0]);
-        if (removeClassTarget) {
+        for (let removeClassTarget of qsAll(actionParams[0])) {
           for (let cls of actionParams.slice(1)) {
             removeClassTarget.classList.remove(... normClassList(cls));
           }
@@ -92,8 +142,7 @@ export function runUiActions(actionEl: HTMLElement, actions: UiAction[]) {
         break;
       }
       case 'toggle-class': {
-        let toggleClassTarget = qs(actionParams[0]);
-        if (toggleClassTarget) {
+        for (let toggleClassTarget of qsAll(actionParams[0])) {
           for (let cls of actionParams.slice(1)) {
             for (let cls2 of normClassList(cls)) {
               toggleClassTarget.classList.toggle(cls2);
@@ -288,7 +337,7 @@ export function runUiActions(actionEl: HTMLElement, actions: UiAction[]) {
         break;
       }
 
-      // Copy Pref Link
+      // Preferences:
       // ----------------------------------------------------------------------------------------------------
       case 'copy-pref-link': {
         const params = new URLSearchParams(window.location.search);
@@ -302,8 +351,6 @@ export function runUiActions(actionEl: HTMLElement, actions: UiAction[]) {
         break;
       }
 
-      // Copy Pref Link
-      // ----------------------------------------------------------------------------------------------------
       case 'dismiss-site-notice': {
         actionEl.setAttribute('disabled', 'disabled');
         const noticeId = toInt(actionParams[0]);
@@ -319,89 +366,101 @@ export function runUiActions(actionEl: HTMLElement, actions: UiAction[]) {
         break;
       }
 
+      case 'set-user-pref': {
+        setUserPref(actionParams[0] as any, actionParams[1] as any).then(_doNothing => {});
+        break;
+      }
+
       // Expando
       // ----------------------------------------------------------------------------------------------------
       case 'expando': {
         const animId = uuidv4();
-        const container = qs(actionParams[0]);
+        const containers: HTMLElement[] = !!actionParams[1] ? qsAll(actionParams[0]) : [qs(actionParams[0])];
 
-        const inTransition = container.classList.contains('collapsing') || container.classList.contains('expanding');
-        if (inTransition) {
-          return;
-        }
-
-        if (container.classList.contains('collapsed')) {
-          actionEl.classList.remove('expand-action');
-          actionEl.classList.add('collapse-action');
-
-          actionEl.classList.add('expanded-state');
-          actionEl.classList.remove('collapsed-state');
-
-          container.classList.remove('hide');
-
-          let height;
-          if (container.hasAttribute('data-original-height')) {
-            // Use data-original-height (if it exists)
-            height = parseInt(container.getAttribute('data-original-height'));
-            container.removeAttribute('data-original-height');
-          } else {
-            // Otherwise use scrollHeight, which should be approximately correct.
-            height = container.scrollHeight;
+        for (let container of containers) {
+          const inTransition = container.classList.contains('collapsing') || container.classList.contains('expanding');
+          if (inTransition) {
+            return;
           }
-          const styleEl = document.createElement('style');
-          const duration = Math.min(500, Math.max(200, height / 5 | 0));
 
-          styleEl.textContent = `
+          console.log({
+            actionParams,
+            container
+          });
+          let trigger: HTMLElement = !actionParams[1] ? actionEl : qs(actionParams[1], container);
+
+          if (container.classList.contains('collapsed')) {
+            trigger.classList.remove('expand-action');
+            trigger.classList.add('collapse-action');
+
+            trigger.classList.add('expanded-state');
+            trigger.classList.remove('collapsed-state');
+
+            container.classList.remove('hide');
+
+            let height;
+            if (container.hasAttribute('data-original-height')) {
+              // Use data-original-height (if it exists)
+              height = parseInt(container.getAttribute('data-original-height'));
+              container.removeAttribute('data-original-height');
+            } else {
+              // Otherwise use scrollHeight, which should be approximately correct.
+              height = container.scrollHeight;
+            }
+            const styleEl = document.createElement('style');
+            const duration = Math.min(500, Math.max(200, height / 5 | 0));
+
+            styleEl.textContent = `
                 .expanding-${animId} { overflow: hidden; animation: expanding-${animId} ${duration}ms ease forwards; }
                 @keyframes expanding-${animId} { 100% { height: ${height}px; } }
               `;
-          container.style.height = '0';
-          container.style.overflow = 'hidden';
+            container.style.height = '0';
+            container.style.overflow = 'hidden';
 
-          document.head.append(styleEl);
-          container.classList.remove('collapsed');
-          container.classList.add('expanding', 'expanding-' + animId);
-          setTimeout(() => {
-            container.style.removeProperty('height');
-            container.style.removeProperty('overflow');
-            container.classList.add('expanded');
-            container.classList.remove('expanding', 'expanding-' + animId);
-            styleEl.remove();
-          }, duration);
-        } else {
-          actionEl.classList.add('expand-action');
-          actionEl.classList.remove('collapse-action');
+            document.head.append(styleEl);
+            container.classList.remove('collapsed');
+            container.classList.add('expanding', 'expanding-' + animId);
+            setTimeout(() => {
+              container.style.removeProperty('height');
+              container.style.removeProperty('overflow');
+              container.classList.add('expanded');
+              container.classList.remove('expanding', 'expanding-' + animId);
+              styleEl.remove();
+            }, duration);
+          } else {
+            trigger.classList.add('expand-action');
+            trigger.classList.remove('collapse-action');
 
-          actionEl.classList.remove('expanded-state');
-          actionEl.classList.add('collapsed-state');
+            trigger.classList.remove('expanded-state');
+            trigger.classList.add('collapsed-state');
 
-          const styleEl = document.createElement('style');
-          const height = container.getBoundingClientRect().height;
-          const duration = Math.min(500, Math.max(200, height / 5 | 0));
-          container.setAttribute('data-original-height', String(height));
+            const styleEl = document.createElement('style');
+            const height = container.getBoundingClientRect().height;
+            const duration = Math.min(500, Math.max(200, height / 5 | 0));
+            container.setAttribute('data-original-height', String(height));
 
-          styleEl.textContent = `
+            styleEl.textContent = `
                 .collapsing-${animId} { overflow: hidden; animation: collapsing-${animId} ${duration}ms ease forwards; }
                 @keyframes collapsing-${animId} { 100% { height: 0; } }
               `;
-          container.style.height = height + 'px';
-          container.style.overflow = 'hidden';
+            container.style.height = height + 'px';
+            container.style.overflow = 'hidden';
 
-          document.head.append(styleEl);
-          container.classList.remove('expanded');
-          container.classList.add('collapsing', 'collapsing-' + animId);
-          setTimeout(() => {
-            container.style.removeProperty('height');
-            container.style.removeProperty('overflow');
-            container.classList.add('collapsed');
-            container.classList.remove('collapsing', 'collapsing-' + animId);
-            styleEl.remove();
+            document.head.append(styleEl);
+            container.classList.remove('expanded');
+            container.classList.add('collapsing', 'collapsing-' + animId);
             setTimeout(() => {
-              container.classList.add('hide');
-            });
-          }, duration);
+              container.style.removeProperty('height');
+              container.style.removeProperty('overflow');
+              container.classList.add('collapsed');
+              container.classList.remove('collapsing', 'collapsing-' + animId);
+              styleEl.remove();
+              setTimeout(() => {
+                container.classList.add('hide');
+              });
+            }, duration);
+          }
         }
-
         break;
       }
 

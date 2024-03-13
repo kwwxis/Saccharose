@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<html lang="en" class="<%= cookieTernary('nightmode').isTruthy().then('nightmode') %>">
+<html lang="en" class="<%= prefTernary('isNightmode').isTruthy().then('nightmode') %>">
   <head>
     <meta charset="utf-8" />
     <title><%= req.context.getFormattedPageTitle() %></title>
     <meta name="robots" content="noindex, nofollow" />
     <meta name="csrf-token" content="<%= locals.csrfToken || '' %>" />
     <meta name="view-stack" content="<%= req.context.getAllViewNames() %>" />
+    <meta name="user-prefs" content="<%= JSON.stringify(req.context.siteUserPrefs) %>" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="langCodes" content="<%= JSON.stringify(req.context.languages) %>" />
     <% for (let [propName, propValue] of Object.entries(req.context.htmlMetaProps)) { %>
@@ -36,7 +37,7 @@
     <link rel="stylesheet" href="<%= req.context.webpackBundles.appCssBundle %>">
     <link rel="stylesheet" href="<%= req.context.webpackBundles.vueCssBundle %>">
   </head>
-  <body class="<%= req.context.bodyClassString %> <%= cookieTernary('nightmode').isTruthy().then('nightmode') %> <%= req.context.siteModeCssClass %>">
+  <body class="<%= req.context.bodyClassString %> <%= prefTernary('isNightmode').isTruthy().then('nightmode') %> <%= req.context.siteModeCssClass %>">
     <span id="top" style="height:0;width:0;opacity:0"></span>
     <header id="header" class="thin-border">
       <div class="left">
@@ -78,13 +79,7 @@
       <div class="spacer15-vert">
         <%- use('partials/layout/app-language-selectors') %>
       </div>
-      <% if (req.context.siteMode === 'genshin') { %>
-        <%- use('partials/genshin/genshin-menu') %>
-      <% } else if (req.context.siteMode === 'hsr') { %>
-        <%- use('partials/hsr/hsr-menu') %>
-      <% } else if (req.context.siteMode === 'zenless') { %>
-        <%- use('partials/zenless/zenless-menu') %>
-      <% } %>
+      <%- req.context.createSiteSidebarHtml(locals.appSidebarOverlayScroll || false) %>
     </div>
     <div id="mobile-menu-body-cover" class="hide"></div>
     <footer>

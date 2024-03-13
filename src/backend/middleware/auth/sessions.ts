@@ -2,11 +2,12 @@ import passport from 'passport';
 import passport_discord from 'passport-discord';
 import session from 'express-session';
 import { toBoolean } from '../../../shared/util/genericUtil.ts';
-import { SiteUser, SiteUserProvider } from './SiteUserProvider.ts';
+import { SiteUserProvider } from './SiteUserProvider.ts';
 import connectPgSimple from 'connect-pg-simple';
 import { pgPool } from '../../util/db.ts';
 import { Request } from 'express';
 import { SiteAuthEnabled } from '../../loadenv.ts';
+import { SiteUser } from '../../../shared/types/site/site-user-types.ts';
 const DiscordStrategy = passport_discord.Strategy;
 
 passport.serializeUser(function(user, done) {

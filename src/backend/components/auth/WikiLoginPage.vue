@@ -82,7 +82,8 @@
 
 <script setup lang="ts">
 import { getTrace } from '../../middleware/request/tracer.ts';
-import { SiteUser, SiteUserProvider } from '../../middleware/auth/SiteUserProvider.ts';
+import { SiteUserProvider } from '../../middleware/auth/SiteUserProvider.ts';
+import { SiteUser } from '../../../shared/types/site/site-user-types.ts';
 
 const { cont } = defineProps<{
   cont?: string,

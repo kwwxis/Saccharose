@@ -30,8 +30,8 @@
 </template>
 
 <script setup lang="ts">
-import { SiteNotice } from '../../middleware/auth/SiteUserProvider.ts';
 import Icon from '../utility/Icon.vue';
+import { SiteNotice } from '../../../shared/types/site/site-user-types.ts';
 
 const { notices } = defineProps<{
   notices: SiteNotice[]

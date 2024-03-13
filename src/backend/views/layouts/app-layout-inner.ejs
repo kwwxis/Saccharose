@@ -52,13 +52,7 @@
       <%- use(subviewName, subviewStack) %>
     </main>
     <aside id="app-sidebar" class="right">
-      <% if (req.context.siteMode === 'genshin') { %>
-        <%- use('partials/genshin/genshin-menu') %>
-      <% } else if (req.context.siteMode === 'hsr') { %>
-        <%- use('partials/hsr/hsr-menu') %>
-      <% } else if (req.context.siteMode === 'zenless') { %>
-        <%- use('partials/zenless/zenless-menu') %>
-      <% } %>
+      <%- req.context.createSiteSidebarHtml(locals.appSidebarOverlayScroll || false) %>
     </aside>
   </div>
 </div>

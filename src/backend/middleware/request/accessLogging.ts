@@ -11,9 +11,9 @@ morgan.token('date', function(){
 });
 
 morgan.token('url', (req: Request) => decodeURI(req.originalUrl || req.url));
-morgan.token('inputLanguage', (req: Request) => req.cookies['inputLangCode'] || DEFAULT_LANG);
-morgan.token('outputLanguage', (req: Request) => req.cookies['outputLangCode'] || DEFAULT_LANG);
-morgan.token('searchMode', (req: Request) => req.cookies['search-mode'] || DEFAULT_SEARCH_MODE);
+morgan.token('inputLanguage', (req: Request) => req.user?.prefs?.inputLangCode || DEFAULT_LANG);
+morgan.token('outputLanguage', (req: Request) => req.user?.prefs?.outputLangCode || DEFAULT_LANG);
+morgan.token('searchMode', (req: Request) => req.user?.prefs?.searchMode || DEFAULT_SEARCH_MODE);
 morgan.token('siteUser', (req: Request) => {
   if (req.hasOwnProperty('isAuthenticated') && req.isAuthenticated()) {
     return '@' + (req.user.discord_username || '-') + ':' +(req.user.wiki_username || '-');

@@ -16,6 +16,7 @@ import {
   GenshinImageCategoryMap,
   GenshinImageIndexEntity, GenshinImageIndexSearchResult,
 } from '../../shared/types/genshin/genshin-image-index-types.ts';
+import { SitePrefName, SiteUserPrefs } from '../../shared/types/site/site-user-types.ts';
 
 export type ApiParams<T> = T & {
   fields?: string,
@@ -283,6 +284,13 @@ export const genericEndpoints = {
   langDetect: new GenericApiEndpoint<{
     text: string
   }, LangDetectResult>('/lang-detect'),
+
+  getPrefs: new GenericApiEndpoint<{}, SiteUserPrefs>('/prefs'),
+
+  setPrefs: new GenericApiEndpoint<{
+    prefName: SitePrefName,
+    prefValue: SiteUserPrefs[SitePrefName]
+  }, SiteUserPrefs>('/prefs'),
 
   dismissSiteNotice: new GenericApiEndpoint<{
     noticeId: number

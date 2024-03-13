@@ -51,6 +51,8 @@ function createIncludeFunction(req: Request, viewStackPointer: RequestViewStack)
         req,
         bodyClassTernary: req.context.bodyClassTernary.bind(req.context),
         cookieTernary: req.context.cookieTernary.bind(req.context),
+        prefTernary: req.context.prefTernary.bind(req.context),
+        pref: req.context.pref.bind(req.context),
         cookie: req.context.cookie.bind(req.context),
         siteHome: req.context.siteHome,
       }, DEFAULT_GLOBAL_LOCALS, viewStackPointer, typeof locals !== 'object' ? {} : locals),

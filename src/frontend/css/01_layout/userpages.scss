@@ -1,0 +1,12 @@
+.user-settings-sidebar-configuration {
+  label {
+    padding: 2.5px 0;
+  }
+  label:hover {
+    background: #eff8ff;
+
+    body.nightmode & {
+      background: hsl(206deg 33% 31% / 20%);
+    }
+  }
+}
