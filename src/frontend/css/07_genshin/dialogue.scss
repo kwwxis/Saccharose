@@ -156,6 +156,9 @@ button.secondary.small.dialogue-indent-button {
   body.nightmode & {
     background: hsl(240deg 13% 20%);
     border-color: hsl(240deg 13% 28%);
+    &.no-bg {
+      background: 0;
+    }
     &:hover {
       background: hsl(240deg 13% 23%);
     }
