@@ -48,16 +48,24 @@ const allSame = (a: string[]) => {
 
 export async function importVoiceItems() {
   const outDir = process.env.GENSHIN_DATA_ROOT;
-  const jsonDir = getGenshinDataFilePath('./BinOutput/Voice/Items');
+  const jsonDir1 = getGenshinDataFilePath('./BinOutput/Voice/Items');
+  const jsonDir2 = getGenshinDataFilePath('./BinOutput/Voice');
 
   const combined: VoiceItemArrayMap = {};
 
-  const jsonsInDir = fs.readdirSync(jsonDir).filter(file => path.extname(file) === '.json');
+  const jsonsInDir: string[] = [
+    ... fs.readdirSync(jsonDir1).filter(file => path.extname(file) === '.json').map(file => path.join(jsonDir1, file)),
+    ... fs.readdirSync(jsonDir2).filter(file => path.extname(file) === '.json').map(file => path.join(jsonDir2, file)),
+  ];
   const unknownTriggers: Set<string> = new Set();
 
-  jsonsInDir.forEach(file => {
-    const fileData = fs.readFileSync(path.join(jsonDir, file), 'utf8');
+  for (let absolutePathFile of jsonsInDir) {
+    const fileData = fs.readFileSync(absolutePathFile, 'utf8');
     const json: { [guid: string]: any } = JSON.parse(fileData.toString());
+
+    if (typeof json !== 'object') {
+      continue;
+    }
 
     for (let voiceItem of Object.values(json)) {
       voiceItem = normalizeRawJson(voiceItem, VoiceSchema);
@@ -132,7 +140,7 @@ export async function importVoiceItems() {
         combined[key].push(voiceSourceNorm);
       }
     }
-  });
+  }
 
   if (unknownTriggers.size) {
     console.log(chalk.red('Unknown game triggers:', Array.from(unknownTriggers)));
