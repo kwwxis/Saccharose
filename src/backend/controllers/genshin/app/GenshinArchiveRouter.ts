@@ -464,8 +464,11 @@ export default async function(): Promise<Router> {
 
     // Companion Favors:
     if (suite) {
-      companionFavorsWikitext.line(`{{Companion/Header}}`);
+      companionFavorsWikitext.line(`{{Gift Set Character Interactions`);
+      companionFavorsWikitext.setPropPad(12);
       const acc = new TalkConfigAccumulator(ctrl);
+      let increment = 1;
+
       for (let npc of suite.FavoriteNpcVec) {
         for (let rewardEvent of npc.RewardEvents) {
           if (!rewardEvent.TalkId || rewardEvent.FurnitureSuitId !== suite.SuiteId)
@@ -483,13 +486,14 @@ export default async function(): Promise<Router> {
             event: rewardEvent
           });
 
-          companionFavorsWikitext.line(`{{Companion`);
-          companionFavorsWikitext.line(`|character = ${npc.Avatar.NameText}`);
-          companionFavorsWikitext.line(`|rewards = ${rewardEvent.Reward.RewardSummary.CombinedCards}`);
-          companionFavorsWikitext.line(`}}`);
+          companionFavorsWikitext.prop(`character_${increment}`, npc.Avatar.NameText);
+          companionFavorsWikitext.prop(`rewards_${increment}`, rewardEvent.Reward.RewardSummary.CombinedStringsNoLocale);
+          increment++;
         }
       }
-      companionFavorsWikitext.line(`{{Companion/Footer}}`);
+      companionFavorsWikitext.prop('type', 'favorite');
+      companionFavorsWikitext.prop('set', suite.SuiteNameText);
+      companionFavorsWikitext.line(`}}`);
     }
 
     res.render(FurnishingSetSinglePage, {
