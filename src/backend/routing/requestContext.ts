@@ -544,7 +544,7 @@ export class RequestContext {
                   { id: 'textmap-search', name: 'Textmap Search', link: '/hsr/textmap',  bodyClass: 'page--textmap' },
                   { id: 'ol-generator', name: 'OL Generator', link: '/hsr/OL', bodyClass: 'page--OL' },
                   { id: 'excel-usages', name: 'Identifier Usages', link: '/hsr/id-usages', bodyClass: 'page--id-usages' },
-                  { id: 'excel-viewer', name: 'Changelog', link: '/hsr/excel-viewer', bodyClass: 'page--excel-viewer' },
+                  { id: 'excel-viewer', name: 'Excel Viewer', link: '/hsr/excel-viewer', bodyClass: 'page--excel-viewer' },
                 ]
               }
             ]
