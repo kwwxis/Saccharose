@@ -1,7 +1,7 @@
 <div id="app-wrapper" class="wrapper">
-  <% if (siteNotices.length) { %>
+  <% if (siteNoticeBanners.length) { %>
     <div class="site-notice-container">
-      <% for (let siteNotice of siteNotices) { %>
+      <% for (let siteNotice of siteNoticeBanners) { %>
         <div data-site-notice="<%= siteNotice.id %>"
              class="site-notice <%= siteNotice.notice_type %>-notice open-sans-font spacer10-bottom alignStart"
              style="font-size: 13.5px;">

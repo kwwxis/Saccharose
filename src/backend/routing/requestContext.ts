@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import { getWebpackBundleFileNames, WebpackBundles } from './webpackBundle.ts';
 import createHtmlElement from 'create-html-element';
-import { getNodeEnv, SITE_TITLE } from '../loadenv.ts';
+import { getNodeEnv, SITE_TITLE, SiteAuthEnabled } from '../loadenv.ts';
 import { CompareTernary, ternary } from '../../shared/util/genericUtil.ts';
 import { DEFAULT_LANG, LANG_CODES, LANG_CODES_TO_NAME } from '../../shared/types/lang-types.ts';
 import { SEARCH_MODES } from '../../shared/util/searchUtil.ts';
@@ -13,7 +13,7 @@ import {
 import { renderToString as renderVueToString } from 'vue/server-renderer';
 import { App } from 'vue';
 import { isVueApp } from './router.ts';
-import { SiteAuthEnabled, SiteUserProvider } from '../middleware/auth/SiteUserProvider.ts';
+import { SiteUserProvider } from '../middleware/auth/SiteUserProvider.ts';
 import { basename } from 'path';
 import { removeSuffix } from '../../shared/util/stringUtil.ts';
 

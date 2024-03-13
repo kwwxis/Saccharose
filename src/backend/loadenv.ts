@@ -1,12 +1,12 @@
 // File to set 'use strict' and load environment variables
 import 'use-strict';
 import '../shared/polyfills.ts';
-import path from 'path';
+import path, { dirname } from 'path';
 import dotenv from 'dotenv';
-import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { LangCode } from '../shared/types/lang-types.ts';
 import util from 'util';
+import { toBoolean } from '../shared/util/genericUtil.ts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -20,6 +20,7 @@ export const PIPELINE_DIR = path.resolve(__dirname, '../pipeline');
 export const BACKEND_ROOT = __dirname;
 export const SITE_TITLE = 'Saccharose.wiki';
 export const EJS_DELIMITER = '%';
+export const SiteAuthEnabled: boolean = toBoolean(process.env.AUTH_ENABLED);
 
 export const IMAGEDIR_GENSHIN_STATIC = path.resolve(PUBLIC_DIR, './images/genshin/static');
 export const IMAGEDIR_GENSHIN_EXT = path.resolve(process.env.EXT_GENSHIN_IMAGES);

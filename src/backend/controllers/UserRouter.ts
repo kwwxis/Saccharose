@@ -1,9 +1,10 @@
 import { Request, Response, Router } from 'express';
 import { create } from '../routing/router.ts';
-import { SiteAuthEnabled, SiteNotice, SiteUserProvider } from '../middleware/auth/SiteUserProvider.ts';
+import { SiteNotice, SiteUserProvider } from '../middleware/auth/SiteUserProvider.ts';
 import SettingsPage from '../components/auth/SettingsPage.vue';
 import SiteNoticesPage from '../components/site/SiteNoticesPage.vue';
 import NumberFormattingNotice from '../components/site/notices/NumberFormattingNotice.vue';
+import { SiteAuthEnabled } from '../loadenv.ts';
 
 export default async function(): Promise<Router> {
   const router: Router = create();

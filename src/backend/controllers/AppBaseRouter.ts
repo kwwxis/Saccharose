@@ -9,8 +9,9 @@ import { getStarRailControl } from '../domain/hsr/starRailControl.ts';
 import { getZenlessControl } from '../domain/zenless/zenlessControl.ts';
 import { NextFunction, Request, Response, Router } from 'express';
 import SettingsPage from '../components/auth/SettingsPage.vue';
-import { SiteAuthEnabled, SiteUserProvider } from '../middleware/auth/SiteUserProvider.ts';
+import { SiteUserProvider } from '../middleware/auth/SiteUserProvider.ts';
 import UserRouter from './UserRouter.ts';
+import { SiteAuthEnabled } from '../loadenv.ts';
 
 export default async function(): Promise<Router> {
   const router: Router = create({
@@ -26,7 +27,7 @@ export default async function(): Promise<Router> {
         outputLangCode: req.context.outputLangCode,
         inputLangCode: req.context.inputLangCode,
         csrfToken: req.csrfToken(),
-        siteNotices: await SiteUserProvider.getSiteNotices(req.user?.id)
+        siteNoticeBanners: await SiteUserProvider.getSiteNoticesForBanner(req.user?.id)
       };
     }
   });

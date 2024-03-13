@@ -1,12 +1,9 @@
 import passport_discord from 'passport-discord';
 import { openPg } from '../../util/db.ts';
-import { toBoolean } from '../../../shared/util/genericUtil.ts';
 import { Request } from 'express';
 import { isEquiv } from '../../../shared/util/arrayUtil.ts';
 import { saveSession, setSessionUser } from './sessions.ts';
-import { Knex } from 'knex';
-
-export const SiteAuthEnabled: boolean = toBoolean(process.env.AUTH_ENABLED);
+import { LangCode } from '../../../shared/types/lang-types.ts';
 
 export type SiteUser = {
   id: string,
@@ -17,6 +14,14 @@ export type SiteUser = {
   wiki_username?: string,
   wiki_avatar?: string,
   wiki_allowed?: boolean,
+
+  prefs: SiteUserPrefs
+};
+
+export type SiteUserPrefs = {
+  inputLangCode?: LangCode,
+  outputLangCode?: LangCode,
+  isNightmode?: boolean,
 };
 
 export type SiteUserEntity = {
@@ -55,25 +60,14 @@ export const SiteUserProvider = {
     }
   },
 
-  async syncDatabaseStateToRequestUser(req: Request) {
-    if (!req.user?.id) {
-      return;
-    }
-    const dbSiteUser: SiteUser = await this.find(req.user.id);
-
-    if (!isEquiv(dbSiteUser, req.user)) {
-      setSessionUser(req, dbSiteUser);
-      await saveSession(req);
-      req.user = dbSiteUser;
-    }
-  },
-
+  // SITE NOTICE
+  // --------------------------------------------------------------------------------------------------------------
   async getAllSiteNotices(): Promise<SiteNotice[]> {
     return await pg.select('*').from('site_notice').where({notice_enabled: true})
       .orderBy('id', 'DESC').then();
   },
 
-  async getSiteNotices(discordId: string): Promise<SiteNotice[]> {
+  async getSiteNoticesForBanner(discordId: string): Promise<SiteNotice[]> {
     if (!discordId) {
       return [];
     }
@@ -93,6 +87,8 @@ export const SiteUserProvider = {
     });
   },
 
+  // Find User
+  // --------------------------------------------------------------------------------------------------------------
   async find(discordId: string): Promise<SiteUser> {
     const row: SiteUserEntity = await pg.select('*').from('site_user').where({discord_id: discordId}).first().then();
     if (row.wiki_username && !row.json_data?.wiki_allowed) {
@@ -108,6 +104,8 @@ export const SiteUserProvider = {
     return row?.json_data;
   },
 
+  // Check User Status
+  // --------------------------------------------------------------------------------------------------------------
   async isBanned(user: SiteUser): Promise<boolean> {
     if (!user || !user.id) {
       return false;
@@ -131,6 +129,22 @@ export const SiteUserProvider = {
     return row?.wiki_username === wikiUsername;
   },
 
+  // Update/Create
+  // --------------------------------------------------------------------------------------------------------------
+
+  async syncDatabaseStateToRequestUser(req: Request) {
+    if (!req.user?.id) {
+      return;
+    }
+    const dbSiteUser: SiteUser = await this.find(req.user.id);
+
+    if (!isEquiv(dbSiteUser, req.user)) {
+      setSessionUser(req, dbSiteUser);
+      await saveSession(req);
+      req.user = dbSiteUser;
+    }
+  },
+
   async update(discordId: string, payload: Partial<SiteUser>) {
     const data = await SiteUserProvider.find(discordId);
     if (!data) {
@@ -152,6 +166,7 @@ export const SiteUserProvider = {
       id: discordUser.id,
       discord_username: discordUser.username,
       discord: discordUser,
+      prefs: {},
     }
 
     const row: SiteUserEntity = await pg.select('*').from('site_user')

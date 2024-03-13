@@ -2,8 +2,9 @@ import { create } from '../../routing/router.ts';
 import { NextFunction, Request, Response } from 'express';
 import DiscordLoginPage from '../../components/auth/DiscordLoginPage.vue';
 import WikiLoginPage from '../../components/auth/WikiLoginPage.vue';
-import { SiteAuthEnabled, SiteUserProvider } from './SiteUserProvider.ts';
+import { SiteUserProvider } from './SiteUserProvider.ts';
 import UserBannedPage from '../../components/auth/UserBannedPage.vue';
+import { SiteAuthEnabled } from '../../loadenv.ts';
 
 export function createSiteUserMiddlewareRouter() {
   const router = create();
