@@ -97,16 +97,26 @@ export function genericNormText(text: string, langCode: LangCode, opts: NormText
     if (opts.plaintextMcMode === 'male') {
       text = text.replace(/{F#([^}]*)}{M#([^}]*)}/g, '$2');
       text = text.replace(/{M#([^}]*)}{F#([^}]*)}/g, '$1');
+
+      text = text.replace(/{F#([^}]*)}/g, '');
     } else if (opts.plaintextMcMode === 'female') {
       text = text.replace(/{F#([^}]*)}{M#([^}]*)}/g, '$1');
       text = text.replace(/{M#([^}]*)}{F#([^}]*)}/g, '$2');
+
+      text = text.replace(/{M#([^}]*)}/g, '');
     } else {
       text = text.replace(/{F#([^}]*)}{M#([^}]*)}/g, '($2/$1)');
       text = text.replace(/{M#([^}]*)}{F#([^}]*)}/g, '($1/$2)');
+
+      text = text.replace(/{F#([^}]*)}/g, '($1)');
+      text = text.replace(/{M#([^}]*)}/g, '($1)');
     }
   } else {
     text = text.replace(/{F#([^}]*)}{M#([^}]*)}/g, '{{MC|m=$2|f=$1}}');
     text = text.replace(/{M#([^}]*)}{F#([^}]*)}/g, '{{MC|m=$1|f=$2}}');
+
+    text = text.replace(/{F#([^}]*)}/g, '{{MC|f=$1}}');
+    text = text.replace(/{M#([^}]*)}/g, '{{MC|m=$1}}');
   }
 
   if (opts.decolor || opts.plaintext) {
