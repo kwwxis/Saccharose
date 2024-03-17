@@ -104,6 +104,10 @@ export class GenshinVoAppPreloadConfig extends VoAppPreloadConfig {
       title = 'Troubles';
     }
 
+    if (title.startsWith('More about')) {
+      title = title.replace(/^More about/, 'More About');
+    }
+
     if (title.startsWith('Feelings About Ascension - ')) {
       title = title.replace('Feelings About Ascension - Intro', 'Feelings About Ascension - 01');
       title = title.replace('Feelings About Ascension - Building Up', 'Feelings About Ascension - 02');
