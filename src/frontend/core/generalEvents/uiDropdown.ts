@@ -47,13 +47,13 @@ export function onDropdownTriggerClick(actionEl: HTMLElement, preferredDropdownE
   }
 }
 
-export function onDropdownItemClick(actionEl: HTMLElement) {
-  const parentDropdown = actionEl.closest('.ui-dropdown');
+export function onDropdownItemClick(selectedOptionEl: HTMLElement) {
+  const parentDropdown = selectedOptionEl.closest('.ui-dropdown');
 
   if (parentDropdown) {
-    if (!!parentDropdown.querySelector('.option.selected') && actionEl.closest('.option')) {
+    if (!!parentDropdown.querySelector('.option.selected') && selectedOptionEl.closest('.option')) {
       parentDropdown.querySelectorAll('.option.selected').forEach(el => el.classList.remove('selected'));
-      actionEl.classList.add('selected');
+      selectedOptionEl.classList.add('selected');
     }
 
     const toggledBy: HTMLElement = (<any> parentDropdown)._toggledBy;
@@ -62,7 +62,12 @@ export function onDropdownItemClick(actionEl: HTMLElement) {
         ... Array.from(toggledBy.querySelectorAll<HTMLElement>('.current-option')),
         ... Array.from(parentDropdown.querySelectorAll<HTMLElement>('.current-option'))
       ];
-      labels.forEach(el => el.innerText = actionEl.innerText);
+      if (selectedOptionEl.querySelector('.option-text')) {
+        const optionTextHtml: string = selectedOptionEl.querySelector('.option-text').outerHTML;
+        labels.forEach(el => el.innerHTML = optionTextHtml);
+      } else {
+        labels.forEach(el => el.innerText = selectedOptionEl.innerText);
+      }
     }
   }
 

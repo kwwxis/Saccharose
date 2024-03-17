@@ -17,7 +17,6 @@ import {
   toUpper,
   ucFirst,
 } from '../../shared/util/stringUtil.ts';
-import pluralize from 'pluralize';
 import { toInt } from '../../shared/util/numberUtil.ts';
 import { Marker } from '../../shared/util/highlightMarker.ts';
 import { arraySum } from '../../shared/util/arrayUtil.ts';
@@ -80,17 +79,4 @@ export const DEFAULT_GLOBAL_LOCALS = {
   snakeToUpperCamelCase,
   splitCamelcase,
   safeStringify,
-  pluralize: (s: string) => {
-    if (typeof s === 'string') {
-      if (s.endsWith(')')) {
-        return s.replace(/^(.*?)( \(.*?\))$/, (_fm: string, g1: string, g2: string) => {
-          return pluralize(g1) + g2;
-        })
-      } else {
-        return pluralize(s);
-      }
-    } else {
-      return s;
-    }
-  },
 };

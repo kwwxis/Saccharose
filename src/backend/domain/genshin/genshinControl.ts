@@ -161,7 +161,7 @@ import {
   InterActionNextDialogs,
 } from '../../../shared/types/genshin/interaction-types.ts';
 import { CommonLineId } from '../../../shared/types/common-types.ts';
-import { genshin_i18n, GENSHIN_I18N_MAP } from '../i18n.ts';
+import { genshin_i18n, GENSHIN_I18N_MAP, GENSHIN_MATERIAL_TYPE_DESC_PLURAL_MAP } from '../i18n.ts';
 import * as console from 'console';
 import { FullChangelog } from '../../../shared/types/changelog-types.ts';
 import { GameVersion } from '../../../shared/types/game-versions.ts';
@@ -2460,7 +2460,15 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   }
 
   private async postProcessMaterial(material: MaterialExcelConfigData, loadConf: MaterialLoadConf): Promise<MaterialExcelConfigData> {
-    if (!material || !loadConf) {
+    if (!material) {
+      return material;
+    }
+    if (material.TypeDescText) {
+      material.WikiTypeDescText = GENSHIN_MATERIAL_TYPE_DESC_PLURAL_MAP[material.TypeDescText] || material.TypeDescText;
+    } else {
+      material.WikiTypeDescText = material.TypeDescText;
+    }
+    if (!loadConf) {
       return material;
     }
     if (material.Icon) {

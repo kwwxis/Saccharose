@@ -154,6 +154,7 @@ export interface MaterialExcelConfigData {
   SpecialDescTextMapHash?: number,
   TypeDescText?: string,
   TypeDescTextMapHash?: number,
+  WikiTypeDescText?: string,
   EffectIcon?: string,
   EffectName?: string,
   SatiationParams?: any[],

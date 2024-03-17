@@ -249,13 +249,13 @@ button.secondary:not([disabled]):focus,
   border-color: hsla(223, 67%, 18%, 0.5);
 }
 
-button.secondary.active:not(.no-active-style),
-[role='button'].secondary.active:not(.no-active-style),
-.secondary-label.active:not(.no-active-style),
+button.secondary.active:not(.no-active-style):not([ui-action*='dropdown']),
+[role='button'].secondary.active:not(.no-active-style):not([ui-action*='dropdown']),
+.secondary-label.active:not(.no-active-style):not([ui-action*='dropdown']),
 
-button.secondary.active:not([disabled]):not(.no-active-style):hover,
-[role='button'].secondary.active:not([disabled]):not(.no-active-style):hover,
-.secondary-label.active:not([disabled]):not(.no-active-style):hover {
+button.secondary.active:not([disabled]):not(.no-active-style):not([ui-action*='dropdown']):hover,
+[role='button'].secondary.active:not([disabled]):not(.no-active-style):not([ui-action*='dropdown']):hover,
+.secondary-label.active:not([disabled]):not(.no-active-style):not([ui-action*='dropdown']):hover {
   background-color: #3daaf5;
   color: white;
   border: 1px solid hsla(204, 90%, 50%, 1);
@@ -306,17 +306,23 @@ body.nightmode [role='button'].secondary,
 body.nightmode .secondary-label {
   background: hsl(232deg 12% 29% / 30%);
   border: 1px solid hsl(232deg 12% 29% / 35%);
-  //color: hsl(255deg 5% 73%);
   color: #e4c179;
+}
+body.nightmode button.secondary[disabled],
+body.nightmode [role='button'].secondary[disabled],
+body.nightmode .secondary-label[disabled] {
+  background: hsl(232deg 12% 29% / 30%);
+  border: 1px solid hsl(232deg 12% 29% / 35%);
+  color: hsl(40deg 36% 68% / 60%);
 }
 body.nightmode button.secondary.border-light,
 body.nightmode [role='button'].secondary.border-light,
 body.nightmode .secondary-label.border-light {
   border: 1px solid hsl(232deg 12% 29% / 35%);
 }
-body.nightmode button.secondary:hover,
-body.nightmode [role='button'].secondary:hover,
-body.nightmode .secondary-label:hover {
+body.nightmode button.secondary:not([disabled]):hover,
+body.nightmode [role='button'].secondary:not([disabled]):hover,
+body.nightmode .secondary-label:not([disabled]):hover {
   background: hsl(232deg 10% 29% / 50%);
   //color: hsl(255deg 5% 73%);
   color: #f5e8cd;

@@ -1,12 +1,47 @@
 .user-settings-sidebar-configuration {
-  label {
-    padding: 2.5px 0;
+  .content {
+    max-width: 600px;
   }
-  label:hover {
-    background: #eff8ff;
+
+  .level-option {
+    padding: 2.5px 2.5px;
+
+    &[data-parity="odd"] {
+      background: #fafafa;
+      body.nightmode & {
+        background: rgba(255,255,255,0.03);
+      }
+    }
+
+    &:hover {
+      background: #eff8ff;
+
+      body.nightmode & {
+        background: hsl(206deg 33% 31% / 20%);
+      }
+    }
+  }
+
+  .level-1 {
+    .level-option {
+      padding-left: 10px;
+    }
+    border: 1px solid #ccc;
+    padding: 5px 20px;
+    margin-bottom: 10px;
 
     body.nightmode & {
-      background: hsl(206deg 33% 31% / 20%);
+      border-color: hsla(232, 15%, 45%, 1);
+    }
+  }
+  .level-2 {
+    .level-option {
+      padding-left: 30px;
+    }
+  }
+  .level-3 {
+    .level-option {
+      padding-left: 50px;
     }
   }
 }

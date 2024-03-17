@@ -84,33 +84,84 @@
     <div class="user-settings-sidebar-configuration" v-for="conf of sidebarConfigs">
       <h3 class="secondary-header">{{ conf.header.name }}</h3>
       <div class="content">
-        <div v-for="section of conf.sections" class="spacer10-left">
-          <label class="valign">
+        <div class="level-1" v-for="section of conf.sections">
+          <div class="level-option valign" :data-parity="levelOptionNextParity()">
             <span v-html="section.name" class="grow"></span>
-            <span class="dispFlex button-group">
-              <button :class="thingClass(conf.id, section.id, 'shown')" :ui-action="`set-user-pref: siteMenuShown, ${conf.id}|${section.id}|shown; remove-class: parent > button, selected; add-class: self, selected`">Shown</button>
-              <button :class="thingClass(conf.id, section.id, 'collapsed')" :ui-action="`set-user-pref: siteMenuShown, ${conf.id}|${section.id}|collapsed; remove-class: parent > button, selected; add-class: self, selected`">Collapsed</button>
-              <button :class="thingClass(conf.id, section.id, 'hidden')" :ui-action="`set-user-pref: siteMenuShown, ${conf.id}|${section.id}|hidden; remove-class: parent > button, selected; add-class: self, selected`">Hidden</button>
-            </span>
-          </label>
-          <div v-for="content of section.content" class="spacer10-left">
-            <label v-if="content.name" class="valign">
-              <span v-html="content.name" class="grow"></span>
-              <span class="dispFlex button-group">
-                <button :class="thingClass(conf.id, content.id, 'shown')" :ui-action="`set-user-pref: siteMenuShown, ${conf.id}|${content.id}|shown; remove-class: parent > button, selected; add-class: self, selected`">Shown</button>
-                <button :class="thingClass(conf.id, content.id, 'collapsed')" :ui-action="`set-user-pref: siteMenuShown, ${conf.id}|${content.id}|collapsed; remove-class: parent > button, selected; add-class: self, selected`">Collapsed</button>
-                <button :class="thingClass(conf.id, content.id, 'hidden')" :ui-action="`set-user-pref: siteMenuShown, ${conf.id}|${content.id}|hidden; remove-class: parent > button, selected; add-class: self, selected`">Hidden</button>
-              </span>
-            </label>
-            <div v-for="item of content.items" class="spacer10-left">
-              <label class="valign">
-                <span v-html="item.name" class="grow"></span>
-                <span class="dispFlex button-group">
-                  <button :class="thingClass(conf.id, item.id, 'shown')" :ui-action="`set-user-pref: siteMenuShown, ${conf.id}|${item.id}|shown; remove-class: parent > button, selected; add-class: self, selected`">Shown</button>
-                  <button disabled :class="thingClass(conf.id, item.id, 'collapsed')" :ui-action="`set-user-pref: siteMenuShown, ${conf.id}|${item.id}|collapsed; remove-class: parent > button, selected; add-class: self, selected`">Collapsed</button>
-                  <button :class="thingClass(conf.id, item.id, 'hidden')" :ui-action="`set-user-pref: siteMenuShown, ${conf.id}|${item.id}|hidden; remove-class: parent > button, selected; add-class: self, selected`">Hidden</button>
+            <div class="valign posRel no-shrink spacer5-left">
+              <button class="secondary small" ui-action="dropdown">
+                <span class="valign">
+                  <strong class="current-option spacer3-horiz" v-html="levelOptionInitialLabel(conf.id, section.id)"></strong>
+                  <Icon name="chevron-down" />
                 </span>
-              </label>
+              </button>
+              <div class="ui-dropdown">
+                <div :class="levelOptionInitialClass(conf.id, section.id, 'shown')"
+                     :ui-action="`dropdown-item; set-user-pref: siteMenuShown, ${conf.id}|${section.id}|shown`">
+                  <span class="option-text color-green">Shown</span>
+                </div>
+                <div :class="levelOptionInitialClass(conf.id, section.id, 'collapsed')"
+                     :ui-action="`dropdown-item; set-user-pref: siteMenuShown, ${conf.id}|${section.id}|collapsed`">
+                  <span class="option-text color-yellow">Collapsed</span>
+                </div>
+                <div :class="levelOptionInitialClass(conf.id, section.id, 'hidden')"
+                     :ui-action="`dropdown-item; set-user-pref: siteMenuShown, ${conf.id}|${section.id}|hidden`">
+                  <span class="option-text color-red">Hidden</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="level-2" v-for="content of section.content">
+            <div v-if="content.name" class="level-option valign" :data-parity="levelOptionNextParity()">
+              <span v-html="content.name" class="grow"></span>
+              <div class="valign posRel no-shrink spacer5-left">
+                <button class="secondary small" ui-action="dropdown">
+                  <span class="valign">
+                    <strong class="current-option spacer3-horiz" v-html="levelOptionInitialLabel(conf.id, content.id)"></strong>
+                    <Icon name="chevron-down" />
+                  </span>
+                </button>
+                <div class="ui-dropdown">
+                  <div :class="levelOptionInitialClass(conf.id, content.id, 'shown')"
+                       :ui-action="`dropdown-item; set-user-pref: siteMenuShown, ${conf.id}|${content.id}|shown`">
+                    <span class="option-text color-green">Shown</span>
+                  </div>
+                  <div :class="levelOptionInitialClass(conf.id, content.id, 'collapsed')"
+                       :ui-action="`dropdown-item; set-user-pref: siteMenuShown, ${conf.id}|${content.id}|collapsed`">
+                    <span class="option-text color-yellow">Collapsed</span>
+                  </div>
+                  <div :class="levelOptionInitialClass(conf.id, content.id, 'hidden')"
+                       :ui-action="`dropdown-item; set-user-pref: siteMenuShown, ${conf.id}|${content.id}|hidden`">
+                    <span class="option-text color-red">Hidden</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="level-3" v-for="item of content.items">
+              <div class="level-option valign" :data-parity="levelOptionNextParity()">
+                <span v-html="item.name" class="grow"></span>
+                <div class="valign posRel no-shrink spacer5-left">
+                  <button class="secondary small" ui-action="dropdown">
+                    <span class="valign">
+                      <strong class="current-option spacer3-horiz" v-html="levelOptionInitialLabel(conf.id, item.id)"></strong>
+                      <Icon name="chevron-down" />
+                    </span>
+                  </button>
+                  <div class="ui-dropdown">
+                    <div :class="levelOptionInitialClass(conf.id, item.id, 'shown')"
+                         :ui-action="`dropdown-item; set-user-pref: siteMenuShown, ${conf.id}|${item.id}|shown`">
+                      <span class="option-text color-green">Shown</span>
+                    </div>
+                    <div :class="levelOptionInitialClass(conf.id, item.id, 'collapsed')"
+                         :ui-action="`dropdown-item; set-user-pref: siteMenuShown, ${conf.id}|${item.id}|collapsed`">
+                      <span class="option-text color-yellow">Collapsed</span>
+                    </div>
+                    <div :class="levelOptionInitialClass(conf.id, item.id, 'hidden')"
+                         :ui-action="`dropdown-item; set-user-pref: siteMenuShown, ${conf.id}|${item.id}|hidden`">
+                      <span class="option-text color-red">Hidden</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -134,14 +185,29 @@ let isNightmode: boolean = request.user.prefs.isNightmode || false;
 let avatarUrl: string = SiteUserProvider.getAvatarUrl(user);
 let sidebarConfigs: SiteSidebar[] = Object.values(request.context.allSiteSidebarConfig);
 let sidebarShown: SiteMenuShown = request.user.prefs.siteMenuShown || {};
+let sidebarConfigItemCounter: number = 0;
 
-function thingClass(confId: string, thingId: string, thingState: SiteMenuShownType): string {
-  if (sidebarShown[confId]?.[thingId] === thingState) {
-    return 'secondary selected';
-  } if (!sidebarShown[confId]?.[thingId] && thingState === 'shown') {
-    return 'secondary selected';
+function levelOptionNextParity(): string {
+  return sidebarConfigItemCounter++ % 2 === 0 ? 'even' : 'odd';
+}
+
+function levelOptionInitialLabel(confId: string, thingId: string): string {
+  if (sidebarShown[confId]?.[thingId] === 'collapsed') {
+    return '<span class="option-text color-yellow">Collapsed</span>';
+  } else if (sidebarShown[confId]?.[thingId] === 'hidden') {
+    return '<span class="option-text color-red">Hidden</span>';
   } else {
-    return 'secondary';
+    return '<span class="option-text color-green">Shown</span>';
+  }
+}
+
+function levelOptionInitialClass(confId: string, thingId: string, thingState: SiteMenuShownType): string {
+  if (sidebarShown[confId]?.[thingId] === thingState) {
+    return 'option selected';
+  } if (!sidebarShown[confId]?.[thingId] && thingState === 'shown') {
+    return 'option selected';
+  } else {
+    return 'option';
   }
 }
 

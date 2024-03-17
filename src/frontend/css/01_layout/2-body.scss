@@ -63,3 +63,25 @@ body.nightmode .tippy-box {
     display: none;
   }
 }
+
+.color-green {
+  color: #0c742f;
+
+  body.nightmode & {
+    color: #21b252;
+  }
+}
+.color-yellow {
+  color: #ce8d08;
+
+  body.nightmode & {
+    color: #e4ad3c;
+  }
+}
+.color-red {
+  color: #bf0017;
+
+  body.nightmode & {
+    color: #f52b43;
+  }
+}
