@@ -2926,6 +2926,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       let filePath = './Readable/' + localization[pathVar].split('/Readable/')[1] + '.txt';
       try {
         let fileText = await fsp.readFile(this.getDataFilePath(filePath), { encoding: 'utf8' });
+
         let fileNormText = this.normText(fileText, this.outputLangCode)
           .replace(/<br \/>/g, '<br />\n')
           .replace(/^\n\n+/gm, fm => {
@@ -2933,12 +2934,15 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
           })
           .replace(/[ \t]+<br \/>/g, '<br />')
           .replace(/[ \t]+$/gm, '');
+
         ret = {
           Index: itemIndex,
           IsAlternate: itemIsAlt,
           Localization: localization,
           LocalizationName: fileName,
-          ReadableText: fileNormText,
+          ReadableText: fileNormText
+            .replace(/\n\n+/g, '<br /><br />\n')
+            .replace(/\n/g, '<!--\n-->'),
           ReadableTextAsTemplate: `{{Readable|title=${document.TitleText || ''}\n|text=<!--\n-->`
             + fileNormText
               .replace(/\n\n+/g, '<br /><br />\n')

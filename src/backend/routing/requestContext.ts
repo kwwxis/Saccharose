@@ -512,7 +512,10 @@ export class RequestContext {
                 name: 'Main Data',
                 items: [
                   { id: 'tcg-cards', name: 'TCG Cards', link: '/TCG/cards', bodyClass: 'page--tcg-card' },
-                  { id: 'tcg-stages', name: 'TCG Stages', link: '/TCG/stages', bodyClass: 'page--tcg-stage' },
+                  { id: 'tcg-stages', name: 'TCG Stages', link: '/TCG/stages', bodyClass: 'page--tcg-stage', rightSideButton: {
+                    name: 'Search',
+                    link: '/TCG/stages/search'
+                  } },
                 ]
               },
               {

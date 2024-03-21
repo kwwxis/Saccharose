@@ -43,7 +43,7 @@ async function ol_gen_internal(ctrl: AbstractControl,
   } else {
     sbOut.line('{{Other Languages');
   }
-  sbOut.setPropPad(opts.hideTl && opts.hideRm ? 5 : 8);
+  sbOut.setPropPad(opts.hideTl && opts.hideRm ? 5 : 9);
   for (let item of templateConfig) {
     if (ctrl.disabledLangCodes.has(item.langCode)) {
       continue;

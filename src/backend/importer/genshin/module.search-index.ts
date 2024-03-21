@@ -6,6 +6,7 @@ import { ReadableView } from '../../../shared/types/genshin/readable-types.ts';
 import { AchievementExcelConfigData } from '../../../shared/types/genshin/achievement-types.ts';
 import { selectTutorials } from '../../domain/genshin/archive/tutorials.ts';
 import { TutorialsByType } from '../../../shared/types/genshin/tutorial-types.ts';
+import { getGCGControl } from '../../domain/genshin/gcg/gcg_control.ts';
 
 export async function importSearchIndex() {
   if (!fs.existsSync(getGenshinDataFilePath('./TextMap/Index/'))) {
@@ -113,7 +114,7 @@ export async function importSearchIndex() {
   {
     process.stdout.write(chalk.bold('Generating tutorial index...'));
     const tutorialsByType: TutorialsByType = await selectTutorials(ctrl);
-    const tutorialIndex: { [id: number]: number } = {};
+    const tutorialIndex: { [textMapHash: number]: number } = {};
     for (let tutorials of Object.values(tutorialsByType)) {
       for (let tutorial of tutorials) {
         if (tutorial.PushTip?.TitleTextMapHash) {
@@ -129,5 +130,23 @@ export async function importSearchIndex() {
       }
     }
     writeOutput('Tutorial', tutorialIndex);
+  }
+  // TCG Stage Index
+  // --------------------------------------------------------------------------------------------------------------
+  {
+    process.stdout.write(chalk.bold('Generating TCG stage index...'));
+    const gcg = getGCGControl(ctrl);
+
+    const tcgStageIndex: { [textMapHash: number]: number } = {};
+    const stages = await gcg.selectAllStage();
+    for (let stage of stages) {
+      if (stage.EnemyNameText) {
+        tcgStageIndex[stage.EnemyNameTextMapHash] = stage.Id;
+      }
+      if (stage.Reward?.LevelNameText) {
+        tcgStageIndex[stage.Reward.LevelNameTextMapHash] = stage.Id;
+      }
+    }
+    writeOutput('TCGStage', tcgStageIndex);
   }
 }

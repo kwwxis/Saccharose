@@ -44,6 +44,7 @@ import './pages/genshin/archive/material-search.ts';
 import './pages/genshin/archive/weapon-search.ts';
 import './pages/genshin/archive/furniture-list.ts';
 import './pages/genshin/archive/tutorials-search.ts';
+import './pages/genshin/gcg/gcg-stage-search.page.ts';
 
 // Genshin VO Tool and Media Pages
 // ----------------------------------------------------------------------------------------------------

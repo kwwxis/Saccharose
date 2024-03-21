@@ -612,7 +612,29 @@ export class GCGControl {
   }
 
   async selectStage(id: number, disableLoad: GCGStageLoadOptions = {}): Promise<GCGGameExcelConfigData> {
-    return await this.singleSelect('GCGGameExcelConfigData', 'Id', id, o => this.postProcessStage(o, disableLoad));
+    return await this.singleSelect('GCGGameExcelConfigData', 'Id', id,
+        o => this.postProcessStage(o, disableLoad));
+  }
+
+  async searchStages(searchText: string, searchFlags: string, disableLoad: GCGStageLoadOptions = {}): Promise<GCGGameExcelConfigData[]> {
+    if (!searchText || !searchText.trim()) {
+      return []
+    } else {
+      searchText = searchText.trim();
+    }
+
+    const ids: number[] = [];
+
+    if (isInt(searchText)) {
+      ids.push(toInt(searchText));
+    }
+
+    await this.ctrl.streamTextMapMatchesWithIndex(this.ctrl.inputLangCode, searchText, 'TCGStage', (id) => {
+      ids.push(id);
+    }, searchFlags);
+
+    return await this.multiSelect('GCGGameExcelConfigData', 'Id', ids,
+        o => this.postProcessStage(o, disableLoad));
   }
 
   getStageForJson(stage: GCGGameExcelConfigData, unmap: boolean = false): GCGGameExcelConfigData {

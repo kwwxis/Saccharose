@@ -15,6 +15,8 @@ import { queryTab } from '../../../middleware/util/queryTab.ts';
 import { generateCardPage, generateSkillPage, generateStageTemplate } from '../../../domain/genshin/gcg/gcg_wikitext.ts';
 import { Request, Response, Router } from 'express';
 import { ApiCyclicValueReplacer } from '../../../middleware/api/apiCyclicValueReplacer.ts';
+import GcgStageListPage from '../../../components/genshin/gcg/GcgStageListPage.vue';
+import GcgStageSearchPage from '../../../components/genshin/gcg/GcgStageSearchPage.vue';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -46,9 +48,16 @@ export default async function(): Promise<Router> {
       stagesByGroupAndType[stage.WikiGroup || 'No Group'][stage.WikiType || 'No Type'].push(stage);
     }
 
-    res.render('pages/genshin/gcg/gcg-stage-list', {
+    res.render(GcgStageListPage, {
       title: 'TCG Stages',
       stagesByGroupAndType,
+      bodyClass: ['page--tcg-stage']
+    });
+  });
+
+  router.get('/TCG/stages/search', async (req: Request, res: Response) => {
+    res.render(GcgStageSearchPage, {
+      title: 'TCG Stage Search',
       bodyClass: ['page--tcg-stage']
     });
   });

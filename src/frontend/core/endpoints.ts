@@ -240,6 +240,8 @@ export const genshinEndpoints = {
     searchMode?: string,
   }, GenshinImageIndexSearchResult>('/media/search'),
   mediaCategory: new GenshinApiEndpoint<{}, GenshinImageCategoryMap>('/media/category'),
+
+  searchTcgStages: new GenshinApiEndpoint<{text: string}>('/gcg/stage-search'),
 };
 
 export const starRailEndpoints = {
