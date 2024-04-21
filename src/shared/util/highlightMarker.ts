@@ -1,6 +1,6 @@
 import { isInt, toInt } from './numberUtil.ts';
 import { escapeRegExp } from './stringUtil.ts';
-import { IndexedRange, inRange, intersectRange, rangeLen } from './arrayUtil.ts';
+import { IndexedRange, inRange, rangeLen } from './arrayUtil.ts';
 
 /**
  * An adjustment to the content-text that may change the positions of markers.

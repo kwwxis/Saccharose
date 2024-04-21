@@ -2,8 +2,7 @@ import { SITE_MODE_WIKI_DOMAIN } from '../../userPreferences/siteMode.ts';
 import { escapeHtml, fromParam, toParam, ucFirst } from '../../../../shared/util/stringUtil.ts';
 import { getSiblingsOfSameClass, hasSelection } from '../../../util/domutil.ts';
 import { listen, runWhenDOMContentLoaded } from '../../../util/eventListen.ts';
-import { defaultMap } from '../../../../shared/util/genericUtil.ts';
-import { AceTooltip, createAceTooltip, determineTooltipPlacement } from '../aceTooltips.ts';
+import { AceTooltip, createAceTooltip } from '../aceTooltips.ts';
 
 // noinspection JSDeprecatedSymbols
 const isMac: boolean = navigator.platform.toUpperCase().indexOf('MAC') >= 0;

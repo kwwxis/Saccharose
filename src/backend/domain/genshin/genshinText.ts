@@ -89,7 +89,6 @@ function __travelerPlaceholder(langCode: LangCode = 'EN', degender: boolean = fa
     case 'VI':
       return '(Nhà Lữ Hành)';
   }
-  return '(Traveler)';
 }
 
 /**
@@ -155,7 +154,7 @@ export function __normGenshinText(text: string, langCode: LangCode, opts: NormTe
   text = text.replace(/\{REALNAME\[ID\(1\)(\|HOSTONLY\(true\))?(\|DELAYHANDLE\((true|false)\))?]}/g, '(Wanderer)');
 
   if (!opts.plaintext) {
-    text = text.replace(/\{SPRITE_PRESET#(\d+)}/g, (fm: string, g1: string) => {
+    text = text.replace(/\{SPRITE_PRESET#(\d+)}/g, (_fm: string, g1: string) => {
       let image = GENSHIN_SPRITE_TAGS[parseInt(g1)].Image;
       image = image.split('/').pop();
       return '{{Sprite|' + image + '}}';
@@ -261,7 +260,7 @@ export async function loadGenshinTextSupportingData(): Promise<void> {
 
   const interActionD2FName = ctrl.getDataFilePath('InterActionD2F.json');
   if (fs.existsSync(interActionD2FName)) {
-    let json = await fsp.readFile(interActionD2FName, {encoding: 'utf8'}).then(data => JSON.parse(data));
+    const json = await fsp.readFile(interActionD2FName, {encoding: 'utf8'}).then(data => JSON.parse(data));
     Object.assign(INTER_ACTION_D2F, json);
   }
 

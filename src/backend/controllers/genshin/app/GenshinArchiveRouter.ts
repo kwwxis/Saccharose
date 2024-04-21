@@ -30,9 +30,7 @@ import { defaultMap, toBoolean } from '../../../../shared/util/genericUtil.ts';
 import AchievementPage from '../../../components/genshin/achievements/AchievementPage.vue';
 import FurnishingSetListingPage from '../../../components/genshin/furnishings/FurnishingSetListingPage.vue';
 import {
-  FurnitureSuiteExcelConfigData,
-  FurnitureSuiteTree, HomeWorldEventExcelConfigData, HomeWorldFurnitureExcelConfigData, HomeWorldFurnitureTypeTree,
-  HomeWorldNPCExcelConfigData,
+  FurnitureSuiteTree, HomeWorldEventExcelConfigData, HomeWorldNPCExcelConfigData,
 } from '../../../../shared/types/genshin/homeworld-types.ts';
 import FurnishingSetSinglePage from '../../../components/genshin/furnishings/FurnishingSetSinglePage.vue';
 import {

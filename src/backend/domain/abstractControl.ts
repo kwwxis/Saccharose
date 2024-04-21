@@ -20,7 +20,7 @@ import {
 import fs, { promises as fsp } from 'fs';
 import { getPlainTextMapRelPath, getTextIndexRelPath } from '../loadenv.ts';
 import path, { basename } from 'path';
-import { escapeRegExp, isString, isStringBlank, titleCase, ucFirst } from '../../shared/util/stringUtil.ts';
+import { escapeRegExp, isString, isStringBlank, titleCase } from '../../shared/util/stringUtil.ts';
 import { isInt, maybeInt, toInt } from '../../shared/util/numberUtil.ts';
 import {
   getLineNumberForLineText,
@@ -34,9 +34,7 @@ import { ExtractScalar } from '../../shared/types/utility-types.ts';
 import { ArrayStream } from '../../shared/util/arrayUtil.ts';
 import { Request } from 'express';
 import { defaultMap } from '../../shared/util/genericUtil.ts';
-import { LangDetectResult } from '../../shared/types/common-types.ts';
 import { Marker } from '../../shared/util/highlightMarker.ts';
-import { SiteSidebar } from '../../shared/types/site/site-sidebar-types.ts';
 
 export abstract class AbstractControlState {
   public request: Request = null;

@@ -8,7 +8,6 @@ import { QuestGenerateResult } from './quest_generator.ts';
 import { MetaProp, MetaPropAcceptValue } from '../../../util/metaProp.ts';
 import { toBoolean } from '../../../../shared/util/genericUtil.ts';
 import { Marker } from '../../../../shared/util/highlightMarker.ts';
-import { SbOut } from '../../../../shared/util/stringUtil.ts';
 import { ChapterExcelConfigData, MainQuestExcelConfigData } from '../../../../shared/types/genshin/quest-types.ts';
 import { cached } from '../../../util/cache.ts';
 import toposort from 'toposort';
@@ -18,7 +17,6 @@ import { closeKnex } from '../../../util/db.ts';
 import { isInt } from '../../../../shared/util/numberUtil.ts';
 import { custom } from '../../../util/logger.ts';
 import { CommonLineId } from '../../../../shared/types/common-types.ts';
-import { RewardExcelConfigData } from '../../../../shared/types/genshin/material-types.ts';
 
 // region Class: DialogBranchingCache
 // --------------------------------------------------------------------------------------------------------------

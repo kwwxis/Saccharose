@@ -14,7 +14,7 @@ import { MwArticleInfo, MwArticleSearchResult, MwRevision, MwRevLoadMode } from 
 import { RequireOnlyOne } from '../../shared/types/utility-types.ts';
 import {
   GenshinImageCategoryMap,
-  GenshinImageIndexEntity, GenshinImageIndexSearchResult,
+  GenshinImageIndexSearchResult,
 } from '../../shared/types/genshin/genshin-image-index-types.ts';
 import { SitePrefName, SiteUserPrefs } from '../../shared/types/site/site-user-types.ts';
 

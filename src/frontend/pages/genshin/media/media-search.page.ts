@@ -1,8 +1,6 @@
 import { pageMatch } from '../../../core/pageMatch.ts';
 import { GenericSearchPageHandle, startGenericSearchPageListeners } from '../../genericSearchPage.ts';
 import { genshinEndpoints } from '../../../core/endpoints.ts';
-import { GenshinImageIndexSearchResult } from '../../../../shared/types/genshin/genshin-image-index-types.ts';
-import { toInt } from '../../../../shared/util/numberUtil.ts';
 import { frag1, isElementPartiallyInViewport } from '../../../util/domutil.ts';
 import { escapeHtml } from '../../../../shared/util/stringUtil.ts';
 

@@ -1,7 +1,7 @@
 import { pageMatch } from '../../../core/pageMatch.ts';
 import { Marker } from '../../../../shared/util/highlightMarker.ts';
 import { highlightExistingElement, highlightWikitext } from '../../../core/ace/aceHighlight.ts';
-import { frag, textNodesUnder } from '../../../util/domutil.ts';
+import { frag } from '../../../util/domutil.ts';
 
 pageMatch('vue/VuePageTest', () => {
   const testEl: HTMLElement = document.getElementById('my-test');

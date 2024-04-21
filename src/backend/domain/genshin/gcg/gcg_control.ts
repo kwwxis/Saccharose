@@ -38,7 +38,6 @@ import { standardElementCode } from '../../../../shared/types/genshin/manual-tex
 import { html2quotes, unnestHtmlTags } from '../../../../shared/mediawiki/mwQuotes.ts';
 import { loadGenshinTextSupportingData } from '../genshinText.ts';
 import { dialogueGenerateByNpc, NpcDialogueResult } from '../dialogue/basic_dialogue_generator.ts';
-import * as console from 'console';
 import { mapBy } from '../../../../shared/util/arrayUtil.ts';
 
 // noinspection JSUnusedGlobalSymbols

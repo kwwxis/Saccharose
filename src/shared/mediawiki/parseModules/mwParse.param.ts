@@ -1,8 +1,5 @@
 import { MwParseModule } from '../mwParseModule.ts';
 import {
-  MwCharSequence,
-  MwEOL,
-  MwNode,
   MwParamNode,
   MwParamNodePrefixType,
   MwParamParentType,

@@ -15,6 +15,7 @@
         </div>
         <SearchModeInput />
       </div>
+      <p class="spacer5-top">For this specific tool, the <code>W</code> and <code>WI</code> search modes are treated the same as <code>C</code> and <code>CI</code> repsectively due to word-search not working well on the image names.</p>
       <div class="field valign spacer10-top">
         <button class="image-name-search-submit primary primary--2">Search</button>
         <div class="image-name-search-submit-pending hide loading small spacer5-left"></div>

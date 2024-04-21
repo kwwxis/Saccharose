@@ -3,9 +3,7 @@
 import * as ace from 'brace';
 import { MW_BEHAVIOR_SWITCHES_REGEX } from '../../../../shared/mediawiki/parseModules/mwParse.specialText.ts';
 import { MW_URL_SCHEME_REGEX } from '../../../../shared/mediawiki/parseModules/mwParse.link.ts';
-import { getQuotePosMap, getQuoteTypes } from '../../../../shared/mediawiki/mwQuotes.ts';
 import { MW_VARIABLES_REGEX } from '../../../../shared/mediawiki/parseModules/mwParse.template.ts';
-import { filterInPlace } from '../../../../shared/util/arrayUtil.ts';
 import { quotifyWikitextTokens } from './aceWikitextQuotify.ts';
 
 // <any> cast because brace doesn't expose the 'define' method in its types.

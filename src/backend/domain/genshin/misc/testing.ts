@@ -1,25 +1,8 @@
 import '../../../loadenv.ts';
-import { GenshinControl, getGenshinControl, loadGenshinVoiceItems } from '../genshinControl.ts';
+import { getGenshinControl, loadGenshinVoiceItems } from '../genshinControl.ts';
 import { pathToFileURL } from 'url';
-import util from 'util';
 import { closeKnex } from '../../../util/db.ts';
-import { cleanEmpty, resolveObjectPath, sort } from '../../../../shared/util/arrayUtil.ts';
-import { DialogueSectionResult, talkConfigGenerate } from '../dialogue/dialogue_util.ts';
-import { TalkExcelConfigData } from '../../../../shared/types/genshin/dialogue-types.ts';
-import { mwParse } from '../../../../shared/mediawiki/mwParse.ts';
-import { MwParentNode, MwTemplateNode } from '../../../../shared/mediawiki/mwParseTypes.ts';
-import { isInt, isNumeric, toNumber } from '../../../../shared/util/numberUtil.ts';
-import { toBoolean } from '../../../../shared/util/genericUtil.ts';
-import JSON5 from 'json5';
-import { evaluateCustomFormat } from '../../../util/fileFormatOptions.ts';
-import { AchievementExcelConfigData, AchievementGoalExcelConfigData } from '../../../../shared/types/genshin/achievement-types.ts';
-import { getLineNumberForLineText } from '../../../util/shellutil.ts';
-import { getGenshinDataFilePath } from '../../../loadenv.ts';
-import { uuidv4 } from '../../../../shared/util/uuidv4.ts';
 import { loadGenshinTextSupportingData } from '../genshinText.ts';
-import { getQuotePosMap } from '../../../../shared/mediawiki/mwQuotes.ts';
-import { keys } from 'ag-grid-community/dist/lib/utils/map';
-import fs from 'fs';
 import './testing2.ts';
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {

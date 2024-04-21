@@ -25,7 +25,6 @@ import { ViewCodexExcelConfigData } from '../../../../shared/types/genshin/viewp
 import { selectViewpointsByIds } from '../archive/viewpoints.ts';
 import { selectLoadingTips } from '../archive/loadingTips.ts';
 import { selectTutorials } from '../archive/tutorials.ts';
-import { orderChapterQuests } from '../dialogue/dialogue_util.ts';
 
 export type GenshinChangelogNewRecordSummary = {
   avatars: AvatarExcelConfigData[],

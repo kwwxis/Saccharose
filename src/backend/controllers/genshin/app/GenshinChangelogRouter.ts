@@ -8,7 +8,7 @@ import GenshinChangelogSingleExcelPage
   from '../../../components/genshin/changelogs/GenshinChangelogSingleExcelPage.vue';
 import { generateGenshinChangelogNewRecordSummary } from '../../../domain/genshin/changelog/genshinChangelogHelpers.ts';
 import { isInt } from '../../../../shared/util/numberUtil.ts';
-import { LANG_CODES, LangCode, LangCodeMap } from '../../../../shared/types/lang-types.ts';
+import { LANG_CODES, LangCodeMap } from '../../../../shared/types/lang-types.ts';
 
 export default async function(): Promise<Router> {
   const router: Router = create();

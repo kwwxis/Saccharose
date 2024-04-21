@@ -2,9 +2,8 @@ import { WikiRevAppState } from '../rev-app-main.ts';
 import { DiffUI } from '../../../../util/DiffUI.ts';
 import { listen } from '../../../../util/eventListen.ts';
 import { ColorSchemeType, OutputFormatType } from 'diff2html/lib/types';
-import { clearElements, frag1, isElementPartiallyInViewport } from '../../../../util/domutil.ts';
+import { clearElements, frag1 } from '../../../../util/domutil.ts';
 import { isNightmode } from '../../../../core/userPreferences/siteTheme.ts';
-import { isset } from '../../../../../shared/util/genericUtil.ts';
 import { templateIcon } from '../../../../util/templateIcons.ts';
 
 let currDiffUI: DiffUI;

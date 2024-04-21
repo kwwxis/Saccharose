@@ -1,4 +1,4 @@
-import { Listener, listen } from '../../../util/eventListen.ts';
+import { listen } from '../../../util/eventListen.ts';
 import Cookies from 'js-cookie';
 import { flashTippy } from '../../../util/tooltipUtil.ts';
 import {

@@ -3,7 +3,7 @@ import { closeKnex } from '../../../util/db.ts';
 import { GenshinControl, getGenshinControl } from '../genshinControl.ts';
 import { cached } from '../../../util/cache.ts';
 import { toInt } from '../../../../shared/util/numberUtil.ts';
-import { HomeWorldEventExcelConfigData, HomeWorldNPCExcelConfigData } from '../../../../shared/types/genshin/homeworld-types.ts';
+import { HomeWorldNPCExcelConfigData } from '../../../../shared/types/genshin/homeworld-types.ts';
 import { grep } from '../../../util/shellutil.ts';
 import { DialogueSectionResult, TalkConfigAccumulator, talkConfigGenerate } from '../dialogue/dialogue_util.ts';
 import util from 'util';

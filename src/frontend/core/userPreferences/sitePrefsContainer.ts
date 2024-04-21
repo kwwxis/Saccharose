@@ -1,4 +1,4 @@
-import { SitePrefName, SiteUser, SiteUserPrefs } from '../../../shared/types/site/site-user-types.ts';
+import { SitePrefName, SiteUserPrefs } from '../../../shared/types/site/site-user-types.ts';
 import { genericEndpoints } from '../endpoints.ts';
 
 const metaEl = document.querySelector<HTMLMetaElement>('meta[name="user-prefs"]');

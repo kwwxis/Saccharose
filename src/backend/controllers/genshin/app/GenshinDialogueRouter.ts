@@ -3,7 +3,6 @@ import { reminderGenerateAll } from '../../../domain/genshin/dialogue/reminder_g
 import { getGenshinControl } from '../../../domain/genshin/genshinControl.ts';
 import { toInt } from '../../../../shared/util/numberUtil.ts';
 import { ol_gen_from_id } from '../../../domain/generic/basic/OLgen.ts';
-import { orderChapterQuests } from '../../../domain/genshin/dialogue/dialogue_util.ts';
 import { Request, Response, Router } from 'express';
 
 export default async function(): Promise<Router> {

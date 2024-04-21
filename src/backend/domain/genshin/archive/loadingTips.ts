@@ -2,7 +2,6 @@ import util from 'util';
 import { pathToFileURL } from 'url';
 import { GenshinControl, getGenshinControl } from '../genshinControl.ts';
 import { closeKnex } from '../../../util/db.ts';
-import { defaultMap } from '../../../../shared/util/genericUtil.ts';
 import { WorldAreaConfigData } from '../../../../shared/types/genshin/general-types.ts';
 import { sort, toMap } from '../../../../shared/util/arrayUtil.ts';
 import { SbOut } from '../../../../shared/util/stringUtil.ts';

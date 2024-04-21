@@ -29,7 +29,6 @@ import { logInit } from './util/logger.ts';
 import imageBaseRouter from './controllers/ImageBaseRouter.ts';
 import { createStaticImagesHandler } from './middleware/request/staticImagesHandler.ts';
 import { ScriptJobCoordinator } from './util/scriptJobs.ts';
-import passport from 'passport';
 import authRouter from './controllers/AuthRouter.ts';
 import { createSiteUserMiddlewareRouter } from './middleware/auth/siteUserMiddleware.ts';
 

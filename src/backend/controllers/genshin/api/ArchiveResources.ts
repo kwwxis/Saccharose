@@ -6,7 +6,6 @@ import { WeaponExcelConfigData } from '../../../../shared/types/genshin/weapon-t
 import { AchievementExcelConfigData } from '../../../../shared/types/genshin/achievement-types.ts';
 import { Request, Response, Router } from 'express';
 import {
-  pushTipCodexTypeName,
   searchTutorials,
   selectTutorials, TUTORIAL_DEFAULT_FILE_FORMAT_IMAGE,
   TUTORIAL_FILE_FORMAT_PARAMS,

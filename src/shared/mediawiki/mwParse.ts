@@ -1,5 +1,4 @@
 import {
-  MwComment,
   MwEOL,
   MwNode,
   MwParentNode,
@@ -12,7 +11,6 @@ import { MwParseTemplateModule } from './parseModules/mwParse.template.ts';
 import { MwParsePlaintextModule } from './parseModules/mwParse.plaintext.ts';
 import { MwParseModule } from './mwParseModule.ts';
 import { MwParseLinkModule } from './parseModules/mwParse.link.ts';
-import { isStringBlank } from '../util/stringUtil.ts';
 import { MwParseParamModule } from './parseModules/mwParse.param.ts';
 import { MwParseSpecialTextModule } from './parseModules/mwParse.specialText.ts';
 import { MwParseSectionModule } from './parseModules/mwParse.section.ts';

@@ -1,8 +1,6 @@
-import util from 'util';
 import { loadResourceAsString } from '../../../spec-util';
 import { createVoHandle, enforcePropOrderItem } from '../../../../src/frontend/pages/generic/vo-tool/vo-handle';
 import { pathToFileURL } from 'url'
-import { resolveObjectPath } from '../../../../src/shared/util/arrayUtil';
 import { VoAppConfig } from '../../../../src/frontend/pages/generic/vo-tool/vo-tool.ts';
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {

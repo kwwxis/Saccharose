@@ -8,10 +8,8 @@ import { getGenshinControl } from '../domain/genshin/genshinControl.ts';
 import { getStarRailControl } from '../domain/hsr/starRailControl.ts';
 import { getZenlessControl } from '../domain/zenless/zenlessControl.ts';
 import { NextFunction, Request, Response, Router } from 'express';
-import SettingsPage from '../components/auth/SettingsPage.vue';
 import { SiteUserProvider } from '../middleware/auth/SiteUserProvider.ts';
 import UserRouter from './UserRouter.ts';
-import { SiteAuthEnabled } from '../loadenv.ts';
 
 export default async function(): Promise<Router> {
   const router: Router = create({

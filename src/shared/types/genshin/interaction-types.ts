@@ -1,5 +1,4 @@
 import { SchemaTable } from '../../../backend/importer/import_db.ts';
-import { isInt } from '../../util/numberUtil.ts';
 
 export const InterActionSchema = <SchemaTable> {
   name: 'InterAction',

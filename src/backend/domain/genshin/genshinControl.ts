@@ -3279,21 +3279,35 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
     if (query) {
       switch (searchMode) {
+        // case 'W':
+        // case 'WI':
+        //   builder = builder.whereRaw(`ts @@ plainto_tsquery('english', :query)`, { query });
+        //   break;
         case 'W':
-        case 'WI':
-          builder = builder.whereRaw(`ts @@ to_tsquery('english', :query)`, { query });
-          break;
         case 'C':
           builder = builder.where('image_name', 'LIKE', '%' + query + '%');
+          if (query.includes(' ')) {
+            builder = builder.orWhere('image_name', 'LIKE', '%' + query.replace(/ /g, '_') + '%');
+          }
           break;
+        case 'WI':
         case 'CI':
           builder = builder.where('image_name', 'ILIKE', '%' + query + '%');
+          if (query.includes(' ')) {
+            builder = builder.orWhere('image_name', 'ILIKE', '%' + query.replace(/ /g, '_') + '%');
+          }
           break;
         case 'R':
           builder = builder.where('image_name', '~', query);
+          if (query.includes(' ')) {
+            builder = builder.orWhere('image_name', '~', query.replace(/ /g, '_'));
+          }
           break;
         case 'RI':
           builder = builder.where('image_name', '~*', query);
+          if (query.includes(' ')) {
+            builder = builder.orWhere('image_name', '~*', query.replace(/ /g, '_'));
+          }
           break;
       }
     }
