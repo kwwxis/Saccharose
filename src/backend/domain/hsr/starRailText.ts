@@ -68,6 +68,7 @@ export function __normStarRailText(text: string, langCode: LangCode, opts: NormT
   text = text.replace(/<\/?unbreak>/g, '');
   text = text.replace(/<align="([^"]+)">/g, '<div align="$1">');
   text = text.replace(/<\/align>/g, '</div>');
+  text = text.replace(/<size=([^>]+)>(.*?)<\/size>/gs, opts.plaintext ? '$2' : '{{Size|$1|$2}}');
 
   if (!opts.decolor && !opts.plaintext) {
     text = text.replace(/<color=#\{0}>(.*?)<\/color>/g, `<b>$1</b>`);

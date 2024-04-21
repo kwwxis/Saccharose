@@ -111,6 +111,7 @@ export function __normGenshinText(text: string, langCode: LangCode, opts: NormTe
   text = genericNormText(text, langCode, opts);
   text = text.replace(/<right>/g, '<div class="align-right">');
   text = text.replace(/<\/right>/g, '</div>');
+  text = text.replace(/<size=([^>]+)>(.*?)<\/size>/gs, '$2');
 
   if (!opts.decolor && !opts.plaintext) {
     // Bold:
