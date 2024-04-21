@@ -89,7 +89,7 @@ export function genericNormText(text: string, langCode: LangCode, opts: NormText
   text = text.replace(/{NICKNAME}/g, opts.mcPlaceholderProvider(opts.mcPlaceholderForceLangCode || langCode, true));
   text = text.replace(/{NON_BREAK_SPACE}/g, opts.plaintext ? ' ' : '&nbsp;');
   text = text.replace(/\u00A0/g, opts.plaintext ? ' ' : '&nbsp;');
-  text = text.replace(/<size=[^>]+>(.*?)<\/size>/gs, '$1');
+  text = text.replace(/<size=([^>]+)>(.*?)<\/size>/gs, opts.plaintext ? '$2' : '{{Size|$1|$2}}');
   text = text.replace(/<i>(.*?)<\/i>/gs, opts.plaintext ? '$1' : `''$1''`);
   text = text.replace(/<\/?c\d>/g, '');
 
