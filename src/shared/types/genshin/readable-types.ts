@@ -143,6 +143,6 @@ export interface DocumentExcelConfigData {
   SubtitleId?: number,
 
   ContentLocalizedIds: number[],
-  AltContentLocalizedQuestConds: number[], // Quest trigger condition for alternate
-  AltContentLocalizedIds: number[], // Alternate ContentLocalizedIds
+  QuestIdList: number[], // Quest trigger condition for alternate
+  QuestContentLocalizedIds: number[], // Alternate ContentLocalizedIds
 }

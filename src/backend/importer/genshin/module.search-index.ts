@@ -140,8 +140,8 @@ export async function importSearchIndex() {
     const tcgStageIndex: { [textMapHash: number]: number } = {};
     const stages = await gcg.selectAllStage();
     for (let stage of stages) {
-      if (stage.EnemyNameText) {
-        tcgStageIndex[stage.EnemyNameTextMapHash] = stage.Id;
+      if (stage.OppoPlayerNameText) {
+        tcgStageIndex[stage.OppoPlayerNameTextMapHash] = stage.Id;
       }
       if (stage.Reward?.LevelNameText) {
         tcgStageIndex[stage.Reward.LevelNameTextMapHash] = stage.Id;

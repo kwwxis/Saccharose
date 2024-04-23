@@ -396,8 +396,8 @@ export class GCGControl {
     stage.CharacterLevel = null;
     stage.WeekLevel = null;
 
-    if (stage.EnemyNameText && stage.EnemyNameText.includes('#')) {
-      stage.EnemyNameText = this.ctrl.normText(stage.EnemyNameText, this.ctrl.outputLangCode);
+    if (stage.OppoPlayerNameText && stage.OppoPlayerNameText.includes('#')) {
+      stage.OppoPlayerNameText = this.ctrl.normText(stage.OppoPlayerNameText, this.ctrl.outputLangCode);
     }
     if (!disableLoad.disableRuleLoad) {
       stage.Rule = this.ruleTable[stage.RuleId];
@@ -433,14 +433,14 @@ export class GCGControl {
       if (stage.BossLevel) {
         stage.LevelType = 'BOSS';
         stage.LevelDifficulty = 'NORMAL';
-        stage.MinPlayerLevel = stage.BossLevel.UnlockGcgLevel;
+        stage.MinPlayerLevel = stage.BossLevel.UnlockParam;
         stage.NpcId = stage.BossLevel.NpcId;
       } else {
         stage.BossLevel = await this.singleSelect('GCGBossLevelExcelConfigData', 'HardLevelId', stage.Id);
         if (stage.BossLevel) {
           stage.LevelType = 'BOSS';
           stage.LevelDifficulty = 'HARD';
-          stage.MinPlayerLevel = stage.BossLevel.UnlockGcgLevel;
+          stage.MinPlayerLevel = stage.BossLevel.UnlockParam;
           stage.NpcId = stage.BossLevel.NpcId;
         }
       }
@@ -538,7 +538,7 @@ export class GCGControl {
       }
     }
     if (!disableLoad.disableWikiTitleLoad) {
-      stage.WikiCharacter = stage.EnemyNameText || '(No character)';
+      stage.WikiCharacter = stage.OppoPlayerNameText || '(No character)';
       stage.WikiLevelName = stage?.Reward?.LevelNameText || '(No title)';
       stage.WikiCombinedTitle = `${stage.WikiCharacter}/${stage.WikiLevelName}`;
     }
@@ -756,8 +756,8 @@ export class GCGControl {
   // --------------------------------------------------------------------------------------------------------------
 
   private async postProcessCardView(cardView: GCGCardViewExcelConfigData): Promise<GCGCardViewExcelConfigData> {
-    if (cardView.ImagePath) {
-      cardView.Image = 'UI_' + cardView.ImagePath;
+    if (cardView.CardPrefabName) {
+      cardView.Image = 'UI_' + cardView.CardPrefabName;
     }
     return cardView;
   }
@@ -777,12 +777,12 @@ export class GCGControl {
         .then(ret => card.MappedChooseTargetList = ret as any[])
     );
 
-    if (card.TokenDescId) {
+    if (card.TokenToShowTextId) {
       promises.push(
-        this.singleSelect('GCGTokenDescConfigData', 'Id', card.TokenDescId)
-          .then(ret => card.TokenDesc = ret as any)
+        this.singleSelect('GCGTokenDescConfigData', 'Id', card.TokenToShowTextId)
+          .then(ret => card.TokenToShowText = ret as any)
       );
-      card.TokenDesc = await this.singleSelect('GCGTokenDescConfigData', 'Id', card.TokenDescId);
+      card.TokenToShowText = await this.singleSelect('GCGTokenDescConfigData', 'Id', card.TokenToShowTextId);
     }
 
     promises.push(
@@ -843,8 +843,8 @@ export class GCGControl {
 
     char.VoiceItems = [];
 
-    if (char.AvatarName && !this.disableVoiceItemsLoad) {
-      char.VoiceItems = this.ctrl.voice.getVoiceItemsByType('Card', char.AvatarName);
+    if (char.VoiceSwitch && !this.disableVoiceItemsLoad) {
+      char.VoiceItems = this.ctrl.voice.getVoiceItemsByType('Card', char.VoiceSwitch);
     }
 
     promises.push(
@@ -867,8 +867,8 @@ export class GCGControl {
         .replace(/CardFace_Char_Monster_/, 'Char_MonsterIcon_')
         .replace(/CardFace_Char_Enemy_/, 'Char_EnemyIcon_');
 
-      if (!this.charIconsLcSet.has(char.CharIcon.toLowerCase()) && char.AvatarName) {
-        char.CharIcon = char.CharIcon.replace(/Icon_.*$/, 'Icon_' + char.AvatarName
+      if (!this.charIconsLcSet.has(char.CharIcon.toLowerCase()) && char.VoiceSwitch) {
+        char.CharIcon = char.CharIcon.replace(/Icon_.*$/, 'Icon_' + char.VoiceSwitch
           .replace(/Switch_GCG_/i, '')
           .replace(/_/g, ''))
       }
@@ -1134,7 +1134,7 @@ export class GCGControl {
         }
       });
 
-    const talker: string = talkDetail.Avatar?.NameText || stage.EnemyNameText;
+    const talker: string = talkDetail.Avatar?.NameText || stage.OppoPlayerNameText;
 
     for (let i = 0; i < talkDetail.TalkContentText.length; i++) {
       const talkDetailVo = talkDetail.VoPrefix && i === 0 ? talkDetail.VoPrefix : '';
@@ -1199,7 +1199,7 @@ export class GCGControl {
         const lowHealthCard = gcgTalk.LowHealthConfigId && await this.selectCharacterCard(gcgTalk.LowHealthConfigId);
         if (lowHealthCard) {
           sect.prependFreeForm(`;(${this.ctrl.i18n('TCG_WhenEnemyHealthDrops', {
-            name: stage.EnemyNameText,
+            name: stage.OppoPlayerNameText,
             card: lowHealthCard.WikiName,
             hp: gcgTalk.LowHealthValue,
           })})\n`);
@@ -1213,7 +1213,7 @@ export class GCGControl {
         const highHealthCard = gcgTalk.LowHealthConfigId && await this.selectCharacterCard(gcgTalk.LowHealthConfigId);
         if (highHealthCard) {
           sect.prependFreeForm(`;(${this.ctrl.i18n('TCG_WhenEnemyHealthDrops', {
-            name: stage.EnemyNameText,
+            name: stage.OppoPlayerNameText,
             card: highHealthCard.WikiName,
             hp: gcgTalk.HighHealthValue,
           })})\n`)
@@ -1221,19 +1221,19 @@ export class GCGControl {
       }
       if (gcgTalk.SadTalk) {
         const sect = this.pushTalkDetailToStageTalk(stage, 'Sad Talk', gcgTalk, gcgTalk.SadTalk);
-        sect.prependFreeForm(`;(${this.ctrl.i18n('TCG_WhenOneEnemyCardDefeated', {name: stage.EnemyNameText})})\n`)
+        sect.prependFreeForm(`;(${this.ctrl.i18n('TCG_WhenOneEnemyCardDefeated', {name: stage.OppoPlayerNameText})})\n`)
       }
       if (gcgTalk.ToughTalk) {
         const sect = this.pushTalkDetailToStageTalk(stage, 'Tough Talk', gcgTalk, gcgTalk.ToughTalk);
-        sect.prependFreeForm(`;(${this.ctrl.i18n('TCG_WhenTwoEnemyCardsDefeated', {name: stage.EnemyNameText})})\n`)
+        sect.prependFreeForm(`;(${this.ctrl.i18n('TCG_WhenTwoEnemyCardsDefeated', {name: stage.OppoPlayerNameText})})\n`)
       }
       if (gcgTalk.HappyTalk) {
         const sect = this.pushTalkDetailToStageTalk(stage, 'Happy Talk', gcgTalk, gcgTalk.HappyTalk);
-        sect.prependFreeForm(`;(${this.ctrl.i18n('TCG_WhenOnePlayerCardDefeated', {name: stage.EnemyNameText})})\n`)
+        sect.prependFreeForm(`;(${this.ctrl.i18n('TCG_WhenOnePlayerCardDefeated', {name: stage.OppoPlayerNameText})})\n`)
       }
       if (gcgTalk.ElementBurstTalk) {
         const sect = this.pushTalkDetailToStageTalk(stage, 'Elemental Burst', gcgTalk, gcgTalk.ElementBurstTalk);
-        sect.prependFreeForm(`;(${this.ctrl.i18n('TCG_WhenEnemyUsesBurst', {name: stage.EnemyNameText})})\n`)
+        sect.prependFreeForm(`;(${this.ctrl.i18n('TCG_WhenEnemyUsesBurst', {name: stage.OppoPlayerNameText})})\n`)
       }
     }
 
@@ -1314,7 +1314,7 @@ export class GCGControl {
 
               if (talkSect) {
                 talkSect.title = 'Intro';
-                talkSect.prependFreeForm(`;(${this.ctrl.i18n('TalkToNpc', {npcName: stage.EnemyNameText})})\n`)
+                talkSect.prependFreeForm(`;(${this.ctrl.i18n('TalkToNpc', {npcName: stage.OppoPlayerNameText})})\n`)
                 stage.StageTalk.children.unshift(talkSect);
               }
             }

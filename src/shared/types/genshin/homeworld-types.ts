@@ -129,8 +129,8 @@ export interface HomeWorldFurnitureExcelConfigData {
   DiscountCost: number,     // Reduced Load
   StackLimit: number,
   PushTipsId: number,
-  ObtainTextMapHashList: number[],
-  ObtainTextList: string[],
+  SourceTextList: number[],
+  MappedSourceTextList: string[],
 
   // Custom Properties:
   MappedFurnType: HomeWorldFurnitureTypeExcelConfigData[],

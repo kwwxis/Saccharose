@@ -292,8 +292,8 @@ export type GCGGameWikiGroup = 'No Group' | 'Open World Match' | 'Tavern Challen
 
 export interface GCGGameExcelConfigData {
   Id: number,
-  EnemyNameText: string,
-  EnemyNameTextMapHash: number,
+  OppoPlayerNameText: string,
+  OppoPlayerNameTextMapHash: number,
   RuleId: number,
   Rule?: GCGRuleExcelConfigData,
   NpcId?: number,
@@ -354,15 +354,15 @@ export interface GCGBossLevelExcelConfigData {
   NormalLevelId: number, // -> GCGGameExcelConfigData.Id
   HardLevelId: number, // -> GCGGameExcelConfigData.Id
   UnlockCond: string,
-  UnlockGcgLevel: number,
+  UnlockParam: number,
   NpcId: number, // -> NpcExcelConfigData.Id
   Npc: NpcExcelConfigData,
   MonsterId: number, // -> MonsterExcelConfigData.Id
   Monster: MonsterExcelConfigData,
   MonsterTitleTextMapHash: number,
   MonsterTitleText: string,
-  UnlockTipTextMapHash: number,
-  UnlockTipText: string,
+  UnlockDecTextMapHash: number,
+  UnlockDecText: string,
 }
 
 export interface GCGQuestLevelExcelConfigData {
@@ -404,7 +404,6 @@ export interface GCGWeekLevelExcelConfigData {
   Npc: NpcExcelConfigData,
   NpcId: number,
   LevelCondList: { LevelId: number, GcgLevel: number }[],
-  CondQuestList: never[],
   IconName: string,
   IsUseStandScenePoint: boolean,
   OpenGcgLevel: number,
@@ -422,6 +421,7 @@ export interface GCGCharacterLevelExcelConfigData {
 
   HardLevelId: number,
   IsNeedUnlock: boolean,
+
   CostItemId: number,
   CostItemMaterial?: MaterialExcelConfigData,
   CostCount: number,
@@ -439,9 +439,6 @@ export interface GCGCharacterLevelExcelConfigData {
   LoseNormalLevelTalk: TalkExcelConfigData,
   WinHardLevelTalk: TalkExcelConfigData,
   LoseHardLevelTalk: TalkExcelConfigData,
-
-  CondQuestList: never, // unused
-  LHOBJKLEJNC: string, // JsonPathHash
 }
 
 // GCG LEVEL-SUPPORTING DATA
@@ -481,8 +478,8 @@ export interface GCGGameRewardExcelConfigData {
   LevelNameTextMapHash: number,
   LevelNameText: string,
 
-  IntroTextMapHash: number,
-  IntroText: string,
+  LevelDecTextMapHash: number,
+  LevelDecText: string,
 
   ObjectiveTextMapHashList: number[],
   ObjectiveTextList: string[],
@@ -547,7 +544,7 @@ export interface GCGChallengeExcelConfigData {
   Id: number,
   Type: GCGChallengeType,
   ParamList: GCGChallengeParam[],
-  ParamTarget: number,
+  ProgressShow: number,
   Progress: number,
   IsAchieveFail: boolean,
 }
@@ -665,15 +662,15 @@ export interface GCGCardExcelConfigData extends GCGCommonCard {
   ChooseTargetType?: GCGChooseTargetType,
   StateBuffType?: GCGCardStateBuffType,
   PersistEffectType?: GCGCardPersistEffectType,
-  ElementHintType?: GCGCardElementHintType,
+  HintType?: GCGCardElementHintType,
 
   ChooseTargetList: number[],
   MappedChooseTargetList?: GCGChooseExcelConfigData[],
   CostList: { CostType: GCGCostType, CostData?: GCGCostExcelConfigData, Count: number }[],
 
   IsHidden: boolean,
-  TokenDescId: number,
-  TokenDesc: GCGTokenDescConfigData,
+  TokenToShowTextId: number,
+  TokenToShowText: GCGTokenDescConfigData,
 
   IsEquipment?: boolean,
   IsSupport?: boolean,
@@ -706,7 +703,7 @@ export interface GCGCardExcelConfigData extends GCGCommonCard {
     'Weapon_2_A'    |
     'Weapon_3_Q'    )[],
   TokenToShow?: 'GCG_TOKEN_COUNTER' | 'GCG_TOKEN_LIFE' | 'GCG_TOKEN_ROUND_COUNT' | 'GCG_TOKEN_SHIELD',
-  TokenIconToShow?:
+  TokenToShowIconType?:
     'GCG_TOKEN_ICON_BARRIER_SHIELD' |
     'GCG_TOKEN_ICON_CLOCK'          |
     'GCG_TOKEN_ICON_HOURGLASS'      |
@@ -743,12 +740,12 @@ export interface GCGChooseExcelConfigData {
   TargetCamp: 'ENEMY' | 'FRIENDLY',
   TagList: string[],
   MappedTagList: GCGTagExcelConfigData[],
-  BAGLDMNNBIP: string[],
+  AiTagLust: string[],
   CondList: {
     Type: GCGChooseCondType,
     Value?: number
   }[],
-  AICLIKHNGHO: {
+  AiCondList: {
     Type: 'CHARACTER_NOT_CHARGED_MAX' | 'CHARACTER_NOT_CHARGED_MIN' | 'ONSTAGE',
     Value: number
   }[],
@@ -778,27 +775,19 @@ export interface GCGCardFaceExcelConfigData {
 
 export interface GCGCardViewExcelConfigData {
   Id: number,
-  ImagePath: string,
+  CardPrefabName: string,
   Image: string,
-  SpinePaths: string[],
-
-  HEJOECFICIP: never,
-  AMGJBKAJBLM: string[],
-  NBIPJPBMABC: string,
-  MINCENHBDMG: string,
-  OOEGELMFOPF: string,
-  CJMAEMFDAGK: string,
-  COCCNCFJLDP: string,
-  LKBFALNMKFC: string,
+  GoldenSkinSpinePrefabList: string[],
 }
 
 export interface GCGCharExcelConfigData extends GCGCommonCard {
   Id: number,
   Hp: number,
+  MaxEnergy: number,
   CardType: 'GCG_CARD_CHARACTER',
   IsRemoveAfterDie: boolean,
   CharIcon?: string;
-  AvatarName: string,
+  VoiceSwitch: string,
 
   BPHBKAGLFCE: number, // JsonPathHash
   HLKMHIIIFHA: string,
@@ -830,9 +819,6 @@ export interface GCGDeckExcelConfigData {
   WaitingCharacterList: { Id: number, CondCount: number }[],
   MappedWaitingCharacterList: GCGCharExcelConfigData[], // reserve
   WikiReserveText: string,
-
-  InitHpList: never,
-  InitEnergyList: never,
 }
 
 export interface GCGDeckCardExcelConfigData {
@@ -868,10 +854,10 @@ export interface GCGProficiencyRewardExcelConfigData {
 // idk:
 export interface GCGDeckStorageExcelConfigData {
   Id: number,
-  SourceTextMapHash: number,
-  SourceText: string,
   UnlockCond: string,
   UnlockParam: number,
+  UnlockCondTextMapHash: number,
+  unlockCondText: string,
 }
 
 // "Card Box" items, e.g. [[Liyue_(Card_Box)]]
@@ -882,10 +868,10 @@ export interface GCGDeckFieldExcelConfigData {
 
   NameTextMapHash: number,
   DescTextMapHash: number,
-  SourceTextMapHash: number,
+  UnlockCondTextMapHash: number,
   NameText: string,
   DescText: string,
-  SourceText: string,
+  UnlockCondText: string,
   BattleTableId: number,
   DiceTableId: number,
 
@@ -908,9 +894,7 @@ export interface GCGDeckBackExcelConfigData {
   DescTextMapHash: number
   NameText: string,
   DescText: string,
-  MAEDEOPNNON: string,
-  KPINCGJPICF: number,
-  BDFNKMJCNBF: string,
+  PrefabName: string,
 }
 
 // idk:

@@ -1998,9 +1998,19 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     }
 
     furn.MappedFurnType = [];
+    furn.MappedSourceTextList = [];
     furn.FilterTokens = [];
     furn.IsInterior = false;
     furn.IsExterior = false;
+
+    if (furn.SourceTextList && furn.SourceTextList.length) {
+      for (let textMapHash of furn.SourceTextList) {
+        const text = await this.getTextMapItem(this.outputLangCode, textMapHash);
+        if (text) {
+          furn.MappedSourceTextList.push(text);
+        }
+      }
+    }
 
     for (let furnTypeId of furn.FurnType) {
       if (!furnTypeId)
@@ -2979,7 +2989,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       Document,
       Items: loadItems ? [
         ... await Document.ContentLocalizedIds.asyncMap((id: number, idx: number) => this.loadLocalization(Document, idx, false, id)),
-        ... await pairArrays(Document.AltContentLocalizedIds, Document.AltContentLocalizedQuestConds).asyncMap(
+        ... await pairArrays(Document.QuestContentLocalizedIds, Document.QuestIdList).asyncMap(
           async ([id, triggerCond], idx: number) => await this.loadLocalization(Document, idx, true, id, triggerCond)
         )
       ] : []

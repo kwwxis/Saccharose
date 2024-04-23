@@ -80,10 +80,7 @@ export const genshinSchema = {
       { name: 'TalkRoleNameTextMapHash', type: 'integer', isIndex: true },
       { name: 'TalkId', type: 'integer', isIndex: true },
       { name: 'TalkType', type: 'string', isIndex: true },
-    ],
-    renameFields: {
-      GFLDJMJKIKE: 'Id'
-    }
+    ]
   },
   DialogUnparentedExcelConfigData: <SchemaTable> {
     name: 'DialogUnparentedExcelConfigData',
@@ -123,9 +120,6 @@ export const genshinSchema = {
       } else {
         return [];
       }
-    },
-    renameFields: {
-      GFLDJMJKIKE: 'Id'
     }
   },
   ManualTextMapConfigData: <SchemaTable> {
@@ -220,10 +214,7 @@ export const genshinSchema = {
       { name: 'DescTextMapHash', type: 'integer', isIndex: true },
       { name: 'StepDescTextMapHash', type: 'integer', isIndex: true },
       { name: 'GuideTipsTextMapHash', type: 'integer', isIndex: true },
-    ],
-    renameFields: {
-      FailParent: 'DescTextMapHash'
-    }
+    ]
   },
   LoadingTipsExcelConfigData: <SchemaTable> {
     name: 'LoadingTipsExcelConfigData',
@@ -243,13 +234,7 @@ export const genshinSchema = {
       { name: 'StageId', type: 'integer', isPrimary: true },
       { name: 'LoadingSituationType', type: 'string', isIndex: true },
       { name: 'AreaTerrainType', type: 'string', isIndex: true },
-    ],
-    renameFields: {
-      DMDEJCOKACP: 'LoadingSituationType',
-      JGFENLJMOAB: 'AreaTerrainType',
-      ADLGEKIGIKG: 'SceneId',
-      PPMNJJNLPEF: 'Area1Id'
-    }
+    ]
   },
   ReminderExcelConfigData: <SchemaTable> {
     name: 'ReminderExcelConfigData',
@@ -357,14 +342,7 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/MaterialSourceDataExcelConfigData.json',
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
-    ],
-    renameFields: {
-      PBJLENGJPAO: 'JumpList',
-      JNBEOBPDNND: 'DungeonGroup',
-      KEEONLHHNLA: 'JumpTargets',
-      IOEBJLNIIEC: 'JumpParams',
-      JumpList: 'JumpDescs',
-    }
+    ]
   },
   DailyTaskExcelConfigData: <SchemaTable> {
     name: 'DailyTaskExcelConfigData',
@@ -423,11 +401,7 @@ export const genshinSchema = {
       { name: 'Rank', type: 'integer', isIndex: true },
       { name: 'RankLevel', type: 'integer', isIndex: true },
       { name: 'ItemType', type: 'string', isIndex: true },
-    ],
-    renameFields: {
-      EGAHJDMKAIH: 'ObtainTextMapHashList',
-      BIMHLPMNPDJ: 'ObtainTextMapHashList',
-    }
+    ]
   },
   HomeWorldFurnitureTypeExcelConfigData: <SchemaTable> {
     name: 'HomeWorldFurnitureTypeExcelConfigData',
@@ -438,10 +412,7 @@ export const genshinSchema = {
       { name: 'TypeName2TextMapHash', type: 'integer', isIndex: true },
       { name: 'TabIcon', type: 'integer' },
       { name: 'SceneType', type: 'string' },
-    ],
-    renameFields: {
-      FECBGNMOGHK: 'TypeCategoryId'
-    }
+    ]
   },
   HomeWorldPlantExcelConfigData: <SchemaTable> {
     name: 'HomeWorldPlantExcelConfigData',
@@ -476,15 +447,7 @@ export const genshinSchema = {
       { name: 'NpcId', type: 'integer', isIndex: true },
       { name: 'ShowNameTextMapHash', type: 'integer', isIndex: true },
       { name: 'DescTextMapHash', type: 'integer', isIndex: true },
-    ],
-    renameFields: {
-      BIDIBKDGBGA: 'NpcId',
-      OJBGFOEHOJG: 'TalkIds',
-      CLANGEOGPFM: 'HeadIcon',
-      PHGFNLOBNBO: 'FrontIcon',
-      LNEDGGEJKJB: 'SideIcon',
-      PLCKDHCGBKE: 'ShowNameTextMapHash',
-    }
+    ]
   },
   HomeworldAnimalExcelConfigData: <SchemaTable> {
     name: 'HomeworldAnimalExcelConfigData',
@@ -625,9 +588,8 @@ export const genshinSchema = {
       { name: 'TitleTextMapHash', type: 'integer', isIndex: true },
     ],
     renameFields: {
-      HJGOCFKEBEJ: 'ContentLocalizedIds',
-      HGHPAKBJLMN: 'AltContentLocalizedIds',
-      NHNENGFHDEG: 'AltContentLocalizedQuestConds',
+      ContentLocalizedId: 'ContentLocalizedIds',
+      QuestContentLocalizedId: 'QuestContentLocalizedIds',
     },
   },
   Relation_LocalizationIdToDocumentId: <SchemaTable> {
@@ -638,8 +600,8 @@ export const genshinSchema = {
       { name: 'DocumentId', type: 'integer', isIndex: true },
     ],
     renameFields: {
-      HJGOCFKEBEJ: 'ContentLocalizedIds',
-      HGHPAKBJLMN: 'AltContentLocalizedIds',
+      ContentLocalizedId: 'ContentLocalizedIds',
+      QuestContentLocalizedId: 'QuestContentLocalizedIds',
     },
     customRowResolve: (row: DocumentExcelConfigData) => {
       let ret = [];
@@ -648,8 +610,8 @@ export const genshinSchema = {
           ret.push({LocalizationId: contentLocalizedId, DocumentId: row.Id});
         }
       }
-      if (row.AltContentLocalizedIds) {
-        for (let contentLocalizedId of row.AltContentLocalizedIds) {
+      if (row.QuestContentLocalizedIds) {
+        for (let contentLocalizedId of row.QuestContentLocalizedIds) {
           ret.push({LocalizationId: contentLocalizedId, DocumentId: row.Id});
         }
       }
@@ -818,52 +780,9 @@ export const genshinSchema = {
       { name: 'LowHealthTalkId', type: 'integer', isIndex: true },
       { name: 'LowHealthConfigId', type: 'integer', isIndex: true },
     ],
-    renameFields: { // TODO: Translate Schema doesn't work on this SchemaTable
+    renameFields: {
       ElementBrustTalkId: 'ElementBurstTalkId',
-
-      LGPAEEOJHAE: 'GameId',
-      LNFCKAJPIFJ: 'GameId',
-      FEABENINLHJ: 'GameId',
-
-      LBFILGPEDGK: 'HappyTalkId',
-      OJDBPLCBNEK: 'HappyTalkId',
-      KIHFOLIOPGB: 'HappyTalkId',
-
-      NNKJEHOHMBO: 'SadTalkId',
-      NNDJLJMJGAG: 'SadTalkId',
-      DIBHCLCGFDB: 'SadTalkId',
-
-      MLEFDDEHBBL: 'ToughTalkId',
-      FPLIDHCBPNA: 'ToughTalkId',
-      NLHPKPOAEIL: 'ToughTalkId',
-
-      CFGEPIGEJCK: 'ElementBurstTalkId',
-      ELKBJDDEGIF: 'ElementBurstTalkId',
-      OFOCIJDPJMF: 'ElementBurstTalkId',
-
-      IKOEPPHFOEB: 'HighHealthTalkId',
-      HPONHALFHNH: 'HighHealthTalkId',
-      OELPOGDANCL: 'HighHealthTalkId',
-
-      PAKILBFPCCL: 'HighHealthValue',
-      BIJNIDMFDPF: 'HighHealthValue',
-      JNEHNHGBPEB: 'HighHealthValue',
-
-      BCKNCBHEDGB: 'HighHealthConfigId',
-      HOMPIFAIKHD: 'HighHealthConfigId',
-      BPJCNGCCKKI: 'HighHealthConfigId',
-
-      PDNAEHFAFIJ: 'LowHealthTalkId',
-      BBOCNPMPHAE: 'LowHealthTalkId',
-      OCGIGBNKILC: 'LowHealthTalkId',
-
-      ODHDEGNOJKH: 'LowHealthValue',
-      ECOMDFKLFLP: 'LowHealthValue',
-      GOOPCJJBOCP: 'LowHealthValue',
-
-      NLHKBFOGJMM: 'LowHealthConfigId',
-      KLIAJLCEKNC: 'LowHealthConfigId',
-      LCIAFLGHIEI: 'LowHealthConfigId',
+      ElementBrustTalkAppearCount: 'ElementBurstTalkAppearCount',
     },
   },
   GCGTalkDetailExcelConfigData: <SchemaTable> {
@@ -898,10 +817,7 @@ export const genshinSchema = {
       { name: 'CardGroupId', type: 'integer', isIndex: true },
       { name: 'EnemyCardGroupId', type: 'integer', isIndex: true },
       { name: 'GameType', type: 'string', isIndex: true },
-    ],
-    renameFields: {
-      MBJIAMCDJLJ: 'EnemyNameTextMapHash',
-    },
+    ]
   },
   GCGBossLevelExcelConfigData: <SchemaTable> {
     name: 'GCGBossLevelExcelConfigData',
@@ -910,17 +826,15 @@ export const genshinSchema = {
       { name: 'Id', type: 'integer', isPrimary: true },
       { name: 'NormalLevelId', type: 'integer', isIndex: true },
       { name: 'HardLevelId', type: 'integer', isIndex: true },
-      { name: 'UnlockGcgLevel', type: 'integer', isIndex: true },
-      { name: 'UnlockTipTextMapHash', type: 'integer', isIndex: true },
+      { name: 'UnlockParam', type: 'integer', isIndex: true },
+      { name: 'UnlockDecTextMapHash', type: 'integer', isIndex: true },
       { name: 'NpcId', type: 'integer', isIndex: true },
       { name: 'MonsterId', type: 'integer', isIndex: true },
       { name: 'MonsterTitleTextMapHash', type: 'integer', isIndex: true },
     ],
     renameFields: {
-      JECHMICDJBE: 'NpcId',
-      OAPOAACBKHJ: 'MonsterTitleTextMapHash',
-      LKOILEBONPH: 'UnlockGcgLevel',
-      AIIDKAAKFNL: 'UnlockTipTextMapHash',
+      CatId: 'NpcId',
+      CatDescTextMapHash: 'MonsterTitleTextMapHash',
     },
   },
   GCGGameRewardExcelConfigData: <SchemaTable> {
@@ -929,13 +843,12 @@ export const genshinSchema = {
     columns: [
       { name: 'LevelId', type: 'integer', isPrimary: true },
       { name: 'LevelNameTextMapHash', type: 'integer', isIndex: true },
-      { name: 'IntroTextMapHash', type: 'integer', isIndex: true },
+      { name: 'LevelDecTextMapHash', type: 'integer', isIndex: true },
       { name: 'GroupId', type: 'integer', isIndex: true },
     ],
     renameFields: {
-      ILOGAIHBHNE: 'IntroTextMapHash',
-      CNMAEJMKIJG: 'TalkDetailIconId',
-      IDJCJFFHJEE: 'ObjectiveTextMapHashList',
+      OppoAvatarPicId: 'TalkDetailIconId',
+      RewardDec: 'ObjectiveTextMapHashList',
     },
   },
   GCGChallengeExcelConfigData: <SchemaTable> {
@@ -944,10 +857,7 @@ export const genshinSchema = {
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
       { name: 'Type', type: 'string', isIndex: true },
-    ],
-    renameFields: {
-      MIPOKBOGHGJ: 'ParamTarget',
-    },
+    ]
   },
   GCGTutorialTextExcelConfigData: <SchemaTable> {
     name: 'GCGTutorialTextExcelConfigData',
@@ -958,8 +868,8 @@ export const genshinSchema = {
       { name: 'TutorialTextMapHash', type: 'integer', isIndex: true },
     ],
     renameFields: {
-      LFJMKDDJPNH: 'TutorialTextId',
-      AFBOPFJIDKP: 'TutorialTextMapHash',
+      Id: 'TutorialTextId',
+      CommentTextMapHash: 'TutorialTextMapHash',
     },
   },
   GCGRuleExcelConfigData: <SchemaTable> {
@@ -986,7 +896,7 @@ export const genshinSchema = {
       { name: 'ContentTextMapHash', type: 'integer', isIndex: true },
     ],
     renameFields: {
-      IFJNLHHKLME: 'Icon',
+      PicName: 'Icon',
     },
   },
   GCGLevelLockExcelConfigData: <SchemaTable> {
@@ -1028,7 +938,7 @@ export const genshinSchema = {
       { name: 'TalkId', type: 'integer', isIndex: true },
     ],
     renameFields: {
-      ILOGAIHBHNE: 'MapDescTextMapHash',
+      LevelDecTextMapHash: 'MapDescTextMapHash',
     },
   },
   GcgWorldWorkTimeExcelConfigData: <SchemaTable> {
@@ -1046,12 +956,7 @@ export const genshinSchema = {
       { name: 'NpcId', type: 'integer', isIndex: true },
       { name: 'NpcType', type: 'string', isIndex: true },
       { name: 'OpenQuestId', type: 'integer', isIndex: true },
-    ],
-    renameFields: {
-      OPEAIDGALDL: 'NpcType',
-      GGHJEFNBDFK: 'LevelCondList',
-      BGNBBBHMLLO: 'GcgLevel',
-    }
+    ]
   },
   GCGCardExcelConfigData: <SchemaTable> {
     name: 'GCGCardExcelConfigData',
@@ -1063,13 +968,6 @@ export const genshinSchema = {
       { name: 'NameTextMapHash', type: 'integer', isIndex: true },
       { name: 'DescTextMapHash', type: 'integer', isIndex: true },
     ],
-    renameFields: {
-      PMEAKELAHJJ: 'StateBuffType',
-      BBNNKHIKEEB: 'PersistEffectType',
-      EJLBDGICGCA: 'TokenIconToShow',
-      MJEFNLJLBIJ: 'ElementHintType',
-      IKKGAPALFCH: 'TokenDescId',
-    },
   },
   GCGCardFaceExcelConfigData: <SchemaTable> {
     name: 'GCGCardFaceExcelConfigData',
@@ -1088,12 +986,7 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/GCGCardViewExcelConfigData.json',
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
-    ],
-    renameFields: {
-      GLCONCDPNCI: 'ImagePath',
-      GMNEJKJKIBP: 'ImagePath',
-      DEPNICHKLNH: 'SpinePaths',
-    },
+    ]
   },
   GCGCharExcelConfigData: <SchemaTable> {
     name: 'GCGCharExcelConfigData',
@@ -1102,24 +995,7 @@ export const genshinSchema = {
       { name: 'Id', type: 'integer', isPrimary: true },
       { name: 'NameTextMapHash', type: 'integer', isIndex: true },
       { name: 'DescTextMapHash', type: 'integer', isIndex: true },
-    ],
-    renameFields: {
-      BHGNBKPJDII: 'AvatarName', // TODO
-      IAPINBOEJCO: 'AvatarName',
-      FMDPDBBKOKM: 'AvatarName',
-      PGBDOFBNFKL: 'AvatarName',
-      NBLPFBBIEGE: 'IsRemoveAfterDie',
-      LEKAGJLNGLH: 'IsRemoveAfterDie',
-      LKCGOHOJHME: 'IsRemoveAfterDie',
-      ECJJKALAJED: 'IsRemoveAfterDie',
-      OOCDMOAACAH: 'TagList',
-      HBCBGGLBNPB: 'TagList',
-      DFKDHEKDAKP: 'TagList',
-      KCOKMGBEMJB: 'IsCanObtain',
-      LHJBJHKKJED: 'IsCanObtain',
-      EHNPOPJDLFC: 'IsCanObtain',
-      AAPELFIMDFG: 'IsCanObtain',
-    }
+    ]
   },
   GCGCharacterLevelExcelConfigData: <SchemaTable> {
     name: 'GCGCharacterLevelExcelConfigData',
@@ -1136,10 +1012,10 @@ export const genshinSchema = {
       { name: 'LoseHardLevelTalkId', type: 'integer', isIndex: true },
     ],
     renameFields: {
-      NIDONEPDAOP: 'WinNormalLevelTalkId',
-      HEGBPOCJBCF: 'LoseNormalLevelTalkId',
-      GLAAKALKCEJ: 'WinHardLevelTalkId',
-      FMDNIFOPMGP: 'LoseHardLevelTalkId',
+      NormalWinTalk: 'WinNormalLevelTalkId',
+      NormalLossTalk: 'LoseNormalLevelTalkId',
+      HardWinTalk: 'WinHardLevelTalkId',
+      HardLossTalk: 'LoseHardLevelTalkId',
     },
   },
   Relation_GCGGameToWeekLevel: <SchemaTable> {
@@ -1158,14 +1034,6 @@ export const genshinSchema = {
         }
       }
       return ret;
-    },
-    renameFields: {
-      OPEAIDGALDL: 'NpcType',
-      GGHJEFNBDFK: 'LevelCondList',
-      BGNBBBHMLLO: 'GcgLevel',
-      DIPKFKOKPOP: 'LevelCondList',
-      AKCIHJOKMNI: 'Id',
-      EIDEKLFIOCM: 'GcgLevel',
     }
   },
   Relation_GCGCharacterLevel: <SchemaTable> {
@@ -1222,8 +1090,8 @@ export const genshinSchema = {
       { name: 'ChooseType', type: 'string', isIndex: true },
     ],
     renameFields: {
-      HMHHABHDBAG: 'ChooseTextMapHash',
-      FABKBPGPHII: 'ChooseType',
+      TargetHintTextMapHash: 'ChooseTextMapHash',
+      SelectIconType: 'ChooseType',
     },
   },
   GCGDeckExcelConfigData: <SchemaTable> {
@@ -1233,18 +1101,7 @@ export const genshinSchema = {
       { name: 'Id', type: 'integer', isPrimary: true },
     ],
     renameFields: {
-      AKHNGALMPIM: 'DeckNameTextMapHash',
-      NONCKOEBEAI: 'DeckNameTextMapHash',
-      CAOAPKABBFC: 'DeckNameTextMapHash',
-      DOJNOEJOIKP: 'CharacterList',
-      PKLANNMLIED: 'CardList',
-      OMGIGFANODA: 'CardList',
-      ALLLDMINCMC: 'CardList',
-      KGCAJNCAHGJ: 'WaitingCharacterList',
-      AAJKIMNCCPN: 'WaitingCharacterList',
-      ALIFJCCLFEK: 'WaitingCharacterList',
-      HHHBIFFDHPL: 'WaitingCharacterList',
-      EHGFJIIDJIM: 'CondCount'
+      JNEEPJFECMI: 'DeckNameTextMapHash'
     }
   },
   GCGDeckCardExcelConfigData: <SchemaTable> {
@@ -1254,12 +1111,9 @@ export const genshinSchema = {
       { name: 'Id', type: 'integer', isPrimary: true },
     ],
     renameFields: {
-      GKHGDCBALPE: 'CardFaceIdList',
-      PEBMEKJKGOB: 'StoryContextTextMapHash',
-      FLLIMNKBNNC: 'SourceTextMapHash',
-      BENFOJNLODC: 'RelatedCharacterId',
-      DDHKPPONJFN: "InitHpList",
-      NAGOLEDGJFO: "InitEnergyList",
+      FaceIdList: 'CardFaceIdList',
+      StoryDescTextMapHash: 'StoryContextTextMapHash',
+      AccessDescTextMapHash: 'SourceTextMapHash'
     },
   },
   GCGProficiencyRewardExcelConfigData: <SchemaTable> {
@@ -1277,8 +1131,7 @@ export const genshinSchema = {
       { name: 'DeckCardId', type: 'integer', isIndex: true },
     ],
     renameFields: {
-      KFDMIAPDCEG: 'CardId',
-      AGBEBLBIMGD: 'DeckCardId',
+      MasterCardId: 'DeckCardId',
     },
   },
   GCGTokenDescConfigData: <SchemaTable> {
@@ -1296,10 +1149,7 @@ export const genshinSchema = {
       { name: 'Type', type: 'string', isPrimary: true },
       { name: 'NameTextMapHash', type: 'integer', isIndex: true },
       { name: 'KeywordId', type: 'integer', isIndex: true },
-    ],
-    renameFields: {
-      BNKFFFCCNGF: 'KeywordId',
-    },
+    ]
   },
   GCGTagExcelConfigData: <SchemaTable> {
     name: 'GCGTagExcelConfigData',
@@ -1309,13 +1159,8 @@ export const genshinSchema = {
       { name: 'CategoryType', type: 'string', isIndex: true },
       { name: 'NameTextMapHash', type: 'integer', isIndex: true },
     ],
-    renameFields: { // TODO: Translate Schema doesn't work on this SchemaTable
-      PHMOLEPKEIB: 'CategoryType',
-      PBCDLDCHKMK: 'CategoryType',
-      EBJAELDKAAJ: 'CategoryType',
-      NEAJPKMAMOF: 'CategoryType',
-      NOGJDCMLDBM: 'CategoryType',
-      NAIKHCACHBM: 'CategoryType'
+    renameFields: {
+      Identifier: 'CategoryType'
     },
     singularize: {'CategoryType': 'CategoryType'},
   },
@@ -1334,10 +1179,7 @@ export const genshinSchema = {
     columns: [
       { name: 'Type', type: 'string', isPrimary: true },
       { name: 'KeywordId', type: 'integer', isIndex: true },
-    ],
-    renameFields: {
-      BNKFFFCCNGF: 'KeywordId',
-    },
+    ]
   },
   GCGDeckStorageExcelConfigData: <SchemaTable> { // Configuration for deck-saving slots for player level rewards
     name: 'GCGDeckStorageExcelConfigData',
@@ -1346,11 +1188,11 @@ export const genshinSchema = {
       { name: 'Id', type: 'integer', isPrimary: true },
       { name: 'UnlockCond', type: 'string', isIndex: true },
       { name: 'UnlockParam', type: 'integer', isIndex: true },
-      { name: 'SourceTextMapHash', type: 'integer', isIndex: true },
+      { name: 'UnlockCondTextTextMapHash', type: 'integer', isIndex: true },
     ],
     renameFields: {
-      KPINCGJPICF: 'SourceTextMapHash',
-    },
+      UnlockCondTextTextMapHash: 'UnlockCondTextMapHash'
+    }
   },
   GCGDeckBackExcelConfigData: <SchemaTable> { // "Card Back" items, e.g. [[Dandelion_Seed_(Card_Back)]] or [[Legend]]
     name: 'GCGDeckBackExcelConfigData',
@@ -1361,10 +1203,7 @@ export const genshinSchema = {
       { name: 'NameTextMapHash', type: 'integer', isIndex: true },
       { name: 'DescTextMapHash', type: 'integer', isIndex: true },
       { name: 'Order', type: 'integer', isIndex: true },
-    ],
-    renameFields: {
-      DameTextMapHash: 'NameTextMapHash',
-    },
+    ]
   },
   GCGDeckFieldExcelConfigData: <SchemaTable> { // "Card Box" items, e.g. [[Liyue_(Card_Box)]]
     name: 'GCGDeckFieldExcelConfigData',
@@ -1374,14 +1213,14 @@ export const genshinSchema = {
       { name: 'ItemId', type: 'integer', isIndex: true },
       { name: 'NameTextMapHash', type: 'integer', isIndex: true },
       { name: 'DescTextMapHash', type: 'integer', isIndex: true },
-      { name: 'SourceTextMapHash', type: 'integer', isIndex: true },
+      { name: 'UnlockCondTextMapHash', type: 'integer', isIndex: true },
       { name: 'Order', type: 'integer', isIndex: true },
       { name: 'BattleTableId', type: 'integer', isIndex: true },
       { name: 'DiceTableId', type: 'integer', isIndex: true },
     ],
     renameFields: {
-      KPINCGJPICF: 'SourceTextMapHash',
-    },
+      UnlockCondTextTextMapHash: 'UnlockCondTextMapHash'
+    }
   },
   FettersExcelConfigData: <SchemaTable> {
     name: 'FettersExcelConfigData',
@@ -1395,8 +1234,7 @@ export const genshinSchema = {
       { name: 'AvatarId', type: 'integer', isIndex: true },
     ],
     renameFields: {
-      IsHiden: 'IsHidden',
-      JDJHGLGFHMC: 'Type',
+      IsHiden: 'IsHidden'
     },
   },
   FetterStoryExcelConfigData: <SchemaTable> {
@@ -1409,10 +1247,7 @@ export const genshinSchema = {
       { name: 'VoiceTitleLockedTextMapHash', type: 'integer', isIndex: true },
       { name: 'FetterId', type: 'integer', isPrimary: true },
       { name: 'AvatarId', type: 'integer', isIndex: true },
-    ],
-    renameFields: {
-      PPPLDLPKPFA: 'FinishConds',
-    },
+    ]
   },
   TutorialExcelConfigData: <SchemaTable> {
     name: 'TutorialExcelConfigData',
@@ -1613,7 +1448,7 @@ export const genshinSchema = {
       { name: 'Image', type: 'string' },
     ],
     renameFields: {
-      'EAFDGIBBIJD': 'Image',
+      'SpritePath': 'Image',
     },
   },
 
