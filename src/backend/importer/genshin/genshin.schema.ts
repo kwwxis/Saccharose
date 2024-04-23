@@ -1210,10 +1210,7 @@ export const genshinSchema = {
       { name: 'Id', type: 'integer', isPrimary: true },
       { name: 'NameTextMapHash', type: 'integer', isIndex: true },
       { name: 'DescTextMapHash', type: 'integer', isIndex: true },
-    ],
-    renameFields: {
-      ODACBHLGCIN: 'InternalName',
-    }
+    ]
   },
   GCGChooseExcelConfigData: <SchemaTable> {
     name: 'GCGChooseExcelConfigData',

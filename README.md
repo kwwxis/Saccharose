@@ -174,9 +174,7 @@ It's recommended you install `ts-node` globally with `npm install -g ts-node`
           * The `TextMap` folder should contain JSON files in the format of `TextMap<LangCode>.json` where `<LangCode>`
             is one of these: `'CHS', 'CHT', 'DE', 'EN', 'ES', 'FR', 'ID', 'IT', 'JP', 'KR', 'PT', 'RU', 'TH', 'TR', 'VI'`.
             For example `TextMapCHS.json`.
-      * Also needs the `BinOutput` folder, but only needs these two subfolders:
-        * The `BinOutput/Voice/Items` folder
-        * The `BinOutput/_unknown_dir` folder from Dim's repo.
+      * Also needs the `BinOutput` folder
 
     * Obtain the HSR Data folder and specify the location to it in the `HSR_DATA_ROOT` property of `.env`
     * Obtain the ZZZ Data folder and specify the location to it in the `ZENLESS_DATA_ROOT` property of `.env`

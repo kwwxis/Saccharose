@@ -115,28 +115,21 @@ export type SkillTagType =
 export interface GCGSkillExcelConfigData {
   Id: number,
 
-  NameTextMapHash: number,
-  DescTextMapHash: number,
-  CostList: { CostType: GCGCostType, CostData?: GCGCostExcelConfigData, Count: number }[],
-  SkillTagList: SkillTagType[],
-  MappedSkillTagList?: GCGSkillTagExcelConfigData[],
   DescText: string,
   NameText: string,
+  NameTextMapHash: number,
+  DescTextMapHash: number,
+
+  CostList: { CostType: GCGCostType, CostData?: GCGCostExcelConfigData, Count: number }[],
   EnergyRecharge: number,
   BlockAiCardId: number,
   IsHidden: boolean,
+  VoiceTriggerId: number,
 
-  InternalName: string, // skill internal id
-  GOOGPDHGMGN: string, // JsonPathHash
-  PHNMFFMECLK: 0 | 0.4 | 0.8,
-
-  LHEEECLKKMJ: boolean,
-  LOLPGKPEMKI: boolean,
-  FOHLOAAPBEJ: boolean,
-
-  KPPDPJPILLC?: 'OnBannerShow' | 'OnBehaviorStart' | 'OnHitLanded',
-  OHGMCNABLOD?: string,
-  NGLIJEOOBBB?: string,
+  SkillJson: string, // skill internal id
+  SkillIconHash: number,
+  SkillTagList: SkillTagType[],
+  MappedSkillTagList?: GCGSkillTagExcelConfigData[],
 
   WikiName?: string,
   WikiDesc?: string,

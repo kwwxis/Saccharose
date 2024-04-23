@@ -932,7 +932,7 @@ export class GCGControl {
   }
 
   private async setSkillWikiText(skill: GCGSkillExcelConfigData): Promise<void> {
-    skill.SkillDamage = this.charSkillDamageTable[skill.InternalName];
+    skill.SkillDamage = this.charSkillDamageTable[skill.SkillJson];
 
     if (skill.DescText && skill.SkillDamage) {
       skill.DescText = skill.DescText.replace(/\$\[D__KEY__DAMAGE(\|nc)?]/g, (fm: string) => {
