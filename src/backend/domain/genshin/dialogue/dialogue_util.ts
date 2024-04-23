@@ -686,19 +686,24 @@ export async function orderChapterQuests(ctrl: GenshinControl, chapter: ChapterE
     }
   }
 
+  inspect('Attempt order: ', graph);
   let directedQuests: MainQuestExcelConfigData[] = [];
-  for (let id of toposort(graph)) {
-    let quest = questsInChapter.find(q => q.Id === id);
-    if (!quest) {
-      quest = await ctrl.selectMainQuestById(id);
-      if (!!quest.ChapterId && quest.ChapterId !== chapter.Id) {
-        let otherChapter = await ctrl.selectChapterById(quest.ChapterId);
-        if (otherChapter.ChapterNumText !== chapter.ChapterNumText) {
-          continue;
+  try {
+    for (let id of toposort(graph)) {
+      let quest = questsInChapter.find(q => q.Id === id);
+      if (!quest) {
+        quest = await ctrl.selectMainQuestById(id);
+        if (!!quest.ChapterId && quest.ChapterId !== chapter.Id) {
+          let otherChapter = await ctrl.selectChapterById(quest.ChapterId);
+          if (otherChapter.ChapterNumText !== chapter.ChapterNumText) {
+            continue;
+          }
         }
       }
+      directedQuests.push(quest);
     }
-    directedQuests.push(quest);
+  } catch (ignore) {
+    // cyclic dependency, e.g. [ [ 74194, 74196 ], [ 74202, 74206 ], [ 74206, 74202 ] ]
   }
 
   let undirectedQuests = questsInChapter.filter(q => !directedQuests.some(q2 => q2.Id === q.Id) && !subquestIds.includes(q.Id));

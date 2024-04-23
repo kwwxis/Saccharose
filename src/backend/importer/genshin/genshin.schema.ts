@@ -793,10 +793,8 @@ export const genshinSchema = {
       { name: 'TalkDetailIconId', type: 'integer', isIndex: true },
     ],
     renameFields: {
-      CPBEMEKHDCO: 'TalkDetailIconId', // TODO doesn't work well with this field
-      JKPKBLJAMAG: 'TalkDetailIconId',
-      NAKCEHLACDO: 'TalkDetailIconId',
-      ECMMFFFJBPK: 'TalkDetailIconId'
+      TalkCharacterId: 'TalkDetailIconId',
+      TalkContent: 'TalkContentTextMapHash'
     },
     singularize: {'TalkDetailIconId': 'TalkDetailIconId'},
   },
