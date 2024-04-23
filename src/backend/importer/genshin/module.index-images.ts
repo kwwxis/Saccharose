@@ -15,6 +15,9 @@ import {
 function getImageNames(): string[] {
   const imageNames: string[] = [];
   for (let fileName of fs.readdirSync(IMAGEDIR_GENSHIN_EXT)) {
+    if (!fileName.includes('.png')) {
+      continue;
+    }
     let imageName: string;
 
     if (fileName.includes('#')) {
