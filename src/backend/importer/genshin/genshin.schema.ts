@@ -479,8 +479,8 @@ export const genshinSchema = {
       {name: 'PushTipsCodexId', type: 'integer', isIndex: true},
     ],
     renameFields: {
-      'EMDHIKMMGAG': 'AltDescTextMapHashList',
-      'IGHPADAKNEI': 'AltDescTextQuestCondIds',
+      'NAPGNMLIKAJ': 'AltDescTextQuestCondIds',
+      'JJLOFKDBMBF': 'AltDescTextMapHashList',
     }
   },
   ReputationQuestExcelConfigData: <SchemaTable> {
