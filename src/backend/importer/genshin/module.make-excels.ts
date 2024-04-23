@@ -103,7 +103,7 @@ export async function generateQuestDialogExcels(repoRoot: string) {
   // Enqueue Functions
 
   function deobf(obj: any): any {
-    // TODO: This needs to be updated with each new Genshin version!
+    // TODO: This needs to be updated with each new Genshin version! (maybe)
     obj = renameFields(obj, {
       CCFPGAKINNB: 'id',
       FKFBNNHJPDP: 'series',
@@ -357,18 +357,6 @@ export async function generateQuestDialogExcels(repoRoot: string) {
         if (!item) {
           continue;
         }
-
-        // TODO: This needs to be updated with each new Genshin version!
-        if (item.LCOLFNADELJ)
-          item.itemId = item.LCOLFNADELJ; // 3.8
-        if (item.CJPJEIEKMAE)
-          item.itemId = item.CJPJEIEKMAE; // 4.0
-        if (item.NKOILEAABME)
-          item.itemId = item.NKOILEAABME; // 4.1
-        if (item.IIJAJFHKJEO)
-          item.itemId = item.IIJAJFHKJEO; // 4.3
-        if (item.GCOJFIFNBGB)
-          item.itemId = item.GCOJFIFNBGB; // 4.4
 
         if (!item.itemId) {
           console.log(item);

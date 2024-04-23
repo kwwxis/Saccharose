@@ -7,17 +7,17 @@ export const InterActionSchema = <SchemaTable> {
 
   // TODO: This needs to be updated with each new Genshin version!
   renameFields: {
-    CIOBDALMHGN: 'DialogOptions', // 4.1
-    MLAABINGLAA: 'DialogOptions', // 4.2
-    BCOOIEMOMBL: 'DialogOptions', // 4.3
-    NDMMOPDPKNF: 'DialogOptions', // 4.4
-    HLOONFICMOJ: 'DialogOptions', // 4.5
+    CIOBDALMHGN: 'DialogIdList', // 4.1
+    MLAABINGLAA: 'DialogIdList', // 4.2
+    BCOOIEMOMBL: 'DialogIdList', // 4.3
+    NDMMOPDPKNF: 'DialogIdList', // 4.4
+    HLOONFICMOJ: 'DialogIdList', // 4.5
 
-    MCAHMAIKDKH: 'DialogNextGroup', // 4.1
-    HPBPDBFGKID: 'DialogNextGroup', // 4.2
-    DLIPJKNKANK: 'DialogNextGroup', // 4.3
-    FPDBIEGHMCD: 'DialogNextGroup', // 4.4
-    BJBCCFDIICN: 'DialogNextGroup', // 4.5
+    MCAHMAIKDKH: 'GrpIdList', // 4.1
+    HPBPDBFGKID: 'GrpIdList', // 4.2
+    DLIPJKNKANK: 'GrpIdList', // 4.3
+    FPDBIEGHMCD: 'GrpIdList', // 4.4
+    BJBCCFDIICN: 'GrpIdList', // 4.5
 
     GBAPKLGILDP: 'DialogId', // 4.1
     KICBIOMGHIN: 'DialogId', // 4.2
@@ -25,11 +25,11 @@ export const InterActionSchema = <SchemaTable> {
     NMKEDPFEKBH: 'DialogId', // 4.4
     ACDCGBPKCAF: 'DialogId', // 4.5
 
-    EDFJOBOJFBD: 'CutsceneId', // 4.1
-    LMHLEOPOLEK: 'CutsceneId', // 4.2
-    MGKDCJOKIGC: 'CutsceneId', // 4.3
-    AKFCJIPDODB: 'CutsceneId', // 4.4
-    NLOMFPEHHKP: 'CutsceneId', // 4.5
+    EDFJOBOJFBD: 'CutsceneIndex', // 4.1
+    LMHLEOPOLEK: 'CutsceneIndex', // 4.2
+    MGKDCJOKIGC: 'CutsceneIndex', // 4.3
+    AKFCJIPDODB: 'CutsceneIndex', // 4.4
+    NLOMFPEHHKP: 'CutsceneIndex', // 4.5
   },
 };
 
@@ -248,15 +248,15 @@ export interface InterAction {
 
   // DIALOG/DIALOG_SELECT
   DialogId?: number, // SIMPLE_BLACK_SCREEN can also have this sometimes
-  DialogOptions?: number[],
-  DialogNextGroup?: number[],
+  DialogIdList?: number[],
+  GrpIdList?: number[],
 
   // VIDEO_PLAY
   VideoName?: string,
   SubtitleId?: number,
 
   // CUTSCENE:
-  CutsceneId?: number,
+  CutsceneIndex?: number,
 
   // SHOW_BG_PIC:
   PicPath?: string,
@@ -292,7 +292,7 @@ export class InterActionFile {
   }
 
   private actionMatchesDialog(a: InterAction, dialogId: number) {
-    return a.DialogId === dialogId || (a.DialogOptions && a.DialogOptions.includes(dialogId));
+    return a.DialogId === dialogId || (a.DialogIdList && a.DialogIdList.includes(dialogId));
   }
 
   findDialog(dialogId: number): InterActionDialog {
@@ -345,8 +345,8 @@ export class InterActionDialog {
     let Intermediates: InterAction[] = [];
 
     if (this.Action.Type === 'DIALOG_SELECT') {
-      const optIndex = this.Action.DialogOptions.indexOf(this.DialogId);
-      nextGroupId = this.Action.DialogNextGroup[optIndex];
+      const optIndex = this.Action.DialogIdList.indexOf(this.DialogId);
+      nextGroupId = this.Action.GrpIdList[optIndex];
     } else if (this.Action.Type === 'DIALOG') {
       if (this.ActionIndex < this.Group.Actions.length - 1) { // if this is the second-to-last action or before
         for (let i = this.ActionIndex + 1; i < this.Group.Actions.length; i++) {
@@ -354,7 +354,7 @@ export class InterActionDialog {
           if (other.Type === 'DIALOG') {
             return { NextDialogs: [other.DialogId], Intermediates };
           } else if (other.Type === 'DIALOG_SELECT') {
-            return { NextDialogs: other.DialogOptions, Intermediates} ;
+            return { NextDialogs: other.DialogIdList, Intermediates} ;
           }
           if (INTERACTION_INTERMEDIATE_TYPES.has(other.Type)) {
             Intermediates.push(other);
@@ -373,7 +373,7 @@ export class InterActionDialog {
         if (other.Type === 'DIALOG') {
           return { NextDialogs: [other.DialogId], Intermediates };
         } else if (other.Type === 'DIALOG_SELECT') {
-          return { NextDialogs: other.DialogOptions, Intermediates };
+          return { NextDialogs: other.DialogIdList, Intermediates };
         } else if ((other.Type === 'SIMPLE_BLACK_SCREEN' || other.Type === 'BLACK_SCREEN' || other.Type === 'SHOW_BG_PIC') && other.DialogId) {
           return { NextDialogs: [other.DialogId], Intermediates };
         }

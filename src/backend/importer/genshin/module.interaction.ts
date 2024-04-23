@@ -87,8 +87,8 @@ function processInterAction(fileName: string, groupId: number, groupIndex: numbe
       return null;
     }
   } else if (action.Type === 'DIALOG_SELECT') {
-    if (Array.isArray(action.DialogOptions)) {
-      for (let dialogOption of action.DialogOptions) {
+    if (Array.isArray(action.DialogIdList)) {
+      for (let dialogOption of action.DialogIdList) {
         d2f[dialogOption] = [fileName, groupId, groupIndex];
       }
     } else {
@@ -122,7 +122,7 @@ function processJsonObject(fileName: string, json: any): InterActionGroup[] {
       }
       if (action.Type === 'DIALOG_SELECT') {
         const actionOfSameType = selectActions.find(a => a.Type === action.Type);
-        if (actionOfSameType && isEquiv(actionOfSameType.DialogOptions, action.DialogOptions) && isEquiv(actionOfSameType.DialogNextGroup, action.DialogNextGroup)) {
+        if (actionOfSameType && isEquiv(actionOfSameType.DialogIdList, action.DialogIdList) && isEquiv(actionOfSameType.GrpIdList, action.GrpIdList)) {
           continue; // duplicate, disregard
         }
         if (actionOfSameType) {
