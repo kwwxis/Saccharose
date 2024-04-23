@@ -686,7 +686,6 @@ export async function orderChapterQuests(ctrl: GenshinControl, chapter: ChapterE
     }
   }
 
-  inspect('Attempt order: ', graph);
   let directedQuests: MainQuestExcelConfigData[] = [];
   try {
     for (let id of toposort(graph)) {
