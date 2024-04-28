@@ -84,6 +84,14 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
   const debug = custom('quest:' + mainQuest.Id);
   debug('Generating MainQuest');
 
+  const chapter = mainQuest.ChapterId ? await ctrl.selectChapterById(mainQuest.ChapterId, false) : null;
+
+  const isHangout: boolean = mainQuest.Type === 'SQ'
+    && chapter && chapter.ChapterNumTextMapHash
+    && (await ctrl.getTextMapItem('EN', chapter.ChapterNumTextMapHash))?.includes('Hangout');
+  debug('Is Hangout: ' + (isHangout ? 'Yes' : 'No'));
+  console.log('Is Hangout', isHangout);
+
   // Fetch talk configs (By MainQuest ID)
   // --------------------------------------------------------------------------------------------------------------
 
@@ -129,6 +137,11 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
 
   // Find unparented dialogue
   // --------------------------------------------------------------------------------------------------------------
+
+  if (isHangout) {
+    debug('Adding orphaned dialog');
+    await addOrphanedDialogue(ctrl, mainQuest);
+  }
 
   debug('Fetching unparented dialogue');
   await addUnparentedDialogue(ctrl, mainQuest);
@@ -386,6 +399,34 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
   // --------------------------------------------------------------------------------------------------------------
   debug('Returning result');
   return result;
+}
+
+async function addOrphanedDialogue(ctrl: GenshinControl, mainQuest: MainQuestExcelConfigData) {
+  const allDialogueIds = await grepIdStartsWith('id', mainQuest.Id,
+    ctrl.getDataFilePath('./ExcelBinOutput/DialogExcelConfigData.json'));
+
+  const handleOrphanedDialog = async (quest: MainQuestExcelConfigData|QuestExcelConfigData, id: number) => {
+    if (ctrl.isInDialogIdCache(id))
+      return;
+    let dialog = await ctrl.selectSingleDialogExcelConfigData(id as number);
+    console.log('Orphaned?', id, !!dialog);
+    if (dialog) {
+      if (!quest.NonTalkDialog)
+        quest.NonTalkDialog = [];
+      let dialogs = await ctrl.selectDialogBranch(mainQuest.Id, dialog);
+      quest.NonTalkDialog.push(dialogs);
+    }
+  }
+  for (let quest of mainQuest.QuestExcelConfigDataList) {
+    for (let id of allDialogueIds) {
+      if (!id.toString().startsWith(quest.SubId.toString()))
+        continue;
+      await handleOrphanedDialog(quest, id as number);
+    }
+  }
+  for (let id of allDialogueIds) {
+    await handleOrphanedDialog(mainQuest, id as number);
+  }
 }
 
 async function addUnparentedDialogue(ctrl: GenshinControl, mainQuest: MainQuestExcelConfigData) {

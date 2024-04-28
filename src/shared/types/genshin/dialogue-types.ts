@@ -284,7 +284,8 @@ export type TalkLoadType =
   'TALK_DEFAULT'    |
   'TALK_ACTIVITY'   |
   'TALK_BLOSSOM'    | // For "Is there anything of note nearby?" dialogues for "Magical Crystal Chunk" veins...
-  'TALK_GADGET';
+  'TALK_GADGET'     |
+  'TALK_COOP'       ;
 
 export interface TalkExcelConfigData {
   Id: number,
