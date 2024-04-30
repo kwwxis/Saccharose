@@ -90,6 +90,9 @@ export function __normStarRailText(text: string, langCode: LangCode, opts: NormT
     text = text.replace(/<color=#00f6ff(?:FF)?>(.*?)<\/color>/gi, '{{Color|mechanical|$1|nobold=1}}');
     text = text.replace(/<color=#ab88fe(?:FF)?>(.*?)<\/color>/gi, '{{Color|aberrant|$1|nobold=1}}');
 
+    text = text.replace(/({{Color\|[^|]+\|)'''([^|]+)'''\|nobold=1}}/g, '$1$2}}');
+    text = text.replace(/('''{{Color\|[^|]+\|)([^|]+)\|nobold=1}}'''/g, '$1$2}}');
+
     text = text.replace(/<color=(#[0-9a-fA-F]{6,8})>(.*?)<\/color>/g, '<span style="color:$1">$2</span>');
   }
 
