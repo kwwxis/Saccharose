@@ -90,7 +90,6 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
     && chapter && chapter.ChapterNumTextMapHash
     && (await ctrl.getTextMapItem('EN', chapter.ChapterNumTextMapHash))?.includes('Hangout');
   debug('Is Hangout: ' + (isHangout ? 'Yes' : 'No'));
-  console.log('Is Hangout', isHangout);
 
   // Fetch talk configs (By MainQuest ID)
   // --------------------------------------------------------------------------------------------------------------
@@ -409,7 +408,6 @@ async function addOrphanedDialogue(ctrl: GenshinControl, mainQuest: MainQuestExc
     if (ctrl.isInDialogIdCache(id))
       return;
     let dialog = await ctrl.selectSingleDialogExcelConfigData(id as number);
-    console.log('Orphaned?', id, !!dialog);
     if (dialog) {
       if (!quest.NonTalkDialog)
         quest.NonTalkDialog = [];

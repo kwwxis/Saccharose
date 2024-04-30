@@ -73,6 +73,23 @@ export function __normStarRailText(text: string, langCode: LangCode, opts: NormT
   if (!opts.decolor && !opts.plaintext) {
     text = text.replace(/<color=#\{0}>(.*?)<\/color>/g, `<b>$1</b>`);
     text = postProcessBoldItalic(text, opts);
+
+    text = text.replace(/<color=#f29e38(?:FF)?>(.*?)<\/color>/gi, '{{Color|highlight|$1|nobold=1}}');
+    text = text.replace(/<color=#dd7a00(?:FF)?>(.*?)<\/color>/gi, '{{Color|highlight|$1|nobold=1}}');
+    text = text.replace(/<color=#dbc291(?:FF)?>(.*?)<\/color>/gi, '{{Color|keyword|$1|nobold=1}}');
+    text = text.replace(/<color=#42a8b9(?:FF)?>(.*?)<\/color>/gi, '{{Color|fthuser|$1|nobold=1}}');
+    text = text.replace(/<color=#87e0ff(?:FF)?>(.*?)<\/color>/gi, '{{Color|blue|$1|nobold=1}}');
+    text = text.replace(/<color=#77ede5(?:FF)?>(.*?)<\/color>/gi, '{{Color|heliobus|$1|nobold=1}}');
+    text = text.replace(/<color=#eb4d3d(?:FF)?>(.*?)<\/color>/gi, '{{Color|fire|$1|nobold=1}}');
+    text = text.replace(/<color=#ec505f(?:FF)?>(.*?)<\/color>/gi, '{{Color|fire|$1|nobold=1}}');
+    text = text.replace(/<color=#ff3a3e(?:FF)?>(.*?)<\/color>/gi, '{{Color|red|$1|nobold=1}}');
+    text = text.replace(/<color=#f3da75(?:FF)?>(.*?)<\/color>/gi, '{{Color|imaginary|$1|nobold=1}}');
+    text = text.replace(/<color=#6f7cda(?:FF)?>(.*?)<\/color>/gi, '{{Color|harmonyblue|$1|nobold=1}}');
+    text = text.replace(/<color=#ad5e68(?:FF)?>(.*?)<\/color>/gi, '{{Color|harmonyred|$1|nobold=1}}');
+    text = text.replace(/<color=#ff4f53(?:FF)?>(.*?)<\/color>/gi, '{{Color|humanoid|$1|nobold=1}}');
+    text = text.replace(/<color=#00f6ff(?:FF)?>(.*?)<\/color>/gi, '{{Color|mechanical|$1|nobold=1}}');
+    text = text.replace(/<color=#ab88fe(?:FF)?>(.*?)<\/color>/gi, '{{Color|aberrant|$1|nobold=1}}');
+
     text = text.replace(/<color=(#[0-9a-fA-F]{6,8})>(.*?)<\/color>/g, '<span style="color:$1">$2</span>');
   }
 
