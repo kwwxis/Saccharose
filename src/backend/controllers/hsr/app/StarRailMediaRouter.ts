@@ -24,7 +24,6 @@ export default async function(): Promise<Router> {
 
   router.get('/media/details/:imageName(*)', async (req: Request, res: Response) => {
     const ctrl = getStarRailControl(req);
-    console.log(req.params);
     const { entity, usageEntities } = await ctrl.selectImageIndexEntityAndUsages(req.params.imageName);
     res.render(StarRailMediaDetailsPage, {
       title: 'Media Details: ' + String(req.params.imageName),
