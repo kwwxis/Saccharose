@@ -75,15 +75,15 @@ After installing Git Bash, you can configure the follow:
 This project can be run both with and without SSL. For local development, it doesn't really
 matter much, so if you're having trouble getting SSL working or don't want to bother, then you can just skip it.
 
-1. Create a file called `openssl.<VHOST>.cnf` with these contents.
+1. Create a file called `openssl.<WEB_DOMAIN>.cnf` with these contents.
    
-   Replace `<VHOST>` in the file name and the file contents with the `VHOST` in your `.env` file.
+   Replace `<WEB_DOMAIN>` in the file name and the file contents with the `WEB_DOMAIN` in your `.env` file.
    
    ```
    authorityKeyIdentifier=keyid,issuer
    basicConstraints=CA:FALSE
    keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
-   subjectAltName=DNS:<VHOST>
+   subjectAltName=DNS:<WEB_DOMAIN>
    ```
 
 2. Run `openssl genrsa -des3 -out rootSSL.key 2048`. It'll ask you to create a password, only you're using this
@@ -99,38 +99,38 @@ matter much, so if you're having trouble getting SSL working or don't want to bo
 
 4. Run this command. It's multi-line so if your terminal asks if you're sure you want to paste it, then say yes.
    
-   Remember to replace `<VHOST>`
+   Remember to replace `<WEB_DOMAIN>`
    
    ```shell
    openssl req \
     -new -sha256 -nodes \
-    -out <VHOST>.csr \
-    -newkey rsa:2048 -keyout <VHOST>.key \
-    -subj "//C=<2LetterCountryCode>\ST=<StateFullName>\L=<CityFullName>\O=<OrganizationName>\OU=<OrganizationUnitName>\CN=<VHOST>\emailAddress=<EmailAddress>"
+    -out <WEB_DOMAIN>.csr \
+    -newkey rsa:2048 -keyout <WEB_DOMAIN>.key \
+    -subj "//C=<2LetterCountryCode>\ST=<StateFullName>\L=<CityFullName>\O=<OrganizationName>\OU=<OrganizationUnitName>\CN=<WEB_DOMAIN>\emailAddress=<EmailAddress>"
    ```
    Example for the last line:
    ```
-   -subj "//C=US\ST=Washington\L=Seattle\O=kwwxis\OU=kwwxis\CN=<VHOST>\emailAddress=kwwxis@gmail.com"
+   -subj "//C=US\ST=Washington\L=Seattle\O=kwwxis\OU=kwwxis\CN=<WEB_DOMAIN>\emailAddress=kwwxis@gmail.com"
    ```
 5. Run this command.
    
-   Remember to replace `<VHOST>`
+   Remember to replace `<WEB_DOMAIN>`
    
    ```shell
    openssl x509 \
     -req \
-    -in <VHOST>.csr \
+    -in <WEB_DOMAIN>.csr \
     -CA rootSSL.pem -CAkey rootSSL.key -CAcreateserial \
-    -out <VHOST>.crt \
+    -out <WEB_DOMAIN>.crt \
     -days 500 \
     -sha256 \
-    -extfile openssl.<VHOST>.cnf
+    -extfile openssl.<WEB_DOMAIN>.cnf
    ```
 6. Edit the `.env` file and set the SSL_KEY and SSL_CERT properties.
    
     ```dotenv
-    SSL_KEY=C:/<wherever-you-put-the-files>/<VHOST>.key
-    SSL_CERT=C:/<wherever-you-put-the-files>/<VHOST>.crt
+    SSL_KEY=C:/<wherever-you-put-the-files>/<WEB_DOMAIN>.key
+    SSL_CERT=C:/<wherever-you-put-the-files>/<WEB_DOMAIN>.crt
     SSL_CA=C:/<wherever-you-put-the-files>/rootSSL.pem
     ```
 7. You'll need to register the `rootSSL.pem` file you created with your Operating System. You can find

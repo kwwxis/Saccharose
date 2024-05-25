@@ -126,7 +126,7 @@ import {
   MonsterExcelConfigData,
   MonsterLoadConf,
 } from '../../../shared/types/genshin/monster-types.ts';
-import { defaultMap, isEmpty, isset, isUnset } from '../../../shared/util/genericUtil.ts';
+import { defaultMap, isEmpty, isset } from '../../../shared/util/genericUtil.ts';
 import { NewActivityExcelConfigData } from '../../../shared/types/genshin/activity-types.ts';
 import { Marker } from '../../../shared/util/highlightMarker.ts';
 import { ElementType, ManualTextMapHashes } from '../../../shared/types/genshin/manual-text-map.ts';
@@ -165,13 +165,6 @@ import { genshin_i18n, GENSHIN_I18N_MAP, GENSHIN_MATERIAL_TYPE_DESC_PLURAL_MAP }
 import * as console from 'console';
 import { FullChangelog } from '../../../shared/types/changelog-types.ts';
 import { GameVersion } from '../../../shared/types/game-versions.ts';
-import { SearchMode } from '../../../shared/util/searchUtil.ts';
-import { openPg } from '../../util/db.ts';
-import { Knex } from 'knex';
-import {
-  GenshinImageCategoryMap,
-  GenshinImageIndexEntity, GenshinImageIndexSearchResult,
-} from '../../../shared/types/genshin/genshin-image-index-types.ts';
 
 // region Control State
 // --------------------------------------------------------------------------------------------------------------
@@ -1963,7 +1956,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return this.postProcessFurniture(furn, typeMap, makeMap, loadConf);
   }
 
-  async selectAllFurniture(loadConf?: HomeWorldFurnitureLoadConf): Promise<HomeWorldFurnitureExcelConfigData[]> {;
+  async selectAllFurniture(loadConf?: HomeWorldFurnitureLoadConf): Promise<HomeWorldFurnitureExcelConfigData[]> {
     let furnList: HomeWorldFurnitureExcelConfigData[] = await this.knex.select('*').from('HomeWorldFurnitureExcelConfigData');
 
     const typeMap = await this.selectFurnitureTypeMap();
@@ -2389,7 +2382,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
               }
               sb.line('}}');
 
-              relation.RecipeWikitext.push(sb.toString());;
+              relation.RecipeWikitext.push(sb.toString());
               break;
             }
             case 'CompoundExcelConfigData': {
@@ -3257,115 +3250,6 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       }
     }
     return achievement;
-  }
-  // endregion
-
-  // region Texture2D Media
-
-  async listImageCategories(): Promise<GenshinImageCategoryMap> {
-    return cached('GenshinImageIndexCategoryMap', async () => {
-      return this.readJsonFile('ImageIndexCategoryMap.json');
-    });
-  }
-
-  async selectImageIndexEntity(imageName: string): Promise<GenshinImageIndexEntity> {
-    return openPg().select('*').from('genshin_image_index').where({image_name: imageName}).first().then();
-  }
-
-  async searchImageIndex(select: {
-    query: string,
-    cat1?: string,
-    cat2?: string,
-    cat3?: string,
-    cat4?: string,
-    cat5?: string,
-    catPath?: string,
-    catRestrict?: boolean,
-    offset?: number,
-  }, searchMode: SearchMode): Promise<GenshinImageIndexSearchResult> {
-    const query = select.query ? select.query.trim() : null;
-
-    let builder: Knex.QueryBuilder = openPg().select('*').from('genshin_image_index');
-
-    if (query) {
-      switch (searchMode) {
-        // case 'W':
-        // case 'WI':
-        //   builder = builder.whereRaw(`ts @@ plainto_tsquery('english', :query)`, { query });
-        //   break;
-        case 'W':
-        case 'C':
-          builder = builder.where('image_name', 'LIKE', '%' + query + '%');
-          if (query.includes(' ')) {
-            builder = builder.orWhere('image_name', 'LIKE', '%' + query.replace(/ /g, '_') + '%');
-          }
-          break;
-        case 'WI':
-        case 'CI':
-          builder = builder.where('image_name', 'ILIKE', '%' + query + '%');
-          if (query.includes(' ')) {
-            builder = builder.orWhere('image_name', 'ILIKE', '%' + query.replace(/ /g, '_') + '%');
-          }
-          break;
-        case 'R':
-          builder = builder.where('image_name', '~', query);
-          if (query.includes(' ')) {
-            builder = builder.orWhere('image_name', '~', query.replace(/ /g, '_'));
-          }
-          break;
-        case 'RI':
-          builder = builder.where('image_name', '~*', query);
-          if (query.includes(' ')) {
-            builder = builder.orWhere('image_name', '~*', query.replace(/ /g, '_'));
-          }
-          break;
-      }
-    }
-
-    if (select.catPath) {
-      [select.cat1, select.cat2, select.cat3, select.cat4, select.cat5] = select.catPath.split(/[_.]/g);
-    }
-
-    const catClauseValues = cleanEmpty({
-      image_cat1: select.cat1,
-      image_cat2: select.cat2,
-      image_cat3: select.cat3,
-      image_cat4: select.cat4,
-      image_cat5: select.cat5,
-    });
-
-    for (let key of Object.keys(catClauseValues)) {
-      if (catClauseValues[key] === 'null') {
-        catClauseValues[key] = null;
-      }
-    }
-    if (select.catRestrict) {
-      for (let key of ['image_cat1', 'image_cat2', 'image_cat3', 'image_cat4', 'image_cat5']) {
-        if (isUnset(catClauseValues[key])) {
-          catClauseValues[key] = null;
-        }
-      }
-    }
-
-    if (Object.keys(catClauseValues).length) {
-      builder = builder.where(catClauseValues);
-    }
-
-    const results = await builder.orderBy('image_name').offset(select.offset || 0).limit(51).then((rows: GenshinImageIndexEntity[]) => {
-      rows.forEach(row => {
-        delete row['ts'];
-      })
-      return rows;
-    });
-
-    return {
-      results: results.slice(0, 50),
-      hasMore: results.length === 51,
-      offset: select.offset || 0,
-      nextOffset: results.length === 51
-        ? (select.offset || 0) + 50
-        : undefined,
-    };
   }
   // endregion
 }

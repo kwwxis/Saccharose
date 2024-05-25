@@ -13,9 +13,9 @@ import { ScriptJobPostResult, ScriptJobState } from '../../backend/util/scriptJo
 import { MwArticleInfo, MwArticleSearchResult, MwRevision, MwRevLoadMode } from '../../shared/mediawiki/mwTypes.ts';
 import { RequireOnlyOne } from '../../shared/types/utility-types.ts';
 import {
-  GenshinImageCategoryMap,
-  GenshinImageIndexSearchResult,
-} from '../../shared/types/genshin/genshin-image-index-types.ts';
+  ImageCategoryMap, ImageIndexSearchParams,
+  ImageIndexSearchResult,
+} from '../../shared/types/image-index-types.ts';
 import { SitePrefName, SiteUserPrefs } from '../../shared/types/site/site-user-types.ts';
 
 export type ApiParams<T> = T & {
@@ -227,19 +227,8 @@ export const genshinEndpoints = {
   searchAchievements: new GenshinApiEndpoint<{text: string}>('/achievements/search'),
   searchTutorials: new GenshinApiEndpoint<{text: string}>('/tutorials/search'),
 
-  mediaSearch: new GenshinApiEndpoint<{
-    query?: string,
-    cat1?: string,
-    cat2?: string,
-    cat3?: string,
-    cat4?: string,
-    cat5?: string,
-    catPath?: string,
-    catRestrict?: boolean,
-    offset?: number,
-    searchMode?: string,
-  }, GenshinImageIndexSearchResult>('/media/search'),
-  mediaCategory: new GenshinApiEndpoint<{}, GenshinImageCategoryMap>('/media/category'),
+  mediaSearch: new GenshinApiEndpoint<ImageIndexSearchParams, ImageIndexSearchResult>('/media/search'),
+  mediaCategory: new GenshinApiEndpoint<{}, ImageCategoryMap>('/media/category'),
 
   searchTcgStages: new GenshinApiEndpoint<{text: string}>('/gcg/stage-search'),
 };
@@ -262,6 +251,9 @@ export const starRailEndpoints = {
   getIdUsages: new StarRailApiEndpoint<{q: string}>('/id-usages'),
 
   getVoiceAtlasGroup: new StarRailApiEndpoint<{avatarId: number}, VoiceAtlasGroup>('/character/voice-atlas'),
+
+  mediaSearch: new GenshinApiEndpoint<ImageIndexSearchParams, ImageIndexSearchResult>('/media/search'),
+  mediaCategory: new GenshinApiEndpoint<{}, ImageCategoryMap>('/media/category'),
 };
 
 export const zenlessEndpoints = {

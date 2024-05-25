@@ -26,10 +26,10 @@
       <div class="option-sep"></div>
 
       <div data-value="R" :class="`option ${ ctx.prefTernary('searchMode').equals('R').then('selected') }`" ui-action="dropdown-item">
-        <strong class="code">R:&nbsp;</strong> Regex <small><em>(case-sensitive)</em></small>
+        <strong class="code">R:&nbsp;</strong> Regex <small><em>(case-sensitive) (PCRE)</em></small>
       </div>
       <div data-value="RI" :class="`option ${ ctx.prefTernary('searchMode').equals('RI').then('selected') }`" ui-action="dropdown-item">
-        <strong class="code">RI:</strong> Regex <small><em>(case-insensitive)</em></small>
+        <strong class="code">RI:</strong> Regex <small><em>(case-insensitive) (PCRE)</em></small>
       </div>
     </div>
   </div>

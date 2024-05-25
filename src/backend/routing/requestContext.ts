@@ -546,8 +546,27 @@ export class RequestContext {
                 items: [
                   { id: 'textmap-search', name: 'Textmap Search', link: '/hsr/textmap',  bodyClass: 'page--textmap' },
                   { id: 'ol-generator', name: 'OL Generator', link: '/hsr/OL', bodyClass: 'page--OL' },
+                ]
+              }
+            ]
+          },
+          {
+            id: 'generic-data-tools',
+            name: 'Generic Data Tools',
+            content: [
+              {
+                id: 'excel-data',
+                name: 'Excel Data',
+                items: [
                   { id: 'excel-usages', name: 'Identifier Usages', link: '/hsr/id-usages', bodyClass: 'page--id-usages' },
                   { id: 'excel-viewer', name: 'Excel Viewer', link: '/hsr/excel-viewer', bodyClass: 'page--excel-viewer' },
+                ]
+              },
+              {
+                id: 'media-data',
+                name: 'Media Data',
+                items: [
+                  { id: 'media', name: 'Media', link: '/hsr/media', bodyClass: 'page--media' },
                 ]
               }
             ]

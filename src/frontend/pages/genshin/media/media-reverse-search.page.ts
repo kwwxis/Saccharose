@@ -13,7 +13,7 @@ interface Result {
   }
 }
 
-pageMatch('vue/MediaReverseSearchPage', () => {
+pageMatch('vue/GenshinMediaReverseSearchPage', () => {
   const form: HTMLFormElement = <HTMLFormElement> document.getElementById('media-search-form');
   const fileInput: HTMLInputElement = <HTMLInputElement> document.querySelector('#media-search-form input[type=file]');
   const submitButton: HTMLInputElement = <HTMLInputElement> document.querySelector('#media-search-form input[type=submit]');

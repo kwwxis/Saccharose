@@ -5,7 +5,7 @@ const sendHstsHeader: boolean = toBoolean(process.env.SSL_ENABLED) && process.en
 
 export default (req: Request, res: Response, next: NextFunction) => {
   res.header('X-Robots-Tag', 'noindex, nofollow');
-  if (sendHstsHeader && req.headers.host === process.env.VHOST) {
+  if (sendHstsHeader && req.headers.host === process.env.WEB_DOMAIN) {
     res.header('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
   }
   next();

@@ -16,7 +16,7 @@ import { importSearchIndex } from './module.search-index.ts';
 import { generateAvatarAnimInteractionGoodBad, generateQuestDialogExcels } from './module.make-excels.ts';
 import { loadInterActionQD } from './module.interaction.ts';
 import { createChangelog } from './module.changelog.ts';
-import { indexImages } from './module.index-images.ts';
+import { indexGenshinImages } from './module.index-images.ts';
 
 export async function importGenshinFilesCli() {
   const options_beforeDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
@@ -129,7 +129,7 @@ export async function importGenshinFilesCli() {
     await maximizeImages();
   }
   if (options['index-images']) {
-    await indexImages(dryRun);
+    await indexGenshinImages(dryRun);
   }
   if (options['make-excels']) {
     await generateQuestDialogExcels(getGenshinDataFilePath());

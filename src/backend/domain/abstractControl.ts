@@ -1,6 +1,6 @@
 import { Knex } from 'knex';
 import { DEFAULT_SEARCH_MODE, IdUsages, IdUsagesItem, SEARCH_MODES, SearchMode } from '../../shared/util/searchUtil.ts';
-import { openSqlite, SaccharoseDb } from '../util/db.ts';
+import { openPg, openSqlite, SaccharoseDb } from '../util/db.ts';
 import {
   CLD2_TO_LANG_CODE,
   DEFAULT_LANG,
@@ -31,10 +31,12 @@ import {
 } from '../util/shellutil.ts';
 import { NormTextOptions } from './generic/genericNormalizers.ts';
 import { ExtractScalar } from '../../shared/types/utility-types.ts';
-import { ArrayStream } from '../../shared/util/arrayUtil.ts';
+import { ArrayStream, cleanEmpty } from '../../shared/util/arrayUtil.ts';
 import { Request } from 'express';
-import { defaultMap } from '../../shared/util/genericUtil.ts';
+import { defaultMap, isUnset } from '../../shared/util/genericUtil.ts';
 import { Marker } from '../../shared/util/highlightMarker.ts';
+import { ImageCategoryMap, ImageIndexEntity, ImageIndexSearchResult } from '../../shared/types/image-index-types.ts';
+import { cached } from '../util/cache.ts';
 
 export abstract class AbstractControlState {
   public request: Request = null;
@@ -85,8 +87,10 @@ export abstract class AbstractControlState {
 }
 
 export abstract class AbstractControl<T extends AbstractControlState = AbstractControlState>  {
+  // region Fields
   readonly state: T;
   readonly knex: Knex;
+  readonly dbName: keyof SaccharoseDb;
 
   readonly disabledLangCodes: Set<LangCode> = new Set<LangCode>();
   protected excelPath: string;
@@ -95,15 +99,22 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
   protected sortByOrder = (a: any, b: any) => {
     return a.Order - b.Order || a.Order - b.Order;
   };
+  // endregion
 
+  // region Constructor / Copy
   protected constructor(dbName: keyof SaccharoseDb, stateConstructor: {new(request?: Request): T}, requestOrState?: Request|T) {
     this.state = requestOrState instanceof AbstractControlState ? requestOrState : new stateConstructor(requestOrState);
     this.knex = this.state.NoDbConnect ? null : openSqlite()[dbName];
     this.schema = schemaForDbName(dbName);
+    this.dbName = dbName;
   }
 
   abstract copy(): AbstractControl<T>;
 
+  abstract i18n(key: string, vars?: Record<string, string>): string;
+  // endregion
+
+  // region State Property Aliases
   get inputLangCode(): LangCode {
     return this.state.inputLangCode;
   }
@@ -114,38 +125,6 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
 
   get searchMode(): SearchMode {
     return this.state.searchMode;
-  }
-
-  abstract i18n(key: string, vars?: Record<string, string>): string;
-
-  langSuggest(query: string): LangSuggest {
-    const result = langDetect(query);
-    const code = CLD2_TO_LANG_CODE[result?.details?.[0]?.langCode?.toLowerCase()] ||
-      result?.details?.[0]?.langCode?.toUpperCase();
-
-    if (code === 'UN') { // UN is undefined/non-determinable
-      return null;
-    }
-
-    let langName = result?.details?.[0]?.langName?.toLowerCase();
-
-    if (langName === 'ChineseT'.toLowerCase()) {
-      langName = 'Chinese (Traditional)';
-    } else if (langName === 'Chinese'.toLowerCase()) {
-      langName = 'Chinese (Simplified)';
-    } else {
-      langName = titleCase(langName);
-    }
-
-    return {
-      matchesInputLangCode: code === this.inputLangCode,
-      detected: {
-        langCode: code,
-        langName: langName,
-        confidence: result?.details?.[0]?.confidence,
-      },
-      result
-    };
   }
 
   get searchModeFlags(): string {
@@ -175,7 +154,41 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
         return '-wi';
     }
   }
+  // endregion
 
+  // region Lang Suggest
+  langSuggest(query: string): LangSuggest {
+    const result = langDetect(query);
+    const code = CLD2_TO_LANG_CODE[result?.details?.[0]?.langCode?.toLowerCase()] ||
+      result?.details?.[0]?.langCode?.toUpperCase();
+
+    if (code === 'UN') { // UN is undefined/non-determinable
+      return null;
+    }
+
+    let langName = result?.details?.[0]?.langName?.toLowerCase();
+
+    if (langName === 'ChineseT'.toLowerCase()) {
+      langName = 'Chinese (Traditional)';
+    } else if (langName === 'Chinese'.toLowerCase()) {
+      langName = 'Chinese (Simplified)';
+    } else {
+      langName = titleCase(langName);
+    }
+
+    return {
+      matchesInputLangCode: code === this.inputLangCode,
+      detected: {
+        langCode: code,
+        langName: langName,
+        confidence: result?.details?.[0]?.confidence,
+      },
+      result
+    };
+  }
+  // endregion
+
+  // region DB Post Process / Common Load
   abstract postProcess<T>(object: T, triggerNormalize?: SchemaTable|boolean, doNormText?: boolean): Promise<T>;
 
   readonly commonLoad = async (result: any[], triggerNormalize?: SchemaTable|boolean, doNormText: boolean = false) => await Promise.all(
@@ -191,9 +204,9 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       ? this.postProcess(record, triggerNormalize, doNormText)
       : await this.postProcess(JSON.parse(record.json_data), triggerNormalize, doNormText);
   };
+  // endregion
 
-  abstract getDataFilePath(file: string): string;
-
+  // region TextMap Item
   abstract normText(text: string, langCode: LangCode, opts?: NormTextOptions): string;
 
   async getTextMapItem(langCode: LangCode, hash: TextMapHash): Promise<string> {
@@ -245,13 +258,23 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     return await this.knex.select('*').from('PlainLineMap'+langCode)
       .where({Line: lineNum}).first().then();
   }
+  // endregion
+
+  // region Data Directory
+  abstract getDataFilePath(file: string): string;
+
+  fileExists(filePath: string): boolean {
+    return fs.existsSync(this.getDataFilePath(filePath));
+  }
 
   getExcelPath(subPath?: string): string {
     return subPath ? path.join(this.excelPath, subPath) : this.excelPath;
   }
 
-  fileExists(filePath: string): boolean {
-    return fs.existsSync(this.getDataFilePath(filePath));
+  async getExcelFileNames(): Promise<string[]> {
+    return (await fsp.readdir(this.getDataFilePath(this.excelPath)))
+      .filter(file => path.extname(file) === '.json')
+      .map(file => file.slice(0, -5));
   }
 
   async readJsonFile<T>(filePath: string): Promise<any> {
@@ -293,7 +316,9 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
   async getDataFileSize(filePath: string): Promise<number> {
     return fsp.stat(this.getDataFilePath(filePath)).then(ret => ret.size);
   }
+  // endregion
 
+  // region Text Map Searching
   async getTextMapMatches(langCode: LangCode, searchText: string, flags?: string, startFromLine?: number, isRawInput?: boolean): Promise<TextMapSearchResult[]> {
     if (isStringBlank(searchText)) {
       return [];
@@ -495,13 +520,9 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
 
     return results;
   }
+  // endregion
 
-  async getExcelFileNames(): Promise<string[]> {
-    return (await fsp.readdir(this.getDataFilePath(this.excelPath)))
-      .filter(file => path.extname(file) === '.json')
-      .map(file => file.slice(0, -5));
-  }
-
+  // region ID Usages
   async getIdUsages(id: number|string): Promise<IdUsages> {
     let out: IdUsages = {};
 
@@ -606,6 +627,140 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
 
     return out;
   }
+  // endregion
+
+  // region Texture2D Media
+  async listImageCategories(): Promise<ImageCategoryMap> {
+    return cached(this.dbName + '_ImageIndexCategoryMap', async () => {
+      return this.readJsonFile('ImageIndexCategoryMap.json');
+    });
+  }
+
+  async selectImageIndexEntity(imageName: string): Promise<ImageIndexEntity> {
+    return openPg().select('*').from(this.dbName + '_image_index').where({image_name: imageName}).first().then();
+  }
+
+  async selectImageIndexEntityAndUsages(imageName: string): Promise<{
+    entity: ImageIndexEntity;
+    usageEntities: { [fileName: string]: any[]; }
+  }> {
+    const entity: ImageIndexEntity = await this.selectImageIndexEntity(imageName);
+    const usageEntities: {[fileName: string]: any[]} = {};
+
+    if (entity.excel_meta && Object.keys(entity.excel_meta).length) {
+      for (let [excelFileName, metaEntry] of Object.entries(entity.excel_meta)) {
+        let myData: any[] = [];
+        const excelData: any[] = await this.readJsonFile(this.getExcelPath(`./${excelFileName}`));
+        for (let row of metaEntry.rows) {
+          myData.push(excelData[row]);
+        }
+        myData = await this.normalize(myData, excelFileName, true);
+        usageEntities[excelFileName] = myData;
+      }
+    }
+
+    return { entity, usageEntities };
+  }
+
+  async searchImageIndex(select: {
+    query: string,
+    cat1?: string,
+    cat2?: string,
+    cat3?: string,
+    cat4?: string,
+    cat5?: string,
+    cat6?: string,
+    cat7?: string,
+    cat8?: string,
+    catPath?: string,
+    catRestrict?: boolean,
+    offset?: number,
+  }, searchMode: SearchMode): Promise<ImageIndexSearchResult> {
+    const query = select.query ? select.query.trim() : null;
+
+    let builder: Knex.QueryBuilder = openPg().select('*').from(this.dbName + '_image_index');
+
+    if (query) {
+      switch (searchMode) {
+        case 'W':
+        case 'C':
+          builder = builder.where('image_name', 'LIKE', '%' + query + '%');
+          if (query.includes(' ')) {
+            builder = builder.orWhere('image_name', 'LIKE', '%' + query.replace(/ /g, '_') + '%');
+          }
+          break;
+        case 'WI':
+        case 'CI':
+          builder = builder.where('image_name', 'ILIKE', '%' + query + '%');
+          if (query.includes(' ')) {
+            builder = builder.orWhere('image_name', 'ILIKE', '%' + query.replace(/ /g, '_') + '%');
+          }
+          break;
+        case 'R':
+          builder = builder.where('image_name', '~', query);
+          if (query.includes(' ')) {
+            builder = builder.orWhere('image_name', '~', query.replace(/ /g, '_'));
+          }
+          break;
+        case 'RI':
+          builder = builder.where('image_name', '~*', query);
+          if (query.includes(' ')) {
+            builder = builder.orWhere('image_name', '~*', query.replace(/ /g, '_'));
+          }
+          break;
+      }
+    }
+
+    if (select.catPath) {
+      [select.cat1, select.cat2, select.cat3, select.cat4, select.cat5, select.cat6, select.cat7, select.cat8]
+        = select.catPath.split(/[_.]/g);
+    }
+
+    const catClauseValues = cleanEmpty({
+      image_cat1: select.cat1,
+      image_cat2: select.cat2,
+      image_cat3: select.cat3,
+      image_cat4: select.cat4,
+      image_cat5: select.cat5,
+      image_cat6: select.cat6,
+      image_cat7: select.cat7,
+      image_cat8: select.cat8,
+    });
+
+    for (let key of Object.keys(catClauseValues)) {
+      if (catClauseValues[key] === 'null') {
+        catClauseValues[key] = null;
+      }
+    }
+    if (select.catRestrict) {
+      for (let key of ['image_cat1', 'image_cat2', 'image_cat3', 'image_cat4', 'image_cat5', 'image_cat6', 'image_cat7', 'image_cat8']) {
+        if (isUnset(catClauseValues[key])) {
+          catClauseValues[key] = null;
+        }
+      }
+    }
+
+    if (Object.keys(catClauseValues).length) {
+      builder = builder.where(catClauseValues);
+    }
+
+    const results = await builder.orderBy('image_name').offset(select.offset || 0).limit(51).then((rows: ImageIndexEntity[]) => {
+      rows.forEach(row => {
+        delete row['ts'];
+      })
+      return rows;
+    });
+
+    return {
+      results: results.slice(0, 50),
+      hasMore: results.length === 51,
+      offset: select.offset || 0,
+      nextOffset: results.length === 51
+        ? (select.offset || 0) + 50
+        : undefined,
+    };
+  }
+  // endregion
 
   sanitizeFileName(fileName: string): string {
     return encodeURIComponent(fileName ? fileName.replaceAll(/[\\\/:*?"<>|]/g, '') : '');

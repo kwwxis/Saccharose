@@ -50,8 +50,8 @@ import './pages/genshin/gcg/gcg-stage-search.page.ts';
 // ----------------------------------------------------------------------------------------------------
 import './pages/genshin/character/genshin-vo-tool.ts';
 import './pages/genshin/media/media-reverse-search.page.ts';
-import './pages/genshin/media/media-search.page.ts';
-import './pages/genshin/media/media-list.page.ts';
+import './pages/genshin/media/genshin-media-search.page.ts';
+import './pages/genshin/media/genshin-media-list.page.ts';
 
 // Genshin Changelog Pages
 // ----------------------------------------------------------------------------------------------------

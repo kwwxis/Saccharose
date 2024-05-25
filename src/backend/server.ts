@@ -25,10 +25,10 @@ import { logInit } from './util/logger.ts';
   }
 
   app.listen(httpPort, () => {
-    if (process.env.HTTP_PORT === '80') {
-      logInit(`HTTP/2 Server is running at http://` + process.env.VHOST);
+    if (vhosted) {
+      logInit(`HTTP/2 Server is running at http://${process.env.WEB_DOMAIN}`);
     } else {
-      logInit(`HTTP/2 Server is running at http://` + process.env.VHOST + ':' + process.env.HTTP_PORT);
+      logInit(`HTTP/2 Server is running at http://localhost:${process.env.HTTP_PORT}`);
     }
   });
 
@@ -41,10 +41,10 @@ import { logInit } from './util/logger.ts';
 
   if (toBoolean(process.env.SSL_ENABLED)) {
     spdy.createServer(sslcreds, httpsApp).listen(httpsPort, () => {
-        if (toBoolean(process.env.VHOSTED)) {
-          logInit('HTTPS/2 Server is running at https://' + process.env.VHOST);
+        if (vhosted) {
+          logInit(`HTTPS/2 Server is running at https://${process.env.WEB_DOMAIN}`);
         } else {
-          logInit('HTTPS/2 Server is running at https://' + process.env.VHOST + ':' + httpsPort);
+          logInit(`HTTPS/2 Server is running at https://localhost:${httpsPort}`);
         }
     });
   } else {

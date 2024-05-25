@@ -23,7 +23,7 @@ export default <Configuration> merge(baseConfig('development'), {
       delay: 500,
       protocol: toBoolean(process.env.SSL_ENABLED) ? 'https' : 'http',
       port: 35729,
-      hostname: process.env.VHOST,
+      hostname: process.env.WEB_DOMAIN,
       ... (toBoolean(process.env.SSL_ENABLED) ? {
         key: fs.readFileSync(process.env.SSL_KEY, 'utf8'),
         cert: fs.readFileSync(process.env.SSL_CERT, 'utf8'),

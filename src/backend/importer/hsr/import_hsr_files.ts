@@ -11,6 +11,7 @@ import { importNormalize, importPlainTextMap } from '../util/import_file_util.ts
 import fs from 'fs';
 import { getStarRailControl, loadStarRailVoiceItems } from '../../domain/hsr/starRailControl.ts';
 import { fetchVoiceAtlases } from '../../domain/hsr/character/fetchVoiceAtlas.ts';
+import { indexStarRailImages } from './module.index-images.ts';
 
 async function importVoiceOvers() {
   const outDir = process.env.HSR_DATA_ROOT;
@@ -27,6 +28,8 @@ export async function importHsrFilesCli() {
   const options_beforeDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
     {name: 'normalize', type: Boolean, description: 'Normalizes the JSON files.'},
     {name: 'plaintext', type: Boolean, description: 'Creates the PlainTextMap files.'},
+    {name: 'index-images', type: Boolean, description: 'Creates index for asset images. ' +
+        'Must load all wanted Texture2D images into the EXT_HSR_IMAGES directory first though.'},
   ];
 
   const options_afterDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
@@ -47,6 +50,16 @@ export async function importHsrFilesCli() {
       console.error(chalk.red('\n' + e?.message || e));
     }
     options = { help: true };
+  }
+
+  let dryRun: boolean = false;
+  if (options['dry']) {
+    dryRun = true;
+    delete options['dry'];
+  }
+  if (options['dry-run']) {
+    dryRun = true;
+    delete options['dry-run'];
   }
 
   if (!Object.keys(options).length) {
@@ -92,6 +105,9 @@ export async function importHsrFilesCli() {
   }
   if (options['voice-overs']) {
     await importVoiceOvers();
+  }
+  if (options['index-images']) {
+    await indexStarRailImages(dryRun);
   }
   if (options.plaintext) {
     const ctrl = getStarRailControl();

@@ -1,8 +1,7 @@
-import path from 'path';
-import { IMAGEDIR_GENSHIN_EXT } from '../../loadenv.ts';
+import path, { resolve } from 'path';
+import { IMAGEDIR_HSR_EXT } from '../../loadenv.ts';
 import fs from 'fs';
 import { closeKnex, openPg } from '../../util/db.ts';
-import { isInt } from '../../../shared/util/numberUtil.ts';
 import { defaultMap } from '../../../shared/util/genericUtil.ts';
 import {
   ImageCategoryMap,
@@ -11,9 +10,20 @@ import {
   ImageIndexExcelMetaEntry,
 } from '../../../shared/types/image-index-types.ts';
 
+function* walkSync(dir: string, relPath: string[] = []): Generator<string> {
+  const files = fs.readdirSync(dir, { withFileTypes: true });
+  for (const file of files) {
+    if (file.isDirectory()) {
+      yield* walkSync(path.join(dir, file.name), [...relPath, file.name]);
+    } else {
+      yield [... relPath, file.name].join('/');
+    }
+  }
+}
+
 function getImageNames(): string[] {
   const imageNames: string[] = [];
-  for (let fileName of fs.readdirSync(IMAGEDIR_GENSHIN_EXT)) {
+  for (let fileName of walkSync(IMAGEDIR_HSR_EXT)) {
     if (!fileName.endsWith('.png')) {
       continue;
     }
@@ -28,14 +38,14 @@ function getImageNames(): string[] {
   return imageNames;
 }
 
-export async function indexGenshinImages(dryRun: boolean = false) {
+export async function indexStarRailImages(dryRun: boolean = false) {
   const knex = openPg();
 
   if (!dryRun) {
-    await knex.raw('TRUNCATE TABLE genshin_image_index;').then();
+    await knex.raw('TRUNCATE TABLE hsr_image_index;').then();
   }
 
-  const imageNameSet: Set<string> = new Set();
+  const imageNameSetLc: Set<string> = new Set();
   const imageNameToExcelFileUsages: Record<string, string[]> = defaultMap('Array');
   const imageNameToExcelMeta: Record<string, ImageIndexExcelMeta> = defaultMap('Object');
 
@@ -43,7 +53,13 @@ export async function indexGenshinImages(dryRun: boolean = false) {
     defaultMap(() =>
       defaultMap(() =>
         defaultMap(() =>
-          defaultMap(() => null)
+          defaultMap(() =>
+            defaultMap(() =>
+              defaultMap(() =>
+                defaultMap(() => null)
+              )
+            )
+          )
         )
       )
     )
@@ -51,7 +67,7 @@ export async function indexGenshinImages(dryRun: boolean = false) {
 
   console.log('Gathering image names...');
   for (let imageName of getImageNames()) {
-    imageNameSet.add(imageName);
+    imageNameSetLc.add(imageName.toLowerCase());
   }
 
   function findImageUsages(rows: any[]): { images: string[], imagesToExcelMetaEntry: Record<string, ImageIndexExcelMetaEntry> } {
@@ -72,15 +88,9 @@ export async function indexGenshinImages(dryRun: boolean = false) {
 
         if (typeof obj === 'string') {
           let matchedImageName: string = null;
-          if (imageNameSet.has(obj)) {
+          if (imageNameSetLc.has(obj.toLowerCase())) {
             images.add(obj);
             matchedImageName = obj;
-          } else if (obj.startsWith('ART/')) {
-            const objBaseName = path.basename(obj);
-            if (imageNameSet.has(objBaseName)) {
-              images.add(objBaseName);
-              matchedImageName = objBaseName;
-            }
           }
           if (matchedImageName) {
             imagesToExcelMetaEntry[matchedImageName].usageCount++;
@@ -104,8 +114,8 @@ export async function indexGenshinImages(dryRun: boolean = false) {
   }
 
   console.log('Computing excel usages...');
-  for (let fileName of fs.readdirSync(path.resolve(process.env.GENSHIN_DATA_ROOT, './ExcelBinOutput'))) {
-    const json: any[] = JSON.parse(fs.readFileSync(path.resolve(process.env.GENSHIN_DATA_ROOT, './ExcelBinOutput', fileName), 'utf-8'));
+  for (let fileName of fs.readdirSync(path.resolve(process.env.HSR_DATA_ROOT, './ExcelOutput'))) {
+    const json: any[] = JSON.parse(fs.readFileSync(path.resolve(process.env.HSR_DATA_ROOT, './ExcelOutput', fileName), 'utf-8'));
     let { images, imagesToExcelMetaEntry } = findImageUsages(json);
     for (let imageName of images) {
       imageNameToExcelFileUsages[imageName].push(fileName);
@@ -119,7 +129,7 @@ export async function indexGenshinImages(dryRun: boolean = false) {
   async function commitBatch() {
     if (!dryRun) {
       await knex.transaction(function(tx) {
-        return knex.batchInsert('genshin_image_index', batch).transacting(tx);
+        return knex.batchInsert('hsr_image_index', batch).transacting(tx);
       }).then();
     }
     batch.length = 0;
@@ -128,20 +138,17 @@ export async function indexGenshinImages(dryRun: boolean = false) {
 
   console.log('Committing...');
   for (let imageName of getImageNames()) {
-    const size: number = fs.statSync(path.resolve(IMAGEDIR_GENSHIN_EXT, `./${imageName}.png`))?.size || 0;
+    const size: number = fs.statSync(path.resolve(IMAGEDIR_HSR_EXT, `./${imageName}.png`))?.size || 0;
     const cats: string[] = [];
 
     let catIdx = 0;
-    let catSplits = imageName.split('_');
+    let catSplits = imageName.split('/');
+    if (catSplits.length > 8) {
+      console.log('Large cat length ('+(catSplits.length-1)+'):', imageName);
+    }
     for (let i = 0; i < catSplits.length; i++) {
       let cat = catSplits[i];
-      if (isInt(cat)) {
-        break;
-      }
       if (i == catSplits.length - 1) {
-        if (cat.startsWith('EmotionIcon')) {
-          cats[catIdx] = 'EmotionIcon';
-        }
         break;
       }
       cats[catIdx] = cat;
@@ -158,6 +165,9 @@ export async function indexGenshinImages(dryRun: boolean = false) {
       image_cat3: cats[2] || null,
       image_cat4: cats[3] || null,
       image_cat5: cats[4] || null,
+      image_cat6: cats[5] || null,
+      image_cat7: cats[6] || null,
+      image_cat8: cats[7] || null,
     });
 
     if (cats[0]) {
@@ -175,6 +185,15 @@ export async function indexGenshinImages(dryRun: boolean = false) {
     if (cats[4]) {
       catmap[cats[0]][cats[1]][cats[2]][cats[3]][cats[4]];
     }
+    if (cats[5]) {
+      catmap[cats[0]][cats[1]][cats[2]][cats[3]][cats[4]][cats[5]];
+    }
+    if (cats[6]) {
+      catmap[cats[0]][cats[1]][cats[2]][cats[3]][cats[4]][cats[5]][cats[6]];
+    }
+    if (cats[7]) {
+      catmap[cats[0]][cats[1]][cats[2]][cats[3]][cats[4]][cats[5]][cats[6]][cats[7]];
+    }
 
     if (batch.length >= maxBatchSize) {
       await commitBatch();
@@ -184,7 +203,7 @@ export async function indexGenshinImages(dryRun: boolean = false) {
   await commitBatch();
 
   fs.writeFileSync(
-    path.resolve(process.env.GENSHIN_DATA_ROOT, './ImageIndexCategoryMap.json'),
+    path.resolve(process.env.HSR_DATA_ROOT, './ImageIndexCategoryMap.json'),
     JSON.stringify(catmap, null, 2),
     'utf-8'
   );

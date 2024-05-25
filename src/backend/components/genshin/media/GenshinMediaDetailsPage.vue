@@ -51,12 +51,12 @@
   </section>
 </template>
 <script setup lang="ts">
-import { GenshinImageIndexEntity } from '../../../../shared/types/genshin/genshin-image-index-types.ts';
+import { ImageIndexEntity } from '../../../../shared/types/image-index-types.ts';
 import JsonText from '../../utility/JsonText.vue';
 import { Marker } from '../../../../shared/util/highlightMarker.ts';
 
 const {entity, usageEntities} = defineProps<{
-  entity: GenshinImageIndexEntity,
+  entity: ImageIndexEntity,
   usageEntities: {[fileName: string]: any[]},
 }>();
 

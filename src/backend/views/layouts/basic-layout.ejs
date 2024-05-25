@@ -31,7 +31,7 @@
       </svg>
     </template>
     <% if (env.NODE_ENV === 'development') { %>
-      <script async src="<%= toBoolean(env.SSL_ENABLED) ? 'https' : 'http' %>://<%= env.VHOST %>:35729/livereload.js"></script>
+      <script async src="<%= toBoolean(env.SSL_ENABLED) ? 'https' : 'http' %>://<%= env.WEB_DOMAIN %>:35729/livereload.js"></script>
     <% } %>
     <link rel="stylesheet" href="<%= req.context.webpackBundles.vendorCssBundle %>">
     <link rel="stylesheet" href="<%= req.context.webpackBundles.appCssBundle %>">
