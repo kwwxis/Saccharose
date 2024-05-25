@@ -73,16 +73,15 @@ export async function indexGenshinImages(dryRun: boolean = false) {
         if (typeof obj === 'string') {
           let matchedImageName: string = null;
           if (imageNameSet.has(obj)) {
-            images.add(obj);
             matchedImageName = obj;
           } else if (obj.startsWith('ART/')) {
             const objBaseName = path.basename(obj);
             if (imageNameSet.has(objBaseName)) {
-              images.add(objBaseName);
               matchedImageName = objBaseName;
             }
           }
           if (matchedImageName) {
+            images.add(matchedImageName);
             imagesToExcelMetaEntry[matchedImageName].usageCount++;
             imagesToExcelMetaEntry[matchedImageName].rows.push(i);
           }

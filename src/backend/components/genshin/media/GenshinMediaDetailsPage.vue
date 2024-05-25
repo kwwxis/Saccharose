@@ -9,7 +9,11 @@
     </div>
   </section>
 
-  <section class="card">
+  <section class="card" v-if="!entity">
+    <h2>Image not found: {{ pathImageName }}</h2>
+  </section>
+
+  <section class="card" v-if="entity">
     <h2>Image Info</h2>
     <div id="media-details" class="content">
       <div class="media-image">
@@ -37,7 +41,7 @@
     </dl>
   </section>
 
-  <section class="card">
+  <section class="card" v-if="entity">
     <h2>Usages</h2>
     <div v-for="usageEntity of processedEntities">
       <h3 class="secondary-header">{{ usageEntity.fileName }}</h3>
@@ -58,6 +62,7 @@ import { Marker } from '../../../../shared/util/highlightMarker.ts';
 const {entity, usageEntities} = defineProps<{
   entity: ImageIndexEntity,
   usageEntities: {[fileName: string]: any[]},
+  pathImageName: string,
 }>();
 
 type ProcessedUsageEntity = {

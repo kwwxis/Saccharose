@@ -68,6 +68,7 @@ export async function indexStarRailImages(dryRun: boolean = false) {
   console.log('Gathering image names...');
   for (let imageName of getImageNames()) {
     imageNameSetLc.add(imageName.toLowerCase());
+    imageNameSetLc.add(imageName.toLowerCase() + '.png');
   }
 
   function findImageUsages(rows: any[]): { images: string[], imagesToExcelMetaEntry: Record<string, ImageIndexExcelMetaEntry> } {
@@ -89,10 +90,18 @@ export async function indexStarRailImages(dryRun: boolean = false) {
         if (typeof obj === 'string') {
           let matchedImageName: string = null;
           if (imageNameSetLc.has(obj.toLowerCase())) {
-            images.add(obj);
             matchedImageName = obj;
           }
           if (matchedImageName) {
+            if (matchedImageName.endsWith('.png')) {
+              matchedImageName = matchedImageName.slice(0, -4);
+            }
+            if (matchedImageName.includes('/')) {
+              let parts: string[] = matchedImageName.split('/');
+              matchedImageName = parts.slice(0, -1).join('/').toLowerCase() + '/' + parts[parts.length - 1];
+            }
+
+            images.add(matchedImageName);
             imagesToExcelMetaEntry[matchedImageName].usageCount++;
             imagesToExcelMetaEntry[matchedImageName].rows.push(i);
           }

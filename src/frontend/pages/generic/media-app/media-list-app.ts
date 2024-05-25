@@ -114,10 +114,7 @@ export function initiateMediaListPage(
     }
 
     makeCategoryElements(rootCatMap, appEl.querySelector('#media-catList'), null,myPath => {
-      if (myPath === 'UI') {
-        return true;
-      }
-      return false;
+      return myPath === 'UI' || myPath === 'spriteoutput';
     });
     loadingEl.remove();
     appEl.classList.remove('hide');

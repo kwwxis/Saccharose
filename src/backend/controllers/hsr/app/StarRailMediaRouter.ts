@@ -22,19 +22,21 @@ export default async function(): Promise<Router> {
     });
   });
 
-  router.get('/media/details/:imageName', async (req: Request, res: Response) => {
+  router.get('/media/details/:imageName(*)', async (req: Request, res: Response) => {
     const ctrl = getStarRailControl(req);
+    console.log(req.params);
     const { entity, usageEntities } = await ctrl.selectImageIndexEntityAndUsages(req.params.imageName);
     res.render(StarRailMediaDetailsPage, {
       title: 'Media Details: ' + String(req.params.imageName),
       bodyClass: ['page--media', 'page--media-details', 'page--larger'],
+      pathImageName: req.params.imageName,
       entity,
       usageEntities,
     });
   });
 
   router.get('/media', async (req: Request, res: Response) => {
-    res.redirect('/media/list');
+    res.redirect('/hsr/media/list');
   });
 
   return router;

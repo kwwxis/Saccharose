@@ -62,6 +62,11 @@ import './pages/genshin/changelog/changelog-page.ts';
 // ----------------------------------------------------------------------------------------------------
 import './pages/hsr/character/hsr-vo-tool.ts';
 
+// HSR Media Pages
+// ----------------------------------------------------------------------------------------------------
+import './pages/hsr/media/hsr-media-search.page.ts';
+import './pages/hsr/media/hsr-media-list.page.ts';
+
 // Expose certain functions to global scope for debugging purposes
 // ----------------------------------------------------------------------------------------------------
 import { escapeHtml } from '../shared/util/stringUtil.ts';

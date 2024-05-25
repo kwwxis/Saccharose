@@ -40,6 +40,7 @@ export default async function(): Promise<Router> {
     res.render(GenshinMediaDetailsPage, {
       title: 'Media Details: ' + String(req.params.imageName),
       bodyClass: ['page--media', 'page--media-details', 'page--larger'],
+      pathImageName: req.params.imageName,
       entity,
       usageEntities,
     });

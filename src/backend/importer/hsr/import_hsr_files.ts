@@ -38,6 +38,7 @@ export async function importHsrFilesCli() {
 
   const options_util: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
     {name: 'help', type: Boolean, description: 'Display this usage guide.'},
+    {name: 'dry-run', type: Boolean},
   ];
 
   let options: commandLineArgs.CommandLineOptions;

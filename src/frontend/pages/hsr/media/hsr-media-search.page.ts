@@ -1,9 +1,9 @@
 import { initiateMediaSearchPage } from '../../generic/media-app/media-search-app.ts';
-import { genshinEndpoints } from '../../../core/endpoints.ts';
+import { starRailEndpoints } from '../../../core/endpoints.ts';
 
 initiateMediaSearchPage(
   'StarRailMediaSearchPage',
-  genshinEndpoints.mediaSearch,
+  starRailEndpoints.mediaSearch,
   '/hsr',
   '/images/hsr/'
 );

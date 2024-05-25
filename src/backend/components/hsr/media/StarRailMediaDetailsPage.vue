@@ -2,19 +2,23 @@
   <section class="card">
     <h2>Media List</h2>
     <div class="tab-list" role="tablist">
-      <a href="/media/list" role="tab" class="tab">List</a>
-      <a href="/media/search" role="tab" class="tab">Search</a>
+      <a href="/hsr/media/list" role="tab" class="tab">List</a>
+      <a href="/hsr/media/search" role="tab" class="tab">Search</a>
       <button role="tab" class="tab active">Image Details</button>
     </div>
   </section>
 
-  <section class="card">
+  <section class="card" v-if="!entity">
+    <h2>Image not found: {{ pathImageName }}</h2>
+  </section>
+
+  <section class="card" v-if="entity">
     <h2>Image Info</h2>
     <div id="media-details" class="content">
       <div class="media-image">
         <div class="image-frame no-max-width">
           <div class="image-obj">
-            <img :src="`/images/genshin/${entity.image_name}.png`" />
+            <img :src="`/images/hsr/${entity.image_name}.png`" />
           </div>
           <div class="image-label">{{ entity.image_name }}</div>
         </div>
@@ -36,7 +40,7 @@
     </dl>
   </section>
 
-  <section class="card">
+  <section class="card" v-if="entity">
     <h2>Usages</h2>
     <div v-for="usageEntity of processedEntities">
       <h3 class="secondary-header">{{ usageEntity.fileName }}</h3>
@@ -57,6 +61,7 @@ import { Marker } from '../../../../shared/util/highlightMarker.ts';
 const {entity, usageEntities} = defineProps<{
   entity: ImageIndexEntity,
   usageEntities: {[fileName: string]: any[]},
+  pathImageName: string,
 }>();
 
 type ProcessedUsageEntity = {

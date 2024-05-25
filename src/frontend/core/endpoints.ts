@@ -252,8 +252,8 @@ export const starRailEndpoints = {
 
   getVoiceAtlasGroup: new StarRailApiEndpoint<{avatarId: number}, VoiceAtlasGroup>('/character/voice-atlas'),
 
-  mediaSearch: new GenshinApiEndpoint<ImageIndexSearchParams, ImageIndexSearchResult>('/media/search'),
-  mediaCategory: new GenshinApiEndpoint<{}, ImageCategoryMap>('/media/category'),
+  mediaSearch: new StarRailApiEndpoint<ImageIndexSearchParams, ImageIndexSearchResult>('/media/search'),
+  mediaCategory: new StarRailApiEndpoint<{}, ImageCategoryMap>('/media/category'),
 };
 
 export const zenlessEndpoints = {

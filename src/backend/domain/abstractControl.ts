@@ -646,6 +646,9 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
   }> {
     const entity: ImageIndexEntity = await this.selectImageIndexEntity(imageName);
     const usageEntities: {[fileName: string]: any[]} = {};
+    if (!entity) {
+      return { entity, usageEntities };
+    }
 
     if (entity.excel_meta && Object.keys(entity.excel_meta).length) {
       for (let [excelFileName, metaEntry] of Object.entries(entity.excel_meta)) {
