@@ -3,6 +3,7 @@ import { getStarRailControl } from '../../../domain/hsr/starRailControl.ts';
 import { sendExcelViewerTableResponse } from '../../generic/app/abstractBasicRouter.ts';
 import { SbOut } from '../../../../shared/util/stringUtil.ts';
 import { Request, Response, Router } from 'express';
+import { doHsrDialogueWalk } from '../../../domain/hsr/dialogue/hsr_dialogue_walker.ts';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -65,6 +66,12 @@ export default async function(): Promise<Router> {
       wikitext: sb.toString(),
       bodyClass: ['page--loading-tips']
     });
+  });
+
+
+  router.get('/talk', async (req: Request, res: Response) => {
+    await doHsrDialogueWalk(getStarRailControl(req));
+    res.send('Done');
   });
 
   return router;
