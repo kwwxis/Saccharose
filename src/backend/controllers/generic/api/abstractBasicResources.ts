@@ -66,7 +66,11 @@ export async function handleTextMapSearchEndpoint(ctrl: AbstractControl, req: Re
       langSuggest: items.length ? null : ctrl.langSuggest(query)
     });
   } else {
-    return items;
+    return {
+      items,
+      lastLine,
+      hasMoreResults
+    };
   }
 }
 
