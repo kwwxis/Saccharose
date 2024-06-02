@@ -2,7 +2,12 @@ import '../loadenv.ts';
 import { closeKnex, openSqlite } from '../util/db.ts';
 import commandLineArgs, { OptionDefinition as ArgsOptionDefinition } from 'command-line-args';
 import commandLineUsage, { OptionDefinition as UsageOptionDefinition } from 'command-line-usage';
-import { getGenshinDataFilePath, getStarRailDataFilePath, getZenlessDataFilePath } from '../loadenv.ts';
+import {
+  getGenshinDataFilePath,
+  getStarRailDataFilePath,
+  getWuwaDataFilePath,
+  getZenlessDataFilePath,
+} from '../loadenv.ts';
 import { humanTiming, isPromise, timeConvert } from '../../shared/util/genericUtil.ts';
 import fs from 'fs';
 import ora from 'ora';
@@ -15,6 +20,7 @@ import { genshinSchema } from './genshin/genshin.schema.ts';
 import { Knex } from 'knex';
 import { starRailSchema } from './hsr/hsr.schema.ts';
 import { zenlessSchema } from './zenless/zenless.schema.ts';
+import { wuwaSchema } from './wuwa/wuwa.schema.ts';
 
 export type SchemaTableSet = {[tableName: string]: SchemaTable};
 
@@ -116,13 +122,15 @@ export type SchemaColumn = {
   defaultValue?: any,
 };
 
-export function schemaForDbName(dbName: 'genshin' | 'hsr' | 'zenless'): SchemaTableSet {
+export function schemaForDbName(dbName: 'genshin' | 'hsr' | 'zenless' | 'wuwa'): SchemaTableSet {
   if (dbName === 'genshin') {
     return genshinSchema;
   } else if (dbName === 'hsr') {
     return starRailSchema;
   } else if (dbName === 'zenless') {
     return zenlessSchema;
+  } else if (dbName === 'wuwa') {
+    return wuwaSchema;
   } else {
     throw 'Implementation error';
   }
@@ -203,7 +211,7 @@ export function normalizeRawJsonKey(key: string, table?: SchemaTable, schemaTran
 }
 
 export function normalizeRawJson(row: any, table?: SchemaTable, schemaTranslation?: {[key: string]: string}) {
-  if (typeof row === 'undefined' || typeof row === null || typeof row !== 'object') {
+  if (typeof row === 'undefined' || row === null || typeof row !== 'object') {
     return row;
   }
   if (Array.isArray(row)) {
@@ -222,7 +230,7 @@ export function normalizeRawJson(row: any, table?: SchemaTable, schemaTranslatio
 }
 
 export function renameFields(row: any, schemaTranslation?: {[key: string]: string}): any {
-  if (typeof row === 'undefined' || typeof row === null || typeof row !== 'object') {
+  if (typeof row === 'undefined' || row === null || typeof row !== 'object') {
     return row;
   }
   if (Array.isArray(row)) {
@@ -373,7 +381,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     }
 
     const optionDefinitions: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
-      {name: 'game', alias: 'g', type: String, description: 'One of "genshin", "hsr", or "zenless"', typeLabel: '<game>'},
+      {name: 'game', alias: 'g', type: String, description: 'One of "genshin", "hsr", "zenless", "wuwa', typeLabel: '<game>'},
       {name: 'run-only', alias: 'o', type: String, multiple: true, description: 'Import only the specified tables (comma-separated).', typeLabel: '<tables>'},
       {name: 'run-includes', alias: 'i', type: String, multiple: true, description: 'Import only tables whose name contains any one of the specified texts (comma-separated, case-insensitive, not a regex).', typeLabel: '<texts>'},
       {name: 'run-excludes', alias: 'x', type: String, multiple: true, description: 'Import all tables except those whose name contains any one of the specified texts (comma-separated, case-insensitive, not a regex).', typeLabel: '<text>'},
@@ -455,6 +463,19 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
         knex = databases.zenless;
         schemaSet = zenlessSchema;
         getDataFilePath = getZenlessDataFilePath;
+        break;
+      case 'ww':
+      case 'wuwa':
+      case 'wuthering':
+      case' wutheringwaves':
+      case 'wuthering-waves':
+        if (isStringBlank(process.env.WUWA_DATA_ROOT)) {
+          console.error(chalk.red('\n"WUWA_DATA_ROOT" must be set in .env\n'));
+          return;
+        }
+        knex = databases.wuwa;
+        schemaSet = wuwaSchema;
+        getDataFilePath = getWuwaDataFilePath;
         break;
       default:
         console.error(chalk.red('\nInvalid value for "game" option.\n'));

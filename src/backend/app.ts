@@ -73,21 +73,28 @@ export async function appInit(): Promise<Express> {
 
   if (isStringNotBlank(process.env.EXT_GENSHIN_IMAGES)) {
     logInit('Serving external Genshin images');
-    app.use('/images/genshin', createStaticImagesHandler(process.env.EXT_GENSHIN_IMAGES, '/images/genshin/'));
+    app.use('/images/genshin', createStaticImagesHandler(process.env.EXT_GENSHIN_IMAGES, '/images/genshin/', 'genshin'));
   } else {
     throw 'EXT_GENSHIN_IMAGES is required!';
   }
   if (isStringNotBlank(process.env.EXT_HSR_IMAGES)) {
     logInit('Serving external HSR images');
-    app.use('/images/hsr', createStaticImagesHandler(process.env.EXT_HSR_IMAGES, '/images/hsr/'));
+    app.use('/images/hsr', createStaticImagesHandler(process.env.EXT_HSR_IMAGES, '/images/hsr/', 'hsr'));
   } else {
     throw 'EXT_HSR_IMAGES is required!';
   }
   if (isStringNotBlank(process.env.EXT_ZENLESS_IMAGES)) {
     logInit('Serving external Zenless images');
-    app.use('/images/zenless', createStaticImagesHandler(process.env.EXT_ZENLESS_IMAGES, '/images/zenless/'));
+    app.use('/images/zenless', createStaticImagesHandler(process.env.EXT_ZENLESS_IMAGES, '/images/zenless/', 'zenless'));
   } else {
     throw 'EXT_ZENLESS_IMAGES is required!';
+  }
+  if (isStringNotBlank(process.env.EXT_WUWA_IMAGES)) {
+    logInit('Serving external Wuthering Waves images');
+    app.use('/images/wuwa/Game/Aki/UI', createStaticImagesHandler(process.env.EXT_WUWA_IMAGES, '/images/wuwa/', 'wuwa'));
+    app.use('/images/wuwa', createStaticImagesHandler(process.env.EXT_WUWA_IMAGES, '/images/wuwa/', 'wuwa'));
+  } else {
+    throw 'EXT_WUWA_IMAGES is required!';
   }
 
   // Middleware for requests

@@ -1,6 +1,6 @@
 // noinspection JSUnusedGlobalSymbols
 
-import { AbstractControl, AbstractControlState } from '../abstractControl.ts';
+import { AbstractControl } from '../generic/abstractControl.ts';
 import { DATAFILE_HSR_VOICE_ITEMS, getStarRailDataFilePath } from '../../loadenv.ts';
 import { normalizeRawJson, SchemaTable } from '../../importer/import_db.ts';
 import {
@@ -19,7 +19,8 @@ import { NormTextOptions } from '../generic/genericNormalizers.ts';
 import { Request } from 'express';
 import { logInitData } from '../../util/logger.ts';
 import { AvatarConfig } from '../../../shared/types/hsr/hsr-avatar-types.ts';
-import { hsr_i18n, HSR_I18N_MAP } from '../i18n.ts';
+import { hsr_i18n, HSR_I18N_MAP } from '../generic/i18n.ts';
+import { AbstractControlState } from '../generic/abstractControlState.ts';
 
 // region Control State
 // --------------------------------------------------------------------------------------------------------------
@@ -90,10 +91,11 @@ export class StarRailControl extends AbstractControl<StarRailControlState> {
   override i18n(key: keyof typeof HSR_I18N_MAP, vars?: Record<string, string>): string {
     return hsr_i18n(key, this.outputLangCode, vars);
   }
+
   // endregion
 
   // region Post Process
-  override async postProcess<T>(object: T, triggerNormalize?: SchemaTable|boolean, doNormText: boolean = false): Promise<T> {
+  override async postProcess<T>(object: T, triggerNormalize?: SchemaTable | boolean, doNormText: boolean = false): Promise<T> {
     if (!object)
       return object;
     if (triggerNormalize) {
@@ -136,6 +138,7 @@ export class StarRailControl extends AbstractControl<StarRailControlState> {
     }
     return object;
   }
+
   // endregion
 
   // region Avatars

@@ -174,3 +174,4 @@ export class MwDbInterface {
 export const mwGenshinDb: MwDbInterface = new MwDbInterface('genshin_');
 export const mwStarRailDb: MwDbInterface = new MwDbInterface('hsr_');
 export const mwZenlessDb: MwDbInterface = new MwDbInterface('zenless_');
+export const mwWuwaDb: MwDbInterface = new MwDbInterface('wuwa_');

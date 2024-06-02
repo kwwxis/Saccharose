@@ -2,7 +2,9 @@ import '../loadenv.ts';
 import {
   MwClientInterface,
   mwGenshinClient,
-  mwStarRailClient, mwZenlessClient,
+  mwStarRailClient,
+  mwZenlessClient,
+  mwWuwaClient,
 } from './mwClientInterface.ts';
 import './mwRevTest.ts';
 import { pathToFileURL } from 'url';
@@ -177,6 +179,8 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
         return mwStarRailClient;
       } else if (args.siteMode === 'zenless') {
         return mwZenlessClient;
+      } else if (args.siteMode === 'wuwa') {
+        return mwWuwaClient;
       } else {
         throw 'Unsupported site mode: ' + args.siteMode;
       }

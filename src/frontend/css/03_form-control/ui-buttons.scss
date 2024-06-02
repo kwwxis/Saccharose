@@ -365,6 +365,27 @@ body.nightmode .framed-icon {
 
 /* Other Buttons
 ------------------------------------------------------------------------------------------------- */
+a[role='button'].border-shade {
+  text-decoration: none;
+  border: 1px solid #ccc;
+  padding: 0 7px;
+  margin: 2.5px;
+  border-radius: 3px;
+  font-size: 14px;
+  background: rgba(0, 0, 0, 0.02);
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  body.nightmode & {
+    border-color: rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.03);
+  }
+}
+
+/* Other Buttons
+------------------------------------------------------------------------------------------------- */
 
 button.docs-button,
 [role='button'].docs-button {

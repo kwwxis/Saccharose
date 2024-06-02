@@ -20,7 +20,7 @@ import { SiteMenuShownEntry, SitePrefName, SiteUserPrefs } from '../../shared/ty
 import { SiteSidebar } from '../../shared/types/site/site-sidebar-types.ts';
 import { icon } from './viewUtilities.ts';
 
-export type RequestSiteMode = 'genshin' | 'hsr' | 'zenless';
+export type RequestSiteMode = 'genshin' | 'hsr' | 'zenless' | 'wuwa';
 
 /**
  * A payload object used to make updates to {@link RequestContext}
@@ -67,6 +67,8 @@ export class RequestContext {
       this.siteMode = 'hsr';
     } else if (req.path.toLowerCase().startsWith('/zenless')) {
       this.siteMode = 'zenless';
+    } else if (req.path.toLowerCase().startsWith('/wuwa')) {
+      this.siteMode = 'wuwa';
     } else {
       this.siteMode = 'genshin';
     }
@@ -117,6 +119,8 @@ export class RequestContext {
         return '/hsr';
       case 'zenless':
         return '/zenless';
+      case 'wuwa':
+        return '/wuwa';
       case 'genshin':
       default:
         return '';
@@ -129,6 +133,8 @@ export class RequestContext {
         return 'Honkai Star Rail';
       case 'zenless':
         return 'Zenless Zone Zero';
+      case 'wuwa':
+        return 'Wuthering Waves';
       case 'genshin':
       default:
         return 'Genshin Impact';
@@ -141,6 +147,8 @@ export class RequestContext {
         return 'page--hsr';
       case 'zenless':
         return 'page--zenless';
+      case 'wuwa':
+        return 'page--wuwa';
       case 'genshin':
       default:
         return 'page--genshin';
@@ -155,6 +163,9 @@ export class RequestContext {
         break;
       case 'zenless':
         wikiDomain = 'zenless-zone-zero.fandom.com';
+        break;
+      case 'wuwa':
+        wikiDomain = 'wutheringwaves.fandom.com';
         break;
       case 'genshin':
       default:
@@ -608,6 +619,50 @@ export class RequestContext {
               }
             ]
           }
+        ]
+      },
+      wuwa: {
+        id: 'wuwaMenu',
+        header: {
+          icon: '/images/site/logo/Yangyang.webp',
+          iconExtraStyle: 'border-radius:50%',
+          name: 'Wuthering Waves',
+        },
+        sections: [
+          {
+            id: 'basic-tools',
+            name: 'Basic Tools',
+            content: [
+              {
+                id: 'basic-tools-content',
+                items: [
+                  { id: 'textmap-search', name: 'Textmap Search', link: '/wuwa/textmap',  bodyClass: 'page--textmap' },
+                  { id: 'ol-generator', name: 'OL Generator', link: '/wuwa/OL', bodyClass: 'page--OL' }
+                ]
+              }
+            ]
+          },
+          {
+            id: 'generic-data-tools',
+            name: 'Generic Data Tools',
+            content: [
+              {
+                id: 'excel-data',
+                name: 'Excel Data',
+                items: [
+                  { id: 'excel-usages', name: 'Identifier Usages', link: '/wuwa/id-usages', bodyClass: 'page--id-usages' },
+                  { id: 'excel-viewer', name: 'Excel Viewer', link: '/wuwa/excel-viewer', bodyClass: 'page--excel-viewer' },
+                ]
+              },
+              {
+                id: 'media-data',
+                name: 'Media Data',
+                items: [
+                  { id: 'media', name: 'Media', link: '/wuwa/media', bodyClass: 'page--media' },
+                ]
+              },
+            ]
+          },
         ]
       }
     }

@@ -1,4 +1,4 @@
-import path, { resolve } from 'path';
+import path from 'path';
 import { IMAGEDIR_HSR_EXT } from '../../loadenv.ts';
 import fs from 'fs';
 import { closeKnex, openPg } from '../../util/db.ts';

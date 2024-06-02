@@ -1,7 +1,8 @@
 import express, { NextFunction, Request, Response } from 'express';
 import { escapeRegExp } from '../../../shared/util/stringUtil.ts';
+import { RequestSiteMode } from '../../routing/requestContext.ts';
 
-export function createStaticImagesHandler(SERVER_IMAGES_ROOT: string, HTTP_PATH: string) {
+export function createStaticImagesHandler(SERVER_IMAGES_ROOT: string, HTTP_PATH: string, FOR: RequestSiteMode) {
   if (!HTTP_PATH.endsWith('/'))
     HTTP_PATH += '/';
   if (!HTTP_PATH.startsWith('/'))
@@ -15,6 +16,11 @@ export function createStaticImagesHandler(SERVER_IMAGES_ROOT: string, HTTP_PATH:
       req.url = req.url.slice(0, -4);
     while (req.originalUrl.endsWith('.png.png'))
       req.originalUrl = req.originalUrl.slice(0, -4);
+
+    if (FOR === 'wuwa') {
+      req.url = req.url.replace(/([^\/\\]+)\.\1.png$/, '$1.png');
+      req.originalUrl = req.originalUrl.replace(/([^\/\\]+)\.\1.png$/, '$1.png');
+    }
 
     req.originalUrl = req.originalUrl.replace(regex, fm => fm.toLowerCase());
     req.url = req.url.replace(/.*(?=\/[^\/]+$)/, fm => fm.toLowerCase());

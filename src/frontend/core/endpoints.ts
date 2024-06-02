@@ -172,6 +172,12 @@ export class ZenlessApiEndpoint<T extends Object, R = any> extends SaccharoseApi
   }
 }
 
+export class WuwaApiEndpoint<T extends Object, R = any> extends SaccharoseApiEndpoint<T, R> {
+  constructor(uri: string) {
+    super('/api/wuwa', uri);
+  }
+}
+
 export class GenericApiEndpoint<T extends Object, R = any> extends SaccharoseApiEndpoint<T, R> {
   constructor(uri: string) {
     super('/api', uri);
@@ -274,6 +280,27 @@ export const zenlessEndpoints = {
   getIdUsages: new ZenlessApiEndpoint<{q: string}>('/id-usages'),
 };
 
+export const wuwaEndpoints = {
+  generateOL: new WuwaApiEndpoint<{
+    text: string,
+    hideTl: boolean,
+    hideRm: boolean,
+    addDefaultHidden: boolean,
+    includeHeader: boolean,
+  }>('/OL/generate'),
+
+  searchTextMap: new WuwaApiEndpoint<{
+    text: string,
+    startFromLine: number,
+    resultSetNum: number,
+  }>('/search-textmap'),
+
+  getIdUsages: new WuwaApiEndpoint<{q: string}>('/id-usages'),
+
+  mediaSearch: new WuwaApiEndpoint<ImageIndexSearchParams, ImageIndexSearchResult>('/media/search'),
+  mediaCategory: new WuwaApiEndpoint<{}, ImageCategoryMap>('/media/category'),
+};
+
 export const genericEndpoints = {
   langDetect: new GenericApiEndpoint<{
     text: string
@@ -342,6 +369,10 @@ export function getOLEndpoint(): {endpoint: SaccharoseApiEndpoint<any>, tlRmDisa
     endpoint = zenlessEndpoints.generateOL;
     tlRmDisabled = true;
     neverDefaultHidden = true;
+  } else if (SiteMode.isWuwa) {
+    endpoint = wuwaEndpoints.generateOL;
+    tlRmDisabled = true;
+    neverDefaultHidden = true;
   }
   return {endpoint, tlRmDisabled, neverDefaultHidden};
 }
@@ -349,4 +380,5 @@ export function getOLEndpoint(): {endpoint: SaccharoseApiEndpoint<any>, tlRmDisa
 (<any> window).genshinEndpoints = genshinEndpoints;
 (<any> window).starRailEndpoints = starRailEndpoints;
 (<any> window).zenlessEndpoints = zenlessEndpoints;
+(<any> window).wuwaEndpoints = wuwaEndpoints;
 (<any> window).genericEndpoints = genericEndpoints;

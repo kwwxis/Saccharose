@@ -2,7 +2,13 @@ import { NextFunction, Request, Response, Router } from 'express';
 import { create } from '../routing/router.ts';
 import passport from 'passport';
 import ejs from 'ejs';
-import { mwGenshinClient, mwStarRailClient, MwUser, mwZenlessClient } from '../mediawiki/mwClientInterface.ts';
+import {
+  mwGenshinClient,
+  mwStarRailClient,
+  MwUser,
+  mwWuwaClient,
+  mwZenlessClient,
+} from '../mediawiki/mwClientInterface.ts';
 import { SiteUserProvider } from '../middleware/auth/SiteUserProvider.ts';
 import { saveSession, setSessionUser } from '../middleware/auth/sessions.ts';
 
@@ -146,8 +152,9 @@ export default async function(): Promise<Router> {
     const genshinUser = await mwGenshinClient.createForInterwiki(wikiLang).getUser(userName);
     const starRailUser = await mwStarRailClient.createForInterwiki(wikiLang).getUser(userName);
     const zenlessUser = await mwZenlessClient.createForInterwiki(wikiLang).getUser(userName);
+    const wuwaUser = await mwWuwaClient.createForInterwiki(wikiLang).getUser(userName);
 
-    let firstUser: MwUser = genshinUser || starRailUser || zenlessUser;
+    let firstUser: MwUser = genshinUser || starRailUser || zenlessUser || wuwaUser;
 
     if (!firstUser) {
       return res.json({
@@ -178,7 +185,7 @@ export default async function(): Promise<Router> {
     let hasPerm: boolean = await SiteUserProvider.isInReqBypass(firstUser.info.name);
 
     if (!hasPerm) {
-      for (let mwUser of [genshinUser, starRailUser, zenlessUser]) {
+      for (let mwUser of [genshinUser, starRailUser, zenlessUser, wuwaUser]) {
         if (mwUser && mwUser.info && mwUser.info.editcount >= 100 && mwUser.info.groups.includes('autoconfirmed')) {
           hasPerm = true;
           break;

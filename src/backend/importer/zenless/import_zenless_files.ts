@@ -11,15 +11,22 @@ import { importNormalize, importPlainTextMap } from '../util/import_file_util.ts
 import { getZenlessControl } from '../../domain/zenless/zenlessControl.ts';
 
 export async function importZenlessFilesCli() {
-  const optionDefinitions: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
+  const options_beforeDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
     {name: 'normalize', type: Boolean, description: 'Normalizes the JSON files.'},
     {name: 'plaintext', type: Boolean, description: 'Creates the PlainTextMap files.'},
+  ];
+
+  const options_afterDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
+  ];
+
+  const options_util: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
     {name: 'help', type: Boolean, description: 'Display this usage guide.'},
+    {name: 'dry-run', type: Boolean},
   ];
 
   let options: commandLineArgs.CommandLineOptions;
   try {
-    options = commandLineArgs(optionDefinitions);
+    options = commandLineArgs([... options_beforeDb, ... options_afterDb, ... options_util]);
   } catch (e) {
     if (typeof e === 'object' && e.name === 'UNKNOWN_OPTION') {
       console.warn(chalk.red('\nUnknown option: ' + e.optionName));
@@ -27,6 +34,16 @@ export async function importZenlessFilesCli() {
       console.error(chalk.red('\n' + e?.message || e));
     }
     options = { help: true };
+  }
+
+  let dryRun: boolean = false;
+  if (options['dry']) {
+    dryRun = true;
+    delete options['dry'];
+  }
+  if (options['dry-run']) {
+    dryRun = true;
+    delete options['dry-run'];
   }
 
   if (!Object.keys(options).length) {
@@ -46,8 +63,16 @@ export async function importZenlessFilesCli() {
         content: 'Imports Zenless Zone Zero Data json into other supporting files.'
       },
       {
-        header: 'Options',
-        optionList: optionDefinitions
+        header: 'Must be ran before database import:',
+        optionList: options_beforeDb
+      },
+      {
+        header: 'Must be ran after database import:',
+        optionList: options_afterDb
+      },
+      {
+        header: 'Util',
+        optionList: options_util
       }
     ])
     console.log(usage);

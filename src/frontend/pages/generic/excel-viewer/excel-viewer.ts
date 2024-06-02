@@ -77,16 +77,19 @@ function makeSingleColumnDef(fieldKey: string, fieldName: string, data: any) {
 
   const isGenshinImage = (datum: any) => typeof datum === 'string' && SiteMode.isGenshin && /^(ART\/.*\/)?(UI_|MonsterSkill_|Eff_).*$/.test(datum);
 
+  const isWuwaImage = (datum: any) => typeof datum === 'string' && SiteMode.isWuwa && datum.includes('UIResources');
+
   const dataType = {
     isStarRailImage: isStarRailImage(data) || (Array.isArray(data) && data.length && data.every(datum => isStarRailImage(datum))),
     isGenshinImage: isGenshinImage(data) || (Array.isArray(data) && data.length && data.every(datum => isGenshinImage(datum))),
+    isWuwaImage: isWuwaImage(data) || (Array.isArray(data) && data.length && data.every(datum => isWuwaImage(datum))),
     isWikitext: typeof data === 'string' && (fieldName.includes('Text') || fieldName.includes('Name')
       || fieldName.includes('Title') || fieldName.includes('Desc') || fieldName.includes('Story')),
     isJson: typeof data === 'object',
     isEnum: typeof data === 'string' && data.toUpperCase() === data,
   };
 
-  if (dataType.isGenshinImage || dataType.isStarRailImage) {
+  if (dataType.isGenshinImage || dataType.isStarRailImage || dataType.isWuwaImage) {
     colDef.cellRenderer = function(params: ICellRendererParams) {
       if (!params.value || !(isString(params.value) || isStringArray(params.value)))
         return '';
@@ -95,12 +98,17 @@ function makeSingleColumnDef(fieldKey: string, fieldName: string, data: any) {
       let outHtml: string = '';
 
       for (let arg of args) {
-        let fileName: string = escapeHtml(arg);
+        let fileName: string = arg;
         let srcValue: string;
 
+        if (fileName.startsWith('/')) {
+          fileName = fileName.slice(1);
+        }
         if (fileName.endsWith('.png')) {
           fileName = fileName.slice(0, -4);
         }
+
+        fileName = escapeHtml(fileName);
 
         if (dataType.isGenshinImage) {
           if (arg.includes('/')) {
@@ -109,6 +117,8 @@ function makeSingleColumnDef(fieldKey: string, fieldName: string, data: any) {
           srcValue = `/images/genshin/${fileName}.png`;
         } else if (dataType.isStarRailImage) {
           srcValue = `/images/hsr/${fileName}.png`;
+        } else if (dataType.isWuwaImage) {
+          srcValue = `/images/wuwa/${fileName}.png`;
         }
 
         // noinspection HtmlDeprecatedAttribute

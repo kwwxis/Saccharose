@@ -6,6 +6,8 @@
       <img src="/images/site/logo/March_7th_Sticker_1.webp" style="width:24px;height:auto;margin:-1px 0 -1px -5px" />
     <% } else if (req.context.siteMode === 'zenless') { %>
       <img src="/images/site/logo/Belle.webp" style="width:24px;height:auto;border-radius:50%;margin:-1px 0 -1px -5px" />
+    <% } else if (req.context.siteMode === 'wuwa') { %>
+      <img src="/images/site/logo/Yangyang.webp" style="width:24px;height:auto;border-radius:50%;margin:-1px 0 -1px -5px" />
     <% } %>
     <span class="spacer10-left spacer5-right"><%= req.context.siteModeName %></span>
     <%- icon('chevron-down') %>
@@ -22,6 +24,10 @@
     <a href="/zenless" class="option valign" ui-action="dropdown-item">
       <img src="/images/site/logo/Belle.webp" style="width:16px;height:auto;border-radius:50%" />
       <span class="spacer5-left">Zenless Zone Zero</span>
+    </a>
+    <a href="/wuwa" class="option valign" ui-action="dropdown-item">
+      <img src="/images/site/logo/Yangyang.webp" style="width:16px;height:auto;border-radius:50%" />
+      <span class="spacer5-left">Wuthering Waves</span>
     </a>
   </div>
 </div>

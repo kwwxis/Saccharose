@@ -156,3 +156,31 @@
     }
   }
 }
+
+
+.page--wuwa {
+  #landing-header {
+    .bg {
+      height: 210px;
+      background: url(/images/site/banner/wuwa-banner.png) center / cover;
+    }
+
+    h2 {
+      text-shadow: 0 0 15px #132649;
+      color: #fff;
+      background: #20407a;
+      text-align: center;
+      padding: 15px 0;
+      font-family: 'Open Sans', sans-serif;
+      font-weight: normal;
+      span {
+        letter-spacing: 5px;
+      }
+      small {
+        letter-spacing: 2px;
+        font-size: 14px;
+
+      }
+    }
+  }
+}

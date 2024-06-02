@@ -25,6 +25,7 @@
               <li>genshin-impact.fandom.com</li>
               <li>honkai-star-rail.fandom.com</li>
               <li>zenless-zone-zero.fandom.com</li>
+              <li>wutheringwaves.fandom.com</li>
             </ul>
             If you don't meet these requirements and would like access, let Kwwxis know.
           </li>

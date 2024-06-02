@@ -20,14 +20,27 @@ export interface VoAppSavedAvatarDatabase extends DBSchema {
   'GENSHIN.SavedAvatars': VoAppSavedAvatarTable,
   'HSR.SavedAvatars':     VoAppSavedAvatarTable,
   'ZENLESS.SavedAvatars': VoAppSavedAvatarTable,
+  'WUWA.SavedAvatars':    VoAppSavedAvatarTable,
 }
 
 export async function invokeVoAppSavedAvatarDb<T = void>(callback: (db: IDBPDatabase<VoAppSavedAvatarDatabase>) => Promise<T>|void): Promise<T> {
-  const db = await openDB<VoAppSavedAvatarDatabase>('VoApp.SavedAvatars', 1, {
+  const db = await openDB<VoAppSavedAvatarDatabase>('VoApp.SavedAvatars', 2, {
     upgrade(db) {
-      db.createObjectStore('GENSHIN.SavedAvatars', {keyPath: 'key'});
-      db.createObjectStore('HSR.SavedAvatars', {keyPath: 'key'});
-      db.createObjectStore('ZENLESS.SavedAvatars', {keyPath: 'key'});
+      try {
+        db.createObjectStore('GENSHIN.SavedAvatars', {keyPath: 'key'});
+      } catch (ignore) {}
+
+      try {
+        db.createObjectStore('HSR.SavedAvatars', {keyPath: 'key'});
+      } catch (ignore) {}
+
+      try {
+        db.createObjectStore('ZENLESS.SavedAvatars', {keyPath: 'key'});
+      } catch (ignore) {}
+
+      try {
+        db.createObjectStore('WUWA.SavedAvatars', {keyPath: 'key'});
+      } catch (ignore) {}
     }
   });
 

@@ -6,11 +6,12 @@ import { isStringBlank } from '../../shared/util/stringUtil.ts';
 import { importGenshinFilesCli } from './genshin/import_genshin_files.ts';
 import { importHsrFilesCli } from './hsr/import_hsr_files.ts';
 import { importZenlessFilesCli } from './zenless/import_zenless_files.ts';
+import { importWuwaFilesCli } from './wuwa/import_wuwa_files.ts';
 import * as process from 'process';
 
 async function importFilesCli() {
   const optionDefinitions: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
-    {name: 'game', alias: 'g', type: String, description: 'One of "genshin", "hsr", or "zenless"', typeLabel: '<game>'},
+    {name: 'game', alias: 'g', type: String, description: 'One of "genshin", "hsr", "zenless", "wuwa"', typeLabel: '<game>'},
     {name: 'help', alias: 'h', type: Boolean, description: 'Display this usage guide.'},
   ];
 
@@ -67,6 +68,13 @@ async function importFilesCli() {
     case 'zenless':
     case 'zenlesszonezero':
       await importZenlessFilesCli();
+      break;
+    case 'ww':
+    case 'wuwa':
+    case 'wuthering':
+    case' wutheringwaves':
+    case 'wuthering-waves':
+      await importWuwaFilesCli();
       break;
     default:
       console.error(chalk.red('\nInvalid value for "game" option.\n'));

@@ -124,6 +124,30 @@ CREATE INDEX hsr_image_index_trgm_idx ON hsr_image_index USING GIN (image_name g
 
 CREATE INDEX hsr_image_index_cat_idx ON hsr_image_index (image_cat1, image_cat2, image_cat3, image_cat4, image_cat5, image_cat6, image_cat7, image_cat8);
 
+-- WUWA IMAGE INDEX
+----------------------------------------------------------------------------------------------------------------
+DROP TABLE IF EXISTS wuwa_image_index;
+
+CREATE TABLE wuwa_image_index
+(
+    image_name      TEXT NOT NULL PRIMARY KEY,
+    image_size      BIGINT NOT NULL,
+    image_cat1      TEXT,
+    image_cat2      TEXT,
+    image_cat3      TEXT,
+    image_cat4      TEXT,
+    image_cat5      TEXT,
+    image_cat6      TEXT,
+    image_cat7      TEXT,
+    image_cat8      TEXT,
+    excel_usages    TEXT[],
+    excel_meta      JSONB
+);
+
+CREATE INDEX wuwa_image_index_trgm_idx ON wuwa_image_index USING GIN (image_name gin_trgm_ops);
+
+CREATE INDEX wuwa_image_index_cat_idx ON wuwa_image_index (image_cat1, image_cat2, image_cat3, image_cat4, image_cat5, image_cat6, image_cat7, image_cat8);
+
 -- Script Jobs
 ----------------------------------------------------------------------------------------------------------------
 CREATE TABLE script_jobs
@@ -207,6 +231,27 @@ CREATE TABLE zenless_wiki_revs
 CREATE INDEX zenless_wiki_revs_pageid ON zenless_wiki_revs (pageid);
 
 CREATE TABLE zenless_wiki_article_info
+(
+    pageid      bigint not null primary key,
+    title       text not null unique,
+    expires     bigint not null,
+    json        jsonb not null
+);
+
+-- Wuwa Wiki Revisions
+----------------------------------------------------------------------------------------------------------------
+CREATE TABLE wuwa_wiki_revs
+(
+    pageid      bigint not null,
+    revid       bigint not null primary key,
+    parentid    bigint,
+    json        jsonb,
+    segments    jsonb
+);
+
+CREATE INDEX wuwa_wiki_revs_pageid ON wuwa_wiki_revs (pageid);
+
+CREATE TABLE wuwa_wiki_article_info
 (
     pageid      bigint not null primary key,
     title       text not null unique,

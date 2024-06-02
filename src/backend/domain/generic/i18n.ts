@@ -1,4 +1,4 @@
-import { LangCode, LangCodeMap } from '../../shared/types/lang-types.ts';
+import { LangCode, LangCodeMap } from '../../../shared/types/lang-types.ts';
 
 export const GENSHIN_I18N_MAP = {
   TalkToNpc: <LangCodeMap> {
@@ -236,6 +236,10 @@ export const ZENLESS_I18N_MAP = {
 
 }
 
+export const WUWA_I18N_MAP = {
+
+}
+
 export function genshin_i18n(key: keyof typeof GENSHIN_I18N_MAP, langCode: LangCode, vars?: Record<string, string|number>): string {
   if (langCode === 'CHS' || langCode === 'CHT')
     langCode = 'CH';
@@ -262,6 +266,14 @@ export function zenless_i18n(key: keyof typeof ZENLESS_I18N_MAP, langCode: LangC
   if (langCode === 'CHS' || langCode === 'CHT')
     langCode = 'CH';
   let text = ZENLESS_I18N_MAP[key][langCode] || ZENLESS_I18N_MAP[key]['EN'];
+
+  return text;
+}
+
+export function wuwa_i18n(key: keyof typeof WUWA_I18N_MAP, langCode: LangCode, vars?: Record<string, string|number>): string {
+  if (langCode === 'CHS' || langCode === 'CHT')
+    langCode = 'CH';
+  let text = WUWA_I18N_MAP[key][langCode] || WUWA_I18N_MAP[key]['EN'];
 
   return text;
 }

@@ -26,10 +26,12 @@ export const IMAGEDIR_GENSHIN_STATIC = path.resolve(PUBLIC_DIR, './images/genshi
 export const IMAGEDIR_GENSHIN_EXT = path.resolve(process.env.EXT_GENSHIN_IMAGES);
 export const IMAGEDIR_HSR_EXT = path.resolve(process.env.EXT_HSR_IMAGES);
 export const IMAGEDIR_ZENLESS_EXT = path.resolve(process.env.EXT_ZENLESS_IMAGES);
+export const IMAGEDIR_WUWA_EXT = path.resolve(process.env.EXT_WUWA_IMAGES);
 
 export const DATAFILE_GENSHIN_SQLITE_DB = './genshin_data.db';
 export const DATAFILE_HSR_SQLITE_DB = './hsr_data.db';
 export const DATAFILE_ZENLESS_SQLITE_DB = './zenless_data.db';
+export const DATAFILE_WUWA_SQLITE_DB = './wuwa_data.db';
 
 export const DATAFILE_GENSHIN_VOICE_ITEMS = './VoiceItems.json';
 export const DATAFILE_GENSHIN_FETTERS = './VoiceOvers.json';
@@ -78,6 +80,16 @@ export function getZenlessDataFilePath(file?: string): string {
     throw 'Access to parent directories disallowed.';
   }
   return path.resolve(process.env.ZENLESS_DATA_ROOT, file).replaceAll('\\', '/');
+}
+
+export function getWuwaDataFilePath(file?: string): string {
+  if (!file) {
+    return process.env.WUWA_DATA_ROOT.replaceAll('\\', '/');
+  }
+  if (file.includes('../') || file.includes('..\\')) {
+    throw 'Access to parent directories disallowed.';
+  }
+  return path.resolve(process.env.WUWA_DATA_ROOT, file).replaceAll('\\', '/');
 }
 
 function consoleInspect(... args: any[]): void {

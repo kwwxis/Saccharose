@@ -1,6 +1,12 @@
 import { pageMatch } from '../../../core/pageMatch.ts';
 import { startGenericSearchPageListeners } from '../../genericSearchPage.ts';
-import { genshinEndpoints, starRailEndpoints, SaccharoseApiEndpoint, zenlessEndpoints } from '../../../core/endpoints.ts';
+import {
+  genshinEndpoints,
+  starRailEndpoints,
+  SaccharoseApiEndpoint,
+  zenlessEndpoints,
+  wuwaEndpoints,
+} from '../../../core/endpoints.ts';
 import SiteMode from '../../../core/userPreferences/siteMode.ts';
 
 pageMatch('pages/generic/basic/id-usages', () => {
@@ -12,6 +18,8 @@ pageMatch('pages/generic/basic/id-usages', () => {
     endpoint = starRailEndpoints.getIdUsages;
   } else if (SiteMode.isZenless) {
     endpoint = zenlessEndpoints.getIdUsages;
+  } else if (SiteMode.isWuwa) {
+    endpoint = wuwaEndpoints.getIdUsages;
   }
 
   startGenericSearchPageListeners({

@@ -1,5 +1,12 @@
 import Bot from 'nodemw';
-import { MwArticleInfoEntity, MwDbInterface, mwGenshinDb, mwStarRailDb, mwZenlessDb } from './mwDbInterface.ts';
+import {
+  MwArticleInfoEntity,
+  MwDbInterface,
+  mwGenshinDb,
+  mwStarRailDb,
+  mwWuwaDb,
+  mwZenlessDb,
+} from './mwDbInterface.ts';
 import { pathToFileURL } from 'url';
 import { closeKnex } from '../util/db.ts';
 import { NodeJSCallback, UserInfo } from 'nodemw/lib/types';
@@ -300,6 +307,7 @@ export class MwClientInterface {
 export const mwGenshinClient: MwClientInterface = new MwClientInterface(mwGenshinDb, 'genshin-impact.fandom.com');
 export const mwStarRailClient: MwClientInterface = new MwClientInterface(mwStarRailDb, 'honkai-star-rail.fandom.com');
 export const mwZenlessClient: MwClientInterface = new MwClientInterface(mwZenlessDb, 'zenless-zone-zero.fandom.com');
+export const mwWuwaClient: MwClientInterface = new MwClientInterface(mwWuwaDb, 'wutheringwaves.fandom.com');
 
 export function getMwClient(siteMode: RequestSiteMode): MwClientInterface {
   switch (siteMode as string) {
@@ -309,6 +317,8 @@ export function getMwClient(siteMode: RequestSiteMode): MwClientInterface {
       return mwStarRailClient;
     case 'zenless':
       return mwZenlessClient;
+    case 'wuwa':
+      return mwWuwaClient;
   }
   throw HttpError.badRequest('BadParameter', 'Bad site mode: ' + siteMode + '; expected one of: genshin, hsr, zenless');
 }

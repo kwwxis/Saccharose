@@ -6,10 +6,12 @@ import apiAuth from '../middleware/api/apiAuth.ts';
 import GenshinResources from './genshin/api/_index.ts';
 import StarRailResources from './hsr/api/_index.ts';
 import ZenlessResources from './zenless/api/_index.ts';
+import WuwaResources from './wuwa/api/_index.ts';
 import GenericResources from './generic/api/genericResources.ts';
 import { getGenshinControl } from '../domain/genshin/genshinControl.ts';
 import { getStarRailControl } from '../domain/hsr/starRailControl.ts';
 import { getZenlessControl } from '../domain/zenless/zenlessControl.ts';
+import { getWuwaControl } from '../domain/wuwa/wuwaControl.ts';
 import { Request, Response, Router } from 'express';
 
 export default async function(): Promise<Router> {
@@ -19,10 +21,12 @@ export default async function(): Promise<Router> {
       const genshinControl = getGenshinControl(req);
       const starRailControl = getStarRailControl(req);
       const zenlessControl = getZenlessControl(req);
+      const wuwaControl = getWuwaControl(req);
       return {
         normGenshinText: (s: string) => genshinControl.normText(s, req.context.outputLangCode),
         normStarRailText: (s: string) => starRailControl.normText(s, req.context.outputLangCode),
         normZenlessText: (s: string) => zenlessControl.normText(s, req.context.outputLangCode),
+        normWuwaText: (s: string) => wuwaControl.normText(s, req.context.outputLangCode),
         outputLangCode: req.context.outputLangCode,
         inputLangCode: req.context.inputLangCode
       };
@@ -40,6 +44,7 @@ export default async function(): Promise<Router> {
   GenshinResources(router)
   StarRailResources(router);
   ZenlessResources(router);
+  WuwaResources(router);
   GenericResources(router);
 
   // Client Error Handlers

@@ -6,7 +6,7 @@ import { MwTemplateNode, MwCharSequence, MwEOL } from '../../../../shared/mediaw
 import { pathToFileURL } from 'url';
 import { Marker } from '../../../../shared/util/highlightMarker.ts';
 import { LANG_CODE_TO_WIKI_CODE, LANG_CODES, LangCode, TextMapHash } from '../../../../shared/types/lang-types.ts';
-import { AbstractControl } from '../../abstractControl.ts';
+import { AbstractControl } from '../abstractControl.ts';
 import { SbOut } from '../../../../shared/util/stringUtil.ts';
 import { isUnset } from '../../../../shared/util/genericUtil.ts';
 import { closeKnex } from '../../../util/db.ts';
@@ -225,11 +225,9 @@ export function ol_combine_results(olResults: OLResult[]): OLCombinedResult {
 }
 
 export async function ol_gen(ctrl: AbstractControl, name: string, options: OLGenOptions = {}): Promise<OLResult[]> {
-  if (isInt(name)) {
-    const maybeIdResult: OLResult = await ol_gen_from_id(ctrl, maybeInt(name), options);
-    if (maybeIdResult) {
-      return [maybeIdResult];
-    }
+  const textMapHashResult: OLResult = await ol_gen_from_id(ctrl, maybeInt(name), options);
+  if (textMapHashResult) {
+    return [textMapHashResult];
   }
 
   const textMapHashList: TextMapHash[] = await ctrl.findTextMapHashesByExactName(name);

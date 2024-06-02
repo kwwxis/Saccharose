@@ -86,7 +86,7 @@ export function genericNormText(text: string, langCode: LangCode, opts: NormText
 
   text = text.replace(/—/g, opts.plaintext ? (opts.plaintextDash || '-') : '&mdash;').trim();
   text = text.replace(/–/g, opts.plaintext ? (opts.plaintextDash || '-') : '&ndash;').trim();
-  text = text.replace(/{NICKNAME}/g, opts.mcPlaceholderProvider(opts.mcPlaceholderForceLangCode || langCode, true));
+  text = text.replace(/{NICKNAME}|{PlayerName}/g, opts.mcPlaceholderProvider(opts.mcPlaceholderForceLangCode || langCode, true));
   text = text.replace(/{NON_BREAK_SPACE}/g, opts.plaintext ? ' ' : '&nbsp;');
   text = text.replace(/\u00A0/g, opts.plaintext ? ' ' : '&nbsp;');
   text = text.replace(/<i>(.*?)<\/i>/gs, opts.plaintext ? '$1' : `''$1''`);
@@ -98,17 +98,26 @@ export function genericNormText(text: string, langCode: LangCode, opts: NormText
       text = text.replace(/{M#([^}]*)}{F#([^}]*)}/g, '$1');
 
       text = text.replace(/{F#([^}]*)}/g, '');
+
+      // Wuwa:
+      text = text.replace(/{Male=([^;]*);Female=([^}]*)}/g, '$1');
     } else if (opts.plaintextMcMode === 'female') {
       text = text.replace(/{F#([^}]*)}{M#([^}]*)}/g, '$1');
       text = text.replace(/{M#([^}]*)}{F#([^}]*)}/g, '$2');
 
       text = text.replace(/{M#([^}]*)}/g, '');
+
+      // Wuwa:
+      text = text.replace(/{Male=([^;]*);Female=([^}]*)}/g, '$2');
     } else {
       text = text.replace(/{F#([^}]*)}{M#([^}]*)}/g, '($2/$1)');
       text = text.replace(/{M#([^}]*)}{F#([^}]*)}/g, '($1/$2)');
 
       text = text.replace(/{F#([^}]*)}/g, '($1)');
       text = text.replace(/{M#([^}]*)}/g, '($1)');
+
+      // Wuwa:
+      text = text.replace(/{Male=([^;]*);Female=([^}]*)}/g, '($1/$2)');
     }
   } else {
     text = text.replace(/{F#([^}]*)}{M#([^}]*)}/g, '{{MC|m=$2|f=$1}}');
@@ -116,6 +125,9 @@ export function genericNormText(text: string, langCode: LangCode, opts: NormText
 
     text = text.replace(/{F#([^}]*)}/g, '{{MC|f=$1}}');
     text = text.replace(/{M#([^}]*)}/g, '{{MC|m=$1}}');
+
+    // Wuwa:
+    text = text.replace(/{Male=([^;]*);Female=([^}]*)}/g, '{{MC|m=$1|f=$2}}');
   }
 
   if (opts.decolor || opts.plaintext) {

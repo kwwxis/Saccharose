@@ -1,7 +1,7 @@
 import  knex, { Knex } from 'knex';
 import exitHook from 'async-exit-hook';
 import path from 'path';
-import { DATAFILE_GENSHIN_SQLITE_DB, DATAFILE_HSR_SQLITE_DB, DATAFILE_ZENLESS_SQLITE_DB } from '../loadenv.ts';
+import { DATAFILE_GENSHIN_SQLITE_DB, DATAFILE_HSR_SQLITE_DB, DATAFILE_ZENLESS_SQLITE_DB, DATAFILE_WUWA_SQLITE_DB } from '../loadenv.ts';
 import { logShutdown } from './logger.ts';
 import { isInt, toInt } from '../../shared/util/numberUtil.ts';
 import Pool from 'pg-pool';
@@ -9,7 +9,8 @@ import Pool from 'pg-pool';
 export type SaccharoseDb = {
   genshin: Knex,
   hsr: Knex,
-  zenless: Knex
+  zenless: Knex,
+  wuwa: Knex
 }
 
 let singleton: SaccharoseDb = null;
@@ -69,6 +70,7 @@ export function openSqlite(): SaccharoseDb {
     genshin:  createSqliteConnection(path.resolve(process.env.GENSHIN_DATA_ROOT,  DATAFILE_GENSHIN_SQLITE_DB)),
     hsr:      createSqliteConnection(path.resolve(process.env.HSR_DATA_ROOT,      DATAFILE_HSR_SQLITE_DB)),
     zenless:  createSqliteConnection(path.resolve(process.env.ZENLESS_DATA_ROOT,  DATAFILE_ZENLESS_SQLITE_DB)),
+    wuwa:     createSqliteConnection(path.resolve(process.env.WUWA_DATA_ROOT,     DATAFILE_WUWA_SQLITE_DB)),
   };
   return singleton;
 }

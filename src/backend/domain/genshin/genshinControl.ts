@@ -133,7 +133,7 @@ import { ElementType, ManualTextMapHashes } from '../../../shared/types/genshin/
 import { custom, logInitData } from '../../util/logger.ts';
 import { DialogBranchingCache, orderChapterQuests } from './dialogue/dialogue_util.ts';
 import { __normGenshinText } from './genshinText.ts';
-import { AbstractControl, AbstractControlState } from '../abstractControl.ts';
+import { AbstractControl } from '../generic/abstractControl.ts';
 import debug from 'debug';
 import {
   LANG_CODE_TO_LOCALE,
@@ -161,10 +161,11 @@ import {
   InterActionNextDialogs,
 } from '../../../shared/types/genshin/interaction-types.ts';
 import { CommonLineId } from '../../../shared/types/common-types.ts';
-import { genshin_i18n, GENSHIN_I18N_MAP, GENSHIN_MATERIAL_TYPE_DESC_PLURAL_MAP } from '../i18n.ts';
+import { genshin_i18n, GENSHIN_I18N_MAP, GENSHIN_MATERIAL_TYPE_DESC_PLURAL_MAP } from '../generic/i18n.ts';
 import * as console from 'console';
 import { FullChangelog } from '../../../shared/types/changelog-types.ts';
 import { GameVersion } from '../../../shared/types/game-versions.ts';
+import { AbstractControlState } from '../generic/abstractControlState.ts';
 
 // region Control State
 // --------------------------------------------------------------------------------------------------------------
@@ -260,7 +261,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return new GenshinControl(this.state.copy());
   }
 
-  override i18n(key: keyof typeof GENSHIN_I18N_MAP, vars?: Record<string, string|number>): string {
+  override i18n(key: keyof typeof GENSHIN_I18N_MAP, vars?: Record<string, string | number>): string {
     return genshin_i18n(key, this.outputLangCode, vars);
   }
 
@@ -327,7 +328,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     }
   }
 
-  override async postProcess<T>(object: T, triggerNormalize?: SchemaTable|boolean, doNormText: boolean = false): Promise<T> {
+  override async postProcess<T>(object: T, triggerNormalize?: SchemaTable | boolean, doNormText: boolean = false): Promise<T> {
     if (!object)
       return object;
     if (triggerNormalize) {
@@ -340,7 +341,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
         if (Array.isArray(object[prop])) {
           let newOriginalArray = [];
           object[textProp] = [];
-          for (let id of <any[]> object[prop]) {
+          for (let id of <any[]>object[prop]) {
             let text = await this.getTextMapItem(this.outputLangCode, id);
             if (doNormText) {
               text = this.normText(text, this.outputLangCode);
@@ -361,11 +362,11 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
           }
         }
       }
-      if (this.state.AutoloadText && prop.endsWith('Desc') && Array.isArray(object[prop]) && (<any[]> object[prop]).every(x => isInt(x))) {
+      if (this.state.AutoloadText && prop.endsWith('Desc') && Array.isArray(object[prop]) && (<any[]>object[prop]).every(x => isInt(x))) {
         let textProp = 'Mapped' + prop;
         let newOriginalArray = [];
         object[textProp] = [];
-        for (let id of <any[]> object[prop]) {
+        for (let id of <any[]>object[prop]) {
           let text = await this.getTextMapItem(this.outputLangCode, id);
           if (doNormText) {
             text = this.normText(text, this.outputLangCode);
@@ -381,7 +382,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
         let textProp = 'Mapped' + prop;
         let newOriginalArray = [];
         object[textProp] = [];
-        for (let id of <any[]> object[prop]) {
+        for (let id of <any[]>object[prop]) {
           let text = await this.getTextMapItem(this.outputLangCode, id);
           if (doNormText) {
             text = this.normText(text, this.outputLangCode);
@@ -399,7 +400,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
           object[newProp] = await this.getElementName(object[prop] as ElementType, this.outputLangCode);
         } else if (Array.isArray(object[prop])) {
           let newArray = [];
-          for (let item of <any[]> object[prop]) {
+          for (let item of <any[]>object[prop]) {
             if (typeof item === 'string' && item !== 'None') {
               newArray.push(await this.getElementName(item as ElementType, this.outputLangCode));
             }

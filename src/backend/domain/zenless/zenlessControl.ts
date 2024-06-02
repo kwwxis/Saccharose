@@ -1,13 +1,14 @@
 // noinspection JSUnusedGlobalSymbols
 
-import { AbstractControl, AbstractControlState } from '../abstractControl.ts';
+import { AbstractControl } from '../generic/abstractControl.ts';
 import { getZenlessDataFilePath } from '../../loadenv.ts';
 import { normalizeRawJson, SchemaTable } from '../../importer/import_db.ts';
 import { LangCode } from '../../../shared/types/lang-types.ts';
 import { __normZenlessText } from './zenlessText.ts';
 import { NormTextOptions } from '../generic/genericNormalizers.ts';
 import { Request } from 'express';
-import { zenless_i18n, ZENLESS_I18N_MAP } from '../i18n.ts';
+import { zenless_i18n, ZENLESS_I18N_MAP } from '../generic/i18n.ts';
+import { AbstractControlState } from '../generic/abstractControlState.ts';
 
 // region Control State
 // --------------------------------------------------------------------------------------------------------------
@@ -47,7 +48,7 @@ export class ZenlessControl extends AbstractControl<ZenlessControlState> {
     return new ZenlessControl(this.state.copy());
   }
 
-  override async postProcess<T>(object: T, triggerNormalize?: SchemaTable|boolean, doNormText: boolean = false): Promise<T> {
+  override async postProcess<T>(object: T, triggerNormalize?: SchemaTable | boolean, doNormText: boolean = false): Promise<T> {
     if (!object)
       return object;
     if (triggerNormalize) {

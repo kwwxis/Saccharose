@@ -1,6 +1,6 @@
 import { isInt, maybeInt, toInt } from '../../../../shared/util/numberUtil.ts';
 import { IdUsages } from '../../../../shared/util/searchUtil.ts';
-import { AbstractControl } from '../../../domain/abstractControl.ts';
+import { AbstractControl } from '../../../domain/generic/abstractControl.ts';
 import { add_ol_markers, ol_gen, OLResult } from '../../../domain/generic/basic/OLgen.ts';
 import { isset, toBoolean } from '../../../../shared/util/genericUtil.ts';
 import { HttpError } from '../../../../shared/util/httpError.ts';

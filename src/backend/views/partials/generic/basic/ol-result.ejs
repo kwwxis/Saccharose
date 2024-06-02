@@ -30,12 +30,15 @@
           <h5>Duplicate TextMapHashes</h5>
           <p class="spacer5-bottom">List of TextMapHashes whose values are duplicates of <%= olResult.textMapHash %> across all languages.<br>
             Click on a link to see where that hash is used or see <a href="<%= siteHome %>/id-usages?q=<%= olResult.textMapHash %>,<%= olResult.duplicateTextMapHashes.join(',') %>" target="_blank">all usages</a>.</p>
-          <ul style="columns:4">
-            <li><a style="text-decoration:none" href="<%= siteHome %>/id-usages?q=<%= olResult.textMapHash %>" target="_blank"><%= olResult.textMapHash %></a></li>
+          <div style="max-width: 790px;
+              padding: 0;
+              display: flex;
+              flex-wrap: wrap;">
+            <a class="border-shade" role="button" style="min-width:85px" href="<%= siteHome %>/id-usages?q=<%= olResult.textMapHash %>" target="_blank"><%= olResult.textMapHash %></a>
             <% for (let textMapHash of olResult.duplicateTextMapHashes) { %>
-              <li><a style="text-decoration:none" href="<%= siteHome %>/id-usages?q=<%= textMapHash %>" target="_blank"><%= textMapHash %></a></li>
+              <a class="border-shade" role="button" style="min-width:85px" href="<%= siteHome %>/id-usages?q=<%= textMapHash %>" target="_blank"><%= textMapHash %></a>
             <% } %>
-          </ul>
+          </div>
         <% } %>
       </div>
     </div>

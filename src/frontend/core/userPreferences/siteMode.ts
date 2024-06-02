@@ -27,6 +27,9 @@ const SiteMode = {
   get isZenless() {
     return SITE_MODE === 'zenless';
   },
+  get isWuwa() {
+    return SITE_MODE === 'wuwa';
+  },
   get storagePrefix() {
     if (this.isGenshin) {
       return 'GENSHIN'
@@ -34,6 +37,8 @@ const SiteMode = {
       return 'HSR'
     } else if (this.isZenless) {
       return 'ZENLESS';
+    } else if (this.isWuwa) {
+      return 'WUWA';
     }
   },
   get imagePathPrefix() {
@@ -43,6 +48,8 @@ const SiteMode = {
       return '/images/hsr/'
     } else if (this.isZenless) {
       return '/images/zenless/';
+    } else if (this.isWuwa) {
+      return '/images/wuwa/';
     }
   }
 };
