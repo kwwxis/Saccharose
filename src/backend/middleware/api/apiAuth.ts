@@ -17,17 +17,21 @@ async function isValidApiKey(apiKey: string): Promise<boolean> {
   return entry && (!entry.expires || entry.expires > Date.now());
 }
 
-export default function(req: Request, res: Response, next: NextFunction) {
+export default async function(req: Request, res: Response, next: NextFunction) {
   if (typeof req.headers['x-api-key'] === 'string' || typeof req.query.apiKey === 'string' || typeof req.query.apikey === 'string') {
     const apiKey: string = String(req.headers['x-api-key'] || req.query.apiKey || req.query.apikey).trim();
 
-    isValidApiKey(apiKey).then(result => {
-      if (result) {
-        next();
-      } else {
-        next(HttpError.unauthenticated('EBADAPIKEY', 'Invalid API key.'));
-      }
-    });
+    delete req.headers['x-api-key'];
+    delete req.query.apiKey;
+    delete req.query.apikey;
+
+    const result = await isValidApiKey(apiKey);
+
+    if (result) {
+      next();
+    } else {
+      next(HttpError.unauthenticated('EBADAPIKEY', 'Invalid API key.'));
+    }
   } else if (req.isAuthenticated() && req.headers['x-csrf-token']) {
     csrfMiddleware(req, res, next);
   } else {

@@ -1224,6 +1224,8 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
             let dicon: string = '{{DIcon}}';
             if (OptionIconMap[dialog.OptionIcon]) {
               dicon = '{{DIcon|' + OptionIconMap[dialog.OptionIcon] + '}}';
+            } else if (dialog.OptionIcon) {
+              dicon = '{{DIcon|' + dialog.OptionIcon + '}}';
             }
             out += `\n${diconPrefix}${':'.repeat(numSubsequentNonBranchPlayerDialogOption)}${dicon} ${text}`;
           }

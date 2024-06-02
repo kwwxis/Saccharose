@@ -11,19 +11,19 @@ const router: Router = create();
 
 router.endpoint('/search-textmap', {
   get: async (req: Request, res: Response) => {
-    await handleTextMapSearchEndpoint(getWuwaControl(req), req, res)
+    return await handleTextMapSearchEndpoint(getWuwaControl(req), req, res)
   }
 });
 
 router.endpoint('/OL/generate', {
   get: async (req: Request, res: Response) => {
-    await handleOlEndpoint(getWuwaControl(req), req, res);
+    return await handleOlEndpoint(getWuwaControl(req), req, res);
   }
 });
 
 router.endpoint('/id-usages', {
   get: async (req: Request, res: Response) => {
-    await handleIdUsagesEndpoint(getWuwaControl(req), req, res);
+    return await handleIdUsagesEndpoint(getWuwaControl(req), req, res);
   }
 });
 

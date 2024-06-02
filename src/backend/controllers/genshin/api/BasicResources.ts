@@ -11,19 +11,19 @@ const router: Router = create();
 
 router.endpoint('/search-textmap', {
   get: async (req: Request, res: Response) => {
-    await handleTextMapSearchEndpoint(getGenshinControl(req), req, res)
+    return await handleTextMapSearchEndpoint(getGenshinControl(req), req, res)
   }
 });
 
 router.endpoint('/OL/generate', {
   get: async (req: Request, res: Response) => {
-    await handleOlEndpoint(getGenshinControl(req), req, res);
+    return await handleOlEndpoint(getGenshinControl(req), req, res);
   }
 });
 
 router.endpoint('/id-usages', {
   get: async (req: Request, res: Response) => {
-    await handleIdUsagesEndpoint(getGenshinControl(req), req, res);
+    return await handleIdUsagesEndpoint(getGenshinControl(req), req, res);
   }
 });
 

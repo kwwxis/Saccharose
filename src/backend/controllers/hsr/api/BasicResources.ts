@@ -11,19 +11,19 @@ const router: Router = create();
 
 router.endpoint('/search-textmap', {
   get: async (req: Request, res: Response) => {
-    await handleTextMapSearchEndpoint(getStarRailControl(req), req, res)
+    return await handleTextMapSearchEndpoint(getStarRailControl(req), req, res)
   }
 });
 
 router.endpoint('/OL/generate', {
   get: async (req: Request, res: Response) => {
-    await handleOlEndpoint(getStarRailControl(req), req, res);
+    return await handleOlEndpoint(getStarRailControl(req), req, res);
   }
 });
 
 router.endpoint('/id-usages', {
   get: async (req: Request, res: Response) => {
-    await handleIdUsagesEndpoint(getStarRailControl(req), req, res);
+    return await handleIdUsagesEndpoint(getStarRailControl(req), req, res);
   }
 });
 
