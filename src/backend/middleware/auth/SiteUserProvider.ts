@@ -130,30 +130,41 @@ export const SiteUserProvider = {
     }).then();
   },
 
-  async findOrCreate(discordId: string, discordUser: passport_discord.Profile): Promise<SiteUser> {
-    const newSiteUser: SiteUser = {
+  _newUserObject(discordUser: passport_discord.Profile): SiteUser {
+    return {
       id: discordUser.id,
       discord_username: discordUser.username,
       discord: discordUser,
       prefs: {},
-    }
+    };
+  },
 
+  async findOrCreate(discordId: string, discordUser: passport_discord.Profile): Promise<SiteUser> {
     const row: SiteUserEntity = await pg.select('*').from('site_user')
       .where({discord_id: discordId}).first().then();
 
     if (row) {
+      // User already exists:
       row.discord_username = discordUser.username;
 
-      if (!row.json_data)
-        row.json_data = newSiteUser;
-      Object.assign(row.json_data, newSiteUser);
+      if (!row.json_data) {
+        row.json_data = this._newUserObject(discordUser);
+      } else {
+        Object.assign(row.json_data, <SiteUser> {
+          discord_username: discordUser.username,
+          discord: discordUser
+        });
+      }
 
       await pg('site_user').where({discord_id: discordId}).update({
         discord_username: discordUser.username,
         json_data: JSON.stringify(row.json_data)
       }).then();
+
       return row.json_data;
     } else {
+      // User does not exist:
+      const newSiteUser: SiteUser = this._newUserObject(discordUser);
       await pg('site_user').insert({
         discord_id: discordId,
         discord_username: discordUser.username,
