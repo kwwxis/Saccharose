@@ -22,8 +22,10 @@ export function createStaticImagesHandler(SERVER_IMAGES_ROOT: string, HTTP_PATH:
       req.originalUrl = req.originalUrl.replace(/([^\/\\]+)\.\1.png$/, '$1.png');
     }
 
-    req.originalUrl = req.originalUrl.replace(regex, fm => fm.toLowerCase());
-    req.url = req.url.replace(/.*(?=\/[^\/]+$)/, fm => fm.toLowerCase());
+    if (FOR === 'hsr') {
+      req.originalUrl = req.originalUrl.replace(regex, fm => fm.toLowerCase());
+      req.url = req.url.replace(/.*(?=\/[^\/]+$)/, fm => fm.toLowerCase());
+    }
     return staticHandler(req, res, next);
   };
 }
