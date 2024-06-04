@@ -1341,9 +1341,10 @@ export class GCGControl {
             }
           } else if (section.originalData.dialogBranch && section.originalData.dialogBranch[0]) {
             let dialog = section.originalData.dialogBranch[0];
+
             let idleSect = new DialogueSectionResult('Dialog_'+dialog.Id, 'Idle Quote');
             idleSect.addMetaProp('Dialogue ID', dialog.Id);
-            idleSect.prependFreeForm(`:{{DIcon|Idle}} `)
+            idleSect.prependFreeForm(`:{{DIcon|Idle}} ${dialog.TalkContentText}`)
 
             stage.IdleTalk.children.unshift(idleSect);
           }

@@ -634,7 +634,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
   async selectTalkExcelConfigDataByNpcId(npcId: number, loadType: TalkLoadType = null): Promise<TalkExcelConfigData[]> {
     let talkIds: number[] = await this.knex.select('TalkId').from('Relation_NpcToTalk')
-      .where({NpcId: npcId, TalkLoadType: loadType}).pluck('TalkId').then();
+      .where(cleanEmpty({NpcId: npcId, TalkLoadType: loadType})).pluck('TalkId').then();
     return Promise.all(talkIds.map(talkId => this.selectTalkExcelConfigDataById(talkId)));
   }
   // endregion
