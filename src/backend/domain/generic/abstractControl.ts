@@ -282,14 +282,26 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     const out: TextMapSearchResult[] = [];
 
     {
-      const hash: TextMapHash = maybeInt(searchText.trim());
-      const text = await this.getTextMapItem(langCode, searchText);
-      if (text) {
-        out.push({
-          hash,
-          text,
-          line: await getLineNumberForLineText(String(hash), this.getDataFilePath(getPlainTextMapRelPath(langCode, 'Hash'))),
-        });
+      const possibleHashes: TextMapHash[] = [maybeInt(searchText.trim())];
+      if (searchText.includes(',') || searchText.includes(';')) {
+        for (let sub of searchText.split(/[,;]/)) {
+          if (sub.trim().length) {
+            possibleHashes.push(maybeInt(sub.trim()));
+          }
+        }
+      }
+
+      for (let possibleHash of possibleHashes) {
+        if (!!possibleHash && /^[a-zA-Z0-9_\-]+$/.test(String(possibleHash))) {
+          const text = await this.getTextMapItem(langCode, possibleHash);
+          if (text) {
+            out.push({
+              hash: possibleHash,
+              text,
+              line: await getLineNumberForLineText(String(possibleHash), this.getDataFilePath(getPlainTextMapRelPath(langCode, 'Hash'))),
+            });
+          }
+        }
       }
     }
 
