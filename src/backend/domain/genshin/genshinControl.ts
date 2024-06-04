@@ -660,6 +660,10 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       let TalkRole: TalkRole = dialog.TalkRole;
       let TalkRoleId: number;
 
+      if (TalkRole.Id === 'PLAYER') {
+        delete TalkRole.Id;
+      }
+
       if (typeof TalkRole.Id === 'string') {
         TalkRoleId = parseInt(TalkRole.Id);
         if (isNaN(TalkRoleId)) {
