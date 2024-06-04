@@ -5,7 +5,7 @@ export const InterActionSchema = <SchemaTable> {
   columns: [],
   jsonFile: '',
 
-  // TODO: This needs to be updated with each new Genshin version!
+  // TODO: This needs to be updated with each new Genshin version! (maybe)
   renameFields: {
     CIOBDALMHGN: 'DialogIdList', // 4.1
     MLAABINGLAA: 'DialogIdList', // 4.2
