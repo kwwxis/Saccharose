@@ -232,6 +232,18 @@ export async function ol_gen(ctrl: AbstractControl, name: string, options: OLGen
 
   const textMapHashList: TextMapHash[] = await ctrl.findTextMapHashesByExactName(name);
   if (!textMapHashList.length) {
+    if (name.includes(',') || name.includes(';')) {
+      const multiHashResults: OLResult[] = [];
+      for (let sub of name.split(/[,;]/)) {
+        if (sub.trim().length && /^[a-zA-Z0-9_\-]+$/.test(sub.trim())) {
+          const textMapHashResult: OLResult = await ol_gen_from_id(ctrl, maybeInt(sub), options);
+          if (textMapHashResult) {
+            multiHashResults.push(textMapHashResult);
+          }
+        }
+      }
+      return multiHashResults;
+    }
     return [];
   }
 
