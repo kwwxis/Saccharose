@@ -3,7 +3,7 @@ import { modalService } from '../../../util/modalService.ts';
 import { genericEndpoints } from '../../../core/endpoints.ts';
 
 pageMatch('vue/SettingsPage', () => {
-  document.querySelector('#auth-uncheck').addEventListener('click', event => {
+  document.querySelector('#auth-uncheck')?.addEventListener('click', event => {
     event.preventDefault();
     event.stopPropagation();
 

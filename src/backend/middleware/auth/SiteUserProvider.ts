@@ -60,8 +60,16 @@ export const SiteUserProvider = {
   // --------------------------------------------------------------------------------------------------------------
   async find(discordId: string): Promise<SiteUser> {
     const row: SiteUserEntity = await pg.select('*').from('site_user').where({discord_id: discordId}).first().then();
-    if (row.wiki_username && !row.json_data?.wiki_allowed) {
-      const inBypass: boolean = await this.isInReqBypass(row.wiki_username);
+    if (!row.json_data?.wiki_allowed) {
+      let inBypass: boolean = false;
+
+      if (row.discord_id && !inBypass) {
+        inBypass = await this.isInReqBypass({discord_id: row.discord_id});
+      }
+      if (row.wiki_username && !inBypass) {
+        inBypass = await this.isInReqBypass({wiki_username: row.wiki_username});
+      }
+
       if (inBypass) {
         row.json_data.wiki_allowed = true;
 
@@ -89,13 +97,27 @@ export const SiteUserProvider = {
     return !!row;
   },
 
-  async isInReqBypass(wikiUsername: string): Promise<boolean> {
-    if (!wikiUsername) {
+  async isInReqBypass(by: {wiki_username?: string, discord_id?: string}): Promise<boolean> {
+    if (!by) {
       return false;
     }
-    const row: {wiki_username: string} = await pg.select('*').from('site_user_wiki_bypass')
-      .where({wiki_username: wikiUsername}).first().then();
-    return row?.wiki_username === wikiUsername;
+    if (!by.wiki_username && !by.discord_id) {
+      return false;
+    }
+
+    if (by.discord_id) {
+      const row: {wiki_username?: string, discord_id?: string} = await pg.select('*').from('site_user_wiki_bypass')
+        .where({discord_id: by.discord_id}).first().then();
+      return row?.discord_id === by.discord_id;
+    }
+
+    if (by.wiki_username) {
+      const row: {wiki_username?: string, discord_id?: string} = await pg.select('*').from('site_user_wiki_bypass')
+        .where({wiki_username: by.wiki_username}).first().then();
+      return row?.wiki_username === by.wiki_username;
+    }
+
+    return false;
   },
 
   // Update/Create
@@ -156,6 +178,10 @@ export const SiteUserProvider = {
         });
       }
 
+      if (!row.json_data.wiki_allowed && await this.isInReqBypass({discord_id: discordUser.id})) {
+        row.json_data.wiki_allowed = true;
+      }
+
       await pg('site_user').where({discord_id: discordId}).update({
         discord_username: discordUser.username,
         json_data: JSON.stringify(row.json_data)
@@ -165,6 +191,9 @@ export const SiteUserProvider = {
     } else {
       // User does not exist:
       const newSiteUser: SiteUser = this._newUserObject(discordUser);
+      if (await this.isInReqBypass({discord_id: discordUser.id})) {
+        newSiteUser.wiki_allowed = true;
+      }
       await pg('site_user').insert({
         discord_id: discordId,
         discord_username: discordUser.username,

@@ -71,8 +71,8 @@
         <div class="valign">
           <img :src="user.wiki_avatar" class="framed-icon x48" />
           <div class="dispFlex flexColumn spacer5-left">
-            <span style="font-size:15px" class="open-sans-font fontWeight600">User:{{ user.wiki_username }}</span>
-            <a id="auth-uncheck" style="text-decoration: underline;cursor:pointer">De-register</a>
+            <span style="font-size:15px" class="open-sans-font fontWeight600">User:{{ user.wiki_username || '(n/a)' }}</span>
+            <a v-if="user.wiki_username" id="auth-uncheck" style="text-decoration: underline;cursor:pointer">De-register</a>
           </div>
         </div>
       </div>

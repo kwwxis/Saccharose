@@ -23,7 +23,7 @@ export default async function(): Promise<Router> {
   router.get('/settings/user-data.json', async (req: Request, res: Response) => {
     res.json({
       userData: req.user,
-      userInWikiRequirementsBypass: await SiteUserProvider.isInReqBypass(req.user?.wiki_username),
+      userInWikiRequirementsBypass: await SiteUserProvider.isInReqBypass(req.user),
       currentSessionData: req.session,
     });
   });

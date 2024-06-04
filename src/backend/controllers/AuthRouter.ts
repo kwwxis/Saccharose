@@ -182,7 +182,9 @@ export default async function(): Promise<Router> {
       });
     }
 
-    let hasPerm: boolean = await SiteUserProvider.isInReqBypass(firstUser.info.name);
+    let hasPerm: boolean = await SiteUserProvider.isInReqBypass({
+      wiki_username: firstUser.info.name
+    });
 
     if (!hasPerm) {
       for (let mwUser of [genshinUser, starRailUser, zenlessUser, wuwaUser]) {

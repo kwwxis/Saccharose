@@ -37,7 +37,7 @@ export function createSiteUserMiddlewareRouter() {
       return;
     }
 
-    if (!req.user.wiki_id || !req.user.wiki_username || !req.user.wiki_allowed) {
+    if (!req.user.wiki_allowed) {
       if (await SiteUserProvider.isBanned(req.user)) {
         res.render(UserBannedPage, {
           layouts: ['layouts/basic-layout'],
