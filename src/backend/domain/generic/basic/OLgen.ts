@@ -173,6 +173,7 @@ export interface OLResult {
   markers: Marker[],
   templateNode?: MwTemplateNode;
   duplicateTextMapHashes: TextMapHash[];
+  suppressMarkers?: boolean,
 }
 
 export interface OLCombinedResult {
@@ -227,6 +228,7 @@ export function ol_combine_results(olResults: OLResult[]): OLCombinedResult {
 export async function ol_gen(ctrl: AbstractControl, name: string, options: OLGenOptions = {}): Promise<OLResult[]> {
   const textMapHashResult: OLResult = await ol_gen_from_id(ctrl, maybeInt(name), options);
   if (textMapHashResult) {
+    textMapHashResult.suppressMarkers = true;
     return [textMapHashResult];
   }
 
@@ -238,6 +240,7 @@ export async function ol_gen(ctrl: AbstractControl, name: string, options: OLGen
         if (sub.trim().length && /^[a-zA-Z0-9_\-]+$/.test(sub.trim())) {
           const textMapHashResult: OLResult = await ol_gen_from_id(ctrl, maybeInt(sub), options);
           if (textMapHashResult) {
+            textMapHashResult.suppressMarkers = true;
             multiHashResults.push(textMapHashResult);
           }
         }
@@ -292,6 +295,9 @@ export function add_ol_markers(olResults: OLResult[]): OLResult[] {
   let diffKeys = [];
 
   for (let olResult of olResults) {
+    if (olResult.suppressMarkers) {
+      continue;
+    }
     for (let param of olResult.templateNode.params) {
       for (let otherOlResult of olResults) {
         if (otherOlResult == olResult) {
@@ -310,6 +316,9 @@ export function add_ol_markers(olResults: OLResult[]): OLResult[] {
   let diffKeyRegex = new RegExp('^(\\|(?:' + diffKeys.join('|') + ')\\s*=\\s*)(.*)$');
 
   for (let olResult of olResults) {
+    if (olResult.suppressMarkers) {
+      continue;
+    }
     let lineNum = 1;
     for (let line of olResult.result.split('\n')) {
       if (diffKeyRegex.test(line)) {
