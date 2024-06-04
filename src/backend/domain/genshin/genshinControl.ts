@@ -669,7 +669,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
         TalkRoleId = TalkRole.Id;
       }
 
-      if (TalkRole.Type !== 'TALK_ROLE_PLAYER' && TalkRole.Type !== 'TALK_ROLE_WIKI_CUSTOM' && !this.isBlackScreenDialog(dialog) && !TalkRole.Id) {
+      if (TalkRole.Type !== 'TALK_ROLE_PLAYER' && TalkRole.Type !== 'TALK_ROLE_MATE_AVATAR' && TalkRole.Type !== 'TALK_ROLE_WIKI_CUSTOM' && !this.isBlackScreenDialog(dialog) && !TalkRole.Id) {
         TalkRole.Type = 'TALK_ROLE_PLAYER';
       }
 
