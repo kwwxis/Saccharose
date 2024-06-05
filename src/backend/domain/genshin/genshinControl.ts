@@ -1012,7 +1012,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
         }
 
         const intersect: DialogExcelConfigData[] = arrayIntersect<DialogExcelConfigData>(branches, this.IdComparator)
-          .filter(x => !this.isPlayerTalkRole(x)); // only rejoin on non-player talks
+          .filter(x => !this.isPlayerDialogOption(x)); // don't rejoin on player dialogue options
 
         if (!intersect.length) {
           // branches do not rejoin

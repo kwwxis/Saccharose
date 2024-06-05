@@ -368,6 +368,20 @@ export class MwParamNode extends MwParentNode {
     }
   }
 
+  reformatKeyWithPropPad(propPad: number) {
+    if (/^\s+/.test(this.rawKey) || /[\n\r]/.test(this.rawKey)) {
+      this.key = this.rawKey.trimStart().replace(/[\n\r]/g, '');
+    }
+
+    if (this.rawKey.length > propPad) {
+      this.key = this.rawKey.trimEnd();
+    }
+
+    if (this.rawKey.length < propPad) {
+      this.key = this.rawKey.padEnd(propPad, ' ');
+    }
+  }
+
   _evaluateAfterValueWhitespace(): this {
     const parts: MwNode[] = this.parts;
     const afterValueWhitespace: MwTextNode = new MwTextNode('');

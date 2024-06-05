@@ -22,23 +22,25 @@ export async function VoAppToolbar(state: VoAppState): Promise<void> {
 
     const createFieldModeOption = (field: string, paramFillProp?: string): string => {
       return `
-        <fieldset class="spacer10-top">
-          <legend><code>${field}</code> field mode</legend>
-          <div class="field spacer5-horiz" style="padding-right:30px">
-            <label class="ui-radio dispBlock" style="padding-left:5px;font-size:13px;">
-              <input type="radio" name="paramFill.${paramFillProp || field}" value="fill" checked />
-              <span>Filled</span>
-            </label>
-            <label class="ui-radio dispBlock" style="padding-left:5px;font-size:13px;">
-              <input type="radio" name="paramFill.${paramFillProp || field}" value="remove" />
-              <span>Removed</span>
-            </label>
-            <label class="ui-radio dispBlock" style="padding-left:5px;font-size:13px;">
-              <input type="radio" name="paramFill.${paramFillProp || field}" value="empty" />
-              <span>Empty</span>
-            </label>
-          </div>
-        </fieldset>
+        <div class="w33p">
+          <fieldset class="spacer5-all">
+            <legend><code>${field}</code> field mode</legend>
+            <div class="field spacer5-horiz" style="padding-right:30px">
+              <label class="ui-radio dispBlock" style="padding-left:5px;font-size:13px;">
+                <input type="radio" name="paramFill.${paramFillProp || field}" value="fill" checked />
+                <span>Filled</span>
+              </label>
+              <label class="ui-radio dispBlock" style="padding-left:5px;font-size:13px;">
+                <input type="radio" name="paramFill.${paramFillProp || field}" value="remove" />
+                <span>Removed</span>
+              </label>
+              <label class="ui-radio dispBlock" style="padding-left:5px;font-size:13px;">
+                <input type="radio" name="paramFill.${paramFillProp || field}" value="empty" />
+                <span>Empty</span>
+              </label>
+            </div>
+          </fieldset>
+        </div>
       `;
     }
 
@@ -59,11 +61,13 @@ export async function VoAppToolbar(state: VoAppState): Promise<void> {
             <div class="content spacer10-top" style="padding-bottom:0;">
               <hr class="spacer10-bottom opacity50p" />
               <p>The options below apply after any field swaps if swapping is enabled.</p>
-              ${createFieldModeOption('title')}
-              ${createFieldModeOption('subtitle')}
-              ${createFieldModeOption('file')}
-              ${createFieldModeOption('tl')}
-              ${createFieldModeOption('tx', 'tx*')}
+              <div class="dispFlex flexWrap spacer10-top">
+                ${createFieldModeOption('title')}
+                ${createFieldModeOption('subtitle')}
+                ${createFieldModeOption('file')}
+                ${createFieldModeOption('tl')}
+                ${createFieldModeOption('tx', 'tx*')}
+              </div>
             </div>
           </fieldset>
         `, {

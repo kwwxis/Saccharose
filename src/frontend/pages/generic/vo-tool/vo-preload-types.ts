@@ -4,6 +4,8 @@ import { CommonVoiceOver } from '../../../../shared/types/common-types.ts';
 import { SbOut } from '../../../../shared/util/stringUtil.ts';
 import { getOutputLanguage } from '../../../core/userPreferences/siteLanguage.ts';
 
+export const VO_PROP_PAD: number = 20;
+
 export type PropFillMode = 'fill' | 'remove' | 'empty';
 
 export type VoAppPreloadOptions = {

@@ -12,6 +12,7 @@ import { isEmpty, isset } from '../../../../shared/util/genericUtil.ts';
 import { constrainNumber, isInt, toInt } from '../../../../shared/util/numberUtil.ts';
 import { uuidv4 } from '../../../../shared/util/uuidv4.ts';
 import { VoAppConfig } from './vo-tool.ts';
+import { VO_PROP_PAD } from './vo-preload-types.ts';
 
 interface VoParamKey {
   groupKey: string;
@@ -252,6 +253,7 @@ export class VoItem {
       let thisNode = paramNodes[i];
       let isLastNode = i === paramNodes.length - 1;
 
+      thisNode.reformatKeyWithPropPad(VO_PROP_PAD);
       thisNode.beforeValueWhitespace = new MwTextNode(' ');
       thisNode.afterValueWhitespace = new MwTextNode('\n');
 
@@ -607,6 +609,11 @@ export class VoHandle {
     }
     for (let group of this.groups) {
       group.recalculate();
+    }
+    for (let param of this.templateNode.params) {
+      if (typeof param.key === 'string' && !param.key.startsWith('vo')) {
+        param.reformatKeyWithPropPad(VO_PROP_PAD);
+      }
     }
   }
 

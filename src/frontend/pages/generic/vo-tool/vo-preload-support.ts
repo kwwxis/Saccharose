@@ -6,7 +6,7 @@ import {
   VoAppPreloadConfig,
   VoAppPreloadInput,
   VoAppPreloadOptions,
-  VoAppPreloadResult, VoAppPreloadStoryContext,
+  VoAppPreloadResult, VoAppPreloadStoryContext, VO_PROP_PAD,
 } from './vo-preload-types.ts';
 
 // region Main Function
@@ -175,7 +175,7 @@ function processCombatVO(out: SbOut, input: VoAppPreloadInput, conf: VoAppPreloa
 // --------------------------------------------------------------------------------------------------------------
 function createSbOutForVoPreload(opts: VoAppPreloadOptions): SbOut {
   const out = new SbOut();
-  out.setPropPad(20);
+  out.setPropPad(VO_PROP_PAD);
   out.setPropFilter((propName: string, propValue: string) => {
     let mode: PropFillMode = Object.entries(opts.paramFill || {}).find(([key, _value]) => {
       return new RegExp('^' + key + '$').test(propName);
