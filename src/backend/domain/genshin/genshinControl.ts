@@ -697,7 +697,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return dialog;
   }
 
-  // You must set NextDialogs on the returned DialogExcel at some point!
+  // Must set NextDialogs on the returned DialogExcel at some point!
   private async makeFakeDialog(id: number|string, addon: Partial<DialogExcelConfigData>): Promise<DialogExcelConfigData> {
     if (typeof id === 'string') {
       // Simple hash to number:
@@ -709,10 +709,13 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       if (hash < 0) {
         hash = parseInt('1'+String(hash).slice(1));
       }
+      id = hash;
     }
+
     // Pad 9's up to 15 digits to not clash with any existing Dialogue IDs...
     // Using 15 digits because the MAX_SAFE_INTEGER has 16 digits
     id = parseInt(String(id).padStart(15, '9'));
+
     return await this.postProcessDialog(Object.assign({
       Id: id,
       NextDialogs: null,
