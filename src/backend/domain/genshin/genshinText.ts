@@ -64,7 +64,7 @@ function __travelerPlaceholder(langCode: LangCode = 'EN', degender: boolean = fa
     case 'DE':
       return degender ? '(Reisender)' : '(Reisender/Reisende)';
     case 'EN':
-      return '(Traveler)';
+      return '{{Traveler}}';
     case 'ES':
       return degender ? '(Viajero)' : '(Viajero/Viajera)';
     case 'FR':
@@ -152,7 +152,7 @@ export function __normGenshinText(text: string, langCode: LangCode, opts: NormTe
     text = text.replace(/<color=(#[0-9a-fA-F]{6})(?:FF)?>(.*?)<\/color>/g, '{{Color|$1|$2}}');
   }
 
-  text = text.replace(/\{REALNAME\[ID\(1\)(\|HOSTONLY\(true\))?(\|DELAYHANDLE\((true|false)\))?]}/g, '(Wanderer)');
+  text = text.replace(/\{REALNAME\[ID\(1\)(\|HOSTONLY\(true\))?(\|DELAYHANDLE\((true|false)\))?]}/g, '{{Wanderer}}');
 
   if (!opts.plaintext) {
     text = text.replace(/\{SPRITE_PRESET#(\d+)}/g, (_fm: string, g1: string) => {

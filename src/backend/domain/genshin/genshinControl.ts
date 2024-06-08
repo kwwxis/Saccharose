@@ -709,14 +709,15 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       if (hash < 0) {
         hash = parseInt('1'+String(hash).slice(1));
       }
-      id = parseInt('999'+String(hash)); // add extra digits just in case to make sure it doesn't clash with real dialog IDs
     }
+    // Pad 9's up to 15 digits to not clash with any existing Dialogue IDs...
+    // Using 15 digits because the MAX_SAFE_INTEGER has 16 digits
+    id = parseInt(String(id).padStart(15, '9'));
     return await this.postProcessDialog(Object.assign({
       Id: id,
       NextDialogs: null,
       TalkRole: {
-        Type: 'TALK_ROLE_WIKI_CUSTOM',
-        Id: id
+        Type: 'TALK_ROLE_WIKI_CUSTOM'
       }
     }, addon));
   }

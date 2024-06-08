@@ -41,7 +41,7 @@ function __proxyPlaceholder(langCode: LangCode = 'EN', _degender: boolean = fals
     case 'VI':
       return '(Proxy)';
   }
-  return '(Traveler)';
+  return '(Proxy)';
 }
 
 /**

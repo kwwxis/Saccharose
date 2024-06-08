@@ -68,7 +68,9 @@ export function __normWuwaText(text: string, langCode: LangCode, opts: NormTextO
     text = text.replace(/<color=#\{0}>(.*?)<\/color>/g, `<b>$1</b>`);
     text = postProcessBoldItalic(text, opts);
 
-    // text = text.replace(/<color=highlight>(.*?)<\/color>/gi, '{{Color|buzzword|$1|nobold=1}}');
+    text = text.replace(/<color=title>(.*?)<\/color>/gi, '{{Color|menu|$1|nobold=1}}');
+    text = text.replace(/<color=highlight>(.*?)<\/color>/gi, '{{Color|help|$1|nobold=1}}');
+
     text = text.replace(/<color=wind>(.*?)<\/color>/gi, '{{Color|Aero|$1|nobold=1}}');
     text = text.replace(/<color=light>(.*?)<\/color>/gi, '{{Color|Spectro|$1|nobold=1}}');
     text = text.replace(/<color=fire>(.*?)<\/color>/gi, '{{Color|Fusion|$1|nobold=1}}');

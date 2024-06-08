@@ -44,7 +44,7 @@ function __trailblazerPlaceholder(langCode: LangCode = 'EN', degender: boolean =
     case 'VI':
       return '(Nhà Khai Phá)';
   }
-  return '(Traveler)';
+  return '(Trailblazer)';
 }
 
 /**
