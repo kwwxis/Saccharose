@@ -9,17 +9,17 @@ import {
 } from '../../../core/endpoints.ts';
 import SiteMode from '../../../core/userPreferences/siteMode.ts';
 
-pageMatch('pages/generic/basic/id-usages', () => {
+pageMatch('pages/generic/basic/excel-usages', () => {
   let endpoint: SaccharoseApiEndpoint<any>;
 
   if (SiteMode.isGenshin) {
-    endpoint = genshinEndpoints.getIdUsages;
+    endpoint = genshinEndpoints.getExcelUsages;
   } else if (SiteMode.isStarRail) {
-    endpoint = starRailEndpoints.getIdUsages;
+    endpoint = starRailEndpoints.getExcelUsages;
   } else if (SiteMode.isZenless) {
-    endpoint = zenlessEndpoints.getIdUsages;
+    endpoint = zenlessEndpoints.getExcelUsages;
   } else if (SiteMode.isWuwa) {
-    endpoint = wuwaEndpoints.getIdUsages;
+    endpoint = wuwaEndpoints.getExcelUsages;
   }
 
   startGenericSearchPageListeners({

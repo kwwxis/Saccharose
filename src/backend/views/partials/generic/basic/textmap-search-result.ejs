@@ -28,20 +28,23 @@
         <a role="button" class="secondary small fontWeight500 spacer5-right" href="<%= siteHome %>/OL?q=<%= item.hash %>" target="_blank">
           <span class="spacer5-right">OL Result</span><%- icon('external-link') %>
         </a>
-        <button class="id-usages-trigger secondary small fontWeight500 expand-action collapsed-state" data-hash="<%= item.hash %>" data-result-target="id-usages-<%= itemId %>" ui-tippy-hover="Load usages">
+        <button class="excel-usages-trigger secondary small fontWeight500 expand-action collapsed-state"
+                data-hash="<%= item.hash %>"
+                data-result-target="excel-usages-<%= itemId %>" ui-tippy-hover="Load usages">
           <span class="spacer3-right">Usages</span>
-          <span class="id-usages-trigger-icon collapsed-only valign"><%- icon('chevrons-down') %></span>
-          <span class="id-usages-trigger-icon expanded-only valign"><%- icon('chevrons-up') %></span>
-          <span class="id-usages-loading-icon valign justifyCenter hide" style="width:13.75px">
+          <span class="excel-usages-trigger-icon collapsed-only valign"><%- icon('chevrons-down') %></span>
+          <span class="excel-usages-trigger-icon expanded-only valign"><%- icon('chevrons-up') %></span>
+          <span class="excel-usages-loading-icon valign justifyCenter hide" style="width:13.75px">
             <span class="loading small"></span>
           </span>
         </button>
       </h2>
-      <div class="dialogue-section content" style="padding:7px">
+      <div class="dialogue-section content" style="margin:0;padding: 7px 7px 2px;">
         <textarea id="wikitext-<%= itemId %>" data-markers="<%= Marker.joining(item.markers) %>"
                   readonly class="w100p wikitext autosize spacer0-all" spellcheck="false" translate="no"><%= item.text %></textarea>
-        <div id="id-usages-<%= itemId %>" class="id-usages-result collapsed hide"></div>
       </div>
+      <div id="excel-usages-<%= itemId %>" class="excel-usages-result collapsed hide" style="margin-top:-5px"></div>
+      <div style="height:6px"></div>
     </section>
   <% }) %>
   <% if (hasMoreResults) { %>

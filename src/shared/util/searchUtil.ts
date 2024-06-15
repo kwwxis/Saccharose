@@ -2,14 +2,14 @@ import { escapeRegExp } from './stringUtil.ts';
 import { walkObject } from './arrayUtil.ts';
 import { Marker } from './highlightMarker.ts';
 
-export type IdUsages = { [fileName: string]: IdUsagesItem[] };
-export type IdUsagesItem = {
+export type ExcelUsages = { [fileName: string]: ExcelUsagesItem[] };
+export type ExcelUsagesItem = {
   field: string,
   originalField: string,
-  lineNumber: number,
-  refObject?: any,
-  refObjectStringified?: string,
-  refObjectMarkers?: Marker[],
+  refIndex: number,
+  refObject: any,
+  refObjectStringified: string,
+  refObjectMarkers: Marker[],
 };
 export type SearchMode = 'W' | 'WI' | 'C' | 'CI' | 'R' | 'RI';
 export const SEARCH_MODES: SearchMode[] = ['W', 'WI', 'C', 'CI', 'R', 'RI'];

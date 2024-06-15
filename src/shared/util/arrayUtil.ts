@@ -134,7 +134,7 @@ export function walkObject(o: any, processor: (curr: PathAndValue) => 'NO-DESCEN
  *       <li>If the interceptor was passed a leaf field, then there's nothing to walk down anyway, so there'll be no effect.
  *     </ul>
  *   </li>
- *   <li>Returning <strong><code>'CONTINUE'</code></strong> or returning nothing: no effect</li>
+ *   <li>Returning <strong><code>'CONTINUE'</code></strong> or returning <strong>nothing</strong>: no effect</li>
  *   <li>Returning <strong><code>'QUIT'</code></strong>: stops walking down the object, stopping the generator.</li>
  *   <li>Returning <strong><code>'DELETE'</code></strong>: Delete the field on the object being walked (in-place) and if the field was a branch, then it'll no longer being walked down.
  *      <p>This action is equivalent to this code:</p>

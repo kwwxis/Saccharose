@@ -1,5 +1,5 @@
 import { isInt, maybeInt, toInt } from '../../../../shared/util/numberUtil.ts';
-import { IdUsages } from '../../../../shared/util/searchUtil.ts';
+import { ExcelUsages } from '../../../../shared/util/searchUtil.ts';
 import { AbstractControl } from '../../../domain/generic/abstractControl.ts';
 import { add_ol_markers, ol_gen, OLResult } from '../../../domain/generic/basic/OLgen.ts';
 import { isset, toBoolean } from '../../../../shared/util/genericUtil.ts';
@@ -98,18 +98,18 @@ export async function handleOlEndpoint(ctrl: AbstractControl, req: Request, res:
   }
 }
 
-export async function handleIdUsagesEndpoint(ctrl: AbstractControl, req: Request, res: Response) {
+export async function handleExcelUsagesEndpoint(ctrl: AbstractControl, req: Request, res: Response) {
   const ids: (number|string)[] = String(req.query.q).split(/,/g).map(s => s.trim()).filter(s => /^-?[a-zA-Z0-9_]+$/.test(s)).map(maybeInt);
-  const idToUsages: {[id: number|string]: IdUsages} = {};
+  const idToUsages: {[id: number|string]: ExcelUsages} = {};
 
   await ids.asyncMap(async id => {
-    await ctrl.getIdUsages(id).then(usages => {
+    await ctrl.getExcelUsages(id).then(usages => {
       idToUsages[id] = usages;
     });
   });
 
   if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
-    return res.render('partials/generic/basic/id-usages-result', { idToUsages, v2: toBoolean(req.query.v2) });
+    return res.render('partials/generic/basic/excel-usages-result', { idToUsages, v2: toBoolean(req.query.v2) });
   } else {
     return idToUsages;
   }

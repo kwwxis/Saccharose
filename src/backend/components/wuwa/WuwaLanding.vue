@@ -17,7 +17,7 @@
       <ul>
         <li><strong>2024-06-01:</strong> Added "Media" pages</li>
         <li><strong>2024-06-01:</strong> Added "Excel Viewer" tool</li>
-        <li><strong>2024-06-01:</strong> Added "Identifier Usages" tool</li>
+        <li><strong>2024-06-01:</strong> Added "Excel Usages" tool</li>
         <li><strong>2024-06-01:</strong> Added "TextMap Search" tool</li>
         <li><strong>2024-06-01:</strong> Added "Other Languages Generator" tool</li>
       </ul>

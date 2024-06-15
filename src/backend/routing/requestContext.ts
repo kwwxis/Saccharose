@@ -406,7 +406,7 @@ export class RequestContext {
                 id: 'excel-data',
                 name: 'Excel Data',
                 items: [
-                  { id: 'excel-usages', name: 'Identifier Usages', link: '/id-usages', bodyClass: 'page--id-usages' },
+                  { id: 'excel-usages', name: 'Excel Usages', link: '/excel-usages', bodyClass: 'page--excel-usages' },
                   { id: 'excel-viewer', name: 'Excel Viewer', link: '/excel-viewer', bodyClass: 'page--excel-viewer' },
                 ]
               },
@@ -569,7 +569,7 @@ export class RequestContext {
                 id: 'excel-data',
                 name: 'Excel Data',
                 items: [
-                  { id: 'excel-usages', name: 'Identifier Usages', link: '/hsr/id-usages', bodyClass: 'page--id-usages' },
+                  { id: 'excel-usages', name: 'Excel Usages', link: '/hsr/excel-usages', bodyClass: 'page--excel-usages' },
                   { id: 'excel-viewer', name: 'Excel Viewer', link: '/hsr/excel-viewer', bodyClass: 'page--excel-viewer' },
                 ]
               },
@@ -614,7 +614,7 @@ export class RequestContext {
                 items: [
                   { id: 'textmap-search', name: 'Textmap Search', link: '/zenless/textmap',  bodyClass: 'page--textmap' },
                   { id: 'ol-generator', name: 'OL Generator', link: '/zenless/OL', bodyClass: 'page--OL' },
-                  { id: 'excel-usages', name: 'Identifier Usages', link: '/zenless/id-usages', bodyClass: 'page--id-usages' },
+                  { id: 'excel-usages', name: 'Excel Usages', link: '/zenless/excel-usages', bodyClass: 'page--excel-usages' },
                 ]
               }
             ]
@@ -650,7 +650,7 @@ export class RequestContext {
                 id: 'excel-data',
                 name: 'Excel Data',
                 items: [
-                  { id: 'excel-usages', name: 'Identifier Usages', link: '/wuwa/id-usages', bodyClass: 'page--id-usages' },
+                  { id: 'excel-usages', name: 'Excel Usages', link: '/wuwa/excel-usages', bodyClass: 'page--excel-usages' },
                   { id: 'excel-viewer', name: 'Excel Viewer', link: '/wuwa/excel-viewer', bodyClass: 'page--excel-viewer' },
                 ]
               },

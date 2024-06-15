@@ -1,5 +1,5 @@
 import { Knex } from 'knex';
-import { IdUsages, IdUsagesItem, SearchMode } from '../../../shared/util/searchUtil.ts';
+import { ExcelUsages, ExcelUsagesItem, SearchMode } from '../../../shared/util/searchUtil.ts';
 import { openPg, openSqlite, SaccharoseDb } from '../../util/db.ts';
 import {
   CLD2_TO_LANG_CODE,
@@ -22,12 +22,12 @@ import {
 import fs, { promises as fsp } from 'fs';
 import { getPlainTextMapRelPath, getTextIndexRelPath } from '../../loadenv.ts';
 import path, { basename } from 'path';
-import { escapeRegExp, isString, isStringBlank, titleCase } from '../../../shared/util/stringUtil.ts';
+import { escapeRegExp, isStringBlank, titleCase } from '../../../shared/util/stringUtil.ts';
 import { isInt, maybeInt, toInt } from '../../../shared/util/numberUtil.ts';
 import { getLineNumberForLineText, grep, grepStream, langDetect, ShellFlags } from '../../util/shellutil.ts';
 import { NormTextOptions } from './genericNormalizers.ts';
 import { ExtractScalar } from '../../../shared/types/utility-types.ts';
-import { ArrayStream, cleanEmpty } from '../../../shared/util/arrayUtil.ts';
+import { ArrayStream, cleanEmpty, walkObject } from '../../../shared/util/arrayUtil.ts';
 import { Request } from 'express';
 import { defaultMap, isUnset } from '../../../shared/util/genericUtil.ts';
 import { Marker } from '../../../shared/util/highlightMarker.ts';
@@ -493,107 +493,83 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
 
   // endregion
 
-  // region ID Usages
-  async getIdUsages(id: number | string): Promise<IdUsages> {
-    let out: IdUsages = {};
+  // region Excel Usages
+  async getExcelUsages(id: number | string): Promise<ExcelUsages> {
+    const out: ExcelUsages = defaultMap('Array');
 
-    let decimalRegex = new RegExp(`(\\.${id}|${id}\\.)`);
-    let fieldRegex = new RegExp(`(\\s*)"([^"]+)":\\s*["\\[]?`);
+    const filesFoundIn: {[fileName: string]: number} = defaultMap('Zero');
 
-    let grepQuery = String(id);
-    let grepFlags: string;
+    {
+      const decimalRegex = new RegExp(`(\\.${id}|${id}\\.)`);
 
-    if (grepQuery.startsWith('-')) {
-      grepQuery = grepQuery.slice(1);
-    }
+      let grepQuery = String(id);
+      let grepFlags: string;
 
-    if (/^[a-zA-Z0-9_]+$/.test(grepQuery)) {
-      grepFlags = '-wrn';
-    } else {
-      grepFlags = '-rn';
-    }
-
-    const unresolvedRefs: { [fileName: string]: Set<IdUsagesItem> } = defaultMap('Set');
-
-    await grepStream(grepQuery, this.getDataFilePath(this.excelPath), async (result) => {
-      if (decimalRegex.test(result)) {
-        return;
+      if (grepQuery.startsWith('-')) {
+        grepQuery = grepQuery.slice(1);
       }
 
-      let exec = /\/([^\/]+).json:(\d+)/.exec(result);
-      if (exec && exec.length >= 3) {
-        let fileName = exec[1];
-        let lineNum = parseInt(exec[2]);
-        if (!out[fileName]) {
-          out[fileName] = [];
-        }
+      if (/^[a-zA-Z0-9_]+$/.test(grepQuery)) {
+        grepFlags = '-wrn';
+      } else {
+        grepFlags = '-rn';
+      }
 
-        let fieldExec = fieldRegex.exec(result);
-        let fieldWhitespace = fieldExec && fieldExec[1];
-        let fieldName = fieldExec && fieldExec[2]; // doesn't include file extension
-        let refObject: any = undefined;
-
-        if (!fieldName) {
+      await grepStream(grepQuery, this.getDataFilePath(this.excelPath), async (result) => {
+        if (decimalRegex.test(result)) {
           return;
         }
 
-        if (fieldName && this.schema[fileName]) {
-          let table: SchemaTable = this.schema[fileName];
-          let normFieldName = normalizeRawJsonKey(fieldName, table);
-          for (let column of table.columns) {
-            if (column.name === normFieldName && (column.isPrimary || column.isIndex)) {
-              refObject = await this.knex.select('*').from(table.name)
-                .where({ [column.name]: id }).first().then(this.commonLoadFirst);
-            }
-          }
+        let exec = /\/([^\/]+).json:(\d+)/.exec(result);
+        if (exec && exec.length >= 3) {
+          let fileName = exec[1];
+          filesFoundIn[fileName] += 1;
         }
-
-        const outObj: IdUsagesItem = {
-          lineNumber: lineNum,
-          field: normalizeRawJsonKey(fieldName),
-          originalField: fieldName,
-          refObject: refObject,
-        };
-
-        out[fileName].push(outObj);
-
-        // Check fieldWhitespace for only top-level field matches (4 spaces or fewer)
-        if (!outObj.refObject && fieldWhitespace && fieldWhitespace.length <= 4) {
-          unresolvedRefs[fileName].add(outObj);
-        }
-      }
-    }, grepFlags);
-
-    if (Object.keys(unresolvedRefs).length) {
-      for (let fileName of Object.keys(unresolvedRefs)) {
-        let json: any[] = await this.readJsonFile(path.join(this.excelPath, fileName + '.json'));
-        let resolvedCount = 0;
-        for (let obj of json) {
-          for (let usageItem of unresolvedRefs[fileName]) {
-            if (obj[usageItem.originalField] === id
-              || (isString(obj[usageItem.originalField])
-                && obj[usageItem.originalField].startsWith('ART/') && obj[usageItem.originalField].endsWith(`/${id}`)
-              )) {
-              usageItem.refObject = await this.commonLoadFirst(obj, true);
-              resolvedCount++;
-              unresolvedRefs[fileName].delete(usageItem);
-              break;
-            }
-          }
-          if (resolvedCount === unresolvedRefs[fileName].size) {
-            break;
-          }
-        }
-      }
+      }, grepFlags);
     }
 
-    for (let items of Object.values(out)) {
-      for (let item of items) {
-        if (item.refObject) {
-          item.refObjectStringified = JSON.stringify(item.refObject, null, 2);
-          item.refObjectMarkers = Marker.create(new RegExp('\\b' + escapeRegExp(grepQuery) + '\\b', 'g'), item.refObjectStringified);
+    for (let fileName of Object.keys(filesFoundIn)) {
+      let json: any[] = await cached(this.dbName + '_ExcelUsagesFileRead_' + fileName, async () => {
+        return await this.readJsonFile(path.join(this.excelPath, fileName + '.json'));
+      });
+
+      const schemaTable: SchemaTable = this.schema[fileName];
+      const promises: Promise<void>[] = [];
+
+      const expectedNumResults = filesFoundIn[fileName];
+      let currRefIndex: number = -1;
+      let currNumResults: number = 0;
+
+      for (let obj of json) {
+        let myRefIndex = currRefIndex++;
+        walkObject(obj, (curr) => {
+          if (curr.isLeaf && curr.value === id) {
+            currNumResults++;
+            promises.push((async () => {
+              const refObject: any = await this.commonLoadFirst(obj, schemaTable || true, true);
+              const refObjectStringified: string = JSON.stringify(refObject, null, 2);
+              const refObjectMarkers: Marker[] = Marker.create(
+                new RegExp((String(id).startsWith('-') ? '' : '\\b') + escapeRegExp(String(id)) + '\\b', 'g'),
+                refObjectStringified
+              );
+
+              out[fileName].push({
+                field: curr.path.split('.').map(s => normalizeRawJsonKey(s)).join('.'),
+                originalField: curr.path,
+                refIndex: myRefIndex,
+                refObject,
+                refObjectStringified,
+                refObjectMarkers,
+              });
+            })());
+            return 'QUIT';
+          }
+        });
+        if (currNumResults >= expectedNumResults) {
+          break;
         }
       }
+      await Promise.all(promises);
     }
 
     return out;

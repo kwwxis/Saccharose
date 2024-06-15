@@ -28,16 +28,16 @@ pageMatch('pages/generic/basic/textmap', () => {
     endpoint = wuwaEndpoints.searchTextMap;
   }
 
-  let idUsagesEndpoint: SaccharoseApiEndpoint<any>;
+  let excelUsagesEndpoint: SaccharoseApiEndpoint<any>;
 
   if (SiteMode.isGenshin) {
-    idUsagesEndpoint = genshinEndpoints.getIdUsages;
+    excelUsagesEndpoint = genshinEndpoints.getExcelUsages;
   } else if (SiteMode.isStarRail) {
-    idUsagesEndpoint = starRailEndpoints.getIdUsages;
+    excelUsagesEndpoint = starRailEndpoints.getExcelUsages;
   } else if (SiteMode.isZenless) {
-    idUsagesEndpoint = zenlessEndpoints.getIdUsages;
+    excelUsagesEndpoint = zenlessEndpoints.getExcelUsages;
   } else if (SiteMode.isWuwa) {
-    idUsagesEndpoint = wuwaEndpoints.getIdUsages;
+    excelUsagesEndpoint = wuwaEndpoints.getExcelUsages;
   }
 
   startGenericSearchPageListeners({
@@ -107,7 +107,7 @@ pageMatch('pages/generic/basic/textmap', () => {
 
       listen([
         {
-          selector: '.id-usages-trigger',
+          selector: '.excel-usages-trigger',
           event: 'click',
           multiple: true,
           handle(event, buttonEl) {
@@ -133,18 +133,18 @@ pageMatch('pages/generic/basic/textmap', () => {
 
             buttonEl.setAttribute('ui-tippy-hover', 'Collapse usage results');
 
-            buttonEl.querySelectorAll('.id-usages-trigger-icon').forEach(x => x.classList.add('hide'));
-            buttonEl.querySelector('.id-usages-loading-icon').classList.remove('hide');
+            buttonEl.querySelectorAll('.excel-usages-trigger-icon').forEach(x => x.classList.add('hide'));
+            buttonEl.querySelector('.excel-usages-loading-icon').classList.remove('hide');
 
-            idUsagesEndpoint.get({q: hash, v2: true}, true).then(result => {
+            excelUsagesEndpoint.get({q: hash, v2: true}, true).then(result => {
               resultEl.innerHTML = result;
 
               resultEl.querySelectorAll<HTMLTextAreaElement>('textarea.json').forEach(el => {
                 highlightReplace(el, {mode: 'ace/mode/json'});
               });
 
-              buttonEl.querySelector('.id-usages-loading-icon').classList.add('hide');
-              buttonEl.querySelectorAll('.id-usages-trigger-icon').forEach(x => x.classList.remove('hide'));
+              buttonEl.querySelector('.excel-usages-loading-icon').classList.add('hide');
+              buttonEl.querySelectorAll('.excel-usages-trigger-icon').forEach(x => x.classList.remove('hide'));
 
               setTimeout(() => {
                 buttonEl.click();

@@ -220,7 +220,7 @@ export const genshinEndpoints = {
     resultSetNum: number,
   }>('/search-textmap'),
 
-  getIdUsages: new GenshinApiEndpoint<{q: string}>('/id-usages'),
+  getExcelUsages: new GenshinApiEndpoint<{q: string}>('/excel-usages'),
 
   voToDialogue: new GenshinApiEndpoint<{text: string}>('/dialogue/vo-to-dialogue'),
 
@@ -254,7 +254,7 @@ export const starRailEndpoints = {
     resultSetNum: number,
   }>('/search-textmap'),
 
-  getIdUsages: new StarRailApiEndpoint<{q: string}>('/id-usages'),
+  getExcelUsages: new StarRailApiEndpoint<{q: string}>('/excel-usages'),
 
   getVoiceAtlasGroup: new StarRailApiEndpoint<{avatarId: number}, VoiceAtlasGroup>('/character/voice-atlas'),
 
@@ -277,7 +277,7 @@ export const zenlessEndpoints = {
     resultSetNum: number,
   }>('/search-textmap'),
 
-  getIdUsages: new ZenlessApiEndpoint<{q: string}>('/id-usages'),
+  getExcelUsages: new ZenlessApiEndpoint<{q: string}>('/excel-usages'),
 };
 
 export const wuwaEndpoints = {
@@ -295,7 +295,7 @@ export const wuwaEndpoints = {
     resultSetNum: number,
   }>('/search-textmap'),
 
-  getIdUsages: new WuwaApiEndpoint<{q: string}>('/id-usages'),
+  getExcelUsages: new WuwaApiEndpoint<{q: string}>('/excel-usages'),
 
   mediaSearch: new WuwaApiEndpoint<ImageIndexSearchParams, ImageIndexSearchResult>('/media/search'),
   mediaCategory: new WuwaApiEndpoint<{}, ImageCategoryMap>('/media/category'),

@@ -1,7 +1,7 @@
 import { create } from '../../../routing/router.ts';
 import { getGenshinControl } from '../../../domain/genshin/genshinControl.ts';
 import {
-  handleIdUsagesEndpoint,
+  handleExcelUsagesEndpoint,
   handleOlEndpoint,
   handleTextMapSearchEndpoint,
 } from '../../generic/api/abstractBasicResources.ts';
@@ -21,9 +21,9 @@ router.endpoint('/OL/generate', {
   }
 });
 
-router.endpoint('/id-usages', {
+router.endpoint('/excel-usages', {
   get: async (req: Request, res: Response) => {
-    return await handleIdUsagesEndpoint(getGenshinControl(req), req, res);
+    return await handleExcelUsagesEndpoint(getGenshinControl(req), req, res);
   }
 });
 

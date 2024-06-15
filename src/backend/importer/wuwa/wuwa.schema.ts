@@ -1,4 +1,4 @@
-import { plainLineMapSchema, textMapSchema } from '../import_db.ts';
+import { plainLineMapSchema, SchemaTable, textMapSchema } from '../import_db.ts';
 
 const hashType = 'text';
 
@@ -31,4 +31,16 @@ export const wuwaSchema = {
   PlainLineMapRU: plainLineMapSchema('RU', hashType),
   PlainLineMapTH: plainLineMapSchema('TH', hashType),
   PlainLineMapVI: plainLineMapSchema('VI', hashType),
+
+  RoleInfo: <SchemaTable> {
+    name: 'RoleInfo',
+    jsonFile: './ConfigDB/RoleInfo.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'QualityId', type: 'integer', isIndex: true},
+      {name: 'RoleType', type: 'integer', isIndex: true},
+      {name: 'WeaponType', type: 'integer', isIndex: true},
+    ]
+  },
+
 }

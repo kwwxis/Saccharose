@@ -1,6 +1,6 @@
 import { create } from '../../../routing/router.ts';
 import {
-  handleIdUsagesEndpoint,
+  handleExcelUsagesEndpoint,
   handleOlEndpoint,
   handleTextMapSearchEndpoint,
 } from '../../generic/api/abstractBasicResources.ts';
@@ -21,9 +21,9 @@ router.endpoint('/OL/generate', {
   }
 });
 
-router.endpoint('/id-usages', {
+router.endpoint('/excel-usages', {
   get: async (req: Request, res: Response) => {
-    return await handleIdUsagesEndpoint(getWuwaControl(req), req, res);
+    return await handleExcelUsagesEndpoint(getWuwaControl(req), req, res);
   }
 });
 
