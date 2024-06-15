@@ -26,6 +26,16 @@ export function enableReadonlyInterval() {
       event.preventDefault();
     });
 
+    el.addEventListener('dragenter', (event: DragEvent) => {
+      event.preventDefault();
+    });
+    el.addEventListener('dragover', (event: DragEvent) => {
+      event.preventDefault();
+    });
+    el.addEventListener('drop', (event: DragEvent) => {
+      event.preventDefault();
+    });
+
     el.addEventListener('copy', (event: ClipboardEvent) => {
       const selection = document.getSelection();
       if (selection && selection.toString().trim() === el.textContent.trim()) {
