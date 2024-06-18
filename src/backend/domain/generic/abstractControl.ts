@@ -239,9 +239,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       let fileBaseName = '/' + basename(schemaTable);
       schemaTable = Object.values(this.schema).find(s => s.jsonFile.endsWith(fileBaseName));
     }
-    if (schemaTable) {
-      json = normalizeRawJson(json, schemaTable);
-    }
+    json = normalizeRawJson(json, schemaTable);
     if (Array.isArray(json)) {
       json = await this.commonLoad(json, null, doNormText);
     } else {
