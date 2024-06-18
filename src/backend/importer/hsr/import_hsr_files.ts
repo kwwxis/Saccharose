@@ -9,6 +9,7 @@ import { getStarRailDataFilePath } from '../../loadenv.ts';
 import { closeKnex } from '../../util/db.ts';
 import { importNormalize, importPlainTextMap } from '../util/import_file_util.ts';
 import fs from 'fs';
+import { getGenshinControl } from '../../domain/genshin/genshinControl.ts';
 import { getStarRailControl, loadStarRailVoiceItems } from '../../domain/hsr/starRailControl.ts';
 import { fetchVoiceAtlases } from '../../domain/hsr/character/fetchVoiceAtlas.ts';
 import { indexStarRailImages } from './module.index-images.ts';
@@ -25,6 +26,9 @@ async function importVoiceOvers() {
 }
 
 export async function importHsrFilesCli() {
+  getGenshinControl();
+  getStarRailControl();
+
   const options_beforeDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
     {name: 'normalize', type: Boolean, description: 'Normalizes the JSON files.'},
     {name: 'plaintext', type: Boolean, description: 'Creates the PlainTextMap files.'},
