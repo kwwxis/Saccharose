@@ -408,8 +408,8 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     if (Object.keys(options).filter(k => k.startsWith('run')).length > 1) {
       console.error(chalk.red('\nThese options are mutually exclusive: --run-only, --run-includes, --run-excludes, --run-all-except, --run-all, --run-vacuum'));
       options.help = true;
-    } else if (!Object.keys(options).length) {
-      console.warn(chalk.yellow('\nMust specify one of: --run-only, --run-includes, --run-excludes, --run-all-except, --run-all, or --run-vacuum'));
+    } else if (!Object.keys(options).filter(x => x !== 'g' && x !== 'game').length) {
+      console.warn(chalk.yellow('\nMust specify one of: --run-only, --run-includes, --run-excludes, --run-all-except, --run-from, --run-all, or --run-vacuum'));
       options.help = true;
     }
 
