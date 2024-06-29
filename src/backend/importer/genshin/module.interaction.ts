@@ -13,6 +13,7 @@ import {
 } from '../../../shared/types/genshin/interaction-types.ts';
 import { reformatPrimitiveArrays } from '../util/import_file_util.ts';
 import { isEquiv } from '../../../shared/util/arrayUtil.ts';
+import { defaultMap } from '../../../shared/util/genericUtil.ts';
 
 // region Walk Sync
 // --------------------------------------------------------------------------------------------------------------
@@ -64,7 +65,7 @@ export async function loadInterActionQD(repoRoot: string) {
       outFile = path.resolve(outDir, basename);
     }
 
-    const groups = processJsonObject(basename, json);
+    const groups = gatherGroups(basename, json);
     if (!groups) {
       continue;
     }
@@ -100,15 +101,17 @@ function processInterAction(fileName: string, groupId: number, groupIndex: numbe
   return action;
 }
 
-function processJsonObject(fileName: string, json: any): InterActionGroup[] {
+function gatherGroups(fileName: string, json: any): InterActionGroup[] {
   if (!json || !Array.isArray(json.group) || !Array.isArray(json.groupId)) {
     return;
   }
 
   let groups: InterActionGroup[] = [];
+  let groupMap: {[groupId: number]: InterActionGroup} = {};
+  let groupIdToPreviousId: {[groupId: number]: Set<number>} = defaultMap('Set');
 
   for (let i = 0; i < json.group.length; i++) {
-    const groupId: any = json.groupId[i];
+    const groupId: {grpId: number, index: number, nextGrpId: number} = json.groupId[i];
     const normalActions: InterAction[] = [];
     const selectActions: InterAction[] = [];
 
@@ -128,11 +131,23 @@ function processJsonObject(fileName: string, json: any): InterActionGroup[] {
         if (actionOfSameType) {
           console.error('Found action of same type DIALOG_SELECT:', action);
         }
+        if (!Array.isArray(action.DialogIdList)) {
+          console.error('Found DIALOG_SELECT without DialogIdList:', action, ' in ' + fileName);
+        }
+        if (!Array.isArray(action.GrpIdList)) {
+          action.GrpIdList = Array(action.DialogIdList.length).fill(groupId.nextGrpId);
+        }
+        for (let grpId of action.GrpIdList) {
+          groupIdToPreviousId[grpId].add(groupId.grpId);
+        }
         selectActions.push(action);
       } else if (action.Type === 'DIALOG') {
         const actionsOfSameType = selectActions.filter(a => a.Type === action.Type);
         if (actionsOfSameType.some(a => isEquiv(a.DialogId, action.DialogId))) {
           continue; // duplicate, disregard
+        }
+        if (typeof action.DialogId !== 'number') {
+          console.error('Found DIALOG without DialogId:', action, ' in ' + fileName);
         }
         normalActions.push(action);
       } else {
@@ -148,8 +163,16 @@ function processJsonObject(fileName: string, json: any): InterActionGroup[] {
         ... normalActions,
         ... selectActions, // bring down DIALOG_SELECT action to always be last
       ],
-    }
+    };
+    groupIdToPreviousId[group.NextGroupId].add(group.GroupId);
+    groupMap[group.GroupId] = group;
     groups.push(group);
+  }
+
+  for (let [groupId, prevGroupIds] of Object.entries(groupIdToPreviousId)) {
+    if (groupMap[groupId]) {
+      groupMap[groupId].PrevGroupIds = Array.from(prevGroupIds);
+    }
   }
 
   return groups;

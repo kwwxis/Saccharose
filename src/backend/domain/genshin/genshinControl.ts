@@ -597,6 +597,24 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       talk.NpcDataList = dataList;
       talk.NpcNameList = dataList.map(x => x.NameText);
     }
+
+    // Handle InterAction overloading InitDialog:
+    if (talk.InitDialog) {
+      const iaFile = await this.loadInterActionFile(talk.InitDialog);
+
+      let curr: InterActionDialog = iaFile.findDialog(talk.InitDialog);
+      if (curr.isPresent()) {
+        while (curr.isPresent()) {
+          let prevDialogIds = curr.prev(true);
+          if (!prevDialogIds || !prevDialogIds.length) {
+            break;
+          }
+          curr = iaFile.findDialog(prevDialogIds[0]);
+        }
+        //console.log('Talk: ', talk.Id, '; InitDialog:', talk.InitDialog, '; TrueInitDialog:', curr.DialogId, '; IsSame:', talk.InitDialog === curr.DialogId);
+        talk.InitDialog = curr.DialogId;
+      }
+    }
     return talk;
   }
 
@@ -891,7 +909,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       // Fetch next nodes:
       const iaNextDialogs: InterActionNextDialogs = iaDialog.next();
       const nextNodes: DialogExcelConfigData[] = await this.selectMultipleDialogExcelConfigData(
-        iaNextDialogs.NextDialogs.length
+        iaDialog.isPresent()
           ? iaNextDialogs.NextDialogs
           : currNode.NextDialogs
       );
@@ -1316,7 +1334,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
         fileGroups = groups;
       }
     }
-    return new InterActionFile(fileGroups, fileGroups[groupIndex]?.GroupId === groupId ? fileGroups[groupIndex] : fileGroups.find(g => g.GroupId === groupId));
+    return new InterActionFile(fileName, fileGroups, fileGroups[groupIndex]?.GroupId === groupId ? fileGroups[groupIndex] : fileGroups.find(g => g.GroupId === groupId));
   }
   // endregion
 

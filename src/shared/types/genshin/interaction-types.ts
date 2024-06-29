@@ -33,6 +33,9 @@ export const InterActionSchema = <SchemaTable> {
   },
 };
 
+/**
+ * Dialogue ID -> [file name, group id, group index]
+ */
 export type InterActionD2F = {[id: number]: [string, number, number]};
 
 export type InterActionType =
@@ -271,15 +274,27 @@ export interface InterActionGroup {
   Index: number,
   GroupId: number,
   NextGroupId?: number,
+  PrevGroupIds?: number[],
   Actions: InterAction[]
 }
 
 export class InterActionFile {
+  Name: string;
+  /**
+   * All the groups in the InterAction file
+   */
   Groups: InterActionGroup[] = [];
+
+  /**
+   * Optional field for priority searching in findDialog() if there's a scenario where we assume a certain group is
+   * most likely to contain the dialog being looked for.
+   */
   Target: InterActionGroup = null;
+
   private GroupIdToGroup: {[groupId: number]: InterActionGroup} = {};
 
-  constructor(groups?: InterActionGroup[], target?: InterActionGroup) {
+  constructor(name?: string, groups?: InterActionGroup[], target?: InterActionGroup) {
+    this.Name = name || null;
     this.Groups = groups || [];
     this.Target = target || null;
     for (let group of this.Groups) {
@@ -334,6 +349,68 @@ export class InterActionDialog {
 
   isPresent(): boolean {
     return !!this.Group && !!this.Action;
+  }
+
+  isEmpty(): boolean {
+    return !this.isPresent();
+  }
+
+  prev(enforcePriorIndexCandidatesOnly: boolean = false): number[] {
+    if (this.isEmpty() || this.Group.Index === 0) {
+      return [];
+    }
+
+    // If the group has multiple actions and this action is not the last one:
+    if (this.Group.Actions.length > 1 && this.ActionIndex != (this.Group.Actions.length - 1)) {
+      for (let i = this.ActionIndex - 1; i >= 0; i--) {
+        let action = this.Group.Actions[i];
+        if (action.Type === 'DIALOG') {
+          return [action.DialogId];
+        }
+      }
+    }
+
+    let dialogIds: number[] = [];
+
+    let paths: InterActionGroup[] = [this.Group];
+    while (paths.length) {
+      let group = paths.shift();
+
+      if (!group.PrevGroupIds || !group.PrevGroupIds.length) {
+        continue;
+      }
+
+      let prevGroups: InterActionGroup[] = group.PrevGroupIds.map(id => this.File.findGroup(id));
+
+      for (let prevGroup of prevGroups) {
+        if (enforcePriorIndexCandidatesOnly && prevGroup.Index > group.Index) {
+          // The previous group should generally have a lesser index.
+          // If not, then it's likely recursive dialogue.
+          continue;
+        }
+
+        let pathEnd: boolean = false;
+        for (let i = prevGroup.Actions.length - 1; i >= 0; i--) {
+          let action = prevGroup.Actions[i];
+
+          if (action.Type === 'DIALOG') {
+            pathEnd = true;
+            dialogIds.push(action.DialogId);
+          } else if (action.Type === 'DIALOG_SELECT') {
+            pathEnd = true;
+            let i = action.GrpIdList.indexOf(group.GroupId);
+            dialogIds.push(action.DialogIdList[i]);
+          }
+          if (pathEnd) {
+            break;
+          }
+        }
+        if (!pathEnd) {
+          paths.push(prevGroup);
+        }
+      }
+    }
+    return dialogIds;
   }
 
   next(): InterActionNextDialogs {

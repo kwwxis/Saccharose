@@ -1,6 +1,7 @@
 import { pathToFileURL } from 'url';
 import fs from 'fs';
 import path from 'path';
+import { getGenshinControl } from '../genshinControl.ts';
 
 function* walkSync(dir: string): Generator<string> {
   const files = fs.readdirSync(dir, { withFileTypes: true });
@@ -14,14 +15,16 @@ function* walkSync(dir: string): Generator<string> {
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
-
-  for (let f of walkSync('C:\\Shared\\HoyoStudioZZZ\\Output\\Sprite_ZZZ')) {
-    let fbn = path.basename(f);
-
-    if (fs.existsSync('C:/Shared/HoyoStudioZZZ/Output/Texture2D_ZZZ/' + fbn)) {
-      fs.copyFileSync('C:/Shared/HoyoStudioZZZ/Output/Texture2D_ZZZ/' + fbn, 'C:/Shared/HoyoStudioZZZ/Output/Texture2D_ZZZ_Filtered/' + fbn);
-    }
-  }
+  const ctrl = getGenshinControl();
 
 
+  // const file = await ctrl.loadInterActionFile(705210129);
+  // console.log(file.Name);
+  //
+  // console.log(file.findDialog(705210129).prev());
+  // console.log(file.findDialog(705210126).prev());
+  // console.log(file.findDialog(705210128).prev());
+
+  const file = await ctrl.loadInterActionFile(120320101);
+  console.log(file.findDialog(120320101).prev());
 }
