@@ -207,32 +207,32 @@ export class StarRailVoAppPreloadConfig extends VoAppPreloadConfig {
 
   override getCombatGroupCodes(input: VoAppPreloadInput): Map<string, VoAppPreloadCombatGroupCodeConf> {
     const combatGroupCodes = new Map<string, VoAppPreloadCombatGroupCodeConf>();
-    combatGroupCodes.set('b-begin-w', { groupTitle: 'Battle Begin', animEvtFileMatch: null });
-    combatGroupCodes.set('b-begin-d', { groupTitle: 'Battle Begin', animEvtFileMatch: null });
+    combatGroupCodes.set('b-begin-w', { groupTitle: 'Battle Begin: Weakeness', animEvtFileMatch: null });
+    combatGroupCodes.set('b-begin-d', { groupTitle: 'Battle Begin: Danger', animEvtFileMatch: null });
 
-    combatGroupCodes.set('t-begin', { groupTitle: 'Turn', animEvtFileMatch: null });
-    combatGroupCodes.set('t-idle', { groupTitle: 'Turn', animEvtFileMatch: null });
+    combatGroupCodes.set('t-begin', { groupTitle: 'Turn Begin', animEvtFileMatch: null });
+    combatGroupCodes.set('t-idle', { groupTitle: 'Turn Idle', animEvtFileMatch: null });
 
-    combatGroupCodes.set('skill', { groupTitle: 'Traces', animEvtFileMatch: null });
-    combatGroupCodes.set('basic_atk', { groupTitle: 'Traces', animEvtFileMatch: null });
-    combatGroupCodes.set('talent', { groupTitle: 'Traces', animEvtFileMatch: null });
-    combatGroupCodes.set('ulti-activate', { groupTitle: 'Traces', animEvtFileMatch: null });
-    combatGroupCodes.set('ulti-unleash', { groupTitle: 'Traces', animEvtFileMatch: null });
-    combatGroupCodes.set('technique', { groupTitle: 'Traces', animEvtFileMatch: null });
+    combatGroupCodes.set('skill', { groupTitle: 'Skill', animEvtFileMatch: null });
+    combatGroupCodes.set('basic_atk', { groupTitle: 'Basic Attack', animEvtFileMatch: null });
+    combatGroupCodes.set('talent', { groupTitle: 'Talent', animEvtFileMatch: null });
+    combatGroupCodes.set('ulti-activate', { groupTitle: 'Ultimate Activate', animEvtFileMatch: null });
+    combatGroupCodes.set('ulti-unleash', { groupTitle: 'Ultimate Unleash', animEvtFileMatch: null });
+    combatGroupCodes.set('technique', { groupTitle: 'Technique', animEvtFileMatch: null });
 
-    combatGroupCodes.set('hit-light', { groupTitle: 'Hit', animEvtFileMatch: null });
-    combatGroupCodes.set('hit-heavy', { groupTitle: 'Hit', animEvtFileMatch: null });
+    combatGroupCodes.set('hit-light', { groupTitle: 'Hit Light', animEvtFileMatch: null });
+    combatGroupCodes.set('hit-heavy', { groupTitle: 'Hit Heavy', animEvtFileMatch: null });
 
-    combatGroupCodes.set('downed', { groupTitle: 'Healing', animEvtFileMatch: null });
-    combatGroupCodes.set('revived', { groupTitle: 'Healing', animEvtFileMatch: null });
-    combatGroupCodes.set('heal', { groupTitle: 'Healing', animEvtFileMatch: null });
+    combatGroupCodes.set('downed', { groupTitle: 'Downed', animEvtFileMatch: null });
+    combatGroupCodes.set('revived', { groupTitle: 'Revived', animEvtFileMatch: null });
+    combatGroupCodes.set('heal', { groupTitle: 'Heal', animEvtFileMatch: null });
 
-    combatGroupCodes.set('win', { groupTitle: 'Other', animEvtFileMatch: null });
-    combatGroupCodes.set('treasure', { groupTitle: 'Other', animEvtFileMatch: null });
-    combatGroupCodes.set('precious', { groupTitle: 'Other', animEvtFileMatch: null });
-    combatGroupCodes.set('puzzle', { groupTitle: 'Other', animEvtFileMatch: null });
-    combatGroupCodes.set('enemy-found', { groupTitle: 'Other', animEvtFileMatch: null });
-    combatGroupCodes.set('town', { groupTitle: 'Other', animEvtFileMatch: null });
+    combatGroupCodes.set('win', { groupTitle: 'Battle Won', animEvtFileMatch: null });
+    combatGroupCodes.set('treasure', { groupTitle: 'Treasure Opening', animEvtFileMatch: null });
+    combatGroupCodes.set('precious', { groupTitle: 'Precious Treasure Opening', animEvtFileMatch: null });
+    combatGroupCodes.set('puzzle', { groupTitle: 'Puzzle Solving', animEvtFileMatch: null });
+    combatGroupCodes.set('enemy-found', { groupTitle: 'Enemy Found', animEvtFileMatch: null });
+    combatGroupCodes.set('town', { groupTitle: 'Returning to Town', animEvtFileMatch: null });
 
     return combatGroupCodes;
   }

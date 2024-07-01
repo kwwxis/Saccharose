@@ -117,7 +117,7 @@ export class WuwaVoAppPreloadConfig extends VoAppPreloadConfig {
       return 'Birthday';
     } else if (titleEN.startsWith('idle:')) {
       return 'Idles';
-    } else if (titleEN.startsWith('self-introduction') || titleEN.startsWith('greetings')) {
+    } else if (titleEN.startsWith('self-introduction') || titleEN.startsWith('greeting')) {
       return 'Greetings';
     } else if (titleEN.startsWith('join team')) {
       return 'Join Team';
@@ -222,7 +222,7 @@ export class WuwaVoAppPreloadConfig extends VoAppPreloadConfig {
     combatGroupCodes.set('enhancedresskill', { groupTitle: 'Enhanced Resonance Skill', animEvtFileMatch: null });
     combatGroupCodes.set('forte', { groupTitle: 'Forte', animEvtFileMatch: null });
     combatGroupCodes.set('resliberation', { groupTitle: 'Resonance Liberation', animEvtFileMatch: null });
-    combatGroupCodes.set('liberationintrooutro', { groupTitle: 'Resonance Liberation', animEvtFileMatch: null });
+    combatGroupCodes.set('liberationintrooutro', { groupTitle: 'Liberation Intro & Outro', animEvtFileMatch: null });
     combatGroupCodes.set('enhancedresliberation', { groupTitle: 'Enhanced Resonance Liberation', animEvtFileMatch: null });
     combatGroupCodes.set('stratparry', { groupTitle: 'Strategic Parry', animEvtFileMatch: null });
     combatGroupCodes.set('counter', { groupTitle: 'Counterattack', animEvtFileMatch: null });
@@ -232,18 +232,18 @@ export class WuwaVoAppPreloadConfig extends VoAppPreloadConfig {
     combatGroupCodes.set('injured', { groupTitle: 'Injured', animEvtFileMatch: null });
     combatGroupCodes.set('fallen', { groupTitle: 'Fallen', animEvtFileMatch: null });
 
-    combatGroupCodes.set('esummon', { groupTitle: 'Echo', animEvtFileMatch: null });
-    combatGroupCodes.set('etransform', { groupTitle: 'Echo', animEvtFileMatch: null });
+    combatGroupCodes.set('esummon', { groupTitle: 'Echo Summon', animEvtFileMatch: null });
+    combatGroupCodes.set('etransform', { groupTitle: 'Echo Transform', animEvtFileMatch: null });
 
     combatGroupCodes.set('introoutro', { groupTitle: 'Concerto Skills', animEvtFileMatch: null });
     combatGroupCodes.set('enemynear', { groupTitle: 'Enemies Near', animEvtFileMatch: null });
 
-    combatGroupCodes.set('glider', { groupTitle: 'Gadget', animEvtFileMatch: null });
-    combatGroupCodes.set('grapple', { groupTitle: 'Gadget', animEvtFileMatch: null });
-    combatGroupCodes.set('sensor', { groupTitle: 'Gadget', animEvtFileMatch: null });
+    combatGroupCodes.set('glider', { groupTitle: 'Glider', animEvtFileMatch: null });
+    combatGroupCodes.set('grapple', { groupTitle: 'Grapple', animEvtFileMatch: null });
+    combatGroupCodes.set('sensor', { groupTitle: 'Sensor', animEvtFileMatch: null });
 
     combatGroupCodes.set('dash', { groupTitle: 'Dash', animEvtFileMatch: null });
-    combatGroupCodes.set('walldash', { groupTitle: 'Dash', animEvtFileMatch: null });
+    combatGroupCodes.set('walldash', { groupTitle: 'Wall Dash', animEvtFileMatch: null });
 
     combatGroupCodes.set('chest', { groupTitle: 'Chest', animEvtFileMatch: null });
 

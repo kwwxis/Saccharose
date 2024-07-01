@@ -198,6 +198,7 @@ export async function VoAppVisualEditor(state: VoAppState): Promise<void> {
       groupTitleInput.addEventListener('blur', () => {
         group.title.text = groupTitleInput.innerText;
         notifyWikitext(type);
+        group.items.forEach(item => setCombatItemHeader(item));
       });
 
       voGroupHeaderEl.append(groupTitleInput);
@@ -292,7 +293,7 @@ export async function VoAppVisualEditor(state: VoAppState): Promise<void> {
         // Item title input/display
         if (type === 'story') {
           itemTitleInput = createPlaintextContenteditable({
-            class: 'vo-group-header-title seamless-input',
+            class: 'vo-item-header-title seamless-input',
             id: group.title.uuid,
             'ui-tippy': JSON.stringify({content: `Same as "${titlePropName}" property`, delay: [500, 100]})
           });
