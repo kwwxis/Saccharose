@@ -3,6 +3,8 @@ import { AvatarExcelConfigData } from './genshin/avatar-types.ts';
 import { AvatarConfig, VoiceAtlas, VoiceAtlasGroup } from './hsr/hsr-avatar-types.ts';
 import { FetterExcelConfigData, FetterGroup } from './genshin/fetter-types.ts';
 import { toInt } from '../util/numberUtil.ts';
+import { RoleInfo } from './wuwa/role-types.ts';
+import { FavorWord, FavorWordGroup } from './wuwa/favor-types.ts';
 
 // region Common Avatar
 // --------------------------------------------------------------------------------------------------------------
@@ -10,10 +12,10 @@ export interface CommonAvatar<T = any> {
   Id: number,
 
   NameText: string,
-  NameTextMapHash: number,
+  NameTextMapHash: TextMapHash,
 
   DescText: string,
-  DescTextMapHash: number,
+  DescTextMapHash: TextMapHash,
 
   IconName: string,
   SideIconName: string,
@@ -65,6 +67,28 @@ export function toCommonAvatarFromStarRail(avatar: AvatarConfig): CommonAvatar<A
 export function toCommonAvatarsFromStarRail(avatars: AvatarConfig[]): CommonAvatar<AvatarConfig>[] {
   return avatars.map(a => toCommonAvatarFromStarRail(a));
 }
+
+export function toCommonAvatarFromWuwa(role: RoleInfo): CommonAvatar<RoleInfo> {
+  if (!role) return null;
+  return {
+    Id: role.Id,
+
+    NameText: role.NameText,
+    NameTextMapHash: role.Name,
+
+    DescText: role.IntroductionText,
+    DescTextMapHash: role.Introduction,
+
+    IconName: role.RoleHeadIconCircle,
+    SideIconName: role.RoleHeadIcon,
+    ImagePathPrefix: '/images/wuwa/',
+
+    Original: role
+  };
+}
+export function toCommonAvatarsFromWuwa(roles: RoleInfo[]): CommonAvatar<RoleInfo>[] {
+  return roles.map(a => toCommonAvatarFromWuwa(a));
+}
 // endregion
 
 // region Common Voice Item
@@ -101,6 +125,19 @@ export function toCommonVoiceOverFromStarRail(atlas: VoiceAtlas): CommonVoiceOve
 }
 export function toCommonVoiceOversFromStarRail(atlases: VoiceAtlas[]): CommonVoiceOver<VoiceAtlas>[] {
   return atlases.map(a => toCommonVoiceOverFromStarRail(a));
+}
+
+export function toCommonVoiceOverFromWuwa(favorWord: FavorWord): CommonVoiceOver<FavorWord> {
+  return {
+    VoiceFile: favorWord.Voice,
+    TitleTextMap: favorWord.TitleTextMap,
+    DescTextMap: favorWord.ContentTextMap,
+    LockedTextMap: favorWord.CondSummary.HintTextMap,
+    Original: favorWord
+  };
+}
+export function toCommonVoiceOversFromWuwa(favorWords: FavorWord[]): CommonVoiceOver<FavorWord>[] {
+  return favorWords.map(a => toCommonVoiceOverFromWuwa(a));
 }
 // endregion
 
@@ -140,6 +177,19 @@ export function toCommonVoiceOverGroupFromStarRail(atlasGroup: VoiceAtlasGroup):
     animatorEventFiles: [],
 
     original: atlasGroup
+  }
+}
+
+export function toCommonVoiceOverGroupFromWuwa(group: FavorWordGroup): CommonVoiceOverGroup<FavorWordGroup> {
+  return {
+    avatarId: group.roleId,
+    avatarName: group.roleName,
+
+    storyVoiceOvers: toCommonVoiceOversFromWuwa(group.storyFavorWords),
+    combatVoiceOvers: toCommonVoiceOversFromWuwa(group.combatFavorWords),
+    animatorEventFiles: [],
+
+    original: group
   }
 }
 // endregion

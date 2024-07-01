@@ -42,7 +42,7 @@ export async function VoAppWelcome(state: VoAppState) {
         <div class="vo-app-welcome-recent-avatar-wrapper w50p">
           <a id="vo-app-welcome-recent-avatar-${avatar.Id}"
              class="vo-app-welcome-recent-avatar secondary dispFlex textAlignLeft spacer5-all"
-             href="${SITE_MODE_HOME}/character/VO/${toParam(avatar.NameText)}/${savedAvatar.langCode}"
+             href="${SITE_MODE_HOME}${state.config.pageUrl}/${toParam(avatar.NameText)}/${savedAvatar.langCode}"
              role="button">
             <img class="icon x32" src="${SiteMode.imagePathPrefix}${avatar.IconName}.png" loading="lazy" decoding="async" />
             <div class="spacer10-left spacer5-top" style="line-height:1em">
@@ -188,7 +188,7 @@ export async function VoAppWelcome(state: VoAppState) {
             langCode: langCode,
             wikitext: wikitext
           });
-          setTimeout(() => window.location.href = SITE_MODE_HOME + '/character/VO/' + avatar.NameText + '/' + langCode);
+          setTimeout(() => window.location.href = SITE_MODE_HOME + state.config.pageUrl + '/' + avatar.NameText + '/' + langCode);
         }
 
         const avatarConflict = recentAvatarsList.find(x => x.avatarId === avatar.Id && x.langCode === langCode);

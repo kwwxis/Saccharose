@@ -18,6 +18,7 @@ import { VoHandle } from './vo-handle.ts';
 
 export interface VoAppConfig {
   fetchVoiceCollection: (avatar: CommonAvatar) => Promise<CommonVoiceOverGroup>,
+  pageUrl: string,
   mainCharacterLabel: string,
   isMainCharacter: (avatar: CommonAvatar) => boolean,
   preloadConfig: VoAppPreloadConfig,

@@ -37,6 +37,7 @@ export const DATAFILE_GENSHIN_VOICE_ITEMS = './VoiceItems.json';
 export const DATAFILE_GENSHIN_FETTERS = './VoiceOvers.json';
 export const DATAFILE_HSR_VOICE_ITEMS = './ExcelOutput/VoiceConfig.json';
 export const DATAFILE_HSR_VOICE_ATLASES = './VoiceOvers.json';
+export const DATAFILE_WUWA_ROLE_FAVOR_WORDS = './VoiceOvers.json';
 
 export const getNodeEnv = (): 'development'|'production' => <any> process.env.NODE_ENV;
 

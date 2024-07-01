@@ -92,6 +92,7 @@ export async function appInit(): Promise<Express> {
   if (isStringNotBlank(process.env.EXT_WUWA_IMAGES)) {
     logInit('Serving external Wuthering Waves images');
     app.use('/images/wuwa/Game/Aki/UI', createStaticImagesHandler(process.env.EXT_WUWA_IMAGES, '/images/wuwa/', 'wuwa'));
+    app.use('/images/wuwa//Game/Aki/UI', createStaticImagesHandler(process.env.EXT_WUWA_IMAGES, '/images/wuwa/', 'wuwa'));
     app.use('/images/wuwa', createStaticImagesHandler(process.env.EXT_WUWA_IMAGES, '/images/wuwa/', 'wuwa'));
   } else {
     throw 'EXT_WUWA_IMAGES is required!';

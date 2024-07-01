@@ -1,3 +1,6 @@
+import { getGenshinDataFilePath } from '../../loadenv.ts';
+import fs from 'fs';
+import { SchemaTable, textMapSchema, plainLineMapSchema, normalizeRawJson } from '../import_db.ts';
 import {
   DialogExcelConfigData,
   ReminderExcelConfigData,
@@ -13,11 +16,7 @@ import {
 } from '../../../shared/types/genshin/material-types.ts';
 import { FurnitureMakeExcelConfigData } from '../../../shared/types/genshin/homeworld-types.ts';
 import { GCGCharacterLevelExcelConfigData, GCGWeekLevelExcelConfigData } from '../../../shared/types/genshin/gcg-types.ts';
-import { SchemaTable, textMapSchema, plainLineMapSchema, normalizeRawJson } from '../import_db.ts';
-import { getGenshinDataFilePath } from '../../loadenv.ts';
-import fs from 'fs';
 import { DocumentExcelConfigData } from '../../../shared/types/genshin/readable-types.ts';
-import { GenshinControl, GenshinControlState } from '../../domain/genshin/genshinControl.ts';
 import {
   InterActionDialog,
   InterActionFile,
@@ -97,29 +96,9 @@ export const genshinSchema = {
       { name: 'DialogId', type: 'integer', isIndex: true },
       { name: 'NextId', type: 'integer', isIndex: true },
     ],
-    customRowResolve: async (row: DialogExcelConfigData, _allRows, acc: Record<string, any>) => {
-      if (!acc.ctrl) {
-        const myState = new GenshinControlState();
-        myState.NoDbConnect = true;
-        acc.ctrl = new GenshinControl(myState);
-      }
-
-      const ctrl: GenshinControl = acc.ctrl;
-      const iaFile: InterActionFile = await ctrl.loadInterActionFile(row.Id);
-      const iaDialog: InterActionDialog = iaFile.findDialog(row.Id);
-      const iaNextDialogs: InterActionNextDialogs = iaDialog.next();
-      const nextDialogs = iaNextDialogs.NextDialogs.length
-        ? iaNextDialogs.NextDialogs
-        : row.NextDialogs;
-
-      if (nextDialogs && nextDialogs.length) {
-        return nextDialogs.map(nextDialogId => ({
-          DialogId: row.Id,
-          NextId: nextDialogId,
-        }));
-      } else {
-        return [];
-      }
+    customRowResolveProvider: async () => {
+      // Cannot import GenshinControl from this file (genshin.schema.ts) which is why we're using a dynamic import.
+      return (await import('./genshin.customRowResolvers.ts')).relation_DialogToNext_resolver;
     }
   },
   ManualTextMapConfigData: <SchemaTable> {
@@ -1575,29 +1554,9 @@ export const genshinSchema = {
       { name: 'RoleId', type: 'integer', isIndex: true },
       { name: 'RoleType', type: 'string', isIndex: true },
     ],
-    customRowResolve: async (row: CookBonusExcelConfigData, _allRows: any[], acc: Record<string, any>) => {
-      if (!acc.ctrl) {
-        const myState = new GenshinControlState();
-        myState.NoDbConnect = true;
-        acc.ctrl = new GenshinControl(myState);
-      }
-      if (!acc.cookRecipes) {
-        const ctrl: GenshinControl = acc.ctrl;
-        acc.cookRecipes = (await ctrl.readJsonFile('./ExcelBinOutput/CookRecipeExcelConfigData.json')).map(r => normalizeRawJson(r));
-      }
-
-      let ret: MaterialRelation[] = [];
-
-      if (row.ParamVec) {
-        ret.push({ RelationId: row.RecipeId, RoleId: row.ParamVec[0], RoleType: 'output' });
-      }
-
-      const cookRecipe: CookRecipeExcelConfigData = (<CookRecipeExcelConfigData[]> acc.cookRecipes).find(r => r.Id === row.RecipeId);
-      for (let vecItem of cookRecipe.QualityOutputVec) {
-        ret.push({ RelationId: row.RecipeId, RoleId: vecItem.Id, RoleType: 'substitute' });
-      }
-
-      return ret;
+    customRowResolveProvider: async () => {
+      // Cannot import GenshinControl from this file (genshin.schema.ts) which is why we're using a dynamic import.
+      return (await import('./genshin.customRowResolvers')).Relation_CookBonusExcelConfigData_resolver;
     },
   },
   ForgeExcelConfigData: <SchemaTable> {

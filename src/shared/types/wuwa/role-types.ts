@@ -67,3 +67,24 @@ export interface RoleInfo {
   WeaponScale: number[],
   WeaponType: number,
 }
+
+
+export function isRover(avatar: number|RoleInfo, checkMode: 'male' | 'female' | 'either' = 'either'): boolean {
+  if (!avatar) {
+    return false;
+  }
+  if (typeof avatar !== 'number') {
+    avatar = avatar.Id;
+  }
+
+  const maleIds = [1501, 1605];
+  const femaleIds = [1502, 1604];
+
+  if (checkMode === 'either') {
+    return [... maleIds, ... femaleIds].includes(avatar);
+  } else if (checkMode === 'male') {
+    return maleIds.includes(avatar);
+  } else {
+    return femaleIds.includes(avatar);
+  }
+}

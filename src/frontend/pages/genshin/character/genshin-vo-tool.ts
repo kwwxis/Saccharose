@@ -25,6 +25,7 @@ pageMatch('pages/genshin/character/vo-tool', async () => {
       return toCommonVoiceOverGroupFromGenshin(fetterGroup);
     },
 
+    pageUrl: '/character/VO',
     mainCharacterLabel: 'Traveler',
     isMainCharacter(avatar: CommonAvatar<AvatarExcelConfigData>): boolean {
       return isTraveler(avatar.Original);

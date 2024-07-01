@@ -37,7 +37,7 @@ export async function getStarRailAvatars(ctrl: StarRailControl): Promise<AvatarC
   return cached('StarRail_AvatarListCache_' + ctrl.outputLangCode, async () => {
     return (await ctrl.selectAllAvatars())
       .map(a => jsonMask(a, avatarMaskProps))
-      .sort((a,b) => a.NameText.localeCompare(b.NameText));
+      .sort((a: AvatarConfig, b: AvatarConfig) => a.NameText.localeCompare(b.NameText));
   });
 }
 

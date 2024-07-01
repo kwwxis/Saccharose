@@ -1,6 +1,27 @@
+// Loadenv:
+import { getPlainTextMapRelPath, getTextIndexRelPath } from '../../loadenv.ts';
+
+// Third-Party:
 import { Knex } from 'knex';
-import { ExcelUsages, ExcelUsagesItem, SearchMode } from '../../../shared/util/searchUtil.ts';
+import { Request } from 'express';
+import fs, { promises as fsp } from 'fs';
+import path, { basename } from 'path';
+
+// Database:
+import {
+  normalizeRawJson,
+  normalizeRawJsonKey,
+  schemaForDbName,
+  SchemaTable,
+  SchemaTableSet,
+} from '../../importer/import_db.ts';
+
+// Backend Util:
 import { openPg, openSqlite, SaccharoseDb } from '../../util/db.ts';
+import { getLineNumberForLineText, grep, grepStream, langDetect, ShellFlags } from '../../util/shellutil.ts';
+import { cached } from '../../util/cache.ts';
+
+// Share Types:
 import {
   CLD2_TO_LANG_CODE,
   LANG_CODES,
@@ -12,28 +33,20 @@ import {
   TextMapHash,
   TextMapSearchResult,
 } from '../../../shared/types/lang-types.ts';
-import {
-  normalizeRawJson,
-  normalizeRawJsonKey,
-  schemaForDbName,
-  SchemaTable,
-  SchemaTableSet,
-} from '../../importer/import_db.ts';
-import fs, { promises as fsp } from 'fs';
-import { getPlainTextMapRelPath, getTextIndexRelPath } from '../../loadenv.ts';
-import path, { basename } from 'path';
+import { ExtractScalar } from '../../../shared/types/utility-types.ts';
+import { ImageCategoryMap, ImageIndexEntity, ImageIndexSearchResult } from '../../../shared/types/image-index-types.ts';
+
+// Shared Util:
+import { ExcelUsages, SearchMode } from '../../../shared/util/searchUtil.ts';
 import { escapeRegExp, isStringBlank, titleCase } from '../../../shared/util/stringUtil.ts';
 import { isInt, maybeInt, toInt } from '../../../shared/util/numberUtil.ts';
-import { getLineNumberForLineText, grep, grepStream, langDetect, ShellFlags } from '../../util/shellutil.ts';
-import { NormTextOptions } from './genericNormalizers.ts';
-import { ExtractScalar } from '../../../shared/types/utility-types.ts';
 import { ArrayStream, cleanEmpty, walkObject } from '../../../shared/util/arrayUtil.ts';
-import { Request } from 'express';
 import { defaultMap, isUnset } from '../../../shared/util/genericUtil.ts';
 import { Marker } from '../../../shared/util/highlightMarker.ts';
-import { ImageCategoryMap, ImageIndexEntity, ImageIndexSearchResult } from '../../../shared/types/image-index-types.ts';
-import { cached } from '../../util/cache.ts';
+
+// Same Directory Imports:
 import { AbstractControlState } from './abstractControlState.ts';
+import { NormTextOptions } from './genericNormalizers.ts';
 
 export abstract class AbstractControl<T extends AbstractControlState = AbstractControlState> {
   // region Fields

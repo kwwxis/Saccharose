@@ -249,6 +249,12 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     this.excelPath = './ExcelBinOutput';
   }
 
+  static noDbConnectInstance() {
+    const state = new GenshinControlState();
+    state.NoDbConnect = true;
+    return new GenshinControl(state);
+  }
+
   override getDataFilePath(file: string): string {
     return getGenshinDataFilePath(file);
   }

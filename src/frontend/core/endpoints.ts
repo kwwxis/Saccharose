@@ -17,6 +17,7 @@ import {
   ImageIndexSearchResult,
 } from '../../shared/types/image-index-types.ts';
 import { SitePrefName, SiteUserPrefs } from '../../shared/types/site/site-user-types.ts';
+import { FavorWordGroup } from '../../shared/types/wuwa/favor-types.ts';
 
 export type ApiParams<T> = T & {
   fields?: string,
@@ -296,6 +297,8 @@ export const wuwaEndpoints = {
   }>('/search-textmap'),
 
   getExcelUsages: new WuwaApiEndpoint<{q: string}>('/excel-usages'),
+
+  getFavorWordGroup: new WuwaApiEndpoint<{roleId: number}, FavorWordGroup>('/role/favor-words'),
 
   mediaSearch: new WuwaApiEndpoint<ImageIndexSearchParams, ImageIndexSearchResult>('/media/search'),
   mediaCategory: new WuwaApiEndpoint<{}, ImageCategoryMap>('/media/category'),

@@ -38,7 +38,7 @@ export async function fetchVoiceAtlases(ctrl: StarRailControl, skipCache: boolea
 
   return cached('StarRail_VoiceAtlasGroup', async () => {
     let voiceAtlases: VoiceAtlas[] = await ctrl.readExcelDataFile('VoiceAtlas.json');
-    let voiceAtlasGroupByAvatar: {[avatarId: number]: VoiceAtlasGroup} =
+    let voiceAtlasGroupByAvatar: VoiceAtlasGroupByAvatar =
       defaultMap((avatarId: number) => new VoiceAtlasGroup(avatarId));
 
     let unlockData: {[unlockId: number]: AtlasUnlockData} = await ctrl.readExcelDataFileToStream<AtlasUnlockData>('AtlasUnlockData.json')

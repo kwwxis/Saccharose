@@ -72,6 +72,10 @@ import './pages/hsr/media/hsr-media-list.page.ts';
 import './pages/wuwa/media/wuwa-media-search.page.ts';
 import './pages/wuwa/media/wuwa-media-list.page.ts';
 
+// WUWA VO Tool
+// ----------------------------------------------------------------------------------------------------
+import './pages/wuwa/resonator/wuwa-vo-tool.ts';
+
 // Expose certain functions to global scope for debugging purposes
 // ----------------------------------------------------------------------------------------------------
 import { escapeHtml } from '../shared/util/stringUtil.ts';

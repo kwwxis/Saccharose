@@ -26,9 +26,6 @@ async function importVoiceOvers() {
 }
 
 export async function importHsrFilesCli() {
-  getGenshinControl();
-  getStarRailControl();
-
   const options_beforeDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
     {name: 'normalize', type: Boolean, description: 'Normalizes the JSON files.'},
     {name: 'plaintext', type: Boolean, description: 'Creates the PlainTextMap files.'},

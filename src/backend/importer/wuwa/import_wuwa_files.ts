@@ -11,6 +11,17 @@ import { closeKnex } from '../../util/db.ts';
 import { importNormalize, importPlainTextMap } from '../util/import_file_util.ts';
 import fs from 'fs';
 import { indexWuwaImages } from './module.index-images.ts';
+import { fetchFavorWords } from '../../domain/wuwa/character/fetchRoleFavorWords.ts';
+
+async function importVoiceOvers() {
+  const outDir = process.env.WUWA_DATA_ROOT;
+
+  const ctrl = getWuwaControl();
+  const favorWordGroups = await fetchFavorWords(ctrl, true);
+
+  fs.writeFileSync(outDir + '/VoiceOvers.json', JSON.stringify(favorWordGroups, null, 2));
+  console.log(chalk.blue('Done. Output written to: ' + outDir + '/VoiceOvers.json'));
+}
 
 export async function importWuwaFilesCli() {
   const options_beforeDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
@@ -21,6 +32,7 @@ export async function importWuwaFilesCli() {
   ];
 
   const options_afterDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
+    {name: 'voice-overs', type: Boolean, description: 'Creates the VoiceOvers file.'},
   ];
 
   const options_util: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
@@ -113,6 +125,9 @@ export async function importWuwaFilesCli() {
     fs.copyFileSync(textMapCHT, getWuwaDataFilePath('./TextMap/TextMapCHT.json'));
 
     await importNormalize(getWuwaDataFilePath('./ConfigDB'), []);
+  }
+  if (options['voice-overs']) {
+    await importVoiceOvers();
   }
   if (options['index-images']) {
     await indexWuwaImages(dryRun);

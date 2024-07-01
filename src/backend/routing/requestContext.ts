@@ -590,7 +590,7 @@ export class RequestContext {
                 id: 'misc-tools-content',
                 items: [
                   { id: 'loading-tips', name: 'Loading Tips', link: '/hsr/loading-tips',  bodyClass: 'page--loading-tips' },
-                  { id: 'vo-toool', name: 'VO Tool', link: '/hsr/character/VO', bodyClass: 'page--vo-tool' },
+                  { id: 'vo-tool', name: 'VO Tool', link: '/hsr/character/VO', bodyClass: 'page--vo-tool' },
                 ]
               }
             ]
@@ -659,6 +659,18 @@ export class RequestContext {
                 name: 'Media Data',
                 items: [
                   { id: 'media', name: 'Media', link: '/wuwa/media', bodyClass: 'page--media' },
+                ]
+              },
+            ]
+          },
+          {
+            id: 'resonator-tools',
+            name: 'Resonators',
+            content: [
+              {
+                id: 'resonator-tools-content',
+                items: [
+                  { id: 'resonator-vo', name: 'Resonator VO', link: '/wuwa/resonator/VO', bodyClass: 'page--vo-tool' },
                 ]
               },
             ]

@@ -1,30 +1,30 @@
 <div id="vo-tool-outer">
   <div id="vo-tool-sidebar" class="card">
     <h2 class="valign">
-      <span>Character VO Tool</span>
+      <span><%= avatarLabel %> VO Tool</span>
       <span class="grow"></span>
       <button id="vo-tool-sidebar-mobile-toggle" class="secondary" ui-action="toggle-class: #vo-tool-sidebar, mobile">
-        <span class="toggle-show-text">Show Character List</span>
-        <span class="toggle-hide-text">Hide Character List</span>
+        <span class="toggle-show-text">Show <%= avatarLabel %> List</span>
+        <span class="toggle-hide-text">Hide <%= avatarLabel %> List</span>
       </button>
     </h2>
     <div id="vo-tool-sidebar-search" class="content">
       <div class="field">
         <div class="posRel">
-          <input id="vo-toolbar-sidebar-search" type="text" class="w100p" placeholder="Search characters..." />
+          <input id="vo-toolbar-sidebar-search" type="text" class="w100p" placeholder="Search <%= avatarLabelPlural.toLowerCase() %>..." />
           <span id="vo-toolbar-sidebar-search-pending" class="loading small posAbs hide" style="right:10px;top:0;bottom:0;margin:auto"></span>
         </div>
       </div>
     </div>
     <div id="vo-tool-sidebar-list" class="content" data-overlayscrollbars-initialize>
-      <a role="button" class="secondary dispFlex textAlignLeft" href="<%= siteHome %>/character/VO">
+      <a role="button" class="secondary dispFlex textAlignLeft" href="<%= siteHome %><%= pageUrl %>">
         <span class="icon framed valign halign"><%- icon('home') %></span>
         <span class="spacer10-left">VO Tool Home</span>
       </a>
       <% for (let avatar of avatars) { %>
         <a id="vo-toolbar-sidebar-avatar-<%= avatar.Id %>" data-name="<%= normText(avatar.NameText) %>"
            class="vo-toolbar-sidebar-avatar secondary dispFlex textAlignLeft"
-           href="<%= siteHome %>/character/VO/<%= toParam(normText(avatar.NameText)) %>"
+           href="<%= siteHome %><%= pageUrl %>/<%= toParam(normText(avatar.NameText)) %>"
            role="button">
           <img class="icon x28" src="<%= avatar.ImagePathPrefix %><%= avatar.IconName %>.png" loading="lazy" decoding="async" />
           <span class="spacer10-left"><%= normText(avatar.NameText) %></span>
@@ -54,12 +54,12 @@
     <% if (!avatar) { %>
       <div id="vo-app-welcome">
         <div class="card">
-          <h2>Welcome to the character VO app</h2>
+          <h2>Welcome to the <%= avatarLabel %> VO app</h2>
           <div class="content" style="max-width:800px">
-            <p>To get started, select a character in the left-hand sidebar.</p>
+            <p>To get started, select a <%= avatarLabel.toLowerCase() %> in the left-hand sidebar.</p>
             <div id="vo-app-welcome-recent">
               <hr class="spacer15-vert" />
-              <p class="spacer5-bottom">Characters you have saved local data for:</p>
+              <p class="spacer5-bottom"><%= avatarLabelPlural %> you have saved local data for:</p>
               <div id="vo-app-welcome-recent-list" class="alignStart flexWrap">
                 <p class="valign spacer5-left">
                   <span class="loading"></span>
@@ -78,7 +78,7 @@
           <h2>Start from wikitext</h2>
           <div class="content" style="max-width:800px">
             <p>
-              Or if you have an existing VO template, you can paste it below, and it'll identify the character
+              Or if you have an existing VO template, you can paste it below, and it'll identify the <%= avatarLabel.toLowerCase() %>
               from the template parameters.</p>
             <p>You can also paste the entire article, and it'll find the correct template.</p>
           </div>

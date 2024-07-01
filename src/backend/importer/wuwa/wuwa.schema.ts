@@ -43,4 +43,60 @@ export const wuwaSchema = {
     ]
   },
 
+  ConditionGroup: <SchemaTable> {
+    name: 'ConditionGroup',
+    jsonFile: './ConfigDB/ConditionGroup.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+    ]
+  },
+  Condition: <SchemaTable> {
+    name: 'Condition',
+    jsonFile: './ConfigDB/Condition.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'Type', type: 'string', isIndex: true},
+    ]
+  },
+
+  FavorGoods: <SchemaTable> {
+    name: 'FavorGoods',
+    jsonFile: './ConfigDB/FavorGoods.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'RoleId', type: 'integer', isIndex: true},
+      {name: 'CondGroupId', type: 'integer', isIndex: true},
+    ]
+  },
+  FavorRoleInfo: <SchemaTable> {
+    name: 'FavorRoleInfo',
+    jsonFile: './ConfigDB/FavorRoleInfo.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'RoleId', type: 'integer', isIndex: true},
+    ]
+  },
+  FavorStory: <SchemaTable> {
+    name: 'FavorStory',
+    jsonFile: './ConfigDB/FavorStory.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'RoleId', type: 'integer', isIndex: true},
+      {name: 'CondGroupId', type: 'integer', isIndex: true},
+    ]
+  },
+  FavorWord: <SchemaTable> {
+    name: 'FavorWord',
+    jsonFile: './ConfigDB/FavorWord.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'RoleId', type: 'integer', isIndex: true},
+      {name: 'Type', type: 'integer', isIndex: true},
+      {name: 'CondGroupId', type: 'integer', isIndex: true},
+    ]
+  },
+
+
+
+
 }

@@ -29,6 +29,7 @@ pageMatch('pages/hsr/character/vo-tool', async () => {
       return toCommonVoiceOverGroupFromStarRail(atlasGroup);
     },
 
+    pageUrl: '/character/VO',
     mainCharacterLabel: 'Trailblazer',
     isMainCharacter(avatar: CommonAvatar<AvatarConfig>): boolean {
       return isTrailblazer(avatar.Original);

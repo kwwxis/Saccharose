@@ -1,28 +1,42 @@
+// Loadenv:
 import '../loadenv.ts';
-import { closeKnex, openSqlite } from '../util/db.ts';
-import commandLineArgs, { OptionDefinition as ArgsOptionDefinition } from 'command-line-args';
-import commandLineUsage, { OptionDefinition as UsageOptionDefinition } from 'command-line-usage';
 import {
   getGenshinDataFilePath,
   getStarRailDataFilePath,
   getWuwaDataFilePath,
   getZenlessDataFilePath,
 } from '../loadenv.ts';
-import { humanTiming, isPromise, timeConvert } from '../../shared/util/genericUtil.ts';
+
+// Third-Party:
 import fs from 'fs';
 import ora from 'ora';
 import { pathToFileURL } from 'url';
 import chalk from 'chalk';
+import commandLineArgs, { OptionDefinition as ArgsOptionDefinition } from 'command-line-args';
+import commandLineUsage, { OptionDefinition as UsageOptionDefinition } from 'command-line-usage';
+import { Knex } from 'knex';
+
+// DB Interface:
+import { closeKnex, openSqlite } from '../util/db.ts';
+
+// Shared Types:
+import { LangCode } from '../../shared/types/lang-types.ts';
+
+// Shared Util:
+import { humanTiming, isPromise, timeConvert } from '../../shared/util/genericUtil.ts';
 import { resolveObjectPath } from '../../shared/util/arrayUtil.ts';
 import { isStringBlank, ucFirst } from '../../shared/util/stringUtil.ts';
-import { LangCode } from '../../shared/types/lang-types.ts';
+
+// Schema:
 import { genshinSchema } from './genshin/genshin.schema.ts';
-import { Knex } from 'knex';
 import { starRailSchema } from './hsr/hsr.schema.ts';
 import { zenlessSchema } from './zenless/zenless.schema.ts';
 import { wuwaSchema } from './wuwa/wuwa.schema.ts';
 
 export type SchemaTableSet = {[tableName: string]: SchemaTable};
+
+export type SchemaTableCustomRowResolver = (row: any, allRows?: any[], acc?: Record<string, any>) => any[]|Promise<any>;
+export type SchemaTableCustomRowResolverProvider = () => SchemaTableCustomRowResolver|Promise<SchemaTableCustomRowResolver>;
 
 export type SchemaTable = {
   name: string,
@@ -65,7 +79,8 @@ export type SchemaTable = {
    * @param acc An accumulator object. It starts off as an empty object and the same object is passed to every call
    * to `customRowResolve`. What is done with this object is up to the implementer.
    */
-  customRowResolve?: (row: any, allRows?: any[], acc?: Record<string, any>) => any[]|Promise<any>,
+  customRowResolve?: SchemaTableCustomRowResolver,
+  customRowResolveProvider?: SchemaTableCustomRowResolverProvider,
 
   // Normalize Options
   // --------------------------------------------------------------------------------------------------------------
@@ -136,7 +151,7 @@ export function schemaForDbName(dbName: 'genshin' | 'hsr' | 'zenless' | 'wuwa'):
   }
 }
 
-export function textMapSchema(langCode: LangCode, hashType: string = 'integer'): SchemaTable {
+export function textMapSchema(langCode: LangCode, hashType: ('integer' | 'text') = 'integer'): SchemaTable {
   return <SchemaTable> {
     name: 'TextMap' + langCode,
     jsonFile: './TextMap/TextMap'+langCode+'.json',
@@ -152,7 +167,7 @@ export function textMapSchema(langCode: LangCode, hashType: string = 'integer'):
   };
 }
 
-export function plainLineMapSchema(langCode: LangCode, hashType: string = 'integer'): SchemaTable {
+export function plainLineMapSchema(langCode: LangCode, hashType: ('integer' | 'text') = 'integer'): SchemaTable {
   return <SchemaTable> {
     name: 'PlainLineMap' + langCode,
     jsonFile: `./TextMap/Plain/PlainTextMap${langCode}_Hash.dat`,
@@ -262,6 +277,19 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     let getDataFilePath: (relPath: string) => string = null;
 
     async function createTable(table: SchemaTable) {
+      if (!table.name) {
+        throw 'Missing table name';
+      }
+      if (!table.columns || !Array.isArray(table.columns)) {
+        throw 'Missing table columns';
+      }
+      if (!table.jsonFile) {
+        throw 'Missing table jsonFile';
+      }
+      if (table.customRowResolve && table.customRowResolveProvider) {
+        throw 'Cannot specify both customRowResolve and customRowResolveProvider';
+      }
+
       console.log('Creating table: ' + table.name);
       if (await knex.schema.hasTable(table.name)) {
         console.log('  Table already exists - dropping and recreating...')
@@ -276,7 +304,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
             builder.index(col.name);
           }
         }
-        if (!table.customRowResolve && !table.noIncludeJson) {
+        if (!table.customRowResolve && !table.customRowResolveProvider && !table.noIncludeJson) {
           builder.json('json_data');
         }
       }).then();
@@ -285,8 +313,17 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
 
     async function createRowPayload(table: SchemaTable, row: any, allRows: any[], acc: Record<string, any>): Promise<any[]> {
       row = normalizeRawJson(row, table);
-      if (table.customRowResolve) {
-        const ret = table.customRowResolve(row, allRows, acc);
+
+      if (!acc.customRowResolve && table.customRowResolve) {
+        acc.customRowResolve = table.customRowResolve;
+      }
+      if (!acc.customRowResolve && table.customRowResolveProvider) {
+        const ret = table.customRowResolveProvider();
+        acc.customRowResolve = isPromise(ret) ? await ret : ret;
+      }
+
+      if (acc.customRowResolve) {
+        const ret: any|Promise<any> = acc.customRowResolve(row, allRows, acc);
         return isPromise(ret) ? ret : Promise.resolve(ret);
       } else {
         let payload = {};
