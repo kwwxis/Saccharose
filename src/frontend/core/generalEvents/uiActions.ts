@@ -85,7 +85,6 @@ export function runUiActions(actionEl: HTMLElement, actions: UiAction[]) {
       return actionEl.previousElementSibling as T;
     }
     let relQRes = relQ(selector, rel);
-    console.log(relQRes)
     return relQRes.rel.querySelector<T>(relQRes.selector);
   }
   const qsAll = <T extends HTMLElement = HTMLElement>(selector: string, rel?: HTMLElement): T[] => {
