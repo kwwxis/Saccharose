@@ -80,7 +80,7 @@ export async function importZenlessFilesCli() {
   }
 
   if (options.normalize) {
-    await importNormalize(getZenlessDataFilePath('./ExcelConfigData'), []);
+    await importNormalize(getZenlessDataFilePath('./FileCfg'), []);
   }
   if (options.plaintext) {
     const ctrl = getZenlessControl();
