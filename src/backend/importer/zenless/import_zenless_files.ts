@@ -82,18 +82,18 @@ export async function importZenlessFilesCli() {
 
   if (options.normalize) {
     const textMapCHS = getZenlessDataFilePath('./TextMap/TextMapTemplateTb.json');
-    const textMapCHT = getZenlessDataFilePath('./TextMap/TextMap_CHT.json');
-    const textMapDE = getZenlessDataFilePath('./TextMap/TextMap_DE.json');
-    const textMapEN = getZenlessDataFilePath('./TextMap/TextMap_EN.json');
-    const textMapES = getZenlessDataFilePath('./TextMap/TextMap_ES.json');
-    const textMapFR = getZenlessDataFilePath('./TextMap/TextMap_FR.json');
-    const textMapID = getZenlessDataFilePath('./TextMap/TextMap_ID.json');
-    const textMapJA = getZenlessDataFilePath('./TextMap/TextMap_JA.json');
-    const textMapKO = getZenlessDataFilePath('./TextMap/TextMap_KO.json');
-    const textMapPT = getZenlessDataFilePath('./TextMap/TextMap_PT.json');
-    const textMapRU = getZenlessDataFilePath('./TextMap/TextMap_RU.json');
-    const textMapTH = getZenlessDataFilePath('./TextMap/TextMap_TH.json');
-    const textMapVI = getZenlessDataFilePath('./TextMap/TextMap_VI.json');
+    const textMapCHT = getZenlessDataFilePath('./TextMap/TextMap_CHTTemplateTb.json');
+    const textMapDE = getZenlessDataFilePath('./TextMap/TextMap_DETemplateTb.json');
+    const textMapEN = getZenlessDataFilePath('./TextMap/TextMap_ENTemplateTb.json');
+    const textMapES = getZenlessDataFilePath('./TextMap/TextMap_ESTemplateTb.json');
+    const textMapFR = getZenlessDataFilePath('./TextMap/TextMap_FRTemplateTb.json');
+    const textMapID = getZenlessDataFilePath('./TextMap/TextMap_IDTemplateTb.json');
+    const textMapJA = getZenlessDataFilePath('./TextMap/TextMap_JATemplateTb.json');
+    const textMapKO = getZenlessDataFilePath('./TextMap/TextMap_KOTemplateTb.json');
+    const textMapPT = getZenlessDataFilePath('./TextMap/TextMap_PTTemplateTb.json');
+    const textMapRU = getZenlessDataFilePath('./TextMap/TextMap_RUTemplateTb.json');
+    const textMapTH = getZenlessDataFilePath('./TextMap/TextMap_THTemplateTb.json');
+    const textMapVI = getZenlessDataFilePath('./TextMap/TextMap_VITemplateTb.json');
 
     fs.copyFileSync(textMapDE, getZenlessDataFilePath('./TextMap/TextMapDE.json'));
     fs.copyFileSync(textMapEN, getZenlessDataFilePath('./TextMap/TextMapEN.json'));
