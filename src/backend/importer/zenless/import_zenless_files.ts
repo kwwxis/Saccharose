@@ -5,10 +5,11 @@ import { pathToFileURL } from 'url';
 import commandLineArgs, { OptionDefinition as ArgsOptionDefinition } from 'command-line-args';
 import commandLineUsage, { OptionDefinition as UsageOptionDefinition } from 'command-line-usage';
 import chalk from 'chalk';
-import { getZenlessDataFilePath } from '../../loadenv.ts';
+import { getWuwaDataFilePath, getZenlessDataFilePath } from '../../loadenv.ts';
 import { closeKnex } from '../../util/db.ts';
 import { importNormalize, importPlainTextMap } from '../util/import_file_util.ts';
 import { getZenlessControl } from '../../domain/zenless/zenlessControl.ts';
+import fs from 'fs';
 
 export async function importZenlessFilesCli() {
   const options_beforeDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
@@ -80,7 +81,35 @@ export async function importZenlessFilesCli() {
   }
 
   if (options.normalize) {
-    await importNormalize(getZenlessDataFilePath('./FileCfg'), []);
+    const textMapCHS = getWuwaDataFilePath('./TextMap/TextMapTemplateTb.json');
+    const textMapCHT = getWuwaDataFilePath('./TextMap/TextMap_CHT.json');
+    const textMapDE = getWuwaDataFilePath('./TextMap/TextMap_DE.json');
+    const textMapEN = getWuwaDataFilePath('./TextMap/TextMap_EN.json');
+    const textMapES = getWuwaDataFilePath('./TextMap/TextMap_ES.json');
+    const textMapFR = getWuwaDataFilePath('./TextMap/TextMap_FR.json');
+    const textMapID = getWuwaDataFilePath('./TextMap/TextMap_ID.json');
+    const textMapJA = getWuwaDataFilePath('./TextMap/TextMap_JA.json');
+    const textMapKO = getWuwaDataFilePath('./TextMap/TextMap_KO.json');
+    const textMapPT = getWuwaDataFilePath('./TextMap/TextMap_PT.json');
+    const textMapRU = getWuwaDataFilePath('./TextMap/TextMap_RU.json');
+    const textMapTH = getWuwaDataFilePath('./TextMap/TextMap_TH.json');
+    const textMapVI = getWuwaDataFilePath('./TextMap/TextMap_VI.json');
+
+    fs.copyFileSync(textMapDE, getWuwaDataFilePath('./TextMap/TextMapDE.json'));
+    fs.copyFileSync(textMapEN, getWuwaDataFilePath('./TextMap/TextMapEN.json'));
+    fs.copyFileSync(textMapES, getWuwaDataFilePath('./TextMap/TextMapES.json'));
+    fs.copyFileSync(textMapFR, getWuwaDataFilePath('./TextMap/TextMapFR.json'));
+    fs.copyFileSync(textMapID, getWuwaDataFilePath('./TextMap/TextMapID.json'));
+    fs.copyFileSync(textMapJA, getWuwaDataFilePath('./TextMap/TextMapJP.json'));
+    fs.copyFileSync(textMapKO, getWuwaDataFilePath('./TextMap/TextMapKR.json'));
+    fs.copyFileSync(textMapPT, getWuwaDataFilePath('./TextMap/TextMapPT.json'));
+    fs.copyFileSync(textMapRU, getWuwaDataFilePath('./TextMap/TextMapRU.json'));
+    fs.copyFileSync(textMapTH, getWuwaDataFilePath('./TextMap/TextMapTH.json'));
+    fs.copyFileSync(textMapVI, getWuwaDataFilePath('./TextMap/TextMapVI.json'));
+    fs.copyFileSync(textMapCHS, getWuwaDataFilePath('./TextMap/TextMapCHS.json'));
+    fs.copyFileSync(textMapCHT, getWuwaDataFilePath('./TextMap/TextMapCHT.json'));
+
+    // await importNormalize(getZenlessDataFilePath('./FileCfg'), []);
   }
   if (options.plaintext) {
     const ctrl = getZenlessControl();
