@@ -5,7 +5,7 @@ import { pathToFileURL } from 'url';
 import commandLineArgs, { OptionDefinition as ArgsOptionDefinition } from 'command-line-args';
 import commandLineUsage, { OptionDefinition as UsageOptionDefinition } from 'command-line-usage';
 import chalk from 'chalk';
-import { getWuwaDataFilePath, getZenlessDataFilePath } from '../../loadenv.ts';
+import { getZenlessDataFilePath } from '../../loadenv.ts';
 import { closeKnex } from '../../util/db.ts';
 import { importNormalize, importPlainTextMap } from '../util/import_file_util.ts';
 import { getZenlessControl } from '../../domain/zenless/zenlessControl.ts';
@@ -81,33 +81,33 @@ export async function importZenlessFilesCli() {
   }
 
   if (options.normalize) {
-    const textMapCHS = getWuwaDataFilePath('./TextMap/TextMapTemplateTb.json');
-    const textMapCHT = getWuwaDataFilePath('./TextMap/TextMap_CHT.json');
-    const textMapDE = getWuwaDataFilePath('./TextMap/TextMap_DE.json');
-    const textMapEN = getWuwaDataFilePath('./TextMap/TextMap_EN.json');
-    const textMapES = getWuwaDataFilePath('./TextMap/TextMap_ES.json');
-    const textMapFR = getWuwaDataFilePath('./TextMap/TextMap_FR.json');
-    const textMapID = getWuwaDataFilePath('./TextMap/TextMap_ID.json');
-    const textMapJA = getWuwaDataFilePath('./TextMap/TextMap_JA.json');
-    const textMapKO = getWuwaDataFilePath('./TextMap/TextMap_KO.json');
-    const textMapPT = getWuwaDataFilePath('./TextMap/TextMap_PT.json');
-    const textMapRU = getWuwaDataFilePath('./TextMap/TextMap_RU.json');
-    const textMapTH = getWuwaDataFilePath('./TextMap/TextMap_TH.json');
-    const textMapVI = getWuwaDataFilePath('./TextMap/TextMap_VI.json');
+    const textMapCHS = getZenlessDataFilePath('./TextMap/TextMapTemplateTb.json');
+    const textMapCHT = getZenlessDataFilePath('./TextMap/TextMap_CHT.json');
+    const textMapDE = getZenlessDataFilePath('./TextMap/TextMap_DE.json');
+    const textMapEN = getZenlessDataFilePath('./TextMap/TextMap_EN.json');
+    const textMapES = getZenlessDataFilePath('./TextMap/TextMap_ES.json');
+    const textMapFR = getZenlessDataFilePath('./TextMap/TextMap_FR.json');
+    const textMapID = getZenlessDataFilePath('./TextMap/TextMap_ID.json');
+    const textMapJA = getZenlessDataFilePath('./TextMap/TextMap_JA.json');
+    const textMapKO = getZenlessDataFilePath('./TextMap/TextMap_KO.json');
+    const textMapPT = getZenlessDataFilePath('./TextMap/TextMap_PT.json');
+    const textMapRU = getZenlessDataFilePath('./TextMap/TextMap_RU.json');
+    const textMapTH = getZenlessDataFilePath('./TextMap/TextMap_TH.json');
+    const textMapVI = getZenlessDataFilePath('./TextMap/TextMap_VI.json');
 
-    fs.copyFileSync(textMapDE, getWuwaDataFilePath('./TextMap/TextMapDE.json'));
-    fs.copyFileSync(textMapEN, getWuwaDataFilePath('./TextMap/TextMapEN.json'));
-    fs.copyFileSync(textMapES, getWuwaDataFilePath('./TextMap/TextMapES.json'));
-    fs.copyFileSync(textMapFR, getWuwaDataFilePath('./TextMap/TextMapFR.json'));
-    fs.copyFileSync(textMapID, getWuwaDataFilePath('./TextMap/TextMapID.json'));
-    fs.copyFileSync(textMapJA, getWuwaDataFilePath('./TextMap/TextMapJP.json'));
-    fs.copyFileSync(textMapKO, getWuwaDataFilePath('./TextMap/TextMapKR.json'));
-    fs.copyFileSync(textMapPT, getWuwaDataFilePath('./TextMap/TextMapPT.json'));
-    fs.copyFileSync(textMapRU, getWuwaDataFilePath('./TextMap/TextMapRU.json'));
-    fs.copyFileSync(textMapTH, getWuwaDataFilePath('./TextMap/TextMapTH.json'));
-    fs.copyFileSync(textMapVI, getWuwaDataFilePath('./TextMap/TextMapVI.json'));
-    fs.copyFileSync(textMapCHS, getWuwaDataFilePath('./TextMap/TextMapCHS.json'));
-    fs.copyFileSync(textMapCHT, getWuwaDataFilePath('./TextMap/TextMapCHT.json'));
+    fs.copyFileSync(textMapDE, getZenlessDataFilePath('./TextMap/TextMapDE.json'));
+    fs.copyFileSync(textMapEN, getZenlessDataFilePath('./TextMap/TextMapEN.json'));
+    fs.copyFileSync(textMapES, getZenlessDataFilePath('./TextMap/TextMapES.json'));
+    fs.copyFileSync(textMapFR, getZenlessDataFilePath('./TextMap/TextMapFR.json'));
+    fs.copyFileSync(textMapID, getZenlessDataFilePath('./TextMap/TextMapID.json'));
+    fs.copyFileSync(textMapJA, getZenlessDataFilePath('./TextMap/TextMapJP.json'));
+    fs.copyFileSync(textMapKO, getZenlessDataFilePath('./TextMap/TextMapKR.json'));
+    fs.copyFileSync(textMapPT, getZenlessDataFilePath('./TextMap/TextMapPT.json'));
+    fs.copyFileSync(textMapRU, getZenlessDataFilePath('./TextMap/TextMapRU.json'));
+    fs.copyFileSync(textMapTH, getZenlessDataFilePath('./TextMap/TextMapTH.json'));
+    fs.copyFileSync(textMapVI, getZenlessDataFilePath('./TextMap/TextMapVI.json'));
+    fs.copyFileSync(textMapCHS, getZenlessDataFilePath('./TextMap/TextMapCHS.json'));
+    fs.copyFileSync(textMapCHT, getZenlessDataFilePath('./TextMap/TextMapCHT.json'));
 
     // await importNormalize(getZenlessDataFilePath('./FileCfg'), []);
   }
