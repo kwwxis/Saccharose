@@ -109,7 +109,7 @@ export async function handleExcelUsagesEndpoint(ctrl: AbstractControl, req: Requ
   });
 
   if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
-    return res.render('partials/generic/basic/excel-usages-result', { idToUsages, v2: toBoolean(req.query.v2) });
+    return res.render('partials/generic/basic/excel-usages-result', { idToUsages, embed: toBoolean(req.query.embed) });
   } else {
     return idToUsages;
   }

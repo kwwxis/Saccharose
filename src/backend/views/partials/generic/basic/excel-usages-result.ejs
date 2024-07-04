@@ -1,12 +1,12 @@
 
-<% if (!v2) { %>
+<% if (!embed) { %>
   <div class="card result-count-card">
     <h2>Total Results: <span><%= Object.keys(idToUsages).length %></span></h2>
   </div>
 <% } %>
-<div <% if (v2) { %>style="margin-top:10px"<% } %>>
+<div <% if (embed) { %>style="margin-top:10px"<% } %>>
 <% Object.keys(idToUsages).forEach(id => { %>
-  <% if (!v2) { %>
+  <% if (!embed) { %>
   <section class="card">
     <h2>ID: <strong><%= id %></strong></h2>
     <div>
@@ -35,7 +35,7 @@
           <p>No usages found.</p>
         </div>
       <% } %>
-  <% if (!v2) { %>
+  <% if (!embed) { %>
     </div>
   </section>
   <% } %>

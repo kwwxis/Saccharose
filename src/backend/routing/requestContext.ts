@@ -614,7 +614,7 @@ export class RequestContext {
                 items: [
                   { id: 'textmap-search', name: 'Textmap Search', link: '/zenless/textmap',  bodyClass: 'page--textmap' },
                   { id: 'ol-generator', name: 'OL Generator', link: '/zenless/OL', bodyClass: 'page--OL' },
-                  { id: 'excel-usages', name: 'Excel Usages', link: '/zenless/excel-usages', bodyClass: 'page--excel-usages' },
+                  // { id: 'excel-usages', name: 'Excel Usages', link: '/zenless/excel-usages', bodyClass: 'page--excel-usages' },
                 ]
               }
             ]
