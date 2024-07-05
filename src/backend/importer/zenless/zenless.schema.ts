@@ -1,4 +1,4 @@
-import { plainLineMapSchema, textMapSchema } from '../import_db.ts';
+import { plainLineMapSchema, SchemaTable, textMapSchema } from '../import_db.ts';
 
 const hashType = 'text';
 
@@ -31,4 +31,20 @@ export const zenlessSchema = {
   PlainLineMapRU: plainLineMapSchema('RU', hashType),
   PlainLineMapTH: plainLineMapSchema('TH', hashType),
   PlainLineMapVI: plainLineMapSchema('VI', hashType),
+
+  ItemTemplateTb: <SchemaTable> {
+    name: 'ItemTemplateTb',
+    jsonFile: './ExcelBinOutput/ItemTemplateTb.json',
+    columns: [
+      { name: 'Id', type: 'integer', isPrimary: true },
+      { name: 'TitleTextMapHash', type: 'integer', isIndex: true },
+    ],
+    renameFields: {
+      HBKDOIKGNDE: 'Id',
+      HAOPJCCHCGF: 'Rarity',
+      DIIDBBGLDOL: 'NameTextMapHash',
+      OJCGCLOKPDI: 'DescTextMapHash',
+      EFGKGIBIMKP: 'StoryTextMapHash',
+    },
+  }
 }
