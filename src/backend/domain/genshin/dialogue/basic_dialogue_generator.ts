@@ -101,7 +101,7 @@ function addHighlightMarkers(ctrl: GenshinControl, query: number|number[]|string
   let isRegexQuery: boolean = ctrl.searchMode === 'R' || ctrl.searchMode === 'RI';
 
   if (typeof query === 'string' && ctrl.inputLangCode === ctrl.outputLangCode) {
-    re = new RegExp(isRegexQuery ? `(?<=:''' .*)` + query : escapeRegExp(ctrl.normText(query, ctrl.outputLangCode)), reFlags);
+    re = new RegExp(isRegexQuery ? `(?<=(:'''|{{DIcon[^}]*}}) .*)` + query : escapeRegExp(ctrl.normText(query, ctrl.outputLangCode)), reFlags);
   } else {
     re = new RegExp(escapeRegExp(ctrl.normText(dialogue.TalkContentText, ctrl.outputLangCode)), reFlags);
   }
