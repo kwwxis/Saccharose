@@ -75,12 +75,12 @@ export default async function(): Promise<Router> {
     });
   });
 
-  router.get('/npc-dialogue', async (req: Request, res: Response) => {
-    res.render('pages/genshin/dialogue/npc-dialogue', {
-      title: 'NPC Dialogue',
-      bodyClass: ['page--npc-dialogue']
-    });
-  });
+  // router.get('/npc-dialogue', async (req: Request, res: Response) => {
+  //   res.render('pages/genshin/dialogue/npc-dialogue', {
+  //     title: 'NPC Dialogue',
+  //     bodyClass: ['page--npc-dialogue']
+  //   });
+  // });
 
   router.get('/reminders', async (req: Request, res: Response) => {
     res.render('pages/genshin/dialogue/reminders', {
