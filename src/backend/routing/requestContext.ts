@@ -436,7 +436,7 @@ export class RequestContext {
                 items: [
                   { id: 'quests', name: 'Quest Dialogue', link: '/quests', bodyClass: 'page--quests' },
                   { id: 'branch-dialogue', name: 'Single Branch Dialogue', link: '/branch-dialogue', bodyClass: 'page--branch-dialogue' },
-                  // { id: 'npc-dialogue', name: 'NPC Dialogue', link: '/npc-dialogue', bodyClass: 'page--npc-dialogue' },
+                  { id: 'npc-dialogue', name: 'NPC Dialogue', link: '/npc-dialogue', bodyClass: 'page--npc-dialogue' },
                   { id: 'reminders', name: 'Reminder Dialogue', link: '/reminders', bodyClass: 'page--reminders' },
                   { id: 'vo-to-dialogue', name: 'VO File to Dialogue', link: '/vo-to-dialogue', bodyClass: 'page--vo-to-dialogue' },
                 ]

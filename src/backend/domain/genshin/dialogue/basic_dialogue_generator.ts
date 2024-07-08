@@ -18,10 +18,11 @@ import {
 } from './dialogue_util.ts';
 import { IMetaPropValue, MetaProp } from '../../../util/metaProp.ts';
 import { pathToFileURL } from 'url';
-import { Marker } from '../../../../shared/util/highlightMarker.ts';
+import { Marker, MarkerPostCreateInterceptorAsync } from '../../../../shared/util/highlightMarker.ts';
 import { LangCode, TextMapHash } from '../../../../shared/types/lang-types.ts';
 import { reminderGenerateFromSpeakerTextMapHashes } from './reminder_generator.ts';
 import { custom } from '../../../util/logger.ts';
+import { CommonLineId } from '../../../../shared/types/common-types.ts';
 
 // region NPC Filtering for Single Branch Dialogue
 // --------------------------------------------------------------------------------------------------------------
@@ -92,27 +93,45 @@ class DialogueGenerateState {
  * Add highlight markers to search result dialogue section.
  * @param ctrl The control instance.
  * @param query The original query.
+ * @param npcFilter The npcFilter.
  * @param dialogue The DialogExcel of the match.
  * @param sect The section to highlight.
  */
-function addHighlightMarkers(ctrl: GenshinControl, query: number|number[]|string, dialogue: DialogExcelConfigData, sect: DialogueSectionResult) {
+async function addHighlightMarkers(ctrl: GenshinControl,
+                             query: number|number[]|string,
+                             npcFilter: string,
+                             dialogue: DialogExcelConfigData,
+                             sect: DialogueSectionResult) {
   let re: RegExp;
-  let reFlags: string = ctrl.searchModeFlags.includes('i') ? 'gi' : 'g';
-  let isRegexQuery: boolean = ctrl.searchMode === 'R' || ctrl.searchMode === 'RI';
-
   if (typeof query === 'string' && ctrl.inputLangCode === ctrl.outputLangCode) {
-    re = new RegExp(isRegexQuery ? `(?<=(:'''|{{DIcon[^}]*}}) .*)` + query : escapeRegExp(ctrl.normText(query, ctrl.outputLangCode)), reFlags);
+    re = new RegExp(ctrl.searchModeIsRegex ? `(?<=(:'''|{{DIcon[^}]*}}) .*)` + query : escapeRegExp(ctrl.normText(query, ctrl.outputLangCode)), ctrl.searchModeReFlags);
   } else {
-    re = new RegExp(escapeRegExp(ctrl.normText(dialogue.TalkContentText, ctrl.outputLangCode)), reFlags);
+    re = new RegExp(escapeRegExp(ctrl.normText(dialogue.TalkContentText, ctrl.outputLangCode)), ctrl.searchModeReFlags);
   }
 
-  for (let marker of Marker.create(re, sect.wikitext)) {
+  const lineIds: CommonLineId[] = sect.wikitextLineIds;
+
+  const markerInterceptor: MarkerPostCreateInterceptorAsync = npcFilter ? async (lineMarkers: Marker[], line, lineNum) => {
+    const lineId = lineIds[lineNum - 1];
+    let shouldSkip = false;
+
+    if (lineMarkers.length && lineId && lineId.commonId) {
+      const d = await ctrl.selectSingleDialogExcelConfigData(lineId.commonId, true);
+      if (!(await npcFilterInclude(ctrl, d, npcFilter))) {
+        shouldSkip = true;
+      }
+    }
+
+    return {skip: shouldSkip};
+  } : null;
+
+  for (let marker of await Marker.createAsync(re, sect.wikitext, { post: markerInterceptor })) {
     sect.wikitextMarkers.push(marker);
   }
 
   if (sect.children && sect.children.length) {
     for (let child of sect.children) {
-      addHighlightMarkers(ctrl, query, dialogue, child);
+      await addHighlightMarkers(ctrl, query, npcFilter, dialogue, child);
     }
   }
 }
@@ -137,6 +156,7 @@ async function handle(state: DialogueGenerateState, id: number|DialogExcelConfig
   } = state;
 
   // Fast case: Talk ID
+  // --------------------------------------------------------------------------------------------------------------
   if (typeof id === 'number') {
     const debug = custom('branch-dialogue:' + id);
     if (seenTalkConfigIds.has(id) || seenFirstDialogueIds.has(id)) {
@@ -151,6 +171,9 @@ async function handle(state: DialogueGenerateState, id: number|DialogExcelConfig
     }
   }
 
+  // Find Dialog Exvel
+  // --------------------------------------------------------------------------------------------------------------
+
   // Look for dialog excel:
   const dialog: DialogExcelConfigData = typeof id === 'number' ? await ctrl.selectSingleDialogExcelConfigData(id, true) : id;
 
@@ -161,6 +184,8 @@ async function handle(state: DialogueGenerateState, id: number|DialogExcelConfig
     throw 'No Talk or Dialogue found for ID: ' + id;
   }
 
+  // Filters
+  // --------------------------------------------------------------------------------------------------------------
   const debug = custom('branch-dialogue:' + dialog.Id);
 
   // If voicedOnly=true and the dialog is not voiced, then do not accept:
@@ -173,6 +198,9 @@ async function handle(state: DialogueGenerateState, id: number|DialogExcelConfig
     debug('Excluded via NPC filter');
     return false;
   }
+
+  // Find Talks
+  // --------------------------------------------------------------------------------------------------------------
 
   // Find Talks (part 1):
   const talkConfigs: TalkExcelConfigData[] = await ctrl.selectTalkExcelConfigDataListByFirstDialogueId(dialog.Id);
@@ -224,7 +252,7 @@ async function handle(state: DialogueGenerateState, id: number|DialogExcelConfig
           link: '/OL?q=' + dialog.TalkContentTextMapHash
         }
       ]));
-      addHighlightMarkers(ctrl, query, dialog, talkConfigResult);
+      await addHighlightMarkers(ctrl, query, npcFilter, dialog, talkConfigResult);
       result.push(talkConfigResult);
       foundTalks = true;
     }
@@ -274,7 +302,7 @@ async function handle(state: DialogueGenerateState, id: number|DialogExcelConfig
       const dialogWikitextRet: DialogWikitextResult = await ctrl.generateDialogueWikitext(dialogueBranch);
       sect.setWikitext(dialogWikitextRet);
 
-      addHighlightMarkers(ctrl, query, dialog, sect);
+      await addHighlightMarkers(ctrl, query, npcFilter, dialog, sect);
       result.push(sect);
     }
     return foundDialogs;

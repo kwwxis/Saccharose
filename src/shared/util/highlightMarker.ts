@@ -1,6 +1,7 @@
 import { isInt, toInt } from './numberUtil.ts';
 import { escapeRegExp } from './stringUtil.ts';
 import { IndexedRange, inRange, rangeLen } from './arrayUtil.ts';
+import { isPromise } from './genericUtil.ts';
 
 /**
  * An adjustment to the content-text that may change the positions of markers.
@@ -107,7 +108,7 @@ export class MarkerAggregate {
   }
 }
 
-export type MarkerLineProcessor = (line: string, lineNum?: number) => {
+export type MarkerCreateInterceptorResult = {
   /**
    * If set to true, the default marker processing for this line will be skipped.
    */
@@ -118,6 +119,33 @@ export type MarkerLineProcessor = (line: string, lineNum?: number) => {
    */
   markers?: Marker[]
 };
+
+/**
+ * @param line The line content
+ * @param lineNum The line number (starting from 1)
+ */
+export type MarkerPreCreateInterceptorSync = (line: string, lineNum?: number) => MarkerCreateInterceptorResult;
+
+/**
+ * @param line The line content
+ * @param lineNum The line number (starting from 1)
+ */
+export type MarkerPreCreateInterceptorAsync = (line: string, lineNum?: number) => MarkerCreateInterceptorResult|Promise<MarkerCreateInterceptorResult>;
+
+/**
+ * @param markers The zero-to-many markers that were created for this line.
+ * @param line The line content
+ * @param lineNum The line number (starting from 1)
+ */
+export type MarkerPostCreateInterceptorSync = (markers: Marker[], line?: string, lineNum?: number) => MarkerCreateInterceptorResult;
+
+/**
+ * @param markers The zero-to-many markers that were created for this line.
+ * @param line The line content
+ * @param lineNum The line number (starting from 1)
+ */
+export type MarkerPostCreateInterceptorAsync = (markers: Marker[], line?: string, lineNum?: number) => MarkerCreateInterceptorResult|Promise<MarkerCreateInterceptorResult>;
+
 
 export class Marker implements IndexedRange {
   /**
@@ -226,28 +254,58 @@ export class Marker implements IndexedRange {
     }
   }
 
-  static create(searchText: string|RegExp, contentText: string, customProcessor?: MarkerLineProcessor): Marker[] {
-    let re = typeof searchText === 'string' ? new RegExp(escapeRegExp(searchText), 'gi') : searchText;
-    let ret: Marker[] = [];
+  static async createAsync(searchText: string|RegExp, contentText: string, interceptors?: {
+    pre?: MarkerPreCreateInterceptorAsync,
+    post?: MarkerPostCreateInterceptorAsync,
+  }): Promise<Marker[]> {
+    const ret = this.createInternal(searchText, contentText, interceptors);
+    await Promise.all(ret.promises);
+    return ret.markers;
+  }
+
+  static create(searchText: string|RegExp, contentText: string, interceptors?: {
+    pre?: MarkerPreCreateInterceptorSync,
+    post?: MarkerPostCreateInterceptorSync,
+  }): Marker[] {
+    const ret = this.createInternal(searchText, contentText, interceptors);
+    return ret.markers;
+  }
+
+  private static createInternal(searchText: string|RegExp, contentText: string, interceptors?: {
+    pre?: MarkerPreCreateInterceptorAsync,
+    post?: MarkerPostCreateInterceptorAsync,
+  }): {
+    markers: Marker[],
+    promises: Promise<void>[],
+  } {
+    const re: RegExp = typeof searchText === 'string' ? new RegExp(escapeRegExp(searchText), 'gi') : searchText;
+    const markers: Marker[] = [];
+    const promises: Promise<void>[] = [];
 
     if (!re.flags.includes('g')) {
       throw 'Error: Marker.create() can only be used with regexes containing the \'g\' flag.';
     }
 
-    let lineNum = 1;
-    for (let line of contentText.split('\n')) {
-      if (customProcessor) {
-        let procRet = customProcessor(line, lineNum);
-        if (procRet) {
-          if (procRet.markers && procRet.markers.length) {
-            ret.push(... procRet.markers);
-          }
-          if (procRet.skip) {
-            lineNum++;
-            continue;
-          }
+    const queue: [number, string][] = [];
+    {
+      let lineNum = 1;
+      for (let line of contentText.split('\n')) {
+        queue.push([lineNum, line]);
+        lineNum++;
+      }
+    }
+
+    const doMarking = (lineNum: number, line: string, preIntercepted?: MarkerCreateInterceptorResult) => {
+      if (preIntercepted) {
+        if (preIntercepted.markers && preIntercepted.markers.length) {
+          markers.push(... preIntercepted.markers);
+        }
+        if (preIntercepted.skip) {
+          return;
         }
       }
+
+      let lineMarkers: Marker[] = [];
 
       let match: RegExpMatchArray;
       re.lastIndex = 0;
@@ -256,11 +314,47 @@ export class Marker implements IndexedRange {
         if (match.index === re.lastIndex) {
           re.lastIndex++;
         }
-        ret.push(new Marker('highlight', lineNum, match.index, match.index + match[0].length));
+        lineMarkers.push(new Marker('highlight', lineNum, match.index, match.index + match[0].length));
       }
-      lineNum++;
+
+      if (interceptors?.post) {
+        const postIntercepted = interceptors.post(lineMarkers, line, lineNum);
+        if (isPromise(postIntercepted)) {
+          promises.push(postIntercepted.then(ret => handlePostIntercept(lineMarkers, ret)));
+        } else {
+          handlePostIntercept(lineMarkers, postIntercepted);
+        }
+      } else {
+        handlePostIntercept(lineMarkers, null);
+      }
+    };
+
+    const handlePostIntercept = (lineMarkers: Marker[], postIntercepted: MarkerCreateInterceptorResult) => {
+      if (postIntercepted) {
+        if (postIntercepted.markers && postIntercepted.markers.length) {
+          markers.push(... postIntercepted.markers);
+        }
+        if (postIntercepted.skip) {
+          return;
+        }
+      }
+      markers.push(... lineMarkers);
     }
-    return ret;
+
+    for (let [lineNum, line] of queue) {
+      if (interceptors?.pre) {
+        const preIntercepted = interceptors.pre(line, lineNum);
+        if (isPromise(preIntercepted)) {
+          promises.push(preIntercepted.then(ret => doMarking(lineNum, line, ret)));
+        } else if (preIntercepted) {
+          doMarking(lineNum, line, preIntercepted);
+        }
+      } else {
+        doMarking(lineNum, line);
+      }
+    }
+
+    return { markers, promises };
   }
 
   static joining(markers: Marker[]): string {

@@ -47,9 +47,7 @@ export async function handleTextMapSearchEndpoint(ctrl: AbstractControl, req: Re
   }
 
   if (ctrl.inputLangCode === ctrl.outputLangCode) {
-    let reFlags: string = ctrl.searchModeFlags.includes('i') ? 'gi' : 'g';
-    let isRegexQuery: boolean = ctrl.searchMode === 'R' || ctrl.searchMode === 'RI';
-    let re = new RegExp(isRegexQuery ? query : escapeRegExp(query), reFlags);
+    let re = new RegExp(ctrl.searchModeIsRegex ? query : escapeRegExp(query), ctrl.searchModeReFlags);
 
     for (let item of items) {
       item.markers = Marker.create(re, item.text);

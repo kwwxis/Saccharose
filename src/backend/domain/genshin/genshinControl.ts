@@ -1265,7 +1265,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
           let name = this.normText(dialog.TalkRoleNameText, this.outputLangCode);
           out += `\n${prefix}${voPrefix}'''${name}:''' ${text}`;
         } else if (dialog.TalkRole.Type === 'TALK_ROLE_MATE_AVATAR') {
-          out += `\n${prefix}${voPrefix}'''(Traveler's Sibling):''' ${text}`;
+          out += `\n${prefix}${voPrefix}'''${this.i18n('TravelerSibling')}:''' ${text}`;
         } else {
           if (text) {
             out += `\n${prefix}:'''Cutscene_Character_Replace_me:''' ${text}`;

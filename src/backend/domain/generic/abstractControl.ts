@@ -90,6 +90,14 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     return this.state.searchMode;
   }
 
+  get searchModeIsRegex(): boolean {
+    return this.searchMode === 'R' || this.searchMode === 'RI';
+  }
+
+  get searchModeReFlags(): string {
+    return this.searchModeFlags.includes('i') ? 'gi' : 'g';
+  }
+
   get searchModeFlags(): string {
     let searchMode = this.searchMode;
     if (NON_SPACE_DELIMITED_LANG_CODES.includes(this.inputLangCode)) {

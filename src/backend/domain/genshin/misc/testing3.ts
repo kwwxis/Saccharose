@@ -25,6 +25,6 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   // console.log(file.findDialog(705210126).prev());
   // console.log(file.findDialog(705210128).prev());
 
-  const file = await ctrl.loadInterActionFile(120320101);
-  console.log(file.findDialog(120320101).prev());
+  const file = await ctrl.loadInterActionFile(1900301201);
+  console.log(file.findDialog(1900301201).prev());
 }

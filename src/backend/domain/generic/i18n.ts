@@ -1,6 +1,22 @@
 import { LangCode, LangCodeMap } from '../../../shared/types/lang-types.ts';
 
 export const GENSHIN_I18N_MAP = {
+  TravelerSibling: <LangCodeMap> {
+    CH: ``,
+    DE: ``,
+    EN: `(Traveler's Sibling)`,
+    ES: ``,
+    FR: ``,
+    ID: ``,
+    IT: ``,
+    JP: ``,
+    KR: ``,
+    PT: ``,
+    RU: ``,
+    TH: ``,
+    TR: ``,
+    VI: ``,
+  },
   TalkToNpc: <LangCodeMap> {
     CH: ``,
     DE: ``,

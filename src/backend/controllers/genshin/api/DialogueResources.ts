@@ -127,32 +127,32 @@ router.endpoint('/dialogue/single-branch-generate', {
   }
 });
 
-// router.endpoint('/dialogue/npc-dialogue-generate', {
-//   get: async (req: Request, res: Response) => {
-//     const ctrl = getGenshinControl(req);
-//     const query = (req.query.name as string)?.trim();
-//
-//     switch (query.toLowerCase()) {
-//       case 'paimon':
-//       case '1005':
-//         throw HttpError.badRequest('UnsupportedOperation', 'Unfortunately the NPC Dialogue generator does not support Paimon (id: 1005). The operation would be too intensive.');
-//       case '???':
-//         throw HttpError.badRequest('UnsupportedOperation', 'Unfortunately the NPC Dialogue generator does not support search for "???"');
-//     }
-//
-//     let resultSet: NpcDialogueResultSet = await dialogueGenerateByNpc(ctrl, query);
-//
-//     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
-//       return res.render('partials/genshin/dialogue/npc-dialogue-result', {
-//         resultMap: resultSet.resultMap,
-//         reminders: resultSet.reminders,
-//         ... await questStillsHelper(ctrl),
-//       });
-//     } else {
-//       return removeCyclicRefs(resultSet, ApiCyclicValueReplacer);
-//     }
-//   }
-// });
+router.endpoint('/dialogue/npc-dialogue-generate', {
+  get: async (req: Request, res: Response) => {
+    const ctrl = getGenshinControl(req);
+    const query = (req.query.name as string)?.trim();
+
+    switch (query.toLowerCase()) {
+      case 'paimon':
+      case '1005':
+        throw HttpError.badRequest('UnsupportedOperation', 'Unfortunately the NPC Dialogue generator does not support Paimon (id: 1005). The operation would be too intensive.');
+      case '???':
+        throw HttpError.badRequest('UnsupportedOperation', 'Unfortunately the NPC Dialogue generator does not support search for "???"');
+    }
+
+    let resultSet: NpcDialogueResultSet = await dialogueGenerateByNpc(ctrl, query);
+
+    if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
+      return res.render('partials/genshin/dialogue/npc-dialogue-result', {
+        resultMap: resultSet.resultMap,
+        reminders: resultSet.reminders,
+        ... await questStillsHelper(ctrl),
+      });
+    } else {
+      return removeCyclicRefs(resultSet, ApiCyclicValueReplacer);
+    }
+  }
+});
 
 router.endpoint('/dialogue/reminder-dialogue-generate', {
   get: async (req: Request, res: Response) => {

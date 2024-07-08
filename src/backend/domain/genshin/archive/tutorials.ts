@@ -185,19 +185,19 @@ export async function selectTutorials(ctrl: GenshinControl,
     tutorial.Wikitext = fileFormatOptionsCheck(text);
 
     if (highlightQuery && ctrl.inputLangCode === ctrl.outputLangCode) {
-      let reFlags: string = ctrl.searchModeFlags.includes('i') ? 'gi' : 'g';
-      let isRegexQuery: boolean = ctrl.searchMode === 'R' || ctrl.searchMode === 'RI';
-      let re = new RegExp(isRegexQuery ? highlightQuery : escapeRegExp(highlightQuery), reFlags);
+      let re = new RegExp(ctrl.searchModeIsRegex ? highlightQuery : escapeRegExp(highlightQuery), ctrl.searchModeReFlags);
 
       let inMarkableLine: boolean  = false;
 
-      tutorial.WikitextMarkers = Marker.create(re, tutorial.Wikitext, (line) => {
-        if (line.startsWith('|title') || line.startsWith('|text')) {
-          inMarkableLine = true;
-        } else if (line.startsWith('|')) {
-          inMarkableLine = false;
+      tutorial.WikitextMarkers = Marker.create(re, tutorial.Wikitext, {
+        pre: (line) => {
+          if (line.startsWith('|title') || line.startsWith('|text')) {
+            inMarkableLine = true;
+          } else if (line.startsWith('|')) {
+            inMarkableLine = false;
+          }
+          return {skip: !inMarkableLine};
         }
-        return {skip: !inMarkableLine};
       });
     }
 

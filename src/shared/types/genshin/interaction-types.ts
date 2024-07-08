@@ -393,7 +393,7 @@ export class InterActionDialog {
         for (let i = prevGroup.Actions.length - 1; i >= 0; i--) {
           let action = prevGroup.Actions[i];
 
-          if (action.Type === 'DIALOG') {
+          if (action.Type === 'DIALOG' && action.DialogId !== this.DialogId) {
             pathEnd = true;
             dialogIds.push(action.DialogId);
           } else if (action.Type === 'DIALOG_SELECT') {
