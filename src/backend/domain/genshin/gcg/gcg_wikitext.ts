@@ -1,10 +1,13 @@
 import { GCGControl } from './gcg_control.ts';
 import {
+  GCGCardExcelConfigData,
+  GCGCharExcelConfigData,
   GCGCommonCard,
   GCGGameExcelConfigData, GCGSkillExcelConfigData, isActionCard, isCharacterCard,
 } from '../../../../shared/types/genshin/gcg-types.ts';
 import { SbOut } from '../../../../shared/util/stringUtil.ts';
 import { ol_gen_from_id } from '../../generic/basic/OLgen.ts';
+import { ChangeRecordRef } from '../../../../shared/types/changelog-types.ts';
 
 // Cards
 // --------------------------------------------------------------------------------------------------------------
@@ -41,7 +44,8 @@ export async function generateSkillPage(gcg: GCGControl, parentCard: GCGCommonCa
   sb.line((await ol_gen_from_id(gcg.ctrl, skill.NameTextMapHash))?.result);
   sb.line();
   sb.line('==Change History==');
-  sb.line('{{Change History|<!-- version -->}}');
+  const crRecord = await gcg.ctrl.selectChangeRecordAdded(skill.Id, 'GCGSkillExcelConfigData');
+  sb.line('{{Change History|' + (crRecord ? crRecord.version : '<!-- version -->') + '}}');
   sb.line();
   sb.line('==Navigation==');
   sb.line(`{{Genius Invokation TCG Skill Navbox|${parentCard.WikiName}}}`);
@@ -200,9 +204,19 @@ export async function generateCardPage(gcg: GCGControl, card: GCGCommonCard): Pr
     sb.line((await ol_gen_from_id(gcg.ctrl, card.NameTextMapHash))?.result || '');
   }
   sb.line();
+
   sb.line('==Change History==');
-  sb.line('{{Change History|<!-- version -->}}');
+  let crRecord: ChangeRecordRef;
+  if (isCharacterCard(card)) {
+    crRecord = await gcg.ctrl.selectChangeRecordAdded(card.Id, 'GCGCharExcelConfigData');
+  } else if (isActionCard(card)) {
+    crRecord = await gcg.ctrl.selectChangeRecordAdded(card.Id, 'GCGCardExcelConfigData');
+  } else {
+    crRecord = null;
+  }
+  sb.line('{{Change History|' + (crRecord ? crRecord.version : '<!-- version -->') + '}}');
   sb.line();
+
   sb.line('==Navigation==');
   if (isCharacterCard(card)) {
     sb.line(`{{Genius Invokation TCG Navbox|${card.WikiType} ${card.IsCanObtain ? 'Obtainable' : 'Unobtainable'}}}`);

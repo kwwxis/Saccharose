@@ -265,7 +265,8 @@ export default async function(): Promise<Router> {
       sb.line((await ol_gen_from_id(ctrl, achievement.TitleTextMapHash)).result);
       sb.line();
       sb.line('==Change History==');
-      sb.line('{{Change History|<!-- version -->}}');
+      const crRecord = await ctrl.selectChangeRecordAdded(achievement.Id, 'AchievementExcelConfigData');
+      sb.line('{{Change History|' + (crRecord ? crRecord.version : '<!-- version -->') + '}}');
       sb.line();
       sb.line('==Navigation==');
       sb.line('{{Achievement Navbox}}');
@@ -561,7 +562,8 @@ export default async function(): Promise<Router> {
       sb.line(ol?.result);
       sb.line();
       sb.line('==Change History==');
-      sb.line('{{Change History|<!-- version -->}}');
+      const crRecord = await ctrl.selectChangeRecordAdded(furn.Id, 'HomeWorldFurnitureExcelConfigData');
+      sb.line('{{Change History|' + (crRecord ? crRecord.version : '<!-- version -->') + '}}');
       sb.line();
       sb.line('==Navigation==');
       if (

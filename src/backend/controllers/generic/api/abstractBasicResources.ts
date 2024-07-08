@@ -8,6 +8,8 @@ import { Request, Response } from 'express';
 import { escapeRegExp } from '../../../../shared/util/stringUtil.ts';
 import { Marker } from '../../../../shared/util/highlightMarker.ts';
 import { TextMapSearchResult } from '../../../../shared/types/lang-types.ts';
+import { ChangeRecordRef } from '../../../../shared/types/changelog-types.ts';
+import { GenshinControl } from '../../../domain/genshin/genshinControl.ts';
 
 export async function handleTextMapSearchEndpoint(ctrl: AbstractControl, req: Request, res: Response) {
   const startFromLine: number = isset(req.query.startFromLine) && isInt(req.query.startFromLine) ? toInt(req.query.startFromLine) : undefined;
@@ -99,6 +101,7 @@ export async function handleOlEndpoint(ctrl: AbstractControl, req: Request, res:
 export async function handleExcelUsagesEndpoint(ctrl: AbstractControl, req: Request, res: Response) {
   const ids: (number|string)[] = String(req.query.q).split(/,/g).map(s => s.trim()).filter(s => /^-?[a-zA-Z0-9_]+$/.test(s)).map(maybeInt);
   const idToUsages: {[id: number|string]: ExcelUsages} = {};
+  const changeRecordRefs: ChangeRecordRef[] = [];
 
   await ids.asyncMap(async id => {
     await ctrl.getExcelUsages(id).then(usages => {
@@ -106,8 +109,14 @@ export async function handleExcelUsagesEndpoint(ctrl: AbstractControl, req: Requ
     });
   });
 
+  if (ctrl instanceof GenshinControl) {
+    for (let id of ids) {
+      changeRecordRefs.push(... await ctrl.selectChangeRecordAdded(id));
+    }
+  }
+
   if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
-    return res.render('partials/generic/basic/excel-usages-result', { idToUsages, embed: toBoolean(req.query.embed) });
+    return res.render('partials/generic/basic/excel-usages-result', { idToUsages, changeRecordRefs, embed: toBoolean(req.query.embed) });
   } else {
     return idToUsages;
   }

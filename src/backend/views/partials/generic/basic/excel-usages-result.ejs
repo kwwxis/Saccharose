@@ -5,6 +5,25 @@
   </div>
 <% } %>
 <div <% if (embed) { %>style="margin-top:10px"<% } %>>
+<% if (!embed && changeRecordRefs && changeRecordRefs.length) { %>
+  <section class="card">
+    <h2>Change Record Refs</h2>
+    <table class="article-table">
+      <tr>
+        <th>ID</th>
+        <th>Excel File</th>
+        <th>Version Added</th>
+      </tr>
+      <% for (let changeRecordRef of changeRecordRefs) { %>
+        <tr>
+          <td><%= changeRecordRef.recordKey %></td>
+          <td><%= changeRecordRef.excelFile %></td>
+          <td><%= changeRecordRef.version %></td>
+        </tr>
+      <% } %>
+    </table>
+  </section>
+<% } %>
 <% Object.keys(idToUsages).forEach(id => { %>
   <% if (!embed) { %>
   <section class="card">

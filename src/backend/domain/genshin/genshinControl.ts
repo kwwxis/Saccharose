@@ -163,8 +163,14 @@ import {
 import { CommonLineId } from '../../../shared/types/common-types.ts';
 import { genshin_i18n, GENSHIN_I18N_MAP, GENSHIN_MATERIAL_TYPE_DESC_PLURAL_MAP } from '../generic/i18n.ts';
 import * as console from 'console';
-import { FullChangelog } from '../../../shared/types/changelog-types.ts';
-import { GameVersion } from '../../../shared/types/game-versions.ts';
+import {
+  ChangeRecord,
+  ChangeRecordMap,
+  ChangeRecordRef,
+  ExcelFileChanges,
+  FullChangelog,
+} from '../../../shared/types/changelog-types.ts';
+import { GameVersion, GenshinVersions } from '../../../shared/types/game-versions.ts';
 import { AbstractControlState } from '../generic/abstractControlState.ts';
 
 // region Control State
@@ -3149,6 +3155,15 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   // endregion
 
   // region Changelog
+  async selectAllChangelogs(): Promise<Record<string, FullChangelog>> {
+    let changelogs = await GenshinVersions.filter(v => v.showChangelog).asyncMap(v => this.selectChangelog(v));
+    let map: Record<string, FullChangelog> = {};
+    for (let changelog of changelogs) {
+      map[changelog.version.number] = changelog;
+    }
+    return map;
+  }
+
   async selectChangelog(version: GameVersion): Promise<FullChangelog> {
     if (!version || !version.showChangelog) {
       return null;
@@ -3159,8 +3174,55 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
       const textmapChangelog = JSON.parse(fs.readFileSync(textmapChangelogFileName, {encoding: 'utf-8'}));
       const excelChangelog = JSON.parse(fs.readFileSync(excelChangelogFileName, {encoding: 'utf-8'}));
-      return <FullChangelog> {textmapChangelog, excelChangelog};
+      return <FullChangelog> {version: version, textmapChangelog, excelChangelog};
     });
+  }
+
+  async selectChangeRecordAdded(id: string|number): Promise<ChangeRecordRef[]>
+  async selectChangeRecordAdded(id: string|number, excelFile: string): Promise<ChangeRecordRef>
+
+  async selectChangeRecordAdded(id: string|number, excelFile?: string): Promise<ChangeRecordRef|ChangeRecordRef[]> {
+    if (excelFile) {
+      return (await this.selectChangeRecord(id, excelFile)).find(r => r.record.changeType === 'added');
+    } else {
+      return (await this.selectChangeRecord(id)).filter(r => r.record.changeType === 'added');
+    }
+  }
+
+  async selectChangeRecord(id: string|number, excelFile?: string): Promise<ChangeRecordRef[]> {
+    if (excelFile && excelFile.endsWith('.json')) {
+      excelFile = excelFile.slice(0, -5);
+    }
+
+    const changeRecordRefs: ChangeRecordRef[] = [];
+
+    const changelogs = await this.selectAllChangelogs();
+    for (let [versionNum, fullChangelog] of Object.entries(changelogs)) {
+      if (excelFile) {
+        if (fullChangelog.excelChangelog[excelFile]?.changedRecords[id]) {
+          let record: ChangeRecord = fullChangelog.excelChangelog[excelFile]?.changedRecords[id];
+          changeRecordRefs.push({
+            version: versionNum,
+            excelFile,
+            recordKey: String(id),
+            record
+          });
+        }
+      } else {
+        for (let excelFileChanges of Object.values(fullChangelog.excelChangelog)) {
+          if (excelFileChanges.changedRecords[id]) {
+            changeRecordRefs.push({
+              version: versionNum,
+              excelFile: excelFileChanges.name,
+              recordKey: String(id),
+              record: excelFileChanges.changedRecords[id]
+            });
+          }
+        }
+      }
+    }
+
+    return changeRecordRefs;
   }
   // endregion
 
