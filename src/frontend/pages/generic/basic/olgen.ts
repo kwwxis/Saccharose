@@ -8,6 +8,7 @@ import {
 import { pageMatch } from '../../../core/pageMatch.ts';
 import { HttpError } from '../../../../shared/util/httpError.ts';
 import { pasteFromClipboard } from '../../../util/domutil.ts';
+import { isEmpty, isUnset } from '../../../../shared/util/genericUtil.ts';
 
 pageMatch('pages/generic/basic/olgen', () => {
   const {endpoint, tlRmDisabled, neverDefaultHidden} = getOLEndpoint();
@@ -39,9 +40,9 @@ pageMatch('pages/generic/basic/olgen', () => {
     let inputEl = document.querySelector<HTMLInputElement>('.ol-input');
     let buttonEl  = document.querySelector<HTMLButtonElement>('.ol-submit');
     let loadingEl = document.querySelector<HTMLElement>('.ol-submit-pending');
-    let tlOptionValue = document.querySelector<HTMLInputElement>('input[type="radio"][name="tl_options"]:checked').value;
-    let rmOptionValue = document.querySelector<HTMLInputElement>('input[type="radio"][name="rm_options"]:checked').value;
-    let includeHeader = document.querySelector<HTMLInputElement>('input[type="checkbox"][name="ol_header"]').checked;
+    let tlOptionValue = document.querySelector<HTMLInputElement>('input[type="radio"][name="tl_options"]:checked')?.value;
+    let rmOptionValue = document.querySelector<HTMLInputElement>('input[type="radio"][name="rm_options"]:checked')?.value;
+    let includeHeader = document.querySelector<HTMLInputElement>('input[type="checkbox"][name="ol_header"]')?.checked;
     let text = inputEl.value.trim();
 
     if (!text) {
@@ -63,9 +64,9 @@ pageMatch('pages/generic/basic/olgen', () => {
 
     endpoint.get({
       text,
-      hideTl: tlRmDisabled || tlOptionValue === 'exclude_tl',
+      hideTl: tlRmDisabled || tlOptionValue === 'exclude_tl' || isUnset(tlOptionValue),
       addDefaultHidden: !neverDefaultHidden && tlOptionValue === 'exclude_tl',
-      hideRm: tlRmDisabled || rmOptionValue === 'exclude_rm',
+      hideRm: tlRmDisabled || rmOptionValue === 'exclude_rm' || isUnset(rmOptionValue),
       includeHeader: includeHeader ? '1' : undefined,
     }, true).then(result => {
       document.querySelector('#ol-results-list').innerHTML = result;

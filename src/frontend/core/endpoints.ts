@@ -366,15 +366,15 @@ export function getOLEndpoint(): {endpoint: SaccharoseApiEndpoint<any>, tlRmDisa
     endpoint = genshinEndpoints.generateOL;
   } else if (SiteMode.isStarRail) {
     endpoint = starRailEndpoints.generateOL;
-    tlRmDisabled = true;
+    tlRmDisabled = false;
     neverDefaultHidden = true;
   } else if (SiteMode.isZenless) {
     endpoint = zenlessEndpoints.generateOL;
-    tlRmDisabled = true;
+    tlRmDisabled = false;
     neverDefaultHidden = true;
   } else if (SiteMode.isWuwa) {
     endpoint = wuwaEndpoints.generateOL;
-    tlRmDisabled = true;
+    tlRmDisabled = false;
     neverDefaultHidden = true;
   }
   return {endpoint, tlRmDisabled, neverDefaultHidden};

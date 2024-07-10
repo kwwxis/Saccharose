@@ -22,7 +22,8 @@ export default async function(): Promise<Router> {
   router.get('/OL', async (req: Request, res: Response) => {
     res.render('pages/generic/basic/olgen', {
       title: 'OL',
-      bodyClass: ['page--OL']
+      bodyClass: ['page--OL'],
+      hideTlOption: true
     });
   });
 
