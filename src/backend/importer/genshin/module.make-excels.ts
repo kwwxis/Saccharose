@@ -97,6 +97,7 @@ export async function generateQuestDialogExcels(repoRoot: string) {
   const questExcelToMqId: { [id: string]: number } = {};
   const talkExcelById: { [id: string]: any } = {};
   const dialogExcelById: { [id: string]: any } = {};
+  const codexQuestById: { [id: string]: any } = {};
   const scannedTalkIds: { [id: string]: {[fileName: string]: any} } = defaultMap('Object');
 
   // ----------------------------------------------------------------------
@@ -350,7 +351,7 @@ export async function generateQuestDialogExcels(repoRoot: string) {
     }
   }
 
-  function processCodexQuestObject(json: any) {
+  function processCodexQuestObject(fileName: string, json: any) {
     if (!json.mainQuestId || !Array.isArray(json.subQuests)) {
       return;
     }
@@ -377,12 +378,15 @@ export async function generateQuestDialogExcels(repoRoot: string) {
           speakerTextMapHash: item.speakerText?.textId,
           speakerTextType: item.speakerText?.textType,
           nextItemId: defaultNextItemId,
+          fileName: path.basename(fileName)
         };
+
+        const stagingCodexQuestArray: any[] = [];
 
         if (item.dialogs) {
           let i = 0;
           for (let dialog of item.dialogs) {
-            codexQuestArray.push(Object.assign({}, initialObj, {
+            stagingCodexQuestArray.push(Object.assign({}, initialObj, {
               id: (mqId + "-" + item.itemId + "-" + i),
               contentTextMapHash: dialog.text?.textId,
               contentTextType: dialog.text?.textType,
@@ -396,12 +400,21 @@ export async function generateQuestDialogExcels(repoRoot: string) {
         if (item.texts) {
           let i = 0;
           for (let text of item.texts) {
-            codexQuestArray.push(Object.assign({}, initialObj, {
+            stagingCodexQuestArray.push(Object.assign({}, initialObj, {
               id: (mqId + "-" + item.itemId + "-" + i),
               contentTextMapHash: text.textId,
               contentTextType: text.textType,
             }));
             i++;
+          }
+        }
+
+        for (let codexQuest of stagingCodexQuestArray) {
+          if (codexQuestById[codexQuest.id]) {
+            Object.assign(codexQuestById[codexQuest.id], codexQuest);
+          } else {
+            codexQuestById[codexQuest.id] = codexQuest;
+            codexQuestArray.push(codexQuest);
           }
         }
       }
@@ -458,7 +471,7 @@ export async function generateQuestDialogExcels(repoRoot: string) {
     }
     let json = await fsp.readFile(fileName, { encoding: 'utf8' }).then(data => JSON.parse(data));
     json = deobf(json);
-    processCodexQuestObject(json);
+    processCodexQuestObject(fileName, json);
   }
 
   console.log('Processed ' + mainQuestExcelArray.length + ' main quests');

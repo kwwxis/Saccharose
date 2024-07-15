@@ -24,7 +24,7 @@ export async function importGenshinFilesCli() {
     {name: 'normalize', type: Boolean, description: 'Normalizes the JSON files.'},
     {name: 'plaintext', type: Boolean, description: 'Creates the PlainTextMap files.'},
     {name: 'voice-items', type: Boolean, description: 'Creates the normalized voice items file.'},
-    {name: 'translate-schema', type: Boolean, description: 'Creates the SchemaTranslation file.'},
+    // {name: 'translate-schema', type: Boolean, description: 'Creates the SchemaTranslation file.'},
     {name: 'interaction', type: Boolean, description: 'Load QuestDialogue InterActions from BinOutput.'},
     {name: 'index-images', type: Boolean, description: 'Creates index for asset images. ' +
         'Must load all wanted Texture2D images into the EXT_GENSHIN_IMAGES directory first though.'},
@@ -39,7 +39,7 @@ export async function importGenshinFilesCli() {
 
   const options_util: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
     {name: 'maximize-images', type: Boolean, description: 'Compares images with duplicate names to choose the image with the largest size.'},
-    {name: 'translate-excel', type: String, typeLabel: '<outputDir>', description: 'Translate excel to output directory. Requires translate-schema to be completed first.'},
+    {name: 'translate-excel', type: String, typeLabel: '<outputDir>', description: 'Copies excel files to output directory with renameFields applied.'},
     {name: 'help', type: Boolean, description: 'Display this usage guide.'},
     {name: 'avatar-anim-interaction', type: Boolean},
     {name: 'dry-run', type: Boolean},
