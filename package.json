@@ -23,8 +23,8 @@
   "author": "kwwxis",
   "license": "MIT",
   "dependencies": {
-    "ag-grid-community": "^31.3.2",
-    "ag-grid-enterprise": "^31.3.2",
+    "ag-grid-community": "^32.0.2",
+    "ag-grid-enterprise": "^32.0.2",
     "async-exit-hook": "^2.0.1",
     "async-lock": "^1.4.1",
     "autosize": "^6.0.1",
