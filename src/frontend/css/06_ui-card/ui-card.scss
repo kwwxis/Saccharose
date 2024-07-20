@@ -147,8 +147,8 @@ ol.padding li {
   padding: 0 8px;
 }
 
-.card .content textarea,
-.card .content [contenteditable] {
+.card .content textarea:not(.no-input-style),
+.card .content [contenteditable]:not(.no-input-style) {
   line-height: 22px;
   padding: 4px 8px;
   border-radius: 3px;

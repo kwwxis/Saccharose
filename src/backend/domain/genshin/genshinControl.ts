@@ -506,7 +506,8 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   async selectMainQuestsByNameOrId(name: string|number, limit: number = 25): Promise<MainQuestExcelConfigData[]> {
     if (typeof name === 'string') {
       let textMapHashes: TextMapHash[] = (await this.getTextMapMatches({
-        langCode: this.inputLangCode,
+        inputLangCode: this.inputLangCode,
+        outputLangCode: this.outputLangCode,
         searchText: name,
         flags: '-i'
       })).map(x => x.hash);
@@ -2590,7 +2591,8 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     }
 
     await this.streamTextMapMatchesWithIndex({
-      langCode: this.inputLangCode,
+      inputLangCode: this.inputLangCode,
+      outputLangCode: this.outputLangCode,
       searchText,
       textIndexName: 'Material',
       stream: (id) => {
@@ -2833,7 +2835,8 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     }
 
     await this.streamTextMapMatchesWithIndex({
-      langCode: this.inputLangCode,
+      inputLangCode: this.inputLangCode,
+      outputLangCode: this.outputLangCode,
       searchText,
       textIndexName: 'Weapon',
       stream: (id) => {
@@ -2902,7 +2905,8 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     }
     let ids = [];
     await this.streamTextMapMatchesWithIndex({
-      langCode,
+      inputLangCode: langCode,
+      outputLangCode: langCode,
       searchText,
       textIndexName: 'Readable',
       stream: (id, _textMapHash) => {
@@ -3307,7 +3311,8 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     }
 
     await this.streamTextMapMatchesWithIndex({
-      langCode: this.inputLangCode,
+      inputLangCode: this.inputLangCode,
+      outputLangCode: this.outputLangCode,
       searchText,
       textIndexName: 'Achievement',
       stream: (id) => {

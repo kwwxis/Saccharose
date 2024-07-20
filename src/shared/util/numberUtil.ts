@@ -57,6 +57,10 @@ export function toInt(x: any): number {
   }
 }
 
+/**
+ * If the parameter passed into this function is in the form of an integer, then it'll be returned as an integer,
+ * otherwise the original parameter will be returned.
+ */
 export function maybeInt(x: any): any {
   return isInteger(x) ? toInt(x) : x;
 }

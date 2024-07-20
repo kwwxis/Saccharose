@@ -151,7 +151,8 @@ export async function reminderGenerate(ctrl: GenshinControl, query: number|strin
   if (typeof query === 'string') {
     // string
     const textMapHashes = (await ctrl.getTextMapMatches({
-      langCode: ctrl.inputLangCode,
+      inputLangCode: ctrl.inputLangCode,
+      outputLangCode: ctrl.outputLangCode,
       searchText: query.trim(),
       flags: ctrl.searchModeFlags
     })).map(x => x.hash);

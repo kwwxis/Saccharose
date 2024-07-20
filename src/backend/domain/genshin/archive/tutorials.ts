@@ -83,7 +83,8 @@ export async function searchTutorials(ctrl: GenshinControl, searchText: string):
   }
 
   await ctrl.streamTextMapMatchesWithIndex({
-    langCode: ctrl.inputLangCode,
+    inputLangCode: ctrl.inputLangCode,
+    outputLangCode: ctrl.outputLangCode,
     searchText,
     textIndexName: 'Tutorial',
     stream: (id) => {

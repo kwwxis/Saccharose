@@ -13,12 +13,16 @@
     </div>
     <div class="field valign">
       <label class="ui-checkbox dispBlock" style="padding-left:5px;font-size:13px;">
-        <input id="isRawInput" type="checkbox" name="isRawInput" value="1" <%= cookieTernary('TextMapSearch.isRawInput').isTruthy().then('checked') %> />
+        <input id="isRawInput" type="checkbox" name="isRawInput" value="1" />
         <span>Use raw input</span>
       </label>
       <label class="ui-checkbox dispBlock" style="padding-left:5px;font-size:13px;">
-        <input id="isRawOutput" type="checkbox" name="isRawOutput" value="1" <%= cookieTernary('TextMapSearch.isRawOutput').isTruthy().then('checked') %> />
+        <input id="isRawOutput" type="checkbox" name="isRawOutput" value="1" />
         <span>Use raw output</span>
+      </label>
+      <label class="ui-checkbox dispBlock" style="padding-left:5px;font-size:13px;">
+        <input id="hashSearch" type="checkbox" name="hashSearch" value="1" />
+        <span>Hash search</span>
       </label>
     </div>
     <div class="field valign spacer10-top">

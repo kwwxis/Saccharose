@@ -2,6 +2,8 @@ import { genshinEndpoints } from '../../../core/endpoints.ts';
 import { pageMatch } from '../../../core/pageMatch.ts';
 import { startGenericSearchPageListeners } from '../../genericSearchPage.ts';
 import './branch-dialogue.scss';
+import { listen } from '../../../util/eventListen.ts';
+import Cookies from 'js-cookie';
 
 pageMatch('pages/genshin/dialogue/branch-dialogue', () => {
   startGenericSearchPageListeners({

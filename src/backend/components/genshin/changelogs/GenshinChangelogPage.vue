@@ -201,10 +201,10 @@
         <div class="content">
           <p>May contain special variants of enemies with the same name as an already existing enemy.</p>
         </div>
-        <div class="content alignStart flexWrap">
+        <div class="content alignStart flexWrap" v-if="newSummary.monsters.length">
           <GenshinLb v-for="monster of newSummary.monsters" :monster="monster" />
         </div>
-        <div v-if="!newSummary.monsters.length">
+        <div class="content" v-if="!newSummary.monsters.length">
           <p>(None)</p>
         </div>
       </div>

@@ -24,7 +24,9 @@ export type BaseHighlightOptions = {
   markerAdjustments?: MarkerAdjustment[],
   commonLineIds?: CommonLineId[],
   isWikiTemplateFragment?: boolean,
-  disableReadonlyContenteditable?: boolean
+  disableReadonlyContenteditable?: boolean,
+  noInputStyle?: boolean,
+  noTheme?: boolean,
 };
 
 export type HighlightOptions = BaseHighlightOptions & {
@@ -58,6 +60,9 @@ export function highlight(opts: HighlightOptions): HTMLElement {
   // Normalize Opts
   // --------------------------------------------------------------------------------------------------------------
   if (opts.mode === 'ace/mode/wikitext' && toBoolean(Cookies.get('disable_wikitext_highlight'))) {
+    opts.mode = 'ace/mode/plain_text';
+  }
+  if (!opts.mode) {
     opts.mode = 'ace/mode/plain_text';
   }
   if (!opts.commonLineIds) {
@@ -134,10 +139,10 @@ export function highlight(opts: HighlightOptions): HTMLElement {
     // --------------------------------------------------------------------------------------------------------------
     const html =
       `<div${opts.id ? ` id="${escapeHtml(opts.id)}"` : ''} data-highlight-id="${opts.uuid}" ` +
-            `class="highlighted${gutters ? ' highlighted-has-gutters' : ''} ${theme.cssClass}" ` +
+            `class="highlighted${gutters ? ' highlighted-has-gutters' : ''}${opts.noTheme ? '' : ' ' + theme.cssClass}" ` +
             `${opts.disableReadonlyContenteditable ? '' : `contenteditable readonly `}` +
             `style="position:relative">` +
-        `<div class="ace_static_highlight${gutters ? ' ace_show_gutter' : ''}" style="counter-reset:ace_line ${lineStart - 1}">` +
+        `<div class="ace_static_highlight${gutters ? ' ace_show_gutter' : ''}${opts.noInputStyle ? ' no-input-style' : ''}" style="counter-reset:ace_line ${lineStart - 1}">` +
           `<div class="ace_static_layer ace_static_text_layer">${textLayerSb.join('').replace(/\s*style=['"]width:NaNpx['"]/g, '')}</div>` +
         `</div>` +
       `</div>`;
@@ -396,6 +401,11 @@ export function highlightReplace(original: HTMLElement, opts: HighlightReplaceOp
     opts.isWikiTemplateFragment = toBoolean(original.getAttribute('data-is-wiki-template-fragment'));
   if (original.hasAttribute('data-line-ids'))
     opts.commonLineIds = parseCommonLineIds(original.getAttribute('data-line-ids'));
+  if (toBoolean(original.hasAttribute('data-no-input-style')) || original.classList.contains('no-input-style'))
+    opts.noInputStyle = true;
+  if (toBoolean(original.hasAttribute('data-no-theme')) || original.classList.contains('no-theme'))
+    opts.noTheme = true;
+
 
   const element: HTMLElement = highlight({ text: opts.textOverride || getInputValue(original), ... opts });
 

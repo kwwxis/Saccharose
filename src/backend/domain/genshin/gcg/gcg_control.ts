@@ -629,7 +629,8 @@ export class GCGControl {
     }
 
     await this.ctrl.streamTextMapMatchesWithIndex({
-      langCode: this.ctrl.inputLangCode,
+      inputLangCode: this.ctrl.inputLangCode,
+      outputLangCode: this.ctrl.outputLangCode,
       searchText,
       textIndexName: 'TCGStage',
       stream: (id) => {

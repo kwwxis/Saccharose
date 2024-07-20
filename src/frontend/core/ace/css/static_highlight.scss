@@ -2,7 +2,7 @@
   display: none;
 }
 
-.ace_static_highlight {
+.ace_static_highlight:not(.no-input-style) {
   //font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', 'Droid Sans Mono', sans-serif;
   font-family: Consolas, Menlo, 'Monaco', 'Lucida Console', 'Liberation Mono', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Courier New', sans-serif;
   font-size: 13.333px;
@@ -11,7 +11,7 @@
   position: relative;
 }
 
-[contenteditable].highlighted-has-gutters {
+[contenteditable]:not(.no-input-style).highlighted-has-gutters {
   padding: 0 !important;
 }
 
@@ -241,7 +241,7 @@
       }
     }
 
-    [contenteditable] {
+    [contenteditable]:not(.no-input-style) {
       padding: 4px 8px;
     }
   }

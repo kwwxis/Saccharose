@@ -1,4 +1,4 @@
-textarea,
+textarea:not(.no-input-style),
 select,
 input[type='text'],
 input[type='password'],
@@ -8,7 +8,7 @@ input[type='url'],
 input[type='number'],
 input[type='time'],
 input[type='date'],
-[contenteditable],
+[contenteditable]:not(.no-input-style),
 .input-style {
   font-family: Arial, "Source Sans Pro", sans-serif;
   font-size: 13.333px;
@@ -58,7 +58,7 @@ input[type='date'],
 // High DPI thin borders
 // --------------------------------------------------------------------------------------------------------------
 @media (-webkit-min-device-pixel-ratio: 1.5), (min-resolution: 144dpi) {
-  textarea,
+  textarea:not(.no-input-style),
   select,
   hr,
   input[type='text'],
@@ -71,7 +71,7 @@ input[type='date'],
   input[type='date'],
   .thin-border,
   .card > h2,
-  textarea:hover,
+  textarea:not(.no-input-style):hover,
   select:hover,
   input[type='text']:hover,
   input[type='password']:hover,
@@ -82,7 +82,7 @@ input[type='date'],
   input[type='time']:hover,
   input[type='date']:hover,
   .thin-border:hover,
-  textarea:focus,
+  textarea:not(.no-input-style):focus,
   select:focus,
   input[type='text']:focus,
   input[type='password']:focus,
@@ -94,9 +94,9 @@ input[type='date'],
   input[type='date']:focus,
   .thin-border:focus,
   .card,
-  [contenteditable],
-  [contenteditable]:hover,
-  [contenteditable]:focus,
+  [contenteditable]:not(.no-input-style),
+  [contenteditable]:not(.no-input-style):hover,
+  [contenteditable]:not(.no-input-style):focus,
   .input-style,
   .input-style:hover,
   .input-style:focus {
@@ -123,7 +123,7 @@ input[type=search].code {
   font-family: Consolas, Menlo, 'Monaco', 'Lucida Console', 'Liberation Mono', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Courier New', sans-serif;
 }
 
-textarea.code, [contenteditable].code, .input-style.code {
+textarea.code:not(.no-input-style), [contenteditable]:not(.no-input-style).code, .input-style.code {
   resize: vertical;
   border-color: #ccc;
   padding: 3px;

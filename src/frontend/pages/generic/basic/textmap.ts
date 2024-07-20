@@ -12,6 +12,7 @@ import { frag } from '../../../util/domutil.ts';
 import { listen } from '../../../util/eventListen.ts';
 import SiteMode from '../../../core/userPreferences/siteMode.ts';
 import { highlightReplace } from '../../../core/ace/aceHighlight.ts';
+import Cookies from 'js-cookie';
 
 pageMatch('pages/generic/basic/textmap', () => {
   let handle: GenericSearchPageHandle;
@@ -69,6 +70,11 @@ pageMatch('pages/generic/basic/textmap', () => {
         selector: '#isRawOutput',
         apiParam: 'isRawOutput',
         queryParam: 'isRawOutput',
+      },
+      {
+        selector: '#hashSearch',
+        apiParam: 'hashSearch',
+        queryParam: 'hashSearch',
       }
     ],
 

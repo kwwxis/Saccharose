@@ -16,16 +16,20 @@ export async function handleTextMapSearchEndpoint(ctrl: AbstractControl, req: Re
   const resultSetNum: number = isset(req.query.resultSetNum) && isInt(req.query.resultSetNum) ? toInt(req.query.resultSetNum) : 0;
   const isRawInput: boolean = isset(req.query.isRawInput) && toBoolean(req.query.isRawInput);
   const isRawOutput: boolean = isset(req.query.isRawOutput) && toBoolean(req.query.isRawOutput);
+  const hashSearch: boolean = isset(req.query.hashSearch) && toBoolean(req.query.hashSearch);
   const SEARCH_TEXTMAP_MAX = 100;
   const query: string = req.query.text as string;
 
   // "-m" flag -> max count
   const items: TextMapSearchResult[] = await ctrl.getTextMapMatches({
-    langCode: ctrl.inputLangCode,
+    inputLangCode: ctrl.inputLangCode,
+    outputLangCode: ctrl.outputLangCode,
     searchText: query,
     flags: `-m ${SEARCH_TEXTMAP_MAX + 1} ${ctrl.searchModeFlags}`,
     startFromLine,
-    isRawInput
+    isRawInput,
+    searchAgainst: hashSearch ? 'Hash' : 'Text',
+    doNormText: !isRawOutput
   });
   let hasMoreResults: boolean = false;
 
@@ -34,27 +38,7 @@ export async function handleTextMapSearchEndpoint(ctrl: AbstractControl, req: Re
     items.pop();
   }
 
-  let lastLine: number = items.length ? items[items.length - 1].line : null;
-
-  if (ctrl.inputLangCode !== ctrl.outputLangCode) {
-    for (let item of items) {
-      item.text = await ctrl.getTextMapItem(ctrl.outputLangCode, item.hash);
-    }
-  }
-
-  if (!isRawOutput) {
-    for (let item of items) {
-      item.text = ctrl.normText(item.text, ctrl.outputLangCode);
-    }
-  }
-
-  if (ctrl.inputLangCode === ctrl.outputLangCode) {
-    let re = new RegExp(ctrl.searchModeIsRegex ? query : escapeRegExp(query), ctrl.searchModeReFlags);
-
-    for (let item of items) {
-      item.markers = Marker.create(re, item.text);
-    }
-  }
+  const lastLine: number = items.length ? items[items.length - 1].line : null;
 
   if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
     return res.render('partials/generic/basic/textmap-search-result', {

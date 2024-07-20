@@ -542,7 +542,8 @@ export async function dialogueToQuestId(ctrl: GenshinControl,
   // If the query is a string then consider it as dialog text, and find the corresponding textmap hash and dialog
   if (typeof query === 'string') {
     let textmapHashes = (await ctrl.getTextMapMatches({
-      langCode: ctrl.inputLangCode,
+      inputLangCode: ctrl.inputLangCode,
+      outputLangCode: ctrl.outputLangCode,
       searchText: query,
       flags: '-m 1' // only get one match
     })).map(x => x.hash);

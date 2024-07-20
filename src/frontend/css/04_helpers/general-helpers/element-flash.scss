@@ -61,7 +61,7 @@
 
 body:not(.nightmode) .flash textarea,
 body:not(.nightmode) .flash select,
-body:not(.nightmode) .flash [contenteditable],
+body:not(.nightmode) .flash [contenteditable]:not(.no-input-style),
 body:not(.nightmode) .flash .input-style,
 body:not(.nightmode) .flash input[type='text'],
 body:not(.nightmode) .flash input[type='password'],
@@ -76,7 +76,7 @@ body:not(.nightmode) .flash input[type='date'] {
 
 body.nightmode .flash textarea,
 body.nightmode .flash select,
-body.nightmode .flash [contenteditable],
+body.nightmode .flash [contenteditable]:not(.no-input-style),
 body.nightmode .flash .input-style,
 body.nightmode .flash input[type='text'],
 body.nightmode .flash input[type='password'],

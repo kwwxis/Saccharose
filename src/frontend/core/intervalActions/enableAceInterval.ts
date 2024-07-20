@@ -5,7 +5,7 @@ import { isElementPartiallyInViewport } from '../../util/domutil.ts';
 import { toBoolean } from '../../../shared/util/genericUtil.ts';
 
 export function enableAceInterval() {
-  document.querySelectorAll<HTMLTextAreaElement>('textarea.wikitext').forEach(el => {
+  document.querySelectorAll<HTMLTextAreaElement>('textarea.wikitext, .ace-wikitext').forEach(el => {
     if (el.closest('.hide'))
       return;
     if (el.hasAttribute('data-lazy-load') && toBoolean(el.getAttribute('data-lazy-load')) && !isElementPartiallyInViewport(el))
@@ -13,12 +13,20 @@ export function enableAceInterval() {
     highlightWikitextReplace(el);
   });
 
-  document.querySelectorAll<HTMLTextAreaElement>('textarea.json').forEach(el => {
+  document.querySelectorAll<HTMLTextAreaElement>('textarea.json, .ace-json').forEach(el => {
     if (el.closest('.hide'))
       return;
     if (el.hasAttribute('data-lazy-load') && toBoolean(el.getAttribute('data-lazy-load')) && !isElementPartiallyInViewport(el))
       return;
     highlightReplace(el, { mode: 'ace/mode/json' });
+  });
+
+  document.querySelectorAll<HTMLTextAreaElement>('textarea.plaintext, .ace-plaintext').forEach(el => {
+    if (el.closest('.hide'))
+      return;
+    if (el.hasAttribute('data-lazy-load') && toBoolean(el.getAttribute('data-lazy-load')) && !isElementPartiallyInViewport(el))
+      return;
+    highlightReplace(el, { mode: 'ace/mode/plain_text' });
   });
 
   document.querySelectorAll<HTMLTextAreaElement>('textarea.autosize').forEach(el => {

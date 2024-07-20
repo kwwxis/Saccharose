@@ -7,22 +7,26 @@ export type TextMapSearchResult = {
   hash: TextMapHash,
   text: string,
   line: number,
-  markers?: Marker[]
+  markers?: Marker[],
+  hashMarkers?: Marker[],
 };
 
 export type TextMapSearchOpts = {
-  langCode: LangCode,
+  inputLangCode: LangCode,
+  outputLangCode: LangCode,
   searchText: string,
   flags: string,
   isRawInput?: boolean,
-  startFromLine?: number
+  startFromLine?: number,
+  searchAgainst?: 'Text' | 'Hash',
+  doNormText?: boolean
 };
 export type TextMapSearchStreamOpts = TextMapSearchOpts & {
   stream: (textMapHash: TextMapHash, text?: string, kill?: () => void) => void,
 };
 export type TextMapSearchIndexStreamOpts = TextMapSearchOpts & {
   textIndexName: string,
-  stream: (entityId: number, textMapHash: TextMapHash, text?: string, kill?: () => void) => void,
+  stream: (entityId: number, textMapHash: TextMapHash, text?: string) => void,
 };
 
 export type PlainLineMapItem = {Line: number, Hash: TextMapHash, LineType?: string };

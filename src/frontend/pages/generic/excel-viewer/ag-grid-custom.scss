@@ -15,7 +15,7 @@
   background: transparent !important;
 }
 
-.ag-cell [contenteditable] {
+.ag-cell [contenteditable]:not(.no-input-style) {
   border: 0;
   margin: 0;
   padding: 0;
@@ -25,7 +25,7 @@
   font-size: 13px;
 }
 
-.ag-cell .ace_static_highlight {
+.ag-cell .ace_static_highlight:not(.no-input-style) {
   font-size: 13px;
 }
 

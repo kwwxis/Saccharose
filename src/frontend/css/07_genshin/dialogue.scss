@@ -12,7 +12,7 @@
     border-top-color: hsl(255deg 13% 25%);
   }
 
-  textarea, [contenteditable] {
+  textarea:not(.no-input-style), [contenteditable]:not(.no-input-style) {
     padding: 4px 8px;
   }
 

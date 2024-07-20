@@ -321,7 +321,8 @@ export async function dialogueGenerate(ctrl: GenshinControl, opts: DialogueGener
     let acceptedCount = 0;
     for await (let textMapHash of ctrl.generateTextMapMatches({
       searchText: state.query.trim(),
-      langCode: ctrl.inputLangCode,
+      inputLangCode: ctrl.inputLangCode,
+      outputLangCode: ctrl.outputLangCode,
       flags: ctrl.searchModeFlags
     })) {
       const dialogues: DialogExcelConfigData[] = await ctrl.selectDialogsFromTextMapHash(textMapHash, true);
