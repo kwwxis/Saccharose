@@ -303,6 +303,11 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     const hashSeen: Set<TextMapHash> = new Set();
     const out: TextMapSearchResult[] = [];
 
+    const shellFlags: ShellFlags = ShellFlags.parseFlags(opts.flags);
+    const reFlags: string = shellFlags.has("-i") ? 'gi' : 'g';
+    const hasRegexFlag = shellFlags.has('-E') || shellFlags.has('-P') || shellFlags.has('-G');
+    const re = new RegExp(hasRegexFlag ? opts.searchText : escapeRegExp(opts.searchText), reFlags);
+
     {
       const possibleHashes: TextMapHash[] = [maybeInt(opts.searchText.trim())];
       if (opts.searchText.includes(',') || opts.searchText.includes(';')) {
@@ -320,10 +325,12 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
             if (opts.doNormText) {
               text = this.normText(text, opts.outputLangCode);
             }
+            hashSeen.add(possibleHash);
             out.push({
               hash: possibleHash,
               text,
               line: await getLineNumberForLineText(String(possibleHash), this.getDataFilePath(getPlainTextMapRelPath(opts.inputLangCode, 'Hash'))),
+              hashMarkers: opts.searchAgainst === 'Hash' ? Marker.create(re, String(possibleHash)) : undefined,
             });
           }
         }
@@ -331,13 +338,8 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     }
 
     const textFile: string = getPlainTextMapRelPath(opts.inputLangCode, opts.searchAgainst);
-    const shellFlags: ShellFlags = ShellFlags.parseFlags(opts.flags);
     const max: number = toInt(shellFlags.getFlagValue('-m'));
     let startFromLine = opts.startFromLine;
-
-    const reFlags: string = shellFlags.has("-i") ? 'gi' : 'g';
-    const hasRegexFlag = shellFlags.has('-E') || shellFlags.has('-P') || shellFlags.has('-G');
-    const re = new RegExp(hasRegexFlag ? opts.searchText : escapeRegExp(opts.searchText), reFlags);
 
     outerLoop: while (true) {
       const matches = await grep(opts.searchText, this.getDataFilePath(textFile),

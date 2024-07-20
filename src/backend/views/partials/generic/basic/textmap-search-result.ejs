@@ -19,8 +19,7 @@
     <section data-hash="<%= item.hash %>" class="card">
       <h2 class="valign" style="font-size: 16px;padding: 3px 10px;">
         <span style="opacity:0.6">TextMapHash:&nbsp;</span>
-<!--        <code style="margin-top:1px;margin-bottom:-1px"><%= item.hash %></code>-->
-        <code readonly class="code ace-plaintext no-input-style no-theme" data-markers="<%= Marker.joining(item.hashMarkers) %>" translate="no" style="margin-top:1px;margin-bottom:-1px"><%= item.hash %></code>
+        <code readonly class="code<%= item.hashMarkers && item.hashMarkers.length ? ' ace-plaintext' : '' %> no-input-style no-theme" data-markers="<%= Marker.joining(item.hashMarkers) %>" translate="no" style="margin-top:1px;margin-bottom:-1px"><%= item.hash %></code>
         <span class="grow"></span>
         <small class="fontWeight400 spacer10-right" style="opacity:0.5">Result #<%= itemId %></small>
         <button class="secondary small fontWeight500 spacer5-right" ui-action="copy: #wikitext-<%= itemId %>"
