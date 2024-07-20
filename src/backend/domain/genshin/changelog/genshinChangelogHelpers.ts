@@ -58,9 +58,9 @@ export type GenshinChangelogNewRecordSummary = {
 }
 
 export async function generateGenshinChangelogNewRecordSummary(ctrl: GenshinControl, fullChangelog: FullChangelog): Promise<GenshinChangelogNewRecordSummary> {
-  // return cached('GenshinFullChangelogSummary_' + ctrl.outputLangCode + '_' + fullChangelog.version.number, async () => {
+  return cached('GenshinFullChangelogSummary_' + ctrl.outputLangCode + '_' + fullChangelog.version.number, async () => {
     return _generateGenshinChangelogNewRecordSummary(ctrl, fullChangelog);
-  // });
+  });
 }
 
 async function getGcg(ctrl: GenshinControl): Promise<GCGControl> {
