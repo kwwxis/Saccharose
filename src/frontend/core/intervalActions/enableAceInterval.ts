@@ -5,7 +5,7 @@ import { isElementPartiallyInViewport } from '../../util/domutil.ts';
 import { toBoolean } from '../../../shared/util/genericUtil.ts';
 
 export function enableAceInterval() {
-  document.querySelectorAll<HTMLTextAreaElement>('textarea.wikitext, .ace-wikitext').forEach(el => {
+  document.querySelectorAll<HTMLTextAreaElement>('textarea.wikitext, .ace-wikitext:not(.highlighted)').forEach(el => {
     if (el.closest('.hide'))
       return;
     if (el.hasAttribute('data-lazy-load') && toBoolean(el.getAttribute('data-lazy-load')) && !isElementPartiallyInViewport(el))
@@ -13,7 +13,7 @@ export function enableAceInterval() {
     highlightWikitextReplace(el);
   });
 
-  document.querySelectorAll<HTMLTextAreaElement>('textarea.json, .ace-json').forEach(el => {
+  document.querySelectorAll<HTMLTextAreaElement>('textarea.json, .ace-json:not(.highlighted)').forEach(el => {
     if (el.closest('.hide'))
       return;
     if (el.hasAttribute('data-lazy-load') && toBoolean(el.getAttribute('data-lazy-load')) && !isElementPartiallyInViewport(el))
@@ -21,7 +21,7 @@ export function enableAceInterval() {
     highlightReplace(el, { mode: 'ace/mode/json' });
   });
 
-  document.querySelectorAll<HTMLTextAreaElement>('textarea.plaintext, .ace-plaintext').forEach(el => {
+  document.querySelectorAll<HTMLTextAreaElement>('textarea.plaintext, .ace-plaintext:not(.highlighted)').forEach(el => {
     if (el.closest('.hide'))
       return;
     if (el.hasAttribute('data-lazy-load') && toBoolean(el.getAttribute('data-lazy-load')) && !isElementPartiallyInViewport(el))
