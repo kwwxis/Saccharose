@@ -628,9 +628,15 @@ export class GCGControl {
       ids.push(toInt(searchText));
     }
 
-    await this.ctrl.streamTextMapMatchesWithIndex(this.ctrl.inputLangCode, searchText, 'TCGStage', (id) => {
-      ids.push(id);
-    }, searchFlags);
+    await this.ctrl.streamTextMapMatchesWithIndex({
+      langCode: this.ctrl.inputLangCode,
+      searchText,
+      textIndexName: 'TCGStage',
+      stream: (id) => {
+        ids.push(id);
+      },
+      flags: searchFlags
+    });
 
     return await this.multiSelect('GCGGameExcelConfigData', 'Id', ids,
         o => this.postProcessStage(o, disableLoad));

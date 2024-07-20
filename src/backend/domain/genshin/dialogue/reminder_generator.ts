@@ -150,8 +150,11 @@ export async function reminderGenerate(ctrl: GenshinControl, query: number|strin
 
   if (typeof query === 'string') {
     // string
-    const textMapHashes = (await ctrl.getTextMapMatches(ctrl.inputLangCode, query.trim(), ctrl.searchModeFlags))
-      .map(x => x.hash);
+    const textMapHashes = (await ctrl.getTextMapMatches({
+      langCode: ctrl.inputLangCode,
+      searchText: query.trim(),
+      flags: ctrl.searchModeFlags
+    })).map(x => x.hash);
     if (textMapHashes.length) {
       const reminders = await Promise.all(
         textMapHashes.map(textMapHash => ctrl.selectReminderByContentTextMapHash(textMapHash))

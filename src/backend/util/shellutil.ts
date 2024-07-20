@@ -20,6 +20,7 @@ const execPromise = util.promisify(exec);
  *
  * @param command The command to execute in the bash shell.
  * @param postInitialize Callback called with the child process instance after it is instantiated.
+ * @param onExit Callback called on exit.
  * @param stdoutLineStream Stream method for stdout.
  * @param stderrLineStream Stream method for stderr.
  */
@@ -239,7 +240,7 @@ export class ShellFlags {
   }
 
   static parseFlags(flags: string): ShellFlags {
-    if (!flags) {
+    if (!flags || typeof flags !== 'string' || !flags.trim().length) {
       return new ShellFlags();
     }
     let out: Map<string, string> = new Map<string, string>();
@@ -285,11 +286,20 @@ export class ShellFlags {
   }
 }
 
-function createGrepCommand(searchText: string, absoluteFilePath: string, extraFlags?: string,
-                                  escapeDoubleQuotes: boolean = true, startFromLine?: number): { line: string, flags: ShellFlags } {
-  let flags: ShellFlags = ShellFlags.parseFlags(extraFlags);
+export type GrepExtraOpts = {
+  flags?: string,
+  escapeDoubleQuotes?: boolean,
+  startFromLine?: number
+}
 
-  if (escapeDoubleQuotes && absoluteFilePath.endsWith('.json')) {
+function createGrepCommand(searchText: string, absoluteFilePath: string, extraOpts: GrepExtraOpts): {
+  line: string,
+  flags: ShellFlags,
+  hasLineNumFlag: boolean
+} {
+  let flags: ShellFlags = ShellFlags.parseFlags(extraOpts.flags);
+
+  if (extraOpts.escapeDoubleQuotes && absoluteFilePath.endsWith('.json')) {
     searchText = searchText.replace(/"/g, `\\"`); // double quotes, assuming searching within a JSON string value
   }
 
@@ -301,7 +311,7 @@ function createGrepCommand(searchText: string, absoluteFilePath: string, extraFl
   } else {
     searchText = searchText.replace(/\\n/g, '(\\\\\\\\n)');
   }
-  if (isset(startFromLine)) {
+  if (isset(extraOpts.startFromLine)) {
     flags.remove('-H');
     flags.remove('--with-filename');
   }
@@ -312,22 +322,27 @@ function createGrepCommand(searchText: string, absoluteFilePath: string, extraFl
   let env = `LC_ALL=en_US.utf8 `;
   let grepCmd = `${env}grep ${flags.stringify()} -- ${searchText}`;
 
-  if (isset(startFromLine)) {
+  const hasLineNumFlag = flags.has('-n') || flags.has('--line-number');
+
+  if (isset(extraOpts.startFromLine)) {
     // In order to grep on standard input (i.e. grep from the output of tail), the file of the grep command must be "-"
     //
     // From https://man7.org/linux/man-pages/man1/grep.1.html
     // >  A FILE of “-” stands for standard input.  If no FILE is given,
     // >       recursive searches examine the working directory, and
     // >       non-recursive searches read standard input.
-    return { line: `tail -n +${startFromLine} ${absoluteFilePath} | ${grepCmd} -`, flags: flags };
+    return { line: `tail -n +${extraOpts.startFromLine} ${absoluteFilePath} | ${grepCmd} -`, flags, hasLineNumFlag };
   } else {
-    return { line: `${grepCmd} ${absoluteFilePath}`, flags: flags };
+    return { line: `${grepCmd} ${absoluteFilePath}`, flags, hasLineNumFlag };
   }
 }
 
 export async function getLineNumberForLineText(lineText: string,
                                                absoluteFilePath: string) {
-  const matches = await grep(lineText, absoluteFilePath, '-n', false);
+  const matches = await grep(lineText, absoluteFilePath, {
+    flags: '-n',
+    escapeDoubleQuotes: false
+  });
   for (let match of matches) {
     if (!match)
       continue;
@@ -344,30 +359,29 @@ export async function getLineNumberForLineText(lineText: string,
   return -1;
 }
 
+function postProcessGrepLine(s: string, hasLineNumFlag: boolean, startFromLine: number) {
+  s = s.trim();
+  if (hasLineNumFlag && isset(startFromLine)) {
+    s = s.replace(/^(\d+):/, (fm, stdoutLineNum) => (parseInt(stdoutLineNum) + startFromLine - 1) + ':');
+  }
+  return s;
+}
+
 export async function grep(searchText: string,
                            absoluteFilePath: string,
-                           flags?: string,
-                           escapeDoubleQuotes: boolean = true,
-                           startFromLine?: number): Promise<string[]> {
+                           extraOpts: GrepExtraOpts): Promise<string[]> {
   try {
-    const cmd = createGrepCommand(searchText, absoluteFilePath, flags, escapeDoubleQuotes, startFromLine);
+    const cmd = createGrepCommand(searchText, absoluteFilePath, extraOpts);
     //console.log('Command:', cmd.line);
 
-    // noinspection JSUnusedLocalSymbols
+    // noinspection JSUnusedLocalSymbols,JSUnresolvedReference
     const { stdout, stderr } = await execPromise(cmd.line, {
       env: { PATH: process.env.SHELL_PATH },
       shell: process.env.SHELL_EXEC,
     });
 
-    const hasLineNumFlag = cmd.flags.has('-n') || cmd.flags.has('--line-number');
     return stdout.split(/\n/)
-      .map(s => {
-        s = s.trim();
-        if (hasLineNumFlag && isset(startFromLine)) {
-          s = s.replace(/^(\d+):/, (fm, stdoutLineNum) => (parseInt(stdoutLineNum) + startFromLine - 1) + ':');
-        }
-        return s;
-      })
+      .map(s => postProcessGrepLine(s, cmd.hasLineNumFlag, extraOpts.startFromLine))
       .filter(x => !!x);
   } catch (err) {
     if (err && err.code === 1) {
@@ -376,7 +390,7 @@ export async function grep(searchText: string,
       throw 'Max buffer reached (too many results).';
     } else {
       console.error('\x1b[4m\x1b[1mshell error:\x1b[0m\n', err);
-      const parsedFlags = ShellFlags.parseFlags(flags);
+      const parsedFlags = ShellFlags.parseFlags(extraOpts.flags);
       const hasRegexFlag: boolean = parsedFlags.has('-E') || parsedFlags.has('-P') || parsedFlags.has('-G');
       if (hasRegexFlag) {
         try {
@@ -393,9 +407,12 @@ export async function grep(searchText: string,
 export async function grepStream(searchText: string,
                                  absoluteFilePath: string,
                                  stream: (line: string, kill?: () => void) => Promise<void>|void,
-                                 flags?: string): Promise<number|Error> {
-  const cmd = createGrepCommand(searchText, absoluteFilePath, flags);
-  return await passthru(cmd.line, null, null, stream);
+                                 extraOpts: GrepExtraOpts): Promise<number|Error> {
+  const cmd = createGrepCommand(searchText, absoluteFilePath, extraOpts);
+  return await passthru(cmd.line, null, null, (line: string, kill?: () => void) => {
+    line = postProcessGrepLine(line, cmd.hasLineNumFlag, extraOpts.startFromLine);
+    return stream(line, kill);
+  });
 }
 
 export async function grepIdStartsWith<T = number | string>(idProp: string,
@@ -403,7 +420,10 @@ export async function grepIdStartsWith<T = number | string>(idProp: string,
                                        absoluteFilePath: string): Promise<T[]> {
   let isInt = typeof idPrefix === 'number';
   let grepSearchText = `"${idProp}": ${isInt ? idPrefix : '"' + idPrefix}`;
-  let lines = await grep(grepSearchText, absoluteFilePath, '-i', false);
+  let lines = await grep(grepSearchText, absoluteFilePath, {
+    flags: '-i',
+    escapeDoubleQuotes: false
+  });
   let out = [];
   for (let line of lines) {
     let parts = /":\s+"?([^",$]+)/.exec(line);
@@ -505,8 +525,8 @@ export function mediaSearch(imageName: string, maxHammingDistance: number): Medi
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
-  let parsed = ShellFlags.parseFlags('--test-flag -abc -m 10 --another --foo bar -D -e');
-  //console.log(parsed);
+  let parsed = ShellFlags.parseFlags('null --test-flag -abc -m 10 --another --foo bar -D -en');
+  // console.log(parsed);
 
   let stringified = ShellFlags.stringifyFlags(parsed);
   //console.log(stringified);
@@ -519,7 +539,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
       if (i === 10) {
         kill();
       }
-    }, '-i');
+    }, { flags: '-in', startFromLine: 4270 });
 
   console.log('grep done');
 }

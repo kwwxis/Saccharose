@@ -10,6 +10,21 @@ export type TextMapSearchResult = {
   markers?: Marker[]
 };
 
+export type TextMapSearchOpts = {
+  langCode: LangCode,
+  searchText: string,
+  flags: string,
+  isRawInput?: boolean,
+  startFromLine?: number
+};
+export type TextMapSearchStreamOpts = TextMapSearchOpts & {
+  stream: (textMapHash: TextMapHash, text?: string, kill?: () => void) => void,
+};
+export type TextMapSearchIndexStreamOpts = TextMapSearchOpts & {
+  textIndexName: string,
+  stream: (entityId: number, textMapHash: TextMapHash, text?: string, kill?: () => void) => void,
+};
+
 export type PlainLineMapItem = {Line: number, Hash: TextMapHash, LineType?: string };
 
 export type LangCode =

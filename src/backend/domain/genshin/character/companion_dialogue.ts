@@ -20,7 +20,7 @@ export async function getHomeWorldCompanions(ctrl: GenshinControl): Promise<Home
     });
 
     // Load grep result into map
-    const grepResult = await grep('QuestDialogue/HomeWorld/', getGenshinDataFilePath('./ExcelBinOutput/TalkExcelConfigData.json'));
+    const grepResult = await grep('QuestDialogue/HomeWorld/', getGenshinDataFilePath('./ExcelBinOutput/TalkExcelConfigData.json'), {});
     let npcIdToTalkIds: {[npcId: number]: number[]} = {};
     for (let item of grepResult) {
       let substr = item.split('HomeWorld/')[1];

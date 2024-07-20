@@ -30,8 +30,8 @@ import {
   LangSuggest,
   NON_SPACE_DELIMITED_LANG_CODES,
   PlainLineMapItem,
-  TextMapHash,
-  TextMapSearchResult,
+  TextMapHash, TextMapSearchOpts, TextMapSearchIndexStreamOpts,
+  TextMapSearchResult, TextMapSearchStreamOpts,
 } from '../../../shared/types/lang-types.ts';
 import { ExtractScalar } from '../../../shared/types/utility-types.ts';
 import { ImageCategoryMap, ImageIndexEntity, ImageIndexSearchResult } from '../../../shared/types/image-index-types.ts';
@@ -292,8 +292,8 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
   // endregion
 
   // region Text Map Searching
-  async getTextMapMatches(langCode: LangCode, searchText: string, flags?: string, startFromLine?: number, isRawInput?: boolean): Promise<TextMapSearchResult[]> {
-    if (isStringBlank(searchText)) {
+  async getTextMapMatches(opts: TextMapSearchOpts): Promise<TextMapSearchResult[]> {
+    if (isStringBlank(opts.searchText)) {
       return [];
     }
 
@@ -301,9 +301,9 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     const out: TextMapSearchResult[] = [];
 
     {
-      const possibleHashes: TextMapHash[] = [maybeInt(searchText.trim())];
-      if (searchText.includes(',') || searchText.includes(';')) {
-        for (let sub of searchText.split(/[,;]/)) {
+      const possibleHashes: TextMapHash[] = [maybeInt(opts.searchText.trim())];
+      if (opts.searchText.includes(',') || opts.searchText.includes(';')) {
+        for (let sub of opts.searchText.split(/[,;]/)) {
           if (sub.trim().length) {
             possibleHashes.push(maybeInt(sub.trim()));
           }
@@ -312,23 +312,25 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
 
       for (let possibleHash of possibleHashes) {
         if (!!possibleHash && /^[a-zA-Z0-9_\-]+$/.test(String(possibleHash))) {
-          const text = await this.getTextMapItem(langCode, possibleHash);
+          const text = await this.getTextMapItem(opts.langCode, possibleHash);
           if (text) {
             out.push({
               hash: possibleHash,
               text,
-              line: await getLineNumberForLineText(String(possibleHash), this.getDataFilePath(getPlainTextMapRelPath(langCode, 'Hash'))),
+              line: await getLineNumberForLineText(String(possibleHash), this.getDataFilePath(getPlainTextMapRelPath(opts.langCode, 'Hash'))),
             });
           }
         }
       }
     }
 
-    const textFile = getPlainTextMapRelPath(langCode, 'Text');
-    const max = toInt(ShellFlags.parseFlags(flags).getFlagValue('-m'));
+    const textFile = getPlainTextMapRelPath(opts.langCode, 'Text');
+    const max = toInt(ShellFlags.parseFlags(opts.flags).getFlagValue('-m'));
+    let startFromLine = opts.startFromLine;
 
     outerLoop: while (true) {
-      const matches = await grep(searchText, this.getDataFilePath(textFile), flags + ' -n', true, startFromLine);
+      const matches = await grep(opts.searchText, this.getDataFilePath(textFile),
+        { flags: (opts.flags || '') + ' -n', startFromLine });
       let numAdded = 0;
       let lastLineNum = 0;
 
@@ -342,9 +344,9 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
         if (isNaN(lineNum))
           continue;
 
-        const { Hash: textMapHash, LineType: lineType } = await this.selectPlainLineMapItem(langCode, lineNum);
+        const { Hash: textMapHash, LineType: lineType } = await this.selectPlainLineMapItem(opts.langCode, lineNum);
 
-        if (isRawInput && lineType !== 'raw') {
+        if (opts.isRawInput && lineType !== 'raw') {
           continue;
         }
 
@@ -354,7 +356,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
           hashSeen.add(textMapHash);
         }
 
-        out.push({ hash: textMapHash, text: await this.getTextMapItem(langCode, textMapHash), line: lineNum });
+        out.push({ hash: textMapHash, text: await this.getTextMapItem(opts.langCode, textMapHash), line: lineNum });
         numAdded++;
 
         if (!isNaN(max) && out.length >= max) {
@@ -372,18 +374,13 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     return out;
   }
 
-
-  async streamTextMapMatchesWithIndex(langCode: LangCode,
-                                      searchText: string,
-                                      textIndexName: string,
-                                      stream: (entityId: number, textMapHash: TextMapHash) => void,
-                                      flags?: string): Promise<number | Error> {
-    const textIndexFile = getTextIndexRelPath(textIndexName);
+  async streamTextMapMatchesWithIndex(opts: TextMapSearchIndexStreamOpts): Promise<number | Error> {
+    const textIndexFile = getTextIndexRelPath(opts.textIndexName);
     const promises: Promise<void>[] = [];
-    const batchMax = 100;
+    const batchMax: number = 100;
     const hashSeen: Set<TextMapHash> = new Set();
 
-    let batch = [];
+    let batch: TextMapHash[] = [];
 
     const processBatch = () => {
       if (!batch.length) {
@@ -392,7 +389,8 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       const regex = `"(` + batch.join('|') + `)":`;
       batch = [];
       promises.push((async () => {
-        const matches = await grep(regex, this.getDataFilePath(textIndexFile), '-E', false);
+        const matches = await grep(regex, this.getDataFilePath(textIndexFile),
+          { flags: '-E', escapeDoubleQuotes: false});
         for (let match of matches) {
           let parts = /"(.*?)":\s+(\d+),?$/.exec(match);
           let textMapHash = maybeInt(parts[1]);
@@ -402,17 +400,21 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
           } else {
             hashSeen.add(textMapHash);
           }
-          stream(entityId, textMapHash);
+          opts.stream(entityId, textMapHash);
         }
       })());
     };
 
-    const ret = await this.streamTextMapMatches(langCode, searchText, (textMapHash: TextMapHash, _text: string) => {
-      batch.push(textMapHash);
-      if (batch.length >= batchMax) {
-        processBatch();
+    const nonIndexStreamOpts: TextMapSearchStreamOpts = Object.assign({}, opts, {
+      stream: (textMapHash: TextMapHash, _text: string) => {
+        batch.push(textMapHash);
+        if (batch.length >= batchMax) {
+          processBatch();
+        }
       }
-    }, flags);
+    });
+
+    const ret = await this.streamTextMapMatches(nonIndexStreamOpts);
 
     processBatch();
 
@@ -421,45 +423,41 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     return ret;
   }
 
-  async* generateTextMapMatches(searchText: string): AsyncGenerator<TextMapHash> {
+  async* generateTextMapMatches(opts: TextMapSearchOpts): AsyncGenerator<TextMapHash> {
     let textMapHashes: TextMapHash[] = [];
 
-    await this.streamTextMapMatches(this.inputLangCode, searchText,
-      (textMapHash: TextMapHash) => textMapHashes.push(textMapHash),
-      this.searchModeFlags,
-    );
+    await this.streamTextMapMatches({
+      ... opts,
+      stream: (textMapHash: TextMapHash) => textMapHashes.push(textMapHash),
+    });
 
     for (let textMapHash of textMapHashes) {
       yield textMapHash;
     }
   }
 
-  async streamTextMapMatches(langCode: LangCode,
-                             searchText: string,
-                             stream: (textMapHash: TextMapHash, text?: string, kill?: () => void) => void,
-                             flags?: string,
-                             isRawInput?: boolean): Promise<number | Error> {
-    if (isStringBlank(searchText)) {
+  async streamTextMapMatches(opts: TextMapSearchStreamOpts): Promise<number | Error> {
+    if (isStringBlank(opts.searchText)) {
       return 0;
     }
 
     const hashSeen: Set<TextMapHash> = new Set();
 
-    if (isInt(searchText.trim())) {
+    if (isInt(opts.searchText.trim())) {
       let didKill = false;
-      const hash = maybeInt(searchText.trim());
-      const text = await this.getTextMapItem(langCode, searchText);
+      const hash = maybeInt(opts.searchText.trim());
+      const text = await this.getTextMapItem(opts.langCode, opts.searchText);
       if (text) {
-        stream(hash, text, () => didKill = true);
+        opts.stream(hash, text, () => didKill = true);
       }
       if (didKill) {
         return 0;
       }
     }
 
-    const textFile = getPlainTextMapRelPath(langCode, 'Text');
+    const textFile = getPlainTextMapRelPath(opts.langCode, 'Text');
 
-    return await grepStream(searchText, this.getDataFilePath(textFile), async (match: string, kill: () => void) => {
+    return await grepStream(opts.searchText, this.getDataFilePath(textFile), async (match: string, kill: () => void) => {
       if (!match)
         return;
 
@@ -467,10 +465,10 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       if (isNaN(lineNum))
         return;
 
-      const { Hash: textMapHash, LineType: lineType } = await this.selectPlainLineMapItem(langCode, lineNum);
-      const text: string = await this.getTextMapItem(langCode, textMapHash);
+      const { Hash: textMapHash, LineType: lineType } = await this.selectPlainLineMapItem(opts.langCode, lineNum);
+      const text: string = await this.getTextMapItem(opts.langCode, textMapHash);
 
-      if (isRawInput && lineType !== 'raw') {
+      if (opts.isRawInput && lineType !== 'raw') {
         return;
       }
 
@@ -479,37 +477,46 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       } else {
         hashSeen.add(textMapHash);
       }
-      stream(textMapHash, text, kill);
-    }, flags + ' -n');
+      opts.stream(textMapHash, text, kill);
+    }, { flags: (opts.flags || '') + ' -n', startFromLine: opts.startFromLine });
   }
 
   async findTextMapHashesByExactName(name: string): Promise<TextMapHash[]> {
-    let results = [];
+    let results: TextMapHash[] = [];
 
     const cmp = (a: string, b: string) => {
       return this.normText(a, this.inputLangCode, { plaintext: true, decolor: true })?.toLowerCase() ===
         this.normText(b, this.inputLangCode, { plaintext: true, decolor: true })?.toLowerCase();
     };
 
-    await this.streamTextMapMatches(this.inputLangCode, name, (id: TextMapHash, value: string) => {
-      if (cmp(value, name)) {
-        results.push(id);
-      }
-    }, '-wi');
+    await this.streamTextMapMatches({
+      langCode: this.inputLangCode,
+      searchText: name,
+      stream: (id: TextMapHash, value: string) => {
+        if (cmp(value, name)) {
+          results.push(id);
+        }
+      },
+      flags: '-wi'
+    });
 
     if (!results.length) {
       let searchRegex = escapeRegExp(name).split(/\s+/g).join('.*?').split(/(')/g).join('.*?');
 
-      await this.streamTextMapMatches(this.inputLangCode, searchRegex, (id: TextMapHash, value: string) => {
-        if (cmp(value, name)) {
-          results.push(id);
-        }
-      }, '-Pi');
+      await this.streamTextMapMatches({
+        langCode: this.inputLangCode,
+        searchText: searchRegex,
+        stream: (id: TextMapHash, value: string) => {
+          if (cmp(value, name)) {
+            results.push(id);
+          }
+        },
+        flags: '-Pi'
+      });
     }
 
     return results;
   }
-
   // endregion
 
   // region Excel Usages
@@ -544,7 +551,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
           let fileName = exec[1];
           filesFoundIn[fileName] += 1;
         }
-      }, grepFlags);
+      }, { flags: grepFlags });
     }
 
     for (let fileName of Object.keys(filesFoundIn)) {

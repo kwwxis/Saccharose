@@ -82,9 +82,15 @@ export async function searchTutorials(ctrl: GenshinControl, searchText: string):
     ids.push(toInt(searchText));
   }
 
-  await ctrl.streamTextMapMatchesWithIndex(ctrl.inputLangCode, searchText, 'Tutorial', (id) => {
-    ids.push(id);
-  }, ctrl.searchModeFlags);
+  await ctrl.streamTextMapMatchesWithIndex({
+    langCode: ctrl.inputLangCode,
+    searchText,
+    textIndexName: 'Tutorial',
+    stream: (id) => {
+      ids.push(id);
+    },
+    flags: ctrl.searchModeFlags
+  });
 
   return ids;
 }

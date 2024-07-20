@@ -505,7 +505,11 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
   async selectMainQuestsByNameOrId(name: string|number, limit: number = 25): Promise<MainQuestExcelConfigData[]> {
     if (typeof name === 'string') {
-      let textMapHashes: TextMapHash[] = (await this.getTextMapMatches(this.inputLangCode, name, '-i')).map(x => x.hash);
+      let textMapHashes: TextMapHash[] = (await this.getTextMapMatches({
+        langCode: this.inputLangCode,
+        searchText: name,
+        flags: '-i'
+      })).map(x => x.hash);
       return await this.knex.select('*').from('MainQuestExcelConfigData')
         .whereIn('TitleTextMapHash', textMapHashes)
         .limit(limit).then(this.commonLoad).then(x => this.postProcessMainQuests(x));
@@ -2585,9 +2589,15 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       ids.push(toInt(searchText));
     }
 
-    await this.streamTextMapMatchesWithIndex(this.inputLangCode, searchText, 'Material', (id) => {
-      ids.push(id);
-    }, searchFlags);
+    await this.streamTextMapMatchesWithIndex({
+      langCode: this.inputLangCode,
+      searchText,
+      textIndexName: 'Material',
+      stream: (id) => {
+        ids.push(id);
+      },
+      flags: searchFlags
+    });
 
     const materials: MaterialExcelConfigData[] = await this.knex.select('*').from('MaterialExcelConfigData')
       .whereIn('Id', ids).then(this.commonLoad);
@@ -2822,9 +2832,15 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       ids.push(toInt(searchText));
     }
 
-    await this.streamTextMapMatchesWithIndex(this.inputLangCode, searchText, 'Weapon', (id) => {
-      ids.push(id);
-    }, searchFlags);
+    await this.streamTextMapMatchesWithIndex({
+      langCode: this.inputLangCode,
+      searchText,
+      textIndexName: 'Weapon',
+      stream: (id) => {
+        ids.push(id);
+      },
+      flags: searchFlags
+    });
 
     return await this.knex.select('*').from('WeaponExcelConfigData')
       .whereIn('Id', ids).then(this.commonLoad);
@@ -2885,9 +2901,15 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       return [];
     }
     let ids = [];
-    await this.streamTextMapMatchesWithIndex(langCode, searchText, 'Readable', (id, _textMapHash) => {
-      ids.push(id);
-    }, flags);
+    await this.streamTextMapMatchesWithIndex({
+      langCode,
+      searchText,
+      textIndexName: 'Readable',
+      stream: (id, _textMapHash) => {
+        ids.push(id);
+      },
+      flags
+    });
     return ids;
   }
 
@@ -2903,7 +2925,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       if (exec) {
         out.push(exec[1]);
       }
-    }, '-r ' + flags);
+    }, { flags: '-r ' + (flags || '') });
 
     return out;
   }
@@ -3284,9 +3306,15 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       ids.push(toInt(searchText));
     }
 
-    await this.streamTextMapMatchesWithIndex(this.inputLangCode, searchText, 'Achievement', (id) => {
-      ids.push(id);
-    }, searchFlags);
+    await this.streamTextMapMatchesWithIndex({
+      langCode: this.inputLangCode,
+      searchText,
+      textIndexName: 'Achievement',
+      stream: (id) => {
+        ids.push(id);
+      },
+      flags: searchFlags
+    });
 
     let achievements: AchievementExcelConfigData[] = await this.knex.select('*').from('AchievementExcelConfigData')
       .whereIn('Id', ids).then(this.commonLoad);

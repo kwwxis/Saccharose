@@ -25,6 +25,7 @@ import { ViewCodexExcelConfigData } from '../../../../shared/types/genshin/viewp
 import { selectViewpointsByIds } from '../archive/viewpoints.ts';
 import { selectLoadingTips } from '../archive/loadingTips.ts';
 import { selectTutorials } from '../archive/tutorials.ts';
+import { cached } from '../../../util/cache.ts';
 
 export type GenshinChangelogNewRecordSummary = {
   avatars: AvatarExcelConfigData[],
@@ -54,11 +55,25 @@ export type GenshinChangelogNewRecordSummary = {
   loadingTips: LoadingTipsExcelConfigData[],
   tutorials: TutorialExcelConfigData[],
   viewpoints: ViewCodexExcelConfigData[],
-
-  // TODO: achievements, loading tips, tutorials, viewpoints
 }
 
 export async function generateGenshinChangelogNewRecordSummary(ctrl: GenshinControl, fullChangelog: FullChangelog): Promise<GenshinChangelogNewRecordSummary> {
+  // return cached('GenshinFullChangelogSummary_' + ctrl.outputLangCode + '_' + fullChangelog.version.number, async () => {
+    return _generateGenshinChangelogNewRecordSummary(ctrl, fullChangelog);
+  // });
+}
+
+async function getGcg(ctrl: GenshinControl): Promise<GCGControl> {
+  const gcg: GCGControl = getGCGControl(ctrl);
+  gcg.disableSkillSelect = true;
+  gcg.disableNpcLoad = true;
+  gcg.disableRelatedCharacterLoad = true;
+  gcg.disableVoiceItemsLoad = true;
+  await gcg.init();
+  return gcg;
+}
+
+export async function _generateGenshinChangelogNewRecordSummary(ctrl: GenshinControl, fullChangelog: FullChangelog): Promise<GenshinChangelogNewRecordSummary> {
   function newRecordsOf(excelFileName: GenshinSchemaNames): ChangeRecord[] {
     if (fullChangelog.excelChangelog?.[excelFileName]?.changedRecords) {
       return Object.values(fullChangelog.excelChangelog[excelFileName].changedRecords).filter(r => r.changeType === 'added');
@@ -71,14 +86,8 @@ export async function generateGenshinChangelogNewRecordSummary(ctrl: GenshinCont
     return newRecordsOf(excelFileName).map(r => toInt(r.key));
   }
 
-  const materials: MaterialExcelConfigData[] = await newIntKeysOf('MaterialExcelConfigData')
-    .asyncMap(id => ctrl.selectMaterialExcelConfigData(id));
-
-  const monsters: MonsterExcelConfigData[] = await newIntKeysOf('MonsterExcelConfigData')
-    .asyncMap(monsterId => ctrl.selectMonsterById(monsterId));
-
-  const loadingTips: LoadingTipsExcelConfigData[] = [];
-  {
+  async function getLoadingTips() {
+    const loadingTips: LoadingTipsExcelConfigData[] = [];
     const loadingCat: LoadingCat = await selectLoadingTips(ctrl);
     const loadingTipIds: number[] = newIntKeysOf('LoadingTipsExcelConfigData');
     let loadingCatQueue = [loadingCat];
@@ -91,61 +100,98 @@ export async function generateGenshinChangelogNewRecordSummary(ctrl: GenshinCont
       }
       loadingCatQueue.push(... currCat.subCats);
     }
+    return loadingTips;
   }
 
-  const gcg: GCGControl = getGCGControl(ctrl);
-  gcg.disableSkillSelect = true;
-  gcg.disableNpcLoad = true;
-  gcg.disableRelatedCharacterLoad = true;
-  gcg.disableVoiceItemsLoad = true;
-  await gcg.init();
+  const out: GenshinChangelogNewRecordSummary = {
+    avatars: null,
+    weapons: null,
+    foods: null,
+    tcgItems: null,
+    avatarItems: null,
+    blueprints: null,
+    items: null,
 
-  const chapters: ChapterExcelConfigData[] = await newIntKeysOf('ChapterExcelConfigData').asyncMap(id => ctrl.selectChapterById(id, true));
-  const chapterCollection: ChapterCollection = ctrl.generateChapterCollection(chapters);
-  const chapterQuestIds: Set<number> = new Set(chapters.map(c => c.Quests.map(q => q.Id)).flat());
-  const nonChapterQuestIds: number[] = newIntKeysOf('MainQuestExcelConfigData').filter(mqId => !chapterQuestIds.has(mqId));
+    furnishings: null,
+    furnishingSets: null,
 
-  const quests: MainQuestExcelConfigData[] = await nonChapterQuestIds.asyncMap(mqId => ctrl.selectMainQuestById(mqId));
+    monsters: null,
+    wildlife: null,
 
-  return {
-    avatars: await newIntKeysOf('AvatarExcelConfigData').asyncMap(avatarId => ctrl.selectAvatarById(avatarId)),
-    weapons: await newIntKeysOf('WeaponExcelConfigData').asyncMap(weaponId => ctrl.selectWeaponById(weaponId)),
-    foods: materials.filter(item => !!item.FoodQuality || item.MaterialType === 'MATERIAL_FOOD' || item.MaterialType === 'MATERIAL_NOTICE_ADD_HP'),
-    tcgItems: materials.filter(item => item.MaterialType && item.MaterialType.startsWith('MATERIAL_GCG')),
-    avatarItems: materials.filter(item => item.MaterialType === 'MATERIAL_NAMECARD'
-      || item.MaterialType === 'MATERIAL_TALENT' || item.MaterialType === 'MATERIAL_AVATAR'),
-    blueprints: materials.filter(item => item.MaterialType === 'MATERIAL_FURNITURE_FORMULA' || item.MaterialType === 'MATERIAL_FURNITURE_SUITE_FORMULA'),
-    items: materials.filter(item => (
-      !(!!item.FoodQuality || item.MaterialType === 'MATERIAL_FOOD' || item.MaterialType === 'MATERIAL_NOTICE_ADD_HP')
-      && !(item.MaterialType && item.MaterialType.startsWith('MATERIAL_GCG'))
-      && !(item.MaterialType === 'MATERIAL_FURNITURE_FORMULA' || item.MaterialType === 'MATERIAL_FURNITURE_SUITE_FORMULA')
-      && !(item.MaterialType === 'MATERIAL_NAMECARD' || item.MaterialType === 'MATERIAL_TALENT' || item.MaterialType === 'MATERIAL_AVATAR')
-    )),
+    tcgCharacterCards: null,
+    tcgActionCards: null,
+    tcgStages: null,
 
-    furnishings: await newIntKeysOf('HomeWorldFurnitureExcelConfigData').asyncMap(id => ctrl.selectFurniture(id, {LoadHomeWorldNPC: true})),
-    furnishingSets: await newIntKeysOf('FurnitureSuiteExcelConfigData').asyncMap(id => ctrl.selectFurnitureSuite(id)),
+    viewpoints: null,
+    loadingTips: null,
+    achievements: null,
+    tutorials: null,
 
-    monsters: monsters.filter(m => !m.AnimalDescribe),
-    wildlife: monsters.filter(m => !!m.AnimalDescribe),
+    readables: null,
 
-    tcgCharacterCards: await newIntKeysOf('GCGCharExcelConfigData').asyncMap(id => gcg.selectCharacterCard(id)),
-    tcgActionCards: await newIntKeysOf('GCGCardExcelConfigData').asyncMap(id => gcg.selectActionCard(id)),
-    tcgStages: await newIntKeysOf('GCGGameExcelConfigData').asyncMap(id => gcg.selectStage(id, {
+    chapters: null,
+    nonChapterQuests: null,
+    hiddenQuests: null,
+  };
+
+  const gcg: GCGControl = await getGcg(ctrl);
+
+  await Promise.all([
+    newIntKeysOf('MaterialExcelConfigData').asyncMap(id => ctrl.selectMaterialExcelConfigData(id)).then(materials => {
+      Object.assign(out, {
+        foods: materials.filter(item => !!item.FoodQuality || item.MaterialType === 'MATERIAL_FOOD' || item.MaterialType === 'MATERIAL_NOTICE_ADD_HP'),
+        tcgItems: materials.filter(item => item.MaterialType && item.MaterialType.startsWith('MATERIAL_GCG')),
+        avatarItems: materials.filter(item => item.MaterialType === 'MATERIAL_NAMECARD'
+          || item.MaterialType === 'MATERIAL_TALENT' || item.MaterialType === 'MATERIAL_AVATAR'),
+        blueprints: materials.filter(item => item.MaterialType === 'MATERIAL_FURNITURE_FORMULA' || item.MaterialType === 'MATERIAL_FURNITURE_SUITE_FORMULA'),
+        items: materials.filter(item => (
+          !(!!item.FoodQuality || item.MaterialType === 'MATERIAL_FOOD' || item.MaterialType === 'MATERIAL_NOTICE_ADD_HP')
+          && !(item.MaterialType && item.MaterialType.startsWith('MATERIAL_GCG'))
+          && !(item.MaterialType === 'MATERIAL_FURNITURE_FORMULA' || item.MaterialType === 'MATERIAL_FURNITURE_SUITE_FORMULA')
+          && !(item.MaterialType === 'MATERIAL_NAMECARD' || item.MaterialType === 'MATERIAL_TALENT' || item.MaterialType === 'MATERIAL_AVATAR')
+        )),
+      });
+    }),
+
+    newIntKeysOf('MonsterExcelConfigData').asyncMap(monsterId => ctrl.selectMonsterById(monsterId)).then(monsters => {
+      out.monsters = monsters.filter(m => !m.AnimalDescribe);
+      out.wildlife = monsters.filter(m => !!m.AnimalDescribe);
+    }),
+
+    getLoadingTips().then(loadingTips => out.loadingTips = loadingTips),
+
+    newIntKeysOf('ChapterExcelConfigData').asyncMap(id => ctrl.selectChapterById(id, true)).then(async chapters => {
+      const chapterCollection: ChapterCollection = ctrl.generateChapterCollection(chapters);
+      const chapterQuestIds: Set<number> = new Set(chapters.map(c => c.Quests.map(q => q.Id)).flat());
+      const nonChapterQuestIds: number[] = newIntKeysOf('MainQuestExcelConfigData').filter(mqId => !chapterQuestIds.has(mqId));
+      const quests: MainQuestExcelConfigData[] = await nonChapterQuestIds.asyncMap(mqId => ctrl.selectMainQuestById(mqId));
+
+      out.chapters = chapterCollection;
+      out.nonChapterQuests = quests.filter(mq => !!mq.TitleText);
+      out.hiddenQuests = quests.filter(mq => !mq.TitleText);
+    }),
+
+    newIntKeysOf('GCGCharExcelConfigData').asyncMap(id => gcg.selectCharacterCard(id)).then(ret => out.tcgCharacterCards = ret),
+    newIntKeysOf('GCGCardExcelConfigData').asyncMap(id => gcg.selectActionCard(id)).then(ret => out.tcgActionCards = ret),
+    newIntKeysOf('GCGGameExcelConfigData').asyncMap(id => gcg.selectStage(id, {
       disableDeckLoad: true,
       disableTalkLoad: true,
-    })),
+    })).then(ret => out.tcgStages = ret),
 
-    viewpoints: await selectViewpointsByIds(ctrl, newIntKeysOf('ViewCodexExcelConfigData')),
-    loadingTips: loadingTips,
-    achievements: await newIntKeysOf('AchievementExcelConfigData').asyncMap(id => ctrl.selectAchievement(id)),
-    tutorials: Object.values(await selectTutorials(ctrl, null, newIntKeysOf('TutorialExcelConfigData'))).flat(),
+    newIntKeysOf('DocumentExcelConfigData').asyncMap(id => ctrl.selectReadableView(id, false)).then(readables => {
+      out.readables = ctrl.generateReadableArchiveView(readables);
+    }),
 
-    readables: ctrl.generateReadableArchiveView(
-      await newIntKeysOf('DocumentExcelConfigData').asyncMap(id => ctrl.selectReadableView(id, false))
-    ),
+    newIntKeysOf('AvatarExcelConfigData').asyncMap(avatarId => ctrl.selectAvatarById(avatarId)).then(avatars => out.avatars = avatars),
+    newIntKeysOf('WeaponExcelConfigData').asyncMap(weaponId => ctrl.selectWeaponById(weaponId)).then(weapons => out.weapons = weapons),
 
-    chapters: chapterCollection,
-    nonChapterQuests: quests.filter(mq => !!mq.TitleText),
-    hiddenQuests: quests.filter(mq => !mq.TitleText),
-  };
+    newIntKeysOf('HomeWorldFurnitureExcelConfigData').asyncMap(id => ctrl.selectFurniture(id, {LoadHomeWorldNPC: true})).then(ret => out.furnishings = ret),
+    newIntKeysOf('FurnitureSuiteExcelConfigData').asyncMap(id => ctrl.selectFurnitureSuite(id)).then(ret => out.furnishingSets = ret),
+
+    selectViewpointsByIds(ctrl, newIntKeysOf('ViewCodexExcelConfigData')).then(viewpoints => out.viewpoints = viewpoints),
+    newIntKeysOf('AchievementExcelConfigData').asyncMap(id => ctrl.selectAchievement(id)).then(achievements => out.achievements = achievements),
+    selectTutorials(ctrl, null, newIntKeysOf('TutorialExcelConfigData')).then(tutorialsByType => out.tutorials = Object.values(tutorialsByType).flat()),
+  ]);
+
+  return out;
 }

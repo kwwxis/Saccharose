@@ -20,13 +20,13 @@ export async function handleTextMapSearchEndpoint(ctrl: AbstractControl, req: Re
   const query: string = req.query.text as string;
 
   // "-m" flag -> max count
-  const items: TextMapSearchResult[] = await ctrl.getTextMapMatches(
-    ctrl.inputLangCode,
-    query,
-    `-m ${SEARCH_TEXTMAP_MAX+1} ${ctrl.searchModeFlags}`,
+  const items: TextMapSearchResult[] = await ctrl.getTextMapMatches({
+    langCode: ctrl.inputLangCode,
+    searchText: query,
+    flags: `-m ${SEARCH_TEXTMAP_MAX + 1} ${ctrl.searchModeFlags}`,
     startFromLine,
     isRawInput
-  );
+  });
   let hasMoreResults: boolean = false;
 
   if (items.length > SEARCH_TEXTMAP_MAX) {
