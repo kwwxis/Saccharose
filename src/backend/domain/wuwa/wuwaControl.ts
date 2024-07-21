@@ -4,7 +4,7 @@ import { AbstractControl } from '../generic/abstractControl.ts';
 import { getWuwaDataFilePath } from '../../loadenv.ts';
 import { normalizeRawJson, SchemaTable } from '../../importer/import_db.ts';
 import { LangCode, TextMapHash } from '../../../shared/types/lang-types.ts';
-import { __normWuwaText } from './wuwaText.ts';
+import { __normWuwaText, WuwaNormTextOpts } from './wuwaText.ts';
 import { NormTextOptions } from '../generic/genericNormalizers.ts';
 import { Request } from 'express';
 import { wuwa_i18n, WUWA_I18N_MAP } from '../generic/i18n.ts';
@@ -58,7 +58,7 @@ export class WuwaControl extends AbstractControl<WuwaControlState> {
     return getWuwaDataFilePath(file);
   }
 
-  override normText(text: string, langCode: LangCode, opts: NormTextOptions = {}): string {
+  override normText(text: string, langCode: LangCode, opts: NormTextOptions<WuwaNormTextOpts> = {}): string {
     return __normWuwaText(text, langCode, opts);
   }
 

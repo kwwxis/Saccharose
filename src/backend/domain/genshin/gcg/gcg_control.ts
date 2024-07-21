@@ -633,8 +633,9 @@ export class GCGControl {
       outputLangCode: this.ctrl.outputLangCode,
       searchText,
       textIndexName: 'TCGStage',
-      stream: (id) => {
-        ids.push(id);
+      stream: (id: number) => {
+        if (!ids.includes(id))
+          ids.push(id);
       },
       flags: searchFlags
     });

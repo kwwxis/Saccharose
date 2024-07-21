@@ -9,6 +9,10 @@ import { TextJoinConfig, TextJoinItem } from '../../../shared/types/hsr/hsr-misc
 import { getStarRailControl } from './starRailControl.ts';
 import { logInitData } from '../../util/logger.ts';
 
+export type StarRailNormTextOpts = {
+
+};
+
 function __trailblazerPlaceholder(langCode: LangCode = 'EN', degender: boolean = false): string {
   switch (langCode) {
     case 'CH':
@@ -54,7 +58,7 @@ function __trailblazerPlaceholder(langCode: LangCode = 'EN', degender: boolean =
  *
  * There are options that the Control may add on depending on user preferences.
  */
-export function __normStarRailText(text: string, langCode: LangCode, opts: NormTextOptions = {}): string {
+export function __normStarRailText(text: string, langCode: LangCode, opts: NormTextOptions<StarRailNormTextOpts> = {}): string {
   if (!text) {
     return text;
   }

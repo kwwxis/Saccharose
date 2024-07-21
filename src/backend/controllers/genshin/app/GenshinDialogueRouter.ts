@@ -4,6 +4,7 @@ import { getGenshinControl } from '../../../domain/genshin/genshinControl.ts';
 import { toInt } from '../../../../shared/util/numberUtil.ts';
 import { ol_gen_from_id } from '../../../domain/generic/basic/OLgen.ts';
 import { Request, Response, Router } from 'express';
+import GenshinAllReminders from '../../../components/genshin/reminders/GenshinAllReminders.vue';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -90,9 +91,9 @@ export default async function(): Promise<Router> {
   });
 
   router.get('/reminders/all', async (req: Request, res: Response) => {
-    res.render('pages/genshin/dialogue/reminders-all', {
+    res.render(GenshinAllReminders, {
       title: 'All Reminders',
-      dialogue: await reminderGenerateAll(getGenshinControl(req)),
+      reminderGroups: await reminderGenerateAll(getGenshinControl(req)),
       bodyClass: ['page--all-reminders']
     });
   });

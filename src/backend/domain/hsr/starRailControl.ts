@@ -9,7 +9,7 @@ import {
   VoiceItem,
   VoiceItemFlatMap,
 } from '../../../shared/types/lang-types.ts';
-import { __normStarRailText } from './starRailText.ts';
+import { __normStarRailText, StarRailNormTextOpts } from './starRailText.ts';
 import path from 'path';
 import fs from 'fs';
 import { defaultMap } from '../../../shared/util/genericUtil.ts';
@@ -72,7 +72,7 @@ export class StarRailControl extends AbstractControl<StarRailControlState> {
     return getStarRailDataFilePath(file);
   }
 
-  override normText(text: string, langCode: LangCode, opts: NormTextOptions = {}): string {
+  override normText(text: string, langCode: LangCode, opts: NormTextOptions<StarRailNormTextOpts> = {}): string {
     if (!opts) opts = {};
     if (this.outputLangCode === 'EN') {
       opts.mcPlaceholderForceLangCode = 'EN';

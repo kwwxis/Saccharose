@@ -200,7 +200,11 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
     names: arrayUnique(
       Object.values(ctrl.state.npcCache)
         .filter(x => !x.Invisiable && !x.JsonName?.startsWith('ReadableNPC'))
-        .map(x => ctrl.normText(x.NameText, ctrl.outputLangCode))
+        .map(x => ctrl.normText(x.NameText, ctrl.outputLangCode, {
+          customOpts: {
+            wandererPlaceholderPlainForm: true
+          }
+        }))
         .concat(ctrl.travelerPageName)
         .sort()
     ),

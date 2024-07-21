@@ -76,7 +76,7 @@ export const TUTORIAL_DEFAULT_FILE_FORMAT_IMAGE =
  * Searches tutorials, returning a list of tutorial IDs.
  */
 export async function searchTutorials(ctrl: GenshinControl, searchText: string): Promise<number[]> {
-  const ids = [];
+  const ids: number[] = [];
 
   if (isInt(searchText)) {
     ids.push(toInt(searchText));
@@ -87,8 +87,9 @@ export async function searchTutorials(ctrl: GenshinControl, searchText: string):
     outputLangCode: ctrl.outputLangCode,
     searchText,
     textIndexName: 'Tutorial',
-    stream: (id) => {
-      ids.push(id);
+    stream: (id: number) => {
+      if (!ids.includes(id))
+        ids.push(id);
     },
     flags: ctrl.searchModeFlags
   });

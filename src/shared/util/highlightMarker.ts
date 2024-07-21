@@ -257,8 +257,8 @@ export class Marker implements IndexedRange {
   static async createAsync(searchText: string|RegExp, contentText: string, interceptors?: {
     pre?: MarkerPreCreateInterceptorAsync,
     post?: MarkerPostCreateInterceptorAsync,
-  }): Promise<Marker[]> {
-    const ret = this.createInternal(searchText, contentText, interceptors);
+  }, token?: string): Promise<Marker[]> {
+    const ret = this.createInternal(searchText, contentText, interceptors, token);
     await Promise.all(ret.promises);
     return ret.markers;
   }
@@ -266,15 +266,15 @@ export class Marker implements IndexedRange {
   static create(searchText: string|RegExp, contentText: string, interceptors?: {
     pre?: MarkerPreCreateInterceptorSync,
     post?: MarkerPostCreateInterceptorSync,
-  }): Marker[] {
-    const ret = this.createInternal(searchText, contentText, interceptors);
+  }, token?: string): Marker[] {
+    const ret = this.createInternal(searchText, contentText, interceptors, token);
     return ret.markers;
   }
 
   private static createInternal(searchText: string|RegExp, contentText: string, interceptors?: {
     pre?: MarkerPreCreateInterceptorAsync,
     post?: MarkerPostCreateInterceptorAsync,
-  }): {
+  }, token?: string): {
     markers: Marker[],
     promises: Promise<void>[],
   } {
@@ -314,7 +314,7 @@ export class Marker implements IndexedRange {
         if (match.index === re.lastIndex) {
           re.lastIndex++;
         }
-        lineMarkers.push(new Marker('highlight', lineNum, match.index, match.index + match[0].length));
+        lineMarkers.push(new Marker(token || 'highlight', lineNum, match.index, match.index + match[0].length));
       }
 
       if (interceptors?.post) {

@@ -6,6 +6,10 @@ import {
   postProcessBoldItalic,
 } from '../generic/genericNormalizers.ts';
 
+export type WuwaNormTextOpts = {
+
+};
+
 function __roverPlaceholder(langCode: LangCode = 'EN', _degender: boolean = false): string {
   switch (langCode) {
     case 'CH':
@@ -51,7 +55,7 @@ function __roverPlaceholder(langCode: LangCode = 'EN', _degender: boolean = fals
  *
  * There are options that the Control may add on depending on user preferences.
  */
-export function __normWuwaText(text: string, langCode: LangCode, opts: NormTextOptions = {}): string {
+export function __normWuwaText(text: string, langCode: LangCode, opts: NormTextOptions<WuwaNormTextOpts> = {}): string {
   if (!text) {
     return text;
   }

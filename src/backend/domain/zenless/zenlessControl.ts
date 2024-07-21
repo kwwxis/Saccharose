@@ -4,7 +4,7 @@ import { AbstractControl } from '../generic/abstractControl.ts';
 import { getZenlessDataFilePath } from '../../loadenv.ts';
 import { normalizeRawJson, SchemaTable } from '../../importer/import_db.ts';
 import { LangCode } from '../../../shared/types/lang-types.ts';
-import { __normZenlessText } from './zenlessText.ts';
+import { __normZenlessText, ZenlessNormTextOpts } from './zenlessText.ts';
 import { NormTextOptions } from '../generic/genericNormalizers.ts';
 import { Request } from 'express';
 import { zenless_i18n, ZENLESS_I18N_MAP } from '../generic/i18n.ts';
@@ -41,7 +41,7 @@ export class ZenlessControl extends AbstractControl<ZenlessControlState> {
     return getZenlessDataFilePath(file);
   }
 
-  override normText(text: string, langCode: LangCode, opts: NormTextOptions = {}): string {
+  override normText(text: string, langCode: LangCode, opts: NormTextOptions<ZenlessNormTextOpts> = {}): string {
     return __normZenlessText(text, langCode, opts);
   }
 

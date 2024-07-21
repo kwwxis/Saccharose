@@ -14,6 +14,10 @@ import { logInitData } from '../../util/logger.ts';
 import fs, { promises as fsp } from 'fs';
 import { ManualTextMapHashes } from '../../../shared/types/genshin/manual-text-map.ts';
 
+export type GenshinNormTextOpts = {
+  wandererPlaceholderPlainForm?: boolean
+};
+
 function __convertGenshinRubi(langCode: LangCode, text: string): string {
   const rubiMap: { [index: number]: string } = {};
   const rubiRegex = /{RUBY#\[([SD])]([^}]+)}/;
@@ -80,7 +84,6 @@ function __travelerPlaceholder(langCode: LangCode = 'EN', degender: boolean = fa
     case 'PT':
       return '(Viajante)';
     case 'RU':
-      //return degender ? '(Путешественник)' : '(Путешественник/Путешественница)';
       return '{{Имя}}';
     case 'TH':
       return '(นักเดินทาง)';
@@ -91,6 +94,52 @@ function __travelerPlaceholder(langCode: LangCode = 'EN', degender: boolean = fa
   }
 }
 
+function __wandererPlaceholder(langCode: LangCode = 'EN', plainForm: boolean = false): string {
+  const nameText: string = (() => {
+    switch (langCode) {
+      case 'CH':
+      case 'CHS':
+        return '流浪者';
+      case 'CHT':
+        return '流浪者';
+      case 'DE':
+        return 'Wanderer';
+      case 'EN':
+        return 'Wanderer';
+      case 'ES':
+        return 'Trotamundos';
+      case 'FR':
+        return 'Nomade';
+      case 'ID':
+        return 'Wanderer';
+      case 'IT':
+        return 'Vagabondo';
+      case 'JP':
+        return '放浪者';
+      case 'KR':
+        return '방랑자';
+      case 'PT':
+        return 'Andarilho';
+      case 'RU':
+        return 'Странник';
+      case 'TH':
+        return 'ผู้พเนจร';
+      case 'TR':
+        return 'Avare';
+      case 'VI':
+        return 'Kẻ Lang Thang';
+    }
+  })();
+  if (plainForm) {
+    return nameText;
+  } else if (langCode === 'EN') {
+    return '{{' + nameText + '}}';
+  } else {
+    return '(' + nameText + ')';
+  }
+}
+
+
 /**
  * **Never use this function directly!!!**
  *
@@ -98,7 +147,7 @@ function __travelerPlaceholder(langCode: LangCode = 'EN', degender: boolean = fa
  *
  * There are options that the Control may add on depending on user preferences.
  */
-export function __normGenshinText(text: string, langCode: LangCode, opts: NormTextOptions = {}): string {
+export function __normGenshinText(text: string, langCode: LangCode, opts: NormTextOptions<GenshinNormTextOpts> = {}): string {
   if (!text) {
     return text;
   }
@@ -152,7 +201,8 @@ export function __normGenshinText(text: string, langCode: LangCode, opts: NormTe
     text = text.replace(/<color=(#[0-9a-fA-F]{6})(?:FF)?>(.*?)<\/color>/g, '{{Color|$1|$2}}');
   }
 
-  text = text.replace(/\{REALNAME\[ID\(1\)(\|HOSTONLY\(true\))?(\|DELAYHANDLE\((true|false)\))?]}/g, '{{Wanderer}}');
+  text = text.replace(/\{REALNAME\[ID\(1\)(\|HOSTONLY\(true\))?(\|DELAYHANDLE\((true|false)\))?]}/g,
+    __wandererPlaceholder(langCode, opts?.customOpts?.wandererPlaceholderPlainForm));
 
   if (!opts.plaintext) {
     text = text.replace(/\{SPRITE_PRESET#(\d+)}/g, (_fm: string, g1: string) => {

@@ -12,7 +12,7 @@ import { html2quotes, unnestHtmlTags } from '../../../shared/mediawiki/mwQuotes.
 import { Change } from 'diff';
 import { diffIntlWithSpace } from '../../util/jsIntlDiff.ts';
 
-export interface NormTextOptions {
+export interface NormTextOptions<T = any> {
   decolor?: boolean,
   plaintext?: boolean,
   plaintextMcMode?: 'both' | 'male' | 'female',
@@ -21,6 +21,7 @@ export interface NormTextOptions {
   mcPlaceholderForceLangCode?: LangCode,
   plaintextDash?: string,
   skipHtml2Quotes?: boolean,
+  customOpts?: T,
 }
 
 export function mergeMcTemplate(text: string, langCode: LangCode, plaintext: boolean): string {

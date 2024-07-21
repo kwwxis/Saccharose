@@ -132,7 +132,7 @@ import { Marker } from '../../../shared/util/highlightMarker.ts';
 import { ElementType, ManualTextMapHashes } from '../../../shared/types/genshin/manual-text-map.ts';
 import { custom, logInitData } from '../../util/logger.ts';
 import { DialogBranchingCache, orderChapterQuests } from './dialogue/dialogue_util.ts';
-import { __normGenshinText } from './genshinText.ts';
+import { __normGenshinText, GenshinNormTextOpts } from './genshinText.ts';
 import { AbstractControl } from '../generic/abstractControl.ts';
 import debug from 'debug';
 import {
@@ -265,7 +265,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return getGenshinDataFilePath(file);
   }
 
-  override normText(text: string, langCode: LangCode, opts: NormTextOptions = {}): string {
+  override normText(text: string, langCode: LangCode, opts: NormTextOptions<GenshinNormTextOpts> = {}): string {
     return __normGenshinText(text, langCode, opts);
   }
 
@@ -2584,7 +2584,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       searchText = searchText.trim();
     }
 
-    const ids = [];
+    const ids: number[] = [];
 
     if (isInt(searchText)) {
       ids.push(toInt(searchText));
@@ -2595,8 +2595,9 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       outputLangCode: this.outputLangCode,
       searchText,
       textIndexName: 'Material',
-      stream: (id) => {
-        ids.push(id);
+      stream: (id: number) => {
+        if (!ids.includes(id))
+          ids.push(id);
       },
       flags: searchFlags
     });
@@ -2828,7 +2829,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       searchText = searchText.trim();
     }
 
-    const ids = [];
+    const ids: number[] = [];
 
     if (isInt(searchText)) {
       ids.push(toInt(searchText));
@@ -2839,8 +2840,9 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       outputLangCode: this.outputLangCode,
       searchText,
       textIndexName: 'Weapon',
-      stream: (id) => {
-        ids.push(id);
+      stream: (id: number) => {
+        if (!ids.includes(id))
+          ids.push(id);
       },
       flags: searchFlags
     });
@@ -2903,14 +2905,15 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     if (isStringBlank(searchText)) {
       return [];
     }
-    let ids = [];
+    let ids: number[] = [];
     await this.streamTextMapMatchesWithIndex({
       inputLangCode: langCode,
       outputLangCode: langCode,
       searchText,
       textIndexName: 'Readable',
-      stream: (id, _textMapHash) => {
-        ids.push(id);
+      stream: (id: number) => {
+        if (!ids.includes(id))
+          ids.push(id);
       },
       flags
     });
@@ -3304,7 +3307,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       searchText = searchText.trim();
     }
 
-    const ids = [];
+    const ids: number[] = [];
 
     if (isInt(searchText)) {
       ids.push(toInt(searchText));
@@ -3316,7 +3319,8 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       searchText,
       textIndexName: 'Achievement',
       stream: (id) => {
-        ids.push(id);
+        if (!ids.includes(id))
+          ids.push(id);
       },
       flags: searchFlags
     });
