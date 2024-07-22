@@ -13,7 +13,8 @@ export default async function(): Promise<Router> {
   router.get('/textmap', async (req: Request, res: Response) => {
     res.render('pages/generic/basic/textmap', {
       title: 'TextMap Search',
-      bodyClass: ['page--textmap']
+      bodyClass: ['page--textmap'],
+      enableVersionFilter: true,
     });
   });
 

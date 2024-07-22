@@ -41,6 +41,21 @@ pageMatch('pages/generic/basic/textmap', () => {
     excelUsagesEndpoint = wuwaEndpoints.getExcelUsages;
   }
 
+  listen([
+    {
+      selector: '#versionFilterEnabled',
+      event: 'input',
+      handle(ev) {
+        const checkbox = document.querySelector<HTMLInputElement>('#versionFilterEnabled');
+        if (checkbox.checked) {
+          document.querySelector('#versionFilterOuter').classList.remove('hide');
+        } else {
+          document.querySelector('#versionFilterOuter').classList.add('hide');
+        }
+      }
+    }
+  ])
+
   startGenericSearchPageListeners({
     endpoint,
     asHtml: true,
@@ -75,6 +90,11 @@ pageMatch('pages/generic/basic/textmap', () => {
         selector: '#hashSearch',
         apiParam: 'hashSearch',
         queryParam: 'hashSearch',
+      },
+      {
+        selector: '#versionFilter',
+        apiParam: 'versionFilter',
+        queryParam: 'versions',
       }
     ],
 

@@ -168,7 +168,7 @@ import {
   ChangeRecordMap,
   ChangeRecordRef,
   ExcelFileChanges,
-  FullChangelog,
+  FullChangelog, TextMapChangeRef, TextMapChanges,
 } from '../../../shared/types/changelog-types.ts';
 import { GameVersion, GenshinVersions } from '../../../shared/types/game-versions.ts';
 import { AbstractControlState } from '../generic/abstractControlState.ts';
@@ -3184,7 +3184,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   // endregion
 
   // region Changelog
-  async selectAllChangelogs(): Promise<Record<string, FullChangelog>> {
+  override async selectAllChangelogs(): Promise<Record<string, FullChangelog>> {
     let changelogs = await GenshinVersions.filter(v => v.showChangelog).asyncMap(v => this.selectChangelog(v));
     let map: Record<string, FullChangelog> = {};
     for (let changelog of changelogs) {
@@ -3193,7 +3193,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return map;
   }
 
-  async selectChangelog(version: GameVersion): Promise<FullChangelog> {
+  override async selectChangelog(version: GameVersion): Promise<FullChangelog> {
     if (!version || !version.showChangelog) {
       return null;
     }
@@ -3207,18 +3207,18 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     });
   }
 
-  async selectChangeRecordAdded(id: string|number): Promise<ChangeRecordRef[]>
-  async selectChangeRecordAdded(id: string|number, excelFile: string): Promise<ChangeRecordRef>
+  override async selectChangeRecordAdded(id: string|number): Promise<ChangeRecordRef[]>
+  override async selectChangeRecordAdded(id: string|number, excelFile: string): Promise<ChangeRecordRef>
 
-  async selectChangeRecordAdded(id: string|number, excelFile?: string): Promise<ChangeRecordRef|ChangeRecordRef[]> {
+  override async selectChangeRecordAdded(id: string|number, excelFile?: string): Promise<ChangeRecordRef|ChangeRecordRef[]> {
     if (excelFile) {
-      return (await this.selectChangeRecord(id, excelFile)).find(r => r.record.changeType === 'added');
+      return (await this.selectChangeRecords(id, excelFile)).find(r => r.record.changeType === 'added');
     } else {
-      return (await this.selectChangeRecord(id)).filter(r => r.record.changeType === 'added');
+      return (await this.selectChangeRecords(id)).filter(r => r.record.changeType === 'added');
     }
   }
 
-  async selectChangeRecord(id: string|number, excelFile?: string): Promise<ChangeRecordRef[]> {
+  override async selectChangeRecords(id: string|number, excelFile?: string): Promise<ChangeRecordRef[]> {
     if (excelFile && excelFile.endsWith('.json')) {
       excelFile = excelFile.slice(0, -5);
     }
@@ -3252,6 +3252,43 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     }
 
     return changeRecordRefs;
+  }
+
+  override async selectTextMapChangeRefAdded(hash: TextMapHash, langCode: LangCode): Promise<TextMapChangeRef> {
+    return (await this.selectTextMapChangeRefs(hash, langCode)).find(r => r.changeType === 'added');
+  }
+
+  override async selectTextMapChangeRefs(hash: TextMapHash, langCode: LangCode): Promise<TextMapChangeRef[]> {
+    const refs: TextMapChangeRef[] = [];
+
+    const changelogs = await this.selectAllChangelogs();
+    for (let [versionNum, fullChangelog] of Object.entries(changelogs)) {
+      if (fullChangelog?.textmapChangelog?.[langCode]) {
+        let changes: TextMapChanges = fullChangelog?.textmapChangelog?.[langCode];
+        if (changes.added[hash]) {
+          refs.push({
+            version: versionNum,
+            changeType: 'added',
+            value: changes.added[hash]
+          });
+        } else if (changes.updated[hash]) {
+          refs.push({
+            version: versionNum,
+            changeType: 'updated',
+            value: changes.updated[hash].newValue,
+            prevValue: changes.updated[hash].oldValue
+          });
+        } else if (changes.removed[hash]) {
+          refs.push({
+            version: versionNum,
+            changeType: 'removed',
+            value: changes.removed[hash]
+          });
+        }
+      }
+    }
+
+    return refs;
   }
   // endregion
 

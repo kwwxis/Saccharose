@@ -70,6 +70,13 @@ export type ChangeRecordRef = {
   recordKey: string,
   record: ChangeRecord
 }
+
+export type TextMapChangeRef = {
+  version: string,
+  changeType: ChangeType,
+  value: string,
+  prevValue?: string,
+}
 // endregion
 
 // region TextMap Changelog Types

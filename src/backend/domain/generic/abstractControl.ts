@@ -47,6 +47,8 @@ import { Marker } from '../../../shared/util/highlightMarker.ts';
 // Same Directory Imports:
 import { AbstractControlState } from './abstractControlState.ts';
 import { NormTextOptions } from './genericNormalizers.ts';
+import { ChangeRecordRef, FullChangelog, TextMapChangeRef } from '../../../shared/types/changelog-types.ts';
+import { GameVersion } from '../../../shared/types/game-versions.ts';
 
 export abstract class AbstractControl<T extends AbstractControlState = AbstractControlState> {
   // region Fields
@@ -326,11 +328,16 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
               text = this.normText(text, opts.outputLangCode);
             }
             hashSeen.add(possibleHash);
+            const version: string = (await this.selectTextMapChangeRefAdded(possibleHash, opts.outputLangCode)).version;
+            if (opts.versionFilters?.length && (!version || !opts.versionFilters.includes(version))) {
+              continue;
+            }
             out.push({
               hash: possibleHash,
               text,
               line: await getLineNumberForLineText(String(possibleHash), this.getDataFilePath(getPlainTextMapRelPath(opts.inputLangCode, 'Hash'))),
               hashMarkers: opts.searchAgainst === 'Hash' ? Marker.create(re, String(possibleHash)) : undefined,
+              version
             });
           }
         }
@@ -374,12 +381,18 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
           text = this.normText(text, opts.outputLangCode);
         }
 
+        const version: string = (await this.selectTextMapChangeRefAdded(textMapHash, opts.outputLangCode)).version;
+        if (opts.versionFilters?.length && (!version || !opts.versionFilters.includes(version))) {
+          continue;
+        }
+
         out.push({
           hash: textMapHash,
           text: text,
           line: lineNum,
           markers: opts.searchAgainst === 'Text' && opts.inputLangCode === opts.outputLangCode ? Marker.create(re, text) : undefined,
           hashMarkers: opts.searchAgainst === 'Hash' ? Marker.create(re, String(textMapHash)) : undefined,
+          version,
         });
         numAdded++;
 
@@ -477,6 +490,14 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       let didKill = false;
       const hash = maybeInt(opts.searchText.trim());
       let text = await this.getTextMapItem(opts.inputLangCode, opts.searchText);
+
+      if (text && opts.versionFilters?.length) {
+        const version: string = (await this.selectTextMapChangeRefAdded(hash, opts.outputLangCode)).version;
+        if (!version || !opts.versionFilters.includes(version)) {
+          text = null;
+        }
+      }
+
       if (text) {
         if (opts.doNormText) {
           text = this.normText(text, opts.outputLangCode);
@@ -510,6 +531,13 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
         return;
       } else {
         hashSeen.add(textMapHash);
+      }
+
+      if (opts.versionFilters?.length) {
+        const version: string = (await this.selectTextMapChangeRefAdded(textMapHash, opts.outputLangCode)).version;
+        if (!version || !opts.versionFilters.includes(version)) {
+          return;
+        }
       }
 
       if (opts.doNormText) {
@@ -640,7 +668,35 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
 
     return out;
   }
+  // endregion
 
+  // region Changelog
+  async selectAllChangelogs(): Promise<Record<string, FullChangelog>> {
+    return {};
+  }
+
+  async selectChangelog(version: GameVersion): Promise<FullChangelog> {
+    return null;
+  }
+
+  async selectChangeRecordAdded(id: string|number): Promise<ChangeRecordRef[]>
+  async selectChangeRecordAdded(id: string|number, excelFile: string): Promise<ChangeRecordRef>
+
+  async selectChangeRecordAdded(id: string|number, excelFile?: string): Promise<ChangeRecordRef|ChangeRecordRef[]> {
+    return excelFile ? null : [];
+  }
+
+  async selectChangeRecords(id: string|number, excelFile?: string): Promise<ChangeRecordRef[]> {
+    return [];
+  }
+
+  async selectTextMapChangeRefAdded(hash: TextMapHash, langCode: LangCode): Promise<TextMapChangeRef> {
+    return null;
+  }
+
+  async selectTextMapChangeRefs(hash: TextMapHash, langCode: LangCode): Promise<TextMapChangeRef[]> {
+    return [];
+  }
   // endregion
 
   // region Texture2D Media

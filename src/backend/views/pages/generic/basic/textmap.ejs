@@ -24,6 +24,16 @@
         <input id="hashSearch" type="checkbox" name="hashSearch" value="1" />
         <span>Hash search</span>
       </label>
+      <% if (locals.enableVersionFilter) { %>
+        <label class="ui-checkbox dispBlock" style="padding-left:5px;font-size:13px;">
+          <input id="versionFilterEnabled" type="checkbox" name="versionFilterEnabled" value="1" />
+          <span>Version filter</span>
+        </label>
+      <% } %>
+    </div>
+    <div id="versionFilterOuter" class="field hide">
+      <input id="versionFilter" type="text" placeholder="Versions separated by comma or semicolon (only supported from 4.0 onwards)"
+             style="max-width: 490px;width: 100%;"/>
     </div>
     <div class="field valign spacer10-top">
       <button class="search-submit primary primary--2">Search</button>

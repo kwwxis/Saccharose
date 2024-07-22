@@ -2,7 +2,7 @@ import { isInt, maybeInt, toInt } from '../../../../shared/util/numberUtil.ts';
 import { ExcelUsages } from '../../../../shared/util/searchUtil.ts';
 import { AbstractControl } from '../../../domain/generic/abstractControl.ts';
 import { add_ol_markers, ol_gen, OLResult } from '../../../domain/generic/basic/OLgen.ts';
-import { isset, toBoolean } from '../../../../shared/util/genericUtil.ts';
+import { isNotEmpty, isset, toBoolean } from '../../../../shared/util/genericUtil.ts';
 import { HttpError } from '../../../../shared/util/httpError.ts';
 import { Request, Response } from 'express';
 import { escapeRegExp } from '../../../../shared/util/stringUtil.ts';
@@ -17,6 +17,10 @@ export async function handleTextMapSearchEndpoint(ctrl: AbstractControl, req: Re
   const isRawInput: boolean = isset(req.query.isRawInput) && toBoolean(req.query.isRawInput);
   const isRawOutput: boolean = isset(req.query.isRawOutput) && toBoolean(req.query.isRawOutput);
   const hashSearch: boolean = isset(req.query.hashSearch) && toBoolean(req.query.hashSearch);
+  const versionFilters: string[] = isNotEmpty(req.query.versionFilter) ? String(req.query.versionFilter)
+    .split(/[,;]/g)
+    .map(s => s.trim())
+    .filter(s => !!s) : [];
   const SEARCH_TEXTMAP_MAX = 100;
   const query: string = req.query.text as string;
 
@@ -29,7 +33,8 @@ export async function handleTextMapSearchEndpoint(ctrl: AbstractControl, req: Re
     startFromLine,
     isRawInput,
     searchAgainst: hashSearch ? 'Hash' : 'Text',
-    doNormText: !isRawOutput
+    doNormText: !isRawOutput,
+    versionFilters
   });
   let hasMoreResults: boolean = false;
 

@@ -5,6 +5,7 @@ export type TextMapHash = number|string;
 
 export type TextMapSearchResult = {
   hash: TextMapHash,
+  version: string,
   text: string,
   line: number,
   markers?: Marker[],
@@ -19,7 +20,8 @@ export type TextMapSearchOpts = {
   isRawInput?: boolean,
   startFromLine?: number,
   searchAgainst?: 'Text' | 'Hash',
-  doNormText?: boolean
+  doNormText?: boolean,
+  versionFilters?: string[],
 };
 export type TextMapSearchStreamOpts = TextMapSearchOpts & {
   stream: (textMapHash: TextMapHash, text?: string, kill?: () => void) => void,
