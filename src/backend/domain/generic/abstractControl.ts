@@ -328,7 +328,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
               text = this.normText(text, opts.outputLangCode);
             }
             hashSeen.add(possibleHash);
-            const version: string = (await this.selectTextMapChangeRefAdded(possibleHash, opts.outputLangCode)).version;
+            const version: string = (await this.selectTextMapChangeRefAdded(possibleHash, opts.outputLangCode))?.version;
             if (opts.versionFilters?.length && (!version || !opts.versionFilters.includes(version))) {
               continue;
             }
@@ -381,7 +381,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
           text = this.normText(text, opts.outputLangCode);
         }
 
-        const version: string = (await this.selectTextMapChangeRefAdded(textMapHash, opts.outputLangCode)).version;
+        const version: string = (await this.selectTextMapChangeRefAdded(textMapHash, opts.outputLangCode))?.version;
         if (opts.versionFilters?.length && (!version || !opts.versionFilters.includes(version))) {
           continue;
         }
@@ -492,7 +492,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       let text = await this.getTextMapItem(opts.inputLangCode, opts.searchText);
 
       if (text && opts.versionFilters?.length) {
-        const version: string = (await this.selectTextMapChangeRefAdded(hash, opts.outputLangCode)).version;
+        const version: string = (await this.selectTextMapChangeRefAdded(hash, opts.outputLangCode))?.version;
         if (!version || !opts.versionFilters.includes(version)) {
           text = null;
         }
@@ -534,7 +534,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       }
 
       if (opts.versionFilters?.length) {
-        const version: string = (await this.selectTextMapChangeRefAdded(textMapHash, opts.outputLangCode)).version;
+        const version: string = (await this.selectTextMapChangeRefAdded(textMapHash, opts.outputLangCode))?.version;
         if (!version || !opts.versionFilters.includes(version)) {
           return;
         }
