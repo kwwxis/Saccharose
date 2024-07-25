@@ -79,9 +79,15 @@ export async function handleOlEndpoint(ctrl: AbstractControl, req: Request, res:
 
   if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
     if (toBoolean(req.query.singleResultSimpleHtml)) {
-      return res.render('partials/generic/basic/ol-result-simple', { olResult: results?.[0], searchText: req.query.text as string });
+      return res.render('partials/generic/basic/ol-result-simple', {
+        olResult: results?.[0],
+        searchText: req.query.text as string
+      });
     }
-    return res.render('partials/generic/basic/ol-result', { olResults: results, searchText: req.query.text as string });
+    return res.render('partials/generic/basic/ol-result', {
+      olResults: results,
+      searchText: req.query.text as string
+    });
   } else {
     return results;
   }

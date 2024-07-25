@@ -4,9 +4,10 @@ import { mwParse } from '../../../shared/mediawiki/mwParse.ts';
 import { MwParamNode, MwTemplateNode } from '../../../shared/mediawiki/mwParseTypes.ts';
 
 import { highlightWikitextReplace } from '../ace/aceHighlight.ts';
+import { getOLEndpoint } from '../endpoints.ts';
 
 export function enableOLActionsInterval() {
-
+  const { neverDefaultHidden } = getOLEndpoint();
   document.querySelectorAll('.highlighted.ol-result-textarea:not(.ol-result-textarea-processed)').forEach(
     (contentEditableEl: HTMLElement) => {
       contentEditableEl.classList.add('ol-result-textarea-processed');
@@ -66,7 +67,7 @@ export function enableOLActionsInterval() {
             contentEditableEl.removeAttribute('data-markers');
           }
           templateNode.readjustPropPad(['default_hidden']);
-          if (addDefaultHidden) {
+          if (addDefaultHidden && !templateNode.hasParam('default_hidden')) {
             templateNode.getParam(0).afterValueWhitespace.content = '';
             templateNode.addParamAfter(new MwParamNode('|', 'default_hidden', '1', '', '\n'), 0);
           }
@@ -79,6 +80,6 @@ export function enableOLActionsInterval() {
       }
 
       rmButton.addEventListener('click', createParamRemover(/_rm$/));
-      tlButton.addEventListener('click', createParamRemover(/_tl$/, true));
+      tlButton.addEventListener('click', createParamRemover(/_tl$/, !neverDefaultHidden));
     });
 }

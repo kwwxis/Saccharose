@@ -6,7 +6,6 @@ import { SiteUserProvider } from './SiteUserProvider.ts';
 import connectPgSimple from 'connect-pg-simple';
 import { pgPool } from '../../util/db.ts';
 import { Request } from 'express';
-import { SiteAuthEnabled } from '../../loadenv.ts';
 import { SiteUser } from '../../../shared/types/site/site-user-types.ts';
 const DiscordStrategy = passport_discord.Strategy;
 
@@ -63,11 +62,8 @@ export default [
       secure: toBoolean(process.env.SSL_ENABLED),
     },
   }),
-
-  ... (SiteAuthEnabled ? [
-    passport.initialize(),
-    passport.session(),
-  ] : [])
+  passport.initialize(),
+  passport.session()
 ];
 
 export function getSessionUser(req: Request): SiteUser {

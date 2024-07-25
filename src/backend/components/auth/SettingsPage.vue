@@ -181,10 +181,10 @@ import { SiteSidebar } from '../../../shared/types/site/site-sidebar-types.ts';
 let request = getTrace().req;
 let user: SiteUser = request.user;
 
-let isNightmode: boolean = request.user.prefs.isNightmode || false;
+let isNightmode: boolean = request.context.prefs.isNightmode || false;
 let avatarUrl: string = SiteUserProvider.getAvatarUrl(user);
 let sidebarConfigs: SiteSidebar[] = Object.values(request.context.allSiteSidebarConfig);
-let sidebarShown: SiteMenuShown = request.user.prefs.siteMenuShown || {};
+let sidebarShown: SiteMenuShown = request.context.prefs.siteMenuShown || {};
 let sidebarConfigItemCounter: number = 0;
 
 function levelOptionNextParity(): string {

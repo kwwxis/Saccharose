@@ -2,6 +2,8 @@ import passport_discord from 'passport-discord';
 import { LangCode } from '../lang-types.ts';
 import { SearchMode } from '../../util/searchUtil.ts';
 
+export const VisitorPrefsCookieName = 'VisitorUserPrefs';
+
 export type SiteUser = {
   id: string,
   discord_username: string,

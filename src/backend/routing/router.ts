@@ -61,6 +61,13 @@ function createIncludeFunction(req: Request, viewStackPointer: RequestViewStack)
   };
 }
 
+export function reqContextInitMiddleware(req: Request, _res: Response, next: NextFunction) {
+  if (!req.context) {
+    req.context = new RequestContext(req);
+  }
+  next();
+}
+
 async function updateReqContext(req: Request, res: Response, payload: Readonly<RequestContextUpdate>) {
   if (!req.context) {
     req.context = new RequestContext(req);

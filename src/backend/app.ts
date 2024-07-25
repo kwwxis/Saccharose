@@ -31,6 +31,9 @@ import { createStaticImagesHandler } from './middleware/request/staticImagesHand
 import { ScriptJobCoordinator } from './util/scriptJobs.ts';
 import authRouter from './controllers/AuthRouter.ts';
 import { createSiteUserMiddlewareRouter } from './middleware/auth/siteUserMiddleware.ts';
+import visitorRouter from './controllers/visitor/VisitorRouter.ts';
+import { RequestContext } from './routing/requestContext.ts';
+import { reqContextInitMiddleware } from './routing/router.ts';
 
 const app: Express = express();
 let didInit: boolean = false;
@@ -107,12 +110,13 @@ export async function appInit(): Promise<Express> {
   app.use(express.urlencoded({extended: true}));     // parses url-encoded POST/PUT bodies
   app.use(requestIp.mw());                                  // enable request-ip
   app.use(traceMiddleware);
-  app.use(accessLogging);                                   // access logging
 
   // Initialize sessions
   // ~~~~~~~~~~~~~~~~~~~
   logInit(`Initializing sessions`);
-  app.use(sessions);
+  app.use(sessions);                                        // sessions
+  app.use(reqContextInitMiddleware);                        // request context init
+  app.use(accessLogging);                                   // access logging
 
   // Middleware for responses
   // ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -133,14 +137,20 @@ export async function appInit(): Promise<Express> {
   // ~~~~~~~~~~~~~~~~~~~~~~~
   app.use(await authRouter());
 
+  // Load Visitor Router
+  // ~~~~~~~~~~~~~~~~~~~
+  app.use(await visitorRouter());
+
   // Load API router
   // ~~~~~~~~~~~~~~~
+  // API router uses its own auth flow and should not come after "siteUserMiddlewareRouter()"
   logInit(`Loading API router`);
   app.use('/api', await apiBaseRouter());
 
   // Load auth middleware
   // ~~~~~~~~~~~~~~~~~~~~
   app.use(createSiteUserMiddlewareRouter());
+  // ALL ENDPOINTS PAST THIS POINT ARE SUBJECT TO REQUIRING AUTHENTICATION
 
   // Load serve-image router
   // ~~~~~~~~~~~~~~~~~~~~~~~

@@ -20,7 +20,6 @@ export const PIPELINE_DIR = path.resolve(__dirname, '../pipeline');
 export const BACKEND_ROOT = __dirname;
 export const SITE_TITLE = 'Saccharose.wiki';
 export const EJS_DELIMITER = '%';
-export const SiteAuthEnabled: boolean = toBoolean(process.env.AUTH_ENABLED);
 
 export const IMAGEDIR_GENSHIN_STATIC = path.resolve(PUBLIC_DIR, './images/genshin/static');
 export const IMAGEDIR_GENSHIN_EXT = path.resolve(process.env.EXT_GENSHIN_IMAGES);

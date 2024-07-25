@@ -4,19 +4,11 @@ import DiscordLoginPage from '../../components/auth/DiscordLoginPage.vue';
 import WikiLoginPage from '../../components/auth/WikiLoginPage.vue';
 import { SiteUserProvider } from './SiteUserProvider.ts';
 import UserBannedPage from '../../components/auth/UserBannedPage.vue';
-import { SiteAuthEnabled } from '../../loadenv.ts';
-import { SiteUserPrefs } from '../../../shared/types/site/site-user-types.ts';
-import { toBoolean } from '../../../shared/util/genericUtil.ts';
 
 export function createSiteUserMiddlewareRouter() {
   const router = create();
 
   router.use(async (req: Request, res: Response, next: NextFunction) => {
-    if (!SiteAuthEnabled) {
-      next();
-      return;
-    }
-
     if (!req.isAuthenticated()) {
       res.render(DiscordLoginPage, {
         layouts: ['layouts/basic-layout'],
@@ -55,29 +47,6 @@ export function createSiteUserMiddlewareRouter() {
         layouts: ['layouts/basic-layout'],
       });
       return;
-    }
-
-    let prefsMigrate: Partial<SiteUserPrefs> = {};
-    if (req.cookies['inputLangCode']) {
-      prefsMigrate.inputLangCode = req.cookies['inputLangCode'];
-      res.clearCookie('inputLangCode');
-    }
-    if (req.cookies['outputLangCode']) {
-      prefsMigrate.outputLangCode = req.cookies['outputLangCode'];
-      res.clearCookie('outputLangCode');
-    }
-    if (req.cookies['search-mode']) {
-      prefsMigrate.searchMode = req.cookies['search-mode'];
-      res.clearCookie('search-mode');
-    }
-    if (req.cookies['nightmode'] && toBoolean(req.cookies['nightmode'])) {
-      prefsMigrate.isNightmode = true;
-      res.clearCookie('nightmode');
-    }
-    if (Object.keys(prefsMigrate).length) {
-      await SiteUserProvider.update(req.user.id, {
-        prefs: Object.assign({}, req.user.prefs, prefsMigrate)
-      });
     }
 
     next();

@@ -495,6 +495,10 @@ export class MwTemplateNode extends MwParentNode {
     return key === 0 ? this.getTemplateNameNode() : this.params.find(param => param.key == key);
   }
 
+  hasParam(key: string | number): boolean {
+    return !!this.getParam(key);
+  }
+
   getLongestParamKeyLen(ignoring: string[] = []) {
     return Math.max(... this.params
       .filter(p => typeof p.key === 'string' && !ignoring.includes(p.key))

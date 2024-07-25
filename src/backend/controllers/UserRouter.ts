@@ -4,16 +4,12 @@ import { SiteUserProvider } from '../middleware/auth/SiteUserProvider.ts';
 import SettingsPage from '../components/auth/SettingsPage.vue';
 import SiteNoticesPage from '../components/site/SiteNoticesPage.vue';
 import NumberFormattingNotice from '../components/site/notices/NumberFormattingNotice.vue';
-import { SiteAuthEnabled } from '../loadenv.ts';
 import { SiteNotice } from '../../shared/types/site/site-user-types.ts';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
 
   router.get('/settings', (req: Request, res: Response) => {
-    if (!SiteAuthEnabled) {
-      return res.status(404).render('errors/404');
-    }
     res.render(SettingsPage, {
       title: 'Settings',
       bodyClass: ['page--user', 'page-settings'],

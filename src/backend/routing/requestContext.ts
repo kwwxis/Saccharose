@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import { getWebpackBundleFileNames, WebpackBundles } from './webpackBundle.ts';
 import createHtmlElement from 'create-html-element';
-import { getNodeEnv, SITE_TITLE, SiteAuthEnabled } from '../loadenv.ts';
+import { getNodeEnv, SITE_TITLE } from '../loadenv.ts';
 import { CompareTernary, ternary } from '../../shared/util/genericUtil.ts';
 import { DEFAULT_LANG, LANG_CODES, LANG_CODES_TO_NAME } from '../../shared/types/lang-types.ts';
 import { SEARCH_MODES } from '../../shared/util/searchUtil.ts';
@@ -16,7 +16,12 @@ import { isVueApp } from './router.ts';
 import { SiteUserProvider } from '../middleware/auth/SiteUserProvider.ts';
 import { basename } from 'path';
 import { removeSuffix, SbOut } from '../../shared/util/stringUtil.ts';
-import { SiteMenuShownEntry, SitePrefName, SiteUserPrefs } from '../../shared/types/site/site-user-types.ts';
+import {
+  SiteMenuShownEntry,
+  SitePrefName,
+  SiteUserPrefs,
+  VisitorPrefsCookieName,
+} from '../../shared/types/site/site-user-types.ts';
 import { SiteSidebar } from '../../shared/types/site/site-sidebar-types.ts';
 import { icon } from './viewUtilities.ts';
 
@@ -38,6 +43,7 @@ export type RequestContextUpdate = {
  */
 export class RequestContext {
   private _req: Request;
+  private _cachedPrefs: SiteUserPrefs;
 
   // Data Properties:
   title: string;
@@ -105,12 +111,8 @@ export class RequestContext {
     return viewName;
   }
 
-  get siteAuthEnabled(): boolean {
-    return SiteAuthEnabled;
-  }
-
   get discordAvatarUrl(): string {
-    return SiteAuthEnabled ? SiteUserProvider.getAvatarUrl(this._req.user) : '';
+    return SiteUserProvider.getAvatarUrl(this._req.user);
   }
 
   get siteHome(): string {
@@ -205,8 +207,27 @@ export class RequestContext {
     return names;
   }
 
-  get siteUserPrefs(): SiteUserPrefs {
-    return this._req?.user?.prefs || {};
+  isAuthenticated(): boolean {
+    return this._req.isAuthenticated();
+  }
+
+  get prefs(): SiteUserPrefs {
+    if (this._cachedPrefs) {
+      return this._cachedPrefs;
+    } else if (this.isAuthenticated()) {
+      return this._req.user?.prefs || {};
+    } else {
+      let cookieVal: string = this._req.cookies[VisitorPrefsCookieName];
+
+      try {
+        if (!!cookieVal && cookieVal.startsWith('{')) {
+          this._cachedPrefs = JSON.parse(cookieVal);
+          return this._cachedPrefs;
+        }
+      } catch (ignore) {}
+
+      return {};
+    }
   }
 
   canPopViewStack(): boolean {
@@ -242,11 +263,11 @@ export class RequestContext {
   }
 
   pref<T extends SitePrefName>(prefName: T, orElse?: SiteUserPrefs[T]): SiteUserPrefs[T] {
-    return this.siteUserPrefs[prefName] || orElse;
+    return this.prefs[prefName] || orElse;
   }
 
   prefTernary<T extends SitePrefName>(prefName: T): CompareTernary<SiteUserPrefs[T]> {
-    return ternary(this.siteUserPrefs[prefName]).setDefaultElse('');
+    return ternary(this.prefs[prefName]).setDefaultElse('');
   }
 
   get siteTitle() {
@@ -271,11 +292,11 @@ export class RequestContext {
   }
 
   get inputLangCode() {
-    return this._req.user?.prefs?.inputLangCode|| DEFAULT_LANG;
+    return this.prefs.inputLangCode|| DEFAULT_LANG;
   }
 
   get outputLangCode() {
-    return this._req.user?.prefs?.outputLangCode || DEFAULT_LANG;
+    return this.prefs.outputLangCode || DEFAULT_LANG;
   }
 
   hasQuerySettings() {
@@ -312,7 +333,7 @@ export class RequestContext {
 
     const chevronDownHtml: string = icon('chevron-down', 17);
 
-    const shownConfig: SiteMenuShownEntry = this._req?.user?.prefs?.siteMenuShown?.[conf.id] || {};
+    const shownConfig: SiteMenuShownEntry = this.prefs.siteMenuShown?.[conf.id] || {};
 
     for (let section of conf.sections) {
       if (shownConfig[section.id] === 'hidden')

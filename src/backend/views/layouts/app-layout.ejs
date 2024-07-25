@@ -6,7 +6,8 @@
     <meta name="robots" content="noindex, nofollow" />
     <meta name="csrf-token" content="<%= locals.csrfToken || '' %>" />
     <meta name="view-stack" content="<%= req.context.getAllViewNames() %>" />
-    <meta name="user-prefs" content="<%= JSON.stringify(req.context.siteUserPrefs) %>" />
+    <meta name="user-prefs" content="<%= JSON.stringify(req.context.prefs) %>" />
+    <meta name="is-authenticated" content="true" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="langCodes" content="<%= JSON.stringify(req.context.languages) %>" />
     <% for (let [propName, propValue] of Object.entries(req.context.htmlMetaProps)) { %>

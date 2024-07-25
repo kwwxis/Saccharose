@@ -9,7 +9,9 @@
           <span class="expando" ui-action="expando: #ol-result-content-<%= idx %>"><%- icon('chevron-down', 17) %></span>
           <span style="opacity:0.6">TextMapHash:&nbsp;</span>
           <code><%= olResult.textMapHash %></code>
-          <a href="<%= siteHome %>/excel-usages?q=<%= olResult.textMapHash %>" role="button" class="secondary small spacer5-left fontWeight500" target="_blank">Usages</a>
+          <% if (req.isAuthenticated()) { %>
+            <a href="<%= siteHome %>/excel-usages?q=<%= olResult.textMapHash %>" role="button" class="secondary small spacer5-left fontWeight500" target="_blank">Usages</a>
+          <% } %>
         </h4>
         <div class="valign">
           <button class="secondary ol-result-copy"
@@ -26,7 +28,7 @@
         <% } %>
         <textarea id="ol-result-<%= idx %>" readonly spellcheck="false" translate="no" class="ol-result-textarea wikitext w100p spacer5-top"
                   style="resize:vertical;overflow:auto;font-size:13px;" data-markers="<%= Marker.joining(olResult.markers) %>"><%= olResult.result %></textarea>
-        <% if (olResult.duplicateTextMapHashes.length) { %>
+        <% if (req.isAuthenticated() && olResult.duplicateTextMapHashes.length) { %>
           <h5>Duplicate TextMapHashes</h5>
           <p class="spacer5-bottom">List of TextMapHashes whose values are duplicates of <%= olResult.textMapHash %> across all languages.<br>
             Click on a link to see where that hash is used or see <a href="<%= siteHome %>/excel-usages?q=<%= olResult.textMapHash %>,<%= olResult.duplicateTextMapHashes.join(',') %>" target="_blank">all usages</a>.</p>

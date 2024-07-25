@@ -1,36 +1,28 @@
 <div class="app-menu-buttons valign spacer10-right">
-  <div class="toggle-theme-buttons alignStretch button-group spacer5-right">
-    <button class="secondary <%= prefTernary('isNightmode').isFalsy().then('selected') %>" value="daymode"><%- icon('sun') %></button>
-    <button class="secondary <%= prefTernary('isNightmode').isTruthy().then('selected') %>" value="nightmode"><%- icon('moon') %></button>
-  </div>
-  <% if (req.context.siteAuthEnabled) { %>
-    <div class="posRel">
-      <div class="valign" ui-action="dropdown" style="cursor:pointer">
-        <img src="<%= req.context.discordAvatarUrl %>" class="framed-icon x32" />
-        <%- icon('chevron-down', 20) %>
-      </div>
-      <div class="ui-dropdown">
-        <div class="label">@<%= req.user.discord_username %></div>
-        <a class="option valign" href="/settings">
-          <%- icon('settings', 14) %>
-          <span class="spacer5-left">Settings</span>
-        </a>
-        <a class="option valign" href="/notices">
-          <%- icon('file-text', 14) %>
-          <span class="spacer5-left">Site Notices</span>
-        </a>
-        <div class="option valign"
-              ui-tippy-hover="{content: 'Copy link to page with your language and search settings', placement: 'left'}" ui-action="copy-pref-link"
-              ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">
-          <%- icon('link', 14) %>
-          <span class="spacer5-left">Copy direct link</span>
-        </div>
-        <span class="option-sep"></span>
-        <a class="option" href="/auth/logout">Logout</a>
-      </div>
+  <%- use('partials/layout/app-theme-buttons') %>
+  <div class="posRel">
+    <div class="valign" ui-action="dropdown" style="cursor:pointer">
+      <img src="<%= req.context.discordAvatarUrl %>" class="framed-icon x32" />
+      <%- icon('chevron-down', 20) %>
     </div>
-  <% } else { %>
-  <button class="secondary" ui-tippy-hover="Copy link to page with your language and search settings" ui-action="copy-pref-link"
-          ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"><%- icon('link') %></button>
-  <% } %>
+    <div class="ui-dropdown">
+      <div class="label">@<%= req.user.discord_username %></div>
+      <a class="option valign" href="/settings">
+        <%- icon('settings', 14) %>
+        <span class="spacer5-left">Settings</span>
+      </a>
+      <a class="option valign" href="/notices">
+        <%- icon('file-text', 14) %>
+        <span class="spacer5-left">Site Notices</span>
+      </a>
+      <div class="option valign"
+            ui-tippy-hover="{content: 'Copy link to page with your language and search settings', placement: 'left'}" ui-action="copy-pref-link"
+            ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">
+        <%- icon('link', 14) %>
+        <span class="spacer5-left">Copy direct link</span>
+      </div>
+      <span class="option-sep"></span>
+      <a class="option" href="/auth/logout">Logout</a>
+    </div>
+  </div>
 </div>

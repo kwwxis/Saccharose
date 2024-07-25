@@ -56,8 +56,8 @@
           </div>
         </fieldset>
       <% } %>
-      <% } %>
     </div>
+    <% } %>
     <div style="margin-bottom:-8px">
       <a id="ol-info-show" style="font-size:13px;cursor:pointer;opacity:0.8" ui-action="delete-cookie: OL.info; remove-class: #ol-info, hide; add-class: this, hide" class="<%= cookieTernary('OL.info').isEmpty().then('hide') %>">[Show info]</a>
       <div id="ol-info" class="<%= cookieTernary('OL.info').equals('hidden').then('hide') %>">

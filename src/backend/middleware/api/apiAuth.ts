@@ -17,8 +17,15 @@ async function isValidApiKey(apiKey: string): Promise<boolean> {
   return entry && (!entry.expires || entry.expires > Date.now());
 }
 
+const apiAuthBypassPatterns: RegExp[] = [
+  /\/OL\//i,
+];
+
 export default async function(req: Request, res: Response, next: NextFunction) {
-  if (typeof req.headers['x-api-key'] === 'string' || typeof req.query.apiKey === 'string' || typeof req.query.apikey === 'string') {
+  if (apiAuthBypassPatterns.some(re => re.test(req.originalUrl))) {
+    next();
+    return;
+  } else if (typeof req.headers['x-api-key'] === 'string' || typeof req.query.apiKey === 'string' || typeof req.query.apikey === 'string') {
     const apiKey: string = String(req.headers['x-api-key'] || req.query.apiKey || req.query.apikey).trim();
 
     delete req.headers['x-api-key'];

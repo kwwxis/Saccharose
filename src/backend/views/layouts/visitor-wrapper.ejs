@@ -1,0 +1,22 @@
+<div id="app-wrapper" class="wrapper">
+  <div class="alignStart">
+    <main id="app-main">
+      <div class="card">
+        <div class="content valign justifySpaceBetween" style="padding:5px 0;">
+          <div class="valign">
+            <div class="valign">
+              <%- use('partials/layout/app-mode-selector', {switchRelPath: '/OL', dropdownId: 'site-mode-dropdown'}) %>
+            </div>
+            <div class="valign spacer10-left">
+              <%- use('partials/layout/app-theme-buttons') %>
+            </div>
+          </div>
+          <div class="valign">
+            <%- use('partials/layout/app-language-selectors', {hideOutputLanguageSelector: true}) %>
+          </div>
+        </div>
+      </div>
+      <%- use(subviewName, subviewStack) %>
+    </main>
+  </div>
+</div>

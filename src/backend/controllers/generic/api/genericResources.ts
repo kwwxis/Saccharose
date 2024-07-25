@@ -67,7 +67,7 @@ export default function(router: Router): void {
       if (!req.isAuthenticated() || !req.user?.id) {
         throw HttpError.badRequest('AuthRequired', 'Must be logged in to perform this request.');
       }
-      return req.user.prefs;
+      return req.context.prefs;
     },
     post: async (req: Request, res: Response) => {
       if (!req.isAuthenticated() || !req.user?.id) {
@@ -107,7 +107,7 @@ export default function(router: Router): void {
             throw HttpError.badRequest('InvalidParameter', 'Invalid payload provided');
           }
 
-          prefPayload.siteMenuShown = req.user.prefs.siteMenuShown || {};
+          prefPayload.siteMenuShown = req.context.prefs.siteMenuShown || {};
           if (!prefPayload.siteMenuShown[menuId]) {
             prefPayload.siteMenuShown[menuId] = {};
           }
@@ -126,10 +126,10 @@ export default function(router: Router): void {
       }
 
       await SiteUserProvider.update(req.user.id, {
-        prefs: Object.assign({}, req.user.prefs, prefPayload)
+        prefs: Object.assign({}, req.context.prefs, prefPayload)
       });
       await SiteUserProvider.syncDatabaseStateToRequestUser(req);
-      return res.json(req.user.prefs);
+      return res.json(req.context.prefs);
     }
   });
 

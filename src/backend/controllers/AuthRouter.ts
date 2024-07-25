@@ -64,54 +64,6 @@ export default async function(): Promise<Router> {
     res.send(Buffer.from(ejs.render(html, { cont })));
   });
 
-  router.get('/privacy', async (req: Request, res: Response) => {
-    if (!req.isAuthenticated() || await SiteUserProvider.isBanned(req.user)) {
-      return res.render('pages/generic/legaldocs/privacy-policy', {
-        title: 'Privacy Policy',
-        layouts: ['layouts/basic-layout'],
-        bodyClass: ['page--docs'],
-      });
-    } else {
-      return res.render('pages/generic/legaldocs/privacy-policy', {
-        title: 'Privacy Policy',
-        layouts: ['layouts/app-layout'],
-        bodyClass: ['page--docs'],
-      });
-    }
-  });
-
-  router.get('/terms', async (req: Request, res: Response) => {
-    if (!req.isAuthenticated() || await SiteUserProvider.isBanned(req.user)) {
-      return res.render('pages/generic/legaldocs/terms-of-service', {
-        title: 'Terms of Service',
-        layouts: ['layouts/basic-layout'],
-        bodyClass: ['page--docs'],
-      });
-    } else {
-      return res.render('pages/generic/legaldocs/terms-of-service', {
-        title: 'Terms of Service',
-        layouts: ['layouts/app-layout'],
-        bodyClass: ['page--docs'],
-      });
-    }
-  });
-
-  router.get('/contact', async (req: Request, res: Response) => {
-    if (!req.isAuthenticated() || await SiteUserProvider.isBanned(req.user)) {
-      return res.render('pages/generic/legaldocs/contact', {
-        title: 'Contact',
-        layouts: ['layouts/basic-layout'],
-        bodyClass: ['page--docs'],
-      });
-    } else {
-      return res.render('pages/generic/legaldocs/contact', {
-        title: 'Contact',
-        layouts: ['layouts/app-layout'],
-        bodyClass: ['page--docs'],
-      });
-    }
-  });
-
   router.post('/auth/uncheck', async (req: Request, res: Response) => {
     if (!req.isAuthenticated()) {
       return res.json({

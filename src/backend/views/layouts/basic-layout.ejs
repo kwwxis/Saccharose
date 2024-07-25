@@ -6,7 +6,8 @@
     <meta name="robots" content="noindex, nofollow" />
     <meta name="csrf-token" content="<%= locals.csrfToken || '' %>" />
     <meta name="view-stack" content="<%= req.context.getAllViewNames() %>" />
-    <meta name="user-prefs" content="<%= JSON.stringify(req.context.siteUserPrefs) %>" />
+    <meta name="user-prefs" content="<%= JSON.stringify(req.context.prefs) %>" />
+    <meta name="is-authenticated" content="false" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="langCodes" content="<%= JSON.stringify(req.context.languages) %>" />
     <% for (let [propName, propValue] of Object.entries(req.context.htmlMetaProps)) { %>
@@ -48,6 +49,9 @@
           </div>
           <span style="line-height:21px"><%= req.context.siteTitle %></span>
         </a>
+      </div>
+      <div class="right">
+        <a href="/auth/discord?cont=<%= req.url %>" role="button" class="spacer15-right primary primary--2">Login</a>
       </div>
     </header>
     <div class="content">
