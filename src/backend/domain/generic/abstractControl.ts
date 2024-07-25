@@ -557,7 +557,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
 
     await this.streamTextMapMatches({
       inputLangCode: this.inputLangCode,
-      outputLangCode: this.outputLangCode,
+      outputLangCode: this.inputLangCode,
       searchText: name,
       stream: (id: TextMapHash, value: string) => {
         if (cmp(value, name)) {
@@ -572,7 +572,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
 
       await this.streamTextMapMatches({
         inputLangCode: this.inputLangCode,
-        outputLangCode: this.outputLangCode,
+        outputLangCode: this.inputLangCode,
         searchText: searchRegex,
         stream: (id: TextMapHash, value: string) => {
           if (cmp(value, name)) {
