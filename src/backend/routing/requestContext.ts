@@ -69,11 +69,12 @@ export class RequestContext {
     this.viewStackPointer = this.viewStack;
     this.webpackBundles = getWebpackBundleFileNames();
 
-    if (req.path.toLowerCase().startsWith('/hsr')) {
+    const lcPath = req.path.toLowerCase();
+    if (lcPath.startsWith('/hsr') || lcPath.startsWith('/api/hsr')) {
       this.siteMode = 'hsr';
-    } else if (req.path.toLowerCase().startsWith('/zenless')) {
+    } else if (lcPath.startsWith('/zenless') || lcPath.startsWith('/api/zenless')) {
       this.siteMode = 'zenless';
-    } else if (req.path.toLowerCase().startsWith('/wuwa')) {
+    } else if (lcPath.startsWith('/wuwa') || lcPath.startsWith('/api/wuwa')) {
       this.siteMode = 'wuwa';
     } else {
       this.siteMode = 'genshin';
