@@ -47,7 +47,7 @@ export default async function(): Promise<Router> {
   });
 
   router.get('/media', async (req: Request, res: Response) => {
-    res.redirect('/media/list');
+    res.redirect('/genshin/media/list');
   });
 
 

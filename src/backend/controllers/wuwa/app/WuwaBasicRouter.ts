@@ -26,10 +26,6 @@ export default async function(): Promise<Router> {
     });
   });
 
-  router.get('/id-usages', async (req: Request, res: Response) => {
-    res.redirect(req.originalUrl.replace('/id-usages', '/excel-usages'));
-  });
-
   router.get('/excel-usages', async (req: Request, res: Response) => {
     res.render('pages/generic/basic/excel-usages', {
       title: 'Excel usages',

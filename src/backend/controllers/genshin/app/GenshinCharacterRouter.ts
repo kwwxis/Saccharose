@@ -39,7 +39,7 @@ export default async function(): Promise<Router> {
   });
 
   router.get('/character/VO/:avatar', async (req: Request, res: Response) => {
-    res.redirect(`/character/VO/${req.params.avatar}/EN`);
+    res.redirect(`/genshin/character/VO/${req.params.avatar}/EN`);
   });
 
   router.get('/character/VO/:avatar/:voLangCode', async (req: Request, res: Response) => {
