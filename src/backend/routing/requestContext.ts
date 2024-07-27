@@ -554,7 +554,7 @@ export class RequestContext {
                   { id: 'tcg-cards', name: 'TCG Cards', link: '/genshin/TCG/cards', bodyClass: 'page--tcg-card' },
                   { id: 'tcg-stages', name: 'TCG Stages', link: '/genshin/TCG/stages', bodyClass: 'page--tcg-stage', rightSideButton: {
                     name: 'Search',
-                    link: '/TCG/stages/search'
+                    link: '/genshin/TCG/stages/search'
                   } },
                 ]
               },

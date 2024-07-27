@@ -1,7 +1,7 @@
 <%-
 locals.noLink
         ? `<div class="material-item${locals.noName ? ' no-name' : ''}">`
-        : `<a href="/${
+        : `<a href="/genshin/${
                 (material.ItemType === 'ITEM_WEAPON' ? 'weapons' : '') ||
                 (material.ItemType === 'ITEM_FURNITURE' ? 'furnishings' : '') ||
                 'items'

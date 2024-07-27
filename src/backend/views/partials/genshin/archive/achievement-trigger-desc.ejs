@@ -9,7 +9,7 @@
 <% } %>
 <% if (achievement.TriggerConfig.TriggerQuests.length) { %>
   <% for (let mainQuest of achievement.TriggerConfig.TriggerQuests) { %>
-    <a class="dispBlock" href="/quests/<%= mainQuest.Id %>"><%= mainQuest.TitleText || `${mainQuest.Id}: (No title)` %></a>
+    <a class="dispBlock" href="/genshin/quests/<%= mainQuest.Id %>"><%= mainQuest.TitleText || `${mainQuest.Id}: (No title)` %></a>
   <% } %>
 <% } %>
 <% if (achievement.TriggerConfig.CityNameText) { %>

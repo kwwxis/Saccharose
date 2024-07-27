@@ -1,5 +1,5 @@
 <% for (let item of quests) { %>
-  <a role="button" class="secondary dispBlock spacer5-bottom textAlignLeft" href="/quests/<%= item.quest.Id %>" data-id="<%= item.quest.Id %>">
+  <a role="button" class="secondary dispBlock spacer5-bottom textAlignLeft" href="/genshin/quests/<%= item.quest.Id %>" data-id="<%= item.quest.Id %>">
     <strong>ID <%= item.quest.Id %>:&nbsp;</strong>
     <span><%= item.quest.TitleText %></span>
   </a>

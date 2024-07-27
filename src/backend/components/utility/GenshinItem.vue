@@ -3,7 +3,7 @@
     <GenshinItemInner v-bind="props" />
   </div>
   <a v-else class="material-item" :class="{ 'no-name': noName }"
-     :href="`/${itemLink}/${item.Id}`">
+     :href="`/genshin/${itemLink}/${item.Id}`">
     <GenshinItemInner v-bind="props" />
   </a>
 </template>

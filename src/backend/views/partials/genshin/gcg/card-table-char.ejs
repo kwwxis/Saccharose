@@ -25,7 +25,7 @@
         </td>
         <td><code style="font-size:15px"><%= String(card.Id).padStart(6, '0') %></code></td>
         <td>
-          <a href="/TCG/cards/<%= String(card.Id).padStart(6, '0') %>" role="button" class="spacer5-all secondary textAlignLeft valign">
+          <a href="/genshin/TCG/cards/<%= String(card.Id).padStart(6, '0') %>" role="button" class="spacer5-all secondary textAlignLeft valign">
             <% if (card.CharIcon) { %>
               <img class="icon framed x32 spacer10-right" src="/images/genshin/<%= card.CharIcon %>.png" style="margin-left:-5px;border-radius:50%" />
             <% } %>

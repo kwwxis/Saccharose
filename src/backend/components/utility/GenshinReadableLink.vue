@@ -1,5 +1,5 @@
 <template>
-  <a class="secondary spacer3-all valign textAlignLeft" role="button" :href="`/readables/item/${readableView.Id}`">
+  <a class="secondary spacer3-all valign textAlignLeft" role="button" :href="`/genshin/readables/item/${readableView.Id}`">
     <img class="icon x32" :src="`/images/genshin/${readableView.Icon}.png`" loading="lazy" decoding="async" />
     <span v-if="!readableView?.Document || readableView.TitleText === readableView?.Document?.TitleText"
           class="spacer10-left">{{ readableView.TitleText }}</span>

@@ -323,8 +323,8 @@ export async function talkConfigToDialogueSectionResult(ctrl: GenshinControl,
   const mysect = new DialogueSectionResult('Talk_' + talkConfig.Id, sectName, sectHelptext);
   mysect.originalData.talkConfig = talkConfig;
 
-  mysect.addMetaProp('Talk ID', talkConfig.Id, '/branch-dialogue?q={}');
-  mysect.addMetaProp('First Dialogue ID', talkConfig.InitDialog, '/branch-dialogue?q={}');
+  mysect.addMetaProp('Talk ID', talkConfig.Id, '/genshin/branch-dialogue?q={}');
+  mysect.addMetaProp('First Dialogue ID', talkConfig.InitDialog, '/genshin/branch-dialogue?q={}');
   if (talkConfig.Dialog?.[0]?.TalkType) {
     mysect.addMetaProp('First Dialogue Talk Type', talkConfig.Dialog[0].TalkType);
   }
@@ -343,7 +343,7 @@ export async function talkConfigToDialogueSectionResult(ctrl: GenshinControl,
       mysect.addMetaProp('Activity ID', {value: talkConfig.QuestId, tooltip: await ctrl.selectNewActivityName(talkConfig.QuestId)});
     } else {
       const questName = await ctrl.selectMainQuestName(talkConfig.QuestId);
-      mysect.addMetaProp('Quest ID', {value: talkConfig.QuestId, tooltip: questName}, '/quests/{}');
+      mysect.addMetaProp('Quest ID', {value: talkConfig.QuestId, tooltip: questName}, '/genshin/quests/{}');
       mysect.originalData.questId = talkConfig.QuestId;
       mysect.originalData.questName = questName;
     }
@@ -359,8 +359,8 @@ export async function talkConfigToDialogueSectionResult(ctrl: GenshinControl,
     }
   }
   mysect.addMetaProp('Quest Idle Talk', talkConfig.QuestIdleTalk ? 'yes' : null);
-  mysect.addMetaProp('NPC ID', talkConfig.NpcDataList?.map(npc => ({value: npc.Id, tooltip: npc.NameText})), '/npc-dialogue?q={}');
-  mysect.addMetaProp('Next Talk IDs', talkConfig.NextTalks, '/branch-dialogue?q={}');
+  mysect.addMetaProp('NPC ID', talkConfig.NpcDataList?.map(npc => ({value: npc.Id, tooltip: npc.NameText})), '/genshin/npc-dialogue?q={}');
+  mysect.addMetaProp('Next Talk IDs', talkConfig.NextTalks, '/genshin/branch-dialogue?q={}');
 
   if (talkConfig.LoadType === 'TALK_BLOSSOM') {
     mysect.addEmptyMetaProp('Magical Crystal Ore Vein Talk');

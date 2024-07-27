@@ -1,5 +1,5 @@
 <template>
-  <a class="material-item" :href="`/${monster.AnimalDescribe ? 'wildlife' : 'enemies'}/${monster.Id}`">
+  <a class="material-item" :href="`/genshin/${monster.AnimalDescribe ? 'wildlife' : 'enemies'}/${monster.Id}`">
     <div class="material-card">
       <div class="material-icon no-count" data-quality="0">
         <img v-if="monster.Describe?.Icon" :src="`/images/genshin/${monster.Describe?.Icon}.png`" loading="lazy" decoding="async" />

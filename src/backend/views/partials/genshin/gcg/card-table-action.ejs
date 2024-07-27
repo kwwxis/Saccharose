@@ -23,7 +23,7 @@
         </td>
         <td><code style="font-size:15px"><%= String(card.Id).padStart(6, '0') %></code></td>
         <td>
-          <a href="/TCG/cards/<%= String(card.Id).padStart(6, '0') %>" role="button" class="spacer5-all secondary dispBlock textAlignLeft"><%= card.WikiName %></a>
+          <a href="/genshin/TCG/cards/<%= String(card.Id).padStart(6, '0') %>" role="button" class="spacer5-all secondary dispBlock textAlignLeft"><%= card.WikiName %></a>
         </td>
         <td>
           <% for (let tag of card.MappedTagList.filter(x => !!x.Type)) { %>

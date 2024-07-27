@@ -9,7 +9,7 @@
         <div class="content dispFlex flexWrap alignStretch">
           <% for (let chapter of chapterSect[chapterName]) { %>
             <div class="w50p dispFlex alignStretch">
-              <a class="w100p secondary valign spacer5-all textAlignLeft" role="button" href="/chapters/<%= chapter.Id %>">
+              <a class="w100p secondary valign spacer5-all textAlignLeft" role="button" href="/genshin/chapters/<%= chapter.Id %>">
                 <% if (chapter.ChapterIcon) { %>
                   <img src="/images/genshin/<%= chapter.ChapterIcon %>.png" class="spacer10-right" loading="lazy" decoding="async"
                        style="width:48px;height:48px;background:#333;border-radius:50%;border:1px solid #fff;"/>

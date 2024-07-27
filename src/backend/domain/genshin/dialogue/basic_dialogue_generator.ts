@@ -249,7 +249,7 @@ async function handle(state: DialogueGenerateState, id: number|DialogExcelConfig
         dialog.Id,
         <IMetaPropValue> {
           value: 'OL',
-          link: '/OL?q=' + dialog.TalkContentTextMapHash
+          link: '/genshin/OL?q=' + dialog.TalkContentTextMapHash
         }
       ]));
       await addHighlightMarkers(ctrl, query, npcFilter, dialog, talkConfigResult);
@@ -282,11 +282,11 @@ async function handle(state: DialogueGenerateState, id: number|DialogExcelConfig
       sect.metadata.push(new MetaProp('First Match Dialogue ID', [
         <IMetaPropValue> {
           value: dialog.Id,
-          link: `/branch-dialogue?q=${dialog.Id}`,
+          link: `/genshin/branch-dialogue?q=${dialog.Id}`,
         },
         <IMetaPropValue> {
           value: 'OL',
-          link: '/OL?q=' + dialog.TalkContentTextMapHash
+          link: '/genshin/OL?q=' + dialog.TalkContentTextMapHash
         }
       ]));
 
@@ -440,7 +440,7 @@ export async function dialogueGenerateByNpc(ctrl: GenshinControl,
 
       if (questId) {
         const questName = await ctrl.selectMainQuestName(questId);
-        sect.addMetaProp('Quest ID', {value: questId, tooltip: questName}, '/quests/{}');
+        sect.addMetaProp('Quest ID', {value: questId, tooltip: questName}, '/genshin/quests/{}');
         sect.originalData.questId = questId;
         sect.originalData.questName = questName;
         getQuestSection(sect.originalData.questId, sect.originalData.questName).children.push(sect);
