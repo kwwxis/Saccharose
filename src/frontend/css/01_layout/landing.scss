@@ -64,36 +64,18 @@
   }
 }
 
-.page--hsr, .page--zenless {
+.page--hsr {
   #landing-header {
-
     .bg {
       height: 250px;
-      background: url(/images/site/banner/hsr-banner.webp) center / cover;
-    }
-
-    .bg2 {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0,0,0,0.5);
-    }
-
-    .bg3 {
-      position: absolute;
-      bottom: 15px;
-      left: 0;
-      right: 0;
-      background: #7cc8f3;
-      height: 70px;
-      opacity: 0.7;
+      background: url(/images/site/banner/hsr-banner.jpg) center -40px / cover;
     }
 
     h2 {
+      font-family: 'Open Sans', sans-serif;
+      font-weight: 600;
       color: #fff;
-      text-shadow: 0 0 15px #0773b1;
+      text-shadow: 0 0 15px #051b27, 0 0 15px #051b27, 0 0 5px #051b27;
       font-size: 19px;
       padding: 10px;
       text-align: center;
@@ -117,20 +99,6 @@
       margin: 0 auto;
       z-index: 60;
     }
-
-    .main-text {
-      color: #fff;
-      background: #c09c7b;
-      padding: 10px 20px;
-
-      h4 {
-        font-family: 'Open Sans', sans-serif;
-      }
-
-      p {
-        font-size: 14px;
-      }
-    }
   }
 }
 
@@ -138,25 +106,42 @@
   #landing-header {
     .bg {
       height: 250px;
-      background: url(/images/site/banner/zenless-banner.webp) center / cover;
-    }
-
-    .bg3 {
-      background: #535cc2;
+      background: url(/images/site/banner/zenless-banner.jpg) center / cover;
     }
 
     h2 {
-      text-shadow: 0 0 15px #282e71;
+      background: #dcfe00;
+      color: hsl(68 100% 24% / 1);
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      left: 0;
+      font-family: 'Open Sans', sans-serif;
+      font-weight: 600;
+      padding: 5px 10px 2px;
+      line-height: 1em;
+
+      span {
+        font-size: 18px;
+        display: block;
+      }
+      small {
+        font-size: 13px;
+        display: block;
+      }
     }
 
     img {
-      width: 300px;
-      top: 30px;
-      right: 40px;
+      position: absolute;
+      z-index: 60;
+      width: 200px;
+      top: 40px;
+      left: 40px;
+      right: 100px;
+      margin: 0 auto;
     }
   }
 }
-
 
 .page--wuwa {
   #landing-header {
@@ -179,8 +164,92 @@
       small {
         letter-spacing: 2px;
         font-size: 14px;
-
       }
     }
   }
+}
+
+
+.genshin-button,
+.hsr-button,
+.zenless-button,
+.wuwa-button {
+  margin: 5px;
+  border-radius: 5px;
+  position: relative;
+  overflow: hidden;
+}
+.genshin-button:before,
+.hsr-button:before,
+.zenless-button:before,
+.wuwa-button:before {
+  content: '';
+  display: block;
+  width: 160px;
+  height: 60px;
+  margin: 3px;
+}
+.genshin-button span,
+.hsr-button span,
+.zenless-button span,
+.wuwa-button span {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  display: block;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0 5px;
+}
+
+.genshin-button {
+  background: url(/images/site/banner/genshin-banner.webp) center / cover;
+  border: 1px solid rgba(176, 227, 222, 1);
+}
+.genshin-button:before {
+  background: url(/images/site/logo/Genshin-Impact-Logo-White.webp) center / cover;
+}
+.genshin-button span {
+  background: linear-gradient(90deg, rgba(176, 227, 222, 1) 0%, rgba(140, 219, 235, 1) 37%, rgba(155, 222, 230, 1) 69%, rgba(176, 227, 222, 1) 100%);
+  color: hsl(175deg 68% 18%);
+}
+
+.hsr-button {
+  background: url(/images/site/banner/hsr-banner.jpg) center -20px / cover;
+  border: 1px solid #1b548d;
+}
+.hsr-button:before {
+  background: url(/images/site/logo/Honkai_Star_Rail.webp) center / cover;
+}
+.hsr-button span {
+  background: #1b548d;
+  color: #fff;
+  text-shadow: 0 0 15px #9bc9f7;
+}
+
+.zenless-button {
+  border: 1px solid #d4f500;
+  background: url(/images/site/banner/zenless-banner.jpg) center top / cover;
+}
+.zenless-button:before {
+  background: url(/images/site/logo/ZZZ_logo_shadow.png) center / cover;
+}
+.zenless-button span {
+  background: #dcfe00;
+  color: hsl(68 100% 24% / 1);
+}
+
+.wuwa-button {
+  background: url(/images/site/banner/wuwa-banner.png) center / cover;
+  border: 1px solid #20407a;
+}
+.wuwa-button:before {
+  display: none;
+}
+.wuwa-button span {
+  text-shadow: 0 0 15px #132649;
+  color: #fff;
+  background: #20407a;
 }

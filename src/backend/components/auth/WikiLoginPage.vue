@@ -1,6 +1,13 @@
 <template>
   <div class="wrapper">
     <section class="card">
+      <h2 class="open-sans-font">Accidentally logged-in? Click the button below.</h2>
+      <div class="content">
+        <p class="spacer10-bottom">If you don't meet the requirements and you want to log back out, you can click this button:</p>
+        <a role="button" class="primary primary--2" :href="`/auth/logout?cont=` + myCont">Logout</a>
+      </div>
+    </section>
+    <section class="card">
       <h2 class="open-sans-font">Next steps: register your wiki username</h2>
 
       <h3 class="open-sans-font">Instructions</h3>

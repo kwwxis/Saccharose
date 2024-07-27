@@ -4,7 +4,7 @@ import { resolveObjectPath, toArray } from '../../../shared/util/arrayUtil.ts';
 import path, { basename } from 'path';
 import { isInt } from '../../../shared/util/numberUtil.ts';
 import chalk from 'chalk';
-import { AbstractControl } from '../../domain/generic/abstractControl.ts';
+import { AbstractControl } from '../../domain/abstract/abstractControl.ts';
 
 export type InspectOpt = {file: string, inspectFieldValues?: string[], printRecordIfFieldNotEmpty?: string[]};
 

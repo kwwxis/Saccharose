@@ -1,7 +1,7 @@
 import { create } from '../../../routing/router.ts';
 import { Request, Response, Router } from 'express';
 import WuwaLanding from '../../../components/wuwa/WuwaLanding.vue';
-import { sendExcelViewerTableResponse } from '../../generic/app/abstractBasicRouter.ts';
+import { sendExcelViewerTableResponse } from '../../abstract/app/abstractBasicRouter.ts';
 import { getWuwaControl } from '../../../domain/wuwa/wuwaControl.ts';
 
 export default async function(): Promise<Router> {

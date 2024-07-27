@@ -4,7 +4,7 @@ import {
   mergeMcTemplate,
   NormTextOptions,
   postProcessBoldItalic,
-} from '../generic/genericNormalizers.ts';
+} from '../abstract/genericNormalizers.ts';
 import { TextJoinConfig, TextJoinItem } from '../../../shared/types/hsr/hsr-misc-types.ts';
 import { getStarRailControl } from './starRailControl.ts';
 import { logInitData } from '../../util/logger.ts';

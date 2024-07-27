@@ -3,20 +3,29 @@ import { create } from '../../routing/router.ts';
 import { SiteUserProvider } from '../../middleware/auth/SiteUserProvider.ts';
 
 export default async function(): Promise<Router> {
-  const router: Router = create();
+  const router: Router = create({
+    locals: async (req: Request) => {
+      if (req.isAuthenticated()) {
+        return {
+          siteNoticeBanners: await SiteUserProvider.getSiteNoticesForBanner(req.user?.id)
+        };
+      }
+      return {};
+    }
+  });
 
   router.get('/privacy', async (req: Request, res: Response) => {
     if (!req.isAuthenticated() || await SiteUserProvider.isBanned(req.user)) {
       return res.render('pages/generic/legaldocs/privacy-policy', {
         title: 'Privacy Policy',
         layouts: ['layouts/basic-layout'],
-        bodyClass: ['page--docs'],
+        bodyClass: ['page--docs', 'page--privacy'],
       });
     } else {
       return res.render('pages/generic/legaldocs/privacy-policy', {
         title: 'Privacy Policy',
-        layouts: ['layouts/app-layout'],
-        bodyClass: ['page--docs'],
+        layouts: ['layouts/app-layout', 'layouts/app-layout-inner'],
+        bodyClass: ['page--docs', 'page--privacy', 'page--larger'],
       });
     }
   });
@@ -26,13 +35,13 @@ export default async function(): Promise<Router> {
       return res.render('pages/generic/legaldocs/terms-of-service', {
         title: 'Terms of Service',
         layouts: ['layouts/basic-layout'],
-        bodyClass: ['page--docs'],
+        bodyClass: ['page--docs', 'page--terms'],
       });
     } else {
       return res.render('pages/generic/legaldocs/terms-of-service', {
         title: 'Terms of Service',
-        layouts: ['layouts/app-layout'],
-        bodyClass: ['page--docs'],
+        layouts: ['layouts/app-layout', 'layouts/app-layout-inner'],
+        bodyClass: ['page--docs', 'page--terms', 'page--larger'],
       });
     }
   });
@@ -42,18 +51,18 @@ export default async function(): Promise<Router> {
       return res.render('pages/generic/legaldocs/contact', {
         title: 'Contact',
         layouts: ['layouts/basic-layout'],
-        bodyClass: ['page--docs'],
+        bodyClass: ['page--docs', 'page--contact'],
       });
     } else {
       return res.render('pages/generic/legaldocs/contact', {
         title: 'Contact',
-        layouts: ['layouts/app-layout'],
-        bodyClass: ['page--docs'],
+        layouts: ['layouts/app-layout', 'layouts/app-layout-inner'],
+        bodyClass: ['page--docs', 'page--contact', 'page--larger'],
       });
     }
   });
 
-  router.get('/OL', async (req: Request, res: Response, next: NextFunction) => {
+  router.get('/genshin/OL', async (req: Request, res: Response, next: NextFunction) => {
     if (req.isAuthenticated()) {
       return next();
     }

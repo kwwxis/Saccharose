@@ -43,7 +43,7 @@
       <div class="content">
         <p class="spacer5-bottom">Some tools are available to visitors:</p>
         <ul>
-          <li><a href="/OL">Genshin Impact OL Tool</a></li>
+          <li><a href="/genshin/OL">Genshin Impact OL Tool</a></li>
           <li><a href="/hsr/OL">Star Rail OL Tool</a></li>
           <li><a href="/zenless/OL">Zenless Zone Zero OL Tool</a></li>
           <li><a href="/wuwa/OL">Wuthering Waves OL Tool</a></li>

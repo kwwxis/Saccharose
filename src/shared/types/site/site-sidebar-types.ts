@@ -3,7 +3,7 @@
 export type SiteSidebar = {
   id: string,
   header: {
-    icon: string,
+    icon?: string,
     iconExtraStyle?: string,
     name: string,
   },
@@ -26,7 +26,7 @@ export type SideSidebarItem = {
   id: string,
   name: string,
   link: string,
-  bodyClass: string,
+  bodyClass?: string,
   rightSideButton?: {
     name: string,
     link: string,

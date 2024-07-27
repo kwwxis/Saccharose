@@ -7,7 +7,7 @@ import GenshinResources from './genshin/api/_index.ts';
 import StarRailResources from './hsr/api/_index.ts';
 import ZenlessResources from './zenless/api/_index.ts';
 import WuwaResources from './wuwa/api/_index.ts';
-import GenericResources from './generic/api/genericResources.ts';
+import GenericResources from './abstract/api/genericResources.ts';
 import { getGenshinControl } from '../domain/genshin/genshinControl.ts';
 import { getStarRailControl } from '../domain/hsr/starRailControl.ts';
 import { getZenlessControl } from '../domain/zenless/zenlessControl.ts';

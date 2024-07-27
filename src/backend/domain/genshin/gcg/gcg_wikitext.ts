@@ -6,7 +6,7 @@ import {
   GCGGameExcelConfigData, GCGSkillExcelConfigData, isActionCard, isCharacterCard,
 } from '../../../../shared/types/genshin/gcg-types.ts';
 import { SbOut } from '../../../../shared/util/stringUtil.ts';
-import { ol_gen_from_id } from '../../generic/basic/OLgen.ts';
+import { ol_gen_from_id } from '../../abstract/basic/OLgen.ts';
 import { ChangeRecordRef } from '../../../../shared/types/changelog-types.ts';
 
 // Cards

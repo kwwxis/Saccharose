@@ -1,4 +1,4 @@
-import { AbstractControl } from '../../../domain/generic/abstractControl.ts';
+import { AbstractControl } from '../../../domain/abstract/abstractControl.ts';
 import { removeSuffix } from '../../../../shared/util/stringUtil.ts';
 import { Request, Response } from 'express';
 

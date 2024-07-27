@@ -13,7 +13,7 @@
     <%- icon('chevron-down') %>
   </button>
   <div id="<%= dropdownId %>" class="site-mode-dropdown ui-dropdown<%= locals.dropdownExtraClass ? ' ' + locals.dropdownExtraClass : '' %>">
-    <a href="/<%= locals.switchRelPath ? locals.switchRelPath.slice(1) : '' %>" class="option valign" ui-action="dropdown-item">
+    <a href="/genshin<%= locals.switchRelPath || '' %>" class="option valign" ui-action="dropdown-item">
       <img src="/images/site/logo/Sucrose.webp" style="width:16px;height:auto" />
       <span class="spacer5-left">Genshin Impact</span>
     </a>

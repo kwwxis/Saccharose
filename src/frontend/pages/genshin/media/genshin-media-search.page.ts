@@ -4,6 +4,6 @@ import { genshinEndpoints } from '../../../core/endpoints.ts';
 initiateMediaSearchPage(
   'GenshinMediaSearchPage',
   genshinEndpoints.mediaSearch,
-  '',
+  '/genshin',
   '/images/genshin/'
 );

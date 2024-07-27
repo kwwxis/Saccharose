@@ -8,7 +8,7 @@ import { resolveObjectPath } from '../../../../shared/util/arrayUtil.ts';
 import { FetterStoryExcelConfigData, StoryFetters, StoryFettersByAvatar } from '../../../../shared/types/genshin/fetter-types.ts';
 import { pathToFileURL } from 'url';
 import { isTraveler } from '../../../../shared/types/genshin/avatar-types.ts';
-import { mcify } from '../../generic/genericNormalizers.ts';
+import { mcify } from '../../abstract/genericNormalizers.ts';
 
 const sep: string = '</p><!--\n              --><p>';
 

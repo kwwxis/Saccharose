@@ -57,11 +57,11 @@ export default async function(): Promise<Router> {
     helmet.contentSecurityPolicy(cspOptions)(req, res, next);
   });
 
-  router.use('/', await GenshinRouter());
-  router.use('/hsr', await StarRailRouter());
-  router.use('/zenless', await ZenlessRouter());
-  router.use('/wuwa', await WuwaRouter());
-  router.use('/', await UserRouter());
+  router.use('/genshin',  await GenshinRouter());
+  router.use('/hsr',      await StarRailRouter());
+  router.use('/zenless',  await ZenlessRouter());
+  router.use('/wuwa',     await WuwaRouter());
+  router.use('/',         await UserRouter());
 
   return router;
 };

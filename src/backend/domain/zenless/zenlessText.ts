@@ -4,7 +4,7 @@ import {
   mergeMcTemplate,
   NormTextOptions,
   postProcessBoldItalic,
-} from '../generic/genericNormalizers.ts';
+} from '../abstract/genericNormalizers.ts';
 
 export type ZenlessNormTextOpts = {
 

@@ -6,7 +6,7 @@ import { isNumeric, toNumber } from '../../shared/util/numberUtil.ts';
 import { replaceAsync, splitArgs } from '../../shared/util/stringUtil.ts';
 import JSON5 from 'json5';
 import { isLangCode, LangCode } from '../../shared/types/lang-types.ts';
-import { AbstractControl } from '../domain/generic/abstractControl.ts';
+import { AbstractControl } from '../domain/abstract/abstractControl.ts';
 
 export type FileFormatOption = 'default' | 'remove' | 'custom';
 

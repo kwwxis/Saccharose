@@ -1,14 +1,14 @@
 // noinspection JSUnusedGlobalSymbols
 
-import { AbstractControl } from '../generic/abstractControl.ts';
+import { AbstractControl } from '../abstract/abstractControl.ts';
 import { getZenlessDataFilePath } from '../../loadenv.ts';
 import { normalizeRawJson, SchemaTable } from '../../importer/import_db.ts';
 import { LangCode } from '../../../shared/types/lang-types.ts';
 import { __normZenlessText, ZenlessNormTextOpts } from './zenlessText.ts';
-import { NormTextOptions } from '../generic/genericNormalizers.ts';
+import { NormTextOptions } from '../abstract/genericNormalizers.ts';
 import { Request } from 'express';
-import { zenless_i18n, ZENLESS_I18N_MAP } from '../generic/i18n.ts';
-import { AbstractControlState } from '../generic/abstractControlState.ts';
+import { zenless_i18n, ZENLESS_I18N_MAP } from '../abstract/i18n.ts';
+import { AbstractControlState } from '../abstract/abstractControlState.ts';
 import { ExcelUsages } from '../../../shared/util/searchUtil.ts';
 
 // region Control State

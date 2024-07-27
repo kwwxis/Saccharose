@@ -1,7 +1,7 @@
 import '../../../loadenv.ts';
 import { closeKnex } from '../../../util/db.ts';
 import { GenshinControl, getGenshinControl } from '../genshinControl.ts';
-import { ol_gen_from_id } from '../../generic/basic/OLgen.ts';
+import { ol_gen_from_id } from '../../abstract/basic/OLgen.ts';
 import { NpcExcelConfigData } from '../../../../shared/types/genshin/general-types.ts';
 import { arrayEmpty, arrayUnique } from '../../../../shared/util/arrayUtil.ts';
 import {

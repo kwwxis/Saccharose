@@ -5,6 +5,6 @@ initiateMediaListPage(
   'GenshinMediaListPage',
   genshinEndpoints.mediaSearch,
   genshinEndpoints.mediaCategory,
-  '',
+  '/genshin',
   '/images/genshin/'
 );

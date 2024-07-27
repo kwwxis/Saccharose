@@ -3,7 +3,7 @@ import {
   handleExcelUsagesEndpoint,
   handleOlEndpoint,
   handleTextMapSearchEndpoint,
-} from '../../generic/api/abstractBasicResources.ts';
+} from '../../abstract/api/abstractBasicResources.ts';
 import { getWuwaControl } from '../../../domain/wuwa/wuwaControl.ts';
 import { Request, Response, Router } from 'express';
 

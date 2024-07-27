@@ -1,7 +1,7 @@
 import { create } from '../../../routing/router.ts';
 import { getGenshinControl } from '../../../domain/genshin/genshinControl.ts';
 import { BookSuitExcelConfigData, ReadableView } from '../../../../shared/types/genshin/readable-types.ts';
-import { ol_combine_results, ol_gen_from_id, OLResult } from '../../../domain/generic/basic/OLgen.ts';
+import { ol_combine_results, ol_gen_from_id, OLResult } from '../../../domain/abstract/basic/OLgen.ts';
 import {
   getCityIdsWithViewpoints,
   selectViewpoints, VIEWPOINT_DEFAULT_FILE_FORMAT_IMAGE, VIEWPOINT_DEFAULT_FILE_FORMAT_MAP,

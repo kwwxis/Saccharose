@@ -320,7 +320,7 @@ export function getMwClient(siteMode: RequestSiteMode): MwClientInterface {
     case 'wuwa':
       return mwWuwaClient;
   }
-  throw HttpError.badRequest('BadParameter', 'Bad site mode: ' + siteMode + '; expected one of: genshin, hsr, zenless');
+  throw HttpError.badRequest('BadParameter', 'Bad site mode: ' + siteMode + '; expected one of: genshin, hsr, zenless, wuwa');
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {

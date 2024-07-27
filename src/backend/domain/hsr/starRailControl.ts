@@ -1,6 +1,6 @@
 // noinspection JSUnusedGlobalSymbols
 
-import { AbstractControl } from '../generic/abstractControl.ts';
+import { AbstractControl } from '../abstract/abstractControl.ts';
 import { DATAFILE_HSR_VOICE_ITEMS, getStarRailDataFilePath } from '../../loadenv.ts';
 import { normalizeRawJson, SchemaTable } from '../../importer/import_db.ts';
 import {
@@ -15,12 +15,12 @@ import fs from 'fs';
 import { defaultMap } from '../../../shared/util/genericUtil.ts';
 import { LoadingDesc } from '../../../shared/types/hsr/hsr-misc-types.ts';
 import { sort } from '../../../shared/util/arrayUtil.ts';
-import { NormTextOptions } from '../generic/genericNormalizers.ts';
+import { NormTextOptions } from '../abstract/genericNormalizers.ts';
 import { Request } from 'express';
 import { logInitData } from '../../util/logger.ts';
 import { AvatarConfig } from '../../../shared/types/hsr/hsr-avatar-types.ts';
-import { hsr_i18n, HSR_I18N_MAP } from '../generic/i18n.ts';
-import { AbstractControlState } from '../generic/abstractControlState.ts';
+import { hsr_i18n, HSR_I18N_MAP } from '../abstract/i18n.ts';
+import { AbstractControlState } from '../abstract/abstractControlState.ts';
 
 // region Control State
 // --------------------------------------------------------------------------------------------------------------

@@ -25,7 +25,7 @@ import {
 import { SiteSidebar } from '../../shared/types/site/site-sidebar-types.ts';
 import { icon } from './viewUtilities.ts';
 
-export type RequestSiteMode = 'genshin' | 'hsr' | 'zenless' | 'wuwa';
+export type RequestSiteMode = 'unset' | 'genshin' | 'hsr' | 'zenless' | 'wuwa';
 
 /**
  * A payload object used to make updates to {@link RequestContext}
@@ -76,8 +76,10 @@ export class RequestContext {
       this.siteMode = 'zenless';
     } else if (lcPath.startsWith('/wuwa') || lcPath.startsWith('/api/wuwa')) {
       this.siteMode = 'wuwa';
-    } else {
+    } else if (lcPath.startsWith('/genshin') || lcPath.startsWith('/api/genshin')) {
       this.siteMode = 'genshin';
+    } else {
+      this.siteMode = 'unset';
     }
     this.htmlMetaProps['x-site-mode'] = this.siteMode;
     this.htmlMetaProps['x-site-mode-home'] = this.siteHome;
@@ -125,6 +127,7 @@ export class RequestContext {
       case 'wuwa':
         return '/wuwa';
       case 'genshin':
+        return '/genshin'
       default:
         return '';
     }
@@ -139,8 +142,9 @@ export class RequestContext {
       case 'wuwa':
         return 'Wuthering Waves';
       case 'genshin':
-      default:
         return 'Genshin Impact';
+      default:
+        return 'Home';
     }
   }
 
@@ -153,8 +157,9 @@ export class RequestContext {
       case 'wuwa':
         return 'page--wuwa';
       case 'genshin':
-      default:
         return 'page--genshin';
+      default:
+        return 'page--unset';
     }
   }
 
@@ -171,8 +176,10 @@ export class RequestContext {
         wikiDomain = 'wutheringwaves.fandom.com';
         break;
       case 'genshin':
-      default:
         wikiDomain = 'genshin-impact.fandom.com';
+        break;
+      default:
+        wikiDomain = 'community.fandom.com';
         break;
     }
     return wikiDomain;
@@ -325,7 +332,7 @@ export class RequestContext {
     sb.append(`
     <section class="app-sidebar-header card" data-id="${conf.id}">
       <h2 class="valign" style="padding:6px 10px">
-        <img src="${conf.header.icon}" style="width:28px;height:auto;${conf.header.iconExtraStyle || ''}" />
+        ${conf.header.icon ? `<img src="${conf.header.icon}" style="width:28px;height:auto;${conf.header.iconExtraStyle || ''}" />` : ''}
         <span class="spacer10-left">${conf.header.name}</span>
       </h2>
     </section>
@@ -368,7 +375,7 @@ export class RequestContext {
           if (shownConfig[item.id] === 'hidden' || shownConfig[item.id] === 'collapsed')
             continue;
 
-          let itemSelected: boolean = this.hasBodyClass(item.bodyClass);
+          let itemSelected: boolean = item.bodyClass && this.hasBodyClass(item.bodyClass);
 
           sb.line(`<div class="app-sidebar-level-3${item.rightSideButton ? ' valign button-group' : ''}${itemSelected ? ' selected' : ''}" data-id="${item.id}">`);
 
@@ -413,9 +420,9 @@ export class RequestContext {
               {
                 id: 'basic-tools-content',
                 items: [
-                  { id: 'textmap-search', name: 'Textmap Search', link: '/textmap',  bodyClass: 'page--textmap' },
-                  { id: 'ol-generator', name: 'OL Generator', link: '/OL', bodyClass: 'page--OL' },
-                  { id: 'changelog', name: 'Changelog', link: '/changelog', bodyClass: 'page--changelog' },
+                  { id: 'textmap-search', name: 'Textmap Search', link: '/genshin/textmap',  bodyClass: 'page--textmap' },
+                  { id: 'ol-generator', name: 'OL Generator', link: '/genshin/OL', bodyClass: 'page--OL' },
+                  { id: 'changelog', name: 'Changelog', link: '/genshin/changelog', bodyClass: 'page--changelog' },
                 ]
               }
             ]
@@ -428,22 +435,22 @@ export class RequestContext {
                 id: 'excel-data',
                 name: 'Excel Data',
                 items: [
-                  { id: 'excel-usages', name: 'Excel Usages', link: '/excel-usages', bodyClass: 'page--excel-usages' },
-                  { id: 'excel-viewer', name: 'Excel Viewer', link: '/excel-viewer', bodyClass: 'page--excel-viewer' },
+                  { id: 'excel-usages', name: 'Excel Usages', link: '/genshin/excel-usages', bodyClass: 'page--excel-usages' },
+                  { id: 'excel-viewer', name: 'Excel Viewer', link: '/genshin/excel-viewer', bodyClass: 'page--excel-viewer' },
                 ]
               },
               {
                 id: 'media-data',
                 name: 'Media Data',
                 items: [
-                  { id: 'media', name: 'Media', link: '/media', bodyClass: 'page--media' },
+                  { id: 'media', name: 'Media', link: '/genshin/media', bodyClass: 'page--media' },
                 ]
               },
               {
                 id: 'wiki-data',
                 name: 'Wiki Data',
                 items: [
-                  { id: 'wiki-revs', name: 'Wiki Revisions', link: '/revs', bodyClass: 'page--revs' },
+                  { id: 'wiki-revs', name: 'Wiki Revisions', link: '/genshin/revs', bodyClass: 'page--revs' },
                 ]
               }
             ]
@@ -456,19 +463,19 @@ export class RequestContext {
                 id: 'dialogue-generators',
                 name: 'Excel Data',
                 items: [
-                  { id: 'quests', name: 'Quest Dialogue', link: '/quests', bodyClass: 'page--quests' },
-                  { id: 'branch-dialogue', name: 'Single Branch Dialogue', link: '/branch-dialogue', bodyClass: 'page--branch-dialogue' },
-                  { id: 'npc-dialogue', name: 'NPC Dialogue', link: '/npc-dialogue', bodyClass: 'page--npc-dialogue' },
-                  { id: 'reminders', name: 'Reminder Dialogue', link: '/reminders', bodyClass: 'page--reminders' },
-                  { id: 'vo-to-dialogue', name: 'VO File to Dialogue', link: '/vo-to-dialogue', bodyClass: 'page--vo-to-dialogue' },
+                  { id: 'quests', name: 'Quest Dialogue', link: '/genshin/quests', bodyClass: 'page--quests' },
+                  { id: 'branch-dialogue', name: 'Single Branch Dialogue', link: '/genshin/branch-dialogue', bodyClass: 'page--branch-dialogue' },
+                  { id: 'npc-dialogue', name: 'NPC Dialogue', link: '/genshin/npc-dialogue', bodyClass: 'page--npc-dialogue' },
+                  { id: 'reminders', name: 'Reminder Dialogue', link: '/genshin/reminders', bodyClass: 'page--reminders' },
+                  { id: 'vo-to-dialogue', name: 'VO File to Dialogue', link: '/genshin/vo-to-dialogue', bodyClass: 'page--vo-to-dialogue' },
                 ]
               },
               {
                 id: 'qd-lists',
                 name: 'Lists',
                 items: [
-                  { id: 'chapters', name: 'Chapters', link: '/chapters', bodyClass: 'page--chapters' },
-                  { id: 'all-reminders', name: 'All Reminder Dialogue', link: '/reminders/all', bodyClass: 'page--all-reminders' },
+                  { id: 'chapters', name: 'Chapters', link: '/genshin/chapters', bodyClass: 'page--chapters' },
+                  { id: 'all-reminders', name: 'All Reminder Dialogue', link: '/genshin/reminders/all', bodyClass: 'page--all-reminders' },
                 ]
               }
             ]
@@ -481,43 +488,43 @@ export class RequestContext {
                 id: 'items-group',
                 name: 'Items',
                 items: [
-                  { id: 'items', name: 'Items', link: '/items', bodyClass: 'page--items' },
-                  { id: 'weapons', name: 'Weapons', link: '/weapons', bodyClass: 'page--weapons' },
+                  { id: 'items', name: 'Items', link: '/genshin/items', bodyClass: 'page--items' },
+                  { id: 'weapons', name: 'Weapons', link: '/genshin/weapons', bodyClass: 'page--weapons' },
                 ]
               },
               {
                 id: 'general-archive',
                 name: 'General Archive',
                 items: [
-                  { id: 'achievements', name: 'Achievements', link: '/achievements', bodyClass: 'page--achievements', rightSideButton: { name: 'Search', link: '/achievements/search' } },
-                  { id: 'loading-tips', name: 'Loading Tips', link: '/loading-tips', bodyClass: 'page--loading-tips' },
-                  { id: 'tutorials', name: 'Tutorials', link: '/tutorials', bodyClass: 'page--tutorials', rightSideButton: { name: 'Search', link: '/tutorials/search' } },
-                  { id: 'viewpoints', name: 'Viewpoints', link: '/viewpoints', bodyClass: 'page--viewpoints' },
+                  { id: 'achievements', name: 'Achievements', link: '/genshin/achievements', bodyClass: 'page--achievements', rightSideButton: { name: 'Search', link: '/achievements/search' } },
+                  { id: 'loading-tips', name: 'Loading Tips', link: '/genshin/loading-tips', bodyClass: 'page--loading-tips' },
+                  { id: 'tutorials', name: 'Tutorials', link: '/genshin/tutorials', bodyClass: 'page--tutorials', rightSideButton: { name: 'Search', link: '/tutorials/search' } },
+                  { id: 'viewpoints', name: 'Viewpoints', link: '/genshin/viewpoints', bodyClass: 'page--viewpoints' },
                 ]
               },
               {
                 id: 'living-beings',
                 name: 'Living Beings',
                 items: [
-                  { id: 'enemies', name: 'Enemies', link: '/enemies', bodyClass: 'page--enemies' },
-                  { id: 'wildlife', name: 'Wildlife', link: '/wildlife', bodyClass: 'page--wildlife' },
-                  { id: 'non-codex-enemies', name: 'Non-Codex', link: '/enemies/non-codex', bodyClass: 'page--non-codex-enemies' },
+                  { id: 'enemies', name: 'Enemies', link: '/genshin/enemies', bodyClass: 'page--enemies' },
+                  { id: 'wildlife', name: 'Wildlife', link: '/genshin/wildlife', bodyClass: 'page--wildlife' },
+                  { id: 'non-codex-enemies', name: 'Non-Codex', link: '/genshin/enemies/non-codex', bodyClass: 'page--non-codex-enemies' },
                 ]
               },
               {
                 id: 'readables',
                 name: 'Readables',
                 items: [
-                  { id: 'readables-search', name: 'Search Readables', link: '/readables/search', bodyClass: 'page--readables-search' },
-                  { id: 'readables-all', name: 'All Readables', link: '/readables', bodyClass: 'page--readables' },
+                  { id: 'readables-search', name: 'Search Readables', link: '/genshin/readables/search', bodyClass: 'page--readables-search' },
+                  { id: 'readables-all', name: 'All Readables', link: '/genshin/readables', bodyClass: 'page--readables' },
                 ]
               },
               {
                 id: 'serenitea-pot',
                 name: 'Serenitea Pot',
                 items: [
-                  { id: 'furniture', name: 'Furnishings', link: '/furnishings', bodyClass: 'page--furniture' },
-                  { id: 'furniture-set', name: 'Furnishing Sets', link: '/furnishing-sets', bodyClass: 'page--furniture-set' },
+                  { id: 'furniture', name: 'Furnishings', link: '/genshin/furnishings', bodyClass: 'page--furniture' },
+                  { id: 'furniture-set', name: 'Furnishing Sets', link: '/genshin/furnishing-sets', bodyClass: 'page--furniture-set' },
                 ]
               }
             ]
@@ -529,9 +536,9 @@ export class RequestContext {
               {
                 id: 'character-info-content',
                 items: [
-                  { id: 'character-stories', name: 'Character Stories', link: '/character/stories', bodyClass: 'page--character-stories' },
-                  { id: 'serenitea-pot-dialogue', name: 'Serenitea Pot Dialogue', link: '/character/companion-dialogue', bodyClass: 'page--companion-dialogue' },
-                  { id: 'vo-tool', name: 'Character VO Tool', link: '/character/VO', bodyClass: 'page--vo-tool' },
+                  { id: 'character-stories', name: 'Character Stories', link: '/genshin/character/stories', bodyClass: 'page--character-stories' },
+                  { id: 'serenitea-pot-dialogue', name: 'Serenitea Pot Dialogue', link: '/genshin/character/companion-dialogue', bodyClass: 'page--companion-dialogue' },
+                  { id: 'vo-tool', name: 'Character VO Tool', link: '/genshin/character/VO', bodyClass: 'page--vo-tool' },
                 ]
               }
             ]
@@ -544,8 +551,8 @@ export class RequestContext {
                 id: 'tcg-main-data',
                 name: 'Main Data',
                 items: [
-                  { id: 'tcg-cards', name: 'TCG Cards', link: '/TCG/cards', bodyClass: 'page--tcg-card' },
-                  { id: 'tcg-stages', name: 'TCG Stages', link: '/TCG/stages', bodyClass: 'page--tcg-stage', rightSideButton: {
+                  { id: 'tcg-cards', name: 'TCG Cards', link: '/genshin/TCG/cards', bodyClass: 'page--tcg-card' },
+                  { id: 'tcg-stages', name: 'TCG Stages', link: '/genshin/TCG/stages', bodyClass: 'page--tcg-stage', rightSideButton: {
                     name: 'Search',
                     link: '/TCG/stages/search'
                   } },
@@ -555,8 +562,8 @@ export class RequestContext {
                 id: 'tcg-other-data',
                 name: 'Other Data',
                 items: [
-                  { id: 'tcg-rules', name: 'TCG Rules', link: '/TCG/rules', bodyClass: 'page--tcg-rules' },
-                  { id: 'tcg-tutorial-text', name: 'TCG Tutorial Text', link: '/TCG/tutorial-text', bodyClass: 'page--tcg-tutorial-text' },
+                  { id: 'tcg-rules', name: 'TCG Rules', link: '/genshin/TCG/rules', bodyClass: 'page--tcg-rules' },
+                  { id: 'tcg-tutorial-text', name: 'TCG Tutorial Text', link: '/genshin/TCG/tutorial-text', bodyClass: 'page--tcg-tutorial-text' },
                 ]
               }
             ]
@@ -697,6 +704,44 @@ export class RequestContext {
               },
             ]
           },
+        ]
+      },
+      unset: {
+        id: 'unsetMenu',
+        header: {
+          name: 'Saccharose.wiki',
+        },
+        sections: [
+          {
+            id: 'site-modes',
+            name: 'Site Modes',
+            content: [
+              {
+                id: 'site-modes-content',
+                items: [
+                  { id: 'genshin-mode', name: 'Genshin Impact', link: '/genshin' },
+                  { id: 'hsr-mode', name: 'Honkai Star Rail', link: '/hsr' },
+                  { id: 'zenless-mode', name: 'Zenless Zone Zero', link: '/zenless' },
+                  { id: 'wuwa-mode', name: 'Wuthering Waves', link: '/wuwa' },
+                ]
+              }
+            ]
+          },
+          {
+            id: 'site-meta',
+            name: 'Site Meta',
+            content: [
+              {
+                id: 'site-meta-content',
+                items: [
+                  { id: 'user-settings', name: 'User Settings', link: '/settings', bodyClass: 'page--settings' },
+                  { id: 'terms', name: 'Terms of Service', link: '/terms', bodyClass: 'page--terms' },
+                  { id: 'privacy', name: 'Privacy Policy', link: '/privacy', bodyClass: 'page--privacy' },
+                  { id: 'contact', name: 'Contact', link: '/contact', bodyClass: 'page--contact' },
+                ]
+              }
+            ]
+          }
         ]
       }
     }

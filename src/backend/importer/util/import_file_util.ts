@@ -5,8 +5,8 @@ import {promises as fsp} from 'fs';
 import { LANG_CODES } from '../../../shared/types/lang-types.ts';
 import { getTextMapRelPath } from '../../loadenv.ts';
 import { isInt } from '../../../shared/util/numberUtil.ts';
-import { AbstractControl } from '../../domain/generic/abstractControl.ts';
-import { NormTextOptions } from '../../domain/generic/genericNormalizers.ts';
+import { AbstractControl } from '../../domain/abstract/abstractControl.ts';
+import { NormTextOptions } from '../../domain/abstract/genericNormalizers.ts';
 
 const isOnePropObj = (o: any, key: string) => o && typeof o === 'object' && Object.keys(o).length === 1 && Object.keys(o)[0] === key;
 

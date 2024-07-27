@@ -1,14 +1,14 @@
 // noinspection JSUnusedGlobalSymbols
 
-import { AbstractControl } from '../generic/abstractControl.ts';
+import { AbstractControl } from '../abstract/abstractControl.ts';
 import { getWuwaDataFilePath } from '../../loadenv.ts';
 import { normalizeRawJson, SchemaTable } from '../../importer/import_db.ts';
 import { LangCode, TextMapHash } from '../../../shared/types/lang-types.ts';
 import { __normWuwaText, WuwaNormTextOpts } from './wuwaText.ts';
-import { NormTextOptions } from '../generic/genericNormalizers.ts';
+import { NormTextOptions } from '../abstract/genericNormalizers.ts';
 import { Request } from 'express';
-import { wuwa_i18n, WUWA_I18N_MAP } from '../generic/i18n.ts';
-import { AbstractControlState } from '../generic/abstractControlState.ts';
+import { wuwa_i18n, WUWA_I18N_MAP } from '../abstract/i18n.ts';
+import { AbstractControlState } from '../abstract/abstractControlState.ts';
 import { RoleInfo } from '../../../shared/types/wuwa/role-types.ts';
 import { Condition, ConditionGroup, ConditionOp } from '../../../shared/types/wuwa/condition-types.ts';
 

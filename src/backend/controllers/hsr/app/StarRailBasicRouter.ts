@@ -1,6 +1,6 @@
 import { create } from '../../../routing/router.ts';
 import { getStarRailControl } from '../../../domain/hsr/starRailControl.ts';
-import { sendExcelViewerTableResponse } from '../../generic/app/abstractBasicRouter.ts';
+import { sendExcelViewerTableResponse } from '../../abstract/app/abstractBasicRouter.ts';
 import { SbOut } from '../../../../shared/util/stringUtil.ts';
 import { Request, Response, Router } from 'express';
 import { doHsrDialogueWalk } from '../../../domain/hsr/dialogue/hsr_dialogue_walker.ts';

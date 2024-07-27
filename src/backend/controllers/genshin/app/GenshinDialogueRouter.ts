@@ -2,7 +2,7 @@ import { create } from '../../../routing/router.ts';
 import { reminderGenerateAll } from '../../../domain/genshin/dialogue/reminder_generator.ts';
 import { getGenshinControl } from '../../../domain/genshin/genshinControl.ts';
 import { toInt } from '../../../../shared/util/numberUtil.ts';
-import { ol_gen_from_id } from '../../../domain/generic/basic/OLgen.ts';
+import { ol_gen_from_id } from '../../../domain/abstract/basic/OLgen.ts';
 import { Request, Response, Router } from 'express';
 import GenshinAllReminders from '../../../components/genshin/reminders/GenshinAllReminders.vue';
 

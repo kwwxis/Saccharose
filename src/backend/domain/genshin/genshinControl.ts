@@ -133,7 +133,7 @@ import { ElementType, ManualTextMapHashes } from '../../../shared/types/genshin/
 import { custom, logInitData } from '../../util/logger.ts';
 import { DialogBranchingCache, orderChapterQuests } from './dialogue/dialogue_util.ts';
 import { __normGenshinText, GenshinNormTextOpts } from './genshinText.ts';
-import { AbstractControl } from '../generic/abstractControl.ts';
+import { AbstractControl } from '../abstract/abstractControl.ts';
 import debug from 'debug';
 import {
   LANG_CODE_TO_LOCALE,
@@ -145,7 +145,7 @@ import {
 import { GCGTagElementType, GCGTagWeaponType } from '../../../shared/types/genshin/gcg-types.ts';
 import path from 'path';
 import { cached } from '../../util/cache.ts';
-import { NormTextOptions } from '../generic/genericNormalizers.ts';
+import { NormTextOptions } from '../abstract/genericNormalizers.ts';
 import {
   AchievementExcelConfigData,
   AchievementGoalExcelConfigData,
@@ -161,7 +161,7 @@ import {
   InterActionNextDialogs,
 } from '../../../shared/types/genshin/interaction-types.ts';
 import { CommonLineId } from '../../../shared/types/common-types.ts';
-import { genshin_i18n, GENSHIN_I18N_MAP, GENSHIN_MATERIAL_TYPE_DESC_PLURAL_MAP } from '../generic/i18n.ts';
+import { genshin_i18n, GENSHIN_I18N_MAP, GENSHIN_MATERIAL_TYPE_DESC_PLURAL_MAP } from '../abstract/i18n.ts';
 import * as console from 'console';
 import {
   ChangeRecord,
@@ -171,7 +171,7 @@ import {
   FullChangelog, TextMapChangeRef, TextMapChanges,
 } from '../../../shared/types/changelog-types.ts';
 import { GameVersion, GenshinVersions } from '../../../shared/types/game-versions.ts';
-import { AbstractControlState } from '../generic/abstractControlState.ts';
+import { AbstractControlState } from '../abstract/abstractControlState.ts';
 
 // region Control State
 // --------------------------------------------------------------------------------------------------------------

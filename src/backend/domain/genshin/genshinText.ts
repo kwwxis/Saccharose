@@ -6,7 +6,7 @@ import {
   mergeMcTemplate,
   NormTextOptions,
   postProcessBoldItalic,
-} from '../generic/genericNormalizers.ts';
+} from '../abstract/genericNormalizers.ts';
 import { SpriteTagExcelConfigData } from '../../../shared/types/genshin/general-types.ts';
 import { getGenshinControl } from './genshinControl.ts';
 import { toMap } from '../../../shared/util/arrayUtil.ts';
