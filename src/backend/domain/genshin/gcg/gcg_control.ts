@@ -1130,7 +1130,7 @@ export class GCGControl {
     const sect = new DialogueSectionResult('GCGTalk_'+talk.GameId+'_'+talkDetail.TalkDetailIconId, title)
       .afterConstruct(sect => {
         sect.addMetaProp('Stage ID', { value: talk.GameId, tooltip: stage.StageTalk.title },
-          '/TCG/stages/'+String(talk.GameId).padStart(6, '0'));
+          '/genshin/TCG/stages/'+String(talk.GameId).padStart(6, '0'));
         sect.addMetaProp('Talk Mode', title);
         sect.addMetaProp('Icon ID', talkDetail.TalkDetailIconId);
         if (talkDetail?.TalkDetailIcon?.Type === 'NPC') {
@@ -1172,7 +1172,7 @@ export class GCGControl {
 
     stage.StageTalk = new DialogueSectionResult('GCGStageTalk_'+stage.Id, stage.WikiCombinedTitle).afterConstruct(sect => {
       sect.addMetaProp('Stage ID', { value: stage.Id, tooltip: stage.WikiCombinedTitle },
-        '/TCG/stages/' + String(stage.Id).padStart(6, '0'));
+        '/genshin/TCG/stages/' + String(stage.Id).padStart(6, '0'));
       sect.addMetaProp('Stage Type', stage.LevelType);
       sect.copyAllSep = '\n\n';
     });

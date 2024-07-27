@@ -1,5 +1,5 @@
 <template>
-  <a :href="`/TCG/cards/${String(card.Id).padStart(6, '0')}`" class="tcg-card">
+  <a :href="`/genshin/TCG/cards/${String(card.Id).padStart(6, '0')}`" class="tcg-card">
     <div class="tcg-card-image">
       <img v-if="card.WikiImage" :src="`/images/genshin/${card.WikiImage}.png`" loading="lazy" decoding="async" />
       <img v-else :src="`/images/genshin/static/TCG_Card_Unknown.png`" loading="lazy" decoding="async" />
