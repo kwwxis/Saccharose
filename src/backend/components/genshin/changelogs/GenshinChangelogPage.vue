@@ -2,7 +2,7 @@
   <div id="new-summary-toc-parent"></div>
   <section class="card">
     <h2 class="valign">
-      <a href="/changelog" style="text-decoration: none">Changelogs</a>
+      <a href="/genshin/changelog" style="text-decoration: none">Changelogs</a>
       <Icon name="chevron-right" />
       <span>{{ genshinVersion.previous }} &ndash; {{ genshinVersion.number }}</span>
     </h2>
@@ -33,9 +33,9 @@
           <img class="framed-icon x64" :src="`/images/genshin/${avatar.IconName}.png`" loading="lazy" decoding="async" />
           <div class="spacer5-left">
             <strong class="dispBlock">{{ avatar.NameText }}</strong>
-            <a class="dispBlock" style="font-size:15px" :href="`/character/stories/${toParam(avatar.NameText)}`">Character Story</a>
-            <a class="dispBlock" style="font-size:15px" :href="`/character/companion-dialogue/${toParam(avatar.NameText)}`">Serenitea Pot Dialogue</a>
-            <a class="dispBlock" style="font-size:15px" :href="`/character/VO/${toParam(avatar.NameText)}`">Character VO</a>
+            <a class="dispBlock" style="font-size:15px" :href="`/genshin/character/stories/${toParam(avatar.NameText)}`">Character Story</a>
+            <a class="dispBlock" style="font-size:15px" :href="`/genshin/character/companion-dialogue/${toParam(avatar.NameText)}`">Serenitea Pot Dialogue</a>
+            <a class="dispBlock" style="font-size:15px" :href="`/genshin/character/VO/${toParam(avatar.NameText)}`">Character VO</a>
           </div>
         </div>
         <div v-if="!newSummary.avatars.length">
@@ -170,7 +170,7 @@
               </tr>
               <tr class="furnishing-set-row" v-for="suite of setList" :data-id="suite.SuiteId">
                 <td class="code">{{suite.SuiteId}}</td>
-                <td style="font-size:15px"><a :href="`/furnishing-sets/${suite.SuiteId}`">{{suite.SuiteNameText}}</a></td>
+                <td style="font-size:15px"><a :href="`/genshin/furnishing-sets/${suite.SuiteId}`">{{suite.SuiteNameText}}</a></td>
                 <td style="width:180px">
                   <div v-if="!!suite.FavoriteNpcVec?.length" class="dispFlex flexWrap">
                     <template v-for="npc of suite.FavoriteNpcVec">
@@ -273,7 +273,7 @@
               <span>{{ stage.WikiCharacter }}</span>
             </td>
             <td>
-              <a :href="`/TCG/stages/${String(stage.Id).padStart(6, '0')}`" role="button"
+              <a :href="`/genshin/TCG/stages/${String(stage.Id).padStart(6, '0')}`" role="button"
                  class="spacer5-all secondary dispBlock textAlignLeft">{{ stage.WikiLevelName }}</a>
             </td>
             <td>
@@ -308,7 +308,7 @@
             <th>Image</th>
           </tr>
           <tr v-for="viewpoint of newSummary.viewpoints" style="font-size:15px">
-            <td><a :href="`/viewpoints/${viewpoint.CityNameText}#viewpoint-${viewpoint.Id}`">{{ viewpoint.NameText }}</a></td>
+            <td><a :href="`/genshin/viewpoints/${viewpoint.CityNameText}#viewpoint-${viewpoint.Id}`">{{ viewpoint.NameText }}</a></td>
             <td>{{ viewpoint.WorldArea.AreaNameText || '' }}</td>
             <td>{{ viewpoint.ParentWorldArea ? viewpoint.ParentWorldArea.AreaNameText : '' }}</td>
             <td>{{ viewpoint.CityNameText }}</td>
@@ -340,8 +340,8 @@
           <tr v-for="tip of newSummary.loadingTips">
             <td>{{ tip.TipsTitleText }}</td>
             <td><Wikitext :value="trace.normGenshinText(tip.TipsDescText)" :seamless="true" /></td>
-            <td><a v-if="tip.EnableMainQuestName" :href="`/quests/${tip.EnableMainQuestId}`">{{ tip.EnableMainQuestName }}</a></td>
-            <td><a v-if="tip.DisableMainQuestName" :href="`/quests/${tip.DisableMainQuestId}`">{{ tip.DisableMainQuestName }}</a></td>
+            <td><a v-if="tip.EnableMainQuestName" :href="`/genshin/quests/${tip.EnableMainQuestId}`">{{ tip.EnableMainQuestName }}</a></td>
+            <td><a v-if="tip.DisableMainQuestName" :href="`/genshin/quests/${tip.DisableMainQuestId}`">{{ tip.DisableMainQuestName }}</a></td>
           </tr>
         </table>
         <div v-if="!newSummary.loadingTips.length">
@@ -364,10 +364,10 @@
             <th>Primogems</th>
           </tr>
           <tr v-for="achievement of newSummary.achievements">
-            <td class="code"><a :href="`/achievements/${achievement.Id}`">{{ achievement.Id }}</a></td>
-            <td><a :href="`/achievements/${achievement.Id}`">{{ achievement.TitleText }}</a></td>
+            <td class="code"><a :href="`/genshin/achievements/${achievement.Id}`">{{ achievement.Id }}</a></td>
+            <td><a :href="`/genshin/achievements/${achievement.Id}`">{{ achievement.TitleText }}</a></td>
             <td><Wikitext :value="trace.normGenshinText(achievement.DescText)" :seamless="true" /></td>
-            <td><a :href="`/achievements/${toParam(achievement.Goal.NameText)}`">{{ achievement.Goal.NameText }}</a></td>
+            <td><a :href="`/genshin/achievements/${toParam(achievement.Goal.NameText)}`">{{ achievement.Goal.NameText }}</a></td>
             <td>{{ achievement.FinishReward.RewardSummary.PrimogemCount }}</td>
           </tr>
         </table>
@@ -397,7 +397,7 @@
             <td style="vertical-align: top">{{ tutorial.PushTip?.TitleText || '(No title)' }}</td>
             <td style="vertical-align: top">{{ tutorial.PushTip?.SubtitleText || '' }}</td>
             <td style="vertical-align: top"><Wikitext :value="tutorial.Wikitext" :seamless="true" /></td>
-            <td style="vertical-align: top"><a :href="`/tutorials/${toParam(tutorial.CodexTypeName)}`">{{ tutorial.CodexTypeName }}</a></td>
+            <td style="vertical-align: top"><a :href="`/genshin/tutorials/${toParam(tutorial.CodexTypeName)}`">{{ tutorial.CodexTypeName }}</a></td>
             <td style="vertical-align: top">
               <Wikitext v-if="tutorial.PushTip?.TitleText" :value="`{{Tutorial|${tutorial.PushTip.TitleText}}}`" :seamless="true" />
             </td>
@@ -428,7 +428,7 @@
           <h4 class="content" style="padding-bottom:0">Book Collections</h4>
           <div class="content">
             <div class="w100p spacer-top" v-for="collection of Object.values(newSummary.readables.BookCollections)">
-              <a class="secondary spacer3-all valign textAlignLeft" role="button" :href="`/readables/book-collection/${collection.Id}`">
+              <a class="secondary spacer3-all valign textAlignLeft" role="button" :href="`/genshin/readables/book-collection/${collection.Id}`">
                 <img class="icon x32" :src="`/images/genshin/${collection.Books[0]?.Material?.Icon}.png`" loading="lazy" decoding="async" />
                 <span class="spacer10-left">{{ collection.SuitNameText }}</span>
               </a>
@@ -496,7 +496,7 @@
           <div class="content" v-for="entry1 of chapterGroup1('AQ')">
             <div v-for="entry2 of chapterGroup2('AQ', entry1.chapterName)">
               <div class="spacer15-bottom" v-for="chapter of entry2.chapters">
-                <a class="secondary spacer3-all valign textAlignLeft" role="button" :href="`/chapters/${chapter.Id}`">
+                <a class="secondary spacer3-all valign textAlignLeft" role="button" :href="`/genshin/chapters/${chapter.Id}`">
                   <img v-if="chapter.ChapterIcon"
                        :src="`/images/genshin/${chapter.ChapterIcon}.png`" class="spacer10-right" loading="lazy" decoding="async"
                        style="width:48px;height:48px;background:#333;border-radius:50%;border:1px solid #fff;"/>
@@ -523,7 +523,7 @@
           <div class="content" v-for="entry1 of chapterGroup1('SQ')">
             <div v-for="entry2 of chapterGroup2('SQ', entry1.chapterName)">
               <div class="spacer15-bottom" v-for="chapter of entry2.chapters">
-                <a class="secondary spacer3-all valign textAlignLeft" role="button" :href="`/chapters/${chapter.Id}`">
+                <a class="secondary spacer3-all valign textAlignLeft" role="button" :href="`/genshin/chapters/${chapter.Id}`">
                   <img v-if="chapter.ChapterIcon"
                        :src="`/images/genshin/${chapter.ChapterIcon}.png`" class="spacer10-right" loading="lazy" decoding="async"
                        style="width:48px;height:48px;background:#333;border-radius:50%;border:1px solid #fff;"/>
@@ -549,7 +549,7 @@
           <h4 class="content" style="padding-bottom:0">New Event Quest Chapters</h4>
           <div class="content" v-for="(chapters, chapterName) in newSummary.chapters.EQ">
             <div class="spacer15-bottom" v-for="chapter of chapters">
-              <a class="secondary spacer3-all valign textAlignLeft" role="button" :href="`/chapters/${chapter.Id}`">
+              <a class="secondary spacer3-all valign textAlignLeft" role="button" :href="`/genshin/chapters/${chapter.Id}`">
                 <img v-if="chapter.ChapterIcon"
                      :src="`/images/genshin/${chapter.ChapterIcon}.png`" class="spacer10-right" loading="lazy" decoding="async"
                      style="width:48px;height:48px;background:#333;border-radius:50%;border:1px solid #fff;"/>
@@ -572,7 +572,7 @@
           <h4 class="content" style="padding-bottom:0">New World Quest Chapters</h4>
           <div class="content" v-for="(chapters, chapterName) in newSummary.chapters.WQ">
             <div class="spacer15-bottom" v-for="chapter of chapters">
-              <a class="secondary spacer3-all valign textAlignLeft" role="button" :href="`/chapters/${chapter.Id}`">
+              <a class="secondary spacer3-all valign textAlignLeft" role="button" :href="`/genshin/chapters/${chapter.Id}`">
                 <img v-if="chapter.ChapterIcon"
                      :src="`/images/genshin/${chapter.ChapterIcon}.png`" class="spacer10-right" loading="lazy" decoding="async"
                      style="width:48px;height:48px;background:#333;border-radius:50%;border:1px solid #fff;"/>
@@ -602,7 +602,7 @@
           <p>(None)</p>
         </div>
         <div v-for="mainQuest of newSummary.nonChapterQuests">
-          <a class="secondary dispBlock spacer5-bottom textAlignLeft" role="button" :href="`/quests/${mainQuest.Id}`">
+          <a class="secondary dispBlock spacer5-bottom textAlignLeft" role="button" :href="`/genshin/quests/${mainQuest.Id}`">
             <strong>ID {{ mainQuest.Id }} {{ mainQuest.Type }}:&nbsp;</strong>
             <span>{{ mainQuest.TitleText }}</span>
           </a>
@@ -619,7 +619,7 @@
           <p>(None)</p>
         </div>
         <div v-for="mainQuest of newSummary.hiddenQuests">
-          <a class="secondary dispBlock spacer5-bottom textAlignLeft" role="button" :href="`/quests/${mainQuest.Id}`">
+          <a class="secondary dispBlock spacer5-bottom textAlignLeft" role="button" :href="`/genshin/quests/${mainQuest.Id}`">
             <strong>ID {{ mainQuest.Id }}:&nbsp;</strong>
             <span>(No title)</span>
           </a>
@@ -643,7 +643,7 @@
             <dt>Removed records</dt>
             <dd>{{ Object.values(excelFileChanges.changedRecords).filter(r => r.changeType === 'removed').length }}</dd>
             <dt>
-              <a role="button" class="secondary spacer5-top" :href="`/changelog/${genshinVersion.number}/${excelFileChanges.name}`">Browse records</a>
+              <a role="button" class="secondary spacer5-top" :href="`/genshin/changelog/${genshinVersion.number}/${excelFileChanges.name}`">Browse records</a>
             </dt>
             <dd><!-- intentionally empty --></dd>
           </dl>

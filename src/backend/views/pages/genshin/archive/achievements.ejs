@@ -2,8 +2,8 @@
   <section class="card">
     <h2>Achievements</h2>
     <div class="tab-list" role="tablist">
-      <a href="/achievements" role="tab" id="tab-categories" class="tab <%= bodyClassTernary('page--achievements-categories', 'active') %>">Categories</a>
-      <a href="/achievements/search" role="tab" id="tab-search" class="tab <%= bodyClassTernary('page--achievements-search', 'active') %>">Search</a>
+      <a href="/genshin/achievements" role="tab" id="tab-categories" class="tab <%= bodyClassTernary('page--achievements-categories', 'active') %>">Categories</a>
+      <a href="/genshin/achievements/search" role="tab" id="tab-search" class="tab <%= bodyClassTernary('page--achievements-search', 'active') %>">Search</a>
     </div>
     <div class="content">
       <fieldset>
@@ -12,7 +12,7 @@
           <% for (let goal of goals) { %>
             <div class="w50p">
               <a role="button" class="spacer5-all secondary valign textAlignLeft"
-                 href="/achievements/<%= toParam(goal.NameTextEN) %>">
+                 href="/genshin/achievements/<%= toParam(goal.NameTextEN) %>">
                 <img class="icon x32" src="/images/genshin/<%= goal.IconPath %>.png" loading="lazy" decoding="async" />
                 <span class="spacer10-left"><%= goal.NameText %></span>
               </a>
@@ -30,7 +30,7 @@
         <img class="framed-icon x42" src="/images/genshin/<%= section?.Goal?.IconPath %>.png" loading="lazy" decoding="async" />
         <span class="spacer15-left"><%= section?.Goal?.NameText || 'n/a' %></span>
         <span class="grow"></span>
-        <a href="/achievements" role="button" class="secondary small">Back to categories</a>
+        <a href="/genshin/achievements" role="button" class="secondary small">Back to categories</a>
       </h2>
       <div class="content">
         <div class="card result-count-card">
@@ -40,7 +40,7 @@
           The <strong>Trigger</strong> column shows the trigger type and parameters. For certain types, e.g. finishing quests,
           I resolved the parameters for you (e.g. showing the quest name). But there's a lot of different trigger types, which'd
           require code for each one to resolve its parameters, which is too much effort.
-          You can use the <a href="/excel-usages">Excel Usages</a> tool to lookup where certain IDs are used.</p>
+          You can use the <a href="/genshin/excel-usages">Excel Usages</a> tool to lookup where certain IDs are used.</p>
       </div>
       <% if (section?.Goal?.FinishReward && section?.Goal?.FinishReward?.RewardSummary) { %>
         <div class="content">
@@ -58,8 +58,8 @@
   <section class="card">
     <h2>Achievements</h2>
     <div class="tab-list" role="tablist">
-      <a href="/achievements" role="tab" id="tab-categories" class="tab <%= bodyClassTernary('page--achievements-categories', 'active') %>">Categories</a>
-      <a href="/achievements/search" role="tab" id="tab-search" class="tab <%= bodyClassTernary('page--achievements-search', 'active') %>">Search</a>
+      <a href="/genshin/achievements" role="tab" id="tab-categories" class="tab <%= bodyClassTernary('page--achievements-categories', 'active') %>">Categories</a>
+      <a href="/genshin/achievements/search" role="tab" id="tab-search" class="tab <%= bodyClassTernary('page--achievements-search', 'active') %>">Search</a>
     </div>
     <div class="content">
       <p>Category not found: <%= req.params.category %></p>

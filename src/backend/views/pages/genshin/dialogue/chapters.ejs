@@ -2,7 +2,7 @@
   <section class="card">
     <h2>Chapter not found for <%= requestId %></h2>
     <div class="content">
-      <a href="/chapters" role="button" class="secondary spacer10-bottom">
+      <a href="/genshin/chapters" role="button" class="secondary spacer10-bottom">
         <%- icon('chevron-left') %>
         <span>Back to chapter list</span>
       </a>
@@ -18,7 +18,7 @@
       <strong class="act-name"><%= chapter.Summary.ActName %></strong>
     </h2>
     <div class="content">
-      <a href="/chapters" role="button" class="secondary spacer10-bottom">
+      <a href="/genshin/chapters" role="button" class="secondary spacer10-bottom">
         <%- icon('chevron-left') %><span>Back to chapter list</span>
       </a>
       <table class="article-table">
@@ -110,8 +110,8 @@
       <p class="info-notice spacer20-bottom">
         Saccharose usually puts quests in the right order in most cases, but you should double-check. The Excel data doesn't make it obvious
         what order quests are in. So they need to be programmatically ordered based on various clues. Whether subquests can be correctly
-        identified is a hit-or-miss (e.g. <a href="/chapters/10070">Vimana Agama</a> is correctly ordered but
-        <a href="/chapters/10055">From Dusk to Dawn in Byakuyakoku</a> is not). Saccharose's ordering for hangout chapters is completely unreliable.</p>
+        identified is a hit-or-miss (e.g. <a href="/genshin/chapters/10070">Vimana Agama</a> is correctly ordered but
+        <a href="/genshin/chapters/10055">From Dusk to Dawn in Byakuyakoku</a> is not). Saccharose's ordering for hangout chapters is completely unreliable.</p>
       <%- use('partials/genshin/dialogue/chapter-list-item', { quests: chapter.OrderedQuests }) %>
     </div>
   </section>

@@ -23,7 +23,7 @@
           <span>{{ stage.WikiCharacter }}</span>
         </td>
         <td>
-          <a :href="`/TCG/stages/${String(stage.Id).padStart(6, '0')}`" role="button"
+          <a :href="`/genshin/TCG/stages/${String(stage.Id).padStart(6, '0')}`" role="button"
              class="spacer5-all secondary dispBlock textAlignLeft">{{ stage.WikiLevelName }}</a>
         </td>
         <td>

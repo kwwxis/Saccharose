@@ -2,9 +2,9 @@
   <section class="card">
     <h2>Media Reverse Search <b>(Experimental)</b></h2>
     <div class="tab-list" role="tablist">
-      <a href="/media/list" role="tab" class="tab">List</a>
-      <a href="/media/search" role="tab" class="tab">Search</a>
-      <a href="/media/reverse-search" role="tab" class="tab active">Reverse Search</a>
+      <a href="/genshin/media/list" role="tab" class="tab">List</a>
+      <a href="/genshin/media/search" role="tab" class="tab">Search</a>
+      <a href="/genshin/media/reverse-search" role="tab" class="tab active">Reverse Search</a>
     </div>
     <div class="content">
       <p class="spacer10-bottom">The quality of this reverse search is very mediocre.

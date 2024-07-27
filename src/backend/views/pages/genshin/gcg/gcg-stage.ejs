@@ -1,7 +1,7 @@
 <% if (locals.stage) { %>
   <section class="card">
     <h2>
-      <span class="dispBlock" style="margin-top:-5px"><a role="button" class="secondary fontWeight600" style="font-size:14px;padding:3px 8px" href="/TCG/stages">Back to stages</a></span>
+      <span class="dispBlock" style="margin-top:-5px"><a role="button" class="secondary fontWeight600" style="font-size:14px;padding:3px 8px" href="/genshin/TCG/stages">Back to stages</a></span>
       <span class="dispBlock spacer10-top"><%= stage.WikiCombinedTitle %></span>
     </h2>
     <div class="tab-list" role="tablist">
@@ -110,7 +110,7 @@
                 <td class="no-border">&nbsp;</td>
                 <td class="bold">Quest Dialogue</td>
                 <td class="w70p">
-                  <a class="valign" href="/quests/<%= stage.LevelLock.UnlockMainQuestId %>" target="_blank">
+                  <a class="valign" href="/genshin/quests/<%= stage.LevelLock.UnlockMainQuestId %>" target="_blank">
                     <span class="spacer5-right"><%= stage.LevelLock.QuestTitleText %></span>
                     <%- icon('external-link', 14) %>
                   </a>

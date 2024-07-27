@@ -2,7 +2,7 @@
   <h2>Loading Tips</h2>
   <div class="tab-list" role="tablist">
     <% for (let catName of catNames) { %>
-      <a href="/loading-tips/<%= catName %><%= tableFormat ? '?table=1' : '' %>" role="tab" class="tab<%= catName === locals.selectedCat ? ' active' : '' %>"><%= catName %></a>
+      <a href="/genshin/loading-tips/<%= catName %><%= tableFormat ? '?table=1' : '' %>" role="tab" class="tab<%= catName === locals.selectedCat ? ' active' : '' %>"><%= catName %></a>
     <% } %>
   </div>
 </section>

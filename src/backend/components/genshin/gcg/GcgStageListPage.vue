@@ -2,8 +2,8 @@
   <section class="card">
     <h2>TCG Stages</h2>
     <div class="tab-list secondary" role="tablist">
-      <a href="/TCG/stages" role="tab" id="tab-list" class="tab active">List</a>
-      <a href="/TCG/stages/search" role="tab" id="tab-search" class="tab">Search</a>
+      <a href="/genshin/TCG/stages" role="tab" id="tab-list" class="tab active">List</a>
+      <a href="/genshin/TCG/stages/search" role="tab" id="tab-search" class="tab">Search</a>
     </div>
     <div class="content">
       <fieldset>

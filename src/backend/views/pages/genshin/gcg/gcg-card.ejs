@@ -1,7 +1,7 @@
 <% if (locals.card) { %>
   <section class="card">
     <h2>
-      <span class="dispBlock" style="margin-top:-5px"><a role="button" class="secondary fontWeight600" style="font-size:14px;padding:3px 8px" href="/TCG/cards">Back to cards</a></span>
+      <span class="dispBlock" style="margin-top:-5px"><a role="button" class="secondary fontWeight600" style="font-size:14px;padding:3px 8px" href="/genshin/TCG/cards">Back to cards</a></span>
       <span class="valign spacer10-top">
         <% if (card.CharIcon) { %>
           <img class="framed-icon spacer10-right" src="/images/genshin/<%= card.CharIcon %>.png" style="width:50px;border-radius:50%" />
@@ -181,7 +181,7 @@
     <div class="content">
       <p>Card not found for ID <code><%= req.params.cardId %></code></p>
       <div class="spacer10-top">
-        <a role="button" class="secondary fontWeight600" style="font-size:14px;padding:3px 8px" href="/TCG/cards">Return back to cards list</a>
+        <a role="button" class="secondary fontWeight600" style="font-size:14px;padding:3px 8px" href="/genshin/TCG/cards">Return back to cards list</a>
       </div>
     </div>
   </section>

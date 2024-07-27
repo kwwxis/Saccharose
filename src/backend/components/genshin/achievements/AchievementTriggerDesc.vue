@@ -10,7 +10,7 @@
 
   <template v-if="achievement.TriggerConfig.TriggerQuests.length">
     <template v-for="mq of achievement.TriggerConfig.TriggerQuests">
-      <a class="dispBlock" :href="`/quests/${ mq.Id }`">{{ mq.TitleText || `${mq.Id}: (No title)` }}</a>
+      <a class="dispBlock" :href="`/genshin/quests/${ mq.Id }`">{{ mq.TitleText || `${mq.Id}: (No title)` }}</a>
     </template>
   </template>
 

@@ -2,9 +2,9 @@
   <section class="card">
     <h2>Media List</h2>
     <div class="tab-list" role="tablist">
-      <a href="/media/list" role="tab" class="tab">List</a>
-      <a href="/media/search" role="tab" class="tab">Search</a>
-      <a href="/media/reverse-search" role="tab" class="tab">Reverse Search</a>
+      <a href="/genshin/media/list" role="tab" class="tab">List</a>
+      <a href="/genshin/media/search" role="tab" class="tab">Search</a>
+      <a href="/genshin/media/reverse-search" role="tab" class="tab">Reverse Search</a>
       <button role="tab" class="tab active">Image Details</button>
     </div>
   </section>

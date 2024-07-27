@@ -3,9 +3,9 @@
   <meta id="x-addedRecords-excelData" name="x-addedRecords-excelData" :content="JSON.stringify(Object.values(excelFileChanges.changedRecords).filter(r => r.changeType === 'added').map(r => r.addedRecord))" />
   <section class="card">
     <h2 class="valign">
-      <a href="/changelog" style="text-decoration: none">Changelogs</a>
+      <a href="/genshin/changelog" style="text-decoration: none">Changelogs</a>
       <Icon name="chevron-right" />
-      <a :href="`/changelog/${genshinVersion.number}`" style="text-decoration: none">{{ genshinVersion.previous }} &ndash; {{ genshinVersion.number }}</a>
+      <a :href="`/genshin/changelog/${genshinVersion.number}`" style="text-decoration: none">{{ genshinVersion.previous }} &ndash; {{ genshinVersion.number }}</a>
       <Icon name="chevron-right" />
       <span>{{ excelFileChanges.name }}</span>
     </h2>

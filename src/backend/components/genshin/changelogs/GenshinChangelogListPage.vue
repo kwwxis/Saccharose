@@ -8,7 +8,7 @@
       <ul>
         <template v-for="version of gameVersions">
           <li v-if="version.showChangelog">
-            <a :href="`/changelog/${version.number}`">{{ version.previous }} &ndash; {{ version.number }}</a>
+            <a :href="`/genshin/changelog/${version.number}`">{{ version.previous }} &ndash; {{ version.number }}</a>
           </li>
         </template>
       </ul>

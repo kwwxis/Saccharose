@@ -5,8 +5,8 @@
       <span class="spacer15-left">{{ achievement.TitleText }}</span>
       <span class="grow"></span>
       <span class="alignEnd flexColumn">
-        <a href="/achievements" role="button" class="secondary small dispBlock spacer5-bottom">Back to all categories</a>
-        <a :href="`/achievements/${toParam(achievement.Goal.NameText)}`" role="button" class="secondary small dispBlock">
+        <a href="/genshin/achievements" role="button" class="secondary small dispBlock spacer5-bottom">Back to all categories</a>
+        <a :href="`/genshin/achievements/${toParam(achievement.Goal.NameText)}`" role="button" class="secondary small dispBlock">
           Back to {{ achievement.Goal.NameText }}
         </a>
       </span>

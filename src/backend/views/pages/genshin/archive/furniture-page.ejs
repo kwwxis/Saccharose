@@ -1,7 +1,7 @@
 <% if (locals.furn) { %>
   <section class="card">
     <h2>
-      <span class="dispBlock" style="margin-top:-5px"><a role="button" class="secondary fontWeight600" style="font-size:14px;padding:3px 8px" href="/furnishings">Back to furnishings list</a></span>
+      <span class="dispBlock" style="margin-top:-5px"><a role="button" class="secondary fontWeight600" style="font-size:14px;padding:3px 8px" href="/genshin/furnishings">Back to furnishings list</a></span>
       <span class="valign spacer10-top">
         <img class="framed-icon x50" src="/images/genshin/<%= furn.IconUrl || furn.Icon || furn.ItemIcon %>.png" loading="lazy" decoding="async" />
         <span class="spacer15-left"><%= furn.NameText %></span>
@@ -136,7 +136,7 @@
   <section class="card">
     <h2>Furnishing not found.</h2>
     <div class="content">
-      <a role="button" class="secondary fontWeight600" style="font-size:14px;padding:3px 8px" href="/furnishings">
+      <a role="button" class="secondary fontWeight600" style="font-size:14px;padding:3px 8px" href="/genshin/furnishings">
         <%- icon('chevron-left') %>
         <span>Back to furnishings list</span>
       </a>

@@ -1,7 +1,7 @@
 <% if (locals.weapon) { %>
   <section class="card">
     <h2>
-      <span class="dispBlock" style="margin-top:-5px"><a role="button" class="secondary fontWeight600" style="font-size:14px;padding:3px 8px" href="/weapons">Back to weapons search</a></span>
+      <span class="dispBlock" style="margin-top:-5px"><a role="button" class="secondary fontWeight600" style="font-size:14px;padding:3px 8px" href="/genshin/weapons">Back to weapons search</a></span>
       <span class="valign spacer10-top">
         <img class="framed-icon x36" src="/images/genshin/<%= weapon.Icon %>.png" loading="lazy" decoding="async" />
         <span class="spacer15-left"><%= weapon.NameText %></span>
@@ -88,7 +88,7 @@
       <h2 class="valign">
         <span>Story</span>
         <span class="grow"></span>
-        <a class="valign fontWeight500" href="/readables/item/<%= weapon.StoryId %>" style="font-size:18px" target="_blank">
+        <a class="valign fontWeight500" href="/genshin/readables/item/<%= weapon.StoryId %>" style="font-size:18px" target="_blank">
           <span class="spacer5-right" style="font-size:15px">Readable</span><%- icon('external-link', 16) %>
         </a>
       </h2>

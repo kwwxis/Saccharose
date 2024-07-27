@@ -33,7 +33,7 @@
         <tbody>
           <tr class="furnishing-set-row" v-for="suite of suites" :data-id="suite.SuiteId">
             <td class="code">{{suite.SuiteId}}</td>
-            <td><a :href="`/furnishing-sets/${suite.SuiteId}`">{{suite.SuiteNameText}}</a></td>
+            <td><a :href="`/genshin/furnishing-sets/${suite.SuiteId}`">{{suite.SuiteNameText}}</a></td>
             <td style="width:180px">
               <div v-if="!!suite.FavoriteNpcVec?.length" class="dispFlex flexWrap">
                 <template v-for="npc of suite.FavoriteNpcVec">

@@ -3,7 +3,7 @@
     <section class="card">
       <h2>
         <span class="dispBlock" style="margin-top:-5px">
-          <a role="button" class="secondary fontWeight600" style="font-size:13px;padding:3px 8px" href="/furnishing-sets">
+          <a role="button" class="secondary fontWeight600" style="font-size:13px;padding:3px 8px" href="/genshin/furnishing-sets">
             <Icon name="chevron-left" />
             <span>Back to furnishing sets list</span>
           </a>
@@ -62,7 +62,7 @@
           <tr v-for="favor of companionFavors">
             <td style="vertical-align: top">
               <div><img class="icon framed-icon x64 spacer3-all" :src="`/images/genshin/${favor.npc.Avatar.IconName}.png`" loading="lazy" decoding="async" /></div>
-              <div><a :href="`/character/companion-dialogue/${toParam(favor.npc.CommonName)}`">{{ favor.npc.Avatar.NameText }}</a></div>
+              <div><a :href="`/genshin/character/companion-dialogue/${toParam(favor.npc.CommonName)}`">{{ favor.npc.Avatar.NameText }}</a></div>
             </td>
             <td style="vertical-align: top">
               <DialogueSection :section="favor.dialogue" :no-title="true" :no-top-line="true" />
@@ -82,7 +82,7 @@
     <section class="card">
       <div class="content">
         <p class="spacer10-bottom">Furnishing Set not found.</p>
-        <a role="button" class="secondary fontWeight600" style="font-size:13px;padding:3px 8px" href="/furnishing-sets">
+        <a role="button" class="secondary fontWeight600" style="font-size:13px;padding:3px 8px" href="/genshin/furnishing-sets">
           <Icon name="chevron-left" />
           <span>Back to furnishing sets list</span>
         </a>

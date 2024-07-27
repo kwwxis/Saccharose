@@ -1,8 +1,8 @@
 <section class="card">
   <h2>Tutorials</h2>
   <div class="tab-list" role="tablist">
-    <a href="/tutorials" role="tab" id="tab-categories" class="tab <%= bodyClassTernary('page--tutorials-categories', 'active') %>">Categories</a>
-    <a href="/tutorials/search" role="tab" id="tab-search" class="tab <%= bodyClassTernary('page--tutorials-search', 'active') %>">Search</a>
+    <a href="/genshin/tutorials" role="tab" id="tab-categories" class="tab <%= bodyClassTernary('page--tutorials-categories', 'active') %>">Categories</a>
+    <a href="/genshin/tutorials/search" role="tab" id="tab-search" class="tab <%= bodyClassTernary('page--tutorials-search', 'active') %>">Search</a>
   </div>
   <div class="content">
     <fieldset>
@@ -11,7 +11,7 @@
         <% for (let name of categoryNames) { %>
           <div class="w100p">
             <a role="button" class="spacer5-all secondary dispBlock textAlignLeft"
-               href="/tutorials/<%= toParam(name) %>"><%= name %></a>
+               href="/genshin/tutorials/<%= toParam(name) %>"><%= name %></a>
           </div>
         <% } %>
       </div>
