@@ -331,7 +331,6 @@ function applyMarkerToToken(token: HTMLElement, marker: Marker) {
 
 function markifyTextLayer(element: HTMLElement, aggs: Map<number, MarkerAggregate>) {
   const aceLines: HTMLElement[] = Array.from(element.querySelectorAll('.ace_static_text_layer .ace_line'));
-  console.log(aggs);
 
   for (let i = 0; i < aceLines.length; i++) {
     const aceLine: HTMLElement = aceLines[i];

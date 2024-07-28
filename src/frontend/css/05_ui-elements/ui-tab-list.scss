@@ -137,10 +137,18 @@ body .tab-list.secondary {
     &:before {
       display: none;
     }
+
+    &.small {
+      padding: 0 6px;
+      font-size: 11px;
+    }
   }
 
   > :first-child {
     margin-left: 10px;
+  }
+  > :last-child {
+    margin-right: 10px;
   }
 
   &:after {

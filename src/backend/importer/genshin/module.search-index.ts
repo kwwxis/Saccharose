@@ -2,7 +2,7 @@ import fs from 'fs';
 import { getGenshinDataFilePath } from '../../loadenv.ts';
 import { getGenshinControl } from '../../domain/genshin/genshinControl.ts';
 import chalk from 'chalk';
-import { ReadableView } from '../../../shared/types/genshin/readable-types.ts';
+import { Readable } from '../../../shared/types/genshin/readable-types.ts';
 import { AchievementExcelConfigData } from '../../../shared/types/genshin/achievement-types.ts';
 import { selectTutorials } from '../../domain/genshin/archive/tutorials.ts';
 import { TutorialsByType } from '../../../shared/types/genshin/tutorial-types.ts';
@@ -24,8 +24,8 @@ export async function importSearchIndex() {
   // --------------------------------------------------------------------------------------------------------------
   {
     process.stdout.write(chalk.bold('Generating readable index...'));
-    const archive = await ctrl.selectReadableArchiveView();
-    const readableList: ReadableView[] = [
+    const archive = await ctrl.selectReadableArchive();
+    const readableList: Readable[] = [
       ...archive.Artifacts,
       ...archive.Weapons,
       ...archive.Materials,

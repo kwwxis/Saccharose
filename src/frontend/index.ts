@@ -28,6 +28,10 @@ import './pages/generic/basic/VueTest.page.ts';
 import './pages/generic/auth/WikiLogin.page.ts';
 import './pages/generic/auth/Settings.page.ts';
 
+// More
+// ----------------------------------------------------------------------------------------------------
+import './intervals/genshin/genshin-readable-text-module.ts';
+
 // Genshin Dialogue Pages
 // ----------------------------------------------------------------------------------------------------
 import './pages/genshin/dialogue/branch_dialogue.ts';

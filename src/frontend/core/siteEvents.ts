@@ -18,12 +18,21 @@ import { enableAceInterval } from './intervalActions/enableAceInterval.ts';
 
 const SITE_INTERVAL_MS: number = 500;
 
+const otherIntervalFunctions: Function[] = [];
+
+export function registerSiteIntervalFunction(fn: Function) {
+  otherIntervalFunctions.push(fn);
+}
+
 function siteIntervalFunction() {
   enableAceInterval();
   tooltipInterval();
   enableReadonlyInterval();
   enableOLActionsInterval();
   timestampInterval();
+  for (let otherIntervalFunction of otherIntervalFunctions) {
+    otherIntervalFunction();
+  }
 }
 
 runWhenDOMContentLoaded(() => {

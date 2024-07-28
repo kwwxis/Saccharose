@@ -17,11 +17,6 @@ import {
 import { FurnitureMakeExcelConfigData } from '../../../shared/types/genshin/homeworld-types.ts';
 import { GCGCharacterLevelExcelConfigData, GCGWeekLevelExcelConfigData } from '../../../shared/types/genshin/gcg-types.ts';
 import { DocumentExcelConfigData } from '../../../shared/types/genshin/readable-types.ts';
-import {
-  InterActionDialog,
-  InterActionFile,
-  InterActionNextDialogs,
-} from '../../../shared/types/genshin/interaction-types.ts';
 
 export const RAW_MANUAL_TEXTMAP_ID_PROP: string = 'textMapId';
 

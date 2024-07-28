@@ -1,6 +1,6 @@
 import { create } from '../../../routing/router.ts';
 import { getGenshinControl } from '../../../domain/genshin/genshinControl.ts';
-import { BookSuitExcelConfigData, ReadableView } from '../../../../shared/types/genshin/readable-types.ts';
+import { BookSuitExcelConfigData, Readable } from '../../../../shared/types/genshin/readable-types.ts';
 import { ol_combine_results, ol_gen_from_id, OLResult } from '../../../domain/abstract/basic/OLgen.ts';
 import {
   getCityIdsWithViewpoints,
@@ -65,7 +65,7 @@ export default async function(): Promise<Router> {
         LoadCodex: true,
       });
 
-      let readable = await ctrl.selectReadableView(material.Id);
+      let readable = await ctrl.selectReadable(material.Id);
       if (!readable || !readable.Material || readable.Material.Id !== material.Id) {
         readable = null;
       }
@@ -324,7 +324,7 @@ export default async function(): Promise<Router> {
 
   router.get('/readables', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
-    const archive = await ctrl.selectReadableArchiveView();
+    const archive = await ctrl.selectReadableArchive();
 
     res.render('pages/genshin/archive/readables', {
       title: 'Books & Readables',
@@ -366,7 +366,7 @@ export default async function(): Promise<Router> {
 
   router.get('/readables/item/:itemId', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
-    const readable: ReadableView = await ctrl.selectReadableView(toInt(req.params.itemId));
+    const readable: Readable = await ctrl.selectReadable(toInt(req.params.itemId));
 
     res.render('pages/genshin/archive/readable-single', {
       title: readable?.TitleText || 'Not Found',

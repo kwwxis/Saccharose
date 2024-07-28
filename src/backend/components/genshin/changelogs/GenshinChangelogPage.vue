@@ -434,7 +434,7 @@
               </a>
               <div style="padding-left:20px">
                 <div class="w100p" v-for="readable of collection.Books">
-                  <GenshinReadableLink :readable-view="readable" />
+                  <GenshinReadableLink :readable="readable" />
                 </div>
               </div>
             </div>
@@ -444,7 +444,7 @@
           <h4 class="content" style="padding-bottom:0">Quest Items</h4>
           <div class="content dispFlex flexWrap alignStart">
             <div class="w50p" v-for="readable of newSummary.readables.Materials.filter(v => v?.Material?.MaterialType === 'MATERIAL_QUEST')">
-              <GenshinReadableLink :readable-view="readable" />
+              <GenshinReadableLink :readable="readable" />
             </div>
           </div>
         </template>
@@ -452,7 +452,7 @@
           <h4 class="content" style="padding-bottom:0">Glider Descriptions</h4>
           <div class="content dispFlex flexWrap alignStart">
             <div class="w50p" v-for="readable of newSummary.readables.Materials.filter(v => v?.Material?.MaterialType === 'MATERIAL_FLYCLOAK')">
-              <GenshinReadableLink :readable-view="readable" />
+              <GenshinReadableLink :readable="readable" />
             </div>
           </div>
         </template>
@@ -460,7 +460,7 @@
           <h4 class="content" style="padding-bottom:0">Costume Descriptions</h4>
           <div class="content dispFlex flexWrap alignStart">
             <div class="w50p" v-for="readable of newSummary.readables.Materials.filter(v => v?.Material?.MaterialType === 'MATERIAL_COSTUME')">
-              <GenshinReadableLink :readable-view="readable" />
+              <GenshinReadableLink :readable="readable" />
             </div>
           </div>
         </template>
@@ -468,7 +468,7 @@
           <h4 class="content" style="padding-bottom:0">Weapons</h4>
           <div class="content dispFlex flexWrap alignStart">
             <div class="w50p" v-for="readable of newSummary.readables.Weapons">
-              <GenshinReadableLink :readable-view="readable" />
+              <GenshinReadableLink :readable="readable" />
             </div>
           </div>
         </template>
@@ -476,7 +476,7 @@
           <h4 class="content" style="padding-bottom:0">Artifacts</h4>
           <div class="content dispFlex flexWrap alignStart">
             <div class="w50p" v-for="readable of newSummary.readables.Artifacts">
-              <GenshinReadableLink :readable-view="readable" />
+              <GenshinReadableLink :readable="readable" />
             </div>
           </div>
         </template>

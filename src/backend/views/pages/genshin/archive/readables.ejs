@@ -14,9 +14,9 @@
 <section class="card">
   <h2>Quest Items</h2>
   <div class="content dispFlex flexWrap alignStart">
-    <% for (let readableView of archive.Materials.filter(v => v?.Material?.MaterialType === 'MATERIAL_QUEST')) { %>
+    <% for (let readable of archive.Materials.filter(v => v?.Material?.MaterialType === 'MATERIAL_QUEST')) { %>
       <div class="w50p">
-        <%- use('partials/genshin/archive/readable-link', { readableView }) %>
+        <%- use('partials/genshin/archive/readable-link', { readable }) %>
       </div>
     <% } %>
   </div>
@@ -24,9 +24,9 @@
 <section class="card">
   <h2>Glider Descriptions</h2>
   <div class="content dispFlex flexWrap alignStart">
-    <% for (let readableView of archive.Materials.filter(v => v?.Material?.MaterialType === 'MATERIAL_FLYCLOAK')) { %>
+    <% for (let readable of archive.Materials.filter(v => v?.Material?.MaterialType === 'MATERIAL_FLYCLOAK')) { %>
       <div class="w50p">
-        <%- use('partials/genshin/archive/readable-link', { readableView }) %>
+        <%- use('partials/genshin/archive/readable-link', { readable }) %>
       </div>
     <% } %>
   </div>
@@ -34,9 +34,9 @@
 <section class="card">
   <h2>Costume Descriptions</h2>
   <div class="content dispFlex flexWrap alignStart">
-    <% for (let readableView of archive.Materials.filter(v => v?.Material?.MaterialType === 'MATERIAL_COSTUME')) { %>
+    <% for (let readable of archive.Materials.filter(v => v?.Material?.MaterialType === 'MATERIAL_COSTUME')) { %>
       <div class="w50p">
-        <%- use('partials/genshin/archive/readable-link', { readableView }) %>
+        <%- use('partials/genshin/archive/readable-link', { readable }) %>
       </div>
     <% } %>
   </div>
@@ -44,9 +44,9 @@
 <section class="card">
   <h2>Weapons</h2>
   <div class="content dispFlex flexWrap alignStart">
-    <% for (let readableView of archive.Weapons) { %>
+    <% for (let readable of archive.Weapons) { %>
       <div class="w50p">
-        <%- use('partials/genshin/archive/readable-link', { readableView }) %>
+        <%- use('partials/genshin/archive/readable-link', { readable }) %>
       </div>
     <% } %>
   </div>
@@ -54,9 +54,9 @@
 <section class="card">
   <h2>Artifacts</h2>
   <div class="content dispFlex flexWrap alignStart">
-    <% for (let readableView of archive.Artifacts) { %>
+    <% for (let readable of archive.Artifacts) { %>
       <div class="w50p">
-        <%- use('partials/genshin/archive/readable-link', { readableView }) %>
+        <%- use('partials/genshin/archive/readable-link', { readable }) %>
       </div>
     <% } %>
   </div>

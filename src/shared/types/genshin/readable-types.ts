@@ -15,20 +15,27 @@ import { ReliquaryCodexExcelConfigData, ReliquaryExcelConfigData, ReliquarySetEx
 import { WeaponExcelConfigData } from './weapon-types.ts';
 import { MainQuestExcelConfigData } from './quest-types.ts';
 import { Marker } from '../../util/highlightMarker.ts';
+import { LangCode, LangCodeMap } from '../lang-types.ts';
 
-export interface ReadableSearchView {
-  TitleResults: ReadableView[]
-  ContentResults: ReadableView[]
+// Search View
+// --------------------------------------------------------------------------------------------------------------
+
+export interface ReadableSearchResult {
+  TitleResults: Readable[]
+  ContentResults: Readable[]
 }
 
 // Book View
 // --------------------------------------------------------------------------------------------------------------
 
-export interface ReadableView extends Readable {
+export interface Readable {
   Id: number,
   TitleText?: string,
   TitleTextMapHash?: number,
   Icon?: string,
+
+  Document: DocumentExcelConfigData,
+  Items: ReadableItem[],
 
   Material?: MaterialExcelConfigData,
   BookSuit?: BookSuitExcelConfigData,
@@ -41,16 +48,19 @@ export interface ReadableView extends Readable {
   Weapon?: WeaponExcelConfigData,
 }
 
-export interface ReadableArchiveView {
+export interface ReadableArchive {
   BookCollections: {[suitId: number]: BookSuitExcelConfigData};
-  Materials: ReadableView[];
-  Artifacts: ReadableView[];
-  Weapons: ReadableView[];
+  Materials: Readable[];
+  Artifacts: Readable[];
+  Weapons: Readable[];
 }
 
-// Book Types
+// Book Suite Types
 // --------------------------------------------------------------------------------------------------------------
 
+/**
+ * Sort order within a BookCodex
+ */
 export interface BooksCodexExcelConfigData {
   Id: number,
   MaterialId: number,
@@ -58,36 +68,44 @@ export interface BooksCodexExcelConfigData {
   IsDisuse: boolean,
 }
 
+/**
+ * Collection of multiple readables within a Book Suite
+ */
 export interface BookSuitExcelConfigData {
   Id: number,
   SuitNameTextMapHash: number,
   SuitNameText?: string,
-  Books?: ReadableView[],
+  Books?: Readable[],
 }
 
-// Common Readable
+// Readable Item
 // --------------------------------------------------------------------------------------------------------------
 
-export interface ReadableItem {
-  Index: number,
-  IsAlternate: boolean,
-  Localization: LocalizationExcelConfigData,
-  LocalizationName: string,
-  ReadableText: string,
-  ReadableTextAsDialogue: string,
-  ReadableTextAsTemplate: string,
-  ReadableImages: string[],
-  MainQuestTrigger?: MainQuestExcelConfigData,
+export interface ReadableText {
+  LangCode: LangCode,
+  LangPath: string,
+
+  AsNormal: string,
+  AsDialogue: string,
+  AsTemplate: string,
+
   Markers?: {
-    ReadableText?: Marker[],
-    ReadableTextAsDialogue?: Marker[],
-    ReadableTextAsTemplate?: Marker[],
+    AsNormal?: Marker[],
+    AsDialogue?: Marker[],
+    AsTemplate?: Marker[],
   }
 }
 
-export interface Readable {
-  Document: DocumentExcelConfigData,
-  Items: ReadableItem[],
+export interface ReadableItem {
+  Page: number,
+  IsAlternate: boolean,
+  Localization: LocalizationExcelConfigData,
+  ReadableImages: string[],
+  MainQuestTrigger?: MainQuestExcelConfigData,
+
+  ReadableText: ReadableText,
+
+  Expanded?: ReadableText[]
 }
 
 export const LANG_CODE_TO_LOCALIZATION_PATH_PROP = {
@@ -137,6 +155,7 @@ export interface DocumentExcelConfigData {
   Id: number,
   TitleTextMapHash: number,
   TitleText?: string,
+  TitleTextMap?: LangCodeMap,
   PreviewPath: string,
   DocumentType?: 'Video' | undefined,
   VideoPath?: string,

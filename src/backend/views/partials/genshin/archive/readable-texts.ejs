@@ -1,98 +1,84 @@
-<div>
+<div class="readable-text-module-container">
   <% readable.Items.forEach((item, itemIdx) => {
-    let itemRef = (locals.itemIdPrefix ? locals.itemIdPrefix + '-' : '') + itemIdx;
+    let itemRef = `readable-${readable.Id}-${itemIdx}`;
+    let selRef = `.readable-text-module[data-ref="${itemRef}"]`;
   %>
-  <div class="card" style="margin:0">
-    <h3><%= item.IsAlternate ? 'Alternate ' : '' %>Page &ndash; <%= item.Index + 1 %></h3>
-    <div class="tab-list secondary" role="tablist">
-      <button role="tab" id="tab-<%= itemRef %>-text" class="tab active"
+  <div class="card readable-text-module readable-text-module--not-loaded" style="margin:0" data-ref="<%= itemRef %>">
+    <input type="hidden" name="readable-text-module-data" value="<%= JSON.stringify(item.Expanded) %>" />
+    <h3><%= item.IsAlternate ? 'Alternate ' : '' %>Page &ndash; <%= item.Page %></h3>
+    <div class="tab-list secondary valign" role="tablist">
+      <button role="tab" id="tab-<%= itemRef %>-text" class="tab main-tab active"
               ui-action="tab: #tabpanel-<%= itemRef %>-text, tabgroup-<%= itemRef %>">Text</button>
-      <button role="tab" id="tab-<%= itemRef %>-dialogue" class="tab"
+      <button role="tab" id="tab-<%= itemRef %>-dialogue" class="tab main-tab"
               ui-action="tab: #tabpanel-<%= itemRef %>-dialogue, tabgroup-<%= itemRef %>">As Dialogue</button>
-      <button role="tab" id="tab-<%= itemRef %>-template" class="tab"
+      <button role="tab" id="tab-<%= itemRef %>-template" class="tab main-tab"
               ui-action="tab: #tabpanel-<%= itemRef %>-template, tabgroup-<%= itemRef %>">As Template</button>
       <% if (item.ReadableImages && item.ReadableImages.length) { %>
-        <button role="tab" id="tab-<%= itemRef %>-images" class="tab"
+        <button role="tab" id="tab-<%= itemRef %>-images" class="tab main-tab"
                 ui-action="tab: #tabpanel-<%= itemRef %>-images, tabgroup-<%= itemRef %>">Images</button>
       <% } %>
+      <div class="grow"></div>
+      <% for (let expanded of item.Expanded) { %>
+        <button role="tab" id="tab-<%= itemRef %>-lang-<%= expanded.LangCode %>" data-lang="<%= expanded.LangCode %>"
+                class="tab<%= expanded.LangCode === item.ReadableText.LangCode ? ' active' : '' %> small lang-switch-tab"
+                ><%= expanded.LangCode %></button>
+      <% } %>
     </div>
-    <div role="tabpanel" aria-labelledby="tab-<%= itemRef %>-text" class="tabpanel content active" id="tabpanel-<%= itemRef %>-text">
+    <div role="tabpanel" aria-labelledby="tab-<%= itemRef %>-text" class="tabpanel content active" id="tabpanel-<%= itemRef %>-text" data-for="text">
       <div class="valign spacer5-bottom">
-        <div class="valign meta-props no-margin">
-          <div class="prop">
-            <span class="prop-label">Loc Name</span>
-            <span class="prop-values">
-              <span class="prop-value"><%= item.LocalizationName %></span>
-            </span>
-          </div>
-          <% if (item.MainQuestTrigger) { %>
-            <div class="prop">
-              <span class="prop-label">Quest Condition</span>
-              <span class="prop-values">
-                <a href="/genshin/quests/<%= item.MainQuestTrigger.Id %>" class="prop-value"
-                   ui-tippy-hover="<%= item.MainQuestTrigger.TitleText %>"><%= item.MainQuestTrigger.Id %></a>
-                <span class="prop-value"><%= item.MainQuestTrigger.TitleText %></span>
-              </span>
-            </div>
-          <% } %>
-        </div>
+        <%- use('partials/genshin/archive/readable-texts-meta-props', { item }) %>
         <div class="grow"></div>
-        <button class="secondary small" ui-action="copy: #wikitext-<%= itemRef %>-text"
+        <button class="secondary small"
+                ui-action="copy: <%= selRef %> .tabpanel[data-for='text'] .wikitext-container .wikitext.active"
                 ui-tippy-hover="Click to copy to clipboard"
                 ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">Copy</button>
       </div>
-      <textarea id="wikitext-<%= itemRef %>-text" readonly
-                data-markers="<%= Marker.joining(item.Markers?.ReadableText) %>"
-                class="w100p wikitext autosize" spellcheck="false" translate="no"
-                style="padding-right:46px"><%= item.ReadableText %></textarea>
+      <div class="wikitext-container" data-for="text">
+        <textarea readonly data-lang="<%= item.ReadableText.LangCode %>"
+                  data-markers="<%= Marker.joining(item.ReadableText.Markers?.AsNormal) %>"
+                  class="w100p wikitext autosize active" spellcheck="false" translate="no"
+                  style="padding-right:46px"><%= item.ReadableText.AsNormal %></textarea>
+      </div>
     </div>
 
-    <div role="tabpanel" aria-labelledby="tab-<%= itemRef %>-dialogue" class="tabpanel content hide" id="tabpanel-<%= itemRef %>-dialogue">
+    <div role="tabpanel" aria-labelledby="tab-<%= itemRef %>-dialogue" class="tabpanel content hide" id="tabpanel-<%= itemRef %>-dialogue" data-for="dialogue">
       <div class="valign spacer5-bottom">
-        <div class="valign meta-props no-margin">
-          <div class="prop">
-            <span class="prop-label">Loc Name</span>
-            <span class="prop-values">
-              <span class="prop-value"><%= item.LocalizationName %></span>
-            </span>
-          </div>
-        </div>
+        <%- use('partials/genshin/archive/readable-texts-meta-props', { item }) %>
         <div class="grow"></div>
         <button class="dialogue-indent-button secondary small plus" ui-tippy-hover="Increase indent"
-                ui-action="wikitext-indent: #wikitext-<%= itemRef %>-dialogue, increase"><%- icon('plus', 16) %></button>
+                ui-action="wikitext-indent: <%= selRef %> .tabpanel[data-for='dialogue'] .wikitext-container .wikitext.active, increase"><%- icon('plus', 16) %></button>
         <button class="dialogue-indent-button secondary small minus" ui-tippy-hover="Decrease indent"
-                ui-action="wikitext-indent: #wikitext-<%= itemRef %>-dialogue, decrease"><%- icon('minus', 16) %></button>
-        <button class="secondary small spacer3-left" ui-action="copy: #wikitext-<%= itemRef %>-dialogue"
+                ui-action="wikitext-indent: <%= selRef %> .tabpanel[data-for='dialogue'] .wikitext-container .wikitext.active, decrease"><%- icon('minus', 16) %></button>
+        <button class="secondary small spacer3-left"
+                ui-action="copy: <%= selRef %> .tabpanel[data-for='dialogue'] .wikitext-container .wikitext.active"
                 ui-tippy-hover="Click to copy to clipboard"
                 ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">Copy</button>
       </div>
-      <textarea id="wikitext-<%= itemRef %>-dialogue" readonly
-                data-markers="<%= Marker.joining(item.Markers?.ReadableTextAsDialogue) %>"
-                class="w100p wikitext autosize" spellcheck="false" translate="no"><%= item.ReadableTextAsDialogue %></textarea>
+      <div class="wikitext-container" data-for="dialogue">
+        <textarea readonly data-lang="<%= item.ReadableText.LangCode %>"
+                  data-markers="<%= Marker.joining(item.ReadableText.Markers?.AsDialogue) %>"
+                  class="w100p wikitext autosize active" spellcheck="false" translate="no"><%= item.ReadableText.AsDialogue %></textarea>
+      </div>
     </div>
 
-    <div role="tabpanel" aria-labelledby="tab-<%= itemRef %>-template" class="tabpanel content hide" id="tabpanel-<%= itemRef %>-template">
+    <div role="tabpanel" aria-labelledby="tab-<%= itemRef %>-template" class="tabpanel content hide" id="tabpanel-<%= itemRef %>-template" data-for="template">
       <div class="valign spacer5-bottom">
-        <div class="valign meta-props no-margin">
-          <div class="prop">
-            <span class="prop-label">Loc Name</span>
-            <span class="prop-values">
-              <span class="prop-value"><%= item.LocalizationName %></span>
-            </span>
-          </div>
-        </div>
+        <%- use('partials/genshin/archive/readable-texts-meta-props', { item }) %>
         <div class="grow"></div>
-        <button class="secondary small" ui-action="copy: #wikitext-<%= itemRef %>-template"
+        <button class="secondary small"
+                ui-action="copy: <%= selRef %> .tabpanel[data-for='template'] .wikitext-container .wikitext.active"
                 ui-tippy-hover="Click to copy to clipboard"
                 ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">Copy</button>
       </div>
-      <textarea id="wikitext-<%= itemRef %>-template" readonly
-                data-markers="<%= Marker.joining(item.Markers?.ReadableTextAsTemplate) %>"
-                class="w100p wikitext autosize" spellcheck="false" translate="no"><%= item.ReadableTextAsTemplate %></textarea>
+      <div class="wikitext-container" data-for="template">
+        <textarea readonly data-lang="<%= item.ReadableText.LangCode %>"
+                  data-markers="<%= Marker.joining(item.ReadableText.Markers?.AsTemplate) %>"
+                  class="w100p wikitext autosize active" spellcheck="false" translate="no"><%= item.ReadableText.AsTemplate %></textarea>
+      </div>
     </div>
 
     <% if (item.ReadableImages && item.ReadableImages.length) { %>
-      <div role="tabpanel" aria-labelledby="tab-<%= itemRef %>-images" class="tabpanel content hide" id="tabpanel-<%= itemRef %>-images">
+      <div role="tabpanel" aria-labelledby="tab-<%= itemRef %>-images" class="tabpanel content hide" id="tabpanel-<%= itemRef %>-images" data-for="images">
         <% for (let image of item.ReadableImages) { %>
           <fieldset class="spacer5-top">
             <legend><%= image %></legend>

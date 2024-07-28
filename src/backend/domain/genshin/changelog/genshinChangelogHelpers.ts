@@ -6,7 +6,7 @@ import {
   GCGCardExcelConfigData, GCGCharExcelConfigData,
   GCGGameExcelConfigData,
 } from '../../../../shared/types/genshin/gcg-types.ts';
-import { ReadableArchiveView } from '../../../../shared/types/genshin/readable-types.ts';
+import { ReadableArchive } from '../../../../shared/types/genshin/readable-types.ts';
 import {
   ChapterCollection,
   ChapterExcelConfigData,
@@ -45,7 +45,7 @@ export type GenshinChangelogNewRecordSummary = {
   tcgActionCards: GCGCardExcelConfigData[],
   tcgStages: GCGGameExcelConfigData[],
 
-  readables: ReadableArchiveView,
+  readables: ReadableArchive,
 
   chapters: ChapterCollection,
   nonChapterQuests: MainQuestExcelConfigData[],
@@ -178,8 +178,8 @@ export async function _generateGenshinChangelogNewRecordSummary(ctrl: GenshinCon
       disableTalkLoad: true,
     })).then(ret => out.tcgStages = ret),
 
-    newIntKeysOf('DocumentExcelConfigData').asyncMap(id => ctrl.selectReadableView(id, false)).then(readables => {
-      out.readables = ctrl.generateReadableArchiveView(readables);
+    newIntKeysOf('DocumentExcelConfigData').asyncMap(id => ctrl.selectReadable(id, false)).then(readables => {
+      out.readables = ctrl.generateReadableArchive(readables);
     }),
 
     newIntKeysOf('AvatarExcelConfigData').asyncMap(avatarId => ctrl.selectAvatarById(avatarId)).then(avatars => out.avatars = avatars),

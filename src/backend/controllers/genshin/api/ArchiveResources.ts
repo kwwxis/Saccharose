@@ -1,6 +1,6 @@
 import { create } from '../../../routing/router.ts';
 import { getGenshinControl } from '../../../domain/genshin/genshinControl.ts';
-import { ReadableSearchView } from '../../../../shared/types/genshin/readable-types.ts';
+import { ReadableSearchResult } from '../../../../shared/types/genshin/readable-types.ts';
 import { MaterialExcelConfigData } from '../../../../shared/types/genshin/material-types.ts';
 import { WeaponExcelConfigData } from '../../../../shared/types/genshin/weapon-types.ts';
 import { AchievementExcelConfigData } from '../../../../shared/types/genshin/achievement-types.ts';
@@ -17,15 +17,15 @@ router.endpoint('/readables/search', {
   get: async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
 
-    let readableSearchView: ReadableSearchView = await ctrl.searchReadableView(req.query.text as string);
+    let searchView: ReadableSearchResult = await ctrl.searchReadables(req.query.text as string);
 
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
       return res.render('partials/genshin/archive/readable-search-results', {
-        searchView: readableSearchView,
+        searchView: searchView,
         searchText: req.query.text as string
       });
     } else {
-      return readableSearchView;
+      return searchView;
     }
   }
 });

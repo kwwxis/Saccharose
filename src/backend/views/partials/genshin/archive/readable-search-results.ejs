@@ -5,22 +5,22 @@
   <section class="card">
     <h2>Title Match Results</h2>
     <div class="content dispFlex flexWrap alignStart">
-      <% for (let readableView of searchView.TitleResults) { %>
+      <% for (let readable of searchView.TitleResults) { %>
         <div class="w100p">
-          <%- use('partials/genshin/archive/readable-link', { readableView }) %>
+          <%- use('partials/genshin/archive/readable-link', { readable }) %>
         </div>
       <% } %>
     </div>
   </section>
 <% } %>
 <% if (searchView.ContentResults.length) { %>
-  <% searchView.ContentResults.forEach((readableView, idx) => { %>
+  <% searchView.ContentResults.forEach((readable, idx) => { %>
     <section class="card">
       <h2>Content Match Result #<%= idx + 1 %></h2>
       <div class="content">
-        <%- use('partials/genshin/archive/readable-link', { readableView }) %>
+        <%- use('partials/genshin/archive/readable-link', { readable }) %>
         <div class="spacer3-all">
-          <%- use('partials/genshin/archive/readable-texts', {readable: readableView, itemIdPrefix: idx}) %>
+          <%- use('partials/genshin/archive/readable-texts', {readable: readable}) %>
         </div>
       </div>
     </section>

@@ -1,5 +1,5 @@
 import { ItemRelationMap } from './material-types.ts';
-import { ReadableView } from './readable-types.ts';
+import { Readable } from './readable-types.ts';
 
 export type WeaponType = 'WEAPON_BOW' | 'WEAPON_CATALYST' | 'WEAPON_CLAYMORE' | 'WEAPON_POLE' | 'WEAPON_SWORD_ONE_HAND';
 export type WeaponTypeEN = 'Bow' | 'Catalyst' | 'Claymore' | 'Polearm' | 'Sword';
@@ -18,7 +18,7 @@ export interface WeaponExcelConfigData {
   AwakenIcon: string,
   WeaponPromoteId: number,
   StoryId: number,
-  Story?: ReadableView,
+  Story?: Readable,
   GachaCardNameHash: string,
   DestroyRule?: 'DESTROY_RETURN_MATERIAL',
   DestroyReturnMaterial: number[],
