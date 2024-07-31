@@ -496,9 +496,9 @@ export class RequestContext {
                 id: 'general-archive',
                 name: 'General Archive',
                 items: [
-                  { id: 'achievements', name: 'Achievements', link: '/genshin/achievements', bodyClass: 'page--achievements', rightSideButton: { name: 'Search', link: '/achievements/search' } },
+                  { id: 'achievements', name: 'Achievements', link: '/genshin/achievements', bodyClass: 'page--achievements', rightSideButton: { name: 'Search', link: '/genshin/achievements/search' } },
                   { id: 'loading-tips', name: 'Loading Tips', link: '/genshin/loading-tips', bodyClass: 'page--loading-tips' },
-                  { id: 'tutorials', name: 'Tutorials', link: '/genshin/tutorials', bodyClass: 'page--tutorials', rightSideButton: { name: 'Search', link: '/tutorials/search' } },
+                  { id: 'tutorials', name: 'Tutorials', link: '/genshin/tutorials', bodyClass: 'page--tutorials', rightSideButton: { name: 'Search', link: '/genshin/tutorials/search' } },
                   { id: 'viewpoints', name: 'Viewpoints', link: '/genshin/viewpoints', bodyClass: 'page--viewpoints' },
                 ]
               },
