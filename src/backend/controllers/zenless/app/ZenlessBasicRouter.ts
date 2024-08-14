@@ -1,5 +1,6 @@
 import { create } from '../../../routing/router.ts';
 import { Request, Response, Router } from 'express';
+import ZenlessDialogueHelperPage from '../../../components/zenless/ZenlessDialogueHelperPage.vue';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -20,6 +21,13 @@ export default async function(): Promise<Router> {
       title: 'OL',
       bodyClass: ['page--OL'],
       hideTlOption: true
+    });
+  });
+
+  router.get('/dialogue-helper', async (req: Request, res: Response) => {
+    res.render(ZenlessDialogueHelperPage, {
+      title: 'Dialogue Helper',
+      bodyClass: ['page--dialogue-helper']
     });
   });
 

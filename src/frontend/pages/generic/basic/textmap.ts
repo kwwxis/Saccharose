@@ -12,7 +12,6 @@ import { frag } from '../../../util/domutil.ts';
 import { listen } from '../../../util/eventListen.ts';
 import SiteMode from '../../../core/userPreferences/siteMode.ts';
 import { highlightReplace } from '../../../core/ace/aceHighlight.ts';
-import Cookies from 'js-cookie';
 
 pageMatch('pages/generic/basic/textmap', () => {
   let handle: GenericSearchPageHandle;
@@ -45,7 +44,7 @@ pageMatch('pages/generic/basic/textmap', () => {
     {
       selector: '#versionFilterEnabled',
       event: 'input',
-      handle(ev) {
+      handle(_ev) {
         const checkbox = document.querySelector<HTMLInputElement>('#versionFilterEnabled');
         if (checkbox.checked) {
           document.querySelector('#versionFilterOuter').classList.remove('hide');

@@ -278,6 +278,11 @@ export const zenlessEndpoints = {
     resultSetNum: number,
   }>('/search-textmap'),
 
+  dialogueHelper: new ZenlessApiEndpoint<{
+    text: string,
+    hashSearch: boolean,
+  }>('/dialogue-helper'),
+
   getExcelUsages: new ZenlessApiEndpoint<{q: string}>('/excel-usages'),
 };
 

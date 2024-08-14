@@ -643,6 +643,7 @@ export class RequestContext {
                 items: [
                   { id: 'textmap-search', name: 'Textmap Search', link: '/zenless/textmap',  bodyClass: 'page--textmap' },
                   { id: 'ol-generator', name: 'OL Generator', link: '/zenless/OL', bodyClass: 'page--OL' },
+                  { id: 'dialogue-helper', name: 'Dialogue Helper', link: '/zenless/dialogue-helper', bodyClass: 'page--dialogue-helper' },
                   // { id: 'excel-usages', name: 'Excel Usages', link: '/zenless/excel-usages', bodyClass: 'page--excel-usages' },
                 ]
               }

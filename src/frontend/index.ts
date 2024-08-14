@@ -80,6 +80,10 @@ import './pages/wuwa/media/wuwa-media-list.page.ts';
 // ----------------------------------------------------------------------------------------------------
 import './pages/wuwa/resonator/wuwa-vo-tool.ts';
 
+// ZENLESS
+// ----------------------------------------------------------------------------------------------------
+import './pages/zenless/zenless-dialogue-helper-page.ts';
+
 // Expose certain functions to global scope for debugging purposes
 // ----------------------------------------------------------------------------------------------------
 import { escapeHtml } from '../shared/util/stringUtil.ts';
