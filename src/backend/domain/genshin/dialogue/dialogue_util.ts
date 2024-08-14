@@ -57,6 +57,7 @@ export class DialogueSectionResult {
     questName?: string
   } = {};
   showGutter: boolean = false;
+  showTextMapHash: boolean = false;
   similarityGroupId: number = null;
   copyAllSep: string = '\n';
 

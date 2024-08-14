@@ -34,7 +34,7 @@ export const zenlessSchema = {
 
   ItemTemplateTb: <SchemaTable> {
     name: 'ItemTemplateTb',
-    jsonFile: './ExcelBinOutput/ItemTemplateTb.json',
+    jsonFile: './FileCfg/ItemTemplateTb.json',
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
       { name: 'TitleTextMapHash', type: 'integer', isIndex: true },

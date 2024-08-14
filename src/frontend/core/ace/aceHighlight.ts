@@ -21,6 +21,7 @@ export type BaseHighlightOptions = {
   mode: string,
   gutters?: boolean,
   markers?: string|(Marker|string)[],
+  showTextMapHash?: boolean,
   markerAdjustments?: MarkerAdjustment[],
   commonLineIds?: CommonLineId[],
   isWikiTemplateFragment?: boolean,
@@ -120,7 +121,7 @@ export function highlight(opts: HighlightOptions): HTMLElement {
 
       const commonLineId = opts.commonLineIds[ix];
       if (commonLineId) {
-        textLayerSb.push(`<div class="ace_line" data-line-idx="${ix}" data-line-num="${ix+1}"${
+        textLayerSb.push(`<div class="ace_line${opts.showTextMapHash ? ' show-textmaphash' : ''}" data-line-idx="${ix}" data-line-num="${ix+1}"${
           commonLineId.commonId ? ` data-id="${commonLineId.commonId}"` : ''
         }${
           commonLineId.textMapHash ? ` data-textMapHash="${commonLineId.textMapHash}"` : ''
@@ -128,8 +129,10 @@ export function highlight(opts: HighlightOptions): HTMLElement {
       } else {
         textLayerSb.push(`<div class="ace_line" data-line-idx="${ix}" data-line-num="${ix+1}">`);
       }
-      if (gutters)
-        textLayerSb.push(`<span class="ace_gutter ace_gutter-cell">` + /*(ix + lineStart) + */ `</span>`);
+      if (gutters) {
+        textLayerSb.push(`<span class="ace_gutter ace_gutter-cell">`); /*(ix + lineStart) + */
+        textLayerSb.push(`</span>`);
+      }
       textLayer.$renderLine(textLayerSb, ix, true, false);
       textLayerSb.push(`\n</div>`);
     }
@@ -396,6 +399,8 @@ export function highlightReplace(original: HTMLElement, opts: HighlightReplaceOp
     opts.markers = original.getAttribute('data-markers');
   if (original.hasAttribute('data-gutters'))
     opts.gutters = toBoolean(original.getAttribute('data-gutters'));
+  if (original.hasAttribute('data-show-text-map-hash'))
+    opts.showTextMapHash = toBoolean(original.getAttribute('data-show-text-map-hash'));
   if (original.hasAttribute('data-is-wiki-template-fragment'))
     opts.isWikiTemplateFragment = toBoolean(original.getAttribute('data-is-wiki-template-fragment'));
   if (original.hasAttribute('data-line-ids'))

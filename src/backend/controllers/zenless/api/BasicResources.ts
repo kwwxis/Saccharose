@@ -29,6 +29,8 @@ router.endpoint('/dialogue-helper', {
     const hashSearch: boolean = isset(req.query.hashSearch) && toBoolean(req.query.hashSearch);
 
     const section = new DialogueSectionResult('dialogue_helper', 'Result');
+    section.showGutter = true;
+    section.showTextMapHash = true;
 
     const wikitextResult: DialogWikitextResult = {
       wikitext: '',

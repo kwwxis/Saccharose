@@ -8,6 +8,7 @@
               :data-lazy-load="lazyLoad"
               :data-mode="props.mode"
               :data-gutters="props.gutters ? 'true' : null"
+              :data-show-text-map-hash="props.showTextMapHash ? 'true' : null"
               :data-markers="props.markers ? Marker.joining(props.markers) : null"
               :data-line-ids="props.lineIds ? stringifyCommonLineIds(props.lineIds) : null"
               :data-is-wiki-template-fragment="props.isWikiTemplateFragment ? 'true' : null"
@@ -22,6 +23,8 @@ export type AceProps = {
   id?: string,
 
   gutters?: boolean,
+  showTextMapHash?: boolean,
+
   seamless?: boolean,
   isWikiTemplateFragment?: boolean,
   lazyLoad?: boolean,

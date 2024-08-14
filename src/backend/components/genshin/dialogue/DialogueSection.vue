@@ -62,6 +62,7 @@
               :id="`wikitext-${section.id}`"
               :extra-class-names="['dialogue-section-wikitext', ... (parentIds || []).map(s => 'wikitext-childOf-' + s)]"
               :gutters="section.showGutter"
+              :show-text-map-hash="section.showTextMapHash"
               :markers="section.wikitextMarkers"
               :line-ids="section.wikitextLineIds"
               :value="section.wikitext" />
