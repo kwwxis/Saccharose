@@ -113,7 +113,7 @@ pageMatch('vue/WikiRevisionPage', async () => {
   state.revId = revId;
   state.page = page;
 
-  initSidebarStickyTop();
+  initSidebarStickyTop(state);
   initTabListeners(state);
   await revAppArticleSearch(state)
   await revAppArticlePage(state);
