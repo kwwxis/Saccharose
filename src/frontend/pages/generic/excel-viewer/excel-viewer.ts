@@ -1,11 +1,11 @@
 import { pageMatch } from '../../../core/pageMatch.ts';
 import {
-  ColDef,
-  ColumnApi, ColumnState,
+  ColDef, ColGroupDef,
+  ColumnState, createGrid,
   GetContextMenuItemsParams,
-  Grid,
   GridApi,
-  GridOptions,
+  GridOptions, GridReadyEvent,
+  ICellRendererParams,
   MenuItemDef,
 } from 'ag-grid-community';
 import { LicenseManager } from 'ag-grid-enterprise';
@@ -16,7 +16,6 @@ import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import './ag-grid-custom.scss';
 import { camelCaseToTitleCase, escapeHtml, isString, isStringArray } from '../../../../shared/util/stringUtil.ts';
-import { ColGroupDef } from 'ag-grid-community/dist/lib/entities/colDef';
 import { sort } from '../../../../shared/util/arrayUtil.ts';
 import { listen } from '../../../util/eventListen.ts';
 import {
@@ -25,13 +24,11 @@ import {
   downloadObjectAsJson, frag1,
   getTextWidth, hasSelection, waitForElementCb,
 } from '../../../util/domutil.ts';
-import { ICellRendererParams } from 'ag-grid-community/dist/lib/rendering/cellRenderers/iCellRenderer';
 import { isEmpty, isNotEmpty, isUnset } from '../../../../shared/util/genericUtil.ts';
 import { booleanFilter } from './excel-custom-filters.ts';
 import SiteMode from '../../../core/userPreferences/siteMode.ts';
 import { ExcelViewerDB, invokeExcelViewerDB } from './excel-viewer-storage.ts';
 import { StoreNames } from 'idb/build/entry';
-import { GridReadyEvent } from 'ag-grid-community/dist/lib/events';
 import { highlightJson, highlightWikitext } from '../../../core/ace/aceHighlight.ts';
 import { isNightmode, onSiteThemeChange } from '../../../core/userPreferences/siteTheme.ts';
 import { toInt } from '../../../../shared/util/numberUtil.ts';
@@ -367,7 +364,7 @@ export function initExcelViewer(excelFileName: string, excelData: any[], include
     async onGridReady(event: GridReadyEvent) {
       const initialColumnState = await getPreferredColumnState();
       if (initialColumnState) {
-        event.columnApi.applyColumnState({
+        event.api.applyColumnState({
           state: initialColumnState,
           applyOrder: true
         });
@@ -415,13 +412,11 @@ export function initExcelViewer(excelFileName: string, excelData: any[], include
     }
   };
 
-  const grid: Grid = new Grid(gridEl, gridOptions);
-  const columnApi: ColumnApi = gridOptions.columnApi;
-  const gridApi: GridApi = gridOptions.api;
+  const gridApi: GridApi = createGrid(gridEl, gridOptions);
   const storeName: StoreNames<ExcelViewerDB> = `${SiteMode.storagePrefix}.ColumnState`;
 
   function getCurrentColumnState(): ColumnState[] {
-    return columnApi.getColumnState();
+    return gridApi.getColumnState();
   }
 
   async function getPreferredColumnState(): Promise<ColumnState[]> {
@@ -455,7 +450,7 @@ export function initExcelViewer(excelFileName: string, excelData: any[], include
           clearTimeout(quickFilterDebounceId);
         }
         quickFilterDebounceId = setTimeout(() => {
-          gridApi.setQuickFilter(target.value);
+          gridApi.setGridOption('quickFilterText', target.value);
         }, 150);
       }
     },
@@ -493,9 +488,7 @@ export function initExcelViewer(excelFileName: string, excelData: any[], include
     topEl,
     gridEl,
     gridLoadingEl,
-    grid,
     gridApi,
-    columnApi,
     getCurrentColumnState,
     getPreferredColumnState,
     savePreferredColumnState,
@@ -517,17 +510,14 @@ pageMatch('pages/generic/basic/excel-viewer-table', async () => {
 
   const {
     parentEl,
-    grid,
     gridApi,
-    columnApi,
     getCurrentColumnState,
     getPreferredColumnState,
     savePreferredColumnState
   } = initExcelViewer(excelFileName, excelData, true, containerEl);
 
-  (<any> window).grid = grid;
   (<any> window).gridApi = gridApi;
-  (<any> window).columnApi = columnApi;
+  (<any> window).gridElement = parentEl;
   (<any> window).getCurrentColumnState = getCurrentColumnState;
   (<any> window).getPreferredColumnState = getPreferredColumnState;
   (<any> window).savePreferredColumnState = savePreferredColumnState;
