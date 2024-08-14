@@ -32,8 +32,8 @@ import { ScriptJobCoordinator } from './util/scriptJobs.ts';
 import authRouter from './controllers/AuthRouter.ts';
 import { createSiteUserMiddlewareRouter } from './middleware/auth/siteUserMiddleware.ts';
 import visitorRouter from './controllers/visitor/VisitorRouter.ts';
-import { RequestContext } from './routing/requestContext.ts';
 import { reqContextInitMiddleware } from './routing/router.ts';
+import { enableRedisExitHook, openRedisClient } from './util/cache.ts';
 
 const app: Express = express();
 let didInit: boolean = false;
@@ -57,7 +57,9 @@ export async function appInit(): Promise<Express> {
   logInit(`Opening sqlite database and loading data resources`);
   openSqlite();
   openPg();
+  await openRedisClient();
   enableDbExitHook();
+  enableRedisExitHook();
   await loadGenshinVoiceItems();
   await loadStarRailVoiceItems();
   await loadGenshinTextSupportingData();

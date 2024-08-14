@@ -9,7 +9,7 @@ import path from 'path';
 import { cached } from '../../../util/cache.ts';
 
 async function getDeliciousCompositeBuffer(): Promise<Buffer> {
-  return cached('UI_CookIcon_Delicious', async () => {
+  return cached('Genshin:UI_CookIcon_Delicious', 'buffer', async () => {
     const filePath = path.resolve(IMAGEDIR_GENSHIN_STATIC, './UI_CookIcon_Delicious.png');
     return await sharp(filePath).toBuffer();
   });

@@ -1,6 +1,5 @@
 import '../../../loadenv.ts';
 import { closeKnex } from '../../../util/db.ts';
-import { cached } from '../../../util/cache.ts';
 import { pathToFileURL } from 'url';
 import path from 'path';
 import fs from 'fs';
@@ -23,7 +22,7 @@ import { toInt } from '../../../../shared/util/numberUtil.ts';
 
 export async function fetchVoiceAtlases(ctrl: StarRailControl, skipCache: boolean = false): Promise<VoiceAtlasGroupByAvatar> {
   if (!skipCache) {
-    return cached('StarRail_VoiceAtlasGroup', async () => {
+    return ctrl.cached('VoiceAtlasGroup', 'json', async () => {
       const filePath = path.resolve(process.env.HSR_DATA_ROOT, DATAFILE_HSR_VOICE_ATLASES);
       const result: VoiceAtlasGroupByAvatar = JSON.parse(fs.readFileSync(filePath, {encoding: 'utf8'}));
       return result;
@@ -36,10 +35,14 @@ export async function fetchVoiceAtlases(ctrl: StarRailControl, skipCache: boolea
 
   const avatarMap: {[avatarId: number]: AvatarConfig} = toMap(await ctrl.selectAllAvatars(), 'Id');
 
-  return cached('StarRail_VoiceAtlasGroup', async () => {
+  return ctrl.cached('VoiceAtlasGroup', 'json', async () => {
     let voiceAtlases: VoiceAtlas[] = await ctrl.readExcelDataFile('VoiceAtlas.json');
     let voiceAtlasGroupByAvatar: VoiceAtlasGroupByAvatar =
-      defaultMap((avatarId: number) => new VoiceAtlasGroup(avatarId));
+      defaultMap((avatarId: number) => <VoiceAtlasGroup> {
+        avatarId: avatarId,
+        storyAtlases: [],
+        combatAtlases: [],
+      });
 
     let unlockData: {[unlockId: number]: AtlasUnlockData} = await ctrl.readExcelDataFileToStream<AtlasUnlockData>('AtlasUnlockData.json')
       .toMap('UnlockId');

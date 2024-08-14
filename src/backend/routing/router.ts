@@ -3,7 +3,6 @@ import ejs from 'ejs';
 import path from 'path';
 import availableMethods from '../middleware/api/availableMethods.ts';
 import * as express from 'express';
-import { cachedSync } from '../util/cache.ts';
 import { ltrim, removeSuffix } from '../../shared/util/stringUtil.ts';
 import { EJS_DELIMITER, VIEWS_ROOT } from '../loadenv.ts';
 import { RequestContext, RequestContextUpdate } from './requestContext.ts';
@@ -32,6 +31,18 @@ function resolveViewPath(view: string): string {
   return path.resolve(VIEWS_ROOT, view + '.ejs');
 }
 
+const viewContentCache: Record<string, string> = {};
+
+function getViewContent(viewPath: string): string {
+  if (viewContentCache[viewPath]) {
+    return viewContentCache[viewPath];
+  } else {
+    let content = fs.readFileSync(viewPath, 'utf8');
+    viewContentCache[viewPath] = content;
+    return content;
+  }
+}
+
 function createIncludeFunction(req: Request, viewStackPointer: RequestViewStack): IncludeFunction {
   return function include(view: string, locals: RequestLocals = {}): string {
     if (req.context.virtualStaticViews[view]) {
@@ -41,7 +52,7 @@ function createIncludeFunction(req: Request, viewStackPointer: RequestViewStack)
     const viewPath = resolveViewPath(view);
     const viewContent = process.env.NODE_ENV === 'development'
       ? fs.readFileSync(viewPath, 'utf8')
-      : cachedSync(`viewContent:${viewPath}`, () => fs.readFileSync(viewPath, 'utf8'));
+      : getViewContent(viewPath)
 
     return ejs.render(
       viewContent,

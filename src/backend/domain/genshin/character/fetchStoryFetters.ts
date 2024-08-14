@@ -2,7 +2,6 @@ import '../../../loadenv.ts';
 import util from 'util';
 import { closeKnex } from '../../../util/db.ts';
 import { GenshinControl, getGenshinControl } from '../genshinControl.ts';
-import { cached } from '../../../util/cache.ts';
 import { processFetterConds } from './fetterConds.ts';
 import { resolveObjectPath } from '../../../../shared/util/arrayUtil.ts';
 import { FetterStoryExcelConfigData, StoryFetters, StoryFettersByAvatar } from '../../../../shared/types/genshin/fetter-types.ts';
@@ -13,7 +12,7 @@ import { mcify } from '../../abstract/genericNormalizers.ts';
 const sep: string = '</p><!--\n              --><p>';
 
 async function fetchAllFetterStoryExcelConfigData(ctrl: GenshinControl): Promise<FetterStoryExcelConfigData[]> {
-  return await cached('FetterStoryExcelConfigData_'+ctrl.outputLangCode, async () => {
+  return await ctrl.cached('Fetters:FetterStoryExcelConfigData:'+ctrl.outputLangCode, 'json', async () => {
     let records: FetterStoryExcelConfigData[] = await ctrl.readDataFile('./ExcelBinOutput/FetterStoryExcelConfigData.json');
     for (let fetter of records) {
       await processFetterConds(ctrl, fetter, 'OpenConds');
@@ -36,7 +35,7 @@ function updateStoryContextHtml(ctrl: GenshinControl, fetter: FetterStoryExcelCo
 }
 
 export async function fetchCharacterStories(ctrl: GenshinControl): Promise<StoryFettersByAvatar> {
-  return await cached('GroupedFetterStoryExcelConfigData_' + ctrl.outputLangCode, async () => {
+  return await ctrl.cached('Fetters:FetterStoryExcelConfigData:' + ctrl.outputLangCode, 'json', async () => {
     let fettersByAvatar: StoryFettersByAvatar = {};
     let allFetters = await fetchAllFetterStoryExcelConfigData(ctrl);
 
@@ -45,7 +44,12 @@ export async function fetchCharacterStories(ctrl: GenshinControl): Promise<Story
 
     for (let fetter of allFetters) {
       if (!fettersByAvatar.hasOwnProperty(fetter.AvatarId)) {
-        fettersByAvatar[fetter.AvatarId] = new StoryFetters();
+        fettersByAvatar[fetter.AvatarId] = <StoryFetters> {
+          fetters: [],
+          wikitext: '',
+          alteredWikitext: '',
+          hasAlteredStories: false,
+        };
 
         if (isTraveler(fetter.AvatarId, 'male'))
           maleMcStoryFetters = fettersByAvatar[fetter.AvatarId];

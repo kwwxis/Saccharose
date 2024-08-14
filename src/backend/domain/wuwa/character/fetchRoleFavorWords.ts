@@ -1,6 +1,5 @@
 import { pathToFileURL } from 'url';
 import { getWuwaControl, WuwaControl } from '../wuwaControl.ts';
-import { cached } from '../../../util/cache.ts';
 import path from 'path';
 import fs from 'fs';
 import { sort, toMap } from '../../../../shared/util/arrayUtil.ts';
@@ -19,7 +18,7 @@ import { toInt } from '../../../../shared/util/numberUtil.ts';
 
 export async function fetchFavorWords(ctrl: WuwaControl, skipCache: boolean = false): Promise<FavorWordGroupByRole> {
   if (!skipCache) {
-    return cached('WuWa_RoleFavorWordsGroup', async () => {
+    return this.cached('RoleFavor:RoleFavorWordsGroup', 'json', async () => {
       const filePath = path.resolve(process.env.WUWA_DATA_ROOT, DATAFILE_WUWA_ROLE_FAVOR_WORDS);
       const result: FavorWordGroupByRole = JSON.parse(fs.readFileSync(filePath, {encoding: 'utf8'}));
       return result;
@@ -32,10 +31,14 @@ export async function fetchFavorWords(ctrl: WuwaControl, skipCache: boolean = fa
 
   const roleInfoMap: {[roleId: number]: RoleInfo} = toMap(await ctrl.selectAllRoleInfo(), 'Id');
 
-  return cached('WuWa_RoleFavorWordsGroup', async () => {
+  return ctrl.cached('RoleFavor:RoleFavorWordsGroup', 'json', async () => {
     let favorWords: FavorWord[] = await ctrl.readExcelDataFile('FavorWord.json');
     let favorWordGroupsByRole: FavorWordGroupByRole =
-      defaultMap((avatarId: number) => new FavorWordGroup(avatarId));
+      defaultMap((roleId: number) => <FavorWordGroup> {
+        roleId: roleId,
+        storyFavorWords: [],
+        combatFavorWords: [],
+      });
 
     for (let favorWord of favorWords) {
       let agg: FavorWordGroup = favorWordGroupsByRole[favorWord.RoleId];

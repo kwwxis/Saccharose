@@ -62,7 +62,7 @@ export class StarRailControl extends AbstractControl<StarRailControlState> {
   readonly voice: StarRailVoice = new StarRailVoice();
 
   constructor(requestOrState?: Request|StarRailControlState) {
-    super('hsr', StarRailControlState, requestOrState);
+    super('hsr', 'StarRail', StarRailControlState, requestOrState);
     this.excelPath = './ExcelOutput';
     this.disabledLangCodes.add('IT');
     this.disabledLangCodes.add('TR');

@@ -3,7 +3,6 @@ import { GenshinControl, getGenshinControl, loadGenshinVoiceItems } from '../gen
 import { processFetterConds } from './fetterConds.ts';
 import { closeKnex } from '../../../util/db.ts';
 import { FetterGroup, FetterGroupByAvatar, FetterExcelConfigData } from '../../../../shared/types/genshin/fetter-types.ts';
-import { cached } from '../../../util/cache.ts';
 import { pathToFileURL } from 'url';
 import { fetchCharacterStories } from './fetchStoryFetters.ts';
 import chalk from 'chalk';
@@ -56,7 +55,7 @@ function getVoAvatarName(avatar: AvatarExcelConfigData, voiceItems: VoiceItem[])
 
 export async function fetchCharacterFetters(ctrl: GenshinControl, skipCache: boolean = false): Promise<FetterGroupByAvatar> {
   if (!skipCache) {
-    return cached('Genshin_FetterGroup', async () => {
+    return ctrl.cached('Fetters:FetterGroup', 'json', async () => {
       const filePath = path.resolve(process.env.GENSHIN_DATA_ROOT, DATAFILE_GENSHIN_FETTERS);
       const result: FetterGroupByAvatar = JSON.parse(fs.readFileSync(filePath, {encoding: 'utf8'}));
       return result;
@@ -69,9 +68,17 @@ export async function fetchCharacterFetters(ctrl: GenshinControl, skipCache: boo
 
   const avatarMap: {[avatarId: number]: AvatarExcelConfigData} = toMap(await ctrl.selectAllAvatars(), 'Id');
 
-  return cached('Genshin_FetterGroup', async () => {
+  return ctrl.cached('Fetters:FetterGroup', 'json', async () => {
     let fetters: FetterExcelConfigData[] = await ctrl.readDataFile('./ExcelBinOutput/FettersExcelConfigData.json');
-    let fettersByAvatar: FetterGroupByAvatar = defaultMap((avatarId: number) => new FetterGroup(avatarId));
+    let fettersByAvatar: FetterGroupByAvatar = defaultMap((avatarId: number) => <FetterGroup> {
+      avatarId,
+      avatarName: null,
+      storyFetters: [],
+      combatFetters: [],
+      voAvatarName: null,
+      fetterFiles: [],
+      animatorEventFiles: [],
+    });
     let aggByVoAvatar: {[voAvatarName: string]: FetterGroup} = {};
 
     for (let fetter of fetters) {

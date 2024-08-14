@@ -160,15 +160,11 @@ export interface VoiceAtlas {
   VoiceFTextMapHash: number,
 }
 
-export class VoiceAtlasGroup {
+export interface VoiceAtlasGroup {
   avatarId: number;
   avatarName: LangCodeMap;
-  storyAtlases: VoiceAtlas[] = [];
-  combatAtlases: VoiceAtlas[] = [];
-
-  constructor(avatarId: number) {
-    this.avatarId = avatarId;
-  }
+  storyAtlases: VoiceAtlas[];
+  combatAtlases: VoiceAtlas[];
 }
 
 export type VoiceAtlasGroupByAvatar = {[avatarId: number]: VoiceAtlasGroup};

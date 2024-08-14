@@ -9,7 +9,6 @@ import { MetaProp, MetaPropAcceptValue } from '../../../util/metaProp.ts';
 import { toBoolean } from '../../../../shared/util/genericUtil.ts';
 import { Marker } from '../../../../shared/util/highlightMarker.ts';
 import { ChapterExcelConfigData, MainQuestExcelConfigData } from '../../../../shared/types/genshin/quest-types.ts';
-import { cached } from '../../../util/cache.ts';
 import toposort from 'toposort';
 import { sort } from '../../../../shared/util/arrayUtil.ts';
 import { pathToFileURL } from 'url';
@@ -403,7 +402,7 @@ export async function talkConfigToDialogueSectionResult(ctrl: GenshinControl,
 
       mysect.addMetaProp('Quest State Cond', [
         beginCond.Type.slice(17),
-        {value: beginCond.Param[0], tooltip: questName, link: questExcel ? '/quests/' + questExcel.MainId : null},
+        {value: beginCond.Param[0], tooltip: questName, link: questExcel ? '/genshin/quests/' + questExcel.MainId : null},
         ... beginCond.Param.slice(1)
       ]);
     }
@@ -638,7 +637,7 @@ export async function orderChapterQuests(ctrl: GenshinControl, chapter: ChapterE
   if (!chapter) {
     return [];
   }
-  const globalVarIds: number[] = await cached('GlobalVars', async () => {
+  const globalVarIds: number[] = await ctrl.cached('QuestGlobalVarConfigData', 'json', async () => {
     const globalVar: any[] = await ctrl.readDataFile('./ExcelBinOutput/QuestGlobalVarConfigData.json');
     return globalVar.map(x => x.Id);
   });

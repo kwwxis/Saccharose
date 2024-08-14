@@ -1,7 +1,6 @@
 import '../../../loadenv.ts';
 import { closeKnex } from '../../../util/db.ts';
 import { GenshinControl, getGenshinControl } from '../genshinControl.ts';
-import { cached } from '../../../util/cache.ts';
 import { isInt, maybeInt } from '../../../../shared/util/numberUtil.ts';
 import { DialogWikitextResult, ReminderExcelConfigData } from '../../../../shared/types/genshin/dialogue-types.ts';
 import { DialogueSectionResult } from './dialogue_util.ts';
@@ -13,7 +12,7 @@ import { escapeRegExp } from '../../../../shared/util/stringUtil.ts';
 import { sort } from '../../../../shared/util/arrayUtil.ts';
 
 export async function reminderGenerateAll(ctrl: GenshinControl): Promise<DialogueSectionResult[]> {
-  return cached('AllReminders_' + ctrl.outputLangCode, async () => {
+  return ctrl.cached('RemindersAll:' + ctrl.outputLangCode, 'memory', async () => {
     const context = new ReminderGenerationContext(ctrl, true);
     const allReminders = await ctrl.selectAllReminders();
     context.addPreloadedSource(allReminders);

@@ -453,8 +453,9 @@ export const genshinSchema = {
       {name: 'PushTipsCodexId', type: 'integer', isIndex: true},
     ],
     renameFields: {
-      'NAPGNMLIKAJ': 'AltDescTextQuestCondIds',
-      'JJLOFKDBMBF': 'AltDescTextMapHashList',
+      // TODO: This needs to be updated with each new Genshin version!
+      'OKJGFOKCJNI': 'AltDescTextQuestCondIds', // Version 4.8
+      'FHNNPAGOHAJ': 'AltDescTextMapHashList',  // Version 4.8
     }
   },
   ReputationQuestExcelConfigData: <SchemaTable> {
@@ -1073,7 +1074,8 @@ export const genshinSchema = {
       { name: 'Id', type: 'integer', isPrimary: true },
     ],
     renameFields: {
-      JNEEPJFECMI: 'DeckNameTextMapHash'
+      // TODO: This needs to be updated with each new Genshin version!
+      NELFLFMMGAP: 'DeckNameTextMapHash' // Version 4.8
     }
   },
   GCGDeckCardExcelConfigData: <SchemaTable> {

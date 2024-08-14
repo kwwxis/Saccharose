@@ -143,7 +143,6 @@ import {
 } from '../../../shared/types/lang-types.ts';
 import { GCGTagElementType, GCGTagWeaponType } from '../../../shared/types/genshin/gcg-types.ts';
 import path from 'path';
-import { cached } from '../../util/cache.ts';
 import { NormTextOptions } from '../abstract/genericNormalizers.ts';
 import {
   AchievementExcelConfigData,
@@ -248,7 +247,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   readonly voice: GenshinVoice = new GenshinVoice();
 
   constructor(requestOrState?: Request|GenshinControlState) {
-    super('genshin', GenshinControlState, requestOrState);
+    super('genshin', 'Genshin', GenshinControlState, requestOrState);
     this.excelPath = './ExcelBinOutput';
   }
 
@@ -1325,7 +1324,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
   // region InterAction Loader
   private async fetchInterActionD2F(): Promise<InterActionD2F> {
-    return cached('InterActionD2F', async () => {
+    return this.cached('InterActionD2F', 'json', async () => {
       return await this.readJsonFile("InterActionD2F.json");
     });
   }
@@ -1542,7 +1541,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   }
 
   private async selectAnimalCodexManualTextMap(): Promise<{[manualTextMapId: string]: string}> {
-    return cached('AnimalCodexManualTextMap_' + this.outputLangCode, async () => {
+    return this.cached('AnimalCodexManualTextMap:' + this.outputLangCode, 'json', async () => {
       const ret: {[lookup: string]: string} = {};
       await [
         'UI_CODEX_ANIMAL_MONSTER',
@@ -2218,7 +2217,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   }
 
   async selectFurnitureTypeMap(): Promise<{[typeId: number]: HomeWorldFurnitureTypeExcelConfigData}> {
-    return await cached('FurnitureTypeMap_' + this.outputLangCode, async () => {
+    return await this.cached('HomeWorld:FurnitureTypeMap:' + this.outputLangCode, 'json', async () => {
       return mapBy(await this.selectAllFurnitureType(), 'TypeId');
     });
   }
@@ -2239,7 +2238,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   }
 
   async selectFurnitureMakeMap(): Promise<{[furnId: number]: FurnitureMakeExcelConfigData}> {
-    return await cached('FurnitureMakeMap_' + this.outputLangCode, async () => {
+    return await this.cached('HomeWorld:FurnitureMakeMap_' + this.outputLangCode, 'json', async () => {
       const makeArr: FurnitureMakeExcelConfigData[] = await this.readExcelDataFile('FurnitureMakeExcelConfigData.json', true);
       const makeMap: {[furnId: number]: FurnitureMakeExcelConfigData} = {};
 
@@ -3249,7 +3248,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     if (!version || !version.showChangelog) {
       return null;
     }
-    return cached('GenshinFullChangelog_' + version.number, async () => {
+    return this.cached('FullChangelog:' + version.number, 'json', async () => {
       const textmapChangelogFileName = path.resolve(process.env.GENSHIN_CHANGELOGS, `./TextMapChangeLog.${version.number}.json`);
       const excelChangelogFileName = path.resolve(process.env.GENSHIN_CHANGELOGS, `./ExcelChangeLog.${version.number}.json`);
 
@@ -3346,7 +3345,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
   // region Achievements
   async selectAchievementGoals(): Promise<AchievementGoalExcelConfigData[]> {
-    return await cached('AchievementGoals_' + this.outputLangCode, async () => {
+    return await this.cached('AchievementGoals:' + this.outputLangCode, 'json', async () => {
       let goals: AchievementGoalExcelConfigData[] = await this.readDataFile('./ExcelBinOutput/AchievementGoalExcelConfigData.json');
       sort(goals, 'OrderId');
       for (let goal of goals) {

@@ -85,15 +85,11 @@ export interface FavorWordCondSummary {
   Ascension?: number,
 }
 
-export class FavorWordGroup {
+export interface FavorWordGroup {
   roleId: number;
   roleName: LangCodeMap;
-  storyFavorWords: FavorWord[] = [];
-  combatFavorWords: FavorWord[] = [];
-
-  constructor(roleId: number) {
-    this.roleId = roleId;
-  }
+  storyFavorWords: FavorWord[];
+  combatFavorWords: FavorWord[];
 }
 
 export type FavorWordGroupByRole = { [roleId: number]: FavorWordGroup };

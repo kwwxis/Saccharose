@@ -1,6 +1,5 @@
 import { StarRailControl } from '../../domain/hsr/starRailControl.ts';
 import { AvatarConfig } from '../../../shared/types/hsr/hsr-avatar-types.ts';
-import { cached } from '../../util/cache.ts';
 import jsonMask from 'json-mask';
 import { Request } from 'express';
 import { isInt, toInt } from '../../../shared/util/numberUtil.ts';
@@ -34,7 +33,7 @@ const avatarMaskProps: string =
   'CutinImgPath';
 
 export async function getStarRailAvatars(ctrl: StarRailControl): Promise<AvatarConfig[]> {
-  return cached('StarRail_AvatarListCache_' + ctrl.outputLangCode, async () => {
+  return ctrl.cached('AvatarListCache:' + ctrl.outputLangCode, 'json', async () => {
     return (await ctrl.selectAllAvatars())
       .map(a => jsonMask(a, avatarMaskProps))
       .sort((a: AvatarConfig, b: AvatarConfig) => a.NameText.localeCompare(b.NameText));

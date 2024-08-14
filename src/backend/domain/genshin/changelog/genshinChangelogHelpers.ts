@@ -25,7 +25,6 @@ import { ViewCodexExcelConfigData } from '../../../../shared/types/genshin/viewp
 import { selectViewpointsByIds } from '../archive/viewpoints.ts';
 import { selectLoadingTips } from '../archive/loadingTips.ts';
 import { selectTutorials } from '../archive/tutorials.ts';
-import { cached } from '../../../util/cache.ts';
 
 export type GenshinChangelogNewRecordSummary = {
   avatars: AvatarExcelConfigData[],
@@ -58,7 +57,7 @@ export type GenshinChangelogNewRecordSummary = {
 }
 
 export async function generateGenshinChangelogNewRecordSummary(ctrl: GenshinControl, fullChangelog: FullChangelog): Promise<GenshinChangelogNewRecordSummary> {
-  return cached('GenshinFullChangelogSummary_' + ctrl.outputLangCode + '_' + fullChangelog.version.number, async () => {
+  return ctrl.cached('FullChangelogSummary:' + ctrl.outputLangCode + '_' + fullChangelog.version.number, 'memory', async () => {
     return _generateGenshinChangelogNewRecordSummary(ctrl, fullChangelog);
   });
 }

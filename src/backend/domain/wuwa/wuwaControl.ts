@@ -43,7 +43,7 @@ export function getWuwaControl(request?: Request) {
 // --------------------------------------------------------------------------------------------------------------
 export class WuwaControl extends AbstractControl<WuwaControlState> {
   constructor(requestOrState?: Request|WuwaControlState) {
-    super('wuwa', WuwaControlState, requestOrState);
+    super('wuwa', 'Wuwa', WuwaControlState, requestOrState);
     this.excelPath = './ConfigDB';
     this.disabledLangCodes.add('IT');
     this.disabledLangCodes.add('TR');

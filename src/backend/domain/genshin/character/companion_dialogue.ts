@@ -1,7 +1,6 @@
 import '../../../loadenv.ts';
 import { closeKnex } from '../../../util/db.ts';
 import { GenshinControl, getGenshinControl } from '../genshinControl.ts';
-import { cached } from '../../../util/cache.ts';
 import { toInt } from '../../../../shared/util/numberUtil.ts';
 import { HomeWorldNPCExcelConfigData } from '../../../../shared/types/genshin/homeworld-types.ts';
 import { grep } from '../../../util/shellutil.ts';
@@ -14,7 +13,7 @@ import { escapeHtml, toLower } from '../../../../shared/util/stringUtil.ts';
 import { getGenshinDataFilePath } from '../../../loadenv.ts';
 
 export async function getHomeWorldCompanions(ctrl: GenshinControl): Promise<HomeWorldNPCExcelConfigData[]> {
-  return cached('HomeWorldCompanions_'+ctrl.outputLangCode, async () => {
+  return ctrl.cached('HomeWorld:Companions:NPCExcels:'+ctrl.outputLangCode, 'json', async () => {
     const companions: HomeWorldNPCExcelConfigData[] = await ctrl.selectAllHomeWorldNPCs({
       LoadHomeWorldEvents: true
     });
@@ -68,7 +67,7 @@ export async function fetchCompanionDialogue(ctrl: GenshinControl, avatarNameOrI
     return null;
   }
 
-  return cached('CompanionDialogue_'+(companion.AvatarId || companion.NpcId)+'_'+ctrl.outputLangCode, async () => {
+  return ctrl.cached('HomeWorld:Companions:Dialogue:Avatar_'+(companion.AvatarId || companion.NpcId)+':'+ctrl.outputLangCode, 'memory', async () => {
     let result: DialogueSectionResult[] = [];
 
     let acc = new TalkConfigAccumulator(ctrl);
@@ -121,7 +120,7 @@ export async function fetchCompanionDialogue(ctrl: GenshinControl, avatarNameOrI
       if (rewardEvent.Reward) {
         section.wikitextArray.push({
           title: 'Rewards',
-          wikitext: rewardEvent.Reward.RewardSummary.CombinedCards
+          wikitext: rewardEvent.Reward.RewardSummary.CombinedStrings
         });
       }
 

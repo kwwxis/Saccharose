@@ -33,7 +33,6 @@ import { replaceAsync } from '../../../../shared/util/stringUtil.ts';
 import { isUnset } from '../../../../shared/util/genericUtil.ts';
 import { findFiles } from '../../../util/shellutil.ts';
 import path from 'path';
-import { cached, cachedSync } from '../../../util/cache.ts';
 import { standardElementCode } from '../../../../shared/types/genshin/manual-text-map.ts';
 import { html2quotes, unnestHtmlTags } from '../../../../shared/mediawiki/mwQuotes.ts';
 import { loadGenshinTextSupportingData } from '../genshinText.ts';
@@ -77,58 +76,58 @@ export class GCGControl {
       this.didInit = true;
     }
 
-    this.charIcons = await cached('GCG_charIcons', async () => {
+    this.charIcons = await this.ctrl.cached('GCG:CharIcons', 'json', async () => {
       return findFiles('UI_Gcg_Char_', IMAGEDIR_GENSHIN_EXT);
     });
 
     this.charIconsLcSet = new Set<string>(this.charIcons.map(s => s.toLowerCase().replace('.png', '')));
 
-    this.charSkillDamageTable = await cached('GCG_charSkillDamageList', async () => {
+    this.charSkillDamageTable = await this.ctrl.cached('GCG:CharSkillDamageList', 'json', async () => {
       const arr: GCGCharSkillDamage[] = await this.ctrl.readDataFile('./GCGCharSkillDamage.json');
       return mapBy(arr, 'Name');
     });
 
-    this.keywordTable = await cached('GCG_keywordList_' + this.ctrl.outputLangCode, async () => {
+    this.keywordTable = await this.ctrl.cached('GCG:KeywordList:' + this.ctrl.outputLangCode, 'json', async () => {
       const arr: GCGKeywordExcelConfigData[] = await this.allSelect('GCGKeywordExcelConfigData');
       return mapBy(arr, 'Id');
     });
 
-    this.talkDetailIconTable = await cached('GCG_talkDetailIcons', async () => {
+    this.talkDetailIconTable = await this.ctrl.cached('GCG:TalkDetailIcons', 'json', async () => {
       const arr: GCGTalkDetailIconExcelConfigData[] = await this.allSelect('GCGTalkDetailIconExcelConfigData');
       return mapBy(arr, 'Id');
     });
 
-    this.ruleTable = await cached('GCG_rules', async () => {
+    this.ruleTable = await this.ctrl.cached('GCG:Rules', 'json', async () => {
       const arr: GCGRuleExcelConfigData[] = await this.allSelect('GCGRuleExcelConfigData');
       return mapBy(arr, 'Id');
     });
 
-    this.challengeTable = await cached('GCG_challenges', async () => {
+    this.challengeTable = await this.ctrl.cached('GCG:Challenges', 'json', async () => {
       const arr: GCGChallengeExcelConfigData[] = await this.allSelect('GCGChallengeExcelConfigData');
       return mapBy(arr, 'Id');
     });
 
-    this.tagTable = await cached('GCG_tagList_' + this.ctrl.outputLangCode, async () => {
+    this.tagTable = await this.ctrl.cached('GCG:TagList:' + this.ctrl.outputLangCode, 'json', async () => {
       const arr: GCGTagExcelConfigData[] = await this.allSelect('GCGTagExcelConfigData');
       return mapBy(arr, 'Type');
     });
 
-    this.skillTagTable = await cached('GCG_skillTagList_' + this.ctrl.outputLangCode, async () => {
+    this.skillTagTable = await this.ctrl.cached('GCG:SkillTagList:' + this.ctrl.outputLangCode, 'json', async () => {
       const arr: GCGSkillTagExcelConfigData[] = await this.allSelect('GCGSkillTagExcelConfigData');
       return mapBy(arr, 'Type');
     });
 
-    this.costDataTable = await cached('GCG_costDataList_' + this.ctrl.outputLangCode, async () => {
+    this.costDataTable = await this.ctrl.cached('GCG:CostDataList:' + this.ctrl.outputLangCode, 'json', async () => {
       const arr: GCGCostExcelConfigData[] = await this.allSelect('GCGCostExcelConfigData');
       return mapBy(arr, 'Type');
     });
 
-    this.worldWorkTimeTable = await cached('GCG_worldWorkTime', async () => {
+    this.worldWorkTimeTable = await this.ctrl.cached('GCG:WorldWorkTime', 'json', async () => {
       const arr: GcgWorldWorkTimeExcelConfigData[] = await this.allSelect('GcgWorldWorkTimeExcelConfigData');
       return mapBy(arr, 'Id');
     });
 
-    this.elementReactionTable = await cached('GCG_elementReactions_' + this.ctrl.outputLangCode, async () => {
+    this.elementReactionTable = await this.ctrl.cached('GCG:ElementReactions:' + this.ctrl.outputLangCode, 'json', async () => {
       const arr: GCGElementReactionExcelConfigData[] = await this.allSelect('GCGElementReactionExcelConfigData'); // must come after skillTagList
       return mapBy(arr, 'Id');
     });
@@ -721,7 +720,7 @@ export class GCGControl {
       card.WikiNameTextMapHash = card.NameTextMapHash;
     }
 
-    const goldenImageExists: boolean = cachedSync('GCG_goldenImageExists_' + card.Id, () => {
+    const goldenImageExists: boolean = await this.ctrl.cached('GCG:GoldenImageExists:' + card.Id, 'boolean', async () => {
       return !!card.WikiImage && fs.existsSync(path.resolve(IMAGEDIR_GENSHIN_EXT, './' + card.WikiImage + '_Golden.png'));
     });
     if (goldenImageExists) {

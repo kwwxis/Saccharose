@@ -19,7 +19,7 @@ import {
 // Backend Util:
 import { openPg, openSqlite, SaccharoseDb } from '../../util/db.ts';
 import { getLineNumberForLineText, grep, grepStream, langDetect, ShellFlags } from '../../util/shellutil.ts';
-import { cached } from '../../util/cache.ts';
+import { _cachedImpl } from '../../util/cache.ts';
 
 // Share Types:
 import {
@@ -55,6 +55,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
   readonly state: T;
   readonly knex: Knex;
   readonly dbName: keyof SaccharoseDb;
+  readonly cachePrefix: string;
 
   readonly disabledLangCodes: Set<LangCode> = new Set<LangCode>();
   protected excelPath: string;
@@ -66,17 +67,27 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
   // endregion
 
   // region Constructor / Copy
-  protected constructor(dbName: keyof SaccharoseDb, stateConstructor: {new(request?: Request): T}, requestOrState?: Request|T) {
+  protected constructor(dbName: keyof SaccharoseDb, cachePrefix: string, stateConstructor: {new(request?: Request): T}, requestOrState?: Request|T) {
     this.state = requestOrState instanceof AbstractControlState ? requestOrState : new stateConstructor(requestOrState);
     this.knex = this.state.NoDbConnect ? null : openSqlite()[dbName];
     this.schema = schemaForDbName(dbName);
     this.dbName = dbName;
+    this.cachePrefix = cachePrefix.endsWith(':') ? cachePrefix : cachePrefix + ':';
   }
 
   abstract copy(): AbstractControl<T>;
 
   abstract i18n(key: string, vars?: Record<string, string>): string;
 
+
+  async cached(key: string, valueMode: 'string', supplierFn: (key?: string) => Promise<string>): Promise<string>
+  async cached(key: string, valueMode: 'buffer', supplierFn: (key?: string) => Promise<Buffer>): Promise<Buffer>
+  async cached(key: string, valueMode: 'boolean', supplierFn: (key?: string) => Promise<boolean>): Promise<boolean>
+  async cached<T>(key: string, valueMode: 'memory', supplierFn: (key?: string) => Promise<T>): Promise<T>
+  async cached<T>(key: string, valueMode: 'json', supplierFn: (key?: string) => Promise<T>): Promise<T>
+  async cached<T>(key: string, valueMode: 'string' | 'buffer' | 'json' | 'boolean' | 'memory', supplierFn: (key?: string) => Promise<T>): Promise<T> {
+    return _cachedImpl(this.cachePrefix + key, valueMode, supplierFn);
+  }
   // endregion
 
   // region State Property Aliases
@@ -623,7 +634,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     }
 
     for (let fileName of Object.keys(filesFoundIn)) {
-      let json: any[] = await cached(this.dbName + '_ExcelUsagesFileRead_' + fileName, async () => {
+      let json: any[] = await this.cached('ExcelUsagesFileRead:' + fileName, 'json', async () => {
         return await this.readJsonFile(path.join(this.excelPath, fileName + '.json'));
       });
 
@@ -701,7 +712,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
 
   // region Texture2D Media
   async listImageCategories(): Promise<ImageCategoryMap> {
-    return cached(this.dbName + '_ImageIndexCategoryMap', async () => {
+    return this.cached('ImageIndexCategoryMap', 'json', async () => {
       return this.readJsonFile('ImageIndexCategoryMap.json');
     });
   }

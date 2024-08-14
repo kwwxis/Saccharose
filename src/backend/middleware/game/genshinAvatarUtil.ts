@@ -1,6 +1,5 @@
 import { GenshinControl } from '../../domain/genshin/genshinControl.ts';
 import { AvatarExcelConfigData, isTraveler } from '../../../shared/types/genshin/avatar-types.ts';
-import { cached } from '../../util/cache.ts';
 import { fetchCharacterStories } from '../../domain/genshin/character/fetchStoryFetters.ts';
 import { isInt, toInt } from '../../../shared/util/numberUtil.ts';
 import { isString } from '../../../shared/util/stringUtil.ts';
@@ -26,7 +25,7 @@ const avatarMaskProps: string =
   'SideIconName';
 
 export async function getGenshinAvatars(ctrl: GenshinControl, combineTraveler: boolean): Promise<AvatarExcelConfigData[]> {
-  return cached('Genshin_AvatarListCache_' + ctrl.outputLangCode + '_' + combineTraveler, async () => {
+  return ctrl.cached('AvatarListCache:' + ctrl.outputLangCode + '_' + combineTraveler, 'json', async () => {
     const storiesByAvatar = await fetchCharacterStories(ctrl);
     let foundTraveler = false;
 

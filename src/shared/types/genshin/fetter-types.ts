@@ -63,12 +63,12 @@ export interface FetterStoryExcelConfigData extends FetterWithConditions {
   StoryTitleLockedTextMapHash?: number,
 }
 
-export class StoryFetters {
+export interface StoryFetters {
   avatar: AvatarExcelConfigData;
-  fetters: FetterStoryExcelConfigData[] = [];
-  wikitext: string = '';
-  alteredWikitext: string = '';
-  hasAlteredStories: boolean = false;
+  fetters: FetterStoryExcelConfigData[];
+  wikitext: string;
+  alteredWikitext: string;
+  hasAlteredStories: boolean;
 }
 
 export type StoryFettersByAvatar = {
@@ -100,19 +100,15 @@ export interface FetterExcelConfigData extends FetterWithConditions {
   VoiceTitleLockedTextMap?: LangCodeMap,
 }
 
-export class FetterGroup {
+export interface FetterGroup {
   avatarId: number;
   avatarName: LangCodeMap;
-  storyFetters: FetterExcelConfigData[] = [];
-  combatFetters: FetterExcelConfigData[] = [];
+  storyFetters: FetterExcelConfigData[];
+  combatFetters: FetterExcelConfigData[];
 
-  voAvatarName: string = null;
-  fetterFiles: string[] = [];
-  animatorEventFiles: string[] = [];
-
-  constructor(avatarId: number) {
-    this.avatarId = avatarId;
-  }
+  voAvatarName: string;
+  fetterFiles: string[];
+  animatorEventFiles: string[];
 }
 
 export type FetterGroupByAvatar = {[avatarId: number]: FetterGroup};

@@ -70,13 +70,13 @@ export class RequestContext {
     this.webpackBundles = getWebpackBundleFileNames();
 
     const lcPath = req.path.toLowerCase();
-    if (lcPath.startsWith('/hsr') || lcPath.startsWith('/api/hsr')) {
+    if (lcPath.startsWith('/hsr') || lcPath.startsWith('/api/hsr') || lcPath.startsWith('/api/mw/hsr')) {
       this.siteMode = 'hsr';
-    } else if (lcPath.startsWith('/zenless') || lcPath.startsWith('/api/zenless')) {
+    } else if (lcPath.startsWith('/zenless') || lcPath.startsWith('/api/zenless') || lcPath.startsWith('/api/mw/zenless')) {
       this.siteMode = 'zenless';
-    } else if (lcPath.startsWith('/wuwa') || lcPath.startsWith('/api/wuwa')) {
+    } else if (lcPath.startsWith('/wuwa') || lcPath.startsWith('/api/wuwa') || lcPath.startsWith('/api/mw/wuwa')) {
       this.siteMode = 'wuwa';
-    } else if (lcPath.startsWith('/genshin') || lcPath.startsWith('/api/genshin')) {
+    } else if (lcPath.startsWith('/genshin') || lcPath.startsWith('/api/genshin') || lcPath.startsWith('/api/mw/genshin')) {
       this.siteMode = 'genshin';
     } else {
       this.siteMode = 'unset';

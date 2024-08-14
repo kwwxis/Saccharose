@@ -30,7 +30,7 @@
           <span class="spacer5-right">Open article in wiki</span>
           <Icon name="external-link" :size="12" />
         </a>
-        <a href="/revs" role="button" class="spacer5-left secondary small dispBlock">Back to article search</a>
+        <a :href="`${ctx.siteHome}/revs`" role="button" class="spacer5-left secondary small dispBlock">Back to article search</a>
       </h2>
       <div id="tablist-revMainTabs" class="tab-list" role="tablist">
         <div class="alignEnd">

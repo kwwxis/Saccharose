@@ -31,7 +31,7 @@ export function getZenlessControl(request?: Request) {
 // --------------------------------------------------------------------------------------------------------------
 export class ZenlessControl extends AbstractControl<ZenlessControlState> {
   constructor(requestOrState?: Request|ZenlessControlState) {
-    super('zenless', ZenlessControlState, requestOrState);
+    super('zenless', 'Zenless', ZenlessControlState, requestOrState);
     this.excelPath = './FileCfg';
     this.disabledLangCodes.add('IT');
     this.disabledLangCodes.add('TR');

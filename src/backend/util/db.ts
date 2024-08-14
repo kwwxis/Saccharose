@@ -116,6 +116,6 @@ export function enableDbExitHook() {
         logShutdown('Database already closed.');
       }
       callback();
-    })
+    });
   });
 }

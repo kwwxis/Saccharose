@@ -7,7 +7,6 @@ import { fileFormatOptionsApply, fileFormatOptionsCheck } from '../../../util/fi
 import { WorldAreaConfigData } from '../../../../shared/types/genshin/general-types.ts';
 import { ViewCodexExcelConfigData, ViewpointsByRegion } from '../../../../shared/types/genshin/viewpoint-types.ts';
 import { isInt } from '../../../../shared/util/numberUtil.ts';
-import { cached } from '../../../util/cache.ts';
 
 export const VIEWPOINT_FILE_FORMAT_PARAMS: string[] = [
   'Id',
@@ -48,7 +47,7 @@ export const VIEWPOINT_DEFAULT_FILE_FORMAT_MAP = 'Viewpoint {NameText.EN} Map Lo
 
 
 export async function getCityIdsWithViewpoints(ctrl: GenshinControl): Promise<Set<number>> {
-  return cached('CityIdsWithViewpoints', async () => {
+  return ctrl.cached('CityIdsWithViewpoints', 'json', async () => {
     const cityIdsWithViewpoints: Set<number> = new Set();
     const viewpoints: ViewCodexExcelConfigData[] = await ctrl.readJsonFile('./ExcelBinOutput/ViewCodexExcelConfigData.json');
     for (let viewpoint of viewpoints) {

@@ -1,4 +1,3 @@
-import { cached } from '../../util/cache.ts';
 import jsonMask from 'json-mask';
 import { Request } from 'express';
 import { isInt, toInt } from '../../../shared/util/numberUtil.ts';
@@ -33,7 +32,7 @@ const roleInfoMaskProps: string =
   'CharacterVoiceText';
 
 export async function getWuwaRoles(ctrl: WuwaControl): Promise<RoleInfo[]> {
-  return cached('Wuwa_RoleListCache_' + ctrl.outputLangCode, async () => {
+  return ctrl.cached('RoleListCache:' + ctrl.outputLangCode, 'json', async () => {
     return (await ctrl.selectAllRoleInfo())
       .filter(a => a.RoleType === 1)
       .map(a => jsonMask(a, roleInfoMaskProps))

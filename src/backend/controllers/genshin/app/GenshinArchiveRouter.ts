@@ -40,7 +40,6 @@ import {
 } from '../../../domain/genshin/dialogue/dialogue_util.ts';
 import { ManualTextMapHashes } from '../../../../shared/types/genshin/manual-text-map.ts';
 import { MetaProp } from '../../../util/metaProp.ts';
-import { cached } from '../../../util/cache.ts';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -508,7 +507,7 @@ export default async function(): Promise<Router> {
   router.get('/furnishings', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
 
-    const [furnitureList, typeTree] = await cached('FurnishingsList_' + ctrl.outputLangCode, async () => {
+    const [furnitureList, typeTree] = await ctrl.cached('HomeWorld:FurnishingsList:' + ctrl.outputLangCode, 'json', async () => {
       return await Promise.all([
         ctrl.selectAllFurniture({ LoadHomeWorldNPC: true }),
         ctrl.selectFurnitureTypeTree(),

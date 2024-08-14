@@ -143,13 +143,13 @@ export function toCommonVoiceOversFromWuwa(favorWords: FavorWord[]): CommonVoice
 
 // region Common Voice Over Group
 // --------------------------------------------------------------------------------------------------------------
-export class CommonVoiceOverGroup<T = any> {
+export interface CommonVoiceOverGroup<T = any> {
   avatarId: number;
   avatarName: LangCodeMap;
 
-  storyVoiceOvers: CommonVoiceOver[] = [];
-  combatVoiceOvers: CommonVoiceOver[] = [];
-  animatorEventFiles: string[] = [];
+  storyVoiceOvers: CommonVoiceOver[];
+  combatVoiceOvers: CommonVoiceOver[];
+  animatorEventFiles: string[];
 
   original: T;
 }
