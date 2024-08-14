@@ -1,5 +1,5 @@
 import { pageMatch } from '../../../core/pageMatch.ts';
-import { toInt } from '../../../../shared/util/numberUtil.ts';
+import { isInt, toInt } from '../../../../shared/util/numberUtil.ts';
 import { revAppArticleSearch } from './rev-app-articleSearch.ts';
 import { revAppArticlePage } from './rev-app-articlePage.ts';
 import { MwArticleInfo, MwRevision } from '../../../../shared/mediawiki/mwTypes.ts';
@@ -46,7 +46,11 @@ export interface WikiRevAppPrefs {
   diffHighlightHover?: boolean,
 }
 
-function initSidebarStickyTop() {
+function initSidebarStickyTop(state: WikiRevAppState) {
+  if (!isInt(state.pageId)) {
+    return;
+  }
+
   const marginPx: number = 15;
   const maxScrollMarginPx = 24;
   const revAppSide = document.getElementById('revApp-side');
@@ -62,6 +66,9 @@ function initSidebarStickyTop() {
 }
 
 function initTabListeners(state: WikiRevAppState) {
+  if (!isInt(state.pageId)) {
+    return;
+  }
   GeneralEventBus.on('TabChange', event => {
     if (event.tabgroup === 'revMainTabs') {
       if (event.tab.id === 'tab-revHome') {
