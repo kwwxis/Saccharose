@@ -171,6 +171,7 @@ export function __normGenshinText(text: string, langCode: LangCode, opts: NormTe
 
     // Misc:
     text = text.replace(/<color=#00E1FF(?:FF)?>(.*?)<\/color>/g, '{{Color|buzzword|$1}}');
+    text = text.replace(/<color=#00E2FF(?:FF)?>(.*?)<\/color>/g, '{{Color|buzzword|$1}}');
     text = text.replace(/<color=#FFCC33(?:FF)?>(.*?)<\/color>/g, '{{Color|help|$1}}');
     text = text.replace(/<color=#FFE14B(?:FF)?>(.*?)<\/color>/g, '{{Color|help|$1}}');
     text = text.replace(/<color=#CC8000(?:FF)?>(.*?)<\/color>/g, '{{Color|bp|$1}}');

@@ -124,7 +124,7 @@ export async function importWuwaFilesCli() {
     fs.copyFileSync(textMapCHS, getWuwaDataFilePath('./TextMap/TextMapCHS.json'));
     fs.copyFileSync(textMapCHT, getWuwaDataFilePath('./TextMap/TextMapCHT.json'));
 
-    await importNormalize(getWuwaDataFilePath('./ConfigDB'), []);
+    await importNormalize(getWuwaDataFilePath('./ConfigDB'), ['GmOrderList.json']);
   }
   if (options['voice-overs']) {
     await importVoiceOvers();
