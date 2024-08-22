@@ -14,7 +14,7 @@ import requestIp from 'request-ip';
 import jsonResponse from './middleware/response/jsonResponse.ts';
 import antiBots from './middleware/request/antiBots.ts';
 import { traceMiddleware } from './middleware/request/tracer.ts';
-import accessLogging from './middleware/request/accessLogging.ts';
+import { normalAccessLogging, earlyAccessLogging } from './middleware/request/accessLogging.ts';
 import defaultResponseHeaders from './middleware/response/defaultResponseHeaders.ts';
 import { PUBLIC_DIR, VIEWS_ROOT } from './loadenv.ts';
 import { csrfMiddleware } from './middleware/request/csrf.ts';
@@ -67,6 +67,8 @@ export async function appInit(): Promise<Express> {
   await loadZenlessTextSupportingData();
   await ScriptJobCoordinator.cleanup();
 
+  app.use(earlyAccessLogging);
+
   // Serve static directories
   // ~~~~~~~~~~~~~~~~~~~~~~~~
   app.use(express.static(PUBLIC_DIR));
@@ -118,7 +120,7 @@ export async function appInit(): Promise<Express> {
   logInit(`Initializing sessions`);
   app.use(sessions);                                        // sessions
   app.use(reqContextInitMiddleware);                        // request context init
-  app.use(accessLogging);                                   // access logging
+  app.use(normalAccessLogging);                             // access logging
 
   // Middleware for responses
   // ~~~~~~~~~~~~~~~~~~~~~~~~

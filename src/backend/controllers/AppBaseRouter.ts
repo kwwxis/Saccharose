@@ -63,5 +63,12 @@ export default async function(): Promise<Router> {
   router.use('/wuwa',     await WuwaRouter());
   router.use('/',         await UserRouter());
 
+  // router.use('/', (req: Request, res: Response, next: NextFunction) => {
+  //
+  //   GenshinRouter().then(router => router(req, res, next));
+  //
+  //   //next();
+  // });
+
   return router;
 };

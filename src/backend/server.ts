@@ -41,11 +41,11 @@ import { logInit } from './util/logger.ts';
 
   if (toBoolean(process.env.SSL_ENABLED)) {
     spdy.createServer(sslcreds, httpsApp).listen(httpsPort, () => {
-        if (vhosted) {
-          logInit(`HTTPS/2 Server is running at https://${process.env.WEB_DOMAIN}`);
-        } else {
-          logInit(`HTTPS/2 Server is running at https://localhost:${httpsPort}`);
-        }
+      if (vhosted) {
+        logInit(`HTTPS/2 Server is running at https://${process.env.WEB_DOMAIN}`);
+      } else {
+        logInit(`HTTPS/2 Server is running at https://localhost:${httpsPort}`);
+      }
     });
   } else {
     logInit('Not starting HTTPS/2 server -- not enabled');

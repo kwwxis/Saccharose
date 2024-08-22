@@ -143,6 +143,9 @@ export class StarRailControl extends AbstractControl<StarRailControlState> {
 
   // region Avatars
   private async postProcessAvatar(avatar: AvatarConfig): Promise<AvatarConfig> {
+    if (!avatar) {
+      return avatar;
+    }
     avatar.BaseTypeData = await this.knex.select('*').from('AvatarBaseType')
       .where({Id: avatar.BaseType}).first().then(this.commonLoadFirst);
     return avatar;

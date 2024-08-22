@@ -25,6 +25,12 @@ export default async function(): Promise<Router> {
     });
   });
 
+  router.get('/my-test', async (req: Request, res: Response) => {
+    while (true) {
+
+    }
+  });
+
   router.get('/excel-usages', async (req: Request, res: Response) => {
     res.render('pages/generic/basic/excel-usages', {
       title: 'Excel usages',
