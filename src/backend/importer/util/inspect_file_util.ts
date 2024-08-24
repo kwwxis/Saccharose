@@ -6,7 +6,7 @@ import { isInt } from '../../../shared/util/numberUtil.ts';
 import chalk from 'chalk';
 import { AbstractControl } from '../../domain/abstract/abstractControl.ts';
 
-export type InspectOpt = {file: string, inspectFieldValues?: string[], printRecordIfFieldNotEmpty?: string[]};
+export type InspectOpt = {file: string, inspectFieldValues?: string[], printRecordIfFieldNotEmpty?: string[], filter?: (record: any) => boolean};
 
 export async function inspectDataFile(ctrl: AbstractControl, opt: InspectOpt): Promise<any[]> {
   if (!opt.inspectFieldValues)
@@ -22,6 +22,9 @@ export async function inspectDataFile(ctrl: AbstractControl, opt: InspectOpt): P
   let fieldsToType: {[name: string]: { type: string, canBeNil: boolean }} = {};
 
   for (let record of result) {
+    if (opt.filter && !opt.filter(record)) {
+      continue;
+    }
     for (let key of opt.printRecordIfFieldNotEmpty) {
       if (!isEmpty(resolveObjectPath(record, key))) {
         console.log(record);

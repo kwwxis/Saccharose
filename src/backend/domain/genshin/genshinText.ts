@@ -266,7 +266,6 @@ function elementColorTemplate(langCode: LangCode,
 }
 
 export const GENSHIN_SPRITE_TAGS: { [spriteId: number]: SpriteTagExcelConfigData } = {};
-export const INTER_ACTION_D2F: {[dialogId: string]: string} = {};
 
 let serverBrandTipsOverseas: LangCodeMap = null;
 let serverEmailAskOverseas: LangCodeMap = null;
@@ -309,12 +308,6 @@ export async function loadGenshinTextSupportingData(): Promise<void> {
   ELEMENT_TEXTMAP.PHYSICAL = await ctrl.createLangCodeMap(ManualTextMapHashes.Physical);
 
   toMap(await ctrl.readExcelDataFile<SpriteTagExcelConfigData[]>('SpriteTagExcelConfigData.json'), 'Id', GENSHIN_SPRITE_TAGS);
-
-  const interActionD2FName = ctrl.getDataFilePath('InterActionD2F.json');
-  if (fs.existsSync(interActionD2FName)) {
-    const json = await fsp.readFile(interActionD2FName, {encoding: 'utf8'}).then(data => JSON.parse(data));
-    Object.assign(INTER_ACTION_D2F, json);
-  }
 
   logInitData('Loading Genshin-supporting text data -- done!');
 }

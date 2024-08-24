@@ -34,9 +34,14 @@ export const InterActionSchema = <SchemaTable> {
 };
 
 /**
- * Dialogue ID -> [file name, group id, group index]
+ * Dialogue ID -> InterActionD2FCandidate[]
  */
-export type InterActionD2F = {[id: number]: [string, number, number]};
+export type InterActionD2F = {[id: number]: InterActionD2FCandidate[]};
+
+/**
+ * [file name, group id, group index]
+ */
+export type InterActionD2FCandidate = [string, number, number];
 
 export type InterActionType =
   // Camera
@@ -310,6 +315,18 @@ export class InterActionFile {
     return a.DialogId === dialogId || (a.DialogIdList && a.DialogIdList.includes(dialogId));
   }
 
+  findFirstDialog(): InterActionDialog {
+    for (let group of this.Groups) {
+      for (let actionIndex = 0; actionIndex < group.Actions.length; actionIndex++){
+        let action = group.Actions[actionIndex];
+        if (!!action.DialogId) {
+          return new InterActionDialog(this, group, action, actionIndex, action.DialogId);
+        }
+      }
+    }
+    return new InterActionDialog(this, null, null, null, null);
+  }
+
   findDialog(dialogId: number): InterActionDialog {
     if (this.Target) {
       let actionIndex = this.Target.Actions.findIndex(a => this.actionMatchesDialog(a, dialogId));
@@ -364,7 +381,7 @@ export class InterActionDialog {
     if (this.Group.Actions.length > 1 && this.ActionIndex != (this.Group.Actions.length - 1)) {
       for (let i = this.ActionIndex - 1; i >= 0; i--) {
         let action = this.Group.Actions[i];
-        if (action.Type === 'DIALOG') {
+        if (!!action.DialogId) {
           return [action.DialogId];
         }
       }
@@ -393,7 +410,7 @@ export class InterActionDialog {
         for (let i = prevGroup.Actions.length - 1; i >= 0; i--) {
           let action = prevGroup.Actions[i];
 
-          if (action.Type === 'DIALOG' && action.DialogId !== this.DialogId) {
+          if (!!action.DialogId && action.DialogId !== this.DialogId) {
             pathEnd = true;
             dialogIds.push(action.DialogId);
           } else if (action.Type === 'DIALOG_SELECT') {
@@ -432,6 +449,8 @@ export class InterActionDialog {
             return { NextDialogs: [other.DialogId], Intermediates };
           } else if (other.Type === 'DIALOG_SELECT') {
             return { NextDialogs: other.DialogIdList, Intermediates} ;
+          } else if ((other.Type === 'SIMPLE_BLACK_SCREEN' || other.Type === 'BLACK_SCREEN' || other.Type === 'SHOW_BG_PIC') && other.DialogId) {
+            return { NextDialogs: [other.DialogId], Intermediates };
           }
           if (INTERACTION_INTERMEDIATE_TYPES.has(other.Type)) {
             Intermediates.push(other);

@@ -612,20 +612,43 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     }
 
     // Handle InterAction overloading InitDialog:
-    if (talk.InitDialog) {
-      const iaFile = await this.loadInterActionFile(talk.InitDialog);
+    if (talk.PerformCfg) {
+      const iaFile = await this.loadInterActionFileByName(talk.PerformCfg);
+
+      const initDialog = iaFile.findDialog(talk.InitDialog);
+      const firstDialog = iaFile.findFirstDialog();
+
+      if (firstDialog.isPresent() && (initDialog.isPresent() || firstDialog.DialogId < talk.InitDialog)) {
+        // console.log('PerformCfg', talk.Id, iaFile.Name, talk.InitDialog, firstDialog.DialogId, talk.InitDialog === firstDialog.DialogId);
+        talk.InitDialog = firstDialog.DialogId;
+      }
+    } else if (talk.InitDialog) {
+      const iaFile = await this.loadInterActionFileByDialogId(talk.InitDialog);
 
       let curr: InterActionDialog = iaFile.findDialog(talk.InitDialog);
       if (curr.isPresent()) {
+        let didBreak: boolean = false;
+        let loopCount: number = 0;
+        const loopLimit: number = 100;
+
         while (curr.isPresent()) {
-          let prevDialogIds = curr.prev(true);
+          const prevDialogIds = curr.prev(true);
+          // console.log('LOOP', curr.DialogId, prevDialogIds);
           if (!prevDialogIds || !prevDialogIds.length) {
             break;
           }
           curr = iaFile.findDialog(prevDialogIds[0]);
+
+          if (++loopCount >= loopLimit) {
+            didBreak = true;
+            break;
+          }
         }
-        //console.log('Talk: ', talk.Id, '; InitDialog:', talk.InitDialog, '; TrueInitDialog:', curr.DialogId, '; IsSame:', talk.InitDialog === curr.DialogId);
-        talk.InitDialog = curr.DialogId;
+
+        if (!didBreak) {
+          // console.log('Talk: ', talk.Id, '; InitDialog:', talk.InitDialog, '; TrueInitDialog:', curr.DialogId, '; IsSame:', talk.InitDialog === curr.DialogId);
+          talk.InitDialog = curr.DialogId;
+        }
       }
     }
     return talk;
@@ -906,7 +929,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       }
 
       // Load InterAction
-      const iaFile: InterActionFile = await this.loadInterActionFile(currNode.Id);
+      const iaFile: InterActionFile = await this.loadInterActionFileByDialogId(currNode.Id);
       const iaDialog: InterActionDialog = iaFile.findDialog(currNode.Id);
 
       if (iaDialog.isPresent() && this.isPlayerTalkRole(currNode) && iaDialog.Action.Type === 'DIALOG') {
@@ -1323,19 +1346,48 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   // endregion
 
   // region InterAction Loader
-  private async fetchInterActionD2F(): Promise<InterActionD2F> {
+  async fetchInterActionD2F(): Promise<InterActionD2F> {
     return this.cached('InterActionD2F', 'json', async () => {
       return await this.readJsonFile("InterActionD2F.json");
     });
   }
 
-  async loadInterActionFile(dialogueId: number): Promise<InterActionFile> {
-    const refD2F = (await this.fetchInterActionD2F())[dialogueId];
-    if (!refD2F) {
+  async loadInterActionFileByName(fileName: string): Promise<InterActionFile> {
+    fileName = fileName.replace(/\\/g, '/').replace(/\//g, ';');
+
+    if (fileName.startsWith('QuestDialogue;')) {
+      fileName = fileName.slice('QuestDialogue;'.length);
+    }
+
+    if (!fileName.endsWith('.json')) {
+      fileName += '.json';
+    }
+
+    let fileGroups: InterActionGroup[] = [];
+
+    if (this.state.interActionCache[fileName]) {
+      fileGroups = this.state.interActionCache[fileName];
+    } else if (this.fileExists('./InterAction/' + fileName)) {
+      const groups: InterActionGroup[] = await this.readJsonFile('./InterAction/' + fileName);
+      this.state.interActionCache[fileName] = groups;
+      fileGroups = groups;
+    } else {
       return new InterActionFile();
     }
 
-    const [fileName, groupId, groupIndex] = refD2F;
+    return new InterActionFile(
+      fileName,
+      fileGroups,
+      null);
+  }
+
+  async loadInterActionFileByDialogId(dialogueId: number): Promise<InterActionFile> {
+    const refD2F = (await this.fetchInterActionD2F())[dialogueId];
+    if (!refD2F || !refD2F.length) {
+      return new InterActionFile();
+    }
+
+    const [fileName, groupId, groupIndex] = refD2F[0];
     let fileGroups: InterActionGroup[] = [];
 
     if (fileName) {
@@ -1347,7 +1399,12 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
         fileGroups = groups;
       }
     }
-    return new InterActionFile(fileName, fileGroups, fileGroups[groupIndex]?.GroupId === groupId ? fileGroups[groupIndex] : fileGroups.find(g => g.GroupId === groupId));
+    return new InterActionFile(
+      fileName,
+      fileGroups,
+      fileGroups[groupIndex]?.GroupId === groupId
+        ? fileGroups[groupIndex]
+        : fileGroups.find(g => g.GroupId === groupId));
   }
   // endregion
 

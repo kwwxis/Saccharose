@@ -160,7 +160,9 @@ export async function generateQuestDialogExcels(repoRoot: string) {
       IANGBGFBILD: 'actionBefore',
       ADGDAEPIILL: 'actionWhile',
       DGJCJLLDMON: 'actionAfter',
-      DOCDFJJIDNG: 'optionIcon'
+      DOCDFJJIDNG: 'optionIcon',
+
+      damageRatio: 'type'
     });
     return obj;
   }

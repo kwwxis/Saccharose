@@ -1598,6 +1598,27 @@ export const genshinSchema = {
       {name: 'MainQuestId', type: 'integer', isIndex: true},
     ]
   },
+  GivingExcelConfigData: <SchemaTable> {
+    name: 'GivingExcelConfigData',
+    jsonFile: './ExcelBinOutput/GivingExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'GivingType', type: 'string', isIndex: true},
+      {name: 'TalkId', type: 'integer', isIndex: true},
+      {name: 'MistakeTalkId', type: 'integer', isIndex: true},
+      {name: 'ExactFinishTalkId', type: 'integer', isIndex: true},
+    ]
+  },
+  GivingGroupExcelConfigData: <SchemaTable> {
+    name: 'GivingGroupExcelConfigData',
+    jsonFile: './ExcelBinOutput/GivingGroupExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'FinishTalkId', type: 'integer', isIndex: true},
+      {name: 'MistakeTalkId', type: 'integer', isIndex: true},
+      {name: 'FinishDialogId', type: 'integer', isIndex: true},
+    ]
+  },
 };
 
 for (let [tableName, schemaTranslationData] of Object.entries(schemaTranslation)) {

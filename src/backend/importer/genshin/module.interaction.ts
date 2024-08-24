@@ -33,7 +33,7 @@ function* walkSync(dir: string): Generator<string> {
 // --------------------------------------------------------------------------------------------------------------
 const allTypes: Set<string> = new Set();
 const uiTriggerContextNames: Set<string> = new Set();
-const d2f: InterActionD2F = {};
+const d2f: InterActionD2F = defaultMap('Array');
 
 export async function loadInterActionQD(repoRoot: string) {
   const binOutputPath: string = path.resolve(repoRoot, './BinOutput');
@@ -50,22 +50,17 @@ export async function loadInterActionQD(repoRoot: string) {
   fs.rmSync(outDir, { recursive: true, force: true });
   fs.mkdirSync(outDir);
 
-  for (let fileName of walkSync(binOutputIAQD)) {
-    if (!fileName.endsWith('.json')) {
+  for (let filePath of walkSync(binOutputIAQD)) {
+    if (!filePath.endsWith('.json')) {
       continue;
     }
 
-    const json = await fsp.readFile(fileName, { encoding: 'utf8' }).then(data => JSON.parse(data));
+    const json = await fsp.readFile(filePath, { encoding: 'utf8' }).then(data => JSON.parse(data));
 
-    let basename = path.basename(fileName);
-    let outFile = path.resolve(outDir, basename);
-    let dupe = 2;
-    while (fs.existsSync(outFile)) {
-      basename = basename.replace('.json', `_${dupe++}.json`);
-      outFile = path.resolve(outDir, basename);
-    }
+    const relName = path.relative(binOutputIAQD, filePath).replace(/\\/g, '/').replace(/\//g, ';');
+    let outFile = path.resolve(outDir, relName);
 
-    const groups = gatherGroups(basename, json);
+    const groups = gatherGroups(relName, json);
     if (!groups) {
       continue;
     }
@@ -81,17 +76,17 @@ export async function loadInterActionQD(repoRoot: string) {
 function processInterAction(fileName: string, groupId: number, groupIndex: number, _action: any): InterAction {
   let action: InterAction = normalizeRawJson(_action, InterActionSchema);
   allTypes.add(action.Type);
-  if (action.Type === 'DIALOG') {
-    if (typeof action.DialogId === 'number') {
-      d2f[action.DialogId] = [fileName, groupId, groupIndex];
+  if (action.Type === 'DIALOG_SELECT') {
+    if (Array.isArray(action.DialogIdList)) {
+      for (let dialogOption of action.DialogIdList) {
+        d2f[dialogOption].push([fileName, groupId, groupIndex]);
+      }
     } else {
       return null;
     }
-  } else if (action.Type === 'DIALOG_SELECT') {
-    if (Array.isArray(action.DialogIdList)) {
-      for (let dialogOption of action.DialogIdList) {
-        d2f[dialogOption] = [fileName, groupId, groupIndex];
-      }
+  } else if (action.Type === 'DIALOG' || !!action.DialogId) {
+    if (typeof action.DialogId === 'number') {
+      d2f[action.DialogId].push([fileName, groupId, groupIndex]);
     } else {
       return null;
     }

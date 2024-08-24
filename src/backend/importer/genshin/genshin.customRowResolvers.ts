@@ -22,7 +22,7 @@ export async function relation_DialogToNext_resolver(row: DialogExcelConfigData,
   }
 
   const ctrl: GenshinControl = acc.ctrl;
-  const iaFile: InterActionFile = await ctrl.loadInterActionFile(row.Id);
+  const iaFile: InterActionFile = await ctrl.loadInterActionFileByDialogId(row.Id);
   const iaDialog: InterActionDialog = iaFile.findDialog(row.Id);
   const iaNextDialogs: InterActionNextDialogs = iaDialog.next();
   const nextDialogs = iaNextDialogs.NextDialogs.length

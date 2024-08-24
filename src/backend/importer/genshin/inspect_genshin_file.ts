@@ -52,32 +52,17 @@ const presets = {
   EquipAffixExcelConfigData: <InspectOpt> { file: excel('EquipAffixExcelConfigData'), inspectFieldValues: ['AddProps[#ALL].PropType'] },
   CodexQuestExcelConfigData: <InspectOpt> { file: excel('CodexQuestExcelConfigData'), inspectFieldValues: ['SpeakerTextType', 'ContentTextType'] },
 
-  GivingExcelConfigData: <InspectOpt> { file: excel('GivingExcelConfigData'), inspectFieldValues: ['Tab', 'GivingMethod', 'GivingType'] },
+  GivingExcelConfigData: <InspectOpt> { file: excel('GivingExcelConfigData'), inspectFieldValues: ['Tab', 'GivingMethod', 'GivingType'],
+  filter(record) {
+      return record.GivingMethod === 'GIVING_METHOD_EXACT';
+  },},
   GivingGroupExcelConfigData: <InspectOpt> { file: excel('GivingGroupExcelConfigData'), inspectFieldValues: [] },
 };
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
     const ctrl = getGenshinControl();
-    //await inspectDataFile(ctrl, presets.CookRecipeExcelConfigData);
-    const rows: QuestExcelConfigData[] = await inspectDataFile(ctrl, presets.QuestExcelConfigData);
-
-    for (let row of rows) {
-      if (row.ShowType === 'QUEST_HIDDEN') {
-        continue;
-      }
-      if (Array.isArray(row.FinishExec) && row.FinishExec.some(x => x.Type === 'QUEST_EXEC_ADD_QUEST_PROGRESS' && toInt(x.Param[1]) !== 1 )) {
-        console.log(row);
-      }
-      if (Array.isArray(row.FailExec) && row.FailExec.some(x => x.Type === 'QUEST_EXEC_ADD_QUEST_PROGRESS' && toInt(x.Param[1]) !== 1 )) {
-        console.log(row);
-      }
-
-      if (Array.isArray(row.FinishCond) && row.FinishCond.some(x => x.Type === 'QUEST_CONTENT_ADD_QUEST_PROGRESS' && toInt(x.Count) >= 2)) {
-        console.log(row);
-      }
-    }
-
+    await inspectDataFile(ctrl, presets.GivingExcelConfigData);
     await closeKnex();
   })();
 }

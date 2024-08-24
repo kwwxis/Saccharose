@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { getGenshinControl } from '../genshinControl.ts';
 import { genshinSchema } from '../../../importer/genshin/genshin.schema.ts';
+import { TalkExcelConfigData } from '../../../../shared/types/genshin/dialogue-types.ts';
 
 function* walkSync(dir: string): Generator<string> {
   const files = fs.readdirSync(dir, { withFileTypes: true });
@@ -37,5 +38,12 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   // refs = await ctrl.selectChangeRecord(362316, 'HomeWorldFurnitureExcelConfigData');
   // console.log(refs);
 
-  console.log(Object.keys(genshinSchema).filter(k => !k.startsWith('Relation_') && !k.startsWith('TextMap') && !k.startsWith('PlainLineMap')).join('\n'))
+  // console.log(Object.keys(genshinSchema).filter(k => !k.startsWith('Relation_') && !k.startsWith('TextMap') && !k.startsWith('PlainLineMap')).join('\n'))
+
+  const talks: TalkExcelConfigData[] = await ctrl.readExcelDataFile('TalkExcelConfigData.json');
+  const d2f = await ctrl.fetchInterActionD2F();
+
+  console.log('All Count:', talks.length);
+  console.log('Perform Count:', talks.filter(t => !!t.PerformCfg).length);
+  console.log(talks.filter(t => !!t.PerformCfg && !t.PerformCfg.startsWith('QuestDialogue')));
 }
