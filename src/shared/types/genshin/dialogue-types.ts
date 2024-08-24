@@ -1,5 +1,6 @@
 import { ConfigCondition, NpcExcelConfigData } from './general-types.ts';
 import { CommonLineId } from '../common-types.ts';
+import { Readable } from './readable-types.ts';
 
 export type TalkRoleType =
   'TALK_ROLE_NPC'
@@ -172,6 +173,9 @@ export interface DialogExcelConfigData {
   // Custom Tx:
   CustomWikiTx?: string,
   CustomWikiTxComment?: string,
+
+  // Custom Readable
+  CustomWikiReadable?: Readable
 }
 
 export interface DialogUnparented {
@@ -316,6 +320,7 @@ export interface TalkExcelConfigData {
   ExtraLoadMarkId: number[],
   PerformCfg: string,
   PrePerformCfg: string,
+  InterActionFile?: string,
 
   TalkMarkType: 'TALK_MARK_COMMON' | 'TALK_MARK_HIDE',
   TalkMarkHideList: number[],

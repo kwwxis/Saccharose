@@ -396,8 +396,7 @@ export async function talkConfigToDialogueSectionResult(ctrl: GenshinControl,
         beginCond.Type.slice(17),
         ... beginCond.Param
       ]);
-    } else
-    if (beginCond.Type.startsWith('QUEST_COND_STATE_')) {
+    } else if (beginCond.Type.startsWith('QUEST_COND_STATE_')) {
       let questExcel = await ctrl.selectQuestExcelConfigData(beginCond.Param[0]);
       let questName = questExcel ? await ctrl.selectMainQuestName(questExcel.MainId) : null;
 
@@ -407,6 +406,10 @@ export async function talkConfigToDialogueSectionResult(ctrl: GenshinControl,
         ... beginCond.Param.slice(1)
       ]);
     }
+  }
+
+  if (talkConfig.InterActionFile) {
+    mysect.addMetaProp('Perform', talkConfig.InterActionFile.replace(/;/g, '/').replace('.json', ''));
   }
 
   if (talkConfig.Dialog.length && ctrl.isPlayerTalkRole(talkConfig.Dialog[0])) {

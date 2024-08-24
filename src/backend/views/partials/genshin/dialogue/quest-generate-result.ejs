@@ -141,6 +141,30 @@
       </div>
     </div>
   <% } %>
+  <% if (inDialogueReadables && inDialogueReadables.length) { %>
+    <h2>In-Dialogue Readables</h2>
+    <div class="content">
+      <% for (let readable of inDialogueReadables) { %>
+        <%- use('partials/genshin/archive/readable-link', { readable }) %>
+      <% } %>
+      <div class="alignStart flexWrap">
+        <% for (let readable of inDialogueReadables) { %>
+          <% for (let item of readable.Items) { %>
+            <% if (item.ReadableImages && item.ReadableImages.length) { %>
+              <% for (let image of item.ReadableImages) { %>
+                <div class="w25p">
+                  <div class="image-frame spacer3-all bordered">
+                    <img src="/images/genshin/<%= image %>.png" class="w100p" />
+                    <span class="image-label"><%= image %></span>
+                  </div>
+                </div>
+              <% } %>
+            <% } %>
+          <% } %>
+        <% } %>
+      </div>
+    </div>
+  <% } %>
   <% if (similarityGroups && Object.keys(similarityGroups).length) { %>
     <h2>Similar Dialogue Groups</h2>
     <div class="content">

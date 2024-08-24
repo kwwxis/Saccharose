@@ -195,6 +195,9 @@ export class GenshinControlState extends AbstractControlState {
   questBgPicSeen: {[mainQuestId: number]: {[imageName: string]: number}} = defaultMap('Object');
   questBgPicImageToWikiName: {[mainQuestId: number]: {[imageName: string]: string}} = defaultMap('Object');
 
+  // In-Dialogue Readables
+  inDialogueReadables: {[mainQuestId: number]: Readable[]} = defaultMap('Array');
+
   // Cache Preferences:
   DisableAvatarCache: boolean = false;
   DisableNpcCache: boolean = false;
@@ -614,6 +617,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     // Handle InterAction overloading InitDialog:
     if (talk.PerformCfg) {
       const iaFile = await this.loadInterActionFileByName(talk.PerformCfg);
+      talk.InterActionFile = iaFile.Name;
 
       const initDialog = iaFile.findDialog(talk.InitDialog);
       const firstDialog = iaFile.findFirstDialog();
@@ -624,6 +628,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       }
     } else if (talk.InitDialog) {
       const iaFile = await this.loadInterActionFileByDialogId(talk.InitDialog);
+      talk.InterActionFile = iaFile.Name;
 
       let curr: InterActionDialog = iaFile.findDialog(talk.InitDialog);
       if (curr.isPresent()) {
@@ -938,7 +943,8 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
       // Handle self:
       if (currNode.TalkContentText || currNode.CustomTravelLogMenuText
-          || currNode.CustomImageName || currNode.CustomSecondImageName || currNode.CustomWikiTx) {
+          || currNode.CustomImageName || currNode.CustomSecondImageName || currNode.CustomWikiTx
+          || currNode.CustomWikiReadable) {
         currBranch.push(currNode);
       }
 
@@ -1023,6 +1029,14 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
             fakeDialogs.push(await this.makeFakeDialog(action.ActionId, {
               CustomWikiTx: 'Missing quest item picture',
             }));
+          } else if (action.Type === 'UI_TRIGGER' && action.ContextName === 'QuestReadingDialog' && isInt(action.Param)) {
+            const readable = await this.selectReadable(toInt(action.Param), true);
+            if (readable) {
+              fakeDialogs.push(await this.makeFakeDialog(action.ActionId, {
+                CustomWikiReadable: readable
+              }));
+              this.state.inDialogueReadables[mainQuestId].push(readable);
+            }
           }
         }
       }
@@ -1129,7 +1143,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       let text: string = this.normText(dialog.TalkContentText, this.outputLangCode);
 
       if (dialog.CustomTravelLogMenuText) {
-        text = this.normText(dialog.CustomTravelLogMenuText, this.outputLangCode);
+        text = '{{Color|menu|' + this.normText(dialog.CustomTravelLogMenuText, this.outputLangCode) + '}}';
       } else if (dialog.CustomImageName || dialog.CustomSecondImageName) {
         text = `<gallery widths="350">`;
         if (dialog.CustomImageWikiName) {
@@ -1144,6 +1158,12 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
         if (dialog.CustomWikiTxComment) {
           text += `<!-- ${dialog.CustomWikiTxComment} -->`
         }
+      } else if (dialog.CustomWikiReadable) {
+        let lines: string[] = [];
+        for (let item of dialog.CustomWikiReadable.Items) {
+          lines.push(item.ReadableText.AsTemplate);
+        }
+        text = lines.map(line => prefix + ':' + line).join('\n');
       }
 
       // Traveler SEXPRO
@@ -1272,10 +1292,10 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
           out += `\n${diconPrefix.slice(0,-1)};(${this.i18n('ReturnToDialogueOption')})`;
         }
       } else {
-        if (dialog.CustomTravelLogMenuText) {
-          out += `\n${prefix}{{Color|menu|${text}}}`;
-        } else if (dialog.CustomImageName || dialog.CustomWikiTx) {
+        if (dialog.CustomTravelLogMenuText || dialog.CustomImageName || dialog.CustomWikiTx) {
           out += `\n${prefix}${text}`;
+        } else if (dialog.CustomWikiReadable) {
+          out += `\n${text}`;
         } else if (this.isBlackScreenDialog(dialog)) {
           out += `\n${prefix}{{Black Screen|${voPrefix}${text}}}`;
         } else if (this.isPlayerTalkRole(dialog)) {
@@ -3144,7 +3164,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
             if (langCode === this.outputLangCode) {
               ret.ReadableText = readableText;
 
-              for (let match of fileNormText.matchAll(/<image\s*name=([^ \/]+)\s*\/>/g)) {
+              for (let match of fileNormText.matchAll(/\{\{tx\|Image: ([^}]+)}}/ig)) {
                 ret.ReadableImages.push(match[1]);
               }
             }

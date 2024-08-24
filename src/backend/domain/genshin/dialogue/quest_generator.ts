@@ -27,6 +27,7 @@ import { custom } from '../../../util/logger.ts';
 import { grepIdStartsWith } from '../../../util/shellutil.ts';
 import { RAW_MANUAL_TEXTMAP_ID_PROP } from '../../../importer/genshin/genshin.schema.ts';
 import { toInt } from '../../../../shared/util/numberUtil.ts';
+import { Readable } from '../../../../shared/types/genshin/readable-types.ts';
 
 export class QuestGenerateResult {
   mainQuest: MainQuestExcelConfigData = null;
@@ -48,6 +49,7 @@ export class QuestGenerateResult {
   reputation?: ReputationQuestExcelConfigData;
   rewardInfobox?: string;
   questStills?: {imageName: string, wikiName: string}[];
+  inDialogueReadables?: Readable[]
 }
 
 async function findMainQuest(ctrl: GenshinControl, questNameOrId: string|number, questIndex: number) {
@@ -397,6 +399,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
   // Other
   // --------------------------------------------------------------------------------------------------------------
   result.questStills = ctrl.state.questStills?.[mainQuest.Id] || [];
+  result.inDialogueReadables = ctrl.state.inDialogueReadables?.[mainQuest.Id] || [];
 
   // Return result
   // --------------------------------------------------------------------------------------------------------------

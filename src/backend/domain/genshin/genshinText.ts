@@ -161,6 +161,7 @@ export function __normGenshinText(text: string, langCode: LangCode, opts: NormTe
   text = text.replace(/<right>/g, '<div class="align-right">');
   text = text.replace(/<\/right>/g, '</div>');
   text = text.replace(/<size=([^>]+)>(.*?)<\/size>/gs, '$2');
+  text = text.replace(/<image\s+name=([^\s\/>]+)\s*\/>/g,'{{tx|Image: $1}}');
 
   if (!opts.decolor && !opts.plaintext) {
     // Bold:

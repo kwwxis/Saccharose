@@ -80,6 +80,7 @@ router.endpoint('/quests/generate', {
       locals.rewardInfobox = result.rewardInfobox;
       locals.similarityGroups = result.similarityGroups;
       locals.questStills = result.questStills;
+      locals.inDialogueReadables = result.inDialogueReadables;
 
       return res.render('partials/genshin/dialogue/quest-generate-result', locals);
     } else {
@@ -97,6 +98,19 @@ async function questStillsHelper(ctrl: GenshinControl) {
     }
   }
   return {questsStillsByMainQuest, questsStillsMainQuestNames};
+}
+
+async function inDialogueReadablesHelper(ctrl: GenshinControl) {
+  const inDialogueReadablesMainQuestNames: {[mainQuestId: number]: string} = {};
+
+  for (let mainQuestId of Object.keys(ctrl.state.inDialogueReadables)) {
+    inDialogueReadablesMainQuestNames[mainQuestId] = await ctrl.selectMainQuestName(toInt(mainQuestId));
+  }
+
+  return {
+    inDialogueReadables: ctrl.state.inDialogueReadables,
+    inDialogueReadablesMainQuestNames
+  }
 }
 
 router.endpoint('/dialogue/single-branch-generate', {
@@ -119,6 +133,7 @@ router.endpoint('/dialogue/single-branch-generate', {
         sections: result,
         query,
         ... await questStillsHelper(ctrl),
+        ... await inDialogueReadablesHelper(ctrl),
         langSuggest: result.length ? null : ctrl.langSuggest(query)
       });
     } else {
@@ -147,6 +162,7 @@ router.endpoint('/dialogue/npc-dialogue-generate', {
         resultMap: resultSet.resultMap,
         reminders: resultSet.reminders,
         ... await questStillsHelper(ctrl),
+        ... await inDialogueReadablesHelper(ctrl),
       });
     } else {
       return removeCyclicRefs(resultSet, ApiCyclicValueReplacer);
@@ -171,7 +187,9 @@ router.endpoint('/dialogue/reminder-dialogue-generate', {
         query,
         langSuggest: result.length ? null : ctrl.langSuggest(query),
         questsStillsByMainQuest: null,
-        questsStillsMainQuestNames: null
+        questsStillsMainQuestNames: null,
+        inDialogueReadables: null,
+        inDialogueReadablesMainQuestNames: null,
       });
     } else {
       return result;
