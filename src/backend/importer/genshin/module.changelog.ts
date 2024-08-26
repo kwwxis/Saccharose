@@ -5,7 +5,7 @@ import path from 'path';
 import fs from 'fs';
 import { defaultMap, isUnset } from '../../../shared/util/genericUtil.ts';
 import { isEquiv, mapBy, resolveObjectPath, walkObject } from '../../../shared/util/arrayUtil.ts';
-import { schemaPrimaryKey } from '../import_db.ts';
+import { normalizeRawJson, schemaPrimaryKey } from '../import_db.ts';
 import {
   ChangeRecordMap,
   ExcelFullChangelog,
@@ -170,8 +170,10 @@ async function computeExcelFileChanges(state: CreateChangelogState) {
     const prevFilePath: string = path.resolve(prevDataRoot, schemaTable.jsonFile);
     const currFilePath: string = path.resolve(currDataRoot, schemaTable.jsonFile);
 
-    const prevData: {[key: string]: any} = mapBy(JSON.parse(fs.readFileSync(prevFilePath, {encoding: 'utf8'})), primaryKey);
-    const currData: {[key: string]: any} = mapBy(JSON.parse(fs.readFileSync(currFilePath, {encoding: 'utf8'})), primaryKey);
+    let prevDataRaw = JSON.parse(fs.readFileSync(prevFilePath, {encoding: 'utf8'}));
+    let currDataRaw = JSON.parse(fs.readFileSync(currFilePath, {encoding: 'utf8'}));
+    const prevData: {[key: string]: any} = mapBy(prevDataRaw, primaryKey);
+    const currData: {[key: string]: any} = mapBy(currDataRaw, primaryKey);
 
     console.log(`Computing changelog for SchemaTable: ${schemaTable.name} // pkey: ${primaryKey} // ` +
       'CurrKeyCount:', Object.keys(currData).length, 'PrevKeyCount:', Object.keys(prevData).length);
