@@ -428,7 +428,6 @@ export async function talkConfigToDialogueSectionResult(ctrl: GenshinControl,
       otherSect.originalData.dialogBranch = dialogs;
       otherSect.metadata.push(new MetaProp('First Dialogue ID', dialogs[0].Id, `/branch-dialogue?q=${dialogs[0].Id}`));
 
-      console.log(dialogs[0]);
       if (dialogs[0].TalkType) {
         otherSect.addMetaProp('First Dialogue Talk Type', dialogs[0].TalkType);
       }
