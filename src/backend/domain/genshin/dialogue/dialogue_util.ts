@@ -427,9 +427,19 @@ export async function talkConfigToDialogueSectionResult(ctrl: GenshinControl,
       let otherSect = new DialogueSectionResult('OtherDialogue_'+dialogs[0].Id, 'Other Dialogue');
       otherSect.originalData.dialogBranch = dialogs;
       otherSect.metadata.push(new MetaProp('First Dialogue ID', dialogs[0].Id, `/branch-dialogue?q=${dialogs[0].Id}`));
+
+      console.log(dialogs[0]);
       if (dialogs[0].TalkType) {
-        otherSect.metadata.push(new MetaProp('First Dialogue Talk Type', dialogs[0].TalkType));
+        otherSect.addMetaProp('First Dialogue Talk Type', dialogs[0].TalkType);
       }
+      if (dialogs[0].TalkBinType) {
+        const values: (string|number)[] = [dialogs[0].TalkBinType];
+        if (dialogs[0].TalkBinType === 'NpcOther') {
+          values.push('Idle Quote');
+        }
+        otherSect.addMetaProp('First Dialogue Talk Bin Type', values);
+      }
+
       const otherWikitextRet: DialogWikitextResult = await ctrl.generateDialogueWikitext(dialogs);
       otherSect.setWikitext(otherWikitextRet);
       mysect.children.push(otherSect);

@@ -13,6 +13,7 @@ import { toMap } from '../../../shared/util/arrayUtil.ts';
 import { logInitData } from '../../util/logger.ts';
 import fs, { promises as fsp } from 'fs';
 import { ManualTextMapHashes } from '../../../shared/types/genshin/manual-text-map.ts';
+import { GENSHIN_DISABLED } from '../../loadenv.ts';
 
 export type GenshinNormTextOpts = {
   wandererPlaceholderPlainForm?: boolean
@@ -292,6 +293,8 @@ let ELEMENT_TEXTMAP: {
 };
 
 export async function loadGenshinTextSupportingData(): Promise<void> {
+  if (GENSHIN_DISABLED)
+    return;
   logInitData('Loading Genshin-supporting text data -- starting...');
 
   const ctrl = getGenshinControl();

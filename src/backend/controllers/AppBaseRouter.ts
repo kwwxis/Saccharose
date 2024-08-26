@@ -12,6 +12,7 @@ import { getWuwaControl } from '../domain/wuwa/wuwaControl.ts';
 import { NextFunction, Request, Response, Router } from 'express';
 import { SiteUserProvider } from '../middleware/auth/SiteUserProvider.ts';
 import UserRouter from './UserRouter.ts';
+import { GENSHIN_DISABLED, HSR_DISABLED, WUWA_DISABLED, ZENLESS_DISABLED } from '../loadenv.ts';
 
 export default async function(): Promise<Router> {
   const router: Router = create({
@@ -57,10 +58,50 @@ export default async function(): Promise<Router> {
     helmet.contentSecurityPolicy(cspOptions)(req, res, next);
   });
 
-  router.use('/genshin',  await GenshinRouter());
-  router.use('/hsr',      await StarRailRouter());
-  router.use('/zenless',  await ZenlessRouter());
-  router.use('/wuwa',     await WuwaRouter());
+  if (GENSHIN_DISABLED) {
+    router.use('/genshin**',  (_req: Request, res: Response) => {
+      res.status(404).render('errors/unavailable', {
+        label: 'Genshin Impact',
+        bodyClass: 'hide-app-sidebar'
+      });
+    });
+  } else {
+    router.use('/genshin',  await GenshinRouter());
+  }
+
+  if (HSR_DISABLED) {
+    router.use('/hsr**',  (_req: Request, res: Response) => {
+      res.status(404).render('errors/unavailable', {
+        label: 'Honkai Star Rail',
+        bodyClass: 'hide-app-sidebar'
+      });
+    });
+  } else {
+    router.use('/hsr', await StarRailRouter());
+  }
+
+  if (ZENLESS_DISABLED) {
+    router.use('/zenless**',  (_req: Request, res: Response) => {
+      res.status(404).render('errors/unavailable', {
+        label: 'Zenless Zone Zero',
+        bodyClass: 'hide-app-sidebar'
+      });
+    });
+  } else {
+    router.use('/zenless', await ZenlessRouter());
+  }
+
+  if (WUWA_DISABLED) {
+    router.use('/wuwa**',  (_req: Request, res: Response) => {
+      res.status(404).render('errors/unavailable', {
+        label: 'Wuthering Waves',
+        bodyClass: 'hide-app-sidebar'
+      });
+    });
+  } else {
+    router.use('/wuwa', await WuwaRouter());
+  }
+
   router.use('/',         await UserRouter());
 
   // router.use('/', (req: Request, res: Response, next: NextFunction) => {

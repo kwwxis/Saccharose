@@ -5,6 +5,7 @@ import {
   NormTextOptions,
   postProcessBoldItalic,
 } from '../abstract/genericNormalizers.ts';
+import { ZENLESS_DISABLED } from '../../loadenv.ts';
 
 export type ZenlessNormTextOpts = {
 
@@ -83,5 +84,6 @@ export function __normZenlessText(text: string, langCode: LangCode, opts: NormTe
 }
 
 export async function loadZenlessTextSupportingData() {
-
+  if (ZENLESS_DISABLED)
+    return;
 }

@@ -5,6 +5,7 @@ import { DATAFILE_GENSHIN_SQLITE_DB, DATAFILE_HSR_SQLITE_DB, DATAFILE_ZENLESS_SQ
 import { logShutdown } from './logger.ts';
 import { isInt, toInt } from '../../shared/util/numberUtil.ts';
 import Pool from 'pg-pool';
+import { toBoolean } from '../../shared/util/genericUtil.ts';
 
 export type SaccharoseDb = {
   genshin: Knex,
@@ -67,10 +68,10 @@ export function openSqlite(): SaccharoseDb {
     return singleton;
   }
   singleton = {
-    genshin:  createSqliteConnection(path.resolve(process.env.GENSHIN_DATA_ROOT,  DATAFILE_GENSHIN_SQLITE_DB)),
-    hsr:      createSqliteConnection(path.resolve(process.env.HSR_DATA_ROOT,      DATAFILE_HSR_SQLITE_DB)),
-    zenless:  createSqliteConnection(path.resolve(process.env.ZENLESS_DATA_ROOT,  DATAFILE_ZENLESS_SQLITE_DB)),
-    wuwa:     createSqliteConnection(path.resolve(process.env.WUWA_DATA_ROOT,     DATAFILE_WUWA_SQLITE_DB)),
+    genshin:  toBoolean(process.env.GENSHIN_DISABLED) ? null  : createSqliteConnection(path.resolve(process.env.GENSHIN_DATA_ROOT,  DATAFILE_GENSHIN_SQLITE_DB)),
+    hsr:      toBoolean(process.env.HSR_DISABLED) ? null      : createSqliteConnection(path.resolve(process.env.HSR_DATA_ROOT,      DATAFILE_HSR_SQLITE_DB)),
+    zenless:  toBoolean(process.env.ZENLESS_DISABLED) ? null  : createSqliteConnection(path.resolve(process.env.ZENLESS_DATA_ROOT,  DATAFILE_ZENLESS_SQLITE_DB)),
+    wuwa:     toBoolean(process.env.WUWA_DISABLED) ? null     : createSqliteConnection(path.resolve(process.env.WUWA_DATA_ROOT,     DATAFILE_WUWA_SQLITE_DB)),
   };
   return singleton;
 }

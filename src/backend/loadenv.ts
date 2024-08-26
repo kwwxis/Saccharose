@@ -22,6 +22,11 @@ export const SITE_TITLE = 'Saccharose.wiki';
 export const EJS_DELIMITER = '%';
 export const WEB_ACCESS_LOG = path.resolve(process.env.WEB_ACCESS_LOG);
 
+export const GENSHIN_DISABLED = toBoolean(process.env.GENSHIN_DISABLED);
+export const HSR_DISABLED = toBoolean(process.env.HSR_DISABLED);
+export const ZENLESS_DISABLED = toBoolean(process.env.ZENLESS_DISABLED);
+export const WUWA_DISABLED = toBoolean(process.env.WUWA_DISABLED);
+
 export const IMAGEDIR_GENSHIN_STATIC = path.resolve(PUBLIC_DIR, './images/genshin/static');
 export const IMAGEDIR_GENSHIN_EXT = path.resolve(process.env.EXT_GENSHIN_IMAGES);
 export const IMAGEDIR_HSR_EXT = path.resolve(process.env.EXT_HSR_IMAGES);

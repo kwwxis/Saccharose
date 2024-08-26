@@ -13,6 +13,7 @@ import { getStarRailControl } from '../domain/hsr/starRailControl.ts';
 import { getZenlessControl } from '../domain/zenless/zenlessControl.ts';
 import { getWuwaControl } from '../domain/wuwa/wuwaControl.ts';
 import { Request, Response, Router } from 'express';
+import { GENSHIN_DISABLED, HSR_DISABLED, WUWA_DISABLED, ZENLESS_DISABLED } from '../loadenv.ts';
 
 export default async function(): Promise<Router> {
   const router: Router = create({
@@ -41,10 +42,14 @@ export default async function(): Promise<Router> {
 
   // Add API Resources
   // ~~~~~~~~~~~~~~~~~
-  GenshinResources(router)
-  StarRailResources(router);
-  ZenlessResources(router);
-  WuwaResources(router);
+  if (!GENSHIN_DISABLED)
+    GenshinResources(router)
+  if (!HSR_DISABLED)
+    StarRailResources(router);
+  if (!ZENLESS_DISABLED)
+    ZenlessResources(router);
+  if (!WUWA_DISABLED)
+    WuwaResources(router);
   GenericResources(router);
 
   // Client Error Handlers

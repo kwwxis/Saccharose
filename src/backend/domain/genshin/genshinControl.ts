@@ -86,7 +86,7 @@ import {
 } from '../../../shared/types/genshin/homeworld-types.ts';
 import { grepStream } from '../../util/shellutil.ts';
 import {
-  DATAFILE_GENSHIN_VOICE_ITEMS,
+  DATAFILE_GENSHIN_VOICE_ITEMS, GENSHIN_DISABLED,
   getGenshinDataFilePath,
   getReadableRelPath,
   IMAGEDIR_GENSHIN_EXT,
@@ -244,7 +244,6 @@ export function getGenshinControl(request?: Request) {
 
 // region Control Object
 // --------------------------------------------------------------------------------------------------------------
-// TODO: Make this not a god object
 export class GenshinControl extends AbstractControl<GenshinControlState> {
   // region Constructor
   readonly voice: GenshinVoice = new GenshinVoice();
@@ -3560,6 +3559,8 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 const GENSHIN_VOICE_ITEMS: VoiceItemArrayMap = {};
 
 export async function loadGenshinVoiceItems(): Promise<void> {
+  if (GENSHIN_DISABLED)
+    return;
   logInitData('Loading Genshin Voice Items -- starting...');
 
   const voiceItemsFilePath = path.resolve(process.env.GENSHIN_DATA_ROOT, DATAFILE_GENSHIN_VOICE_ITEMS);

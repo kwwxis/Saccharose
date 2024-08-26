@@ -64,3 +64,8 @@
     padding-left: 15px;
   }
 }
+
+body.hide-app-sidebar #app-sidebar,
+body.hide-app-sidebar .app-sidebar-content {
+  display: none !important;
+}

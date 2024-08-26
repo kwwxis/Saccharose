@@ -1,7 +1,7 @@
 // noinspection JSUnusedGlobalSymbols
 
 import { AbstractControl } from '../abstract/abstractControl.ts';
-import { DATAFILE_HSR_VOICE_ITEMS, getStarRailDataFilePath } from '../../loadenv.ts';
+import { DATAFILE_HSR_VOICE_ITEMS, getStarRailDataFilePath, HSR_DISABLED } from '../../loadenv.ts';
 import { normalizeRawJson, SchemaTable } from '../../importer/import_db.ts';
 import {
   LangCode, LangCodeMap,
@@ -229,6 +229,8 @@ export function normalizeStarRailVoicePath(voicePath: string): string {
 }
 
 export async function loadStarRailVoiceItems(): Promise<void> {
+  if (HSR_DISABLED)
+    return;
   logInitData('Loading HSR Voice Items -- starting...');
 
   const voiceItemsFilePath = path.resolve(process.env.HSR_DATA_ROOT, DATAFILE_HSR_VOICE_ITEMS);
