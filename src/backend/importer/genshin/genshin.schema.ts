@@ -166,6 +166,10 @@ export const genshinSchema = {
       { name: 'TitleTextMapHash', type: 'integer', isIndex: true },
       { name: 'DescTextMapHash', type: 'integer', isIndex: true },
     ],
+    renameFields: {
+      DescTextMapHash: 'TitleTextMapHash',
+      EKEKACCODOE: 'DescTextMapHash'
+    }
   },
   ChapterExcelConfigData: <SchemaTable> {
     name: 'ChapterExcelConfigData',

@@ -80,7 +80,7 @@ export default async function(): Promise<Router> {
     const companion: HomeWorldNPCExcelConfigData = await getCompanion(ctrl, req);
 
     res.render('pages/genshin/character/companion-dialogue', {
-      title: 'Companion Dialogue - ' + companion.CommonName,
+      title: 'Companion Dialogue - ' + (companion?.CommonName || 'Not Found'),
       companion: companion,
       dialogue: await fetchCompanionDialogue(ctrl, companion),
       bodyClass: ['page--companion-dialogue']
@@ -106,7 +106,7 @@ export default async function(): Promise<Router> {
       avatarId: req.params.avatar,
       story: story,
       bodyClass: ['page--character-stories'],
-      tab: queryTab(req, 'display', 'wikitext', ... (story.hasAlteredStories ? ['altered-display', 'altered-wikitext'] : [])),
+      tab: queryTab(req, 'display', 'wikitext', ... (story?.hasAlteredStories ? ['altered-display', 'altered-wikitext'] : [])),
     });
   });
 
