@@ -45,7 +45,7 @@ function selectPreferredTab(state: WikiRevAppState) {
 }
 
 async function fetchRev(state: WikiRevAppState) {
-  state.rev = (await genericEndpoints.getRevisions.get({
+  state.rev = (await genericEndpoints.getRevisions.send({
     siteMode: SITE_MODE,
     revid: state.revId,
     loadMode: 'contentAndPrev',

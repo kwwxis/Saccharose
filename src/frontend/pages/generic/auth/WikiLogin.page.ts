@@ -18,7 +18,7 @@ pageMatch('vue/WikiLoginPage', () => {
       wikiCheckPendingEl.classList.remove('hide');
       wikiCheckErrorEl.classList.add('hide');
 
-      genericEndpoints.authCheck.post({
+      genericEndpoints.authCheck.send({
         wikiUsername: wikiNameEl.value || '',
         wikiLang: wikiLangEl.value || '',
       }).then(data => {

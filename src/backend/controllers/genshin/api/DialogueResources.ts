@@ -198,9 +198,14 @@ router.endpoint('/dialogue/reminder-dialogue-generate', {
 });
 
 router.endpoint('/dialogue/vo-to-dialogue', {
-  get: async (req: Request, res: Response) => {
+  post: async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
-    const inputs: string[] = (req.query.text as string).trim().split(/\n/g).map(s => s.trim()).filter(s => !!s);
+
+    const inputs: string[] = ((req.body.text || req.query.text || '') as string).trim()
+      .split(/\n/g)
+      .map(s => s.trim())
+      .filter(s => !!s);
+
     const results: {id: number, voFile: string, type: string, text: string, warn?: string, file: string}[] = [];
 
     for (let input of inputs) {

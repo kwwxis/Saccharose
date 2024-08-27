@@ -25,6 +25,7 @@ function createSqliteConnection(dbFilePath: string): Knex {
     },
     useNullAsDefault: true,
     pool: {
+      max: 30,
       afterCreate: function(conn, done) {
         conn.run('PRAGMA journal_mode = WAL;', function() {
           conn.run('PRAGMA synchronous = normal;', function() {
@@ -58,6 +59,9 @@ function createPostgresConnection() {
       user: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
       port: isInt(process.env.POSTGRES_PORT) ? toInt(process.env.POSTGRES_PORT) : 5432,
+    },
+    pool: {
+      max: 30,
     },
     useNullAsDefault: true,
   });

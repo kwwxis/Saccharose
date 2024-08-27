@@ -28,7 +28,7 @@ export function initiateMediaListPage(
     </div>
   `))
 
-    const rootCatMap: ImageCategoryMap = await mediaCategoryEndpoint.get({});
+    const rootCatMap: ImageCategoryMap = await mediaCategoryEndpoint.send({});
     console.log({
       appEl,
       rootCatMap
@@ -38,7 +38,7 @@ export function initiateMediaListPage(
     const imageLoaders: {[mediaCatId: string]: Function} = {};
 
     async function loadImages(mediaCatId: string, loadZoneEl: HTMLElement, catPath: string, offset: number) {
-      const result = await mediaSearchEndpoint.get({ catPath: catPath, catRestrict: true, offset });
+      const result = await mediaSearchEndpoint.send({ catPath: catPath, catRestrict: true, offset });
       for (let entity of result.results) {
         loadZoneEl.append(frag1(`
         <div class="media-image">

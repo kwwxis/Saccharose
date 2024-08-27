@@ -107,8 +107,10 @@ export class VoAppState {
   }
 
   scrollInit() {
-    setTimeout(() => {
-      OverlayScrollbars(document.querySelector<HTMLElement>('#vo-tool-sidebar-list'), {
+    let voToolSidebarOverlayScroll: OverlayScrollbars;
+
+    function initVoToolSidebarOverlayScroll() {
+      voToolSidebarOverlayScroll = OverlayScrollbars(document.querySelector<HTMLElement>('#vo-tool-sidebar-list'), {
         scrollbars: {
           theme: isNightmode() ? 'os-theme-light' : 'os-theme-dark',
           autoHide: 'leave'
@@ -117,6 +119,11 @@ export class VoAppState {
           x: 'hidden'
         }
       });
+    }
+
+    setTimeout(() => {
+      initVoToolSidebarOverlayScroll();
+
       OverlayScrollbars(document.querySelector<HTMLElement>('#app-sidebar .app-sidebar-content'), {
         scrollbars: {
           theme: isNightmode ? 'os-theme-light' : 'os-theme-dark',
@@ -125,6 +132,17 @@ export class VoAppState {
         overflow: {
           x: 'hidden'
         }
+      });
+
+      document.querySelector('#vo-tool-sidebar-mobile-toggle').addEventListener('click', () => {
+        setTimeout(() => {
+          if (voToolSidebarOverlayScroll)
+            voToolSidebarOverlayScroll.destroy();
+
+          if (!document.querySelector('#vo-tool-sidebar').classList.contains('mobile')) {
+            initVoToolSidebarOverlayScroll();
+          }
+        });
       });
     });
   }

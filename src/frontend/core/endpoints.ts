@@ -24,59 +24,27 @@ export type ApiParams<T> = T & {
   apiKey?: string,
 };
 
-export abstract class SaccharoseApiEndpoint<T extends Object, R = any> {
-  readonly uri: string;
+export type ApiMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
 
-  protected constructor(readonly base_uri: string, uri: string) {
+export abstract class SaccharoseApiEndpoint<T extends Object, R = any, E = any> {
+  readonly uri: string;
+  readonly method: ApiMethod;
+
+  protected constructor(readonly base_uri: string,
+                        uri: string,
+                        method: ApiMethod) {
     if (!uri.startsWith('/')) {
       throw 'SaccharoseApiEndpoint constructor: uri must start with "/"'
     }
     this.uri = this.base_uri + uri;
+    this.method = method;
   }
 
-  get(params: ApiParams<T>): Promise<R>;
-  get(params: ApiParams<T>, asHTML: false): Promise<R>;
-  get(params: ApiParams<T>, asHTML: true): Promise<string>;
-  get<H extends boolean>(params: ApiParams<T>, asHTML: H): Promise<H extends true ? string : R>;
-
-  get(params: ApiParams<T>, asHTML: boolean = false): Promise<any> {
-    return this.request('get', params, asHTML);
-  }
-
-  post(params: ApiParams<T>): Promise<R>;
-  post(params: ApiParams<T>, asHTML: false): Promise<R>;
-  post(params: ApiParams<T>, asHTML: true): Promise<string>;
-  post<H extends boolean>(params: ApiParams<T>, asHTML: H): Promise<H extends true ? string : R>;
-
-  post(params: ApiParams<T>, asHTML: boolean = false): Promise<any> {
-    return this.request('post', params, asHTML);
-  }
-
-  put(params: ApiParams<T>): Promise<R>;
-  put(params: ApiParams<T>, asHTML: false): Promise<R>;
-  put(params: ApiParams<T>, asHTML: true): Promise<string>;
-  put<H extends boolean>(params: ApiParams<T>, asHTML: H): Promise<H extends true ? string : R>;
-
-  put(params: ApiParams<T>, asHTML: boolean = false): Promise<any> {
-    return this.request('put', params, asHTML);
-  }
-
-  delete(params: ApiParams<T>): Promise<R>;
-  delete(params: ApiParams<T>, asHTML: false): Promise<R>;
-  delete(params: ApiParams<T>, asHTML: true): Promise<string>;
-  delete<H extends boolean>(params: ApiParams<T>, asHTML: H): Promise<H extends true ? string : R>;
-
-  delete(params: ApiParams<T>, asHTML: boolean = false) {
-    return this.request('delete', params, asHTML);
-  }
-
-  request(method: Method, params: ApiParams<T>): Promise<R>;
-  request(method: Method, params: ApiParams<T>, asHTML: false): Promise<R>;
-  request(method: Method, params: ApiParams<T>, asHTML: true): Promise<string>;
-  request<H extends boolean>(method: Method, params: ApiParams<T>, asHTML: H): Promise<H extends true ? string : R>;
-
-  request(method: Method, params: ApiParams<T>, asHTML: boolean = false): Promise<any> {
+  send(params: ApiParams<T>, body: E = null, asHTML: boolean = false): Promise<any> {
     const currentUrlParams = new URLSearchParams(window.location.search);
+    if (!params || typeof params !== 'object') {
+      params = {} as T;
+    }
     params['input'] = currentUrlParams.get('input');
     params['output'] = currentUrlParams.get('output');
     params['searchMode'] = currentUrlParams.get('searchMode');
@@ -97,11 +65,11 @@ export abstract class SaccharoseApiEndpoint<T extends Object, R = any> {
     return axios
       .request({
         url: uri,
-        method: method,
+        method: this.method,
         params: cleanedParams,
+        data: body,
         headers: {
-          'Accept': asHTML ? 'text/html' : 'application/json',
-          'Content-Type': asHTML ? 'text/html' : 'application/json',
+          'Accept': asHTML ? 'text/html' : 'application/json'
         }
       })
       .then(response => response.data)
@@ -155,39 +123,39 @@ export abstract class SaccharoseApiEndpoint<T extends Object, R = any> {
   }
 }
 
-export class GenshinApiEndpoint<T extends Object, R = any> extends SaccharoseApiEndpoint<T, R> {
-  constructor(uri: string) {
-    super('/api/genshin', uri);
+export class GenshinApiEndpoint<T extends Object, R = any, E = any> extends SaccharoseApiEndpoint<T, R, E> {
+  constructor(method: ApiMethod, uri: string) {
+    super('/api/genshin', uri, method);
   }
 }
 
-export class StarRailApiEndpoint<T extends Object, R = any> extends SaccharoseApiEndpoint<T, R> {
-  constructor(uri: string) {
-    super('/api/hsr', uri);
+export class StarRailApiEndpoint<T extends Object, R = any, E = any> extends SaccharoseApiEndpoint<T, R, E> {
+  constructor(method: ApiMethod, uri: string) {
+    super('/api/hsr', uri, method);
   }
 }
 
-export class ZenlessApiEndpoint<T extends Object, R = any> extends SaccharoseApiEndpoint<T, R> {
-  constructor(uri: string) {
-    super('/api/zenless', uri);
+export class ZenlessApiEndpoint<T extends Object, R = any, E = any> extends SaccharoseApiEndpoint<T, R, E> {
+  constructor(method: ApiMethod, uri: string) {
+    super('/api/zenless', uri, method);
   }
 }
 
-export class WuwaApiEndpoint<T extends Object, R = any> extends SaccharoseApiEndpoint<T, R> {
-  constructor(uri: string) {
-    super('/api/wuwa', uri);
+export class WuwaApiEndpoint<T extends Object, R = any, E = any> extends SaccharoseApiEndpoint<T, R, E> {
+  constructor(method: ApiMethod, uri: string) {
+    super('/api/wuwa', uri, method);
   }
 }
 
-export class GenericApiEndpoint<T extends Object, R = any> extends SaccharoseApiEndpoint<T, R> {
-  constructor(uri: string) {
-    super('/api', uri);
+export class GenericApiEndpoint<T extends Object, R = any, E = any> extends SaccharoseApiEndpoint<T, R, E> {
+  constructor(method: ApiMethod, uri: string) {
+    super('/api', uri, method);
   }
 }
 
-export class BaseUrlEndpoint<T extends Object, R = any> extends SaccharoseApiEndpoint<T, R> {
-  constructor(uri: string) {
-    super('', uri);
+export class BaseUrlEndpoint<T extends Object, R = any, E = any> extends SaccharoseApiEndpoint<T, R, E> {
+  constructor(method: ApiMethod, uri: string) {
+    super('', uri, method);
   }
 }
 
@@ -196,10 +164,10 @@ export const errorHtmlWrap = (str: string) => {
 };
 
 export const genshinEndpoints = {
-  testGeneralErrorHandler: new GenshinApiEndpoint('/nonexistant_endpoint'),
+  testGeneralErrorHandler: new GenshinApiEndpoint('GET', '/nonexistant_endpoint'),
 
-  findMainQuest: new GenshinApiEndpoint<{name: string|number}>('/quests/findMainQuest'),
-  generateMainQuest: new GenshinApiEndpoint<{id: string|number}>('/quests/generate'),
+  findMainQuest: new GenshinApiEndpoint<{name: string|number}>('GET', '/quests/findMainQuest'),
+  generateMainQuest: new GenshinApiEndpoint<{id: string|number}>('GET', '/quests/generate'),
 
   generateOL: new GenshinApiEndpoint<{
     text: string,
@@ -207,37 +175,40 @@ export const genshinEndpoints = {
     hideRm: boolean,
     addDefaultHidden: boolean,
     includeHeader: boolean,
-  }>('/OL/generate'),
+  }>('GET', '/OL/generate'),
 
-  generateSingleDialogueBranch: new GenshinApiEndpoint<{text: string, npcFilter?: string, voicedOnly?: string}>('/dialogue/single-branch-generate'),
+  generateSingleDialogueBranch: new GenshinApiEndpoint<{text: string, npcFilter?: string, voicedOnly?: string}>(
+    'GET', '/dialogue/single-branch-generate'),
 
-  generateNpcDialogue: new GenshinApiEndpoint<{name: string}>('/dialogue/npc-dialogue-generate'),
+  generateNpcDialogue: new GenshinApiEndpoint<{name: string}>(
+    'GET', '/dialogue/npc-dialogue-generate'),
 
-  generateReminderDialogue: new GenshinApiEndpoint<{text: string, subsequentAmount?: number}>('/dialogue/reminder-dialogue-generate'),
+  generateReminderDialogue: new GenshinApiEndpoint<{text: string, subsequentAmount?: number}>(
+    'GET', '/dialogue/reminder-dialogue-generate'),
 
   searchTextMap: new GenshinApiEndpoint<{
     text: string,
     startFromLine: number,
     resultSetNum: number,
-  }>('/search-textmap'),
+  }>('GET', '/search-textmap'),
 
-  getExcelUsages: new GenshinApiEndpoint<{q: string}>('/excel-usages'),
+  getExcelUsages: new GenshinApiEndpoint<{q: string}>('GET', '/excel-usages'),
 
-  voToDialogue: new GenshinApiEndpoint<{text: string}>('/dialogue/vo-to-dialogue'),
+  voToDialogue: new GenshinApiEndpoint<any, any, {text: string}>('POST', '/dialogue/vo-to-dialogue'),
 
-  getFetters: new GenshinApiEndpoint<{avatarId: number}, FetterGroup>('/character/fetters'),
+  getFetters: new GenshinApiEndpoint<{avatarId: number}, FetterGroup>('GET', '/character/fetters'),
 
-  searchReadables: new GenshinApiEndpoint<{text: string}>('/readables/search'),
+  searchReadables: new GenshinApiEndpoint<{text: string}>('GET', '/readables/search'),
 
-  searchItems: new GenshinApiEndpoint<{text: string}>('/items/search'),
-  searchWeapons: new GenshinApiEndpoint<{text: string}>('/weapons/search'),
-  searchAchievements: new GenshinApiEndpoint<{text: string}>('/achievements/search'),
-  searchTutorials: new GenshinApiEndpoint<{text: string}>('/tutorials/search'),
+  searchItems: new GenshinApiEndpoint<{text: string}>('GET', '/items/search'),
+  searchWeapons: new GenshinApiEndpoint<{text: string}>('GET', '/weapons/search'),
+  searchAchievements: new GenshinApiEndpoint<{text: string}>('GET', '/achievements/search'),
+  searchTutorials: new GenshinApiEndpoint<{text: string}>('GET', '/tutorials/search'),
 
-  mediaSearch: new GenshinApiEndpoint<ImageIndexSearchParams, ImageIndexSearchResult>('/media/search'),
-  mediaCategory: new GenshinApiEndpoint<{}, ImageCategoryMap>('/media/category'),
+  mediaSearch: new GenshinApiEndpoint<ImageIndexSearchParams, ImageIndexSearchResult>('GET', '/media/search'),
+  mediaCategory: new GenshinApiEndpoint<{}, ImageCategoryMap>('GET', '/media/category'),
 
-  searchTcgStages: new GenshinApiEndpoint<{text: string}>('/gcg/stage-search'),
+  searchTcgStages: new GenshinApiEndpoint<{text: string}>('GET', '/gcg/stage-search'),
 };
 
 export const starRailEndpoints = {
@@ -247,20 +218,20 @@ export const starRailEndpoints = {
     hideRm: boolean,
     addDefaultHidden: boolean,
     includeHeader: boolean,
-  }>('/OL/generate'),
+  }>('GET', '/OL/generate'),
 
   searchTextMap: new StarRailApiEndpoint<{
     text: string,
     startFromLine: number,
     resultSetNum: number,
-  }>('/search-textmap'),
+  }>('GET', '/search-textmap'),
 
-  getExcelUsages: new StarRailApiEndpoint<{q: string}>('/excel-usages'),
+  getExcelUsages: new StarRailApiEndpoint<{q: string}>('GET', '/excel-usages'),
 
-  getVoiceAtlasGroup: new StarRailApiEndpoint<{avatarId: number}, VoiceAtlasGroup>('/character/voice-atlas'),
+  getVoiceAtlasGroup: new StarRailApiEndpoint<{avatarId: number}, VoiceAtlasGroup>('GET', '/character/voice-atlas'),
 
-  mediaSearch: new StarRailApiEndpoint<ImageIndexSearchParams, ImageIndexSearchResult>('/media/search'),
-  mediaCategory: new StarRailApiEndpoint<{}, ImageCategoryMap>('/media/category'),
+  mediaSearch: new StarRailApiEndpoint<ImageIndexSearchParams, ImageIndexSearchResult>('GET', '/media/search'),
+  mediaCategory: new StarRailApiEndpoint<{}, ImageCategoryMap>('GET', '/media/category'),
 };
 
 export const zenlessEndpoints = {
@@ -270,20 +241,20 @@ export const zenlessEndpoints = {
     hideRm: boolean,
     addDefaultHidden: boolean,
     includeHeader: boolean,
-  }>('/OL/generate'),
+  }>('GET', '/OL/generate'),
 
   searchTextMap: new ZenlessApiEndpoint<{
     text: string,
     startFromLine: number,
     resultSetNum: number,
-  }>('/search-textmap'),
+  }>('GET', '/search-textmap'),
 
   dialogueHelper: new ZenlessApiEndpoint<{
     text: string,
     hashSearch: boolean,
-  }>('/dialogue-helper'),
+  }>('GET', '/dialogue-helper'),
 
-  getExcelUsages: new ZenlessApiEndpoint<{q: string}>('/excel-usages'),
+  getExcelUsages: new ZenlessApiEndpoint<{q: string}>('GET', '/excel-usages'),
 };
 
 export const wuwaEndpoints = {
@@ -293,37 +264,37 @@ export const wuwaEndpoints = {
     hideRm: boolean,
     addDefaultHidden: boolean,
     includeHeader: boolean,
-  }>('/OL/generate'),
+  }>('GET', '/OL/generate'),
 
   searchTextMap: new WuwaApiEndpoint<{
     text: string,
     startFromLine: number,
     resultSetNum: number,
-  }>('/search-textmap'),
+  }>('GET', '/search-textmap'),
 
-  getExcelUsages: new WuwaApiEndpoint<{q: string}>('/excel-usages'),
+  getExcelUsages: new WuwaApiEndpoint<{q: string}>('GET', '/excel-usages'),
 
-  getFavorWordGroup: new WuwaApiEndpoint<{roleId: number}, FavorWordGroup>('/role/favor-words'),
+  getFavorWordGroup: new WuwaApiEndpoint<{roleId: number}, FavorWordGroup>('GET', '/role/favor-words'),
 
-  mediaSearch: new WuwaApiEndpoint<ImageIndexSearchParams, ImageIndexSearchResult>('/media/search'),
-  mediaCategory: new WuwaApiEndpoint<{}, ImageCategoryMap>('/media/category'),
+  mediaSearch: new WuwaApiEndpoint<ImageIndexSearchParams, ImageIndexSearchResult>('GET', '/media/search'),
+  mediaCategory: new WuwaApiEndpoint<{}, ImageCategoryMap>('GET', '/media/category'),
 };
 
 export const genericEndpoints = {
   langDetect: new GenericApiEndpoint<{
     text: string
-  }, LangDetectResult>('/lang-detect'),
+  }, LangDetectResult>('GET', '/lang-detect'),
 
-  getPrefs: new GenericApiEndpoint<{}, SiteUserPrefs>('/prefs'),
+  getPrefs: new GenericApiEndpoint<{}, SiteUserPrefs>('GET', '/prefs'),
 
   setPrefs: new GenericApiEndpoint<{
     prefName: SitePrefName,
     prefValue: SiteUserPrefs[SitePrefName]
-  }, SiteUserPrefs>('/prefs'),
+  }, SiteUserPrefs>('POST', '/prefs'),
 
   dismissSiteNotice: new GenericApiEndpoint<{
     noticeId: number
-  }, {result: 'dismissed'}>('/site-notice/dismiss'),
+  }, {result: 'dismissed'}>('POST', '/site-notice/dismiss'),
 
   authCheck: new BaseUrlEndpoint<{
     wikiUsername: string,
@@ -331,35 +302,35 @@ export const genericEndpoints = {
   }, {
     result: 'denied' | 'approved' | 'banned',
     reason: string,
-  }>('/auth/check'),
+  }>('POST', '/auth/check'),
 
-  authUncheck: new BaseUrlEndpoint<{}>('/auth/uncheck'),
+  authUncheck: new BaseUrlEndpoint<{}>('POST', '/auth/uncheck'),
 
   postJob: new GenericApiEndpoint<{
     action: string,
     [arg: string]: string|number|boolean,
-  }, ScriptJobPostResult<any>>('/jobs/post'),
+  }, ScriptJobPostResult<any>>('POST', '/jobs/post'),
 
   getJob: new GenericApiEndpoint<{
     jobId: string,
-  }, ScriptJobState<any>>('/jobs/{jobId}'),
+  }, ScriptJobState<any>>('GET', '/jobs/{jobId}'),
 
   getArticleInfo: new GenericApiEndpoint<{
     siteMode: string,
     pageid: number
-  }, MwArticleInfo>('/mw/{siteMode}/articles'),
+  }, MwArticleInfo>('GET', '/mw/{siteMode}/articles'),
 
   searchArticles: new GenericApiEndpoint<{
     siteMode: string,
     q: string|number
-  }, MwArticleSearchResult>('/mw/{siteMode}/articles/search'),
+  }, MwArticleSearchResult>('GET', '/mw/{siteMode}/articles/search'),
 
   getRevisions: new GenericApiEndpoint<RequireOnlyOne<{
     siteMode: string,
     revid?: number|string,
     pageid?: number,
     loadMode?: MwRevLoadMode,
-  }, 'revid' | 'pageid'>, MwRevision[]>('/mw/{siteMode}/revs'),
+  }, 'revid' | 'pageid'>, MwRevision[]>('GET', '/mw/{siteMode}/revs'),
 };
 
 export function getOLEndpoint(): {endpoint: SaccharoseApiEndpoint<any>, tlRmDisabled: boolean, neverDefaultHidden: boolean} {

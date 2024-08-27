@@ -5,13 +5,13 @@ import { startGenericSearchPageListeners } from '../../genericSearchPage.ts';
 pageMatch('pages/genshin/dialogue/vo-to-dialogue', () => {
   startGenericSearchPageListeners({
     endpoint: genshinEndpoints.voToDialogue,
+    doPost: true,
     asHtml: true,
 
     inputs: [
       {
         selector: '.search-input',
         apiParam: 'text',
-        queryParam: 'q',
         disableEnterKeySubmit: true
       }
     ],

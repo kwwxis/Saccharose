@@ -3,12 +3,13 @@ import { ConfigCondition } from './general-types.ts';
 import { RewardExcelConfigData } from './material-types.ts';
 import { QuestOrderItem } from '../../../backend/domain/genshin/dialogue/dialogue_util.ts';
 
-export type QuestType = 'AQ' | 'SQ' | 'EQ' | 'WQ';
+export type QuestType = 'AQ' | 'SQ' | 'EQ' | 'WQ' | 'IQ';
 export type MapByQuestType<T> = {
   AQ: T,
   SQ: T,
   EQ: T,
-  WQ: T
+  WQ: T,
+  IQ: T
 };
 
 export interface ChapterCollection {
@@ -16,6 +17,7 @@ export interface ChapterCollection {
   SQ: {[chapterName: string]: {[subChapterName: string]: ChapterExcelConfigData[]}},
   EQ: {[chapterName: string]: ChapterExcelConfigData[]},
   WQ: {[chapterName: string]: ChapterExcelConfigData[]},
+  IQ: {[chapterName: string]: ChapterExcelConfigData[]},
 }
 
 export interface MainQuestExcelConfigData {

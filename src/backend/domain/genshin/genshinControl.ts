@@ -484,8 +484,8 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     }
     let tempType: string = mainQuest.Type;
 
-    if (!tempType && mainQuest.LuaPath && /Quest\/[ALEWM]Q/.test(mainQuest.LuaPath)) {
-      tempType = /Quest\/([ALEWM]Q)/.exec(mainQuest.LuaPath)[1];
+    if (!tempType && mainQuest.LuaPath && /Quest\/[ALEWMI]Q/.test(mainQuest.LuaPath)) {
+      tempType = /Quest\/([ALEWMI]Q)/.exec(mainQuest.LuaPath)[1];
     }
     if (tempType === 'MQ') {
       tempType = 'AQ';
@@ -1860,6 +1860,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       SQ: {},
       EQ: {},
       WQ: {},
+      IQ: {},
     };
 
     for (let chapter of chapters) {

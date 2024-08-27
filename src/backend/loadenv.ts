@@ -20,7 +20,7 @@ export const PIPELINE_DIR = path.resolve(__dirname, '../pipeline');
 export const BACKEND_ROOT = __dirname;
 export const SITE_TITLE = 'Saccharose.wiki';
 export const EJS_DELIMITER = '%';
-export const WEB_ACCESS_LOG = path.resolve(process.env.WEB_ACCESS_LOG);
+export const WEB_ACCESS_LOG = process.env.WEB_ACCESS_LOG ? path.resolve(process.env.WEB_ACCESS_LOG) : null;
 
 export const GENSHIN_DISABLED = toBoolean(process.env.GENSHIN_DISABLED);
 export const HSR_DISABLED = toBoolean(process.env.HSR_DISABLED);

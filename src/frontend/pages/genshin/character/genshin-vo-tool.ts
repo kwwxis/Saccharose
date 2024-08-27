@@ -21,7 +21,7 @@ import { enforcePropOrderItem } from '../../generic/vo-tool/vo-handle.ts';
 pageMatch('pages/genshin/character/vo-tool', async () => {
   await initializeVoTool(() => ({
     async fetchVoiceCollection(avatar: CommonAvatar): Promise<CommonVoiceOverGroup<FetterGroup>> {
-      const fetterGroup: FetterGroup = await genshinEndpoints.getFetters.get({ avatarId: avatar.Id });
+      const fetterGroup: FetterGroup = await genshinEndpoints.getFetters.send({ avatarId: avatar.Id });
       return toCommonVoiceOverGroupFromGenshin(fetterGroup);
     },
 

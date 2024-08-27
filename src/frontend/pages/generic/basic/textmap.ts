@@ -161,7 +161,7 @@ pageMatch('pages/generic/basic/textmap', () => {
             buttonEl.querySelectorAll('.excel-usages-trigger-icon').forEach(x => x.classList.add('hide'));
             buttonEl.querySelector('.excel-usages-loading-icon').classList.remove('hide');
 
-            excelUsagesEndpoint.get({q: hash, embed: true}, true).then(result => {
+            excelUsagesEndpoint.send({q: hash, embed: true}, null, true).then(result => {
               resultEl.innerHTML = result;
 
               resultEl.querySelectorAll<HTMLTextAreaElement>('textarea.json').forEach(el => {

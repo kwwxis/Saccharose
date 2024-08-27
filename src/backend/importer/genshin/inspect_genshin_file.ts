@@ -7,6 +7,7 @@ import { HomeWorldFurnitureExcelConfigData } from '../../../shared/types/genshin
 import { ReminderExcelConfigData } from '../../../shared/types/genshin/dialogue-types.ts';
 import { toInt } from '../../../shared/util/numberUtil.ts';
 import { QuestExcelConfigData } from '../../../shared/types/genshin/quest-types.ts';
+import { DocumentExcelConfigData } from '../../../shared/types/genshin/readable-types.ts';
 
 const excel = (file: string) => `./ExcelBinOutput/${file}.json`;
 
@@ -57,12 +58,13 @@ const presets = {
       return record.GivingMethod === 'GIVING_METHOD_EXACT';
   },},
   GivingGroupExcelConfigData: <InspectOpt> { file: excel('GivingGroupExcelConfigData'), inspectFieldValues: [] },
+  DocumentExcelConfigData: <InspectOpt> { file: excel('DocumentExcelConfigData'), inspectFieldValues: ['DocumentType', 'SplitType'] }
 };
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
     const ctrl = getGenshinControl();
-    await inspectDataFile(ctrl, presets.GivingExcelConfigData);
+    await inspectDataFile(ctrl, presets.DocumentExcelConfigData);
     await closeKnex();
   })();
 }

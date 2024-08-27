@@ -10,7 +10,7 @@ pageMatch('vue/SettingsPage', () => {
     modalService.confirm(
       'Confirm you want to deregister the wiki username?',
       'You will be required to re-register to regain access to the site.').onConfirm(() => {
-      genericEndpoints.authUncheck.post({}).then(() => {
+      genericEndpoints.authUncheck.send({}).then(() => {
         window.location.reload();
       })
     });

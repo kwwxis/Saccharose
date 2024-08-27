@@ -43,6 +43,10 @@ export const normalAccessLogging = (req: Request, res: Response, next: NextFunct
 };
 
 export const earlyAccessLogging = (req: Request, res: Response, next: NextFunction) => {
+  if (!WEB_ACCESS_LOG) {
+    next();
+    return;
+  }
   if (getLogSkipRegex().test(req.url) || req.url.includes('/serve-image')) {
     next();
     return;

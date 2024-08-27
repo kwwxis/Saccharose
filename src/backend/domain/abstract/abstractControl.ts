@@ -85,6 +85,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
   async cached(key: string, valueMode: 'boolean', supplierFn: (key?: string) => Promise<boolean>): Promise<boolean>
   async cached<T>(key: string, valueMode: 'memory', supplierFn: (key?: string) => Promise<T>): Promise<T>
   async cached<T>(key: string, valueMode: 'json', supplierFn: (key?: string) => Promise<T>): Promise<T>
+  async cached<T>(key: string, valueMode: 'set', supplierFn: (key?: string) => Promise<Set<T>>): Promise<Set<T>>
   async cached<T>(key: string, valueMode: 'string' | 'buffer' | 'json' | 'boolean' | 'memory', supplierFn: (key?: string) => Promise<T>): Promise<T> {
     return _cachedImpl(this.cachePrefix + key, valueMode, supplierFn);
   }

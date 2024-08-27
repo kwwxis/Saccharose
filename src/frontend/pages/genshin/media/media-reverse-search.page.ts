@@ -40,7 +40,6 @@ pageMatch('vue/GenshinMediaReverseSearchPage', () => {
       headers: {
         "Content-Type": "multipart/form-data",
       },
-
     }).then((res: AxiosResponse<Result>) => {
       console.log(res);
 

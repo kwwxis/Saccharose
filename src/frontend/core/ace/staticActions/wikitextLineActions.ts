@@ -94,13 +94,13 @@ export function applyWikitextLineActions(element: HTMLElement, commonLineIds: Co
       let p: Promise<void> = Promise.resolve();
 
       if (hasTextMapHash) {
-        p = endpoint.get({
+        p = endpoint.send({
           text: lineEl.getAttribute('data-textMapHash'),
           hideTl: tlRmDisabled,
           addDefaultHidden: !neverDefaultHidden,
           hideRm: tlRmDisabled,
           singleResultSimpleHtml: true,
-        }, true).then(result => {
+        }, null, true).then(result => {
           panel.querySelector('.ace_line-info-OL').innerHTML = result;
         }).catch((err: HttpError) => {
           if (err.type === 'NotFound') {

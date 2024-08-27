@@ -19,7 +19,7 @@ if (USER_IS_AUTHENTICATED) {
 
 export async function setUserPref<T extends SitePrefName>(prefName: T, prefValue: SiteUserPrefs[T]): Promise<SiteUserPrefs> {
   if (USER_IS_AUTHENTICATED) {
-    await genericEndpoints.setPrefs.post({ prefName, prefValue }).then(res => {
+    await genericEndpoints.setPrefs.send({ prefName, prefValue }).then(res => {
       Object.assign(USER_PREFS, res);
     }).catch(_ignore => {});
   } else {

@@ -25,7 +25,7 @@ import { replaceRomanNumerals, romanToInt, SbOut } from '../../../../shared/util
 pageMatch('pages/hsr/character/vo-tool', async () => {
   await initializeVoTool(() => ({
     async fetchVoiceCollection(avatar: CommonAvatar): Promise<CommonVoiceOverGroup> {
-      const atlasGroup: VoiceAtlasGroup = await starRailEndpoints.getVoiceAtlasGroup.get({ avatarId: avatar.Id });
+      const atlasGroup: VoiceAtlasGroup = await starRailEndpoints.getVoiceAtlasGroup.send({ avatarId: avatar.Id });
       return toCommonVoiceOverGroupFromStarRail(atlasGroup);
     },
 

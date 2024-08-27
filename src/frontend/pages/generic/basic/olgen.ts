@@ -62,13 +62,13 @@ pageMatch('pages/generic/basic/olgen', () => {
       window.history.pushState({q: text}, null, url.href);
     }
 
-    endpoint.get({
+    endpoint.send({
       text,
       hideTl: tlRmDisabled || tlOptionValue === 'exclude_tl' || isUnset(tlOptionValue),
       addDefaultHidden: !neverDefaultHidden && tlOptionValue === 'exclude_tl',
       hideRm: tlRmDisabled || rmOptionValue === 'exclude_rm' || isUnset(rmOptionValue),
       includeHeader: includeHeader ? '1' : undefined,
-    }, true).then(result => {
+    }, null, true).then(result => {
       document.querySelector('#ol-results-list').innerHTML = result;
     }).catch((err: HttpError) => {
       if (err.type === 'NotFound') {

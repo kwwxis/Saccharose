@@ -47,7 +47,7 @@ export const VIEWPOINT_DEFAULT_FILE_FORMAT_MAP = 'Viewpoint {NameText.EN} Map Lo
 
 
 export async function getCityIdsWithViewpoints(ctrl: GenshinControl): Promise<Set<number>> {
-  return ctrl.cached('CityIdsWithViewpoints', 'json', async () => {
+  return ctrl.cached('CityIdsWithViewpoints', 'set', async () => {
     const cityIdsWithViewpoints: Set<number> = new Set();
     const viewpoints: ViewCodexExcelConfigData[] = await ctrl.readJsonFile('./ExcelBinOutput/ViewCodexExcelConfigData.json');
     for (let viewpoint of viewpoints) {

@@ -78,7 +78,7 @@ pageMatch('pages/genshin/dialogue/quests', () => {
     <span class="spacer10-left fontWeight600">Loading quest...</span>
   </div>`
 
-    genshinEndpoints.generateMainQuest.get({ id: questId }, true).then(html => {
+    genshinEndpoints.generateMainQuest.send({ id: questId }, null, true).then(html => {
       lastSuccessfulQuestId = questId;
       document.querySelector('#quest-generate-result').innerHTML = html;
       postLoad(document.querySelector('#quest-generate-result'));
@@ -245,7 +245,7 @@ pageMatch('pages/genshin/dialogue/quests', () => {
         inputEl.disabled = true;
         target.disabled = true;
 
-        genshinEndpoints.findMainQuest.get({ name: text }, true).then(result => {
+        genshinEndpoints.findMainQuest.send({ name: text }, null, true).then(result => {
           document.querySelector('.quest-search-result-wrapper').classList.remove('hide');
           document.querySelector('.quest-search-result').innerHTML = result;
 

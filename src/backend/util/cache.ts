@@ -31,17 +31,22 @@ export async function cached(key: string, valueMode: 'buffer', supplierFn: (key?
 export async function cached(key: string, valueMode: 'boolean', supplierFn: (key?: string) => Promise<boolean>): Promise<boolean>
 export async function cached<T>(key: string, valueMode: 'memory', supplierFn: (key?: string) => Promise<T>): Promise<T>
 export async function cached<T>(key: string, valueMode: 'json', supplierFn: (key?: string) => Promise<T>): Promise<T>
+export async function cached<T>(key: string, valueMode: 'set', supplierFn: (key?: string) => Promise<Set<T>>): Promise<Set<T>>
 
 /**
  * Get (and define if necessary) the value for the cache key. If the key is found, the value will
  * be returned. If the key is not found, the key will be created from the value returned by calling
  * `supplierFn` and that same value will be returned.
  */
-export async function cached<T>(key: string, valueMode: 'string' | 'buffer' | 'json' | 'boolean' | 'memory', supplierFn: (key?: string) => Promise<T>): Promise<T> {
+export async function cached<T>(key: string,
+                                valueMode: 'string' | 'buffer' | 'json' | 'boolean' | 'memory' | 'set',
+                                supplierFn: (key?: string) => Promise<T>): Promise<T> {
   return _cachedImpl(key, valueMode, supplierFn);
 }
 
-export async function _cachedImpl<T>(key: string, valueMode: 'string' | 'buffer' | 'json' | 'boolean' | 'memory', supplierFn: (key?: string) => Promise<T>): Promise<T> {
+export async function _cachedImpl<T>(key: string,
+                                     valueMode: 'string' | 'buffer' | 'json' | 'boolean' | 'memory' | 'set',
+                                     supplierFn: (key?: string) => Promise<T>): Promise<T> {
   if (typeof cache.memory[key] !== 'undefined') {
     return cache.memory[key];
   }
@@ -59,8 +64,17 @@ export async function _cachedImpl<T>(key: string, valueMode: 'string' | 'buffer'
         }
         case 'buffer': {
           const raw: Buffer = await cache.redis.get(commandOptions({ returnBuffers: true }), key);
-          console.log(typeof raw, Buffer.isBuffer(raw));
           value = Buffer.isBuffer(raw) ? raw : null;
+          break;
+        }
+        case 'set': {
+          const raw: string = await cache.redis.get(key);
+          value = JSON.parse(raw);
+          if (Array.isArray(value)) {
+            value = new Set(value);
+          } else {
+            value = null;
+          }
           break;
         }
         case 'json':
@@ -85,6 +99,14 @@ export async function _cachedImpl<T>(key: string, valueMode: 'string' | 'buffer'
         }
         case 'buffer': {
           value = Buffer.isBuffer(raw) ? raw : null;
+          break;
+        }
+        case 'set': {
+          if (raw instanceof Set) {
+            value = JSON.stringify(Array.from(raw));
+          } else {
+            value = null;
+          }
           break;
         }
         case 'json':

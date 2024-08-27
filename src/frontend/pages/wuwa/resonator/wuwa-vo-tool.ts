@@ -21,7 +21,7 @@ import { isRover, RoleInfo } from '../../../../shared/types/wuwa/role-types.ts';
 pageMatch('pages/wuwa/resonator/vo-tool', async () => {
   await initializeVoTool(() => ({
     async fetchVoiceCollection(avatar: CommonAvatar): Promise<CommonVoiceOverGroup> {
-      const favorWordGroup: FavorWordGroup = await wuwaEndpoints.getFavorWordGroup.get({ roleId: avatar.Id });
+      const favorWordGroup: FavorWordGroup = await wuwaEndpoints.getFavorWordGroup.send({ roleId: avatar.Id });
       return toCommonVoiceOverGroupFromWuwa(favorWordGroup);
     },
 

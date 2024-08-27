@@ -43,7 +43,7 @@ export async function revAppArticlePage(state: WikiRevAppState, skipArticleCache
 
   let postResult: ScriptJobPostResult<'mwRevSave'>;
   try {
-    postResult = await genericEndpoints.postJob.post({action: 'mwRevSave', pageid: state.pageId, siteMode: SITE_MODE, skipArticleCache });
+    postResult = await genericEndpoints.postJob.send({action: 'mwRevSave', pageid: state.pageId, siteMode: SITE_MODE, skipArticleCache });
     if (!postResult?.job?.job_id) {
       setInitError(`Script job post failure.`);
       return;
@@ -100,7 +100,7 @@ class PollContext {
 
   async poll() {
     const jobPoll: Pick<ScriptJobState<'mwRevSave'>, 'job_id' | 'run_complete' | 'run_log' | 'run_end' | 'result_error'>
-      = await genericEndpoints.getJob.get({ jobId: this.jobId, fields: 'job_id,run_complete,run_log,run_end,result_error' });
+      = await genericEndpoints.getJob.send({ jobId: this.jobId, fields: 'job_id,run_complete,run_log,run_end,result_error' });
 
     if (!jobPoll) {
       setTimeout(() => this.poll(), 500);
@@ -128,7 +128,7 @@ class PollContext {
 
     if (jobPoll.run_complete && jobPoll.run_end) {
       console.log('Script Job Poll:', jobPoll, `Next Poll: n/a (complete)`);
-      genericEndpoints.getJob.get({ jobId: this.jobId }).then(async job => {
+      genericEndpoints.getJob.send({ jobId: this.jobId }).then(async job => {
         console.log('Script Job Complete:', job);
         await loadRevList(this.state);
       });
@@ -185,7 +185,7 @@ async function loadRevList(state: WikiRevAppState) {
   revHomeEl.append(revListEl);
 
   const revListBody: HTMLElement = document.querySelector('#rev-list-body');
-  const revisions: MwRevision[] = await genericEndpoints.getRevisions.get({ siteMode: SITE_MODE, pageid: state.page.pageid });
+  const revisions: MwRevision[] = await genericEndpoints.getRevisions.send({ siteMode: SITE_MODE, pageid: state.page.pageid });
   state.pageRevisions = revisions;
   state.revisionsById = mapBy(revisions, 'revid');
 

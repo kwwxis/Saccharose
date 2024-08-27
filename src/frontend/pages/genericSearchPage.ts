@@ -27,6 +27,7 @@ export type GenericSearchPageParamOpt<T> = {
 
 export type GenericSearchPageOpts<T,R> =  {
   endpoint: SaccharoseApiEndpoint<T,R>,
+  doPost?: boolean,
 
   inputs: [GenericSearchPageParamOpt<T>, ... GenericSearchPageParamOpt<T>[]],
 
@@ -218,7 +219,15 @@ export function startGenericSearchPageListeners<T,R>(opts: GenericSearchPageOpts
       opts.beforeSendRequest(caller, apiPayload);
     }
 
-    opts.endpoint.get(apiPayload as any, opts.asHtml).then(result => {
+    let endpointRes: Promise<string | R>;
+
+    if (opts.doPost) {
+      endpointRes = opts.endpoint.send(null, apiPayload as any, opts.asHtml);
+    } else {
+      endpointRes = opts.endpoint.send(apiPayload as any, null, opts.asHtml);
+    }
+
+    endpointRes.then(result => {
       lastSuccessfulStateData = stateData;
 
       let preventDefault = false;

@@ -157,7 +157,7 @@ export interface DocumentExcelConfigData {
   TitleText?: string,
   TitleTextMap?: LangCodeMap,
   PreviewPath: string,
-  DocumentType?: 'Video' | undefined,
+  DocumentType?: 'Letter' | 'Paged' | 'Video' | undefined,
   VideoPath?: string,
   SubtitleId?: number,
 

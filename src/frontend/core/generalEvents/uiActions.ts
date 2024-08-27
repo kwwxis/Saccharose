@@ -353,7 +353,7 @@ export function runUiActions(actionEl: HTMLElement, actions: UiAction[]) {
       case 'dismiss-site-notice': {
         actionEl.setAttribute('disabled', 'disabled');
         const noticeId = toInt(actionParams[0]);
-        genericEndpoints.dismissSiteNotice.post({noticeId}).then(ret => {
+        genericEndpoints.dismissSiteNotice.send({noticeId}).then(ret => {
           if (ret.result === 'dismissed') {
             const noticeEl = document.querySelector(`.site-notice[data-site-notice="${noticeId}"]`);
             noticeEl.classList.add('dismissed');
