@@ -249,10 +249,10 @@ export function __normGenshinText(text: string, langCode: LangCode, opts: NormTe
     text = text.replace(/<color=(#[0-9a-fA-F]{6})(?:FF)?>(.*?)<\/color>/g, '{{Color|$1|$2}}');
   }
 
-  text = text.replace(/\{REALNAME\[ID\(1\)(\|HOSTONLY\(true\))?(\|DELAYHANDLE\((true|false)\))?]}/g,
+  text = text.replace(/\{REALNAME\[ID\(1\)(\|HOSTONLY\(true\))?(\|SHOWHOST\(true\))?(\|DELAYHANDLE\((true|false)\))?]}/g,
     __wandererPlaceholder(langCode, opts?.customOpts?.wandererPlaceholderPlainForm));
 
-  text = text.replace(/\{REALNAME\[ID\(2\)(\|HOSTONLY\(true\))?(\|DELAYHANDLE\((true|false)\))?]}/g,
+  text = text.replace(/\{REALNAME\[ID\(2\)(\|HOSTONLY\(true\))?(\|SHOWHOST\(true\))?(\|DELAYHANDLE\((true|false)\))?]}/g,
     __littleOnePlaceholder(langCode, opts?.customOpts?.littleOnePlaceholderPlainForm));
 
   if (!opts.plaintext) {
