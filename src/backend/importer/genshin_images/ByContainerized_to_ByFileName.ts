@@ -13,7 +13,7 @@ function* walkSync(dir: string): Generator<string> {
   }
 }
 
-const OUT_DIR: string = 'C:/Shared/Texture2D_ByFileName'
+const OUT_DIR: string = 'C:/Shared/Texture2D_ByFileName';
 
 async function doIt() {
   for (let filePath of walkSync('C:/Shared/Texture2D_ByContainer/')) {

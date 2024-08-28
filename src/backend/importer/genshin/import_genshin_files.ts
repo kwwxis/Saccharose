@@ -11,7 +11,6 @@ import { importGcgSkill } from './module.gcg-skill.ts';
 import { importVoiceItems } from './module.voice-items.ts';
 import { importTranslateSchema, translateExcel } from './module.translate-schema.ts';
 import { importVoiceOvers } from './module.voice-overs.ts';
-import { maximizeImages } from './module.maximize-images.ts';
 import { importSearchIndex } from './module.search-index.ts';
 import { generateAvatarAnimInteractionGoodBad, generateQuestDialogExcels } from './module.make-excels.ts';
 import { loadInterActionQD } from './module.interaction.ts';
@@ -38,7 +37,6 @@ export async function importGenshinFilesCli() {
   ];
 
   const options_util: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
-    {name: 'maximize-images', type: Boolean, description: 'Compares images with duplicate names to choose the image with the largest size.'},
     {name: 'translate-excel', type: String, typeLabel: '<outputDir>', description: 'Copies excel files to output directory with renameFields applied.'},
     {name: 'help', type: Boolean, description: 'Display this usage guide.'},
     {name: 'avatar-anim-interaction', type: Boolean},
@@ -124,9 +122,6 @@ export async function importGenshinFilesCli() {
   }
   if (options['translate-excel']) {
     await translateExcel(options['translate-excel']);
-  }
-  if (options['maximize-images']) {
-    await maximizeImages();
   }
   if (options['index-images']) {
     await indexGenshinImages(dryRun);
