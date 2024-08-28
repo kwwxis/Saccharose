@@ -25,10 +25,12 @@ function getImageNames(): string[] {
       const imageBaseName = imageName.split('#')[0];
       const size: number = fs.statSync(path.resolve(IMAGEDIR_GENSHIN_EXT, `./${imageName}.png`))?.size || 0;
 
-      otherNames[imageBaseName].push({
-        name: imageName,
-        size,
-      })
+      if (!otherNames[imageName].some(x => x.name === imageBaseName)) {
+        otherNames[imageBaseName].push({
+          name: imageName,
+          size,
+        });
+      }
 
       continue;
     }

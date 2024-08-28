@@ -41,6 +41,23 @@
     </dl>
   </section>
 
+  <section v-if="entity?.extra_info?.otherNames?.length">
+    <h2>Other Versions</h2>
+    <template v-for="otherName of entity.extra_info.otherNames">
+      <h3>{{ otherName.name }}</h3>
+      <div class="content">
+        <div class="media-image">
+          <div class="image-frame no-max-width">
+            <div class="image-obj">
+              <img :src="`/images/genshin/${otherName.name}.png`" />
+            </div>
+            <div class="image-label">{{ otherName.size }}</div>
+          </div>
+        </div>
+      </div>
+    </template>
+  </section>
+
   <section class="card" v-if="entity">
     <h2>Usages</h2>
     <div v-for="usageEntity of processedEntities">
@@ -54,6 +71,7 @@
     </div>
   </section>
 </template>
+
 <script setup lang="ts">
 import { ImageIndexEntity } from '../../../../shared/types/image-index-types.ts';
 import JsonText from '../../utility/JsonText.vue';
