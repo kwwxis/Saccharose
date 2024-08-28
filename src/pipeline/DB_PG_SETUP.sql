@@ -94,7 +94,8 @@ CREATE TABLE genshin_image_index
     image_cat7      TEXT,
     image_cat8      TEXT,
     excel_usages    TEXT[],
-    excel_meta      JSONB
+    excel_meta      JSONB,
+    extra_info      JSONB
 );
 
 CREATE INDEX genshin_image_index_trgm_idx ON genshin_image_index USING GIN (image_name gin_trgm_ops);
@@ -118,7 +119,8 @@ CREATE TABLE hsr_image_index
     image_cat7      TEXT,
     image_cat8      TEXT,
     excel_usages    TEXT[],
-    excel_meta      JSONB
+    excel_meta      JSONB,
+    extra_info      JSONB
 );
 
 CREATE INDEX hsr_image_index_trgm_idx ON hsr_image_index USING GIN (image_name gin_trgm_ops);
@@ -142,7 +144,8 @@ CREATE TABLE wuwa_image_index
     image_cat7      TEXT,
     image_cat8      TEXT,
     excel_usages    TEXT[],
-    excel_meta      JSONB
+    excel_meta      JSONB,
+    extra_info      JSONB
 );
 
 CREATE INDEX wuwa_image_index_trgm_idx ON wuwa_image_index USING GIN (image_name gin_trgm_ops);

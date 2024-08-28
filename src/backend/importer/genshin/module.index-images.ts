@@ -8,23 +8,33 @@ import {
   ImageCategoryMap,
   ImageIndexEntity,
   ImageIndexExcelMeta,
-  ImageIndexExcelMetaEntry,
+  ImageIndexExcelMetaEntry, ImageIndexOtherName,
 } from '../../../shared/types/image-index-types.ts';
+
+const otherNames: Record<string, ImageIndexOtherName[]> = defaultMap('Array');
 
 function getImageNames(): string[] {
   const imageNames: string[] = [];
-  for (let fileName of fs.readdirSync(IMAGEDIR_GENSHIN_EXT)) {
+  for (const fileName of fs.readdirSync(IMAGEDIR_GENSHIN_EXT)) {
     if (!fileName.endsWith('.png')) {
       continue;
     }
-    let imageName: string;
-    if (fileName.includes('#')) {
+
+    const imageName: string = fileName.slice(0, -4); // Remove ".png" suffix
+    if (imageName.includes('#')) {
+      const imageBaseName = imageName.split('#')[0];
+      const size: number = fs.statSync(path.resolve(IMAGEDIR_GENSHIN_EXT, `./${imageName}.png`))?.size || 0;
+
+      otherNames[imageBaseName].push({
+        name: imageName,
+        size,
+      })
+
       continue;
-    } else {
-      imageName = fileName.slice(0, -4); // Remove ".png" suffix
     }
     imageNames.push(imageName);
   }
+
   return imageNames;
 }
 
@@ -157,21 +167,29 @@ export async function indexGenshinImages(dryRun: boolean = false) {
       image_cat3: cats[2] || null,
       image_cat4: cats[3] || null,
       image_cat5: cats[4] || null,
+      extra_info: {
+        otherNames: otherNames[imageName] || []
+      }
     });
 
     if (cats[0]) {
+      // noinspection BadExpressionStatementJS
       catmap[cats[0]];
     }
     if (cats[1]) {
+      // noinspection BadExpressionStatementJS
       catmap[cats[0]][cats[1]];
     }
     if (cats[2]) {
+      // noinspection BadExpressionStatementJS
       catmap[cats[0]][cats[1]][cats[2]];
     }
     if (cats[3]) {
+      // noinspection BadExpressionStatementJS
       catmap[cats[0]][cats[1]][cats[2]][cats[3]];
     }
     if (cats[4]) {
+      // noinspection BadExpressionStatementJS
       catmap[cats[0]][cats[1]][cats[2]][cats[3]][cats[4]];
     }
 

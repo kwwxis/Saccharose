@@ -21,6 +21,16 @@ export interface ImageIndexEntity {
   image_cat6?: string,
   image_cat7?: string,
   image_cat8?: string,
+  extra_info?: ImageIndexExtraInfo
+}
+
+export interface ImageIndexExtraInfo {
+  otherNames?: ImageIndexOtherName[]
+}
+
+export interface ImageIndexOtherName {
+  name: string,
+  size: number
 }
 
 export interface ImageIndexSearchParams {
