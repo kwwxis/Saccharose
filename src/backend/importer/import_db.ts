@@ -38,6 +38,8 @@ export type SchemaTableSet = {[tableName: string]: SchemaTable};
 export type SchemaTableCustomRowResolver = (row: any, allRows?: any[], acc?: Record<string, any>) => any[]|Promise<any>;
 export type SchemaTableCustomRowResolverProvider = () => SchemaTableCustomRowResolver|Promise<SchemaTableCustomRowResolver>;
 
+let skipTableCreation: boolean = false;
+
 export type SchemaTable = {
   name: string,
   jsonFile: string,
@@ -290,6 +292,10 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
         throw 'Cannot specify both customRowResolve and customRowResolveProvider';
       }
 
+      if (skipTableCreation) {
+        console.log('  (table creation skipped)');
+        return;
+      }
       console.log('Creating table: ' + table.name);
       if (await knex.schema.hasTable(table.name)) {
         console.log('  Table already exists - dropping and recreating...')

@@ -16,7 +16,8 @@ import { ManualTextMapHashes } from '../../../shared/types/genshin/manual-text-m
 import { GENSHIN_DISABLED } from '../../loadenv.ts';
 
 export type GenshinNormTextOpts = {
-  wandererPlaceholderPlainForm?: boolean
+  wandererPlaceholderPlainForm?: boolean,
+  littleOnePlaceholderPlainForm?: boolean,
 };
 
 function __convertGenshinRubi(langCode: LangCode, text: string): string {
@@ -140,6 +141,50 @@ function __wandererPlaceholder(langCode: LangCode = 'EN', plainForm: boolean = f
   }
 }
 
+function __littleOnePlaceholder(langCode: LangCode = 'EN', plainForm: boolean = false): string {
+  const nameText: string = (() => {
+    switch (langCode) {
+      case 'CH':
+      case 'CHS':
+        return '小家伙';
+      case 'CHT':
+        return '小傢伙';
+      case 'DE':
+        return 'Kleinen';
+      case 'EN':
+        return 'Little One';
+      case 'ES':
+        return 'Pequeñín';
+      case 'FR':
+        return 'P\'tit gaillard';
+      case 'ID':
+        return 'Si Kecil';
+      case 'IT':
+        return 'Piccolino';
+      case 'JP':
+        return 'ちび';
+      case 'KR':
+        return '꼬마 용';
+      case 'PT':
+        return 'Pequenino';
+      case 'RU':
+        return 'Малыш';
+      case 'TH':
+        return 'ตัวเล็ก';
+      case 'TR':
+        return 'Ufaklık';
+      case 'VI':
+        return 'Đồng Hành Nhỏ';
+    }
+  })();
+  if (plainForm) {
+    return nameText;
+  } else if (langCode === 'EN') {
+    return '{{' + nameText + '}}';
+  } else {
+    return '(' + nameText + ')';
+  }
+}
 
 /**
  * **Never use this function directly!!!**
@@ -206,6 +251,9 @@ export function __normGenshinText(text: string, langCode: LangCode, opts: NormTe
 
   text = text.replace(/\{REALNAME\[ID\(1\)(\|HOSTONLY\(true\))?(\|DELAYHANDLE\((true|false)\))?]}/g,
     __wandererPlaceholder(langCode, opts?.customOpts?.wandererPlaceholderPlainForm));
+
+  text = text.replace(/\{REALNAME\[ID\(2\)(\|HOSTONLY\(true\))?(\|DELAYHANDLE\((true|false)\))?]}/g,
+    __littleOnePlaceholder(langCode, opts?.customOpts?.littleOnePlaceholderPlainForm));
 
   if (!opts.plaintext) {
     text = text.replace(/\{SPRITE_PRESET#(\d+)}/g, (_fm: string, g1: string) => {

@@ -2,13 +2,12 @@ import { getGenshinDataFilePath } from '../../loadenv.ts';
 import fs from 'fs';
 import { SchemaTable, textMapSchema, plainLineMapSchema, normalizeRawJson } from '../import_db.ts';
 import {
-  DialogExcelConfigData,
   ReminderExcelConfigData,
   TalkExcelConfigData,
 } from '../../../shared/types/genshin/dialogue-types.ts';
 import {
   CombineExcelConfigData,
-  CompoundExcelConfigData, CookBonusExcelConfigData,
+  CompoundExcelConfigData,
   CookRecipeExcelConfigData,
   ForgeExcelConfigData,
   MaterialExcelConfigData,

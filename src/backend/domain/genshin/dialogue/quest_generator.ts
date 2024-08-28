@@ -204,7 +204,8 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
         .filter(x => !x.Invisiable && !x.JsonName?.startsWith('ReadableNPC'))
         .map(x => ctrl.normText(x.NameText, ctrl.outputLangCode, {
           customOpts: {
-            wandererPlaceholderPlainForm: true
+            wandererPlaceholderPlainForm: true,
+            littleOnePlaceholderPlainForm: true,
           }
         }))
         .concat(ctrl.travelerPageName)
