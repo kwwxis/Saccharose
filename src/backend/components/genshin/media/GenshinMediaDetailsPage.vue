@@ -41,7 +41,7 @@
     </dl>
   </section>
 
-  <section v-if="entity?.extra_info?.otherNames?.length">
+  <section class="card" v-if="entity?.extra_info?.otherNames?.length">
     <h2>Other Versions</h2>
     <template v-for="otherName of entity.extra_info.otherNames">
       <h3>{{ otherName.name }}</h3>
@@ -49,9 +49,17 @@
         <div class="media-image">
           <div class="image-frame no-max-width">
             <div class="image-obj">
-              <img :src="`/images/genshin/${otherName.name}.png`" />
+              <img :src="`/images/genshin/${encodeURIComponent(otherName.name)}.png`" />
             </div>
-            <div class="image-label">{{ otherName.size }}</div>
+            <div class="image-label">
+              <template v-if="otherName.size >= 1_000_000">
+                <span>{{ (otherName.size / 1_000_000).toFixed(2) }} MB</span>
+              </template>
+              <template v-else>
+                <span>{{ (otherName.size / 1000).toFixed(2) }} KB</span>
+              </template>
+              <span>&nbsp;({{ otherName.size }} bytes)</span>
+            </div>
           </div>
         </div>
       </div>
