@@ -3036,7 +3036,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
       ret.ContentResults = await localizations.asyncMap(async localization => {
         return await this.selectReadableByLocalizationId(localization.Id, true);
-      })
+      });
 
       for (let view of ret.ContentResults) {
         for (let item of view.Items) {

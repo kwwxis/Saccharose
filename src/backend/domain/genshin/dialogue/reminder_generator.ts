@@ -64,7 +64,7 @@ export function reminderWikitext(ctrl: GenshinControl, reminder: ReminderExcelCo
     }
   } else {
     return {
-      wikitext: `:${voPrefix}'''${reminder.SpeakerText}:''' ${text}`,
+      wikitext: `:${voPrefix}'''${ctrl.normText(reminder.SpeakerText, ctrl.outputLangCode)}:''' ${text}`,
       ids: [
         {
           commonId: reminder.Id,

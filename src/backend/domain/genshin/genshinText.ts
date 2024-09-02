@@ -150,7 +150,7 @@ function __littleOnePlaceholder(langCode: LangCode = 'EN', plainForm: boolean = 
       case 'CHT':
         return '小傢伙';
       case 'DE':
-        return 'Kleinen';
+        return 'Kleiner';
       case 'EN':
         return 'Little One';
       case 'ES':
