@@ -39,18 +39,18 @@ router.endpoint('/dialogue-helper', {
 
     const sb: SbOut = new SbOut();
 
-    await ctrl.streamTextMapMatches({
+    const results = await ctrl.getTextMapMatches({
       inputLangCode: ctrl.inputLangCode,
       outputLangCode: ctrl.outputLangCode,
       searchText: query,
       flags: `${ctrl.searchModeFlags}`,
       searchAgainst: hashSearch ? 'Hash' : 'Text',
-      doNormText: true,
-      stream(textMapHash: TextMapHash, text: string) {
-        sb.line(`:'''{{Tx|Speaker}}:''' ` + text);
-        wikitextResult.ids.push({ textMapHash });
-      }
+      doNormText: true
     });
+    for (let result of results) {
+      sb.line(`:'''{{Tx|Speaker}}:''' ` + result.text);
+      wikitextResult.ids.push({ textMapHash: result.hash });
+    }
 
     wikitextResult.wikitext = sb.toString();
     section.setWikitext(wikitextResult);
