@@ -47,7 +47,7 @@ router.endpoint('/dialogue-helper', {
       searchAgainst: hashSearch ? 'Hash' : 'Text',
       doNormText: true,
       stream(textMapHash: TextMapHash, text: string) {
-        sb.line(`:'''_SPEAKER_:''' ` + text);
+        sb.line(`:'''{{Tx|Speaker}}:''' ` + text);
         wikitextResult.ids.push({ textMapHash });
       }
     });
