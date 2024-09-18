@@ -1,0 +1,22 @@
+body.page--OL.page--genshin {
+  &:after {
+    content: '';
+    position: fixed;
+    pointer-events: none;
+    bottom: 0;
+    right: 10px;
+    height: 200px;
+    width: 150px;
+    background: url(/images/site/home/GanyuOL-x300.png) no-repeat bottom right / 90px;
+    opacity: 0.3;
+  }
+  &.nightmode:after {
+    opacity: 0.18;
+  }
+}
+
+@media (max-width: 1380px) {
+  body.page--OL.page--genshin:after {
+    display: none;
+  }
+}
