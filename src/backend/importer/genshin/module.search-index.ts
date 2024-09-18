@@ -20,6 +20,30 @@ export async function importSearchIndex() {
     console.log(chalk.blue(' (done)'));
   };
 
+  // Main Quest Index
+  // --------------------------------------------------------------------------------------------------------------
+  {
+    process.stdout.write(chalk.bold('Generating main quest index...'));
+    const mainQuestList = await ctrl.selectAllMainQuests();
+    const mainQuestIndex: { [textMapHash: number]: number } = {};
+
+    for (let mainQuest of mainQuestList) {
+      mainQuestIndex[mainQuest.TitleTextMapHash] = mainQuest.Id;
+    }
+    writeOutput('MainQuest', mainQuestIndex);
+  }
+  // Chapter Index
+  // --------------------------------------------------------------------------------------------------------------
+  {
+    process.stdout.write(chalk.bold('Generating chapter index...'));
+    const chapterList = await ctrl.selectAllChapters();
+    const chapterIndex: { [textMapHash: number]: number } = {};
+
+    for (let chapter of chapterList) {
+      chapterIndex[chapter.ChapterTitleTextMapHash] = chapter.Id;
+    }
+    writeOutput('Chapter', chapterIndex);
+  }
   // Readable Index
   // --------------------------------------------------------------------------------------------------------------
   {

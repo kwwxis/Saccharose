@@ -17,70 +17,51 @@ import './core/userPreferences/siteMode.ts';
 import './core/siteEvents.ts';
 import './core/generalEventBus.ts';
 
-// Generic Pages
+// Generic
 // ----------------------------------------------------------------------------------------------------
-import './pages/generic/basic/olgen.ts';
-import './pages/generic/basic/textmap.ts';
-import './pages/generic/basic/excel-usages.ts';
-import './pages/generic/excel-viewer/excel-viewer.ts';
-import './pages/generic/wiki-revs/rev-app-main.ts';
-import './pages/generic/basic/VueTest.page.ts';
 import './pages/generic/auth/WikiLogin.page.ts';
 import './pages/generic/auth/Settings.page.ts';
+import './pages/generic/basic/excel-usages.ts';
+import './pages/generic/basic/olgen.ts';
+import './pages/generic/basic/textmap.ts';
+import './pages/generic/excel-viewer/excel-viewer.ts';
+import './pages/generic/wiki-revs/rev-app-main.ts';
 
-// More
+// Genshin
 // ----------------------------------------------------------------------------------------------------
 import './intervals/genshin/genshin-readable-text-module.ts';
-
-// Genshin Dialogue Pages
-// ----------------------------------------------------------------------------------------------------
-import './pages/genshin/dialogue/branch_dialogue.ts';
-import './pages/genshin/dialogue/npc_dialogue.ts';
-import './pages/genshin/dialogue/quests.ts';
-import './pages/genshin/dialogue/reminders.ts';
-import './pages/genshin/dialogue/vo-to-dialogue.ts';
-
-// Genshin Archive Pages
-// ----------------------------------------------------------------------------------------------------
 import './pages/genshin/archive/achievements-search.ts';
 import './pages/genshin/archive/readables-search.ts';
 import './pages/genshin/archive/material-search.ts';
 import './pages/genshin/archive/weapon-search.ts';
 import './pages/genshin/archive/furniture-list.ts';
 import './pages/genshin/archive/tutorials-search.ts';
-import './pages/genshin/gcg/gcg-stage-search.page.ts';
-
-// Genshin VO Tool and Media Pages
-// ----------------------------------------------------------------------------------------------------
+import './pages/genshin/changelog/changelog-single-excel-page.ts';
+import './pages/genshin/changelog/changelog-page.ts';
 import './pages/genshin/character/genshin-vo-tool.ts';
+import './pages/genshin/dialogue/branch_dialogue.ts';
+import './pages/genshin/dialogue/npc_dialogue.ts';
+import './pages/genshin/dialogue/quests.ts';
+import './pages/genshin/dialogue/reminders.ts';
+import './pages/genshin/dialogue/vo-to-dialogue.ts';
+import './pages/genshin/gcg/gcg-stage-search.page.ts';
 import './pages/genshin/media/media-reverse-search.page.ts';
 import './pages/genshin/media/genshin-media-search.page.ts';
 import './pages/genshin/media/genshin-media-list.page.ts';
 
-// Genshin Changelog Pages
-// ----------------------------------------------------------------------------------------------------
-import './pages/genshin/changelog/changelog-single-excel-page.ts';
-import './pages/genshin/changelog/changelog-page.ts';
-
-// HSR VO Tool
+// HSR
 // ----------------------------------------------------------------------------------------------------
 import './pages/hsr/character/hsr-vo-tool.ts';
-
-// HSR Media Pages
-// ----------------------------------------------------------------------------------------------------
 import './pages/hsr/media/hsr-media-search.page.ts';
 import './pages/hsr/media/hsr-media-list.page.ts';
 
-// WUWA Media Pages
+// WuWa
 // ----------------------------------------------------------------------------------------------------
 import './pages/wuwa/media/wuwa-media-search.page.ts';
 import './pages/wuwa/media/wuwa-media-list.page.ts';
-
-// WUWA VO Tool
-// ----------------------------------------------------------------------------------------------------
 import './pages/wuwa/resonator/wuwa-vo-tool.ts';
 
-// ZENLESS
+// Zenless
 // ----------------------------------------------------------------------------------------------------
 import './pages/zenless/zenless-dialogue-helper-page.ts';
 

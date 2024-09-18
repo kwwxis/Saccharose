@@ -6,13 +6,12 @@ import {
 } from '../../abstract/api/abstractBasicResources.ts';
 import { getZenlessControl, ZenlessControl } from '../../../domain/zenless/zenlessControl.ts';
 import { Request, Response, Router } from 'express';
-import { isNotEmpty, isset, toBoolean } from '../../../../shared/util/genericUtil.ts';
-import { isInt, toInt } from '../../../../shared/util/numberUtil.ts';
-import { TextMapHash, TextMapSearchResult } from '../../../../shared/types/lang-types.ts';
+import { isset, toBoolean } from '../../../../shared/util/genericUtil.ts';
+import { TextMapHash } from '../../../../shared/types/lang-types.ts';
 import ZenlessDialogueHelperResult from '../../../components/zenless/ZenlessDialogueHelperResult.vue';
-import { DialogueSectionResult } from '../../../domain/genshin/dialogue/dialogue_util.ts';
-import { DialogWikitextResult } from '../../../../shared/types/genshin/dialogue-types.ts';
 import { SbOut } from '../../../../shared/util/stringUtil.ts';
+import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
+import { DialogWikitextResult } from '../../../../shared/types/common-types.ts';
 
 const router: Router = create();
 

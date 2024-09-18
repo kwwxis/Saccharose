@@ -54,7 +54,8 @@ export const ManualTextMapHashes = {
   'Three Realms Gateway Offering': 2887066388,
   'Spiral Abyss': 2284786655,
   'Enkanomiya': 1862653596,
-  'Veluriyam Mirage': 2220487485,
+  'Veluriyam Mirage': 84855465,
+  'Simulanka': 467583217,
 
   // Other Factions
   'Fatui': 243035471,

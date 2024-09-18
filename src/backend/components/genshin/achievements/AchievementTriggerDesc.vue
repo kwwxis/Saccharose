@@ -20,6 +20,7 @@
 <script setup lang="ts">
 import { AchievementExcelConfigData } from '../../../../shared/types/genshin/achievement-types.ts';
 
-const props = defineProps<{ achievement: AchievementExcelConfigData }>();
-const achievement = props.achievement;
+defineProps<{
+  achievement: AchievementExcelConfigData
+}>();
 </script>

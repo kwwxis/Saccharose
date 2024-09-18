@@ -1,6 +1,6 @@
 <template>
   <template v-for="item of quests">
-    <a role="button" class="secondary dispBlock spacer5-bottom textAlignLeft" :href="`/genshin/quests/${item.quest.Id}`" :data-id="item.quest.Id">
+    <a role="button" class="quest-search-result-item secondary dispBlock spacer5-bottom textAlignLeft" :href="`/genshin/quests/${item.quest.Id}`" :data-id="item.quest.Id">
       <strong>ID {{ item.quest.Id }}:&nbsp;</strong>
       <span>{{ item.quest.TitleText }}</span>
     </a>

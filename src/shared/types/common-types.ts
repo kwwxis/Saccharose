@@ -240,4 +240,9 @@ export interface LangDetectResult {
   isReliable: boolean,
   details: { langName: string, langCode: string, confidence: number }[]
 }
+
+export interface DialogWikitextResult {
+  wikitext: string,
+  ids: CommonLineId[],
+}
 // endregion

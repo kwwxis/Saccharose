@@ -1,11 +1,10 @@
 import { create } from '../../../routing/router.ts';
 import { GenshinControl, getGenshinControl } from '../../../domain/genshin/genshinControl.ts';
-import { MainQuestExcelConfigData } from '../../../../shared/types/genshin/quest-types.ts';
+import { ChapterExcelConfigData, MainQuestExcelConfigData } from '../../../../shared/types/genshin/quest-types.ts';
 import { isInt, toInt } from '../../../../shared/util/numberUtil.ts';
 import { questGenerate, QuestGenerateResult } from '../../../domain/genshin/dialogue/quest_generator.ts';
 import { isset, removeCyclicRefs, toBoolean } from '../../../../shared/util/genericUtil.ts';
 import { HttpError } from '../../../../shared/util/httpError.ts';
-import { DialogueSectionResult } from '../../../domain/genshin/dialogue/dialogue_util.ts';
 import {
   dialogueGenerate,
   dialogueGenerateByNpc,
@@ -15,36 +14,37 @@ import { reminderGenerate, reminderWikitext } from '../../../domain/genshin/dial
 import { ApiCyclicValueReplacer } from '../../../middleware/api/apiCyclicValueReplacer.ts';
 import { VoiceItem } from '../../../../shared/types/lang-types.ts';
 import { Request, Response, Router } from 'express';
+import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
+import GenshinQuestSearchResults from '../../../components/genshin/quests/GenshinQuestSearchResults.vue';
 
 const router: Router = create();
 
 router.endpoint('/quests/findMainQuest', {
   get: async (req: Request, res: Response) => {
-    let questNameOrId: string|number = (req.query.name || req.query.id) as string|number;
+    let query: string|number = (req.query.query || req.query.name || req.query.id) as string|number;
 
-    if (!isset(questNameOrId)) {
-      throw HttpError.badRequest('InvalidParameter', 'The "name" or "id" query parameter must be given');
+    if (!isset(query)) {
+      throw HttpError.badRequest('InvalidParameter', 'The "query" query parameter must be given');
     }
 
-    if (typeof questNameOrId === 'string' && /^\d+$/.test(questNameOrId.trim())) {
-      questNameOrId = parseInt(questNameOrId);
+    if (typeof query === 'string' && /^\d+$/.test(query.trim())) {
+      query = parseInt(query);
     }
 
     const ctrl = getGenshinControl(req);
 
-    let mainQuests: MainQuestExcelConfigData[] = await ctrl.selectMainQuestsByNameOrId(questNameOrId);
-
-    let result: {[id: number]: string} = {};
-    for (let mainQuest of mainQuests) {
-      if (!mainQuest || !mainQuest.Id)
-        continue;
-      result[mainQuest.Id] = mainQuest.TitleText;
-    }
+    const { mainQuests, chapters } = await ctrl.searchMainQuestsAndChapters(query);
 
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
-      return res.render('partials/genshin/dialogue/quest-search-results', { searchResults: result });
+      return res.render(GenshinQuestSearchResults, {
+        mainQuests,
+        chapters
+      });
     } else {
-      return result;
+      return {
+        mainQuests,
+        chapters
+      };
     }
   }
 });

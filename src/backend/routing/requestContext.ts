@@ -185,7 +185,7 @@ export class RequestContext {
     return wikiDomain;
   }
 
-  templateLink(template: string): string {
+  wikiTemplateLink(template: string): string {
     return '{{' + createHtmlElement({
       name: 'a',
       attributes: {
@@ -254,10 +254,6 @@ export class RequestContext {
 
   hasBodyClass(bodyClass: string) {
     return this.bodyClass.includes(bodyClass);
-  }
-
-  bodyClassTernary(bodyClass: string, ifIncludes?: any, ifNotIncludes?: any): any {
-    return this.hasBodyClass(bodyClass) ? (ifIncludes || '') : (ifNotIncludes || '');
   }
 
   cookie(cookieName: string, orElse: string = '') {

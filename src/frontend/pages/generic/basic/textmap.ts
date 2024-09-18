@@ -13,7 +13,7 @@ import { listen } from '../../../util/eventListen.ts';
 import SiteMode from '../../../core/userPreferences/siteMode.ts';
 import { highlightReplace } from '../../../core/ace/aceHighlight.ts';
 
-pageMatch('pages/generic/basic/textmap', () => {
+pageMatch('vue/TextmapSearchPage', () => {
   let handle: GenericSearchPageHandle;
 
   let endpoint: SaccharoseApiEndpoint<any>;

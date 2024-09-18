@@ -1,7 +1,7 @@
-import { DialogueSectionResult } from './dialogue_util.ts';
 import { Marker } from '../../../../shared/util/highlightMarker.ts';
 import { defaultMap } from '../../../../shared/util/genericUtil.ts';
 import { sort } from '../../../../shared/util/arrayUtil.ts';
+import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
 
 export type SimilarityGroups = {[groupId: number]: {sectionId: string, sectionTitle: string}[]};
 

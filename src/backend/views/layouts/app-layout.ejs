@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="<%= prefTernary('isNightmode').isTruthy().then('nightmode') %>">
+<html lang="en" class="<%= ctx.prefTernary('isNightmode').isTruthy().then('nightmode') %>">
   <head>
     <meta charset="utf-8" />
     <title><%= req.context.getFormattedPageTitle() %></title>
@@ -38,7 +38,7 @@
     <link rel="stylesheet" href="<%= req.context.webpackBundles.appCssBundle %>">
     <link rel="stylesheet" href="<%= req.context.webpackBundles.vueCssBundle %>">
   </head>
-  <body class="<%= req.context.bodyClassString %> <%= prefTernary('isNightmode').isTruthy().then('nightmode') %> <%= req.context.siteModeCssClass %>">
+  <body class="<%= req.context.bodyClassString %> <%= ctx.prefTernary('isNightmode').isTruthy().then('nightmode') %> <%= req.context.siteModeCssClass %>">
     <span id="top" style="height:0;width:0;opacity:0"></span>
     <header id="header" class="thin-border">
       <div class="left">

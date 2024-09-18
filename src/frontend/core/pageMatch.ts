@@ -6,9 +6,9 @@ viewStackMeta.remove();
 
 console.log('[Init] Loaded views:', loadedViews);
 
-export function pageMatch(pageName: string, callback: Function) {
-  if (loadedViews.has(pageName)) {
-    console.log(`[Init] Page Match - ${pageName}`);
+export function pageMatch(pageNameOrBodyClass: string, callback: Function) {
+  if (loadedViews.has(pageNameOrBodyClass) || document.body.classList.contains(pageNameOrBodyClass)) {
+    console.log(`[Init] Page Match - ${pageNameOrBodyClass}`);
     runWhenDOMContentLoaded(() => callback());
   }
 }

@@ -4,13 +4,14 @@ import { GenshinControl, getGenshinControl } from '../genshinControl.ts';
 import { toInt } from '../../../../shared/util/numberUtil.ts';
 import { HomeWorldNPCExcelConfigData } from '../../../../shared/types/genshin/homeworld-types.ts';
 import { grep } from '../../../util/shellutil.ts';
-import { DialogueSectionResult, TalkConfigAccumulator, talkConfigGenerate } from '../dialogue/dialogue_util.ts';
+import { TalkConfigAccumulator, talkConfigGenerate } from '../dialogue/dialogue_util.ts';
 import util from 'util';
 import { toBoolean } from '../../../../shared/util/genericUtil.ts';
 import { pathToFileURL } from 'url';
 import { sort } from '../../../../shared/util/arrayUtil.ts';
 import { escapeHtml, toLower } from '../../../../shared/util/stringUtil.ts';
 import { getGenshinDataFilePath } from '../../../loadenv.ts';
+import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
 
 export async function getHomeWorldCompanions(ctrl: GenshinControl): Promise<HomeWorldNPCExcelConfigData[]> {
   return ctrl.cached('HomeWorld:Companions:NPCExcels:'+ctrl.outputLangCode, 'json', async () => {

@@ -10,6 +10,8 @@ import { getStarRailControl } from '../../../domain/hsr/starRailControl.ts';
 import { getStarRailAvatar, getStarRailAvatars } from '../../../middleware/game/starRailAvatarUtil.ts';
 import { AvatarConfig } from '../../../../shared/types/hsr/hsr-avatar-types.ts';
 import { LANG_CODES_TO_NAME, LangCode } from '../../../../shared/types/lang-types.ts';
+import StarRailMessages from '../../../components/hsr/StarRailMessages.vue';
+import SharedVoTool from '../../../components/shared/SharedVoTool.vue';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -18,7 +20,7 @@ export default async function(): Promise<Router> {
     const ctrl = getStarRailControl(req);
     const avatars: AvatarConfig[] = await getStarRailAvatars(ctrl);
 
-    res.render('pages/hsr/character/messages', {
+    res.render(StarRailMessages, {
       title: 'Messages',
       bodyClass: ['page--messages'],
       avatars
@@ -29,9 +31,9 @@ export default async function(): Promise<Router> {
     const ctrl = getStarRailControl(req);
     const avatars: CommonAvatar[] = toCommonAvatarsFromStarRail(await getStarRailAvatars(ctrl));
 
-    res.render('pages/hsr/character/vo-tool', {
+    res.render(SharedVoTool, {
       title: 'Character VO',
-      bodyClass: ['page--wide', 'page--vo-tool'],
+      bodyClass: ['page--wide', 'page--vo-tool', 'page--hsr-vo-tool'],
       avatars,
       avatar: null,
       avatarLabel: 'Character',
@@ -57,9 +59,9 @@ export default async function(): Promise<Router> {
     const voLangCode: LangCode = paramOption(req, 'voLangCode', 'EN', 'CH', 'JP', 'KR');
     const voLangName: string = LANG_CODES_TO_NAME[voLangCode];
 
-    res.render('pages/hsr/character/vo-tool', {
+    res.render(SharedVoTool, {
       title: (avatar ? avatar.NameText +  ' - ' : '') + 'Character VO',
-      bodyClass: ['page--wide', 'page--vo-tool', `tab--${tab}`],
+      bodyClass: ['page--wide', 'page--vo-tool', `tab--${tab}`, 'page--hsr-vo-tool'],
       avatars,
       avatar,
       avatarLabel: 'Character',

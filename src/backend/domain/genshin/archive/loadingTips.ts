@@ -55,6 +55,12 @@ async function getCategoryForTip(ctrl: GenshinControl,
     if (sit.PicPath && sit.PicPath.includes('GoldenApple')) {
       foundCats.push({ text: 'Golden Apple Archipelago', weight: 15});
     }
+    if (sit.PicPath && sit.PicPath.includes('Penumbra')) {
+      foundCats.push({ text: 'Veluriyam Mirage', weight: 15});
+    }
+    if (sit.PicPath && sit.PicPath.includes('Simulanka')) {
+      foundCats.push({ text: 'Simulanka', weight: 15});
+    }
     if (sit.Area1Id) {
       const areas = worldAreas.filter(area => sit.Area1Id.includes(area.AreaId1) && area.AreaType === 'LEVEL_1');
       for (let area of areas) {
@@ -164,6 +170,7 @@ async function createResultObject(ctrl: GenshinControl): Promise<LoadingCat> {
     'Inazuma',
     'Sumeru',
     'Fontaine',
+    'Natlan',
   ];
 
   const otherKeys: string[] = [
@@ -173,6 +180,7 @@ async function createResultObject(ctrl: GenshinControl): Promise<LoadingCat> {
     'Golden Apple Archipelago',
     'Three Realms Gateway Offering',
     'Veluriyam Mirage',
+    'Simulanka',
     'General',
   ];
 

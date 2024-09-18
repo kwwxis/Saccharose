@@ -2,7 +2,7 @@ import '../../../loadenv.ts';
 import { closeKnex } from '../../../util/db.ts';
 import { GenshinControl, getGenshinControl } from '../genshinControl.ts';
 import { ol_gen_from_id } from '../../abstract/basic/OLgen.ts';
-import { NpcExcelConfigData } from '../../../../shared/types/genshin/general-types.ts';
+import { ConfigCondition, NpcExcelConfigData } from '../../../../shared/types/genshin/general-types.ts';
 import { arrayEmpty, arrayUnique } from '../../../../shared/util/arrayUtil.ts';
 import {
   DialogUnparented,
@@ -15,7 +15,6 @@ import {
 } from '../../../../shared/types/genshin/quest-types.ts';
 import { RewardExcelConfigData } from '../../../../shared/types/genshin/material-types.ts';
 import {
-  DialogueSectionResult,
   TalkConfigAccumulator,
   talkConfigToDialogueSectionResult,
 } from './dialogue_util.ts';
@@ -28,6 +27,7 @@ import { grepIdStartsWith } from '../../../util/shellutil.ts';
 import { RAW_MANUAL_TEXTMAP_ID_PROP } from '../../../importer/genshin/genshin.schema.ts';
 import { toInt } from '../../../../shared/util/numberUtil.ts';
 import { Readable } from '../../../../shared/types/genshin/readable-types.ts';
+import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
 
 export class QuestGenerateResult {
   mainQuest: MainQuestExcelConfigData = null;
@@ -54,7 +54,7 @@ export class QuestGenerateResult {
 
 async function findMainQuest(ctrl: GenshinControl, questNameOrId: string|number, questIndex: number) {
   const mainQuests: MainQuestExcelConfigData[] = typeof questNameOrId === 'string'
-    ? await ctrl.selectMainQuestsByNameOrId(questNameOrId.trim())
+    ? await ctrl.searchMainQuests(questNameOrId.trim())
     : [await ctrl.selectMainQuestById(questNameOrId)];
 
   return mainQuests.length ? mainQuests[questIndex] : null;
@@ -271,8 +271,8 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
     sect.addMetaProp('Section Order', questSub.Order);
     sect.addMetaProp('Quest Step', questSub.DescText);
     sect.addMetaProp('Quest Desc Update', questSub.StepDescText);
-    sect.addCondMetaProp('FinishCond', questSub.FinishCondComb, questSub.FinishCond);
-    sect.addCondMetaProp('FailCond', questSub.FailCondComb, questSub.FailCond);
+    addCondMetaProp(sect, 'FinishCond', questSub.FinishCondComb, questSub.FinishCond);
+    addCondMetaProp(sect, 'FailCond', questSub.FailCondComb, questSub.FailCond);
 
     if (questSub.NonTalkDialog && questSub.NonTalkDialog.length) {
       for (let dialog of questSub.NonTalkDialog) {
@@ -489,6 +489,20 @@ async function addQuestMessages(ctrl: GenshinControl, mainQuest: MainQuestExcelC
         mainQuest.QuestMessages.push(await ctrl.selectManualTextMapConfigDataById(id));
     }
   }
+}
+
+function addCondMetaProp(section: DialogueSectionResult, fieldName: string, condComb: string, condList: ConfigCondition[]) {
+  let label = fieldName + (condComb ? '[Comb=' + condComb + ']' : '');
+  let values = [];
+  if (condList && condList.length) {
+    for (let cond of condList) {
+      let str = '(' + 'Type=' + cond.Type + (cond.Param ? ' Param=' + JSON.stringify(cond.Param) : '')
+        + (cond.ParamStr ? ' ParamStr=' + cond.ParamStr : '')
+        + (cond.Count ? ' Count=' + cond.Count : '') + ')';
+      values.push(str);
+    }
+  }
+  section.addMetaProp(label, values);
 }
 
 

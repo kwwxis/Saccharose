@@ -2,6 +2,7 @@ import { DialogExcelConfigData, ManualTextMapConfigData, TalkExcelConfigData } f
 import { ConfigCondition } from './general-types.ts';
 import { RewardExcelConfigData } from './material-types.ts';
 import { QuestOrderItem } from '../../../backend/domain/genshin/dialogue/dialogue_util.ts';
+import { OLResult } from '../../../backend/domain/abstract/basic/OLgen.ts';
 
 export type QuestType = 'AQ' | 'SQ' | 'EQ' | 'WQ' | 'IQ';
 export type MapByQuestType<T> = {
@@ -18,6 +19,12 @@ export interface ChapterCollection {
   EQ: {[chapterName: string]: ChapterExcelConfigData[]},
   WQ: {[chapterName: string]: ChapterExcelConfigData[]},
   IQ: {[chapterName: string]: ChapterExcelConfigData[]},
+}
+
+export interface ChapterOLView {
+  mainChapterName: OLResult,
+  subChapterName: OLResult,
+  actName: OLResult,
 }
 
 export interface MainQuestExcelConfigData {

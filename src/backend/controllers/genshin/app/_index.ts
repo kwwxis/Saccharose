@@ -6,7 +6,6 @@ import ItemRouter from './GenshinArchiveRouter.ts';
 import CharacterRouter from './GenshinCharacterRouter.ts';
 import TcgRouter from './TcgRouter.ts';
 import MediaRouter from './GenshinMediaRouter.ts';
-import TestRouter from './TestRouter.ts';
 import ChangelogRouter from './GenshinChangelogRouter.ts';
 
 export default async function(): Promise<Router> {
@@ -18,7 +17,6 @@ export default async function(): Promise<Router> {
   router.use('/', await CharacterRouter());
   router.use('/', await TcgRouter());
   router.use('/', await MediaRouter());
-  router.use('/', await TestRouter());
   router.use('/', await ChangelogRouter());
 
   return router;

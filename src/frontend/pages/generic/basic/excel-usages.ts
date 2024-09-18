@@ -9,7 +9,7 @@ import {
 } from '../../../core/endpoints.ts';
 import SiteMode from '../../../core/userPreferences/siteMode.ts';
 
-pageMatch('pages/generic/basic/excel-usages', () => {
+pageMatch('vue/ExcelUsagesPage', () => {
   let endpoint: SaccharoseApiEndpoint<any>;
 
   if (SiteMode.isGenshin) {

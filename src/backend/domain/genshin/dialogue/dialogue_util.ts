@@ -1,13 +1,11 @@
 import {
-  DialogExcelConfigData, DialogWikitextResult,
+  DialogExcelConfigData,
   TalkExcelConfigData,
 } from '../../../../shared/types/genshin/dialogue-types.ts';
-import { ConfigCondition } from '../../../../shared/types/genshin/general-types.ts';
 import { GenshinControl, getGenshinControl } from '../genshinControl.ts';
 import { QuestGenerateResult } from './quest_generator.ts';
-import { MetaProp, MetaPropAcceptValue } from '../../../util/metaProp.ts';
+import { MetaProp } from '../../../util/metaProp.ts';
 import { toBoolean } from '../../../../shared/util/genericUtil.ts';
-import { Marker } from '../../../../shared/util/highlightMarker.ts';
 import { ChapterExcelConfigData, MainQuestExcelConfigData } from '../../../../shared/types/genshin/quest-types.ts';
 import toposort from 'toposort';
 import { sort } from '../../../../shared/util/arrayUtil.ts';
@@ -15,7 +13,8 @@ import { pathToFileURL } from 'url';
 import { closeKnex } from '../../../util/db.ts';
 import { isInt } from '../../../../shared/util/numberUtil.ts';
 import { custom } from '../../../util/logger.ts';
-import { CommonLineId } from '../../../../shared/types/common-types.ts';
+import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
+import { DialogWikitextResult } from '../../../../shared/types/common-types.ts';
 
 // region Class: DialogBranchingCache
 // --------------------------------------------------------------------------------------------------------------
@@ -30,177 +29,6 @@ export class DialogBranchingCache {
 
   static from(self: DialogBranchingCache) {
     return new DialogBranchingCache(self.dialogToBranch, self.dialogSeenAlready);
-  }
-}
-// endregion
-
-// region Class: DialogueSectionResult
-// --------------------------------------------------------------------------------------------------------------
-export class DialogueSectionResult {
-  id: string = null;
-  title: string = '';
-  isHtmlTitle: boolean = false;
-  metadata: MetaProp[] = [];
-  infoTooltip: string = '';
-  htmlMessage: string = null;
-
-  private _wikitext: string = '';
-  private _wikitextLineIds: CommonLineId[] = [];
-  wikitextMarkers: Marker[] = [];
-  wikitextArray: { title?: string, wikitext: string, markers?: Marker[] }[] = [];
-
-  children: DialogueSectionResult[] = [];
-  originalData: {
-    talkConfig?: TalkExcelConfigData,
-    dialogBranch?: DialogExcelConfigData[],
-    questId?: number,
-    questName?: string
-  } = {};
-  showGutter: boolean = false;
-  showTextMapHash: boolean = false;
-  similarityGroupId: number = null;
-  copyAllSep: string = '\n';
-
-  constructor(id: string, title: string, infoTooltip: string = null) {
-    this.id = id;
-    this.title = title;
-    this.infoTooltip = infoTooltip;
-  }
-
-  get wikitext(): string {
-    return this._wikitext;
-  }
-
-  get wikitextLineIds(): CommonLineId[] {
-    return this._wikitextLineIds;
-  }
-
-  clearWikitext() {
-    this._wikitext = '';
-    this._wikitextLineIds = [];
-  }
-
-  setWikitext(result: DialogWikitextResult) {
-    this._wikitext = result.wikitext;
-    this._wikitextLineIds = result.ids;
-  }
-
-  appendEmptyLine() {
-    this._wikitext += '\n';
-    this._wikitextLineIds.push(null);
-  }
-
-  append(item: DialogWikitextResult) {
-    if (!this._wikitext.length) {
-      this._wikitext += item.wikitext;
-    } else {
-      this._wikitext += '\n' + item.wikitext;
-    }
-    this._wikitextLineIds.push(... item.ids);
-  }
-
-  prepend(item: DialogWikitextResult) {
-    if (!this._wikitext.length) {
-      this._wikitext = item.wikitext;
-    } else {
-      this._wikitext = item.wikitext + '\n' + this._wikitext;
-    }
-    this._wikitextLineIds.unshift(... item.ids);
-  }
-
-  prependFreeForm(text: string) {
-    this._wikitext = text + this._wikitext;
-    if (text && text.includes('\n')) {
-      for (let _m of (text.match(/\n/g) || [])) {
-        this._wikitextLineIds.unshift(null);
-      }
-    }
-  }
-
-  appendFreeForm(text: string) {
-    this._wikitext += text;
-    if (text && text.includes('\n')) {
-      for (let _m of (text.match(/\n/g) || [])) {
-        this._wikitextLineIds.push(null);
-      }
-    }
-  }
-
-  toString(includeDTemplate: boolean = false): string {
-    const sep = this.copyAllSep.replace(/\\n/g, '\n');
-    let str = '';
-
-    if (this._wikitext) {
-      str += this._wikitext;
-    }
-    if (this.wikitextArray && this.wikitextArray.length) {
-      for (let wikitextArrayElement of this.wikitextArray) {
-        str += sep + wikitextArrayElement.wikitext;
-      }
-    }
-
-    if (this.children && this.children.length) {
-      for (let child of this.children) {
-        str += sep + child.toString();
-      }
-    }
-
-    if (includeDTemplate) {
-      str = '{{Dialogue Start}}\n' + str.trim() + '\n{{Dialogue End}}';
-    }
-
-    return str.trim();
-  }
-
-  afterConstruct(fn: (sect: this) => void): this {
-    fn(this);
-    return this;
-  }
-
-  addEmptyMetaProp(label: string) {
-    this.metadata.push(new MetaProp(label, null));
-  }
-
-  getMetaProp(label: string): MetaProp {
-    return this.metadata.find(item => item.label === label);
-  }
-
-  getOrCreateMetaProp(label: string): MetaProp {
-    let existingProp = this.metadata.find(item => item.label === label);
-    if (existingProp) {
-      return existingProp;
-    } else {
-      let newProp = new MetaProp(label);
-      this.metadata.push(newProp);
-      return newProp;
-    }
-  }
-
-  addMetaProp(label: string, values: MetaPropAcceptValue, link?: string) {
-    if (!values || (Array.isArray(values) && !values.length)) {
-      return;
-    }
-    let newProp = new MetaProp(label, values, link);
-    this.metadata.push(newProp);
-    return newProp;
-  }
-
-  addCondMetaProp(fieldName: string, condComb: string, condList: ConfigCondition[]) {
-    let label = fieldName + (condComb ? '[Comb=' + condComb + ']' : '');
-    let values = [];
-    if (condList && condList.length) {
-      for (let cond of condList) {
-        let str = '(' + 'Type=' + cond.Type + (cond.Param ? ' Param=' + JSON.stringify(cond.Param) : '')
-          + (cond.ParamStr ? ' ParamStr=' + cond.ParamStr : '')
-          + (cond.Count ? ' Count=' + cond.Count : '') + ')';
-        values.push(str);
-      }
-    }
-    this.addMetaProp(label, values);
-  }
-
-  hasMetaProp(label: string) {
-    return this.metadata.some(x => x.label === label);
   }
 }
 // endregion
@@ -398,7 +226,7 @@ export async function talkConfigToDialogueSectionResult(ctrl: GenshinControl,
       ]);
     } else if (beginCond.Type.startsWith('QUEST_COND_STATE_')) {
       let questExcel = await ctrl.selectQuestExcelConfigData(beginCond.Param[0]);
-      let questName = questExcel ? await ctrl.selectMainQuestName(questExcel.MainId) : null;
+      let questName = (questExcel ? await ctrl.selectMainQuestName(questExcel.MainId) : null) || '(No title)';
 
       mysect.addMetaProp('Quest State Cond', [
         beginCond.Type.slice(17),

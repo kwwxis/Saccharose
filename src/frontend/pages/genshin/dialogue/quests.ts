@@ -8,7 +8,7 @@ import { isInt } from '../../../../shared/util/numberUtil.ts';
 import { pasteFromClipboard } from '../../../util/domutil.ts';
 import { onOutputLanguageChanged } from '../../../core/userPreferences/siteLanguage.ts';
 
-pageMatch('pages/genshin/dialogue/quests', () => {
+pageMatch('vue/GenshinQuestPage', () => {
   let lastSuccessfulQuestId: number = 0;
 
   function postLoad(resultParent: HTMLElement) {
@@ -70,7 +70,7 @@ pageMatch('pages/genshin/dialogue/quests', () => {
       return;
     }
 
-    document.querySelector('.quest-search-result-wrapper').classList.add('hide');
+    document.querySelector('#quest-search-result').classList.add('hide');
 
     document.querySelector('#quest-generate-result').innerHTML = `
   <div class="valign spacer10-left">
@@ -111,7 +111,7 @@ pageMatch('pages/genshin/dialogue/quests', () => {
     if (state.questId) {
       loadQuestGenerateResult(state.questId);
     } else {
-      document.querySelector('.quest-search-result-wrapper').classList.add('hide');
+      document.querySelector('#quest-search-result').classList.add('hide');
       document.querySelector('#quest-generate-result').innerHTML = '';
     }
     if (state.q) {
@@ -246,12 +246,12 @@ pageMatch('pages/genshin/dialogue/quests', () => {
         target.disabled = true;
 
         genshinEndpoints.findMainQuest.send({ name: text }, null, true).then(result => {
-          document.querySelector('.quest-search-result-wrapper').classList.remove('hide');
-          document.querySelector('.quest-search-result').innerHTML = result;
+          document.querySelector('#quest-search-result').classList.remove('hide');
+          document.querySelector('#quest-search-result').innerHTML = result;
 
           listen([
             {
-              selector: '.quest-search-result',
+              selector: '.quest-search-result-item',
               event: 'click',
               handle: function(event: MouseEvent) {
                 console.log('Search result clicked', event);
@@ -273,7 +273,7 @@ pageMatch('pages/genshin/dialogue/quests', () => {
                 loadQuestGenerateResult(questId);
               }
             },
-          ], '.quest-search-result');
+          ], '#quest-search-result');
         }).finally(() => {
           loadingEl.classList.add('hide');
           inputEl.disabled = false;

@@ -10,7 +10,7 @@
           <span style="opacity:0.6">TextMapHash:&nbsp;</span>
           <code><%= olResult.textMapHash %></code>
           <% if (req.isAuthenticated()) { %>
-            <a href="<%= siteHome %>/excel-usages?q=<%= olResult.textMapHash %>" role="button" class="secondary small spacer5-left fontWeight500" target="_blank">Usages</a>
+            <a href="<%= ctx.siteHome %>/excel-usages?q=<%= olResult.textMapHash %>" role="button" class="secondary small spacer5-left fontWeight500" target="_blank">Usages</a>
           <% } %>
         </h4>
         <div class="valign">
@@ -31,14 +31,14 @@
         <% if (req.isAuthenticated() && olResult.duplicateTextMapHashes.length) { %>
           <h5>Duplicate TextMapHashes</h5>
           <p class="spacer5-bottom">List of TextMapHashes whose values are duplicates of <%= olResult.textMapHash %> across all languages.<br>
-            Click on a link to see where that hash is used or see <a href="<%= siteHome %>/excel-usages?q=<%= olResult.textMapHash %>,<%= olResult.duplicateTextMapHashes.join(',') %>" target="_blank">all usages</a>.</p>
+            Click on a link to see where that hash is used or see <a href="<%= ctx.siteHome %>/excel-usages?q=<%= olResult.textMapHash %>,<%= olResult.duplicateTextMapHashes.join(',') %>" target="_blank">all usages</a>.</p>
           <div style="max-width: 790px;
               padding: 0;
               display: flex;
               flex-wrap: wrap;">
-            <a class="border-shade" role="button" style="min-width:85px" href="<%= siteHome %>/excel-usages?q=<%= olResult.textMapHash %>" target="_blank"><%= olResult.textMapHash %></a>
+            <a class="border-shade" role="button" style="min-width:85px" href="<%= ctx.siteHome %>/excel-usages?q=<%= olResult.textMapHash %>" target="_blank"><%= olResult.textMapHash %></a>
             <% for (let textMapHash of olResult.duplicateTextMapHashes) { %>
-              <a class="border-shade" role="button" style="min-width:85px" href="<%= siteHome %>/excel-usages?q=<%= textMapHash %>" target="_blank"><%= textMapHash %></a>
+              <a class="border-shade" role="button" style="min-width:85px" href="<%= ctx.siteHome %>/excel-usages?q=<%= textMapHash %>" target="_blank"><%= textMapHash %></a>
             <% } %>
           </div>
         <% } %>
@@ -50,7 +50,7 @@
   <div class="card no-results-found">
     <div class="content">
       <p>No results found for <b><%= searchText %></b></p>
-      <p class="spacer5-top">It's possible you might not have an exact match. Try using the <a href="<%= siteHome %>/textmap">TextMap Search</a> tool.</p>
+      <p class="spacer5-top">It's possible you might not have an exact match. Try using the <a href="<%= ctx.siteHome %>/textmap">TextMap Search</a> tool.</p>
     </div>
   </div>
 <% } %>

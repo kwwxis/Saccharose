@@ -10,6 +10,8 @@ import {
   selectTutorials, TUTORIAL_DEFAULT_FILE_FORMAT_IMAGE,
   TUTORIAL_FILE_FORMAT_PARAMS,
 } from '../../../domain/genshin/archive/tutorials.ts';
+import AchievementSearchResult from '../../../components/genshin/achievements/AchievementSearchResult.vue';
+import TutorialList from '../../../components/genshin/tutorials/TutorialList.vue';
 
 const router: Router = create();
 
@@ -71,7 +73,7 @@ router.endpoint('/achievements/search', {
     let achievements: AchievementExcelConfigData[] = await ctrl.selectAchievementsBySearch(req.query.text as string, ctrl.searchModeFlags);
 
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
-      return res.render('partials/genshin/archive/achievement-search-results', {
+      return res.render(AchievementSearchResult, {
         achievements: achievements,
         searchText: req.query.text as string
       });
@@ -89,7 +91,7 @@ router.endpoint('/tutorials/search', {
     let tutorialsByType = await selectTutorials(ctrl, null, tutorialIds, req.query.text as string);
 
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
-      return res.render('partials/genshin/archive/tutorial-list', {
+      return res.render(TutorialList, {
         tutorialsByType,
         fileFormatParams: TUTORIAL_FILE_FORMAT_PARAMS.join(','),
         fileFormatDefault_image: TUTORIAL_DEFAULT_FILE_FORMAT_IMAGE,

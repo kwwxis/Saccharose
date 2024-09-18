@@ -9,6 +9,7 @@ import {
 } from '../../../../shared/types/common-types.ts';
 import { paramOption, queryTab } from '../../../middleware/util/queryTab.ts';
 import { LANG_CODES_TO_NAME, LangCode } from '../../../../shared/types/lang-types.ts';
+import SharedVoTool from '../../../components/shared/SharedVoTool.vue';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -17,9 +18,9 @@ export default async function(): Promise<Router> {
     const ctrl = getWuwaControl(req);
     const avatars: CommonAvatar[] = toCommonAvatarsFromWuwa(await getWuwaRoles(ctrl));
 
-    res.render('pages/wuwa/resonator/vo-tool', {
+    res.render(SharedVoTool, {
       title: 'Resonator VO',
-      bodyClass: ['page--wide', 'page--vo-tool'],
+      bodyClass: ['page--wide', 'page--vo-tool', 'page--wuwa-vo-tool'],
       avatars,
       avatar: null,
       avatarLabel: 'Resonator',
@@ -45,9 +46,9 @@ export default async function(): Promise<Router> {
     const voLangCode: LangCode = paramOption(req, 'voLangCode', 'EN', 'CH', 'JP', 'KR');
     const voLangName: string = LANG_CODES_TO_NAME[voLangCode];
 
-    res.render('pages/wuwa/resonator/vo-tool', {
+    res.render(SharedVoTool, {
       title: (avatar ? avatar.NameText +  ' - ' : '') + 'Resonator VO',
-      bodyClass: ['page--wide', 'page--vo-tool', `tab--${tab}`],
+      bodyClass: ['page--wide', 'page--vo-tool', `tab--${tab}`, 'page--wuwa-vo-tool'],
       avatars,
       avatar,
       avatarLabel: 'Resonator',

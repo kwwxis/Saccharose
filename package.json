@@ -23,6 +23,8 @@
   "author": "kwwxis",
   "license": "MIT",
   "dependencies": {
+    "@volar/language-server": "2.4.0-alpha.18",
+    "@vue/language-server": "2.0.28",
     "ag-grid-community": "^32.0.2",
     "ag-grid-enterprise": "^32.0.2",
     "async-exit-hook": "^2.0.1",

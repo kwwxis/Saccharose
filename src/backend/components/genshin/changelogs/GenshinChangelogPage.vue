@@ -202,7 +202,7 @@
           <p>May contain special variants of enemies with the same name as an already existing enemy.</p>
         </div>
         <div class="content alignStart flexWrap" v-if="newSummary.monsters.length">
-          <GenshinLb v-for="monster of newSummary.monsters" :monster="monster" />
+          <GenshinLbLink v-for="monster of newSummary.monsters" :monster="monster" />
         </div>
         <div class="content" v-if="!newSummary.monsters.length">
           <p>(None)</p>
@@ -215,7 +215,7 @@
         <span class="new-summary-section-count">{{ newSummary.wildlife.length }}</span>
       </h3>
       <div id="new-wildlife-content" class="new-summary-section-content content alignStart flexWrap">
-        <GenshinLb v-for="monster of newSummary.wildlife" :monster="monster" />
+        <GenshinLbLink v-for="monster of newSummary.wildlife" :monster="monster" />
         <div v-if="!newSummary.wildlife.length">
           <p>(None)</p>
         </div>
@@ -424,10 +424,10 @@
         <div v-if="!newReadablesCount">
           <p>(None)</p>
         </div>
-        <template v-if="Object.values(newSummary.readables.BookCollections).length">
+        <template v-if="valuesOf(newSummary.readables.BookCollections).length">
           <h4 class="content" style="padding-bottom:0">Book Collections</h4>
           <div class="content">
-            <div class="w100p spacer-top" v-for="collection of Object.values(newSummary.readables.BookCollections)">
+            <div class="w100p spacer-top" v-for="collection of valuesOf(newSummary.readables.BookCollections)">
               <a class="secondary spacer3-all valign textAlignLeft" role="button" :href="`/genshin/readables/book-collection/${collection.Id}`">
                 <img class="icon x32" :src="`/images/genshin/${collection.Books[0]?.Material?.Icon}.png`" loading="lazy" decoding="async" />
                 <span class="spacer10-left">{{ collection.SuitNameText }}</span>
@@ -632,16 +632,16 @@
         <p class="info-notice">Only certain Excel files are available in this list, if you'd like one that's not present
         here to be added, let kwwxis know.</p>
       </div>
-      <template v-for="excelFileChanges of sort(Object.values(fullChangelog.excelChangelog), 'name')">
+      <template v-for="excelFileChanges of sort(valuesOf(fullChangelog.excelChangelog), 'name')">
         <h3 class="secondary-header valign">{{ excelFileChanges.name }}</h3>
         <div class="content">
           <dl>
             <dt>Added records</dt>
-            <dd>{{ Object.values(excelFileChanges.changedRecords).filter(r => r.changeType === 'added').length }}</dd>
+            <dd>{{ valuesOf(excelFileChanges.changedRecords).filter(r => r.changeType === 'added').length }}</dd>
             <dt>Updated records</dt>
-            <dd>{{ Object.values(excelFileChanges.changedRecords).filter(r => r.changeType === 'updated').length }}</dd>
+            <dd>{{ valuesOf(excelFileChanges.changedRecords).filter(r => r.changeType === 'updated').length }}</dd>
             <dt>Removed records</dt>
-            <dd>{{ Object.values(excelFileChanges.changedRecords).filter(r => r.changeType === 'removed').length }}</dd>
+            <dd>{{ valuesOf(excelFileChanges.changedRecords).filter(r => r.changeType === 'removed').length }}</dd>
             <dt>
               <a role="button" class="secondary spacer5-top" :href="`/genshin/changelog/${genshinVersion.number}/${excelFileChanges.name}`">Browse records</a>
             </dt>
@@ -654,18 +654,18 @@
 </template>
 
 <script setup lang="ts">
-import { arraySum, sort } from '../../../../shared/util/arrayUtil.ts';
+import { arraySum, sort, valuesOf } from '../../../../shared/util/arrayUtil.ts';
 import { GameVersion } from '../../../../shared/types/game-versions.ts';
 import { FullChangelog } from '../../../../shared/types/changelog-types.ts';
 import Icon from '../../utility/Icon.vue';
 import { GenshinChangelogNewRecordSummary } from '../../../domain/genshin/changelog/genshinChangelogHelpers.ts';
 import { toParam } from '../../../../shared/util/stringUtil.ts';
-import GenshinItem from '../../utility/GenshinItem.vue';
-import GenshinLb from '../../utility/GenshinLb.vue';
-import TcgCard from '../../utility/TcgCard.vue';
+import GenshinItem from '../links/GenshinItem.vue';
+import GenshinLbLink from '../links/GenshinLbLink.vue';
+import TcgCard from '../links/TcgCard.vue';
 import { getTrace } from '../../../middleware/request/tracer.ts';
 import Wikitext from '../../utility/Wikitext.vue';
-import GenshinReadableLink from '../../utility/GenshinReadableLink.vue';
+import GenshinReadableLink from '../links/GenshinReadableLink.vue';
 import { ChapterExcelConfigData } from '../../../../shared/types/genshin/quest-types.ts';
 import GenshinChapterListItem from '../chapters/GenshinChapterListItem.vue';
 

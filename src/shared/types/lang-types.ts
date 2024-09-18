@@ -27,8 +27,8 @@ export type TextMapSearchStreamOpts = TextMapSearchOpts & {
   stream: (textMapHash: TextMapHash, text?: string, kill?: () => void) => void,
 };
 export type TextMapSearchIndexStreamOpts = TextMapSearchOpts & {
-  textIndexName: string,
-  stream: (entityId: number, textMapHash: TextMapHash, text?: string) => void,
+  textIndexName: string|string[],
+  stream: (entityId: number, entityIndexName: string, textMapHash: TextMapHash, text?: string) => void,
 };
 
 export type PlainLineMapItem = {Line: number, Hash: TextMapHash, LineType?: string };

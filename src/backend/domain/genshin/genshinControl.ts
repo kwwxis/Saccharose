@@ -36,7 +36,6 @@ import {
   CodexQuestNarratageTypes,
   DialogExcelConfigData,
   DialogUnparented,
-  DialogWikitextResult,
   ManualTextMapConfigData,
   OptionIconMap,
   ReminderExcelConfigData,
@@ -158,7 +157,7 @@ import {
   InterActionGroup,
   InterActionNextDialogs,
 } from '../../../shared/types/genshin/interaction-types.ts';
-import { CommonLineId } from '../../../shared/types/common-types.ts';
+import { CommonLineId, DialogWikitextResult } from '../../../shared/types/common-types.ts';
 import { genshin_i18n, GENSHIN_I18N_MAP, GENSHIN_MATERIAL_TYPE_DESC_PLURAL_MAP } from '../abstract/i18n.ts';
 import * as console from 'console';
 import {
@@ -477,6 +476,170 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   }
   // endregion
 
+  // region Chapters
+  private async postProcessChapter(chapter: ChapterExcelConfigData, orderQuests: boolean): Promise<ChapterExcelConfigData> {
+    if (!chapter)
+      return chapter;
+    chapter.Quests = await this.selectMainQuestsByChapterId(chapter.Id);
+    chapter.Type = chapter.Quests.find(x => x.Type)?.Type;
+    if (chapter.Id === 1105) {
+      chapter.Type = 'AQ';
+    }
+
+    if (orderQuests) {
+      chapter.OrderedQuests = await orderChapterQuests(this, chapter);
+    }
+
+    let ChapterNumTextEN = await this.getTextMapItem('EN', chapter.ChapterNumTextMapHash);
+
+    if (chapter.ChapterNumText && (chapter.ChapterNumText.includes(':') || chapter.ChapterNumText.includes('-'))) {
+      let chapterPart: string;
+      let actPart: string;
+
+      let chapterPartEN: string;
+      let actPartEN: string;
+
+      if (chapter.ChapterNumText.includes(':')) {
+        [chapterPart, actPart]     = chapter.ChapterNumText.split(':', 2).map(x => x.trim());
+        [chapterPartEN, actPartEN] = ChapterNumTextEN.split(':', 2).map(x => x.trim());
+      } else if (chapter.ChapterNumText.includes('-')) {
+        [chapterPart, actPart]     = chapter.ChapterNumText.split('-', 2).map(x => x.trim());
+        [chapterPartEN, actPartEN] = ChapterNumTextEN.split('-', 2).map(x => x.trim());
+      }
+
+      chapter.Summary = {
+        ChapterNum: romanToInt(extractRomanNumeral(chapterPart)),
+        ChapterRoman: extractRomanNumeral(chapterPart),
+        ChapterNumText: chapterPart,
+        ChapterName: chapter.ChapterImageTitleText,
+
+        ActNum: romanToInt(extractRomanNumeral(actPart)),
+        ActRoman: extractRomanNumeral(actPart),
+        ActNumText: actPart,
+        ActName: chapter.ChapterTitleText,
+        ActType: '',
+
+        AQCode: '',
+      };
+      if (actPartEN && actPartEN.includes('Act')) {
+        chapter.Summary.ActType = 'Act';
+      } else if (actPartEN && actPartEN.includes('Part')) {
+        chapter.Summary.ActType = 'Part';
+      } else if (actPartEN && actPartEN.includes('Day')) {
+        chapter.Summary.ActType = 'Day';
+      } else if (actPartEN && actPartEN.includes('Round')) {
+        chapter.Summary.ActType = 'Round';
+      } else {
+        chapter.Summary.ActType = 'None';
+      }
+      if (chapter.Type === 'AQ' && chapterPartEN && chapterPartEN.includes('Prologue')) {
+        chapter.Summary.ChapterNum = 0;
+      }
+      if (chapter.Type === 'AQ' && chapterPartEN && chapterPartEN.includes('Interlude Chapter')) {
+        chapter.Summary.AQCode += 'IC';
+      } else if (chapter.Summary.ChapterNum >= 0) {
+        chapter.Summary.AQCode += 'C' + chapter.Summary.ChapterNum;
+      }
+      if (chapter.Summary.ActNum >= 0) {
+        chapter.Summary.AQCode += 'A' + chapter.Summary.ActNum;
+      }
+    } else {
+      chapter.Summary = {
+        ChapterNum: -1,
+        ChapterRoman: null,
+        ChapterNumText: null,
+        ChapterName: chapter.ChapterImageTitleText,
+
+        ActNum: -1,
+        ActRoman: null,
+        ActNumText: null,
+        ActName: chapter.ChapterTitleText,
+        ActType: null,
+
+        AQCode: null,
+      };
+    }
+
+    return chapter;
+  }
+
+  private async postProcessChapters(chapters: ChapterExcelConfigData[], orderQuests: boolean): Promise<ChapterExcelConfigData[]> {
+    return Promise.all(chapters.map(x => this.postProcessChapter(x, orderQuests))).then(arr => arr.filter(item => !!item));
+  }
+
+  async selectAllChapters(): Promise<ChapterExcelConfigData[]> {
+    return await this.knex.select('*').from('ChapterExcelConfigData')
+      .then(this.commonLoad).then(x => this.postProcessChapters(x, false));
+  }
+
+  generateChapterCollection(chapters: ChapterExcelConfigData[]): ChapterCollection {
+    let map: ChapterCollection = {
+      AQ: {},
+      SQ: {},
+      EQ: {},
+      WQ: {},
+      IQ: {},
+    };
+
+    for (let chapter of chapters) {
+      if (!chapter.Type || !chapter.ChapterTitleText) {
+        continue;
+      }
+
+      let chapterName = chapter.Summary.ChapterNumText || 'No Chapter';
+      let subChapterName = chapter.Summary.ChapterName || 'No Sub-Chapter';
+
+      if (!map[chapter.Type][chapterName]) {
+        map[chapter.Type][chapterName] = [];
+      }
+
+      if (chapter.Type === 'EQ' || chapter.Type === 'WQ') {
+        map[chapter.Type][chapterName].push(chapter);
+      } else {
+        if (!map[chapter.Type][chapterName][subChapterName]) {
+          map[chapter.Type][chapterName][subChapterName] = [];
+        }
+        map[chapter.Type][chapterName][subChapterName].push(chapter);
+      }
+    }
+
+    return map;
+  }
+
+  async selectChapterCollection(): Promise<ChapterCollection> {
+    return this.generateChapterCollection(await this.selectAllChapters());
+  }
+
+  async selectChapterById(id: number, orderQuests: boolean = true): Promise<ChapterExcelConfigData> {
+    return await this.knex.select('*').from('ChapterExcelConfigData').where({Id: id})
+      .first().then(this.commonLoadFirst).then(x => this.postProcessChapter(x, orderQuests));
+  }
+
+  async searchChapters(query: string|number): Promise<ChapterExcelConfigData[]> {
+    if (typeof query === 'string') {
+      const chapterIds: number[] = [];
+
+      await this.streamTextMapMatchesWithIndex({
+        inputLangCode: this.inputLangCode,
+        outputLangCode: this.outputLangCode,
+        searchText: query,
+        textIndexName: 'Chapter',
+        stream(entityId: number) {
+          chapterIds.push(entityId);
+        },
+        flags: this.searchModeFlags
+      });
+
+      return await this.knex.select('*').from('ChapterExcelConfigData')
+        .whereIn('Id', chapterIds)
+        .then(this.commonLoad).then(ret => ret.asyncMap(x => this.postProcessChapter(x, true)));
+    } else {
+      const x = await this.selectChapterById(query, true);
+      return x ? [x] : [];
+    }
+  }
+  // endregion
+
   // region Main Quest Excel
   private postProcessMainQuest(mainQuest: MainQuestExcelConfigData): MainQuestExcelConfigData {
     if (!mainQuest) {
@@ -501,19 +664,25 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return mainQuestList.map(mainQuest => this.postProcessMainQuest(mainQuest)).filter(x => !!x);
   }
 
-  async selectMainQuestsByNameOrId(name: string|number, limit: number = 25): Promise<MainQuestExcelConfigData[]> {
-    if (typeof name === 'string') {
-      let textMapHashes: TextMapHash[] = (await this.getTextMapMatches({
+  async searchMainQuests(query: string|number): Promise<MainQuestExcelConfigData[]> {
+    if (typeof query === 'string') {
+      const mainQuestIds: number[] = [];
+      await this.streamTextMapMatchesWithIndex({
         inputLangCode: this.inputLangCode,
         outputLangCode: this.outputLangCode,
-        searchText: name,
-        flags: '-i'
-      })).map(x => x.hash);
+        searchText: query,
+        textIndexName: 'MainQuest',
+        stream(entityId: number) {
+          mainQuestIds.push(entityId);
+        },
+        flags: this.searchModeFlags
+      });
       return await this.knex.select('*').from('MainQuestExcelConfigData')
-        .whereIn('TitleTextMapHash', textMapHashes)
-        .limit(limit).then(this.commonLoad).then(x => this.postProcessMainQuests(x));
+        .whereIn('Id', mainQuestIds)
+        .then(this.commonLoad).then(x => this.postProcessMainQuests(x));
     } else {
-      return [await this.selectMainQuestById(name)];
+      const x = await this.selectMainQuestById(query);
+      return x ? [x] : [];
     }
   }
 
@@ -521,6 +690,11 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     let result = await this.knex.select('*').from('MainQuestExcelConfigData')
       .where({Id: id}).first();
     return !!result;
+  }
+
+  async selectAllMainQuests(): Promise<MainQuestExcelConfigData[]> {
+    return await this.knex.select('*').from('MainQuestExcelConfigData')
+      .then(this.commonLoad).then(ret => ret.map((x) => this.postProcessMainQuest(x)));
   }
 
   async selectMainQuestById(id: number): Promise<MainQuestExcelConfigData> {
@@ -564,6 +738,51 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     rep.CityName = await this.selectCityNameById(rep.CityId);
     rep.Reward = await this.selectRewardExcelConfigData(rep.RewardId);
     return rep;
+  }
+  // endregion
+
+  // region Chapter/Main Quest Combined Search
+
+  async searchMainQuestsAndChapters(query: string|number): Promise<{
+    mainQuests: MainQuestExcelConfigData[],
+    chapters: ChapterExcelConfigData[],
+  }> {
+    if (typeof query === 'string') {
+      const mainQuestIds: number[] = [];
+      const chapterIds: number[] = [];
+
+      await this.streamTextMapMatchesWithIndex({
+        inputLangCode: this.inputLangCode,
+        outputLangCode: this.outputLangCode,
+        searchText: query,
+        textIndexName: ['MainQuest', 'Chapter'],
+        stream(entityId: number, entityIndexName: string) {
+          if (entityIndexName === 'MainQuest') {
+            mainQuestIds.push(entityId);
+          }
+          if (entityIndexName === 'Chapter') {
+            chapterIds.push(entityId);
+          }
+        },
+        flags: this.searchModeFlags
+      });
+
+      return {
+        mainQuests: await this.knex.select('*').from('MainQuestExcelConfigData')
+          .whereIn('Id', mainQuestIds)
+          .then(this.commonLoad).then(x => this.postProcessMainQuests(x)),
+        chapters: await this.knex.select('*').from('ChapterExcelConfigData')
+          .whereIn('Id', chapterIds)
+          .then(this.commonLoad).then(ret => ret.asyncMap(x => this.postProcessChapter(x, true)))
+      }
+    } else {
+      const mainQuest = await this.selectMainQuestById(query);
+      const chapter = await this.selectChapterById(query);
+      return {
+        mainQuests: mainQuest ? [mainQuest] : [],
+        chapters: chapter ? [chapter] : [],
+      }
+    }
   }
   // endregion
 
@@ -1043,16 +1262,19 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       // Handle codex quest (Travel Log):
       const selfCodexQuest = CQG.ByContentTextMapHash[currNode.TalkContentTextMapHash];
       if (selfCodexQuest) {
-        let nextCodexQuest = CQG.ByItemId[selfCodexQuest.NextItemId];
-        while (!!nextCodexQuest && CodexQuestNarratageTypes.has(nextCodexQuest.ContentTextType)) {
-          const isBlackScreen: boolean = this.isBlackScreenDialog(nextNodes.find(n => n.TalkContentTextMapHash === nextCodexQuest.ContentTextMapHash));
+        let codexQuest = CQG.ByItemId[selfCodexQuest.NextItemId];
+
+        while (!!codexQuest && !codexQuest.AssociatedDialogId && CodexQuestNarratageTypes.has(codexQuest.ContentTextType)) {
+          const matchingDialogNode: DialogExcelConfigData = nextNodes.find(n => n.TalkContentTextMapHash === codexQuest.ContentTextMapHash);
+          const isBlackScreen: boolean = this.isBlackScreenDialog(matchingDialogNode);
+
           if (!isBlackScreen) {
-            fakeDialogs.push(await this.makeFakeDialog(nextCodexQuest.Id, {
-              CustomTravelLogMenuText: nextCodexQuest.ContentText,
-              CustomTravelLogMenuTextMapHash: nextCodexQuest.ContentTextMapHash,
+            fakeDialogs.push(await this.makeFakeDialog(codexQuest.Id, {
+              CustomTravelLogMenuText: codexQuest.ContentText,
+              CustomTravelLogMenuTextMapHash: codexQuest.ContentTextMapHash,
             }));
           }
-          nextCodexQuest = CQG.ByItemId[nextCodexQuest.NextItemId];
+          codexQuest = CQG.ByItemId[codexQuest.NextItemId];
         }
       }
 
@@ -1755,146 +1977,6 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     } else {
       return null;
     }
-  }
-  // endregion
-
-  // region Quest Chapters
-  private async postProcessChapter(chapter: ChapterExcelConfigData, orderQuests: boolean): Promise<ChapterExcelConfigData> {
-    if (!chapter)
-      return chapter;
-    chapter.Quests = await this.selectMainQuestsByChapterId(chapter.Id);
-    chapter.Type = chapter.Quests.find(x => x.Type)?.Type;
-    if (chapter.Id === 1105) {
-      chapter.Type = 'AQ';
-    }
-
-    if (orderQuests) {
-      chapter.OrderedQuests = await orderChapterQuests(this, chapter);
-    }
-
-    let ChapterNumTextEN = await this.getTextMapItem('EN', chapter.ChapterNumTextMapHash);
-
-    if (chapter.ChapterNumText && (chapter.ChapterNumText.includes(':') || chapter.ChapterNumText.includes('-'))) {
-      let chapterPart: string;
-      let actPart: string;
-
-      let chapterPartEN: string;
-      let actPartEN: string;
-
-      if (chapter.ChapterNumText.includes(':')) {
-        [chapterPart, actPart]     = chapter.ChapterNumText.split(':', 2).map(x => x.trim());
-        [chapterPartEN, actPartEN] = ChapterNumTextEN.split(':', 2).map(x => x.trim());
-      } else if (chapter.ChapterNumText.includes('-')) {
-        [chapterPart, actPart]     = chapter.ChapterNumText.split('-', 2).map(x => x.trim());
-        [chapterPartEN, actPartEN] = ChapterNumTextEN.split('-', 2).map(x => x.trim());
-      }
-
-      chapter.Summary = {
-        ChapterNum: romanToInt(extractRomanNumeral(chapterPart)),
-        ChapterRoman: extractRomanNumeral(chapterPart),
-        ChapterNumText: chapterPart,
-        ChapterName: chapter.ChapterImageTitleText,
-
-        ActNum: romanToInt(extractRomanNumeral(actPart)),
-        ActRoman: extractRomanNumeral(actPart),
-        ActNumText: actPart,
-        ActName: chapter.ChapterTitleText,
-        ActType: '',
-
-        AQCode: '',
-      };
-      if (actPartEN && actPartEN.includes('Act')) {
-        chapter.Summary.ActType = 'Act';
-      } else if (actPartEN && actPartEN.includes('Part')) {
-        chapter.Summary.ActType = 'Part';
-      } else if (actPartEN && actPartEN.includes('Day')) {
-        chapter.Summary.ActType = 'Day';
-      } else if (actPartEN && actPartEN.includes('Round')) {
-        chapter.Summary.ActType = 'Round';
-      } else {
-        chapter.Summary.ActType = 'None';
-      }
-      if (chapter.Type === 'AQ' && chapterPartEN && chapterPartEN.includes('Prologue')) {
-        chapter.Summary.ChapterNum = 0;
-      }
-      if (chapter.Type === 'AQ' && chapterPartEN && chapterPartEN.includes('Interlude Chapter')) {
-        chapter.Summary.AQCode += 'IC';
-      } else if (chapter.Summary.ChapterNum >= 0) {
-        chapter.Summary.AQCode += 'C' + chapter.Summary.ChapterNum;
-      }
-      if (chapter.Summary.ActNum >= 0) {
-        chapter.Summary.AQCode += 'A' + chapter.Summary.ActNum;
-      }
-    } else {
-      chapter.Summary = {
-        ChapterNum: -1,
-        ChapterRoman: null,
-        ChapterNumText: null,
-        ChapterName: chapter.ChapterImageTitleText,
-
-        ActNum: -1,
-        ActRoman: null,
-        ActNumText: null,
-        ActName: chapter.ChapterTitleText,
-        ActType: null,
-
-        AQCode: null,
-      };
-    }
-
-    return chapter;
-  }
-
-  private async postProcessChapters(chapters: ChapterExcelConfigData[], orderQuests: boolean): Promise<ChapterExcelConfigData[]> {
-    return Promise.all(chapters.map(x => this.postProcessChapter(x, orderQuests))).then(arr => arr.filter(item => !!item));
-  }
-
-  async selectAllChapters(): Promise<ChapterExcelConfigData[]> {
-    return await this.knex.select('*').from('ChapterExcelConfigData')
-      .then(this.commonLoad).then(x => this.postProcessChapters(x, false));
-  }
-
-  generateChapterCollection(chapters: ChapterExcelConfigData[]): ChapterCollection {
-    let map: ChapterCollection = {
-      AQ: {},
-      SQ: {},
-      EQ: {},
-      WQ: {},
-      IQ: {},
-    };
-
-    for (let chapter of chapters) {
-      if (!chapter.Type || !chapter.ChapterTitleText) {
-        continue;
-      }
-
-      let chapterName = chapter.Summary.ChapterNumText || 'No Chapter';
-      let subChapterName = chapter.Summary.ChapterName || 'No Sub-Chapter';
-
-      if (!map[chapter.Type][chapterName]) {
-        map[chapter.Type][chapterName] = [];
-      }
-
-      if (chapter.Type === 'EQ' || chapter.Type === 'WQ') {
-        map[chapter.Type][chapterName].push(chapter);
-      } else {
-        if (!map[chapter.Type][chapterName][subChapterName]) {
-          map[chapter.Type][chapterName][subChapterName] = [];
-        }
-        map[chapter.Type][chapterName][subChapterName].push(chapter);
-      }
-    }
-
-    return map;
-  }
-
-  async selectChapterCollection(): Promise<ChapterCollection> {
-    return this.generateChapterCollection(await this.selectAllChapters());
-  }
-
-  async selectChapterById(id: number, orderQuests: boolean = true): Promise<ChapterExcelConfigData> {
-    return await this.knex.select('*').from('ChapterExcelConfigData').where({Id: id})
-      .first().then(this.commonLoadFirst).then(x => this.postProcessChapter(x, orderQuests));
   }
   // endregion
 

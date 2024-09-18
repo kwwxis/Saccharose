@@ -495,7 +495,7 @@ export function initExcelViewer(excelFileName: string, excelData: any[], include
   };
 }
 
-pageMatch('pages/generic/basic/excel-viewer-table', async () => {
+pageMatch('vue/ExcelViewerTablePage', async () => {
   const containerEl: HTMLElement = document.querySelector('#excelViewerContainer');
 
   if (!containerEl) {

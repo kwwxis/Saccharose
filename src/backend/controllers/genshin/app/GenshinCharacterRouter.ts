@@ -14,6 +14,9 @@ import {
   toCommonAvatarsFromGenshin,
 } from '../../../../shared/types/common-types.ts';
 import { LANG_CODES_TO_NAME, LangCode } from '../../../../shared/types/lang-types.ts';
+import SharedVoTool from '../../../components/shared/SharedVoTool.vue';
+import CompanionDialoguePage from '../../../components/genshin/characters/CompanionDialoguePage.vue';
+import CharacterStoriesPage from '../../../components/genshin/characters/CharacterStoriesPage.vue';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -22,9 +25,9 @@ export default async function(): Promise<Router> {
     const ctrl = getGenshinControl(req);
     const avatars: CommonAvatar[] = toCommonAvatarsFromGenshin(await getGenshinAvatars(ctrl, false));
 
-    res.render('pages/genshin/character/vo-tool', {
+    res.render(SharedVoTool, {
       title: 'Character VO',
-      bodyClass: ['page--wide', 'page--vo-tool'],
+      bodyClass: ['page--wide', 'page--vo-tool', 'page--genshin-vo-tool'],
       avatars,
       avatar: null,
       avatarLabel: 'Character',
@@ -50,9 +53,9 @@ export default async function(): Promise<Router> {
     const voLangCode: LangCode = paramOption(req, 'voLangCode', 'EN', 'CH', 'JP', 'KR');
     const voLangName: string = LANG_CODES_TO_NAME[voLangCode];
 
-    res.render('pages/genshin/character/vo-tool', {
+    res.render(SharedVoTool, {
       title: (avatar ? avatar.NameText +  ' - ' : '') + 'Character VO',
-      bodyClass: ['page--wide', 'page--vo-tool', `tab--${tab}`],
+      bodyClass: ['page--wide', 'page--vo-tool', `tab--${tab}`, 'page--genshin-vo-tool'],
       avatars,
       avatar,
       avatarLabel: 'Character',
@@ -68,7 +71,7 @@ export default async function(): Promise<Router> {
 
   router.get('/character/companion-dialogue', async (req: Request, res: Response) => {
     let companions: HomeWorldNPCExcelConfigData[] = await getHomeWorldCompanions(getGenshinControl(req));
-    res.render('pages/genshin/character/companion-dialogue', {
+    res.render(CompanionDialoguePage, {
       title: 'Companion Dialogue',
       companions: companions,
       bodyClass: ['page--companion-dialogue']
@@ -79,16 +82,16 @@ export default async function(): Promise<Router> {
     const ctrl = getGenshinControl(req);
     const companion: HomeWorldNPCExcelConfigData = await getCompanion(ctrl, req);
 
-    res.render('pages/genshin/character/companion-dialogue', {
+    res.render(CompanionDialoguePage, {
       title: 'Companion Dialogue - ' + (companion?.CommonName || 'Not Found'),
       companion: companion,
-      dialogue: await fetchCompanionDialogue(ctrl, companion),
+      dialogue: (await fetchCompanionDialogue(ctrl, companion)) || [],
       bodyClass: ['page--companion-dialogue']
     });
   });
 
   router.get('/character/stories', async (req: Request, res: Response) => {
-    res.render('pages/genshin/character/character-stories', {
+    res.render(CharacterStoriesPage, {
       title: 'Character Stories',
       avatars: await getGenshinAvatars(getGenshinControl(req), true),
       bodyClass: ['page--character-stories']
@@ -100,7 +103,7 @@ export default async function(): Promise<Router> {
     const avatar: AvatarExcelConfigData = await getGenshinAvatar(ctrl, req, true);
     const story: StoryFetters = await fetchCharacterStoryByAvatarId(ctrl, avatar?.Id);
 
-    res.render('pages/genshin/character/character-stories', {
+    res.render(CharacterStoriesPage, {
       title: 'Character Stories - ' + (story?.avatar?.NameText || 'N/A'),
       avatar,
       avatarId: req.params.avatar,

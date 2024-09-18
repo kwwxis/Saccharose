@@ -2,14 +2,15 @@ import '../../../loadenv.ts';
 import { closeKnex } from '../../../util/db.ts';
 import { GenshinControl, getGenshinControl } from '../genshinControl.ts';
 import { isInt, maybeInt } from '../../../../shared/util/numberUtil.ts';
-import { DialogWikitextResult, ReminderExcelConfigData } from '../../../../shared/types/genshin/dialogue-types.ts';
-import { DialogueSectionResult } from './dialogue_util.ts';
+import { ReminderExcelConfigData } from '../../../../shared/types/genshin/dialogue-types.ts';
 import { MetaProp } from '../../../util/metaProp.ts';
 import { pathToFileURL } from 'url';
 import { TextMapHash } from '../../../../shared/types/lang-types.ts';
 import { Marker } from '../../../../shared/util/highlightMarker.ts';
 import { escapeRegExp } from '../../../../shared/util/stringUtil.ts';
 import { sort } from '../../../../shared/util/arrayUtil.ts';
+import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
+import { DialogWikitextResult } from '../../../../shared/types/common-types.ts';
 
 export async function reminderGenerateAll(ctrl: GenshinControl): Promise<DialogueSectionResult[]> {
   return ctrl.cached('RemindersAll:' + ctrl.outputLangCode, 'memory', async () => {

@@ -7,8 +7,8 @@
 </template>
 
 <script setup lang="ts">
-import { DialogueSectionResult } from '../../domain/genshin/dialogue/dialogue_util.ts';
-import DialogueSection from '../genshin/dialogue/DialogueSection.vue';
+import DialogueSection from '../utility/DialogueSection.vue';
+import { DialogueSectionResult } from '../../util/dialogueSectionResult.ts';
 
 const { section } = defineProps<{
   section: DialogueSectionResult

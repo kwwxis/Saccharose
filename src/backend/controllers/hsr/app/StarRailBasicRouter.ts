@@ -4,23 +4,29 @@ import { sendExcelViewerTableResponse } from '../../abstract/app/abstractBasicRo
 import { SbOut } from '../../../../shared/util/stringUtil.ts';
 import { Request, Response, Router } from 'express';
 import { doHsrDialogueWalk } from '../../../domain/hsr/dialogue/hsr_dialogue_walker.ts';
+import StarRailLandingPage from '../../../components/hsr/StarRailLandingPage.vue';
+import StarRailLoadingTips from '../../../components/hsr/StarRailLoadingTips.vue';
+import ExcelUsagesPage from '../../../components/shared/ExcelUsagesPage.vue';
+import ExcelViewerListPage from '../../../components/shared/ExcelViewerListPage.vue';
+import TextmapSearchPage from '../../../components/shared/TextmapSearchPage.vue';
+import OLGenPage from '../../../components/shared/OLGenPage.vue';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
 
   router.get('/', async (req: Request, res: Response) => {
-    res.render('pages/hsr/landing');
+    res.render(StarRailLandingPage);
   });
 
   router.get('/textmap', async (req: Request, res: Response) => {
-    res.render('pages/generic/basic/textmap', {
+    res.render(TextmapSearchPage, {
       title: 'TextMap Search',
       bodyClass: ['page--textmap']
     });
   });
 
   router.get('/OL', async (req: Request, res: Response) => {
-    res.render('pages/generic/basic/olgen', {
+    res.render(OLGenPage, {
       title: 'OL',
       bodyClass: ['page--OL'],
       hideTlOption: true
@@ -28,14 +34,14 @@ export default async function(): Promise<Router> {
   });
 
   router.get('/excel-usages', async (req: Request, res: Response) => {
-    res.render('pages/generic/basic/excel-usages', {
+    res.render(ExcelUsagesPage, {
       title: 'Excel usages',
       bodyClass: ['page--excel-usages']
     });
   });
 
   router.get('/excel-viewer', async (req: Request, res: Response) => {
-    res.render('pages/generic/basic/excel-viewer-list', {
+    res.render(ExcelViewerListPage, {
       title: 'Excel Viewer',
       bodyClass: ['page--excel-viewer'],
       excels: await getStarRailControl(req).getExcelFileNames(),
@@ -62,7 +68,7 @@ export default async function(): Promise<Router> {
       sb.line();
     }
 
-    res.render('pages/hsr/archive/loading-tips', {
+    res.render(StarRailLoadingTips, {
       title: 'Loading Tips',
       wikitext: sb.toString(),
       bodyClass: ['page--loading-tips']

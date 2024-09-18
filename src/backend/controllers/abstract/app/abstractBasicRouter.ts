@@ -1,6 +1,7 @@
 import { AbstractControl } from '../../../domain/abstract/abstractControl.ts';
 import { removeSuffix } from '../../../../shared/util/stringUtil.ts';
 import { Request, Response } from 'express';
+import ExcelViewerTablePage from '../../../components/shared/ExcelViewerTablePage.vue';
 
 export async function sendExcelViewerTableResponse(ctrl: AbstractControl, req: Request, res: Response) {
   const excels = await ctrl.getExcelFileNames();
@@ -15,7 +16,7 @@ export async function sendExcelViewerTableResponse(ctrl: AbstractControl, req: R
     json = fileSize < 9_000_000 ? await ctrl.readDataFile(filePath, true) : null;
   }
 
-  res.render('pages/generic/basic/excel-viewer-table', {
+  res.render(ExcelViewerTablePage, {
     title: 'Excel Viewer',
     bodyClass: ['page--excel-viewer', 'page--wide', 'page--narrow-sidebar'],
     fileName,

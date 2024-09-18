@@ -29,10 +29,9 @@ const sortableDefaultOptions: Sortable.Options = {
   forceFallback: true,
 };
 
-export function getIconHtml(icon: 'add' | 'trash' | 'chevron-up' | 'chevron-down') {
-  // These are defined as <template> elements in vo-tool.ejs
-
-  let tpl = document.querySelector('#icon-' + icon);
+export function getIconHtml(icon: 'add' | 'trash' | 'chevron-up' | 'chevron-down' | 'drag-handle') {
+  // These are hidden elements in SharedVoTool.vue
+  let tpl = document.querySelector('#template-icon-' + icon);
   return tpl.innerHTML;
 }
 
@@ -45,7 +44,7 @@ export async function VoAppVisualEditor(state: VoAppState): Promise<void> {
 
   const storyStorable: Sortable = initSortableGroups('story', '#vo-story-groups');
   const combatSortable: Sortable = initSortableGroups('combat', '#vo-combat-groups');
-  const dragHandleHtml: string = document.querySelector('#drag-handle-template').innerHTML;
+  const dragHandleHtml: string = getIconHtml('drag-handle');
 
   function initSortableGroups(type: 'story' | 'combat', selector: string): Sortable {
     let parent: HTMLElement = document.querySelector(selector);

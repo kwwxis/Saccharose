@@ -1,6 +1,6 @@
 <template>
   <meta id="x-addedRecords-excelFileName" name="x-addedRecords-excelFileName" :content="`${excelFileChanges.name} - New Records ${genshinVersion.previous} - ${genshinVersion.number}`" />
-  <meta id="x-addedRecords-excelData" name="x-addedRecords-excelData" :content="JSON.stringify(Object.values(excelFileChanges.changedRecords).filter(r => r.changeType === 'added').map(r => r.addedRecord))" />
+  <meta id="x-addedRecords-excelData" name="x-addedRecords-excelData" :content="JSON.stringify(valuesOf(excelFileChanges.changedRecords).filter(r => r.changeType === 'added').map(r => r.addedRecord))" />
   <section class="card">
     <h2 class="valign">
       <a href="/genshin/changelog" style="text-decoration: none">Changelogs</a>
@@ -12,18 +12,18 @@
 
     <div id="tablist-changedRecords" class="tab-list" role="tablist">
       <button id="tab-addedRecords" role="tab" class="tab active" ui-action="tab: #tabpanel-addedRecords, changedRecords">
-        Added Records ({{ Object.values(excelFileChanges.changedRecords).filter(r => r.changeType === 'added').length }})
+        Added Records ({{ valuesOf(excelFileChanges.changedRecords).filter(r => r.changeType === 'added').length }})
       </button>
       <button id="tab-updatedRecords" role="tab" class="tab" ui-action="tab: #tabpanel-updatedRecords, changedRecords">
-        Updated Records ({{ Object.values(excelFileChanges.changedRecords).filter(r => r.changeType === 'updated').length }})
+        Updated Records ({{ valuesOf(excelFileChanges.changedRecords).filter(r => r.changeType === 'updated').length }})
       </button>
       <button id="tab-removedRecords" role="tab" class="tab" ui-action="tab: #tabpanel-removedRecords, changedRecords">
-        Removed Records ({{ Object.values(excelFileChanges.changedRecords).filter(r => r.changeType === 'removed').length }})
+        Removed Records ({{ valuesOf(excelFileChanges.changedRecords).filter(r => r.changeType === 'removed').length }})
       </button>
     </div>
 
     <div id="tabpanel-addedRecords" role="tabpanel" aria-labelledby="tab-addedRecords" class="tabpanel active">
-      <div class="content" v-if="Object.values(excelFileChanges.changedRecords).filter(r => r.changeType === 'added').length === 0">
+      <div class="content" v-if="valuesOf(excelFileChanges.changedRecords).filter(r => r.changeType === 'added').length === 0">
         <p class="info-notice">None</p>
       </div>
       <div v-else>
@@ -34,7 +34,7 @@
         </div>
         <div id="tabpanel-addedRecords-excelViewer" class="tabpanel active"></div>
         <div id="tabpanel-addedRecords-json" class="tabpanel hide">
-          <template v-for="record of Object.values(excelFileChanges.changedRecords).filter(r => r.changeType === 'added')">
+          <template v-for="record of valuesOf(excelFileChanges.changedRecords).filter(r => r.changeType === 'added')">
             <hr />
             <h3 class="secondary-header">
               <span>Record ID: <strong>{{ record.key }}</strong></span>
@@ -47,7 +47,7 @@
       </div>
     </div>
     <div id="tabpanel-updatedRecords" role="tabpanel" aria-labelledby="tab-updatedRecords" class="tabpanel hide">
-      <template v-for="record of Object.values(excelFileChanges.changedRecords).filter(r => r.changeType === 'updated')">
+      <template v-for="record of valuesOf(excelFileChanges.changedRecords).filter(r => r.changeType === 'updated')">
         <hr />
         <h3 class="secondary-header">
           <span>Record ID: <strong>{{ record.key }}</strong></span>
@@ -60,7 +60,7 @@
               <th style="border-top:0;text-align:left">New Value</th>
               <th style="border-top:0;text-align:left">Text Changes</th>
             </tr>
-            <tr v-for="field of updatedFieldsOf(record)">
+            <tr v-for="field of valuesOf(record.updatedFields)">
               <td class="code" style="vertical-align: top"><strong>{{ field.field }}</strong></td>
               <td class="code" style="vertical-align: top">
                 <span v-if="isset(field.oldValue)">{{ field.oldValue }}</span>
@@ -96,12 +96,12 @@
           </table>
         </div>
       </template>
-      <div class="content" v-if="Object.values(excelFileChanges.changedRecords).filter(r => r.changeType === 'updated').length === 0">
+      <div class="content" v-if="valuesOf(excelFileChanges.changedRecords).filter(r => r.changeType === 'updated').length === 0">
         <p class="info-notice">None</p>
       </div>
     </div>
     <div id="tabpanel-removedRecords" role="tabpanel" aria-labelledby="tab-removedRecords" class="tabpanel hide">
-      <template v-for="record of Object.values(excelFileChanges.changedRecords).filter(r => r.changeType === 'removed')">
+      <template v-for="record of valuesOf(excelFileChanges.changedRecords).filter(r => r.changeType === 'removed')">
         <hr />
         <h3 class="secondary-header">
           <span>Record ID: <strong>{{ record.key }}</strong></span>
@@ -110,7 +110,7 @@
           <JsonText :value="JSON.stringify(record.removedRecord, null, 2)" :lazy-load="true" :seamless="true" />
         </div>
       </template>
-      <div class="content" v-if="Object.values(excelFileChanges.changedRecords).filter(r => r.changeType === 'removed').length === 0">
+      <div class="content" v-if="valuesOf(excelFileChanges.changedRecords).filter(r => r.changeType === 'removed').length === 0">
         <p class="info-notice">None</p>
       </div>
     </div>
@@ -120,9 +120,7 @@
 <script setup lang="ts">
 import { GameVersion } from '../../../../shared/types/game-versions.ts';
 import {
-  ChangeRecord,
   ExcelFileChanges,
-  FieldChange,
   FullChangelog,
 } from '../../../../shared/types/changelog-types.ts';
 import { LANG_CODES_TO_NAME } from '../../../../shared/types/lang-types.ts';
@@ -130,18 +128,11 @@ import JsonText from '../../utility/JsonText.vue';
 import Icon from '../../utility/Icon.vue';
 import Wikitext from '../../utility/Wikitext.vue';
 import { isset } from '../../../../shared/util/genericUtil.ts';
-import { getTrace } from '../../../middleware/request/tracer.js';
-
-const trace = getTrace();
-const req = trace.req;
+import { valuesOf } from '../../../../shared/util/arrayUtil.ts';
 
 defineProps<{
   genshinVersion: GameVersion,
   fullChangelog: FullChangelog,
   excelFileChanges: ExcelFileChanges,
 }>();
-
-function updatedFieldsOf(record: ChangeRecord): FieldChange[] {
-  return Object.values(record.updatedFields || {});
-}
 </script>

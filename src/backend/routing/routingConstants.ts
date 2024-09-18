@@ -38,12 +38,6 @@ export const DEFAULT_GLOBAL_LOCALS = {
   // Icons
   // ~~~~~
   icon,
-  dragHandle,
-
-  // Date/Time
-  // ~~~~~~~~~
-  printTimestamp,
-  printHumanTiming,
 
   // General Utilities
   // ~~~~~~~~~~~~~~~~~

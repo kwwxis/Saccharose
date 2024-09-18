@@ -11,8 +11,8 @@ import {
 import {
   selectTutorials,
   TUTORIAL_FILE_FORMAT_PARAMS,
-  TUTORIAL_DEFAULT_FILE_FORMAT_IMAGE, pushTipCodexTypeName,
-
+  TUTORIAL_DEFAULT_FILE_FORMAT_IMAGE,
+  pushTipCodexTypeName,
 } from '../../../domain/genshin/archive/tutorials.ts';
 import { PushTipsCodexType, PushTipsCodexTypeList, TutorialsByType } from '../../../../shared/types/genshin/tutorial-types.ts';
 import { ViewpointsByRegion } from '../../../../shared/types/genshin/viewpoint-types.ts';
@@ -34,12 +34,17 @@ import {
 } from '../../../../shared/types/genshin/homeworld-types.ts';
 import FurnishingSetSinglePage from '../../../components/genshin/furnishings/FurnishingSetSinglePage.vue';
 import {
-  DialogueSectionResult,
   TalkConfigAccumulator,
   talkConfigGenerate,
 } from '../../../domain/genshin/dialogue/dialogue_util.ts';
 import { ManualTextMapHashes } from '../../../../shared/types/genshin/manual-text-map.ts';
 import { MetaProp } from '../../../util/metaProp.ts';
+import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
+import AchievementListingPage from '../../../components/genshin/achievements/AchievementListingPage.vue';
+import AchievementSearchPage from '../../../components/genshin/achievements/AchievementSearchPage.vue';
+import TutorialSearchPage from '../../../components/genshin/tutorials/TutorialSearchPage.vue';
+import TutorialCategoriesPage from '../../../components/genshin/tutorials/TutorialCategoriesPage.vue';
+import GenshinViewpointsPage from '../../../components/genshin/viewpoints/GenshinViewpointsPage.vue';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -141,9 +146,10 @@ export default async function(): Promise<Router> {
     const cityIdsWithViewpoints = await getCityIdsWithViewpoints(ctrl);
     const cities = await ctrl.selectAllCities(city => cityIdsWithViewpoints.has(city.CityId));
 
-    res.render('pages/genshin/archive/viewpoints', {
+    res.render(GenshinViewpointsPage, {
       title: `${cityName} Viewpoints`.trim(),
       bodyClass: ['page--viewpoints'],
+      citySelected: req.params.city,
       cities,
       viewpointsList,
       fileFormatParams: VIEWPOINT_FILE_FORMAT_PARAMS.join(','),
@@ -156,7 +162,7 @@ export default async function(): Promise<Router> {
   // region Tutorials
   // --------------------------------------------------------------------------------------------------------------
   router.get('/tutorials/search', async (req: Request, res: Response) => {
-    res.render('pages/genshin/archive/tutorials-search', {
+    res.render(TutorialSearchPage, {
       title: 'Tutorials',
       bodyClass: ['page--tutorials', 'page--tutorials-search'],
     });
@@ -176,9 +182,10 @@ export default async function(): Promise<Router> {
       }
     }
 
-    res.render('pages/genshin/archive/tutorials', {
+    res.render(TutorialCategoriesPage, {
       title: codexTypeName ? `Tutorials - ${codexTypeName}` : 'Tutorials',
       bodyClass: ['page--tutorials', 'page--tutorials-categories'],
+      categorySelected: req.params.category,
       categoryNames: codexTypes.map(pushTipCodexTypeName),
       tutorialsByType,
       fileFormatParams: TUTORIAL_FILE_FORMAT_PARAMS.join(','),
@@ -191,7 +198,7 @@ export default async function(): Promise<Router> {
   // --------------------------------------------------------------------------------------------------------------
 
   router.get('/achievements/search', async (req: Request, res: Response) => {
-    res.render('pages/genshin/archive/achievements-search', {
+    res.render(AchievementSearchPage, {
       title: 'Achievements',
       bodyClass: ['page--achievements', 'page--achievements-search'],
     });
@@ -277,18 +284,7 @@ export default async function(): Promise<Router> {
       wikitext: sb.toString(),
       title: 'Achievement: ' + (achievement?.TitleText || 'Not Found'),
       bodyClass: ['page--achievements', 'page--achievements-single', 'page--vue'],
-    })
-
-    // res.render(<AchievementPage achievement={achievement} wikitext={sb.toString()} ctrl={ctrl} />, {
-    // });
-
-    // res.render('pages/genshin/archive/achievement-page', {
-    //   title: 'Achievement: ' + (achievement?.TitleText || 'Not Found'),
-    //   bodyClass: ['page--achievements', 'page--achievements-single'],
-    //   achievement,
-    //   wikitext: sb.toString(),
-    //   id: req.params.id,
-    // });
+    });
   });
 
   router.get('/achievements/:category?', async (req: Request, res: Response) => {
@@ -309,9 +305,10 @@ export default async function(): Promise<Router> {
       }
     }
 
-    res.render('pages/genshin/archive/achievements', {
+    res.render(AchievementListingPage, {
       title: goalName ? `Achievements - ${goalName}` : 'Achievements',
       bodyClass: ['page--achievements', 'page--achievements-categories'],
+      category: req.params.category,
       goals,
       achievements
     });

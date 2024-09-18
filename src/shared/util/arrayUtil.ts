@@ -8,6 +8,18 @@ import { ArrayElement, KeysMatching, NonArray } from '../types/utility-types.ts'
 export type SortComparator<T> = (a: T, b: T) => number;
 export type ElementComparator<T> = (arrayElement: T, expectedElement: T) => boolean;
 
+export function valuesOf<T>(obj: {[key: string|number|symbol]: T}): T[] {
+  return !obj ? [] : Object.values(obj);
+}
+
+export function keysOf<T>(obj: {[key: string|number|symbol]: T}): string[] {
+  return !obj ? [] : Object.keys(obj);
+}
+
+export function entriesOf<T>(obj: {[key: string|number|symbol]: T}): [string, T][] {
+  return !obj ? [] : Object.entries(obj);
+}
+
 export function toArray<T>(obj: T|T[]): T[] {
     return Array.isArray(obj) ? obj : [obj];
 }

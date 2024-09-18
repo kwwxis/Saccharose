@@ -97,6 +97,7 @@ export async function generateQuestDialogExcels(repoRoot: string) {
   const questExcelToMqId: { [id: string]: number } = {};
   const talkExcelById: { [id: string]: any } = {};
   const dialogExcelById: { [id: string]: any } = {};
+  const dialogExcelByTalkContentTextMapHash: { [id: string]: any } = {};
   const codexQuestById: { [id: string]: any } = {};
   const scannedTalkIds: { [id: string]: {[fileName: string]: any} } = defaultMap('Object');
 
@@ -330,6 +331,10 @@ export async function generateQuestDialogExcels(repoRoot: string) {
 
     dialogExcelArray.push(Object.assign(obj, extraProps));
     dialogExcelById[obj.id] = obj;
+
+    if (obj.talkContentTextMapHash) {
+      dialogExcelByTalkContentTextMapHash[obj.talkContentTextMapHash] = obj;
+    }
   }
 
   // ----------------------------------------------------------------------
@@ -423,6 +428,7 @@ export async function generateQuestDialogExcels(repoRoot: string) {
           if (codexQuestById[codexQuest.id]) {
             Object.assign(codexQuestById[codexQuest.id], codexQuest);
           } else {
+            codexQuest.associatedDialogId = dialogExcelByTalkContentTextMapHash[codexQuest.contentTextMapHash]?.id;
             codexQuestById[codexQuest.id] = codexQuest;
             codexQuestArray.push(codexQuest);
           }

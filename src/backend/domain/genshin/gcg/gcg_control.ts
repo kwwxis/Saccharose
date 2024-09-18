@@ -19,7 +19,7 @@ import {
   GCGTalkExcelConfigData,
   GcgWorldWorkTimeExcelConfigData, standardElementCodeToGcgKeywordId,
 } from '../../../../shared/types/genshin/gcg-types.ts';
-import { DialogueSectionResult, TalkConfigAccumulator, talkConfigGenerate } from '../dialogue/dialogue_util.ts';
+import { TalkConfigAccumulator, talkConfigGenerate } from '../dialogue/dialogue_util.ts';
 import { pathToFileURL } from 'url';
 import { closeKnex } from '../../../util/db.ts';
 import fs from 'fs';
@@ -38,6 +38,7 @@ import { html2quotes, unnestHtmlTags } from '../../../../shared/mediawiki/mwQuot
 import { loadGenshinTextSupportingData } from '../genshinText.ts';
 import { dialogueGenerateByNpc, NpcDialogueResult } from '../dialogue/basic_dialogue_generator.ts';
 import { mapBy } from '../../../../shared/util/arrayUtil.ts';
+import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
 
 // noinspection JSUnusedGlobalSymbols
 export class GCGControl {

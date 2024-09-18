@@ -1,6 +1,6 @@
 import { GenshinControl } from '../genshinControl.ts';
-import { DialogueSectionResult } from '../dialogue/dialogue_util.ts';
 import { GCGTutorialTextExcelConfigData } from '../../../../shared/types/genshin/gcg-types.ts';
+import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
 
 export async function generateGCGTutorialDialogue(ctrl: GenshinControl): Promise<DialogueSectionResult> {
   return ctrl.cached('GCG:TutorialText:' + ctrl.outputLangCode, 'memory', async () => {

@@ -29,7 +29,7 @@
                 ui-tippy-hover="Click to copy to clipboard"
                 ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
                 style="margin:5px 0">Copy</button>
-        <a role="button" class="secondary small fontWeight500 spacer5-right" href="<%= siteHome %>/OL?q=<%= item.hash %>" target="_blank">
+        <a role="button" class="secondary small fontWeight500 spacer5-right" href="<%= ctx.siteHome %>/OL?q=<%= item.hash %>" target="_blank">
           <span class="spacer5-right">OL Result</span><%- icon('external-link') %>
         </a>
         <button class="excel-usages-trigger secondary small fontWeight500 expand-action collapsed-state"

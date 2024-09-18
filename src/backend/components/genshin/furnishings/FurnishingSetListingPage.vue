@@ -5,8 +5,8 @@
       <fieldset>
         <legend>Quick Jump</legend>
         <div class="content">
-          <div v-for="[cat1, subTree] of Object.entries(suiteTree)">
-            <div v-for="[cat2, _suites] of Object.entries(subTree)">
+          <div v-for="[cat1, subTree] of entriesOf(suiteTree)">
+            <div v-for="[cat2, _suites] of entriesOf(subTree)">
               <a role="button" class="spacer5-all secondary dispBlock textAlignLeft clearfix"
                  :href="`#${toParam(cat1)}-${toParam(cat2)}`">
                 <span><strong>{{ cat1 }}</strong> / {{ cat2 }}</span>
@@ -18,8 +18,8 @@
     </div>
   </section>
 
-  <template v-for="[cat1, subTree] of Object.entries(suiteTree)" :id="`${toParam(cat1)}`">
-    <div class="card" v-for="[cat2, suites] of Object.entries(subTree)" :id="`${toParam(cat1)}-${toParam(cat2)}`">
+  <template v-for="[cat1, subTree] of entriesOf(suiteTree)" :id="`${toParam(cat1)}`">
+    <div class="card" v-for="[cat2, suites] of entriesOf(subTree)" :id="`${toParam(cat1)}-${toParam(cat2)}`">
       <h2><strong>{{ cat1 }}</strong> / {{ cat2 }}</h2>
       <table class="article-table">
         <thead>
@@ -56,6 +56,7 @@
 <script setup lang="ts">
 import { FurnitureSuiteTree } from '../../../../shared/types/genshin/homeworld-types.ts';
 import { toParam } from '../../../../shared/util/stringUtil.ts';
+import { entriesOf } from '../../../../shared/util/arrayUtil.ts';
 
 defineProps<{
   suiteTree: FurnitureSuiteTree

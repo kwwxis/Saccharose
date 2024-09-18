@@ -1,10 +1,17 @@
 import { create } from '../../../routing/router.ts';
 import { reminderGenerateAll } from '../../../domain/genshin/dialogue/reminder_generator.ts';
-import { getGenshinControl } from '../../../domain/genshin/genshinControl.ts';
+import { GenshinControl, getGenshinControl } from '../../../domain/genshin/genshinControl.ts';
 import { toInt } from '../../../../shared/util/numberUtil.ts';
-import { ol_gen_from_id } from '../../../domain/abstract/basic/OLgen.ts';
+import { ol_gen_from_id, OLResult } from '../../../domain/abstract/basic/OLgen.ts';
 import { Request, Response, Router } from 'express';
 import GenshinAllReminders from '../../../components/genshin/reminders/GenshinAllReminders.vue';
+import GenshinQuestPage from '../../../components/genshin/quests/GenshinQuestPage.vue';
+import {
+  ChapterCollection,
+  ChapterExcelConfigData,
+  ChapterOLView,
+} from '../../../../shared/types/genshin/quest-types.ts';
+import GenshinChapterPage from '../../../components/genshin/chapters/GenshinChapterPage.vue';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -17,9 +24,9 @@ export default async function(): Promise<Router> {
   });
 
   router.get('/chapters', async (req: Request, res: Response) => {
-    const chapters = await getGenshinControl(req).selectChapterCollection();
+    const chapters: ChapterCollection = await getGenshinControl(req).selectChapterCollection();
 
-    res.render('pages/genshin/dialogue/chapters', {
+    res.render(GenshinChapterPage, {
       title: 'Chapters & Acts',
       chapters: chapters,
       bodyClass: ['page--chapters']
@@ -27,10 +34,10 @@ export default async function(): Promise<Router> {
   });
 
   router.get('/chapters/:id', async (req: Request, res: Response) => {
-    const ctrl = getGenshinControl(req);
-    const chapter = await ctrl.selectChapterById(toInt(req.params.id));
+    const ctrl: GenshinControl = getGenshinControl(req);
+    const chapter: ChapterExcelConfigData = await ctrl.selectChapterById(toInt(req.params.id));
     if (!chapter) {
-      return res.render('pages/genshin/dialogue/chapters', {
+      return res.render(GenshinChapterPage, {
         title: 'Chapters & Acts',
         chapterNotFound: true,
         requestId: req.params.id,
@@ -38,14 +45,14 @@ export default async function(): Promise<Router> {
       });
     }
 
-    const mainChapterNameOL = await ol_gen_from_id(ctrl, chapter.ChapterNumTextMapHash);
-    const subChapterNameOL = await ol_gen_from_id(ctrl, chapter.ChapterImageTitleTextMapHash);
-    const actNameOL = await ol_gen_from_id(ctrl, chapter.ChapterTitleTextMapHash);
+    const mainChapterNameOL: OLResult = await ol_gen_from_id(ctrl, chapter.ChapterNumTextMapHash);
+    const subChapterNameOL: OLResult = await ol_gen_from_id(ctrl, chapter.ChapterImageTitleTextMapHash);
+    const actNameOL: OLResult = await ol_gen_from_id(ctrl, chapter.ChapterTitleTextMapHash);
 
-    res.render('pages/genshin/dialogue/chapters', {
+    res.render(GenshinChapterPage, {
       title: chapter.Summary.ActName,
       chapter: chapter,
-      OL: {
+      chapterOL: <ChapterOLView> {
         mainChapterName: mainChapterNameOL,
         subChapterName: subChapterNameOL,
         actName: actNameOL,
@@ -55,7 +62,7 @@ export default async function(): Promise<Router> {
   });
 
   router.get('/quests', async (req: Request, res: Response) => {
-    res.render('pages/genshin/dialogue/quests', {
+    res.render(GenshinQuestPage, {
       title: 'Quests',
       bodyClass: ['page--quests']
     });
@@ -63,7 +70,7 @@ export default async function(): Promise<Router> {
 
   router.get('/quests/:id', async (req: Request, res: Response) => {
     let mainQuest = await getGenshinControl(req).selectMainQuestById(toInt(req.params.id));
-    res.render('pages/genshin/dialogue/quests', {
+    res.render(GenshinQuestPage, {
       title: mainQuest ? mainQuest.TitleText + ' - Quests' : 'Quest Not Found',
       bodyClass: ['page--quests']
     });

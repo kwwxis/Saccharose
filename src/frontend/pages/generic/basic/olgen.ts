@@ -8,9 +8,10 @@ import {
 import { pageMatch } from '../../../core/pageMatch.ts';
 import { HttpError } from '../../../../shared/util/httpError.ts';
 import { pasteFromClipboard } from '../../../util/domutil.ts';
-import { isEmpty, isUnset } from '../../../../shared/util/genericUtil.ts';
+import { isUnset } from '../../../../shared/util/genericUtil.ts';
+import { modalService } from '../../../util/modalService.ts';
 
-pageMatch('pages/generic/basic/olgen', () => {
+pageMatch('vue/OLGenPage', () => {
   const {endpoint, tlRmDisabled, neverDefaultHidden} = getOLEndpoint();
 
   function loadResultFromURL() {
@@ -186,5 +187,17 @@ pageMatch('pages/generic/basic/olgen', () => {
         generateResult();
       }
     },
+    {
+      selector: '#ol-info-button',
+      event: 'click',
+      handle(_event) {
+        modalService.modal('Info', `
+          <p>This utility will only work if there is an exact entire-value match for the name you're looking for in the TextMap. If the only reference to the name you're looking for is in a larger line of text, then it won't be found.</p>
+          <p class="spacer10-vert">e.g. it'd only match against <code style="font-size:0.85em">"Iris"</code> and not <code style="font-size:0.85em">"Cyrus' Letter to Iris"</code> if searching for <code>Iris</code></p>
+          <p class="spacer10-vert">If there are multiple results, the differences will be highlighted in <span class="highlight">yellow</span>.</p>
+          <p>* <code style="font-size:0.8em">[lang]_tl</code> params are automatically excluded if the language text is the same as EN text.</p>
+        `);
+      }
+    }
   ]);
 });

@@ -5,12 +5,10 @@ import { NpcExcelConfigData } from '../../../../shared/types/genshin/general-typ
 import util from 'util';
 import { isInt } from '../../../../shared/util/numberUtil.ts';
 import {
-  DialogExcelConfigData, DialogWikitextResult,
-  TalkExcelConfigData,
+  DialogExcelConfigData, TalkExcelConfigData,
 } from '../../../../shared/types/genshin/dialogue-types.ts';
 import { escapeRegExp, trim } from '../../../../shared/util/stringUtil.ts';
 import {
-  DialogueSectionResult,
   dialogueToQuestId,
   TalkConfigAccumulator,
   talkConfigGenerate,
@@ -22,7 +20,8 @@ import { Marker, MarkerPostCreateInterceptorAsync } from '../../../../shared/uti
 import { LangCode, TextMapHash } from '../../../../shared/types/lang-types.ts';
 import { reminderGenerateFromSpeakerTextMapHashes } from './reminder_generator.ts';
 import { custom } from '../../../util/logger.ts';
-import { CommonLineId } from '../../../../shared/types/common-types.ts';
+import { CommonLineId, DialogWikitextResult } from '../../../../shared/types/common-types.ts';
+import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
 
 // region NPC Filtering for Single Branch Dialogue
 // --------------------------------------------------------------------------------------------------------------

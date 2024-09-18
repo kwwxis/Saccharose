@@ -64,7 +64,7 @@ const presets = {
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
     const ctrl = getGenshinControl();
-    await inspectDataFile(ctrl, presets.DocumentExcelConfigData);
+    await inspectDataFile(ctrl, presets.CodexQuestExcelConfigData);
     await closeKnex();
   })();
 }

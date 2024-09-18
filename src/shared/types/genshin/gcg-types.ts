@@ -5,8 +5,8 @@ import { TalkExcelConfigData } from './dialogue-types.ts';
 import { MainQuestExcelConfigData, QuestExcelConfigData } from './quest-types.ts';
 import { MaterialExcelConfigData, RewardExcelConfigData } from './material-types.ts';
 import { Subset } from '../utility-types.ts';
-import { DialogueSectionResult } from '../../../backend/domain/genshin/dialogue/dialogue_util.ts';
 import { VoiceItem } from '../lang-types.ts';
+import { DialogueSectionResult } from '../../../backend/util/dialogueSectionResult.ts';
 
 // GCG TALK
 // --------------------------------------------------------------------------------------------------------------

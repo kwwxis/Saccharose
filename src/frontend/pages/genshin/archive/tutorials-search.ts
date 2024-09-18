@@ -4,7 +4,7 @@ import { startGenericSearchPageListeners } from '../../genericSearchPage.ts';
 import { listen } from '../../../util/eventListen.ts';
 import { FileFormatListeners } from '../../../core/generalEvents/fileFormatEvents.ts';
 
-pageMatch('pages/genshin/archive/tutorials-search', () => {
+pageMatch('vue/TutorialSearchPage', () => {
   startGenericSearchPageListeners({
     endpoint: genshinEndpoints.searchTutorials,
     asHtml: true,

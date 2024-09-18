@@ -40,7 +40,7 @@ import { ImageCategoryMap, ImageIndexEntity, ImageIndexSearchResult } from '../.
 import { ExcelUsages, SearchMode } from '../../../shared/util/searchUtil.ts';
 import { escapeRegExp, isStringBlank, titleCase } from '../../../shared/util/stringUtil.ts';
 import { isInt, maybeInt, toInt } from '../../../shared/util/numberUtil.ts';
-import { ArrayStream, cleanEmpty, walkObject } from '../../../shared/util/arrayUtil.ts';
+import { ArrayStream, cleanEmpty, toArray, walkObject } from '../../../shared/util/arrayUtil.ts';
 import { defaultMap, isUnset } from '../../../shared/util/genericUtil.ts';
 import { Marker } from '../../../shared/util/highlightMarker.ts';
 
@@ -424,7 +424,11 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
   }
 
   async streamTextMapMatchesWithIndex(opts: TextMapSearchIndexStreamOpts): Promise<number | Error> {
-    const textIndexFile = getTextIndexRelPath(opts.textIndexName);
+    const textIndexFiles: { name: string, path: string }[] = toArray(opts.textIndexName).map(textIndexName => ({
+      name: textIndexName,
+      path: getTextIndexRelPath(textIndexName)
+    }));
+
     const promises: Promise<void>[] = [];
     const batchMax: number = 100;
     const hashSeen: Set<TextMapHash> = new Set();
@@ -439,19 +443,21 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       const regex = `"(` + batch.join('|') + `)":`;
       batch = [];
       promises.push((async () => {
-        const matches = await grep(regex, this.getDataFilePath(textIndexFile),
-          { flags: '-E', escapeDoubleQuotes: false});
-        for (let match of matches) {
-          let parts = /"(.*?)":\s+(\d+),?$/.exec(match);
-          let textMapHash = maybeInt(parts[1]);
-          let entityId = toInt(parts[2]);
-          if (hashSeen.has(textMapHash)) {
-            continue;
-          } else {
-            hashSeen.add(textMapHash);
+        for (let textIndexFile of textIndexFiles) {
+          const matches = await grep(regex, this.getDataFilePath(textIndexFile.path),
+            { flags: '-E', escapeDoubleQuotes: false});
+          for (let match of matches) {
+            let parts = /"(.*?)":\s+(\d+),?$/.exec(match);
+            let textMapHash = maybeInt(parts[1]);
+            let entityId = toInt(parts[2]);
+            if (hashSeen.has(textMapHash)) {
+              continue;
+            } else {
+              hashSeen.add(textMapHash);
+            }
+            opts.stream(entityId, textIndexFile.name, textMapHash, batchHashToText[textMapHash]);
+            delete batchHashToText[textMapHash];
           }
-          opts.stream(entityId, textMapHash, batchHashToText[textMapHash]);
-          delete batchHashToText[textMapHash];
         }
       })());
     };

@@ -1,5 +1,4 @@
 import { ConfigCondition, NpcExcelConfigData } from './general-types.ts';
-import { CommonLineId } from '../common-types.ts';
 import { Readable } from './readable-types.ts';
 
 export type TalkRoleType =
@@ -121,11 +120,6 @@ export const OptionIconMap = {
   UI_NPCTopIcon_Restaurant: 'Restaurant',
   UI_NPCTopIcon_Souvenir: 'Souvenir',
 } as const;
-
-export interface DialogWikitextResult {
-  wikitext: string,
-  ids: CommonLineId[],
-}
 
 export interface DialogExcelConfigData {
   Id: number,
@@ -383,6 +377,8 @@ export interface CodexQuestExcelConfigData {
   ContentText: string,
   ContentTextMapHash: number,
   ContentTextType: CodexQuestContentTextType,
+
+  AssociatedDialogId?: number,
 }
 
 export interface CodexQuestGroup {

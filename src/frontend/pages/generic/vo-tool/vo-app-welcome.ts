@@ -32,7 +32,7 @@ export async function VoAppWelcome(state: VoAppState) {
     element: HTMLElement
   }[] = [];
 
-  const trashIconHtml = document.querySelector('#icon-trash').innerHTML;
+  const trashIconHtml = document.querySelector('#template-icon-trash').innerHTML;
   const savedAvatars: VoAppSavedAvatar[] = await getAllVoAppSavedAvatars(state.savedAvatarStoreName);
 
   for (let savedAvatar of savedAvatars) {
