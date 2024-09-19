@@ -3095,7 +3095,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       if (exec) {
         out.push(exec[1]);
       }
-    }, { flags: '-r ' + (flags || '') });
+    }, { flags: flags || '' });
 
     return out;
   }

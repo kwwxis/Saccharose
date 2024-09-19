@@ -319,7 +319,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
 
     const shellFlags: ShellFlags = ShellFlags.parseFlags(opts.flags);
     const reFlags: string = shellFlags.has("-i") ? 'gi' : 'g';
-    const hasRegexFlag = shellFlags.has('-E') || shellFlags.has('-P') || shellFlags.has('-G');
+    const hasRegexFlag = shellFlags.has('-P') || shellFlags.has('-e');
     const re = new RegExp(hasRegexFlag ? opts.searchText : escapeRegExp(opts.searchText), reFlags);
 
     {
@@ -445,7 +445,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       promises.push((async () => {
         for (let textIndexFile of textIndexFiles) {
           const matches = await grep(regex, this.getDataFilePath(textIndexFile.path),
-            { flags: '-E', escapeDoubleQuotes: false});
+            { flags: '-P', escapeDoubleQuotes: false});
           for (let match of matches) {
             let parts = /"(.*?)":\s+(\d+),?$/.exec(match);
             let textMapHash = maybeInt(parts[1]);
@@ -622,9 +622,9 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       }
 
       if (/^[a-zA-Z0-9_]+$/.test(grepQuery)) {
-        grepFlags = '-wrn';
+        grepFlags = '-wn';
       } else {
-        grepFlags = '-rn';
+        grepFlags = '-n';
       }
 
       await grepStream(grepQuery, this.getDataFilePath(this.excelPath), async (result) => {

@@ -305,24 +305,33 @@ function createGrepCommand(searchText: string, absoluteFilePath: string, extraOp
 
   searchText = shellEscapeArg(searchText);
 
-  let hasRegexFlag: boolean = flags.has('-E') || flags.has('-P') || flags.has('-G');
+  let hasRegexFlag: boolean = flags.has('-P') || flags.has('-e');
   if (!hasRegexFlag) {
     flags.set('-F');
   } else {
     searchText = searchText.replace(/\\n/g, '(\\\\\\\\n)');
   }
+
+  flags.set('--no-heading');
+  flags.set('--path-separator', process.platform === 'win32' ? '//' : '/');
+
   if (isset(extraOpts.startFromLine)) {
     flags.remove('-H');
     flags.remove('--with-filename');
+    flags.set('--no-filename');
   }
 
   // Command format:
-  //   {envVars} grep {flags} -- {searchText} {file}
-
-  let env = `LC_ALL=en_US.utf8 `;
-  let grepCmd = `${env}grep ${flags.stringify()} -- ${searchText}`;
+  //   grep {flags} -- {searchText} {file}
 
   const hasLineNumFlag = flags.has('-n') || flags.has('--line-number');
+  if (!hasLineNumFlag) {
+    if (!flags.has('--no-line-number') && !flags.has('-N')) {
+      flags.set('-N');
+    }
+  }
+
+  let grepCmd = `rg ${flags.stringify()} -- ${searchText}`;
 
   if (isset(extraOpts.startFromLine)) {
     // In order to grep on standard input (i.e. grep from the output of tail), the file of the grep command must be "-"
@@ -372,7 +381,7 @@ export async function grep(searchText: string,
                            extraOpts: GrepExtraOpts): Promise<string[]> {
   try {
     const cmd = createGrepCommand(searchText, absoluteFilePath, extraOpts);
-    //console.log('Command:', cmd.line);
+    // console.log('Command:', cmd.line);
 
     // noinspection JSUnusedLocalSymbols,JSUnresolvedReference
     const { stdout, stderr } = await execPromise(cmd.line, {
@@ -391,7 +400,7 @@ export async function grep(searchText: string,
     } else {
       console.error('\x1b[4m\x1b[1mshell error:\x1b[0m\n', err);
       const parsedFlags = ShellFlags.parseFlags(extraOpts.flags);
-      const hasRegexFlag: boolean = parsedFlags.has('-E') || parsedFlags.has('-P') || parsedFlags.has('-G');
+      const hasRegexFlag: boolean = parsedFlags.has('-P') || parsedFlags.has('-e');
       if (hasRegexFlag) {
         try {
           new RegExp(searchText)
@@ -409,6 +418,8 @@ export async function grepStream(searchText: string,
                                  stream: (line: string, kill?: () => void) => Promise<void>|void,
                                  extraOpts: GrepExtraOpts): Promise<number|Error> {
   const cmd = createGrepCommand(searchText, absoluteFilePath, extraOpts);
+  // console.log('Command:', cmd.line);
+
   return await passthru(cmd.line, null, null, (line: string, kill?: () => void) => {
     line = postProcessGrepLine(line, cmd.hasLineNumFlag, extraOpts.startFromLine);
     return stream(line, kill);
