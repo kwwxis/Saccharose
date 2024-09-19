@@ -6,7 +6,7 @@
       <button id="ol-info-button" class="secondary">Info</button>
     </h2>
     <div class="content">
-      <p class="spacer5-bottom">Generate <span v-html="ctx.wikiTemplateLink('Other Languages')"></span> template with official names filled out.</p>
+      <p class="spacer5-bottom">Generate <WikiTemplateLink name="Other Languages" /> template with official names filled out.</p>
       <div class="field valign">
         <div class="valign grow" style="max-width:500px">
           <div class="posRel valign grow">
@@ -68,6 +68,7 @@
 <script setup lang="ts">
 import Icon from '../utility/Icon.vue';
 import { getTrace } from '../../middleware/request/tracer.ts';
+import WikiTemplateLink from '../utility/WikiTemplateLink.vue';
 
 const { ctx } = getTrace();
 

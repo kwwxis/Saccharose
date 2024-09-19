@@ -14,7 +14,7 @@
           v-html="icon('info', 14)"></span>
     <template v-if="section.similarityGroupId">
       <div class="grow"></div>
-      <span class="secondary-label small spacer5-top">Similarity Group #{{section.similarityGroupId}}></span>
+      <span class="secondary-label small spacer5-top">Similarity Group #{{ section.similarityGroupId }}></span>
     </template>
   </h4>
   <div :id="`dialogue-section-content-${section.id}`" class="dialogue-section-content">

@@ -1,7 +1,7 @@
 <template>
   <div v-for="result of searchResults">
     <a role="button" class="secondary dispBlock spacer5-bottom textAlignLeft" :href="`${ctx.siteHome}/revs/${result.pageid}`">
-      <span><strong class="dispInlineBlock" style="min-width: 70px">{{result.pageid}}</strong> {{result.title}}</span>
+      <span><strong class="dispInlineBlock" style="min-width: 70px">{{ result.pageid }}</strong> {{ result.title }}</span>
     </a>
   </div>
 </template>

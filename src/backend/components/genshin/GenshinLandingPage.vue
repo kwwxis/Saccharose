@@ -55,12 +55,12 @@
         <li><strong>2023-12-20:</strong> Tutorial transclude text updated.</li>
         <li><strong>2023-12-19:</strong> Fixed various TCG text generation issues.</li>
         <li><strong>2023-12-18:</strong> Fixed issue with "Chinese Traditional" not being displayed correctly in input language mismatch guess.</li>
-        <li><strong>2023-12-10:</strong> Support for custom <code>{{DIcons}}</code> has been added.</li>
+        <li><strong>2023-12-10:</strong> Support for custom <WikiTemplateLink name="DIcon" />'s has been added.</li>
         <li><strong>2023-12-09:</strong> Added floating buttons next to dialogue to copy the line or show OL for that particular dialogue line.
           When the floating OL button is clicked, it'll open a panel within the page.</li>
         <li><strong>2023-12-09:</strong> Added Tutorials search.</li>
         <li><strong>2023-12-01:</strong> Excel Viewer interface updated to be mildly more useful.</li>
-        <li><strong>2023-11-26:</strong> The placement of quest item images are now inserted into dialogue results with a <code>{{tx}}</code>,
+        <li><strong>2023-11-26:</strong> The placement of quest item images are now inserted into dialogue results with a <WikiTemplateLink name="tx" />,
           however determining which image it is isn't possible unfortunately.</li>
         <li><strong>2023-11-26:</strong> Quest Still images are now shown in quest/dialogue results as applicable.</li>
         <li><strong>2023-11-26:</strong> Saccharose now can correctly determine if a player dialogue line is a Traveler spoken line
@@ -123,7 +123,7 @@
         <li><strong>2023-03-18:</strong> Added support in "Text Map Expansion" tool to load more results.</li>
         <li><strong>2023-03-16:</strong> Improved regex searching.</li>
         <li><strong>2023-03-11:</strong> Added more images for various stuff.</li>
-        <li><strong>2023-03-08:</strong> Improvement <code>{{MC}}</code> template word expansion</li>
+        <li><strong>2023-03-08:</strong> Improvement <WikiTemplateLink name="MC" /> template word expansion</li>
         <li><strong>2023-03-02:</strong> Added "Character VO Tool" page.</li>
         <li><strong>2023-03-02:</strong> Added "Loading Tips" list.</li>
         <li><strong>2023-03-01:</strong> Updated to Genshin 3.5 data.</li>
@@ -179,8 +179,8 @@
         <li><strong>2022-10-30:</strong> Add cutscene subtitles, when applicable, to quest generation results.</li>
         <li><strong>2022-10-30:</strong> Add travel log summarization, when found, to quest generation results.</li>
         <li><strong>2022-10-13:</strong> Wiki VO support added to reminders.</li>
-        <li><strong>2022-10-04:</strong> If a voiced dialogue line does not contain {{MC}} and has multiple VOs, then only the first VO {{A}} will be shown and the rest will be commented out.</li>
-        <li><strong>2022-10-02:</strong> Added {{MC}} support to OL results.</li>
+        <li><strong>2022-10-04:</strong> If a voiced dialogue line does not contain <WikiTemplateLink name="MC" /> and has multiple VOs, then only the first VO <WikiTemplateLink name="A" /> will be shown and the rest will be commented out.</li>
+        <li><strong>2022-10-02:</strong> Added <WikiTemplateLink name="MC" /> support to OL results.</li>
         <li><strong>2022-09-27:</strong> Updated to Genshin 3.1 data.</li>
         <li><strong>2022-09-24:</strong> Fixed bug with finding orphaned dialogue.</li>
         <li><strong>2022-09-19:</strong> Various UI improvements and clickable dialogue section metadata links.</li>
@@ -205,3 +205,6 @@
     </div>
   </section>
 </template>
+<script setup lang="ts">
+import WikiTemplateLink from '../utility/WikiTemplateLink.vue';
+</script>
