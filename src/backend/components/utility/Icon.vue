@@ -2,6 +2,7 @@
 import { defineComponent, PropType } from 'vue';
 import { dragHandle, icon } from '../../routing/viewUtilities.ts';
 import { FeatherAttributes } from 'feather-icons';
+import { toInt } from '../../../shared/util/numberUtil.ts';
 
 export default defineComponent({
   name: 'Icon',
@@ -13,7 +14,7 @@ export default defineComponent({
   setup(__props, { expose: __expose }) {
     __expose();
     const props = __props;
-    const html = props.name === 'drag-handle' ? dragHandle() : icon(props.name, props.size, props.props);
+    const html = props.name === 'drag-handle' ? dragHandle() : icon(props.name, toInt(props.size), props.props);
     const __returned__ = { props, html };
     Object.defineProperty(__returned__, "__isScriptSetup", { enumerable: false, value: true });
     return __returned__;

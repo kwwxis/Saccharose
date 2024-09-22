@@ -12,12 +12,16 @@ import {
   ChapterOLView,
 } from '../../../../shared/types/genshin/quest-types.ts';
 import GenshinChapterPage from '../../../components/genshin/chapters/GenshinChapterPage.vue';
+import GenshinBranchDialoguePage from '../../../components/genshin/dialogue/GenshinBranchDialoguePage.vue';
+import GenshinNpcDialoguePage from '../../../components/genshin/dialogue/GenshinNpcDialoguePage.vue';
+import GenshinRemindersPage from '../../../components/genshin/dialogue/GenshinRemindersPage.vue';
+import GenshinVoToDialoguePage from '../../../components/genshin/dialogue/GenshinVoToDialoguePage.vue';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
 
   router.get('/vo-to-dialogue', async (req: Request, res: Response) => {
-    res.render('pages/genshin/dialogue/vo-to-dialogue', {
+    res.render(GenshinVoToDialoguePage, {
       title: 'VO to Dialogue',
       bodyClass: ['page--vo-to-dialogue']
     });
@@ -77,21 +81,21 @@ export default async function(): Promise<Router> {
   });
 
   router.get('/branch-dialogue', async (req: Request, res: Response) => {
-    res.render('pages/genshin/dialogue/branch-dialogue', {
+    res.render(GenshinBranchDialoguePage, {
       title: 'Single Branch Dialogue',
       bodyClass: ['page--branch-dialogue']
     });
   });
 
   router.get('/npc-dialogue', async (req: Request, res: Response) => {
-    res.render('pages/genshin/dialogue/npc-dialogue', {
+    res.render(GenshinNpcDialoguePage, {
       title: 'NPC Dialogue',
       bodyClass: ['page--npc-dialogue']
     });
   });
 
   router.get('/reminders', async (req: Request, res: Response) => {
-    res.render('pages/genshin/dialogue/reminders', {
+    res.render(GenshinRemindersPage, {
       title: 'Reminders',
       bodyClass: ['page--reminders']
     });

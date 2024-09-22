@@ -16,7 +16,24 @@ body.page--OL.page--genshin {
 }
 
 @media (max-width: 1380px) {
-  body.page--OL.page--genshin:after {
-    display: none;
+  body:after {
+    display: none !important;
+  }
+}
+
+body:not(.page--OL.page--genshin):not(.page--wide).painmelo {
+  &:after {
+    content: '';
+    position: fixed;
+    pointer-events: none;
+    bottom: 10px;
+    right: 10px;
+    height: 120px;
+    width: 120px;
+    background: url(/images/site/home/Painmelo.png) no-repeat bottom right / 90px;
+    opacity: 0.25;
+  }
+  &.nightmode:after {
+    opacity: 0.18;
   }
 }

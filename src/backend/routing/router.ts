@@ -79,7 +79,9 @@ async function updateReqContext(req: Request, res: Response, payload: Readonly<R
     req.context = new RequestContext(req);
   }
   if (payload.bodyClass && payload.bodyClass.length) {
-    req.context.bodyClass = req.context.bodyClass.concat(payload.bodyClass);
+    req.context.bodyClass = req.context.bodyClass.concat(
+      typeof payload.bodyClass === 'function' ? await payload.bodyClass(req) : payload.bodyClass
+    );
   }
   if (payload.title) {
     req.context.title = typeof payload.title === 'function' ? await payload.title(req) : payload.title;

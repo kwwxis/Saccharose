@@ -2,7 +2,7 @@ import { genshinEndpoints } from '../../../core/endpoints.ts';
 import { pageMatch } from '../../../core/pageMatch.ts';
 import { startGenericSearchPageListeners } from '../../genericSearchPage.ts';
 
-pageMatch('pages/genshin/dialogue/npc-dialogue', () => {
+pageMatch('vue/GenshinNpcDialoguePage', () => {
   startGenericSearchPageListeners({
     endpoint: genshinEndpoints.generateNpcDialogue,
     asHtml: true,

@@ -33,7 +33,7 @@ export type RequestSiteMode = 'unset' | 'genshin' | 'hsr' | 'zenless' | 'wuwa';
 export type RequestContextUpdate = {
   title?: string | ((req: Request) => Promise<string>);
   layouts?: (string|App)[];
-  bodyClass?: string[];
+  bodyClass?: string[] | ((req: Request) => Promise<string[]>);
   locals?: RequestLocals;
 };
 
@@ -185,9 +185,9 @@ export class RequestContext {
     return wikiDomain;
   }
 
-  wikiTemplateLink(template: string): string {
+  wikiTemplateLink(template: string, noLink: boolean = false): string {
     return '{{' + createHtmlElement({
-      name: 'a',
+      name: noLink ? 'span' : 'a',
       attributes: {
         href: 'https://' + this.siteModeWikiDomain + '/wiki/Template:' + template.replaceAll(' ', '_'),
         target: '_blank',

@@ -1,6 +1,6 @@
 import helmet from 'helmet';
 import { create } from '../routing/router.ts';
-import { toBoolean } from '../../shared/util/genericUtil.ts';
+import { getRandomInt, toBoolean } from '../../shared/util/genericUtil.ts';
 import GenshinRouter from './genshin/app/_index.ts';
 import StarRailRouter from './hsr/app/_index.ts';
 import ZenlessRouter from './zenless/app/_index.ts';
@@ -17,6 +17,10 @@ import { GENSHIN_DISABLED, HSR_DISABLED, WUWA_DISABLED, ZENLESS_DISABLED } from 
 export default async function(): Promise<Router> {
   const router: Router = create({
     layouts: ['layouts/app-layout', 'layouts/app-layout-inner'],
+    bodyClass: async (_req: Request) => {
+      const num = getRandomInt(1, 100);
+      return num >= 3 && num <= 10 ? ['painmelo'] : [];
+    },
     locals: async (req: Request) => {
       const genshinControl = getGenshinControl(req);
       const starRailControl = getStarRailControl(req);
