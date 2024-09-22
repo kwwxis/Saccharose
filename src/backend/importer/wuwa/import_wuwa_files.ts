@@ -116,6 +116,7 @@ export async function importWuwaFilesCli() {
     fs.copyFileSync(textMapFR, getWuwaDataFilePath('./TextMap/TextMapFR.json'));
     fs.copyFileSync(textMapID, getWuwaDataFilePath('./TextMap/TextMapID.json'));
     fs.copyFileSync(textMapJA, getWuwaDataFilePath('./TextMap/TextMapJP.json'));
+
     fs.copyFileSync(textMapKO, getWuwaDataFilePath('./TextMap/TextMapKR.json'));
     fs.copyFileSync(textMapPT, getWuwaDataFilePath('./TextMap/TextMapPT.json'));
     fs.copyFileSync(textMapRU, getWuwaDataFilePath('./TextMap/TextMapRU.json'));

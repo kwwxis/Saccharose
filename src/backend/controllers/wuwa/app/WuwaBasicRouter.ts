@@ -6,6 +6,7 @@ import { getWuwaControl } from '../../../domain/wuwa/wuwaControl.ts';
 import ExcelViewerListPage from '../../../components/shared/ExcelViewerListPage.vue';
 import ExcelUsagesPage from '../../../components/shared/ExcelUsagesPage.vue';
 import TextmapSearchPage from '../../../components/shared/TextmapSearchPage.vue';
+import OLGenPage from '../../../components/shared/OLGenPage.vue';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
