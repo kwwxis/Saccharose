@@ -1,0 +1,6 @@
+<% if (byteSize >= 1_000_000) { %>
+  <span><%= (byteSize / 1_000_000).toFixed(2) %>MB</span>
+<% } else { %>
+  <span><%= (byteSize / 1000).toFixed(2) %> KB</span>
+<% } %>
+<span>&nbsp;(<%= byteSize %> bytes)</span>

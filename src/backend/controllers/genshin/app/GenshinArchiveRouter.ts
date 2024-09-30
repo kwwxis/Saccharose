@@ -45,6 +45,7 @@ import AchievementSearchPage from '../../../components/genshin/achievements/Achi
 import TutorialSearchPage from '../../../components/genshin/tutorials/TutorialSearchPage.vue';
 import TutorialCategoriesPage from '../../../components/genshin/tutorials/TutorialCategoriesPage.vue';
 import GenshinViewpointsPage from '../../../components/genshin/viewpoints/GenshinViewpointsPage.vue';
+import { ImageIndexEntity } from '../../../../shared/types/image-index-types.ts';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -102,21 +103,26 @@ export default async function(): Promise<Router> {
   router.get('/weapons/:weaponId', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
 
-    if (req.params.weaponId) {
-      const weapon = await ctrl.selectWeaponById(toInt(req.params.weaponId), {
-        LoadRelations: true,
-        LoadReadable: true,
-        LoadEquipAffix: true
-      });
+    const weapon = await ctrl.selectWeaponById(toInt(req.params.weaponId), {
+      LoadRelations: true,
+      LoadReadable: true,
+      LoadEquipAffix: true
+    });
 
-      const weaponOl = weapon ? (await ol_gen_from_id(ctrl, weapon.NameTextMapHash)) : null;
-      const passiveOl = weapon && weapon?.EquipAffixList?.[0]?.NameTextMapHash
+    if (weapon) {
+      const weaponOl: OLResult = await ol_gen_from_id(ctrl, weapon.NameTextMapHash);
+      const passiveOl: OLResult = weapon?.EquipAffixList?.[0]?.NameTextMapHash
         ? (await ol_gen_from_id(ctrl, weapon.EquipAffixList[0].NameTextMapHash)) : null;
 
+      const iconEntity: ImageIndexEntity = await ctrl.selectImageIndexEntity(weapon.Icon);
+      const awakenIconEntity: ImageIndexEntity = weapon.AwakenIcon ? await ctrl.selectImageIndexEntity(weapon.AwakenIcon) : null;
+
       res.render('pages/genshin/archive/weapon-item', {
-        title: weapon ? weapon.NameText : 'Item not found',
+        title: weapon.NameText,
         bodyClass: ['page--weapons'],
         weapon,
+        iconEntity,
+        awakenIconEntity,
         ol: ol_combine_results([weaponOl, passiveOl])
       });
     } else {

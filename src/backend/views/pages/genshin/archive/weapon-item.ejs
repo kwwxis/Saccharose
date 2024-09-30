@@ -28,17 +28,53 @@
         </tr>
         <tr>
           <td class="bold" colspan="2">Icon</td>
-          <td>
-            <img src="/images/genshin/<%= weapon.Icon %>.png" style="max-height:74px" loading="lazy"
-                   decoding="async" />
+          <td class="valign">
+            <div class="media-image">
+              <div class="image-frame bordered">
+                <div class="image-obj">
+                  <img src="/images/genshin/<%= weapon.Icon %>.png" style="max-height:74px" loading="lazy" decoding="async" />
+                </div>
+                <span class="image-label"><%- use('partials/util/byte-size-label', {byteSize: iconEntity.image_size}) %></span>
+              </div>
+            </div>
+            <% if (iconEntity.extra_info.otherNames) { %>
+              <% for (let otherName of iconEntity.extra_info.otherNames) { %>
+                <div class="media-image">
+                  <div class="image-frame bordered">
+                    <div class="image-obj">
+                      <img src="/images/genshin/<%= encodeURIComponent(otherName.name) %>.png" style="max-height:74px" loading="lazy" decoding="async" />
+                    </div>
+                    <span class="image-label"><%- use('partials/util/byte-size-label', {byteSize: otherName.size}) %></span>
+                  </div>
+                </div>
+              <% } %>
+            <% } %>
           </td>
         </tr>
         <% if (weapon.AwakenIcon) { %>
           <tr>
             <td class="bold" colspan="2">2nd Ascension Icon</td>
-            <td>
-              <img src="/images/genshin/<%= weapon.AwakenIcon %>.png" style="max-height:74px" loading="lazy"
-                   decoding="async" />
+            <td class="valign">
+              <div class="media-image">
+                <div class="image-frame bordered">
+                  <div class="image-obj">
+                    <img src="/images/genshin/<%= weapon.AwakenIcon %>.png" style="max-height:74px" loading="lazy" decoding="async" />
+                  </div>
+                  <span class="image-label"><%- use('partials/util/byte-size-label', {byteSize: awakenIconEntity.image_size}) %></span>
+                </div>
+              </div>
+              <% if (awakenIconEntity.extra_info.otherNames) { %>
+                <% for (let otherName of awakenIconEntity.extra_info.otherNames) { %>
+                  <div class="media-image">
+                    <div class="image-frame bordered">
+                      <div class="image-obj">
+                        <img src="/images/genshin/<%= encodeURIComponent(otherName.name) %>.png" style="max-height:74px" loading="lazy" decoding="async" />
+                      </div>
+                      <span class="image-label"><%- use('partials/util/byte-size-label', {byteSize: otherName.size}) %></span>
+                    </div>
+                  </div>
+                <% } %>
+              <% } %>
             </td>
           </tr>
         <% } %>

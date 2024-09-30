@@ -73,4 +73,5 @@ export const DEFAULT_GLOBAL_LOCALS = {
   snakeToUpperCamelCase,
   splitCamelcase,
   safeStringify,
+  encodeURIComponent
 };

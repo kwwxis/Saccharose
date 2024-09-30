@@ -17,6 +17,7 @@ import { Request, Response, Router } from 'express';
 import { ApiCyclicValueReplacer } from '../../../middleware/api/apiCyclicValueReplacer.ts';
 import GcgStageListPage from '../../../components/genshin/gcg/GcgStageListPage.vue';
 import GcgStageSearchPage from '../../../components/genshin/gcg/GcgStageSearchPage.vue';
+import { ImageIndexEntity } from '../../../../shared/types/image-index-types.ts';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -141,6 +142,9 @@ export default async function(): Promise<Router> {
     const cardId = isInt(req.params.cardId) ? toInt(req.params.cardId) : null;
     const card: GCGCommonCard = (await gcg.selectCharacterCard(cardId)) || (await gcg.selectActionCard(cardId));
 
+    const WikiImageEntity: ImageIndexEntity = card.WikiImage ? await ctrl.selectImageIndexEntity(card.WikiImage) : null;
+    const WikiGoldenImageEntity: ImageIndexEntity = card.WikiImage ? await ctrl.selectImageIndexEntity(card.WikiGoldenImage) : null;
+
     res.render('pages/genshin/gcg/gcg-card', {
       title: (card?.WikiName || 'Not Found') + ' | TCG Card',
       bodyClass: ['page--tcg-card'],
@@ -153,7 +157,9 @@ export default async function(): Promise<Router> {
       })),
       tab: queryTab(req, 'display', 'wikitext', 'json'),
       voiceItemsWikitext: card.VoiceItems && card.VoiceItems.length ? card.VoiceItems.map(vo => `{{A|${vo.fileName}}}`).join('\n') : '',
-      GCG_TAGS_WITHOUT_ICONS
+      GCG_TAGS_WITHOUT_ICONS,
+      WikiImageEntity,
+      WikiGoldenImageEntity
     });
   });
   // endregion

@@ -36,20 +36,69 @@
           <td class="bold">Type</td>
           <td><%= card.WikiType %></td>
         </tr>
-        <tr>
-          <td class="bold" style="width:150px">Image(s)</td>
-          <td>
-            <% if (card.WikiImage) { %>
-              <img src="/images/genshin/<%= card.WikiImage %>.png" loading="lazy" decoding="async" style="max-height: 200px" />
-            <% } %>
-            <% if (card.WikiGoldenImage) { %>
-              <img src="/images/genshin/<%= card.WikiGoldenImage %>.png" loading="lazy" decoding="async" style="max-height: 200px" />
-            <% } %>
-            <% if (card.CharIcon) { %>
-              <img src="/images/genshin/<%= card.CharIcon %>.png" loading="lazy" decoding="async" style="max-height: 200px" />
-            <% } %>
-          </td>
-        </tr>
+        <% if (card.WikiImage) { %>
+          <tr>
+            <td class="bold" style="width:150px">Image(s)</td>
+            <td class="valign">
+              <div class="media-image">
+                <div class="image-frame bordered">
+                  <div class="image-obj">
+                    <img src="/images/genshin/<%= card.WikiImage %>.png" style="max-height:200px" loading="lazy" decoding="async" />
+                  </div>
+                  <span class="image-label"><%- use('partials/util/byte-size-label', {byteSize: WikiImageEntity.image_size}) %></span>
+                </div>
+              </div>
+              <% if (WikiImageEntity.extra_info.otherNames) { %>
+                <% for (let otherName of WikiImageEntity.extra_info.otherNames) { %>
+                  <div class="media-image">
+                    <div class="image-frame bordered">
+                      <div class="image-obj">
+                        <img src="/images/genshin/<%= encodeURIComponent(otherName.name) %>.png" style="max-height:200px" loading="lazy"
+                             decoding="async" />
+                      </div>
+                      <span class="image-label"><%- use('partials/util/byte-size-label', {byteSize: otherName.size}) %></span>
+                    </div>
+                  </div>
+                <% } %>
+              <% } %>
+            </td>
+          </tr>
+        <% } %>
+        <% if (card.WikiGoldenImage) { %>
+          <tr>
+            <td class="bold" style="width:150px">Golden Image(s)</td>
+            <td class="valign">
+              <div class="media-image">
+                <div class="image-frame bordered">
+                  <div class="image-obj">
+                    <img src="/images/genshin/<%= card.WikiGoldenImage %>.png" style="max-height:200px" loading="lazy" decoding="async" />
+                  </div>
+                  <span class="image-label"><%- use('partials/util/byte-size-label', {byteSize: WikiGoldenImageEntity.image_size}) %></span>
+                </div>
+              </div>
+              <% if (WikiGoldenImageEntity.extra_info.otherNames) { %>
+                <% for (let otherName of WikiGoldenImageEntity.extra_info.otherNames) { %>
+                  <div class="media-image">
+                    <div class="image-frame bordered">
+                      <div class="image-obj">
+                        <img src="/images/genshin/<%= encodeURIComponent(otherName.name) %>.png" style="max-height:200px" loading="lazy" decoding="async" />
+                      </div>
+                      <span class="image-label"><%- use('partials/util/byte-size-label', {byteSize: otherName.size}) %></span>
+                    </div>
+                  </div>
+                <% } %>
+              <% } %>
+            </td>
+          </tr>
+        <% } %>
+        <% if (card.CharIcon) { %>
+          <tr>
+            <td class="bold" style="width:150px">Character Icon</td>
+            <td>
+              <img src="/images/genshin/<%= card.CharIcon %>.png" loading="lazy" decoding="async" style="max-height: 150px" />
+            </td>
+          </tr>
+        <% } %>
         <% if (card.Hp) { %>
           <tr>
             <td class="bold" style="width:150px">Health</td>
