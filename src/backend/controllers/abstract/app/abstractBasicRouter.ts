@@ -2,26 +2,28 @@ import { AbstractControl } from '../../../domain/abstract/abstractControl.ts';
 import { removeSuffix } from '../../../../shared/util/stringUtil.ts';
 import { Request, Response } from 'express';
 import ExcelViewerTablePage from '../../../components/shared/ExcelViewerTablePage.vue';
+import { FileAndSize } from '../../../../shared/types/utility-types.ts';
 
 export async function sendExcelViewerTableResponse(ctrl: AbstractControl, req: Request, res: Response) {
-  const excels = await ctrl.getExcelFileNames();
-  const fileName = removeSuffix(String(req.params.file), '.json');
-  const filePath = ctrl.getExcelPath() + '/' + fileName + '.json';
+  const excels: FileAndSize[] = await ctrl.getExcelFileNames();
 
-  let fileSize: number = null;
-  let json: any[] = null;
 
-  if (excels.includes(fileName)) {
-    fileSize = await ctrl.getDataFileSize(filePath);
-    json = fileSize < 9_000_000 ? await ctrl.readDataFile(filePath, true) : null;
+  const targetExcelName = removeSuffix(String(req.params.file), '.json');
+  const targetExcelPath = ctrl.getExcelPath() + '/' + targetExcelName + '.json';
+
+  let foundJson: any[] = null;
+  let foundTarget = excels.find(e => e.name === targetExcelName);
+
+  if (foundTarget) {
+    foundJson = foundTarget.size < 9_000_000 ? await ctrl.readDataFile(targetExcelPath, true) : null;
   }
 
   res.render(ExcelViewerTablePage, {
     title: 'Excel Viewer',
     bodyClass: ['page--excel-viewer', 'page--wide', 'page--narrow-sidebar'],
-    fileName,
-    fileSize,
+    fileName: targetExcelName,
+    fileSize: foundTarget?.size,
     excels,
-    json,
+    json: foundJson,
   });
 }

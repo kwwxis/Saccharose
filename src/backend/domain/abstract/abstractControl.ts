@@ -33,7 +33,7 @@ import {
   TextMapHash, TextMapSearchOpts, TextMapSearchIndexStreamOpts,
   TextMapSearchResult, TextMapSearchStreamOpts,
 } from '../../../shared/types/lang-types.ts';
-import { ExtractScalar } from '../../../shared/types/utility-types.ts';
+import { ExtractScalar, FileAndSize } from '../../../shared/types/utility-types.ts';
 import { ImageCategoryMap, ImageIndexEntity, ImageIndexSearchResult } from '../../../shared/types/image-index-types.ts';
 
 // Shared Util:
@@ -259,10 +259,13 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     return subPath ? path.join(this.excelPath, subPath) : this.excelPath;
   }
 
-  async getExcelFileNames(): Promise<string[]> {
+  async getExcelFileNames(): Promise<FileAndSize[]> {
     return (await fsp.readdir(this.getDataFilePath(this.excelPath)))
       .filter(file => path.extname(file) === '.json')
-      .map(file => file.slice(0, -5));
+      .asyncMap(async file => ({
+        name: file.slice(0, -5),
+        size: await this.getDataFileSize(this.excelPath + '/' + file),
+      }));
   }
 
   async readJsonFile<T>(filePath: string): Promise<any> {

@@ -12,6 +12,7 @@
       <template v-if="fileSize">
         <p>File not supported for Excel Viewer (file too big): {{ fileName }}</p>
         <p>Max size is 9 MB</p>
+        <p>Size of requested file is: <ByteSizeLabel :byte-size="fileSize" /></p>
       </template>
       <template v-else>
         <p>File not found: {{ fileName }}</p>
@@ -23,6 +24,7 @@
 <script setup lang="ts">
 import { getTrace } from '../../middleware/request/tracer.js';
 import HtmlScript from '../utility/HtmlScript.vue';
+import ByteSizeLabel from '../utility/ByteSizeLabel.vue';
 
 const { ctx, nonce } = getTrace();
 

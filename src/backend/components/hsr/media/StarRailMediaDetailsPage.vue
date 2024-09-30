@@ -29,13 +29,7 @@
       <dd>{{ entity.image_name }}</dd>
       <dt>Image Size</dt>
       <dd>
-        <template v-if="entity.image_size >= 1_000_000">
-          <span>{{ (entity.image_size / 1_000_000).toFixed(2) }} MB</span>
-        </template>
-        <template v-else>
-          <span>{{ (entity.image_size / 1000).toFixed(2) }} KB</span>
-        </template>
-        <span>&nbsp;({{ entity.image_size }} bytes)</span>
+        <ByteSizeLabel :byte-size="entity.image_size" />
       </dd>
     </dl>
   </section>
@@ -57,6 +51,7 @@
 import { ImageIndexEntity } from '../../../../shared/types/image-index-types.ts';
 import JsonText from '../../utility/JsonText.vue';
 import { Marker } from '../../../../shared/util/highlightMarker.ts';
+import ByteSizeLabel from '../../utility/ByteSizeLabel.vue';
 
 const {entity, usageEntities} = defineProps<{
   entity: ImageIndexEntity,
