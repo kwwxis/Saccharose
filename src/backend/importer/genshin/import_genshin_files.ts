@@ -99,7 +99,7 @@ export async function importGenshinFilesCli() {
   }
 
   if (options.normalize) {
-    await importNormalize(getGenshinDataFilePath('./ExcelBinOutput'), ['ProudSkillExcelConfigData.json']);
+    await importNormalize(getGenshinDataFilePath('./ExcelBinOutput'), ['ProudSkillExcelConfigData.json'], 'genshin');
   }
   if (options.plaintext) {
     const ctrl = getGenshinControl();

@@ -28,7 +28,7 @@ function getStableHash(str: string): number {
   return Number(BigInt.asIntN(32, (hash1 + (hash2 * 1566083941n)) | 0n));
 }
 
-function normalizeRecord<T>(record: T): T {
+function normalizeRecordForHSR<T>(record: T): T {
   if (!record || typeof record !== 'object') {
     return record;
   }
@@ -47,7 +47,7 @@ function normalizeRecord<T>(record: T): T {
 
     } else if (Array.isArray(value) && value.length) {
       value = value.filter(v => !isEmptyObj(v)).map(v => {
-        return normalizeRecord(v);
+        return normalizeRecordForHSR(v);
       });
       record[key] = value;
 
@@ -66,7 +66,7 @@ function normalizeRecord<T>(record: T): T {
         record[key = key + 'HashList'] = value.map(v => v.Hash);
       }
     } else if (value && typeof value === 'object') {
-      record[key] = normalizeRecord(value)
+      record[key] = normalizeRecordForHSR(value)
     }
 
     if ((key.endsWith('Hash') || key.includes('Name') || key.includes('Title') || key.includes('Desc')) && typeof record[key] === 'string') {
@@ -89,7 +89,7 @@ function normalizeRecord<T>(record: T): T {
   return record;
 }
 
-export async function importNormalize(jsonDir: string, skip: string[], specialNormalize: boolean = false) {
+export async function importNormalize(jsonDir: string, skip: string[], game: 'genshin' | 'hsr' | 'zenless' | 'wuwa', skipReformatPrimitiveArray: string[] = []) {
   const jsonsInDir = (await fsp.readdir(jsonDir)).filter(file => path.extname(file) === '.json');
   console.log('JSON DIR:', jsonDir);
 
@@ -105,48 +105,33 @@ export async function importNormalize(jsonDir: string, skip: string[], specialNo
 
     let fileData = await fsp.readFile(filePath, 'utf8');
 
-    let json;
+    let json = JSON.parse(fileData);
 
-    try {
-      json = JSON.parse(fileData);
-    } catch (e) {
-      if (file === 'DialogExcelConfigData.json') {
-        continue;
+    if (game === 'hsr') {
+      if (Array.isArray(json)) {
+        json.forEach(row => normalizeRecordForHSR(row));
+      } else {
+        json = Object.values(json).map(row => normalizeRecordForHSR(row));
       }
     }
-
-    if (specialNormalize) {
-      if (Array.isArray(json)) {
-        json.forEach(row => normalizeRecord(row));
-      } else {
-        json = Object.values(json).map(row => normalizeRecord(row));
-      }
-
+    if (game === 'zenless') {
       let newJson = [];
-      for (let row of json) {
-        if (!row || typeof row !== 'object') {
-          newJson.push(row);
-          continue;
-        }
 
-        let queue = [row];
-        while (queue.length) {
-          let curr = queue.shift();
-
-          if (curr && typeof curr === 'object' && Object.keys(curr).every(key => isInt(key))) {
-            queue.push(... Object.values(curr));
-          } else {
-            newJson.push(curr);
-          }
-        }
+      if (typeof json === 'object' && !Array.isArray(json)) {
+        newJson = Object.values(json)[0] as any;
+      } else if (Array.isArray(json)) {
+        newJson = json;
       }
+
       json = newJson;
     }
 
     let newFileData = JSON.stringify(json, null, 2);
 
-    // Convert primitive arrays to be single-line.
-    newFileData = reformatPrimitiveArrays(newFileData);
+    if (!skipReformatPrimitiveArray.includes(file)) {
+      // Convert primitive arrays to be single-line.
+      newFileData = reformatPrimitiveArrays(newFileData);
+    }
 
     if (newFileData !== fileData) {
       await fsp.writeFile(filePath, newFileData, 'utf8');

@@ -61,9 +61,5 @@ export class ZenlessControl extends AbstractControl<ZenlessControlState> {
   override i18n(key: keyof typeof ZENLESS_I18N_MAP, vars?: Record<string, string>): string {
     return zenless_i18n(key, this.outputLangCode, vars);
   }
-
-  override async getExcelUsages(id: number | string): Promise<ExcelUsages> {
-    return Promise.resolve({});
-  }
 }
 // endregion

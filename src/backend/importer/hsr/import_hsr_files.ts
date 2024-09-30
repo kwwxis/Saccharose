@@ -103,7 +103,7 @@ export async function importHsrFilesCli() {
       fs.renameSync(textMapCN, getStarRailDataFilePath('./TextMap/TextMapCHS.json'));
       console.log('Moved TextMapCN.json to TextMapCHS.json');
     }
-    await importNormalize(getStarRailDataFilePath('./ExcelOutput'), [], true);
+    await importNormalize(getStarRailDataFilePath('./ExcelOutput'), [], 'hsr');
   }
   if (options['voice-overs']) {
     await importVoiceOvers();

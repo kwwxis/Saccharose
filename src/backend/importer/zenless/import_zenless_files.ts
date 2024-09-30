@@ -109,7 +109,7 @@ export async function importZenlessFilesCli() {
     fs.copyFileSync(textMapCHS, getZenlessDataFilePath('./TextMap/TextMapCHS.json'));
     fs.copyFileSync(textMapCHT, getZenlessDataFilePath('./TextMap/TextMapCHT.json'));
 
-    // await importNormalize(getZenlessDataFilePath('./FileCfg'), []);
+    await importNormalize(getZenlessDataFilePath('./FileCfg'), [], 'zenless', ['MonsterAITemplateTb.json']);
   }
   if (options.plaintext) {
     const ctrl = getZenlessControl();

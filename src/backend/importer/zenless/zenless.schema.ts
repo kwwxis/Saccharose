@@ -36,15 +36,6 @@ export const zenlessSchema = {
     name: 'ItemTemplateTb',
     jsonFile: './FileCfg/ItemTemplateTb.json',
     columns: [
-      { name: 'Id', type: 'integer', isPrimary: true },
-      { name: 'TitleTextMapHash', type: 'integer', isIndex: true },
     ],
-    renameFields: {
-      HBKDOIKGNDE: 'Id',
-      HAOPJCCHCGF: 'Rarity',
-      DIIDBBGLDOL: 'NameTextMapHash',
-      OJCGCLOKPDI: 'DescTextMapHash',
-      EFGKGIBIMKP: 'StoryTextMapHash',
-    },
   }
 }
