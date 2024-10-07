@@ -14,10 +14,11 @@ function* walkSync(dir: string): Generator<string> {
 }
 
 async function doIt() {
-  const targetDir: string = "E:\\HoYoAssets\\GenshinAssets\\Sprite_Archive\\Sprite_4.8_2";
+  const sourceDir: string = 'C:\\Shared\\Texture2D_ByFileName';
+  const targetDir: string = "E:\\HoYoAssets\\GenshinAssets\\Texture2D_Archive\\Texture2D_5.1";
 
   const files: string[] = [];
-  for (let file of walkSync('E:\\HoYoAssets\\GenshinAssets\\Sprite_Archive\\Sprite_4.8')) {
+  for (let file of walkSync(sourceDir)) {
     file = file.replace(/\\/g, '/');
     files.push(file);
   }
@@ -32,7 +33,7 @@ async function doIt() {
       console.log(`${i} / ${filesAmount}`);
     }
 
-    const existingName = 'E:/HoYoAssets/GenshinAssets/Sprite/' + basename;
+    const existingName = 'E:/HoYoAssets/GenshinAssets/Texture2D/' + basename;
     const targetName = targetDir + '/' + basename;
 
     let shouldCopy = false;
