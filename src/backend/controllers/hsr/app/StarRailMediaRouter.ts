@@ -4,6 +4,9 @@ import StarRailMediaSearchPage from '../../../components/hsr/media/StarRailMedia
 import StarRailMediaListPage from '../../../components/hsr/media/StarRailMediaListPage.vue';
 import StarRailMediaDetailsPage from '../../../components/hsr/media/StarRailMediaDetailsPage.vue';
 import { getStarRailControl } from '../../../domain/hsr/starRailControl.ts';
+import WikiRevisionPage from '../../../components/mediawiki/WikiRevisionPage.vue';
+import { isInt, toInt } from '../../../../shared/util/numberUtil.ts';
+import { mwStarRailClient } from '../../../mediawiki/mwClientInterface.ts';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -36,6 +39,39 @@ export default async function(): Promise<Router> {
 
   router.get('/media', async (req: Request, res: Response) => {
     res.redirect('/hsr/media/list');
+  });
+
+  router.get('/revs', async (req: Request, res: Response) => {
+    res.render(WikiRevisionPage, {
+      title: 'Wiki Revisions',
+      bodyClass: ['page--revs', 'page--wide', 'page--wideWithLeftGutter', 'page--narrow-sidebar']
+    });
+  });
+
+  router.get('/revs/:pageId', async (req: Request, res: Response) => {
+    const pageId: number = isInt(req.params.pageId) ? toInt(req.params.pageId) : null;
+    const page = await mwStarRailClient.getArticleInfo(pageId);
+
+    res.render(WikiRevisionPage, {
+      title: 'Wiki Revisions',
+      bodyClass: ['page--revs', 'page--wide', 'page--narrow-sidebar'],
+      pageid: pageId || null,
+      page: page || null,
+    });
+  });
+
+  router.get('/revs/:pageId/:revId', async (req: Request, res: Response) => {
+    const pageId: number = isInt(req.params.pageId) ? toInt(req.params.pageId) : null;
+    const revId: number = isInt(req.params.revId) ? toInt(req.params.revId) : null;
+    const page = await mwStarRailClient.getArticleInfo(pageId);
+
+    res.render(WikiRevisionPage, {
+      title: 'Wiki Revisions',
+      bodyClass: ['page--revs', 'page--wide', 'page--narrow-sidebar'],
+      pageid: pageId || null,
+      revid: revId || null,
+      page: page || null,
+    });
   });
 
   return router;

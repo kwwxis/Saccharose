@@ -453,11 +453,14 @@ export const genshinSchema = {
     ],
     renameFields: {
       // TODO: This needs to be updated with each new Genshin version!
-      'OKJGFOKCJNI': 'AltDescTextQuestCondIds', // Version 4.8
-      'FHNNPAGOHAJ': 'AltDescTextMapHashList',  // Version 4.8
+      OKJGFOKCJNI: 'AltDescTextQuestCondIds', // Version 4.8
+      FHNNPAGOHAJ: 'AltDescTextMapHashList',  // Version 4.8
 
       NBNIFMKJGPA: 'AltDescTextQuestCondIds', // Version 5.0
       NJPCJCOBFMG: 'AltDescTextMapHashList',  // Version 5.0
+
+      OMCFKEGPHCE: 'AltDescTextQuestCondIds', // Version 5.1
+      DGCGCIKKNOC: 'AltDescTextMapHashList',  // Version 5.1
     }
   },
   ReputationQuestExcelConfigData: <SchemaTable> {
@@ -1079,6 +1082,7 @@ export const genshinSchema = {
       // TODO: This needs to be updated with each new Genshin version!
       NELFLFMMGAP: 'DeckNameTextMapHash', // Version 4.8
       BPNAAGAPHDJ: 'DeckNameTextMapHash', // Version 5.0
+      LGIODDPABGJ: 'DeckNameTextMapHash', // Version 5.1
     }
   },
   GCGDeckCardExcelConfigData: <SchemaTable> {

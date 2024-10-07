@@ -203,6 +203,13 @@ export const SIDEBAR_CONFIG: { [siteMode: string]: SiteSidebar } = {
             items: [
               { id: 'media', name: 'Media', link: '/hsr/media', bodyClass: 'page--media' },
             ]
+          },
+          {
+            id: 'wiki-data',
+            name: 'Wiki Data',
+            items: [
+              { id: 'wiki-revs', name: 'Wiki Revisions', link: '/hsr/revs', bodyClass: 'page--revs' },
+            ]
           }
         ]
       },
@@ -262,6 +269,13 @@ export const SIDEBAR_CONFIG: { [siteMode: string]: SiteSidebar } = {
           //     { id: 'media', name: 'Media', link: '/zenless/media', bodyClass: 'page--media' },
           //   ]
           // },
+          {
+            id: 'wiki-data',
+            name: 'Wiki Data',
+            items: [
+              { id: 'wiki-revs', name: 'Wiki Revisions', link: '/zenless/revs', bodyClass: 'page--revs' },
+            ]
+          }
         ]
       },
     ]
@@ -306,6 +320,13 @@ export const SIDEBAR_CONFIG: { [siteMode: string]: SiteSidebar } = {
               { id: 'media', name: 'Media', link: '/wuwa/media', bodyClass: 'page--media' },
             ]
           },
+          {
+            id: 'wiki-data',
+            name: 'Wiki Data',
+            items: [
+              { id: 'wiki-revs', name: 'Wiki Revisions', link: '/wuwa/revs', bodyClass: 'page--revs' },
+            ]
+          }
         ]
       },
       {
