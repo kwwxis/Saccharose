@@ -1,5 +1,8 @@
 <template>
-  <template v-if="byteSize >= 1_000_000">
+  <template v-if="byteSize >= 1_000_000_000">
+    <span><span class="code" style="font-size:0.9em">{{ (byteSize / 1_000_000_000).toFixed(2) }}</span> GB</span>
+  </template>
+  <template v-else-if="byteSize >= 1_000_000">
     <span><span class="code" style="font-size:0.9em">{{ (byteSize / 1_000_000).toFixed(2) }}</span> MB</span>
   </template>
   <template v-else>

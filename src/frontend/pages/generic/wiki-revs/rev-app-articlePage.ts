@@ -15,6 +15,7 @@ import { mapBy } from '../../../../shared/util/arrayUtil.ts';
 import { OverlayScrollbars } from 'overlayscrollbars';
 import { isNightmode } from '../../../core/userPreferences/siteTheme.ts';
 import { createRevListHtml } from './util/mwRevItem.ts';
+import { ScriptJobPollContext } from '../../../util/ScriptJobPollContext.ts';
 
 let sideOverlayScroll: OverlayScrollbars;
 
@@ -43,7 +44,7 @@ export async function revAppArticlePage(state: WikiRevAppState, skipArticleCache
 
   let postResult: ScriptJobPostResult<'mwRevSave'>;
   try {
-    postResult = await genericEndpoints.postJob.send({action: 'mwRevSave', pageid: state.pageId, siteMode: SITE_MODE, skipArticleCache });
+    postResult = await genericEndpoints.simplePostJob.send({action: 'mwRevSave', pageid: state.pageId, siteMode: SITE_MODE, skipArticleCache });
     if (!postResult?.job?.job_id) {
       setInitError(`Script job post failure.`);
       return;
@@ -88,54 +89,19 @@ export async function revAppArticlePage(state: WikiRevAppState, skipArticleCache
         <div id="run-log" class="code" style="font-size: 12px; line-height: 1.8em; padding: 15px 1px 0"></div>
       </div>
     `;
-    await (new PollContext(postResult.job.job_id, state)).poll();
-  }
-}
 
-class PollContext {
-  private runLogLastSize: number = 0;
-  private runLogNumTimesSameSize: number = 0;
-
-  constructor(readonly jobId: string, readonly state: WikiRevAppState) {}
-
-  async poll() {
-    const jobPoll: Pick<ScriptJobState<'mwRevSave'>, 'job_id' | 'run_complete' | 'run_log' | 'run_end' | 'result_error'>
-      = await genericEndpoints.getJob.send({ jobId: this.jobId, fields: 'job_id,run_complete,run_log,run_end,result_error' });
-
-    if (!jobPoll) {
-      setTimeout(() => this.poll(), 500);
-      return;
-    }
-
-    const runLogCurrSize: number = jobPoll.run_log.length;
-    const runLogEl: HTMLElement = document.querySelector('#run-log');
-    runLogEl.innerHTML = jobPoll.run_log.map(s => `<div>${escapeHtml(s)}</div>`).join('\n');
-
-    if (jobPoll.result_error) {
-      runLogEl.innerHTML += `<br /><br /><div>Fatal error:</div><div>${escapeHtml(jobPoll.result_error)}</div>`;
-      return;
-    }
-
-    if (runLogCurrSize === this.runLogLastSize) {
-      this.runLogNumTimesSameSize++;
-    } else {
-      this.runLogLastSize = runLogCurrSize;
-      this.runLogNumTimesSameSize = 0;
-    }
-
-    const minTimeout: number = runLogEl.innerHTML.includes('Computing ownership segments') ? 1000 : 200;
-    const timeout: number = minTimeout + constrainNumber(this.runLogNumTimesSameSize * 250, 0, 5000);
-
-    if (jobPoll.run_complete && jobPoll.run_end) {
-      console.log('Script Job Poll:', jobPoll, `Next Poll: n/a (complete)`);
-      genericEndpoints.getJob.send({ jobId: this.jobId }).then(async job => {
-        console.log('Script Job Complete:', job);
-        await loadRevList(this.state);
-      });
-    } else {
-      console.log('Script Job Poll:', jobPoll, `Next Poll: ${timeout} ms`);
-      setTimeout(() => this.poll(), timeout);
-    }
+    new ScriptJobPollContext(
+      postResult.job.job_id,
+      '#run-log',
+      async job => {
+        await loadRevList(state);
+      },
+      null,
+      null,
+      (job, runLogEl) => {
+        return runLogEl.innerHTML.includes('Computing ownership segments') ? 1000 : 200;
+      }
+    ).start();
   }
 }
 

@@ -4,7 +4,7 @@
          :class="{'no-count': noCount}"
          :data-quality="item.RankLevel || 0">
       <img v-if="hasImage" :src="imageUrl" loading="lazy" decoding="async" />
-      <img v-else src="/Item_Unknown.png" loading="lazy" decoding="async" />
+      <img v-else src="/images/genshin/static/Item_Unknown.png" loading="lazy" decoding="async" />
     </div>
     <img v-if="effectIcon" class="effect-icon" :src="`/images/genshin/${effectIcon}.png`" loading="lazy" decoding="async" />
     <div v-if="!noCount && itemCount" class="material-count">{{ itemCount }}</div>

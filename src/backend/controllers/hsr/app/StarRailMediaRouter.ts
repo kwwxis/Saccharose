@@ -7,6 +7,7 @@ import { getStarRailControl } from '../../../domain/hsr/starRailControl.ts';
 import WikiRevisionPage from '../../../components/mediawiki/WikiRevisionPage.vue';
 import { isInt, toInt } from '../../../../shared/util/numberUtil.ts';
 import { mwStarRailClient } from '../../../mediawiki/mwClientInterface.ts';
+import StarRailMediaArchiveJobPage from '../../../components/hsr/media/StarRailMediaArchiveJobPage.vue';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -39,6 +40,12 @@ export default async function(): Promise<Router> {
 
   router.get('/media', async (req: Request, res: Response) => {
     res.redirect('/hsr/media/list');
+  });
+
+  router.get('/media/archive-job/:jobId', async (req: Request, res: Response) => {
+    res.render(StarRailMediaArchiveJobPage, {
+      jobId: req.params.jobId,
+    });
   });
 
   router.get('/revs', async (req: Request, res: Response) => {

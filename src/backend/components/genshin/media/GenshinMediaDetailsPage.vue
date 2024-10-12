@@ -4,7 +4,6 @@
     <div class="tab-list" role="tablist">
       <a href="/genshin/media/list" role="tab" class="tab">List</a>
       <a href="/genshin/media/search" role="tab" class="tab">Search</a>
-      <a href="/genshin/media/reverse-search" role="tab" class="tab">Reverse Search</a>
       <button role="tab" class="tab active">Image Details</button>
     </div>
   </section>

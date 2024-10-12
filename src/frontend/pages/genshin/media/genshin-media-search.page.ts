@@ -4,6 +4,8 @@ import { genshinEndpoints } from '../../../core/endpoints.ts';
 initiateMediaSearchPage(
   'GenshinMediaSearchPage',
   genshinEndpoints.mediaSearch,
+  genshinEndpoints.mediaPostCreateImageIndexArchiveJob,
   '/genshin',
-  '/images/genshin/'
+  '/images/genshin/',
+  '/genshin/media/archive-job/'
 );

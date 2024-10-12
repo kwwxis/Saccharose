@@ -3,7 +3,7 @@
     <div class="material-card">
       <div class="material-icon no-count" data-quality="0">
         <img v-if="monster.Describe?.Icon" :src="`/images/genshin/${monster.Describe?.Icon}.png`" loading="lazy" decoding="async" />
-        <img v-else src="/Item_Unknown.png" loading="lazy" decoding="async" />
+        <img v-else src="/images/genshin/static/Item_Unknown.png" loading="lazy" decoding="async" />
       </div>
     </div>
     <span class="dispBlock material-name">

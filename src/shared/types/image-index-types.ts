@@ -1,3 +1,4 @@
+import { SearchMode } from '../util/searchUtil.ts';
 
 export interface ImageIndexExcelMeta {
   [excelFile: string]: ImageIndexExcelMetaEntry;
@@ -46,7 +47,8 @@ export interface ImageIndexSearchParams {
   catPath?: string,
   catRestrict?: boolean,
   offset?: number,
-  searchMode?: string,
+  limit?: number,
+  searchMode?: SearchMode,
 }
 
 export interface ImageIndexSearchResult {

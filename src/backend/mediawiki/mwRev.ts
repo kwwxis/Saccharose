@@ -200,12 +200,12 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
         page
       }
     });
-    await job.exit();
   } catch (e) {
     await job.log('Job failed!', e);
     await job.complete({
       result_error: 'Job failed due to an unhandled exception.'
     });
+  } finally {
     await job.exit();
   }
 }

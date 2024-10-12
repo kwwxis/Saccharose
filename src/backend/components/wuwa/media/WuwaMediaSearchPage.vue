@@ -23,7 +23,11 @@
   </section>
   <input id="mediaSearchOffset" type="text" style="display:none!important;" />
   <section class="card hide" id="image-name-search-result-wrapper">
-    <h2>Results</h2>
+    <h2 class="valign">
+      <span>Results</span>
+      <span class="grow"></span>
+      <span id="image-name-search-result-download-button-area"></span>
+    </h2>
     <div id="image-name-search-result" class="content justifyStart alignStart flexWrap"></div>
   </section>
 </template>

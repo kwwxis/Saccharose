@@ -7,6 +7,7 @@ import { getWuwaControl } from '../../../domain/wuwa/wuwaControl.ts';
 import WikiRevisionPage from '../../../components/mediawiki/WikiRevisionPage.vue';
 import { isInt, toInt } from '../../../../shared/util/numberUtil.ts';
 import { mwWuwaClient } from '../../../mediawiki/mwClientInterface.ts';
+import WuwaMediaArchiveJobPage from '../../../components/wuwa/media/WuwaMediaArchiveJobPage.vue';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -39,6 +40,12 @@ export default async function(): Promise<Router> {
 
   router.get('/media', async (req: Request, res: Response) => {
     res.redirect('/wuwa/media/list');
+  });
+
+  router.get('/media/archive-job/:jobId', async (req: Request, res: Response) => {
+    res.render(WuwaMediaArchiveJobPage, {
+      jobId: req.params.jobId,
+    });
   });
 
   router.get('/revs', async (req: Request, res: Response) => {

@@ -248,7 +248,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   readonly voice: GenshinVoice = new GenshinVoice();
 
   constructor(requestOrState?: Request|GenshinControlState) {
-    super('genshin', 'Genshin', GenshinControlState, requestOrState);
+    super('genshin', 'genshin', 'Genshin', GenshinControlState, requestOrState);
     this.excelPath = './ExcelBinOutput';
   }
 

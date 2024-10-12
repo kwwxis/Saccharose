@@ -101,7 +101,7 @@ pageMatch('vue/TextmapSearchPage', () => {
     submitButtonTarget: '.search-submit',
     resultTarget: '#search-result',
 
-    onReceiveResult(caller: string, resultTarget: HTMLElement, result: string, preventDefault: () => void) {
+    onReceiveResult(caller: string, _apiPayload, resultTarget: HTMLElement, result: string, preventDefault: () => void) {
       preventDefault();
 
       const fragment = frag(result);

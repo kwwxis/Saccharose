@@ -3,22 +3,14 @@ import { Request, Response, Router } from 'express';
 import WikiRevisionPage from '../../../components/mediawiki/WikiRevisionPage.vue';
 import { isInt, toInt } from '../../../../shared/util/numberUtil.ts';
 import { mwGenshinClient } from '../../../mediawiki/mwClientInterface.ts';
-import GenshinMediaReverseSearchPage from '../../../components/genshin/media/GenshinMediaReverseSearchPage.vue';
 import GenshinMediaSearchPage from '../../../components/genshin/media/GenshinMediaSearchPage.vue';
 import GenshinMediaListPage from '../../../components/genshin/media/GenshinMediaListPage.vue';
 import GenshinMediaDetailsPage from '../../../components/genshin/media/GenshinMediaDetailsPage.vue';
 import { getGenshinControl } from '../../../domain/genshin/genshinControl.ts';
+import GenshinMediaArchiveJobPage from '../../../components/genshin/media/GenshinMediaArchiveJobPage.vue';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
-
-
-  router.get('/media/reverse-search', async (req: Request, res: Response) => {
-    res.render(GenshinMediaReverseSearchPage, {
-      title: 'Media Reverse Search',
-      bodyClass: ['page--media', 'page--media-reverse-search', 'page--larger'],
-    });
-  });
 
   router.get('/media/search', async (req: Request, res: Response) => {
     res.render(GenshinMediaSearchPage, {
@@ -50,6 +42,11 @@ export default async function(): Promise<Router> {
     res.redirect('/genshin/media/list');
   });
 
+  router.get('/media/archive-job/:jobId', async (req: Request, res: Response) => {
+    res.render(GenshinMediaArchiveJobPage, {
+      jobId: req.params.jobId,
+    });
+  });
 
   router.get('/revs', async (req: Request, res: Response) => {
     res.render(WikiRevisionPage, {

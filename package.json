@@ -25,6 +25,7 @@
   "dependencies": {
     "@volar/language-server": "2.4.5",
     "@vue/language-server": "2.1.6",
+    "7zip-bin": "^5.2.0",
     "ag-grid-community": "^32.2.0",
     "ag-grid-enterprise": "^32.2.0",
     "async-exit-hook": "^2.0.1",
@@ -65,6 +66,7 @@
     "moment": "^2.30.1",
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
+    "node-7z": "^3.0.0",
     "nodemw": "^0.22.0",
     "ora": "^8.1.0",
     "overlayscrollbars": "^2.10.0",
@@ -124,6 +126,7 @@
     "@types/morgan": "^1.9.9",
     "@types/multer": "^1.4.12",
     "@types/node": "^22.5.5",
+    "@types/node-7z": "^2.1.10",
     "@types/passport": "^1.0.16",
     "@types/passport-discord": "^0.1.13",
     "@types/pg": "^8.11.10",

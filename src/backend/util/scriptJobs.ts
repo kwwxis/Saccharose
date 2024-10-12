@@ -6,6 +6,9 @@ import { NIL_UUID, uuidv4 } from '../../shared/util/uuidv4.ts';
 import { custom } from './logger.ts';
 import { RequestSiteMode } from '../routing/requestContext.ts';
 import { isEquiv } from '../../shared/util/arrayUtil.ts';
+import { ImageIndexSearchParams } from '../../shared/types/image-index-types.ts';
+import { MwArticleInfo } from '../../shared/mediawiki/mwTypes.ts';
+import fs from 'fs';
 
 export interface ScriptJobPostResult<T extends ScriptJobAction> {
   message: string,
@@ -80,7 +83,7 @@ export interface ScriptJobState<T extends ScriptJobAction> {
    * Not all jobs may necessarily use/populate this field.
    * It's up to each job action to choose what to do with this.
    */
-  result_data?: any,
+  result_data?: ScriptJobResultData<T>,
 
   /**
    * A result error from the job. If the job was successful, then this field will be empty.
@@ -91,7 +94,13 @@ export interface ScriptJobState<T extends ScriptJobAction> {
 
 // All scripts are relative to the repository root
 export const SCRIPT_JOB_ACTION_TO_SCRIPT = {
-  'mwRevSave': './src/backend/mediawiki/mwRev.ts'
+  'mwRevSave': './src/backend/mediawiki/mwRev.ts',
+  'createImageIndexArchive': './src/backend/domain/abstract/jobs/createImageIndexArchiveJob.ts',
+};
+
+export const SCRIPT_JOB_ACTION_TO_DELETE_SCRIPT = {
+  'mwRevSave': null,
+  'createImageIndexArchive': './src/backend/domain/abstract/jobs/deleteImageIndexArchiveJob.ts',
 };
 
 /**
@@ -102,6 +111,20 @@ export type ScriptJobActionArgs<T extends ScriptJobAction> = {
     siteMode: RequestSiteMode,
     pageId: number,
     resegment?: boolean,
+  },
+  createImageIndexArchive: {
+    siteMode: RequestSiteMode,
+    searchParams: ImageIndexSearchParams,
+  }
+}[T];
+
+export type ScriptJobResultData<T extends ScriptJobAction> = {
+  mwRevSave: {
+    page: MwArticleInfo
+  },
+  createImageIndexArchive: {
+    archiveName: string,
+    archiveStat: fs.Stats
   }
 }[T];
 
@@ -119,11 +142,12 @@ export type ScriptJobInput<T extends ScriptJobAction> = ScriptJobActionArgs<T> &
 };
 
 export class ScriptJobsCoordinator {
-  readonly JOB_DELETE_TIME_MS: number = 60_480_000; // 1 week
+  readonly JOB_DELETE_TIME_MS: number = 60 * 60 * 1000 * 24; // 24 hours
   readonly MAX_JOB_RUNTIME_MS: number = 60 * 60 * 1000; // 1 hour
   private knex: Knex;
   private postQueue: {action: ScriptJobAction, args: ScriptJobActionArgs<any>, postComplete: (postResult: ScriptJobPostResult<any>) => void}[] = [];
   private postIntervalId: any = null;
+  private deleteIntervalId: any = null;
   private postIntervalBusy: boolean = false;
   private debug: debug.Debugger = custom('jobs');
 
@@ -133,6 +157,10 @@ export class ScriptJobsCoordinator {
       // noinspection JSIgnoredPromiseFromCall
       this.postIntervalAction();
     }, 100);
+    this.deleteIntervalId = setInterval(() => {
+      // noinspection JSIgnoredPromiseFromCall
+      this.deleteOldJobs();
+    }, 1000 * 60 * 30); // every 30 minutes
   }
 
   // Mark jobs that are incomplete for a while (more than 1 hour) as complete
@@ -145,20 +173,35 @@ export class ScriptJobsCoordinator {
       .then();
   }
 
-  /**
-   * This function should only be run on application startup!!
-   */
-  async cleanup() {
+  async deleteOldJobs() {
+    const toDelete = await this.getStatesToBeDeleted();
+    for (let toDeleteElement of toDelete) {
+      await this.deleteInternal(toDeleteElement);
+    }
+
     // Delete old jobs:
     await this.knex('script_jobs')
       .where('run_end', '<', Date.now() - this.JOB_DELETE_TIME_MS)
       .delete()
       .then();
+  }
 
+  /**
+   * This function should only be run on application startup!!
+   */
+  async markAllComplete() {
     // Mark jobs that are incomplete as complete:
     await this.knex('script_jobs')
       .where('run_complete', false)
       .update({ run_complete: true, result_error: 'Job timed out (app startup cleanup)' })
+      .then();
+  }
+
+  async getStatesToBeDeleted(): Promise<ScriptJobState<any>[]> {
+    return await this.knex('script_jobs')
+      .select('*')
+      .from('script_jobs')
+      .where('run_end', '<', Date.now() - this.JOB_DELETE_TIME_MS)
       .then();
   }
 
@@ -256,6 +299,40 @@ export class ScriptJobsCoordinator {
     }
   }
 
+  private async deleteInternal<T extends ScriptJobAction>(job: ScriptJobState<T>): Promise<void> {
+    let script: string = SCRIPT_JOB_ACTION_TO_DELETE_SCRIPT[job.run_action];
+    if (!script) {
+      return; // no error - delete script is optional
+    }
+
+    const postDebug = custom('jobs:delete:' + job.run_action);
+    let cmd = `${process.env.NODE_COMMAND} --no-warnings=ExperimentalWarning --loader ts-node/esm`;
+
+    if (getNodeEnv() === 'production') {
+      cmd = `${process.env.NODE_COMMAND}`;
+      script = script
+        .replace('src/backend/', 'dist/backend/')
+        .replace('.ts', '.js');
+    }
+
+    // noinspection ES6MissingAwait (no await here, detached job)
+    passthru(`${cmd} ${shellEscapeArg(script)} ${shellEscapeArg(JSON.stringify(job))}`,
+      async child => {
+        postDebug(`Spawned delete script for job ${job.job_id} with PID ${child.pid}`);
+      },
+      async exitCode => {
+        postDebug("Finished with exit code: " + exitCode);
+      },
+      data => {
+        if (data.trim().length)
+          postDebug(data.trim());
+      },
+      data => {
+        if (data.trim().length)
+          postDebug(data.trim());
+      });
+  }
+
   private async postInternal<T extends ScriptJobAction>(action: T, args: ScriptJobActionArgs<T>): Promise<ScriptJobPostResult<T>> {
     let script: string = SCRIPT_JOB_ACTION_TO_SCRIPT[action];
 
@@ -310,7 +387,7 @@ export class ScriptJobsCoordinator {
     // noinspection ES6MissingAwait (no await here, detached job)
     passthru(`${cmd} ${shellEscapeArg(script)} ${shellEscapeArg(JSON.stringify(input))}`,
       async child => {
-        postDebug(`Spawned job ${input.jobId} with PID ` + child.pid);
+        postDebug(`Spawned job ${input.jobId} with PID ${child.pid}`);
         await this.updateState(input.jobId, {
           job_pid: child.pid,
         });
@@ -401,7 +478,23 @@ export class ScriptJob<T extends ScriptJobAction> {
     );
   }
 
-  async update(merge: Partial<ScriptJobState<any>>) {
+  public static initDeleteState<T extends ScriptJobAction>(): ScriptJobState<T> {
+    let state: ScriptJobState<T>;
+
+    try {
+      state = JSON.parse(process.argv[2]);
+    } catch (e) {
+      throw 'Invalid input';
+    }
+
+    if (!state?.job_id) {
+      throw 'Invalid input';
+    }
+
+    return state;
+  }
+
+  async update(merge: Partial<ScriptJobState<T>>) {
     this._state = await ScriptJobCoordinator.updateState(this.jobId, merge);
   }
 
@@ -416,7 +509,7 @@ export class ScriptJob<T extends ScriptJobAction> {
 
   async complete(extra?: {
     result_msg?: string,
-    result_data? : any,
+    result_data? : ScriptJobResultData<T>,
     result_error? : string
   }) {
     await this.update(Object.assign({

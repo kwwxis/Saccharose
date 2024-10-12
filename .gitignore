@@ -55,9 +55,11 @@ Thumbs.db
 node_modules/
 
 # Build output
-dist/
-v-dist/
-redist/
+/dist
+/public/dist
+/public/v-dist
+/public/redist/*
+!/public/redist/.gitkeep
 
 *.vue.ts
 *.vue.script.ts

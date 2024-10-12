@@ -21,7 +21,7 @@ POSTGRES_HOST = os.environ.get("POSTGRES_HOST")
 POSTGRES_DATABASE = os.environ.get("POSTGRES_DATABASE")
 POSTGRES_USER = os.environ.get("POSTGRES_USER")
 POSTGRES_PASSWORD = os.environ.get("POSTGRES_PASSWORD")
-TMP_UPLOAD_DIR = os.environ.get("TMP_UPLOAD_DIR")
+TMP_DIR = os.environ.get("TMP_DIR")
 
 if not sys.argv[1].isdigit():
     print("The max hamming distance supplied is invalid. Must be an integer.")
@@ -34,10 +34,10 @@ if not fileName.endswith('.png') or ".." in fileName or "/" in fileName:
     print("Invalid filename")
     sys.exit(1)
 
-if TMP_UPLOAD_DIR.endswith('/'):
-    TMP_UPLOAD_DIR = TMP_UPLOAD_DIR[:-1]
+if TMP_DIR.endswith('/'):
+    TMP_DIR = TMP_DIR[:-1]
 
-fileName = TMP_UPLOAD_DIR + '/' + fileName
+fileName = TMP_DIR + '/' + fileName
 
 conn = psycopg2.connect(database = POSTGRES_DATABASE, user = POSTGRES_USER, password = POSTGRES_PASSWORD, host = POSTGRES_HOST)
 cursor = conn.cursor()

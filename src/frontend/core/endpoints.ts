@@ -40,6 +40,11 @@ export abstract class SaccharoseApiEndpoint<T extends Object, R = any, E = any> 
     this.method = method;
   }
 
+  send(params: ApiParams<T>): Promise<R>;
+  send(params: ApiParams<T>, body: E): Promise<R>;
+  send(params: ApiParams<T>, body: E, asHTML: true): Promise<string>;
+  send(params: ApiParams<T>, body: E, asHTML: false): Promise<R>;
+
   send(params: ApiParams<T>, body: E = null, asHTML: boolean = false): Promise<any> {
     const currentUrlParams = new URLSearchParams(window.location.search);
     if (!params || typeof params !== 'object') {
@@ -207,6 +212,8 @@ export const genshinEndpoints = {
 
   mediaSearch: new GenshinApiEndpoint<ImageIndexSearchParams, ImageIndexSearchResult>('GET', '/media/search'),
   mediaCategory: new GenshinApiEndpoint<{}, ImageCategoryMap>('GET', '/media/category'),
+  mediaPostCreateImageIndexArchiveJob: new GenshinApiEndpoint<ImageIndexSearchParams,
+    ScriptJobPostResult<'createImageIndexArchive'>>('POST', '/media/post-create-image-index-job'),
 
   searchTcgStages: new GenshinApiEndpoint<{text: string}>('GET', '/gcg/stage-search'),
 };
@@ -232,6 +239,8 @@ export const starRailEndpoints = {
 
   mediaSearch: new StarRailApiEndpoint<ImageIndexSearchParams, ImageIndexSearchResult>('GET', '/media/search'),
   mediaCategory: new StarRailApiEndpoint<{}, ImageCategoryMap>('GET', '/media/category'),
+  mediaPostCreateImageIndexArchiveJob: new StarRailApiEndpoint<ImageIndexSearchParams,
+    ScriptJobPostResult<'createImageIndexArchive'>>('POST', '/media/post-create-image-index-job'),
 };
 
 export const zenlessEndpoints = {
@@ -278,6 +287,8 @@ export const wuwaEndpoints = {
 
   mediaSearch: new WuwaApiEndpoint<ImageIndexSearchParams, ImageIndexSearchResult>('GET', '/media/search'),
   mediaCategory: new WuwaApiEndpoint<{}, ImageCategoryMap>('GET', '/media/category'),
+  mediaPostCreateImageIndexArchiveJob: new WuwaApiEndpoint<ImageIndexSearchParams,
+    ScriptJobPostResult<'createImageIndexArchive'>>('POST', '/media/post-create-image-index-job'),
 };
 
 export const genericEndpoints = {
@@ -306,10 +317,10 @@ export const genericEndpoints = {
 
   authUncheck: new BaseUrlEndpoint<{}>('POST', '/auth/uncheck'),
 
-  postJob: new GenericApiEndpoint<{
+  simplePostJob: new GenericApiEndpoint<{
     action: string,
     [arg: string]: string|number|boolean,
-  }, ScriptJobPostResult<any>>('POST', '/jobs/post'),
+  }, ScriptJobPostResult<any>>('POST', '/jobs/simple-post'),
 
   getJob: new GenericApiEndpoint<{
     jobId: string,

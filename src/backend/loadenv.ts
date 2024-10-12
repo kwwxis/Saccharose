@@ -17,6 +17,7 @@ export const REPO_ROOT = path.resolve(__dirname, '../../');
 export const VIEWS_ROOT = path.resolve(__dirname, './views');
 export const PUBLIC_DIR = path.resolve(__dirname, '../../public');
 export const PIPELINE_DIR = path.resolve(__dirname, '../pipeline');
+export const REDIST_DIR = path.resolve(PUBLIC_DIR, './redist');
 export const BACKEND_ROOT = __dirname;
 export const SITE_TITLE = 'Saccharose.wiki';
 export const EJS_DELIMITER = '%';

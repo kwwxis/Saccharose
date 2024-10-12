@@ -118,7 +118,7 @@ export function runUiActions(actionEl: HTMLElement, actions: UiAction[]) {
       }
       case 'close-modal':
       case 'close-modals': {
-        modalService.closeAll();
+        modalService.closeAll(true);
         break;
       }
 

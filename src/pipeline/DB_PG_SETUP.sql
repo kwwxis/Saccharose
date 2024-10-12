@@ -84,7 +84,7 @@ DROP TABLE IF EXISTS genshin_image_index;
 CREATE TABLE genshin_image_index
 (
     image_name      TEXT NOT NULL PRIMARY KEY,
-    image_size      BIGINT NOT NULL,
+    image_size      INTEGER NOT NULL,
     image_cat1      TEXT,
     image_cat2      TEXT,
     image_cat3      TEXT,
@@ -109,7 +109,7 @@ DROP TABLE IF EXISTS hsr_image_index;
 CREATE TABLE hsr_image_index
 (
     image_name      TEXT NOT NULL PRIMARY KEY,
-    image_size      BIGINT NOT NULL,
+    image_size      INTEGER NOT NULL,
     image_cat1      TEXT,
     image_cat2      TEXT,
     image_cat3      TEXT,
@@ -134,7 +134,7 @@ DROP TABLE IF EXISTS wuwa_image_index;
 CREATE TABLE wuwa_image_index
 (
     image_name      TEXT NOT NULL PRIMARY KEY,
-    image_size      BIGINT NOT NULL,
+    image_size      INTEGER NOT NULL,
     image_cat1      TEXT,
     image_cat2      TEXT,
     image_cat3      TEXT,

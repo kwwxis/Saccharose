@@ -38,17 +38,17 @@ export type GenericSearchPageOpts<T,R> =  {
 
   // Events:
   beforeGenerateResult?: (caller?: string) => void,
-  beforeSendRequest?: (caller?: string, apiPayload?: {[apiParam: string]: string|number}) => void,
+  beforeSendRequest?: (caller?: string, apiPayload?: Record<string, string|number>) => void,
   onReceiveError?: (caller?: string, resultContainer?: HTMLElement, err?: HttpError, preventDefault?: () => void) => void,
   afterInit?: (handle?: GenericSearchPageHandle) => void,
 } & ({
   asHtml: true,
-  onReceiveResult?: (caller?: string, resultContainer?: HTMLElement, htmlResult?: string, preventDefault?: () => void) => void,
-  afterProcessResult?: (caller?: string, resultContainer?: HTMLElement, htmlResult?: string) => void,
+  onReceiveResult?: (caller?: string, apiPayload?: Record<string, string|number>, resultContainer?: HTMLElement, htmlResult?: string, preventDefault?: () => void) => void,
+  afterProcessResult?: (caller?: string, apiPayload?: Record<string, string|number>, resultContainer?: HTMLElement, htmlResult?: string) => void,
 } | {
   asHtml: false,
-  onReceiveResult?: (caller?: string, resultContainer?: HTMLElement, result?: R, preventDefault?: () => void) => void,
-  afterProcessResult?: (caller?: string, resultContainer?: HTMLElement, result?: R) => void,
+  onReceiveResult?: (caller?: string, apiPayload?: Record<string, string|number>, resultContainer?: HTMLElement, result?: R, preventDefault?: () => void) => void,
+  afterProcessResult?: (caller?: string, apiPayload?: Record<string, string|number>, resultContainer?: HTMLElement, result?: R) => void,
 });
 
 export function startGenericSearchPageListeners<T,R>(opts: GenericSearchPageOpts<T,R>) {
@@ -234,7 +234,7 @@ export function startGenericSearchPageListeners<T,R>(opts: GenericSearchPageOpts
 
       if (opts.onReceiveResult) {
         let preventDefaultFn = () => preventDefault = true;
-        opts.onReceiveResult(caller, resultTargetEl, result as any, preventDefaultFn);
+        opts.onReceiveResult(caller, apiPayload, resultTargetEl, result as any, preventDefaultFn);
       }
 
       if (!preventDefault) {
@@ -245,7 +245,7 @@ export function startGenericSearchPageListeners<T,R>(opts: GenericSearchPageOpts
       }
 
       if (opts.afterProcessResult) {
-        opts.afterProcessResult(caller, resultTargetEl, result as any)
+        opts.afterProcessResult(caller, apiPayload, resultTargetEl, result as any)
       }
     }).catch((err: HttpError) => {
       let preventDefault = false;

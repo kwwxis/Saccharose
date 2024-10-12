@@ -4,7 +4,6 @@
     <div class="tab-list" role="tablist">
       <a href="/genshin/media/list" role="tab" class="tab">List</a>
       <a href="/genshin/media/search" role="tab" class="tab active">Search</a>
-      <a href="/genshin/media/reverse-search" role="tab" class="tab">Reverse Search</a>
     </div>
     <h3>Search Images by Name</h3>
     <div class="content form-box">
@@ -24,7 +23,11 @@
   </section>
   <input id="mediaSearchOffset" type="text" style="display:none!important;" />
   <section class="card hide" id="image-name-search-result-wrapper">
-    <h2>Results</h2>
+    <h2 class="valign">
+      <span>Results</span>
+      <span class="grow"></span>
+      <span id="image-name-search-result-download-button-area"></span>
+    </h2>
     <div id="image-name-search-result" class="content justifyStart alignStart flexWrap"></div>
   </section>
 </template>

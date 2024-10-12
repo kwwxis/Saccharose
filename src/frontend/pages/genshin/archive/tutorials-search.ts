@@ -23,7 +23,7 @@ pageMatch('vue/TutorialSearchPage', () => {
     submitButtonTarget: '.search-submit',
     resultTarget: '#search-result',
 
-    afterProcessResult(caller, resultContainer) {
+    afterProcessResult(caller, _apiPayload, resultContainer) {
       listen(FileFormatListeners, resultContainer);
     }
   });

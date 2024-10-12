@@ -34,21 +34,29 @@ import {
   TextMapSearchResult, TextMapSearchStreamOpts,
 } from '../../../shared/types/lang-types.ts';
 import { ExtractScalar, FileAndSize } from '../../../shared/types/utility-types.ts';
-import { ImageCategoryMap, ImageIndexEntity, ImageIndexSearchResult } from '../../../shared/types/image-index-types.ts';
+import {
+  ImageCategoryMap,
+  ImageIndexEntity,
+  ImageIndexSearchParams,
+  ImageIndexSearchResult,
+} from '../../../shared/types/image-index-types.ts';
 
 // Shared Util:
 import { ExcelUsages, SearchMode } from '../../../shared/util/searchUtil.ts';
 import { escapeRegExp, isStringBlank, titleCase } from '../../../shared/util/stringUtil.ts';
 import { isInt, maybeInt, toInt } from '../../../shared/util/numberUtil.ts';
 import { ArrayStream, cleanEmpty, toArray, walkObject } from '../../../shared/util/arrayUtil.ts';
-import { defaultMap, isUnset } from '../../../shared/util/genericUtil.ts';
+import { defaultMap, isUnset, toBoolean } from '../../../shared/util/genericUtil.ts';
 import { Marker } from '../../../shared/util/highlightMarker.ts';
+import { uuidv4 } from '../../../shared/util/uuidv4.ts';
 
 // Same Directory Imports:
 import { AbstractControlState } from './abstractControlState.ts';
 import { NormTextOptions } from './genericNormalizers.ts';
 import { ChangeRecordRef, FullChangelog, TextMapChangeRef } from '../../../shared/types/changelog-types.ts';
 import { GameVersion } from '../../../shared/types/game-versions.ts';
+import { ScriptJobActionArgs, ScriptJobCoordinator, ScriptJobPostResult } from '../../util/scriptJobs.ts';
+import { RequestSiteMode } from '../../routing/requestContext.ts';
 
 export abstract class AbstractControl<T extends AbstractControlState = AbstractControlState> {
   // region Fields
@@ -56,6 +64,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
   readonly knex: Knex;
   readonly dbName: keyof SaccharoseDb;
   readonly cachePrefix: string;
+  readonly siteMode: RequestSiteMode;
 
   readonly disabledLangCodes: Set<LangCode> = new Set<LangCode>();
   protected excelPath: string;
@@ -67,7 +76,12 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
   // endregion
 
   // region Constructor / Copy
-  protected constructor(dbName: keyof SaccharoseDb, cachePrefix: string, stateConstructor: {new(request?: Request): T}, requestOrState?: Request|T) {
+  protected constructor(siteMode: RequestSiteMode,
+                        dbName: keyof SaccharoseDb,
+                        cachePrefix: string,
+                        stateConstructor: {new(request?: Request): T},
+                        requestOrState?: Request|T) {
+    this.siteMode = siteMode;
     this.state = requestOrState instanceof AbstractControlState ? requestOrState : new stateConstructor(requestOrState);
     this.knex = this.state.NoDbConnect ? null : openSqlite()[dbName];
     this.schema = schemaForDbName(dbName);
@@ -759,26 +773,48 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     return { entity, usageEntities };
   }
 
-  async searchImageIndex(select: {
-    query: string,
-    cat1?: string,
-    cat2?: string,
-    cat3?: string,
-    cat4?: string,
-    cat5?: string,
-    cat6?: string,
-    cat7?: string,
-    cat8?: string,
-    catPath?: string,
-    catRestrict?: boolean,
-    offset?: number,
-  }, searchMode: SearchMode): Promise<ImageIndexSearchResult> {
-    const query = select.query ? select.query.trim() : null;
+  buildImageIndexSearchParamsFromRequest(req: Request): ImageIndexSearchParams {
+    return {
+      query: (req.query.query || '') as string,
+      cat1: req.query.cat1 as string,
+      cat2: req.query.cat2 as string,
+      cat3: req.query.cat3 as string,
+      cat4: req.query.cat4 as string,
+      cat5: req.query.cat5 as string,
+      catPath: req.query.catPath as string,
+      catRestrict: toBoolean(req.query.catRestrict),
+      offset: isInt(req.query.offset) ? toInt(req.query.offset) : 0,
+      searchMode: req.query.searchMode ? (String(req.query.searchMode) as SearchMode) : this.searchMode
+    };
+  }
+
+  async postCreateImageIndexArchiveJob(select: ImageIndexSearchParams): Promise<ScriptJobPostResult<"createImageIndexArchive">> {
+    select.limit = -1;
+    const args: ScriptJobActionArgs<'createImageIndexArchive'> = {
+      siteMode: this.siteMode,
+      searchParams: select
+    };
+    return ScriptJobCoordinator.post('createImageIndexArchive', args);
+  }
+
+  async searchImageIndex(select: ImageIndexSearchParams): Promise<ImageIndexSearchResult> {
+    const query: string = select.query ? select.query.trim() : null;
+
+    if (!select.offset)
+      select.offset = 0;
+    if (select.offset < 0)
+      throw 'offset cannot be less than zero.';
+    if (!select.limit)
+      select.limit = 50;
+    if (select.limit < -1)
+      throw 'limit cannot be less than -1';
+    if (!select.searchMode)
+      select.searchMode = this.searchMode;
 
     let builder: Knex.QueryBuilder = openPg().select('*').from(this.dbName + '_image_index');
 
     if (query) {
-      switch (searchMode) {
+      switch (select.searchMode) {
         case 'W':
         case 'C':
           builder = builder.where('image_name', 'LIKE', '%' + query + '%');
@@ -841,23 +877,41 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       builder = builder.where(catClauseValues);
     }
 
-    const results = await builder.orderBy('image_name').offset(select.offset || 0).limit(51).then((rows: ImageIndexEntity[]) => {
+    const offset = select.offset;
+    const limit = select.limit;
+    const limitPlusOne = select.limit + 1;
+
+    builder = builder.orderBy('image_name').offset(offset);
+
+    if (limit !== -1) {
+      builder = builder.limit(limitPlusOne);
+    }
+
+    const results: ImageIndexEntity[] = await builder.then((rows: ImageIndexEntity[]) => {
       rows.forEach(row => {
         delete row['ts'];
       });
       return rows;
     });
 
-    return {
-      results: results.slice(0, 50),
-      hasMore: results.length === 51,
-      offset: select.offset || 0,
-      nextOffset: results.length === 51
-        ? (select.offset || 0) + 50
-        : undefined,
-    };
+    if (limit === -1) {
+      return {
+        results,
+        hasMore: false,
+        offset,
+        nextOffset: undefined,
+      }
+    } else {
+      return {
+        results: results.slice(0, limit),
+        hasMore: results.length === limitPlusOne,
+        offset,
+        nextOffset: results.length === limitPlusOne
+          ? offset + limit
+          : undefined,
+      };
+    }
   }
-
   // endregion
 
   sanitizeFileName(fileName: string): string {

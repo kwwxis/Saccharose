@@ -45,21 +45,23 @@ import './pages/genshin/dialogue/quests.ts';
 import './pages/genshin/dialogue/reminders.ts';
 import './pages/genshin/dialogue/vo-to-dialogue.ts';
 import './pages/genshin/gcg/gcg-stage-search.page.ts';
-import './pages/genshin/media/media-reverse-search.page.ts';
 import './pages/genshin/media/genshin-media-search.page.ts';
 import './pages/genshin/media/genshin-media-list.page.ts';
+import './pages/genshin/media/genshin-media-archive-job.page.ts';
 
 // HSR
 // ----------------------------------------------------------------------------------------------------
 import './pages/hsr/character/hsr-vo-tool.ts';
 import './pages/hsr/media/hsr-media-search.page.ts';
 import './pages/hsr/media/hsr-media-list.page.ts';
+import './pages/hsr/media/hsr-media-archive-job.page.ts';
 
 // WuWa
 // ----------------------------------------------------------------------------------------------------
+import './pages/wuwa/resonator/wuwa-vo-tool.ts';
 import './pages/wuwa/media/wuwa-media-search.page.ts';
 import './pages/wuwa/media/wuwa-media-list.page.ts';
-import './pages/wuwa/resonator/wuwa-vo-tool.ts';
+import './pages/wuwa/media/wuwa-media-archive-job.page.ts';
 
 // Zenless
 // ----------------------------------------------------------------------------------------------------

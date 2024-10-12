@@ -13,14 +13,20 @@ const MODAL_REFS: {[id: string]: ModalRef} = {};
 export class ModalRef {
   readonly id: string;
   readonly outerEl: HTMLElement;
+  readonly createOpts: ModalOpts;
   private closeListeners: ModalCloseListener[] = [];
 
-  constructor(id: string, outerEl: HTMLElement) {
+  constructor(id: string, outerEl: HTMLElement, createOpts: ModalOpts) {
     this.id = id;
     this.outerEl = outerEl;
+    this.createOpts = createOpts;
   }
 
-  close(): void {
+  close(userTriggered: boolean = false): void {
+    if (userTriggered && this.createOpts.disallowUserClose) {
+      return;
+    }
+    delete MODAL_REFS[this.id];
     for (let closeListener of this.closeListeners) {
       closeListener(this);
     }
@@ -78,6 +84,8 @@ export type ModalOpts = {
 
   confirmButtonClass?: string,
   cancelButtonClass?: string,
+
+  disallowUserClose?: boolean,
 }
 
 class ModalService {
@@ -96,35 +104,38 @@ class ModalService {
 
   open(header: string, contents: string|HTMLElement, optType: number, opts: ModalOpts = {}): ModalRef {
     if (!header || !contents) return;
-    this.closeAll();
     opts = opts || {};
     optType = optType || 0;
 
     let inner = `
       <div class="modal-header">
         ${header}
-        <button class="modal-close cancel close small" aria-label="Close dialog" ui-action="close-modals"
-            ui-tippy-hover="{content:'Keyboard shortcut: <strong>esc</strong>', delay:[100,100], allowHTML: true}"></button>
+        ${opts.disallowUserClose ? `` : `
+          <button class="modal-close cancel close small" aria-label="Close dialog" ui-action="close-modals"
+              ui-tippy-hover="{content:'Keyboard shortcut: <strong>esc</strong>', delay:[100,100], allowHTML: true}"></button>
+        `}
       </div>
       <div class="modal-content${opts.contentClass ? ' ' + opts.contentClass : ''}"></div>
     `;
 
-    if (optType == TYPE_ALERT) {
-      inner += `
+    if (!opts.disallowUserClose) {
+      if (optType == TYPE_ALERT) {
+        inner += `
           <div class="modal-footer">
             <button class="confirm ${opts.confirmButtonClass || 'secondary'}" ui-action="close-modals">${opts.confirmButtonText || 'OK'}</button>
           </div>`;
-    } else if (optType == TYPE_CONFIRM) {
-      inner += `
+      } else if (optType == TYPE_CONFIRM) {
+        inner += `
           <div class="modal-footer">
             <button class="confirm ${opts.confirmButtonClass || 'primary'}" ui-action="close-modals">${opts.confirmButtonText || 'OK'}</button>
             <button class="cancel ${opts.cancelButtonClass || 'secondary'}" ui-action="close-modals">${opts.cancelButtonText || 'Cancel'}</button>
           </div>`;
-    } else if (optType == TYPE_MODAL) {
-      inner += `
+      } else if (optType == TYPE_MODAL) {
+        inner += `
           <div class="modal-footer">
             <button class="confirm ${opts.confirmButtonClass || 'primary'}" ui-action="close-modals">${opts.confirmButtonText || 'Dismiss'}</button>
           </div>`;
+      }
     }
 
     const id: string = 'modal-' + Date.now();
@@ -137,13 +148,13 @@ class ModalService {
 
     document.body.insertAdjacentHTML('beforeend', html);
     const modalOuterEl: HTMLElement = document.querySelector(`#${id}`);
-    const modalRef: ModalRef = new ModalRef(id, modalOuterEl);
+    const modalRef: ModalRef = new ModalRef(id, modalOuterEl, opts);
 
     MODAL_REFS[id] = modalRef;
 
     modalOuterEl.addEventListener('click', (event) => {
       if (isHTMLElement(event.target) && !event.target.closest('.modal')) {
-        modalRef.close();
+        modalRef.close(true);
       }
     })
 
@@ -174,13 +185,12 @@ class ModalService {
     return modalRef;
   }
 
-  closeAll() {
+  closeAll(userTriggered: boolean = false) {
     let keys: string[] = Object.keys(MODAL_REFS);
     for (let key of keys) {
       let modalRef: ModalRef = MODAL_REFS[key];
       if (modalRef) {
-        modalRef.close();
-        delete MODAL_REFS[key];
+        modalRef.close(userTriggered);
       }
     }
   }
@@ -200,6 +210,6 @@ runWhenDOMContentLoaded(() => {
 
     const key = e.which || e.keyCode || 0;
     //if (key === 13 && tag != 'TEXTAREA' && tag != 'INPUT' && tag != 'SELECT' && tag != 'BUTTON') modalService.closeAll(); // Enter
-    if (key === 27 && tag != 'TEXTAREA' && tag != 'INPUT' && tag != 'SELECT') modalService.closeAll(); // Escape
+    if (key === 27 && tag != 'TEXTAREA' && tag != 'INPUT' && tag != 'SELECT') modalService.closeAll(true); // Escape
   })
 });

@@ -4,6 +4,8 @@ import { starRailEndpoints } from '../../../core/endpoints.ts';
 initiateMediaSearchPage(
   'StarRailMediaSearchPage',
   starRailEndpoints.mediaSearch,
+  starRailEndpoints.mediaPostCreateImageIndexArchiveJob,
   '/hsr',
-  '/images/hsr/'
+  '/images/hsr/',
+  '/hsr/media/archive-job/'
 );

@@ -154,7 +154,7 @@ export default function(router: Router): void {
     }
   });
 
-  router.endpoint('/jobs/post', {
+  router.endpoint('/jobs/simple-post', {
     post: async (req: Request, res: Response): Promise<ScriptJobPostResult<ScriptJobAction>> => {
       res.status(202);
       switch (String(req.query.action)) {
