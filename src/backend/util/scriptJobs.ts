@@ -151,8 +151,16 @@ export class ScriptJobsCoordinator {
   private postIntervalBusy: boolean = false;
   private debug: debug.Debugger = custom('jobs');
 
-  constructor() {
+  constructor() {}
+
+  init() {
     this.knex = openPg();
+
+    if (this.postIntervalId)
+      clearInterval(this.postIntervalId);
+    if (this.deleteIntervalId)
+      clearInterval(this.deleteIntervalId);
+
     this.postIntervalId = setInterval(() => {
       // noinspection JSIgnoredPromiseFromCall
       this.postIntervalAction();

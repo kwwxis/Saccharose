@@ -52,21 +52,25 @@ export async function appInit(): Promise<Express> {
   app.set('views', VIEWS_ROOT);
   app.set('view engine', 'ejs');
 
-  // Load Genshin data resources
-  // ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  // Load application resources
+  // ~~~~~~~~~~~~~~~~~~~~~~~~~~
   logInit(`Opening sqlite database and loading data resources`);
   openSqlite();
   openPg();
   await openRedisClient();
   enableDbExitHook();
   enableRedisExitHook();
+  ScriptJobCoordinator.init();
+  await ScriptJobCoordinator.deleteOldJobs();
+  await ScriptJobCoordinator.markAllComplete();
+
+  // Load supporting game data
+  // ~~~~~~~~~~~~~~~~~~~~~~~~~
   await loadGenshinVoiceItems();
   await loadStarRailVoiceItems();
   await loadGenshinTextSupportingData();
   await loadStarRailTextSupportingData();
   await loadZenlessTextSupportingData();
-  await ScriptJobCoordinator.deleteOldJobs();
-  await ScriptJobCoordinator.markAllComplete();
 
   app.use(earlyAccessLogging);
 
