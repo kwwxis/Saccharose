@@ -154,7 +154,7 @@ async function handle(state: DialogueGenerateState, id: number|DialogExcelConfig
     npcFilter,
   } = state;
 
-  // Fast case: Talk ID
+  // Fast case: if ID is a Talk ID
   // --------------------------------------------------------------------------------------------------------------
   if (typeof id === 'number') {
     const debug = custom('branch-dialogue:' + id);
@@ -170,7 +170,7 @@ async function handle(state: DialogueGenerateState, id: number|DialogExcelConfig
     }
   }
 
-  // Find Dialog Exvel
+  // Find Dialog Excel
   // --------------------------------------------------------------------------------------------------------------
 
   // Look for dialog excel:
@@ -335,7 +335,12 @@ export async function dialogueGenerate(ctrl: GenshinControl, opts: DialogueGener
     }
   } else if (typeof state.query === 'number') {
     debug('Path 2: number');
-    await handle(state, state.query);
+    const dialogs = await ctrl.selectDialogsFromTextMapHash(state.query, true);
+    if (dialogs.length) {
+      await dialogs.asyncMap(d => handle(state, d));
+    } else {
+      await handle(state, state.query);
+    }
   } else {
     debug('Path 3: number[]');
     await state.query.asyncMap(id => handle(state, id));

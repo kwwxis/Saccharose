@@ -2,7 +2,7 @@
   <section class="card">
     <h2>Single Branch Dialogue Generator</h2>
     <div class="content form-box">
-      <p class="spacer10-bottom">Generate dialogue after a specific line within a single dialogue section. You can also enter a specific Talk ID or Dialogue ID.<br />
+      <p class="spacer10-bottom">Generate dialogue after a specific line within a single dialogue section. You can also enter a specific Talk ID, Dialogue ID, or Textmap Hash.
         Only shows up to 100 results. More specific searches will be faster than broad searches.</p>
       <div id="branch-dialogue-inputs" class="field valign">
         <div class="posRel valign grow">
