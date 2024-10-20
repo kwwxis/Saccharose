@@ -330,6 +330,9 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     if (!opts.searchAgainst) {
       opts.searchAgainst = 'Text';
     }
+    if (opts.versionFilter && !opts.versionFilter.isEnabled) {
+      opts.versionFilter = null;
+    }
 
     const hashSeen: Set<TextMapHash> = new Set();
     const out: TextMapSearchResult[] = [];
@@ -517,6 +520,9 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     }
     if (!opts.searchAgainst) {
       opts.searchAgainst = 'Text';
+    }
+    if (opts.versionFilter && !opts.versionFilter.isEnabled) {
+      opts.versionFilter = null;
     }
 
     const hashSeen: Set<TextMapHash> = new Set();
