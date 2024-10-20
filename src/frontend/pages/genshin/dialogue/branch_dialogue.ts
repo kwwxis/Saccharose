@@ -28,11 +28,11 @@ pageMatch('vue/GenshinBranchDialoguePage', () => {
         apiParam: 'voicedOnly',
         queryParam: 'voicedOnly',
       },
-      {
-        selector: '#versionFilter',
-        apiParam: 'versionFilter',
-        queryParam: 'versions',
-      }
+      // {
+      //   selector: '#versionFilter',
+      //   apiParam: 'versionFilter',
+      //   queryParam: 'versions',
+      // }
     ],
 
     submitPendingTarget: '.dialogue-generate-submit-pending',
@@ -40,18 +40,18 @@ pageMatch('vue/GenshinBranchDialoguePage', () => {
     resultTarget: '#dialogue-generate-result',
   });
 
-  listen([
-    {
-      selector: '#versionFilterEnabled',
-      event: 'input',
-      handle(_ev) {
-        const checkbox = document.querySelector<HTMLInputElement>('#versionFilterEnabled');
-        if (checkbox.checked) {
-          document.querySelector('#versionFilterOuter').classList.remove('hide');
-        } else {
-          document.querySelector('#versionFilterOuter').classList.add('hide');
-        }
-      }
-    }
-  ]);
+  // listen([
+  //   {
+  //     selector: '#versionFilterEnabled',
+  //     event: 'input',
+  //     handle(_ev) {
+  //       const checkbox = document.querySelector<HTMLInputElement>('#versionFilterEnabled');
+  //       if (checkbox.checked) {
+  //         document.querySelector('#versionFilterOuter').classList.remove('hide');
+  //       } else {
+  //         document.querySelector('#versionFilterOuter').classList.add('hide');
+  //       }
+  //     }
+  //   }
+  // ]);
 });
