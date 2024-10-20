@@ -165,7 +165,7 @@ import {
   ChangeRecordRef,
   FullChangelog, TextMapChangeRef, TextMapChanges,
 } from '../../../shared/types/changelog-types.ts';
-import { GameVersion, GenshinVersions } from '../../../shared/types/game-versions.ts';
+import { CurrentGenshinVersion, GameVersion, GenshinVersions } from '../../../shared/types/game-versions.ts';
 import { AbstractControlState } from '../abstract/abstractControlState.ts';
 
 // region Control State
@@ -1043,15 +1043,26 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return result && result.TalkContentText ? result : null;
   }
 
-  async selectDialogsFromTextMapHash(textMapHash: TextMapHash, noAddCache: boolean = false): Promise<DialogExcelConfigData[]> {
-    let results: DialogExcelConfigData[] = await this.knex.select('*')
-      .from('DialogExcelConfigData')
-      .where({TalkContentTextMapHash: textMapHash})
-      .then(this.commonLoad);
+  async selectDialogsFromTextMapHash(textMapHash: TextMapHash|TextMapHash[],
+                                     noAddCache: boolean = false,
+                                     byRoleName: boolean = false): Promise<DialogExcelConfigData[]> {
+    let builder = this.knex.select('*').from('DialogExcelConfigData');
+
+    const colName = byRoleName ? 'TalkRoleNameTextMapHash' : 'TalkContentTextMapHash';
+
+    if (Array.isArray(textMapHash)) {
+      builder = builder.whereIn(colName, textMapHash);
+    } else {
+      builder = builder.where({[colName]: textMapHash});
+    }
+
+    const results = await builder.then(this.commonLoad);
+
     await results.asyncMap(async d => {
       await this.postProcessDialog(d);
       this.saveToDialogIdCache(d, noAddCache);
     });
+
     return results;
   }
 
@@ -3394,6 +3405,14 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   // endregion
 
   // region Changelog
+  override selectVersions(): GameVersion[] {
+    return GenshinVersions;
+  }
+
+  override selectCurrentVersion(): GameVersion {
+    return CurrentGenshinVersion;
+  }
+
   override async selectAllChangelogs(): Promise<Record<string, FullChangelog>> {
     let changelogs = await GenshinVersions.filter(v => v.showChangelog).asyncMap(v => this.selectChangelog(v));
     let map: Record<string, FullChangelog> = {};

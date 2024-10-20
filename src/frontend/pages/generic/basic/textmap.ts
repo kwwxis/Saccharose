@@ -53,7 +53,7 @@ pageMatch('vue/TextmapSearchPage', () => {
         }
       }
     }
-  ])
+  ]);
 
   startGenericSearchPageListeners({
     endpoint,

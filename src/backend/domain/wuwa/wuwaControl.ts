@@ -11,6 +11,7 @@ import { wuwa_i18n, WUWA_I18N_MAP } from '../abstract/i18n.ts';
 import { AbstractControlState } from '../abstract/abstractControlState.ts';
 import { RoleInfo } from '../../../shared/types/wuwa/role-types.ts';
 import { Condition, ConditionGroup, ConditionOp } from '../../../shared/types/wuwa/condition-types.ts';
+import { CurrentWuwaVersion, GameVersion, WuwaVersions } from '../../../shared/types/game-versions.ts';
 
 // region Control State
 // --------------------------------------------------------------------------------------------------------------
@@ -120,6 +121,14 @@ export class WuwaControl extends AbstractControl<WuwaControlState> {
 
   override i18n(key: keyof typeof WUWA_I18N_MAP, vars?: Record<string, string>): string {
     return wuwa_i18n(key, this.outputLangCode, vars);
+  }
+
+  override selectVersions(): GameVersion[] {
+    return WuwaVersions;
+  }
+
+  override selectCurrentVersion(): GameVersion {
+    return CurrentWuwaVersion;
   }
 
   // region RoleInfo

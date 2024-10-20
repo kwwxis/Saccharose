@@ -56,7 +56,7 @@ export type SchemaTable = {
    */
   textMapSchemaLangCode?: LangCode,
 
-  // Normalize Options
+  // Schema Options
   // --------------------------------------------------------------------------------------------------------------
 
   /**
@@ -84,7 +84,13 @@ export type SchemaTable = {
   customRowResolve?: SchemaTableCustomRowResolver,
   customRowResolveProvider?: SchemaTableCustomRowResolverProvider,
 
-  // Normalize Options
+  /**
+   * Set to true to skip the call to normalizeRawJson() - this option could be used when high performance is needed
+   * alongside customRowResolve().
+   */
+  skipNormalizeRawJson?: boolean,
+
+  // Rename Options
   // --------------------------------------------------------------------------------------------------------------
 
   /**
@@ -159,6 +165,7 @@ export function textMapSchema(langCode: LangCode, hashType: ('integer' | 'text')
     jsonFile: './TextMap/TextMap'+langCode+'.json',
     jsonFileType: 'kv_pairs',
     textMapSchemaLangCode: langCode,
+    skipNormalizeRawJson: true,
     columns: [
       {name: 'Hash', type: hashType, isPrimary: true},
       {name: 'Text', type: 'text'}
@@ -174,6 +181,7 @@ export function plainLineMapSchema(langCode: LangCode, hashType: ('integer' | 't
     name: 'PlainLineMap' + langCode,
     jsonFile: `./TextMap/Plain/PlainTextMap${langCode}_Hash.dat`,
     jsonFileType: 'line_dat',
+    skipNormalizeRawJson: true,
     columns: [
       {name: 'Line', type: 'integer', isPrimary: true },
       {name: 'Hash', type: hashType },
@@ -318,14 +326,17 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     }
 
     async function createRowPayload(table: SchemaTable, row: any, allRows: any[], acc: Record<string, any>): Promise<any[]> {
-      row = normalizeRawJson(row, table);
+      if (!table.skipNormalizeRawJson)
+        row = normalizeRawJson(row, table);
 
-      if (!acc.customRowResolve && table.customRowResolve) {
-        acc.customRowResolve = table.customRowResolve;
-      }
-      if (!acc.customRowResolve && table.customRowResolveProvider) {
-        const ret = table.customRowResolveProvider();
-        acc.customRowResolve = isPromise(ret) ? await ret : ret;
+      if (!acc.customRowResolve) {
+        if (table.customRowResolve) {
+          acc.customRowResolve = table.customRowResolve;
+        }
+        if (table.customRowResolveProvider) {
+          const ret = table.customRowResolveProvider();
+          acc.customRowResolve = isPromise(ret) ? await ret : ret;
+        }
       }
 
       if (acc.customRowResolve) {
@@ -385,38 +396,44 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
         totalRows = json.length;
       }
 
-      let batch: any[] = [];
-      let batchNum = 1;
-      let batchMax = 500;
+      await knex.transaction(async (tx)=>  {
+        let batch: any[] = [];
+        let batchNum = 1;
+        let batchMax = 500;
 
-      if (table.name.startsWith('Relation')) {
-        batchMax = 200;
-      }
-
-      async function commitBatch() {
-        await knex.transaction(function(tx) {
-          return knex.batchInsert(table.name, batch).transacting(tx);
-        }).then();
-        batch = [];
-        batchNum++;
-      }
-
-      let currentRow = 1;
-      let acc: Record<string, any> = {};
-      for (let row of json) {
-        batch.push(... await createRowPayload(table, row, json, acc));
-        if (batch.length >= batchMax) {
-          await commitBatch();
+        if (table.name.startsWith('Relation')) {
+          batchMax = 200;
         }
 
-        let percent = ((currentRow / totalRows) * 100.0) | 0;
-        spinner.text = `Processed ${currentRow} rows of ${totalRows} (${percent}%) (B${batchNum})`;
-        currentRow++;
-      }
+        async function addBatchToTransaction() {
+          await knex.batchInsert(table.name, batch).transacting(tx);
+          batch = [];
+          batchNum++;
+        }
 
-      if (batch.length) {
-        await commitBatch();
-      }
+        let currentRow = 1;
+        let acc: Record<string, any> = {};
+        let lastPercent: number = -1;
+
+        for (let row of json) {
+          batch.push(... await createRowPayload(table, row, json, acc));
+          if (batch.length >= batchMax) {
+            await addBatchToTransaction();
+          }
+
+          let percent = ((currentRow / totalRows) * 100.0) | 0;
+          if (percent !== lastPercent) {
+            lastPercent = percent;
+
+            spinner.text = `Processed ${currentRow} rows of ${totalRows} (${percent}%) (B${batchNum})`;
+          }
+          currentRow++;
+        }
+
+        if (batch.length) {
+          await addBatchToTransaction();
+        }
+      }).then();
 
       let timeEnd = Date.now();
       spinner.succeed('Finished at ' + timeConvert(timeEnd) + ' (took '+humanTiming(timeStart, '', timeEnd, '0 seconds')+')');

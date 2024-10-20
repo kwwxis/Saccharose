@@ -10,6 +10,7 @@ import { Marker } from '../../../../shared/util/highlightMarker.ts';
 import { TextMapSearchResult } from '../../../../shared/types/lang-types.ts';
 import { ChangeRecordRef } from '../../../../shared/types/changelog-types.ts';
 import { GenshinControl } from '../../../domain/genshin/genshinControl.ts';
+import { GameVersion, GameVersionFilter, parseVersionFilters } from '../../../../shared/types/game-versions.ts';
 
 export async function handleTextMapSearchEndpoint(ctrl: AbstractControl, req: Request, res: Response) {
   const startFromLine: number = isset(req.query.startFromLine) && isInt(req.query.startFromLine) ? toInt(req.query.startFromLine) : undefined;
@@ -17,10 +18,7 @@ export async function handleTextMapSearchEndpoint(ctrl: AbstractControl, req: Re
   const isRawInput: boolean = isset(req.query.isRawInput) && toBoolean(req.query.isRawInput);
   const isRawOutput: boolean = isset(req.query.isRawOutput) && toBoolean(req.query.isRawOutput);
   const hashSearch: boolean = isset(req.query.hashSearch) && toBoolean(req.query.hashSearch);
-  const versionFilters: string[] = isNotEmpty(req.query.versionFilter) ? String(req.query.versionFilter)
-    .split(/[,;]/g)
-    .map(s => s.trim())
-    .filter(s => !!s) : [];
+  const versionFilter: GameVersionFilter = GameVersionFilter.from(req.query.versionFilter, ctrl.selectVersions().filter(v => v.showChangelog));
   const SEARCH_TEXTMAP_MAX = 100;
   const query: string = req.query.text as string;
 
@@ -34,7 +32,7 @@ export async function handleTextMapSearchEndpoint(ctrl: AbstractControl, req: Re
     isRawInput,
     searchAgainst: hashSearch ? 'Hash' : 'Text',
     doNormText: !isRawOutput,
-    versionFilters
+    versionFilter
   });
   let hasMoreResults: boolean = false;
 

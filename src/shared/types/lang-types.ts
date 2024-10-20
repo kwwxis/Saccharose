@@ -1,5 +1,6 @@
 import { Marker } from '../util/highlightMarker.ts';
 import { LangDetectResult } from './common-types.ts';
+import { GameVersion, GameVersionFilter } from './game-versions.ts';
 
 export type TextMapHash = number|string;
 
@@ -21,7 +22,7 @@ export type TextMapSearchOpts = {
   startFromLine?: number,
   searchAgainst?: 'Text' | 'Hash',
   doNormText?: boolean,
-  versionFilters?: string[],
+  versionFilter?: GameVersionFilter,
 };
 export type TextMapSearchStreamOpts = TextMapSearchOpts & {
   stream: (textMapHash: TextMapHash, text?: string, kill?: () => void) => void,

@@ -69,7 +69,6 @@ export const genshinSchema = {
       { name: 'TalkRoleType', type: 'string', resolve: 'TalkRole.Type', isIndex: true },
       { name: 'TalkRoleId', type: 'string', resolve: 'TalkRole.Id', isIndex: true },
       { name: 'TalkContentTextMapHash', type: 'integer', isIndex: true },
-      { name: 'TalkTitleTextMapHash', type: 'integer', isIndex: true },
       { name: 'TalkRoleNameTextMapHash', type: 'integer', isIndex: true },
       { name: 'TalkId', type: 'integer', isIndex: true },
       { name: 'TalkType', type: 'string', isIndex: true },

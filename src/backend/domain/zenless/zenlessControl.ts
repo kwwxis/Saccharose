@@ -9,7 +9,7 @@ import { NormTextOptions } from '../abstract/genericNormalizers.ts';
 import { Request } from 'express';
 import { zenless_i18n, ZENLESS_I18N_MAP } from '../abstract/i18n.ts';
 import { AbstractControlState } from '../abstract/abstractControlState.ts';
-import { ExcelUsages } from '../../../shared/util/searchUtil.ts';
+import { CurrentZenlessVersion, GameVersion, ZenlessVersions } from '../../../shared/types/game-versions.ts';
 
 // region Control State
 // --------------------------------------------------------------------------------------------------------------
@@ -60,6 +60,14 @@ export class ZenlessControl extends AbstractControl<ZenlessControlState> {
 
   override i18n(key: keyof typeof ZENLESS_I18N_MAP, vars?: Record<string, string>): string {
     return zenless_i18n(key, this.outputLangCode, vars);
+  }
+
+  override selectVersions(): GameVersion[] {
+    return ZenlessVersions;
+  }
+
+  override selectCurrentVersion(): GameVersion {
+    return CurrentZenlessVersion;
   }
 }
 // endregion

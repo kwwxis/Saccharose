@@ -21,6 +21,7 @@ import { logInitData } from '../../util/logger.ts';
 import { AvatarConfig } from '../../../shared/types/hsr/hsr-avatar-types.ts';
 import { hsr_i18n, HSR_I18N_MAP } from '../abstract/i18n.ts';
 import { AbstractControlState } from '../abstract/abstractControlState.ts';
+import { CurrentStarRailVersion, GameVersion, StarRailVersions } from '../../../shared/types/game-versions.ts';
 
 // region Control State
 // --------------------------------------------------------------------------------------------------------------
@@ -92,6 +93,13 @@ export class StarRailControl extends AbstractControl<StarRailControlState> {
     return hsr_i18n(key, this.outputLangCode, vars);
   }
 
+  override selectVersions(): GameVersion[] {
+    return StarRailVersions;
+  }
+
+  override selectCurrentVersion(): GameVersion {
+    return CurrentStarRailVersion;
+  }
   // endregion
 
   // region Post Process

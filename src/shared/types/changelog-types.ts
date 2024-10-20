@@ -87,7 +87,12 @@ export type TextMapChanges = {
   langCode: LangCode,
   added: Record<TextMapHash, string>,
   removed: Record<TextMapHash, string>,
-  updated: Record<TextMapHash, { oldValue: string, newValue: string }>
+  updated: Record<TextMapHash, TextMapContentChange>
+}
+
+export type TextMapContentChange = {
+  oldValue: string,
+  newValue: string
 }
 // endregion
 

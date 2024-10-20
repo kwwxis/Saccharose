@@ -132,7 +132,7 @@ export interface DialogExcelConfigData {
   OptionIcon?: keyof typeof OptionIconMap,
 
   TalkTitleTextMapHash?: number,
-  TalkTitleTextMap?: string,
+  TalkTitleText?: string,
 
   TalkRoleNameTextMapHash?: number,
   TalkRoleNameText?: string,

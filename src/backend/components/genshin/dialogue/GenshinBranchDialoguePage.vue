@@ -25,7 +25,15 @@
           <input id="voicedOnly" type="checkbox" name="voicedOnly" value="1" />
           <span>Voiced only</span>
         </label>
+<!--        <label class="ui-checkbox dispBlock spacer10-left hide" style="padding-left:5px;font-size:13px;">-->
+<!--          <input id="versionFilterEnabled" type="checkbox" name="versionFilterEnabled" value="1" />-->
+<!--          <span>Version filter</span>-->
+<!--        </label>-->
       </div>
+<!--      <div id="versionFilterOuter" class="field">-->
+<!--        <input id="versionFilter" type="text" placeholder="Versions separated by comma or semicolon (only supported from 4.0 onwards)"-->
+<!--               style="max-width: 490px;width: 100%;"/>-->
+<!--      </div>-->
       <div class="field valign spacer10-top">
         <button class="dialogue-generate-submit primary primary--2">Generate</button>
         <div class="dialogue-generate-submit-pending hide loading small spacer5-left"></div>

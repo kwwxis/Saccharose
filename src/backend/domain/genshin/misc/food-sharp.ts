@@ -64,7 +64,7 @@ export async function convertFoodImageToSuspicious(imageNameOrBuffer: string|Buf
   let frames: ArrayBuffer[] = UPNG.toRGBA8(png);
 
   // Create the top layer (50% opacity black at RGB rather than RGBA)
-  const [composite_l, composite_c, composite_h] = colorspace.rgb.lchab([128, 128, 128]);
+  const [_composite_l, composite_c, composite_h] = colorspace.rgb.lchab([128, 128, 128]);
 
   // Loop over frames in the PNG:
   for (let frame of frames) {

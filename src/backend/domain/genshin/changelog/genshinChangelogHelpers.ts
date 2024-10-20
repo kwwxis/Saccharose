@@ -25,6 +25,9 @@ import { ViewCodexExcelConfigData } from '../../../../shared/types/genshin/viewp
 import { selectViewpointsByIds } from '../archive/viewpoints.ts';
 import { selectLoadingTips } from '../archive/loadingTips.ts';
 import { selectTutorials } from '../archive/tutorials.ts';
+import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
+import { DialogExcelConfigData } from '../../../../shared/types/genshin/dialogue-types.ts';
+import { TextMapHash } from '../../../../shared/types/lang-types.ts';
 
 export type GenshinChangelogNewRecordSummary = {
   avatars: AvatarExcelConfigData[],
@@ -193,4 +196,38 @@ export async function _generateGenshinChangelogNewRecordSummary(ctrl: GenshinCon
   ]);
 
   return out;
+}
+
+
+export type GenshinChangelogChangedDialogueSummary = {
+  reminders: DialogueSectionResult[]
+};
+
+export type GenshinChangelogChangedDialogueQuest = {
+  questId: number,
+  questName: string,
+  sections: DialogueSectionResult[],
+}
+
+export async function generateGenshinChangelogChangedDialogueSummary(ctrl: GenshinControl, fullChangelog: FullChangelog): Promise<GenshinChangelogChangedDialogueSummary> {
+  const newDialogues: DialogExcelConfigData[] = [];
+
+  const tmInfo = fullChangelog.textmapChangelog[ctrl.outputLangCode]?.updated || {};
+  const tmHashes: TextMapHash[] = Object.keys(tmInfo);
+
+  await ctrl.selectDialogsFromTextMapHash(tmHashes, true, false);
+  await ctrl.selectDialogsFromTextMapHash(tmHashes, true, true);
+
+  for (let record of Object.values(fullChangelog.excelChangelog['DialogExcelConfigData']?.changedRecords || {})) {
+    if (record.changeType === 'updated') {
+      if (record.updatedFields.hasOwnProperty('TalkContentTextMapHash')) {
+
+      }
+      if (record.updatedFields.hasOwnProperty('TalkRoleNameTextMapHash')) {
+
+      }
+    }
+  }
+
+  return null;
 }

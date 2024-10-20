@@ -2,6 +2,7 @@ import { genshinEndpoints } from '../../../core/endpoints.ts';
 import { pageMatch } from '../../../core/pageMatch.ts';
 import { startGenericSearchPageListeners } from '../../genericSearchPage.ts';
 import './branch-dialogue.scss';
+import { listen } from '../../../util/eventListen.ts';
 
 pageMatch('vue/GenshinBranchDialoguePage', () => {
   startGenericSearchPageListeners({
@@ -26,6 +27,11 @@ pageMatch('vue/GenshinBranchDialoguePage', () => {
         selector: '#voicedOnly',
         apiParam: 'voicedOnly',
         queryParam: 'voicedOnly',
+      },
+      {
+        selector: '#versionFilter',
+        apiParam: 'versionFilter',
+        queryParam: 'versions',
       }
     ],
 
@@ -33,4 +39,19 @@ pageMatch('vue/GenshinBranchDialoguePage', () => {
     submitButtonTarget: '.dialogue-generate-submit',
     resultTarget: '#dialogue-generate-result',
   });
+
+  listen([
+    {
+      selector: '#versionFilterEnabled',
+      event: 'input',
+      handle(_ev) {
+        const checkbox = document.querySelector<HTMLInputElement>('#versionFilterEnabled');
+        if (checkbox.checked) {
+          document.querySelector('#versionFilterOuter').classList.remove('hide');
+        } else {
+          document.querySelector('#versionFilterOuter').classList.add('hide');
+        }
+      }
+    }
+  ]);
 });

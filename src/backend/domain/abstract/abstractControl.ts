@@ -358,7 +358,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
             }
             hashSeen.add(possibleHash);
             const version: string = (await this.selectTextMapChangeRefAdded(possibleHash, opts.outputLangCode))?.version;
-            if (opts.versionFilters?.length && (!version || !opts.versionFilters.includes(version))) {
+            if (opts.versionFilter && (!version || !opts.versionFilter.has(version))) {
               continue;
             }
             out.push({
@@ -411,7 +411,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
         }
 
         const version: string = (await this.selectTextMapChangeRefAdded(textMapHash, opts.outputLangCode))?.version;
-        if (opts.versionFilters?.length && (!version || !opts.versionFilters.includes(version))) {
+        if (opts.versionFilter && (!version || !opts.versionFilter.has(version))) {
           continue;
         }
 
@@ -526,9 +526,9 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       const hash = maybeInt(opts.searchText.trim());
       let text = await this.getTextMapItem(opts.inputLangCode, opts.searchText);
 
-      if (text && opts.versionFilters?.length) {
+      if (text && opts.versionFilter) {
         const version: string = (await this.selectTextMapChangeRefAdded(hash, opts.outputLangCode))?.version;
-        if (!version || !opts.versionFilters.includes(version)) {
+        if (!version || !opts.versionFilter.has(version)) {
           text = null;
         }
       }
@@ -568,9 +568,9 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
         hashSeen.add(textMapHash);
       }
 
-      if (opts.versionFilters?.length) {
+      if (opts.versionFilter) {
         const version: string = (await this.selectTextMapChangeRefAdded(textMapHash, opts.outputLangCode))?.version;
-        if (!version || !opts.versionFilters.includes(version)) {
+        if (!version || !opts.versionFilter.has(version)) {
           return;
         }
       }
@@ -709,6 +709,10 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
   // endregion
 
   // region Changelog
+  abstract selectVersions(): GameVersion[];
+
+  abstract selectCurrentVersion(): GameVersion;
+
   async selectAllChangelogs(): Promise<Record<string, FullChangelog>> {
     return {};
   }

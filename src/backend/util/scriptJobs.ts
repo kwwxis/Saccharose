@@ -151,11 +151,11 @@ export class ScriptJobsCoordinator {
   private postIntervalBusy: boolean = false;
   private debug: debug.Debugger = custom('jobs');
 
-  constructor() {}
+  constructor() {
+    this.knex = openPg();
+  }
 
   init() {
-    this.knex = openPg();
-
     if (this.postIntervalId)
       clearInterval(this.postIntervalId);
     if (this.deleteIntervalId)
