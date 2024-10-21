@@ -285,30 +285,6 @@ export const starRailSchema = {
       {name: 'Type', type: 'string', isIndex: true},
     ]
   },
-  DialogueEvent: <SchemaTable> {
-    name: 'DialogueEvent',
-    jsonFile: './ExcelOutput/DialogueEvent.json',
-    columns: [
-      {name: 'EventId', type: 'integer', isPrimary: true},
-      {name: 'EffectType', type: 'string', isIndex: true},
-      {name: 'CostType', type: 'string', isIndex: true},
-      {name: 'DescValueTextMapHash', type: 'integer', isIndex: true},
-      {name: 'EventDisplayId', type: 'integer', isIndex: true},
-      {name: 'DynamicContentId', type: 'integer', isIndex: true},
-      {name: 'PerformanceType', type: 'integer', isIndex: true},
-    ]
-  },
-  DialogueEventDisplay: <SchemaTable> {
-    name: 'DialogueEventDisplay',
-    jsonFile: './ExcelOutput/DialogueEventDisplay.json',
-    columns: [
-      {name: 'EventDisplayId', type: 'integer', isPrimary: true},
-      {name: 'EventTitleTextMapHash', type: 'integer', isIndex: true},
-      {name: 'EventDescTextMapHash', type: 'integer', isIndex: true},
-      {name: 'EventDetailDescTextMapHash', type: 'integer', isIndex: true},
-    ]
-  },
-
   DialogueIcon: <SchemaTable> {
     name: 'DialogueIcon',
     jsonFile: './ExcelOutput/DialogueIcon.json',
