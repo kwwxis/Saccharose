@@ -310,14 +310,6 @@ export const starRailSchema = {
       {name: 'InteractTitleTextMapHash', type: 'integer', isIndex: true},
     ]
   },
-  RogueNPCDialogue: <SchemaTable> {
-    name: 'RogueNPCDialogue',
-    jsonFile: './ExcelOutput/RogueNPCDialogue.json',
-    columns: [
-      {name: 'RogueNPCId', type: 'integer', isIndex: true},
-      {name: 'HandbookEventId', type: 'integer', isIndex: true},
-    ]
-  },
   // endregion
 
   // region Messages
