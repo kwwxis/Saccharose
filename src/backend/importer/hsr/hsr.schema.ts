@@ -285,16 +285,6 @@ export const starRailSchema = {
       {name: 'Type', type: 'string', isIndex: true},
     ]
   },
-  DialogueDynamicContent: <SchemaTable> {
-    name: 'DialogueDynamicContent',
-    jsonFile: './ExcelOutput/DialogueDynamicContent.json',
-    columns: [
-      {name: 'DynamicContentId', type: 'integer', isIndex: true},
-      {name: 'ArgId', type: 'integer', isIndex: true},
-      {name: 'DynamicParamType', type: 'string', isIndex: true},
-      {name: 'ContentTextMapHash', type: 'integer', isIndex: true},
-    ]
-  },
   DialogueEvent: <SchemaTable> {
     name: 'DialogueEvent',
     jsonFile: './ExcelOutput/DialogueEvent.json',
