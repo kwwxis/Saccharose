@@ -18,7 +18,7 @@ import { toInt } from '../../../../shared/util/numberUtil.ts';
 
 export async function fetchFavorWords(ctrl: WuwaControl, skipCache: boolean = false): Promise<FavorWordGroupByRole> {
   if (!skipCache) {
-    return this.cached('RoleFavor:RoleFavorWordsGroup', 'json', async () => {
+    return ctrl.cached('RoleFavor:RoleFavorWordsGroup', 'json', async () => {
       const filePath = path.resolve(process.env.WUWA_DATA_ROOT, DATAFILE_WUWA_ROLE_FAVOR_WORDS);
       const result: FavorWordGroupByRole = JSON.parse(fs.readFileSync(filePath, {encoding: 'utf8'}));
       return result;
