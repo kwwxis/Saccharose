@@ -70,6 +70,8 @@ export const ZenlessVersions: GameVersion[] = [
   {number: '0.3', previous: '0.2'},
   {number: '1.0', previous: '0.3'},
   {number: '1.1', previous: '1.0'},
+  {number: '1.2', previous: '1.1'},
+  {number: '1.3', previous: '1.2'},
 ];
 
 // TODO: This needs to be updated with each new Wuthering Waves version!
