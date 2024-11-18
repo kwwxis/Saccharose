@@ -80,6 +80,7 @@ export const WuwaVersions: GameVersion[] = [
   {number: '1.1', previous: '1.0'},
   {number: '1.2', previous: '1.1'},
   {number: '1.3', previous: '1.2'},
+  {number: '1.4', previous: '1.2'},
 ];
 
 export function isGameVersion(o: any): o is GameVersion {
