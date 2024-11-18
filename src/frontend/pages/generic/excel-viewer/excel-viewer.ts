@@ -66,7 +66,13 @@ function makeSingleColumnDef(fieldKey: string, fieldName: string, data: any) {
     width: initialWidth,
     hide: fieldName.includes('TextMapHash') || fieldName.endsWith('Hash'),
     cellClass: 'cell-type-' + (isUnset(data) ? 'null' : typeof data),
-    floatingFilter: true
+    floatingFilter: true,
+    valueFormatter: params => {
+      if (isUnset(params.value)) {
+        return '';
+      }
+      return typeof params.value === 'string' ? params.value : JSON.stringify(params.value, null, 2);
+    }
   };
 
   const isStarRailImage = (datum: any) => typeof datum === 'string' && SiteMode.isStarRail &&
@@ -133,7 +139,7 @@ function makeSingleColumnDef(fieldKey: string, fieldName: string, data: any) {
     colDef.cellRenderer = function(params: ICellRendererParams) {
       return !params.value ? '' : highlightWikitext({ text: String(params.value) }).outerHTML;
     };
-  } else if (typeof data === 'object') {
+  } else if (dataType.isJson) {
     colDef.cellRenderer = function(params: ICellRendererParams) {
       if (!params.value)
         return '';

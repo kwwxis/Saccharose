@@ -98,7 +98,7 @@ export class WuwaControl extends AbstractControl<WuwaControlState> {
           objAsAny[prop] = newOriginalArray;
         } else {
           let text = await this.getTextMapItem(this.outputLangCode, <TextMapHash> object[prop]);
-          if (doNormText) {
+          if (!!text && doNormText) {
             text = this.normText(text, this.outputLangCode);
           }
           if (!!text) {

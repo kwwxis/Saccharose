@@ -277,8 +277,8 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
     if (questSub.NonTalkDialog && questSub.NonTalkDialog.length) {
       for (let dialog of questSub.NonTalkDialog) {
         let subsect = new DialogueSectionResult('NonTalkDialogue_'+dialog[0].Id, 'Non-Talk Dialogue', nonTalkDialogHelpMessage);
-        subsect.metadata.push(new MetaProp('First Dialogue ID', dialog[0].Id, `/branch-dialogue?q=${dialog[0].Id}`));
-        subsect.metadata.push(new MetaProp('Quest ID', {value: mainQuest.Id, tooltip: mainQuest.TitleText}, `/quests/{}`));
+        subsect.metadata.push(new MetaProp('First Dialogue ID', dialog[0].Id, `/genshin/branch-dialogue?q=${dialog[0].Id}`));
+        subsect.metadata.push(new MetaProp('Quest ID', {value: mainQuest.Id, tooltip: mainQuest.TitleText}, `/genshin/quests/{}`));
         subsect.originalData.questId = mainQuest.Id;
         subsect.originalData.questName = mainQuest.TitleText;
         const dialogWikitextRet = await ctrl.generateDialogueWikitext(dialog);
@@ -318,8 +318,8 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
     for (let dialog of mainQuest.NonTalkDialog) {
       let sect = new DialogueSectionResult('NonTalkDialogue_'+dialog[0].Id, 'Non-Talk Dialogue', nonTalkDialogHelpMessage);
       sect.originalData.dialogBranch = dialog;
-      sect.metadata.push(new MetaProp('First Dialogue ID', dialog[0].Id, `/branch-dialogue?q=${dialog[0].Id}`));
-      sect.metadata.push(new MetaProp('Quest ID', {value: mainQuest.Id, tooltip: mainQuest.TitleText}, `/quests/{}`));
+      sect.metadata.push(new MetaProp('First Dialogue ID', dialog[0].Id, `/genshin/branch-dialogue?q=${dialog[0].Id}`));
+      sect.metadata.push(new MetaProp('Quest ID', {value: mainQuest.Id, tooltip: mainQuest.TitleText}, `/genshin/quests/{}`));
       sect.originalData.questId = mainQuest.Id;
       sect.originalData.questName = mainQuest.TitleText;
       const dialogWikitextRet = await ctrl.generateDialogueWikitext(dialog);

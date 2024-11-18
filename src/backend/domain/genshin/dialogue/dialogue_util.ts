@@ -254,7 +254,7 @@ export async function talkConfigToDialogueSectionResult(ctrl: GenshinControl,
       }
       let otherSect = new DialogueSectionResult('OtherDialogue_'+dialogs[0].Id, 'Other Dialogue');
       otherSect.originalData.dialogBranch = dialogs;
-      otherSect.metadata.push(new MetaProp('First Dialogue ID', dialogs[0].Id, `/branch-dialogue?q=${dialogs[0].Id}`));
+      otherSect.metadata.push(new MetaProp('First Dialogue ID', dialogs[0].Id, `/genshin/branch-dialogue?q=${dialogs[0].Id}`));
 
       if (dialogs[0].TalkType) {
         otherSect.addMetaProp('First Dialogue Talk Type', dialogs[0].TalkType);
@@ -290,7 +290,7 @@ export async function talkConfigToDialogueSectionResult(ctrl: GenshinControl,
 
     for (let nextTalkId of skippedNextTalkIds) {
       let placeholderSect = new DialogueSectionResult(null, 'Next Talk');
-      placeholderSect.metadata.push(new MetaProp('Talk ID', nextTalkId, `/branch-dialogue?q=${nextTalkId}`));
+      placeholderSect.metadata.push(new MetaProp('Talk ID', nextTalkId, `/genshin/branch-dialogue?q=${nextTalkId}`));
       placeholderSect.htmlMessage = `<p>This section contains dialogue but wasn't shown because the section is already present on the page.
       This can happen when multiple talks lead to the same next talk.</p>
       <p><a href="#Talk_${nextTalkId}">Jump to Talk ${nextTalkId}</a></p>`;
