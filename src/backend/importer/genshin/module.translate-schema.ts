@@ -58,7 +58,7 @@ export async function importTranslateSchema() {
   console.log(chalk.blue('Done. Output written to: ' + outDir + '/SchemaTranslation.json'));
 }
 
-export async function translateExcel(outputDirectory: string) {
+export async function exportExcel(outputDirectory: string) {
   if (/^C:[^\\/]/g.test(outputDirectory)) {
     console.error('Invalid path: ' + outputDirectory);
     return;

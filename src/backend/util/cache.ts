@@ -14,14 +14,31 @@ const cache: {
   redis: null
 };
 
+export function redisClient(): RedisClientType<RedisModules, RedisFunctions, RedisScripts> {
+  return cache.redis;
+}
+
+export async function redisDelPattern(pattern: string): Promise<void> {
+  let cursor: number = 0;
+  do {
+    const reply = await cache.redis.scan(cursor, { MATCH: pattern, COUNT: 1000 });
+    await delcache(reply.keys);
+    cursor = reply.cursor;
+  } while (cursor);
+}
+
 export async function delcache(keys: string|string[]) {
+  if (!keys || !keys.length) {
+    return;
+  }
+
   await cache.redis.del(keys);
 
   if (typeof keys === 'string') {
     delete cache.memory[keys];
   } else {
     for (let key of keys) {
-      delete cache[key];
+      delete cache.memory[key];
     }
   }
 }

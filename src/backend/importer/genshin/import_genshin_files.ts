@@ -9,7 +9,7 @@ import { closeKnex } from '../../util/db.ts';
 import { importNormalize, importPlainTextMap } from '../util/import_file_util.ts';
 import { importGcgSkill } from './module.gcg-skill.ts';
 import { importVoiceItems } from './module.voice-items.ts';
-import { importTranslateSchema, translateExcel } from './module.translate-schema.ts';
+import { importTranslateSchema, exportExcel } from './module.translate-schema.ts';
 import { importVoiceOvers } from './module.voice-overs.ts';
 import { importSearchIndex } from './module.search-index.ts';
 import { generateAvatarAnimInteractionGoodBad, generateQuestDialogExcels } from './module.make-excels.ts';
@@ -37,7 +37,7 @@ export async function importGenshinFilesCli() {
   ];
 
   const options_util: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
-    {name: 'translate-excel', type: String, typeLabel: '<outputDir>', description: 'Copies excel files to output directory with renameFields applied.'},
+    {name: 'export-excel', type: String, typeLabel: '<outputDir>', description: 'Copies excel files to output directory with renameFields applied.'},
     {name: 'help', type: Boolean, description: 'Display this usage guide.'},
     {name: 'avatar-anim-interaction', type: Boolean},
     {name: 'dry-run', type: Boolean},
@@ -120,8 +120,8 @@ export async function importGenshinFilesCli() {
   if (options['translate-schema']) {
     await importTranslateSchema();
   }
-  if (options['translate-excel']) {
-    await translateExcel(options['translate-excel']);
+  if (options['export-excel']) {
+    await exportExcel(options['export-excel']);
   }
   if (options['index-images']) {
     await indexGenshinImages(dryRun);

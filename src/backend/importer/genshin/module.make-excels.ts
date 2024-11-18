@@ -116,8 +116,7 @@ export async function generateQuestDialogExcels(repoRoot: string) {
       MHOOJOMLDDB: 'rewardIdList',
       HLAINHJACPJ: 'titleTextMapHash',
       CJBHOPEAEPN: 'descTextMapHash',
-      JKNEDINACJJ: 'descTextMapHash', // 5.1
-      JOAOAGABJJI: 'descTextMapHash', // 5.2
+      JKNEDINACJJ: 'descTextMapHash',
       CNJBGFDOLLA: 'showType',
 
       // QuestExcel props:
@@ -208,6 +207,11 @@ export async function generateQuestDialogExcels(repoRoot: string) {
     } else if (obj.descTextMapHash) {
       obj.titleTextMapHash = obj.descTextMapHash;
       delete obj.descTextMapHash;
+    }
+
+    if (obj.JOAOAGABJJI) {
+      obj.descTextMapHash = obj.JOAOAGABJJI;
+      delete obj.JOAOAGABJJI;
     }
 
     if (!obj.rewardIdList) {

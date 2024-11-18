@@ -38,6 +38,7 @@ export const log: debug.Debugger = createDebugger('app');
 export const error: debug.Debugger = createDebugger(`app:error`);
 export const logInit: debug.Debugger = createDebugger('init');
 export const logInitData: debug.Debugger = createDebugger('init:data');
+export const logInitCache: debug.Debugger = createDebugger('init:cache');
 export const logShutdown: debug.Debugger = createDebugger('shutdown');
 export const custom = (namespace: string): debug.Debugger => createDebugger(namespace);
 

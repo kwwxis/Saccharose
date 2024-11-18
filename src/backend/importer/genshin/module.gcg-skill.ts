@@ -46,7 +46,7 @@ export async function importGcgSkill() {
     const data: any = Object.values(json).find(v => typeof v === 'object');
 
     if (!data) {
-      console.log('No data:' + name + ' in ' + file);
+      console.log('No data: ' + name + ' in ' + file);
       continue;
     }
     console.log('Encountered: ' + name + ' in ' + file);

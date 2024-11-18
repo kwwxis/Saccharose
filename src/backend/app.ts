@@ -25,7 +25,7 @@ import { loadStarRailTextSupportingData } from './domain/hsr/starRailText.ts';
 import { loadGenshinTextSupportingData } from './domain/genshin/genshinText.ts';
 import { loadZenlessTextSupportingData } from './domain/zenless/zenlessText.ts';
 import { Request, Response } from 'express';
-import { logInit } from './util/logger.ts';
+import { logInit, logInitCache } from './util/logger.ts';
 import imageBaseRouter from './controllers/ImageBaseRouter.ts';
 import { createStaticImagesHandler } from './middleware/request/staticImagesHandler.ts';
 import { ScriptJobCoordinator } from './util/scriptJobs.ts';
@@ -33,7 +33,13 @@ import authRouter from './controllers/AuthRouter.ts';
 import { createSiteUserMiddlewareRouter } from './middleware/auth/siteUserMiddleware.ts';
 import visitorRouter from './controllers/visitor/VisitorRouter.ts';
 import { reqContextInitMiddleware } from './routing/router.ts';
-import { enableRedisExitHook, openRedisClient } from './util/cache.ts';
+import { cached, enableRedisExitHook, openRedisClient, redisClient, redisDelPattern } from './util/cache.ts';
+import {
+  CurrentGenshinVersion,
+  CurrentStarRailVersion,
+  CurrentWuwaVersion,
+  CurrentZenlessVersion,
+} from '../shared/types/game-versions.ts';
 
 const app: Express = express();
 let didInit: boolean = false;
@@ -57,12 +63,43 @@ export async function appInit(): Promise<Express> {
   logInit(`Opening sqlite database and loading data resources`);
   openSqlite();
   openPg();
-  await openRedisClient();
   enableDbExitHook();
-  enableRedisExitHook();
   ScriptJobCoordinator.init();
   await ScriptJobCoordinator.deleteOldJobs();
   await ScriptJobCoordinator.markAllComplete();
+
+  // Initialize Cache
+  // ~~~~~~~~~~~~~~~~
+  logInitCache('Opening Redis Client');
+  await openRedisClient();
+  enableRedisExitHook();
+
+  const redisGenshinVersion: string = await redisClient().get('Genshin:CurrentVersion');
+  const redisStarRailVersion: string = await redisClient().get('StarRail:CurrentVersion');
+  const redisZenlessVersion: string = await redisClient().get('Zenless:CurrentVersion');
+  const redisWuwaVersion: string = await redisClient().get('Wuwa:CurrentVersion');
+
+  // Automatically clear cache when current version number is incremented:
+  if (redisGenshinVersion !== CurrentGenshinVersion.number) {
+    logInitCache('Clearing Redis cache for Genshin Impact!');
+    await redisDelPattern('Genshin:*');
+    await redisClient().set('Genshin:CurrentVersion', CurrentGenshinVersion.number);
+  }
+  if (redisStarRailVersion !== CurrentStarRailVersion.number) {
+    logInitCache('Clearing Redis cache for Honkai Star Rail!');
+    await redisDelPattern('StarRail:*');
+    await redisClient().set('StarRail:CurrentVersion', CurrentStarRailVersion.number);
+  }
+  if (redisZenlessVersion !== CurrentZenlessVersion.number) {
+    logInitCache('Clearing Redis cache for Zenless Zone Zero!');
+    await redisDelPattern('Zenless:*');
+    await redisClient().set('Zenless:CurrentVersion', CurrentZenlessVersion.number);
+  }
+  if (redisWuwaVersion !== CurrentWuwaVersion.number) {
+    logInitCache('Clearing Redis cache for Wuthering Waves!');
+    await redisDelPattern('Wuwa:*');
+    await redisClient().set('Wuwa:CurrentVersion', CurrentWuwaVersion.number);
+  }
 
   // Load supporting game data
   // ~~~~~~~~~~~~~~~~~~~~~~~~~
