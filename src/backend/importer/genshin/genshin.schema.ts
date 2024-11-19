@@ -729,7 +729,7 @@ export const genshinSchema = {
     name: 'AvatarFlycloakExcelConfigData',
     jsonFile: './ExcelBinOutput/AvatarFlycloakExcelConfigData.json',
     columns: [
-      { name: 'Id', type: 'integer', isPrimary: true },
+      { name: 'FlycloakId', type: 'integer', isPrimary: true },
       { name: 'NameTextMapHash', type: 'integer', isIndex: true },
       { name: 'DescTextMapHash', type: 'integer', isIndex: true },
       { name: 'MaterialId', type: 'integer', isIndex: true },

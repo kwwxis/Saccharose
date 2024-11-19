@@ -63,11 +63,11 @@
             <tr v-for="field of valuesOf(record.updatedFields)">
               <td class="code" style="vertical-align: top"><strong>{{ field.field }}</strong></td>
               <td class="code" style="vertical-align: top">
-                <span v-if="isset(field.oldValue)">{{ field.oldValue }}</span>
+                <span v-if="isset(field.oldValue)" class="dispInlineBlock" style="max-width:300px;overflow-wrap: break-word;">{{ field.oldValue }}</span>
                 <span v-else style="font-style: italic">(none)</span>
               </td>
               <td class="code" style="vertical-align: top">
-                <span v-if="isset(field.newValue)">{{ field.newValue }}</span>
+                <span v-if="isset(field.newValue)" class="dispInlineBlock" style="max-width:300px;overflow-wrap: break-word;">{{ field.newValue }}</span>
                 <span v-else style="font-style: italic">(none)</span>
               </td>
               <td style="padding:0">
