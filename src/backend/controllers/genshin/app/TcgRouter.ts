@@ -143,7 +143,7 @@ export default async function(): Promise<Router> {
     const card: GCGCommonCard = (await gcg.selectCharacterCard(cardId)) || (await gcg.selectActionCard(cardId));
 
     const WikiImageEntity: ImageIndexEntity = card.WikiImage ? await ctrl.selectImageIndexEntity(card.WikiImage) : null;
-    const WikiGoldenImageEntity: ImageIndexEntity = card.WikiImage ? await ctrl.selectImageIndexEntity(card.WikiGoldenImage) : null;
+    const WikiGoldenImageEntity: ImageIndexEntity = card.WikiGoldenImage ? await ctrl.selectImageIndexEntity(card.WikiGoldenImage) : null;
 
     res.render('pages/genshin/gcg/gcg-card', {
       title: (card?.WikiName || 'Not Found') + ' | TCG Card',
