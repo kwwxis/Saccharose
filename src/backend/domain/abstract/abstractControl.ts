@@ -755,6 +755,8 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
   }
 
   async selectImageIndexEntity(imageName: string): Promise<ImageIndexEntity> {
+    if (!imageName)
+      return null;
     return openPg().select('*').from(this.dbName + '_image_index').where({ image_name: imageName }).first().then();
   }
 
