@@ -90,13 +90,13 @@ async function ol_gen_internal(ctrl: AbstractControl,
     }
 
     if (/(?<!{){(?!{)/.test(langText)) {
-      warnings.push(`The parameter value for <code>${LANG_CODE_TO_WIKI_CODE[langCode].toLowerCase()}</code> contains a non-template curly brace.<br />If this is a special code, then it'll require manual editor intervention.`)
+      warnings.push(`The parameter value for <code>${LANG_CODE_TO_WIKI_CODE[langCode].toLowerCase()}</code> contains a non-template curly brace.<br>If this is a special code, then it'll require manual editor intervention.`)
     }
     if (langText.includes('#')) {
-      warnings.push(`The parameter value for <code>${LANG_CODE_TO_WIKI_CODE[langCode].toLowerCase()}</code> contains a hash character (<code>#</code>).<br />If this is a special code, then it'll require manual editor intervention.`)
+      warnings.push(`The parameter value for <code>${LANG_CODE_TO_WIKI_CODE[langCode].toLowerCase()}</code> contains a hash character (<code>#</code>).<br>If this is a special code, then it'll require manual editor intervention.`)
     }
     if (langText.includes('$')) {
-      warnings.push(`The parameter value for <code>${LANG_CODE_TO_WIKI_CODE[langCode].toLowerCase()}</code> contains a dollar character (<code>$</code>).<br />If this is a special code, then it'll require manual editor intervention.`)
+      warnings.push(`The parameter value for <code>${LANG_CODE_TO_WIKI_CODE[langCode].toLowerCase()}</code> contains a dollar character (<code>$</code>).<br>If this is a special code, then it'll require manual editor intervention.`)
     }
 
     if (langText.includes('|')) {

@@ -65,7 +65,9 @@ export function __normWuwaText(text: string, langCode: LangCode, opts: NormTextO
   if (!opts.mcPlaceholderProvider)
     opts.mcPlaceholderProvider = __roverPlaceholder;
 
-  text = genericNormText(text, langCode, opts);
+  text = genericNormText(text, langCode, opts, {
+    brFormat: '<br />'
+  });
   text = text.replace(/<size=([^>]+)>(.*?)<\/size>/gs, opts.plaintext ? '$2' : '{{Size|$1|$2}}');
 
   if (!opts.decolor && !opts.plaintext) {

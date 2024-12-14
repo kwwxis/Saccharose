@@ -69,7 +69,9 @@ export function __normStarRailText(text: string, langCode: LangCode, opts: NormT
   if (!opts.mcPlaceholderProvider)
     opts.mcPlaceholderProvider = __trailblazerPlaceholder;
 
-  text = genericNormText(text, langCode, opts);
+  text = genericNormText(text, langCode, opts, {
+    brFormat: '<br />'
+  });
   text = text.replace(/<\/?unbreak>/g, '');
   text = text.replace(/<align="([^"]+)">/g, '<div align="$1">');
   text = text.replace(/<\/align>/g, '</div>');

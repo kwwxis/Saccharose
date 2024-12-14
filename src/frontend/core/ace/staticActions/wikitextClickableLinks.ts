@@ -64,7 +64,7 @@ function configureClickableToken(initialToken: HTMLElement): void {
 
   const tooltip: AceTooltip = createAceTooltip({
     tooltipType,
-    tooltipHtml: `<span>${isMac ? 'Command' : 'Ctrl'}-click to open in new tab (alt-click to focus)</span><br />` +
+    tooltipHtml: `<span>${isMac ? 'Command' : 'Ctrl'}-click to open in new tab (alt-click to focus)</span><br>` +
       `<a>${escapeHtml(pageUrl)}</a>`
   })
 

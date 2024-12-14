@@ -203,7 +203,9 @@ export function __normGenshinText(text: string, langCode: LangCode, opts: NormTe
   if (!opts.mcPlaceholderProvider)
     opts.mcPlaceholderProvider = __travelerPlaceholder;
 
-  text = genericNormText(text, langCode, opts);
+  text = genericNormText(text, langCode, opts, {
+    brFormat: '<br>'
+  });
   text = text.replace(/<right>/g, '<div class="align-right">');
   text = text.replace(/<\/right>/g, '</div>');
   text = text.replace(/<size=([^>]+)>(.*?)<\/size>/gs, '$2');

@@ -124,7 +124,7 @@ export function createWikitextEditor(editorElementId: string|HTMLElement): ace.E
           }
           editor.session.replace(selRange, selText.replace(/\[\[/g, '').replace(/]]/g, ''));
         } else if (selText.includes('[[') || selText.includes(']]')) {
-          toastError({title: 'Cannot unlink', content: 'Selection contains partial link.<br />Select an entire link to unlink.', allowHTML: true});
+          toastError({title: 'Cannot unlink', content: 'Selection contains partial link.<br>Select an entire link to unlink.', allowHTML: true});
         } else {
           const [fm, spaceBefore, content, spaceAfter] = /^(\s*)(.*?)(\s*)$/.exec(selText);
           editor.session.replace(selRange, spaceBefore + '[[' + content + ']]' + spaceAfter);

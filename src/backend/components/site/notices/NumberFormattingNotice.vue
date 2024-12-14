@@ -19,8 +19,8 @@
         <tr>
           <th style="text-align: left">Output Language</th>
           <th style="text-align: left">Locale</th>
-          <th>Formatted Number Example<br /><small>Without decimal places</small></th>
-          <th>Formatted Number Example<br /><small>With decimal places</small></th>
+          <th>Formatted Number Example<br><small>Without decimal places</small></th>
+          <th>Formatted Number Example<br><small>With decimal places</small></th>
         </tr>
         <tr v-for="[langCode, locale] of getLocales()">
           <td>{{ langCode }}</td>

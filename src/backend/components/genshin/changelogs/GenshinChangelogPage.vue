@@ -257,9 +257,9 @@
             <th>ID</th>
             <th>Character</th>
             <th>Stage</th>
-            <th>Internal<br/>Type</th>
-            <th>Wiki<br/>Group</th>
-            <th>Wiki<br/>Type</th>
+            <th>Internal<br>Type</th>
+            <th>Wiki<br>Group</th>
+            <th>Wiki<br>Type</th>
           </tr>
           <tr v-for="stage of newSummary.tcgStages" style="font-size:15px">
             <td>

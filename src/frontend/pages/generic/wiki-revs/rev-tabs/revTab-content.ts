@@ -83,7 +83,7 @@ function initOwnerList(state: WikiRevAppState) {
           <span class="rev-contributor-name">No Highlight</span>
         </button>
         <button data-highlight-mode="hover" class="rev-contributor secondary${state.getPrefs().diffHighlightHover ? ' selected' : ''}"
-              ui-tippy-hover="{content: '<div class=&quot;spacer10-bottom&quot;><strong>Yellow:</strong> same edit<br /></div><strong>Blue:</strong> other edits by same user', allowHTML: true}">
+              ui-tippy-hover="{content: '<div class=&quot;spacer10-bottom&quot;><strong>Yellow:</strong> same edit<br></div><strong>Blue:</strong> other edits by same user', allowHTML: true}">
           <span class="rev-contributor-name">Hover Highlight</span>
         </button>
         ${sort(Object.values(ownerList), '-textSize').map(item => `
@@ -164,7 +164,7 @@ function initSegmentHover(state: WikiRevAppState) {
     if (state.getPrefs().diffHighlightHover || currentHighlightOwner === segment.owner) {
       segmentHoverLabel.classList.add('active');
       // segmentHoverLabel.innerHTML = `${escapeHtml(segment.owner)} #${segment.revId}
-      //   <br />${escapeHtmlAllowEntities(state.revisionsById[segment.revId]?.comment || '(No comment)')}`;
+      //   <br>${escapeHtmlAllowEntities(state.revisionsById[segment.revId]?.comment || '(No comment)')}`;
       segmentHoverLabel.innerHTML = createRevListHtml(state, [state.revisionsById[segment.revId]]);
       segmentHoverLabel.style.setProperty('opacity', '1');
     }

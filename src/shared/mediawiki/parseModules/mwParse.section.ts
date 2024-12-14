@@ -13,13 +13,13 @@ import { mwParse } from '../mwParse.ts';
  *     - e.g. `===My Section====` would render the section title as `My Section=`
  *     - e.g  `=======My Section=======` would render the section title as "=My Section="
  *  - Section titles can contain complex nodes such as links, styling (italics, bold), templates, images, etc.
- *  - Section title syntax cannot be multi-line but can render as multi-line using `<br />`.
+ *  - Section title syntax cannot be multi-line but can render as multi-line using `<br>`.
  *      - For example, this is invalid:
  *        ```
  *        ===My Invalid
  *        Section Title===
  *        ```
- *      - But this is valid `===My Valid<br /> Section Title===`
+ *      - But this is valid `===My Valid<br> Section Title===`
  *  - For the purpose of the Table-of-Contents, nodes that do not have text (e.g. images, BR elements) are ignored.
  *  - Any complex nodes whose syntax is multi-line (e.g. mediawiki syntax for lists and tables) cannot go in a section header.
  *      - But anything you can put in a single line works. For example a list can work via HTML:

@@ -111,7 +111,7 @@
         </section>
         <section class="function">
           <h2 id="termination">Termination of Service</h2>
-          <div class="info-notice">We can disable our Service or any aspect of our Service.<br />Although we don't
+          <div class="info-notice">We can disable our Service or any aspect of our Service.<br>Although we don't
             have to give any advance notices, we typically will.</div>
 
           <p>We reserve the right to suspend or terminate our Service, or any aspect of the Service,
@@ -148,7 +148,7 @@
             CONTRACTUAL, EXTRA-CONTRACTUAL, DELICTUAL OR IN TORT, AND WHETHER ARISING BY LAW, STATUTE, USAGE
             OF TRADE, CUSTOM, COURSE OF DEALING OR PERFORMANCE, OR THE PARTIES' CONDUCT OR COMMUNICATION WITH
             ONE ANOTHER, OR AS A RESULT OF THE NATURE OF THESE TERMS AND CONDITIONS, THE SERVICES AND YOUR USE
-            THEREOF OR IN CONFORMITY WITH USAGE, EQUITY OR LAW OR OTHERWISE.<br/><br/>
+            THEREOF OR IN CONFORMITY WITH USAGE, EQUITY OR LAW OR OTHERWISE.<br><br>
 
             Saccharose.wiki MAKES NO WARRANTIES, CONDITIONS OR REPRESENTATIONS ABOUT THE ACCURACY OR
             COMPLETENESS OF THIS SITE'S CONTENT OR THE CONTENT OF ANY SITES LINKED TO THIS SITE AND ASSUMES
@@ -160,7 +160,7 @@
             (IV) ANY BUGS, VIRUSES, TROJAN HORSES, OR THE LIKE WHICH MAY BE TRANSMITTED TO OR THROUGH
             OUR SERVICES BY ANY THIRD PARTY, AND/OR (V) ANY ERRORS OR OMISSIONS IN ANY CONTENT OR FOR
             ANY LOSS OR DAMAGE OF ANY KIND INCURRED AS A RESULT OF THE USE OF ANY CONTENT POSTED, EMAILED,
-            TRANSMITTED, OR OTHERWISE MADE AVAILABLE VIA Saccharose.wiki SERVICES.<br/><br/>
+            TRANSMITTED, OR OTHERWISE MADE AVAILABLE VIA Saccharose.wiki SERVICES.<br><br>
 
             Saccharose.wiki EXPRESSLY DISCLAIMS ANY WARRANTY OR CONDITION OF ANY KIND OF FITNESS FOR A
             PARTICULAR OR GENERAL PURPOSE, QUALITY, MERCHANTABILITY, WORKMANSHIP, NON-INFRINGEMENT, OR
@@ -273,7 +273,7 @@
             <a href="/privacy">{{ env.WEB_DOMAIN }}/privacy</a> and
             any other legal documents and notices found in the sidebar section "LEGAL DOCUMENTS AND NOTICES" of
             this page, shall constitute the entire agreement between you and Saccharose.wiki concerning
-            Saccharose.wiki Service. It supersedes all prior or contemporaneous agreements between you and us.<br/><br/>
+            Saccharose.wiki Service. It supersedes all prior or contemporaneous agreements between you and us.<br><br>
 
             Any ambiguities in the interpretation of these Terms of Service shall not be construed against
             the drafting party.</p>

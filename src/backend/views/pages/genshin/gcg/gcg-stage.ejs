@@ -81,7 +81,7 @@
           <% if (stage?.WorldLevel?.MapDescText) { %>
             <tr>
               <td class="no-border">&nbsp;</td>
-              <td class="bold">Map Description<br /><small class="fontWeight600 opacity70p"><em>Not included in wikitext</em></small></td>
+              <td class="bold">Map Description<br><small class="fontWeight600 opacity70p"><em>Not included in wikitext</em></small></td>
               <td class="w70p"><%- use('partials/util/wikitext', { wikitext: '{{Description|' + normGenshinText(stage.WorldLevel.MapDescText) + '|[[Map]] description}}', seamless: true }) %></td>
             </tr>
           <% } %>
@@ -143,7 +143,7 @@
           <% if (stage.Reward.MappedFailTips && stage.Reward.MappedFailTips.length) { %>
             <table class="article-table">
               <tr>
-                <th colspan="3" style="line-height:1em">Fail Tips<br /><small class="fontWeight600 opacity70p"><em>Not included in wikitext</em></small></th>
+                <th colspan="3" style="line-height:1em">Fail Tips<br><small class="fontWeight600 opacity70p"><em>Not included in wikitext</em></small></th>
               </tr>
               <% for (let [index, failTipText] of Object.entries(stage.Reward.MappedFailTips)) { %>
                 <tr>

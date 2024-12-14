@@ -6,9 +6,9 @@
         <th>ID</th>
         <th>Character</th>
         <th>Stage</th>
-        <th>Internal<br/>Type</th>
-        <th>Wiki<br/>Group</th>
-        <th>Wiki<br/>Type</th>
+        <th>Internal<br>Type</th>
+        <th>Wiki<br>Group</th>
+        <th>Wiki<br>Type</th>
       </tr>
     </thead>
     <tbody>

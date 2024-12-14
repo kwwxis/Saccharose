@@ -47,19 +47,19 @@ export const FileFormatListeners: Listener[] = [
 
       modalService.modal(`<span>Custom Format Options for <code>${escapeHtml(paramName)}</code></span>`, `
         <p class="info-notice spacer5-top">
-          <strong>English wiki default format for <code>${escapeHtml(paramName)}</code>:</strong><br />
+          <strong>English wiki default format for <code>${escapeHtml(paramName)}</code>:</strong><br>
           <textarea class="code autosize w100p" readonly style="background:transparent">${escapeHtml(fileFormatDefault)}</textarea>
         </p>
         <fieldset>
           <legend>Variable usage</legend>
           <div class="content">
-            <p class="spacer10-bottom">Variables must be wrapped in single curly braces, for example:<br />
+            <p class="spacer10-bottom">Variables must be wrapped in single curly braces, for example:<br>
             <code>{NameText.EN} Map Location.png</code></p>
             
-            <p class="spacer10-bottom">Alternatively, you can use the syntax:<br />
+            <p class="spacer10-bottom">Alternatively, you can use the syntax:<br>
             <code>{{Var|NameText.EN}} Map Location.png</code></p>
             
-            <p class="spacer10-bottom">If you want to specify a default value if a variable is empty, you can specify a second parameter to <code>{{Var}}</code>:<br />
+            <p class="spacer10-bottom">If you want to specify a default value if a variable is empty, you can specify a second parameter to <code>{{Var}}</code>:<br>
             <code>{{Var|NameText.EN|default value}} Map Location.png</code></p>
             
             <p class="spacer10-bottom">The second parameter will be evaluted the same as the top-level format, so you can have nested conditionals and variables inside.
@@ -91,11 +91,11 @@ export const FileFormatListeners: Listener[] = [
           <div class="content">
             <p>You can use conditionals in the format of:</p>
             
-            <br />
+            <br>
             <code class="dispBlock">{{If|&lt;condition&gt;|&lt;then value&gt;|&lt;else value&gt;}}</code>
             <code class="dispBlock spacer20-left">condition = "&lt;left-param&gt; &lt;operator&gt; &lt;right-param&gt;"</code>
             <code class="dispBlock spacer20-left">operator = ":=" | "!=" | "&lt;=" | "&gt;=" | "&lt;" | "&gt;" | "*=" | "^=" | "$=" | "~"</code>
-            <br />
+            <br>
             <ul class="content spacer20-horiz">
               <li>The <code>left-param</code> and <code>right-param</code> are evaluated the same as the top-level format,
               so you can use variables inside of them and have nested conditionals.</li>

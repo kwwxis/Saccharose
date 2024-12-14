@@ -135,13 +135,13 @@ export function generateLoadingTipsWikiText(ctrl: GenshinControl, cat: LoadingCa
       if (tip.EnableMainQuestId || tip.DisableMainQuestId) {
         sbOut.append(' || ');
         if (tip.EnableMainQuestId) {
-          sbOut.append(`Enabled by<br />[[${tip.EnableMainQuestName}]]`);
+          sbOut.append(`Enabled by<br>[[${tip.EnableMainQuestName}]]`);
         }
         if (tip.DisableMainQuestId) {
           if (tip.EnableMainQuestId) {
-            sbOut.append('<br />');
+            sbOut.append('<br>');
           }
-          sbOut.append(`Disabled by<br />[[${tip.DisableMainQuestName}]]`);
+          sbOut.append(`Disabled by<br>[[${tip.DisableMainQuestName}]]`);
         }
       } else {
         sbOut.append(' ||');

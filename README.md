@@ -271,9 +271,9 @@ Discord editing forums post.
 
 **Commands:**
 
-- **Print Texture2D:** `find ./Texture2D/ -type f -regextype posix-extended -iregex '.*/(UI_|MonsterSkill|Eff_UI_Talent|.*Tutorial).*'`<br /><br />
+- **Print Texture2D:** `find ./Texture2D/ -type f -regextype posix-extended -iregex '.*/(UI_|MonsterSkill|Eff_UI_Talent|.*Tutorial).*'`<br><br>
 
-- **Copy Texture2D:**  `find ./Texture2D/ -type f -regextype posix-extended -iregex '.*/(UI_|MonsterSkill|Eff_UI_Talent|.*Tutorial).*' -exec cp '{}' dist ';'`<br /><br />
+- **Copy Texture2D:**  `find ./Texture2D/ -type f -regextype posix-extended -iregex '.*/(UI_|MonsterSkill|Eff_UI_Talent|.*Tutorial).*' -exec cp '{}' dist ';'`<br><br>
 
 - **Copy Sprite:** `find ./Sprite/ -type f -regextype posix-extended -iregex '.*/(UI_Buff|UI_Gcg_Dice|UI_Gcg_Buff|UI_Gcg_Tag|UI_HomeWorldTabIcon).*' -exec cp '{}' dist ';'`
 

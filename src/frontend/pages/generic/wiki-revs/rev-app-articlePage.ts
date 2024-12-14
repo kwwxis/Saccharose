@@ -129,7 +129,7 @@ async function loadRevList(state: WikiRevAppState) {
                 isInt(state.page.cacheExpiry) && toInt(state.page.cacheExpiry) >= Date.now()
                   ? 'refreshes in ' + humanTiming(toInt(state.page.cacheExpiry), '')
                   : 'just refreshed'
-              }).<br /><br />Either wait for it to refresh or click the &quot;Force Refresh&quot; button.`,
+              }).<br><br>Either wait for it to refresh or click the &quot;Force Refresh&quot; button.`,
               allowHTML: true,
             }))}">${templateIcon('info')}</span>
          </span>

@@ -3224,25 +3224,25 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
             const fileText = await fsp.readFile(this.getDataFilePath(filePath), { encoding: 'utf8' });
 
             const fileNormText = this.normText(fileText, this.outputLangCode)
-              .replace(/<br \/>/g, '<br />\n')
+              .replace(/<br ?\/?>/g, '<br>\n')
               .replace(/^\n\n+/gm, fm => {
-                return '<br />\n'.repeat(fm.length);
+                return '<br>\n'.repeat(fm.length);
               })
-              .replace(/[ \t]+<br \/>/g, '<br />')
+              .replace(/[ \t]+<br ?\/?>/g, '<br>')
               .replace(/[ \t]+$/gm, '');
 
             const readableText: ReadableText = {
               LangCode: langCode,
               LangPath: fileName,
               AsNormal: fileNormText
-                .replace(/\n\n+/g, '<br /><br />\n')
+                .replace(/\n\n+/g, '<br><br>\n')
                 .replace(/\n/g, '<!--\n-->'),
               AsTemplate: `{{Readable|title=${document.TitleTextMap[langCode] || ''}\n|text=<!--\n-->`
                 + fileNormText
-                  .replace(/\n\n+/g, '<br /><br />\n')
+                  .replace(/\n\n+/g, '<br><br>\n')
                   .replace(/\n/g, '<!--\n-->') + '}}',
               AsDialogue: fileNormText.split(/\n/g).map(line => {
-                if (line.endsWith('<br />')) {
+                if (line.endsWith('<br>')) {
                   line = line.slice(0, -6);
                 }
                 if (!line) {

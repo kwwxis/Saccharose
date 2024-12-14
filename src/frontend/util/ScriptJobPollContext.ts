@@ -41,7 +41,7 @@ export class ScriptJobPollContext<T extends ScriptJobAction> {
     runLogEl.innerHTML = jobPoll.run_log.map(s => `<div>${escapeHtml(s)}</div>`).join('\n');
 
     if (jobPoll.result_error) {
-      runLogEl.innerHTML += `<br /><br /><div>Fatal error:</div><div>${escapeHtml(jobPoll.result_error)}</div>`;
+      runLogEl.innerHTML += `<br><br><div>Fatal error:</div><div>${escapeHtml(jobPoll.result_error)}</div>`;
       genericEndpoints.getJob.send({ jobId: this.jobId }).then(async job => {
         console.log('Script Job Failed:', job);
         if (this.jobFailedCallback)

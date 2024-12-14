@@ -24,6 +24,10 @@ export interface NormTextOptions<T = any> {
   customOpts?: T,
 }
 
+export interface GenericNormTextRequiredOptions {
+  brFormat: '<br>' | '<br/>' | '<br />'
+}
+
 export function mergeMcTemplate(text: string, langCode: LangCode, plaintext: boolean): string {
   if (langCode && !plaintext && text.includes('{{MC')) {
     const mcParts = [];
@@ -75,7 +79,7 @@ export function postProcessBoldItalic(text: string, opts: NormTextOptions): stri
   return text;
 }
 
-export function genericNormText(text: string, langCode: LangCode, opts: NormTextOptions): string {
+export function genericNormText(text: string, langCode: LangCode, opts: NormTextOptions, reqOptions: GenericNormTextRequiredOptions): string {
   if (!text) {
     return text;
   }
@@ -144,8 +148,8 @@ export function genericNormText(text: string, langCode: LangCode, opts: NormText
 
   text = text.replace(/\\"/g, '"');
   text = text.replace(/\r/g, '');
-  text = text.replace(/\\?\\n|\\\n|\n/g, opts.plaintext ? '\n' : '<br />')
-    .replace(/<br \/><br \/>/g, '\n\n');
+  text = text.replace(/\\?\\n|\\\n|\n/g, opts.plaintext ? '\n' : reqOptions.brFormat)
+    .replace(/<br ?\/?><br ?\/?>/g, '\n\n');
 
   if (text.startsWith('#')) {
     text = text.slice(1);
@@ -211,8 +215,8 @@ export function mcify(lang: LangCode, maleText: string, femaleText: string): str
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const maleText = `'''Paimon:''' Mondstadt has so many windmills, doesn't it?<br />'''(Traveler):''' Well, the city is built above water, so it probably relies on the windmills to draw water upwards.<br />'''Paimon:''' That's correct! The winds blow through Mondstadt all year, so this supply of water is very stable.<br />'''Paimon:''' Also, the windmills are what they call "visible winds" &mdash; and wind chimes are called the "audible winds."<br />'''Paimon:''' Paimon guesses they can be thought of as mascots and prayers to the Anemo Archon for protection.<br />'''(Traveler):''' Ah, mascots. So, like you then, Paimon?<br />'''Paimon:''' No! Not at all! They're made of wood, and you can't eat them in an emergency either, 'cause all you'll do is grind your teeth down!<br />'''(Traveler):''' Uhh...<br />'''(Traveler):'''&nbsp;...I don't know what to say to that.`;
-  const femaleText = `'''Paimon:''' Mondstadt has so many windmills, doesn't it?<br />'''(Traveler):''' Well, the city is built above water, so it probably relies on windmills to draw the water upwards.<br />'''Paimon:''' That's correct! The winds blow through Mondstadt all year, so this supply of water is very stable.<br />'''Paimon:''' Also, the windmills are what they call "visible winds" &mdash; and wind chimes are called the "audible winds."<br />'''Paimon:''' Paimon guesses they can be thought of as mascots and prayers to the Anemo Archon for protection.<br />'''(Traveler):''' Ah, mascots. So, like you then, Paimon?<br />'''Paimon:''' No! Not at all! They're made of wood, and you can't eat them in an emergency either, 'cause all you'll do is grind your teeth down!<br />'''(Traveler):''' Umm...<br />'''(Traveler):'''&nbsp;...I don't know what to say to that.`;
+  const maleText = `'''Paimon:''' Mondstadt has so many windmills, doesn't it?<br>'''(Traveler):''' Well, the city is built above water, so it probably relies on the windmills to draw water upwards.<br>'''Paimon:''' That's correct! The winds blow through Mondstadt all year, so this supply of water is very stable.<br>'''Paimon:''' Also, the windmills are what they call "visible winds" &mdash; and wind chimes are called the "audible winds."<br>'''Paimon:''' Paimon guesses they can be thought of as mascots and prayers to the Anemo Archon for protection.<br>'''(Traveler):''' Ah, mascots. So, like you then, Paimon?<br>'''Paimon:''' No! Not at all! They're made of wood, and you can't eat them in an emergency either, 'cause all you'll do is grind your teeth down!<br>'''(Traveler):''' Uhh...<br>'''(Traveler):'''&nbsp;...I don't know what to say to that.`;
+  const femaleText = `'''Paimon:''' Mondstadt has so many windmills, doesn't it?<br>'''(Traveler):''' Well, the city is built above water, so it probably relies on windmills to draw the water upwards.<br>'''Paimon:''' That's correct! The winds blow through Mondstadt all year, so this supply of water is very stable.<br>'''Paimon:''' Also, the windmills are what they call "visible winds" &mdash; and wind chimes are called the "audible winds."<br>'''Paimon:''' Paimon guesses they can be thought of as mascots and prayers to the Anemo Archon for protection.<br>'''(Traveler):''' Ah, mascots. So, like you then, Paimon?<br>'''Paimon:''' No! Not at all! They're made of wood, and you can't eat them in an emergency either, 'cause all you'll do is grind your teeth down!<br>'''(Traveler):''' Umm...<br>'''(Traveler):'''&nbsp;...I don't know what to say to that.`;
 
   const split = wordSplit('EN', ' Hello world!');
   console.log(wordRejoin(takeFromEndUntilLastWord(split)));

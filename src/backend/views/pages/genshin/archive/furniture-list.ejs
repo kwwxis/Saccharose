@@ -31,9 +31,9 @@
           <th>Name</th>
           <th>Categories</th>
           <th>Quality</th>
-          <th>Adeptal<br />Energy</th>
+          <th>Adeptal<br>Energy</th>
           <th>Load</th>
-          <th>Reduced<br />Load</th>
+          <th>Reduced<br>Load</th>
         </tr>
         </thead>
         <tbody>
@@ -52,8 +52,8 @@
             <td><span class="code" style="font-size:14px"><%= String(furn.Id).padStart(6, '0') %></span></td>
             <td><a href="/genshin/furnishings/<%= furn.Id %>" role="button" class="secondary border-light textAlignLeft"><%- escapeHtmlAllowEntities(furn.NameText) %></a></td>
             <td style="font-size:14px;line-height:20px;">
-              <span><%= (furn.IsInterior && furn.IsExterior) ? 'Interior & Exterior' : (furn.IsInterior ? 'Interior' : 'Exterior') %></span><br />
-              <span><%= furn.CategoryNameText %></span><br />
+              <span><%= (furn.IsInterior && furn.IsExterior) ? 'Interior & Exterior' : (furn.IsInterior ? 'Interior' : 'Exterior') %></span><br>
+              <span><%= furn.CategoryNameText %></span><br>
               <span><%= furn.TypeNameText %></span>
             </td>
             <td><span><%- use('partials/genshin/stars', {quality: furn.RankLevel}) %></span></td>

@@ -66,7 +66,9 @@ export function __normZenlessText(text: string, langCode: LangCode, opts: NormTe
   if (!opts.mcPlaceholderProvider)
     opts.mcPlaceholderProvider = __proxyPlaceholder;
 
-  text = genericNormText(text, langCode, opts);
+  text = genericNormText(text, langCode, opts, {
+    brFormat: '<br />'
+  });
 
   if (!opts.decolor && !opts.plaintext) {
     text = text.replace(/<color=#\{0}>(.*?)<\/color>/g, `<b>$1</b>`);

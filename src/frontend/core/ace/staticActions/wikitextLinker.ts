@@ -196,7 +196,7 @@ export function applyWikitextLinker() {
             });
           } else if (textRange.includes('[[') || textRange.includes(']]')) {
             showAceTooltipNow(endEl, 'error',
-              'Selection contains partial link.<br />Select an entire link to unlink.', 2000);
+              'Selection contains partial link.<br>Select an entire link to unlink.', 2000);
             return;
           } else {
             const newText = wholeText.substring(0, startPos) + '[[' + textRange + ']]' + wholeText.substring(endPos);

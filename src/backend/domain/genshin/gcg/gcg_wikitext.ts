@@ -168,7 +168,7 @@ export async function generateCardPage(gcg: GCGControl, card: GCGCommonCard): Pr
         ?.find(item => item.Material.MaterialType === 'MATERIAL_GCG_CARD_FACE')?.Material;
       if (cardFaceItem) {
         const golden: boolean = cardFaceItem.Icon?.toLowerCase()?.includes('gold') || false;
-        sb.line(`After reaching Proficiency ${prof.Proficiency}, the following Dynamic Skin is obtained:<br />` +
+        sb.line(`After reaching Proficiency ${prof.Proficiency}, the following Dynamic Skin is obtained:<br>` +
           `{{TCG Card|${cardFaceItem.NameText}|1${golden ? '|golden=1' : ''}|caption=1}}`);
         sb.line();
       }

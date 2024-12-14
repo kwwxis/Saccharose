@@ -1021,7 +1021,7 @@ export class GCGControl {
           effectName = effectSkill.NameText;
           effectDesc = effectSkill.WikiDesc;
         }
-        skill.WikiDesc += `<br /><br />'''` + effectName + `'''<br />` + await this.normGcgText(effectDesc);
+        skill.WikiDesc += `<br><br>'''` + effectName + `'''<br>` + await this.normGcgText(effectDesc);
       }
       effectCardIds = newIds;
     }

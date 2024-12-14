@@ -11,20 +11,20 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
 
   const ctrl = getGenshinControl();
 
-  // getQuotePos(`<br /><br />'''Escudo de Jade'''<br />Da '''2 pontos de '''Escudo''' blah blah blah foobar ''' asdf`, 10);
+  // getQuotePos(`<br><br>'''Escudo de Jade'''<br>Da '''2 pontos de '''Escudo''' blah blah blah foobar ''' asdf`, 10);
   // console.log();
   //
-  // getQuotePos(`<br /><br />'''Escudo de Jade'''<br />Da '''2 pontos de '''Escudo''' blah blah blah foobar ''`, 10);
+  // getQuotePos(`<br><br>'''Escudo de Jade'''<br>Da '''2 pontos de '''Escudo''' blah blah blah foobar ''`, 10);
   // console.log();
   //
-  // getQuotePos(`<br /><br />'''Escudo de Jade'''<br />Da '''2 pontos de '''Escudo''' blah blah blah foobar '`, 10);
+  // getQuotePos(`<br><br>'''Escudo de Jade'''<br>Da '''2 pontos de '''Escudo''' blah blah blah foobar '`, 10);
   // console.log();
 
   // let map = getQuotePosMap(
   //   `'''bold''`
-  //   //`<br /><br />'''Escudo de Jade'''<br />Da '''2 pontos de '''Escudo''' blah blah blah foobar '`
-  //   //`'''Estela de Pedra'''<br />'''Fase Final: '''Causa 1 ''ponto'' de {{Geo|Dano Geo}}.<br />'''Usos: 2'''1`
-  //   //`'''Estela de Pedra'''<br />'''Fase Final: '''Causa 1 ponto de {{Geo|Dano Geo}}.<br />'''Usos: 2'''<br /><br />'''Escudo de Jade'''<br />Da '''2 pontos de '''Escudo'''''' asdf`
+  //   //`<br><br>'''Escudo de Jade'''<br>Da '''2 pontos de '''Escudo''' blah blah blah foobar '`
+  //   //`'''Estela de Pedra'''<br>'''Fase Final: '''Causa 1 ''ponto'' de {{Geo|Dano Geo}}.<br>'''Usos: 2'''1`
+  //   //`'''Estela de Pedra'''<br>'''Fase Final: '''Causa 1 ponto de {{Geo|Dano Geo}}.<br>'''Usos: 2'''<br><br>'''Escudo de Jade'''<br>Da '''2 pontos de '''Escudo'''''' asdf`
   // );
   // inspect(map);
   // for (let [key, value] of Object.entries(map)) {

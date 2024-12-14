@@ -14,7 +14,7 @@
       <p style="padding:5px;font-size:0.85em">Accepted format: case-insensitive, underscores or spaces,
         "<code>File:</code>" prefix optional, "<code>.ogg</code>" extension optional, can be in the
         <span style="white-space: nowrap">"<WikiTemplateLink name="A" />"</span>
-        template with or without additional parameters.<br/>Examples:</p>
+        template with or without additional parameters.<br>Examples:</p>
       <ul style="font-size:0.85em">
         <li style="margin:0"><code>vo mdaq006 3 paimon 01.ogg</code></li>
         <li style="margin:0"><code>File:vo_mdaq006_3_paimon_01.ogg</code> </li>

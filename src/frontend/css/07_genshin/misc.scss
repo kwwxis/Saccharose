@@ -13,10 +13,24 @@ body.page--OL.page--genshin {
   &.nightmode:after {
     opacity: 0.18;
   }
+  &:before {
+    content: "";
+    position: fixed;
+    pointer-events: none;
+    bottom: 0;
+    left: -25px;
+    height: 220px;
+    width: 180px;
+    background: url(/images/site/home/AlhaithamOG-x500.png) no-repeat top left / 180px;
+    opacity: 0.32;
+  }
+  &.nightmode:before {
+    opacity: 0.25;
+  }
 }
 
 @media (max-width: 1380px) {
-  body:after {
+  body:after, body:before {
     display: none !important;
   }
 }
