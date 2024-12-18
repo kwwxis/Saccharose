@@ -11,7 +11,6 @@ import { SpriteTagExcelConfigData } from '../../../shared/types/genshin/general-
 import { getGenshinControl } from './genshinControl.ts';
 import { toMap } from '../../../shared/util/arrayUtil.ts';
 import { logInitData } from '../../util/logger.ts';
-import fs, { promises as fsp } from 'fs';
 import { ManualTextMapHashes } from '../../../shared/types/genshin/manual-text-map.ts';
 import { GENSHIN_DISABLED } from '../../loadenv.ts';
 

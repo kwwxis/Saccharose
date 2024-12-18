@@ -72,9 +72,29 @@ export function __normZenlessText(text: string, langCode: LangCode, opts: NormTe
 
   if (!opts.decolor && !opts.plaintext) {
     text = text.replace(/<color=#\{0}>(.*?)<\/color>/g, `<b>$1</b>`);
+    text = text.replace(/<color=#FFFFFF(?:FF)?>(.*?)<\/color>/g, `<b>$1</b>`);
     text = postProcessBoldItalic(text, opts);
+
     text = text.replace(/<color=(#[0-9a-fA-F]{6})(?:FF)?>(.*?)<\/color>/g, '{{Color|$1|$2}}');
   }
+
+  text = text.replace(/<IconMap:Icon_(Normal|Evade|Switch|Special|SpecialReady|UltimateReady)>/g,
+    (_fm, g: 'Normal'|'Evade'|'Switch'|'Special'|'SpecialReady'|'UltimateReady') => {
+      switch (g) {
+        case 'Normal':
+          return '{{BA}}';
+        case 'Evade':
+          return '{{Dodge}}';
+        case 'Switch':
+          return '{{Assist}}';
+        case 'Special':
+          return '{{SA}}';
+        case 'SpecialReady':
+          return '{{EX}}';
+        case 'UltimateReady':
+          return '{{Ult2}}';
+      }
+    });
 
   // if (text.includes('{RUBY')) {
   //   text = text.replace(/\{RUBY_B#(.*?)}(.*?)\{RUBY_E#}/g, '{{Rubi|$2|$1}}');
