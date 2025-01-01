@@ -201,15 +201,19 @@ export async function generateQuestDialogExcels(repoRoot: string) {
     delete obj['dialogList'];
     delete obj['subQuests'];
 
-    if (obj['EKEKACCODOE']) {
-      obj.titleTextMapHash = obj['EKEKACCODOE'];
-      delete obj['EKEKACCODOE'];
-    } else if (obj.descTextMapHash) {
-      obj.titleTextMapHash = obj.descTextMapHash;
-      delete obj.descTextMapHash;
-    }
-
+    // TODO: This needs to be updated with each new Genshin version! (maybe)
+    // if (obj['EKEKACCODOE']) {
+    //   obj.titleTextMapHash = obj['EKEKACCODOE'];
+    //   delete obj['EKEKACCODOE'];
+    // } else if (obj.descTextMapHash) {
+    //   obj.titleTextMapHash = obj.descTextMapHash;
+    //   delete obj.descTextMapHash;
+    // }
     if (obj.JOAOAGABJJI) {
+      if (obj.descTextMapHash) {
+        obj.titleTextMapHash = obj.descTextMapHash;
+        delete obj.descTextMapHash;
+      }
       obj.descTextMapHash = obj.JOAOAGABJJI;
       delete obj.JOAOAGABJJI;
     }
