@@ -16,8 +16,9 @@ function* walkSync(dir: string): Generator<string> {
 }
 
 async function doIt() {
+  const combinedDir: string = 'E:/HoYoAssets/GenshinAssets/Texture2D/';
   const sourceDir: string = 'C:\\Shared\\HoyoStudioYarik\\Output_Texture2D_Files';
-  const targetDir: string = "E:\\HoYoAssets\\GenshinAssets\\Texture2D_Archive\\Texture2D_5.2";
+  const targetDir: string = "E:\\HoYoAssets\\GenshinAssets\\Texture2D_Archive\\Texture2D_5.3";
 
   const files: string[] = [];
   for (let file of walkSync(sourceDir)) {
@@ -35,7 +36,7 @@ async function doIt() {
       console.log(`${i} / ${filesAmount}`);
     }
 
-    const existingName = 'E:/HoYoAssets/GenshinAssets/Texture2D/' + basename;
+    const existingName = combinedDir + basename;
     const targetName = targetDir + '/' + basename;
 
     let shouldCopy = false;
@@ -48,8 +49,8 @@ async function doIt() {
       if (fileSize != existingSize) {
         shouldCopy = true;
       } else {
-        const buff1 = fs.readFileSync(file);
-        const buff2 = fs.readFileSync(existingName);
+        const buff1 = await sharp(file).toBuffer();
+        const buff2 = await sharp(existingName).toBuffer();
         if (!buff1.equals(buff2)) {
           shouldCopy = true;
         }
