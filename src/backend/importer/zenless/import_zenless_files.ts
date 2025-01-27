@@ -10,9 +10,11 @@ import { closeKnex } from '../../util/db.ts';
 import { importNormalize, importPlainTextMap } from '../util/import_file_util.ts';
 import { getZenlessControl } from '../../domain/zenless/zenlessControl.ts';
 import fs from 'fs';
+import { generateDialogueNodes } from './module.dialogue-nodes.ts';
 
 export async function importZenlessFilesCli() {
   const options_beforeDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
+    {name: 'dialogue-nodes', type: Boolean, description: 'Creates dialogue nodes file.'},
     {name: 'normalize', type: Boolean, description: 'Normalizes the JSON files.'},
     {name: 'plaintext', type: Boolean, description: 'Creates the PlainTextMap files.'},
   ];
@@ -114,6 +116,9 @@ export async function importZenlessFilesCli() {
   if (options.plaintext) {
     const ctrl = getZenlessControl();
     await importPlainTextMap(ctrl, getZenlessDataFilePath);
+  }
+  if (options['dialogue-nodes']) {
+    await generateDialogueNodes(getZenlessDataFilePath());
   }
 
   await closeKnex();

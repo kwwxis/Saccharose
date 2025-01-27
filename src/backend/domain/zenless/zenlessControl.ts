@@ -52,7 +52,8 @@ export class ZenlessControl extends AbstractControl<ZenlessControlState> {
     return new ZenlessControl(this.state.copy());
   }
 
-  readonly maybeTextMapHash = (x: any) => typeof x === 'string' && /^[a-zA-Z0-9_\-\/\\.]+$/.test(x);
+  readonly maybeTextMapHash = (prop: string, x: any) => typeof x === 'string' && /^[a-zA-Z0-9_\-\/\\.]+$/.test(x)
+    && !prop.endsWith('Id') && !prop.startsWith('ScriptConfig');
 
   override async postProcess<T>(object: T, triggerNormalize?: SchemaTable | boolean, doNormText: boolean = false): Promise<T> {
     if (!object)
@@ -63,10 +64,27 @@ export class ZenlessControl extends AbstractControl<ZenlessControlState> {
     const objAsAny = object as any;
     for (let prop in object) {
       if (this.state.AutoloadText && (
-        this.maybeTextMapHash(object[prop])
-        || (Array.isArray(object[prop]) && (<any[]> object[prop]).every(x => this.maybeTextMapHash(x)))
+        this.maybeTextMapHash(prop, object[prop])
+        || (Array.isArray(object[prop]) && (<any[]> object[prop]).every(x => this.maybeTextMapHash(prop, x)))
       )) {
-        let textProp: string = prop + '_Text';
+        // Default text prop name for obfuscated props:
+        let textProp: string = prop + 'Text';
+
+        // For non-obfsucate ending in "Key"
+        //   "DialogueKey" -> "DialogueText"
+        //   "TextKey" -> "Text"
+        if (prop.endsWith('Key')) {
+          textProp = prop.slice(0, -3) + 'Text';
+          if (textProp.endsWith('TextText')) {
+            textProp = textProp.slice(0, -4);
+          }
+        } else if (prop.endsWith('Keys')) {
+          textProp = prop.slice(0, -4) + 'Texts';
+          if (textProp.endsWith('TextTexts')) {
+            textProp = textProp.slice(0, -5) + 's';
+          }
+        }
+
         if (Array.isArray(object[prop])) {
           let newOriginalArray = [];
           object[textProp] = [];

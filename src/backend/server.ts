@@ -12,7 +12,7 @@ import { logInit } from './util/logger.ts';
 // Application init code should go in `app.ts`, not here.
 
 (async () => {
-  logInit(`Booting server; in ${process.env.NODE_ENV} mode ...`);
+  logInit(`Booting server; NodeJS ${process.version}, in ${process.env.NODE_ENV} mode ...`);
   const app = await appInit();
 
   let httpPort: number = toInt(process.env.HTTP_PORT);

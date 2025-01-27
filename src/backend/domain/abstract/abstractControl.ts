@@ -300,10 +300,13 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     return json;
   }
 
-  async readDataFile<T>(filePath: string, doNormText: boolean = false): Promise<ExtractScalar<T>[]> {
+  async readDataFile<T>(filePath: string, doNormText: boolean = false, filter?: (record: any) => boolean): Promise<ExtractScalar<T>[]> {
     let json = await this.readJsonFile(filePath);
     if (!Array.isArray(json)) {
       json = Object.values(json);
+    }
+    if (filter) {
+      json = json.filter(filter);
     }
     return this.normalize(json, filePath, doNormText);
   }
