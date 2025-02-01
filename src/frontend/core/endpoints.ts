@@ -18,6 +18,9 @@ import {
 } from '../../shared/types/image-index-types.ts';
 import { SitePrefName, SiteUserPrefs } from '../../shared/types/site/site-user-types.ts';
 import { FavorWordGroup } from '../../shared/types/wuwa/favor-types.ts';
+import { OLCombinedResult, OLResult } from '../../backend/domain/abstract/basic/OLgen.ts';
+import { TextMapSearchResponse } from '../../shared/types/lang-types.ts';
+import { IdToExcelUsages } from '../../shared/util/searchUtil.ts';
 
 export type ApiParams<T> = T & {
   fields?: string,
@@ -26,7 +29,7 @@ export type ApiParams<T> = T & {
 
 export type ApiMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
 
-export abstract class SaccharoseApiEndpoint<T extends Object, R = any, E = any> {
+export abstract class SaccharoseApiEndpoint<Params extends Object, Result = any, PostBody = any> {
   readonly uri: string;
   readonly method: ApiMethod;
 
@@ -40,15 +43,15 @@ export abstract class SaccharoseApiEndpoint<T extends Object, R = any, E = any> 
     this.method = method;
   }
 
-  send(params: ApiParams<T>): Promise<R>;
-  send(params: ApiParams<T>, body: E): Promise<R>;
-  send(params: ApiParams<T>, body: E, asHTML: true): Promise<string>;
-  send(params: ApiParams<T>, body: E, asHTML: false): Promise<R>;
+  send(params: ApiParams<Params>): Promise<Result>;
+  send(params: ApiParams<Params>, body: PostBody): Promise<Result>;
+  send(params: ApiParams<Params>, body: PostBody, asHTML: true): Promise<string>;
+  send(params: ApiParams<Params>, body: PostBody, asHTML: false): Promise<Result>;
 
-  send(params: ApiParams<T>, body: E = null, asHTML: boolean = false): Promise<any> {
+  send(params: ApiParams<Params>, body: PostBody = null, asHTML: boolean = false): Promise<any> {
     const currentUrlParams = new URLSearchParams(window.location.search);
     if (!params || typeof params !== 'object') {
-      params = {} as T;
+      params = {} as Params;
     }
     params['input'] = currentUrlParams.get('input');
     params['output'] = currentUrlParams.get('output');
@@ -128,37 +131,37 @@ export abstract class SaccharoseApiEndpoint<T extends Object, R = any, E = any> 
   }
 }
 
-export class GenshinApiEndpoint<T extends Object, R = any, E = any> extends SaccharoseApiEndpoint<T, R, E> {
+export class GenshinApiEndpoint<Params extends Object, Result = any, PostBody = any> extends SaccharoseApiEndpoint<Params, Result, PostBody> {
   constructor(method: ApiMethod, uri: string) {
     super('/api/genshin', uri, method);
   }
 }
 
-export class StarRailApiEndpoint<T extends Object, R = any, E = any> extends SaccharoseApiEndpoint<T, R, E> {
+export class StarRailApiEndpoint<Params extends Object, Result = any, PostBody = any> extends SaccharoseApiEndpoint<Params, Result, PostBody> {
   constructor(method: ApiMethod, uri: string) {
     super('/api/hsr', uri, method);
   }
 }
 
-export class ZenlessApiEndpoint<T extends Object, R = any, E = any> extends SaccharoseApiEndpoint<T, R, E> {
+export class ZenlessApiEndpoint<Params extends Object, Result = any, PostBody = any> extends SaccharoseApiEndpoint<Params, Result, PostBody> {
   constructor(method: ApiMethod, uri: string) {
     super('/api/zenless', uri, method);
   }
 }
 
-export class WuwaApiEndpoint<T extends Object, R = any, E = any> extends SaccharoseApiEndpoint<T, R, E> {
+export class WuwaApiEndpoint<Params extends Object, Result = any, PostBody = any> extends SaccharoseApiEndpoint<Params, Result, PostBody> {
   constructor(method: ApiMethod, uri: string) {
     super('/api/wuwa', uri, method);
   }
 }
 
-export class GenericApiEndpoint<T extends Object, R = any, E = any> extends SaccharoseApiEndpoint<T, R, E> {
+export class GenericApiEndpoint<Params extends Object, Result = any, PostBody = any> extends SaccharoseApiEndpoint<Params, Result, PostBody> {
   constructor(method: ApiMethod, uri: string) {
     super('/api', uri, method);
   }
 }
 
-export class BaseUrlEndpoint<T extends Object, R = any, E = any> extends SaccharoseApiEndpoint<T, R, E> {
+export class BaseUrlEndpoint<Params extends Object, Result = any, PostBody = any> extends SaccharoseApiEndpoint<Params, Result, PostBody> {
   constructor(method: ApiMethod, uri: string) {
     super('', uri, method);
   }
@@ -180,7 +183,9 @@ export const genshinEndpoints = {
     hideRm: boolean,
     addDefaultHidden: boolean,
     includeHeader: boolean,
-  }>('GET', '/OL/generate'),
+  }, OLResult[]>('GET', '/OL/generate'),
+
+  combineOL: new GenshinApiEndpoint<any, OLCombinedResult, string>('POST', '/OL/combine'),
 
   generateSingleDialogueBranch: new GenshinApiEndpoint<{
     text: string,
@@ -199,9 +204,9 @@ export const genshinEndpoints = {
     text: string,
     startFromLine: number,
     resultSetNum: number,
-  }>('GET', '/search-textmap'),
+  }, TextMapSearchResponse>('GET', '/search-textmap'),
 
-  getExcelUsages: new GenshinApiEndpoint<{q: string}>('GET', '/excel-usages'),
+  getExcelUsages: new GenshinApiEndpoint<{q: string}, IdToExcelUsages>('GET', '/excel-usages'),
 
   voToDialogue: new GenshinApiEndpoint<any, any, {text: string}>('POST', '/dialogue/vo-to-dialogue'),
 
@@ -229,15 +234,17 @@ export const starRailEndpoints = {
     hideRm: boolean,
     addDefaultHidden: boolean,
     includeHeader: boolean,
-  }>('GET', '/OL/generate'),
+  }, OLResult[]>('GET', '/OL/generate'),
+
+  combineOL: new StarRailApiEndpoint<any, OLCombinedResult, string>('POST', '/OL/combine'),
 
   searchTextMap: new StarRailApiEndpoint<{
     text: string,
     startFromLine: number,
     resultSetNum: number,
-  }>('GET', '/search-textmap'),
+  }, TextMapSearchResponse>('GET', '/search-textmap'),
 
-  getExcelUsages: new StarRailApiEndpoint<{q: string}>('GET', '/excel-usages'),
+  getExcelUsages: new StarRailApiEndpoint<{q: string}, IdToExcelUsages>('GET', '/excel-usages'),
 
   getVoiceAtlasGroup: new StarRailApiEndpoint<{avatarId: number}, VoiceAtlasGroup>('GET', '/character/voice-atlas'),
 
@@ -254,20 +261,22 @@ export const zenlessEndpoints = {
     hideRm: boolean,
     addDefaultHidden: boolean,
     includeHeader: boolean,
-  }>('GET', '/OL/generate'),
+  }, OLResult[]>('GET', '/OL/generate'),
+
+  combineOL: new ZenlessApiEndpoint<any, OLCombinedResult, string>('POST', '/OL/combine'),
 
   searchTextMap: new ZenlessApiEndpoint<{
     text: string,
     startFromLine: number,
     resultSetNum: number,
-  }>('GET', '/search-textmap'),
+  }, TextMapSearchResponse>('GET', '/search-textmap'),
 
   dialogueHelper: new ZenlessApiEndpoint<{
     text: string,
     hashSearch: boolean,
   }>('GET', '/dialogue-helper'),
 
-  getExcelUsages: new ZenlessApiEndpoint<{q: string}>('GET', '/excel-usages'),
+  getExcelUsages: new ZenlessApiEndpoint<{q: string}, IdToExcelUsages>('GET', '/excel-usages'),
 };
 
 export const wuwaEndpoints = {
@@ -277,15 +286,17 @@ export const wuwaEndpoints = {
     hideRm: boolean,
     addDefaultHidden: boolean,
     includeHeader: boolean,
-  }>('GET', '/OL/generate'),
+  }, OLResult[]>('GET', '/OL/generate'),
+
+  combineOL: new WuwaApiEndpoint<any, OLCombinedResult, string>('POST', '/OL/combine'),
 
   searchTextMap: new WuwaApiEndpoint<{
     text: string,
     startFromLine: number,
     resultSetNum: number,
-  }>('GET', '/search-textmap'),
+  }, TextMapSearchResponse, TextMapSearchResponse>('GET', '/search-textmap'),
 
-  getExcelUsages: new WuwaApiEndpoint<{q: string}>('GET', '/excel-usages'),
+  getExcelUsages: new WuwaApiEndpoint<{q: string}, IdToExcelUsages>('GET', '/excel-usages'),
 
   getFavorWordGroup: new WuwaApiEndpoint<{roleId: number}, FavorWordGroup>('GET', '/role/favor-words'),
 
@@ -369,6 +380,18 @@ export function getOLEndpoint(): {endpoint: SaccharoseApiEndpoint<any>, tlRmDisa
     neverDefaultHidden = true;
   }
   return {endpoint, tlRmDisabled, neverDefaultHidden};
+}
+
+export function getOLCombineEndpoint(): SaccharoseApiEndpoint<any> {
+  if (SiteMode.isGenshin) {
+    return genshinEndpoints.combineOL;
+  } else if (SiteMode.isStarRail) {
+    return starRailEndpoints.combineOL;
+  } else if (SiteMode.isZenless) {
+    return zenlessEndpoints.combineOL;
+  } else if (SiteMode.isWuwa) {
+    return wuwaEndpoints.combineOL;
+  }
 }
 
 (<any> window).genshinEndpoints = genshinEndpoints;

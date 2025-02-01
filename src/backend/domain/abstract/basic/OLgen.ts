@@ -203,7 +203,7 @@ export function ol_combine_results(olResults: OLResult[]): OLCombinedResult {
 
   populateOlTemplateNode(olResults);
 
-  const resultNode = new MwTemplateNode('Other Languages\n');
+  const resultNode: MwTemplateNode = new MwTemplateNode('Other Languages\n');
 
   for (let i = 0; i < olResults.length; i++) {
     const olResult = olResults[i];

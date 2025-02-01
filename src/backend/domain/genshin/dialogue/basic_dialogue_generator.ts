@@ -22,6 +22,7 @@ import { reminderGenerateFromSpeakerTextMapHashes } from './reminder_generator.t
 import { custom } from '../../../util/logger.ts';
 import { CommonLineId, DialogWikitextResult } from '../../../../shared/types/common-types.ts';
 import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
+import { GameVersionFilter } from '../../../../shared/types/game-versions.ts';
 
 // region NPC Filtering for Single Branch Dialogue
 // --------------------------------------------------------------------------------------------------------------
@@ -58,6 +59,7 @@ export type DialogueGenerateOpts = {
   query: number|number[]|string,
   voicedOnly?: boolean;
   npcFilter?: string;
+  versionFilter?: GameVersionFilter,
 }
 
 export const DIALOGUE_GENERATE_MAX = 100;
@@ -322,7 +324,8 @@ export async function dialogueGenerate(ctrl: GenshinControl, opts: DialogueGener
       searchText: state.query.trim(),
       inputLangCode: ctrl.inputLangCode,
       outputLangCode: ctrl.outputLangCode,
-      flags: ctrl.searchModeFlags
+      flags: ctrl.searchModeFlags,
+      versionFilter: opts.versionFilter,
     })) {
       const dialogues: DialogExcelConfigData[] = await ctrl.selectDialogsFromTextMapHash(textMapHash, true);
       const didAccept: boolean = (await dialogues.asyncMap(d => handle(state, d))).some(b => !!b);

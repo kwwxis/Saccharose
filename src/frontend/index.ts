@@ -23,6 +23,7 @@ import './pages/generic/auth/WikiLogin.page.ts';
 import './pages/generic/auth/Settings.page.ts';
 import './pages/generic/basic/excel-usages.ts';
 import './pages/generic/basic/olgen.ts';
+import './pages/generic/basic/olcombine.ts';
 import './pages/generic/basic/textmap.ts';
 import './pages/generic/excel-viewer/excel-viewer.ts';
 import './pages/generic/wiki-revs/rev-app-main.ts';

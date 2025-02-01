@@ -1,7 +1,7 @@
 import { create } from '../../../routing/router.ts';
 import { getGenshinControl } from '../../../domain/genshin/genshinControl.ts';
 import {
-  handleExcelUsagesEndpoint,
+  handleExcelUsagesEndpoint, handleOlCombine,
   handleOlEndpoint,
   handleTextMapSearchEndpoint,
 } from '../../abstract/api/abstractBasicResources.ts';
@@ -18,6 +18,12 @@ router.endpoint('/search-textmap', {
 router.endpoint('/OL/generate', {
   get: async (req: Request, res: Response) => {
     return await handleOlEndpoint(getGenshinControl(req), req, res);
+  }
+});
+
+router.endpoint('/OL/combine', {
+  post: async (req: Request, res: Response) => {
+    return await handleOlCombine(getGenshinControl(req), req, res);
   }
 });
 

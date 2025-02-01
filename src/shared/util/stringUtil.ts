@@ -135,7 +135,7 @@ export function snakeToUpperCamelCase(str: string) {
 }
 
 export function splitCamelcase(str: string) {
-  return !str ? [] : str.split(/([A-Z][a-z]+)/).filter(e => e);
+  return !str ? [] : str.split(/([A-Z][a-z]+)/).map(x => x.replace('_', '')).filter(e => e);
 }
 
 export function camelCaseToTitleCase(str: string) {

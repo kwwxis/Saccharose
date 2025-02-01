@@ -16,6 +16,7 @@ import { VoiceItem } from '../../../../shared/types/lang-types.ts';
 import { Request, Response, Router } from 'express';
 import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
 import GenshinQuestSearchResults from '../../../components/genshin/quests/GenshinQuestSearchResults.vue';
+import { GameVersionFilter } from '../../../../shared/types/game-versions.ts';
 
 const router: Router = create();
 
@@ -122,8 +123,11 @@ router.endpoint('/dialogue/single-branch-generate', {
       throw HttpError.badRequest('UnsupportedOperation', 'Unfortunately, you cannot search for just "Paimon" as the operation would be too intensive.');
     }
 
+    const versionFilter: GameVersionFilter = GameVersionFilter.from(req.query.versionFilter, ctrl.selectVersions().filter(v => v.showChangelog));
+
     let result: DialogueSectionResult[] = await dialogueGenerate(ctrl, {
       query,
+      versionFilter,
       npcFilter: req.query.npcFilter as string,
       voicedOnly: toBoolean(req.query.voicedOnly)
     });

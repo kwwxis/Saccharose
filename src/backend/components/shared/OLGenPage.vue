@@ -5,6 +5,10 @@
       <span class="grow"></span>
       <button id="ol-info-button" class="secondary">Info</button>
     </h2>
+    <div class="tab-list secondary" role="tablist">
+      <a :href="`${ctx.siteHome}/OL`" role="tab" class="tab active">Generate</a>
+      <a :href="`${ctx.siteHome}/OL/combine`" role="tab" class="tab">Combine</a>
+    </div>
     <div class="content">
       <p class="spacer5-bottom">Generate <WikiTemplateLink name="Other Languages" /> template with official names filled out.</p>
       <div class="field valign">

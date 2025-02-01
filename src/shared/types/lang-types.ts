@@ -13,6 +13,12 @@ export type TextMapSearchResult = {
   hashMarkers?: Marker[],
 };
 
+export type TextMapSearchResponse = {
+  items: TextMapSearchResult[],
+  lastLine: number,
+  hasMoreResults: boolean,
+}
+
 export type TextMapSearchOpts = {
   inputLangCode: LangCode,
   outputLangCode: LangCode,

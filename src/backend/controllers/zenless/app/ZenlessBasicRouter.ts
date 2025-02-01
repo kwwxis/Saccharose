@@ -8,6 +8,7 @@ import ExcelUsagesPage from '../../../components/shared/ExcelUsagesPage.vue';
 import ExcelViewerListPage from '../../../components/shared/ExcelViewerListPage.vue';
 import { sendExcelViewerTableResponse } from '../../abstract/app/abstractBasicRouter.ts';
 import { getZenlessControl } from '../../../domain/zenless/zenlessControl.ts';
+import OLCombinePage from '../../../components/shared/OLCombinePage.vue';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -28,6 +29,13 @@ export default async function(): Promise<Router> {
       title: 'OL',
       bodyClass: ['page--OL'],
       hideTlOption: true
+    });
+  });
+
+  router.get('/OL/combine', async (req: Request, res: Response) => {
+    res.render(OLCombinePage, {
+      title: 'OL Combine',
+      bodyClass: ['page--OL-combine']
     });
   });
 

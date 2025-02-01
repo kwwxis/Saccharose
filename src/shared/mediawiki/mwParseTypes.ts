@@ -86,7 +86,7 @@ export abstract class MwParentNode extends MwNode {
     let ret: MwTemplateNode[] = [];
     let stack: MwParentNode[] = [this];
     while (stack.length) {
-      let node = stack.pop();
+      let node = stack.shift();
       if (node instanceof MwTemplateNode) {
         ret.push(node);
       }

@@ -5,6 +5,7 @@ import SitePrivacyPolicyPage from '../../components/site/SitePrivacyPolicyPage.v
 import SiteTermsOfServicePage from '../../components/site/SiteTermsOfServicePage.vue';
 import SiteContactPage from '../../components/site/SiteContactPage.vue';
 import OLGenPage from '../../components/shared/OLGenPage.vue';
+import OLCombinePage from '../../components/shared/OLCombinePage.vue';
 
 export default async function(): Promise<Router> {
   const router: Router = create({
@@ -85,6 +86,15 @@ export default async function(): Promise<Router> {
       layouts: ['layouts/basic-layout', 'layouts/visitor-wrapper'],
       bodyClass: ['page--OL'],
       hideTlOption: true
+    });
+  });
+  router.get(['/genshin/OL/combine', '/hsr/OL/combine', '/zenless/OL/combine', '/wuwa/OL/combine'], async (req: Request, res: Response, next: NextFunction) => {
+    if (req.isAuthenticated()) {
+      return next();
+    }
+    res.render(OLCombinePage, {
+      title: 'OL Combine',
+      bodyClass: ['page--OL-combine']
     });
   });
 

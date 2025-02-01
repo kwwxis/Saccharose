@@ -1,16 +1,19 @@
 import { isInt, maybeInt, toInt } from '../../../../shared/util/numberUtil.ts';
-import { ExcelUsages } from '../../../../shared/util/searchUtil.ts';
+import { ExcelUsages, IdToExcelUsages } from '../../../../shared/util/searchUtil.ts';
 import { AbstractControl } from '../../../domain/abstract/abstractControl.ts';
-import { add_ol_markers, ol_gen, OLResult } from '../../../domain/abstract/basic/OLgen.ts';
-import { isNotEmpty, isset, toBoolean } from '../../../../shared/util/genericUtil.ts';
+import { add_ol_markers, ol_combine_results, ol_gen, OLResult } from '../../../domain/abstract/basic/OLgen.ts';
+import { isset, toBoolean } from '../../../../shared/util/genericUtil.ts';
 import { HttpError } from '../../../../shared/util/httpError.ts';
 import { Request, Response } from 'express';
-import { escapeRegExp } from '../../../../shared/util/stringUtil.ts';
-import { Marker } from '../../../../shared/util/highlightMarker.ts';
-import { TextMapSearchResult } from '../../../../shared/types/lang-types.ts';
+import {
+  TextMapSearchResponse,
+  TextMapSearchResult,
+} from '../../../../shared/types/lang-types.ts';
 import { ChangeRecordRef } from '../../../../shared/types/changelog-types.ts';
 import { GenshinControl } from '../../../domain/genshin/genshinControl.ts';
-import { GameVersion, GameVersionFilter, parseVersionFilters } from '../../../../shared/types/game-versions.ts';
+import { GameVersionFilter } from '../../../../shared/types/game-versions.ts';
+import { mwParse } from '../../../../shared/mediawiki/mwParse.ts';
+import OLCombineResult from '../../../components/shared/OLCombineResult.vue';
 
 export async function handleTextMapSearchEndpoint(ctrl: AbstractControl, req: Request, res: Response) {
   const startFromLine: number = isset(req.query.startFromLine) && isInt(req.query.startFromLine) ? toInt(req.query.startFromLine) : undefined;
@@ -53,11 +56,43 @@ export async function handleTextMapSearchEndpoint(ctrl: AbstractControl, req: Re
       langSuggest: items.length ? null : ctrl.langSuggest(query)
     });
   } else {
-    return {
+    return <TextMapSearchResponse> {
       items,
       lastLine,
       hasMoreResults
     };
+  }
+}
+
+export async function handleOlCombine(ctrl: AbstractControl, req: Request, res: Response) {
+  const mwText = ((req.body.text || req.query.text || '') as string).trim();
+
+  const olResults: OLResult[] = [];
+
+  if (mwText.length) {
+    const mwParsed = mwParse(mwText);
+    for (let templateNode of mwParsed.findTemplateNodes()) {
+      if (templateNode.templateName.toLowerCase() === 'other_languages') {
+        olResults.push({
+          textMapHash: null,
+          result: templateNode.toString(),
+          templateNode,
+          markers: [],
+          warnings: [],
+          duplicateTextMapHashes: [],
+        });
+      }
+    }
+  }
+
+  const combined = ol_combine_results(olResults);
+
+  if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
+    return res.render(OLCombineResult, {
+      combineResult: combined
+    });
+  } else {
+    return combined;
   }
 }
 
@@ -93,7 +128,7 @@ export async function handleOlEndpoint(ctrl: AbstractControl, req: Request, res:
 
 export async function handleExcelUsagesEndpoint(ctrl: AbstractControl, req: Request, res: Response) {
   const ids: (number|string)[] = String(req.query.q).split(/,/g).map(s => s.trim()).filter(s => /^-?[a-zA-Z0-9_]+$/.test(s)).map(maybeInt);
-  const idToUsages: {[id: number|string]: ExcelUsages} = {};
+  const idToUsages: IdToExcelUsages = {};
   const changeRecordRefs: ChangeRecordRef[] = [];
 
   await ids.asyncMap(async id => {

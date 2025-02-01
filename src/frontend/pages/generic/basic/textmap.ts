@@ -55,6 +55,11 @@ pageMatch('vue/TextmapSearchPage', () => {
     }
   ]);
 
+  if (new URL(window.location.href).searchParams.has('versions')) {
+    document.querySelector<HTMLInputElement>('#versionFilterEnabled').checked = true;
+    document.querySelector('#versionFilterOuter').classList.remove('hide');
+  }
+
   startGenericSearchPageListeners({
     endpoint,
     asHtml: true,

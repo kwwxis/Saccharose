@@ -337,6 +337,17 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     }
   }
 
+  readonly maybeTextMapHash = (prop: string, x: any): boolean => {
+    if (prop.length >= 8 && prop.toUpperCase() === prop) {
+      if (Array.isArray(x)) {
+        return (x as any[]).every(y => typeof y === 'number' && String(y).length >= 8);
+      } else {
+        return typeof x === 'number' && String(x).length >= 8;
+      }
+    }
+    return false;
+  }
+
   override async postProcess<T>(object: T, triggerNormalize?: SchemaTable | boolean, doNormText: boolean = false): Promise<T> {
     if (!object)
       return object;
@@ -345,8 +356,17 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     }
     const objAsAny = object as any;
     for (let prop in object) {
-      if (this.state.AutoloadText && (prop.endsWith('MapHash') || prop.endsWith('MapHashList'))) {
-        let textProp = prop.endsWith('List') ? prop.slice(0, -11) + 'List' : prop.slice(0, -7);
+      const maybeTextMapHash = this.state.AutoloadText && this.maybeTextMapHash(prop, object[prop]);
+      if (this.state.AutoloadText && (
+        (prop.endsWith('MapHash') || prop.endsWith('MapHashList')) || maybeTextMapHash
+      )) {
+        let textProp: string;
+        if (maybeTextMapHash) {
+          textProp = prop + '_Text';
+        } else {
+          textProp = prop.endsWith('List') ? prop.slice(0, -11) + 'List' : prop.slice(0, -7);
+        }
+
         if (Array.isArray(object[prop])) {
           let newOriginalArray = [];
           object[textProp] = [];
