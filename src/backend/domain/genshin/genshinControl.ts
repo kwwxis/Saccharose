@@ -1284,7 +1284,10 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
               fakeDialogs.push(await this.makeFakeDialog(action.ActionId, {
                 CustomWikiReadable: readable
               }));
-              this.state.inDialogueReadables[mainQuestId].push(readable);
+              const hasReadable = this.state.inDialogueReadables[mainQuestId].some(x => x.Id === readable.Id);
+              if (!hasReadable) {
+                this.state.inDialogueReadables[mainQuestId].push(readable);
+              }
             }
           }
         }
