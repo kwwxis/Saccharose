@@ -62,10 +62,12 @@
                   <div class="image-obj">
                     <img src="/images/genshin/<%= weapon.AwakenIcon %>.png" style="max-height:74px" loading="lazy" decoding="async" />
                   </div>
-                  <span class="image-label"><%- use('partials/util/byte-size-label', {byteSize: awakenIconEntity.image_size}) %></span>
+                  <% if (awakenIconEntity) { %>
+                    <span class="image-label"><%- use('partials/util/byte-size-label', {byteSize: awakenIconEntity.image_size}) %></span>
+                  <% } %>
                 </div>
               </div>
-              <% if (awakenIconEntity.extra_info.otherNames) { %>
+              <% if (awakenIconEntity && awakenIconEntity.extra_info && awakenIconEntity.extra_info.otherNames) { %>
                 <% for (let otherName of awakenIconEntity.extra_info.otherNames) { %>
                   <div class="media-image">
                     <div class="image-frame bordered">
