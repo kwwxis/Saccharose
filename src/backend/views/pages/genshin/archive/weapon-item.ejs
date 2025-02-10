@@ -34,10 +34,12 @@
                 <div class="image-obj">
                   <img src="/images/genshin/<%= weapon.Icon %>.png" style="max-height:74px" loading="lazy" decoding="async" />
                 </div>
-                <span class="image-label"><%- use('partials/util/byte-size-label', {byteSize: iconEntity.image_size}) %></span>
+                <% if (iconEntity) { %>
+                  <span class="image-label"><%- use('partials/util/byte-size-label', {byteSize: iconEntity.image_size}) %></span>
+                <% } %>
               </div>
             </div>
-            <% if (iconEntity.extra_info.otherNames) { %>
+            <% if (iconEntity && iconEntity.extra_info && iconEntity.extra_info.otherNames) { %>
               <% for (let otherName of iconEntity.extra_info.otherNames) { %>
                 <div class="media-image">
                   <div class="image-frame bordered">

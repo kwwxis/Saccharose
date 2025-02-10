@@ -71,10 +71,27 @@ export function __normZenlessText(text: string, langCode: LangCode, opts: NormTe
   });
 
   if (!opts.decolor && !opts.plaintext) {
+    // Bold:
     text = text.replace(/<color=#\{0}>(.*?)<\/color>/g, `<b>$1</b>`);
     text = text.replace(/<color=#FFFFFF(?:FF)?>(.*?)<\/color>/g, `<b>$1</b>`);
     text = postProcessBoldItalic(text, opts);
 
+    // Misc:
+    text = text.replace(/<color=#f58b03(?:FF)?>(.*?)<\/color>/g, '{{Color|Buzz|$1}}');
+    text = text.replace(/<color=#FFAF2C(?:FF)?>(.*?)<\/color>/g, '{{Color|Buzz|$1}}');
+    text = text.replace(/<color=#b6540a(?:FF)?>(.*?)<\/color>/g, '{{Color|Buzz|$1}}');
+    text = text.replace(/<color=#D9A600(?:FF)?>(.*?)<\/color>/g, '{{Color|Buzz|$1}}');
+    text = text.replace(/<color=#CF4029(?:FF)?>(.*?)<\/color>/g, '{{Color|Red|$1}}');
+    text = text.replace(/<color=#FF3333(?:FF)?>(.*?)<\/color>/g, '{{Color|Red|$1}}');
+    text = text.replace(/<color=#2BAD00(?:FF)?>(.*?)<\/color>/g, '{{Color|Green|$1}}');
+    text = text.replace(/<color=#31CC00(?:FF)?>(.*?)<\/color>/g, '{{Color|Green|$1}}');
+    text = text.replace(/<color=#FF5521(?:FF)?>(.*?)<\/color>/g, '{{Color|Fire|$1}}');
+    text = text.replace(/<color=#98EFF0(?:FF)?>(.*?)<\/color>/g, '{{Color|Ice|$1}}');
+    text = text.replace(/<color=#FE437E(?:FF)?>(.*?)<\/color>/g, '{{Color|Ether|$1}}');
+    text = text.replace(/<color=#2EB6FF(?:FF)?>(.*?)<\/color>/g, '{{Color|Electric|$1}}');
+    text = text.replace(/<color=#F0D12B(?:FF)?>(.*?)<\/color>/g, '{{Color|Physical|$1}}');
+
+    // Unknown:
     text = text.replace(/<color=(#[0-9a-fA-F]{6})(?:FF)?>(.*?)<\/color>/g, '{{Color|$1|$2}}');
   }
 
