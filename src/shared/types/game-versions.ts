@@ -95,7 +95,7 @@ export function isGameVersion(o: any): o is GameVersion {
 }
 
 // TODO: This needs to be updated with each new Genshin version!
-export const CurrentGenshinVersion: GameVersion = GenshinVersions.find(v => v.number === '5.3');
+export const CurrentGenshinVersion: GameVersion = GenshinVersions.find(v => v.number === '5.4');
 
 // TODO: This needs to be updated with each new Honkai Star Rail version!
 export const CurrentStarRailVersion: GameVersion = StarRailVersions.find(v => v.number === '3.0');
