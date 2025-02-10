@@ -44,8 +44,8 @@ function processDialogueNode(scriptName: string,
   node.ScriptConfigSectionIndex = sectionIndex;
   node.ScriptConfigNodeIndex = nodeIndex;
 
-  if (node.TransitionList) {
-    for (let t of node.TransitionList) {
+  if ((<any> node).TransitionList) {
+    for (let t of (<any> node).TransitionList) {
       t.NextNodeId = `${scriptName}_${t.BindSectionIndex}_${t.BindNodeIndex}`;
     }
   } else {

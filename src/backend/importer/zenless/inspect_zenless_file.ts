@@ -9,19 +9,15 @@ const excel = (file: string) => `./FileCfg/${file}.json`;
 const presets = {
   DialogueNodeTemplateTb: <InspectOpt> {
     file: excel('DialogueNodeTemplateTb'),
-    inspectFieldValues: ['NodeType'],
-    preNormFilter: (d: DialogueNode) => d.NodeType === 1
+    inspectFieldValues: ['NodeMark'],
+    preNormFilter: (d: DialogueNode) => (d.NodeType === 20)
   },
 };
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   const ctrl = getZenlessControl();
 
-  await inspectDataFile(ctrl, {
-    file: excel('DialogueNodeTemplateTb'),
-    inspectFieldValues: ['NodeType'],
-    preNormFilter: (d: DialogueNode) => d.NodeType === 29
-  });
+  await inspectDataFile(ctrl, presets.DialogueNodeTemplateTb);
 
   await closeKnex();
 }

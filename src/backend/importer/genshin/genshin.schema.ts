@@ -466,6 +466,9 @@ export const genshinSchema = {
 
       HJBADDKPFIG: 'AltDescTextQuestCondIds', // Version 5.3
       JFFJEGAKDGC: 'AltDescTextMapHashList',  // Version 5.3
+
+      OOPFECJHJPI: 'AltDescTextQuestCondIds', // Version 5.4
+      MGAGMPNHKLF: 'AltDescTextMapHashList',  // Version 5.4
     }
   },
   ReputationQuestExcelConfigData: <SchemaTable> {
@@ -1090,6 +1093,7 @@ export const genshinSchema = {
       LGIODDPABGJ: 'DeckNameTextMapHash', // Version 5.1
       JFEDJIADOFN: 'DeckNameTextMapHash', // Version 5.2
       GNLKCFEEANH: 'DeckNameTextMapHash', // Version 5.3
+      OBKACJAAEJJ: 'DeckNameTextMapHash', // Version 5.4
     }
   },
   GCGDeckCardExcelConfigData: <SchemaTable> {
