@@ -45,10 +45,12 @@
                   <div class="image-obj">
                     <img src="/images/genshin/<%= card.WikiImage %>.png" style="max-height:200px" loading="lazy" decoding="async" />
                   </div>
-                  <span class="image-label"><%- use('partials/util/byte-size-label', {byteSize: WikiImageEntity.image_size}) %></span>
+                  <% if (WikiImageEntity) { %>
+                    <span class="image-label"><%- use('partials/util/byte-size-label', {byteSize: WikiImageEntity.image_size}) %></span>
+                  <% } %>
                 </div>
               </div>
-              <% if (WikiImageEntity.extra_info.otherNames) { %>
+              <% if (WikiImageEntity && WikiImageEntity.extra_info && WikiImageEntity.extra_info.otherNames) { %>
                 <% for (let otherName of WikiImageEntity.extra_info.otherNames) { %>
                   <div class="media-image">
                     <div class="image-frame bordered">
@@ -73,10 +75,12 @@
                   <div class="image-obj">
                     <img src="/images/genshin/<%= card.WikiGoldenImage %>.png" style="max-height:200px" loading="lazy" decoding="async" />
                   </div>
-                  <span class="image-label"><%- use('partials/util/byte-size-label', {byteSize: WikiGoldenImageEntity.image_size}) %></span>
+                  <% if (WikiGoldenImageEntity) { %>
+                    <span class="image-label"><%- use('partials/util/byte-size-label', {byteSize: WikiGoldenImageEntity.image_size}) %></span>
+                  <% } %>
                 </div>
               </div>
-              <% if (WikiGoldenImageEntity.extra_info.otherNames) { %>
+              <% if (WikiGoldenImageEntity && WikiGoldenImageEntity.extra_info && WikiGoldenImageEntity.extra_info.otherNames) { %>
                 <% for (let otherName of WikiGoldenImageEntity.extra_info.otherNames) { %>
                   <div class="media-image">
                     <div class="image-frame bordered">

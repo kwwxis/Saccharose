@@ -7,6 +7,7 @@ import { AchievementExcelConfigData } from '../../../shared/types/genshin/achiev
 import { selectTutorials } from '../../domain/genshin/archive/tutorials.ts';
 import { TutorialsByType } from '../../../shared/types/genshin/tutorial-types.ts';
 import { getGCGControl } from '../../domain/genshin/gcg/gcg_control.ts';
+import { closeKnex } from '../../util/db.ts';
 
 export async function importSearchIndex() {
   if (!fs.existsSync(getGenshinDataFilePath('./TextMap/Index/'))) {
@@ -173,4 +174,5 @@ export async function importSearchIndex() {
     }
     writeOutput('TCGStage', tcgStageIndex);
   }
+  await closeKnex();
 }

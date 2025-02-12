@@ -2,6 +2,7 @@ import { getGenshinControl, loadGenshinVoiceItems } from '../../domain/genshin/g
 import { fetchCharacterFetters } from '../../domain/genshin/character/fetchCharacterFetters.ts';
 import fs from 'fs';
 import chalk from 'chalk';
+import { closeKnex } from '../../util/db.ts';
 
 export async function importVoiceOvers() {
   await loadGenshinVoiceItems();
@@ -13,4 +14,5 @@ export async function importVoiceOvers() {
 
   fs.writeFileSync(outDir + '/VoiceOvers.json', JSON.stringify(allFetters, null, 2));
   console.log(chalk.blue('Done. Output written to: ' + outDir + '/VoiceOvers.json'));
+  await closeKnex();
 }

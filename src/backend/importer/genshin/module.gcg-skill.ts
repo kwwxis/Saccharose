@@ -6,6 +6,7 @@ import { GCGCharSkillDamage, GCGSkillExcelConfigData } from '../../../shared/typ
 import { standardElementCode } from '../../../shared/types/genshin/manual-text-map.ts';
 import chalk from 'chalk';
 import { getGenshinControl } from '../../domain/genshin/genshinControl.ts';
+import { closeKnex } from '../../util/db.ts';
 
 export async function importGcgSkill() {
   const outDir = process.env.GENSHIN_DATA_ROOT
@@ -136,4 +137,5 @@ export async function importGcgSkill() {
   }
   console.log(chalk.blue('Done. Output written to: ' + outDir + '/GCGCharSkillDamage.json'));
   fs.writeFileSync(outDir + '/GCGCharSkillDamage.json', JSON.stringify(combined, null, 2));
+  await closeKnex();
 }
