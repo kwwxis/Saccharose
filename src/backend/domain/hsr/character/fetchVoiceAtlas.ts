@@ -17,7 +17,7 @@ import {
 } from '../starRailControl.ts';
 import { DATAFILE_HSR_VOICE_ATLASES } from '../../../loadenv.ts';
 import { defaultMap } from '../../../../shared/util/genericUtil.ts';
-import { toMap } from '../../../../shared/util/arrayUtil.ts';
+import { mapBy } from '../../../../shared/util/arrayUtil.ts';
 import { toInt } from '../../../../shared/util/numberUtil.ts';
 
 export async function fetchVoiceAtlases(ctrl: StarRailControl, skipCache: boolean = false): Promise<VoiceAtlasGroupByAvatar> {
@@ -33,7 +33,7 @@ export async function fetchVoiceAtlases(ctrl: StarRailControl, skipCache: boolea
   ctrl.state.AutoloadAvatar = false;
   ctrl.state.AutoloadText = false;
 
-  const avatarMap: {[avatarId: number]: AvatarConfig} = toMap(await ctrl.selectAllAvatars(), 'Id');
+  const avatarMap: {[avatarId: number]: AvatarConfig} = mapBy(await ctrl.selectAllAvatars(), 'Id');
 
   return ctrl.cached('VoiceAtlasGroup', 'json', async () => {
     let voiceAtlases: VoiceAtlas[] = await ctrl.readExcelDataFile('VoiceAtlas.json');

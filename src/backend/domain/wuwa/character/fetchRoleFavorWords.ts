@@ -2,7 +2,7 @@ import { pathToFileURL } from 'url';
 import { getWuwaControl, WuwaControl } from '../wuwaControl.ts';
 import path from 'path';
 import fs from 'fs';
-import { sort, toMap } from '../../../../shared/util/arrayUtil.ts';
+import { mapBy, sort } from '../../../../shared/util/arrayUtil.ts';
 import { defaultMap } from '../../../../shared/util/genericUtil.ts';
 import { DATAFILE_WUWA_ROLE_FAVOR_WORDS } from '../../../loadenv.ts';
 import { RoleInfo } from '../../../../shared/types/wuwa/role-types.ts';
@@ -29,7 +29,7 @@ export async function fetchFavorWords(ctrl: WuwaControl, skipCache: boolean = fa
   ctrl.state.AutoloadRoleInfo = false;
   ctrl.state.AutoloadText = false;
 
-  const roleInfoMap: {[roleId: number]: RoleInfo} = toMap(await ctrl.selectAllRoleInfo(), 'Id');
+  const roleInfoMap: {[roleId: number]: RoleInfo} = mapBy(await ctrl.selectAllRoleInfo(), 'Id');
 
   return ctrl.cached('RoleFavor:RoleFavorWordsGroup', 'json', async () => {
     let favorWords: FavorWord[] = await ctrl.readExcelDataFile('FavorWord.json');

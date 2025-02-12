@@ -377,19 +377,11 @@ export class ArrayStream<T> {
   }
 }
 
-export function groupBy<T, K extends KeysMatching<T, string | number>>(array: T[], property: K, out?: { [key: string|number]: T[] }): { [groupedBy: string|number]: T[] } {
-  out = out || {};
-  for (let obj of array) {
-    let k: string|number = <any> obj[property];
-    if (!out.hasOwnProperty(k)) {
-      out[k] = [];
-    }
-    out[k].push(obj);
-  }
-  return out;
-}
-
-export function toMap<T, K extends KeysMatching<T, string | number>>(array: T[], keyProp: K, out?: { [key: string|number]: T }): { [key: string|number]: T } {
+export function mapBy<T, K extends KeysMatching<T, string | number>>(
+  array: T[],
+  keyProp: K,
+  out?: { [key: string|number]: T }
+): { [key: string|number]: T } {
   out = out || {};
   for (let item of array) {
     let k: number|string = <any> item[keyProp];
@@ -398,8 +390,13 @@ export function toMap<T, K extends KeysMatching<T, string | number>>(array: T[],
   return out;
 }
 
-export function mapBy<T, K extends KeysMatching<T, string | number>>(array: T[], keyProp: K, out?: { [key: string|number]: T }): { [key: string|number]: T } {
-  return toMap(array, keyProp, out);
+export function arrayToMap<T, V>(array: T[], kvExtractor: (item: T) => [string, V]): Record<string, V> {
+  const out: Record<string, V> = {};
+  for (let item of array) {
+    let [k, v] = kvExtractor(item);
+    out[k] = v;
+  }
+  return out;
 }
 
 export function compare<T>(a: T, b: T, field?: string|SortComparator<T>, nullsLast: boolean = false): number {

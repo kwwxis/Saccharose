@@ -3,7 +3,7 @@ import { GenshinControl, getGenshinControl } from '../../../domain/genshin/gensh
 import { ChapterExcelConfigData, MainQuestExcelConfigData } from '../../../../shared/types/genshin/quest-types.ts';
 import { isInt, toInt } from '../../../../shared/util/numberUtil.ts';
 import { questGenerate, QuestGenerateResult } from '../../../domain/genshin/dialogue/quest_generator.ts';
-import { isset, removeCyclicRefs, toBoolean } from '../../../../shared/util/genericUtil.ts';
+import { defaultMap, isset, removeCyclicRefs, toBoolean } from '../../../../shared/util/genericUtil.ts';
 import { HttpError } from '../../../../shared/util/httpError.ts';
 import {
   dialogueGenerate,
@@ -17,6 +17,7 @@ import { Request, Response, Router } from 'express';
 import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
 import GenshinQuestSearchResults from '../../../components/genshin/quests/GenshinQuestSearchResults.vue';
 import { GameVersionFilter } from '../../../../shared/types/game-versions.ts';
+import { sort } from '../../../../shared/util/arrayUtil.ts';
 
 const router: Router = create();
 
@@ -201,28 +202,36 @@ router.endpoint('/dialogue/reminder-dialogue-generate', {
   }
 });
 
+type VoToDialogueEntry = {id: number, voFile: string, type: string, text: string, warn?: string, file: string};
+
 router.endpoint('/dialogue/vo-to-dialogue', {
   post: async (req: Request, res: Response) => {
-    const ctrl = getGenshinControl(req);
+    const ctrl: GenshinControl = getGenshinControl(req);
 
-    const inputs: string[] = ((req.body.text || req.query.text || '') as string).trim()
+    const inputs: (string|RegExp)[] = ((req.body.text || req.query.text || '') as string).trim()
       .split(/\n/g)
       .map(s => s.trim())
-      .filter(s => !!s);
+      .filter(s => !!s)
+      .map(input => {
+        if (input.startsWith('/') && input.endsWith('/') && input.length >= 3) {
+          return new RegExp(input.slice(1, -1));
+        }
+        if (input.toLowerCase().includes('{{a|')) {
+          input = /{{A\|(.*?)[|}]/.exec(input)[1].trim();
+        }
+        if (!input.toLowerCase().endsWith('.ogg')) {
+          input += '.ogg';
+        }
+        input = input.replaceAll('_', ' ');
+        input = input.replace('File:', '');
+        return input;
+      });
 
-    const results: {id: number, voFile: string, type: string, text: string, warn?: string, file: string}[] = [];
+    const results: VoToDialogueEntry[] = [];
+    const talkResultsMap: Record<string, {talkId: string, results: VoToDialogueEntry[]}> = defaultMap(
+      talkId => ({talkId, results: []}));
 
-    for (let input of inputs) {
-      if (input.toLowerCase().includes('{{a|')) {
-        input = /{{A\|(.*?)[|}]/.exec(input)[1].trim();
-      }
-      if (!input.toLowerCase().endsWith('.ogg')) {
-        input += '.ogg';
-      }
-      input = input.replaceAll('_', ' ');
-      input = input.replace('File:', '');
-
-      let result: VoiceItem = ctrl.voice.getVoiceItemByFile(input);
+    for (let [input, result] of Object.entries(ctrl.voice.getVoiceItemsByFiles(inputs))) {
       let type = result?.type;
       let id = result?.id;
       let text = '';
@@ -235,6 +244,11 @@ router.endpoint('/dialogue/vo-to-dialogue', {
         } else {
           warn = '(This VO file is supposed to be used for a dialog with ID ' + id + ', however such a dialog does not exist)';
         }
+        if (dialogue.TalkId) {
+          talkResultsMap[dialogue.TalkId].results.push({ id, voFile: input, type, text, warn, file: input });
+        } else {
+          results.push({ id, voFile: input, type, text, warn, file: input });
+        }
       } else if (type === 'DungeonReminder') {
         let reminder = await ctrl.selectReminderById(id);
         if (reminder) {
@@ -242,15 +256,29 @@ router.endpoint('/dialogue/vo-to-dialogue', {
         } else {
           warn = '(This VO file is supposed to be used for a reminder with ' + id + ', however such a reminder does not exist)';
         }
+        results.push({ id, voFile: input, type, text, warn, file: input });
+      } else {
+        results.push({ id, voFile: input, type, text, warn, file: input });
       }
+    }
 
-      results.push({ id, voFile: input, type, text, warn, file: input });
+    const talkResults = Object.values(talkResultsMap);
+    let talkResultsCount = 0;
+
+    sort(results, 'type', 'id');
+    for (let talkResult of talkResults) {
+      sort(talkResult.results, 'type', 'id');
+      talkResultsCount += talkResult.results.length;
     }
 
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
-      return res.render('partials/genshin/dialogue/vo-to-dialogue-result', { results });
+      return res.render('partials/genshin/dialogue/vo-to-dialogue-result', { results, talkResults, talkResultsCount });
     } else {
-      return results;
+      return {
+        results,
+        talkResults,
+        talkResultsCount
+      };
     }
   }
 });

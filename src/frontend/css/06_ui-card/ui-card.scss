@@ -11,6 +11,11 @@
     box-shadow: 0 1px 2px rgb(174 180 193 / 25%);
     border: 1px solid hsl(255deg, 13%, 25%);
   }
+
+  &.bordered {
+    box-shadow: none;
+    border: 1px solid hsl(240, 50%, 89%);
+  }
 }
 
 .content {
@@ -68,6 +73,10 @@ ul.checkbox-tree p {
   body.nightmode & {
     border-bottom-color: hsl(255deg 13% 25%);
   }
+}
+
+.card.bordered > h2:first-child {
+  border-top: 0;
 }
 
 .card > h2:not(:first-child) {

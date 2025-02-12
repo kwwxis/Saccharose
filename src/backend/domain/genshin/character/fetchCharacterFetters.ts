@@ -13,7 +13,7 @@ import { DATAFILE_GENSHIN_FETTERS } from '../../../loadenv.ts';
 import path from 'path';
 import fs from 'fs';
 import { defaultMap } from '../../../../shared/util/genericUtil.ts';
-import { toMap } from '../../../../shared/util/arrayUtil.ts';
+import { mapBy } from '../../../../shared/util/arrayUtil.ts';
 
 function getVoAvatarName(avatar: AvatarExcelConfigData, voiceItems: VoiceItem[]): string {
   if (isTraveler(avatar, 'male')) {
@@ -66,7 +66,7 @@ export async function fetchCharacterFetters(ctrl: GenshinControl, skipCache: boo
   ctrl.state.AutoloadAvatar = false;
   ctrl.state.AutoloadText = false;
 
-  const avatarMap: {[avatarId: number]: AvatarExcelConfigData} = toMap(await ctrl.selectAllAvatars(), 'Id');
+  const avatarMap: {[avatarId: number]: AvatarExcelConfigData} = mapBy(await ctrl.selectAllAvatars(), 'Id');
 
   return ctrl.cached('Fetters:FetterGroup', 'json', async () => {
     let fetters: FetterExcelConfigData[] = await ctrl.readDataFile('./ExcelBinOutput/FettersExcelConfigData.json');

@@ -12,13 +12,12 @@ import fs, { promises as fsp } from 'fs';
 import {
   arrayFillRange,
   arrayIndexOf,
-  arrayIntersect,
+  arrayIntersect, arrayToMap,
   arrayUnique,
   cleanEmpty,
   mapBy,
   pairArrays,
   sort,
-  toMap,
 } from '../../../shared/util/arrayUtil.ts';
 import { isInt, toInt } from '../../../shared/util/numberUtil.ts';
 import { normalizeRawJson, SchemaTable } from '../../importer/import_db.ts';
@@ -1703,8 +1702,8 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     const array: CodexQuestExcelConfigData[] = await this.knex.select('*').from('CodexQuestExcelConfigData')
       .where({MainQuestId: mainQuestId}).then(this.commonLoad);
     group.Items = array;
-    group.ByContentTextMapHash = toMap(array, 'ContentTextMapHash');
-    group.ByItemId = toMap(array, 'ItemId');
+    group.ByContentTextMapHash = mapBy(array, 'ContentTextMapHash');
+    group.ByItemId = mapBy(array, 'ItemId');
     this.state.codexQuestCache[mainQuestId] = group;
     return group;
   }
@@ -3718,17 +3717,42 @@ export class GenshinVoice {
     return resultItems;
   }
 
-  getVoiceItemByFile(voFile: string): VoiceItem {
-    voFile = voFile.toLowerCase();
+  getVoiceItemsByFiles(voFiles: (string|RegExp)[]): Record<string, VoiceItem> {
+    voFiles = voFiles.filter(f => isset(f));
+
+    const searchFiles = arrayToMap(voFiles.filter(f => typeof f === 'string'),
+        voFile => [voFile.toLowerCase(), voFile]);
+
+    const searchRegexes: RegExp[] = voFiles.filter(f => typeof f !== 'string');
+
+    const result: Record<string, VoiceItem> = {};
+    Object.values(searchFiles).forEach(searchFile => result[searchFile] = null);
+
+    const maxRegexResults = 250;
+    let currRegexResults = 0;
+
     for (let key of Object.keys(GENSHIN_VOICE_ITEMS)) {
       let voiceItemArray = GENSHIN_VOICE_ITEMS[key];
       for (let voiceItem of voiceItemArray) {
-        if (voiceItem.fileName.toLowerCase() == voFile) {
-          return voiceItem;
+        const lowerFileName = voiceItem.fileName.toLowerCase();
+        if (searchFiles.hasOwnProperty(lowerFileName)) {
+          result[searchFiles[lowerFileName]] = voiceItem;
+        } else if (searchRegexes.length && currRegexResults < maxRegexResults) {
+          for (let regex of searchRegexes) {
+            if (regex.test(voiceItem.fileName)) {
+              result[voiceItem.fileName] = voiceItem;
+              currRegexResults++;
+            }
+          }
         }
       }
     }
-    return null;
+
+    return result;
+  }
+
+  getVoiceItemByFile(voFile: string): VoiceItem {
+    return this.getVoiceItemsByFiles([voFile])[voFile];
   }
 
   getVoiceItems(type: GenshinVoiceItemType, id: number|string): VoiceItem[] {

@@ -3,7 +3,7 @@ import { pathToFileURL } from 'url';
 import { GenshinControl, getGenshinControl } from '../genshinControl.ts';
 import { closeKnex } from '../../../util/db.ts';
 import { WorldAreaConfigData } from '../../../../shared/types/genshin/general-types.ts';
-import { sort, toMap } from '../../../../shared/util/arrayUtil.ts';
+import { mapBy, sort } from '../../../../shared/util/arrayUtil.ts';
 import { SbOut } from '../../../../shared/util/stringUtil.ts';
 import { ManualTextMapHashes } from '../../../../shared/types/genshin/manual-text-map.ts';
 import {
@@ -279,7 +279,7 @@ export async function postProcessLoadingTip(ctrl: GenshinControl, tip: LoadingTi
 export async function selectLoadingTips(ctrl: GenshinControl): Promise<LoadingCat> {
   const areas: WorldAreaConfigData[] = await ctrl.selectWorldAreas();
   const situations: LoadingSituationExcelConfigData[] = await ctrl.readDataFile('./ExcelBinOutput/LoadingSituationExcelConfigData.json');
-  const situationsByStageId: {[stageId: number]: LoadingSituationExcelConfigData} = toMap(situations, 'StageId');
+  const situationsByStageId: {[stageId: number]: LoadingSituationExcelConfigData} = mapBy(situations, 'StageId');
   const otherCatName: string = await ctrl.getTextMapItem(ctrl.outputLangCode, ManualTextMapHashes.Other);
 
   const tips: LoadingTipsExcelConfigData[] = await ctrl.readDataFile('./ExcelBinOutput/LoadingTipsExcelConfigData.json');

@@ -9,7 +9,7 @@ import {
 } from '../abstract/genericNormalizers.ts';
 import { SpriteTagExcelConfigData } from '../../../shared/types/genshin/general-types.ts';
 import { getGenshinControl } from './genshinControl.ts';
-import { toMap } from '../../../shared/util/arrayUtil.ts';
+import { mapBy } from '../../../shared/util/arrayUtil.ts';
 import { logInitData } from '../../util/logger.ts';
 import { ManualTextMapHashes } from '../../../shared/types/genshin/manual-text-map.ts';
 import { GENSHIN_DISABLED } from '../../loadenv.ts';
@@ -360,7 +360,7 @@ export async function loadGenshinTextSupportingData(): Promise<void> {
   ELEMENT_TEXTMAP.GEO = await ctrl.createLangCodeMap(ManualTextMapHashes.Geo);
   ELEMENT_TEXTMAP.PHYSICAL = await ctrl.createLangCodeMap(ManualTextMapHashes.Physical);
 
-  toMap(await ctrl.readExcelDataFile<SpriteTagExcelConfigData[]>('SpriteTagExcelConfigData.json'), 'Id', GENSHIN_SPRITE_TAGS);
+  mapBy(await ctrl.readExcelDataFile<SpriteTagExcelConfigData[]>('SpriteTagExcelConfigData.json'), 'Id', GENSHIN_SPRITE_TAGS);
 
   logInitData('Loading Genshin-supporting text data -- done!');
 }

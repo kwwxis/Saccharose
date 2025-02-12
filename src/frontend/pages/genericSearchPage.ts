@@ -164,7 +164,9 @@ export function startGenericSearchPageListeners<T,R>(opts: GenericSearchPageOpts
       }
 
       if (opt.required && !val) {
-        flashTippy(el, {content: 'Enter something in first!', delay:[0,2000]});
+        if (caller !== 'nonUserAction') {
+          flashTippy(el, {content: 'Enter something in first!', delay:[0,2000]});
+        }
         return;
       }
 

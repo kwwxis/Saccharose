@@ -477,7 +477,7 @@ export async function generateQuestDialogExcels(repoRoot: string) {
     }
     processJsonObject(json, fileName);
   }
-  console.log('Processing BinOutput/_unknown_Dir');
+  console.log('Processing BinOutput/_unknown_dir');
   for (let fileName of walkSync(binOutputUnknownDirPath)) {
     if (!fileName.endsWith('.json')) {
       continue;
