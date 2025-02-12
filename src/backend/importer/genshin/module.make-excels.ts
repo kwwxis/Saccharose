@@ -361,7 +361,7 @@ export async function generateQuestDialogExcels(repoRoot: string) {
     if (json.talkRole) {
       enqueueDialogExcel(json, fileName);
     }
-    if (Array.isArray(json.dialogList)) {
+    if (json.dialogList && Array.isArray(json.dialogList)) {
       let extraProps: any = {};
       if (json.talkId) {
         extraProps.talkId = json.talkId;
@@ -372,7 +372,7 @@ export async function generateQuestDialogExcels(repoRoot: string) {
       }
       json.dialogList.forEach((obj: any) => enqueueDialogExcel(obj, fileName, extraProps));
     }
-    if (Array.isArray(json.talks)) {
+    if (json.talks && Array.isArray(json.talks)) {
       json.talks.forEach((obj: any) => enqueueTalkExcel(obj, fileName));
     }
   }
@@ -477,15 +477,14 @@ export async function generateQuestDialogExcels(repoRoot: string) {
     }
     processJsonObject(json, fileName);
   }
+  console.log('Processing BinOutput/_unknown_Dir');
   for (let fileName of walkSync(binOutputUnknownDirPath)) {
     if (!fileName.endsWith('.json')) {
       continue;
     }
     let json = await fsp.readFile(fileName, { encoding: 'utf8' }).then(data => JSON.parse(data));
     json = deobf(json);
-    if (json.talkId) {
-      processJsonObject(json, fileName);
-    }
+    processJsonObject(json, fileName);
   }
 
   for (let talkId of Object.keys(scannedTalkIds)) {
