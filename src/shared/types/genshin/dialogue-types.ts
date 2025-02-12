@@ -29,6 +29,7 @@ export type TalkType =
   'GADGET' |
   'IQ' |
   'LQ' |
+  'STORYBOARD' |
   'NARRATOR' |
   'WQ';
 

@@ -79,6 +79,7 @@ export async function generateQuestDialogExcels(repoRoot: string) {
 
   const binOutputQuestPath: string = path.resolve(binOutputPath, './Quest');
   const binOutputTalkPath: string = path.resolve(binOutputPath, './Talk');
+  const binOutputUnknownDirPath: string = path.resolve(binOutputPath, './_unknown_dir');
   const binOutputCodexQuestPath: string = path.resolve(binOutputPath, './CodexQuest');
 
   if (!fs.existsSync(binOutputQuestPath)) throw new Error('BinOutput/Quest path does not exist!');
@@ -475,6 +476,16 @@ export async function generateQuestDialogExcels(repoRoot: string) {
       enqueueMainQuestExcel(json, fileName);
     }
     processJsonObject(json, fileName);
+  }
+  for (let fileName of walkSync(binOutputUnknownDirPath)) {
+    if (!fileName.endsWith('.json')) {
+      continue;
+    }
+    let json = await fsp.readFile(fileName, { encoding: 'utf8' }).then(data => JSON.parse(data));
+    json = deobf(json);
+    if (json.talkId) {
+      processJsonObject(json, fileName);
+    }
   }
 
   for (let talkId of Object.keys(scannedTalkIds)) {
