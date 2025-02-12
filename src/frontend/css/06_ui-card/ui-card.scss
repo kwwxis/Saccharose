@@ -6,15 +6,20 @@
   box-shadow: 0 1px 2px hsla(223, 67%, 18%, 0.35);
   margin-bottom: 20px;
 
+  &.bordered {
+    box-shadow: none;
+    border: 1px solid hsl(240, 50%, 89%);
+  }
+
   body.nightmode & {
     background: hsl(255deg 13% 14%);
     box-shadow: 0 1px 2px rgb(174 180 193 / 25%);
     border: 1px solid hsl(255deg, 13%, 25%);
-  }
 
-  &.bordered {
-    box-shadow: none;
-    border: 1px solid hsl(240, 50%, 89%);
+    &.bordered {
+      box-shadow: none;
+      border: 1px solid hsl(255deg, 13%, 30%);
+    }
   }
 }
 
