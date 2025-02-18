@@ -203,7 +203,7 @@ export const genshinEndpoints = {
   searchTextMap: new GenshinApiEndpoint<{
     text: string,
     startFromLine: number,
-    resultSetNum: number,
+    resultSetIdx: number,
   }, TextMapSearchResponse>('GET', '/search-textmap'),
 
   getExcelUsages: new GenshinApiEndpoint<{q: string}, IdToExcelUsages>('GET', '/excel-usages'),
@@ -241,7 +241,7 @@ export const starRailEndpoints = {
   searchTextMap: new StarRailApiEndpoint<{
     text: string,
     startFromLine: number,
-    resultSetNum: number,
+    resultSetIdx: number,
   }, TextMapSearchResponse>('GET', '/search-textmap'),
 
   getExcelUsages: new StarRailApiEndpoint<{q: string}, IdToExcelUsages>('GET', '/excel-usages'),
@@ -268,7 +268,7 @@ export const zenlessEndpoints = {
   searchTextMap: new ZenlessApiEndpoint<{
     text: string,
     startFromLine: number,
-    resultSetNum: number,
+    resultSetIdx: number,
   }, TextMapSearchResponse>('GET', '/search-textmap'),
 
   dialogueHelper: new ZenlessApiEndpoint<{
@@ -293,7 +293,7 @@ export const wuwaEndpoints = {
   searchTextMap: new WuwaApiEndpoint<{
     text: string,
     startFromLine: number,
-    resultSetNum: number,
+    resultSetIdx: number,
   }, TextMapSearchResponse, TextMapSearchResponse>('GET', '/search-textmap'),
 
   getExcelUsages: new WuwaApiEndpoint<{q: string}, IdToExcelUsages>('GET', '/excel-usages'),

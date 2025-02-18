@@ -77,8 +77,8 @@ pageMatch('vue/TextmapSearchPage', () => {
         apiParam: 'startFromLine',
       },
       {
-        selector: '#resultSetNum',
-        apiParam: 'resultSetNum',
+        selector: '#resultSetIdx',
+        apiParam: 'resultSetIdx',
       },
       {
         selector: '#isRawInput',
@@ -121,11 +121,10 @@ pageMatch('vue/TextmapSearchPage', () => {
         resultTarget.append(fragment);
       }
 
-      let lastLineValue = containerEl.getAttribute('data-last-line');
-      document.querySelector<HTMLInputElement>('#startFromLine').value = String(toInt(lastLineValue) + 1);
+      document.querySelector<HTMLInputElement>('#startFromLine').value = containerEl.getAttribute('data-continue-from-line');
 
-      let resultSetNum = containerEl.getAttribute('data-result-set-num');
-      document.querySelector<HTMLInputElement>('#resultSetNum').value = String(toInt(resultSetNum) + 1);
+      let resultSetIdx = containerEl.getAttribute('data-result-set-idx');
+      document.querySelector<HTMLInputElement>('#resultSetIdx').value = String(toInt(resultSetIdx) + 1);
 
       let loadMoreButton = resultTarget.querySelector<HTMLButtonElement>('#search-load-more');
       if (loadMoreButton) {
@@ -192,7 +191,7 @@ pageMatch('vue/TextmapSearchPage', () => {
         return;
       }
       document.querySelector<HTMLInputElement>('#startFromLine').value = '';
-      document.querySelector<HTMLInputElement>('#resultSetNum').value = '';
+      document.querySelector<HTMLInputElement>('#resultSetIdx').value = '';
     }
   })
 });

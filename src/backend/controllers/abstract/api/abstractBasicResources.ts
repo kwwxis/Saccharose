@@ -15,14 +15,15 @@ import { GameVersionFilter } from '../../../../shared/types/game-versions.ts';
 import { mwParse } from '../../../../shared/mediawiki/mwParse.ts';
 import OLCombineResult from '../../../components/shared/OLCombineResult.vue';
 
+const SEARCH_TEXTMAP_MAX = 100;
+
 export async function handleTextMapSearchEndpoint(ctrl: AbstractControl, req: Request, res: Response) {
   const startFromLine: number = isset(req.query.startFromLine) && isInt(req.query.startFromLine) ? toInt(req.query.startFromLine) : undefined;
-  const resultSetNum: number = isset(req.query.resultSetNum) && isInt(req.query.resultSetNum) ? toInt(req.query.resultSetNum) : 0;
+  const resultSetIdx: number = isset(req.query.resultSetIdx) && isInt(req.query.resultSetIdx) ? toInt(req.query.resultSetIdx) : 0;
   const isRawInput: boolean = isset(req.query.isRawInput) && toBoolean(req.query.isRawInput);
   const isRawOutput: boolean = isset(req.query.isRawOutput) && toBoolean(req.query.isRawOutput);
   const hashSearch: boolean = isset(req.query.hashSearch) && toBoolean(req.query.hashSearch);
   const versionFilter: GameVersionFilter = GameVersionFilter.from(req.query.versionFilter, ctrl.selectVersions().filter(v => v.showChangelog));
-  const SEARCH_TEXTMAP_MAX = 100;
   const query: string = req.query.text as string;
 
   // "-m" flag -> max count
@@ -35,32 +36,27 @@ export async function handleTextMapSearchEndpoint(ctrl: AbstractControl, req: Re
     isRawInput,
     searchAgainst: hashSearch ? 'Hash' : 'Text',
     doNormText: !isRawOutput,
-    versionFilter
+    versionFilter,
+    resultNumberingStart: resultSetIdx * SEARCH_TEXTMAP_MAX,
   });
-  let hasMoreResults: boolean = false;
 
+  let poppedResult: TextMapSearchResult;
   if (items.length > SEARCH_TEXTMAP_MAX) {
-    hasMoreResults = true;
-    items.pop();
+    poppedResult = items.pop();
   }
 
-  const lastLine: number = items.length ? items[items.length - 1].line : null;
+  const out: TextMapSearchResponse = {
+    items,
+    continueFromLine: poppedResult?.line || null,
+    hasMoreResults: !!poppedResult,
+    resultSetIdx,
+    langSuggest: items.length ? null : ctrl.langSuggest(query)
+  };
 
   if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
-    return res.render('partials/generic/basic/textmap-search-result', {
-      items,
-      lastLine,
-      hasMoreResults,
-      resultSetNum,
-      SEARCH_TEXTMAP_MAX,
-      langSuggest: items.length ? null : ctrl.langSuggest(query)
-    });
+    return res.render('partials/generic/basic/textmap-search-result', out);
   } else {
-    return <TextMapSearchResponse> {
-      items,
-      lastLine,
-      hasMoreResults
-    };
+    return out;
   }
 }
 

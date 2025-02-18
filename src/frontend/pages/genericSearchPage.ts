@@ -224,9 +224,18 @@ export function startGenericSearchPageListeners<T,R>(opts: GenericSearchPageOpts
     let endpointRes: Promise<string | R>;
 
     if (opts.doPost) {
-      endpointRes = opts.endpoint.send(null, apiPayload as any, opts.asHtml);
+      // pointless if statements because TypeScript otherwise decides to be annoying about the send() overloads
+      if (opts.asHtml === true) {
+        endpointRes = opts.endpoint.send(null, apiPayload as any, true);
+      } else {
+        endpointRes = opts.endpoint.send(null, apiPayload as any, false);
+      }
     } else {
-      endpointRes = opts.endpoint.send(apiPayload as any, null, opts.asHtml);
+      if (opts.asHtml === true) {
+        endpointRes = opts.endpoint.send(apiPayload as any, null, true);
+      } else {
+        endpointRes = opts.endpoint.send(apiPayload as any, null, false);
+      }
     }
 
     endpointRes.then(result => {

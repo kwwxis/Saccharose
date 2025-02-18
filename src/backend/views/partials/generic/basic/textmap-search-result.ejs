@@ -2,7 +2,7 @@
   <h2 class="valign">
     <div class="valign">
       <span>Page&nbsp;</span>
-      <span><%= resultSetNum + 1 %></span>
+      <span><%= resultSetIdx + 1 %></span>
       <span style="margin:0 8px">&mdash;</span>
       <span><%= items.length %></span>
       <span>&nbsp;<%= items.length > 1 ? 'items' : 'item' %></span>
@@ -13,9 +13,8 @@
     </div>
   </h2>
 </div>
-<div class="result-wrapper" data-last-line="<%= lastLine %>" data-page="<%= resultSetNum + 1 %>" data-result-set-num="<%= resultSetNum %>">
+<div class="result-wrapper" data-continue-from-line="<%= continueFromLine %>" data-page="<%= resultSetIdx + 1 %>" data-result-set-idx="<%= resultSetIdx %>">
   <% items.forEach((item, i) => { %>
-    <% let itemId = (resultSetNum * SEARCH_TEXTMAP_MAX) +  (i+1); %>
     <section data-hash="<%= item.hash %>" class="card">
       <h2 class="valign" style="font-size: 16px;padding: 3px 10px;">
         <span style="opacity:0.6">TextMapHash:&nbsp;</span>
@@ -24,8 +23,8 @@
           <small style="font-weight: normal;font-size: 12px;margin: 3px 0 0 10px;opacity: 0.75;">since <%= item.version %></small>
         <% } %>
         <span class="grow"></span>
-        <small class="fontWeight400 spacer10-right" style="opacity:0.5">Result #<%= itemId %></small>
-        <button class="secondary small fontWeight500 spacer5-right" ui-action="copy: #wikitext-<%= itemId %>"
+        <small class="fontWeight400 spacer10-right" style="opacity:0.5">Result #<%= item.resultNumber %></small>
+        <button class="secondary small fontWeight500 spacer5-right" ui-action="copy: #wikitext-<%= item.resultNumber %>"
                 ui-tippy-hover="Click to copy to clipboard"
                 ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
                 style="margin:5px 0">Copy</button>
@@ -34,7 +33,7 @@
         </a>
         <button class="excel-usages-trigger secondary small fontWeight500 expand-action collapsed-state"
                 data-hash="<%= item.hash %>"
-                data-result-target="excel-usages-<%= itemId %>" ui-tippy-hover="Load usages">
+                data-result-target="excel-usages-<%= item.resultNumber %>" ui-tippy-hover="Load usages">
           <span class="spacer3-right">Usages</span>
           <span class="excel-usages-trigger-icon collapsed-only valign"><%- icon('chevrons-down') %></span>
           <span class="excel-usages-trigger-icon expanded-only valign"><%- icon('chevrons-up') %></span>
@@ -44,10 +43,10 @@
         </button>
       </h2>
       <div class="dialogue-section content" style="margin:0;padding: 7px 7px 2px;">
-        <textarea id="wikitext-<%= itemId %>" data-markers="<%= Marker.joining(item.markers) %>"
+        <textarea id="wikitext-<%= item.resultNumber %>" data-markers="<%= Marker.joining(item.markers) %>"
                   readonly class="w100p wikitext autosize spacer0-all" spellcheck="false" translate="no"><%= item.text %></textarea>
       </div>
-      <div id="excel-usages-<%= itemId %>" class="excel-usages-result collapsed hide" style="margin-top:-5px"></div>
+      <div id="excel-usages-<%= item.resultNumber %>" class="excel-usages-result collapsed hide" style="margin-top:-5px"></div>
       <div style="height:6px"></div>
     </section>
   <% }) %>

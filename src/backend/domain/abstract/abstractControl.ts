@@ -30,7 +30,7 @@ import {
   LangSuggest,
   NON_SPACE_DELIMITED_LANG_CODES,
   PlainLineMapItem,
-  TextMapHash, TextMapSearchOpts, TextMapSearchIndexStreamOpts,
+  TextMapHash, TextMapSearchGetOpts, TextMapSearchIndexStreamOpts,
   TextMapSearchResult, TextMapSearchStreamOpts,
 } from '../../../shared/types/lang-types.ts';
 import { ExtractScalar, FileAndSize } from '../../../shared/types/utility-types.ts';
@@ -326,7 +326,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
   // endregion
 
   // region Text Map Searching
-  async getTextMapMatches(opts: TextMapSearchOpts): Promise<TextMapSearchResult[]> {
+  async getTextMapMatches(opts: TextMapSearchGetOpts): Promise<TextMapSearchResult[]> {
     if (isStringBlank(opts.searchText)) {
       return [];
     }
@@ -336,6 +336,8 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     if (opts.versionFilter && !opts.versionFilter.isEnabled) {
       opts.versionFilter = null;
     }
+
+    const resultNumberingStart: number = opts.resultNumberingStart || 0;
 
     const hashSeen: Set<TextMapHash> = new Set();
     const out: TextMapSearchResult[] = [];
@@ -368,6 +370,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
               continue;
             }
             out.push({
+              resultNumber: resultNumberingStart + out.length + 1,
               hash: possibleHash,
               text,
               line: await getLineNumberForLineText(String(possibleHash), this.getDataFilePath(getPlainTextMapRelPath(opts.inputLangCode, 'Hash'))),
@@ -422,6 +425,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
         }
 
         out.push({
+          resultNumber: resultNumberingStart + out.length + 1,
           hash: textMapHash,
           text: text,
           line: lineNum,
@@ -504,7 +508,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     return ret;
   }
 
-  async* generateTextMapMatches(opts: TextMapSearchOpts): AsyncGenerator<TextMapHash> {
+  async* generateTextMapMatches(opts: TextMapSearchGetOpts): AsyncGenerator<TextMapHash> {
     let textMapHashes: TextMapHash[] = [];
 
     await this.streamTextMapMatches({

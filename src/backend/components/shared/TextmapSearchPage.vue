@@ -40,7 +40,7 @@
       </div>
     </div>
     <input id="startFromLine" type="text" style="display:none!important;" />
-    <input id="resultSetNum" type="text" style="display:none!important;" />
+    <input id="resultSetIdx" type="text" style="display:none!important;" />
   </section>
   <div id="search-result"></div>
 </template>

@@ -5,6 +5,7 @@ import { GameVersion, GameVersionFilter } from './game-versions.ts';
 export type TextMapHash = number|string;
 
 export type TextMapSearchResult = {
+  resultNumber: number,
   hash: TextMapHash,
   version: string,
   text: string,
@@ -15,8 +16,10 @@ export type TextMapSearchResult = {
 
 export type TextMapSearchResponse = {
   items: TextMapSearchResult[],
-  lastLine: number,
   hasMoreResults: boolean,
+  continueFromLine?: number,
+  resultSetIdx?: number,
+  langSuggest?: LangSuggest
 }
 
 export type TextMapSearchOpts = {
@@ -29,6 +32,9 @@ export type TextMapSearchOpts = {
   searchAgainst?: 'Text' | 'Hash',
   doNormText?: boolean,
   versionFilter?: GameVersionFilter,
+};
+export type TextMapSearchGetOpts = TextMapSearchOpts & {
+  resultNumberingStart?: number,
 };
 export type TextMapSearchStreamOpts = TextMapSearchOpts & {
   stream: (textMapHash: TextMapHash, text?: string, kill?: () => void) => void,
