@@ -4,9 +4,9 @@ import fs from 'fs';
 import {promises as fsp} from 'fs';
 import { LANG_CODES } from '../../../shared/types/lang-types.ts';
 import { getTextMapRelPath } from '../../loadenv.ts';
-import { isInt } from '../../../shared/util/numberUtil.ts';
 import { AbstractControl } from '../../domain/abstract/abstractControl.ts';
 import { NormTextOptions } from '../../domain/abstract/genericNormalizers.ts';
+import XXH from 'xxhashjs';
 
 const isOnePropObj = (o: any, key: string) => o && typeof o === 'object' && Object.keys(o).length === 1 && Object.keys(o)[0] === key;
 
@@ -70,7 +70,7 @@ function normalizeRecordForHSR<T>(record: T): T {
     }
 
     if ((key.endsWith('Hash') || key.includes('Name') || key.includes('Title') || key.includes('Desc')) && typeof record[key] === 'string') {
-      record[key] = getStableHash(record[key]);
+      record[key] = XXH.h64(record[key], 0).toString(10);
     }
 
     if (!key.endsWith('Hash') && (key.includes('Name') || key.includes('Title') || key.includes('Desc')) && typeof record[key] === 'number') {
