@@ -1,36 +1,38 @@
 import { plainLineMapSchema, SchemaTable, textMapSchema } from '../import_db.ts';
 
+const hashType = 'text';
+
 export const starRailSchema = {
 
   // region TextMap & PlainLineMap
   // -----------------------------
-  TextMapCHS: textMapSchema('CHS'),
-  TextMapCHT: textMapSchema('CHT'),
-  TextMapDE: textMapSchema('DE'),
-  TextMapEN: textMapSchema('EN'),
-  TextMapES: textMapSchema('ES'),
-  TextMapFR: textMapSchema('FR'),
-  TextMapID: textMapSchema('ID'),
-  TextMapJP: textMapSchema('JP'),
-  TextMapKR: textMapSchema('KR'),
-  TextMapPT: textMapSchema('PT'),
-  TextMapRU: textMapSchema('RU'),
-  TextMapTH: textMapSchema('TH'),
-  TextMapVI: textMapSchema('VI'),
+  TextMapCHS: textMapSchema('CHS', hashType),
+  TextMapCHT: textMapSchema('CHT', hashType),
+  TextMapDE: textMapSchema('DE', hashType),
+  TextMapEN: textMapSchema('EN', hashType),
+  TextMapES: textMapSchema('ES', hashType),
+  TextMapFR: textMapSchema('FR', hashType),
+  TextMapID: textMapSchema('ID', hashType),
+  TextMapJP: textMapSchema('JP', hashType),
+  TextMapKR: textMapSchema('KR', hashType),
+  TextMapPT: textMapSchema('PT', hashType),
+  TextMapRU: textMapSchema('RU', hashType),
+  TextMapTH: textMapSchema('TH', hashType),
+  TextMapVI: textMapSchema('VI', hashType),
 
-  PlainLineMapCHS: plainLineMapSchema('CHS'),
-  PlainLineMapCHT: plainLineMapSchema('CHT'),
-  PlainLineMapDE: plainLineMapSchema('DE'),
-  PlainLineMapEN: plainLineMapSchema('EN'),
-  PlainLineMapES: plainLineMapSchema('ES'),
-  PlainLineMapFR: plainLineMapSchema('FR'),
-  PlainLineMapID: plainLineMapSchema('ID'),
-  PlainLineMapJP: plainLineMapSchema('JP'),
-  PlainLineMapKR: plainLineMapSchema('KR'),
-  PlainLineMapPT: plainLineMapSchema('PT'),
-  PlainLineMapRU: plainLineMapSchema('RU'),
-  PlainLineMapTH: plainLineMapSchema('TH'),
-  PlainLineMapVI: plainLineMapSchema('VI'),
+  PlainLineMapCHS: plainLineMapSchema('CHS', hashType),
+  PlainLineMapCHT: plainLineMapSchema('CHT', hashType),
+  PlainLineMapDE: plainLineMapSchema('DE', hashType),
+  PlainLineMapEN: plainLineMapSchema('EN', hashType),
+  PlainLineMapES: plainLineMapSchema('ES', hashType),
+  PlainLineMapFR: plainLineMapSchema('FR', hashType),
+  PlainLineMapID: plainLineMapSchema('ID', hashType),
+  PlainLineMapJP: plainLineMapSchema('JP', hashType),
+  PlainLineMapKR: plainLineMapSchema('KR', hashType),
+  PlainLineMapPT: plainLineMapSchema('PT', hashType),
+  PlainLineMapRU: plainLineMapSchema('RU', hashType),
+  PlainLineMapTH: plainLineMapSchema('TH', hashType),
+  PlainLineMapVI: plainLineMapSchema('VI', hashType),
   // endregion
 
   // region Avatar & Voice
