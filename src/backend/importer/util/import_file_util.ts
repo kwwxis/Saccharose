@@ -7,6 +7,10 @@ import { getTextMapRelPath } from '../../loadenv.ts';
 import { AbstractControl } from '../../domain/abstract/abstractControl.ts';
 import { NormTextOptions } from '../../domain/abstract/genericNormalizers.ts';
 import XXH from 'xxhashjs';
+import JSONbigimport from 'json-bigint';
+import { isInt } from '../../../shared/util/numberUtil.ts';
+
+const JSONbig = JSONbigimport({ useNativeBigInt: true});
 
 const isOnePropObj = (o: any, key: string) => o && typeof o === 'object' && Object.keys(o).length === 1 && Object.keys(o)[0] === key;
 
@@ -69,17 +73,18 @@ function normalizeRecordForHSR<T>(record: T): T {
       record[key] = normalizeRecordForHSR(value)
     }
 
-    if ((key.endsWith('Hash') || key.includes('Name') || key.includes('Title') || key.includes('Desc')) && typeof record[key] === 'string') {
+    if ((key.endsWith('Hash') || key.includes('Name') || key.includes('Title') || key.includes('Desc'))
+      && typeof record[key] === 'string' && !isInt(record[key])) {
       record[key] = XXH.h64(record[key], 0).toString(10);
     }
 
-    if (!key.endsWith('Hash') && (key.includes('Name') || key.includes('Title') || key.includes('Desc')) && typeof record[key] === 'number') {
+    if (!key.endsWith('Hash') && (key.includes('Name') || key.includes('Title') || key.includes('Desc')) && isInt(record[key])) {
       let prevKey = key;
       record[key = key + 'Hash'] = record[prevKey];
       delete record[prevKey];
     }
 
-    if (key.endsWith('Hash') && !key.endsWith('TextMapHash') && typeof record[key] === 'number') {
+    if (key.endsWith('Hash') && !key.endsWith('TextMapHash') && isInt(record[key])) {
       let prevKey = key;
       key = key.replace(/(TextmapID)?(Text)?(Id|Map)?Hash$/i, 'TextMapHash');
       record[key] = record[prevKey];
@@ -87,6 +92,22 @@ function normalizeRecordForHSR<T>(record: T): T {
     }
   }
   return record;
+}
+
+function replaceBigIntsWithStrings(obj: any) {
+  if (!obj) {
+    return;
+  }
+  if (Array.isArray(obj)) {
+    obj.forEach(element => replaceBigIntsWithStrings(element));
+  } else if (typeof obj === 'object') {
+    for (let key of Object.keys(obj)) {
+      let value = obj[key];
+      if (typeof value === 'bigint') {
+        obj[key] = value.toString();
+      }
+    }
+  }
 }
 
 export async function importNormalize(jsonDir: string, skip: string[], game: 'genshin' | 'hsr' | 'zenless' | 'wuwa', skipReformatPrimitiveArray: string[] = []) {
@@ -105,7 +126,8 @@ export async function importNormalize(jsonDir: string, skip: string[], game: 'ge
 
     let fileData = await fsp.readFile(filePath, 'utf8');
 
-    let json = JSON.parse(fileData);
+    let json = JSONbig.parse(fileData);
+    // replaceBigIntsWithStrings(json);
 
     if (game === 'hsr') {
       if (Array.isArray(json)) {
@@ -126,7 +148,10 @@ export async function importNormalize(jsonDir: string, skip: string[], game: 'ge
       json = newJson;
     }
 
-    let newFileData = JSON.stringify(json, null, 2);
+    let newFileData = JSON.stringify(
+      json,
+      (_, v) => typeof v === 'bigint' ? v.toString() : v,
+      2);
 
     if (!skipReformatPrimitiveArray.includes(file)) {
       // Convert primitive arrays to be single-line.

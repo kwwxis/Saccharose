@@ -23,7 +23,11 @@ export function isInteger(value: any): boolean {
   } else if (typeof value === 'string') {
     return /^-?\d+$/.test(value);
   } else {
-    return isInteger(String(value));
+    try {
+      return isInteger(String(value));
+    } catch (e) {
+      return false;
+    }
   }
 }
 
