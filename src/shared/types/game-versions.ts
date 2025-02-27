@@ -88,7 +88,9 @@ export const WuwaVersions: GameVersion[] = [
   {number: '1.1', previous: '1.0'},
   {number: '1.2', previous: '1.1'},
   {number: '1.3', previous: '1.2'},
-  {number: '1.4', previous: '1.2'},
+  {number: '1.4', previous: '1.3'},
+  {number: '2.0', previous: '1.4'},
+  {number: '2.1', previous: '2.0'},
 ];
 
 export function isGameVersion(o: any): o is GameVersion {
@@ -105,7 +107,7 @@ export const CurrentStarRailVersion: GameVersion = StarRailVersions.find(v => v.
 export const CurrentZenlessVersion: GameVersion = ZenlessVersions.find(v => v.number === '1.5');
 
 // TODO: This needs to be updated with each new Wuthering Waves version!
-export const CurrentWuwaVersion: GameVersion = WuwaVersions.find(v => v.number === '1.4');
+export const CurrentWuwaVersion: GameVersion = WuwaVersions.find(v => v.number === '2.1');
 
 if (!CurrentGenshinVersion) throw 'Fatal configuration error in setting current Genshin Version';
 if (!CurrentStarRailVersion) throw 'Fatal configuration error in setting current Star Rail Version';
