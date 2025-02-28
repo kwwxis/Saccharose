@@ -11,7 +11,7 @@ import toposort from 'toposort';
 import { sort } from '../../../../shared/util/arrayUtil.ts';
 import { pathToFileURL } from 'url';
 import { closeKnex } from '../../../util/db.ts';
-import { isInt } from '../../../../shared/util/numberUtil.ts';
+import { isInt, maybeInt, toInt } from '../../../../shared/util/numberUtil.ts';
 import { custom } from '../../../util/logger.ts';
 import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
 import { DialogWikitextResult } from '../../../../shared/types/common-types.ts';
@@ -376,7 +376,7 @@ export async function dialogueToQuestId(ctrl: GenshinControl,
 
   // If the query is a string that's integer-like, then convert it to an int
   if (typeof query === 'string' && isInt(query)) {
-    query = parseInt(query);
+    query = maybeInt(query);
   }
 
   // If the query is a string then consider it as dialog text, and find the corresponding textmap hash and dialog

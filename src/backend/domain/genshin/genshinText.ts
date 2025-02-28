@@ -258,7 +258,7 @@ export function __normGenshinText(text: string, langCode: LangCode, opts: NormTe
 
   if (!opts.plaintext) {
     text = text.replace(/\{SPRITE_PRESET#(\d+)}/g, (_fm: string, g1: string) => {
-      let image = GENSHIN_SPRITE_TAGS[parseInt(g1)].Image;
+      let image = GENSHIN_SPRITE_TAGS[toInt(g1)].Image;
       image = image.split('/').pop();
       return '{{Sprite|' + image + '}}';
     });

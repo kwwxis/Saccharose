@@ -1,6 +1,7 @@
 import { MwParseModule } from '../mwParseModule.ts';
 import { MwHeading, MwSection } from '../mwParseTypes.ts';
 import { mwParse } from '../mwParse.ts';
+import { toInt } from '../../util/numberUtil.ts';
 
 /**
  * Parse module for sections.
@@ -66,7 +67,7 @@ export class MwParseSectionModule extends MwParseModule {
       const match = this.htmlHeadingRegex.exec(ctx.iter.peek());
       const fullMatch = match[0];
       const tagStart = match[1];
-      const headingLevel = parseInt(match[2]);
+      const headingLevel = toInt(match[2]);
       const headingInner = match[3];
       const tagEnd = match[4];
       return this.processMatch(headingLevel, fullMatch, tagStart, headingInner, tagEnd);

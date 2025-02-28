@@ -29,8 +29,8 @@ router.endpoint('/quests/findMainQuest', {
       throw HttpError.badRequest('InvalidParameter', 'The "query" query parameter must be given');
     }
 
-    if (typeof query === 'string' && /^\d+$/.test(query.trim())) {
-      query = parseInt(query);
+    if (typeof query === 'string' && isInt(query.trim())) {
+      query = toInt(query);
     }
 
     const ctrl = getGenshinControl(req);

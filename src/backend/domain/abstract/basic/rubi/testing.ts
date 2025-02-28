@@ -1,6 +1,7 @@
 import '../../../../loadenv.ts';
 import {TEXT_WIDTH_LOOKUP_TABLE} from './text_width_lookup.ts';
 import { init } from 'server-text-width';
+import { toInt } from '../../../../../shared/util/numberUtil.ts';
 
 const { getTextWidth } = init(TEXT_WIDTH_LOOKUP_TABLE);
 
@@ -52,7 +53,7 @@ export const convertRubi = (text: string): string => {
   text = '';
   for (let part of rubySplit) {
     if (part.startsWith('{RUBY')) {
-      let rubyNum = parseInt(/{RUBY(\d+)}/.exec(part)[1]);
+      let rubyNum = toInt(/{RUBY(\d+)}/.exec(part)[1]);
       rubyList[rubyNum].pos = currentPos;
       continue;
     }
@@ -78,7 +79,7 @@ export const convertRubi = (text: string): string => {
   //   let nextPart = i == (parts.length - 1) ? null : parts[i + 1];
   //   let part = parts[i];
   //   if (part.startsWith('{RUBY')) {
-  //     let rubyNum = parseInt(/{RUBY(\d+)}/.exec(part)[1]);
+  //     let rubyNum = toInt(/{RUBY(\d+)}/.exec(part)[1]);
   //     let ruby = rubyList[rubyNum];
   //     let rubyHalfWidth = ruby.width/2;
   //     console.log('uh', rubyHalfWidth, prevPart, nextPart);

@@ -256,7 +256,7 @@ export async function generateQuestDialogExcels(repoRoot: string) {
 
   function createAndEnqueueTalkExcel(talkId: string|number, obj: any, fileName: string) {
     if (typeof talkId === 'string') {
-      talkId = parseInt(talkId);
+      talkId = toInt(talkId);
     }
 
     const firstDialogId = Array.isArray(obj.dialogList) ? obj.dialogList?.[0]?.id : undefined;

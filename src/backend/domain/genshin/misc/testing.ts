@@ -28,7 +28,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   // );
   // inspect(map);
   // for (let [key, value] of Object.entries(map)) {
-  //   console.log(parseInt(key) + 1 + ':', value);
+  //   console.log(toInt(key) + 1 + ':', value);
   // }
 
   const optionIcons: Set<string> = new Set();

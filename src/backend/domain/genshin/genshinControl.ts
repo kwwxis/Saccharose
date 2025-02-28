@@ -814,7 +814,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
   async selectQuestExcelConfigData(id: number|string): Promise<QuestExcelConfigData> {
     if (typeof id === 'string') {
-      id = parseInt(id);
+      id = toInt(id);
     }
     return await this.knex.select('*').from('QuestExcelConfigData')
       .where({SubId: id}).first().then(this.commonLoadFirst);
@@ -961,7 +961,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       }
 
       if (typeof TalkRole.Id === 'string') {
-        TalkRoleId = parseInt(TalkRole.Id);
+        TalkRoleId = toInt(TalkRole.Id);
         if (isNaN(TalkRoleId)) {
           TalkRole.NameText = TalkRole.Id as string;
         }
@@ -1003,14 +1003,14 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
         hash |= 0; // to 32bit integer
       }
       if (hash < 0) {
-        hash = parseInt('1'+String(hash).slice(1));
+        hash = toInt('1'+String(hash).slice(1));
       }
       id = hash;
     }
 
     // Pad 9's up to 15 digits to not clash with any existing Dialogue IDs...
     // Using 15 digits because the MAX_SAFE_INTEGER has 16 digits
-    id = parseInt(String(id).padStart(15, '9'));
+    id = toInt(String(id).padStart(15, '9'));
 
     return await this.postProcessDialog(Object.assign({
       Id: id,

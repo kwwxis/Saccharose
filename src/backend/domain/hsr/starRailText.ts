@@ -9,6 +9,7 @@ import { TextJoinConfig, TextJoinItem } from '../../../shared/types/hsr/hsr-misc
 import { getStarRailControl } from './starRailControl.ts';
 import { logInitData } from '../../util/logger.ts';
 import { HSR_DISABLED } from '../../loadenv.ts';
+import { toInt } from '../../../shared/util/numberUtil.ts';
 
 export type StarRailNormTextOpts = {
 
@@ -104,7 +105,7 @@ export function __normStarRailText(text: string, langCode: LangCode, opts: NormT
   }
 
   text = text.replace(/\{TEXTJOIN#(\d+)}/g, (fm: string, g: string) => {
-    const id = parseInt(g);
+    const id = toInt(g);
     if (!textJoinConfigMap[id]) {
       return fm;
     }

@@ -371,7 +371,7 @@ export async function getLineNumberForLineText(lineText: string,
 function postProcessGrepLine(s: string, hasLineNumFlag: boolean, startFromLine: number) {
   s = s.trim();
   if (hasLineNumFlag && isset(startFromLine)) {
-    s = s.replace(/^(\d+):/, (fm, stdoutLineNum) => (parseInt(stdoutLineNum) + startFromLine - 1) + ':');
+    s = s.replace(/^(\d+):/, (fm, stdoutLineNum) => (toInt(stdoutLineNum) + startFromLine - 1) + ':');
   }
   return s;
 }
@@ -438,7 +438,7 @@ export async function grepIdStartsWith<T = number | string>(idProp: string,
   let out = [];
   for (let line of lines) {
     let parts = /":\s+"?([^",$]+)/.exec(line);
-    out.push(isInt ? parseInt(parts[1]) : parts[1]);
+    out.push(isInt ? toInt(parts[1]) : parts[1]);
   }
   return out;
 }
@@ -524,8 +524,8 @@ export function mediaSearch(imageName: string, maxHammingDistance: number): Medi
         let lineSplit = line.split('|');
         return {
           name: lineSplit[0],
-          hash: parseInt(lineSplit[1]),
-          distance: parseInt(lineSplit[2])
+          hash: toInt(lineSplit[1]),
+          distance: toInt(lineSplit[2])
         }
       }), 'distance')
     };

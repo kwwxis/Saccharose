@@ -3,7 +3,7 @@ import { closeKnex } from '../../../util/db.ts';
 import { GenshinControl, getGenshinControl } from '../genshinControl.ts';
 import { NpcExcelConfigData } from '../../../../shared/types/genshin/general-types.ts';
 import util from 'util';
-import { isInt } from '../../../../shared/util/numberUtil.ts';
+import { isInt, toInt } from '../../../../shared/util/numberUtil.ts';
 import {
   DialogExcelConfigData, TalkExcelConfigData,
 } from '../../../../shared/types/genshin/dialogue-types.ts';
@@ -78,7 +78,7 @@ class DialogueGenerateState {
     this.query = opts.query;
 
     if (typeof this.query === 'string' && isInt(this.query)) {
-      this.query = parseInt(this.query);
+      this.query = toInt(this.query);
     }
 
     this.npcFilter = normNpcFilterInput(ctrl, opts?.npcFilter, ctrl.inputLangCode);
@@ -375,7 +375,7 @@ export class NpcDialogueResult {
 
 async function npcListFromInput(ctrl: GenshinControl, npcNameOrId: string|number): Promise<NpcExcelConfigData[]> {
   if (typeof npcNameOrId === 'string' && isInt(npcNameOrId)) {
-    npcNameOrId = parseInt(npcNameOrId);
+    npcNameOrId = toInt(npcNameOrId);
   }
 
   let npcList: NpcExcelConfigData[] = [];

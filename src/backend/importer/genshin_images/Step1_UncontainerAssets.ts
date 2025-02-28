@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { pathToFileURL } from 'url';
+import { toInt } from '../../../shared/util/numberUtil.ts';
 
 function* walkSync(dir: string): Generator<string> {
   const files = fs.readdirSync(dir, { withFileTypes: true });
@@ -25,7 +26,7 @@ async function doIt() {
     const filePathSplit: string[] = filePath.replace(/\\/g, '/').split('/').reverse();
 
     const baseName: string = filePathSplit[0];
-    const containerId: number = parseInt(filePathSplit[1]);
+    const containerId: number = toInt(filePathSplit[1]);
     const isNegative: boolean = containerId < 0;
 
     const discriminator: string = (isNegative ? 'n' : '') + Math.abs(containerId).toString(16);

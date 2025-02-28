@@ -16,6 +16,7 @@ import {
 import { FurnitureMakeExcelConfigData } from '../../../shared/types/genshin/homeworld-types.ts';
 import { GCGCharacterLevelExcelConfigData, GCGWeekLevelExcelConfigData } from '../../../shared/types/genshin/gcg-types.ts';
 import { DocumentExcelConfigData } from '../../../shared/types/genshin/readable-types.ts';
+import { toInt } from '../../../shared/util/numberUtil.ts';
 
 export const RAW_MANUAL_TEXTMAP_ID_PROP: string = 'textMapId';
 
@@ -125,7 +126,7 @@ export const genshinSchema = {
             if (questCondStateEqual && Array.isArray(questCondStateEqual.Param)) {
               try {
                 if (typeof questCondStateEqual.Param[0] === 'string') {
-                  return parseInt(questCondStateEqual.Param[0]);
+                  return toInt(questCondStateEqual.Param[0]);
                 } else {
                   return questCondStateEqual.Param[0];
                 }

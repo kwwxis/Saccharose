@@ -26,8 +26,8 @@ export async function getHomeWorldCompanions(ctrl: GenshinControl): Promise<Home
       let substr = item.split('HomeWorld/')[1];
       substr = substr.replace(/__+/g, '_'); // replace multiple underscore with one underscore
       let parts = substr.split('/');
-      let npcId = parseInt(parts[0].split('_')[1]);
-      let talkId = parseInt(parts[1].slice(1));
+      let npcId = toInt(parts[0].split('_')[1]);
+      let talkId = toInt(parts[1].slice(1));
       if (!npcIdToTalkIds.hasOwnProperty(npcId)) {
         npcIdToTalkIds[npcId] = [talkId];
       } else {

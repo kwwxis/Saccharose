@@ -1,5 +1,7 @@
 // From: https://github.com/1c7/srt-parser-2
 
+import { toInt } from '../../shared/util/numberUtil.ts';
+
 export interface SrtLine {
   id: string;
   startTime: string;
@@ -14,8 +16,8 @@ export default class Parser {
 
   timestampToSeconds(srtTimestamp: string) {
     const [rest, millisecondsString] = srtTimestamp.split(",");
-    const milliseconds = parseInt(millisecondsString);
-    const [hours, minutes, seconds] = rest.split(":").map((x) => parseInt(x));
+    const milliseconds = toInt(millisecondsString);
+    const [hours, minutes, seconds] = rest.split(":").map((x) => toInt(x));
     const result = milliseconds * 0.001 + seconds + 60 * minutes + 3600 * hours;
 
     // fix odd JS roundings, e.g. timestamp '00:01:20,460' result is 80.46000000000001

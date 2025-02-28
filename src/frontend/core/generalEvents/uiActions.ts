@@ -156,7 +156,7 @@ export function runUiActions(actionEl: HTMLElement, actions: UiAction[]) {
       case 'show': {
         let showEase = 0;
         if (isInt(actionParams[0])) {
-          showEase = parseInt(actionParams[0]);
+          showEase = toInt(actionParams[0]);
           actionParams = actionParams.slice(1);
         }
         for (let selector of actionParams) {
@@ -173,7 +173,7 @@ export function runUiActions(actionEl: HTMLElement, actions: UiAction[]) {
       case 'hide': {
         let hideEase = 0;
         if (isInt(actionParams[0])) {
-          hideEase = parseInt(actionParams[0]);
+          hideEase = toInt(actionParams[0]);
           actionParams = actionParams.slice(1);
         }
         for (let selector of actionParams) {
@@ -190,7 +190,7 @@ export function runUiActions(actionEl: HTMLElement, actions: UiAction[]) {
       case 'toggle': {
         let toggleEase = 0;
         if (isInt(actionParams[0])) {
-          toggleEase = parseInt(actionParams[0]);
+          toggleEase = toInt(actionParams[0]);
           actionParams = actionParams.slice(1);
         }
         for (let selector of actionParams) {
@@ -400,7 +400,7 @@ export function runUiActions(actionEl: HTMLElement, actions: UiAction[]) {
             let height;
             if (container.hasAttribute('data-original-height')) {
               // Use data-original-height (if it exists)
-              height = parseInt(container.getAttribute('data-original-height'));
+              height = toInt(container.getAttribute('data-original-height'));
               container.removeAttribute('data-original-height');
             } else {
               // Otherwise use scrollHeight, which should be approximately correct.

@@ -1,6 +1,7 @@
 import { genshinEndpoints } from '../../../core/endpoints.ts';
 import { pageMatch } from '../../../core/pageMatch.ts';
 import { startGenericSearchPageListeners } from '../../genericSearchPage.ts';
+import { toInt } from '../../../../shared/util/numberUtil.ts';
 
 pageMatch('vue/GenshinRemindersPage', () => {
   startGenericSearchPageListeners({
@@ -20,7 +21,7 @@ pageMatch('vue/GenshinRemindersPage', () => {
         apiParam: 'subsequentAmount',
         queryParam: 'subseq',
         mapper: (text: string) => {
-          return parseInt(text || '0');
+          return toInt(text || '0');
         }
       }
     ],

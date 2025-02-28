@@ -12,6 +12,7 @@ import { getInputValue, isTextNode, textNodesUnder } from '../../util/domutil.ts
 import { initAceThemeWatcher } from './aceThemeWatcher.ts';
 import { applyWikitextLinker } from './staticActions/wikitextLinker.ts';
 import { escapeHtml } from '../../../shared/util/stringUtil.ts';
+import { toInt } from '../../../shared/util/numberUtil.ts';
 
 // region Static Highlight: Options
 // --------------------------------------------------------------------------------------------------------------
@@ -93,7 +94,7 @@ export function highlight(opts: HighlightOptions): HTMLElement {
   // --------------------------------------------------------------------------------------------------------------
   let Highlight = ace.acequire('ace/ext/static_highlight').highlight;
   Highlight.renderSync = function(input, mode, theme, lineStart, gutters: boolean) {
-    lineStart = parseInt(lineStart || 1, 10);
+    lineStart = toInt(lineStart || 1);
 
     // Edit Session Init
     // --------------------------------------------------------------------------------------------------------------

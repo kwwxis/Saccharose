@@ -1,6 +1,7 @@
 import feather, { FeatherAttributes, FeatherIconNames } from 'feather-icons';
 import { escapeHtmlAllowEntities } from '../../shared/util/stringUtil.ts';
 import { GENSHIN_SPRITE_TAGS } from '../domain/genshin/genshinText.ts';
+import { toInt } from '../../shared/util/numberUtil.ts';
 
 export function icon(iconName: string): string;
 export function icon(iconName: string, size: number): string;
@@ -78,7 +79,7 @@ export function genshinSpriteTagIconize(s: string, escapeHtmlFirst: boolean = tr
     s = escapeHtmlAllowEntities(s);
   }
   return s.replace(/\{SPRITE_PRESET#(\d+)}/g, (fm: string, g1: string) => {
-    let image = GENSHIN_SPRITE_TAGS[parseInt(g1)].Image;
+    let image = GENSHIN_SPRITE_TAGS[toInt(g1)].Image;
     image = image.split('/').pop();
     return `<img src="/images/genshin/${image}.png" class="icon x24" />`;
   });

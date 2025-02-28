@@ -16,7 +16,7 @@
 //      │   ├─ MwPre
 //      │   └─ MwNowiki
 
-import { isInt } from '../util/numberUtil.ts';
+import { isInt, toInt } from '../util/numberUtil.ts';
 import { mwParse, mwSimpleTextParse } from './mwParse.ts';
 
 export abstract class MwNode {
@@ -195,7 +195,7 @@ export class MwHeading extends MwElement {
   }
   getLevel(): number {
     // tagName is always H1, H2, H3, H4, H5, or H6
-    return parseInt(this.tagName.slice(1));
+    return toInt(this.tagName.slice(1));
   }
   get innerText(): string {
     return this.parts.map(p => p.toString()).join('');

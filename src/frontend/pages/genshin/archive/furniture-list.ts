@@ -6,6 +6,7 @@ import { sort } from '../../../../shared/util/arrayUtil.ts';
 import { defaultMap } from '../../../../shared/util/genericUtil.ts';
 import { listen } from '../../../util/eventListen.ts';
 import { deleteQueryStringParameter, getQueryStringParameter, setQueryStringParameter } from '../../../util/domutil.ts';
+import { toInt } from '../../../../shared/util/numberUtil.ts';
 
 pageMatch('pages/genshin/archive/furniture-list', () => {
   const typeTree: HomeWorldFurnitureTypeTree = (<any> window).typeTree;
@@ -15,7 +16,7 @@ pageMatch('pages/genshin/archive/furniture-list', () => {
   const pendingIconEl = document.getElementById('filter-quick-search-pending');
 
   for (let row of allRows) {
-    const furnId = parseInt(row.getAttribute('data-id'));
+    const furnId = toInt(row.getAttribute('data-id'));
     const tokens = row.getAttribute('data-filter-tokens').split(',');
     for (let token of tokens) {
       tokensToId[token].add(furnId);
@@ -50,7 +51,7 @@ pageMatch('pages/genshin/archive/furniture-list', () => {
     cbChanged() {
       const tokens: string[] = this.getValues();
       rowLoop: for (let row of allRows) {
-        const furnId = parseInt(row.getAttribute('data-id'));
+        const furnId = toInt(row.getAttribute('data-id'));
         for (let token of tokens) {
           if (tokensToId[token].has(furnId)) {
             row.classList.remove('hide');

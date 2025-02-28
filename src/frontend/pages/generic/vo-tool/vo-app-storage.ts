@@ -104,7 +104,7 @@ export const VoAppStorageMigration = {
         const langCode: LangCode = keyParts.pop() as LangCode;
 
         const lastUpdatedTimeStr: string = localStorage.getItem(key+'_UPDATETIME');
-        const lastUpdated: number = lastUpdatedTimeStr ? parseInt(lastUpdatedTimeStr) : 0;
+        const lastUpdated: number = lastUpdatedTimeStr ? toInt(lastUpdatedTimeStr) : 0;
 
         avatarsToSave.push({
           storeName: `${siteModePrefix}.SavedAvatars` as any,

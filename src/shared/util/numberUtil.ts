@@ -17,22 +17,20 @@ export function isNumeric(value: any): boolean {
   }
 }
 
-export function isInteger(value: any): boolean {
-  if (typeof value === 'number') {
+export function isInt(value: any): boolean {
+  if (isNaN(value)) {
+    return false;
+  } else if (typeof value === 'number') {
     return Math.trunc(value) === value;
   } else if (typeof value === 'string') {
     return /^-?\d+$/.test(value);
   } else {
     try {
-      return isInteger(String(value));
+      return isInt(String(value));
     } catch (e) {
       return false;
     }
   }
-}
-
-export function isInt(value: any): boolean {
-    return isInteger(value);
 }
 
 export function toNumber(x: string | number) {
@@ -41,8 +39,19 @@ export function toNumber(x: string | number) {
     } else if (x.includes('.')) {
         return parseFloat(x);
     } else {
-        return parseInt(x);
+        return toInt(x);
     }
+}
+
+export function isSafeInt(x: any): boolean {
+  if (!isInt(x)) {
+    return false;
+  }
+  if (typeof x === 'string' && x.length > 16) {
+    return false;
+  }
+  const num = Number(x);
+  return !isNaN(num) && Number.isSafeInteger(num);
 }
 
 export function toInt(x: any): number {
@@ -51,6 +60,9 @@ export function toInt(x: any): number {
   } else if (typeof x === 'number') {
     return x | 0;
   } else if (typeof x === 'string') {
+    if (!isSafeInt(x)) {
+      throw new Error('Unsafe integer: ' + x);
+    }
     try {
       return parseInt(x);
     } catch (e) {
@@ -66,7 +78,7 @@ export function toInt(x: any): number {
  * otherwise the original parameter will be returned.
  */
 export function maybeInt(x: any): any {
-  return isInteger(x) ? toInt(x) : x;
+  return isSafeInt(x) ? toInt(x) : x;
 }
 
 export function constrainNumber(n: number, min: number, max: number) {

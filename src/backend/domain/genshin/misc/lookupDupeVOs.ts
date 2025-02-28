@@ -7,6 +7,7 @@ import{normalizeRawJson} from '../../../importer/import_db.ts';
 import { getGenshinDataFilePath } from '../../../loadenv.ts';
 import { pathToFileURL } from 'url';
 import { genshinSchema } from '../../../importer/genshin/genshin.schema.ts';
+import { toInt } from '../../../../shared/util/numberUtil.ts';
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
@@ -31,7 +32,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
         dialog.TalkRoleNameText = await ctrl.getTextMapItem('EN', dialog.TalkRoleNameTextMapHash);
 
         if (!dialog.TalkRoleNameText && !!dialog.TalkRole) {
-          let npc = await ctrl.getNpc(typeof dialog.TalkRole.Id === 'string' ? parseInt(dialog.TalkRole.Id) : dialog.TalkRole.Id);
+          let npc = await ctrl.getNpc(typeof dialog.TalkRole.Id === 'string' ? toInt(dialog.TalkRole.Id) : dialog.TalkRole.Id);
           if (npc) {
             dialog.TalkRole.NameTextMapHash = npc.NameTextMapHash;
             dialog.TalkRole.NameText = npc.NameText;
