@@ -60,8 +60,10 @@ export function toInt(x: any): number {
   } else if (typeof x === 'number') {
     return x | 0;
   } else if (typeof x === 'string') {
-    if (!isSafeInt(x)) {
-      throw new Error('Unsafe integer: ' + x);
+    if (!isInt(x)) {
+      return NaN;
+    } else if (!isSafeInt(x)) {
+      throw new Error('Attempt to convert unsafe integer as string to number: ' + x);
     }
     try {
       return parseInt(x);

@@ -19,7 +19,7 @@ import {
   pairArrays,
   sort,
 } from '../../../shared/util/arrayUtil.ts';
-import { isInt, toInt } from '../../../shared/util/numberUtil.ts';
+import { isInt, isSafeInt, toInt } from '../../../shared/util/numberUtil.ts';
 import { normalizeRawJson, SchemaTable } from '../../importer/import_db.ts';
 import {
   extractRomanNumeral,
