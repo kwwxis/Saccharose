@@ -7,7 +7,6 @@ import {
 import { getZenlessControl, ZenlessControl } from '../../../domain/zenless/zenlessControl.ts';
 import { Request, Response, Router } from 'express';
 import { isset, toBoolean } from '../../../../shared/util/genericUtil.ts';
-import { TextMapHash } from '../../../../shared/types/lang-types.ts';
 import ZenlessDialogueHelperResult from '../../../components/zenless/ZenlessDialogueHelperResult.vue';
 import { SbOut } from '../../../../shared/util/stringUtil.ts';
 import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
@@ -47,6 +46,12 @@ router.endpoint('/dialogue-helper', {
       searchAgainst: hashSearch ? 'Hash' : 'Text',
       doNormText: true
     });
+
+    const collator = new Intl.Collator(undefined, {numeric: true, sensitivity: 'base'});
+    results.sort((a,b) => {
+      return collator.compare(String(a.hash), String(b.hash));
+    });
+
     for (let result of results) {
       sb.line(`:'''{{Tx|Speaker}}:''' ` + result.text);
       wikitextResult.ids.push({ textMapHash: result.hash });
