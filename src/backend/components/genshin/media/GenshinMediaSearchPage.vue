@@ -7,6 +7,7 @@
     </div>
     <h3>Search Images by Name</h3>
     <div class="content form-box">
+      <p class="spacer5-bottom" style="font-size:14px">For this specific tool, the <code>W</code> and <code>WI</code> search modes are treated the same as <code>C</code> and <code>CI</code> respectively due to word-search not working well on the image names.</p>
       <div id="image-name-search-inputs" class="field valign">
         <div class="posRel valign grow">
           <input class="image-name-search-input grow" type="text" placeholder="Enter file name query" />
@@ -14,7 +15,14 @@
         </div>
         <SearchModeInput />
       </div>
-      <p class="spacer5-top">For this specific tool, the <code>W</code> and <code>WI</code> search modes are treated the same as <code>C</code> and <code>CI</code> respectively due to word-search not working well on the image names.</p>
+      <div class="valign">
+        <input id="firstVersionFilter" type="text" placeholder="Optional versions separated by comma or semicolon"
+               style="max-width: 490px;width: 100%;"/>
+        <span ui-tippy="{content: 'Only filters images to the version it was first added. Does not account for modifications.',delay:[200, 100]}"
+              class="valign spacer10-left" style="opacity: 0.5; width: 19px;">
+          <Icon name="info" />
+        </span>
+      </div>
       <div class="field valign spacer10-top">
         <button class="image-name-search-submit primary primary--2">Search</button>
         <div class="image-name-search-submit-pending hide loading small spacer5-left"></div>

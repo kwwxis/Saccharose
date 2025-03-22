@@ -7,5 +7,6 @@ initiateMediaSearchPage(
   wuwaEndpoints.mediaPostCreateImageIndexArchiveJob,
   '/wuwa',
   '/images/wuwa/',
-  '/wuwa/media/archive-job/'
+  '/wuwa/media/archive-job/',
+  false
 );

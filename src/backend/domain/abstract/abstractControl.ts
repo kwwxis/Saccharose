@@ -897,6 +897,10 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       builder = builder.where(catClauseValues);
     }
 
+    if (select.versionFilter && select.versionFilter.isEnabled) {
+      builder = builder.whereIn('first_version', select.versionFilter.versions.map(v => v.number));
+    }
+
     const offset = select.offset;
     const limit = select.limit;
     const limitPlusOne = select.limit + 1;

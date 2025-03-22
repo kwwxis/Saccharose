@@ -7,5 +7,6 @@ initiateMediaSearchPage(
   genshinEndpoints.mediaPostCreateImageIndexArchiveJob,
   '/genshin',
   '/images/genshin/',
-  '/genshin/media/archive-job/'
+  '/genshin/media/archive-job/',
+  true
 );

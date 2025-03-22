@@ -7,5 +7,6 @@ initiateMediaSearchPage(
   starRailEndpoints.mediaPostCreateImageIndexArchiveJob,
   '/hsr',
   '/images/hsr/',
-  '/hsr/media/archive-job/'
+  '/hsr/media/archive-job/',
+  false
 );

@@ -6,5 +6,6 @@ initiateMediaListPage(
   wuwaEndpoints.mediaSearch,
   wuwaEndpoints.mediaCategory,
   '/wuwa',
-  '/images/wuwa/'
+  '/images/wuwa/',
+  false
 );

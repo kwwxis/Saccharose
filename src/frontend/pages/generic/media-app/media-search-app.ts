@@ -1,5 +1,9 @@
 import { pageMatch } from '../../../core/pageMatch.ts';
-import { GenericSearchPageHandle, startGenericSearchPageListeners } from '../../genericSearchPage.ts';
+import {
+  GenericSearchPageHandle,
+  GenericSearchPageParamOpt,
+  startGenericSearchPageListeners,
+} from '../../genericSearchPage.ts';
 import { SaccharoseApiEndpoint } from '../../../core/endpoints.ts';
 import { frag1, isElementPartiallyInViewport } from '../../../util/domutil.ts';
 import { escapeHtml } from '../../../../shared/util/stringUtil.ts';
@@ -15,6 +19,7 @@ export function initiateMediaSearchPage(
   siteModeHome: string,
   imagePathPrefix: string,
   archiveJobPagePrefix: string,
+  enableVersionFilter: boolean,
 ) {
   pageMatch(`vue/${vueComponentName}`, () => {
     let handle: GenericSearchPageHandle;
@@ -33,7 +38,14 @@ export function initiateMediaSearchPage(
         {
           selector: '#mediaSearchOffset',
           apiParam: 'offset',
-        }
+        },
+        ... (enableVersionFilter ? [
+          <GenericSearchPageParamOpt<any>> {
+            selector: '#firstVersionFilter',
+            apiParam: 'versionFilter',
+            queryParam: 'versions',
+          }
+        ] : [])
       ],
 
       submitPendingTarget: '.image-name-search-submit-pending',

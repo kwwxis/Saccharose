@@ -11,6 +11,7 @@ import { isNotEmpty, toBoolean } from '../../../../shared/util/genericUtil.ts';
 import { templateIcon } from '../../../util/templateIcons.ts';
 import { uuidv4 } from '../../../../shared/util/uuidv4.ts';
 import './media-list.styles.scss';
+import { GenshinVersions, parseVersionFilters } from '../../../../shared/types/game-versions.ts';
 
 export function initiateMediaListPage(
   vueComponentName: string,
@@ -18,15 +19,50 @@ export function initiateMediaListPage(
   mediaCategoryEndpoint: SaccharoseApiEndpoint<{}, ImageCategoryMap>,
   siteModeHome: string,
   imagePathPrefix: string,
+  enableVersionFilter: boolean,
 ) {
   pageMatch(`vue/${vueComponentName}`, async () => {
     const loadingEl: HTMLElement = document.querySelector('#media-list-loading');
     const appEl: HTMLElement = document.querySelector('#media-list-app');
     appEl.innerHTML = '';
     appEl.append(frag(`
+    <style id="media-filter-style-element"></style>
+    <div id="media-catFilter" class="content${enableVersionFilter ? '' : ' hide'}">
+      <div class="valign">
+        <input id="firstVersionFilter" type="text" placeholder="Versions separated by comma or semicolon"
+               style="max-width: 490px;width: 100%;"/>
+        <span ui-tippy="{content: 'Only filters images to the version it was first added. Does not account for modifications.',delay:[200, 100]}"
+              class="valign spacer10-left" style="opacity: 0.5; width: 19px;">
+          ${document.getElementById('template-info-icon').innerHTML}
+        </span>
+         <span id="firstVersionFilterErrorText" class="dispInlineBlock spacer10-left color-red" style="font-size:15px"></span>
+      </div>
+     </div>
     <div id="media-catList">
     </div>
-  `))
+  `));
+
+    if (enableVersionFilter) {
+      const filterStyleElement: HTMLStyleElement = document.querySelector('#media-filter-style-element');
+      const firstVersionFilter: HTMLInputElement = document.querySelector('#firstVersionFilter');
+      const firstVersionFilterErrorText: HTMLInputElement = document.querySelector('#firstVersionFilterErrorText');
+
+      firstVersionFilter.addEventListener('change', e => {
+        const filterText = firstVersionFilter.value;
+        try {
+          const filter = parseVersionFilters(filterText, GenshinVersions);
+          firstVersionFilterErrorText.innerText = '';
+          if (!filter.length) {
+            filterStyleElement.innerText = '';
+          } else {
+            filterStyleElement.innerText = `.media-version-filter-target { display: none; }\n` +
+              filter.map(v => `.first-version-${v.number.replace(/\./g, '-')} {display:block;}`).join('\n');
+          }
+        } catch (errorText) {
+          firstVersionFilterErrorText.innerText = String(errorText);
+        }
+      });
+    }
 
     const rootCatMap: ImageCategoryMap = await mediaCategoryEndpoint.send({});
     console.log({
@@ -40,8 +76,10 @@ export function initiateMediaListPage(
     async function loadImages(mediaCatId: string, loadZoneEl: HTMLElement, catPath: string, offset: number) {
       const result = await mediaSearchEndpoint.send({ catPath: catPath, catRestrict: true, offset });
       for (let entity of result.results) {
+        const firstVersionCssClass = entity.first_version
+            ? ' ' + `first-version-${entity.first_version.replace(/\./g, '-')}` : '';
         loadZoneEl.append(frag1(`
-        <div class="media-image">
+        <div class="media-image media-version-filter-target${firstVersionCssClass}">
           <div class="image-frame bordered">
             <div class="image-obj">
               <img src="${imagePathPrefix}${escapeHtml(entity.image_name)}.png" />
@@ -78,7 +116,8 @@ export function initiateMediaListPage(
         const shouldPopulate: boolean = shouldPopulateFn && shouldPopulateFn(myPath);
 
         const el: HTMLElement = frag1(`
-        <div id="${myId}" class="media-cat"
+        <div id="${myId}" class="media-cat media-version-filter-target ${cat.newImageVersions.map(v =>
+                `first-version-${v.replace(/\./g, '-')}`).join(' ')}"
              data-cat-name="${escapeHtml(cat.name)}"
              data-cat-path="${escapeHtml(myPath)}"
              data-did-populate="${shouldPopulate ? 'true' : 'false'}">
