@@ -2,7 +2,7 @@
   <section id="landing-header" class="card">
     <div class="posRel">
       <img src="/images/site/logo/ZZZ_logo_shadow.png" />
-      <h2><span>Saccharose.wiki</span><small>kwwxis's Zenless Zone Zero Wiki Tools</small></h2>
+      <h2><span>{{ SITE_TITLE }}</span><small>kwwxis's Zenless Zone Zero Wiki Tools</small></h2>
       <div class="bg"></div>
     </div>
   </section>
@@ -26,3 +26,7 @@
     </div>
   </section>
 </template>
+
+<script setup lang="ts">
+import { SITE_TITLE } from '../../loadenv.ts';
+</script>

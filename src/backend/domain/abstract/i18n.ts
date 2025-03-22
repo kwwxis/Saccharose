@@ -249,11 +249,41 @@ export const HSR_I18N_MAP = {
 }
 
 export const ZENLESS_I18N_MAP = {
-
+  ReturnToDialogueOption: <LangCodeMap> {
+    CH: ``,
+    DE: ``,
+    EN: `Dialogue returns to option selection`,
+    ES: ``,
+    FR: ``,
+    ID: ``,
+    IT: ``,
+    JP: ``,
+    KR: ``,
+    PT: ``,
+    RU: ``,
+    TH: ``,
+    TR: ``,
+    VI: `Lời thoại trở về điểm lựa chọn trước`,
+  },
 }
 
 export const WUWA_I18N_MAP = {
-
+  ReturnToDialogueOption: <LangCodeMap> {
+    CH: ``,
+    DE: ``,
+    EN: `Dialogue returns to option selection`,
+    ES: ``,
+    FR: ``,
+    ID: ``,
+    IT: ``,
+    JP: ``,
+    KR: ``,
+    PT: ``,
+    RU: ``,
+    TH: ``,
+    TR: ``,
+    VI: `Lời thoại trở về điểm lựa chọn trước`,
+  },
 }
 
 export function genshin_i18n(key: keyof typeof GENSHIN_I18N_MAP, langCode: LangCode, vars?: Record<string, string|number>): string {

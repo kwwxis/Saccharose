@@ -9,13 +9,15 @@ import { closeKnex } from '../../util/db.ts';
 import { importNormalize, importPlainTextMap } from '../util/import_file_util.ts';
 import { importGcgSkill } from './module.gcg-skill.ts';
 import { importVoiceItems } from './module.voice-items.ts';
-import { importTranslateSchema, exportExcel } from './module.translate-schema.ts';
+import { createPropertySchema } from './module.property-schema.ts';
 import { importVoiceOvers } from './module.voice-overs.ts';
 import { importSearchIndex } from './module.search-index.ts';
 import { generateAvatarAnimInteractionGoodBad, generateQuestDialogExcels } from './module.make-excels.ts';
 import { loadInterActionQD } from './module.interaction.ts';
 import { createChangelog } from './module.changelog.ts';
 import { indexGenshinImages } from './module.index-images.ts';
+import { exportExcel } from './module.export-excel.ts';
+import { recordNewImages } from './module.new-images.ts';
 
 export async function importGenshinFilesCli() {
   const options_beforeDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
@@ -23,8 +25,12 @@ export async function importGenshinFilesCli() {
     {name: 'normalize', type: Boolean, description: 'Normalizes the JSON files.'},
     {name: 'plaintext', type: Boolean, description: 'Creates the PlainTextMap files.'},
     {name: 'voice-items', type: Boolean, description: 'Creates the normalized voice items file.'},
-    // {name: 'translate-schema', type: Boolean, description: 'Creates the SchemaTranslation file.'},
+    {name: 'property-schema', type: Boolean, description: 'Creates the PropertySchema file.'},
     {name: 'interaction', type: Boolean, description: 'Load QuestDialogue InterActions from BinOutput.'},
+  ];
+
+  const options_agnosticDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
+    {name: 'new-images', type: Boolean, description: 'Creates new images map per game version. Must be ran before index-images.'},
     {name: 'index-images', type: Boolean, description: 'Creates index for asset images. ' +
         'Must load all wanted Texture2D images into the EXT_GENSHIN_IMAGES directory first though.'},
   ];
@@ -45,7 +51,7 @@ export async function importGenshinFilesCli() {
 
   let options: commandLineArgs.CommandLineOptions;
   try {
-    options = commandLineArgs([... options_beforeDb, ... options_afterDb, ... options_util]);
+    options = commandLineArgs([... options_beforeDb, ...options_agnosticDb, ... options_afterDb, ... options_util]);
   } catch (e) {
     if (typeof e === 'object' && e.name === 'UNKNOWN_OPTION') {
       console.warn(chalk.red('\nUnknown option: ' + e.optionName));
@@ -86,6 +92,10 @@ export async function importGenshinFilesCli() {
         optionList: options_beforeDb
       },
       {
+        header: 'Database import agnostic (can be run before or after)',
+        optionList: options_agnosticDb
+      },
+      {
         header: 'Must be ran after database import:',
         optionList: options_afterDb
       },
@@ -117,11 +127,14 @@ export async function importGenshinFilesCli() {
   if (options['voice-overs']) {
     await importVoiceOvers();
   }
-  if (options['translate-schema']) {
-    await importTranslateSchema();
+  if (options['property-schema']) {
+    await createPropertySchema();
   }
   if (options['export-excel']) {
     await exportExcel(options['export-excel']);
+  }
+  if (options['new-images']) {
+    await recordNewImages();
   }
   if (options['index-images']) {
     await indexGenshinImages(dryRun);

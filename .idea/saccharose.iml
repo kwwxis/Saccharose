@@ -15,6 +15,7 @@
       <excludeFolder url="file://$MODULE_DIR$/public/images/genshin" />
       <excludeFolder url="file://$MODULE_DIR$/test/resources" />
       <excludeFolder url="file://$MODULE_DIR$/public/v-dist" />
+      <excludeFolder url="file://$MODULE_DIR$/src/backend/domain/abstract/basic/rubi" />
       <excludePattern pattern="package-lock.json" />
     </content>
     <orderEntry type="inheritedJdk" />

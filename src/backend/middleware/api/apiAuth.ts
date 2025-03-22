@@ -1,5 +1,5 @@
 import { HttpError } from '../../../shared/util/httpError.ts';
-import { csrfMiddleware } from '../request/csrf.ts';
+import { doubleCsrfProtection } from '../request/csrf.ts';
 import { NextFunction, Request, Response } from 'express';
 import { openPg } from '../../util/db.ts';
 
@@ -40,7 +40,7 @@ export default async function(req: Request, res: Response, next: NextFunction) {
       next(HttpError.unauthenticated('EBADAPIKEY', 'Invalid API key.'));
     }
   } else if (req.isAuthenticated() && req.headers['x-csrf-token']) {
-    csrfMiddleware(req, res, next);
+    doubleCsrfProtection(req, res, next);
   } else {
     next(HttpError.unauthenticated('AuthRequired', 'Must use an API key or CSRF token to authenticate requests.'));
   }

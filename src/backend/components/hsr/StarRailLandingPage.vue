@@ -2,7 +2,7 @@
   <section id="landing-header" class="card">
     <div class="posRel">
       <img src="/images/site/logo/Honkai_Star_Rail.webp" />
-      <h2><span>Saccharose.wiki</span><br><small>kwwxis's Honkai Star Rail Wiki Tools</small></h2>
+      <h2><span>{{ SITE_TITLE }}</span><br><small>kwwxis's Honkai Star Rail Wiki Tools</small></h2>
       <div class="bg"></div>
     </div>
   </section>
@@ -31,3 +31,7 @@
     </div>
   </section>
 </template>
+
+<script setup lang="ts">
+import { SITE_SHORT_TITLE, SITE_TITLE } from '../../loadenv.ts';
+</script>

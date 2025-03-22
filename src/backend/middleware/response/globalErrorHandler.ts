@@ -1,10 +1,21 @@
 import { VIEWS_ROOT } from '../../loadenv.ts';
 import { HttpError } from '../../../shared/util/httpError.ts';
 import { NextFunction, Request, Response } from 'express';
+import { clearCsrfCookie, CSRF_COOKIE_NAME } from '../request/csrf.ts';
 
 export async function pageLoadErrorHandler(err: any, req: Request, res: Response, next: NextFunction) {
   if (err && typeof err === 'object' && (err.code === 'EBADCSRFTOKEN' || err.type === 'EBADCSRFTOKEN')) {
-    res.status(400).sendFile(`${VIEWS_ROOT}/errors/csrfTokenDenied.html`);
+    clearCsrfCookie(res);
+    let didRefresh = req.context.cookie('EBADCSRFTOKEN.DID_REFRESH');
+    if (didRefresh) {
+      res.status(400).sendFile(`${VIEWS_ROOT}/errors/csrfTokenDenied.html`);
+    } else {
+      res.cookie('EBADCSRFTOKEN.DID_REFRESH', '1', {
+        maxAge: 1000 * 60,
+        httpOnly: true,
+      });
+      res.redirect(req.url);
+    }
     return;
   }
 

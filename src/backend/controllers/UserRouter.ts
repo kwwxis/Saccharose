@@ -6,13 +6,14 @@ import SiteNoticesPage from '../components/site/SiteNoticesPage.vue';
 import NumberFormattingNotice from '../components/site/notices/NumberFormattingNotice.vue';
 import { SiteNotice } from '../../shared/types/site/site-user-types.ts';
 import UserLandingPage from '../components/auth/UserLandingPage.vue';
+import { SITE_TITLE } from '../loadenv.ts';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
 
   router.get('/', (req: Request, res: Response) => {
     res.render(UserLandingPage, {
-      title: 'Saccharose.wiki',
+      title: SITE_TITLE,
       bodyClass: ['page--user', 'page-landing'],
     });
   });

@@ -1,6 +1,7 @@
 // File to set 'use strict' and load environment variables
 import 'use-strict';
 import '../shared/polyfills.ts';
+import './env-types.ts';
 import path, { dirname } from 'path';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
@@ -20,6 +21,7 @@ export const PIPELINE_DIR = path.resolve(__dirname, '../pipeline');
 export const REDIST_DIR = path.resolve(PUBLIC_DIR, './redist');
 export const BACKEND_ROOT = __dirname;
 export const SITE_TITLE = 'Saccharose.wiki';
+export const SITE_SHORT_TITLE = 'Saccharose';
 export const EJS_DELIMITER = '%';
 export const WEB_ACCESS_LOG = process.env.WEB_ACCESS_LOG ? path.resolve(process.env.WEB_ACCESS_LOG) : null;
 
@@ -30,6 +32,7 @@ export const WUWA_DISABLED = toBoolean(process.env.WUWA_DISABLED);
 
 export const IMAGEDIR_GENSHIN_STATIC = path.resolve(PUBLIC_DIR, './images/genshin/static');
 export const IMAGEDIR_GENSHIN_EXT = path.resolve(process.env.EXT_GENSHIN_IMAGES);
+export const IMAGEDIR_GENSHIN_ARCHIVE = path.resolve(process.env.EXT_GENSHIN_IMAGES_ARCHIVE);
 export const IMAGEDIR_HSR_EXT = path.resolve(process.env.EXT_HSR_IMAGES);
 export const IMAGEDIR_ZENLESS_EXT = path.resolve(process.env.EXT_ZENLESS_IMAGES);
 export const IMAGEDIR_WUWA_EXT = path.resolve(process.env.EXT_WUWA_IMAGES);

@@ -20,10 +20,10 @@ import { toInt } from '../../../shared/util/numberUtil.ts';
 
 export const RAW_MANUAL_TEXTMAP_ID_PROP: string = 'textMapId';
 
-const schemaTranslationFilePath = getGenshinDataFilePath('./SchemaTranslation.json');
-const schemaTranslation: {[tableName: string]: {[key: string]: string}} =
-  fs.existsSync(schemaTranslationFilePath)
-    ? JSON.parse(fs.readFileSync(schemaTranslationFilePath, { encoding: 'utf8' }))
+const propertySchemaPath = getGenshinDataFilePath('./PropertySchema.json');
+const propertySchema: {[tableName: string]: {[key: string]: string}} =
+  fs.existsSync(propertySchemaPath)
+    ? JSON.parse(fs.readFileSync(propertySchemaPath, { encoding: 'utf8' }))
     : {};
 
 export type GenshinSchemaNames = keyof typeof genshinSchema;
@@ -1640,16 +1640,16 @@ export const genshinSchema = {
   },
 };
 
-for (let [tableName, schemaTranslationData] of Object.entries(schemaTranslation)) {
-  if (!Object.keys(schemaTranslationData).length) {
+for (let [tableName, propertySchemaData] of Object.entries(propertySchema)) {
+  if (!Object.keys(propertySchemaData).length) {
     continue;
   }
 
   for (let schemaTable of Object.values(genshinSchema)) {
     if (schemaTable.name === tableName) {
-      schemaTable.schemaTranslation = schemaTranslationData;
+      schemaTable.propertySchema = propertySchemaData;
     } else if (schemaTable.jsonFile.endsWith('/' + tableName + '.json')) {
-      schemaTable.schemaTranslation = schemaTranslationData;
+      schemaTable.propertySchema = propertySchemaData;
     }
   }
 }

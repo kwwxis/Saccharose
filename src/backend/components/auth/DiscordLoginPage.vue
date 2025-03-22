@@ -4,7 +4,7 @@
       <div class="content">
         <h2 class="spacer25-bottom open-sans-font dispFlex flexColumn alignCenter">
           <img src="/images/site/logo/Sucrose.png" style="max-width:50px" class="spacer10-bottom" />
-          <span>Welcome to Saccharose.wiki</span>
+          <span>Welcome to {{ SITE_TITLE }}</span>
         </h2>
 
         <div class="justifyCenter spacer10-bottom" style="margin-top:-10px">
@@ -15,7 +15,7 @@
           <p style="text-align: center;max-width:400px">
             This is an internal tool used by the editors of non-official wikis related to HoYoverse games.</p>
           <p style="text-align: center;max-width:400px" class="info-notice spacer10-vert">
-            To access Saccharose, you must be an <strong>autoconfirmed</strong> editor on at least one of those wikis,
+            To access {{ SITE_SHORT_TITLE }}, you must be an <strong>autoconfirmed</strong> editor on at least one of those wikis,
             or any of its other language interwikis, and have at least <strong>100 edits</strong>.
           </p>
         </div>
@@ -25,7 +25,7 @@
         </div>
 
         <div class="alignCenter w100p flexColumn">
-          <p style="text-align: center;max-width:400px">Please login with Discord. Saccharose will only have access to your Discord ID, username, avatar, and banner image.</p>
+          <p style="text-align: center;max-width:400px">Please login with Discord. {{ SITE_SHORT_TITLE }} will only have access to your Discord ID, username, avatar, and banner image.</p>
 
           <p style="text-align: center;
               max-width: 220px;
@@ -55,6 +55,7 @@
 
 <script setup lang="ts">
 import { getTrace } from '../../middleware/request/tracer.ts';
+import { SITE_SHORT_TITLE, SITE_TITLE } from '../../loadenv.ts';
 
 const { cont } = defineProps<{
   cont?: string,

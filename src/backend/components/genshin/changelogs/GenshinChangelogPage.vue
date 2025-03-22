@@ -133,7 +133,7 @@
         <span class="new-summary-section-count">0</span>
       </h3>
       <div id="new-artifacts-content" class="new-summary-section-content content alignStart flexWrap">
-        <p>Artifacts not implemented by Saccharose at this time.</p>
+        <p>Artifacts not implemented by {{ SITE_SHORT_TITLE }} at this time.</p>
       </div>
 
       <h3 id="new-furnishings-header" class="new-summary-section-header secondary-header valign">
@@ -668,6 +668,7 @@ import Wikitext from '../../utility/Wikitext.vue';
 import GenshinReadableLink from '../links/GenshinReadableLink.vue';
 import { ChapterExcelConfigData } from '../../../../shared/types/genshin/quest-types.ts';
 import GenshinChapterListItem from '../chapters/GenshinChapterListItem.vue';
+import { SITE_SHORT_TITLE } from '../../../loadenv.ts';
 
 const {newSummary} = defineProps<{
   genshinVersion: GameVersion,

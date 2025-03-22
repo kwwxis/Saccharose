@@ -14,6 +14,7 @@ import {
 const otherNames: Record<string, ImageIndexOtherName[]> = defaultMap('Array');
 
 function getImageNames(): string[] {
+  console.log('Gathering image names...');
   const imageNames: string[] = [];
   for (const fileName of fs.readdirSync(IMAGEDIR_GENSHIN_EXT)) {
     if (!fileName.endsWith('.png')) {
@@ -36,12 +37,13 @@ function getImageNames(): string[] {
     }
     imageNames.push(imageName);
   }
-
+  console.log('  Image Names Count:', imageNames.length);
   return imageNames;
 }
 
 export async function indexGenshinImages(dryRun: boolean = false) {
   const knex = openPg();
+  console.log('Dry Run:', dryRun);
 
   if (!dryRun) {
     await knex.raw('TRUNCATE TABLE genshin_image_index;').then();
@@ -61,10 +63,14 @@ export async function indexGenshinImages(dryRun: boolean = false) {
     )
   );
 
-  console.log('Gathering image names...');
   for (let imageName of getImageNames()) {
     imageNameSet.add(imageName);
   }
+
+  const firstVersionMap = JSON.parse(fs.readFileSync(
+    path.resolve(process.env.GENSHIN_DATA_ROOT, './NewImages.json'),
+    {encoding: 'utf8'}
+  ));
 
   function findImageUsages(rows: any[]): { images: string[], imagesToExcelMetaEntry: Record<string, ImageIndexExcelMetaEntry> } {
     let images: Set<string> = new Set();
@@ -138,7 +144,7 @@ export async function indexGenshinImages(dryRun: boolean = false) {
   }
 
   console.log('Committing...');
-  for (let imageName of getImageNames()) {
+  for (let imageName of imageNameSet) {
     const size: number = fs.statSync(path.resolve(IMAGEDIR_GENSHIN_EXT, `./${imageName}.png`))?.size || 0;
     const cats: string[] = [];
 
@@ -159,7 +165,7 @@ export async function indexGenshinImages(dryRun: boolean = false) {
       catIdx++;
     }
 
-    batch.push({
+    batch.push(<ImageIndexEntity> {
       image_name: imageName,
       image_size: size,
       excel_usages: imageNameToExcelFileUsages[imageName] || [],
@@ -169,6 +175,7 @@ export async function indexGenshinImages(dryRun: boolean = false) {
       image_cat3: cats[2] || null,
       image_cat4: cats[3] || null,
       image_cat5: cats[4] || null,
+      first_version: firstVersionMap[imageName],
       extra_info: {
         otherNames: otherNames[imageName] || []
       }

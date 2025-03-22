@@ -231,7 +231,7 @@ export class GenshinControlState extends AbstractControlState {
     state.DisableMonsterCache = this.DisableMonsterCache;
     state.AutoloadText = this.AutoloadText;
     state.AutoloadAvatar = this.AutoloadAvatar;
-    return undefined;
+    return state;
   }
 }
 

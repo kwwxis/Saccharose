@@ -58,7 +58,7 @@ export async function convertFoodImageToSuspicious(imageNameOrBuffer: string|Buf
     : imageNameOrBuffer;
 
   // Decode the image:
-  let png: UPNG.Image = UPNG.decode(fileBuffer);
+  let png: UPNG.Image = UPNG.decode(fileBuffer.buffer as ArrayBuffer);
 
   // Convert to 8bit array:
   let frames: ArrayBuffer[] = UPNG.toRGBA8(png);

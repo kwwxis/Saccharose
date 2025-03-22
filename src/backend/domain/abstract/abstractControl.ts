@@ -54,7 +54,7 @@ import { uuidv4 } from '../../../shared/util/uuidv4.ts';
 import { AbstractControlState } from './abstractControlState.ts';
 import { NormTextOptions } from './genericNormalizers.ts';
 import { ChangeRecordRef, FullChangelog, TextMapChangeRef } from '../../../shared/types/changelog-types.ts';
-import { GameVersion } from '../../../shared/types/game-versions.ts';
+import { GameVersion, GameVersionFilter } from '../../../shared/types/game-versions.ts';
 import { ScriptJobActionArgs, ScriptJobCoordinator, ScriptJobPostResult } from '../../util/scriptJobs.ts';
 import { RequestSiteMode } from '../../routing/requestContext.ts';
 
@@ -802,6 +802,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       cat5: req.query.cat5 as string,
       catPath: req.query.catPath as string,
       catRestrict: toBoolean(req.query.catRestrict),
+      versionFilter: GameVersionFilter.from(req.query.versionFilter, this.selectVersions().filter(v => v.showNewMedia)),
       offset: isInt(req.query.offset) ? toInt(req.query.offset) : 0,
       searchMode: req.query.searchMode ? (String(req.query.searchMode) as SearchMode) : this.searchMode
     };

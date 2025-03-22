@@ -66,17 +66,6 @@ CREATE TABLE api_keys
     info        TEXT
 );
 
--- IMAGE HASHES
-----------------------------------------------------------------------------------------------------------------
-CREATE TABLE genshin_image_hashes
-(
-	id SERIAL PRIMARY KEY,
-	name text,
-	hash bigint
-);
-
-CREATE INDEX bk_index_name ON genshin_image_hashes USING spgist (hash bktree_ops);
-
 -- GENSHIN IMAGE INDEX
 ----------------------------------------------------------------------------------------------------------------
 DROP TABLE IF EXISTS genshin_image_index;
@@ -93,6 +82,7 @@ CREATE TABLE genshin_image_index
     image_cat6      TEXT,
     image_cat7      TEXT,
     image_cat8      TEXT,
+    first_version   TEXT,
     excel_usages    TEXT[],
     excel_meta      JSONB,
     extra_info      JSONB
@@ -118,6 +108,7 @@ CREATE TABLE hsr_image_index
     image_cat6      TEXT,
     image_cat7      TEXT,
     image_cat8      TEXT,
+    first_version   TEXT,
     excel_usages    TEXT[],
     excel_meta      JSONB,
     extra_info      JSONB
@@ -143,6 +134,7 @@ CREATE TABLE wuwa_image_index
     image_cat6      TEXT,
     image_cat7      TEXT,
     image_cat8      TEXT,
+    first_version   TEXT,
     excel_usages    TEXT[],
     excel_meta      JSONB,
     extra_info      JSONB

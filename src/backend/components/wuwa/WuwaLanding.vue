@@ -2,7 +2,7 @@
   <section id="landing-header" class="card">
     <div class="posRel">
       <div class="bg"></div>
-      <h2><span>Saccharose.wiki</span><br><small>kwwxis's Wuthering Waves Wiki Tools</small></h2>
+      <h2><span>{{ SITE_TITLE }}</span><br><small>kwwxis's Wuthering Waves Wiki Tools</small></h2>
     </div>
   </section>
   <section class="card">
@@ -24,5 +24,7 @@
     </div>
   </section>
 </template>
+
 <script setup lang="ts">
+import { SITE_TITLE } from '../../loadenv.ts';
 </script>

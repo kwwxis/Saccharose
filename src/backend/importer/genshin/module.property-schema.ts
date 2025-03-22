@@ -1,13 +1,12 @@
 import { getGenshinDataFilePath } from '../../loadenv.ts';
-import fs, { promises as fsp } from 'fs';
+import fs from 'fs';
 import path from 'path';
-import { normalizeRawJson } from '../import_db.ts';
 import { genshinSchema } from './genshin.schema.ts';
 import { translateSchema } from '../util/translate_schema.ts';
 import chalk from 'chalk';
 import { CurrentGenshinVersion } from '../../../shared/types/game-versions.ts';
 
-export async function importTranslateSchema() {
+export async function createPropertySchema() {
   function getExcelFilePair(filePath: string) {
     return {
       impExcelPath: path.resolve(process.env.GENSHIN_ARCHIVES,
@@ -54,40 +53,7 @@ export async function importTranslateSchema() {
 
   console.log('Writing output...');
   const outDir = process.env.GENSHIN_DATA_ROOT;
-  fs.writeFileSync(outDir + '/SchemaTranslation.json', JSON.stringify(schemaResult, null, 2));
-  console.log(chalk.blue('Done. Output written to: ' + outDir + '/SchemaTranslation.json'));
+  fs.writeFileSync(outDir + '/PropertySchema.json', JSON.stringify(schemaResult, null, 2));
+  console.log(chalk.blue('Done. Output written to: ' + outDir + '/PropertySchema.json'));
 }
 
-export async function exportExcel(outputDirectory: string) {
-  if (/^C:[^\\/]/g.test(outputDirectory)) {
-    console.error('Invalid path: ' + outputDirectory);
-    return;
-  }
-  const excelDirPath = getGenshinDataFilePath('./ExcelBinOutput');
-
-  if (!outputDirectory.endsWith('ExcelBinOutput')) {
-    outputDirectory = path.resolve(outputDirectory, './ExcelBinOutput');
-  }
-
-  fs.mkdirSync(outputDirectory, { recursive: true });
-
-  const schemaTranslationFilePath = getGenshinDataFilePath('./SchemaTranslation.json');
-  const schemaTranslation: { [tableName: string]: { [key: string]: string } } =
-    fs.existsSync(schemaTranslationFilePath)
-      ? JSON.parse(fs.readFileSync(schemaTranslationFilePath, { encoding: 'utf8' }))
-      : {};
-
-  const jsonsInDir = fs.readdirSync(excelDirPath).filter(file => path.extname(file) === '.json');
-  for (let jsonFile of jsonsInDir) {
-    const schemaName = path.basename(jsonFile).split('.')[0];
-    console.log('Processing ' + schemaName + ' has translation? ' + (schemaTranslation[schemaName] ? 'yes' : 'no'));
-
-    const absJsonPath = getGenshinDataFilePath('./ExcelBinOutput/' + jsonFile);
-    const json = await fsp.readFile(absJsonPath, { encoding: 'utf8' }).then(data => JSON.parse(data));
-
-    const normJson = normalizeRawJson(json, genshinSchema[schemaName], schemaTranslation[schemaName]);
-    fs.writeFileSync(path.resolve(outputDirectory, './' + schemaName + '.json'), JSON.stringify(normJson, null, 2));
-  }
-
-  console.log('Done');
-}

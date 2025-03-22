@@ -128,7 +128,7 @@ export function isEquiv(a: any, b: any, fieldSkipper?: (field: PathAndValue) => 
  * @param processor See the `interceptor` parameter on {@link walkObjectGen}
  */
 export function walkObject(o: any, processor: (curr: PathAndValue) => 'NO-DESCEND'|'QUIT'|'CONTINUE'|'DELETE'|void): void {
-  for (let x of walkObjectGen(o, false, processor)) {}
+  for (let _ignore of walkObjectGen(o, false, processor)) {}
 }
 
 /**

@@ -1,4 +1,5 @@
 import { SiteSidebar } from '../../shared/types/site/site-sidebar-types.ts';
+import { SITE_TITLE } from '../loadenv.ts';
 
 export const SIDEBAR_CONFIG: { [siteMode: string]: SiteSidebar } = {
   genshin: {
@@ -346,7 +347,7 @@ export const SIDEBAR_CONFIG: { [siteMode: string]: SiteSidebar } = {
   unset: {
     id: 'unsetMenu',
     header: {
-      name: 'Saccharose.wiki',
+      name: SITE_TITLE,
     },
     sections: [
       {

@@ -4,18 +4,22 @@ import { RequestContext } from '../../routing/requestContext.ts';
 import { GenshinControl, getGenshinControl } from '../../domain/genshin/genshinControl.ts';
 import { getStarRailControl, StarRailControl } from '../../domain/hsr/starRailControl.ts';
 import { getZenlessControl, ZenlessControl } from '../../domain/zenless/zenlessControl.ts';
-import { getWuwaControl } from '../../domain/wuwa/wuwaControl.ts';
+import { getWuwaControl, WuwaControl } from '../../domain/wuwa/wuwaControl.ts';
+import { ProcessEnv } from '../../env-types.ts';
 
 export type ITrace = {
   req: Request,
   res: Response,
   ctx: RequestContext,
+  env: ProcessEnv,
   nonce: string,
   genshinControl: GenshinControl,
   starRailControl: StarRailControl,
   zenlessControl: ZenlessControl,
+  wuwaControl: WuwaControl,
   normGenshinText: (s: string) => string,
   normStarRailText: (s: string) => string,
+  normZenlessText: (s: string) => string,
   normWuwaText: (s: string) => string,
 }
 

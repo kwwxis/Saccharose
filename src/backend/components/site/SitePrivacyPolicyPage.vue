@@ -3,7 +3,7 @@
     <article class="card legal-doc" role="main">
       <div class="content">
         <header>
-          <h1>Saccharose.wiki - Privacy Policy</h1>
+          <h1>{{ SITE_TITLE }} - Privacy Policy</h1>
           <p>Effective: January 28th, 2024.</p>
         </header>
         <aside id="toc" class="no-fixed split" aria-label="Table of Contents">
@@ -29,7 +29,8 @@
           </section>
         </aside>
         <section style="padding-bottom: 0;">
-          <p>Saccharose.wiki ("Saccharose", "us", "we", or "our") operates <a href="https://saccharose.wiki">saccharose.wiki</a> (the "Website", or the "Service").</p>
+          <p>{{ SITE_TITLE }} ("{{ SITE_SHORT_TITLE }}", "us", "we", or "our") operates
+            <a :href="`https://${env.WEB_DOMAIN}`">{{ env.WEB_DOMAIN }}</a> (the "Website", or the "Service").</p>
 
           <p>This Privacy Policy informs you of the site's policies regarding how it collects, uses,
             and handles your information</p>
@@ -61,7 +62,7 @@
             </li>
             <li>
               <strong>Access Logging:</strong>
-              <p>Saccharose.wiki may collect limited non-personally identifying information your browser makes
+              <p>{{ SITE_TITLE }} may collect limited non-personally identifying information your browser makes
                 available whenever you visit any website on the internet. This information may include but not limited to your
                 Internet Protocol address, browser type, browser language, OS version, the date and time of your
                 visit and one or more cookies that may uniquely identify your browser. We use this information to
@@ -98,7 +99,7 @@
             you would need to review their Privacy Policies for more info.</p>
 
           <h4 id="with_whom_p2">Our Staff</h4>
-          <p>Your information may be accessible to any of Saccharose.wiki's staff who need to
+          <p>Your information may be accessible to any of {{ SITE_TITLE }}'s staff who need to
             access that information in order to operate, develop or improve our Services.</p>
 
           <h4 id="with_whom_p3">Law &amp; Order</h4>
@@ -145,6 +146,7 @@
 
 <script setup lang="ts">
 import { getTrace } from '../../middleware/request/tracer.ts';
+import { SITE_SHORT_TITLE, SITE_TITLE } from '../../loadenv.ts';
 
 const { env } = getTrace();
 </script>

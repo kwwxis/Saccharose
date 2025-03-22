@@ -1,4 +1,5 @@
 import { SearchMode } from '../util/searchUtil.ts';
+import { GameVersionFilter } from './game-versions.ts';
 
 export interface ImageIndexExcelMeta {
   [excelFile: string]: ImageIndexExcelMetaEntry;
@@ -22,6 +23,7 @@ export interface ImageIndexEntity {
   image_cat6?: string,
   image_cat7?: string,
   image_cat8?: string,
+  first_version?: string,
   extra_info?: ImageIndexExtraInfo
 }
 
@@ -46,6 +48,7 @@ export interface ImageIndexSearchParams {
   cat8?: string,
   catPath?: string,
   catRestrict?: boolean,
+  versionFilter?: GameVersionFilter,
   offset?: number,
   limit?: number,
   searchMode?: SearchMode,

@@ -76,7 +76,9 @@ type DialogueNodeBase = {
   NextNodeId?: string,
   ScriptConfigName: string, // file name of the 'Data/ScriptConfig' story sections json file
   ScriptConfigNodeIndex: number,
-  ScriptConfigSectionIndex: number
+  ScriptConfigSectionIndex: number,
+  Recurse?: boolean,
+  Branches?: DialogueNode[][]
 };
 
 export type DialogueNode0 = {
@@ -86,11 +88,11 @@ export type DialogueNode0 = {
   AutoDoNext: boolean,
   AvatarId: number,
   AvatarNameKey: string,
-  AvatarNameText: string,
+  AvatarNameText?: string,
   AvatarShowingKey: string,
   CallType: number,
   DialogueKey: string,
-  DialogueText: string,
+  DialogueText?: string,
   EffectKey: string,
   EffectType: number,
   ExternalVoiceKey: string,
@@ -119,6 +121,7 @@ export type DialogueNodeTransition1 = {
   BindNodeIndex: number,
   IconId?: number,
   TextKey?: string,
+  Text?: string,
   NextNodeId: string
 };
 
@@ -130,7 +133,6 @@ export type DialogueNode2 = {
 export type DialogueNode3 = {
   NodeType: 3,
   ActionList: DialogueNode3Action[],
-  ActionListText: never,
   NodeMark: DialogueNodeMark,
 };
 
@@ -236,7 +238,6 @@ export type DialogueNode26 = {
   CameraX: number,
   CameraY: number,
   Params: { TagId: number, IsVisible: boolean }[],
-  ParamsText: never,
   ResetCamera: boolean,
   TargetTag: number,
   TransformKey: string,
@@ -263,6 +264,7 @@ export type DialogueNodeTransition28 = {
   BindNodeIndex: number,
   IconId: number,
   TextKey: string,
+  Text?: string,
   GroupId: number,
   NextNodeId: string
 };
@@ -280,6 +282,7 @@ export type DialogueNode29Cfg = {
   OnlyActions: boolean,
   IsTransition: boolean,
   DialogueKey?: string,
+  DialogueText?: string,
   DialogueDelay: number,
   TransitionId: number,
   SetTagVisible: boolean,
@@ -314,16 +317,16 @@ export type DialogueNode30 = {
   NodeType: 30,
 
   CancelBtnDesc: string,
-  CancelBtnDescText: string,
+  CancelBtnDescText?: string,
 
   ConfirmBtnDesc: string,
-  ConfirmBtnDescText: string,
+  ConfirmBtnDescText?: string,
 
   Description: string,
-  DescriptionText: string,
+  DescriptionText?: string,
 
   DescriptionDetail: string,
-  DescriptionDetailText: string,
+  DescriptionDetailText?: string,
 
   OnCancelNext: DialogueNodeTransition30,
   OnConfirmNext: DialogueNodeTransition30,
@@ -405,7 +408,7 @@ export type DialogueNode37 = {
   NodeType: 37,
   TagId: number,
   NameKey: string,
-  NameText: string,
+  NameText?: string,
 };
 
 export type DialogueNode38 = {

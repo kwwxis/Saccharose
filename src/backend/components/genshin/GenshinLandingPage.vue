@@ -5,7 +5,7 @@
       <div class="bg2"></div>
       <img src="/images/site/logo/Genshin-Impact-Logo-White.webp" />
     </div>
-    <h2><span>Saccharose.wiki</span><br><small>kwwxis's Genshin Impact Wiki Tools</small></h2>
+    <h2><span>{{ SITE_TITLE }}</span><br><small>kwwxis's Genshin Impact Wiki Tools</small></h2>
     <div class="divider"></div>
   </section>
   <section class="card">
@@ -19,7 +19,7 @@
     <div class="content">
       <img src="/images/site/home/Icon_Emoji_017_Sucrose_OK.webp" class="fr" style="width:80px; margin-top: -40px;" loading="lazy" decoding="async" />
       <p>If you have ideas for additional tools for this website or found any bugs, you can message the
-        "Saccharose.wiki" editing forums post in the Wiki Discord.
+        "{{ SITE_TITLE }}" editing forums post in the Wiki Discord.
         Or if you're one of the interwiki editors and aren't in the English wiki discord, you can ping or DM kwwxis.</p>
     </div>
   </section>
@@ -63,9 +63,9 @@
         <li><strong>2023-11-26:</strong> The placement of quest item images are now inserted into dialogue results with a <WikiTemplateLink name="tx" />,
           however determining which image it is isn't possible unfortunately.</li>
         <li><strong>2023-11-26:</strong> Quest Still images are now shown in quest/dialogue results as applicable.</li>
-        <li><strong>2023-11-26:</strong> Saccharose now can correctly determine if a player dialogue line is a Traveler spoken line
+        <li><strong>2023-11-26:</strong> {{ SITE_SHORT_TITLE }} now can correctly determine if a player dialogue line is a Traveler spoken line
           or a dialogue option.</li>
-        <li><strong>2023-11-26:</strong> InterActions are now incorporated into Saccharose dialogue results.</li>
+        <li><strong>2023-11-26:</strong> InterActions are now incorporated into {{ SITE_SHORT_TITLE }} dialogue results.</li>
         <li><strong>2023-11-24:</strong> Improved support for showing the Matched Object in Identifier Usages.</li>
         <li><strong>2023-11-24:</strong> Identifier Usages in TextMap Search no longer opens in new tab but instead now loads inline.</li>
         <li><strong>2023-11-23:</strong> Fixed issue with searching for text that includes multiple periods.</li>
@@ -207,4 +207,5 @@
 </template>
 <script setup lang="ts">
 import WikiTemplateLink from '../utility/WikiTemplateLink.vue';
+import { SITE_SHORT_TITLE, SITE_TITLE } from '../../loadenv.ts';
 </script>

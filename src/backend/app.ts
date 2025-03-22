@@ -17,7 +17,7 @@ import { traceMiddleware } from './middleware/request/tracer.ts';
 import { normalAccessLogging, earlyAccessLogging } from './middleware/request/accessLogging.ts';
 import defaultResponseHeaders from './middleware/response/defaultResponseHeaders.ts';
 import { PUBLIC_DIR, VIEWS_ROOT } from './loadenv.ts';
-import { csrfMiddleware } from './middleware/request/csrf.ts';
+import { doubleCsrfProtection } from './middleware/request/csrf.ts';
 import { pageLoadErrorHandler } from './middleware/response/globalErrorHandler.ts';
 import { loadGenshinVoiceItems } from './domain/genshin/genshinControl.ts';
 import { loadStarRailVoiceItems } from './domain/hsr/starRailControl.ts';
@@ -147,6 +147,11 @@ export async function appInit(): Promise<Express> {
     throw 'EXT_WUWA_IMAGES is required!';
   }
 
+  // Initialize sessions
+  // ~~~~~~~~~~~~~~~~~~~
+  logInit(`Initializing sessions`);
+  app.use(sessions);                                        // sessions
+
   // Middleware for requests
   // ~~~~~~~~~~~~~~~~~~~~~~~
   logInit(`Adding middleware for incoming requests`);
@@ -157,10 +162,8 @@ export async function appInit(): Promise<Express> {
   app.use(requestIp.mw());                                  // enable request-ip
   app.use(traceMiddleware);
 
-  // Initialize sessions
-  // ~~~~~~~~~~~~~~~~~~~
-  logInit(`Initializing sessions`);
-  app.use(sessions);                                        // sessions
+  // Initialize Request Context
+  // ~~~~~~~~~~~~~~~~~~~~~~~~~~
   app.use(reqContextInitMiddleware);                        // request context init
   app.use(normalAccessLogging);                             // access logging
 
@@ -208,7 +211,7 @@ export async function appInit(): Promise<Express> {
   // We must load CSRF protection after we load the API router
   // because the API does not necessarily use CSRF protection (only for same-site AJAX requests).
   logInit(`Loading application router`);
-  app.use(csrfMiddleware);
+  app.use(doubleCsrfProtection);
   app.use('/', await appBaseRouter());
 
   // Global Error Handler

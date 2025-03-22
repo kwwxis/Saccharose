@@ -3,7 +3,7 @@
     <article class="card legal-doc" role="main">
       <div class="content">
         <header id="contact-methods">
-          <h1>Saccharose.wiki - Contact</h1>
+          <h1>{{ SITE_TITLE }} - Contact</h1>
         </header>
         <aside id="toc" class="no-fixed split" aria-label="Table of Contents">
           <section data-title="Contact">
@@ -19,7 +19,7 @@
         <ul>
           <li>
             <strong>Discord thread:</strong>
-            <p>The <code>Saccharose.wiki</code> thread of <code>editing-forums</code> in the Genshin Impact Fandom Wiki discord server.</p>
+            <p>The <code>{{ SITE_TITLE }}</code> thread of <code>editing-forums</code> in the Genshin Impact Fandom Wiki discord server.</p>
             <p>(Some users may not have access to this method)</p>
           </li>
           <li>
@@ -47,6 +47,7 @@
 
 <script setup lang="ts">
 import { getTrace } from '../../middleware/request/tracer.ts';
+import { SITE_SHORT_TITLE, SITE_TITLE } from '../../loadenv.ts';
 
 const { nonce } = getTrace();
 

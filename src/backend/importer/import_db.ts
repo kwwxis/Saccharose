@@ -74,7 +74,7 @@ export type SchemaTable = {
   /**
    * Custom row resolve. Gets passed in the current row and may return one or more rows to insert.
    *
-   * The row passed in already has had `schemaTranslation` and `renameFields` applied to it.
+   * The row passed in already has had `propertySchema` and `renameFields` applied to it.
    *
    * @param row The current row
    * @param allRows The list of all rows
@@ -101,7 +101,7 @@ export type SchemaTable = {
   /**
    * Has the same functionality as renameFields, but this will be applied first before renameFields.
    */
-  schemaTranslation?: { [oldName: string]: string },
+  propertySchema?: { [oldName: string]: string },
 
   /**
    * When a field with a name in this object is encountered, and if the value of that
@@ -194,7 +194,7 @@ export function plainLineMapSchema(langCode: LangCode, hashType: ('integer' | 't
   }
 }
 
-export function normalizeRawJsonKey(key: string, table?: SchemaTable, schemaTranslation?: {[key: string]: string}) {
+export function normalizeRawJsonKey(key: string, table?: SchemaTable, propertyRenameMap?: {[key: string]: string}) {
   if (key.startsWith('_')) {
     key = key.slice(1);
   }
@@ -205,12 +205,12 @@ export function normalizeRawJsonKey(key: string, table?: SchemaTable, schemaTran
   key = key.replace(/TextText/g, 'Text');
   key = key.replace(/_(\w)/g, (fm: string, g: string) => g.toUpperCase()); // snake to camel
 
-  if (table && table.schemaTranslation) {
-    if (key in table.schemaTranslation) {
-      key = table.schemaTranslation[key];
+  if (table && table.propertySchema) {
+    if (key in table.propertySchema) {
+      key = table.propertySchema[key];
     }
-    if (key.toUpperCase() in table.schemaTranslation) {
-      key = table.schemaTranslation[key.toUpperCase()];
+    if (key.toUpperCase() in table.propertySchema) {
+      key = table.propertySchema[key.toUpperCase()];
     }
   }
 
@@ -223,30 +223,30 @@ export function normalizeRawJsonKey(key: string, table?: SchemaTable, schemaTran
     }
   }
 
-  if (schemaTranslation) {
-    if (key in schemaTranslation) {
-      key = schemaTranslation[key];
+  if (propertyRenameMap) {
+    if (key in propertyRenameMap) {
+      key = propertyRenameMap[key];
     }
-    if (key.toUpperCase() in schemaTranslation) {
-      key = schemaTranslation[key.toUpperCase()];
+    if (key.toUpperCase() in propertyRenameMap) {
+      key = propertyRenameMap[key.toUpperCase()];
     }
   }
 
   return key;
 }
 
-export function normalizeRawJson(row: any, table?: SchemaTable, schemaTranslation?: {[key: string]: string}) {
+export function normalizeRawJson(row: any, table?: SchemaTable, propertyRenameMap?: {[key: string]: string}) {
   if (typeof row === 'undefined' || row === null || typeof row !== 'object') {
     return row;
   }
   if (Array.isArray(row)) {
-    return row.map(item => normalizeRawJson(item, table, schemaTranslation));
+    return row.map(item => normalizeRawJson(item, table, propertyRenameMap));
   }
   let newRow = {};
   for (let key of Object.keys(row)) {
     let originalKey = key;
-    key = normalizeRawJsonKey(key, table, schemaTranslation);
-    newRow[key] = normalizeRawJson(row[originalKey], table, schemaTranslation);
+    key = normalizeRawJsonKey(key, table, propertyRenameMap);
+    newRow[key] = normalizeRawJson(row[originalKey], table, propertyRenameMap);
     if (table && table.singularize && table.singularize.hasOwnProperty(key) && Array.isArray(newRow[key])) {
       newRow[table.singularize[key]] = newRow[key].find(x => !!x);
     }
@@ -254,27 +254,27 @@ export function normalizeRawJson(row: any, table?: SchemaTable, schemaTranslatio
   return newRow;
 }
 
-export function renameFields(row: any, schemaTranslation?: {[key: string]: string}): any {
+export function renameFields(row: any, propertyRenameMap?: {[key: string]: string}): any {
   if (typeof row === 'undefined' || row === null || typeof row !== 'object') {
     return row;
   }
   if (Array.isArray(row)) {
-    return row.map(item => renameFields(item, schemaTranslation));
+    return row.map(item => renameFields(item, propertyRenameMap));
   }
   let newRow: any = {};
   for (let key of Object.keys(row)) {
     let originalKey = key;
 
-    if (schemaTranslation) {
-      if (key in schemaTranslation) {
-        key = schemaTranslation[key];
+    if (propertyRenameMap) {
+      if (key in propertyRenameMap) {
+        key = propertyRenameMap[key];
       }
-      if (key.toUpperCase() in schemaTranslation) {
-        key = schemaTranslation[key.toUpperCase()];
+      if (key.toUpperCase() in propertyRenameMap) {
+        key = propertyRenameMap[key.toUpperCase()];
       }
     }
 
-    newRow[key] = renameFields(row[originalKey], schemaTranslation);
+    newRow[key] = renameFields(row[originalKey], propertyRenameMap);
   }
   return newRow;
 }

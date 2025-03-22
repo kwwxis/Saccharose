@@ -110,10 +110,10 @@
       <h2>Quests</h2>
       <div class="content">
         <p class="info-notice spacer20-bottom">
-          Saccharose usually puts quests in the right order in most cases, but you should double-check. The Excel data doesn't make it obvious
+          {{ SITE_SHORT_TITLE }} usually puts quests in the right order in most cases, but you should double-check. The Excel data doesn't make it obvious
           what order quests are in. So they need to be programmatically ordered based on various clues. Whether subquests can be correctly
           identified is a hit-or-miss (e.g. <a href="/genshin/chapters/10070">Vimana Agama</a> is correctly ordered but
-          <a href="/genshin/chapters/10055">From Dusk to Dawn in Byakuyakoku</a> is not). Saccharose's ordering for hangout chapters is completely unreliable.</p>
+          <a href="/genshin/chapters/10055">From Dusk to Dawn in Byakuyakoku</a> is not). {{ SITE_SHORT_TITLE }}'s ordering for hangout chapters is completely unreliable.</p>
         <GenshinChapterListItem :quests="chapter.OrderedQuests" />
       </div>
     </section>
@@ -181,6 +181,7 @@ import GenshinChapterTable2 from './GenshinChapterTable2.vue';
 import JsonText from '../../utility/JsonText.vue';
 import GenshinChapterListItem from './GenshinChapterListItem.vue';
 import Wikitext from '../../utility/Wikitext.vue';
+import { SITE_SHORT_TITLE } from '../../../loadenv.ts';
 
 defineProps<{
   chapterNotFound?: boolean,

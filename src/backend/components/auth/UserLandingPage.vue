@@ -1,6 +1,6 @@
 <template>
   <section class="card">
-    <h2>Welcome to Saccharose.wiki</h2>
+    <h2>Welcome to {{ SITE_TITLE }}</h2>
     <div class="content">
       <div class="valign">
         <a class="w50p" href="/genshin"><div class="genshin-button" style="height:150px"><span>Genshin Impact Tools</span></div></a>
@@ -15,9 +15,5 @@
 </template>
 
 <script setup lang="ts">
-
+import { SITE_TITLE } from '../../loadenv.ts';
 </script>
-
-<style scoped lang="scss">
-
-</style>

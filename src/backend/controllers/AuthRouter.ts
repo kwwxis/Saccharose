@@ -11,9 +11,11 @@ import {
 } from '../mediawiki/mwClientInterface.ts';
 import { SiteUserProvider } from '../middleware/auth/SiteUserProvider.ts';
 import { saveSession, setSessionUser } from '../middleware/auth/sessions.ts';
+import { SITE_TITLE } from '../loadenv.ts';
+import { clearCsrfCookie } from '../middleware/request/csrf.ts';
 
 function setReturnTo() {
-  return function(req: Request, res: Response, next: NextFunction) {
+  return function(req: Request, _res: Response, next: NextFunction) {
     if (req.query.cont)
       (<any> req.session).returnTo = req.query.cont;
     next();
@@ -46,6 +48,7 @@ export default async function(): Promise<Router> {
     });
 
   router.get('/auth/logout', (req: Request, res: Response) => {
+    clearCsrfCookie(res);
     req.logout(() => {
       res.redirect('/auth/interstitial?cont=' + (req.query.cont || '/'))
     });
@@ -56,6 +59,7 @@ export default async function(): Promise<Router> {
     if (!cont.startsWith('/') || cont.startsWith('//')) {
       cont = '/';
     }
+    clearCsrfCookie(res);
     const html: string = `<!doctype html>
   <html lang="en"><body>
     <script>window.location.href = "<%= cont %>";</script>
@@ -66,9 +70,10 @@ export default async function(): Promise<Router> {
 
   router.post('/auth/uncheck', async (req: Request, res: Response) => {
     if (!req.isAuthenticated()) {
-      return res.json({
+      res.json({
         result: 'error'
       });
+      return;
     }
 
     await SiteUserProvider.update(req.user.id, {
@@ -78,27 +83,29 @@ export default async function(): Promise<Router> {
       wiki_allowed: false,
     });
 
-    return res.json({
+    res.json({
       result: 'complete'
     });
   });
 
   router.post('/auth/check', async (req: Request, res: Response) => {
     if (!req.isAuthenticated()) {
-      return res.json({
+      res.json({
         result: 'denied',
         reason: 'not logged in.'
       });
+      return;
     }
 
     let userName: string = String(req.query.wikiUsername || '').trim();
     let wikiLang: string = String(req.query.wikiLang || '').trim();
 
     if (!userName || !userName.trim()) {
-      return res.json({
+      res.json({
         result: 'denied',
         reason: 'no username entered.'
       });
+      return;
     }
 
     const genshinUser = await mwGenshinClient.createForInterwiki(wikiLang).getUser(userName);
@@ -109,10 +116,11 @@ export default async function(): Promise<Router> {
     let firstUser: MwUser = genshinUser || starRailUser || zenlessUser || wuwaUser;
 
     if (!firstUser) {
-      return res.json({
+      res.json({
         result: 'denied',
         reason: 'Fandom user not found.'
       });
+      return;
     }
 
     await SiteUserProvider.update(req.user.id, {
@@ -128,10 +136,11 @@ export default async function(): Promise<Router> {
     await saveSession(req);
 
     if (firstUser.profile.discordHandle !== req.user.discord_username) {
-      return res.json({
+      res.json({
         result: 'denied',
         reason: 'Discord Handle in Fandom profile does not match (actual: ' + (firstUser.profile.discordHandle || '<empty>') + ')'
       });
+      return;
     }
 
     let hasPerm: boolean = await SiteUserProvider.isInReqBypass({
@@ -148,17 +157,19 @@ export default async function(): Promise<Router> {
     }
 
     if (!hasPerm) {
-      return res.json({
+      res.json({
         result: 'denied',
         reason: 'must be autoconfirmed and have at least 100 edits in at least one of the wikis.'
       });
+      return;
     }
 
     if (await SiteUserProvider.isBanned(req.user)) {
-      return res.json({
+      res.json({
         result: 'banned',
-        reason: 'You are banned from accessing Saccharose.wiki.'
+        reason: `You are banned from accessing ${SITE_TITLE}.`
       });
+      return;
     }
 
     await SiteUserProvider.update(req.user.id, {
@@ -172,10 +183,11 @@ export default async function(): Promise<Router> {
     });
     await saveSession(req);
 
-    return res.json({
+    res.json({
       result: 'approved',
       reason: 'valid',
     });
+    return;
   });
 
   return router;
