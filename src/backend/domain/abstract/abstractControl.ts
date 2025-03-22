@@ -802,7 +802,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       cat5: req.query.cat5 as string,
       catPath: req.query.catPath as string,
       catRestrict: toBoolean(req.query.catRestrict),
-      versionFilter: GameVersionFilter.from(req.query.versionFilter, this.selectVersions().filter(v => v.showNewMedia)),
+      versionFilter: req.query.versionFilter ? String(req.query.versionFilter) : null,
       offset: isInt(req.query.offset) ? toInt(req.query.offset) : 0,
       searchMode: req.query.searchMode ? (String(req.query.searchMode) as SearchMode) : this.searchMode
     };
@@ -830,6 +830,9 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       throw 'limit cannot be less than -1';
     if (!select.searchMode)
       select.searchMode = this.searchMode;
+
+
+    const versionFilter = GameVersionFilter.from(select.versionFilter, this.selectVersions().filter(v => v.showNewMedia));
 
     let builder: Knex.QueryBuilder = openPg().select('*').from(this.dbName + '_image_index');
 
@@ -897,8 +900,8 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       builder = builder.where(catClauseValues);
     }
 
-    if (select.versionFilter && select.versionFilter.isEnabled) {
-      builder = builder.whereIn('first_version', select.versionFilter.versions.map(v => v.number));
+    if (versionFilter && versionFilter.isEnabled) {
+      builder = builder.whereIn('first_version', versionFilter.versions.map(v => v.number));
     }
 
     const offset = select.offset;

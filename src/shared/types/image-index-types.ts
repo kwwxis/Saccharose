@@ -49,7 +49,7 @@ export interface ImageIndexSearchParams {
   cat8?: string,
   catPath?: string,
   catRestrict?: boolean,
-  versionFilter?: GameVersionFilter,
+  versionFilter?: string,
   offset?: number,
   limit?: number,
   searchMode?: SearchMode,

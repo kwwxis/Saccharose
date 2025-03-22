@@ -71,9 +71,12 @@ export function initiateMediaSearchPage(
           const downloadButton: HTMLButtonElement = frag1(`<button class="primary primary--2">Download all results</button>`);
 
           downloadButton.addEventListener('click', () => {
+            console.log("HECK!", apiPayload);
             const query: string = String(apiPayload.query || '');
+            const versionFilter: string = String(apiPayload.versionFilter || '');
             modalService.confirm('Download all results', `
-              <p>You will be downloading all results for query: <code>${escapeHtml(query)}</code></p>
+              <p>You will be downloading all results for query: <code>${escapeHtml(query)}</code>${
+              versionFilter ? `; and version filter: <code>${escapeHtml(versionFilter)}</code>` : ''}</p>
               <p class="spacer10-top">You do <b>not</b> need to scroll down to load all results before initiating the download.</p>
               <hr class="spacer15-vert" />
               <p>Initiating the download will open a page in a <b>new tab</b>. Do not close this tab until the new tab is open.</p>
@@ -99,6 +102,7 @@ export function initiateMediaSearchPage(
                 try {
                   postResult = await mediaCreateImageIndexArchiveJob.send({
                     query,
+                    versionFilter,
                   });
                   if (!postResult?.job?.job_id) {
                     postDidFail = true;
