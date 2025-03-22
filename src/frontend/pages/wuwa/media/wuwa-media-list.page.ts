@@ -7,5 +7,6 @@ initiateMediaListPage(
   wuwaEndpoints.mediaCategory,
   '/wuwa',
   '/images/wuwa/',
-  false
+  false,
+  null
 );

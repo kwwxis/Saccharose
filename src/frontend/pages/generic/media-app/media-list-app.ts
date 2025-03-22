@@ -20,6 +20,7 @@ export function initiateMediaListPage(
   siteModeHome: string,
   imagePathPrefix: string,
   enableVersionFilter: boolean,
+  versionFilterInfoTooltipExtra: string,
 ) {
   pageMatch(`vue/${vueComponentName}`, async () => {
     const loadingEl: HTMLElement = document.querySelector('#media-list-loading');
@@ -31,7 +32,7 @@ export function initiateMediaListPage(
       <div class="valign">
         <input id="firstVersionFilter" type="text" placeholder="Versions separated by comma or semicolon"
                style="max-width: 490px;width: 100%;"/>
-        <span ui-tippy="{content: 'Only filters images to the version it was first added. Does not account for modifications.',delay:[200, 100]}"
+        <span ui-tippy="{content: 'Only filters images to the version it was first added. Does not account for modifications. ${versionFilterInfoTooltipExtra}',delay:[200, 100]}"
               class="valign spacer10-left" style="opacity: 0.5; width: 19px;">
           ${document.getElementById('template-info-icon').innerHTML}
         </span>

@@ -7,5 +7,6 @@ initiateMediaListPage(
   genshinEndpoints.mediaCategory,
   '/genshin',
   '/images/genshin/',
-  true
+  true,
+  'Only available for 2.0 onwards.'
 );
