@@ -77,6 +77,8 @@ export async function indexWuwaImages(catMapOnly: boolean = false) {
         if (typeof obj === 'string') {
           let matchedImageName: string = null;
 
+          if (obj.startsWith('[') || obj.startsWith('{'))
+            continue;
           if (obj.startsWith('/Game/Aki/UI/')) {
             obj = obj.slice('/Game/Aki/UI/'.length);
           }
@@ -115,6 +117,7 @@ export async function indexWuwaImages(catMapOnly: boolean = false) {
 
   console.log('Computing excel usages...');
   for (let fileName of fs.readdirSync(path.resolve(process.env.WUWA_DATA_ROOT, './ConfigDB'))) {
+    console.log(`  ${fileName}`);
     const json: any[] = JSON.parse(fs.readFileSync(path.resolve(process.env.WUWA_DATA_ROOT, './ConfigDB', fileName), 'utf-8'));
     let { images, imagesToExcelMetaEntry } = findImageUsages(json);
     for (let imageName of images) {
