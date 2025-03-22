@@ -26,7 +26,7 @@
       <h3 id="new-characters-header" class="new-summary-section-header secondary-header valign">
         <span class="expando spacer5-right" ui-action="expando: #new-characters-content"><Icon name="chevron-down" :size="17" /></span>
         <span class="new-summary-section-title">New Characters</span>
-        <span class="new-summary-section-count">{{ newSummary.avatars.length }}</span>
+        <span class="secondary-label new-summary-section-count">{{ newSummary.avatars.length }}</span>
       </h3>
       <div id="new-characters-content" class="new-summary-section-content content alignStart flexWrap">
         <div class="alignStart spacer25-right" v-for="avatar of newSummary.avatars">
@@ -46,7 +46,7 @@
       <h3 id="new-weapons-header" class="new-summary-section-header secondary-header valign">
         <span class="expando spacer5-right" ui-action="expando: #new-weapons-content"><Icon name="chevron-down" :size="17" /></span>
         <span class="new-summary-section-title">New Weapons</span>
-        <span class="new-summary-section-count">{{ newSummary.weapons.length }}</span>
+        <span class="secondary-label new-summary-section-count">{{ newSummary.weapons.length }}</span>
       </h3>
       <div id="new-weapons-content" class="new-summary-section-content content alignStart flexWrap">
         <template v-for="weapon of newSummary.weapons">
@@ -60,7 +60,7 @@
       <h3 id="new-foods-header" class="new-summary-section-header secondary-header valign">
         <span class="expando spacer5-right" ui-action="expando: #new-foods-content"><Icon name="chevron-down" :size="17" /></span>
         <span class="new-summary-section-title">New Materials: Foods</span>
-        <span class="new-summary-section-count">{{ newSummary.foods.length }}</span>
+        <span class="secondary-label new-summary-section-count">{{ newSummary.foods.length }}</span>
       </h3>
       <div id="new-foods-content" class="new-summary-section-content content alignStart flexWrap">
         <template v-for="food of newSummary.foods">
@@ -74,7 +74,7 @@
       <h3 id="new-tcg-materials-header" class="new-summary-section-header secondary-header valign">
         <span class="expando spacer5-right" ui-action="expando: #new-tcg-materials-content"><Icon name="chevron-down" :size="17" /></span>
         <span class="new-summary-section-title">New Materials: TCG</span>
-        <span class="new-summary-section-count">{{ newSummary.tcgItems.length }}</span>
+        <span class="secondary-label new-summary-section-count">{{ newSummary.tcgItems.length }}</span>
       </h3>
       <div id="new-tcg-materials-content" class="new-summary-section-content content alignStart flexWrap">
         <template v-for="item of newSummary.tcgItems">
@@ -88,7 +88,7 @@
       <h3 id="new-blueprints-header" class="new-summary-section-header secondary-header valign">
         <span class="expando spacer5-right" ui-action="expando: #new-blueprints-content"><Icon name="chevron-down" :size="17" /></span>
         <span class="new-summary-section-title">New Materials: Blueprints</span>
-        <span class="new-summary-section-count">{{ newSummary.blueprints.length }}</span>
+        <span class="secondary-label new-summary-section-count">{{ newSummary.blueprints.length }}</span>
       </h3>
       <div id="new-blueprints-content" class="new-summary-section-content content alignStart flexWrap">
         <template v-for="item of newSummary.blueprints">
@@ -102,7 +102,7 @@
       <h3 id="new-avatar-material-header" class="new-summary-section-header secondary-header valign">
         <span class="expando spacer5-right" ui-action="expando: #new-avatar-material-content"><Icon name="chevron-down" :size="17" /></span>
         <span class="new-summary-section-title">New Materials: Avatar Items, Constellations, &amp; Namecards</span>
-        <span class="new-summary-section-count">{{ newSummary.avatarItems.length }}</span>
+        <span class="secondary-label new-summary-section-count">{{ newSummary.avatarItems.length }}</span>
       </h3>
       <div id="new-avatar-material-content" class="new-summary-section-content content alignStart flexWrap">
         <template v-for="item of newSummary.avatarItems">
@@ -116,7 +116,7 @@
       <h3 id="new-items-header" class="new-summary-section-header secondary-header valign">
         <span class="expando spacer5-right" ui-action="expando: #new-items-content"><Icon name="chevron-down" :size="17" /></span>
         <span class="new-summary-section-title">New Materials: Items</span>
-        <span class="new-summary-section-count">{{ newSummary.items.length }}</span>
+        <span class="secondary-label new-summary-section-count">{{ newSummary.items.length }}</span>
       </h3>
       <div id="new-items-content" class="new-summary-section-content content alignStart flexWrap">
         <template v-for="item of newSummary.items">
@@ -130,7 +130,7 @@
       <h3 id="new-artifacts-header" class="new-summary-section-header secondary-header valign">
         <span class="expando spacer5-right" ui-action="expando: #new-artifacts-content"><Icon name="chevron-down" :size="17" /></span>
         <span class="new-summary-section-title">New Artifacts</span>
-        <span class="new-summary-section-count">0</span>
+        <span class="secondary-label new-summary-section-count">0</span>
       </h3>
       <div id="new-artifacts-content" class="new-summary-section-content content alignStart flexWrap">
         <p>Artifacts not implemented by {{ SITE_SHORT_TITLE }} at this time.</p>
@@ -139,7 +139,7 @@
       <h3 id="new-furnishings-header" class="new-summary-section-header secondary-header valign">
         <span class="expando spacer5-right" ui-action="expando: #new-furnishings-content"><Icon name="chevron-down" :size="17" /></span>
         <span class="new-summary-section-title">New Furnishings</span>
-        <span class="new-summary-section-count">{{ newSummary.furnishings.length }}</span>
+        <span class="secondary-label new-summary-section-count">{{ newSummary.furnishings.length }}</span>
       </h3>
       <div id="new-furnishings-content" class="new-summary-section-content content alignStart flexWrap">
         <template v-for="item of newSummary.furnishings">
@@ -153,7 +153,7 @@
       <h3 id="new-furnishing-sets-header" class="new-summary-section-header secondary-header valign">
         <span class="expando spacer5-right" ui-action="expando: #new-furnishing-sets-content"><Icon name="chevron-down" :size="17" /></span>
         <span class="new-summary-section-title">New Furnishing Sets</span>
-        <span class="new-summary-section-count">{{ newSummary.furnishingSets.length }}</span>
+        <span class="secondary-label new-summary-section-count">{{ newSummary.furnishingSets.length }}</span>
       </h3>
       <div id="new-furnishing-sets-content" class="new-summary-section-content content alignStart">
         <div v-if="newSummary.furnishingSets.length" v-for="setList of [
@@ -195,7 +195,7 @@
       <h3 id="new-monsters-header" class="new-summary-section-header secondary-header valign">
         <span class="expando spacer5-right" ui-action="expando: #new-monsters-content"><Icon name="chevron-down" :size="17" /></span>
         <span class="new-summary-section-title">New Living Beings: Monsters</span>
-        <span class="new-summary-section-count">{{ newSummary.monsters.length }}</span>
+        <span class="secondary-label new-summary-section-count">{{ newSummary.monsters.length }}</span>
       </h3>
       <div id="new-monsters-content">
         <div class="content">
@@ -212,7 +212,7 @@
       <h3 id="new-wildlife-header" class="new-summary-section-header secondary-header valign">
         <span class="expando spacer5-right" ui-action="expando: #new-wildlife-content"><Icon name="chevron-down" :size="17" /></span>
         <span class="new-summary-section-title">New Living Beings: Wildlife</span>
-        <span class="new-summary-section-count">{{ newSummary.wildlife.length }}</span>
+        <span class="secondary-label new-summary-section-count">{{ newSummary.wildlife.length }}</span>
       </h3>
       <div id="new-wildlife-content" class="new-summary-section-content content alignStart flexWrap">
         <GenshinLbLink v-for="monster of newSummary.wildlife" :monster="monster" />
@@ -224,7 +224,7 @@
       <h3 id="new-tcg-character-cards-header" class="new-summary-section-header secondary-header valign">
         <span class="expando spacer5-right" ui-action="expando: #new-tcg-character-cards-content"><Icon name="chevron-down" :size="17" /></span>
         <span class="new-summary-section-title">New TCG Cards: Character Cards</span>
-        <span class="new-summary-section-count">{{ newSummary.tcgCharacterCards.length }}</span>
+        <span class="secondary-label new-summary-section-count">{{ newSummary.tcgCharacterCards.length }}</span>
       </h3>
       <div id="new-tcg-character-cards-content" class="new-summary-section-content content alignStart flexWrap">
         <TcgCard v-for="card of newSummary.tcgCharacterCards" :card="card" />
@@ -236,7 +236,7 @@
       <h3 id="new-tcg-action-cards-header" class="new-summary-section-header secondary-header valign">
         <span class="expando spacer5-right" ui-action="expando: #new-tcg-action-cards-content"><Icon name="chevron-down" :size="17" /></span>
         <span class="new-summary-section-title">New TCG Cards: Action Cards</span>
-        <span class="new-summary-section-count">{{ newSummary.tcgActionCards.length }}</span>
+        <span class="secondary-label new-summary-section-count">{{ newSummary.tcgActionCards.length }}</span>
       </h3>
       <div id="new-tcg-action-cards-content" class="new-summary-section-content content alignStart flexWrap">
         <TcgCard v-for="card of newSummary.tcgActionCards" :card="card" />
@@ -248,7 +248,7 @@
       <h3 id="new-tcg-stages-header" class="new-summary-section-header secondary-header valign">
         <span class="expando spacer5-right" ui-action="expando: #new-tcg-stages-content"><Icon name="chevron-down" :size="17" /></span>
         <span class="new-summary-section-title">New TCG Stages</span>
-        <span class="new-summary-section-count">{{ newSummary.tcgStages.length }}</span>
+        <span class="secondary-label new-summary-section-count">{{ newSummary.tcgStages.length }}</span>
       </h3>
       <div id="new-tcg-stages-content" class="new-summary-section-content content">
         <table class="article-table" v-if="newSummary.tcgStages.length">
@@ -295,7 +295,7 @@
       <h3 id="new-viewpoints-header" class="new-summary-section-header secondary-header valign">
         <span class="expando spacer5-right" ui-action="expando: #new-viewpoints-content"><Icon name="chevron-down" :size="17" /></span>
         <span class="new-summary-section-title">New Viewpoints</span>
-        <span class="new-summary-section-count">{{ newSummary.viewpoints.length }}</span>
+        <span class="secondary-label new-summary-section-count">{{ newSummary.viewpoints.length }}</span>
       </h3>
       <div id="new-viewpoints-content" class="new-summary-section-content content">
         <table class="article-table" v-if="newSummary.viewpoints.length">
@@ -327,7 +327,7 @@
       <h3 id="new-loading-tips-header" class="new-summary-section-header secondary-header valign">
         <span class="expando spacer5-right" ui-action="expando: #new-loading-tips-content"><Icon name="chevron-down" :size="17" /></span>
         <span class="new-summary-section-title">New Loading Tips</span>
-        <span class="new-summary-section-count">{{ newSummary.loadingTips.length }}</span>
+        <span class="secondary-label new-summary-section-count">{{ newSummary.loadingTips.length }}</span>
       </h3>
       <div id="new-loading-tips-content" class="new-summary-section-content content">
         <table class="article-table" v-if="newSummary.loadingTips.length" style="font-size:15px">
@@ -352,7 +352,7 @@
       <h3 id="new-achievements-header" class="new-summary-section-header secondary-header valign">
         <span class="expando spacer5-right" ui-action="expando: #new-achievements-content"><Icon name="chevron-down" :size="17" /></span>
         <span class="new-summary-section-title">New Achievements</span>
-        <span class="new-summary-section-count">{{ newSummary.achievements.length }}</span>
+        <span class="secondary-label new-summary-section-count">{{ newSummary.achievements.length }}</span>
       </h3>
       <div id="new-achievements-content" class="new-summary-section-content content">
         <table class="article-table" v-if="newSummary.achievements.length" style="font-size:15px">
@@ -379,7 +379,7 @@
       <h3 id="new-tutorials-header" class="new-summary-section-header secondary-header valign">
         <span class="expando spacer5-right" ui-action="expando: #new-tutorials-content"><Icon name="chevron-down" :size="17" /></span>
         <span class="new-summary-section-title">New Tutorials</span>
-        <span class="new-summary-section-count">{{ newSummary.tutorials.length }}</span>
+        <span class="secondary-label new-summary-section-count">{{ newSummary.tutorials.length }}</span>
       </h3>
       <div id="new-tutorials-content" class="new-summary-section-content content">
         <table class="article-table" v-if="newSummary.tutorials.length" style="font-size:15px">
@@ -418,7 +418,7 @@
       <h3 id="new-readables-header" class="new-summary-section-header secondary-header valign">
         <span class="expando spacer5-right" ui-action="expando: #new-readables-content"><Icon name="chevron-down" :size="17" /></span>
         <span class="new-summary-section-title">New Readables</span>
-        <span class="new-summary-section-count">{{ newReadablesCount }}</span>
+        <span class="secondary-label new-summary-section-count">{{ newReadablesCount }}</span>
       </h3>
       <div id="new-readables-content">
         <div v-if="!newReadablesCount">
@@ -485,7 +485,7 @@
       <h3 id="new-chapters-header" class="new-summary-section-header secondary-header valign">
         <span class="expando spacer5-right" ui-action="expando: #new-chapters-content"><Icon name="chevron-down" :size="17" /></span>
         <span class="new-summary-section-title">New Chapters</span>
-        <span class="new-summary-section-count">{{ newChaptersCount }}</span>
+        <span class="secondary-label new-summary-section-count">{{ newChaptersCount }}</span>
       </h3>
       <div id="new-chapters-content">
         <div v-if="!newChaptersCount">
@@ -595,7 +595,7 @@
       <h3 id="new-non-chapter-quests-header" class="new-summary-section-header secondary-header valign">
         <span class="expando spacer5-right" ui-action="expando: #new-non-chapter-quests-content"><Icon name="chevron-down" :size="17" /></span>
         <span class="new-summary-section-title">New Non-Chapter Quests</span>
-        <span class="new-summary-section-count">{{ newSummary.nonChapterQuests.length }}</span>
+        <span class="secondary-label new-summary-section-count">{{ newSummary.nonChapterQuests.length }}</span>
       </h3>
       <div id="new-non-chapter-quests-content" class="new-summary-section-content content">
         <div v-if="!newSummary.nonChapterQuests.length">
@@ -612,7 +612,7 @@
       <h3 id="new-hidden-quests-header" class="new-summary-section-header secondary-header valign">
         <span class="expando spacer5-right" ui-action="expando: #new-hidden-quests-content"><Icon name="chevron-down" :size="17" /></span>
         <span class="new-summary-section-title">New Hidden Quests</span>
-        <span class="new-summary-section-count">{{ newSummary.hiddenQuests.length }}</span>
+        <span class="secondary-label new-summary-section-count">{{ newSummary.hiddenQuests.length }}</span>
       </h3>
       <div id="new-hidden-quests-content" class="new-summary-section-content content">
         <div v-if="!newSummary.hiddenQuests.length">

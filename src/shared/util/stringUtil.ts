@@ -114,7 +114,7 @@ export function escapeHtmlAllowEntities(html: string) {
  * from: https://stackoverflow.com/a/6969486
  */
 export function escapeRegExp(str: string): string {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+  return str ? str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') : ''; // $& means the whole matched string
 }
 
 export function validateRegExp(pattern: string, options?: string): boolean {

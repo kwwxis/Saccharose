@@ -244,7 +244,7 @@ router.endpoint('/dialogue/vo-to-dialogue', {
         } else {
           warn = '(This VO file is supposed to be used for a dialog with ID ' + id + ', however such a dialog does not exist)';
         }
-        if (dialogue.TalkId) {
+        if (dialogue && dialogue.TalkId) {
           talkResultsMap[dialogue.TalkId].results.push({ id, voFile: input, type, text, warn, file: input });
         } else {
           results.push({ id, voFile: input, type, text, warn, file: input });

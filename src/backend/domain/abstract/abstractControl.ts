@@ -596,6 +596,8 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
   }
 
   async findTextMapHashesByExactName(name: string): Promise<TextMapHash[]> {
+    if (isStringBlank(name))
+      return [];
     let results: TextMapHash[] = [];
 
     const cmp = (a: string, b: string) => {

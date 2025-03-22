@@ -1,119 +1,120 @@
 // 01: Layout/Reset
-@import '01_layout/1-reset';
+@use "sass:meta";
+@use '01_layout/layout_reset' as reset;
 
-@import '01_layout/2-body';
+@use '01_layout/layout_body' as body;
 
-@import '01_layout/3-footer';
+@use '01_layout/layout_footer' as footer;
 
-@import '01_layout/landing';
+@use '01_layout/landing' as landing;
 
-@import '01_layout/legaldocs';
+@use '01_layout/legaldocs' as legaldocs;
 
-@import '01_layout/userpages';
+@use '01_layout/userpages' as userpages;
 
 // 02: Header
-@import '02_header/1-header';
+@use '02_header/header_core' as header;
 
-@import '02_header/2-sidebar';
+@use '02_header/header_sidebar' as header_sidebar;
 
-@import '02_header/3-sticky-header';
+@use '02_header/header_sticky' as header_sticky;
 
-@import '02_header/4-mobile';
+@use '02_header/header_mobile' as header_mobile;
 
 // 03: Form Controls
-@import '03_form-control/ui-inputs';
+@use '03_form-control/ui-inputs' as inputs;
 
-@import '03_form-control/ui-buttons';
+@use '03_form-control/ui-buttons' as buttons;
 
-@import '03_form-control/ui-radio';
+@use '03_form-control/ui-radio' as radio;
 
-@import '03_form-control/form-box';
+@use '03_form-control/form-box' as form-box;
 
-@import '03_form-control/fieldset';
+@use '03_form-control/fieldset' as fieldset;
 
 // 04: Helpers - Flex
-@import '04_helpers/flex-helpers/vertical-align';
+@use '04_helpers/flex-helpers/vertical-align' as vertical-align;
 
-@import '04_helpers/flex-helpers/horiz-align';
+@use '04_helpers/flex-helpers/horiz-align' as horiz-align;
 
-@import '04_helpers/flex-helpers/flex-split';
+@use '04_helpers/flex-helpers/flex-split' as flex-split;
 
-@import '04_helpers/flex-helpers/flex-basis';
+@use '04_helpers/flex-helpers/flex-basis' as flex-basis;
 
-@import '04_helpers/flex-helpers/flex-grow';
+@use '04_helpers/flex-helpers/flex-grow' as flex-flex-grow;
 
-@import '04_helpers/flex-helpers/flex-shrink';
+@use '04_helpers/flex-helpers/flex-shrink' as flex-flex-shrink;
 
 // 04: Helpers - General
-@import '04_helpers/general-helpers/element-flash';
+@use '04_helpers/general-helpers/element-flash' as element-flash;
 
-@import '04_helpers/general-helpers/hide-helpers';
+@use '04_helpers/general-helpers/hide-helpers' as hide-helpers;
 
-@import '04_helpers/general-helpers/img-size';
+@use '04_helpers/general-helpers/img-size' as img-size;
 
-@import '04_helpers/general-helpers/spacers';
+@use '04_helpers/general-helpers/spacers' as spacers;
 
-@import '04_helpers/general-helpers/text-helpers';
+@use '04_helpers/general-helpers/text-helpers' as text-helpers;
 
 // 04: Helpers - Single Prop
-@import '04_helpers/single-prop/display-prop';
+@use '04_helpers/single-prop/display-prop' as displayProp;
 
-@import '04_helpers/single-prop/float-prop';
+@use '04_helpers/single-prop/float-prop' as floatProp;
 
-@import '04_helpers/single-prop/height-prop';
+@use '04_helpers/single-prop/height-prop' as heightProp;
 
-@import '04_helpers/single-prop/opacity-prop';
+@use '04_helpers/single-prop/opacity-prop' as opacityProp;
 
-@import '04_helpers/single-prop/position-prop';
+@use '04_helpers/single-prop/position-prop' as positionProp;
 
-@import '04_helpers/single-prop/width-prop';
+@use '04_helpers/single-prop/width-prop' as widthProp;
 
 // 05: Misc UI elements
-@import '05_ui-elements/data/ui-article-table';
+@use '05_ui-elements/data/ui-article-table' as articleTable;
 
-@import '05_ui-elements/data/ui-desc-list';
+@use '05_ui-elements/data/ui-desc-list' as descList;
 
-@import '05_ui-elements/icons/ui-close-icon';
+@use '05_ui-elements/icons/ui-close-icon' as closeIcon;
 
-@import '05_ui-elements/icons/ui-loading-spinner';
+@use '05_ui-elements/icons/ui-loading-spinner' as loadingSpinner;
 
-@import '05_ui-elements/info/ui-error-box';
+@use '05_ui-elements/info/ui-error-box' as errorBox;
 
-@import '05_ui-elements/info/ui-info-notice';
+@use '05_ui-elements/info/ui-info-notice' as infoNotice;
 
-@import '05_ui-elements/ui-dropdown';
+@use '05_ui-elements/ui-dropdown' as dropdown;
 
-@import '05_ui-elements/ui-modal';
+@use '05_ui-elements/ui-modal' as modal;
 
-@import '05_ui-elements/ui-tab-list';
+@use '05_ui-elements/ui-tab-list' as tabList;
 
-@import '05_ui-elements/ui-toast';
+@use '05_ui-elements/ui-toast' as toast;
 
 // 06: UI Card
-@import '06_ui-card/ui-card';
+@use '06_ui-card/ui-card' as card;
 
 // 07: Genshin Element Styles
-@import '07_genshin/dialogue';
+@use '07_genshin/dialogue' as dialogueSection;
 
-@import '07_genshin/gcg-common';
+@use '07_genshin/gcg-common' as genshinGcgCommon;
 
-@import '07_genshin/material-item';
+@use '07_genshin/material-item' as genshinMaterialItem;
 
-@import '07_genshin/media-search';
+@use '07_genshin/media-search' as mediaSearch;
 
-@import '07_genshin/homeworld';
+@use '07_genshin/homeworld' as genshinHomeworld;
 
-@import '07_genshin/changelog-styles';
+@use '07_genshin/changelog-styles' as genshinChangelogStyles;
 
-@import '07_genshin/misc';
+@use '07_genshin/misc' as genshinMisc;
 
 // 08: 3rd Party
-@import './../../../node_modules/pikaday/scss/pikaday';
+@use '../../../node_modules/pikaday/scss/pikaday' as pikaday;
 
-@import '08_third-party/pikaday-custom';
+@use '08_third-party/pikaday-custom' as pikaday-custom;
 
-@import './../../../node_modules/overlayscrollbars/styles/overlayscrollbars.css';
+@use './../../../node_modules/overlayscrollbars/styles/overlayscrollbars.css' as overlayScrollbars;
 
-@import './../../../node_modules/diff2html/bundles/css/diff2html.min.css';
+@use './../../../node_modules/diff2html/bundles/css/diff2html.min.css' as diff2html;
 
-@import '08_third-party/diff2html-custom';
+@use '08_third-party/diff2html-custom' as diff2HtmlCustom;
