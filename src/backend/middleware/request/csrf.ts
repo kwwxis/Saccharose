@@ -14,7 +14,7 @@ const CSRF_COOKIE_OPTIONS: CookieOptions = {
 };
 
 export function clearCsrfCookie(res: Response) {
-  res.clearCookie(CSRF_COOKIE_NAME);
+  res.clearCookie(CSRF_COOKIE_NAME, CSRF_COOKIE_OPTIONS);
 }
 
 const CONFIG: DoubleCsrfConfigOptions = {
