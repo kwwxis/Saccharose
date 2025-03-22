@@ -32,7 +32,8 @@ export const WUWA_DISABLED = toBoolean(process.env.WUWA_DISABLED);
 
 export const IMAGEDIR_GENSHIN_STATIC = path.resolve(PUBLIC_DIR, './images/genshin/static');
 export const IMAGEDIR_GENSHIN_EXT = path.resolve(process.env.EXT_GENSHIN_IMAGES);
-export const IMAGEDIR_GENSHIN_ARCHIVE = path.resolve(process.env.EXT_GENSHIN_IMAGES_ARCHIVE);
+export const IMAGEDIR_GENSHIN_ARCHIVE = process.env.EXT_GENSHIN_IMAGES_ARCHIVE
+  ? path.resolve(process.env.EXT_GENSHIN_IMAGES_ARCHIVE) : null;
 export const IMAGEDIR_HSR_EXT = path.resolve(process.env.EXT_HSR_IMAGES);
 export const IMAGEDIR_ZENLESS_EXT = path.resolve(process.env.EXT_ZENLESS_IMAGES);
 export const IMAGEDIR_WUWA_EXT = path.resolve(process.env.EXT_WUWA_IMAGES);
