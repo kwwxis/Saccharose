@@ -8,7 +8,7 @@ import {
   ImageCategoryMap,
   ImageIndexEntity,
   ImageIndexExcelMeta,
-  ImageIndexExcelMetaEntry, ImageIndexOtherName,
+  ImageIndexExcelMetaEntry, ImageIndexOtherName, newImageCategory,
 } from '../../../shared/types/image-index-types.ts';
 
 const otherNames: Record<string, ImageIndexOtherName[]> = defaultMap('Array');
@@ -41,11 +41,10 @@ function getImageNames(): string[] {
   return imageNames;
 }
 
-export async function indexGenshinImages(dryRun: boolean = false) {
+export async function indexGenshinImages(catMapOnly: boolean = false) {
   const knex = openPg();
-  console.log('Dry Run:', dryRun);
 
-  if (!dryRun) {
+  if (!catMapOnly) {
     await knex.raw('TRUNCATE TABLE genshin_image_index;').then();
   }
 
@@ -53,15 +52,7 @@ export async function indexGenshinImages(dryRun: boolean = false) {
   const imageNameToExcelFileUsages: Record<string, string[]> = defaultMap('Array');
   const imageNameToExcelMeta: Record<string, ImageIndexExcelMeta> = defaultMap('Object');
 
-  const catmap: ImageCategoryMap = defaultMap(() =>
-    defaultMap(() =>
-      defaultMap(() =>
-        defaultMap(() =>
-          defaultMap(() => null)
-        )
-      )
-    )
-  );
+  const catmap: ImageCategoryMap = newImageCategory('root');
 
   for (let imageName of getImageNames()) {
     imageNameSet.add(imageName);
@@ -134,7 +125,7 @@ export async function indexGenshinImages(dryRun: boolean = false) {
   const maxBatchSize: number = 1000;
 
   async function commitBatch() {
-    if (!dryRun) {
+    if (!catMapOnly) {
       await knex.transaction(function(tx) {
         return knex.batchInsert('genshin_image_index', batch).transacting(tx);
       }).then();
@@ -145,9 +136,7 @@ export async function indexGenshinImages(dryRun: boolean = false) {
 
   console.log('Committing...');
   for (let imageName of imageNameSet) {
-    const size: number = fs.statSync(path.resolve(IMAGEDIR_GENSHIN_EXT, `./${imageName}.png`))?.size || 0;
     const cats: string[] = [];
-
     let catIdx = 0;
     let catSplits = imageName.split('_');
     for (let i = 0; i < catSplits.length; i++) {
@@ -165,49 +154,45 @@ export async function indexGenshinImages(dryRun: boolean = false) {
       catIdx++;
     }
 
-    batch.push(<ImageIndexEntity> {
-      image_name: imageName,
-      image_size: size,
-      excel_usages: imageNameToExcelFileUsages[imageName] || [],
-      excel_meta: imageNameToExcelMeta[imageName] || {},
-      image_cat1: cats[0] || null,
-      image_cat2: cats[1] || null,
-      image_cat3: cats[2] || null,
-      image_cat4: cats[3] || null,
-      image_cat5: cats[4] || null,
-      first_version: firstVersionMap[imageName],
-      extra_info: {
-        otherNames: otherNames[imageName] || []
-      }
-    });
+    const firstVersion = firstVersionMap[imageName];
 
-    if (cats[0]) {
-      // noinspection BadExpressionStatementJS
-      catmap[cats[0]];
-    }
-    if (cats[1]) {
-      // noinspection BadExpressionStatementJS
-      catmap[cats[0]][cats[1]];
-    }
-    if (cats[2]) {
-      // noinspection BadExpressionStatementJS
-      catmap[cats[0]][cats[1]][cats[2]];
-    }
-    if (cats[3]) {
-      // noinspection BadExpressionStatementJS
-      catmap[cats[0]][cats[1]][cats[2]][cats[3]];
-    }
-    if (cats[4]) {
-      // noinspection BadExpressionStatementJS
-      catmap[cats[0]][cats[1]][cats[2]][cats[3]][cats[4]];
+    if (!catMapOnly) {
+      const size: number = fs.statSync(path.resolve(IMAGEDIR_GENSHIN_EXT, `./${imageName}.png`))?.size || 0;
+      batch.push(<ImageIndexEntity>{
+        image_name: imageName,
+        image_size: size,
+        excel_usages: imageNameToExcelFileUsages[imageName] || [],
+        excel_meta: imageNameToExcelMeta[imageName] || {},
+        image_cat1: cats[0] || null,
+        image_cat2: cats[1] || null,
+        image_cat3: cats[2] || null,
+        image_cat4: cats[3] || null,
+        image_cat5: cats[4] || null,
+        first_version: firstVersion,
+        extra_info: {
+          otherNames: otherNames[imageName] || []
+        }
+      });
     }
 
-    if (batch.length >= maxBatchSize) {
+    let currCat = catmap;
+    if (!!firstVersion && !currCat.newImageVersions.includes(firstVersion))
+      currCat.newImageVersions.push(firstVersion);
+
+    for (let cat of cats) {
+      currCat = currCat.children[cat];
+      if (!!firstVersion && !currCat.newImageVersions.includes(firstVersion))
+        currCat.newImageVersions.push(firstVersion);
+    }
+
+    if (!catMapOnly && batch.length >= maxBatchSize) {
       await commitBatch();
     }
   }
 
-  await commitBatch();
+  if (!catMapOnly) {
+    await commitBatch();
+  }
 
   fs.writeFileSync(
     path.resolve(process.env.GENSHIN_DATA_ROOT, './ImageIndexCategoryMap.json'),

@@ -1,5 +1,6 @@
 import { SearchMode } from '../util/searchUtil.ts';
 import { GameVersionFilter } from './game-versions.ts';
+import { defaultMap } from '../util/genericUtil.ts';
 
 export interface ImageIndexExcelMeta {
   [excelFile: string]: ImageIndexExcelMetaEntry;
@@ -62,5 +63,19 @@ export interface ImageIndexSearchResult {
 }
 
 export interface ImageCategoryMap {
+  name: string,
+  newImageVersions: string[],
+  children: ImageCategoryMapChildren
+}
+
+export interface ImageCategoryMapChildren {
   [catName: string]: ImageCategoryMap
+}
+
+export function newImageCategory(name: string): ImageCategoryMap {
+  return {
+    name: name,
+    newImageVersions: [],
+    children: defaultMap((subName: string) => newImageCategory(subName))
+  };
 }

@@ -52,17 +52,6 @@ export default (env: 'development'|'production') => <webpack.Configuration> {
     extensions: ['.ts', '.js'],
     mainFields: ['browser', 'main', 'module']
   },
-  optimization: {
-    splitChunks: {
-      cacheGroups: {
-        vendors: {
-          name: 'vendor',
-          test: /node_modules/,
-          chunks: 'all'
-        }
-      }
-    }
-  },
   module: {
     rules: [
       {

@@ -3,10 +3,8 @@ import fs from 'fs';
 import { PUBLIC_DIR } from '../loadenv.ts';
 
 export type WebpackBundles = {
-  appCssBundle: string,
-  appJsBundle: string,
-  vendorCssBundle: string,
-  vendorJsBundle: string,
+  cssBundle: string,
+  jsBundle: string,
   vueCssBundle: string,
 };
 
@@ -23,25 +21,17 @@ export function getWebpackBundleFileNames(): WebpackBundles {
   let vueFiles: string[] = fs.readdirSync(vueDistDir);
 
   let result: WebpackBundles = {
-    appCssBundle: '',
-    appJsBundle: '',
-    vendorCssBundle: '',
-    vendorJsBundle: '',
+    cssBundle: '',
+    jsBundle: '',
     vueCssBundle: '',
   };
 
   for (let file of files) {
     if (/^app(\..*)?.bundle\.css$/.test(file)) {
-      result.appCssBundle = `/dist/${file}`;
+      result.cssBundle = `/dist/${file}`;
     }
     if (/^app(\..*)?.bundle\.js$/.test(file)) {
-      result.appJsBundle = `/dist/${file}`;
-    }
-    if (/^vendor(\..*)?.bundle\.js$/.test(file)) {
-      result.vendorJsBundle = `/dist/${file}`;
-    }
-    if (/^vendor(\..*)?.bundle\.css$/.test(file)) {
-      result.vendorCssBundle = `/dist/${file}`;
+      result.jsBundle = `/dist/${file}`;
     }
   }
 

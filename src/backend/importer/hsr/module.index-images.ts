@@ -7,7 +7,7 @@ import {
   ImageCategoryMap,
   ImageIndexEntity,
   ImageIndexExcelMeta,
-  ImageIndexExcelMetaEntry,
+  ImageIndexExcelMetaEntry, newImageCategory,
 } from '../../../shared/types/image-index-types.ts';
 
 function* walkSync(dir: string, relPath: string[] = []): Generator<string> {
@@ -38,10 +38,10 @@ function getImageNames(): string[] {
   return imageNames;
 }
 
-export async function indexStarRailImages(dryRun: boolean = false) {
+export async function indexStarRailImages(catMapOnly: boolean = false) {
   const knex = openPg();
 
-  if (!dryRun) {
+  if (!catMapOnly) {
     await knex.raw('TRUNCATE TABLE hsr_image_index;').then();
   }
 
@@ -49,21 +49,7 @@ export async function indexStarRailImages(dryRun: boolean = false) {
   const imageNameToExcelFileUsages: Record<string, string[]> = defaultMap('Array');
   const imageNameToExcelMeta: Record<string, ImageIndexExcelMeta> = defaultMap('Object');
 
-  const catmap: ImageCategoryMap = defaultMap(() =>
-    defaultMap(() =>
-      defaultMap(() =>
-        defaultMap(() =>
-          defaultMap(() =>
-            defaultMap(() =>
-              defaultMap(() =>
-                defaultMap(() => null)
-              )
-            )
-          )
-        )
-      )
-    )
-  );
+  const catmap: ImageCategoryMap = newImageCategory('root');
 
   console.log('Gathering image names...');
   for (let imageName of getImageNames()) {
@@ -136,7 +122,7 @@ export async function indexStarRailImages(dryRun: boolean = false) {
   const maxBatchSize: number = 1000;
 
   async function commitBatch() {
-    if (!dryRun) {
+    if (!catMapOnly) {
       await knex.transaction(function(tx) {
         return knex.batchInsert('hsr_image_index', batch).transacting(tx);
       }).then();
@@ -147,9 +133,7 @@ export async function indexStarRailImages(dryRun: boolean = false) {
 
   console.log('Committing...');
   for (let imageName of getImageNames()) {
-    const size: number = fs.statSync(path.resolve(IMAGEDIR_HSR_EXT, `./${imageName}.png`))?.size || 0;
     const cats: string[] = [];
-
     let catIdx = 0;
     let catSplits = imageName.split('/');
     if (catSplits.length > 8) {
@@ -164,52 +148,37 @@ export async function indexStarRailImages(dryRun: boolean = false) {
       catIdx++;
     }
 
-    batch.push({
-      image_name: imageName,
-      image_size: size,
-      excel_usages: imageNameToExcelFileUsages[imageName] || [],
-      excel_meta: imageNameToExcelMeta[imageName] || {},
-      image_cat1: cats[0] || null,
-      image_cat2: cats[1] || null,
-      image_cat3: cats[2] || null,
-      image_cat4: cats[3] || null,
-      image_cat5: cats[4] || null,
-      image_cat6: cats[5] || null,
-      image_cat7: cats[6] || null,
-      image_cat8: cats[7] || null,
-    });
-
-    if (cats[0]) {
-      catmap[cats[0]];
-    }
-    if (cats[1]) {
-      catmap[cats[0]][cats[1]];
-    }
-    if (cats[2]) {
-      catmap[cats[0]][cats[1]][cats[2]];
-    }
-    if (cats[3]) {
-      catmap[cats[0]][cats[1]][cats[2]][cats[3]];
-    }
-    if (cats[4]) {
-      catmap[cats[0]][cats[1]][cats[2]][cats[3]][cats[4]];
-    }
-    if (cats[5]) {
-      catmap[cats[0]][cats[1]][cats[2]][cats[3]][cats[4]][cats[5]];
-    }
-    if (cats[6]) {
-      catmap[cats[0]][cats[1]][cats[2]][cats[3]][cats[4]][cats[5]][cats[6]];
-    }
-    if (cats[7]) {
-      catmap[cats[0]][cats[1]][cats[2]][cats[3]][cats[4]][cats[5]][cats[6]][cats[7]];
+    if (!catMapOnly) {
+      const size: number = fs.statSync(path.resolve(IMAGEDIR_HSR_EXT, `./${imageName}.png`))?.size || 0;
+      batch.push({
+        image_name: imageName,
+        image_size: size,
+        excel_usages: imageNameToExcelFileUsages[imageName] || [],
+        excel_meta: imageNameToExcelMeta[imageName] || {},
+        image_cat1: cats[0] || null,
+        image_cat2: cats[1] || null,
+        image_cat3: cats[2] || null,
+        image_cat4: cats[3] || null,
+        image_cat5: cats[4] || null,
+        image_cat6: cats[5] || null,
+        image_cat7: cats[6] || null,
+        image_cat8: cats[7] || null,
+      });
     }
 
-    if (batch.length >= maxBatchSize) {
+    let currCat = catmap;
+    for (let cat of cats) {
+      currCat = currCat.children[cat];
+    }
+
+    if (!catMapOnly && batch.length >= maxBatchSize) {
       await commitBatch();
     }
   }
 
-  await commitBatch();
+  if (!catMapOnly) {
+    await commitBatch();
+  }
 
   fs.writeFileSync(
     path.resolve(process.env.HSR_DATA_ROOT, './ImageIndexCategoryMap.json'),

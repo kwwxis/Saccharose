@@ -34,8 +34,7 @@
     <% if (env.NODE_ENV === 'development') { %>
       <script async src="<%= toBoolean(env.SSL_ENABLED) ? 'https' : 'http' %>://<%= env.WEB_DOMAIN %>:35729/livereload.js"></script>
     <% } %>
-    <link rel="stylesheet" href="<%= req.context.webpackBundles.vendorCssBundle %>">
-    <link rel="stylesheet" href="<%= req.context.webpackBundles.appCssBundle %>">
+    <link rel="stylesheet" href="<%= req.context.webpackBundles.cssBundle %>">
     <link rel="stylesheet" href="<%= req.context.webpackBundles.vueCssBundle %>">
   </head>
   <body class="<%= req.context.bodyClassString %> <%= ctx.prefTernary('isNightmode').isTruthy().then('nightmode') %> <%= req.context.siteModeCssClass %>">
@@ -75,7 +74,6 @@
         </section>
       </div>
     </footer>
-    <script src="<%= req.context.webpackBundles.vendorJsBundle %>"></script>
-    <script src="<%= req.context.webpackBundles.appJsBundle %>"></script>
+    <script src="<%= req.context.webpackBundles.jsBundle %>"></script>
   </body>
 </html>

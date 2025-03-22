@@ -1,7 +1,7 @@
 import { pageMatch } from '../../../core/pageMatch.ts';
 import { SaccharoseApiEndpoint } from '../../../core/endpoints.ts';
 import {
-  ImageCategoryMap,
+  ImageCategoryMap, ImageCategoryMapChildren,
   ImageIndexSearchParams,
   ImageIndexSearchResult,
 } from '../../../../shared/types/image-index-types.ts';
@@ -65,28 +65,34 @@ export function initiateMediaListPage(
       }
     }
 
-    function makeCategoryElements(catmap: ImageCategoryMap, parentEl: HTMLElement, parentPath: string, shouldPopulateFn: (myPath: string) => boolean) {
+    function makeCategoryElements(catmap: ImageCategoryMap,
+                                  parentEl: HTMLElement,
+                                  parentPath: string,
+                                  shouldPopulateFn: (myPath: string) => boolean) {
       if (!catmap || !parentEl) {
         return;
       }
-      for (let [cat, subcats] of Object.entries(catmap)) {
+      for (let cat of Object.values(catmap.children)) {
         const myId: string = 'media-cat-' + uuidv4();
-        const myPath: string = parentPath ? parentPath+'.'+cat : cat;
+        const myPath: string = parentPath ? parentPath+'.'+cat.name : cat.name;
         const shouldPopulate: boolean = shouldPopulateFn && shouldPopulateFn(myPath);
 
         const el: HTMLElement = frag1(`
-        <div id="${myId}" class="media-cat" data-cat-name="${escapeHtml(cat)}" data-cat-path="${escapeHtml(myPath)}" data-did-populate="${shouldPopulate ? 'true' : 'false'}">
+        <div id="${myId}" class="media-cat"
+             data-cat-name="${escapeHtml(cat.name)}"
+             data-cat-path="${escapeHtml(myPath)}"
+             data-did-populate="${shouldPopulate ? 'true' : 'false'}">
           <div class="media-cat-header valign">
             <span class="expando spacer5-right ${shouldPopulate ? 'collapse-action expanded-state' : 'expand-action collapsed-state'}"
                   ui-action="expando: #${myId} > .media-cat-content">${expandoHtml}</span>
-            <div class="media-cat-title">${escapeHtml(cat)}</div>
+            <div class="media-cat-title">${escapeHtml(cat.name)}</div>
           </div>
           <div class="media-cat-content ${shouldPopulate ? 'expanded' : 'collapsed hide'}">
             <div class="media-cat-children"></div>
             <div class="media-image-load-zone" data-media-cat-id="${myId}"></div>
           </div>
         </div>
-      `);
+        `);
 
         const childrenEl: HTMLElement = el.querySelector('.media-cat-children');
         const loadZoneEl: HTMLElement = el.querySelector('.media-image-load-zone');
@@ -96,15 +102,15 @@ export function initiateMediaListPage(
         el.querySelector(":scope > .media-cat-header .expando").addEventListener('click', (ev) => {
           if (!toBoolean(el.getAttribute('data-did-populate'))) {
             el.setAttribute('data-did-populate', 'true');
-            makeCategoryElements(subcats, childrenEl, myPath, null);
+            makeCategoryElements(cat, childrenEl, myPath, null);
           }
         });
 
         parentEl.append(el);
 
-        if (isNotEmpty(subcats) && shouldPopulate) {
+        if (isNotEmpty(cat.children) && shouldPopulate) {
           makeCategoryElements(
-            subcats,
+            cat,
             childrenEl,
             myPath,
             shouldPopulateFn,
