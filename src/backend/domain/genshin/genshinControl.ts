@@ -1815,14 +1815,14 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     codex.SubTypeName = codexTextMap[codex.SubType.replace('CODEX_SUBTYPE', 'UI_CODEX_ANIMAL_CATEGORY')];
 
     if (codex.Type === 'CODEX_WILDLIFE') {
-      codex.Icon = codex.AnimalDescribe.Icon;
-      codex.NameText = codex.AnimalDescribe.NameText;
-      codex.NameTextMapHash = codex.AnimalDescribe.NameTextMapHash;
+      codex.Icon = codex.AnimalDescribe?.Icon;
+      codex.NameText = codex.AnimalDescribe?.NameText;
+      codex.NameTextMapHash = codex.AnimalDescribe?.NameTextMapHash;
       codex.TypeName = codexTextMap['UI_CODEX_ANIMAL_ANIMAL'];
     } else {
-      codex.Icon = codex.MonsterDescribe.Icon;
-      codex.NameText = codex.MonsterDescribe.NameText;
-      codex.NameTextMapHash = codex.MonsterDescribe.NameTextMapHash;
+      codex.Icon = codex.MonsterDescribe?.Icon;
+      codex.NameText = codex.MonsterDescribe?.NameText;
+      codex.NameTextMapHash = codex.MonsterDescribe?.NameTextMapHash;
       codex.TypeName = codexTextMap['UI_CODEX_ANIMAL_MONSTER'];
     }
 
