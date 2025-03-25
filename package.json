@@ -24,8 +24,8 @@
   "license": "MIT",
   "dependencies": {
     "7zip-bin": "^5.2.0",
-    "ag-grid-community": "^33.1.1",
-    "ag-grid-enterprise": "^33.1.1",
+    "ag-grid-community": "32.2.0",
+    "ag-grid-enterprise": "32.2.0",
     "async-exit-hook": "^2.0.1",
     "async-lock": "^1.4.1",
     "autosize": "^6.0.1",
