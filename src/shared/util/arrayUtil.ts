@@ -122,12 +122,14 @@ export function isEquiv(a: any, b: any, fieldSkipper?: (field: PathAndValue) => 
   }
 }
 
+export type WalkObjectProcessor = (curr: PathAndValue) => 'NO-DESCEND'|'QUIT'|'CONTINUE'|'DELETE'|void;
+
 /**
  * Same as {@link walkObjectGen} but with only the callback function and not as a generator.
  * @param o The object to walk through.
  * @param processor See the `interceptor` parameter on {@link walkObjectGen}
  */
-export function walkObject(o: any, processor: (curr: PathAndValue) => 'NO-DESCEND'|'QUIT'|'CONTINUE'|'DELETE'|void): void {
+export function walkObject(o: any, processor: WalkObjectProcessor): void {
   for (let _ignore of walkObjectGen(o, false, processor)) {}
 }
 
@@ -160,8 +162,8 @@ export function walkObject(o: any, processor: (curr: PathAndValue) => 'NO-DESCEN
  *   </li>
  * </ul>
  */
-export function* walkObjectGen(o: any, leafsOnly: boolean = false, interceptor?: (field: PathAndValue) => 'NO-DESCEND'|'QUIT'|'CONTINUE'|'DELETE'|void): Generator<PathAndValue> {
-  if (typeof o !== 'object') {
+export function* walkObjectGen(o: any, leafsOnly: boolean = false, interceptor?: WalkObjectProcessor): Generator<PathAndValue> {
+  if (isUnset(o) || typeof o !== 'object') {
     return;
   }
   let queue: PathAndValue[] = [];

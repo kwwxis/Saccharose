@@ -27,6 +27,7 @@ export function initiateMediaArchiveJobPage(
           <div class="content">
             <p>Query: <code>${escapeHtml(job.run_args.searchParams.query)}</code></p>
             <p>Search Mode: <code>${escapeHtml(job.run_args.searchParams.searchMode)}</code></p>
+            <p>Version Filter: <code>${escapeHtml(job.run_args.searchParams.versionFilter || '(none)')}</code></p>
             <p>Start time: ${timeConvert(startTime)} (${humanTiming(startTime)})</p>
             <p>End time: ${timeConvert(endTime)} (${humanTiming(endTime)})</p>
           </div>

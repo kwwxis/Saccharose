@@ -9,7 +9,7 @@ import { closeKnex } from '../../util/db.ts';
 import { importNormalize, importPlainTextMap } from '../util/import_file_util.ts';
 import { importGcgSkill } from './module.gcg-skill.ts';
 import { importVoiceItems } from './module.voice-items.ts';
-import { createPropertySchema } from './module.property-schema.ts';
+import { writeMappedExcels } from './module.property-schema.ts';
 import { importVoiceOvers } from './module.voice-overs.ts';
 import { importSearchIndex } from './module.search-index.ts';
 import { generateAvatarAnimInteractionGoodBad, generateQuestDialogExcels } from './module.make-excels.ts';
@@ -128,7 +128,7 @@ export async function importGenshinFilesCli() {
     await importVoiceOvers();
   }
   if (options['property-schema']) {
-    await createPropertySchema();
+    await writeMappedExcels();
   }
   if (options['export-excel']) {
     await exportExcel(options['export-excel']);

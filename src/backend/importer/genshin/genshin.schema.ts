@@ -452,7 +452,7 @@ export const genshinSchema = {
       {name: 'PushTipsCodexId', type: 'integer', isIndex: true},
     ],
     renameFields: {
-      // TODO: This needs to be updated with each new Genshin version!
+      // TODO: This needs to be updated with each new Genshin version! (maybe)
       OKJGFOKCJNI: 'AltDescTextQuestCondIds', // Version 4.8
       FHNNPAGOHAJ: 'AltDescTextMapHashList',  // Version 4.8
 
@@ -1088,7 +1088,7 @@ export const genshinSchema = {
       { name: 'Id', type: 'integer', isPrimary: true },
     ],
     renameFields: {
-      // TODO: This needs to be updated with each new Genshin version!
+      // TODO: This needs to be updated with each new Genshin version! (maybe)
       NELFLFMMGAP: 'DeckNameTextMapHash', // Version 4.8
       BPNAAGAPHDJ: 'DeckNameTextMapHash', // Version 5.0
       LGIODDPABGJ: 'DeckNameTextMapHash', // Version 5.1

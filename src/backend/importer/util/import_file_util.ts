@@ -7,10 +7,10 @@ import { getTextMapRelPath } from '../../loadenv.ts';
 import { AbstractControl } from '../../domain/abstract/abstractControl.ts';
 import { NormTextOptions } from '../../domain/abstract/genericNormalizers.ts';
 import XXH from 'xxhashjs';
-import JSONbigimport from 'json-bigint';
+import JSONBigImport from '../../util/json-bigint';
 import { isInt } from '../../../shared/util/numberUtil.ts';
 
-const JSONbig = JSONbigimport({ useNativeBigInt: true});
+const JSONbig = JSONBigImport({ useNativeBigInt: true, objectProto: true});
 
 const isOnePropObj = (o: any, key: string) => o && typeof o === 'object' && Object.keys(o).length === 1 && Object.keys(o)[0] === key;
 
