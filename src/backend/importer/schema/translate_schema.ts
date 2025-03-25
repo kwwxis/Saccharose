@@ -3,10 +3,10 @@ import fs, {promises as fsp} from 'fs';
 import { defaultMap, isUnset } from '../../../shared/util/genericUtil.ts';
 import { pathToFileURL } from 'url';
 import JSONBigImport, { JSONBigInt } from '../../util/json-bigint';
-import { PathAndValue, walkObject, WalkObjectProcessor } from '../../../shared/util/arrayUtil.ts';
+import { PathAndValue, resolveObjectPath, walkObject, WalkObjectProcessor } from '../../../shared/util/arrayUtil.ts';
 import { isInt, isNumeric } from '../../../shared/util/numberUtil.ts';
-import { isStringBlank } from '../../../shared/util/stringUtil.ts';
 import path from 'node:path';
+import { array } from 'toposort';
 
 const JSONbig: JSONBigInt = JSONBigImport({ useNativeBigInt: true, objectProto: true });
 
@@ -16,7 +16,7 @@ const textMapHashes: Set<string> = new Set(Object.keys(
 
 // region Types/Basic Utils
 // --------------------------------------------------------------------------------------------------------------
-const isEmptyObj = (o: any) => o && typeof o === 'object' && Object.keys(o).length === 0;
+const isEmptyObj = (o: any) => o && typeof o === 'object' && !Array.isArray(o) && Object.keys(o).length === 0;
 
 type ValueType = 'unset' | 'primitive' | 'record' | 'primitive[]' | 'record[]';
 
@@ -57,12 +57,6 @@ function shouldIgnore(field: PathAndValue): boolean {
   if (isInt(val) && String(val).length >= 18)
     return true;
   if (isNumeric(val) && String(val).includes('.') && String(val).length >= 10)
-    return true;
-  if (typeof val === 'string' && isStringBlank(val))
-    return true;
-  if (Array.isArray(val) && !val.length)
-    return true;
-  if (isEmptyObj(val))
     return true;
   return false;
 }
@@ -213,12 +207,37 @@ function pairRecords(schemaRecords: any[], obfRecords: any[]): RecordPair[] {
 }
 // endregion
 
+// region Post-Process
+// --------------------------------------------------------------------------------------------------------------
+export function createPropertySchemaPostProcess_imprintEmptyArrays(json: any[], arrayPaths: string[]) {
+  if (!arrayPaths || !arrayPaths.length) {
+    return;
+  }
+  json.forEach(row => {
+    for (let arrayPath of arrayPaths) {
+      if (!arrayPath.includes('[')) {
+        const val = resolveObjectPath(row, arrayPath);
+        if (isUnset(val)) {
+          resolveObjectPath(row, arrayPath, 'set', []);
+        }
+      }
+    }
+  });
+}
+// endregion
+
 // region Main Method
 // --------------------------------------------------------------------------------------------------------------
-async function main(schemaRecords: any[], obfRecords: any[]): Promise<{[obfProp: string]: string}> {
+export type PropertySchemaResult = {
+  map: {[obfProp: string]: string},
+  arrayPaths: string[],
+}
+
+async function main(schemaRecords: any[], obfRecords: any[]): Promise<PropertySchemaResult> {
   let pairs: RecordPair[] = pairRecords(schemaRecords, obfRecords);
 
   const confidence: {[obfKey: string]: {[schemaKey: string]: number}} = defaultMap(() => defaultMap('Zero'));
+  const arrayPaths: Set<string> = new Set();
 
   for (let pair of pairs) {
     const kvObf = unpackRecord(pair.obfRecord);
@@ -228,9 +247,20 @@ async function main(schemaRecords: any[], obfRecords: any[]): Promise<{[obfProp:
 
     // inspect({ kvObf, kvSchema})
     for (let sp of kvSchema.list) {
+      if (sp.valueType === 'primitive[]' || sp.valueType === 'record[]') {
+        arrayPaths.add(sp.path);
+      }
       const obfStructCandidates: KvPair[] = kvObf.forStructure(sp);
       for (let obfCand of obfStructCandidates) {
-        if (String(obfCand.value) === String(sp.value)) {
+        let str1 = String(obfCand.value);
+        if (Array.isArray(obfCand.value))
+          str1 = `[${str1}]`;
+
+        let str2 = String(sp.value);
+        if (Array.isArray(sp.value))
+          str2 = `[${str2}]`;
+
+        if (str1 === str2) {
           confidence[obfCand.key][sp.key]++;
         }
       }
@@ -291,14 +321,14 @@ async function main(schemaRecords: any[], obfRecords: any[]): Promise<{[obfProp:
     }
   }
 
-  return result;
+  return { map: result, arrayPaths: Array.from(arrayPaths) };
 }
 // endregion
 
 // region CLI/Entrypoint
 // --------------------------------------------------------------------------------------------------------------
 export async function createPropertySchema(schemaFilePath: string,
-                                           obfFilePath: string): Promise<{[obfProp: string]: string}> {
+                                           obfFilePath: string): Promise<PropertySchemaResult> {
   const schemaFile: any[] = await fsp.readFile(schemaFilePath, {encoding: 'utf8'})
     .then(data => Object.freeze(JSONbig.parse(data)));
   const objFile: any[] = await fsp.readFile(obfFilePath, {encoding: 'utf8'})

@@ -1,20 +1,21 @@
 import { getGenshinDataFilePath } from '../../loadenv.ts';
 import path from 'path';
 import fs, { promises as fsp } from 'fs';
-import { createPropertySchema } from '../schema/translate_schema.ts';
+import {
+  createPropertySchema,
+  createPropertySchemaPostProcess_imprintEmptyArrays,
+  PropertySchemaResult,
+} from '../schema/translate_schema.ts';
 import { normalizeRawJson } from '../import_db.ts';
 import { genshinSchema } from './genshin.schema.ts';
 
 export async function writeMappedExcels() {
-  function getExcelFilePair(filePath: string) {
-    return {
-      schemaFilePath: path.resolve(process.env.GENSHIN_ARCHIVES, `./5.4/`, filePath.replaceAll('\\', '/')),
-      obfFilePath: getGenshinDataFilePath(filePath),
-    };
+  function getSchemaFilePath(filePath: string): string {
+    return path.resolve(process.env.GENSHIN_ARCHIVES, `./5.4/ExcelBinOutput/`, filePath);
   }
 
-  const excelDirPath = getGenshinDataFilePath('./ExcelBinOutput');
-  const mappedExcelDirPath = getGenshinDataFilePath('./ExcelBinOutputMapped');
+  const rawExcelDirPath = getGenshinDataFilePath('./ExcelBinOutput.Raw');
+  const mappedExcelDirPath = getGenshinDataFilePath('./ExcelBinOutput');
 
   fs.mkdirSync(mappedExcelDirPath, { recursive: true });
 
@@ -27,29 +28,29 @@ export async function writeMappedExcels() {
     'CodexQuestExcelConfigData',
   ];
 
-  const jsonsInDir = fs.readdirSync(excelDirPath).filter(file => path.extname(file) === '.json');
+  const jsonsInDir = fs.readdirSync(rawExcelDirPath).filter(file => path.extname(file) === '.json');
   for (let _jsonFile of jsonsInDir) {
     const fileName = path.basename(_jsonFile);
     const schemaName = fileName.split('.')[0];
 
-    const files = getExcelFilePair(`./ExcelBinOutput/${fileName}`);
-    if (!fs.existsSync(files.schemaFilePath)) {
+    const schemaFilePath = getSchemaFilePath(fileName);
+    if (!fs.existsSync(schemaFilePath)) {
       console.log('NEW EXCEL: not in schema - ' + schemaName);
       continue;
     } else {
       console.log('Processing ' + schemaName);
     }
 
-
-    const absJsonPath = getGenshinDataFilePath('./ExcelBinOutput/' + fileName);
+    const absJsonPath = path.resolve(rawExcelDirPath, fileName);
     let json = await fsp.readFile(absJsonPath, { encoding: 'utf8' }).then(data => JSON.parse(data));
 
     if (!copyOnlySchemas.includes(schemaName)) {
-      const propertySchema = await createPropertySchema(
-        files.schemaFilePath,
-        files.obfFilePath
+      const propertySchema: PropertySchemaResult = await createPropertySchema(
+        schemaFilePath,
+        absJsonPath
       );
-      json = normalizeRawJson(json, genshinSchema[schemaName], propertySchema);
+      json = normalizeRawJson(json, genshinSchema[schemaName], propertySchema.map);
+      createPropertySchemaPostProcess_imprintEmptyArrays(json, propertySchema.arrayPaths);
     }
 
     fs.writeFileSync(path.resolve(mappedExcelDirPath, './' + schemaName + '.json'), JSON.stringify(json, null, 2));

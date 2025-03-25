@@ -2569,6 +2569,8 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
           }
 
           for (let vecProp of materialVecProps) {
+            if (!row[vecProp])
+              row[vecProp] = [];
             row[vecProp] = row[vecProp].filter(x => !!x.Id);
             for (let vecItem of (row[vecProp] as MaterialVecItem[])) {
               if (vecItem.Id) {
