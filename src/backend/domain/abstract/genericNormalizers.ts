@@ -169,7 +169,7 @@ export function mcify(lang: LangCode, maleText: string, femaleText: string): str
   const changes: Change[] = diffIntlWithSpace(maleText || '', femaleText || '', {
     langCode: lang
   });
-  const out: Change[] = [];
+  const out: { value: string }[] = [];
 
   // removed -> male text
   // added -> female text

@@ -50,7 +50,11 @@ function initializeThemeWatcher(elements: HTMLElement[]) {
   });
 }
 
-function makeSingleColumnDef(fieldKey: string, fieldName: string, data: any) {
+export type SingleColumnDefOpts = {
+  alwaysShow?: boolean
+}
+
+export function makeSingleColumnDef(fieldKey: string, fieldName: string, data: any, opts: SingleColumnDefOpts = {}) {
   let initialWidth = typeof data === 'string' ? 200 : 100;
   let headerWidth = getTextWidth(camelCaseToTitleCase(fieldName), `bold 13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif`);
   headerWidth += (18 * 2) + 16; // 18px left and right padding + filter icon width
@@ -64,7 +68,7 @@ function makeSingleColumnDef(fieldKey: string, fieldName: string, data: any) {
     filter: typeof data === 'number' || typeof data === 'boolean' ? 'agNumberColumnFilter' : 'agTextColumnFilter',
     filterParams: typeof data === 'boolean' ? booleanFilter : undefined,
     width: initialWidth,
-    hide: fieldName.includes('TextMapHash') || fieldName.endsWith('Hash'),
+    hide: opts.alwaysShow ? false : (fieldName.includes('TextMapHash') || fieldName.endsWith('Hash')),
     cellClass: 'cell-type-' + (isUnset(data) ? 'null' : typeof data),
     floatingFilter: true,
     valueFormatter: params => {
@@ -244,7 +248,7 @@ function getColumnDefs(excelData: any[]): (ColDef | ColGroupDef)[] {
   return columnDefs;
 }
 
-function createExcelViewerHtml(fileName: string, includeExcelListButton: boolean) {
+function createExcelViewerHtml(fileName: string, includeExcelListButton: boolean, height: string) {
   return frag1(`
   <div class="excel-viewer">
     <section class="excel-viewer-top card ag-theme-alpine${isNightmode() ? '-dark' : ''}">
@@ -275,7 +279,7 @@ function createExcelViewerHtml(fileName: string, includeExcelListButton: boolean
       </div>
     </section>
   
-    <div style="height: 80vh; width: 100%" class="excel-viewer-grid hide ag-theme-alpine${isNightmode() ? '-dark' : ''}">
+    <div style="height: ${height}; width: 100%" class="excel-viewer-grid hide ag-theme-alpine${isNightmode() ? '-dark' : ''}">
     </div>
     <div class="excel-viewer-grid-loading card valign justifyCenter ag-theme-alpine${isNightmode() ? '-dark' : ''}" style="height: 80vh; width: 100%">
       <h1 class="valign justifyCenter">
@@ -287,8 +291,17 @@ function createExcelViewerHtml(fileName: string, includeExcelListButton: boolean
   `);
 }
 
-export function initExcelViewer(excelFileName: string, excelData: any[], includeExcelListButton: boolean, appendTo?: HTMLElement) {
-  const parentEl: HTMLElement = createExcelViewerHtml(excelFileName, includeExcelListButton);
+export type ExcelViewerOpts = {
+  height?: string,
+  includeExcelListButton?: boolean,
+  overrideColDefs?: (ColDef | ColGroupDef)[],
+}
+
+export function initExcelViewer(excelFileName: string,
+                                excelData: any[],
+                                appendTo: HTMLElement,
+                                opts: ExcelViewerOpts = {}) {
+  const parentEl: HTMLElement = createExcelViewerHtml(excelFileName, opts.includeExcelListButton, opts.height || '80vh');
   if (appendTo) {
     appendTo.append(parentEl);
   }
@@ -300,7 +313,7 @@ export function initExcelViewer(excelFileName: string, excelData: any[], include
   initializeThemeWatcher([topEl, gridEl, gridLoadingEl]);
 
   const gridOptions: GridOptions = {
-    columnDefs: getColumnDefs(excelData),
+    columnDefs: opts.overrideColDefs || getColumnDefs(excelData),
     rowData: excelData,
     defaultColDef: {
       resizable: true,
@@ -420,6 +433,7 @@ export function initExcelViewer(excelFileName: string, excelData: any[], include
 
   const gridApi: GridApi = createGrid(gridEl, gridOptions);
   const storeName: StoreNames<ExcelViewerDB> = `${SiteMode.storagePrefix}.ColumnState`;
+  let noAutoSave: boolean = false;
 
   function getCurrentColumnState(): ColumnState[] {
     return gridApi.getColumnState();
@@ -432,8 +446,18 @@ export function initExcelViewer(excelFileName: string, excelData: any[], include
   }
 
   async function savePreferredColumnState() {
+    if (noAutoSave) {
+      return;
+    }
     await invokeExcelViewerDB(db => {
       db.put(storeName, getCurrentColumnState(), excelFileName);
+    });
+  }
+
+  async function resetPreferredColumnState() {
+    noAutoSave = true;
+    await invokeExcelViewerDB(db => {
+      db.put(storeName, [], excelFileName);
     });
   }
 
@@ -498,6 +522,7 @@ export function initExcelViewer(excelFileName: string, excelData: any[], include
     getCurrentColumnState,
     getPreferredColumnState,
     savePreferredColumnState,
+    resetPreferredColumnState,
   };
 }
 
@@ -519,12 +544,16 @@ pageMatch('vue/ExcelViewerTablePage', async () => {
     gridApi,
     getCurrentColumnState,
     getPreferredColumnState,
-    savePreferredColumnState
-  } = initExcelViewer(excelFileName, excelData, true, containerEl);
+    savePreferredColumnState,
+    resetPreferredColumnState,
+  } = initExcelViewer(excelFileName, excelData, containerEl, {
+    includeExcelListButton: true
+  });
 
   (<any> window).gridApi = gridApi;
   (<any> window).gridElement = parentEl;
   (<any> window).getCurrentColumnState = getCurrentColumnState;
   (<any> window).getPreferredColumnState = getPreferredColumnState;
   (<any> window).savePreferredColumnState = savePreferredColumnState;
+  (<any> window).resetPreferredColumnState = resetPreferredColumnState;
 });

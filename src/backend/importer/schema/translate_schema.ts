@@ -3,7 +3,13 @@ import fs, {promises as fsp} from 'fs';
 import { defaultMap, isUnset } from '../../../shared/util/genericUtil.ts';
 import { pathToFileURL } from 'url';
 import JSONBigImport, { JSONBigInt } from '../../util/json-bigint';
-import { PathAndValue, resolveObjectPath, walkObject, WalkObjectProcessor } from '../../../shared/util/arrayUtil.ts';
+import {
+  arraySum,
+  PathAndValue,
+  resolveObjectPath,
+  walkObject,
+  WalkObjectProcessor,
+} from '../../../shared/util/arrayUtil.ts';
 import { isInt, isNumeric } from '../../../shared/util/numberUtil.ts';
 import path from 'node:path';
 import { array } from 'toposort';
@@ -132,23 +138,36 @@ class UnpackResult {
 // region Compare & Pair Records
 // --------------------------------------------------------------------------------------------------------------
 function areLikelySameRecord(record1: any, record2: any): boolean {
-  let values1: Set<string> = new Set();
-  let values2: Set<string> = new Set();
+  // Scalar values:
+  let scValues1: Set<string> = new Set();
+  let scValues2: Set<string> = new Set();
 
+  // Primitive-value vector values:
+  let pvValues1: Set<string> = new Set();
+  let pvValues2: Set<string> = new Set();
+
+  // TextMap hash values:
   let tmValues1: Set<string> = new Set();
   let tmValues2: Set<string> = new Set();
 
-  function pathAdder(set: Set<string>, tmSet: Set<string>): WalkObjectProcessor {
+  function pathAdder(scSet: Set<string>, tmSet: Set<string>, pvSet: Set<string>): WalkObjectProcessor {
     return field => {
       if (typeof field.value === 'bigint')
         field.value = field.value.toString();
       if (shouldIgnore(field))
         return;
       if (isPrimitiveArray(field.value)) {
-        set.add(String(filterArray(field.value)));
+        let arr = filterArray(field.value);
+        pvSet.add(String(arr));
+        for (let item of arr) {
+          scSet.add(String(item));
+          if (textMapHashes.has(String(item))) {
+            tmSet.add(String(item));
+          }
+        }
         return 'NO-DESCEND';
       } else if (field.isLeaf) {
-        set.add(String(field.value));
+        scSet.add(String(field.value));
         if (textMapHashes.has(String(field.value))) {
           tmSet.add(String(field.value));
         }
@@ -156,27 +175,36 @@ function areLikelySameRecord(record1: any, record2: any): boolean {
     };
   }
 
-  walkObject(record1, pathAdder(values1, tmValues1));
-  walkObject(record2, pathAdder(values2, tmValues2));
+  walkObject(record1, pathAdder(scValues1, tmValues1, pvValues1));
+  walkObject(record2, pathAdder(scValues2, tmValues2, pvValues2));
 
-  const intersect = values1.intersection(values2);
-  const maxValueCount = new Set([... values1, ... values2]).size;
-  const intersectCount = intersect.size;
+  const scIntersect = scValues1.intersection(scValues2);
+  const scMaxValueCount = new Set([... scValues1, ... scValues2]).size;
+  const scIntersectCount = scIntersect.size;
 
   const tmIntersect = tmValues1.intersection(tmValues2);
   const tmMaxValueCount = new Set([... tmValues1, ... tmValues2]).size;
   const tmIntersectCount = tmIntersect.size;
 
-  let score: number;
-  if (tmMaxValueCount > 0) {
-    score = (
-      ((intersectCount / maxValueCount) + (tmIntersectCount / tmMaxValueCount)) / 2
-    );
-  } else {
-    score = (
-      (intersectCount / maxValueCount)
-    );
+  const pvIntersect = pvValues1.intersection(pvValues2);
+  const pvMaxValueCount = new Set([... pvValues1, ... pvValues2]).size;
+  const pvIntersectCount = pvIntersect.size;
+
+  let scScore = scMaxValueCount > 0 ? (scIntersectCount / scMaxValueCount) : 0;
+  let tmScore = tmMaxValueCount > 0 ? (tmIntersectCount / tmMaxValueCount) : 0;
+  let pvScore = pvMaxValueCount > 0 ? (pvIntersectCount / pvMaxValueCount) : 0;
+
+  let scores: number[] = [scScore];
+
+  if (tmScore > 0) {
+    scores.push(tmScore);
   }
+  if (pvScore > 0) {
+    scores.push(pvScore);
+  }
+
+  let score: number = arraySum(scores) / scores.length;
+
   return score >= 0.7;
 }
 

@@ -94,6 +94,56 @@ export type TextMapContentChange = {
   oldValue: string,
   newValue: string
 }
+
+export type TextMapChangesAsRows = {
+  langCode: LangCode,
+  added: TextMapChangeAddRow[],
+  removed: TextMapChangeRemoveRow[],
+  updated: TextMapChangeUpdateRow[]
+}
+
+export function textMapChangesAsRows(input: TextMapChanges,
+                                     normFunction: ((s: string) => string) = ((s) => s)): TextMapChangesAsRows {
+  const out: TextMapChangesAsRows = {
+    langCode: input.langCode,
+    added: [],
+    removed: [],
+    updated: [],
+  };
+
+  for (let [textMapHash, text] of Object.entries(input.added)) {
+    text = normFunction(text);
+    out.added.push({ textMapHash, text });
+  }
+  for (let [textMapHash, text] of Object.entries(input.removed)) {
+    text = normFunction(text);
+    out.removed.push({ textMapHash, text });
+  }
+  for (let [textMapHash, text] of Object.entries(input.updated)) {
+    let newText = text.newValue;
+    let oldText = text.oldValue;
+
+    newText = normFunction(newText);
+    oldText = normFunction(oldText);
+
+    out.updated.push({ textMapHash, oldText, newText });
+  }
+  return out;
+}
+
+export type TextMapChangeAddRow = {
+  textMapHash: TextMapHash,
+  text: string,
+}
+export type TextMapChangeUpdateRow = {
+  textMapHash: TextMapHash,
+  oldText: string,
+  newText: string,
+}
+export type TextMapChangeRemoveRow = {
+  textMapHash: TextMapHash,
+  text: string,
+}
 // endregion
 
 // region Utility Functions

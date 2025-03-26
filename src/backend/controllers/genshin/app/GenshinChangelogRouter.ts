@@ -9,6 +9,8 @@ import GenshinChangelogSingleExcelPage
 import { generateGenshinChangelogNewRecordSummary } from '../../../domain/genshin/changelog/genshinChangelogHelpers.ts';
 import { isInt } from '../../../../shared/util/numberUtil.ts';
 import { LANG_CODES, LangCodeMap } from '../../../../shared/types/lang-types.ts';
+import { textMapChangesAsRows } from '../../../../shared/types/changelog-types.ts';
+import GenshinChangelogTextMapPage from '../../../components/genshin/changelogs/GenshinChangelogTextMapPage.vue';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -35,10 +37,33 @@ export default async function(): Promise<Router> {
     const newSummary = await generateGenshinChangelogNewRecordSummary(ctrl, fullChangelog);
 
     res.render(GenshinChangelogPage, {
-      title: 'Genshin Changelog',
+      title: 'Genshin Changelog ' + genshinVersion.number,
       genshinVersion,
       fullChangelog,
       newSummary,
+      bodyClass: ['page--changelog', 'page--wide', 'page--narrow-sidebar']
+    });
+  });
+
+  router.get('/changelog/:version/textmap', async (req: Request, res: Response) => {
+    const genshinVersion = GenshinVersions.find(v => v.number === req.params.version);
+
+    if (!genshinVersion || !genshinVersion.showChangelog) {
+      return res.render(ChangelogListPage, {
+        title: 'Genshin Changelog',
+        errorMessage: 'No changelog available for ' + req.params.version
+      });
+    }
+
+    const ctrl = getGenshinControl(req);
+    const fullChangelog = await ctrl.selectChangelog(genshinVersion);
+    const textmapChanges = fullChangelog.textmapChangelog[ctrl.outputLangCode];
+    const textmapChangesAsRows = textMapChangesAsRows(textmapChanges, s => ctrl.normText(s, ctrl.outputLangCode));
+
+    res.render(GenshinChangelogTextMapPage, {
+      title: 'Genshin TextMap Diff ' + genshinVersion.number,
+      genshinVersion,
+      textmapChanges: textmapChangesAsRows,
       bodyClass: ['page--changelog', 'page--wide', 'page--narrow-sidebar']
     });
   });
@@ -93,7 +118,7 @@ export default async function(): Promise<Router> {
     }
 
     res.render(GenshinChangelogSingleExcelPage, {
-      title: 'Genshin Changelog',
+      title: 'Genshin Changelog - ' + excelFileChanges.name,
       genshinVersion,
       fullChangelog,
       excelFileChanges,

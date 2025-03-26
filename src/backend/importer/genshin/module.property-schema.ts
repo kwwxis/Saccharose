@@ -32,6 +32,9 @@ export async function writeMappedExcels() {
   for (let _jsonFile of jsonsInDir) {
     const fileName = path.basename(_jsonFile);
     const schemaName = fileName.split('.')[0];
+    if (schemaName !== 'MaterialSourceDataExcelConfigData') {
+      continue;
+    }
 
     const schemaFilePath = getSchemaFilePath(fileName);
     if (!fs.existsSync(schemaFilePath)) {

@@ -14,6 +14,10 @@
       <button id="tab-byExcels" role="tab" class="tab" ui-action="tab: #tabpanel-byExcels, changelogAreas">
         By Excels
       </button>
+      <a :href="`/genshin/changelog/${genshinVersion.number}/textmap`"
+         id="tab-textmap" role="tab" class="tab">
+        TextMap
+      </a>
     </div>
 
     <div id="tabpanel-newSummary" role="tabpanel" aria-labelledby="tab-newSummary" class="tabpanel active">
