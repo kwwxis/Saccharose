@@ -2702,6 +2702,9 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     if (!material) {
       return material;
     }
+    if (material.FoodQuality && material.FoodQuality === 'FOOD_QUALITY_NONE') {
+      delete material.FoodQuality;
+    }
     if (material.TypeDescText) {
       material.WikiTypeDescText = GENSHIN_MATERIAL_TYPE_DESC_PLURAL_MAP[material.TypeDescText] || material.TypeDescText;
     } else {

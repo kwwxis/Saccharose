@@ -13,6 +13,8 @@ import {
 import { isInt, isNumeric } from '../../../shared/util/numberUtil.ts';
 import path from 'node:path';
 import { array } from 'toposort';
+import { SchemaTableSet } from '../import_db.ts';
+import { genshinSchema } from '../genshin/genshin.schema.ts';
 
 const JSONbig: JSONBigInt = JSONBigImport({ useNativeBigInt: true, objectProto: true });
 
@@ -137,7 +139,7 @@ class UnpackResult {
 
 // region Compare & Pair Records
 // --------------------------------------------------------------------------------------------------------------
-function areLikelySameRecord(record1: any, record2: any): boolean {
+function areLikelySameRecord(appSchema: SchemaTableSet, schemaName: string, schemaRecord: any, obfRecord: any): boolean {
   // Scalar values:
   let scValues1: Set<string> = new Set();
   let scValues2: Set<string> = new Set();
@@ -149,6 +151,8 @@ function areLikelySameRecord(record1: any, record2: any): boolean {
   // TextMap hash values:
   let tmValues1: Set<string> = new Set();
   let tmValues2: Set<string> = new Set();
+
+  const pkField: string = appSchema[schemaName]?.columns?.find(c => c.isPrimary)?.name;
 
   function pathAdder(scSet: Set<string>, tmSet: Set<string>, pvSet: Set<string>): WalkObjectProcessor {
     return field => {
@@ -175,8 +179,8 @@ function areLikelySameRecord(record1: any, record2: any): boolean {
     };
   }
 
-  walkObject(record1, pathAdder(scValues1, tmValues1, pvValues1));
-  walkObject(record2, pathAdder(scValues2, tmValues2, pvValues2));
+  walkObject(schemaRecord, pathAdder(scValues1, tmValues1, pvValues1));
+  walkObject(obfRecord, pathAdder(scValues2, tmValues2, pvValues2));
 
   const scIntersect = scValues1.intersection(scValues2);
   const scMaxValueCount = new Set([... scValues1, ... scValues2]).size;
@@ -205,6 +209,13 @@ function areLikelySameRecord(record1: any, record2: any): boolean {
 
   let score: number = arraySum(scores) / scores.length;
 
+  if (pkField) {
+    const schemaPkVal = schemaRecord[pkField];
+    if (isPrimitive(schemaPkVal) && !scValues2.has(String(schemaPkVal))) {
+      score = 0;
+    }
+  }
+
   return score >= 0.7;
 }
 
@@ -215,7 +226,7 @@ type RecordPair = {
   obfIndex: number
 };
 
-function pairRecords(schemaRecords: any[], obfRecords: any[]): RecordPair[] {
+function pairRecords(appSchema: SchemaTableSet, schemaName: string, schemaRecords: any[], obfRecords: any[]): RecordPair[] {
   let pairs: RecordPair[] = [];
   let schemaPassed: Set<number> = new Set();
   for (let i = 0; i < obfRecords.length; i++) {
@@ -224,7 +235,7 @@ function pairRecords(schemaRecords: any[], obfRecords: any[]): RecordPair[] {
       if (schemaPassed.has(j))
         continue;
       const schemaRecord = schemaRecords[j];
-      if (areLikelySameRecord(schemaRecord, obfRecord)) {
+      if (areLikelySameRecord(appSchema, schemaName, schemaRecord, obfRecord)) {
         schemaPassed.add(j);
         pairs.push({obfIndex: i, obfRecord, schemaIndex: j, schemaRecord});
         break;
@@ -261,8 +272,8 @@ export type PropertySchemaResult = {
   arrayPaths: string[],
 }
 
-async function main(schemaRecords: any[], obfRecords: any[]): Promise<PropertySchemaResult> {
-  let pairs: RecordPair[] = pairRecords(schemaRecords, obfRecords);
+async function main(appSchema: SchemaTableSet, schemaName: string, schemaRecords: any[], obfRecords: any[]): Promise<PropertySchemaResult> {
+  let pairs: RecordPair[] = pairRecords(appSchema, schemaName, schemaRecords, obfRecords);
 
   const confidence: {[obfKey: string]: {[schemaKey: string]: number}} = defaultMap(() => defaultMap('Zero'));
   const arrayPaths: Set<string> = new Set();
@@ -355,21 +366,101 @@ async function main(schemaRecords: any[], obfRecords: any[]): Promise<PropertySc
 
 // region CLI/Entrypoint
 // --------------------------------------------------------------------------------------------------------------
-export async function createPropertySchema(schemaFilePath: string,
+export async function createPropertySchema(appSchema: SchemaTableSet,
+                                           schemaName: string,
+                                           schemaFilePath: string,
                                            obfFilePath: string): Promise<PropertySchemaResult> {
   const schemaFile: any[] = await fsp.readFile(schemaFilePath, {encoding: 'utf8'})
     .then(data => Object.freeze(JSONbig.parse(data)));
   const objFile: any[] = await fsp.readFile(obfFilePath, {encoding: 'utf8'})
     .then(data => JSONbig.parse(data));
-  return await main(schemaFile.slice(0, 200), objFile.slice(0, 200));
+  return await main(appSchema, schemaName, schemaFile, objFile);
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
-    const schema = await createPropertySchema(
-      'C:\\Shared\\git\\GenshinArchive\\5.4\\ExcelBinOutput\\AchievementExcelConfigData.json',
-      'C:\\Shared\\git\\GenshinData\\ExcelBinOutput\\AchievementExcelConfigData.json'
-    );
+    // const schema = await createPropertySchema(
+    //   genshinSchema,
+    //   'AchievementExcelConfigData',
+    //   'C:\\Shared\\git\\GenshinArchive\\5.4\\ExcelBinOutput\\AchievementExcelConfigData.json',
+    //   'C:\\Shared\\git\\GenshinData\\ExcelBinOutput\\AchievementExcelConfigData.json'
+    // );
+
+    const schema = await main(
+      genshinSchema,
+      'MaterialExcelConfigData',
+      [
+        {
+          "InteractionTitleTextMapHash": 3912540895,
+          "MaterialType": "MATERIAL_QUEST",
+          "StackLimit": 99,
+          "MaxUseCount": 1,
+          "ItemUse": [
+            {
+              "UseParam": [
+                "",
+                "",
+                "",
+                "",
+                ""
+              ]
+            },
+            {
+              "UseParam": [
+                "",
+                ""
+              ]
+            }
+          ],
+          "FoodQuality": "FOOD_QUALITY_STRANGE",
+          "EffectDescTextMapHash": 188895719,
+          "SpecialDescTextMapHash": 3804078417,
+          "TypeDescTextMapHash": 2343504238,
+          "EffectIcon": "",
+          "EffectName": "",
+          "PicPath": [],
+          "SatiationParams": [],
+          "DestroyReturnMaterial": [],
+          "DestroyReturnMaterialCount": [],
+          "Id": 100818,
+          "NameTextMapHash": 172436028,
+          "DescTextMapHash": 2140640725,
+          "Icon": "UI_ItemIcon_Recipe_4001",
+          "ItemType": "ITEM_MATERIAL",
+          "Rank": 10
+        }
+      ],
+      [
+        {
+          "AKMJPFOPKGD": "Filter_OTHER",
+          "BGFOCDKGNBH": "FOOD_QUALITY_STRANGE",
+          "CEBMMGCMIJM": "ITEM_MATERIAL",
+          "CNPCNIGHGJJ": "UI_ItemIcon_Recipe_4001",
+          "DNINKKHEILA": 172436028,
+          "ELKKIAIGOBK": 100818,
+          "FEEGIEEHGOM": 99,
+          "HBBILKOGMIP": "MATERIAL_QUEST",
+          "HMPDBGCJLMI": 10,
+          "IPMCELJMBFI": 3912540895,
+          "KBLDOGNADDK": 3804078417,
+          "LBNIBMAGAPC": "None",
+          "MFDGAOECDFI": 2343504238,
+          "MJCAJBDFKCP": "ITEM_USE_TARGET_NONE",
+          "NJLAALJIFHL": [
+            {
+              "KJHOMLEIHKJ": "ITEM_USE_NONE"
+            },
+            {
+              "KJHOMLEIHKJ": "ITEM_USE_NONE"
+            }
+          ],
+          "OENCEJFEFNH": 188895719,
+          "OKNLEAMEKPD": 1,
+          "PGEPICIANFN": 2140640725,
+          "PJELHADHEFE": "DESTROY_NONE"
+        },
+      ]
+    )
     console.log(schema);
   })();
 }

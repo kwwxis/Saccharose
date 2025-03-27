@@ -32,9 +32,6 @@ export async function writeMappedExcels() {
   for (let _jsonFile of jsonsInDir) {
     const fileName = path.basename(_jsonFile);
     const schemaName = fileName.split('.')[0];
-    if (schemaName !== 'MaterialSourceDataExcelConfigData') {
-      continue;
-    }
 
     const schemaFilePath = getSchemaFilePath(fileName);
     if (!fs.existsSync(schemaFilePath)) {
@@ -49,6 +46,8 @@ export async function writeMappedExcels() {
 
     if (!copyOnlySchemas.includes(schemaName)) {
       const propertySchema: PropertySchemaResult = await createPropertySchema(
+        genshinSchema,
+        schemaName,
         schemaFilePath,
         absJsonPath
       );

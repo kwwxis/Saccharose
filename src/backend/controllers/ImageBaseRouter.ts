@@ -116,6 +116,7 @@ export default async function(): Promise<Router> {
           switch (String(req.query.convert).toUpperCase()) {
             case 'NORMAL':
             case 'FOOD-NORMAL':
+            case 'FOOD_QUALITY_NONE':
             case 'FOOD_QUALITY_ORDINARY':
               // no-op
               return;

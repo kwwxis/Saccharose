@@ -296,9 +296,9 @@
             <small class="spacer15-left">Role Type: <strong><%= relation.RoleType %></strong></small>
           </h3>
           <div class="content">
-            <p>Instead of receiving <strong><%= relation.RelationData.RecipeOrdinaryResult.Material.NameText %></strong>,
-              when cooked with <strong><%= relation.RelationData.Avatar.NameText %></strong>, there is a chance
-              of receiving <strong><%= relation.RelationData.ResultItem.NameText %></strong> instead.</p>
+            <p>Instead of receiving <strong><%= relation.RelationData.RecipeOrdinaryResult?.Material?.NameText || '(SACCHAROSE MAPPING ERROR)' %></strong>,
+              when cooked with <strong><%= relation.RelationData.Avatar?.NameText || '(SACCHAROSE MAPPING ERROR)' %></strong>, there is a chance
+              of receiving <strong><%= relation.RelationData.ResultItem?.NameText || '(SACCHAROSE MAPPING ERROR)' %></strong> instead.</p>
           </div>
           <div class="content alignStart">
             <% for (let inputItem of relation.RelationData.Recipe.InputVec) { %>
@@ -311,7 +311,9 @@
               <%- use('partials/genshin/archive/item', { material: relation.RelationData.RecipeOrdinaryResult.Material, itemCount: relation.RelationData.RecipeOrdinaryResult.Count }) %>
             <% } %>
             <div class="material-sep"><%- icon('repeat', 22); %></div>
-            <%- use('partials/genshin/archive/item', { material: relation.RelationData.ResultItem, itemCount: 1 }) %>
+            <% if (relation.RelationData.ResultItem) { %>
+              <%- use('partials/genshin/archive/item', { material: relation.RelationData.ResultItem, itemCount: 1 }) %>
+            <% } %>
           </div>
           <hr>
         <% }) %>

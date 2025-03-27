@@ -174,7 +174,7 @@ export interface MaterialExcelConfigData {
   },
   InteractionTitleText?: string,
   InteractionTitleTextMapHash?: number,
-  FoodQuality?: 'FOOD_QUALITY_STRANGE' | 'FOOD_QUALITY_ORDINARY' | 'FOOD_QUALITY_DELICIOUS',
+  FoodQuality?: MaterialFoodQuality,
   IsHidden?: boolean,
   CdTime?: number,
   CdGroup?: number,
@@ -183,6 +183,8 @@ export interface MaterialExcelConfigData {
   Relations?: ItemRelationMap,
   Codex?: MaterialCodexExcelConfigData,
 }
+
+export type MaterialFoodQuality = 'FOOD_QUALITY_NONE' | 'FOOD_QUALITY_STRANGE' | 'FOOD_QUALITY_ORDINARY' | 'FOOD_QUALITY_DELICIOUS';
 
 export interface MaterialSourceDataExcelConfigData {
   Id: number,
