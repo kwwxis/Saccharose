@@ -20,8 +20,8 @@ export const PUBLIC_DIR = path.resolve(__dirname, '../../public');
 export const PIPELINE_DIR = path.resolve(__dirname, '../pipeline');
 export const REDIST_DIR = path.resolve(PUBLIC_DIR, './redist');
 export const BACKEND_ROOT = __dirname;
-export const SITE_TITLE = 'Saccharose.wiki';
-export const SITE_SHORT_TITLE = 'Saccharose';
+export const SITE_TITLE = process.env.SITE_TITLE || 'Saccharose.wiki';
+export const SITE_SHORT_TITLE = process.env.SITE_SHORT_TITLE || 'Saccharose';
 export const EJS_DELIMITER = '%';
 export const WEB_ACCESS_LOG = process.env.WEB_ACCESS_LOG ? path.resolve(process.env.WEB_ACCESS_LOG) : null;
 

@@ -10,6 +10,9 @@ export interface ProcessEnv {
   VHOSTED: string;
   HTTP_PORT: string;
   HTTPS_PORT: string;
+  LOGVIEW_FILE: string;
+  SITE_TITLE?: string;
+  SITE_SHORT_TITLE?: string;
 
   // SSL Settings
   // --------------------------------------------------------------------------------------------------------------
