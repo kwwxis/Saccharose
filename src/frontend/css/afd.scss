@@ -1,12 +1,12 @@
 @font-face {
   font-family: 'Comic Sans MS';
-  src: url('Comic Sans MS.ttf') format('truetype');
+  src: url('Comic Sans MS.woff') format('woff'), url('Comic Sans MS.ttf') format('truetype');
 }
 
 #site-title-text {
   font-family: 'Comic Sans MS', sans-serif;
   display: inline-block;
-  font-size: 22px;
+  font-size: 21px;
   text-shadow: 0 0 1px rgba(0, 0, 0, 1), 0 0 2px rgba(0, 0, 0, 0.5);
 }
 
