@@ -6,7 +6,7 @@ import { NextFunction, Request, Response } from 'express';
 import { promises as fsp } from 'fs';
 import { WEB_ACCESS_LOG } from '../../loadenv.ts';
 
-const getLogSkipRegex: () => RegExp = () => /(\.css|\.js|\.png|\.svg|\.ico|\.jpg|\.webp|\.woff|\.env)/gi;
+const getLogSkipRegex: () => RegExp = () => /(\.css|\.js|\.png|\.svg|\.ico|\.jpg|\.webp|\.woff|\.env|\.ttf)/gi;
 
 morgan.token('date', function(){
   return new Date().toLocaleString('en-US', {timeZone: 'America/Los_Angeles'});

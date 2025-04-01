@@ -13,6 +13,7 @@ import { NextFunction, Request, Response, Router } from 'express';
 import { SiteUserProvider } from '../middleware/auth/SiteUserProvider.ts';
 import UserRouter from './UserRouter.ts';
 import { GENSHIN_DISABLED, HSR_DISABLED, WUWA_DISABLED, ZENLESS_DISABLED } from '../loadenv.ts';
+import { isStringNotBlank } from '../../shared/util/stringUtil.ts';
 
 export default async function(): Promise<Router> {
   const router: Router = create({
@@ -40,6 +41,11 @@ export default async function(): Promise<Router> {
   });
 
   router.use((req: Request, res: Response, next: NextFunction) => {
+    if (isStringNotBlank(process.env.AFD_REDIRECT)) {
+      res.redirect(process.env.AFD_REDIRECT);
+      return;
+    }
+
     const cspOptions: any = {
       useDefaults: true,
       directives: {
@@ -106,7 +112,7 @@ export default async function(): Promise<Router> {
     router.use('/wuwa', await WuwaRouter());
   }
 
-  router.use('/',         await UserRouter());
+  router.use('/', await UserRouter());
 
   // router.use('/', (req: Request, res: Response, next: NextFunction) => {
   //

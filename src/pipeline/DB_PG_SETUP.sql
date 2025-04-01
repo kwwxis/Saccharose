@@ -35,7 +35,7 @@ CREATE TABLE site_user_banned
     discord_id          TEXT UNIQUE
 );
 
--- Site User
+-- Site Notice
 ----------------------------------------------------------------------------------------------------------------
 CREATE TYPE site_notice_type AS ENUM ('info', 'success', 'error', 'warning');
 
@@ -56,6 +56,29 @@ CREATE TABLE site_notice_dismissed
     notice_id           INTEGER NOT NULL,
     PRIMARY KEY (discord_id, notice_id)
 );
+
+-- Site LogView
+----------------------------------------------------------------------------------------------------------------
+CREATE TABLE site_logview
+(
+    sha_hash        TEXT            NOT NULL PRIMARY KEY ,
+    timestamp       TIMESTAMP       NOT NULL,
+    discord_user    TEXT,
+    wiki_user       TEXT,
+    lang_in         TEXT,
+    lang_out        TEXT,
+    search_mode     TEXT,
+    http_status     SMALLINT,
+    http_method     TEXT,
+    content         TEXT            NOT NULL,
+    http_runtime    NUMERIC,
+    full_content    TEXT            NOT NULL,
+);
+
+CREATE INDEX site_logview_content_trgm_idx ON site_logview USING GIN (content gin_trgm_ops);
+
+CREATE INDEX site_logview_discord_user_idx ON site_logview (discord_user);
+CREATE INDEX site_logview_wiki_user_idx ON site_logview (discord_user);
 
 -- Script Jobs
 ----------------------------------------------------------------------------------------------------------------
