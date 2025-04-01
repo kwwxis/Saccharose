@@ -94,6 +94,7 @@ export default async function(): Promise<Router> {
     }
     res.render(OLCombinePage, {
       title: 'OL Combine',
+      layouts: ['layouts/basic-layout', 'layouts/visitor-wrapper'],
       bodyClass: ['page--OL-combine']
     });
   });
