@@ -13,17 +13,21 @@
     </div>
   </section>
   <section class="card">
-    <h2 style="text-align: center">Rebranding Announcement: "nickjr.wiki"</h2>
+    <h2 style="text-align: center">Rebranding to "nickjr.wiki" is cancelled</h2>
     <div class="content">
-      <p class="spacer15-bottom" style="font-size: 16px;line-height: 25px;max-width: 650px;margin: 0 auto;">After careful consideration and extensive research, I have determined that "saccharose.wiki" simply does not
-        capture the true essence of our wiki community. In recognition of the invaluable contributions, unwavering dedication,
-        and undeniable aura of sheer wiki mastery exhibited by one of the most esteemed editors, I am proud to announce the rebranding to <strong>nickjr.wiki</strong>.</p>
+      <p class="spacer15-bottom" style="font-size: 16px;line-height: 25px;max-width: 650px;margin: 0 auto;">After careful consideration, I have decided to revert <strong>nickjr.wiki</strong> back to
+        <strong>saccharose.wiki</strong> &mdash; not because it wasn't a perfect name, but because it was <em>too</em> perfect.</p>
 
-      <p class="spacer15-bottom" style="font-size: 16px;line-height: 25px;max-width: 650px;margin: 0 auto;">This decision was made following a rigorous selection process in which various alternative names were proposed,
-        debated, and ultimately discarded in favor of the only logical choice. I believe this change better reflects
-        the core values of our wiki: knowledge, collaboration, and, most importantly, the overwhelming and inescapable presence of <strong>SolarMist/nickjr</strong>.</p>
+      <p class="spacer15-bottom" style="font-size: 16px;line-height: 25px;max-width: 650px;margin: 0 auto;">The sheer power of the name <strong>nickjr.wiki</strong> was simply too much for the
+        mortal realm to handle. The very fabric of wiki editing reality began to warp under its weight.
+        Users reported an overwhelming sense of awe upon visiting the site, with some claiming they could hear
+        an ethereal chorus chanting <strong>"SolarMist"</strong> and <strong>"nickjr"</strong> in the background.
+        A few brave souls tried to use the tool as usual, but found themselves paralyzed by the sheer magnitude of its new identity.</p>
 
-      <p style="font-size: 16px;line-height: 25px;max-width: 650px;margin: 0 auto;">I look forward to this new chapter in the tool's history and appreciate your support in embracing the nickjr.wiki era.</p>
+      <p style="font-size: 16px;line-height: 25px;max-width: 650px;margin: 0 auto;">In the end, I realized that humanity is not yet ready for <strong>nickjr.wiki</strong>. Perhaps one day,
+        when our collective understanding of wiki editing has evolved to a higher plane of existence, the world will
+        once again be worthy of its glory. Until then, we humbly return to <strong>saccharose.wiki</strong>, a name more suited
+        to the fragile constraints of mortal comprehension.</p>
     </div>
   </section>
   <section id="landing-changelog" class="card">

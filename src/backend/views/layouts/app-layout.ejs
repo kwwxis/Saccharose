@@ -44,21 +44,9 @@
         <a id="site-title" href="<%= req.context.siteHome || '/' %>" aria-label="Site title">
           <div id="site-logo-bg"></div>
           <div id="site-logo-fg">
-            <img src="/images/site/logo/paininick.webp" style="width:45px;height:auto" />
+            <img src="/images/site/logo/Sucrose.webp" style="width:45px;height:auto" />
           </div>
-          <span id="site-title-text" style="line-height:21px">
-            <span class="n">n</span>
-            <span class="i">i</span>
-            <span class="c">c</span>
-            <span class="k">k</span>
-            <span class="j">j</span>
-            <span class="r">r</span>
-            <span class="dot">.</span>
-            <span class="w">w</span>
-            <span class="i2">i</span>
-            <span class="k2">k</span>
-            <span class="i3">i</span>
-          </span>
+          <span id="site-title-text" style="line-height:21px"><%= req.context.siteTitle %></span>
         </a>
         <%- use('partials/layout/app-mode-selector', {dropdownId: 'site-mode-dropdown'}) %>
       </div>

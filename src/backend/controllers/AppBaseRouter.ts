@@ -41,11 +41,6 @@ export default async function(): Promise<Router> {
   });
 
   router.use((req: Request, res: Response, next: NextFunction) => {
-    if (isStringNotBlank(process.env.AFD_REDIRECT)) {
-      res.redirect(process.env.AFD_REDIRECT);
-      return;
-    }
-
     const cspOptions: any = {
       useDefaults: true,
       directives: {

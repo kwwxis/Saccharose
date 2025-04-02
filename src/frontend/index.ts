@@ -104,5 +104,3 @@ import { uuidv4, NIL_UUID, MAX_UUID } from '../shared/util/uuidv4.ts';
 import { getElementOffset } from './util/domutil.ts';
 
 (<any> window).getElementOffset = getElementOffset;
-
-import './intervals/cursor-trail.ts';
