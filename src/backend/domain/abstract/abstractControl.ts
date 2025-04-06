@@ -676,9 +676,6 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       let json: any[] = await this.cached('ExcelUsagesFileRead:' + fileName, 'json', async () => {
         return await this.readJsonFile(path.join(this.excelPath, fileName + '.json'));
       });
-      if (!Array.isArray(json)) {
-        console.log('JSON', path.join(this.excelPath, fileName + '.json'));
-      }
 
       const schemaTable: SchemaTable = this.schema[fileName];
       const promises: Promise<void>[] = [];

@@ -69,8 +69,8 @@ function processDialogueNode(scriptName: string,
 export async function generateDialogueNodes(repoRoot: string) {
   const fileCfgPath: string = path.resolve(repoRoot, './FileCfg');
   const scriptConfigPath: string = path.resolve(repoRoot, './Data/ScriptConfig');
-  if (!fs.existsSync(fileCfgPath)) throw new Error('ScriptConfig path does not exist!');
-  if (!fs.existsSync(scriptConfigPath)) throw new Error('FileCfg path does not exist!');
+  if (!fs.existsSync(fileCfgPath)) throw new Error('FileCfg path does not exist!');
+  if (!fs.existsSync(scriptConfigPath)) throw new Error('ScriptConfig path does not exist!');
 
   const dialogueNodeArray: DialogueNode[] = [];
 

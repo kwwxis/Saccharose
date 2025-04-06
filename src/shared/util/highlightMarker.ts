@@ -42,8 +42,6 @@ export class MarkerAggregate {
   applyAdjustments(adjustments: MarkerAdjustment[]) {
     adjustments = adjustments.filter(a => a.line == this.line);
 
-    console.log('Adjustments', this, adjustments);
-
     for (let marker of this.markers) {
       for (let a of adjustments) {
         // If the adjustment is after the marker, then we don't have to do anything
