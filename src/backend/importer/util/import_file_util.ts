@@ -94,22 +94,6 @@ function normalizeRecordForHSR<T>(record: T): T {
   return record;
 }
 
-function replaceBigIntsWithStrings(obj: any) {
-  if (!obj) {
-    return;
-  }
-  if (Array.isArray(obj)) {
-    obj.forEach(element => replaceBigIntsWithStrings(element));
-  } else if (typeof obj === 'object') {
-    for (let key of Object.keys(obj)) {
-      let value = obj[key];
-      if (typeof value === 'bigint') {
-        obj[key] = value.toString();
-      }
-    }
-  }
-}
-
 export async function importNormalize(jsonDir: string, skip: string[], game: 'genshin' | 'hsr' | 'zenless' | 'wuwa', skipReformatPrimitiveArray: string[] = []) {
   const jsonsInDir = (await fsp.readdir(jsonDir)).filter(file => path.extname(file) === '.json');
   console.log('JSON DIR:', jsonDir);
@@ -127,7 +111,12 @@ export async function importNormalize(jsonDir: string, skip: string[], game: 'ge
     let fileData = await fsp.readFile(filePath, 'utf8');
 
     let json = JSONbig.parse(fileData);
-    // replaceBigIntsWithStrings(json);
+
+    // Stringify and parse again to convert bigints to string via replacer
+    json = JSON.parse(JSON.stringify(
+      json,
+      (_, v) => typeof v === 'bigint' ? v.toString() : v
+    ))
 
     if (game === 'hsr') {
       if (Array.isArray(json)) {
