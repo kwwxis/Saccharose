@@ -117,6 +117,10 @@ export function escapeRegExp(str: string): string {
   return str ? str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') : ''; // $& means the whole matched string
 }
 
+/**
+ * Checks whether a string is a valid regex pattern.
+ * @returns {boolean}
+ */
 export function validateRegExp(pattern: string, options?: string): boolean {
   try {
     new RegExp(pattern, options || '');
@@ -124,6 +128,13 @@ export function validateRegExp(pattern: string, options?: string): boolean {
   } catch(e) {
     return false;
   }
+}
+
+export const REGEX_ISO_8601 = /(\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d+)?(?:[+-]\d\d:\d\d|Z)?)/;
+export const REGEX_ISO_8601_EXACT = new RegExp('^' + REGEX_ISO_8601.source + '$');
+
+export function concatRegExp(regs: RegExp[], flags?: string) {
+  return new RegExp(regs.map(reg => reg.source).join(''), flags);
 }
 
 export function snakeToTitleCase(str: string) {
@@ -275,19 +286,6 @@ export function replaceSuffix(str: string, suffix: string, replacement: string =
  */
 export function removeSuffix(str: string, suffix: string): string {
   return replaceSuffix(str, suffix);
-}
-
-/**
- * Checks whether a string is a valid regex pattern.
- * @returns {boolean}
- */
-export function validate_regex(pattern, options): boolean {
-  try {
-    new RegExp(pattern, options || '');
-    return true;
-  } catch (e) {
-    return false;
-  }
 }
 
 export const whitespace = [

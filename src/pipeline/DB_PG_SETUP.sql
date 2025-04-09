@@ -26,7 +26,8 @@ CREATE TABLE site_user
 CREATE TABLE site_user_wiki_bypass
 (
     wiki_username       TEXT UNIQUE,
-    discord_id          TEXT UNIQUE
+    discord_id          TEXT UNIQUE,
+    comment             TEXT
 );
 
 CREATE TABLE site_user_banned
