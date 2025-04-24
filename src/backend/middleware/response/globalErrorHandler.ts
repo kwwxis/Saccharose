@@ -53,6 +53,8 @@ export async function apiErrorHandler(err: any, req: Request, res: Response, nex
     sendHttpError(HttpError.unauthenticated('EBADCSRFTOKEN', err), res);
   } else if (err instanceof HttpError) {
     sendHttpError(err, res);
+  } else if (err instanceof SyntaxError && err.message && err.message.includes('regular expression')) {
+    sendHttpError(HttpError.badRequest(null, err.message), res);
   } else {
     console.error('\x1b[4m\x1b[1mInternal Error (API):\x1b[0m\n', err);
     sendHttpError(HttpError.internalServerError('InternalError', 'An internal server error occurred. Try again later.'), res);

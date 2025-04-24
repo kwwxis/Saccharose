@@ -232,7 +232,5 @@ export async function appInit(): Promise<Express> {
   // Application loading complete
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   logInit(`Application code fully loaded`);
-
-  console.log('test console log');
   return app;
 }
