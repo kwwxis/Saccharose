@@ -28,6 +28,9 @@ function getVoAvatarName(avatar: AvatarExcelConfigData, voiceItems: VoiceItem[])
   if (avatar.Id === 10000093) {
     return 'xianyun';
   }
+  if (avatar.Id === 10000113) {
+    return 'ifa';
+  }
   for (let item of voiceItems) {
     let voAvatarName = /^vo (\S+)/.exec(item.fileName)?.[1];
     let voAvatarNameCmp = voAvatarName?.toLowerCase();

@@ -11,7 +11,7 @@
   width: 300px;
   transition: transform 150ms ease, opacity 120ms ease, width 100ms linear;
   opacity: 1;
-  z-index: 99999;
+  z-index: 9990;
 
   &.out1, &.out2 {
     transform: translateX(calc(100% - 30px));

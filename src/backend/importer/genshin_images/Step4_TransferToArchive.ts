@@ -18,7 +18,7 @@ function* walkSync(dir: string): Generator<string> {
 async function doIt() {
   const combinedDir: string = 'E:/HoYoAssets/GenshinAssets/Texture2D/';
   const sourceDir: string = 'C:\\Shared\\HoyoStudioYarik\\Output_Texture2D_Files';
-  const targetDir: string = "E:\\HoYoAssets\\GenshinAssets\\Texture2D_Archive\\Texture2D_5.5";
+  const targetDir: string = "E:\\HoYoAssets\\GenshinAssets\\Texture2D_Archive\\Texture2D_5.6";
 
   const files: string[] = [];
   for (let file of walkSync(sourceDir)) {
