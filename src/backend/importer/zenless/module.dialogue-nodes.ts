@@ -4,7 +4,7 @@ import fs, { promises as fsp } from 'fs';
 import path from 'path';
 import { pathToFileURL } from 'url';
 import { normalizeRawJson, renameFields } from '../import_db.ts';
-import { DialogueNode } from '../../../shared/types/zenless/dialogue-types.ts';
+import { DialogueNode, DialogueNode40Condition } from '../../../shared/types/zenless/dialogue-types.ts';
 import { removeSuffix } from '../../../shared/util/stringUtil.ts';
 import { sort } from '../../../shared/util/arrayUtil.ts';
 
@@ -26,11 +26,11 @@ function* walkSync(dir: string): Generator<string> {
 type StorySections = DialogueNode[][];
 
 function processDialogueNode(scriptName: string,
-                                    node: DialogueNode,
-                                    sectionIndex: number,
-                                    numSections: number,
-                                    nodeIndex: number,
-                                    numNodes: number): DialogueNode {
+                             node: DialogueNode,
+                             sectionIndex: number,
+                             numSections: number,
+                             nodeIndex: number,
+                             numNodes: number): DialogueNode {
   node = renameFields(node, {
     AvatarName: 'AvatarNameKey',
     BindSubSectionIndex: 'BindNodeIndex',
@@ -44,10 +44,27 @@ function processDialogueNode(scriptName: string,
   node.ScriptConfigSectionIndex = sectionIndex;
   node.ScriptConfigNodeIndex = nodeIndex;
 
-  if ((<any> node).TransitionList) {
-    for (let t of (<any> node).TransitionList) {
+  const handleTransition = (t: any) => {
+    if (t && t.BindSectionIndex && t.BindNodeIndex) {
       t.NextNodeId = `${scriptName}_${t.BindSectionIndex}_${t.BindNodeIndex}`;
     }
+  };
+
+  const nodeAsAny = node as any;
+
+  if (Array.isArray(nodeAsAny.TransitionList)) {
+    nodeAsAny.TransitionList.forEach(handleTransition);
+  } else if (Array.isArray(nodeAsAny.NextList)) {
+    nodeAsAny.NextList.forEach(handleTransition);
+  } else if (Array.isArray(nodeAsAny.ConditionList)) {
+    nodeAsAny.ConditionList.forEach(handleTransition);
+  } else if (Array.isArray(nodeAsAny.QuestList)) {
+    nodeAsAny.QuestList.forEach(handleTransition);
+  } else if (nodeAsAny.Failure || nodeAsAny.Success || nodeAsAny.OnConfirmNext || nodeAsAny.OnCancelNext) {
+    handleTransition(nodeAsAny.Failure);
+    handleTransition(nodeAsAny.Success);
+    handleTransition(nodeAsAny.OnConfirmNext);
+    handleTransition(nodeAsAny.OnCancelNext);
   } else {
     if (isOfLastSection && isLastNodeInSection) {
       // Last node in last section - nothing

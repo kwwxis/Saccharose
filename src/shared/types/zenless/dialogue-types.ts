@@ -1,4 +1,39 @@
-export const DialogueNodeTypeMap = {
+export const NodeTypeIdToName = {
+  0:                   'Normal',
+  1:               'Transition',
+  2:         'CustomTransition',
+  3:                   'Action',
+  7:              'JumpChapter',
+  9:                 'LookAtIK',
+  10:            'PlayAnimation',
+  14:              'SetSpecials',
+  15:              'BlackScreen',
+  17:    'SetExitChatTransition',
+  19:  'ShowUIGeneralIntimacyUp',
+  20:         'BranchMultiInput',
+  21:              'Show3DModel',
+  23:               'QuestTrack',
+  24:           'QuestRecommend',
+  25:          'LocalTransition', // TODO
+  26:             'ChangeActors',
+  27:               'RandomNext',
+  28:             'RandomChoice',
+  29:    'TransitionWithActions',
+  30:         'ShowConfirmPopup',
+  31:                   'ShowUI',
+  32:             'PlayTimeline',
+  33:                  'CloseUI', // TODO
+  34:           'SyncServerData',
+  35:                'PlayVoice',
+  36:           'MiniGameRecord',
+  37:            'ChangeNpcName',
+  38:                    'Delay',
+  39:            'MainCityGraph',
+  40:                'Condition',
+  41:             'ModifyCamera', // TODO
+};
+
+export const NodeTypeNameToId = {
   Normal:                   0,
   Transition:               1,
   CustomTransition:         2,
@@ -86,13 +121,13 @@ export type DialogueNode0 = {
   ActionDelay: number,
   ActionType: number,
   AutoDoNext: boolean,
-  AvatarId: number,
+  AvatarId: number,           // SPEAKER ID
   AvatarNameKey: string,
-  AvatarNameText?: string,
+  AvatarNameText?: string,    // SPEAKER TEXT
   AvatarShowingKey: string,
   CallType: number,
   DialogueKey: string,
-  DialogueText?: string,
+  DialogueText?: string,      // CONTENT TEXT
   EffectKey: string,
   EffectType: number,
   ExternalVoiceKey: string,
@@ -113,17 +148,23 @@ export type DialogueNode0 = {
 export type DialogueNode1 = {
   NodeType: 1,
   NodeMark: DialogueNodeMark,
-  TransitionList: DialogueNodeTransition1[],
+  TransitionList: DialogueNodeTransition1[],  // TRANSITIONS
 };
 
-export type DialogueNodeTransition1 = {
+export interface DialogueNodeGenericTransition {
+  BindSectionIndex: number,
+  BindNodeIndex: number,
+  NextNodeId: string
+}
+
+export interface DialogueNodeTransition1 extends DialogueNodeGenericTransition{
   BindSectionIndex: number,
   BindNodeIndex: number,
   IconId?: number,
   TextKey?: string,
   Text?: string,
   NextNodeId: string
-};
+}
 
 export type DialogueNode2 = {
   NodeType: 2,
@@ -176,7 +217,7 @@ export type DialogueNode15 = {
   NodeType: 15,
 
   DialogueKeys: string[],
-  DialogueTexts: string[],
+  DialogueTexts: string[],        // CONTENT TEXT
 
   NodeMark: DialogueNodeMark,
   SoundEvent: string,
@@ -202,14 +243,14 @@ export type DialogueNode19 = {
 export type DialogueNode20 = {
   NodeType: 20,
   FromIndexList: number[][],
-  Failure: DialogueNodeTransition20,
-  Success: DialogueNodeTransition20,
+  Failure: DialogueNodeTransition20, // TRANSITIONS
+  Success: DialogueNodeTransition20, // TRANSITIONS
 };
 
-export type DialogueNodeTransition20 = {
+export interface DialogueNodeTransition20 extends DialogueNodeGenericTransition {
   BindSectionIndex: number,
   BindNodeIndex: number
-};
+}
 
 export type DialogueNode21 = {
   NodeType: 21,
@@ -220,7 +261,7 @@ export type DialogueNode21 = {
 
 export type DialogueNode23 = {
   NodeType: 23,
-  QuestList: DialogueNode23QuestItem[]
+  QuestList: DialogueNode23QuestItem[] // TRANSITIONS (maybe?)
 };
 
 export type DialogueNode23QuestItem = {
@@ -246,20 +287,20 @@ export type DialogueNode26 = {
 
 export type DialogueNode27 = {
   NodeType: 27,
-  NextList: DialogueNodeTransition27[]
+  NextList: DialogueNodeTransition27[] // TRANSITIONS
 };
 
-export type DialogueNodeTransition27 = {
+export interface DialogueNodeTransition27 extends DialogueNodeGenericTransition {
   BindSectionIndex: number,
   BindNodeIndex: number
-};
+}
 
 export type DialogueNode28 = {
   NodeType: 28,
-  TransitionList: DialogueNodeTransition28[],
+  TransitionList: DialogueNodeTransition28[], // TRANSITIONS
 };
 
-export type DialogueNodeTransition28 = {
+export interface DialogueNodeTransition28 extends DialogueNodeGenericTransition {
   BindSectionIndex: number,
   BindNodeIndex: number,
   IconId: number,
@@ -267,7 +308,7 @@ export type DialogueNodeTransition28 = {
   Text?: string,
   GroupId: number,
   NextNodeId: string
-};
+}
 
 export type DialogueNode29 = {
   NodeType: 29,
@@ -282,7 +323,7 @@ export type DialogueNode29Cfg = {
   OnlyActions: boolean,
   IsTransition: boolean,
   DialogueKey?: string,
-  DialogueText?: string,
+  DialogueText?: string, // CONTENT TEXT
   DialogueDelay: number,
   TransitionId: number,
   SetTagVisible: boolean,
@@ -317,22 +358,22 @@ export type DialogueNode30 = {
   NodeType: 30,
 
   CancelBtnDesc: string,
-  CancelBtnDescText?: string,
+  CancelBtnDescText?: string, // CONTENT TEXT
 
   ConfirmBtnDesc: string,
-  ConfirmBtnDescText?: string,
+  ConfirmBtnDescText?: string, // CONTENT TEXT
 
   Description: string,
-  DescriptionText?: string,
+  DescriptionText?: string, // CONTENT TEXT
 
   DescriptionDetail: string,
-  DescriptionDetailText?: string,
+  DescriptionDetailText?: string, // CONTENT TEXT
 
-  OnCancelNext: DialogueNodeTransition30,
-  OnConfirmNext: DialogueNodeTransition30,
+  OnCancelNext: DialogueNodeTransition30, // TRANSITIONS
+  OnConfirmNext: DialogueNodeTransition30, // TRANSITIONS
 };
 
-export type DialogueNodeTransition30 = {
+export interface DialogueNodeTransition30 extends DialogueNodeGenericTransition {
   BindSectionIndex: number,
   BindNodeIndex: number
 }
@@ -340,7 +381,7 @@ export type DialogueNodeTransition30 = {
 export type DialogueNode31 = {
   NodeType: 31,
   Config: DialogueNode31Cfg,
-  TransitionList: DialogueNodeTransition31[],
+  TransitionList: DialogueNodeTransition31[], // TRANSITIONS
 };
 
 export type DialogueNode31Cfg = {
@@ -375,11 +416,11 @@ export type DialogueNode31Cfg = {
   PlayAnimationIdF: number
 };
 
-export type DialogueNodeTransition31 = {
+export interface DialogueNodeTransition31 extends DialogueNodeGenericTransition {
   BindSectionIndex: number,
   BindNodeIndex: number,
   NextNodeId: string
-};
+}
 
 export type DialogueNode32 = {
   NodeType: 32,
@@ -408,7 +449,7 @@ export type DialogueNode37 = {
   NodeType: 37,
   TagId: number,
   NameKey: string,
-  NameText?: string,
+  NameText?: string, // SPEAKER TEXT
 };
 
 export type DialogueNode38 = {
@@ -427,7 +468,7 @@ export type DialogueNode40 = {
   NodeType: 40,
   NodeMark: DialogueNodeMark,
   ConditionKey: string,
-  ConditionList: DialogueNode40Condition[],
+  ConditionList: DialogueNode40Condition[], // TRANSITIONS (maybe?)
 };
 
 export type DialogueNode40Condition = {

@@ -10,15 +10,12 @@ import { Request } from 'express';
 import { zenless_i18n, ZENLESS_I18N_MAP } from '../abstract/i18n.ts';
 import { AbstractControlState } from '../abstract/abstractControlState.ts';
 import { CurrentZenlessVersion, GameVersion, ZenlessVersions } from '../../../shared/types/game-versions.ts';
-import { isInt, toInt } from '../../../shared/util/numberUtil.ts';
 import { arrayFillRange, arrayIndexOf, arrayIntersect } from '../../../shared/util/arrayUtil.ts';
 import { custom } from '../../util/logger.ts';
-import path from 'path';
 import { CommonLineId, DialogWikitextResult } from '../../../shared/types/common-types.ts';
-import { replaceAsync } from '../../../shared/util/stringUtil.ts';
 import console from 'console';
-import { DialogueNode } from '../../../shared/types/zenless/dialogue-types.ts';
-import { Z3DialogBranchingCache } from './dialogue/z3_dialogue_util.ts';
+import { DialogueNode, DialogueNodeGenericTransition } from '../../../shared/types/zenless/dialogue-types.ts';
+import { Z3DialogBranchingCache, Z3DialogUtil } from './dialogue/z3_dialogue_util.ts';
 
 // region Control State
 // --------------------------------------------------------------------------------------------------------------
@@ -178,10 +175,10 @@ export class ZenlessControl extends AbstractControl<ZenlessControlState> {
   //   const ids: number[] = await this.knex.select('*')
   //     .from('Relation_DialogToNext')
   //     .where({NextId: nextId}).pluck('DialogId').then();
-  //   return this.selectMultipleDialogExcelConfigData(arrayUnique(ids), noAddCache);
+  //   return this.selectMultipleDialogueNode(arrayUnique(ids), noAddCache);
   // }
 
-  async selectSingleDialogExcelConfigData(nodeId: string, noAddCache: boolean = false): Promise<DialogueNode> {
+  async selectSingleDialogueNode(nodeId: string, noAddCache: boolean = false): Promise<DialogueNode> {
     let result: DialogueNode = await this.knex.select('*')
       .from('DialogueNodeTemplateTb')
       .where({NodeId: nodeId}).first().then(this.commonLoadFirst);
@@ -216,7 +213,7 @@ export class ZenlessControl extends AbstractControl<ZenlessControlState> {
     return results;
   }
 
-  async selectMultipleDialogExcelConfigData(nodeIds: string[], noAddCache: boolean = false): Promise<DialogueNode[]> {
+  async selectMultipleDialogueNodes(nodeIds: string[], noAddCache: boolean = false): Promise<DialogueNode[]> {
     if (!nodeIds.length) {
       return [];
     }
@@ -291,15 +288,13 @@ export class ZenlessControl extends AbstractControl<ZenlessControlState> {
       }
 
       // Handle self:
-      if (currNode.TalkContentText || currNode.CustomTravelLogMenuText
-        || currNode.CustomImageName || currNode.CustomSecondImageName || currNode.CustomWikiTx
-        || currNode.CustomWikiReadable) {
+      if (Z3DialogUtil.isContentful(currNode)) {
         currBranch.push(currNode);
       }
 
       // Fetch next nodes:
-      const nextNodes: DialogueNode[] = await this.selectMultipleDialogExcelConfigData(
-        currNode.NextDialogs
+      const nextNodes: DialogueNode[] = await this.selectMultipleDialogueNodes(
+        Z3DialogUtil.getNextNodeIds(currNode)
       );
 
       detailedDebug('Curr Node:', currNode.NodeId, '/ Next Nodes:', nextNodes.map(x => x.NodeId).join());
@@ -316,7 +311,7 @@ export class ZenlessControl extends AbstractControl<ZenlessControlState> {
           branches.push(await this.selectDialogBranch(nextNode, Z3DialogBranchingCache.from(cache), debugSource + ':' + start.NodeId));
         }
 
-        const intersect: DialogueNode[] = arrayIntersect<DialogueNode>(branches, this.IdComparator)
+        const intersect: DialogueNode[] = arrayIntersect<DialogueNode>(branches, this.NodeIdComparator)
           .filter(x => !this.isPlayerDialogOption(x)); // don't rejoin on player dialogue options
 
         if (!intersect.length) {
@@ -328,7 +323,7 @@ export class ZenlessControl extends AbstractControl<ZenlessControlState> {
           let rejoinNode = intersect[0];
           for (let i = 0; i < branches.length; i++) {
             let branch = branches[i];
-            branches[i] = branch.slice(0, arrayIndexOf(branch, rejoinNode, this.IdComparator));
+            branches[i] = branch.slice(0, arrayIndexOf(branch, rejoinNode, this.NodeIdComparator));
           }
           currNode.Branches = branches;
           currNode = rejoinNode;
@@ -413,15 +408,7 @@ export class ZenlessControl extends AbstractControl<ZenlessControlState> {
       // Output Append
       // ~~~~~~~~~~~~~
 
-      if (dialog.NodeId === 0) {
-        if (dialog.CustomTravelLogMenuText) {
-          outIds.push({textMapHash: dialog.CustomTravelLogMenuTextMapHash});
-        } else {
-          outIds.push(null);
-        }
-      } else {
-        outIds.push({commonId: dialog.NodeId, textMapHash: dialog.TalkContentTextMapHash});
-      }
+      outIds.push({commonId: dialog.NodeId, textMapHash: dialog.TalkContentTextMapHash});
 
       if (text && text.includes('\n')) {
         for (let _m of (text.match(/\n/g) || [])) {
