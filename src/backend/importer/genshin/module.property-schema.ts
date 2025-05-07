@@ -19,7 +19,7 @@ export async function writeMappedExcels() {
 
   fs.mkdirSync(mappedExcelDirPath, { recursive: true });
 
-  const copyOnlySchemas = [
+  const schemaNamesForCopyOnly = [
     'MainQuestExcelConfigData',
     'QuestExcelConfigData',
     'TalkExcelConfigData',
@@ -44,7 +44,7 @@ export async function writeMappedExcels() {
     const absJsonPath = path.resolve(rawExcelDirPath, fileName);
     let json = await fsp.readFile(absJsonPath, { encoding: 'utf8' }).then(data => JSON.parse(data));
 
-    if (!copyOnlySchemas.includes(schemaName)) {
+    if (!schemaNamesForCopyOnly.includes(schemaName)) {
       const propertySchema: PropertySchemaResult = await createPropertySchema(
         genshinSchema,
         schemaName,

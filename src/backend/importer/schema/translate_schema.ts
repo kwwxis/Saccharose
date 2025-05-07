@@ -56,6 +56,11 @@ function getValueType(o: any): ValueType {
   }
 }
 
+
+function hasLowerCase(str) {
+  return str.toUpperCase() != str;
+}
+
 function shouldIgnore(field: PathAndValue): boolean {
   let val = field.value;
   if (isUnset(val))
@@ -439,9 +444,9 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
           "DNINKKHEILA": 172436028,
           "ELKKIAIGOBK": 100818,
           "FEEGIEEHGOM": 99,
-          "HBBILKOGMIP": "MATERIAL_QUEST",
+          "MaterialType": "MATERIAL_QUEST",
           "HMPDBGCJLMI": 10,
-          "IPMCELJMBFI": 3912540895,
+          "InteractionTitleTextMapHash": 3912540895,
           "KBLDOGNADDK": 3804078417,
           "LBNIBMAGAPC": "None",
           "MFDGAOECDFI": 2343504238,

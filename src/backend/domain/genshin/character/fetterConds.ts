@@ -41,13 +41,13 @@ export async function processFetterConds(ctrl: GenshinControl, fetter: FetterWit
     let openCondId = cond.ParamList[0];
     let quest = await ctrl.selectQuestExcelConfigData(openCondId);
     let mainQuest = await ctrl.selectMainQuestById(quest.MainId);
-    await processQuestConds(ctrl, fetter, mainQuest, summaryObj);
+    await processQuestConds(ctrl, fetter, quest.MainId, mainQuest, summaryObj);
   });
 
   await doWithCond(fetter[PROP], 'FETTER_COND_FINISH_PARENT_QUEST', async cond => {
     let openCondId = cond.ParamList[0];
     let mainQuest = await ctrl.selectMainQuestById(openCondId);
-    await processQuestConds(ctrl, fetter, mainQuest, summaryObj);
+    await processQuestConds(ctrl, fetter, openCondId, mainQuest, summaryObj);
   });
 
   await doWithCond(fetter[PROP], 'FETTER_COND_UNLOCK_TRANS_POINT', async cond => {
@@ -90,7 +90,31 @@ export async function processFetterConds(ctrl: GenshinControl, fetter: FetterWit
   });
 }
 
-export async function processQuestConds(ctrl: GenshinControl, fetter: FetterWithConditions, mainQuest: MainQuestExcelConfigData, summaryObj: FetterCondSummary) {
+async function processQuestConds(ctrl: GenshinControl, fetter: FetterWithConditions, questId: number, mainQuest: MainQuestExcelConfigData, summaryObj: FetterCondSummary) {
+  if (!mainQuest) {
+    summaryObj.QuestId = questId;
+    const temp = 'Quest: ' + String(questId) + ' (Quest name resolve failed)';
+    summaryObj.QuestTitleTextMap = {
+      CH: temp,
+      CHS: temp,
+      CHT: temp,
+      DE: temp,
+      EN: temp,
+      ES: temp,
+      FR: temp,
+      ID: temp,
+      IT: temp,
+      JP: temp,
+      KR: temp,
+      PT: temp,
+      RU: temp,
+      TH: temp,
+      TR: temp,
+      VI: temp,
+    };
+    summaryObj.QuestType = 'MainQuest';
+    return;
+  }
   summaryObj.QuestId = mainQuest.Id;
   summaryObj.QuestTitleTextMap = await ctrl.createLangCodeMap(mainQuest.TitleTextMapHash);
   summaryObj.QuestType = 'MainQuest';
