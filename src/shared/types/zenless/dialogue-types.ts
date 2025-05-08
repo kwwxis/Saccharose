@@ -116,6 +116,9 @@ type DialogueNodeBase = {
   Branches?: DialogueNode[][]
 };
 
+/**
+ * Normal
+ */
 export type DialogueNode0 = {
   NodeType: 0,
   ActionDelay: number,
@@ -145,6 +148,9 @@ export type DialogueNode0 = {
   TriggerOnFinish: boolean,
 };
 
+/**
+ * Transition
+ */
 export type DialogueNode1 = {
   NodeType: 1,
   NodeMark: DialogueNodeMark,
@@ -166,11 +172,17 @@ export interface DialogueNodeTransition1 extends DialogueNodeGenericTransition{
   NextNodeId: string
 }
 
+/**
+ * Custom Transition
+ */
 export type DialogueNode2 = {
   NodeType: 2,
   ShowChatWindow: boolean,
 };
 
+/**
+ * Action
+ */
 export type DialogueNode3 = {
   NodeType: 3,
   ActionList: DialogueNode3Action[],
@@ -181,12 +193,19 @@ export type DialogueNode3Action =
   { AvatarId: number, Location: number, AvatarNameKey?: string } |
   { Slot: number, ShowName: string };
 
+/**
+ * Jump Chapter
+ */
 export type DialogueNode7 = {
   NodeType: 7,
   ChapterIndex: number,
   SubIndex: number,
 };
 
+
+/**
+ * LookAtIK
+ */
 export type DialogueNode9 = {
   NodeType: 9,
   AvatarId: number,
@@ -196,12 +215,18 @@ export type DialogueNode9 = {
   NodeMark: DialogueNodeMark,
 };
 
+/**
+ * PlayAnimation
+ */
 export type DialogueNode10 = {
   NodeType: 10,
   AvatarId: number,
   TemplateId: number,
 };
 
+/**
+ * SetSpecials
+ */
 export type DialogueNode14 = {
   NodeType: 14,
   NodeMark: DialogueNodeMark,
@@ -213,6 +238,9 @@ export type DialogueNode14Special = {
   Value: number,
 };
 
+/**
+ * BlackScreen
+ */
 export type DialogueNode15 = {
   NodeType: 15,
 
@@ -225,12 +253,19 @@ export type DialogueNode15 = {
   Delay: number,
 };
 
+
+/**
+ * SetExitChatTransition
+ */
 export type DialogueNode17 = {
   NodeType: 17,
   NodeMark: DialogueNodeMark,
   TransitionId: number,
 };
 
+/**
+ * ShowUIGeneralIntimacyUp
+ */
 export type DialogueNode19 = {
   NodeType: 19,
   CurTrustLevel: number[],
@@ -240,6 +275,9 @@ export type DialogueNode19 = {
   UsePopShowModel: boolean,
 };
 
+/**
+ * BranchMultiInput
+ */
 export type DialogueNode20 = {
   NodeType: 20,
   FromIndexList: number[][],
@@ -252,6 +290,9 @@ export interface DialogueNodeTransition20 extends DialogueNodeGenericTransition 
   BindNodeIndex: number
 }
 
+/**
+ * Show3DModel
+ */
 export type DialogueNode21 = {
   NodeType: 21,
   ConfigType: number,
@@ -259,9 +300,12 @@ export type DialogueNode21 = {
   NodeMark: DialogueNodeMark,
 };
 
+/**
+ * QuestTrack
+ */
 export type DialogueNode23 = {
   NodeType: 23,
-  QuestList: DialogueNode23QuestItem[] // TRANSITIONS (maybe?)
+  QuestList: DialogueNode23QuestItem[]
 };
 
 export type DialogueNode23QuestItem = {
@@ -270,10 +314,18 @@ export type DialogueNode23QuestItem = {
   QuestId: number
 };
 
+
+/**
+ * QuestRecommend
+ */
 export type DialogueNode24 = {
   NodeType: 24,
 };
 
+
+/**
+ * ChangeActors
+ */
 export type DialogueNode26 = {
   NodeType: 26,
   CameraX: number,
@@ -285,6 +337,9 @@ export type DialogueNode26 = {
   TransitionId: number,
 };
 
+/**
+ * RandomNext
+ */
 export type DialogueNode27 = {
   NodeType: 27,
   NextList: DialogueNodeTransition27[] // TRANSITIONS
@@ -295,6 +350,9 @@ export interface DialogueNodeTransition27 extends DialogueNodeGenericTransition 
   BindNodeIndex: number
 }
 
+/**
+ * RandomChoice
+ */
 export type DialogueNode28 = {
   NodeType: 28,
   TransitionList: DialogueNodeTransition28[], // TRANSITIONS
@@ -310,6 +368,9 @@ export interface DialogueNodeTransition28 extends DialogueNodeGenericTransition 
   NextNodeId: string
 }
 
+/**
+ * TransitionWithActions
+ */
 export type DialogueNode29 = {
   NodeType: 29,
   Cfg: DialogueNode29Cfg,
@@ -354,6 +415,9 @@ export type DialogueNode29Cfg = {
   TimePeriod: number
 };
 
+/**
+ * ShowConfirmPopup
+ */
 export type DialogueNode30 = {
   NodeType: 30,
 
@@ -378,6 +442,9 @@ export interface DialogueNodeTransition30 extends DialogueNodeGenericTransition 
   BindNodeIndex: number
 }
 
+/**
+ * ShowUI
+ */
 export type DialogueNode31 = {
   NodeType: 31,
   Config: DialogueNode31Cfg,
@@ -422,6 +489,9 @@ export interface DialogueNodeTransition31 extends DialogueNodeGenericTransition 
   NextNodeId: string
 }
 
+/**
+ * PlayTimeline
+ */
 export type DialogueNode32 = {
   NodeType: 32,
   IsStop: boolean,
@@ -429,22 +499,37 @@ export type DialogueNode32 = {
   WaitFinish: boolean,
 };
 
+/**
+ * SyncServerData
+ */
 export type DialogueNode34 = {
   NodeType: 34,
   Config: { MessageGroupId: number },
 };
 
+
+/**
+ * PlayVoice
+ */
 export type DialogueNode35 = {
   NodeType: 35,
   VoiceKey: string,
 };
 
+
+/**
+ * MiniGameRecord
+ */
 export type DialogueNode36 = {
   NodeType: 36,
   GameId: number,
   State: number,
 };
 
+
+/**
+ * ChangeNpcName
+ */
 export type DialogueNode37 = {
   NodeType: 37,
   TagId: number,
@@ -452,11 +537,19 @@ export type DialogueNode37 = {
   NameText?: string, // SPEAKER TEXT
 };
 
+
+/**
+ * Delay
+ */
 export type DialogueNode38 = {
   NodeType: 38,
   DelayTime: number,
 };
 
+
+/**
+ * MainCityGraph
+ */
 export type DialogueNode39 = {
   NodeType: 39,
   GraphId: number,
@@ -464,6 +557,9 @@ export type DialogueNode39 = {
   NodeMark: DialogueNodeMark,
 };
 
+/**
+ * Condition
+ */
 export type DialogueNode40 = {
   NodeType: 40,
   NodeMark: DialogueNodeMark,
@@ -471,11 +567,11 @@ export type DialogueNode40 = {
   ConditionList: DialogueNode40Condition[], // TRANSITIONS (maybe?)
 };
 
-export type DialogueNode40Condition = {
+export interface DialogueNode40Condition extends DialogueNodeGenericTransition {
   Value: number,
   BindSectionIndex: number,
   BindNodeIndex: number
-};
+}
 
 export type DialogueNodeMark =
   '0'                                                         |

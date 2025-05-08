@@ -68,6 +68,7 @@ import './pages/wuwa/media/wuwa-media-archive-job.page.ts';
 // Zenless
 // ----------------------------------------------------------------------------------------------------
 import './pages/zenless/zenless-dialogue-helper-page.ts';
+import './pages/zenless/zenless-dialogue-generation-page.ts';
 
 // Expose certain functions to global scope for debugging purposes
 // ----------------------------------------------------------------------------------------------------

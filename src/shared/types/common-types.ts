@@ -196,7 +196,7 @@ export function toCommonVoiceOverGroupFromWuwa(group: FavorWordGroup): CommonVoi
 
 // region Common Line IDs
 // --------------------------------------------------------------------------------------------------------------
-export type CommonLineId = { commonId?: number, textMapHash?: TextMapHash };
+export type CommonLineId = { commonId?: number|string, textMapHash?: TextMapHash };
 
 export function stringifyCommonLineIds(dialogLineIds: CommonLineId[]): string {
   if (!dialogLineIds || !dialogLineIds.length) {

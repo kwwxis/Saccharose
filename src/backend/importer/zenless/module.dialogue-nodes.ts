@@ -7,6 +7,7 @@ import { normalizeRawJson, renameFields } from '../import_db.ts';
 import { DialogueNode, DialogueNode40Condition } from '../../../shared/types/zenless/dialogue-types.ts';
 import { removeSuffix } from '../../../shared/util/stringUtil.ts';
 import { sort } from '../../../shared/util/arrayUtil.ts';
+import { isset } from '../../../shared/util/genericUtil.ts';
 
 function* walkSync(dir: string): Generator<string> {
   const files = fs.readdirSync(dir, { withFileTypes: true });
@@ -45,7 +46,7 @@ function processDialogueNode(scriptName: string,
   node.ScriptConfigNodeIndex = nodeIndex;
 
   const handleTransition = (t: any) => {
-    if (t && t.BindSectionIndex && t.BindNodeIndex) {
+    if (t && isset(t.BindSectionIndex) && isset(t.BindNodeIndex)) {
       t.NextNodeId = `${scriptName}_${t.BindSectionIndex}_${t.BindNodeIndex}`;
     }
   };

@@ -10,11 +10,10 @@ import { Request } from 'express';
 import { zenless_i18n, ZENLESS_I18N_MAP } from '../abstract/i18n.ts';
 import { AbstractControlState } from '../abstract/abstractControlState.ts';
 import { CurrentZenlessVersion, GameVersion, ZenlessVersions } from '../../../shared/types/game-versions.ts';
-import { arrayFillRange, arrayIndexOf, arrayIntersect } from '../../../shared/util/arrayUtil.ts';
+import { arrayFillRange, arrayIndexOf, arrayIntersect, arrayUnique } from '../../../shared/util/arrayUtil.ts';
 import { custom } from '../../util/logger.ts';
 import { CommonLineId, DialogWikitextResult } from '../../../shared/types/common-types.ts';
-import console from 'console';
-import { DialogueNode, DialogueNodeGenericTransition } from '../../../shared/types/zenless/dialogue-types.ts';
+import { DialogueNode } from '../../../shared/types/zenless/dialogue-types.ts';
 import { Z3DialogBranchingCache, Z3DialogUtil } from './dialogue/z3_dialogue_util.ts';
 
 // region Control State
@@ -50,6 +49,12 @@ export class ZenlessControl extends AbstractControl<ZenlessControlState> {
     this.excelPath = './FileCfg';
     this.disabledLangCodes.add('IT');
     this.disabledLangCodes.add('TR');
+  }
+
+  static noDbConnectInstance() {
+    const state = new ZenlessControlState();
+    state.NoDbConnect = true;
+    return new ZenlessControl(state);
   }
 
   override getDataFilePath(file: string): string {
@@ -171,12 +176,12 @@ export class ZenlessControl extends AbstractControl<ZenlessControlState> {
     return dialog;
   }
 
-  // async selectPreviousDialogs(nextId: number, noAddCache: boolean = false): Promise<DialogueNode[]> {
-  //   const ids: number[] = await this.knex.select('*')
-  //     .from('Relation_DialogToNext')
-  //     .where({NextId: nextId}).pluck('DialogId').then();
-  //   return this.selectMultipleDialogueNode(arrayUnique(ids), noAddCache);
-  // }
+  async selectPreviousDialogs(nextNodeId: string, noAddCache: boolean = false): Promise<DialogueNode[]> {
+    const ids: string[] = await this.knex.select('*')
+      .from('Relation_DialogToNext')
+      .where({NextNodeId: nextNodeId}).pluck('NodeId').then();
+    return this.selectMultipleDialogueNodes(arrayUnique(ids), noAddCache);
+  }
 
   async selectSingleDialogueNode(nodeId: string, noAddCache: boolean = false): Promise<DialogueNode> {
     let result: DialogueNode = await this.knex.select('*')
@@ -217,6 +222,7 @@ export class ZenlessControl extends AbstractControl<ZenlessControlState> {
     if (!nodeIds.length) {
       return [];
     }
+
     let results: DialogueNode[] = await this.knex.select('*')
       .from('DialogueNodeTemplateTb')
       .whereIn('NodeId', nodeIds)
@@ -368,10 +374,13 @@ export class ZenlessControl extends AbstractControl<ZenlessControlState> {
       }
 
       let prefix: string = ':'.repeat(dialogDepth);
-      let text: string = this.normText(dialog.TalkContentText, this.outputLangCode);
+      let text: string = this.normText(Z3DialogUtil.getContentText(dialog), this.outputLangCode);
+      let name = this.normText(Z3DialogUtil.getSpeakerText(dialog), this.outputLangCode);
 
       // Subsequent Non-Branch Dialogue Options
       // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+      const prevNextNodeIds = previousDialog ? Z3DialogUtil.getNextNodeIds(previousDialog) : [];
 
       // This is for if you have non-branch subsequent player dialogue options for the purpose of generating an output like:
       // :'''Paimon:''' Blah blah blah
@@ -388,14 +397,14 @@ export class ZenlessControl extends AbstractControl<ZenlessControlState> {
 
         (
           // The previous dialog must only have had 1 next dialog
-          previousDialog.NextDialogs.length === 1
+          prevNextNodeIds.length === 1
 
           // Or the first dialog of every branch from the previous dialog must be a dialog option
           || previousDialog.Branches?.map(b => b[0]).every(x => this.isPlayerDialogOption(x))
         )
 
         // The previous dialog's next dialogs must contain current dialog:
-        && previousDialog.NextDialogs.some(x => x === dialog.NodeId)) {
+        && prevNextNodeIds.some(x => x === dialog.NodeId)) {
         numSubsequentNonBranchPlayerDialogOption++;
       } else {
         numSubsequentNonBranchPlayerDialogOption = 0;
@@ -403,12 +412,12 @@ export class ZenlessControl extends AbstractControl<ZenlessControlState> {
 
       // Voice-Overs
       // ~~~~~~~~~~~
-      let voPrefix = this.voice.getVoPrefix('Dialog', dialog.NodeId, text, dialog.TalkRole.Type);
+      let voPrefix = ''; //this.voice.getVoPrefix('Dialog', dialog.NodeId, text, dialog.TalkRole.Type);
 
       // Output Append
       // ~~~~~~~~~~~~~
 
-      outIds.push({commonId: dialog.NodeId, textMapHash: dialog.TalkContentTextMapHash});
+      outIds.push({commonId: dialog.NodeId, textMapHash: Z3DialogUtil.getContentTextKey(dialog)});
 
       if (text && text.includes('\n')) {
         for (let _m of (text.match(/\n/g) || [])) {
@@ -416,45 +425,10 @@ export class ZenlessControl extends AbstractControl<ZenlessControlState> {
         }
       }
 
-      if (dialog.Recurse) {
-        if (this.isPlayerTalkRole(dialog)) {
-          out += `\n${diconPrefix};(${this.i18n('ReturnToDialogueOption')})`;
-        } else {
-          out += `\n${diconPrefix.slice(0,-1)};(${this.i18n('ReturnToDialogueOption')})`;
-        }
-      } else {
-        if (dialog.CustomTravelLogMenuText || dialog.CustomImageName || dialog.CustomWikiTx) {
-          out += `\n${prefix}${text}`;
-        } else if (dialog.CustomWikiReadable) {
-          out += `\n${text}`;
-        } else if (this.isBlackScreenDialog(dialog)) {
-          out += `\n${prefix}{{Black Screen|${voPrefix}${text}}}`;
-        } else if (this.isPlayerTalkRole(dialog)) {
-          if (!this.isPlayerDialogOption(dialog)) {
-            let name = this.normText(dialog.TalkRoleNameText || '{NICKNAME}', this.outputLangCode);
-            out += `\n${prefix}${voPrefix}'''${name}:''' ${text}`;
-          } else {
-            let dicon: string = '{{DIcon}}';
-            if (OptionIconMap[dialog.OptionIcon]) {
-              dicon = '{{DIcon|' + OptionIconMap[dialog.OptionIcon] + '}}';
-            } else if (dialog.OptionIcon) {
-              dicon = '{{DIcon|' + dialog.OptionIcon + '}}';
-            }
-            out += `\n${diconPrefix}${':'.repeat(numSubsequentNonBranchPlayerDialogOption)}${dicon} ${text}`;
-          }
-        } else if (dialog.TalkRole.Type === 'TALK_ROLE_NPC' || dialog.TalkRole.Type === 'TALK_ROLE_GADGET') {
-          let name = this.normText(dialog.TalkRoleNameText, this.outputLangCode);
-          out += `\n${prefix}${voPrefix}'''${name}:''' ${text}`;
-        } else if (dialog.TalkRole.Type === 'TALK_ROLE_MATE_AVATAR') {
-          out += `\n${prefix}${voPrefix}'''${this.i18n('TravelerSibling')}:''' ${text}`;
-        } else {
-          if (text) {
-            out += `\n${prefix}:'''Cutscene_Character_Replace_me:''' ${text}`;
-          } else {
-            console.warn('Dialog with unknown TalkRole.Type "' + dialog.TalkRole.Type + '" and without text:', dialog);
-          }
-        }
-      }
+      // if (this.isBlackScreenDialog(dialog)) {
+      //   out += `\n${prefix}{{Black Screen|${voPrefix}${text}}}`;
+      // }
+      out += `\n${prefix}${voPrefix}'''${name}:''' ${text}`;
 
       // Next Branches
       // ~~~~~~~~~~~~~

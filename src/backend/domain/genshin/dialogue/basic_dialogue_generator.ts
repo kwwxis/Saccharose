@@ -117,7 +117,7 @@ async function addHighlightMarkers(ctrl: GenshinControl,
     let shouldSkip = false;
 
     if (lineMarkers.length && lineId && lineId.commonId) {
-      const d = await ctrl.selectSingleDialogExcelConfigData(lineId.commonId, true);
+      const d = await ctrl.selectSingleDialogExcelConfigData(toInt(lineId.commonId), true);
       if (!(await npcFilterInclude(ctrl, d, npcFilter))) {
         shouldSkip = true;
       }

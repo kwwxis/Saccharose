@@ -115,4 +115,16 @@ export const zenlessSchema = {
       { name: 'AvatarId', type: 'integer', isIndex: true },
     ]
   },
+  Relation_DialogToNext: <SchemaTable> {
+    name: 'Relation_DialogToNext',
+    jsonFile: './FileCfg/DialogueNodeTemplateTb.json',
+    columns: [
+      { name: 'NodeId', type: 'string', isIndex: true },
+      { name: 'NextNodeId', type: 'string', isIndex: true },
+    ],
+    customRowResolveProvider: async () => {
+      // Cannot import ZenlessControl from this file (zenless.schema.ts) which is why we're using a dynamic import.
+      return (await import('./zenless.customRowResolvers.ts')).relation_DialogToNext_resolver;
+    }
+  },
 }

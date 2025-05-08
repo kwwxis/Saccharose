@@ -9,6 +9,7 @@ import ExcelViewerListPage from '../../../components/shared/ExcelViewerListPage.
 import { sendExcelViewerTableResponse } from '../../abstract/app/abstractBasicRouter.ts';
 import { getZenlessControl } from '../../../domain/zenless/zenlessControl.ts';
 import OLCombinePage from '../../../components/shared/OLCombinePage.vue';
+import ZenlessDialogueGenerationPage from '../../../components/zenless/ZenlessDialogueGenerationPage.vue';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -62,6 +63,13 @@ export default async function(): Promise<Router> {
     res.render(ZenlessDialogueHelperPage, {
       title: 'Dialogue Helper',
       bodyClass: ['page--dialogue-helper']
+    });
+  });
+
+  router.get('/dialogue-generation', async (req: Request, res: Response) => {
+    res.render(ZenlessDialogueGenerationPage, {
+      title: 'Dialogue Generation',
+      bodyClass: ['page--dialogue-generation']
     });
   });
 
