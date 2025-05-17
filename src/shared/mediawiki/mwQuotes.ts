@@ -1,8 +1,14 @@
-
-// "doQuotes" from https://phabricator.wikimedia.org/source/mediawiki/browse/master/includes/parser/Parser.php
 import { defaultMap } from '../util/genericUtil.ts';
 
-export function doQuotes(text: string): string {
+const isEven = (n: number) => n % 2 === 0;
+const isOdd = (n: number) => n % 2 === 1;
+
+/*
+ * Converting quotes to <i> and <b> has very specific behavior, so we have to follow the same behavior as
+ * https://phabricator.wikimedia.org/source/mediawiki/browse/master/includes/parser/Parser.php rather than trying
+ * to roll our own behavior.
+ */
+export function convertWikitextQuotes(text: string): string {
   let arr: string[] = text.split(/(''+)/g);
   let countArr = arr.length;
 
@@ -10,30 +16,20 @@ export function doQuotes(text: string): string {
     return text;
   }
 
-  // First, do some preliminary work. This may shift some apostrophes from
-  // being mark-up to being text. It also counts the number of occurrences
-  // of bold and italics mark-ups.
   let numBold = 0;
   let numItalics = 0;
   for (let i = 1; i < countArr; i += 2) {
     let thislen = arr[i].length;
 
-    // If there are ever four apostrophes, assume the first is supposed to
-    // be text, and the remaining three constitute mark-up for bold text.
-    // (T15227: ''''foo'''' turns into ' ''' foo ' ''')
     if (thislen == 4) {
-      arr[i - 1] += '\'';
-      arr[i] = '\'\'\'';
+      arr[i - 1] += `'`;
+      arr[i] = `'''`;
       thislen = 3;
     } else if (thislen > 5) {
-      // If there are more than 5 apostrophes in a row, assume they're all
-      // text except for the last 5.
-      // (T15227: ''''''foo'''''' turns into ' ''''' foo ' ''''')
-      arr[i - 1] += '\''.repeat(thislen - 5);
-      arr[i] = '\'\'\'\'\'';
+      arr[i - 1] += `'`.repeat(thislen - 5);
+      arr[i] = `'''''`;
       thislen = 5;
     }
-    // Count the number of occurrences of bold and italics mark-ups.
     if (thislen == 2) {
       numItalics++;
     } else if (thislen == 3) {
@@ -44,11 +40,7 @@ export function doQuotes(text: string): string {
     }
   }
 
-  // If there is an odd number of both bold and italics, it is likely
-  // that one of the bold ones was meant to be an apostrophe followed
-  // by italics. Which one we cannot know for certain, but it is more
-  // likely to be one that has a single-letter word before it.
-  if ((numBold % 2 == 1) && (numItalics % 2 == 1)) {
+  if (isOdd(numBold) && isOdd(numItalics)) {
     let firstSingleLetterWord = -1;
     let firstMultiLetterWord = -1;
     let firstSpace = -1;
@@ -56,16 +48,12 @@ export function doQuotes(text: string): string {
       if (arr[i].length == 3) {
         let x1 = arr[i - 1].substr(-1);
         let x2 = arr[i - 1].substr(-2, 1);
-        // let x1 = substr( arr[i - 1], -1 );
-        // let x2 = substr( arr[i - 1], -2, 1 );
         if (x1 === ' ') {
           if (firstSpace == -1) {
             firstSpace = i;
           }
         } else if (x2 === ' ') {
           firstSingleLetterWord = i;
-          // if firstsingleletterword is set, we don't
-          // look at the other options, so we can bail early.
           break;
         } else if (firstMultiLetterWord == -1) {
           firstMultiLetterWord = i;
@@ -73,39 +61,31 @@ export function doQuotes(text: string): string {
       }
     }
 
-    // If there is a single-letter word, use it!
     if (firstSingleLetterWord > -1) {
-      arr[firstSingleLetterWord] = '\'\'';
-      arr[firstSingleLetterWord - 1] += '\'';
+      arr[firstSingleLetterWord] = `''`;
+      arr[firstSingleLetterWord - 1] += `'`;
     } else if (firstMultiLetterWord > -1) {
-      // If not, but there's a multi-letter word, use that one.
-      arr[firstMultiLetterWord] = '\'\'';
-      arr[firstMultiLetterWord - 1] += '\'';
+      arr[firstMultiLetterWord] = `''`;
+      arr[firstMultiLetterWord - 1] += `'`;
     } else if (firstSpace > -1) {
-      // ... otherwise use the first one that has neither.
-      // (notice that it is possible for all three to be -1 if, for example,
-      // there is only one pentuple-apostrophe in the line)
-      arr[firstSpace] = '\'\'';
-      arr[firstSpace - 1] += '\'';
+      arr[firstSpace] = `''`;
+      arr[firstSpace - 1] += `'`;
     }
   }
 
-  // Now let's actually convert our apostrophic mush to HTML!
   let output = '';
   let buffer = '';
-  let state = '';
-  let i = 0;
-  for (let r of arr) {
-    if (i % 2 == 0) {
+  let state: ''|'i'|'b'|'ib'|'bi'|'both' = '';
+  for (let [i, r] of arr.entries()) {
+    if (isEven(i)) {
       if (state === 'both') {
         buffer += r;
       } else {
         output += r;
       }
     } else {
-      let thislen = r.length;
-      if (thislen == 2) {
-        // two quotes - open or close italics
+      let rlen = r.length;
+      if (rlen == 2) {
         if (state === 'i') {
           output += '</i>';
           state = '';
@@ -118,12 +98,11 @@ export function doQuotes(text: string): string {
         } else if (state === 'both') {
           output += '<b><i>' + buffer + '</i>';
           state = 'b';
-        } else { // state can be 'b' or ''
+        } else {
           output += '<i>';
           state += 'i';
         }
-      } else if (thislen == 3) {
-        // three quotes - open or close bold
+      } else if (rlen == 3) {
         if (state === 'b') {
           output += '</b>';
           state = '';
@@ -140,8 +119,7 @@ export function doQuotes(text: string): string {
           output += '<b>';
           state += 'b';
         }
-      } else if (thislen == 5) {
-        // five quotes - open or close both separately
+      } else if (rlen == 5) {
         if (state === 'b') {
           output += '</b><i>';
           state = 'i';
@@ -163,9 +141,7 @@ export function doQuotes(text: string): string {
         }
       }
     }
-    i++;
   }
-  // Now close all remaining tags.  Notice that the order is important.
   if (state === 'b' || state === 'ib') {
     output += '</b>';
   }
@@ -175,7 +151,6 @@ export function doQuotes(text: string): string {
   if (state === 'bi') {
     output += '</b>';
   }
-  // There might be lonely ''''', so make sure we have a buffer
   if (state === 'both' && buffer) {
     output += '<b><i>' + buffer + '</i></b>';
   }
@@ -212,7 +187,7 @@ export function getQuoteTypes(s: string, i: number): MW_QUOTE_TYPE[] {
 }
 
 export function getQuotePosMap(s: string): MW_QUOTE_POSMAP {
-  let parts: string[] = doQuotes(s).split(/(<\/?b>|<\/?i>)/g).filter(x => !!x);
+  let parts: string[] = convertWikitextQuotes(s).split(/(<\/?b>|<\/?i>)/g).filter(x => !!x);
   let pos: number = 0;
   let out: MW_QUOTE_POSMAP = defaultMap('Array');
 

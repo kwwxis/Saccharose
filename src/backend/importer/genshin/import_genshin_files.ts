@@ -3,7 +3,7 @@ import { pathToFileURL } from 'url';
 import commandLineArgs, { OptionDefinition as ArgsOptionDefinition } from 'command-line-args';
 import commandLineUsage, { OptionDefinition as UsageOptionDefinition } from 'command-line-usage';
 import chalk from 'chalk';
-import { getGenshinDataFilePath } from '../../loadenv.ts';
+import { getGenshinDataFilePath, getZenlessDataFilePath } from '../../loadenv.ts';
 import { getGenshinControl } from '../../domain/genshin/genshinControl.ts';
 import { closeKnex } from '../../util/db.ts';
 import { importNormalize, importPlainTextMap } from '../util/import_file_util.ts';
@@ -18,6 +18,7 @@ import { createChangelog } from './module.changelog.ts';
 import { indexGenshinImages } from './module.index-images.ts';
 import { exportExcel } from './module.export-excel.ts';
 import { recordNewImages } from './module.new-images.ts';
+import fs from 'fs';
 
 export async function importGenshinFilesCli() {
   const options_beforeDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
@@ -109,6 +110,15 @@ export async function importGenshinFilesCli() {
   }
 
   if (options.normalize) {
+    const th0 = getGenshinDataFilePath('./TextMap/TextMapTH_0.json');
+    const th1 = getGenshinDataFilePath('./TextMap/TextMapTH_1.json');
+
+    const thC_json = {};
+    const th0_json = JSON.parse(fs.readFileSync(th0, {encoding: 'utf8'}));
+    const th1_json = JSON.parse(fs.readFileSync(th1, {encoding: 'utf8'}));
+    Object.assign(thC_json, th0_json, th1_json);
+    fs.writeFileSync(getGenshinDataFilePath('./TextMap/TextMapTH.json'), JSON.stringify(thC_json, null, 2), 'utf-8');
+
     await importNormalize(getGenshinDataFilePath('./ExcelBinOutput'), ['ProudSkillExcelConfigData.json'], 'genshin');
   }
   if (options.plaintext) {

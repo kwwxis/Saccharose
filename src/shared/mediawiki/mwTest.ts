@@ -106,8 +106,8 @@ function headingTest() {
 /*
 
 
-  console.log('doQuotes:', doQuotes(`''italic'''`));
-  console.log('doQuotes:', doQuotes(`'''italic''`));
+  console.log('convertWikitextQuotes:', convertWikitextQuotes(`''italic'''`));
+  console.log('convertWikitextQuotes:', convertWikitextQuotes(`'''italic''`));
   console.log();
   console.log(`checkQuotePos:`, checkQuotePos(`'''''bold and italic'''italic''`, 0, 'BOLD_OPEN')); // false
   console.log(`checkQuotePos:`, checkQuotePos(`'''''bold and italic'''italic''`, 0, 'ITALIC_OPEN')); // true
