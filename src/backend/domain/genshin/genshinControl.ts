@@ -2421,6 +2421,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     sb.line('{{Recipe');
     sb.prop('type', 'Creation');
     sb.prop('time', Math.floor(makeData.MakeTime / 60 / 60)+'h');
+    console.log(makeData);
     for (let vec of makeData.MaterialItems) {
       sb.prop(vec.Material.NameText, vec.Count);
     }

@@ -561,7 +561,8 @@ export type GCGCostType =
   'GCG_COST_DICE_PYRO'    |
   'GCG_COST_DICE_SAME'    |
   'GCG_COST_DICE_VOID'    |
-  'GCG_COST_ENERGY'       ;
+  'GCG_COST_ENERGY'       |
+  'GCG_COST_INVALID';
 export type GCGCardElementHintType =
   'GCG_HINT_ANEMO'    |
   'GCG_HINT_CRYO'     |

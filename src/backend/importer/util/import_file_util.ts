@@ -9,12 +9,21 @@ import { NormTextOptions } from '../../domain/abstract/genericNormalizers.ts';
 import XXH from 'xxhashjs';
 import JSONBigImport from '../../util/json-bigint';
 import { isInt } from '../../../shared/util/numberUtil.ts';
+import { isUnset } from '../../../shared/util/genericUtil.ts';
 
 const JSONbig = JSONBigImport({ useNativeBigInt: true, objectProto: true});
 
 const isOnePropObj = (o: any, key: string) => o && typeof o === 'object' && Object.keys(o).length === 1 && Object.keys(o)[0] === key;
 
-const isEmptyObj = (o: any) => o && typeof o === 'object' && Object.keys(o).length === 0;
+const isEmptyObj = (o: any) => {
+  if (o && typeof o === 'object' && Object.keys(o).length === 0) {
+    return true;
+  }
+  if (o && typeof o === 'object' && Object.values(o).every(v => v === 0 || isUnset(v) || isEmptyObj(v))) {
+    return true;
+  }
+  return false;
+}
 
 // Some text map keys are strings instead of numbers, which are then converted to numbers for the final TextMap
 // Use this function to get the numeric text map hash from the string key.
@@ -30,6 +39,25 @@ function getStableHash(str: string): number {
   }
 
   return Number(BigInt.asIntN(32, (hash1 + (hash2 * 1566083941n)) | 0n));
+}
+
+function normalizeRecordForGenshin<T>(record: T): T {
+  if (!record || typeof record !== 'object') {
+    return record;
+  }
+  for (let key of Object.keys(record)) {
+    let value = record[key];
+
+    if (Array.isArray(value) && value.length) {
+      value = value.filter(v => !isEmptyObj(v) && !isUnset(v) && v !== '').map(v => {
+        return normalizeRecordForGenshin(v);
+      });
+      record[key] = value;
+    } else if (value && typeof value === 'object') {
+      record[key] = normalizeRecordForGenshin(value)
+    }
+  }
+  return record;
 }
 
 function normalizeRecordForHSR<T>(record: T): T {
@@ -135,6 +163,13 @@ export async function importNormalize(jsonDir: string, skip: string[], game: 'ge
       }
 
       json = newJson;
+    }
+    if (game === 'genshin') {
+      if (Array.isArray(json)) {
+        json.forEach(row => normalizeRecordForGenshin(row));
+      } else {
+        json = Object.values(json).map(row => normalizeRecordForGenshin(row));
+      }
     }
 
     let newFileData = JSON.stringify(

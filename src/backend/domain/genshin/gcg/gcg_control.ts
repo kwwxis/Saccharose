@@ -815,6 +815,7 @@ export class GCGControl {
     card.IsEquipment = card.MappedTagList.some(tag => tag.CategoryType === 'GCG_TAG_IDENTIFIER_MODIFY');
     card.IsSupport = card.MappedTagList.some(tag => tag.CategoryType === 'GCG_TAG_IDENTIFIER_ASSIST');
     card.IsEvent = card.MappedTagList.some(tag => tag.CategoryType === 'GCG_TAG_IDENTIFIER_EVENT');
+    card.CostList = card.CostList.filter(x => x.CostType !== 'GCG_COST_INVALID');
 
     await this.postProcessCommonCard(card);
 
@@ -1026,6 +1027,7 @@ export class GCGControl {
       effectCardIds = newIds;
     }
 
+    skill.CostList = skill.CostList.filter(x => x.CostType !== 'GCG_COST_INVALID');
 
     return skill;
   }

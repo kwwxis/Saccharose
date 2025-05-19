@@ -165,7 +165,7 @@ export async function generateCardPage(gcg: GCGControl, card: GCGCommonCard): Pr
     sb.line('==Proficiency Reward==');
     for (let prof of deckCard.ProficiencyReward.ProficiencyRewardList) {
       const cardFaceItem = prof?.Reward?.RewardItemList
-        ?.find(item => item.Material.MaterialType === 'MATERIAL_GCG_CARD_FACE')?.Material;
+        ?.find(item => item?.Material?.MaterialType === 'MATERIAL_GCG_CARD_FACE')?.Material;
       if (cardFaceItem) {
         const golden: boolean = cardFaceItem.Icon?.toLowerCase()?.includes('gold') || false;
         sb.line(`After reaching Proficiency ${prof.Proficiency}, the following Dynamic Skin is obtained:<br>` +

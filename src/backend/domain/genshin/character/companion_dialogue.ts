@@ -80,6 +80,9 @@ export async function fetchCompanionDialogue(ctrl: GenshinControl, avatarNameOrI
         continue;
       }
       let sect: DialogueSectionResult = await talkConfigGenerate(ctrl, talkConfigId, acc);
+      if (!sect) {
+        continue;
+      }
 
       if (sect.hasMetaProp('Activity ID')) {
         activitySect.children.push(sect);

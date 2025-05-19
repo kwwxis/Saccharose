@@ -24,7 +24,15 @@ const textMapHashes: Set<string> = new Set(Object.keys(
 
 // region Types/Basic Utils
 // --------------------------------------------------------------------------------------------------------------
-const isEmptyObj = (o: any) => o && typeof o === 'object' && !Array.isArray(o) && Object.keys(o).length === 0;
+const isEmptyObj = (o: any) => {
+  if (o && typeof o === 'object' && !Array.isArray(o) && Object.keys(o).length === 0) {
+    return true;
+  }
+  if (o && typeof o === 'object' && Object.values(o).every(v => v === 0 || isUnset(v) || isEmptyObj(v))) {
+    return true;
+  }
+  return false;
+};
 
 type ValueType = 'unset' | 'primitive' | 'record' | 'primitive[]' | 'record[]';
 

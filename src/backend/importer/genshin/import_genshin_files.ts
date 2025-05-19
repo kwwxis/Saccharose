@@ -27,6 +27,7 @@ export async function importGenshinFilesCli() {
     {name: 'plaintext', type: Boolean, description: 'Creates the PlainTextMap files.'},
     {name: 'voice-items', type: Boolean, description: 'Creates the normalized voice items file.'},
     {name: 'property-schema', type: Boolean, description: 'Creates the PropertySchema file.'},
+    {name: 'fix-document-excel', type: Boolean, description: 'Fixes some issues unique to DocumentExcelConfigData.'},
     {name: 'interaction', type: Boolean, description: 'Load QuestDialogue InterActions from BinOutput.'},
   ];
 
@@ -139,6 +140,16 @@ export async function importGenshinFilesCli() {
   }
   if (options['property-schema']) {
     await writeMappedExcels();
+  }
+  if (options['fix-document-excel']) {
+    const filePath = getGenshinDataFilePath('./ExcelBinOutput/DocumentExcelConfigData.json');
+    let fileContent = fs.readFileSync(filePath, {encoding: 'utf8'});
+
+    fileContent = fileContent.replace(/"questidlist"/gi, '"__temp__"');
+    fileContent = fileContent.replace(/"contentLocalizedIds?"/gi, '"QuestIdList"');
+    fileContent = fileContent.replace(/"__temp__"/gi, '"ContentLocalizedIds"');
+
+    fs.writeFileSync(filePath, fileContent, {encoding: 'utf8'});
   }
   if (options['export-excel']) {
     await exportExcel(options['export-excel']);
