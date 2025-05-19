@@ -3354,6 +3354,14 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
           async ([id, triggerCond], idx: number) => await this.loadLocalization(view.Document, idx + 1, true, id, triggerCond)
         )
       ];
+      if (view.Document.AdditionalQuestContentLocalizedIds && view.Document.AdditionalQuestContentLocalizedIds.length) {
+        let startForPage = view.Document.QuestContentLocalizedIds.length;
+        view.Items.push(
+          ...await pairArrays(view.Document.AdditionalQuestContentLocalizedIds, view.Document.AdditionalQuestIdList).asyncMap(
+            async ([id, triggerCond], idx: number) => await this.loadLocalization(view.Document, startForPage + idx + 1, true, id, triggerCond)
+          )
+        );
+      }
     }
 
     return view;

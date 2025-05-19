@@ -164,4 +164,7 @@ export interface DocumentExcelConfigData {
   ContentLocalizedIds: number[],
   QuestIdList: number[], // Quest trigger condition for alternate
   QuestContentLocalizedIds: number[], // Alternate ContentLocalizedIds
+
+  AdditionalQuestIdList: number[],
+  AdditionalQuestContentLocalizedIds: number[],
 }

@@ -579,6 +579,8 @@ export const genshinSchema = {
     renameFields: {
       ContentLocalizedId: 'ContentLocalizedIds',
       QuestContentLocalizedId: 'QuestContentLocalizedIds',
+      ENPALMIKCHN: 'AdditionalQuestIdList',
+      JHCCODDMPAP: 'AdditionalQuestContentLocalizedIds',
     },
   },
   Relation_LocalizationIdToDocumentId: <SchemaTable> {
@@ -591,6 +593,8 @@ export const genshinSchema = {
     renameFields: {
       ContentLocalizedId: 'ContentLocalizedIds',
       QuestContentLocalizedId: 'QuestContentLocalizedIds',
+      ENPALMIKCHN: 'AdditionalQuestIdList',
+      JHCCODDMPAP: 'AdditionalQuestContentLocalizedIds',
     },
     customRowResolve: (row: DocumentExcelConfigData) => {
       let ret = [];
@@ -601,6 +605,11 @@ export const genshinSchema = {
       }
       if (row.QuestContentLocalizedIds) {
         for (let contentLocalizedId of row.QuestContentLocalizedIds) {
+          ret.push({LocalizationId: contentLocalizedId, DocumentId: row.Id});
+        }
+      }
+      if (row.AdditionalQuestContentLocalizedIds) {
+        for (let contentLocalizedId of row.AdditionalQuestContentLocalizedIds) {
           ret.push({LocalizationId: contentLocalizedId, DocumentId: row.Id});
         }
       }
