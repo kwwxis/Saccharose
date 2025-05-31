@@ -65,11 +65,16 @@
 
 .for-http-api .logview-cell.for-http-uri {
   color: #343480;
+  body.nightmode & {
+    color: #9999be;
+  }
 }
 .for-http-web .logview-cell.for-http-uri {
   color: #003d00;
+  body.nightmode & {
+    color: #aad7aa;
+  }
 }
-
 
 .logview-cell.for-http-uri {
   display: flex;
