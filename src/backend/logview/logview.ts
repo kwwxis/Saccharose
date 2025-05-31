@@ -11,7 +11,6 @@ import { closeKnex, openPg } from '../util/db.ts';
 import { Tail } from 'tail';
 import exitHook from 'async-exit-hook';
 import { wssDispatch } from '../websocket/wssubscribers.ts';
-import { fixPacificTimestampsInFile } from '../middleware/request/accessLoggingFix.ts';
 
 const regexes = {
   access: /^\[(\d+\/\d+\/\d+), (\d+:\d+:\d+) (AM|PM) (PST|PDT)] \[([^\]]+)] \[(\w{2}):(\w{2})\|(\w+)] (\d{3}) (\w+)(.*)\((\d+\.?\d*) ms\)$/,
@@ -183,7 +182,6 @@ export async function enableLogFileWatchShutdownHook() {
 }
 
 export async function importLogFile(filePath: string, doConsoleLog: boolean = false) {
-  fixPacificTimestampsInFile(filePath);
   const fileContent = fs.readFileSync(filePath, 'utf8');
   const fileLines = fileContent.split(/\r?\n/);
   await importFileLines(fileLines, false, doConsoleLog);
