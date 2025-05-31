@@ -26,6 +26,7 @@
     &.for-timestamp {
       width: 120px;
       flex-shrink: 0;
+      font-size: 14px;
     }
     &.for-wiki-user {
       width: 200px;
@@ -61,3 +62,37 @@
     }
   }
 }
+
+.for-http-api .logview-cell.for-http-uri {
+  color: #343480;
+}
+.for-http-web .logview-cell.for-http-uri {
+  color: #003d00;
+}
+
+
+.logview-cell.for-http-uri {
+  display: flex;
+  align-items: center;
+}
+.logview-cell.for-http-uri:before {
+  content: '';
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  margin-right: 5px;
+  pointer-events: none;
+}
+.logview-row.for-genshin .logview-cell.for-http-uri:before {
+  background: url('/images/site/logo/Sucrose.webp') no-repeat center / contain;
+}
+.logview-row.for-hsr .logview-cell.for-http-uri:before {
+  background: url('/images/site/logo/March_7th_Sticker_1.webp') no-repeat center / contain;
+}
+.logview-row.for-zenless .logview-cell.for-http-uri:before {
+  background: url('/images/site/logo/Belle.webp') no-repeat center / contain;
+}
+.logview-row.for-wuwa .logview-cell.for-http-uri:before {
+  background: url('/images/site/logo/Yangyang.webp') no-repeat center / contain;
+}
+

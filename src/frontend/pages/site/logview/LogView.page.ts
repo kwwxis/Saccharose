@@ -8,6 +8,7 @@ import { escapeHtml } from '../../../../shared/util/stringUtil.ts';
 import { humanTiming, printHumanTiming } from '../../../../shared/util/genericUtil.ts';
 import moment from 'moment';
 import { uuidv4 } from '../../../../shared/util/uuidv4.ts';
+import { css } from 'webpack';
 
 pageMatch('vue/SiteLogViewPage', () => {
   const mainContainer: HTMLDivElement = document.querySelector('#site-logview');
@@ -44,13 +45,38 @@ pageMatch('vue/SiteLogViewPage', () => {
       return;
     }
 
-    const isScrolledToBottom = scrollContainer.scrollTop === scrollContainer.scrollHeight;
+    const isScrolledToBottom = scrollContainer.scrollHeight - scrollContainer.scrollTop - scrollContainer.clientHeight < 5;
     console.log('LogViewLine', lines);
 
     let elements: Element[] = [];
     for (let line of lines) {
+      const cssClasses: string[] = [];
+
+      let apiOrWeb = '';
+      if (line.http_uri.startsWith('/api')) {
+        apiOrWeb = 'api';
+      } else {
+        apiOrWeb = 'web';
+      }
+
+      cssClasses.push('for-http-' + apiOrWeb);
+
+      if (/^(\/api)?\/genshin/.test(line.http_uri)) {
+        cssClasses.push(`for-genshin`);
+        cssClasses.push(`for-genshin-${apiOrWeb}`);
+      } else if (/^(\/api)?\/hsr/.test(line.http_uri)) {
+        cssClasses.push(`for-hsr`);
+        cssClasses.push(`for-hsr-${apiOrWeb}`);
+      } else if (/^(\/api)?\/zenless/.test(line.http_uri)) {
+        cssClasses.push(`for-zenless`);
+        cssClasses.push(`for-zenless-${apiOrWeb}`);
+      } else if (/^(\/api)?\/wuwa/.test(line.http_uri)) {
+        cssClasses.push(`for-wuwa`);
+        cssClasses.push(`for-wuwa-${apiOrWeb}`);
+      }
+
       elements.push(frag1(`
-        <div class="logview-row">
+        <div id="logview-${line.sha_hash}" class="logview-row ${cssClasses.join(' ')}" data-hash="${line.sha_hash}">
           <div class="logview-cell for-timestamp">${printHumanTiming(line.timestamp)}</div>
           <div class="logview-cell for-wiki-user">${escapeHtml(line.wiki_user)}</div>
           <div class="logview-cell for-mode">${escapeHtml(line.lang_in)}:${escapeHtml(line.lang_out)}:${escapeHtml(line.search_mode)}</div>
