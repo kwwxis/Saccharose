@@ -162,7 +162,7 @@ export async function importLogFile(filePath: string, doConsoleLog: boolean = fa
   await importFileLines(fileLines, doConsoleLog);
 }
 
-export async function startLogFileWatch(fromBeginning: boolean = false) {
+export async function startLogFileWatch() {
   if (!process.env.LOGVIEW_FILE) {
     return;
   }
@@ -170,9 +170,11 @@ export async function startLogFileWatch(fromBeginning: boolean = false) {
     return;
   }
 
+  await importLogFile(process.env.LOGVIEW_FILE);
+
   tail = new Tail(process.env.LOGVIEW_FILE, {
     follow: true,
-    fromBeginning,
+    fromBeginning: false,
     encoding: 'utf-8',
   });
 
