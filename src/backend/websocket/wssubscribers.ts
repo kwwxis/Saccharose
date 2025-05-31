@@ -67,18 +67,20 @@ export function wssDispatch<T extends WsMessageType>(type: T, data: WsMessageDat
   }
 }
 
-setInterval(() => {
-  for (let subscription of Object.values(subscriptions)) {
-    for (let [listenerId, subscriber] of Object.entries(subscription)) {
-      if (!subscriber.isOpen()) {
-        subscriber.evicts++;
-        if (subscriber.evicts === MAX_EVICTS) {
-          delete subscription[listenerId];
+export function enableWssSubscribersAutoEvict() {
+  setInterval(() => {
+    for (let subscription of Object.values(subscriptions)) {
+      for (let [listenerId, subscriber] of Object.entries(subscription)) {
+        if (!subscriber.isOpen()) {
+          subscriber.evicts++;
+          if (subscriber.evicts === MAX_EVICTS) {
+            delete subscription[listenerId];
+          }
+        } else {
+          subscriber.evicts = 0;
+          subscriber.sendAndFlushBacklog();
         }
-      } else {
-        subscriber.evicts = 0;
-        subscriber.sendAndFlushBacklog();
       }
     }
-  }
-}, 2000);
+  }, 2000);
+}

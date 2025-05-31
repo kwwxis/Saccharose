@@ -12,6 +12,7 @@ import {
   WSS_CLOSE_CODES,
 } from '../../shared/types/wss-types.ts';
 import { defaultMap } from '../../shared/util/genericUtil.ts';
+import { enableWssSubscribersAutoEvict } from './wssubscribers.ts';
 
 export class WsServerListenEvent<T extends WsMessageType> {
   constructor(public ws: WebSocket, public data: WsMessageData[T]) {}
@@ -49,6 +50,8 @@ export function startWss() {
   logInit('Starting WebSocket server ...');
 
   const wss_port = toInt(process.env.WSS_PORT);
+
+  enableWssSubscribersAutoEvict();
 
   let dummyProcess = (req: http.IncomingMessage, res: http.ServerResponse) => {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
