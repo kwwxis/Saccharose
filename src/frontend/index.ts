@@ -108,7 +108,11 @@ import { uuidv4, NIL_UUID, MAX_UUID } from '../shared/util/uuidv4.ts';
 (<any> window).MAX_UUID = MAX_UUID;
 
 import { getElementOffset } from './util/domutil.ts';
-import { humanTiming } from '../shared/util/genericUtil.ts';
+import { humanTiming, printHumanTiming } from '../shared/util/genericUtil.ts';
 
 (<any> window).getElementOffset = getElementOffset;
 (<any> window).humanTiming = humanTiming;
+(<any> window).printHumanTiming = printHumanTiming;
+
+import moment from 'moment';
+(<any> window).moment = moment;

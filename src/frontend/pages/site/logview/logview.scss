@@ -1,3 +1,10 @@
+#site-logview {
+  padding: 5px;
+}
+#site-logview-body {
+  height: calc(100vh - 190px);
+  overflow-y: scroll;
+}
 .logview-row {
   display: flex;
   border: 1px solid #aaa;
@@ -6,25 +13,26 @@
 
   .logview-cell {
     padding: 2px 5px;
+    font-size: 15px;
+    min-width: 0;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+
+    &.for-mode, &.for-http-status, &.for-http-uri, &.for-http-method {
+      font-size: 14px;
+      font-family: Consolas, Menlo, 'Monaco', 'Lucida Console', 'Liberation Mono', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Courier New', sans-serif;
+    }
 
     &.for-timestamp {
-      width: 100px;
+      width: 120px;
       flex-shrink: 0;
     }
     &.for-wiki-user {
+      width: 200px;
+      flex-shrink: 0;
+    }
+    &.for-mode {
       width: 100px;
-      flex-shrink: 0;
-    }
-    &.for-input-lang {
-      width: 50px;
-      flex-shrink: 0;
-    }
-    &.for-output-lang {
-      width: 50px;
-      flex-shrink: 0;
-    }
-    &.for-search-mode {
-      width: 60px;
       flex-shrink: 0;
     }
     &.for-http-status {
@@ -37,6 +45,7 @@
     }
     &.for-http-uri {
       flex-grow: 1;
+      opacity: 0.9;
     }
     &.for-http-runtime {
       width: 80px;

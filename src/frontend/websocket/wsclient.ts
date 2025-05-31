@@ -6,11 +6,14 @@ import {
   WsMessageData, WsMessage,
 } from '../../shared/types/wss-types.ts';
 import { uuidv4 } from '../../shared/util/uuidv4.ts';
+import AsyncLock from 'async-lock';
 
 export type WsClientListener<T extends WsMessageType> = (data: WsMessageData[T]) => void;
 
-export const WSS_URL =
-  document.querySelector<HTMLMetaElement>('meta[name="x-wss-url"]').content || '';
+export const WSS_URL = 'ws://localhost:3003/';
+  // document.querySelector<HTMLMetaElement>('meta[name="x-wss-url"]').content || '';
+
+const lock = new AsyncLock();
 
 export class WsClient {
   private ws: WebSocket;
@@ -24,13 +27,14 @@ export class WsClient {
   private reconnectInterval: number = 1000;
   private didOpen: boolean = false;
   private firstOpen: boolean = true;
+  private openThen: () => void = null;
 
   // Backlog:
   private backlog: WsMessage[] = [];
 
   constructor() {
-    setInterval(() => {
-      this.sendAndFlushBacklog();
+    setInterval(async () => {
+      await this.sendAndFlushBacklog();
     }, 500);
   }
 
@@ -79,6 +83,13 @@ export class WsClient {
         });
       }
 
+      this.sendAndFlushBacklog();
+
+      if (this.openThen) {
+        this.openThen();
+        this.openThen = null;
+      }
+
       this.firstOpen = false;
     };
 
@@ -107,15 +118,17 @@ export class WsClient {
     }
   }
 
-  sendAndFlushBacklog() {
-    if (this.ws != null && this.ws.readyState === WebSocket.OPEN) {
-      const backlogCopy = this.backlog.slice();
-      this.backlog = [];
+  async sendAndFlushBacklog() {
+    await lock.acquire('sendAndFlushBacklog', () => {
+      if (this.ws != null && this.ws.readyState === WebSocket.OPEN) {
+        const backlogCopy = this.backlog.slice();
+        this.backlog = [];
 
-      for (let message of backlogCopy) {
-        this.ws.send(JSON.stringify(message));
+        for (let message of backlogCopy) {
+          this.ws.send(JSON.stringify(message));
+        }
       }
-    }
+    });
   }
 
   subscribe<T extends WsMessageType>(type: T, listener: WsClientListener<T>) {
@@ -153,9 +166,10 @@ export class WsClient {
     }
   }
 
-  open() {
+  open(then?: () => void) {
     if (this.ws == null) {
       this.didOpen = false;
+      this.openThen = then;
       this.ws = new WebSocket(WSS_URL);
       this.setWebSocket(this.ws);
     }

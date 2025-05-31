@@ -137,7 +137,7 @@ export function create(context?: Readonly<RequestContextUpdate>): Router {
           locals,
           layouts: [
             ... (locals && Array.isArray(locals.layouts) ? locals.layouts : []),
-            isVueComponent(view) ? createSSRApp(view, locals) : view
+            isVueComponent(view) ? createSSRApp(view, locals).mixin({inheritAttrs: false}) : view
           ],
           title: locals && (<any> locals).title,
           bodyClass: locals && (<any> locals).bodyClass,

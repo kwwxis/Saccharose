@@ -105,9 +105,12 @@ export type WsUnsubscribe = {
 
 export type LogViewLine = {
   lines: LogViewEntity[];
+  fromRequest?: LogViewRequest,
 }
 
 export type LogViewRequest = {
+  requestId: string,
+  requestNote?: string,
   byWikiUser?: string,
   byDiscordUser?: string,
   byContentQuery?: string,

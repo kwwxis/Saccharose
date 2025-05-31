@@ -66,7 +66,7 @@ CREATE TABLE site_logview
 (
     sha_hash        TEXT            NOT NULL PRIMARY KEY ,
     log_type        site_logview_type NOT NULL,
-    timestamp       TIMESTAMP       NOT NULL,
+    timestamp       TIMESTAMP WITH TIME ZONE NOT NULL,
     full_content    TEXT            NOT NULL,
     content         TEXT            NOT NULL,
     discord_user    TEXT,

@@ -11,6 +11,7 @@ import { closeKnex, openPg } from '../util/db.ts';
 import { Tail } from 'tail';
 import exitHook from 'async-exit-hook';
 import { wssDispatch } from '../websocket/wssubscribers.ts';
+import './wsLogview.ts';
 
 const regexes = {
   access: /^\[(\d+\/\d+\/\d+), (\d+:\d+:\d+) (AM|PM) (PST|PDT)] \[([^\]]+)] \[(\w{2,3}):(\w{2,3})\|(\w+)] (\d{3}) (\w+)(.*)\((\d+\.?\d*) ms\)$/,
@@ -25,14 +26,18 @@ const regexes = {
 };
 
 const logViewIgnoreUri: RegExp = /^\/(api\/)?(auth|settings|notices|site-notice|prefs)/i;
+const logViewAnnoyanceRegex: RegExp = /\/media\/search\?catPath/i;
 
 export function filterLogView(logView: LogViewEntity[]): LogViewEntity[] {
+  if (!Array.isArray(logView) || !logView.length) {
+    return [];
+  }
   return logView.filter(log => {
     if (log.log_type !== 'access') {
       return false;
     }
     const uri = log.http_uri.trim().toLowerCase();
-    return !logViewIgnoreUri.test(uri);
+    return !logViewIgnoreUri.test(uri) && !logViewAnnoyanceRegex.test(uri);
   });
 }
 
