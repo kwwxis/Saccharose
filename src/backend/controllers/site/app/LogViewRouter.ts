@@ -8,7 +8,6 @@ export default async function(): Promise<Router> {
   router.get('/logview', (req, res) => {
     res.render(SiteLogViewPage, {
       title: 'Logview',
-      layouts: ['layouts/app-layout', 'layouts/app-layout-inner'],
       bodyClass: ['page--logview', 'page--larger'],
     });
   });

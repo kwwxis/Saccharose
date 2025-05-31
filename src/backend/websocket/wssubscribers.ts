@@ -1,5 +1,5 @@
 import { wssListen, wssSend } from './wsserver.ts';
-import { WsMessage, WsMessageType } from '../../shared/types/wss-types.ts';
+import { WsMessage, WsMessageData, WsMessageType } from '../../shared/types/wss-types.ts';
 import WebSocket from 'ws';
 import { defaultMap } from '../../shared/util/genericUtil.ts';
 
@@ -61,9 +61,9 @@ wssListen('WsUnsubscribe', event => {
   }
 });
 
-export function wssDispatch(message: WsMessage) {
-  for (let subscriber of Object.values(subscriptions[message.type])) {
-    subscriber.send(message);
+export function wssDispatch<T extends WsMessageType>(type: T, data: WsMessageData[T]) {
+  for (let subscriber of Object.values(subscriptions[type])) {
+    subscriber.send({ type, data });
   }
 }
 

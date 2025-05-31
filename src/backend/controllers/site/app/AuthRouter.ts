@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response, Router } from 'express';
+import { CookieOptions, NextFunction, Request, Response, Router } from 'express';
 import { create } from '../../../routing/router.ts';
 import passport from 'passport';
 import ejs from 'ejs';
@@ -14,18 +14,24 @@ import { saveSession, setSessionUser } from '../../../middleware/auth/sessions.t
 import { SITE_TITLE } from '../../../loadenv.ts';
 import { clearCsrfCookie } from '../../../middleware/request/csrf.ts';
 
+const returnToCookieOptions: CookieOptions = {
+  maxAge: 2000 * 60,
+  httpOnly: true,
+}
+
 function setReturnTo() {
-  return function(req: Request, _res: Response, next: NextFunction) {
-    if (req.query.cont)
-      (<any> req.session).returnTo = req.query.cont;
+  return function(req: Request, res: Response, next: NextFunction) {
+    if (req.query.cont) {
+      res.cookie('ReturnTo', req.query.cont, returnToCookieOptions);
+    }
     next();
   };
 }
 
-function getReturnTo(req: Request) {
-  if ((<any> req.session).returnTo) {
-    let cont = (<any> req.session).returnTo;
-    delete (<any> req.session).returnTo;
+function getReturnTo(req: Request, res: Response) {
+  if (req.cookies['ReturnTo']) {
+    let cont = req.cookies['ReturnTo'];
+    res.clearCookie('ReturnTo', returnToCookieOptions);
     return cont;
   } else if (req.query.cont) {
     return req.query.cont;
@@ -44,7 +50,7 @@ export default async function(): Promise<Router> {
   router.get('/auth/callback',
     passport.authenticate('discord', {failureRedirect: '/authorize'}),
     (req: Request, res: Response) => {
-      res.redirect('/auth/interstitial?cont=' + getReturnTo(req))
+      res.redirect('/auth/interstitial?cont=' + getReturnTo(req, res))
     });
 
   router.get('/auth/logout', (req: Request, res: Response) => {

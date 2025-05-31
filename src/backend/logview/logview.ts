@@ -10,6 +10,7 @@ import { SearchMode } from '../../shared/util/searchUtil.ts';
 import { closeKnex, openPg } from '../util/db.ts';
 import { Tail } from 'tail';
 import exitHook from 'async-exit-hook';
+import { wssDispatch } from '../websocket/wssubscribers.ts';
 
 const regexes = {
   access: /^\[(\d+\/\d+\/\d+), (\d+:\d+:\d+) (AM|PM) PST] \[([^\]]+)] \[(\w{2}):(\w{2})\|(\w+)] (\d{3}) (\w+)(.*)\((\d+\.?\d*) ms\)$/,
@@ -23,7 +24,7 @@ const regexes = {
   auth_callback: /\/auth\/callback\?code=[^\s]+/,
 };
 
-export async function importFileLines(lines: string[], doConsoleLog: boolean = false) {
+export async function importFileLines(lines: string[], isRealTime: boolean, doConsoleLog: boolean = false) {
   const knex = openPg();
 
   if (doConsoleLog)
@@ -35,8 +36,16 @@ export async function importFileLines(lines: string[], doConsoleLog: boolean = f
     let batchNum = 0;
 
     async function addBatchToTransaction() {
-      await trx('site_logview').insert(batch).onConflict('sha_hash').ignore();
+      const batchCopy = batch.slice();
       batch = [];
+
+      await trx('site_logview').insert(batchCopy).onConflict('sha_hash').ignore();
+      if (isRealTime) {
+        wssDispatch('LogViewLine', {
+          lines: batchCopy,
+        });
+      }
+
       batchNum++;
       if (doConsoleLog)
         console.log('Progress:', batchNum * batchMax);
@@ -159,7 +168,7 @@ export async function enableLogFileWatchShutdownHook() {
 export async function importLogFile(filePath: string, doConsoleLog: boolean = false) {
   const fileContent = fs.readFileSync(filePath, 'utf8');
   const fileLines = fileContent.split(/\r?\n/);
-  await importFileLines(fileLines, doConsoleLog);
+  await importFileLines(fileLines, false, doConsoleLog);
 }
 
 export async function startLogFileWatch() {
@@ -179,7 +188,7 @@ export async function startLogFileWatch() {
   });
 
   tail.on('line', async (line) => {
-    await importFileLines([line]);
+    await importFileLines([line], true);
   });
 }
 

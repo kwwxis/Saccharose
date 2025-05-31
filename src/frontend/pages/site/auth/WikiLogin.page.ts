@@ -37,7 +37,7 @@ pageMatch('vue/WikiLoginPage', () => {
             location.reload();
           }, 2000);
         } else if (data.result === 'approved') {
-          wikiCheckEl.disabled = true; // leave check button disabled
+          wikiCheckEl.disabled = true; // leave the check button disabled
           wikiCheckPendingEl.classList.add('hide');
           wikiCheckCompleteEl.classList.remove('hide');
           wikiCheckCompleteEl.innerText = 'Access granted: the page will automatically refresh in a moment.';

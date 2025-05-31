@@ -79,7 +79,6 @@ export class WsClient {
       } else {
         console.log('[WS:Close] WebSocket has failed to open.', event.code, event.reason);
       }
-      this.didOpen = false;
       if (this.reconnectAttempts > 0) {
         this.reconnectAttempts--;
         setTimeout(() => {
@@ -99,6 +98,9 @@ export class WsClient {
   }
 
   subscribe<T extends WsMessageType>(type: T, listener: WsClientListener<T>) {
+    if (this.ws == null) {
+      throw new Error('[WS:Error] WebSocket is not open.');
+    }
     if (!this.subscriptions.has(type)) {
       this.subscriptions.set(type, []);
 
@@ -111,6 +113,9 @@ export class WsClient {
   }
 
   unsubscribe<T extends WsMessageType>(type: T, listener?: WsClientListener<T>) {
+    if (this.ws == null) {
+      throw new Error('[WS:Error] WebSocket is not open.');
+    }
     if (!this.subscriptions.has(type)) {
       return;
     }
@@ -131,16 +136,16 @@ export class WsClient {
     }
   }
 
-  open() {
+  open(overwriteUrl?: string) {
     if (this.ws == null) {
-      this.ws = new WebSocket(WSS_URL);
+      this.didOpen = false;
+      this.ws = new WebSocket(overwriteUrl || WSS_URL);
       this.setWebSocket(this.ws);
     }
   }
 
   close() {
     this.reconnectAttempts = 0;
-    this.didOpen = false;
     if (this.ws != null) {
       this.ws.close(WSS_CLOSE_CODES.NORMAL_CLOSURE, 'Client quitting normally');
       this.ws = null;

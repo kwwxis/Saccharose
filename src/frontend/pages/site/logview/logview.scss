@@ -1,0 +1,54 @@
+.logview-row {
+  display: flex;
+  border: 1px solid #aaa;
+  margin: 5px;
+  border-radius: 5px;
+
+  .logview-cell {
+    padding: 2px 5px;
+
+    &.for-timestamp {
+      width: 100px;
+      flex-shrink: 0;
+    }
+    &.for-wiki-user {
+      width: 100px;
+      flex-shrink: 0;
+    }
+    &.for-input-lang {
+      width: 50px;
+      flex-shrink: 0;
+    }
+    &.for-output-lang {
+      width: 50px;
+      flex-shrink: 0;
+    }
+    &.for-search-mode {
+      width: 60px;
+      flex-shrink: 0;
+    }
+    &.for-http-status {
+      width: 60px;
+      flex-shrink: 0;
+    }
+    &.for-http-method {
+      width: 60px;
+      flex-shrink: 0;
+    }
+    &.for-http-uri {
+      flex-grow: 1;
+    }
+    &.for-http-runtime {
+      width: 80px;
+      flex-shrink: 0;
+    }
+  }
+
+  &.for-header {
+    .logview-cell {
+      font-weight: 600;
+      font-size: 14px;
+      line-height: 1.1em;
+    }
+  }
+}

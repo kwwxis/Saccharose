@@ -23,8 +23,9 @@ import './websocket/wsclient.ts';
 
 // Generic
 // ----------------------------------------------------------------------------------------------------
-import './pages/generic/auth/WikiLogin.page.ts';
-import './pages/generic/auth/Settings.page.ts';
+import './pages/site/auth/WikiLogin.page.ts';
+import './pages/site/auth/Settings.page.ts';
+import './pages/site/logview/LogView.page.ts';
 import './pages/generic/basic/excel-usages.ts';
 import './pages/generic/basic/olgen.ts';
 import './pages/generic/basic/olcombine.ts';
