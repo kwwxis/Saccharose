@@ -32,7 +32,7 @@ morgan.token('siteUser', (req: Request) => {
   }
 });
 
-const morganInstance = morgan('[:date[web] PST] [:siteUser] [:inputLanguage::outputLanguage|:searchMode] :status :method :url (:response-time ms)', {
+const morganInstance = morgan('[:date[web]] [:siteUser] [:inputLanguage::outputLanguage|:searchMode] :status :method :url (:response-time ms)', {
   skip: function(req: Request, res: Response) {
     return res.statusCode === 304 || getLogSkipRegex().test(req.url);
   }
@@ -61,6 +61,6 @@ export const earlyAccessLogging = (req: Request, res: Response, next: NextFuncti
   }
   const currTime: string = DATE_FORMATTER.format(new Date());
   // noinspection JSIgnoredPromiseFromCall (don't block)
-  fsp.appendFile(WEB_ACCESS_LOG, `\n[${currTime} PST] ${req.method} ${req.url}`);
+  fsp.appendFile(WEB_ACCESS_LOG, `\n[${currTime}] ${req.method} ${req.url}`);
   next();
 }
