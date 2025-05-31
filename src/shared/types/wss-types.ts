@@ -51,10 +51,10 @@ export function readWebSocketRawData(rawData: any) {
 
 export function toWsMessage(s: string): WsMessage {
   const json = JSON.parse(s);
-  if (json.type && json.payload && typeof json.payload === 'object') {
+  if (json.type && json.data && typeof json.data === 'object') {
     return json;
   } else {
-    throw new Error('Malformed message');
+    throw new Error('Not parsable JSON or does not have \"type\" and \"data\" properties.');
   }
 }
 

@@ -25,6 +25,15 @@ export class WsClient {
   private didOpen: boolean = false;
   private firstOpen: boolean = true;
 
+  // Backlog:
+  private backlog: WsMessage[] = [];
+
+  constructor() {
+    setInterval(() => {
+      this.sendAndFlushBacklog();
+    }, 500);
+  }
+
   public setWebSocket(ws: WebSocket) {
     this.subscriptionId = uuidv4();
     this.ws = ws;
@@ -58,8 +67,8 @@ export class WsClient {
       this.reconnectAttempts = 20;
 
       if (this.firstOpen) {
-        this.subscribe('ServerHello', (payload) => {
-          console.log('[WS:ServerHello]', payload.message);
+        this.subscribe('ServerHello', (data) => {
+          console.log('[WS:ServerHello]', data.message);
         });
       } else if (this.subscriptions.size > 0) {
         const types: WsMessageType[] = Array.from(this.subscriptions.keys());
@@ -89,18 +98,26 @@ export class WsClient {
     };
   }
 
-  send<T extends WsMessageType>(type: T, payload: WsMessageData[T]) {
-    if (this.ws != null) {
-      this.ws.send(JSON.stringify({ type, payload }));
+  send<T extends WsMessageType>(type: T, data: WsMessageData[T]) {
+    if (this.ws != null && this.ws.readyState === WebSocket.OPEN) {
+      this.ws.send(JSON.stringify(<WsMessage<T>> { type, data }));
     } else {
-      throw new Error('[WS:Error] WebSocket is not open.');
+      this.backlog.push(<WsMessage<T>> { type, data });
+    }
+  }
+
+  sendAndFlushBacklog() {
+    if (this.ws != null && this.ws.readyState === WebSocket.OPEN) {
+      const backlogCopy = this.backlog.slice();
+      this.backlog = [];
+
+      for (let message of backlogCopy) {
+        this.ws.send(JSON.stringify(message));
+      }
     }
   }
 
   subscribe<T extends WsMessageType>(type: T, listener: WsClientListener<T>) {
-    if (this.ws == null) {
-      throw new Error('[WS:Error] WebSocket is not open.');
-    }
     if (!this.subscriptions.has(type)) {
       this.subscriptions.set(type, []);
 
@@ -113,9 +130,6 @@ export class WsClient {
   }
 
   unsubscribe<T extends WsMessageType>(type: T, listener?: WsClientListener<T>) {
-    if (this.ws == null) {
-      throw new Error('[WS:Error] WebSocket is not open.');
-    }
     if (!this.subscriptions.has(type)) {
       return;
     }
@@ -136,10 +150,10 @@ export class WsClient {
     }
   }
 
-  open(overwriteUrl?: string) {
+  open() {
     if (this.ws == null) {
       this.didOpen = false;
-      this.ws = new WebSocket(overwriteUrl || WSS_URL);
+      this.ws = new WebSocket(WSS_URL);
       this.setWebSocket(this.ws);
     }
   }

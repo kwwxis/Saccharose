@@ -22,9 +22,10 @@ pageMatch('vue/SiteLogViewPage', () => {
     </div>
   `));
 
-  // wsc.open();
-  //
-  // wsc.subscribe('LogViewLine', (data: LogViewLine) => {
-  //   const lines: LogViewEntity[] = data.lines;
-  // });
+  wsc.open();
+
+  wsc.subscribe('LogViewLine', (data: LogViewLine) => {
+    const lines: LogViewEntity[] = data.lines;
+    console.log('LogViewLine', lines);
+  });
 });

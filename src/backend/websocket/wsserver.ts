@@ -76,7 +76,7 @@ export function startWss() {
         wssSend(ws, {
           type: 'WsClientError',
           data: {
-            message: 'Malformed message received from client: ' + malformed.message,
+            message: 'Malformed message received from client: ' + message,
           }
         });
         return;
