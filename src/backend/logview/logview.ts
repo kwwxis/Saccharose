@@ -13,7 +13,7 @@ import exitHook from 'async-exit-hook';
 import { wssDispatch } from '../websocket/wssubscribers.ts';
 
 const regexes = {
-  access: /^\[(\d+\/\d+\/\d+), (\d+:\d+:\d+) (AM|PM) (PST|PDT)] \[([^\]]+)] \[(\w{2}):(\w{2})\|(\w+)] (\d{3}) (\w+)(.*)\((\d+\.?\d*) ms\)$/,
+  access: /^\[(\d+\/\d+\/\d+), (\d+:\d+:\d+) (AM|PM) (PST|PDT)] \[([^\]]+)] \[(\w{2,3}):(\w{2,3})\|(\w+)] (\d{3}) (\w+)(.*)\((\d+\.?\d*) ms\)$/,
   debug: concatRegExp([
     /^/,
     REGEX_ISO_8601,
