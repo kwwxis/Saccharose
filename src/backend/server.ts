@@ -8,7 +8,7 @@ import { toBoolean } from '../shared/util/genericUtil.ts';
 import { toInt } from '../shared/util/numberUtil.ts';
 import { logInit, logShutdown } from './util/logger.ts';
 import exitHook from 'async-exit-hook';
-import { startWss } from './wsserver.ts';
+import { startWss } from './websocket/wsserver.ts';
 
 // You shouldn't need to change anything in this file.
 // Application init code should go in `app.ts`, not here.

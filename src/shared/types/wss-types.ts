@@ -1,6 +1,7 @@
-import { MwArticleInfo } from '../mediawiki/mwTypes.ts';
-import fs from 'fs';
 import { LogViewEntity } from './site/site-logview-types.ts';
+
+// CODES
+// --------------------------------------------------------------------------------------------------------------
 
 /**
  * See https://github.com/Luka967/websocket-close-codes
@@ -26,6 +27,8 @@ export const WSS_CLOSE_CODES = {
   TIMEOUT: 3008,
 };
 
+// DECODER
+// --------------------------------------------------------------------------------------------------------------
 const textDecoder = new TextDecoder('utf-8');
 
 export function readWebSocketRawData(rawData: any) {
@@ -55,31 +58,34 @@ export function toWsMessage(s: string): WsMessage {
   }
 }
 
+// MESSAGE
+// --------------------------------------------------------------------------------------------------------------
 export function isWsMessageType<T extends WsMessageType>(o: WsMessage, type: T): o is WsMessage<T> {
   return o.type === type;
 }
 
 export type WsMessage<T extends WsMessageType = WsMessageType> = {
   type: T,
-  payload: WsPayload[T]
+  data: WsMessageData[T]
 }
 
-export type WsMessageType = keyof WsPayload;
+export type WsMessageType = keyof WsMessageData;
 
-export type WsPayload = {
-  Hello: WsHello,
+export type WsMessageData = {
+  // Client Messages:
+  ClientHello: WsHello,
+  WsSubscribe: WsSubscribe,
+  WsUnsubscribe: WsUnsubscribe,
+  LogViewRequest: LogViewRequest,
+
+  // Server Messages:
+  ServerHello: WsHello,
   LogViewLine: LogViewLine,
   WsClientError: WsClientError,
 };
 
-const WsPayloadInternalObj: WsPayload = {
-  Hello: undefined,
-  LogViewLine: undefined,
-  WsClientError: undefined,
-};
-
-export const WsMessageTypes: WsMessageType[] = Object.keys(WsPayloadInternalObj) as WsMessageType[];
-
+// MESSAGE DATA
+// --------------------------------------------------------------------------------------------------------------
 export type WsHello = {
   message: string;
 }
@@ -88,8 +94,23 @@ export type WsClientError = {
   message: string;
 }
 
+export type WsSubscribe = {
+  subscriptionId: string,
+  messageTypes: WsMessageType[]
+}
+export type WsUnsubscribe = {
+  subscriptionId: string,
+  messageTypes: WsMessageType[]
+}
+
 export type LogViewLine = {
   lines: LogViewEntity[];
 }
 
-export type WsMessageListener<T extends WsMessageType> = (data: WsPayload[T], reply?: (message: WsMessage) => void) => void;
+export type LogViewRequest = {
+  byWikiUser?: string,
+  byDiscordUser?: string,
+  byContentQuery?: string,
+  lowerbound?: string,
+  upperbound?: string,
+};

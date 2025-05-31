@@ -68,7 +68,7 @@
   #landing-header {
     .bg {
       height: 250px;
-      background: url(/images/site/banner/hsr-banner.jpg) center -40px / cover;
+      background: url(/images/site/banner/hsr-banner.webp) center -40px / cover;
     }
 
     h2 {
@@ -146,14 +146,14 @@
 .page--wuwa {
   #landing-header {
     .bg {
-      height: 210px;
-      background: url(/images/site/banner/wuwa-banner.png) center / cover;
+      height: 254px;
+      background: url(/images/site/banner/wuwa-banner.webp) center -50px / cover;
     }
 
     h2 {
-      text-shadow: 0 0 15px #132649;
+      text-shadow: 0 0 15px #2a84bb;
       color: #fff;
-      background: #20407a;
+      background: #68b0dd;
       text-align: center;
       padding: 15px 0;
       font-family: 'Open Sans', sans-serif;
@@ -217,7 +217,7 @@
 }
 
 .hsr-button {
-  background: url(/images/site/banner/hsr-banner.jpg) center -20px / cover;
+  background: url(/images/site/banner/hsr-banner.webp) center -20px / cover;
   border: 1px solid #1b548d;
 }
 .hsr-button:before {
@@ -242,14 +242,14 @@
 }
 
 .wuwa-button {
-  background: url(/images/site/banner/wuwa-banner.png) center / cover;
-  border: 1px solid #20407a;
+  background: url(/images/site/banner/wuwa-banner.webp) center / cover;
+  border: 1px solid #2a84bb;
 }
 .wuwa-button:before {
   display: none;
 }
 .wuwa-button span {
-  text-shadow: 0 0 15px #132649;
+  text-shadow: 0 0 15px #2a84bb;
   color: #fff;
-  background: #20407a;
+  background: #68b0dd;
 }

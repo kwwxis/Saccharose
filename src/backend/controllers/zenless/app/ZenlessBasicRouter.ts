@@ -6,7 +6,7 @@ import TextmapSearchPage from '../../../components/shared/TextmapSearchPage.vue'
 import OLGenPage from '../../../components/shared/OLGenPage.vue';
 import ExcelUsagesPage from '../../../components/shared/ExcelUsagesPage.vue';
 import ExcelViewerListPage from '../../../components/shared/ExcelViewerListPage.vue';
-import { sendExcelViewerTableResponse } from '../../abstract/app/abstractBasicRouter.ts';
+import { sendExcelViewerTableResponse } from '../../generic/app/abstractBasicRouter.ts';
 import { getZenlessControl } from '../../../domain/zenless/zenlessControl.ts';
 import OLCombinePage from '../../../components/shared/OLCombinePage.vue';
 import ZenlessDialogueGenerationPage from '../../../components/zenless/ZenlessDialogueGenerationPage.vue';

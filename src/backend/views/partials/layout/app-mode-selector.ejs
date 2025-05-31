@@ -8,6 +8,8 @@
       <img src="/images/site/logo/Belle.webp" style="width:24px;height:auto;border-radius:50%;margin:-1px 0 -1px -5px" />
     <% } else if (req.context.siteMode === 'wuwa') { %>
       <img src="/images/site/logo/Yangyang.webp" style="width:24px;height:auto;border-radius:50%;margin:-1px 0 -1px -5px" />
+    <% } else if (req.context.siteMode === 'unset') { %>
+      <img src="/images/site/logo/Saccharose.webp" style="width:24px;height:auto;margin:-1px 0 -1px -5px" />
     <% } %>
     <span class="spacer10-left spacer5-right"><%= req.context.siteModeName %></span>
     <%- icon('chevron-down') %>
@@ -28,6 +30,11 @@
     <a href="/wuwa<%= locals.switchRelPath || '' %>" class="option valign" ui-action="dropdown-item">
       <img src="/images/site/logo/Yangyang.webp" style="width:16px;height:auto;border-radius:50%" />
       <span class="spacer5-left">Wuthering Waves</span>
+    </a>
+    <hr />
+    <a href="/" class="option valign" ui-action="dropdown-item">
+      <img src="/images/site/logo/Saccharose.webp" style="width:16px;height:auto" />
+      <span class="spacer5-left">Site Home</span>
     </a>
   </div>
 </div>

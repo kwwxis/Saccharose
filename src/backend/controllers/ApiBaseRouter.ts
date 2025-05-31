@@ -7,7 +7,10 @@ import GenshinResources from './genshin/api/_index.ts';
 import StarRailResources from './hsr/api/_index.ts';
 import ZenlessResources from './zenless/api/_index.ts';
 import WuwaResources from './wuwa/api/_index.ts';
-import GenericResources from './abstract/api/genericResources.ts';
+import GenericResources from './generic/api/genericResources.ts';
+import MwResources from './generic/api/mwResources.ts';
+import ScriptJobResources from './generic/api/scriptJobResources.ts';
+import UserResources from './site/api/userResources.ts';
 import { getGenshinControl } from '../domain/genshin/genshinControl.ts';
 import { getStarRailControl } from '../domain/hsr/starRailControl.ts';
 import { getZenlessControl } from '../domain/zenless/zenlessControl.ts';
@@ -51,6 +54,9 @@ export default async function(): Promise<Router> {
   if (!WUWA_DISABLED)
     WuwaResources(router);
   GenericResources(router);
+  MwResources(router);
+  ScriptJobResources(router);
+  UserResources(router);
 
   // Client Error Handlers
   // ~~~~~~~~~~~~~~~~~~~~~

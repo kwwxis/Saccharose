@@ -3,7 +3,7 @@ import {
   handleExcelUsagesEndpoint, handleOlCombine,
   handleOlEndpoint,
   handleTextMapSearchEndpoint,
-} from '../../abstract/api/abstractBasicResources.ts';
+} from '../../generic/api/abstractBasicResources.ts';
 import { getZenlessControl, ZenlessControl } from '../../../domain/zenless/zenlessControl.ts';
 import { Request, Response, Router } from 'express';
 import { isset, toBoolean } from '../../../../shared/util/genericUtil.ts';

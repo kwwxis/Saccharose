@@ -29,7 +29,7 @@ import { logInit, logInitCache } from './util/logger.ts';
 import imageBaseRouter from './controllers/ImageBaseRouter.ts';
 import { createStaticImagesHandler } from './middleware/request/staticImagesHandler.ts';
 import { ScriptJobCoordinator } from './util/scriptJobs.ts';
-import authRouter from './controllers/AuthRouter.ts';
+import authRouter from './controllers/site/app/AuthRouter.ts';
 import { createSiteUserMiddlewareRouter } from './middleware/auth/siteUserMiddleware.ts';
 import visitorRouter from './controllers/visitor/VisitorRouter.ts';
 import { reqContextInitMiddleware } from './routing/router.ts';

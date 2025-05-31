@@ -11,9 +11,9 @@ import { getZenlessControl } from '../domain/zenless/zenlessControl.ts';
 import { getWuwaControl } from '../domain/wuwa/wuwaControl.ts';
 import { NextFunction, Request, Response, Router } from 'express';
 import { SiteUserProvider } from '../middleware/auth/SiteUserProvider.ts';
-import UserRouter from './UserRouter.ts';
+import UserRouter from './site/app/UserRouter.ts';
 import { GENSHIN_DISABLED, HSR_DISABLED, WUWA_DISABLED, ZENLESS_DISABLED } from '../loadenv.ts';
-import { isStringNotBlank } from '../../shared/util/stringUtil.ts';
+import LogViewRouter from './site/app/LogViewRouter.ts';
 
 export default async function(): Promise<Router> {
   const router: Router = create({
@@ -107,14 +107,8 @@ export default async function(): Promise<Router> {
     router.use('/wuwa', await WuwaRouter());
   }
 
+  router.use('/', await LogViewRouter());
   router.use('/', await UserRouter());
-
-  // router.use('/', (req: Request, res: Response, next: NextFunction) => {
-  //
-  //   GenshinRouter().then(router => router(req, res, next));
-  //
-  //   //next();
-  // });
 
   return router;
 };

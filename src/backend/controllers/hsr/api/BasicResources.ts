@@ -3,7 +3,7 @@ import {
   handleExcelUsagesEndpoint, handleOlCombine,
   handleOlEndpoint,
   handleTextMapSearchEndpoint,
-} from '../../abstract/api/abstractBasicResources.ts';
+} from '../../generic/api/abstractBasicResources.ts';
 import { getStarRailControl } from '../../../domain/hsr/starRailControl.ts';
 import { Request, Response, Router } from 'express';
 

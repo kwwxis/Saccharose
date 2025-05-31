@@ -4,7 +4,7 @@ import {
   handleExcelUsagesEndpoint, handleOlCombine,
   handleOlEndpoint,
   handleTextMapSearchEndpoint,
-} from '../../abstract/api/abstractBasicResources.ts';
+} from '../../generic/api/abstractBasicResources.ts';
 import { Request, Response, Router } from 'express';
 
 const router: Router = create();

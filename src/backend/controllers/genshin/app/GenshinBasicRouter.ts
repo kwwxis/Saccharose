@@ -1,6 +1,6 @@
 import { create } from '../../../routing/router.ts';
 import { getGenshinControl } from '../../../domain/genshin/genshinControl.ts';
-import { sendExcelViewerTableResponse } from '../../abstract/app/abstractBasicRouter.ts';
+import { sendExcelViewerTableResponse } from '../../generic/app/abstractBasicRouter.ts';
 import { Request, Response, Router } from 'express';
 import GenshinLandingPage from '../../../components/genshin/GenshinLandingPage.vue';
 import ExcelUsagesPage from '../../../components/shared/ExcelUsagesPage.vue';

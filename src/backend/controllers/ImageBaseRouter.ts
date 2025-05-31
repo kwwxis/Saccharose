@@ -147,7 +147,9 @@ export default async function(): Promise<Router> {
   //   }
   // });
 
-  router.route('*').all((req: Request, res: Response) => res.status(404).end('Not found'));
+  router.route('*').all((req: Request, res: Response) => {
+    res.status(404).end('Not found');
+  });
 
   return router;
 }

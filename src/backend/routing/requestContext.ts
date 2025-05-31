@@ -145,6 +145,7 @@ export class RequestContext {
         return 'Wuthering Waves';
       case 'genshin':
         return 'Genshin Impact';
+      case 'unset':
       default:
         return 'Home';
     }
