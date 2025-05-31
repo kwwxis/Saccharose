@@ -72,6 +72,7 @@ export class WsClient {
         });
       } else if (this.subscriptions.size > 0) {
         const types: WsMessageType[] = Array.from(this.subscriptions.keys());
+        console.log('[WS:Subscribe] Resubscribing to', types, 'after reconnection.');
         this.send('WsSubscribe', {
           subscriptionId: this.subscriptionId,
           messageTypes: types,
@@ -118,6 +119,7 @@ export class WsClient {
   }
 
   subscribe<T extends WsMessageType>(type: T, listener: WsClientListener<T>) {
+    console.log('[WS:Subscribe] Subscribing to', type)
     if (!this.subscriptions.has(type)) {
       this.subscriptions.set(type, []);
 
@@ -133,6 +135,7 @@ export class WsClient {
     if (!this.subscriptions.has(type)) {
       return;
     }
+    console.log('[WS:Unsubscribe] Unsubscribing to', type)
     if (listener) {
       const listeners = this.subscriptions.get(type);
       const index = listeners.indexOf(listener);

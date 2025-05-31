@@ -8,8 +8,16 @@ import { WEB_ACCESS_LOG } from '../../loadenv.ts';
 
 const getLogSkipRegex: () => RegExp = () => /(\.css|\.js|\.png|\.svg|\.ico|\.jpg|\.webp|\.woff|\.env|\.ttf)/gi;
 
+export const DATE_FORMATTER = new Intl.DateTimeFormat('en-US', {
+  timeZone: 'America/Los_Angeles',
+  year: 'numeric', month: 'numeric', day: 'numeric',
+  hour: 'numeric', minute: 'numeric', second: 'numeric',
+  hour12: true,
+  timeZoneName: 'short',
+});
+
 morgan.token('date', function(){
-  return new Date().toLocaleString('en-US', {timeZone: 'America/Los_Angeles'});
+  return DATE_FORMATTER.format(new Date());
 });
 
 morgan.token('url', (req: Request) => decodeURI(req.originalUrl || req.url));
@@ -51,7 +59,8 @@ export const earlyAccessLogging = (req: Request, res: Response, next: NextFuncti
     next();
     return;
   }
-  const currTime: string = new Date().toLocaleString('en-US', {timeZone: 'America/Los_Angeles'});
+  const currTime: string = DATE_FORMATTER.format(new Date());
+  // noinspection JSIgnoredPromiseFromCall (don't block)
   fsp.appendFile(WEB_ACCESS_LOG, `\n[${currTime} PST] ${req.method} ${req.url}`);
   next();
 }

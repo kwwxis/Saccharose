@@ -96,7 +96,7 @@ const entityMap = {
   '=': '&#x3D;',
 };
 
-export function escapeHtml(html: string) {
+export function escapeHtml(html: any) {
   return String(html).replace(/[&<>"'`=\/]/g, s => entityMap[s]);
 }
 

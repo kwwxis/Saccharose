@@ -11,9 +11,10 @@ import { closeKnex, openPg } from '../util/db.ts';
 import { Tail } from 'tail';
 import exitHook from 'async-exit-hook';
 import { wssDispatch } from '../websocket/wssubscribers.ts';
+import { fixPacificTimestampsInFile } from '../middleware/request/accessLoggingFix.ts';
 
 const regexes = {
-  access: /^\[(\d+\/\d+\/\d+), (\d+:\d+:\d+) (AM|PM) PST] \[([^\]]+)] \[(\w{2}):(\w{2})\|(\w+)] (\d{3}) (\w+)(.*)\((\d+\.?\d*) ms\)$/,
+  access: /^\[(\d+\/\d+\/\d+), (\d+:\d+:\d+) (AM|PM) (PST|PDT)] \[([^\]]+)] \[(\w{2}):(\w{2})\|(\w+)] (\d{3}) (\w+)(.*)\((\d+\.?\d*) ms\)$/,
   debug: concatRegExp([
     /^/,
     REGEX_ISO_8601,
@@ -90,23 +91,24 @@ export async function importFileLines(lines: string[], isRealTime: boolean, doCo
         const date: string[] = m[1].split('/'); // M/D/YYYY
         const time = m[2]; // H:MM:SS
         const amPm = m[3]; // AM/PM
-        const timestamp = new Date(`${date[2]}-${date[0]}-${date[1]} ${time} ${amPm} PST`).toISOString();
+        const tz = m[4]; // PST/PDT
+        const timestamp = new Date(`${date[2]}-${date[0]}-${date[1]} ${time} ${amPm} ${tz}`).toISOString();
 
-        const user = m[4];
+        const user = m[5];
         let discord_user = null;
         let wiki_user = null;
         if (user !== 'guest' && user.includes(':')) {
           [discord_user, wiki_user] = splitLimit(user, ':', 2);
         }
 
-        const lang_in = m[5] as LangCode;
-        const lang_out = m[6] as LangCode;
-        const search_mode = m[7] as SearchMode;
+        const lang_in = m[6] as LangCode;
+        const lang_out = m[7] as LangCode;
+        const search_mode = m[8] as SearchMode;
 
-        const http_status = toInt(m[8]);
-        const http_method = m[9];
-        const http_uri = m[10].trim();
-        const http_runtime = toNumber(m[11]);
+        const http_status = toInt(m[9]);
+        const http_method = m[10];
+        const http_uri = m[11].trim();
+        const http_runtime = toNumber(m[12]);
 
         batch.push({
           sha_hash,
@@ -181,6 +183,7 @@ export async function enableLogFileWatchShutdownHook() {
 }
 
 export async function importLogFile(filePath: string, doConsoleLog: boolean = false) {
+  fixPacificTimestampsInFile(filePath);
   const fileContent = fs.readFileSync(filePath, 'utf8');
   const fileLines = fileContent.split(/\r?\n/);
   await importFileLines(fileLines, false, doConsoleLog);

@@ -50,30 +50,6 @@ export function dragHandle() {
 </svg>`;
 }
 
-export function printTimestamp(ts: Date|number|string, format=null): string {
-  if (ts instanceof Date)
-    ts = ts.getTime() / 1000 | 0;
-  if (typeof ts !== 'number')
-    ts = 'n/a';
-  if (!format)
-    format = 'MMM DD YYYY hh:mm:ss a';
-  return `<span class="timestamp is--formatted is--unconverted" data-timestamp="${ts}" data-format="${format}">${format}</span>`;
-}
-
-export function printHumanTiming(ts: Date|number): string {
-  if (ts instanceof Date)
-    ts = ts.getTime() / 1000 | 0;
-
-  const now = Date.now() / 1000 | 0;
-
-  if (typeof ts !== 'number')
-    ts = now;
-
-  let placeholder = ts > now ? 'some time from now' : 'some time ago';
-
-  return `<span class="timestamp is--humanTiming" data-timestamp="${ts}">${placeholder}</span>`;
-}
-
 export function genshinSpriteTagIconize(s: string, escapeHtmlFirst: boolean = true) {
   if (escapeHtmlFirst) {
     s = escapeHtmlAllowEntities(s);
