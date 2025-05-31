@@ -24,6 +24,18 @@ const regexes = {
   auth_callback: /\/auth\/callback\?code=[^\s]+/,
 };
 
+const logViewIgnoreUri: RegExp = /^\/(api\/)?(auth|settings|notices|site-notice|prefs)/i;
+
+export function filterLogView(logView: LogViewEntity[]): LogViewEntity[] {
+  return logView.filter(log => {
+    if (log.log_type !== 'access') {
+      return false;
+    }
+    const uri = log.http_uri.trim().toLowerCase();
+    return !logViewIgnoreUri.test(uri);
+  });
+}
+
 export async function importFileLines(lines: string[], isRealTime: boolean, doConsoleLog: boolean = false) {
   const knex = openPg();
 
@@ -41,9 +53,12 @@ export async function importFileLines(lines: string[], isRealTime: boolean, doCo
 
       await trx('site_logview').insert(batchCopy).onConflict('sha_hash').ignore();
       if (isRealTime) {
-        wssDispatch('LogViewLine', {
-          lines: batchCopy,
-        });
+        const wssLines = filterLogView(batchCopy);
+        if (wssLines.length) {
+          wssDispatch('LogViewLine', {
+            lines: batchCopy,
+          });
+        }
       }
 
       batchNum++;
@@ -90,7 +105,7 @@ export async function importFileLines(lines: string[], isRealTime: boolean, doCo
 
         const http_status = toInt(m[8]);
         const http_method = m[9];
-        const http_uri = m[10];
+        const http_uri = m[10].trim();
         const http_runtime = toNumber(m[11]);
 
         batch.push({
