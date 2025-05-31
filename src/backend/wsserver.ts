@@ -9,7 +9,7 @@ import {
   isWsMessageType,
   readWebSocketRawData,
   toWsMessage,
-  WsMessage, WsMessageListener, WsMessageType,
+  WsMessage, WsMessageListener, WsMessageType, WsMessageTypes,
   WSS_CLOSE_CODES,
 } from '../shared/types/wss-types.ts';
 import { defaultMap } from '../shared/util/genericUtil.ts';
@@ -64,7 +64,22 @@ export function startWss() {
       try {
         message = toWsMessage(readWebSocketRawData(rawData));
       } catch (malformed) {
-        console.error('[WSS] Malformed message received from client:', message);
+        wssSend({
+          type: 'WsClientError',
+          payload: {
+            message: 'Malformed message received from client: ' + malformed.message,
+          }
+        }, ws);
+        return;
+      }
+      if (!WsMessageTypes.includes(message.type)) {
+        wssSend({
+          type: 'WsClientError',
+          payload: {
+            message: 'Not a valid message type: ' + message.type,
+          }
+        }, ws);
+        return;
       }
       if (message) {
         for (let listener of subscriptions[message.type]) {

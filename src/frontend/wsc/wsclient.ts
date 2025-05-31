@@ -14,7 +14,7 @@ export class WsClient {
   private ws: WebSocket;
   private subscriptions: Record<WsMessageType, WsMessageListener<any>[]> = defaultMap('Array');
   private reconnectAttempts: number = 0;
-  private reconnectInterval: number = 2000;
+  private reconnectInterval: number = 1000;
   private didOpen: boolean = false;
 
   public setWebSocket(ws: WebSocket) {
@@ -48,7 +48,7 @@ export class WsClient {
     this.ws.onopen = (event: Event) => {
       this.didOpen = true;
       console.log('[WS:Open] Successfully opened WebSocket.', event);
-      this.reconnectAttempts = 10;
+      this.reconnectAttempts = 20;
       this.subscribe('Hello', (payload) => {
         console.log('[WS:ServerHello]', payload.message);
       });

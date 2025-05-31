@@ -69,9 +69,22 @@ export type WsMessageType = keyof WsPayload;
 export type WsPayload = {
   Hello: WsHello,
   LogViewLine: LogViewLine,
+  WsClientError: WsClientError,
 };
 
+const WsPayloadInternalObj: WsPayload = {
+  Hello: undefined,
+  LogViewLine: undefined,
+  WsClientError: undefined,
+};
+
+export const WsMessageTypes: WsMessageType[] = Object.keys(WsPayloadInternalObj) as WsMessageType[];
+
 export type WsHello = {
+  message: string;
+}
+
+export type WsClientError = {
   message: string;
 }
 

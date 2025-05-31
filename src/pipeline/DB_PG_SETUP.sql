@@ -82,8 +82,8 @@ CREATE TABLE site_logview
 
 CREATE INDEX site_logview_content_trgm_idx ON site_logview USING GIN (content gin_trgm_ops);
 
-CREATE INDEX site_logview_discord_user_idx ON site_logview (log_type, discord_user);
-CREATE INDEX site_logview_wiki_user_idx ON site_logview (log_type, wiki_user);
+CREATE INDEX site_logview_discord_user_idx ON site_logview (log_type, timestamp, discord_user);
+CREATE INDEX site_logview_wiki_user_idx ON site_logview (log_type, timestamp, wiki_user);
 
 -- Script Jobs
 ----------------------------------------------------------------------------------------------------------------
