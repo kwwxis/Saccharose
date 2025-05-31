@@ -3,7 +3,7 @@
     <section class="card">
       <div class="content">
         <h2 class="spacer25-bottom open-sans-font dispFlex flexColumn alignCenter">
-          <img src="/images/site/logo/Sucrose.png" style="max-width:50px" class="spacer10-bottom" />
+          <img src="/images/site/logo/Saccharose.webp" style="max-width:50px" class="spacer10-bottom" />
           <span>Welcome to {{ SITE_TITLE }}</span>
         </h2>
 
