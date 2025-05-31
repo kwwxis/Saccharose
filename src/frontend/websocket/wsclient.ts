@@ -10,8 +10,8 @@ import AsyncLock from 'async-lock';
 
 export type WsClientListener<T extends WsMessageType> = (data: WsMessageData[T]) => void;
 
-export const WSS_URL = 'ws://localhost:3003/';
-  // document.querySelector<HTMLMetaElement>('meta[name="x-wss-url"]').content || '';
+export const WSS_URL: string =
+  document.querySelector<HTMLMetaElement>('meta[name="x-wss-url"]').content || '';
 
 const lock = new AsyncLock();
 
