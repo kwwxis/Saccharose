@@ -60,10 +60,15 @@ CREATE TABLE site_notice_dismissed
 
 -- Site LogView
 ----------------------------------------------------------------------------------------------------------------
+CREATE TYPE site_logview_type AS ENUM ('access', 'debug', 'other');
+
 CREATE TABLE site_logview
 (
     sha_hash        TEXT            NOT NULL PRIMARY KEY ,
+    log_type        site_logview_type NOT NULL,
     timestamp       TIMESTAMP       NOT NULL,
+    full_content    TEXT            NOT NULL,
+    content         TEXT            NOT NULL,
     discord_user    TEXT,
     wiki_user       TEXT,
     lang_in         TEXT,
@@ -71,15 +76,14 @@ CREATE TABLE site_logview
     search_mode     TEXT,
     http_status     SMALLINT,
     http_method     TEXT,
-    content         TEXT            NOT NULL,
-    http_runtime    NUMERIC,
-    full_content    TEXT            NOT NULL,
+    http_uri        TEXT,
+    http_runtime    NUMERIC
 );
 
 CREATE INDEX site_logview_content_trgm_idx ON site_logview USING GIN (content gin_trgm_ops);
 
-CREATE INDEX site_logview_discord_user_idx ON site_logview (discord_user);
-CREATE INDEX site_logview_wiki_user_idx ON site_logview (wiki_user);
+CREATE INDEX site_logview_discord_user_idx ON site_logview (log_type, discord_user);
+CREATE INDEX site_logview_wiki_user_idx ON site_logview (log_type, wiki_user);
 
 -- Script Jobs
 ----------------------------------------------------------------------------------------------------------------

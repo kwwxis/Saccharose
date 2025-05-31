@@ -54,7 +54,9 @@ export default async function(): Promise<Router> {
 
   // Client Error Handlers
   // ~~~~~~~~~~~~~~~~~~~~~
-  router.route('*').all((req: Request, res: Response) => res.status(404).send());
+  router.route('*').all((_req: Request, res: Response) => {
+    res.status(404).send();
+  });
   router.use(apiErrorHandler);
 
   return router;

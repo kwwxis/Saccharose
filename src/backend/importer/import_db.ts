@@ -396,7 +396,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
         totalRows = json.length;
       }
 
-      await knex.transaction(async (tx)=>  {
+      await knex.transaction(async (tx) =>  {
         let batch: any[] = [];
         let batchNum = 1;
         let batchMax = 500;

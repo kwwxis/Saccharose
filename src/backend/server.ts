@@ -6,7 +6,9 @@ import vhost from 'vhost';
 import { appInit } from './app.ts';
 import { toBoolean } from '../shared/util/genericUtil.ts';
 import { toInt } from '../shared/util/numberUtil.ts';
-import { logInit } from './util/logger.ts';
+import { logInit, logShutdown } from './util/logger.ts';
+import exitHook from 'async-exit-hook';
+import { startWss } from './wsserver.ts';
 
 // You shouldn't need to change anything in this file.
 // Application init code should go in `app.ts`, not here.
@@ -40,14 +42,20 @@ import { logInit } from './util/logger.ts';
   }
 
   if (toBoolean(process.env.SSL_ENABLED)) {
-    spdy.createServer(sslcreds, httpsApp).listen(httpsPort, () => {
+    const server = spdy.createServer(sslcreds, httpsApp).listen(httpsPort, () => {
       if (vhosted) {
         logInit(`HTTPS/2 Server is running at https://${process.env.WEB_DOMAIN}`);
       } else {
         logInit(`HTTPS/2 Server is running at https://localhost:${httpsPort}`);
       }
     });
+    exitHook((callback) => {
+      logShutdown('Shutting down HTTPS/2 server...');
+      server.close(() => callback());
+    });
   } else {
     logInit('Not starting HTTPS/2 server -- not enabled');
   }
+
+  startWss();
 })();

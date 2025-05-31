@@ -2,10 +2,10 @@ import  knex, { Knex } from 'knex';
 import exitHook from 'async-exit-hook';
 import path from 'path';
 import { DATAFILE_GENSHIN_SQLITE_DB, DATAFILE_HSR_SQLITE_DB, DATAFILE_ZENLESS_SQLITE_DB, DATAFILE_WUWA_SQLITE_DB } from '../loadenv.ts';
-import { logShutdown } from './logger.ts';
+import { logInit, logShutdown } from './logger.ts';
 import { isInt, toInt } from '../../shared/util/numberUtil.ts';
 import Pool from 'pg-pool';
-import { toBoolean } from '../../shared/util/genericUtil.ts';
+import { toBoolean, Type } from '../../shared/util/genericUtil.ts';
 
 export type SaccharoseDb = {
   genshin: Knex,
@@ -111,8 +111,16 @@ export async function closeKnex(): Promise<boolean> {
   return Promise.resolve(false);
 }
 
+let didEnableDbExitHook = false;
+
 export function enableDbExitHook() {
+  if (didEnableDbExitHook) {
+    return;
+  }
+  didEnableDbExitHook = true;
+  logInit('Enabling database exit hook...');
   exitHook(callback => {
+    console.log('Exit signal received, closing database...');
     logShutdown('Exit signal received, closing database...')
     closeKnex().then(b => {
       if (b) {

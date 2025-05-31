@@ -40,8 +40,10 @@ import {
   CurrentWuwaVersion,
   CurrentZenlessVersion,
 } from '../shared/types/game-versions.ts';
+import { enableLogFileWatchShutdownHook, startLogFileWatch } from './logview/logview.ts';
 
 const app: Express = express();
+
 let didInit: boolean = false;
 
 // noinspection JSUnusedGlobalSymbols
@@ -67,6 +69,11 @@ export async function appInit(): Promise<Express> {
   ScriptJobCoordinator.init();
   await ScriptJobCoordinator.deleteOldJobs();
   await ScriptJobCoordinator.markAllComplete();
+
+  // LogView
+  // ~~~~~~~~~~~~~~~~~~~~~~~~~~
+  await startLogFileWatch();
+  await enableLogFileWatchShutdownHook();
 
   // Initialize Cache
   // ~~~~~~~~~~~~~~~~
