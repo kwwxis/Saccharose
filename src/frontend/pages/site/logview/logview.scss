@@ -49,7 +49,7 @@
       opacity: 0.9;
     }
     &.for-http-runtime {
-      width: 80px;
+      width: 90px;
       flex-shrink: 0;
     }
   }
@@ -91,6 +91,7 @@
 }
 .logview-row.for-zenless .logview-cell.for-http-uri:before {
   background: url('/images/site/logo/Belle.webp') no-repeat center / contain;
+  border-radius: 50%;
 }
 .logview-row.for-wuwa .logview-cell.for-http-uri:before {
   background: url('/images/site/logo/Yangyang.webp') no-repeat center / contain;
