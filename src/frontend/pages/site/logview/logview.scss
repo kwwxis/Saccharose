@@ -33,6 +33,9 @@
       width: 120px;
       flex-shrink: 0;
       font-size: 14px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
     }
     &.for-wiki-user {
       width: 200px;
