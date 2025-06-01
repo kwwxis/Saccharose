@@ -6,9 +6,11 @@ export default async function(): Promise<Router> {
   const router: Router = create();
 
   router.get('/logview', (req, res) => {
+    if (req.user.wiki_username !== 'Kwwxis') {
+      res.end();
+    }
     res.render(SiteLogViewPage, {
       title: 'Logview',
-      potato: 'potato',
       bodyClass: ['page--logview', 'page--wide'],
     });
   });
