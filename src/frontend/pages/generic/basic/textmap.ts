@@ -12,6 +12,11 @@ import { frag } from '../../../util/domutil.ts';
 import { listen } from '../../../util/eventListen.ts';
 import SiteMode from '../../../core/userPreferences/siteMode.ts';
 import { highlightReplace } from '../../../core/ace/aceHighlight.ts';
+import { TextMapChangeRef } from '../../../../shared/types/changelog-types.ts';
+import { createPatch } from '../../../../backend/util/jsdiff';
+import { DiffUI } from '../../../util/DiffUI.ts';
+import { isNightmode } from '../../../core/userPreferences/siteTheme.ts';
+import { ColorSchemeType } from 'diff2html/lib/types';
 
 pageMatch('vue/TextmapSearchPage', () => {
   let handle: GenericSearchPageHandle;
@@ -59,6 +64,8 @@ pageMatch('vue/TextmapSearchPage', () => {
     document.querySelector<HTMLInputElement>('#versionFilterEnabled').checked = true;
     document.querySelector('#versionFilterOuter').classList.remove('hide');
   }
+
+  let diffUIs: DiffUI[] = [];
 
   startGenericSearchPageListeners({
     endpoint,
@@ -119,6 +126,8 @@ pageMatch('vue/TextmapSearchPage', () => {
       } else {
         resultTarget.innerHTML = '';
         resultTarget.append(fragment);
+        diffUIs.forEach(x => x.destroy());
+        diffUIs = [];
       }
 
       document.querySelector<HTMLInputElement>('#startFromLine').value = containerEl.getAttribute('data-continue-from-line');
@@ -180,8 +189,49 @@ pageMatch('vue/TextmapSearchPage', () => {
               });
             });
           }
+        },
+        {
+          selector: '.change-refs-trigger',
+          event: 'click',
+          multiple: true,
+          handle(event, buttonEl) {
+            if (buttonEl.classList.contains('expanded-state')) {
+              buttonEl.setAttribute('ui-tippy-hover', 'Expand change refs');
+            } else {
+              buttonEl.setAttribute('ui-tippy-hover', 'Collapse change refs');
+            }
+            return;
+          }
         }
       ], resultTarget);
+
+      resultTarget.querySelectorAll('.change-ref-content:not(.diff-processed)').forEach(el => {
+        el.classList.add('diff-processed');
+
+        const json: TextMapChangeRef = JSON.parse(el.getAttribute('data-json'));
+        if (json.prevValue && json.value) {
+          const diffUIArea: HTMLElement = el.querySelector('.diff-ui-area');
+          const unifiedDiff = createPatch(`Diff`, json.prevValue, json.value);
+
+          diffUIArea.style.marginTop = '15px';
+
+          diffUIs.push(new DiffUI(diffUIArea, {
+            currContent: json.prevValue,
+            prevContent: json.value,
+            unifiedDiff: unifiedDiff,
+          }, {
+            matching: 'lines',
+            drawFileList: false,
+            outputFormat: 'line-by-line',
+            colorScheme: isNightmode() ? ColorSchemeType.DARK : ColorSchemeType.LIGHT,
+            synchronizedScroll: true,
+            wordWrap: true,
+            highlightOpts: {
+              mode: 'ace/mode/wikitext'
+            },
+          }));
+        }
+      });
     },
     afterInit(argHandle: GenericSearchPageHandle) {
       handle = argHandle;

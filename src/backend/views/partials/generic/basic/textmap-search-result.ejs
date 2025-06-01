@@ -13,14 +13,30 @@
     </div>
   </h2>
 </div>
-<div class="result-wrapper" data-continue-from-line="<%= continueFromLine %>" data-page="<%= resultSetIdx + 1 %>" data-result-set-idx="<%= resultSetIdx %>">
+<div class="result-wrapper"
+     data-continue-from-line="<%= continueFromLine %>"
+     data-page="<%= resultSetIdx + 1 %>"
+     data-result-set-idx="<%= resultSetIdx %>">
   <% items.forEach((item, i) => { %>
     <section data-hash="<%= item.hash %>" class="card">
       <h2 class="valign" style="font-size: 16px;padding: 3px 10px;">
         <span style="opacity:0.6">TextMapHash:&nbsp;</span>
         <code readonly class="code<%= item.hashMarkers && item.hashMarkers.length ? ' ace-plaintext' : '' %> no-input-style no-theme" data-markers="<%= Marker.joining(item.hashMarkers) %>" translate="no" style="margin-top:1px;margin-bottom:-1px"><%= item.hash %></code>
         <% if (item.version) { %>
-          <small style="font-weight: normal;font-size: 12px;margin: 3px 0 0 10px;opacity: 0.75;">since <%= item.version %></small>
+          <small style="font-weight: normal;font-size: 12px;margin: 3px 0 0 10px;opacity: 0.75;">
+            since <%= item.version %>
+            <% if (item.changeRefs.length > 1) { %>
+              <button class="change-refs-trigger secondary small fontWeight600 expand-action collapsed-state"
+                      ui-action="expando: #change-refs-<%= item.resultNumber %>"
+                      data-hash="<%= item.hash %>" style="border-radius:5px;font-size:12px"
+                      data-result-target="change-refs-<%= item.resultNumber %>"
+                      ui-tippy-hover="Expand change refs">
+                <span class="spacer3-right">+<%= item.changeRefs.length - 1 %></span>
+                <span class="change-refs-trigger-icon collapsed-only valign" style="font-size:12px;margin-left:-2px;"><%- icon('chevrons-down') %></span>
+                <span class="change-refs-trigger-icon expanded-only valign" style="font-size:12px;margin-left:-2px;"><%- icon('chevrons-up') %></span>
+              </button>
+            <% } %>
+          </small>
         <% } %>
         <span class="grow"></span>
         <small class="fontWeight400 spacer10-right" style="opacity:0.5">Result #<%= item.resultNumber %></small>
@@ -46,7 +62,23 @@
         <textarea id="wikitext-<%= item.resultNumber %>" data-markers="<%= Marker.joining(item.markers) %>"
                   readonly class="w100p wikitext autosize spacer0-all" spellcheck="false" translate="no"><%= item.text %></textarea>
       </div>
-      <div id="excel-usages-<%= item.resultNumber %>" class="excel-usages-result collapsed hide" style="margin-top:-5px"></div>
+      <% if (item.changeRefs.length > 1) { %>
+        <div id="change-refs-<%= item.resultNumber %>" class="change-refs-result collapsed hide" style="padding-top:15px">
+          <% for (let changeRef of item.changeRefs) { %>
+            <div class="change-ref">
+              <h3 class="secondary-header valign">
+                <span>Version <%= changeRef.version %>:</span>&nbsp;
+                <span><%= changeRef.changeType %></span>
+              </h3>
+              <div class="content change-ref-content" data-json="<%= JSON.stringify(changeRef) %>">
+                <textarea readonly class="w100p wikitext autosize spacer0-all" spellcheck="false" translate="no"><%= changeRef.value %></textarea>
+                <div class="diff-ui-area"></div>
+              </div>
+            </div>
+          <% } %>
+        </div>
+      <% } %>
+      <div id="excel-usages-<%= item.resultNumber %>" class="excel-usages-result collapsed hide"></div>
       <div style="height:6px"></div>
     </section>
   <% }) %>

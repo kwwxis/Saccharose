@@ -77,6 +77,14 @@ export type TextMapChangeRef = {
   value: string,
   prevValue?: string,
 }
+
+export class TextMapChangeRefs {
+  constructor(readonly list: TextMapChangeRef[]) {}
+
+  get firstAdded() {
+    return this.list.find(ref => ref.changeType === 'added') || null;
+  }
+}
 // endregion
 
 // region TextMap Changelog Types

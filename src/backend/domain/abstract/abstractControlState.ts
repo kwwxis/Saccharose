@@ -1,17 +1,15 @@
 import { Request } from 'express';
 import { DEFAULT_LANG, LANG_CODES, LangCode } from '../../../shared/types/lang-types.ts';
 import { DEFAULT_SEARCH_MODE, SEARCH_MODES, SearchMode } from '../../../shared/util/searchUtil.ts';
+import { Knex } from 'knex';
 
 export abstract class AbstractControlState {
   public request: Request = null;
 
   /**
-   * Disables establishing database connection on instance construction.
-   *
-   * This only has effect if it is set to true before the `Control` instance is created.
-   * If it is changed the instance is created, then it has no effect.
+   * Override the database connection to use. Or set to false to disable database connection.
    */
-  public NoDbConnect: boolean = false;
+  public DbConnection: Knex|boolean = true;
 
   constructor(request?: Request) {
     this.request = request || null;
@@ -47,5 +45,5 @@ export abstract class AbstractControlState {
     return DEFAULT_SEARCH_MODE;
   }
 
-  abstract copy(): AbstractControlState;
+  abstract copy(trx?: Knex.Transaction|boolean): AbstractControlState;
 }

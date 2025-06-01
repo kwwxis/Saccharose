@@ -12,6 +12,7 @@ import { AbstractControlState } from '../abstract/abstractControlState.ts';
 import { RoleInfo } from '../../../shared/types/wuwa/role-types.ts';
 import { Condition, ConditionGroup, ConditionOp } from '../../../shared/types/wuwa/condition-types.ts';
 import { CurrentWuwaVersion, GameVersion, WuwaVersions } from '../../../shared/types/game-versions.ts';
+import { Knex } from 'knex';
 
 // region Control State
 // --------------------------------------------------------------------------------------------------------------
@@ -31,8 +32,10 @@ export class WuwaControlState extends AbstractControlState {
   AutoloadConditions: boolean = true;
   AutoloadRoleInfo: boolean = true;
 
-  override copy(): WuwaControlState {
-    return new WuwaControlState(this.request);
+  override copy(trx?: Knex.Transaction|boolean): WuwaControlState {
+    const state = new WuwaControlState(this.request);
+    state.DbConnection = trx;
+    return state;
   }
 }
 
@@ -63,8 +66,8 @@ export class WuwaControl extends AbstractControl<WuwaControlState> {
     return __normWuwaText(text, langCode, opts);
   }
 
-  override copy(): WuwaControl {
-    return new WuwaControl(this.state.copy());
+  override copy(trx?: Knex.Transaction|boolean): WuwaControl {
+    return new WuwaControl(this.state.copy(trx));
   }
 
   readonly maybeTextMapHash = (x: any) => typeof x === 'string' && /^[a-zA-Z0-9_\-]+$/.test(x);

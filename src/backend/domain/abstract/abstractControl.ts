@@ -30,8 +30,8 @@ import {
   LangSuggest,
   NON_SPACE_DELIMITED_LANG_CODES,
   PlainLineMapItem,
-  TextMapHash, TextMapSearchGetOpts, TextMapSearchIndexStreamOpts,
-  TextMapSearchResult, TextMapSearchStreamOpts,
+  TextMapHash, TextMapSearchGetOpts, TextMapSearchIndexStreamOpts, TextMapSearchOpts,
+  TextMapSearchResult, TextMapSearchStreamOpts, TmMatchPreProc,
 } from '../../../shared/types/lang-types.ts';
 import { ExtractScalar, FileAndSize } from '../../../shared/types/utility-types.ts';
 import {
@@ -53,10 +53,16 @@ import { uuidv4 } from '../../../shared/util/uuidv4.ts';
 // Same Directory Imports:
 import { AbstractControlState } from './abstractControlState.ts';
 import { NormTextOptions } from './genericNormalizers.ts';
-import { ChangeRecordRef, FullChangelog, TextMapChangeRef } from '../../../shared/types/changelog-types.ts';
+import {
+  ChangeRecordRef,
+  FullChangelog,
+  TextMapChangeRef,
+  TextMapChangeRefs,
+} from '../../../shared/types/changelog-types.ts';
 import { GameVersion, GameVersionFilter } from '../../../shared/types/game-versions.ts';
 import { ScriptJobActionArgs, ScriptJobCoordinator, ScriptJobPostResult } from '../../util/scriptJobs.ts';
 import { RequestSiteMode } from '../../routing/requestContext.ts';
+import { IntHolder } from '../../../shared/util/valueHolder.ts';
 
 export abstract class AbstractControl<T extends AbstractControlState = AbstractControlState> {
   // region Fields
@@ -84,13 +90,19 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
                         requestOrState?: Request|T) {
     this.siteMode = siteMode;
     this.state = requestOrState instanceof AbstractControlState ? requestOrState : new stateConstructor(requestOrState);
-    this.knex = this.state.NoDbConnect ? null : openSqlite()[dbName];
+    if (this.state.DbConnection === false) {
+      this.knex = null;
+    } else if (this.state.DbConnection && this.state.DbConnection !== true) {
+      this.knex = this.state.DbConnection;
+    } else {
+      this.knex = openSqlite()[dbName];
+    }
     this.schema = schemaForDbName(dbName);
     this.dbName = dbName;
     this.cachePrefix = cachePrefix.endsWith(':') ? cachePrefix : cachePrefix + ':';
   }
 
-  abstract copy(): AbstractControl<T>;
+  abstract copy(trx?: Knex.Transaction|boolean): AbstractControl<T>;
 
   abstract i18n(key: string, vars?: Record<string, string>): string;
 
@@ -228,6 +240,32 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       .where({ Hash: hash }).first().then(x => x?.Text);
   }
 
+  async getTextMapItems(langCode: LangCode, hashes: TextMapHash[]): Promise<Record<TextMapHash, string>> {
+    hashes = hashes.map(h => {
+      if (typeof h === 'number') {
+        h = String(h);
+      }
+      return h;
+    }).filter(h => typeof h === 'string');
+
+    if (langCode === 'CH') {
+      langCode = 'CHS';
+    }
+
+    if (this.disabledLangCodes.has(langCode)) {
+      return null;
+    }
+
+    return this.knex.select('*').from('TextMap' + langCode)
+      .whereIn('Hash', hashes).then((records) => {
+        const result: Record<TextMapHash, string> = {};
+        for (let record of records) {
+          result[record.Hash] = record.Text;
+        }
+        return result;
+      });
+  }
+
   async isEmptyTextMapItem(langCode: LangCode, hash: TextMapHash): Promise<boolean> {
     return isStringBlank(await this.getTextMapItem(langCode, hash));
   }
@@ -261,6 +299,16 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       .where({ Line: lineNum }).first().then();
   }
 
+  async selectPlainLineMapItems(langCode: LangCode, lineNums: number[]): Promise<PlainLineMapItem[]> {
+    if (langCode === 'CH') {
+      langCode = 'CHS';
+    }
+    if (this.disabledLangCodes.has(langCode)) {
+      return [{ Hash: 0, Line: 0, LineType: null }];
+    }
+    return await this.knex.select('*').from('PlainLineMap' + langCode)
+      .whereIn('Line', lineNums).then();
+  }
   // endregion
 
   // region Data Directory
@@ -327,6 +375,58 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
   // endregion
 
   // region Text Map Searching
+
+  private async tmMatchesPreProcess(matches: string[], opts: TextMapSearchOpts, hashSeen: Set<TextMapHash>, lastLineNum: IntHolder): Promise<TmMatchPreProc[]> {
+    const lineNumToMatch: Map<number, string> = new Map<number, string>();
+
+    for (let match of matches) {
+      if (!match)
+        continue;
+
+      let lineNum = toInt(match.split(':', 2)[0]);
+      lastLineNum.set(lineNum);
+
+      if (isNaN(lineNum))
+        continue;
+
+      lineNumToMatch.set(lineNum, match);
+    }
+
+    const results: Map<string, TmMatchPreProc> = new Map();
+
+    const plainLineMapItems: PlainLineMapItem[] = await this.selectPlainLineMapItems(opts.inputLangCode, Array.from(lineNumToMatch.keys()));
+    for (let item of plainLineMapItems) {
+      if (opts.searchAgainst === 'Text' && opts.isRawInput && item.LineType !== 'raw') {
+        continue;
+      }
+
+      if (hashSeen.has(item.Hash)) {
+        continue;
+      } else {
+        hashSeen.add(item.Hash);
+      }
+
+      results.set(String(item.Hash), {
+        lineNum: item.Line,
+        textMapHash: item.Hash,
+        lineType: item.LineType,
+        match: lineNumToMatch.get(item.Line),
+        text: undefined,
+      });
+    }
+
+    const texts = await this.getTextMapItems(opts.outputLangCode, Array.from(results.keys()));
+
+    for (let [textMapHash, text] of Object.entries(texts)) {
+      if (opts.doNormText) {
+        text = this.normText(text, opts.outputLangCode);
+      }
+      results.get(textMapHash).text = text;
+    }
+
+    return Array.from(results.values());
+  }
+
   async getTextMapMatches(opts: TextMapSearchGetOpts): Promise<TextMapSearchResult[]> {
     if (isStringBlank(opts.searchText)) {
       return [];
@@ -366,7 +466,8 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
               text = this.normText(text, opts.outputLangCode);
             }
             hashSeen.add(possibleHash);
-            const version: string = (await this.selectTextMapChangeRefAdded(possibleHash, opts.outputLangCode))?.version;
+            const changeRefs = await this.selectTextMapChangeRefs(possibleHash, opts.outputLangCode);
+            const version: string = changeRefs.firstAdded?.version;
             if (opts.versionFilter && (!version || !opts.versionFilter.has(version))) {
               continue;
             }
@@ -376,7 +477,8 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
               text,
               line: await getLineNumberForLineText(String(possibleHash), this.getDataFilePath(getPlainTextMapRelPath(opts.inputLangCode, 'Hash'))),
               hashMarkers: opts.searchAgainst === 'Hash' ? Marker.create(re, String(possibleHash)) : undefined,
-              version
+              version,
+              changeRefs: changeRefs.list,
             });
           }
         }
@@ -385,42 +487,23 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
 
     const textFile: string = getPlainTextMapRelPath(opts.inputLangCode, opts.searchAgainst);
     const max: number = toInt(shellFlags.getFlagValue('-m'));
-    let startFromLine = opts.startFromLine;
+    const hasMax: boolean = !isNaN(max);
+    let startFromLine: number = opts.startFromLine;
 
     outerLoop: while (true) {
-      const matches = await grep(opts.searchText, this.getDataFilePath(textFile),
+      const rawMatches: string[] = await grep(opts.searchText, this.getDataFilePath(textFile),
         { flags: (opts.flags || '') + ' -n', startFromLine });
-      let numAdded = 0;
-      let lastLineNum = 0;
+      const numAdded: IntHolder = new IntHolder(0);
+      const lastLineNum: IntHolder = new IntHolder(0);
+      const tmMatches: TmMatchPreProc[] = await this.tmMatchesPreProcess(rawMatches, opts, hashSeen, lastLineNum);
 
-      for (let match of matches) {
-        if (!match)
-          continue;
+      for (let tmMatch of tmMatches) {
+        const lineNum: number = tmMatch.lineNum;
+        const textMapHash: TextMapHash = tmMatch.textMapHash;
+        const text: string = tmMatch.text;
 
-        let lineNum = toInt(match.split(':', 2)[0]);
-        lastLineNum = lineNum;
-
-        if (isNaN(lineNum))
-          continue;
-
-        const { Hash: textMapHash, LineType: lineType } = await this.selectPlainLineMapItem(opts.inputLangCode, lineNum);
-
-        if (opts.searchAgainst === 'Text' && opts.isRawInput && lineType !== 'raw') {
-          continue;
-        }
-
-        if (hashSeen.has(textMapHash)) {
-          continue;
-        } else {
-          hashSeen.add(textMapHash);
-        }
-
-        let text = await this.getTextMapItem(opts.outputLangCode, textMapHash);
-        if (opts.doNormText) {
-          text = this.normText(text, opts.outputLangCode);
-        }
-
-        const version: string = (await this.selectTextMapChangeRefAdded(textMapHash, opts.outputLangCode))?.version;
+        const changeRefs = await this.selectTextMapChangeRefs(textMapHash, opts.outputLangCode);
+        const version: string = changeRefs.firstAdded?.version;
         if (opts.versionFilter && (!version || !opts.versionFilter.has(version))) {
           continue;
         }
@@ -433,16 +516,17 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
           markers: opts.searchAgainst === 'Text' && opts.inputLangCode === opts.outputLangCode ? Marker.create(re, text) : undefined,
           hashMarkers: opts.searchAgainst === 'Hash' ? Marker.create(re, String(textMapHash)) : undefined,
           version,
+          changeRefs: changeRefs.list,
         });
-        numAdded++;
+        numAdded.increment();
 
-        if (!isNaN(max) && out.length >= max) {
+        if (hasMax && out.length >= max) {
           break outerLoop;
         }
       }
 
-      if (!isNaN(max) && matches.length > 0 && matches.length === max && numAdded < matches.length && out.length < max) {
-        startFromLine = lastLineNum + 1;
+      if (hasMax && rawMatches.length > 0 && rawMatches.length === max && numAdded.get() < rawMatches.length && out.length < max) {
+        startFromLine = lastLineNum.get() + 1;
         continue;
       }
 
@@ -541,7 +625,8 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       let text = await this.getTextMapItem(opts.inputLangCode, opts.searchText);
 
       if (text && opts.versionFilter) {
-        const version: string = (await this.selectTextMapChangeRefAdded(hash, opts.outputLangCode))?.version;
+        const changeRefs = await this.selectTextMapChangeRefs(hash, opts.outputLangCode);
+        const version: string = changeRefs.firstAdded?.version;
         if (!version || !opts.versionFilter.has(version)) {
           text = null;
         }
@@ -583,7 +668,8 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       }
 
       if (opts.versionFilter) {
-        const version: string = (await this.selectTextMapChangeRefAdded(textMapHash, opts.outputLangCode))?.version;
+        const changeRefs = await this.selectTextMapChangeRefs(textMapHash, opts.outputLangCode);
+        const version: string = changeRefs.firstAdded?.version;
         if (!version || !opts.versionFilter.has(version)) {
           return;
         }
@@ -745,12 +831,8 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     return [];
   }
 
-  async selectTextMapChangeRefAdded(hash: TextMapHash, langCode: LangCode): Promise<TextMapChangeRef> {
-    return null;
-  }
-
-  async selectTextMapChangeRefs(hash: TextMapHash, langCode: LangCode): Promise<TextMapChangeRef[]> {
-    return [];
+  async selectTextMapChangeRefs(hash: TextMapHash, langCode: LangCode): Promise<TextMapChangeRefs> {
+    return new TextMapChangeRefs([]);
   }
   // endregion
 

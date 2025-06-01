@@ -1,6 +1,7 @@
 import { Marker } from '../util/highlightMarker.ts';
 import { LangDetectResult } from './common-types.ts';
 import { GameVersion, GameVersionFilter } from './game-versions.ts';
+import { TextMapChangeRef } from './changelog-types.ts';
 
 export type TextMapHash = number|string;
 
@@ -8,6 +9,7 @@ export type TextMapSearchResult = {
   resultNumber: number,
   hash: TextMapHash,
   version: string,
+  changeRefs: TextMapChangeRef[],
   text: string,
   line: number,
   markers?: Marker[],
@@ -45,6 +47,14 @@ export type TextMapSearchIndexStreamOpts = TextMapSearchOpts & {
 };
 
 export type PlainLineMapItem = {Line: number, Hash: TextMapHash, LineType?: string };
+
+export type TmMatchPreProc = {
+  lineNum: number,
+  text?: string,
+  textMapHash: TextMapHash,
+  lineType: string,
+  match: string,
+}
 
 export type LangCode =
   'CH'

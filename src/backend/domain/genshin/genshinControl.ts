@@ -162,10 +162,11 @@ import * as console from 'console';
 import {
   ChangeRecord,
   ChangeRecordRef,
-  FullChangelog, TextMapChangeRef, TextMapChanges,
+  FullChangelog, TextMapChangeRef, TextMapChangeRefs, TextMapChanges,
 } from '../../../shared/types/changelog-types.ts';
 import { CurrentGenshinVersion, GameVersion, GenshinVersions } from '../../../shared/types/game-versions.ts';
 import { AbstractControlState } from '../abstract/abstractControlState.ts';
+import { Knex } from 'knex';
 
 // region Control State
 // --------------------------------------------------------------------------------------------------------------
@@ -218,7 +219,7 @@ export class GenshinControlState extends AbstractControlState {
     return out;
   }
 
-  override copy(): GenshinControlState {
+  override copy(trx?: Knex.Transaction|boolean): GenshinControlState {
     const state = new GenshinControlState(this.request);
     state.dialogueIdCache = new Set(this.dialogueIdCache);
     state.npcCache = Object.assign({}, this.npcCache);
@@ -231,6 +232,7 @@ export class GenshinControlState extends AbstractControlState {
     state.DisableMonsterCache = this.DisableMonsterCache;
     state.AutoloadText = this.AutoloadText;
     state.AutoloadAvatar = this.AutoloadAvatar;
+    state.DbConnection = trx;
     return state;
   }
 }
@@ -253,7 +255,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
   static noDbConnectInstance() {
     const state = new GenshinControlState();
-    state.NoDbConnect = true;
+    state.DbConnection = false;
     return new GenshinControl(state);
   }
 
@@ -265,8 +267,8 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return __normGenshinText(text, langCode, opts);
   }
 
-  override copy(): GenshinControl {
-    return new GenshinControl(this.state.copy());
+  override copy(trx?: Knex.Transaction|boolean): GenshinControl {
+    return new GenshinControl(this.state.copy(trx));
   }
 
   override i18n(key: keyof typeof GENSHIN_I18N_MAP, vars?: Record<string, string | number>): string {
@@ -3448,12 +3450,18 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return CurrentGenshinVersion;
   }
 
+  private _allChangelogs: Record<string, FullChangelog> = null;
+
   override async selectAllChangelogs(): Promise<Record<string, FullChangelog>> {
+    if (this._allChangelogs) {
+      return this._allChangelogs;
+    }
     let changelogs = await GenshinVersions.filter(v => v.showChangelog).asyncMap(v => this.selectChangelog(v));
     let map: Record<string, FullChangelog> = {};
     for (let changelog of changelogs) {
       map[changelog.version.number] = changelog;
     }
+    this._allChangelogs = map;
     return map;
   }
 
@@ -3489,8 +3497,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
     const changeRecordRefs: ChangeRecordRef[] = [];
 
-    const changelogs = await this.selectAllChangelogs();
-    for (let [versionNum, fullChangelog] of Object.entries(changelogs)) {
+    for (let [versionNum, fullChangelog] of Object.entries(await this.selectAllChangelogs())) {
       if (excelFile) {
         if (fullChangelog.excelChangelog[excelFile]?.changedRecords[id]) {
           let record: ChangeRecord = fullChangelog.excelChangelog[excelFile]?.changedRecords[id];
@@ -3518,17 +3525,12 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return changeRecordRefs;
   }
 
-  override async selectTextMapChangeRefAdded(hash: TextMapHash, langCode: LangCode): Promise<TextMapChangeRef> {
-    return (await this.selectTextMapChangeRefs(hash, langCode)).find(r => r.changeType === 'added');
-  }
-
-  override async selectTextMapChangeRefs(hash: TextMapHash, langCode: LangCode): Promise<TextMapChangeRef[]> {
+  override async selectTextMapChangeRefs(hash: TextMapHash, langCode: LangCode): Promise<TextMapChangeRefs> {
     const refs: TextMapChangeRef[] = [];
 
-    const changelogs = await this.selectAllChangelogs();
-    for (let [versionNum, fullChangelog] of Object.entries(changelogs)) {
-      if (fullChangelog?.textmapChangelog?.[langCode]) {
-        let changes: TextMapChanges = fullChangelog?.textmapChangelog?.[langCode];
+    for (let [versionNum, fullChangelog] of Object.entries(await this.selectAllChangelogs())) {
+      const changes: TextMapChanges = fullChangelog?.textmapChangelog?.[langCode];
+      if (changes) {
         if (changes.added[hash]) {
           refs.push({
             version: versionNum,
@@ -3552,7 +3554,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       }
     }
 
-    return refs;
+    return new TextMapChangeRefs(refs);
   }
   // endregion
 

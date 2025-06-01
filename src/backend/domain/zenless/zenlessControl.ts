@@ -15,6 +15,7 @@ import { custom } from '../../util/logger.ts';
 import { CommonLineId, DialogWikitextResult } from '../../../shared/types/common-types.ts';
 import { DialogueNode } from '../../../shared/types/zenless/dialogue-types.ts';
 import { Z3DialogBranchingCache, Z3DialogUtil } from './dialogue/z3_dialogue_util.ts';
+import { Knex } from 'knex';
 
 // region Control State
 // --------------------------------------------------------------------------------------------------------------
@@ -29,9 +30,10 @@ export class ZenlessControlState extends AbstractControlState {
   // Autoload Preferences:
   AutoloadText: boolean = true;
 
-  override copy(): ZenlessControlState {
+  override copy(trx?: Knex.Transaction|boolean): ZenlessControlState {
     const state = new ZenlessControlState(this.request);
     state.dialogueIdCache = new Set(this.dialogueIdCache);
+    state.DbConnection = trx;
     return state;
   }
 }
@@ -53,7 +55,7 @@ export class ZenlessControl extends AbstractControl<ZenlessControlState> {
 
   static noDbConnectInstance() {
     const state = new ZenlessControlState();
-    state.NoDbConnect = true;
+    state.DbConnection = false;
     return new ZenlessControl(state);
   }
 
@@ -65,8 +67,8 @@ export class ZenlessControl extends AbstractControl<ZenlessControlState> {
     return __normZenlessText(text, langCode, opts);
   }
 
-  override copy(): ZenlessControl {
-    return new ZenlessControl(this.state.copy());
+  override copy(trx?: Knex.Transaction|boolean): ZenlessControl {
+    return new ZenlessControl(this.state.copy(trx));
   }
 
 

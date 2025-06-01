@@ -22,6 +22,7 @@ import { AvatarConfig } from '../../../shared/types/hsr/hsr-avatar-types.ts';
 import { hsr_i18n, HSR_I18N_MAP } from '../abstract/i18n.ts';
 import { AbstractControlState } from '../abstract/abstractControlState.ts';
 import { CurrentStarRailVersion, GameVersion, StarRailVersions } from '../../../shared/types/game-versions.ts';
+import { Knex } from 'knex';
 
 // region Control State
 // --------------------------------------------------------------------------------------------------------------
@@ -41,12 +42,13 @@ export class StarRailControlState extends AbstractControlState {
   AutoloadText: boolean = true;
   AutoloadAvatar: boolean = true;
 
-  copy(): StarRailControlState {
+  copy(trx?: Knex.Transaction|boolean): StarRailControlState {
     const state = new StarRailControlState(this.request);
     state.avatarCache = Object.assign({}, this.avatarCache);
     state.DisableAvatarCache = this.DisableAvatarCache;
     state.AutoloadText = this.AutoloadText;
     state.AutoloadAvatar = this.AutoloadAvatar;
+    state.DbConnection = trx;
     return undefined;
   }
 }
@@ -85,8 +87,8 @@ export class StarRailControl extends AbstractControl<StarRailControlState> {
     return hash === 371857150 || super.isEmptyTextMapItem(langCode, hash);
   }
 
-  override copy(): StarRailControl {
-    return new StarRailControl(this.state.copy());
+  override copy(trx?: Knex.Transaction|boolean): StarRailControl {
+    return new StarRailControl(this.state.copy(trx));
   }
 
   override i18n(key: keyof typeof HSR_I18N_MAP, vars?: Record<string, string>): string {
