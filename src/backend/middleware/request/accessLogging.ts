@@ -6,7 +6,7 @@ import { NextFunction, Request, Response } from 'express';
 import { promises as fsp } from 'fs';
 import { WEB_ACCESS_LOG } from '../../loadenv.ts';
 
-const getLogSkipRegex: () => RegExp = () => /(\.css|\.js|\.png|\.svg|\.ico|\.jpg|\.webp|\.woff|\.env|\.ttf)/gi;
+const LOG_SKIP_REGEX: RegExp = /(\.css|\.js|\.png|\.svg|\.ico|\.jpg|\.webp|\.woff|\.env|\.ttf)/gi;
 
 export const DATE_FORMATTER = new Intl.DateTimeFormat('en-US', {
   timeZone: 'America/Los_Angeles',
@@ -32,18 +32,15 @@ morgan.token('siteUser', (req: Request) => {
   }
 });
 
-const morganInstance = morgan('[:date[web]] [:siteUser] [:inputLanguage::outputLanguage|:searchMode] :status :method :url (:response-time ms)', {
-  skip: function(req: Request, res: Response) {
-    return res.statusCode === 304 || getLogSkipRegex().test(req.url);
-  }
-});
+const morganInstance = morgan(
+  '[:date[web]] [:siteUser] [:inputLanguage::outputLanguage|:searchMode] :status :method :url (:response-time ms)');
 
 export const normalAccessLogging = (req: Request, res: Response, next: NextFunction) => {
   if (res.statusCode === 304) {
     next();
     return;
   }
-  if (getLogSkipRegex().test(req.url) || req.url.includes('/serve-image')) {
+  if (LOG_SKIP_REGEX.test(req.url) || req.url.includes('/serve-image')) {
     next();
     return;
   }
@@ -55,7 +52,7 @@ export const earlyAccessLogging = (req: Request, res: Response, next: NextFuncti
     next();
     return;
   }
-  if (getLogSkipRegex().test(req.url) || req.url.includes('/serve-image')) {
+  if (LOG_SKIP_REGEX.test(req.url) || req.url.includes('/serve-image')) {
     next();
     return;
   }

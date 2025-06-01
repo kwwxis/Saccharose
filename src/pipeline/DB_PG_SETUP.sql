@@ -51,6 +51,8 @@ CREATE TABLE site_notice
     banner_enabled  BOOLEAN DEFAULT FALSE
 );
 
+CREATE INDEX site_notice_enabled_idx ON site_notice (notice_enabled, banner_enabled);
+
 CREATE TABLE site_notice_dismissed
 (
     discord_id          TEXT NOT NULL,

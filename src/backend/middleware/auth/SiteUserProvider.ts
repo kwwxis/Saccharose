@@ -4,6 +4,7 @@ import { Request } from 'express';
 import { isEquiv } from '../../../shared/util/arrayUtil.ts';
 import { saveSession, setSessionUser } from './sessions.ts';
 import { SiteNotice, SiteUser } from '../../../shared/types/site/site-user-types.ts';
+import { cached, delcache } from '../../util/cache.ts';
 
 type SiteUserEntity = {
   discord_id: string,
@@ -15,7 +16,9 @@ type SiteUserEntity = {
 
 const pg = openPg();
 
-export const SiteUserProvider = {
+let lastSiteNoticeCacheEviction: string = '';
+
+export class SiteUserProviderImpl {
 
   getAvatarUrl(siteUser: SiteUser): string{
     if (!siteUser) {
@@ -27,36 +30,71 @@ export const SiteUserProvider = {
       const avi_id = (BigInt(siteUser.discord.id) >> 22n) % 6n;
       return `https://cdn.discordapp.com/embed/avatars/${avi_id}.png`;
     }
-  },
+  }
 
-  // SITE NOTICE
+  // region Site Notice
   // --------------------------------------------------------------------------------------------------------------
+
+  startSiteNoticeCacheEviction() {
+    setInterval(async () => {
+      const ids: number[] = await pg.select('*').from('site_notice').where({ notice_enabled: true })
+        .orderBy('id').pluck('id').then();
+      const siteNoticeCacheEviction = ids.join(',');
+
+      if (lastSiteNoticeCacheEviction && lastSiteNoticeCacheEviction !== siteNoticeCacheEviction) {
+        await delcache(['Site:AllNotices', 'Site:AllBannerNotices']);
+      }
+
+      lastSiteNoticeCacheEviction = siteNoticeCacheEviction;
+    }, 30_000);
+  }
+
   async getAllSiteNotices(): Promise<SiteNotice[]> {
-    return await pg.select('*').from('site_notice').where({notice_enabled: true})
-      .orderBy('id', 'DESC').then();
-  },
+    return cached('Site:AllNotices', 'json', async () => {
+      return await pg.select('*').from('site_notice').where({ notice_enabled: true })
+        .orderBy('id', 'DESC').then();
+    });
+  }
+
+  async getAllSiteNoticesForBanner(): Promise<SiteNotice[]> {
+    return cached('Site:AllBannerNotices', 'json', async () => {
+      return await pg.select('*')
+        .from('site_notice')
+        .where({ notice_enabled: true, banner_enabled: true })
+        .orderBy('id', 'DESC').then();
+    });
+  }
 
   async getSiteNoticesForBanner(discordId: string): Promise<SiteNotice[]> {
     if (!discordId) {
       return [];
     }
-    let sql = `
-      SELECT n.id, n.notice_title, n.notice_type, n.notice_body, n.notice_link, n.notice_enabled, n.banner_enabled
-      FROM site_notice n
-      LEFT JOIN site_notice_dismissed d ON (n.id = d.notice_id AND d.discord_id = ?)
-      WHERE n.notice_enabled = true AND n.banner_enabled = true AND d.discord_id IS NULL ORDER BY n.id DESC
-    `;
-    return await pg.raw(sql, [discordId]).then(raw => raw.rows);
-  },
+
+    const bannerNotices = await this.getAllSiteNoticesForBanner();
+    const myDismissed = await this.getSiteNoticesDismissed(discordId);
+    return bannerNotices.filter(b => !myDismissed.includes(b.id));
+  }
+
+  async getSiteNoticesDismissed(discordId: string): Promise<number[]> {
+    return cached('Site:NoticesDismissed:' + discordId, 'json', async () => {
+      return await pg('site_notice_dismissed')
+        .select('notice_id')
+        .where({discord_id: discordId})
+        .pluck('notice_id')
+        .then();
+    });
+  }
 
   async dismissSiteNotice(discordId: string, noticeId: number): Promise<void> {
+    await delcache('Site:NoticesDismissed:' + discordId);
     await pg('site_notice_dismissed').insert({
       discord_id: discordId,
       notice_id: noticeId,
     });
-  },
+  }
+  // endregion
 
-  // Find User
+  // region Find User
   // --------------------------------------------------------------------------------------------------------------
   async find(discordId: string): Promise<SiteUser> {
     const row: SiteUserEntity = await pg.select('*').from('site_user').where({discord_id: discordId}).first().then();
@@ -79,23 +117,26 @@ export const SiteUserProvider = {
       }
     }
     return row?.json_data;
-  },
+  }
+  // endregion
 
-  // Check User Status
+  // region Check User Status
   // --------------------------------------------------------------------------------------------------------------
   async isBanned(user: SiteUser): Promise<boolean> {
     if (!user || !user.id) {
       return false;
     }
-    let qb = pg.select('*').from('site_user_banned');
-    if (user.wiki_username) {
-      qb = qb.where({wiki_username: user.wiki_username}).or.where({discord_id: user.id});
-    } else {
-      qb = qb.where({discord_id: user.id});
-    }
-    const row: any = await qb.first().then();
-    return !!row;
-  },
+    return cached('Site:UserBanned:' + user.id, 'memory', async () => {
+      let qb = pg.select('*').from('site_user_banned');
+      if (user.wiki_username) {
+        qb = qb.where({wiki_username: user.wiki_username}).or.where({discord_id: user.id});
+      } else {
+        qb = qb.where({discord_id: user.id});
+      }
+      const row: any = await qb.first().then();
+      return !!row;
+    });
+  }
 
   async isInReqBypass(by: {wiki_username?: string, discord_id?: string}): Promise<boolean> {
     if (!by) {
@@ -118,9 +159,10 @@ export const SiteUserProvider = {
     }
 
     return false;
-  },
+  }
+  // endregion
 
-  // Update/Create
+  // region Update/Create
   // --------------------------------------------------------------------------------------------------------------
 
   async syncDatabaseStateToRequestUser(req: Request) {
@@ -134,7 +176,7 @@ export const SiteUserProvider = {
       await saveSession(req);
       req.user = dbSiteUser;
     }
-  },
+  }
 
   async update(discordId: string, payload: Partial<SiteUser>) {
     const data = await SiteUserProvider.find(discordId);
@@ -150,7 +192,7 @@ export const SiteUserProvider = {
       wiki_username: payload?.wiki_username || data.wiki_username,
       json_data: JSON.stringify(data)
     }).then();
-  },
+  }
 
   _newUserObject(discordUser: passport_discord.Profile): SiteUser {
     return {
@@ -159,7 +201,7 @@ export const SiteUserProvider = {
       discord: discordUser,
       prefs: {},
     };
-  },
+  }
 
   async findOrCreate(discordId: string, discordUser: passport_discord.Profile): Promise<SiteUser> {
     const row: SiteUserEntity = await pg.select('*').from('site_user')
@@ -204,5 +246,7 @@ export const SiteUserProvider = {
       return newSiteUser;
     }
   }
+  // endregion
 }
 
+export const SiteUserProvider = new SiteUserProviderImpl();

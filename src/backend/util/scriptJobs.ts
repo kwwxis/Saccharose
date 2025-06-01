@@ -147,6 +147,7 @@ export class ScriptJobsCoordinator {
   private knex: Knex;
   private postQueue: {action: ScriptJobAction, args: ScriptJobActionArgs<any>, postComplete: (postResult: ScriptJobPostResult<any>) => void}[] = [];
   private postIntervalId: any = null;
+  private markTardyIntervalId: any = null;
   private deleteIntervalId: any = null;
   private postIntervalBusy: boolean = false;
   private debug: debug.Debugger = custom('jobs');
@@ -158,13 +159,22 @@ export class ScriptJobsCoordinator {
   init() {
     if (this.postIntervalId)
       clearInterval(this.postIntervalId);
+    if (this.markTardyIntervalId)
+      clearInterval(this.markTardyIntervalId);
     if (this.deleteIntervalId)
       clearInterval(this.deleteIntervalId);
+
+    // noinspection JSIgnoredPromiseFromCall
+    this.markTardyComplete();
 
     this.postIntervalId = setInterval(() => {
       // noinspection JSIgnoredPromiseFromCall
       this.postIntervalAction();
     }, 100);
+    this.markTardyIntervalId = setInterval(() => {
+      // noinspection JSIgnoredPromiseFromCall
+      this.markTardyComplete();
+    }, 60_000);
     this.deleteIntervalId = setInterval(() => {
       // noinspection JSIgnoredPromiseFromCall
       this.deleteOldJobs();
@@ -294,7 +304,6 @@ export class ScriptJobsCoordinator {
       return;
     }
     this.postIntervalBusy = true;
-    await this.markTardyComplete();
     try {
       const postQueueItem = this.postQueue.shift();
       if (postQueueItem) {

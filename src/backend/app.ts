@@ -30,10 +30,10 @@ import imageBaseRouter from './controllers/ImageBaseRouter.ts';
 import { createStaticImagesHandler } from './middleware/request/staticImagesHandler.ts';
 import { ScriptJobCoordinator } from './util/scriptJobs.ts';
 import authRouter from './controllers/site/app/AuthRouter.ts';
-import { createSiteUserMiddlewareRouter } from './middleware/auth/siteUserMiddleware.ts';
+import siteUserMiddleware from './middleware/auth/siteUserMiddleware.ts';
 import visitorRouter from './controllers/visitor/VisitorRouter.ts';
 import { reqContextInitMiddleware } from './routing/router.ts';
-import { cached, enableRedisExitHook, openRedisClient, redisClient, redisDelPattern } from './util/cache.ts';
+import { enableRedisExitHook, openRedisClient, redisClient, redisDelPattern } from './util/cache.ts';
 import {
   CurrentGenshinVersion,
   CurrentStarRailVersion,
@@ -41,6 +41,7 @@ import {
   CurrentZenlessVersion,
 } from '../shared/types/game-versions.ts';
 import { enableLogFileWatchShutdownHook, startLogFileWatch } from './logview/logview.ts';
+import { SiteUserProvider } from './middleware/auth/SiteUserProvider.ts';
 
 const app: Express = express();
 
@@ -158,6 +159,7 @@ export async function appInit(): Promise<Express> {
   // ~~~~~~~~~~~~~~~~~~~
   logInit(`Initializing sessions`);
   app.use(sessions);                                        // sessions
+  SiteUserProvider.startSiteNoticeCacheEviction();           // site notice cache eviction
 
   // Middleware for requests
   // ~~~~~~~~~~~~~~~~~~~~~~~
@@ -205,7 +207,7 @@ export async function appInit(): Promise<Express> {
 
   // Load auth middleware
   // ~~~~~~~~~~~~~~~~~~~~
-  app.use(createSiteUserMiddlewareRouter());
+  app.use(siteUserMiddleware);
   // ALL ENDPOINTS PAST THIS POINT ARE SUBJECT TO REQUIRING AUTHENTICATION
 
   // Load serve-image router
