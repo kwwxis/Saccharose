@@ -63,19 +63,21 @@
                   readonly class="w100p wikitext autosize spacer0-all" spellcheck="false" translate="no"><%= item.text %></textarea>
       </div>
       <% if (item.changeRefs.length > 1) { %>
-        <div id="change-refs-<%= item.resultNumber %>" class="change-refs-result collapsed hide" style="padding-top:15px">
-          <% for (let changeRef of item.changeRefs) { %>
-            <div class="change-ref">
-              <h3 class="secondary-header valign">
-                <span>Version <%= changeRef.version %>:</span>&nbsp;
-                <span><%= changeRef.changeType %></span>
-              </h3>
-              <div class="content change-ref-content" data-json="<%= JSON.stringify(changeRef) %>">
-                <textarea readonly class="w100p wikitext autosize spacer0-all" spellcheck="false" translate="no"><%= changeRef.value %></textarea>
-                <div class="diff-ui-area"></div>
+        <div id="change-refs-<%= item.resultNumber %>" class="change-refs-result collapsed hide content" style="padding-top:15px">
+          <div class="card" style="margin-bottom:0">
+            <% for (let changeRef of item.changeRefs) { %>
+              <div class="change-ref">
+                <h3 class="secondary-header valign">
+                  <span>Version <%= changeRef.version %>:</span>&nbsp;
+                  <span><%= changeRef.changeType %></span>
+                </h3>
+                <div class="content change-ref-content" data-json="<%= JSON.stringify(changeRef) %>">
+                  <textarea readonly class="w100p wikitext autosize spacer0-all" spellcheck="false" translate="no"><%= changeRef.value %></textarea>
+                  <div class="diff-ui-area"></div>
+                </div>
               </div>
-            </div>
-          <% } %>
+            <% } %>
+          </div>
         </div>
       <% } %>
       <div id="excel-usages-<%= item.resultNumber %>" class="excel-usages-result collapsed hide"></div>

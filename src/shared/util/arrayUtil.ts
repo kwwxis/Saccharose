@@ -569,6 +569,7 @@ export function pairArrays<T, U>(arr1: T[], arr2: U[]): [T, U][] {
 declare global {
   interface Array<T> {
     asyncMap<U>(callbackfn: (value: T, index: number, array: T[]) => Promise<U|void>, skipNilResults?: boolean): Promise<U[]>;
+    asyncForEach(callbackfn: (value: T, index: number, array: T[]) => Promise<void>, skipNilResults?: boolean): Promise<void>;
   }
 }
 
@@ -591,7 +592,19 @@ Object.defineProperty(Array.prototype, 'asyncMap', {
 
     return results;
   }
-})
+});
+
+Object.defineProperty(Array.prototype, 'asyncForEach', {
+  value: async function<T>(callbackFn: (value: T, index: number, array: T[]) => Promise<void>): Promise<void> {
+    const promises: Promise<void>[] = [];
+
+    for (let i = 0; i < this.length; i++) {
+      promises.push(callbackFn(this[i], i, this));
+    }
+
+    await Promise.all(promises);
+  }
+});
 
 function arrayMove<T>(arr: T[], fromIndex: number, toIndex: number) {
   let element = arr[fromIndex];

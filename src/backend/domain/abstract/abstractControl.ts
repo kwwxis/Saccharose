@@ -54,12 +54,13 @@ import { uuidv4 } from '../../../shared/util/uuidv4.ts';
 import { AbstractControlState } from './abstractControlState.ts';
 import { NormTextOptions } from './genericNormalizers.ts';
 import {
-  ChangeRecordRef,
+  ChangeRecord,
+  ChangeRecordRef, ExcelFullChangelog,
   FullChangelog,
   TextMapChangeRef,
-  TextMapChangeRefs,
+  TextMapChangeRefs, TextMapChanges, TextMapFullChangelog,
 } from '../../../shared/types/changelog-types.ts';
-import { GameVersion, GameVersionFilter } from '../../../shared/types/game-versions.ts';
+import { GameVersion, GameVersionFilter, GenshinVersions } from '../../../shared/types/game-versions.ts';
 import { ScriptJobActionArgs, ScriptJobCoordinator, ScriptJobPostResult } from '../../util/scriptJobs.ts';
 import { RequestSiteMode } from '../../routing/requestContext.ts';
 import { IntHolder } from '../../../shared/util/valueHolder.ts';
@@ -812,27 +813,155 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
 
   abstract selectCurrentVersion(): GameVersion;
 
+  async selectTextMapChangelog(version: GameVersion): Promise<TextMapFullChangelog> {
+    return null;
+  }
+
+  async selectExcelChangelog(version: GameVersion): Promise<ExcelFullChangelog> {
+    return null;
+  }
+
   async selectAllChangelogs(): Promise<Record<string, FullChangelog>> {
-    return {};
+    return this.cached('AllChangeLogs', 'memory', async () => {
+      let map: Record<string, FullChangelog> = {};
+
+      await this.selectVersions().filter(v => v.showChangelog).asyncForEach(async v => {
+        const changelog = await this.selectChangelog(v);
+        if (changelog) {
+          map[v.number] = changelog;
+        }
+      });
+
+      return map;
+    });
+  }
+
+  async selectAllTextMapChangeLogs(): Promise<Record<string, TextMapFullChangelog>> {
+    return this.cached('AllTextMapChangeLogs', 'memory', async () => {
+      let map: Record<string, TextMapFullChangelog> = {};
+
+      await this.selectVersions().filter(v => v.showChangelog).asyncForEach(async v => {
+        map[v.number] = await this.selectTextMapChangelog(v);
+      });
+
+      return map;
+    });
+  }
+
+  async selectAllExcelChangeLogs(): Promise<Record<string, ExcelFullChangelog>> {
+    return this.cached('AllExcelChangeLogs', 'memory', async () => {
+      let map: Record<string, ExcelFullChangelog> = {};
+
+      await GenshinVersions.filter(v => v.showChangelog).asyncForEach(async v => {
+        map[v.number] = await this.selectExcelChangelog(v);
+      });
+
+      return map;
+    });
   }
 
   async selectChangelog(version: GameVersion): Promise<FullChangelog> {
-    return null;
+    if (!version || !version.showChangelog) {
+      return null;
+    }
+    return Promise.all([
+      this.selectTextMapChangelog(version),
+      this.selectExcelChangelog(version)
+    ]).then(([textmapChangelog, excelChangelog]) => {
+      if (textmapChangelog === null || excelChangelog === null) {
+        return null;
+      }
+      return <FullChangelog> {
+        version,
+        textmapChangelog,
+        excelChangelog
+      };
+    });
   }
 
   async selectChangeRecordAdded(id: string|number): Promise<ChangeRecordRef[]>
   async selectChangeRecordAdded(id: string|number, excelFile: string): Promise<ChangeRecordRef>
-
   async selectChangeRecordAdded(id: string|number, excelFile?: string): Promise<ChangeRecordRef|ChangeRecordRef[]> {
-    return excelFile ? null : [];
+    if (excelFile) {
+      return (await this.selectChangeRecords(id, excelFile)).find(r => r.record.changeType === 'added');
+    } else {
+      return (await this.selectChangeRecords(id)).filter(r => r.record.changeType === 'added');
+    }
   }
 
   async selectChangeRecords(id: string|number, excelFile?: string): Promise<ChangeRecordRef[]> {
-    return [];
+    if (excelFile && excelFile.endsWith('.json')) {
+      excelFile = excelFile.slice(0, -5);
+    }
+
+    const changeRecordRefs: ChangeRecordRef[] = [];
+
+    for (let [versionNum, excelChangelog] of Object.entries(await this.selectAllExcelChangeLogs())) {
+      if (excelFile) {
+        if (excelChangelog[excelFile]?.changedRecords[id]) {
+          let record: ChangeRecord = excelChangelog[excelFile]?.changedRecords[id];
+          changeRecordRefs.push({
+            version: versionNum,
+            excelFile,
+            recordKey: String(id),
+            record
+          });
+        }
+      } else {
+        for (let excelFileChanges of Object.values(excelChangelog)) {
+          if (excelFileChanges.changedRecords[id]) {
+            changeRecordRefs.push({
+              version: versionNum,
+              excelFile: excelFileChanges.name,
+              recordKey: String(id),
+              record: excelFileChanges.changedRecords[id]
+            });
+          }
+        }
+      }
+    }
+
+    return changeRecordRefs;
   }
 
   async selectTextMapChangeRefs(hash: TextMapHash, langCode: LangCode, doNormText: boolean = false): Promise<TextMapChangeRefs> {
-    return new TextMapChangeRefs([]);
+    const refs: TextMapChangeRef[] = [];
+
+    const doNorm = (text: string) => {
+      if (doNormText) {
+        return this.normText(text, langCode);
+      } else {
+        return text;
+      }
+    };
+
+    for (let [versionNum, textMapChangelog] of Object.entries(await this.selectAllTextMapChangeLogs())) {
+      const changes: TextMapChanges = textMapChangelog?.[langCode];
+      if (changes) {
+        if (changes.added[hash]) {
+          refs.push({
+            version: versionNum,
+            changeType: 'added',
+            value: doNorm(changes.added[hash])
+          });
+        } else if (changes.updated[hash]) {
+          refs.push({
+            version: versionNum,
+            changeType: 'updated',
+            value: doNorm(changes.updated[hash].newValue),
+            prevValue: doNorm(changes.updated[hash].oldValue)
+          });
+        } else if (changes.removed[hash]) {
+          refs.push({
+            version: versionNum,
+            changeType: 'removed',
+            value: doNorm(changes.removed[hash])
+          });
+        }
+      }
+    }
+
+    return new TextMapChangeRefs(refs);
   }
   // endregion
 

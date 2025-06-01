@@ -12,14 +12,15 @@ import fs, { promises as fsp } from 'fs';
 import {
   arrayFillRange,
   arrayIndexOf,
-  arrayIntersect, arrayToMap,
+  arrayIntersect,
+  arrayToMap,
   arrayUnique,
   cleanEmpty,
   mapBy,
   pairArrays,
   sort,
 } from '../../../shared/util/arrayUtil.ts';
-import { isInt, isSafeInt, toInt } from '../../../shared/util/numberUtil.ts';
+import { isInt, toInt } from '../../../shared/util/numberUtil.ts';
 import { normalizeRawJson, SchemaTable } from '../../importer/import_db.ts';
 import {
   extractRomanNumeral,
@@ -84,7 +85,8 @@ import {
 } from '../../../shared/types/genshin/homeworld-types.ts';
 import { grepStream } from '../../util/shellutil.ts';
 import {
-  DATAFILE_GENSHIN_VOICE_ITEMS, GENSHIN_DISABLED,
+  DATAFILE_GENSHIN_VOICE_ITEMS,
+  GENSHIN_DISABLED,
   getGenshinDataFilePath,
   getReadableRelPath,
   IMAGEDIR_GENSHIN_EXT,
@@ -95,10 +97,11 @@ import {
   DocumentExcelConfigData,
   LANG_CODE_TO_LOCALIZATION_PATH_PROP,
   LocalizationExcelConfigData,
+  Readable,
   ReadableArchive,
   ReadableItem,
   ReadableSearchResult,
-  Readable, ReadableText,
+  ReadableText,
 } from '../../../shared/types/genshin/readable-types.ts';
 import {
   RELIC_EQUIP_TYPE_TO_NAME,
@@ -162,7 +165,12 @@ import * as console from 'console';
 import {
   ChangeRecord,
   ChangeRecordRef,
-  FullChangelog, TextMapChangeRef, TextMapChangeRefs, TextMapChanges,
+  ExcelFullChangelog,
+  FullChangelog,
+  TextMapChangeRef,
+  TextMapChangeRefs,
+  TextMapChanges,
+  TextMapFullChangelog,
 } from '../../../shared/types/changelog-types.ts';
 import { CurrentGenshinVersion, GameVersion, GenshinVersions } from '../../../shared/types/game-versions.ts';
 import { AbstractControlState } from '../abstract/abstractControlState.ts';
@@ -3450,119 +3458,22 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return CurrentGenshinVersion;
   }
 
-  private _allChangelogs: Record<string, FullChangelog> = null;
-
-  override async selectAllChangelogs(): Promise<Record<string, FullChangelog>> {
-    if (this._allChangelogs) {
-      return this._allChangelogs;
-    }
-    let changelogs = await GenshinVersions.filter(v => v.showChangelog).asyncMap(v => this.selectChangelog(v));
-    let map: Record<string, FullChangelog> = {};
-    for (let changelog of changelogs) {
-      map[changelog.version.number] = changelog;
-    }
-    this._allChangelogs = map;
-    return map;
-  }
-
-  override async selectChangelog(version: GameVersion): Promise<FullChangelog> {
-    if (!version || !version.showChangelog) {
+  override async selectTextMapChangelog(version: GameVersion): Promise<TextMapFullChangelog> {
+    if (!version || !version.showChangelog)
       return null;
-    }
-    return this.cached('FullChangelog:' + version.number, 'json', async () => {
+    return this.cached('TextMapChangelog:' + version.number, 'json', async () => {
       const textmapChangelogFileName = path.resolve(process.env.GENSHIN_CHANGELOGS, `./TextMapChangeLog.${version.number}.json`);
-      const excelChangelogFileName = path.resolve(process.env.GENSHIN_CHANGELOGS, `./ExcelChangeLog.${version.number}.json`);
-
-      const textmapChangelog = JSON.parse(fs.readFileSync(textmapChangelogFileName, {encoding: 'utf-8'}));
-      const excelChangelog = JSON.parse(fs.readFileSync(excelChangelogFileName, {encoding: 'utf-8'}));
-      return <FullChangelog> {version: version, textmapChangelog, excelChangelog};
+      return JSON.parse(fs.readFileSync(textmapChangelogFileName, { encoding: 'utf-8' }));
     });
   }
 
-  override async selectChangeRecordAdded(id: string|number): Promise<ChangeRecordRef[]>
-  override async selectChangeRecordAdded(id: string|number, excelFile: string): Promise<ChangeRecordRef>
-
-  override async selectChangeRecordAdded(id: string|number, excelFile?: string): Promise<ChangeRecordRef|ChangeRecordRef[]> {
-    if (excelFile) {
-      return (await this.selectChangeRecords(id, excelFile)).find(r => r.record.changeType === 'added');
-    } else {
-      return (await this.selectChangeRecords(id)).filter(r => r.record.changeType === 'added');
-    }
-  }
-
-  override async selectChangeRecords(id: string|number, excelFile?: string): Promise<ChangeRecordRef[]> {
-    if (excelFile && excelFile.endsWith('.json')) {
-      excelFile = excelFile.slice(0, -5);
-    }
-
-    const changeRecordRefs: ChangeRecordRef[] = [];
-
-    for (let [versionNum, fullChangelog] of Object.entries(await this.selectAllChangelogs())) {
-      if (excelFile) {
-        if (fullChangelog.excelChangelog[excelFile]?.changedRecords[id]) {
-          let record: ChangeRecord = fullChangelog.excelChangelog[excelFile]?.changedRecords[id];
-          changeRecordRefs.push({
-            version: versionNum,
-            excelFile,
-            recordKey: String(id),
-            record
-          });
-        }
-      } else {
-        for (let excelFileChanges of Object.values(fullChangelog.excelChangelog)) {
-          if (excelFileChanges.changedRecords[id]) {
-            changeRecordRefs.push({
-              version: versionNum,
-              excelFile: excelFileChanges.name,
-              recordKey: String(id),
-              record: excelFileChanges.changedRecords[id]
-            });
-          }
-        }
-      }
-    }
-
-    return changeRecordRefs;
-  }
-
-  override async selectTextMapChangeRefs(hash: TextMapHash, langCode: LangCode, doNormText: boolean = false): Promise<TextMapChangeRefs> {
-    const refs: TextMapChangeRef[] = [];
-
-    const doNorm = (text: string) => {
-      if (doNormText) {
-        return this.normText(text, langCode);
-      } else {
-        return text;
-      }
-    };
-
-    for (let [versionNum, fullChangelog] of Object.entries(await this.selectAllChangelogs())) {
-      const changes: TextMapChanges = fullChangelog?.textmapChangelog?.[langCode];
-      if (changes) {
-        if (changes.added[hash]) {
-          refs.push({
-            version: versionNum,
-            changeType: 'added',
-            value: doNorm(changes.added[hash])
-          });
-        } else if (changes.updated[hash]) {
-          refs.push({
-            version: versionNum,
-            changeType: 'updated',
-            value: doNorm(changes.updated[hash].newValue),
-            prevValue: doNorm(changes.updated[hash].oldValue)
-          });
-        } else if (changes.removed[hash]) {
-          refs.push({
-            version: versionNum,
-            changeType: 'removed',
-            value: doNorm(changes.removed[hash])
-          });
-        }
-      }
-    }
-
-    return new TextMapChangeRefs(refs);
+  override async selectExcelChangelog(version: GameVersion): Promise<ExcelFullChangelog> {
+    if (!version || !version.showChangelog)
+      return null;
+    return this.cached('ExcelChangelog:' + version.number, 'json', async () => {
+      const excelChangelogFileName = path.resolve(process.env.GENSHIN_CHANGELOGS, `./ExcelChangeLog.${version.number}.json`);
+      return JSON.parse(fs.readFileSync(excelChangelogFileName, { encoding: 'utf-8' }));
+    });
   }
   // endregion
 
