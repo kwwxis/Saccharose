@@ -216,8 +216,8 @@ pageMatch('vue/TextmapSearchPage', () => {
           diffUIArea.style.marginTop = '15px';
 
           diffUIs.push(new DiffUI(diffUIArea, {
-            currContent: json.prevValue,
-            prevContent: json.value,
+            currContent: json.value,
+            prevContent: json.prevValue,
             unifiedDiff: unifiedDiff,
           }, {
             matching: 'lines',

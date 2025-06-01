@@ -466,7 +466,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
               text = this.normText(text, opts.outputLangCode);
             }
             hashSeen.add(possibleHash);
-            const changeRefs = await this.selectTextMapChangeRefs(possibleHash, opts.outputLangCode);
+            const changeRefs = await this.selectTextMapChangeRefs(possibleHash, opts.outputLangCode, true);
             const version: string = changeRefs.firstAdded?.version;
             if (opts.versionFilter && (!version || !opts.versionFilter.has(version))) {
               continue;
@@ -502,7 +502,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
         const textMapHash: TextMapHash = tmMatch.textMapHash;
         const text: string = tmMatch.text;
 
-        const changeRefs = await this.selectTextMapChangeRefs(textMapHash, opts.outputLangCode);
+        const changeRefs = await this.selectTextMapChangeRefs(textMapHash, opts.outputLangCode, true);
         const version: string = changeRefs.firstAdded?.version;
         if (opts.versionFilter && (!version || !opts.versionFilter.has(version))) {
           continue;
@@ -831,7 +831,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     return [];
   }
 
-  async selectTextMapChangeRefs(hash: TextMapHash, langCode: LangCode): Promise<TextMapChangeRefs> {
+  async selectTextMapChangeRefs(hash: TextMapHash, langCode: LangCode, doNormText: boolean = false): Promise<TextMapChangeRefs> {
     return new TextMapChangeRefs([]);
   }
   // endregion

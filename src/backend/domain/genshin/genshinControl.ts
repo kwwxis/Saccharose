@@ -3525,8 +3525,16 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return changeRecordRefs;
   }
 
-  override async selectTextMapChangeRefs(hash: TextMapHash, langCode: LangCode): Promise<TextMapChangeRefs> {
+  override async selectTextMapChangeRefs(hash: TextMapHash, langCode: LangCode, doNormText: boolean = false): Promise<TextMapChangeRefs> {
     const refs: TextMapChangeRef[] = [];
+
+    const doNorm = (text: string) => {
+      if (doNormText) {
+        return this.normText(text, langCode);
+      } else {
+        return text;
+      }
+    };
 
     for (let [versionNum, fullChangelog] of Object.entries(await this.selectAllChangelogs())) {
       const changes: TextMapChanges = fullChangelog?.textmapChangelog?.[langCode];
@@ -3535,20 +3543,20 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
           refs.push({
             version: versionNum,
             changeType: 'added',
-            value: changes.added[hash]
+            value: doNorm(changes.added[hash])
           });
         } else if (changes.updated[hash]) {
           refs.push({
             version: versionNum,
             changeType: 'updated',
-            value: changes.updated[hash].newValue,
-            prevValue: changes.updated[hash].oldValue
+            value: doNorm(changes.updated[hash].newValue),
+            prevValue: doNorm(changes.updated[hash].oldValue)
           });
         } else if (changes.removed[hash]) {
           refs.push({
             version: versionNum,
             changeType: 'removed',
-            value: changes.removed[hash]
+            value: doNorm(changes.removed[hash])
           });
         }
       }
