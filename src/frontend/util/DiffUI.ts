@@ -75,7 +75,7 @@ class WordWrapModule extends DiffUIInteractiveModule {
   create(): void {
     this.addStyle(`
       ${this.ui.mySelector} .d2h-code-line-ctn {
-        white-space: normal;
+        white-space: pre-wrap;
       }
       ${this.ui.mySelector} .d2h-code-line,
       ${this.ui.mySelector} .d2h-code-side-line,
