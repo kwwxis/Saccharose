@@ -7,9 +7,15 @@
 }
 .logview-row {
   display: flex;
-  border: 1px solid #aaa;
+  border: 1px solid #bbb;
   margin: 5px;
   border-radius: 5px;
+  background-color: #f9f9f9;
+
+  body.nightmode & {
+    border-color: #17151e;
+    background-color: #2b2a35;
+  }
 
   .logview-cell {
     padding: 2px 5px;
