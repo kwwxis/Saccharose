@@ -5,15 +5,12 @@ import GenshinRouter from './genshin/app/_index.ts';
 import StarRailRouter from './hsr/app/_index.ts';
 import ZenlessRouter from './zenless/app/_index.ts';
 import WuwaRouter from './wuwa/app/_index.ts';
-import { getGenshinControl } from '../domain/genshin/genshinControl.ts';
-import { getStarRailControl } from '../domain/hsr/starRailControl.ts';
-import { getZenlessControl } from '../domain/zenless/zenlessControl.ts';
-import { getWuwaControl } from '../domain/wuwa/wuwaControl.ts';
 import { NextFunction, Request, Response, Router } from 'express';
 import { SiteUserProvider } from '../middleware/auth/SiteUserProvider.ts';
 import UserRouter from './site/app/UserRouter.ts';
 import { GENSHIN_DISABLED, HSR_DISABLED, WUWA_DISABLED, ZENLESS_DISABLED } from '../loadenv.ts';
 import LogViewRouter from './site/app/LogViewRouter.ts';
+import { createLocalControls } from '../middleware/request/tracer.ts';
 
 export default async function(): Promise<Router> {
   const router: Router = create({
@@ -23,15 +20,9 @@ export default async function(): Promise<Router> {
       return num >= 3 && num <= 10 ? ['painmelo'] : [];
     },
     locals: async (req: Request) => {
-      const genshinControl = getGenshinControl(req);
-      const starRailControl = getStarRailControl(req);
-      const zenlessControl = getZenlessControl(req);
-      const wuwaControl = getWuwaControl(req);
+      const localControls = createLocalControls(req);
       return {
-        normGenshinText: (s: string) => genshinControl.normText(s, req.context.outputLangCode),
-        normStarRailText: (s: string) => starRailControl.normText(s, req.context.outputLangCode),
-        normZenlessText: (s: string) => zenlessControl.normText(s, req.context.outputLangCode),
-        normWuwaText: (s: string) => wuwaControl.normText(s, req.context.outputLangCode),
+        ... localControls,
         outputLangCode: req.context.outputLangCode,
         inputLangCode: req.context.inputLangCode,
         csrfToken: req.csrfToken(),

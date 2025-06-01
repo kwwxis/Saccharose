@@ -17,20 +17,15 @@ import { getZenlessControl } from '../domain/zenless/zenlessControl.ts';
 import { getWuwaControl } from '../domain/wuwa/wuwaControl.ts';
 import { Request, Response, Router } from 'express';
 import { GENSHIN_DISABLED, HSR_DISABLED, WUWA_DISABLED, ZENLESS_DISABLED } from '../loadenv.ts';
+import { createLocalControls } from '../middleware/request/tracer.ts';
 
 export default async function(): Promise<Router> {
   const router: Router = create({
     layouts: ['layouts/empty-layout'],
     locals: async (req: Request) => {
-      const genshinControl = getGenshinControl(req);
-      const starRailControl = getStarRailControl(req);
-      const zenlessControl = getZenlessControl(req);
-      const wuwaControl = getWuwaControl(req);
+      const localControls = createLocalControls(req);
       return {
-        normGenshinText: (s: string) => genshinControl.normText(s, req.context.outputLangCode),
-        normStarRailText: (s: string) => starRailControl.normText(s, req.context.outputLangCode),
-        normZenlessText: (s: string) => zenlessControl.normText(s, req.context.outputLangCode),
-        normWuwaText: (s: string) => wuwaControl.normText(s, req.context.outputLangCode),
+        ... localControls,
         outputLangCode: req.context.outputLangCode,
         inputLangCode: req.context.inputLangCode
       };

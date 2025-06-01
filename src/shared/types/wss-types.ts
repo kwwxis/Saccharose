@@ -1,4 +1,5 @@
 import { LogViewEntity } from './site/site-logview-types.ts';
+import { RequestSiteMode } from '../../backend/routing/requestContext.ts';
 
 // CODES
 // --------------------------------------------------------------------------------------------------------------
@@ -77,6 +78,7 @@ export type WsMessageData = {
   WsSubscribe: WsSubscribe,
   WsUnsubscribe: WsUnsubscribe,
   LogViewRequest: LogViewRequest,
+  WsAuthenticate: WsAuthenticate,
 
   // Server Messages:
   ServerHello: WsHello,
@@ -86,6 +88,10 @@ export type WsMessageData = {
 
 // MESSAGE DATA
 // --------------------------------------------------------------------------------------------------------------
+export type WsAuthenticate = {
+
+}
+
 export type WsHello = {
   message: string;
 }
@@ -117,3 +123,13 @@ export type LogViewRequest = {
   lowerbound?: string,
   upperbound?: string,
 };
+
+export type WsSearchTextMap = {
+  siteMode: RequestSiteMode,
+
+}
+
+export type HtmlResponse = {
+  fromRequest: WsMessageType,
+  html: string,
+}

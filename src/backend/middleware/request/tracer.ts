@@ -25,30 +25,65 @@ export type ITrace = {
 
 export const asyncLocalStorage: AsyncLocalStorage<ITrace> = new AsyncLocalStorage<ITrace>();
 
-export function traceMiddleware(req: Request, res: Response, next: NextFunction) {
-  const genshinControl = getGenshinControl(req);
-  const starRailControl = getStarRailControl(req);
-  const zenlessControl = getZenlessControl(req);
-  const wuwaControl = getWuwaControl(req);
+export type LocalControls = {
+  genshinControl: GenshinControl,
+  starRailControl: StarRailControl,
+  zenlessControl: ZenlessControl,
+  wuwaControl: WuwaControl,
+  normGenshinText: (s: string) => string,
+  normStarRailText: (s: string) => string,
+  normZenlessText: (s: string) => string,
+  normWuwaText: (s: string) => string,
+};
 
+export function createLocalControls(req: Request): LocalControls {
+  const reqAsAny: any = req as any;
+  if (reqAsAny._localControls) {
+    return reqAsAny._localControls;
+  }
+  const controlCache: Record<string, any> = {};
+  const self: LocalControls = {
+    get genshinControl() {
+      if (controlCache['genshin'])
+        return controlCache['genshin'];
+      return controlCache['genshin'] = getGenshinControl(req);
+    },
+    get starRailControl() {
+      if (controlCache['hsr'])
+        return controlCache['hsr'];
+      return controlCache['hsr'] = getStarRailControl(req);
+    },
+    get zenlessControl() {
+      if (controlCache['zenless'])
+        return controlCache['zenless'];
+      return controlCache['zenless'] = getZenlessControl(req);
+    },
+    get wuwaControl() {
+      if (controlCache['wuwa'])
+        return controlCache['wuwa'];
+      return controlCache['wuwa'] = getWuwaControl(req);
+    },
+    normGenshinText: (s: string) => self.genshinControl.normText(s, req.context.outputLangCode),
+    normStarRailText: (s: string) => self.starRailControl.normText(s, req.context.outputLangCode),
+    normZenlessText: (s: string) => self.zenlessControl.normText(s, req.context.outputLangCode),
+    normWuwaText: (s: string) => self.wuwaControl.normText(s, req.context.outputLangCode),
+  };
+  reqAsAny._localControls = self;
+  return self;
+}
+
+export function traceMiddleware(req: Request, res: Response, next: NextFunction) {
   const store: ITrace = {
     req,
     res,
-    env: process.env,
+    env: process.env as any,
     get ctx() {
       return req.context;
     },
     get nonce() {
       return req.context.nonce;
     },
-    genshinControl,
-    starRailControl,
-    zenlessControl,
-    wuwaControl,
-    normGenshinText: (s: string) => genshinControl.normText(s, req.context.outputLangCode),
-    normStarRailText: (s: string) => starRailControl.normText(s, req.context.outputLangCode),
-    normZenlessText: (s: string) => zenlessControl.normText(s, req.context.outputLangCode),
-    normWuwaText: (s: string) => wuwaControl.normText(s, req.context.outputLangCode),
+    ... createLocalControls(req),
   };
   asyncLocalStorage.run(store, () => {
     next();

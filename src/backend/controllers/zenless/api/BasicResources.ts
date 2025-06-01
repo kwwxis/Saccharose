@@ -11,7 +11,6 @@ import ZenlessDialogueHelperResult from '../../../components/zenless/ZenlessDial
 import { SbOut } from '../../../../shared/util/stringUtil.ts';
 import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
 import { DialogWikitextResult } from '../../../../shared/types/common-types.ts';
-import { getWuwaControl } from '../../../domain/wuwa/wuwaControl.ts';
 
 const router: Router = create();
 
@@ -80,7 +79,7 @@ router.endpoint('/OL/generate', {
 
 router.endpoint('/OL/combine', {
   post: async (req: Request, res: Response) => {
-    return await handleOlCombine(getWuwaControl(req), req, res);
+    return await handleOlCombine(getZenlessControl(req), req, res);
   }
 });
 
