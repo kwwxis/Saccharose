@@ -209,8 +209,6 @@ export async function importPlainTextMap(ctrl: AbstractControl, getDataFilePath:
   for (let langCode of LANG_CODES) {
     if (langCode === 'CH')
       continue;
-    if (ctrl.disabledLangCodes.has(langCode))
-      continue;
 
     try {
       let textmap: {[hash: string]: string} = await fsp.readFile(getDataFilePath(getTextMapRelPath(langCode)), {encoding: 'utf8'}).then(data => {
