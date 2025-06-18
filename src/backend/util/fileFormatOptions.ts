@@ -192,7 +192,7 @@ async function evaluateVariable(ctrl: AbstractControl, obj: Object, expr: string
 }
 
 export async function fileFormatOptionsApply(ctrl: AbstractControl, obj: Object, cookieName: string, defaultFormat: string): Promise<string> {
-  const { cookies } = getTrace();
+  const cookies = getTrace()?.cookies || {};
 
   let pref: FileFormatOption = cookies[cookieName] || 'default';
   let customFormat: string;
