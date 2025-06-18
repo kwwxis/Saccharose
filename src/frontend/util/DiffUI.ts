@@ -14,6 +14,7 @@ import { ColorSchemeType } from 'diff2html/lib/types';
 
 export type DiffUIConfig = Omit<Diff2HtmlConfig, 'maxLineLengthHighlight'> & {
   drawFileHeader?: boolean,
+  compactHeader?: boolean,
   synchronizedScroll?: boolean,
   wordWrap?: boolean,
   highlightOpts?: HighlightExistingElementOptions,
@@ -239,6 +240,10 @@ export class DiffUI {
     this.destroy();
 
     this.targetElement.innerHTML = Diff2Html.html(this.fullDiff.unifiedDiff, this._config);
+
+    if (this._config.compactHeader) {
+      this.targetElement.querySelector('.d2h-file-header').classList.add('is-compact');
+    }
 
     if (this._config.drawFileHeader == false) {
       this.targetElement.querySelector('.d2h-file-header').remove();

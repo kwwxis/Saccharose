@@ -6,8 +6,9 @@ export default async function(): Promise<Router> {
   const router: Router = create();
 
   router.get('/logview', (req, res) => {
-    if (req.user.wiki_username !== 'Kwwxis') {
-      res.end();
+    if (!req.user.roles.includes('admin')) {
+      res.status(403).render('errors/accessDenied');
+      return;
     }
     res.render(SiteLogViewPage, {
       title: 'Logview',

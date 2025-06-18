@@ -66,13 +66,13 @@ export const genshinSchema = {
     name: 'DialogExcelConfigData',
     jsonFile: './ExcelBinOutput/DialogExcelConfigData.json',
     columns: [
-      { name: 'Id', type: 'integer', isPrimary: true },
-      { name: 'TalkRoleType', type: 'string', resolve: 'TalkRole.Type', isIndex: true },
-      { name: 'TalkRoleId', type: 'string', resolve: 'TalkRole.Id', isIndex: true },
-      { name: 'TalkContentTextMapHash', type: 'integer', isIndex: true },
-      { name: 'TalkRoleNameTextMapHash', type: 'integer', isIndex: true },
+      { name: 'Id', type: 'bigint', isPrimary: true },
+      { name: 'TalkRoleType', type: 'text', resolve: 'TalkRole.Type', isIndex: true },
+      { name: 'TalkRoleId', type: 'text', resolve: 'TalkRole.Id', isIndex: true },
+      { name: 'TalkContentTextMapHash', type: 'text', isIndex: true },
+      { name: 'TalkRoleNameTextMapHash', type: 'text', isIndex: true },
       { name: 'TalkId', type: 'integer', isIndex: true },
-      { name: 'TalkType', type: 'string', isIndex: true },
+      { name: 'TalkType', type: 'text', isIndex: true },
     ]
   },
   DialogUnparentedExcelConfigData: <SchemaTable> {
@@ -80,15 +80,15 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/DialogUnparentedExcelConfigData.json',
     columns: [
       { name: 'MainQuestId', type: 'integer', isIndex: true },
-      { name: 'DialogId', type: 'integer', isIndex: true },
+      { name: 'DialogId', type: 'bigint', isIndex: true },
     ]
   },
   Relation_DialogToNext: <SchemaTable> {
     name: 'Relation_DialogToNext',
     jsonFile: './ExcelBinOutput/DialogExcelConfigData.json',
     columns: [
-      { name: 'DialogId', type: 'integer', isIndex: true },
-      { name: 'NextId', type: 'integer', isIndex: true },
+      { name: 'DialogId', type: 'bigint', isIndex: true },
+      { name: 'NextId', type: 'bigint', isIndex: true },
     ],
     customRowResolveProvider: async () => {
       // Cannot import GenshinControl from this file (genshin.schema.ts) which is why we're using a dynamic import.
@@ -99,8 +99,8 @@ export const genshinSchema = {
     name: 'ManualTextMapConfigData',
     jsonFile: './ExcelBinOutput/ManualTextMapConfigData.json',
     columns: [
-      { name: 'TextMapId', type: 'string', isPrimary: true },
-      { name: 'TextMapContentTextMapHash', type: 'integer', isIndex: true },
+      { name: 'TextMapId', type: 'text', isPrimary: true },
+      { name: 'TextMapContentTextMapHash', type: 'text', isIndex: true },
     ],
   },
   NpcExcelConfigData: <SchemaTable> {
@@ -108,7 +108,7 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/NpcExcelConfigData.json',
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
-      { name: 'NameTextMapHash', type: 'integer', isIndex: true },
+      { name: 'NameTextMapHash', type: 'text', isIndex: true },
     ],
   },
   TalkExcelConfigData: <SchemaTable> {
@@ -116,8 +116,8 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/TalkExcelConfigData.json',
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
-      { name: 'InitDialog', type: 'integer', isIndex: true },
-      { name: 'LoadType', type: 'string', isIndex: true, defaultValue: 'TALK_DEFAULT' },
+      { name: 'InitDialog', type: 'bigint', isIndex: true },
+      { name: 'LoadType', type: 'text', isIndex: true, defaultValue: 'TALK_DEFAULT' },
       { name: 'QuestId', type: 'integer', isIndex: true },
       {
         name: 'QuestCondStateEqualFirst', type: 'integer', isIndex: true, resolve(row: TalkExcelConfigData) {
@@ -146,7 +146,7 @@ export const genshinSchema = {
     columns: [
       { name: 'NpcId', type: 'integer', isIndex: true },
       { name: 'TalkId', type: 'integer' },
-      { name: 'TalkLoadType', type: 'string', isIndex: true },
+      { name: 'TalkLoadType', type: 'text', isIndex: true },
     ],
     customRowResolve: (row: TalkExcelConfigData) => {
       if (row.NpcId && row.NpcId.length) {
@@ -162,8 +162,8 @@ export const genshinSchema = {
       { name: 'Id', type: 'integer', isPrimary: true },
       { name: 'Series', type: 'integer', isIndex: true },
       { name: 'ChapterId', type: 'integer', isIndex: true },
-      { name: 'TitleTextMapHash', type: 'integer', isIndex: true },
-      { name: 'DescTextMapHash', type: 'integer', isIndex: true },
+      { name: 'TitleTextMapHash', type: 'text', isIndex: true },
+      { name: 'DescTextMapHash', type: 'text', isIndex: true },
     ]
   },
   ChapterExcelConfigData: <SchemaTable> {
@@ -173,8 +173,8 @@ export const genshinSchema = {
       { name: 'Id', type: 'integer', isPrimary: true },
       { name: 'BeginQuestId', type: 'integer', isIndex: true },
       { name: 'EndQuestId', type: 'integer', isIndex: true },
-      { name: 'ChapterNumTextMapHash', type: 'integer', isIndex: true },
-      { name: 'ChapterTitleTextMapHash', type: 'integer', isIndex: true },
+      { name: 'ChapterNumTextMapHash', type: 'text', isIndex: true },
+      { name: 'ChapterTitleTextMapHash', type: 'text', isIndex: true },
     ],
   },
   QuestExcelConfigData: <SchemaTable> {
@@ -184,9 +184,9 @@ export const genshinSchema = {
       { name: 'SubId', type: 'integer', isPrimary: true },
       { name: 'MainId', type: 'integer', isIndex: true },
       { name: 'Order', type: 'integer' },
-      { name: 'DescTextMapHash', type: 'integer', isIndex: true },
-      { name: 'StepDescTextMapHash', type: 'integer', isIndex: true },
-      { name: 'GuideTipsTextMapHash', type: 'integer', isIndex: true },
+      { name: 'DescTextMapHash', type: 'text', isIndex: true },
+      { name: 'StepDescTextMapHash', type: 'text', isIndex: true },
+      { name: 'GuideTipsTextMapHash', type: 'text', isIndex: true },
     ]
   },
   LoadingTipsExcelConfigData: <SchemaTable> {
@@ -194,9 +194,9 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/LoadingTipsExcelConfigData.json',
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
-      { name: 'TipsTitleTextMapHash', type: 'integer', isIndex: true },
-      { name: 'TipsDescTextMapHash', type: 'integer', isIndex: true },
-      { name: 'StageId', type: 'string', isIndex: true },
+      { name: 'TipsTitleTextMapHash', type: 'text', isIndex: true },
+      { name: 'TipsDescTextMapHash', type: 'text', isIndex: true },
+      { name: 'StageId', type: 'text', isIndex: true },
       { name: 'MinLevel', type: 'integer', isIndex: true },
     ],
   },
@@ -205,26 +205,26 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/LoadingSituationExcelConfigData.json',
     columns: [
       { name: 'StageId', type: 'integer', isPrimary: true },
-      { name: 'LoadingSituationType', type: 'string', isIndex: true },
-      { name: 'AreaTerrainType', type: 'string', isIndex: true },
+      { name: 'LoadingSituationType', type: 'text', isIndex: true },
+      { name: 'AreaTerrainType', type: 'text', isIndex: true },
     ]
   },
   ReminderExcelConfigData: <SchemaTable> {
     name: 'ReminderExcelConfigData',
     jsonFile: './ExcelBinOutput/ReminderExcelConfigData.json',
     columns: [
-      { name: 'Id', type: 'integer', isPrimary: true },
-      { name: 'SpeakerTextMapHash', type: 'integer', isIndex: true },
-      { name: 'ContentTextMapHash', type: 'integer', isIndex: true },
-      { name: 'NextReminderId', type: 'integer', isIndex: true },
+      { name: 'Id', type: 'bigint', isPrimary: true },
+      { name: 'SpeakerTextMapHash', type: 'text', isIndex: true },
+      { name: 'ContentTextMapHash', type: 'text', isIndex: true },
+      { name: 'NextReminderId', type: 'bigint', isIndex: true },
     ],
   },
   Relation_ReminderToNext: <SchemaTable> {
     name: 'Relation_ReminderToNext',
     jsonFile: './ExcelBinOutput/ReminderExcelConfigData.json',
     columns: [
-      { name: 'ReminderId', type: 'integer', isIndex: true },
-      { name: 'NextReminderId', type: 'integer', isIndex: true },
+      { name: 'ReminderId', type: 'bigint', isIndex: true },
+      { name: 'NextReminderId', type: 'bigint', isIndex: true },
     ],
     customRowResolve: (row: ReminderExcelConfigData) => {
       if (row.NextReminderId && row.NextReminderId) {
@@ -239,15 +239,15 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/MaterialExcelConfigData.json',
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
-      { name: 'InteractionTitleTextMapHash', type: 'integer', isIndex: true },
-      { name: 'EffectDescTextMapHash', type: 'integer', isIndex: true },
-      { name: 'SpecialDescTextMapHash', type: 'integer', isIndex: true },
-      { name: 'TypeDescTextMapHash', type: 'integer', isIndex: true },
-      { name: 'NameTextMapHash', type: 'integer', isIndex: true },
-      { name: 'DescTextMapHash', type: 'integer', isIndex: true },
-      { name: 'Icon', type: 'string' },
-      { name: 'ItemType', type: 'string' },
-      { name: 'RankLevel', type: 'string' },
+      { name: 'InteractionTitleTextMapHash', type: 'text', isIndex: true },
+      { name: 'EffectDescTextMapHash', type: 'text', isIndex: true },
+      { name: 'SpecialDescTextMapHash', type: 'text', isIndex: true },
+      { name: 'TypeDescTextMapHash', type: 'text', isIndex: true },
+      { name: 'NameTextMapHash', type: 'text', isIndex: true },
+      { name: 'DescTextMapHash', type: 'text', isIndex: true },
+      { name: 'Icon', type: 'text' },
+      { name: 'ItemType', type: 'text' },
+      { name: 'RankLevel', type: 'text' },
     ],
   },
   MaterialCodexExcelConfigData: <SchemaTable> {
@@ -257,9 +257,9 @@ export const genshinSchema = {
       {name: 'Id', type: 'integer', isPrimary: true},
       {name: 'MaterialId', type: 'integer', isIndex: true},
       {name: 'SortOrder', type: 'integer', isIndex: true},
-      {name: 'Type', type: 'string', isIndex: true},
-      {name: 'NameTextMapHash', type: 'decimal', isIndex: true},
-      {name: 'DescTextMapHash', type: 'decimal', isIndex: true},
+      {name: 'Type', type: 'text', isIndex: true},
+      {name: 'NameTextMapHash', type: 'text', isIndex: true},
+      {name: 'DescTextMapHash', type: 'text', isIndex: true},
     ]
   },
   Relation_FurnitureToMaterial: <SchemaTable> {
@@ -325,9 +325,9 @@ export const genshinSchema = {
       { name: 'CityId', type: 'integer', isIndex: true },
       { name: 'PoolId', type: 'integer', isIndex: true },
       { name: 'QuestId', type: 'integer', isIndex: true },
-      { name: 'TitleTextMapHash', type: 'integer', isIndex: true },
-      { name: 'DescriptionTextMapHash', type: 'integer', isIndex: true },
-      { name: 'TargetTextMapHash', type: 'integer', isIndex: true },
+      { name: 'TitleTextMapHash', type: 'text', isIndex: true },
+      { name: 'DescriptionTextMapHash', type: 'text', isIndex: true },
+      { name: 'TargetTextMapHash', type: 'text', isIndex: true },
     ],
   },
   NpcFirstMetExcelConfigData: <SchemaTable> {
@@ -336,7 +336,7 @@ export const genshinSchema = {
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
       { name: 'AvatarId', type: 'integer', isIndex: true },
-      { name: 'AvatarDescriptionTextMapHash', type: 'integer', isIndex: true },
+      { name: 'AvatarDescriptionTextMapHash', type: 'text', isIndex: true },
     ],
   },
   AvatarExcelConfigData: <SchemaTable> {
@@ -344,12 +344,12 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/AvatarExcelConfigData.json',
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
-      { name: 'NameTextMapHash', type: 'integer', isIndex: true },
-      { name: 'DescTextMapHash', type: 'integer', isIndex: true },
-      { name: 'WeaponType', type: 'string', isIndex: true },
-      { name: 'BodyType', type: 'string', isIndex: true },
-      { name: 'IconName', type: 'string' },
-      { name: 'SideIconName', type: 'string' },
+      { name: 'NameTextMapHash', type: 'text', isIndex: true },
+      { name: 'DescTextMapHash', type: 'text', isIndex: true },
+      { name: 'WeaponType', type: 'text', isIndex: true },
+      { name: 'BodyType', type: 'text', isIndex: true },
+      { name: 'IconName', type: 'text' },
+      { name: 'SideIconName', type: 'text' },
     ],
   },
   RewardExcelConfigData: <SchemaTable> {
@@ -364,16 +364,16 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/HomeWorldFurnitureExcelConfigData.json',
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
-      { name: 'NameTextMapHash', type: 'integer', isIndex: true },
-      { name: 'DescTextMapHash', type: 'integer', isIndex: true },
-      { name: 'SurfaceType', type: 'string', isIndex: true },
+      { name: 'NameTextMapHash', type: 'text', isIndex: true },
+      { name: 'DescTextMapHash', type: 'text', isIndex: true },
+      { name: 'SurfaceType', type: 'text', isIndex: true },
       { name: 'GridStyle', type: 'integer' },
       { name: 'Comfort', type: 'integer' },
       { name: 'StackLimit', type: 'integer' },
       { name: 'Cost', type: 'integer' },
       { name: 'Rank', type: 'integer', isIndex: true },
       { name: 'RankLevel', type: 'integer', isIndex: true },
-      { name: 'ItemType', type: 'string', isIndex: true },
+      { name: 'ItemType', type: 'text', isIndex: true },
     ]
   },
   HomeWorldFurnitureTypeExcelConfigData: <SchemaTable> {
@@ -381,10 +381,10 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/HomeWorldFurnitureTypeExcelConfigData.json',
     columns: [
       { name: 'TypeId', type: 'integer', isPrimary: true },
-      { name: 'TypeNameTextMapHash', type: 'integer', isIndex: true },
-      { name: 'TypeName2TextMapHash', type: 'integer', isIndex: true },
-      { name: 'TabIcon', type: 'integer' },
-      { name: 'SceneType', type: 'string' },
+      { name: 'TypeNameTextMapHash', type: 'text', isIndex: true },
+      { name: 'TypeName2TextMapHash', type: 'text', isIndex: true },
+      { name: 'TabIcon', type: 'text' },
+      { name: 'SceneType', type: 'text' },
     ]
   },
   HomeWorldPlantExcelConfigData: <SchemaTable> {
@@ -396,7 +396,7 @@ export const genshinSchema = {
       { name: 'SproutGadgetId', type: 'integer', isIndex: true },
       { name: 'FieldId', type: 'integer', isIndex: true },
       { name: 'HomeGatherId', type: 'integer', isIndex: true },
-      { name: 'InteeNameTextMapHash', type: 'integer', isIndex: true },
+      { name: 'InteeNameTextMapHash', type: 'text', isIndex: true },
     ]
   },
   HomeWorldEventExcelConfigData: <SchemaTable> {
@@ -404,7 +404,7 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/HomeWorldEventExcelConfigData.json',
     columns: [
       { name: 'EventId', type: 'integer', isPrimary: true },
-      { name: 'EventType', type: 'string', isIndex: true },
+      { name: 'EventType', type: 'text', isIndex: true },
       { name: 'AvatarId', type: 'integer', isIndex: true },
       { name: 'TalkId', type: 'integer', isIndex: true },
       { name: 'RewardId', type: 'integer', isIndex: true },
@@ -416,10 +416,10 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/HomeWorldNPCExcelConfigData.json',
     columns: [
       { name: 'FurnitureId', type: 'integer', isPrimary: true },
-      { name: 'AvatarId', type: 'string', isIndex: true },
+      { name: 'AvatarId', type: 'text', isIndex: true },
       { name: 'NpcId', type: 'integer', isIndex: true },
-      { name: 'ShowNameTextMapHash', type: 'integer', isIndex: true },
-      { name: 'DescTextMapHash', type: 'integer', isIndex: true },
+      { name: 'ShowNameTextMapHash', type: 'text', isIndex: true },
+      { name: 'DescTextMapHash', type: 'text', isIndex: true },
     ]
   },
   HomeworldAnimalExcelConfigData: <SchemaTable> {
@@ -435,7 +435,7 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/AnimalDescribeExcelConfigData.json',
     columns: [
       {name: 'Id', type: 'integer', isPrimary: true},
-      {name: 'NameTextMapHash', type: 'decimal', isIndex: true},
+      {name: 'NameTextMapHash', type: 'text', isIndex: true},
     ]
   },
   AnimalCodexExcelConfigData: <SchemaTable> {
@@ -443,12 +443,12 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/AnimalCodexExcelConfigData.json',
     columns: [
       {name: 'Id', type: 'integer', isPrimary: true},
-      {name: 'Type', type: 'string', isIndex: true},
-      {name: 'SubType', type: 'string', isIndex: true},
-      {name: 'CountType', type: 'string', isIndex: true},
+      {name: 'Type', type: 'text', isIndex: true},
+      {name: 'SubType', type: 'text', isIndex: true},
+      {name: 'CountType', type: 'text', isIndex: true},
       {name: 'DescribeId', type: 'integer', isIndex: true},
       {name: 'SortOrder', type: 'integer', isIndex: true},
-      {name: 'DescTextMapHash', type: 'decimal', isIndex: true},
+      {name: 'DescTextMapHash', type: 'text', isIndex: true},
       {name: 'PushTipsCodexId', type: 'integer', isIndex: true},
     ],
     renameFields: {
@@ -479,7 +479,7 @@ export const genshinSchema = {
       { name: 'ParentQuestId', type: 'integer', isPrimary: true },
       { name: 'CityId', type: 'integer', isIndex: true },
       { name: 'RewardId', type: 'integer' },
-      { name: 'TitleTextMapHash', type: 'integer', isIndex: true },
+      { name: 'TitleTextMapHash', type: 'text', isIndex: true },
       { name: 'Order', type: 'integer' },
     ],
   },
@@ -488,9 +488,9 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/CityConfigData.json',
     columns: [
       { name: 'CityId', type: 'integer', isPrimary: true },
-      { name: 'CityNameTextMapHash', type: 'integer', isIndex: true },
-      { name: 'CityGoddnessNameTextMapHash', type: 'integer', isIndex: true },
-      { name: 'CityGoddnessDescTextMapHash', type: 'integer', isIndex: true },
+      { name: 'CityNameTextMapHash', type: 'text', isIndex: true },
+      { name: 'CityGoddnessNameTextMapHash', type: 'text', isIndex: true },
+      { name: 'CityGoddnessDescTextMapHash', type: 'text', isIndex: true },
     ],
   },
   FurnitureSuiteExcelConfigData: <SchemaTable> {
@@ -515,7 +515,7 @@ export const genshinSchema = {
     columns: [
       { name: 'RelationId', type: 'integer', isIndex: true },
       { name: 'RoleId', type: 'integer', isIndex: true },
-      { name: 'RoleType', type: 'string', isIndex: true },
+      { name: 'RoleType', type: 'text', isIndex: true },
     ],
     customRowResolve: (row: FurnitureMakeExcelConfigData) => {
       let ret: MaterialRelation[] = [];
@@ -543,7 +543,7 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/BookSuitExcelConfigData.json',
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
-      { name: 'SuitNameTextMapHash', type: 'integer', isIndex: true },
+      { name: 'SuitNameTextMapHash', type: 'text', isIndex: true },
     ],
   },
   LocalizationExcelConfigData: <SchemaTable> {
@@ -551,22 +551,22 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/LocalizationExcelConfigData.json',
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
-      { name: 'AssetType', type: 'string', isIndex: true },
-      { name: 'ScPath', type: 'string', isIndex: true },
-      { name: 'TcPath', type: 'string', isIndex: true },
-      { name: 'EnPath', type: 'string', isIndex: true },
-      { name: 'KrPath', type: 'string', isIndex: true },
-      { name: 'JpPath', type: 'string', isIndex: true },
-      { name: 'EsPath', type: 'string', isIndex: true },
-      { name: 'FrPath', type: 'string', isIndex: true },
-      { name: 'IdPath', type: 'string', isIndex: true },
-      { name: 'PtPath', type: 'string', isIndex: true },
-      { name: 'RuPath', type: 'string', isIndex: true },
-      { name: 'ThPath', type: 'string', isIndex: true },
-      { name: 'ViPath', type: 'string', isIndex: true },
-      { name: 'DePath', type: 'string', isIndex: true },
-      { name: 'TrPath', type: 'string', isIndex: true },
-      { name: 'ItPath', type: 'string', isIndex: true },
+      { name: 'AssetType', type: 'text', isIndex: true },
+      { name: 'ScPath', type: 'text', isIndex: true },
+      { name: 'TcPath', type: 'text', isIndex: true },
+      { name: 'EnPath', type: 'text', isIndex: true },
+      { name: 'KrPath', type: 'text', isIndex: true },
+      { name: 'JpPath', type: 'text', isIndex: true },
+      { name: 'EsPath', type: 'text', isIndex: true },
+      { name: 'FrPath', type: 'text', isIndex: true },
+      { name: 'IdPath', type: 'text', isIndex: true },
+      { name: 'PtPath', type: 'text', isIndex: true },
+      { name: 'RuPath', type: 'text', isIndex: true },
+      { name: 'ThPath', type: 'text', isIndex: true },
+      { name: 'ViPath', type: 'text', isIndex: true },
+      { name: 'DePath', type: 'text', isIndex: true },
+      { name: 'TrPath', type: 'text', isIndex: true },
+      { name: 'ItPath', type: 'text', isIndex: true },
     ],
   },
   DocumentExcelConfigData: <SchemaTable> {
@@ -574,7 +574,7 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/DocumentExcelConfigData.json',
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
-      { name: 'TitleTextMapHash', type: 'integer', isIndex: true },
+      { name: 'TitleTextMapHash', type: 'text', isIndex: true },
     ],
     renameFields: {
       ContentLocalizedId: 'ContentLocalizedIds',
@@ -622,7 +622,7 @@ export const genshinSchema = {
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
       { name: 'SetId', type: 'integer', isIndex: true },
-      { name: 'EquipType', type: 'string', isIndex: true },
+      { name: 'EquipType', type: 'text', isIndex: true },
       { name: 'StoryId', type: 'integer', isIndex: true },
     ],
   },
@@ -646,7 +646,7 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/WeaponExcelConfigData.json',
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
-      { name: 'WeaponType', type: 'integer', isIndex: true },
+      { name: 'WeaponType', type: 'text', isIndex: true },
       { name: 'StoryId', type: 'integer', isIndex: true },
     ],
   },
@@ -664,8 +664,8 @@ export const genshinSchema = {
     columns: [
       {name: 'Id', type: 'integer', isIndex: true},
       {name: 'AffixId', type: 'integer', isPrimary: true},
-      {name: 'NameTextMapHash', type: 'decimal', isIndex: true},
-      {name: 'DescTextMapHash', type: 'decimal', isIndex: true},
+      {name: 'NameTextMapHash', type: 'text', isIndex: true},
+      {name: 'DescTextMapHash', type: 'text', isIndex: true},
       {name: 'Level', type: 'integer', isIndex: true},
     ]
   },
@@ -674,9 +674,9 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/AchievementExcelConfigData.json',
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
-      { name: 'TitleTextMapHash', type: 'integer', isIndex: true },
-      { name: 'DescTextMapHash', type: 'integer', isIndex: true },
-      { name: 'Ps5TitleTextMapHash', type: 'integer', isIndex: true },
+      { name: 'TitleTextMapHash', type: 'text', isIndex: true },
+      { name: 'DescTextMapHash', type: 'text', isIndex: true },
+      { name: 'Ps5TitleTextMapHash', type: 'text', isIndex: true },
       { name: 'PreStageAchievementId', type: 'integer', isIndex: true },
       { name: 'FinishRewardId', type: 'integer', isIndex: true },
     ],
@@ -686,7 +686,7 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/AchievementGoalExcelConfigData.json',
     columns: [
       { name: 'Id', type: 'integer', isIndex: true },
-      { name: 'NameTextMapHash', type: 'integer', isIndex: true },
+      { name: 'NameTextMapHash', type: 'text', isIndex: true },
       { name: 'FinishRewardId', type: 'integer', isIndex: true },
     ],
   },
@@ -697,11 +697,11 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/MonsterExcelConfigData.json',
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
-      { name: 'Type', type: 'string', isIndex: true },
+      { name: 'Type', type: 'text', isIndex: true },
       { name: 'DescribeId', type: 'integer', isIndex: true },
-      { name: 'NameTextMapHash', type: 'integer', isIndex: true },
-      { name: 'SecurityLevel', type: 'string', isIndex: true },
-      { name: 'VisionLevel', type: 'string', isIndex: true },
+      { name: 'NameTextMapHash', type: 'text', isIndex: true },
+      { name: 'SecurityLevel', type: 'text', isIndex: true },
+      { name: 'VisionLevel', type: 'text', isIndex: true },
     ],
   },
   MonsterDescribeExcelConfigData: <SchemaTable> {
@@ -709,7 +709,7 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/MonsterDescribeExcelConfigData.json',
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
-      { name: 'NameTextMapHash', type: 'decimal', isIndex: true },
+      { name: 'NameTextMapHash', type: 'text', isIndex: true },
       { name: 'TitleId', type: 'integer', isIndex: true },
       { name: 'SpecialNameLabId', type: 'integer', isIndex: true },
     ],
@@ -720,7 +720,7 @@ export const genshinSchema = {
     columns: [
       { name: 'SpecialNameId', type: 'integer', isPrimary: true },
       { name: 'SpecialNameLabId', type: 'integer', isIndex: true },
-      { name: 'SpecialNameTextMapHash', type: 'decimal', isIndex: true },
+      { name: 'SpecialNameTextMapHash', type: 'text', isIndex: true },
     ],
   },
   MonsterTitleExcelConfigData: <SchemaTable> {
@@ -728,7 +728,7 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/MonsterTitleExcelConfigData.json',
     columns: [
       { name: 'TitleId', type: 'integer', isPrimary: true },
-      { name: 'TitleNameTextMapHash', type: 'decimal', isIndex: true },
+      { name: 'TitleNameTextMapHash', type: 'text', isIndex: true },
     ],
   },
 
@@ -736,9 +736,9 @@ export const genshinSchema = {
     name: 'AvatarCodexExcelConfigData',
     jsonFile: './ExcelBinOutput/AvatarCodexExcelConfigData.json',
     columns: [
-      { name: 'Id', type: 'integer', isPrimary: true },
+      { name: 'SortId', type: 'integer', isPrimary: true },
       { name: 'SortFactor', type: 'integer', isIndex: true },
-      { name: 'AvatarId', type: 'integer', isIndex: true },
+      { name: 'AvatarId', type: 'integer', isPrimary: true },
     ],
   },
   AvatarFlycloakExcelConfigData: <SchemaTable> {
@@ -746,8 +746,8 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/AvatarFlycloakExcelConfigData.json',
     columns: [
       { name: 'FlycloakId', type: 'integer', isPrimary: true },
-      { name: 'NameTextMapHash', type: 'integer', isIndex: true },
-      { name: 'DescTextMapHash', type: 'integer', isIndex: true },
+      { name: 'NameTextMapHash', type: 'text', isIndex: true },
+      { name: 'DescTextMapHash', type: 'text', isIndex: true },
       { name: 'MaterialId', type: 'integer', isIndex: true },
     ],
   },
@@ -757,8 +757,8 @@ export const genshinSchema = {
     columns: [
       { name: 'SkinId', type: 'integer', isPrimary: true },
       { name: 'IndexId', type: 'integer', isIndex: true },
-      { name: 'NameTextMapHash', type: 'decimal', isIndex: true },
-      { name: 'DescTextMapHash', type: 'decimal', isIndex: true },
+      { name: 'NameTextMapHash', type: 'text', isIndex: true },
+      { name: 'DescTextMapHash', type: 'text', isIndex: true },
       { name: 'ItemId', type: 'integer', isIndex: true },
       { name: 'CharacterId', type: 'integer', isIndex: true },
       { name: 'Quality', type: 'integer', isIndex: true },
@@ -801,7 +801,7 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/GCGTalkDetailIconExcelConfigData.json',
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
-      { name: 'Type', type: 'string', isIndex: true },
+      { name: 'Type', type: 'text', isIndex: true },
     ],
   },
   GCGGameExcelConfigData: <SchemaTable> {
@@ -812,7 +812,7 @@ export const genshinSchema = {
       { name: 'RuleId', type: 'integer', isIndex: true },
       { name: 'CardGroupId', type: 'integer', isIndex: true },
       { name: 'EnemyCardGroupId', type: 'integer', isIndex: true },
-      { name: 'GameType', type: 'string', isIndex: true },
+      { name: 'GameType', type: 'text', isIndex: true },
     ]
   },
   GCGBossLevelExcelConfigData: <SchemaTable> {
@@ -823,10 +823,10 @@ export const genshinSchema = {
       { name: 'NormalLevelId', type: 'integer', isIndex: true },
       { name: 'HardLevelId', type: 'integer', isIndex: true },
       { name: 'UnlockParam', type: 'integer', isIndex: true },
-      { name: 'UnlockDecTextMapHash', type: 'integer', isIndex: true },
+      { name: 'UnlockDecTextMapHash', type: 'text', isIndex: true },
       { name: 'NpcId', type: 'integer', isIndex: true },
       { name: 'MonsterId', type: 'integer', isIndex: true },
-      { name: 'MonsterTitleTextMapHash', type: 'integer', isIndex: true },
+      { name: 'MonsterTitleTextMapHash', type: 'text', isIndex: true },
     ],
     renameFields: {
       CatId: 'NpcId',
@@ -838,8 +838,8 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/GCGGameRewardExcelConfigData.json',
     columns: [
       { name: 'LevelId', type: 'integer', isPrimary: true },
-      { name: 'LevelNameTextMapHash', type: 'integer', isIndex: true },
-      { name: 'LevelDecTextMapHash', type: 'integer', isIndex: true },
+      { name: 'LevelNameTextMapHash', type: 'text', isIndex: true },
+      { name: 'LevelDecTextMapHash', type: 'text', isIndex: true },
       { name: 'GroupId', type: 'integer', isIndex: true },
     ],
     renameFields: {
@@ -852,16 +852,15 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/GCGChallengeExcelConfigData.json',
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
-      { name: 'Type', type: 'string', isIndex: true },
+      { name: 'Type', type: 'text', isIndex: true },
     ]
   },
   GCGTutorialTextExcelConfigData: <SchemaTable> {
     name: 'GCGTutorialTextExcelConfigData',
     jsonFile: './ExcelBinOutput/GCGTutorialTextExcelConfigData.json',
     columns: [
-      { name: 'Id', type: 'integer', isPrimary: true },
-      { name: 'TutorialTextId', type: 'integer', isIndex: true },
-      { name: 'TutorialTextMapHash', type: 'integer', isIndex: true },
+      { name: 'TutorialTextId', type: 'integer', isPrimary: true },
+      { name: 'TutorialTextMapHash', type: 'text', isIndex: true },
     ],
     renameFields: {
       Id: 'TutorialTextId',
@@ -880,7 +879,7 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/GCGRuleTextExcelConfigData.json',
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
-      { name: 'TitleTextMapHash', type: 'integer', isIndex: true },
+      { name: 'TitleTextMapHash', type: 'text', isIndex: true },
     ],
   },
   GCGRuleTextDetailExcelConfigData: <SchemaTable> {
@@ -888,8 +887,8 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/GCGRuleTextDetailExcelConfigData.json',
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
-      { name: 'TitleTextMapHash', type: 'integer', isIndex: true },
-      { name: 'ContentTextMapHash', type: 'integer', isIndex: true },
+      { name: 'TitleTextMapHash', type: 'text', isIndex: true },
+      { name: 'ContentTextMapHash', type: 'text', isIndex: true },
     ],
     renameFields: {
       PicName: 'Icon',
@@ -902,9 +901,9 @@ export const genshinSchema = {
       { name: 'LevelId', type: 'integer', isPrimary: true },
       { name: 'UnlockLevel', type: 'integer', isIndex: true },
       { name: 'UnlockMainQuestId', type: 'integer', isIndex: true },
-      { name: 'UnlockDescTextMapHash', type: 'integer', isIndex: true },
-      { name: 'QuestTitleTextMapHash', type: 'integer', isIndex: true },
-      { name: 'QuestDescTextMapHash', type: 'integer', isIndex: true },
+      { name: 'UnlockDescTextMapHash', type: 'text', isIndex: true },
+      { name: 'QuestTitleTextMapHash', type: 'text', isIndex: true },
+      { name: 'QuestDescTextMapHash', type: 'text', isIndex: true },
     ],
   },
   GcgOtherLevelExcelConfigData: <SchemaTable> {
@@ -929,8 +928,8 @@ export const genshinSchema = {
       { name: 'Id', type: 'integer', isPrimary: true },
       { name: 'NpcId', type: 'integer', isIndex: true },
       { name: 'LevelId', type: 'integer', isIndex: true },
-      { name: 'LevelTitleTextMapHash', type: 'integer', isIndex: true },
-      { name: 'MapDescTextMapHash', type: 'integer', isIndex: true },
+      { name: 'LevelTitleTextMapHash', type: 'text', isIndex: true },
+      { name: 'MapDescTextMapHash', type: 'text', isIndex: true },
       { name: 'TalkId', type: 'integer', isIndex: true },
     ],
     renameFields: {
@@ -950,7 +949,7 @@ export const genshinSchema = {
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
       { name: 'NpcId', type: 'integer', isIndex: true },
-      { name: 'NpcType', type: 'string', isIndex: true },
+      { name: 'NpcType', type: 'text', isIndex: true },
       { name: 'OpenQuestId', type: 'integer', isIndex: true },
     ]
   },
@@ -958,11 +957,11 @@ export const genshinSchema = {
     name: 'GCGCardExcelConfigData',
     jsonFile: './ExcelBinOutput/GCGCardExcelConfigData.json',
     columns: [
-      { name: 'CardType', type: 'string', isIndex: true },
-      { name: 'ChooseTargetType', type: 'string', isIndex: true },
+      { name: 'CardType', type: 'text', isIndex: true },
+      { name: 'ChooseTargetType', type: 'text', isIndex: true },
       { name: 'Id', type: 'integer', isPrimary: true },
-      { name: 'NameTextMapHash', type: 'integer', isIndex: true },
-      { name: 'DescTextMapHash', type: 'integer', isIndex: true },
+      { name: 'NameTextMapHash', type: 'text', isIndex: true },
+      { name: 'DescTextMapHash', type: 'text', isIndex: true },
     ],
   },
   GCGCardFaceExcelConfigData: <SchemaTable> {
@@ -973,8 +972,8 @@ export const genshinSchema = {
       { name: 'ItemId', type: 'integer', isIndex: true },
       { name: 'CardId', type: 'integer', isIndex: true },
       { name: 'ShopGoodId', type: 'integer', isIndex: true },
-      { name: 'NameTextMapHash', type: 'integer', isIndex: true },
-      { name: 'DescTextMapHash', type: 'integer', isIndex: true },
+      { name: 'NameTextMapHash', type: 'text', isIndex: true },
+      { name: 'DescTextMapHash', type: 'text', isIndex: true },
     ],
   },
   GCGCardViewExcelConfigData: <SchemaTable> {
@@ -989,8 +988,8 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/GCGCharExcelConfigData.json',
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
-      { name: 'NameTextMapHash', type: 'integer', isIndex: true },
-      { name: 'DescTextMapHash', type: 'integer', isIndex: true },
+      { name: 'NameTextMapHash', type: 'text', isIndex: true },
+      { name: 'DescTextMapHash', type: 'text', isIndex: true },
     ]
   },
   GCGCharacterLevelExcelConfigData: <SchemaTable> {
@@ -1062,8 +1061,8 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/GCGElementReactionExcelConfigData.json',
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
-      { name: 'ElementType1', type: 'string', isIndex: true },
-      { name: 'ElementType2', type: 'string', isIndex: true },
+      { name: 'ElementType1', type: 'text', isIndex: true },
+      { name: 'ElementType2', type: 'text', isIndex: true },
       { name: 'SkillId', type: 'integer', isIndex: true },
     ],
   },
@@ -1072,8 +1071,8 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/GCGSkillExcelConfigData.json',
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
-      { name: 'NameTextMapHash', type: 'integer', isIndex: true },
-      { name: 'DescTextMapHash', type: 'integer', isIndex: true },
+      { name: 'NameTextMapHash', type: 'text', isIndex: true },
+      { name: 'DescTextMapHash', type: 'text', isIndex: true },
     ]
   },
   GCGChooseExcelConfigData: <SchemaTable> {
@@ -1081,9 +1080,9 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/GCGChooseExcelConfigData.json',
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
-      { name: 'CardType', type: 'string', isIndex: true },
-      { name: 'TargetCamp', type: 'string', isIndex: true },
-      { name: 'ChooseType', type: 'string', isIndex: true },
+      { name: 'CardType', type: 'text', isIndex: true },
+      { name: 'TargetCamp', type: 'text', isIndex: true },
+      { name: 'ChooseType', type: 'text', isIndex: true },
     ],
     renameFields: {
       TargetHintTextMapHash: 'ChooseTextMapHash',
@@ -1141,15 +1140,15 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/GCGTokenDescConfigData.json',
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
-      { name: 'NameTextMapHash', type: 'integer', isIndex: true },
+      { name: 'NameTextMapHash', type: 'text', isIndex: true },
     ],
   },
   GCGSkillTagExcelConfigData: <SchemaTable> {
     name: 'GCGSkillTagExcelConfigData',
     jsonFile: './ExcelBinOutput/GCGSkillTagExcelConfigData.json',
     columns: [
-      { name: 'Type', type: 'string', isPrimary: true },
-      { name: 'NameTextMapHash', type: 'integer', isIndex: true },
+      { name: 'Type', type: 'text', isPrimary: true },
+      { name: 'NameTextMapHash', type: 'text', isIndex: true },
       { name: 'KeywordId', type: 'integer', isIndex: true },
     ]
   },
@@ -1157,9 +1156,9 @@ export const genshinSchema = {
     name: 'GCGTagExcelConfigData',
     jsonFile: './ExcelBinOutput/GCGTagExcelConfigData.json',
     columns: [
-      { name: 'Type', type: 'string', isPrimary: true },
-      { name: 'CategoryType', type: 'string', isIndex: true },
-      { name: 'NameTextMapHash', type: 'integer', isIndex: true },
+      { name: 'Type', type: 'text', isPrimary: true },
+      { name: 'CategoryType', type: 'text', isIndex: true },
+      { name: 'NameTextMapHash', type: 'text', isIndex: true },
     ],
     renameFields: {
       Identifier: 'CategoryType'
@@ -1171,15 +1170,15 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/GCGKeywordExcelConfigData.json',
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
-      { name: 'TitleTextMapHash', type: 'integer', isIndex: true },
-      { name: 'DescTextMapHash', type: 'integer', isIndex: true },
+      { name: 'TitleTextMapHash', type: 'text', isIndex: true },
+      { name: 'DescTextMapHash', type: 'text', isIndex: true },
     ],
   },
   GCGCostExcelConfigData: <SchemaTable> {
     name: 'GCGCostExcelConfigData',
     jsonFile: './ExcelBinOutput/GCGCostExcelConfigData.json',
     columns: [
-      { name: 'Type', type: 'string', isPrimary: true },
+      { name: 'Type', type: 'text', isPrimary: true },
       { name: 'KeywordId', type: 'integer', isIndex: true },
     ]
   },
@@ -1188,9 +1187,9 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/GCGDeckStorageExcelConfigData.json',
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
-      { name: 'UnlockCond', type: 'string', isIndex: true },
+      { name: 'UnlockCond', type: 'text', isIndex: true },
       { name: 'UnlockParam', type: 'integer', isIndex: true },
-      { name: 'UnlockCondTextTextMapHash', type: 'integer', isIndex: true },
+      { name: 'UnlockCondTextTextMapHash', type: 'text', isIndex: true },
     ],
     renameFields: {
       UnlockCondTextTextMapHash: 'UnlockCondTextMapHash'
@@ -1202,8 +1201,8 @@ export const genshinSchema = {
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
       { name: 'ItemId', type: 'integer', isIndex: true },
-      { name: 'NameTextMapHash', type: 'integer', isIndex: true },
-      { name: 'DescTextMapHash', type: 'integer', isIndex: true },
+      { name: 'NameTextMapHash', type: 'text', isIndex: true },
+      { name: 'DescTextMapHash', type: 'text', isIndex: true },
       { name: 'Order', type: 'integer', isIndex: true },
     ]
   },
@@ -1213,9 +1212,9 @@ export const genshinSchema = {
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
       { name: 'ItemId', type: 'integer', isIndex: true },
-      { name: 'NameTextMapHash', type: 'integer', isIndex: true },
-      { name: 'DescTextMapHash', type: 'integer', isIndex: true },
-      { name: 'UnlockCondTextMapHash', type: 'integer', isIndex: true },
+      { name: 'NameTextMapHash', type: 'text', isIndex: true },
+      { name: 'DescTextMapHash', type: 'text', isIndex: true },
+      { name: 'UnlockCondTextMapHash', type: 'text', isIndex: true },
       { name: 'Order', type: 'integer', isIndex: true },
       { name: 'BattleTableId', type: 'integer', isIndex: true },
       { name: 'DiceTableId', type: 'integer', isIndex: true },
@@ -1229,9 +1228,9 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/FettersExcelConfigData.json',
     columns: [
       { name: 'Type', type: 'integer', isIndex: true },
-      { name: 'VoiceTitleTextMapHash', type: 'integer', isIndex: true },
-      { name: 'VoiceFileTextMapHash', type: 'integer', isIndex: true },
-      { name: 'VoiceTitleLockedTextMapHash', type: 'integer', isIndex: true },
+      { name: 'VoiceTitleTextMapHash', type: 'text', isIndex: true },
+      { name: 'VoiceFileTextMapHash', type: 'text', isIndex: true },
+      { name: 'VoiceTitleLockedTextMapHash', type: 'text', isIndex: true },
       { name: 'FetterId', type: 'integer', isPrimary: true },
       { name: 'AvatarId', type: 'integer', isIndex: true },
     ],
@@ -1244,9 +1243,9 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/FetterStoryExcelConfigData.json',
     columns: [
       { name: 'Type', type: 'integer', isIndex: true },
-      { name: 'VoiceTitleTextMapHash', type: 'integer', isIndex: true },
-      { name: 'VoiceFileTextMapHash', type: 'integer', isIndex: true },
-      { name: 'VoiceTitleLockedTextMapHash', type: 'integer', isIndex: true },
+      { name: 'VoiceTitleTextMapHash', type: 'text', isIndex: true },
+      { name: 'VoiceFileTextMapHash', type: 'text', isIndex: true },
+      { name: 'VoiceTitleLockedTextMapHash', type: 'text', isIndex: true },
       { name: 'FetterId', type: 'integer', isPrimary: true },
       { name: 'AvatarId', type: 'integer', isIndex: true },
     ]
@@ -1263,7 +1262,7 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/TutorialDetailExcelConfigData.json',
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
-      { name: 'DescriptTextMapHash', type: 'integer', isIndex: true },
+      { name: 'DescriptTextMapHash', type: 'text', isIndex: true },
     ],
   },
   TutorialCatalogExcelConfigData: <SchemaTable> {
@@ -1272,7 +1271,7 @@ export const genshinSchema = {
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
       { name: 'PushTipsId', type: 'integer', isIndex: true },
-      { name: 'TitleTextMapHash', type: 'integer', isIndex: true },
+      { name: 'TitleTextMapHash', type: 'text', isIndex: true },
     ],
   },
 
@@ -1281,10 +1280,10 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/PushTipsConfigData.json',
     columns: [
       { name: 'PushTipsId', type: 'integer', isPrimary: true },
-      { name: 'PushTipsType', type: 'string', isIndex: true },
-      { name: 'CodexType', type: 'string', isIndex: true },
-      { name: 'TitleTextMapHash', type: 'integer', isIndex: true },
-      { name: 'SubtitleTextMapHash', type: 'integer', isIndex: true },
+      { name: 'PushTipsType', type: 'text', isIndex: true },
+      { name: 'CodexType', type: 'text', isIndex: true },
+      { name: 'TitleTextMapHash', type: 'text', isIndex: true },
+      { name: 'SubtitleTextMapHash', type: 'text', isIndex: true },
       { name: 'TutorialId', type: 'integer', isIndex: true },
       { name: 'GroupId', type: 'integer', isIndex: true },
     ],
@@ -1306,8 +1305,8 @@ export const genshinSchema = {
       { name: 'SceneId', type: 'integer', isIndex: true },
       { name: 'GroupId', type: 'integer', isIndex: true },
       { name: 'ConfigId', type: 'integer', isIndex: true },
-      { name: 'NameTextMapHash', type: 'integer', isIndex: true },
-      { name: 'DescTextMapHash', type: 'integer', isIndex: true },
+      { name: 'NameTextMapHash', type: 'text', isIndex: true },
+      { name: 'DescTextMapHash', type: 'text', isIndex: true },
       { name: 'CityId', type: 'integer', isIndex: true },
       { name: 'WorldAreaId', type: 'integer', isIndex: true },
       { name: 'SortOrder', type: 'integer', isIndex: true },
@@ -1317,12 +1316,12 @@ export const genshinSchema = {
     name: 'WorldAreaConfigData',
     jsonFile: './ExcelBinOutput/WorldAreaConfigData.json',
     columns: [
-      { name: 'ElementType', type: 'string', isIndex: true },
-      { name: 'TerrainType', type: 'string', isIndex: true },
+      { name: 'ElementType', type: 'text', isIndex: true },
+      { name: 'TerrainType', type: 'text', isIndex: true },
       { name: 'Id', type: 'integer', isPrimary: true },
       { name: 'SceneId', type: 'integer', isIndex: true },
-      { name: 'AreaType', type: 'string', isIndex: true },
-      { name: 'AreaNameTextMapHash', type: 'integer', isIndex: true },
+      { name: 'AreaType', type: 'text', isIndex: true },
+      { name: 'AreaNameTextMapHash', type: 'text', isIndex: true },
       { name: 'TowerPointId', type: 'integer', isIndex: true },
     ],
   },
@@ -1331,8 +1330,8 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/NewActivityExcelConfigData.json',
     columns: [
       { name: 'ActivityId', type: 'integer', isPrimary: true },
-      { name: 'ActivityType', type: 'string', isIndex: true },
-      { name: 'NameTextMapHash', type: 'integer', isIndex: true },
+      { name: 'ActivityType', type: 'text', isIndex: true },
+      { name: 'NameTextMapHash', type: 'text', isIndex: true },
     ],
   },
   NewActivityEntryConfigData: <SchemaTable> {
@@ -1340,8 +1339,8 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/NewActivityEntryConfigData.json',
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
-      { name: 'ActivityType', type: 'string', isIndex: true },
-      { name: 'TabNameTextMapHash', type: 'integer', isIndex: true },
+      { name: 'ActivityType', type: 'text', isIndex: true },
+      { name: 'TabNameTextMapHash', type: 'text', isIndex: true },
     ],
   },
   FetterInfoExcelConfigData: <SchemaTable> {
@@ -1350,18 +1349,18 @@ export const genshinSchema = {
     columns: [
       { name: 'FetterId', type: 'integer', isPrimary: true },
       { name: 'AvatarId', type: 'integer', isIndex: true },
-      { name: 'AvatarNativeTextMapHash', type: 'integer', isIndex: true },
-      { name: 'AvatarVisionBeforTextMapHash', type: 'integer', isIndex: true },
-      { name: 'AvatarConstellationBeforTextMapHash', type: 'integer', isIndex: true },
-      { name: 'AvatarTitleTextMapHash', type: 'integer', isIndex: true },
-      { name: 'AvatarDetailTextMapHash', type: 'integer', isIndex: true },
-      { name: 'AvatarAssocType', type: 'string', isIndex: true },
-      { name: 'CvChineseTextMapHash', type: 'integer', isIndex: true },
-      { name: 'CvJapaneseTextMapHash', type: 'integer', isIndex: true },
-      { name: 'CvEnglishTextMapHash', type: 'integer', isIndex: true },
-      { name: 'CvKoreanTextMapHash', type: 'integer', isIndex: true },
-      { name: 'AvatarVisionAfterTextMapHash', type: 'integer', isIndex: true },
-      { name: 'AvatarConstellationAfterTextMapHash', type: 'integer', isIndex: true },
+      { name: 'AvatarNativeTextMapHash', type: 'text', isIndex: true },
+      { name: 'AvatarVisionBeforTextMapHash', type: 'text', isIndex: true },
+      { name: 'AvatarConstellationBeforTextMapHash', type: 'text', isIndex: true },
+      { name: 'AvatarTitleTextMapHash', type: 'text', isIndex: true },
+      { name: 'AvatarDetailTextMapHash', type: 'text', isIndex: true },
+      { name: 'AvatarAssocType', type: 'text', isIndex: true },
+      { name: 'CvChineseTextMapHash', type: 'text', isIndex: true },
+      { name: 'CvJapaneseTextMapHash', type: 'text', isIndex: true },
+      { name: 'CvEnglishTextMapHash', type: 'text', isIndex: true },
+      { name: 'CvKoreanTextMapHash', type: 'text', isIndex: true },
+      { name: 'AvatarVisionAfterTextMapHash', type: 'text', isIndex: true },
+      { name: 'AvatarConstellationAfterTextMapHash', type: 'text', isIndex: true },
     ],
     renameFields: {
       'AvatarVisionBeforText': 'AvatarVisionBeforeText',
@@ -1373,19 +1372,19 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/DungeonExcelConfigData.json',
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
-      { name: 'Type', type: 'string', isIndex: true },
-      { name: 'SubType', type: 'string', isIndex: true },
-      { name: 'InvolveType', type: 'string', isIndex: true },
-      { name: 'SettleUIType', type: 'string', isIndex: true },
-      { name: 'StateType', type: 'string', isIndex: true },
-      { name: 'PlayType', type: 'string', isIndex: true },
-      { name: 'NameTextMapHash', type: 'integer', isIndex: true },
-      { name: 'DisplayNameTextMapHash', type: 'integer', isIndex: true },
-      { name: 'DescTextMapHash', type: 'integer', isIndex: true },
+      { name: 'Type', type: 'text', isIndex: true },
+      { name: 'SubType', type: 'text', isIndex: true },
+      { name: 'InvolveType', type: 'text', isIndex: true },
+      { name: 'SettleUIType', type: 'text', isIndex: true },
+      { name: 'StateType', type: 'text', isIndex: true },
+      { name: 'PlayType', type: 'text', isIndex: true },
+      { name: 'NameTextMapHash', type: 'text', isIndex: true },
+      { name: 'DisplayNameTextMapHash', type: 'text', isIndex: true },
+      { name: 'DescTextMapHash', type: 'text', isIndex: true },
       { name: 'SceneId', type: 'integer', isIndex: true },
       { name: 'ShowLevel', type: 'integer', isIndex: true },
       { name: 'LimitLevel', type: 'integer', isIndex: true },
-      { name: 'GearDescTextMapHash', type: 'integer', isIndex: true },
+      { name: 'GearDescTextMapHash', type: 'text', isIndex: true },
       { name: 'CityId', type: 'integer', isIndex: true },
       { name: 'PassRewardPreviewId', type: 'integer', isIndex: true },
       { name: 'FirstPassRewardPreviewId', type: 'integer', isIndex: true },
@@ -1396,7 +1395,7 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/DungeonPassExcelConfigData.json',
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
-      { name: 'LogicType', type: 'string', isIndex: true },
+      { name: 'LogicType', type: 'text', isIndex: true },
     ],
   },
   DungeonEntryExcelConfigData: <SchemaTable> {
@@ -1404,9 +1403,9 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/DungeonEntryExcelConfigData.json',
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
-      { name: 'Type', type: 'string', isIndex: true },
+      { name: 'Type', type: 'text', isIndex: true },
       { name: 'DungeonEntryId', type: 'integer', isIndex: true },
-      { name: 'DescTextMapHash', type: 'integer', isIndex: true },
+      { name: 'DescTextMapHash', type: 'text', isIndex: true },
       { name: 'SystemOpenUiId', type: 'integer', isIndex: true },
       { name: 'RewardDataId', type: 'integer', isIndex: true },
     ],
@@ -1424,12 +1423,12 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/DungeonChallengeConfigData.json',
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
-      { name: 'ChallengeType', type: 'string', isIndex: true },
-      { name: 'TargetTextTemplateTextMapHash', type: 'integer', isIndex: true },
-      { name: 'SubTargetTextTemplateTextMapHash', type: 'integer', isIndex: true },
-      { name: 'ProgressTextTemplateTextMapHash', type: 'integer', isIndex: true },
-      { name: 'SubProgressTextTemplateTextMapHash', type: 'integer', isIndex: true },
-      { name: 'InterruptButtonType', type: 'string', isIndex: true },
+      { name: 'ChallengeType', type: 'text', isIndex: true },
+      { name: 'TargetTextTemplateTextMapHash', type: 'text', isIndex: true },
+      { name: 'SubTargetTextTemplateTextMapHash', type: 'text', isIndex: true },
+      { name: 'ProgressTextTemplateTextMapHash', type: 'text', isIndex: true },
+      { name: 'SubProgressTextTemplateTextMapHash', type: 'text', isIndex: true },
+      { name: 'InterruptButtonType', type: 'text', isIndex: true },
     ],
   },
   DungeonLevelEntityConfigData: <SchemaTable> {
@@ -1438,8 +1437,8 @@ export const genshinSchema = {
     columns: [
       { name: 'ClientId', type: 'integer', isPrimary: true },
       { name: 'Id', type: 'integer', isIndex: true },
-      { name: 'DescTextMapHash', type: 'integer', isIndex: true },
-      { name: 'SwitchTitleTextMapHash', type: 'integer', isIndex: true },
+      { name: 'DescTextMapHash', type: 'text', isIndex: true },
+      { name: 'SwitchTitleTextMapHash', type: 'text', isIndex: true },
     ],
   },
   SpriteTagExcelConfigData: <SchemaTable> {
@@ -1447,7 +1446,7 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/SpriteTagExcelConfigData.json',
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
-      { name: 'Image', type: 'string' },
+      { name: 'Image', type: 'text' },
     ],
     renameFields: {
       'SpritePath': 'Image',
@@ -1460,12 +1459,12 @@ export const genshinSchema = {
     columns: [
       { name: 'CombineId', type: 'integer', isPrimary: true },
 
-      { name: 'RecipeType', type: 'string', isIndex: true },
+      { name: 'RecipeType', type: 'text', isIndex: true },
       { name: 'PlayerLevel', type: 'integer', isIndex: true },
       { name: 'CombineType', type: 'integer', isIndex: true },
       { name: 'SubCombineType', type: 'integer', isIndex: true },
       { name: 'ResultItemId', type: 'integer', isIndex: true },
-      { name: 'EffectDescTextMapHash', type: 'integer', isIndex: true },
+      { name: 'EffectDescTextMapHash', type: 'text', isIndex: true },
     ],
   },
   Relation_CombineExcelConfigData: <SchemaTable> {
@@ -1474,7 +1473,7 @@ export const genshinSchema = {
     columns: [
       { name: 'RelationId', type: 'integer', isIndex: true },
       { name: 'RoleId', type: 'integer', isIndex: true },
-      { name: 'RoleType', type: 'string', isIndex: true },
+      { name: 'RoleType', type: 'text', isIndex: true },
     ],
     customRowResolve: (row: CombineExcelConfigData) => {
       let ret: MaterialRelation[] = [];
@@ -1493,13 +1492,13 @@ export const genshinSchema = {
     name: 'CompoundExcelConfigData',
     jsonFile: './ExcelBinOutput/CompoundExcelConfigData.json',
     columns: [
-      { name: 'Type', type: 'string', isIndex: true },
+      { name: 'Type', type: 'text', isIndex: true },
       { name: 'Id', type: 'integer', isPrimary: true },
       { name: 'GroupId', type: 'integer', isIndex: true },
-      { name: 'NameTextMapHash', type: 'integer', isIndex: true },
+      { name: 'NameTextMapHash', type: 'text', isIndex: true },
       { name: 'RankLevel', type: 'integer', isIndex: true },
-      { name: 'DescTextMapHash', type: 'integer', isIndex: true },
-      { name: 'CountDescTextMapHash', type: 'integer', isIndex: true },
+      { name: 'DescTextMapHash', type: 'text', isIndex: true },
+      { name: 'CountDescTextMapHash', type: 'text', isIndex: true },
     ],
   },
   Relation_CompoundExcelConfigData: <SchemaTable> {
@@ -1508,7 +1507,7 @@ export const genshinSchema = {
     columns: [
       { name: 'RelationId', type: 'integer', isIndex: true },
       { name: 'RoleId', type: 'integer', isIndex: true },
-      { name: 'RoleType', type: 'string', isIndex: true },
+      { name: 'RoleType', type: 'text', isIndex: true },
     ],
     customRowResolve: (row: CompoundExcelConfigData) => {
       let ret: MaterialRelation[] = [];
@@ -1529,11 +1528,11 @@ export const genshinSchema = {
     name: 'CookRecipeExcelConfigData',
     jsonFile: './ExcelBinOutput/CookRecipeExcelConfigData.json',
     columns: [
-      { name: 'FoodType', type: 'string', isIndex: true },
+      { name: 'FoodType', type: 'text', isIndex: true },
       { name: 'Id', type: 'integer', isPrimary: true },
-      { name: 'NameTextMapHash', type: 'integer', isIndex: true },
+      { name: 'NameTextMapHash', type: 'text', isIndex: true },
       { name: 'RankLevel', type: 'integer', isIndex: true },
-      { name: 'DescTextMapHash', type: 'integer', isIndex: true },
+      { name: 'DescTextMapHash', type: 'text', isIndex: true },
     ],
   },
   CookBonusExcelConfigData: <SchemaTable> {
@@ -1554,7 +1553,7 @@ export const genshinSchema = {
     columns: [
       { name: 'RelationId', type: 'integer', isIndex: true },
       { name: 'RoleId', type: 'integer', isIndex: true },
-      { name: 'RoleType', type: 'string', isIndex: true },
+      { name: 'RoleType', type: 'text', isIndex: true },
     ],
     customRowResolve: (row: CookRecipeExcelConfigData) => {
       let ret: MaterialRelation[] = [];
@@ -1577,7 +1576,7 @@ export const genshinSchema = {
     columns: [
       { name: 'RelationId', type: 'integer', isIndex: true },
       { name: 'RoleId', type: 'integer', isIndex: true },
-      { name: 'RoleType', type: 'string', isIndex: true },
+      { name: 'RoleType', type: 'text', isIndex: true },
     ],
     customRowResolveProvider: async () => {
       // Cannot import GenshinControl from this file (genshin.schema.ts) which is why we're using a dynamic import.
@@ -1594,7 +1593,7 @@ export const genshinSchema = {
       { name: 'ShowItemId', type: 'integer', isIndex: true },
       { name: 'ShowConsumeItemId', type: 'integer', isIndex: true },
       { name: 'ResultItemId', type: 'integer', isIndex: true },
-      { name: 'ForgePointNoticeTextMapHash', type: 'integer', isIndex: true },
+      { name: 'ForgePointNoticeTextMapHash', type: 'text', isIndex: true },
     ],
   },
   Relation_ForgeExcelConfigData: <SchemaTable> {
@@ -1603,7 +1602,7 @@ export const genshinSchema = {
     columns: [
       { name: 'RelationId', type: 'integer', isIndex: true },
       { name: 'RoleId', type: 'integer', isIndex: true },
-      { name: 'RoleType', type: 'string', isIndex: true },
+      { name: 'RoleType', type: 'text', isIndex: true },
     ],
     customRowResolve: (row: ForgeExcelConfigData) => {
       let ret: MaterialRelation[] = [];
@@ -1622,7 +1621,7 @@ export const genshinSchema = {
     name: 'CodexQuestExcelConfigData',
     jsonFile: './ExcelBinOutput/CodexQuestExcelConfigData.json',
     columns: [
-      {name: 'Id', type: 'string', isPrimary: true},
+      {name: 'Id', type: 'text', isPrimary: true},
       {name: 'MainQuestId', type: 'integer', isIndex: true},
     ]
   },
@@ -1631,7 +1630,7 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/GivingExcelConfigData.json',
     columns: [
       {name: 'Id', type: 'integer', isPrimary: true},
-      {name: 'GivingType', type: 'string', isIndex: true},
+      {name: 'GivingType', type: 'text', isIndex: true},
       {name: 'TalkId', type: 'integer', isIndex: true},
       {name: 'MistakeTalkId', type: 'integer', isIndex: true},
       {name: 'ExactFinishTalkId', type: 'integer', isIndex: true},
@@ -1644,7 +1643,7 @@ export const genshinSchema = {
       {name: 'Id', type: 'integer', isPrimary: true},
       {name: 'FinishTalkId', type: 'integer', isIndex: true},
       {name: 'MistakeTalkId', type: 'integer', isIndex: true},
-      {name: 'FinishDialogId', type: 'integer', isIndex: true},
+      {name: 'FinishDialogId', type: 'bigint', isIndex: true},
     ]
   },
 };

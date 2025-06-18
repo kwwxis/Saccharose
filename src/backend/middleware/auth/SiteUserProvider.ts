@@ -1,5 +1,5 @@
 import passport_discord from 'passport-discord';
-import { openPg } from '../../util/db.ts';
+import { openPgSite } from '../../util/db.ts';
 import { Request } from 'express';
 import { isEquiv } from '../../../shared/util/arrayUtil.ts';
 import { saveSession, setSessionUser } from './sessions.ts';
@@ -14,7 +14,7 @@ type SiteUserEntity = {
   json_data: SiteUser
 }
 
-const pg = openPg();
+const pg = openPgSite();
 
 let lastSiteNoticeCacheEviction: string = '';
 
@@ -171,6 +171,11 @@ export class SiteUserProviderImpl {
     }
     const dbSiteUser: SiteUser = await this.find(req.user.id);
 
+    if (!dbSiteUser.roles) {
+      dbSiteUser.roles = [];
+      await this.update(dbSiteUser.id, {roles: []});
+    }
+
     if (!isEquiv(dbSiteUser, req.user)) {
       setSessionUser(req, dbSiteUser);
       await saveSession(req);
@@ -200,6 +205,7 @@ export class SiteUserProviderImpl {
       discord_username: discordUser.username,
       discord: discordUser,
       prefs: {},
+      roles: [],
     };
   }
 

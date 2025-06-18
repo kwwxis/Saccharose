@@ -20,7 +20,7 @@ import { Request } from 'express';
 import { logInitData } from '../../util/logger.ts';
 import { AvatarConfig } from '../../../shared/types/hsr/hsr-avatar-types.ts';
 import { hsr_i18n, HSR_I18N_MAP } from '../abstract/i18n.ts';
-import { AbstractControlState } from '../abstract/abstractControlState.ts';
+import { AbstractControlState, ControlUserModeProvider } from '../abstract/abstractControlState.ts';
 import { CurrentStarRailVersion, GameVersion, StarRailVersions } from '../../../shared/types/game-versions.ts';
 import { Knex } from 'knex';
 
@@ -43,7 +43,7 @@ export class StarRailControlState extends AbstractControlState {
   AutoloadAvatar: boolean = true;
 
   copy(trx?: Knex.Transaction|boolean): StarRailControlState {
-    const state = new StarRailControlState(this.request);
+    const state = new StarRailControlState(this.controlUserMode);
     state.avatarCache = Object.assign({}, this.avatarCache);
     state.DisableAvatarCache = this.DisableAvatarCache;
     state.AutoloadText = this.AutoloadText;
@@ -53,7 +53,7 @@ export class StarRailControlState extends AbstractControlState {
   }
 }
 
-export function getStarRailControl(request?: Request) {
+export function getStarRailControl(request?: ControlUserModeProvider) {
   return new StarRailControl(request);
 }
 // endregion
@@ -64,11 +64,23 @@ export class StarRailControl extends AbstractControl<StarRailControlState> {
   // region Constructor
   readonly voice: StarRailVoice = new StarRailVoice();
 
-  constructor(requestOrState?: Request|StarRailControlState) {
-    super('hsr', 'hsr', 'StarRail', StarRailControlState, requestOrState);
-    this.excelPath = './ExcelOutput';
-    this.disabledLangCodes.add('IT');
-    this.disabledLangCodes.add('TR');
+  constructor(modeOrState?: ControlUserModeProvider|StarRailControlState) {
+    super({
+      siteMode: 'hsr',
+      dbName: 'hsr',
+      cachePrefix: 'StarRail',
+      stateConstructor: StarRailControlState,
+      modeOrState: modeOrState,
+      excelPath: './ExcelOutput',
+      disabledLangCodes: ['IT', 'TR'],
+      currentGameVersion: CurrentStarRailVersion,
+      gameVersions: StarRailVersions,
+      changelogConfig: {
+        directory: process.env.HSR_CHANGELOGS,
+        textmapEnabled: true,
+        excelEnabled: false,
+      },
+    });
   }
 
   override getDataFilePath(file: string): string {
@@ -93,14 +105,6 @@ export class StarRailControl extends AbstractControl<StarRailControlState> {
 
   override i18n(key: keyof typeof HSR_I18N_MAP, vars?: Record<string, string>): string {
     return hsr_i18n(key, this.outputLangCode, vars);
-  }
-
-  override selectVersions(): GameVersion[] {
-    return StarRailVersions;
-  }
-
-  override selectCurrentVersion(): GameVersion {
-    return CurrentStarRailVersion;
   }
   // endregion
 

@@ -1,7 +1,7 @@
 import path from 'path';
 import { IMAGEDIR_GENSHIN_EXT } from '../../loadenv.ts';
 import fs from 'fs';
-import { closeKnex, openPg } from '../../util/db.ts';
+import { closeKnex, openPgSite } from '../../util/db.ts';
 import { isInt } from '../../../shared/util/numberUtil.ts';
 import { defaultMap } from '../../../shared/util/genericUtil.ts';
 import {
@@ -42,7 +42,7 @@ function getImageNames(): string[] {
 }
 
 export async function indexGenshinImages(catMapOnly: boolean = false) {
-  const knex = openPg();
+  const knex = openPgSite();
 
   if (!catMapOnly) {
     await knex.raw('TRUNCATE TABLE genshin_image_index;').then();

@@ -49,6 +49,7 @@ export async function cached(key: string, valueMode: 'boolean', supplierFn: (key
 export async function cached<T>(key: string, valueMode: 'memory', supplierFn: (key?: string) => Promise<T>): Promise<T>
 export async function cached<T>(key: string, valueMode: 'json', supplierFn: (key?: string) => Promise<T>): Promise<T>
 export async function cached<T>(key: string, valueMode: 'set', supplierFn: (key?: string) => Promise<Set<T>>): Promise<Set<T>>
+export async function cached<T>(key: string, valueMode: 'disabled', supplierFn: (key?: string) => Promise<T>): Promise<T>
 
 /**
  * Get (and define if necessary) the value for the cache key. If the key is found, the value will
@@ -56,14 +57,17 @@ export async function cached<T>(key: string, valueMode: 'set', supplierFn: (key?
  * `supplierFn` and that same value will be returned.
  */
 export async function cached<T>(key: string,
-                                valueMode: 'string' | 'buffer' | 'json' | 'boolean' | 'memory' | 'set',
+                                valueMode: 'string' | 'buffer' | 'json' | 'boolean' | 'memory' | 'set' | 'disabled',
                                 supplierFn: (key?: string) => Promise<T>): Promise<T> {
   return _cachedImpl(key, valueMode, supplierFn);
 }
 
 export async function _cachedImpl<T>(key: string,
-                                     valueMode: 'string' | 'buffer' | 'json' | 'boolean' | 'memory' | 'set',
+                                     valueMode: 'string' | 'buffer' | 'json' | 'boolean' | 'memory' | 'set' | 'disabled',
                                      supplierFn: (key?: string) => Promise<T>): Promise<T> {
+  if (valueMode === 'disabled') {
+    return await supplierFn(key);
+  }
   if (typeof cache.memory[key] !== 'undefined') {
     return cache.memory[key];
   }
@@ -133,7 +137,9 @@ export async function _cachedImpl<T>(key: string,
         }
       }
 
+      await cache.redis.set('LastDoSet', key);
       await cache.redis.set(key, value);
+
       return raw;
     }
   }

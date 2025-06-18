@@ -7,8 +7,7 @@ import { isPromise, isset } from '../../shared/util/genericUtil.ts';
 import { toInt } from '../../shared/util/numberUtil.ts';
 import { splitLimit } from '../../shared/util/stringUtil.ts';
 import path from 'path';
-import { sort } from '../../shared/util/arrayUtil.ts';
-import { LangDetectResult, MediaSearchResult } from '../../shared/types/common-types.ts';
+import { LangDetectResult } from '../../shared/types/common-types.ts';
 
 const execPromise = util.promisify(exec);
 
@@ -495,40 +494,6 @@ export function langDetect(text: string): LangDetectResult {
     }).toString();
 
     return JSON.parse(stdout);
-  } catch (err) {
-    console.error('\x1b[4m\x1b[1mshell error:\x1b[0m\n', err);
-    throw 'Shell error occurred.';
-  }
-}
-
-export function mediaSearch(imageName: string, maxHammingDistance: number): MediaSearchResult {
-  try {
-    const pyFile = path.resolve(PIPELINE_DIR, './search_image_hashes.py').replace(/\\/g, '/');
-    const cmd = `${process.env.PYTHON_COMMAND} ${pyFile} ${maxHammingDistance} ${shellEscapeArg(imageName)}`;
-
-    const stdout: string = execSync(cmd, {
-      env: {
-        PATH: process.env.SHELL_PATH,
-      },
-      shell: process.env.SHELL_EXEC,
-    }).toString();
-
-    const lines = stdout.trim().split('\n').map(f => {
-      return f.trim();
-    });
-
-    const fileHash = lines.shift();
-    return {
-      fileHash,
-      matches: sort(lines.map(line => {
-        let lineSplit = line.split('|');
-        return {
-          name: lineSplit[0],
-          hash: toInt(lineSplit[1]),
-          distance: toInt(lineSplit[2])
-        }
-      }), 'distance')
-    };
   } catch (err) {
     console.error('\x1b[4m\x1b[1mshell error:\x1b[0m\n', err);
     throw 'Shell error occurred.';

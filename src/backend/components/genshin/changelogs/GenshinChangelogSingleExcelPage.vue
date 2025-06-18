@@ -11,13 +11,13 @@
     </h2>
 
     <div id="tablist-changedRecords" class="tab-list" role="tablist">
-      <button id="tab-addedRecords" role="tab" class="tab active" ui-action="tab: #tabpanel-addedRecords, changedRecords">
+      <button id="tab-addedRecords" role="tab" class="tab" :class="{'active': activeTab === 'added'}" ui-action="tab: #tabpanel-addedRecords, changedRecords; set-query-param: tab=added">
         Added Records ({{ valuesOf(excelFileChanges.changedRecords).filter(r => r.changeType === 'added').length }})
       </button>
-      <button id="tab-updatedRecords" role="tab" class="tab" ui-action="tab: #tabpanel-updatedRecords, changedRecords">
+      <button id="tab-updatedRecords" role="tab" class="tab" :class="{'active': activeTab === 'updated'}" ui-action="tab: #tabpanel-updatedRecords, changedRecords; set-query-param: tab=updated">
         Updated Records ({{ valuesOf(excelFileChanges.changedRecords).filter(r => r.changeType === 'updated').length }})
       </button>
-      <button id="tab-removedRecords" role="tab" class="tab" ui-action="tab: #tabpanel-removedRecords, changedRecords">
+      <button id="tab-removedRecords" role="tab" class="tab" :class="{'active': activeTab === 'removed'}" ui-action="tab: #tabpanel-removedRecords, changedRecords; set-query-param: tab=removed">
         Removed Records ({{ valuesOf(excelFileChanges.changedRecords).filter(r => r.changeType === 'removed').length }})
       </button>
     </div>
@@ -134,5 +134,6 @@ defineProps<{
   genshinVersion: GameVersion,
   fullChangelog: FullChangelog,
   excelFileChanges: ExcelFileChanges,
+  activeTab: 'added' | 'updated' | 'removed'
 }>();
 </script>

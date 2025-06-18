@@ -165,7 +165,7 @@ function areLikelySameRecord(appSchema: SchemaTableSet, schemaName: string, sche
   let tmValues1: Set<string> = new Set();
   let tmValues2: Set<string> = new Set();
 
-  const pkField: string = appSchema[schemaName]?.columns?.find(c => c.isPrimary)?.name;
+  const pkField: string = appSchema?.[schemaName]?.columns?.find(c => c.isPrimary)?.name;
 
   function pathAdder(scSet: Set<string>, tmSet: Set<string>, pvSet: Set<string>): WalkObjectProcessor {
     return field => {
@@ -285,8 +285,12 @@ export type PropertySchemaResult = {
   arrayPaths: string[],
 }
 
-async function main(appSchema: SchemaTableSet, schemaName: string, schemaRecords: any[], obfRecords: any[]): Promise<PropertySchemaResult> {
+async function main(appSchema: SchemaTableSet, schemaName: string, schemaRecords: any[], obfRecords: any[], visitMaxPairs: number = 0): Promise<PropertySchemaResult> {
   let pairs: RecordPair[] = pairRecords(appSchema, schemaName, schemaRecords, obfRecords);
+
+  if (visitMaxPairs && visitMaxPairs > 0) {
+    pairs = pairs.slice(0, visitMaxPairs);
+  }
 
   const confidence: {[obfKey: string]: {[schemaKey: string]: number}} = defaultMap(() => defaultMap('Zero'));
   const arrayPaths: Set<string> = new Set();
@@ -373,7 +377,16 @@ async function main(appSchema: SchemaTableSet, schemaName: string, schemaRecords
     }
   }
 
-  return { map: result, arrayPaths: Array.from(arrayPaths) };
+  let filteredResult = {};
+
+  for (let [key, value] of Object.entries(result)) {
+    if (isInt(key)) {
+      continue;
+    }
+    filteredResult[key] = value;
+  }
+
+  return { map: filteredResult, arrayPaths: Array.from(arrayPaths) };
 }
 // endregion
 
@@ -388,6 +401,14 @@ export async function createPropertySchema(appSchema: SchemaTableSet,
   const objFile: any[] = await fsp.readFile(obfFilePath, {encoding: 'utf8'})
     .then(data => JSONbig.parse(data));
   return await main(appSchema, schemaName, schemaFile, objFile);
+}
+
+export async function createPropertySchemaWithArray(appSchema: SchemaTableSet,
+                                                    schemaName: string,
+                                                    schemaFile: any[],
+                                                    objFile: any[],
+                                                    visitMaxPairs: number = 0): Promise<PropertySchemaResult> {
+  return await main(appSchema, schemaName, schemaFile, objFile, visitMaxPairs);
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {

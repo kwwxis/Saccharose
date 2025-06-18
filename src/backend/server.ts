@@ -6,9 +6,8 @@ import vhost from 'vhost';
 import { appInit } from './app.ts';
 import { toBoolean } from '../shared/util/genericUtil.ts';
 import { toInt } from '../shared/util/numberUtil.ts';
-import { logInit, logShutdown } from './util/logger.ts';
-import exitHook from 'async-exit-hook';
-import { startWss } from './websocket/wsserver.ts';
+import { logInit } from './util/logger.ts';
+import { startWss } from './websocket/ws-server.ts';
 
 // You shouldn't need to change anything in this file.
 // Application init code should go in `app.ts`, not here.
@@ -48,10 +47,6 @@ import { startWss } from './websocket/wsserver.ts';
       } else {
         logInit(`HTTPS/2 Server is running at https://localhost:${httpsPort}`);
       }
-    });
-    exitHook((callback) => {
-      logShutdown('Shutting down HTTPS/2 server...');
-      server.close(() => callback());
     });
   } else {
     logInit('Not starting HTTPS/2 server -- not enabled');

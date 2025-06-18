@@ -14,13 +14,13 @@
     </h2>
 
     <div id="tablist-changedEntries" class="tab-list" role="tablist">
-      <button id="tab-addedEntries" role="tab" class="tab active" ui-action="tab: #tabpanel-addedEntries, changedEntries">
+      <button id="tab-addedEntries" role="tab" class="tab" :class="{'active': activeTab === 'added'}" ui-action="tab: #tabpanel-addedEntries, changedEntries; set-query-param: tab=added">
         Added Entries ({{ Object.keys(textmapChanges.added).length }})
       </button>
-      <button id="tab-updatedEntries" role="tab" class="tab" ui-action="tab: #tabpanel-updatedEntries, changedEntries">
+      <button id="tab-updatedEntries" role="tab" class="tab" :class="{'active': activeTab === 'updated'}" ui-action="tab: #tabpanel-updatedEntries, changedEntries; set-query-param: tab=updated">
         Updated Entries ({{ Object.keys(textmapChanges.updated).length }})
       </button>
-      <button id="tab-removedEntries" role="tab" class="tab" ui-action="tab: #tabpanel-removedEntries, changedEntries">
+      <button id="tab-removedEntries" role="tab" class="tab" :class="{'active': activeTab === 'removed'}" ui-action="tab: #tabpanel-removedEntries, changedEntries; set-query-param: tab=removed">
         Removed Entries ({{ Object.keys(textmapChanges.removed).length }})
       </button>
     </div>
@@ -49,5 +49,6 @@ import Icon from '../../utility/Icon.vue';
 defineProps<{
   genshinVersion: GameVersion,
   textmapChanges: TextMapChangesAsRows,
+  activeTab: 'added' | 'updated' | 'removed'
 }>();
 </script>

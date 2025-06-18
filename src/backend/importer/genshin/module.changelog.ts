@@ -5,7 +5,7 @@ import path from 'path';
 import fs from 'fs';
 import { defaultMap, isUnset } from '../../../shared/util/genericUtil.ts';
 import { isEquiv, mapBy, resolveObjectPath, walkObject } from '../../../shared/util/arrayUtil.ts';
-import { normalizeRawJson, schemaPrimaryKey } from '../import_db.ts';
+import { schemaPrimaryKey } from '../import_db.ts';
 import {
   ChangeRecordMap,
   ExcelFullChangelog,

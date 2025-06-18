@@ -386,7 +386,7 @@ export function mwParse(str: string): MwParentNode {
     // Get the current character and update `iter.ch`
     iter.ch = str.charAt(iter.i);
 
-    // Loop through each module in the current context and offer the current parse index/character to each module
+    // Loop through each module in the current context and offer the current parse index/character to each module.
     // Once a module has "accepted" (returned true) the offer, it'll stop processing the remaining modules and
     // move on to the next index. Note that the plaintext module is always the last module and also will always accept
     // the offer if the plaintext module is reached.

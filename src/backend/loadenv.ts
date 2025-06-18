@@ -37,11 +37,6 @@ export const IMAGEDIR_HSR_EXT = path.resolve(process.env.EXT_HSR_IMAGES);
 export const IMAGEDIR_ZENLESS_EXT = path.resolve(process.env.EXT_ZENLESS_IMAGES);
 export const IMAGEDIR_WUWA_EXT = path.resolve(process.env.EXT_WUWA_IMAGES);
 
-export const DATAFILE_GENSHIN_SQLITE_DB = './genshin_data.db';
-export const DATAFILE_HSR_SQLITE_DB = './hsr_data.db';
-export const DATAFILE_ZENLESS_SQLITE_DB = './zenless_data.db';
-export const DATAFILE_WUWA_SQLITE_DB = './wuwa_data.db';
-
 export const DATAFILE_GENSHIN_VOICE_ITEMS = './VoiceItems.json';
 export const DATAFILE_GENSHIN_FETTERS = './VoiceOvers.json';
 export const DATAFILE_HSR_VOICE_ITEMS = './ExcelOutput/VoiceConfig.json';

@@ -1,4 +1,4 @@
-import { closeKnex, openPg } from './db.ts';
+import { closeKnex, openPgSite } from './db.ts';
 import { Knex } from 'knex';
 import { passthru, shellEscapeArg } from './shellutil.ts';
 import { getNodeEnv } from '../loadenv.ts';
@@ -153,7 +153,7 @@ export class ScriptJobsCoordinator {
   private debug: debug.Debugger = custom('jobs');
 
   constructor() {
-    this.knex = openPg();
+    this.knex = openPgSite();
   }
 
   init() {

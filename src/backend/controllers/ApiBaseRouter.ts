@@ -7,23 +7,20 @@ import GenshinResources from './genshin/api/_index.ts';
 import StarRailResources from './hsr/api/_index.ts';
 import ZenlessResources from './zenless/api/_index.ts';
 import WuwaResources from './wuwa/api/_index.ts';
-import GenericResources from './generic/api/genericResources.ts';
+import LangDetectResource from './generic/api/langDetectResource.ts';
 import MwResources from './generic/api/mwResources.ts';
 import ScriptJobResources from './generic/api/scriptJobResources.ts';
 import UserResources from './site/api/userResources.ts';
-import { getGenshinControl } from '../domain/genshin/genshinControl.ts';
-import { getStarRailControl } from '../domain/hsr/starRailControl.ts';
-import { getZenlessControl } from '../domain/zenless/zenlessControl.ts';
-import { getWuwaControl } from '../domain/wuwa/wuwaControl.ts';
 import { Request, Response, Router } from 'express';
 import { GENSHIN_DISABLED, HSR_DISABLED, WUWA_DISABLED, ZENLESS_DISABLED } from '../loadenv.ts';
 import { createLocalControls } from '../middleware/request/tracer.ts';
+import { getControlUserMode } from '../domain/abstract/abstractControlState.ts';
 
 export default async function(): Promise<Router> {
   const router: Router = create({
     layouts: ['layouts/empty-layout'],
     locals: async (req: Request) => {
-      const localControls = createLocalControls(req);
+      const localControls = createLocalControls(getControlUserMode(req), req);
       return {
         ... localControls,
         outputLangCode: req.context.outputLangCode,
@@ -48,7 +45,7 @@ export default async function(): Promise<Router> {
     ZenlessResources(router);
   if (!WUWA_DISABLED)
     WuwaResources(router);
-  GenericResources(router);
+  LangDetectResource(router);
   MwResources(router);
   ScriptJobResources(router);
   UserResources(router);

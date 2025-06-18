@@ -1,9 +1,7 @@
 import { create } from '../../../routing/router.ts';
 import {
-  handleExcelUsagesEndpoint, handleOlCombine,
-  handleOlEndpoint,
   handleTextMapSearchEndpoint,
-} from '../../generic/api/abstractBasicResources.ts';
+} from '../../generic/handlers/handleTextMapSearch.ts';
 import { getZenlessControl, ZenlessControl } from '../../../domain/zenless/zenlessControl.ts';
 import { Request, Response, Router } from 'express';
 import { isset, toBoolean } from '../../../../shared/util/genericUtil.ts';
@@ -11,6 +9,9 @@ import ZenlessDialogueHelperResult from '../../../components/zenless/ZenlessDial
 import { SbOut } from '../../../../shared/util/stringUtil.ts';
 import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
 import { DialogWikitextResult } from '../../../../shared/types/common-types.ts';
+import { handleExcelUsagesEndpoint } from '../../generic/handlers/handleExcelUsagesEndpoint.ts';
+import { handleOlEndpoint } from '../../generic/handlers/handleOlEndpoint.ts';
+import { handleOlCombine } from '../../generic/handlers/handleOlCombine.ts';
 
 const router: Router = create();
 

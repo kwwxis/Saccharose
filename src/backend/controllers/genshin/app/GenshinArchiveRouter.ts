@@ -46,6 +46,8 @@ import TutorialSearchPage from '../../../components/genshin/tutorials/TutorialSe
 import TutorialCategoriesPage from '../../../components/genshin/tutorials/TutorialCategoriesPage.vue';
 import GenshinViewpointsPage from '../../../components/genshin/viewpoints/GenshinViewpointsPage.vue';
 import { ImageIndexEntity } from '../../../../shared/types/image-index-types.ts';
+import WeaponSearchPage from '../../../components/genshin/weapons/WeaponSearchPage.vue';
+import WeaponItemPage from '../../../components/genshin/weapons/WeaponItemPage.vue';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -94,7 +96,7 @@ export default async function(): Promise<Router> {
   // region Weapons
   // --------------------------------------------------------------------------------------------------------------
   router.get('/weapons', async (req: Request, res: Response) => {
-    res.render('pages/genshin/archive/weapon-search', {
+    res.render(WeaponSearchPage, {
       title: 'Weapons',
       bodyClass: ['page--weapons'],
     });
@@ -117,7 +119,7 @@ export default async function(): Promise<Router> {
       const iconEntity: ImageIndexEntity = await ctrl.selectImageIndexEntity(weapon.Icon);
       const awakenIconEntity: ImageIndexEntity = weapon.AwakenIcon ? await ctrl.selectImageIndexEntity(weapon.AwakenIcon) : null;
 
-      res.render('pages/genshin/archive/weapon-item', {
+      res.render(WeaponItemPage, {
         title: weapon.NameText,
         bodyClass: ['page--weapons'],
         weapon,
@@ -126,7 +128,7 @@ export default async function(): Promise<Router> {
         ol: ol_combine_results([weaponOl, passiveOl])
       });
     } else {
-      res.render('pages/genshin/archive/weapon-item', {
+      res.render(WeaponItemPage, {
         title: 'Weapon not found',
         bodyClass: ['page--weapons'],
       });

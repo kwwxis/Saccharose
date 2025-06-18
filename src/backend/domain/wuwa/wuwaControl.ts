@@ -8,11 +8,13 @@ import { __normWuwaText, WuwaNormTextOpts } from './wuwaText.ts';
 import { NormTextOptions } from '../abstract/genericNormalizers.ts';
 import { Request } from 'express';
 import { wuwa_i18n, WUWA_I18N_MAP } from '../abstract/i18n.ts';
-import { AbstractControlState } from '../abstract/abstractControlState.ts';
+import { AbstractControlState, ControlUserModeProvider } from '../abstract/abstractControlState.ts';
 import { RoleInfo } from '../../../shared/types/wuwa/role-types.ts';
 import { Condition, ConditionGroup, ConditionOp } from '../../../shared/types/wuwa/condition-types.ts';
 import { CurrentWuwaVersion, GameVersion, WuwaVersions } from '../../../shared/types/game-versions.ts';
 import { Knex } from 'knex';
+import { RequestSiteMode } from '../../routing/requestContext.ts';
+import { SaccharoseDb } from '../../util/db.ts';
 
 // region Control State
 // --------------------------------------------------------------------------------------------------------------
@@ -33,29 +35,36 @@ export class WuwaControlState extends AbstractControlState {
   AutoloadRoleInfo: boolean = true;
 
   override copy(trx?: Knex.Transaction|boolean): WuwaControlState {
-    const state = new WuwaControlState(this.request);
+    const state = new WuwaControlState(this.controlUserMode);
     state.DbConnection = trx;
     return state;
   }
 }
 
-export function getWuwaControl(request?: Request) {
+export function getWuwaControl(request?: ControlUserModeProvider) {
   return new WuwaControl(request);
 }
 
 // region Control Object
 // --------------------------------------------------------------------------------------------------------------
 export class WuwaControl extends AbstractControl<WuwaControlState> {
-  constructor(requestOrState?: Request|WuwaControlState) {
-    super('wuwa', 'wuwa', 'Wuwa', WuwaControlState, requestOrState);
-    this.excelPath = './ConfigDB';
-    this.disabledLangCodes.add('IT');
-    this.disabledLangCodes.add('TR');
-    this.disabledLangCodes.add('RU');
-    this.disabledLangCodes.add('TH');
-    this.disabledLangCodes.add('VI');
-    this.disabledLangCodes.add('ID');
-    this.disabledLangCodes.add('PT');
+  constructor(modeOrState?: ControlUserModeProvider|WuwaControlState) {
+    super({
+      siteMode: 'wuwa',
+      dbName: 'wuwa',
+      cachePrefix: 'Wuwa',
+      stateConstructor: WuwaControlState,
+      modeOrState: modeOrState,
+      excelPath: './ConfigDB',
+      disabledLangCodes: ['IT', 'TR', 'RU', 'TH', 'VI', 'ID', 'PT'],
+      currentGameVersion: CurrentWuwaVersion,
+      gameVersions: WuwaVersions,
+      changelogConfig: {
+        directory: process.env.WUWA_CHANGELOGS,
+        textmapEnabled: true,
+        excelEnabled: false,
+      },
+    });
   }
 
   override getDataFilePath(file: string): string {
@@ -124,14 +133,6 @@ export class WuwaControl extends AbstractControl<WuwaControlState> {
 
   override i18n(key: keyof typeof WUWA_I18N_MAP, vars?: Record<string, string>): string {
     return wuwa_i18n(key, this.outputLangCode, vars);
-  }
-
-  override selectVersions(): GameVersion[] {
-    return WuwaVersions;
-  }
-
-  override selectCurrentVersion(): GameVersion {
-    return CurrentWuwaVersion;
   }
 
   // region RoleInfo

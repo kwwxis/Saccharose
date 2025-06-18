@@ -43,6 +43,7 @@ export type InterActionD2F = {[id: number]: InterActionD2FCandidate[]};
  */
 export type InterActionD2FCandidate = [string, number, number];
 
+//region Enum Types
 export type InterActionType =
   // Camera
   'CAMERA_FOCUS' |
@@ -229,6 +230,7 @@ export type InterActionContextName =
   'ToyBattleQteSelectPage' |
   'VintageCampChallengePage' |
   'VintageHunting' ;
+// endregion
 
 export const INTERACTION_KEEP_TYPES: Set<InterActionType> = new Set([
   'DIALOG',
@@ -239,14 +241,14 @@ export const INTERACTION_KEEP_TYPES: Set<InterActionType> = new Set([
   'CHANGE_TIME',
   'SHOW_BG_PIC',
   'CUTSCENE',
-  'VIDEO_PLAY',
+  // 'VIDEO_PLAY',
   'UI_TRIGGER'
 ]);
 
 export const INTERACTION_INTERMEDIATE_TYPES: Set<InterActionType> = new Set([
   'SHOW_BG_PIC',
   'CUTSCENE',
-  'VIDEO_PLAY',
+  // 'VIDEO_PLAY',
   'UI_TRIGGER'
 ]);
 
@@ -259,9 +261,9 @@ export interface InterAction {
   DialogIdList?: number[],
   GrpIdList?: number[],
 
-  // VIDEO_PLAY
-  VideoName?: string,
-  SubtitleId?: number,
+  // VIDEO_PLAY (not supporting)
+  // VideoName?: string,
+  // SubtitleId?: number,
 
   // CUTSCENE:
   CutsceneIndex?: number,
@@ -279,6 +281,8 @@ export interface InterActionGroup {
   Index: number,
   GroupId: number,
   NextGroupId?: number,
+  NextGroupIdList?: number[],
+  NoCircleNextGroupId?: number,
   PrevGroupIds?: number[],
   Actions: InterAction[]
 }

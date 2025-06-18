@@ -6,10 +6,12 @@ import { toBoolean } from '../../../../shared/util/genericUtil.ts';
 import { SEARCH_MODES } from '../../../../shared/util/searchUtil.ts';
 import { SiteUserProvider } from '../../../middleware/auth/SiteUserProvider.ts';
 import { isInt, toInt } from '../../../../shared/util/numberUtil.ts';
+import { createWsJwtToken } from '../../../websocket/ws-server-auth.ts';
+import { WsJwtTokenResponse } from '../../../../shared/types/wss-types.ts';
 
 export default function(router: Router): void {
   router.endpoint('/prefs', {
-    get: async (req: Request, res: Response) => {
+    get: async (req: Request, _res: Response) => {
       if (!req.isAuthenticated() || !req.user?.id) {
         throw HttpError.badRequest('AuthRequired', 'Must be logged in to perform this request.');
       }
@@ -82,6 +84,17 @@ export default function(router: Router): void {
   router.endpoint('/site-notice', {
     get: async (req: Request, res: Response) => {
       return res.json(await SiteUserProvider.getAllSiteNotices());
+    }
+  });
+
+  router.endpoint('/wstoken', {
+    post: async (req: Request, res: Response) => {
+      if (!req.isAuthenticated() || !req.user?.id) {
+        throw HttpError.badRequest('AuthRequired', 'Must be logged in to perform this request.');
+      }
+      return res.json(<WsJwtTokenResponse> {
+        token: createWsJwtToken(req.user)
+      });
     }
   });
 

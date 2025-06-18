@@ -3,8 +3,8 @@ import { getWebpackBundleFileNames, WebpackBundles } from './webpackBundle.ts';
 import createHtmlElement from 'create-html-element';
 import { getNodeEnv, SITE_TITLE } from '../loadenv.ts';
 import { CompareTernary, ternary } from '../../shared/util/genericUtil.ts';
-import { DEFAULT_LANG, LANG_CODES, LANG_CODES_TO_NAME } from '../../shared/types/lang-types.ts';
-import { SEARCH_MODES } from '../../shared/util/searchUtil.ts';
+import { DEFAULT_LANG, LANG_CODES, LANG_CODES_TO_NAME, LangCode } from '../../shared/types/lang-types.ts';
+import { DEFAULT_SEARCH_MODE, SEARCH_MODES, SearchMode } from '../../shared/util/searchUtil.ts';
 import { Request } from 'express';
 import {
   RequestLocals,
@@ -27,6 +27,8 @@ import { icon } from './viewUtilities.ts';
 import { SIDEBAR_CONFIG } from './sidebarConfig.ts';
 
 export type RequestSiteMode = 'unset' | 'genshin' | 'hsr' | 'zenless' | 'wuwa';
+
+export const RequestSiteModes: RequestSiteMode[] = ['unset', 'genshin', 'hsr', 'zenless', 'wuwa'];
 
 /**
  * A payload object used to make updates to {@link RequestContext}
@@ -93,10 +95,6 @@ export class RequestContext {
     let viewName: string = 'virtual-static-views/' + this.virtualStaticViewCounter++;
 
     if (typeof html !== 'string') {
-      // if (isValidReactElement(html)) {
-      //   const reactElement: ReactElement = html;
-      //   html = renderReactToString(reactElement);
-      // } else
       if (isVueApp(html)) {
         const vueApp: App = html;
         html = await renderVueToString(vueApp);
@@ -299,11 +297,30 @@ export class RequestContext {
   }
 
   get inputLangCode() {
-    return this.prefs.inputLangCode|| DEFAULT_LANG;
+    const req = this._req;
+    if (typeof req.query['input'] === 'string' && (LANG_CODES as string[]).includes(req.query['input'])) {
+      return req.query['input'] as LangCode;
+    } else {
+      return this.prefs.inputLangCode || DEFAULT_LANG;
+    }
   }
 
   get outputLangCode() {
-    return this.prefs.outputLangCode || DEFAULT_LANG;
+    const req = this._req;
+    if (typeof req.query['output'] === 'string' && (LANG_CODES as string[]).includes(req.query['output'])) {
+      return req.query['output'] as LangCode;
+    } else {
+      return this.prefs.outputLangCode || DEFAULT_LANG;
+    }
+  }
+
+  get searchMode() {
+    const req = this._req;
+    if (typeof req.query['searchMode'] === 'string' && (SEARCH_MODES as string[]).includes(req.query['searchMode'])) {
+      return req.query['searchMode'] as SearchMode;
+    } else {
+      return this.prefs.searchMode || DEFAULT_SEARCH_MODE;
+    }
   }
 
   hasQuerySettings() {

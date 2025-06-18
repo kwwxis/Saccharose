@@ -7,6 +7,7 @@ import { replaceAsync, splitArgs } from '../../shared/util/stringUtil.ts';
 import JSON5 from 'json5';
 import { isLangCode, LangCode } from '../../shared/types/lang-types.ts';
 import { AbstractControl } from '../domain/abstract/abstractControl.ts';
+import { getTrace } from '../middleware/request/tracer.ts';
 
 export type FileFormatOption = 'default' | 'remove' | 'custom';
 
@@ -191,20 +192,20 @@ async function evaluateVariable(ctrl: AbstractControl, obj: Object, expr: string
 }
 
 export async function fileFormatOptionsApply(ctrl: AbstractControl, obj: Object, cookieName: string, defaultFormat: string): Promise<string> {
-  const req = ctrl.state.request;
-  let pref: FileFormatOption = req?.cookies?.[cookieName] || 'default';
+  const { cookies } = getTrace();
+
+  let pref: FileFormatOption = cookies[cookieName] || 'default';
   let customFormat: string;
   if (pref === 'remove') {
     return null;
   } else if (pref === 'custom') {
-    customFormat = req.cookies[cookieName + '.CustomFormat'] || '';
+    customFormat = cookies[cookieName + '.CustomFormat'] || '';
   } else {
     customFormat = defaultFormat;
   }
 
   const parsed = mwParse(customFormat);
   const evaluatedFormat = await evaluateCustomFormat(ctrl, obj, parsed);
-
 
   return await replaceAsync(evaluatedFormat, /\{([^}]*?)}/g, async (fm: string, g1: string) => {
     return await evaluateVariable(ctrl, obj, g1);

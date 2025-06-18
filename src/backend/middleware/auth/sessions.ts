@@ -4,7 +4,7 @@ import session from 'express-session';
 import { toBoolean } from '../../../shared/util/genericUtil.ts';
 import { SiteUserProvider } from './SiteUserProvider.ts';
 import connectPgSimple from 'connect-pg-simple';
-import { pgPool } from '../../util/db.ts';
+import { pgSessionPool } from '../../util/db.ts';
 import { Request } from 'express';
 import { SiteUser } from '../../../shared/types/site/site-user-types.ts';
 const DiscordStrategy = passport_discord.Strategy;
@@ -43,7 +43,7 @@ export default [
     saveUninitialized: true,
 
     store: new pgSession({
-      pool: pgPool,
+      pool: pgSessionPool,
       tableName: 'user_sessions',
       createTableIfMissing: true,
     }),

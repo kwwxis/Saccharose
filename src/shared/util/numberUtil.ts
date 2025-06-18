@@ -1,4 +1,4 @@
-import { isUnset } from './genericUtil.ts';
+import { isset, isUnset } from './genericUtil.ts';
 
 /**
  * Returns true if empty (false, null, undefined), otherwise returns false if non-empty (zero is considered non-empty).
@@ -54,24 +54,24 @@ export function isSafeInt(x: any): boolean {
   return !isNaN(num) && Number.isSafeInteger(num);
 }
 
-export function toInt(x: any): number {
+export function toInt(x: any, defaultIfNaN?: number): number {
   if (isUnset(x)) {
-    return NaN;
+    return isset(defaultIfNaN) ? defaultIfNaN : NaN;
   } else if (typeof x === 'number') {
     return x | 0;
   } else if (typeof x === 'string') {
     if (!isInt(x)) {
-      return NaN;
+      return isset(defaultIfNaN) ? defaultIfNaN :NaN;
     } else if (!isSafeInt(x)) {
       throw new Error('Attempt to convert unsafe integer as string to number: ' + x);
     }
     try {
       return parseInt(x);
     } catch (e) {
-      return NaN;
+      return isset(defaultIfNaN) ? defaultIfNaN :NaN;
     }
   } else {
-    return NaN;
+    return isset(defaultIfNaN) ? defaultIfNaN :NaN;
   }
 }
 

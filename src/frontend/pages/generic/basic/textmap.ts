@@ -216,13 +216,14 @@ pageMatch('vue/TextmapSearchPage', () => {
           diffUIArea.style.marginTop = '15px';
 
           diffUIs.push(new DiffUI(diffUIArea, {
-            currContent: json.value,
             prevContent: json.prevValue,
+            currContent: json.value,
             unifiedDiff: unifiedDiff,
           }, {
             matching: 'lines',
             drawFileList: false,
             outputFormat: 'line-by-line',
+            compactHeader: true,
             colorScheme: isNightmode() ? ColorSchemeType.DARK : ColorSchemeType.LIGHT,
             synchronizedScroll: true,
             wordWrap: true,

@@ -296,7 +296,7 @@ export class MwParamNode extends MwParentNode {
   afterValueWhitespace: MwTextNode = new MwTextNode('');
 
   /**
-   * Key parts. Only present for numbered/named parameters.
+   * Key parts. Only present for numbered/named parameters. Not present for anonymous.
    */
   keyParts: MwCharSequence[] = [];
 
@@ -316,7 +316,7 @@ export class MwParamNode extends MwParentNode {
   }
 
   override copy(): MwParamNode {
-    return new MwParamNode(this.prefix, this.rawKey, null, this.beforeValueWhitespace?.content, this.afterValueWhitespace?.content).copyPartsFrom(this);
+    return new MwParamNode(this.prefix, this.key, null, this.beforeValueWhitespace?.content, this.afterValueWhitespace?.content).copyPartsFrom(this);
   }
 
   get trimmedValue() {
@@ -343,19 +343,22 @@ export class MwParamNode extends MwParentNode {
     this.parts = mwParse(wikitext).parts;
   }
 
-  get key() {
+  get key(): number|string {
     return this._key;
   }
 
-  get rawKey(): string {
-    return this.keyParts.map(x => x.toString()).join('');
+  combinedKeyParts(): string {
+    return this.isAnonymous ? null : this.keyParts.map(x => x.toString()).join('');
   }
 
   set key(newKey: number|string) {
     if (typeof newKey === 'string') {
+      // Set numbered/named
       this.keyParts = mwSimpleTextParse(newKey);
       this._key = newKey.trim();
     } else {
+      // Set anonymous
+      this.keyParts = [];
       this._key = newKey;
     }
   }
@@ -369,16 +372,22 @@ export class MwParamNode extends MwParentNode {
   }
 
   reformatKeyWithPropPad(propPad: number) {
-    if (/^\s+/.test(this.rawKey) || /[\n\r]/.test(this.rawKey)) {
-      this.key = this.rawKey.trimStart().replace(/[\n\r]/g, '');
+    if (this.isAnonymous) {
+      return;
     }
 
-    if (this.rawKey.length > propPad) {
-      this.key = this.rawKey.trimEnd();
+    let rawKey = this.combinedKeyParts();
+
+    if (/^\s+/.test(rawKey) || /[\n\r]/.test(rawKey)) {
+      this.key = rawKey.trimStart().replace(/[\n\r]/g, '');
     }
 
-    if (this.rawKey.length < propPad) {
-      this.key = this.rawKey.padEnd(propPad, ' ');
+    if (rawKey.length > propPad) {
+      this.key = rawKey.trimEnd();
+    }
+
+    if (rawKey.length < propPad) {
+      this.key = rawKey.padEnd(propPad, ' ');
     }
   }
 

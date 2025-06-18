@@ -1,38 +1,36 @@
 import { plainLineMapSchema, SchemaTable, textMapSchema } from '../import_db.ts';
 
-const hashType = 'text';
-
 export const starRailSchema = {
 
   // region TextMap & PlainLineMap
   // -----------------------------
-  TextMapCHS: textMapSchema('CHS', hashType),
-  TextMapCHT: textMapSchema('CHT', hashType),
-  TextMapDE: textMapSchema('DE', hashType),
-  TextMapEN: textMapSchema('EN', hashType),
-  TextMapES: textMapSchema('ES', hashType),
-  TextMapFR: textMapSchema('FR', hashType),
-  TextMapID: textMapSchema('ID', hashType),
-  TextMapJP: textMapSchema('JP', hashType),
-  TextMapKR: textMapSchema('KR', hashType),
-  TextMapPT: textMapSchema('PT', hashType),
-  TextMapRU: textMapSchema('RU', hashType),
-  TextMapTH: textMapSchema('TH', hashType),
-  TextMapVI: textMapSchema('VI', hashType),
+  TextMapCHS: textMapSchema('CHS'),
+  TextMapCHT: textMapSchema('CHT'),
+  TextMapDE: textMapSchema('DE'),
+  TextMapEN: textMapSchema('EN'),
+  TextMapES: textMapSchema('ES'),
+  TextMapFR: textMapSchema('FR'),
+  TextMapID: textMapSchema('ID'),
+  TextMapJP: textMapSchema('JP'),
+  TextMapKR: textMapSchema('KR'),
+  TextMapPT: textMapSchema('PT'),
+  TextMapRU: textMapSchema('RU'),
+  TextMapTH: textMapSchema('TH'),
+  TextMapVI: textMapSchema('VI'),
 
-  PlainLineMapCHS: plainLineMapSchema('CHS', hashType),
-  PlainLineMapCHT: plainLineMapSchema('CHT', hashType),
-  PlainLineMapDE: plainLineMapSchema('DE', hashType),
-  PlainLineMapEN: plainLineMapSchema('EN', hashType),
-  PlainLineMapES: plainLineMapSchema('ES', hashType),
-  PlainLineMapFR: plainLineMapSchema('FR', hashType),
-  PlainLineMapID: plainLineMapSchema('ID', hashType),
-  PlainLineMapJP: plainLineMapSchema('JP', hashType),
-  PlainLineMapKR: plainLineMapSchema('KR', hashType),
-  PlainLineMapPT: plainLineMapSchema('PT', hashType),
-  PlainLineMapRU: plainLineMapSchema('RU', hashType),
-  PlainLineMapTH: plainLineMapSchema('TH', hashType),
-  PlainLineMapVI: plainLineMapSchema('VI', hashType),
+  PlainLineMapCHS: plainLineMapSchema('CHS'),
+  PlainLineMapCHT: plainLineMapSchema('CHT'),
+  PlainLineMapDE: plainLineMapSchema('DE'),
+  PlainLineMapEN: plainLineMapSchema('EN'),
+  PlainLineMapES: plainLineMapSchema('ES'),
+  PlainLineMapFR: plainLineMapSchema('FR'),
+  PlainLineMapID: plainLineMapSchema('ID'),
+  PlainLineMapJP: plainLineMapSchema('JP'),
+  PlainLineMapKR: plainLineMapSchema('KR'),
+  PlainLineMapPT: plainLineMapSchema('PT'),
+  PlainLineMapRU: plainLineMapSchema('RU'),
+  PlainLineMapTH: plainLineMapSchema('TH'),
+  PlainLineMapVI: plainLineMapSchema('VI'),
   // endregion
 
   // region Avatar & Voice
@@ -42,11 +40,11 @@ export const starRailSchema = {
     jsonFile: './ExcelOutput/AvatarConfig.json',
     columns: [
       {name: 'Id', type: 'integer', isPrimary: true},
-      {name: 'BaseType', type: 'string', isIndex: true},
-      {name: 'DamageType', type: 'string', isIndex: true},
-      {name: 'NameTextMapHash', type: 'integer', isIndex: true},
-      {name: 'FullNameTextMapHash', type: 'integer', isIndex: true},
-      {name: 'CutinIntroTextMapHash', type: 'integer', isIndex: true},
+      {name: 'BaseType', type: 'text', isIndex: true},
+      {name: 'DamageType', type: 'text', isIndex: true},
+      {name: 'NameTextMapHash', type: 'text', isIndex: true},
+      {name: 'FullNameTextMapHash', type: 'text', isIndex: true},
+      {name: 'CutinIntroTextMapHash', type: 'text', isIndex: true},
     ],
     renameFields: {
       'AvatarId': 'Id',
@@ -73,16 +71,16 @@ export const starRailSchema = {
     name: 'AvatarBaseType',
     jsonFile: './ExcelOutput/AvatarBaseType.json',
     columns: [
-      {name: 'Id', type: 'string', isPrimary: true},
-      {name: 'BaseTypeTextMapHash', type: 'integer', isIndex: true},
-      {name: 'BaseTypeDescTextMapHash', type: 'integer', isIndex: true},
+      {name: 'Id', type: 'text', isIndex: true},
+      {name: 'BaseTypeTextMapHash', type: 'text', isIndex: true},
+      {name: 'BaseTypeDescTextMapHash', type: 'text', isIndex: true},
     ]
   },
   AvatarVO: <SchemaTable> {
     name: 'AvatarVO',
     jsonFile: './ExcelOutput/AvatarVO.json',
     columns: [
-      {name: 'VOTag', type: 'string', isPrimary: true},
+      {name: 'VOTag', type: 'text', isPrimary: true},
     ]
   },
   VoiceAtlas: <SchemaTable> {
@@ -92,10 +90,10 @@ export const starRailSchema = {
       {name: 'AvatarId', type: 'integer', isIndex: true},
       {name: 'VoiceId', type: 'integer', isIndex: true},
       {name: 'AudioId', type: 'integer', isIndex: true},
-      {name: 'VoiceTitleTextMapHash', type: 'integer', isIndex: true},
-      {name: 'VoiceMTextMapHash', type: 'integer', isIndex: true},
-      {name: 'VoiceFTextMapHash', type: 'integer', isIndex: true},
-      {name: 'UnlockDescTextMapHash', type: 'integer', isIndex: true},
+      {name: 'VoiceTitleTextMapHash', type: 'text', isIndex: true},
+      {name: 'VoiceMTextMapHash', type: 'text', isIndex: true},
+      {name: 'VoiceFTextMapHash', type: 'text', isIndex: true},
+      {name: 'UnlockDescTextMapHash', type: 'text', isIndex: true},
     ]
   },
   AtlasUnlockData: <SchemaTable> {
@@ -114,11 +112,11 @@ export const starRailSchema = {
     jsonFile: './ExcelOutput/MainMission.json',
     columns: [
       {name: 'Id', type: 'integer', isPrimary: true},
-      {name: 'Type', type: 'string', isIndex: true},
+      {name: 'Type', type: 'text', isIndex: true},
       {name: 'RewardId', type: 'integer', isIndex: true},
       {name: 'DisplayRewardId', type: 'integer', isIndex: true},
       {name: 'ChapterId', type: 'integer', isIndex: true},
-      {name: 'NameTextMapHash', type: 'integer', isIndex: true},
+      {name: 'NameTextMapHash', type: 'text', isIndex: true},
     ],
     renameFields: {
       'MainMissionId': 'Id'
@@ -137,8 +135,8 @@ export const starRailSchema = {
     name: 'MainMissionType',
     jsonFile: './ExcelOutput/MainMissionType.json',
     columns: [
-      {name: 'Type', type: 'string', isPrimary: true},
-      {name: 'TypeNameTextMapHash', type: 'integer', isIndex: true},
+      {name: 'Type', type: 'text', isIndex: true},
+      {name: 'TypeNameTextMapHash', type: 'text', isIndex: true},
     ]
   },
   MissionChapterConfig: <SchemaTable> {
@@ -146,9 +144,9 @@ export const starRailSchema = {
     jsonFile: './ExcelOutput/MissionChapterConfig.json',
     columns: [
       {name: 'Id', type: 'integer', isPrimary: true},
-      {name: 'ChapterNameTextMapHash', type: 'integer', isIndex: true},
-      {name: 'StageNameTextMapHash', type: 'integer', isIndex: true},
-      {name: 'ChapterDescTextMapHash', type: 'integer', isIndex: true},
+      {name: 'ChapterNameTextMapHash', type: 'text', isIndex: true},
+      {name: 'StageNameTextMapHash', type: 'text', isIndex: true},
+      {name: 'ChapterDescTextMapHash', type: 'text', isIndex: true},
     ]
   },
   ScheduleDataMission: <SchemaTable> {
@@ -163,8 +161,8 @@ export const starRailSchema = {
     jsonFile: './ExcelOutput/SubMission.json',
     columns: [
       {name: 'SubMissionId', type: 'integer', isPrimary: true},
-      {name: 'TargetTextMapHash', type: 'integer', isIndex: true},
-      {name: 'DescTextMapHash', type: 'integer', isIndex: true},
+      {name: 'TargetTextMapHash', type: 'text', isIndex: true},
+      {name: 'DescTextMapHash', type: 'text', isIndex: true},
     ],
     renameFields: {
       'DescrptionText:': 'DescText',
@@ -180,14 +178,14 @@ export const starRailSchema = {
     jsonFile: './ExcelOutput/EventMission.json',
     columns: [
       {name: 'Id', type: 'integer', isPrimary: true},
-      {name: 'Type', type: 'string', isIndex: true},
-      {name: 'TakeType', type: 'string', isIndex: true},
+      {name: 'Type', type: 'text', isIndex: true},
+      {name: 'TakeType', type: 'text', isIndex: true},
       {name: 'FinishWayId', type: 'integer', isIndex: true},
       {name: 'MazePlaneId', type: 'integer', isIndex: true},
       {name: 'MazeFloorId', type: 'integer', isIndex: true},
       {name: 'RewardId', type: 'integer', isIndex: true},
-      {name: 'TitleTextMapHash', type: 'integer', isIndex: true},
-      {name: 'DescTextMapHash', type: 'integer', isIndex: true},
+      {name: 'TitleTextMapHash', type: 'text', isIndex: true},
+      {name: 'DescTextMapHash', type: 'text', isIndex: true},
     ]
   },
   EventMissionChallenge: <SchemaTable> {
@@ -202,8 +200,8 @@ export const starRailSchema = {
     jsonFile: './ExcelOutput/FinishWayEventMission.json',
     columns: [
       {name: 'Id', type: 'integer', isPrimary: true},
-      {name: 'FinishType', type: 'string', isIndex: true},
-      {name: 'ParamType', type: 'string', isIndex: true},
+      {name: 'FinishType', type: 'text', isIndex: true},
+      {name: 'ParamType', type: 'text', isIndex: true},
     ]
   },
   // endregion
@@ -234,7 +232,7 @@ export const starRailSchema = {
     jsonFile: './ExcelOutput/TalkBehavior.json',
     columns: [
       {name: 'Id', type: 'integer', isPrimary: true},
-      {name: 'ParaType', type: 'string', isIndex: true},
+      {name: 'ParaType', type: 'text', isIndex: true},
     ]
   },
   TalkReward: <SchemaTable> {
@@ -254,8 +252,8 @@ export const starRailSchema = {
     jsonFile: './ExcelOutput/TalkSentenceConfig.json',
     columns: [
       {name: 'TalkSentenceId', type: 'integer', isPrimary: true},
-      {name: 'TextmapTalkSentenceNameTextMapHash', type: 'integer', isIndex: true},
-      {name: 'TalkSentenceTextMapHash', type: 'integer', isIndex: true},
+      {name: 'TextmapTalkSentenceNameTextMapHash', type: 'text', isIndex: true},
+      {name: 'TalkSentenceTextMapHash', type: 'text', isIndex: true},
       {name: 'VoiceId', type: 'integer', isIndex: true},
     ]
   },
@@ -270,7 +268,7 @@ export const starRailSchema = {
     name: 'VoiceConfig',
     jsonFile: './ExcelOutput/VoiceConfig.json',
     columns: [
-      {name: 'VoiceType', type: 'string', isIndex: true},
+      {name: 'VoiceType', type: 'text', isIndex: true},
       {name: 'VoiceId', type: 'integer', isPrimary: true},
     ]
   },
@@ -284,14 +282,14 @@ export const starRailSchema = {
     jsonFile: './ExcelOutput/DialogueCondition.json',
     columns: [
       {name: 'Id', type: 'integer', isPrimary: true},
-      {name: 'Type', type: 'string', isIndex: true},
+      {name: 'Type', type: 'text', isIndex: true},
     ]
   },
   DialogueIcon: <SchemaTable> {
     name: 'DialogueIcon',
     jsonFile: './ExcelOutput/DialogueIcon.json',
     columns: [
-      {name: 'Type', type: 'string', isIndex: true},
+      {name: 'Type', type: 'text', isIndex: true},
     ]
   },
   DialogueNPC: <SchemaTable> {
@@ -299,8 +297,8 @@ export const starRailSchema = {
     jsonFile: './ExcelOutput/DialogueNPC.json',
     columns: [
       {name: 'GroupId', type: 'integer', isPrimary: true},
-      {name: 'GroupType', type: 'string', isIndex: true},
-      {name: 'InteractTitleTextMapHash', type: 'integer', isIndex: true},
+      {name: 'GroupType', type: 'text', isIndex: true},
+      {name: 'InteractTitleTextMapHash', type: 'text', isIndex: true},
     ]
   },
   DialogueProp: <SchemaTable> {
@@ -308,8 +306,8 @@ export const starRailSchema = {
     jsonFile: './ExcelOutput/DialogueProp.json',
     columns: [
       {name: 'GroupId', type: 'integer', isPrimary: true},
-      {name: 'GroupType', type: 'string', isIndex: true},
-      {name: 'InteractTitleTextMapHash', type: 'integer', isIndex: true},
+      {name: 'GroupType', type: 'text', isIndex: true},
+      {name: 'InteractTitleTextMapHash', type: 'text', isIndex: true},
     ]
   },
   // endregion
@@ -323,7 +321,7 @@ export const starRailSchema = {
     columns: [
       {name: 'ContactsCamp', type: 'integer', isPrimary: true},
       {name: 'SortId', type: 'integer', isIndex: true},
-      {name: 'NameTextMapHash', type: 'integer', isIndex: true},
+      {name: 'NameTextMapHash', type: 'text', isIndex: true},
     ]
   },
   MessageContactsCondition: <SchemaTable> {
@@ -341,8 +339,8 @@ export const starRailSchema = {
       {name: 'Id', type: 'integer', isPrimary: true},
       {name: 'ContactsType', type: 'integer', isIndex: true},
       {name: 'ContactsCamp', type: 'integer', isIndex: true},
-      {name: 'NameTextMapHash', type: 'integer', isIndex: true},
-      {name: 'SignatureTextMapHash', type: 'integer', isIndex: true},
+      {name: 'NameTextMapHash', type: 'text', isIndex: true},
+      {name: 'SignatureTextMapHash', type: 'text', isIndex: true},
     ]
   },
   MessageContactsType: <SchemaTable> {
@@ -351,7 +349,7 @@ export const starRailSchema = {
     columns: [
       {name: 'ContactsType', type: 'integer', isPrimary: true},
       {name: 'SortId', type: 'integer', isIndex: true},
-      {name: 'NameTextMapHash', type: 'integer', isIndex: true},
+      {name: 'NameTextMapHash', type: 'text', isIndex: true},
     ]
   },
   MessageGroupConfig: <SchemaTable> {
@@ -368,10 +366,10 @@ export const starRailSchema = {
     jsonFile: './ExcelOutput/MessageItemConfig.json',
     columns: [
       {name: 'Id', type: 'integer', isPrimary: true},
-      {name: 'ItemType', type: 'string', isIndex: true},
+      {name: 'ItemType', type: 'text', isIndex: true},
       {name: 'SectionId', type: 'integer', isIndex: true},
-      {name: 'MainTextMapHash', type: 'integer', isIndex: true},
-      {name: 'OptionTextMapHash', type: 'integer', isIndex: true},
+      {name: 'MainTextMapHash', type: 'text', isIndex: true},
+      {name: 'OptionTextMapHash', type: 'text', isIndex: true},
       {name: 'ContactsId', type: 'integer', isIndex: true},
       {name: 'ItemContentId', type: 'integer', isIndex: true},
     ]
@@ -402,7 +400,7 @@ export const starRailSchema = {
     name: 'MessageStateIcon',
     jsonFile: './ExcelOutput/MessageStateIcon.json',
     columns: [
-      {name: 'Id', type: 'string', isPrimary: true},
+      {name: 'Id', type: 'text', isPrimary: true},
     ]
   },
   // endregion
@@ -414,7 +412,7 @@ export const starRailSchema = {
     jsonFile: './ExcelOutput/TutorialGuideTalkData.json',
     columns: [
       {name: 'Id', type: 'integer', isPrimary: true},
-      {name: 'TalkDataTextMapHash', type: 'integer', isIndex: true},
+      {name: 'TalkDataTextMapHash', type: 'text', isIndex: true},
     ]
   },
   RewardData: <SchemaTable> {

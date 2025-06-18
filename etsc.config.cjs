@@ -40,8 +40,6 @@ module.exports = {
       force: true,
       recursive: true,
     });
-    fs.cpSync('./src/pipeline/detect_language.py', './dist/pipeline/detect_language.py', { force: true });
-    fs.cpSync('./src/pipeline/search_image_hashes.py', './dist/pipeline/search_image_hashes.py', { force: true });
     console.timeEnd('ETSC cpy');
   },
 };

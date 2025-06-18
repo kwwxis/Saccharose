@@ -1,5 +1,17 @@
 import { LogViewEntity } from './site/site-logview-types.ts';
 import { RequestSiteMode } from '../../backend/routing/requestContext.ts';
+import { SiteUser } from './site/site-user-types.ts';
+import { JwtPayload } from 'jsonwebtoken';
+import { SavedSearchEntity, SavedSearchesRequestCriteria } from './site/site-saved-searches-types.ts';
+import { TextMapSearchResponse } from './lang-types.ts';
+
+// TOKEN
+// --------------------------------------------------------------------------------------------------------------
+export type WsJwtTokenResponse = {
+  token: string,
+}
+
+export type WsJwtToken = SiteUser & JwtPayload;
 
 // CODES
 // --------------------------------------------------------------------------------------------------------------
@@ -52,10 +64,10 @@ export function readWebSocketRawData(rawData: any) {
 
 export function toWsMessage(s: string): WsMessage {
   const json = JSON.parse(s);
-  if (json.type && json.data && typeof json.data === 'object') {
+  if (json.type && json.data && typeof json.data === 'object' && typeof json.correlationId === 'string') {
     return json;
   } else {
-    throw new Error('Not parsable JSON or does not have \"type\" and \"data\" properties.');
+    throw new Error('Not parsable JSON or does not have all of the "correlationId", "type", and "data" properties.');
   }
 }
 
@@ -66,6 +78,7 @@ export function isWsMessageType<T extends WsMessageType>(o: WsMessage, type: T):
 }
 
 export type WsMessage<T extends WsMessageType = WsMessageType> = {
+  correlationId: string,
   type: T,
   data: WsMessageData[T]
 }
@@ -73,50 +86,66 @@ export type WsMessage<T extends WsMessageType = WsMessageType> = {
 export type WsMessageType = keyof WsMessageData;
 
 export type WsMessageData = {
-  // Client Messages:
+  // --------------------------------------------------------------------------------------------------------------
+
+  // Protocol (Client)
   ClientHello: WsHello,
   WsSubscribe: WsSubscribe,
   WsUnsubscribe: WsUnsubscribe,
-  LogViewRequest: LogViewRequest,
-  WsAuthenticate: WsAuthenticate,
 
-  // Server Messages:
+  // Protocol (Server)
+  WsBadRequest: WsBadRequest,
+  WsInternalError: WsInternalError,
   ServerHello: WsHello,
+
+  // --------------------------------------------------------------------------------------------------------------
+
+  // Logview (Client)
+  LogViewRequest: LogViewRequest,
+
+  // Logview (Server)
   LogViewLine: LogViewLine,
-  WsClientError: WsClientError,
+  LogViewResult: LogViewLine,
+
+  // --------------------------------------------------------------------------------------------------------------
+
+  WsTextMapSearch: WsTextMapSearch,
+
+  // -------------------------------------------------------------------------------------------------------------
+
+  // Saved Searches (Client)
+  WsSavedSearchesRequest: WsSavedSearchesRequest,
+  WsSavedSearchesAdd: WsSavedSearchesAdd,
+  WsSavedSearchesEdit: WsSavedSearchesEdit,
+
+  // Saved Searches (Server)
+  WsSavedSearchesResult: WsSavedSearchesResult,
 };
 
-// MESSAGE DATA
+// PROTOCOL
 // --------------------------------------------------------------------------------------------------------------
-export type WsAuthenticate = {
-
-}
-
 export type WsHello = {
   message: string;
 }
-
-export type WsClientError = {
+export type WsBadRequest = {
   message: string;
 }
-
+export type WsInternalError = {
+  message: string;
+}
 export type WsSubscribe = {
-  subscriptionId: string,
   messageTypes: WsMessageType[]
 }
 export type WsUnsubscribe = {
-  subscriptionId: string,
   messageTypes: WsMessageType[]
 }
 
+// WS: Log View
+// --------------------------------------------------------------------------------------------------------------
 export type LogViewLine = {
-  lines: LogViewEntity[];
-  fromRequest?: LogViewRequest,
+  lines: LogViewEntity[]
 }
-
 export type LogViewRequest = {
-  requestId: string,
-  requestNote?: string,
   byWikiUser?: string,
   byDiscordUser?: string,
   byContentQuery?: string,
@@ -124,12 +153,42 @@ export type LogViewRequest = {
   upperbound?: string,
 };
 
-export type WsSearchTextMap = {
+// WS: Search Text Map
+// --------------------------------------------------------------------------------------------------------------
+export type WsTextMapSearch = {
   siteMode: RequestSiteMode,
+  resultType: 'json' | 'html',
 
+  query: string,
+  startFromLine?: number,
+  isRawInput?: boolean,
+  hashSearch?: boolean,
+  isRawOutput?: boolean,
+  versionFilter?: string,
+  resultSetIdx?: number,
+}
+export type WsTextMapSearchResult = {
+  html?: string,
+  json?: TextMapSearchResponse,
 }
 
-export type HtmlResponse = {
-  fromRequest: WsMessageType,
-  html: string,
-}
+// WS: Saved Searches
+// --------------------------------------------------------------------------------------------------------------
+
+export type WsSavedSearchesRequest = {
+  criteria: SavedSearchesRequestCriteria,
+};
+
+export type WsSavedSearchesAdd = {
+  search: SavedSearchEntity,
+};
+
+export type WsSavedSearchesEdit = {
+  search: SavedSearchEntity,
+};
+
+export type WsSavedSearchesResult = {
+  recent: SavedSearchEntity[],
+  saved: SavedSearchEntity[],
+  public: SavedSearchEntity[],
+};

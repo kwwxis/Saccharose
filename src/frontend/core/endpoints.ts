@@ -21,6 +21,7 @@ import { FavorWordGroup } from '../../shared/types/wuwa/favor-types.ts';
 import { OLCombinedResult, OLResult } from '../../backend/domain/abstract/basic/OLgen.ts';
 import { TextMapSearchResponse } from '../../shared/types/lang-types.ts';
 import { IdToExcelUsages } from '../../shared/util/searchUtil.ts';
+import { WsJwtTokenResponse } from '../../shared/types/wss-types.ts';
 
 export type ApiParams<T> = T & {
   fields?: string,
@@ -314,6 +315,8 @@ export const genericEndpoints = {
   langDetect: new GenericApiEndpoint<{
     text: string
   }, LangDetectResult>('GET', '/lang-detect'),
+
+  wsToken: new GenericApiEndpoint<{}, WsJwtTokenResponse>('POST', '/wstoken'),
 
   getPrefs: new GenericApiEndpoint<{}, SiteUserPrefs>('GET', '/prefs'),
 

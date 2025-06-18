@@ -5,6 +5,60 @@ import {
   TextMapChangeRemoveRow,
   TextMapChangeUpdateRow,
 } from '../../../../shared/types/changelog-types.ts';
+import { AgPromise, ICellRendererComp, ICellRendererParams } from 'ag-grid-community';
+import { createPatch } from '../../../../backend/util/jsdiff';
+import { DiffUI } from '../../../util/DiffUI.ts';
+import { isNightmode } from '../../../core/userPreferences/siteTheme.ts';
+import { ColorSchemeType } from 'diff2html/lib/types';
+
+class TextMapDiffCellComponent implements ICellRendererComp<TextMapChangeUpdateRow> {
+  private element: HTMLDivElement;
+  private diffUi: DiffUI;
+
+  init(params: ICellRendererParams<TextMapChangeUpdateRow>): AgPromise<void> | void {
+    this.refresh(params);
+  }
+
+  destroy(): void {
+    this.diffUi.destroy();
+  }
+
+  getGui(): HTMLElement {
+    return this.element;
+  }
+
+  refresh(params: ICellRendererParams<TextMapChangeUpdateRow>): boolean {
+    if (this.diffUi) {
+      this.diffUi.destroy();
+    }
+
+    if (!this.element) {
+      this.element = document.createElement('div');
+    }
+
+    const unifiedDiff = createPatch(`Diff`, params.data.oldText, params.data.newText);
+
+    this.diffUi = new DiffUI(this.element, {
+      prevContent: params.data.oldText,
+      currContent: params.data.newText,
+      unifiedDiff: unifiedDiff,
+    }, {
+      matching: 'lines',
+      drawFileList: false,
+      drawFileHeader: false,
+      outputFormat: 'line-by-line',
+      colorScheme: isNightmode() ? ColorSchemeType.DARK : ColorSchemeType.LIGHT,
+      synchronizedScroll: true,
+      wordWrap: true,
+      highlightOpts: {
+        mode: 'ace/mode/wikitext'
+      },
+    });
+
+    return true;
+  }
+
+}
 
 pageMatch('vue/GenshinChangelogTextMapPage', async () => {
   const changelogVersion: string = document.querySelector<HTMLMetaElement>('#x-changelog-version').content;
@@ -22,7 +76,7 @@ pageMatch('vue/GenshinChangelogTextMapPage', async () => {
       {
         includeExcelListButton: false,
         overrideColDefs: [
-          makeSingleColumnDef('textMapHash', 'TextMapHash', '123', {alwaysShow: true}),
+          makeSingleColumnDef('textMapHash', 'TextMapHash', '123', {defaultShown: true}),
           makeSingleColumnDef('text', 'Text', 'Lorem Ipsum'),
         ],
         height: 'calc(100vh - 252px)',
@@ -39,9 +93,17 @@ pageMatch('vue/GenshinChangelogTextMapPage', async () => {
       {
         includeExcelListButton: false,
         overrideColDefs: [
-          makeSingleColumnDef('textMapHash', 'TextMapHash', '123', {alwaysShow: true}),
+          makeSingleColumnDef('textMapHash', 'TextMapHash', '123', {defaultShown: true}),
           makeSingleColumnDef('oldText', 'Old Text', 'Lorem Ipsum'),
           makeSingleColumnDef('newText', 'New Text', 'Lorem Ipsum'),
+          {
+            colId: 'diff',
+            field: 'diff',
+            headerName: 'Diff',
+            width: 520,
+            cellClass: 'cell-type-special',
+            cellRenderer: TextMapDiffCellComponent
+          }
         ],
         height: 'calc(100vh - 252px)',
       }
@@ -57,7 +119,7 @@ pageMatch('vue/GenshinChangelogTextMapPage', async () => {
       {
         includeExcelListButton: false,
         overrideColDefs: [
-          makeSingleColumnDef('textMapHash', 'TextMapHash', '123', {alwaysShow: true}),
+          makeSingleColumnDef('textMapHash', 'TextMapHash', '123', {defaultShown: true}),
           makeSingleColumnDef('text', 'Text', 'Lorem Ipsum'),
         ],
         height: 'calc(100vh - 252px)',

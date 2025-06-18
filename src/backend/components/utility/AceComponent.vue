@@ -5,6 +5,7 @@
               :style="extraStyle"
               spellCheck="false"
               translate="no"
+              :data-lang="lang"
               :data-lazy-load="lazyLoad"
               :data-mode="props.mode"
               :data-gutters="props.gutters ? 'true' : null"
@@ -18,6 +19,7 @@
 <script setup lang="ts">
 import { Marker } from '../../../shared/util/highlightMarker.ts';
 import { CommonLineId, stringifyCommonLineIds } from '../../../shared/types/common-types.ts';
+import { LangCode } from '../../../shared/types/lang-types.ts';
 
 export type AceProps = {
   id?: string,
@@ -29,6 +31,7 @@ export type AceProps = {
   isWikiTemplateFragment?: boolean,
   lazyLoad?: boolean,
 
+  lang?: LangCode,
   markers?: Marker[],
   lineIds?: CommonLineId[],
 

@@ -1,5 +1,5 @@
 import { Knex } from 'knex';
-import { openPg } from '../util/db.ts';
+import { openPgSite } from '../util/db.ts';
 import { MwOwnSegment } from './mwOwnSegmentHolder.ts';
 import { isInt, toInt } from '../../shared/util/numberUtil.ts';
 import { MwArticleInfo, MwRevision, MwRevLoadMode } from '../../shared/mediawiki/mwTypes.ts';
@@ -31,7 +31,7 @@ export class MwDbInterface {
   readonly ARTICLE_CACHE_TABLE: string;
 
   constructor(readonly prefix: string) {
-    this.knex = openPg();
+    this.knex = openPgSite();
     this.WIKI_REV_TABLE = prefix + 'wiki_revs';
     this.ARTICLE_CACHE_TABLE = prefix + 'wiki_article_info';
   }

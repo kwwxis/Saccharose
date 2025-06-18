@@ -2,48 +2,86 @@ import { Request } from 'express';
 import { DEFAULT_LANG, LANG_CODES, LangCode } from '../../../shared/types/lang-types.ts';
 import { DEFAULT_SEARCH_MODE, SEARCH_MODES, SearchMode } from '../../../shared/util/searchUtil.ts';
 import { Knex } from 'knex';
+import { WsSession } from '../../websocket/ws-sessions.ts';
+import { SiteUser } from '../../../shared/types/site/site-user-types.ts';
+
+export type AbstractControlStateType<T extends AbstractControlState = AbstractControlState> = {new(controlUserModeProvider?: ControlUserModeProvider): T};
 
 export abstract class AbstractControlState {
-  public request: Request = null;
+  readonly controlUserMode: ControlUserMode;
+
+  public MAX_TEXTMAP_SEARCH_RESULTS: number = 100;
 
   /**
    * Override the database connection to use. Or set to false to disable database connection.
    */
   public DbConnection: Knex|boolean = true;
 
-  constructor(request?: Request) {
-    this.request = request || null;
+  constructor(controlUserModeProvider?: ControlUserModeProvider) {
+    this.controlUserMode = getControlUserMode(controlUserModeProvider);
   }
 
   get inputLangCode(): LangCode {
-    if (this.request) {
-      if (typeof this.request.query['input'] === 'string' && (LANG_CODES as string[]).includes(this.request.query['input'])) {
-        return this.request.query['input'] as LangCode;
-      }
-      return this.request.context.prefs.inputLangCode || DEFAULT_LANG;
-    }
-    return DEFAULT_LANG;
+    return this.controlUserMode.inputLangCode;
   }
 
   get outputLangCode(): LangCode {
-    if (this.request) {
-      if (typeof this.request.query['output'] === 'string' && (LANG_CODES as string[]).includes(this.request.query['output'])) {
-        return this.request.query['output'] as LangCode;
-      }
-      return this.request.context.prefs.outputLangCode || DEFAULT_LANG;
-    }
-    return DEFAULT_LANG;
+    return this.controlUserMode.outputLangCode;
   }
 
   get searchMode(): SearchMode {
-    if (this.request) {
-      if (typeof this.request.query['searchMode'] === 'string' && (SEARCH_MODES as string[]).includes(this.request.query['searchMode'])) {
-        return this.request.query['searchMode'] as SearchMode;
-      }
-      return this.request.context.prefs.searchMode || DEFAULT_SEARCH_MODE;
-    }
-    return DEFAULT_SEARCH_MODE;
+    return this.controlUserMode.searchMode;
   }
 
   abstract copy(trx?: Knex.Transaction|boolean): AbstractControlState;
+}
+
+export interface ControlUserMode {
+  inputLangCode: LangCode,
+  outputLangCode: LangCode,
+  searchMode: SearchMode,
+}
+
+export type ControlUserModeProvider = ControlUserMode|Request|WsSession|SiteUser;
+
+function createDefaultControlUserMode(): ControlUserMode {
+  return {
+    inputLangCode: DEFAULT_LANG,
+    outputLangCode: DEFAULT_LANG,
+    searchMode: DEFAULT_SEARCH_MODE,
+  };
+}
+
+export function getControlUserMode(input: ControlUserModeProvider): ControlUserMode {
+  if (!input) {
+    return createDefaultControlUserMode();
+  }
+
+  const isMode = (o: any): o is ControlUserMode => o.inputLangCode && o.outputLangCode && o.searchMode;
+  const isRequest = (o: any): o is Request => o.query && o.context;
+  const isSiteUser = (o: any): o is SiteUser => o.id && o.wiki_allowed;
+
+  if (isMode(input)) {
+    return input;
+  }
+
+  const mode: ControlUserMode = createDefaultControlUserMode();
+
+  if (input instanceof WsSession) {
+    input = input.user;
+  }
+
+  if (isRequest(input)) {
+    mode.inputLangCode = input.context.inputLangCode;
+    mode.outputLangCode = input.context.outputLangCode;
+    mode.searchMode = input.context.searchMode;
+  }
+
+  if (isSiteUser(input)) {
+    mode.inputLangCode = input.prefs.inputLangCode || DEFAULT_LANG;
+    mode.outputLangCode = input.prefs.outputLangCode || DEFAULT_LANG;
+    mode.searchMode = input.prefs.searchMode || DEFAULT_SEARCH_MODE;
+  }
+
+  return mode;
 }

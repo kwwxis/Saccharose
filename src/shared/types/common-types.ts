@@ -231,11 +231,6 @@ export function parseCommonLineIds(str: string): CommonLineId[] {
 
 // region Other
 // --------------------------------------------------------------------------------------------------------------
-export interface MediaSearchResult {
-  fileHash: string,
-  matches: { name: string, hash: number, distance: number }[]
-}
-
 export interface LangDetectResult {
   isReliable: boolean,
   details: { langName: string, langCode: string, confidence: number }[]

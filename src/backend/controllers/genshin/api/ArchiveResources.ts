@@ -12,6 +12,7 @@ import {
 } from '../../../domain/genshin/archive/tutorials.ts';
 import AchievementSearchResult from '../../../components/genshin/achievements/AchievementSearchResult.vue';
 import TutorialList from '../../../components/genshin/tutorials/TutorialList.vue';
+import WeaponSearchResults from '../../../components/genshin/weapons/WeaponSearchResults.vue';
 
 const router: Router = create();
 
@@ -56,7 +57,7 @@ router.endpoint('/weapons/search', {
     let weapons: WeaponExcelConfigData[] = await ctrl.selectWeaponsBySearch(req.query.text as string, ctrl.searchModeFlags);
 
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
-      return res.render('partials/genshin/archive/weapon-search-results', {
+      return res.render(WeaponSearchResults, {
         weapons: weapons,
         searchText: req.query.text as string
       });

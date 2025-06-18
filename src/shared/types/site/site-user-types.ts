@@ -4,10 +4,13 @@ import { SearchMode } from '../../util/searchUtil.ts';
 
 export const VisitorPrefsCookieName = 'VisitorUserPrefs';
 
+export type SiteUserRole = 'admin';
+
 export type SiteUser = {
   id: string,
   discord_username: string,
   discord: passport_discord.Profile,
+  roles: SiteUserRole[],
 
   wiki_id?: number,
   wiki_username?: string,

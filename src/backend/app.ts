@@ -5,7 +5,7 @@ import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import useragent from 'express-useragent';
 import helmet from 'helmet';
-import { openSqlite, openPg, enableDbExitHook } from './util/db.ts';
+import { openPgGamedata, openPgSite, enableDbExitHook } from './util/db.ts';
 import sessions from './middleware/auth/sessions.ts';
 import appBaseRouter from './controllers/AppBaseRouter.ts';
 import apiBaseRouter from './controllers/ApiBaseRouter.ts';
@@ -42,6 +42,7 @@ import {
 } from '../shared/types/game-versions.ts';
 import { enableLogFileWatchShutdownHook, startLogFileWatch } from './logview/logview.ts';
 import { SiteUserProvider } from './middleware/auth/SiteUserProvider.ts';
+import { startRecentSavedSearchesPruneInterval } from './savedsearch/wsSavedSearches.ts';
 
 const app: Express = express();
 
@@ -63,18 +64,19 @@ export async function appInit(): Promise<Express> {
 
   // Load application resources
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~
-  logInit(`Opening sqlite database and loading data resources`);
-  openSqlite();
-  openPg();
+  logInit(`Opening database and loading data resources`);
+  openPgGamedata();
+  openPgSite();
   enableDbExitHook();
   ScriptJobCoordinator.init();
   await ScriptJobCoordinator.deleteOldJobs();
   await ScriptJobCoordinator.markAllComplete();
 
-  // LogView
+  // Application intervals
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~
   await startLogFileWatch();
   await enableLogFileWatchShutdownHook();
+  await startRecentSavedSearchesPruneInterval();
 
   // Initialize Cache
   // ~~~~~~~~~~~~~~~~
@@ -87,7 +89,7 @@ export async function appInit(): Promise<Express> {
   const redisZenlessVersion: string = await redisClient().get('Zenless:CurrentVersion');
   const redisWuwaVersion: string = await redisClient().get('Wuwa:CurrentVersion');
 
-  // Automatically clear cache when current version number is incremented:
+  // Automatically clear cache when the current version number is incremented:
   if (redisGenshinVersion !== CurrentGenshinVersion.number) {
     logInitCache('Clearing Redis cache for Genshin Impact!');
     await redisDelPattern('Genshin:*');

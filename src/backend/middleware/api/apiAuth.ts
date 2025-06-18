@@ -1,20 +1,28 @@
 import { HttpError } from '../../../shared/util/httpError.ts';
 import { doubleCsrfProtection } from '../request/csrf.ts';
 import { NextFunction, Request, Response } from 'express';
-import { openPg } from '../../util/db.ts';
+import { openPgSite } from '../../util/db.ts';
 
-type ApiKey = {
+export type ApiKey = {
   api_key: string,
-  expires: number,
-  info: string,
+  expires?: number,
+  info?: string,
+  owner_id: string,
+  owner_name: string,
 }
 
-async function isValidApiKey(apiKey: string): Promise<boolean> {
-  const entry: ApiKey = await openPg().select('*').from('api_keys').where({
+export async function isValidApiKey(apiKey: string): Promise<boolean> {
+  const entry: ApiKey = await openPgSite().select('*').from('api_keys').where({
     api_key: apiKey,
   }).first().then();
 
   return entry && (!entry.expires || entry.expires > Date.now());
+}
+
+export async function getApiKeysForUser(userId: string): Promise<ApiKey[]> {
+  return await openPgSite().select('*').from('api_keys').where({
+    owner_id: userId,
+  }).then();
 }
 
 const apiAuthBypassPathPatterns: RegExp[] = [

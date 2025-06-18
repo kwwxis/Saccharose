@@ -51,26 +51,41 @@ function initializeThemeWatcher(elements: HTMLElement[]) {
 }
 
 export type SingleColumnDefOpts = {
-  alwaysShow?: boolean
+  /**
+   * Override any logic that may automatically hide a column and instead have it be initially shown.
+   */
+  defaultShown?: boolean
 }
 
-export function makeSingleColumnDef(fieldKey: string, fieldName: string, data: any, opts: SingleColumnDefOpts = {}) {
+function determineInitialWidth(fieldName: string, data: any) {
   let initialWidth = typeof data === 'string' ? 200 : 100;
   let headerWidth = getTextWidth(camelCaseToTitleCase(fieldName), `bold 13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif`);
   headerWidth += (18 * 2) + 16; // 18px left and right padding + filter icon width
   initialWidth = Math.max(initialWidth, headerWidth);
+  return initialWidth;
+}
 
-  const colDef = <ColDef> {
-    headerName: camelCaseToTitleCase(fieldName),
-    headerTooltip: camelCaseToTitleCase(fieldName),
+export function makeSingleColumnDef(fieldKey: string, fieldName: string, data: any, opts: SingleColumnDefOpts = {}) {
+  const colDef: ColDef = <ColDef> {
+    // ID:
     colId: fieldKey,
     field: fieldKey,
+
+    // Display Name:
+    headerName: camelCaseToTitleCase(fieldName),
+    headerTooltip: camelCaseToTitleCase(fieldName),
+
+    // Filter:
     filter: typeof data === 'number' || typeof data === 'boolean' ? 'agNumberColumnFilter' : 'agTextColumnFilter',
     filterParams: typeof data === 'boolean' ? booleanFilter : undefined,
-    width: initialWidth,
-    hide: opts.alwaysShow ? false : (fieldName.includes('TextMapHash') || fieldName.endsWith('Hash')),
-    cellClass: 'cell-type-' + (isUnset(data) ? 'null' : typeof data),
     floatingFilter: true,
+
+    // Display:
+    width: determineInitialWidth(fieldName, data),
+    hide: opts.defaultShown ? false : (fieldName.includes('TextMapHash') || fieldName.endsWith('Hash')),
+    cellClass: 'cell-type-' + (isUnset(data) ? 'null' : typeof data),
+
+    // Default Formatter:
     valueFormatter: params => {
       if (isUnset(params.value)) {
         return '';
@@ -164,7 +179,7 @@ export function makeSingleColumnDef(fieldKey: string, fieldName: string, data: a
   return colDef;
 }
 
-function getColumnDefs(excelData: any[]): (ColDef | ColGroupDef)[] {
+function generateColDefs(excelData: any[]): (ColDef | ColGroupDef)[] {
   const columnDefs: (ColDef | ColGroupDef)[] = [];
   const colDefForKey: {[key: string]: ColDef|ColGroupDef} = {};
 
@@ -249,6 +264,7 @@ function getColumnDefs(excelData: any[]): (ColDef | ColGroupDef)[] {
 }
 
 function createExcelViewerHtml(fileName: string, includeExcelListButton: boolean, height: string) {
+  console.log(document.getElementById('template-maximize-icon'));
   return frag1(`
   <div class="excel-viewer">
     <section class="excel-viewer-top card ag-theme-alpine${isNightmode() ? '-dark' : ''}">
@@ -256,6 +272,12 @@ function createExcelViewerHtml(fileName: string, includeExcelListButton: boolean
         <span>Excel Viewer &ndash; <strong>${escapeHtml(fileName)}</strong></span>
         <span class="grow"></span>
         ${includeExcelListButton ? `<a role="button" class="secondary small" href="${SiteMode.home}/excel-viewer">Back to excel list</a>` : ''}
+        <button class="excel-toggle-full-screen valign secondary">
+          <span class="maximize-text spacer5-right">Enter Full Screen</span>
+          <span class="minimize-text spacer5-right">Exit Full Screen</span>
+          <span class="maximize-icon valign">${document.getElementById('template-maximize-icon').innerHTML}</span>
+          <span class="minimize-icon valign">${document.getElementById('template-minimize-icon').innerHTML}</span>
+        </button>
       </h2>
       <div class="content">
         <div class="valign justifySpaceBetween">
@@ -291,16 +313,16 @@ function createExcelViewerHtml(fileName: string, includeExcelListButton: boolean
   `);
 }
 
-export type ExcelViewerOpts = {
+export type ExcelViewerOpts<T = any> = {
   height?: string,
   includeExcelListButton?: boolean,
-  overrideColDefs?: (ColDef | ColGroupDef)[],
+  overrideColDefs?: (ColDef<T> | ColGroupDef<T>)[],
 }
 
-export function initExcelViewer(excelFileName: string,
-                                excelData: any[],
+export function initExcelViewer<T = any>(excelFileName: string,
+                                excelData: T[],
                                 appendTo: HTMLElement,
-                                opts: ExcelViewerOpts = {}) {
+                                opts: ExcelViewerOpts<T> = {}) {
   const parentEl: HTMLElement = createExcelViewerHtml(excelFileName, opts.includeExcelListButton, opts.height || '80vh');
   if (appendTo) {
     appendTo.append(parentEl);
@@ -313,7 +335,7 @@ export function initExcelViewer(excelFileName: string,
   initializeThemeWatcher([topEl, gridEl, gridLoadingEl]);
 
   const gridOptions: GridOptions = {
-    columnDefs: opts.overrideColDefs || getColumnDefs(excelData),
+    columnDefs: opts.overrideColDefs || generateColDefs(excelData),
     rowData: excelData,
     defaultColDef: {
       resizable: true,
@@ -509,6 +531,19 @@ export function initExcelViewer(excelFileName: string,
       event: 'click',
       handle: () => {
         downloadObjectAsJson(excelData, excelFileName + '.json', 2);
+      }
+    },
+    {
+      selector: '.excel-toggle-full-screen',
+      event: 'click',
+      handle: () => {
+        if (parentEl.classList.contains('full-screen')) {
+          parentEl.classList.remove('full-screen');
+          document.body.classList.remove('disable-scroll');
+        } else {
+          parentEl.classList.add('full-screen');
+          document.body.classList.add('disable-scroll');
+        }
       }
     }
   ], parentEl);

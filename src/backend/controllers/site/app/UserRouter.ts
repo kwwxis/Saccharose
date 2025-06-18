@@ -7,6 +7,7 @@ import NumberFormattingNotice from '../../../components/site/notices/NumberForma
 import { SiteNotice } from '../../../../shared/types/site/site-user-types.ts';
 import UserLandingPage from '../../../components/auth/UserLandingPage.vue';
 import { SITE_TITLE } from '../../../loadenv.ts';
+import { getApiKeysForUser } from '../../../middleware/api/apiAuth.ts';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -28,8 +29,11 @@ export default async function(): Promise<Router> {
   router.get('/settings/user-data.json', async (req: Request, res: Response) => {
     res.json({
       userData: req.user,
+      userIsbanned: await SiteUserProvider.isBanned(req.user),
       userInWikiRequirementsBypass: await SiteUserProvider.isInReqBypass(req.user),
+      userNoticesDismissed: await SiteUserProvider.getSiteNoticesDismissed(req.user.id),
       currentSessionData: req.session,
+      myApiKeys: await getApiKeysForUser(req.user.id)
     });
   });
 

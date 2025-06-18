@@ -1,6 +1,7 @@
 import moment from 'moment';
 import { arrayContains, isArrayLike, isIterable } from './arrayUtil.ts';
 import cloneDeep from 'clone-deep';
+import { escapeHtml, sentenceJoin } from './stringUtil.ts';
 
 export type Type<T> = { new(...args: any[]): T };
 
@@ -143,75 +144,93 @@ export function timeConvert(UNIX_timestamp: Date | number, format: boolean | str
   }
 }
 
+export type HumanTimingOpts = {
+  /**
+   * The suffix. Default is `from now` or `ago` depending on whether the time is in the future or in the past.
+   *
+   * Null or undefined will use default. Set to empty string to have no suffix.
+   */
+  suffix?: string | ((inPast: boolean) => string) | {past: string, future: string},
+
+  /**
+   * The timestamp to use as the "current time".
+   */
+  currentTime?: Date | number,
+
+  /**
+   * The return value if there has been no time elapsed (default: "Just now")
+   */
+  justNowText?: string,
+
+  /**
+   * The number of units to show.
+   */
+  precision?: number,
+};
+
 /**
  * Returns time in formats such as `X days ago` or `X seconds ago`
  *
- * @param time The timestamp, either as a Date object or as a UNIX timestamp (milliseconds).
- * @param suffix The suffix. Default is `from now` or `ago` depending on whether the time is in the future or in the past.
- * @param currentTime The timestamp to use as the "current time".
- * @param instantPhrase The return value if there has been no time elapsed (default: "Just now")
+ * @param inputTime The timestamp, either as a Date object or as a UNIX timestamp (milliseconds).
+ * @param opts Options.
  */
-export function humanTiming(
-  time: Date | number | null,
-  suffix?: string | ((inPast: boolean) => string),
-  currentTime?: Date | number,
-  instantPhrase?: string,
-): string {
-  if (time instanceof Date)
-    time = time.getTime();
-  if (typeof time === 'undefined' || time === null || time <= 0)
+export function humanTiming(inputTime: Date | number | null, opts?: HumanTimingOpts): string {
+  let { suffix, currentTime, justNowText, precision } = (opts || {});
+
+  if (inputTime instanceof Date)
+    inputTime = inputTime.getTime();
+  if (typeof inputTime === 'undefined' || inputTime === null || inputTime <= 0)
     return 'never';
   if (currentTime instanceof Date)
     currentTime = currentTime.getTime();
   if (!currentTime)
     currentTime = Date.now();
-
-  // convert from MS to seconds:
-  time = (time / 1000) | 0;
-  currentTime = (currentTime / 1000 | 0);
+  if (!precision || precision < 1)
+    precision = 1;
 
   // get delta:
-  time = currentTime - time;
-  let inFuture = time < 0;
-  time = Math.abs(time);
+  const deltaTime = Math.abs(inputTime - currentTime);
+  const inFuture = inputTime >= currentTime;
 
-  if (suffix && typeof suffix == 'function') {
+  // suffix:
+  if (suffix && typeof suffix === 'function')
     suffix = suffix(inFuture);
-  }
-  if (typeof suffix !== 'string') {
+  if (suffix && typeof suffix === 'object')
+    suffix = inFuture ? suffix.future : suffix.past;
+  if (typeof suffix !== 'string')
     suffix = null;
-  }
-  if (typeof suffix === 'undefined' || suffix === null) {
+  if (typeof suffix === 'undefined' || suffix === null)
     suffix = inFuture ? 'from now' : 'ago';
-  }
 
-  if (time <= 1) return instantPhrase || 'Just now';
+  if (deltaTime <= 1)
+    return justNowText || 'Just now';
 
-  const tokens = [
-    [31536000, 'year'],
-    [2592000, 'month'],
-    [604800, 'week'],
-    [86400, 'day'],
-    [3600, 'hour'],
-    [60, 'minute'],
-    [1, 'second'],
+  const units: [label: string, ms: number][] = [
+    ['year',    365.25 * 24 * 60 * 60 * 1000],
+    ['month',   30.44  * 24 * 60 * 60 * 1000],
+    ['week',    7     * 24 * 60 * 60 * 1000],
+    ['day',     24    * 60 * 60 * 1000],
+    ['hour',    60    * 60 * 1000],
+    ['minute',  60    * 1000],
+    ['second',  1000],
   ];
 
-  let ret = null;
+  const parts: string[] = [];
+  let remaining: number = deltaTime;
 
-  for (let i = 0; i < tokens.length; i++) {
-    let token = tokens[i];
-    let unit = <number>token[0];
-    let text = <string>token[1];
+  for (let [label, ms] of units) {
+    if (parts.length >= precision) {
+      break;
+    }
 
-    if (time < unit) continue;
-
-    let numberOfUnits = Math.floor(time / unit);
-    ret = numberOfUnits + ' ' + text + (numberOfUnits > 1 ? 's' : '') + (suffix ? ' ' + suffix : suffix);
-    break;
+    const value = Math.floor(remaining / ms);
+    if (value > 0) {
+      parts.push(`${value} ${label}${value > 1 ? 's' : ''}`);
+      remaining -= value * ms;
+    }
   }
 
-  return ret;
+  return sentenceJoin(parts) + (suffix ? ' ' + suffix : suffix);
 }
 
 export function printTimestamp(ts: Date|number|string, format=null): string {
@@ -223,10 +242,16 @@ export function printTimestamp(ts: Date|number|string, format=null): string {
     ts = 'n/a';
   if (!format)
     format = 'MMM DD YYYY hh:mm:ss a';
-  return `<span class="timestamp is--formatted is--unconverted" data-timestamp="${ts}" data-format="${format}">${format}</span>`;
+
+  return createElementHtml('span', {
+    class: 'timestamp is--formatted is--unconverted',
+    'data-timestmap': ts,
+    'data-format': format,
+    text: format,
+  });
 }
 
-export function printHumanTiming(ts: Date|number|string): string {
+export function printHumanTiming(ts: Date|number|string, opts?: HumanTimingOpts): string {
   if (typeof ts === 'string')
     ts = new Date(ts);
   if (ts instanceof Date)
@@ -237,9 +262,56 @@ export function printHumanTiming(ts: Date|number|string): string {
   if (typeof ts !== 'number')
     ts = now;
 
-  let placeholder = ts > now ? 'some time from now' : 'some time ago';
+  const attrs = {
+    class: 'timestamp is--humanTiming',
+    innerText: ts > now ? 'some time from now' : 'some time ago',
+    'data-timestamp': ts,
+  };
 
-  return `<span class="timestamp is--humanTiming" data-timestamp="${ts}">${placeholder}</span>`;
+  if (opts?.currentTime) {
+    attrs['data-timestamp'] = typeof opts.currentTime === 'number' ? opts.currentTime : opts.currentTime.getTime();
+  }
+  if (opts?.justNowText) {
+    attrs['data-justNowText'] = opts.justNowText;
+  }
+  if (opts?.precision) {
+    attrs['data-precision'] = opts.precision;
+  }
+  if (opts?.suffix) {
+    if (typeof opts.suffix === 'string') {
+      attrs['data-suffix'] = opts.suffix;
+    } else if (typeof opts.suffix === 'function') {
+      attrs['data-pastSuffix'] = opts.suffix(true);
+      attrs['data-futureSuffix'] = opts.suffix(false);
+    } else {
+      attrs['data-pastSuffix'] = opts.suffix.past;
+      attrs['data-futureSuffix'] = opts.suffix.future;
+    }
+  }
+
+  return createElementHtml('span', attrs);
+}
+
+export function createElementHtml(tag: string, attrs: {[attr: string]: string|number|boolean} = {}): string {
+  let part1: string = `<${tag}`;
+  let part2: string = '>';
+  let part3: string = '';
+  let part4: string = `</${tag}>`;
+
+  for (let attr of Object.keys(attrs)) {
+    if (attr === 'text' || attr === 'innerText' || attr === 'textContent') {
+      part3 = escapeHtml(String(attrs[attr]));
+    } else if (attr === 'html' || attr === 'HTML' || attr === 'innerHTML' || attr === 'innerHtml') {
+      part3 = String(attrs[attr]);
+    } else if (typeof attrs[attr] === 'string') {
+      part1 += ` ${attr}="${escapeHtml(attrs[attr])}"`
+    } else if (typeof attrs[attr] === 'number') {
+      part1 += ` ${attr}="${attrs[attr]}"`
+    } else if (attrs[attr] === true) {
+      part1 += ` ${attr}=""`
+    }
+  }
+  return part1 + part2 + part3 + part4;
 }
 
 export function shallowClone(o: any): any {
@@ -378,7 +450,7 @@ export class CompareTernaryGroup<T> {
   }
 
   notEquals(value: T): this {
-    return this.addComparison(value, 'equals');
+    return this.addComparison(value, 'notEquals');
   }
 
   includes(value: T): this {

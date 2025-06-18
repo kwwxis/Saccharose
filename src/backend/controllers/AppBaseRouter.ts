@@ -11,6 +11,7 @@ import UserRouter from './site/app/UserRouter.ts';
 import { GENSHIN_DISABLED, HSR_DISABLED, WUWA_DISABLED, ZENLESS_DISABLED } from '../loadenv.ts';
 import LogViewRouter from './site/app/LogViewRouter.ts';
 import { createLocalControls } from '../middleware/request/tracer.ts';
+import { getControlUserMode } from '../domain/abstract/abstractControlState.ts';
 
 export default async function(): Promise<Router> {
   const router: Router = create({
@@ -20,7 +21,7 @@ export default async function(): Promise<Router> {
       return num >= 3 && num <= 10 ? ['painmelo'] : [];
     },
     locals: async (req: Request) => {
-      const localControls = createLocalControls(req);
+      const localControls = createLocalControls(getControlUserMode(req), req);
       return {
         ... localControls,
         outputLangCode: req.context.outputLangCode,

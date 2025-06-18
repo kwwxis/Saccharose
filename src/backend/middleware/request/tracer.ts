@@ -6,17 +6,26 @@ import { getStarRailControl, StarRailControl } from '../../domain/hsr/starRailCo
 import { getZenlessControl, ZenlessControl } from '../../domain/zenless/zenlessControl.ts';
 import { getWuwaControl, WuwaControl } from '../../domain/wuwa/wuwaControl.ts';
 import { ProcessEnv } from '../../env-types.ts';
+import { ControlUserMode, getControlUserMode } from '../../domain/abstract/abstractControlState.ts';
 
 export type ITrace = {
+  // Request:
   req: Request,
   res: Response,
   ctx: RequestContext,
-  env: ProcessEnv,
   nonce: string,
+  cookies?: Record<string, any>,
+
+  // Process:
+  env: ProcessEnv,
+
+  // Controls:
   genshinControl: GenshinControl,
   starRailControl: StarRailControl,
   zenlessControl: ZenlessControl,
   wuwaControl: WuwaControl,
+
+  // Norm Text:
   normGenshinText: (s: string) => string,
   normStarRailText: (s: string) => string,
   normZenlessText: (s: string) => string,
@@ -36,39 +45,43 @@ export type LocalControls = {
   normWuwaText: (s: string) => string,
 };
 
-export function createLocalControls(req: Request): LocalControls {
-  const reqAsAny: any = req as any;
-  if (reqAsAny._localControls) {
-    return reqAsAny._localControls;
+export function createLocalControls(mode: ControlUserMode, cacheUpon?: any): LocalControls {
+  if (cacheUpon?._localControls) {
+    return cacheUpon._localControls;
   }
+
   const controlCache: Record<string, any> = {};
   const self: LocalControls = {
     get genshinControl() {
       if (controlCache['genshin'])
         return controlCache['genshin'];
-      return controlCache['genshin'] = getGenshinControl(req);
+      return controlCache['genshin'] = getGenshinControl(mode);
     },
     get starRailControl() {
       if (controlCache['hsr'])
         return controlCache['hsr'];
-      return controlCache['hsr'] = getStarRailControl(req);
+      return controlCache['hsr'] = getStarRailControl(mode);
     },
     get zenlessControl() {
       if (controlCache['zenless'])
         return controlCache['zenless'];
-      return controlCache['zenless'] = getZenlessControl(req);
+      return controlCache['zenless'] = getZenlessControl(mode);
     },
     get wuwaControl() {
       if (controlCache['wuwa'])
         return controlCache['wuwa'];
-      return controlCache['wuwa'] = getWuwaControl(req);
+      return controlCache['wuwa'] = getWuwaControl(mode);
     },
-    normGenshinText: (s: string) => self.genshinControl.normText(s, req.context.outputLangCode),
-    normStarRailText: (s: string) => self.starRailControl.normText(s, req.context.outputLangCode),
-    normZenlessText: (s: string) => self.zenlessControl.normText(s, req.context.outputLangCode),
-    normWuwaText: (s: string) => self.wuwaControl.normText(s, req.context.outputLangCode),
+    normGenshinText: (s: string) => self.genshinControl.normText(s, mode.outputLangCode),
+    normStarRailText: (s: string) => self.starRailControl.normText(s, mode.outputLangCode),
+    normZenlessText: (s: string) => self.zenlessControl.normText(s, mode.outputLangCode),
+    normWuwaText: (s: string) => self.wuwaControl.normText(s, mode.outputLangCode),
   };
-  reqAsAny._localControls = self;
+
+  if (cacheUpon) {
+    cacheUpon._localControls = self;
+  }
+
   return self;
 }
 
@@ -77,13 +90,16 @@ export function traceMiddleware(req: Request, res: Response, next: NextFunction)
     req,
     res,
     env: process.env as any,
+    get cookies() {
+      return req.cookies || {};
+    },
     get ctx() {
       return req.context;
     },
     get nonce() {
       return req.context.nonce;
     },
-    ... createLocalControls(req),
+    ... createLocalControls(getControlUserMode(req), req),
   };
   asyncLocalStorage.run(store, () => {
     next();

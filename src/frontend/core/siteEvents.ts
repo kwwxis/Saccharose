@@ -15,6 +15,7 @@ import { timestampInterval } from './intervalActions/timestampInterval.ts';
 import { enableReadonlyInterval } from './intervalActions/enableReadonlyInterval.ts';
 import { enableOLActionsInterval } from './intervalActions/enableOLActionsInterval.ts';
 import { enableAceInterval } from './intervalActions/enableAceInterval.ts';
+import { wsc } from '../websocket/ws-client.ts';
 
 const SITE_INTERVAL_MS: number = 500;
 
@@ -36,9 +37,11 @@ function siteIntervalFunction() {
 }
 
 runWhenDOMContentLoaded(() => {
-  enableErrorListeners();
-  enableUriChecks();
   enableAxiosCsrf();
+  enableErrorListeners();
+  // wsc.open();
+
+  enableUriChecks();
   enableMobileMenuCSS();
   recalculateDesktopStickyHeader();
 

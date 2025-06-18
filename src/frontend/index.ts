@@ -17,10 +17,6 @@ import './core/userPreferences/siteMode.ts';
 import './core/siteEvents.ts';
 import './core/generalEventBus.ts';
 
-// WebSocket
-// ----------------------------------------------------------------------------------------------------
-import './websocket/wsclient.ts';
-
 // Generic
 // ----------------------------------------------------------------------------------------------------
 import './pages/site/auth/WikiLogin.page.ts';

@@ -1,7 +1,7 @@
 import path from 'path';
 import { IMAGEDIR_WUWA_EXT } from '../../loadenv.ts';
 import fs from 'fs';
-import { closeKnex, openPg } from '../../util/db.ts';
+import { closeKnex, openPgSite } from '../../util/db.ts';
 import { defaultMap } from '../../../shared/util/genericUtil.ts';
 import {
   ImageCategoryMap,
@@ -39,7 +39,7 @@ function getImageNames(): string[] {
 }
 
 export async function indexWuwaImages(catMapOnly: boolean = false) {
-  const knex = openPg();
+  const knex = openPgSite();
 
   if (!catMapOnly) {
     await knex.raw('TRUNCATE TABLE wuwa_image_index;').then();

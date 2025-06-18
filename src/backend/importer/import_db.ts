@@ -17,13 +17,13 @@ import commandLineUsage, { OptionDefinition as UsageOptionDefinition } from 'com
 import { Knex } from 'knex';
 
 // DB Interface:
-import { closeKnex, openSqlite } from '../util/db.ts';
+import { closeKnex, openPgGamedata } from '../util/db.ts';
 
 // Shared Types:
 import { LangCode } from '../../shared/types/lang-types.ts';
 
 // Shared Util:
-import { humanTiming, isPromise, timeConvert } from '../../shared/util/genericUtil.ts';
+import { humanTiming, isEmpty, isPromise, timeConvert } from '../../shared/util/genericUtil.ts';
 import { resolveObjectPath } from '../../shared/util/arrayUtil.ts';
 import { isStringBlank, ucFirst } from '../../shared/util/stringUtil.ts';
 
@@ -126,6 +126,7 @@ export function schemaPrimaryKey(schemaTable: SchemaTable): string {
 export type SchemaColumnType =
   'string'
   | 'integer'
+  | 'bigint'
   | 'bigInteger'
   | 'boolean'
   | 'text'
@@ -159,7 +160,7 @@ export function schemaForDbName(dbName: 'genshin' | 'hsr' | 'zenless' | 'wuwa'):
   }
 }
 
-export function textMapSchema(langCode: LangCode, hashType: ('integer' | 'text') = 'integer'): SchemaTable {
+export function textMapSchema(langCode: LangCode): SchemaTable {
   return <SchemaTable> {
     name: 'TextMap' + langCode,
     jsonFile: './TextMap/TextMap'+langCode+'.json',
@@ -167,7 +168,7 @@ export function textMapSchema(langCode: LangCode, hashType: ('integer' | 'text')
     textMapSchemaLangCode: langCode,
     skipNormalizeRawJson: true,
     columns: [
-      {name: 'Hash', type: hashType, isPrimary: true},
+      {name: 'Hash', type: 'text', isPrimary: true},
       {name: 'Text', type: 'text'}
     ],
     customRowResolve(row) {
@@ -176,7 +177,7 @@ export function textMapSchema(langCode: LangCode, hashType: ('integer' | 'text')
   };
 }
 
-export function plainLineMapSchema(langCode: LangCode, hashType: ('integer' | 'text') = 'integer'): SchemaTable {
+export function plainLineMapSchema(langCode: LangCode): SchemaTable {
   return <SchemaTable> {
     name: 'PlainLineMap' + langCode,
     jsonFile: `./TextMap/Plain/PlainTextMap${langCode}_Hash.dat`,
@@ -184,7 +185,7 @@ export function plainLineMapSchema(langCode: LangCode, hashType: ('integer' | 't
     skipNormalizeRawJson: true,
     columns: [
       {name: 'Line', type: 'integer', isPrimary: true },
-      {name: 'Hash', type: hashType },
+      {name: 'Hash', type: 'text' },
       {name: 'LineType', type: 'text', isIndex: true }
     ],
     customRowResolve(row) {
@@ -281,7 +282,7 @@ export function renameFields(row: any, propertyRenameMap?: {[key: string]: strin
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
-    const databases = openSqlite();
+    const databases = openPgGamedata();
     let knex: Knex;
     let schemaSet: SchemaTableSet;
     let getDataFilePath: (relPath: string) => string = null;
@@ -311,7 +312,15 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
       await knex.schema.dropTableIfExists(table.name);
       await knex.schema.createTable(table.name, function(builder) {
         for (let col of table.columns) {
-          builder[col.type](col.name);
+          if (col.type === 'string')
+            col.type = 'text';
+
+          const colBuilder = builder[col.type](col.name);
+
+          if (!col.isPrimary) {
+            colBuilder.nullable();
+          }
+
           if (col.isPrimary) {
             builder.primary([col.name]);
           } else if (col.isIndex) {
@@ -319,13 +328,17 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
           }
         }
         if (!table.customRowResolve && !table.customRowResolveProvider && !table.noIncludeJson) {
-          builder.json('json_data');
+          builder.jsonb('json_data');
         }
       }).then();
       console.log('  (done)');
     }
 
     async function createRowPayload(table: SchemaTable, row: any, allRows: any[], acc: Record<string, any>): Promise<any[]> {
+      if (!row || isEmpty(row)) {
+        return [];
+      }
+
       if (!table.skipNormalizeRawJson)
         row = normalizeRawJson(row, table);
 
@@ -436,7 +449,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
       }).then();
 
       let timeEnd = Date.now();
-      spinner.succeed('Finished at ' + timeConvert(timeEnd) + ' (took '+humanTiming(timeStart, '', timeEnd, '0 seconds')+')');
+      spinner.succeed('Finished at ' + timeConvert(timeEnd) + ' (took '+humanTiming(timeStart, {suffix: '', currentTime: timeEnd, justNowText: '0 seconds'})+')');
       console.log('  (done)');
     }
 

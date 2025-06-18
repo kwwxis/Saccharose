@@ -8,7 +8,7 @@ import { __normZenlessText, ZenlessNormTextOpts } from './zenlessText.ts';
 import { NormTextOptions } from '../abstract/genericNormalizers.ts';
 import { Request } from 'express';
 import { zenless_i18n, ZENLESS_I18N_MAP } from '../abstract/i18n.ts';
-import { AbstractControlState } from '../abstract/abstractControlState.ts';
+import { AbstractControlState, ControlUserModeProvider } from '../abstract/abstractControlState.ts';
 import { CurrentZenlessVersion, GameVersion, ZenlessVersions } from '../../../shared/types/game-versions.ts';
 import { arrayFillRange, arrayIndexOf, arrayIntersect, arrayUnique } from '../../../shared/util/arrayUtil.ts';
 import { custom } from '../../util/logger.ts';
@@ -31,14 +31,14 @@ export class ZenlessControlState extends AbstractControlState {
   AutoloadText: boolean = true;
 
   override copy(trx?: Knex.Transaction|boolean): ZenlessControlState {
-    const state = new ZenlessControlState(this.request);
+    const state = new ZenlessControlState(this.controlUserMode);
     state.dialogueIdCache = new Set(this.dialogueIdCache);
     state.DbConnection = trx;
     return state;
   }
 }
 
-export function getZenlessControl(request?: Request) {
+export function getZenlessControl(request?: ControlUserModeProvider) {
   return new ZenlessControl(request);
 }
 
@@ -46,11 +46,23 @@ export function getZenlessControl(request?: Request) {
 // --------------------------------------------------------------------------------------------------------------
 export class ZenlessControl extends AbstractControl<ZenlessControlState> {
   // region Constructor
-  constructor(requestOrState?: Request|ZenlessControlState) {
-    super('zenless', 'zenless', 'Zenless', ZenlessControlState, requestOrState);
-    this.excelPath = './FileCfg';
-    this.disabledLangCodes.add('IT');
-    this.disabledLangCodes.add('TR');
+  constructor(modeOrState?: ControlUserModeProvider|ZenlessControlState) {
+    super({
+      siteMode: 'zenless',
+      dbName: 'zenless',
+      cachePrefix: 'Zenless',
+      stateConstructor: ZenlessControlState,
+      modeOrState: modeOrState,
+      excelPath: './FileCfg',
+      disabledLangCodes: ['IT', 'TR'],
+      currentGameVersion: CurrentZenlessVersion,
+      gameVersions: ZenlessVersions,
+      changelogConfig: {
+        directory: process.env.ZENLESS_CHANGELOGS,
+        textmapEnabled: true,
+        excelEnabled: false,
+      },
+    });
   }
 
   static noDbConnectInstance() {
@@ -74,16 +86,6 @@ export class ZenlessControl extends AbstractControl<ZenlessControlState> {
 
   override i18n(key: keyof typeof ZENLESS_I18N_MAP, vars?: Record<string, string>): string {
     return zenless_i18n(key, this.outputLangCode, vars);
-  }
-  // endregion
-
-  // region Changelog
-  override selectVersions(): GameVersion[] {
-    return ZenlessVersions;
-  }
-
-  override selectCurrentVersion(): GameVersion {
-    return CurrentZenlessVersion;
   }
   // endregion
 

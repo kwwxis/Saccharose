@@ -19,15 +19,18 @@ import { indexGenshinImages } from './module.index-images.ts';
 import { exportExcel } from './module.export-excel.ts';
 import { recordNewImages } from './module.new-images.ts';
 import fs from 'fs';
+import { mapBinOutputQuest } from './module.dialogue-schema.ts';
+import { isInt } from '../../../shared/util/numberUtil.ts';
 
 export async function importGenshinFilesCli() {
   const options_beforeDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
     {name: 'make-excels', type: Boolean, description: 'Creates some of the excels that are no longer updated by the game client (run before normalize)'},
+    {name: 'fix-document-excel', type: Boolean, description: 'Fixes some issues unique to DocumentExcelConfigData.'},
     {name: 'normalize', type: Boolean, description: 'Normalizes the JSON files.'},
     {name: 'plaintext', type: Boolean, description: 'Creates the PlainTextMap files.'},
     {name: 'voice-items', type: Boolean, description: 'Creates the normalized voice items file.'},
-    {name: 'property-schema', type: Boolean, description: 'Creates the PropertySchema file.'},
-    {name: 'fix-document-excel', type: Boolean, description: 'Fixes some issues unique to DocumentExcelConfigData.'},
+    {name: 'property-schema', type: Boolean, description: 'Property schema.'},
+    {name: 'dialogue-schema', type: Boolean, description: 'Dialogue schema.'},
     {name: 'interaction', type: Boolean, description: 'Load QuestDialogue InterActions from BinOutput.'},
   ];
 
@@ -141,15 +144,29 @@ export async function importGenshinFilesCli() {
   if (options['property-schema']) {
     await writeMappedExcels();
   }
+  if (options['dialogue-schema']) {
+    await mapBinOutputQuest();
+  }
   if (options['fix-document-excel']) {
     const filePath = getGenshinDataFilePath('./ExcelBinOutput/DocumentExcelConfigData.json');
     let fileContent = fs.readFileSync(filePath, {encoding: 'utf8'});
 
-    fileContent = fileContent.replace(/"questidlist"/gi, '"__temp__"');
-    fileContent = fileContent.replace(/"contentLocalizedIds?"/gi, '"QuestIdList"');
-    fileContent = fileContent.replace(/"__temp__"/gi, '"ContentLocalizedIds"');
+    let jsonContent: any[] = JSON.parse(fileContent);
+    const check = jsonContent.find(x => x.Id === 192431 || x.id === 192431);
+    const checkQid = (check.questIdList || check.QuestIdList)[0];
 
-    fs.writeFileSync(filePath, fileContent, {encoding: 'utf8'});
+    if (!checkQid || !Array.isArray(checkQid) || !isInt(checkQid[0])) {
+      console.error('Something is broken!');
+    } else if (checkQid[0] === 1500418) {
+      console.log('DocumentExcelConfigData is already correct or already has been fixed!');
+    } else {
+      fileContent = fileContent.replace(/"questidlist"/gi, '"__temp__"');
+      fileContent = fileContent.replace(/"contentLocalizedIds?"/gi, '"QuestIdList"');
+      fileContent = fileContent.replace(/"__temp__"/gi, '"ContentLocalizedIds"');
+      fs.writeFileSync(filePath, fileContent, {encoding: 'utf8'});
+
+      console.log('DocumentExcelConfigData was incorrect and has now been fixed!');
+    }
   }
   if (options['export-excel']) {
     await exportExcel(options['export-excel']);

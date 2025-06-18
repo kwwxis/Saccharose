@@ -11,6 +11,7 @@ import { isInt } from '../../../../shared/util/numberUtil.ts';
 import { LANG_CODES, LangCodeMap } from '../../../../shared/types/lang-types.ts';
 import { textMapChangesAsRows } from '../../../../shared/types/changelog-types.ts';
 import GenshinChangelogTextMapPage from '../../../components/genshin/changelogs/GenshinChangelogTextMapPage.vue';
+import { queryTab } from '../../../middleware/util/queryTab.ts';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -59,10 +60,12 @@ export default async function(): Promise<Router> {
     const fullChangelog = await ctrl.selectChangelog(genshinVersion);
     const textmapChanges = fullChangelog.textmapChangelog[ctrl.outputLangCode];
     const textmapChangesAsRows = textMapChangesAsRows(textmapChanges, s => ctrl.normText(s, ctrl.outputLangCode));
+    const activeTab: string = queryTab(req, 'added', 'updated', 'removed');
 
     res.render(GenshinChangelogTextMapPage, {
       title: 'Genshin TextMap Diff ' + genshinVersion.number,
       genshinVersion,
+      activeTab,
       textmapChanges: textmapChangesAsRows,
       bodyClass: ['page--changelog', 'page--wide', 'page--narrow-sidebar']
     });
@@ -117,11 +120,13 @@ export default async function(): Promise<Router> {
       }
     }
 
+    const activeTab: string = queryTab(req, 'added', 'updated', 'removed');
     res.render(GenshinChangelogSingleExcelPage, {
       title: 'Genshin Changelog - ' + excelFileChanges.name,
       genshinVersion,
       fullChangelog,
       excelFileChanges,
+      activeTab,
       bodyClass: ['page--changelog', 'page--wide', 'page--narrow-sidebar']
     });
   });

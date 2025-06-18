@@ -1,11 +1,12 @@
 import { create } from '../../../routing/router.ts';
 import { getGenshinControl } from '../../../domain/genshin/genshinControl.ts';
 import {
-  handleExcelUsagesEndpoint, handleOlCombine,
-  handleOlEndpoint,
   handleTextMapSearchEndpoint,
-} from '../../generic/api/abstractBasicResources.ts';
+} from '../../generic/handlers/handleTextMapSearch.ts';
 import { Request, Response, Router } from 'express';
+import { handleExcelUsagesEndpoint } from '../../generic/handlers/handleExcelUsagesEndpoint.ts';
+import { handleOlEndpoint } from '../../generic/handlers/handleOlEndpoint.ts';
+import { handleOlCombine } from '../../generic/handlers/handleOlCombine.ts';
 
 const router: Router = create();
 

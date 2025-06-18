@@ -17,7 +17,7 @@ import {
 } from '../../importer/import_db.ts';
 
 // Backend Util:
-import { openPg, openSqlite, SaccharoseDb } from '../../util/db.ts';
+import { openPgSite, openPgGamedata, SaccharoseDb } from '../../util/db.ts';
 import { getLineNumberForLineText, grep, grepStream, langDetect, ShellFlags } from '../../util/shellutil.ts';
 import { _cachedImpl } from '../../util/cache.ts';
 
@@ -30,7 +30,7 @@ import {
   LangSuggest,
   NON_SPACE_DELIMITED_LANG_CODES,
   PlainLineMapItem,
-  TextMapHash, TextMapSearchGetOpts, TextMapSearchIndexStreamOpts, TextMapSearchOpts,
+  TextMapHash, TextMapSearchGetOpts, TextMapSearchIndexStreamOpts, TextMapSearchOpts, TextMapSearchResponse,
   TextMapSearchResult, TextMapSearchStreamOpts, TmMatchPreProc,
 } from '../../../shared/types/lang-types.ts';
 import { ExtractScalar, FileAndSize } from '../../../shared/types/utility-types.ts';
@@ -43,15 +43,14 @@ import {
 
 // Shared Util:
 import { ExcelUsages, SearchMode } from '../../../shared/util/searchUtil.ts';
-import { escapeRegExp, isStringBlank, titleCase } from '../../../shared/util/stringUtil.ts';
+import { escapeRegExp, isString, isStringBlank, titleCase } from '../../../shared/util/stringUtil.ts';
 import { isInt, maybeInt, toInt } from '../../../shared/util/numberUtil.ts';
 import { ArrayStream, cleanEmpty, toArray, walkObject } from '../../../shared/util/arrayUtil.ts';
-import { defaultMap, isUnset, toBoolean } from '../../../shared/util/genericUtil.ts';
+import { defaultMap, isset, isUnset, toBoolean } from '../../../shared/util/genericUtil.ts';
 import { Marker } from '../../../shared/util/highlightMarker.ts';
-import { uuidv4 } from '../../../shared/util/uuidv4.ts';
 
 // Same Directory Imports:
-import { AbstractControlState } from './abstractControlState.ts';
+import { AbstractControlState, AbstractControlStateType, ControlUserModeProvider } from './abstractControlState.ts';
 import { NormTextOptions } from './genericNormalizers.ts';
 import {
   ChangeRecord,
@@ -65,6 +64,25 @@ import { ScriptJobActionArgs, ScriptJobCoordinator, ScriptJobPostResult } from '
 import { RequestSiteMode } from '../../routing/requestContext.ts';
 import { IntHolder } from '../../../shared/util/valueHolder.ts';
 
+export type AbstractControlConfig<T extends AbstractControlState = AbstractControlState> = {
+  siteMode: RequestSiteMode,
+  dbName: keyof SaccharoseDb,
+  cachePrefix: string,
+  stateConstructor: AbstractControlStateType<T>,
+  modeOrState?: ControlUserModeProvider|T,
+  excelPath: string,
+  disabledLangCodes?: LangCode[],
+  currentGameVersion: GameVersion,
+  gameVersions: GameVersion[],
+  changelogConfig: AbstractControlChangelogConfig,
+};
+
+export type AbstractControlChangelogConfig = {
+  directory: string,
+  textmapEnabled: boolean,
+  excelEnabled: boolean,
+};
+
 export abstract class AbstractControl<T extends AbstractControlState = AbstractControlState> {
   // region Fields
   readonly state: T;
@@ -74,8 +92,11 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
   readonly siteMode: RequestSiteMode;
 
   readonly disabledLangCodes: Set<LangCode> = new Set<LangCode>();
-  protected excelPath: string;
+  readonly excelPath: string;
   readonly schema: SchemaTableSet;
+  readonly currentGameVersion: GameVersion;
+  readonly gameVersions: GameVersion[];
+  private changelogConfig: AbstractControlChangelogConfig;
   protected IdComparator = (a: { Id: any }, b: { Id: any }) => a.Id === b.Id;
   protected NodeIdComparator = (a: { NodeId: any }, b: { NodeId: any }) => a.NodeId === b.NodeId;
   protected sortByOrder = (a: { Order: number }, b: { Order: number }) => {
@@ -84,23 +105,26 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
   // endregion
 
   // region Constructor / Copy
-  protected constructor(siteMode: RequestSiteMode,
-                        dbName: keyof SaccharoseDb,
-                        cachePrefix: string,
-                        stateConstructor: {new(request?: Request): T},
-                        requestOrState?: Request|T) {
-    this.siteMode = siteMode;
-    this.state = requestOrState instanceof AbstractControlState ? requestOrState : new stateConstructor(requestOrState);
+  protected constructor(config: AbstractControlConfig<T>) {
+    this.siteMode = config.siteMode;
+    this.state = config.modeOrState instanceof AbstractControlState ? config.modeOrState : new config.stateConstructor(config.modeOrState);
     if (this.state.DbConnection === false) {
       this.knex = null;
     } else if (this.state.DbConnection && this.state.DbConnection !== true) {
       this.knex = this.state.DbConnection;
     } else {
-      this.knex = openSqlite()[dbName];
+      this.knex = openPgGamedata()[config.dbName];
     }
-    this.schema = schemaForDbName(dbName);
-    this.dbName = dbName;
-    this.cachePrefix = cachePrefix.endsWith(':') ? cachePrefix : cachePrefix + ':';
+    this.excelPath = config.excelPath;
+    this.schema = schemaForDbName(config.dbName);
+    this.dbName = config.dbName;
+    this.cachePrefix = config.cachePrefix.endsWith(':') ? config.cachePrefix : config.cachePrefix + ':';
+    if (config.disabledLangCodes && config.disabledLangCodes.length) {
+      config.disabledLangCodes.forEach(langCode => this.disabledLangCodes.add(langCode));
+    }
+    this.currentGameVersion = config.currentGameVersion;
+    this.gameVersions = config.gameVersions;
+    this.changelogConfig = config.changelogConfig;
   }
 
   abstract copy(trx?: Knex.Transaction|boolean): AbstractControl<T>;
@@ -113,8 +137,9 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
   async cached(key: string, valueMode: 'boolean', supplierFn: (key?: string) => Promise<boolean>): Promise<boolean>
   async cached<T>(key: string, valueMode: 'memory', supplierFn: (key?: string) => Promise<T>): Promise<T>
   async cached<T>(key: string, valueMode: 'json', supplierFn: (key?: string) => Promise<T>): Promise<T>
+  async cached<T>(key: string, valueMode: 'disabled', supplierFn: (key?: string) => Promise<T>): Promise<T>
   async cached<T>(key: string, valueMode: 'set', supplierFn: (key?: string) => Promise<Set<T>>): Promise<Set<T>>
-  async cached<T>(key: string, valueMode: 'string' | 'buffer' | 'json' | 'set' | 'boolean' | 'memory', supplierFn: (key?: string) => Promise<T>): Promise<T> {
+  async cached<T>(key: string, valueMode: 'string' | 'buffer' | 'json' | 'set' | 'boolean' | 'memory' | 'disabled', supplierFn: (key?: string) => Promise<T>): Promise<T> {
     return _cachedImpl(this.cachePrefix + key, valueMode, supplierFn);
   }
   // endregion
@@ -210,14 +235,14 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     result.map(record => {
       return !record || !record.json_data
         ? this.postProcess(record, triggerNormalize, doNormText)
-        : this.postProcess(JSON.parse(record.json_data), triggerNormalize, doNormText);
+        : this.postProcess(isString(record.json_data) ? JSON.parse(record.json_data) : record.json_data, triggerNormalize, doNormText);
     }),
   );
 
   readonly commonLoadFirst = async (record: any, triggerNormalize?: SchemaTable | boolean, doNormText: boolean = false) => {
     return !record || !record.json_data
       ? this.postProcess(record, triggerNormalize, doNormText)
-      : await this.postProcess(JSON.parse(record.json_data), triggerNormalize, doNormText);
+      : await this.postProcess(isString(record.json_data) ? JSON.parse(record.json_data) : record.json_data, triggerNormalize, doNormText);
   };
   // endregion
 
@@ -332,7 +357,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       }));
   }
 
-  async readJsonFile<T>(filePath: string): Promise<any> {
+  async readJsonFile(filePath: string): Promise<any> {
     return JSON.parse(await fsp.readFile(this.getDataFilePath(filePath), { encoding: 'utf8' }));
   }
 
@@ -426,6 +451,22 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     }
 
     return Array.from(results.values());
+  }
+
+  createTextMapSearchResponse(query: string, resultSetIdx: number, items: TextMapSearchResult[]): TextMapSearchResponse {
+    let poppedResult: TextMapSearchResult;
+
+    if (items.length > this.state.MAX_TEXTMAP_SEARCH_RESULTS) {
+      poppedResult = items.pop();
+    }
+
+    return {
+      items,
+      continueFromLine: poppedResult?.line || null,
+      hasMoreResults: !!poppedResult,
+      resultSetIdx,
+      langSuggest: items.length ? null : this.langSuggest(query)
+    };
   }
 
   async getTextMapMatches(opts: TextMapSearchGetOpts): Promise<TextMapSearchResult[]> {
@@ -809,23 +850,30 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
   // endregion
 
   // region Changelog
-  abstract selectVersions(): GameVersion[];
-
-  abstract selectCurrentVersion(): GameVersion;
-
   async selectTextMapChangelog(version: GameVersion): Promise<TextMapFullChangelog> {
-    return null;
+    if (!version || !version.showChangelog || !this.changelogConfig.textmapEnabled)
+      return null;
+    return this.cached('TextMapChangelog:' + version.number, 'json', async () => {
+      const textmapChangelogFileName = path.resolve(this.changelogConfig.directory, `./TextMapChangeLog.${version.number}.json`);
+      return JSON.parse(fs.readFileSync(textmapChangelogFileName, { encoding: 'utf-8' }));
+    });
   }
 
   async selectExcelChangelog(version: GameVersion): Promise<ExcelFullChangelog> {
-    return null;
+    if (!version || !version.showChangelog || !this.changelogConfig.excelEnabled)
+      return null;
+    return this.cached('ExcelChangelog:' + version.number, 'json', async () => {
+      const excelChangelogFileName = path.resolve(this.changelogConfig.directory, `./ExcelChangeLog.${version.number}.json`);
+      return JSON.parse(fs.readFileSync(excelChangelogFileName, { encoding: 'utf-8' }));
+    });
   }
 
+  // noinspection JSUnusedGlobalSymbols
   async selectAllChangelogs(): Promise<Record<string, FullChangelog>> {
     return this.cached('AllChangeLogs', 'memory', async () => {
       let map: Record<string, FullChangelog> = {};
 
-      await this.selectVersions().filter(v => v.showChangelog).asyncForEach(async v => {
+      await this.gameVersions.filter(v => v.showChangelog).asyncForEach(async v => {
         const changelog = await this.selectChangelog(v);
         if (changelog) {
           map[v.number] = changelog;
@@ -840,7 +888,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     return this.cached('AllTextMapChangeLogs', 'memory', async () => {
       let map: Record<string, TextMapFullChangelog> = {};
 
-      await this.selectVersions().filter(v => v.showChangelog).asyncForEach(async v => {
+      await this.gameVersions.filter(v => v.showChangelog).asyncForEach(async v => {
         map[v.number] = await this.selectTextMapChangelog(v);
       });
 
@@ -975,7 +1023,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
   async selectImageIndexEntity(imageName: string): Promise<ImageIndexEntity> {
     if (!imageName)
       return null;
-    return openPg().select('*').from(this.dbName + '_image_index').where({ image_name: imageName }).first().then();
+    return openPgSite().select('*').from(this.dbName + '_image_index').where({ image_name: imageName }).first().then();
   }
 
   async selectImageIndexEntityAndUsages(imageName: string): Promise<{
@@ -1043,9 +1091,9 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       select.searchMode = this.searchMode;
 
 
-    const versionFilter = GameVersionFilter.from(select.versionFilter, this.selectVersions().filter(v => v.showNewMedia));
+    const versionFilter = GameVersionFilter.from(select.versionFilter, this.gameVersions.filter(v => v.showNewMedia));
 
-    let builder: Knex.QueryBuilder = openPg().select('*').from(this.dbName + '_image_index');
+    let builder: Knex.QueryBuilder = openPgSite().select('*').from(this.dbName + '_image_index');
 
     if (query) {
       switch (select.searchMode) {

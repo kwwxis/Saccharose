@@ -28,6 +28,7 @@ export interface ProcessEnv {
   // --------------------------------------------------------------------------------------------------------------
 
   SESSION_SECRET: string;
+  JWT_SECRET: string;
   CSRF_TOKEN_SECRET: string;
   DISCORD_APP_CLIENT_ID: string;
   DISCORD_APP_CLIENT_SECRET: string;
@@ -57,16 +58,22 @@ export interface ProcessEnv {
   // --------------------------------------------------------------------------------------------------------------
 
   HSR_DATA_ROOT: string;
+  HSR_CHANGELOGS: string;
+  HSR_ARCHIVES: string;
 
   // Zenless Zone Zero Data Configuration
   // --------------------------------------------------------------------------------------------------------------
 
   ZENLESS_DATA_ROOT: string;
+  ZENLESS_CHANGELOGS: string;
+  ZENLESS_ARCHIVES: string;
 
   // Wuthering Waves Data Configuration
   // --------------------------------------------------------------------------------------------------------------
 
   WUWA_DATA_ROOT: string;
+  WUWA_CHANGELOGS: string;
+  WUWA_ARCHIVES: string;
 
   // External Directory and Images Configuration
   // --------------------------------------------------------------------------------------------------------------
@@ -80,10 +87,21 @@ export interface ProcessEnv {
   // PostgreSQL Configuration
   // --------------------------------------------------------------------------------------------------------------
 
-  POSTGRES_HOST: string;
-  POSTGRES_DATABASE: string;
-  POSTGRES_USER: string;
-  POSTGRES_PASSWORD: string;
+  POSTGRES_SITE_HOST: string;
+  POSTGRES_SITE_USER: string;
+  POSTGRES_SITE_PASSWORD: string;
+  POSTGRES_SITE_PORT?: string;
+  POSTGRES_SITE_DATABASE: string;
+
+  POSTGRES_GAMEDATA_HOST: string;
+  POSTGRES_GAMEDATA_USER: string;
+  POSTGRES_GAMEDATA_PASSWORD: string;
+  POSTGRES_GAMEDATA_PORT?: string;
+
+  POSTGRES_GAMEDATA_DATABASE_GENSHIN: string;
+  POSTGRES_GAMEDATA_DATABASE_HSR: string;
+  POSTGRES_GAMEDATA_DATABASE_ZENLESS: string;
+  POSTGRES_GAMEDATA_DATABASE_WUWA: string;
 
   // Fandom MediaWiki API
   // --------------------------------------------------------------------------------------------------------------

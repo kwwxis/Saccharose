@@ -1,11 +1,9 @@
 import  knex, { Knex } from 'knex';
 import exitHook from 'async-exit-hook';
-import path from 'path';
-import { DATAFILE_GENSHIN_SQLITE_DB, DATAFILE_HSR_SQLITE_DB, DATAFILE_ZENLESS_SQLITE_DB, DATAFILE_WUWA_SQLITE_DB } from '../loadenv.ts';
 import { logInit, logShutdown } from './logger.ts';
-import { isInt, toInt } from '../../shared/util/numberUtil.ts';
+import { toInt } from '../../shared/util/numberUtil.ts';
 import Pool from 'pg-pool';
-import { toBoolean, Type } from '../../shared/util/genericUtil.ts';
+import { isEmpty, toBoolean } from '../../shared/util/genericUtil.ts';
 
 export type SaccharoseDb = {
   genshin: Knex,
@@ -17,48 +15,43 @@ export type SaccharoseDb = {
 let singleton: SaccharoseDb = null;
 let pgSingleton: Knex = null;
 
-function createSqliteConnection(dbFilePath: string): Knex {
+export const pgSessionPool = new Pool({
+  host:     process.env.POSTGRES_SITE_HOST,
+  database: process.env.POSTGRES_SITE_DATABASE,
+  user:     process.env.POSTGRES_SITE_USER,
+  password: process.env.POSTGRES_SITE_PASSWORD,
+  port:     toInt(process.env.POSTGRES_SITE_PORT, 5432),
+});
+
+function pgSiteDatabase() {
   return knex({
-    client: 'sqlite3',
+    client: 'pg',
     connection: {
-      filename: dbFilePath,
+      host:     process.env.POSTGRES_SITE_HOST,
+      database: process.env.POSTGRES_SITE_DATABASE,
+      user:     process.env.POSTGRES_SITE_USER,
+      password: process.env.POSTGRES_SITE_PASSWORD,
+      port:     toInt(process.env.POSTGRES_SITE_PORT, 5432),
     },
-    useNullAsDefault: true,
     pool: {
       max: 30,
-      afterCreate: function(conn, done) {
-        conn.run('PRAGMA journal_mode = WAL;', function() {
-          conn.run('PRAGMA synchronous = normal;', function() {
-            conn.run('PRAGMA temp_store = memory;', function() {
-              conn.run('PRAGMA page_size = 32768;', done);
-            })
-          });
-        });
-      }
-    }
+    },
+    useNullAsDefault: true,
   });
 }
 
-export const pgPool = new Pool({
-  host: process.env.POSTGRES_HOST,
-  database: process.env.POSTGRES_DATABASE,
-  user: process.env.POSTGRES_USER,
-  password: process.env.POSTGRES_PASSWORD,
-  port: isInt(process.env.POSTGRES_PORT) ? toInt(process.env.POSTGRES_PORT) : 5432,
-});
-
-function createPostgresConnection() {
-  if (!process.env.POSTGRES_HOST) {
-    return null;
+function pgGamedataDatabase(db: string) {
+  if (isEmpty(db)) {
+    throw 'Database name is required!';
   }
   return knex({
     client: 'pg',
     connection: {
-      host: process.env.POSTGRES_HOST,
-      database: process.env.POSTGRES_DATABASE,
-      user: process.env.POSTGRES_USER,
-      password: process.env.POSTGRES_PASSWORD,
-      port: isInt(process.env.POSTGRES_PORT) ? toInt(process.env.POSTGRES_PORT) : 5432,
+      host:     process.env.POSTGRES_GAMEDATA_HOST,
+      database: db,
+      user:     process.env.POSTGRES_GAMEDATA_USER,
+      password: process.env.POSTGRES_GAMEDATA_PASSWORD,
+      port:     toInt(process.env.POSTGRES_GAMEDATA_PORT, 5432),
     },
     pool: {
       max: 30,
@@ -67,24 +60,24 @@ function createPostgresConnection() {
   });
 }
 
-export function openSqlite(): SaccharoseDb {
+export function openPgGamedata(): SaccharoseDb {
   if (singleton) {
     return singleton;
   }
   singleton = {
-    genshin:  toBoolean(process.env.GENSHIN_DISABLED) ? null  : createSqliteConnection(path.resolve(process.env.GENSHIN_DATA_ROOT,  DATAFILE_GENSHIN_SQLITE_DB)),
-    hsr:      toBoolean(process.env.HSR_DISABLED) ? null      : createSqliteConnection(path.resolve(process.env.HSR_DATA_ROOT,      DATAFILE_HSR_SQLITE_DB)),
-    zenless:  toBoolean(process.env.ZENLESS_DISABLED) ? null  : createSqliteConnection(path.resolve(process.env.ZENLESS_DATA_ROOT,  DATAFILE_ZENLESS_SQLITE_DB)),
-    wuwa:     toBoolean(process.env.WUWA_DISABLED) ? null     : createSqliteConnection(path.resolve(process.env.WUWA_DATA_ROOT,     DATAFILE_WUWA_SQLITE_DB)),
+    genshin:  toBoolean(process.env.GENSHIN_DISABLED) ? null  : pgGamedataDatabase(process.env.POSTGRES_GAMEDATA_DATABASE_GENSHIN),
+    hsr:      toBoolean(process.env.HSR_DISABLED) ? null      : pgGamedataDatabase(process.env.POSTGRES_GAMEDATA_DATABASE_HSR),
+    zenless:  toBoolean(process.env.ZENLESS_DISABLED) ? null  : pgGamedataDatabase(process.env.POSTGRES_GAMEDATA_DATABASE_ZENLESS),
+    wuwa:     toBoolean(process.env.WUWA_DISABLED) ? null     : pgGamedataDatabase(process.env.POSTGRES_GAMEDATA_DATABASE_WUWA),
   };
   return singleton;
 }
 
-export function openPg(): Knex {
+export function openPgSite(): Knex {
   if (pgSingleton) {
     return pgSingleton;
   }
-  pgSingleton = createPostgresConnection();
+  pgSingleton = pgSiteDatabase();
   return pgSingleton;
 }
 

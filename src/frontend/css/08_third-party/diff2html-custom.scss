@@ -11,3 +11,16 @@
 .d2h-dark-color-scheme .d2h-code-linenumber.d2h-del {
   background: transparent !important;
 }
+
+.d2h-file-header.is-compact {
+  padding: 0 10px;
+  height: 26px;
+
+  .d2h-file-name-wrapper {
+    font-size: 14px;
+  }
+  .d2h-file-name-wrapper .d2h-icon {
+    height: 15px;
+    margin-right: 7px;
+  }
+}

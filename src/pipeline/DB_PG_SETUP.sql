@@ -66,7 +66,7 @@ CREATE TYPE site_logview_type AS ENUM ('access', 'debug', 'other');
 
 CREATE TABLE site_logview
 (
-    sha_hash        TEXT            NOT NULL PRIMARY KEY ,
+    sha_hash        TEXT            NOT NULL PRIMARY KEY,
     log_type        site_logview_type NOT NULL,
     timestamp       TIMESTAMP WITH TIME ZONE NOT NULL,
     full_content    TEXT            NOT NULL,
@@ -87,13 +87,42 @@ CREATE INDEX site_logview_content_trgm_idx ON site_logview USING GIN (content gi
 CREATE INDEX site_logview_discord_user_idx ON site_logview (log_type, timestamp, discord_user);
 CREATE INDEX site_logview_wiki_user_idx ON site_logview (log_type, timestamp, wiki_user);
 
+-- Site Saved Searches
+----------------------------------------------------------------------------------------------------------------
+CREATE TYPE site_searches_usage_type AS ENUM ('recent', 'saved', 'public');
+
+CREATE TABLE site_searches
+(
+    sha_hash        TEXT NOT NULL PRIMARY KEY,
+    user_id         TEXT NOT NULL,
+    usage_type      site_searches_usage_type NOT NULL,
+    usage_time      TIMESTAMP WITH TIME ZONE NOT NULL,
+
+    site_mode       TEXT NOT NULL,
+    search_area     TEXT NOT NULL,
+    search_mode     TEXT NOT NULL,
+    search_query    TEXT NOT NULL,
+    other_fields    JSONB NOT NULL DEFAULT '{}'::jsonb,
+
+    meta_name       TEXT,
+    meta_desc       TEXT
+);
+
+CREATE INDEX site_searches_query_trgm_idx ON site_searches USING GIN (search_query gin_trgm_ops);
+CREATE INDEX site_searches_name_trgm_idx ON site_searches USING GIN (meta_name gin_trgm_ops);
+
+CREATE INDEX site_searches_general_idx ON site_searches (site_mode, usage_type, search_area, usage_time);
+CREATE INDEX site_searches_user_idx ON site_searches (user_id);
+
 -- Script Jobs
 ----------------------------------------------------------------------------------------------------------------
 CREATE TABLE api_keys
 (
     api_key     TEXT    NOT NULL    PRIMARY KEY,
     expires     BIGINT,
-    info        TEXT
+    info        TEXT,
+    owner_id    TEXT   NOT NULL,
+    owner_name  TEXT   NOT NULL
 );
 
 -- GENSHIN IMAGE INDEX

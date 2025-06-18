@@ -163,17 +163,11 @@ import { CommonLineId, DialogWikitextResult } from '../../../shared/types/common
 import { genshin_i18n, GENSHIN_I18N_MAP, GENSHIN_MATERIAL_TYPE_DESC_PLURAL_MAP } from '../abstract/i18n.ts';
 import * as console from 'console';
 import {
-  ChangeRecord,
-  ChangeRecordRef,
   ExcelFullChangelog,
-  FullChangelog,
-  TextMapChangeRef,
-  TextMapChangeRefs,
-  TextMapChanges,
   TextMapFullChangelog,
 } from '../../../shared/types/changelog-types.ts';
 import { CurrentGenshinVersion, GameVersion, GenshinVersions } from '../../../shared/types/game-versions.ts';
-import { AbstractControlState } from '../abstract/abstractControlState.ts';
+import { AbstractControlState, ControlUserModeProvider } from '../abstract/abstractControlState.ts';
 import { Knex } from 'knex';
 
 // region Control State
@@ -228,7 +222,7 @@ export class GenshinControlState extends AbstractControlState {
   }
 
   override copy(trx?: Knex.Transaction|boolean): GenshinControlState {
-    const state = new GenshinControlState(this.request);
+    const state = new GenshinControlState(this.controlUserMode);
     state.dialogueIdCache = new Set(this.dialogueIdCache);
     state.npcCache = Object.assign({}, this.npcCache);
     state.avatarCache = Object.assign({}, this.avatarCache);
@@ -245,7 +239,7 @@ export class GenshinControlState extends AbstractControlState {
   }
 }
 
-export function getGenshinControl(request?: Request) {
+export function getGenshinControl(request?: ControlUserModeProvider) {
   return new GenshinControl(request);
 }
 // endregion
@@ -256,9 +250,22 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   // region Constructor
   readonly voice: GenshinVoice = new GenshinVoice();
 
-  constructor(requestOrState?: Request|GenshinControlState) {
-    super('genshin', 'genshin', 'Genshin', GenshinControlState, requestOrState);
-    this.excelPath = './ExcelBinOutput';
+  constructor(modeOrState?: ControlUserModeProvider|GenshinControlState) {
+    super({
+      siteMode: 'genshin',
+      dbName: 'genshin',
+      cachePrefix: 'Genshin',
+      stateConstructor: GenshinControlState,
+      modeOrState: modeOrState,
+      excelPath: './ExcelBinOutput',
+      currentGameVersion: CurrentGenshinVersion,
+      gameVersions: GenshinVersions,
+      changelogConfig: {
+        directory: process.env.GENSHIN_CHANGELOGS,
+        textmapEnabled: true,
+        excelEnabled: true,
+      },
+    });
   }
 
   static noDbConnectInstance() {
@@ -3446,34 +3453,6 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       .where({ActivityId: id}).first().then(async res => res ? await this.getTextMapItem(this.outputLangCode, res.NameTextMapHash) : undefined);
     this.state.newActivityNameCache[id] = name;
     return name;
-  }
-  // endregion
-
-  // region Changelog
-  override selectVersions(): GameVersion[] {
-    return GenshinVersions;
-  }
-
-  override selectCurrentVersion(): GameVersion {
-    return CurrentGenshinVersion;
-  }
-
-  override async selectTextMapChangelog(version: GameVersion): Promise<TextMapFullChangelog> {
-    if (!version || !version.showChangelog)
-      return null;
-    return this.cached('TextMapChangelog:' + version.number, 'json', async () => {
-      const textmapChangelogFileName = path.resolve(process.env.GENSHIN_CHANGELOGS, `./TextMapChangeLog.${version.number}.json`);
-      return JSON.parse(fs.readFileSync(textmapChangelogFileName, { encoding: 'utf-8' }));
-    });
-  }
-
-  override async selectExcelChangelog(version: GameVersion): Promise<ExcelFullChangelog> {
-    if (!version || !version.showChangelog)
-      return null;
-    return this.cached('ExcelChangelog:' + version.number, 'json', async () => {
-      const excelChangelogFileName = path.resolve(process.env.GENSHIN_CHANGELOGS, `./ExcelChangeLog.${version.number}.json`);
-      return JSON.parse(fs.readFileSync(excelChangelogFileName, { encoding: 'utf-8' }));
-    });
   }
   // endregion
 

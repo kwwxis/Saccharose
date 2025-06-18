@@ -7,11 +7,11 @@ import { toInt, toNumber } from '../../shared/util/numberUtil.ts';
 import { LogViewEntity } from '../../shared/types/site/site-logview-types.ts';
 import { LangCode } from '../../shared/types/lang-types.ts';
 import { SearchMode } from '../../shared/util/searchUtil.ts';
-import { closeKnex, openPg } from '../util/db.ts';
+import { closeKnex, openPgSite } from '../util/db.ts';
 import { Tail } from 'tail';
 import exitHook from 'async-exit-hook';
-import { wssDispatch } from '../websocket/wssubscribers.ts';
 import './wsLogview.ts';
+import { wssDispatch } from '../websocket/ws-server.ts';
 
 const regexes = {
   access: /^\[(\d+\/\d+\/\d+), (\d+:\d+:\d+) (AM|PM) (PST|PDT)] \[([^\]]+)] \[(\w{2,3}):(\w{2,3})\|(\w+)] (\d{3}) (\w+)(.*)\((\d+\.?\d*) ms\)$/,
@@ -42,7 +42,7 @@ export function filterLogView(logView: LogViewEntity[]): LogViewEntity[] {
 }
 
 export async function importFileLines(lines: string[], isRealTime: boolean, doConsoleLog: boolean = false) {
-  const knex = openPg();
+  const knex = openPgSite();
 
   if (doConsoleLog)
     console.log('Importing', lines.length, 'lines...');

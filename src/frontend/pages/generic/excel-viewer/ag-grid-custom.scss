@@ -37,6 +37,30 @@
   }
 }
 
+.excel-viewer.full-screen {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 9999999;
+
+  .excel-viewer-grid {
+    height: calc(100vh - 101.333px) !important;
+  }
+
+  .excel-toggle-full-screen .maximize-icon,
+  .excel-toggle-full-screen .maximize-text {
+    display: none !important;
+  }
+}
+.excel-viewer:not(.full-screen) {
+  .excel-toggle-full-screen .minimize-icon,
+  .excel-toggle-full-screen .minimize-text {
+    display: none !important;
+  }
+}
+
 .excel-viewer-top {
   box-shadow: none;
   border: var(--ag-borders-critical) var(--ag-border-color);

@@ -14,6 +14,7 @@ import {
 import { reformatPrimitiveArrays } from '../util/import_file_util.ts';
 import { isEquiv } from '../../../shared/util/arrayUtil.ts';
 import { defaultMap } from '../../../shared/util/genericUtil.ts';
+import { isInt } from '../../../shared/util/numberUtil.ts';
 
 // region Walk Sync
 // --------------------------------------------------------------------------------------------------------------
@@ -85,7 +86,7 @@ function processInterAction(fileName: string, groupId: number, groupIndex: numbe
       return null;
     }
   } else if (action.Type === 'DIALOG' || !!action.DialogId) {
-    if (typeof action.DialogId === 'number') {
+    if (isInt(action.DialogId)) {
       d2f[action.DialogId].push([fileName, groupId, groupIndex]);
     } else {
       return null;
@@ -106,7 +107,7 @@ function gatherGroups(fileName: string, json: any): InterActionGroup[] {
   let groupIdToPreviousId: {[groupId: number]: Set<number>} = defaultMap('Set');
 
   for (let i = 0; i < json.group.length; i++) {
-    const groupId: {grpId: number, index: number, nextGrpId: number} = json.groupId[i];
+    const groupId: {grpId: number, index: number, nextGrpId?: number, nextGrpIdList?: number[], noCircleNextGrp?: number} = json.groupId[i];
     const normalActions: InterAction[] = [];
     const selectActions: InterAction[] = [];
 
@@ -141,7 +142,7 @@ function gatherGroups(fileName: string, json: any): InterActionGroup[] {
         if (actionsOfSameType.some(a => isEquiv(a.DialogId, action.DialogId))) {
           continue; // duplicate, disregard
         }
-        if (typeof action.DialogId !== 'number') {
+        if (!isInt(action.DialogId)) {
           console.error('Found DIALOG without DialogId:', action, ' in ' + fileName);
         }
         normalActions.push(action);
@@ -154,6 +155,8 @@ function gatherGroups(fileName: string, json: any): InterActionGroup[] {
       Index: groupId.index || 0,
       GroupId: groupId.grpId,
       NextGroupId: groupId.nextGrpId,
+      NextGroupIdList: groupId.nextGrpIdList,
+      NoCircleNextGroupId: groupId.noCircleNextGrp,
       Actions: [
         ... normalActions,
         ... selectActions, // bring down DIALOG_SELECT action to always be last

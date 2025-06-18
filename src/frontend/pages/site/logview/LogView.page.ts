@@ -1,5 +1,5 @@
 import { pageMatch } from '../../../core/pageMatch.ts';
-import { wsc } from '../../../websocket/wsclient.ts';
+import { wsc } from '../../../websocket/ws-client.ts';
 import { LogViewLine, LogViewRequest } from '../../../../shared/types/wss-types.ts';
 import { LogViewEntity } from '../../../../shared/types/site/site-logview-types.ts';
 import { frag, frag1, getScrollbarWidth } from '../../../util/domutil.ts';
@@ -32,20 +32,20 @@ pageMatch('vue/SiteLogViewPage', () => {
 
   wsc.open();
 
-  let didInitialLoad: boolean = false;
+  wsc.prepare('LogViewRequest', {
+    lowerbound: moment().subtract(1, 'days').toISOString(),
+  }).send({
+    LogViewResult(data){
+      handleLines(data, true);
 
-  wsc.subscribe('LogViewLine', (data: LogViewLine) => {
+      wsc.subscribe('LogViewLine', (data: LogViewLine) => {
+        handleLines(data, false);
+      });
+    }
+  });
+
+  function handleLines(data: LogViewLine, isInitial: boolean) {
     const lines: LogViewEntity[] = data.lines;
-    const fromRequest: LogViewRequest = data.fromRequest;
-
-    if (fromRequest && fromRequest.requestId !== myId) {
-      return;
-    }
-
-    if (!fromRequest && !didInitialLoad) {
-      return;
-    }
-
     const isScrolledToBottom = scrollContainer.scrollHeight - scrollContainer.scrollTop - scrollContainer.clientHeight < 5;
     console.log('LogViewLine', lines);
 
@@ -75,7 +75,7 @@ pageMatch('vue/SiteLogViewPage', () => {
         cssClasses.push(`for-wuwa`);
         cssClasses.push(`for-wuwa-${apiOrWeb}`);
       }
-      if (!fromRequest) {
+      if (!isInitial) {
         cssClasses.push('flash');
       }
 
@@ -93,18 +93,8 @@ pageMatch('vue/SiteLogViewPage', () => {
     }
     scrollContainer.append(...elements);
 
-    if (isScrolledToBottom || (fromRequest && fromRequest.requestNote === 'initial')) {
+    if (isScrolledToBottom || isInitial) {
       scrollContainer.scrollTop = scrollContainer.scrollHeight;
     }
-
-    if (fromRequest && fromRequest.requestNote === 'initial') {
-      didInitialLoad = true;
-    }
-  });
-
-  wsc.send('LogViewRequest', {
-    requestId: myId,
-    requestNote: 'initial',
-    lowerbound: moment().subtract(1, 'days').toISOString(),
-  })
+  }
 });
