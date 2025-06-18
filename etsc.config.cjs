@@ -40,7 +40,7 @@ module.exports = {
       force: true,
       recursive: true,
     });
-    fs.cpSync('./src/pipeline/detect_language.py', './dist/pipeline/detect_language.py', { force: true });
+    fs.cpSync('./src/pipeline/detect_language.py', './dist/pipeline/detect_language.py', { force: true });g
     console.timeEnd('ETSC cpy');
   },
 };

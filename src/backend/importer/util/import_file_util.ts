@@ -207,7 +207,7 @@ export async function importPlainTextMap(ctrl: AbstractControl, getDataFilePath:
   }
 
   for (let langCode of LANG_CODES) {
-    if (langCode !== 'TH')
+    if (langCode !== 'CH')
       continue;
 
     try {
