@@ -153,11 +153,11 @@ export async function importGenshinFilesCli() {
 
     let jsonContent: any[] = JSON.parse(fileContent);
     const check = jsonContent.find(x => x.Id === 192431 || x.id === 192431);
-    const checkQid = (check.questIdList || check.QuestIdList)[0];
+    const checkQid: number = (check.questIdList || check.QuestIdList || check.QuestIDList || check.questIDList)[0];
 
-    if (!checkQid || !Array.isArray(checkQid) || !isInt(checkQid[0])) {
-      console.error('Something is broken!');
-    } else if (checkQid[0] === 1500418) {
+    if (!isInt(checkQid)) {
+      console.error('Something is broken!', checkQid);
+    } else if (checkQid === 1500418) {
       console.log('DocumentExcelConfigData is already correct or already has been fixed!');
     } else {
       fileContent = fileContent.replace(/"questidlist"/gi, '"__temp__"');

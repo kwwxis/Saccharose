@@ -52,7 +52,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   // console.log('Perform Count:', talks.filter(t => !!t.PerformCfg).length);
   // console.log(talks.filter(t => !!t.PerformCfg && !t.PerformCfg.startsWith('QuestDialogue')));
 
-  let changelog = await ctrl.selectChangelog(GenshinVersions.find(v => v.number === '5.6'));
+  let changelog = await ctrl.selectChangelog(GenshinVersions.find(v => v.number === '5.7'));
 
   for (let key of Object.keys(changelog.textmapChangelog['EN'].added)) {
     changelog.textmapChangelog['EN'].added[key] = ctrl.normText(changelog.textmapChangelog['EN'].added[key], 'EN');
