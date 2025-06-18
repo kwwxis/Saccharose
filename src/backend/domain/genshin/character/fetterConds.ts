@@ -93,7 +93,7 @@ export async function processFetterConds(ctrl: GenshinControl, fetter: FetterWit
 async function processQuestConds(ctrl: GenshinControl, fetter: FetterWithConditions, questId: number, mainQuest: MainQuestExcelConfigData, summaryObj: FetterCondSummary) {
   if (!mainQuest) {
     summaryObj.QuestId = questId;
-    const temp = 'Quest: ' + String(questId) + ' (Quest name resolve failed)';
+    const temp = '<!-- Quest: ' + String(questId) + ' (Quest name resolve failed) -->';
     summaryObj.QuestTitleTextMap = {
       CH: temp,
       CHS: temp,
