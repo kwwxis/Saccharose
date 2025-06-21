@@ -12,6 +12,7 @@ import { templateIcon } from '../../../util/templateIcons.ts';
 import { uuidv4 } from '../../../../shared/util/uuidv4.ts';
 import './media-list.styles.scss';
 import { GenshinVersions, parseVersionFilters } from '../../../../shared/types/game-versions.ts';
+import { getByteSizeLabel } from './media-app-util.ts';
 
 export function initiateMediaListPage(
   vueComponentName: string,
@@ -79,6 +80,7 @@ export function initiateMediaListPage(
       for (let entity of result.results) {
         const firstVersionCssClass = entity.first_version
             ? ' ' + `first-version-${entity.first_version.replace(/\./g, '-')}` : '';
+
         loadZoneEl.append(frag1(`
         <div class="media-image media-version-filter-target${firstVersionCssClass}">
           <div class="image-frame bordered">
@@ -86,6 +88,10 @@ export function initiateMediaListPage(
               <img src="${imagePathPrefix}${escapeHtml(entity.image_name)}.png" />
             </div>
             <a href="${siteModeHome}/media/details/${escapeHtml(entity.image_name)}" class="image-label" target="_blank">${escapeHtml(entity.image_name)}</a>
+            <span class="image-sublabel">
+              <span class="image-dsize">${entity.image_width} &times; ${entity.image_height}</span>
+              <span class="image-bsize">${getByteSizeLabel(entity)}</span>
+            </span>
           </div>
         </div>
       `));

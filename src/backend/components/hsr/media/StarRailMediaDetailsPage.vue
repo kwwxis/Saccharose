@@ -27,6 +27,10 @@
     <dl>
       <dt>Image Name</dt>
       <dd>{{ entity.image_name }}</dd>
+      <dt>Image Dimensions</dt>
+      <dd>
+        <span>{{ entity.image_width }} &times; {{ entity.image_height }}</span>
+      </dd>
       <dt>Image Size</dt>
       <dd>
         <ByteSizeLabel :byte-size="entity.image_size" />

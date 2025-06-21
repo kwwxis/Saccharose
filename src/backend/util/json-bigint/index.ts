@@ -1,5 +1,5 @@
-import { json_stringify } from './stringify.js';
-import { json_parse } from './parse.js';
+import { json_stringify } from './stringify.ts';
+import { json_parse } from './parse.ts';
 
 export interface JSONBigIntOptions {
   /**

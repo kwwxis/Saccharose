@@ -511,3 +511,14 @@ body.nightmode .image-loaded:before {
 body.nightmode .image-label {
   background: rgba(255,255,255,0.15);
 }
+.image-sublabel {
+  background: #e4e4e4;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  font-size: 14px;
+  padding: 0 3px;
+}
+body.nightmode .image-sublabel {
+  background: rgba(255,255,255,0.19);
+}

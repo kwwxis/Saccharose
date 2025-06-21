@@ -76,7 +76,7 @@
     }
 
     .image-label {
-      font-size: 13px;
+      font-size: 12.5px;
       word-wrap: break-word;
       overflow: hidden;
       display: block;
@@ -87,6 +87,18 @@
       &:hover {
         text-decoration: underline;
       }
+    }
+
+    .image-sublabel {
+      font-size: 12px;
+      word-wrap: break-word;
+      overflow: hidden;
+      display: flex;
+      justify-content: space-between;
+      line-height: 1.4em;
+      text-decoration: none;
+      padding: 0 5px;
+      width: 150px;
     }
   }
 }

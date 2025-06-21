@@ -11,6 +11,7 @@ import { ImageIndexSearchParams, ImageIndexSearchResult } from '../../../../shar
 import { ModalRef, modalService } from '../../../util/modalService.ts';
 import { ScriptJobPostResult } from '../../../../backend/util/scriptJobs.ts';
 import { toastError, toastSuccess } from '../../../util/toasterUtil.ts';
+import { getByteSizeLabel } from './media-app-util.ts';
 
 export function initiateMediaSearchPage(
   vueComponentName: string,
@@ -52,7 +53,7 @@ export function initiateMediaSearchPage(
       submitButtonTarget: '.image-name-search-submit',
       resultTarget: '#image-name-search-result',
 
-      onReceiveResult(caller: string, apiPayload: Record<string, string|number>, resultTarget: HTMLElement, result, preventDefault: () => void) {
+      onReceiveResult(caller: string, apiPayload: Record<string, string|number>, resultTarget: HTMLElement, result: ImageIndexSearchResult, preventDefault: () => void) {
         preventDefault();
         document.querySelector('#image-name-search-result-wrapper').classList.remove('hide');
 
@@ -156,6 +157,10 @@ export function initiateMediaSearchPage(
                 <img src="${imagePathPrefix}${escapeHtml(entity.image_name)}.png" />
               </div>
               <a href="${siteModeHome}/media/details/${escapeHtml(entity.image_name)}" class="image-label" target="_blank">${escapeHtml(entity.image_name)}</a>
+              <span class="image-sublabel">
+                <span class="image-dsize">${entity.image_width} &times; ${entity.image_height}</span>
+                <span class="image-bsize">${getByteSizeLabel(entity)}</span>
+              </span>
             </div>
           </div>
         `));
