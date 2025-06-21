@@ -1,7 +1,7 @@
 import { WikiRevAppState } from './rev-app-main.ts';
 import { startGenericSearchPageListeners } from '../../genericSearchPage.ts';
 import { genericEndpoints } from '../../../core/endpoints.ts';
-import { SITE_MODE } from '../../../core/userPreferences/siteMode.ts';
+import { SITE_MODE } from '../../../core/userPreferences/siteModeInfo.ts';
 import { isInt } from '../../../../shared/util/numberUtil.ts';
 
 export async function revAppArticleSearch(revAppState: WikiRevAppState) {

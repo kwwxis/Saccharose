@@ -20,7 +20,7 @@ router.endpoint('/dialogue-generation', {
       return res.render(ZenlessDialogueGenerationResult, {
         sections: result,
         query,
-        langSuggest: result.length ? null : ctrl.langSuggest(query)
+        langSuggest: result.length ? null : await ctrl.langSuggest(query)
       });
     } else {
       return removeCyclicRefs(result, ApiCyclicValueReplacer);

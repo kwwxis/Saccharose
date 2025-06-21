@@ -14,6 +14,7 @@ import path from 'path';
 import fs from 'fs';
 import { defaultMap } from '../../../../shared/util/genericUtil.ts';
 import { mapBy } from '../../../../shared/util/arrayUtil.ts';
+import { fsReadJson } from '../../../util/fsutil.ts';
 
 function getVoAvatarName(avatar: AvatarExcelConfigData, voiceItems: VoiceItem[]): string {
   if (isTraveler(avatar, 'male')) {
@@ -60,7 +61,7 @@ export async function fetchCharacterFetters(ctrl: GenshinControl, skipCache: boo
   if (!skipCache) {
     return ctrl.cached('Fetters:FetterGroup', 'json', async () => {
       const filePath = path.resolve(process.env.GENSHIN_DATA_ROOT, DATAFILE_GENSHIN_FETTERS);
-      const result: FetterGroupByAvatar = JSON.parse(fs.readFileSync(filePath, {encoding: 'utf8'}));
+      const result: FetterGroupByAvatar = await fsReadJson(filePath);
       return result;
     });
   }

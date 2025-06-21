@@ -7,7 +7,7 @@ import { OutputFormatType } from 'diff2html/lib/types';
 import { isUnset } from '../../../../shared/util/genericUtil.ts';
 import { GeneralEventBus } from '../../../core/generalEventBus.ts';
 import { revSelect } from './rev-app-revPage.ts';
-import { SITE_MODE_HOME } from '../../../core/userPreferences/siteMode.ts';
+import { SITE_MODE_HOME } from '../../../core/userPreferences/siteModeInfo.ts';
 import { renderRevDiffTab } from './rev-tabs/revTab-diff.ts';
 
 export class WikiRevAppState {

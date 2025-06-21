@@ -1,9 +1,9 @@
 import { LogViewEntity } from './site/site-logview-types.ts';
-import { RequestSiteMode } from '../../backend/routing/requestContext.ts';
 import { SiteUser } from './site/site-user-types.ts';
 import { JwtPayload } from 'jsonwebtoken';
 import { SavedSearchEntity, SavedSearchesRequestCriteria } from './site/site-saved-searches-types.ts';
 import { TextMapSearchResponse } from './lang-types.ts';
+import { SiteMode } from './site/site-mode-type.ts';
 
 // TOKEN
 // --------------------------------------------------------------------------------------------------------------
@@ -156,7 +156,7 @@ export type LogViewRequest = {
 // WS: Search Text Map
 // --------------------------------------------------------------------------------------------------------------
 export type WsTextMapSearch = {
-  siteMode: RequestSiteMode,
+  siteMode: SiteMode,
   resultType: 'json' | 'html',
 
   query: string,

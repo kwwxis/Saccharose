@@ -30,7 +30,7 @@ wssHandle('WsTextMapSearch', async event => {
     resultNumberingStart: resultSetIdx * max,
   });
 
-  const response = ctrl.createTextMapSearchResponse(query, resultSetIdx, items);
+  const response = await ctrl.createTextMapSearchResponse(query, resultSetIdx, items);
 
   if (event.data.resultType === 'html') {
 
@@ -63,7 +63,7 @@ export async function handleTextMapSearchEndpoint(ctrl: AbstractControl, req: Re
     resultNumberingStart: resultSetIdx * max,
   });
 
-  const response = ctrl.createTextMapSearchResponse(query, resultSetIdx, items);
+  const response = await ctrl.createTextMapSearchResponse(query, resultSetIdx, items);
 
   if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
     return res.render(TextmapSearchResult, { response });

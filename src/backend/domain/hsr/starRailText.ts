@@ -8,8 +8,8 @@ import {
 import { TextJoinConfig, TextJoinItem } from '../../../shared/types/hsr/hsr-misc-types.ts';
 import { getStarRailControl } from './starRailControl.ts';
 import { logInitData } from '../../util/logger.ts';
-import { HSR_DISABLED } from '../../loadenv.ts';
 import { toInt } from '../../../shared/util/numberUtil.ts';
+import { isSiteModeDisabled } from '../../loadenv.ts';
 
 export type StarRailNormTextOpts = {
 
@@ -128,7 +128,7 @@ export function __normStarRailText(text: string, langCode: LangCode, opts: NormT
 const textJoinConfigMap: {[id: number]: TextJoinConfig} = {};
 
 export async function loadStarRailTextSupportingData() {
-  if (HSR_DISABLED)
+  if (isSiteModeDisabled('hsr'))
     return;
   logInitData('Loading HSR-supporting text data -- starting...');
 

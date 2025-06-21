@@ -10,6 +10,8 @@ import {
   ImageIndexExcelMeta,
   ImageIndexExcelMetaEntry, ImageIndexOtherName, newImageCategory,
 } from '../../../shared/types/image-index-types.ts';
+import { ISizeCalculationResult } from 'image-size/types/interface';
+import { imageSizeFromFile } from 'image-size/fromFile';
 
 const otherNames: Record<string, ImageIndexOtherName[]> = defaultMap('Array');
 
@@ -157,10 +159,14 @@ export async function indexGenshinImages(catMapOnly: boolean = false) {
     const firstVersion = firstVersionMap[imageName];
 
     if (!catMapOnly) {
-      const size: number = fs.statSync(path.resolve(IMAGEDIR_GENSHIN_EXT, `./${imageName}.png`))?.size || 0;
-      batch.push(<ImageIndexEntity>{
+      const filePath: string = path.resolve(IMAGEDIR_GENSHIN_EXT, `./${imageName}.png`);
+      const size: number = fs.statSync(filePath)?.size || 0;
+      const imageSize: ISizeCalculationResult = await imageSizeFromFile(filePath);
+      batch.push({
         image_name: imageName,
         image_size: size,
+        image_width: imageSize.width,
+        image_height: imageSize.height,
         excel_usages: imageNameToExcelFileUsages[imageName] || [],
         excel_meta: imageNameToExcelMeta[imageName] || {},
         image_cat1: cats[0] || null,

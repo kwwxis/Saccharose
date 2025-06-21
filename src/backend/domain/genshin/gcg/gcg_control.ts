@@ -39,6 +39,7 @@ import { loadGenshinTextSupportingData } from '../genshinText.ts';
 import { dialogueGenerateByNpc, NpcDialogueResult } from '../dialogue/basic_dialogue_generator.ts';
 import { mapBy } from '../../../../shared/util/arrayUtil.ts';
 import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
+import { fsExists } from '../../../util/fsutil.ts';
 
 // noinspection JSUnusedGlobalSymbols
 export class GCGControl {
@@ -78,7 +79,7 @@ export class GCGControl {
     }
 
     this.charIcons = await this.ctrl.cached('GCG:CharIcons', 'json', async () => {
-      return findFiles('UI_Gcg_Char_', IMAGEDIR_GENSHIN_EXT);
+      return await findFiles('UI_Gcg_Char_', IMAGEDIR_GENSHIN_EXT);
     });
 
     this.charIconsLcSet = new Set<string>(this.charIcons.map(s => s.toLowerCase().replace('.png', '')));
@@ -158,7 +159,7 @@ export class GCGControl {
 
     text = this.ctrl.normText(text, outputLangCode || this.ctrl.outputLangCode, {skipHtml2Quotes: true});
 
-    text = text.replace(/\$\[K(\d+)(?:\|s(\d+))?]/g, (fm: string, g: string, sNumStr: string) => {
+    text = text.replace(/\$\[K(\d+)(?:\|s(\d+))?]/g, (_fm: string, g: string, _sNumStr: string) => {
       const id = toInt(g);
       const kwText = this.keywordTable[id]?.TitleText;
       return this.ctrl.normText(kwText, outputLangCode || this.ctrl.outputLangCode, {skipHtml2Quotes: true});
@@ -193,7 +194,7 @@ export class GCGControl {
     text = text.replace(/\{\{color\|#FFD780\|(.*?)}}/g, '[[$1]]');
 
     if (stripSprite) {
-      text = text.replace(/\{\{Sprite\|.*?}}/g, '');
+      text = text.replace(/\{\{tx\|Sprite:\s*.*?}}/gi, '');
     }
 
     text = unnestHtmlTags(text);
@@ -214,11 +215,11 @@ export class GCGControl {
       }
     }
     if ('TagList' in o) {
-      o.MappedTagList = o.TagList.map(tagType => this.tagTable[tagType]).filter(x => !!x);
+      o.MappedTagList = o.TagList.map((tagType: string) => this.tagTable[tagType]).filter((x: GCGTagExcelConfigData) => !!x);
     }
     if (!this.disableRelatedCharacterLoad) {
       if ('RelatedCharacterTagList' in o) {
-        o.MappedRelatedCharacterTagList = o.RelatedCharacterTagList.map(tagType => this.tagTable[tagType]).filter(x => !!x);
+        o.MappedRelatedCharacterTagList = o.RelatedCharacterTagList.map((tagType: string) => this.tagTable[tagType]).filter((x: GCGTagExcelConfigData) => !!x);
       }
       if ('RelatedCharacterId' in o) {
         o.RelatedCharacter = await this.singleSelect('GCGCharExcelConfigData', 'Id', o['RelatedCharacterId'], this.postProcessCharacterCard);
@@ -231,7 +232,7 @@ export class GCGControl {
     }
     if (!this.disableSkillSelect) {
       if ('SkillTagList' in o) {
-        o.MappedSkillTagList = o.SkillTagList.map(tagType => this.skillTagTable[tagType]).filter(x => !!x);
+        o.MappedSkillTagList = o.SkillTagList.map((tagType: string) => this.skillTagTable[tagType]).filter((x: GCGTagExcelConfigData) => !!x);
       }
       if ('SkillId' in o) {
         o.MappedSkill = await this.singleSelect('GCGSkillExcelConfigData', 'Id', o['SkillId'], this.postProcessSkill);
@@ -722,7 +723,7 @@ export class GCGControl {
     }
 
     const goldenImageExists: boolean = await this.ctrl.cached('GCG:GoldenImageExists:' + card.Id, 'boolean', async () => {
-      return !!card.WikiImage && fs.existsSync(path.resolve(IMAGEDIR_GENSHIN_EXT, './' + card.WikiImage + '_Golden.png'));
+      return !!card.WikiImage && await fsExists(path.resolve(IMAGEDIR_GENSHIN_EXT, './' + card.WikiImage + '_Golden.png'));
     });
     if (goldenImageExists) {
       card.WikiGoldenImage = card.WikiImage + '_Golden';
@@ -944,16 +945,18 @@ export class GCGControl {
     skill.SkillDamage = this.charSkillDamageTable[skill.SkillJson];
 
     if (skill.DescText && skill.SkillDamage) {
-      skill.DescText = skill.DescText.replace(/\$\[D__KEY__DAMAGE(\|nc)?]/g, (fm: string) => {
-        return isUnset(skill.SkillDamage.Damage) ? fm : String(skill.SkillDamage.Damage);
+      skill.DescText = skill.DescText.replace(/\$\[D__KEY__DAMAGE(\|nc)?]/g, (_fm: string) => {
+        return isUnset(skill.SkillDamage.Damage)
+          ? '{{tx|Unknown damage}}'
+          : String(skill.SkillDamage.Damage);
       });
-      skill.DescText = skill.DescText.replace(/\$\[D__KEY__ELEMENT(\|nc)?]/g, (fm: string) => {
+      skill.DescText = skill.DescText.replace(/\$\[D__KEY__ELEMENT(\|nc)?]/g, (_fm: string) => {
         let keyword = this.keywordTable[skill.SkillDamage.ElementKeywordId];
         if (keyword) {
           return keyword.TitleText;
         }
 
-        // Fallback: guess from element in cost list
+        // Fallback: guess from the element in the cost list
         let guessKwId = skill.CostList
           .map(c => standardElementCodeToGcgKeywordId(standardElementCode(c.CostType)))
           .filter(x => !!x)[0];
@@ -968,10 +971,10 @@ export class GCGControl {
           return keyword.TitleText;
         }
 
-        return fm;
+        return '{{tx|Unknown element}}';
       });
       skill.DescText = skill.DescText.replaceAll(/\{PLURAL#(\d+)\|(.*?)\|(.*?)}/g,
-        (fm: string, numStr: string, ifSingular: string, ifPlural: string) => {
+        (_fm: string, numStr: string, ifSingular: string, ifPlural: string) => {
           let num = toInt(numStr);
           if (num > 1) {
             return ifPlural;
@@ -979,6 +982,13 @@ export class GCGControl {
             return ifSingular;
           }
         });
+    } else {
+      skill.DescText = skill.DescText.replace(/\$\[D__KEY__DAMAGE(\|nc)?]/g, (_fm: string) => {
+        return '{{tx|Unknown damage}}';
+      });
+      skill.DescText = skill.DescText.replace(/\$\[D__KEY__ELEMENT(\|nc)?]/g, (_fm: string) => {
+        return '{{tx|Unknown element}}';
+      });
     }
 
     skill.WikiDesc = await this.normGcgText(skill.DescText);
@@ -1113,6 +1123,7 @@ export class GCGControl {
     return card;
   }
 
+  // noinspection JSUnusedLocalSymbols
   private async selectAllDeckCard(): Promise<GCGDeckCardExcelConfigData[]> {
     return await this.allSelect('GCGDeckCardExcelConfigData', this.postProcessDeckCard)
   }
@@ -1292,7 +1303,7 @@ export class GCGControl {
         for (let section of sections) {
           if (section.originalData.talkConfig) {
             const talk = section.originalData.talkConfig;
-            const firstDialog = section.originalData.talkConfig.Dialog[0];
+            // const firstDialog = section.originalData.talkConfig.Dialog[0];
 
             if (talk.BeginCond) {
               const npcType: number = toInt(talk.BeginCond.find(c => c.Type === 'QUEST_COND_GCG_NPC_TYPE')?.Param?.[1]);

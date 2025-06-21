@@ -139,7 +139,7 @@ router.endpoint('/dialogue/single-branch-generate', {
         query,
         ... await questStillsHelper(ctrl),
         ... await inDialogueReadablesHelper(ctrl),
-        langSuggest: result.length ? null : ctrl.langSuggest(query)
+        langSuggest: result.length ? null : await ctrl.langSuggest(query)
       });
     } else {
       return removeCyclicRefs(result, ApiCyclicValueReplacer);
@@ -190,7 +190,7 @@ router.endpoint('/dialogue/reminder-dialogue-generate', {
       return res.render('partials/genshin/dialogue/single-branch-dialogue-generate-result', {
         sections: result,
         query,
-        langSuggest: result.length ? null : ctrl.langSuggest(query),
+        langSuggest: result.length ? null : await ctrl.langSuggest(query),
         questsStillsByMainQuest: null,
         questsStillsMainQuestNames: null,
         inDialogueReadables: null,

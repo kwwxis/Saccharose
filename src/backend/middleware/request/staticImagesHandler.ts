@@ -1,8 +1,9 @@
 import express, { NextFunction, Request, Response } from 'express';
 import { escapeRegExp } from '../../../shared/util/stringUtil.ts';
-import { RequestSiteMode } from '../../routing/requestContext.ts';
 
-export function createStaticImagesHandler(SERVER_IMAGES_ROOT: string, HTTP_PATH: string, FOR: RequestSiteMode) {
+import { SiteMode } from '../../../shared/types/site/site-mode-type.ts';
+
+export function createStaticImagesHandler(SERVER_IMAGES_ROOT: string, HTTP_PATH: string, FOR: SiteMode) {
   if (!HTTP_PATH.endsWith('/'))
     HTTP_PATH += '/';
   if (!HTTP_PATH.startsWith('/'))

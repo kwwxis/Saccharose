@@ -8,8 +8,18 @@ import { fileURLToPath } from 'url';
 import { LangCode } from '../shared/types/lang-types.ts';
 import util from 'util';
 import { toBoolean } from '../shared/util/genericUtil.ts';
+import { SiteMode } from '../shared/types/site/site-mode-type.ts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+
+let _isServerRun: boolean = false;
+
+export function isServerRun(): boolean {
+  return _isServerRun
+}
+export function setIsServerRun(isServerRun: boolean): void {
+  _isServerRun = isServerRun;
+}
 
 const envFile = path.resolve(__dirname, '../../.env');
 dotenv.config({ path: envFile });
@@ -24,10 +34,25 @@ export const SITE_SHORT_TITLE = process.env.SITE_SHORT_TITLE || 'Saccharose';
 export const EJS_DELIMITER = '%';
 export const WEB_ACCESS_LOG = process.env.WEB_ACCESS_LOG ? path.resolve(process.env.WEB_ACCESS_LOG) : null;
 
-export const GENSHIN_DISABLED = toBoolean(process.env.GENSHIN_DISABLED);
-export const HSR_DISABLED = toBoolean(process.env.HSR_DISABLED);
-export const ZENLESS_DISABLED = toBoolean(process.env.ZENLESS_DISABLED);
-export const WUWA_DISABLED = toBoolean(process.env.WUWA_DISABLED);
+const GENSHIN_DISABLED = toBoolean(process.env.GENSHIN_DISABLED);
+const HSR_DISABLED = toBoolean(process.env.HSR_DISABLED);
+const ZENLESS_DISABLED = toBoolean(process.env.ZENLESS_DISABLED);
+const WUWA_DISABLED = toBoolean(process.env.WUWA_DISABLED);
+
+export function isSiteModeDisabled(requestSiteMode: SiteMode) {
+  switch (requestSiteMode) {
+    case 'unset':
+      return true;
+    case 'genshin':
+      return isServerRun() && GENSHIN_DISABLED;
+    case 'hsr':
+      return isServerRun() && HSR_DISABLED;
+    case 'zenless':
+      return isServerRun() && ZENLESS_DISABLED;
+    case 'wuwa':
+      return isServerRun() && WUWA_DISABLED;
+  }
+}
 
 export const IMAGEDIR_GENSHIN_STATIC = path.resolve(PUBLIC_DIR, './images/genshin/static');
 export const IMAGEDIR_GENSHIN_EXT = path.resolve(process.env.EXT_GENSHIN_IMAGES);

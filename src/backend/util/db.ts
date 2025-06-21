@@ -4,6 +4,7 @@ import { logInit, logShutdown } from './logger.ts';
 import { toInt } from '../../shared/util/numberUtil.ts';
 import Pool from 'pg-pool';
 import { isEmpty, toBoolean } from '../../shared/util/genericUtil.ts';
+import { isSiteModeDisabled } from '../loadenv.ts';
 
 export type SaccharoseDb = {
   genshin: Knex,
@@ -65,10 +66,10 @@ export function openPgGamedata(): SaccharoseDb {
     return singleton;
   }
   singleton = {
-    genshin:  toBoolean(process.env.GENSHIN_DISABLED) ? null  : pgGamedataDatabase(process.env.POSTGRES_GAMEDATA_DATABASE_GENSHIN),
-    hsr:      toBoolean(process.env.HSR_DISABLED) ? null      : pgGamedataDatabase(process.env.POSTGRES_GAMEDATA_DATABASE_HSR),
-    zenless:  toBoolean(process.env.ZENLESS_DISABLED) ? null  : pgGamedataDatabase(process.env.POSTGRES_GAMEDATA_DATABASE_ZENLESS),
-    wuwa:     toBoolean(process.env.WUWA_DISABLED) ? null     : pgGamedataDatabase(process.env.POSTGRES_GAMEDATA_DATABASE_WUWA),
+    genshin:  isSiteModeDisabled('genshin') ? null  : pgGamedataDatabase(process.env.POSTGRES_GAMEDATA_DATABASE_GENSHIN),
+    hsr:      isSiteModeDisabled('hsr') ? null      : pgGamedataDatabase(process.env.POSTGRES_GAMEDATA_DATABASE_HSR),
+    zenless:  isSiteModeDisabled('zenless') ? null  : pgGamedataDatabase(process.env.POSTGRES_GAMEDATA_DATABASE_ZENLESS),
+    wuwa:     isSiteModeDisabled('wuwa') ? null     : pgGamedataDatabase(process.env.POSTGRES_GAMEDATA_DATABASE_WUWA),
   };
   return singleton;
 }

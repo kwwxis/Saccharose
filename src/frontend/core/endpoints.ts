@@ -7,7 +7,7 @@ import { HttpError } from '../../shared/util/httpError.ts';
 import { cleanEmpty } from '../../shared/util/arrayUtil.ts';
 import { FetterGroup } from '../../shared/types/genshin/fetter-types.ts';
 import { VoiceAtlasGroup } from '../../shared/types/hsr/hsr-avatar-types.ts';
-import SiteMode from './userPreferences/siteMode.ts';
+import SiteModeInfo from './userPreferences/siteModeInfo.ts';
 import { LangDetectResult } from '../../shared/types/common-types.ts';
 import { ScriptJobPostResult, ScriptJobState } from '../../backend/util/scriptJobs.ts';
 import { MwArticleInfo, MwArticleSearchResult, MwRevision, MwRevLoadMode } from '../../shared/mediawiki/mwTypes.ts';
@@ -371,17 +371,17 @@ export function getOLEndpoint(): {endpoint: SaccharoseApiEndpoint<any>, tlRmDisa
   let tlRmDisabled: boolean = false;
   let neverDefaultHidden: boolean = false;
 
-  if (SiteMode.isGenshin) {
+  if (SiteModeInfo.isGenshin) {
     endpoint = genshinEndpoints.generateOL;
-  } else if (SiteMode.isStarRail) {
+  } else if (SiteModeInfo.isStarRail) {
     endpoint = starRailEndpoints.generateOL;
     tlRmDisabled = false;
     neverDefaultHidden = true;
-  } else if (SiteMode.isZenless) {
+  } else if (SiteModeInfo.isZenless) {
     endpoint = zenlessEndpoints.generateOL;
     tlRmDisabled = false;
     neverDefaultHidden = true;
-  } else if (SiteMode.isWuwa) {
+  } else if (SiteModeInfo.isWuwa) {
     endpoint = wuwaEndpoints.generateOL;
     tlRmDisabled = false;
     neverDefaultHidden = true;
@@ -390,13 +390,13 @@ export function getOLEndpoint(): {endpoint: SaccharoseApiEndpoint<any>, tlRmDisa
 }
 
 export function getOLCombineEndpoint(): SaccharoseApiEndpoint<any> {
-  if (SiteMode.isGenshin) {
+  if (SiteModeInfo.isGenshin) {
     return genshinEndpoints.combineOL;
-  } else if (SiteMode.isStarRail) {
+  } else if (SiteModeInfo.isStarRail) {
     return starRailEndpoints.combineOL;
-  } else if (SiteMode.isZenless) {
+  } else if (SiteModeInfo.isZenless) {
     return zenlessEndpoints.combineOL;
-  } else if (SiteMode.isWuwa) {
+  } else if (SiteModeInfo.isWuwa) {
     return wuwaEndpoints.combineOL;
   }
 }

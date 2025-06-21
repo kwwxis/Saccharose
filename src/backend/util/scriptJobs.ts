@@ -4,11 +4,11 @@ import { passthru, shellEscapeArg } from './shellutil.ts';
 import { getNodeEnv } from '../loadenv.ts';
 import { NIL_UUID, uuidv4 } from '../../shared/util/uuidv4.ts';
 import { custom } from './logger.ts';
-import { RequestSiteMode } from '../routing/requestContext.ts';
 import { isEquiv } from '../../shared/util/arrayUtil.ts';
 import { ImageIndexSearchParams } from '../../shared/types/image-index-types.ts';
 import { MwArticleInfo } from '../../shared/mediawiki/mwTypes.ts';
 import fs from 'fs';
+import { SiteMode } from '../../shared/types/site/site-mode-type.ts';
 
 export interface ScriptJobPostResult<T extends ScriptJobAction> {
   message: string,
@@ -108,12 +108,12 @@ export const SCRIPT_JOB_ACTION_TO_DELETE_SCRIPT = {
  */
 export type ScriptJobActionArgs<T extends ScriptJobAction> = {
   mwRevSave: {
-    siteMode: RequestSiteMode,
+    siteMode: SiteMode,
     pageId: number,
     resegment?: boolean,
   },
   createImageIndexArchive: {
-    siteMode: RequestSiteMode,
+    siteMode: SiteMode,
     searchParams: ImageIndexSearchParams,
   }
 }[T];

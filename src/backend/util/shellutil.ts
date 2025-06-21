@@ -1,5 +1,4 @@
-import util from 'util';
-import { ChildProcessWithoutNullStreams, exec, execSync, spawn } from 'child_process';
+import { ChildProcessWithoutNullStreams, ExecException, exec as _execAsync, spawn, ExecOptions } from 'child_process';
 import { getGenshinDataFilePath, PIPELINE_DIR } from '../loadenv.ts';
 import { pathToFileURL } from 'url';
 import treeKill from 'tree-kill';
@@ -9,7 +8,17 @@ import { splitLimit } from '../../shared/util/stringUtil.ts';
 import path from 'path';
 import { LangDetectResult } from '../../shared/types/common-types.ts';
 
-const execPromise = util.promisify(exec);
+async function exec(command: string, options: ExecOptions): Promise<string> {
+  return new Promise((resolve, reject) => {
+    _execAsync(command, options, (err: ExecException, stdout: string, _stderr: string) => {
+      if (err) {
+        return reject(err);
+      } else {
+        return resolve(stdout);
+      }
+    });
+  });
+}
 
 /**
  * Streams the output of the command on a line-by-line basis.
@@ -370,7 +379,7 @@ export async function getLineNumberForLineText(lineText: string,
 function postProcessGrepLine(s: string, hasLineNumFlag: boolean, startFromLine: number) {
   s = s.trim();
   if (hasLineNumFlag && isset(startFromLine)) {
-    s = s.replace(/^(\d+):/, (fm, stdoutLineNum) => (toInt(stdoutLineNum) + startFromLine - 1) + ':');
+    s = s.replace(/^(\d+):/, (_fm, stdoutLineNum) => (toInt(stdoutLineNum) + startFromLine - 1) + ':');
   }
   return s;
 }
@@ -382,8 +391,7 @@ export async function grep(searchText: string,
     const cmd = createGrepCommand(searchText, absoluteFilePath, extraOpts);
     // console.log('Command:', cmd.line);
 
-    // noinspection JSUnusedLocalSymbols,JSUnresolvedReference
-    const { stdout, stderr } = await execPromise(cmd.line, {
+    const stdout = await exec(cmd.line, {
       env: { PATH: process.env.SHELL_PATH },
       shell: process.env.SHELL_EXEC,
     });
@@ -442,14 +450,16 @@ export async function grepIdStartsWith<T = number | string>(idProp: string,
   return out;
 }
 
-export function getTextAtLine(lineNum: number, absoluteFilePath: string): string {
+// noinspection JSUnusedGlobalSymbols
+export async function getTextAtLine(lineNum: number, absoluteFilePath: string): Promise<string> {
   try {
     const cmd = `sed '${lineNum}q;d' ${absoluteFilePath}`;
-    // noinspection JSUnusedLocalSymbols
-    const stdout: string = execSync(cmd, {
+
+    const stdout: string = await exec(cmd, {
       env: { PATH: process.env.SHELL_PATH },
       shell: process.env.SHELL_EXEC,
-    }).toString();
+    });
+
     return stdout.trim();
   } catch (err) {
     console.error('\x1b[4m\x1b[1mshell error:\x1b[0m\n', err);
@@ -457,15 +467,16 @@ export function getTextAtLine(lineNum: number, absoluteFilePath: string): string
   }
 }
 
-export function findFiles(fileSearch: string, absoluteFilePath: string): string[] {
+export async function findFiles(fileSearch: string, absoluteFilePath: string): Promise<string[]> {
   try {
     absoluteFilePath = absoluteFilePath.replace(/\\/g, '/');
     const cmd = `find ${shellEscapeArg(absoluteFilePath)} -iname ${shellEscapeArg(fileSearch, '*', '*')} -print`;
-    // noinspection JSUnusedLocalSymbols
-    const stdout: string = execSync(cmd, {
+
+    const stdout: string = await exec(cmd, {
       env: { PATH: process.env.SHELL_PATH },
       shell: process.env.SHELL_EXEC,
-    }).toString();
+    });
+
     return stdout.trim().split('\n').map(f => {
       if (f.startsWith(absoluteFilePath)) {
         f = f.slice(absoluteFilePath.length);
@@ -481,17 +492,17 @@ export function findFiles(fileSearch: string, absoluteFilePath: string): string[
   }
 }
 
-export function langDetect(text: string): LangDetectResult {
+export async function langDetect(text: string): Promise<LangDetectResult> {
   try {
     const pyFile = path.resolve(PIPELINE_DIR, './detect_language.py').replace(/\\/g, '/');
     const cmd = `${process.env.PYTHON_COMMAND} ${pyFile} ${shellEscapeArg(text)}`;
 
-    const stdout: string = execSync(cmd, {
+    const stdout: string = await exec(cmd, {
       env: {
         PATH: process.env.SHELL_PATH,
       },
       shell: process.env.SHELL_EXEC,
-    }).toString();
+    });
 
     return JSON.parse(stdout);
   } catch (err) {

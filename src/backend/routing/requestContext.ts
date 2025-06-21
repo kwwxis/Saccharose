@@ -6,10 +6,7 @@ import { CompareTernary, ternary } from '../../shared/util/genericUtil.ts';
 import { DEFAULT_LANG, LANG_CODES, LANG_CODES_TO_NAME, LangCode } from '../../shared/types/lang-types.ts';
 import { DEFAULT_SEARCH_MODE, SEARCH_MODES, SearchMode } from '../../shared/util/searchUtil.ts';
 import { Request } from 'express';
-import {
-  RequestLocals,
-  RequestViewStack,
-} from './routingTypes.ts';
+import { RequestLocals, RequestViewStack } from './routingTypes.ts';
 import { renderToString as renderVueToString } from 'vue/server-renderer';
 import { App } from 'vue';
 import { isVueApp } from './router.ts';
@@ -25,10 +22,7 @@ import {
 import { SiteSidebar } from '../../shared/types/site/site-sidebar-types.ts';
 import { icon } from './viewUtilities.ts';
 import { SIDEBAR_CONFIG } from './sidebarConfig.ts';
-
-export type RequestSiteMode = 'unset' | 'genshin' | 'hsr' | 'zenless' | 'wuwa';
-
-export const RequestSiteModes: RequestSiteMode[] = ['unset', 'genshin', 'hsr', 'zenless', 'wuwa'];
+import { SiteMode } from '../../shared/types/site/site-mode-type.ts';
 
 /**
  * A payload object used to make updates to {@link RequestContext}
@@ -52,7 +46,7 @@ export class RequestContext {
   title: string;
   bodyClass: string[];
   htmlMetaProps: { [name: string]: string } = {};
-  siteMode: RequestSiteMode;
+  siteMode: SiteMode;
 
   // Internal Views:
   viewStack: RequestViewStack;

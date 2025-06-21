@@ -1,6 +1,6 @@
 import { MwRevision, MwTagMap } from '../../../../../shared/mediawiki/mwTypes.ts';
 import { escapeHtml, toParam } from '../../../../../shared/util/stringUtil.ts';
-import { SITE_MODE_WIKI_DOMAIN } from '../../../../core/userPreferences/siteMode.ts';
+import { SITE_MODE_WIKI_DOMAIN } from '../../../../core/userPreferences/siteModeInfo.ts';
 import { templateIcon } from '../../../../util/templateIcons.ts';
 import { isEmpty, timeConvert } from '../../../../../shared/util/genericUtil.ts';
 import { WikiRevAppState } from '../rev-app-main.ts';

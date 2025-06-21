@@ -3,7 +3,8 @@ import { SavedSearchEntity, SavedSearchUsageTypes } from '../../shared/types/sit
 import { SiteUser } from '../../shared/types/site/site-user-types.ts';
 import { openPgSite } from '../util/db.ts';
 import { DEFAULT_SEARCH_MODE, SEARCH_MODES } from '../../shared/util/searchUtil.ts';
-import { RequestSiteModes } from '../routing/requestContext.ts';
+
+import { AvailableSiteModes } from '../../shared/types/site/site-mode-type.ts';
 
 function fixForInsertOrUpdate(savedSearch: SavedSearchEntity, user: SiteUser, event: WssHandle<'WsSavedSearchesAdd' | 'WsSavedSearchesEdit'>): boolean {
   savedSearch.user_id = user.id;
@@ -16,7 +17,7 @@ function fixForInsertOrUpdate(savedSearch: SavedSearchEntity, user: SiteUser, ev
     event.reply('WsBadRequest', {message: 'Site mode is required.'});
     return false;
   }
-  if (!RequestSiteModes.includes(savedSearch.site_mode)) {
+  if (!AvailableSiteModes.includes(savedSearch.site_mode)) {
     event.reply('WsBadRequest', {message: 'Invalid site mode.'});
     return false;
   }
@@ -110,7 +111,7 @@ wssHandle('WsSavedSearchesRequest', async event => {
     return;
   }
 
-  if (!RequestSiteModes.includes(criteria.site_mode)) {
+  if (!AvailableSiteModes.includes(criteria.site_mode)) {
     event.reply('WsBadRequest', {message: 'Invalid site mode.'});
     return;
   }

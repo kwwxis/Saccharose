@@ -14,6 +14,8 @@ export interface ImageIndexExcelMetaEntry {
 export interface ImageIndexEntity {
   image_name: string,
   image_size: number,
+  image_width: number,
+  image_height: number,
   excel_usages: string[],
   excel_meta: ImageIndexExcelMeta,
   image_cat1?: string,

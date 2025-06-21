@@ -7,18 +7,18 @@ import {
   zenlessEndpoints,
   wuwaEndpoints,
 } from '../../../core/endpoints.ts';
-import SiteMode from '../../../core/userPreferences/siteMode.ts';
+import SiteModeInfo from '../../../core/userPreferences/siteModeInfo.ts';
 
 pageMatch('vue/ExcelUsagesPage', () => {
   let endpoint: SaccharoseApiEndpoint<any>;
 
-  if (SiteMode.isGenshin) {
+  if (SiteModeInfo.isGenshin) {
     endpoint = genshinEndpoints.getExcelUsages;
-  } else if (SiteMode.isStarRail) {
+  } else if (SiteModeInfo.isStarRail) {
     endpoint = starRailEndpoints.getExcelUsages;
-  } else if (SiteMode.isZenless) {
+  } else if (SiteModeInfo.isZenless) {
     endpoint = zenlessEndpoints.getExcelUsages;
-  } else if (SiteMode.isWuwa) {
+  } else if (SiteModeInfo.isWuwa) {
     endpoint = wuwaEndpoints.getExcelUsages;
   }
 

@@ -12,9 +12,9 @@ import MwResources from './generic/api/mwResources.ts';
 import ScriptJobResources from './generic/api/scriptJobResources.ts';
 import UserResources from './site/api/userResources.ts';
 import { Request, Response, Router } from 'express';
-import { GENSHIN_DISABLED, HSR_DISABLED, WUWA_DISABLED, ZENLESS_DISABLED } from '../loadenv.ts';
 import { createLocalControls } from '../middleware/request/tracer.ts';
 import { getControlUserMode } from '../domain/abstract/abstractControlState.ts';
+import { isSiteModeDisabled } from '../loadenv.ts';
 
 export default async function(): Promise<Router> {
   const router: Router = create({
@@ -37,13 +37,13 @@ export default async function(): Promise<Router> {
 
   // Add API Resources
   // ~~~~~~~~~~~~~~~~~
-  if (!GENSHIN_DISABLED)
+  if (!isSiteModeDisabled('genshin'))
     GenshinResources(router)
-  if (!HSR_DISABLED)
+  if (!isSiteModeDisabled('hsr'))
     StarRailResources(router);
-  if (!ZENLESS_DISABLED)
+  if (!isSiteModeDisabled('zenless'))
     ZenlessResources(router);
-  if (!WUWA_DISABLED)
+  if (!isSiteModeDisabled('wuwa'))
     WuwaResources(router);
   LangDetectResource(router);
   MwResources(router);

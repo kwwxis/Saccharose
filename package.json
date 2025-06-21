@@ -59,6 +59,7 @@
     "get-random-values": "^3.0.0",
     "helmet": "^8.0.0",
     "idb": "^8.0.2",
+    "image-size": "^2.0.2",
     "js-cookie": "^3.0.5",
     "json-mask": "^2.0.0",
     "json5": "^2.2.3",

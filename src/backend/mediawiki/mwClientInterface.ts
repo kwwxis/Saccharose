@@ -10,13 +10,13 @@ import {
 import { pathToFileURL } from 'url';
 import { closeKnex } from '../util/db.ts';
 import { NodeJSCallback, UserInfo } from 'nodemw/lib/types';
-import { RequestSiteMode } from '../routing/requestContext.ts';
 import { HttpError } from '../../shared/util/httpError.ts';
 import { isInt } from '../../shared/util/numberUtil.ts';
 import { MwArticleInfo, MwNamespace, MwRevision, MwArticleSearchResult } from '../../shared/mediawiki/mwTypes.ts';
 import { isEmpty } from '../../shared/util/genericUtil.ts';
 import { ucFirst } from '../../shared/util/stringUtil.ts';
 import { httpRequest } from '../util/webrequests.ts';
+import { SiteMode } from '../../shared/types/site/site-mode-type.ts';
 
 
 export type FandomUserProfile = {
@@ -309,7 +309,7 @@ export const mwStarRailClient: MwClientInterface = new MwClientInterface(mwStarR
 export const mwZenlessClient: MwClientInterface = new MwClientInterface(mwZenlessDb, 'zenless-zone-zero.fandom.com');
 export const mwWuwaClient: MwClientInterface = new MwClientInterface(mwWuwaDb, 'wutheringwaves.fandom.com');
 
-export function getMwClient(siteMode: RequestSiteMode): MwClientInterface {
+export function getMwClient(siteMode: SiteMode): MwClientInterface {
   switch (siteMode as string) {
     case 'genshin':
       return mwGenshinClient;

@@ -8,11 +8,13 @@ import { toBoolean } from '../shared/util/genericUtil.ts';
 import { toInt } from '../shared/util/numberUtil.ts';
 import { logInit } from './util/logger.ts';
 import { startWss } from './websocket/ws-server.ts';
+import { setIsServerRun } from './loadenv.ts';
 
 // You shouldn't need to change anything in this file.
 // Application init code should go in `app.ts`, not here.
 
 (async () => {
+  setIsServerRun(true);
   logInit(`Booting server; NodeJS ${process.version}, in ${process.env.NODE_ENV} mode ...`);
   const app = await appInit();
 

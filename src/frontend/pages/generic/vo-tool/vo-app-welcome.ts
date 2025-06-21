@@ -7,7 +7,7 @@ import { createWikitextEditor } from '../../../core/ace/aceEditor.ts';
 import { humanTiming } from '../../../../shared/util/genericUtil.ts';
 import { sort } from '../../../../shared/util/arrayUtil.ts';
 import { LangCode } from '../../../../shared/types/lang-types.ts';
-import SiteMode, { SITE_MODE_HOME } from '../../../core/userPreferences/siteMode.ts';
+import SiteModeInfo, { SITE_MODE_HOME } from '../../../core/userPreferences/siteModeInfo.ts';
 import { frag1 } from '../../../util/domutil.ts';
 import { toParam } from '../../../../shared/util/stringUtil.ts';
 import {
@@ -44,7 +44,7 @@ export async function VoAppWelcome(state: VoAppState) {
              class="vo-app-welcome-recent-avatar secondary dispFlex textAlignLeft spacer5-all"
              href="${SITE_MODE_HOME}${state.config.pageUrl}/${toParam(avatar.NameText)}/${savedAvatar.langCode}"
              role="button">
-            <img class="icon x32" src="${SiteMode.imagePathPrefix}${avatar.IconName}.png" loading="lazy" decoding="async" />
+            <img class="icon x32" src="${SiteModeInfo.imagePathPrefix}${avatar.IconName}.png" loading="lazy" decoding="async" />
             <div class="spacer10-left spacer5-top" style="line-height:1em">
               <div>${avatar.NameText}</div>
               <small><strong>${savedAvatar.langCode} Text</strong> Last updated: ${humanTiming(savedAvatar.lastUpdated)}</small>

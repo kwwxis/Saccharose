@@ -86,10 +86,9 @@ import {
 import { grepStream } from '../../util/shellutil.ts';
 import {
   DATAFILE_GENSHIN_VOICE_ITEMS,
-  GENSHIN_DISABLED,
   getGenshinDataFilePath,
   getReadableRelPath,
-  IMAGEDIR_GENSHIN_EXT,
+  IMAGEDIR_GENSHIN_EXT, isSiteModeDisabled,
 } from '../../loadenv.ts';
 import {
   BooksCodexExcelConfigData,
@@ -169,6 +168,7 @@ import {
 import { CurrentGenshinVersion, GameVersion, GenshinVersions } from '../../../shared/types/game-versions.ts';
 import { AbstractControlState, ControlUserModeProvider } from '../abstract/abstractControlState.ts';
 import { Knex } from 'knex';
+import { fsExists } from '../../util/fsutil.ts';
 
 // region Control State
 // --------------------------------------------------------------------------------------------------------------
@@ -1658,7 +1658,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
     if (this.state.interActionCache[fileName]) {
       fileGroups = this.state.interActionCache[fileName];
-    } else if (this.fileExists('./InterAction/' + fileName)) {
+    } else if (await this.fileExists('./InterAction/' + fileName)) {
       const groups: InterActionGroup[] = await this.readJsonFile('./InterAction/' + fileName);
       this.state.interActionCache[fileName] = groups;
       fileGroups = groups;
@@ -1749,11 +1749,11 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     if (loadConf.LoadModelArtPath && !!monster?.AnimalCodex?.ModelPath) {
       let modelPath = monster.AnimalCodex.ModelPath;
 
-      if (fs.existsSync(path.resolve(IMAGEDIR_GENSHIN_EXT, `./UI_${modelPath}.png`))) {
+      if (await fsExists(path.resolve(IMAGEDIR_GENSHIN_EXT, `./UI_${modelPath}.png`))) {
         monster.AnimalCodex.ModelArtPath = 'UI_' + modelPath;
       } else {
         modelPath = rtrim(monster.AnimalCodex.ModelPath, '_0123456789');
-        if (fs.existsSync(path.resolve(IMAGEDIR_GENSHIN_EXT, `./UI_${modelPath}.png`))) {
+        if (await fsExists(path.resolve(IMAGEDIR_GENSHIN_EXT, `./UI_${modelPath}.png`))) {
           monster.AnimalCodex.ModelArtPath = 'UI_' + modelPath;
         }
       }
@@ -2351,7 +2351,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     suite.Units = [];
     if (loadConf?.LoadUnits && suite.JsonName) {
       const path = `./BinOutput/HomeworldFurnitureSuit/${suite.JsonName}.json`;
-      if (this.fileExists(path)) {
+      if (await this.fileExists(path)) {
         const data: any = await this.readJsonFile(path);
         if (data && Array.isArray(data.furnitureUnits)) {
           const unitMap: Map<number, {furn: HomeWorldFurnitureExcelConfigData, count: number}> = new Map();
@@ -3596,7 +3596,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 const GENSHIN_VOICE_ITEMS: VoiceItemArrayMap = {};
 
 export async function loadGenshinVoiceItems(): Promise<void> {
-  if (GENSHIN_DISABLED)
+  if (isSiteModeDisabled('genshin'))
     return;
   logInitData('Loading Genshin Voice Items -- starting...');
 

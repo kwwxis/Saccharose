@@ -26,7 +26,7 @@ import {
 } from '../../../util/domutil.ts';
 import { isEmpty, isNotEmpty, isUnset } from '../../../../shared/util/genericUtil.ts';
 import { booleanFilter } from './excel-custom-filters.ts';
-import SiteMode from '../../../core/userPreferences/siteMode.ts';
+import SiteModeInfo from '../../../core/userPreferences/siteModeInfo.ts';
 import { ExcelViewerDB, invokeExcelViewerDB } from './excel-viewer-storage.ts';
 import { StoreNames } from 'idb/build/entry';
 import { highlightJson, highlightWikitext } from '../../../core/ace/aceHighlight.ts';
@@ -94,12 +94,12 @@ export function makeSingleColumnDef(fieldKey: string, fieldName: string, data: a
     }
   };
 
-  const isStarRailImage = (datum: any) => typeof datum === 'string' && SiteMode.isStarRail &&
+  const isStarRailImage = (datum: any) => typeof datum === 'string' && SiteModeInfo.isStarRail &&
     (datum.startsWith('SpriteOutput/') || datum.startsWith('UI/') || datum.endsWith('.png'));
 
-  const isGenshinImage = (datum: any) => typeof datum === 'string' && SiteMode.isGenshin && /^(ART\/.*\/)?(UI_|MonsterSkill_|Eff_).*$/.test(datum);
+  const isGenshinImage = (datum: any) => typeof datum === 'string' && SiteModeInfo.isGenshin && /^(ART\/.*\/)?(UI_|MonsterSkill_|Eff_).*$/.test(datum);
 
-  const isWuwaImage = (datum: any) => typeof datum === 'string' && SiteMode.isWuwa && datum.includes('UIResources');
+  const isWuwaImage = (datum: any) => typeof datum === 'string' && SiteModeInfo.isWuwa && datum.includes('UIResources');
 
   const dataType = {
     isStarRailImage: isStarRailImage(data) || (Array.isArray(data) && data.length && data.every(datum => isStarRailImage(datum))),
@@ -271,7 +271,7 @@ function createExcelViewerHtml(fileName: string, includeExcelListButton: boolean
       <h2 class="valign">
         <span>Excel Viewer &ndash; <strong>${escapeHtml(fileName)}</strong></span>
         <span class="grow"></span>
-        ${includeExcelListButton ? `<a role="button" class="secondary small" href="${SiteMode.home}/excel-viewer">Back to excel list</a>` : ''}
+        ${includeExcelListButton ? `<a role="button" class="secondary small" href="${SiteModeInfo.home}/excel-viewer">Back to excel list</a>` : ''}
         <button class="excel-toggle-full-screen valign secondary">
           <span class="maximize-text spacer5-right">Enter Full Screen</span>
           <span class="minimize-text spacer5-right">Exit Full Screen</span>
@@ -454,7 +454,7 @@ export function initExcelViewer<T = any>(excelFileName: string,
   };
 
   const gridApi: GridApi = createGrid(gridEl, gridOptions);
-  const storeName: StoreNames<ExcelViewerDB> = `${SiteMode.storagePrefix}.ColumnState`;
+  const storeName: StoreNames<ExcelViewerDB> = `${SiteModeInfo.storagePrefix}.ColumnState`;
   let noAutoSave: boolean = false;
 
   function getCurrentColumnState(): ColumnState[] {

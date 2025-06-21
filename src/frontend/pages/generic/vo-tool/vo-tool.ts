@@ -11,7 +11,7 @@ import { VoAppPreloadConfig, VoAppPreloadOptions } from './vo-preload-types.ts';
 import { OverlayScrollbars } from 'overlayscrollbars';
 import { StoreNames } from 'idb/build/entry';
 import { VoAppSavedAvatarDatabase } from './vo-app-storage.ts';
-import SiteMode from '../../../core/userPreferences/siteMode.ts';
+import SiteModeInfo from '../../../core/userPreferences/siteModeInfo.ts';
 import { isNightmode } from '../../../core/userPreferences/siteTheme.ts';
 import { getOutputLanguage, onOutputLanguageChanged } from '../../../core/userPreferences/siteLanguage.ts';
 import { VoHandle } from './vo-handle.ts';
@@ -62,7 +62,7 @@ export class VoAppState {
     this.avatar = (<any> window).avatar;
     this.interfaceLang = getOutputLanguage();
     this.eventBus = new EventBus<VoAppEventBusConfig>('VO-App-EventBus');
-    this.savedAvatarStoreName = `${SiteMode.storagePrefix}.SavedAvatars`;
+    this.savedAvatarStoreName = `${SiteModeInfo.storagePrefix}.SavedAvatars`;
 
     if (!LANG_CODES.includes(this.voLang)) {
       this.eventBus.emit('VO-Lang-Changed', DEFAULT_LANG);

@@ -13,8 +13,8 @@ import { RoleInfo } from '../../../shared/types/wuwa/role-types.ts';
 import { Condition, ConditionGroup, ConditionOp } from '../../../shared/types/wuwa/condition-types.ts';
 import { CurrentWuwaVersion, GameVersion, WuwaVersions } from '../../../shared/types/game-versions.ts';
 import { Knex } from 'knex';
-import { RequestSiteMode } from '../../routing/requestContext.ts';
 import { SaccharoseDb } from '../../util/db.ts';
+import { SiteMode } from '../../../shared/types/site/site-mode-type.ts';
 
 // region Control State
 // --------------------------------------------------------------------------------------------------------------

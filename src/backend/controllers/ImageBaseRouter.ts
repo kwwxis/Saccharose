@@ -2,9 +2,11 @@ import { NextFunction, Request, Response, Router } from 'express';
 import { create } from '../routing/router.ts';
 import path from 'path';
 import { IMAGEDIR_GENSHIN_EXT } from '../loadenv.ts';
-import fs from 'fs';
+import fs, { promises as fsp } from 'fs';
 import { convertFoodImageToDelicious, convertFoodImageToSuspicious } from '../domain/genshin/misc/food-sharp.ts';
 import { toBoolean } from '../../shared/util/genericUtil.ts';
+
+import { fsExists } from '../util/fsutil.ts';
 
 export default async function(): Promise<Router> {
 
@@ -69,7 +71,7 @@ export default async function(): Promise<Router> {
       return;
     }
 
-    if (!fs.existsSync(filePath)) {
+    if (!(await fsExists(filePath))) {
       res.status(400).end('Not found: ' + imageName);
       return;
     }
@@ -77,7 +79,7 @@ export default async function(): Promise<Router> {
     const type = mime[path.extname(filePath).slice(1)] || 'text/plain';
 
     try {
-      let data: Buffer = fs.readFileSync(filePath);
+      let data: Buffer = await fsp.readFile(filePath);
 
       if (postProcessor) {
         let postProcessResult = await postProcessor(data);

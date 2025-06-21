@@ -13,7 +13,7 @@ import 'tippy.js/themes/light-border.css';
 // Core
 // ----------------------------------------------------------------------------------------------------
 import './core/pageMatch.ts';
-import './core/userPreferences/siteMode.ts';
+import './core/userPreferences/siteModeInfo.ts';
 import './core/siteEvents.ts';
 import './core/generalEventBus.ts';
 

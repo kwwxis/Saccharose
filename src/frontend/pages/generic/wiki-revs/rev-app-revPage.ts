@@ -1,5 +1,5 @@
 import { genericEndpoints } from '../../../core/endpoints.ts';
-import { SITE_MODE, SITE_MODE_HOME } from '../../../core/userPreferences/siteMode.ts';
+import { SITE_MODE, SITE_MODE_HOME } from '../../../core/userPreferences/siteModeInfo.ts';
 import { humanTiming, isEmpty, timeConvert } from '../../../../shared/util/genericUtil.ts';
 import { escapeHtml } from '../../../../shared/util/stringUtil.ts';
 import { initRevPrevContentTab } from './rev-tabs/revTab-prevContent.ts';

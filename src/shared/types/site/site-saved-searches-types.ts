@@ -1,5 +1,5 @@
-import { RequestSiteMode } from '../../../backend/routing/requestContext.ts';
 import { SearchMode } from '../../util/searchUtil.ts';
+import { SiteMode } from './site-mode-type.ts';
 
 
 export type SavedSearchEntity = {
@@ -8,7 +8,7 @@ export type SavedSearchEntity = {
 
   usage_type: SavedSearchUsageType,
   usage_time: string,
-  site_mode: RequestSiteMode,
+  site_mode: SiteMode,
   search_area: string,
 
   search_mode: SearchMode,
@@ -20,7 +20,7 @@ export type SavedSearchEntity = {
 };
 
 export type SavedSearchesRequestCriteria = {
-  site_mode: RequestSiteMode,
+  site_mode: SiteMode,
   search_area: string,
   search_text: string,
 };

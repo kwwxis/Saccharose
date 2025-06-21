@@ -12,6 +12,7 @@ import { Tail } from 'tail';
 import exitHook from 'async-exit-hook';
 import './wsLogview.ts';
 import { wssDispatch } from '../websocket/ws-server.ts';
+import { fsRead } from '../util/fsutil.ts';
 
 const regexes = {
   access: /^\[(\d+\/\d+\/\d+), (\d+:\d+:\d+) (AM|PM) (PST|PDT)] \[([^\]]+)] \[(\w{2,3}):(\w{2,3})\|(\w+)] (\d{3}) (\w+)(.*)\((\d+\.?\d*) ms\)$/,
@@ -187,7 +188,7 @@ export async function enableLogFileWatchShutdownHook() {
 }
 
 export async function importLogFile(filePath: string, doConsoleLog: boolean = false) {
-  const fileContent = fs.readFileSync(filePath, 'utf8');
+  const fileContent = await fsRead(filePath);
   const fileLines = fileContent.split(/\r?\n/);
   await importFileLines(fileLines, false, doConsoleLog);
 }

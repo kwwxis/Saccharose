@@ -1,6 +1,6 @@
 import './WikiRevisions.styles.scss';
 import { genericEndpoints } from '../../../core/endpoints.ts';
-import { SITE_MODE } from '../../../core/userPreferences/siteMode.ts';
+import { SITE_MODE } from '../../../core/userPreferences/siteModeInfo.ts';
 import { constrainNumber, isInt, toInt } from '../../../../shared/util/numberUtil.ts';
 import { ScriptJobPostResult, ScriptJobState } from '../../../../backend/util/scriptJobs.ts';
 import { MwRevision } from '../../../../shared/mediawiki/mwTypes.ts';

@@ -9,6 +9,8 @@ import {
   ImageIndexExcelMeta,
   ImageIndexExcelMetaEntry, newImageCategory,
 } from '../../../shared/types/image-index-types.ts';
+import { imageSizeFromFile } from 'image-size/fromFile';
+import { ISizeCalculationResult } from 'image-size/types/interface';
 
 function* walkSync(dir: string, relPath: string[] = []): Generator<string> {
   const files = fs.readdirSync(dir, { withFileTypes: true });
@@ -157,10 +159,14 @@ export async function indexWuwaImages(catMapOnly: boolean = false) {
     }
 
     if (!catMapOnly) {
-      const size: number = fs.statSync(path.resolve(IMAGEDIR_WUWA_EXT, `./${imageName}.png`))?.size || 0;
+      const filePath: string = path.resolve(IMAGEDIR_WUWA_EXT, `./${imageName}.png`);
+      const byteSize: number = fs.statSync(filePath)?.size || 0;
+      const imageSize: ISizeCalculationResult = await imageSizeFromFile(filePath);
       batch.push({
         image_name: imageName,
-        image_size: size,
+        image_size: byteSize,
+        image_width: imageSize.width,
+        image_height: imageSize.height,
         excel_usages: imageNameToExcelFileUsages[imageName] || [],
         excel_meta: imageNameToExcelMeta[imageName] || {},
         image_cat1: cats[0] || null,

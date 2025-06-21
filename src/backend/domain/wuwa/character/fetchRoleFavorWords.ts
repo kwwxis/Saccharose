@@ -15,12 +15,13 @@ import {
 import { closeKnex } from '../../../util/db.ts';
 import { LangCodeMap } from '../../../../shared/types/lang-types.ts';
 import { toInt } from '../../../../shared/util/numberUtil.ts';
+import { fsReadJson } from '../../../util/fsutil.ts';
 
 export async function fetchFavorWords(ctrl: WuwaControl, skipCache: boolean = false): Promise<FavorWordGroupByRole> {
   if (!skipCache) {
     return ctrl.cached('RoleFavor:RoleFavorWordsGroup', 'json', async () => {
       const filePath = path.resolve(process.env.WUWA_DATA_ROOT, DATAFILE_WUWA_ROLE_FAVOR_WORDS);
-      const result: FavorWordGroupByRole = JSON.parse(fs.readFileSync(filePath, {encoding: 'utf8'}));
+      const result: FavorWordGroupByRole = await fsReadJson(filePath);
       return result;
     });
   }

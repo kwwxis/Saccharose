@@ -8,10 +8,10 @@ import WuwaRouter from './wuwa/app/_index.ts';
 import { NextFunction, Request, Response, Router } from 'express';
 import { SiteUserProvider } from '../middleware/auth/SiteUserProvider.ts';
 import UserRouter from './site/app/UserRouter.ts';
-import { GENSHIN_DISABLED, HSR_DISABLED, WUWA_DISABLED, ZENLESS_DISABLED } from '../loadenv.ts';
 import LogViewRouter from './site/app/LogViewRouter.ts';
 import { createLocalControls } from '../middleware/request/tracer.ts';
 import { getControlUserMode } from '../domain/abstract/abstractControlState.ts';
+import { isSiteModeDisabled } from '../loadenv.ts';
 
 export default async function(): Promise<Router> {
   const router: Router = create({
@@ -55,7 +55,7 @@ export default async function(): Promise<Router> {
     helmet.contentSecurityPolicy(cspOptions)(req, res, next);
   });
 
-  if (GENSHIN_DISABLED) {
+  if (isSiteModeDisabled('genshin')) {
     router.use('/genshin**',  (_req: Request, res: Response) => {
       res.status(404).render('errors/unavailable', {
         label: 'Genshin Impact',
@@ -66,7 +66,7 @@ export default async function(): Promise<Router> {
     router.use('/genshin',  await GenshinRouter());
   }
 
-  if (HSR_DISABLED) {
+  if (isSiteModeDisabled('hsr')) {
     router.use('/hsr**',  (_req: Request, res: Response) => {
       res.status(404).render('errors/unavailable', {
         label: 'Honkai Star Rail',
@@ -77,7 +77,7 @@ export default async function(): Promise<Router> {
     router.use('/hsr', await StarRailRouter());
   }
 
-  if (ZENLESS_DISABLED) {
+  if (isSiteModeDisabled('zenless')) {
     router.use('/zenless**',  (_req: Request, res: Response) => {
       res.status(404).render('errors/unavailable', {
         label: 'Zenless Zone Zero',
@@ -88,7 +88,7 @@ export default async function(): Promise<Router> {
     router.use('/zenless', await ZenlessRouter());
   }
 
-  if (WUWA_DISABLED) {
+  if (isSiteModeDisabled('wuwa')) {
     router.use('/wuwa**',  (_req: Request, res: Response) => {
       res.status(404).render('errors/unavailable', {
         label: 'Wuthering Waves',

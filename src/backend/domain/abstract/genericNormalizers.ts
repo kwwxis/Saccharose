@@ -180,7 +180,7 @@ export function mcify(lang: LangCode, maleText: string, femaleText: string): str
     let nextChange = changes[i + 1];
 
     if (change.removed && nextChange && nextChange.added) {
-      out.push({value: `{{MC|${change.value}|${nextChange.value}}}`});
+      out.push({value: `{{MC|m=${change.value}|f=${nextChange.value}}}`});
       i++;
     } else if (change.removed) {
       let maleText = change.value;
@@ -193,7 +193,7 @@ export function mcify(lang: LangCode, maleText: string, femaleText: string): str
         maleText += extra;
         nextChange.value = wordRejoin(words);
       }
-      out.push({value: `{{MC|${maleText}|${femaleText}}}`});
+      out.push({value: `{{MC|m=${maleText}|f=${femaleText}}}`});
     } else if (change.added) {
       let maleText = '';
       let femaleText = change.value;
@@ -205,7 +205,7 @@ export function mcify(lang: LangCode, maleText: string, femaleText: string): str
         femaleText = extra + femaleText;
         prevChange.value = wordRejoin(words);
       }
-      out.push({value: `{{MC|${maleText}|${femaleText}}}`});
+      out.push({value: `{{MC|m=${maleText}|f=${femaleText}}}`});
     } else {
       out.push(change);
     }

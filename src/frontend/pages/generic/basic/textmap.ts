@@ -10,7 +10,7 @@ import { GenericSearchPageHandle, startGenericSearchPageListeners } from '../../
 import { toInt } from '../../../../shared/util/numberUtil.ts';
 import { frag } from '../../../util/domutil.ts';
 import { listen } from '../../../util/eventListen.ts';
-import SiteMode from '../../../core/userPreferences/siteMode.ts';
+import SiteModeInfo from '../../../core/userPreferences/siteModeInfo.ts';
 import { highlightReplace } from '../../../core/ace/aceHighlight.ts';
 import { TextMapChangeRef } from '../../../../shared/types/changelog-types.ts';
 import { createPatch } from '../../../../backend/util/jsdiff';
@@ -23,25 +23,25 @@ pageMatch('vue/TextmapSearchPage', () => {
 
   let endpoint: SaccharoseApiEndpoint<any>;
 
-  if (SiteMode.isGenshin) {
+  if (SiteModeInfo.isGenshin) {
     endpoint = genshinEndpoints.searchTextMap;
-  } else if (SiteMode.isStarRail) {
+  } else if (SiteModeInfo.isStarRail) {
     endpoint = starRailEndpoints.searchTextMap;
-  } else if (SiteMode.isZenless) {
+  } else if (SiteModeInfo.isZenless) {
     endpoint = zenlessEndpoints.searchTextMap;
-  } else if (SiteMode.isWuwa) {
+  } else if (SiteModeInfo.isWuwa) {
     endpoint = wuwaEndpoints.searchTextMap;
   }
 
   let excelUsagesEndpoint: SaccharoseApiEndpoint<any>;
 
-  if (SiteMode.isGenshin) {
+  if (SiteModeInfo.isGenshin) {
     excelUsagesEndpoint = genshinEndpoints.getExcelUsages;
-  } else if (SiteMode.isStarRail) {
+  } else if (SiteModeInfo.isStarRail) {
     excelUsagesEndpoint = starRailEndpoints.getExcelUsages;
-  } else if (SiteMode.isZenless) {
+  } else if (SiteModeInfo.isZenless) {
     excelUsagesEndpoint = zenlessEndpoints.getExcelUsages;
-  } else if (SiteMode.isWuwa) {
+  } else if (SiteModeInfo.isWuwa) {
     excelUsagesEndpoint = wuwaEndpoints.getExcelUsages;
   }
 

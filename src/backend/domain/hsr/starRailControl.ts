@@ -1,7 +1,7 @@
 // noinspection JSUnusedGlobalSymbols
 
 import { AbstractControl } from '../abstract/abstractControl.ts';
-import { DATAFILE_HSR_VOICE_ITEMS, getStarRailDataFilePath, HSR_DISABLED } from '../../loadenv.ts';
+import { DATAFILE_HSR_VOICE_ITEMS, getStarRailDataFilePath, isSiteModeDisabled } from '../../loadenv.ts';
 import { normalizeRawJson, SchemaTable } from '../../importer/import_db.ts';
 import {
   LangCode, LangCodeMap,
@@ -23,6 +23,7 @@ import { hsr_i18n, HSR_I18N_MAP } from '../abstract/i18n.ts';
 import { AbstractControlState, ControlUserModeProvider } from '../abstract/abstractControlState.ts';
 import { CurrentStarRailVersion, GameVersion, StarRailVersions } from '../../../shared/types/game-versions.ts';
 import { Knex } from 'knex';
+import { fsReadJson } from '../../util/fsutil.ts';
 
 // region Control State
 // --------------------------------------------------------------------------------------------------------------
@@ -243,12 +244,12 @@ export function normalizeStarRailVoicePath(voicePath: string): string {
 }
 
 export async function loadStarRailVoiceItems(): Promise<void> {
-  if (HSR_DISABLED)
+  if (isSiteModeDisabled('hsr'))
     return;
   logInitData('Loading HSR Voice Items -- starting...');
 
   const voiceItemsFilePath = path.resolve(process.env.HSR_DATA_ROOT, DATAFILE_HSR_VOICE_ITEMS);
-  const result: StarRailVoiceConfigRaw[] = JSON.parse(fs.readFileSync(voiceItemsFilePath, {encoding: 'utf8'}));
+  const result: StarRailVoiceConfigRaw[] = await fsReadJson(voiceItemsFilePath);
 
   for (let item of result) {
     HSR_VOICE_ITEMS[item.VoiceID] = {

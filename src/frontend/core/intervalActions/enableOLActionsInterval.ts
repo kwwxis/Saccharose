@@ -1,4 +1,4 @@
-import SiteMode from '../userPreferences/siteMode.ts';
+import SiteModeInfo from '../userPreferences/siteModeInfo.ts';
 import { copyTextToClipboard, createElement, getInputValue } from '../../util/domutil.ts';
 import { mwParse } from '../../../shared/mediawiki/mwParse.ts';
 import { MwParamNode, MwTemplateNode } from '../../../shared/mediawiki/mwParseTypes.ts';
@@ -12,7 +12,7 @@ export function enableOLActionsInterval() {
     (contentEditableEl: HTMLElement) => {
       contentEditableEl.classList.add('ol-result-textarea-processed');
 
-      if (!SiteMode.isGenshin) {
+      if (!SiteModeInfo.isGenshin) {
         return;
       }
 

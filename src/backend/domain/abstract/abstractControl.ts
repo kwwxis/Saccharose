@@ -61,11 +61,12 @@ import {
 } from '../../../shared/types/changelog-types.ts';
 import { GameVersion, GameVersionFilter, GenshinVersions } from '../../../shared/types/game-versions.ts';
 import { ScriptJobActionArgs, ScriptJobCoordinator, ScriptJobPostResult } from '../../util/scriptJobs.ts';
-import { RequestSiteMode } from '../../routing/requestContext.ts';
 import { IntHolder } from '../../../shared/util/valueHolder.ts';
+import { SiteMode } from '../../../shared/types/site/site-mode-type.ts';
+import { fsExists, fsRead, fsReadJson } from '../../util/fsutil.ts';
 
 export type AbstractControlConfig<T extends AbstractControlState = AbstractControlState> = {
-  siteMode: RequestSiteMode,
+  siteMode: SiteMode,
   dbName: keyof SaccharoseDb,
   cachePrefix: string,
   stateConstructor: AbstractControlStateType<T>,
@@ -89,7 +90,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
   readonly knex: Knex;
   readonly dbName: keyof SaccharoseDb;
   readonly cachePrefix: string;
-  readonly siteMode: RequestSiteMode;
+  readonly siteMode: SiteMode;
 
   readonly disabledLangCodes: Set<LangCode> = new Set<LangCode>();
   readonly excelPath: string;
@@ -196,8 +197,8 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
   // endregion
 
   // region Lang Suggest
-  langSuggest(query: string): LangSuggest {
-    const result = langDetect(query);
+  async langSuggest(query: string): Promise<LangSuggest> {
+    const result = await langDetect(query);
     const code = CLD2_TO_LANG_CODE[result?.details?.[0]?.langCode?.toLowerCase()] ||
       result?.details?.[0]?.langCode?.toUpperCase();
 
@@ -340,8 +341,8 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
   // region Data Directory
   abstract getDataFilePath(file: string): string;
 
-  fileExists(filePath: string): boolean {
-    return fs.existsSync(this.getDataFilePath(filePath));
+  async fileExists(filePath: string): Promise<boolean> {
+    return await fsExists(this.getDataFilePath(filePath));
   }
 
   getExcelPath(subPath?: string): string {
@@ -453,7 +454,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     return Array.from(results.values());
   }
 
-  createTextMapSearchResponse(query: string, resultSetIdx: number, items: TextMapSearchResult[]): TextMapSearchResponse {
+  async createTextMapSearchResponse(query: string, resultSetIdx: number, items: TextMapSearchResult[]): Promise<TextMapSearchResponse> {
     let poppedResult: TextMapSearchResult;
 
     if (items.length > this.state.MAX_TEXTMAP_SEARCH_RESULTS) {
@@ -465,7 +466,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       continueFromLine: poppedResult?.line || null,
       hasMoreResults: !!poppedResult,
       resultSetIdx,
-      langSuggest: items.length ? null : this.langSuggest(query)
+      langSuggest: items.length ? null : await this.langSuggest(query)
     };
   }
 
@@ -855,7 +856,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       return null;
     return this.cached('TextMapChangelog:' + version.number, 'json', async () => {
       const textmapChangelogFileName = path.resolve(this.changelogConfig.directory, `./TextMapChangeLog.${version.number}.json`);
-      return JSON.parse(fs.readFileSync(textmapChangelogFileName, { encoding: 'utf-8' }));
+      return fsReadJson(textmapChangelogFileName);
     });
   }
 
@@ -864,7 +865,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       return null;
     return this.cached('ExcelChangelog:' + version.number, 'json', async () => {
       const excelChangelogFileName = path.resolve(this.changelogConfig.directory, `./ExcelChangeLog.${version.number}.json`);
-      return JSON.parse(fs.readFileSync(excelChangelogFileName, { encoding: 'utf-8' }));
+      return fsReadJson(excelChangelogFileName);
     });
   }
 

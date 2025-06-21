@@ -1,4 +1,4 @@
-import { SITE_MODE_WIKI_DOMAIN } from '../../userPreferences/siteMode.ts';
+import { SITE_MODE_WIKI_DOMAIN } from '../../userPreferences/siteModeInfo.ts';
 import { escapeHtml, fromParam, toParam, ucFirst } from '../../../../shared/util/stringUtil.ts';
 import { getSiblingsOfSameClass, hasSelection } from '../../../util/domutil.ts';
 import { listen, runWhenDOMContentLoaded } from '../../../util/eventListen.ts';

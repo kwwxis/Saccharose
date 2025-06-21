@@ -7,19 +7,19 @@ import {
 } from '../../../util/scriptJobs.ts';
 import { HttpError } from '../../../../shared/util/httpError.ts';
 import { getMwClient, MwClientInterface } from '../../../mediawiki/mwClientInterface.ts';
-import { RequestSiteMode } from '../../../routing/requestContext.ts';
 import { isEmpty, toBoolean } from '../../../../shared/util/genericUtil.ts';
 import { MwArticleInfo } from '../../../../shared/mediawiki/mwTypes.ts';
+import { SiteMode } from '../../../../shared/types/site/site-mode-type.ts';
 
 async function postRevSave(req: Request): Promise<ScriptJobPostResult<'mwRevSave'>> {
-  const mwClient: MwClientInterface = getMwClient(req.query.siteMode as RequestSiteMode);
+  const mwClient: MwClientInterface = getMwClient(req.query.siteMode as SiteMode);
   const titleOrId: string|number = (req.query.pageId || req.query.pageid || req.query.title) as string|number;
 
   if (isEmpty(titleOrId)) {
     throw HttpError.badRequest('InvalidParameter', `Must provide either 'pageId' or 'title' parameter.`);
   }
 
-  const siteMode: RequestSiteMode = String(req.query.siteMode) as RequestSiteMode;
+  const siteMode: SiteMode = String(req.query.siteMode) as SiteMode;
   const articleInfo: MwArticleInfo = await mwClient.getArticleInfo(titleOrId, null, toBoolean(req.query.skipArticleCache));
   const hasLatestRevision: boolean = await mwClient.db.hasRevision(articleInfo.lastrevid, true);
 

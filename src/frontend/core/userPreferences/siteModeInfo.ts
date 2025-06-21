@@ -1,6 +1,7 @@
+import { SiteMode } from '../../../shared/types/site/site-mode-type.ts';
 
-export const SITE_MODE =
-  document.querySelector<HTMLMetaElement>('meta[name="x-site-mode"]').content || '';
+export const SITE_MODE: SiteMode =
+  (document.querySelector<HTMLMetaElement>('meta[name="x-site-mode"]').content || 'unset') as SiteMode;
 
 export const SITE_MODE_HOME =
   document.querySelector<HTMLMetaElement>('meta[name="x-site-mode-home"]').content || '';
@@ -13,7 +14,7 @@ export const SITE_MODE_WIKI_DOMAIN =
 
 console.log('[Init] Site Mode:', {mode: SITE_MODE, home: SITE_MODE_HOME, name: SITE_MODE_NAME, wikiDomain: SITE_MODE_WIKI_DOMAIN});
 
-const SiteMode = {
+const SiteModeInfo = {
   mode: SITE_MODE,
   home: SITE_MODE_HOME,
   name: SITE_MODE_NAME,
@@ -54,4 +55,4 @@ const SiteMode = {
   }
 };
 
-export default SiteMode;
+export default SiteModeInfo;

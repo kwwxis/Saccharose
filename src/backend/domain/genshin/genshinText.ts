@@ -12,7 +12,7 @@ import { getGenshinControl } from './genshinControl.ts';
 import { mapBy } from '../../../shared/util/arrayUtil.ts';
 import { logInitData } from '../../util/logger.ts';
 import { ManualTextMapHashes } from '../../../shared/types/genshin/manual-text-map.ts';
-import { GENSHIN_DISABLED } from '../../loadenv.ts';
+import { isSiteModeDisabled } from '../../loadenv.ts';
 
 export type GenshinNormTextOpts = {
   wandererPlaceholderPlainForm?: boolean,
@@ -260,7 +260,7 @@ export function __normGenshinText(text: string, langCode: LangCode, opts: NormTe
     text = text.replace(/\{SPRITE_PRESET#(\d+)}/g, (_fm: string, g1: string) => {
       let image = GENSHIN_SPRITE_TAGS[toInt(g1)].Image;
       image = image.split('/').pop();
-      return '{{Sprite|' + image + '}}';
+      return '{{tx|Sprite: ' + image + '}}';
     });
   }
 
@@ -342,7 +342,7 @@ let ELEMENT_TEXTMAP: {
 };
 
 export async function loadGenshinTextSupportingData(): Promise<void> {
-  if (GENSHIN_DISABLED)
+  if (isSiteModeDisabled('genshin'))
     return;
   logInitData('Loading Genshin-supporting text data -- starting...');
 
