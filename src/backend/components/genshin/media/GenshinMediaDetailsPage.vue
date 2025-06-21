@@ -35,6 +35,10 @@
       <dd>
         <ByteSizeLabel :byte-size="entity.image_size" />
       </dd>
+      <dt>Image First Added</dt>
+      <dd>
+        <span>{{ entity.first_version }}</span>
+      </dd>
     </dl>
   </section>
 

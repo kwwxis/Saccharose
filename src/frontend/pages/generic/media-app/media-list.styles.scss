@@ -37,6 +37,7 @@
   .image-frame {
     display: inline-flex;
     flex-direction: column;
+    position: relative;
 
     &.no-max-width {
       .image-obj {
@@ -99,6 +100,24 @@
       text-decoration: none;
       padding: 0 5px;
       width: 150px;
+    }
+
+    .image-toprightlabel {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: #eee;
+      line-height: 1.5;
+      font-size: 13px;
+      padding: 0 3px;
+      border-bottom: 1px solid #bbb;
+      border-left: 1px solid #bbb;
+
+      body.nightmode & {
+        background: #424048;
+        border-bottom: 1px solid #98979b;
+        border-left: 1px solid #98979b;
+      }
     }
   }
 }

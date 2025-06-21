@@ -161,6 +161,7 @@ export function initiateMediaSearchPage(
                 <span class="image-dsize">${entity.image_width} &times; ${entity.image_height}</span>
                 <span class="image-bsize">${getByteSizeLabel(entity)}</span>
               </span>
+              <span class="image-toprightlabel${entity.first_version ? '' : ' hide'}">${entity.first_version}</span>
             </div>
           </div>
         `));
