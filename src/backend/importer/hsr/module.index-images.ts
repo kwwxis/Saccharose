@@ -9,8 +9,8 @@ import {
   ImageIndexExcelMeta,
   ImageIndexExcelMetaEntry, newImageCategory,
 } from '../../../shared/types/image-index-types.ts';
-import { ISizeCalculationResult } from 'image-size/types/interface';
-import { imageSizeFromFile } from 'image-size/fromFile';
+import { ISizeCalculationResult } from 'image-size/dist/types/interface';
+import { imageSizeFromFile } from 'image-size/dist/fromFile';
 
 function* walkSync(dir: string, relPath: string[] = []): Generator<string> {
   const files = fs.readdirSync(dir, { withFileTypes: true });
