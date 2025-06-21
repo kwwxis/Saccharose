@@ -4,7 +4,7 @@ import path from 'path';
 import { IMAGEDIR_GENSHIN_ARCHIVE } from '../../loadenv.ts';
 import { closeKnex } from '../../util/db.ts';
 
-export async function recordNewImages(){
+export async function recordNewImages() {
   const result: Record<string, string> = {};
 
   console.log('Recording new images...');

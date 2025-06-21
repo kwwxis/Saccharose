@@ -4,13 +4,13 @@ export type GameVersion = {number: string, previous: string, showChangelog?: boo
 
 // TODO: This needs to be updated with each new Genshin version!
 export const GenshinVersions: GameVersion[] = [
-  {number: '1.0', previous: null},
-  {number: '1.1', previous: '1.0'},
+  {number: '1.0', previous: null, showNewMedia: true},
+  {number: '1.1', previous: '1.0', showNewMedia: true},
   {number: '1.2', previous: '1.1'},
   {number: '1.3', previous: '1.2'},
   {number: '1.4', previous: '1.3'},
-  {number: '1.5', previous: '1.4'},
-  {number: '1.6', previous: '1.5'},
+  {number: '1.5', previous: '1.4', showNewMedia: true},
+  {number: '1.6', previous: '1.5', showNewMedia: true},
 
   {number: '2.0', previous: '1.6', showNewMedia: true},
   {number: '2.1', previous: '2.0', showNewMedia: true},

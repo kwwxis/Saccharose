@@ -10,8 +10,8 @@ import {
   ImageIndexExcelMeta,
   ImageIndexExcelMetaEntry, ImageIndexOtherName, newImageCategory,
 } from '../../../shared/types/image-index-types.ts';
-import { ISizeCalculationResult } from 'image-size/dist/types/interface';
-import { imageSizeFromFile } from 'image-size/dist/fromFile';
+import { ISizeCalculationResult } from 'image-size/types/interface';
+import { imageSizeFromFile } from 'image-size/fromFile';
 
 const otherNames: Record<string, ImageIndexOtherName[]> = defaultMap('Array');
 
