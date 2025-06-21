@@ -112,6 +112,7 @@
       padding: 0 3px;
       border-bottom: 1px solid #bbb;
       border-left: 1px solid #bbb;
+      z-index: 5;
 
       body.nightmode & {
         background: #424048;

@@ -33,7 +33,7 @@ async function doIt() {
     const basename = path.basename(file);
 
     if (i % 100 === 0) {
-      console.log(`${i} / ${filesAmount}`);
+      console.log(`${i} / ${filesAmount} (${((i / filesAmount) * 100).toFixed(2)})`);
     }
 
     const existingName = combinedDir + basename;
@@ -62,6 +62,8 @@ async function doIt() {
     }
     i++;
   }
+
+  console.log(`${i} / ${filesAmount} (${((i / filesAmount) * 100).toFixed(2)})`);
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
