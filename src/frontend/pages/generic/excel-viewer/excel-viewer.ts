@@ -272,7 +272,7 @@ function createExcelViewerHtml(fileName: string, includeExcelListButton: boolean
         <span>Excel Viewer &ndash; <strong>${escapeHtml(fileName)}</strong></span>
         <span class="grow"></span>
         ${includeExcelListButton ? `<a role="button" class="secondary small" href="${SiteModeInfo.home}/excel-viewer">Back to excel list</a>` : ''}
-        <button class="excel-toggle-full-screen valign secondary">
+        <button class="excel-toggle-full-screen valign secondary spacer10-left">
           <span class="maximize-text spacer5-right">Enter Full Screen</span>
           <span class="minimize-text spacer5-right">Exit Full Screen</span>
           <span class="maximize-icon valign">${document.getElementById('template-maximize-icon').innerHTML}</span>

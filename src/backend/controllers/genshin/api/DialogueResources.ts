@@ -77,9 +77,11 @@ router.endpoint('/quests/generate', {
       locals.otherLanguagesWikitext = result.otherLanguagesWikitext;
       locals.dialogue = result.dialogue;
       locals.cutscenes = result.cutscenes;
-      locals.reward = result.reward;
+      locals.rewards = result.rewards;
       locals.reputation = result.reputation;
-      locals.rewardInfobox = result.rewardInfobox;
+      locals.rewardInfoboxList = result.rewardInfoboxList;
+      locals.reputationInfobox = result.reputationInfobox;
+      locals.rewardTriggers = result.rewardTriggers;
       locals.similarityGroups = result.similarityGroups;
       locals.questStills = result.questStills;
       locals.inDialogueReadables = result.inDialogueReadables;

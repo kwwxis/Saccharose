@@ -88,6 +88,7 @@ button.secondary.small.dialogue-indent-button {
         padding: 1px 5px;
         text-decoration: none;
         transition: all 50ms;
+        word-break: break-word;
 
         body.nightmode & {
           border-color: hsla(232, 20%, 60%, 0.3);

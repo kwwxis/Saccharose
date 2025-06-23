@@ -24,16 +24,63 @@
       <% }) %>
     </div>
   </div>
-  <% if (locals.rewardInfobox) { %>
+  <% if (locals.rewardInfoboxList && locals.rewardInfoboxList.length) { %>
     <div id="quest-rewards-section" class="content">
       <h4 class="valign">
         <span class="expando spacer5-right" ui-action="expando: #quest-rewards-content"><%- icon('chevron-down', 17) %></span>
         <span>Quest Rewards</span>
       </h4>
-      <div id="quest-rewards-content" class="posRel">
-        <textarea id="quest-reward" readonly class="wikitext w100p autosize" data-is-wiki-template-fragment="1"
-                  style="resize:vertical;min-height:40px;padding-right:45px" spellcheck="false" translate="no"><%= rewardInfobox %></textarea>
-        <button class="secondary small posAbs" ui-action="copy: #quest-reward"
+      <div id="quest-rewards-content">
+        <% rewardInfoboxList.forEach((rewardInfoboxText, idx) => { %>
+          <div>
+            <% if (locals.rewardInfoboxList.length > 1) { %>
+              <h5>Reward Index <%= idx %></h5>
+              <% if (idx === 0) { %>
+                <p class="spacer5-bottom">Default reward if no section triggers a specific reward.</p>
+              <% } %>
+
+              <% if (!rewardTriggers[idx] || !rewardTriggers[idx].length) { %>
+                <% if (idx !== 0) { %>
+                  <p class="spacer5-bottom">Not triggered by any specific section. May be triggered by some internal game code or script.</p>
+                <% } %>
+              <% } else if (rewardTriggers[idx].length === 1) { %>
+                <p class="spacer5-bottom">Triggered by section <a href="#Section_<%= rewardTriggers[idx][0] %>"><%= rewardTriggers[idx][0] %></a></p>
+              <% } else { %>
+                <p class="spacer5-bottom">
+                  Triggered by any one of these sections:
+                  <% for (let sectionId of rewardTriggers[idx]) { %>
+                    <a href="#Section_<%= sectionId %>"><%= sectionId %></a>
+                  <% } %>
+                </p>
+              <% } %>
+            <% } %>
+            <div class="posRel">
+              <textarea id="quest-reward-<%= idx %>"
+                      readonly class="wikitext w100p autosize"
+                      data-is-wiki-template-fragment="1"
+                      style="resize:vertical;min-height:40px;padding-right:45px" spellcheck="false" translate="no"><%= rewardInfoboxText %></textarea>
+              <button class="secondary small posAbs" ui-action="copy: #quest-reward-<%= idx %>"
+                      ui-tippy-hover="Click to copy to clipboard"
+                      ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
+                      style="right: 0; top: 0;">Copy</button>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+  <% } %>
+  <% if (locals.reputationInfobox) { %>
+    <div id="quest-reputation-section" class="content">
+      <h4 class="valign">
+        <span class="expando spacer5-right" ui-action="expando: #quest-reputation-content"><%- icon('chevron-down', 17) %></span>
+        <span>Quest Reputation</span>
+      </h4>
+      <div id="quest-reputation-content posRel">
+        <textarea id="quest-reputation-text"
+                  readonly class="wikitext w100p autosize"
+                  data-is-wiki-template-fragment="1"
+                  style="resize:vertical;min-height:40px;padding-right:45px" spellcheck="false" translate="no"><%= reputationInfobox %></textarea>
+        <button class="secondary small posAbs" ui-action="copy: #quest-reputation-text"
                 ui-tippy-hover="Click to copy to clipboard"
                 ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
                 style="right: 0; top: 0;">Copy</button>

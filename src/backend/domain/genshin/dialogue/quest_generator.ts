@@ -25,9 +25,10 @@ import { dialogueCompareApply, SimilarityGroups } from './dialogue_compare.ts';
 import { custom } from '../../../util/logger.ts';
 import { grepIdStartsWith } from '../../../util/shellutil.ts';
 import { RAW_MANUAL_TEXTMAP_ID_PROP } from '../../../importer/genshin/genshin.schema.ts';
-import { toInt } from '../../../../shared/util/numberUtil.ts';
+import { isInt, toInt } from '../../../../shared/util/numberUtil.ts';
 import { Readable } from '../../../../shared/types/genshin/readable-types.ts';
 import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
+import { defaultMap } from '../../../../shared/util/genericUtil.ts';
 
 export class QuestGenerateResult {
   mainQuest: MainQuestExcelConfigData = null;
@@ -45,9 +46,11 @@ export class QuestGenerateResult {
   cutscenes: {file: string, text: string}[] = [];
   similarityGroups: SimilarityGroups;
 
-  reward?: RewardExcelConfigData;
+  rewards?: RewardExcelConfigData[];
   reputation?: ReputationQuestExcelConfigData;
-  rewardInfobox?: string;
+  rewardInfoboxList?: string[];
+  rewardTriggers?: Record<number, number[]>;
+  reputationInfobox?: string;
   questStills?: {imageName: string, wikiName: string}[];
   inDialogueReadables?: Readable[]
 }
@@ -271,8 +274,20 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
     sect.addMetaProp('Section Order', questSub.Order);
     sect.addMetaProp('Quest Step', questSub.DescText);
     sect.addMetaProp('Quest Desc Update', questSub.StepDescText);
+
+    if (questSub.FinishExec) {
+      const rewardSetIndexExec = questSub.FinishExec.find(f => f.Type === 'QUEST_EXEC_UPDATE_PARENT_QUEST_REWARD_INDEX');
+      if (rewardSetIndexExec && rewardSetIndexExec.Param.length && isInt(rewardSetIndexExec.Param[0])) {
+        const rewardIndex = toInt(rewardSetIndexExec.Param[0]);
+        sect.addMetaProp('Trigger Reward Index', rewardIndex);
+      }
+    }
+
     addCondMetaProp(sect, 'FinishCond', questSub.FinishCondComb, questSub.FinishCond);
+    addCondMetaProp(sect, 'FinishExec', null, questSub.FinishExec);
+
     addCondMetaProp(sect, 'FailCond', questSub.FailCondComb, questSub.FailCond);
+    addCondMetaProp(sect, 'FailExec', null, questSub.FailExec);
 
     if (questSub.NonTalkDialog && questSub.NonTalkDialog.length) {
       for (let dialog of questSub.NonTalkDialog) {
@@ -374,28 +389,49 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
   // Rewards
   // --------------------------------------------------------------------------------------------------------------
   debug('Generating rewards');
-  const rewards: RewardExcelConfigData[] = await (mainQuest.RewardIdList || []).asyncMap(rewardId => ctrl.selectRewardExcelConfigData(rewardId));
-  result.reward = ctrl.combineRewardExcelConfigData(... rewards);
-  result.reputation = await ctrl.selectReputationQuestExcelConfigData(mainQuest.Id);
+  const rewards: RewardExcelConfigData[] = await (mainQuest.RewardIdList || [])
+    .asyncMap(rewardId => ctrl.selectRewardExcelConfigData(rewardId), false);
+  result.rewards = rewards;
+  result.rewardInfoboxList = [];
+  result.rewardTriggers = defaultMap('Array');
 
-  let sbReward = new SbOut();
-  sbReward.setPropPad(14);
-
-  if (result.reward) {
-    sbReward.prop('rewards', result.reward.RewardSummary.CombinedStrings);
+  for (let reward of rewards) {
+    let sbReward = new SbOut();
+    sbReward.setPropPad(14);
+    if (reward) {
+      sbReward.prop('rewards', reward.RewardSummary.CombinedStrings);
+    } else {
+      sbReward.append('(No reward)');
+    }
+    result.rewardInfoboxList.push(sbReward.toString());
   }
 
-  if (result.reputation) {
-    sbReward.prop('rep', result.reputation.CityName);
-    sbReward.prop('repAmt', result.reputation.Reward.RewardItemList[0].ItemCount);
-    sbReward.prop('repOrder', result.reputation.Order);
-
-    if (result.reputation.TitleText !== mainQuest.TitleText) {
-      sbReward.prop('repTitle', result.reputation.TitleText);
+  for (let questSub of mainQuest.QuestExcelConfigDataList) {
+    if (questSub.FinishExec) {
+      const rewardSetIndexExec = questSub.FinishExec.find(f => f.Type === 'QUEST_EXEC_UPDATE_PARENT_QUEST_REWARD_INDEX');
+      if (rewardSetIndexExec && rewardSetIndexExec.Param.length && isInt(rewardSetIndexExec.Param[0])) {
+        const rewardIndex = toInt(rewardSetIndexExec.Param[0]);
+        result.rewardTriggers[rewardIndex].push(questSub.SubId);
+      }
     }
   }
 
-  result.rewardInfobox = sbReward.toString();
+  result.reputation = await ctrl.selectReputationQuestExcelConfigData(mainQuest.Id);
+
+  if (result.reputation) {
+    let sbRep = new SbOut();
+    sbRep.setPropPad(14);
+
+    sbRep.prop('rep', result.reputation.CityName);
+    sbRep.prop('repAmt', result.reputation.Reward.RewardItemList[0].ItemCount);
+    sbRep.prop('repOrder', result.reputation.Order);
+
+    if (result.reputation.TitleText !== mainQuest.TitleText) {
+      sbRep.prop('repTitle', result.reputation.TitleText);
+    }
+
+    result.reputationInfobox = sbRep.toString();
+  }
 
   // Other
   // --------------------------------------------------------------------------------------------------------------
