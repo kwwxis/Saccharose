@@ -12,7 +12,7 @@ import {
   MainQuestExcelConfigData,
 } from '../../../../shared/types/genshin/quest-types.ts';
 import { ChangeRecord, FullChangelog } from '../../../../shared/types/changelog-types.ts';
-import { toInt } from '../../../../shared/util/numberUtil.ts';
+import { isInt, toInt } from '../../../../shared/util/numberUtil.ts';
 import { GenshinSchemaNames } from '../../../importer/genshin/genshin.schema.ts';
 import { GenshinControl } from '../genshinControl.ts';
 import { MonsterExcelConfigData } from '../../../../shared/types/genshin/monster-types.ts';
@@ -165,7 +165,8 @@ export async function _generateGenshinChangelogNewRecordSummary(ctrl: GenshinCon
       const chapterCollection: ChapterCollection = ctrl.generateChapterCollection(chapters);
       const chapterQuestIds: Set<number> = new Set(chapters.map(c => c.Quests.map(q => q.Id)).flat());
       const nonChapterQuestIds: number[] = newIntKeysOf('MainQuestExcelConfigData').filter(mqId => !chapterQuestIds.has(mqId));
-      const quests: MainQuestExcelConfigData[] = await nonChapterQuestIds.asyncMap(mqId => ctrl.selectMainQuestById(mqId));
+      const quests: MainQuestExcelConfigData[] = await nonChapterQuestIds.filter(mqId => isInt(mqId))
+        .asyncMap(mqId => ctrl.selectMainQuestById(mqId));
 
       out.chapters = chapterCollection;
       out.nonChapterQuests = quests.filter(mq => !!mq.TitleText);
@@ -183,15 +184,26 @@ export async function _generateGenshinChangelogNewRecordSummary(ctrl: GenshinCon
       out.readables = ctrl.generateReadableArchive(readables);
     }),
 
-    newIntKeysOf('AvatarExcelConfigData').asyncMap(avatarId => ctrl.selectAvatarById(avatarId)).then(avatars => out.avatars = avatars),
-    newIntKeysOf('WeaponExcelConfigData').asyncMap(weaponId => ctrl.selectWeaponById(weaponId)).then(weapons => out.weapons = weapons),
+    newIntKeysOf('AvatarExcelConfigData').asyncMap(avatarId => ctrl.selectAvatarById(avatarId))
+      .then(avatars => out.avatars = avatars),
 
-    newIntKeysOf('HomeWorldFurnitureExcelConfigData').asyncMap(id => ctrl.selectFurniture(id, {LoadHomeWorldNPC: true})).then(ret => out.furnishings = ret),
-    newIntKeysOf('FurnitureSuiteExcelConfigData').asyncMap(id => ctrl.selectFurnitureSuite(id)).then(ret => out.furnishingSets = ret),
+    newIntKeysOf('WeaponExcelConfigData').asyncMap(weaponId => ctrl.selectWeaponById(weaponId))
+      .then(weapons => out.weapons = weapons),
 
-    selectViewpointsByIds(ctrl, newIntKeysOf('ViewCodexExcelConfigData')).then(viewpoints => out.viewpoints = viewpoints),
-    newIntKeysOf('AchievementExcelConfigData').asyncMap(id => ctrl.selectAchievement(id)).then(achievements => out.achievements = achievements),
-    selectTutorials(ctrl, null, newIntKeysOf('TutorialExcelConfigData')).then(tutorialsByType => out.tutorials = Object.values(tutorialsByType).flat()),
+    newIntKeysOf('HomeWorldFurnitureExcelConfigData').asyncMap(id => ctrl.selectFurniture(id, {LoadHomeWorldNPC: true}))
+      .then(ret => out.furnishings = ret),
+
+    newIntKeysOf('FurnitureSuiteExcelConfigData').asyncMap(id => ctrl.selectFurnitureSuite(id))
+      .then(ret => out.furnishingSets = ret),
+
+    selectViewpointsByIds(ctrl, newIntKeysOf('ViewCodexExcelConfigData'))
+      .then(viewpoints => out.viewpoints = viewpoints),
+
+    newIntKeysOf('AchievementExcelConfigData').asyncMap(id => ctrl.selectAchievement(id))
+      .then(achievements => out.achievements = achievements),
+
+    selectTutorials(ctrl, null, newIntKeysOf('TutorialExcelConfigData'))
+      .then(tutorialsByType => out.tutorials = Object.values(tutorialsByType).flat()),
   ]);
 
   return out;

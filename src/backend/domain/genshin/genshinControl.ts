@@ -3540,7 +3540,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       achievement.TriggerConfig.ParamList = achievement.TriggerConfig.ParamList.filter(s => s !== '');
       achievement.TriggerConfig.TriggerQuests = [];
       if (achievement.TriggerConfig.TriggerType === 'TRIGGER_FINISH_PARENT_QUEST_AND' || achievement.TriggerConfig.TriggerType == 'TRIGGER_FINISH_PARENT_QUEST_OR') {
-        for (let qid of achievement.TriggerConfig.ParamList.flatMap(p => p.split(','))) {
+        for (let qid of achievement.TriggerConfig.ParamList.flatMap(p => p.split(/[,;]/g)).map(s => s.trim())) {
           let mainQuest = await this.selectMainQuestById(toInt(qid));
           if (mainQuest) {
             achievement.TriggerConfig.TriggerQuests.push(mainQuest);
