@@ -400,6 +400,7 @@ export async function generateQuestDialogExcels(repoRoot: string) {
 
         const initialObj: any = {
           mainQuestId: mqId,
+          itemType: item.itemType,
           itemId: item.itemId,
           speakerTextMapHash: item.speakerText?.textId,
           speakerTextType: item.speakerText?.textType,

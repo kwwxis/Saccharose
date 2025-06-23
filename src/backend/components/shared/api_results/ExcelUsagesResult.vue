@@ -45,8 +45,8 @@ import { ChangeRecordRef } from '../../../../shared/types/changelog-types.ts';
 import ExcelUsagesResultInner from './ExcelUsagesResultInner.vue';
 
 defineProps<{
-  idToUsages: IdToExcelUsages,
-  changeRecordRefs: ChangeRecordRef[],
-  embed: boolean,
+  idToUsages?: IdToExcelUsages,
+  changeRecordRefs?: ChangeRecordRef[],
+  embed?: boolean,
 }>();
 </script>

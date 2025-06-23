@@ -117,10 +117,12 @@ export interface MonsterTitleExcelConfigData {
 // Archive
 // --------------------------------------------------------------------------------------------------------------
 
+export type LivingBeingTable = {[subType: string]: LivingBeingArchiveGroup};
+
 export interface LivingBeingArchive {
-  MonsterCodex: {[subType: string]: LivingBeingArchiveGroup},
-  WildlifeCodex: {[subType: string]: LivingBeingArchiveGroup},
-  NonCodexMonsters: {[subType: string]: LivingBeingArchiveGroup},
+  MonsterCodex: LivingBeingTable,
+  WildlifeCodex: LivingBeingTable,
+  NonCodexMonsters: LivingBeingTable,
 }
 
 export interface LivingBeingArchiveGroup {

@@ -47,7 +47,7 @@ import AchievementTriggerDesc from './AchievementTriggerDesc.vue';
 const { normGenshinText } = getTrace();
 
 defineProps<{
-  achievements: AchievementExcelConfigData[],
-  showCategory: boolean,
+  achievements?: AchievementExcelConfigData[],
+  showCategory?: boolean,
 }>();
 </script>

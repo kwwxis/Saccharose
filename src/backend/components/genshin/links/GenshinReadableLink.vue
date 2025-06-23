@@ -14,6 +14,6 @@
 import { Readable } from '../../../../shared/types/genshin/readable-types.ts';
 
 defineProps<{
-  readable: Readable
+  readable?: Readable
 }>()
 </script>

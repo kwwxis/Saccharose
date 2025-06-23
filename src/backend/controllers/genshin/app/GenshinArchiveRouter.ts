@@ -48,6 +48,18 @@ import GenshinViewpointsPage from '../../../components/genshin/viewpoints/Genshi
 import { ImageIndexEntity } from '../../../../shared/types/image-index-types.ts';
 import WeaponSearchPage from '../../../components/genshin/weapons/WeaponSearchPage.vue';
 import WeaponItemPage from '../../../components/genshin/weapons/WeaponItemPage.vue';
+import ReadableSearchPage from '../../../components/genshin/readables/ReadableSearchPage.vue';
+import ReadableAllListingPage from '../../../components/genshin/readables/ReadableAllListingPage.vue';
+import ReadableCollectionPage from '../../../components/genshin/readables/ReadableCollectionPage.vue';
+import ReadableSinglePage from '../../../components/genshin/readables/ReadableSinglePage.vue';
+import MaterialSearchPage from '../../../components/genshin/materials/MaterialSearchPage.vue';
+import { MaterialExcelConfigData } from '../../../../shared/types/genshin/material-types.ts';
+import MaterialItemPage from '../../../components/genshin/materials/MaterialItemPage.vue';
+import GenshinLbListingPage from '../../../components/genshin/livingbeing/GenshinLbListingPage.vue';
+import GenshinLbPage from '../../../components/genshin/livingbeing/GenshinLbPage.vue';
+import GenshinLoadingTips from '../../../components/genshin/reminders/GenshinLoadingTips.vue';
+import FurnitureListPage from '../../../components/genshin/furnishings/FurnitureListPage.vue';
+import FurniturePage from '../../../components/genshin/furnishings/FurniturePage.vue';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -55,7 +67,7 @@ export default async function(): Promise<Router> {
   // region Material Items
   // --------------------------------------------------------------------------------------------------------------
   router.get('/items', async (req: Request, res: Response) => {
-    res.render('pages/genshin/archive/material-search', {
+    res.render(MaterialSearchPage, {
       title: 'Items',
       bodyClass: ['page--items'],
     });
@@ -65,19 +77,19 @@ export default async function(): Promise<Router> {
     const ctrl = getGenshinControl(req);
 
     if (req.params.itemId) {
-      const material = await ctrl.selectMaterialExcelConfigData(toInt(req.params.itemId), {
+      const material: MaterialExcelConfigData = await ctrl.selectMaterialExcelConfigData(toInt(req.params.itemId), {
         LoadRelations: true,
         LoadSourceData: true,
         LoadItemUse: true,
         LoadCodex: true,
       });
 
-      let readable = await ctrl.selectReadable(material.Id);
+      let readable: Readable = await ctrl.selectReadable(material.Id);
       if (!readable || !readable.Material || readable.Material.Id !== material.Id) {
         readable = null;
       }
 
-      res.render('pages/genshin/archive/material-item', {
+      res.render(MaterialItemPage, {
         title: material ? material.NameText : 'Item not found',
         bodyClass: ['page--items'],
         material,
@@ -85,7 +97,7 @@ export default async function(): Promise<Router> {
         ol: material ? (await ol_gen_from_id(ctrl, material.NameTextMapHash)) : null
       });
     } else {
-      res.render('pages/genshin/archive/material-item', {
+      res.render(MaterialItemPage, {
         title: 'Item not found',
         bodyClass: ['page--materials'],
       });
@@ -330,7 +342,7 @@ export default async function(): Promise<Router> {
     const ctrl = getGenshinControl(req);
     const archive = await ctrl.selectReadableArchive();
 
-    res.render('pages/genshin/archive/readables', {
+    res.render(ReadableAllListingPage, {
       title: 'Books & Readables',
       archive: archive,
       bodyClass: ['page--readables', 'page--readables-list']
@@ -338,7 +350,7 @@ export default async function(): Promise<Router> {
   });
 
   router.get('/readables/search', async (req: Request, res: Response) => {
-    res.render('pages/genshin/archive/readables-search', {
+    res.render(ReadableSearchPage, {
       title: 'Search Books & Readables',
       bodyClass: ['page--readables-search']
     });
@@ -359,7 +371,7 @@ export default async function(): Promise<Router> {
     }
     infobox += '\n}}';
 
-    res.render('pages/genshin/archive/readable-collection', {
+    res.render(ReadableCollectionPage, {
       title: collection.SuitNameText,
       collection: collection,
       infobox,
@@ -372,7 +384,7 @@ export default async function(): Promise<Router> {
     const ctrl = getGenshinControl(req);
     const readable: Readable = await ctrl.selectReadable(toInt(req.params.itemId));
 
-    res.render('pages/genshin/archive/readable-single', {
+    res.render(ReadableSinglePage, {
       title: readable?.TitleText || 'Not Found',
       readable: readable,
       ol: readable ? await ol_gen_from_id(ctrl, readable.TitleTextMapHash) : null,
@@ -387,7 +399,7 @@ export default async function(): Promise<Router> {
   router.get('/loading-tips', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
 
-    res.render('pages/genshin/archive/loading-tips', {
+    res.render(GenshinLoadingTips, {
       title: 'Loading Tips',
       tableFormat: false,
       catNames: await selectLoadingMainCatNames(ctrl),
@@ -408,7 +420,7 @@ export default async function(): Promise<Router> {
       req.context.htmlMetaProps['X-ReplaceInUrl'] = catName + ';' + cat.catName;
     }
 
-    res.render('pages/genshin/archive/loading-tips', {
+    res.render(GenshinLoadingTips, {
       title: cat ? cat.catName + ' Loading Tips' : 'Loading Tips Not Found',
       catNames: await selectLoadingMainCatNames(ctrl),
       selectedCat: cat?.catName || catName,
@@ -519,7 +531,7 @@ export default async function(): Promise<Router> {
       ]);
     });
 
-    res.render('pages/genshin/archive/furniture-list', {
+    res.render(FurnitureListPage, {
       title: 'Furnishings',
       furnitureList,
       typeTree,
@@ -598,7 +610,7 @@ export default async function(): Promise<Router> {
       sb.line();
     }
 
-    res.render('pages/genshin/archive/furniture-page', {
+    res.render(FurniturePage, {
       title: 'Furnishings',
       furn,
       wikitext: sb.toString(),
@@ -614,7 +626,7 @@ export default async function(): Promise<Router> {
     const title = (await ctrl.selectManualTextMapConfigDataById('UI_CODEX_ANIMAL_MONSTER')).TextMapContentText;
     const archive = await ctrl.selectLivingBeingArchive();
 
-    res.render('pages/genshin/archive/lb-list', {
+    res.render(GenshinLbListingPage, {
       title,
       lbTable: archive.MonsterCodex,
       bodyClass: ['page--lb', 'page--enemies']
@@ -626,7 +638,7 @@ export default async function(): Promise<Router> {
     const title = (await ctrl.selectManualTextMapConfigDataById('UI_CODEX_ANIMAL_ANIMAL')).TextMapContentText;
     const archive = await ctrl.selectLivingBeingArchive();
 
-    res.render('pages/genshin/archive/lb-list', {
+    res.render(GenshinLbListingPage, {
       title,
       lbTable: archive.WildlifeCodex,
       bodyClass: ['page--lb', 'page--wildlife']
@@ -637,7 +649,7 @@ export default async function(): Promise<Router> {
     const ctrl = getGenshinControl(req);
     const archive = await ctrl.selectLivingBeingArchive();
 
-    res.render('pages/genshin/archive/lb-list', {
+    res.render(GenshinLbListingPage, {
       title: 'Non-Codex Living Beings',
       introText: 'These are living beings that do not appear in the in-game archive.',
       lbTable: archive.NonCodexMonsters,
@@ -656,7 +668,7 @@ export default async function(): Promise<Router> {
       monster = null;
     }
 
-    res.render('pages/genshin/archive/lb-page', {
+    res.render(GenshinLbPage, {
       title: monster?.NameText || monster?.Describe?.NameText || 'Enemy not found',
       monster,
       bodyClass: ['page--lb', 'page--enemies']
@@ -674,7 +686,7 @@ export default async function(): Promise<Router> {
       monster = null;
     }
 
-    res.render('pages/genshin/archive/lb-page', {
+    res.render(GenshinLbPage, {
       title: monster?.NameText || monster?.Describe?.NameText || 'Wildlife not found',
       monster,
       bodyClass: ['page--lb', 'page--wildlife']

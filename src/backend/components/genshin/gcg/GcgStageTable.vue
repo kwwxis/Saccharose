@@ -44,6 +44,6 @@
 import { GCGGameExcelConfigData } from '../../../../shared/types/genshin/gcg-types.ts';
 
 defineProps<{
-  stages: GCGGameExcelConfigData[]
+  stages?: GCGGameExcelConfigData[]
 }>();
 </script>

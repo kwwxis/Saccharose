@@ -11,6 +11,6 @@
 import Wikitext from '../utility/Wikitext.vue';
 
 defineProps<{
-  wikitext: string
+  wikitext?: string
 }>();
 </script>

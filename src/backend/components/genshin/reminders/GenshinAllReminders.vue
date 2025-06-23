@@ -23,7 +23,7 @@ import DialogueSection from '../../utility/DialogueSection.vue';
 import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
 
 const { reminderGroups } = defineProps<{
-  reminderGroups: DialogueSectionResult[]
+  reminderGroups?: DialogueSectionResult[]
 }>()
 </script>
 

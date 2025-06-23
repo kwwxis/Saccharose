@@ -242,15 +242,15 @@ import { ternary } from '../../../shared/util/genericUtil.ts';
 const { ctx } = getTrace();
 
 defineProps<{
-  avatars: CommonAvatar[],
-  avatar: CommonAvatar,
-  avatarLabel: string,
-  avatarLabelPlural: string,
-  pageUrl: string,
-  tab: 'visual' | 'wikitext',
-  normText: (text: string, langCode: LangCode, opts?: NormTextOptions) => string,
-  appSidebarOverlayScroll: boolean,
-  voLangCode: LangCode,
-  voLangName: string,
+  avatars?: CommonAvatar[],
+  avatar?: CommonAvatar,
+  avatarLabel?: string,
+  avatarLabelPlural?: string,
+  pageUrl?: string,
+  tab?: 'visual' | 'wikitext',
+  normText?: (text: string, langCode: LangCode, opts?: NormTextOptions) => string,
+  appSidebarOverlayScroll?: boolean,
+  voLangCode?: LangCode,
+  voLangName?: string,
 }>();
 </script>

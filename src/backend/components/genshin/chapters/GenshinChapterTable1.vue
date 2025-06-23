@@ -48,6 +48,6 @@ import { ChapterExcelConfigData } from '../../../../shared/types/genshin/quest-t
 import { keysOf } from '../../../../shared/util/arrayUtil.ts';
 
 defineProps<{
-  chapterSect: {[chapterName: string]: {[subChapterName: string]: ChapterExcelConfigData[]}}
+  chapterSect?: {[chapterName: string]: {[subChapterName: string]: ChapterExcelConfigData[]}}
 }>();
 </script>

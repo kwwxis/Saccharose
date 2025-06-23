@@ -74,7 +74,7 @@ import { toParam } from '../../../../shared/util/stringUtil.ts';
 const { normGenshinText } = getTrace();
 
 defineProps<{
-  achievement: AchievementExcelConfigData,
-  wikitext: string,
+  achievement?: AchievementExcelConfigData,
+  wikitext?: string,
 }>();
 </script>

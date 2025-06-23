@@ -13,7 +13,7 @@ import { getTrace } from '../../middleware/request/tracer.ts';
 const { ctx } = getTrace();
 
 defineProps<{
-  searchResults: MwArticleSearchResult[]
+  searchResults?: MwArticleSearchResult[]
 }>()
 </script>
 

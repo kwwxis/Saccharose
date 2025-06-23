@@ -105,7 +105,7 @@ import Wikitext from '../../utility/Wikitext.vue';
 const { ctx } = getTrace();
 
 const props = defineProps<{
-  response: TextMapSearchResponse
+  response?: TextMapSearchResponse
 }>();
 
 const {

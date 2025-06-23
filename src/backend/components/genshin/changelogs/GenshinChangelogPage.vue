@@ -675,9 +675,9 @@ import GenshinChapterListItem from '../chapters/GenshinChapterListItem.vue';
 import { SITE_SHORT_TITLE } from '../../../loadenv.ts';
 
 const {newSummary} = defineProps<{
-  genshinVersion: GameVersion,
-  fullChangelog: FullChangelog,
-  newSummary: GenshinChangelogNewRecordSummary,
+  genshinVersion?: GameVersion,
+  fullChangelog?: FullChangelog,
+  newSummary?: GenshinChangelogNewRecordSummary,
 }>();
 
 const trace = getTrace();

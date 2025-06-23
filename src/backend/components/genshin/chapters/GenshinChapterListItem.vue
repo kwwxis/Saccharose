@@ -14,6 +14,6 @@
 import { QuestOrderItem } from '../../../domain/genshin/dialogue/dialogue_util.ts';
 
 defineProps<{
-  quests: QuestOrderItem[],
+  quests?: QuestOrderItem[],
 }>()
 </script>

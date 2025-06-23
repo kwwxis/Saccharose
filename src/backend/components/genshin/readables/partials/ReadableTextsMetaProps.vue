@@ -21,6 +21,6 @@
 import { ReadableItem } from '../../../../../shared/types/genshin/readable-types.ts';
 
 defineProps<{
-  item: ReadableItem
+  item?: ReadableItem
 }>();
 </script>

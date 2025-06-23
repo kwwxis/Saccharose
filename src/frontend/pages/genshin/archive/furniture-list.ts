@@ -8,7 +8,7 @@ import { listen } from '../../../util/eventListen.ts';
 import { deleteQueryStringParameter, getQueryStringParameter, setQueryStringParameter } from '../../../util/domutil.ts';
 import { toInt } from '../../../../shared/util/numberUtil.ts';
 
-pageMatch('pages/genshin/archive/furniture-list', () => {
+pageMatch('vue/FurnitureListPage', () => {
   const typeTree: HomeWorldFurnitureTypeTree = (<any> window).typeTree;
 
   const tokensToId: {[token: string]: Set<number>} = defaultMap('Set');

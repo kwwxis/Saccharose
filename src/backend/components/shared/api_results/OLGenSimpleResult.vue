@@ -17,7 +17,7 @@ import { OLResult } from '../../../domain/abstract/basic/OLgen.ts';
 import Wikitext from '../../utility/Wikitext.vue';
 
 defineProps<{
-  olResult: OLResult,
-  searchText: string
+  olResult?: OLResult,
+  searchText?: string
 }>();
 </script>

@@ -29,7 +29,7 @@ import ByteSizeLabel from '../utility/ByteSizeLabel.vue';
 const { ctx, nonce } = getTrace();
 
 defineProps<{
-  fileName: string,
+  fileName?: string,
   fileSize?: number,
   json?: any[],
 }>();

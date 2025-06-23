@@ -16,6 +16,6 @@
 import { MonsterExcelConfigData } from '../../../../shared/types/genshin/monster-types.ts';
 
 defineProps<{
-  monster: MonsterExcelConfigData
+  monster?: MonsterExcelConfigData
 }>();
 </script>

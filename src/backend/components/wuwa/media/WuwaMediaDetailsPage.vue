@@ -58,9 +58,9 @@ import { Marker } from '../../../../shared/util/highlightMarker.ts';
 import ByteSizeLabel from '../../utility/ByteSizeLabel.vue';
 
 const {entity, usageEntities} = defineProps<{
-  entity: ImageIndexEntity,
-  usageEntities: {[fileName: string]: any[]},
-  pathImageName: string,
+  entity?: ImageIndexEntity,
+  usageEntities?: {[fileName: string]: any[]},
+  pathImageName?: string,
 }>();
 
 type ProcessedUsageEntity = {

@@ -17,6 +17,6 @@ import { GCGGameExcelConfigData } from '../../../../shared/types/genshin/gcg-typ
 import GcgStageTable from './GcgStageTable.vue';
 
 defineProps<{
-  stages: GCGGameExcelConfigData[]
+  stages?: GCGGameExcelConfigData[]
 }>();
 </script>

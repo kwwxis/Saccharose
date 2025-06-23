@@ -35,10 +35,10 @@ import TutorialList from './TutorialList.vue';
 import { toParam } from '../../../../shared/util/stringUtil.ts';
 
 defineProps<{
-  categorySelected: string,
-  categoryNames: string[]
-  tutorialsByType: TutorialsByType,
-  fileFormatParams: string,
-  fileFormatDefault_image: string,
+  categorySelected?: string,
+  categoryNames?: string[]
+  tutorialsByType?: TutorialsByType,
+  fileFormatParams?: string,
+  fileFormatDefault_image?: string,
 }>();
 </script>

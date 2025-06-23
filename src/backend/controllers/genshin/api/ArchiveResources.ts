@@ -13,6 +13,8 @@ import {
 import AchievementSearchResult from '../../../components/genshin/achievements/AchievementSearchResult.vue';
 import TutorialList from '../../../components/genshin/tutorials/TutorialList.vue';
 import WeaponSearchResults from '../../../components/genshin/weapons/WeaponSearchResults.vue';
+import ReadableSearchResults from '../../../components/genshin/readables/partials/ReadableSearchResults.vue';
+import MaterialSearchResults from '../../../components/genshin/materials/MaterialSearchResults.vue';
 
 const router: Router = create();
 
@@ -23,7 +25,7 @@ router.endpoint('/readables/search', {
     let searchView: ReadableSearchResult = await ctrl.searchReadables(req.query.text as string);
 
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
-      return res.render('partials/genshin/archive/readable-search-results', {
+      return res.render(ReadableSearchResults, {
         searchView: searchView,
         searchText: req.query.text as string
       });
@@ -40,7 +42,7 @@ router.endpoint('/items/search', {
     let materials: MaterialExcelConfigData[] = await ctrl.selectMaterialsBySearch(req.query.text as string, ctrl.searchModeFlags);
 
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
-      return res.render('partials/genshin/archive/material-search-results', {
+      return res.render(MaterialSearchResults, {
         materials: materials,
         searchText: req.query.text as string
       });

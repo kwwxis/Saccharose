@@ -9,7 +9,7 @@ import {
 import { normalizeRawJson } from '../import_db.ts';
 import { genshinSchema } from './genshin.schema.ts';
 
-export async function writeMappedExcels() {
+export async function writeDeobfExcels() {
   function getSchemaFilePath(filePath: string): string {
     return path.resolve(process.env.GENSHIN_ARCHIVES, `./5.4/ExcelBinOutput/`, filePath);
   }

@@ -367,6 +367,7 @@ export interface CodexQuestExcelConfigData {
   Id: string,
   MainQuestId: number,
 
+  ItemType: string,
   ItemId: number,
   NextItemId: number,
   SoundId?: number,
@@ -379,7 +380,7 @@ export interface CodexQuestExcelConfigData {
   ContentTextMapHash: number,
   ContentTextType: CodexQuestContentTextType,
 
-  AssociatedDialogId?: number,
+  AssociatedDialogId?: number, // Custom property
 }
 
 export interface CodexQuestGroup {

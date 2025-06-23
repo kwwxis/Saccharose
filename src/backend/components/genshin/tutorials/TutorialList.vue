@@ -83,8 +83,8 @@ import { toParam } from '../../../../shared/util/stringUtil.ts';
 
 defineProps<{
   searchText?: string,
-  tutorialsByType: TutorialsByType,
-  fileFormatParams: string,
-  fileFormatDefault_image: string,
+  tutorialsByType?: TutorialsByType,
+  fileFormatParams?: string,
+  fileFormatDefault_image?: string,
 }>();
 </script>

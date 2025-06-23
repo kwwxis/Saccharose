@@ -48,7 +48,7 @@ import { ChapterExcelConfigData, MainQuestExcelConfigData } from '../../../../sh
 import GenshinChapterListItem from '../chapters/GenshinChapterListItem.vue';
 
 defineProps<{
-  mainQuests: MainQuestExcelConfigData[],
-  chapters: ChapterExcelConfigData[],
+  mainQuests?: MainQuestExcelConfigData[],
+  chapters?: ChapterExcelConfigData[],
 }>();
 </script>

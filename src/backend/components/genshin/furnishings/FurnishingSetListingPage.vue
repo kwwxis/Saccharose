@@ -59,6 +59,6 @@ import { toParam } from '../../../../shared/util/stringUtil.ts';
 import { entriesOf } from '../../../../shared/util/arrayUtil.ts';
 
 defineProps<{
-  suiteTree: FurnitureSuiteTree
+  suiteTree?: FurnitureSuiteTree
 }>();
 </script>

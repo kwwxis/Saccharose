@@ -36,6 +36,6 @@ import ByteSizeLabel from '../utility/ByteSizeLabel.vue';
 const { ctx } = getTrace();
 
 defineProps<{
-  excels: FileAndSize[],
+  excels?: FileAndSize[],
 }>()
 </script>

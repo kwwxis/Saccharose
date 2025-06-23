@@ -21,6 +21,6 @@
 import { AchievementExcelConfigData } from '../../../../shared/types/genshin/achievement-types.ts';
 
 defineProps<{
-  achievement: AchievementExcelConfigData
+  achievement?: AchievementExcelConfigData
 }>();
 </script>

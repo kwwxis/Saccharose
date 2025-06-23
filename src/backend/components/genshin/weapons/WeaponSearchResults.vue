@@ -25,7 +25,7 @@ import { WeaponExcelConfigData } from '../../../../shared/types/genshin/weapon-t
 import GenshinItem from '../links/GenshinItem.vue';
 
 defineProps<{
-  weapons: WeaponExcelConfigData[],
-  searchText: string
+  weapons?: WeaponExcelConfigData[],
+  searchText?: string
 }>();
 </script>

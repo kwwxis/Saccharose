@@ -47,9 +47,9 @@ import { getTrace } from '../../middleware/request/tracer.ts';
 const { ctx } = getTrace();
 
 defineProps<{
-  paramName: string,
-  cookieName: string,
-  fileFormatParams: string,
-  fileFormatDefault: string,
+  paramName?: string,
+  cookieName?: string,
+  fileFormatParams?: string,
+  fileFormatDefault?: string,
 }>()
 </script>

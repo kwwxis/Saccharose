@@ -131,9 +131,9 @@ import { isset } from '../../../../shared/util/genericUtil.ts';
 import { valuesOf } from '../../../../shared/util/arrayUtil.ts';
 
 defineProps<{
-  genshinVersion: GameVersion,
-  fullChangelog: FullChangelog,
-  excelFileChanges: ExcelFileChanges,
-  activeTab: 'added' | 'updated' | 'removed'
+  genshinVersion?: GameVersion,
+  fullChangelog?: FullChangelog,
+  excelFileChanges?: ExcelFileChanges,
+  activeTab?: 'added' | 'updated' | 'removed'
 }>();
 </script>

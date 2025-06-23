@@ -2,7 +2,7 @@ import { genshinEndpoints } from '../../../core/endpoints.ts';
 import { pageMatch } from '../../../core/pageMatch.ts';
 import { startGenericSearchPageListeners } from '../../genericSearchPage.ts';
 
-pageMatch('pages/genshin/archive/readables-search', () => {
+pageMatch('vue/ReadableSearchPage', () => {
   startGenericSearchPageListeners({
     endpoint: genshinEndpoints.searchReadables,
     asHtml: true,

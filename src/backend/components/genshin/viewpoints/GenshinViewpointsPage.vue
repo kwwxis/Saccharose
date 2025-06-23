@@ -70,10 +70,10 @@ import FileFormatOptions from '../../utility/FileFormatOptions.vue';
 
 defineProps<{
   citySelected?: string,
-  cities: CityConfigData[],
-  viewpointsList: ViewpointsByRegion,
-  fileFormatParams: string,
-  fileFormatDefault_image: string,
-  fileFormatDefault_map: string,
+  cities?: CityConfigData[],
+  viewpointsList?: ViewpointsByRegion,
+  fileFormatParams?: string,
+  fileFormatDefault_image?: string,
+  fileFormatDefault_map?: string,
 }>();
 </script>

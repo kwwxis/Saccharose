@@ -78,8 +78,8 @@ import AchievementListingTable from './AchievementListingTable.vue';
 const { ctx } = getTrace();
 
 defineProps<{
-  category: string,
-  goals: AchievementGoalExcelConfigData[],
-  achievements: AchievementsByGoals,
+  category?: string,
+  goals?: AchievementGoalExcelConfigData[],
+  achievements?: AchievementsByGoals,
 }>();
 </script>

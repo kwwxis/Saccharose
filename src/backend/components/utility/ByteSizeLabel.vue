@@ -13,7 +13,7 @@
 
 <script setup lang="ts">
 defineProps<{
-  byteSize: number,
+  byteSize?: number,
   noFullSize?: boolean,
 }>();
 </script>

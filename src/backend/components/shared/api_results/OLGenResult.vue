@@ -61,7 +61,7 @@ import Wikitext from '../../utility/Wikitext.vue';
 const { ctx, req } = getTrace();
 
 defineProps<{
-  olResults: OLResult[],
-  searchText: string
+  olResults?: OLResult[],
+  searchText?: string
 }>();
 </script>

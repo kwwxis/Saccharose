@@ -104,9 +104,9 @@ import { toParam } from '../../../../shared/util/stringUtil.ts';
 import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
 
 const { suite } = defineProps<{
-  suite: FurnitureSuiteExcelConfigData,
-  companionFavors: {npc: HomeWorldNPCExcelConfigData, event: HomeWorldEventExcelConfigData, dialogue: DialogueSectionResult}[],
-  companionFavorsWikitext: string,
-  recipeWikitext: string,
+  suite?: FurnitureSuiteExcelConfigData,
+  companionFavors?: {npc: HomeWorldNPCExcelConfigData, event: HomeWorldEventExcelConfigData, dialogue: DialogueSectionResult}[],
+  companionFavorsWikitext?: string,
+  recipeWikitext?: string,
 }>()
 </script>

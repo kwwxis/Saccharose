@@ -16,6 +16,6 @@ import { getTrace } from '../../middleware/request/tracer.ts';
 const { normStarRailText } = getTrace();
 
 defineProps<{
-  avatars: AvatarConfig[]
+  avatars?: AvatarConfig[]
 }>();
 </script>

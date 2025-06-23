@@ -35,7 +35,7 @@ import { toParam } from '../../../../shared/util/stringUtil.ts';
 import GcgStageTable from './GcgStageTable.vue';
 
 const {stagesByGroupAndType} = defineProps<{
-  stagesByGroupAndType: {[group: string]: {[type: string]: GCGGameExcelConfigData[]}}
+  stagesByGroupAndType?: {[group: string]: {[type: string]: GCGGameExcelConfigData[]}}
 }>();
 
 

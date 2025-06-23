@@ -19,7 +19,7 @@ import AchievementListingTable from './AchievementListingTable.vue';
 import { AchievementExcelConfigData } from '../../../../shared/types/genshin/achievement-types.ts';
 
 defineProps<{
-  achievements: AchievementExcelConfigData[],
-  searchText: string,
+  achievements?: AchievementExcelConfigData[],
+  searchText?: string,
 }>();
 </script>

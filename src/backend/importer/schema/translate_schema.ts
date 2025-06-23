@@ -1,3 +1,5 @@
+// noinspection RedundantIfStatementJS
+
 import '../../loadenv.ts';
 import fs, {promises as fsp} from 'fs';
 import { defaultMap, isUnset } from '../../../shared/util/genericUtil.ts';
@@ -12,7 +14,6 @@ import {
 } from '../../../shared/util/arrayUtil.ts';
 import { isInt, isNumeric } from '../../../shared/util/numberUtil.ts';
 import path from 'node:path';
-import { array } from 'toposort';
 import { SchemaTableSet } from '../import_db.ts';
 import { genshinSchema } from '../genshin/genshin.schema.ts';
 
@@ -64,21 +65,32 @@ function getValueType(o: any): ValueType {
   }
 }
 
-
-function hasLowerCase(str) {
-  return str.toUpperCase() != str;
-}
+export const shouldIgnoreConfig = {
+  ignoreNullOrUndefined: true,
+  ignoreIntsLargerThan17Digits: true,
+  ignoreFloatsLargerThan9Digits: true,
+  shouldIgnoreEmptyString: false
+};
 
 function shouldIgnore(field: PathAndValue): boolean {
   let val = field.value;
-  if (isUnset(val))
-    return true;
+
+  if (isUnset(val)) {
+    return shouldIgnoreConfig.ignoreNullOrUndefined;
+  }
+
   if (typeof val === 'bigint')
     val = val.toString();
-  if (isInt(val) && String(val).length >= 18)
+
+  if (shouldIgnoreConfig.ignoreIntsLargerThan17Digits && isInt(val) && String(val).length >= 18)
     return true;
-  if (isNumeric(val) && String(val).includes('.') && String(val).length >= 10)
+
+  if (shouldIgnoreConfig.ignoreFloatsLargerThan9Digits && isNumeric(val) && String(val).includes('.') && String(val).length >= 10)
     return true;
+
+  if (shouldIgnoreConfig.shouldIgnoreEmptyString && typeof val === 'string' && !val.length)
+    return true;
+
   return false;
 }
 // endregion

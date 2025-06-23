@@ -31,6 +31,6 @@
 
 <script setup lang="ts">
 defineProps<{
-  jobId: string
+  jobId?: string
 }>();
 </script>

@@ -9,7 +9,14 @@ export async function fsRead(filePath: string): Promise<string> {
 }
 
 export async function fsReadJson<T>(filePath: string): Promise<T> {
-  return <T> (await fsp.readFile(filePath, { encoding: 'utf8' }).then(data => JSON.parse(data)));
+  return <T> (await fsp.readFile(filePath, { encoding: 'utf8' }).then(data => {
+    try {
+      return JSON.parse(data);
+    } catch (e) {
+      console.error('Error parsing JSON for ' + filePath);
+      throw e;
+    }
+  }));
 }
 
 export async function fsWrite(filePath: string, content: string): Promise<void> {

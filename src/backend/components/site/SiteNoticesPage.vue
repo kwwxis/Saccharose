@@ -34,6 +34,6 @@ import Icon from '../utility/Icon.vue';
 import { SiteNotice } from '../../../shared/types/site/site-user-types.ts';
 
 const { notices } = defineProps<{
-  notices: SiteNotice[]
+  notices?: SiteNotice[]
 }>();
 </script>

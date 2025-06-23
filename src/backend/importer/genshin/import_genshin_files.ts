@@ -9,7 +9,7 @@ import { closeKnex } from '../../util/db.ts';
 import { importNormalize, importPlainTextMap } from '../util/import_file_util.ts';
 import { importGcgSkill } from './module.gcg-skill.ts';
 import { importVoiceItems } from './module.voice-items.ts';
-import { writeMappedExcels } from './module.property-schema.ts';
+import { writeDeobfExcels } from './module.deobf-excel.ts';
 import { importVoiceOvers } from './module.voice-overs.ts';
 import { importSearchIndex } from './module.search-index.ts';
 import { generateAvatarAnimInteractionGoodBad, generateQuestDialogExcels } from './module.make-excels.ts';
@@ -19,7 +19,7 @@ import { indexGenshinImages } from './module.index-images.ts';
 import { exportExcel } from './module.export-excel.ts';
 import { recordNewImages } from './module.new-images.ts';
 import fs from 'fs';
-import { mapBinOutputQuest } from './module.dialogue-schema.ts';
+import { writeDeobfBin } from './module.deobf-bin.ts';
 import { isInt } from '../../../shared/util/numberUtil.ts';
 
 export async function importGenshinFilesCli() {
@@ -29,8 +29,8 @@ export async function importGenshinFilesCli() {
     {name: 'normalize', type: Boolean, description: 'Normalizes the JSON files.'},
     {name: 'plaintext', type: Boolean, description: 'Creates the PlainTextMap files.'},
     {name: 'voice-items', type: Boolean, description: 'Creates the normalized voice items file.'},
-    {name: 'property-schema', type: Boolean, description: 'Property schema.'},
-    {name: 'dialogue-schema', type: Boolean, description: 'Dialogue schema.'},
+    {name: 'deobf-excel', type: Boolean, description: 'Deobfuscate Excels.'},
+    {name: 'deobf-bin', type: Boolean, description: 'Deobfuscate BinOutput.'},
     {name: 'interaction', type: Boolean, description: 'Load QuestDialogue InterActions from BinOutput.'},
   ];
 
@@ -141,11 +141,11 @@ export async function importGenshinFilesCli() {
   if (options['voice-overs']) {
     await importVoiceOvers();
   }
-  if (options['property-schema']) {
-    await writeMappedExcels();
+  if (options['deobf-excel']) {
+    await writeDeobfExcels();
   }
-  if (options['dialogue-schema']) {
-    await mapBinOutputQuest();
+  if (options['deobf-bin']) {
+    await writeDeobfBin();
   }
   if (options['fix-document-excel']) {
     const filePath = getGenshinDataFilePath('./ExcelBinOutput/DocumentExcelConfigData.json');

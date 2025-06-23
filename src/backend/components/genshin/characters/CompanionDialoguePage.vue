@@ -39,6 +39,6 @@ import { toParam } from '../../../../shared/util/stringUtil.ts';
 defineProps<{
   companions?: HomeWorldNPCExcelConfigData[]
   companion?: HomeWorldNPCExcelConfigData,
-  dialogue: DialogueSectionResult[]
+  dialogue?: DialogueSectionResult[]
 }>()
 </script>

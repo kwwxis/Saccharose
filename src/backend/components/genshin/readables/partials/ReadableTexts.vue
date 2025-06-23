@@ -94,7 +94,7 @@ import Icon from '../../../utility/Icon.vue';
 import Wikitext from '../../../utility/Wikitext.vue';
 
 const {readable} = defineProps<{
-  readable: Readable
+  readable?: Readable
 }>();
 
 const items = readable.Items.map((item, itemIdx) => {

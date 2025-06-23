@@ -12,6 +12,6 @@ import { OLCombinedResult } from '../../../domain/abstract/basic/OLgen.ts';
 import Wikitext from '../../utility/Wikitext.vue';
 
 defineProps<{
-  combineResult: OLCombinedResult
+  combineResult?: OLCombinedResult
 }>();
 </script>

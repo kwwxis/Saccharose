@@ -11,6 +11,6 @@ import DialogueSection from '../utility/DialogueSection.vue';
 import { DialogueSectionResult } from '../../util/dialogueSectionResult.ts';
 
 const { section } = defineProps<{
-  section: DialogueSectionResult
+  section?: DialogueSectionResult
 }>()
 </script>

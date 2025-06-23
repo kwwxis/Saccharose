@@ -47,8 +47,8 @@ import {
 import Icon from '../../utility/Icon.vue';
 
 defineProps<{
-  genshinVersion: GameVersion,
-  textmapChanges: TextMapChangesAsRows,
-  activeTab: 'added' | 'updated' | 'removed'
+  genshinVersion?: GameVersion,
+  textmapChanges?: TextMapChangesAsRows,
+  activeTab?: 'added' | 'updated' | 'removed'
 }>();
 </script>

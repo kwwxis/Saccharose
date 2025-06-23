@@ -32,8 +32,8 @@ import { LangSuggest } from '../../../shared/types/lang-types.ts';
 import { getTrace } from '../../middleware/request/tracer.ts';
 
 defineProps<{
-  query: string,
-  sections: DialogueSectionResult[],
+  query?: string,
+  sections?: DialogueSectionResult[],
   langSuggest?: LangSuggest
 }>();
 

@@ -16,7 +16,7 @@ import { ReliquaryExcelConfigData } from '../../../../shared/types/genshin/artif
 import GenshinItemInner from './GenshinItemInner.vue';
 
 export type GenshinItemComponentProps = {
-  item: MaterialExcelConfigData|WeaponExcelConfigData|HomeWorldFurnitureExcelConfigData|ReliquaryExcelConfigData,
+  item?: MaterialExcelConfigData|WeaponExcelConfigData|HomeWorldFurnitureExcelConfigData|ReliquaryExcelConfigData,
   itemCount?: number,
   noCount?: boolean,
   noLink?: boolean,

@@ -22,6 +22,6 @@
 import { GCGCommonCard, isActionCard, isCharacterCard } from '../../../../shared/types/genshin/gcg-types.ts';
 
 defineProps<{
-  card: GCGCommonCard
+  card?: GCGCommonCard
 }>();
 </script>

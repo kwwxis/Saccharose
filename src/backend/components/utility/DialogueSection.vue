@@ -112,7 +112,7 @@ import { DialogueSectionResult } from '../../util/dialogueSectionResult.ts';
 let customStyle: {[prop: string]: string} = {};
 
 const props = defineProps<{
-  section: DialogueSectionResult,
+  section?: DialogueSectionResult,
   parentIds?: string[],
   noTitle?: boolean,
   noTopLine?: boolean,
