@@ -3,7 +3,7 @@ import { pathToFileURL } from 'url';
 import commandLineArgs, { OptionDefinition as ArgsOptionDefinition } from 'command-line-args';
 import commandLineUsage, { OptionDefinition as UsageOptionDefinition } from 'command-line-usage';
 import chalk from 'chalk';
-import { getGenshinDataFilePath, getZenlessDataFilePath } from '../../loadenv.ts';
+import { getGenshinDataFilePath } from '../../loadenv.ts';
 import { getGenshinControl } from '../../domain/genshin/genshinControl.ts';
 import { closeKnex } from '../../util/db.ts';
 import { importNormalize, importPlainTextMap } from '../util/import_file_util.ts';
@@ -24,14 +24,15 @@ import { isInt } from '../../../shared/util/numberUtil.ts';
 
 export async function importGenshinFilesCli() {
   const options_beforeDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
-    {name: 'make-excels', type: Boolean, description: 'Creates some of the excels that are no longer updated by the game client (run before normalize)'},
     {name: 'fix-document-excel', type: Boolean, description: 'Fixes some issues unique to DocumentExcelConfigData.'},
+    {name: 'deobf-excel', type: Boolean, description: 'Deobfuscate Excels.'},
+    {name: 'deobf-bin', type: Boolean, description: 'Deobfuscate BinOutput.'},
+    {name: 'make-excels', type: Boolean, description: 'Creates some of the excels that are no longer updated by the game client (run before normalize)'},
     {name: 'normalize', type: Boolean, description: 'Normalizes the JSON files.'},
     {name: 'plaintext', type: Boolean, description: 'Creates the PlainTextMap files.'},
     {name: 'voice-items', type: Boolean, description: 'Creates the normalized voice items file.'},
-    {name: 'deobf-excel', type: Boolean, description: 'Deobfuscate Excels.'},
-    {name: 'deobf-bin', type: Boolean, description: 'Deobfuscate BinOutput.'},
     {name: 'interaction', type: Boolean, description: 'Load QuestDialogue InterActions from BinOutput.'},
+    {name: 'gcg-skill', type: Boolean, description: 'Creates file for GCG skill data'},
   ];
 
   const options_agnosticDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
@@ -41,7 +42,6 @@ export async function importGenshinFilesCli() {
   ];
 
   const options_afterDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
-    {name: 'gcg-skill', type: Boolean, description: 'Creates file for GCG skill data'},
     {name: 'index', type: Boolean, description: 'Creates the index files for PlainTextMap.'},
     {name: 'voice-overs', type: Boolean, description: 'Creates file for character voice over data (aka fetters)'},
     {name: 'changelog', type: String, typeLabel: '<version>', description: 'Creates changelog between the provided version and the version before it.'},

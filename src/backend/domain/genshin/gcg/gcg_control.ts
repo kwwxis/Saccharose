@@ -982,7 +982,7 @@ export class GCGControl {
             return ifSingular;
           }
         });
-    } else {
+    } else if (skill.DescText && !skill.SkillDamage) {
       skill.DescText = skill.DescText.replace(/\$\[D__KEY__DAMAGE(\|nc)?]/g, (_fm: string) => {
         return '{{tx|Unknown damage}}';
       });

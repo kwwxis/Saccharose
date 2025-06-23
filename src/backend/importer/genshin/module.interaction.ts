@@ -51,23 +51,45 @@ export async function loadInterActionQD(repoRoot: string) {
   fs.rmSync(outDir, { recursive: true, force: true });
   fs.mkdirSync(outDir);
 
+  const filePaths: string[] = [];
   for (let filePath of walkSync(binOutputIAQD)) {
+    filePaths.push(filePath);
+  }
+
+  console.log('Starting');
+  console.log('  0%');
+
+  let lastLogTimeMs: number = Date.now();
+  let numComplete = 0;
+  for (let filePath of filePaths) {
     if (!filePath.endsWith('.json')) {
       continue;
     }
+    try {
+      const relName = path.relative(binOutputIAQD, filePath).replace(/\\/g, '/').replace(/\//g, ';');
+      const outFile = path.resolve(outDir, relName);
 
-    const json = await fsp.readFile(filePath, { encoding: 'utf8' }).then(data => JSON.parse(data));
+      const json = await fsp.readFile(filePath, { encoding: 'utf8' }).then(data => JSON.parse(data));
+      const groups = gatherGroups(relName, json);
+      if (!groups) {
+        continue;
+      }
 
-    const relName = path.relative(binOutputIAQD, filePath).replace(/\\/g, '/').replace(/\//g, ';');
-    let outFile = path.resolve(outDir, relName);
+      fs.writeFileSync(outFile, JSON.stringify(groups, null, 2));
+    } catch (e) {
+      console.error('Error processing ' + filePath);
+      throw e;
+    } finally {
+      numComplete++;
 
-    const groups = gatherGroups(relName, json);
-    if (!groups) {
-      continue;
+      let currTimeMs: number = Date.now();
+      if ((currTimeMs - lastLogTimeMs) >= 2000) {
+        lastLogTimeMs = currTimeMs;
+        console.log(`  ${(numComplete / filePaths.length) * 100 | 0}%`);
+      }
     }
-
-    fs.writeFileSync(outFile, JSON.stringify(groups, null, 2));
   }
+  console.log('  100%');
 
   fs.writeFileSync(path.resolve(repoRoot, './InterActionD2F.json'), reformatPrimitiveArrays(JSON.stringify(d2f, null, 2)));
   console.log('Done');
@@ -97,9 +119,31 @@ function processInterAction(fileName: string, groupId: number, groupIndex: numbe
   return action;
 }
 
+let nextFakeGroupId = 9000000000;
+
 function gatherGroups(fileName: string, json: any): InterActionGroup[] {
   if (!json || !Array.isArray(json.group) || !Array.isArray(json.groupId)) {
     return;
+  }
+
+  if (json.group.length > json.groupId.length) {
+    if (json.group.length === 1) {
+      let grpId = nextFakeGroupId++;
+      let nextGrpId = nextFakeGroupId++;
+      json.groupId = [
+        {
+          GrpId: grpId,
+          Index: 0,
+          NextGrpId: nextGrpId,
+          NextGrpIdList: [],
+          NoCircleNextGrpId: nextGrpId,
+        }
+      ];
+    } else {
+      console.warn('Cannot process ' + fileName + '. Group lengths issue. Group: '
+        + json.group.length + ', GroupId: ' + json.groupId.length);
+      return;
+    }
   }
 
   let groups: InterActionGroup[] = [];
@@ -107,12 +151,13 @@ function gatherGroups(fileName: string, json: any): InterActionGroup[] {
   let groupIdToPreviousId: {[groupId: number]: Set<number>} = defaultMap('Set');
 
   for (let i = 0; i < json.group.length; i++) {
-    const groupId: {grpId: number, index: number, nextGrpId?: number, nextGrpIdList?: number[], noCircleNextGrp?: number} = json.groupId[i];
+    const groupId: {GrpId: number, Index: number, NextGrpId?: number, NextGrpIdList?: number[], NoCircleNextGrpId?: number} = normalizeRawJson(json.groupId[i]);
+
     const normalActions: InterAction[] = [];
     const selectActions: InterAction[] = [];
 
     for (let _action of json.group[i]) {
-      let action = processInterAction(fileName, groupId.grpId, groupId.index || 0, _action);
+      let action = processInterAction(fileName, groupId.GrpId, groupId.Index || 0, _action);
       if (!action) {
         continue;
       }
@@ -131,10 +176,10 @@ function gatherGroups(fileName: string, json: any): InterActionGroup[] {
           console.error('Found DIALOG_SELECT without DialogIdList:', action, ' in ' + fileName);
         }
         if (!Array.isArray(action.GrpIdList)) {
-          action.GrpIdList = Array(action.DialogIdList.length).fill(groupId.nextGrpId);
+          action.GrpIdList = Array(action.DialogIdList.length).fill(groupId.NextGrpId);
         }
-        for (let grpId of action.GrpIdList) {
-          groupIdToPreviousId[grpId].add(groupId.grpId);
+        for (let GrpId of action.GrpIdList) {
+          groupIdToPreviousId[GrpId].add(groupId.GrpId);
         }
         selectActions.push(action);
       } else if (action.Type === 'DIALOG') {
@@ -152,11 +197,11 @@ function gatherGroups(fileName: string, json: any): InterActionGroup[] {
     }
 
     let group: InterActionGroup = {
-      Index: groupId.index || 0,
-      GroupId: groupId.grpId,
-      NextGroupId: groupId.nextGrpId,
-      NextGroupIdList: groupId.nextGrpIdList,
-      NoCircleNextGroupId: groupId.noCircleNextGrp,
+      Index: groupId.Index || 0,
+      GroupId: groupId.GrpId,
+      NextGroupId: groupId.NextGrpId,
+      NextGroupIdList: groupId.NextGrpIdList,
+      NoCircleNextGroupId: groupId.NoCircleNextGrpId,
       Actions: [
         ... normalActions,
         ... selectActions, // bring down DIALOG_SELECT action to always be last

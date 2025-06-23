@@ -9,7 +9,6 @@ import {
 import { ReadableArchive } from '../../../../shared/types/genshin/readable-types.ts';
 import {
   ChapterCollection,
-  ChapterExcelConfigData,
   MainQuestExcelConfigData,
 } from '../../../../shared/types/genshin/quest-types.ts';
 import { ChangeRecord, FullChangelog } from '../../../../shared/types/changelog-types.ts';

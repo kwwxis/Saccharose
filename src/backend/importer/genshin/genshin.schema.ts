@@ -1,6 +1,6 @@
 import { getGenshinDataFilePath } from '../../loadenv.ts';
 import fs from 'fs';
-import { SchemaTable, textMapSchema, plainLineMapSchema, normalizeRawJson } from '../import_db.ts';
+import { SchemaTable, textMapSchema, plainLineMapSchema } from '../import_db.ts';
 import {
   ReminderExcelConfigData,
   TalkExcelConfigData,

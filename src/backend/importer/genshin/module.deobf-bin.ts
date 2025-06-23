@@ -38,7 +38,7 @@ async function walkSyncWrite(inDir: string, outDir: string, mapping: Record<stri
     inPaths.push(inPath);
   }
 
-  let lastLogTimeMs: number =  Date.now();
+  let lastLogTimeMs: number = Date.now();
   console.log('  0%');
 
   let numComplete = 0;
@@ -49,7 +49,7 @@ async function walkSyncWrite(inDir: string, outDir: string, mapping: Record<stri
     let jsonAsString: string = await fsRead(inPath);
     jsonAsString = jsonAsString.replace(/"BPIENBEPBDI":\s*"\r?\n"/g, `"BPIENBEPBDI": ""`);
 
-    let json;
+    let json: any;
     try {
       json = JSON.parse(jsonAsString);
     } catch (e) {
@@ -167,7 +167,7 @@ export async function writeDeobfBin() {
   console.log('----- GCG Mapping -----');
   const gcgDvsMapping = await mapGcgDeclaredValueSet();
 
-  console.log('----- HomeWorldFurnitureSuit Mapping -----');
+  console.log('----- HomeworldFurnitureSuit Mapping -----');
   const furnSuitMapping = await mapFurnSuit();
 
   console.log('----- InterAction Mapping -----');
@@ -188,7 +188,7 @@ export async function writeDeobfBin() {
   console.log('----- Writing Outputs -----');
   await walkSyncWrite('./BinOutput.Obf/CodexQuest', './BinOutput/CodexQuest', cqMapping);
   await walkSyncWrite('./BinOutput.Obf/GCG/Gcg_DeclaredValueSet', './BinOutput/GCG/Gcg_DeclaredValueSet', gcgDvsMapping);
-  await walkSyncWrite('./BinOutput.Obf/HomeWorldFurnitureSuit', './BinOutput/HomeWorldFurnitureSuit', furnSuitMapping);
+  await walkSyncWrite('./BinOutput.Obf/HomeworldFurnitureSuit', './BinOutput/HomeworldFurnitureSuit', furnSuitMapping);
   await walkSyncWrite('./BinOutput.Obf/InterAction/QuestDialogue', './BinOutput/InterAction/QuestDialogue', iaMapping);
   await walkSyncWrite('./BinOutput.Obf/Quest', './BinOutput/Quest', questMapping);
   await walkSyncWrite('./BinOutput.Obf/Talk', './BinOutput/Talk', talkMapping);
@@ -279,7 +279,7 @@ async function mapGcgDeclaredValueSet(): Promise<Record<string, string>> {
 }
 
 async function mapFurnSuit(): Promise<Record<string, string>> {
-  const rawRecord = await fsReadJson(getGenshinDataFilePath('./BinOutput.Obf/HomeWorldFurnitureSuit/Home_Suite_Exterior_05_2.json'));
+  const rawRecord = await fsReadJson(getGenshinDataFilePath('./BinOutput.Obf/HomeworldFurnitureSuit/Home_Suite_Exterior_05_2.json'));
   const propertySchema: Record<string, string> = {};
 
   propertySchema[findKeyWithValue(rawRecord, 15, 0)] = 'radius';
