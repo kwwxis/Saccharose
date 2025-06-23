@@ -279,7 +279,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
       const rewardSetIndexExec = questSub.FinishExec.find(f => f.Type === 'QUEST_EXEC_UPDATE_PARENT_QUEST_REWARD_INDEX');
       if (rewardSetIndexExec && rewardSetIndexExec.Param.length && isInt(rewardSetIndexExec.Param[0])) {
         const rewardIndex = toInt(rewardSetIndexExec.Param[0]);
-        sect.addMetaProp('Trigger Reward Index', rewardIndex);
+        sect.addMetaProp('Trigger Reward Index', String(rewardIndex));
       }
     }
 
