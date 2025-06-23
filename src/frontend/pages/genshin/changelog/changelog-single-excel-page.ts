@@ -6,7 +6,7 @@ import {
   TextMapChangeUpdateRow,
 } from '../../../../shared/types/changelog-types.ts';
 import { AgPromise, ICellRendererComp, ICellRendererParams } from 'ag-grid-community';
-import { createPatch } from '../../../../backend/util/jsdiff';
+import { createPatch } from '../../../../backend/util/jsdiff/jsdiff.js';
 import { DiffUI } from '../../../util/DiffUI.ts';
 import { isNightmode } from '../../../core/userPreferences/siteTheme.ts';
 import { ColorSchemeType } from 'diff2html/lib/types';
