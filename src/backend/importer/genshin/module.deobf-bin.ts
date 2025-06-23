@@ -279,18 +279,21 @@ async function mapGcgDeclaredValueSet(): Promise<Record<string, string>> {
 }
 
 async function mapFurnSuit(): Promise<Record<string, string>> {
-  const rawRecord = await fsReadJson(getGenshinDataFilePath('./BinOutput.Obf/HomeworldFurnitureSuit/Home_Suite_Exterior_05_2.json'));
+  const rawRecord = await fsReadJson(getGenshinDataFilePath('./BinOutput.Obf/HomeworldFurnitureSuit/Home_Suite_Exterior_Xm_Street_Fish.json'));
   const propertySchema: Record<string, string> = {};
 
-  propertySchema[findKeyWithValue(rawRecord, 15, 0)] = 'radius';
-  propertySchema[findKeyWithValue(rawRecord, 30, 0)] = 'height';
-  propertySchema[findKeyWithValue(rawRecord, v => Array.isArray(v), 0)] = 'furnitureUnits';
+  propertySchema[findKeyWithValue(rawRecord, 24, 0)] = 'radius';
+  propertySchema[findKeyWithValue(rawRecord, 14, 0)] = 'height';
+  propertySchema[findKeyWithValue(rawRecord, v => Array.isArray(v) && JSON.stringify(v).includes('370317'), 0)] = 'furnitureUnits';
+  propertySchema[findKeyWithValue(rawRecord, v => Array.isArray(v) && !JSON.stringify(v).includes('370317'), 0)] = 'npcSpawnPoints';
 
-  propertySchema[findKeyWithValue(rawRecord, 372301, 1)] = 'furnitureID';
+  propertySchema[findKeyWithValue(rawRecord, 370317, 1)] = 'furnitureID';
+
   propertySchema[findKeyWithValue(rawRecord, v =>
-    String(v['_x']).includes('-5.08') && String(v['_y']).includes('3.67') && String(v['_z']).includes('7.69'), 1)] = 'eulerAngles';
+    String(v['_x']).includes('12.51') && String(v['_y']).includes('0.01') && String(v['_z']).includes('-12.96'), 1)] = 'eulerAngles';
+
   propertySchema[findKeyWithValue(rawRecord, v =>
-    String(v['_x']).includes('359.87') && String(v['_y']).includes('295.61') && String(v['_z']).includes('359.99'), 1)] = 'rotation';
+    String(v['_x']).includes('0') && String(v['_y']).includes('54.31') && String(v['_z']).includes('0'), 1)] = 'rotation';
 
   console.log(propertySchema);
 
