@@ -155,7 +155,8 @@ async function computeExcelFileChanges(state: CreateChangelogState) {
   for (let schemaTable of Object.values(genshinSchema)) {
     // Skip tables we don't care about:
     if (schemaTable.name.startsWith('Relation_') || schemaTable.name.startsWith('PlainLineMap') || schemaTable.name.startsWith('TextMap')
-      || schemaTable.name === 'CodexQuestExcelConfigData') {
+      || schemaTable.name === 'CodexQuestExcelConfigData' || schemaTable.name === 'DialogExcelConfigData'
+      || schemaTable.name === 'TalkExcelConfigData' || schemaTable.name === 'DialogUnparentedExcelConfigData' || schemaTable.name === 'QuestExcelConfigData') {
       continue;
     }
 
@@ -293,9 +294,14 @@ async function computeExcelFileChanges(state: CreateChangelogState) {
     }
   }
 
-  fs.writeFileSync(state.excelChangelogFileName, JSON.stringify(state.excelChangelog, null, 2), {
-    encoding: 'utf-8'
-  });
+  try {
+    fs.writeFileSync(state.excelChangelogFileName, JSON.stringify(state.excelChangelog, null, 2), {
+      encoding: 'utf-8'
+    });
+  } catch (e) {
+    console.error('Error writing ' + state.excelChangelogFileName);
+    throw e;
+  }
   console.log('Finished computing Excel File changes.');
 }
 

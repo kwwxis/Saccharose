@@ -372,6 +372,7 @@ export const SIDEBAR_CONFIG: { [siteMode: string]: SiteSidebar } = {
           {
             id: 'site-meta-content',
             items: [
+              { id: 'site-notices', name: 'Site Notices', link: '/notices', bodyClass: 'page--notices' },
               { id: 'user-settings', name: 'User Settings', link: '/settings', bodyClass: 'page--settings' },
               { id: 'terms', name: 'Terms of Service', link: '/terms', bodyClass: 'page--terms' },
               { id: 'privacy', name: 'Privacy Policy', link: '/privacy', bodyClass: 'page--privacy' },

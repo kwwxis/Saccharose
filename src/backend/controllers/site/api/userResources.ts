@@ -27,25 +27,29 @@ export default function(router: Router): void {
       let prefValue: any = req.query.prefValue as any;
 
       switch (prefName) {
-        case 'inputLangCode':
+        case 'inputLangCode': {
           if (LANG_CODES.includes(prefValue)) {
             prefPayload.inputLangCode = prefValue;
           }
           break;
-        case 'outputLangCode':
+        }
+        case 'outputLangCode': {
           if (LANG_CODES.includes(prefValue)) {
             prefPayload.outputLangCode = prefValue;
           }
           break;
-        case 'isNightmode':
+        }
+        case 'isNightmode': {
           prefPayload.isNightmode = toBoolean(prefValue);
           break;
-        case 'searchMode':
+        }
+        case 'searchMode': {
           if (SEARCH_MODES.includes(prefValue)) {
             prefPayload.searchMode = prefValue;
           }
           break;
-        case 'siteMenuShown':
+        }
+        case 'siteMenuShown': {
           const parts: string[] = String(prefValue).split('|');
           if (parts.length !== 3) {
             throw HttpError.badRequest('InvalidParameter', 'Invalid payload provided');
@@ -65,8 +69,10 @@ export default function(router: Router): void {
             prefPayload.siteMenuShown[menuId][thingId] = thingState;
           }
           break;
-        default:
+        }
+        default: {
           throw HttpError.badRequest('InvalidParameter', 'Unsupported pref name for this endpoint: ' + prefName);
+        }
       }
 
       if (!Object.keys(prefPayload).length) {

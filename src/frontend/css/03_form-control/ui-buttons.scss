@@ -522,3 +522,28 @@ body.nightmode .image-label {
 body.nightmode .image-sublabel {
   background: rgba(255,255,255,0.19);
 }
+
+
+/* Primary Green Pulse
+------------------------------------------------------------------------------------------------- */
+button.primary.primary--green-pulse,
+button.primary--2.primary--green-pulse,
+button.primary.primary--2.primary--green-pulse {
+  animation: primary-button-bg-green-pulse 5s infinite ease-in-out;
+  border: 1px solid #068366;
+  background: linear-gradient(-45deg, #0d96f2, #23a6d5, #23d5ab, #0fcad6);
+  background-size: 400% 400%;
+  line-height: 28px;
+}
+
+@keyframes primary-button-bg-green-pulse {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}

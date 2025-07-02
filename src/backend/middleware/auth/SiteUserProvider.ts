@@ -3,7 +3,7 @@ import { openPgSite } from '../../util/db.ts';
 import { Request } from 'express';
 import { isEquiv } from '../../../shared/util/arrayUtil.ts';
 import { saveSession, setSessionUser } from './sessions.ts';
-import { SiteNotice, SiteUser } from '../../../shared/types/site/site-user-types.ts';
+import { SiteNotice, SiteNoticeType, SiteUser } from '../../../shared/types/site/site-user-types.ts';
 import { cached, delcache } from '../../util/cache.ts';
 
 type SiteUserEntity = {
@@ -50,29 +50,51 @@ export class SiteUserProviderImpl {
   }
 
   async getAllSiteNotices(): Promise<SiteNotice[]> {
-    return cached('Site:AllNotices', 'json', async () => {
-      return await pg.select('*').from('site_notice').where({ notice_enabled: true })
+    return await cached('Site:AllNotices', 'json', async () => {
+      const notices = await pg.select<SiteNotice[]>('*').from('site_notice')
+        .where({ notice_enabled: true })
         .orderBy('id', 'DESC').then();
+      return notices;
     });
   }
 
   async getAllSiteNoticesForBanner(): Promise<SiteNotice[]> {
-    return cached('Site:AllBannerNotices', 'json', async () => {
-      return await pg.select('*')
+    return cached('Site:AllBannerNotices', 'disabled', async () => {
+      const notices: SiteNotice[] = await pg.select<SiteNotice[]>('*')
         .from('site_notice')
         .where({ notice_enabled: true, banner_enabled: true })
         .orderBy('id', 'DESC').then();
+
+      notices.push({
+        id: 12345,
+        notice_title: 'My test notice',
+        notice_type: 'info',
+        notice_body: 'hello world',
+        notice_link: 'https://www.google.com',
+        notice_enabled: true,
+        banner_enabled: true,
+        site_mode: 'genshin'
+      });
+
+      return notices;
     });
   }
 
-  async getSiteNoticesForBanner(discordId: string): Promise<SiteNotice[]> {
+  async getSiteNoticesForBanner(request: Request): Promise<SiteNotice[]> {
+    const discordId = request.user?.id;
+
     if (!discordId) {
       return [];
     }
 
-    const bannerNotices = await this.getAllSiteNoticesForBanner();
-    const myDismissed = await this.getSiteNoticesDismissed(discordId);
-    return bannerNotices.filter(b => !myDismissed.includes(b.id));
+    const allBannerNotices: SiteNotice[] = await this.getAllSiteNoticesForBanner();
+    const myDismissed: number[] = await this.getSiteNoticesDismissed(discordId);
+
+    return allBannerNotices
+      .filter(b => !myDismissed.includes(b.id))
+      .filter(b => {
+        return !b.site_mode || request.context.siteMode === b.site_mode;
+      });
   }
 
   async getSiteNoticesDismissed(discordId: string): Promise<number[]> {

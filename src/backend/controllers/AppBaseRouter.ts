@@ -27,7 +27,7 @@ export default async function(): Promise<Router> {
         outputLangCode: req.context.outputLangCode,
         inputLangCode: req.context.inputLangCode,
         csrfToken: req.csrfToken(),
-        siteNoticeBanners: await SiteUserProvider.getSiteNoticesForBanner(req.user?.id)
+        siteNoticeBanners: await SiteUserProvider.getSiteNoticesForBanner(req)
       };
     }
   });

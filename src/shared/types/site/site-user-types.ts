@@ -1,6 +1,7 @@
 import passport_discord from 'passport-discord';
 import { LangCode } from '../lang-types.ts';
 import { SearchMode } from '../../util/searchUtil.ts';
+import { SiteMode } from './site-mode-type.ts';
 
 export const VisitorPrefsCookieName = 'VisitorUserPrefs';
 
@@ -48,4 +49,5 @@ export type SiteNotice = {
   notice_link?: string,
   notice_enabled: boolean,
   banner_enabled: boolean,
+  site_mode?: SiteMode,
 };

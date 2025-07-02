@@ -12,7 +12,7 @@ export default async function(): Promise<Router> {
     locals: async (req: Request) => {
       if (req.isAuthenticated()) {
         return {
-          siteNoticeBanners: await SiteUserProvider.getSiteNoticesForBanner(req.user?.id)
+          siteNoticeBanners: await SiteUserProvider.getSiteNoticesForBanner(req)
         };
       }
       return {};

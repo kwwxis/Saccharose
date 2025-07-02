@@ -21,7 +21,7 @@
           </div>
           <div class="site-notice-buttons spacer10-top no-shrink">
             <a v-if="siteNotice.notice_link" role="button" :href="siteNotice.notice_link"
-               class="primary primary--2 spacer5-right">View notice</a>
+               class="primary primary--2 spacer5-right">View details</a>
           </div>
         </div>
       </template>

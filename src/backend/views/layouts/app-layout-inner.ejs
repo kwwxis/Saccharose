@@ -27,9 +27,9 @@
           </div>
           <div class="site-notice-buttons spacer10-top no-shrink">
             <% if (siteNotice.notice_link) { %>
-              <a role="button" href="<%= siteNotice.notice_link %>" class="primary primary--2 spacer5-right">View notice</a>
+              <a role="button" href="<%= siteNotice.notice_link %>" class="primary primary--2 spacer5-right">View details</a>
             <% } %>
-            <button class="secondary" ui-action="dismiss-site-notice: <%= siteNotice.id %>">Dismiss</button>
+            <button class="primary primary--2 primary--green-pulse" ui-action="dismiss-site-notice: <%= siteNotice.id %>">Dismiss</button>
           </div>
         </div>
       <% } %>
