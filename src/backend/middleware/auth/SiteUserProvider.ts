@@ -59,22 +59,22 @@ export class SiteUserProviderImpl {
   }
 
   async getAllSiteNoticesForBanner(): Promise<SiteNotice[]> {
-    return cached('Site:AllBannerNotices', 'disabled', async () => {
+    return cached('Site:AllBannerNotices', 'json', async () => {
       const notices: SiteNotice[] = await pg.select<SiteNotice[]>('*')
         .from('site_notice')
         .where({ notice_enabled: true, banner_enabled: true })
         .orderBy('id', 'DESC').then();
 
-      notices.push({
-        id: 12345,
-        notice_title: 'My test notice',
-        notice_type: 'info',
-        notice_body: 'hello world',
-        notice_link: 'https://www.google.com',
-        notice_enabled: true,
-        banner_enabled: true,
-        site_mode: 'genshin'
-      });
+      // notices.push({
+      //   id: 12345,
+      //   notice_title: 'My test notice',
+      //   notice_type: 'info',
+      //   notice_body: 'hello world',
+      //   notice_link: 'https://www.google.com',
+      //   notice_enabled: true,
+      //   banner_enabled: true,
+      //   site_mode: 'genshin'
+      // });
 
       return notices;
     });
