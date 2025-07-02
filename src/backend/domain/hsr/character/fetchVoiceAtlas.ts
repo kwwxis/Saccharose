@@ -51,6 +51,10 @@ export async function fetchVoiceAtlases(ctrl: StarRailControl, skipCache: boolea
     for (let voiceAtlas of voiceAtlases) {
       let agg = voiceAtlasGroupByAvatar[voiceAtlas.AvatarId];
 
+      if (!avatarMap[voiceAtlas.AvatarId]) {
+        continue;
+      }
+
       if (!agg.avatarName) {
         agg.avatarName = await ctrl.createLangCodeMap(avatarMap[voiceAtlas.AvatarId].NameTextMapHash);
       }
