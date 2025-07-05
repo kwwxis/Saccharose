@@ -19,6 +19,7 @@ import { closeDropdownsIfDefocused, onDropdownItemClick, onDropdownTriggerClick 
 import { GeneralEventBus } from '../generalEventBus.ts';
 import { genericEndpoints } from '../endpoints.ts';
 import { setUserPref } from '../userPreferences/sitePrefsContainer.ts';
+import { uiExpando } from './uiExpando.ts';
 
 function parseUiAction(actionEl: HTMLElement): UiAction[] {
   const actionStr = actionEl.getAttribute('ui-action');
@@ -373,92 +374,10 @@ export function runUiActions(actionEl: HTMLElement, actions: UiAction[]) {
       // Expando
       // ----------------------------------------------------------------------------------------------------
       case 'expando': {
-        const animId = uuidv4();
         const containers: HTMLElement[] = !!actionParams[1] ? qsAll(actionParams[0]) : [qs(actionParams[0])];
-
         for (let container of containers) {
-          const inTransition = container.classList.contains('collapsing') || container.classList.contains('expanding');
-          if (inTransition) {
-            return;
-          }
-
-          console.log({
-            actionParams,
-            container
-          });
-          let trigger: HTMLElement = !actionParams[1] ? actionEl : qs(actionParams[1], container);
-
-          if (container.classList.contains('collapsed')) {
-            trigger.classList.remove('expand-action');
-            trigger.classList.add('collapse-action');
-
-            trigger.classList.add('expanded-state');
-            trigger.classList.remove('collapsed-state');
-
-            container.classList.remove('hide');
-
-            let height;
-            if (container.hasAttribute('data-original-height')) {
-              // Use data-original-height (if it exists)
-              height = toInt(container.getAttribute('data-original-height'));
-              container.removeAttribute('data-original-height');
-            } else {
-              // Otherwise use scrollHeight, which should be approximately correct.
-              height = container.scrollHeight;
-            }
-            const styleEl = document.createElement('style');
-            const duration = Math.min(500, Math.max(200, height / 5 | 0));
-
-            styleEl.textContent = `
-                .expanding-${animId} { overflow: hidden; animation: expanding-${animId} ${duration}ms ease forwards; }
-                @keyframes expanding-${animId} { 100% { height: ${height}px; } }
-              `;
-            container.style.height = '0';
-            container.style.overflow = 'hidden';
-
-            document.head.append(styleEl);
-            container.classList.remove('collapsed');
-            container.classList.add('expanding', 'expanding-' + animId);
-            setTimeout(() => {
-              container.style.removeProperty('height');
-              container.style.removeProperty('overflow');
-              container.classList.add('expanded');
-              container.classList.remove('expanding', 'expanding-' + animId);
-              styleEl.remove();
-            }, duration);
-          } else {
-            trigger.classList.add('expand-action');
-            trigger.classList.remove('collapse-action');
-
-            trigger.classList.remove('expanded-state');
-            trigger.classList.add('collapsed-state');
-
-            const styleEl = document.createElement('style');
-            const height = container.getBoundingClientRect().height;
-            const duration = Math.min(500, Math.max(200, height / 5 | 0));
-            container.setAttribute('data-original-height', String(height));
-
-            styleEl.textContent = `
-                .collapsing-${animId} { overflow: hidden; animation: collapsing-${animId} ${duration}ms ease forwards; }
-                @keyframes collapsing-${animId} { 100% { height: 0; } }
-              `;
-            container.style.height = height + 'px';
-            container.style.overflow = 'hidden';
-
-            document.head.append(styleEl);
-            container.classList.remove('expanded');
-            container.classList.add('collapsing', 'collapsing-' + animId);
-            setTimeout(() => {
-              container.style.removeProperty('height');
-              container.style.removeProperty('overflow');
-              container.classList.add('collapsed');
-              container.classList.remove('collapsing', 'collapsing-' + animId);
-              styleEl.remove();
-              setTimeout(() => {
-                container.classList.add('hide');
-              });
-            }, duration);
-          }
+          const trigger: HTMLElement = !actionParams[1] ? actionEl : qs(actionParams[1], container);
+          uiExpando(trigger, container);
         }
         break;
       }

@@ -15,8 +15,9 @@
         <div class="npc-dialogue-generate-submit-pending hide loading small spacer5-left"></div>
       </div>
       <div style="margin-bottom:-8px">
-        <a id="npc-dialogue-info-show" style="font-size:13px;cursor:pointer;opacity:0.8" ui-action="delete-cookie: NPC-Dialogue.info; remove-class: #npc-dialogue-info, hide; add-class: this, hide" class="<%= ctx.cookieTernary('NPC-Dialogue.info').isEmpty().then('hide') %>">[Show info]</a>
-        <div id="npc-dialogue-info" class="<%= ctx.cookieTernary('NPC-Dialogue.info').equals('hidden').then('hide') %>">
+        <a id="npc-dialogue-info-show" style="font-size:13px;cursor:pointer;opacity:0.8" ui-action="delete-cookie: NPC-Dialogue.info; remove-class: #npc-dialogue-info, hide; add-class: this, hide"
+           :class="ctx.cookieTernary('NPC-Dialogue.info').isEmpty().then('hide')">[Show info]</a>
+        <div id="npc-dialogue-info" :class="ctx.cookieTernary('NPC-Dialogue.info').equals('hidden').then('hide')">
           <hr class="spacer10-bottom spacer10-top">
           <ul style="font-size:14.5px;line-height:20px;">
             <li>If you can't find the dialogue you're looking for, try entering part of the first line of the dialogue (if you have it) into the "Single Branch Dialogue Generator" tool.</li>
@@ -35,12 +36,11 @@
 
 <script setup lang="ts">
 import Icon from '../../utility/Icon.vue';
+import { getTrace } from '../../../middleware/request/tracer.ts';
+
+const { ctx } = getTrace();
 
 defineProps<{
 
 }>();
 </script>
-
-<style scoped lang="scss">
-
-</style>

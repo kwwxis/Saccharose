@@ -61,17 +61,17 @@ export function toInt(x: any, defaultIfNaN?: number): number {
     return x | 0;
   } else if (typeof x === 'string') {
     if (!isInt(x)) {
-      return isset(defaultIfNaN) ? defaultIfNaN :NaN;
+      return isset(defaultIfNaN) ? defaultIfNaN : NaN;
     } else if (!isSafeInt(x)) {
       throw new Error('Attempt to convert unsafe integer as string to number: ' + x);
     }
     try {
       return parseInt(x);
     } catch (e) {
-      return isset(defaultIfNaN) ? defaultIfNaN :NaN;
+      return isset(defaultIfNaN) ? defaultIfNaN : NaN;
     }
   } else {
-    return isset(defaultIfNaN) ? defaultIfNaN :NaN;
+    return isset(defaultIfNaN) ? defaultIfNaN : NaN;
   }
 }
 
