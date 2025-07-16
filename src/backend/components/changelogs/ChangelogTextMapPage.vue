@@ -12,15 +12,15 @@
     </h2>
 
     <div class="tab-list" role="tablist">
-      <a :href="`${ctx.siteHome}/changelog/${currentVersion.number}`" role="tab" class="tab">
+      <a :href="`${ctx.siteHome}/changelog/${currentVersion.number}`" role="tab" class="tab" v-if="currentVersion.hasChangelogSummary">
         Summary
       </a>
 
-      <a :href="`${ctx.siteHome}/changelog/${currentVersion.number}/textmap`" role="tab" class="tab active">
+      <a :href="`${ctx.siteHome}/changelog/${currentVersion.number}/textmap`" role="tab" class="tab active" v-if="currentVersion.showTextmapChangelog">
         TextMap
       </a>
 
-      <a :href="`${ctx.siteHome}/changelog/${currentVersion.number}/excels`" role="tab" class="tab">
+      <a :href="`${ctx.siteHome}/changelog/${currentVersion.number}/excels`" role="tab" class="tab" v-if="currentVersion.showExcelChangelog">
         Excels
       </a>
     </div>
