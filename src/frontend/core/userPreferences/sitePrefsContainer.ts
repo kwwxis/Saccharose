@@ -1,6 +1,7 @@
 import { SitePrefName, SiteUserPrefs, VisitorPrefsCookieName } from '../../../shared/types/site/site-user-types.ts';
 import { genericEndpoints } from '../endpoints.ts';
 import Cookies from 'js-cookie';
+import { isUnset } from '../../../shared/util/genericUtil.ts';
 
 const prefsMetaEl = document.querySelector<HTMLMetaElement>('meta[name="user-prefs"]');
 export const USER_PREFS: SiteUserPrefs = JSON.parse(prefsMetaEl.content);
@@ -15,6 +16,10 @@ if (USER_IS_AUTHENTICATED) {
   if (visitorCookieInitialValue !== prefsMetaEl.content) {
     Cookies.set(VisitorPrefsCookieName, prefsMetaEl.content, { expires: 365 });
   }
+}
+
+export function getUserPref<T extends SitePrefName>(prefName: T, defaultValue: SiteUserPrefs[T] = undefined): SiteUserPrefs[T] {
+  return isUnset(USER_PREFS[prefName]) ? defaultValue : USER_PREFS[prefName];
 }
 
 export async function setUserPref<T extends SitePrefName>(prefName: T, prefValue: SiteUserPrefs[T]): Promise<SiteUserPrefs> {

@@ -101,6 +101,18 @@ export default function(router: Router): void {
           }
           break;
         }
+        case 'ol_excludeRm': {
+          prefPayload.ol_excludeRm = toBoolean(prefValue);
+          break;
+        }
+        case 'ol_excludeTl': {
+          prefPayload.ol_excludeTl = toBoolean(prefValue);
+          break;
+        }
+        case 'ol_includeHeader': {
+          prefPayload.ol_includeHeader = toBoolean(prefValue);
+          break;
+        }
         default: {
           throw HttpError.badRequest('InvalidParameter', 'Unsupported pref name for this endpoint: ' + prefName);
         }

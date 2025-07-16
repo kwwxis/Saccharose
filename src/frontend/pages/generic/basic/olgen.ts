@@ -1,5 +1,4 @@
 import { listen } from '../../../util/eventListen.ts';
-import Cookies from 'js-cookie';
 import { flashTippy } from '../../../util/tooltipUtil.ts';
 import {
   errorHtmlWrap,
@@ -10,7 +9,7 @@ import { HttpError } from '../../../../shared/util/httpError.ts';
 import { pasteFromClipboard } from '../../../util/domutil.ts';
 import { toBoolean } from '../../../../shared/util/genericUtil.ts';
 import { modalService } from '../../../util/modalService.ts';
-import { setUserPref } from '../../../core/userPreferences/sitePrefsContainer.ts';
+import { getUserPref, setUserPref } from '../../../core/userPreferences/sitePrefsContainer.ts';
 
 pageMatch('vue/OLGenPage', () => {
   const {endpoint, tlRmDisabled, neverDefaultHidden} = getOLEndpoint();
@@ -42,9 +41,9 @@ pageMatch('vue/OLGenPage', () => {
     let inputEl = document.querySelector<HTMLInputElement>('.ol-input');
     let buttonEl  = document.querySelector<HTMLButtonElement>('.ol-submit');
     let loadingEl = document.querySelector<HTMLElement>('.ol-submit-pending');
-    let excludeTl = toBoolean(document.querySelector<HTMLInputElement>('input[type="radio"][name="ol_excludeTl"]')?.value);
-    let excludeRm = toBoolean(document.querySelector<HTMLInputElement>('input[type="radio"][name="ol_excludeRm"]')?.value);
-    let includeHeader = toBoolean(document.querySelector<HTMLInputElement>('input[type="checkbox"][name="ol_includeHeader"]')?.checked);
+    let excludeTl = getUserPref('ol_excludeTl', false);
+    let excludeRm = getUserPref('ol_excludeRm', false);
+    let includeHeader = getUserPref('ol_includeHeader', false);
     let text = inputEl.value.trim();
 
     if (!text) {
@@ -162,6 +161,7 @@ pageMatch('vue/OLGenPage', () => {
     {
       selector: 'input[type="radio"][name="ol_excludeTl"]',
       event: 'input',
+      multiple: true,
       handle: async function(_event, target: HTMLInputElement) {
         target.disabled = true;
         await setUserPref('ol_excludeTl', toBoolean(target.value));
@@ -171,6 +171,7 @@ pageMatch('vue/OLGenPage', () => {
     {
       selector: 'input[type="radio"][name="ol_excludeRm"]',
       event: 'input',
+      multiple: true,
       handle: async function(_event, target: HTMLInputElement) {
         target.disabled = true;
         await setUserPref('ol_excludeRm', toBoolean(target.value));
