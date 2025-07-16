@@ -7,12 +7,15 @@ import commandLineUsage, { OptionDefinition as UsageOptionDefinition } from 'com
 import chalk from 'chalk';
 import { getStarRailDataFilePath } from '../../loadenv.ts';
 import { closeKnex } from '../../util/db.ts';
-import { importNormalize, importPlainTextMap } from '../util/import_file_util.ts';
+import { importPlainTextMap } from '../util/import_file_util.ts';
 import fs from 'fs';
-import { getGenshinControl } from '../../domain/genshin/genshinControl.ts';
 import { getStarRailControl, loadStarRailVoiceItems } from '../../domain/hsr/starRailControl.ts';
 import { fetchVoiceAtlases } from '../../domain/hsr/character/fetchVoiceAtlas.ts';
 import { indexStarRailImages } from './module.index-images.ts';
+import { starRailNormalize } from './module.normalize.ts';
+import { createChangelog } from '../util/createChangelogUtil.ts';
+import { StarRailVersions } from '../../../shared/types/game-versions.ts';
+import { starRailSchema } from './hsr.schema.ts';
 
 async function importVoiceOvers() {
   const outDir = ENV.HSR_DATA_ROOT;
@@ -35,6 +38,7 @@ export async function importHsrFilesCli() {
 
   const options_afterDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
     {name: 'voice-overs', type: Boolean, description: 'Creates the VoiceOvers file.'},
+    {name: 'changelog', type: String, typeLabel: '<version>', description: 'Creates changelog between the provided version and the version before it.'},
   ];
 
   const options_util: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
@@ -98,12 +102,7 @@ export async function importHsrFilesCli() {
   }
 
   if (options.normalize) {
-    const textMapCN = getStarRailDataFilePath('./TextMap/TextMapCN.json');
-    if (fs.existsSync(textMapCN)) {
-      fs.renameSync(textMapCN, getStarRailDataFilePath('./TextMap/TextMapCHS.json'));
-      console.log('Moved TextMapCN.json to TextMapCHS.json');
-    }
-    await importNormalize(getStarRailDataFilePath('./ExcelOutput'), [], 'hsr');
+    await starRailNormalize();
   }
   if (options['voice-overs']) {
     await importVoiceOvers();
@@ -114,6 +113,9 @@ export async function importHsrFilesCli() {
   if (options.plaintext) {
     const ctrl = getStarRailControl();
     await importPlainTextMap(ctrl, getStarRailDataFilePath);
+  }
+  if (options['changelog']) {
+    await createChangelog(ENV.HSR_CHANGELOGS, ENV.HSR_ARCHIVES, starRailSchema, StarRailVersions, options['changelog']);
   }
 
   await closeKnex();

@@ -1,15 +1,31 @@
 <template>
-  <meta id="x-addedRecords-excelFileName" name="x-addedRecords-excelFileName" :content="`${excelFileChanges.name} - New Records ${genshinVersion.previous} - ${genshinVersion.number}`" />
+  <meta id="x-addedRecords-excelFileName" name="x-addedRecords-excelFileName" :content="`${excelFileChanges.name} - New Records ${currentVersion.previous} - ${currentVersion.number}`" />
   <meta id="x-addedRecords-excelData" name="x-addedRecords-excelData" :content="JSON.stringify(valuesOf(excelFileChanges.changedRecords).filter(r => r.changeType === 'added').map(r => r.addedRecord))" />
-  <section class="card">
+
+  <section class="card spacer10-bottom">
     <h2 class="valign">
-      <a href="/genshin/changelog" style="text-decoration: none">Changelogs</a>
+      <a :href="`${ctx.siteHome}/changelog`" style="text-decoration: none">Changelogs</a>
       <Icon name="chevron-right" />
-      <a :href="`/genshin/changelog/${genshinVersion.number}`" style="text-decoration: none">{{ genshinVersion.previous }} &ndash; {{ genshinVersion.number }}</a>
-      <Icon name="chevron-right" />
-      <span>{{ excelFileChanges.name }}</span>
+      <span>{{ currentVersion.previous }} &ndash; {{ currentVersion.number }}</span>
     </h2>
 
+    <div class="tab-list" role="tablist">
+      <a :href="`${ctx.siteHome}/changelog/${currentVersion.number}`" role="tab" class="tab">
+        Summary
+      </a>
+
+      <a :href="`${ctx.siteHome}/changelog/${currentVersion.number}/textmap`" role="tab" class="tab">
+        TextMap
+      </a>
+
+      <a :href="`${ctx.siteHome}/changelog/${currentVersion.number}/excels`" role="tab" class="tab active">
+        Excels
+      </a>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>{{ excelFileChanges.name }}</h2>
     <div id="tablist-changedRecords" class="tab-list" role="tablist">
       <button id="tab-addedRecords" role="tab" class="tab" :class="{'active': activeTab === 'added'}" ui-action="tab: #tabpanel-addedRecords, changedRecords; set-query-param: tab=added">
         Added Records ({{ valuesOf(excelFileChanges.changedRecords).filter(r => r.changeType === 'added').length }})
@@ -118,20 +134,23 @@
 </template>
 
 <script setup lang="ts">
-import { GameVersion } from '../../../../shared/types/game-versions.ts';
+import { GameVersion } from '../../../shared/types/game-versions.ts';
 import {
   ExcelFileChanges,
   FullChangelog,
-} from '../../../../shared/types/changelog-types.ts';
-import { LANG_CODES_TO_NAME } from '../../../../shared/types/lang-types.ts';
-import JsonText from '../../utility/JsonText.vue';
-import Icon from '../../utility/Icon.vue';
-import Wikitext from '../../utility/Wikitext.vue';
-import { isset } from '../../../../shared/util/genericUtil.ts';
-import { valuesOf } from '../../../../shared/util/arrayUtil.ts';
+} from '../../../shared/types/changelog-types.ts';
+import { LANG_CODES_TO_NAME } from '../../../shared/types/lang-types.ts';
+import JsonText from '../utility/JsonText.vue';
+import Icon from '../utility/Icon.vue';
+import Wikitext from '../utility/Wikitext.vue';
+import { isset } from '../../../shared/util/genericUtil.ts';
+import { valuesOf } from '../../../shared/util/arrayUtil.ts';
+import { getTrace } from '../../middleware/request/tracer.ts';
+
+const { ctx } = getTrace();
 
 defineProps<{
-  genshinVersion?: GameVersion,
+  currentVersion?: GameVersion,
   fullChangelog?: FullChangelog,
   excelFileChanges?: ExcelFileChanges,
   activeTab?: 'added' | 'updated' | 'removed'

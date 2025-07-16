@@ -126,7 +126,7 @@ router.endpoint('/dialogue/single-branch-generate', {
       throw HttpError.badRequest('UnsupportedOperation', 'Unfortunately, you cannot search for just "Paimon" as the operation would be too intensive.');
     }
 
-    const versionFilter: GameVersionFilter = GameVersionFilter.from(req.query.versionFilter, ctrl.gameVersions.filter(v => v.showChangelog));
+    const versionFilter: GameVersionFilter = GameVersionFilter.from(req.query.versionFilter, ctrl.gameVersions.filter(v => v.showTextmapChangelog));
 
     let result: DialogueSectionResult[] = await dialogueGenerate(ctrl, {
       query,

@@ -4,25 +4,26 @@
     <h2 class="valign">
       <a href="/genshin/changelog" style="text-decoration: none">Changelogs</a>
       <Icon name="chevron-right" />
-      <span>{{ genshinVersion.previous }} &ndash; {{ genshinVersion.number }}</span>
+      <span>{{ currentVersion.previous }} &ndash; {{ currentVersion.number }}</span>
     </h2>
 
-    <div id="tablist-changelogAreas" class="tab-list" role="tablist">
-      <button id="tab-newSummary" role="tab" class="tab active" ui-action="tab: #tabpanel-newSummary, changelogAreas">
-        New Summary
-      </button>
-      <button id="tab-byExcels" role="tab" class="tab" ui-action="tab: #tabpanel-byExcels, changelogAreas">
-        By Excels
-      </button>
-      <a :href="`/genshin/changelog/${genshinVersion.number}/textmap`"
-         id="tab-textmap" role="tab" class="tab">
+    <div class="tab-list" role="tablist">
+      <a :href="`${ctx.siteHome}/changelog/${currentVersion.number}`" role="tab" class="tab active">
+        Summary
+      </a>
+
+      <a :href="`${ctx.siteHome}/changelog/${currentVersion.number}/textmap`" role="tab" class="tab">
         TextMap
+      </a>
+
+      <a :href="`${ctx.siteHome}/changelog/${currentVersion.number}/excels`" role="tab" class="tab">
+        Excels
       </a>
     </div>
 
-    <div id="tabpanel-newSummary" role="tabpanel" aria-labelledby="tab-newSummary" class="tabpanel active">
+    <div id="tabpanel-newSummary" role="tabpanel" class="tabpanel active">
       <div class="info-notice open-sans-font valign" style="font-size:13px">
-        <span>Summary of new records from {{ genshinVersion.previous }} to {{ genshinVersion.number }}.</span>
+        <span>Summary of new records from {{ currentVersion.previous }} to {{ currentVersion.number }}.</span>
         <span class="grow"></span>
         <button id="new-summary-toc-show-button" class="secondary small hide" ui-action="remove-class: #new-summary-toc, out1">Show Table of Contents</button>
         <button id="new-summary-collapse-all-button" class="secondary small spacer5-left" >Collapse All</button>
@@ -316,7 +317,7 @@
             <td>{{ viewpoint.WorldArea.AreaNameText || '' }}</td>
             <td>{{ viewpoint.ParentWorldArea ? viewpoint.ParentWorldArea.AreaNameText : '' }}</td>
             <td>{{ viewpoint.CityNameText }}</td>
-            <td><Wikitext :value="viewpoint.DescText ? trace.normGenshinText(viewpoint.DescText) : ''" :seamless="true" /></td>
+            <td><Wikitext :value="viewpoint.DescText ? normGenshinText(viewpoint.DescText) : ''" :seamless="true" /></td>
             <td>
               <img :src="`/serve-image/genshin/${viewpoint.Image}.png/${viewpoint.DownloadImage}`"
                    loading="lazy" decoding="async" style="height:100px" />
@@ -343,7 +344,7 @@
           </tr>
           <tr v-for="tip of newSummary.loadingTips">
             <td>{{ tip.TipsTitleText }}</td>
-            <td><Wikitext :value="trace.normGenshinText(tip.TipsDescText)" :seamless="true" /></td>
+            <td><Wikitext :value="normGenshinText(tip.TipsDescText)" :seamless="true" /></td>
             <td><a v-if="tip.EnableMainQuestName" :href="`/genshin/quests/${tip.EnableMainQuestId}`">{{ tip.EnableMainQuestName }}</a></td>
             <td><a v-if="tip.DisableMainQuestName" :href="`/genshin/quests/${tip.DisableMainQuestId}`">{{ tip.DisableMainQuestName }}</a></td>
           </tr>
@@ -370,7 +371,7 @@
           <tr v-for="achievement of newSummary.achievements">
             <td class="code"><a :href="`/genshin/achievements/${achievement.Id}`">{{ achievement.Id }}</a></td>
             <td><a :href="`/genshin/achievements/${achievement.Id}`">{{ achievement.TitleText }}</a></td>
-            <td><Wikitext :value="trace.normGenshinText(achievement.DescText)" :seamless="true" /></td>
+            <td><Wikitext :value="normGenshinText(achievement.DescText)" :seamless="true" /></td>
             <td><a :href="`/genshin/achievements/${toParam(achievement.Goal.NameText)}`">{{ achievement.Goal.NameText }}</a></td>
             <td>{{ achievement.FinishReward.RewardSummary.PrimogemCount }}</td>
           </tr>
@@ -630,57 +631,35 @@
         </div>
       </div>
     </div>
-
-    <div id="tabpanel-byExcels" role="tabpanel" aria-labelledby="tab-byExcels" class="tabpanel hide">
-      <div class="content">
-        <p class="info-notice">Only certain Excel files are available in this list, if you'd like one that's not present
-        here to be added, let kwwxis know.</p>
-      </div>
-      <template v-for="excelFileChanges of sort(valuesOf(fullChangelog.excelChangelog), 'name')">
-        <h3 class="secondary-header valign">{{ excelFileChanges.name }}</h3>
-        <div class="content">
-          <dl>
-            <dt>Added records</dt>
-            <dd>{{ valuesOf(excelFileChanges.changedRecords).filter(r => r.changeType === 'added').length }}</dd>
-            <dt>Updated records</dt>
-            <dd>{{ valuesOf(excelFileChanges.changedRecords).filter(r => r.changeType === 'updated').length }}</dd>
-            <dt>Removed records</dt>
-            <dd>{{ valuesOf(excelFileChanges.changedRecords).filter(r => r.changeType === 'removed').length }}</dd>
-            <dt>
-              <a role="button" class="secondary spacer5-top" :href="`/genshin/changelog/${genshinVersion.number}/${excelFileChanges.name}`">Browse records</a>
-            </dt>
-            <dd><!-- intentionally empty --></dd>
-          </dl>
-        </div>
-      </template>
-    </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { arraySum, sort, valuesOf } from '../../../../shared/util/arrayUtil.ts';
-import { GameVersion } from '../../../../shared/types/game-versions.ts';
-import { FullChangelog } from '../../../../shared/types/changelog-types.ts';
-import Icon from '../../utility/Icon.vue';
-import { GenshinChangelogNewRecordSummary } from '../../../domain/genshin/changelog/genshinChangelogHelpers.ts';
-import { toParam } from '../../../../shared/util/stringUtil.ts';
-import GenshinItem from '../links/GenshinItem.vue';
-import GenshinLbLink from '../links/GenshinLbLink.vue';
-import TcgCard from '../links/TcgCard.vue';
-import { getTrace } from '../../../middleware/request/tracer.ts';
-import Wikitext from '../../utility/Wikitext.vue';
-import GenshinReadableLink from '../links/GenshinReadableLink.vue';
-import { ChapterExcelConfigData } from '../../../../shared/types/genshin/quest-types.ts';
-import GenshinChapterListItem from '../chapters/GenshinChapterListItem.vue';
-import { SITE_SHORT_TITLE } from '../../../loadenv.ts';
+import { arraySum, sort, valuesOf } from '../../../shared/util/arrayUtil.ts';
+import { GameVersion } from '../../../shared/types/game-versions.ts';
+import { FullChangelog } from '../../../shared/types/changelog-types.ts';
+import Icon from '../utility/Icon.vue';
+import { GenshinChangelogNewRecordSummary } from '../../domain/genshin/changelog/genshinChangelogHelpers.ts';
+import { toParam } from '../../../shared/util/stringUtil.ts';
+import GenshinItem from '../genshin/links/GenshinItem.vue';
+import GenshinLbLink from '../genshin/links/GenshinLbLink.vue';
+import TcgCard from '../genshin/links/TcgCard.vue';
+import { getTrace } from '../../middleware/request/tracer.ts';
+import Wikitext from '../utility/Wikitext.vue';
+import GenshinReadableLink from '../genshin/links/GenshinReadableLink.vue';
+import { ChapterExcelConfigData } from '../../../shared/types/genshin/quest-types.ts';
+import GenshinChapterListItem from '../genshin/chapters/GenshinChapterListItem.vue';
+import { SITE_SHORT_TITLE } from '../../loadenv.ts';
+
+const { ctx } = getTrace();
 
 const {newSummary} = defineProps<{
-  genshinVersion?: GameVersion,
+  currentVersion?: GameVersion,
   fullChangelog?: FullChangelog,
   newSummary?: GenshinChangelogNewRecordSummary,
 }>();
 
-const trace = getTrace();
+const { normGenshinText } = getTrace();
 
 function chapterGroup1(code: 'AQ' | 'SQ'): { chapterName: string, subChapters: {[subChapterName: string]: ChapterExcelConfigData[]} }[] {
   return Object.entries(newSummary.chapters[code]).map(([chapterName, subChapters]) => ({

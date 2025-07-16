@@ -1,17 +1,17 @@
-import { pageMatch } from '../../../core/pageMatch.ts';
+import { pageMatch } from '../../core/pageMatch.ts';
 import {
   DOMClassWatcher,
   flashElement,
   frag1,
   getElementOffset,
   isElementPartiallyInViewport,
-} from '../../../util/domutil.ts';
+} from '../../util/domutil.ts';
 import { OverlayScrollbars } from 'overlayscrollbars';
-import { isNightmode } from '../../../core/userPreferences/siteTheme.ts';
-import { GeneralEventBus } from '../../../core/generalEventBus.ts';
-import { listen } from '../../../util/eventListen.ts';
+import { isNightmode } from '../../core/userPreferences/siteTheme.ts';
+import { GeneralEventBus } from '../../core/generalEventBus.ts';
+import { listen } from '../../util/eventListen.ts';
 
-pageMatch('vue/GenshinChangelogPage', async () => {
+pageMatch('vue/GenshinChangelogSummaryPage', async () => {
   const tocContent = Array.from(document.querySelectorAll('.new-summary-section-header')).map(headerEl => {
     const title = headerEl.querySelector('.new-summary-section-title').textContent;
     const count = headerEl.querySelector('.new-summary-section-count').textContent;
@@ -94,17 +94,7 @@ pageMatch('vue/GenshinChangelogPage', async () => {
 
   initNewSummaryTOCScroll();
 
-  GeneralEventBus.on('TabChange', detail => {
-    if (detail.tabgroup === 'changelogAreas') {
-      if (detail.tab.id === 'tab-newSummary') {
-        tocElement.classList.remove('out2');
-      } else {
-        tocElement.classList.add('out2');
-      }
-    }
-  });
-
-  new DOMClassWatcher('#new-summary-toc', ['out1', 'out2'], () => {
+  new DOMClassWatcher('#new-summary-toc', ['out1'], () => {
     checkNewSummaryTOC();
   }, () => {
     checkNewSummaryTOC();
@@ -114,7 +104,7 @@ pageMatch('vue/GenshinChangelogPage', async () => {
 function checkNewSummaryTOC() {
   const tocElement = document.getElementById('new-summary-toc');
   const appSidebar = document.getElementById('app-sidebar');
-  if (tocElement.classList.contains('out1') || tocElement.classList.contains('out2')) {
+  if (tocElement.classList.contains('out1')) {
     appSidebar.style.opacity = '1';
     appSidebar.style.removeProperty('pointer-events');
   } else {

@@ -1,6 +1,13 @@
 import { isEmpty } from '../util/genericUtil.ts';
 
-export type GameVersion = {number: string, previous: string, showChangelog?: boolean, showNewMedia?: boolean};
+export type GameVersion = {
+  number: string,
+  previous: string,
+  showTextmapChangelog?: boolean,
+  showExcelChangelog?: boolean,
+  showNewMedia?: boolean,
+  hasChangelogSummary?: boolean,
+};
 
 // TODO: This needs to be updated with each new Genshin version!
 export const GenshinVersions: GameVersion[] = [
@@ -32,23 +39,23 @@ export const GenshinVersions: GameVersion[] = [
   {number: '3.7', previous: '3.6', showNewMedia: true},
   {number: '3.8', previous: '3.7', showNewMedia: true},
 
-  {number: '4.0', previous: '3.8', showChangelog: true, showNewMedia: true},
-  {number: '4.1', previous: '4.0', showChangelog: true, showNewMedia: true},
-  {number: '4.2', previous: '4.1', showChangelog: true, showNewMedia: true},
-  {number: '4.3', previous: '4.2', showChangelog: true, showNewMedia: true},
-  {number: '4.4', previous: '4.3', showChangelog: true, showNewMedia: true},
-  {number: '4.5', previous: '4.4', showChangelog: true, showNewMedia: true},
-  {number: '4.6', previous: '4.5', showChangelog: true, showNewMedia: true},
-  {number: '4.7', previous: '4.6', showChangelog: true, showNewMedia: true},
-  {number: '4.8', previous: '4.7', showChangelog: true, showNewMedia: true},
-  {number: '5.0', previous: '4.8', showChangelog: true, showNewMedia: true},
-  {number: '5.1', previous: '5.0', showChangelog: true, showNewMedia: true},
-  {number: '5.2', previous: '5.1', showChangelog: true, showNewMedia: true},
-  {number: '5.3', previous: '5.2', showChangelog: true, showNewMedia: true},
-  {number: '5.4', previous: '5.3', showChangelog: true, showNewMedia: true},
-  {number: '5.5', previous: '5.4', showChangelog: true, showNewMedia: true},
-  {number: '5.6', previous: '5.5', showChangelog: true, showNewMedia: true},
-  {number: '5.7', previous: '5.6', showChangelog: true, showNewMedia: true},
+  {number: '4.0', previous: '3.8', showTextmapChangelog: true, showExcelChangelog: true, showNewMedia: true, hasChangelogSummary: true},
+  {number: '4.1', previous: '4.0', showTextmapChangelog: true, showExcelChangelog: true, showNewMedia: true, hasChangelogSummary: true},
+  {number: '4.2', previous: '4.1', showTextmapChangelog: true, showExcelChangelog: true, showNewMedia: true, hasChangelogSummary: true},
+  {number: '4.3', previous: '4.2', showTextmapChangelog: true, showExcelChangelog: true, showNewMedia: true, hasChangelogSummary: true},
+  {number: '4.4', previous: '4.3', showTextmapChangelog: true, showExcelChangelog: true, showNewMedia: true, hasChangelogSummary: true},
+  {number: '4.5', previous: '4.4', showTextmapChangelog: true, showExcelChangelog: true, showNewMedia: true, hasChangelogSummary: true},
+  {number: '4.6', previous: '4.5', showTextmapChangelog: true, showExcelChangelog: true, showNewMedia: true, hasChangelogSummary: true},
+  {number: '4.7', previous: '4.6', showTextmapChangelog: true, showExcelChangelog: true, showNewMedia: true, hasChangelogSummary: true},
+  {number: '4.8', previous: '4.7', showTextmapChangelog: true, showExcelChangelog: true, showNewMedia: true, hasChangelogSummary: true},
+  {number: '5.0', previous: '4.8', showTextmapChangelog: true, showExcelChangelog: true, showNewMedia: true, hasChangelogSummary: true},
+  {number: '5.1', previous: '5.0', showTextmapChangelog: true, showExcelChangelog: true, showNewMedia: true, hasChangelogSummary: true},
+  {number: '5.2', previous: '5.1', showTextmapChangelog: true, showExcelChangelog: true, showNewMedia: true, hasChangelogSummary: true},
+  {number: '5.3', previous: '5.2', showTextmapChangelog: true, showExcelChangelog: true, showNewMedia: true, hasChangelogSummary: true},
+  {number: '5.4', previous: '5.3', showTextmapChangelog: true, showExcelChangelog: true, showNewMedia: true, hasChangelogSummary: true},
+  {number: '5.5', previous: '5.4', showTextmapChangelog: true, showExcelChangelog: true, showNewMedia: true, hasChangelogSummary: true},
+  {number: '5.6', previous: '5.5', showTextmapChangelog: true, showExcelChangelog: true, showNewMedia: true, hasChangelogSummary: true},
+  {number: '5.7', previous: '5.6', showTextmapChangelog: true, showExcelChangelog: true, showNewMedia: true, hasChangelogSummary: true},
 ];
 
 // TODO: This needs to be updated with each new Honkai Star Rail version!
@@ -77,19 +84,17 @@ export const StarRailVersions: GameVersion[] = [
 
 // TODO: This needs to be updated with each new Zenless Zone Zero version!
 export const ZenlessVersions: GameVersion[] = [
-  {number: '0.1', previous: null},
-  {number: '0.2', previous: '0.1'},
-  {number: '0.3', previous: '0.2'},
-  {number: '1.0', previous: '0.3'},
-  {number: '1.1', previous: '1.0'},
-  {number: '1.2', previous: '1.1'},
-  {number: '1.3', previous: '1.2'},
-  {number: '1.4', previous: '1.3'},
-  {number: '1.5', previous: '1.4'},
-  {number: '1.6', previous: '1.5'},
-  {number: '1.7', previous: '1.6'},
-  {number: '2.0', previous: '1.7'},
-  {number: '2.1', previous: '2.0'},
+  {number: '0.0', previous: null},
+  {number: '1.0', previous: '0.0', showTextmapChangelog: true},
+  {number: '1.1', previous: '1.0', showTextmapChangelog: true},
+  {number: '1.2', previous: '1.1', showTextmapChangelog: true},
+  {number: '1.3', previous: '1.2', showTextmapChangelog: true},
+  {number: '1.4', previous: '1.3', showTextmapChangelog: true},
+  {number: '1.5', previous: '1.4', showTextmapChangelog: true},
+  {number: '1.6', previous: '1.5', showTextmapChangelog: true},
+  {number: '1.7', previous: '1.6', showTextmapChangelog: true},
+  {number: '2.0', previous: '1.7', showTextmapChangelog: true},
+  {number: '2.1', previous: '2.0', showTextmapChangelog: true},
 ];
 
 // TODO: This needs to be updated with each new Wuthering Waves version!

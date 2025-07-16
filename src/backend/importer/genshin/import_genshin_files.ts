@@ -14,13 +14,16 @@ import { importVoiceOvers } from './module.voice-overs.ts';
 import { importSearchIndex } from './module.search-index.ts';
 import { generateAvatarAnimInteractionGoodBad, generateQuestDialogExcels } from './module.make-excels.ts';
 import { loadInterActionQD } from './module.interaction.ts';
-import { createChangelog } from './module.changelog.ts';
+import { createChangelog } from '../util/createChangelogUtil.ts';
 import { indexGenshinImages } from './module.index-images.ts';
 import { exportExcel } from './module.export-excel.ts';
 import { recordNewImages } from './module.new-images.ts';
 import fs from 'fs';
 import { writeDeobfBin } from './module.deobf-bin.ts';
 import { isInt } from '../../../shared/util/numberUtil.ts';
+import { genshinNormalize } from './module.normalize.ts';
+import { genshinSchema } from './genshin.schema.ts';
+import { GenshinVersions } from '../../../shared/types/game-versions.ts';
 
 export async function importGenshinFilesCli() {
   const options_beforeDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
@@ -114,16 +117,7 @@ export async function importGenshinFilesCli() {
   }
 
   if (options.normalize) {
-    const th0 = getGenshinDataFilePath('./TextMap/TextMapTH_0.json');
-    const th1 = getGenshinDataFilePath('./TextMap/TextMapTH_1.json');
-
-    const thC_json = {};
-    const th0_json = JSON.parse(fs.readFileSync(th0, {encoding: 'utf8'}));
-    const th1_json = JSON.parse(fs.readFileSync(th1, {encoding: 'utf8'}));
-    Object.assign(thC_json, th0_json, th1_json);
-    fs.writeFileSync(getGenshinDataFilePath('./TextMap/TextMapTH.json'), JSON.stringify(thC_json, null, 2), 'utf-8');
-
-    await importNormalize(getGenshinDataFilePath('./ExcelBinOutput'), ['ProudSkillExcelConfigData.json'], 'genshin');
+    await genshinNormalize();
   }
   if (options.plaintext) {
     const ctrl = getGenshinControl();
@@ -187,7 +181,7 @@ export async function importGenshinFilesCli() {
     await loadInterActionQD(getGenshinDataFilePath());
   }
   if (options['changelog']) {
-    await createChangelog(options['changelog']);
+    await createChangelog(ENV.GENSHIN_CHANGELOGS, ENV.GENSHIN_ARCHIVES, genshinSchema, GenshinVersions, options['changelog']);
   }
 
   await closeKnex();

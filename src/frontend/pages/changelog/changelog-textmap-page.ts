@@ -1,14 +1,14 @@
-import { pageMatch } from '../../../core/pageMatch.ts';
-import { initExcelViewer, makeSingleColumnDef } from '../../generic/excel-viewer/excel-viewer.ts';
+import { pageMatch } from '../../core/pageMatch.ts';
+import { initExcelViewer, makeSingleColumnDef } from '../generic/excel-viewer/excel-viewer.ts';
 import {
   TextMapChangeAddRow,
   TextMapChangeRemoveRow,
   TextMapChangeUpdateRow,
-} from '../../../../shared/types/changelog-types.ts';
+} from '../../../shared/types/changelog-types.ts';
 import { AgPromise, ICellRendererComp, ICellRendererParams } from 'ag-grid-community';
-import { createPatch } from '../../../../backend/util/jsdiff/jsdiff.js';
-import { DiffUI } from '../../../util/DiffUI.ts';
-import { isNightmode } from '../../../core/userPreferences/siteTheme.ts';
+import { createPatch } from '../../../backend/util/jsdiff/jsdiff.js';
+import { DiffUI } from '../../util/DiffUI.ts';
+import { isNightmode } from '../../core/userPreferences/siteTheme.ts';
 import { ColorSchemeType } from 'diff2html/lib/types';
 
 class TextMapDiffCellComponent implements ICellRendererComp<TextMapChangeUpdateRow> {
@@ -60,7 +60,7 @@ class TextMapDiffCellComponent implements ICellRendererComp<TextMapChangeUpdateR
 
 }
 
-pageMatch('vue/GenshinChangelogTextMapPage', async () => {
+pageMatch('vue/ChangelogTextMapPage', async () => {
   const changelogVersion: string = document.querySelector<HTMLMetaElement>('#x-changelog-version').content;
   const addedData: TextMapChangeAddRow[] = JSON.parse(document.querySelector<HTMLMetaElement>('#x-tmdiff-added').content);
   const updatedData: TextMapChangeUpdateRow[] = JSON.parse(document.querySelector<HTMLMetaElement>('#x-tmdiff-updated').content);

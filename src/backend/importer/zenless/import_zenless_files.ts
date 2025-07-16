@@ -7,10 +7,13 @@ import commandLineUsage, { OptionDefinition as UsageOptionDefinition } from 'com
 import chalk from 'chalk';
 import { getZenlessDataFilePath } from '../../loadenv.ts';
 import { closeKnex } from '../../util/db.ts';
-import { importNormalize, importPlainTextMap } from '../util/import_file_util.ts';
+import { importPlainTextMap } from '../util/import_file_util.ts';
 import { getZenlessControl } from '../../domain/zenless/zenlessControl.ts';
-import fs from 'fs';
 import { generateDialogueNodes } from './module.dialogue-nodes.ts';
+import { zenlessNormalize } from './module.normalize.ts';
+import { createChangelog } from '../util/createChangelogUtil.ts';
+import { ZenlessVersions } from '../../../shared/types/game-versions.ts';
+import { zenlessSchema } from './zenless.schema.ts';
 
 export async function importZenlessFilesCli() {
   const options_beforeDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
@@ -20,6 +23,7 @@ export async function importZenlessFilesCli() {
   ];
 
   const options_afterDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
+    {name: 'changelog', type: String, typeLabel: '<version>', description: 'Creates changelog between the provided version and the version before it.'},
   ];
 
   const options_util: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
@@ -83,31 +87,7 @@ export async function importZenlessFilesCli() {
   }
 
   if (options.normalize) {
-    const infos = [
-      {base: './TextMap/TextMapTemplateTb.json',      overwrite: './TextMap/TextMapOverwriteTemplateTb.json',      outfile: './TextMap/TextMapCHS.json'},
-      {base: './TextMap/TextMap_CHTTemplateTb.json',  overwrite: './TextMap/TextMap_CHTOverwriteTemplateTb.json',  outfile: './TextMap/TextMapCHT.json'},
-      {base: './TextMap/TextMap_DETemplateTb.json',   overwrite: './TextMap/TextMap_DEOverwriteTemplateTb.json',   outfile: './TextMap/TextMapDE.json'},
-      {base: './TextMap/TextMap_ENTemplateTb.json',   overwrite: './TextMap/TextMap_ENOverwriteTemplateTb.json',   outfile: './TextMap/TextMapEN.json'},
-      {base: './TextMap/TextMap_ESTemplateTb.json',   overwrite: './TextMap/TextMap_ESOverwriteTemplateTb.json',   outfile: './TextMap/TextMapES.json'},
-      {base: './TextMap/TextMap_FRTemplateTb.json',   overwrite: './TextMap/TextMap_FROverwriteTemplateTb.json',   outfile: './TextMap/TextMapFR.json'},
-      {base: './TextMap/TextMap_IDTemplateTb.json',   overwrite: './TextMap/TextMap_IDOverwriteTemplateTb.json',   outfile: './TextMap/TextMapID.json'},
-      {base: './TextMap/TextMap_JATemplateTb.json',   overwrite: './TextMap/TextMap_JAOverwriteTemplateTb.json',   outfile: './TextMap/TextMapJP.json'},
-      {base: './TextMap/TextMap_KOTemplateTb.json',   overwrite: './TextMap/TextMap_KOOverwriteTemplateTb.json',   outfile: './TextMap/TextMapKR.json'},
-      {base: './TextMap/TextMap_PTTemplateTb.json',   overwrite: './TextMap/TextMap_PTOverwriteTemplateTb.json',   outfile: './TextMap/TextMapPT.json'},
-      {base: './TextMap/TextMap_RUTemplateTb.json',   overwrite: './TextMap/TextMap_RUOverwriteTemplateTb.json',   outfile: './TextMap/TextMapRU.json'},
-      {base: './TextMap/TextMap_THTemplateTb.json',   overwrite: './TextMap/TextMap_THOverwriteTemplateTb.json',   outfile: './TextMap/TextMapTH.json'},
-      {base: './TextMap/TextMap_VITemplateTb.json',   overwrite: './TextMap/TextMap_VIOverwriteTemplateTb.json',   outfile: './TextMap/TextMapVI.json'},
-    ];
-    for (let info of infos) {
-      const baseJson = JSON.parse(fs.readFileSync(getZenlessDataFilePath(info.base), {encoding: 'utf8'}));
-      const overwriteJson = JSON.parse(fs.readFileSync(getZenlessDataFilePath(info.overwrite), {encoding: 'utf8'}));
-
-      const finalJson = Object.assign({}, baseJson, overwriteJson);
-
-      fs.writeFileSync(getZenlessDataFilePath(info.outfile), JSON.stringify(finalJson, null, 2), 'utf-8');
-    }
-
-    await importNormalize(getZenlessDataFilePath('./FileCfg'), [], 'zenless', ['MonsterAITemplateTb.json']);
+    await zenlessNormalize();
   }
   if (options.plaintext) {
     const ctrl = getZenlessControl();
@@ -115,6 +95,9 @@ export async function importZenlessFilesCli() {
   }
   if (options['dialogue-nodes']) {
     await generateDialogueNodes(getZenlessDataFilePath());
+  }
+  if (options['changelog']) {
+    await createChangelog(ENV.ZENLESS_CHANGELOGS, ENV.ZENLESS_ARCHIVES, zenlessSchema, ZenlessVersions, options['changelog']);
   }
 
   await closeKnex();

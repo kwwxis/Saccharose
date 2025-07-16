@@ -12,7 +12,7 @@ wssHandle('WsTextMapSearch', async event => {
   const ctrl = getGenshinControl(event.session);
   const max = ctrl.state.MAX_TEXTMAP_SEARCH_RESULTS;
 
-  const versionFilter: GameVersionFilter = GameVersionFilter.from(event.data.versionFilter, ctrl.gameVersions.filter(v => v.showChangelog));
+  const versionFilter: GameVersionFilter = GameVersionFilter.from(event.data.versionFilter, ctrl.gameVersions.filter(v => v.showTextmapChangelog));
 
   const query = event.data.query;
   const resultSetIdx = isInt(event.data.resultSetIdx) ? event.data.resultSetIdx : 0;
@@ -45,7 +45,7 @@ export async function handleTextMapSearchEndpoint(ctrl: AbstractControl, req: Re
   const isRawInput: boolean = isset(req.query.isRawInput) && toBoolean(req.query.isRawInput);
   const isRawOutput: boolean = isset(req.query.isRawOutput) && toBoolean(req.query.isRawOutput);
   const hashSearch: boolean = isset(req.query.hashSearch) && toBoolean(req.query.hashSearch);
-  const versionFilter: GameVersionFilter = GameVersionFilter.from(req.query.versionFilter, ctrl.gameVersions.filter(v => v.showChangelog));
+  const versionFilter: GameVersionFilter = GameVersionFilter.from(req.query.versionFilter, ctrl.gameVersions.filter(v => v.showTextmapChangelog));
   const query: string = req.query.text as string;
   const max = ctrl.state.MAX_TEXTMAP_SEARCH_RESULTS;
 

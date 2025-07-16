@@ -1,11 +1,10 @@
 import '../../loadenv.ts';
-import { genshinSchema } from './genshin.schema.ts';
 import { LangCode, TextMapHash } from '../../../shared/types/lang-types.ts';
 import path from 'path';
 import fs from 'fs';
 import { defaultMap, isUnset } from '../../../shared/util/genericUtil.ts';
 import { isEquiv, mapBy, resolveObjectPath, walkObject } from '../../../shared/util/arrayUtil.ts';
-import { schemaPrimaryKey } from '../import_db.ts';
+import { schemaPrimaryKey, SchemaTableSet } from '../import_db.ts';
 import {
   ChangeRecordMap,
   ExcelFullChangelog,
@@ -13,7 +12,7 @@ import {
   TextMapFullChangelog,
 } from '../../../shared/types/changelog-types.ts';
 import { ltrim } from '../../../shared/util/stringUtil.ts';
-import { GameVersion, GenshinVersions } from '../../../shared/types/game-versions.ts';
+import { GameVersion, GameVersionFilter } from '../../../shared/types/game-versions.ts';
 
 class CreateChangelogState {
   // Data Holders:
@@ -47,31 +46,35 @@ class CreateChangelogState {
 
   // Constructor:
   // --------------------------------------------------------------------------------------------------------------
-  constructor(__versionLabel: string) {
+  constructor(readonly CHANGELOGS_DIR: string,
+              readonly ARCHIVES_DIR: string,
+              readonly gameSchema: SchemaTableSet,
+              readonly gameVersions: GameVersion[],
+              __versionLabel: string) {
     // Test environment variables:
-    if (!ENV.GENSHIN_CHANGELOGS) {
-      console.error('Must have GENSHIN_CHANGELOGS set in your .env!');
+    if (!CHANGELOGS_DIR) {
+      console.error('Must have CHANGELOGS_DIR set!');
       process.exit(1);
     }
-    if (!ENV.GENSHIN_ARCHIVES) {
-      console.error('Must have GENSHIN_ARCHIVES set in your .env!');
+    if (!ARCHIVES_DIR) {
+      console.error('Must have ARCHIVES_DIR set!');
       process.exit(1);
     }
 
     // Set version label:
     this.versionLabel = ltrim(__versionLabel.toLowerCase(), 'v');
-    this.version = GenshinVersions.find(v => v.number == this.versionLabel);
+    this.version = gameVersions.find(v => v.number == this.versionLabel);
     if (!this.version) {
       console.error('Invalid version: ' + this.versionLabel);
       process.exit(1);
     }
 
     // Set constants:
-    this.textmapChangelogFileName = path.resolve(ENV.GENSHIN_CHANGELOGS, `./TextMapChangeLog.${this.versionLabel}.json`);
-    this.excelChangelogFileName = path.resolve(process.env.GENSHIN_CHANGELOGS, `./ExcelChangeLog.${this.versionLabel}.json`);4
+    this.textmapChangelogFileName = path.resolve(CHANGELOGS_DIR, `./TextMapChangeLog.${this.versionLabel}.json`);
+    this.excelChangelogFileName = path.resolve(CHANGELOGS_DIR, `./ExcelChangeLog.${this.versionLabel}.json`);4
 
-    this.prevDataRoot = path.resolve(process.env.GENSHIN_ARCHIVES, `./${this.version.previous}`);
-    this.currDataRoot = path.resolve(process.env.GENSHIN_ARCHIVES, `./${this.version.number}`);
+    this.prevDataRoot = path.resolve(ARCHIVES_DIR, `./${this.version.previous}`);
+    this.currDataRoot = path.resolve(ARCHIVES_DIR, `./${this.version.number}`);
 
     // Initial message:
     console.info(`Creating changelog for ${this.version.previous} - ${this.version.number} diff`);
@@ -86,7 +89,7 @@ async function computeTextMapChanges(state: CreateChangelogState) {
   }
 
   const { textmapChangelog, prevDataRoot, currDataRoot } = state;
-  for (let schemaTable of Object.values(genshinSchema)) {
+  for (let schemaTable of Object.values(state.gameSchema)) {
     if (!schemaTable.textMapSchemaLangCode) {
       continue;
     }
@@ -152,11 +155,15 @@ async function computeExcelFileChanges(state: CreateChangelogState) {
 
   const { compositeTextMapHashUpdated, prevDataRoot, currDataRoot } = state;
 
-  for (let schemaTable of Object.values(genshinSchema)) {
+  for (let schemaTable of Object.values(state.gameSchema)) {
     // Skip tables we don't care about:
-    if (schemaTable.name.startsWith('Relation_') || schemaTable.name.startsWith('PlainLineMap') || schemaTable.name.startsWith('TextMap')
+    if (schemaTable.name.startsWith('Relation_')
+      || schemaTable.name.startsWith('PlainLineMap')
+      || schemaTable.name.startsWith('TextMap')
       || schemaTable.name === 'CodexQuestExcelConfigData' || schemaTable.name === 'DialogExcelConfigData'
-      || schemaTable.name === 'TalkExcelConfigData' || schemaTable.name === 'DialogUnparentedExcelConfigData' || schemaTable.name === 'QuestExcelConfigData') {
+      || schemaTable.name === 'TalkExcelConfigData'
+      || schemaTable.name === 'DialogUnparentedExcelConfigData'
+      || schemaTable.name === 'QuestExcelConfigData') {
       continue;
     }
 
@@ -305,12 +312,20 @@ async function computeExcelFileChanges(state: CreateChangelogState) {
   console.log('Finished computing Excel File changes.');
 }
 
-export async function createChangelog(versionLabel: string): Promise<void> {
-  const state: CreateChangelogState = new CreateChangelogState(versionLabel);
+export async function createChangelog(changelogsDir: string,
+                                      archivesDir: string,
+                                      gameSchema: SchemaTableSet,
+                                      gameVersions: GameVersion[],
+                                      versionLabel: string): Promise<void> {
+  const state: CreateChangelogState = new CreateChangelogState(changelogsDir, archivesDir, gameSchema, gameVersions, versionLabel);
 
-  await computeTextMapChanges(state);
-  await computeTextMapComposites(state);
-  await computeExcelFileChanges(state);
+  if (state.version.showTextmapChangelog) {
+    await computeTextMapChanges(state);
+    await computeTextMapComposites(state);
+  }
+  if (state.version.showExcelChangelog) {
+    await computeExcelFileChanges(state);
+  }
 }
 
 /**

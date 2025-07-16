@@ -12,6 +12,9 @@ import { importNormalize, importPlainTextMap } from '../util/import_file_util.ts
 import fs from 'fs';
 import { indexWuwaImages } from './module.index-images.ts';
 import { fetchFavorWords } from '../../domain/wuwa/character/fetchRoleFavorWords.ts';
+import { createChangelog } from '../util/createChangelogUtil.ts';
+import { WuwaVersions } from '../../../shared/types/game-versions.ts';
+import { wuwaSchema } from './wuwa.schema.ts';
 
 async function importVoiceOvers() {
   const outDir = ENV.WUWA_DATA_ROOT;
@@ -33,6 +36,7 @@ export async function importWuwaFilesCli() {
 
   const options_afterDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
     {name: 'voice-overs', type: Boolean, description: 'Creates the VoiceOvers file.'},
+    {name: 'changelog', type: String, typeLabel: '<version>', description: 'Creates changelog between the provided version and the version before it.'},
   ];
 
   const options_util: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
@@ -136,6 +140,9 @@ export async function importWuwaFilesCli() {
   if (options.plaintext) {
     const ctrl = getWuwaControl();
     await importPlainTextMap(ctrl, getWuwaDataFilePath);
+  }
+  if (options['changelog']) {
+    await createChangelog(ENV.WUWA_CHANGELOGS, ENV.WUWA_ARCHIVES, wuwaSchema, WuwaVersions, options['changelog']);
   }
 
   await closeKnex();

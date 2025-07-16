@@ -852,7 +852,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
 
   // region Changelog
   async selectTextMapChangelog(version: GameVersion): Promise<TextMapFullChangelog> {
-    if (!version || !version.showChangelog || !this.changelogConfig.textmapEnabled)
+    if (!version || !version.showTextmapChangelog || !this.changelogConfig.textmapEnabled)
       return null;
     return this.cached('TextMapChangelog:' + version.number, 'json', async () => {
       const textmapChangelogFileName = path.resolve(this.changelogConfig.directory, `./TextMapChangeLog.${version.number}.json`);
@@ -861,7 +861,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
   }
 
   async selectExcelChangelog(version: GameVersion): Promise<ExcelFullChangelog> {
-    if (!version || !version.showChangelog || !this.changelogConfig.excelEnabled)
+    if (!version || !version.showExcelChangelog || !this.changelogConfig.excelEnabled)
       return null;
     return this.cached('ExcelChangelog:' + version.number, 'json', async () => {
       const excelChangelogFileName = path.resolve(this.changelogConfig.directory, `./ExcelChangeLog.${version.number}.json`);
@@ -874,7 +874,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     return this.cached('AllChangeLogs', 'memory', async () => {
       let map: Record<string, FullChangelog> = {};
 
-      await this.gameVersions.filter(v => v.showChangelog).asyncForEach(async v => {
+      await this.gameVersions.filter(v => v.showTextmapChangelog || v.showExcelChangelog).asyncForEach(async v => {
         const changelog = await this.selectChangelog(v);
         if (changelog) {
           map[v.number] = changelog;
@@ -889,7 +889,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     return this.cached('AllTextMapChangeLogs', 'memory', async () => {
       let map: Record<string, TextMapFullChangelog> = {};
 
-      await this.gameVersions.filter(v => v.showChangelog).asyncForEach(async v => {
+      await this.gameVersions.filter(v => v.showTextmapChangelog).asyncForEach(async v => {
         map[v.number] = await this.selectTextMapChangelog(v);
       });
 
@@ -901,7 +901,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     return this.cached('AllExcelChangeLogs', 'memory', async () => {
       let map: Record<string, ExcelFullChangelog> = {};
 
-      await GenshinVersions.filter(v => v.showChangelog).asyncForEach(async v => {
+      await GenshinVersions.filter(v => v.showExcelChangelog).asyncForEach(async v => {
         map[v.number] = await this.selectExcelChangelog(v);
       });
 
@@ -910,14 +910,14 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
   }
 
   async selectChangelog(version: GameVersion): Promise<FullChangelog> {
-    if (!version || !version.showChangelog) {
+    if (!version || (!version.showTextmapChangelog && !version.showExcelChangelog)) {
       return null;
     }
     return Promise.all([
       this.selectTextMapChangelog(version),
       this.selectExcelChangelog(version)
     ]).then(([textmapChangelog, excelChangelog]) => {
-      if (textmapChangelog === null || excelChangelog === null) {
+      if (textmapChangelog === null && excelChangelog === null) {
         return null;
       }
       return <FullChangelog> {

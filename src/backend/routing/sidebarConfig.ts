@@ -247,6 +247,7 @@ export const SIDEBAR_CONFIG: { [siteMode: string]: SiteSidebar } = {
               { id: 'textmap-search', name: 'Textmap Search', link: '/zenless/textmap',  bodyClass: 'page--textmap' },
               { id: 'ol-generator', name: 'OL Generator', link: '/zenless/OL', bodyClass: 'page--OL' },
               { id: 'dialogue-helper', name: 'Dialogue Helper', link: '/zenless/dialogue-helper', bodyClass: 'page--dialogue-helper' },
+              { id: 'changelog', name: 'Changelog', link: '/zenless/changelog', bodyClass: 'page--changelog' },
             ]
           }
         ]
