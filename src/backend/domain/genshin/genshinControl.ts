@@ -248,7 +248,7 @@ export function getGenshinControl(request?: ControlUserModeProvider) {
 // --------------------------------------------------------------------------------------------------------------
 export class GenshinControl extends AbstractControl<GenshinControlState> {
   // region Constructor
-  readonly voice: GenshinVoice = new GenshinVoice();
+  readonly voice: GenshinVoice = new GenshinVoice(this);
 
   constructor(modeOrState?: ControlUserModeProvider|GenshinControlState) {
     super({
@@ -261,7 +261,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       currentGameVersion: CurrentGenshinVersion,
       gameVersions: GenshinVersions,
       changelogConfig: {
-        directory: process.env.GENSHIN_CHANGELOGS,
+        directory: ENV.GENSHIN_CHANGELOGS,
         textmapEnabled: true,
         excelEnabled: true,
       },
@@ -3578,7 +3578,7 @@ export async function loadGenshinVoiceItems(): Promise<void> {
     return;
   logInitData('Loading Genshin Voice Items -- starting...');
 
-  const voiceItemsFilePath = path.resolve(process.env.GENSHIN_DATA_ROOT, DATAFILE_GENSHIN_VOICE_ITEMS);
+  const voiceItemsFilePath = path.resolve(ENV.GENSHIN_DATA_ROOT, DATAFILE_GENSHIN_VOICE_ITEMS);
   const result: VoiceItemArrayMap = await fsp.readFile(voiceItemsFilePath, {encoding: 'utf8'}).then(data => JSON.parse(data));
 
   Object.assign(GENSHIN_VOICE_ITEMS, result);
@@ -3589,6 +3589,11 @@ export async function loadGenshinVoiceItems(): Promise<void> {
 export type GenshinVoiceItemType = 'Dialog'|'Reminder'|'Fetter'|'AnimatorEvent'|'WeatherMonologue'|'JoinTeam'|'Card';
 
 export class GenshinVoice {
+  private prefixingDisabled: boolean;
+
+  constructor(readonly ctrl: GenshinControl) {
+    this.prefixingDisabled = ctrl.state.prefs.voPrefixDisabledLangs?.includes(ctrl.outputLangCode);
+  }
 
   getVoiceItemsByType(type: GenshinVoiceItemType, avatar?: string): VoiceItem[] {
     let resultItems: VoiceItem[] = [];
@@ -3655,6 +3660,10 @@ export class GenshinVoice {
   }
 
   getVoPrefix(type: GenshinVoiceItemType, id: number|string, text?: string, talkRoleType?: TalkRoleType, commentOutDupes: boolean = true): string {
+    if (this.prefixingDisabled) {
+      return '';
+    }
+
     let voItems = GENSHIN_VOICE_ITEMS[type+'_'+id];
     let voPrefix = '';
     if (voItems) {

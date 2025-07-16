@@ -79,7 +79,7 @@ export const DEFAULT_LANG: LangCode = 'EN';
 
 export const NON_SPACE_DELIMITED_LANG_CODES: LangCode[] = ['CH', 'CHS', 'CHT', 'TH', 'JP'];
 
-export const isLangCode = (str: string) => {
+export const isLangCode = (str: string): str is LangCode => {
   return (<string[]>LANG_CODES).includes(str);
 };
 
@@ -152,7 +152,7 @@ export interface LangSuggest {
 
 export const CLD2_TO_LANG_CODE = {
   zh: 'CHS',
-  'zh-Hant': 'CHT',
+  'zh-hant': 'CHT',
   de: 'DE',
   en: 'EN',
   es: 'ES',

@@ -20,7 +20,7 @@ import { fsReadJson } from '../../../util/fsutil.ts';
 export async function fetchFavorWords(ctrl: WuwaControl, skipCache: boolean = false): Promise<FavorWordGroupByRole> {
   if (!skipCache) {
     return ctrl.cached('RoleFavor:RoleFavorWordsGroup', 'json', async () => {
-      const filePath = path.resolve(process.env.WUWA_DATA_ROOT, DATAFILE_WUWA_ROLE_FAVOR_WORDS);
+      const filePath = path.resolve(ENV.WUWA_DATA_ROOT, DATAFILE_WUWA_ROLE_FAVOR_WORDS);
       const result: FavorWordGroupByRole = await fsReadJson(filePath);
       return result;
     });

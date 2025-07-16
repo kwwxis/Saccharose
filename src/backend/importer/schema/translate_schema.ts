@@ -20,7 +20,7 @@ import { genshinSchema } from '../genshin/genshin.schema.ts';
 const JSONbig: JSONBigInt = JSONBigImport({ useNativeBigInt: true, objectProto: true });
 
 const textMapHashes: Set<string> = new Set(Object.keys(
-  JSON.parse(fs.readFileSync(path.resolve(process.env.GENSHIN_DATA_ROOT, './TextMap/TextMapEN.json'), 'utf-8'))
+  JSON.parse(fs.readFileSync(path.resolve(ENV.GENSHIN_DATA_ROOT, './TextMap/TextMapEN.json'), 'utf-8'))
 ));
 
 // region Types/Basic Utils

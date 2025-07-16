@@ -49,11 +49,11 @@ class CreateChangelogState {
   // --------------------------------------------------------------------------------------------------------------
   constructor(__versionLabel: string) {
     // Test environment variables:
-    if (!process.env.GENSHIN_CHANGELOGS) {
+    if (!ENV.GENSHIN_CHANGELOGS) {
       console.error('Must have GENSHIN_CHANGELOGS set in your .env!');
       process.exit(1);
     }
-    if (!process.env.GENSHIN_ARCHIVES) {
+    if (!ENV.GENSHIN_ARCHIVES) {
       console.error('Must have GENSHIN_ARCHIVES set in your .env!');
       process.exit(1);
     }
@@ -67,7 +67,7 @@ class CreateChangelogState {
     }
 
     // Set constants:
-    this.textmapChangelogFileName = path.resolve(process.env.GENSHIN_CHANGELOGS, `./TextMapChangeLog.${this.versionLabel}.json`);
+    this.textmapChangelogFileName = path.resolve(ENV.GENSHIN_CHANGELOGS, `./TextMapChangeLog.${this.versionLabel}.json`);
     this.excelChangelogFileName = path.resolve(process.env.GENSHIN_CHANGELOGS, `./ExcelChangeLog.${this.versionLabel}.json`);4
 
     this.prevDataRoot = path.resolve(process.env.GENSHIN_ARCHIVES, `./${this.version.previous}`);

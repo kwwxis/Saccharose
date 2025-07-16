@@ -89,7 +89,7 @@ export function traceMiddleware(req: Request, res: Response, next: NextFunction)
   const store: ITrace = {
     req,
     res,
-    env: process.env as any,
+    env: ENV as any,
     get cookies() {
       return req.cookies || {};
     },

@@ -14,7 +14,7 @@ import { indexWuwaImages } from './module.index-images.ts';
 import { fetchFavorWords } from '../../domain/wuwa/character/fetchRoleFavorWords.ts';
 
 async function importVoiceOvers() {
-  const outDir = process.env.WUWA_DATA_ROOT;
+  const outDir = ENV.WUWA_DATA_ROOT;
 
   const ctrl = getWuwaControl();
   const favorWordGroups = await fetchFavorWords(ctrl, true);

@@ -9,7 +9,7 @@ export function createWsJwtToken(user: SiteUser): string {
   const userCopy = cloneDeep(user);
   delete userCopy.prefs?.siteMenuShown;
   delete (<any> userCopy.discord)?.accessToken;
-  return jwt.sign(userCopy, process.env.JWT_SECRET, { expiresIn: '1h' });
+  return jwt.sign(userCopy, ENV.JWT_SECRET, { expiresIn: '1h' });
 }
 
 export function verifyWsJwtToken(tokenSource: http.IncomingMessage|string|string[]): WsJwtToken {
@@ -33,7 +33,7 @@ export function verifyWsJwtToken(tokenSource: http.IncomingMessage|string|string
     tokenSource = tokenSource.replace(/^bearer([:.\s])\s*/i, '');
 
     try {
-      let decoded = jwt.verify(tokenSource, process.env.JWT_SECRET);
+      let decoded = jwt.verify(tokenSource, ENV.JWT_SECRET);
       if (!!decoded && typeof decoded === 'object' && decoded.id) {
         return decoded as WsJwtToken;
       } else {

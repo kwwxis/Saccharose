@@ -155,7 +155,7 @@ const findKeyWithValue = (o: any, searchV: any, searchDepth: number, currentDept
 // endregion
 
 function getSchemaFilePath(filePath: string): string {
-  return path.resolve(process.env.GENSHIN_ARCHIVES, `./5.4/`, filePath);
+  return path.resolve(ENV.GENSHIN_ARCHIVES, `./5.4/`, filePath);
 }
 
 export async function writeDeobfBin() {

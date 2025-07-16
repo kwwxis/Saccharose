@@ -60,7 +60,7 @@ function getVoAvatarName(avatar: AvatarExcelConfigData, voiceItems: VoiceItem[])
 export async function fetchCharacterFetters(ctrl: GenshinControl, skipCache: boolean = false): Promise<FetterGroupByAvatar> {
   if (!skipCache) {
     return ctrl.cached('Fetters:FetterGroup', 'json', async () => {
-      const filePath = path.resolve(process.env.GENSHIN_DATA_ROOT, DATAFILE_GENSHIN_FETTERS);
+      const filePath = path.resolve(ENV.GENSHIN_DATA_ROOT, DATAFILE_GENSHIN_FETTERS);
       const result: FetterGroupByAvatar = await fsReadJson(filePath);
       return result;
     });

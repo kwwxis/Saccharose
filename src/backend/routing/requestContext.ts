@@ -82,7 +82,7 @@ export class RequestContext {
     this.htmlMetaProps['x-site-mode-home'] = this.siteHome;
     this.htmlMetaProps['x-site-mode-name'] = this.siteModeName;
     this.htmlMetaProps['x-site-mode-wiki-domain'] = this.siteModeWikiDomain;
-    this.htmlMetaProps['x-wss-url'] = process.env.WSS_URL;
+    this.htmlMetaProps['x-wss-url'] = ENV.WSS_URL;
   }
 
   async createStaticVirtualView(html: string|App): Promise<string> {

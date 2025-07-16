@@ -17,18 +17,18 @@ let singleton: SaccharoseDb = null;
 let pgSingleton: Knex = null;
 
 export const pgSessionPool = new Pool({
-  host:     process.env.POSTGRES_SITE_HOST,
-  database: process.env.POSTGRES_SITE_DATABASE,
-  user:     process.env.POSTGRES_SITE_USER,
-  password: process.env.POSTGRES_SITE_PASSWORD,
-  port:     toInt(process.env.POSTGRES_SITE_PORT, 5432),
+  host:     ENV.POSTGRES_SITE_HOST,
+  database: ENV.POSTGRES_SITE_DATABASE,
+  user:     ENV.POSTGRES_SITE_USER,
+  password: ENV.POSTGRES_SITE_PASSWORD,
+  port:     toInt(ENV.POSTGRES_SITE_PORT, 5432),
 });
 
 function pgSiteDatabase() {
   return knex({
     client: 'pg',
     connection: {
-      host:     process.env.POSTGRES_SITE_HOST,
+      host:     ENV.POSTGRES_SITE_HOST,
       database: process.env.POSTGRES_SITE_DATABASE,
       user:     process.env.POSTGRES_SITE_USER,
       password: process.env.POSTGRES_SITE_PASSWORD,

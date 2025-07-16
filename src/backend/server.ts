@@ -15,7 +15,7 @@ import { setIsServerRun } from './loadenv.ts';
 
 (async () => {
   setIsServerRun(true);
-  logInit(`Booting server; NodeJS ${process.version}, in ${process.env.NODE_ENV} mode ...`);
+  logInit(`Booting server; NodeJS ${process.version}, in ${ENV.NODE_ENV} mode ...`);
   const app = await appInit();
 
   let httpPort: number = toInt(process.env.HTTP_PORT);

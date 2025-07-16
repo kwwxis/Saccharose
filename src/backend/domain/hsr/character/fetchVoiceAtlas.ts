@@ -24,7 +24,7 @@ import { fsReadJson } from '../../../util/fsutil.ts';
 export async function fetchVoiceAtlases(ctrl: StarRailControl, skipCache: boolean = false): Promise<VoiceAtlasGroupByAvatar> {
   if (!skipCache) {
     return ctrl.cached('VoiceAtlasGroup', 'json', async () => {
-      const filePath = path.resolve(process.env.HSR_DATA_ROOT, DATAFILE_HSR_VOICE_ATLASES);
+      const filePath = path.resolve(ENV.HSR_DATA_ROOT, DATAFILE_HSR_VOICE_ATLASES);
       const result: VoiceAtlasGroupByAvatar = await fsReadJson(filePath);
       return result;
     });

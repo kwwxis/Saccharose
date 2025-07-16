@@ -19,7 +19,7 @@ const ONE_GB = 1_000_000_000;
 const ONE_MB = 1_000_000;
 const MAX_COMBINED_SIZE = ONE_GB;
 
-const TMP_DIR = process.env.TMP_DIR;
+const TMP_DIR = ENV.TMP_DIR;
 
 async function doJob(job: ScriptJob<'createImageIndexArchive'>,
                      args: ScriptJobInput<'createImageIndexArchive'>) {
@@ -45,13 +45,13 @@ async function doJob(job: ScriptJob<'createImageIndexArchive'>,
     const IMAGES_DIR: string = (() => {
       switch (args.siteMode) {
         case 'genshin':
-          return process.env.EXT_GENSHIN_IMAGES;
+          return ENV.EXT_GENSHIN_IMAGES;
         case 'hsr':
-          return process.env.EXT_HSR_IMAGES;
+          return ENV.EXT_HSR_IMAGES;
         case 'zenless':
-          return process.env.EXT_ZENLESS_IMAGES;
+          return ENV.EXT_ZENLESS_IMAGES;
         case 'wuwa':
-          return process.env.EXT_WUWA_IMAGES;
+          return ENV.EXT_WUWA_IMAGES;
         default:
           throw 'Bad siteMode: ' + args.siteMode;
       }

@@ -20,8 +20,8 @@ passport.deserializeUser(function(obj, done) {
 passport.use(
   new DiscordStrategy(
     {
-      clientID: process.env.DISCORD_APP_CLIENT_ID,
-      clientSecret: process.env.DISCORD_APP_CLIENT_SECRET,
+      clientID: ENV.DISCORD_APP_CLIENT_ID,
+      clientSecret: ENV.DISCORD_APP_CLIENT_SECRET,
       callbackURL: '/auth/callback',
       scope: ['identify']
     },
@@ -38,7 +38,7 @@ const pgSession = connectPgSimple(session);
 
 export default [
   session({
-    secret: process.env.SESSION_SECRET,
+    secret: ENV.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
 
@@ -53,13 +53,13 @@ export default [
     //   - have secure attribute set to true
     //   - NOT have a domain attribute
     //   - path set to "/"
-    name: toBoolean(process.env.SSL_ENABLED) ? '__Host-connect.sid' : 'connect.sid',
+    name: toBoolean(ENV.SSL_ENABLED) ? '__Host-connect.sid' : 'connect.sid',
     cookie: {
       httpOnly: true,
       sameSite: 'lax',
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
       path: '/',
-      secure: toBoolean(process.env.SSL_ENABLED),
+      secure: toBoolean(ENV.SSL_ENABLED),
     },
   }),
   passport.initialize(),

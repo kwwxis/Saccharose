@@ -3,7 +3,7 @@ import { DEFAULT_LANG, LANG_CODES, LangCode } from '../../../shared/types/lang-t
 import { DEFAULT_SEARCH_MODE, SEARCH_MODES, SearchMode } from '../../../shared/util/searchUtil.ts';
 import { Knex } from 'knex';
 import { WsSession } from '../../websocket/ws-sessions.ts';
-import { SiteUser } from '../../../shared/types/site/site-user-types.ts';
+import { SiteUser, SiteUserPrefs } from '../../../shared/types/site/site-user-types.ts';
 
 export type AbstractControlStateType<T extends AbstractControlState = AbstractControlState> = {new(controlUserModeProvider?: ControlUserModeProvider): T};
 
@@ -33,6 +33,10 @@ export abstract class AbstractControlState {
     return this.controlUserMode.searchMode;
   }
 
+  get prefs(): SiteUserPrefs {
+    return this.controlUserMode.prefs;
+  }
+
   abstract copy(trx?: Knex.Transaction|boolean): AbstractControlState;
 }
 
@@ -40,6 +44,7 @@ export interface ControlUserMode {
   inputLangCode: LangCode,
   outputLangCode: LangCode,
   searchMode: SearchMode,
+  prefs: SiteUserPrefs,
 }
 
 export type ControlUserModeProvider = ControlUserMode|Request|WsSession|SiteUser;
@@ -49,6 +54,7 @@ function createDefaultControlUserMode(): ControlUserMode {
     inputLangCode: DEFAULT_LANG,
     outputLangCode: DEFAULT_LANG,
     searchMode: DEFAULT_SEARCH_MODE,
+    prefs: {},
   };
 }
 
@@ -75,12 +81,14 @@ export function getControlUserMode(input: ControlUserModeProvider): ControlUserM
     mode.inputLangCode = input.context.inputLangCode;
     mode.outputLangCode = input.context.outputLangCode;
     mode.searchMode = input.context.searchMode;
+    mode.prefs = input.context.prefs;
   }
 
   if (isSiteUser(input)) {
     mode.inputLangCode = input.prefs.inputLangCode || DEFAULT_LANG;
     mode.outputLangCode = input.prefs.outputLangCode || DEFAULT_LANG;
     mode.searchMode = input.prefs.searchMode || DEFAULT_SEARCH_MODE;
+    mode.prefs = input.prefs;
   }
 
   return mode;

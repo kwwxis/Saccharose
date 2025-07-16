@@ -8,8 +8,9 @@ import {
 import { pageMatch } from '../../../core/pageMatch.ts';
 import { HttpError } from '../../../../shared/util/httpError.ts';
 import { pasteFromClipboard } from '../../../util/domutil.ts';
-import { isUnset } from '../../../../shared/util/genericUtil.ts';
+import { toBoolean } from '../../../../shared/util/genericUtil.ts';
 import { modalService } from '../../../util/modalService.ts';
+import { setUserPref } from '../../../core/userPreferences/sitePrefsContainer.ts';
 
 pageMatch('vue/OLGenPage', () => {
   const {endpoint, tlRmDisabled, neverDefaultHidden} = getOLEndpoint();
@@ -41,9 +42,9 @@ pageMatch('vue/OLGenPage', () => {
     let inputEl = document.querySelector<HTMLInputElement>('.ol-input');
     let buttonEl  = document.querySelector<HTMLButtonElement>('.ol-submit');
     let loadingEl = document.querySelector<HTMLElement>('.ol-submit-pending');
-    let tlOptionValue = document.querySelector<HTMLInputElement>('input[type="radio"][name="tl_options"]:checked')?.value;
-    let rmOptionValue = document.querySelector<HTMLInputElement>('input[type="radio"][name="rm_options"]:checked')?.value;
-    let includeHeader = document.querySelector<HTMLInputElement>('input[type="checkbox"][name="ol_header"]')?.checked;
+    let excludeTl = toBoolean(document.querySelector<HTMLInputElement>('input[type="radio"][name="ol_excludeTl"]')?.value);
+    let excludeRm = toBoolean(document.querySelector<HTMLInputElement>('input[type="radio"][name="ol_excludeRm"]')?.value);
+    let includeHeader = toBoolean(document.querySelector<HTMLInputElement>('input[type="checkbox"][name="ol_includeHeader"]')?.checked);
     let text = inputEl.value.trim();
 
     if (!text) {
@@ -65,10 +66,10 @@ pageMatch('vue/OLGenPage', () => {
 
     endpoint.send({
       text,
-      hideTl: tlRmDisabled || tlOptionValue === 'exclude_tl' || isUnset(tlOptionValue),
-      addDefaultHidden: !neverDefaultHidden && tlOptionValue === 'exclude_tl',
-      hideRm: tlRmDisabled || rmOptionValue === 'exclude_rm' || isUnset(rmOptionValue),
-      includeHeader: includeHeader ? '1' : undefined,
+      hideTl: tlRmDisabled || excludeTl,
+      addDefaultHidden: !neverDefaultHidden && excludeTl,
+      hideRm: tlRmDisabled || excludeRm,
+      includeHeader: includeHeader,
     }, null, true).then(result => {
       document.querySelector('#ol-results-list').innerHTML = result;
     }).catch((err: HttpError) => {
@@ -159,25 +160,30 @@ pageMatch('vue/OLGenPage', () => {
       }
     },
     {
-      selector: 'input[type="radio"][name="tl_options"],input[type="radio"][name="rm_options"]',
+      selector: 'input[type="radio"][name="ol_excludeTl"]',
       event: 'input',
-      multiple: true,
-      handle: function(event, target: HTMLInputElement) {
-        let name = target.name;
-        let value = target.value;
-        Cookies.set('OL.'+name, value, { expires: 365 });
+      handle: async function(_event, target: HTMLInputElement) {
+        target.disabled = true;
+        await setUserPref('ol_excludeTl', toBoolean(target.value));
+        target.disabled = false;
       }
     },
     {
-      selector: 'input[type="checkbox"][name="ol_header"]',
+      selector: 'input[type="radio"][name="ol_excludeRm"]',
       event: 'input',
-      multiple: true,
-      handle: function(event, target: HTMLInputElement) {
-        if (target.checked) {
-          Cookies.set('OL.includeHeader', '1', { expires: 365 });
-        } else {
-          Cookies.remove('OL.includeHeader');
-        }
+      handle: async function(_event, target: HTMLInputElement) {
+        target.disabled = true;
+        await setUserPref('ol_excludeRm', toBoolean(target.value));
+        target.disabled = false;
+      }
+    },
+    {
+      selector: 'input[type="checkbox"][name="ol_includeHeader"]',
+      event: 'input',
+      handle: async function(_event, target: HTMLInputElement) {
+        target.disabled = true;
+        await setUserPref('ol_includeHeader', target.checked);
+        target.disabled = false;
       }
     },
     {

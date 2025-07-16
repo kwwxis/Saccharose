@@ -50,7 +50,7 @@ function createIncludeFunction(req: Request, viewStackPointer: RequestViewStack)
     }
 
     const viewPath = resolveViewPath(view);
-    const viewContent = process.env.NODE_ENV === 'development'
+    const viewContent = ENV.NODE_ENV === 'development'
       ? fs.readFileSync(viewPath, 'utf8')
       : getViewContent(viewPath)
 

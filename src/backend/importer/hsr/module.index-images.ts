@@ -110,8 +110,8 @@ export async function indexStarRailImages(catMapOnly: boolean = false) {
   }
 
   console.log('Computing excel usages...');
-  for (let fileName of fs.readdirSync(path.resolve(process.env.HSR_DATA_ROOT, './ExcelOutput'))) {
-    const json: any[] = JSON.parse(fs.readFileSync(path.resolve(process.env.HSR_DATA_ROOT, './ExcelOutput', fileName), 'utf-8'));
+  for (let fileName of fs.readdirSync(path.resolve(ENV.HSR_DATA_ROOT, './ExcelOutput'))) {
+    const json: any[] = JSON.parse(fs.readFileSync(path.resolve(ENV.HSR_DATA_ROOT, './ExcelOutput', fileName), 'utf-8'));
     let { images, imagesToExcelMetaEntry } = findImageUsages(json);
     for (let imageName of images) {
       imageNameToExcelFileUsages[imageName].push(fileName);
@@ -186,7 +186,7 @@ export async function indexStarRailImages(catMapOnly: boolean = false) {
   }
 
   fs.writeFileSync(
-    path.resolve(process.env.HSR_DATA_ROOT, './ImageIndexCategoryMap.json'),
+    path.resolve(ENV.HSR_DATA_ROOT, './ImageIndexCategoryMap.json'),
     JSON.stringify(catmap, null, 2),
     'utf-8'
   );

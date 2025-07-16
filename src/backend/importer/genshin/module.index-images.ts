@@ -60,7 +60,7 @@ export async function indexGenshinImages(catMapOnly: boolean = false) {
   }
 
   const firstVersionMap = JSON.parse(fs.readFileSync(
-    path.resolve(process.env.GENSHIN_DATA_ROOT, './NewImages.json'),
+    path.resolve(ENV.GENSHIN_DATA_ROOT, './NewImages.json'),
     {encoding: 'utf8'}
   ));
 
@@ -113,8 +113,8 @@ export async function indexGenshinImages(catMapOnly: boolean = false) {
   }
 
   console.log('Computing excel usages...');
-  for (let fileName of fs.readdirSync(path.resolve(process.env.GENSHIN_DATA_ROOT, './ExcelBinOutput'))) {
-    const json: any[] = JSON.parse(fs.readFileSync(path.resolve(process.env.GENSHIN_DATA_ROOT, './ExcelBinOutput', fileName), 'utf-8'));
+  for (let fileName of fs.readdirSync(path.resolve(ENV.GENSHIN_DATA_ROOT, './ExcelBinOutput'))) {
+    const json: any[] = JSON.parse(fs.readFileSync(path.resolve(ENV.GENSHIN_DATA_ROOT, './ExcelBinOutput', fileName), 'utf-8'));
     let { images, imagesToExcelMetaEntry } = findImageUsages(json);
     for (let imageName of images) {
       imageNameToExcelFileUsages[imageName].push(fileName);
@@ -200,7 +200,7 @@ export async function indexGenshinImages(catMapOnly: boolean = false) {
   }
 
   fs.writeFileSync(
-    path.resolve(process.env.GENSHIN_DATA_ROOT, './ImageIndexCategoryMap.json'),
+    path.resolve(ENV.GENSHIN_DATA_ROOT, './ImageIndexCategoryMap.json'),
     JSON.stringify(catmap, null, 2),
     'utf-8'
   );

@@ -84,7 +84,7 @@ export async function fetchCharacterStories(ctrl: GenshinControl): Promise<Story
     }
 
     for (let agg of Object.values(fettersByAvatar)) {
-      let wikitext = '==Character Stories==\n{{Character Story';
+      let wikitext = '{{Character Story';
       let i = 1;
       for (let fetter of agg.fetters) {
         wikitext += `\n|title${i}`.padEnd(16)+'= '+fetter.StoryTitleText;
@@ -106,7 +106,7 @@ export async function fetchCharacterStories(ctrl: GenshinControl): Promise<Story
       agg.wikitext = wikitext;
 
       if (agg.hasAlteredStories) {
-        let alteredWikitext = '==Altered Character Stories==\n{{Character Story';
+        let alteredWikitext = '{{Character Story';
         i = 0;
         for (let fetter of agg.fetters) {
           i++;

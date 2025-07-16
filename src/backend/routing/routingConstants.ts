@@ -28,7 +28,7 @@ import { SITE_TITLE, SITE_SHORT_TITLE } from '../loadenv.ts';
 export const DEFAULT_GLOBAL_LOCALS = {
   // Environment
   // ~~~~~~~~~~~
-  env: process.env,
+  env: ENV,
   SITE_TITLE,
   SITE_SHORT_TITLE,
 

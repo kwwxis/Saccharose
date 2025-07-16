@@ -24,7 +24,7 @@ export async function recordNewImages() {
   }
 
   fs.writeFileSync(
-    path.resolve(process.env.GENSHIN_DATA_ROOT, './NewImages.json'),
+    path.resolve(ENV.GENSHIN_DATA_ROOT, './NewImages.json'),
     JSON.stringify(result, null, 2),
     'utf-8'
   );

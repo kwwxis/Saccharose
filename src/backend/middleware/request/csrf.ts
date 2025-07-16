@@ -4,13 +4,13 @@ import { doubleCsrf } from 'csrf-csrf';
 import { DoubleCsrfConfigOptions } from 'csrf-csrf/lib';
 
 export const CSRF_COOKIE_NAME =
-  toBoolean(process.env.SSL_ENABLED) ? '__Host-x-csrf-token' : 'x-csrf-token';
+  toBoolean(ENV.SSL_ENABLED) ? '__Host-x-csrf-token' : 'x-csrf-token';
 
 const CSRF_COOKIE_OPTIONS: CookieOptions = {
   httpOnly: true,
   sameSite: 'strict',
   path: '/',
-  secure: toBoolean(process.env.SSL_ENABLED),
+  secure: toBoolean(ENV.SSL_ENABLED),
 };
 
 export function clearCsrfCookie(res: Response) {
@@ -18,7 +18,7 @@ export function clearCsrfCookie(res: Response) {
 }
 
 const CONFIG: DoubleCsrfConfigOptions = {
-  getSecret: () => process.env.CSRF_TOKEN_SECRET,
+  getSecret: () => ENV.CSRF_TOKEN_SECRET,
   getSessionIdentifier: (req) => req?.user?.id || '',
   cookieName: CSRF_COOKIE_NAME,
   cookieOptions: CSRF_COOKIE_OPTIONS,

@@ -56,7 +56,7 @@ let wss: WebSocketServer = null;
 export function startWss() {
   logInit('Starting WebSocket server ...');
 
-  const wss_port = toInt(process.env.WSS_PORT);
+  const wss_port = toInt(ENV.WSS_PORT);
 
   enableWsSessionEvictionLoop();
 

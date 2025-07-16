@@ -35,8 +35,24 @@ function parseUiAction(actionEl: HTMLElement): UiAction[] {
       if (param.startsWith('attr.')) {
         return actionEl.getAttribute(param.slice('attr.'.length));
       } else {
-        return param;
       }
+
+      param.replace(/#\{attr\.([a-zA-Z\-]+)}/g, (_fm, g1) => {
+        return actionEl.getAttribute(g1);
+      });
+
+      if (actionEl instanceof HTMLInputElement || actionEl instanceof HTMLTextAreaElement || actionEl instanceof HTMLSelectElement) {
+        param = param.replace(/#\{(el|element|input|textarea|select)\.value}/gi, () => {
+          return actionEl.value;
+        });
+      }
+      if (actionEl instanceof HTMLInputElement) {
+        param = param.replace(/#\{(el|element|input)\.checked}/gi, () => {
+          return actionEl.checked ? 'true' : 'false';
+        });
+      }
+
+      return param;
     });
 
     result.push({
@@ -379,18 +395,6 @@ export function runUiActions(actionEl: HTMLElement, actions: UiAction[]) {
           const trigger: HTMLElement = !actionParams[1] ? actionEl : qs(actionParams[1], container);
           uiExpando(trigger, container);
         }
-        break;
-      }
-
-      // Cookie Actions
-      // ----------------------------------------------------------------------------------------------------
-      case 'set-cookie': {
-        Cookies.set(actionParams[0].trim(), actionParams[1].trim(), { expires: 365 });
-        break;
-      }
-      case 'remove-cookie':
-      case 'delete-cookie': {
-        Cookies.remove(actionParams[0].trim());
         break;
       }
 

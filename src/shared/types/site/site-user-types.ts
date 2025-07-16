@@ -26,7 +26,13 @@ export type SiteUserPrefs = {
   outputLangCode?: LangCode,
   isNightmode?: boolean,
   searchMode?: SearchMode,
-  siteMenuShown?: SiteMenuShown
+  siteMenuShown?: SiteMenuShown,
+
+  ol_excludeTl?: boolean,
+  ol_excludeRm?: boolean,
+  ol_includeHeader?: boolean,
+
+  voPrefixDisabledLangs?: LangCode[],
 };
 
 export type SiteMenuShown = {

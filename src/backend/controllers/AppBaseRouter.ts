@@ -36,17 +36,17 @@ export default async function(): Promise<Router> {
     const cspOptions: any = {
       useDefaults: true,
       directives: {
-        defaultSrc: ["'self'", 'cdnjs.cloudflare.com', 'unpkg.com', 'fonts.googleapis.com', 'fonts.gstatic.com', `${process.env.WEB_DOMAIN}:*`, 'cdn.discordapp.com', 'static.wikia.nocookie.net'],
+        defaultSrc: ["'self'", 'cdnjs.cloudflare.com', 'unpkg.com', 'fonts.googleapis.com', 'fonts.gstatic.com', `${ENV.WEB_DOMAIN}:*`, 'cdn.discordapp.com', 'static.wikia.nocookie.net'],
         styleSrc: ["'self'", "'unsafe-inline'", 'cdnjs.cloudflare.com', 'unpkg.com', 'fonts.googleapis.com', 'fonts.gstatic.com'],
-        scriptSrc: ["'self'", "'unsafe-eval'", 'cdnjs.cloudflare.com', 'unpkg.com', `'nonce-${req.context.nonce}'`, `${process.env.WEB_DOMAIN}:*`],
+        scriptSrc: ["'self'", "'unsafe-eval'", 'cdnjs.cloudflare.com', 'unpkg.com', `'nonce-${req.context.nonce}'`, `${ENV.WEB_DOMAIN}:*`],
         fontSrc: ["'self'", 'data:', 'fonts.googleapis.com', 'fonts.gstatic.com'],
-        imgSrc: ["'self'", 'data:', `${process.env.WEB_DOMAIN}:*`, 'cdn.discordapp.com', 'static.wikia.nocookie.net'],
-        connectSrc: ["'self'", `wss://${process.env.WEB_DOMAIN}:*`],
+        imgSrc: ["'self'", 'data:', `${ENV.WEB_DOMAIN}:*`, 'cdn.discordapp.com', 'static.wikia.nocookie.net'],
+        connectSrc: ["'self'", `wss://${ENV.WEB_DOMAIN}:*`],
       },
       reportOnly: false,
     };
 
-    if (toBoolean(process.env.SSL_ENABLED)) {
+    if (toBoolean(ENV.SSL_ENABLED)) {
       cspOptions.directives.upgradeInsecureRequests = [];
     } else {
       cspOptions.directives.upgradeInsecureRequests = null;

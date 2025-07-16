@@ -506,7 +506,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
       case 'genshin':
       case 'genshinimpact':
       case 'genshin-impact':
-        if (isStringBlank(process.env.GENSHIN_DATA_ROOT)) {
+        if (isStringBlank(ENV.GENSHIN_DATA_ROOT)) {
           console.error(chalk.red('\n"GENSHIN_DATA_ROOT" must be set in .env\n'));
           return;
         }
@@ -518,7 +518,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
       case 'starrail':
       case 'star-rail':
       case 'honkaistarrail':
-        if (isStringBlank(process.env.HSR_DATA_ROOT)) {
+        if (isStringBlank(ENV.HSR_DATA_ROOT)) {
           console.error(chalk.red('\n"HSR_DATA_ROOT" must be set in .env\n'));
           return;
         }
@@ -529,7 +529,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
       case 'zzz':
       case 'zenless':
       case 'zenlesszonezero':
-        if (isStringBlank(process.env.ZENLESS_DATA_ROOT)) {
+        if (isStringBlank(ENV.ZENLESS_DATA_ROOT)) {
           console.error(chalk.red('\n"ZENLESS_DATA_ROOT" must be set in .env\n'));
           return;
         }
@@ -542,7 +542,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
       case 'wuthering':
       case' wutheringwaves':
       case 'wuthering-waves':
-        if (isStringBlank(process.env.WUWA_DATA_ROOT)) {
+        if (isStringBlank(ENV.WUWA_DATA_ROOT)) {
           console.error(chalk.red('\n"WUWA_DATA_ROOT" must be set in .env\n'));
           return;
         }

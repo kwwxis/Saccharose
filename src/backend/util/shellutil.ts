@@ -93,8 +93,8 @@ export async function passthru(command: string,
   return new Promise((resolve, reject) => {
     //console.log('Command:', command);
     const child = spawn(command, {
-      env: { PATH: process.env.SHELL_PATH },
-      shell: process.env.SHELL_EXEC,
+      env: { PATH: ENV.SHELL_PATH },
+      shell: ENV.SHELL_EXEC,
       detached: true,
     });
 
@@ -392,8 +392,8 @@ export async function grep(searchText: string,
     // console.log('Command:', cmd.line);
 
     const stdout = await exec(cmd.line, {
-      env: { PATH: process.env.SHELL_PATH },
-      shell: process.env.SHELL_EXEC,
+      env: { PATH: ENV.SHELL_PATH },
+      shell: ENV.SHELL_EXEC,
     });
 
     return stdout.split(/\n/)
@@ -456,8 +456,8 @@ export async function getTextAtLine(lineNum: number, absoluteFilePath: string): 
     const cmd = `sed '${lineNum}q;d' ${absoluteFilePath}`;
 
     const stdout: string = await exec(cmd, {
-      env: { PATH: process.env.SHELL_PATH },
-      shell: process.env.SHELL_EXEC,
+      env: { PATH: ENV.SHELL_PATH },
+      shell: ENV.SHELL_EXEC,
     });
 
     return stdout.trim();
@@ -473,8 +473,8 @@ export async function findFiles(fileSearch: string, absoluteFilePath: string): P
     const cmd = `find ${shellEscapeArg(absoluteFilePath)} -iname ${shellEscapeArg(fileSearch, '*', '*')} -print`;
 
     const stdout: string = await exec(cmd, {
-      env: { PATH: process.env.SHELL_PATH },
-      shell: process.env.SHELL_EXEC,
+      env: { PATH: ENV.SHELL_PATH },
+      shell: ENV.SHELL_EXEC,
     });
 
     return stdout.trim().split('\n').map(f => {
@@ -495,13 +495,13 @@ export async function findFiles(fileSearch: string, absoluteFilePath: string): P
 export async function langDetect(text: string): Promise<LangDetectResult> {
   try {
     const pyFile = path.resolve(PIPELINE_DIR, './detect_language.py').replace(/\\/g, '/');
-    const cmd = `${process.env.PYTHON_COMMAND} ${pyFile} ${shellEscapeArg(text)}`;
+    const cmd = `${ENV.PYTHON_COMMAND} ${pyFile} ${shellEscapeArg(text)}`;
 
     const stdout: string = await exec(cmd, {
       env: {
-        PATH: process.env.SHELL_PATH,
+        PATH: ENV.SHELL_PATH,
       },
-      shell: process.env.SHELL_EXEC,
+      shell: ENV.SHELL_EXEC,
     });
 
     return JSON.parse(stdout);

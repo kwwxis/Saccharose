@@ -63,7 +63,7 @@ export function getStarRailControl(request?: ControlUserModeProvider) {
 // --------------------------------------------------------------------------------------------------------------
 export class StarRailControl extends AbstractControl<StarRailControlState> {
   // region Constructor
-  readonly voice: StarRailVoice = new StarRailVoice();
+  readonly voice: StarRailVoice = new StarRailVoice(this);
 
   constructor(modeOrState?: ControlUserModeProvider|StarRailControlState) {
     super({
@@ -77,7 +77,7 @@ export class StarRailControl extends AbstractControl<StarRailControlState> {
       currentGameVersion: CurrentStarRailVersion,
       gameVersions: StarRailVersions,
       changelogConfig: {
-        directory: process.env.HSR_CHANGELOGS,
+        directory: ENV.HSR_CHANGELOGS,
         textmapEnabled: true,
         excelEnabled: false,
       },
@@ -248,7 +248,7 @@ export async function loadStarRailVoiceItems(): Promise<void> {
     return;
   logInitData('Loading HSR Voice Items -- starting...');
 
-  const voiceItemsFilePath = path.resolve(process.env.HSR_DATA_ROOT, DATAFILE_HSR_VOICE_ITEMS);
+  const voiceItemsFilePath = path.resolve(ENV.HSR_DATA_ROOT, DATAFILE_HSR_VOICE_ITEMS);
   const result: StarRailVoiceConfigRaw[] = await fsReadJson(voiceItemsFilePath);
 
   for (let item of result) {
@@ -265,6 +265,11 @@ export async function loadStarRailVoiceItems(): Promise<void> {
 }
 
 export class StarRailVoice {
+  private prefixingDisabled: boolean;
+
+  constructor(readonly ctrl: StarRailControl) {
+    this.prefixingDisabled = ctrl.state.prefs.voPrefixDisabledLangs?.includes(ctrl.outputLangCode);
+  }
 
   getVoiceItemsByType(type: StarRailVoiceItemType): VoiceItem[] {
     let items: VoiceItem[] = [];
@@ -291,6 +296,10 @@ export class StarRailVoice {
   }
 
   getVoPrefix(id: number|string, text?: string): string {
+    if (this.prefixingDisabled) {
+      return '';
+    }
+
     let voItem: VoiceItem = HSR_VOICE_ITEMS[id];
     let voPrefix = '';
     if (voItem) {

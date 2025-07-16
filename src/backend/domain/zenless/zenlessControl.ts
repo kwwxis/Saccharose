@@ -58,7 +58,7 @@ export class ZenlessControl extends AbstractControl<ZenlessControlState> {
       currentGameVersion: CurrentZenlessVersion,
       gameVersions: ZenlessVersions,
       changelogConfig: {
-        directory: process.env.ZENLESS_CHANGELOGS,
+        directory: ENV.ZENLESS_CHANGELOGS,
         textmapEnabled: true,
         excelEnabled: false,
       },

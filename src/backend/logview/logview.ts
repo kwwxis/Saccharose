@@ -194,16 +194,16 @@ export async function importLogFile(filePath: string, doConsoleLog: boolean = fa
 }
 
 export async function startLogFileWatch() {
-  if (!process.env.LOGVIEW_FILE) {
+  if (!ENV.LOGVIEW_FILE) {
     return;
   }
   if (tail) {
     return;
   }
 
-  await importLogFile(process.env.LOGVIEW_FILE);
+  await importLogFile(ENV.LOGVIEW_FILE);
 
-  tail = new Tail(process.env.LOGVIEW_FILE, {
+  tail = new Tail(ENV.LOGVIEW_FILE, {
     follow: true,
     fromBeginning: false,
     encoding: 'utf-8',

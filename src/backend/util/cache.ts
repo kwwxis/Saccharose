@@ -146,7 +146,7 @@ export async function _cachedImpl<T>(key: string,
 }
 
 export async function openRedisClient() {
-  if (!toBoolean(process.env.REDIS_ENABLED)) {
+  if (!toBoolean(ENV.REDIS_ENABLED)) {
     logInit('Redis client not enabled.');
     return;
   }
@@ -156,7 +156,7 @@ export async function openRedisClient() {
   cache.mode = 'redis';
 
   cache.redis = await createClient({
-    url: process.env.REDIS_URL,
+    url: ENV.REDIS_URL,
   })
     .on('error', err => console.error('Redis Client Error', err))
     .connect();

@@ -323,10 +323,10 @@ export class ScriptJobsCoordinator {
     }
 
     const postDebug = custom('jobs:delete:' + job.run_action);
-    let cmd = `${process.env.NODE_COMMAND} --no-warnings=ExperimentalWarning --loader ts-node/esm`;
+    let cmd = `${ENV.NODE_COMMAND} --no-warnings=ExperimentalWarning --loader ts-node/esm`;
 
     if (getNodeEnv() === 'production') {
-      cmd = `${process.env.NODE_COMMAND}`;
+      cmd = `${ENV.NODE_COMMAND}`;
       script = script
         .replace('src/backend/', 'dist/backend/')
         .replace('.ts', '.js');
@@ -358,10 +358,10 @@ export class ScriptJobsCoordinator {
     }
 
     const postDebug = custom('jobs:' + action);
-    let cmd = `${process.env.NODE_COMMAND} --no-warnings=ExperimentalWarning --loader ts-node/esm`;
+    let cmd = `${ENV.NODE_COMMAND} --no-warnings=ExperimentalWarning --loader ts-node/esm`;
 
     if (getNodeEnv() === 'production') {
-      cmd = `${process.env.NODE_COMMAND}`;
+      cmd = `${ENV.NODE_COMMAND}`;
       script = script
         .replace('src/backend/', 'dist/backend/')
         .replace('.ts', '.js');

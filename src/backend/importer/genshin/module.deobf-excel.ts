@@ -11,7 +11,7 @@ import { genshinSchema } from './genshin.schema.ts';
 
 export async function writeDeobfExcels() {
   function getSchemaFilePath(filePath: string): string {
-    return path.resolve(process.env.GENSHIN_ARCHIVES, `./5.4/ExcelBinOutput/`, filePath);
+    return path.resolve(ENV.GENSHIN_ARCHIVES, `./5.4/ExcelBinOutput/`, filePath);
   }
 
   const rawExcelDirPath = getGenshinDataFilePath('./ExcelBinOutput.Raw');

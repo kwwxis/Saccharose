@@ -11,6 +11,7 @@ export interface ProcessEnv {
   HTTP_PORT: string;
   HTTPS_PORT: string;
   WSS_PORT: string;
+  WSS_URL: string;
   LOGVIEW_FILE?: string;
   SITE_TITLE?: string;
   SITE_SHORT_TITLE?: string;
@@ -78,6 +79,7 @@ export interface ProcessEnv {
   // External Directory and Images Configuration
   // --------------------------------------------------------------------------------------------------------------
 
+  EXT_PUBLIC_DIR: string;
   EXT_GENSHIN_IMAGES: string;
   EXT_GENSHIN_IMAGES_ARCHIVE: string;
   EXT_HSR_IMAGES: string;
@@ -118,6 +120,11 @@ export interface ProcessEnv {
   // --------------------------------------------------------------------------------------------------------------
 
   DEBUG: string;
+
+  GENSHIN_DISABLED: string;
+  HSR_DISABLED: string;
+  ZENLESS_DISABLED: string;
+  WUWA_DISABLED: string;
 }
 
 declare var process: {

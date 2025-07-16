@@ -125,9 +125,9 @@ export async function appInit(): Promise<Express> {
   // ~~~~~~~~~~~~~~~~~~~~~~~~
   app.use(express.static(PUBLIC_DIR));
 
-  if (isStringNotBlank(process.env.EXT_PUBLIC_DIR)) {
+  if (isStringNotBlank(ENV.EXT_PUBLIC_DIR)) {
     logInit('Serving external public directory');
-    app.use(express.static(process.env.EXT_PUBLIC_DIR));
+    app.use(express.static(ENV.EXT_PUBLIC_DIR));
   }
 
   if (isStringNotBlank(process.env.EXT_GENSHIN_IMAGES)) {

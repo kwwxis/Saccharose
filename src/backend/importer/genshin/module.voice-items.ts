@@ -47,7 +47,7 @@ const allSame = (a: string[]) => {
 }
 
 export async function importVoiceItems() {
-  const outDir = process.env.GENSHIN_DATA_ROOT;
+  const outDir = ENV.GENSHIN_DATA_ROOT;
   const jsonDir1 = getGenshinDataFilePath('./BinOutput/Voice/Items');
   const jsonDir2 = getGenshinDataFilePath('./BinOutput/Voice');
 

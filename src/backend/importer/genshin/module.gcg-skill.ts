@@ -9,7 +9,7 @@ import { getGenshinControl } from '../../domain/genshin/genshinControl.ts';
 import { closeKnex } from '../../util/db.ts';
 
 export async function importGcgSkill() {
-  const outDir = process.env.GENSHIN_DATA_ROOT;
+  const outDir = ENV.GENSHIN_DATA_ROOT;
   const ctrl = getGenshinControl();
 
   const skillExcelJson: GCGSkillExcelConfigData[] = await ctrl.readExcelDataFile('GCGSkillExcelConfigData.json');

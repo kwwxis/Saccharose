@@ -1,7 +1,7 @@
 import { Request, Response, Router } from 'express';
 import { HttpError } from '../../../../shared/util/httpError.ts';
 import { SitePrefName, SiteUserPrefs } from '../../../../shared/types/site/site-user-types.ts';
-import { LANG_CODES } from '../../../../shared/types/lang-types.ts';
+import { isLangCode, LANG_CODES } from '../../../../shared/types/lang-types.ts';
 import { toBoolean } from '../../../../shared/util/genericUtil.ts';
 import { SEARCH_MODES } from '../../../../shared/util/searchUtil.ts';
 import { SiteUserProvider } from '../../../middleware/auth/SiteUserProvider.ts';
@@ -70,6 +70,37 @@ export default function(router: Router): void {
           }
           break;
         }
+        case 'voPrefixDisabledLangs': {
+          if (Array.isArray(prefValue)) {
+            if (prefValue.some(v => !LANG_CODES.includes(v))) {
+              throw HttpError.badRequest('InvalidParameter', 'Invalid language code in payload');
+            }
+            prefPayload.voPrefixDisabledLangs = prefValue;
+          } else if (typeof prefValue === 'string' && prefValue.includes('|')) {
+            const parts: string[] = String(prefValue).split('|');
+            if (parts.length !== 2) {
+              throw HttpError.badRequest('InvalidParameter', 'Invalid payload provided');
+            }
+            if (!isLangCode(parts[0])) {
+              throw HttpError.badRequest('InvalidParameter', 'Invalid language code in payload');
+            }
+            if (Array.isArray(req.context.prefs.voPrefixDisabledLangs)) {
+              prefPayload.voPrefixDisabledLangs = req.context.prefs.voPrefixDisabledLangs;
+            } else {
+              prefPayload.voPrefixDisabledLangs = [];
+            }
+            if (toBoolean(parts[1])) {
+              if (!prefPayload.voPrefixDisabledLangs.includes(parts[0])) {
+                prefPayload.voPrefixDisabledLangs.push(parts[0]);
+              }
+            } else {
+              if (prefPayload.voPrefixDisabledLangs.includes(parts[0])) {
+                prefPayload.voPrefixDisabledLangs.splice(prefPayload.voPrefixDisabledLangs.indexOf(parts[0]), 1);
+              }
+            }
+          }
+          break;
+        }
         default: {
           throw HttpError.badRequest('InvalidParameter', 'Unsupported pref name for this endpoint: ' + prefName);
         }
@@ -87,12 +118,6 @@ export default function(router: Router): void {
     }
   });
 
-  router.endpoint('/site-notice', {
-    get: async (req: Request, res: Response) => {
-      return res.json(await SiteUserProvider.getAllSiteNotices());
-    }
-  });
-
   router.endpoint('/wstoken', {
     post: async (req: Request, res: Response) => {
       if (!req.isAuthenticated() || !req.user?.id) {
@@ -101,6 +126,12 @@ export default function(router: Router): void {
       return res.json(<WsJwtTokenResponse> {
         token: createWsJwtToken(req.user)
       });
+    }
+  });
+
+  router.endpoint('/site-notice', {
+    get: async (req: Request, res: Response) => {
+      return res.json(await SiteUserProvider.getAllSiteNotices());
     }
   });
 

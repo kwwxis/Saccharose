@@ -10,7 +10,7 @@ export default (req: Request, res: Response, next: NextFunction) => {
     res.status(400).send('Bad request');
   } else if (!VALID_HOSTS.has(req.headers.host)) {
     res.status(400).send('Bad request');
-  } else if (req.protocol !== 'https' && process.env.NODE_ENV === 'production') {
+  } else if (req.protocol !== 'https' && ENV.NODE_ENV === 'production') {
     res.status(400).send('Bad request');
   } else if (BAD_PATH_REGEX.test(req.path) || BAD_URI_REGEX.test(req.url)) {
     res.status(400).send('Bad request');

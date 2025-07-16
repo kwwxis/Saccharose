@@ -117,9 +117,9 @@ export async function indexWuwaImages(catMapOnly: boolean = false) {
   }
 
   console.log('Computing excel usages...');
-  for (let fileName of fs.readdirSync(path.resolve(process.env.WUWA_DATA_ROOT, './ConfigDB'))) {
+  for (let fileName of fs.readdirSync(path.resolve(ENV.WUWA_DATA_ROOT, './ConfigDB'))) {
     console.log(`  ${fileName}`);
-    const json: any[] = JSON.parse(fs.readFileSync(path.resolve(process.env.WUWA_DATA_ROOT, './ConfigDB', fileName), 'utf-8'));
+    const json: any[] = JSON.parse(fs.readFileSync(path.resolve(ENV.WUWA_DATA_ROOT, './ConfigDB', fileName), 'utf-8'));
     let { images, imagesToExcelMetaEntry } = findImageUsages(json);
     for (let imageName of images) {
       imageNameToExcelFileUsages[imageName].push(fileName);
@@ -194,7 +194,7 @@ export async function indexWuwaImages(catMapOnly: boolean = false) {
   }
 
   fs.writeFileSync(
-    path.resolve(process.env.WUWA_DATA_ROOT, './ImageIndexCategoryMap.json'),
+    path.resolve(ENV.WUWA_DATA_ROOT, './ImageIndexCategoryMap.json'),
     JSON.stringify(catmap, null, 2),
     'utf-8'
   );

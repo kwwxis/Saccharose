@@ -15,7 +15,7 @@ import { fetchVoiceAtlases } from '../../domain/hsr/character/fetchVoiceAtlas.ts
 import { indexStarRailImages } from './module.index-images.ts';
 
 async function importVoiceOvers() {
-  const outDir = process.env.HSR_DATA_ROOT;
+  const outDir = ENV.HSR_DATA_ROOT;
   await loadStarRailVoiceItems();
 
   const ctrl = getStarRailControl();

@@ -27,13 +27,13 @@
           <legend><code>_tl</code> options</legend>
           <div class="field spacer5-horiz" style="padding-right:30px">
             <label class="ui-radio dispBlock" style="padding-left:5px;font-size:13px;">
-              <input type="radio" name="tl_options" value="none"
-                     :checked="ctx.cookieTernary('OL.tl_options').equals('none').or.isEmpty().get()" />
+              <input type="radio" name="ol_excludeTl" value="false"
+                     :checked="ctx.prefTernary('ol_excludeTl').isFalsy().get()" />
               <span>Include <code>[lang]_tl</code> params*</span>
             </label>
             <label class="ui-radio dispBlock" style="padding-left:5px;font-size:13px;">
-              <input type="radio" name="tl_options" value="exclude_tl"
-                     :checked="ctx.cookieTernary('OL.tl_options').equals('exclude_tl').get()" />
+              <input type="radio" name="ol_excludeTl" value="true"
+                     :checked="ctx.prefTernary('ol_excludeTl').isTruthy().get()" />
               <span>Exclude <code>[lang]_tl</code> params</span>
             </label>
           </div>
@@ -42,13 +42,13 @@
           <legend><code>_rm</code> options</legend>
           <div class="field spacer5-horiz" style="padding-right:30px">
             <label class="ui-radio dispBlock" style="padding-left:5px;font-size:13px;">
-              <input type="radio" name="rm_options" value="none"
-                     :checked="ctx.cookieTernary('OL.rm_options').equals('none').or.isEmpty().get()" />
+              <input type="radio" name="ol_excludeRm" value="false"
+                     :checked="ctx.prefTernary('ol_excludeRm').isFalsy().get()" />
               <span>Include <code>[lang]_rm</code> params</span>
             </label>
             <label class="ui-radio dispBlock" style="padding-left:5px;font-size:13px;">
-              <input type="radio" name="rm_options" value="exclude_rm"
-                     :checked="ctx.cookieTernary('OL.rm_options').equals('exclude_rm').get()" />
+              <input type="radio" name="ol_excludeRm" value="true"
+                     :checked="ctx.prefTernary('ol_excludeRm').isTruthy().get()" />
               <span>Exclude <code>[lang]_rm</code> params</span>
             </label>
           </div>
@@ -57,8 +57,8 @@
           <legend>Other options</legend>
           <div class="field spacer5-horiz" style="padding-right:30px">
             <label class="ui-checkbox dispBlock" style="padding-left:5px;font-size:13px;">
-              <input type="checkbox" name="ol_header" value="1"
-                     :checked="ctx.cookieTernary('OL.includeHeader').isTruthy().get()" />
+              <input type="checkbox" name="ol_includeHeader" value="1"
+                     :checked="ctx.prefTernary('ol_includeHeader').isTruthy().get()" />
               <span>Include header</span>
             </label>
           </div>

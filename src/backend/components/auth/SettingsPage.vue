@@ -80,6 +80,23 @@
   </section>
 
   <section class="card">
+    <h2>Other Settings</h2>
+    <div class="content form-box">
+      <div class="field flexColumn">
+        <label style="min-width: 150px">VO Prefix Disabled Languages</label>
+        <p>Check any languages you wish to <i>not</i> have VO prefixes generated for within dialogue results.</p>
+        <div class="valign flexWrap" style="font-size: 14.5px">
+          <label v-for="langCode of voPrefixDisableLangCodesAvailable" class="valign spacer5-vert spacer15-right">
+            <input type="checkbox" :checked="voPrefixDisabledLangCodes.includes(langCode)"
+              :ui-action="`set-user-pref: voPrefixDisabledLangs, ${langCode}|#{input.checked}`"/>
+            <span class="spacer3-left">{{ langCode }}</span>
+          </label>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
     <h2>Sidebar Configuration</h2>
     <div class="user-settings-sidebar-configuration" v-for="conf of sidebarConfigs">
       <h3 class="secondary-header">{{ conf.header.name }}</h3>
@@ -177,6 +194,7 @@ import Icon from '../utility/Icon.vue';
 import { SiteMenuShown, SiteMenuShownType, SiteUser } from '../../../shared/types/site/site-user-types.ts';
 import SearchModeInput from '../utility/SearchModeInput.vue';
 import { SiteSidebar } from '../../../shared/types/site/site-sidebar-types.ts';
+import { LANG_CODES, LangCode } from '../../../shared/types/lang-types.ts';
 
 let request = getTrace().req;
 let user: SiteUser = request.user;
@@ -186,6 +204,11 @@ let avatarUrl: string = SiteUserProvider.getAvatarUrl(user);
 let sidebarConfigs: SiteSidebar[] = Object.values(request.context.allSiteSidebarConfig);
 let sidebarShown: SiteMenuShown = request.context.prefs.siteMenuShown || {};
 let sidebarConfigItemCounter: number = 0;
+
+const voPrefixDisableLangCodesAvailable: LangCode[] = LANG_CODES.filter(x => x !== 'CH');
+
+let voPrefixDisabledLangCodes: LangCode[] = Array.isArray(request.context.prefs.voPrefixDisabledLangs)
+  ? request.context.prefs.voPrefixDisabledLangs : [];
 
 function levelOptionNextParity(): string {
   return sidebarConfigItemCounter++ % 2 === 0 ? 'even' : 'odd';

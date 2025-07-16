@@ -7,7 +7,7 @@ import { closeKnex } from '../../util/db.ts';
 export async function importVoiceOvers() {
   await loadGenshinVoiceItems();
 
-  const outDir = process.env.GENSHIN_DATA_ROOT;
+  const outDir = ENV.GENSHIN_DATA_ROOT;
 
   const ctrl = getGenshinControl();
   const allFetters = await fetchCharacterFetters(ctrl, true);
