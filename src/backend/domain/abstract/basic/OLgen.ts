@@ -2,7 +2,7 @@ import '../../../loadenv.ts';
 import { getGenshinControl } from '../../genshin/genshinControl.ts';
 import { maybeInt } from '../../../../shared/util/numberUtil.ts';
 import { mwParse } from '../../../../shared/mediawiki/mwParse.ts';
-import { MwTemplateNode, MwCharSequence, MwEOL } from '../../../../shared/mediawiki/mwParseTypes.ts';
+import { MwCharSequence, MwEOL, MwTemplateNode } from '../../../../shared/mediawiki/mwParseTypes.ts';
 import { pathToFileURL } from 'url';
 import { Marker } from '../../../../shared/util/highlightMarker.ts';
 import { LANG_CODE_TO_WIKI_CODE, LANG_CODES, LangCode, TextMapHash } from '../../../../shared/types/lang-types.ts';

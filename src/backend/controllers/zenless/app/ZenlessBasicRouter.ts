@@ -29,8 +29,7 @@ export default async function(): Promise<Router> {
   router.get('/OL', async (req: Request, res: Response) => {
     res.render(OLGenPage, {
       title: 'OL',
-      bodyClass: ['page--OL'],
-      hideTlOption: true
+      bodyClass: ['page--OL']
     });
   });
 

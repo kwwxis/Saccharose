@@ -9,7 +9,7 @@ import { templateIcon } from '../../../util/templateIcons.ts';
 
 export function applyWikitextLineActions(element: HTMLElement, commonLineIds: CommonLineId[]) {
   if (commonLineIds.length) {
-    const {endpoint, tlRmDisabled, neverDefaultHidden} = getOLEndpoint();
+    const {endpoint, config} = getOLEndpoint();
 
     let lastHoveredLine: HTMLElement;
     let isShown: boolean = false;
@@ -96,9 +96,9 @@ export function applyWikitextLineActions(element: HTMLElement, commonLineIds: Co
       if (hasTextMapHash) {
         p = endpoint.send({
           text: lineEl.getAttribute('data-textMapHash'),
-          hideTl: tlRmDisabled,
-          addDefaultHidden: !neverDefaultHidden,
-          hideRm: tlRmDisabled,
+          hideTl: config.hideTlOption,
+          addDefaultHidden: !config.neverDefaultHidden,
+          hideRm: config.hideRmOption,
           singleResultSimpleHtml: true,
         }, null, true).then(result => {
           panel.querySelector('.ace_line-info-OL').innerHTML = result;

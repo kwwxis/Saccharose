@@ -27,7 +27,6 @@ export default async function(): Promise<Router> {
     res.render(OLGenPage, {
       title: 'OL',
       bodyClass: ['page--OL'],
-      hideAllOptions: true
     });
   });
 

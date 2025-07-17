@@ -22,8 +22,8 @@
         </div>
         <div class="ol-submit-pending hide loading small spacer5-left"></div>
       </div>
-      <div v-if="!hideAllOptions" class="alignStart spacer15-top flexWrap">
-        <fieldset v-if="!hideTlOption" class="spacer5-right">
+      <div v-if="!isHideAllOptions" class="alignStart spacer15-top flexWrap">
+        <fieldset v-if="!config.hideTlOption" class="spacer5-right">
           <legend><code>_tl</code> options</legend>
           <div class="field spacer5-horiz" style="padding-right:30px">
             <label class="ui-radio dispBlock" style="padding-left:5px;font-size:13px;">
@@ -38,7 +38,7 @@
             </label>
           </div>
         </fieldset>
-        <fieldset v-if="!hideRmOption" class="spacer5-right">
+        <fieldset v-if="!config.hideRmOption" class="spacer5-right">
           <legend><code>_rm</code> options</legend>
           <div class="field spacer5-horiz" style="padding-right:30px">
             <label class="ui-radio dispBlock" style="padding-left:5px;font-size:13px;">
@@ -53,7 +53,7 @@
             </label>
           </div>
         </fieldset>
-        <fieldset v-if="!hideOtherOptions" class="spacer5-right">
+        <fieldset v-if="!config.hideOtherOptions" class="spacer5-right">
           <legend>Other options</legend>
           <div class="field spacer5-horiz" style="padding-right:30px">
             <label class="ui-checkbox dispBlock" style="padding-left:5px;font-size:13px;">
@@ -73,13 +73,14 @@
 import Icon from '../utility/Icon.vue';
 import { getTrace } from '../../middleware/request/tracer.ts';
 import WikiTemplateLink from '../utility/WikiTemplateLink.vue';
+import { OLConfig, OLConfigMap } from '../../../shared/types/ol-config-types.ts';
 
 const { ctx } = getTrace();
 
 defineProps<{
-  hideAllOptions?: boolean,
-  hideTlOption?: boolean,
-  hideRmOption?: boolean,
-  hideOtherOptions?: boolean,
-}>()
+}>();
+
+const config = OLConfigMap[ctx.siteMode];
+
+const isHideAllOptions = config.hideTlOption && config.hideRmOption && config.hideOtherOptions;
 </script>

@@ -22,6 +22,7 @@ import { OLCombinedResult, OLResult } from '../../backend/domain/abstract/basic/
 import { TextMapSearchResponse } from '../../shared/types/lang-types.ts';
 import { IdToExcelUsages } from '../../shared/util/searchUtil.ts';
 import { WsJwtTokenResponse } from '../../shared/types/wss-types.ts';
+import { OLConfig, OLConfigMap } from '../../shared/types/ol-config-types.ts';
 
 export type ApiParams<T> = T & {
   fields?: string,
@@ -366,27 +367,23 @@ export const genericEndpoints = {
   }, 'revid' | 'pageid'>, MwRevision[]>('GET', '/mw/{siteMode}/revs'),
 };
 
-export function getOLEndpoint(): {endpoint: SaccharoseApiEndpoint<any>, tlRmDisabled: boolean, neverDefaultHidden: boolean} {
+export function getOLEndpoint(): {endpoint: SaccharoseApiEndpoint<any>, config: OLConfig} {
   let endpoint: SaccharoseApiEndpoint<any>;
-  let tlRmDisabled: boolean = false;
-  let neverDefaultHidden: boolean = false;
 
   if (SiteModeInfo.isGenshin) {
     endpoint = genshinEndpoints.generateOL;
   } else if (SiteModeInfo.isStarRail) {
     endpoint = starRailEndpoints.generateOL;
-    tlRmDisabled = false;
-    neverDefaultHidden = true;
   } else if (SiteModeInfo.isZenless) {
     endpoint = zenlessEndpoints.generateOL;
-    tlRmDisabled = false;
-    neverDefaultHidden = true;
   } else if (SiteModeInfo.isWuwa) {
     endpoint = wuwaEndpoints.generateOL;
-    tlRmDisabled = false;
-    neverDefaultHidden = true;
   }
-  return {endpoint, tlRmDisabled, neverDefaultHidden};
+
+  return {
+    endpoint,
+    config: OLConfigMap[SiteModeInfo.mode],
+  };
 }
 
 export function getOLCombineEndpoint(): SaccharoseApiEndpoint<any> {

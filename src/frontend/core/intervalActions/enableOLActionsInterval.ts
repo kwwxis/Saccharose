@@ -7,7 +7,7 @@ import { highlightWikitextReplace } from '../ace/aceHighlight.ts';
 import { getOLEndpoint } from '../endpoints.ts';
 
 export function enableOLActionsInterval() {
-  const { neverDefaultHidden } = getOLEndpoint();
+  const { config } = getOLEndpoint();
   document.querySelectorAll('.highlighted.ol-result-textarea:not(.ol-result-textarea-processed)').forEach(
     (contentEditableEl: HTMLElement) => {
       contentEditableEl.classList.add('ol-result-textarea-processed');
@@ -80,6 +80,6 @@ export function enableOLActionsInterval() {
       }
 
       rmButton.addEventListener('click', createParamRemover(/_rm$/));
-      tlButton.addEventListener('click', createParamRemover(/_tl$/, !neverDefaultHidden));
+      tlButton.addEventListener('click', createParamRemover(/_tl$/, !config.neverDefaultHidden));
     });
 }

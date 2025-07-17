@@ -12,7 +12,7 @@ import { modalService } from '../../../util/modalService.ts';
 import { getUserPref, setUserPref } from '../../../core/userPreferences/sitePrefsContainer.ts';
 
 pageMatch('vue/OLGenPage', () => {
-  const {endpoint, tlRmDisabled, neverDefaultHidden} = getOLEndpoint();
+  const {endpoint, config} = getOLEndpoint();
 
   function loadResultFromURL() {
     const url = new URL(window.location.href);
@@ -65,9 +65,9 @@ pageMatch('vue/OLGenPage', () => {
 
     endpoint.send({
       text,
-      hideTl: tlRmDisabled || excludeTl,
-      addDefaultHidden: !neverDefaultHidden && excludeTl,
-      hideRm: tlRmDisabled || excludeRm,
+      hideTl: excludeTl || config.hideTlOption,
+      addDefaultHidden: !config.neverDefaultHidden && excludeTl,
+      hideRm: excludeRm || config.hideRmOption,
       includeHeader: includeHeader,
     }, null, true).then(result => {
       document.querySelector('#ol-results-list').innerHTML = result;

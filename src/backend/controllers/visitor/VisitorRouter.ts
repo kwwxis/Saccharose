@@ -85,7 +85,6 @@ export default async function(): Promise<Router> {
       title: 'OL',
       layouts: ['layouts/basic-layout', 'layouts/visitor-wrapper'],
       bodyClass: ['page--OL'],
-      hideTlOption: true
     });
   });
   router.get(['/genshin/OL/combine', '/hsr/OL/combine', '/zenless/OL/combine', '/wuwa/OL/combine'], async (req: Request, res: Response, next: NextFunction) => {
