@@ -169,7 +169,6 @@
 </template>
 
 <script setup lang="ts">
-import { OLCombinedResult } from '../../../domain/abstract/basic/OLgen.ts';
 import { WeaponExcelConfigData } from '../../../../shared/types/genshin/weapon-types.ts';
 import { ImageIndexEntity } from '../../../../shared/types/image-index-types.ts';
 import { getTrace } from '../../../middleware/request/tracer.ts';
@@ -180,6 +179,7 @@ import ByteSizeLabel from '../../utility/ByteSizeLabel.vue';
 import GenshinItem from '../links/GenshinItem.vue';
 import GenshinStars from '../links/GenshinStars.vue';
 import ReadableTexts from '../readables/partials/ReadableTexts.vue';
+import { OLCombinedResult } from '../../../../shared/types/ol-types.ts';
 
 const { normGenshinText } = getTrace();
 

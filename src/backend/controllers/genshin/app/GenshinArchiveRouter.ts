@@ -1,7 +1,7 @@
 import { create } from '../../../routing/router.ts';
 import { getGenshinControl } from '../../../domain/genshin/genshinControl.ts';
 import { BookSuitExcelConfigData, Readable } from '../../../../shared/types/genshin/readable-types.ts';
-import { ol_combine_results, ol_gen_from_id, OLResult } from '../../../domain/abstract/basic/OLgen.ts';
+import { ol_combine_results, ol_gen_from_id } from '../../../domain/abstract/basic/OLgen.ts';
 import {
   getCityIdsWithViewpoints,
   selectViewpoints, VIEWPOINT_DEFAULT_FILE_FORMAT_IMAGE, VIEWPOINT_DEFAULT_FILE_FORMAT_MAP,
@@ -60,6 +60,7 @@ import GenshinLbPage from '../../../components/genshin/livingbeing/GenshinLbPage
 import GenshinLoadingTips from '../../../components/genshin/reminders/GenshinLoadingTips.vue';
 import FurnitureListPage from '../../../components/genshin/furnishings/FurnitureListPage.vue';
 import FurniturePage from '../../../components/genshin/furnishings/FurniturePage.vue';
+import { OLResult } from '../../../../shared/types/ol-types.ts';
 
 export default async function(): Promise<Router> {
   const router: Router = create();

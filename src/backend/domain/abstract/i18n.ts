@@ -4,7 +4,7 @@ export const GENSHIN_I18N_MAP = {
   TravelerSibling: <LangCodeMap> {
     CH: ``,
     DE: ``,
-    EN: `(Traveler's Sibling)`,
+    EN: `{{Traveler's Sibling}}`,
     ES: ``,
     FR: ``,
     ID: ``,

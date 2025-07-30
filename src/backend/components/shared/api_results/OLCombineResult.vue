@@ -8,8 +8,8 @@
 </template>
 
 <script setup lang="ts">
-import { OLCombinedResult } from '../../../domain/abstract/basic/OLgen.ts';
 import Wikitext from '../../utility/Wikitext.vue';
+import { OLCombinedResult } from '../../../../shared/types/ol-types.ts';
 
 defineProps<{
   combineResult?: OLCombinedResult

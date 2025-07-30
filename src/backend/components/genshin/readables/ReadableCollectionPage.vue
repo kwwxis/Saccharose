@@ -59,10 +59,10 @@
 
 <script setup lang="ts">
 import { BookSuitExcelConfigData, Readable } from '../../../../shared/types/genshin/readable-types.ts';
-import { OLResult } from '../../../domain/abstract/basic/OLgen.ts';
 import { getTrace } from '../../../middleware/request/tracer.ts';
 import ReadableTexts from './partials/ReadableTexts.vue';
 import Wikitext from '../../utility/Wikitext.vue';
+import { OLResult } from '../../../../shared/types/ol-types.ts';
 
 const { normGenshinText } = getTrace();
 

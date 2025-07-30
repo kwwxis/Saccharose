@@ -2,7 +2,8 @@ import { DialogExcelConfigData, ManualTextMapConfigData, TalkExcelConfigData } f
 import { ConfigCondition } from './general-types.ts';
 import { RewardExcelConfigData } from './material-types.ts';
 import { QuestOrderItem } from '../../../backend/domain/genshin/dialogue/dialogue_util.ts';
-import { OLResult } from '../../../backend/domain/abstract/basic/OLgen.ts';
+
+import { OLResult } from '../ol-types.ts';
 
 export type QuestType = 'AQ' | 'SQ' | 'EQ' | 'WQ' | 'IQ';
 export type MapByQuestType<T> = {

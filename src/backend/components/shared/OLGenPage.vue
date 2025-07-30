@@ -73,7 +73,7 @@
 import Icon from '../utility/Icon.vue';
 import { getTrace } from '../../middleware/request/tracer.ts';
 import WikiTemplateLink from '../utility/WikiTemplateLink.vue';
-import { OLConfig, OLConfigMap } from '../../../shared/types/ol-config-types.ts';
+import { OLConfig, OLConfigMap } from '../../../shared/types/ol-types.ts';
 
 const { ctx } = getTrace();
 

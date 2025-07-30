@@ -18,11 +18,10 @@ import {
 } from '../../shared/types/image-index-types.ts';
 import { SitePrefName, SiteUserPrefs } from '../../shared/types/site/site-user-types.ts';
 import { FavorWordGroup } from '../../shared/types/wuwa/favor-types.ts';
-import { OLCombinedResult, OLResult } from '../../backend/domain/abstract/basic/OLgen.ts';
 import { TextMapSearchResponse } from '../../shared/types/lang-types.ts';
 import { IdToExcelUsages } from '../../shared/util/searchUtil.ts';
 import { WsJwtTokenResponse } from '../../shared/types/wss-types.ts';
-import { OLConfig, OLConfigMap } from '../../shared/types/ol-config-types.ts';
+import { OLCombinedResult, OLConfig, OLConfigMap, OLResult } from '../../shared/types/ol-types.ts';
 
 export type ApiParams<T> = T & {
   fields?: string,

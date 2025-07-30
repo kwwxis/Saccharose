@@ -2,7 +2,7 @@ import { create } from '../../../routing/router.ts';
 import { reminderGenerateAll } from '../../../domain/genshin/dialogue/reminder_generator.ts';
 import { GenshinControl, getGenshinControl } from '../../../domain/genshin/genshinControl.ts';
 import { toInt } from '../../../../shared/util/numberUtil.ts';
-import { ol_gen_from_id, OLResult } from '../../../domain/abstract/basic/OLgen.ts';
+import { ol_gen_from_id } from '../../../domain/abstract/basic/OLgen.ts';
 import { Request, Response, Router } from 'express';
 import GenshinAllReminders from '../../../components/genshin/reminders/GenshinAllReminders.vue';
 import GenshinQuestPage from '../../../components/genshin/quests/GenshinQuestPage.vue';
@@ -16,6 +16,7 @@ import GenshinBranchDialoguePage from '../../../components/genshin/dialogue/Gens
 import GenshinNpcDialoguePage from '../../../components/genshin/dialogue/GenshinNpcDialoguePage.vue';
 import GenshinRemindersPage from '../../../components/genshin/dialogue/GenshinRemindersPage.vue';
 import GenshinVoToDialoguePage from '../../../components/genshin/dialogue/GenshinVoToDialoguePage.vue';
+import { OLResult } from '../../../../shared/types/ol-types.ts';
 
 export default async function(): Promise<Router> {
   const router: Router = create();

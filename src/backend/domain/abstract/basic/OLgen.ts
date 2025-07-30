@@ -10,6 +10,7 @@ import { AbstractControl } from '../abstractControl.ts';
 import { SbOut } from '../../../../shared/util/stringUtil.ts';
 import { isUnset } from '../../../../shared/util/genericUtil.ts';
 import { closeKnex } from '../../../util/db.ts';
+import { OLCombinedResult, OLResult } from '../../../../shared/types/ol-types.ts';
 
 async function ol_gen_internal(ctrl: AbstractControl,
                                textMapHash: TextMapHash,
@@ -164,22 +165,6 @@ export interface OLGenOptions {
   langCode?: LangCode,
   hideRm?: boolean,
   includeHeader?: boolean,
-}
-
-export interface OLResult {
-  textMapHash: TextMapHash,
-  result: string,
-  warnings: string[],
-  markers: Marker[],
-  templateNode?: MwTemplateNode;
-  duplicateTextMapHashes: TextMapHash[];
-  suppressMarkers?: boolean,
-}
-
-export interface OLCombinedResult {
-  textMapHashList: TextMapHash[],
-  result: string,
-  templateNode: MwTemplateNode
 }
 
 export function ol_combine_results(olResults: OLResult[]): OLCombinedResult {

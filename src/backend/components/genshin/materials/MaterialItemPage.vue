@@ -354,13 +354,13 @@
 <script setup lang="ts">
 import { MaterialExcelConfigData } from '../../../../shared/types/genshin/material-types.ts';
 import { Readable } from '../../../../shared/types/genshin/readable-types.ts';
-import { OLResult } from '../../../domain/abstract/basic/OLgen.ts';
 import Icon from '../../utility/Icon.vue';
 import GenshinItem from '../links/GenshinItem.vue';
 import { getTrace } from '../../../middleware/request/tracer.ts';
 import GenshinStars from '../links/GenshinStars.vue';
 import Wikitext from '../../utility/Wikitext.vue';
 import ReadableTexts from '../readables/partials/ReadableTexts.vue';
+import { OLResult } from '../../../../shared/types/ol-types.ts';
 
 const { normGenshinText } = getTrace();
 

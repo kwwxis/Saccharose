@@ -53,10 +53,10 @@
 </template>
 
 <script setup lang="ts">
-import { OLResult } from '../../../domain/abstract/basic/OLgen.ts';
 import { getTrace } from '../../../middleware/request/tracer.ts';
 import Icon from '../../utility/Icon.vue';
 import Wikitext from '../../utility/Wikitext.vue';
+import { OLResult } from '../../../../shared/types/ol-types.ts';
 
 const { ctx, req } = getTrace();
 

@@ -13,8 +13,8 @@
 </template>
 
 <script setup lang="ts">
-import { OLResult } from '../../../domain/abstract/basic/OLgen.ts';
 import Wikitext from '../../utility/Wikitext.vue';
+import { OLResult } from '../../../../shared/types/ol-types.ts';
 
 defineProps<{
   olResult?: OLResult,

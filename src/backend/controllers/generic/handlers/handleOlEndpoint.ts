@@ -1,10 +1,11 @@
 import { AbstractControl } from '../../../domain/abstract/abstractControl.ts';
 import { Request, Response } from 'express';
-import { add_ol_markers, ol_gen, OLResult } from '../../../domain/abstract/basic/OLgen.ts';
+import { add_ol_markers, ol_gen } from '../../../domain/abstract/basic/OLgen.ts';
 import { toBoolean } from '../../../../shared/util/genericUtil.ts';
 import { HttpError } from '../../../../shared/util/httpError.ts';
 import OLGenSimpleResult from '../../../components/shared/api_results/OLGenSimpleResult.vue';
 import OLGenResult from '../../../components/shared/api_results/OLGenResult.vue';
+import { OLResult } from '../../../../shared/types/ol-types.ts';
 
 export async function handleOlEndpoint(ctrl: AbstractControl, req: Request, res: Response) {
   let results: OLResult[] = await ol_gen(ctrl, req.query.text as string, {

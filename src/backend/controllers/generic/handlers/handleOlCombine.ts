@@ -1,8 +1,9 @@
 import { AbstractControl } from '../../../domain/abstract/abstractControl.ts';
 import { Request, Response } from 'express';
-import { ol_combine_results, OLResult } from '../../../domain/abstract/basic/OLgen.ts';
+import { ol_combine_results } from '../../../domain/abstract/basic/OLgen.ts';
 import { mwParse } from '../../../../shared/mediawiki/mwParse.ts';
 import OLCombineResult from '../../../components/shared/api_results/OLCombineResult.vue';
+import { OLResult } from '../../../../shared/types/ol-types.ts';
 
 export async function handleOlCombine(ctrl: AbstractControl, req: Request, res: Response) {
   const mwText = ((req.body.text || req.query.text || '') as string).trim();
