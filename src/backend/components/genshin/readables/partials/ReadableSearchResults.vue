@@ -1,6 +1,6 @@
 <template>
   <div class="card result-count-card">
-    <h2>Total Results: <span>{{ searchView.TitleResults.length }} title results &amp; {{ searchView.ContentResults.length }}> content results</span></h2>
+    <h2>Total Results: <span>{{ searchView.TitleResults.length }} title results &amp; {{ searchView.ContentResults.length }} content results</span></h2>
   </div>
   <section v-if="searchView.TitleResults.length" class="card">
     <h2>Title Match Results</h2>

@@ -1,8 +1,8 @@
 <template>
   <section class="card">
-    <h2>Items</h2>
+    <h2>Search Readables</h2>
     <div class="content form-box">
-      <p>Search for items by name, description, or ID.</p>
+      <p>Search for readables by title or content.</p>
       <div class="field valign">
         <div class="posRel valign grow">
           <input class="search-input grow" type="text" placeholder="Enter text to search for." style="border-radius:3px 0 0 3px" />
