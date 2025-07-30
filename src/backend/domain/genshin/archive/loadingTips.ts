@@ -289,7 +289,7 @@ export async function selectLoadingTips(ctrl: GenshinControl): Promise<LoadingCa
 
   for (let tip of tips) {
     const situations: LoadingSituationExcelConfigData[] = tip.StageId ? tip.StageId.split(',')
-      .map(stageId => situationsByStageId[stageId]).filter(x => !!x) : null;
+      .map(stageId => situationsByStageId[stageId.trim()]).filter(x => !!x) : null;
 
     const { catName, catNameMap } = await getCategoryForTip(ctrl, tip, situations, areas);
 

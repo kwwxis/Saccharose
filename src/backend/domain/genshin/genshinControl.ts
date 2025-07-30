@@ -833,6 +833,9 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     if (typeof id === 'string') {
       id = toInt(id);
     }
+    if (isNaN(id)) {
+      throw new Error('selectQuestExcelConfigData: id must be an integer');
+    }
     return await this.knex.select('*').from('QuestExcelConfigData')
       .where({SubId: id}).first().then(this.commonLoadFirst);
   }
@@ -841,8 +844,11 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     if (!id) {
       return undefined;
     }
+    if (isNaN(id)) {
+      throw new Error('selectMainQuestIdByQuestExcelId: id must be an integer');
+    }
     return await this.knex.select('MainId').from('QuestExcelConfigData')
-      .where({SubId: id}).first().then(res => res.MainId);
+      .where({SubId: id}).first().then(res => res?.MainId);
   }
   // endregion
 
@@ -3548,7 +3554,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
         }
       }
       if (achievement.TriggerConfig.TriggerType === 'TRIGGER_FINISH_QUEST_AND' || achievement.TriggerConfig.TriggerType == 'TRIGGER_FINISH_QUEST_OR') {
-        for (let qid of achievement.TriggerConfig.ParamList.flatMap(p => p.split(','))) {
+        for (let qid of achievement.TriggerConfig.ParamList.flatMap(p => p.split(',')).map(p => p.trim())) {
           let quest = await this.selectQuestExcelConfigData(toInt(qid));
           if (quest) {
             let mainQuest = await this.selectMainQuestById(quest.MainId);

@@ -199,7 +199,7 @@ export function ol_combine_results(olResults: OLResult[]): OLCombinedResult {
 
     for (let param of olResult.templateNode.params) {
       param = param.copy();
-      param.key = `${i + 1}_${param.key}`;
+      param.key = `${i + 1}_${param.combinedKeyParts()}`;
       resultNode.addParam(param);
     }
   }

@@ -316,7 +316,7 @@ export class MwParamNode extends MwParentNode {
   }
 
   override copy(): MwParamNode {
-    return new MwParamNode(this.prefix, this.key, null, this.beforeValueWhitespace?.content, this.afterValueWhitespace?.content).copyPartsFrom(this);
+    return new MwParamNode(this.prefix, this.combinedKeyParts(), null, this.beforeValueWhitespace?.content, this.afterValueWhitespace?.content).copyPartsFrom(this);
   }
 
   get trimmedValue() {
@@ -347,6 +347,9 @@ export class MwParamNode extends MwParentNode {
     return this._key;
   }
 
+  /**
+   * Unlike just `key`, this retains any leading/trailing whitespace as part of the key.
+   */
   combinedKeyParts(): string {
     return this.isAnonymous ? null : this.keyParts.map(x => x.toString()).join('');
   }
@@ -367,7 +370,7 @@ export class MwParamNode extends MwParentNode {
     if (this.isAnonymous) {
       return this.prefix + this.beforeValueWhitespace.toString() + this.value + this.afterValueWhitespace.toString();
     } else {
-      return this.prefix + this.keyParts.map(x => x.toString()).join('') + '=' + this.beforeValueWhitespace.toString() + this.value + this.afterValueWhitespace.toString();
+      return this.prefix + this.combinedKeyParts() + '=' + this.beforeValueWhitespace.toString() + this.value + this.afterValueWhitespace.toString();
     }
   }
 
