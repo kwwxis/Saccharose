@@ -40,8 +40,8 @@ export async function processFetterConds(ctrl: GenshinControl, fetter: FetterWit
   await doWithCond(fetter[PROP], 'FETTER_COND_FINISH_QUEST', async cond => {
     let openCondId = cond.ParamList[0];
     let quest = await ctrl.selectQuestExcelConfigData(openCondId);
-    let mainQuest = await ctrl.selectMainQuestById(quest.MainId);
-    await processQuestConds(ctrl, fetter, quest.MainId, mainQuest, summaryObj);
+    let mainQuest = quest ? await ctrl.selectMainQuestById(quest.MainId) : undefined;
+    await processQuestConds(ctrl, fetter, quest?.MainId || openCondId, mainQuest, summaryObj);
   });
 
   await doWithCond(fetter[PROP], 'FETTER_COND_FINISH_PARENT_QUEST', async cond => {
