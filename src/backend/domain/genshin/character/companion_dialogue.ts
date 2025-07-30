@@ -23,7 +23,7 @@ export async function getHomeWorldCompanions(ctrl: GenshinControl): Promise<Home
     const grepResult = await grep('QuestDialogue/HomeWorld/', getGenshinDataFilePath('./ExcelBinOutput/TalkExcelConfigData.json'), {});
     let npcIdToTalkIds: {[npcId: number]: number[]} = {};
     for (let item of grepResult) {
-      let substr = item.split('HomeWorld/')[1];
+      let substr = item.split('HomeWorld/')[1].split('"')[0];
       substr = substr.replace(/__+/g, '_'); // replace multiple underscore with one underscore
       let parts = substr.split('/');
       let npcId = toInt(parts[0].split('_')[1]);

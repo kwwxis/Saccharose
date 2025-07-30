@@ -920,6 +920,9 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   }
 
   async selectTalkExcelConfigDataById(id: number, loadType: TalkLoadType = null): Promise<TalkExcelConfigData> {
+    if (isNaN(id)) {
+      throw new Error('selectTalkExcelConfigDataById: id must be a number');
+    }
     return await this.knex.select('*').from('TalkExcelConfigData')
       .where(cleanEmpty({Id: id, LoadType: loadType}))
       .orWhere(cleanEmpty({QuestCondStateEqualFirst: id, LoadType: loadType})).first()
@@ -945,6 +948,9 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   }
 
   async selectTalkExcelConfigDataByQuestId(questId: number, loadType: TalkLoadType = null): Promise<TalkExcelConfigData[]> {
+    if (isNaN(questId)) {
+      throw new Error('selectTalkExcelConfigDataByQuestId: questId must be a number');
+    }
     return await this.knex.select('*').from('TalkExcelConfigData')
       .where(cleanEmpty({QuestId: questId, LoadType: loadType}))
       .orWhere(cleanEmpty({QuestCondStateEqualFirst: questId, LoadType: loadType})).then(this.commonLoad)
