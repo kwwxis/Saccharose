@@ -1,7 +1,15 @@
 <section class="card">
   <h2>Quick Jump</h2>
     <% Object.values(resultMap).forEach(res => { %>
-      <h3>NPC ID: <strong><%= res.npcId %></strong> "<span><%= res.npc.NameText %></span>"</h3>
+      <h3 class="valign">
+        <span>
+          <span>NPC ID:&nbsp;</span>
+          <strong><%= res.npcId %></strong>
+        </span>
+        <span class="spacer5-left">&ndash;</span>
+        <span class="spacer5-left"><%= res.npc.NameText %></span>
+        <span class="secondary-label small spacer10-left"><small class="fontWeight700">Body Type:</small>&nbsp;<span><%= res.npc.BodyType %></span></span>
+      </h3>
       <div class="content">
         <% if (res.nonQuestDialogue.length) { %>
           <fieldset>
@@ -68,7 +76,15 @@
 <div class="result-wrapper">
   <% Object.values(resultMap).forEach(res => { %>
     <section class="card">
-      <h2>NPC ID: <strong><%= res.npcId %></strong> "<span><%= res.npc.NameText %></span>"</h2>
+      <h2 class="valign">
+        <small>
+          <span>NPC ID:&thinsp;</span>
+          <strong><%= res.npcId %></strong>
+        </small>
+        <span class="spacer5-left">&ndash;</span>
+        <span class="spacer5-left"><%= res.npc.NameText %></span>
+        <span class="secondary-label small spacer10-left"><small class="fontWeight700">Body Type:</small>&nbsp;<span><%= res.npc.BodyType %></span></span>
+      </h2>
       <% if (res.nonQuestDialogue.length) { %>
         <h3 class="valign">
           <span class="expando" ui-action="expando: #non-quest-dialogue-<%= res.npcId %>"><%- icon('chevron-down', 17) %></span>

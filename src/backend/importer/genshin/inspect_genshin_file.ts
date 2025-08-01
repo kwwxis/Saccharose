@@ -8,6 +8,7 @@ import { ReminderExcelConfigData } from '../../../shared/types/genshin/dialogue-
 import { toInt } from '../../../shared/util/numberUtil.ts';
 import { QuestExcelConfigData } from '../../../shared/types/genshin/quest-types.ts';
 import { DocumentExcelConfigData } from '../../../shared/types/genshin/readable-types.ts';
+import { NpcExcelConfigData } from '../../../shared/types/genshin/general-types.ts';
 
 const excel = (file: string) => `./ExcelBinOutput/${file}.json`;
 
@@ -58,13 +59,14 @@ const presets = {
       return record.GivingMethod === 'GIVING_METHOD_EXACT';
   },},
   GivingGroupExcelConfigData: <InspectOpt> { file: excel('GivingGroupExcelConfigData'), inspectFieldValues: [] },
-  DocumentExcelConfigData: <InspectOpt> { file: excel('DocumentExcelConfigData'), inspectFieldValues: ['DocumentType', 'SplitType'] }
+  DocumentExcelConfigData: <InspectOpt> { file: excel('DocumentExcelConfigData'), inspectFieldValues: ['DocumentType', 'SplitType'] },
+  NpcExcelConfigData: <InspectOpt> { file: excel('NpcExcelConfigData'), inspectFieldValues: ['BodyType', 'SpecialType', 'BillboardType', 'ElementName', 'ElementType']}
 };
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
     const ctrl = getGenshinControl();
-    await inspectDataFile(ctrl, presets.CodexQuestExcelConfigData);
+    await inspectDataFile(ctrl, presets.NpcExcelConfigData);
     await closeKnex();
   })();
 }

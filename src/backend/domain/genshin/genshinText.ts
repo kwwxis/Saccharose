@@ -348,19 +348,29 @@ export async function loadGenshinTextSupportingData(): Promise<void> {
 
   const ctrl = getGenshinControl();
 
-  serverBrandTipsOverseas = await ctrl.createLangCodeMap(2874657049);
-  serverEmailAskOverseas = await ctrl.createLangCodeMap(2535673454);
+  serverBrandTipsOverseas = await ctrl.cached('TextSupportingData:ServerBrandTipsOverseas', 'json', async () => {
+    return await ctrl.createLangCodeMap(2874657049);
+  });
+  serverEmailAskOverseas = await ctrl.cached('TextSupportingData:ServerEmailAskOverseas', 'json', async () => {
+    return await ctrl.createLangCodeMap(2535673454);
+  });
 
-  ELEMENT_TEXTMAP.PYRO = await ctrl.createLangCodeMap(ManualTextMapHashes.Pyro);
-  ELEMENT_TEXTMAP.HYDRO = await ctrl.createLangCodeMap(ManualTextMapHashes.Hydro);
-  ELEMENT_TEXTMAP.DENDRO = await ctrl.createLangCodeMap(ManualTextMapHashes.Dendro);
-  ELEMENT_TEXTMAP.ELECTRO = await ctrl.createLangCodeMap(ManualTextMapHashes.Electro);
-  ELEMENT_TEXTMAP.ANEMO = await ctrl.createLangCodeMap(ManualTextMapHashes.Anemo);
-  ELEMENT_TEXTMAP.CRYO = await ctrl.createLangCodeMap(ManualTextMapHashes.Cryo);
-  ELEMENT_TEXTMAP.GEO = await ctrl.createLangCodeMap(ManualTextMapHashes.Geo);
-  ELEMENT_TEXTMAP.PHYSICAL = await ctrl.createLangCodeMap(ManualTextMapHashes.Physical);
+  ELEMENT_TEXTMAP = await ctrl.cached('TextSupportingData:ElementTextMap', 'json', async () => {
+    ELEMENT_TEXTMAP.PYRO = await ctrl.createLangCodeMap(ManualTextMapHashes.Pyro);
+    ELEMENT_TEXTMAP.HYDRO = await ctrl.createLangCodeMap(ManualTextMapHashes.Hydro);
+    ELEMENT_TEXTMAP.DENDRO = await ctrl.createLangCodeMap(ManualTextMapHashes.Dendro);
+    ELEMENT_TEXTMAP.ELECTRO = await ctrl.createLangCodeMap(ManualTextMapHashes.Electro);
+    ELEMENT_TEXTMAP.ANEMO = await ctrl.createLangCodeMap(ManualTextMapHashes.Anemo);
+    ELEMENT_TEXTMAP.CRYO = await ctrl.createLangCodeMap(ManualTextMapHashes.Cryo);
+    ELEMENT_TEXTMAP.GEO = await ctrl.createLangCodeMap(ManualTextMapHashes.Geo);
+    ELEMENT_TEXTMAP.PHYSICAL = await ctrl.createLangCodeMap(ManualTextMapHashes.Physical);
+    return ELEMENT_TEXTMAP;
+  });
 
-  mapBy(await ctrl.readExcelDataFile<SpriteTagExcelConfigData[]>('SpriteTagExcelConfigData.json'), 'Id', GENSHIN_SPRITE_TAGS);
+  const spriteTags = await ctrl.cached('TextSupportingData:SpriteTags', 'json', async () => {
+    return mapBy(await ctrl.readExcelDataFile<SpriteTagExcelConfigData[]>('SpriteTagExcelConfigData.json'), 'Id');
+  });
+  Object.assign(GENSHIN_SPRITE_TAGS, spriteTags);
 
   logInitData('Loading Genshin-supporting text data -- done!');
 }

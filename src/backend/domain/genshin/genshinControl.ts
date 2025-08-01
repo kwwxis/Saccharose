@@ -479,6 +479,16 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   // endregion
 
   // region NPC
+  private async postProcessNpc(npc: NpcExcelConfigData): Promise<NpcExcelConfigData> {
+    if (!npc.BodyType) {
+      npc.BodyType = 'NONE';
+    }
+    npc.HasTalks = (await this.countTalkExcelConfigDataByNpcId(npc.Id)) > 0;
+    npc.HasDialogs = (await this.countDialogExcelConfigDataByTalkRoleId(npc.Id)) > 0;
+    npc.HasTalksOrDialogs = npc.HasTalks || npc.HasDialogs;
+    return npc;
+  }
+
   async getNpc(npcId: number): Promise<NpcExcelConfigData> {
     if (!npcId) return null;
     return await this.getNpcList([ npcId ]).then(x => x && x.length ? x[0] : null);
@@ -491,7 +501,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     let cachedList = npcIds.map(id => this.state.npcCache[id]).filter(x => !!x);
 
     let uncachedList: NpcExcelConfigData[] = await this.knex.select('*').from('NpcExcelConfigData')
-      .whereIn('Id', notCachedIds).then(this.commonLoad);
+      .whereIn('Id', notCachedIds).then(this.commonLoad).then(ret => ret.asyncMap((x) => this.postProcessNpc(x)));
 
     if (addToCache && !this.state.DisableNpcCache) {
       uncachedList.forEach(npc => this.state.npcCache[npc.Id] = npc);
@@ -962,6 +972,12 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       .where(cleanEmpty({NpcId: npcId, TalkLoadType: loadType})).pluck('TalkId').then();
     return Promise.all(talkIds.map(talkId => this.selectTalkExcelConfigDataById(talkId)));
   }
+
+  async countTalkExcelConfigDataByNpcId(npcId: number, loadType: TalkLoadType = null): Promise<number> {
+    return await this.knex.count('TalkId as count').from('Relation_NpcToTalk')
+      .where(cleanEmpty({NpcId: npcId, TalkLoadType: loadType})).first()
+      .then((res: any) => toInt(res.count));
+  }
   // endregion
 
   // region Dialog Unparented Select
@@ -1059,6 +1075,13 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       this.saveToDialogIdCache(d, noAddCache);
       return d;
     });
+  }
+
+  async countDialogExcelConfigDataByTalkRoleId(talkRoleId: number): Promise<number> {
+    return await this.knex.count('Id as count')
+      .from('DialogExcelConfigData')
+      .where({TalkRoleId: talkRoleId}).first()
+      .then((res: any) => toInt(res.count));
   }
 
   async selectDialogExcelConfigDataByTalkId(talkId: number, noAddCache: boolean = false): Promise<DialogExcelConfigData[]> {

@@ -32,7 +32,7 @@ export interface NpcExcelConfigData {
 
   JsonName: string,
   SpecialType: string,
-  BodyType: string,
+  BodyType: NpcExcelConfigDataBodyType,
   Alias: string,
 
   HasMove: boolean,
@@ -61,7 +61,35 @@ export interface NpcExcelConfigData {
   OKJNGNPPCBP: string,
   JMJLKENBJEA: number,
   BHDMIMPGPOI: number[],
+
+  HasDialogs?: boolean,
+  HasTalks?: boolean,
+  HasTalksOrDialogs?: boolean,
 }
+
+export type NpcExcelConfigDataBodyType =
+  'AVATAR_BOY'    |
+  'AVATAR_GIRL'   |
+  'AVATAR_LADY'   |
+  'AVATAR_LOLI'   |
+  'AVATAR_MALE'   |
+  'AVATAR_PAIMON' |
+  'Barbara'       |
+  'Bennett'       |
+  'Chongyun'      |
+  'Collei'        |
+  'Diona'         |
+  'NONE'          |
+  'NPC_CHILD'     |
+  'NPC_ELDER'     |
+  'NPC_FEMALE'    |
+  'NPC_GIRL'      |
+  'NPC_MALE'      |
+  'NPC_MUSCLEMAN' |
+  'NPC_Others'    |
+  'Ningguang'     |
+  'Noel'          ;
+
 
 export type WorldAreaType = 'LEVEL_1' | 'LEVEL_2';
 

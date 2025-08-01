@@ -125,7 +125,7 @@ export function __normStarRailText(text: string, langCode: LangCode, opts: NormT
   return text;
 }
 
-const textJoinConfigMap: {[id: number]: TextJoinConfig} = {};
+let textJoinConfigMap: {[id: number]: TextJoinConfig} = {};
 
 export async function loadStarRailTextSupportingData() {
   if (isSiteModeDisabled('hsr'))
@@ -134,13 +134,15 @@ export async function loadStarRailTextSupportingData() {
 
   const ctrl = getStarRailControl();
 
-  const textJoinItemMap = await ctrl.readExcelDataFileToStream<TextJoinItem>('TextJoinItem.json')
-    .mappingScalar('TextJoinTextMapHash', 'TextJoinTextMap', hash => ctrl.createLangCodeMap(hash))
-    .toMap('TextJoinItemId');
+  textJoinConfigMap = await ctrl.cached('TextSupportingData:TextJoinConfigMap', 'json', async () => {
+    const textJoinItemMap = await ctrl.readExcelDataFileToStream<TextJoinItem>('TextJoinItem.json')
+      .mappingScalar('TextJoinTextMapHash', 'TextJoinTextMap', hash => ctrl.createLangCodeMap(hash))
+      .toMap('TextJoinItemId');
 
-  await ctrl.readExcelDataFileToStream<TextJoinConfig>('TextJoinConfig.json')
-    .mappingVector('TextJoinItemList', 'TextJoinItemListMapped', id => textJoinItemMap[id])
-    .toMap('TextJoinId', textJoinConfigMap);
+    return await ctrl.readExcelDataFileToStream<TextJoinConfig>('TextJoinConfig.json')
+      .mappingVector('TextJoinItemList', 'TextJoinItemListMapped', id => textJoinItemMap[id])
+      .toMap('TextJoinId');
+  });
 
   logInitData('Loading HSR-supporting text data -- Done!');
 }

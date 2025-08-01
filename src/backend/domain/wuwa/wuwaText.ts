@@ -5,6 +5,7 @@ import {
   NormTextOptions,
   postProcessBoldItalic,
 } from '../abstract/genericNormalizers.ts';
+import { isSiteModeDisabled } from '../../loadenv.ts';
 
 export type WuwaNormTextOpts = {
 
@@ -96,5 +97,6 @@ export function __normWuwaText(text: string, langCode: LangCode, opts: NormTextO
 }
 
 export async function loadWuwaTextSupportingData() {
-
+  if (isSiteModeDisabled('wuwa'))
+    return;
 }

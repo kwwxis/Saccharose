@@ -27,6 +27,9 @@ import { selectTutorials } from '../archive/tutorials.ts';
 import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
 import { DialogExcelConfigData } from '../../../../shared/types/genshin/dialogue-types.ts';
 import { TextMapHash } from '../../../../shared/types/lang-types.ts';
+import { NpcExcelConfigData } from '../../../../shared/types/genshin/general-types.ts';
+import { sort } from '../../../../shared/util/arrayUtil.ts';
+import { defaultMap } from '../../../../shared/util/genericUtil.ts';
 
 export type GenshinChangelogNewRecordSummary = {
   avatars: AvatarExcelConfigData[],
@@ -56,6 +59,9 @@ export type GenshinChangelogNewRecordSummary = {
   loadingTips: LoadingTipsExcelConfigData[],
   tutorials: TutorialExcelConfigData[],
   viewpoints: ViewCodexExcelConfigData[],
+
+  npcs: NpcExcelConfigData[],
+  npcsByBodyType: Record<string, NpcExcelConfigData[]>,
 }
 
 export async function generateGenshinChangelogNewRecordSummary(ctrl: GenshinControl, fullChangelog: FullChangelog): Promise<GenshinChangelogNewRecordSummary> {
@@ -133,6 +139,9 @@ export async function _generateGenshinChangelogNewRecordSummary(ctrl: GenshinCon
     chapters: null,
     nonChapterQuests: null,
     hiddenQuests: null,
+
+    npcs: null,
+    npcsByBodyType: defaultMap('Array'),
   };
 
   const gcg: GCGControl = await getGcg(ctrl);
@@ -204,7 +213,17 @@ export async function _generateGenshinChangelogNewRecordSummary(ctrl: GenshinCon
 
     selectTutorials(ctrl, null, newIntKeysOf('TutorialExcelConfigData'))
       .then(tutorialsByType => out.tutorials = Object.values(tutorialsByType).flat()),
+
+    ctrl.getNpcList(newIntKeysOf('NpcExcelConfigData'), false)
+      .then(npcs => out.npcs = npcs),
   ]);
+
+  for (let npc of out.npcs) {
+    out.npcsByBodyType[npc.BodyType].push(npc);
+  }
+  for (let npcList of Object.values(out.npcsByBodyType)) {
+    sort(npcList, '-HasTalksOrDialogs', 'NameText');
+  }
 
   return out;
 }

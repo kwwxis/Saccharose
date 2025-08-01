@@ -161,38 +161,38 @@ function getSchemaFilePath(filePath: string): string {
 export async function writeDeobfBin() {
   shouldIgnoreConfig.shouldIgnoreEmptyString = true;
 
-  console.log('----- CodexQuest Mapping -----');
-  const cqMapping = await mapCodexQuest();
-
-  console.log('----- GCG Mapping -----');
-  const gcgDvsMapping = await mapGcgDeclaredValueSet();
-
-  console.log('----- HomeworldFurnitureSuit Mapping -----');
-  const furnSuitMapping = await mapFurnSuit();
-
-  console.log('----- InterAction Mapping -----');
-  const iaMapping = await mapInterAction();
+  // console.log('----- CodexQuest Mapping -----');
+  // const cqMapping = await mapCodexQuest();
+  //
+  // console.log('----- GCG Mapping -----');
+  // const gcgDvsMapping = await mapGcgDeclaredValueSet();
+  //
+  // console.log('----- HomeworldFurnitureSuit Mapping -----');
+  // const furnSuitMapping = await mapFurnSuit();
+  //
+  // console.log('----- InterAction Mapping -----');
+  // const iaMapping = await mapInterAction();
 
   console.log('----- Quest Mapping -----');
   const questMapping = await mapQuest();
 
-  console.log('----- Talk Mapping -----');
-  const talkMapping = await mapTalk();
-
-  console.log('----- Voice Mapping -----');
-  const voiceMapping = await mapVoiceOvers();
+  // console.log('----- Talk Mapping -----');
+  // const talkMapping = await mapTalk();
+  //
+  // console.log('----- Voice Mapping -----');
+  // const voiceMapping = await mapVoiceOvers();
 
   console.log();
   console.log();
 
   console.log('----- Writing Outputs -----');
-  await walkSyncWrite('./BinOutput.Obf/CodexQuest', './BinOutput/CodexQuest', cqMapping);
-  await walkSyncWrite('./BinOutput.Obf/GCG/Gcg_DeclaredValueSet', './BinOutput/GCG/Gcg_DeclaredValueSet', gcgDvsMapping);
-  await walkSyncWrite('./BinOutput.Obf/HomeworldFurnitureSuit', './BinOutput/HomeworldFurnitureSuit', furnSuitMapping);
-  await walkSyncWrite('./BinOutput.Obf/InterAction/QuestDialogue', './BinOutput/InterAction/QuestDialogue', iaMapping);
+  // await walkSyncWrite('./BinOutput.Obf/CodexQuest', './BinOutput/CodexQuest', cqMapping);
+  // await walkSyncWrite('./BinOutput.Obf/GCG/Gcg_DeclaredValueSet', './BinOutput/GCG/Gcg_DeclaredValueSet', gcgDvsMapping);
+  // await walkSyncWrite('./BinOutput.Obf/HomeworldFurnitureSuit', './BinOutput/HomeworldFurnitureSuit', furnSuitMapping);
+  // await walkSyncWrite('./BinOutput.Obf/InterAction/QuestDialogue', './BinOutput/InterAction/QuestDialogue', iaMapping);
   await walkSyncWrite('./BinOutput.Obf/Quest', './BinOutput/Quest', questMapping);
-  await walkSyncWrite('./BinOutput.Obf/Talk', './BinOutput/Talk', talkMapping);
-  await walkSyncWrite('./BinOutput.Obf/Voice', './BinOutput/Voice', voiceMapping);
+  // await walkSyncWrite('./BinOutput.Obf/Talk', './BinOutput/Talk', talkMapping);
+  // await walkSyncWrite('./BinOutput.Obf/Voice', './BinOutput/Voice', voiceMapping);
 }
 
 // region Mappers
@@ -395,9 +395,9 @@ async function mapQuest(): Promise<Record<string, string>> {
   };
 
   const schemaRows: any[] = await walkSyncJsonCombine(getSchemaFilePath('./BinOutput/Quest'),
-    questCombiner, 100, []);
+    questCombiner, 120, []);
   const rawRows: any[] = await walkSyncJsonCombine(getGenshinDataFilePath('./BinOutput.Obf/Quest'),
-    questCombiner, 100, []);
+    questCombiner, 120, []);
 
   const propertySchema: PropertySchemaResult = await createPropertySchemaWithArray(
     null,
