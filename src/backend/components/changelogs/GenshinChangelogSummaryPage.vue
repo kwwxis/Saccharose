@@ -226,40 +226,6 @@
         </div>
       </div>
 
-      <h3 id="new-npcs-header" class="new-summary-section-header secondary-header valign">
-        <span class="expando spacer5-right" ui-action="expando: #new-npcs-content"><Icon name="chevron-down" :size="17" /></span>
-        <span class="new-summary-section-title">New NPCs</span>
-        <span class="secondary-label new-summary-section-count">{{ newSummary.npcs.length }}</span>
-      </h3>
-      <div id="new-npcs-content">
-        <div class="content" style="padding-bottom: 0;padding-left: 33px;">
-          <p><small class="fontWeight700 color-green">(d)</small> &mdash; Green indicates NPC has dialogue sections. This indicator does include empty dialogue sections. This indicator does not account for Reminder Excels.</p>
-        </div>
-        <div class="content alignStart flexWrap" v-if="newSummary.npcs.length">
-          <fieldset v-for="[bodyType, npcList] of Object.entries(newSummary.npcsByBodyType)" class="w100p spacer5-all">
-            <legend>Body Type: {{ bodyType }}</legend>
-            <div class="content alignStretch flexWrap">
-              <div v-for="npc of npcList" class="w20p">
-                <div class="w100p h100p" style="padding-bottom:3px;padding-right:3px;">
-                  <a :href="`/genshin/npc-dialogue?q=${npc.Id}`" target="_blank"
-                     role="button" class="w100p h100p secondary">
-                    <small class="fontWeight700">{{npc.Id}}</small>
-                    <span>:&nbsp;</span>
-                    <span v-if="npc.NameText">{{ npc.NameText }}</span>
-                    <span class="fontItalic" v-else>(No name)</span>
-                    <span class="grow"></span>
-                    <small class="fontWeight700 spacer5-left" :class="{'color-green': npc.HasTalksOrDialogs, 'color-red': !npc.HasTalksOrDialogs}">(d)</small>
-                  </a>
-                </div>
-              </div>
-            </div>
-          </fieldset>
-        </div>
-        <div class="content" v-if="!newSummary.npcs.length">
-          <p>(None)</p>
-        </div>
-      </div>
-
       <h3 id="new-tcg-character-cards-header" class="new-summary-section-header secondary-header valign">
         <span class="expando spacer5-right" ui-action="expando: #new-tcg-character-cards-content"><Icon name="chevron-down" :size="17" /></span>
         <span class="new-summary-section-title">New TCG Cards: Character Cards</span>
@@ -645,6 +611,40 @@
             <strong>ID {{ mainQuest.Id }} {{ mainQuest.Type }}:&nbsp;</strong>
             <span>{{ mainQuest.TitleText }}</span>
           </a>
+        </div>
+      </div>
+
+      <h3 id="new-npcs-header" class="new-summary-section-header secondary-header valign">
+        <span class="expando spacer5-right" ui-action="expando: #new-npcs-content"><Icon name="chevron-down" :size="17" /></span>
+        <span class="new-summary-section-title">New NPCs</span>
+        <span class="secondary-label new-summary-section-count">{{ newSummary.npcs.length }}</span>
+      </h3>
+      <div id="new-npcs-content">
+        <div class="content" style="padding-bottom: 0;padding-left: 33px;">
+          <p><small class="fontWeight700 color-green">(d)</small> &mdash; Green indicates NPC has dialogue sections. This indicator does include empty dialogue sections. This indicator does not account for Reminder Excels.</p>
+        </div>
+        <div class="content alignStart flexWrap" v-if="newSummary.npcs.length">
+          <fieldset v-for="[bodyType, npcList] of Object.entries(newSummary.npcsByBodyType)" class="w100p spacer5-all">
+            <legend>Body Type: {{ bodyType }}</legend>
+            <div class="content alignStretch flexWrap">
+              <div v-for="npc of npcList" class="w20p">
+                <div class="w100p h100p" style="padding-bottom:3px;padding-right:3px;">
+                  <a :href="`/genshin/npc-dialogue?q=${npc.Id}`" target="_blank"
+                     role="button" class="w100p h100p secondary">
+                    <small class="fontWeight700">{{npc.Id}}</small>
+                    <span>:&nbsp;</span>
+                    <span v-if="npc.NameText">{{ npc.NameText }}</span>
+                    <span class="fontItalic" v-else>(No name)</span>
+                    <span class="grow"></span>
+                    <small class="fontWeight700 spacer5-left" :class="{'color-green': npc.HasTalksOrDialogs, 'color-red': !npc.HasTalksOrDialogs}">(d)</small>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </fieldset>
+        </div>
+        <div class="content" v-if="!newSummary.npcs.length">
+          <p>(None)</p>
         </div>
       </div>
 
