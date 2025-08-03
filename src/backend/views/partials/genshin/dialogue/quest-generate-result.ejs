@@ -1,6 +1,12 @@
 <section class="card" data-document-title="<%= req.context.getFormattedPageTitle(questTitle || '(No title)') %>">
-  <h2>
-    <strong><%= questId %>:</strong>&nbsp;<span class="quest-title"><%= questTitle || '(No title)' %></span>
+  <h2 class="valign">
+    <strong><%= questId %>:</strong>&nbsp;
+    <span class="quest-title"><%= questTitle || '(No title)' %></span>
+    <span class="secondary-label small spacer5-left"><%= mainQuest.Type %></span>
+    <% if (locals.versionAdded) { %>
+      <span class="secondary-label small spacer5-left"><%= versionAdded %></span>
+    <% } %>
+    <span class="grow"></span>
     <a class="help-info fr fontWeight600" style="font-size:15px;cursor:pointer;">Help</a>
   </h2>
   <div id="quest-desc-section" class="content">
@@ -174,41 +180,73 @@
     </div>
   <% } %>
   <% if (questStills && questStills.length) { %>
-    <h2>Quest Stills</h2>
-    <div class="content">
-      <div class="alignStart flexWrap">
-        <% for (let questStill of questStills) { %>
-          <div class="w50p">
-            <div class="image-frame spacer3-all">
-              <img src="/serve-image/genshin/<%= questStill.imageName %>.png/<%= questStill.wikiName %>.png" class="w100p" />
-              <span class="image-label"><%= questStill.wikiName %>.png</span>
+    <div id="quest-stills-section">
+      <h2 class="primary-header valign">
+        <span class="expando spacer5-right" ui-action="expando: #quest-stills-content"><%- icon('chevron-down', 17) %></span>
+        <span>Quest Stills</span>
+      </h2>
+      <div id="quest-stills-content" class="content">
+        <div class="alignStart flexWrap">
+          <% for (let questStill of questStills) { %>
+            <div class="w50p">
+              <div class="image-frame spacer3-all">
+                <img src="/serve-image/genshin/<%= questStill.imageName %>.png/<%= questStill.wikiName %>.png" class="w100p" />
+                <span class="image-label"><%= questStill.wikiName %>.png</span>
+              </div>
             </div>
-          </div>
-        <% } %>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  <% } %>
+  <% if (questItemPictureCandidates && questItemPictureCandidates.length) { %>
+    <div id="quest-item-pictures-section">
+      <h2 class="primary-header valign">
+        <span class="expando spacer5-right" ui-action="expando: #quest-item-pictures-content"><%- icon('chevron-down', 17) %></span>
+        <span>Quest Item Picture Candidates</span>
+      </h2>
+      <div id="quest-item-pictures-content" class="content">
+        <p>This quest contains one or more Quest Item Pictures. The datamined data doesn't have any info as to which picture it is,
+          but here is a list of quest item pictures added in the same version as this quest for your convenience.</p>
+        <div class="alignStart flexWrap">
+          <% for (let pic of questItemPictureCandidates) { %>
+            <div class="w20p">
+              <div class="image-frame bordered spacer3-all">
+                <img src="/images/genshin/<%= pic.image_name %>.png" class="w100p" />
+                <span class="image-label" style="word-break: break-all;line-height: 1.2em;"><%= pic.image_name %></span>
+              </div>
+            </div>
+          <% } %>
+        </div>
       </div>
     </div>
   <% } %>
   <% if (inDialogueReadables && inDialogueReadables.length) { %>
-    <h2>In-Dialogue Readables</h2>
-    <div class="content">
-      <% for (let readable of inDialogueReadables) { %>
-        <%- use('partials/genshin/archive/readable-link', { readable }) %>
-      <% } %>
-      <div class="alignStart flexWrap">
+    <div id="in-dialogue-readables-section">
+      <h2 class="primary-header valign">
+        <span class="expando spacer5-right" ui-action="expando: #in-dialogue-readables-content"><%- icon('chevron-down', 17) %></span>
+        <span>In-Dialogue Readables</span>
+      </h2>
+      <div id="in-dialogue-readables-content" class="content">
         <% for (let readable of inDialogueReadables) { %>
-          <% for (let item of readable.Items) { %>
-            <% if (item.ReadableImages && item.ReadableImages.length) { %>
-              <% for (let image of item.ReadableImages) { %>
-                <div class="w25p">
-                  <div class="image-frame spacer3-all bordered">
-                    <img src="/images/genshin/<%= image %>.png" class="w100p" />
-                    <span class="image-label"><%= image %></span>
+          <%- use('partials/genshin/archive/readable-link', { readable }) %>
+        <% } %>
+        <div class="alignStart flexWrap">
+          <% for (let readable of inDialogueReadables) { %>
+            <% for (let item of readable.Items) { %>
+              <% if (item.ReadableImages && item.ReadableImages.length) { %>
+                <% for (let image of item.ReadableImages) { %>
+                  <div class="w25p">
+                    <div class="image-frame spacer3-all bordered">
+                      <img src="/images/genshin/<%= image %>.png" class="w100p" />
+                      <span class="image-label"><%= image %></span>
+                    </div>
                   </div>
-                </div>
+                <% } %>
               <% } %>
             <% } %>
           <% } %>
-        <% } %>
+        </div>
       </div>
     </div>
   <% } %>

@@ -29,11 +29,13 @@ import { isInt, toInt } from '../../../../shared/util/numberUtil.ts';
 import { Readable } from '../../../../shared/types/genshin/readable-types.ts';
 import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
 import { defaultMap } from '../../../../shared/util/genericUtil.ts';
+import { ImageIndexEntity } from '../../../../shared/types/image-index-types.ts';
 
 export class QuestGenerateResult {
   mainQuest: MainQuestExcelConfigData = null;
   questTitle: string;
   questId: number;
+  versionAdded?: string;
   npc: {
     names: string[],
     data: {[Id: number]: NpcExcelConfigData},
@@ -52,7 +54,8 @@ export class QuestGenerateResult {
   rewardTriggers?: Record<number, number[]>;
   reputationInfobox?: string;
   questStills?: {imageName: string, wikiName: string}[];
-  inDialogueReadables?: Readable[]
+  inDialogueReadables?: Readable[];
+  questItemPictureCandidates?: ImageIndexEntity[];
 }
 
 async function findMainQuest(ctrl: GenshinControl, questNameOrId: string|number, questIndex: number) {
@@ -83,6 +86,8 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
   if (!mainQuest || !mainQuest.Id) {
     throw 'Main Quest not found.';
   }
+  result.versionAdded = (await ctrl.selectChangeRecordAdded(mainQuest.Id, 'MainQuestExcelConfigData'))?.version;
+
   mainQuest.QuestExcelConfigDataList = await ctrl.selectAllQuestExcelConfigDataByMainQuestId(mainQuest.Id);
   mainQuest.UnsectionedTalks = [];
 
@@ -437,6 +442,16 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
   // --------------------------------------------------------------------------------------------------------------
   result.questStills = ctrl.state.questStills?.[mainQuest.Id] || [];
   result.inDialogueReadables = ctrl.state.inDialogueReadables?.[mainQuest.Id] || [];
+
+  if (result.versionAdded && ctrl.state.questHasQuestItemPictures[mainQuest.Id]) {
+    const questPictures = await ctrl.searchImageIndex({
+      query: `^UI_(QuestPicture|ReadPic)`,
+      versionFilter: result.versionAdded,
+      searchMode: 'RI',
+      limit: 1000
+    });
+    result.questItemPictureCandidates = questPictures.results;
+  }
 
   // Return result
   // --------------------------------------------------------------------------------------------------------------

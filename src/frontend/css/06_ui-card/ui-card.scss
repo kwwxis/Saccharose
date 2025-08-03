@@ -58,7 +58,7 @@ ul.checkbox-tree p {
 
 // Primary Header
 // ----------------------------------------------------------------------------------------------------
-.card > h2 {
+.card > h2, .card .primary-header {
   background: hsla(223, 67%, 18%, 0.03);
   padding: 8px 10px;
   border-bottom: 1px solid hsl(240, 50%, 96.5%);
@@ -72,7 +72,8 @@ ul.checkbox-tree p {
   }
 }
 
-.card > h2:first-child {
+.card > h2:first-child,
+.card .primary-header.first {
   border-top: 0.5px solid hsla(223, 67%, 18%, 0.08);
 
   body.nightmode & {
@@ -84,7 +85,8 @@ ul.checkbox-tree p {
   border-top: 0;
 }
 
-.card > h2:not(:first-child) {
+.card > h2:not(:first-child),
+.card .primary-header:not(.first) {
   border-top: 1px solid hsl(240, 50%, 96.5%);
 
   body.nightmode & {

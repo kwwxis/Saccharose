@@ -77,6 +77,10 @@ class DialogueGenerateState {
   constructor(readonly ctrl: GenshinControl, opts: DialogueGenerateOpts) {
     this.query = opts.query;
 
+    if (typeof this.query === 'string') {
+      this.query = this.query.trim();
+    }
+
     if (typeof this.query === 'string' && isInt(this.query)) {
       this.query = toInt(this.query);
     }
@@ -91,7 +95,7 @@ class DialogueGenerateState {
 // --------------------------------------------------------------------------------------------------------------
 
 /**
- * Add highlight markers to search result dialogue section.
+ * Add highlight markers to the search result dialogue section.
  * @param ctrl The control instance.
  * @param query The original query.
  * @param npcFilter The npcFilter.
@@ -138,11 +142,13 @@ async function addHighlightMarkers(ctrl: GenshinControl,
 }
 
 async function handle(state: DialogueGenerateState, id: number|DialogExcelConfigData): Promise<boolean> {
+  const generalDebug = custom('branch-dialogue');
   if (!id) {
-    const debug = custom('branch-dialogue');
-    debug('Early exit: no ID');
+    generalDebug('Early exit: no ID');
     return false;
   }
+
+  generalDebug('Handle: for ' + (typeof id === 'number' ? 'number - ' + id : 'dialog - ' + id.Id));
 
   const {
     result,
@@ -166,7 +172,7 @@ async function handle(state: DialogueGenerateState, id: number|DialogExcelConfig
     }
     const talkConfigResult = await talkConfigGenerate(ctrl, id);
     if (talkConfigResult) {
-      debug('Fast case: talk config result');
+      debug('Fast case: talk config result - ' + talkConfigResult.id);
       result.push(talkConfigResult);
       return true;
     }
@@ -337,11 +343,14 @@ export async function dialogueGenerate(ctrl: GenshinControl, opts: DialogueGener
       }
     }
   } else if (typeof state.query === 'number') {
-    debug('Path 2: number');
+    debug('Path 2: number'); // The number could be a textmap hash, dialog id, or talk id
+
+    // Try textmap hash:
     const dialogs = await ctrl.selectDialogsFromTextMapHash(state.query, true);
     if (dialogs.length) {
       await dialogs.asyncMap(d => handle(state, d));
     } else {
+      // Try dialog id / talk id:
       await handle(state, state.query);
     }
   } else {

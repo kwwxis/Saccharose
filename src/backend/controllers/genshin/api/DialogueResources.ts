@@ -68,6 +68,8 @@ router.endpoint('/quests/generate', {
       let locals: any = {};
 
       locals.isResultPage = true;
+      locals.mainQuest = result.mainQuest;
+      locals.versionAdded = result.versionAdded;
       locals.questTitle = result.questTitle;
       locals.questId = result.questId;
       locals.npc = result.npc;
@@ -85,6 +87,7 @@ router.endpoint('/quests/generate', {
       locals.similarityGroups = result.similarityGroups;
       locals.questStills = result.questStills;
       locals.inDialogueReadables = result.inDialogueReadables;
+      locals.questItemPictureCandidates = result.questItemPictureCandidates;
 
       return res.render('partials/genshin/dialogue/quest-generate-result', locals);
     } else {

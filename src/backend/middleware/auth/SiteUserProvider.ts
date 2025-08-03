@@ -148,7 +148,7 @@ export class SiteUserProviderImpl {
     if (!user || !user.id) {
       return false;
     }
-    return cached('Site:UserBanned:' + user.id, 'memory', async () => {
+    return cached('Site:UserBanned:' + user.id, 'disabled', async () => {
       let qb = pg.select('*').from('site_user_banned');
       if (user.wiki_username) {
         qb = qb.where({wiki_username: user.wiki_username}).or.where({discord_id: user.id});

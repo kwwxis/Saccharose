@@ -195,6 +195,7 @@ export class GenshinControlState extends AbstractControlState {
   questBgPicCounter: {[mainQuestId: number]: number} = defaultMap('One');
   questBgPicSeen: {[mainQuestId: number]: {[imageName: string]: number}} = defaultMap('Object');
   questBgPicImageToWikiName: {[mainQuestId: number]: {[imageName: string]: string}} = defaultMap('Object');
+  questHasQuestItemPictures: {[mainQuestId: number]: boolean} = {};
 
   // In-Dialogue Readables
   inDialogueReadables: {[mainQuestId: number]: Readable[]} = defaultMap('Array');
@@ -935,7 +936,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     }
     return await this.knex.select('*').from('TalkExcelConfigData')
       .where(cleanEmpty({Id: id, LoadType: loadType}))
-      .orWhere(cleanEmpty({QuestCondStateEqualFirst: id, LoadType: loadType})).first()
+      .first()
       .then(this.commonLoadFirst)
       .then(x => this.postProcessTalkExcel(x));
   }
@@ -1316,7 +1317,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
                   addon.CustomImageWikiName = genWikiName(nextAction);
                   this.state.questBgPicImageToWikiName[mainQuestId][addon.CustomImageName] = addon.CustomImageWikiName;
                 }
-                i++; // skip next action as we've just handled it
+                i++; // skip the next action as we've just handled it
               }
             }
 
@@ -1329,6 +1330,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
             fakeDialogs.push(await this.makeFakeDialog(action.ActionId, {
               CustomWikiTx: 'Missing quest item picture',
             }));
+            this.state.questHasQuestItemPictures[mainQuestId] = true;
           } else if (action.Type === 'UI_TRIGGER' && action.ContextName === 'QuestReadingDialog' && isInt(action.Param)) {
             const readable = await this.selectReadable(toInt(action.Param), true);
             if (readable) {
