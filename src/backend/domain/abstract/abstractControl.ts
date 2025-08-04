@@ -789,7 +789,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
         grepFlags = '-n';
       }
 
-      console.log('[Excel-Usages] Grep Query:', grepQuery);
+      console.log('[Excel-Usages] Grep Query:', { grepQuery, grepFlags });
 
       await grepStream(grepQuery, this.getDataFilePath(this.excelPath), async (result) => {
         if (decimalRegex.test(result)) {
@@ -809,6 +809,8 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
         }
       }, { flags: grepFlags });
     }
+
+    console.log('[ExcelUsages]', id, 'files found in:', filesFoundIn);
 
     for (let fileName of Object.keys(filesFoundIn)) {
       let json: any[] = await this.cached('ExcelUsagesFileRead:' + fileName, 'json', async () => {
