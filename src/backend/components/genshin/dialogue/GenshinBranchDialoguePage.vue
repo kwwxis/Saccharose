@@ -21,18 +21,19 @@
           </span>
           <button class="npc-filter-input-clear input-clear-button hide"><Icon name="x-circle" /></button>
         </div>
+        <div class="posRel spacer5-left">
+          <input id="versionFilter" type="text" placeholder="Version filter"
+                 style="max-width: 250px;width: 100%;padding-right:25px"/>
+          <span ui-tippy="{content: 'Versions separated by comma or semicolon (only supported from 4.0 onwards)',delay:[200, 100]}"
+                class="dispInlineFlex" style="height:16px;width:16px;position:absolute;right:5px;top:0;bottom:0;margin:auto 0;opacity:0.6">
+            <Icon name="info" :size="16" />
+          </span>
+          <button class="version-filter-clear input-clear-button hide"><Icon name="x-circle" /></button>
+        </div>
         <label class="ui-checkbox dispBlock spacer10-left" style="padding-left:5px;font-size:13px;">
           <input id="voicedOnly" type="checkbox" name="voicedOnly" value="1" />
           <span>Voiced only</span>
         </label>
-        <label class="ui-checkbox dispBlock spacer10-left hide" style="padding-left:5px;font-size:13px;">
-          <input id="versionFilterEnabled" type="checkbox" name="versionFilterEnabled" value="1" />
-          <span>Version filter</span>
-        </label>
-      </div>
-      <div id="versionFilterOuter" class="field hide">
-        <input id="versionFilter" type="text" placeholder="Versions separated by comma or semicolon (only supported from 4.0 onwards)"
-               style="max-width: 490px;width: 100%;"/>
       </div>
       <div class="field valign spacer10-top">
         <button class="dialogue-generate-submit primary primary--2">Generate</button>

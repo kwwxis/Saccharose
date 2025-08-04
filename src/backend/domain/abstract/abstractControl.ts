@@ -789,12 +789,20 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
         grepFlags = '-n';
       }
 
+      console.log('[Excel-Usages] Grep Query:', grepQuery);
+
       await grepStream(grepQuery, this.getDataFilePath(this.excelPath), async (result) => {
         if (decimalRegex.test(result)) {
           return;
         }
 
         let exec = /\/([^\/]+).json:(\d+)/.exec(result);
+        console.log('[Excel-Usages] Grep stream:', {
+          result,
+          execLenMatch: exec && exec.length >= 3,
+          execFileName: exec && exec[1],
+        });
+
         if (exec && exec.length >= 3) {
           let fileName = exec[1];
           filesFoundIn[fileName] += 1;

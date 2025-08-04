@@ -45,26 +45,6 @@ pageMatch('vue/TextmapSearchPage', () => {
     excelUsagesEndpoint = wuwaEndpoints.getExcelUsages;
   }
 
-  listen([
-    {
-      selector: '#versionFilterEnabled',
-      event: 'input',
-      handle(_ev) {
-        const checkbox = document.querySelector<HTMLInputElement>('#versionFilterEnabled');
-        if (checkbox.checked) {
-          document.querySelector('#versionFilterOuter').classList.remove('hide');
-        } else {
-          document.querySelector('#versionFilterOuter').classList.add('hide');
-        }
-      }
-    }
-  ]);
-
-  if (new URL(window.location.href).searchParams.has('versions')) {
-    document.querySelector<HTMLInputElement>('#versionFilterEnabled').checked = true;
-    document.querySelector('#versionFilterOuter').classList.remove('hide');
-  }
-
   let diffUIs: DiffUI[] = [];
 
   startGenericSearchPageListeners({
@@ -106,6 +86,7 @@ pageMatch('vue/TextmapSearchPage', () => {
         selector: '#versionFilter',
         apiParam: 'versionFilter',
         queryParam: 'versions',
+        clearButton: '.version-filter-clear',
       }
     ],
 

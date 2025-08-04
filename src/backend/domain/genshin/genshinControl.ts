@@ -2935,6 +2935,9 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
   // region City & World Area
   async selectCityNameById(cityId: number, forceLangCode?: LangCode): Promise<string> {
+    if (isNaN(cityId)) {
+      throw new Error('selectCityNameById: cityId must be an integer');
+    }
     let textMapHash: TextMapHash = await this.knex.select('CityNameTextMapHash')
       .from('CityConfigData').where({CityId: cityId}).first().then(x => x && x.CityNameTextMapHash);
     return textMapHash ? await this.getTextMapItem(forceLangCode || this.outputLangCode, textMapHash) : 'n/a';
@@ -3596,7 +3599,9 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
         }
       }
       if (achievement.TriggerConfig.TriggerType.startsWith('TRIGGER_CITY')) {
-        achievement.TriggerConfig.CityNameText = await this.selectCityNameById(toInt(achievement.TriggerConfig.ParamList[0]));
+        if (achievement.TriggerConfig.ParamList?.length) {
+          achievement.TriggerConfig.CityNameText = await this.selectCityNameById(toInt(achievement.TriggerConfig.ParamList[0]));
+        }
       }
     }
     return achievement;

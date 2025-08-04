@@ -12,11 +12,16 @@ export async function handleExcelUsagesEndpoint(ctrl: AbstractControl, req: Requ
   const idToUsages: IdToExcelUsages = {};
   const changeRecordRefs: ChangeRecordRef[] = [];
 
-  await ids.asyncMap(async id => {
+  console.log('[Excel-Usages] IDs:', ids);
+
+  await ids.asyncForEach(async id => {
     await ctrl.getExcelUsages(id).then(usages => {
+      console.log('[Excel-Usages] Usages for', id, ':', usages);
       idToUsages[id] = usages;
     });
   });
+
+  console.log('[Excel-Usages] Result keys:', Object.keys(idToUsages));
 
   if (ctrl instanceof GenshinControl) {
     for (let id of ids) {
