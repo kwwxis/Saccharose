@@ -91,7 +91,7 @@ export async function passthru(command: string,
         if (isPromise(ret)) {
           callback_promises.push(ret);
         }
-        console.log(`[passthru:${command}] got line`, {line: line, isPromise: isPromise(ret)});
+        // console.log(`[passthru:${command}] got line`, {line: line, isPromise: isPromise(ret)});
       }
     };
   };
@@ -135,7 +135,7 @@ export async function passthru(command: string,
       if (stderrLineStream && partial_line_buffer.stderr)
         ret2 = stderrLineStream(partial_line_buffer.stderr, killFn);
 
-      console.log(`[passthru:${command}] got line`, {line: partial_line_buffer.stdout, isPromise: isPromise(ret1)});
+      // console.log(`[passthru:${command}] got line`, {line: partial_line_buffer.stdout, isPromise: isPromise(ret1)});
 
       if (isPromise(ret1))
         callback_promises.push(ret1);
@@ -165,7 +165,7 @@ export async function passthru(command: string,
     });
 
     child.on('close', _exitCode => {
-      console.log(`[passthru:${command}] closed`);
+      // console.log(`[passthru:${command}] closed`);
       flush_partial_line_buffer();
     });
 
@@ -173,9 +173,9 @@ export async function passthru(command: string,
       if (onExit) {
         onExit(exitCode, child);
       }
-      console.log(`[passthru:${command}] beginning exit with ` + callback_promises.length + ' callback promsies');
+      // console.log(`[passthru:${command}] beginning exit with ` + callback_promises.length + ' callback promsies');
       Promise.all(callback_promises).then(() => {
-        console.log(`[passthru:${command}] exited`);
+        // console.log(`[passthru:${command}] exited`);
         resolve(exitCode);
       });
     });

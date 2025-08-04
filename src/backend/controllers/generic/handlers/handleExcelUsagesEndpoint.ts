@@ -14,7 +14,7 @@ export async function handleExcelUsagesEndpoint(ctrl: AbstractControl, req: Requ
 
   await ids.asyncForEach(async id => {
     await ctrl.getExcelUsages(id).then(usages => {
-      console.log('[Excel-Usages] Finished getting usages for', id);
+      // console.log('[Excel-Usages] Finished getting usages for', id);
       idToUsages[id] = usages;
     });
   });

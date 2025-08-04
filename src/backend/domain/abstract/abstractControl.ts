@@ -789,7 +789,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
         grepFlags = '-n';
       }
 
-      console.log('[Excel-Usages] Started grepping usages:', { grepQuery, grepFlags });
+      // console.log('[Excel-Usages] Started grepping usages:', { grepQuery, grepFlags });
 
       await grepStream(grepQuery, this.getDataFilePath(this.excelPath), async (result) => {
         if (decimalRegex.test(result)) {
@@ -797,7 +797,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
         }
 
         let exec = /\/([^\/]+).json:(\d+)/.exec(result);
-        console.log('[Excel-Usages] Grep stream line:', result);
+        // console.log('[Excel-Usages] Grep stream line:', result);
 
         if (exec && exec.length >= 3) {
           let fileName = exec[1];
