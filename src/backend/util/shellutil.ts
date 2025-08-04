@@ -34,7 +34,7 @@ async function exec(command: string, options: ExecOptions): Promise<string> {
  */
 export async function passthru(command: string,
                                postInitialize: (childProcess: ChildProcessWithoutNullStreams) => void,
-                               onExit: (exitCode: number, childProcess: ChildProcessWithoutNullStreams) => void,
+                               onExit: (exitCode: number, childProcess: ChildProcessWithoutNullStreams, error?: Error) => void,
                                stdoutLineStream?: (data: string, kill?: () => void) => Promise<void>|void,
                                stderrLineStream?: (data: string, kill?: () => void) => Promise<void>|void): Promise<number|Error> {
   const partial_line_buffer = {
@@ -44,12 +44,7 @@ export async function passthru(command: string,
 
   let didKill: boolean = false;
 
-  let finalResolve: Function;
-  const callback_promises: Promise<void>[] = [
-    new Promise((resolve, _reject) => {
-      finalResolve = resolve;
-    })
-  ];
+  const callback_promises: Promise<void>[] = [];
 
   const create_chunk_listener = (buffer_name: 'stdout' | 'stderr', stream_method: (data: string, kill?: () => void) => Promise<void>|void, killFn: () => void) => {
     return (chunk: string) => {
@@ -91,7 +86,6 @@ export async function passthru(command: string,
         if (isPromise(ret)) {
           callback_promises.push(ret);
         }
-        // console.log(`[passthru:${command}] got line`, {line: line, isPromise: isPromise(ret)});
       }
     };
   };
@@ -124,7 +118,6 @@ export async function passthru(command: string,
       // Once the shell stream closes, send any data still left in the partial line buffers to the output methods.
 
       if (didKill) {
-        finalResolve();
         return;
       }
 
@@ -135,8 +128,6 @@ export async function passthru(command: string,
       if (stderrLineStream && partial_line_buffer.stderr)
         ret2 = stderrLineStream(partial_line_buffer.stderr, killFn);
 
-      // console.log(`[passthru:${command}] got line`, {line: partial_line_buffer.stdout, isPromise: isPromise(ret1)});
-
       if (isPromise(ret1))
         callback_promises.push(ret1);
       if (isPromise(ret2))
@@ -144,8 +135,6 @@ export async function passthru(command: string,
 
       partial_line_buffer.stdout = '';
       partial_line_buffer.stderr = '';
-
-      finalResolve();
     };
 
     if (stdoutLineStream) {
@@ -158,26 +147,29 @@ export async function passthru(command: string,
       child.stderr.on('data', listener);
     }
 
+    let errorObj: Error;
+
     child.on('error', error => {
       console.error('\x1b[4m\x1b[1mshell error:\x1b[0m\n', error);
-      flush_partial_line_buffer();
-      Promise.all(callback_promises).then(() => reject(error));
+      errorObj = error;
     });
 
-    child.on('close', _exitCode => {
-      // console.log(`[passthru:${command}] closed`);
+    child.on('close', exitCode => {
       flush_partial_line_buffer();
-    });
 
-    child.on('exit', exitCode => {
-      if (onExit) {
-        onExit(exitCode, child);
+      if (errorObj) {
+        Promise.all(callback_promises).then(() => {
+          if (onExit)
+            onExit(exitCode, child, errorObj);
+          reject(errorObj);
+        });
+      } else {
+        Promise.all(callback_promises).then(() => {
+          if (onExit)
+            onExit(exitCode, child);
+          resolve(exitCode);
+        });
       }
-      // console.log(`[passthru:${command}] beginning exit with ` + callback_promises.length + ' callback promsies');
-      Promise.all(callback_promises).then(() => {
-        // console.log(`[passthru:${command}] exited`);
-        resolve(exitCode);
-      });
     });
   });
 }
