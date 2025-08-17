@@ -81,6 +81,7 @@ export const StarRailVersions: GameVersion[] = [
   {number: '3.2', previous: '3.1'},
   {number: '3.3', previous: '3.2'},
   {number: '3.4', previous: '3.3'},
+  {number: '3.5', previous: '3.4'},
 ];
 
 // TODO: This needs to be updated with each new Zenless Zone Zero version!
@@ -121,7 +122,7 @@ export function isGameVersion(o: any): o is GameVersion {
 export const CurrentGenshinVersion: GameVersion = GenshinVersions.find(v => v.number === '5.8');
 
 // TODO: This needs to be updated with each new Honkai Star Rail version!
-export const CurrentStarRailVersion: GameVersion = StarRailVersions.find(v => v.number === '3.4');
+export const CurrentStarRailVersion: GameVersion = StarRailVersions.find(v => v.number === '3.5');
 
 // TODO: This needs to be updated with each new Zenless Zone Zero version!
 export const CurrentZenlessVersion: GameVersion = ZenlessVersions.find(v => v.number === '2.1');
