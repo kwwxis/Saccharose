@@ -20,7 +20,7 @@ export default async function(): Promise<Router> {
     const ctrl = getStarRailControl(req);
     const avatars: AvatarConfig[] = await getStarRailAvatars(ctrl);
 
-    res.render(StarRailMessages, {
+    res.renderComponent(StarRailMessages, {
       title: 'Messages',
       bodyClass: ['page--messages'],
       avatars
@@ -31,7 +31,7 @@ export default async function(): Promise<Router> {
     const ctrl = getStarRailControl(req);
     const avatars: CommonAvatar[] = toCommonAvatarsFromStarRail(await getStarRailAvatars(ctrl));
 
-    res.render(SharedVoTool, {
+    res.renderComponent(SharedVoTool, {
       title: 'Character VO',
       bodyClass: ['page--wide', 'page--vo-tool', 'page--hsr-vo-tool'],
       avatars,
@@ -59,7 +59,7 @@ export default async function(): Promise<Router> {
     const voLangCode: LangCode = paramOption(req, 'voLangCode', 'EN', 'CH', 'JP', 'KR');
     const voLangName: string = LANG_CODES_TO_NAME[voLangCode];
 
-    res.render(SharedVoTool, {
+    res.renderComponent(SharedVoTool, {
       title: (avatar ? avatar.NameText +  ' - ' : '') + 'Character VO',
       bodyClass: ['page--wide', 'page--vo-tool', `tab--${tab}`, 'page--hsr-vo-tool'],
       avatars,

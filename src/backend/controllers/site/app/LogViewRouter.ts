@@ -10,7 +10,7 @@ export default async function(): Promise<Router> {
       res.status(403).render('errors/accessDenied');
       return;
     }
-    res.render(SiteLogViewPage, {
+    res.renderComponent(SiteLogViewPage, {
       title: 'Logview',
       bodyClass: ['page--logview', 'page--wide'],
     });

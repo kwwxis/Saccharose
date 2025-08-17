@@ -18,7 +18,7 @@ router.endpoint('/gcg/stage-search', {
     const stages = await gcg.searchStages(query, ctrl.searchModeFlags);
 
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
-      return res.render(GcgStageSearchResults, {
+      return res.renderComponent(GcgStageSearchResults, {
         stages
       });
     } else {

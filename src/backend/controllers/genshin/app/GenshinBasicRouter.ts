@@ -13,11 +13,11 @@ export default async function(): Promise<Router> {
   const router: Router = create();
 
   router.get('/', async (req: Request, res: Response) => {
-    res.render(GenshinLandingPage);
+    res.renderComponent(GenshinLandingPage);
   });
 
   router.get('/textmap', async (req: Request, res: Response) => {
-    res.render(TextmapSearchPage, {
+    res.renderComponent(TextmapSearchPage, {
       title: 'TextMap Search',
       bodyClass: ['page--textmap'],
       enableVersionFilter: true,
@@ -25,28 +25,28 @@ export default async function(): Promise<Router> {
   });
 
   router.get('/OL', async (req: Request, res: Response) => {
-    res.render(OLGenPage, {
+    res.renderComponent(OLGenPage, {
       title: 'OL',
       bodyClass: ['page--OL']
     });
   });
 
   router.get('/OL/combine', async (req: Request, res: Response) => {
-    res.render(OLCombinePage, {
+    res.renderComponent(OLCombinePage, {
       title: 'OL Combine',
       bodyClass: ['page--OL-combine']
     });
   });
 
   router.get('/excel-usages', async (req: Request, res: Response) => {
-    res.render(ExcelUsagesPage, {
+    res.renderComponent(ExcelUsagesPage, {
       title: 'Excel usages',
       bodyClass: ['page--excel-usages']
     });
   });
 
   router.get('/excel-viewer', async (req: Request, res: Response) => {
-    res.render(ExcelViewerListPage, {
+    res.renderComponent(ExcelViewerListPage, {
       title: 'Excel Viewer',
       bodyClass: ['page--excel-viewer'],
       excels: await getGenshinControl(req).getExcelFileNames(),

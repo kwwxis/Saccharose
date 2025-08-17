@@ -119,6 +119,42 @@ async function updateReqContext(req: Request, res: Response, payload: Readonly<R
   }
 }
 
+export async function doRender(req: Request, res: Response,
+                               view: string|Component,
+                               locals?: RequestLocals,
+                               callback?: (err: Error, html: string) => void): Promise<string|Error> {
+  try {
+    await updateReqContext(req, res, {
+      locals,
+      layouts: [
+        ... (locals && Array.isArray(locals.layouts) ? locals.layouts : []),
+        isVueComponent(view) ? createSSRApp(view, locals).mixin({inheritAttrs: false}) : view
+      ],
+      title: locals && (<any> locals).title,
+      bodyClass: locals && (<any> locals).bodyClass,
+    });
+
+    const rendered = req.context.viewStack.include(req.context.viewStack.subviewName, req.context.viewStack.subviewStack);
+    res.set('Content-Type', 'text/html');
+    res.send(rendered);
+
+    if (typeof callback === 'function') {
+      callback(null, rendered);
+    }
+    return rendered;
+  } catch (e) {
+    if (typeof callback === 'function') {
+      callback(e, null);
+    }
+    if (locals && locals.throwOnError) {
+      throw e;
+    } else if (req.next) {
+      req.next(e);
+    }
+    return e;
+  }
+}
+
 /**
  * Create an Express Router.
  */
@@ -131,37 +167,13 @@ export function create(context?: Readonly<RequestContextUpdate>): Router {
 
     res.render = async function(view: string|Component,
                                 locals?: RequestLocals,
-                                callback?: (err: Error, html: string) => void): Promise<string|Error> {
-      try {
-        await updateReqContext(req, res, {
-          locals,
-          layouts: [
-            ... (locals && Array.isArray(locals.layouts) ? locals.layouts : []),
-            isVueComponent(view) ? createSSRApp(view, locals).mixin({inheritAttrs: false}) : view
-          ],
-          title: locals && (<any> locals).title,
-          bodyClass: locals && (<any> locals).bodyClass,
-        });
+                                callback?: (err: Error, html: string) => void) {
+      return doRender(req, res, view, locals, callback);
+    };
 
-        const rendered = req.context.viewStack.include(req.context.viewStack.subviewName, req.context.viewStack.subviewStack);
-        res.set('Content-Type', 'text/html');
-        res.send(rendered);
-
-        if (typeof callback === 'function') {
-          callback(null, rendered);
-        }
-        return rendered;
-      } catch (e) {
-        if (typeof callback === 'function') {
-          callback(e, null);
-        }
-        if (locals && locals.throwOnError) {
-          throw e;
-        } else if (req.next) {
-          req.next(e);
-        }
-        return e;
-      }
+    res.renderComponent = async function(component: Component,
+                                         locals?: RequestLocals): Promise<string|Error> {
+      return doRender(req, res, component, locals);
     };
 
     next();

@@ -18,7 +18,7 @@ export async function sendExcelViewerTableResponse(ctrl: AbstractControl, req: R
     foundJson = foundTarget.size < 9_000_000 ? await ctrl.readDataFile(targetExcelPath, true) : null;
   }
 
-  res.render(ExcelViewerTablePage, {
+  res.renderComponent(ExcelViewerTablePage, {
     title: 'Excel Viewer',
     bodyClass: ['page--excel-viewer', 'page--wide', 'page--narrow-sidebar'],
     fileName: targetExcelName,

@@ -445,7 +445,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
 
   if (result.versionAdded && ctrl.state.questHasQuestItemPictures[mainQuest.Id]) {
     const questPictures = await ctrl.searchImageIndex({
-      query: `^UI_(QuestPicture|ReadPic)`,
+      query: `^UI_QuestPicture`,
       versionFilter: result.versionAdded,
       searchMode: 'RI',
       limit: 1000

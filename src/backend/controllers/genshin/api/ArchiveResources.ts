@@ -25,7 +25,7 @@ router.endpoint('/readables/search', {
     let searchView: ReadableSearchResult = await ctrl.searchReadables(req.query.text as string);
 
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
-      return res.render(ReadableSearchResults, {
+      return res.renderComponent(ReadableSearchResults, {
         searchView: searchView,
         searchText: req.query.text as string
       });
@@ -42,7 +42,7 @@ router.endpoint('/items/search', {
     let materials: MaterialExcelConfigData[] = await ctrl.selectMaterialsBySearch(req.query.text as string, ctrl.searchModeFlags);
 
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
-      return res.render(MaterialSearchResults, {
+      return res.renderComponent(MaterialSearchResults, {
         materials: materials,
         searchText: req.query.text as string
       });
@@ -59,7 +59,7 @@ router.endpoint('/weapons/search', {
     let weapons: WeaponExcelConfigData[] = await ctrl.selectWeaponsBySearch(req.query.text as string, ctrl.searchModeFlags);
 
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
-      return res.render(WeaponSearchResults, {
+      return res.renderComponent(WeaponSearchResults, {
         weapons: weapons,
         searchText: req.query.text as string
       });
@@ -76,7 +76,7 @@ router.endpoint('/achievements/search', {
     let achievements: AchievementExcelConfigData[] = await ctrl.selectAchievementsBySearch(req.query.text as string, ctrl.searchModeFlags);
 
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
-      return res.render(AchievementSearchResult, {
+      return res.renderComponent(AchievementSearchResult, {
         achievements: achievements,
         searchText: req.query.text as string
       });
@@ -94,7 +94,7 @@ router.endpoint('/tutorials/search', {
     let tutorialsByType = await selectTutorials(ctrl, null, tutorialIds, req.query.text as string);
 
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
-      return res.render(TutorialList, {
+      return res.renderComponent(TutorialList, {
         tutorialsByType,
         fileFormatParams: TUTORIAL_FILE_FORMAT_PARAMS.join(','),
         fileFormatDefault_image: TUTORIAL_DEFAULT_FILE_FORMAT_IMAGE,

@@ -11,7 +11,9 @@ declare module 'express-serve-static-core' {
   }
   interface Response {
     //csv(data: any, csvHeaders?: boolean, headers?: any, statusCode?: number): Response,
-    render(view: string|Component, options?: object, callback?: (err: Error, html: string) => void): void;
+    render(view: Component, options?: object, callback?: (err: Error, html: string) => void): void;
+    render<C extends Component>(view: C, options?: RequestCommonLocals & PropsOf<C>, callback?: (err: Error, html: string) => void): void;
+    renderComponent<C extends Component>(view: C, options?: RequestCommonLocals & PropsOf<C>): Promise<string|Error>;
   }
   interface Router {
     endpoint(route: string | string[], handlers: RouterRestfulHandlers): void,
@@ -19,6 +21,13 @@ declare module 'express-serve-static-core' {
 }
 
 export type IncludeFunction = (view: string, locals?: RequestLocals) => string;
+
+export type RequestCommonLocals = {
+  title?: string,
+  layouts?: string[],
+  bodyClass?: string[],
+  throwOnError?: boolean,
+}
 
 export type RequestLocals = ((req: Request, res: Response) => any) | any;
 
@@ -39,3 +48,6 @@ export type RouterRestfulHandlers = {
   delete?: (req: Request, res: Response, next: NextFunction) => void,
   error?: (err: any, req: Request, res: Response, next: NextFunction) => void,
 };
+
+export type PropsOf<T> = T extends new (...args: any[]) => { $props: infer P } ? P : never;
+

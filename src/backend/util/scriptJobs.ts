@@ -1,6 +1,6 @@
 import { closeKnex, openPgSite } from './db.ts';
 import { Knex } from 'knex';
-import { passthru, shellEscapeArg } from './shellutil.ts';
+import { execLineStream, shellEscapeArg } from './shellutil.ts';
 import { getNodeEnv } from '../loadenv.ts';
 import { NIL_UUID, uuidv4 } from '../../shared/util/uuidv4.ts';
 import { custom } from './logger.ts';
@@ -333,7 +333,7 @@ export class ScriptJobsCoordinator {
     }
 
     // noinspection ES6MissingAwait (no await here, detached job)
-    passthru(`${cmd} ${shellEscapeArg(script)} ${shellEscapeArg(JSON.stringify(job))}`,
+    execLineStream(`${cmd} ${shellEscapeArg(script)} ${shellEscapeArg(JSON.stringify(job))}`,
       async child => {
         postDebug(`Spawned delete script for job ${job.job_id} with PID ${child.pid}`);
       },
@@ -402,7 +402,7 @@ export class ScriptJobsCoordinator {
       .then();
 
     // noinspection ES6MissingAwait (no await here, detached job)
-    passthru(`${cmd} ${shellEscapeArg(script)} ${shellEscapeArg(JSON.stringify(input))}`,
+    execLineStream(`${cmd} ${shellEscapeArg(script)} ${shellEscapeArg(JSON.stringify(input))}`,
       async child => {
         postDebug(`Spawned job ${input.jobId} with PID ${child.pid}`);
         await this.updateState(input.jobId, {

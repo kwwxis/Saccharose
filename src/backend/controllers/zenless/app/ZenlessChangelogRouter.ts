@@ -11,7 +11,7 @@ export default async function(): Promise<Router> {
   const router: Router = create();
 
   router.get('/changelog', (req: Request, res: Response) => {
-    res.render(ChangelogListPage, {
+    res.renderComponent(ChangelogListPage, {
       title: 'Zenless Changelog',
       bodyClass: ['page--changelog'],
       gameVersions: ZenlessVersions,
@@ -26,7 +26,7 @@ export default async function(): Promise<Router> {
     const zenlessVersion = ZenlessVersions.find(v => v.number === req.params.version);
 
     if (!zenlessVersion || !zenlessVersion.showTextmapChangelog) {
-      return res.render(ChangelogListPage, {
+      return res.renderComponent(ChangelogListPage, {
         title: 'Zenless Changelog',
         errorMessage: 'No changelog available for ' + req.params.version
       });
@@ -36,9 +36,9 @@ export default async function(): Promise<Router> {
     const fullChangelog = await ctrl.selectChangelog(zenlessVersion);
     const textmapChanges = fullChangelog.textmapChangelog[ctrl.outputLangCode];
     const textmapChangesAsRows = textMapChangesAsRows(textmapChanges, s => ctrl.normText(s, ctrl.outputLangCode));
-    const activeTab: string = queryTab(req, 'added', 'updated', 'removed');
+    const activeTab = queryTab(req, 'added', 'updated', 'removed');
 
-    res.render(ChangelogTextMapPage, {
+    res.renderComponent(ChangelogTextMapPage, {
       title: 'Zenless TextMap Diff ' + zenlessVersion.number,
       currentVersion: zenlessVersion,
       activeTab,

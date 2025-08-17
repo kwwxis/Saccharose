@@ -1,14 +1,23 @@
 import { Request } from 'express';
 
-export function queryTab(req: Request, defaultTab: string, ... otherTabs: string[]): string {
-  return queryOption(req, 'tab', defaultTab, ... otherTabs);
+export function queryTab<Default extends string, Others extends string[]>(
+  req: Request,
+  defaultTab: Default,
+  ... otherTabs: Others
+): Default | Others[number] {
+  return queryOption<Default, Others>(req, 'tab', defaultTab, ... otherTabs);
 }
 
-export function queryOption<T extends string = string>(req: Request, prop: string, defaultOption: T, ... otherOptions: T[]): string {
-  const validOptions: Set<T> = new Set([defaultOption, ... otherOptions]);
+export function queryOption<Default extends string, Others extends string[]>(
+  req: Request,
+  prop: string,
+  defaultOption: Default,
+  ... otherOptions: Others
+): Default | Others[number] {
+  const validOptions: Set<Default | Others[number]> = new Set([defaultOption, ... otherOptions]);
 
   if (typeof req.query[prop] === 'string') {
-    if (!validOptions.has(req.query[prop] as T)) {
+    if (!validOptions.has(req.query[prop] as Default | Others[number])) {
       req.query[prop] = defaultOption;
     }
 
@@ -16,7 +25,7 @@ export function queryOption<T extends string = string>(req: Request, prop: strin
       req.query[prop] = defaultOption;
     }
 
-    return req.query[prop] as T;
+    return req.query[prop] as Default | Others[number];
   } else {
     return defaultOption;
   }

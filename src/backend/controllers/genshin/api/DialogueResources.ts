@@ -38,7 +38,7 @@ router.endpoint('/quests/findMainQuest', {
     const { mainQuests, chapters } = await ctrl.searchMainQuestsAndChapters(query);
 
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
-      return res.render(GenshinQuestSearchResults, {
+      return res.renderComponent(GenshinQuestSearchResults, {
         mainQuests,
         chapters
       });

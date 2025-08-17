@@ -33,9 +33,9 @@ import Icon from '../utility/Icon.vue';
 const { ctx } = getTrace();
 
 const { gameVersions } = defineProps<{
-  gameVersions: GameVersion[];
+  gameVersions?: GameVersion[];
   errorMessage?: string
 }>();
 
-const gameVersionsToList = gameVersions.slice().reverse();
+const gameVersionsToList = gameVersions?.slice()?.reverse();
 </script>

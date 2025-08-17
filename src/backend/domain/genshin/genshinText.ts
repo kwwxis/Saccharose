@@ -7,7 +7,12 @@ import {
   NormTextOptions,
   postProcessBoldItalic,
 } from '../abstract/genericNormalizers.ts';
-import { SpriteTagExcelConfigData } from '../../../shared/types/genshin/general-types.ts';
+import {
+  AvatarSkillExcelConfigData,
+  HyperLinkNameExcelConifgData,
+  ProudSkillExcelConfigData,
+  SpriteTagExcelConfigData,
+} from '../../../shared/types/genshin/general-types.ts';
 import { getGenshinControl } from './genshinControl.ts';
 import { mapBy } from '../../../shared/util/arrayUtil.ts';
 import { logInitData } from '../../util/logger.ts';
@@ -210,6 +215,9 @@ export function __normGenshinText(text: string, langCode: LangCode, opts: NormTe
   text = text.replace(/<size=([^>]+)>(.*?)<\/size>/gs, '$2');
   text = text.replace(/<image\s+name=([^\s\/>]+)\s*\/>/g,'{{tx|Image: $1}}');
 
+  // TODO: link
+  // TODO: fancy quotes
+
   if (!opts.decolor && !opts.plaintext) {
     // Bold:
     text = text.replace(/<color=#\{0}>(.*?)<\/color>/g, `<b>$1</b>`);
@@ -284,6 +292,55 @@ export function __normGenshinText(text: string, langCode: LangCode, opts: NormTe
     }
   }
 
+  if (text.includes('{LINK#')) {
+    text = processLink(langCode, text, opts.plaintext);
+  }
+
+  return text;
+}
+
+function processLink(langCode: LangCode, text: string, plaintext: boolean): string {
+  text = text.replace(/{LINK#(\w)(\d+)}(.*?){\/LINK}/g, (fm: string, LINK_TYPE: string, LINK_ID: string, text: string) => {
+    if (plaintext) {
+      return text;
+    }
+
+    let link: GenshinTextLink;
+
+    switch (LINK_TYPE) {
+      case 'P':
+        link = GENSHIN_TEXTLINKS_PROUDSKILL[LINK_ID]; // ProudSkill
+        break;
+      case 'S':
+        link = GENSHIN_TEXTLINKS_AVATARSKILL[LINK_ID]; // AvatarSkill
+        break;
+      case 'N':
+        link = GENSHIN_TEXTLINKS_HYPERLINK[LINK_ID]; // HyperLinkName
+        break;
+    }
+
+    if (!link) {
+      return fm;
+    }
+
+    let title: string = link.Name[langCode];
+    let desc: string = link.Desc[langCode];
+
+    if (link.DescParamList && link.DescParamList.length) {
+      for (let i = 0; i < link.DescParamList.length; i++) {
+        desc = desc.replace(new RegExp(`\\{${i}\\}`, 'g'), () => {
+          return link.DescParamList[i];
+        });
+      }
+    }
+
+    desc = desc.replace(/\n+/g, (fm) => {
+      return '<br>'.repeat(fm.length);
+    });
+
+    return `{{Extra Effect|${text}|${title}|${desc}}}`;
+  });
+
   return text;
 }
 
@@ -318,6 +375,16 @@ function elementColorTemplate(langCode: LangCode,
 
 export const GENSHIN_SPRITE_TAGS: { [spriteId: number]: SpriteTagExcelConfigData } = {};
 
+type GenshinTextLink = {
+  Id: number,
+  Name: LangCodeMap,
+  Desc: LangCodeMap,
+  DescParamList?: string[],
+};
+const GENSHIN_TEXTLINKS_HYPERLINK: { [id: number]: GenshinTextLink } = {};
+const GENSHIN_TEXTLINKS_PROUDSKILL: { [id: number]: GenshinTextLink } = {};
+const GENSHIN_TEXTLINKS_AVATARSKILL: { [id: number]: GenshinTextLink } = {};
+
 let serverBrandTipsOverseas: LangCodeMap = null;
 let serverEmailAskOverseas: LangCodeMap = null;
 
@@ -348,6 +415,8 @@ export async function loadGenshinTextSupportingData(): Promise<void> {
 
   const ctrl = getGenshinControl();
 
+  // Server Overseas
+  // --------------------------------------------------------------------------------------------------------------
   serverBrandTipsOverseas = await ctrl.cached('TextSupportingData:ServerBrandTipsOverseas', 'json', async () => {
     return await ctrl.createLangCodeMap(2874657049);
   });
@@ -355,6 +424,8 @@ export async function loadGenshinTextSupportingData(): Promise<void> {
     return await ctrl.createLangCodeMap(2535673454);
   });
 
+  // Element TextMap
+  // --------------------------------------------------------------------------------------------------------------
   ELEMENT_TEXTMAP = await ctrl.cached('TextSupportingData:ElementTextMap', 'json', async () => {
     ELEMENT_TEXTMAP.PYRO = await ctrl.createLangCodeMap(ManualTextMapHashes.Pyro);
     ELEMENT_TEXTMAP.HYDRO = await ctrl.createLangCodeMap(ManualTextMapHashes.Hydro);
@@ -367,10 +438,58 @@ export async function loadGenshinTextSupportingData(): Promise<void> {
     return ELEMENT_TEXTMAP;
   });
 
+  // Sprite Tags
+  // --------------------------------------------------------------------------------------------------------------
   const spriteTags = await ctrl.cached('TextSupportingData:SpriteTags', 'json', async () => {
     return mapBy(await ctrl.readExcelDataFile<SpriteTagExcelConfigData[]>('SpriteTagExcelConfigData.json'), 'Id');
   });
   Object.assign(GENSHIN_SPRITE_TAGS, spriteTags);
+
+  // Text Links: Hyper Link Names
+  // --------------------------------------------------------------------------------------------------------------
+  const hyperTextLinks = await ctrl.cached('TextSupportingData:HyperLinkNameTextLinks', 'json', async () => {
+    const dataArray = await ctrl.readExcelDataFile<HyperLinkNameExcelConifgData[]>('HyperLinkNameExcelConifgData.json');
+    const links: GenshinTextLink[] = await dataArray.asyncMap(async item => {
+      return {
+        Id: item.Id,
+        Name: await ctrl.createLangCodeMap(item.NameTextMapHash),
+        Desc: await ctrl.createLangCodeMap(item.DescTextMapHash),
+        DescParamList: item.DescParamList
+      };
+    });
+    return mapBy(links, 'Id');
+  });
+  Object.assign(GENSHIN_TEXTLINKS_HYPERLINK, hyperTextLinks);
+
+  // Text Links: Proud Skill
+  // --------------------------------------------------------------------------------------------------------------
+  const proudSkillTextLinks = await ctrl.cached('TextSupportingData:ProudSkillTextLinks', 'json', async () => {
+    const dataArray = await ctrl.readExcelDataFile<ProudSkillExcelConfigData[]>('ProudSkillExcelConfigData.json');
+    const links: GenshinTextLink[] = await dataArray.asyncMap(async item => {
+      return {
+        Id: item.ProudSkillId,
+        Name: await ctrl.createLangCodeMap(item.NameTextMapHash),
+        Desc: await ctrl.createLangCodeMap(item.DescTextMapHash),
+      };
+    });
+    return mapBy(links, 'Id');
+  });
+  Object.assign(GENSHIN_TEXTLINKS_PROUDSKILL, proudSkillTextLinks);
+
+  // Text Links: Avatar SKill
+  // --------------------------------------------------------------------------------------------------------------
+  const avatarSkillTextLinks = await ctrl.cached('TextSupportingData:AvatarSkillTextLinks', 'json', async () => {
+    const dataArray = await ctrl.readExcelDataFile<AvatarSkillExcelConfigData[]>('AvatarSkillExcelConfigData.json');
+    const links: GenshinTextLink[] = await dataArray.asyncMap(async item => {
+      return {
+        Id: item.Id,
+        Name: await ctrl.createLangCodeMap(item.NameTextMapHash),
+        Desc: await ctrl.createLangCodeMap(item.DescTextMapHash),
+      };
+    });
+    return mapBy(links, 'Id');
+  });
+  Object.assign(GENSHIN_TEXTLINKS_AVATARSKILL, avatarSkillTextLinks);
 
   logInitData('Loading Genshin-supporting text data -- done!');
 }

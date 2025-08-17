@@ -68,7 +68,7 @@ export default async function(): Promise<Router> {
   // region Material Items
   // --------------------------------------------------------------------------------------------------------------
   router.get('/items', async (req: Request, res: Response) => {
-    res.render(MaterialSearchPage, {
+    res.renderComponent(MaterialSearchPage, {
       title: 'Items',
       bodyClass: ['page--items'],
     });
@@ -90,7 +90,7 @@ export default async function(): Promise<Router> {
         readable = null;
       }
 
-      res.render(MaterialItemPage, {
+      res.renderComponent(MaterialItemPage, {
         title: material ? material.NameText : 'Item not found',
         bodyClass: ['page--items'],
         material,
@@ -98,7 +98,7 @@ export default async function(): Promise<Router> {
         ol: material ? (await ol_gen_from_id(ctrl, material.NameTextMapHash)) : null
       });
     } else {
-      res.render(MaterialItemPage, {
+      res.renderComponent(MaterialItemPage, {
         title: 'Item not found',
         bodyClass: ['page--materials'],
       });
@@ -109,7 +109,7 @@ export default async function(): Promise<Router> {
   // region Weapons
   // --------------------------------------------------------------------------------------------------------------
   router.get('/weapons', async (req: Request, res: Response) => {
-    res.render(WeaponSearchPage, {
+    res.renderComponent(WeaponSearchPage, {
       title: 'Weapons',
       bodyClass: ['page--weapons'],
     });
@@ -132,7 +132,7 @@ export default async function(): Promise<Router> {
       const iconEntity: ImageIndexEntity = await ctrl.selectImageIndexEntity(weapon.Icon);
       const awakenIconEntity: ImageIndexEntity = weapon.AwakenIcon ? await ctrl.selectImageIndexEntity(weapon.AwakenIcon) : null;
 
-      res.render(WeaponItemPage, {
+      res.renderComponent(WeaponItemPage, {
         title: weapon.NameText,
         bodyClass: ['page--weapons'],
         weapon,
@@ -141,7 +141,7 @@ export default async function(): Promise<Router> {
         ol: ol_combine_results([weaponOl, passiveOl])
       });
     } else {
-      res.render(WeaponItemPage, {
+      res.renderComponent(WeaponItemPage, {
         title: 'Weapon not found',
         bodyClass: ['page--weapons'],
       });
@@ -167,7 +167,7 @@ export default async function(): Promise<Router> {
     const cityIdsWithViewpoints = await getCityIdsWithViewpoints(ctrl);
     const cities = await ctrl.selectAllCities(city => cityIdsWithViewpoints.has(city.CityId));
 
-    res.render(GenshinViewpointsPage, {
+    res.renderComponent(GenshinViewpointsPage, {
       title: `${cityName} Viewpoints`.trim(),
       bodyClass: ['page--viewpoints'],
       citySelected: req.params.city,
@@ -183,7 +183,7 @@ export default async function(): Promise<Router> {
   // region Tutorials
   // --------------------------------------------------------------------------------------------------------------
   router.get('/tutorials/search', async (req: Request, res: Response) => {
-    res.render(TutorialSearchPage, {
+    res.renderComponent(TutorialSearchPage, {
       title: 'Tutorials',
       bodyClass: ['page--tutorials', 'page--tutorials-search'],
     });
@@ -203,7 +203,7 @@ export default async function(): Promise<Router> {
       }
     }
 
-    res.render(TutorialCategoriesPage, {
+    res.renderComponent(TutorialCategoriesPage, {
       title: codexTypeName ? `Tutorials - ${codexTypeName}` : 'Tutorials',
       bodyClass: ['page--tutorials', 'page--tutorials-categories'],
       categorySelected: req.params.category,
@@ -219,7 +219,7 @@ export default async function(): Promise<Router> {
   // --------------------------------------------------------------------------------------------------------------
 
   router.get('/achievements/search', async (req: Request, res: Response) => {
-    res.render(AchievementSearchPage, {
+    res.renderComponent(AchievementSearchPage, {
       title: 'Achievements',
       bodyClass: ['page--achievements', 'page--achievements-search'],
     });
@@ -300,7 +300,7 @@ export default async function(): Promise<Router> {
       sb.line();
     }
 
-    res.render(AchievementPage, {
+    res.renderComponent(AchievementPage, {
       achievement,
       wikitext: sb.toString(),
       title: 'Achievement: ' + (achievement?.TitleText || 'Not Found'),
@@ -326,7 +326,7 @@ export default async function(): Promise<Router> {
       }
     }
 
-    res.render(AchievementListingPage, {
+    res.renderComponent(AchievementListingPage, {
       title: goalName ? `Achievements - ${goalName}` : 'Achievements',
       bodyClass: ['page--achievements', 'page--achievements-categories'],
       category: req.params.category,
@@ -343,7 +343,7 @@ export default async function(): Promise<Router> {
     const ctrl = getGenshinControl(req);
     const archive = await ctrl.selectReadableArchive();
 
-    res.render(ReadableAllListingPage, {
+    res.renderComponent(ReadableAllListingPage, {
       title: 'Books & Readables',
       archive: archive,
       bodyClass: ['page--readables', 'page--readables-list']
@@ -351,7 +351,7 @@ export default async function(): Promise<Router> {
   });
 
   router.get('/readables/search', async (req: Request, res: Response) => {
-    res.render(ReadableSearchPage, {
+    res.renderComponent(ReadableSearchPage, {
       title: 'Search Books & Readables',
       bodyClass: ['page--readables-search']
     });
@@ -372,7 +372,7 @@ export default async function(): Promise<Router> {
     }
     infobox += '\n}}';
 
-    res.render(ReadableCollectionPage, {
+    res.renderComponent(ReadableCollectionPage, {
       title: collection.SuitNameText,
       collection: collection,
       infobox,
@@ -385,7 +385,7 @@ export default async function(): Promise<Router> {
     const ctrl = getGenshinControl(req);
     const readable: Readable = await ctrl.selectReadable(toInt(req.params.itemId));
 
-    res.render(ReadableSinglePage, {
+    res.renderComponent(ReadableSinglePage, {
       title: readable?.TitleText || 'Not Found',
       readable: readable,
       ol: readable ? await ol_gen_from_id(ctrl, readable.TitleTextMapHash) : null,
@@ -400,7 +400,7 @@ export default async function(): Promise<Router> {
   router.get('/loading-tips', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
 
-    res.render(GenshinLoadingTips, {
+    res.renderComponent(GenshinLoadingTips, {
       title: 'Loading Tips',
       tableFormat: false,
       catNames: await selectLoadingMainCatNames(ctrl),
@@ -421,7 +421,7 @@ export default async function(): Promise<Router> {
       req.context.htmlMetaProps['X-ReplaceInUrl'] = catName + ';' + cat.catName;
     }
 
-    res.render(GenshinLoadingTips, {
+    res.renderComponent(GenshinLoadingTips, {
       title: cat ? cat.catName + ' Loading Tips' : 'Loading Tips Not Found',
       catNames: await selectLoadingMainCatNames(ctrl),
       selectedCat: cat?.catName || catName,
@@ -445,7 +445,7 @@ export default async function(): Promise<Router> {
       suiteTree[suite.MainFurnType.TypeName2Text][suite.MainFurnType.TypeNameText].push(suite);
     }
 
-    res.render(FurnishingSetListingPage, {
+    res.renderComponent(FurnishingSetListingPage, {
       title: 'Furnishing Sets',
       bodyClass: ['page--furniture-set'],
       suiteTree,
@@ -512,7 +512,7 @@ export default async function(): Promise<Router> {
       companionFavorsWikitext.line(`}}`);
     }
 
-    res.render(FurnishingSetSinglePage, {
+    res.renderComponent(FurnishingSetSinglePage, {
       title: 'Furnishing Sets',
       bodyClass: ['page--furniture-set'],
       suite,
@@ -532,7 +532,7 @@ export default async function(): Promise<Router> {
       ]);
     });
 
-    res.render(FurnitureListPage, {
+    res.renderComponent(FurnitureListPage, {
       title: 'Furnishings',
       furnitureList,
       typeTree,
@@ -611,7 +611,7 @@ export default async function(): Promise<Router> {
       sb.line();
     }
 
-    res.render(FurniturePage, {
+    res.renderComponent(FurniturePage, {
       title: 'Furnishings',
       furn,
       wikitext: sb.toString(),
@@ -627,7 +627,7 @@ export default async function(): Promise<Router> {
     const title = (await ctrl.selectManualTextMapConfigDataById('UI_CODEX_ANIMAL_MONSTER')).TextMapContentText;
     const archive = await ctrl.selectLivingBeingArchive();
 
-    res.render(GenshinLbListingPage, {
+    res.renderComponent(GenshinLbListingPage, {
       title,
       lbTable: archive.MonsterCodex,
       bodyClass: ['page--lb', 'page--enemies']
@@ -639,7 +639,7 @@ export default async function(): Promise<Router> {
     const title = (await ctrl.selectManualTextMapConfigDataById('UI_CODEX_ANIMAL_ANIMAL')).TextMapContentText;
     const archive = await ctrl.selectLivingBeingArchive();
 
-    res.render(GenshinLbListingPage, {
+    res.renderComponent(GenshinLbListingPage, {
       title,
       lbTable: archive.WildlifeCodex,
       bodyClass: ['page--lb', 'page--wildlife']
@@ -650,7 +650,7 @@ export default async function(): Promise<Router> {
     const ctrl = getGenshinControl(req);
     const archive = await ctrl.selectLivingBeingArchive();
 
-    res.render(GenshinLbListingPage, {
+    res.renderComponent(GenshinLbListingPage, {
       title: 'Non-Codex Living Beings',
       introText: 'These are living beings that do not appear in the in-game archive.',
       lbTable: archive.NonCodexMonsters,
@@ -669,7 +669,7 @@ export default async function(): Promise<Router> {
       monster = null;
     }
 
-    res.render(GenshinLbPage, {
+    res.renderComponent(GenshinLbPage, {
       title: monster?.NameText || monster?.Describe?.NameText || 'Enemy not found',
       monster,
       bodyClass: ['page--lb', 'page--enemies']
@@ -687,7 +687,7 @@ export default async function(): Promise<Router> {
       monster = null;
     }
 
-    res.render(GenshinLbPage, {
+    res.renderComponent(GenshinLbPage, {
       title: monster?.NameText || monster?.Describe?.NameText || 'Wildlife not found',
       monster,
       bodyClass: ['page--lb', 'page--wildlife']

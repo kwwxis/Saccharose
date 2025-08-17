@@ -2,7 +2,7 @@ import { NextFunction, Request, Response, Router } from 'express';
 import { create } from '../routing/router.ts';
 import path from 'path';
 import { IMAGEDIR_GENSHIN_EXT } from '../loadenv.ts';
-import fs, { promises as fsp } from 'fs';
+import { promises as fsp } from 'fs';
 import { convertFoodImageToDelicious, convertFoodImageToSuspicious } from '../domain/genshin/misc/food-sharp.ts';
 import { toBoolean } from '../../shared/util/genericUtil.ts';
 

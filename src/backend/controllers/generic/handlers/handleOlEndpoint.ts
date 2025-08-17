@@ -23,12 +23,12 @@ export async function handleOlEndpoint(ctrl: AbstractControl, req: Request, res:
 
   if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
     if (toBoolean(req.query.singleResultSimpleHtml)) {
-      return res.render(OLGenSimpleResult, {
+      return res.renderComponent(OLGenSimpleResult, {
         olResult: results?.[0],
         searchText: req.query.text as string,
       });
     }
-    return res.render(OLGenResult, {
+    return res.renderComponent(OLGenResult, {
       olResults: results,
       searchText: req.query.text as string,
     });

@@ -13,14 +13,14 @@ export default async function(): Promise<Router> {
   const router: Router = create();
 
   router.get('/media/search', async (req: Request, res: Response) => {
-    res.render(WuwaMediaSearchPage, {
+    res.renderComponent(WuwaMediaSearchPage, {
       title: 'Media Search',
       bodyClass: ['page--media', 'page--media-search', 'page--larger'],
     });
   });
 
   router.get('/media/list', async (req: Request, res: Response) => {
-    res.render(WuwaMediaListPage, {
+    res.renderComponent(WuwaMediaListPage, {
       title: 'Media List',
       bodyClass: ['page--media', 'page--media-list', 'page--larger'],
     });
@@ -29,7 +29,7 @@ export default async function(): Promise<Router> {
   router.get('/media/details/:imageName(*)', async (req: Request, res: Response) => {
     const ctrl = getWuwaControl(req);
     const { entity, usageEntities } = await ctrl.selectImageIndexEntityAndUsages(req.params.imageName);
-    res.render(WuwaMediaDetailsPage, {
+    res.renderComponent(WuwaMediaDetailsPage, {
       title: 'Media Details: ' + String(req.params.imageName),
       bodyClass: ['page--media', 'page--media-details', 'page--larger'],
       pathImageName: req.params.imageName,
@@ -43,13 +43,13 @@ export default async function(): Promise<Router> {
   });
 
   router.get('/media/archive-job/:jobId', async (req: Request, res: Response) => {
-    res.render(WuwaMediaArchiveJobPage, {
+    res.renderComponent(WuwaMediaArchiveJobPage, {
       jobId: req.params.jobId,
     });
   });
 
   router.get('/revs', async (req: Request, res: Response) => {
-    res.render(WikiRevisionPage, {
+    res.renderComponent(WikiRevisionPage, {
       title: 'Wiki Revisions',
       bodyClass: ['page--revs', 'page--wide', 'page--wideWithLeftGutter', 'page--narrow-sidebar']
     });
@@ -59,7 +59,7 @@ export default async function(): Promise<Router> {
     const pageId: number = isInt(req.params.pageId) ? toInt(req.params.pageId) : null;
     const page = await mwWuwaClient.getArticleInfo(pageId);
 
-    res.render(WikiRevisionPage, {
+    res.renderComponent(WikiRevisionPage, {
       title: 'Wiki Revisions',
       bodyClass: ['page--revs', 'page--wide', 'page--narrow-sidebar'],
       pageid: pageId || null,
@@ -72,7 +72,7 @@ export default async function(): Promise<Router> {
     const revId: number = isInt(req.params.revId) ? toInt(req.params.revId) : null;
     const page = await mwWuwaClient.getArticleInfo(pageId);
 
-    res.render(WikiRevisionPage, {
+    res.renderComponent(WikiRevisionPage, {
       title: 'Wiki Revisions',
       bodyClass: ['page--revs', 'page--wide', 'page--narrow-sidebar'],
       pageid: pageId || null,

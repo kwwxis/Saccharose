@@ -60,13 +60,17 @@ const presets = {
   },},
   GivingGroupExcelConfigData: <InspectOpt> { file: excel('GivingGroupExcelConfigData'), inspectFieldValues: [] },
   DocumentExcelConfigData: <InspectOpt> { file: excel('DocumentExcelConfigData'), inspectFieldValues: ['DocumentType', 'SplitType'] },
-  NpcExcelConfigData: <InspectOpt> { file: excel('NpcExcelConfigData'), inspectFieldValues: ['BodyType', 'SpecialType', 'BillboardType', 'ElementName', 'ElementType']}
+  NpcExcelConfigData: <InspectOpt> { file: excel('NpcExcelConfigData'), inspectFieldValues: ['BodyType', 'SpecialType', 'BillboardType', 'ElementName', 'ElementType']},
+
+  HyperLinkNameExcelConfigData: <InspectOpt> { file: excel('HyperLinkNameExcelConifgData'), inspectFieldValues: [] },
+  ProudSkillExcelConfigData: <InspectOpt> { file: excel('ProudSkillExcelConfigData'), inspectFieldValues: ['LifeEffectType'] },
+  AvatarSkillExcelConfigData: <InspectOpt> { file: excel('AvatarSkillExcelConfigData'), inspectFieldValues: ['CostElemType', 'DragType'] },
 };
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
     const ctrl = getGenshinControl();
-    await inspectDataFile(ctrl, presets.NpcExcelConfigData);
+    await inspectDataFile(ctrl, presets.AvatarSkillExcelConfigData);
     await closeKnex();
   })();
 }

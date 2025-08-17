@@ -52,7 +52,7 @@ import GenshinLbLink from '../links/GenshinLbLink.vue';
 
 defineProps<{
   title: string,
-  introText: string,
+  introText?: string,
   lbTable: LivingBeingTable,
 }>();
 </script>

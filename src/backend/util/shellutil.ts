@@ -32,11 +32,11 @@ async function exec(command: string, options: ExecOptions): Promise<string> {
  * @param stdoutLineStream Stream method for stdout.
  * @param stderrLineStream Stream method for stderr.
  */
-export async function passthru(command: string,
-                               postInitialize: (childProcess: ChildProcessWithoutNullStreams) => void,
-                               onExit: (exitCode: number, childProcess: ChildProcessWithoutNullStreams, error?: Error) => void,
-                               stdoutLineStream?: (data: string, kill?: () => void) => Promise<void>|void,
-                               stderrLineStream?: (data: string, kill?: () => void) => Promise<void>|void): Promise<number|Error> {
+export async function execLineStream(command: string,
+                                     postInitialize: (childProcess: ChildProcessWithoutNullStreams) => void,
+                                     onExit: (exitCode: number, childProcess: ChildProcessWithoutNullStreams, error?: Error) => void,
+                                     stdoutLineStream?: (data: string, kill?: () => void) => Promise<void>|void,
+                                     stderrLineStream?: (data: string, kill?: () => void) => Promise<void>|void): Promise<number|Error> {
   const partial_line_buffer = {
     stdout: '',
     stderr: '',
@@ -435,7 +435,7 @@ export async function grepStream(searchText: string,
   const cmd = createGrepCommand(searchText, absoluteFilePath, extraOpts);
   // console.log('Command:', cmd.line);
 
-  return await passthru(cmd.line, null, null, (line: string, kill?: () => void) => {
+  return await execLineStream(cmd.line, null, null, (line: string, kill?: () => void) => {
     line = postProcessGrepLine(line, cmd.hasLineNumFlag, extraOpts.startFromLine);
     return stream(line, kill);
   });

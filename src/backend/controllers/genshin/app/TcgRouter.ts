@@ -49,7 +49,7 @@ export default async function(): Promise<Router> {
       stagesByGroupAndType[stage.WikiGroup || 'No Group'][stage.WikiType || 'No Type'].push(stage);
     }
 
-    res.render(GcgStageListPage, {
+    res.renderComponent(GcgStageListPage, {
       title: 'TCG Stages',
       stagesByGroupAndType,
       bodyClass: ['page--tcg-stage']
@@ -57,7 +57,7 @@ export default async function(): Promise<Router> {
   });
 
   router.get('/TCG/stages/search', async (req: Request, res: Response) => {
-    res.render(GcgStageSearchPage, {
+    res.renderComponent(GcgStageSearchPage, {
       title: 'TCG Stage Search',
       bodyClass: ['page--tcg-stage']
     });

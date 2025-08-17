@@ -13,14 +13,14 @@ export default async function(): Promise<Router> {
   const router: Router = create();
 
   router.get('/', (req: Request, res: Response) => {
-    res.render(UserLandingPage, {
+    res.renderComponent(UserLandingPage, {
       title: SITE_TITLE,
       bodyClass: ['page--user', 'page-landing'],
     });
   });
 
   router.get('/settings', (req: Request, res: Response) => {
-    res.render(SettingsPage, {
+    res.renderComponent(SettingsPage, {
       title: 'Settings',
       bodyClass: ['page--user', 'page--settings'],
     });
@@ -39,7 +39,7 @@ export default async function(): Promise<Router> {
 
   router.get('/notices', async (req: Request, res: Response) => {
     const notices: SiteNotice[] = await SiteUserProvider.getAllSiteNotices();
-    res.render(SiteNoticesPage, {
+    res.renderComponent(SiteNoticesPage, {
       title: 'Site Notices',
       notices,
       bodyClass: ['page--user', 'page--notices'],
@@ -47,7 +47,7 @@ export default async function(): Promise<Router> {
   });
 
   router.get('/notices/number-formatting', async (req: Request, res: Response) => {
-    res.render(NumberFormattingNotice, {
+    res.renderComponent(NumberFormattingNotice, {
       title: 'Notice - Upcoming change on how numbers are formatted',
       bodyClass: ['page--user', 'page--notices'],
     });

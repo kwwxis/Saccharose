@@ -45,7 +45,7 @@
                 ui-tippy-hover="Click to copy to clipboard (including child sections)"
                 ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
                 style="margin:0 0 5px 5px; white-space: nowrap;">Copy All</button>
-        <div class="valign">
+        <div v-if="section.wikitext" class="valign">
           <button class="dialogue-indent-button secondary small plus" ui-tippy-hover="Increase indent"
                   :ui-action="`wikitext-indent: #wikitext-${section.id}, increase`"
                   style="margin:0 0 5px 5px"

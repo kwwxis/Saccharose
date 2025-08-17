@@ -21,13 +21,13 @@ export default async function(): Promise<Router> {
 
   router.get('/privacy', async (req: Request, res: Response) => {
     if (!req.isAuthenticated() || await SiteUserProvider.isBanned(req.user)) {
-      return res.render(SitePrivacyPolicyPage, {
+      return res.renderComponent(SitePrivacyPolicyPage, {
         title: 'Privacy Policy',
         layouts: ['layouts/basic-layout'],
         bodyClass: ['page--docs', 'page--privacy'],
       });
     } else {
-      return res.render(SitePrivacyPolicyPage, {
+      return res.renderComponent(SitePrivacyPolicyPage, {
         title: 'Privacy Policy',
         layouts: ['layouts/app-layout', 'layouts/app-layout-inner'],
         bodyClass: ['page--docs', 'page--privacy', 'page--larger'],
@@ -37,13 +37,13 @@ export default async function(): Promise<Router> {
 
   router.get('/terms', async (req: Request, res: Response) => {
     if (!req.isAuthenticated() || await SiteUserProvider.isBanned(req.user)) {
-      return res.render(SiteTermsOfServicePage, {
+      return res.renderComponent(SiteTermsOfServicePage, {
         title: 'Terms of Service',
         layouts: ['layouts/basic-layout'],
         bodyClass: ['page--docs', 'page--terms'],
       });
     } else {
-      return res.render(SiteTermsOfServicePage, {
+      return res.renderComponent(SiteTermsOfServicePage, {
         title: 'Terms of Service',
         layouts: ['layouts/app-layout', 'layouts/app-layout-inner'],
         bodyClass: ['page--docs', 'page--terms', 'page--larger'],
@@ -53,13 +53,13 @@ export default async function(): Promise<Router> {
 
   router.get('/contact', async (req: Request, res: Response) => {
     if (!req.isAuthenticated() || await SiteUserProvider.isBanned(req.user)) {
-      return res.render(SiteContactPage, {
+      return res.renderComponent(SiteContactPage, {
         title: 'Contact',
         layouts: ['layouts/basic-layout'],
         bodyClass: ['page--docs', 'page--contact'],
       });
     } else {
-      return res.render(SiteContactPage, {
+      return res.renderComponent(SiteContactPage, {
         title: 'Contact',
         layouts: ['layouts/app-layout', 'layouts/app-layout-inner'],
         bodyClass: ['page--docs', 'page--contact', 'page--larger'],
@@ -71,7 +71,7 @@ export default async function(): Promise<Router> {
     if (req.isAuthenticated()) {
       return next();
     }
-    res.render(OLGenPage, {
+    res.renderComponent(OLGenPage, {
       title: 'OL',
       layouts: ['layouts/basic-layout', 'layouts/visitor-wrapper'],
       bodyClass: ['page--OL']
@@ -81,7 +81,7 @@ export default async function(): Promise<Router> {
     if (req.isAuthenticated()) {
       return next();
     }
-    res.render(OLGenPage, {
+    res.renderComponent(OLGenPage, {
       title: 'OL',
       layouts: ['layouts/basic-layout', 'layouts/visitor-wrapper'],
       bodyClass: ['page--OL'],
@@ -91,7 +91,7 @@ export default async function(): Promise<Router> {
     if (req.isAuthenticated()) {
       return next();
     }
-    res.render(OLCombinePage, {
+    res.renderComponent(OLCombinePage, {
       title: 'OL Combine',
       layouts: ['layouts/basic-layout', 'layouts/visitor-wrapper'],
       bodyClass: ['page--OL-combine']

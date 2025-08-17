@@ -13,14 +13,14 @@ export default async function(): Promise<Router> {
   const router: Router = create();
 
   router.get('/media/search', async (req: Request, res: Response) => {
-    res.render(StarRailMediaSearchPage, {
+    res.renderComponent(StarRailMediaSearchPage, {
       title: 'Media Search',
       bodyClass: ['page--media', 'page--media-search', 'page--larger'],
     });
   });
 
   router.get('/media/list', async (req: Request, res: Response) => {
-    res.render(StarRailMediaListPage, {
+    res.renderComponent(StarRailMediaListPage, {
       title: 'Media List',
       bodyClass: ['page--media', 'page--media-list', 'page--larger'],
     });
@@ -29,7 +29,7 @@ export default async function(): Promise<Router> {
   router.get('/media/details/:imageName(*)', async (req: Request, res: Response) => {
     const ctrl = getStarRailControl(req);
     const { entity, usageEntities } = await ctrl.selectImageIndexEntityAndUsages(req.params.imageName);
-    res.render(StarRailMediaDetailsPage, {
+    res.renderComponent(StarRailMediaDetailsPage, {
       title: 'Media Details: ' + String(req.params.imageName),
       bodyClass: ['page--media', 'page--media-details', 'page--larger'],
       pathImageName: req.params.imageName,
@@ -43,13 +43,13 @@ export default async function(): Promise<Router> {
   });
 
   router.get('/media/archive-job/:jobId', async (req: Request, res: Response) => {
-    res.render(StarRailMediaArchiveJobPage, {
+    res.renderComponent(StarRailMediaArchiveJobPage, {
       jobId: req.params.jobId,
     });
   });
 
   router.get('/revs', async (req: Request, res: Response) => {
-    res.render(WikiRevisionPage, {
+    res.renderComponent(WikiRevisionPage, {
       title: 'Wiki Revisions',
       bodyClass: ['page--revs', 'page--wide', 'page--wideWithLeftGutter', 'page--narrow-sidebar']
     });
@@ -59,7 +59,7 @@ export default async function(): Promise<Router> {
     const pageId: number = isInt(req.params.pageId) ? toInt(req.params.pageId) : null;
     const page = await mwStarRailClient.getArticleInfo(pageId);
 
-    res.render(WikiRevisionPage, {
+    res.renderComponent(WikiRevisionPage, {
       title: 'Wiki Revisions',
       bodyClass: ['page--revs', 'page--wide', 'page--narrow-sidebar'],
       pageid: pageId || null,
@@ -72,7 +72,7 @@ export default async function(): Promise<Router> {
     const revId: number = isInt(req.params.revId) ? toInt(req.params.revId) : null;
     const page = await mwStarRailClient.getArticleInfo(pageId);
 
-    res.render(WikiRevisionPage, {
+    res.renderComponent(WikiRevisionPage, {
       title: 'Wiki Revisions',
       bodyClass: ['page--revs', 'page--wide', 'page--narrow-sidebar'],
       pageid: pageId || null,
