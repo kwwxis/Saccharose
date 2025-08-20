@@ -19,10 +19,17 @@ export interface NormTextOptions<T = any> {
   sNum?: number,
   mcPlaceholderProvider?: (langCode: LangCode, degender?: boolean) => string,
   mcPlaceholderForceLangCode?: LangCode,
-  plaintextDash?: string,
+  forceFancyDash?: boolean,
   skipHtml2Quotes?: boolean,
   customOpts?: T,
 }
+
+export const EM_DASH = '—';
+export const EN_DASH = '–';
+export const FANCY_SINGLE_QUOTE_START = '‘';
+export const FANCY_SINGLE_QUOTE_END = '’';
+export const FANCY_DOUBLE_QUOTE_START = '“';
+export const FANCY_DOUBLE_QUOTE_END = '”';
 
 export interface GenericNormTextRequiredOptions {
   brFormat: '<br>' | '<br/>' | '<br />'
@@ -89,8 +96,17 @@ export function genericNormText(text: string, langCode: LangCode, opts: NormText
   if (!opts.mcPlaceholderProvider)
     throw new Error('mcPlaceholderProvider is required');
 
-  text = text.replace(/—/g, opts.plaintext ? (opts.plaintextDash || '-') : '&mdash;').trim();
-  text = text.replace(/–/g, opts.plaintext ? (opts.plaintextDash || '-') : '&ndash;').trim();
+
+  text = text.replace(/—/g, opts.forceFancyDash ? EM_DASH : (opts.plaintext ? '-' : '&mdash;')).trim();
+  text = text.replace(/–/g, opts.forceFancyDash ? EN_DASH : (opts.plaintext ? '-' : '&ndash;')).trim();
+
+  if (opts.plaintext) {
+    text = text.replace(/‘/g, `'`).trim();
+    text = text.replace(/’/g, `'`).trim();
+    text = text.replace(/“/g, `"`).trim();
+    text = text.replace(/”/g, `"`).trim();
+  }
+
   text = text.replace(/{NICKNAME}|{PlayerName}/g, opts.mcPlaceholderProvider(opts.mcPlaceholderForceLangCode || langCode, true));
   text = text.replace(/{NON_BREAK_SPACE}/g, opts.plaintext ? ' ' : '&nbsp;');
   text = text.replace(/\u00A0/g, opts.plaintext ? ' ' : '&nbsp;');
@@ -133,6 +149,8 @@ export function genericNormText(text: string, langCode: LangCode, opts: NormText
 
     // Wuwa:
     text = text.replace(/{Male=([^;]*);Female=([^}]*)}/g, '{{MC|m=$1|f=$2}}');
+
+    text = text.replace(/~~~+/, fm => `<nowiki>${fm}</nowiki>`);
   }
 
   if (opts.decolor || opts.plaintext) {

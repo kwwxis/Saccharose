@@ -277,8 +277,8 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
 
     sect.addMetaProp('Section ID', questSub.SubId);
     sect.addMetaProp('Section Order', questSub.Order);
-    sect.addMetaProp('Quest Step', questSub.DescText);
-    sect.addMetaProp('Quest Desc Update', questSub.StepDescText);
+    // sect.addMetaProp('Quest Step', questSub.DescText);
+    // sect.addMetaProp('Quest Desc Update', questSub.StepDescText);
 
     if (questSub.FinishExec) {
       const rewardSetIndexExec = questSub.FinishExec.find(f => f.Type === 'QUEST_EXEC_UPDATE_PARENT_QUEST_REWARD_INDEX');
@@ -294,6 +294,27 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
     addCondMetaProp(sect, 'FailCond', questSub.FailCondComb, questSub.FailCond);
     addCondMetaProp(sect, 'FailExec', null, questSub.FailExec);
 
+    if (questSub.DescText) {
+      sect.wikitextArray.push({
+        title: 'Step',
+        wikitext: ctrl.normText(questSub.DescText, ctrl.outputLangCode),
+      });
+    }
+
+    if (questSub.StepDescText) {
+      sect.wikitextArray.push({
+        title: 'Description Update',
+        wikitext: ctrl.normText(questSub.StepDescText, ctrl.outputLangCode),
+      });
+    }
+
+    if (questSub.GuideTipsText) {
+      sect.wikitextArray.push({
+        title: 'Guide Tip',
+        wikitext: ctrl.normText(questSub.GuideTipsText, ctrl.outputLangCode),
+      });
+    }
+
     if (questSub.NonTalkDialog && questSub.NonTalkDialog.length) {
       for (let dialog of questSub.NonTalkDialog) {
         let subsect = new DialogueSectionResult('NonTalkDialogue_'+dialog[0].Id, 'Non-Talk Dialogue', nonTalkDialogHelpMessage);
@@ -302,7 +323,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
         subsect.originalData.questId = mainQuest.Id;
         subsect.originalData.questName = mainQuest.TitleText;
         const dialogWikitextRet = await ctrl.generateDialogueWikitext(dialog);
-        sect.setWikitext(dialogWikitextRet);
+        subsect.setWikitext(dialogWikitextRet);
         sect.children.push(subsect);
       }
     }

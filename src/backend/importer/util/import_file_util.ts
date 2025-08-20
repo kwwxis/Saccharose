@@ -5,7 +5,7 @@ import {promises as fsp} from 'fs';
 import { LANG_CODES } from '../../../shared/types/lang-types.ts';
 import { getTextMapRelPath } from '../../loadenv.ts';
 import { AbstractControl } from '../../domain/abstract/abstractControl.ts';
-import { NormTextOptions } from '../../domain/abstract/genericNormalizers.ts';
+import { EM_DASH, EN_DASH, NormTextOptions } from '../../domain/abstract/genericNormalizers.ts';
 import XXH from 'xxhashjs';
 import JSONBigImport from '../../util/json-bigint';
 import { isInt } from '../../../shared/util/numberUtil.ts';
@@ -238,8 +238,8 @@ export async function importPlainTextMap(ctrl: AbstractControl, getDataFilePath:
           variations.push(... variations.map(v => Object.assign({}, v, variation)));
         };
 
-        if (text.includes('—')) {
-          addSingleVariation({ plaintextDash: '—' });
+        if (text.includes(EM_DASH) || text.includes(EN_DASH)) {
+          addSingleVariation({ forceFancyDash: true });
         }
 
         for (let variation of variations) {
