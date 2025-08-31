@@ -1,6 +1,6 @@
 import '../loadenv.ts';
 import fs from 'fs';
-import { concatRegExp, REGEX_ISO_8601, splitLimit } from '../../shared/util/stringUtil.ts';
+import { concatRegExp, PM2_TIME_PREFIX, REGEX_ISO_8601, splitLimit } from '../../shared/util/stringUtil.ts';
 import { pathToFileURL } from 'url';
 import { sha256 } from '../util/hash-util.ts';
 import { toInt, toNumber } from '../../shared/util/numberUtil.ts';
@@ -15,9 +15,15 @@ import { wssDispatch } from '../websocket/ws-server.ts';
 import { fsRead } from '../util/fsutil.ts';
 
 const regexes = {
-  access: /^\[(\d+\/\d+\/\d+), (\d+:\d+:\d+) (AM|PM) (PST|PDT)] \[([^\]]+)] \[(\w{2,3}):(\w{2,3})\|(\w+)] (\d{3}) (\w+)(.*)\((\d+\.?\d*) ms\)$/,
+  access: concatRegExp([
+    /^/,
+    PM2_TIME_PREFIX,
+    /\[(\d+\/\d+\/\d+), (\d+:\d+:\d+) (AM|PM) (PST|PDT)] \[([^\]]+)] \[(\w{2,3}):(\w{2,3})\|(\w+)] (\d{3}) (\w+)(.*)\((\d+\.?\d*) ms\)/,
+    /$/
+  ]),
   debug: concatRegExp([
     /^/,
+    PM2_TIME_PREFIX,
     REGEX_ISO_8601,
     /\s(.*)/,
     /$/

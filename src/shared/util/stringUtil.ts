@@ -131,6 +131,7 @@ export function validateRegExp(pattern: string, options?: string): boolean {
 }
 
 export const REGEX_ISO_8601 = /(\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d+)?(?:[+-]\d\d:\d\d|Z)?)/;
+export const PM2_TIME_PREFIX = /((\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d+)?(?:[+-]\d\d:\d\d|Z)?):\s*)?/;
 export const REGEX_ISO_8601_EXACT = new RegExp('^' + REGEX_ISO_8601.source + '$');
 
 export function concatRegExp(regs: RegExp[], flags?: string) {
