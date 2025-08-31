@@ -16,7 +16,7 @@ export const GenshinVersions: GameVersion[] = [
   {number: '1.1', previous: '1.0', showNewMedia: true},
   {number: '1.2', previous: '1.1'},
   {number: '1.3', previous: '1.2'},
-  {number: '1.4', previous: '1.3', showTextmapChangelog: true, noPriorChangelog: true},
+  {number: '1.4', previous: '1.3', showTextmapChangelog: false, noPriorChangelog: true},
   {number: '1.5', previous: '1.4', showTextmapChangelog: true, showNewMedia: true},
   {number: '1.6', previous: '1.5', showTextmapChangelog: true, showNewMedia: true},
 
