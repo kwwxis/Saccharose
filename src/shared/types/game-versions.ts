@@ -7,38 +7,38 @@ export type GameVersion = {
   showExcelChangelog?: boolean,
   showNewMedia?: boolean,
   hasChangelogSummary?: boolean,
-  isFirstVersion?: boolean,
+  noPriorChangelog?: boolean,
 };
 
 // TODO: This needs to be updated with each new Genshin version!
 export const GenshinVersions: GameVersion[] = [
-  {number: '1.0', previous: null, showNewMedia: true, isFirstVersion: true},
+  {number: '1.0', previous: null, showNewMedia: true, noPriorChangelog: true},
   {number: '1.1', previous: '1.0', showNewMedia: true},
   {number: '1.2', previous: '1.1'},
   {number: '1.3', previous: '1.2'},
-  {number: '1.4', previous: '1.3'},
-  {number: '1.5', previous: '1.4', showNewMedia: true},
-  {number: '1.6', previous: '1.5', showNewMedia: true},
+  {number: '1.4', previous: '1.3', showTextmapChangelog: true, noPriorChangelog: true},
+  {number: '1.5', previous: '1.4', showTextmapChangelog: true, showNewMedia: true},
+  {number: '1.6', previous: '1.5', showTextmapChangelog: true, showNewMedia: true},
 
-  {number: '2.0', previous: '1.6', showNewMedia: true},
-  {number: '2.1', previous: '2.0', showNewMedia: true},
-  {number: '2.2', previous: '2.1', showNewMedia: true},
-  {number: '2.3', previous: '2.2', showNewMedia: true},
-  {number: '2.4', previous: '2.3', showNewMedia: true},
-  {number: '2.5', previous: '2.4', showNewMedia: true},
-  {number: '2.6', previous: '2.5', showNewMedia: true},
-  {number: '2.7', previous: '2.6', showNewMedia: true},
-  {number: '2.8', previous: '2.7', showNewMedia: true},
+  {number: '2.0', previous: '1.6', showTextmapChangelog: true, showNewMedia: true},
+  {number: '2.1', previous: '2.0', showTextmapChangelog: true, showNewMedia: true},
+  {number: '2.2', previous: '2.1', showTextmapChangelog: true, showNewMedia: true},
+  {number: '2.3', previous: '2.2', showTextmapChangelog: true, showNewMedia: true},
+  {number: '2.4', previous: '2.3', showTextmapChangelog: true, showNewMedia: true},
+  {number: '2.5', previous: '2.4', showTextmapChangelog: true, showNewMedia: true},
+  {number: '2.6', previous: '2.5', showTextmapChangelog: true, showNewMedia: true},
+  {number: '2.7', previous: '2.6', showTextmapChangelog: true, showNewMedia: true},
+  {number: '2.8', previous: '2.7', showTextmapChangelog: true, showNewMedia: true},
 
-  {number: '3.0', previous: '2.8', showNewMedia: true},
-  {number: '3.1', previous: '3.0', showNewMedia: true},
-  {number: '3.2', previous: '3.1', showNewMedia: true},
-  {number: '3.3', previous: '3.2', showNewMedia: true},
-  {number: '3.4', previous: '3.3', showNewMedia: true},
-  {number: '3.5', previous: '3.4', showNewMedia: true},
-  {number: '3.6', previous: '3.5', showNewMedia: true},
-  {number: '3.7', previous: '3.6', showNewMedia: true},
-  {number: '3.8', previous: '3.7', showNewMedia: true},
+  {number: '3.0', previous: '2.8', showTextmapChangelog: true, showNewMedia: true},
+  {number: '3.1', previous: '3.0', showTextmapChangelog: true, showNewMedia: true},
+  {number: '3.2', previous: '3.1', showTextmapChangelog: true, showNewMedia: true},
+  {number: '3.3', previous: '3.2', showTextmapChangelog: true, showNewMedia: true},
+  {number: '3.4', previous: '3.3', showTextmapChangelog: true, showNewMedia: true},
+  {number: '3.5', previous: '3.4', showTextmapChangelog: true, showNewMedia: true},
+  {number: '3.6', previous: '3.5', showTextmapChangelog: true, showNewMedia: true},
+  {number: '3.7', previous: '3.6', showTextmapChangelog: true, showNewMedia: true},
+  {number: '3.8', previous: '3.7', showTextmapChangelog: true, showNewMedia: true},
 
   {number: '4.0', previous: '3.8', showTextmapChangelog: true, showExcelChangelog: true, showNewMedia: true, hasChangelogSummary: true},
   {number: '4.1', previous: '4.0', showTextmapChangelog: true, showExcelChangelog: true, showNewMedia: true, hasChangelogSummary: true},
@@ -62,7 +62,7 @@ export const GenshinVersions: GameVersion[] = [
 
 // TODO: This needs to be updated with each new Honkai Star Rail version!
 export const StarRailVersions: GameVersion[] = [
-  {number: '1.0', previous: null, showTextmapChangelog: true, isFirstVersion: true, showNewMedia: true},
+  {number: '1.0', previous: null, showTextmapChangelog: true, noPriorChangelog: true, showNewMedia: true},
   {number: '1.1', previous: '1.0', showTextmapChangelog: true, showNewMedia: true},
   {number: '1.2', previous: '1.1', showTextmapChangelog: true, showNewMedia: true},
   {number: '1.3', previous: '1.2', showTextmapChangelog: true},
@@ -78,7 +78,7 @@ export const StarRailVersions: GameVersion[] = [
   {number: '2.6', previous: '2.5', showTextmapChangelog: true, showNewMedia: true},
   {number: '2.7', previous: '2.6', showTextmapChangelog: true, showNewMedia: true},
   {number: '3.0', previous: '2.7', showTextmapChangelog: true, showNewMedia: true},
-  {number: '3.1', previous: '3.0', showTextmapChangelog: false, showNewMedia: true, isFirstVersion: true},
+  {number: '3.1', previous: '3.0', showTextmapChangelog: false, showNewMedia: true, noPriorChangelog: true},
   {number: '3.2', previous: '3.1', showTextmapChangelog: true, showNewMedia: true},
   {number: '3.3', previous: '3.2', showTextmapChangelog: true, showNewMedia: true},
   {number: '3.4', previous: '3.3', showTextmapChangelog: true, showNewMedia: true},
@@ -87,7 +87,7 @@ export const StarRailVersions: GameVersion[] = [
 
 // TODO: This needs to be updated with each new Zenless Zone Zero version!
 export const ZenlessVersions: GameVersion[] = [
-  {number: '1.0', previous: '0.0', showTextmapChangelog: true, isFirstVersion: true},
+  {number: '1.0', previous: '0.0', showTextmapChangelog: true, noPriorChangelog: true},
   {number: '1.1', previous: '1.0', showTextmapChangelog: true},
   {number: '1.2', previous: '1.1', showTextmapChangelog: true},
   {number: '1.3', previous: '1.2', showTextmapChangelog: true},
@@ -101,7 +101,7 @@ export const ZenlessVersions: GameVersion[] = [
 
 // TODO: This needs to be updated with each new Wuthering Waves version!
 export const WuwaVersions: GameVersion[] = [
-  {number: '1.0', previous: null, showTextmapChangelog: true, isFirstVersion: true},
+  {number: '1.0', previous: null, showTextmapChangelog: true, noPriorChangelog: true},
   {number: '1.1', previous: '1.0', showTextmapChangelog: true},
   {number: '1.2', previous: '1.1', showTextmapChangelog: true},
   {number: '1.3', previous: '1.2', showTextmapChangelog: true},

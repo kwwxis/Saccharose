@@ -13,6 +13,7 @@ import {
 } from '../../../shared/types/changelog-types.ts';
 import { ltrim } from '../../../shared/util/stringUtil.ts';
 import { GameVersion } from '../../../shared/types/game-versions.ts';
+import chalk from 'chalk';
 
 class CreateChangelogState {
   // Data Holders:
@@ -37,7 +38,7 @@ class CreateChangelogState {
   readonly excelChangelogFileName: string;
   readonly prevDataRoot: string;
   readonly currDataRoot: string;
-  readonly isFirstVersion: boolean;
+  readonly noPriorChangelog: boolean;
 
   // Composite Holders:
   // --------------------------------------------------------------------------------------------------------------
@@ -74,8 +75,8 @@ class CreateChangelogState {
     this.textmapChangelogFileName = path.resolve(CHANGELOGS_DIR, `./TextMapChangeLog.${this.versionLabel}.json`);
     this.excelChangelogFileName = path.resolve(CHANGELOGS_DIR, `./ExcelChangeLog.${this.versionLabel}.json`);4
 
-    this.isFirstVersion = this.version.isFirstVersion;
-    if (!this.isFirstVersion)
+    this.noPriorChangelog = this.version.noPriorChangelog;
+    if (!this.noPriorChangelog)
       this.prevDataRoot = path.resolve(ARCHIVES_DIR, `./${this.version.previous}`);
     this.currDataRoot = path.resolve(ARCHIVES_DIR, `./${this.version.number}`);
 
@@ -84,6 +85,8 @@ class CreateChangelogState {
   }
 }
 
+const EMPTY_STR = "";
+
 async function computeTextMapChanges(state: CreateChangelogState) {
   if (fs.existsSync(state.textmapChangelogFileName)) {
     state.textmapChangelog = JSON.parse(fs.readFileSync(state.textmapChangelogFileName, {encoding: 'utf-8'}));
@@ -91,7 +94,7 @@ async function computeTextMapChanges(state: CreateChangelogState) {
     return;
   }
 
-  const { textmapChangelog, prevDataRoot, currDataRoot, isFirstVersion } = state;
+  const { textmapChangelog, prevDataRoot, currDataRoot, noPriorChangelog } = state;
   for (let schemaTable of Object.values(state.gameSchema)) {
     if (!schemaTable.textMapSchemaLangCode) {
       continue;
@@ -100,7 +103,7 @@ async function computeTextMapChanges(state: CreateChangelogState) {
     const langCode: LangCode = schemaTable.textMapSchemaLangCode;
     console.log('Computing changes for TextMap' + langCode);
 
-    let prevFilePath: string = isFirstVersion ? null : path.resolve(prevDataRoot, schemaTable.jsonFile).replace(/\\/g, '/');
+    let prevFilePath: string = noPriorChangelog ? null : path.resolve(prevDataRoot, schemaTable.jsonFile).replace(/\\/g, '/');
     let currFilePath: string = path.resolve(currDataRoot, schemaTable.jsonFile).replace(/\\/g, '/');
 
     if (prevFilePath && !fs.existsSync(prevFilePath))
@@ -108,23 +111,39 @@ async function computeTextMapChanges(state: CreateChangelogState) {
     if (!fs.existsSync(currFilePath))
       currFilePath = currFilePath.replace(/\/TextMap([A-Z]+)\.json/, '/Text$1.json');
 
-    const prevData: Record<TextMapHash, string> = isFirstVersion
+    const prevData: Record<TextMapHash, string> = noPriorChangelog || !fs.existsSync(prevFilePath)
       ? {}
       : JSON.parse(fs.readFileSync(prevFilePath, {encoding: 'utf8'}));
+
+    if (!fs.existsSync(currFilePath)) {
+      console.log('  ' + chalk.red('(Does not exist)'));
+      continue;
+    }
+
     const currData: Record<TextMapHash, string> = JSON.parse(fs.readFileSync(currFilePath, {encoding: 'utf8'}));
 
     const addedHashes: Set<TextMapHash> = new Set(Object.keys(currData).filter(hash => !prevData[hash]));
     const removedHashes: Set<TextMapHash> = new Set(Object.keys(prevData).filter(hash => !currData[hash]));
 
+    let addedCount = 0;
+    let removedCount = 0;
+    let updatedCount = 0;
+    let unchangedCount = 0;
+
     for (let addedHash of addedHashes) {
-      textmapChangelog[langCode].added[addedHash] = currData[addedHash];
+      if (EMPTY_STR !== currData[addedHash]) {
+        textmapChangelog[langCode].added[addedHash] = currData[addedHash];
+        addedCount++;
+      }
     }
 
     for (let removedHash of removedHashes) {
-      textmapChangelog[langCode].removed[removedHash] = prevData[removedHash];
+      if (EMPTY_STR !== prevData[removedHash]) {
+        textmapChangelog[langCode].removed[removedHash] = prevData[removedHash];
+        removedCount++;
+      }
     }
 
-    let updatedCount = 0;
     for (let [textMapHash, _textMapContent] of Object.entries(currData)) {
       if (addedHashes.has(textMapHash) || removedHashes.has(textMapHash)) {
         continue;
@@ -135,11 +154,14 @@ async function computeTextMapChanges(state: CreateChangelogState) {
           oldValue: prevData[textMapHash],
           newValue: currData[textMapHash]
         };
+      } else {
+        unchangedCount++;
       }
     }
-    console.log('  Added: ' + addedHashes.size);
-    console.log('  Removed: ' + removedHashes.size);
+    console.log('  Added: ' + addedCount);
+    console.log('  Removed: ' + removedCount);
     console.log('  Updated: ' + updatedCount);
+    console.log('  Unchanged: ' + unchangedCount);
   }
 
   fs.writeFileSync(state.textmapChangelogFileName, JSON.stringify(textmapChangelog, null, 2), {
@@ -163,7 +185,7 @@ async function computeExcelFileChanges(state: CreateChangelogState) {
     return;
   }
 
-  const { compositeTextMapHashUpdated, prevDataRoot, currDataRoot, isFirstVersion } = state;
+  const { compositeTextMapHashUpdated, prevDataRoot, currDataRoot, noPriorChangelog } = state;
 
   for (let schemaTable of Object.values(state.gameSchema)) {
     // Skip tables we don't care about:
@@ -185,10 +207,10 @@ async function computeExcelFileChanges(state: CreateChangelogState) {
       continue;
     }
 
-    const prevFilePath: string = isFirstVersion ? null : path.resolve(prevDataRoot, schemaTable.jsonFile);
+    const prevFilePath: string = noPriorChangelog ? null : path.resolve(prevDataRoot, schemaTable.jsonFile);
     const currFilePath: string = path.resolve(currDataRoot, schemaTable.jsonFile);
 
-    let prevDataRaw: any[] = isFirstVersion ? [] : JSON.parse(fs.readFileSync(prevFilePath, {encoding: 'utf8'}));
+    let prevDataRaw: any[] = noPriorChangelog ? [] : JSON.parse(fs.readFileSync(prevFilePath, {encoding: 'utf8'}));
     let currDataRaw: any[] = JSON.parse(fs.readFileSync(currFilePath, {encoding: 'utf8'}));
     const prevData: {[key: string]: any} = mapBy(prevDataRaw, primaryKey);
     const currData: {[key: string]: any} = mapBy(currDataRaw, primaryKey);

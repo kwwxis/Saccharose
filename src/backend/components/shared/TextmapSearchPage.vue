@@ -16,7 +16,8 @@
         <div class="posRel">
           <input id="versionFilter" type="text" placeholder="Version filter"
                  style="max-width: 250px;width: 100%;padding-right:25px"/>
-          <span ui-tippy="{content: 'Versions separated by comma or semicolon',delay:[200, 100]}"
+          <span :ui-tippy="`{content: 'Versions separated by comma or semicolon.${
+                  versionFilterMoreInfo ? '<br>' + versionFilterMoreInfo : ''}',delay:[200, 100], allowHTML: true}`"
                 class="dispInlineFlex" style="height:16px;width:16px;position:absolute;right:5px;top:0;bottom:0;margin:auto 0;opacity:0.6">
             <Icon name="info" :size="16" />
           </span>
@@ -50,5 +51,7 @@
 import SearchModeInput from '../utility/SearchModeInput.vue';
 import Icon from '../utility/Icon.vue';
 
-defineProps<{}>()
+defineProps<{
+  versionFilterMoreInfo?: string,
+}>()
 </script>

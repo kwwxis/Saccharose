@@ -20,6 +20,7 @@ export default async function(): Promise<Router> {
     await res.renderComponent(TextmapSearchPage, {
       title: 'TextMap Search',
       bodyClass: ['page--textmap'],
+      versionFilterMoreInfo: 'Supported from 1.4 onwards.'
     });
   });
 

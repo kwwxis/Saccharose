@@ -75,7 +75,7 @@ async function doJob(job: ScriptJob<'createImageIndexArchive'>,
       `(combined pre-zipped size: ${combinedImageSizeLabel}).`);
     if (combinedImageSize > MAX_COMBINED_SIZE) {
       await job.complete({
-        result_error: `Combined pre-zipped size is too big! Max size is 1 GB. Try again with a more narrow search query.`
+        result_error: `Combined pre-zipped size is too big! Max allowed size is 1 GB. Try again with a more narrow search query.`
       });
       return;
     }

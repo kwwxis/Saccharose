@@ -22,7 +22,8 @@ export default async function(): Promise<Router> {
   router.get('/textmap', async (req: Request, res: Response) => {
     await res.renderComponent(TextmapSearchPage, {
       title: 'TextMap Search',
-      bodyClass: ['page--textmap']
+      bodyClass: ['page--textmap'],
+      versionFilterMoreInfo: 'Does not support verson 3.1 in particular.'
     });
   });
 
