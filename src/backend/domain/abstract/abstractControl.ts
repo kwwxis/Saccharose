@@ -859,7 +859,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
   async selectTextMapChangelog(version: GameVersion): Promise<TextMapFullChangelog> {
     if (!version || !version.showTextmapChangelog || !this.changelogConfig.textmapEnabled)
       return null;
-    return this.cached('TextMapChangelog:' + version.number, 'json', async () => {
+    return this.cached('TextMapChangelog:' + version.number, 'memory', async () => {
       const textmapChangelogFileName = path.resolve(this.changelogConfig.directory, `./TextMapChangeLog.${version.number}.json`);
       return fsReadJson(textmapChangelogFileName);
     });
@@ -868,7 +868,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
   async selectExcelChangelog(version: GameVersion): Promise<ExcelFullChangelog> {
     if (!version || !version.showExcelChangelog || !this.changelogConfig.excelEnabled)
       return null;
-    return this.cached('ExcelChangelog:' + version.number, 'json', async () => {
+    return this.cached('ExcelChangelog:' + version.number, 'memory', async () => {
       const excelChangelogFileName = path.resolve(this.changelogConfig.directory, `./ExcelChangeLog.${version.number}.json`);
       return fsReadJson(excelChangelogFileName);
     });

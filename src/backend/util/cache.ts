@@ -20,6 +20,14 @@ export function redisClient(): RedisClientType<RedisModules, RedisFunctions, Red
   return cache.redis;
 }
 
+export async function redisGetString(key: string): Promise<string> {
+  return (await cache.redis.get(key)).toString();
+}
+
+export async function redisSetString(key: string, value: string): Promise<void> {
+  await cache.redis.set(key, value);
+}
+
 export async function redisDelPattern(pattern: string): Promise<void> {
   // SCANIterator returns an async iterator of keys (strings)
   const iterator = cache.redis.scanIterator({
@@ -165,8 +173,10 @@ export async function openRedisClient() {
     url: ENV.REDIS_URL,
     socket: {
       keepAlive: true,
+      noDelay: true,
       reconnectStrategy: retries => Math.min(retries * 50, 1000),
-    }
+    },
+    pingInterval: 30_000
   })
     .on('error', err => console.error('Redis Client Error', err))
     .connect();

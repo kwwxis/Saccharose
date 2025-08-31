@@ -33,7 +33,13 @@ import authRouter from './controllers/site/app/AuthRouter.ts';
 import siteUserMiddleware from './middleware/auth/siteUserMiddleware.ts';
 import visitorRouter from './controllers/visitor/VisitorRouter.ts';
 import { reqContextInitMiddleware } from './routing/router.ts';
-import { enableRedisExitHook, openRedisClient, redisClient, redisDelPattern } from './util/cache.ts';
+import {
+  enableRedisExitHook,
+  openRedisClient,
+  redisDelPattern,
+  redisGetString,
+  redisSetString,
+} from './util/cache.ts';
 import {
   CurrentGenshinVersion,
   CurrentStarRailVersion,
@@ -84,31 +90,31 @@ export async function appInit(): Promise<Express> {
   await openRedisClient();
   enableRedisExitHook();
 
-  const redisGenshinVersion: string = await redisClient().get('Genshin:CurrentVersion');
-  const redisStarRailVersion: string = await redisClient().get('StarRail:CurrentVersion');
-  const redisZenlessVersion: string = await redisClient().get('Zenless:CurrentVersion');
-  const redisWuwaVersion: string = await redisClient().get('Wuwa:CurrentVersion');
+  const redisGenshinVersion: string = await redisGetString('Genshin:CurrentVersion');
+  const redisStarRailVersion: string = await redisGetString('StarRail:CurrentVersion');
+  const redisZenlessVersion: string = await redisGetString('Zenless:CurrentVersion');
+  const redisWuwaVersion: string = await redisGetString('Wuwa:CurrentVersion');
 
   // Automatically clear cache when the current version number is incremented:
   if (redisGenshinVersion !== CurrentGenshinVersion.number) {
     logInitCache('Clearing Redis cache for Genshin Impact!');
     await redisDelPattern('Genshin:*');
-    await redisClient().set('Genshin:CurrentVersion', CurrentGenshinVersion.number);
+    await redisSetString('Genshin:CurrentVersion', CurrentGenshinVersion.number);
   }
   if (redisStarRailVersion !== CurrentStarRailVersion.number) {
     logInitCache('Clearing Redis cache for Honkai Star Rail!');
     await redisDelPattern('StarRail:*');
-    await redisClient().set('StarRail:CurrentVersion', CurrentStarRailVersion.number);
+    await redisSetString('StarRail:CurrentVersion', CurrentStarRailVersion.number);
   }
   if (redisZenlessVersion !== CurrentZenlessVersion.number) {
     logInitCache('Clearing Redis cache for Zenless Zone Zero!');
     await redisDelPattern('Zenless:*');
-    await redisClient().set('Zenless:CurrentVersion', CurrentZenlessVersion.number);
+    await redisSetString('Zenless:CurrentVersion', CurrentZenlessVersion.number);
   }
   if (redisWuwaVersion !== CurrentWuwaVersion.number) {
     logInitCache('Clearing Redis cache for Wuthering Waves!');
     await redisDelPattern('Wuwa:*');
-    await redisClient().set('Wuwa:CurrentVersion', CurrentWuwaVersion.number);
+    await redisSetString('Wuwa:CurrentVersion', CurrentWuwaVersion.number);
   }
 
   // Load supporting game data
