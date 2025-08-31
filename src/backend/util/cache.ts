@@ -1,30 +1,46 @@
 import exitHook from 'async-exit-hook';
-import { commandOptions, createClient, RedisClientType } from 'redis';
+import { createClient, RedisClientType, RedisFunctions, RedisModules, RedisScripts } from 'redis';
 import { logInit, logShutdown } from './logger.ts';
-import { RedisFunctions, RedisModules, RedisScripts } from '@redis/client/dist/lib/commands';
 import { toBoolean } from '../../shared/util/genericUtil.ts';
+import { RespVersions, TypeMapping } from '@redis/client/dist/lib/RESP/types';
 
 const cache: {
   mode: 'memory' | 'redis',
   memory: {[key: string]: any}
-  redis: RedisClientType<RedisModules, RedisFunctions, RedisScripts>,
+  redis: RedisClientType<RedisModules, RedisFunctions, RedisScripts, RespVersions, TypeMapping>,
+  bufferRedis: RedisClientType<RedisModules, RedisFunctions, RedisScripts, RespVersions, TypeMapping>,
 } = {
   mode: 'memory',
   memory: {},
-  redis: null
+  redis: null,
+  bufferRedis: null
 };
 
-export function redisClient(): RedisClientType<RedisModules, RedisFunctions, RedisScripts> {
+export function redisClient(): RedisClientType<RedisModules, RedisFunctions, RedisScripts, RespVersions, TypeMapping> {
   return cache.redis;
 }
 
 export async function redisDelPattern(pattern: string): Promise<void> {
-  let cursor: number = 0;
-  do {
-    const reply = await cache.redis.scan(cursor, { MATCH: pattern, COUNT: 1000 });
-    await delcache(reply.keys);
-    cursor = reply.cursor;
-  } while (cursor);
+  // SCANIterator returns an async iterator of keys (strings)
+  const iterator = cache.redis.scanIterator({
+    MATCH: pattern,
+    COUNT: 1000,
+  });
+
+  const batch: string[] = [];
+  const batchSize = 1000;
+
+  for await (const key of iterator) {
+    batch.push(key.toString());
+    if (batch.length >= batchSize) {
+      await delcache(batch.splice(0, batch.length));
+    }
+  }
+
+  // delete any remaining keys
+  if (batch.length > 0) {
+    await delcache(batch);
+  }
 }
 
 export async function delcache(keys: string|string[]) {
@@ -44,7 +60,6 @@ export async function delcache(keys: string|string[]) {
 }
 
 export async function cached(key: string, valueMode: 'string', supplierFn: (key?: string) => Promise<string>): Promise<string>
-export async function cached(key: string, valueMode: 'buffer', supplierFn: (key?: string) => Promise<Buffer>): Promise<Buffer>
 export async function cached(key: string, valueMode: 'boolean', supplierFn: (key?: string) => Promise<boolean>): Promise<boolean>
 export async function cached<T>(key: string, valueMode: 'memory', supplierFn: (key?: string) => Promise<T>): Promise<T>
 export async function cached<T>(key: string, valueMode: 'json', supplierFn: (key?: string) => Promise<T>): Promise<T>
@@ -57,13 +72,13 @@ export async function cached<T>(key: string, valueMode: 'disabled', supplierFn: 
  * `supplierFn` and that same value will be returned.
  */
 export async function cached<T>(key: string,
-                                valueMode: 'string' | 'buffer' | 'json' | 'boolean' | 'memory' | 'set' | 'disabled',
+                                valueMode: 'string' | 'json' | 'boolean' | 'memory' | 'set' | 'disabled',
                                 supplierFn: (key?: string) => Promise<T>): Promise<T> {
   return _cachedImpl(key, valueMode, supplierFn);
 }
 
 export async function _cachedImpl<T>(key: string,
-                                     valueMode: 'string' | 'buffer' | 'json' | 'boolean' | 'memory' | 'set' | 'disabled',
+                                     valueMode: 'string' | 'json' | 'boolean' | 'memory' | 'set' | 'disabled',
                                      supplierFn: (key?: string) => Promise<T>): Promise<T> {
   if (valueMode === 'disabled') {
     return await supplierFn(key);
@@ -83,13 +98,8 @@ export async function _cachedImpl<T>(key: string,
           value = await cache.redis.get(key);
           break;
         }
-        case 'buffer': {
-          const raw: Buffer = await cache.redis.get(commandOptions({ returnBuffers: true }), key);
-          value = Buffer.isBuffer(raw) ? raw : null;
-          break;
-        }
         case 'set': {
-          const raw: string = await cache.redis.get(key);
+          const raw: string = (await cache.redis.get(key)).toString();
           value = JSON.parse(raw);
           if (Array.isArray(value)) {
             value = new Set(value);
@@ -100,7 +110,7 @@ export async function _cachedImpl<T>(key: string,
         }
         case 'json':
         case 'boolean': {
-          const raw: string = await cache.redis.get(key);
+          const raw: string = (await cache.redis.get(key)).toString();
           value = JSON.parse(raw);
           break;
         }
@@ -116,10 +126,6 @@ export async function _cachedImpl<T>(key: string,
       switch (valueMode) {
         case 'string': {
           value = typeof raw === 'string' ? raw : String(raw);
-          break;
-        }
-        case 'buffer': {
-          value = Buffer.isBuffer(raw) ? raw : null;
           break;
         }
         case 'set': {
@@ -157,6 +163,10 @@ export async function openRedisClient() {
 
   cache.redis = await createClient({
     url: ENV.REDIS_URL,
+    socket: {
+      keepAlive: true,
+      reconnectStrategy: retries => Math.min(retries * 50, 1000),
+    }
   })
     .on('error', err => console.error('Redis Client Error', err))
     .connect();
