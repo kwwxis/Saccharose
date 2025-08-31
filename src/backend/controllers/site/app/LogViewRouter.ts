@@ -5,12 +5,12 @@ import SiteLogViewPage from '../../../components/site/logview/SiteLogViewPage.vu
 export default async function(): Promise<Router> {
   const router: Router = create();
 
-  router.get('/logview', (req, res) => {
+  router.get('/logview', async (req, res) => {
     if (!req.user.roles.includes('admin')) {
       res.status(403).render('errors/accessDenied');
       return;
     }
-    res.renderComponent(SiteLogViewPage, {
+    await res.renderComponent(SiteLogViewPage, {
       title: 'Logview',
       bodyClass: ['page--logview', 'page--wide'],
     });

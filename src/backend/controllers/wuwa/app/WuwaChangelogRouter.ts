@@ -1,46 +1,46 @@
 import { Request, Response, Router } from 'express';
 import { create } from '../../../routing/router.ts';
 import ChangelogListPage from '../../../components/changelogs/ChangelogListPage.vue';
-import { ZenlessVersions } from '../../../../shared/types/game-versions.ts';
+import { WuwaVersions } from '../../../../shared/types/game-versions.ts';
 import { textMapChangesAsRows } from '../../../../shared/types/changelog-types.ts';
 import { queryTab } from '../../../middleware/util/queryTab.ts';
 import ChangelogTextMapPage from '../../../components/changelogs/ChangelogTextMapPage.vue';
-import { getZenlessControl } from '../../../domain/zenless/zenlessControl.ts';
+import { getWuwaControl } from '../../../domain/wuwa/wuwaControl.ts';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
 
   router.get('/changelog', async (req: Request, res: Response) => {
     await res.renderComponent(ChangelogListPage, {
-      title: 'Zenless Changelog',
+      title: 'Wuwa Changelog',
       bodyClass: ['page--changelog'],
-      gameVersions: ZenlessVersions,
+      gameVersions: WuwaVersions,
     });
   });
 
   router.get('/changelog/:version', async (req: Request, res: Response) => {
-    res.redirect(`/zenless/changelog/${req.params.version}/textmap`);
+    res.redirect(`/wuwa/changelog/${req.params.version}/textmap`);
   });
 
   router.get('/changelog/:version/textmap', async (req: Request, res: Response) => {
-    const gameVersion = ZenlessVersions.find(v => v.number === req.params.version);
+    const gameVersion = WuwaVersions.find(v => v.number === req.params.version);
 
     if (!gameVersion || !gameVersion.showTextmapChangelog) {
       await res.renderComponent(ChangelogListPage, {
-        title: 'Zenless Changelog',
+        title: 'Wuwa Changelog',
         errorMessage: 'No changelog available for ' + req.params.version
       });
       return;
     }
 
-    const ctrl = getZenlessControl(req);
+    const ctrl = getWuwaControl(req);
     const fullChangelog = await ctrl.selectChangelog(gameVersion);
     const textmapChanges = fullChangelog.textmapChangelog[ctrl.outputLangCode];
     const textmapChangesAsRows = textMapChangesAsRows(textmapChanges, s => ctrl.normText(s, ctrl.outputLangCode));
     const activeTab = queryTab(req, 'added', 'updated', 'removed');
 
     await res.renderComponent(ChangelogTextMapPage, {
-      title: 'Zenless TextMap Diff ' + gameVersion.number,
+      title: 'Wuwa TextMap Diff ' + gameVersion.number,
       currentVersion: gameVersion,
       activeTab,
       textmapChanges: textmapChangesAsRows,

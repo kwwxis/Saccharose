@@ -17,7 +17,7 @@ router.endpoint('/dialogue-generation', {
     let result: DialogueSectionResult[] = await dialogueGenerate(ctrl, { query });
 
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
-      return res.renderComponent(ZenlessDialogueGenerationResult, {
+      await res.renderComponent(ZenlessDialogueGenerationResult, {
         sections: result,
         query,
         langSuggest: result.length ? null : await ctrl.langSuggest(query)

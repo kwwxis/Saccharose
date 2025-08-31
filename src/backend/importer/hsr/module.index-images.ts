@@ -58,6 +58,11 @@ export async function indexStarRailImages(catMapOnly: boolean = false) {
     imageNameSetLc.add(imageName.toLowerCase() + '.png');
   }
 
+  const firstVersionMap = JSON.parse(fs.readFileSync(
+    path.resolve(ENV.HSR_DATA_ROOT, './NewImages.json'),
+    {encoding: 'utf8'}
+  ));
+
   function findImageUsages(rows: any[]): { images: string[], imagesToExcelMetaEntry: Record<string, ImageIndexExcelMetaEntry> } {
     let images: Set<string> = new Set();
     let imagesToExcelMetaEntry: Record<string, ImageIndexExcelMetaEntry> = defaultMap(() => ({
@@ -149,6 +154,8 @@ export async function indexStarRailImages(catMapOnly: boolean = false) {
       catIdx++;
     }
 
+    const firstVersion = firstVersionMap[imageName];
+
     if (!catMapOnly) {
       const filePath: string = path.resolve(IMAGEDIR_HSR_EXT, `./${imageName}.png`);
       const byteSize: number = fs.statSync(filePath)?.size || 0;
@@ -168,6 +175,7 @@ export async function indexStarRailImages(catMapOnly: boolean = false) {
         image_cat6: cats[5] || null,
         image_cat7: cats[6] || null,
         image_cat8: cats[7] || null,
+        first_version: firstVersion,
       });
     }
 

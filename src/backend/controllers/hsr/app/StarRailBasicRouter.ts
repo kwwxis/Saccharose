@@ -16,39 +16,39 @@ export default async function(): Promise<Router> {
   const router: Router = create();
 
   router.get('/', async (req: Request, res: Response) => {
-    res.renderComponent(StarRailLandingPage);
+    await res.renderComponent(StarRailLandingPage);
   });
 
   router.get('/textmap', async (req: Request, res: Response) => {
-    res.renderComponent(TextmapSearchPage, {
+    await res.renderComponent(TextmapSearchPage, {
       title: 'TextMap Search',
       bodyClass: ['page--textmap']
     });
   });
 
   router.get('/OL', async (req: Request, res: Response) => {
-    res.renderComponent(OLGenPage, {
+    await res.renderComponent(OLGenPage, {
       title: 'OL',
       bodyClass: ['page--OL'],
     });
   });
 
   router.get('/OL/combine', async (req: Request, res: Response) => {
-    res.renderComponent(OLCombinePage, {
+    await res.renderComponent(OLCombinePage, {
       title: 'OL Combine',
       bodyClass: ['page--OL-combine']
     });
   });
 
   router.get('/excel-usages', async (req: Request, res: Response) => {
-    res.renderComponent(ExcelUsagesPage, {
+    await res.renderComponent(ExcelUsagesPage, {
       title: 'Excel usages',
       bodyClass: ['page--excel-usages']
     });
   });
 
   router.get('/excel-viewer', async (req: Request, res: Response) => {
-    res.renderComponent(ExcelViewerListPage, {
+    await res.renderComponent(ExcelViewerListPage, {
       title: 'Excel Viewer',
       bodyClass: ['page--excel-viewer'],
       excels: await getStarRailControl(req).getExcelFileNames(),
@@ -75,7 +75,7 @@ export default async function(): Promise<Router> {
       sb.line();
     }
 
-    res.renderComponent(StarRailLoadingTips, {
+    await res.renderComponent(StarRailLoadingTips, {
       title: 'Loading Tips',
       wikitext: sb.toString(),
       bodyClass: ['page--loading-tips']

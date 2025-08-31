@@ -17,7 +17,7 @@ import { loadInterActionQD } from './module.interaction.ts';
 import { createChangelog } from '../util/createChangelogUtil.ts';
 import { indexGenshinImages } from './module.index-images.ts';
 import { exportExcel } from './module.export-excel.ts';
-import { recordNewImages } from './module.new-images.ts';
+import { recordNewGenshinImages } from './module.new-images.ts';
 import fs from 'fs';
 import { writeDeobfBin } from './module.deobf-bin.ts';
 import { isInt } from '../../../shared/util/numberUtil.ts';
@@ -166,7 +166,7 @@ export async function importGenshinFilesCli() {
     await exportExcel(options['export-excel']);
   }
   if (options['new-images']) {
-    await recordNewImages();
+    await recordNewGenshinImages();
   }
   if (options['index-images']) {
     await indexGenshinImages(dryRun);

@@ -25,7 +25,7 @@ export default async function(): Promise<Router> {
     const ctrl = getGenshinControl(req);
     const avatars: CommonAvatar[] = toCommonAvatarsFromGenshin(await getGenshinAvatars(ctrl, false));
 
-    res.renderComponent(SharedVoTool, {
+    await res.renderComponent(SharedVoTool, {
       title: 'Character VO',
       bodyClass: ['page--wide', 'page--vo-tool', 'page--genshin-vo-tool'],
       avatars,
@@ -53,7 +53,7 @@ export default async function(): Promise<Router> {
     const voLangCode: LangCode = paramOption(req, 'voLangCode', 'EN', 'CH', 'JP', 'KR');
     const voLangName: string = LANG_CODES_TO_NAME[voLangCode];
 
-    res.renderComponent(SharedVoTool, {
+    await res.renderComponent(SharedVoTool, {
       title: (avatar ? avatar.NameText +  ' - ' : '') + 'Character VO',
       bodyClass: ['page--wide', 'page--vo-tool', `tab--${tab}`, 'page--genshin-vo-tool'],
       avatars,
@@ -71,7 +71,7 @@ export default async function(): Promise<Router> {
 
   router.get('/character/companion-dialogue', async (req: Request, res: Response) => {
     let companions: HomeWorldNPCExcelConfigData[] = await getHomeWorldCompanions(getGenshinControl(req));
-    res.renderComponent(CompanionDialoguePage, {
+    await res.renderComponent(CompanionDialoguePage, {
       title: 'Companion Dialogue',
       companions: companions,
       bodyClass: ['page--companion-dialogue']
@@ -82,7 +82,7 @@ export default async function(): Promise<Router> {
     const ctrl = getGenshinControl(req);
     const companion: HomeWorldNPCExcelConfigData = await getCompanion(ctrl, req);
 
-    res.renderComponent(CompanionDialoguePage, {
+    await res.renderComponent(CompanionDialoguePage, {
       title: 'Companion Dialogue - ' + (companion?.CommonName || 'Not Found'),
       companion: companion,
       dialogue: (await fetchCompanionDialogue(ctrl, companion)) || [],
@@ -91,7 +91,7 @@ export default async function(): Promise<Router> {
   });
 
   router.get('/character/stories', async (req: Request, res: Response) => {
-    res.renderComponent(CharacterStoriesPage, {
+    await res.renderComponent(CharacterStoriesPage, {
       title: 'Character Stories',
       avatars: await getGenshinAvatars(getGenshinControl(req), true),
       bodyClass: ['page--character-stories']
@@ -103,7 +103,7 @@ export default async function(): Promise<Router> {
     const avatar: AvatarExcelConfigData = await getGenshinAvatar(ctrl, req, true);
     const story: StoryFetters = await fetchCharacterStoryByAvatarId(ctrl, avatar?.Id);
 
-    res.renderComponent(CharacterStoriesPage, {
+    await res.renderComponent(CharacterStoriesPage, {
       title: 'Character Stories - ' + (story?.avatar?.NameText || 'N/A'),
       avatar,
       avatarId: req.params.avatar,

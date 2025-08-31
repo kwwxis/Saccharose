@@ -16,6 +16,7 @@ import { starRailNormalize } from './module.normalize.ts';
 import { createChangelog } from '../util/createChangelogUtil.ts';
 import { StarRailVersions } from '../../../shared/types/game-versions.ts';
 import { starRailSchema } from './hsr.schema.ts';
+import { recordNewStarRailImages } from './module.new-images.ts';
 
 async function importVoiceOvers() {
   const outDir = ENV.HSR_DATA_ROOT;
@@ -32,6 +33,8 @@ export async function importHsrFilesCli() {
   const options_beforeDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
     {name: 'normalize', type: Boolean, description: 'Normalizes the JSON files.'},
     {name: 'plaintext', type: Boolean, description: 'Creates the PlainTextMap files.'},
+
+    {name: 'new-images', type: Boolean, description: 'Creates new images map per game version. Must be ran before index-images.'},
     {name: 'index-images', type: Boolean, description: 'Creates index for asset images. ' +
         'Must load all wanted Texture2D images into the EXT_HSR_IMAGES directory first though.'},
   ];
@@ -106,6 +109,9 @@ export async function importHsrFilesCli() {
   }
   if (options['voice-overs']) {
     await importVoiceOvers();
+  }
+  if (options['new-images']) {
+    await recordNewStarRailImages();
   }
   if (options['index-images']) {
     await indexStarRailImages(dryRun);

@@ -83,6 +83,7 @@ export interface ProcessEnv {
   EXT_GENSHIN_IMAGES: string;
   EXT_GENSHIN_IMAGES_ARCHIVE: string;
   EXT_HSR_IMAGES: string;
+  EXT_HSR_IMAGES_ARCHIVE: string;
   EXT_ZENLESS_IMAGES: string;
   EXT_WUWA_IMAGES: string;
 

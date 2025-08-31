@@ -66,7 +66,7 @@ export async function handleTextMapSearchEndpoint(ctrl: AbstractControl, req: Re
   const response = await ctrl.createTextMapSearchResponse(query, resultSetIdx, items);
 
   if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
-    return res.renderComponent(TextmapSearchResult, { response });
+    await res.renderComponent(TextmapSearchResult, { response });
   } else {
     return response;
   }

@@ -135,59 +135,62 @@ export async function importNormalize(jsonDir: string, skip: string[], game: 'ge
 
     const filePath = path.join(jsonDir, file);
     process.stdout.write(chalk.bold('Processing: ' + filePath));
+    try {
+      let fileData = await fsp.readFile(filePath, 'utf8');
 
-    let fileData = await fsp.readFile(filePath, 'utf8');
+      let json = JSONbig.parse(fileData);
 
-    let json = JSONbig.parse(fileData);
+      // Stringify and parse again to convert bigints to string via replacer
+      json = JSON.parse(JSON.stringify(
+        json,
+        (_, v) => typeof v === 'bigint' ? v.toString() : v
+      ))
 
-    // Stringify and parse again to convert bigints to string via replacer
-    json = JSON.parse(JSON.stringify(
-      json,
-      (_, v) => typeof v === 'bigint' ? v.toString() : v
-    ))
+      if (game === 'hsr') {
+        if (Array.isArray(json)) {
+          json.forEach(row => normalizeRecordForHSR(row));
+        } else {
+          json = Object.values(json).map(row => normalizeRecordForHSR(row));
+        }
+      }
+      if (game === 'zenless') {
+        let newJson = [];
 
-    if (game === 'hsr') {
-      if (Array.isArray(json)) {
-        json.forEach(row => normalizeRecordForHSR(row));
+        if (typeof json === 'object' && !Array.isArray(json)) {
+          newJson = Object.values(json)[0] as any;
+        } else if (Array.isArray(json)) {
+          newJson = json;
+        }
+
+        json = newJson;
+      }
+      if (game === 'genshin') {
+        if (Array.isArray(json)) {
+          json.forEach(row => normalizeRecordForGenshin(row));
+        } else {
+          json = Object.values(json).map(row => normalizeRecordForGenshin(row));
+        }
+      }
+
+      let newFileData = JSON.stringify(
+        json,
+        (_, v) => typeof v === 'bigint' ? v.toString() : v,
+        2);
+
+      if (!skipReformatPrimitiveArray.includes(file)) {
+        // Convert primitive arrays to be single-line.
+        newFileData = reformatPrimitiveArrays(newFileData);
+      }
+
+      if (newFileData !== fileData) {
+        await fsp.writeFile(filePath, newFileData, 'utf8');
+        console.log(chalk.blue(' (modified)'));
+        numChanged++;
       } else {
-        json = Object.values(json).map(row => normalizeRecordForHSR(row));
+        console.log(chalk.gray(' (unchanged)'));
       }
-    }
-    if (game === 'zenless') {
-      let newJson = [];
-
-      if (typeof json === 'object' && !Array.isArray(json)) {
-        newJson = Object.values(json)[0] as any;
-      } else if (Array.isArray(json)) {
-        newJson = json;
-      }
-
-      json = newJson;
-    }
-    if (game === 'genshin') {
-      if (Array.isArray(json)) {
-        json.forEach(row => normalizeRecordForGenshin(row));
-      } else {
-        json = Object.values(json).map(row => normalizeRecordForGenshin(row));
-      }
-    }
-
-    let newFileData = JSON.stringify(
-      json,
-      (_, v) => typeof v === 'bigint' ? v.toString() : v,
-      2);
-
-    if (!skipReformatPrimitiveArray.includes(file)) {
-      // Convert primitive arrays to be single-line.
-      newFileData = reformatPrimitiveArrays(newFileData);
-    }
-
-    if (newFileData !== fileData) {
-      await fsp.writeFile(filePath, newFileData, 'utf8');
-      console.log(chalk.blue(' (modified)'));
-      numChanged++;
-    } else {
-      console.log(chalk.gray(' (unchanged)'));
+    } catch (e) {
+      console.log(chalk.red(' (read error)'));
     }
   }
 

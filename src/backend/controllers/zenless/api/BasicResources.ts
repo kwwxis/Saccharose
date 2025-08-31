@@ -61,7 +61,7 @@ router.endpoint('/dialogue-helper', {
     section.setWikitext(wikitextResult);
 
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
-      return res.renderComponent(ZenlessDialogueHelperResult, {
+      await res.renderComponent(ZenlessDialogueHelperResult, {
         section
       });
     } else {

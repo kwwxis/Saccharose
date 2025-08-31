@@ -18,7 +18,7 @@ export default async function(): Promise<Router> {
     const ctrl = getWuwaControl(req);
     const avatars: CommonAvatar[] = toCommonAvatarsFromWuwa(await getWuwaRoles(ctrl));
 
-    res.renderComponent(SharedVoTool, {
+    await res.renderComponent(SharedVoTool, {
       title: 'Resonator VO',
       bodyClass: ['page--wide', 'page--vo-tool', 'page--wuwa-vo-tool'],
       avatars,
@@ -46,7 +46,7 @@ export default async function(): Promise<Router> {
     const voLangCode: LangCode = paramOption(req, 'voLangCode', 'EN', 'CH', 'JP', 'KR');
     const voLangName: string = LANG_CODES_TO_NAME[voLangCode];
 
-    res.renderComponent(SharedVoTool, {
+    await res.renderComponent(SharedVoTool, {
       title: (avatar ? avatar.NameText +  ' - ' : '') + 'Resonator VO',
       bodyClass: ['page--wide', 'page--vo-tool', `tab--${tab}`, 'page--wuwa-vo-tool'],
       avatars,

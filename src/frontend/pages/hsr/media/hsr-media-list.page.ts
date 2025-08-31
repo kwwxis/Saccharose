@@ -7,6 +7,6 @@ initiateMediaListPage(
   starRailEndpoints.mediaCategory,
   '/hsr',
   '/images/hsr/',
-  false,
+  true,
   null
 );

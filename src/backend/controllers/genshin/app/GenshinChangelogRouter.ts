@@ -17,8 +17,8 @@ import ChangelogExcelListPage from '../../../components/changelogs/ChangelogExce
 export default async function(): Promise<Router> {
   const router: Router = create();
 
-  router.get('/changelog', (req: Request, res: Response) => {
-    res.renderComponent(ChangelogListPage, {
+  router.get('/changelog', async (req: Request, res: Response) => {
+    await res.renderComponent(ChangelogListPage, {
       title: 'Genshin Changelog',
       bodyClass: ['page--changelog'],
       gameVersions: GenshinVersions,
@@ -29,17 +29,18 @@ export default async function(): Promise<Router> {
     const genshinVersion = GenshinVersions.find(v => v.number === req.params.version);
 
     if (!genshinVersion || !genshinVersion.showTextmapChangelog) {
-      return res.renderComponent(ChangelogListPage, {
+      await res.renderComponent(ChangelogListPage, {
         title: 'Genshin Changelog',
         errorMessage: 'No changelog available for ' + req.params.version
       });
+      return;
     }
 
     const ctrl = getGenshinControl(req);
     const fullChangelog = await ctrl.selectChangelog(genshinVersion);
     const newSummary = await generateGenshinChangelogNewRecordSummary(ctrl, fullChangelog);
 
-    res.renderComponent(GenshinChangelogSummaryPage, {
+    await res.renderComponent(GenshinChangelogSummaryPage, {
       title: 'Genshin Changelog ' + genshinVersion.number,
       currentVersion: genshinVersion,
       fullChangelog,
@@ -52,16 +53,17 @@ export default async function(): Promise<Router> {
     const genshinVersion = GenshinVersions.find(v => v.number === req.params.version);
 
     if (!genshinVersion || !genshinVersion.showTextmapChangelog) {
-      return res.renderComponent(ChangelogListPage, {
+      await res.renderComponent(ChangelogListPage, {
         title: 'Genshin Changelog',
         errorMessage: 'No changelog available for ' + req.params.version
       });
+      return;
     }
 
     const ctrl = getGenshinControl(req);
     const fullChangelog = await ctrl.selectChangelog(genshinVersion);
 
-    res.renderComponent(ChangelogExcelListPage, {
+    await res.renderComponent(ChangelogExcelListPage, {
       title: 'Genshin Changelog ' + genshinVersion.number,
       currentVersion: genshinVersion,
       fullChangelog,
@@ -73,10 +75,11 @@ export default async function(): Promise<Router> {
     const genshinVersion = GenshinVersions.find(v => v.number === req.params.version);
 
     if (!genshinVersion || !genshinVersion.showTextmapChangelog) {
-      return res.renderComponent(ChangelogListPage, {
+      await res.renderComponent(ChangelogListPage, {
         title: 'Genshin Changelog',
         errorMessage: 'No changelog available for ' + req.params.version
       });
+      return;
     }
 
     const ctrl = getGenshinControl(req);
@@ -85,7 +88,7 @@ export default async function(): Promise<Router> {
     const textmapChangesAsRows = textMapChangesAsRows(textmapChanges, s => ctrl.normText(s, ctrl.outputLangCode));
     const activeTab = queryTab(req, 'added', 'updated', 'removed');
 
-    res.renderComponent(ChangelogTextMapPage, {
+    await res.renderComponent(ChangelogTextMapPage, {
       title: 'Genshin TextMap Diff ' + genshinVersion.number,
       currentVersion: genshinVersion,
       activeTab,
@@ -98,11 +101,12 @@ export default async function(): Promise<Router> {
     const genshinVersion = GenshinVersions.find(v => v.number === req.params.version);
 
     if (!genshinVersion || !genshinVersion.showExcelChangelog) {
-      return res.renderComponent(ChangelogListPage, {
+      await res.renderComponent(ChangelogListPage, {
         title: 'Genshin Changelog',
         errorMessage: 'No changelog available for ' + req.params.version,
         bodyClass: ['page--changelog', 'page--wide', 'page--narrow-sidebar']
       });
+      return;
     }
 
     const ctrl = getGenshinControl(req);
@@ -144,7 +148,7 @@ export default async function(): Promise<Router> {
     }
 
     const activeTab = queryTab(req, 'added', 'updated', 'removed');
-    res.renderComponent(ChangelogSingleExcelPage, {
+    await res.renderComponent(ChangelogSingleExcelPage, {
       title: 'Genshin Changelog - ' + excelFileChanges.name,
       currentVersion: genshinVersion,
       fullChangelog,

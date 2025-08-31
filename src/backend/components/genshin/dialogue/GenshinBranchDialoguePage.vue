@@ -24,7 +24,7 @@
         <div class="posRel spacer5-left">
           <input id="versionFilter" type="text" placeholder="Version filter"
                  style="max-width: 250px;width: 100%;padding-right:25px"/>
-          <span ui-tippy="{content: 'Versions separated by comma or semicolon (only supported from 4.0 onwards)',delay:[200, 100]}"
+          <span ui-tippy="{content: 'Versions separated by comma or semicolon',delay:[200, 100]}"
                 class="dispInlineFlex" style="height:16px;width:16px;position:absolute;right:5px;top:0;bottom:0;margin:auto 0;opacity:0.6">
             <Icon name="info" :size="16" />
           </span>

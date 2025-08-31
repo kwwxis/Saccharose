@@ -15,40 +15,39 @@ export default async function(): Promise<Router> {
   const router: Router = create();
 
   router.get('/', async (req: Request, res: Response) => {
-    res.renderComponent(ZenlessLandingPage);
+    await res.renderComponent(ZenlessLandingPage);
   });
 
   router.get('/textmap', async (req: Request, res: Response) => {
-    res.renderComponent(TextmapSearchPage, {
+    await res.renderComponent(TextmapSearchPage, {
       title: 'TextMap Search',
       bodyClass: ['page--textmap'],
-      enableVersionFilter: true,
     });
   });
 
   router.get('/OL', async (req: Request, res: Response) => {
-    res.renderComponent(OLGenPage, {
+    await res.renderComponent(OLGenPage, {
       title: 'OL',
       bodyClass: ['page--OL']
     });
   });
 
   router.get('/OL/combine', async (req: Request, res: Response) => {
-    res.renderComponent(OLCombinePage, {
+    await res.renderComponent(OLCombinePage, {
       title: 'OL Combine',
       bodyClass: ['page--OL-combine']
     });
   });
 
   router.get('/excel-usages', async (req: Request, res: Response) => {
-    res.renderComponent(ExcelUsagesPage, {
+    await res.renderComponent(ExcelUsagesPage, {
       title: 'Excel usages',
       bodyClass: ['page--excel-usages']
     });
   });
 
   router.get('/excel-viewer', async (req: Request, res: Response) => {
-    res.renderComponent(ExcelViewerListPage, {
+    await res.renderComponent(ExcelViewerListPage, {
       title: 'Excel Viewer',
       bodyClass: ['page--excel-viewer'],
       excels: await getZenlessControl(req).getExcelFileNames(),
@@ -60,14 +59,14 @@ export default async function(): Promise<Router> {
   });
 
   router.get('/dialogue-helper', async (req: Request, res: Response) => {
-    res.renderComponent(ZenlessDialogueHelperPage, {
+    await res.renderComponent(ZenlessDialogueHelperPage, {
       title: 'Dialogue Helper',
       bodyClass: ['page--dialogue-helper']
     });
   });
 
   router.get('/dialogue-generation', async (req: Request, res: Response) => {
-    res.renderComponent(ZenlessDialogueGenerationPage, {
+    await res.renderComponent(ZenlessDialogueGenerationPage, {
       title: 'Dialogue Generation',
       bodyClass: ['page--dialogue-generation']
     });

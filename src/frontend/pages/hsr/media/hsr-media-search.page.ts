@@ -8,5 +8,5 @@ initiateMediaSearchPage(
   '/hsr',
   '/images/hsr/',
   '/hsr/media/archive-job/',
-  false
+  true
 );

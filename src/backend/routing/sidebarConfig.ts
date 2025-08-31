@@ -182,6 +182,7 @@ export const SIDEBAR_CONFIG: { [siteMode: string]: SiteSidebar } = {
             items: [
               { id: 'textmap-search', name: 'Textmap Search', link: '/hsr/textmap',  bodyClass: 'page--textmap' },
               { id: 'ol-generator', name: 'OL Generator', link: '/hsr/OL', bodyClass: 'page--OL' },
+              { id: 'changelog', name: 'Changelog', link: '/hsr/changelog', bodyClass: 'page--changelog' },
             ]
           }
         ]
@@ -298,7 +299,8 @@ export const SIDEBAR_CONFIG: { [siteMode: string]: SiteSidebar } = {
             id: 'basic-tools-content',
             items: [
               { id: 'textmap-search', name: 'Textmap Search', link: '/wuwa/textmap',  bodyClass: 'page--textmap' },
-              { id: 'ol-generator', name: 'OL Generator', link: '/wuwa/OL', bodyClass: 'page--OL' }
+              { id: 'ol-generator', name: 'OL Generator', link: '/wuwa/OL', bodyClass: 'page--OL' },
+              { id: 'changelog', name: 'Changelog', link: '/wuwa/changelog', bodyClass: 'page--changelog' },
             ]
           }
         ]

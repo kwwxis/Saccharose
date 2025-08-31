@@ -58,11 +58,17 @@ export function isSiteModeDisabled(requestSiteMode: SiteMode) {
 }
 
 export const IMAGEDIR_GENSHIN_STATIC = path.resolve(PUBLIC_DIR, './images/genshin/static');
+
 export const IMAGEDIR_GENSHIN_EXT = path.resolve(ENV.EXT_GENSHIN_IMAGES);
 export const IMAGEDIR_GENSHIN_ARCHIVE = ENV.EXT_GENSHIN_IMAGES_ARCHIVE
   ? path.resolve(ENV.EXT_GENSHIN_IMAGES_ARCHIVE) : null;
+
 export const IMAGEDIR_HSR_EXT = path.resolve(ENV.EXT_HSR_IMAGES);
+export const IMAGEDIR_HSR_ARCHIVE = ENV.EXT_HSR_IMAGES_ARCHIVE
+  ? path.resolve(ENV.EXT_HSR_IMAGES_ARCHIVE) : null;
+
 export const IMAGEDIR_ZENLESS_EXT = path.resolve(ENV.EXT_ZENLESS_IMAGES);
+
 export const IMAGEDIR_WUWA_EXT = path.resolve(ENV.EXT_WUWA_IMAGES);
 
 export const DATAFILE_GENSHIN_VOICE_ITEMS = './VoiceItems.json';

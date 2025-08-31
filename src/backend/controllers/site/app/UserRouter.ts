@@ -12,15 +12,15 @@ import { getApiKeysForUser } from '../../../middleware/api/apiAuth.ts';
 export default async function(): Promise<Router> {
   const router: Router = create();
 
-  router.get('/', (req: Request, res: Response) => {
-    res.renderComponent(UserLandingPage, {
+  router.get('/', async (req: Request, res: Response) => {
+    await res.renderComponent(UserLandingPage, {
       title: SITE_TITLE,
       bodyClass: ['page--user', 'page-landing'],
     });
   });
 
-  router.get('/settings', (req: Request, res: Response) => {
-    res.renderComponent(SettingsPage, {
+  router.get('/settings', async (req: Request, res: Response) => {
+    await res.renderComponent(SettingsPage, {
       title: 'Settings',
       bodyClass: ['page--user', 'page--settings'],
     });
@@ -39,7 +39,7 @@ export default async function(): Promise<Router> {
 
   router.get('/notices', async (req: Request, res: Response) => {
     const notices: SiteNotice[] = await SiteUserProvider.getAllSiteNotices();
-    res.renderComponent(SiteNoticesPage, {
+    await res.renderComponent(SiteNoticesPage, {
       title: 'Site Notices',
       notices,
       bodyClass: ['page--user', 'page--notices'],
@@ -47,7 +47,7 @@ export default async function(): Promise<Router> {
   });
 
   router.get('/notices/number-formatting', async (req: Request, res: Response) => {
-    res.renderComponent(NumberFormattingNotice, {
+    await res.renderComponent(NumberFormattingNotice, {
       title: 'Notice - Upcoming change on how numbers are formatted',
       bodyClass: ['page--user', 'page--notices'],
     });
