@@ -74,8 +74,8 @@ export async function appInit(): Promise<Express> {
 
   // Application intervals
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~
-  // await startLogFileWatch();
-  // await enableLogFileWatchShutdownHook();
+  await startLogFileWatch();
+  await enableLogFileWatchShutdownHook();
   await startRecentSavedSearchesPruneInterval();
 
   // Initialize Cache
