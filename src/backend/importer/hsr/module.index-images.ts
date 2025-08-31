@@ -180,8 +180,13 @@ export async function indexStarRailImages(catMapOnly: boolean = false) {
     }
 
     let currCat = catmap;
+    if (!!firstVersion && !currCat.newImageVersions.includes(firstVersion))
+      currCat.newImageVersions.push(firstVersion);
+
     for (let cat of cats) {
       currCat = currCat.children[cat];
+      if (!!firstVersion && !currCat.newImageVersions.includes(firstVersion))
+        currCat.newImageVersions.push(firstVersion);
     }
 
     if (!catMapOnly && batch.length >= maxBatchSize) {
