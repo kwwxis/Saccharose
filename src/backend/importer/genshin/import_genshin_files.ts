@@ -24,6 +24,7 @@ import { isInt } from '../../../shared/util/numberUtil.ts';
 import { genshinNormalize } from './module.normalize.ts';
 import { genshinSchema } from './genshin.schema.ts';
 import { GenshinVersions } from '../../../shared/types/game-versions.ts';
+import { importTextMapChanges } from '../../domain/abstract/tmchanges.ts';
 
 export async function importGenshinFilesCli() {
   const options_beforeDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
@@ -48,6 +49,7 @@ export async function importGenshinFilesCli() {
     {name: 'index', type: Boolean, description: 'Creates the index files for PlainTextMap.'},
     {name: 'voice-overs', type: Boolean, description: 'Creates file for character voice over data (aka fetters)'},
     {name: 'changelog', type: String, typeLabel: '<version>', description: 'Creates changelog between the provided version and the version before it.'},
+    {name: 'changelog-tmimport', type: String, typeLabel: '<version>', description: 'Imports textmap changelog into the database (changelog must be ran first).'},
   ];
 
   const options_util: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
@@ -182,6 +184,9 @@ export async function importGenshinFilesCli() {
   }
   if (options['changelog']) {
     await createChangelog(ENV.GENSHIN_CHANGELOGS, ENV.GENSHIN_ARCHIVES, genshinSchema, GenshinVersions, options['changelog']);
+  }
+  if (options['changelog-tmimport']) {
+    await importTextMapChanges(getGenshinControl(), options['changelog-tmimport']);
   }
 
   await closeKnex();

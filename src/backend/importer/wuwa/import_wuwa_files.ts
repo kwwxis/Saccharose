@@ -16,6 +16,7 @@ import { createChangelog } from '../util/createChangelogUtil.ts';
 import { WuwaVersions } from '../../../shared/types/game-versions.ts';
 import { wuwaSchema } from './wuwa.schema.ts';
 import { wuwaNormalize } from './module.normalize.ts';
+import { importTextMapChanges } from '../../domain/abstract/tmchanges.ts';
 
 async function importVoiceOvers() {
   const outDir = ENV.WUWA_DATA_ROOT;
@@ -31,6 +32,9 @@ export async function importWuwaFilesCli() {
   const options_beforeDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
     {name: 'normalize', type: Boolean, description: 'Normalizes the JSON files.'},
     {name: 'plaintext', type: Boolean, description: 'Creates the PlainTextMap files.'},
+  ];
+
+  const options_agnosticDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
     {name: 'index-images', type: Boolean, description: 'Creates index for asset images. ' +
         'Must load all wanted Texture2D images into the EXT_WUWA_IMAGES directory first though.'},
   ];
@@ -38,6 +42,7 @@ export async function importWuwaFilesCli() {
   const options_afterDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
     {name: 'voice-overs', type: Boolean, description: 'Creates the VoiceOvers file.'},
     {name: 'changelog', type: String, typeLabel: '<version>', description: 'Creates changelog between the provided version and the version before it.'},
+    {name: 'changelog-tmimport', type: String, typeLabel: '<version>', description: 'Imports textmap changelog into the database (changelog must be ran first).'},
   ];
 
   const options_util: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
@@ -47,7 +52,7 @@ export async function importWuwaFilesCli() {
 
   let options: commandLineArgs.CommandLineOptions;
   try {
-    options = commandLineArgs([... options_beforeDb, ... options_afterDb, ... options_util]);
+    options = commandLineArgs([... options_beforeDb, ...options_agnosticDb, ... options_afterDb, ... options_util]);
   } catch (e) {
     if (typeof e === 'object' && e.name === 'UNKNOWN_OPTION') {
       console.warn(chalk.red('\nUnknown option: ' + e.optionName));
@@ -88,6 +93,10 @@ export async function importWuwaFilesCli() {
         optionList: options_beforeDb
       },
       {
+        header: 'Database import agnostic (can be run before or after)',
+        optionList: options_agnosticDb
+      },
+      {
         header: 'Must be ran after database import:',
         optionList: options_afterDb
       },
@@ -115,6 +124,9 @@ export async function importWuwaFilesCli() {
   }
   if (options['changelog']) {
     await createChangelog(ENV.WUWA_CHANGELOGS, ENV.WUWA_ARCHIVES, wuwaSchema, WuwaVersions, options['changelog']);
+  }
+  if (options['changelog-tmimport']) {
+    await importTextMapChanges(getWuwaControl(), options['changelog-tmimport']);
   }
 
   await closeKnex();

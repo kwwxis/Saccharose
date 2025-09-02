@@ -97,7 +97,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
   readonly schema: SchemaTableSet;
   readonly currentGameVersion: GameVersion;
   readonly gameVersions: GameVersion[];
-  private changelogConfig: AbstractControlChangelogConfig;
+  readonly changelogConfig: AbstractControlChangelogConfig;
   protected IdComparator = (a: { Id: any }, b: { Id: any }) => a.Id === b.Id;
   protected NodeIdComparator = (a: { NodeId: any }, b: { NodeId: any }) => a.NodeId === b.NodeId;
   protected sortByOrder = (a: { Order: number }, b: { Order: number }) => {

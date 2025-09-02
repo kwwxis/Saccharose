@@ -17,6 +17,7 @@ import { createChangelog } from '../util/createChangelogUtil.ts';
 import { StarRailVersions } from '../../../shared/types/game-versions.ts';
 import { starRailSchema } from './hsr.schema.ts';
 import { recordNewStarRailImages } from './module.new-images.ts';
+import { importTextMapChanges } from '../../domain/abstract/tmchanges.ts';
 
 async function importVoiceOvers() {
   const outDir = ENV.HSR_DATA_ROOT;
@@ -33,7 +34,9 @@ export async function importHsrFilesCli() {
   const options_beforeDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
     {name: 'normalize', type: Boolean, description: 'Normalizes the JSON files.'},
     {name: 'plaintext', type: Boolean, description: 'Creates the PlainTextMap files.'},
+  ];
 
+  const options_agnosticDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
     {name: 'new-images', type: Boolean, description: 'Creates new images map per game version. Must be ran before index-images.'},
     {name: 'index-images', type: Boolean, description: 'Creates index for asset images. ' +
         'Must load all wanted Texture2D images into the EXT_HSR_IMAGES directory first though.'},
@@ -42,6 +45,7 @@ export async function importHsrFilesCli() {
   const options_afterDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
     {name: 'voice-overs', type: Boolean, description: 'Creates the VoiceOvers file.'},
     {name: 'changelog', type: String, typeLabel: '<version>', description: 'Creates changelog between the provided version and the version before it.'},
+    {name: 'changelog-tmimport', type: String, typeLabel: '<version>', description: 'Imports textmap changelog into the database (changelog must be ran first).'},
   ];
 
   const options_util: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
@@ -51,7 +55,7 @@ export async function importHsrFilesCli() {
 
   let options: commandLineArgs.CommandLineOptions;
   try {
-    options = commandLineArgs([... options_beforeDb, ... options_afterDb, ... options_util]);
+    options = commandLineArgs([... options_beforeDb, ...options_agnosticDb, ... options_afterDb, ... options_util]);
   } catch (e) {
     if (typeof e === 'object' && e.name === 'UNKNOWN_OPTION') {
       console.warn(chalk.red('\nUnknown option: ' + e.optionName));
@@ -92,6 +96,10 @@ export async function importHsrFilesCli() {
         optionList: options_beforeDb
       },
       {
+        header: 'Database import agnostic (can be run before or after)',
+        optionList: options_agnosticDb
+      },
+      {
         header: 'Must be ran after database import:',
         optionList: options_afterDb
       },
@@ -122,6 +130,9 @@ export async function importHsrFilesCli() {
   }
   if (options['changelog']) {
     await createChangelog(ENV.HSR_CHANGELOGS, ENV.HSR_ARCHIVES, starRailSchema, StarRailVersions, options['changelog']);
+  }
+  if (options['changelog-tmimport']) {
+    await importTextMapChanges(getStarRailControl(), options['changelog-tmimport']);
   }
 
   await closeKnex();

@@ -89,6 +89,15 @@ export class TextMapChangeRefs {
 
 // region TextMap Changelog Types
 // --------------------------------------------------------------------------------------------------------------
+export type TextMapChangeEntity = {
+  version: string,
+  lang_code: string,
+  hash: TextMapHash,
+  change_type: ChangeType,
+  content?: string,
+  prev_content?: string,
+};
+
 export type TextMapFullChangelog = Record<LangCode, TextMapChanges>;
 
 export type TextMapChanges = {
