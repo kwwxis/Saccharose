@@ -669,9 +669,8 @@
 </template>
 
 <script setup lang="ts">
-import { arraySum, sort, valuesOf } from '../../../shared/util/arrayUtil.ts';
+import { arraySum, valuesOf } from '../../../shared/util/arrayUtil.ts';
 import { GameVersion } from '../../../shared/types/game-versions.ts';
-import { FullChangelog } from '../../../shared/types/changelog-types.ts';
 import Icon from '../utility/Icon.vue';
 import { GenshinChangelogNewRecordSummary } from '../../domain/genshin/changelog/genshinChangelogHelpers.ts';
 import { toParam } from '../../../shared/util/stringUtil.ts';
@@ -689,7 +688,6 @@ const { ctx } = getTrace();
 
 const {newSummary} = defineProps<{
   currentVersion?: GameVersion,
-  fullChangelog?: FullChangelog,
   newSummary?: GenshinChangelogNewRecordSummary,
 }>();
 

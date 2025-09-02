@@ -4,7 +4,7 @@ import { getPlainTextMapRelPath, getTextIndexRelPath } from '../../loadenv.ts';
 // Third-Party:
 import { Knex } from 'knex';
 import { Request } from 'express';
-import fs, { promises as fsp } from 'fs';
+import { promises as fsp } from 'fs';
 import path, { basename } from 'path';
 
 // Database:
@@ -31,7 +31,7 @@ import {
   NON_SPACE_DELIMITED_LANG_CODES,
   PlainLineMapItem,
   TextMapHash, TextMapSearchGetOpts, TextMapSearchIndexStreamOpts, TextMapSearchOpts, TextMapSearchResponse,
-  TextMapSearchResult, TextMapSearchStreamOpts, TmMatchPreProc,
+  TextMapSearchResult, TextMapSearchStreamOpts, TmMatchPreProc, TmPossibleHash,
 } from '../../../shared/types/lang-types.ts';
 import { ExtractScalar, FileAndSize } from '../../../shared/types/utility-types.ts';
 import {
@@ -46,7 +46,7 @@ import { ExcelUsages, SearchMode } from '../../../shared/util/searchUtil.ts';
 import { escapeRegExp, isString, isStringBlank, titleCase } from '../../../shared/util/stringUtil.ts';
 import { isInt, maybeInt, toInt } from '../../../shared/util/numberUtil.ts';
 import { ArrayStream, cleanEmpty, toArray, walkObject } from '../../../shared/util/arrayUtil.ts';
-import { defaultMap, isset, isUnset, toBoolean } from '../../../shared/util/genericUtil.ts';
+import { defaultMap, isUnset, toBoolean } from '../../../shared/util/genericUtil.ts';
 import { Marker } from '../../../shared/util/highlightMarker.ts';
 
 // Same Directory Imports:
@@ -54,16 +54,15 @@ import { AbstractControlState, AbstractControlStateType, ControlUserModeProvider
 import { NormTextOptions } from './genericNormalizers.ts';
 import {
   ChangeRecord,
-  ChangeRecordRef, ExcelFullChangelog,
-  FullChangelog,
-  TextMapChangeRef,
-  TextMapChangeRefs, TextMapChanges, TextMapFullChangelog,
+  ChangeRecordRef,
+  ExcelFullChangelog,
 } from '../../../shared/types/changelog-types.ts';
 import { GameVersion, GameVersionFilter, GenshinVersions } from '../../../shared/types/game-versions.ts';
 import { ScriptJobActionArgs, ScriptJobCoordinator, ScriptJobPostResult } from '../../util/scriptJobs.ts';
 import { IntHolder } from '../../../shared/util/valueHolder.ts';
 import { SiteMode } from '../../../shared/types/site/site-mode-type.ts';
-import { fsExists, fsRead, fsReadJson } from '../../util/fsutil.ts';
+import { fsExists, fsReadJson } from '../../util/fsutil.ts';
+import { TextMapChangelog } from './tmchanges.ts';
 
 export type AbstractControlConfig<T extends AbstractControlState = AbstractControlState> = {
   siteMode: SiteMode,
@@ -98,6 +97,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
   readonly currentGameVersion: GameVersion;
   readonly gameVersions: GameVersion[];
   readonly changelogConfig: AbstractControlChangelogConfig;
+  readonly textMapChangelog: TextMapChangelog;
   protected IdComparator = (a: { Id: any }, b: { Id: any }) => a.Id === b.Id;
   protected NodeIdComparator = (a: { NodeId: any }, b: { NodeId: any }) => a.NodeId === b.NodeId;
   protected sortByOrder = (a: { Order: number }, b: { Order: number }) => {
@@ -126,6 +126,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     this.currentGameVersion = config.currentGameVersion;
     this.gameVersions = config.gameVersions;
     this.changelogConfig = config.changelogConfig;
+    this.textMapChangelog = new TextMapChangelog(this);
   }
 
   abstract copy(trx?: Knex.Transaction|boolean): AbstractControl<T>;
@@ -402,7 +403,10 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
 
   // region Text Map Searching
 
-  private async tmMatchesPreProcess(matches: string[], opts: TextMapSearchOpts, hashSeen: Set<TextMapHash>, lastLineNum: IntHolder): Promise<TmMatchPreProc[]> {
+  private async tmMatchesPreProcess(matches: string[],
+                                    opts: TextMapSearchOpts,
+                                    hashSeen: Set<TextMapHash>,
+                                    lastLineNum: IntHolder): Promise<TmMatchPreProc[]> {
     const lineNumToMatch: Map<number, string> = new Map<number, string>();
 
     for (let match of matches) {
@@ -438,19 +442,62 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
         lineType: item.LineType,
         match: lineNumToMatch.get(item.Line),
         text: undefined,
+        changeRefs: undefined,
       });
     }
 
-    const texts = await this.getTextMapItems(opts.outputLangCode, Array.from(results.keys()));
+    const hashes = Array.from(results.keys());
+    const texts = await this.getTextMapItems(opts.outputLangCode, hashes);
+    const changeRefsMap = await this.textMapChangelog.selectMultiChangeRefs(hashes, opts.outputLangCode, opts.doNormText);
 
     for (let [textMapHash, text] of Object.entries(texts)) {
       if (opts.doNormText) {
         text = this.normText(text, opts.outputLangCode);
       }
-      results.get(textMapHash).text = text;
+      const result = results.get(textMapHash);
+      result.text = text;
+      result.changeRefs = changeRefsMap[textMapHash];
     }
 
     return Array.from(results.values());
+  }
+
+  private async tmSearchExtractPossibleHashes(opts: TextMapSearchOpts): Promise<TmPossibleHash[]> {
+    const agg1: string[] = [maybeInt(opts.searchText.trim())];
+
+    if (opts.searchText.includes(',') || opts.searchText.includes(';')) {
+      for (let part of opts.searchText.split(/[,;]/)) {
+        part = part.trim();
+        if (part.length) {
+          agg1.push(maybeInt(part));
+        }
+      }
+    }
+
+    const agg2: Record<TextMapHash, TmPossibleHash> = {};
+
+    for (let hash of agg1) {
+      if (!!hash && /^[a-zA-Z0-9_\-]+$/.test(String(hash))) {
+        let text = await this.getTextMapItem(opts.outputLangCode, hash);
+
+        if (text) {
+          if (opts.doNormText) {
+            text = this.normText(text, opts.outputLangCode);
+          }
+
+          agg2[hash] = { hash, text, changeRefs: undefined };
+        }
+      }
+    }
+
+    const changeRefsMap = await this.textMapChangelog.selectMultiChangeRefs(
+      Object.keys(agg2), opts.outputLangCode, opts.doNormText);
+
+    for (let obj of Object.values(agg2)) {
+      obj.changeRefs = changeRefsMap[obj.hash];
+    }
+
+    return Object.values(agg2);
   }
 
   async createTextMapSearchResponse(query: string, resultSetIdx: number, items: TextMapSearchResult[]): Promise<TextMapSearchResponse> {
@@ -491,39 +538,25 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     const re = new RegExp(hasRegexFlag ? opts.searchText : escapeRegExp(opts.searchText), reFlags);
 
     {
-      const possibleHashes: TextMapHash[] = [maybeInt(opts.searchText.trim())];
-      if (opts.searchText.includes(',') || opts.searchText.includes(';')) {
-        for (let sub of opts.searchText.split(/[,;]/)) {
-          if (sub.trim().length) {
-            possibleHashes.push(maybeInt(sub.trim()));
-          }
-        }
-      }
+      const possibleHashes: TmPossibleHash[] = await this.tmSearchExtractPossibleHashes(opts);
 
-      for (let possibleHash of possibleHashes) {
-        if (!!possibleHash && /^[a-zA-Z0-9_\-]+$/.test(String(possibleHash))) {
-          let text = await this.getTextMapItem(opts.outputLangCode, possibleHash);
-          if (text) {
-            if (opts.doNormText) {
-              text = this.normText(text, opts.outputLangCode);
-            }
-            hashSeen.add(possibleHash);
-            const changeRefs = await this.selectTextMapChangeRefs(possibleHash, opts.outputLangCode, true);
-            const version: string = changeRefs.firstAdded?.version;
-            if (opts.versionFilter && (!version || !opts.versionFilter.has(version))) {
-              continue;
-            }
-            out.push({
-              resultNumber: resultNumberingStart + out.length + 1,
-              hash: possibleHash,
-              text,
-              line: await getLineNumberForLineText(String(possibleHash), this.getDataFilePath(getPlainTextMapRelPath(opts.inputLangCode, 'Hash'))),
-              hashMarkers: opts.searchAgainst === 'Hash' ? Marker.create(re, String(possibleHash)) : undefined,
-              version,
-              changeRefs: changeRefs.list,
-            });
-          }
+      for (let { hash, text, changeRefs } of possibleHashes) {
+        hashSeen.add(hash);
+
+        const version: string = changeRefs.firstAdded?.version;
+        if (opts.versionFilter && (!version || !opts.versionFilter.has(version))) {
+          continue;
         }
+
+        out.push({
+          resultNumber: resultNumberingStart + out.length + 1,
+          hash,
+          text,
+          line: await getLineNumberForLineText(String(hash), this.getDataFilePath(getPlainTextMapRelPath(opts.inputLangCode, 'Hash'))),
+          hashMarkers: opts.searchAgainst === 'Hash' ? Marker.create(re, String(hash)) : undefined,
+          version,
+          changeRefs: changeRefs.list,
+        });
       }
     }
 
@@ -544,8 +577,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
         const textMapHash: TextMapHash = tmMatch.textMapHash;
         const text: string = tmMatch.text;
 
-        const changeRefs = await this.selectTextMapChangeRefs(textMapHash, opts.outputLangCode, true);
-        const version: string = changeRefs.firstAdded?.version;
+        const version: string = tmMatch.changeRefs.firstAdded?.version;
         if (opts.versionFilter && (!version || !opts.versionFilter.has(version))) {
           continue;
         }
@@ -558,7 +590,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
           markers: opts.searchAgainst === 'Text' && opts.inputLangCode === opts.outputLangCode ? Marker.create(re, text) : undefined,
           hashMarkers: opts.searchAgainst === 'Hash' ? Marker.create(re, String(textMapHash)) : undefined,
           version,
-          changeRefs: changeRefs.list,
+          changeRefs: tmMatch.changeRefs.list,
         });
         numAdded.increment();
 
@@ -661,26 +693,21 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
 
     const hashSeen: Set<TextMapHash> = new Set();
 
-    if (isInt(opts.searchText.trim())) {
+    const possibleHashes: TmPossibleHash[] = await this.tmSearchExtractPossibleHashes(opts);
+    if (possibleHashes.length) {
       let didKill = false;
-      const hash = maybeInt(opts.searchText.trim());
-      let text = await this.getTextMapItem(opts.inputLangCode, opts.searchText);
 
-      if (text && opts.versionFilter) {
-        const changeRefs = await this.selectTextMapChangeRefs(hash, opts.outputLangCode);
-        const version: string = changeRefs.firstAdded?.version;
-        if (!version || !opts.versionFilter.has(version)) {
-          text = null;
+      for (let ph of possibleHashes) {
+        hashSeen.add(ph.hash);
+
+        const version: string = ph.changeRefs.firstAdded?.version;
+        if (opts.versionFilter && (!version || !opts.versionFilter.has(version))) {
+          continue;
         }
+
+        opts.stream(ph.hash, ph.text, () => didKill = true);
       }
 
-      if (text) {
-        if (opts.doNormText) {
-          text = this.normText(text, opts.outputLangCode);
-        }
-        hashSeen.add(hash);
-        opts.stream(hash, text, () => didKill = true);
-      }
       if (didKill) {
         return 0;
       }
@@ -710,7 +737,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       }
 
       if (opts.versionFilter) {
-        const changeRefs = await this.selectTextMapChangeRefs(textMapHash, opts.outputLangCode);
+        const changeRefs = await this.textMapChangelog.selectChangeRefs(textMapHash, opts.outputLangCode);
         const version: string = changeRefs.firstAdded?.version;
         if (!version || !opts.versionFilter.has(version)) {
           return;
@@ -856,15 +883,6 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
   // endregion
 
   // region Changelog
-  async selectTextMapChangelog(version: GameVersion): Promise<TextMapFullChangelog> {
-    if (!version || !version.showTextmapChangelog || !this.changelogConfig.textmapEnabled)
-      return null;
-    return this.cached('TextMapChangelog:' + version.number, 'memory', async () => {
-      const textmapChangelogFileName = path.resolve(this.changelogConfig.directory, `./TextMapChangeLog.${version.number}.json`);
-      return fsReadJson(textmapChangelogFileName);
-    });
-  }
-
   async selectExcelChangelog(version: GameVersion): Promise<ExcelFullChangelog> {
     if (!version || !version.showExcelChangelog || !this.changelogConfig.excelEnabled)
       return null;
@@ -875,33 +893,6 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
   }
 
   // noinspection JSUnusedGlobalSymbols
-  async selectAllChangelogs(): Promise<Record<string, FullChangelog>> {
-    return this.cached('AllChangeLogs', 'memory', async () => {
-      let map: Record<string, FullChangelog> = {};
-
-      await this.gameVersions.filter(v => v.showTextmapChangelog || v.showExcelChangelog).asyncForEach(async v => {
-        const changelog = await this.selectChangelog(v);
-        if (changelog) {
-          map[v.number] = changelog;
-        }
-      });
-
-      return map;
-    });
-  }
-
-  async selectAllTextMapChangeLogs(): Promise<Record<string, TextMapFullChangelog>> {
-    return this.cached('AllTextMapChangeLogs', 'memory', async () => {
-      let map: Record<string, TextMapFullChangelog> = {};
-
-      await this.gameVersions.filter(v => v.showTextmapChangelog).asyncForEach(async v => {
-        map[v.number] = await this.selectTextMapChangelog(v);
-      });
-
-      return map;
-    });
-  }
-
   async selectAllExcelChangeLogs(): Promise<Record<string, ExcelFullChangelog>> {
     return this.cached('AllExcelChangeLogs', 'memory', async () => {
       let map: Record<string, ExcelFullChangelog> = {};
@@ -911,25 +902,6 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       });
 
       return map;
-    });
-  }
-
-  async selectChangelog(version: GameVersion): Promise<FullChangelog> {
-    if (!version || (!version.showTextmapChangelog && !version.showExcelChangelog)) {
-      return null;
-    }
-    return Promise.all([
-      this.selectTextMapChangelog(version),
-      this.selectExcelChangelog(version)
-    ]).then(([textmapChangelog, excelChangelog]) => {
-      if (textmapChangelog === null && excelChangelog === null) {
-        return null;
-      }
-      return <FullChangelog> {
-        version,
-        textmapChangelog,
-        excelChangelog
-      };
     });
   }
 
@@ -976,46 +948,6 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     }
 
     return changeRecordRefs;
-  }
-
-  async selectTextMapChangeRefs(hash: TextMapHash, langCode: LangCode, doNormText: boolean = false): Promise<TextMapChangeRefs> {
-    const refs: TextMapChangeRef[] = [];
-
-    const doNorm = (text: string) => {
-      if (doNormText) {
-        return this.normText(text, langCode);
-      } else {
-        return text;
-      }
-    };
-
-    for (let [versionNum, textMapChangelog] of Object.entries(await this.selectAllTextMapChangeLogs())) {
-      const changes: TextMapChanges = textMapChangelog?.[langCode];
-      if (changes) {
-        if (changes.added[hash]) {
-          refs.push({
-            version: versionNum,
-            changeType: 'added',
-            value: doNorm(changes.added[hash])
-          });
-        } else if (changes.updated[hash]) {
-          refs.push({
-            version: versionNum,
-            changeType: 'updated',
-            value: doNorm(changes.updated[hash].newValue),
-            prevValue: doNorm(changes.updated[hash].oldValue)
-          });
-        } else if (changes.removed[hash]) {
-          refs.push({
-            version: versionNum,
-            changeType: 'removed',
-            value: doNorm(changes.removed[hash])
-          });
-        }
-      }
-    }
-
-    return new TextMapChangeRefs(refs);
   }
   // endregion
 

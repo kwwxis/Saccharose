@@ -11,7 +11,7 @@ import {
   ChapterCollection,
   MainQuestExcelConfigData,
 } from '../../../../shared/types/genshin/quest-types.ts';
-import { ChangeRecord, FullChangelog } from '../../../../shared/types/changelog-types.ts';
+import { ChangeRecord, ExcelFullChangelog } from '../../../../shared/types/changelog-types.ts';
 import { isInt, toInt } from '../../../../shared/util/numberUtil.ts';
 import { GenshinSchemaNames } from '../../../importer/genshin/genshin.schema.ts';
 import { GenshinControl } from '../genshinControl.ts';
@@ -25,11 +25,10 @@ import { selectViewpointsByIds } from '../archive/viewpoints.ts';
 import { selectLoadingTips } from '../archive/loadingTips.ts';
 import { selectTutorials } from '../archive/tutorials.ts';
 import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
-import { DialogExcelConfigData } from '../../../../shared/types/genshin/dialogue-types.ts';
-import { TextMapHash } from '../../../../shared/types/lang-types.ts';
 import { NpcExcelConfigData } from '../../../../shared/types/genshin/general-types.ts';
 import { sort } from '../../../../shared/util/arrayUtil.ts';
 import { defaultMap } from '../../../../shared/util/genericUtil.ts';
+import { GameVersion } from '../../../../shared/types/game-versions.ts';
 
 export type GenshinChangelogNewRecordSummary = {
   avatars: AvatarExcelConfigData[],
@@ -64,8 +63,8 @@ export type GenshinChangelogNewRecordSummary = {
   npcsByBodyType: Record<string, NpcExcelConfigData[]>,
 }
 
-export async function generateGenshinChangelogNewRecordSummary(ctrl: GenshinControl, fullChangelog: FullChangelog): Promise<GenshinChangelogNewRecordSummary> {
-  return ctrl.cached('FullChangelogSummary:' + ctrl.outputLangCode + '_' + fullChangelog.version.number, 'memory', async () => {
+export async function generateGenshinChangelogNewRecordSummary(ctrl: GenshinControl, gameVersion: GameVersion, fullChangelog: ExcelFullChangelog): Promise<GenshinChangelogNewRecordSummary> {
+  return ctrl.cached('FullChangelogSummary:' + ctrl.outputLangCode + '_' + gameVersion.number, 'memory', async () => {
     return _generateGenshinChangelogNewRecordSummary(ctrl, fullChangelog);
   });
 }
@@ -80,10 +79,10 @@ async function getGcg(ctrl: GenshinControl): Promise<GCGControl> {
   return gcg;
 }
 
-export async function _generateGenshinChangelogNewRecordSummary(ctrl: GenshinControl, fullChangelog: FullChangelog): Promise<GenshinChangelogNewRecordSummary> {
+export async function _generateGenshinChangelogNewRecordSummary(ctrl: GenshinControl, fullChangelog: ExcelFullChangelog): Promise<GenshinChangelogNewRecordSummary> {
   function newRecordsOf(excelFileName: GenshinSchemaNames): ChangeRecord[] {
-    if (fullChangelog.excelChangelog?.[excelFileName]?.changedRecords) {
-      return Object.values(fullChangelog.excelChangelog[excelFileName].changedRecords).filter(r => r.changeType === 'added');
+    if (fullChangelog?.[excelFileName]?.changedRecords) {
+      return Object.values(fullChangelog[excelFileName].changedRecords).filter(r => r.changeType === 'added');
     } else {
       return [];
     }
@@ -239,25 +238,25 @@ export type GenshinChangelogChangedDialogueQuest = {
   sections: DialogueSectionResult[],
 }
 
-export async function generateGenshinChangelogChangedDialogueSummary(ctrl: GenshinControl, fullChangelog: FullChangelog): Promise<GenshinChangelogChangedDialogueSummary> {
-  const newDialogues: DialogExcelConfigData[] = [];
-
-  const tmInfo = fullChangelog.textmapChangelog[ctrl.outputLangCode]?.updated || {};
-  const tmHashes: TextMapHash[] = Object.keys(tmInfo);
-
-  await ctrl.selectDialogsFromTextMapHash(tmHashes, true, false);
-  await ctrl.selectDialogsFromTextMapHash(tmHashes, true, true);
-
-  for (let record of Object.values(fullChangelog.excelChangelog['DialogExcelConfigData']?.changedRecords || {})) {
-    if (record.changeType === 'updated') {
-      if (record.updatedFields.hasOwnProperty('TalkContentTextMapHash')) {
-
-      }
-      if (record.updatedFields.hasOwnProperty('TalkRoleNameTextMapHash')) {
-
-      }
-    }
-  }
-
-  return null;
-}
+// export async function generateGenshinChangelogChangedDialogueSummary(ctrl: GenshinControl, fullChangelog: FullChangelog): Promise<GenshinChangelogChangedDialogueSummary> {
+//   const newDialogues: DialogExcelConfigData[] = [];
+//
+//   const tmInfo = fullChangelog.textmapChangelog[ctrl.outputLangCode]?.updated || {};
+//   const tmHashes: TextMapHash[] = Object.keys(tmInfo);
+//
+//   await ctrl.selectDialogsFromTextMapHash(tmHashes, true, false);
+//   await ctrl.selectDialogsFromTextMapHash(tmHashes, true, true);
+//
+//   for (let record of Object.values(fullChangelog.excelChangelog['DialogExcelConfigData']?.changedRecords || {})) {
+//     if (record.changeType === 'updated') {
+//       if (record.updatedFields.hasOwnProperty('TalkContentTextMapHash')) {
+//
+//       }
+//       if (record.updatedFields.hasOwnProperty('TalkRoleNameTextMapHash')) {
+//
+//       }
+//     }
+//   }
+//
+//   return null;
+// }

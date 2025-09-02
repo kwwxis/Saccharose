@@ -1,9 +1,9 @@
 import { pageMatch } from '../../core/pageMatch.ts';
 import { initExcelViewer, makeSingleColumnDef } from '../generic/excel-viewer/excel-viewer.ts';
 import {
-  TextMapChangeAddRow,
-  TextMapChangeRemoveRow,
-  TextMapChangeUpdateRow,
+  TextMapChangeAddDisplay,
+  TextMapChangeRemoveDisplay,
+  TextMapChangeUpdateDisplay,
 } from '../../../shared/types/changelog-types.ts';
 import { AgPromise, ICellRendererComp, ICellRendererParams } from 'ag-grid-community';
 import { createPatch } from '../../../backend/util/jsdiff/jsdiff.js';
@@ -11,11 +11,11 @@ import { DiffUI } from '../../util/DiffUI.ts';
 import { isNightmode } from '../../core/userPreferences/siteTheme.ts';
 import { ColorSchemeType } from 'diff2html/lib/types';
 
-class TextMapDiffCellComponent implements ICellRendererComp<TextMapChangeUpdateRow> {
+class TextMapDiffCellComponent implements ICellRendererComp<TextMapChangeUpdateDisplay> {
   private element: HTMLDivElement;
   private diffUi: DiffUI;
 
-  init(params: ICellRendererParams<TextMapChangeUpdateRow>): AgPromise<void> | void {
+  init(params: ICellRendererParams<TextMapChangeUpdateDisplay>): AgPromise<void> | void {
     this.refresh(params);
   }
 
@@ -27,7 +27,7 @@ class TextMapDiffCellComponent implements ICellRendererComp<TextMapChangeUpdateR
     return this.element;
   }
 
-  refresh(params: ICellRendererParams<TextMapChangeUpdateRow>): boolean {
+  refresh(params: ICellRendererParams<TextMapChangeUpdateDisplay>): boolean {
     if (this.diffUi) {
       this.diffUi.destroy();
     }
@@ -62,9 +62,9 @@ class TextMapDiffCellComponent implements ICellRendererComp<TextMapChangeUpdateR
 
 pageMatch('vue/ChangelogTextMapPage', async () => {
   const changelogVersion: string = document.querySelector<HTMLMetaElement>('#x-changelog-version').content;
-  const addedData: TextMapChangeAddRow[] = JSON.parse(document.querySelector<HTMLMetaElement>('#x-tmdiff-added').content);
-  const updatedData: TextMapChangeUpdateRow[] = JSON.parse(document.querySelector<HTMLMetaElement>('#x-tmdiff-updated').content);
-  const removedData: TextMapChangeRemoveRow[] = JSON.parse(document.querySelector<HTMLMetaElement>('#x-tmdiff-removed').content);
+  const addedData: TextMapChangeAddDisplay[] = JSON.parse(document.querySelector<HTMLMetaElement>('#x-tmdiff-added').content);
+  const updatedData: TextMapChangeUpdateDisplay[] = JSON.parse(document.querySelector<HTMLMetaElement>('#x-tmdiff-updated').content);
+  const removedData: TextMapChangeRemoveDisplay[] = JSON.parse(document.querySelector<HTMLMetaElement>('#x-tmdiff-removed').content);
 
   let resetPreferredColumnStateFunctions: Function[] = [];
 

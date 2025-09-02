@@ -52,27 +52,27 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   // console.log('Perform Count:', talks.filter(t => !!t.PerformCfg).length);
   // console.log(talks.filter(t => !!t.PerformCfg && !t.PerformCfg.startsWith('QuestDialogue')));
 
-  let changelog = await ctrl.selectChangelog(GenshinVersions.find(v => v.number === '5.8'));
+  let textmapChangelog = await ctrl.textMapChangelog.selectFullChangelog('5.8');
 
-  for (let key of Object.keys(changelog.textmapChangelog['EN'].added)) {
-    changelog.textmapChangelog['EN'].added[key] = ctrl.normText(changelog.textmapChangelog['EN'].added[key], 'EN');
+  for (let key of Object.keys(textmapChangelog['EN'].added)) {
+    textmapChangelog['EN'].added[key] = ctrl.normText(textmapChangelog['EN'].added[key], 'EN');
   }
-  for (let key of Object.keys(changelog.textmapChangelog['EN'].updated)) {
-    changelog.textmapChangelog['EN'].updated[key].newValue = ctrl.normText(changelog.textmapChangelog['EN'].updated[key].newValue, 'EN');
-    changelog.textmapChangelog['EN'].updated[key].oldValue = ctrl.normText(changelog.textmapChangelog['EN'].updated[key].oldValue, 'EN');
+  for (let key of Object.keys(textmapChangelog['EN'].updated)) {
+    textmapChangelog['EN'].updated[key].newValue = ctrl.normText(textmapChangelog['EN'].updated[key].newValue, 'EN');
+    textmapChangelog['EN'].updated[key].oldValue = ctrl.normText(textmapChangelog['EN'].updated[key].oldValue, 'EN');
   }
-  for (let key of Object.keys(changelog.textmapChangelog['EN'].removed)) {
-    changelog.textmapChangelog['EN'].removed[key] = ctrl.normText(changelog.textmapChangelog['EN'].removed[key], 'EN');
+  for (let key of Object.keys(textmapChangelog['EN'].removed)) {
+    textmapChangelog['EN'].removed[key] = ctrl.normText(textmapChangelog['EN'].removed[key], 'EN');
   }
 
   fs.writeFileSync(getGenshinDataFilePath(`./TextMapEN_Added.json`),
-    JSON.stringify(changelog.textmapChangelog['EN'].added, null, 2), 'utf8');
+    JSON.stringify(textmapChangelog['EN'].added, null, 2), 'utf8');
 
   fs.writeFileSync(getGenshinDataFilePath(`./TextMapEN_Updated.json`),
-    JSON.stringify(changelog.textmapChangelog['EN'].updated, null, 2), 'utf8');
+    JSON.stringify(textmapChangelog['EN'].updated, null, 2), 'utf8');
 
   fs.writeFileSync(getGenshinDataFilePath(`./TextMapEN_Removed.json`),
-    JSON.stringify(changelog.textmapChangelog['EN'].removed, null, 2), 'utf8');
+    JSON.stringify(textmapChangelog['EN'].removed, null, 2), 'utf8');
 
   await closeKnex();
 }

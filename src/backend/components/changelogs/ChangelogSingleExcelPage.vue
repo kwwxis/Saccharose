@@ -38,7 +38,8 @@
       </button>
     </div>
 
-    <div id="tabpanel-addedRecords" role="tabpanel" aria-labelledby="tab-addedRecords" class="tabpanel active">
+    <div id="tabpanel-addedRecords" role="tabpanel" aria-labelledby="tab-addedRecords" class="tabpanel"
+         :class="{'active': activeTab === 'added', 'hide': activeTab !== 'added'}">
       <div class="content" v-if="valuesOf(excelFileChanges.changedRecords).filter(r => r.changeType === 'added').length === 0">
         <p class="info-notice">None</p>
       </div>
@@ -62,7 +63,8 @@
         </div>
       </div>
     </div>
-    <div id="tabpanel-updatedRecords" role="tabpanel" aria-labelledby="tab-updatedRecords" class="tabpanel hide">
+    <div id="tabpanel-updatedRecords" role="tabpanel" aria-labelledby="tab-updatedRecords" class="tabpanel"
+         :class="{'active': activeTab === 'updated', 'hide': activeTab !== 'updated'}">
       <template v-for="record of valuesOf(excelFileChanges.changedRecords).filter(r => r.changeType === 'updated')">
         <hr />
         <h3 class="secondary-header">
@@ -116,7 +118,8 @@
         <p class="info-notice">None</p>
       </div>
     </div>
-    <div id="tabpanel-removedRecords" role="tabpanel" aria-labelledby="tab-removedRecords" class="tabpanel hide">
+    <div id="tabpanel-removedRecords" role="tabpanel" aria-labelledby="tab-removedRecords" class="tabpanel"
+         :class="{'active': activeTab === 'removed', 'hide': activeTab !== 'removed'}">
       <template v-for="record of valuesOf(excelFileChanges.changedRecords).filter(r => r.changeType === 'removed')">
         <hr />
         <h3 class="secondary-header">
@@ -137,7 +140,6 @@
 import { GameVersion } from '../../../shared/types/game-versions.ts';
 import {
   ExcelFileChanges,
-  FullChangelog,
 } from '../../../shared/types/changelog-types.ts';
 import { LANG_CODES_TO_NAME } from '../../../shared/types/lang-types.ts';
 import JsonText from '../utility/JsonText.vue';
@@ -151,7 +153,6 @@ const { ctx } = getTrace();
 
 defineProps<{
   currentVersion?: GameVersion,
-  fullChangelog?: FullChangelog,
   excelFileChanges?: ExcelFileChanges,
   activeTab?: 'added' | 'updated' | 'removed'
 }>();

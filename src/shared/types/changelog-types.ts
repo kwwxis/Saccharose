@@ -1,7 +1,6 @@
 import { LangCode, TextMapHash } from './lang-types.ts';
 import { defaultMap } from '../util/genericUtil.ts';
 import { toString } from '../util/stringUtil.ts';
-import { GameVersion } from './game-versions.ts';
 
 // region Excel Changelog Types
 // --------------------------------------------------------------------------------------------------------------
@@ -87,17 +86,20 @@ export class TextMapChangeRefs {
 }
 // endregion
 
-// region TextMap Changelog Types
+// region TextMap Changelog Types: Database Entity
 // --------------------------------------------------------------------------------------------------------------
 export type TextMapChangeEntity = {
   version: string,
-  lang_code: string,
+  lang_code: LangCode,
   hash: TextMapHash,
   change_type: ChangeType,
   content?: string,
   prev_content?: string,
 };
+// endregion
 
+// region TextMap Changelog Types: JSON File
+// --------------------------------------------------------------------------------------------------------------
 export type TextMapFullChangelog = Record<LangCode, TextMapChanges>;
 
 export type TextMapChanges = {
@@ -112,52 +114,24 @@ export type TextMapContentChange = {
   newValue: string
 }
 
-export type TextMapChangesAsRows = {
+// region TextMap Changelog Types: For Display
+// --------------------------------------------------------------------------------------------------------------
+export type TextMapChangesForDisplay = {
   langCode: LangCode,
-  added: TextMapChangeAddRow[],
-  removed: TextMapChangeRemoveRow[],
-  updated: TextMapChangeUpdateRow[]
+  added: TextMapChangeAddDisplay[],
+  removed: TextMapChangeRemoveDisplay[],
+  updated: TextMapChangeUpdateDisplay[]
 }
-
-export function textMapChangesAsRows(input: TextMapChanges,
-                                     normFunction: ((s: string) => string) = ((s) => s)): TextMapChangesAsRows {
-  const out: TextMapChangesAsRows = {
-    langCode: input.langCode,
-    added: [],
-    removed: [],
-    updated: [],
-  };
-
-  for (let [textMapHash, text] of Object.entries(input.added)) {
-    text = normFunction(text);
-    out.added.push({ textMapHash, text });
-  }
-  for (let [textMapHash, text] of Object.entries(input.removed)) {
-    text = normFunction(text);
-    out.removed.push({ textMapHash, text });
-  }
-  for (let [textMapHash, text] of Object.entries(input.updated)) {
-    let newText = text.newValue;
-    let oldText = text.oldValue;
-
-    newText = normFunction(newText);
-    oldText = normFunction(oldText);
-
-    out.updated.push({ textMapHash, oldText, newText });
-  }
-  return out;
-}
-
-export type TextMapChangeAddRow = {
+export type TextMapChangeAddDisplay = {
   textMapHash: TextMapHash,
   text: string,
 }
-export type TextMapChangeUpdateRow = {
+export type TextMapChangeUpdateDisplay = {
   textMapHash: TextMapHash,
   oldText: string,
   newText: string,
 }
-export type TextMapChangeRemoveRow = {
+export type TextMapChangeRemoveDisplay = {
   textMapHash: TextMapHash,
   text: string,
 }
@@ -179,9 +153,3 @@ export function newChangeRecordMap(): ChangeRecordMap {
   return defaultMap(key => newChangeRecord(key));
 }
 // endregion
-
-export type FullChangelog = {
-  version: GameVersion,
-  textmapChangelog: TextMapFullChangelog,
-  excelChangelog: ExcelFullChangelog,
-}

@@ -25,7 +25,7 @@
         <p class="info-notice">Only certain Excel files are available in this list, if you'd like one that's not present
           here to be added, let kwwxis know.</p>
       </div>
-      <template v-for="excelFileChanges of sort(valuesOf(fullChangelog.excelChangelog), 'name')">
+      <template v-for="excelFileChanges of sort(valuesOf(excelChangelog), 'name')">
         <h3 class="secondary-header valign">{{ excelFileChanges.name }}</h3>
         <div class="content">
           <dl>
@@ -49,7 +49,7 @@
 <script setup lang="ts">
 import { sort, valuesOf } from '../../../shared/util/arrayUtil.ts';
 import { GameVersion } from '../../../shared/types/game-versions.ts';
-import { FullChangelog } from '../../../shared/types/changelog-types.ts';
+import { ExcelFullChangelog } from '../../../shared/types/changelog-types.ts';
 import Icon from '../utility/Icon.vue';
 import { getTrace } from '../../middleware/request/tracer.ts';
 
@@ -57,6 +57,6 @@ const { ctx } = getTrace();
 
 defineProps<{
   currentVersion?: GameVersion,
-  fullChangelog?: FullChangelog,
+  excelChangelog?: ExcelFullChangelog,
 }>();
 </script>

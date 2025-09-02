@@ -39,15 +39,18 @@
       </button>
     </div>
 
-    <div id="tabpanel-addedEntries" role="tabpanel" aria-labelledby="tab-addedEntries" class="tabpanel">
+    <div id="tabpanel-addedEntries" role="tabpanel" aria-labelledby="tab-addedEntries" class="tabpanel"
+         :class="{'active': activeTab === 'added', 'hide': activeTab !== 'added'}">
       <div id="grid-addedEntries"></div>
     </div>
 
-    <div id="tabpanel-updatedEntries" role="tabpanel" aria-labelledby="tab-updatedEntries" class="tabpanel hide">
+    <div id="tabpanel-updatedEntries" role="tabpanel" aria-labelledby="tab-updatedEntries" class="tabpanel"
+         :class="{'active': activeTab === 'updated', 'hide': activeTab !== 'updated'}">
       <div id="grid-updatedEntries"></div>
     </div>
 
-    <div id="tabpanel-removedEntries" role="tabpanel" aria-labelledby="tab-removedEntries" class="tabpanel hide">
+    <div id="tabpanel-removedEntries" role="tabpanel" aria-labelledby="tab-removedEntries" class="tabpanel"
+         :class="{'active': activeTab === 'removed', 'hide': activeTab !== 'removed'}">
       <div id="grid-removedEntries"></div>
     </div>
   </section>
@@ -56,7 +59,7 @@
 <script setup lang="ts">
 import { GameVersion } from '../../../shared/types/game-versions.ts';
 import {
-  TextMapChangesAsRows,
+  TextMapChangesForDisplay,
 } from '../../../shared/types/changelog-types.ts';
 import Icon from '../utility/Icon.vue';
 import { getTrace } from '../../middleware/request/tracer.ts';
@@ -65,7 +68,7 @@ const { ctx } = getTrace();
 
 defineProps<{
   currentVersion?: GameVersion,
-  textmapChanges?: TextMapChangesAsRows,
+  textmapChanges?: TextMapChangesForDisplay,
   activeTab?: 'added' | 'updated' | 'removed'
 }>();
 </script>
