@@ -97,6 +97,7 @@ export const ZenlessVersions: GameVersion[] = [
   {number: '1.7', previous: '1.6', showTextmapChangelog: true},
   {number: '2.0', previous: '1.7', showTextmapChangelog: true},
   {number: '2.1', previous: '2.0', showTextmapChangelog: true},
+  {number: '2.2', previous: '2.1', showTextmapChangelog: true},
 ];
 
 // TODO: This needs to be updated with each new Wuthering Waves version!
@@ -126,7 +127,7 @@ export const CurrentGenshinVersion: GameVersion = GenshinVersions.find(v => v.nu
 export const CurrentStarRailVersion: GameVersion = StarRailVersions.find(v => v.number === '3.5');
 
 // TODO: This needs to be updated with each new Zenless Zone Zero version!
-export const CurrentZenlessVersion: GameVersion = ZenlessVersions.find(v => v.number === '2.1');
+export const CurrentZenlessVersion: GameVersion = ZenlessVersions.find(v => v.number === '2.2');
 
 // TODO: This needs to be updated with each new Wuthering Waves version!
 export const CurrentWuwaVersion: GameVersion = WuwaVersions.find(v => v.number === '2.6');
