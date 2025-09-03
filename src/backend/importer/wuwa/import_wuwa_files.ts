@@ -17,6 +17,7 @@ import { WuwaVersions } from '../../../shared/types/game-versions.ts';
 import { wuwaSchema } from './wuwa.schema.ts';
 import { wuwaNormalize } from './module.normalize.ts';
 import { importTextMapChanges } from '../../domain/abstract/tmchanges.ts';
+import { isset } from '../../../shared/util/genericUtil.ts';
 
 async function importVoiceOvers() {
   const outDir = ENV.WUWA_DATA_ROOT;
@@ -35,7 +36,7 @@ export async function importWuwaFilesCli() {
   ];
 
   const options_agnosticDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
-    {name: 'index-images', type: Boolean, description: 'Creates index for asset images. ' +
+    {name: 'index-images', type: String, typeLabel: 'full_import | cat_map_only', description: 'Creates index for asset images. ' +
         'Must load all wanted Texture2D images into the EXT_WUWA_IMAGES directory first though.'},
   ];
 
@@ -47,7 +48,6 @@ export async function importWuwaFilesCli() {
 
   const options_util: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
     {name: 'help', type: Boolean, description: 'Display this usage guide.'},
-    {name: 'dry-run', type: Boolean},
   ];
 
   let options: commandLineArgs.CommandLineOptions;
@@ -60,16 +60,6 @@ export async function importWuwaFilesCli() {
       console.error(chalk.red('\n' + e?.message || e));
     }
     options = { help: true };
-  }
-
-  let dryRun: boolean = false;
-  if (options['dry']) {
-    dryRun = true;
-    delete options['dry'];
-  }
-  if (options['dry-run']) {
-    dryRun = true;
-    delete options['dry-run'];
   }
 
   if (!Object.keys(options).length) {
@@ -115,8 +105,13 @@ export async function importWuwaFilesCli() {
   if (options['voice-overs']) {
     await importVoiceOvers();
   }
-  if (options['index-images']) {
-    await indexWuwaImages(dryRun);
+  if (isset(options['index-images'])) {
+    const mode: string = options['index-images'];
+    if (!['full_import', 'cat_map_only'].includes(mode)) {
+      console.warn(chalk.red('\nInvalid option: ' + mode));
+      return;
+    }
+    await indexWuwaImages(mode === 'cat_map_only');
   }
   if (options.plaintext) {
     const ctrl = getWuwaControl();

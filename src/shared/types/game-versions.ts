@@ -112,7 +112,7 @@ export const WuwaVersions: GameVersion[] = [
   {number: '2.3', previous: '2.2', showTextmapChangelog: true},
   {number: '2.4', previous: '2.3', showTextmapChangelog: true},
   {number: '2.5', previous: '2.4', showTextmapChangelog: true},
-  {number: '2.6', previous: '2.5'},
+  {number: '2.6', previous: '2.5', showTextmapChangelog: true},
 ];
 
 export function isGameVersion(o: any): o is GameVersion {

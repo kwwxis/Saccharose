@@ -18,6 +18,7 @@ import { StarRailVersions } from '../../../shared/types/game-versions.ts';
 import { starRailSchema } from './hsr.schema.ts';
 import { recordNewStarRailImages } from './module.new-images.ts';
 import { importTextMapChanges } from '../../domain/abstract/tmchanges.ts';
+import { isset } from '../../../shared/util/genericUtil.ts';
 
 async function importVoiceOvers() {
   const outDir = ENV.HSR_DATA_ROOT;
@@ -38,7 +39,7 @@ export async function importHsrFilesCli() {
 
   const options_agnosticDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
     {name: 'new-images', type: Boolean, description: 'Creates new images map per game version. Must be ran before index-images.'},
-    {name: 'index-images', type: Boolean, description: 'Creates index for asset images. ' +
+    {name: 'index-images', type: String, typeLabel: 'full_import | cat_map_only', description: 'Creates index for asset images. ' +
         'Must load all wanted Texture2D images into the EXT_HSR_IMAGES directory first though.'},
   ];
 
@@ -50,7 +51,6 @@ export async function importHsrFilesCli() {
 
   const options_util: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
     {name: 'help', type: Boolean, description: 'Display this usage guide.'},
-    {name: 'dry-run', type: Boolean},
   ];
 
   let options: commandLineArgs.CommandLineOptions;
@@ -63,16 +63,6 @@ export async function importHsrFilesCli() {
       console.error(chalk.red('\n' + e?.message || e));
     }
     options = { help: true };
-  }
-
-  let dryRun: boolean = false;
-  if (options['dry']) {
-    dryRun = true;
-    delete options['dry'];
-  }
-  if (options['dry-run']) {
-    dryRun = true;
-    delete options['dry-run'];
   }
 
   if (!Object.keys(options).length) {
@@ -121,8 +111,13 @@ export async function importHsrFilesCli() {
   if (options['new-images']) {
     await recordNewStarRailImages();
   }
-  if (options['index-images']) {
-    await indexStarRailImages(dryRun);
+  if (isset(options['index-images'])) {
+    const mode: string = options['index-images'];
+    if (!['full_import', 'cat_map_only'].includes(mode)) {
+      console.warn(chalk.red('\nInvalid option: ' + mode));
+      return;
+    }
+    await indexStarRailImages(mode === 'cat_map_only');
   }
   if (options.plaintext) {
     const ctrl = getStarRailControl();

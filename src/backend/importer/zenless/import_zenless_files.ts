@@ -30,7 +30,6 @@ export async function importZenlessFilesCli() {
 
   const options_util: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
     {name: 'help', type: Boolean, description: 'Display this usage guide.'},
-    {name: 'dry-run', type: Boolean},
   ];
 
   let options: commandLineArgs.CommandLineOptions;
@@ -43,16 +42,6 @@ export async function importZenlessFilesCli() {
       console.error(chalk.red('\n' + e?.message || e));
     }
     options = { help: true };
-  }
-
-  let dryRun: boolean = false;
-  if (options['dry']) {
-    dryRun = true;
-    delete options['dry'];
-  }
-  if (options['dry-run']) {
-    dryRun = true;
-    delete options['dry-run'];
   }
 
   if (!Object.keys(options).length) {
