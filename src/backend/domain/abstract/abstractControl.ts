@@ -55,7 +55,7 @@ import { NormTextOptions } from './genericNormalizers.ts';
 import {
   ChangeRecord,
   ChangeRecordRef,
-  ExcelFullChangelog,
+  ExcelFullChangelog, TextMapChangeRefs,
 } from '../../../shared/types/changelog-types.ts';
 import { GameVersion, GameVersionFilter, GenshinVersions } from '../../../shared/types/game-versions.ts';
 import { ScriptJobActionArgs, ScriptJobCoordinator, ScriptJobPostResult } from '../../util/scriptJobs.ts';
@@ -442,7 +442,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
         lineType: item.LineType,
         match: lineNumToMatch.get(item.Line),
         text: undefined,
-        changeRefs: undefined,
+        changeRefs: new TextMapChangeRefs([]),
       });
     }
 
@@ -485,7 +485,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
             text = this.normText(text, opts.outputLangCode);
           }
 
-          agg2[hash] = { hash, text, changeRefs: undefined };
+          agg2[hash] = { hash, text, changeRefs: new TextMapChangeRefs([]) };
         }
       }
     }
