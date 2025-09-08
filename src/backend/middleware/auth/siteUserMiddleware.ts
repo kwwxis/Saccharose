@@ -27,8 +27,10 @@ export default async (req: Request, res: Response, next: NextFunction) => {
 
   if (!req.user.wiki_allowed) {
     if (await SiteUserProvider.isBanned(req.user)) {
+      const reason = await SiteUserProvider.getBanReason(req.user);
       await res.renderComponent(UserBannedPage, {
         layouts: ['layouts/basic-layout'],
+        reason,
       });
     } else {
       await res.renderComponent(WikiLoginPage, {
@@ -39,8 +41,10 @@ export default async (req: Request, res: Response, next: NextFunction) => {
   }
 
   if (await SiteUserProvider.isBanned(req.user)) {
+    const reason = await SiteUserProvider.getBanReason(req.user);
     await res.renderComponent(UserBannedPage, {
       layouts: ['layouts/basic-layout'],
+      reason,
     });
     return;
   }

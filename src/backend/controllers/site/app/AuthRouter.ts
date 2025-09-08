@@ -171,9 +171,10 @@ export default async function(): Promise<Router> {
     }
 
     if (await SiteUserProvider.isBanned(req.user)) {
+      const reason = await SiteUserProvider.getBanReason(req.user);
       res.json({
         result: 'banned',
-        reason: `You are banned from accessing ${SITE_TITLE}.`
+        reason: `You are banned from accessing ${SITE_TITLE}.` + (reason ? ' Reason: ' + reason : '')
       });
       return;
     }

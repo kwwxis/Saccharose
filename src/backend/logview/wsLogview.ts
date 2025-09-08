@@ -6,6 +6,13 @@ import { LogViewEntity } from '../../shared/types/site/site-logview-types.ts';
 import { filterLogView } from './logview.ts';
 
 wssHandle('LogViewRequest', async event => {
+  if (!event.user || !event.user.roles.includes('admin')) {
+    event.reply('WsBadRequest', {
+      message: 'Must be an admin.'
+    });
+    return;
+  }
+
   const pg = openPgSite();
   const data = event.data;
 

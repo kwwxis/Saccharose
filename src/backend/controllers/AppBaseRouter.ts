@@ -8,7 +8,7 @@ import WuwaRouter from './wuwa/app/_index.ts';
 import { NextFunction, Request, Response, Router } from 'express';
 import { SiteUserProvider } from '../middleware/auth/SiteUserProvider.ts';
 import UserRouter from './site/app/UserRouter.ts';
-import LogViewRouter from './site/app/LogViewRouter.ts';
+import AdminRouter from './site/app/AdminRouter.ts';
 import { createLocalControls } from '../middleware/request/tracer.ts';
 import { getControlUserMode } from '../domain/abstract/abstractControlState.ts';
 import { isSiteModeDisabled } from '../loadenv.ts';
@@ -99,8 +99,8 @@ export default async function(): Promise<Router> {
     router.use('/wuwa', await WuwaRouter());
   }
 
-  router.use('/', await LogViewRouter());
   router.use('/', await UserRouter());
+  router.use('/admin', await AdminRouter());
 
   return router;
 };

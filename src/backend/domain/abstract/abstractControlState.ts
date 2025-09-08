@@ -1,6 +1,6 @@
 import { Request } from 'express';
-import { DEFAULT_LANG, LANG_CODES, LangCode } from '../../../shared/types/lang-types.ts';
-import { DEFAULT_SEARCH_MODE, SEARCH_MODES, SearchMode } from '../../../shared/util/searchUtil.ts';
+import { DEFAULT_LANG, LangCode } from '../../../shared/types/lang-types.ts';
+import { DEFAULT_SEARCH_MODE, SearchMode } from '../../../shared/util/searchUtil.ts';
 import { Knex } from 'knex';
 import { WsSession } from '../../websocket/ws-sessions.ts';
 import { SiteUser, SiteUserPrefs } from '../../../shared/types/site/site-user-types.ts';

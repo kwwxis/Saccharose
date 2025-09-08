@@ -33,7 +33,9 @@ CREATE TABLE site_user_wiki_bypass
 CREATE TABLE site_user_banned
 (
     wiki_username       TEXT UNIQUE,
-    discord_id          TEXT UNIQUE
+    discord_id          TEXT UNIQUE,
+    reason              TEXT,
+    mod_note            TEXT
 );
 
 -- Site Notice

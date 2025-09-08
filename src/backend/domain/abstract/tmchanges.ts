@@ -1,9 +1,9 @@
 import { Knex } from 'knex';
 import {
-  ChangeType,
   TextMapChangeEntity,
   TextMapChangeRef,
-  TextMapChangeRefs, TextMapChanges, TextMapChangesForDisplay,
+  TextMapChangeRefs,
+  TextMapChangesForDisplay,
   TextMapFullChangelog,
 } from '../../../shared/types/changelog-types.ts';
 import { LangCode, TextMapHash } from '../../../shared/types/lang-types.ts';
@@ -15,7 +15,7 @@ import { AbstractControl } from './abstractControl.ts';
 import { GameVersion } from '../../../shared/types/game-versions.ts';
 import fs from 'fs';
 import { cleanEmpty } from '../../../shared/util/arrayUtil.ts';
-import { defaultMap, isUnset } from '../../../shared/util/genericUtil.ts'; // optional for batching
+import { isUnset } from '../../../shared/util/genericUtil.ts';
 
 // region INTERFACE
 // --------------------------------------------------------------------------------------------------------------

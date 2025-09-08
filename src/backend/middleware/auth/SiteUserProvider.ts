@@ -160,6 +160,19 @@ export class SiteUserProviderImpl {
     });
   }
 
+  async getBanReason(user: SiteUser): Promise<string> {
+    if (!user || !user.id) {
+      return null;
+    }
+    let qb = pg.select('reason').from('site_user_banned');
+    if (user.wiki_username) {
+      qb = qb.where({wiki_username: user.wiki_username}).or.where({discord_id: user.id});
+    } else {
+      qb = qb.where({discord_id: user.id});
+    }
+    return await qb.first().then(row => row?.reason);
+  }
+
   async isInReqBypass(by: {wiki_username?: string, discord_id?: string}): Promise<boolean> {
     if (!by) {
       return false;

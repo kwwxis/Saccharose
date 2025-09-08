@@ -3,9 +3,10 @@
     <section class="card">
       <h2 class="open-sans-font">Banned</h2>
       <div class="content">
-        <p class="error-notice">
-          You have been banned from using {{ SITE_TITLE }}. If you wish to appeal, please see the contact page.
-        </p>
+        <div class="error-notice">
+          <p>You have been banned from using {{ SITE_TITLE }}. If you wish to appeal, please see the contact page.</p>
+          <p v-if="reason"><strong>Reason:</strong> {{ reason }}</p>
+        </div>
 
         <hr class="spacer15-vert" />
 
@@ -57,6 +58,10 @@ import { SiteUserProvider } from '../../middleware/auth/SiteUserProvider.ts';
 import { getTrace } from '../../middleware/request/tracer.ts';
 import { SiteUser } from '../../../shared/types/site/site-user-types.ts';
 import { SITE_TITLE } from '../../loadenv.ts';
+
+defineProps<{
+  reason?: string,
+}>();
 
 let request = getTrace().req;
 let user: SiteUser = request.user;

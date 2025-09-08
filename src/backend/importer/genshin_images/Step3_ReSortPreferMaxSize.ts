@@ -16,7 +16,7 @@ function* walkSync(dir: string): Generator<string> {
 }
 
 // Runs in-place on the same directory:
-const IN_OUT_DIR: string = 'C:/Shared/HoyoStudioYarik/Output_Texture2D_Files';
+const IN_OUT_DIR: string = 'C:/Shared/AnimeStudio/Output_Texture2D_Files';
 
 async function getDiscriminator(myPath: string) {
   const exifBuf = (await sharp(myPath).metadata()).exif;

@@ -16,8 +16,8 @@ function* walkSync(dir: string): Generator<string> {
 
 // Copies from IN_DIR to OUT_DIR
 // IN_DIR is unaffected
-const IN_DIR: string  = 'C:/Shared/HoyoStudioYarik/Output_Texture2D/';
-const OUT_DIR: string = 'C:/Shared/HoyoStudioYarik/Output_Texture2D_Files/';
+const IN_DIR: string  = 'C:/Shared/AnimeStudio/OutputPreload/';
+const OUT_DIR: string = 'C:/Shared/AnimeStudio/Output_Texture2D_Files/';
 
 async function doIt() {
   fs.mkdirSync(OUT_DIR, { recursive: true });

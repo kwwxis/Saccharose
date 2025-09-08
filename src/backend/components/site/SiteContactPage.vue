@@ -19,14 +19,14 @@
         <ul>
           <li>
             <strong>Discord thread:</strong>
-            <p>The <code>{{ SITE_TITLE }}</code> thread of <code>editing-forums</code> in the Genshin Impact Fandom Wiki discord server.</p>
-            <p>(Some users may not have access to this method)</p>
+            <p>The individual Fandom wiki servers typically have a forum thread dedicated to this site under editor-forums.
+            Note that you must have the "Editor" role on those servers to have access to the relevant thread.</p>
           </li>
           <li>
             <strong>Discord message:</strong>
             <p>DM username <code>kwwxis</code> on Discord.</p>
-            <p>If you do message, and you're not someone I already know, please follow <a href="https://nohello.net/">nohello.net</a> etiquette.
-              If you only say "hello," I might ignore you thinking you're an art commission scammer or something.</p>
+            <p>If you do message, and you're not someone I already know, please follow <a href="https://nohello.net/">nohello.net</a> etiquette,
+            otherwise I'll probably assume it's spam and ignore you.</p>
           </li>
           <li>
             <strong>Reddit message:</strong>
@@ -49,7 +49,7 @@
 import { getTrace } from '../../middleware/request/tracer.ts';
 import { SITE_SHORT_TITLE, SITE_TITLE } from '../../loadenv.ts';
 
-const { nonce } = getTrace();
+const { nonce, ctx } = getTrace();
 
 // language=JavaScript
 import HtmlScript from '../utility/HtmlScript.vue';
