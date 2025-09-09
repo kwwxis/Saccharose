@@ -7,8 +7,6 @@ import {
   TextMapFullChangelog,
 } from '../../../shared/types/changelog-types.ts';
 import { LangCode, TextMapHash } from '../../../shared/types/lang-types.ts';
-import { pathToFileURL } from 'url';
-import { getGenshinControl } from '../genshin/genshinControl.ts';
 import path from 'path';
 import { fsReadJson } from '../../util/fsutil.ts';
 import { AbstractControl } from './abstractControl.ts';
@@ -325,10 +323,5 @@ export async function importTextMapChanges(ctrl: AbstractControl, versionTarget:
   }
 
   console.log('All complete');
-}
-
-if (import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const ctrl = getGenshinControl();
-  await importTextMapChanges(ctrl, 'ALL');
 }
 // endregion
