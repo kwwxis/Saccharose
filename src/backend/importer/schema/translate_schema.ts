@@ -297,9 +297,20 @@ export type PropertySchemaResult = {
   arrayPaths: string[],
 }
 
-async function main(appSchema: SchemaTableSet, schemaName: string, schemaRecords: any[], obfRecords: any[], visitMaxPairs: number = 0): Promise<PropertySchemaResult> {
+async function main(appSchema: SchemaTableSet, schemaName: string, schemaRecords: any[], obfRecords: any[], visitMaxPairs: number = 0, maxRecordsSlice: number = 0): Promise<PropertySchemaResult> {
+  if (isUnset(maxRecordsSlice)) {
+    maxRecordsSlice = 0;
+  }
+  if (maxRecordsSlice && maxRecordsSlice > 0) {
+    schemaRecords = schemaRecords.slice(0, maxRecordsSlice);
+    obfRecords = obfRecords.slice(0, maxRecordsSlice);
+  }
+
   let pairs: RecordPair[] = pairRecords(appSchema, schemaName, schemaRecords, obfRecords);
 
+  if (isUnset(visitMaxPairs)) {
+    visitMaxPairs = 0;
+  }
   if (visitMaxPairs && visitMaxPairs > 0) {
     pairs = pairs.slice(0, visitMaxPairs);
   }
@@ -407,20 +418,23 @@ async function main(appSchema: SchemaTableSet, schemaName: string, schemaRecords
 export async function createPropertySchema(appSchema: SchemaTableSet,
                                            schemaName: string,
                                            schemaFilePath: string,
-                                           obfFilePath: string): Promise<PropertySchemaResult> {
+                                           obfFilePath: string,
+                                           visitMaxPairs: number = 0,
+                                           maxRecordsSlice: number = 0): Promise<PropertySchemaResult> {
   const schemaFile: any[] = await fsp.readFile(schemaFilePath, {encoding: 'utf8'})
     .then(data => Object.freeze(JSONbig.parse(data)));
   const objFile: any[] = await fsp.readFile(obfFilePath, {encoding: 'utf8'})
     .then(data => JSONbig.parse(data));
-  return await main(appSchema, schemaName, schemaFile, objFile);
+  return await main(appSchema, schemaName, schemaFile, objFile, visitMaxPairs, maxRecordsSlice);
 }
 
 export async function createPropertySchemaWithArray(appSchema: SchemaTableSet,
                                                     schemaName: string,
                                                     schemaFile: any[],
                                                     objFile: any[],
-                                                    visitMaxPairs: number = 0): Promise<PropertySchemaResult> {
-  return await main(appSchema, schemaName, schemaFile, objFile, visitMaxPairs);
+                                                    visitMaxPairs: number = 0,
+                                                    maxRecordsSlice: number = 0): Promise<PropertySchemaResult> {
+  return await main(appSchema, schemaName, schemaFile, objFile, visitMaxPairs, maxRecordsSlice);
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
@@ -437,73 +451,88 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
       'MaterialExcelConfigData',
       [
         {
-          "InteractionTitleTextMapHash": 3912540895,
-          "MaterialType": "MATERIAL_QUEST",
-          "StackLimit": 99,
-          "MaxUseCount": 1,
-          "ItemUse": [
-            {
-              "UseParam": [
-                "",
-                "",
-                "",
-                "",
-                ""
-              ]
-            },
-            {
-              "UseParam": [
-                "",
-                ""
-              ]
-            }
+          "Id": 101,
+          "DungeonList": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
           ],
-          "FoodQuality": "FOOD_QUALITY_STRANGE",
-          "EffectDescTextMapHash": 188895719,
-          "SpecialDescTextMapHash": 3804078417,
-          "TypeDescTextMapHash": 2343504238,
-          "EffectIcon": "",
-          "EffectName": "",
-          "PicPath": [],
-          "SatiationParams": [],
-          "DestroyReturnMaterial": [],
-          "DestroyReturnMaterialCount": [],
-          "Id": 100818,
-          "NameTextMapHash": 172436028,
-          "DescTextMapHash": 2140640725,
-          "Icon": "UI_ItemIcon_Recipe_4001",
-          "ItemType": "ITEM_MATERIAL",
-          "Rank": 10
+          "OCMLKJLCFGL": [
+            {},
+            {}
+          ],
+          "DungeonGroup": [],
+          "JumpTargets": [],
+          "JumpParams": [],
+          "GHBELCFCGKJ": "",
+          "JumpDescs": [
+            2918309764,
+            423177506,
+            3061022809,
+            3451159373,
+            2170337291,
+            1148011312,
+            2426800604
+          ],
+          "TextList": [
+            2818091247,
+            3976609992,
+            2226649981,
+            3329051684,
+            4183258881,
+            437959184,
+            844019074,
+            3661367191
+          ]
         }
       ],
       [
         {
-          "AKMJPFOPKGD": "Filter_OTHER",
-          "BGFOCDKGNBH": "FOOD_QUALITY_STRANGE",
-          "CEBMMGCMIJM": "ITEM_MATERIAL",
-          "CNPCNIGHGJJ": "UI_ItemIcon_Recipe_4001",
-          "DNINKKHEILA": 172436028,
-          "ELKKIAIGOBK": 100818,
-          "FEEGIEEHGOM": 99,
-          "MaterialType": "MATERIAL_QUEST",
-          "HMPDBGCJLMI": 10,
-          "InteractionTitleTextMapHash": 3912540895,
-          "KBLDOGNADDK": 3804078417,
-          "LBNIBMAGAPC": "None",
-          "MFDGAOECDFI": 2343504238,
-          "MJCAJBDFKCP": "ITEM_USE_TARGET_NONE",
-          "NJLAALJIFHL": [
+          "BADAABDJION": "",
+          "dungeonGroup": [],
+          "dungeonList": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "EMNJMGDHCGE": [
+            2918309764,
+            423177506,
+            3061022809,
+            3451159373,
+            2170337291,
+            1148011312,
+            2426800604
+          ],
+          "id": 101,
+          "INDBKCAGBNK": "UI_MATERIAL_NULL",
+          "JFFFHJPFJNN": [
             {
-              "KJHOMLEIHKJ": "ITEM_USE_NONE"
+              "EEMKEAHMPON": "JUMP_NONE",
+              "OMOAFANFNGI": 0
             },
             {
-              "KJHOMLEIHKJ": "ITEM_USE_NONE"
+              "EEMKEAHMPON": "JUMP_NONE",
+              "OMOAFANFNGI": 0
             }
           ],
-          "OENCEJFEFNH": 188895719,
-          "OKNLEAMEKPD": 1,
-          "PGEPICIANFN": 2140640725,
-          "PJELHADHEFE": "DESTROY_NONE"
+          "jumpTargets": [],
+          "textList": [
+            2818091247,
+            3976609992,
+            2226649981,
+            3329051684,
+            4183258881,
+            437959184,
+            844019074,
+            3661367191
+          ]
         },
       ]
     )

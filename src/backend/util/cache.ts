@@ -21,7 +21,7 @@ export function redisClient(): RedisClientType<RedisModules, RedisFunctions, Red
 }
 
 export async function redisGetString(key: string): Promise<string> {
-  return (await cache.redis.get(key)).toString();
+  return (await cache.redis.get(key))?.toString();
 }
 
 export async function redisSetString(key: string, value: string): Promise<void> {

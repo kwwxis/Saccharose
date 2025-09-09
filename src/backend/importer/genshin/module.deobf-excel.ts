@@ -28,34 +28,56 @@ export async function writeDeobfExcels() {
     'CodexQuestExcelConfigData',
   ];
 
+  const schemaNamesVisitMaxPairs: Record<string, number> = { };
+  const schemaNamesMaxRecordSlice: Record<string, number> = {
+    'MaterialSourceDataExcelConfigData': 1000
+  };
+
+  let startAt: string = null; // inclusive
+  let endAt: string = null; // inclusive
+  let didStart: boolean = (s => !s)(startAt);
+
   const jsonsInDir = fs.readdirSync(rawExcelDirPath).filter(file => path.extname(file) === '.json');
   for (let _jsonFile of jsonsInDir) {
     const fileName = path.basename(_jsonFile);
     const schemaName = fileName.split('.')[0];
 
+    if (schemaName === startAt) {
+      didStart = true;
+    }
+
+    if (!didStart) {
+      continue;
+    }
+
     const schemaFilePath = getSchemaFilePath(fileName);
     if (!fs.existsSync(schemaFilePath)) {
       console.log('NEW EXCEL: not in schema - ' + schemaName);
-      continue;
     } else {
       console.log('Processing ' + schemaName);
+
+      const absJsonPath = path.resolve(rawExcelDirPath, fileName);
+      let json = await fsp.readFile(absJsonPath, { encoding: 'utf8' }).then(data => JSON.parse(data));
+
+      if (!schemaNamesForCopyOnly.includes(schemaName)) {
+        const propertySchema: PropertySchemaResult = await createPropertySchema(
+          genshinSchema,
+          schemaName,
+          schemaFilePath,
+          absJsonPath,
+          schemaNamesVisitMaxPairs[schemaName],
+          schemaNamesMaxRecordSlice[schemaName]
+        );
+        json = normalizeRawJson(json, genshinSchema[schemaName], propertySchema.map);
+        createPropertySchemaPostProcess_imprintEmptyArrays(json, propertySchema.arrayPaths);
+      }
+
+      fs.writeFileSync(path.resolve(mappedExcelDirPath, './' + schemaName + '.json'), JSON.stringify(json, null, 2));
     }
 
-    const absJsonPath = path.resolve(rawExcelDirPath, fileName);
-    let json = await fsp.readFile(absJsonPath, { encoding: 'utf8' }).then(data => JSON.parse(data));
-
-    if (!schemaNamesForCopyOnly.includes(schemaName)) {
-      const propertySchema: PropertySchemaResult = await createPropertySchema(
-        genshinSchema,
-        schemaName,
-        schemaFilePath,
-        absJsonPath
-      );
-      json = normalizeRawJson(json, genshinSchema[schemaName], propertySchema.map);
-      createPropertySchemaPostProcess_imprintEmptyArrays(json, propertySchema.arrayPaths);
+    if (schemaName === endAt) {
+      break;
     }
-
-    fs.writeFileSync(path.resolve(mappedExcelDirPath, './' + schemaName + '.json'), JSON.stringify(json, null, 2));
   }
 
   console.log('Done');

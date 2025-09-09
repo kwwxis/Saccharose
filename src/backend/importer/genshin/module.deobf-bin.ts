@@ -47,7 +47,6 @@ async function walkSyncWrite(inDir: string, outDir: string, mapping: Record<stri
     let outPath = path.resolve(outDir, relPath);
 
     let jsonAsString: string = await fsRead(inPath);
-    jsonAsString = jsonAsString.replace(/"BPIENBEPBDI":\s*"\r?\n"/g, `"BPIENBEPBDI": ""`);
 
     let json: any;
     try {
@@ -161,38 +160,51 @@ function getSchemaFilePath(filePath: string): string {
 export async function writeDeobfBin() {
   shouldIgnoreConfig.shouldIgnoreEmptyString = true;
 
-  // console.log('----- CodexQuest Mapping -----');
-  // const cqMapping = await mapCodexQuest();
-  //
-  // console.log('----- GCG Mapping -----');
-  // const gcgDvsMapping = await mapGcgDeclaredValueSet();
-  //
-  // console.log('----- HomeworldFurnitureSuit Mapping -----');
-  // const furnSuitMapping = await mapFurnSuit();
-  //
-  // console.log('----- InterAction Mapping -----');
-  // const iaMapping = await mapInterAction();
+  let anyInvalidJson = false;
+  for (let file of walkSync(getGenshinDataFilePath('./BinOutput.Obf/InterAction/QuestDialogue'))) {
+    try {
+      JSON.parse(await fsRead(file));
+    } catch (err) {
+      console.log('Invalid JSON:', file, err);
+      anyInvalidJson = true;
+    }
+  }
+  if (anyInvalidJson) {
+    return;
+  }
+
+  console.log('----- CodexQuest Mapping -----');
+  const cqMapping = await mapCodexQuest();
+
+  console.log('----- GCG Mapping -----');
+  const gcgDvsMapping = await mapGcgDeclaredValueSet();
+
+  console.log('----- HomeworldFurnitureSuit Mapping -----');
+  const furnSuitMapping = await mapFurnSuit();
+
+  console.log('----- InterAction Mapping -----');
+  const iaMapping = await mapInterAction();
 
   console.log('----- Quest Mapping -----');
   const questMapping = await mapQuest();
 
-  // console.log('----- Talk Mapping -----');
-  // const talkMapping = await mapTalk();
-  //
-  // console.log('----- Voice Mapping -----');
-  // const voiceMapping = await mapVoiceOvers();
+  console.log('----- Talk Mapping -----');
+  const talkMapping = await mapTalk();
+
+  console.log('----- Voice Mapping -----');
+  const voiceMapping = await mapVoiceOvers();
 
   console.log();
   console.log();
 
   console.log('----- Writing Outputs -----');
-  // await walkSyncWrite('./BinOutput.Obf/CodexQuest', './BinOutput/CodexQuest', cqMapping);
-  // await walkSyncWrite('./BinOutput.Obf/GCG/Gcg_DeclaredValueSet', './BinOutput/GCG/Gcg_DeclaredValueSet', gcgDvsMapping);
-  // await walkSyncWrite('./BinOutput.Obf/HomeworldFurnitureSuit', './BinOutput/HomeworldFurnitureSuit', furnSuitMapping);
-  // await walkSyncWrite('./BinOutput.Obf/InterAction/QuestDialogue', './BinOutput/InterAction/QuestDialogue', iaMapping);
+  await walkSyncWrite('./BinOutput.Obf/CodexQuest', './BinOutput/CodexQuest', cqMapping);
+  await walkSyncWrite('./BinOutput.Obf/GCG/Gcg_DeclaredValueSet', './BinOutput/GCG/Gcg_DeclaredValueSet', gcgDvsMapping);
+  await walkSyncWrite('./BinOutput.Obf/HomeworldFurnitureSuit', './BinOutput/HomeworldFurnitureSuit', furnSuitMapping);
+  await walkSyncWrite('./BinOutput.Obf/InterAction/QuestDialogue', './BinOutput/InterAction/QuestDialogue', iaMapping);
   await walkSyncWrite('./BinOutput.Obf/Quest', './BinOutput/Quest', questMapping);
-  // await walkSyncWrite('./BinOutput.Obf/Talk', './BinOutput/Talk', talkMapping);
-  // await walkSyncWrite('./BinOutput.Obf/Voice', './BinOutput/Voice', voiceMapping);
+  await walkSyncWrite('./BinOutput.Obf/Talk', './BinOutput/Talk', talkMapping);
+  await walkSyncWrite('./BinOutput.Obf/Voice', './BinOutput/Voice', voiceMapping);
 }
 
 // region Mappers
@@ -412,12 +424,12 @@ async function mapQuest(): Promise<Record<string, string>> {
 }
 
 async function mapTalk(): Promise<Record<string, string>> {
-  const talkCombiner: Combiner = (acc, json, file) => {
+  const talkCombiner: Combiner = (acc, json, _file) => {
     delete json.LOEAGAAPPKO; // from schema
 
     let rows: any[] = [];
 
-    const theArrayKey: string = Object.entries(json).filter(([k, v]) => Array.isArray(v))?.[0]?.[0];
+    const theArrayKey: string = Object.entries(json).filter(([_k, v]) => Array.isArray(v))?.[0]?.[0];
 
     if (!theArrayKey) {
       rows.push(json);
