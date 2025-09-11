@@ -1,5 +1,6 @@
 import { SearchMode } from '../util/searchUtil.ts';
 import { defaultMap } from '../util/genericUtil.ts';
+import { GameVersions } from './game-versions.ts';
 
 export interface ImageIndexExcelMeta {
   [excelFile: string]: ImageIndexExcelMetaEntry;
@@ -50,7 +51,7 @@ export interface ImageIndexSearchParams {
   cat8?: string,
   catPath?: string,
   catRestrict?: boolean,
-  versionFilter?: string,
+  versionFilter?: string|GameVersions,
   offset?: number,
   limit?: number,
   searchMode?: SearchMode,

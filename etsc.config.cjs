@@ -1,7 +1,7 @@
 // noinspection JSUnusedGlobalSymbols
 
 const JsExtPlugin = require('./etsc-jsext.cjs');
-const fs = require('node:fs');
+const fsp = require('node:fs/promises');
 const dotenv = require('dotenv');
 dotenv.config();
 
@@ -22,7 +22,7 @@ module.exports = {
   // Prebuild hook
   prebuild: async () => {
     console.time('ETSC rmdir');
-    fs.rmSync('./dist', {
+    await fsp.rm('./dist', {
       recursive: true,
       force: true,
     });
@@ -36,11 +36,11 @@ module.exports = {
     console.timeEnd('ETSC build');
 
     console.time('ETSC cpy');
-    fs.cpSync('./src/backend/views', './dist/backend/views', {
+    await fsp.cp('./src/backend/views', './dist/backend/views', {
       force: true,
       recursive: true,
     });
-    fs.cpSync('./src/pipeline/detect_language.py', './dist/pipeline/detect_language.py', { force: true });
+    await fsp.cp('./src/pipeline/detect_language.py', './dist/pipeline/detect_language.py', { force: true });
     console.timeEnd('ETSC cpy');
   },
 };

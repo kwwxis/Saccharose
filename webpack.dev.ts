@@ -1,6 +1,7 @@
 import {merge} from 'webpack-merge';
 import {Configuration} from 'webpack';
 import LiveReloadPlugin from 'webpack-livereload-plugin';
+import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 import baseConfig from './webpack.base';
 import fs from 'fs';
 import { toBoolean } from './src/shared/util/genericUtil';
@@ -28,6 +29,11 @@ export default <Configuration> merge(baseConfig('development'), {
         key: fs.readFileSync(process.env.SSL_KEY, 'utf8'),
         cert: fs.readFileSync(process.env.SSL_CERT, 'utf8'),
       } : {})
+    }),
+    new BundleAnalyzerPlugin({
+      analyzerMode: 'disabled',
+      generateStatsFile: true,
+      statsOptions: { source: false }
     }),
   ]
 });

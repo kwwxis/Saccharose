@@ -10,8 +10,17 @@ export type ESBuildUserConfig = Partial<{
   postbuild: () => Promise<void>;
 }>;
 
+async function checkFileExists(file: string): Promise<boolean> {
+  try {
+    await fs.promises.access(file, fs.constants.F_OK);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
 export async function readUserConfig(configPath: string): Promise<ESBuildUserConfig> {
-  if (fs.existsSync(configPath)) {
+  if (await checkFileExists(configPath)) {
     try {
       const configPathUrl = path.isAbsolute(configPath)
         ? url.pathToFileURL(configPath).toString()

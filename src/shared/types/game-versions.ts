@@ -168,7 +168,7 @@ export class GameVersions {
           finalVersions.push(cursor);
         }
       } else {
-        throw 'Unknown or unsupported version: ' + version;
+        throw new Error('Unknown or unsupported version: ' + version);
       }
     }
 

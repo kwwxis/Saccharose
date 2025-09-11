@@ -30,12 +30,13 @@ import { Readable } from '../../../../shared/types/genshin/readable-types.ts';
 import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
 import { defaultMap } from '../../../../shared/util/genericUtil.ts';
 import { ImageIndexEntity } from '../../../../shared/types/image-index-types.ts';
+import { GameVersion, GameVersions } from '../../../../shared/types/game-versions.ts';
 
 export class QuestGenerateResult {
   mainQuest: MainQuestExcelConfigData = null;
   questTitle: string;
   questId: number;
-  versionAdded?: string;
+  versionAdded?: GameVersion;
   npc: {
     names: string[],
     data: {[Id: number]: NpcExcelConfigData},
@@ -467,7 +468,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
   if (result.versionAdded && ctrl.state.questHasQuestItemPictures[mainQuest.Id]) {
     const questPictures = await ctrl.searchImageIndex({
       query: `^UI_QuestPicture`,
-      versionFilter: result.versionAdded,
+      versionFilter: new GameVersions([result.versionAdded]),
       searchMode: 'RI',
       limit: 1000
     });

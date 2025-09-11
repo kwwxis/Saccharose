@@ -1,5 +1,5 @@
 import { openDB, DBSchema, IDBPDatabase } from 'idb';
-import { ColumnState } from 'ag-grid-community';
+import type { ColumnState } from 'ag-grid-community';
 
 export interface ExcelViewerDB extends DBSchema {
   'GENSHIN.ColumnState': {

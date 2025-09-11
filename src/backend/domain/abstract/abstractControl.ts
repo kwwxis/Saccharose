@@ -1029,7 +1029,9 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       select.searchMode = this.searchMode;
 
 
-    const versionFilter: GameVersions = this.gameVersions.where(v => v.showNewMedia).fromFilterString(select.versionFilter);
+    const versionFilter: GameVersions = select.versionFilter instanceof GameVersions
+      ? select.versionFilter
+      : this.gameVersions.where(v => v.showNewMedia).fromFilterString(select.versionFilter);
 
     let builder: Knex.QueryBuilder = openPgSite().select('*').from(this.dbName + '_image_index');
 

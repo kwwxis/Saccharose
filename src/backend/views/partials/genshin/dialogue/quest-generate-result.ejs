@@ -4,7 +4,7 @@
     <span class="quest-title"><%= questTitle || '(No title)' %></span>
     <span class="secondary-label small spacer5-left"><%= mainQuest.Type %></span>
     <% if (locals.versionAdded) { %>
-      <span class="secondary-label small spacer5-left"><%= versionAdded %></span>
+      <span class="secondary-label small spacer5-left"><%= versionAdded.displayLabel %></span>
     <% } %>
     <span class="grow"></span>
     <a class="help-info fr fontWeight600" style="font-size:15px;cursor:pointer;">Help</a>

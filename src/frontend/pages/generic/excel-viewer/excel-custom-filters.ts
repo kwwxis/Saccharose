@@ -1,4 +1,4 @@
-import { IFilterOptionDef, INumberFilterParams } from 'ag-grid-community';
+import type { IFilterOptionDef, INumberFilterParams } from 'ag-grid-community';
 
 export const booleanFilter: INumberFilterParams = {
   filterOptions: [
