@@ -4,7 +4,7 @@
     <h2 class="valign">
       <a href="/genshin/changelog" style="text-decoration: none">Changelogs</a>
       <Icon name="chevron-right" />
-      <span>{{ currentVersion.previous }} &ndash; {{ currentVersion.number }}</span>
+      <span>{{ currentVersion.prev()?.displayLabel }} &ndash; {{ currentVersion.displayLabel }}</span>
     </h2>
 
     <div class="tab-list" role="tablist">
@@ -23,7 +23,7 @@
 
     <div id="tabpanel-newSummary" role="tabpanel" class="tabpanel active">
       <div class="info-notice open-sans-font valign" style="font-size:13px">
-        <span>Summary of new records from {{ currentVersion.previous }} to {{ currentVersion.number }}.</span>
+        <span>Summary of new records from {{ currentVersion.prev()?.displayLabel }} to {{ currentVersion.displayLabel }}.</span>
         <span class="grow"></span>
         <button id="new-summary-toc-show-button" class="secondary small hide" ui-action="remove-class: #new-summary-toc, out1">Show Table of Contents</button>
         <button id="new-summary-collapse-all-button" class="secondary small spacer5-left" >Collapse All</button>

@@ -8,6 +8,7 @@ import {
 import { SbOut } from '../../../../shared/util/stringUtil.ts';
 import { ol_gen_from_id } from '../../abstract/basic/OLgen.ts';
 import { ChangeRecordRef } from '../../../../shared/types/changelog-types.ts';
+import { GenshinVersions } from '../../../../shared/types/game-versions.ts';
 
 // Cards
 // --------------------------------------------------------------------------------------------------------------
@@ -45,7 +46,7 @@ export async function generateSkillPage(gcg: GCGControl, parentCard: GCGCommonCa
   sb.line();
   sb.line('==Change History==');
   const crRecord = await gcg.ctrl.selectChangeRecordAdded(skill.Id, 'GCGSkillExcelConfigData');
-  sb.line('{{Change History|' + (crRecord ? crRecord.version : '<!-- version -->') + '}}');
+  sb.line('{{Change History|' + (crRecord?.version?.label || '<!-- version -->') + '}}');
   sb.line();
   sb.line('==Navigation==');
   sb.line(`{{Genius Invokation TCG Skill Navbox|${parentCard.WikiName}}}`);
@@ -214,7 +215,7 @@ export async function generateCardPage(gcg: GCGControl, card: GCGCommonCard): Pr
   } else {
     crRecord = null;
   }
-  sb.line('{{Change History|' + (crRecord ? crRecord.version : '<!-- version -->') + '}}');
+  sb.line('{{Change History|' + (crRecord?.version?.label || '<!-- version -->') + '}}');
   sb.line();
 
   sb.line('==Navigation==');

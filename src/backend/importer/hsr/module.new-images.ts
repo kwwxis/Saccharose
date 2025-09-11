@@ -36,7 +36,7 @@ export async function recordNewStarRailImages() {
   const result: Record<string, string> = {};
 
   console.log('Recording new images...');
-  for (let version of StarRailVersions.filter(v => v.showNewMedia)) {
+  for (let version of StarRailVersions.list.filter(v => v.showNewMedia)) {
     console.log('  Processing version: ' + version.number);
     for (const imageName of getImageNames(path.resolve(IMAGEDIR_HSR_ARCHIVE, `./Texture2D_${version.number}`))) {
       if (result[imageName]) {

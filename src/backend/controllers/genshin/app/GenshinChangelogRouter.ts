@@ -25,7 +25,7 @@ export default async function(): Promise<Router> {
   });
 
   router.get('/changelog/:version', async (req: Request, res: Response) => {
-    const gameVersion = GenshinVersions.find(v => v.number === req.params.version);
+    const gameVersion = GenshinVersions.get(req.params.version);
 
     if (!gameVersion || !gameVersion.showTextmapChangelog) {
       await res.renderComponent(ChangelogListPage, {
@@ -40,7 +40,7 @@ export default async function(): Promise<Router> {
     const newSummary = await generateGenshinChangelogNewRecordSummary(ctrl, gameVersion, excelChangelog);
 
     await res.renderComponent(GenshinChangelogSummaryPage, {
-      title: 'Genshin Changelog ' + gameVersion.number,
+      title: 'Genshin Changelog ' + gameVersion.displayLabel,
       currentVersion: gameVersion,
       newSummary,
       bodyClass: ['page--changelog', 'page--wide', 'page--narrow-sidebar']
@@ -48,7 +48,7 @@ export default async function(): Promise<Router> {
   });
 
   router.get('/changelog/:version/excels', async (req: Request, res: Response) => {
-    const gameVersion = GenshinVersions.find(v => v.number === req.params.version);
+    const gameVersion = GenshinVersions.get(req.params.version);
 
     if (!gameVersion || !gameVersion.showTextmapChangelog) {
       await res.renderComponent(ChangelogListPage, {
@@ -62,7 +62,7 @@ export default async function(): Promise<Router> {
     const excelChangelog = await ctrl.selectExcelChangelog(gameVersion);
 
     await res.renderComponent(ChangelogExcelListPage, {
-      title: 'Genshin Changelog ' + gameVersion.number,
+      title: 'Genshin Changelog ' + gameVersion.displayLabel,
       currentVersion: gameVersion,
       excelChangelog,
       bodyClass: ['page--changelog', 'page--wide', 'page--narrow-sidebar']
@@ -70,7 +70,7 @@ export default async function(): Promise<Router> {
   });
 
   router.get('/changelog/:version/textmap', async (req: Request, res: Response) => {
-    const gameVersion = GenshinVersions.find(v => v.number === req.params.version);
+    const gameVersion = GenshinVersions.get(req.params.version);
 
     if (!gameVersion || !gameVersion.showTextmapChangelog) {
       await res.renderComponent(ChangelogListPage, {
@@ -90,7 +90,7 @@ export default async function(): Promise<Router> {
     const activeTab = queryTab(req, 'added', 'updated', 'removed');
 
     await res.renderComponent(ChangelogTextMapPage, {
-      title: 'Genshin TextMap Diff ' + gameVersion.number,
+      title: 'Genshin TextMap Diff ' + gameVersion.displayLabel,
       currentVersion: gameVersion,
       activeTab,
       textmapChanges,
@@ -99,7 +99,7 @@ export default async function(): Promise<Router> {
   });
 
   router.get('/changelog/:version/excels/:excelFileName', async (req: Request, res: Response) => {
-    const gameVersion = GenshinVersions.find(v => v.number === req.params.version);
+    const gameVersion = GenshinVersions.get(req.params.version);
 
     if (!gameVersion || !gameVersion.showExcelChangelog) {
       await res.renderComponent(ChangelogListPage, {

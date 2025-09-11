@@ -22,7 +22,7 @@ export default async function(): Promise<Router> {
   });
 
   router.get('/changelog/:version/textmap', async (req: Request, res: Response) => {
-    const gameVersion = StarRailVersions.find(v => v.number === req.params.version);
+    const gameVersion = StarRailVersions.get(req.params.version);
 
     if (!gameVersion || !gameVersion.showTextmapChangelog) {
       await res.renderComponent(ChangelogListPage, {
@@ -42,7 +42,7 @@ export default async function(): Promise<Router> {
     const activeTab = queryTab(req, 'added', 'updated', 'removed');
 
     await res.renderComponent(ChangelogTextMapPage, {
-      title: 'HSR TextMap Diff ' + gameVersion.number,
+      title: 'HSR TextMap Diff ' + gameVersion.displayLabel,
       currentVersion: gameVersion,
       activeTab,
       textmapChanges,

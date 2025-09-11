@@ -7,7 +7,7 @@
       <p v-if="errorMessage" class="error-notice spacer10-bottom">{{ errorMessage }}</p>
       <template v-for="version of gameVersionsToList">
         <div class="secondary-label valign spacer5-bottom" v-if="version.showTextmapChangelog">
-          <span>{{ version.previous }} &ndash; {{ version.number }}</span>
+          <span>{{ version.prev()?.displayLabel }} &ndash; {{ version.displayLabel }}</span>
 
           <span class="grow"></span>
 
@@ -26,16 +26,16 @@
 </template>
 
 <script setup lang="ts">
-import { GameVersion } from '../../../shared/types/game-versions.ts';
+import { GameVersions } from '../../../shared/types/game-versions.ts';
 import { getTrace } from '../../middleware/request/tracer.ts';
 import Icon from '../utility/Icon.vue';
 
 const { ctx } = getTrace();
 
 const { gameVersions } = defineProps<{
-  gameVersions?: GameVersion[];
+  gameVersions?: GameVersions;
   errorMessage?: string
 }>();
 
-const gameVersionsToList = gameVersions?.slice()?.reverse();
+const gameVersionsToList = gameVersions?.reversedList;
 </script>

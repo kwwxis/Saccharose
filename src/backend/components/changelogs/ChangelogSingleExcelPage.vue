@@ -1,12 +1,12 @@
 <template>
-  <meta id="x-addedRecords-excelFileName" name="x-addedRecords-excelFileName" :content="`${excelFileChanges.name} - New Records ${currentVersion.previous} - ${currentVersion.number}`" />
+  <meta id="x-addedRecords-excelFileName" name="x-addedRecords-excelFileName" :content="`${excelFileChanges.name} - New Records ${currentVersion.prevNumber} - ${currentVersion.number}`" />
   <meta id="x-addedRecords-excelData" name="x-addedRecords-excelData" :content="JSON.stringify(valuesOf(excelFileChanges.changedRecords).filter(r => r.changeType === 'added').map(r => r.addedRecord))" />
 
   <section class="card spacer10-bottom">
     <h2 class="valign">
       <a :href="`${ctx.siteHome}/changelog`" style="text-decoration: none">Changelogs</a>
       <Icon name="chevron-right" />
-      <span>{{ currentVersion.previous }} &ndash; {{ currentVersion.number }}</span>
+      <span>{{ currentVersion.prev()?.displayLabel }} &ndash; {{ currentVersion.displayLabel }}</span>
     </h2>
 
     <div class="tab-list" role="tablist">

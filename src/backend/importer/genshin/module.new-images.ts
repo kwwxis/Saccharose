@@ -8,7 +8,7 @@ export async function recordNewGenshinImages() {
   const result: Record<string, string> = {};
 
   console.log('Recording new images...');
-  for (let version of GenshinVersions.filter(v => v.showNewMedia)) {
+  for (let version of GenshinVersions.list.filter(v => v.showNewMedia)) {
     console.log('  Processing version: ' + version.number);
     for (const fileName of fs.readdirSync(path.resolve(IMAGEDIR_GENSHIN_ARCHIVE, `./Texture2D_${version.number}`))) {
       if (!fileName.endsWith('.png')) {

@@ -61,6 +61,7 @@ import GenshinLoadingTips from '../../../components/genshin/reminders/GenshinLoa
 import FurnitureListPage from '../../../components/genshin/furnishings/FurnitureListPage.vue';
 import FurniturePage from '../../../components/genshin/furnishings/FurniturePage.vue';
 import { OLResult } from '../../../../shared/types/ol-types.ts';
+import { GenshinVersions } from '../../../../shared/types/game-versions.ts';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -293,7 +294,7 @@ export default async function(): Promise<Router> {
       sb.line();
       sb.line('==Change History==');
       const crRecord = await ctrl.selectChangeRecordAdded(achievement.Id, 'AchievementExcelConfigData');
-      sb.line('{{Change History|' + (crRecord ? crRecord.version : '<!-- version -->') + '}}');
+      sb.line('{{Change History|' + (crRecord?.version?.label || '<!-- version -->') + '}}');
       sb.line();
       sb.line('==Navigation==');
       sb.line('{{Achievement Navbox}}');
@@ -580,7 +581,7 @@ export default async function(): Promise<Router> {
       sb.line();
       sb.line('==Change History==');
       const crRecord = await ctrl.selectChangeRecordAdded(furn.Id, 'HomeWorldFurnitureExcelConfigData');
-      sb.line('{{Change History|' + (crRecord ? crRecord.version : '<!-- version -->') + '}}');
+      sb.line('{{Change History|' + (crRecord?.version?.label || '<!-- version -->') + '}}');
       sb.line();
       sb.line('==Navigation==');
       if (

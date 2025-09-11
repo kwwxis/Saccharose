@@ -1,6 +1,7 @@
 import { LangCode, TextMapHash } from './lang-types.ts';
 import { defaultMap } from '../util/genericUtil.ts';
 import { toString } from '../util/stringUtil.ts';
+import { GameVersion } from './game-versions.ts';
 
 // region Excel Changelog Types
 // --------------------------------------------------------------------------------------------------------------
@@ -64,14 +65,14 @@ export type FieldChange = {
 };
 
 export type ChangeRecordRef = {
-  version: string,
+  version: GameVersion,
   excelFile: string,
   recordKey: string,
   record: ChangeRecord
 }
 
 export type TextMapChangeRef = {
-  version: string,
+  version: GameVersion,
   changeType: ChangeType,
   value: string,
   prevValue?: string,

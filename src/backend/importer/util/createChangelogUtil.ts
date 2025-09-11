@@ -12,7 +12,7 @@ import {
   TextMapFullChangelog,
 } from '../../../shared/types/changelog-types.ts';
 import { ltrim } from '../../../shared/util/stringUtil.ts';
-import { GameVersion } from '../../../shared/types/game-versions.ts';
+import { GameVersion, GameVersions } from '../../../shared/types/game-versions.ts';
 import chalk from 'chalk';
 
 class CreateChangelogState {
@@ -51,7 +51,7 @@ class CreateChangelogState {
   constructor(readonly CHANGELOGS_DIR: string,
               readonly ARCHIVES_DIR: string,
               readonly gameSchema: SchemaTableSet,
-              readonly gameVersions: GameVersion[],
+              readonly gameVersions: GameVersions,
               __versionLabel: string) {
     // Test environment variables:
     if (!CHANGELOGS_DIR) {
@@ -65,7 +65,7 @@ class CreateChangelogState {
 
     // Set version label:
     this.versionLabel = ltrim(__versionLabel.toLowerCase(), 'v');
-    this.version = gameVersions.find(v => v.number == this.versionLabel);
+    this.version = gameVersions.get(this.versionLabel);
     if (!this.version) {
       console.error('Invalid version: ' + this.versionLabel);
       process.exit(1);
@@ -77,11 +77,11 @@ class CreateChangelogState {
 
     this.noPriorChangelog = this.version.noPriorChangelog;
     if (!this.noPriorChangelog)
-      this.prevDataRoot = path.resolve(ARCHIVES_DIR, `./${this.version.previous}`);
+      this.prevDataRoot = path.resolve(ARCHIVES_DIR, `./${this.version.prevNumber}`);
     this.currDataRoot = path.resolve(ARCHIVES_DIR, `./${this.version.number}`);
 
     // Initial message:
-    console.info(`Creating changelog for ${this.version.previous} - ${this.version.number} diff`);
+    console.info(`Creating changelog for ${this.version.prevNumber} - ${this.version.number} diff`);
   }
 }
 
@@ -347,7 +347,7 @@ async function computeExcelFileChanges(state: CreateChangelogState) {
 export async function createChangelog(changelogsDir: string,
                                       archivesDir: string,
                                       gameSchema: SchemaTableSet,
-                                      gameVersions: GameVersion[],
+                                      gameVersions: GameVersions,
                                       versionLabel: string): Promise<void> {
   const state: CreateChangelogState = new CreateChangelogState(changelogsDir, archivesDir, gameSchema, gameVersions, versionLabel);
 

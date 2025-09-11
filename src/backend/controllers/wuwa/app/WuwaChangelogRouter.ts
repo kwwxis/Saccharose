@@ -22,7 +22,7 @@ export default async function(): Promise<Router> {
   });
 
   router.get('/changelog/:version/textmap', async (req: Request, res: Response) => {
-    const gameVersion = WuwaVersions.find(v => v.number === req.params.version);
+    const gameVersion = WuwaVersions.get(req.params.version);
 
     if (!gameVersion || !gameVersion.showTextmapChangelog) {
       await res.renderComponent(ChangelogListPage, {
@@ -42,7 +42,7 @@ export default async function(): Promise<Router> {
     const activeTab = queryTab(req, 'added', 'updated', 'removed');
 
     await res.renderComponent(ChangelogTextMapPage, {
-      title: 'Wuwa TextMap Diff ' + gameVersion.number,
+      title: 'Wuwa TextMap Diff ' + gameVersion.displayLabel,
       currentVersion: gameVersion,
       activeTab,
       textmapChanges,

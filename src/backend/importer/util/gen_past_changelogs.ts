@@ -14,7 +14,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
 }
 
 async function wuwa() {
-  for (let version of WuwaVersions) {
+  for (let version of WuwaVersions.list) {
     ENV.WUWA_DATA_ROOT = ENV.WUWA_ARCHIVES + '/' + version.number;
     // await wuwaNormalize();
     await createChangelog(ENV.WUWA_CHANGELOGS, ENV.WUWA_ARCHIVES, wuwaSchema, WuwaVersions, version.number);
@@ -22,7 +22,7 @@ async function wuwa() {
 }
 
 async function hsr() {
-  for (let version of StarRailVersions) {
+  for (let version of StarRailVersions.list) {
     if (version.number !== '3.1') {
       continue;
     }
@@ -34,7 +34,7 @@ async function hsr() {
 
 
 async function genshin() {
-  for (let version of GenshinVersions) {
+  for (let version of GenshinVersions.list) {
     if (!version.showTextmapChangelog) {
       continue;
     }

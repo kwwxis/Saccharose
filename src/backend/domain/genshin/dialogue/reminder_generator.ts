@@ -141,7 +141,7 @@ class ReminderGenerationContext {
 
     const changeRecord = await this.ctrl.selectChangeRecordAdded(reminder.Id, 'ReminderExcelConfigData');
     if (changeRecord) {
-      sect.metadata.push(new MetaProp('Added In Version', changeRecord.version));
+      sect.metadata.push(new MetaProp('Added In Version', changeRecord.version?.displayLabel));
     }
 
     await this.handleSingle(reminder, subseq, sect);

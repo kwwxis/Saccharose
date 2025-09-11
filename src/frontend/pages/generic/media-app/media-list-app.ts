@@ -1,7 +1,7 @@
 import { pageMatch } from '../../../core/pageMatch.ts';
 import { SaccharoseApiEndpoint } from '../../../core/endpoints.ts';
 import {
-  ImageCategoryMap, ImageCategoryMapChildren,
+  ImageCategoryMap,
   ImageIndexSearchParams,
   ImageIndexSearchResult,
 } from '../../../../shared/types/image-index-types.ts';
@@ -11,7 +11,7 @@ import { isNotEmpty, toBoolean } from '../../../../shared/util/genericUtil.ts';
 import { templateIcon } from '../../../util/templateIcons.ts';
 import { uuidv4 } from '../../../../shared/util/uuidv4.ts';
 import './media-list.styles.scss';
-import { GenshinVersions, parseVersionFilters } from '../../../../shared/types/game-versions.ts';
+import { GenshinVersions, GameVersions } from '../../../../shared/types/game-versions.ts';
 import { getByteSizeLabel } from './media-app-util.ts';
 
 export function initiateMediaListPage(
@@ -49,16 +49,16 @@ export function initiateMediaListPage(
       const firstVersionFilter: HTMLInputElement = document.querySelector('#firstVersionFilter');
       const firstVersionFilterErrorText: HTMLInputElement = document.querySelector('#firstVersionFilterErrorText');
 
-      firstVersionFilter.addEventListener('change', e => {
+      firstVersionFilter.addEventListener('change', _e => {
         const filterText = firstVersionFilter.value;
         try {
-          const filter = parseVersionFilters(filterText, GenshinVersions);
+          const filter: GameVersions = GenshinVersions.fromFilterString(filterText);
           firstVersionFilterErrorText.innerText = '';
-          if (!filter.length) {
+          if (filter.isEmpty()) {
             filterStyleElement.innerText = '';
           } else {
             filterStyleElement.innerText = `.media-version-filter-target { display: none; }\n` +
-              filter.map(v => `.first-version-${v.number.replace(/\./g, '-')} {display:block;}`).join('\n');
+              filter.list.map(v => `.first-version-${v.cssFriendlyNumber()} {display:block;}`).join('\n');
           }
         } catch (errorText) {
           firstVersionFilterErrorText.innerText = String(errorText);
@@ -146,7 +146,7 @@ export function initiateMediaListPage(
 
         imageLoaders[myId] = () => loadImages(myId, loadZoneEl, myPath, 0);
 
-        el.querySelector(":scope > .media-cat-header .expando").addEventListener('click', (ev) => {
+        el.querySelector(":scope > .media-cat-header .expando").addEventListener('click', (_ev) => {
           if (!toBoolean(el.getAttribute('data-did-populate'))) {
             el.setAttribute('data-did-populate', 'true');
             makeCategoryElements(cat, childrenEl, myPath, null);

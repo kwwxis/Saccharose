@@ -14,7 +14,7 @@
         <tr v-for="changeRecordRef of changeRecordRefs">
           <td>{{ changeRecordRef.recordKey }}</td>
           <td>{{ changeRecordRef.excelFile }}</td>
-          <td>{{ changeRecordRef.version }}</td>
+          <td>{{ changeRecordRef.version?.displayLabel }}</td>
         </tr>
       </table>
     </section>

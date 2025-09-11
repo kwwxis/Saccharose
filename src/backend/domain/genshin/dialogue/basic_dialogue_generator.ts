@@ -22,7 +22,7 @@ import { reminderGenerateFromSpeakerTextMapHashes } from './reminder_generator.t
 import { custom } from '../../../util/logger.ts';
 import { CommonLineId, DialogWikitextResult } from '../../../../shared/types/common-types.ts';
 import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
-import { GameVersionFilter } from '../../../../shared/types/game-versions.ts';
+import { GameVersions } from '../../../../shared/types/game-versions.ts';
 
 // region NPC Filtering for Single Branch Dialogue
 // --------------------------------------------------------------------------------------------------------------
@@ -59,7 +59,7 @@ export type DialogueGenerateOpts = {
   query: number|number[]|string,
   voicedOnly?: boolean;
   npcFilter?: string;
-  versionFilter?: GameVersionFilter,
+  versionFilter?: GameVersions,
 }
 
 export const DIALOGUE_GENERATE_MAX = 100;

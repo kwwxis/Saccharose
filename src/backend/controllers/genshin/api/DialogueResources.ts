@@ -1,6 +1,5 @@
 import { create } from '../../../routing/router.ts';
 import { GenshinControl, getGenshinControl } from '../../../domain/genshin/genshinControl.ts';
-import { ChapterExcelConfigData, MainQuestExcelConfigData } from '../../../../shared/types/genshin/quest-types.ts';
 import { isInt, toInt } from '../../../../shared/util/numberUtil.ts';
 import { questGenerate, QuestGenerateResult } from '../../../domain/genshin/dialogue/quest_generator.ts';
 import { defaultMap, isset, removeCyclicRefs, toBoolean } from '../../../../shared/util/genericUtil.ts';
@@ -12,11 +11,10 @@ import {
 } from '../../../domain/genshin/dialogue/basic_dialogue_generator.ts';
 import { reminderGenerate, reminderWikitext } from '../../../domain/genshin/dialogue/reminder_generator.ts';
 import { ApiCyclicValueReplacer } from '../../../middleware/api/apiCyclicValueReplacer.ts';
-import { VoiceItem } from '../../../../shared/types/lang-types.ts';
 import { Request, Response, Router } from 'express';
 import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
 import GenshinQuestSearchResults from '../../../components/genshin/quests/GenshinQuestSearchResults.vue';
-import { GameVersionFilter } from '../../../../shared/types/game-versions.ts';
+import { GameVersions } from '../../../../shared/types/game-versions.ts';
 import { sort } from '../../../../shared/util/arrayUtil.ts';
 
 const router: Router = create();
@@ -129,7 +127,7 @@ router.endpoint('/dialogue/single-branch-generate', {
       throw HttpError.badRequest('UnsupportedOperation', 'Unfortunately, you cannot search for just "Paimon" as the operation would be too intensive.');
     }
 
-    const versionFilter: GameVersionFilter = GameVersionFilter.from(req.query.versionFilter, ctrl.gameVersions.filter(v => v.showTextmapChangelog));
+    const versionFilter: GameVersions = ctrl.gameVersions.where(v => v.showTextmapChangelog).fromFilterString(req.query.versionFilter);
 
     let result: DialogueSectionResult[] = await dialogueGenerate(ctrl, {
       query,

@@ -8,7 +8,7 @@
     <h2 class="valign">
       <a :href="`${ctx.siteHome}/changelog`" style="text-decoration: none">Changelogs</a>
       <Icon name="chevron-right" />
-      <span>{{ currentVersion.previous }} &ndash; {{ currentVersion.number }}</span>
+      <span>{{ currentVersion.prev()?.displayLabel }} &ndash; {{ currentVersion.displayLabel }}</span>
     </h2>
 
     <div class="tab-list" role="tablist">

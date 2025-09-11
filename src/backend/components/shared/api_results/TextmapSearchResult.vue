@@ -25,7 +25,7 @@
               :class="{'ace-plaintext': item.hashMarkers && item.hashMarkers.length }"
               :data-markers="Marker.joining(item.hashMarkers)" translate="no" style="margin-top:1px;margin-bottom:-1px">{{ item.hash }}</code>
         <small v-if="item.version" style="font-weight: normal;font-size: 12px;margin: 3px 0 0 10px;opacity: 0.75;">
-          since {{ item.version }}
+          since {{ item.version.displayLabel }}
           <button v-if="item.changeRefs.length > 1" class="change-refs-trigger secondary small fontWeight600 expand-action collapsed-state"
                   :ui-action="`expando: #change-refs-${item.resultNumber}`"
                   :data-hash="item.hash" style="border-radius:5px;font-size:12px"
@@ -65,7 +65,7 @@
         <div class="card" style="margin-bottom:0">
           <div v-for="changeRef of item.changeRefs" class="change-ref">
             <h3 class="secondary-header valign">
-              <span>Version {{ changeRef.version }}:</span>&nbsp;
+              <span>Version {{ changeRef.version.displayLabel }}:</span>&nbsp;
               <span>{{ changeRef.changeType }}</span>
             </h3>
             <div class="content change-ref-content" :data-json="JSON.stringify(changeRef)">

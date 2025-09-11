@@ -10,7 +10,7 @@ import { LangCode, TextMapHash } from '../../../shared/types/lang-types.ts';
 import path from 'path';
 import { fsReadJson } from '../../util/fsutil.ts';
 import { AbstractControl } from './abstractControl.ts';
-import { GameVersion } from '../../../shared/types/game-versions.ts';
+import { GameVersion, GameVersions } from '../../../shared/types/game-versions.ts';
 import fs from 'fs';
 import { cleanEmpty } from '../../../shared/util/arrayUtil.ts';
 import { isUnset } from '../../../shared/util/genericUtil.ts';
@@ -117,7 +117,7 @@ export class TextMapChangelog {
 
     for (let row of rows) {
       refs.push({
-        version: row.version,
+        version: this.ctrl.gameVersions.get(row.version),
         changeType: row.change_type,
         value: doNorm(row.content),
         prevValue: doNorm(row.prev_content),
@@ -151,7 +151,7 @@ export class TextMapChangelog {
 
     for (let row of rows) {
       out[row.hash].list.push({
-        version: row.version,
+        version: this.ctrl.gameVersions.get(row.version),
         changeType: row.change_type,
         value: doNorm(row.content),
         prevValue: doNorm(row.prev_content),
@@ -169,7 +169,7 @@ const isEmptyContent = (str: string) => typeof str === 'undefined' || str === nu
 /**
  * Convert JSON changelog to rows suitable for insertion
  */
-function convertJsonToEntities(json: TextMapFullChangelog, version: string): TextMapChangeEntity[] {
+function convertJsonToEntities(json: TextMapFullChangelog, version: GameVersion): TextMapChangeEntity[] {
   const rows: TextMapChangeEntity[] = [];
 
   for (const langCode in json) {
@@ -181,7 +181,7 @@ function convertJsonToEntities(json: TextMapFullChangelog, version: string): Tex
         continue;
       }
       rows.push({
-        version,
+        version: version.number,
         lang_code: langCode as LangCode,
         hash,
         change_type: 'added',
@@ -195,7 +195,7 @@ function convertJsonToEntities(json: TextMapFullChangelog, version: string): Tex
         continue;
       }
       rows.push({
-        version,
+        version: version.number,
         lang_code: langCode as LangCode,
         hash,
         change_type: 'removed',
@@ -207,7 +207,7 @@ function convertJsonToEntities(json: TextMapFullChangelog, version: string): Tex
     for (const hash in changes.updated) {
       const change = changes.updated[hash];
       rows.push({
-        version,
+        version: version.number,
         lang_code: langCode as LangCode,
         hash,
         change_type: 'updated',
@@ -274,10 +274,10 @@ function chunk<T>(arr: T[], size: number): T[][] {
 /**
  * Insert TextMap changes into DB using Knex.js with batching and transaction
  */
-export async function insertTextMapChanges(
+async function insertTextMapChanges(
   knex: Knex,
   json: TextMapFullChangelog,
-  version: string,
+  version: GameVersion,
   batchSize = 5000
 ) {
   const rows = convertJsonToEntities(json, version);
@@ -310,17 +310,18 @@ export async function importTextMapChanges(ctrl: AbstractControl, versionTarget:
       throw new Error('No textmap changelog exists for ' + version.number);
     }
     const json: TextMapFullChangelog = await fsReadJson(textmapChangelogFileName);
-    await insertTextMapChanges(ctrl.knex, json, version.number);
+    await insertTextMapChanges(ctrl.knex, json, version);
   }
 
   if (versionTarget === 'ALL') {
-    const versions = ctrl.gameVersions.filter(v => v.showTextmapChangelog);
-    for (let version of versions) {
+    for (let version of ctrl.gameVersions.where(v => v.showTextmapChangelog).list) {
       await doForVersion(version);
     }
   } else {
-    const version = ctrl.gameVersions.find(v => v.showTextmapChangelog && v.number === versionTarget);
-    if (version) {
+    const version = ctrl.gameVersions.get(versionTarget);
+    if (version && !version.showTextmapChangelog) {
+      throw new Error(`Version does not allow textmap changelog: ${version}`)
+    } else if (version) {
       await doForVersion(version);
     } else {
       throw new Error(`Not a valid version: ${version}`);

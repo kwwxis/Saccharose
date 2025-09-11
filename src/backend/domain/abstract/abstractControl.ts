@@ -57,7 +57,7 @@ import {
   ChangeRecordRef,
   ExcelFullChangelog, TextMapChangeRefs,
 } from '../../../shared/types/changelog-types.ts';
-import { GameVersion, GameVersionFilter, GenshinVersions } from '../../../shared/types/game-versions.ts';
+import { GameVersion, GameVersions, GenshinVersions } from '../../../shared/types/game-versions.ts';
 import { ScriptJobActionArgs, ScriptJobCoordinator, ScriptJobPostResult } from '../../util/scriptJobs.ts';
 import { IntHolder } from '../../../shared/util/valueHolder.ts';
 import { SiteMode } from '../../../shared/types/site/site-mode-type.ts';
@@ -73,7 +73,7 @@ export type AbstractControlConfig<T extends AbstractControlState = AbstractContr
   excelPath: string,
   disabledLangCodes?: LangCode[],
   currentGameVersion: GameVersion,
-  gameVersions: GameVersion[],
+  gameVersions: GameVersions,
   changelogConfig: AbstractControlChangelogConfig,
 };
 
@@ -95,7 +95,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
   readonly excelPath: string;
   readonly schema: SchemaTableSet;
   readonly currentGameVersion: GameVersion;
-  readonly gameVersions: GameVersion[];
+  readonly gameVersions: GameVersions;
   readonly changelogConfig: AbstractControlChangelogConfig;
   readonly textMapChangelog: TextMapChangelog;
   protected IdComparator = (a: { Id: any }, b: { Id: any }) => a.Id === b.Id;
@@ -523,7 +523,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     if (!opts.searchAgainst) {
       opts.searchAgainst = 'Text';
     }
-    if (opts.versionFilter && !opts.versionFilter.isEnabled) {
+    if (opts.versionFilter && opts.versionFilter.isEmpty()) {
       opts.versionFilter = null;
     }
 
@@ -543,7 +543,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       for (let { hash, text, changeRefs } of possibleHashes) {
         hashSeen.add(hash);
 
-        const version: string = changeRefs.firstAdded?.version;
+        const version: GameVersion = changeRefs.firstAdded?.version;
         if (opts.versionFilter && (!version || !opts.versionFilter.has(version))) {
           continue;
         }
@@ -577,7 +577,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
         const textMapHash: TextMapHash = tmMatch.textMapHash;
         const text: string = tmMatch.text;
 
-        const version: string = tmMatch.changeRefs.firstAdded?.version;
+        const version: GameVersion = tmMatch.changeRefs.firstAdded?.version;
         if (opts.versionFilter && (!version || !opts.versionFilter.has(version))) {
           continue;
         }
@@ -687,7 +687,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     if (!opts.searchAgainst) {
       opts.searchAgainst = 'Text';
     }
-    if (opts.versionFilter && !opts.versionFilter.isEnabled) {
+    if (opts.versionFilter && opts.versionFilter.isEmpty()) {
       opts.versionFilter = null;
     }
 
@@ -700,7 +700,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       for (let ph of possibleHashes) {
         hashSeen.add(ph.hash);
 
-        const version: string = ph.changeRefs.firstAdded?.version;
+        const version: GameVersion = ph.changeRefs.firstAdded?.version;
         if (opts.versionFilter && (!version || !opts.versionFilter.has(version))) {
           continue;
         }
@@ -738,7 +738,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
 
       if (opts.versionFilter) {
         const changeRefs = await this.textMapChangelog.selectChangeRefs(textMapHash, opts.outputLangCode);
-        const version: string = changeRefs.firstAdded?.version;
+        const version: GameVersion = changeRefs.firstAdded?.version;
         if (!version || !opts.versionFilter.has(version)) {
           return;
         }
@@ -897,7 +897,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     return this.cached('AllExcelChangeLogs', 'memory', async () => {
       let map: Record<string, ExcelFullChangelog> = {};
 
-      await GenshinVersions.filter(v => v.showExcelChangelog).asyncForEach(async v => {
+      await GenshinVersions.list.filter(v => v.showExcelChangelog).asyncForEach(async v => {
         map[v.number] = await this.selectExcelChangelog(v);
       });
 
@@ -927,7 +927,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
         if (excelChangelog[excelFile]?.changedRecords[id]) {
           let record: ChangeRecord = excelChangelog[excelFile]?.changedRecords[id];
           changeRecordRefs.push({
-            version: versionNum,
+            version: this.gameVersions.get(versionNum),
             excelFile,
             recordKey: String(id),
             record
@@ -937,7 +937,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
         for (let excelFileChanges of Object.values(excelChangelog)) {
           if (excelFileChanges.changedRecords[id]) {
             changeRecordRefs.push({
-              version: versionNum,
+              version: this.gameVersions.get(versionNum),
               excelFile: excelFileChanges.name,
               recordKey: String(id),
               record: excelFileChanges.changedRecords[id]
@@ -1029,7 +1029,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       select.searchMode = this.searchMode;
 
 
-    const versionFilter = GameVersionFilter.from(select.versionFilter, this.gameVersions.filter(v => v.showNewMedia));
+    const versionFilter: GameVersions = this.gameVersions.where(v => v.showNewMedia).fromFilterString(select.versionFilter);
 
     let builder: Knex.QueryBuilder = openPgSite().select('*').from(this.dbName + '_image_index');
 
@@ -1097,8 +1097,8 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       builder = builder.where(catClauseValues);
     }
 
-    if (versionFilter && versionFilter.isEnabled) {
-      builder = builder.whereIn('first_version', versionFilter.versions.map(v => v.number));
+    if (versionFilter && versionFilter.size) {
+      builder = builder.whereIn('first_version', versionFilter.list.map(v => v.number));
     }
 
     const offset = select.offset;
