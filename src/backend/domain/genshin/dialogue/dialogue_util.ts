@@ -218,8 +218,7 @@ export async function talkConfigToDialogueSectionResult(ctrl: GenshinControl,
         beginCond.Type.slice(17),
         ... beginCond.Param
       ]);
-    } else
-    if (beginCond.Type.startsWith('QUEST_COND_SCENE_')) {
+    } else if (beginCond.Type.startsWith('QUEST_COND_SCENE_')) {
       mysect.addMetaProp('Quest Scene Cond', [
         beginCond.Type.slice(17),
         ... beginCond.Param
@@ -232,6 +231,14 @@ export async function talkConfigToDialogueSectionResult(ctrl: GenshinControl,
         beginCond.Type.slice(17),
         {value: beginCond.Param[0], tooltip: questName, link: questExcel ? '/genshin/quests/' + questExcel.MainId : null},
         ... beginCond.Param.slice(1)
+      ]);
+    } else if (beginCond.Type.startsWith('QUEST_COND_PLAYER_TEAM_CONTAINS_AVATAR')) {
+      let avatarExcel = await ctrl.selectAvatarById(toInt(beginCond.Param[0]));
+
+      mysect.addMetaProp('Quest Cond', [
+        'PLAYER_TEAM_CONTAINS_AVATAR',
+        beginCond.Param[0],
+        {value: avatarExcel?.NameText, bold: true}
       ]);
     }
   }

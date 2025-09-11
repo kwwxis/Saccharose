@@ -25,10 +25,10 @@
                 <span class="prop-values">
                   <% for (let val of metaProp.values) { %>
                     <% if (val.link) { %>
-                      <a class="prop-value" href="<%= val.link %>" <%- val.link.startsWith('#') ? '' : `target="_blank"` %>
+                      <a class="prop-value<%= val.bold ? ' fontWeight600' : '' %>" href="<%= val.link %>" <%- val.link.startsWith('#') ? '' : `target="_blank"` %>
                          ui-tippy-hover="<%= val.tooltip %>"><%= val.value %></a>
                     <% } else { %>
-                      <span class="prop-value" ui-tippy-hover="<%= val.tooltip %>"><%= val.value %></span>
+                      <span class="prop-value<%= val.bold ? ' fontWeight600' : '' %>" ui-tippy-hover="<%= val.tooltip %>"><%= val.value %></span>
                     <% } %>
                   <% } %>
                 </span>

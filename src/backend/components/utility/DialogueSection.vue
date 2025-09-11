@@ -24,9 +24,9 @@
           <span class="prop-label">{{ metaProp.label }}</span>
           <span v-if="metaProp.values && metaProp.values.length" class="prop-values">
             <template v-for="val of metaProp.values">
-              <a v-if="val.link" class="prop-value" :href="val.link" :target="val.link.startsWith('#') ? null : '_blank'"
+              <a v-if="val.link" class="prop-value" :class="{fontWeight600: val.bold}" :href="val.link" :target="val.link.startsWith('#') ? null : '_blank'"
                  :ui-tippy-hover="val.tooltip">{{ val.value }}</a>
-              <span v-else class="prop-value" :ui-tippy-hover="val.tooltip">{{ val.value }}</span>
+              <span v-else class="prop-value" :class="{fontWeight600: val.bold}" :ui-tippy-hover="val.tooltip">{{ val.value }}</span>
             </template>
           </span>
         </div>
