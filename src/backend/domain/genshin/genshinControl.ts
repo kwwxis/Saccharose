@@ -3297,12 +3297,14 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
               LangCode: langCode,
               LangPath: fileName,
               AsNormal: fileNormText
-                .replace(/\n\n+/g, '<br><br>\n')
-                .replace(/\n/g, '<!--\n-->'),
+                .replace(/\n\n+/g, '<br><br><!--#DOUBLE_NL#-->')
+                .replace(/\n/g, '<!--\n-->')
+                .replace(/#DOUBLE_NL#/g, '\n\n'),
               AsTemplate: `{{Readable|title=${document.TitleTextMap[langCode] || ''}\n|text=<!--\n-->`
                 + fileNormText
-                  .replace(/\n\n+/g, '<br><br>\n')
-                  .replace(/\n/g, '<!--\n-->') + '}}',
+                  .replace(/\n\n+/g, '<br><br><!--#DOUBLE_NL#-->')
+                  .replace(/\n/g, '<!--\n-->')
+                  .replace(/#DOUBLE_NL#/g, '\n\n') + '}}',
               AsDialogue: fileNormText.split(/\n/g).map(line => {
                 if (line.endsWith('<br>')) {
                   line = line.slice(0, -6);
