@@ -3,21 +3,11 @@ import fs from 'fs';
 import path from 'path';
 import { closeKnex } from '../../util/db.ts';
 import { IMAGEDIR_HSR_ARCHIVE } from '../../loadenv.ts';
-
-function* walkSync(dir: string, relPath: string[] = []): Generator<string> {
-  const files = fs.readdirSync(dir, { withFileTypes: true });
-  for (const file of files) {
-    if (file.isDirectory()) {
-      yield* walkSync(path.join(dir, file.name), [...relPath, file.name]);
-    } else {
-      yield [... relPath, file.name].join('/');
-    }
-  }
-}
+import { fsWalkSync } from '../../util/fsutil.ts';
 
 function getImageNames(walkSyncDir: string): string[] {
   const imageNames: string[] = [];
-  for (let fileName of walkSync(walkSyncDir)) {
+  for (let fileName of fsWalkSync(walkSyncDir)) {
     if (!fileName.endsWith('.png')) {
       continue;
     }

@@ -154,3 +154,29 @@ export function newChangeRecordMap(): ChangeRecordMap {
   return defaultMap(key => newChangeRecord(key));
 }
 // endregion
+
+// region Readable Changelog Type: Entity
+// --------------------------------------------------------------------------------------------------------------
+export type ReadableChange = {
+  langCode: LangCode;
+  name: string;
+  locPath: string;
+  version: string;
+  contentHash: string;
+  contentText: string;
+}
+
+export type ReadableChangeEntity = {
+  lang_code: LangCode;
+  name: string;
+  loc_path: string;
+  version: string;
+  content_hash: string;
+}
+
+export type ReadableContentEntity = {
+  loc_path: string;
+  content_hash: string;
+  content_text: string;
+}
+// endregion

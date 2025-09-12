@@ -4,20 +4,10 @@ import path from "path";
 import sharp from "sharp";
 import os from "os";
 import { Worker, isMainThread, parentPort } from "worker_threads";
+import { fsWalkSync } from '../../util/fsutil.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-function* walkSync(dir: string): Generator<string> {
-  const files = fs.readdirSync(dir, { withFileTypes: true });
-  for (const file of files) {
-    if (file.isDirectory()) {
-      yield* walkSync(path.join(dir, file.name));
-    } else {
-      yield path.join(dir, file.name);
-    }
-  }
-}
 
 const combinedDir = "E:/HoYoAssets/GenshinAssets/Texture2D/";
 const sourceDir = "C:/Shared/AnimeStudio/Output_Texture2D_Files";
@@ -28,7 +18,7 @@ sharp.cache(false);
 
 async function runMain() {
   const files: string[] = [];
-  for (let file of walkSync(sourceDir)) {
+  for (let file of fsWalkSync(sourceDir)) {
     files.push(file.replace(/\\/g, "/"));
   }
 

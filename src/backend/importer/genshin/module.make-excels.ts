@@ -20,26 +20,13 @@ import { sort, walkObject } from '../../../shared/util/arrayUtil.ts';
 import { renameFields } from '../import_db.ts';
 import { defaultMap } from '../../../shared/util/genericUtil.ts';
 import { isInt, toInt } from '../../../shared/util/numberUtil.ts';
-
-// region Walk Sync
-// --------------------------------------------------------------------------------------------------------------
-function* walkSync(dir: string): Generator<string> {
-  const files = fs.readdirSync(dir, { withFileTypes: true });
-  for (const file of files) {
-    if (file.isDirectory()) {
-      yield* walkSync(path.join(dir, file.name));
-    } else {
-      yield path.join(dir, file.name);
-    }
-  }
-}
-// endregion
+import { fsWalkSync } from '../../util/fsutil.ts';
 
 export async function generateAvatarAnimInteractionGoodBad(repoRoot: string) {
   const binOutputPath: string = path.resolve(repoRoot, './BinOutput');
   const binOutputQuestPath: string = path.resolve(binOutputPath, './Avatar');
 
-  for (let fileName of walkSync(binOutputQuestPath)) {
+  for (let fileName of fsWalkSync(binOutputQuestPath)) {
     if (!fileName.endsWith('.json')) {
       continue;
     }
@@ -453,7 +440,7 @@ export async function generateQuestDialogExcels(repoRoot: string) {
   // Process Loop Stage
 
   console.log('Processing BinOutput/Quest');
-  for (let fileName of walkSync(binOutputQuestPath)) {
+  for (let fileName of fsWalkSync(binOutputQuestPath)) {
     if (!fileName.endsWith('.json')) {
       continue;
     }
@@ -464,7 +451,7 @@ export async function generateQuestDialogExcels(repoRoot: string) {
   }
 
   console.log('Processing BinOutput/Talk');
-  for (let fileName of walkSync(binOutputTalkPath)) {
+  for (let fileName of fsWalkSync(binOutputTalkPath)) {
     if (!fileName.endsWith('.json')) {
       continue;
     }
@@ -479,7 +466,7 @@ export async function generateQuestDialogExcels(repoRoot: string) {
     processJsonObject(json, fileName);
   }
   console.log('Processing BinOutput/_unknown_dir');
-  for (let fileName of walkSync(binOutputUnknownDirPath)) {
+  for (let fileName of fsWalkSync(binOutputUnknownDirPath)) {
     if (!fileName.endsWith('.json')) {
       continue;
     }
@@ -502,7 +489,7 @@ export async function generateQuestDialogExcels(repoRoot: string) {
   }
 
   console.log('Processing BinOutput/CodexQuest');
-  for (let fileName of walkSync(binOutputCodexQuestPath)) {
+  for (let fileName of fsWalkSync(binOutputCodexQuestPath)) {
     if (!fileName.endsWith('.json')) {
       continue;
     }

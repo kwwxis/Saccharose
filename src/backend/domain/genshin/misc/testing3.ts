@@ -9,17 +9,6 @@ import { getGenshinDataFilePath } from '../../../loadenv.ts';
 import { closeKnex } from '../../../util/db.ts';
 import { loadGenshinTextSupportingData } from '../genshinText.ts';
 
-function* walkSync(dir: string): Generator<string> {
-  const files = fs.readdirSync(dir, { withFileTypes: true });
-  for (const file of files) {
-    if (file.isDirectory()) {
-      yield* walkSync(path.join(dir, file.name));
-    } else {
-      yield path.join(dir, file.name);
-    }
-  }
-}
-
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   await loadGenshinTextSupportingData();
   const ctrl = getGenshinControl();

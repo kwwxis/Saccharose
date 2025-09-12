@@ -4,10 +4,12 @@ import { pathToFileURL } from 'url';
 import { closeKnex } from '../../../util/db.ts';
 import { loadGenshinTextSupportingData } from '../genshinText.ts';
 import './testing2.ts';
+import fs from 'fs';
+import { OptionIconMap } from '../../../../shared/types/genshin/dialogue-types.ts';
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   await loadGenshinVoiceItems();
-  await loadGenshinTextSupportingData();
+  // await loadGenshinTextSupportingData();
 
   const ctrl = getGenshinControl();
 
@@ -66,18 +68,23 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
       actionAfters.add(row.actionAfter);
     }
   }
-  console.log('\nOPTION ICONS:')
-  inspect(Array.from(optionIcons).sort());
 
-  console.log('\nACTION BEFORES:')
-  inspect(Array.from(actionBefores).sort());
+  inspect({
+    optionIcons: Array.from(optionIcons).sort(),
+    actionBefores: Array.from(actionBefores).sort(),
+    actionWhiles: Array.from(actionWhiles).sort(),
+    actionAfters: Array.from(actionAfters).sort()
+  });
 
-  console.log('\nACTION WHILES:')
-  inspect(Array.from(actionWhiles).sort());
-
-  console.log('\nACTION AFTERS:')
-  inspect(Array.from(actionAfters).sort());
-
+  for (let optionIcon of optionIcons) {
+    if (OptionIconMap[optionIcon]) {
+      continue;
+    }
+    if (fs.existsSync('E:\\HoYoAssets\\GenshinAssets\\Texture2D\\' + optionIcon + '.png')) {
+      fs.copyFileSync('E:\\HoYoAssets\\GenshinAssets\\Texture2D\\' + optionIcon + '.png',
+        'C:\\Users\\Matthew\\Documents\\Wiki Tools\\CategoryDownloader\\dicons\\' + optionIcon + '.png');
+    }
+  }
 
   // let files: string[] = fs.readdirSync("C:/Shared/git/localweb/Saccharose/public/images/DIcons");
   // for (let f of files) {

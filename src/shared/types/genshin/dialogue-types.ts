@@ -115,11 +115,34 @@ export const OptionIconMap = {
   UI_NPCTopIcon_Blacksmith: 'Forging',
   UI_NPCTopIcon_Combine: 'Alchemy',
   UI_NPCTopIcon_EditTeam: '', // TODO
-  UI_NPCTopIcon_InspirationSpurt: '', // TODO
+  UI_NPCTopIcon_InspirationSpurt: 'Inspiration Eruption',
   UI_NPCTopIcon_MiscsMarvs: 'BoxOfMarv',
-  UI_NPCTopIcon_PitchPot: '', // TODO
+  UI_NPCTopIcon_PitchPot: 'Hundred-Pace Hurling Rites',
   UI_NPCTopIcon_Restaurant: 'Restaurant',
   UI_NPCTopIcon_Souvenir: 'Souvenir',
+
+  UI_NPCTopIcon_QuestEvent: 'Commission-Purple',
+  UI_Icon_Intee_Attack: 'Attack',
+  UI_Icon_Intee_Defense: '',
+  UI_Icon_Intee_NatlanDrill_ADG: 'Bloomflower Trials',
+  UI_Icon_Intee_NatlanDrill_DC: 'Saurian Treasure Seeker',
+  UI_Icon_Intee_AutoChess_Tutorial: 'Companion Caper Chronicles',
+  UI_Icon_Intee_ThemeParkSim_BuffGacha: 'Theme Restaurant',
+  UI_NPCTopIcon_NtNpcWorldChallenge: 'Warrior\'s Challenge',
+
+  UI_Icon_Intee_NodKrai_Lighthouse: '', // TODO
+  UI_Icon_Intee_NodKrai_LunarEdictStatuette: 'Frostmoon Scions',
+  UI_Icon_Intee_NodKrai_Workshop: 'Clink-Clank Krumkake Workshop',
+  UI_Icon_Intee_LanV4PartyLion: 'Wushou Dance',
+  UI_Icon_Intee_AlchemySim_Order: 'Alchemy Order',
+  UI_Icon_Intee_AlchemySim_TechTree: 'Alchemy Upgrade',
+  UI_Icon_Intee_AlchemySim_Exam: 'Alchemy Exam',
+  UI_Icon_Intee_FishingJoy: 'Invasive Fish Wrangler',
+  UI_Icon_Intee_EffigyChallengeV5: 'Concocted Reaction',
+  UI_Icon_Intee_EffigyChallengeV6: 'Specially-Shaped Saurian Search',
+  UI_Icon_Intee_HideAndSeekV4: 'Windtrace',
+  UI_Icon_Intee_HolidayResort_Shop: 'Asha\'s Treasure Trove',
+
 } as const;
 
 export interface DialogExcelConfigData {

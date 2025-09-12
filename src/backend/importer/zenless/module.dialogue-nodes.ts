@@ -1,5 +1,3 @@
-// region Walk Sync
-// --------------------------------------------------------------------------------------------------------------
 import fs, { promises as fsp } from 'fs';
 import path from 'path';
 import { pathToFileURL } from 'url';
@@ -8,19 +6,7 @@ import { DialogueNode, DialogueNode40Condition } from '../../../shared/types/zen
 import { removeSuffix } from '../../../shared/util/stringUtil.ts';
 import { sort } from '../../../shared/util/arrayUtil.ts';
 import { isset } from '../../../shared/util/genericUtil.ts';
-
-function* walkSync(dir: string): Generator<string> {
-  const files = fs.readdirSync(dir, { withFileTypes: true });
-  for (const file of files) {
-    if (file.isDirectory()) {
-      yield* walkSync(path.join(dir, file.name));
-    } else {
-      yield path.join(dir, file.name);
-    }
-  }
-}
-// endregion
-
+import { fsWalkSync } from '../../util/fsutil.ts';
 
 // region Main Function
 // --------------------------------------------------------------------------------------------------------------
@@ -93,7 +79,7 @@ export async function generateDialogueNodes(repoRoot: string) {
   const dialogueNodeArray: DialogueNode[] = [];
 
   console.log('Processing ScriptConfigs');
-  for (let fileName of walkSync(scriptConfigPath)) {
+  for (let fileName of fsWalkSync(scriptConfigPath)) {
     if (!fileName.endsWith('.json')) {
       continue;
     }

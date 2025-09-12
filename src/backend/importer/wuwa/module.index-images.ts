@@ -10,21 +10,11 @@ import {
   ImageIndexExcelMetaEntry, newImageCategory,
 } from '../../../shared/types/image-index-types.ts';
 import { imageSizeFromFile, ISizeCalculationResult } from '../../util/image-size';
-
-function* walkSync(dir: string, relPath: string[] = []): Generator<string> {
-  const files = fs.readdirSync(dir, { withFileTypes: true });
-  for (const file of files) {
-    if (file.isDirectory()) {
-      yield* walkSync(path.join(dir, file.name), [...relPath, file.name]);
-    } else {
-      yield [... relPath, file.name].join('/');
-    }
-  }
-}
+import { fsWalkSync } from '../../util/fsutil.ts';
 
 function getImageNames(): string[] {
   const imageNames: string[] = [];
-  for (let fileName of walkSync(IMAGEDIR_WUWA_EXT)) {
+  for (let fileName of fsWalkSync(IMAGEDIR_WUWA_EXT)) {
     if (!fileName.endsWith('.png')) {
       continue;
     }

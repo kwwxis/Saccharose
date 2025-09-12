@@ -2,17 +2,7 @@ import { pathToFileURL } from 'url';
 import fs from 'fs';
 import path from 'path';
 import sharp from 'sharp';
-
-function* walkSync(dir: string): Generator<string> {
-  const files = fs.readdirSync(dir, { withFileTypes: true });
-  for (const file of files) {
-    if (file.isDirectory()) {
-      yield* walkSync(path.join(dir, file.name));
-    } else {
-      yield path.join(dir, file.name);
-    }
-  }
-}
+import { fsWalkSync } from '../../util/fsutil.ts';
 
 async function doIt() {
   const combinedDir: string = 'E:/HoYoAssets/GenshinAssets/Texture2D/';
@@ -20,7 +10,7 @@ async function doIt() {
   const targetDir: string = "E:\\HoYoAssets\\GenshinAssets\\Texture2D_Archive\\Texture2D_6.0";
 
   const files: string[] = [];
-  for (let file of walkSync(sourceDir)) {
+  for (let file of fsWalkSync(sourceDir)) {
     file = file.replace(/\\/g, '/');
     files.push(file);
   }

@@ -15,20 +15,7 @@ import { reformatPrimitiveArrays } from '../util/import_file_util.ts';
 import { isEquiv } from '../../../shared/util/arrayUtil.ts';
 import { defaultMap } from '../../../shared/util/genericUtil.ts';
 import { isInt } from '../../../shared/util/numberUtil.ts';
-
-// region Walk Sync
-// --------------------------------------------------------------------------------------------------------------
-function* walkSync(dir: string): Generator<string> {
-  const files = fs.readdirSync(dir, { withFileTypes: true });
-  for (const file of files) {
-    if (file.isDirectory()) {
-      yield* walkSync(path.join(dir, file.name));
-    } else {
-      yield path.join(dir, file.name);
-    }
-  }
-}
-// endregion
+import { fsWalkSync } from '../../util/fsutil.ts';
 
 // region Main Function
 // --------------------------------------------------------------------------------------------------------------
@@ -52,7 +39,7 @@ export async function loadInterActionQD(repoRoot: string) {
   fs.mkdirSync(outDir);
 
   const filePaths: string[] = [];
-  for (let filePath of walkSync(binOutputIAQD)) {
+  for (let filePath of fsWalkSync(binOutputIAQD)) {
     filePaths.push(filePath);
   }
 

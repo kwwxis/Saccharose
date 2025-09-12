@@ -6,7 +6,7 @@ import JSONBigImport, { JSONBigInt } from '../../util/json-bigint';
 import { defaultMap } from '../../../shared/util/genericUtil.ts';
 import { INTERACTION_KEEP_TYPES } from '../../../shared/types/genshin/interaction-types.ts';
 import { sort } from '../../../shared/util/arrayUtil.ts';
-import { fsRead, fsReadJson, fsWrite } from '../../util/fsutil.ts';
+import { fsRead, fsReadJson, fsWalkSync, fsWrite } from '../../util/fsutil.ts';
 import { renameFields } from '../import_db.ts';
 import { isInt } from '../../../shared/util/numberUtil.ts';
 
@@ -14,17 +14,6 @@ const JSONbig: JSONBigInt = JSONBigImport({ useNativeBigInt: true, objectProto: 
 
 // region Walk Sync
 // --------------------------------------------------------------------------------------------------------------
-function* walkSync(dir: string): Generator<string> {
-  const files = fs.readdirSync(dir, { withFileTypes: true });
-  for (const file of files) {
-    if (file.isDirectory()) {
-      yield* walkSync(path.join(dir, file.name));
-    } else {
-      yield path.join(dir, file.name);
-    }
-  }
-}
-
 async function walkSyncWrite(inDir: string, outDir: string, mapping: Record<string, string>) {
   console.log('Writing to ' + outDir);
 
@@ -34,7 +23,7 @@ async function walkSyncWrite(inDir: string, outDir: string, mapping: Record<stri
   await fsp.rm(outDir, { recursive: true, force: true });
 
   const inPaths: string[] = [];
-  for (let inPath of walkSync(inDir)) {
+  for (let inPath of fsWalkSync(inDir)) {
     inPaths.push(inPath);
   }
 
@@ -79,7 +68,7 @@ async function walkSyncJsonCombine(dir: string, combiner: Combiner, maxCombines:
 
   let mustIncludesFound: Set<string> = new Set();
 
-  for (let file of walkSync(dir)) {
+  for (let file of fsWalkSync(dir)) {
     if (file.includes('BlossomGroup')) {
       continue;
     }
@@ -161,7 +150,7 @@ export async function writeDeobfBin() {
   shouldIgnoreConfig.shouldIgnoreEmptyString = true;
 
   let anyInvalidJson = false;
-  for (let file of walkSync(getGenshinDataFilePath('./BinOutput.Obf/InterAction/QuestDialogue'))) {
+  for (let file of fsWalkSync(getGenshinDataFilePath('./BinOutput.Obf/InterAction/QuestDialogue'))) {
     try {
       JSON.parse(await fsRead(file));
     } catch (err) {
@@ -530,7 +519,7 @@ function bigStringify(json: any) {
 async function __utilFindInterActionsWithMostTypes() {
   const counts: Record<string, Set<string>> = defaultMap('Set');
 
-  for (let file of walkSync(getSchemaFilePath('./BinOutput/InterAction/QuestDialogue'))) {
+  for (let file of fsWalkSync(getSchemaFilePath('./BinOutput/InterAction/QuestDialogue'))) {
     if (!file.endsWith('.json')) {
       continue;
     }

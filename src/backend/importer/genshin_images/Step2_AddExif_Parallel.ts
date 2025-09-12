@@ -4,20 +4,10 @@ import { fileURLToPath, pathToFileURL } from 'url';
 import os from "os";
 import sharp from "sharp";
 import { Worker, isMainThread, parentPort, workerData } from "worker_threads";
+import { fsWalkSync } from '../../util/fsutil.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-function* walkSync(dir: string): Generator<string> {
-  const files = fs.readdirSync(dir, { withFileTypes: true });
-  for (const file of files) {
-    if (file.isDirectory()) {
-      yield* walkSync(path.join(dir, file.name));
-    } else {
-      yield path.join(dir, file.name);
-    }
-  }
-}
 
 const IN_OUT_DIR: string = "C:/Shared/AnimeStudio/Output_Texture2D_Files/";
 const NUM_WORKERS = Math.max(1, os.cpus().length - 1);
@@ -26,7 +16,7 @@ sharp.cache(false);
 
 async function runMain() {
   const paths: string[] = [];
-  for (let myPath of walkSync(IN_OUT_DIR)) {
+  for (let myPath of fsWalkSync(IN_OUT_DIR)) {
     if (!myPath.endsWith(".png") || !myPath.includes("#")) continue;
     paths.push(myPath);
   }
