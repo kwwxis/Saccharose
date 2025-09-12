@@ -3,8 +3,8 @@
     <div class="prop">
       <span class="prop-label">Path</span>
       <span class="prop-values">
-            <span class="prop-value for-lang-path">{{ item.ReadableText.LangPath }}</span>
-          </span>
+        <span class="prop-value for-lang-path">{{ item.ReadableText.LangPath }}</span>
+      </span>
     </div>
     <div v-if="item.MainQuestTrigger" class="prop">
       <span class="prop-label">Quest Condition</span>

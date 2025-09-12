@@ -49,7 +49,7 @@ export async function importSearchIndex() {
   // --------------------------------------------------------------------------------------------------------------
   {
     process.stdout.write(chalk.bold('Generating readable index...'));
-    const archive = await ctrl.selectReadableArchive();
+    const archive = await ctrl.readables.selectArchive();
     const readableList: Readable[] = [
       ...archive.Artifacts,
       ...archive.Weapons,

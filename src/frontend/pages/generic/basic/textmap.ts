@@ -13,8 +13,8 @@ import { listen } from '../../../util/eventListen.ts';
 import SiteModeInfo from '../../../core/userPreferences/siteModeInfo.ts';
 import { highlightReplace } from '../../../core/ace/aceHighlight.ts';
 import { TextMapChangeRef } from '../../../../shared/types/changelog-types.ts';
-import { createPatch } from '../../../../backend/util/jsdiff/jsdiff.js';
-import { DiffUI } from '../../../util/DiffUI.ts';
+import { createPatch } from '../../../../shared/jsdiff/jsdiff.js';
+import { createDiffUIFullDiff, DiffUI } from '../../../util/DiffUI.ts';
 import { isNightmode } from '../../../core/userPreferences/siteTheme.ts';
 import { ColorSchemeType } from 'diff2html/lib/types';
 
@@ -192,15 +192,10 @@ pageMatch('vue/TextmapSearchPage', () => {
         const json: TextMapChangeRef = JSON.parse(el.getAttribute('data-json'));
         if (json.prevValue && json.value) {
           const diffUIArea: HTMLElement = el.querySelector('.diff-ui-area');
-          const unifiedDiff = createPatch(`Diff`, json.prevValue, json.value);
 
           diffUIArea.style.marginTop = '15px';
 
-          diffUIs.push(new DiffUI(diffUIArea, {
-            prevContent: json.prevValue,
-            currContent: json.value,
-            unifiedDiff: unifiedDiff,
-          }, {
+          diffUIs.push(new DiffUI(diffUIArea, createDiffUIFullDiff('Diff', json.prevValue, json.value), {
             matching: 'lines',
             drawFileList: false,
             outputFormat: 'line-by-line',

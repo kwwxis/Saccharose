@@ -234,8 +234,8 @@
         <div class="alignStart flexWrap">
           <% for (let readable of inDialogueReadables) { %>
             <% for (let item of readable.Items) { %>
-              <% if (item.ReadableImages && item.ReadableImages.length) { %>
-                <% for (let image of item.ReadableImages) { %>
+              <% if (item.ReadableText.Images && item.ReadableText.Images.length) { %>
+                <% for (let image of item.ReadableText.Images) { %>
                   <div class="w25p">
                     <div class="image-frame spacer3-all bordered">
                       <img src="/images/genshin/<%= image %>.png" class="w100p" />

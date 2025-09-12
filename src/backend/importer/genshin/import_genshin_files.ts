@@ -26,7 +26,7 @@ import { genshinSchema } from './genshin.schema.ts';
 import { GenshinVersions } from '../../../shared/types/game-versions.ts';
 import { importTextMapChanges } from '../../domain/abstract/tmchanges.ts';
 import { isset } from '../../../shared/util/genericUtil.ts';
-import { importGenshinReadableChanges } from '../../domain/genshin/misc/genshinReadableChanges.ts';
+import { importGenshinReadableChanges } from '../../domain/genshin/readables/genshinReadableChanges.ts';
 
 export async function importGenshinFilesCli() {
   const options_beforeDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [

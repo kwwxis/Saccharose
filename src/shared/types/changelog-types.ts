@@ -166,6 +166,24 @@ export type ReadableChange = {
   contentText: string;
 }
 
+export type ReadableChanges = {
+  langCode: LangCode;
+  list: ReadableChange[];
+  byVersionNumber: Record<string, ReadableChange>;
+  ranges: ReadableChangeRange[];
+}
+
+export type ReadableChangeRange = {
+  startVersion: GameVersion,
+  endVersion: GameVersion,
+  prevContentVersion: GameVersion,
+  prevContentText: string,
+  contentText: string,
+  contentHash: string,
+};
+
+export type ReadableChangesGroup = Record<LangCode, ReadableChanges>;
+
 export type ReadableChangeEntity = {
   lang_code: LangCode;
   name: string;
@@ -178,5 +196,13 @@ export type ReadableContentEntity = {
   loc_path: string;
   content_hash: string;
   content_text: string;
+}
+
+export interface ReadableChangedLocPath {
+  locPath: string;
+  langCode: string;
+  name: string;
+  oldContentHash: string;
+  newContentHash: string;
 }
 // endregion

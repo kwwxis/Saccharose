@@ -16,6 +16,7 @@ import { WeaponExcelConfigData } from './weapon-types.ts';
 import { MainQuestExcelConfigData } from './quest-types.ts';
 import { Marker } from '../../util/highlightMarker.ts';
 import { LangCode, LangCodeMap } from '../lang-types.ts';
+import { ReadableChanges, ReadableChangesGroup } from '../changelog-types.ts';
 
 // Search View
 // --------------------------------------------------------------------------------------------------------------
@@ -49,6 +50,7 @@ export interface Readable {
 }
 
 export interface ReadableArchive {
+  TotalCount: number;
   BookCollections: {[suitId: number]: BookSuitExcelConfigData};
   Materials: Readable[];
   Artifacts: Readable[];
@@ -93,19 +95,20 @@ export interface ReadableText {
     AsNormal?: Marker[],
     AsDialogue?: Marker[],
     AsTemplate?: Marker[],
-  }
+  },
+
+  Images: string[]
 }
 
 export interface ReadableItem {
   Page: number,
   IsAlternate: boolean,
   Localization: LocalizationExcelConfigData,
-  ReadableImages: string[],
   MainQuestTrigger?: MainQuestExcelConfigData,
 
   ReadableText: ReadableText,
-
-  Expanded?: ReadableText[]
+  ReadableTextAllLanguages?: ReadableText[],
+  ReadableChangesGroup: ReadableChangesGroup,
 }
 
 export const LANG_CODE_TO_LOCALIZATION_PATH_PROP = {
@@ -125,6 +128,10 @@ export const LANG_CODE_TO_LOCALIZATION_PATH_PROP = {
   TR: 'TrPath',
   VI: 'ViPath',
 };
+
+export const LANG_CODE_TO_LOCALIZATION_PATH_PROP_ENTRIES: {langCode: LangCode, pathVar: string}[] =
+  Object.entries(LANG_CODE_TO_LOCALIZATION_PATH_PROP)
+    .map(([langCode, pathVar]) => ({langCode: langCode as LangCode, pathVar}));
 
 export interface LocalizationExcelConfigData {
   Id: number,

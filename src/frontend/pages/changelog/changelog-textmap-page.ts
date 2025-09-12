@@ -6,8 +6,7 @@ import {
   TextMapChangeUpdateDisplay,
 } from '../../../shared/types/changelog-types.ts';
 import { AgPromise, ICellRendererComp, ICellRendererParams } from 'ag-grid-community';
-import { createPatch } from '../../../backend/util/jsdiff/jsdiff.js';
-import { DiffUI } from '../../util/DiffUI.ts';
+import { createDiffUIFullDiff, DiffUI } from '../../util/DiffUI.ts';
 import { isNightmode } from '../../core/userPreferences/siteTheme.ts';
 import { ColorSchemeType } from 'diff2html/lib/types';
 
@@ -36,13 +35,7 @@ class TextMapDiffCellComponent implements ICellRendererComp<TextMapChangeUpdateD
       this.element = document.createElement('div');
     }
 
-    const unifiedDiff = createPatch(`Diff`, params.data.oldText, params.data.newText);
-
-    this.diffUi = new DiffUI(this.element, {
-      prevContent: params.data.oldText,
-      currContent: params.data.newText,
-      unifiedDiff: unifiedDiff,
-    }, {
+    this.diffUi = new DiffUI(this.element, createDiffUIFullDiff('Diff', params.data.oldText, params.data.newText), {
       matching: 'lines',
       drawFileList: false,
       drawFileHeader: false,

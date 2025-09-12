@@ -31,7 +31,6 @@ import './pages/generic/wiki-revs/rev-app-main.ts';
 
 // Genshin
 // ----------------------------------------------------------------------------------------------------
-import './intervals/genshin/genshin-readable-text-module.ts';
 import './pages/genshin/archive/achievements-search.ts';
 import './pages/genshin/archive/readables-search.ts';
 import './pages/genshin/archive/material-search.ts';

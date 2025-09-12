@@ -11,6 +11,7 @@ import * as ace from 'brace';
 import { isNightmode, offSiteThemeChange, onSiteThemeChange, SiteTheme } from '../core/userPreferences/siteTheme.ts';
 import { createElement } from './domutil.ts';
 import { ColorSchemeType } from 'diff2html/lib/types';
+import { createPatch } from '../../shared/jsdiff/patch/create';
 
 export type DiffUIConfig = Omit<Diff2HtmlConfig, 'maxLineLengthHighlight'> & {
   drawFileHeader?: boolean,
@@ -181,6 +182,11 @@ export type DiffUIFullDiff = {
   unifiedDiff: string,
 };
 
+export function createDiffUIFullDiff(name: string, prevContent: string, currContent: string): DiffUIFullDiff {
+  const unifiedDiff = createPatch(name, prevContent, currContent);
+  return { unifiedDiff, prevContent, currContent };
+}
+
 export class DiffUI {
   readonly targetElement: HTMLElement;
   readonly uuid: string;
@@ -223,6 +229,7 @@ export class DiffUI {
   }
 
   setConfig(config: DiffUIConfig, noRender: boolean = false) {
+    config.colorScheme = isNightmode() ? ColorSchemeType.DARK : ColorSchemeType.LIGHT;
     this._config = config;
     if (!noRender)
       this.render();

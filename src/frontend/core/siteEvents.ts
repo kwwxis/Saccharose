@@ -16,6 +16,7 @@ import { enableReadonlyInterval } from './intervalActions/enableReadonlyInterval
 import { enableOLActionsInterval } from './intervalActions/enableOLActionsInterval.ts';
 import { enableAceInterval } from './intervalActions/enableAceInterval.ts';
 import { wsc } from '../websocket/ws-client.ts';
+import { enableStandardDiffUIInterval } from './intervalActions/enableStandardDiffUIInterval.ts';
 
 const SITE_INTERVAL_MS: number = 500;
 
@@ -31,6 +32,7 @@ function siteIntervalFunction() {
   enableReadonlyInterval();
   enableOLActionsInterval();
   timestampInterval();
+  enableStandardDiffUIInterval();
   for (let otherIntervalFunction of otherIntervalFunctions) {
     otherIntervalFunction();
   }

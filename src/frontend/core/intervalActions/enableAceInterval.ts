@@ -1,4 +1,3 @@
-
 import autosize from 'autosize';
 import { highlightReplace, highlightWikitextReplace } from '../ace/aceHighlight.ts';
 import { isElementPartiallyInViewport } from '../../util/domutil.ts';

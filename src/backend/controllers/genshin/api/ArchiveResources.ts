@@ -22,7 +22,7 @@ router.endpoint('/readables/search', {
   get: async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
 
-    let searchView: ReadableSearchResult = await ctrl.searchReadables(req.query.text as string);
+    let searchView: ReadableSearchResult = await ctrl.readables.search(req.query.text as string);
 
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
       await res.renderComponent(ReadableSearchResults, {

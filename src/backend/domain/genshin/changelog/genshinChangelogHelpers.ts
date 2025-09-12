@@ -6,7 +6,7 @@ import {
   GCGCardExcelConfigData, GCGCharExcelConfigData,
   GCGGameExcelConfigData,
 } from '../../../../shared/types/genshin/gcg-types.ts';
-import { ReadableArchive } from '../../../../shared/types/genshin/readable-types.ts';
+import { Readable, ReadableArchive } from '../../../../shared/types/genshin/readable-types.ts';
 import {
   ChapterCollection,
   MainQuestExcelConfigData,
@@ -28,7 +28,7 @@ import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
 import { NpcExcelConfigData } from '../../../../shared/types/genshin/general-types.ts';
 import { sort } from '../../../../shared/util/arrayUtil.ts';
 import { defaultMap } from '../../../../shared/util/genericUtil.ts';
-import { GameVersion } from '../../../../shared/types/game-versions.ts';
+import { GameVersion, GameVersions } from '../../../../shared/types/game-versions.ts';
 
 export type GenshinChangelogNewRecordSummary = {
   avatars: AvatarExcelConfigData[],
@@ -49,6 +49,7 @@ export type GenshinChangelogNewRecordSummary = {
   tcgStages: GCGGameExcelConfigData[],
 
   readables: ReadableArchive,
+  updatedReadables: ReadableArchive,
 
   chapters: ChapterCollection,
   nonChapterQuests: MainQuestExcelConfigData[],
@@ -65,7 +66,7 @@ export type GenshinChangelogNewRecordSummary = {
 
 export async function generateGenshinChangelogNewRecordSummary(ctrl: GenshinControl, gameVersion: GameVersion, fullChangelog: ExcelFullChangelog): Promise<GenshinChangelogNewRecordSummary> {
   return ctrl.cached('FullChangelogSummary:' + ctrl.outputLangCode + '_' + gameVersion.number, 'memory', async () => {
-    return _generateGenshinChangelogNewRecordSummary(ctrl, fullChangelog);
+    return _generateGenshinChangelogNewRecordSummary(ctrl, gameVersion, fullChangelog);
   });
 }
 
@@ -79,7 +80,7 @@ async function getGcg(ctrl: GenshinControl): Promise<GCGControl> {
   return gcg;
 }
 
-export async function _generateGenshinChangelogNewRecordSummary(ctrl: GenshinControl, fullChangelog: ExcelFullChangelog): Promise<GenshinChangelogNewRecordSummary> {
+async function _generateGenshinChangelogNewRecordSummary(ctrl: GenshinControl, gameVersion: GameVersion, fullChangelog: ExcelFullChangelog): Promise<GenshinChangelogNewRecordSummary> {
   function newRecordsOf(excelFileName: GenshinSchemaNames): ChangeRecord[] {
     if (fullChangelog?.[excelFileName]?.changedRecords) {
       return Object.values(fullChangelog[excelFileName].changedRecords).filter(r => r.changeType === 'added');
@@ -134,6 +135,7 @@ export async function _generateGenshinChangelogNewRecordSummary(ctrl: GenshinCon
     tutorials: null,
 
     readables: null,
+    updatedReadables: null,
 
     chapters: null,
     nonChapterQuests: null,
@@ -188,8 +190,8 @@ export async function _generateGenshinChangelogNewRecordSummary(ctrl: GenshinCon
       disableTalkLoad: true,
     })).then(ret => out.tcgStages = ret),
 
-    newIntKeysOf('DocumentExcelConfigData').asyncMap(id => ctrl.selectReadable(id, false)).then(readables => {
-      out.readables = ctrl.generateReadableArchive(readables);
+    newIntKeysOf('DocumentExcelConfigData').asyncMap(id => ctrl.readables.select(id, false)).then(readables => {
+      out.readables = ctrl.readables.generateArchive(readables);
     }),
 
     newIntKeysOf('AvatarExcelConfigData').asyncMap(avatarId => ctrl.selectAvatarById(avatarId))
@@ -216,6 +218,13 @@ export async function _generateGenshinChangelogNewRecordSummary(ctrl: GenshinCon
     ctrl.getNpcList(newIntKeysOf('NpcExcelConfigData'), false)
       .then(npcs => out.npcs = npcs),
   ]);
+
+  const updatedLocPaths = await ctrl.readableChanges.getChangedLocsWithHashes(gameVersion.prev().number, gameVersion.number, ctrl.outputLangCode);
+
+  out.updatedReadables = ctrl.readables.generateArchive(await updatedLocPaths.asyncMap(async changedLocPath => {
+    const locId = await ctrl.readables.selectLocalizationIdByLocPath(changedLocPath.locPath);
+    return await ctrl.readables.selectReadableByLocalizationId(locId, false);
+  }));
 
   for (let npc of out.npcs) {
     out.npcsByBodyType[npc.BodyType].push(npc);

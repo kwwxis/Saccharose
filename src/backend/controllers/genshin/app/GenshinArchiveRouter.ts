@@ -86,7 +86,7 @@ export default async function(): Promise<Router> {
         LoadCodex: true,
       });
 
-      let readable: Readable = await ctrl.selectReadable(material.Id);
+      let readable: Readable = await ctrl.readables.select(material.Id);
       if (!readable || !readable.Material || readable.Material.Id !== material.Id) {
         readable = null;
       }
@@ -342,7 +342,7 @@ export default async function(): Promise<Router> {
 
   router.get('/readables', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
-    const archive = await ctrl.selectReadableArchive();
+    const archive = await ctrl.readables.selectArchive();
 
     await res.renderComponent(ReadableAllListingPage, {
       title: 'Books & Readables',
@@ -360,7 +360,7 @@ export default async function(): Promise<Router> {
 
   router.get('/readables/book-collection/:suitId', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
-    const collection: BookSuitExcelConfigData = await ctrl.selectBookCollection(toInt(req.params.suitId));
+    const collection: BookSuitExcelConfigData = await ctrl.readables.selectBookCollection(toInt(req.params.suitId));
 
     let infobox = `{{Book Collection Infobox
 |image     = Book ${collection.SuitNameText}.png
@@ -384,7 +384,7 @@ export default async function(): Promise<Router> {
 
   router.get('/readables/item/:itemId', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
-    const readable: Readable = await ctrl.selectReadable(toInt(req.params.itemId));
+    const readable: Readable = await ctrl.readables.select(toInt(req.params.itemId));
 
     await res.renderComponent(ReadableSinglePage, {
       title: readable?.TitleText || 'Not Found',

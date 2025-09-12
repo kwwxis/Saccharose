@@ -423,68 +423,23 @@
       <h3 id="new-readables-header" class="new-summary-section-header secondary-header valign">
         <span class="expando spacer5-right" ui-action="expando: #new-readables-content"><Icon name="chevron-down" :size="17" /></span>
         <span class="new-summary-section-title">New Readables</span>
-        <span class="secondary-label new-summary-section-count">{{ newReadablesCount }}</span>
+        <span class="secondary-label new-summary-section-count">{{ newSummary.readables.TotalCount }}</span>
       </h3>
       <div id="new-readables-content">
-        <div v-if="!newReadablesCount">
-          <p>(None)</p>
+        <GenshinChangelogSummaryReadablesView :readables="newSummary.readables" />
+      </div>
+
+      <h3 id="new-updated-readables-header" class="new-summary-section-header secondary-header valign">
+        <span class="expando spacer5-right" ui-action="expando: #new-updated-readables-content"><Icon name="chevron-down" :size="17" /></span>
+        <span class="new-summary-section-title">Updated Readables</span>
+        <span class="secondary-label new-summary-section-count">{{ newSummary.updatedReadables.TotalCount }}</span>
+      </h3>
+      <div id="new-updated-readables-content">
+        <div class="content">
+          <p>List of readables whose document content has been updated between this version and the previous. Detecting
+            changes to the document titles is not currently supported in this summary page.</p>
         </div>
-        <template v-if="valuesOf(newSummary.readables.BookCollections).length">
-          <h4 class="content" style="padding-bottom:0">Book Collections</h4>
-          <div class="content">
-            <div class="w100p spacer-top" v-for="collection of valuesOf(newSummary.readables.BookCollections)">
-              <a class="secondary spacer3-all valign textAlignLeft" role="button" :href="`/genshin/readables/book-collection/${collection.Id}`">
-                <img class="icon x32" :src="`/images/genshin/${collection.Books[0]?.Material?.Icon}.png`" loading="lazy" decoding="async" />
-                <span class="spacer10-left">{{ collection.SuitNameText }}</span>
-              </a>
-              <div style="padding-left:20px">
-                <div class="w100p" v-for="readable of collection.Books">
-                  <GenshinReadableLink :readable="readable" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </template>
-        <template v-if="newSummary.readables.Materials.filter(v => v?.Material?.MaterialType === 'MATERIAL_QUEST').length">
-          <h4 class="content" style="padding-bottom:0">Quest Items</h4>
-          <div class="content dispFlex flexWrap alignStart">
-            <div class="w50p" v-for="readable of newSummary.readables.Materials.filter(v => v?.Material?.MaterialType === 'MATERIAL_QUEST')">
-              <GenshinReadableLink :readable="readable" />
-            </div>
-          </div>
-        </template>
-        <template v-if="newSummary.readables.Materials.filter(v => v?.Material?.MaterialType === 'MATERIAL_FLYCLOAK').length">
-          <h4 class="content" style="padding-bottom:0">Glider Descriptions</h4>
-          <div class="content dispFlex flexWrap alignStart">
-            <div class="w50p" v-for="readable of newSummary.readables.Materials.filter(v => v?.Material?.MaterialType === 'MATERIAL_FLYCLOAK')">
-              <GenshinReadableLink :readable="readable" />
-            </div>
-          </div>
-        </template>
-        <template v-if="newSummary.readables.Materials.filter(v => v?.Material?.MaterialType === 'MATERIAL_COSTUME').length">
-          <h4 class="content" style="padding-bottom:0">Costume Descriptions</h4>
-          <div class="content dispFlex flexWrap alignStart">
-            <div class="w50p" v-for="readable of newSummary.readables.Materials.filter(v => v?.Material?.MaterialType === 'MATERIAL_COSTUME')">
-              <GenshinReadableLink :readable="readable" />
-            </div>
-          </div>
-        </template>
-        <template v-if="newSummary.readables.Weapons.length">
-          <h4 class="content" style="padding-bottom:0">Weapons</h4>
-          <div class="content dispFlex flexWrap alignStart">
-            <div class="w50p" v-for="readable of newSummary.readables.Weapons">
-              <GenshinReadableLink :readable="readable" />
-            </div>
-          </div>
-        </template>
-        <template v-if="newSummary.readables.Artifacts.length">
-          <h4 class="content" style="padding-bottom:0">Artifacts</h4>
-          <div class="content dispFlex flexWrap alignStart">
-            <div class="w50p" v-for="readable of newSummary.readables.Artifacts">
-              <GenshinReadableLink :readable="readable" />
-            </div>
-          </div>
-        </template>
+        <GenshinChangelogSummaryReadablesView :readables="newSummary.updatedReadables" />
       </div>
 
       <h3 id="new-chapters-header" class="new-summary-section-header secondary-header valign">
@@ -683,6 +638,7 @@ import GenshinReadableLink from '../genshin/links/GenshinReadableLink.vue';
 import { ChapterExcelConfigData } from '../../../shared/types/genshin/quest-types.ts';
 import GenshinChapterListItem from '../genshin/chapters/GenshinChapterListItem.vue';
 import { SITE_SHORT_TITLE } from '../../loadenv.ts';
+import GenshinChangelogSummaryReadablesView from './GenshinChangelogSummaryReadablesView.vue';
 
 const { ctx } = getTrace();
 
@@ -708,7 +664,6 @@ function chapterGroup2(code: 'AQ' | 'SQ', chapterName: string): {subChapterName:
 }
 
 let newChaptersCount: number = 0;
-let newReadablesCount: number = 0;
 
 for (let entry1 of chapterGroup1('AQ')) {
   for (let entry2 of chapterGroup2('AQ', entry1.chapterName)) {
@@ -722,11 +677,4 @@ for (let entry1 of chapterGroup1('SQ')) {
 }
 newChaptersCount += arraySum(Object.values(newSummary.chapters.EQ).map(chapters => chapters.length));
 newChaptersCount += arraySum(Object.values(newSummary.chapters.WQ).map(chapters => chapters.length));
-
-for (let collection of Object.values(newSummary.readables.BookCollections)) {
-  newReadablesCount += collection.Books.length;
-}
-newReadablesCount += newSummary.readables.Materials.length;
-newReadablesCount += newSummary.readables.Weapons.length;
-newReadablesCount += newSummary.readables.Artifacts.length;
 </script>
