@@ -104,11 +104,12 @@ async function importForVersion(ctrl: GenshinControl, version: GameVersion) {
     });
   }
 
-  const BATCH_SIZE = 100;
+  const CHANGES_BATCH_SIZE = 1000;
+  const CONTENTS_BATCH_SIZE = 500;
 
   await ctrl.knex.transaction(async (trx) => {
-    const contentBatches = chunk(contents, BATCH_SIZE);
-    const changeBatches = chunk(changes, BATCH_SIZE);
+    const contentBatches = chunk(contents, CONTENTS_BATCH_SIZE);
+    const changeBatches = chunk(changes, CHANGES_BATCH_SIZE);
 
     // Insert contents (ignore on conflict)
     let batchNum = 0;
@@ -136,6 +137,7 @@ async function importForVersion(ctrl: GenshinControl, version: GameVersion) {
 
 export async function importGenshinReadableChanges(ctrl: GenshinControl, versionTarget: string) {
   console.log('Starting...');
+  console.log('Inserting to target database on ' + ENV.POSTGRES_GAMEDATA_HOST);
   console.log();
 
   if (versionTarget === 'ALL') {

@@ -28,3 +28,6 @@ ALTER TABLE readable_changes
         FOREIGN KEY (loc_path, content_hash)
             REFERENCES readable_content (loc_path, content_hash)
             ON DELETE CASCADE;
+
+CREATE INDEX readable_changes_version_loc_path_content_hash_idx
+    ON readable_changes (version, loc_path, content_hash);

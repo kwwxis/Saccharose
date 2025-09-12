@@ -53,7 +53,7 @@ export const OptionIconMap = {
   UI_Icon_Intee_AkaFes_Astrolabe: 'Gathering of Stars',
   UI_Icon_Intee_AkaFes_Reasoning: 'In Truth\'s steps',
   UI_Icon_Intee_AkaFes_Rhythm: 'Mimetic Replication',
-  UI_Icon_Intee_AreaUpgrad: '', // TODO
+  UI_Icon_Intee_AreaUpgrad: '', // TODO not in wiki
   UI_Icon_Intee_Astrology: 'Astrology',
   UI_Icon_Intee_Blacksmith: 'Forging',
   UI_Icon_Intee_Blessing: 'Flushes',
@@ -65,30 +65,30 @@ export const OptionIconMap = {
   UI_Icon_Intee_Explore_0: 'Expedition',
   UI_Icon_Intee_Fishblaster: 'Dodoco',
   UI_Icon_Intee_Fishes: 'Fishing Supplies',
-  UI_Icon_Intee_FlightChallenge: '', // TODO
-  UI_Icon_Intee_FungusFighter: '', // TODO
+  UI_Icon_Intee_FlightChallenge: '', // TODO not in wiki
+  UI_Icon_Intee_FungusFighter: '', // TODO not in wiki
   UI_Icon_Intee_FungusFighterV2: 'Fungus Mechanicus',
   UI_Icon_Intee_FurnitureBuild: 'Create',
-  UI_Icon_Intee_GcgJiuGuan: '', // TODO
-  UI_Icon_Intee_GcgPve: '', // TODO
-  UI_Icon_Intee_GcgWatchVideo: '', // TODO
+  UI_Icon_Intee_GcgJiuGuan: '', // TODO not in wiki
+  UI_Icon_Intee_GcgPve: '', // TODO not in wiki
+  UI_Icon_Intee_GcgWatchVideo: '', // TODO not in wiki
   UI_Icon_Intee_GcgZhanDou: 'TCG',
-  UI_Icon_Intee_GcgZhanDou_01: '', // TODO
+  UI_Icon_Intee_GcgZhanDou_01: '', // TODO not in wiki
   UI_Icon_Intee_GeneralCargo: 'GeneralGoods',
-  UI_Icon_Intee_GrowFlowers: '', // TODO
+  UI_Icon_Intee_GrowFlowers: '', // TODO not in wiki
   UI_Icon_Intee_HomeSwitch: 'Switch',
   UI_Icon_Intee_Investigation: 'Investigate',
-  UI_Icon_Intee_LanV3BoatGame: '', // TODO
-  UI_Icon_Intee_LanV3Shadow: '', // TODO
+  UI_Icon_Intee_LanV3BoatGame: '', // TODO not in wiki
+  UI_Icon_Intee_LanV3Shadow: '', // TODO not in wiki
   UI_Icon_Intee_LuminanceStone: 'Adjuvant',
   UI_Icon_Intee_Mechanism: 'Gear',
   UI_Icon_Intee_Miscsmarvs: 'BoxOfMarv',
   UI_Icon_Intee_Music: 'Drumalong',
-  UI_Icon_Intee_Nutcracker01: '', // TODO
-  UI_Icon_Intee_Nutcracker02: '', // TODO
+  UI_Icon_Intee_Nutcracker01: '', // TODO not in wiki
+  UI_Icon_Intee_Nutcracker02: '', // TODO not in wiki
   UI_Icon_Intee_Pacman: 'Floral Pursuit',
-  UI_Icon_Intee_PenAdvShuffleBoard: '', // TODO
-  UI_Icon_Intee_PenAdvTargetShooting: '', // TODO
+  UI_Icon_Intee_PenAdvShuffleBoard: '', // TODO not in wiki
+  UI_Icon_Intee_PenAdvTargetShooting: '', // TODO not in wiki
   UI_Icon_Intee_PlayerLevel_0: 'AdvGuild',
   UI_Icon_Intee_Questevents: 'Case Record',
   UI_Icon_Intee_Questinference: 'Logic Chain',
@@ -100,21 +100,21 @@ export const OptionIconMap = {
   UI_Icon_Intee_Speedup: 'Speedup',
   UI_Icon_Intee_TalkSpecial: '!',
   UI_Icon_Intee_TheatreMechanicus: 'Theater',
-  UI_Icon_Intee_ToyBattleQTE: '', // TODO
+  UI_Icon_Intee_ToyBattleQTE: '', // TODO not in wiki
   UI_Icon_Intee_TreasureBox: 'Reward',
-  UI_Icon_Intee_TreasureGift: '', // TODO
+  UI_Icon_Intee_TreasureGift: '', // TODO not in wiki
   UI_Icon_Intee_TreasureHunt: 'Lost Riches',
-  UI_Icon_Intee_Vintage_01: '', // TODO
-  UI_Icon_Intee_Vintage_02: '', // TODO
-  UI_Icon_Intee_Vintage_03: '', // TODO
+  UI_Icon_Intee_Vintage_01: '', // TODO not in wiki
+  UI_Icon_Intee_Vintage_02: '', // TODO not in wiki
+  UI_Icon_Intee_Vintage_03: '', // TODO not in wiki
   UI_Icon_Quest_Once: 'Quest',
   UI_NPCTopIcon_Activity_BrickBreaker: '',
   UI_NPCTopIcon_Activity_Music: 'Drumalong',
   UI_NPCTopIcon_Activity_ProjectionNPC: 'Wondrous Shadows',
-  UI_NPCTopIcon_Activity_RobotGacha: '', // TODO
+  UI_NPCTopIcon_Activity_RobotGacha: '', // TODO not in wiki
   UI_NPCTopIcon_Blacksmith: 'Forging',
   UI_NPCTopIcon_Combine: 'Alchemy',
-  UI_NPCTopIcon_EditTeam: '', // TODO
+  UI_NPCTopIcon_EditTeam: '', // TODO not in wiki
   UI_NPCTopIcon_InspirationSpurt: 'Inspiration Eruption',
   UI_NPCTopIcon_MiscsMarvs: 'BoxOfMarv',
   UI_NPCTopIcon_PitchPot: 'Hundred-Pace Hurling Rites',
@@ -123,14 +123,13 @@ export const OptionIconMap = {
 
   UI_NPCTopIcon_QuestEvent: 'Commission-Purple',
   UI_Icon_Intee_Attack: 'Attack',
-  UI_Icon_Intee_Defense: '',
+  UI_Icon_Intee_Defense: '', // TODO not in wiki
   UI_Icon_Intee_NatlanDrill_ADG: 'Bloomflower Trials',
   UI_Icon_Intee_NatlanDrill_DC: 'Saurian Treasure Seeker',
   UI_Icon_Intee_AutoChess_Tutorial: 'Companion Caper Chronicles',
   UI_Icon_Intee_ThemeParkSim_BuffGacha: 'Theme Restaurant',
   UI_NPCTopIcon_NtNpcWorldChallenge: 'Warrior\'s Challenge',
-
-  UI_Icon_Intee_NodKrai_Lighthouse: '', // TODO
+  UI_Icon_Intee_NodKrai_Lighthouse: 'Lightkeepers',
   UI_Icon_Intee_NodKrai_LunarEdictStatuette: 'Frostmoon Scions',
   UI_Icon_Intee_NodKrai_Workshop: 'Clink-Clank Krumkake Workshop',
   UI_Icon_Intee_LanV4PartyLion: 'Wushou Dance',
@@ -142,7 +141,6 @@ export const OptionIconMap = {
   UI_Icon_Intee_EffigyChallengeV6: 'Specially-Shaped Saurian Search',
   UI_Icon_Intee_HideAndSeekV4: 'Windtrace',
   UI_Icon_Intee_HolidayResort_Shop: 'Asha\'s Treasure Trove',
-
 } as const;
 
 export interface DialogExcelConfigData {
