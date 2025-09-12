@@ -81,6 +81,7 @@ export function __normZenlessText(text: string, langCode: LangCode, opts: NormTe
     text = text.replace(/<color=#FFAF2C(?:FF)?>(.*?)<\/color>/g, '{{Color|Buzz|$1}}');
     text = text.replace(/<color=#b6540a(?:FF)?>(.*?)<\/color>/g, '{{Color|Buzz|$1}}');
     text = text.replace(/<color=#D9A600(?:FF)?>(.*?)<\/color>/g, '{{Color|Buzz|$1}}');
+    text = text.replace(/<color=#FFAF2C(?:FF)?>(.*?)<\/color>/g, '{{Color|Buzz|$1}}');
     text = text.replace(/<color=#CF4029(?:FF)?>(.*?)<\/color>/g, '{{Color|Red|$1}}');
     text = text.replace(/<color=#FF3333(?:FF)?>(.*?)<\/color>/g, '{{Color|Red|$1}}');
     text = text.replace(/<color=#2BAD00(?:FF)?>(.*?)<\/color>/g, '{{Color|Green|$1}}');
@@ -95,8 +96,8 @@ export function __normZenlessText(text: string, langCode: LangCode, opts: NormTe
     text = text.replace(/<color=(#[0-9a-fA-F]{6})(?:FF)?>(.*?)<\/color>/g, '{{Color|$1|$2}}');
   }
 
-  text = text.replace(/<IconMap:Icon_(Normal|Evade|Switch|Special|SpecialReady|UltimateReady)>/g,
-    (_fm, g: 'Normal'|'Evade'|'Switch'|'Special'|'SpecialReady'|'UltimateReady') => {
+  text = text.replace(/<IconMap:Icon_(Normal|Evade|Switch|Special|SpecialReady|SpecialReady_Rp|UltimateReady)>/g,
+    (_fm, g: 'Normal'|'Evade'|'Switch'|'Special'|'SpecialReady'|'SpecialReady_Rp'|'UltimateReady') => {
       switch (g) {
         case 'Normal':
           return '{{BA}}';
@@ -108,6 +109,8 @@ export function __normZenlessText(text: string, langCode: LangCode, opts: NormTe
           return '{{SA}}';
         case 'SpecialReady':
           return '{{EX}}';
+        case 'SpecialReady_Rp':
+          return '{{EXRP}}';
         case 'UltimateReady':
           return '{{Ult2}}';
       }
