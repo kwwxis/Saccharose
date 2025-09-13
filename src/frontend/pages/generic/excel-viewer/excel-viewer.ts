@@ -1,20 +1,15 @@
 import { pageMatch } from '../../../core/pageMatch.ts';
-import {
+
+import type {
   ColDef, ColGroupDef,
-  ColumnState, createGrid,
+  ColumnState,
   GetContextMenuItemsParams,
   GridApi,
   GridOptions, GridReadyEvent,
   ICellRendererParams,
   MenuItemDef,
 } from 'ag-grid-community';
-import { LicenseManager } from 'ag-grid-enterprise';
-LicenseManager.prototype.validateLicense = function() {};
-LicenseManager.prototype.isDisplayWatermark = function() {return false};
-LicenseManager.prototype.getWatermarkMessage = function() {return null};
-import 'ag-grid-community/styles/ag-grid.css';
-import 'ag-grid-community/styles/ag-theme-alpine.css';
-import './ag-grid-custom.scss';
+
 import { camelCaseToTitleCase, escapeHtml, isString, isStringArray } from '../../../../shared/util/stringUtil.ts';
 import { sort } from '../../../../shared/util/arrayUtil.ts';
 import { listen } from '../../../util/eventListen.ts';
@@ -33,6 +28,7 @@ import { highlightJson, highlightWikitext } from '../../../core/ace/aceHighlight
 import { isNightmode, onSiteThemeChange } from '../../../core/userPreferences/siteTheme.ts';
 import { toInt } from '../../../../shared/util/numberUtil.ts';
 import { templateIcon } from '../../../util/templateIcons.ts';
+import { doWithCreateGrid } from '../../../core/gridInterface/agGridInterface.ts';
 
 function initializeThemeWatcher(elements: HTMLElement[]) {
   onSiteThemeChange(theme => {
@@ -319,7 +315,7 @@ export type ExcelViewerOpts<T = any> = {
   overrideColDefs?: (ColDef<T> | ColGroupDef<T>)[],
 }
 
-export function initExcelViewer<T = any>(excelFileName: string,
+export async function initExcelViewer<T = any>(excelFileName: string,
                                 excelData: T[],
                                 appendTo: HTMLElement,
                                 opts: ExcelViewerOpts<T> = {}) {
@@ -453,6 +449,7 @@ export function initExcelViewer<T = any>(excelFileName: string,
     }
   };
 
+  const createGrid = await doWithCreateGrid();
   const gridApi: GridApi = createGrid(gridEl, gridOptions);
   const storeName: StoreNames<ExcelViewerDB> = `${SiteModeInfo.storagePrefix}.ColumnState`;
   let noAutoSave: boolean = false;
@@ -581,7 +578,7 @@ pageMatch('vue/ExcelViewerTablePage', async () => {
     getPreferredColumnState,
     savePreferredColumnState,
     resetPreferredColumnState,
-  } = initExcelViewer(excelFileName, excelData, containerEl, {
+  } = await initExcelViewer(excelFileName, excelData, containerEl, {
     includeExcelListButton: true
   });
 

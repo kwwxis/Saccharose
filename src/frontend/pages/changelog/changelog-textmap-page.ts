@@ -5,7 +5,7 @@ import {
   TextMapChangeRemoveDisplay,
   TextMapChangeUpdateDisplay,
 } from '../../../shared/types/changelog-types.ts';
-import { AgPromise, ICellRendererComp, ICellRendererParams } from 'ag-grid-community';
+import type { AgPromise, ICellRendererComp, ICellRendererParams } from 'ag-grid-community';
 import { createDiffUIFullDiff, DiffUI } from '../../util/DiffUI.ts';
 import { isNightmode } from '../../core/userPreferences/siteTheme.ts';
 import { ColorSchemeType } from 'diff2html/lib/types';
@@ -62,7 +62,7 @@ pageMatch('vue/ChangelogTextMapPage', async () => {
   let resetPreferredColumnStateFunctions: Function[] = [];
 
   if (addedData && addedData.length) {
-    let { resetPreferredColumnState } = initExcelViewer(
+    let { resetPreferredColumnState } = await initExcelViewer(
       'Added TextMap Entries - ' + changelogVersion,
       addedData,
       document.querySelector('#grid-addedEntries'),
@@ -79,7 +79,7 @@ pageMatch('vue/ChangelogTextMapPage', async () => {
   }
 
   if (updatedData && updatedData.length) {
-    let { resetPreferredColumnState } = initExcelViewer(
+    let { resetPreferredColumnState } = await initExcelViewer(
       'Updated TextMap Entries - ' + changelogVersion,
       updatedData,
       document.querySelector('#grid-updatedEntries'),
@@ -105,7 +105,7 @@ pageMatch('vue/ChangelogTextMapPage', async () => {
   }
 
   if (removedData && removedData.length) {
-    let { resetPreferredColumnState } = initExcelViewer(
+    let { resetPreferredColumnState } = await initExcelViewer(
       'Removed TextMap Entries - ' + changelogVersion,
       removedData,
       document.querySelector('#grid-removedEntries'),

@@ -14,7 +14,7 @@ dotenv.config();
 const pathDefaults = {
   entry: path.resolve(__dirname, './src/frontend/index.ts'),
   dist: path.resolve(__dirname, './public/dist'),
-  public: '/dist', // path of distribution folder relative to base path in the browser (not in the repo)
+  public: '/dist/', // path of distribution folder relative to base path in the browser (not in the repo)
 };
 const paths = {
   development: {

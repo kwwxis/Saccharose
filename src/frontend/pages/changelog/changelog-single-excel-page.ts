@@ -6,7 +6,7 @@ pageMatch('vue/ChangelogSingleExcelPage', async () => {
   const excelData: any[] = JSON.parse(document.querySelector<HTMLMetaElement>('#x-addedRecords-excelData').content);
 
   if (excelData && Array.isArray(excelData) && excelData.length) {
-    initExcelViewer(
+    await initExcelViewer(
       excelFileName,
       excelData,
       document.querySelector('#tabpanel-addedRecords-excelViewer'),
