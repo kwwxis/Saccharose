@@ -25,6 +25,6 @@
 </template>
 
 <script setup lang="ts">
-import SearchModeInput from '../../utility/SearchModeInput.vue';
-import Icon from '../../utility/Icon.vue';
+import SearchModeInput from '../../../utility/SearchModeInput.vue';
+import Icon from '../../../utility/Icon.vue';
 </script>

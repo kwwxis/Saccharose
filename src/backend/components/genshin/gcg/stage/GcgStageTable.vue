@@ -41,7 +41,7 @@
 </template>
 
 <script setup lang="ts">
-import { GCGGameExcelConfigData } from '../../../../shared/types/genshin/gcg-types.ts';
+import { GCGGameExcelConfigData } from '../../../../../shared/types/genshin/gcg-types.ts';
 
 defineProps<{
   stages?: GCGGameExcelConfigData[]

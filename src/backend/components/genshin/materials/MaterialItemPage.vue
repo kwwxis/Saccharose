@@ -54,11 +54,39 @@
               </div>
             </td>
           </tr>
+          <tr v-if="material.SpecialDescText">
+            <td class="bold">Special Desc.</td>
+            <td colspan="2">
+              <div class="posRel spacer5-top">
+                <div style="padding-right:50px;">
+                  <Wikitext id="item-special-desc" :value="normGenshinText(material.SpecialDescText)" :seamless="true" />
+                </div>
+                <button class="secondary small posAbs" ui-action="copy: #item-special-desc"
+                        style="right: 0; top: 0;"
+                        ui-tippy-hover="Click to copy to clipboard"
+                        ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">Copy</button>
+              </div>
+            </td>
+          </tr>
+          <tr v-if="material.InteractionTitleText">
+            <td class="bold">Interaction Desc.</td>
+            <td colspan="2">
+              <div class="posRel spacer5-top">
+                <div style="padding-right:50px;">
+                  <Wikitext id="item-interaction-desc" :value="normGenshinText(material.InteractionTitleText)" :seamless="true" />
+                </div>
+                <button class="secondary small posAbs" ui-action="copy: #item-interaction-desc"
+                        style="right: 0; top: 0;"
+                        ui-tippy-hover="Click to copy to clipboard"
+                        ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">Copy</button>
+              </div>
+            </td>
+          </tr>
           <tr>
             <td class="bold">Quality</td>
             <td colspan="2">
               <div class="valign">
-                <code class="spacer10-right">{{ material.RankLevel || 0 }}</code>
+                <code style="font-size:14px" class="spacer10-right">{{ material.RankLevel || 0 }}</code>
                 <GenshinStars :quality="material.RankLevel || 0" />
               </div>
             </td>
@@ -73,20 +101,41 @@
             </td>
           </tr>
           <tr>
-            <td class="bold">Item Type</td>
-            <td colspan="2"><code>{{ material.WikiTypeDescText }}</code></td>
+            <td class="bold">Item Type Enum</td>
+            <td colspan="2"><code style="font-size:14px">{{ material.MaterialType }}</code></td>
           </tr>
-          <tr v-if="material.LoadedItemUse && Object.keys(material.LoadedItemUse).length">
-            <td class="bold">Item Use</td>
+          <tr>
+            <td class="bold">Item Type Desc.</td>
+            <td colspan="2"><code style="font-size:14px">{{ material.WikiTypeDescText }}</code></td>
+          </tr>
+          <tr v-if="material.FoodQuality && material.FoodQuality !== 'FOOD_QUALITY_NONE'">
+            <td class="bold">Food Type</td>
             <td colspan="2">
-              <template v-if="material.LoadedItemUse.Furniture">
-                <GenshinItem :item="material.LoadedItemUse.Furniture" />
-              </template>
-              <span v-if="material.LoadedItemUse.FurnitureSet">
-                <span>Unlock furnishing set:&nbsp;</span>
-                <a :href="`/genshin/furnishing-sets/${material.LoadedItemUse.FurnitureSet.SuiteId}`">{{ material.LoadedItemUse.FurnitureSet.SuiteNameText }}</a>
-              </span>
+              <span v-if="material.FoodQuality === 'FOOD_QUALITY_STRANGE'">Strange</span>
+              <span v-if="material.FoodQuality === 'FOOD_QUALITY_ORDINARY'">Ordinary</span>
+              <span v-if="material.FoodQuality === 'FOOD_QUALITY_DELICIOUS'">Delicious</span>
             </td>
+          </tr>
+          <tr v-if="material.SatiationParams && material.SatiationParams.length">
+            <td class="bold">Food Fullness</td>
+            <td colspan="2">
+              <p class="spacer5-bottom">Fullness increase is calculated by <code style="font-size:14px">ParameterA + (ParameterB / CharacterMaxHP)</code>.</p>
+              <p class="spacer10-bottom">For more info see <a href="https://genshin-impact.fandom.com/wiki/Food#Fullness">Food#Fullness</a> on the Genshin wiki.</p>
+              <dl>
+                <dt>Parameter A</dt>
+                <dd>{{ material.SatiationParams[0] }}</dd>
+                <dt>Parameter B</dt>
+                <dd>{{ material.SatiationParams[1] }}</dd>
+              </dl>
+            </td>
+          </tr>
+          <tr>
+            <td class="bold">Is Destroyable?</td>
+            <td colspan="2">{{ material.DestroyRule === 'DESTROY_RETURN_MATERIAL' ? 'Yes' : 'No' }}</td>
+          </tr>
+          <tr>
+            <td class="bold">Global Item Limit</td>
+            <td colspan="2">{{ material.GlobalItemLimit }}</td>
           </tr>
           <tr>
             <td class="bold">Quick Jump</td>
@@ -105,6 +154,111 @@
             </td>
           </tr>
         </table>
+      </div>
+    </section>
+    <section class="card" v-if="material.ItemUse.length">
+      <h2>Item Use</h2>
+      <div class="content">
+        <p class="spacer10-bottom">This item has {{ material.ItemUse.length }} operations that occur upon use.</p>
+        <h4>Meta Info</h4>
+        <table class="article-table spacer10-bottom" style="font-size:15px">
+          <tr>
+            <td class="bold" style="width:200px">UseOnGain</td>
+            <td style="width:80px">{{ material.UseOnGain }}</td>
+            <td><small>(If the item should automatically be used when the player obtains the item.)</small></td>
+          </tr>
+          <tr>
+            <td class="bold">CloseBagAfterUsed</td>
+            <td>{{ material.CloseBagAfterUsed }}</td>
+            <td><small>(If the inventory should be automatically closed after item use.)</small></td>
+          </tr>
+          <tr>
+            <td class="bold">MaxUseCount</td>
+            <td>{{ material.MaxUseCount }}</td>
+            <td><small>(Maximum amount that can be used in a single use-instance.)</small></td>
+          </tr>
+        </table>
+        <template v-for="(itemUse, index) of material.ItemUse">
+          <h4>Operation {{ index + 1 }}</h4>
+          <div class="card">
+            <table class="article-table" style="border:0;font-size:15px">
+              <tr>
+                <td class="bold" style="width:200px">
+                  <div style="line-height:1em;padding:4px 0">
+                    Use Op
+                  </div>
+                </td>
+                <td>{{ itemUse.UseOp }}</td>
+              </tr>
+              <tr>
+                <td class="bold">
+                  <div style="line-height:1em;padding:4px 0">
+                    Use Params
+                  </div>
+                </td>
+                <td><JsonText :value="reformatPrimitiveArrays(JSON.stringify(itemUse.UseParam, null, 2))" :seamless="true" /></td>
+              </tr>
+              <tr>
+                <td class="bold">
+                  <div style="line-height:1em;padding:4px 0">
+                    <span>More Context</span><br />
+                    <small>(If implemented by site)</small>
+                  </div>
+                </td>
+                <td>
+                  <div v-if="itemUse.UseOp === 'ITEM_USE_UNLOCK_FURNITURE_FORMULA' && material.LoadedItemUse.Furniture">
+                    <GenshinItem :item="material.LoadedItemUse.Furniture" />
+                  </div>
+                  <div v-if="itemUse.UseOp === 'ITEM_USE_UNLOCK_FURNITURE_SUITE' && material.LoadedItemUse.FurnitureSet">
+                    <p class="spacer10-bottom">Unlocks furnishing set:</p>
+                    <a :href="`/genshin/furnishing-sets/${material.LoadedItemUse.FurnitureSet.SuiteId}`">{{ material.LoadedItemUse.FurnitureSet.SuiteNameText }}</a>
+                  </div>
+                  <div v-if="itemUse.UseOp === 'ITEM_USE_ADD_ITEM' && material.LoadedItemUse.AddItem">
+                    <p class="spacer10-bottom">Gives item:</p>
+                    <GenshinItem :item="material.LoadedItemUse.AddItem.Material" :item-count="material.LoadedItemUse.AddItem.Count" />
+                  </div>
+                  <div v-if="itemUse.UseOp === 'ITEM_USE_GAIN_GCG_CARD' && material.LoadedItemUse.GcgCard">
+                    <p class="spacer10-bottom">Gives TCG card:</p>
+                    <TcgCard :card="material.LoadedItemUse.GcgCard" />
+                  </div>
+                  <div v-if="itemUse.UseOp === 'ITEM_USE_UNLOCK_COMBINE'">
+                    <p>See the <a href="#crafting">Crafting</a> section on this page for the crafting unlocked.</p>
+                  </div>
+                  <div v-if="itemUse.UseOp === 'ITEM_USE_UNLOCK_COOK_RECIPE'">
+                    <p>See the <a href="#cooking">Cooking</a> section on this page for the recipe unlocked.</p>
+                  </div>
+                  <div v-if="itemUse.UseOp === 'ITEM_USE_UNLOCK_FORGE'">
+                    <p>See the <a href="#forging">Forging</a> section on this page for the forge unlocked.</p>
+                  </div>
+                  <div v-if="itemUse.UseOp === 'ITEM_USE_UNLOCK_CODEX' && material.LoadedItemUse.BookCodexMaterial">
+                    <p class="spacer10-bottom">Unlock book in archive.</p>
+                    <GenshinItem :item="material.LoadedItemUse.BookCodexMaterial" />
+                  </div>
+                  <div v-if="itemUse.UseOp === 'ITEM_USE_COMBINE_ITEM' && material.LoadedItemUse.ItemCombine">
+                    <p class="spacer10-bottom"><code>{{ material.LoadedItemUse.ItemCombine.Needed }}</code> of these
+                      can be combined to give this item:</p>
+                    <GenshinItem :item="material.LoadedItemUse.ItemCombine.Result" />
+                  </div>
+                  <div v-if="itemUse.UseOp === 'ITEM_USE_ADD_SERVER_BUFF' && material.LoadedItemUse.ServerBuff">
+                    <p class="spacer10-bottom">Applies the following server buff with parameter <code>{{ itemUse.UseParam[1] }}</code>.</p>
+                    <JsonText :value="JSON.stringify(material.LoadedItemUse.ServerBuff, null, 2)" />
+                  </div>
+                  <div v-if="itemUse.UseOp === 'ITEM_USE_GRANT_SELECT_REWARD' && material.LoadedItemUse.GrantSelectRewards?.length">
+                    <p>Able to select one of the following rewards:</p>
+                    <div v-for="(reward, idx) of material.LoadedItemUse.GrantSelectRewards">
+                      <strong>Reward option {{ idx + 1 }}</strong>
+                      <div class="valign">
+                        <template v-for="item of reward.RewardItemList">
+                          <GenshinItem :item="item.Material" :item-count="item.ItemCount" :small="true" />
+                        </template>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </template>
       </div>
     </section>
     <section v-if="readable" id="readable-text" class="card">
@@ -139,8 +293,8 @@
           <h3 class="secondary-header valign">
             <span>Recipe #{{ relation.RelationId }}</span>
             <span class="grow"></span>
-            <small>Role ID: <strong>{{ relation.RoleId }}</strong></small>
-            <small class="spacer15-left">Role Type: <strong>{{ relation.RoleType }}</strong></small>
+            <small v-if="relation.RoleId">Role ID: <strong class="empty-dash">{{ relation.RoleId }}</strong></small>
+            <small v-if="relation.RoleType" class="spacer15-left">Role Type: <strong class="empty-dash">{{ relation.RoleType }}</strong></small>
           </h3>
           <div class="content alignStart">
             <template v-for="inputItem of relation.RelationData.MaterialItems">
@@ -178,8 +332,8 @@
           <h3 class="secondary-header valign">
             <span>Recipe #{{ relation.RelationId }}</span>
             <span class="grow"></span>
-            <small>Role ID: <strong>{{ relation.RoleId }}</strong></small>
-            <small class="spacer15-left">Role Type: <strong>{{ relation.RoleType }}</strong></small>
+            <small v-if="relation.RoleId">Role ID: <strong class="empty-dash">{{ relation.RoleId }}</strong></small>
+            <small v-if="relation.RoleType" class="spacer15-left">Role Type: <strong class="empty-dash">{{ relation.RoleType }}</strong></small>
           </h3>
           <div class="content alignStart">
             <template v-for="inputItem of relation.RelationData.InputVec">
@@ -217,8 +371,8 @@
           <h3 class="secondary-header valign">
             <span>Recipe #{{ relation.RelationId }}</span>
             <span class="grow"></span>
-            <small>Role ID: <strong>{{ relation.RoleId }}</strong></small>
-            <small class="spacer15-left">Role Type: <strong>{{ relation.RoleType }}</strong></small>
+            <small v-if="relation.RoleId">Role ID: <strong class="empty-dash">{{ relation.RoleId }}</strong></small>
+            <small v-if="relation.RoleType" class="spacer15-left">Role Type: <strong class="empty-dash">{{ relation.RoleType }}</strong></small>
           </h3>
           <div class="content alignStart">
             <template v-for="inputItem of relation.RelationData.InputVec">
@@ -256,8 +410,8 @@
           <h3 class="secondary-header valign">
             <span>Recipe #{{ relation.RelationId }}</span>
             <span class="grow"></span>
-            <small>Role ID: <strong>{{ relation.RoleId }}</strong></small>
-            <small class="spacer15-left">Role Type: <strong>{{ relation.RoleType }}</strong></small>
+            <small v-if="relation.RoleId">Role ID: <strong class="empty-dash">{{ relation.RoleId }}</strong></small>
+            <small v-if="relation.RoleType" class="spacer15-left">Role Type: <strong class="empty-dash">{{ relation.RoleType }}</strong></small>
           </h3>
           <div class="content">
             <p>Instead of receiving <strong>{{ relation.RelationData.RecipeOrdinaryResult?.Material?.NameText || '(SACCHAROSE MAPPING ERROR)' }}</strong>,
@@ -293,8 +447,8 @@
           <h3 class="secondary-header valign">
             <span>Recipe #{{ relation.RelationId }}</span>
             <span class="grow"></span>
-            <small>Role ID: <strong>{{ relation.RoleId }}</strong></small>
-            <small class="spacer15-left">Role Type: <strong>{{ relation.RoleType }}</strong></small>
+            <small v-if="relation.RoleId">Role ID: <strong class="empty-dash">{{ relation.RoleId }}</strong></small>
+            <small v-if="relation.RoleType" class="spacer15-left">Role Type: <strong class="empty-dash">{{ relation.RoleType }}</strong></small>
           </h3>
           <div class="content alignStart">
             <template v-for="inputItem of relation.RelationData.MaterialItems">
@@ -361,6 +515,10 @@ import GenshinStars from '../links/GenshinStars.vue';
 import Wikitext from '../../utility/Wikitext.vue';
 import ReadableTexts from '../readables/partials/ReadableTexts.vue';
 import { OLResult } from '../../../../shared/types/ol-types.ts';
+import JsonText from '../../utility/JsonText.vue';
+
+import { reformatPrimitiveArrays } from '../../../../shared/util/stringUtil.ts';
+import TcgCard from '../links/TcgCard.vue';
 
 const { normGenshinText } = getTrace();
 

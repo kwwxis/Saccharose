@@ -14,7 +14,9 @@ const excel = (file: string) => `./ExcelBinOutput/${file}.json`;
 
 const presets = {
   DialogExcelConfigData: <InspectOpt> { file: excel('DialogExcelConfigData'), inspectFieldValues: ['TalkRole.Type', 'Type', 'OptionIcon'] },
-  MaterialExcelConfigData: <InspectOpt> { file: excel('MaterialExcelConfigData'), inspectFieldValues: ['EffectIcon', 'MaterialType', 'ItemType', 'UseTarget', 'ItemUse[#ALL].UseOp'] },
+  MaterialExcelConfigData: <InspectOpt> { file: excel('MaterialExcelConfigData'), inspectFieldValues: [
+    'EffectIcon', 'MaterialType', 'ItemType', 'UseTarget', 'ItemUse[#ALL].UseOp', 'DestroyRule']
+  },
   CityConfigData: <InspectOpt> { file: excel('CityConfigData') },
   DungeonExcelConfigData: <InspectOpt> { file: excel('DungeonExcelConfigData'), inspectFieldValues: ['Type', 'SubType', 'InvolveType', 'SettleUIType', 'SettleShows[#ALL]', 'RecommendElementTypes[#ALL]', 'StateType', 'PlayType'] },
   DungeonPassExcelConfigData: <InspectOpt> { file: excel('DungeonPassExcelConfigData'), inspectFieldValues: ['Conds[#ALL].CondType', 'LogicType'] },
@@ -22,12 +24,18 @@ const presets = {
   DungeonEntryExcelConfigData: <InspectOpt> { file: excel('DungeonEntryExcelConfigData'), inspectFieldValues: ['Type', 'CondComb', 'SatisfiedCond[#ALL].Type'] },
   DungeonElementChallengeExcelConfigData: <InspectOpt> { file: excel('DungeonElementChallengeExcelConfigData') },
   DungeonChallengeConfigData: <InspectOpt> { file: excel('DungeonChallengeConfigData'), inspectFieldValues: ['ChallengeType', 'InterruptButtonType', 'SubChallengeSortType'] },
-  FettersExcelConfigData: <InspectOpt> { file: excel('FettersExcelConfigData'), inspectFieldValues: ['OpenConds[#ALL].CondType', 'FinishConds[#ALL].CondType', 'Type'] },
-  FetterStoryExcelConfigData: <InspectOpt> { file: excel('FetterStoryExcelConfigData'), inspectFieldValues: ['OpenConds[#ALL].CondType', 'FinishConds[#ALL].CondType'] },
+  FettersExcelConfigData: <InspectOpt> { file: excel('FettersExcelConfigData'), inspectFieldValues: [
+    'OpenConds[#ALL].CondType', 'FinishConds[#ALL].CondType', 'Type'] },
+  FetterStoryExcelConfigData: <InspectOpt> { file: excel('FetterStoryExcelConfigData'), inspectFieldValues: [
+    'OpenConds[#ALL].CondType', 'FinishConds[#ALL].CondType'] },
   FetterInfoExcelConfigData: <InspectOpt> { file: excel('FetterInfoExcelConfigData'), inspectFieldValues: ['AvatarAssocType', 'OpenConds[#ALL].CondType', 'FinishConds[#ALL].CondType'] },
   LocalizationExcelConfigData: <InspectOpt> { file: excel('LocalizationExcelConfigData'), inspectFieldValues: ['AssetType'] },
-  TalkExcelConfigData: <InspectOpt> { file: excel('TalkExcelConfigData'), inspectFieldValues: ['BeginCond[#ALL].Type', 'FinishExec[#ALL].Type', 'HeroTalk', 'LoadType', 'TalkMarkType'] },
-  QuestExcelConfigData: <InspectOpt> { file: excel('QuestExcelConfigData'), inspectFieldValues: ['FailCond[#ALL].Type', 'FailExec[#ALL].Type', 'FinishCond[#ALL].Type', 'FinishExec[#ALL].Type',] },
+  TalkExcelConfigData: <InspectOpt> { file: excel('TalkExcelConfigData'), inspectFieldValues: [
+    'BeginCond[#ALL].Type', 'FinishExec[#ALL].Type', 'HeroTalk', 'LoadType', 'TalkMarkType', 'TalkType', 'TalkBinType', 'TalkRole.Type'
+    ] },
+  QuestExcelConfigData: <InspectOpt> { file: excel('QuestExcelConfigData'), inspectFieldValues: [
+    'FailCond[#ALL].Type', 'FailExec[#ALL].Type', 'FinishCond[#ALL].Type', 'FinishExec[#ALL].Type'
+    ] },
   ReliquaryExcelConfigData: <InspectOpt> { file: excel('ReliquaryExcelConfigData'), inspectFieldValues: ['EquipType', 'ItemType', 'DestroyRule'] },
   WeaponExcelConfigData: <InspectOpt> { file: excel('WeaponExcelConfigData'), inspectFieldValues: ['WeaponType', 'DestroyRule', 'ItemType'] },
   AchievementExcelConfigData: <InspectOpt> { file: excel('AchievementExcelConfigData'), inspectFieldValues: ['Ttype', 'IsShow', 'ProgressShowType', 'TriggerConfig.TriggerType'] },
@@ -65,12 +73,15 @@ const presets = {
   HyperLinkNameExcelConfigData: <InspectOpt> { file: excel('HyperLinkNameExcelConifgData'), inspectFieldValues: [] },
   ProudSkillExcelConfigData: <InspectOpt> { file: excel('ProudSkillExcelConfigData'), inspectFieldValues: ['LifeEffectType'] },
   AvatarSkillExcelConfigData: <InspectOpt> { file: excel('AvatarSkillExcelConfigData'), inspectFieldValues: ['CostElemType', 'DragType'] },
+  BuffExcelConfigData: <InspectOpt> { file: excel('BuffExcelConfigData'), inspectFieldValues: ['ServerBuffType', 'StackType'] },
 };
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {
     const ctrl = getGenshinControl();
-    await inspectDataFile(ctrl, presets.AvatarSkillExcelConfigData);
+    // await inspectDataFile(ctrl, presets.QuestExcelConfigData);
+    // await inspectDataFile(ctrl, presets.TalkExcelConfigData);
+    await inspectDataFile(ctrl, presets.BuffExcelConfigData);
     await closeKnex();
   })();
 }

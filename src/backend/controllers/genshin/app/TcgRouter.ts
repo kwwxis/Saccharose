@@ -3,8 +3,8 @@ import { getGenshinControl } from '../../../domain/genshin/genshinControl.ts';
 import { getGCGControl } from '../../../domain/genshin/gcg/gcg_control.ts';
 import { generateGCGTutorialDialogue } from '../../../domain/genshin/gcg/gcg_tutorial_text.ts';
 import {
-  GCG_TAGS_WITHOUT_ICONS,
-  GCGCardExcelConfigData,
+  GCG_TAGS_WITHOUT_ICONS, GCGActionCardsByObtainability,
+  GCGCardExcelConfigData, GCGCharCardsByObtainability,
   GCGCommonCard,
   GCGGameExcelConfigData,
 } from '../../../../shared/types/genshin/gcg-types.ts';
@@ -15,16 +15,21 @@ import { queryTab } from '../../../middleware/util/queryTab.ts';
 import { generateCardPage, generateSkillPage, generateStageTemplate } from '../../../domain/genshin/gcg/gcg_wikitext.ts';
 import { Request, Response, Router } from 'express';
 import { ApiCyclicValueReplacer } from '../../../middleware/api/apiCyclicValueReplacer.ts';
-import GcgStageListPage from '../../../components/genshin/gcg/GcgStageListPage.vue';
-import GcgStageSearchPage from '../../../components/genshin/gcg/GcgStageSearchPage.vue';
+import GcgStageListPage from '../../../components/genshin/gcg/stage/GcgStageListPage.vue';
+import GcgStageSearchPage from '../../../components/genshin/gcg/stage/GcgStageSearchPage.vue';
 import { ImageIndexEntity } from '../../../../shared/types/image-index-types.ts';
+import GcgTutorialTextPage from '../../../components/genshin/gcg/GcgTutorialTextPage.vue';
+import GcgRulesPage from '../../../components/genshin/gcg/GcgRulesPage.vue';
+import GcgCardListPage from '../../../components/genshin/gcg/card/GcgCardListPage.vue';
+import GcgCardPage from '../../../components/genshin/gcg/card/GcgCardPage.vue';
+import GcgStagePage from '../../../components/genshin/gcg/stage/GcgStagePage.vue';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
 
   router.get('/TCG/tutorial-text', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
-    res.render('pages/genshin/gcg/gcg-tutorial-text', {
+    await res.renderComponent(GcgTutorialTextPage, {
       title: 'TCG Tutorial Text',
       dialogue: await generateGCGTutorialDialogue(ctrl),
       bodyClass: ['page--tcg-tutorial-text']
@@ -69,7 +74,7 @@ export default async function(): Promise<Router> {
     const stageId = isInt(req.params.stageId) ? toInt(req.params.stageId) : null;
     const stage = await gcg.selectStage(stageId);
 
-    res.render('pages/genshin/gcg/gcg-stage', {
+    await res.renderComponent(GcgStagePage, {
       title: (stage?.WikiCombinedTitle || 'Not Found') + ' | TCG Stage',
       stage,
       stageForJsonUnmapped: removeCyclicRefs(gcg.getStageForJson(stage, true), ApiCyclicValueReplacer, false),
@@ -102,17 +107,17 @@ export default async function(): Promise<Router> {
     sort(charCards, '-IsCanObtain', 'Id');
     sort(actionCards, 'IsHidden', '-IsCanObtain', 'Id');
 
-    const charCardsBySection: { Obtainable: GCGCardExcelConfigData[], Unobtainable: [] } = defaultMap('Array');
+    const charCardsBySection: GCGCharCardsByObtainability = {Obtainable: [], Unobtainable: []};
     for (let charCard of charCards) {
       let obtainableProp = charCard.IsCanObtain ? 'Obtainable' : 'Unobtainable';
       charCardsBySection[obtainableProp].push(charCard);
     }
 
-    const actionCardsBySection: {[sectionName: string]: { Obtainable: GCGCardExcelConfigData[], Unobtainable: [] }} = defaultMap('Array', {
-      'Equipment Cards': defaultMap('Array'),
-      'Support Cards': defaultMap('Array'),
-      'Event Cards': defaultMap('Array'),
-      'Other Cards': defaultMap('Array'),
+    const actionCardsBySection: {[sectionName: string]: GCGActionCardsByObtainability} = defaultMap('Array', {
+      'Equipment Cards': {Obtainable: [], Unobtainable: []},
+      'Support Cards': {Obtainable: [], Unobtainable: []},
+      'Event Cards': {Obtainable: [], Unobtainable: []},
+      'Other Cards': {Obtainable: [], Unobtainable: []},
     });
     for (let actionCard of actionCards) {
       let obtainableProp = actionCard.IsCanObtain ? 'Obtainable' : 'Unobtainable';
@@ -127,12 +132,11 @@ export default async function(): Promise<Router> {
       }
     }
 
-    res.render('pages/genshin/gcg/gcg-card-list', {
+    await res.renderComponent(GcgCardListPage, {
       title: 'Cards',
       bodyClass: ['page--tcg-card'],
       charCardsBySection,
       actionCardsBySection,
-      GCG_TAGS_WITHOUT_ICONS
     });
   });
 
@@ -145,8 +149,9 @@ export default async function(): Promise<Router> {
     const WikiImageEntity: ImageIndexEntity = card.WikiImage ? await ctrl.selectImageIndexEntity(card.WikiImage) : null;
     const WikiGoldenImageEntity: ImageIndexEntity = card.WikiGoldenImage ? await ctrl.selectImageIndexEntity(card.WikiGoldenImage) : null;
 
-    res.render('pages/genshin/gcg/gcg-card', {
+    await res.renderComponent(GcgCardPage, {
       title: (card?.WikiName || 'Not Found') + ' | TCG Card',
+      reqCardId: req.params.cardId,
       bodyClass: ['page--tcg-card'],
       card: card,
       wikitext: await generateCardPage(gcg, card),
@@ -157,7 +162,6 @@ export default async function(): Promise<Router> {
       })),
       tab: queryTab(req, 'display', 'wikitext', 'json'),
       voiceItemsWikitext: card.VoiceItems && card.VoiceItems.length ? card.VoiceItems.map(vo => `{{A|${vo.fileName}}}`).join('\n') : '',
-      GCG_TAGS_WITHOUT_ICONS,
       WikiImageEntity,
       WikiGoldenImageEntity
     });
@@ -172,7 +176,7 @@ export default async function(): Promise<Router> {
     const gcg = getGCGControl(ctrl);
     const rules = await gcg.selectAllRuleText();
 
-    res.render('pages/genshin/gcg/gcg-rules', {
+    await res.renderComponent(GcgRulesPage, {
       title: 'TCG Rules',
       bodyClass: ['page--tcg-rules'],
       rules

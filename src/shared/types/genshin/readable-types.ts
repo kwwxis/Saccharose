@@ -16,7 +16,7 @@ import { WeaponExcelConfigData } from './weapon-types.ts';
 import { MainQuestExcelConfigData } from './quest-types.ts';
 import { Marker } from '../../util/highlightMarker.ts';
 import { LangCode, LangCodeMap } from '../lang-types.ts';
-import { ReadableChanges, ReadableChangesGroup } from '../changelog-types.ts';
+import { ReadableChangesGroup } from '../changelog-types.ts';
 
 // Search View
 // --------------------------------------------------------------------------------------------------------------

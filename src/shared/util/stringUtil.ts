@@ -646,3 +646,10 @@ export function paramCmp(a: any, b: any) {
   }
   return String(a).trim().toLowerCase().replace(/_/g, ' ') === String(b).trim().toLowerCase().replace(/_/g, ' ');
 }
+
+export function reformatPrimitiveArrays(jsonStr: string) {
+  return jsonStr.replace(/\[(\s*(\d+(\.\d+)?|"[^"]+"|true|false),?\n\s*)*]/g, fm => {
+    let s = fm.slice(1, -1).split(',').map(s => s.trim()).join(', ');
+    return s ? '[ ' + s + ' ]' : '[]';
+  });
+}

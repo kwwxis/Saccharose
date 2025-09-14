@@ -48,3 +48,8 @@
   user-select: none;
 }
 
+
+.empty-dash:empty:before {
+  content: '\2014';
+  opacity: 0.8;
+}

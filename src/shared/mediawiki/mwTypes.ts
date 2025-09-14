@@ -1,7 +1,7 @@
 // List of namespaces
 // (Ones we don't particularly care about for our use cases are commented out)
 import { MwOwnSegment } from '../../backend/mediawiki/mwOwnSegmentHolder.ts';
-import { Change } from 'diff';
+import type { Change } from 'diff';
 
 export const MW_NAMESPACES = {
   // '-2': 'Media',

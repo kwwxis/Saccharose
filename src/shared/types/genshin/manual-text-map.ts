@@ -17,27 +17,30 @@ export const ManualTextMapHashes = {
   // --------------------------------------------------------------------------------------------------------------
   // Monstadt
   'Mondstadt': 706446876,
-  'GCG_TAG_NATION_MONDSTADT': 706446876,
+  'GCG_TAG_NATION_MONDSTADT': 3622220579,
 
   // Liyue:
   'Liyue': 1982412604,
-  'GCG_TAG_NATION_LIYUE': 1982412604,
+  'GCG_TAG_NATION_LIYUE': 1271778987,
 
   // Inazuma
   'Inazuma': 869248244,
-  'GCG_TAG_NATION_INAZUMA': 869248244,
+  'GCG_TAG_NATION_INAZUMA': 1547136635,
 
   // Sumeru
   'Sumeru': 1074864084,
-  'GCG_TAG_NATION_SUMERU': 1074864084,
+  'GCG_TAG_NATION_SUMERU': 3926786643,
 
   // Fontaine
-  'Fontaine': 242250147,
+  'Fontaine': 2386365724,
   'GCG_TAG_NATION_FONTAINE': 242250147,
 
   // Natlan
-  'Natlan': 3332492851,
+  'Natlan': 2736148156,
   'GCG_TAG_NATION_NATLAN': 3332492851,
+
+  // Nod-Krai
+  'Nod-Krai': 1978435092,
 
   // Snezhnaya
   'Snezhnaya': 536575635,
@@ -48,14 +51,22 @@ export const ManualTextMapHashes = {
   'Khaenriah': 4075667307,
   'GCG_TAG_NATION_KHAENRIAH': 4075667307,
 
+  // Simulanka:
+  'Simulanka': 1938538708,
+  'GCG_TAG_NATION_SIMULANKA': 377968915,
+
   // Other Maps
   'Serenitea Pot': 3071628724,
-  'Golden Apple Archipelago': 3682200372,
+  'Golden Apple Archipelago': 2157852924,
   'Three Realms Gateway Offering': 2887066388,
   'Spiral Abyss': 2284786655,
   'Enkanomiya': 1862653596,
-  'Veluriyam Mirage': 84855465,
-  'Simulanka': 467583217,
+  'Veluriyam Mirage': 1719443972,
+  'The Chasm: Underground Mines': 297471884,
+  'Sea of Bygone Eras': 824436964,
+  'Theater Lobby': 2963086156,
+  'Ancient Sacred Mountain': 966415828,
+  'Chenyu Vale': 68445495,
 
   // Other Factions
   'Fatui': 243035471,
@@ -69,6 +80,12 @@ export const ManualTextMapHashes = {
 
   'Kairagi': 65490883,
   'GCG_TAG_CAMP_KAIRAGI': 65490883,
+
+  'The Eremites': 2263672043,
+  'GCG_TAG_CAMP_EREMITE': 2263672043,
+
+  'Consecrated Beast': 1265669115,
+  'GCG_TAG_CAMP_SACREAD': 2263672043,
 
   // General
   // --------------------------------------------------------------------------------------------------------------

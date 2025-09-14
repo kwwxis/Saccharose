@@ -58,8 +58,8 @@ import {
   CompoundExcelConfigData,
   CookBonusExcelConfigData,
   CookRecipeExcelConfigData,
-  ForgeExcelConfigData,
-  ItemRelationMap,
+  ForgeExcelConfigData, isMaterialExcelConfigData,
+  ItemRelationMap, ItemRelationTable, ItemRelationType,
   MaterialCodexExcelConfigData,
   MaterialExcelConfigData,
   MaterialLoadConf,
@@ -115,7 +115,7 @@ import {
   WeaponType,
   WeaponTypeEN,
 } from '../../../shared/types/genshin/weapon-types.ts';
-import { AvatarExcelConfigData } from '../../../shared/types/genshin/avatar-types.ts';
+import { AvatarExcelConfigData, BuffExcelConfigData } from '../../../shared/types/genshin/avatar-types.ts';
 import {
   AnimalCodexExcelConfigData,
   AnimalDescribeExcelConfigData,
@@ -171,6 +171,7 @@ import { Knex } from 'knex';
 import { fsExists } from '../../util/fsutil.ts';
 import { ReadableChangesCtrl } from './readables/genshinReadableChanges.ts';
 import { GenshinReadables } from './readables/genshinReadables.ts';
+import { getGCGControl } from './gcg/gcg_control.ts';
 
 // region Control State
 // --------------------------------------------------------------------------------------------------------------
@@ -2038,6 +2039,12 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     }
     return avatar;
   }
+
+  async selectBuffExcel(serverBuffId: number): Promise<BuffExcelConfigData> {
+    return await this.knex.select('*').from('BuffExcelConfigData')
+      .where({ServerBuffId: serverBuffId})
+      .first().then(this.commonLoadFirst);
+  }
   // endregion
 
   // region Reminders
@@ -2565,7 +2572,33 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return sourceData;
   }
 
-  async selectItemRelations(id: number): Promise<ItemRelationMap> {
+  mergeItemRelations(mergeInto: ItemRelationMap|MaterialExcelConfigData, mergeFrom: ItemRelationMap): ItemRelationMap {
+    if (isMaterialExcelConfigData(mergeInto)) {
+      mergeInto.Relations = { Combine: [], Compound: [], CookBonus: [], CookRecipe: [], Forge: [], FurnitureMake: [] };
+      mergeInto = mergeInto.Relations;
+    }
+
+    for (let [mergeFromKey, mergeFromRelations] of Object.entries(mergeFrom)) {
+      if (!mergeInto[mergeFromKey]) {
+        mergeInto[mergeFromKey] = [];
+      }
+
+      const existingRelationIds: Set<number> = new Set<number>();
+      for (let relation of mergeInto[mergeFromKey as ItemRelationType]) {
+        existingRelationIds.add(relation.RelationId);
+      }
+
+      for (let relation of mergeFromRelations) {
+        if (!existingRelationIds.has(relation.RelationId)) {
+          mergeInto[mergeFromKey].push(relation);
+        }
+      }
+    }
+
+    return mergeInto;
+  }
+
+  async selectItemRelations(selectOp: { byRoleId?: number, byRelation?: { relationTable?: ItemRelationTable, relationId: number} }): Promise<ItemRelationMap> {
     const relationMap: ItemRelationMap = {
       Combine: [],
       Compound: [],
@@ -2576,7 +2609,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     };
 
     // [table name, ID field, output prop, single result prop, material vec props]
-    const relationConf: [string, string, keyof ItemRelationMap, string, string[]][] = [
+    const relationConf: [ItemRelationTable, string, keyof ItemRelationMap, string, string[]][] = [
       ['CombineExcelConfigData',        'CombineId',  'Combine',        'ResultItemId',     ['MaterialItems']],
       ['CompoundExcelConfigData',       'Id',         'Compound',       null,               ['InputVec', 'OutputVec']],
       ['CookRecipeExcelConfigData',     'Id',         'CookRecipe',     null,               ['InputVec', 'QualityOutputVec']],
@@ -2589,13 +2622,31 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
     for (let conf of relationConf) {
       const [table, idProp, outProp, singleResultProp, materialVecProps] = conf;
+
+      if (selectOp.byRelation && selectOp.byRelation.relationTable !== table) {
+        continue;
+      }
+
       pList.push((async () => {
         const relations: MaterialRelation[] = await this.knex.select('*').from(`Relation_${table}`)
-          .where({RoleId: id}).then();
+          .where(selectOp.byRelation ? {RelationId: selectOp.byRelation.relationId} : {RoleId: selectOp.byRoleId})
+          .modify(qb => {
+            if (selectOp.byRelation) {
+              qb.limit(1);
+            }
+          })
+          .then();
 
         if (!relations.length) {
           relationMap[outProp] = [];
           return;
+        }
+
+        if (selectOp.byRelation) {
+          for (let relation of relations) {
+            relation.RoleId = null;
+            relation.RoleType = null;
+          }
         }
 
         const queryIds: number[] = relations.map(rel => rel.RelationId);
@@ -2768,6 +2819,11 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     } else {
       material.WikiTypeDescText = material.TypeDescText;
     }
+    if (!material.ItemUse) {
+      material.ItemUse = [];
+    } else {
+      material.ItemUse = material.ItemUse.filter(x => x.UseOp !== 'ITEM_USE_NONE');
+    }
     if (!loadConf) {
       return material;
     }
@@ -2795,7 +2851,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       material.SourceData = await this.selectMaterialSourceDataExcelConfigData(material.Id);
     }
     if (loadConf.LoadRelations) {
-      material.Relations = await this.selectItemRelations(material.Id);
+      material.Relations = await this.selectItemRelations({byRoleId: material.Id});
     }
     if (loadConf.LoadItemUse) {
       material.LoadedItemUse = {};
@@ -2810,6 +2866,79 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
         .find(x => x.UseOp === 'ITEM_USE_UNLOCK_FURNITURE_SUITE')?.UseParam[0])
       if (furnSuiteId) {
         material.LoadedItemUse.FurnitureSet = await this.selectFurnitureSuite(furnSuiteId);
+      }
+
+      const itemUseAddItem = material.ItemUse.find(x => x.UseOp === 'ITEM_USE_ADD_ITEM');
+      if (itemUseAddItem && itemUseAddItem.UseParam.length >= 2) {
+        material.LoadedItemUse.AddItem = {
+          Id: toInt(itemUseAddItem.UseParam[0]),
+          Count: toInt(itemUseAddItem.UseParam[1]),
+          Material: await this.selectMaterialExcelConfigData(toInt(itemUseAddItem.UseParam[0]))
+        };
+      }
+
+      const gainedGcgCardId = toInt(material.ItemUse
+        .find(x => x.UseOp === 'ITEM_USE_GAIN_GCG_CARD')?.UseParam[0])
+      if (gainedGcgCardId) {
+        const gcg = getGCGControl(this);
+        material.LoadedItemUse.GcgCard = await gcg.selectCharacterCard(gainedGcgCardId);
+        if (!material.LoadedItemUse.GcgCard) {
+          material.LoadedItemUse.GcgCard = await gcg.selectActionCard(gainedGcgCardId);
+        }
+      }
+
+      const unlockCookRecipeId = toInt(material.ItemUse
+        .find(x => x.UseOp === 'ITEM_USE_UNLOCK_COOK_RECIPE')?.UseParam[0])
+      if (unlockCookRecipeId) {
+        this.mergeItemRelations(material, await this.selectItemRelations({
+          byRelation: { relationTable: 'CookRecipeExcelConfigData', relationId: unlockCookRecipeId }
+        }));
+      }
+
+      const unlockForgeId = toInt(material.ItemUse
+        .find(x => x.UseOp === 'ITEM_USE_UNLOCK_FORGE')?.UseParam[0])
+      if (unlockForgeId) {
+        this.mergeItemRelations(material, await this.selectItemRelations({
+          byRelation: { relationTable: 'ForgeExcelConfigData', relationId: unlockForgeId }
+        }));
+      }
+
+      const unlockCombineId = toInt(material.ItemUse
+        .find(x => x.UseOp === 'ITEM_USE_UNLOCK_COMBINE')?.UseParam[0])
+      if (unlockCombineId) {
+        this.mergeItemRelations(material, await this.selectItemRelations({
+          byRelation: { relationTable: 'CombineExcelConfigData', relationId: unlockCombineId }
+        }));
+      }
+
+      const bookCodexId = toInt(material.ItemUse
+        .find(x => x.UseOp === 'ITEM_USE_UNLOCK_CODEX')?.UseParam[0])
+      if (bookCodexId) {
+        material.LoadedItemUse.BookCodex = await this.readables.selectBookCodexById(bookCodexId);
+        if (material.LoadedItemUse.BookCodex) {
+          material.LoadedItemUse.BookCodexMaterial = await this.selectMaterialExcelConfigData(material.LoadedItemUse.BookCodex.MaterialId);
+        }
+      }
+
+      const itemCombine = material.ItemUse.find(x => x.UseOp === 'ITEM_USE_COMBINE_ITEM');
+      if (itemCombine && itemCombine.UseParam.length >= 2) {
+        material.LoadedItemUse.ItemCombine = {
+          Needed: toInt(itemCombine.UseParam[0]),
+          Result: await this.selectMaterialExcelConfigData(toInt(itemCombine.UseParam[1]))
+        };
+      }
+
+      const serverBuffId = toInt(material.ItemUse
+        .find(x => x.UseOp === 'ITEM_USE_ADD_SERVER_BUFF')?.UseParam[0]);
+      if (serverBuffId) {
+        material.LoadedItemUse.ServerBuff = await this.selectBuffExcel(serverBuffId);
+      }
+
+      const grantSelectReward = material.ItemUse
+        .find(x => x.UseOp === 'ITEM_USE_GRANT_SELECT_REWARD')?.UseParam[0];
+      if (grantSelectReward) {
+        const rewardIds = grantSelectReward.split(',').map(x => toInt(x.trim())).filter(x => !isNaN(x));
+        material.LoadedItemUse.GrantSelectRewards = await rewardIds.asyncMap(rewardId => this.selectRewardExcelConfigData(rewardId));
       }
     }
     if (loadConf.LoadCodex) {
@@ -3016,7 +3145,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       return weapon;
     }
     if (loadConf.LoadRelations) {
-      weapon.Relations = await this.selectItemRelations(weapon.Id);
+      weapon.Relations = await this.selectItemRelations({byRoleId: weapon.Id});
     }
     if (loadConf.LoadReadable && weapon.StoryId) {
       weapon.Story = await this.readables.select(weapon.StoryId, true);

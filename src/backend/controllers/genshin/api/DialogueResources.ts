@@ -16,6 +16,10 @@ import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
 import GenshinQuestSearchResults from '../../../components/genshin/quests/GenshinQuestSearchResults.vue';
 import { GameVersions } from '../../../../shared/types/game-versions.ts';
 import { sort } from '../../../../shared/util/arrayUtil.ts';
+import VoToDialogueResult from '../../../components/genshin/dialogue/results/VoToDialogueResult.vue';
+import SingleBranchDialogueResult from '../../../components/genshin/dialogue/results/SingleBranchDialogueResult.vue';
+import NpcDialogueResultTemplate from '../../../components/genshin/dialogue/results/NpcDialogueResultTemplate.vue';
+import QuestGenerateResultTemplate from '../../../components/genshin/dialogue/results/QuestGenerateResultTemplate.vue';
 
 const router: Router = create();
 
@@ -63,31 +67,10 @@ router.endpoint('/quests/generate', {
     let result: QuestGenerateResult = await questGenerate(param, ctrl);
 
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
-      let locals: any = {};
-
-      locals.isResultPage = true;
-      locals.mainQuest = result.mainQuest;
-      locals.versionAdded = result.versionAdded;
-      locals.questTitle = result.questTitle;
-      locals.questId = result.questId;
-      locals.npc = result.npc;
-      locals.npcStrList = result.npc ? result.npc.names.join('; ') : '';
-      locals.stepsWikitext = result.stepsWikitext;
-      locals.questDescriptions = result.questDescriptions;
-      locals.otherLanguagesWikitext = result.otherLanguagesWikitext;
-      locals.dialogue = result.dialogue;
-      locals.cutscenes = result.cutscenes;
-      locals.rewards = result.rewards;
-      locals.reputation = result.reputation;
-      locals.rewardInfoboxList = result.rewardInfoboxList;
-      locals.reputationInfobox = result.reputationInfobox;
-      locals.rewardTriggers = result.rewardTriggers;
-      locals.similarityGroups = result.similarityGroups;
-      locals.questStills = result.questStills;
-      locals.inDialogueReadables = result.inDialogueReadables;
-      locals.questItemPictureCandidates = result.questItemPictureCandidates;
-
-      return res.render('partials/genshin/dialogue/quest-generate-result', locals);
+      await res.renderComponent(QuestGenerateResultTemplate, {
+        result
+      });
+      return;
     } else {
       return removeCyclicRefs(result, ApiCyclicValueReplacer);
     }
@@ -137,13 +120,14 @@ router.endpoint('/dialogue/single-branch-generate', {
     });
 
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
-      return res.render('partials/genshin/dialogue/single-branch-dialogue-generate-result', {
+      await res.renderComponent(SingleBranchDialogueResult, {
         sections: result,
         query,
         ... await questStillsHelper(ctrl),
         ... await inDialogueReadablesHelper(ctrl),
         langSuggest: result.length ? null : await ctrl.langSuggest(query)
       });
+      return;
     } else {
       return removeCyclicRefs(result, ApiCyclicValueReplacer);
     }
@@ -166,12 +150,12 @@ router.endpoint('/dialogue/npc-dialogue-generate', {
     let resultSet: NpcDialogueResultSet = await dialogueGenerateByNpc(ctrl, query);
 
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
-      return res.render('partials/genshin/dialogue/npc-dialogue-result', {
-        resultMap: resultSet.resultMap,
-        reminders: resultSet.reminders,
+      await res.renderComponent(NpcDialogueResultTemplate, {
+        resultSet: resultSet,
         ... await questStillsHelper(ctrl),
         ... await inDialogueReadablesHelper(ctrl),
       });
+      return;
     } else {
       return removeCyclicRefs(resultSet, ApiCyclicValueReplacer);
     }
@@ -190,7 +174,7 @@ router.endpoint('/dialogue/reminder-dialogue-generate', {
     let result: DialogueSectionResult[] = await reminderGenerate(ctrl, query, subsequentAmount);
 
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
-      return res.render('partials/genshin/dialogue/single-branch-dialogue-generate-result', {
+      await res.renderComponent(SingleBranchDialogueResult, {
         sections: result,
         query,
         langSuggest: result.length ? null : await ctrl.langSuggest(query),
@@ -199,13 +183,14 @@ router.endpoint('/dialogue/reminder-dialogue-generate', {
         inDialogueReadables: null,
         inDialogueReadablesMainQuestNames: null,
       });
+      return;
     } else {
       return result;
     }
   }
 });
 
-type VoToDialogueEntry = {id: number, voFile: string, type: string, text: string, warn?: string, file: string};
+export type VoToDialogueEntry = {id: number, voFile: string, type: string, text: string, warn?: string, file: string};
 
 router.endpoint('/dialogue/vo-to-dialogue', {
   post: async (req: Request, res: Response) => {
@@ -275,7 +260,8 @@ router.endpoint('/dialogue/vo-to-dialogue', {
     }
 
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
-      return res.render('partials/genshin/dialogue/vo-to-dialogue-result', { results, talkResults, talkResultsCount });
+      await res.renderComponent(VoToDialogueResult, { results, talkResults, talkResultsCount });
+      return;
     } else {
       return {
         results,

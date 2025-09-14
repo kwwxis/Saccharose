@@ -1,8 +1,0 @@
-<div class="tcg-tag valign" style="padding:2px 0;font-size:15px">
-  <% if (!GCG_TAGS_WITHOUT_ICONS.has(tag.Type)) { %>
-    <img src="/images/genshin/static/TCG/<%= tag.CategoryType %>/<%= tag.Type %>.png" class="x20 tcg-icon tcg-tag-icon <%= tag.Type %>" />
-  <% } else { %>
-    <span class="tcg-tag-icon tcg-icon tcg-tag-icon--no-image" title="No icon">?</span>
-  <% } %>
-  <span class="tcg-tag-name spacer5-left"><%= tag.NameText %></span>
-</div>

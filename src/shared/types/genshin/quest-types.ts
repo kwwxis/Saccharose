@@ -54,13 +54,18 @@ export interface MainQuestExcelConfigData {
 export type QuestExcelConfigDataFailCondType =
   'QUEST_CONTENT_ACHIEVEMENT_ISACHIEVED'          |
   'QUEST_CONTENT_ACTIVITY_TRIGGER_FAILED'         |
+  'QUEST_CONTENT_ACTIVITY_TRIGGER_UPDATE'         |
   'QUEST_CONTENT_ADD_QUEST_PROGRESS'              |
   'QUEST_CONTENT_BARGAIN_FAIL'                    |
   'QUEST_CONTENT_COMPLETE_TALK'                   |
   'QUEST_CONTENT_ENTER_DUNGEON'                   |
+  'QUEST_CONTENT_ENTER_FEATURE_TAG_VEHICLE'       |
   'QUEST_CONTENT_ENTER_MY_WORLD'                  |
+  'QUEST_CONTENT_ENTER_MY_WORLD_SCENE'            |
   'QUEST_CONTENT_ENTER_ROOM'                      |
+  'QUEST_CONTENT_ENTER_VEHICLE'                   |
   'QUEST_CONTENT_FAIL_DUNGEON'                    |
+  'QUEST_CONTENT_FINISH_ANY_FOOD_COOK'            |
   'QUEST_CONTENT_FINISH_ITEM_GIVING'              |
   'QUEST_CONTENT_FINISH_PLOT'                     |
   'QUEST_CONTENT_GADGET_STATE_CHANGE'             |
@@ -69,53 +74,66 @@ export type QuestExcelConfigDataFailCondType =
   'QUEST_CONTENT_INTERACT_GADGET'                 |
   'QUEST_CONTENT_ITEM_LESS_THAN'                  |
   'QUEST_CONTENT_ITEM_LESS_THAN_BARGAIN'          |
+  'QUEST_CONTENT_LEAVE_FEATURE_TAG_VEHICLE'       |
   'QUEST_CONTENT_LEAVE_SCENE'                     |
   'QUEST_CONTENT_LEAVE_SCENE_RANGE'               |
   'QUEST_CONTENT_LEAVE_SCENE_RANGE_AND_ROOM'      |
+  'QUEST_CONTENT_LEAVE_VEHICLE'                   |
   'QUEST_CONTENT_MAIN_COOP_ENTER_ANY_SAVE_POINT'  |
   'QUEST_CONTENT_MAIN_COOP_ENTER_SAVE_POINT'      |
   'QUEST_CONTENT_NOT_FINISH_PLOT'                 |
   'QUEST_CONTENT_OBTAIN_ITEM'                     |
+  'QUEST_CONTENT_PARENT_QUEST_STATE_EQUAL'        |
+  'QUEST_CONTENT_PRESENT_AT_SPECIFIC_SCENE'       |
+  'QUEST_CONTENT_QUEST_CHECK_EQUAL'               |
   'QUEST_CONTENT_QUEST_GLOBAL_VAR_EQUAL'          |
   'QUEST_CONTENT_QUEST_GLOBAL_VAR_GREATER'        |
+  'QUEST_CONTENT_QUEST_GLOBAL_VAR_NOT_EQUAL'      |
   'QUEST_CONTENT_QUEST_STATE_EQUAL'               |
   'QUEST_CONTENT_QUEST_STATE_NOT_EQUAL'           |
   'QUEST_CONTENT_QUEST_VAR_EQUAL'                 |
   'QUEST_CONTENT_QUEST_VAR_GREATER'               |
   'QUEST_CONTENT_QUEST_VAR_LESS'                  |
   'QUEST_CONTENT_SCENE_LEVEL_TAG_EQ'              |
+  'QUEST_CONTENT_TIME_VAR_PASS_DAY'               |
   'QUEST_CONTENT_UNLOCK_TRANS_POINT'              ;
 export type QuestExcelConfigDataFailExecType =
-  'QUEST_EXEC_ADD_QUEST_PROGRESS'         |
-  'QUEST_EXEC_ADD_SCENE_TAG'              |
-  'QUEST_EXEC_CHANGE_SKILL_DEPOT'         |
-  'QUEST_EXEC_DEACTIVE_ITEM_GIVING'       |
-  'QUEST_EXEC_DEC_QUEST_VAR'              |
-  'QUEST_EXEC_DEL_ALL_SPECIFIC_PACK_ITEM' |
-  'QUEST_EXEC_DEL_PACK_ITEM'              |
-  'QUEST_EXEC_DEL_SCENE_TAG'              |
-  'QUEST_EXEC_INC_QUEST_GLOBAL_VAR'       |
-  'QUEST_EXEC_INC_QUEST_VAR'              |
-  'QUEST_EXEC_LOCK_POINT'                 |
-  'QUEST_EXEC_MODIFY_WEATHER_AREA'        |
-  'QUEST_EXEC_NOTIFY_GROUP_LUA'           |
-  'QUEST_EXEC_REFRESH_GROUP_SUITE'        |
-  'QUEST_EXEC_REGISTER_DYNAMIC_GROUP'     |
-  'QUEST_EXEC_REMOVE_TRIAL_AVATAR'        |
-  'QUEST_EXEC_ROLLBACK_PARENT_QUEST'      |
-  'QUEST_EXEC_ROLLBACK_QUEST'             |
-  'QUEST_EXEC_SET_IS_GAME_TIME_LOCKED'    |
-  'QUEST_EXEC_SET_IS_GAME_TIME_LOCKED_V2' |
-  'QUEST_EXEC_SET_QUEST_GLOBAL_VAR'       |
-  'QUEST_EXEC_SET_QUEST_VAR'              |
-  'QUEST_EXEC_SET_WEATHER_GADGET'         |
-  'QUEST_EXEC_STOP_BARGAIN'               |
-  'QUEST_EXEC_UNLOCK_AVATAR_TEAM'         |
-  'QUEST_EXEC_UNLOCK_AVATAR_TEAM_V2'      |
-  'QUEST_EXEC_UNLOCK_MIRROR_AVATAR_TEAM'  |
-  'QUEST_EXEC_UNLOCK_POINT'               |
-  'QUEST_EXEC_UNREGISTER_DYNAMIC_GROUP'   ;
+  'QUEST_EXEC_ADD_QUEST_PROGRESS'                 |
+  'QUEST_EXEC_ADD_SCENE_TAG'                      |
+  'QUEST_EXEC_BATCH_SET_QUEST_VAR'                |
+  'QUEST_EXEC_CHANGE_SKILL_DEPOT'                 |
+  'QUEST_EXEC_CLEAR_FEATURE_TAG_VEHICLE'          |
+  'QUEST_EXEC_CLEAR_VEHICLE'                      |
+  'QUEST_EXEC_DEACTIVE_ITEM_GIVING'               |
+  'QUEST_EXEC_DEC_QUEST_VAR'                      |
+  'QUEST_EXEC_DEL_ALL_SPECIFIC_PACK_ITEM'         |
+  'QUEST_EXEC_DEL_PACK_ITEM'                      |
+  'QUEST_EXEC_DEL_SCENE_TAG'                      |
+  'QUEST_EXEC_EXIT_VEHICLE'                       |
+  'QUEST_EXEC_INC_QUEST_GLOBAL_VAR'               |
+  'QUEST_EXEC_INC_QUEST_VAR'                      |
+  'QUEST_EXEC_LOCK_POINT'                         |
+  'QUEST_EXEC_MODIFY_WEATHER_AREA'                |
+  'QUEST_EXEC_NOTIFY_GROUP_LUA'                   |
+  'QUEST_EXEC_REFRESH_GROUP_SUITE'                |
+  'QUEST_EXEC_REGISTER_DYNAMIC_GROUP'             |
+  'QUEST_EXEC_REMOVE_TRIAL_AVATAR'                |
+  'QUEST_EXEC_ROLLBACK_QUEST'                     |
+  'QUEST_EXEC_SET_ABYSS_WAR_LEVEL_STATE'          |
+  'QUEST_EXEC_SET_GAME_TIME'                      |
+  'QUEST_EXEC_SET_IS_GAME_TIME_LOCKED'            |
+  'QUEST_EXEC_SET_IS_GAME_TIME_LOCKED_V2'         |
+  'QUEST_EXEC_SET_MAP_LAYER_UNLOCK_STATE'         |
+  'QUEST_EXEC_SET_QUEST_GLOBAL_VAR'               |
+  'QUEST_EXEC_SET_QUEST_VAR'                      |
+  'QUEST_EXEC_SET_WEATHER_GADGET'                 |
+  'QUEST_EXEC_STOP_BARGAIN'                       |
+  'QUEST_EXEC_UNLOCK_POINT'                       |
+  'QUEST_EXEC_UNREGISTER_DYNAMIC_GROUP'           |
+  'QUEST_EXEC_UPDATE_PARENT_QUEST_REWARD_INDEX'   ;
 export type QuestExcelConfigDataFinishCondType =
+  'QUEST_CONTENT_ABYSS_WAR_LEVEL_STATE_EQUAL'         |
+  'QUEST_CONTENT_ABYSS_WAR_LIMIT_REIGON_STATE_EQUAL'  |
   'QUEST_CONTENT_ACHIEVEMENT_STATE_EQUAL'             |
   'QUEST_CONTENT_ACTIVITY_TRIGGER_UPDATE'             |
   'QUEST_CONTENT_ADD_QUEST_PROGRESS'                  |
@@ -128,6 +146,7 @@ export type QuestExcelConfigDataFinishCondType =
   'QUEST_CONTENT_COMPLETE_TALK'                       |
   'QUEST_CONTENT_DESTROY_GADGET'                      |
   'QUEST_CONTENT_ENTER_DUNGEON'                       |
+  'QUEST_CONTENT_ENTER_FEATURE_TAG_VEHICLE'           |
   'QUEST_CONTENT_ENTER_MY_WORLD'                      |
   'QUEST_CONTENT_ENTER_MY_WORLD_SCENE'                |
   'QUEST_CONTENT_ENTER_ROGUE_DUNGEON'                 |
@@ -136,6 +155,7 @@ export type QuestExcelConfigDataFinishCondType =
   'QUEST_CONTENT_EVENTS_ITEM_STATUS'                  |
   'QUEST_CONTENT_EXHIBITION_ACCUMULATE_GT_EQ'         |
   'QUEST_CONTENT_FAIL_DUNGEON'                        |
+  'QUEST_CONTENT_FINISH_ANY_FOOD_COOK'                |
   'QUEST_CONTENT_FINISH_DUNGEON'                      |
   'QUEST_CONTENT_FINISH_ITEM_GIVING'                  |
   'QUEST_CONTENT_FINISH_PLOT'                         |
@@ -152,15 +172,21 @@ export type QuestExcelConfigDataFinishCondType =
   'QUEST_CONTENT_ITEM_NUM_EQUAL'                      |
   'QUEST_CONTENT_ITEM_NUM_GREATER'                    |
   'QUEST_CONTENT_ITEM_NUM_LESS'                       |
+  'QUEST_CONTENT_LEAVE_FEATURE_TAG_VEHICLE'           |
   'QUEST_CONTENT_LEAVE_SCENE'                         |
   'QUEST_CONTENT_LEAVE_SCENE_RANGE'                   |
   'QUEST_CONTENT_LEAVE_SCENE_RANGE_AND_ROOM'          |
+  'QUEST_CONTENT_LEAVE_VEHICLE'                       |
   'QUEST_CONTENT_LUA_NOTIFY'                          |
   'QUEST_CONTENT_MAIN_COOP_ENTER_ANY_SAVE_POINT'      |
   'QUEST_CONTENT_MAIN_COOP_ENTER_SAVE_POINT'          |
+  'QUEST_CONTENT_MISC_RENAME_COMPLETE'                |
   'QUEST_CONTENT_MONSTER_DIE'                         |
   'QUEST_CONTENT_OBTAIN_ITEM'                         |
   'QUEST_CONTENT_OBTAIN_MATERIAL_WITH_SUBTYPE'        |
+  'QUEST_CONTENT_PARENT_QUEST_STATE_EQUAL'            |
+  'QUEST_CONTENT_PRESENT_AT_SPECIFIC_SCENE'           |
+  'QUEST_CONTENT_QUEST_CHECK_EQUAL'                   |
   'QUEST_CONTENT_QUEST_GLOBAL_VAR_EQUAL'              |
   'QUEST_CONTENT_QUEST_GLOBAL_VAR_GREATER'            |
   'QUEST_CONTENT_QUEST_GLOBAL_VAR_LESS'               |
@@ -176,27 +202,38 @@ export type QuestExcelConfigDataFinishCondType =
   'QUEST_CONTENT_SKILL'                               |
   'QUEST_CONTENT_TIME_VAR_GT_EQ'                      |
   'QUEST_CONTENT_TIME_VAR_PASS_DAY'                   |
+  'QUEST_CONTENT_TIME_VAR_PASS_REFRESH_POLICY'        |
   'QUEST_CONTENT_TRIGGER_FIRE'                        |
   'QUEST_CONTENT_UNLOCK_ANY_TRANS_POINT'              |
   'QUEST_CONTENT_UNLOCK_TRANS_POINT'                  |
   'QUEST_CONTENT_USE_ITEM'                            |
   'QUEST_CONTENT_USE_WIDGET'                          ;
 export type QuestExcelConfigDataFinishExecType =
+  'QUEST_EXEC_ACTIVATE_PERSISTENT_DUNGEON_SCENE'          |
   'QUEST_EXEC_ACTIVE_ACTIVITY_COND_STATE'                 |
   'QUEST_EXEC_ACTIVE_ITEM_GIVING'                         |
-  'QUEST_EXEC_ADD_CUR_AVATAR_ENERGY'                      |
+  'QUEST_EXEC_ADD_ABYSS_WAR_ACCOUNT_DATA'                 |
+  'QUEST_EXEC_ADD_ALCHEMY_SIM_CROP'                       |
   'QUEST_EXEC_ADD_QUEST_PROGRESS'                         |
   'QUEST_EXEC_ADD_SCENE_TAG'                              |
+  'QUEST_EXEC_BATCH_SET_QUEST_VAR'                        |
   'QUEST_EXEC_CHANGE_AVATAR_ELEMET'                       |
   'QUEST_EXEC_CHANGE_MAP_AREA_STATE'                      |
   'QUEST_EXEC_CHANGE_SCENE_LEVEL_TAG'                     |
   'QUEST_EXEC_CHANGE_SKILL_DEPOT'                         |
+  'QUEST_EXEC_CLEAR_FEATURE_TAG_VEHICLE'                  |
+  'QUEST_EXEC_CLEAR_PERSISTENT_DUNGEON_SCENE'             |
   'QUEST_EXEC_CLEAR_TIME_VAR'                             |
+  'QUEST_EXEC_CLEAR_VEHICLE'                              |
+  'QUEST_EXEC_CREATE_VEHICLE'                             |
   'QUEST_EXEC_DEACTIVE_ITEM_GIVING'                       |
   'QUEST_EXEC_DEL_ALL_SPECIFIC_PACK_ITEM'                 |
   'QUEST_EXEC_DEL_PACK_ITEM'                              |
   'QUEST_EXEC_DEL_PACK_ITEM_BATCH'                        |
   'QUEST_EXEC_DEL_SCENE_TAG'                              |
+  'QUEST_EXEC_DEL_SCENE_TEMP_RES'                         |
+  'QUEST_EXEC_ENTER_VEHICLE'                              |
+  'QUEST_EXEC_EXIT_VEHICLE'                               |
   'QUEST_EXEC_GRANT_TRIAL_AVATAR'                         |
   'QUEST_EXEC_GRANT_TRIAL_AVATAR_AND_LOCK_TEAM'           |
   'QUEST_EXEC_GRANT_TRIAL_AVATAR_AND_LOCK_TEAM_V2'        |
@@ -209,6 +246,7 @@ export type QuestExcelConfigDataFinishExecType =
   'QUEST_EXEC_INIT_TIME_VAR'                              |
   'QUEST_EXEC_LOCK_AVATAR_TEAM'                           |
   'QUEST_EXEC_LOCK_AVATAR_TEAM_V2'                        |
+  'QUEST_EXEC_LOCK_MIRROR_AVATAR_TEAM'                    |
   'QUEST_EXEC_LOCK_POINT'                                 |
   'QUEST_EXEC_MODIFY_ARANARA_COLLECTION_STATE'            |
   'QUEST_EXEC_MODIFY_CLIMATE_AREA'                        |
@@ -225,8 +263,9 @@ export type QuestExcelConfigDataFinishExecType =
   'QUEST_EXEC_REGISTER_DYNAMIC_GROUP'                     |
   'QUEST_EXEC_REGISTER_DYNAMIC_GROUP_ONLY'                |
   'QUEST_EXEC_REMOVE_TRIAL_AVATAR'                        |
-  'QUEST_EXEC_ROLLBACK_PARENT_QUEST'                      |
   'QUEST_EXEC_ROLLBACK_QUEST'                             |
+  'QUEST_EXEC_SET_ABYSS_WAR_LEVEL_STATE'                  |
+  'QUEST_EXEC_SET_ABYSS_WAR_LIMIT_REGION_STATE'           |
   'QUEST_EXEC_SET_DAILY_TASK_VAR'                         |
   'QUEST_EXEC_SET_GAME_TIME'                              |
   'QUEST_EXEC_SET_IS_DIVEABLE'                            |
@@ -234,19 +273,20 @@ export type QuestExcelConfigDataFinishExecType =
   'QUEST_EXEC_SET_IS_GAME_TIME_LOCKED'                    |
   'QUEST_EXEC_SET_IS_GAME_TIME_LOCKED_V2'                 |
   'QUEST_EXEC_SET_IS_WEATHER_LOCKED'                      |
+  'QUEST_EXEC_SET_LIMIT_REGION_STATE'                     |
   'QUEST_EXEC_SET_MAP_LAYER_UNLOCK_STATE'                 |
   'QUEST_EXEC_SET_OPEN_STATE'                             |
+  'QUEST_EXEC_SET_OPEN_STATE_V2'                          |
   'QUEST_EXEC_SET_QUEST_GLOBAL_VAR'                       |
   'QUEST_EXEC_SET_QUEST_VAR'                              |
   'QUEST_EXEC_SET_WEATHER_GADGET'                         |
   'QUEST_EXEC_SHOW_MAP_LAYER_GROUP'                       |
   'QUEST_EXEC_STOP_BARGAIN'                               |
   'QUEST_EXEC_UNHIDE_SCENE_POINT'                         |
+  'QUEST_EXEC_UNIQUE_RANDOM_QUEST_VAR'                    |
   'QUEST_EXEC_UNLOCK_AREA'                                |
-  'QUEST_EXEC_UNLOCK_AVATAR_TEAM'                         |
-  'QUEST_EXEC_UNLOCK_AVATAR_TEAM_V2'                      |
   'QUEST_EXEC_UNLOCK_EVENTS_ITEM'                         |
-  'QUEST_EXEC_UNLOCK_MIRROR_AVATAR_TEAM'                  |
+  'QUEST_EXEC_UNLOCK_PLAYER_WORLD_SCENE'                  |
   'QUEST_EXEC_UNLOCK_POINT'                               |
   'QUEST_EXEC_UNREGISTER_DYNAMIC_GROUP'                   |
   'QUEST_EXEC_UPDATE_PARENT_QUEST_REWARD_INDEX'           ;

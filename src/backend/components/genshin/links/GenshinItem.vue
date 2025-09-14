@@ -1,8 +1,8 @@
 <template>
-  <div v-if="noLink" class="material-item" :class="{ 'no-name': noName }">
+  <div v-if="noLink" class="material-item" :class="{ 'no-name': noName, 'small': small }">
     <GenshinItemInner v-bind="props" />
   </div>
-  <a v-else class="material-item" :class="{ 'no-name': noName }"
+  <a v-else class="material-item" :class="{ 'no-name': noName, 'small': small }"
      :href="`/genshin/${itemLink}/${item.Id}`">
     <GenshinItemInner v-bind="props" />
   </a>
@@ -21,6 +21,7 @@ export type GenshinItemComponentProps = {
   noCount?: boolean,
   noLink?: boolean,
   noName?: boolean,
+  small?: boolean,
 };
 
 const props = defineProps<GenshinItemComponentProps>();

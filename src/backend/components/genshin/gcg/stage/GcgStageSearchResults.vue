@@ -13,7 +13,7 @@
 </template>
 
 <script setup lang="ts">
-import { GCGGameExcelConfigData } from '../../../../shared/types/genshin/gcg-types.ts';
+import { GCGGameExcelConfigData } from '../../../../../shared/types/genshin/gcg-types.ts';
 import GcgStageTable from './GcgStageTable.vue';
 
 defineProps<{

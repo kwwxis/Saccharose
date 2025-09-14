@@ -11,11 +11,11 @@ import {
   InterActionGroup,
   InterActionSchema,
 } from '../../../shared/types/genshin/interaction-types.ts';
-import { reformatPrimitiveArrays } from '../util/import_file_util.ts';
 import { isEquiv } from '../../../shared/util/arrayUtil.ts';
 import { defaultMap } from '../../../shared/util/genericUtil.ts';
 import { isInt } from '../../../shared/util/numberUtil.ts';
 import { fsWalkSync } from '../../util/fsutil.ts';
+import { reformatPrimitiveArrays } from '../../../shared/util/stringUtil.ts';
 
 // region Main Function
 // --------------------------------------------------------------------------------------------------------------

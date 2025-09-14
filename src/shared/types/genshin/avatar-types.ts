@@ -69,3 +69,20 @@ export function isTraveler(avatar: number|AvatarExcelConfigData, checkMode: 'mal
     return avatar === 10000007;
   }
 }
+
+export type BuffExcelConfigDataServerBuffType = 'SERVER_BUFF_AVATAR' | 'SERVER_BUFF_TEAM';
+export type BuffExcelConfigDataStackType = 'BUFF_REFRESH' | 'BUFF_STACK';
+
+export interface BuffExcelConfigData {
+  AbilityName: string,
+  Desc: string,
+  GroupId: number,
+  IsDelWhenLeaveScene: boolean,
+  IsPersistent: boolean,
+  ModifierName: string,
+  Name: string,
+  ServerBuffId: number,
+  ServerBuffType: BuffExcelConfigDataServerBuffType,
+  StackType: BuffExcelConfigDataStackType,
+  Time: number,
+}

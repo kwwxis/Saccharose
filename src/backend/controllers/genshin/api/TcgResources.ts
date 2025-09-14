@@ -4,7 +4,7 @@ import { getGenshinControl } from '../../../domain/genshin/genshinControl.ts';
 import { removeCyclicRefs } from '../../../../shared/util/genericUtil.ts';
 import { ApiCyclicValueReplacer } from '../../../middleware/api/apiCyclicValueReplacer.ts';
 import { getGCGControl } from '../../../domain/genshin/gcg/gcg_control.ts';
-import GcgStageSearchResults from '../../../components/genshin/gcg/GcgStageSearchResults.vue';
+import GcgStageSearchResults from '../../../components/genshin/gcg/stage/GcgStageSearchResults.vue';
 
 const router: Router = create();
 

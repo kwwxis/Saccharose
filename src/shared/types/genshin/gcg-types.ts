@@ -903,3 +903,6 @@ export interface GCGDeckFaceLinkExcelConfigData {
   CardId: number,
   DeckCardId: number,
 }
+
+export type GCGCharCardsByObtainability = { Obtainable: GCGCharExcelConfigData[], Unobtainable: GCGCharExcelConfigData[] };
+export type GCGActionCardsByObtainability = { Obtainable: GCGCardExcelConfigData[], Unobtainable: GCGCardExcelConfigData[] };

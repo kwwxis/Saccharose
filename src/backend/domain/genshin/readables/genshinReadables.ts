@@ -47,9 +47,14 @@ export class GenshinReadables {
     return res;
   }
 
-  private async selectBookCodexByMaterialId(id: number): Promise<BooksCodexExcelConfigData> {
+  public async selectBookCodexByMaterialId(id: number): Promise<BooksCodexExcelConfigData> {
     return await this.knex.select('*').from('BooksCodexExcelConfigData')
       .where({MaterialId: id}).first().then(this.ctrl.commonLoadFirst);
+  }
+
+  public async selectBookCodexById(id: number): Promise<BooksCodexExcelConfigData> {
+    return await this.knex.select('*').from('BooksCodexExcelConfigData')
+      .where({Id: id}).first().then(this.ctrl.commonLoadFirst);
   }
 
   public async selectBookCollection(suitId: number): Promise<BookSuitExcelConfigData> {

@@ -1,5 +1,5 @@
 import { Diff, diffWords, diffWordsWithSpace } from '../../shared/jsdiff/jsdiff.js';
-import { WordsOptions } from 'diff';
+import type { WordsOptions } from 'diff';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { LANG_CODE_TO_LOCALE, LangCode, NON_SPACE_DELIMITED_LANG_CODES } from '../../shared/types/lang-types.ts';
 import path, { dirname } from 'path';

@@ -1,3 +1,0 @@
-<% let data = locals.content || ''; %>
-<textarea class="code json w100p autosize<%= locals.seamless ? ' seamless-input' : '' %>" spellcheck="false" readonly
-          translate="no"><%= typeof data === 'string' ? data : JSON.stringify(data, null, 2) %></textarea>

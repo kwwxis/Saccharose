@@ -1646,6 +1646,16 @@ export const genshinSchema = {
       {name: 'FinishDialogId', type: 'bigint', isIndex: true},
     ]
   },
+  BuffExcelConfigData: <SchemaTable> {
+    name: 'BuffExcelConfigData',
+    jsonFile: './ExcelBinOutput/BuffExcelConfigData.json',
+    columns: [
+      {name: 'ServerBuffId', type: 'integer', isPrimary: true},
+      {name: 'ServerBuffType', type: 'string', isIndex: true},
+      {name: 'StackType', type: 'string', isIndex: true},
+      {name: 'GroupId', type: 'integer', isIndex: true},
+    ],
+  },
 };
 
 for (let [tableName, propertySchemaData] of Object.entries(propertySchema)) {

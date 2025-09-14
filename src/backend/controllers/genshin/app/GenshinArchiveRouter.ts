@@ -86,7 +86,7 @@ export default async function(): Promise<Router> {
         LoadCodex: true,
       });
 
-      let readable: Readable = await ctrl.readables.select(material.Id);
+      let readable: Readable = material ? await ctrl.readables.select(material.Id) : null;
       if (!readable || !readable.Material || readable.Material.Id !== material.Id) {
         readable = null;
       }

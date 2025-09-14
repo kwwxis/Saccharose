@@ -9,7 +9,7 @@ import {
 import { toInt } from '../../../shared/util/numberUtil.ts';
 import { pathToFileURL } from 'url';
 import { html2quotes, unnestHtmlTags } from '../../../shared/mediawiki/mwQuotes.ts';
-import { Change } from 'diff';
+import type { Change } from 'diff';
 import { diffIntlWithSpace } from '../../util/jsIntlDiff.ts';
 
 export interface NormTextOptions<T = any> {

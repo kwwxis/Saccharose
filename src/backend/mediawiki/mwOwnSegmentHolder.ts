@@ -1,6 +1,6 @@
 import { Optional } from '../../shared/types/utility-types.ts';
 import { strSplice } from '../../shared/util/stringUtil.ts';
-import { Change } from 'diff';
+import type { Change } from 'diff';
 import { inRange, intersectRange, IndexedRange } from '../../shared/util/arrayUtil.ts';
 
 export type MwOwnChangeMode = 'added' | 'removed' | 'unchanged';

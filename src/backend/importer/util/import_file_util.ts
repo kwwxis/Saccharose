@@ -1,7 +1,6 @@
 import path from 'path';
 import chalk from 'chalk';
-import fs from 'fs';
-import {promises as fsp} from 'fs';
+import fs, { promises as fsp } from 'fs';
 import { LANG_CODES } from '../../../shared/types/lang-types.ts';
 import { getTextMapRelPath } from '../../loadenv.ts';
 import { AbstractControl } from '../../domain/abstract/abstractControl.ts';
@@ -10,6 +9,7 @@ import XXH from 'xxhashjs';
 import JSONBigImport from '../../util/json-bigint';
 import { isInt } from '../../../shared/util/numberUtil.ts';
 import { isUnset } from '../../../shared/util/genericUtil.ts';
+import { reformatPrimitiveArrays } from '../../../shared/util/stringUtil.ts';
 
 const JSONbig = JSONBigImport({ useNativeBigInt: true, objectProto: true});
 
@@ -195,13 +195,6 @@ export async function importNormalize(jsonDir: string, skip: string[], game: 'ge
   }
 
   console.log(chalk.blue(`Done, modified ${numChanged} files.`));
-}
-
-export function reformatPrimitiveArrays(jsonStr: string) {
-  return jsonStr.replace(/\[(\s*(\d+(\.\d+)?|"[^"]+"|true|false),?\n\s*)*]/g, fm => {
-    let s = fm.slice(1, -1).split(',').map(s => s.trim()).join(', ');
-    return s ? '[ ' + s + ' ]' : '[]';
-  });
 }
 
 export async function importPlainTextMap(ctrl: AbstractControl, getDataFilePath: (relPath: string) => string) {
