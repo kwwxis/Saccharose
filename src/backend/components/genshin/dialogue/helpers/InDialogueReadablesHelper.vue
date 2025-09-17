@@ -33,8 +33,8 @@ import { Readable } from '../../../../../shared/types/genshin/readable-types.ts'
 import GenshinReadableLink from '../../links/GenshinReadableLink.vue';
 
 defineProps<{
-  inDialogueReadables:                {[mainQuestId: number]: Readable[] },
-  inDialogueReadablesMainQuestNames:  {[mainQuestId: number]: string },
+  inDialogueReadables?:                {[mainQuestId: number]: Readable[] },
+  inDialogueReadablesMainQuestNames?:  {[mainQuestId: number]: string },
 }>();
 </script>
 

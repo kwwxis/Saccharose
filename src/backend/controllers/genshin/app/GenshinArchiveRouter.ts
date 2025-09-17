@@ -496,7 +496,7 @@ export default async function(): Promise<Router> {
             continue
 
           section.title = `${npc.Avatar.NameText}'s Dialogue`;
-          section.metadata.unshift(new MetaProp('Event ID', rewardEvent.EventId))
+          section.headerProps.unshift(new MetaProp('Event ID', rewardEvent.EventId))
           companionFavors.push({
             npc,
             dialogue: section,

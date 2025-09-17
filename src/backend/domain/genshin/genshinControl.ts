@@ -893,16 +893,19 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     // Handle InterAction overloading InitDialog:
     if (talk.PerformCfg) {
       const iaFile = await this.loadInterActionFileByName(talk.PerformCfg);
-      talk.InterActionFile = iaFile.Name;
+      if (iaFile.Name) {
+        talk.InterActionFile = iaFile.Name;
+        const initDialog = iaFile.findDialog(talk.InitDialog);
+        const firstDialog = iaFile.findFirstDialog();
 
-      const initDialog = iaFile.findDialog(talk.InitDialog);
-      const firstDialog = iaFile.findFirstDialog();
-
-      if (firstDialog.isPresent() && (initDialog.isPresent() || firstDialog.DialogId < talk.InitDialog)) {
-        // console.log('PerformCfg', talk.Id, iaFile.Name, talk.InitDialog, firstDialog.DialogId, talk.InitDialog === firstDialog.DialogId);
-        talk.InitDialog = firstDialog.DialogId;
+        if (firstDialog.isPresent() && (initDialog.isPresent() || firstDialog.DialogId < talk.InitDialog)) {
+          // console.log('PerformCfg', talk.Id, iaFile.Name, talk.InitDialog, firstDialog.DialogId, talk.InitDialog === firstDialog.DialogId);
+          talk.InitDialog = firstDialog.DialogId;
+        }
       }
-    } else if (talk.InitDialog) {
+    }
+
+    if (talk.InitDialog && !talk.InterActionFile) {
       const iaFile = await this.loadInterActionFileByDialogId(talk.InitDialog);
       talk.InterActionFile = iaFile.Name;
 
@@ -1204,7 +1207,15 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   // endregion
 
   // region Dialog Logic
-  async selectDialogBranch(mainQuestId: number, start: DialogExcelConfigData, cache?: DialogBranchingCache, debugSource?: string|number): Promise<DialogExcelConfigData[]> {
+  async selectDialogBranch(mainQuestId: number,
+                           start: DialogExcelConfigData,
+                           opts: {
+                             cache?: DialogBranchingCache,
+                             parentTalk?: TalkExcelConfigData,
+                             debugSource?: string|number
+                           } = {}): Promise<DialogExcelConfigData[]> {
+    let { cache, debugSource, parentTalk } = opts;
+
     if (!start)
       return [];
     if (!debugSource)
@@ -1240,7 +1251,15 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       }
 
       // Load InterAction
-      const iaFile: InterActionFile = await this.loadInterActionFileByDialogId(currNode.Id);
+      const iaFile: InterActionFile = await (async () => {
+        if (parentTalk?.PerformCfg) {
+          let iaFileTmp = await this.loadInterActionFileByName(parentTalk.PerformCfg);
+          if (iaFileTmp) {
+            return iaFileTmp;
+          }
+        }
+        return await this.loadInterActionFileByDialogId(currNode.Id)
+      })();
       const iaDialog: InterActionDialog = iaFile.findDialog(currNode.Id);
 
       if (iaDialog.isPresent() && this.isPlayerTalkRole(currNode) && iaDialog.Action.Type === 'DIALOG') {
@@ -1393,7 +1412,11 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
         const branches: DialogExcelConfigData[][] = [];
         for (let nextNode of nextNodes) {
-          branches.push(await this.selectDialogBranch(mainQuestId, nextNode, DialogBranchingCache.from(cache), debugSource + ':' + start.Id));
+          branches.push(await this.selectDialogBranch(mainQuestId, nextNode, {
+            cache: DialogBranchingCache.from(cache),
+            debugSource: debugSource + ':' + start.Id,
+            parentTalk: parentTalk,
+          }));
         }
 
         const intersect: DialogExcelConfigData[] = arrayIntersect<DialogExcelConfigData>(branches, this.IdComparator)

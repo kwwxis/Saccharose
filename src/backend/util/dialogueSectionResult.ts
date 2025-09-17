@@ -1,4 +1,4 @@
-import { MetaProp, MetaPropAcceptValue } from './metaProp.ts';
+import { MetaProp, MetaPropAcceptValue, MetaPropsHelper } from './metaProp.ts';
 import { CommonLineId, DialogWikitextResult } from '../../shared/types/common-types.ts';
 import { Marker } from '../../shared/util/highlightMarker.ts';
 import {
@@ -10,7 +10,14 @@ export class DialogueSectionResult {
   id: string = null;
   title: string = '';
   isHtmlTitle: boolean = false;
-  metadata: MetaProp[] = [];
+
+  headerProps: MetaProp[] = [];
+  beginCondProps: MetaProp[] = [];
+  finishCondProps: MetaProp[] = [];
+  finishExecProps: MetaProp[] = [];
+  failCondProps: MetaProp[] = [];
+  failExecProps: MetaProp[] = [];
+
   infoTooltip: string = '';
   htmlMessage: string = null;
 
@@ -35,6 +42,28 @@ export class DialogueSectionResult {
     this.id = id;
     this.title = title;
     this.infoTooltip = infoTooltip;
+  }
+
+  toJSON(): any {
+    return {
+      id: this.id,
+      title: this.title,
+      isHtmlTitle: this.isHtmlTitle,
+      headerProps: this.headerProps,
+      beginCondProps: this.beginCondProps,
+      finishExecProps: this.finishExecProps,
+      infoTooltip: this.infoTooltip,
+      htmlMessage: this.htmlMessage,
+      wikitext: this.wikitext,
+      wikitextLineIds: this.wikitextLineIds,
+      wikitextMarkers: this.wikitextMarkers,
+      wikitextArray: this.wikitextArray,
+      originalData: this.originalData,
+      showGutter: this.showGutter,
+      showTextMapHash: this.showTextMapHash,
+      similarityGroupId: this.similarityGroupId,
+      copyAllSep: this.copyAllSep,
+    };
   }
 
   get wikitext(): string {
@@ -127,35 +156,141 @@ export class DialogueSectionResult {
     return this;
   }
 
-  addEmptyMetaProp(label: string) {
-    this.metadata.push(new MetaProp(label, null));
+  // METADATA
+  // --------------------------------------------------------------------------------------------------------------
+
+  addEmptyHeaderProp(label: string) {
+    return MetaPropsHelper.of(this.headerProps).addEmptyProp(label);
   }
 
-  getMetaProp(label: string): MetaProp {
-    return this.metadata.find(item => item.label === label);
+  getHeaderProp(label: string): MetaProp {
+    return MetaPropsHelper.of(this.headerProps).getProp(label);
   }
 
-  getOrCreateMetaProp(label: string): MetaProp {
-    let existingProp = this.metadata.find(item => item.label === label);
-    if (existingProp) {
-      return existingProp;
-    } else {
-      let newProp = new MetaProp(label);
-      this.metadata.push(newProp);
-      return newProp;
-    }
+  getOrCreateHeaderProp(label: string): MetaProp {
+    return MetaPropsHelper.of(this.headerProps).getOrCreateProp(label);
   }
 
-  addMetaProp(label: string, values: MetaPropAcceptValue, link?: string) {
-    if (!values || (Array.isArray(values) && !values.length)) {
-      return;
-    }
-    let newProp = new MetaProp(label, values, link);
-    this.metadata.push(newProp);
-    return newProp;
+  addHeaderProp(label: string, values: MetaPropAcceptValue, link?: string) {
+    return MetaPropsHelper.of(this.headerProps).addProp(label, values, link);
   }
 
-  hasMetaProp(label: string) {
-    return this.metadata.some(x => x.label === label);
+  hasHeaderProp(label: string) {
+    return MetaPropsHelper.of(this.headerProps).hasProp(label);
+  }
+
+  // BEGIN COND PROPS
+  // --------------------------------------------------------------------------------------------------------------
+
+  addEmptyBeginCondProp(label: string) {
+    return MetaPropsHelper.of(this.beginCondProps).addEmptyProp(label);
+  }
+
+  getBeginCondProp(label: string): MetaProp {
+    return MetaPropsHelper.of(this.beginCondProps).getProp(label);
+  }
+
+  getOrCreateBeginCondProp(label: string): MetaProp {
+    return MetaPropsHelper.of(this.beginCondProps).getOrCreateProp(label);
+  }
+
+  addBeginCondProp(label: string, values: MetaPropAcceptValue, link?: string) {
+    return MetaPropsHelper.of(this.beginCondProps).addProp(label, values, link);
+  }
+
+  hasBeginCondProp(label: string) {
+    return MetaPropsHelper.of(this.beginCondProps).hasProp(label);
+  }
+
+  // FINISH EXEC PROPS
+  // --------------------------------------------------------------------------------------------------------------
+
+  addEmptyFinishCondProp(label: string) {
+    return MetaPropsHelper.of(this.finishCondProps).addEmptyProp(label);
+  }
+
+  getFinishCondProp(label: string): MetaProp {
+    return MetaPropsHelper.of(this.finishCondProps).getProp(label);
+  }
+
+  getOrCreateFinishCondProp(label: string): MetaProp {
+    return MetaPropsHelper.of(this.finishCondProps).getOrCreateProp(label);
+  }
+
+  addFinishCondProp(label: string, values: MetaPropAcceptValue, link?: string) {
+    return MetaPropsHelper.of(this.finishCondProps).addProp(label, values, link);
+  }
+
+  hasFinishCondProp(label: string) {
+    return MetaPropsHelper.of(this.finishCondProps).hasProp(label);
+  }
+
+  // FINISH EXEC PROPS
+  // --------------------------------------------------------------------------------------------------------------
+
+  addEmptyFinishExecProp(label: string) {
+    return MetaPropsHelper.of(this.finishExecProps).addEmptyProp(label);
+  }
+
+  getFinishExecProp(label: string): MetaProp {
+    return MetaPropsHelper.of(this.finishExecProps).getProp(label);
+  }
+
+  getOrCreateFinishExecProp(label: string): MetaProp {
+    return MetaPropsHelper.of(this.finishExecProps).getOrCreateProp(label);
+  }
+
+  addFinishExecProp(label: string, values: MetaPropAcceptValue, link?: string) {
+    return MetaPropsHelper.of(this.finishExecProps).addProp(label, values, link);
+  }
+
+  hasFinishExecProp(label: string) {
+    return MetaPropsHelper.of(this.finishExecProps).hasProp(label);
+  }
+
+  // FAIL EXEC PROPS
+  // --------------------------------------------------------------------------------------------------------------
+
+  addEmptyFailCondProp(label: string) {
+    return MetaPropsHelper.of(this.failCondProps).addEmptyProp(label);
+  }
+
+  getFailCondProp(label: string): MetaProp {
+    return MetaPropsHelper.of(this.failCondProps).getProp(label);
+  }
+
+  getOrCreateFailCondProp(label: string): MetaProp {
+    return MetaPropsHelper.of(this.failCondProps).getOrCreateProp(label);
+  }
+
+  addFailCondProp(label: string, values: MetaPropAcceptValue, link?: string) {
+    return MetaPropsHelper.of(this.failCondProps).addProp(label, values, link);
+  }
+
+  hasFailCondProp(label: string) {
+    return MetaPropsHelper.of(this.failCondProps).hasProp(label);
+  }
+
+  // FAIL EXEC PROPS
+  // --------------------------------------------------------------------------------------------------------------
+
+  addEmptyFailExecProp(label: string) {
+    return MetaPropsHelper.of(this.failExecProps).addEmptyProp(label);
+  }
+
+  getFailExecProp(label: string): MetaProp {
+    return MetaPropsHelper.of(this.failExecProps).getProp(label);
+  }
+
+  getOrCreateFailExecProp(label: string): MetaProp {
+    return MetaPropsHelper.of(this.failExecProps).getOrCreateProp(label);
+  }
+
+  addFailExecProp(label: string, values: MetaPropAcceptValue, link?: string) {
+    return MetaPropsHelper.of(this.failExecProps).addProp(label, values, link);
+  }
+
+  hasFailExecProp(label: string) {
+    return MetaPropsHelper.of(this.failExecProps).hasProp(label);
   }
 }

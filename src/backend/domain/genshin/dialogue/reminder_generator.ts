@@ -27,7 +27,7 @@ export async function reminderGenerateAll(ctrl: GenshinControl): Promise<Dialogu
     const uncategorized = new DialogueSectionResult('ReminderGroup_Uncategorized', 'Uncategorized');
 
     for (let result of context.results) {
-      const metaProp = result.getMetaProp('Added In Version');
+      const metaProp = result.getHeaderProp('Added In Version');
       if (metaProp) {
         const version = metaProp.values[0].value;
 
@@ -137,11 +137,11 @@ class ReminderGenerationContext {
     }
 
     const sect = new DialogueSectionResult('Reminder_'+reminder.Id, 'Reminder');
-    sect.metadata.push(new MetaProp('First Reminder ID', reminder.Id));
+    sect.headerProps.push(new MetaProp('First Reminder ID', reminder.Id));
 
     const changeRecord = await this.ctrl.selectChangeRecordAdded(reminder.Id, 'ReminderExcelConfigData');
     if (changeRecord) {
-      sect.metadata.push(new MetaProp('Added In Version', changeRecord.version?.displayLabel));
+      sect.headerProps.push(new MetaProp('Added In Version', changeRecord.version?.displayLabel));
     }
 
     await this.handleSingle(reminder, subseq, sect);

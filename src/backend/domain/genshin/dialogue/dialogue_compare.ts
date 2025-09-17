@@ -51,8 +51,8 @@ export function dialogueCompareApply(sections: DialogueSectionResult[]): Similar
         continue;
       }
 
-      sect1.getOrCreateMetaProp('Similar Sections').addValues(sect2.id, '#{}');
-      sect2.getOrCreateMetaProp('Similar Sections').addValues(sect1.id, '#{}');
+      sect1.getOrCreateHeaderProp('Similar Sections').addValues(sect2.id, '#{}');
+      sect2.getOrCreateHeaderProp('Similar Sections').addValues(sect1.id, '#{}');
 
       for (let i = 0; i < lines1.length; i++) {
         if (!lines2_set.has(lines1[i])) {
@@ -74,7 +74,7 @@ export function dialogueCompareApply(sections: DialogueSectionResult[]): Similar
   const groups: SimilarityGroups = {};
 
   for (let sect of flatList) {
-    const prop = sect.getMetaProp('Similar Sections');
+    const prop = sect.getHeaderProp('Similar Sections');
     if (!prop) {
       continue;
     }

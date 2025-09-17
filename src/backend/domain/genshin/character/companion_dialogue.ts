@@ -84,15 +84,15 @@ export async function fetchCompanionDialogue(ctrl: GenshinControl, avatarNameOrI
         continue;
       }
 
-      if (sect.hasMetaProp('Activity ID')) {
+      if (sect.hasHeaderProp('Activity ID')) {
         activitySect.children.push(sect);
       } else {
         result.push(sect);
       }
 
-      sect.children.filter(subsect => subsect.hasMetaProp('Activity ID')).forEach(subsect => activitySect.children.push(subsect));
+      sect.children.filter(subsect => subsect.hasHeaderProp('Activity ID')).forEach(subsect => activitySect.children.push(subsect));
 
-      sect.children = sect.children.filter(subsect => !subsect.hasMetaProp('Activity ID'));
+      sect.children = sect.children.filter(subsect => !subsect.hasHeaderProp('Activity ID'));
 
       for (let child of sect.children) {
         let friendshipCond = child.originalData.talkConfig?.BeginCond?.find(cond => cond.Type === 'QUEST_COND_AVATAR_FETTER_GT');

@@ -46,12 +46,12 @@ const { ctx } = getTrace();
 defineProps<{
   sections: DialogueSectionResult[],
   query: string,
-  langSuggest: LangSuggest,
+  langSuggest?: LangSuggest,
 
-  questsStillsByMainQuest:            {[mainQuestId: number]: { imageName: string, wikiName: string}[] },
-  questsStillsMainQuestNames:         {[mainQuestId: number]: string },
+  questsStillsByMainQuest?:           {[mainQuestId: number]: { imageName: string, wikiName: string}[] },
+  questsStillsMainQuestNames?:        {[mainQuestId: number]: string },
 
-  inDialogueReadables:                {[mainQuestId: number]: Readable[] },
-  inDialogueReadablesMainQuestNames:  {[mainQuestId: number]: string },
+  inDialogueReadables?:               {[mainQuestId: number]: Readable[] },
+  inDialogueReadablesMainQuestNames?: {[mainQuestId: number]: string },
 }>();
 </script>

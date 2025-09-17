@@ -19,7 +19,7 @@
 
 <script setup lang="ts">
 defineProps<{
-  questsStillsByMainQuest:    {[mainQuestId: number]: { imageName: string, wikiName: string}[] },
-  questsStillsMainQuestNames: {[mainQuestId: number]: string },
+  questsStillsByMainQuest?:    {[mainQuestId: number]: { imageName: string, wikiName: string}[] },
+  questsStillsMainQuestNames?: {[mainQuestId: number]: string },
 }>();
 </script>

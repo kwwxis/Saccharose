@@ -222,32 +222,32 @@ export type TalkExcelBeginCondType =
   'QUEST_COND_ACTIVITY_JOURNEY_GCG_PICK_STAGE_STATE_EQ'   |
   'QUEST_COND_ACTIVITY_NEW_FUNGUS_CAPTURE'                |
   'QUEST_COND_ACTIVITY_OPEN'                              |
-  'QUEST_COND_ANECDOTE_STATE_EQUALS'                      |
-  'QUEST_COND_AVATAR_CAN_CHANGE_ELEMENT'                  |
-  'QUEST_COND_AVATAR_ELEMENT_EQUAL'                       |
-  'QUEST_COND_AVATAR_ELEMENT_NOT_EQUAL'                   |
-  'QUEST_COND_AVATAR_FETTER_EQ'                           |
-  'QUEST_COND_AVATAR_FETTER_GT'                           |
-  'QUEST_COND_AVATAR_FETTER_LT'                           |
-  'QUEST_COND_CITY_LEVEL_EQUAL_GREATER'                   |
-  'QUEST_COND_CITY_REPUTATION_LEVEL'                      |
-  'QUEST_COND_DAILY_TASK_IN_PROGRESS'                     |
-  'QUEST_COND_DAILY_TASK_OPEN'                            |
-  'QUEST_COND_DAILY_TASK_REWARD_CAN_GET'                  |
-  'QUEST_COND_DAILY_TASK_REWARD_RECEIVED'                 |
-  'QUEST_COND_DAILY_TASK_VAR_EQ'                          |
-  'QUEST_COND_DAILY_TASK_VAR_GT'                          |
-  'QUEST_COND_DAILY_TASK_VAR_LT'                          |
+  'QUEST_COND_ANECDOTE_STATE_EQUALS'                      | // TODO
+  'QUEST_COND_AVATAR_CAN_CHANGE_ELEMENT'                  | // TODO
+  'QUEST_COND_AVATAR_ELEMENT_EQUAL'                       | // TODO
+  'QUEST_COND_AVATAR_ELEMENT_NOT_EQUAL'                   | // TODO
+  'QUEST_COND_AVATAR_FETTER_EQ'                           | // TODO
+  'QUEST_COND_AVATAR_FETTER_GT'                           | // TODO
+  'QUEST_COND_AVATAR_FETTER_LT'                           | // TODO
+  'QUEST_COND_CITY_LEVEL_EQUAL_GREATER'                   | // TODO
+  'QUEST_COND_CITY_REPUTATION_LEVEL'                      | // TODO
+  'QUEST_COND_DAILY_TASK_IN_PROGRESS'                     | // TODO
+  'QUEST_COND_DAILY_TASK_OPEN'                            | // TODO
+  'QUEST_COND_DAILY_TASK_REWARD_CAN_GET'                  | // TODO
+  'QUEST_COND_DAILY_TASK_REWARD_RECEIVED'                 | // TODO
+  'QUEST_COND_DAILY_TASK_VAR_EQ'                          | // TODO
+  'QUEST_COND_DAILY_TASK_VAR_GT'                          | // TODO
+  'QUEST_COND_DAILY_TASK_VAR_LT'                          | // TODO
   'QUEST_COND_EVENT_ITEM_LOCK_STATE_EQUAL'                |
   'QUEST_COND_EVENT_ITEM_SUBMIT_STATE_EQUAL'              |
-  'QUEST_COND_EXPLORATION_REWARD_CAN_GET'                 |
+  'QUEST_COND_EXPLORATION_REWARD_CAN_GET'                 | // TODO
   'QUEST_COND_FORGE_HAVE_FINISH'                          |
   'QUEST_COND_GADGET_TALK_STATE_EQUAL'                    |
   'QUEST_COND_GALLANT_PATH_REWARD_CAN_GET'                |
   'QUEST_COND_GCG_CHALLENGE_NEW_BOSS'                     |
   'QUEST_COND_GCG_INVITE_TYPE'                            |
   'QUEST_COND_GCG_LEVEL_REWARD_CAN_TAKE'                  |
-  'QUEST_COND_GCG_LEVEL_UNLOCKED'                         |
+  'QUEST_COND_GCG_LEVEL_UNLOCKED'                         | // TODO
   'QUEST_COND_GCG_NPC_TYPE'                               |
   'QUEST_COND_GCG_SHOP_NEW_GOODS'                         |
   'QUEST_COND_GCG_WORLD_CHALLENGE_RESULT'                 |
@@ -257,85 +257,85 @@ export type TalkExcelBeginCondType =
   'QUEST_COND_HOMEWORLD_NPC_EVENT'                        |
   'QUEST_COND_HOMEWORLD_NPC_NEW_TALK'                     |
   'QUEST_COND_INSTRUMENT_TRIAL'                           |
-  'QUEST_COND_IN_VEHICLE'                                 |
+  'QUEST_COND_IN_VEHICLE'                                 | // TODO
   'QUEST_COND_IN_VEHICLE_BY_FEATURETAG'                   |
-  'QUEST_COND_IS_DAYTIME'                                 |
-  'QUEST_COND_IS_WORLD_OWNER'                             |
-  'QUEST_COND_ITEM_GIVING_ACTIVED'                        |
-  'QUEST_COND_ITEM_GIVING_FINISHED'                       |
-  'QUEST_COND_ITEM_NUM_EQUAL'                             |
-  'QUEST_COND_ITEM_NUM_GREATER'                           |
-  'QUEST_COND_ITEM_NUM_LESS'                              |
-  'QUEST_COND_ITEM_NUM_LESS_THAN'                         |
+  'QUEST_COND_IS_DAYTIME'                                 | // TODO
+  'QUEST_COND_IS_WORLD_OWNER'                             | // TODO
+  'QUEST_COND_ITEM_GIVING_ACTIVED'                        | // TODO
+  'QUEST_COND_ITEM_GIVING_FINISHED'                       | // TODO
+  'QUEST_COND_ITEM_NUM_EQUAL'                             | // TODO
+  'QUEST_COND_ITEM_NUM_GREATER'                           | // TODO
+  'QUEST_COND_ITEM_NUM_LESS'                              | // TODO
+  'QUEST_COND_ITEM_NUM_LESS_THAN'                         | // TODO
   'QUEST_COND_LUA_NOTIFY'                                 |
   'QUEST_COND_LUNARITE_COLLECT_FINISH'                    |
   'QUEST_COND_LUNARITE_HAS_REGION_HINT_COUNT'             |
   'QUEST_COND_LUNARITE_MARK_ALL_FINISH'                   |
   'QUEST_COND_LUNARITE_REGION_UNLOCKED'                   |
-  'QUEST_COND_NEW_HOMEWORLD_LEVEL_REWARD'                 |
+  'QUEST_COND_NEW_HOMEWORLD_LEVEL_REWARD'                 | // TODO
   'QUEST_COND_NEW_HOMEWORLD_MAKE_FINISH'                  |
   'QUEST_COND_NEW_HOMEWORLD_MOUDLE_UNLOCK'                |
   'QUEST_COND_NEW_HOMEWORLD_SHOP_ITEM'                    |
   'QUEST_COND_NEW_HOMEWORLD_WOOD_EXCHANGE_UNLOCK'         |
-  'QUEST_COND_OPEN_STATE_EQUAL'                           |
-  'QUEST_COND_PACK_HAVE_ANY_ITEM'                         |
-  'QUEST_COND_PACK_HAVE_ITEM'                             |
-  'QUEST_COND_PACK_HAVE_ITEM_WITH_ID'                     |
-  'QUEST_COND_PLAYER_CHOOSE_MALE'                         |
-  'QUEST_COND_PLAYER_CURRENT_AVATAR'                      |
-  'QUEST_COND_PLAYER_CURRENT_NOT_AVATAR'                  |
-  'QUEST_COND_PLAYER_HAVE_AVATAR'                         |
-  'QUEST_COND_PLAYER_LEVEL_EQUAL_GREATER'                 |
-  'QUEST_COND_PLAYER_LEVEL_REWARD_CAN_GET'                |
-  'QUEST_COND_PLAYER_TEAM_CONTAINS_AVATAR'                |
-  'QUEST_COND_PLAYER_TEAM_NOT_CONTAINS_AVATAR'            |
-  'QUEST_COND_PRESENT_AT_SPECIFIC_SCENE'                  |
-  'QUEST_COND_QUEST_CHECK_NOT_VALUE'                      |
-  'QUEST_COND_QUEST_CHECK_RESULT'                         |
-  'QUEST_COND_QUEST_CHECK_VALUE'                          |
-  'QUEST_COND_QUEST_GLOBAL_VAR_EQUAL'                     |
-  'QUEST_COND_QUEST_GLOBAL_VAR_GREATER'                   |
-  'QUEST_COND_QUEST_GLOBAL_VAR_LESS'                      |
-  'QUEST_COND_QUEST_GLOBAL_VAR_NOT_EQUAL'                 |
-  'QUEST_COND_QUEST_NOT_RECEIVE'                          |
-  'QUEST_COND_QUEST_SERVER_COND_VALID'                    |
-  'QUEST_COND_QUEST_STATE_NOT_EQUAL'                      |
-  'QUEST_COND_QUEST_VAR_EQUAL'                            |
-  'QUEST_COND_QUEST_VAR_GREATER'                          |
-  'QUEST_COND_QUEST_VAR_LESS'                             |
-  'QUEST_COND_QUEST_VAR_NOT_EQUAL'                        |
+  'QUEST_COND_OPEN_STATE_EQUAL'                           | // TODO
+  'QUEST_COND_PACK_HAVE_ANY_ITEM'                         | // TODO
+  'QUEST_COND_PACK_HAVE_ITEM'                             | // TODO
+  'QUEST_COND_PACK_HAVE_ITEM_WITH_ID'                     | // TODO
+  'QUEST_COND_PLAYER_CHOOSE_MALE'                         | // TODO
+  'QUEST_COND_PLAYER_CURRENT_AVATAR'                      | // TODO
+  'QUEST_COND_PLAYER_CURRENT_NOT_AVATAR'                  | // TODO
+  'QUEST_COND_PLAYER_HAVE_AVATAR'                         | // TODO
+  'QUEST_COND_PLAYER_LEVEL_EQUAL_GREATER'                 | // TODO
+  'QUEST_COND_PLAYER_LEVEL_REWARD_CAN_GET'                | // TODO
+  'QUEST_COND_PLAYER_TEAM_CONTAINS_AVATAR'                | // TODO
+  'QUEST_COND_PLAYER_TEAM_NOT_CONTAINS_AVATAR'            | // TODO
+  'QUEST_COND_PRESENT_AT_SPECIFIC_SCENE'                  | // TODO
+  'QUEST_COND_QUEST_CHECK_NOT_VALUE'                      | // TODO
+  'QUEST_COND_QUEST_CHECK_RESULT'                         | // TODO
+  'QUEST_COND_QUEST_CHECK_VALUE'                          | // TODO
+  'QUEST_COND_QUEST_GLOBAL_VAR_EQUAL'                     | // TODO
+  'QUEST_COND_QUEST_GLOBAL_VAR_GREATER'                   | // TODO
+  'QUEST_COND_QUEST_GLOBAL_VAR_LESS'                      | // TODO
+  'QUEST_COND_QUEST_GLOBAL_VAR_NOT_EQUAL'                 | // TODO
+  'QUEST_COND_QUEST_NOT_RECEIVE'                          | // TODO
+  'QUEST_COND_QUEST_SERVER_COND_VALID'                    | // TODO
+  'QUEST_COND_QUEST_STATE_NOT_EQUAL'                      | // TODO
+  'QUEST_COND_QUEST_VAR_EQUAL'                            | // TODO
+  'QUEST_COND_QUEST_VAR_GREATER'                          | // TODO
+  'QUEST_COND_QUEST_VAR_LESS'                             | // TODO
+  'QUEST_COND_QUEST_VAR_NOT_EQUAL'                        | // TODO
   'QUEST_COND_ROLE_COMBAT_NPC_RANDOM_VALUE'               |
   'QUEST_COND_SCENE_AREA_UNLOCKED'                        |
   'QUEST_COND_SCENE_LEVEL_TAG_EQ'                         |
   'QUEST_COND_SCENE_POINT_UNLOCK'                         |
   'QUEST_COND_SHOP_NEW_FORMULA_GOODS'                     |
   'QUEST_COND_SHOP_NEW_GADGET_GOODS'                      |
-  'QUEST_COND_STATE_EQUAL'                                |
-  'QUEST_COND_STATE_INTERVAL'                             |
-  'QUEST_COND_STATE_NOT_EQUAL'                            |
-  'QUEST_COND_STORY_GLOBAL_VALUE'                         |
+  'QUEST_COND_STATE_EQUAL'                                | // TODO
+  'QUEST_COND_STATE_INTERVAL'                             | // TODO
+  'QUEST_COND_STATE_NOT_EQUAL'                            | // TODO
+  'QUEST_COND_STORY_GLOBAL_VALUE'                         | // TODO
   'QUEST_COND_TMPVALUE_HIT_NICKNAME'                      |
-  'QUEST_COND_WEAPON_IS_ARKHE_OUSIA_OR_PNEUMA'            |
-  'QUEST_COND_WORLD_LEVEL_REACH'                          ;
+  'QUEST_COND_WEAPON_IS_ARKHE_OUSIA_OR_PNEUMA'            | // TODO
+  'QUEST_COND_WORLD_LEVEL_REACH'                          ; // TODO
 
 export type TalkExcelFinishExecType =
-  'TALK_EXEC_CHANGE_WEAPON_MODE'          |
-  'TALK_EXEC_DEC_QUEST_GLOBAL_VAR'        |
-  'TALK_EXEC_DEC_QUEST_VAR'               |
-  'TALK_EXEC_FINISH_ANECDOTE'             |
-  'TALK_EXEC_INC_DAILY_TASK_VAR'          |
-  'TALK_EXEC_INC_QUEST_GLOBAL_VAR'        |
-  'TALK_EXEC_INC_QUEST_VAR'               |
+  'TALK_EXEC_CHANGE_WEAPON_MODE'          | // TODO
+  'TALK_EXEC_DEC_QUEST_GLOBAL_VAR'        | // TODO
+  'TALK_EXEC_DEC_QUEST_VAR'               | // TODO
+  'TALK_EXEC_FINISH_ANECDOTE'             | // TODO
+  'TALK_EXEC_INC_DAILY_TASK_VAR'          | // TODO
+  'TALK_EXEC_INC_QUEST_GLOBAL_VAR'        | // TODO
+  'TALK_EXEC_INC_QUEST_VAR'               | // TODO
   'TALK_EXEC_NOTIFY_GROUP_LUA'            |
   'TALK_EXEC_NOTIFY_GROUP_LUA_TALK_FINISH'|
-  'TALK_EXEC_SAVE_TALK_ID'                |
-  'TALK_EXEC_SET_DAILY_TASK_VAR'          |
+  'TALK_EXEC_SAVE_TALK_ID'                | // TODO
+  'TALK_EXEC_SET_DAILY_TASK_VAR'          | // TODO
   'TALK_EXEC_SET_GADGET_STATE'            |
-  'TALK_EXEC_SET_GAME_TIME'               |
-  'TALK_EXEC_SET_QUEST_GLOBAL_VAR'        |
-  'TALK_EXEC_SET_QUEST_VAR'               |
+  'TALK_EXEC_SET_GAME_TIME'               | // TODO
+  'TALK_EXEC_SET_QUEST_GLOBAL_VAR'        | // TODO
+  'TALK_EXEC_SET_QUEST_VAR'               | // TODO
   'TALK_EXEC_TRANS_SCENE_DUMMY_POINT'     |
-  'TALK_EXEC_UNLOCK_EVENTS_ITEM'          ;
+  'TALK_EXEC_UNLOCK_EVENTS_ITEM'          ; // TODO
 
 export type TalkLoadType =
   'TALK_DEFAULT'      |

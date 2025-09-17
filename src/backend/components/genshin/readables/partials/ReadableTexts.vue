@@ -109,7 +109,10 @@
           <div role="tabpanel" :aria-labelledby="`tab-${itemRef}-${expanded.LangCode}-changes`" class="tabpanel content hide" :id="`tabpanel-${itemRef}-${expanded.LangCode}-changes`" data-for="changes">
             <div v-if="item.ReadableChangesGroup?.[expanded.LangCode]?.ranges?.length">
               <div class="content">
-                <p>First added in {{ item.ReadableChangesGroup[expanded.LangCode].ranges[0]?.startVersion.displayLabel }}</p>
+                <p>First added in {{ item.ReadableChangesGroup[expanded.LangCode].ranges[0]?.startVersion.displayLabel }}.</p>
+                <p v-if="item.ReadableChangesGroup[expanded.LangCode].ranges[0]?.startVersion.number === '1.4'">
+                  The site's change history only begins at 1.4 so it may have actually been aded in an earlier version.
+                </p>
               </div>
               <div class="content">
                 <div class="card" v-for="range of item.ReadableChangesGroup[expanded.LangCode].ranges">

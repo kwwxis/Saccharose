@@ -15,6 +15,8 @@ import { isInt, maybeInt, toInt } from '../../../../shared/util/numberUtil.ts';
 import { custom } from '../../../util/logger.ts';
 import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
 import { DialogWikitextResult } from '../../../../shared/types/common-types.ts';
+import { snakeToTitleCase } from '../../../../shared/util/stringUtil.ts';
+import { addMetaProps_talkConfig_beginCond, addMetaProps_talkConfig_finishExec } from './quest_prop_helpers.ts';
 
 // region Class: DialogBranchingCache
 // --------------------------------------------------------------------------------------------------------------
@@ -65,7 +67,10 @@ export class TalkConfigAccumulator {
     const isTopLevel: boolean = depth === 0;
     debug(`Fetching dialogue branch for ${talkConfig.Id} (${isTopLevel ? 'Top Level' : 'Child'}) [Init Dialog: ${talkConfig.InitDialog}]`);
     if (!!talkConfig.InitDialog) {
-      talkConfig.Dialog = await this.ctrl.selectDialogBranch(questId, await this.ctrl.selectSingleDialogExcelConfigData(talkConfig.InitDialog), null, talkConfig.Id);
+      talkConfig.Dialog = await this.ctrl.selectDialogBranch(questId, await this.ctrl.selectSingleDialogExcelConfigData(talkConfig.InitDialog), {
+        debugSource: talkConfig.Id,
+        parentTalk: talkConfig,
+      });
     } else {
       talkConfig.Dialog = [];
     }
@@ -78,7 +83,7 @@ export class TalkConfigAccumulator {
     for (let dialog of flatDialogs) {
       if (this.ctrl.isInDialogIdCache(dialog.Id))
         continue;
-      const dialogs = await this.ctrl.selectDialogBranch(questId, dialog);
+      const dialogs = await this.ctrl.selectDialogBranch(questId, dialog, { parentTalk: talkConfig });
       if (dialogs.length) {
         if (!talkConfig.OtherDialog)
           talkConfig.OtherDialog = [];
@@ -151,34 +156,36 @@ export async function talkConfigToDialogueSectionResult(ctrl: GenshinControl,
   const mysect = new DialogueSectionResult('Talk_' + talkConfig.Id, sectName, sectHelptext);
   mysect.originalData.talkConfig = talkConfig;
 
-  mysect.addMetaProp('Talk ID', talkConfig.Id, '/genshin/branch-dialogue?q={}');
-  mysect.addMetaProp('First Dialogue ID', talkConfig.InitDialog, '/genshin/branch-dialogue?q={}');
+  // HEADER PROPERTIES
+  // --------------------------------------------------------------------------------------------------------------
+  mysect.addHeaderProp('Talk ID', talkConfig.Id, '/genshin/branch-dialogue?q={}');
+  mysect.addHeaderProp('First Dialogue ID', talkConfig.InitDialog, '/genshin/branch-dialogue?q={}');
   if (talkConfig.Dialog?.[0]?.TalkType) {
-    mysect.addMetaProp('First Dialogue Talk Type', talkConfig.Dialog[0].TalkType);
+    mysect.addHeaderProp('First Dialogue Talk Type', talkConfig.Dialog[0].TalkType);
   }
   if (talkConfig.Dialog?.[0]?.TalkBinType) {
     const values: (string|number)[] = [talkConfig.Dialog[0].TalkBinType];
     if (talkConfig.Dialog[0].TalkBinType === 'NpcOther') {
       values.push('Idle Quote');
     }
-    mysect.addMetaProp('First Dialogue Talk Bin Type', values);
+    mysect.addHeaderProp('First Dialogue Talk Bin Type', values);
   }
   if (talkConfig.LoadType && talkConfig.LoadType !== 'TALK_DEFAULT') {
-    mysect.addMetaProp('Load Type', talkConfig.LoadType);
+    mysect.addHeaderProp('Load Type', talkConfig.LoadType);
   }
   if (talkConfig.QuestId) {
     if (talkConfig.LoadType === 'TALK_ACTIVITY') {
-      mysect.addMetaProp('Activity ID', {value: talkConfig.QuestId, tooltip: await ctrl.selectNewActivityName(talkConfig.QuestId)});
+      mysect.addHeaderProp('Activity ID', {value: talkConfig.QuestId, tooltip: await ctrl.selectNewActivityName(talkConfig.QuestId)});
     } else {
       const questName = await ctrl.selectMainQuestName(talkConfig.QuestId);
-      mysect.addMetaProp('Quest ID', {value: talkConfig.QuestId, tooltip: questName}, '/genshin/quests/{}');
+      mysect.addHeaderProp('Quest ID', {value: talkConfig.QuestId, tooltip: questName}, '/genshin/quests/{}');
       mysect.originalData.questId = talkConfig.QuestId;
       mysect.originalData.questName = questName;
     }
   } else {
     let questIds = await dialogueToQuestId(ctrl, talkConfig);
     if (questIds.length) {
-      mysect.addMetaProp('Quest ID', await questIds.asyncMap(async id => ({
+      mysect.addHeaderProp('Quest ID', await questIds.asyncMap(async id => ({
         value: id,
         tooltip: await ctrl.selectMainQuestName(id)
       })), '/quests/{}');
@@ -186,71 +193,31 @@ export async function talkConfigToDialogueSectionResult(ctrl: GenshinControl,
       mysect.originalData.questName = await ctrl.selectMainQuestName(questIds[0]);
     }
   }
-  mysect.addMetaProp('Quest Idle Talk', talkConfig.QuestIdleTalk ? 'yes' : null);
-  mysect.addMetaProp('NPC ID', talkConfig.NpcDataList?.map(npc => ({value: npc.Id, tooltip: npc.NameText})), '/genshin/npc-dialogue?q={}');
-  mysect.addMetaProp('Next Talk IDs', talkConfig.NextTalks, '/genshin/branch-dialogue?q={}');
+  mysect.addHeaderProp('Quest Idle Talk', talkConfig.QuestIdleTalk ? 'yes' : null);
+  mysect.addHeaderProp('NPC ID', talkConfig.NpcDataList?.map(npc => ({value: npc.Id, tooltip: npc.NameText})), '/genshin/npc-dialogue?q={}');
+  mysect.addHeaderProp('Next Talk IDs', talkConfig.NextTalks, '/genshin/branch-dialogue?q={}');
 
   if (talkConfig.LoadType === 'TALK_BLOSSOM') {
-    mysect.addEmptyMetaProp('Magical Crystal Ore Vein Talk');
-  }
-
-  for (let beginCond of (talkConfig.BeginCond || [])) {
-    switch (beginCond.Type) {
-      case 'QUEST_COND_AVATAR_FETTER_GT':
-        mysect.addMetaProp('Friendship', ['greater than', beginCond.Param[1]]);
-        break;
-      case 'QUEST_COND_AVATAR_FETTER_LT':
-        mysect.addMetaProp('Friendship', ['less than', beginCond.Param[1]]);
-        break;
-      case 'QUEST_COND_AVATAR_FETTER_EQ':
-        mysect.addMetaProp('Friendship', ['equals', beginCond.Param[1]]);
-        break;
-      case 'QUEST_COND_IS_DAYTIME':
-        if (toBoolean(beginCond.Param[0])) {
-          mysect.addEmptyMetaProp('Daytime Only');
-        } else {
-          mysect.addEmptyMetaProp('Nighttime Only');
-        }
-        break;
-    }
-    if (beginCond.Type.startsWith('QUEST_COND_QUEST_')) {
-      mysect.addMetaProp('Quest Cond', [
-        beginCond.Type.slice(17),
-        ... beginCond.Param
-      ]);
-    } else if (beginCond.Type.startsWith('QUEST_COND_SCENE_')) {
-      mysect.addMetaProp('Quest Scene Cond', [
-        beginCond.Type.slice(17),
-        ... beginCond.Param
-      ]);
-    } else if (beginCond.Type.startsWith('QUEST_COND_STATE_')) {
-      let questExcel = await ctrl.selectQuestExcelConfigData(beginCond.Param[0]);
-      let questName = (questExcel ? await ctrl.selectMainQuestName(questExcel.MainId) : null) || '(No title)';
-
-      mysect.addMetaProp('Quest State Cond', [
-        beginCond.Type.slice(17),
-        {value: beginCond.Param[0], tooltip: questName, link: questExcel ? '/genshin/quests/' + questExcel.MainId : null},
-        ... beginCond.Param.slice(1)
-      ]);
-    } else if (beginCond.Type.startsWith('QUEST_COND_PLAYER_TEAM_CONTAINS_AVATAR')) {
-      let avatarExcel = await ctrl.selectAvatarById(toInt(beginCond.Param[0]));
-
-      mysect.addMetaProp('Quest Cond', [
-        'PLAYER_TEAM_CONTAINS_AVATAR',
-        beginCond.Param[0],
-        {value: avatarExcel?.NameText, bold: true}
-      ]);
-    }
+    mysect.addEmptyHeaderProp('Magical Crystal Ore Vein Talk');
   }
 
   if (talkConfig.InterActionFile) {
-    mysect.addMetaProp('Perform', talkConfig.InterActionFile.replace(/;/g, '/').replace('.json', ''));
+    mysect.addHeaderProp('Perform', talkConfig.InterActionFile.replace(/;/g, '/').replace('.json', ''));
   }
 
+  // COND PROPS
+  // --------------------------------------------------------------------------------------------------------------
+  await addMetaProps_talkConfig_beginCond(ctrl, mysect, talkConfig);
+
+  // EXEC PROPS
+  // --------------------------------------------------------------------------------------------------------------
+  await addMetaProps_talkConfig_finishExec(ctrl, mysect, talkConfig);
+
+  // GENERATE WIKITEXT
+  // --------------------------------------------------------------------------------------------------------------
   if (talkConfig.Dialog.length && ctrl.isPlayerTalkRole(talkConfig.Dialog[0])) {
     dialogueDepth += 1;
   }
-
   const talkWikitextRet: DialogWikitextResult = await ctrl.generateDialogueWikitext(talkConfig.Dialog, dialogueDepth);
   mysect.setWikitext(talkWikitextRet);
 
@@ -261,17 +228,17 @@ export async function talkConfigToDialogueSectionResult(ctrl: GenshinControl,
       }
       let otherSect = new DialogueSectionResult('OtherDialogue_'+dialogs[0].Id, 'Other Dialogue');
       otherSect.originalData.dialogBranch = dialogs;
-      otherSect.metadata.push(new MetaProp('First Dialogue ID', dialogs[0].Id, `/genshin/branch-dialogue?q=${dialogs[0].Id}`));
+      otherSect.headerProps.push(new MetaProp('First Dialogue ID', dialogs[0].Id, `/genshin/branch-dialogue?q=${dialogs[0].Id}`));
 
       if (dialogs[0].TalkType) {
-        otherSect.addMetaProp('First Dialogue Talk Type', dialogs[0].TalkType);
+        otherSect.addHeaderProp('First Dialogue Talk Type', dialogs[0].TalkType);
       }
       if (dialogs[0].TalkBinType) {
         const values: (string|number)[] = [dialogs[0].TalkBinType];
         if (dialogs[0].TalkBinType === 'NpcOther') {
           values.push('Idle Quote');
         }
-        otherSect.addMetaProp('First Dialogue Talk Bin Type', values);
+        otherSect.addHeaderProp('First Dialogue Talk Bin Type', values);
       }
 
       const otherWikitextRet: DialogWikitextResult = await ctrl.generateDialogueWikitext(dialogs);
@@ -297,7 +264,7 @@ export async function talkConfigToDialogueSectionResult(ctrl: GenshinControl,
 
     for (let nextTalkId of skippedNextTalkIds) {
       let placeholderSect = new DialogueSectionResult(null, 'Next Talk');
-      placeholderSect.metadata.push(new MetaProp('Talk ID', nextTalkId, `/genshin/branch-dialogue?q=${nextTalkId}`));
+      placeholderSect.headerProps.push(new MetaProp('Talk ID', nextTalkId, `/genshin/branch-dialogue?q=${nextTalkId}`));
       placeholderSect.htmlMessage = `<p>This section contains dialogue but wasn't shown because the section is already present on the page.
       This can happen when multiple talks lead to the same next talk.</p>
       <p><a href="#Talk_${nextTalkId}">Jump to Talk ${nextTalkId}</a></p>`;

@@ -153,11 +153,11 @@ import Icon from '../../../utility/Icon.vue';
 const {resultSet} = defineProps<{
   resultSet: NpcDialogueResultSet,
 
-  questsStillsByMainQuest:            {[mainQuestId: number]: { imageName: string, wikiName: string}[] },
-  questsStillsMainQuestNames:         {[mainQuestId: number]: string },
+  questsStillsByMainQuest?:           {[mainQuestId: number]: { imageName: string, wikiName: string}[] },
+  questsStillsMainQuestNames?:        {[mainQuestId: number]: string },
 
-  inDialogueReadables:                {[mainQuestId: number]: Readable[] },
-  inDialogueReadablesMainQuestNames:  {[mainQuestId: number]: string },
+  inDialogueReadables?:               {[mainQuestId: number]: Readable[] },
+  inDialogueReadablesMainQuestNames?: {[mainQuestId: number]: string },
 }>();
 
 const resultMap = resultSet.resultMap;

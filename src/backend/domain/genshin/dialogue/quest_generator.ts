@@ -31,6 +31,7 @@ import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
 import { defaultMap } from '../../../../shared/util/genericUtil.ts';
 import { ImageIndexEntity } from '../../../../shared/types/image-index-types.ts';
 import { GameVersion, GameVersions } from '../../../../shared/types/game-versions.ts';
+import { addMetaProps_questExcel } from './quest_prop_helpers.ts';
 
 export class QuestGenerateResult {
   mainQuest: MainQuestExcelConfigData = null;
@@ -276,24 +277,18 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
   for (let questSub of mainQuest.QuestExcelConfigDataList) {
     let sect = new DialogueSectionResult('Section_'+questSub.SubId, 'Section');
 
-    sect.addMetaProp('Section ID', questSub.SubId);
-    sect.addMetaProp('Section Order', questSub.Order);
-    // sect.addMetaProp('Quest Step', questSub.DescText);
-    // sect.addMetaProp('Quest Desc Update', questSub.StepDescText);
+    sect.addHeaderProp('Section ID', questSub.SubId);
+    sect.addHeaderProp('Section Order', questSub.Order);
 
     if (questSub.FinishExec) {
       const rewardSetIndexExec = questSub.FinishExec.find(f => f.Type === 'QUEST_EXEC_UPDATE_PARENT_QUEST_REWARD_INDEX');
       if (rewardSetIndexExec && rewardSetIndexExec.Param.length && isInt(rewardSetIndexExec.Param[0])) {
         const rewardIndex = toInt(rewardSetIndexExec.Param[0]);
-        sect.addMetaProp('Trigger Reward Index', String(rewardIndex));
+        sect.addFinishExecProp('Trigger Reward Index', String(rewardIndex));
       }
     }
 
-    addCondMetaProp(sect, 'FinishCond', questSub.FinishCondComb, questSub.FinishCond);
-    addCondMetaProp(sect, 'FinishExec', null, questSub.FinishExec);
-
-    addCondMetaProp(sect, 'FailCond', questSub.FailCondComb, questSub.FailCond);
-    addCondMetaProp(sect, 'FailExec', null, questSub.FailExec);
+    await addMetaProps_questExcel(ctrl, sect, questSub);
 
     if (questSub.DescText) {
       sect.wikitextArray.push({
@@ -319,8 +314,8 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
     if (questSub.NonTalkDialog && questSub.NonTalkDialog.length) {
       for (let dialog of questSub.NonTalkDialog) {
         let subsect = new DialogueSectionResult('NonTalkDialogue_'+dialog[0].Id, 'Non-Talk Dialogue', nonTalkDialogHelpMessage);
-        subsect.metadata.push(new MetaProp('First Dialogue ID', dialog[0].Id, `/genshin/branch-dialogue?q=${dialog[0].Id}`));
-        subsect.metadata.push(new MetaProp('Quest ID', {value: mainQuest.Id, tooltip: mainQuest.TitleText}, `/genshin/quests/{}`));
+        subsect.headerProps.push(new MetaProp('First Dialogue ID', dialog[0].Id, `/genshin/branch-dialogue?q=${dialog[0].Id}`));
+        subsect.headerProps.push(new MetaProp('Quest ID', {value: mainQuest.Id, tooltip: mainQuest.TitleText}, `/genshin/quests/{}`));
         subsect.originalData.questId = mainQuest.Id;
         subsect.originalData.questName = mainQuest.TitleText;
         const dialogWikitextRet = await ctrl.generateDialogueWikitext(dialog);
@@ -360,8 +355,8 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
     for (let dialog of mainQuest.NonTalkDialog) {
       let sect = new DialogueSectionResult('NonTalkDialogue_'+dialog[0].Id, 'Non-Talk Dialogue', nonTalkDialogHelpMessage);
       sect.originalData.dialogBranch = dialog;
-      sect.metadata.push(new MetaProp('First Dialogue ID', dialog[0].Id, `/genshin/branch-dialogue?q=${dialog[0].Id}`));
-      sect.metadata.push(new MetaProp('Quest ID', {value: mainQuest.Id, tooltip: mainQuest.TitleText}, `/genshin/quests/{}`));
+      sect.headerProps.push(new MetaProp('First Dialogue ID', dialog[0].Id, `/genshin/branch-dialogue?q=${dialog[0].Id}`));
+      sect.headerProps.push(new MetaProp('Quest ID', {value: mainQuest.Id, tooltip: mainQuest.TitleText}, `/genshin/quests/{}`));
       sect.originalData.questId = mainQuest.Id;
       sect.originalData.questName = mainQuest.TitleText;
       const dialogWikitextRet = await ctrl.generateDialogueWikitext(dialog);
@@ -563,21 +558,6 @@ async function addQuestMessages(ctrl: GenshinControl, mainQuest: MainQuestExcelC
     }
   }
 }
-
-function addCondMetaProp(section: DialogueSectionResult, fieldName: string, condComb: string, condList: ConfigCondition[]) {
-  let label = fieldName + (condComb ? '[Comb=' + condComb + ']' : '');
-  let values = [];
-  if (condList && condList.length) {
-    for (let cond of condList) {
-      let str = '(' + 'Type=' + cond.Type + (cond.Param ? ' Param=' + JSON.stringify(cond.Param) : '')
-        + (cond.ParamStr ? ' ParamStr=' + cond.ParamStr : '')
-        + (cond.Count ? ' Count=' + cond.Count : '') + ')';
-      values.push(str);
-    }
-  }
-  section.addMetaProp(label, values);
-}
-
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   (async () => {

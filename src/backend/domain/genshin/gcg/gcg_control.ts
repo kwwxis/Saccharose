@@ -1142,16 +1142,16 @@ export class GCGControl {
                                     talkDetail: GCGTalkDetailExcelConfigData) {
     const sect = new DialogueSectionResult('GCGTalk_'+talk.GameId+'_'+talkDetail.TalkDetailIconId, title)
       .afterConstruct(sect => {
-        sect.addMetaProp('Stage ID', { value: talk.GameId, tooltip: stage.StageTalk.title },
+        sect.addHeaderProp('Stage ID', { value: talk.GameId, tooltip: stage.StageTalk.title },
           '/genshin/TCG/stages/'+String(talk.GameId).padStart(6, '0'));
-        sect.addMetaProp('Talk Mode', title);
-        sect.addMetaProp('Icon ID', talkDetail.TalkDetailIconId);
+        sect.addHeaderProp('Talk Mode', title);
+        sect.addHeaderProp('Icon ID', talkDetail.TalkDetailIconId);
         if (talkDetail?.TalkDetailIcon?.Type === 'NPC') {
-          sect.addEmptyMetaProp('NPC');
+          sect.addEmptyHeaderProp('NPC');
         }
         if (talkDetail.Avatar) {
-          sect.addMetaProp('Avatar ID', talkDetail.Avatar.Id);
-          sect.addMetaProp('Avatar Name', talkDetail.Avatar.NameText);
+          sect.addHeaderProp('Avatar ID', talkDetail.Avatar.Id);
+          sect.addHeaderProp('Avatar Name', talkDetail.Avatar.NameText);
         }
       });
 
@@ -1184,9 +1184,9 @@ export class GCGControl {
     const gcgTalk: GCGTalkExcelConfigData = stage.LevelTalk;
 
     stage.StageTalk = new DialogueSectionResult('GCGStageTalk_'+stage.Id, stage.WikiCombinedTitle).afterConstruct(sect => {
-      sect.addMetaProp('Stage ID', { value: stage.Id, tooltip: stage.WikiCombinedTitle },
+      sect.addHeaderProp('Stage ID', { value: stage.Id, tooltip: stage.WikiCombinedTitle },
         '/genshin/TCG/stages/' + String(stage.Id).padStart(6, '0'));
-      sect.addMetaProp('Stage Type', stage.LevelType);
+      sect.addHeaderProp('Stage Type', stage.LevelType);
       sect.copyAllSep = '\n\n';
     });
 
@@ -1214,8 +1214,8 @@ export class GCGControl {
     if (gcgTalk) {
       if (gcgTalk.LowHealthTalk) {
         const sect = this.pushTalkDetailToStageTalk(stage, 'Low Health', gcgTalk, gcgTalk.LowHealthTalk);
-        sect.addMetaProp('Low Health Value', gcgTalk.LowHealthValue);
-        sect.addMetaProp('Low Health Card ID', gcgTalk.LowHealthConfigId);
+        sect.addHeaderProp('Low Health Value', gcgTalk.LowHealthValue);
+        sect.addHeaderProp('Low Health Card ID', gcgTalk.LowHealthConfigId);
 
         const lowHealthCard = gcgTalk.LowHealthConfigId && await this.selectCharacterCard(gcgTalk.LowHealthConfigId);
         if (lowHealthCard) {
@@ -1228,8 +1228,8 @@ export class GCGControl {
       }
       if (gcgTalk.HighHealthTalk) {
         const sect = this.pushTalkDetailToStageTalk(stage, 'High Health', gcgTalk, gcgTalk.HighHealthTalk);
-        sect.addMetaProp('High Health Value', gcgTalk.HighHealthValue);
-        sect.addMetaProp('High Health Card ID', gcgTalk.LowHealthConfigId);
+        sect.addHeaderProp('High Health Value', gcgTalk.HighHealthValue);
+        sect.addHeaderProp('High Health Card ID', gcgTalk.LowHealthConfigId);
 
         const highHealthCard = gcgTalk.LowHealthConfigId && await this.selectCharacterCard(gcgTalk.LowHealthConfigId);
         if (highHealthCard) {
@@ -1364,7 +1364,7 @@ export class GCGControl {
             let dialog = section.originalData.dialogBranch[0];
 
             let idleSect = new DialogueSectionResult('Dialog_'+dialog.Id, 'Idle Quote');
-            idleSect.addMetaProp('Dialogue ID', dialog.Id);
+            idleSect.addHeaderProp('Dialogue ID', dialog.Id);
             idleSect.prependFreeForm(`:{{DIcon|Idle}} ${dialog.TalkContentText}`)
 
             stage.IdleTalk.children.unshift(idleSect);

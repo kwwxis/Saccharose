@@ -7,6 +7,8 @@
       <small class="dispBlock">{{ readable.TitleText }}</small>
       <div>{{ readable.Document.TitleText }}</div>
     </div>
+    <div class="grow"></div>
+    <div><small>#{{ readable.Id }}</small></div>
   </a>
 </template>
 

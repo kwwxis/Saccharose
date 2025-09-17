@@ -141,6 +141,7 @@
             <td class="bold">Quick Jump</td>
             <td colspan="2">
               <ul class="dispFlex flexWrap">
+                <li v-if="material.ItemUse.length" class="w33p"><a href="#item-use">Item Use</a></li>
                 <li v-if="readable" class="w33p"><a href="#readable-text">Readable Text</a></li>
                 <li v-if="material.Codex && material.Codex.DescText" class="w33p"><a href="#archive-text">Archive Text</a></li>
                 <li v-if="material.Relations.Combine?.length" class="w33p"><a href="#crafting">Crafting</a></li>
@@ -156,7 +157,7 @@
         </table>
       </div>
     </section>
-    <section class="card" v-if="material.ItemUse.length">
+    <section class="card" id="item-use" v-if="material.ItemUse.length">
       <h2>Item Use</h2>
       <div class="content">
         <p class="spacer10-bottom">This item has {{ material.ItemUse.length }} operations that occur upon use.</p>

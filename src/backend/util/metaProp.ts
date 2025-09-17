@@ -66,3 +66,45 @@ export class MetaProp {
     return this;
   }
 }
+
+export class MetaPropsHelper {
+
+  constructor(readonly props: MetaProp[]) {}
+
+  addEmptyProp(label: string) {
+    this.props.push(new MetaProp(label, null));
+  }
+
+  getProp(label: string): MetaProp {
+    return this.props.find(item => item.label === label);
+  }
+
+  getOrCreateProp(label: string): MetaProp {
+    let existingProp = this.props.find(item => item.label === label);
+    if (existingProp) {
+      return existingProp;
+    } else {
+      let newProp = new MetaProp(label);
+      this.props.push(newProp);
+      return newProp;
+    }
+  }
+
+  addProp(label: string, values: MetaPropAcceptValue, link?: string) {
+    if (!values || (Array.isArray(values) && !values.length)) {
+      return;
+    }
+    let newProp = new MetaProp(label, values, link);
+    this.props.push(newProp);
+    return newProp;
+  }
+
+  hasProp(label: string) {
+    return this.props.some(x => x.label === label);
+  }
+
+  static of(props: MetaProp[]): MetaPropsHelper {
+    return new MetaPropsHelper(props);
+  }
+
+}

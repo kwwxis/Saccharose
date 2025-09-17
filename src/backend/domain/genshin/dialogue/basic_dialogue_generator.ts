@@ -252,7 +252,7 @@ async function handle(state: DialogueGenerateState, id: number|DialogExcelConfig
       if (!talkConfigResult)
         continue;
 
-      talkConfigResult.metadata.push(new MetaProp('First Match Dialogue ID', [
+      talkConfigResult.headerProps.push(new MetaProp('First Match Dialogue ID', [
         dialog.Id,
         <IMetaPropValue> {
           value: 'OL',
@@ -282,11 +282,11 @@ async function handle(state: DialogueGenerateState, id: number|DialogExcelConfig
       const dialogueBranch = await ctrl.selectDialogBranch(questIds?.[0], firstDialog);
       const sect = new DialogueSectionResult('Dialogue_'+firstDialog.Id, 'Dialogue');
       sect.originalData.dialogBranch = dialogueBranch;
-      sect.metadata.push(new MetaProp('First Dialogue ID', firstDialog.Id, `/genshin/branch-dialogue?q=${firstDialog.Id}`));
+      sect.headerProps.push(new MetaProp('First Dialogue ID', firstDialog.Id, `/genshin/branch-dialogue?q=${firstDialog.Id}`));
       if (dialog.TalkType) {
-        sect.metadata.push(new MetaProp('First Dialogue Talk Type', dialog.TalkType));
+        sect.headerProps.push(new MetaProp('First Dialogue Talk Type', dialog.TalkType));
       }
-      sect.metadata.push(new MetaProp('First Match Dialogue ID', [
+      sect.headerProps.push(new MetaProp('First Match Dialogue ID', [
         <IMetaPropValue> {
           value: dialog.Id,
           link: `/genshin/branch-dialogue?q=${dialog.Id}`,
@@ -298,7 +298,7 @@ async function handle(state: DialogueGenerateState, id: number|DialogExcelConfig
       ]));
 
       if (questIds.length) {
-        sect.metadata.push(new MetaProp('Quest ID', await questIds.asyncMap(async id => ({
+        sect.headerProps.push(new MetaProp('Quest ID', await questIds.asyncMap(async id => ({
           value: id,
           tooltip: await ctrl.selectMainQuestName(id)
         })), '/quests/{}'));
@@ -446,9 +446,9 @@ export async function dialogueGenerateByNpc(ctrl: GenshinControl,
       const dialogueBranch = await ctrl.selectDialogBranch(questId, dialogue);
       const sect = new DialogueSectionResult('Dialogue_'+dialogue.Id, 'Dialogue');
       sect.originalData.dialogBranch = dialogueBranch;
-      sect.metadata.push(new MetaProp('First Dialogue ID', dialogue.Id, `/genshin/branch-dialogue?q=${dialogue.Id}`));
+      sect.headerProps.push(new MetaProp('First Dialogue ID', dialogue.Id, `/genshin/branch-dialogue?q=${dialogue.Id}`));
       if (dialogue.TalkType) {
-        sect.metadata.push(new MetaProp('First Dialogue Talk Type', dialogue.TalkType));
+        sect.headerProps.push(new MetaProp('First Dialogue Talk Type', dialogue.TalkType));
       }
 
       const dialogWikitextRet: DialogWikitextResult = await ctrl.generateDialogueWikitext(dialogueBranch);
@@ -456,7 +456,7 @@ export async function dialogueGenerateByNpc(ctrl: GenshinControl,
 
       if (questId) {
         const questName = await ctrl.selectMainQuestName(questId);
-        sect.addMetaProp('Quest ID', {value: questId, tooltip: questName}, '/genshin/quests/{}');
+        sect.addHeaderProp('Quest ID', {value: questId, tooltip: questName}, '/genshin/quests/{}');
         sect.originalData.questId = questId;
         sect.originalData.questName = questName;
         getQuestSection(sect.originalData.questId, sect.originalData.questName).children.push(sect);
