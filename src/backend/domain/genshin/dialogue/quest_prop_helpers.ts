@@ -123,16 +123,24 @@ export async function addMetaProps_questExcel(ctrl: GenshinControl, sect: Dialog
   let failExecPropsHelpers = MetaPropsHelper.of(sect.failExecProps);
 
   for (let cond of (questSub.FinishCond || [])) {
-    await doMapping(ctrl, finishCondPropsHelpers, cond, null);
+    await doMapping(ctrl, finishCondPropsHelpers, cond, async (_ctrl, props) => {
+      props.addProp(cond.Type, cond.Param);
+    });
   }
   for (let exec of (questSub.FinishExec || [])) {
-    await doMapping(ctrl, finishExecPropsHelpers, exec, null);
+    await doMapping(ctrl, finishExecPropsHelpers, exec, async (_ctrl, props) => {
+      props.addProp(exec.Type, exec.Param);
+    });
   }
   for (let cond of (questSub.FailCond || [])) {
-    await doMapping(ctrl, failCondPropsHelpers, cond, null);
+    await doMapping(ctrl, failCondPropsHelpers, cond, async (_ctrl, props) => {
+      props.addProp(cond.Type, cond.Param);
+    });
   }
   for (let exec of (questSub.FailExec || [])) {
-    await doMapping(ctrl, failExecPropsHelpers, exec, null);
+    await doMapping(ctrl, failExecPropsHelpers, exec, async (_ctrl, props) => {
+      props.addProp(exec.Type, exec.Param);
+    });
   }
 }
 
