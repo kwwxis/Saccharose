@@ -283,7 +283,7 @@ async function insertTextMapChanges(
   const rows = convertJsonToEntities(json, version);
 
   console.log('-'.repeat(100))
-  console.log(`[${version}] Inserting changelog for ${version}`);
+  console.log(`[${version.number}] Inserting changelog for ${version}`);
 
   await knex.transaction(async (trx) => {
     const batches = chunk(rows, batchSize);
@@ -294,11 +294,11 @@ async function insertTextMapChanges(
       await trx('textmap_changes').insert(batch)
         .onConflict(['version', 'lang_code', 'hash'])
         .merge();
-      console.log(`[${version}] Batch ${batchNum}/${batches.length}`);
+      console.log(`[${version.number}] Batch ${batchNum}/${batches.length}`);
     }
   });
 
-  console.log(`[${version}] Done`);
+  console.log(`[${version.number}] Done`);
 }
 
 export async function importTextMapChanges(ctrl: AbstractControl, versionTarget: string) {
