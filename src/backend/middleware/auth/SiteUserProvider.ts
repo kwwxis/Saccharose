@@ -94,6 +94,12 @@ export class SiteUserProviderImpl {
       .filter(b => !myDismissed.includes(b.id))
       .filter(b => {
         return !b.site_mode || request.context.siteMode === b.site_mode;
+      })
+      .filter(b => {
+        if (!!b.exclude_site_modes) {
+          return !b.exclude_site_modes.includes(request.context.siteMode);
+        }
+        return true;
       });
   }
 

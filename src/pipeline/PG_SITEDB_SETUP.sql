@@ -51,7 +51,8 @@ CREATE TABLE site_notice
     notice_link     TEXT,
     notice_enabled  BOOLEAN DEFAULT TRUE,
     banner_enabled  BOOLEAN DEFAULT FALSE,
-    site_mode       TEXT
+    site_mode       TEXT,
+    exclude_site_modes TEXT[]
 );
 
 CREATE INDEX site_notice_enabled_idx ON site_notice (notice_enabled, banner_enabled);

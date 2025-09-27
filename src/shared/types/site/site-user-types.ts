@@ -56,4 +56,5 @@ export type SiteNotice = {
   notice_enabled: boolean,
   banner_enabled: boolean,
   site_mode?: SiteMode,
+  exclude_site_modes?: SiteMode[],
 };
