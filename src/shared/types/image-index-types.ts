@@ -18,14 +18,7 @@ export interface ImageIndexEntity {
   image_height: number,
   excel_usages: string[],
   excel_meta: ImageIndexExcelMeta,
-  image_cat1?: string,
-  image_cat2?: string,
-  image_cat3?: string,
-  image_cat4?: string,
-  image_cat5?: string,
-  image_cat6?: string,
-  image_cat7?: string,
-  image_cat8?: string,
+  image_cats?: Record<string, string>,
   first_version?: string,
   extra_info?: ImageIndexExtraInfo
 }
@@ -41,14 +34,7 @@ export interface ImageIndexOtherName {
 
 export interface ImageIndexSearchParams {
   query?: string,
-  cat1?: string,
-  cat2?: string,
-  cat3?: string,
-  cat4?: string,
-  cat5?: string,
-  cat6?: string,
-  cat7?: string,
-  cat8?: string,
+  cats?: Record<string, string>,
   catPath?: string,
   catRestrict?: boolean,
   versionFilter?: string|GameVersions,

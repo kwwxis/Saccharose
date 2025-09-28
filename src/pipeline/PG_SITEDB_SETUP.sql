@@ -139,14 +139,7 @@ CREATE TABLE genshin_image_index
     image_width     INTEGER NOT NULL,
     image_height    INTEGER NOT NULL,
     image_size      INTEGER NOT NULL,
-    image_cat1      TEXT,
-    image_cat2      TEXT,
-    image_cat3      TEXT,
-    image_cat4      TEXT,
-    image_cat5      TEXT,
-    image_cat6      TEXT,
-    image_cat7      TEXT,
-    image_cat8      TEXT,
+    image_cats      JSONB,
     first_version   TEXT,
     excel_usages    TEXT[],
     excel_meta      JSONB,
@@ -155,7 +148,7 @@ CREATE TABLE genshin_image_index
 
 CREATE INDEX genshin_image_index_trgm_idx ON genshin_image_index USING GIN (image_name gin_trgm_ops);
 
-CREATE INDEX genshin_image_index_cat_idx ON genshin_image_index (image_cat1, image_cat2, image_cat3, image_cat4, image_cat5, image_cat6, image_cat7, image_cat8);
+CREATE INDEX genshin_image_index_cat_idx ON genshin_image_index USING GIN (image_cats);
 
 -- HSR IMAGE INDEX
 ----------------------------------------------------------------------------------------------------------------
@@ -167,14 +160,7 @@ CREATE TABLE hsr_image_index
     image_width     INTEGER NOT NULL,
     image_height    INTEGER NOT NULL,
     image_size      INTEGER NOT NULL,
-    image_cat1      TEXT,
-    image_cat2      TEXT,
-    image_cat3      TEXT,
-    image_cat4      TEXT,
-    image_cat5      TEXT,
-    image_cat6      TEXT,
-    image_cat7      TEXT,
-    image_cat8      TEXT,
+    image_cats      JSONB,
     first_version   TEXT,
     excel_usages    TEXT[],
     excel_meta      JSONB,
@@ -183,7 +169,7 @@ CREATE TABLE hsr_image_index
 
 CREATE INDEX hsr_image_index_trgm_idx ON hsr_image_index USING GIN (image_name gin_trgm_ops);
 
-CREATE INDEX hsr_image_index_cat_idx ON hsr_image_index (image_cat1, image_cat2, image_cat3, image_cat4, image_cat5, image_cat6, image_cat7, image_cat8);
+CREATE INDEX hsr_image_index_cat_idx ON hsr_image_index USING GIN (image_cats);
 
 -- WUWA IMAGE INDEX
 ----------------------------------------------------------------------------------------------------------------
@@ -195,14 +181,7 @@ CREATE TABLE wuwa_image_index
     image_width     INTEGER NOT NULL,
     image_height    INTEGER NOT NULL,
     image_size      INTEGER NOT NULL,
-    image_cat1      TEXT,
-    image_cat2      TEXT,
-    image_cat3      TEXT,
-    image_cat4      TEXT,
-    image_cat5      TEXT,
-    image_cat6      TEXT,
-    image_cat7      TEXT,
-    image_cat8      TEXT,
+    image_cats      JSONB,
     first_version   TEXT,
     excel_usages    TEXT[],
     excel_meta      JSONB,
@@ -211,7 +190,7 @@ CREATE TABLE wuwa_image_index
 
 CREATE INDEX wuwa_image_index_trgm_idx ON wuwa_image_index USING GIN (image_name gin_trgm_ops);
 
-CREATE INDEX wuwa_image_index_cat_idx ON wuwa_image_index (image_cat1, image_cat2, image_cat3, image_cat4, image_cat5, image_cat6, image_cat7, image_cat8);
+CREATE INDEX wuwa_image_index_cat_idx ON wuwa_image_index USING GIN (image_cats);
 
 -- Script Jobs
 ----------------------------------------------------------------------------------------------------------------

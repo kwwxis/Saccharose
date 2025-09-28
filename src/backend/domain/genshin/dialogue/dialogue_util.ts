@@ -5,18 +5,16 @@ import {
 import { GenshinControl, getGenshinControl } from '../genshinControl.ts';
 import { QuestGenerateResult } from './quest_generator.ts';
 import { MetaProp } from '../../../util/metaProp.ts';
-import { toBoolean } from '../../../../shared/util/genericUtil.ts';
 import { ChapterExcelConfigData, MainQuestExcelConfigData } from '../../../../shared/types/genshin/quest-types.ts';
 import toposort from 'toposort';
 import { sort } from '../../../../shared/util/arrayUtil.ts';
 import { pathToFileURL } from 'url';
 import { closeKnex } from '../../../util/db.ts';
-import { isInt, maybeInt, toInt } from '../../../../shared/util/numberUtil.ts';
+import { isInt, maybeInt } from '../../../../shared/util/numberUtil.ts';
 import { custom } from '../../../util/logger.ts';
 import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
 import { DialogWikitextResult } from '../../../../shared/types/common-types.ts';
-import { snakeToTitleCase } from '../../../../shared/util/stringUtil.ts';
-import { addMetaProps_talkConfig_beginCond, addMetaProps_talkConfig_finishExec } from './quest_prop_helpers.ts';
+import { addMetaProps_talkConfig } from './quest_prop_helpers.ts';
 
 // region Class: DialogBranchingCache
 // --------------------------------------------------------------------------------------------------------------
@@ -205,13 +203,9 @@ export async function talkConfigToDialogueSectionResult(ctrl: GenshinControl,
     mysect.addHeaderProp('Perform', talkConfig.InterActionFile.replace(/;/g, '/').replace('.json', ''));
   }
 
-  // COND PROPS
+  // COND/EXEC PROPS
   // --------------------------------------------------------------------------------------------------------------
-  await addMetaProps_talkConfig_beginCond(ctrl, mysect, talkConfig);
-
-  // EXEC PROPS
-  // --------------------------------------------------------------------------------------------------------------
-  await addMetaProps_talkConfig_finishExec(ctrl, mysect, talkConfig);
+  await addMetaProps_talkConfig(ctrl, mysect, talkConfig);
 
   // GENERATE WIKITEXT
   // --------------------------------------------------------------------------------------------------------------

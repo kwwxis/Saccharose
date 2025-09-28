@@ -16,7 +16,12 @@ import { toBoolean } from '../../../../shared/util/genericUtil.ts';
 import { IMetaPropValue, MetaPropsHelper } from '../../../util/metaProp.ts';
 import { ConfigCondition } from '../../../../shared/types/genshin/general-types.ts';
 
-type MappingHandler = (ctrl: GenshinControl, props: MetaPropsHelper, p0: number|string, p1: number|string, p2: number|string, p3: number|string) => Promise<void>;
+type MappingHandler = (ctrl?: GenshinControl,
+                       props?: MetaPropsHelper,
+                       p0?: number|string,
+                       p1?: number|string,
+                       p2?: number|string,
+                       p3?: number|string) => Promise<void>;
 
 type MappingType = TalkExcelBeginCondType | TalkExcelFinishExecType |
   QuestExcelConfigDataFailCondType | QuestExcelConfigDataFailExecType |
@@ -144,8 +149,9 @@ export async function addMetaProps_questExcel(ctrl: GenshinControl, sect: Dialog
   }
 }
 
-export async function addMetaProps_talkConfig_beginCond(ctrl: GenshinControl, sect: DialogueSectionResult, talkConfig: TalkExcelConfigData) {
+export async function addMetaProps_talkConfig(ctrl: GenshinControl, sect: DialogueSectionResult, talkConfig: TalkExcelConfigData) {
   let beginCondPropsHelper = MetaPropsHelper.of(sect.beginCondProps);
+  let finishExecPropsHelpers = MetaPropsHelper.of(sect.finishExecProps);
 
   for (let beginCond of (talkConfig.BeginCond || [])) {
     await doMapping(ctrl, beginCondPropsHelper, beginCond, async (ctrl, props, p0) => {
@@ -160,10 +166,6 @@ export async function addMetaProps_talkConfig_beginCond(ctrl: GenshinControl, se
       }
     });
   }
-}
-
-export async function addMetaProps_talkConfig_finishExec(ctrl: GenshinControl, sect: DialogueSectionResult, talkConfig: TalkExcelConfigData) {
-  let finishExecPropsHelpers = MetaPropsHelper.of(sect.finishExecProps);
 
   for (let exec of (talkConfig.FinishExec || [])) {
     await doMapping(ctrl, finishExecPropsHelpers, exec, async (ctrl, props, p0) => {

@@ -17,7 +17,7 @@ import {
 } from '../../importer/import_db.ts';
 
 // Backend Util:
-import { openPgSite, openPgGamedata, SaccharoseDb } from '../../util/db.ts';
+import { openPgGamedata, openPgSite, SaccharoseDb } from '../../util/db.ts';
 import { getLineNumberForLineText, grep, grepStream, langDetect, ShellFlags } from '../../util/shellutil.ts';
 import { _cachedImpl } from '../../util/cache.ts';
 
@@ -30,8 +30,15 @@ import {
   LangSuggest,
   NON_SPACE_DELIMITED_LANG_CODES,
   PlainLineMapItem,
-  TextMapHash, TextMapSearchGetOpts, TextMapSearchIndexStreamOpts, TextMapSearchOpts, TextMapSearchResponse,
-  TextMapSearchResult, TextMapSearchStreamOpts, TmMatchPreProc, TmPossibleHash,
+  TextMapHash,
+  TextMapSearchGetOpts,
+  TextMapSearchIndexStreamOpts,
+  TextMapSearchOpts,
+  TextMapSearchResponse,
+  TextMapSearchResult,
+  TextMapSearchStreamOpts,
+  TmMatchPreProc,
+  TmPossibleHash,
 } from '../../../shared/types/lang-types.ts';
 import { ExtractScalar, FileAndSize } from '../../../shared/types/utility-types.ts';
 import {
@@ -55,7 +62,8 @@ import { NormTextOptions } from './genericNormalizers.ts';
 import {
   ChangeRecord,
   ChangeRecordRef,
-  ExcelFullChangelog, TextMapChangeRefs,
+  ExcelFullChangelog,
+  TextMapChangeRefs,
 } from '../../../shared/types/changelog-types.ts';
 import { GameVersion, GameVersions, GenshinVersions } from '../../../shared/types/game-versions.ts';
 import { ScriptJobActionArgs, ScriptJobCoordinator, ScriptJobPostResult } from '../../util/scriptJobs.ts';
@@ -992,11 +1000,6 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
   buildImageIndexSearchParamsFromRequest(req: Request): ImageIndexSearchParams {
     return {
       query: (req.query.query || '') as string,
-      cat1: req.query.cat1 as string,
-      cat2: req.query.cat2 as string,
-      cat3: req.query.cat3 as string,
-      cat4: req.query.cat4 as string,
-      cat5: req.query.cat5 as string,
       catPath: req.query.catPath as string,
       catRestrict: toBoolean(req.query.catRestrict),
       versionFilter: req.query.versionFilter ? String(req.query.versionFilter) : null,
@@ -1066,37 +1069,27 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       }
     }
 
+    if (!select.cats) {
+      select.cats = {};
+    }
+
     if (select.catPath) {
-      [select.cat1, select.cat2, select.cat3, select.cat4, select.cat5, select.cat6, select.cat7, select.cat8]
-        = select.catPath.split(/[_.]/g);
-    }
+      select.cats = {};
 
-    const catClauseValues = cleanEmpty({
-      image_cat1: select.cat1,
-      image_cat2: select.cat2,
-      image_cat3: select.cat3,
-      image_cat4: select.cat4,
-      image_cat5: select.cat5,
-      image_cat6: select.cat6,
-      image_cat7: select.cat7,
-      image_cat8: select.cat8,
-    });
-
-    for (let key of Object.keys(catClauseValues)) {
-      if (catClauseValues[key] === 'null') {
-        catClauseValues[key] = null;
-      }
-    }
-    if (select.catRestrict) {
-      for (let key of ['image_cat1', 'image_cat2', 'image_cat3', 'image_cat4', 'image_cat5', 'image_cat6', 'image_cat7', 'image_cat8']) {
-        if (isUnset(catClauseValues[key])) {
-          catClauseValues[key] = null;
-        }
+      let parts: string[] = select.catPath.split(/[_.]/g);
+      for (let i = 0; i < parts.length; i++) {
+        select.cats[`cat${i}`] = parts[i];
       }
     }
 
-    if (Object.keys(catClauseValues).length) {
-      builder = builder.where(catClauseValues);
+    select.cats = cleanEmpty(select.cats);
+
+    if (Object.keys(select.cats).length) {
+      if (select.catRestrict) {
+        builder = builder.whereRaw('image_cats @> ?', [JSON.stringify(select.cats)]);
+      } else {
+        builder = builder.where('image_cats', JSON.stringify(select.cats));
+      }
     }
 
     if (versionFilter && versionFilter.size) {

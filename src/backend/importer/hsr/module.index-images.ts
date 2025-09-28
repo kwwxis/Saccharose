@@ -15,7 +15,7 @@ import { fsWalkSync } from '../../util/fsutil.ts';
 function getImageNames(): string[] {
   const imageNames: string[] = [];
   for (let fileName of fsWalkSync(IMAGEDIR_HSR_EXT)) {
-    fileName = path.relative(IMAGEDIR_HSR_EXT, fileName);
+    fileName = path.relative(IMAGEDIR_HSR_EXT, fileName).replace(/\\/g, '/');
     if (!fileName.endsWith('.png')) {
       continue;
     }
@@ -130,19 +130,17 @@ export async function indexStarRailImages(catMapOnly: boolean = false) {
 
   console.log('Committing...');
   for (let imageName of getImageNames()) {
-    const cats: string[] = [];
-    let catIdx = 0;
-    let catSplits = imageName.split('/');
-    if (catSplits.length > 8) {
-      console.log('Large cat length ('+(catSplits.length-1)+'):', imageName);
-    }
-    for (let i = 0; i < catSplits.length; i++) {
-      let cat = catSplits[i];
-      if (i == catSplits.length - 1) {
+    const cats: Record<string, string> = {};
+    const orderedCats: string[] = [];
+    const imageNameParts = imageName.split('/');
+    for (let i = 0; i < imageNameParts.length; i++) {
+      const part = imageNameParts[i];
+      if (i == imageNameParts.length - 1) {
+        // Don't include last part (the image name) as part of the categories (directories)
         break;
       }
-      cats[catIdx] = cat;
-      catIdx++;
+      cats[`cat${i}`] = part;
+      orderedCats.push(part);
     }
 
     const firstVersion = firstVersionMap[imageName];
@@ -158,14 +156,7 @@ export async function indexStarRailImages(catMapOnly: boolean = false) {
         image_height: imageSize.height,
         excel_usages: imageNameToExcelFileUsages[imageName] || [],
         excel_meta: imageNameToExcelMeta[imageName] || {},
-        image_cat1: cats[0] || null,
-        image_cat2: cats[1] || null,
-        image_cat3: cats[2] || null,
-        image_cat4: cats[3] || null,
-        image_cat5: cats[4] || null,
-        image_cat6: cats[5] || null,
-        image_cat7: cats[6] || null,
-        image_cat8: cats[7] || null,
+        image_cats: cats,
         first_version: firstVersion,
       });
     }
@@ -174,7 +165,7 @@ export async function indexStarRailImages(catMapOnly: boolean = false) {
     if (!!firstVersion && !currCat.newImageVersions.includes(firstVersion))
       currCat.newImageVersions.push(firstVersion);
 
-    for (let cat of cats) {
+    for (let cat of orderedCats) {
       currCat = currCat.children[cat];
       if (!!firstVersion && !currCat.newImageVersions.includes(firstVersion))
         currCat.newImageVersions.push(firstVersion);

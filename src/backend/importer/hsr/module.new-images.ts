@@ -8,6 +8,7 @@ import { fsWalkSync } from '../../util/fsutil.ts';
 function getImageNames(walkSyncDir: string): string[] {
   const imageNames: string[] = [];
   for (let fileName of fsWalkSync(walkSyncDir)) {
+    fileName = path.relative(walkSyncDir, fileName).replace(/\\/g, '/');
     if (!fileName.endsWith('.png')) {
       continue;
     }

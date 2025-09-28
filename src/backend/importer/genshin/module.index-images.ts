@@ -137,22 +137,25 @@ export async function indexGenshinImages(catMapOnly: boolean = false) {
 
   console.log('Committing...');
   for (let imageName of imageNameSet) {
-    const cats: string[] = [];
+    const cats: Record<string, string> = {};
+    const orderedCats: string[] = [];
     let catIdx = 0;
-    let catSplits = imageName.split('_');
-    for (let i = 0; i < catSplits.length; i++) {
-      let cat = catSplits[i];
+    let imageNameParts = imageName.split('_');
+    for (let i = 0; i < imageNameParts.length; i++) {
+      let cat = imageNameParts[i];
       if (isInt(cat)) {
         break;
       }
-      if (i == catSplits.length - 1) {
+      if (i == imageNameParts.length - 1) {
         if (cat.startsWith('EmotionIcon')) {
           cats[catIdx] = 'EmotionIcon';
         }
+        // Don't include last part (the image name) as part of the categories (directories)
         break;
       }
-      cats[catIdx] = cat;
+      cats[`cat${catIdx}`] = cat;
       catIdx++;
+      orderedCats.push(cat);
     }
 
     const firstVersion = firstVersionMap[imageName];
@@ -168,11 +171,7 @@ export async function indexGenshinImages(catMapOnly: boolean = false) {
         image_height: imageSize.height,
         excel_usages: imageNameToExcelFileUsages[imageName] || [],
         excel_meta: imageNameToExcelMeta[imageName] || {},
-        image_cat1: cats[0] || null,
-        image_cat2: cats[1] || null,
-        image_cat3: cats[2] || null,
-        image_cat4: cats[3] || null,
-        image_cat5: cats[4] || null,
+        image_cats: cats,
         first_version: firstVersion,
         extra_info: {
           otherNames: otherNames[imageName] || []
@@ -184,7 +183,7 @@ export async function indexGenshinImages(catMapOnly: boolean = false) {
     if (!!firstVersion && !currCat.newImageVersions.includes(firstVersion))
       currCat.newImageVersions.push(firstVersion);
 
-    for (let cat of cats) {
+    for (let cat of orderedCats) {
       currCat = currCat.children[cat];
       if (!!firstVersion && !currCat.newImageVersions.includes(firstVersion))
         currCat.newImageVersions.push(firstVersion);

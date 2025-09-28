@@ -30,7 +30,7 @@ export function* fsWalkSync(dir: string): Generator<string> {
     if (file.isDirectory()) {
       yield* fsWalkSync(path.join(dir, file.name));
     } else {
-      yield path.join(dir, file.name);
+      yield path.join(dir, file.name).replace(/\\/g, '/');
     }
   }
 }
@@ -41,7 +41,7 @@ export async function* fsWalkAsync(dir: string): AsyncGenerator<string> {
     if (file.isDirectory()) {
       yield* fsWalkAsync(path.join(dir, file.name));
     } else {
-      yield path.join(dir, file.name);
+      yield path.join(dir, file.name).replace(/\\/g, '/');
     }
   }
 }
