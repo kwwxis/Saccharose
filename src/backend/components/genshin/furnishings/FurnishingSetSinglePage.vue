@@ -10,7 +10,7 @@
         </span>
         <span class="valign">
           <span class="valign spacer10-top">
-            {{ suite.SuiteNameText }}
+            {{ normGenshinText(suite.SuiteNameText) }}
           </span>
           <span class="grow"></span>
           <span class="valign" style="font-size:13px">
@@ -102,6 +102,9 @@ import Wikitext from '../../utility/Wikitext.vue';
 import Icon from '../../utility/Icon.vue';
 import { toParam } from '../../../../shared/util/stringUtil.ts';
 import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
+import { getTrace } from '../../../middleware/request/tracer.ts';
+
+const { normGenshinText } = getTrace();
 
 const { suite } = defineProps<{
   suite?: FurnitureSuiteExcelConfigData,

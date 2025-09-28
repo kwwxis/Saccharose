@@ -232,6 +232,11 @@ export function __normGenshinText(text: string, langCode: LangCode, opts: NormTe
     text = text.replace(/<color=#FFE14B(?:FF)?>(.*?)<\/color>/g, '{{Color|help|$1}}');
     text = text.replace(/<color=#CC8000(?:FF)?>(.*?)<\/color>/g, '{{Color|bp|$1}}');
 
+    // Menu:
+    if (langCode === 'EN') {
+      text = text.replace(/<color=#FFD780(?:FF)?>(.*?)<\/color>/g, '{{Color|menu|$1}}');
+    }
+
     // Elements:
     text = text.replace(/<color=#FFACFF(?:FF)?>(.*?)<\/color>/g,
       (fm, g1) => elementColorTemplate(langCode, 'ELECTRO', 'Electro', fm, g1));

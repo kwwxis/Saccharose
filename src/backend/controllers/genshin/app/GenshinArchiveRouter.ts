@@ -553,10 +553,11 @@ export default async function(): Promise<Router> {
     const ol: OLResult = furn ? (await ol_gen_from_id(ctrl, furn.NameTextMapHash)) : null;
 
     if (furn) {
+      const normNameText: string = ctrl.normText(furn.NameText, ctrl.outputLangCode);
       sb.setPropPad(15);
       sb.line('{{Furnishing Infobox');
       sb.prop('id', furn.Id);
-      sb.prop('image', `Item ${furn.NameText}.png`, true);
+      sb.prop('image', `Item ${normNameText}.png`, true);
       sb.prop('category', furn.CategoryNameText);
       sb.prop('subcategory', furn.TypeNameText);
       sb.prop('quality', furn.RankLevel);
@@ -566,7 +567,7 @@ export default async function(): Promise<Router> {
       sb.prop('description', ctrl.normText(furn.DescText, ctrl.outputLangCode));
       sb.prop('blueprint', '');
       sb.line('}}');
-      sb.line(`'''${furn.NameText}''' is a${furn.MakeData ? ' creatable' : ''} [[Furnishing]] item that can be used in the [[Serenitea Pot]].`);
+      sb.line(`'''${normNameText}''' is a${furn.MakeData ? ' creatable' : ''} [[Furnishing]] item that can be used in the [[Serenitea Pot]].`);
       sb.line();
       if (furn.MakeData) {
         sb.line('==Creation==');

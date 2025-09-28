@@ -108,6 +108,9 @@ export function genericNormText(text: string, langCode: LangCode, opts: NormText
   }
 
   text = text.replace(/{NICKNAME}|{PlayerName}/g, opts.mcPlaceholderProvider(opts.mcPlaceholderForceLangCode || langCode, true));
+  text = text.replace(/(\S){NON_BREAK_SPACE}(\S)/g, (fm, g1, g2) => {
+    return `${g1} ${g2}`;
+  });
   text = text.replace(/{NON_BREAK_SPACE}/g, opts.plaintext ? ' ' : '&nbsp;');
   text = text.replace(/\u00A0/g, opts.plaintext ? ' ' : '&nbsp;');
   text = text.replace(/<i>(.*?)<\/i>/gs, opts.plaintext ? '$1' : `''$1''`);

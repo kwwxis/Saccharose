@@ -5,7 +5,7 @@
         <span class="dispBlock" style="margin-top:-5px"><a role="button" class="secondary fontWeight600" style="font-size:14px;padding:3px 8px" href="/genshin/furnishings">Back to furnishings list</a></span>
         <span class="valign spacer10-top">
           <img class="framed-icon x50" :src="`/images/genshin/${furn.IconUrl || furn.Icon || furn.ItemIcon}.png`" loading="lazy" decoding="async" />
-          <span class="spacer15-left">{{ furn.NameText }}</span>
+          <span class="spacer15-left">{{ normGenshinText(furn.NameText) }}</span>
           <span class="grow"></span>
           <a :href="furn.DownloadIconUrl" role="button" class="primary primary--2 small valign">
             <Icon name="download" :size="17" :props="{class: 'spacer5-right'}" />

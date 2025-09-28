@@ -10,12 +10,14 @@
     <div v-if="!noCount && itemCount" class="material-count">{{ itemCount }}</div>
     <div v-if="!noCount && !itemCount" class="material-count">&mdash;</div>
   </div>
-  <span v-if="!noName" class="material-name">{{ item.NameText }}</span>
+  <span v-if="!noName" class="material-name">{{ normGenshinText(item.NameText) }}</span>
 </template>
 
 <script setup lang="ts">
 import { GenshinItemComponentProps } from './GenshinItem.vue';
+import { getTrace } from '../../../middleware/request/tracer.ts';
 
+const { normGenshinText } = getTrace();
 const { item, itemCount } = defineProps<GenshinItemComponentProps>();
 const effectIcon: string = (<any> item).EffectIcon;
 
