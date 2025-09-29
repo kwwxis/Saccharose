@@ -1277,7 +1277,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       // Handle self:
       if (currNode.TalkContentText || currNode.CustomTravelLogMenuText
           || currNode.CustomImageName || currNode.CustomSecondImageName || currNode.CustomWikiTx
-          || currNode.CustomWikiReadable) {
+          || currNode.CustomWikiReadable || currNode.CustomNpcFirstMet) {
         currBranch.push(currNode);
       }
 
@@ -1514,6 +1514,8 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
         if (dialog.CustomWikiTxComment) {
           text += `<!-- ${dialog.CustomWikiTxComment} -->`
         }
+      } else if (dialog.CustomNpcFirstMet) {
+        text = `{{Introductory Note|${dialog.CustomNpcFirstMet}}}`;
       } else if (dialog.CustomWikiReadable) {
         let lines: string[] = [];
         for (let item of dialog.CustomWikiReadable.Items) {
@@ -1648,7 +1650,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
           out += `\n${diconPrefix.slice(0,-1)};(${this.i18n('ReturnToDialogueOption')})`;
         }
       } else {
-        if (dialog.CustomTravelLogMenuText || dialog.CustomImageName || dialog.CustomWikiTx) {
+        if (dialog.CustomTravelLogMenuText || dialog.CustomImageName || dialog.CustomWikiTx || dialog.CustomNpcFirstMet) {
           out += `\n${prefix}${text}`;
         } else if (dialog.CustomWikiReadable) {
           out += `\n${text}`;
