@@ -335,7 +335,10 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/NpcFirstMetExcelConfigData.json',
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
+      { name: 'NpcType', type: 'string', isIndex: true },
       { name: 'AvatarId', type: 'integer', isIndex: true },
+      { name: 'NameTextMapHash', type: 'decimal', isIndex: true },
+      { name: 'AvatarTitleTextMapHash', type: 'decimal', isIndex: true },
       { name: 'AvatarDescriptionTextMapHash', type: 'text', isIndex: true },
     ],
   },

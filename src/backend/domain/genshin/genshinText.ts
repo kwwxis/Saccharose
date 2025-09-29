@@ -8,9 +8,7 @@ import {
   postProcessBoldItalic,
 } from '../abstract/genericNormalizers.ts';
 import {
-  AvatarSkillExcelConfigData,
   HyperLinkNameExcelConifgData,
-  ProudSkillExcelConfigData,
   SpriteTagExcelConfigData,
 } from '../../../shared/types/genshin/general-types.ts';
 import { getGenshinControl } from './genshinControl.ts';
@@ -18,6 +16,7 @@ import { mapBy } from '../../../shared/util/arrayUtil.ts';
 import { logInitData } from '../../util/logger.ts';
 import { ManualTextMapHashes } from '../../../shared/types/genshin/manual-text-map.ts';
 import { isSiteModeDisabled } from '../../loadenv.ts';
+import { AvatarSkillExcelConfigData, ProudSkillExcelConfigData } from '../../../shared/types/genshin/avatar-types.ts';
 
 export type GenshinNormTextOpts = {
   wandererPlaceholderPlainForm?: boolean,

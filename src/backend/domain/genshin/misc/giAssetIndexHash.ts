@@ -20,4 +20,4 @@ export function getGIAssetIndexHash(path: string): string {
   );
 }
 
-console.log(getGIAssetIndexHash('Data/_BinOutput/InterAction/QuestDialogue/WQ/NodKrai_0/Q6713303'));
+// console.log(getGIAssetIndexHash('Data/_BinOutput/InterAction/QuestDialogue/WQ/NodKrai_0/Q6713303'));

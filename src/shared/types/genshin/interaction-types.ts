@@ -88,13 +88,15 @@ export type InterActionType =
   'ATTACH_OPERATE' |
   'SECTR_CONTROL' |
   'HIDE_WIDGET_PET' |
-  'FIRST_SIGHT' |
   'REQUEST_MSG' |
   'BAN_SELF_GLOBAL_VALUE' |
   'EMOJI_BUBBLE' |
   'SPEECH_BUBBLE' |
   'SHOP_EXCHANGE' |
   'PLAY_EFFECT' |
+
+  // NpcFirstMet
+  'FIRST_SIGHT' | // TODO: _aliasList[0] is NPC ID
 
   // Audio/Sound
   'AUDIO_PLAY' |
@@ -242,11 +244,13 @@ export const INTERACTION_KEEP_TYPES: Set<InterActionType> = new Set([
   'SHOW_BG_PIC',
   'CUTSCENE',
   // 'VIDEO_PLAY',
-  'UI_TRIGGER'
+  'UI_TRIGGER',
+  'FIRST_SIGHT',
 ]);
 
 export const INTERACTION_INTERMEDIATE_TYPES: Set<InterActionType> = new Set([
   'SHOW_BG_PIC',
+  'FIRST_SIGHT',
   'CUTSCENE',
   // 'VIDEO_PLAY',
   'UI_TRIGGER'
@@ -271,6 +275,9 @@ export interface InterAction {
   // SHOW_BG_PIC:
   PicPath?: string,
   Flag?: number, // 1 -> Boy, 2 -> Girl
+
+  // FIRST_SIGHT/MISC:
+  AliasList: string[],
 
   // UI_TRIGGER:
   ContextName: InterActionContextName,

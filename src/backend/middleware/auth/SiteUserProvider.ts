@@ -3,7 +3,7 @@ import { openPgSite } from '../../util/db.ts';
 import { Request } from 'express';
 import { isEquiv } from '../../../shared/util/arrayUtil.ts';
 import { saveSession, setSessionUser } from './sessions.ts';
-import { SiteNotice, SiteNoticeType, SiteUser } from '../../../shared/types/site/site-user-types.ts';
+import { SiteNotice, SiteUser } from '../../../shared/types/site/site-user-types.ts';
 import { cached, delcache } from '../../util/cache.ts';
 
 type SiteUserEntity = {
@@ -15,8 +15,6 @@ type SiteUserEntity = {
 }
 
 const pg = openPgSite();
-
-let lastSiteNoticeCacheEviction: string = '';
 
 export class SiteUserProviderImpl {
 
@@ -37,46 +35,26 @@ export class SiteUserProviderImpl {
 
   startSiteNoticeCacheEviction() {
     setInterval(async () => {
-      const ids: number[] = await pg.select('*').from('site_notice').where({ notice_enabled: true })
-        .orderBy('id').pluck('id').then();
-      const siteNoticeCacheEviction = ids.join(',');
-
-      if (lastSiteNoticeCacheEviction && lastSiteNoticeCacheEviction !== siteNoticeCacheEviction) {
-        await delcache(['Site:AllNotices', 'Site:AllBannerNotices']);
-      }
-
-      lastSiteNoticeCacheEviction = siteNoticeCacheEviction;
+      await delcache(['Site:AllNotices', 'Site:AllBannerNotices'])
+      await this.getAllSiteNotices();
+      await this.getAllSiteNoticesForBanner();
     }, 30_000);
   }
 
   async getAllSiteNotices(): Promise<SiteNotice[]> {
     return await cached('Site:AllNotices', 'json', async () => {
-      const notices = await pg.select<SiteNotice[]>('*').from('site_notice')
+      return await pg.select<SiteNotice[]>('*').from('site_notice')
         .where({ notice_enabled: true })
         .orderBy('id', 'DESC').then();
-      return notices;
     });
   }
 
   async getAllSiteNoticesForBanner(): Promise<SiteNotice[]> {
     return cached('Site:AllBannerNotices', 'json', async () => {
-      const notices: SiteNotice[] = await pg.select<SiteNotice[]>('*')
+      return await pg.select<SiteNotice[]>('*')
         .from('site_notice')
         .where({ notice_enabled: true, banner_enabled: true })
         .orderBy('id', 'DESC').then();
-
-      // notices.push({
-      //   id: 12345,
-      //   notice_title: 'My test notice',
-      //   notice_type: 'info',
-      //   notice_body: 'hello world',
-      //   notice_link: 'https://www.google.com',
-      //   notice_enabled: true,
-      //   banner_enabled: true,
-      //   site_mode: 'genshin'
-      // });
-
-      return notices;
     });
   }
 

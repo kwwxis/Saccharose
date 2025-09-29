@@ -83,7 +83,7 @@
           <p>The information collected by our Service is used to provide, improve, and protect our Service.</p>
           <ul>
             <li>Discord and Fandom user account info is used to restrict access to the Website to prevent unwanted users
-              as this Website is only intended to be used by editors of non-official HoYoverse-related wikis.</li>
+              as this Website is only intended to be used by editors of certain wikis.</li>
             <li>Access Logging is used for traffic analytics purposes and to monitor and block bad actors from accessing the site.</li>
             <li>Cookies are used for session management purposes and to provide customization options for users.</li>
           </ul>

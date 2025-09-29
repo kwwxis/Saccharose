@@ -1,6 +1,7 @@
 import '../../../loadenv.ts';
 import { GenshinControl, getGenshinControl, loadGenshinVoiceItems } from '../genshinControl.ts';
 import {
+  formatGcgWorldWorkTime,
   GCGCardExcelConfigData, GCGCardFaceExcelConfigData, GCGCardViewExcelConfigData,
   GCGChallengeExcelConfigData,
   GCGCharacterLevelExcelConfigData, GCGCharExcelConfigData, GCGCharSkillDamage, GCGCommonCard,
@@ -25,7 +26,6 @@ import { closeKnex } from '../../../util/db.ts';
 import fs from 'fs';
 import { getGenshinDataFilePath, IMAGEDIR_GENSHIN_EXT } from '../../../loadenv.ts';
 import { SchemaTable } from '../../../importer/import_db.ts';
-import { formatTime } from '../../../../shared/types/genshin/general-types.ts';
 import { genshinSchema } from '../../../importer/genshin/genshin.schema.ts';
 import { LangCode } from '../../../../shared/types/lang-types.ts';
 import { isInt, toInt } from '../../../../shared/util/numberUtil.ts';
@@ -462,8 +462,8 @@ export class GCGControl {
         }
         stage.WorldLevel.WorldWorkTime = this.worldWorkTimeTable[stage.WorldLevel.NpcId];
         if (stage.WorldLevel.WorldWorkTime && stage.WorldLevel.MapDescText) {
-          stage.WorldLevel.MapDescText = stage.WorldLevel.MapDescText.replace(/\{0}/g, formatTime(stage.WorldLevel.WorldWorkTime.StartTime));
-          stage.WorldLevel.MapDescText = stage.WorldLevel.MapDescText.replace(/\{1}/g, formatTime(stage.WorldLevel.WorldWorkTime.EndTime));
+          stage.WorldLevel.MapDescText = stage.WorldLevel.MapDescText.replace(/\{0}/g, formatGcgWorldWorkTime(stage.WorldLevel.WorldWorkTime.StartTime));
+          stage.WorldLevel.MapDescText = stage.WorldLevel.MapDescText.replace(/\{1}/g, formatGcgWorldWorkTime(stage.WorldLevel.WorldWorkTime.EndTime));
         }
       }
     }

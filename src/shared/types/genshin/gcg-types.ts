@@ -1,5 +1,4 @@
 import { AvatarExcelConfigData } from './avatar-types.ts';
-import { NpcExcelConfigData } from './general-types.ts';
 import { MonsterExcelConfigData } from './monster-types.ts';
 import { TalkExcelConfigData } from './dialogue-types.ts';
 import { MainQuestExcelConfigData, QuestExcelConfigData } from './quest-types.ts';
@@ -7,6 +6,7 @@ import { MaterialExcelConfigData, RewardExcelConfigData } from './material-types
 import { Subset } from '../utility-types.ts';
 import { VoiceItem } from '../lang-types.ts';
 import { DialogueSectionResult } from '../../../backend/util/dialogueSectionResult.ts';
+import { NpcExcelConfigData } from './npc-types.ts';
 
 // GCG TALK
 // --------------------------------------------------------------------------------------------------------------
@@ -906,3 +906,12 @@ export interface GCGDeckFaceLinkExcelConfigData {
 
 export type GCGCharCardsByObtainability = { Obtainable: GCGCharExcelConfigData[], Unobtainable: GCGCharExcelConfigData[] };
 export type GCGActionCardsByObtainability = { Obtainable: GCGCardExcelConfigData[], Unobtainable: GCGCardExcelConfigData[] };
+
+export const formatGcgWorldWorkTime = (time: number) => {
+  let hour = Math.floor(time) + '';
+  let minute = (time + '').includes('.') ? (time + '').split('.')[1] : '00';
+
+  hour = hour.padStart(2, '0');
+  minute = minute.padEnd(2, '0');
+  return hour + ':' + minute;
+};

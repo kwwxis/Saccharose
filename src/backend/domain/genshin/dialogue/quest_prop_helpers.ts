@@ -12,9 +12,10 @@ import {
   QuestExcelConfigDataFailCondType, QuestExcelConfigDataFailExecType, QuestExcelConfigDataFinishCondType,
   QuestExcelConfigDataFinishExecType,
 } from '../../../../shared/types/genshin/quest-types.ts';
-import { toBoolean } from '../../../../shared/util/genericUtil.ts';
+import { isset, toBoolean } from '../../../../shared/util/genericUtil.ts';
 import { IMetaPropValue, MetaPropsHelper } from '../../../util/metaProp.ts';
 import { ConfigCondition } from '../../../../shared/types/genshin/general-types.ts';
+import { AvatarExcelConfigData } from '../../../../shared/types/genshin/avatar-types.ts';
 
 type MappingHandler = (ctrl?: GenshinControl,
                        props?: MetaPropsHelper,
@@ -73,18 +74,20 @@ const MAPPING: Partial<Record<MappingType, MappingHandler>> = {
       { value: avatarExcel?.NameText || p0, bold: true },
     ]);
   },
+
   QUEST_COND_PLAYER_CURRENT_AVATAR: async (ctrl: GenshinControl, props, p0, p1) => {
-    const avatarExcel = await ctrl.selectAvatarById(toInt(p0));
+    const avatarExcel = await avatarSelector(ctrl, p0, p1);
     props.addProp('Current avatar is', [
       { value: avatarExcel?.NameText || p0, bold: true },
     ]);
   },
   QUEST_COND_PLAYER_CURRENT_NOT_AVATAR: async (ctrl: GenshinControl, props, p0, p1) => {
-    const avatarExcel = await ctrl.selectAvatarById(toInt(p0));
+    const avatarExcel = await avatarSelector(ctrl, p0, p1);
     props.addProp('Current avatar is not', [
       { value: avatarExcel?.NameText || p0, bold: true },
     ]);
   },
+
   QUEST_COND_PLAYER_CHOOSE_MALE: async (ctrl: GenshinControl, props, p0, p1) => {
     if (toBoolean(p0)) {
       props.addEmptyProp('Player chose male traveler');
@@ -105,6 +108,32 @@ const MAPPING: Partial<Record<MappingType, MappingHandler>> = {
     ]);
   }
 };
+
+const isParamSet = (p: string|number) => {
+  return isset(p) && p !== '0' && p !== 0;
+}
+
+async function avatarSelector(ctrl: GenshinControl, avatarId: string|number, tagId: string|number) {
+  let avatarExcel: AvatarExcelConfigData = null;
+
+  if (isParamSet(avatarId)) {
+    avatarExcel = await ctrl.selectAvatarById(toInt(avatarId));
+  }
+
+  if (!avatarExcel && isParamSet(tagId)) {
+    const tag = await ctrl.getFeatureTag(toInt(tagId));
+    if (tag) {
+      for (let gid of tag.GroupIds) {
+        avatarExcel = await ctrl.selectAvatarById(gid);
+        if (avatarExcel) {
+          break;
+        }
+      }
+    }
+  }
+
+  return avatarExcel;
+}
 
 async function doMapping(ctrl: GenshinControl, helper: MetaPropsHelper, cond: ConfigCondition<MappingType>, noMatchCallback?: MappingHandler) {
   const p0 = cond.Param[0];

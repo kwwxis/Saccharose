@@ -1,7 +1,6 @@
 import '../../../loadenv.ts';
 import { closeKnex } from '../../../util/db.ts';
 import { GenshinControl, getGenshinControl } from '../genshinControl.ts';
-import { NpcExcelConfigData } from '../../../../shared/types/genshin/general-types.ts';
 import util from 'util';
 import { isInt, toInt } from '../../../../shared/util/numberUtil.ts';
 import {
@@ -23,6 +22,7 @@ import { custom } from '../../../util/logger.ts';
 import { CommonLineId, DialogWikitextResult } from '../../../../shared/types/common-types.ts';
 import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
 import { GameVersions } from '../../../../shared/types/game-versions.ts';
+import { NpcExcelConfigData } from '../../../../shared/types/genshin/npc-types.ts';
 
 // region NPC Filtering for Single Branch Dialogue
 // --------------------------------------------------------------------------------------------------------------

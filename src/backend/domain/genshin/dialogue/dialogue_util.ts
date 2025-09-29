@@ -200,7 +200,15 @@ export async function talkConfigToDialogueSectionResult(ctrl: GenshinControl,
   }
 
   if (talkConfig.InterActionFile) {
-    mysect.addHeaderProp('Perform', talkConfig.InterActionFile.replace(/;/g, '/').replace('.json', ''));
+    mysect.addHeaderProp('Perform',[
+      {
+        value: talkConfig.InterActionFile.replace(/;/g, '/').replace('.json', ''),
+        tooltip: 'InterAction file used for this Talk relative to BinOutput/InterAction/QuestDialogue'
+      },
+      talkConfig.InterActionFileFromPerformCfg
+        ? {value: 'T', tooltip: `From Talk's PerformCfg`}
+        : {value: 'D', tooltip: `From first InterAction file that includes this Talk's InitDialog ID`}
+    ]);
   }
 
   // COND/EXEC PROPS

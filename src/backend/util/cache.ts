@@ -3,6 +3,7 @@ import { createClient, RedisClientType, RedisFunctions, RedisModules, RedisScrip
 import { logInit, logShutdown } from './logger.ts';
 import { toBoolean } from '../../shared/util/genericUtil.ts';
 import { RespVersions, TypeMapping } from '@redis/client/dist/lib/RESP/types';
+import { isArrayLike, toArray } from '../../shared/util/arrayUtil.ts';
 
 const cache: {
   mode: 'memory' | 'redis',
@@ -38,15 +39,19 @@ export async function redisDelPattern(pattern: string): Promise<void> {
   const batch: string[] = [];
   const batchSize = 1000;
 
-  for await (const key of iterator) {
-    batch.push(key.toString());
+  for await (const keys of iterator) {
+    for (let key of toArray(keys)) {
+      batch.push(key.toString());
+    }
     if (batch.length >= batchSize) {
+      console.log('Deleting keys: ', batch);
       await delcache(batch.splice(0, batch.length));
     }
   }
 
   // delete any remaining keys
   if (batch.length > 0) {
+    console.log('Deleting keys: ', batch);
     await delcache(batch);
   }
 }

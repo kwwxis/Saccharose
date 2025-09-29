@@ -4,9 +4,9 @@ import util from 'util';
 import { closeKnex } from '../../../util/db.ts';
 import { defaultMap, isset } from '../../../../shared/util/genericUtil.ts';
 import { fileFormatOptionsApply, fileFormatOptionsCheck } from '../../../util/fileFormatOptions.ts';
-import { WorldAreaConfigData } from '../../../../shared/types/genshin/general-types.ts';
 import { ViewCodexExcelConfigData, ViewpointsByRegion } from '../../../../shared/types/genshin/viewpoint-types.ts';
 import { isInt } from '../../../../shared/util/numberUtil.ts';
+import { WorldAreaConfigData } from '../../../../shared/types/genshin/place-types.ts';
 
 export const VIEWPOINT_FILE_FORMAT_PARAMS: string[] = [
   'Id',

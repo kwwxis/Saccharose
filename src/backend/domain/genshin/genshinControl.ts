@@ -1,11 +1,8 @@
 // noinspection JSUnusedGlobalSymbols
 
 import {
-  CityConfigData,
-  ConfigCondition,
-  NpcExcelConfigData,
-  WorldAreaConfigData,
-  WorldAreaType,
+  ConfigCondition, FeatureTagExcelConfigData, FeatureTagGroupExcelConfigData,
+
 } from '../../../shared/types/genshin/general-types.ts';
 import SrtParser, { SrtLine } from '../../util/srtParser.ts';
 import fs, { promises as fsp } from 'fs';
@@ -172,6 +169,9 @@ import { fsExists } from '../../util/fsutil.ts';
 import { ReadableChangesCtrl } from './readables/genshinReadableChanges.ts';
 import { GenshinReadables } from './readables/genshinReadables.ts';
 import { getGCGControl } from './gcg/gcg_control.ts';
+import { getGIAssetIndexHash } from './misc/giAssetIndexHash.ts';
+import { NpcExcelConfigData, NpcFirstMetExcelConfigData } from '../../../shared/types/genshin/npc-types.ts';
+import { CityConfigData, WorldAreaConfigData, WorldAreaType } from '../../../shared/types/genshin/place-types.ts';
 
 // region Control State
 // --------------------------------------------------------------------------------------------------------------
@@ -191,6 +191,7 @@ export class GenshinControlState extends AbstractControlState {
   monsterDescribeCache: {[DescribeId: number]: MonsterDescribeExcelConfigData} = {};
   animalCodexCache:  {[Id: number]: AnimalCodexExcelConfigData} = {};
   animalCodexDCache: {[Id: number]: AnimalCodexExcelConfigData} = {};
+  interActionDiskFileNameCache: {[oldName: string]: string} = {};
   interActionCache: {[InterActionFile: string]: InterActionGroup[]} = {};
   codexQuestCache: {[mainQuestId: number]: CodexQuestGroup} = {};
 
@@ -498,6 +499,12 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   async getNpc(npcId: number): Promise<NpcExcelConfigData> {
     if (!npcId) return null;
     return await this.getNpcList([ npcId ]).then(x => x && x.length ? x[0] : null);
+  }
+
+  async getNpcFirstMet(firstMetId: number): Promise<NpcFirstMetExcelConfigData> {
+    if (!firstMetId) return null;
+    return await this.knex.select('*').from('NpcFirstMetExcelConfigData')
+      .where('Id', firstMetId).first().then(this.commonLoadFirst);
   }
 
   async getNpcList(npcIds: number[], addToCache: boolean = true): Promise<NpcExcelConfigData[]> {
@@ -895,6 +902,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       const iaFile = await this.loadInterActionFileByName(talk.PerformCfg);
       if (iaFile.Name) {
         talk.InterActionFile = iaFile.Name;
+        talk.InterActionFileFromPerformCfg = true;
         const initDialog = iaFile.findDialog(talk.InitDialog);
         const firstDialog = iaFile.findFirstDialog();
 
@@ -1366,6 +1374,18 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
                 this.state.inDialogueReadables[mainQuestId].push(readable);
               }
             }
+          } else if (action.Type === 'FIRST_SIGHT' && Array.isArray(action.AliasList) && action.AliasList.length && isInt(action.AliasList[0])) {
+            const npcId = toInt(action.AliasList[0]);
+            const npc = await this.getNpc(npcId);
+
+            const firstMet = isInt(npc?.FirstMetId) ? await this.getNpcFirstMet(npc.FirstMetId) : null;
+            const firstMetName = firstMet?.NameText || npc?.NameText;
+
+            if (firstMetName) {
+              fakeDialogs.push(await this.makeFakeDialog(action.ActionId, {
+                CustomNpcFirstMet: firstMetName
+              }));
+            }
           }
         }
       }
@@ -1709,32 +1729,73 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   }
 
   async loadInterActionFileByName(fileName: string): Promise<InterActionFile> {
+    // Replace backslashes to slashes
+    // then replace slashes to semicolons
     fileName = fileName.replace(/\\/g, '/').replace(/\//g, ';');
 
+    // Remove "QuestDialogue;" prefix if exists
     if (fileName.startsWith('QuestDialogue;')) {
       fileName = fileName.slice('QuestDialogue;'.length);
     }
 
-    if (!fileName.endsWith('.json')) {
-      fileName += '.json';
+    // Remove ".json" suffix if exists
+    if (fileName.endsWith('.json')) {
+      fileName = fileName.slice(0, -'.json'.length);
     }
 
-    let fileGroups: InterActionGroup[] = [];
+    // Get GI asset index path (must not have ".json")
+    const assetIndexPath = `Data/_BinOutput/InterAction/QuestDialogue/` + fileName.replace(/;/g, '/');
+    const assetIndexHash = getGIAssetIndexHash(assetIndexPath);
+
+    // Re-add ".json" suffix
+    fileName += '.json';
+    const originalFileName = fileName;
 
     if (this.state.interActionCache[fileName]) {
-      fileGroups = this.state.interActionCache[fileName];
-    } else if (await this.fileExists('./InterAction/' + fileName)) {
-      const groups: InterActionGroup[] = await this.readJsonFile('./InterAction/' + fileName);
-      this.state.interActionCache[fileName] = groups;
-      fileGroups = groups;
-    } else {
-      return new InterActionFile();
+      return new InterActionFile(
+        fileName,
+        this.state.interActionCache[fileName],
+        null);
     }
 
-    return new InterActionFile(
-      fileName,
-      fileGroups,
-      null);
+    let diskFileName = this.state.interActionDiskFileNameCache[fileName];
+    if (diskFileName && this.state.interActionCache[diskFileName]) {
+      return new InterActionFile(
+        diskFileName,
+        this.state.interActionCache[diskFileName],
+        null);
+    }
+
+    let foundFile: boolean = await this.fileExists('./InterAction/' + fileName);
+    if (!foundFile) {
+      if (diskFileName && await this.fileExists('./InterAction/' + diskFileName)) {
+        foundFile = true;
+        fileName = diskFileName;
+      } else {
+        let fileNameParts = fileName.split(';');
+        while (fileNameParts.length) {
+          fileNameParts.pop();
+          let checkFileName = fileNameParts.join(';') + ';' + assetIndexHash + '.json';
+          foundFile = await this.fileExists('./InterAction/' + checkFileName);
+          if (foundFile) {
+            this.state.interActionDiskFileNameCache[originalFileName] = checkFileName;
+            fileName = checkFileName;
+            break;
+          }
+        }
+      }
+    }
+
+    if (foundFile) {
+      const groups: InterActionGroup[] = await this.readJsonFile('./InterAction/' + fileName);
+      this.state.interActionCache[fileName] = groups;
+      return new InterActionFile(
+        fileName,
+        groups,
+        null);
+    }
+
+    return new InterActionFile();
   }
 
   async loadInterActionFileByDialogId(dialogueId: number): Promise<InterActionFile> {
@@ -1747,6 +1808,8 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     let fileGroups: InterActionGroup[] = [];
 
     if (fileName) {
+      // The file names from InterActionD2F are already the disk file names so we don't need to check
+      // "interActionDiskFileNameCache" or do anything with asset index hash...
       if (this.state.interActionCache[fileName]) {
         fileGroups = this.state.interActionCache[fileName];
       } else {
@@ -3423,6 +3486,39 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       }
     }
     return achievement;
+  }
+  // endregion
+
+  // region Feature Tags
+  async getFeatureTag(tagId: number): Promise<FeatureTagExcelConfigData> {
+    const tagIdsToGroupIds: Record<number, number[]> = await this.cached('FeatureTags:TagIdsToGroupIds', 'json',
+      async () => {
+        const groups: FeatureTagGroupExcelConfigData[] = await this.readJsonFile(
+          this.getExcelPath('./FeatureTagGroupExcelConfigData.json'));
+
+        const out: Record<number, number[]> = defaultMap('Array');
+        for (let group of groups) {
+          for (let tagId of group.TagIds) {
+            out[tagId].push(group.GroupId);
+          }
+        }
+
+        return out;
+      });
+
+    const tags: Record<number, FeatureTagExcelConfigData> = await this.cached('FeatureTagGroups', 'json',
+      async () => {
+        const json: FeatureTagExcelConfigData[] = await this.readJsonFile(
+          this.getExcelPath('./FeatureTagExcelConfigData.json'));
+
+        return mapBy(json, 'TagId');
+      });
+
+    const tag: FeatureTagExcelConfigData = tags[tagId];
+    if (tag) {
+      tag.GroupIds = tagIdsToGroupIds[tag.TagId] || [];
+    }
+    return tag;
   }
   // endregion
 }

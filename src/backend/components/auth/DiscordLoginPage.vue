@@ -13,7 +13,7 @@
 
         <div class="alignCenter w100p flexColumn">
           <p style="text-align: center;max-width:400px">
-            This is an internal tool used by the editors of non-official wikis related to HoYoverse games.</p>
+            This is an internal tool used by the editors of wikis related to certain games.</p>
           <p style="text-align: center;max-width:400px" class="info-notice spacer10-vert">
             To access {{ SITE_SHORT_TITLE }}, you must be an <strong>autoconfirmed</strong> editor on at least one of those wikis,
             or any of its other language interwikis, and have at least <strong>100 edits</strong>.

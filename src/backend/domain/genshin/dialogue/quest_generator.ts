@@ -2,7 +2,7 @@ import '../../../loadenv.ts';
 import { closeKnex } from '../../../util/db.ts';
 import { GenshinControl, getGenshinControl } from '../genshinControl.ts';
 import { ol_gen_from_id } from '../../abstract/basic/OLgen.ts';
-import { ConfigCondition, NpcExcelConfigData } from '../../../../shared/types/genshin/general-types.ts';
+import { ConfigCondition } from '../../../../shared/types/genshin/general-types.ts';
 import { arrayEmpty, arrayUnique } from '../../../../shared/util/arrayUtil.ts';
 import {
   DialogUnparented,
@@ -32,6 +32,7 @@ import { defaultMap } from '../../../../shared/util/genericUtil.ts';
 import { ImageIndexEntity } from '../../../../shared/types/image-index-types.ts';
 import { GameVersion, GameVersions } from '../../../../shared/types/game-versions.ts';
 import { addMetaProps_questExcel } from './quest_prop_helpers.ts';
+import { NpcExcelConfigData } from '../../../../shared/types/genshin/npc-types.ts';
 
 export class QuestGenerateResult {
   mainQuest: MainQuestExcelConfigData = null;

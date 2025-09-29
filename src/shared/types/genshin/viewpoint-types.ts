@@ -1,4 +1,4 @@
-import { WorldAreaConfigData } from './general-types.ts';
+import { WorldAreaConfigData } from './place-types.ts';
 
 export interface ViewCodexExcelConfigData {
   Id: number,

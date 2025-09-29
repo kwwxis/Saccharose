@@ -25,10 +25,10 @@ import { selectViewpointsByIds } from '../archive/viewpoints.ts';
 import { selectLoadingTips } from '../archive/loadingTips.ts';
 import { selectTutorials } from '../archive/tutorials.ts';
 import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
-import { NpcExcelConfigData } from '../../../../shared/types/genshin/general-types.ts';
 import { sort } from '../../../../shared/util/arrayUtil.ts';
 import { defaultMap } from '../../../../shared/util/genericUtil.ts';
 import { GameVersion, GameVersions } from '../../../../shared/types/game-versions.ts';
+import { NpcExcelConfigData } from '../../../../shared/types/genshin/npc-types.ts';
 
 export type GenshinChangelogNewRecordSummary = {
   avatars: AvatarExcelConfigData[],

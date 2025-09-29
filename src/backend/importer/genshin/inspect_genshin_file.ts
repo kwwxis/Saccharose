@@ -8,7 +8,8 @@ import { ReminderExcelConfigData } from '../../../shared/types/genshin/dialogue-
 import { toInt } from '../../../shared/util/numberUtil.ts';
 import { QuestExcelConfigData } from '../../../shared/types/genshin/quest-types.ts';
 import { DocumentExcelConfigData } from '../../../shared/types/genshin/readable-types.ts';
-import { NpcExcelConfigData } from '../../../shared/types/genshin/general-types.ts';
+
+import { NpcExcelConfigData } from '../../../shared/types/genshin/npc-types.ts';
 
 const excel = (file: string) => `./ExcelBinOutput/${file}.json`;
 
@@ -69,6 +70,7 @@ const presets = {
   GivingGroupExcelConfigData: <InspectOpt> { file: excel('GivingGroupExcelConfigData'), inspectFieldValues: [] },
   DocumentExcelConfigData: <InspectOpt> { file: excel('DocumentExcelConfigData'), inspectFieldValues: ['DocumentType', 'SplitType'] },
   NpcExcelConfigData: <InspectOpt> { file: excel('NpcExcelConfigData'), inspectFieldValues: ['BodyType', 'SpecialType', 'BillboardType', 'ElementName', 'ElementType']},
+  NpcFirstMetExcelConfigData: <InspectOpt> { file: excel('NpcFirstMetExcelConfigData'), inspectFieldValues: ['NpcType', 'CostElemType']},
 
   HyperLinkNameExcelConfigData: <InspectOpt> { file: excel('HyperLinkNameExcelConifgData'), inspectFieldValues: [] },
   ProudSkillExcelConfigData: <InspectOpt> { file: excel('ProudSkillExcelConfigData'), inspectFieldValues: ['LifeEffectType'] },
@@ -81,7 +83,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     const ctrl = getGenshinControl();
     // await inspectDataFile(ctrl, presets.QuestExcelConfigData);
     // await inspectDataFile(ctrl, presets.TalkExcelConfigData);
-    await inspectDataFile(ctrl, presets.BuffExcelConfigData);
+    await inspectDataFile(ctrl, presets.NpcFirstMetExcelConfigData);
     await closeKnex();
   })();
 }

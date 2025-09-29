@@ -2,7 +2,6 @@ import util from 'util';
 import { pathToFileURL } from 'url';
 import { GenshinControl, getGenshinControl } from '../genshinControl.ts';
 import { closeKnex } from '../../../util/db.ts';
-import { WorldAreaConfigData } from '../../../../shared/types/genshin/general-types.ts';
 import { mapBy, sort } from '../../../../shared/util/arrayUtil.ts';
 import { SbOut } from '../../../../shared/util/stringUtil.ts';
 import { ManualTextMapHashes } from '../../../../shared/types/genshin/manual-text-map.ts';
@@ -13,6 +12,7 @@ import {
 } from '../../../../shared/types/genshin/loading-types.ts';
 import { LangCodeMap } from '../../../../shared/types/lang-types.ts';
 import { isInt, toInt } from '../../../../shared/util/numberUtil.ts';
+import { WorldAreaConfigData } from '../../../../shared/types/genshin/place-types.ts';
 
 // region Category Check
 // --------------------------------------------------------------------------------------------------------------
