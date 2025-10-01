@@ -140,7 +140,7 @@ import {
 } from '../../../shared/types/lang-types.ts';
 import { GCGTagElementType, GCGTagWeaponType } from '../../../shared/types/genshin/gcg-types.ts';
 import path from 'path';
-import { NormTextOptions } from '../abstract/genericNormalizers.ts';
+import { genericNormSearchText, NormTextOptions } from '../abstract/genericNormalizers.ts';
 import {
   AchievementExcelConfigData,
   AchievementGoalExcelConfigData,
@@ -287,6 +287,10 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
   override normText(text: string, langCode: LangCode, opts: NormTextOptions<GenshinNormTextOpts> = {}): string {
     return __normGenshinText(text, langCode, opts);
+  }
+
+  override normSearchText(text: string, inputLangCode: LangCode): string {
+    return genericNormSearchText(text, inputLangCode);
   }
 
   override copy(trx?: Knex.Transaction|boolean): GenshinControl {

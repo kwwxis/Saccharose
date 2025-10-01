@@ -86,6 +86,14 @@ export function postProcessBoldItalic(text: string, opts: NormTextOptions): stri
   return text;
 }
 
+export function genericNormSearchText(searchText: string, inputLangCode: LangCode): string {
+  if (!searchText) {
+    return searchText;
+  }
+  searchText = searchText.replace(/<br ?\/?>/g, '\\n');
+  return searchText;
+}
+
 export function genericNormText(text: string, langCode: LangCode, opts: NormTextOptions, reqOptions: GenericNormTextRequiredOptions): string {
   if (!text) {
     return text;

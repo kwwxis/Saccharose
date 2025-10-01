@@ -5,7 +5,7 @@ import { getWuwaDataFilePath } from '../../loadenv.ts';
 import { normalizeRawJson, SchemaTable } from '../../importer/import_db.ts';
 import { LangCode, TextMapHash } from '../../../shared/types/lang-types.ts';
 import { __normWuwaText, WuwaNormTextOpts } from './wuwaText.ts';
-import { NormTextOptions } from '../abstract/genericNormalizers.ts';
+import { genericNormSearchText, NormTextOptions } from '../abstract/genericNormalizers.ts';
 import { Request } from 'express';
 import { wuwa_i18n, WUWA_I18N_MAP } from '../abstract/i18n.ts';
 import { AbstractControlState, ControlUserModeProvider } from '../abstract/abstractControlState.ts';
@@ -73,6 +73,10 @@ export class WuwaControl extends AbstractControl<WuwaControlState> {
 
   override normText(text: string, langCode: LangCode, opts: NormTextOptions<WuwaNormTextOpts> = {}): string {
     return __normWuwaText(text, langCode, opts);
+  }
+
+  override normSearchText(text: string, inputLangCode: LangCode): string {
+    return genericNormSearchText(text, inputLangCode);
   }
 
   override copy(trx?: Knex.Transaction|boolean): WuwaControl {

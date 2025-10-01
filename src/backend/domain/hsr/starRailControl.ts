@@ -15,7 +15,7 @@ import fs from 'fs';
 import { defaultMap } from '../../../shared/util/genericUtil.ts';
 import { LoadingDesc } from '../../../shared/types/hsr/hsr-misc-types.ts';
 import { sort } from '../../../shared/util/arrayUtil.ts';
-import { NormTextOptions } from '../abstract/genericNormalizers.ts';
+import { genericNormSearchText, NormTextOptions } from '../abstract/genericNormalizers.ts';
 import { Request } from 'express';
 import { logInitData } from '../../util/logger.ts';
 import { AvatarConfig } from '../../../shared/types/hsr/hsr-avatar-types.ts';
@@ -94,6 +94,10 @@ export class StarRailControl extends AbstractControl<StarRailControlState> {
       opts.mcPlaceholderForceLangCode = 'EN';
     }
     return __normStarRailText(text, langCode, opts);
+  }
+
+  override normSearchText(text: string, inputLangCode: LangCode): string {
+    return genericNormSearchText(text, inputLangCode);
   }
 
   override async isEmptyTextMapItem(langCode: LangCode, hash: TextMapHash): Promise<boolean> {

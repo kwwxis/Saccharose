@@ -5,7 +5,7 @@ import { getZenlessDataFilePath } from '../../loadenv.ts';
 import { normalizeRawJson, SchemaTable } from '../../importer/import_db.ts';
 import { LangCode, TextMapHash } from '../../../shared/types/lang-types.ts';
 import { __normZenlessText, ZenlessNormTextOpts } from './zenlessText.ts';
-import { NormTextOptions } from '../abstract/genericNormalizers.ts';
+import { genericNormSearchText, NormTextOptions } from '../abstract/genericNormalizers.ts';
 import { zenless_i18n, ZENLESS_I18N_MAP } from '../abstract/i18n.ts';
 import { AbstractControlState, ControlUserModeProvider } from '../abstract/abstractControlState.ts';
 import { CurrentZenlessVersion, ZenlessVersions } from '../../../shared/types/game-versions.ts';
@@ -78,10 +78,13 @@ export class ZenlessControl extends AbstractControl<ZenlessControlState> {
     return __normZenlessText(text, langCode, opts);
   }
 
+  override normSearchText(text: string, inputLangCode: LangCode): string {
+    return genericNormSearchText(text, inputLangCode);
+  }
+
   override copy(trx?: Knex.Transaction|boolean): ZenlessControl {
     return new ZenlessControl(this.state.copy(trx));
   }
-
 
   override i18n(key: keyof typeof ZENLESS_I18N_MAP, vars?: Record<string, string>): string {
     return zenless_i18n(key, this.outputLangCode, vars);

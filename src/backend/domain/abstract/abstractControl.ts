@@ -258,6 +258,8 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
   // region TextMap Item
   abstract normText(text: string, langCode: LangCode, opts?: NormTextOptions): string;
 
+  abstract normSearchText(text: string, inputLangCode: LangCode): string;
+
   async getTextMapItem(langCode: LangCode, hash: TextMapHash): Promise<string> {
     if (typeof hash === 'number') {
       hash = String(hash);
@@ -574,7 +576,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     let startFromLine: number = opts.startFromLine;
 
     outerLoop: while (true) {
-      const rawMatches: string[] = await grep(opts.searchText, this.getDataFilePath(textFile),
+      const rawMatches: string[] = await grep(this.normSearchText(opts.searchText, opts.inputLangCode), this.getDataFilePath(textFile),
         { flags: (opts.flags || '') + ' -n', startFromLine });
       const numAdded: IntHolder = new IntHolder(0);
       const lastLineNum: IntHolder = new IntHolder(0);
@@ -723,7 +725,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
 
     const textFile = getPlainTextMapRelPath(opts.inputLangCode, opts.searchAgainst);
 
-    return await grepStream(opts.searchText, this.getDataFilePath(textFile), async (match: string, kill: () => void) => {
+    return await grepStream(this.normSearchText(opts.searchText, opts.inputLangCode), this.getDataFilePath(textFile), async (match: string, kill: () => void) => {
       if (!match)
         return;
 
