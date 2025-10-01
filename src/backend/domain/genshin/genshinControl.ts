@@ -957,6 +957,24 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       .then(x => this.postProcessTalkExcel(x));
   }
 
+  async selectTalkExcelConfigDataByAvatarIdForAvatarBeginCond(avatarId: number): Promise<TalkExcelConfigData[]> {
+    if (isNaN(avatarId)) {
+      throw new Error('selectTalkExcelConfigDataById: avatarId must be a number');
+    }
+    return await this.knex('TalkExcelConfigData')
+      .join('Relation_TalkAvatarCond', 'TalkExcelConfigData.Id', 'Relation_TalkAvatarCond.TalkId')
+      .where('Relation_TalkAvatarCond.AvatarId', avatarId)
+      .select('TalkExcelConfigData.*')
+      .then(this.commonLoad)
+      .then(arr => arr.asyncMap(x => this.postProcessTalkExcel(x)));
+  }
+
+  async selectAvatarIdsForTalkExcelAvatarBeginConds(): Promise<number[]> {
+    return await this.knex('Relation_TalkAvatarCond')
+      .distinct('AvatarId')
+      .then(rows => rows.map(row => row.AvatarId));
+  }
+
   async selectTalkExcelConfigDataByQuestSubId(id: number, loadType: TalkLoadType = null): Promise<TalkExcelConfigData> {
     return this.selectTalkExcelConfigDataById(id, loadType);
   }
@@ -1385,6 +1403,10 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
               fakeDialogs.push(await this.makeFakeDialog(action.ActionId, {
                 CustomNpcFirstMet: firstMetName
               }));
+            } else {
+              fakeDialogs.push(await this.makeFakeDialog(action.ActionId, {
+                CustomNpcFirstMet: `TX: Missing introductory note (was unable to automatically determine character)`
+              }));
             }
           }
         }
@@ -1515,7 +1537,11 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
           text += `<!-- ${dialog.CustomWikiTxComment} -->`
         }
       } else if (dialog.CustomNpcFirstMet) {
-        text = `{{Introductory Note|${dialog.CustomNpcFirstMet}}}`;
+        if (dialog.CustomNpcFirstMet.startsWith('TX:')) {
+          text = `{{tx|${dialog.CustomNpcFirstMet.slice(3).trim()}}}`;
+        } else {
+          text = `{{Introductory Note|${dialog.CustomNpcFirstMet}}}`;
+        }
       } else if (dialog.CustomWikiReadable) {
         let lines: string[] = [];
         for (let item of dialog.CustomWikiReadable.Items) {

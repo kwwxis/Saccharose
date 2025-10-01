@@ -347,7 +347,33 @@ export type TalkLoadType =
   'TALK_BLOSSOM'      | // For "Is there anything of note nearby?" dialogues for "Magical Crystal Chunk" veins...
   'TALK_GADGET'       |
   'TALK_NORMAL_QUEST' |
+  'TALK_STORYBOARD'   |
   'TALK_COOP'         ;
+
+export type TalkExcelBeginCondComb =
+  'LOGIC_AND'                 |
+  'LOGIC_A_AND_B_AND_ETCOR'   |
+  'LOGIC_A_AND_B_OR_ETCAND'   |
+  'LOGIC_A_AND_ETCOR'         |
+  'LOGIC_A_OR_B_OR_ETCAND'    |
+  'LOGIC_A_OR_ETCAND'         |
+  'LOGIC_NONE'                |
+  'LOGIC_NOT'                 |
+  'LOGIC_OR'                  ;
+
+export const TalkExcelBeginCondCombDescMap: Record<TalkExcelBeginCondComb, string> = {
+  LOGIC_NONE: 'No logic necessary (zero or one condition)',
+  LOGIC_NOT: 'All conditions must not be true (negated)',
+  LOGIC_AND: 'All conditions must be true',
+  LOGIC_OR: 'Any condition must be true',
+
+  LOGIC_A_AND_B_AND_ETCOR: '(A AND B) AND (C OR D OR ...)',
+  LOGIC_A_AND_B_OR_ETCAND: '(A AND B) OR (C AND D AND ...)',
+  LOGIC_A_OR_B_OR_ETCAND: '(A OR B) OR (C AND D AND ...)',
+
+  LOGIC_A_AND_ETCOR: 'A AND (B OR C OR ...)',
+  LOGIC_A_OR_ETCAND: 'A OR (B AND C AND ..)',
+};
 
 export interface TalkExcelConfigData {
   Id: number,
@@ -356,7 +382,7 @@ export interface TalkExcelConfigData {
 
   BeginWay: string,
   ActiveMode: string,
-  BeginCondComb: string,
+  BeginCondComb: TalkExcelBeginCondComb,
   BeginCond: ConfigCondition<TalkExcelBeginCondType>[],
   FinishExec: ConfigCondition<TalkExcelFinishExecType>[]
 

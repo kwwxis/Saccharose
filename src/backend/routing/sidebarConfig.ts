@@ -57,13 +57,20 @@ export const SIDEBAR_CONFIG: { [siteMode: string]: SiteSidebar } = {
         content: [
           {
             id: 'dialogue-generators',
-            name: 'Excel Data',
+            name: 'Generators',
             items: [
               { id: 'quests', name: 'Quest Dialogue', link: '/genshin/quests', bodyClass: 'page--quests' },
               { id: 'branch-dialogue', name: 'Single Branch Dialogue', link: '/genshin/branch-dialogue', bodyClass: 'page--branch-dialogue' },
               { id: 'npc-dialogue', name: 'NPC Dialogue', link: '/genshin/npc-dialogue', bodyClass: 'page--npc-dialogue' },
               { id: 'reminders', name: 'Reminder Dialogue', link: '/genshin/reminders', bodyClass: 'page--reminders' },
+            ]
+          },
+          {
+            id: 'special-generators',
+            name: 'Special Generators',
+            items: [
               { id: 'vo-to-dialogue', name: 'VO File to Dialogue', link: '/genshin/vo-to-dialogue', bodyClass: 'page--vo-to-dialogue' },
+              { id: 'avatar-cond-dialogue', name: 'Avatar Condition Dialogue', link: '/genshin/avatar-cond-dialogue', bodyClass: 'page--avatar-cond-dialogue' },
             ]
           },
           {

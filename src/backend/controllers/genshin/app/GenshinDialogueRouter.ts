@@ -17,6 +17,13 @@ import GenshinNpcDialoguePage from '../../../components/genshin/dialogue/Genshin
 import GenshinRemindersPage from '../../../components/genshin/dialogue/GenshinRemindersPage.vue';
 import GenshinVoToDialoguePage from '../../../components/genshin/dialogue/GenshinVoToDialoguePage.vue';
 import { OLResult } from '../../../../shared/types/ol-types.ts';
+import { AvatarExcelConfigData } from '../../../../shared/types/genshin/avatar-types.ts';
+import { getGenshinAvatar, getGenshinAvatars } from '../../../middleware/game/genshinAvatarUtil.ts';
+import {
+  dialogueGenerateForTalkExcelByAvatarIdForBeginConds, TalkExcelAvatarBeginCondResult,
+} from '../../../domain/genshin/dialogue/basic_dialogue_generator.ts';
+import GenshinAvatarCondDialoguePage from '../../../components/genshin/dialogue/GenshinAvatarCondDialoguePage.vue';
+import { inDialogueReadablesHelper, questStillsHelper } from '../api/DialogueResources.ts';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -108,6 +115,33 @@ export default async function(): Promise<Router> {
       title: 'All Reminders',
       reminderGroups: await reminderGenerateAll(getGenshinControl(req)),
       bodyClass: ['page--all-reminders']
+    });
+  });
+
+  router.get('/avatar-cond-dialogue', async (req: Request, res: Response) => {
+    const ctrl = getGenshinControl(req);
+    const avatarIds = await ctrl.selectAvatarIdsForTalkExcelAvatarBeginConds();
+    const avatars: AvatarExcelConfigData[] = await getGenshinAvatars(getGenshinControl(req), true, avatarIds);
+
+    await res.renderComponent(GenshinAvatarCondDialoguePage, {
+      title: 'Avatar Condition Dialogue',
+      bodyClass: ['page--avatar-cond-dialogue'],
+      avatars,
+    });
+  });
+
+  router.get('/avatar-cond-dialogue/:avatar', async (req: Request, res: Response) => {
+    const ctrl = getGenshinControl(req);
+    const avatar: AvatarExcelConfigData = await getGenshinAvatar(ctrl, req, true);
+    const result: TalkExcelAvatarBeginCondResult = await dialogueGenerateForTalkExcelByAvatarIdForBeginConds(ctrl, avatar);
+
+    await res.renderComponent(GenshinAvatarCondDialoguePage, {
+      title: 'Avatar Condition Dialogue',
+      bodyClass: ['page--avatar-cond-dialogue'],
+      avatar,
+      result,
+      ... await questStillsHelper(ctrl),
+      ... await inDialogueReadablesHelper(ctrl),
     });
   });
 

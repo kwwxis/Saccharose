@@ -163,24 +163,24 @@
 
 // region Toolbar
 // --------------------------------------------------------------------------------------------------------------
-#vo-app-toolbar {
-  #vo-app-toolbar-avatarName {
-    padding: 5px 10px;
-    background: hsl(240deg, 30%, 95%);
-    border: 0;
-    border-right: 1px solid hsl(240deg, 30%, 90%);
-    border-radius: 3px 0 0 3px;
-    strong {
-      margin-left: 10px;
-      margin-right: 10px;
-      font-family: 'Open Sans', sans-serif;
-      font-size: 16px;
-    }
-    img.icon {
-      background: hsl(240deg, 30%, 90%);
-      border: 2px solid hsl(240deg, 30%, 85%);
-    }
+#vo-app-toolbar-avatarName, .toolbar-avatar-name {
+  padding: 5px 10px;
+  background: hsl(240deg, 30%, 95%);
+  border: 0;
+  border-right: 1px solid hsl(240deg, 30%, 90%);
+  border-radius: 3px 0 0 3px;
+  strong {
+    margin-left: 10px;
+    margin-right: 10px;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 16px;
   }
+  img.icon {
+    background: hsl(240deg, 30%, 90%);
+    border: 2px solid hsl(240deg, 30%, 85%);
+  }
+}
+#vo-app-toolbar {
   .vo-app-toolbar-buttons {
     padding: 2.5px 10px;
 

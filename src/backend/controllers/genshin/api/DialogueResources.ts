@@ -77,7 +77,7 @@ router.endpoint('/quests/generate', {
   }
 });
 
-async function questStillsHelper(ctrl: GenshinControl) {
+export async function questStillsHelper(ctrl: GenshinControl) {
   const questsStillsByMainQuest = ctrl.state.questStills;
   const questsStillsMainQuestNames: {[mainQuestId: number]: string} = {};
   if (questsStillsByMainQuest) {
@@ -88,7 +88,7 @@ async function questStillsHelper(ctrl: GenshinControl) {
   return {questsStillsByMainQuest, questsStillsMainQuestNames};
 }
 
-async function inDialogueReadablesHelper(ctrl: GenshinControl) {
+export async function inDialogueReadablesHelper(ctrl: GenshinControl) {
   const inDialogueReadablesMainQuestNames: {[mainQuestId: number]: string} = {};
 
   for (let mainQuestId of Object.keys(ctrl.state.inDialogueReadables)) {

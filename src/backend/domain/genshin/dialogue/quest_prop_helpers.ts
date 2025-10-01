@@ -1,6 +1,7 @@
 import { DialogWikitextResult } from '../../../../shared/types/common-types.ts';
 import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
 import {
+  TalkExcelBeginCondCombDescMap,
   TalkExcelBeginCondType,
   TalkExcelConfigData,
   TalkExcelFinishExecType,
@@ -57,19 +58,19 @@ const MAPPING: Partial<Record<MappingType, MappingHandler>> = {
     }
   },
   QUEST_COND_PLAYER_TEAM_CONTAINS_AVATAR: async (ctrl: GenshinControl, props, p0, p1) => {
-    const avatarExcel = await ctrl.selectAvatarById(toInt(p0));
+    const avatarExcel = await avatarSelector(ctrl, p0, p1);
     props.addProp('Player team contains avatar', [
       { value: avatarExcel?.NameText || p0, bold: true },
     ]);
   },
   QUEST_COND_PLAYER_TEAM_NOT_CONTAINS_AVATAR: async (ctrl: GenshinControl, props, p0, p1) => {
-    const avatarExcel = await ctrl.selectAvatarById(toInt(p0));
+    const avatarExcel = await avatarSelector(ctrl, p0, p1);
     props.addProp('Player team does not contain avatar', [
       { value: avatarExcel?.NameText || p0, bold: true },
     ]);
   },
   QUEST_COND_PLAYER_HAVE_AVATAR: async (ctrl: GenshinControl, props, p0, p1) => {
-    const avatarExcel = await ctrl.selectAvatarById(toInt(p0));
+    const avatarExcel = await avatarSelector(ctrl, p0, p1);
     props.addProp('Player owns avatar', [
       { value: avatarExcel?.NameText || p0, bold: true },
     ]);
@@ -181,6 +182,15 @@ export async function addMetaProps_questExcel(ctrl: GenshinControl, sect: Dialog
 export async function addMetaProps_talkConfig(ctrl: GenshinControl, sect: DialogueSectionResult, talkConfig: TalkExcelConfigData) {
   let beginCondPropsHelper = MetaPropsHelper.of(sect.beginCondProps);
   let finishExecPropsHelpers = MetaPropsHelper.of(sect.finishExecProps);
+
+  if (!!talkConfig.BeginCondComb && talkConfig.BeginCondComb !== 'LOGIC_NONE') {
+    beginCondPropsHelper.addProp('Logic', [
+      {
+        value: talkConfig.BeginCondComb.slice('LOGIC_'.length),
+        tooltip: TalkExcelBeginCondCombDescMap[talkConfig.BeginCondComb],
+      },
+    ])
+  }
 
   for (let beginCond of (talkConfig.BeginCond || [])) {
     await doMapping(ctrl, beginCondPropsHelper, beginCond, async (ctrl, props, p0) => {

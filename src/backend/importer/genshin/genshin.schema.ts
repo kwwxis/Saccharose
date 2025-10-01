@@ -17,6 +17,7 @@ import { FurnitureMakeExcelConfigData } from '../../../shared/types/genshin/home
 import { GCGCharacterLevelExcelConfigData, GCGWeekLevelExcelConfigData } from '../../../shared/types/genshin/gcg-types.ts';
 import { DocumentExcelConfigData } from '../../../shared/types/genshin/readable-types.ts';
 import { toInt } from '../../../shared/util/numberUtil.ts';
+import { Relation_TalkAvatarCond_resolver } from './genshin.customRowResolvers.ts';
 
 export const RAW_MANUAL_TEXTMAP_ID_PROP: string = 'textMapId';
 
@@ -139,6 +140,17 @@ export const genshinSchema = {
         },
       },
     ],
+  },
+  Relation_TalkAvatarCond: <SchemaTable> {
+    name: 'Relation_TalkAvatarCond',
+    jsonFile: './ExcelBinOutput/TalkExcelConfigData.json',
+    columns: [
+      { name: 'AvatarId', type: 'integer', isIndex: true },
+      { name: 'TalkId', type: 'integer' },
+    ],
+    customRowResolveProvider: async () => {
+      return (await import('./genshin.customRowResolvers')).Relation_TalkAvatarCond_resolver;
+    },
   },
   Relation_NpcToTalk: <SchemaTable> {
     name: 'Relation_NpcToTalk',

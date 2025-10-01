@@ -96,7 +96,7 @@ export type InterActionType =
   'PLAY_EFFECT' |
 
   // NpcFirstMet
-  'FIRST_SIGHT' | // TODO: _aliasList[0] is NPC ID
+  'FIRST_SIGHT' |
 
   // Audio/Sound
   'AUDIO_PLAY' |

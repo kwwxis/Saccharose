@@ -23,6 +23,7 @@ import { CommonLineId, DialogWikitextResult } from '../../../../shared/types/com
 import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
 import { GameVersions } from '../../../../shared/types/game-versions.ts';
 import { NpcExcelConfigData } from '../../../../shared/types/genshin/npc-types.ts';
+import { AvatarExcelConfigData } from '../../../../shared/types/genshin/avatar-types.ts';
 
 // region NPC Filtering for Single Branch Dialogue
 // --------------------------------------------------------------------------------------------------------------
@@ -474,6 +475,58 @@ export async function dialogueGenerateByNpc(ctrl: GenshinControl,
   }
 
   return resultSet;
+}
+// endregion
+
+// region Talk Excel Avatar Cond Dialogue
+// --------------------------------------------------------------------------------------------------------------
+export class TalkExcelAvatarBeginCondResult {
+  avatar: AvatarExcelConfigData;
+  questDialogue: DialogueSectionResult[] = [];
+  homeWorldDialogue: DialogueSectionResult[] = [];
+  nonQuestDialogue: DialogueSectionResult[] = [];
+}
+
+export async function dialogueGenerateForTalkExcelByAvatarIdForBeginConds(ctrl: GenshinControl,
+                                                                          avatarExcel: AvatarExcelConfigData,
+                                                                          acc?: TalkConfigAccumulator): Promise<TalkExcelAvatarBeginCondResult> {
+  if (!acc) {
+    acc = new TalkConfigAccumulator(ctrl);
+  }
+
+  const result: TalkExcelAvatarBeginCondResult = new TalkExcelAvatarBeginCondResult();
+  if (!avatarExcel) {
+    return result;
+  }
+
+  const talkConfigs: TalkExcelConfigData[] = await ctrl.selectTalkExcelConfigDataByAvatarIdForAvatarBeginCond(avatarExcel.Id);
+
+  const questIdToSection: {[questId: number]: DialogueSectionResult} = {};
+
+  const getQuestSection = (questId: number, questName: string): DialogueSectionResult => {
+    if (questIdToSection[questId]) {
+      return questIdToSection[questId];
+    }
+    const sect = new DialogueSectionResult('Quest_'+questId, questId + ': ' + (questName || '(No title)'));
+    sect.originalData.questId = questId;
+    sect.originalData.questName = questName;
+    questIdToSection[questId] = sect;
+    result.questDialogue.push(sect);
+    return sect;
+  };
+
+  for (let talkConfig of talkConfigs) {
+    const sect = await talkConfigGenerate(ctrl, talkConfig, acc);
+    if (sect && sect.originalData.questId) {
+      getQuestSection(sect.originalData.questId, sect.originalData.questName).children.push(sect);
+    } else if (talkConfig.PerformCfg?.includes('HomeWorld')) {
+      result.homeWorldDialogue.push(sect);
+    } else if (sect) {
+      result.nonQuestDialogue.push(sect);
+    }
+  }
+
+  return result;
 }
 // endregion
 

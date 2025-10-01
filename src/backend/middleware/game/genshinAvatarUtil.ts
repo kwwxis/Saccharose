@@ -24,8 +24,8 @@ const avatarMaskProps: string =
   'ImageName,' +
   'SideIconName';
 
-export async function getGenshinAvatars(ctrl: GenshinControl, combineTraveler: boolean): Promise<AvatarExcelConfigData[]> {
-  return ctrl.cached('AvatarListCache:' + ctrl.outputLangCode + '_' + combineTraveler, 'json', async () => {
+export async function getGenshinAvatars(ctrl: GenshinControl, combineTraveler: boolean, filterToAvatarIds?: number[]): Promise<AvatarExcelConfigData[]> {
+  let result: AvatarExcelConfigData[] = await ctrl.cached('AvatarListCache:' + ctrl.outputLangCode + '_' + combineTraveler, 'json', async () => {
     const storiesByAvatar = await fetchCharacterStories(ctrl);
     let foundTraveler = false;
 
@@ -56,6 +56,12 @@ export async function getGenshinAvatars(ctrl: GenshinControl, combineTraveler: b
       })
       .sort((a,b) => a.NameText.localeCompare(b.NameText));
   });
+  if (filterToAvatarIds && filterToAvatarIds.length) {
+    result = result.filter(x => {
+      return filterToAvatarIds.includes(x.Id);
+    });
+  }
+  return result;
 }
 
 export async function getGenshinAvatar(ctrl: GenshinControl, req: Request, combineTraveler: boolean): Promise<AvatarExcelConfigData> {

@@ -32,7 +32,7 @@ const presets = {
   FetterInfoExcelConfigData: <InspectOpt> { file: excel('FetterInfoExcelConfigData'), inspectFieldValues: ['AvatarAssocType', 'OpenConds[#ALL].CondType', 'FinishConds[#ALL].CondType'] },
   LocalizationExcelConfigData: <InspectOpt> { file: excel('LocalizationExcelConfigData'), inspectFieldValues: ['AssetType'] },
   TalkExcelConfigData: <InspectOpt> { file: excel('TalkExcelConfigData'), inspectFieldValues: [
-    'BeginCond[#ALL].Type', 'FinishExec[#ALL].Type', 'HeroTalk', 'LoadType', 'TalkMarkType', 'TalkType', 'TalkBinType', 'TalkRole.Type'
+    'BeginCond[#ALL].Type', 'BeginCondComb', 'FinishExec[#ALL].Type', 'HeroTalk', 'LoadType', 'TalkMarkType', 'TalkType', 'TalkBinType', 'TalkRole.Type'
     ] },
   QuestExcelConfigData: <InspectOpt> { file: excel('QuestExcelConfigData'), inspectFieldValues: [
     'FailCond[#ALL].Type', 'FailExec[#ALL].Type', 'FinishCond[#ALL].Type', 'FinishExec[#ALL].Type'
@@ -83,7 +83,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     const ctrl = getGenshinControl();
     // await inspectDataFile(ctrl, presets.QuestExcelConfigData);
     // await inspectDataFile(ctrl, presets.TalkExcelConfigData);
-    await inspectDataFile(ctrl, presets.NpcFirstMetExcelConfigData);
+    await inspectDataFile(ctrl, presets.AchievementExcelConfigData);
     await closeKnex();
   })();
 }
