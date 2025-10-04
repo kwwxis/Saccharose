@@ -33,7 +33,7 @@
         <section class="card excel-usage-result" :id="toHtmlId(scalar)">
           <h2 class="valign">
             <span class="expando spacer5-right" :ui-action="`expando: .excel-usage-result-content[data-scalar='${scalar}']`"><Icon name="chevron-down" :size="17" /></span>
-            <span>Scalar:&nbsp;</span><strong>{{ scalar }}</strong>
+            <strong>{{ scalar }}</strong>
             <small class="spacer10-left">{{ numMatches(scalarToUsages, scalar) }} matches across {{ numFiles(scalarToUsages, scalar) }} files</small>
             <template v-if="amountOfIds > 1">
               <span class="grow"></span>
