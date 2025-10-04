@@ -7,6 +7,9 @@ import { walkObject } from '../../../shared/util/arrayUtil.ts';
 import { ExcelScalarEntity } from '../../../shared/types/common-types.ts';
 
 function isScalar(v: any) {
+  if (typeof v === 'string' && v.length > 128) {
+    return false;
+  }
   return (typeof v === 'number' || typeof v === 'string' || typeof v === 'bigint' || typeof v === 'symbol')
     && v !== '' && v !== 0 && v !== '0';
 }
