@@ -35,6 +35,11 @@ export async function doImportExcelScalars(ctrl: AbstractControl) {
     const fname: string = path.basename(filePath).slice(0, -5);
     const json: any[] = await fsReadJson(filePath);
 
+    if (!Array.isArray(json)) {
+      console.log('Non-Iterable Excel: ' + filePath);
+      continue;
+    }
+
     let rowIndex = 0;
     for (let obj of json) {
       const seenScalarsInObj: Set<string> = new Set<string>();
