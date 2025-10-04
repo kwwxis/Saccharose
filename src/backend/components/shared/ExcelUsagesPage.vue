@@ -2,8 +2,8 @@
   <section class="card">
     <h2>Excel Usages</h2>
     <div class="content form-box">
-      <p class="spacer10-bottom">Enter a numeric ID or keyword to see in which files it's used in ExcelBinOutput. Can specify multiple IDs with commas.<br>
-        Only supports showing the matched object for certain files. It's relatively easy to add support for a file, so just ask if you'd like it.</p>
+      <p class="spacer10-bottom">Enter a numeric or string (no surrounding quotes) scalar to see in which files it's used in ExcelBinOutput.<br>
+        Can specify multiple scalars with commas or semicolons.</p>
       <div class="field valign">
         <input class="search-input grow" type="text" placeholder="Enter an ID or list of IDs." />
       </div>

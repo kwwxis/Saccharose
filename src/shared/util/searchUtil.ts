@@ -11,7 +11,7 @@ export type ExcelUsagesItem = {
   refObjectStringified: string,
   refObjectMarkers: Marker[],
 };
-export type IdToExcelUsages = {[id: number|string]: ExcelUsages};
+export type ScalarToExcelUsages = {[scalar: number|string]: ExcelUsages};
 
 export type SearchMode = 'W' | 'WI' | 'C' | 'CI' | 'R' | 'RI';
 export const SEARCH_MODES: SearchMode[] = ['W', 'WI', 'C', 'CI', 'R', 'RI'];

@@ -19,7 +19,7 @@ import {
 import { SitePrefName, SiteUserPrefs } from '../../shared/types/site/site-user-types.ts';
 import { FavorWordGroup } from '../../shared/types/wuwa/favor-types.ts';
 import { TextMapSearchResponse } from '../../shared/types/lang-types.ts';
-import { IdToExcelUsages } from '../../shared/util/searchUtil.ts';
+import { ScalarToExcelUsages } from '../../shared/util/searchUtil.ts';
 import { WsJwtTokenResponse } from '../../shared/types/wss-types.ts';
 import { OLCombinedResult, OLConfig, OLConfigMap, OLResult } from '../../shared/types/ol-types.ts';
 
@@ -207,7 +207,7 @@ export const genshinEndpoints = {
     resultSetIdx: number,
   }, TextMapSearchResponse>('GET', '/search-textmap'),
 
-  getExcelUsages: new GenshinApiEndpoint<{q: string}, IdToExcelUsages>('GET', '/excel-usages'),
+  getExcelUsages: new GenshinApiEndpoint<{q: string}, ScalarToExcelUsages>('GET', '/excel-usages'),
 
   voToDialogue: new GenshinApiEndpoint<any, any, {text: string}>('POST', '/dialogue/vo-to-dialogue'),
 
@@ -245,7 +245,7 @@ export const starRailEndpoints = {
     resultSetIdx: number,
   }, TextMapSearchResponse>('GET', '/search-textmap'),
 
-  getExcelUsages: new StarRailApiEndpoint<{q: string}, IdToExcelUsages>('GET', '/excel-usages'),
+  getExcelUsages: new StarRailApiEndpoint<{q: string}, ScalarToExcelUsages>('GET', '/excel-usages'),
 
   getVoiceAtlasGroup: new StarRailApiEndpoint<{avatarId: number}, VoiceAtlasGroup>('GET', '/character/voice-atlas'),
 
@@ -281,7 +281,7 @@ export const zenlessEndpoints = {
     text: string,
   }>('GET', '/dialogue-generation'),
 
-  getExcelUsages: new ZenlessApiEndpoint<{q: string}, IdToExcelUsages>('GET', '/excel-usages'),
+  getExcelUsages: new ZenlessApiEndpoint<{q: string}, ScalarToExcelUsages>('GET', '/excel-usages'),
 };
 
 export const wuwaEndpoints = {
@@ -301,7 +301,7 @@ export const wuwaEndpoints = {
     resultSetIdx: number,
   }, TextMapSearchResponse, TextMapSearchResponse>('GET', '/search-textmap'),
 
-  getExcelUsages: new WuwaApiEndpoint<{q: string}, IdToExcelUsages>('GET', '/excel-usages'),
+  getExcelUsages: new WuwaApiEndpoint<{q: string}, ScalarToExcelUsages>('GET', '/excel-usages'),
 
   getFavorWordGroup: new WuwaApiEndpoint<{roleId: number}, FavorWordGroup>('GET', '/role/favor-words'),
 
