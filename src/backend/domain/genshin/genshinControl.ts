@@ -272,6 +272,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
         textmapEnabled: true,
         excelEnabled: true,
       },
+      excelUsagesFilesToSkip: ['CodexQuestExcelConfigData']
     });
   }
 

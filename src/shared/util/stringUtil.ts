@@ -653,3 +653,35 @@ export function reformatPrimitiveArrays(jsonStr: string) {
     return s ? '[ ' + s + ' ]' : '[]';
   });
 }
+
+const htmlIdCache = new Map<string, string>();
+
+export function toHtmlId(input: string): string {
+  // Return from cache if already computed
+  const cached = htmlIdCache.get(input);
+  if (cached) return cached;
+
+  // Simple but reliable non-crypto hash (FNV-1a variant)
+  let hash = 2166136261; // Constant from FNV-1a hash algorithm (offset basis)
+  for (const ch of input) {
+    hash ^= ch.codePointAt(0)!;
+    hash = Math.imul(hash, 16777619); // Constant from FNV-1a hash algorithm (FNV prime)
+  }
+  const hashStr = (hash >>> 0).toString(36); // unsigned & compact
+
+  // Sanitize base for HTML ID
+  const base = input
+    .normalize("NFKD")                      // handle Unicode safely
+    .replace(/[^\w\-:.]+/g, '-')            // valid HTML id chars only
+    .replace(/^-+|-+$/g, '')                // trim dashes
+    .toLowerCase();
+
+  // Ensure starts with a letter
+  const safeBase = /^[a-z]/.test(base) ? base : 'id-' + base;
+
+  const result = `${safeBase || 'id'}-${hashStr}`;
+
+  // Cache the result
+  htmlIdCache.set(input, result);
+  return result;
+}

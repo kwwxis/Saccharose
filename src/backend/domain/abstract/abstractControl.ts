@@ -59,7 +59,7 @@ import {
 import { ExcelUsages, SearchMode } from '../../../shared/util/searchUtil.ts';
 import { escapeRegExp, isString, isStringBlank, titleCase } from '../../../shared/util/stringUtil.ts';
 import { isInt, maybeInt, toInt } from '../../../shared/util/numberUtil.ts';
-import { ArrayStream, cleanEmpty, toArray, walkObject } from '../../../shared/util/arrayUtil.ts';
+import { ArrayStream, cleanEmpty, PathAndValue, toArray, walkObject } from '../../../shared/util/arrayUtil.ts';
 import { defaultMap, isUnset, toBoolean } from '../../../shared/util/genericUtil.ts';
 import { Marker } from '../../../shared/util/highlightMarker.ts';
 
@@ -79,6 +79,7 @@ import { SiteMode } from '../../../shared/types/site/site-mode-type.ts';
 import { fsExists, fsReadJson } from '../../util/fsutil.ts';
 import { TextMapChangelog } from './tmchanges.ts';
 import { Duration } from '../../../shared/util/duration.ts';
+import { ExcelScalarEntity } from '../../../shared/types/common-types.ts';
 
 export type AbstractControlConfig<T extends AbstractControlState = AbstractControlState> = {
   siteMode: SiteMode,
@@ -91,6 +92,7 @@ export type AbstractControlConfig<T extends AbstractControlState = AbstractContr
   currentGameVersion: GameVersion,
   gameVersions: GameVersions,
   changelogConfig: AbstractControlChangelogConfig,
+  excelUsagesFilesToSkip: string[],
 };
 
 export type AbstractControlChangelogConfig = {
@@ -114,6 +116,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
   readonly gameVersions: GameVersions;
   readonly changelogConfig: AbstractControlChangelogConfig;
   readonly textMapChangelog: TextMapChangelog;
+  readonly excelUsagesFilesToSkip: string[];
   protected IdComparator = (a: { Id: any }, b: { Id: any }) => a.Id === b.Id;
   protected NodeIdComparator = (a: { NodeId: any }, b: { NodeId: any }) => a.NodeId === b.NodeId;
   protected sortByOrder = (a: { Order: number }, b: { Order: number }) => {
@@ -143,6 +146,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     this.gameVersions = config.gameVersions;
     this.changelogConfig = config.changelogConfig;
     this.textMapChangelog = new TextMapChangelog(this);
+    this.excelUsagesFilesToSkip = config.excelUsagesFilesToSkip;
   }
 
   abstract copy(trx?: Knex.Transaction|boolean): AbstractControl<T>;
@@ -816,97 +820,58 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
   async getExcelUsages(id: number | string): Promise<ExcelUsages> {
     const out: ExcelUsages = defaultMap('Array');
 
-    const filesFoundIn: {[fileName: string]: number} = defaultMap('Zero');
+    const entity: ExcelScalarEntity = await this.knex.select('*').from('excel_scalars')
+      .where({scalar_value: String(id)})
+      .first()
+      .then();
 
-    {
-      const decimalRegex = new RegExp(`(\\.${id}|${id}\\.)`);
-
-      let grepQuery = String(id);
-      let grepFlags: string;
-
-      if (grepQuery.startsWith('-')) {
-        grepQuery = grepQuery.slice(1);
-      }
-
-      if (/^[a-zA-Z0-9_]+$/.test(grepQuery)) {
-        grepFlags = '-wnl';
-      } else {
-        grepFlags = '-nl';
-      }
-
-      // console.log('[Excel-Usages] Started grepping usages:', { grepQuery, grepFlags });
-
-      const grepStreamTimeout: Duration = Duration.ofSeconds(20);
-      await grepStream(grepQuery, this.getDataFilePath(this.excelPath), grepStreamTimeout, async (result: string) => {
-        if (decimalRegex.test(result)) {
-          return;
-        }
-
-        let exec = /\/([^\/]+).json/.exec(result);
-        // console.log('[Excel-Usages] Grep stream line:', result, exec);
-
-        if (exec && exec.length >= 2) {
-          let fileName = exec[1];
-          filesFoundIn[fileName] += 1;
-        }
-      }, { flags: grepFlags });
+    if (!entity) {
+      return out;
     }
 
-    const startProcTime: number = Date.now();
-    const maxProcTime: Duration = Duration.ofSeconds(30);
     const matchRegex: RegExp = new RegExp((String(id).startsWith('-') ? '' : '\\b') + escapeRegExp(String(id)) + '\\b', 'g');
-    // console.log('[Excel-Usages]', id, 'files found in:', filesFoundIn);
+    const filesFoundIn: string[] = Object.keys(entity.file_usages).filter(f => !this.excelUsagesFilesToSkip.includes(f));
 
-    for (let fileName of Object.keys(filesFoundIn)) {
+    for (let fileName of filesFoundIn) {
       let json: any[] = await this.cached('ExcelUsagesFileRead:' + fileName, 'json', async () => {
         return await this.readJsonFile(path.join(this.excelPath, fileName + '.json'));
       });
+
+      const objIndices: number[] = entity.file_usages[fileName];
 
       // console.log('[Excel-Usages] Processing results for ' + fileName);
       const schemaTable: SchemaTable = this.schema[fileName];
       const promises: Promise<void>[] = [];
 
-      const expectedNumResults = filesFoundIn[fileName];
-      let currRefIndex: number = -1;
-      let currNumResults: number = 0;
+      for (let objIndex of objIndices) {
+        const obj = json[objIndex];
 
-      for (let obj of json) {
-        let myRefIndex = currRefIndex++;
+        const refObject: any = await this.commonLoadFirst(obj, schemaTable || true, true);
+        const refObjectStringified: string = JSON.stringify(refObject, null, 2);
+        const refObjectMarkers: Marker[] = Marker.create(
+          matchRegex,
+          refObjectStringified
+        );
 
-        if (Duration.ofMillis(Date.now() - startProcTime).greaterThan(maxProcTime)) {
-          throw new ShellTimeoutError('Operation timed out after ' + maxProcTime.toMillis() + ' milliseconds.', maxProcTime.toMillis(), `ExcelUsages Process ${fileName}:${currRefIndex}`);
-        }
-        if (!matchRegex.test(JSON.stringify(obj))) {
-          continue;
-        }
+        let pathAndValue: PathAndValue = null;
 
         walkObject(obj, (curr) => {
           if (curr.isLeaf && curr.value === id) {
-            currNumResults++;
-            promises.push((async () => {
-              const refObject: any = await this.commonLoadFirst(obj, schemaTable || true, true);
-              const refObjectStringified: string = JSON.stringify(refObject, null, 2);
-              const refObjectMarkers: Marker[] = Marker.create(
-                matchRegex,
-                refObjectStringified
-              );
-
-              out[fileName].push({
-                field: curr.path.split('.').map(s => normalizeRawJsonKey(s)).join('.'),
-                originalField: curr.path,
-                refIndex: myRefIndex,
-                refObject,
-                refObjectStringified,
-                refObjectMarkers,
-              });
-            })());
+            pathAndValue = curr;
             return 'QUIT';
           }
         });
-        if (currNumResults >= expectedNumResults) {
-          break;
-        }
+
+        out[fileName].push({
+          field: pathAndValue?.path.split('.').map(s => normalizeRawJsonKey(s)).join('.'),
+          originalField: pathAndValue?.path,
+          refIndex: objIndex,
+          refObject,
+          refObjectStringified,
+          refObjectMarkers,
+        });
       }
+
       await Promise.all(promises);
     }
 

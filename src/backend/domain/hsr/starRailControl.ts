@@ -81,6 +81,7 @@ export class StarRailControl extends AbstractControl<StarRailControlState> {
         textmapEnabled: true,
         excelEnabled: false,
       },
+      excelUsagesFilesToSkip: []
     });
   }
 

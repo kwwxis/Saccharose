@@ -64,6 +64,7 @@ export class WuwaControl extends AbstractControl<WuwaControlState> {
         textmapEnabled: true,
         excelEnabled: false,
       },
+      excelUsagesFilesToSkip: []
     });
   }
 

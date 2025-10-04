@@ -61,6 +61,7 @@ export class ZenlessControl extends AbstractControl<ZenlessControlState> {
         textmapEnabled: true,
         excelEnabled: false,
       },
+      excelUsagesFilesToSkip: []
     });
   }
 
