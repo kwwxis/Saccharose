@@ -18,6 +18,7 @@ import { wuwaSchema } from './wuwa.schema.ts';
 import { wuwaNormalize } from './module.normalize.ts';
 import { importTextMapChanges } from '../../domain/abstract/tmchanges.ts';
 import { isset } from '../../../shared/util/genericUtil.ts';
+import { doImportExcelScalars } from '../util/excel_usages_importer.ts';
 
 async function importVoiceOvers() {
   const outDir = ENV.WUWA_DATA_ROOT;
@@ -38,6 +39,7 @@ export async function importWuwaFilesCli() {
   const options_agnosticDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
     {name: 'index-images', type: String, typeLabel: 'full_import | cat_map_only', description: 'Creates index for asset images. ' +
         'Must load all wanted Texture2D images into the EXT_WUWA_IMAGES directory first though.'},
+    {name: 'excel-scalars', type: Boolean, description: 'Import excel scalars for excel usages.'},
   ];
 
   const options_afterDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
@@ -122,6 +124,9 @@ export async function importWuwaFilesCli() {
   }
   if (options['changelog-tmimport']) {
     await importTextMapChanges(getWuwaControl(), options['changelog-tmimport']);
+  }
+  if (options['excel-scalars']) {
+    await doImportExcelScalars(getWuwaControl());
   }
 
   await closeKnex();

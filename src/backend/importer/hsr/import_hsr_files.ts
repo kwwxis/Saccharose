@@ -19,6 +19,7 @@ import { starRailSchema } from './hsr.schema.ts';
 import { recordNewStarRailImages } from './module.new-images.ts';
 import { importTextMapChanges } from '../../domain/abstract/tmchanges.ts';
 import { isset } from '../../../shared/util/genericUtil.ts';
+import { doImportExcelScalars } from '../util/excel_usages_importer.ts';
 
 async function importVoiceOvers() {
   const outDir = ENV.HSR_DATA_ROOT;
@@ -41,6 +42,7 @@ export async function importHsrFilesCli() {
     {name: 'new-images', type: Boolean, description: 'Creates new images map per game version. Must be ran before index-images.'},
     {name: 'index-images', type: String, typeLabel: 'full_import | cat_map_only', description: 'Creates index for asset images. ' +
         'Must load all wanted Texture2D images into the EXT_HSR_IMAGES directory first though.'},
+    {name: 'excel-scalars', type: Boolean, description: 'Import excel scalars for excel usages.'},
   ];
 
   const options_afterDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
@@ -128,6 +130,9 @@ export async function importHsrFilesCli() {
   }
   if (options['changelog-tmimport']) {
     await importTextMapChanges(getStarRailControl(), options['changelog-tmimport']);
+  }
+  if (options['excel-scalars']) {
+    await doImportExcelScalars(getStarRailControl());
   }
 
   await closeKnex();

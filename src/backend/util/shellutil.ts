@@ -3,10 +3,11 @@ import { getGenshinDataFilePath, PIPELINE_DIR } from '../loadenv.ts';
 import { pathToFileURL } from 'url';
 import treeKill from 'tree-kill';
 import { isPromise, isset } from '../../shared/util/genericUtil.ts';
-import { toInt } from '../../shared/util/numberUtil.ts';
+import { isInt, toInt } from '../../shared/util/numberUtil.ts';
 import { splitLimit } from '../../shared/util/stringUtil.ts';
 import path from 'path';
 import { LangDetectResult } from '../../shared/types/common-types.ts';
+import { Duration } from '../../shared/util/duration.ts';
 
 async function exec(command: string, options: ExecOptions): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -20,6 +21,12 @@ async function exec(command: string, options: ExecOptions): Promise<string> {
   });
 }
 
+export class ShellTimeoutError extends Error {
+  constructor(message: string, readonly timeoutMs: number, readonly opInfo: string) {
+    super(message);
+  }
+}
+
 /**
  * Streams the output of the command on a line-by-line basis.
  *
@@ -31,12 +38,14 @@ async function exec(command: string, options: ExecOptions): Promise<string> {
  * @param onExit Callback called on exit.
  * @param stdoutLineStream Stream method for stdout.
  * @param stderrLineStream Stream method for stderr.
+ * @param timeout Max time allowed to run for.
  */
 export async function execLineStream(command: string,
                                      postInitialize: (childProcess: ChildProcessWithoutNullStreams) => void,
                                      onExit: (exitCode: number, childProcess: ChildProcessWithoutNullStreams, error?: Error) => void,
                                      stdoutLineStream?: (data: string, kill?: () => void) => Promise<void>|void,
-                                     stderrLineStream?: (data: string, kill?: () => void) => Promise<void>|void): Promise<number|Error> {
+                                     stderrLineStream?: (data: string, kill?: () => void) => Promise<void>|void,
+                                     timeout?: Duration): Promise<number|Error> {
   const partial_line_buffer = {
     stdout: '',
     stderr: '',
@@ -105,6 +114,8 @@ export async function execLineStream(command: string,
     child.stdout.setEncoding('utf8');
     child.stderr.setEncoding('utf8');
 
+    let errorObj: Error;
+
     const killFn = () => {
       // Pausing the stdout and sending the kill signal doesn't really seem to work.
       // so set didKill = true so the stream callback isn't called anymore even if the command is still running.
@@ -113,6 +124,16 @@ export async function execLineStream(command: string,
       treeKill(child.pid);
       didKill = true;
     };
+
+    let killTimeoutId = null;
+    if (timeout) {
+      let timeoutMs: number = timeout.toMillis();
+      killTimeoutId = setTimeout(() => {
+        killFn();
+        child.emit('error', new ShellTimeoutError(`Operation timed out after ${timeoutMs} milliseconds`, timeoutMs,
+          `execLineStream: ` + command));
+      }, timeoutMs);
+    }
 
     const flush_partial_line_buffer = () => {
       // Once the shell stream closes, send any data still left in the partial line buffers to the output methods.
@@ -147,14 +168,14 @@ export async function execLineStream(command: string,
       child.stderr.on('data', listener);
     }
 
-    let errorObj: Error;
-
     child.on('error', error => {
       console.error('\x1b[4m\x1b[1mshell error:\x1b[0m\n', error);
       errorObj = error;
     });
 
     child.on('close', exitCode => {
+      if (killTimeoutId)
+        clearTimeout(killTimeoutId);
       flush_partial_line_buffer();
 
       if (errorObj) {
@@ -430,15 +451,22 @@ export async function grep(searchText: string,
 
 export async function grepStream(searchText: string,
                                  absoluteFilePath: string,
+                                 timeout: Duration,
                                  stream: (line: string, kill?: () => void) => Promise<void>|void,
                                  extraOpts: GrepExtraOpts): Promise<number|Error> {
   const cmd = createGrepCommand(searchText, absoluteFilePath, extraOpts);
   // console.log('Command:', cmd.line);
 
-  return await execLineStream(cmd.line, null, null, (line: string, kill?: () => void) => {
-    line = postProcessGrepLine(line, cmd.hasLineNumFlag, extraOpts.startFromLine);
-    return stream(line, kill);
-  });
+  return await execLineStream(cmd.line,
+    null,
+    null,
+    (line: string, kill?: () => void) => {
+      line = postProcessGrepLine(line, cmd.hasLineNumFlag, extraOpts.startFromLine);
+      return stream(line, kill);
+    },
+    null,
+    timeout,
+  );
 }
 
 export async function grepIdStartsWith<T = number | string>(idProp: string,
@@ -527,7 +555,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   //console.log(stringified);
 
   let i = 0;
-  await grepStream('lantern rite', getGenshinDataFilePath('./TextMap/TextMapEN.json'),
+  await grepStream('lantern rite', getGenshinDataFilePath('./TextMap/TextMapEN.json'), null,
     (line: string, kill: () => void) => {
       console.log(i, line);
       i++;

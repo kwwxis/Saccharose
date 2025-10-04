@@ -2,6 +2,7 @@ import { VIEWS_ROOT } from '../../loadenv.ts';
 import { HttpError } from '../../../shared/util/httpError.ts';
 import { NextFunction, Request, Response } from 'express';
 import { clearCsrfCookie, CSRF_COOKIE_NAME } from '../request/csrf.ts';
+import { ShellTimeoutError } from '../../util/shellutil.ts';
 
 export async function pageLoadErrorHandler(err: any, req: Request, res: Response, next: NextFunction) {
   if (err && typeof err === 'object' && (err.code === 'EBADCSRFTOKEN' || err.type === 'EBADCSRFTOKEN')) {
@@ -55,6 +56,8 @@ export async function apiErrorHandler(err: any, req: Request, res: Response, nex
     sendHttpError(err, res);
   } else if (err instanceof SyntaxError && err.message && err.message.includes('regular expression')) {
     sendHttpError(HttpError.badRequest(null, err.message), res);
+  } else if (err instanceof ShellTimeoutError) {
+    sendHttpError(HttpError.badRequest('ETIMEDOUT', err.message), res);
   } else {
     console.error('\x1b[4m\x1b[1mInternal Error (API):\x1b[0m\n', err);
     sendHttpError(HttpError.internalServerError('InternalError', 'An internal server error occurred. Try again later.'), res);

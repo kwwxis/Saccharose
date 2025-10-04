@@ -171,6 +171,7 @@ async function handle(state: DialogueGenerateState, id: number|DialogExcelConfig
       debug('Fast case: already seen, exit');
       return false;
     }
+    // TODO: parent talks/questexcel
     const talkConfigResult = await talkConfigGenerate(ctrl, id);
     if (talkConfigResult) {
       debug('Fast case: talk config result - ' + talkConfigResult.id);

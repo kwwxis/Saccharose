@@ -27,6 +27,7 @@ import { GenshinVersions } from '../../../shared/types/game-versions.ts';
 import { importTextMapChanges } from '../../domain/abstract/tmchanges.ts';
 import { isset } from '../../../shared/util/genericUtil.ts';
 import { importGenshinReadableChanges } from '../../domain/genshin/readables/genshinReadableChanges.ts';
+import { doImportExcelScalars } from '../util/excel_usages_importer.ts';
 
 export async function importGenshinFilesCli() {
   const options_beforeDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
@@ -45,6 +46,7 @@ export async function importGenshinFilesCli() {
     {name: 'new-images', type: Boolean, description: 'Creates new images map per game version. Must be ran before index-images.'},
     {name: 'index-images', type: String, typeLabel: 'full_import | cat_map_only', description: 'Creates index for asset images. ' +
         'Must load all wanted Texture2D images into the EXT_GENSHIN_IMAGES directory first though.'},
+    {name: 'excel-scalars', type: Boolean, description: 'Import excel scalars for excel usages.'},
   ];
 
   const options_afterDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
@@ -187,6 +189,9 @@ export async function importGenshinFilesCli() {
   }
   if (options['changelog-rdimport']) {
     await importGenshinReadableChanges(getGenshinControl(), options['changelog-rdimport']);
+  }
+  if (options['excel-scalars']) {
+    await doImportExcelScalars(getGenshinControl());
   }
 
   await closeKnex();

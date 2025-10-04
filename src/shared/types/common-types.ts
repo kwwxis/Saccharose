@@ -241,3 +241,17 @@ export interface DialogWikitextResult {
   ids: CommonLineId[],
 }
 // endregion
+
+// region Excel Usage Scalars
+// --------------------------------------------------------------------------------------------------------------
+
+export type ExcelScalarEntity = {
+  scalar_value: string,
+  file_usages: ExcelScalarFileUsages
+};
+
+export type ExcelScalarFileUsages = {
+  [fileName: string]: number[]
+};
+
+// endregion

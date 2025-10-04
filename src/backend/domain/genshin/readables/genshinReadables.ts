@@ -17,6 +17,7 @@ import { isset } from '../../../../shared/util/genericUtil.ts';
 import { fsRead } from '../../../util/fsutil.ts';
 import { toInt } from '../../../../shared/util/numberUtil.ts';
 import { ReadableChanges, ReadableChangesGroup } from '../../../../shared/types/changelog-types.ts';
+import { Duration } from '../../../../shared/util/duration.ts';
 
 export class GenshinReadables {
   constructor(readonly ctrl: GenshinControl) {}
@@ -91,7 +92,7 @@ export class GenshinReadables {
 
     let out: string[] = [];
 
-    await grepStream(searchText, this.ctrl.getDataFilePath(getReadableRelPath(langCode)), line => {
+    await grepStream(searchText, this.ctrl.getDataFilePath(getReadableRelPath(langCode)), Duration.ofSeconds(30), line => {
       let exec = /\/([^\/]+)\.txt/.exec(line);
       if (exec) {
         out.push(exec[1]);

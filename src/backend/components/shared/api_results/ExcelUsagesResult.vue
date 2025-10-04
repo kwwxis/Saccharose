@@ -21,8 +21,11 @@
     <template v-for="id of Object.keys(idToUsages)">
       <template v-if="!embed">
         <section class="card">
-          <h2>ID: <strong>{{ id }}</strong></h2>
-          <div>
+          <h2 class="valign">
+            <span class="expando spacer5-right" :ui-action="`expando: .excel-usage-result[data-id='${id}']`"><Icon name="chevron-down" :size="17" /></span>
+            ID: <strong>{{ id }}</strong>
+          </h2>
+          <div class="excel-usage-result" :data-id="id">
             <ExcelUsagesResultInner :id="id" :id-to-usages="idToUsages" :change-record-refs="changeRecordRefs" />
           </div>
         </section>
@@ -43,6 +46,7 @@
 import { IdToExcelUsages } from '../../../../shared/util/searchUtil.ts';
 import { ChangeRecordRef } from '../../../../shared/types/changelog-types.ts';
 import ExcelUsagesResultInner from './ExcelUsagesResultInner.vue';
+import Icon from '../../utility/Icon.vue';
 
 defineProps<{
   idToUsages?: IdToExcelUsages,

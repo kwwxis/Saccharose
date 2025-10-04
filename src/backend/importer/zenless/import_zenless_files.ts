@@ -15,12 +15,17 @@ import { createChangelog } from '../util/createChangelogUtil.ts';
 import { ZenlessVersions } from '../../../shared/types/game-versions.ts';
 import { zenlessSchema } from './zenless.schema.ts';
 import { importTextMapChanges } from '../../domain/abstract/tmchanges.ts';
+import { doImportExcelScalars } from '../util/excel_usages_importer.ts';
 
 export async function importZenlessFilesCli() {
   const options_beforeDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
     {name: 'dialogue-nodes', type: Boolean, description: 'Creates dialogue nodes file.'},
     {name: 'normalize', type: Boolean, description: 'Normalizes the JSON files.'},
     {name: 'plaintext', type: Boolean, description: 'Creates the PlainTextMap files.'},
+  ];
+
+  const options_agnosticDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
+    {name: 'excel-scalars', type: Boolean, description: 'Import excel scalars for excel usages.'},
   ];
 
   const options_afterDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
@@ -34,7 +39,7 @@ export async function importZenlessFilesCli() {
 
   let options: commandLineArgs.CommandLineOptions;
   try {
-    options = commandLineArgs([... options_beforeDb, ... options_afterDb, ... options_util]);
+    options = commandLineArgs([... options_beforeDb, ...options_agnosticDb, ... options_afterDb, ... options_util]);
   } catch (e) {
     if (typeof e === 'object' && e.name === 'UNKNOWN_OPTION') {
       console.warn(chalk.red('\nUnknown option: ' + e.optionName));
@@ -65,6 +70,10 @@ export async function importZenlessFilesCli() {
         optionList: options_beforeDb
       },
       {
+        header: 'Database import agnostic (can be run before or after)',
+        optionList: options_agnosticDb
+      },
+      {
         header: 'Must be ran after database import:',
         optionList: options_afterDb
       },
@@ -92,6 +101,9 @@ export async function importZenlessFilesCli() {
   }
   if (options['changelog-tmimport']) {
     await importTextMapChanges(getZenlessControl(), options['changelog-tmimport']);
+  }
+  if (options['excel-scalars']) {
+    await doImportExcelScalars(getZenlessControl());
   }
 
   await closeKnex();

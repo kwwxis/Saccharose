@@ -18,7 +18,14 @@ import {
 
 // Backend Util:
 import { openPgGamedata, openPgSite, SaccharoseDb } from '../../util/db.ts';
-import { getLineNumberForLineText, grep, grepStream, langDetect, ShellFlags } from '../../util/shellutil.ts';
+import {
+  getLineNumberForLineText,
+  grep,
+  grepStream,
+  langDetect,
+  ShellFlags,
+  ShellTimeoutError,
+} from '../../util/shellutil.ts';
 import { _cachedImpl } from '../../util/cache.ts';
 
 // Share Types:
@@ -71,6 +78,7 @@ import { IntHolder } from '../../../shared/util/valueHolder.ts';
 import { SiteMode } from '../../../shared/types/site/site-mode-type.ts';
 import { fsExists, fsReadJson } from '../../util/fsutil.ts';
 import { TextMapChangelog } from './tmchanges.ts';
+import { Duration } from '../../../shared/util/duration.ts';
 
 export type AbstractControlConfig<T extends AbstractControlState = AbstractControlState> = {
   siteMode: SiteMode,
@@ -725,7 +733,8 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
 
     const textFile = getPlainTextMapRelPath(opts.inputLangCode, opts.searchAgainst);
 
-    return await grepStream(this.normSearchText(opts.searchText, opts.inputLangCode), this.getDataFilePath(textFile), async (match: string, kill: () => void) => {
+    const grepStreamTimeout: Duration = Duration.ofSeconds(30);
+    return await grepStream(this.normSearchText(opts.searchText, opts.inputLangCode), this.getDataFilePath(textFile), grepStreamTimeout, async (match: string, kill: () => void) => {
       if (!match)
         return;
 
@@ -820,28 +829,32 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       }
 
       if (/^[a-zA-Z0-9_]+$/.test(grepQuery)) {
-        grepFlags = '-wn';
+        grepFlags = '-wnl';
       } else {
-        grepFlags = '-n';
+        grepFlags = '-nl';
       }
 
       // console.log('[Excel-Usages] Started grepping usages:', { grepQuery, grepFlags });
 
-      await grepStream(grepQuery, this.getDataFilePath(this.excelPath), async (result) => {
+      const grepStreamTimeout: Duration = Duration.ofSeconds(20);
+      await grepStream(grepQuery, this.getDataFilePath(this.excelPath), grepStreamTimeout, async (result: string) => {
         if (decimalRegex.test(result)) {
           return;
         }
 
-        let exec = /\/([^\/]+).json:(\d+)/.exec(result);
-        // console.log('[Excel-Usages] Grep stream line:', result);
+        let exec = /\/([^\/]+).json/.exec(result);
+        // console.log('[Excel-Usages] Grep stream line:', result, exec);
 
-        if (exec && exec.length >= 3) {
+        if (exec && exec.length >= 2) {
           let fileName = exec[1];
           filesFoundIn[fileName] += 1;
         }
       }, { flags: grepFlags });
     }
 
+    const startProcTime: number = Date.now();
+    const maxProcTime: Duration = Duration.ofSeconds(30);
+    const matchRegex: RegExp = new RegExp((String(id).startsWith('-') ? '' : '\\b') + escapeRegExp(String(id)) + '\\b', 'g');
     // console.log('[Excel-Usages]', id, 'files found in:', filesFoundIn);
 
     for (let fileName of Object.keys(filesFoundIn)) {
@@ -849,6 +862,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
         return await this.readJsonFile(path.join(this.excelPath, fileName + '.json'));
       });
 
+      // console.log('[Excel-Usages] Processing results for ' + fileName);
       const schemaTable: SchemaTable = this.schema[fileName];
       const promises: Promise<void>[] = [];
 
@@ -858,6 +872,14 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
 
       for (let obj of json) {
         let myRefIndex = currRefIndex++;
+
+        if (Duration.ofMillis(Date.now() - startProcTime).greaterThan(maxProcTime)) {
+          throw new ShellTimeoutError('Operation timed out after ' + maxProcTime.toMillis() + ' milliseconds.', maxProcTime.toMillis(), `ExcelUsages Process ${fileName}:${currRefIndex}`);
+        }
+        if (!matchRegex.test(JSON.stringify(obj))) {
+          continue;
+        }
+
         walkObject(obj, (curr) => {
           if (curr.isLeaf && curr.value === id) {
             currNumResults++;
@@ -865,7 +887,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
               const refObject: any = await this.commonLoadFirst(obj, schemaTable || true, true);
               const refObjectStringified: string = JSON.stringify(refObject, null, 2);
               const refObjectMarkers: Marker[] = Marker.create(
-                new RegExp((String(id).startsWith('-') ? '' : '\\b') + escapeRegExp(String(id)) + '\\b', 'g'),
+                matchRegex,
                 refObjectStringified
               );
 
