@@ -3,11 +3,14 @@
     <h2>Dialogue Generation</h2>
     <div class="content">
       <p class="info-notice">
-        <strong>Beta:</strong> <span>This tool is very new and may not work properly. Be sure to verify generated outputs
-        with what's actually in-game.</span>
+        <strong>Beta/Experimental:</strong> <span>This tool is very new and may not work properly in all cases.</span>
       </p>
       <p class="info-notice">
         <strong>Limited:</strong> <span>Only certain types of dialogue are supported.</span>
+      </p>
+      <p class="info-notice">
+        <strong>Outdated:</strong> <span>For the certain types of dialogue supported, this tool is going off of dialogue data
+        last updated 3 months ago, so it is quite outdated.</span>
       </p>
     </div>
     <div class="content form-box">
