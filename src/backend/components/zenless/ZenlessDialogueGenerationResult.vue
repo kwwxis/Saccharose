@@ -11,8 +11,7 @@
       <p class="spacer5-bottom">Suggestions:</p>
       <ul>
         <li>Make sure you typed it correctly.</li>
-        <li>If it's an autoplaying overworld line, it may be in <a :href="`/genshin/reminders?q=${query}`" target="_blank">ReminderExcelConfigData</a></li>
-        <li>Try <a :href="`/genshin/textmap?q=${query}`" target="_blank">TextMap Search</a> as well.</li>
+        <li>Try <a :href="`/zenless/textmap?q=${query}`" target="_blank">TextMap Search</a> as well.</li>
         <li>Is your input language correct?
           <p v-if="langSuggest && !langSuggest.matchesInputLangCode" class="error-notice spacer10-top">
             Your input language is <strong style="font-size:1.2em">{{ ctx.languages[ctx.inputLangCode] }}</strong>

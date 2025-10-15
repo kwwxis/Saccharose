@@ -53,16 +53,20 @@ function processDialogueNode(scriptName: string,
     handleTransition(nodeAsAny.OnConfirmNext);
     handleTransition(nodeAsAny.OnCancelNext);
   } else {
-    if (isOfLastSection && isLastNodeInSection) {
+    if (node.NodeType === 7) {
+      let nextSectionIndex = nodeAsAny.ChapterIndex;
+      let nextNodeIndex = nodeAsAny.SubIndex;
+      node.NextNodeId = `${scriptName}_${nextSectionIndex}_${nextNodeIndex}`;
+    } else if (isOfLastSection && isLastNodeInSection) {
       // Last node in last section - nothing
     } else if (isOfLastSection) {
-      // Middle node in last section
+      // Non-last node in last section
       node.NextNodeId = `${scriptName}_${sectionIndex}_${nodeIndex + 1}`;
     } else if (isLastNodeInSection) {
-      // Last node in middle section
-      node.NextNodeId = `${scriptName}_${sectionIndex + 1}_0`;
+      // Last node in non-last section
+      node.NextNodeId = null;
     } else {
-      // Middle node in middle section
+      // Node in non-last section
       node.NextNodeId = `${scriptName}_${sectionIndex}_${nodeIndex + 1}`;
     }
   }

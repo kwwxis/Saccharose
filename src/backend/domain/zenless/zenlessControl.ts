@@ -12,7 +12,7 @@ import { CurrentZenlessVersion, ZenlessVersions } from '../../../shared/types/ga
 import { arrayFillRange, arrayIndexOf, arrayIntersect, arrayUnique } from '../../../shared/util/arrayUtil.ts';
 import { custom } from '../../util/logger.ts';
 import { CommonLineId, DialogWikitextResult } from '../../../shared/types/common-types.ts';
-import { DialogueNode } from '../../../shared/types/zenless/dialogue-types.ts';
+import { DialogueNode, DialogueNodeBranches } from '../../../shared/types/zenless/dialogue-types.ts';
 import { Z3DialogBranchingCache, Z3DialogUtil } from './dialogue/z3_dialogue_util.ts';
 import { Knex } from 'knex';
 
@@ -260,12 +260,6 @@ export class ZenlessControl extends AbstractControl<ZenlessControlState> {
   }
   // endregion
 
-  // region Dialog Checks
-  isPlayerDialogOption(node: DialogueNode): boolean {
-    return [1, 20, 27, 28, 30, 31].includes(node.NodeType);
-  }
-  // endregion
-
   // region Dialog Logic
   async selectDialogBranch(start: DialogueNode, cache?: Z3DialogBranchingCache, debugSource?: string|number): Promise<DialogueNode[]> {
     if (!start)
@@ -301,9 +295,7 @@ export class ZenlessControl extends AbstractControl<ZenlessControlState> {
       }
 
       // Handle self:
-      if (Z3DialogUtil.isContentful(currNode)) {
-        currBranch.push(currNode);
-      }
+      currBranch.push(currNode);
 
       // Fetch next nodes:
       const nextNodes: DialogueNode[] = await this.selectMultipleDialogueNodes(
@@ -319,13 +311,13 @@ export class ZenlessControl extends AbstractControl<ZenlessControlState> {
       } else if (nextNodes.length > 1) {
         // If multiple next nodes -> branching
 
-        const branches: DialogueNode[][] = [];
+        const branches: DialogueNodeBranches = {};
         for (let nextNode of nextNodes) {
-          branches.push(await this.selectDialogBranch(nextNode, Z3DialogBranchingCache.from(cache), debugSource + ':' + start.NodeId));
+          branches[nextNode.NodeId] = await this.selectDialogBranch(nextNode, Z3DialogBranchingCache.from(cache), debugSource + ':' + start.NodeId);
         }
 
-        const intersect: DialogueNode[] = arrayIntersect<DialogueNode>(branches, this.NodeIdComparator)
-          .filter(x => !this.isPlayerDialogOption(x)); // don't rejoin on player dialogue options
+        const intersect: DialogueNode[] = arrayIntersect<DialogueNode>(Object.values(branches), this.NodeIdComparator)
+          .filter(x => !Z3DialogUtil.isTransitionalDialog(x)); // don't rejoin on transitions
 
         if (!intersect.length) {
           // branches do not rejoin
@@ -334,9 +326,8 @@ export class ZenlessControl extends AbstractControl<ZenlessControlState> {
         } else {
           // branches rejoin
           let rejoinNode = intersect[0];
-          for (let i = 0; i < branches.length; i++) {
-            let branch = branches[i];
-            branches[i] = branch.slice(0, arrayIndexOf(branch, rejoinNode, this.NodeIdComparator));
+          for (let [k,v] of Object.entries(branches)) {
+            branches[k] = v.slice(0, arrayIndexOf(v, rejoinNode, this.NodeIdComparator));
           }
           currNode.Branches = branches;
           currNode = rejoinNode;
@@ -352,7 +343,7 @@ export class ZenlessControl extends AbstractControl<ZenlessControlState> {
   async generateDialogueWikitext(dialogLines: DialogueNode[], dialogDepth = 1,
                                  originatorDialog: DialogueNode = null, originatorIsFirstOfBranch: boolean = false,
                                  firstDialogOfBranchVisited: Set<string> = new Set()): Promise<DialogWikitextResult> {
-    let out = '';
+    let out: string = '';
     let outIds: CommonLineId[] = [];
     let numSubsequentNonBranchPlayerDialogOption = 0;
 
@@ -368,10 +359,10 @@ export class ZenlessControl extends AbstractControl<ZenlessControlState> {
       // ~~~~~~~~~~~~
       let diconPrefix: string;
 
-      if (this.isPlayerDialogOption(dialog)) {
-        if (originatorDialog && this.isPlayerDialogOption(originatorDialog) && !originatorIsFirstOfBranch) {
+      if (Z3DialogUtil.isTransitionalDialog(dialog)) {
+        if (originatorDialog && Z3DialogUtil.isTransitionalDialog(originatorDialog) && !originatorIsFirstOfBranch) {
           diconPrefix = ':'.repeat(dialogDepth);
-        } else if (i === 0 || arrayFillRange(0, i - 1).every(j => this.isPlayerDialogOption(dialogLines[j]))) {
+        } else if (i === 0 || arrayFillRange(0, i - 1).every(j => Z3DialogUtil.isTransitionalDialog(dialogLines[j]))) {
           diconPrefix = ':'.repeat((dialogDepth - 1 ) || 1);
         } else {
           diconPrefix = ':'.repeat(dialogDepth);
@@ -382,38 +373,31 @@ export class ZenlessControl extends AbstractControl<ZenlessControlState> {
 
       let prefix: string = ':'.repeat(dialogDepth);
       let text: string = this.normText(Z3DialogUtil.getContentText(dialog), this.outputLangCode);
-      let name = this.normText(Z3DialogUtil.getSpeakerText(dialog), this.outputLangCode);
+      let name: string = this.normText(Z3DialogUtil.getSpeakerText(dialog), this.outputLangCode);
 
       // Subsequent Non-Branch Dialogue Options
       // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-      const prevNextNodeIds = previousDialog ? Z3DialogUtil.getNextNodeIds(previousDialog) : [];
+      const prevNextNodeIds: string[] = previousDialog ? Z3DialogUtil.getNextNodeIds(previousDialog) : [];
 
-      // This is for if you have non-branch subsequent player dialogue options for the purpose of generating an output like:
-      // :'''Paimon:''' Blah blah blah
-      // :{{DIcon}} Paimon, you're sussy baka
-      // ::{{DIcon}} And you're emergency food too
-      // :'''Paimon:''' Nani!?!?
-      // The second dialogue option is indented to show it is an option that follows the previous option rather than
-      // the player being presented with two dialogue options at the same time.
+      // Check if this dialog is a subsequent non-branch player dialog option:
       if (previousDialog
-
         // Both the previous and current dialogs must be dialog options:
-        && this.isPlayerDialogOption(dialog)
-        && this.isPlayerDialogOption(previousDialog) &&
-
+        && Z3DialogUtil.isTransitionalDialog(dialog) && Z3DialogUtil.isTransitionalDialog(previousDialog) &&
         (
           // The previous dialog must only have had 1 next dialog
           prevNextNodeIds.length === 1
 
           // Or the first dialog of every branch from the previous dialog must be a dialog option
-          || previousDialog.Branches?.map(b => b[0]).every(x => this.isPlayerDialogOption(x))
+          || (previousDialog.Branches && Object.values(previousDialog.Branches).map(b => b[0])
+            .every(x => Z3DialogUtil.isTransitionalDialog(x)))
         )
 
         // The previous dialog's next dialogs must contain current dialog:
         && prevNextNodeIds.some(x => x === dialog.NodeId)) {
         numSubsequentNonBranchPlayerDialogOption++;
       } else {
+        // If not, then reset the count to 0
         numSubsequentNonBranchPlayerDialogOption = 0;
       }
 
@@ -421,53 +405,145 @@ export class ZenlessControl extends AbstractControl<ZenlessControlState> {
       // ~~~~~~~~~~~
       let voPrefix = ''; //this.voice.getVoPrefix('Dialog', dialog.NodeId, text, dialog.TalkRole.Type);
 
-      // Output Append
-      // ~~~~~~~~~~~~~
+      // Next Branch Handlers
+      // ~~~~~~~~~~~~~~~~~~~~
 
-      outIds.push({commonId: dialog.NodeId, textMapHash: Z3DialogUtil.getContentTextKey(dialog)});
-
-      if (text && text.includes('\n')) {
-        for (let _m of (text.match(/\n/g) || [])) {
-          outIds.push(null);
+      const firstDialogOfBranchVisitedCopy = new Set<string>(firstDialogOfBranchVisited);
+      if (dialog.Branches) {
+        for (let dialogBranch of Object.values(dialog.Branches)) {
+          if (!dialogBranch.length) {
+            continue;
+          }
+          firstDialogOfBranchVisitedCopy.add(dialogBranch[0].NodeId);
         }
       }
 
-      // if (this.isBlackScreenDialog(dialog)) {
-      //   out += `\n${prefix}{{Black Screen|${voPrefix}${text}}}`;
-      // }
-      out += `\n${prefix}${voPrefix}'''${name}:''' ${text}`;
+      let branchExcludedCount = 0;
+      let branchIncludedCount = 0;
 
-      // Next Branches
+      const handleBranch = async (transitionNodeId: string) => {
+        if (!dialog.Branches) {
+          return;
+        }
+        const dialogBranch = dialog.Branches[transitionNodeId]
+        if (!dialogBranch || !dialogBranch.length) {
+          return;
+        }
+        if (firstDialogOfBranchVisited.has(dialogBranch[0].NodeId)) {
+          branchExcludedCount++;
+          return;
+        }
+        branchIncludedCount++;
+        const branchRet = await this.generateDialogueWikitext(dialogBranch, dialogDepth + 1, dialog, i === 0, firstDialogOfBranchVisitedCopy);
+        out += '\n' + branchRet.wikitext;
+        outIds.push(... branchRet.ids);
+      }
+
+      // Add Common IDs
+      // ~~~~~~~~~~~~~~
+      const appendOutIdForSelf = () => {
+        outIds.push({commonId: dialog.NodeId, textMapHash: Z3DialogUtil.getContentTextKey(dialog)});
+      };
+
+      const appendOutIdForText = (textMapHash: TextMapHash) => {
+        outIds.push({commonId: dialog.NodeId, textMapHash: textMapHash});
+      };
+
+      const appendEmptyOutId = () => {
+        outIds.push(null);
+      };
+
+      const appendOutIdsForTextNewLines = () => {
+        if (text && text.includes('\n')) {
+          for (let _m of (text.match(/\n/g) || [])) {
+            outIds.push(null);
+          }
+        }
+      };
+
+      // Output Append
       // ~~~~~~~~~~~~~
-
-      if (dialog.Branches && dialog.Branches.length) {
-        let temp = new Set<string>(firstDialogOfBranchVisited);
-        for (let dialogBranch of dialog.Branches) {
-          if (!dialogBranch.length) {
-            continue;
-          }
-          temp.add(dialogBranch[0].NodeId);
-        }
-
-        let excludedCount = 0;
-        let includedCount = 0;
-        for (let dialogBranch of dialog.Branches) {
-          if (!dialogBranch.length) {
-            continue;
-          }
-          if (firstDialogOfBranchVisited.has(dialogBranch[0].NodeId)) {
-            excludedCount++;
-            continue;
-          }
-          includedCount++;
-          const branchRet = await this.generateDialogueWikitext(dialogBranch, dialogDepth + 1, dialog, i === 0, temp);
-          out += '\n' + branchRet.wikitext;
-          outIds.push(... branchRet.ids);
-        }
-        if (includedCount === 0 && excludedCount > 0) {
+      if (dialog.Recurse) {
+        if (Z3DialogUtil.isTransitionalDialog(dialog)) {
           out += `\n${diconPrefix};(${this.i18n('ReturnToDialogueOption')})`;
-          outIds.push(null);
+        } else {
+          out += `\n${diconPrefix.slice(0,-1)};(${this.i18n('ReturnToDialogueOption')})`;
         }
+        appendOutIdForSelf();
+      } else if (Z3DialogUtil.isTransitionalDialog(dialog)) {
+        if (dialog.NodeType === 1 || dialog.NodeType === 28) {
+          for (let t of dialog.TransitionList) {
+            let dicon: string = t.IconId === 0 ? `{{DIcon}}` : `{{DIcon|${t.IconId}}}`;
+            out += `\n${diconPrefix}${':'.repeat(numSubsequentNonBranchPlayerDialogOption)}${dicon} ${t.Text}`;
+            appendOutIdForText(t.TextKey);
+            await handleBranch(t.NextNodeId);
+          }
+        } else if (dialog.NodeType === 20) {
+          if (dialog.Success) {
+            out += `\n${diconPrefix};(If success)`;
+            appendEmptyOutId();
+            await handleBranch(dialog.Success.NextNodeId);
+          }
+          if (dialog.Failure) {
+            out += `\n${diconPrefix};(If failure)`;
+            appendEmptyOutId();
+            await handleBranch(dialog.Failure.NextNodeId);
+          }
+        } else if (dialog.NodeType === 27) {
+          for (let next of dialog.NextList) {
+            out += `\n${diconPrefix};(Random next)`;
+            appendEmptyOutId();
+            await handleBranch(next.NextNodeId);
+          }
+        } else if (dialog.NodeType === 30) {
+          out += `\n${diconPrefix};(Confirm popup)`;
+          appendEmptyOutId();
+
+          out += `\n${diconPrefix};(Description: ${dialog.Description})`;
+          appendOutIdForText(dialog.Description);
+
+          out += `\n${diconPrefix};(Description detail: ${dialog.DescriptionDetail})`;
+          appendOutIdForText(dialog.DescriptionDetailText);
+
+          out += `\n${diconPrefix};(On confirm: ${dialog.ConfirmBtnDescText})`;
+          appendOutIdForText(dialog.ConfirmBtnDesc);
+          await handleBranch(dialog.OnConfirmNext.NextNodeId);
+
+          out += `\n${diconPrefix};(On cancel: ${dialog.CancelBtnDescText})`;
+          appendOutIdForText(dialog.CancelBtnDesc);
+          await handleBranch(dialog.OnCancelNext.NextNodeId);
+        } else if (dialog.NodeType === 31) {
+          for (let t of dialog.TransitionList) {
+            out += `\n${diconPrefix};(Transition for node type 31)`;
+            appendEmptyOutId();
+            await handleBranch(t.NextNodeId);
+          }
+        } else if (dialog.NodeType === 40) {
+          for (let t of dialog.ConditionList) {
+            out += `\n${diconPrefix};(If condition ${dialog.ConditionKey} equals ${t.Value})`;
+            appendEmptyOutId();
+            await handleBranch(t.NextNodeId);
+          }
+        }
+      } else if (Z3DialogUtil.isBlackScreen(dialog)) {
+        out += `\n${prefix}{{Black Screen|${voPrefix}${text}}}`;
+        appendOutIdForSelf();
+        appendOutIdsForTextNewLines();
+      } else if (Z3DialogUtil.isContentful(dialog)) {
+        if (name) {
+          out += `\n${prefix}${voPrefix}'''${name}:''' ${text}`;
+        } else {
+          out += `\n${prefix}${voPrefix}${text}`;
+        }
+        appendOutIdForSelf();
+        appendOutIdsForTextNewLines();
+      }
+
+      // Branch Post Handlers
+      // ~~~~~~~~~~~~~~~~~~~~
+      if (branchIncludedCount === 0 && branchExcludedCount > 0) {
+        out += `\n${diconPrefix};(${this.i18n('ReturnToDialogueOption')})`;
+        outIds.push(null);
       }
     }
     return {

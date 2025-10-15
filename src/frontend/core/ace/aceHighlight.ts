@@ -412,6 +412,7 @@ export function highlightReplace(original: HTMLElement, opts: HighlightReplaceOp
     opts.noTheme = true;
 
 
+  console.log('OPTS', opts);
   const element: HTMLElement = highlight({ text: opts.textOverride || getInputValue(original), ... opts });
 
   if (original.hasAttribute('class')) {

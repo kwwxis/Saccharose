@@ -256,6 +256,7 @@ export const SIDEBAR_CONFIG: { [siteMode: string]: SiteSidebar } = {
               { id: 'ol-generator', name: 'OL Generator', link: '/zenless/OL', bodyClass: 'page--OL' },
               { id: 'dialogue-helper', name: 'Dialogue Helper', link: '/zenless/dialogue-helper', bodyClass: 'page--dialogue-helper' },
               { id: 'changelog', name: 'Changelog', link: '/zenless/changelog', bodyClass: 'page--changelog' },
+              { id: 'dialogue-gen', name: 'Dialogue Generator', link: '/zenless/dialogue-generation', bodyClass: 'page--dialogue-generation', beta: true },
             ]
           }
         ]

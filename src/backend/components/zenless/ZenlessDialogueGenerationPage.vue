@@ -1,6 +1,15 @@
 <template>
   <section class="card">
     <h2>Dialogue Generation</h2>
+    <div class="content">
+      <p class="info-notice">
+        <strong>Beta:</strong> <span>This tool is very new and may not work properly. Be sure to verify generated outputs
+        with what's actually in-game.</span>
+      </p>
+      <p class="info-notice">
+        <strong>Limited:</strong> <span>Only certain types of dialogue are supported.</span>
+      </p>
+    </div>
     <div class="content form-box">
       <div class="field valign">
         <div class="posRel valign grow">

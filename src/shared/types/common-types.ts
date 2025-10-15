@@ -2,7 +2,7 @@ import { LangCodeMap, TextMapHash } from './lang-types.ts';
 import { AvatarExcelConfigData } from './genshin/avatar-types.ts';
 import { AvatarConfig, VoiceAtlas, VoiceAtlasGroup } from './hsr/hsr-avatar-types.ts';
 import { FetterExcelConfigData, FetterGroup } from './genshin/fetter-types.ts';
-import { toInt } from '../util/numberUtil.ts';
+import { maybeInt, toInt } from '../util/numberUtil.ts';
 import { RoleInfo } from './wuwa/role-types.ts';
 import { FavorWord, FavorWordGroup } from './wuwa/favor-types.ts';
 
@@ -221,7 +221,7 @@ export function parseCommonLineIds(str: string): CommonLineId[] {
     } else {
       let parts = s.split(',');
       return {
-        commonId: parts[0] ? toInt(parts[0]) : undefined,
+        commonId: parts[0] ? maybeInt(parts[0]) : undefined,
         textMapHash: (parts[1] || undefined) as TextMapHash,
       };
     }

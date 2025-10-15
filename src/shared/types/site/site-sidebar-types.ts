@@ -27,6 +27,7 @@ export type SideSidebarItem = {
   name: string,
   link: string,
   bodyClass?: string,
+  beta?: boolean,
   rightSideButton?: {
     name: string,
     link: string,

@@ -389,8 +389,14 @@ export class RequestContext {
 
           sb.line(`<div class="app-sidebar-level-3${item.rightSideButton ? ' valign button-group' : ''}${itemSelected ? ' selected' : ''}" data-id="${item.id}">`);
 
-          sb.line(`<a class="secondary dispBlock spacer3 textAlignLeft${item.rightSideButton ? ' grow' : ''}${itemSelected ? ' selected' : ''}"
-                           role="button" href="${item.link}">${item.name}</a>`);
+          sb.line(`<a class="secondary valign spacer3 textAlignLeft${item.rightSideButton ? ' grow' : ''}${itemSelected ? ' selected' : ''}"
+                           role="button" href="${item.link}">`);
+          sb.append(`<span>${item.name}</span>`);
+          if (item.beta) {
+            sb.append(`<span class="grow"></span>`)
+            sb.append(`<span class="secondary-label small">Beta</span>`);
+          }
+          sb.append('</a>');
 
           if (item.rightSideButton) {
             sb.line(`<a class="secondary dispBlock spacer3 textAlignLeft${itemSelected ? ' selected' : ''}" role="button" href="${item.rightSideButton.link}"

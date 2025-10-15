@@ -105,7 +105,7 @@ export type DialogueNode = DialogueNodeBase & (
   DialogueNode39  |
   DialogueNode40  );
 
-type DialogueNodeBase = {
+export type DialogueNodeBase = {
   // These are all custom properties, not from original data:
   NodeId: string, // Computed via: `${scriptConfigFileName}_${sectionIndex}_${nodeIndex}`
   NextNodeId?: string,
@@ -113,8 +113,10 @@ type DialogueNodeBase = {
   ScriptConfigNodeIndex: number,
   ScriptConfigSectionIndex: number,
   Recurse?: boolean,
-  Branches?: DialogueNode[][]
+  Branches?: DialogueNodeBranches
 };
+
+export type DialogueNodeBranches = {[startNodeId: string]: DialogueNode[]};
 
 /**
  * Normal
@@ -194,12 +196,12 @@ export type DialogueNode3Action =
   { Slot: number, ShowName: string };
 
 /**
- * Jump Chapter
+ * Jump to section & node
  */
 export type DialogueNode7 = {
   NodeType: 7,
-  ChapterIndex: number,
-  SubIndex: number,
+  ChapterIndex: number, // Actually Section Index
+  SubIndex: number, // Actually Node Index
 };
 
 

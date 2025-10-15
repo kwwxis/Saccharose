@@ -1,7 +1,7 @@
 // region Class: DialogBranchingCache
 // --------------------------------------------------------------------------------------------------------------
 import {
-  DialogueNode,
+  DialogueNode, DialogueNode15, DialogueNodeBase,
   DialogueNodeGenericTransition,
   NodeTypeIdToName,
 } from '../../../../shared/types/zenless/dialogue-types.ts';
@@ -35,6 +35,10 @@ class Z3DialogUtilInstance {
     return [0, 1, 15, 20, 23, 27, 28, 29, 30, 31, 37, 40].includes(d.NodeType);
   }
 
+  isBlackScreen(node: DialogueNode): node is (DialogueNodeBase & DialogueNode15) {
+    return node.NodeType === 15 || node.NodeType === 29;
+  }
+
   getSpeakerText(d: DialogueNode): string {
     if (d.NodeType === 0) {
       return d.AvatarNameText;
@@ -47,6 +51,8 @@ class Z3DialogUtilInstance {
       return d.DialogueText;
     } else if (d.NodeType === 15) {
       return d.DialogueTexts.join('\n');
+    } else if (d.NodeType === 29) {
+      return d.Cfg.DialogueText;
     } else {
       return null;
     }
@@ -71,6 +77,14 @@ class Z3DialogUtilInstance {
     } else {
       return [];
     }
+  }
+
+  isPlayerDialogOption(node: DialogueNode): boolean {
+    return [1, 20, 27, 28, 30, 31].includes(node.NodeType); // TODO verify
+  }
+
+  isTransitionalDialog(node: DialogueNode): boolean {
+    return [1, 20, 27, 28, 30, 31, 40].includes(node.NodeType);
   }
 
   getTransitions(d: DialogueNode): DialogueNodeGenericTransition[] {

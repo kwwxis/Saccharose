@@ -1494,7 +1494,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   async generateDialogueWikitext(dialogLines: DialogExcelConfigData[], dialogDepth = 1,
                                  originatorDialog: DialogExcelConfigData = null, originatorIsFirstOfBranch: boolean = false,
                                  firstDialogOfBranchVisited: Set<number> = new Set()): Promise<DialogWikitextResult> {
-    let out = '';
+    let out: string = '';
     let outIds: CommonLineId[] = [];
     let numSubsequentNonBranchPlayerDialogOption = 0;
 
@@ -1655,9 +1655,8 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       // ~~~~~~~~~~~
       let voPrefix = this.voice.getVoPrefix('Dialog', dialog.Id, text, dialog.TalkRole.Type);
 
-      // Output Append
-      // ~~~~~~~~~~~~~
-
+      // Add Common IDs
+      // ~~~~~~~~~~~~~~
       if (dialog.Id === 0) {
         if (dialog.CustomTravelLogMenuText) {
           outIds.push({textMapHash: dialog.CustomTravelLogMenuTextMapHash});
@@ -1674,43 +1673,43 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
         }
       }
 
+      // Output Append
+      // ~~~~~~~~~~~~~
       if (dialog.Recurse) {
         if (this.isPlayerTalkRole(dialog)) {
           out += `\n${diconPrefix};(${this.i18n('ReturnToDialogueOption')})`;
         } else {
           out += `\n${diconPrefix.slice(0,-1)};(${this.i18n('ReturnToDialogueOption')})`;
         }
-      } else {
-        if (dialog.CustomTravelLogMenuText || dialog.CustomImageName || dialog.CustomWikiTx || dialog.CustomNpcFirstMet) {
-          out += `\n${prefix}${text}`;
-        } else if (dialog.CustomWikiReadable) {
-          out += `\n${text}`;
-        } else if (this.isBlackScreenDialog(dialog)) {
-          out += `\n${prefix}{{Black Screen|${voPrefix}${text}}}`;
-        } else if (this.isPlayerTalkRole(dialog)) {
-          if (!this.isPlayerDialogOption(dialog)) {
-            let name = this.normText(dialog.TalkRoleNameText || '{NICKNAME}', this.outputLangCode);
-            out += `\n${prefix}${voPrefix}'''${name}:''' ${text}`;
-          } else {
-            let dicon: string = '{{DIcon}}';
-            if (OptionIconMap[dialog.OptionIcon]) {
-              dicon = '{{DIcon|' + OptionIconMap[dialog.OptionIcon] + '}}';
-            } else if (dialog.OptionIcon) {
-              dicon = '{{DIcon|' + dialog.OptionIcon + '}}';
-            }
-            out += `\n${diconPrefix}${':'.repeat(numSubsequentNonBranchPlayerDialogOption)}${dicon} ${text}`;
-          }
-        } else if (dialog.TalkRole.Type === 'TALK_ROLE_NPC' || dialog.TalkRole.Type === 'TALK_ROLE_GADGET') {
-          let name = this.normText(dialog.TalkRoleNameText, this.outputLangCode);
+      } else if (dialog.CustomTravelLogMenuText || dialog.CustomImageName || dialog.CustomWikiTx || dialog.CustomNpcFirstMet) {
+        out += `\n${prefix}${text}`;
+      } else if (dialog.CustomWikiReadable) {
+        out += `\n${text}`;
+      } else if (this.isBlackScreenDialog(dialog)) {
+        out += `\n${prefix}{{Black Screen|${voPrefix}${text}}}`;
+      } else if (this.isPlayerTalkRole(dialog)) {
+        if (!this.isPlayerDialogOption(dialog)) {
+          let name = this.normText(dialog.TalkRoleNameText || '{NICKNAME}', this.outputLangCode);
           out += `\n${prefix}${voPrefix}'''${name}:''' ${text}`;
-        } else if (dialog.TalkRole.Type === 'TALK_ROLE_MATE_AVATAR') {
-          out += `\n${prefix}${voPrefix}'''${this.i18n('TravelerSibling')}:''' ${text}`;
         } else {
-          if (text) {
-            out += `\n${prefix}:'''Cutscene_Character_Replace_me:''' ${text}`;
-          } else {
-            console.warn('Dialog with unknown TalkRole.Type "' + dialog.TalkRole.Type + '" and without text:', dialog);
+          let dicon: string = '{{DIcon}}';
+          if (OptionIconMap[dialog.OptionIcon]) {
+            dicon = '{{DIcon|' + OptionIconMap[dialog.OptionIcon] + '}}';
+          } else if (dialog.OptionIcon) {
+            dicon = '{{DIcon|' + dialog.OptionIcon + '}}';
           }
+          out += `\n${diconPrefix}${':'.repeat(numSubsequentNonBranchPlayerDialogOption)}${dicon} ${text}`;
+        }
+      } else if (dialog.TalkRole.Type === 'TALK_ROLE_NPC' || dialog.TalkRole.Type === 'TALK_ROLE_GADGET') {
+        let name = this.normText(dialog.TalkRoleNameText, this.outputLangCode);
+        out += `\n${prefix}${voPrefix}'''${name}:''' ${text}`;
+      } else if (dialog.TalkRole.Type === 'TALK_ROLE_MATE_AVATAR') {
+        out += `\n${prefix}${voPrefix}'''${this.i18n('TravelerSibling')}:''' ${text}`;
+      } else {
+        if (text) {
+          out += `\n${prefix}:'''Cutscene_Character_Replace_me:''' ${text}`;
+        } else {
+          console.warn('Dialog with unknown TalkRole.Type "' + dialog.TalkRole.Type + '" and without text:', dialog);
         }
       }
 

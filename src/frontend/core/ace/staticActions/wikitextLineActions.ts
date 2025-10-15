@@ -61,6 +61,7 @@ export function applyWikitextLineActions(element: HTMLElement, commonLineIds: Co
       <div id="${guid}" class="ace_line-info-panel-outer">
         <div class="ace_line-info-panel">
           <h4 class="ace_line-info-toolbar valign">
+            <div class="valign flexWrap">
             ${hasDialogId ? `
               <div class="prop valign">
                 <span style="opacity:0.6">Dialog ID:&nbsp;</span>
@@ -79,6 +80,7 @@ export function applyWikitextLineActions(element: HTMLElement, commonLineIds: Co
                   ui-tippy-flash="{content:'Copied!', delay: [0,2000]}">${templateIcon('copy')}</button>
               </div>
             ` : ''}
+            </div>
             <div class="grow"></div>
             <button class="close"></button>
           </h4>
