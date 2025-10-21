@@ -32,5 +32,24 @@ export async function wuwaNormalize() {
   fs.copyFileSync(textMapCHS, getWuwaDataFilePath('./TextMap/TextMapCHS.json'));
   fs.copyFileSync(textMapCHT, getWuwaDataFilePath('./TextMap/TextMapCHT.json'));
 
+  const le0_path = getWuwaDataFilePath('./ConfigDB/LevelEntityConfig_0.json');
+  const le1_path = getWuwaDataFilePath('./ConfigDB/LevelEntityConfig_1.json');
+
+  const le_json = [];
+
+  if (fs.existsSync(le0_path)) {
+    let data: any[] = JSON.parse(fs.readFileSync(le0_path, {encoding: 'utf8'}));
+    le_json.push(... data);
+    fs.rmSync(le0_path);
+  }
+  if (fs.existsSync(le1_path)) {
+    let data: any[] = JSON.parse(fs.readFileSync(le1_path, {encoding: 'utf8'}));
+    le_json.push(... data);
+    fs.rmSync(le1_path);
+  }
+
+  fs.writeFileSync(getWuwaDataFilePath('./ConfigDB/LevelEntityConfig.json'),
+    JSON.stringify(le_json, null, 2), 'utf-8');
+
   await importNormalize(getWuwaDataFilePath('./ConfigDB'), ['GmOrderList.json'], 'wuwa');
 }
