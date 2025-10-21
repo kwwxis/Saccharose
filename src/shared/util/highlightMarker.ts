@@ -1,7 +1,7 @@
 import { isInt, toInt } from './numberUtil.ts';
 import { escapeRegExp } from './stringUtil.ts';
 import { IndexedRange, inRange, rangeLen } from './arrayUtil.ts';
-import { isPromise } from './genericUtil.ts';
+import { isPromise, isUnset } from './genericUtil.ts';
 
 /**
  * An adjustment to the content-text that may change the positions of markers.
@@ -190,11 +190,11 @@ export class Marker implements IndexedRange {
     this.fullLine = fullLine;
   }
 
-  static fullLine(token: string, line: number) {
+  static fullLine(token: string, line: number): Marker {
     return new Marker(token, line, 0, 0, null, true);
   }
 
-  toString() {
+  toString(): string {
     let s = this.token + ',' + this.line;
     if (this.fullLine) {
       s += ',fullLine';
@@ -209,7 +209,7 @@ export class Marker implements IndexedRange {
     return s;
   }
 
-  static fromString(s: string) {
+  static fromString(s: string): Marker {
     let a = s.trim().split(',').map(x => x.trim()).filter(x => !!x);
     if (a.length < 3) {
       return null;
@@ -276,6 +276,13 @@ export class Marker implements IndexedRange {
     markers: Marker[],
     promises: Promise<void>[],
   } {
+    if (isUnset(searchText)) {
+      throw 'Error: Marker.create() used with null or undefined search text';
+    }
+    if (isUnset(contentText)) {
+      throw 'Error: Marker.create() used with null or undefined content text';
+    }
+
     const re: RegExp = typeof searchText === 'string' ? new RegExp(escapeRegExp(searchText), 'gi') : searchText;
     const markers: Marker[] = [];
     const promises: Promise<void>[] = [];

@@ -845,6 +845,9 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
 
       for (let objIndex of objIndices) {
         const obj = json[objIndex];
+        if (isUnset(obj)) {
+          throw 'Internal Error: excel usages entity\'s file usages for index ' + objIndex + ' references non-existent object';
+        }
 
         const refObject: any = await this.commonLoadFirst(obj, schemaTable || true, true);
         const refObjectStringified: string = JSON.stringify(refObject, null, 2);
