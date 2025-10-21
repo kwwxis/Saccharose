@@ -284,7 +284,7 @@ export class GenshinReadables {
           .replace(/#DOUBLE_NL#/g, '\n\n') + '}}',
       AsDialogue: fileNormText.split(/\n/g).map(line => {
         if (line.endsWith('<br>')) {
-          line = line.slice(0, -6);
+          line = line.slice(0, -4);
         }
         if (!line) {
           return '::&nbsp;'
