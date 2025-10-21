@@ -44,14 +44,14 @@ export async function redisDelPattern(pattern: string): Promise<void> {
       batch.push(key.toString());
     }
     if (batch.length >= batchSize) {
-      console.log('Deleting keys: ', batch);
+      // console.log('Deleting keys: ', batch);
       await delcache(batch.splice(0, batch.length));
     }
   }
 
   // delete any remaining keys
   if (batch.length > 0) {
-    console.log('Deleting keys: ', batch);
+    // console.log('Deleting keys: ', batch);
     await delcache(batch);
   }
 }

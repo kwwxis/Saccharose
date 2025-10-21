@@ -5,7 +5,7 @@ import sharp from 'sharp';
 import { fsWalkSync } from '../../util/fsutil.ts';
 
 // Runs in-place on the same directory:
-const IN_OUT_DIR: string = 'C:/Shared/AnimeStudio/Output_Texture2D_Files/';
+const IN_OUT_DIR: string = 'C:/HoyoTools/AnimeStudio/GI_OutputFiles/';
 
 sharp.cache(false);
 

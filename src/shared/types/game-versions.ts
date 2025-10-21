@@ -225,6 +225,7 @@ export const GenshinVersions: GameVersions = new GameVersions([
   new GameVersion({number: '5.7', prevNumber: '5.6', showTextmapChangelog: true, showExcelChangelog: true, showNewMedia: true, hasChangelogSummary: true}),
   new GameVersion({number: '5.8', prevNumber: '5.7', showTextmapChangelog: true, showExcelChangelog: true, showNewMedia: true, hasChangelogSummary: true}),
   new GameVersion({number: '6.0', prevNumber: '5.8', label: 'Luna I', aliases: ['Luna 1', 'L1'], showTextmapChangelog: true, showExcelChangelog: true, showNewMedia: true, hasChangelogSummary: true}),
+  new GameVersion({number: '6.1', prevNumber: '6.0', label: 'Luna II', aliases: ['Luna 2', 'L2'], showTextmapChangelog: true, showExcelChangelog: true, showNewMedia: true, hasChangelogSummary: true}),
 ], true);
 
 // TODO: This needs to be updated with each new Honkai Star Rail version!

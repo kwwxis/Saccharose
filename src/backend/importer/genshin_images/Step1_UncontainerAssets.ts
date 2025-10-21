@@ -6,8 +6,8 @@ import { fsWalkSync } from '../../util/fsutil.ts';
 
 // Copies from IN_DIR to OUT_DIR
 // IN_DIR is unaffected
-const IN_DIR: string  = 'C:/Shared/AnimeStudio/OutputPreload/';
-const OUT_DIR: string = 'C:/Shared/AnimeStudio/Output_Texture2D_Files/';
+const IN_DIR: string  = 'C:/HoyoTools/AnimeStudio/GI_Output/';
+const OUT_DIR: string = 'C:/HoyoTools/AnimeStudio/GI_OutputFiles/';
 
 async function doIt() {
   fs.mkdirSync(OUT_DIR, { recursive: true });

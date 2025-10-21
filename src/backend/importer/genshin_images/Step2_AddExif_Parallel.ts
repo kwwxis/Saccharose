@@ -9,7 +9,7 @@ import { fsWalkSync } from '../../util/fsutil.ts';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const IN_OUT_DIR: string = "C:/Shared/AnimeStudio/Output_Texture2D_Files/";
+const IN_OUT_DIR: string = "C:/HoyoTools/AnimeStudio/GI_OutputFiles/";
 const NUM_WORKERS = Math.max(1, os.cpus().length - 1);
 
 sharp.cache(false);

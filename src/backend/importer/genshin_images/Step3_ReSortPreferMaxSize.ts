@@ -6,7 +6,7 @@ import exifReader from 'exif-reader';
 import { fsWalkSync } from '../../util/fsutil.ts';
 
 // Runs in-place on the same directory:
-const IN_OUT_DIR: string = 'C:/Shared/AnimeStudio/Output_Texture2D_Files';
+const IN_OUT_DIR: string = 'C:/HoyoTools/AnimeStudio/GI_OutputFiles';
 
 async function getDiscriminator(myPath: string) {
   const exifBuf = (await sharp(myPath).metadata()).exif;
