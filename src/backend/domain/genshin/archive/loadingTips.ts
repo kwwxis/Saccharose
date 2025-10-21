@@ -171,6 +171,7 @@ async function createResultObject(ctrl: GenshinControl): Promise<LoadingCat> {
     'Sumeru',
     'Fontaine',
     'Natlan',
+    'Nod-Krai',
   ];
 
   const otherKeys: string[] = [
