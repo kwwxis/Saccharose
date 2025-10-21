@@ -144,6 +144,9 @@ export class GenshinReadables {
   // region Select Readable by Localization ID
   // --------------------------------------------------------------------------------------------------------------
   private async selectDocumentIdByLocalizationId(localizationId: number): Promise<number> {
+    if (isNaN(localizationId)) {
+      throw new Error(`Localization id ${localizationId} is not a number`);
+    }
     return await this.knex.select('DocumentId').from('Relation_LocalizationIdToDocumentId')
       .where({LocalizationId: localizationId})
       .first()
@@ -151,6 +154,9 @@ export class GenshinReadables {
   }
 
   public async selectReadableByLocalizationId(localizationId: number, loadReadableItems: boolean = true): Promise<Readable> {
+    if (isNaN(localizationId)) {
+      return null;
+    }
     return await this.selectDocumentIdByLocalizationId(localizationId)
       .then(docId => isset(docId) ? this.select(docId, loadReadableItems) : null);
   }
@@ -379,6 +385,8 @@ export class GenshinReadables {
     };
 
     for (let view of views) {
+      if (!view)
+        continue;
       archive.TotalCount++;
       if (view.BookSuit) {
         if (!archive.BookCollections[view.BookSuit.Id]) {

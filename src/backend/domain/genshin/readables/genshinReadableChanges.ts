@@ -169,7 +169,7 @@ async function importForVersion(ctrl: GenshinControl, version: GameVersion) {
 
     const [langCode, name] = locPath.split('/');
 
-    const contentText: string = await fsRead(filePath);
+    const contentText: string = (await fsRead(filePath)).replace(/\r\n/g, '\n');
     const contentHash: string = sha256(contentText);
 
     changes.push({

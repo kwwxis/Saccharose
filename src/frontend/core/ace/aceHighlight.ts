@@ -411,8 +411,6 @@ export function highlightReplace(original: HTMLElement, opts: HighlightReplaceOp
   if (toBoolean(original.hasAttribute('data-no-theme')) || original.classList.contains('no-theme'))
     opts.noTheme = true;
 
-
-  console.log('OPTS', opts);
   const element: HTMLElement = highlight({ text: opts.textOverride || getInputValue(original), ... opts });
 
   if (original.hasAttribute('class')) {
