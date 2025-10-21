@@ -283,6 +283,7 @@ export const WuwaVersions: GameVersions = new GameVersions([
   new GameVersion({number: '2.4', prevNumber: '2.3', showTextmapChangelog: true}),
   new GameVersion({number: '2.5', prevNumber: '2.4', showTextmapChangelog: true}),
   new GameVersion({number: '2.6', prevNumber: '2.5', showTextmapChangelog: true}),
+  new GameVersion({number: '2.7', prevNumber: '2.6', showTextmapChangelog: true}),
 ], true);
 
 // TODO: This needs to be updated with each new Genshin version!
