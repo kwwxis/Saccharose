@@ -41,7 +41,7 @@ export default async function(): Promise<Router> {
         scriptSrc: ["'self'", "'unsafe-eval'", 'cdnjs.cloudflare.com', 'unpkg.com', `'nonce-${req.context.nonce}'`, `${ENV.WEB_DOMAIN}:*`],
         fontSrc: ["'self'", 'data:', 'fonts.googleapis.com', 'fonts.gstatic.com'],
         imgSrc: ["'self'", 'data:', `${ENV.WEB_DOMAIN}:*`, 'cdn.discordapp.com', 'static.wikia.nocookie.net'],
-        connectSrc: ["'self'", `wss://${ENV.WEB_DOMAIN}:*`],
+        connectSrc: ["'self'", `wss://${ENV.WEB_DOMAIN}:*`, `ws://${ENV.WEB_DOMAIN}:*`],
       },
       reportOnly: false,
     };

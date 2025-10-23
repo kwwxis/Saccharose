@@ -316,7 +316,7 @@ export class MwParamNode extends MwParentNode {
   }
 
   override copy(): MwParamNode {
-    return new MwParamNode(this.prefix, this.combinedKeyParts(), null, this.beforeValueWhitespace?.content, this.afterValueWhitespace?.content).copyPartsFrom(this);
+    return new MwParamNode(this.prefix, this.originalKey, null, this.beforeValueWhitespace?.content, this.afterValueWhitespace?.content).copyPartsFrom(this);
   }
 
   get trimmedValue() {
@@ -343,15 +343,22 @@ export class MwParamNode extends MwParentNode {
     this.parts = mwParse(wikitext).parts;
   }
 
+  /**
+   * For named/numbered parameters, returns the whitespace-trimmed key as a string.
+   *
+   * For anonymous parameters, returns its number.
+   */
   get key(): number|string {
     return this._key;
   }
 
   /**
-   * Unlike just `key`, this retains any leading/trailing whitespace as part of the key.
+   * For named/numbered parameters, this returns the original key, retaining any leading/trailing whitespace as part of the key.
+   *
+   * For anonymous parameters, returns its number.
    */
-  combinedKeyParts(): string {
-    return this.isAnonymous ? null : this.keyParts.map(x => x.toString()).join('');
+  get originalKey(): number|string {
+    return this.isAnonymous ? this.key : this.keyParts.map(x => x.toString()).join('');
   }
 
   set key(newKey: number|string) {
@@ -370,7 +377,7 @@ export class MwParamNode extends MwParentNode {
     if (this.isAnonymous) {
       return this.prefix + this.beforeValueWhitespace.toString() + this.value + this.afterValueWhitespace.toString();
     } else {
-      return this.prefix + this.combinedKeyParts() + '=' + this.beforeValueWhitespace.toString() + this.value + this.afterValueWhitespace.toString();
+      return this.prefix + this.originalKey + '=' + this.beforeValueWhitespace.toString() + this.value + this.afterValueWhitespace.toString();
     }
   }
 
@@ -379,7 +386,7 @@ export class MwParamNode extends MwParentNode {
       return;
     }
 
-    let rawKey = this.combinedKeyParts();
+    let rawKey: string = String(this.originalKey);
 
     if (/^\s+/.test(rawKey) || /[\n\r]/.test(rawKey)) {
       this.key = rawKey.trimStart().replace(/[\n\r]/g, '');

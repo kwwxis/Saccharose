@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import { ol_combine_results } from '../../../domain/abstract/basic/OLgen.ts';
 import { mwParse } from '../../../../shared/mediawiki/mwParse.ts';
 import OLCombineResult from '../../../components/shared/api_results/OLCombineResult.vue';
-import { OLResult } from '../../../../shared/types/ol-types.ts';
+import { OLCombinedResult, OLResult } from '../../../../shared/types/ol-types.ts';
 
 export async function handleOlCombine(ctrl: AbstractControl, req: Request, res: Response) {
   const mwText = ((req.body.text || req.query.text || '') as string).trim();
@@ -26,7 +26,7 @@ export async function handleOlCombine(ctrl: AbstractControl, req: Request, res: 
     }
   }
 
-  const combined = ol_combine_results(olResults);
+  const combined: OLCombinedResult = ol_combine_results(olResults);
 
   if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
     await res.renderComponent(OLCombineResult, {

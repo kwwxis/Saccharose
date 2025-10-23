@@ -5,12 +5,12 @@
   <div v-for="(olResult, idx) of olResults" :id="`ol-result-card-${idx}`" class="card ol-result">
     <div class="content">
       <div class="fsplit">
-        <h4 class="valign">
+        <h4 class="valign flexWrap">
           <span class="expando" :ui-action="`expando: #ol-result-content-${idx}`"><Icon name="chevron-down" :size="17" /></span>
           <span style="opacity:0.6">TextMapHash:&nbsp;</span>
-          <code>{{ olResult.textMapHash }}</code>
+          <code style="word-break:break-all" class="spacer5-right">{{ olResult.textMapHash }}</code>
           <a v-if="req.isAuthenticated()" :href="`${ctx.siteHome}/excel-usages?q=${olResult.textMapHash}`"
-             role="button" class="secondary small spacer5-left fontWeight500" target="_blank">Usages</a>
+             role="button" class="secondary small spacer5-right fontWeight500" target="_blank">Usages</a>
         </h4>
         <div class="valign">
           <button class="secondary ol-result-copy"
