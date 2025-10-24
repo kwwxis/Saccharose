@@ -33,7 +33,7 @@ const LANG_CHOICES: APIApplicationCommandOptionChoice<string>[] = LANG_CODES.fil
 
 try {
   const rest = new REST({ version: '10' })
-    .setToken(ENV.DISCORD_APP_CLIENT_SECRET);
+    .setToken(ENV.DISCORD_BOT_CLIENT_ID);
 
   const commands = [
     new SlashCommandBuilder()
@@ -46,22 +46,34 @@ try {
       .addSubcommand(command =>
         command.setName('game')
           .setDescription('Set your game for commands')
-          .addStringOption(opt => opt.setName('game').setChoices([
-            { name: 'Genshin', value: 'genshin' },
-            { name: 'HSR', value: 'hsr' },
-            { name: 'Zenless', value: 'zenless' },
-            { name: 'Wuwa', value: 'wuwa' },
-          ]).setRequired(true)),
+          .addStringOption(opt => opt
+            .setName('game')
+            .setDescription('Game choice')
+            .setChoices([
+              { name: 'Genshin', value: 'genshin' },
+              { name: 'HSR', value: 'hsr' },
+              { name: 'Zenless', value: 'zenless' },
+              { name: 'Wuwa', value: 'wuwa' },
+            ])
+            .setRequired(true)),
       )
       .addSubcommand(command =>
         command.setName('inlang')
           .setDescription('Set your input language')
-          .addStringOption(opt => opt.setName('lang').setChoices(LANG_CHOICES).setRequired(true)),
+          .addStringOption(opt => opt
+            .setName('lang')
+            .setDescription('Language choice')
+            .setChoices(LANG_CHOICES)
+            .setRequired(true)),
       )
       .addSubcommand(command =>
         command.setName('outlang')
           .setDescription('Set your output language')
-          .addStringOption(opt => opt.setName('lang').setChoices(LANG_CHOICES).setRequired(true)),
+          .addStringOption(opt => opt
+            .setName('lang')
+            .setDescription('Language choice')
+            .setChoices(LANG_CHOICES)
+            .setRequired(true)),
       )
       .addSubcommand(command =>
         command.setName('info')
@@ -71,15 +83,18 @@ try {
     new SlashCommandBuilder()
       .setName('ol')
       .setDescription('Generate other languages')
-      .addStringOption(option => option.setName('text').setRequired(true))
-      .addBooleanOption(option => option.setName('hideTL'))
-      .addBooleanOption(option => option.setName('hideRM'))
-      .addBooleanOption(option => option.setName('addDefaultHidden'))
+      .addStringOption(option => option
+        .setName('text')
+        .setDescription('Text')
+        .setRequired(true))
+      .addBooleanOption(option => option.setName('hideTL').setDescription('Hide TL'))
+      .addBooleanOption(option => option.setName('hideRM').setDescription('Hide RM'))
+      .addBooleanOption(option => option.setName('addDefaultHidden').setDescription('Add default hidden'))
       .toJSON(),
   ];
 
   console.log('Started refreshing application (/) commands.');
-  await rest.put(Routes.applicationCommands(ENV.DISCORD_APP_CLIENT_ID), { body: commands });
+  await rest.put(Routes.applicationCommands(ENV.DISCORD_BOT_CLIENT_ID), { body: commands });
   console.log('Successfully reloaded application (/) commands.');
 } catch (error) {
   console.error(error);
@@ -253,4 +268,4 @@ function getControl(siteUser: SiteUser) {
   }
 }
 
-await client.login(ENV.DISCORD_APP_CLIENT_SECRET);
+await client.login(ENV.DISCORD_BOT_CLIENT_SECRET);
