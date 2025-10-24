@@ -87,9 +87,9 @@ try {
         .setName('text')
         .setDescription('Text')
         .setRequired(true))
-      .addBooleanOption(option => option.setName('hideTL').setDescription('Hide TL'))
-      .addBooleanOption(option => option.setName('hideRM').setDescription('Hide RM'))
-      .addBooleanOption(option => option.setName('addDefaultHidden').setDescription('Add default hidden'))
+      .addBooleanOption(option => option.setName('hide_tl').setDescription('Hide TL'))
+      .addBooleanOption(option => option.setName('hide_rm').setDescription('Hide RM'))
+      .addBooleanOption(option => option.setName('add_default_hidden').setDescription('Add default hidden'))
       .toJSON(),
   ];
 
@@ -220,9 +220,9 @@ async function handleChatInputCommand(user: SiteUser, command: ChatInputCommandI
     }
 
     const text: string = command.options.getString('text') as LangCode;
-    const hideTL: boolean = command.options.getBoolean('hideTL') || false;
-    const hideRM: boolean = command.options.getBoolean('hideRM') || false;
-    const addDefaultHidden: boolean = command.options.getBoolean('addDefaultHidden') || false;
+    const hideTL: boolean = command.options.getBoolean('hide_tl') || false;
+    const hideRM: boolean = command.options.getBoolean('hide_rm') || false;
+    const addDefaultHidden: boolean = command.options.getBoolean('add_default_hidden') || false;
 
     let results: OLResult[] = await ol_gen(getControl(user), text, {
       hideTl: hideTL,
