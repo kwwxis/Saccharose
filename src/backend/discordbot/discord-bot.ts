@@ -232,12 +232,12 @@ async function handleChatInputCommand(user: SiteUser, command: ChatInputCommandI
 
     const embed = new EmbedBuilder()
       .setTitle('Saccharose.wiki OL')
-      .setDescription('OL Results for ' + text + (!results.length ? `\n\nNo results found.`: ''));
+      .setDescription('OL Results for ' + text + (!results.length ? `\n\nNo results found.\n\nNote that your input language is current set to: ${user.prefs.inputLangCode}`: ''));
 
     for (let result of results) {
       embed.addFields({
         name: 'TextMapHash ' + result.textMapHash,
-        value: '```' + result.result + '````'
+        value: '```' + result.result + '```'
       });
       if (result.warnings && result.warnings.length) {
         embed.addFields({

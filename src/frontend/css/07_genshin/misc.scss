@@ -1,41 +1,4 @@
-body.page--OL.page--genshin {
-  &:after {
-    content: '';
-    position: fixed;
-    pointer-events: none;
-    bottom: 0;
-    right: 10px;
-    height: 200px;
-    width: 95px;
-    background: url(/images/site/home/GanyuOL-x300.png) no-repeat bottom right / 90px;
-    opacity: 0.3;
-  }
-  &.nightmode:after {
-    opacity: 0.18;
-  }
-  &:before {
-    content: "";
-    position: fixed;
-    pointer-events: none;
-    bottom: 0;
-    left: -25px;
-    height: 220px;
-    width: 180px;
-    background: url(/images/site/home/AlhaithamOG-x500.png) no-repeat top left / 180px;
-    opacity: 0.32;
-  }
-  &.nightmode:before {
-    opacity: 0.25;
-  }
-}
-
-@media (max-width: 1380px) {
-  body:after, body:before {
-    display: none !important;
-  }
-}
-
-body:not(.page--OL.page--genshin):not(.page--wide).painmelo {
+body:not(.page--wide).painmelo {
   &:after {
     content: '';
     position: fixed;
