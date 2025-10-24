@@ -33,7 +33,7 @@ const LANG_CHOICES: APIApplicationCommandOptionChoice<string>[] = LANG_CODES.fil
 
 try {
   const rest = new REST({ version: '10' })
-    .setToken(ENV.DISCORD_BOT_CLIENT_ID);
+    .setToken(ENV.DISCORD_BOT_CLIENT_SECRET);
 
   const commands = [
     new SlashCommandBuilder()
