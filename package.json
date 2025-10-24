@@ -20,7 +20,8 @@
     "test": "jest"
   },
   "engines": {
-    "node": ">=20"
+    "node": "22.13.1",
+    "npm": "11.6.1"
   },
   "author": "kwwxis",
   "license": "MIT",
