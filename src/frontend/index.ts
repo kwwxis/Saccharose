@@ -72,9 +72,10 @@ import './pages/zenless/zenless-dialogue-generation-page.ts';
 
 // Expose certain functions to global scope for debugging purposes
 // ----------------------------------------------------------------------------------------------------
-import { escapeHtml } from '../shared/util/stringUtil.ts';
+import { escapeHtml, toHtmlId } from '../shared/util/stringUtil.ts';
 
 (<any> window).escapeHtml = escapeHtml;
+(<any> window).toHtmlId = toHtmlId;
 
 import JSON5 from 'json5';
 

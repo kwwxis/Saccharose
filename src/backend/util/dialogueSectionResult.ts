@@ -33,6 +33,7 @@ export class DialogueSectionResult {
     questId?: number,
     questName?: string
   } = {};
+  extraData?: Record<string, any> = {};
   showGutter: boolean = false;
   showTextMapHash: boolean = false;
   similarityGroupId: number = null;
