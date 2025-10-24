@@ -3,7 +3,7 @@ import { openPgSite } from '../../util/db.ts';
 import { Request } from 'express';
 import { isEquiv } from '../../../shared/util/arrayUtil.ts';
 import { saveSession, setSessionUser } from './sessions.ts';
-import { SiteNotice, SiteUser } from '../../../shared/types/site/site-user-types.ts';
+import { SiteNotice, SiteUser, SiteUserPrefs } from '../../../shared/types/site/site-user-types.ts';
 import { cached, delcache } from '../../util/cache.ts';
 
 type SiteUserEntity = {
@@ -214,6 +214,23 @@ export class SiteUserProviderImpl {
       discord_username: payload?.discord?.username || data.discord_username,
       wiki_id: payload?.wiki_id || data.wiki_id,
       wiki_username: payload?.wiki_username || data.wiki_username,
+      json_data: JSON.stringify(data)
+    }).then();
+  }
+
+  async updatePrefs(discordId: string, modifier: (prefs: SiteUserPrefs) => void) {
+    const data = await SiteUserProvider.find(discordId);
+    if (!data) {
+      return;
+    }
+
+    if (!data.prefs) {
+      data.prefs = {};
+    }
+
+    modifier(data.prefs);
+
+    await pg('site_user').where({discord_id: discordId}).update({
       json_data: JSON.stringify(data)
     }).then();
   }

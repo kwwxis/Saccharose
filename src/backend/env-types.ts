@@ -126,6 +126,11 @@ export interface ProcessEnv {
   HSR_DISABLED: string;
   ZENLESS_DISABLED: string;
   WUWA_DISABLED: string;
+
+  // Discord Bot
+  // --------------------------------------------------------------------------------------------------------------
+  DISCORD_BOT_CLIENT_ID: string;
+  DISCORD_BOT_CLIENT_SECRET: string;
 }
 
 declare var process: {

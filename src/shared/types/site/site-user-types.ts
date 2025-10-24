@@ -33,6 +33,8 @@ export type SiteUserPrefs = {
   ol_includeHeader?: boolean,
 
   voPrefixDisabledLangs?: LangCode[],
+
+  dbotSiteMode?: SiteMode,
 };
 
 export type SiteMenuShown = {
