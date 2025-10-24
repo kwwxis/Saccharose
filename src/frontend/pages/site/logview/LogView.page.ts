@@ -8,7 +8,6 @@ import { escapeHtml } from '../../../../shared/util/stringUtil.ts';
 import { humanTiming, printHumanTiming } from '../../../../shared/util/genericUtil.ts';
 import moment from 'moment';
 import { uuidv4 } from '../../../../shared/util/uuidv4.ts';
-import { css } from 'webpack';
 
 pageMatch('vue/SiteLogViewPage', () => {
   const mainContainer: HTMLDivElement = document.querySelector('#site-logview');

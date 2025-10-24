@@ -1,10 +1,9 @@
 import {merge} from 'webpack-merge';
-import {Configuration} from 'webpack';
-import LiveReloadPlugin from 'webpack-livereload-plugin';
-import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
-import baseConfig from './webpack.base';
-import fs from 'fs';
+import rspack, {Configuration} from '@rspack/core';
+import baseConfig from './rspack.base';
 import { toBoolean } from './src/shared/util/genericUtil';
+import fs from 'fs';
+import { LiveReloadPlugin } from './src/pipeline/RspackLiveReloadPlugin';
 
 // noinspection JSUnusedGlobalSymbols (used in package.json)
 export default <Configuration> merge(baseConfig('development'), {
@@ -19,6 +18,10 @@ export default <Configuration> merge(baseConfig('development'), {
     removeEmptyChunks: false,
     minimize: false,
   },
+  devServer: {
+    hot: false,
+    liveReload: false,
+  },
   plugins: [
     new LiveReloadPlugin({
       delay: 500,
@@ -29,11 +32,6 @@ export default <Configuration> merge(baseConfig('development'), {
         key: fs.readFileSync(process.env.SSL_KEY, 'utf8'),
         cert: fs.readFileSync(process.env.SSL_CERT, 'utf8'),
       } : {})
-    }),
-    new BundleAnalyzerPlugin({
-      analyzerMode: 'disabled',
-      generateStatsFile: true,
-      statsOptions: { source: false }
     }),
   ]
 });

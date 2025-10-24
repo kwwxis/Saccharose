@@ -138,6 +138,63 @@ export function concatRegExp(regs: RegExp[], flags?: string) {
   return new RegExp(regs.map(reg => reg.source).join(''), flags);
 }
 
+/**
+ * Handles creating regexes from strings like:
+ *
+ * ```js
+ * console.log(toRegExp("/a\\/b/gi"));   // /a\/b/gi
+ * console.log(toRegExp("/a/b/gi"));     // /a/b/gi
+ * console.log(toRegExp("/^asdf$/i"));   // /^asdf$/i
+ * console.log(toRegExp("/^asdf$/"));    // /^asdf$/
+ * console.log(toRegExp("^asdf$"));      // /^asdf$/
+ * console.log(toRegExp("/foo/xyz"));    // /foo/  (invalid flags ignored)
+ * console.log(toRegExp("/[a-z]+/d"));   // /[a-z]+/d
+ * console.log(toRegExp("plain-text"));  // /plain-text/
+ * ```
+ *
+ * @param input
+ */
+export function toRegExp(input: string) {
+  if (typeof input !== "string") throw new TypeError("Input must be a string");
+
+  input = input.trim();
+
+  // Must start and end with /.../
+  if (input.startsWith("/") && input.length > 1) {
+    // Find the last unescaped slash
+    let end = input.length - 1;
+    while (end > 0) {
+      if (input[end] === "/" && input[end - 1] !== "\\") break;
+      end--;
+    }
+
+    if (end > 0) {
+      const pattern = input.slice(1, end);
+      let flags = input.slice(end + 1).trim();
+
+      // Allow only valid JS RegExp flags
+      const validFlags = /^[gimsuyd]*$/;
+      if (!validFlags.test(flags)) {
+        // If invalid flags, treat entire thing as pattern
+        flags = "";
+      }
+
+      try {
+        return new RegExp(pattern, flags);
+      } catch {
+        // fallback for malformed regex
+        return new RegExp(input);
+      }
+    }
+  }
+
+  try {
+    return new RegExp(input);
+  } catch {
+    return new RegExp(escapeRegExp(input));
+  }
+}
+
 export function snakeToTitleCase(str: string) {
   return !str ? str : titleCase(str.replace(/_/g, ' ').toLowerCase());
 }

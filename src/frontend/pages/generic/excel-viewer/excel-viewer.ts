@@ -20,7 +20,7 @@ import {
   getTextWidth, hasSelection, waitForElementCb,
 } from '../../../util/domutil.ts';
 import { isEmpty, isNotEmpty, isUnset } from '../../../../shared/util/genericUtil.ts';
-import { booleanFilter } from './excel-custom-filters.ts';
+import { booleanFilter, textFilterExtension } from './excel-custom-filters.ts';
 import SiteModeInfo from '../../../core/userPreferences/siteModeInfo.ts';
 import { ExcelViewerDB, invokeExcelViewerDB } from './excel-viewer-storage.ts';
 import { StoreNames } from 'idb/build/entry';
@@ -73,7 +73,15 @@ export function makeSingleColumnDef(fieldKey: string, fieldName: string, data: a
 
     // Filter:
     filter: typeof data === 'number' || typeof data === 'boolean' ? 'agNumberColumnFilter' : 'agTextColumnFilter',
-    filterParams: typeof data === 'boolean' ? booleanFilter : undefined,
+    filterParams: (() => {
+      if (typeof data === 'boolean') {
+        return booleanFilter;
+      } else if (typeof data !== 'number') {
+        return textFilterExtension;
+      } else {
+        return undefined;
+      }
+    })(),
     floatingFilter: true,
 
     // Display:
@@ -369,13 +377,17 @@ export async function initExcelViewer<T = any>(excelFileName: string,
       ]
     },
     getContextMenuItems(params: GetContextMenuItemsParams): (string | MenuItemDef)[] {
-      const cellEl: HTMLElement = document.querySelector(`.ag-body-viewport .ag-row[row-id="${params.node.id}"] .ag-cell[col-id="${params.column.getColId()}"]`);
-      const cellImage: HTMLImageElement = cellEl.querySelector('.excel-image:not(.excel-image-error)');
+      if (!params.node && !params.column) {
+        return [];
+      }
 
       const result: (string | MenuItemDef)[] = [
         'copy',
         'copyWithHeaders'
       ];
+
+      const cellEl: HTMLElement = document.querySelector(`.ag-body-viewport .ag-row[row-id="${params.node.id}"] .ag-cell[col-id="${params.column.getColId()}"]`);
+      const cellImage: HTMLImageElement = cellEl.querySelector('.excel-image:not(.excel-image-error)');
 
       if (cellImage) {
         result.push(... [

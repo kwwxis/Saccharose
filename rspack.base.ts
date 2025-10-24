@@ -1,11 +1,13 @@
 import dotenv from 'dotenv';
 import path from 'path';
-import webpack from 'webpack';
-import MiniCssExtractPlugin from 'mini-css-extract-plugin';
-import { CleanWebpackPlugin } from 'clean-webpack-plugin';
-import * as sass from 'sass';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
+
+import rspack, { Configuration } from '@rspack/core';
+import * as sass from 'sass';
+import { RspackManifestPlugin } from 'rspack-manifest-plugin';
+import { CleanWebpackPlugin } from 'clean-webpack-plugin'; // compatible with rspack
+import { RsdoctorRspackPlugin } from '@rsdoctor/rspack-plugin';
 
 // @ts-ignore
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -16,6 +18,7 @@ const pathDefaults = {
   dist: path.resolve(__dirname, './public/dist'),
   public: '/dist/', // path of distribution folder relative to base path in the browser (not in the repo)
 };
+
 const paths = {
   development: {
     ... pathDefaults,
@@ -31,7 +34,7 @@ const paths = {
   }
 }
 
-export default (env: 'development'|'production') => <webpack.Configuration> {
+export default (env: 'development'|'production') => <Configuration> {
   entry: {
     app: paths[env].entry,
   },
@@ -53,6 +56,12 @@ export default (env: 'development'|'production') => <webpack.Configuration> {
     mainFields: ['browser', 'main', 'module']
   },
   module: {
+    parser: {
+      javascript: {
+        reexportExportsPresence: false,
+        importExportsPresence: false,
+      }
+    },
     rules: [
       {
         test: /\.[jt]sx?$/,
@@ -68,7 +77,7 @@ export default (env: 'development'|'production') => <webpack.Configuration> {
           path.resolve(__dirname, './node_modules/ag-grid-community'),
         ],
         use: [
-          MiniCssExtractPlugin.loader,
+          rspack.CssExtractRspackPlugin.loader,
           {loader: 'css-loader', options: {url: false, sourceMap: true}},
           'postcss-loader',
           {loader: 'sass-loader', options: {sourceMap: true, implementation: sass}}
@@ -77,12 +86,14 @@ export default (env: 'development'|'production') => <webpack.Configuration> {
     ],
   },
   plugins: [
-    new MiniCssExtractPlugin({ filename: paths[env].cssFilename }),
+    new rspack.CssExtractRspackPlugin({ filename: paths[env].cssFilename }),
     new CleanWebpackPlugin(),
-    new webpack.IgnorePlugin({
+    new rspack.IgnorePlugin({
       resourceRegExp: /^\.\/locale$/,
       contextRegExp: /moment$/,
     }),
+    new RspackManifestPlugin({}),
+    process.env.RSDOCTOR && new RsdoctorRspackPlugin()
   ],
   performance: {
     maxEntrypointSize: 3_000_000,

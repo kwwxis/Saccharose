@@ -1,9 +1,9 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="webpack:dev-watch" type="js.build_tools.npm" nameIsGenerated="true">
+  <configuration default="false" name="rspack:prod" type="js.build_tools.npm">
     <package-json value="$PROJECT_DIR$/package.json" />
     <command value="run" />
     <scripts>
-      <script value="webpack:dev-watch" />
+      <script value="rspack:prod" />
     </scripts>
     <node-interpreter value="project" />
     <envs />
