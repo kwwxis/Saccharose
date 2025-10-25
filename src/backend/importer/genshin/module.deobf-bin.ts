@@ -146,16 +146,50 @@ function getSchemaFilePath(filePath: string): string {
   return path.resolve(ENV.GENSHIN_ARCHIVES, `./5.4/`, filePath);
 }
 
+/**
+ * Fixes JSON strings where string values are split by a newline
+ * before the closing quote, e.g.:
+ *
+ *   "key": "value
+ * ",
+ *   "key": "
+ * ",
+ *   "key": "something
+ * "
+ */
+export function fixBrokenJsonStrings(input: string): string {
+  let output: string = '';
+
+  for (let line of input.split(/\r?\n/g)) {
+    const trimmed: string = line.trim();
+
+    if (trimmed === `"` || trimmed === '",') {
+      output += trimmed;
+    } else {
+      output += `\n` + line;
+    }
+  }
+
+  return output.startsWith('\n') ? output.slice(1) : output;
+}
+
 export async function writeDeobfBin() {
   shouldIgnoreConfig.shouldIgnoreEmptyString = true;
 
   let anyInvalidJson = false;
   for (let file of fsWalkSync(getGenshinDataFilePath('./BinOutput.Obf/InterAction/QuestDialogue'))) {
+    let fileContent: string = await fsRead(file);
     try {
-      JSON.parse(await fsRead(file));
-    } catch (err) {
-      console.log('Invalid JSON:', file, err);
-      anyInvalidJson = true;
+      JSON.parse(fileContent);
+    } catch (_err) {
+      fileContent = fixBrokenJsonStrings(fileContent);
+      try {
+        JSON.parse(fileContent);
+        await fsWrite(file, fileContent);
+      } catch (err) {
+        console.log('Invalid JSON:', file, err);
+        anyInvalidJson = true;
+      }
     }
   }
   if (anyInvalidJson) {

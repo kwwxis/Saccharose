@@ -37,10 +37,17 @@ export async function writeDeobfExcels() {
   let endAt: string = null; // inclusive
   let didStart: boolean = (s => !s)(startAt);
 
+  // noinspection JSMismatchedCollectionQueryUpdate (empty array: whitelist not enabled)
+  const whitelist: string[] = [];
+
   const jsonsInDir = fs.readdirSync(rawExcelDirPath).filter(file => path.extname(file) === '.json');
   for (let _jsonFile of jsonsInDir) {
     const fileName = path.basename(_jsonFile);
     const schemaName = fileName.split('.')[0];
+
+    if (whitelist && whitelist.length && !whitelist.includes(schemaName)) {
+      continue;
+    }
 
     if (schemaName === startAt) {
       didStart = true;
@@ -53,6 +60,10 @@ export async function writeDeobfExcels() {
     const schemaFilePath = getSchemaFilePath(fileName);
     if (!fs.existsSync(schemaFilePath)) {
       console.log('NEW EXCEL: not in schema - ' + schemaName);
+
+      const absJsonPath = path.resolve(rawExcelDirPath, fileName);
+      const json = await fsp.readFile(absJsonPath, { encoding: 'utf8' }).then(data => JSON.parse(data));
+      fs.writeFileSync(path.resolve(mappedExcelDirPath, './' + schemaName + '.json'), JSON.stringify(json, null, 2));
     } else {
       console.log('Processing ' + schemaName);
 

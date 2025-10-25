@@ -285,6 +285,13 @@ async function insertTextMapChanges(
   console.log('-'.repeat(100))
   console.log(`[${version.number}] Inserting changelog for ${version.label}`);
 
+  let deletedCount = await knex('textmap_changes')
+    .where('version', version.number)
+    .del();
+  if (deletedCount > 0) {
+    console.log(`[${version.number}] Deleted ${deletedCount} existing entities for this version (you are reimporting)`);
+  }
+
   await knex.transaction(async (trx) => {
     const batches = chunk(rows, batchSize);
 

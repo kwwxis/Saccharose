@@ -190,6 +190,13 @@ async function importForVersion(ctrl: GenshinControl, version: GameVersion) {
   const CHANGES_BATCH_SIZE = 1000;
   const CONTENTS_BATCH_SIZE = 500;
 
+  let deletedCount = await ctrl.knex('readable_changes')
+    .where('version', version.number)
+    .del();
+  if (deletedCount > 0) {
+    console.log(`[${version.number}] Deleted ${deletedCount} existing entities for this version (you are reimporting)`);
+  }
+
   await ctrl.knex.transaction(async (trx) => {
     const contentBatches = chunk(contents, CONTENTS_BATCH_SIZE);
     const changeBatches = chunk(changes, CHANGES_BATCH_SIZE);
