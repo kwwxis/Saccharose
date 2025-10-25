@@ -349,6 +349,7 @@ function createGrepCommand(searchText: string, absoluteFilePath: string, extraOp
     searchText = searchText.replace(/\\n/g, '(\\\\\\\\n)');
   }
 
+  flags.set('--mmap');
   flags.set('--no-heading');
   flags.set('--path-separator', process.platform === 'win32' ? '//' : '/');
 

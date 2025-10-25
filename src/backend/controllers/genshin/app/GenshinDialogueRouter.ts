@@ -1,5 +1,8 @@
 import { create } from '../../../routing/router.ts';
-import { reminderGenerateAll } from '../../../domain/genshin/dialogue/reminder_generator.ts';
+import {
+  reminderGenerateAll,
+  reminderGenerateFromSpeakerTextMapHashes,
+} from '../../../domain/genshin/dialogue/reminder_generator.ts';
 import { GenshinControl, getGenshinControl } from '../../../domain/genshin/genshinControl.ts';
 import { toInt } from '../../../../shared/util/numberUtil.ts';
 import { ol_gen_from_id } from '../../../domain/abstract/basic/OLgen.ts';
@@ -24,6 +27,7 @@ import {
 } from '../../../domain/genshin/dialogue/basic_dialogue_generator.ts';
 import GenshinAvatarCondDialoguePage from '../../../components/genshin/dialogue/GenshinAvatarCondDialoguePage.vue';
 import { inDialogueReadablesHelper, questStillsHelper } from '../api/DialogueResources.ts';
+import { TextMapHash } from '../../../../shared/types/lang-types.ts';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -144,6 +148,22 @@ export default async function(): Promise<Router> {
       ... await inDialogueReadablesHelper(ctrl),
     });
   });
+
+  // router.get('/nefer-skill-dialogue', async (req: Request, res: Response) => {
+  //   const englishControl = getGenshinControl();
+  //   const neferNameHashes: TextMapHash[] = await englishControl.findTextMapHashesByExactName('Nefer');
+  //
+  //   const ctrl = getGenshinControl(req);
+  //   const reminders = await reminderGenerateFromSpeakerTextMapHashes(ctrl, neferNameHashes);
+  //
+  //
+  //
+  //   await res.renderComponent(GenshinAvatarCondDialoguePage, {
+  //     title: 'Avatar Condition Dialogue',
+  //     bodyClass: ['page--avatar-cond-dialogue'],
+  //     avatars,
+  //   });
+  // });
 
   return router;
 }
