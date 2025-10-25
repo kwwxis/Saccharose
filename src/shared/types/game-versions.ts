@@ -182,7 +182,7 @@ export const GenshinVersions: GameVersions = new GameVersions([
   new GameVersion({number: '1.1', prevNumber: '1.0', showNewMedia: true}),
   new GameVersion({number: '1.2', prevNumber: '1.1'}),
   new GameVersion({number: '1.3', prevNumber: '1.2'}),
-  new GameVersion({number: '1.4', prevNumber: '1.3', showTextmapChangelog: false, noPriorChangelog: true}),
+  new GameVersion({number: '1.4', prevNumber: '1.3', showTextmapChangelog: true, noPriorChangelog: true}),
   new GameVersion({number: '1.5', prevNumber: '1.4', showTextmapChangelog: true, showNewMedia: true}),
   new GameVersion({number: '1.6', prevNumber: '1.5', showTextmapChangelog: true, showNewMedia: true}),
 
