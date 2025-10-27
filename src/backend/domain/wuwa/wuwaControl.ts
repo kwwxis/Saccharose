@@ -60,7 +60,7 @@ export class WuwaControl extends AbstractControl<WuwaControlState> {
       currentGameVersion: CurrentWuwaVersion,
       gameVersions: WuwaVersions,
       changelogConfig: {
-        directory: ENV.WUWA_CHANGELOGS,
+        archivesDirectory: ENV.WUWA_ARCHIVES,
         textmapEnabled: true,
         excelEnabled: false,
       },

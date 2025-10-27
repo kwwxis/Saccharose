@@ -6,7 +6,7 @@ import {
   Events,
   GatewayIntentBits,
   SlashCommandBuilder,
-  ChatInputCommandInteraction, EmbedBuilder,
+  ChatInputCommandInteraction, EmbedBuilder, Options,
 } from 'discord.js';
 import { SiteUserProvider } from '../middleware/auth/SiteUserProvider.ts';
 import { SiteUser } from '../../shared/types/site/site-user-types.ts';
@@ -100,7 +100,22 @@ try {
   console.error(error);
 }
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const client = new Client({
+  intents: [GatewayIntentBits.Guilds],
+  // makeCache: Options.cacheWithLimits({
+  //   MessageManager: 0,
+  //   ThreadManager: 0,
+  //   GuildMemberManager: 0,
+  //   ReactionManager: 0,
+  //   PresenceManager: 0,
+  // }),
+  sweepers: {
+    messages: {
+      interval: 60, // seconds
+      lifetime: 30, // seconds
+    },
+  },
+});
 
 client.on(Events.ClientReady, readyClient => {
   console.log(`Logged in as ${readyClient.user.tag}!`);

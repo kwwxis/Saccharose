@@ -342,7 +342,6 @@ export type TalkExcelFinishExecType =
   'TALK_EXEC_UNLOCK_EVENTS_ITEM'          ; // TODO
 
 export type TalkLoadType =
-  'TALK_DEFAULT'      |
   'TALK_ACTIVITY'     |
   'TALK_BLOSSOM'      | // For "Is there anything of note nearby?" dialogues for "Magical Crystal Chunk" veins...
   'TALK_GADGET'       |
@@ -386,7 +385,7 @@ export interface TalkExcelConfigData {
   BeginCond: ConfigCondition<TalkExcelBeginCondType>[],
   FinishExec: ConfigCondition<TalkExcelFinishExecType>[]
 
-  NextRandomTalks: number[],
+  NextRandomTalks: number[], // RqTalkExcel only
   NextTalks: number[],
   NextTalksDataList: TalkExcelConfigData[],
   InitDialog: number,

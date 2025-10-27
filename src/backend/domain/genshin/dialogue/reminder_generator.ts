@@ -137,7 +137,7 @@ class ReminderGenerationContext {
     const sect = new DialogueSectionResult('Reminder_'+reminder.Id, 'Reminder');
     sect.headerProps.push(new MetaProp('First Reminder ID', reminder.Id));
 
-    const changeRecord = await this.ctrl.selectChangeRecordAdded(reminder.Id, 'ReminderExcelConfigData');
+    const changeRecord = await this.ctrl.excelChangelog.selectChangeRefAddedAt(reminder.Id, 'ReminderExcelConfigData');
     if (changeRecord) {
       sect.headerProps.push(new MetaProp('Added In Version', changeRecord.version?.displayLabel));
       sect.extraData.addedInVersion = changeRecord.version?.number;

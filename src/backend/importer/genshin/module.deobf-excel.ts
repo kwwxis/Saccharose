@@ -62,7 +62,8 @@ export async function writeDeobfExcels() {
       console.log('NEW EXCEL: not in schema - ' + schemaName);
 
       const absJsonPath = path.resolve(rawExcelDirPath, fileName);
-      const json = await fsp.readFile(absJsonPath, { encoding: 'utf8' }).then(data => JSON.parse(data));
+      let json = await fsp.readFile(absJsonPath, { encoding: 'utf8' }).then(data => JSON.parse(data));
+      json = normalizeRawJson(json);
       fs.writeFileSync(path.resolve(mappedExcelDirPath, './' + schemaName + '.json'), JSON.stringify(json, null, 2));
     } else {
       console.log('Processing ' + schemaName);

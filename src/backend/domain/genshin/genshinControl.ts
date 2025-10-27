@@ -158,10 +158,6 @@ import {
 import { CommonLineId, DialogWikitextResult } from '../../../shared/types/common-types.ts';
 import { genshin_i18n, GENSHIN_I18N_MAP, GENSHIN_MATERIAL_TYPE_DESC_PLURAL_MAP } from '../abstract/i18n.ts';
 import * as console from 'console';
-import {
-  ExcelFullChangelog,
-  TextMapFullChangelog,
-} from '../../../shared/types/changelog-types.ts';
 import { CurrentGenshinVersion, GameVersion, GenshinVersions } from '../../../shared/types/game-versions.ts';
 import { AbstractControlState, ControlUserModeProvider } from '../abstract/abstractControlState.ts';
 import { Knex } from 'knex';
@@ -268,7 +264,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       currentGameVersion: CurrentGenshinVersion,
       gameVersions: GenshinVersions,
       changelogConfig: {
-        directory: ENV.GENSHIN_CHANGELOGS,
+        archivesDirectory: ENV.GENSHIN_ARCHIVES,
         textmapEnabled: true,
         excelEnabled: true,
       },
@@ -885,6 +881,12 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return await this.knex.select('*').from('ManualTextMapConfigData')
       .where({TextMapId: id}).first().then(this.commonLoadFirst);
   }
+
+  async selectAllManualTextMapConfigDataByIds(ids: string[]): Promise<Record<string, ManualTextMapConfigData>> {
+    const result: ManualTextMapConfigData[] = await this.knex.select('*').from('ManualTextMapConfigData')
+      .whereIn('TextMapId', ids).then(this.commonLoad);
+    return mapBy(result, 'TextMapId');
+  }
   // endregion
 
   // region Talk Excel
@@ -894,7 +896,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       return talk;
     }
     if (!talk.LoadType) {
-      talk.LoadType = 'TALK_DEFAULT';
+      talk.LoadType = 'TALK_NORMAL_QUEST';
     }
     if (talk.NpcId && talk.NpcId.length) {
       let dataList: NpcExcelConfigData[] = await this.getNpcList(talk.NpcId, false);
@@ -960,6 +962,29 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       .first()
       .then(this.commonLoadFirst)
       .then(x => this.postProcessTalkExcel(x));
+  }
+
+  async selectMultipleTalkExcelConfigDataByIds(ids: number[], loadType: TalkLoadType = null): Promise<TalkExcelConfigData[]> {
+    if (!ids || !ids.length) {
+      return [];
+    }
+    return await this.knex.select('*').from('TalkExcelConfigData')
+      .whereIn('Id', ids)
+      .modify(builder => {
+        if (loadType) {
+          builder.andWhere('LoadType', loadType);
+        }
+      })
+      .then(this.commonLoad)
+      .then(results => results.asyncMap(x => this.postProcessTalkExcel(x)));
+  }
+
+  async selectPreviousTalks(nextId: number, loadType: TalkLoadType = null): Promise<TalkExcelConfigData[]> {
+    const ids: number[] = await this.knex.select('*')
+      .from('Relation_TalkToNext')
+      .where(cleanEmpty({NextTalkId: nextId, TalkLoadType: loadType}))
+      .pluck('TalkId').then();
+    return this.selectMultipleTalkExcelConfigDataByIds(ids, loadType);
   }
 
   async selectTalkExcelConfigDataByAvatarIdForAvatarBeginCond(avatarId: number): Promise<TalkExcelConfigData[]> {

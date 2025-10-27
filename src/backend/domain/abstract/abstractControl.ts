@@ -67,12 +67,9 @@ import { Marker } from '../../../shared/util/highlightMarker.ts';
 import { AbstractControlState, AbstractControlStateType, ControlUserModeProvider } from './abstractControlState.ts';
 import { NormTextOptions } from './genericNormalizers.ts';
 import {
-  ChangeRecord,
-  ChangeRecordRef,
-  ExcelFullChangelog,
   TextMapChangeRefs,
 } from '../../../shared/types/changelog-types.ts';
-import { GameVersion, GameVersions, GenshinVersions } from '../../../shared/types/game-versions.ts';
+import { GameVersion, GameVersions } from '../../../shared/types/game-versions.ts';
 import { ScriptJobActionArgs, ScriptJobCoordinator, ScriptJobPostResult } from '../../util/scriptJobs.ts';
 import { IntHolder } from '../../../shared/util/valueHolder.ts';
 import { SiteMode } from '../../../shared/types/site/site-mode-type.ts';
@@ -80,6 +77,7 @@ import { fsExists, fsReadJson } from '../../util/fsutil.ts';
 import { TextMapChangelog } from './tmchanges.ts';
 import { Duration } from '../../../shared/util/duration.ts';
 import { ExcelScalarEntity } from '../../../shared/types/common-types.ts';
+import { ExcelChangelog } from './excelchanges.ts';
 
 export type AbstractControlConfig<T extends AbstractControlState = AbstractControlState> = {
   siteMode: SiteMode,
@@ -96,7 +94,7 @@ export type AbstractControlConfig<T extends AbstractControlState = AbstractContr
 };
 
 export type AbstractControlChangelogConfig = {
-  directory: string,
+  archivesDirectory: string,
   textmapEnabled: boolean,
   excelEnabled: boolean,
 };
@@ -116,6 +114,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
   readonly gameVersions: GameVersions;
   readonly changelogConfig: AbstractControlChangelogConfig;
   readonly textMapChangelog: TextMapChangelog;
+  readonly excelChangelog: ExcelChangelog;
   readonly excelUsagesFilesToSkip: string[];
   protected IdComparator = (a: { Id: any }, b: { Id: any }) => a.Id === b.Id;
   protected NodeIdComparator = (a: { NodeId: any }, b: { NodeId: any }) => a.NodeId === b.NodeId;
@@ -146,6 +145,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     this.gameVersions = config.gameVersions;
     this.changelogConfig = config.changelogConfig;
     this.textMapChangelog = new TextMapChangelog(this);
+    this.excelChangelog = new ExcelChangelog(this);
     this.excelUsagesFilesToSkip = config.excelUsagesFilesToSkip;
   }
 
@@ -335,6 +335,30 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     }
     await Promise.all(promises);
     return map as LangCodeMap;
+  }
+
+  async createLangCodeMaps(hashes: TextMapHash[], doNormText: boolean = true): Promise<Record<TextMapHash, LangCodeMap>> {
+    let hashesToMaps: Record<TextMapHash, LangCodeMap> = {};
+
+    let promises: Promise<void>[] = [];
+    for (let langCode of LANG_CODES) {
+      if (this.disabledLangCodes.has(langCode)) {
+        continue;
+      }
+      promises.push(this.getTextMapItems(langCode, hashes).then(hashToTextMap => {
+        for (let [hash, text] of Object.entries(hashToTextMap)) {
+          if (!hashesToMaps[hash]) {
+            hashesToMaps[hash] = {} as any;
+          }
+          hashesToMaps[hash][langCode] = text;
+          if (doNormText) {
+            hashesToMaps[hash][langCode] = this.normText(hashesToMaps[hash][langCode], langCode);
+          }
+        }
+      }));
+    }
+    await Promise.all(promises);
+    return hashesToMaps;
   }
 
   async selectPlainLineMapItem(langCode: LangCode, lineNum: number): Promise<PlainLineMapItem> {
@@ -879,75 +903,6 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     }
 
     return out;
-  }
-  // endregion
-
-  // region Changelog
-  async selectExcelChangelog(version: GameVersion): Promise<ExcelFullChangelog> {
-    if (!version || !version.showExcelChangelog || !this.changelogConfig.excelEnabled)
-      return null;
-    return this.cached('ExcelChangelog:' + version.number, 'memory', async () => {
-      const excelChangelogFileName = path.resolve(this.changelogConfig.directory, `./ExcelChangeLog.${version.number}.json`);
-      return fsReadJson(excelChangelogFileName);
-    });
-  }
-
-  // noinspection JSUnusedGlobalSymbols
-  async selectAllExcelChangeLogs(): Promise<Record<string, ExcelFullChangelog>> {
-    return this.cached('AllExcelChangeLogs', 'memory', async () => {
-      let map: Record<string, ExcelFullChangelog> = {};
-
-      await GenshinVersions.list.filter(v => v.showExcelChangelog).asyncForEach(async v => {
-        map[v.number] = await this.selectExcelChangelog(v);
-      });
-
-      return map;
-    });
-  }
-
-  async selectChangeRecordAdded(id: string|number): Promise<ChangeRecordRef[]>
-  async selectChangeRecordAdded(id: string|number, excelFile: string): Promise<ChangeRecordRef>
-  async selectChangeRecordAdded(id: string|number, excelFile?: string): Promise<ChangeRecordRef|ChangeRecordRef[]> {
-    if (excelFile) {
-      return (await this.selectChangeRecords(id, excelFile)).find(r => r.record.changeType === 'added');
-    } else {
-      return (await this.selectChangeRecords(id)).filter(r => r.record.changeType === 'added');
-    }
-  }
-
-  async selectChangeRecords(id: string|number, excelFile?: string): Promise<ChangeRecordRef[]> {
-    if (excelFile && excelFile.endsWith('.json')) {
-      excelFile = excelFile.slice(0, -5);
-    }
-
-    const changeRecordRefs: ChangeRecordRef[] = [];
-
-    for (let [versionNum, excelChangelog] of Object.entries(await this.selectAllExcelChangeLogs())) {
-      if (excelFile) {
-        if (excelChangelog[excelFile]?.changedRecords[id]) {
-          let record: ChangeRecord = excelChangelog[excelFile]?.changedRecords[id];
-          changeRecordRefs.push({
-            version: this.gameVersions.get(versionNum),
-            excelFile,
-            recordKey: String(id),
-            record
-          });
-        }
-      } else {
-        for (let excelFileChanges of Object.values(excelChangelog)) {
-          if (excelFileChanges.changedRecords[id]) {
-            changeRecordRefs.push({
-              version: this.gameVersions.get(versionNum),
-              excelFile: excelFileChanges.name,
-              recordKey: String(id),
-              record: excelFileChanges.changedRecords[id]
-            });
-          }
-        }
-      }
-    }
-
-    return changeRecordRefs;
   }
   // endregion
 

@@ -52,28 +52,24 @@ export interface ProcessEnv {
   // --------------------------------------------------------------------------------------------------------------
 
   GENSHIN_DATA_ROOT: string;
-  GENSHIN_CHANGELOGS: string;
   GENSHIN_ARCHIVES: string;
 
   // Honkai Star Rail Data Configuration
   // --------------------------------------------------------------------------------------------------------------
 
   HSR_DATA_ROOT: string;
-  HSR_CHANGELOGS: string;
   HSR_ARCHIVES: string;
 
   // Zenless Zone Zero Data Configuration
   // --------------------------------------------------------------------------------------------------------------
 
   ZENLESS_DATA_ROOT: string;
-  ZENLESS_CHANGELOGS: string;
   ZENLESS_ARCHIVES: string;
 
   // Wuthering Waves Data Configuration
   // --------------------------------------------------------------------------------------------------------------
 
   WUWA_DATA_ROOT: string;
-  WUWA_CHANGELOGS: string;
   WUWA_ARCHIVES: string;
 
   // External Directory and Images Configuration

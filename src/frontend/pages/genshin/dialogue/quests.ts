@@ -5,7 +5,7 @@ import { flashTippy } from '../../../util/tooltipUtil.ts';
 import { pageMatch } from '../../../core/pageMatch.ts';
 import { HttpError } from '../../../../shared/util/httpError.ts';
 import { isInt } from '../../../../shared/util/numberUtil.ts';
-import { pasteFromClipboard } from '../../../util/domutil.ts';
+import { hashFlash, pasteFromClipboard } from '../../../util/domutil.ts';
 import { onOutputLanguageChanged } from '../../../core/userPreferences/siteLanguage.ts';
 
 pageMatch('vue/GenshinQuestPage', () => {
@@ -65,9 +65,9 @@ pageMatch('vue/GenshinQuestPage', () => {
     ], resultParent);
   }
 
-  function loadQuestGenerateResult(questId) {
+  function loadQuestGenerateResult(questId): Promise<void> {
     if (!isInt(questId)) {
-      return;
+      return Promise.reject();
     }
 
     document.querySelector('#quest-search-result').classList.add('hide');
@@ -78,7 +78,7 @@ pageMatch('vue/GenshinQuestPage', () => {
     <span class="spacer10-left fontWeight600">Loading quest...</span>
   </div>`
 
-    genshinEndpoints.generateMainQuest.send({ id: questId }, null, true).then(html => {
+    return genshinEndpoints.generateMainQuest.send({ id: questId }, null, true).then(html => {
       lastSuccessfulQuestId = questId;
       document.querySelector('#quest-generate-result').innerHTML = html;
       postLoad(document.querySelector('#quest-generate-result'));
@@ -89,8 +89,10 @@ pageMatch('vue/GenshinQuestPage', () => {
         }
       })
       listen(questResultListeners, '#quest-generate-result');
+      return Promise.resolve();
     }).catch((err: HttpError) => {
       document.querySelector('#quest-generate-result').innerHTML = errorHtmlWrap(err.message);
+      return Promise.reject();
     });
   }
 
@@ -102,7 +104,11 @@ pageMatch('vue/GenshinQuestPage', () => {
     }
     let id: string = urlParts[1];
     window.history.replaceState({questId: id}, null, window.location.href);
-    loadQuestGenerateResult(id);
+    loadQuestGenerateResult(id).then(() => {
+      setTimeout(() => {
+        hashFlash(true, 200);
+      }, 600);
+    });
   }
 
   function loadQuestGenerateResultFromState(state) {

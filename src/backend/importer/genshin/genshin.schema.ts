@@ -1,5 +1,3 @@
-import { getGenshinDataFilePath } from '../../loadenv.ts';
-import fs from 'fs';
 import { SchemaTable, textMapSchema, plainLineMapSchema } from '../import_db.ts';
 import {
   ReminderExcelConfigData,
@@ -17,15 +15,8 @@ import { FurnitureMakeExcelConfigData } from '../../../shared/types/genshin/home
 import { GCGCharacterLevelExcelConfigData, GCGWeekLevelExcelConfigData } from '../../../shared/types/genshin/gcg-types.ts';
 import { DocumentExcelConfigData } from '../../../shared/types/genshin/readable-types.ts';
 import { toInt } from '../../../shared/util/numberUtil.ts';
-import { Relation_TalkAvatarCond_resolver } from './genshin.customRowResolvers.ts';
 
 export const RAW_MANUAL_TEXTMAP_ID_PROP: string = 'textMapId';
-
-const propertySchemaPath = getGenshinDataFilePath('./PropertySchema.json');
-const propertySchema: {[tableName: string]: {[key: string]: string}} =
-  fs.existsSync(propertySchemaPath)
-    ? JSON.parse(fs.readFileSync(propertySchemaPath, { encoding: 'utf8' }))
-    : {};
 
 export type GenshinSchemaNames = keyof typeof genshinSchema;
 
@@ -74,7 +65,11 @@ export const genshinSchema = {
       { name: 'TalkRoleNameTextMapHash', type: 'text', isIndex: true },
       { name: 'TalkId', type: 'integer', isIndex: true },
       { name: 'TalkType', type: 'text', isIndex: true },
-    ]
+    ],
+    changelog: {
+      metadataOnly: true,
+      excludeUpdated: true,
+    }
   },
   DialogUnparentedExcelConfigData: <SchemaTable> {
     name: 'DialogUnparentedExcelConfigData',
@@ -118,7 +113,7 @@ export const genshinSchema = {
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
       { name: 'InitDialog', type: 'bigint', isIndex: true },
-      { name: 'LoadType', type: 'text', isIndex: true, defaultValue: 'TALK_DEFAULT' },
+      { name: 'LoadType', type: 'text', isIndex: true, defaultValue: 'TALK_NORMAL_QUEST' },
       { name: 'QuestId', type: 'integer', isIndex: true },
       {
         name: 'QuestCondStateEqualFirst', type: 'integer', isIndex: true, resolve(row: TalkExcelConfigData) {
@@ -139,7 +134,7 @@ export const genshinSchema = {
           return null;
         },
       },
-    ],
+    ]
   },
   Relation_TalkAvatarCond: <SchemaTable> {
     name: 'Relation_TalkAvatarCond',
@@ -162,7 +157,22 @@ export const genshinSchema = {
     ],
     customRowResolve: (row: TalkExcelConfigData) => {
       if (row.NpcId && row.NpcId.length) {
-        return row.NpcId.map(npcId => ({ NpcId: npcId, TalkId: row.Id, TalkLoadType: row.LoadType || 'TALK_DEFAULT' }));
+        return row.NpcId.map(npcId => ({ NpcId: npcId, TalkId: row.Id, TalkLoadType: row.LoadType || 'TALK_NORMAL_QUEST' }));
+      }
+      return [];
+    },
+  },
+  Relation_TalkToNext: <SchemaTable> {
+    name: 'Relation_TalkToNext',
+    jsonFile: './ExcelBinOutput/TalkExcelConfigData.json',
+    columns: [
+      { name: 'TalkId', type: 'integer', isIndex: true },
+      { name: 'NextTalkId', type: 'integer', isIndex: true },
+      { name: 'TalkLoadType', type: 'text', isIndex: true },
+    ],
+    customRowResolve: (row: TalkExcelConfigData) => {
+      if (row.NextTalks && row.NextTalks.length) {
+        return row.NextTalks.map(nextTalkId => ({ TalkId: row.Id, TalkLoadType: row.LoadType || 'TALK_NORMAL_QUEST', NextTalkId: nextTalkId }));
       }
       return [];
     },
@@ -1638,7 +1648,10 @@ export const genshinSchema = {
     columns: [
       {name: 'Id', type: 'text', isPrimary: true},
       {name: 'MainQuestId', type: 'integer', isIndex: true},
-    ]
+    ],
+    changelog: {
+      excluded: true
+    }
   },
   GivingExcelConfigData: <SchemaTable> {
     name: 'GivingExcelConfigData',
@@ -1672,17 +1685,3 @@ export const genshinSchema = {
     ],
   },
 };
-
-for (let [tableName, propertySchemaData] of Object.entries(propertySchema)) {
-  if (!Object.keys(propertySchemaData).length) {
-    continue;
-  }
-
-  for (let schemaTable of Object.values(genshinSchema)) {
-    if (schemaTable.name === tableName) {
-      schemaTable.propertySchema = propertySchemaData;
-    } else if (schemaTable.jsonFile.endsWith('/' + tableName + '.json')) {
-      schemaTable.propertySchema = propertySchemaData;
-    }
-  }
-}

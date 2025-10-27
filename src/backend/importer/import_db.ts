@@ -109,6 +109,16 @@ export type SchemaTable = {
    * be set to the field with the corresponding value in this object.
    */
   singularize?: { [fieldName: string]: string },
+
+  // Changelog Options
+  // --------------------------------------------------------------------------------------------------------------
+  changelog?: {
+    excluded?: boolean,
+    metadataOnly?: boolean,
+    excludeAdded?: boolean,
+    excludeUpdated?: boolean,
+    excludeRemoved?: boolean,
+  }
 };
 
 export function schemaPrimaryKey(schemaTable: SchemaTable): string {
@@ -173,6 +183,9 @@ export function textMapSchema(langCode: LangCode): SchemaTable {
     ],
     customRowResolve(row) {
       return [{Hash: row.Key, Text: row.Value}];
+    },
+    changelog: {
+      excluded: true
     }
   };
 }
@@ -191,6 +204,9 @@ export function plainLineMapSchema(langCode: LangCode): SchemaTable {
     customRowResolve(row) {
       const linePair = row.LineText.split(',');
       return [{Line: row.LineNumber, Hash: linePair[0], LineType: linePair[1] || null}];
+    },
+    changelog: {
+      excluded: true
     }
   }
 }

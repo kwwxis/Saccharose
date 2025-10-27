@@ -2,8 +2,7 @@ import '../../../loadenv.ts';
 import { closeKnex } from '../../../util/db.ts';
 import { GenshinControl, getGenshinControl } from '../genshinControl.ts';
 import { ol_gen_from_id } from '../../abstract/basic/OLgen.ts';
-import { ConfigCondition } from '../../../../shared/types/genshin/general-types.ts';
-import { arrayEmpty, arrayUnique } from '../../../../shared/util/arrayUtil.ts';
+import { arrayUnique } from '../../../../shared/util/arrayUtil.ts';
 import {
   DialogUnparented,
   TalkExcelConfigData,
@@ -39,10 +38,7 @@ export class QuestGenerateResult {
   questTitle: string;
   questId: number;
   versionAdded?: GameVersion;
-  npc: {
-    names: string[],
-    data: {[Id: number]: NpcExcelConfigData},
-  } = {names: [], data: {}};
+  npc: QuestGenerateResultNpcInfo = {names: [], data: {}};
 
   stepsWikitext: string = null;
   questDescriptions: string[] = [];
@@ -60,6 +56,11 @@ export class QuestGenerateResult {
   inDialogueReadables?: Readable[];
   questItemPictureCandidates?: ImageIndexEntity[];
 }
+
+export type QuestGenerateResultNpcInfo = {
+  names: string[],
+  data: {[Id: number]: NpcExcelConfigData},
+};
 
 async function findMainQuest(ctrl: GenshinControl, questNameOrId: string|number, questIndex: number) {
   const mainQuests: MainQuestExcelConfigData[] = typeof questNameOrId === 'string'
@@ -89,7 +90,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
   if (!mainQuest || !mainQuest.Id) {
     throw 'Main Quest not found.';
   }
-  result.versionAdded = (await ctrl.selectChangeRecordAdded(mainQuest.Id, 'MainQuestExcelConfigData'))?.version;
+  result.versionAdded = (await ctrl.excelChangelog.selectChangeRefAddedAt(mainQuest.Id, 'MainQuestExcelConfigData'))?.version;
 
   mainQuest.QuestExcelConfigDataList = await ctrl.selectAllQuestExcelConfigDataByMainQuestId(mainQuest.Id);
   mainQuest.UnsectionedTalks = [];
@@ -113,7 +114,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
   const acc: TalkConfigAccumulator = new TalkConfigAccumulator(ctrl);
 
   // Fetch Talk Configs by Main Quest ID (exact)
-  const talkConfigsByMainQuestId: TalkExcelConfigData[] = await ctrl.selectTalkExcelConfigDataByQuestId(mainQuest.Id, 'TALK_DEFAULT');
+  const talkConfigsByMainQuestId: TalkExcelConfigData[] = await ctrl.selectTalkExcelConfigDataByQuestId(mainQuest.Id, 'TALK_NORMAL_QUEST');
   debug(`Fetching Talks (by MainQuest ID) - obtained ${talkConfigsByMainQuestId.length} talks, processing...`);
 
   for (let talkConfig of talkConfigsByMainQuestId) {
@@ -129,7 +130,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
     if (acc.fetchedTalkConfigIds.has(questExcelConfigData.SubId)) {
       continue;
     }
-    let talkConfig = await ctrl.selectTalkExcelConfigDataByQuestSubId(questExcelConfigData.SubId, 'TALK_DEFAULT');
+    let talkConfig = await ctrl.selectTalkExcelConfigDataByQuestSubId(questExcelConfigData.SubId, 'TALK_NORMAL_QUEST');
     await acc.handleTalkConfig(talkConfig);
 
     if (!talkConfig) {
@@ -185,45 +186,13 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
     pushTalkConfigToCorrespondingQuestSub(talkConfig);
   }
 
-  // Filter quest subs
-  // --------------------------------------------------------------------------------------------------------------
-
-  debug('Filtering SubQuests');
-
-  // Skip quest subs without dialogue/DescTest/StepDescTest.
-  let newQuestSubs: QuestExcelConfigData[] = [];
-  for (let questSub of mainQuest.QuestExcelConfigDataList) {
-    if (arrayEmpty(questSub.NonTalkDialog) && arrayEmpty(questSub.QuestMessages) && arrayEmpty(questSub.TalkExcelConfigDataList)) {
-      if (questSub.DescText || questSub.StepDescText) {
-        newQuestSubs.push(questSub);
-      }
-    } else {
-      newQuestSubs.push(questSub);
-    }
-  }
-
-  // Finalize result
+  // Apply to result object
   // --------------------------------------------------------------------------------------------------------------
   debug('Preparing result');
-  mainQuest.QuestExcelConfigDataList = newQuestSubs;
   result.questId = mainQuest.Id;
   result.questTitle = mainQuest.TitleText;
   result.mainQuest = mainQuest;
-  result.npc = {
-    names: arrayUnique(
-      Object.values(ctrl.state.npcCache)
-        .filter(x => !x.Invisiable && !x.JsonName?.startsWith('ReadableNPC'))
-        .map(x => ctrl.normText(x.NameText, ctrl.outputLangCode, {
-          customOpts: {
-            wandererPlaceholderPlainForm: true,
-            littleOnePlaceholderPlainForm: true,
-          }
-        }))
-        .concat(ctrl.travelerPageName)
-        .sort()
-    ),
-    data: ctrl.state.npcCache,
-  };
+  result.npc = createQuestGenerateResultNpcInfo(ctrl);
 
   // ==============================================================================================================
   // WIKI TEXT GENERATION
@@ -238,7 +207,9 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
     .map(q => {
       let stepText = '# ' + ctrl.normText(q.DescText, ctrl.outputLangCode);
 
-      const multiProgressCond = q.FinishCond?.find(cond => cond.Type === 'QUEST_CONTENT_ADD_QUEST_PROGRESS' && toInt(cond.Count) >= 2);
+      const multiProgressCond = q.FinishCond
+        ?.find(cond => cond.Type === 'QUEST_CONTENT_ADD_QUEST_PROGRESS' && toInt(cond.Count) >= 2);
+
       if (multiProgressCond) {
         stepText += ` (0/${multiProgressCond.Count})`;
       }
@@ -401,7 +372,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
   debug('Generating quest similarity groups');
   result.similarityGroups = dialogueCompareApply(result.dialogue);
 
-  // Cutscenes
+  // Cutscene Subtitles
   // --------------------------------------------------------------------------------------------------------------
   debug('Generating cutscenes');
   let srtData = await ctrl.loadCutsceneSubtitlesByQuestId(mainQuest.Id);
@@ -409,7 +380,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
     result.cutscenes.push({file: srtFile, text: srtData[srtFile]});
   }
 
-  // Rewards
+  // Rewards & Reputation
   // --------------------------------------------------------------------------------------------------------------
   debug('Generating rewards');
   const rewards: RewardExcelConfigData[] = await (mainQuest.RewardIdList || [])
@@ -456,7 +427,7 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
     result.reputationInfobox = sbRep.toString();
   }
 
-  // Other
+  // Quest Stills, Pictures, In-Dialogue Readables
   // --------------------------------------------------------------------------------------------------------------
   result.questStills = ctrl.state.questStills?.[mainQuest.Id] || [];
   result.inDialogueReadables = ctrl.state.inDialogueReadables?.[mainQuest.Id] || [];
@@ -558,6 +529,24 @@ async function addQuestMessages(ctrl: GenshinControl, mainQuest: MainQuestExcelC
         mainQuest.QuestMessages.push(await ctrl.selectManualTextMapConfigDataById(id));
     }
   }
+}
+
+function createQuestGenerateResultNpcInfo(ctrl: GenshinControl): QuestGenerateResultNpcInfo {
+  return {
+    names: arrayUnique(
+      Object.values(ctrl.state.npcCache)
+        .filter(x => !x.Invisiable && !x.JsonName?.startsWith('ReadableNPC'))
+        .map(x => ctrl.normText(x.NameText, ctrl.outputLangCode, {
+          customOpts: {
+            wandererPlaceholderPlainForm: true,
+            littleOnePlaceholderPlainForm: true,
+          }
+        }))
+        .concat(ctrl.travelerPageName)
+        .sort()
+    ),
+    data: ctrl.state.npcCache,
+  };
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {

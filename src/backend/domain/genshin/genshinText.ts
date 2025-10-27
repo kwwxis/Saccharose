@@ -1,5 +1,5 @@
 import { toInt } from '../../../shared/util/numberUtil.ts';
-import { LangCode, LangCodeMap } from '../../../shared/types/lang-types.ts';
+import { LangCode, LangCodeMap, TextMapHash } from '../../../shared/types/lang-types.ts';
 import { wordRejoin, wordSplit } from '../../../shared/util/stringUtil.ts';
 import {
   genericNormText,
@@ -11,12 +11,13 @@ import {
   HyperLinkNameExcelConifgData,
   SpriteTagExcelConfigData,
 } from '../../../shared/types/genshin/general-types.ts';
-import { getGenshinControl } from './genshinControl.ts';
+import { GenshinControl, getGenshinControl } from './genshinControl.ts';
 import { mapBy } from '../../../shared/util/arrayUtil.ts';
 import { logInitData } from '../../util/logger.ts';
 import { ManualTextMapHashes } from '../../../shared/types/genshin/manual-text-map.ts';
 import { isSiteModeDisabled } from '../../loadenv.ts';
 import { AvatarSkillExcelConfigData, ProudSkillExcelConfigData } from '../../../shared/types/genshin/avatar-types.ts';
+import { defaultMap } from '../../../shared/util/genericUtil.ts';
 
 export type GenshinNormTextOpts = {
   wandererPlaceholderPlainForm?: boolean,
@@ -381,10 +382,13 @@ export const GENSHIN_SPRITE_TAGS: { [spriteId: number]: SpriteTagExcelConfigData
 
 type GenshinTextLink = {
   Id: number,
+  NameHash: TextMapHash,
   Name: LangCodeMap,
+  DescHash: TextMapHash,
   Desc: LangCodeMap,
   DescParamList?: string[],
 };
+type PendingGenshinTextLink = Omit<GenshinTextLink, 'Name' | 'Desc'>;
 const GENSHIN_TEXTLINKS_HYPERLINK: { [id: number]: GenshinTextLink } = {};
 const GENSHIN_TEXTLINKS_PROUDSKILL: { [id: number]: GenshinTextLink } = {};
 const GENSHIN_TEXTLINKS_AVATARSKILL: { [id: number]: GenshinTextLink } = {};
@@ -453,30 +457,24 @@ export async function loadGenshinTextSupportingData(): Promise<void> {
   // --------------------------------------------------------------------------------------------------------------
   const hyperTextLinks = await ctrl.cached('TextSupportingData:HyperLinkNameTextLinks', 'json', async () => {
     const dataArray = await ctrl.readExcelDataFile<HyperLinkNameExcelConifgData[]>('HyperLinkNameExcelConifgData.json');
-    const links: GenshinTextLink[] = await dataArray.asyncMap(async item => {
-      return {
-        Id: item.Id,
-        Name: await ctrl.createLangCodeMap(item.NameTextMapHash),
-        Desc: await ctrl.createLangCodeMap(item.DescTextMapHash),
-        DescParamList: item.DescParamList
-      };
-    });
-    return mapBy(links, 'Id');
+    return await populateGenshinTextLinks(ctrl, dataArray.map(item => ({
+      Id: item.Id,
+      NameHash: item.NameTextMapHash,
+      DescHash: item.DescTextMapHash,
+      DescParamList: item.DescParamList,
+    })));
   });
   Object.assign(GENSHIN_TEXTLINKS_HYPERLINK, hyperTextLinks);
 
   // Text Links: Proud Skill
   // --------------------------------------------------------------------------------------------------------------
   const proudSkillTextLinks = await ctrl.cached('TextSupportingData:ProudSkillTextLinks', 'json', async () => {
-    const dataArray = await ctrl.readExcelDataFile<ProudSkillExcelConfigData[]>('ProudSkillExcelConfigData.json');
-    const links: GenshinTextLink[] = await dataArray.asyncMap(async item => {
-      return {
-        Id: item.ProudSkillId,
-        Name: await ctrl.createLangCodeMap(item.NameTextMapHash),
-        Desc: await ctrl.createLangCodeMap(item.DescTextMapHash),
-      };
-    });
-    return mapBy(links, 'Id');
+    const dataArray: ProudSkillExcelConfigData[] = await ctrl.readExcelDataFile<ProudSkillExcelConfigData[]>('ProudSkillExcelConfigData.json');
+    return await populateGenshinTextLinks(ctrl, dataArray.map(item => ({
+      Id: item.ProudSkillId,
+      NameHash: item.NameTextMapHash,
+      DescHash: item.DescTextMapHash,
+    })));
   });
   Object.assign(GENSHIN_TEXTLINKS_PROUDSKILL, proudSkillTextLinks);
 
@@ -484,16 +482,45 @@ export async function loadGenshinTextSupportingData(): Promise<void> {
   // --------------------------------------------------------------------------------------------------------------
   const avatarSkillTextLinks = await ctrl.cached('TextSupportingData:AvatarSkillTextLinks', 'json', async () => {
     const dataArray = await ctrl.readExcelDataFile<AvatarSkillExcelConfigData[]>('AvatarSkillExcelConfigData.json');
-    const links: GenshinTextLink[] = await dataArray.asyncMap(async item => {
-      return {
-        Id: item.Id,
-        Name: await ctrl.createLangCodeMap(item.NameTextMapHash),
-        Desc: await ctrl.createLangCodeMap(item.DescTextMapHash),
-      };
-    });
-    return mapBy(links, 'Id');
+    return await populateGenshinTextLinks(ctrl, dataArray.map(item => ({
+      Id: item.Id,
+      NameHash: item.NameTextMapHash,
+      DescHash: item.DescTextMapHash,
+    })));
   });
   Object.assign(GENSHIN_TEXTLINKS_AVATARSKILL, avatarSkillTextLinks);
 
   logInitData('Loading Genshin-supporting text data -- done!');
+}
+
+async function populateGenshinTextLinks(ctrl: GenshinControl, links: PendingGenshinTextLink[]): Promise<Record<string, GenshinTextLink>> {
+  const linksMap: Record<string, GenshinTextLink> = mapBy(links, 'Id') as Record<string, GenshinTextLink>;
+
+  const nameHashes: Record<TextMapHash, number[]> = defaultMap('Array');
+  const descHashes: Record<TextMapHash, number[]> = defaultMap('Array');
+
+  links.forEach(link => {
+    if (link.NameHash)
+      nameHashes[link.NameHash].push(link.Id);
+    if (link.DescHash)
+      descHashes[link.DescHash].push(link.Id);
+  });
+
+  await ctrl.createLangCodeMaps(Object.keys(nameHashes)).then((result) => {
+    for (let [hash, langCodeMap] of Object.entries(result)) {
+      for (let linkId of nameHashes[hash]) {
+        linksMap[linkId].Name = langCodeMap;
+      }
+    }
+  });
+
+  await ctrl.createLangCodeMaps(Object.keys(descHashes)).then((result) => {
+    for (let [hash, langCodeMap] of Object.entries(result)) {
+      for (let linkId of descHashes[hash]) {
+        linksMap[linkId].Desc = langCodeMap;
+      }
+    }
+  });
+
+  return linksMap;
 }

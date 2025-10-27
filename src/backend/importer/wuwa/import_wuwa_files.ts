@@ -13,10 +13,7 @@ import fs from 'fs';
 import { indexWuwaImages } from './module.index-images.ts';
 import { fetchFavorWords } from '../../domain/wuwa/character/fetchRoleFavorWords.ts';
 import { createChangelog } from '../util/createChangelogUtil.ts';
-import { WuwaVersions } from '../../../shared/types/game-versions.ts';
-import { wuwaSchema } from './wuwa.schema.ts';
 import { wuwaNormalize } from './module.normalize.ts';
-import { importTextMapChanges } from '../../domain/abstract/tmchanges.ts';
 import { isset } from '../../../shared/util/genericUtil.ts';
 import { doImportExcelScalars } from '../util/excel_usages_importer.ts';
 
@@ -44,8 +41,10 @@ export async function importWuwaFilesCli() {
 
   const options_afterDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
     {name: 'voice-overs', type: Boolean, description: 'Creates the VoiceOvers file.'},
-    {name: 'changelog', type: String, typeLabel: '<version>', description: 'Creates changelog between the provided version and the version before it.'},
-    {name: 'changelog-tmimport', type: String, typeLabel: '<version>', description: 'Imports textmap changelog into the database (changelog must be ran first).'},
+    {name: 'changelog-tm', type: String, typeLabel: '<version>',
+      description: 'Creates textmap changelog between the provided version and the version before it.'},
+    {name: 'changelog-ex', type: String, typeLabel: '<version>',
+      description: 'Creates excel data changelog between the provided version and the version before it (changelog-tm must be ran first)'},
   ];
 
   const options_util: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
@@ -119,11 +118,11 @@ export async function importWuwaFilesCli() {
     const ctrl = getWuwaControl();
     await importPlainTextMap(ctrl, getWuwaDataFilePath);
   }
-  if (options['changelog']) {
-    await createChangelog(ENV.WUWA_CHANGELOGS, ENV.WUWA_ARCHIVES, wuwaSchema, WuwaVersions, options['changelog']);
+  if (options['changelog-tm']) {
+    await createChangelog(getWuwaControl(), options['changelog-tm'], 'textmap');
   }
-  if (options['changelog-tmimport']) {
-    await importTextMapChanges(getWuwaControl(), options['changelog-tmimport']);
+  if (options['changelog-ex']) {
+    await createChangelog(getWuwaControl(), options['changelog-ex'], 'excel');
   }
   if (options['excel-scalars']) {
     await doImportExcelScalars(getWuwaControl());

@@ -303,7 +303,7 @@ async function handle(state: DialogueGenerateState, id: number|DialogExcelConfig
         sect.headerProps.push(new MetaProp('Quest ID', await questIds.asyncMap(async id => ({
           value: id,
           tooltip: await ctrl.selectMainQuestName(id)
-        })), '/quests/{}'));
+        })), '/genshin/quests/{}'));
         sect.originalData.questId = questIds[0];
         sect.originalData.questName = await ctrl.selectMainQuestName(questIds[0]);
       }

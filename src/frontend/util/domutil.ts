@@ -161,22 +161,27 @@ export function scrollToElementThenFlash(scrollEl: Element, flashEl?: Element) {
     flashElement(flashEl || scrollEl)
 }
 
-export function hashFlash(initialDelay: number = 0) {
-    let hash = window.location.hash;
-    if (hash && hash.length > 1) {
-        hash = hash.slice(1);
-        console.log('Hash Change:', hash);
-        let target = document.getElementById(hash);
-        if (target) {
-            setTimeout(() => {
-                window.history.replaceState({}, null, window.location.href.split('#')[0]);
-                target.classList.add('flash');
-                setTimeout(() => {
-                    target.classList.remove('flash');
-                }, 1000);
-            }, initialDelay);
+export function hashFlash(scrollTo: boolean = false, initialDelay: number = 0) {
+  let hash = window.location.hash;
+  if (hash && hash.length > 1) {
+    hash = hash.slice(1);
+    console.log('Hash Change:', hash);
+    let target = document.getElementById(hash);
+    if (target) {
+      window.history.replaceState({}, null, window.location.href.split('#')[0]);
+      setTimeout(() => {
+        if (scrollTo) {
+          scrollToElement(target);
         }
+        setTimeout(() => {
+          target.classList.add('flash');
+          setTimeout(() => {
+            target.classList.remove('flash');
+          }, 1000);
+        }, initialDelay);
+      });
     }
+  }
 }
 
 /**

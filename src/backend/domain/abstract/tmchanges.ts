@@ -7,11 +7,8 @@ import {
   TextMapFullChangelog,
 } from '../../../shared/types/changelog-types.ts';
 import { LangCode, TextMapHash } from '../../../shared/types/lang-types.ts';
-import path from 'path';
-import { fsReadJson } from '../../util/fsutil.ts';
 import { AbstractControl } from './abstractControl.ts';
-import { GameVersion, GameVersions } from '../../../shared/types/game-versions.ts';
-import fs from 'fs';
+import { GameVersion } from '../../../shared/types/game-versions.ts';
 import { cleanEmpty } from '../../../shared/util/arrayUtil.ts';
 import { isUnset } from '../../../shared/util/genericUtil.ts';
 
@@ -43,6 +40,24 @@ export class TextMapChangelog {
     return await this.knex.select('*').from('textmap_changes')
       .where(cleanEmpty({version, lang_code: langCode}))
       .then();
+  }
+
+  async selectUpdatedTextMapHashes(version: string): Promise<Record<TextMapHash, TextMapChangeEntity[]>> {
+    if (this.isDisabled)
+      return {};
+    const result: Record<TextMapHash, TextMapChangeEntity[]> = {};
+
+    let rows: TextMapChangeEntity[] = await this.knex.select('*').from('textmap_changes')
+      .where(cleanEmpty({version, change_type: 'updated'}))
+      .then();
+
+    for (let row of rows) {
+      if (!result[row.hash])
+        result[row.hash] = [];
+      result[row.hash].push(row);
+    }
+
+    return result;
   }
 
   async selectChangesForDisplay(version: string, langCode: LangCode, doNormText: boolean): Promise<TextMapChangesForDisplay> {
@@ -274,16 +289,16 @@ function chunk<T>(arr: T[], size: number): T[][] {
 /**
  * Insert TextMap changes into DB using Knex.js with batching and transaction
  */
-async function insertTextMapChanges(
+export async function importTextMapChanges(
   knex: Knex,
   json: TextMapFullChangelog,
   version: GameVersion,
   batchSize = 5000
 ) {
-  const rows = convertJsonToEntities(json, version);
+  const rows: TextMapChangeEntity[] = convertJsonToEntities(json, version);
 
   console.log('-'.repeat(100))
-  console.log(`[${version.number}] Inserting changelog for ${version.label}`);
+  console.log(`[${version.number}] Inserting textmap changelog for ${version.label}`);
 
   let deletedCount = await knex('textmap_changes')
     .where('version', version.number)
@@ -293,9 +308,9 @@ async function insertTextMapChanges(
   }
 
   await knex.transaction(async (trx) => {
-    const batches = chunk(rows, batchSize);
+    const batches: TextMapChangeEntity[][] = chunk(rows, batchSize);
 
-    let batchNum = 0;
+    let batchNum: number = 0;
     for (const batch of batches) {
       batchNum++;
       await trx('textmap_changes').insert(batch)
@@ -306,35 +321,5 @@ async function insertTextMapChanges(
   });
 
   console.log(`[${version.number}] Done`);
-}
-
-export async function importTextMapChanges(ctrl: AbstractControl, versionTarget: string) {
-  console.log('Inserting changelogs...');
-
-  async function doForVersion(version: GameVersion) {
-    const textmapChangelogFileName = path.resolve(ctrl.changelogConfig.directory, `./TextMapChangeLog.${version.number}.json`);
-    if (!fs.existsSync(textmapChangelogFileName)) {
-      throw new Error('No textmap changelog exists for ' + version.number);
-    }
-    const json: TextMapFullChangelog = await fsReadJson(textmapChangelogFileName);
-    await insertTextMapChanges(ctrl.knex, json, version);
-  }
-
-  if (versionTarget === 'ALL') {
-    for (let version of ctrl.gameVersions.where(v => v.showTextmapChangelog).list) {
-      await doForVersion(version);
-    }
-  } else {
-    const version = ctrl.gameVersions.get(versionTarget);
-    if (version && !version.showTextmapChangelog) {
-      throw new Error(`Version does not allow textmap changelog: ${version}`)
-    } else if (version) {
-      await doForVersion(version);
-    } else {
-      throw new Error(`Not a valid version: ${version}`);
-    }
-  }
-
-  console.log('All complete');
 }
 // endregion

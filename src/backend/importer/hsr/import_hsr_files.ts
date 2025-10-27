@@ -14,10 +14,7 @@ import { fetchVoiceAtlases } from '../../domain/hsr/character/fetchVoiceAtlas.ts
 import { indexStarRailImages } from './module.index-images.ts';
 import { starRailNormalize } from './module.normalize.ts';
 import { createChangelog } from '../util/createChangelogUtil.ts';
-import { StarRailVersions } from '../../../shared/types/game-versions.ts';
-import { starRailSchema } from './hsr.schema.ts';
 import { recordNewStarRailImages } from './module.new-images.ts';
-import { importTextMapChanges } from '../../domain/abstract/tmchanges.ts';
 import { isset } from '../../../shared/util/genericUtil.ts';
 import { doImportExcelScalars } from '../util/excel_usages_importer.ts';
 
@@ -47,8 +44,10 @@ export async function importHsrFilesCli() {
 
   const options_afterDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
     {name: 'voice-overs', type: Boolean, description: 'Creates the VoiceOvers file.'},
-    {name: 'changelog', type: String, typeLabel: '<version>', description: 'Creates changelog between the provided version and the version before it.'},
-    {name: 'changelog-tmimport', type: String, typeLabel: '<version>', description: 'Imports textmap changelog into the database (changelog must be ran first).'},
+    {name: 'changelog-tm', type: String, typeLabel: '<version>',
+      description: 'Creates textmap changelog between the provided version and the version before it.'},
+    {name: 'changelog-ex', type: String, typeLabel: '<version>',
+      description: 'Creates excel data changelog between the provided version and the version before it (changelog-tm must be ran first)'},
   ];
 
   const options_util: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
@@ -125,11 +124,11 @@ export async function importHsrFilesCli() {
     const ctrl = getStarRailControl();
     await importPlainTextMap(ctrl, getStarRailDataFilePath);
   }
-  if (options['changelog']) {
-    await createChangelog(ENV.HSR_CHANGELOGS, ENV.HSR_ARCHIVES, starRailSchema, StarRailVersions, options['changelog']);
+  if (options['changelog-tm']) {
+    await createChangelog(getStarRailControl(), options['changelog-tm'], 'textmap');
   }
-  if (options['changelog-tmimport']) {
-    await importTextMapChanges(getStarRailControl(), options['changelog-tmimport']);
+  if (options['changelog-ex']) {
+    await createChangelog(getStarRailControl(), options['changelog-ex'], 'excel');
   }
   if (options['excel-scalars']) {
     await doImportExcelScalars(getStarRailControl());

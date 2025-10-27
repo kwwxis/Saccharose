@@ -1,24 +1,53 @@
 import { LangCode, TextMapHash } from './lang-types.ts';
-import { defaultMap } from '../util/genericUtil.ts';
-import { toString } from '../util/stringUtil.ts';
 import { GameVersion } from './game-versions.ts';
+import { defaultMap } from '../util/genericUtil.ts';
+export type ChangeType = 'added' | 'updated' | 'removed';
 
 // region Excel Changelog Types
 // --------------------------------------------------------------------------------------------------------------
-export type ExcelFullChangelog = Record<string, ExcelFileChanges>;
-
-export type ExcelFileChanges = {
-  name: string;
-  changedRecords: ChangeRecordMap;
+export type ExcelChangeEntity = {
+  excel_file: string;
+  version: string;
+  key: string;
+  change_type: string;
+  json: ExcelChangeRecord;
 };
 
-export type ChangeRecordMap = {
-  [key: string]: ChangeRecord
+export function toExcelChangeEntity(changeRecord: ExcelChangeRecord): ExcelChangeEntity {
+  return {
+    excel_file: changeRecord.excelFile,
+    version: changeRecord.versionNumber,
+    key: changeRecord.key,
+    change_type: changeRecord.changeType,
+    json: changeRecord._metadataOnly ? null : changeRecord,
+  };
 }
 
-export type ChangeType = 'added' | 'updated' | 'removed';
+export function toExcelChangeRecord(changeEntity: ExcelChangeEntity): ExcelChangeRecord {
+  if (changeEntity.json) {
+    return changeEntity.json;
+  } else {
+    return {
+      versionNumber: changeEntity.version,
+      excelFile: changeEntity.excel_file,
+      key: changeEntity.key,
+      changeType: changeEntity.change_type as ChangeType,
+      _metadataOnly: true,
+    };
+  }
+}
 
-export type ChangeRecord = {
+export type ExcelChangeRecord = {
+  /**
+   * Version number.
+   */
+  versionNumber: string;
+
+  /**
+   * Name of the Excel file.
+   */
+  excelFile: string;
+
   /**
    * The primary key of the record that was changed.
    */
@@ -36,7 +65,7 @@ export type ChangeRecord = {
    *
    * (This property is set only when `changeType=updated`)
    */
-  updatedFields: { [field: string]: FieldChange },
+  updatedFields?: { [field: string]: ExcelFieldChange },
 
   /**
    * The recorded that was added.
@@ -51,9 +80,11 @@ export type ChangeRecord = {
    * (This property is set only when `changeType=removed`)
    */
   removedRecord?: any,
+
+  _metadataOnly?: boolean,
 };
 
-export type FieldChange = {
+export type ExcelFieldChange = {
   field: string,
   oldValue?: string,
   newValue?: string,
@@ -64,12 +95,49 @@ export type FieldChange = {
   }[];
 };
 
-export type ChangeRecordRef = {
+export type ExcelChangeRef = ExcelChangeRecord & {
   version: GameVersion,
-  excelFile: string,
-  recordKey: string,
-  record: ChangeRecord
 }
+// endregion
+
+// region Excel: Combined JSON
+// --------------------------------------------------------------------------------------------------------------
+export type ExcelVersionChangelog = Record<string, ExcelFileChanges>;
+
+export type ExcelFileChanges = {
+  name: string;
+  version: string;
+  changedRecords: Record<string, ExcelChangeRecord>;
+};
+
+export function buildExcelFullChangelog(
+  records: ExcelChangeRecord[],
+  gameVersion: GameVersion,
+): ExcelVersionChangelog {
+  const changelog: ExcelVersionChangelog = defaultMap(excelName => ({
+    name: excelName,
+    version: gameVersion.number,
+    changedRecords: {}
+  }));
+
+  for (const record of records) {
+    changelog[record.excelFile].changedRecords[record.key] = record;
+  }
+
+  return changelog;
+}
+// endregion
+
+// region TextMap: Entity and Ref
+// --------------------------------------------------------------------------------------------------------------
+export type TextMapChangeEntity = {
+  version: string,
+  lang_code: LangCode,
+  hash: TextMapHash,
+  change_type: ChangeType,
+  content?: string,
+  prev_content?: string,
+};
 
 export type TextMapChangeRef = {
   version: GameVersion,
@@ -81,25 +149,13 @@ export type TextMapChangeRef = {
 export class TextMapChangeRefs {
   constructor(readonly list: TextMapChangeRef[]) {}
 
-  get firstAdded() {
+  get firstAdded(): TextMapChangeRef {
     return this.list.find(ref => ref.changeType === 'added') || null;
   }
 }
 // endregion
 
-// region TextMap Changelog Types: Database Entity
-// --------------------------------------------------------------------------------------------------------------
-export type TextMapChangeEntity = {
-  version: string,
-  lang_code: LangCode,
-  hash: TextMapHash,
-  change_type: ChangeType,
-  content?: string,
-  prev_content?: string,
-};
-// endregion
-
-// region TextMap Changelog Types: JSON File
+// region TextMap: Combined JSON
 // --------------------------------------------------------------------------------------------------------------
 export type TextMapFullChangelog = Record<LangCode, TextMapChanges>;
 
@@ -115,7 +171,7 @@ export type TextMapContentChange = {
   newValue: string
 }
 
-// region TextMap Changelog Types: For Display
+// region TextMap: For Display
 // --------------------------------------------------------------------------------------------------------------
 export type TextMapChangesForDisplay = {
   langCode: LangCode,
@@ -138,24 +194,7 @@ export type TextMapChangeRemoveDisplay = {
 }
 // endregion
 
-// region Utility Functions
-// --------------------------------------------------------------------------------------------------------------
-export function newChangeRecord(key: string|number): ChangeRecord {
-  return {
-    key: toString(key),
-    changeType: undefined,
-    updatedFields: defaultMap(field => ({
-      field: toString(field)
-    }))
-  };
-}
-
-export function newChangeRecordMap(): ChangeRecordMap {
-  return defaultMap(key => newChangeRecord(key));
-}
-// endregion
-
-// region Readable Changelog Type: Entity
+// region Readable: Entity
 // --------------------------------------------------------------------------------------------------------------
 export type ReadableChange = {
   langCode: LangCode;

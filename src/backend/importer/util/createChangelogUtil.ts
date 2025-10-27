@@ -5,103 +5,48 @@ import fs from 'fs';
 import { defaultMap, isUnset } from '../../../shared/util/genericUtil.ts';
 import { isEquiv, mapBy, resolveObjectPath, walkObject } from '../../../shared/util/arrayUtil.ts';
 import { schemaPrimaryKey, SchemaTableSet } from '../import_db.ts';
-import {
-  ChangeRecordMap,
-  ExcelFullChangelog,
-  newChangeRecordMap,
-  TextMapFullChangelog,
-} from '../../../shared/types/changelog-types.ts';
-import { ltrim } from '../../../shared/util/stringUtil.ts';
-import { GameVersion, GameVersions } from '../../../shared/types/game-versions.ts';
+import { ExcelChangeRecord, TextMapFullChangelog } from '../../../shared/types/changelog-types.ts';
+import { GameVersion } from '../../../shared/types/game-versions.ts';
 import chalk from 'chalk';
+import { AbstractControl } from '../../domain/abstract/abstractControl.ts';
+import { importTextMapChanges } from '../../domain/abstract/tmchanges.ts';
+import { toString } from '../../../shared/util/stringUtil.ts';
+import { importExcelChanges } from '../../domain/abstract/excelchanges.ts';
 
-class CreateChangelogState {
-  // Data Holders:
-  // --------------------------------------------------------------------------------------------------------------
-  public textmapChangelog: TextMapFullChangelog = defaultMap(langCode => ({
+class CreateChangelogOpts {
+  readonly prevDataRoot: string;
+  readonly currDataRoot: string;
+  readonly noPriorChangelog: boolean;
+  readonly gameSchema: SchemaTableSet;
+
+  constructor(readonly ctrl: AbstractControl, readonly version: GameVersion) {
+    this.gameSchema = ctrl.schema;
+    this.noPriorChangelog = this.version.noPriorChangelog;
+    if (!this.noPriorChangelog)
+      this.prevDataRoot = path.resolve(ctrl.changelogConfig.archivesDirectory, `./${this.version.prevNumber}`);
+    this.currDataRoot = path.resolve(ctrl.changelogConfig.archivesDirectory, `./${this.version.number}`);
+    console.info(`Creating changelog for ${this.version.prevNumber} - ${this.version.number} diff`);
+  }
+}
+
+const EMPTY_STR: string = "";
+
+async function computeTextMapChanges(opts: CreateChangelogOpts) {
+  const textmapChangelog: TextMapFullChangelog = defaultMap(langCode => ({
     langCode,
     added: {},
     removed: {},
     updated: {},
   }));
 
-  public excelChangelog: ExcelFullChangelog = defaultMap(excelFileName => ({
-    name: excelFileName,
-    changedRecords: newChangeRecordMap()
-  }));
-
-  // Constants:
-  // --------------------------------------------------------------------------------------------------------------
-  readonly version: GameVersion;
-  readonly versionLabel: string;
-  readonly textmapChangelogFileName: string;
-  readonly excelChangelogFileName: string;
-  readonly prevDataRoot: string;
-  readonly currDataRoot: string;
-  readonly noPriorChangelog: boolean;
-
-  // Composite Holders:
-  // --------------------------------------------------------------------------------------------------------------
-  readonly compositeTextMapHashAdded: Set<TextMapHash> = new Set<TextMapHash>();
-  readonly compositeTextMapHashUpdated: Set<TextMapHash> = new Set<TextMapHash>();
-  readonly compositeTextMapHashRemoved: Set<TextMapHash> = new Set<TextMapHash>();
-
-  // Constructor:
-  // --------------------------------------------------------------------------------------------------------------
-  constructor(readonly CHANGELOGS_DIR: string,
-              readonly ARCHIVES_DIR: string,
-              readonly gameSchema: SchemaTableSet,
-              readonly gameVersions: GameVersions,
-              __versionLabel: string) {
-    // Test environment variables:
-    if (!CHANGELOGS_DIR) {
-      console.error('Must have CHANGELOGS_DIR set!');
-      process.exit(1);
-    }
-    if (!ARCHIVES_DIR) {
-      console.error('Must have ARCHIVES_DIR set!');
-      process.exit(1);
-    }
-
-    // Set version label:
-    this.versionLabel = ltrim(__versionLabel.toLowerCase(), 'v');
-    this.version = gameVersions.get(this.versionLabel);
-    if (!this.version) {
-      console.error('Invalid version: ' + this.versionLabel);
-      process.exit(1);
-    }
-
-    // Set constants:
-    this.textmapChangelogFileName = path.resolve(CHANGELOGS_DIR, `./TextMapChangeLog.${this.versionLabel}.json`);
-    this.excelChangelogFileName = path.resolve(CHANGELOGS_DIR, `./ExcelChangeLog.${this.versionLabel}.json`);4
-
-    this.noPriorChangelog = this.version.noPriorChangelog;
-    if (!this.noPriorChangelog)
-      this.prevDataRoot = path.resolve(ARCHIVES_DIR, `./${this.version.prevNumber}`);
-    this.currDataRoot = path.resolve(ARCHIVES_DIR, `./${this.version.number}`);
-
-    // Initial message:
-    console.info(`Creating changelog for ${this.version.prevNumber} - ${this.version.number} diff`);
-  }
-}
-
-const EMPTY_STR = "";
-
-async function computeTextMapChanges(state: CreateChangelogState) {
-  if (fs.existsSync(state.textmapChangelogFileName)) {
-    state.textmapChangelog = JSON.parse(fs.readFileSync(state.textmapChangelogFileName, {encoding: 'utf-8'}));
-    console.log('Loaded TextMap changes from file.');
-    return;
-  }
-
-  const { textmapChangelog, prevDataRoot, currDataRoot, noPriorChangelog } = state;
-  for (let schemaTable of Object.values(state.gameSchema)) {
+  const { prevDataRoot, currDataRoot, noPriorChangelog } = opts;
+  for (let schemaTable of Object.values(opts.gameSchema)) {
     if (!schemaTable.textMapSchemaLangCode) {
       continue;
     }
 
     const langCode: LangCode = schemaTable.textMapSchemaLangCode;
-    console.log('Computing changes for TextMap' + langCode);
+    console.log('Computing change entities for TextMap' + langCode);
 
     let prevFilePath: string = noPriorChangelog ? null : path.resolve(prevDataRoot, schemaTable.jsonFile).replace(/\\/g, '/');
     let currFilePath: string = path.resolve(currDataRoot, schemaTable.jsonFile).replace(/\\/g, '/');
@@ -163,39 +108,25 @@ async function computeTextMapChanges(state: CreateChangelogState) {
     console.log('  Updated: ' + updatedCount);
     console.log('  Unchanged: ' + unchangedCount);
   }
+  console.log('Finished computing textmap change entities');
 
-  fs.writeFileSync(state.textmapChangelogFileName, JSON.stringify(textmapChangelog, null, 2), {
-    encoding: 'utf-8'
-  });
-  console.log('Finished computing TextMap changes.');
+  console.log('Beginning importing textmap change entities');
+  await importTextMapChanges(opts.ctrl.knex, textmapChangelog, opts.version);
+  console.log('Finished importing textmap change entities');
 }
 
-async function computeTextMapComposites(state: CreateChangelogState) {
-  for (let textMapChanges of Object.values(state.textmapChangelog)) {
-    Object.keys(textMapChanges.added).forEach(hash => state.compositeTextMapHashAdded.add(hash));
-    Object.keys(textMapChanges.updated).forEach(hash => state.compositeTextMapHashUpdated.add(hash));
-    Object.keys(textMapChanges.removed).forEach(hash => state.compositeTextMapHashRemoved.add(hash));
-  }
-}
+async function computeExcelFileChanges(opts: CreateChangelogOpts) {
+  const changeRecords: ExcelChangeRecord[] = [];
 
-async function computeExcelFileChanges(state: CreateChangelogState) {
-  if (fs.existsSync(state.excelChangelogFileName)) {
-    state.excelChangelog = JSON.parse(fs.readFileSync(state.excelChangelogFileName, {encoding: 'utf-8'}));
-    console.log('Loaded Excel File changes from file.');
-    return;
-  }
+  const updatedTextMapHashes = await opts.ctrl.textMapChangelog.selectUpdatedTextMapHashes(opts.version.number);
+  console.log(`Loaded ${Object.keys(updatedTextMapHashes).length} updated textmap hashes for ${opts.version.number}`);
+  const { prevDataRoot, currDataRoot, noPriorChangelog } = opts;
 
-  const { compositeTextMapHashUpdated, prevDataRoot, currDataRoot, noPriorChangelog } = state;
-
-  for (let schemaTable of Object.values(state.gameSchema)) {
-    // Skip tables we don't care about:
-    if (schemaTable.name.startsWith('Relation_')
-      || schemaTable.name.startsWith('PlainLineMap')
-      || schemaTable.name.startsWith('TextMap')
-      || schemaTable.name === 'CodexQuestExcelConfigData' || schemaTable.name === 'DialogExcelConfigData'
-      || schemaTable.name === 'TalkExcelConfigData'
-      || schemaTable.name === 'DialogUnparentedExcelConfigData'
-      || schemaTable.name === 'QuestExcelConfigData') {
+  for (let schemaTable of Object.values(opts.gameSchema)) {
+    if (schemaTable.name.startsWith('Relation_') || schemaTable.name.startsWith('PlainLineMap') || schemaTable.name.startsWith('TextMap')) {
+      continue;
+    }
+    if (schemaTable.changelog?.excluded) {
       continue;
     }
 
@@ -207,11 +138,12 @@ async function computeExcelFileChanges(state: CreateChangelogState) {
       continue;
     }
 
+    const metadataOnly: boolean = schemaTable.changelog?.metadataOnly || false;
     const prevFilePath: string = noPriorChangelog ? null : path.resolve(prevDataRoot, schemaTable.jsonFile);
     const currFilePath: string = path.resolve(currDataRoot, schemaTable.jsonFile);
 
-    let prevDataRaw: any[] = noPriorChangelog ? [] : JSON.parse(fs.readFileSync(prevFilePath, {encoding: 'utf8'}));
-    let currDataRaw: any[] = JSON.parse(fs.readFileSync(currFilePath, {encoding: 'utf8'}));
+    const prevDataRaw: any[] = noPriorChangelog ? [] : JSON.parse(fs.readFileSync(prevFilePath, {encoding: 'utf8'}));
+    const currDataRaw: any[] = JSON.parse(fs.readFileSync(currFilePath, {encoding: 'utf8'}));
     const prevData: {[key: string]: any} = mapBy(prevDataRaw, primaryKey);
     const currData: {[key: string]: any} = mapBy(currDataRaw, primaryKey);
 
@@ -221,142 +153,190 @@ async function computeExcelFileChanges(state: CreateChangelogState) {
     const addedKeys: Set<string> = new Set(Object.keys(currData).filter(key => !prevData[key]));
     const removedKeys: Set<string> = new Set(Object.keys(prevData).filter(key => !currData[key]));
 
-    const changedRecords: ChangeRecordMap = state.excelChangelog[schemaTable.name].changedRecords;
+    if (!schemaTable.changelog?.excludeAdded) {
+      for (let addedKey of addedKeys) {
+        walkObject(currData[addedKey], field => isObfFieldName(field.basename) ? 'DELETE' : 'CONTINUE');
 
-    for (let addedKey of addedKeys) {
-      walkObject(currData[addedKey], field => isObfFieldName(field.basename) ? 'DELETE' : 'CONTINUE');
-      changedRecords[addedKey].changeType = 'added';
-      changedRecords[addedKey].addedRecord = currData[addedKey];
-    }
+        const changeRecord: ExcelChangeRecord = {
+          versionNumber: opts.version.number,
+          excelFile: schemaTable.name,
+          key: addedKey,
+          changeType: 'added',
+          addedRecord: currData[addedKey],
+        };
 
-    for (let removedKey of removedKeys) {
-      walkObject(prevData[removedKey], field => isObfFieldName(field.basename) ? 'DELETE' : 'CONTINUE');
-      changedRecords[removedKey].changeType = 'removed';
-      changedRecords[removedKey].removedRecord = prevData[removedKey];
-    }
+        if (metadataOnly) {
+          delete changeRecord.addedRecord;
+          changeRecord._metadataOnly = true;
+        }
 
-    for (let key of Object.keys(currData)) {
-      if (addedKeys.has(key) || removedKeys.has(key)) {
-        continue;
+        changeRecords.push(changeRecord);
       }
-      const currRecord: any = currData[key];
-      const prevRecord: any = prevData[key];
+    }
 
-      const pathsInCurrRecord: Set<string> = new Set();
-      let didFindChanges: boolean = false;
+    if (!schemaTable.changelog?.excludeRemoved) {
+      for (let removedKey of removedKeys) {
+        walkObject(prevData[removedKey], field => isObfFieldName(field.basename) ? 'DELETE' : 'CONTINUE');
 
-      // Walk through the current record.
-      // This can only check for added and updated fields.
-      // Added the path to 'pathsInCurrRecord' so we can check for removed fields later.
-      walkObject(currRecord, field => {
-        if (isObfFieldName(field.basename)) { // skip the gibberish/obfuscated fields
-          return 'NO-DESCEND';
+        const changeRecord: ExcelChangeRecord = {
+          versionNumber: opts.version.number,
+          excelFile: schemaTable.name,
+          key: removedKey,
+          changeType: 'removed',
+          removedRecord: prevData[removedKey],
+        };
+
+        if (metadataOnly) {
+          delete changeRecord.removedRecord;
+          changeRecord._metadataOnly = true;
         }
 
-        pathsInCurrRecord.add(field.path);
-        const valueInCurr = field.value;
-        const valueInPrev = resolveObjectPath(prevRecord, field.path);
-        let ret = undefined;
+        changeRecords.push(changeRecord);
+      }
+    }
 
-        if (isUnset(valueInPrev)) {
-          // Field was added:
-          didFindChanges = true;
-          changedRecords[key].updatedFields[field.path].newValue = valueInCurr;
-          ret = 'NO-DESCEND';
-        } else if (!isEquiv(valueInCurr, valueInPrev, field => isObfFieldName(field.basename))) {
-          // Field was updated:
-          didFindChanges = true;
-          changedRecords[key].updatedFields[field.path].newValue = valueInCurr;
-          changedRecords[key].updatedFields[field.path].oldValue = valueInPrev;
-          ret = 'CONTINUE';
+    if (!schemaTable.changelog?.excludeUpdated) {
+      for (let key of Object.keys(currData)) {
+        if (addedKeys.has(key) || removedKeys.has(key)) {
+          continue;
         }
+        const currRecord: any = currData[key];
+        const prevRecord: any = prevData[key];
 
-        // Regardless of whether the field was added/updated, if it's a TextMapHash then we need to check it,
-        // because it's possible for the content of the TextMapHash to have been updated, but not the TextMapHash number itself.
-        if (field.basename.endsWith('MapHash') || field.basename.endsWith('MapHashList')) {
-          let hashes: TextMapHash[] = Array.isArray(field.value) ? field.value : [field.value];
-          for (let hash of hashes) {
-            if (compositeTextMapHashUpdated.has(hash)) {
-              didFindChanges = true;
-              for (let textMapChanges of Object.values(state.textmapChangelog)) {
-                if (textMapChanges.updated[hash]) {
-                  changedRecords[key].updatedFields[field.path].textChanges.push({
-                    langCode: textMapChanges.langCode,
-                    oldValue: textMapChanges.updated[hash].oldValue,
-                    newValue: textMapChanges.updated[hash].newValue,
+        const changeRecord: ExcelChangeRecord = {
+          versionNumber: opts.version.number,
+          excelFile: schemaTable.name,
+          key: key,
+          changeType: 'updated',
+          updatedFields: defaultMap(field => ({
+            field: toString(field)
+          }))
+        };
+        const pathsInCurrRecord: Set<string> = new Set();
+        let didFindChanges: boolean = false;
+
+        // Walk through the current record.
+        // This can only check for added and updated fields.
+        // Added the path to 'pathsInCurrRecord' so we can check for removed fields later.
+        walkObject(currRecord, field => {
+          if (isObfFieldName(field.basename)) { // skip the gibberish/obfuscated fields
+            return 'NO-DESCEND';
+          }
+
+          pathsInCurrRecord.add(field.path);
+          const valueInCurr = field.value;
+          const valueInPrev = resolveObjectPath(prevRecord, field.path);
+          let ret = undefined;
+
+          if (isUnset(valueInPrev)) {
+            // Field was added:
+            didFindChanges = true;
+            changeRecord.updatedFields[field.path].newValue = valueInCurr;
+            ret = 'NO-DESCEND';
+          } else if (!isEquiv(valueInCurr, valueInPrev, field => isObfFieldName(field.basename))) {
+            // Field was updated:
+            didFindChanges = true;
+            changeRecord.updatedFields[field.path].newValue = valueInCurr;
+            changeRecord.updatedFields[field.path].oldValue = valueInPrev;
+            ret = 'CONTINUE';
+          }
+
+          // Regardless of whether the field was added/updated, if it's a TextMapHash then we need to check it,
+          // because it's possible for the content of the TextMapHash to have been updated, but not the TextMapHash number itself.
+          if (field.basename.endsWith('MapHash') || field.basename.endsWith('MapHashList')) {
+            let hashes: TextMapHash[] = Array.isArray(field.value) ? field.value : [field.value];
+            for (let hash of hashes) {
+              if (updatedTextMapHashes[hash]) {
+                didFindChanges = true;
+                changeRecord.updatedFields[field.path].textChanges = [];
+                for (let tmChangeEntity of updatedTextMapHashes[hash]) {
+                  changeRecord.updatedFields[field.path].textChanges.push({
+                    langCode: tmChangeEntity.lang_code,
+                    oldValue: tmChangeEntity.prev_content,
+                    newValue: tmChangeEntity.content,
                   });
                 }
               }
             }
+            // Do not descend, fields ending in 'MapHash'/'MapHashList' should always be considered leaf fields.
+            ret = 'NO-DESCEND';
           }
-          // Do not descend, fields ending in 'MapHash'/'MapHashList' should always be considered leaf fields.
-          ret = 'NO-DESCEND';
-        }
 
-        return ret;
-      });
+          return ret;
+        });
 
-      // Walk through the previous record.
-      // If the path is not in 'pathsInCurrRecord' then that means the field was removed.
-      walkObject(prevRecord, field => {
-        // Skip the gibberish/obfuscated fields:
-        if (isObfFieldName(field.basename)) {
-          return 'NO-DESCEND';
-        }
-
-        // If the path is in the current record, then that means this path was not removed
-        if (pathsInCurrRecord.has(field.path)) {
-          if (field.basename.endsWith('MapHash') || field.basename.endsWith('MapHashList')) {
-            // If the path ends with 'MapHash'/'MapHashList' then we should consider that a leaf field
-            // and should not descend.
+        // Walk through the previous record.
+        // If the path is not in 'pathsInCurrRecord' then that means the field was removed.
+        walkObject(prevRecord, field => {
+          // Skip the gibberish/obfuscated fields:
+          if (isObfFieldName(field.basename)) {
             return 'NO-DESCEND';
-          } else {
-            // Otherwise, continue. A path being in the current record does not necessarily mean all of its sub-paths
-            // will also be in the current record, so we have to continue walking down this path.
-            return 'CONTINUE';
           }
+
+          // If the path is in the current record, then that means this path was not removed
+          if (pathsInCurrRecord.has(field.path)) {
+            if (field.basename.endsWith('MapHash') || field.basename.endsWith('MapHashList')) {
+              // If the path ends with 'MapHash'/'MapHashList' then we should consider that a leaf field
+              // and should not descend.
+              return 'NO-DESCEND';
+            } else {
+              // Otherwise, continue. A path being in the current record does not necessarily mean all of its sub-paths
+              // will also be in the current record, so we have to continue walking down this path.
+              return 'CONTINUE';
+            }
+          }
+
+          // If the path is not in the current record, then that means the field was removed:
+          didFindChanges = true;
+          changeRecord.updatedFields[field.path].oldValue = field.value;
+
+          // If the path ends with 'MapHash'/'MapHashList' then we should consider that a leaf field:
+          if (field.basename.endsWith('MapHash') || field.basename.endsWith('MapHashList')) {
+            return 'NO-DESCEND';
+          }
+        });
+
+        if (didFindChanges) {
+          if (metadataOnly) {
+            delete changeRecord.updatedFields;
+            changeRecord._metadataOnly = true;
+          }
+          changeRecords.push(changeRecord);
         }
-
-        // If the path is not in the current record, then that means the field was removed:
-        didFindChanges = true;
-        changedRecords[key].updatedFields[field.path].oldValue = field.value;
-
-        // If the path ends with 'MapHash'/'MapHashList' then we should consider that a leaf field:
-        if (field.basename.endsWith('MapHash') || field.basename.endsWith('MapHashList')) {
-          return 'NO-DESCEND';
-        }
-      });
-
-      if (didFindChanges) {
-        changedRecords[key].changeType = 'updated';
       }
     }
   }
 
-  try {
-    fs.writeFileSync(state.excelChangelogFileName, JSON.stringify(state.excelChangelog, null, 2), {
-      encoding: 'utf-8'
-    });
-  } catch (e) {
-    console.error('Error writing ' + state.excelChangelogFileName);
-    throw e;
-  }
-  console.log('Finished computing Excel File changes.');
+  console.log('Beginning importing Excel change entities');
+  await importExcelChanges(opts.ctrl.knex, changeRecords, opts.version);
+  console.log('Finished importing Excel change entities');
 }
 
-export async function createChangelog(changelogsDir: string,
-                                      archivesDir: string,
-                                      gameSchema: SchemaTableSet,
-                                      gameVersions: GameVersions,
-                                      versionLabel: string): Promise<void> {
-  const state: CreateChangelogState = new CreateChangelogState(changelogsDir, archivesDir, gameSchema, gameVersions, versionLabel);
-
-  if (state.version.showTextmapChangelog) {
-    await computeTextMapChanges(state);
-    await computeTextMapComposites(state);
+export async function createChangelog(ctrl: AbstractControl,
+                                      versionInput: string,
+                                      mode: 'textmap' | 'excel' | 'both'): Promise<void> {
+  const version: GameVersion = ctrl.gameVersions.get(versionInput);
+  if (!version) {
+    console.error('Not a valid version: ' + versionInput);
+    return;
   }
-  if (state.version.showExcelChangelog) {
-    await computeExcelFileChanges(state);
+
+  const state: CreateChangelogOpts = new CreateChangelogOpts(ctrl, version);
+
+  if (mode === 'textmap' || mode === 'both') {
+    if (state.version.showTextmapChangelog) {
+      await computeTextMapChanges(state);
+    } else {
+      console.error('Version ' + version.number + ' does not support textmap changelog');
+    }
+  }
+
+  if (mode === 'excel' || mode === 'both') {
+    if (state.version.showExcelChangelog) {
+      await computeExcelFileChanges(state);
+    } else {
+      console.error('Version ' + version.number + ' does not support excel changelog');
+    }
   }
 }
 

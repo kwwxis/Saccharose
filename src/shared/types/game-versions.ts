@@ -62,6 +62,8 @@ export class GameVersion {
 }
 
 export class GameVersions {
+  private getCache: Map<string, GameVersion> = new Map();
+
   constructor(readonly list: GameVersion[], readonly isTopLevel: boolean = false) {
     if (this.isTopLevel) {
       list.forEach(v => v.parent = this);
@@ -92,6 +94,10 @@ export class GameVersions {
   }
 
   get(s: string): GameVersion {
+    const cacheKey = s;
+    if (this.getCache.has(cacheKey)) {
+      return this.getCache.get(cacheKey);
+    }
     if (!s) {
       return null;
     }
@@ -100,9 +106,11 @@ export class GameVersions {
 
     for (let v of this.list) {
       if (v.number === s || v.label.toLowerCase() == s || v.aliases.some(a => a.toLowerCase() === s)) {
+        this.getCache.set(cacheKey, v);
         return v;
       }
     }
+    this.getCache.set(cacheKey, null);
     return null;
   }
 

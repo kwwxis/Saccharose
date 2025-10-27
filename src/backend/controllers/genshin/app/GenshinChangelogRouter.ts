@@ -12,6 +12,8 @@ import { LANG_CODES, LangCodeMap } from '../../../../shared/types/lang-types.ts'
 import ChangelogTextMapPage from '../../../components/changelogs/ChangelogTextMapPage.vue';
 import { queryTab } from '../../../middleware/util/queryTab.ts';
 import ChangelogExcelListPage from '../../../components/changelogs/ChangelogExcelListPage.vue';
+import { ExcelVersionChangelog } from '../../../../shared/types/changelog-types.ts';
+import { valuesOf } from '../../../../shared/util/arrayUtil.ts';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -36,7 +38,7 @@ export default async function(): Promise<Router> {
     }
 
     const ctrl = getGenshinControl(req);
-    const excelChangelog = await ctrl.selectExcelChangelog(gameVersion);
+    const excelChangelog: ExcelVersionChangelog = await ctrl.excelChangelog.selectVersionAggregate(gameVersion);
     const newSummary = await generateGenshinChangelogNewRecordSummary(ctrl, gameVersion, excelChangelog);
 
     await res.renderComponent(GenshinChangelogSummaryPage, {
@@ -59,7 +61,7 @@ export default async function(): Promise<Router> {
     }
 
     const ctrl = getGenshinControl(req);
-    const excelChangelog = await ctrl.selectExcelChangelog(gameVersion);
+    const excelChangelog: ExcelVersionChangelog = await ctrl.excelChangelog.selectVersionAggregate(gameVersion);
 
     await res.renderComponent(ChangelogExcelListPage, {
       title: 'Genshin Changelog ' + gameVersion.displayLabel,
@@ -113,15 +115,15 @@ export default async function(): Promise<Router> {
     const ctrl = getGenshinControl(req);
     ctrl.state.AutoloadAvatar = false;
 
-    const excelChangelog = await ctrl.selectExcelChangelog(gameVersion);
+    const excelChangelog: ExcelVersionChangelog = await ctrl.excelChangelog.selectVersionAggregate(gameVersion);
     const excelFileChanges = excelChangelog[req.params.excelFileName];
     const schemaTable = ctrl.schema[excelFileChanges.name];
 
-    for (let record of Object.values(excelFileChanges.changedRecords)) {
+    for (let record of valuesOf(excelFileChanges.changedRecords)) {
       if (record.addedRecord) {
         record.addedRecord = await ctrl.commonLoadFirst(record.addedRecord, schemaTable, true);
       }
-      for (let field of Object.values(record.updatedFields)) {
+      for (let field of valuesOf(record.updatedFields)) {
         if (field.field.endsWith('TextMapHash')) {
           let oldValueMap: Partial<LangCodeMap> = {};
           let newValueMap: Partial<LangCodeMap> = {};

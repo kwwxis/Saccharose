@@ -23,8 +23,6 @@ import { writeDeobfBin } from './module.deobf-bin.ts';
 import { isInt } from '../../../shared/util/numberUtil.ts';
 import { genshinNormalize } from './module.normalize.ts';
 import { genshinSchema } from './genshin.schema.ts';
-import { GenshinVersions } from '../../../shared/types/game-versions.ts';
-import { importTextMapChanges } from '../../domain/abstract/tmchanges.ts';
 import { isset } from '../../../shared/util/genericUtil.ts';
 import { importGenshinReadableChanges } from '../../domain/genshin/readables/genshinReadableChanges.ts';
 import { doImportExcelScalars } from '../util/excel_usages_importer.ts';
@@ -52,9 +50,11 @@ export async function importGenshinFilesCli() {
   const options_afterDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
     {name: 'index', type: Boolean, description: 'Creates the index files for PlainTextMap.'},
     {name: 'voice-overs', type: Boolean, description: 'Creates file for character voice over data (aka fetters)'},
-    {name: 'changelog', type: String, typeLabel: '<version>', description: 'Creates changelog between the provided version and the version before it.'},
-    {name: 'changelog-tmimport', type: String, typeLabel: '<version>', description: 'Imports textmap changelog into the database (changelog must be ran first).'},
-    {name: 'changelog-rdimport', type: String, typeLabel: '<version>', description: 'Imports readables for changelog.'},
+    {name: 'changelog-tm', type: String, typeLabel: '<version>',
+      description: 'Creates textmap changelog between the provided version and the version before it.'},
+    {name: 'changelog-ex', type: String, typeLabel: '<version>',
+      description: 'Creates excel data changelog between the provided version and the version before it (changelog-tm must be ran first)'},
+    {name: 'changelog-rd', type: String, typeLabel: '<version>', description: 'Imports readables for changelog.'},
   ];
 
   const options_util: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
@@ -181,14 +181,14 @@ export async function importGenshinFilesCli() {
   if (options['interaction']) {
     await loadInterActionQD(getGenshinDataFilePath());
   }
-  if (options['changelog']) {
-    await createChangelog(ENV.GENSHIN_CHANGELOGS, ENV.GENSHIN_ARCHIVES, genshinSchema, GenshinVersions, options['changelog']);
+  if (options['changelog-tm']) {
+    await createChangelog(getGenshinControl(), options['changelog-tm'], 'textmap');
   }
-  if (options['changelog-tmimport']) {
-    await importTextMapChanges(getGenshinControl(), options['changelog-tmimport']);
+  if (options['changelog-ex']) {
+    await createChangelog(getGenshinControl(), options['changelog-ex'], 'excel');
   }
-  if (options['changelog-rdimport']) {
-    await importGenshinReadableChanges(getGenshinControl(), options['changelog-rdimport']);
+  if (options['changelog-rd']) {
+    await importGenshinReadableChanges(getGenshinControl(), options['changelog-rd']);
   }
   if (options['excel-scalars']) {
     await doImportExcelScalars(getGenshinControl());

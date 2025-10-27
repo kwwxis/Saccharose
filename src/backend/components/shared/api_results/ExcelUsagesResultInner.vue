@@ -27,13 +27,13 @@
 
 <script setup lang="ts">
 import { ScalarToExcelUsages } from '../../../../shared/util/searchUtil.ts';
-import { ChangeRecordRef } from '../../../../shared/types/changelog-types.ts';
+import { ExcelChangeRef } from '../../../../shared/types/changelog-types.ts';
 import Icon from '../../utility/Icon.vue';
 import JsonText from '../../utility/JsonText.vue';
 
 defineProps<{
   scalar?: string,
   scalarToUsages?: ScalarToExcelUsages,
-  changeRecordRefs?: ChangeRecordRef[],
+  changeRecordRefs?: ExcelChangeRef[],
 }>();
 </script>

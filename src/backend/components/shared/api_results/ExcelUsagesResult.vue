@@ -22,7 +22,7 @@
           <th>Version Added</th>
         </tr>
         <tr v-for="changeRecordRef of changeRecordRefs">
-          <td>{{ changeRecordRef.recordKey }}</td>
+          <td>{{ changeRecordRef.key }}</td>
           <td>{{ changeRecordRef.excelFile }}</td>
           <td>{{ changeRecordRef.version?.displayLabel }}</td>
         </tr>
@@ -59,14 +59,14 @@
 
 <script setup lang="ts">
 import { ScalarToExcelUsages } from '../../../../shared/util/searchUtil.ts';
-import { ChangeRecordRef } from '../../../../shared/types/changelog-types.ts';
+import { ExcelChangeRef } from '../../../../shared/types/changelog-types.ts';
 import ExcelUsagesResultInner from './ExcelUsagesResultInner.vue';
 import Icon from '../../utility/Icon.vue';
 import { toHtmlId } from '../../../../shared/util/stringUtil.ts';
 
 const {scalarToUsages} = defineProps<{
   scalarToUsages?: ScalarToExcelUsages,
-  changeRecordRefs?: ChangeRecordRef[],
+  changeRecordRefs?: ExcelChangeRef[],
   embed?: boolean,
 }>();
 

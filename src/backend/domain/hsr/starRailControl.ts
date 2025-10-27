@@ -77,7 +77,7 @@ export class StarRailControl extends AbstractControl<StarRailControlState> {
       currentGameVersion: CurrentStarRailVersion,
       gameVersions: StarRailVersions,
       changelogConfig: {
-        directory: ENV.HSR_CHANGELOGS,
+        archivesDirectory: ENV.HSR_ARCHIVES,
         textmapEnabled: true,
         excelEnabled: false,
       },

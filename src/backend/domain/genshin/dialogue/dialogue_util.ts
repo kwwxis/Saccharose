@@ -125,6 +125,55 @@ export class TalkConfigAccumulator {
   }
 }
 
+
+export async function talkTraceBack(ctrl: GenshinControl,
+                                    talkConfig: TalkExcelConfigData): Promise<TalkExcelConfigData[]> {
+  if (!talkConfig) {
+    return undefined;
+  }
+  const loadType = talkConfig.LoadType;
+  let stack: TalkExcelConfigData[] = [talkConfig];
+  let ret: TalkExcelConfigData[] = [];
+  let seenIds: Set<number> = new Set();
+
+  //console.log(`START: ${talkConfig.Id}`)
+
+  while (true) {
+    let nextStack = [];
+    for (let t of stack) {
+      let prevs: TalkExcelConfigData[] = await ctrl.selectPreviousTalks(t.Id, loadType);
+      // if (!prevs.length) {
+      //   console.log(t.Id + ' PREVS: none');
+      // } else {
+      //   console.log(t.Id + ' PREVS:\n' + prevs.map(p => `  ${p.Id}`).join(`\n`));
+      // }
+      if (!prevs.length) {
+        // If no previous, and not already in result, then add to result:
+        if (!ret.some(r => r.Id === t.Id)) {
+          ret.push(t);
+        }
+      } else {
+        for (let prev of prevs) {
+          if (!seenIds.has(prev.Id)) {
+            nextStack.push(prev);
+            seenIds.add(prev.Id);
+          }
+        }
+      }
+    }
+    if (nextStack.length) {
+      stack = nextStack;
+    } else {
+      break;
+    }
+  }
+  if (!ret.length && seenIds.size) {
+    const tId = Math.min(... Array.from(seenIds));
+    return [await ctrl.selectTalkExcelConfigDataById(tId, loadType)];
+  }
+  return ret;
+}
+
 export async function talkConfigGenerate(ctrl: GenshinControl,
                                          talkConfigId: number | TalkExcelConfigData,
                                          acc?: TalkConfigAccumulator): Promise<DialogueSectionResult> {
@@ -168,7 +217,7 @@ export async function talkConfigToDialogueSectionResult(ctrl: GenshinControl,
     }
     mysect.addHeaderProp('First Dialogue Talk Bin Type', values);
   }
-  if (talkConfig.LoadType && talkConfig.LoadType !== 'TALK_DEFAULT') {
+  if (talkConfig.LoadType && talkConfig.LoadType !== 'TALK_NORMAL_QUEST') {
     mysect.addHeaderProp('Load Type', talkConfig.LoadType);
   }
   if (talkConfig.QuestId) {
@@ -186,7 +235,7 @@ export async function talkConfigToDialogueSectionResult(ctrl: GenshinControl,
       mysect.addHeaderProp('Quest ID', await questIds.asyncMap(async id => ({
         value: id,
         tooltip: await ctrl.selectMainQuestName(id)
-      })), '/quests/{}');
+      })), '/genshin/quests/{}');
       mysect.originalData.questId = questIds[0];
       mysect.originalData.questName = await ctrl.selectMainQuestName(questIds[0]);
     }
@@ -313,6 +362,7 @@ export async function dialogTraceBack(ctrl: GenshinControl, dialog: DialogExcelC
       //   console.log('PREVS:\n' + prevs.map(p => `  ${p.Id}: ${p.TalkRoleNameText}: ${p.TalkContentText}`).join(`\n`));
       // }
       if (!prevs.length) {
+        // If no previous, and not already in result, then add to result:
         if (!ret.some(r => r.Id === d.Id)) {
           ret.push(d);
         }
@@ -561,13 +611,17 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     // 3019 - The Missing Village Keepers
     // 3024 - Through the Predawn Night
 
-    let mainQuest: MainQuestExcelConfigData = await ctrl.selectMainQuestById(3024);
+    // let mainQuest: MainQuestExcelConfigData = await ctrl.selectMainQuestById(3024);
+    //
+    // if (mainQuest.ChapterId) {
+    //   let chapter = await ctrl.selectChapterById(mainQuest.ChapterId);
+    //
+    //   console.log(await orderChapterQuests(ctrl, chapter));
+    // }
 
-    if (mainQuest.ChapterId) {
-      let chapter = await ctrl.selectChapterById(mainQuest.ChapterId);
-
-      console.log(await orderChapterQuests(ctrl, chapter));
-    }
+    const talk = await ctrl.selectTalkExcelConfigDataById(7108012);
+    const firstTalk = await talkTraceBack(ctrl, talk);
+    console.log(firstTalk);
 
     await closeKnex();
   })();

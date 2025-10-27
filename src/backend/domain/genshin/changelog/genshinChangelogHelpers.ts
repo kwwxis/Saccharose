@@ -11,7 +11,7 @@ import {
   ChapterCollection,
   MainQuestExcelConfigData,
 } from '../../../../shared/types/genshin/quest-types.ts';
-import { ChangeRecord, ExcelFullChangelog } from '../../../../shared/types/changelog-types.ts';
+import { ExcelChangeRecord, ExcelVersionChangelog } from '../../../../shared/types/changelog-types.ts';
 import { isInt, toInt } from '../../../../shared/util/numberUtil.ts';
 import { GenshinSchemaNames } from '../../../importer/genshin/genshin.schema.ts';
 import { GenshinControl } from '../genshinControl.ts';
@@ -64,7 +64,7 @@ export type GenshinChangelogNewRecordSummary = {
   npcsByBodyType: Record<string, NpcExcelConfigData[]>,
 }
 
-export async function generateGenshinChangelogNewRecordSummary(ctrl: GenshinControl, gameVersion: GameVersion, fullChangelog: ExcelFullChangelog): Promise<GenshinChangelogNewRecordSummary> {
+export async function generateGenshinChangelogNewRecordSummary(ctrl: GenshinControl, gameVersion: GameVersion, fullChangelog: ExcelVersionChangelog): Promise<GenshinChangelogNewRecordSummary> {
   return ctrl.cached('FullChangelogSummary:' + ctrl.outputLangCode + '_' + gameVersion.number, 'memory', async () => {
     return _generateGenshinChangelogNewRecordSummary(ctrl, gameVersion, fullChangelog);
   });
@@ -80,8 +80,8 @@ async function getGcg(ctrl: GenshinControl): Promise<GCGControl> {
   return gcg;
 }
 
-async function _generateGenshinChangelogNewRecordSummary(ctrl: GenshinControl, gameVersion: GameVersion, fullChangelog: ExcelFullChangelog): Promise<GenshinChangelogNewRecordSummary> {
-  function newRecordsOf(excelFileName: GenshinSchemaNames): ChangeRecord[] {
+async function _generateGenshinChangelogNewRecordSummary(ctrl: GenshinControl, gameVersion: GameVersion, fullChangelog: ExcelVersionChangelog): Promise<GenshinChangelogNewRecordSummary> {
+  function newRecordsOf(excelFileName: GenshinSchemaNames): ExcelChangeRecord[] {
     if (fullChangelog?.[excelFileName]?.changedRecords) {
       return Object.values(fullChangelog[excelFileName].changedRecords).filter(r => r.changeType === 'added');
     } else {

@@ -293,7 +293,7 @@ export default async function(): Promise<Router> {
       sb.line((await ol_gen_from_id(ctrl, achievement.TitleTextMapHash)).result);
       sb.line();
       sb.line('==Change History==');
-      const crRecord = await ctrl.selectChangeRecordAdded(achievement.Id, 'AchievementExcelConfigData');
+      const crRecord = await ctrl.excelChangelog.selectChangeRefAddedAt(achievement.Id, 'AchievementExcelConfigData');
       sb.line('{{Change History|' + (crRecord?.version?.label || '<!-- version -->') + '}}');
       sb.line();
       sb.line('==Navigation==');
@@ -581,7 +581,7 @@ export default async function(): Promise<Router> {
       sb.line(ol?.result);
       sb.line();
       sb.line('==Change History==');
-      const crRecord = await ctrl.selectChangeRecordAdded(furn.Id, 'HomeWorldFurnitureExcelConfigData');
+      const crRecord = await ctrl.excelChangelog.selectChangeRefAddedAt(furn.Id, 'HomeWorldFurnitureExcelConfigData');
       sb.line('{{Change History|' + (crRecord?.version?.label || '<!-- version -->') + '}}');
       sb.line();
       sb.line('==Navigation==');

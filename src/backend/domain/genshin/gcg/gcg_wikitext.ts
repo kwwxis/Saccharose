@@ -7,8 +7,7 @@ import {
 } from '../../../../shared/types/genshin/gcg-types.ts';
 import { SbOut } from '../../../../shared/util/stringUtil.ts';
 import { ol_gen_from_id } from '../../abstract/basic/OLgen.ts';
-import { ChangeRecordRef } from '../../../../shared/types/changelog-types.ts';
-import { GenshinVersions } from '../../../../shared/types/game-versions.ts';
+import { ExcelChangeRef } from '../../../../shared/types/changelog-types.ts';
 
 // Cards
 // --------------------------------------------------------------------------------------------------------------
@@ -45,7 +44,7 @@ export async function generateSkillPage(gcg: GCGControl, parentCard: GCGCommonCa
   sb.line((await ol_gen_from_id(gcg.ctrl, skill.NameTextMapHash))?.result);
   sb.line();
   sb.line('==Change History==');
-  const crRecord = await gcg.ctrl.selectChangeRecordAdded(skill.Id, 'GCGSkillExcelConfigData');
+  const crRecord = await gcg.ctrl.excelChangelog.selectChangeRefAddedAt(skill.Id, 'GCGSkillExcelConfigData');
   sb.line('{{Change History|' + (crRecord?.version?.label || '<!-- version -->') + '}}');
   sb.line();
   sb.line('==Navigation==');
@@ -207,11 +206,11 @@ export async function generateCardPage(gcg: GCGControl, card: GCGCommonCard): Pr
   sb.line();
 
   sb.line('==Change History==');
-  let crRecord: ChangeRecordRef;
+  let crRecord: ExcelChangeRef;
   if (isCharacterCard(card)) {
-    crRecord = await gcg.ctrl.selectChangeRecordAdded(card.Id, 'GCGCharExcelConfigData');
+    crRecord = await gcg.ctrl.excelChangelog.selectChangeRefAddedAt(card.Id, 'GCGCharExcelConfigData');
   } else if (isActionCard(card)) {
-    crRecord = await gcg.ctrl.selectChangeRecordAdded(card.Id, 'GCGCardExcelConfigData');
+    crRecord = await gcg.ctrl.excelChangelog.selectChangeRefAddedAt(card.Id, 'GCGCardExcelConfigData');
   } else {
     crRecord = null;
   }

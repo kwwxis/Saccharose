@@ -12,9 +12,6 @@ import { getZenlessControl } from '../../domain/zenless/zenlessControl.ts';
 import { generateDialogueNodes } from './module.dialogue-nodes.ts';
 import { zenlessNormalize } from './module.normalize.ts';
 import { createChangelog } from '../util/createChangelogUtil.ts';
-import { ZenlessVersions } from '../../../shared/types/game-versions.ts';
-import { zenlessSchema } from './zenless.schema.ts';
-import { importTextMapChanges } from '../../domain/abstract/tmchanges.ts';
 import { doImportExcelScalars } from '../util/excel_usages_importer.ts';
 
 export async function importZenlessFilesCli() {
@@ -29,8 +26,10 @@ export async function importZenlessFilesCli() {
   ];
 
   const options_afterDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
-    {name: 'changelog', type: String, typeLabel: '<version>', description: 'Creates changelog between the provided version and the version before it.'},
-    {name: 'changelog-tmimport', type: String, typeLabel: '<version>', description: 'Imports textmap changelog into the database (changelog must be ran first).'},
+    {name: 'changelog-tm', type: String, typeLabel: '<version>',
+      description: 'Creates textmap changelog between the provided version and the version before it.'},
+    {name: 'changelog-ex', type: String, typeLabel: '<version>',
+      description: 'Creates excel data changelog between the provided version and the version before it (changelog-tm must be ran first)'},
   ];
 
   const options_util: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
@@ -96,11 +95,11 @@ export async function importZenlessFilesCli() {
   if (options['dialogue-nodes']) {
     await generateDialogueNodes(getZenlessDataFilePath());
   }
-  if (options['changelog']) {
-    await createChangelog(ENV.ZENLESS_CHANGELOGS, ENV.ZENLESS_ARCHIVES, zenlessSchema, ZenlessVersions, options['changelog']);
+  if (options['changelog-tm']) {
+    await createChangelog(getZenlessControl(), options['changelog-tm'], 'textmap');
   }
-  if (options['changelog-tmimport']) {
-    await importTextMapChanges(getZenlessControl(), options['changelog-tmimport']);
+  if (options['changelog-ex']) {
+    await createChangelog(getZenlessControl(), options['changelog-ex'], 'excel');
   }
   if (options['excel-scalars']) {
     await doImportExcelScalars(getZenlessControl());
