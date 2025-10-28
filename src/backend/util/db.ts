@@ -35,7 +35,7 @@ function pgSiteDatabase() {
       port:     toInt(process.env.POSTGRES_SITE_PORT, 5432),
     },
     pool: {
-      max: 30,
+      max: 100,
     },
     useNullAsDefault: true,
   });
