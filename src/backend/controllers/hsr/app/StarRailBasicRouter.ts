@@ -72,7 +72,6 @@ export default async function(): Promise<Router> {
       for (let tip of tips) {
         sb.line(`* '''{{LS|${category}}}:''' ${tip}`);
       }
-      sb.line();
     }
 
     await res.renderComponent(StarRailLoadingTips, {
