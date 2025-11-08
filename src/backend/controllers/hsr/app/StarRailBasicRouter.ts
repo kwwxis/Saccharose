@@ -69,9 +69,8 @@ export default async function(): Promise<Router> {
 
     let loadingTips: {[category: string]: string[]} = await ctrl.getLoadingTips();
     for (let [category, tips] of Object.entries(loadingTips)) {
-      sb.line(`===${category}===`);
       for (let tip of tips) {
-        sb.line(` * ${tip}`);
+        sb.line(`* '''{{LS|${category}}}:''' ${tip}`);
       }
       sb.line();
     }
