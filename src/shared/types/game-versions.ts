@@ -277,6 +277,7 @@ export const ZenlessVersions: GameVersions = new GameVersions([
   new GameVersion({number: '2.1', prevNumber: '2.0', showTextmapChangelog: true}),
   new GameVersion({number: '2.2', prevNumber: '2.1', showTextmapChangelog: true}),
   new GameVersion({number: '2.3', prevNumber: '2.2', showTextmapChangelog: true}),
+  new GameVersion({number: '2.4', prevNumber: '2.3', showTextmapChangelog: true}),
 ], true);
 
 // TODO: This needs to be updated with each new Wuthering Waves version!
@@ -303,7 +304,7 @@ export const CurrentGenshinVersion: GameVersion = GenshinVersions.get('6.1');
 export const CurrentStarRailVersion: GameVersion = StarRailVersions.get('3.7');
 
 // TODO: This needs to be updated with each new Zenless Zone Zero version!
-export const CurrentZenlessVersion: GameVersion = ZenlessVersions.get('2.3');
+export const CurrentZenlessVersion: GameVersion = ZenlessVersions.get('2.4');
 
 // TODO: This needs to be updated with each new Wuthering Waves version!
 export const CurrentWuwaVersion: GameVersion = WuwaVersions.get('2.7');
