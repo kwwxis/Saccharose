@@ -220,15 +220,18 @@ export async function talkConfigToDialogueSectionResult(ctrl: GenshinControl,
   if (talkConfig.LoadType && talkConfig.LoadType !== 'TALK_NORMAL_QUEST') {
     mysect.addHeaderProp('Load Type', talkConfig.LoadType);
   }
+  if (talkConfig.ActivityId) {
+    mysect.addHeaderProp('Event ID', [{
+      value: talkConfig.ActivityId
+    }, {
+      value: await ctrl.selectNewActivityName(talkConfig.ActivityId)
+    }]);
+  }
   if (talkConfig.QuestId) {
-    if (talkConfig.LoadType === 'TALK_ACTIVITY') {
-      mysect.addHeaderProp('Activity ID', {value: talkConfig.QuestId, tooltip: await ctrl.selectNewActivityName(talkConfig.QuestId)});
-    } else {
-      const questName = await ctrl.selectMainQuestName(talkConfig.QuestId);
-      mysect.addHeaderProp('Quest ID', {value: talkConfig.QuestId, tooltip: questName}, '/genshin/quests/{}');
-      mysect.originalData.questId = talkConfig.QuestId;
-      mysect.originalData.questName = questName;
-    }
+    const questName = await ctrl.selectMainQuestName(talkConfig.QuestId);
+    mysect.addHeaderProp('Quest ID', {value: talkConfig.QuestId, tooltip: questName}, '/genshin/quests/{}');
+    mysect.originalData.questId = talkConfig.QuestId;
+    mysect.originalData.questName = questName;
   } else {
     let questIds = await dialogueToQuestId(ctrl, talkConfig);
     if (questIds.length) {
@@ -619,7 +622,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     //   console.log(await orderChapterQuests(ctrl, chapter));
     // }
 
-    const talk = await ctrl.selectTalkExcelConfigDataById(7108012);
+    const talk = await ctrl.selectTalkExcelConfigDataById(111030620);
     const firstTalk = await talkTraceBack(ctrl, talk);
     console.log(firstTalk);
 

@@ -377,7 +377,8 @@ export const TalkExcelBeginCondCombDescMap: Record<TalkExcelBeginCondComb, strin
 export interface TalkExcelConfigData {
   Id: number,
   QuestId: number,
-  QuestCondStateEqualFirst: number
+  QuestCondStateEqualFirst: number,
+  ActivityId?: number,
 
   BeginWay: string,
   ActiveMode: string,

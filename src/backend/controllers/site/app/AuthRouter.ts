@@ -14,15 +14,13 @@ import { saveSession, setSessionUser } from '../../../middleware/auth/sessions.t
 import { SITE_TITLE } from '../../../loadenv.ts';
 import { clearCsrfCookie } from '../../../middleware/request/csrf.ts';
 
-const returnToCookieOptions: CookieOptions = {
-  maxAge: 2000 * 60,
-  httpOnly: true,
-}
-
 function setReturnTo() {
   return function(req: Request, res: Response, next: NextFunction) {
     if (req.query.cont) {
-      res.cookie('ReturnTo', req.query.cont, returnToCookieOptions);
+      res.cookie('ReturnTo', req.query.cont, {
+        maxAge: 2000 * 60,
+        httpOnly: true,
+      });
     }
     next();
   };
@@ -31,7 +29,7 @@ function setReturnTo() {
 function getReturnTo(req: Request, res: Response) {
   if (req.cookies['ReturnTo']) {
     let cont = req.cookies['ReturnTo'];
-    res.clearCookie('ReturnTo', returnToCookieOptions);
+    res.clearCookie('ReturnTo', { httpOnly: true });
     return cont;
   } else if (req.query.cont) {
     return req.query.cont;

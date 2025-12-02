@@ -177,7 +177,7 @@ export async function writeDeobfBin() {
   shouldIgnoreConfig.shouldIgnoreEmptyString = true;
 
   let anyInvalidJson = false;
-  for (let file of fsWalkSync(getGenshinDataFilePath('./BinOutput.Obf/InterAction/QuestDialogue'))) {
+  for (let file of fsWalkSync(getGenshinDataFilePath('./BinOutput.Raw/InterAction/QuestDialogue'))) {
     let fileContent: string = await fsRead(file);
     try {
       JSON.parse(fileContent);
@@ -209,31 +209,34 @@ export async function writeDeobfBin() {
   const iaMapping = await mapInterAction();
 
   console.log('----- Quest Mapping -----');
-  const questMapping = await mapQuest();
+  const questMapping = await mapQuest(); // BinOutput/Quest contains MainQuestExcels, QuestExcels, as well as TalkExcels and DialogExcels too.
 
-  console.log('----- Talk Mapping -----');
-  const talkMapping = await mapTalk();
+  console.log('----- Talk Mapping -----')
+  const talkMapping = await mapTalk(); // BinOutput/Talk contains both TalkExcels and DialogExcels
 
   console.log('----- Voice Mapping -----');
   const voiceMapping = await mapVoiceOvers();
+
+  // Merge talkMapping and questMapping in case anything was missed
+  const talkQuestCombinedMappings = combineMappings(questMapping, talkMapping);
 
   console.log();
   console.log();
 
   console.log('----- Writing Outputs -----');
-  await walkSyncWrite('./BinOutput.Obf/CodexQuest', './BinOutput/CodexQuest', cqMapping);
-  await walkSyncWrite('./BinOutput.Obf/GCG/Gcg_DeclaredValueSet', './BinOutput/GCG/Gcg_DeclaredValueSet', gcgDvsMapping);
-  await walkSyncWrite('./BinOutput.Obf/HomeworldFurnitureSuit', './BinOutput/HomeworldFurnitureSuit', furnSuitMapping);
-  await walkSyncWrite('./BinOutput.Obf/InterAction/QuestDialogue', './BinOutput/InterAction/QuestDialogue', iaMapping);
-  await walkSyncWrite('./BinOutput.Obf/Quest', './BinOutput/Quest', questMapping);
-  await walkSyncWrite('./BinOutput.Obf/Talk', './BinOutput/Talk', talkMapping);
-  await walkSyncWrite('./BinOutput.Obf/Voice', './BinOutput/Voice', voiceMapping);
+  await walkSyncWrite('./BinOutput.Raw/CodexQuest', './BinOutput/CodexQuest', cqMapping);
+  await walkSyncWrite('./BinOutput.Raw/GCG/Gcg_DeclaredValueSet', './BinOutput/GCG/Gcg_DeclaredValueSet', gcgDvsMapping);
+  await walkSyncWrite('./BinOutput.Raw/HomeworldFurnitureSuit', './BinOutput/HomeworldFurnitureSuit', furnSuitMapping);
+  await walkSyncWrite('./BinOutput.Raw/InterAction/QuestDialogue', './BinOutput/InterAction/QuestDialogue', iaMapping);
+  await walkSyncWrite('./BinOutput.Raw/Talk', './BinOutput/Talk', talkQuestCombinedMappings);
+  await walkSyncWrite('./BinOutput.Raw/Quest', './BinOutput/Quest', talkQuestCombinedMappings);
+  await walkSyncWrite('./BinOutput.Raw/Voice', './BinOutput/Voice', voiceMapping);
 }
 
 // region Mappers
 // --------------------------------------------------------------------------------------------------------------
 async function mapCodexQuest(): Promise<Record<string, string>> {
-  let rawRecord: any = await fsReadJson(getGenshinDataFilePath('./BinOutput.Obf/CodexQuest/10122.json'));
+  let rawRecord: any = await fsReadJson(getGenshinDataFilePath('./BinOutput.Raw/CodexQuest/10122.json'));
   const propertySchema: Record<string, string> = {};
 
   propertySchema[findKeyWithValue(rawRecord, 10122, 0)] = 'mainQuestId';
@@ -273,7 +276,7 @@ async function mapCodexQuest(): Promise<Record<string, string>> {
   propertySchema[findKeyWithValue(rawDialog0, 101220101, 0)] = 'soundId';
   propertySchema[findKeyWithValue(rawDialog0, 'Dialog', 0)] = 'dialogType';
 
-  rawRecord = await fsReadJson(getGenshinDataFilePath('./BinOutput.Obf/CodexQuest/11027.json'));
+  rawRecord = await fsReadJson(getGenshinDataFilePath('./BinOutput.Raw/CodexQuest/11027.json'));
   rawRecord = renameFields(rawRecord, propertySchema);
 
   rawItem0 = rawRecord.subQuests.find(f => JSON.stringify(f).includes(`itemId":222`)).items.find(i => i.itemId === 222);
@@ -283,7 +286,7 @@ async function mapCodexQuest(): Promise<Record<string, string>> {
   propertySchema[findKeyWithValue(rawItem0, 'TalkFinished', 1)] = 'type';
   propertySchema[findKeyWithValue(rawItem0, 1102716, 1)] = 'param1';
 
-  rawRecord = await fsReadJson(getGenshinDataFilePath('./BinOutput.Obf/CodexQuest/8021.json'));
+  rawRecord = await fsReadJson(getGenshinDataFilePath('./BinOutput.Raw/CodexQuest/8021.json'));
   rawRecord = renameFields(rawRecord, propertySchema);
 
   rawItem0 = rawRecord.subQuests.find(f => JSON.stringify(f).includes(`itemId":232`)).items.find(i => i.itemId === 232);
@@ -300,7 +303,7 @@ async function mapCodexQuest(): Promise<Record<string, string>> {
 }
 
 async function mapGcgDeclaredValueSet(): Promise<Record<string, string>> {
-  const rawRecord = await fsReadJson(getGenshinDataFilePath('./BinOutput.Obf/GCG/Gcg_DeclaredValueSet/Char_Skill_11061.json'));
+  const rawRecord = await fsReadJson(getGenshinDataFilePath('./BinOutput.Raw/GCG/Gcg_DeclaredValueSet/Char_Skill_11061.json'));
   const propertySchema: Record<string, string> = {};
 
   propertySchema[findKeyWithValue(rawRecord, 'Char_Skill_11061', 0)] = 'name';
@@ -314,7 +317,7 @@ async function mapGcgDeclaredValueSet(): Promise<Record<string, string>> {
 }
 
 async function mapFurnSuit(): Promise<Record<string, string>> {
-  const rawRecord = await fsReadJson(getGenshinDataFilePath('./BinOutput.Obf/HomeworldFurnitureSuit/Home_Suite_Exterior_Xm_Street_Fish.json'));
+  const rawRecord = await fsReadJson(getGenshinDataFilePath('./BinOutput.Raw/HomeworldFurnitureSuit/Home_Suite_Exterior_Xm_Street_Fish.json'));
   const propertySchema: Record<string, string> = {};
 
   propertySchema[findKeyWithValue(rawRecord, 24, 0)] = 'radius';
@@ -357,12 +360,12 @@ async function mapInterAction(): Promise<Record<string, string>> {
 
   const aqSchema: any = await fsp.readFile(getSchemaFilePath('./BinOutput/InterAction/QuestDialogue/AQ/Fontaine_4019/Q401906.json'), { encoding: 'utf8' })
     .then(data => JSONbig.parse(data));
-  const aqRaw: any = await fsp.readFile(getGenshinDataFilePath('./BinOutput.Obf/InterAction/QuestDialogue/AQ/Fontaine_4019/Q401906.json'), { encoding: 'utf8' })
+  const aqRaw: any = await fsp.readFile(getGenshinDataFilePath('./BinOutput.Raw/InterAction/QuestDialogue/AQ/Fontaine_4019/Q401906.json'), { encoding: 'utf8' })
     .then(data => JSONbig.parse(data));
 
   const lqSchema: any = await fsp.readFile(getSchemaFilePath('./BinOutput/InterAction/QuestDialogue/LQ/Emilie_14039/Q1403908.json'), { encoding: 'utf8' })
     .then(data => JSONbig.parse(data));
-  const lqRaw: any = await fsp.readFile(getGenshinDataFilePath('./BinOutput.Obf/InterAction/QuestDialogue/LQ/Emilie_14039/Q1403908.json'), { encoding: 'utf8' })
+  const lqRaw: any = await fsp.readFile(getGenshinDataFilePath('./BinOutput.Raw/InterAction/QuestDialogue/LQ/Emilie_14039/Q1403908.json'), { encoding: 'utf8' })
     .then(data => JSONbig.parse(data));
 
   const groupIdKey = findKeyWithValue(aqRaw,
@@ -430,9 +433,9 @@ async function mapQuest(): Promise<Record<string, string>> {
   };
 
   const schemaRows: any[] = await walkSyncJsonCombine(getSchemaFilePath('./BinOutput/Quest'),
-    questCombiner, 120, []);
-  const rawRows: any[] = await walkSyncJsonCombine(getGenshinDataFilePath('./BinOutput.Obf/Quest'),
-    questCombiner, 120, []);
+    questCombiner, 120, ['40020.json']);
+  const rawRows: any[] = await walkSyncJsonCombine(getGenshinDataFilePath('./BinOutput.Raw/Quest'),
+    questCombiner, 120, ['40020.json']);
 
   const propertySchema: PropertySchemaResult = await createPropertySchemaWithArray(
     null,
@@ -491,7 +494,7 @@ async function mapTalk(): Promise<Record<string, string>> {
     console.log('Processing Talk/' + SUB_FOLDER);
     const schemaRows: any[] = await walkSyncJsonCombine(getSchemaFilePath('./BinOutput/Talk/' + SUB_FOLDER),
       talkCombiner, 60, [], true);
-    const rawRows: any[] = await walkSyncJsonCombine(getGenshinDataFilePath('./BinOutput.Obf/Talk/' + SUB_FOLDER),
+    const rawRows: any[] = await walkSyncJsonCombine(getGenshinDataFilePath('./BinOutput.Raw/Talk/' + SUB_FOLDER),
       talkCombiner, 60, [], true);
 
     const propertySchema: PropertySchemaResult = await createPropertySchemaWithArray(
@@ -525,7 +528,7 @@ async function mapVoiceOvers(): Promise<Record<string, string>> {
 
   const schemaVoiceItems: any[] = await walkSyncJsonCombine(getSchemaFilePath('./BinOutput/Voice/Items'),
     voiceItemsCombiner, 60, ['04443dd6.json']);
-  const rawVoiceItems: any[] = await walkSyncJsonCombine(getGenshinDataFilePath('./BinOutput.Obf/Voice/Items'),
+  const rawVoiceItems: any[] = await walkSyncJsonCombine(getGenshinDataFilePath('./BinOutput.Raw/Voice/Items'),
     voiceItemsCombiner, 60, ['1231137260.json']);
 
   const propertySchema: PropertySchemaResult = await createPropertySchemaWithArray(
@@ -543,6 +546,25 @@ async function mapVoiceOvers(): Promise<Record<string, string>> {
 
 // region Other Utils
 // --------------------------------------------------------------------------------------------------------------
+function combineMappings(...mappings: Record<string, string>[]): Record<string, string> {
+  const combinedMappings: Record<string, string> = {};
+
+  for (let mapping of mappings) {
+    for (let [obfKey, realKey] of Object.entries(mapping)) {
+      if (!combinedMappings[obfKey]) {
+        combinedMappings[obfKey] = realKey;
+      } else {
+        const existingRealKey = combinedMappings[obfKey];
+        if (existingRealKey !== realKey) {
+          console.error('Conflict! ' + obfKey + ' -- ' + existingRealKey + ' vs ' + realKey);
+        }
+      }
+    }
+  }
+
+  return combinedMappings;
+}
+
 function bigStringify(json: any) {
   return JSON.stringify(
     json,

@@ -762,6 +762,11 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       .where({Id: id}).first().then(this.commonLoadFirst).then(x => this.postProcessMainQuest(x));
   }
 
+  async selectMainQuestByActivityId(id: number): Promise<MainQuestExcelConfigData> {
+    return await this.knex.select('*').from('MainQuestExcelConfigData')
+      .where({Id: id}).first().then(this.commonLoadFirst).then(x => this.postProcessMainQuest(x));
+  }
+
   async selectMainQuestName(id: number): Promise<string> {
     if (!id) {
       return undefined;

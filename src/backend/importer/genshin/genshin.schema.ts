@@ -115,6 +115,7 @@ export const genshinSchema = {
       { name: 'InitDialog', type: 'bigint', isIndex: true },
       { name: 'LoadType', type: 'text', isIndex: true, defaultValue: 'TALK_NORMAL_QUEST' },
       { name: 'QuestId', type: 'integer', isIndex: true },
+      { name: 'IsSynthetic', type: 'boolean', resolve: 'SaccharoseSyntheticTalk', defaultValue: false },
       {
         name: 'QuestCondStateEqualFirst', type: 'integer', isIndex: true, resolve(row: TalkExcelConfigData) {
           if (row.BeginCond) {

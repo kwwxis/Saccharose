@@ -23,7 +23,7 @@ import { closeKnex, openPgGamedata } from '../util/db.ts';
 import { LangCode } from '../../shared/types/lang-types.ts';
 
 // Shared Util:
-import { humanTiming, isEmpty, isPromise, timeConvert } from '../../shared/util/genericUtil.ts';
+import { humanTiming, isEmpty, isPromise, isset, isUnset, timeConvert } from '../../shared/util/genericUtil.ts';
 import { resolveObjectPath } from '../../shared/util/arrayUtil.ts';
 import { isStringBlank, ucFirst } from '../../shared/util/stringUtil.ts';
 
@@ -150,10 +150,13 @@ export type SchemaColumnType =
 export type SchemaColumn = {
   name: string,
   type: SchemaColumnType,
-  resolve?: string | Function,
+  resolve?: string | ((row: any) => any),
   isIndex?: boolean,
   isPrimary?: boolean,
+  isUnique?: boolean,
   defaultValue?: any,
+  allowZero?: boolean,
+  allowEmptyString?: boolean,
 };
 
 export function schemaForDbName(dbName: 'genshin' | 'hsr' | 'zenless' | 'wuwa'): SchemaTableSet {
@@ -341,6 +344,8 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
             builder.primary([col.name]);
           } else if (col.isIndex) {
             builder.index(col.name);
+          } else if (col.isUnique) {
+            builder.unique(col.name);
           }
         }
         if (!table.customRowResolve && !table.customRowResolveProvider && !table.noIncludeJson) {
@@ -386,7 +391,13 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
           } else {
             payload[col.name] = row[col.name];
           }
-          if (col.defaultValue && (typeof payload[col.name] === 'undefined' || payload[col.name] === null)) {
+          if (!col.isPrimary && !col.allowZero && payload[col.name] === 0) {
+            payload[col.name] = null;
+          }
+          if (!col.allowEmptyString && payload[col.name] === '') {
+            payload[col.name] = null;
+          }
+          if (isset(col.defaultValue) && isUnset(payload[col.name])) {
             payload[col.name] = col.defaultValue;
           }
         }

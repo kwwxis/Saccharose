@@ -1,4 +1,4 @@
-import { isEmpty } from '../../shared/util/genericUtil.ts';
+import { isEmpty, isNotEmpty } from '../../shared/util/genericUtil.ts';
 
 export class MetaPropValue {
   value: string;
@@ -52,7 +52,9 @@ export class MetaProp {
       } else if (typeof v === 'string' || typeof v === 'number') {
         this.values.push(new MetaPropValue(v, getLink(v)));
       } else if (typeof v === 'object' && !Array.isArray(v)) {
-        this.values.push(new MetaPropValue(v.value, getLink(v.value, v.link), v.tooltip, v.bold));
+        if (isNotEmpty(v.value)) {
+          this.values.push(new MetaPropValue(v.value, getLink(v.value, v.link), v.tooltip, v.bold));
+        }
       }
     }
 

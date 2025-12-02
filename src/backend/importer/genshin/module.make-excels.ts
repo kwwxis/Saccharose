@@ -289,6 +289,10 @@ export async function generateQuestDialogExcels(repoRoot: string) {
     if (!obj.npcId) {
       obj.npcId = [];
     }
+    if (obj.loadType === 'TALK_ACTIVITY' && obj.questId) {
+      obj.activityId = obj.questId;
+      delete obj.questId;
+    }
     if (!obj.questId && questExcelToMqId[obj.id]) {
       obj.questId = questExcelToMqId[obj.id];
     }
