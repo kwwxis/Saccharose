@@ -7,7 +7,6 @@ import { FileAndSize } from '../../../../shared/types/utility-types.ts';
 export async function sendExcelViewerTableResponse(ctrl: AbstractControl, req: Request, res: Response) {
   const excels: FileAndSize[] = await ctrl.getExcelFileNames();
 
-
   const targetExcelName = removeSuffix(String(req.params.file), '.json');
   const targetExcelPath = ctrl.getExcelPath() + '/' + targetExcelName + '.json';
 
@@ -15,7 +14,7 @@ export async function sendExcelViewerTableResponse(ctrl: AbstractControl, req: R
   let foundTarget = excels.find(e => e.name === targetExcelName);
 
   if (foundTarget) {
-    foundJson = foundTarget.size < 9_000_000 ? await ctrl.readDataFile(targetExcelPath, true) : null;
+    foundJson = foundTarget.size < 20_000_000 ? await ctrl.readDataFile(targetExcelPath, true) : null;
   }
 
   await res.renderComponent(ExcelViewerTablePage, {
@@ -23,7 +22,6 @@ export async function sendExcelViewerTableResponse(ctrl: AbstractControl, req: R
     bodyClass: ['page--excel-viewer', 'page--wide', 'page--narrow-sidebar'],
     fileName: targetExcelName,
     fileSize: foundTarget?.size,
-    excels,
     json: foundJson,
   });
 }

@@ -11,7 +11,7 @@
     <div class="content">
       <template v-if="fileSize">
         <p>File not supported for Excel Viewer (file too big): {{ fileName }}</p>
-        <p>Max size is 9 MB</p>
+        <p>Max size is 20 MB</p>
         <p>Size of requested file is: <ByteSizeLabel :byte-size="fileSize" /></p>
       </template>
       <template v-else>

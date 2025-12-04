@@ -96,7 +96,7 @@ function __travelerPlaceholder(langCode: LangCode = 'EN', degender: boolean = fa
     case 'TR':
       return '(Gezgin)';
     case 'VI':
-      return '(Nhà Lữ Hành)';
+      return '{{Traveler}}'; // (Nhà Lữ Hành)
   }
 }
 

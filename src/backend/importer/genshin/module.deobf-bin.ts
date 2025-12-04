@@ -1,6 +1,6 @@
 import path from 'path';
 import { getGenshinDataFilePath } from '../../loadenv.ts';
-import fs, { promises as fsp } from 'fs';
+import { promises as fsp } from 'fs';
 import { createPropertySchemaWithArray, PropertySchemaResult, shouldIgnoreConfig } from '../schema/translate_schema.ts';
 import JSONBigImport, { JSONBigInt } from '../../util/json-bigint';
 import { defaultMap } from '../../../shared/util/genericUtil.ts';
@@ -176,25 +176,25 @@ export function fixBrokenJsonStrings(input: string): string {
 export async function writeDeobfBin() {
   shouldIgnoreConfig.shouldIgnoreEmptyString = true;
 
-  let anyInvalidJson = false;
-  for (let file of fsWalkSync(getGenshinDataFilePath('./BinOutput.Raw/InterAction/QuestDialogue'))) {
-    let fileContent: string = await fsRead(file);
-    try {
-      JSON.parse(fileContent);
-    } catch (_err) {
-      fileContent = fixBrokenJsonStrings(fileContent);
-      try {
-        JSON.parse(fileContent);
-        await fsWrite(file, fileContent);
-      } catch (err) {
-        console.log('Invalid JSON:', file, err);
-        anyInvalidJson = true;
-      }
-    }
-  }
-  if (anyInvalidJson) {
-    return;
-  }
+  // let anyInvalidJson = false;
+  // for (let file of fsWalkSync(getGenshinDataFilePath('./BinOutput.Raw/InterAction/QuestDialogue'))) {
+  //   let fileContent: string = await fsRead(file);
+  //   try {
+  //     JSON.parse(fileContent);
+  //   } catch (_err) {
+  //     fileContent = fixBrokenJsonStrings(fileContent);
+  //     try {
+  //       JSON.parse(fileContent);
+  //       await fsWrite(file, fileContent);
+  //     } catch (err) {
+  //       console.log('Invalid JSON:', file, err);
+  //       anyInvalidJson = true;
+  //     }
+  //   }
+  // }
+  // if (anyInvalidJson) {
+  //   return;
+  // }
 
   console.log('----- CodexQuest Mapping -----');
   const cqMapping = await mapCodexQuest();
@@ -217,20 +217,20 @@ export async function writeDeobfBin() {
   console.log('----- Voice Mapping -----');
   const voiceMapping = await mapVoiceOvers();
 
-  // Merge talkMapping and questMapping in case anything was missed
-  const talkQuestCombinedMappings = combineMappings(questMapping, talkMapping);
+  // // Merge talkMapping and questMapping in case anything was missed
+  // const talkQuestCombinedMappings = combineMappings(questMapping, talkMapping);
 
   console.log();
   console.log();
 
   console.log('----- Writing Outputs -----');
-  await walkSyncWrite('./BinOutput.Raw/CodexQuest', './BinOutput/CodexQuest', cqMapping);
-  await walkSyncWrite('./BinOutput.Raw/GCG/Gcg_DeclaredValueSet', './BinOutput/GCG/Gcg_DeclaredValueSet', gcgDvsMapping);
-  await walkSyncWrite('./BinOutput.Raw/HomeworldFurnitureSuit', './BinOutput/HomeworldFurnitureSuit', furnSuitMapping);
-  await walkSyncWrite('./BinOutput.Raw/InterAction/QuestDialogue', './BinOutput/InterAction/QuestDialogue', iaMapping);
-  await walkSyncWrite('./BinOutput.Raw/Talk', './BinOutput/Talk', talkQuestCombinedMappings);
-  await walkSyncWrite('./BinOutput.Raw/Quest', './BinOutput/Quest', talkQuestCombinedMappings);
-  await walkSyncWrite('./BinOutput.Raw/Voice', './BinOutput/Voice', voiceMapping);
+  // await walkSyncWrite('./BinOutput.Raw/CodexQuest', './BinOutput/CodexQuest', cqMapping);
+  // await walkSyncWrite('./BinOutput.Raw/GCG/Gcg_DeclaredValueSet', './BinOutput/GCG/Gcg_DeclaredValueSet', gcgDvsMapping);
+  // await walkSyncWrite('./BinOutput.Raw/HomeworldFurnitureSuit', './BinOutput/HomeworldFurnitureSuit', furnSuitMapping);
+  // await walkSyncWrite('./BinOutput.Raw/InterAction/QuestDialogue', './BinOutput/InterAction/QuestDialogue', iaMapping);
+  // await walkSyncWrite('./BinOutput.Raw/Talk', './BinOutput/Talk', talkQuestCombinedMappings);
+  // await walkSyncWrite('./BinOutput.Raw/Quest', './BinOutput/Quest', talkQuestCombinedMappings);
+  // await walkSyncWrite('./BinOutput.Raw/Voice', './BinOutput/Voice', voiceMapping);
 }
 
 // region Mappers
@@ -428,14 +428,16 @@ async function mapInterAction(): Promise<Record<string, string>> {
 }
 
 async function mapQuest(): Promise<Record<string, string>> {
-  const questCombiner: Combiner = (acc, json) => {
-    acc.push(json);
+  const getQuestCombiner = (isForSchema: boolean): Combiner => {
+    return (acc, json) => {
+      acc.push(json);
+    };
   };
 
   const schemaRows: any[] = await walkSyncJsonCombine(getSchemaFilePath('./BinOutput/Quest'),
-    questCombiner, 120, ['40020.json']);
+    getQuestCombiner(true), 120, ['40020.json']);
   const rawRows: any[] = await walkSyncJsonCombine(getGenshinDataFilePath('./BinOutput.Raw/Quest'),
-    questCombiner, 120, ['40020.json']);
+    getQuestCombiner(false), 120, ['40020.json']);
 
   const propertySchema: PropertySchemaResult = await createPropertySchemaWithArray(
     null,
@@ -450,34 +452,43 @@ async function mapQuest(): Promise<Record<string, string>> {
 }
 
 async function mapTalk(): Promise<Record<string, string>> {
-  const talkCombiner: Combiner = (acc, json, _file) => {
-    delete json.LOEAGAAPPKO; // from schema
+  const getTalkCombiner = (isForSchema: boolean): Combiner => {
+    return (acc, json, _file) => {
+      delete json.LOEAGAAPPKO; // from schema
 
-    let rows: any[] = [];
+      let rows: any[] = [];
 
-    const theArrayKey: string = Object.entries(json).filter(([_k, v]) => Array.isArray(v))?.[0]?.[0];
+      const theArrayKey: string = Object.entries(json).filter(([_k, v]) => Array.isArray(v))?.[0]?.[0];
 
-    if (!theArrayKey) {
-      rows.push(json);
-    } else {
-      const nonArrayEntries: any = {};
-      for (let [key, value] of Object.entries(json)) {
-        if (key !== theArrayKey) {
-          nonArrayEntries[key] = value;
+      if (!theArrayKey) {
+        rows.push(json);
+      } else {
+        const nonArrayEntries: any = {};
+        for (let [key, value] of Object.entries(json)) {
+          if (key !== theArrayKey) {
+            nonArrayEntries[key] = value;
+          }
+        }
+
+        for (let item of json[theArrayKey]) {
+          const row = {
+            ...nonArrayEntries,
+            [theArrayKey]: 'THE_ARRAY_KEY',
+            ...item
+          };
+          rows.push(row);
         }
       }
 
-      for (let item of json[theArrayKey]) {
-        const row = {
-          ... nonArrayEntries,
-          [theArrayKey]: 'THE_ARRAY_KEY',
-          ... item
-        };
-        rows.push(row);
+      for (let row of rows) {
+        if (!isForSchema) {
+          if (row.talkRole) {
+            continue
+          }
+        }
+        acc.push(row);
       }
-    }
-
-    acc.push(... rows);
+    };
   };
 
   const combinedSchema: Record<string, string> = {};
@@ -493,9 +504,9 @@ async function mapTalk(): Promise<Record<string, string>> {
   for (let SUB_FOLDER of SUB_FOLDERS) {
     console.log('Processing Talk/' + SUB_FOLDER);
     const schemaRows: any[] = await walkSyncJsonCombine(getSchemaFilePath('./BinOutput/Talk/' + SUB_FOLDER),
-      talkCombiner, 60, [], true);
+      getTalkCombiner(true), 60, [], true);
     const rawRows: any[] = await walkSyncJsonCombine(getGenshinDataFilePath('./BinOutput.Raw/Talk/' + SUB_FOLDER),
-      talkCombiner, 60, [], true);
+      getTalkCombiner(false), 60, [], true);
 
     const propertySchema: PropertySchemaResult = await createPropertySchemaWithArray(
       null,
@@ -522,14 +533,22 @@ async function mapTalk(): Promise<Record<string, string>> {
 }
 
 async function mapVoiceOvers(): Promise<Record<string, string>> {
-  const voiceItemsCombiner: Combiner = (acc, json) => {
-    acc.push(... Object.values(json));
-  };
+  const getVoiceItemsCombiner = (isForSchema: boolean): Combiner => {
+    return (acc, json) => {
+      let records: any[] = [...Object.values(json)];
+      for (let record of records) {
+        if (!isForSchema && record.guid) {
+          continue;
+        }
+        acc.push(record);
+      }
+    };
+  }
 
   const schemaVoiceItems: any[] = await walkSyncJsonCombine(getSchemaFilePath('./BinOutput/Voice/Items'),
-    voiceItemsCombiner, 60, ['04443dd6.json']);
+    getVoiceItemsCombiner(true), 60, ['04443dd6.json']);
   const rawVoiceItems: any[] = await walkSyncJsonCombine(getGenshinDataFilePath('./BinOutput.Raw/Voice/Items'),
-    voiceItemsCombiner, 60, ['1231137260.json']);
+    getVoiceItemsCombiner(false), 60, ['1231137260.json']);
 
   const propertySchema: PropertySchemaResult = await createPropertySchemaWithArray(
     null,

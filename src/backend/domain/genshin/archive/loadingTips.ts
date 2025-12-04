@@ -35,9 +35,7 @@ async function getCategoryForTip(ctrl: GenshinControl,
     if (sit.StageId === 23) {
       foundCats.push({ text: 'Three Realms Gateway Offering', weight: 10});
     }
-    if (sit.LoadingSituationType.includes('GCG')) {
-      foundCats.push({ text: 'General', weight: 10});
-    } else if (sit.LoadingSituationType.includes('HOMEWORLD')) {
+    if (sit.LoadingSituationType.includes('HOMEWORLD')) {
       foundCats.push({ text: 'Serenitea Pot', weight: 10});
     } else if (sit.LoadingSituationType.includes('ENTER_ISLAND')) {
       foundCats.push({ text: 'Golden Apple Archipelago', weight: 10});
@@ -45,6 +43,8 @@ async function getCategoryForTip(ctrl: GenshinControl,
       foundCats.push({ text: 'Domains', weight: 1});
     } else if (sit.LoadingSituationType.includes('ENTER_TOWER') || sit.LoadingSituationType.includes('ENTER_ROOM')) {
       foundCats.push({ text: 'Spiral Abyss', weight: 1});
+    } else if (sit.LoadingSituationType.includes('ENTER_GCG')) {
+      foundCats.push({ text: 'Genius Invokation TCG', weight: 10});
     }
     if (tipTitleEN === 'Domains' || tipTitleEN === 'Doors of Resurrection') {
       foundCats.push({ text: 'Domains', weight: 15});
@@ -60,6 +60,15 @@ async function getCategoryForTip(ctrl: GenshinControl,
     }
     if (sit.PicPath && sit.PicPath.includes('Simulanka')) {
       foundCats.push({ text: 'Simulanka', weight: 15});
+    }
+    if (sit.PicPath && sit.PicPath.includes('UI_LoadingPic_RoleCombat')) {
+      foundCats.push({ text: 'Imaginarium Theater', weight: 15});
+    }
+    if (sit.PicPath && sit.PicPath.includes('LeyLineChallenge')) {
+      foundCats.push({ text: 'Stygian Onslaught', weight: 15});
+    }
+    if (sit.PicPath && sit.PicPath.includes('Beyond')) {
+      foundCats.push({ text: 'Miliastra Wonderland', weight: 15});
     }
     if (sit.Area1Id) {
       const areas = worldAreas.filter(area => sit.Area1Id.includes(area.AreaId1) && area.AreaType === 'LEVEL_1');
@@ -179,9 +188,13 @@ async function createResultObject(ctrl: GenshinControl): Promise<LoadingCat> {
     'Spiral Abyss',
     'Serenitea Pot',
     'Golden Apple Archipelago',
+    'Miliastra Wonderland',
     'Three Realms Gateway Offering',
     'Veluriyam Mirage',
     'Simulanka',
+    'Genius Invokation TCG',
+    'Imaginarium Theater',
+    'Stygian Onslaught',
     'General',
   ];
 

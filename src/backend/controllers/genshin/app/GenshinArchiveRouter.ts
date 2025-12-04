@@ -550,7 +550,7 @@ export default async function(): Promise<Router> {
       LoadRelatedMaterial: true,
     });
     const sb: SbOut = new SbOut();
-    const ol: OLResult = furn ? (await ol_gen_from_id(ctrl, furn.NameTextMapHash)) : null;
+    const ol: OLResult = furn ? (await ol_gen_from_id(ctrl, furn.NameTextMapHash, { addDefaultHidden: true })) : null;
 
     if (furn) {
       const normNameText: string = ctrl.normText(furn.NameText, ctrl.outputLangCode);
@@ -575,7 +575,7 @@ export default async function(): Promise<Router> {
         sb.line();
       }
       sb.line('==Furnishing Sets==');
-      sb.line('{{Craft Usage}}');
+      sb.line('{{Craft Usage|type=Furnishing Set}}');
       sb.line();
       sb.line('==Other Languages==');
       sb.line(ol?.result);

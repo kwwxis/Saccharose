@@ -58,6 +58,7 @@ export const ManualTextMapHashes = {
   // Other Maps
   'Serenitea Pot': 3071628724,
   'Golden Apple Archipelago': 2157852924,
+  'Miliastra Wonderland': 830593667, // todo
   'Three Realms Gateway Offering': 2887066388,
   'Spiral Abyss': 2284786655,
   'Enkanomiya': 1862653596,
@@ -94,6 +95,10 @@ export const ManualTextMapHashes = {
 
   'Furnishing Set': 1999112795,
   'Gift Set': 205103331,
+
+  'Genius Invokation TCG': 406594273,
+  'Imaginarium Theater': 1116422958,
+  'Stygian Onslaught': 2939058421,
 
   // Elements
   // --------------------------------------------------------------------------------------------------------------
