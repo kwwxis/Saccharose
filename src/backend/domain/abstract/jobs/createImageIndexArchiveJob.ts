@@ -55,7 +55,7 @@ async function doJob(job: ScriptJob<'createImageIndexArchive'>,
         default:
           throw 'Bad siteMode: ' + args.siteMode;
       }
-    })() + '/';
+    })();
 
     await job.log('[Search] Searching image index...');
 
@@ -91,8 +91,13 @@ async function doJob(job: ScriptJob<'createImageIndexArchive'>,
     let prepLastPercentLog: number = 0;
 
     await Promise.all(searchResult.results.map(result => {
-      const srcPath = IMAGES_DIR + result.image_name + '.png';
+      const srcPath = IMAGES_DIR + '/' + result.image_name + '.png';
       const destPath = zipDir + '/' + result.image_name + '.png';
+
+      if (result.image_name.includes('/')) {
+        const destDir = path.dirname(destPath);
+        fs.mkdirSync(destDir, { recursive: true })
+      }
 
       return fsp.copyFile(srcPath, destPath).catch(_ignore => {
         return Promise.resolve();
