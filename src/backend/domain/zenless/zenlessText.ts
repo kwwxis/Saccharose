@@ -93,7 +93,7 @@ export function __normZenlessText(text: string, langCode: LangCode, opts: NormTe
     text = text.replace(/<color=#F0D12B(?:FF)?>(.*?)<\/color>/g, '{{Color|Physical|$1}}');
 
     // Unknown:
-    text = text.replace(/<color=(#[0-9a-fA-F]{6})(?:FF)?>(.*?)<\/color>/g, '{{Color|$1|$2}}');
+    text = text.replace(/<color=(#[0-9a-fA-F]{6})(?:FF|ff)?>(.*?)<\/color>/g, '{{Color|$1|$2}}');
   }
 
   text = text.replace(/<IconMap:Icon_(Normal|Evade|Switch|Special|SpecialReady|SpecialReady_Rp|UltimateReady)>/g,

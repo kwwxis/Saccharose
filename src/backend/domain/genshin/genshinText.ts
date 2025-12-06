@@ -260,7 +260,7 @@ export function __normGenshinText(text: string, langCode: LangCode, opts: NormTe
       (fm, g1) => elementColorTemplate(langCode, 'GEO', 'Geo', fm, g1));
 
     // Unknown:
-    text = text.replace(/<color=(#[0-9a-fA-F]{6})(?:FF)?>(.*?)<\/color>/g, '{{Color|$1|$2}}');
+    text = text.replace(/<color=(#[0-9a-fA-F]{6})(?:FF|ff)?>(.*?)<\/color>/g, '{{Color|$1|$2}}');
   }
 
   text = text.replace(/\{REALNAME\[ID\(1\)(\|HOSTONLY\(true\))?(\|SHOWHOST\(true\))?(\|DELAYHANDLE\((true|false)\))?]}/g,
