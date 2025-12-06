@@ -296,6 +296,7 @@ export const WuwaVersions: GameVersions = new GameVersions([
   new GameVersion({number: '2.5', prevNumber: '2.4', showTextmapChangelog: true}),
   new GameVersion({number: '2.6', prevNumber: '2.5', showTextmapChangelog: true}),
   new GameVersion({number: '2.7', prevNumber: '2.6', showTextmapChangelog: true}),
+  new GameVersion({number: '2.8', prevNumber: '2.7', showTextmapChangelog: true}),
 ], true);
 
 // TODO: This needs to be updated with each new Genshin version!
@@ -308,7 +309,7 @@ export const CurrentStarRailVersion: GameVersion = StarRailVersions.get('3.7');
 export const CurrentZenlessVersion: GameVersion = ZenlessVersions.get('2.4');
 
 // TODO: This needs to be updated with each new Wuthering Waves version!
-export const CurrentWuwaVersion: GameVersion = WuwaVersions.get('2.7');
+export const CurrentWuwaVersion: GameVersion = WuwaVersions.get('2.8');
 
 if (!CurrentGenshinVersion) throw 'Fatal configuration error in setting current Genshin Version';
 if (!CurrentStarRailVersion) throw 'Fatal configuration error in setting current Star Rail Version';
