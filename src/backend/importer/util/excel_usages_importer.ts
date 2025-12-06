@@ -46,6 +46,10 @@ export async function doImportExcelScalars(ctrl: AbstractControl) {
       walkObject(obj, (curr) => {
         if (curr.isLeaf && isScalar(curr.value)) {
           const scalarValue: string = String(curr.value);
+          if (scalarValue.includes('\u0000')) {
+            console.warn(`Found scalar with null value in row index ${rowIndex} of ${filePath}`);
+            return;
+          }
           if (seenScalarsInObj.has(scalarValue)) {
             return;
           } else {
