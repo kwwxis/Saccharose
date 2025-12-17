@@ -6,7 +6,7 @@ export function determineTooltipPlacement(hoveredToken: Element, tokenCls: strin
   const elRectTopToLeftMap: {[top: number]: number} = defaultMap('Infinity');
 
   const involvedTokens: Element[] = getSiblingsOfSameClass(hoveredToken, tokenCls);
-  console.log(involvedTokens);
+  //console.log(involvedTokens);
   for (let token of involvedTokens) {
     const tokenRect: DOMRect = token.getBoundingClientRect();
     elRectTopToWidthMap[tokenRect.top] += tokenRect.width;

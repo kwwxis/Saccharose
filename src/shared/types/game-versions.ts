@@ -262,6 +262,7 @@ export const StarRailVersions: GameVersions = new GameVersions([
   new GameVersion({number: '3.5', prevNumber: '3.4', showTextmapChangelog: true, showNewMedia: true}),
   new GameVersion({number: '3.6', prevNumber: '3.5', showTextmapChangelog: true, showNewMedia: true}),
   new GameVersion({number: '3.7', prevNumber: '3.6', showTextmapChangelog: true, showNewMedia: true}),
+  new GameVersion({number: '3.8', prevNumber: '3.7', showTextmapChangelog: true, showNewMedia: false}),
 ], true);
 
 // TODO: This needs to be updated with each new Zenless Zone Zero version!
@@ -303,7 +304,7 @@ export const WuwaVersions: GameVersions = new GameVersions([
 export const CurrentGenshinVersion: GameVersion = GenshinVersions.get('6.2');
 
 // TODO: This needs to be updated with each new Honkai Star Rail version!
-export const CurrentStarRailVersion: GameVersion = StarRailVersions.get('3.7');
+export const CurrentStarRailVersion: GameVersion = StarRailVersions.get('3.8');
 
 // TODO: This needs to be updated with each new Zenless Zone Zero version!
 export const CurrentZenlessVersion: GameVersion = ZenlessVersions.get('2.4');

@@ -208,13 +208,13 @@ export function applyWikitextLinker() {
                   line: aceLineNumber,
                   col: startPos,
                   mode: 'insert',
-                  count: 2,
+                  count: 2, // "[["
                 },
                 {
                   line: aceLineNumber,
                   col: startPos + textRange.length,
                   mode: 'insert',
-                  count: 2,
+                  count: 2, // "]]"
                 }
               ]
             });
