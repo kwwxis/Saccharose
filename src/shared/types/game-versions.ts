@@ -262,7 +262,7 @@ export const StarRailVersions: GameVersions = new GameVersions([
   new GameVersion({number: '3.5', prevNumber: '3.4', showTextmapChangelog: true, showNewMedia: true}),
   new GameVersion({number: '3.6', prevNumber: '3.5', showTextmapChangelog: true, showNewMedia: true}),
   new GameVersion({number: '3.7', prevNumber: '3.6', showTextmapChangelog: true, showNewMedia: true}),
-  new GameVersion({number: '3.8', prevNumber: '3.7', showTextmapChangelog: true, showNewMedia: false}),
+  new GameVersion({number: '3.8', prevNumber: '3.7', showTextmapChangelog: true, showNewMedia: true}),
 ], true);
 
 // TODO: This needs to be updated with each new Zenless Zone Zero version!
