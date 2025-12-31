@@ -12,6 +12,7 @@ export interface LiveReloadPluginOptions {
   hostname?: string;
   key?: string;
   cert?: string;
+  ca?: string;
   quiet?: boolean;
 }
 
@@ -28,8 +29,9 @@ export class LiveReloadPlugin implements RspackPluginInstance{
       delay: options.delay ?? 0,
       protocol: options.protocol ?? 'http',
       hostname: options.hostname ?? 'localhost',
-      key: options.key ?? '',
-      cert: options.cert ?? '',
+      key: options.key ?? undefined,
+      cert: options.cert ?? undefined,
+      ca: options.ca ?? undefined,
       quiet: options.quiet ?? false,
     };
   }
@@ -39,15 +41,16 @@ export class LiveReloadPlugin implements RspackPluginInstance{
       return;
     }
 
-    const { port, protocol, hostname, delay, key, cert, quiet } = this.options;
+    const { port, protocol, hostname, delay, key, cert, ca, quiet } = this.options;
 
     // --- 1. Create HTTP(S) server for livereload.js + WebSocket upgrade ---
     if (!this.httpServer) {
       const serverOptions: https.ServerOptions | http.ServerOptions =
         protocol === 'https' && key && cert
           ? {
-            key: fs.readFileSync(key),
-            cert: fs.readFileSync(cert),
+            key,
+            cert,
+            ca,
           }
           : {};
 

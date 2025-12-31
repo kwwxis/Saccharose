@@ -22,7 +22,7 @@ import {
 import { SiteSidebar } from '../../shared/types/site/site-sidebar-types.ts';
 import { icon } from './viewUtilities.ts';
 import { SIDEBAR_CONFIG } from './sidebarConfig.ts';
-import { SiteMode } from '../../shared/types/site/site-mode-type.ts';
+import { SITE_MODE_URL_PATH_REGEXES, SiteMode } from '../../shared/types/site/site-mode-type.ts';
 
 /**
  * A payload object used to make updates to {@link RequestContext}
@@ -67,13 +67,13 @@ export class RequestContext {
     this.webpackBundles = getWebpackBundleFileNames();
 
     const lcPath = req.path.toLowerCase();
-    if (lcPath.startsWith('/hsr') || lcPath.startsWith('/api/hsr') || lcPath.startsWith('/api/mw/hsr')) {
+    if (SITE_MODE_URL_PATH_REGEXES.HSR.test(lcPath)) {
       this.siteMode = 'hsr';
-    } else if (lcPath.startsWith('/zenless') || lcPath.startsWith('/api/zenless') || lcPath.startsWith('/api/mw/zenless')) {
+    } else if (SITE_MODE_URL_PATH_REGEXES.ZENLESS.test(lcPath)) {
       this.siteMode = 'zenless';
-    } else if (lcPath.startsWith('/wuwa') || lcPath.startsWith('/api/wuwa') || lcPath.startsWith('/api/mw/wuwa')) {
+    } else if (SITE_MODE_URL_PATH_REGEXES.WUWA.test(lcPath)) {
       this.siteMode = 'wuwa';
-    } else if (lcPath.startsWith('/genshin') || lcPath.startsWith('/api/genshin') || lcPath.startsWith('/api/mw/genshin')) {
+    } else if (SITE_MODE_URL_PATH_REGEXES.GENSHIN.test(lcPath)) {
       this.siteMode = 'genshin';
     } else {
       this.siteMode = 'unset';

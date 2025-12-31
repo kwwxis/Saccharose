@@ -31,6 +31,7 @@ export default <Configuration> merge(baseConfig('development'), {
       ... (toBoolean(process.env.SSL_ENABLED) ? {
         key: fs.readFileSync(process.env.SSL_KEY, 'utf8'),
         cert: fs.readFileSync(process.env.SSL_CERT, 'utf8'),
+        ca: fs.readFileSync(process.env.SSL_CA, 'utf8'),
       } : {})
     }),
   ]

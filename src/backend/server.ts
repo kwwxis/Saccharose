@@ -1,7 +1,7 @@
 import './loadenv.ts';
 import sslcreds from './sslcreds.ts';
 import express from 'express';
-import spdy from 'spdy';
+import https from 'https';
 import vhost from 'vhost';
 import { appInit } from './app.ts';
 import { toBoolean } from '../shared/util/genericUtil.ts';
@@ -43,7 +43,7 @@ import { setIsServerRun } from './loadenv.ts';
   }
 
   if (toBoolean(process.env.SSL_ENABLED)) {
-    const server = spdy.createServer(sslcreds, httpsApp).listen(httpsPort, () => {
+    https.createServer(sslcreds, httpsApp).listen(httpsPort, () => {
       if (vhosted) {
         logInit(`HTTPS/2 Server is running at https://${process.env.WEB_DOMAIN}`);
       } else {

@@ -63,7 +63,7 @@ export default async function(): Promise<Router> {
       });
     });
   } else {
-    router.use('/genshin',  await GenshinRouter());
+    router.use(['/genshin', '/gi', '/g'],  await GenshinRouter());
   }
 
   if (isSiteModeDisabled('hsr')) {
@@ -74,7 +74,7 @@ export default async function(): Promise<Router> {
       });
     });
   } else {
-    router.use('/hsr', await StarRailRouter());
+    router.use(['/hsr', '/h'], await StarRailRouter());
   }
 
   if (isSiteModeDisabled('zenless')) {
@@ -85,7 +85,7 @@ export default async function(): Promise<Router> {
       });
     });
   } else {
-    router.use('/zenless', await ZenlessRouter());
+    router.use(['/zenless', '/zzz', '/z'], await ZenlessRouter());
   }
 
   if (isSiteModeDisabled('wuwa')) {
@@ -96,7 +96,7 @@ export default async function(): Promise<Router> {
       });
     });
   } else {
-    router.use('/wuwa', await WuwaRouter());
+    router.use(['/wuwa', '/w'], await WuwaRouter());
   }
 
   router.use('/', await UserRouter());
