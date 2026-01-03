@@ -29,10 +29,10 @@ function pgSiteDatabase() {
     client: 'pg',
     connection: {
       host:     ENV.POSTGRES_SITE_HOST,
-      database: process.env.POSTGRES_SITE_DATABASE,
-      user:     process.env.POSTGRES_SITE_USER,
-      password: process.env.POSTGRES_SITE_PASSWORD,
-      port:     toInt(process.env.POSTGRES_SITE_PORT, 5432),
+      database: ENV.POSTGRES_SITE_DATABASE,
+      user:     ENV.POSTGRES_SITE_USER,
+      password: ENV.POSTGRES_SITE_PASSWORD,
+      port:     toInt(ENV.POSTGRES_SITE_PORT, 5432),
     },
     pool: {
       max: 100,
@@ -48,11 +48,11 @@ function pgGamedataDatabase(db: string) {
   return knex({
     client: 'pg',
     connection: {
-      host:     process.env.POSTGRES_GAMEDATA_HOST,
+      host:     ENV.POSTGRES_GAMEDATA_HOST,
       database: db,
-      user:     process.env.POSTGRES_GAMEDATA_USER,
-      password: process.env.POSTGRES_GAMEDATA_PASSWORD,
-      port:     toInt(process.env.POSTGRES_GAMEDATA_PORT, 5432),
+      user:     ENV.POSTGRES_GAMEDATA_USER,
+      password: ENV.POSTGRES_GAMEDATA_PASSWORD,
+      port:     toInt(ENV.POSTGRES_GAMEDATA_PORT, 5432),
     },
     pool: {
       max: 30,
@@ -66,10 +66,10 @@ export function openPgGamedata(): SaccharoseDb {
     return singleton;
   }
   singleton = {
-    genshin:  isSiteModeDisabled('genshin') ? null  : pgGamedataDatabase(process.env.POSTGRES_GAMEDATA_DATABASE_GENSHIN),
-    hsr:      isSiteModeDisabled('hsr') ? null      : pgGamedataDatabase(process.env.POSTGRES_GAMEDATA_DATABASE_HSR),
-    zenless:  isSiteModeDisabled('zenless') ? null  : pgGamedataDatabase(process.env.POSTGRES_GAMEDATA_DATABASE_ZENLESS),
-    wuwa:     isSiteModeDisabled('wuwa') ? null     : pgGamedataDatabase(process.env.POSTGRES_GAMEDATA_DATABASE_WUWA),
+    genshin:  isSiteModeDisabled('genshin') ? null  : pgGamedataDatabase(ENV.POSTGRES_GAMEDATA_DATABASE_GENSHIN),
+    hsr:      isSiteModeDisabled('hsr') ? null      : pgGamedataDatabase(ENV.POSTGRES_GAMEDATA_DATABASE_HSR),
+    zenless:  isSiteModeDisabled('zenless') ? null  : pgGamedataDatabase(ENV.POSTGRES_GAMEDATA_DATABASE_ZENLESS),
+    wuwa:     isSiteModeDisabled('wuwa') ? null     : pgGamedataDatabase(ENV.POSTGRES_GAMEDATA_DATABASE_WUWA),
   };
   return singleton;
 }

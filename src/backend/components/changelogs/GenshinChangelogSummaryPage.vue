@@ -632,7 +632,7 @@ import { toParam } from '../../../shared/util/stringUtil.ts';
 import GenshinItem from '../genshin/links/GenshinItem.vue';
 import GenshinLbLink from '../genshin/links/GenshinLbLink.vue';
 import TcgCard from '../genshin/links/TcgCard.vue';
-import { getTrace } from '../../middleware/request/tracer.ts';
+import { useTrace } from '../../middleware/request/tracer.ts';
 import Wikitext from '../utility/Wikitext.vue';
 import GenshinReadableLink from '../genshin/links/GenshinReadableLink.vue';
 import { ChapterExcelConfigData } from '../../../shared/types/genshin/quest-types.ts';
@@ -640,14 +640,14 @@ import GenshinChapterListItem from '../genshin/chapters/GenshinChapterListItem.v
 import { SITE_SHORT_TITLE } from '../../loadenv.ts';
 import GenshinChangelogSummaryReadablesView from './GenshinChangelogSummaryReadablesView.vue';
 
-const { ctx } = getTrace();
+const { ctx } = useTrace();
 
 const {newSummary} = defineProps<{
   currentVersion?: GameVersion,
   newSummary?: GenshinChangelogNewRecordSummary,
 }>();
 
-const { normGenshinText } = getTrace();
+const { normGenshinText } = useTrace();
 
 function chapterGroup1(code: 'AQ' | 'SQ'): { chapterName: string, subChapters: {[subChapterName: string]: ChapterExcelConfigData[]} }[] {
   return Object.entries(newSummary.chapters[code]).map(([chapterName, subChapters]) => ({

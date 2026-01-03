@@ -51,9 +51,9 @@ import { sort, valuesOf } from '../../../shared/util/arrayUtil.ts';
 import { GameVersion } from '../../../shared/types/game-versions.ts';
 import { ExcelVersionChangelog } from '../../../shared/types/changelog-types.ts';
 import Icon from '../utility/Icon.vue';
-import { getTrace } from '../../middleware/request/tracer.ts';
+import { useTrace } from '../../middleware/request/tracer.ts';
 
-const { ctx } = getTrace();
+const { ctx } = useTrace();
 
 defineProps<{
   currentVersion?: GameVersion,

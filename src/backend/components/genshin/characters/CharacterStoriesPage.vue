@@ -130,12 +130,12 @@
 import { AvatarExcelConfigData } from '../../../../shared/types/genshin/avatar-types.ts';
 import { StoryFetters } from '../../../../shared/types/genshin/fetter-types.ts';
 import Wikitext from '../../utility/Wikitext.vue';
-import { getTrace } from '../../../middleware/request/tracer.ts';
+import { useTrace } from '../../../middleware/request/tracer.ts';
 import Icon from '../../utility/Icon.vue';
 import { toParam } from '../../../../shared/util/stringUtil.ts';
 import MetaProps from '../../shared/MetaProps.vue';
 
-const { ctx } = getTrace();
+const { ctx } = useTrace();
 
 defineProps<{
   avatars?: AvatarExcelConfigData[],

@@ -27,10 +27,10 @@
 
 <script setup lang="ts">
 import { GameVersions } from '../../../shared/types/game-versions.ts';
-import { getTrace } from '../../middleware/request/tracer.ts';
+import { useTrace } from '../../middleware/request/tracer.ts';
 import Icon from '../utility/Icon.vue';
 
-const { ctx } = getTrace();
+const { ctx } = useTrace();
 
 const { gameVersions } = defineProps<{
   gameVersions?: GameVersions;

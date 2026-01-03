@@ -43,8 +43,8 @@
 
 <script setup lang="ts">
 import Icon from './Icon.vue';
-import { getTrace } from '../../middleware/request/tracer.ts';
-const { ctx } = getTrace();
+import { useTrace } from '../../middleware/request/tracer.ts';
+const { ctx } = useTrace();
 
 defineProps<{
   paramName?: string,

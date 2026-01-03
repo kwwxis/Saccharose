@@ -37,12 +37,12 @@
 
 <script setup lang="ts">
 import { uuidv4 } from '../../../shared/util/uuidv4.ts';
-import { getTrace } from '../../middleware/request/tracer.ts';
+import { useTrace } from '../../middleware/request/tracer.ts';
 import Icon from './Icon.vue';
 import { DEFAULT_SEARCH_MODE } from '../../../shared/util/searchUtil.ts';
 
 const searchModeInputUuid = uuidv4();
-const ctx = getTrace().ctx;
+const ctx = useTrace().ctx;
 
 defineProps<{
   standaloneStyle?: boolean,

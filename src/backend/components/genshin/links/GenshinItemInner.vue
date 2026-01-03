@@ -15,9 +15,9 @@
 
 <script setup lang="ts">
 import { GenshinItemComponentProps } from './GenshinItem.vue';
-import { getTrace } from '../../../middleware/request/tracer.ts';
+import { useTrace } from '../../../middleware/request/tracer.ts';
 
-const { normGenshinText } = getTrace();
+const { normGenshinText } = useTrace();
 const { item, itemCount } = defineProps<GenshinItemComponentProps>();
 const effectIcon: string = (<any> item).EffectIcon;
 

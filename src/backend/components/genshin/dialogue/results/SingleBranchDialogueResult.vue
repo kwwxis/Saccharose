@@ -39,9 +39,9 @@ import { Readable } from '../../../../../shared/types/genshin/readable-types.ts'
 import QuestStillsHelper from '../helpers/QuestStillsHelper.vue';
 import InDialogueReadablesHelper from '../helpers/InDialogueReadablesHelper.vue';
 import DialogueSection from '../../../utility/DialogueSection.vue';
-import { getTrace } from '../../../../middleware/request/tracer.ts';
+import { useTrace } from '../../../../middleware/request/tracer.ts';
 
-const { ctx } = getTrace();
+const { ctx } = useTrace();
 
 defineProps<{
   sections: DialogueSectionResult[],

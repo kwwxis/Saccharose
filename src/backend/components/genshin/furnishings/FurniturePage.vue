@@ -147,11 +147,11 @@ import Wikitext from '../../utility/Wikitext.vue';
 import JsonText from '../../utility/JsonText.vue';
 import { safeStringify } from '../../../../shared/util/genericUtil.ts';
 import Icon from '../../utility/Icon.vue';
-import { getTrace } from '../../../middleware/request/tracer.ts';
+import { useTrace } from '../../../middleware/request/tracer.ts';
 import GenshinLbLink from '../links/GenshinLbLink.vue';
 import { OLResult } from '../../../../shared/types/ol-types.ts';
 
-const { normGenshinText } = getTrace();
+const { normGenshinText } = useTrace();
 
 defineProps<{
   furn: HomeWorldFurnitureExcelConfigData,

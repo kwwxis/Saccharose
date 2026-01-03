@@ -234,12 +234,12 @@ import { LangCode } from '../../../shared/types/lang-types.js';
 import { NormTextOptions } from '../../domain/abstract/genericNormalizers.js';
 import { CommonAvatar } from '../../../shared/types/common-types.js';
 import Icon from '../utility/Icon.vue';
-import { getTrace } from '../../middleware/request/tracer.js';
+import { useTrace } from '../../middleware/request/tracer.js';
 import { toParam } from '../../../shared/util/stringUtil.js';
 import HtmlScript from '../utility/HtmlScript.vue';
 import { ternary } from '../../../shared/util/genericUtil.ts';
 
-const { ctx } = getTrace();
+const { ctx } = useTrace();
 
 defineProps<{
   avatars?: CommonAvatar[],

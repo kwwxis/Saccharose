@@ -70,12 +70,12 @@ import {
   AchievementsByGoals,
 } from '../../../../shared/types/genshin/achievement-types.ts';
 import { toParam } from '../../../../shared/util/stringUtil.ts';
-import { getTrace } from '../../../middleware/request/tracer.ts';
+import { useTrace } from '../../../middleware/request/tracer.ts';
 import Wikitext from '../../utility/Wikitext.vue';
 import { valuesOf } from '../../../../shared/util/arrayUtil.ts';
 import AchievementListingTable from './AchievementListingTable.vue';
 
-const { ctx } = getTrace();
+const { ctx } = useTrace();
 
 defineProps<{
   category?: string,

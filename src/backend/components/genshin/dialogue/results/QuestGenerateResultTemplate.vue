@@ -288,11 +288,11 @@
 import { QuestGenerateResult } from '../../../../domain/genshin/dialogue/quest_generator.ts';
 import DialogueSection from '../../../utility/DialogueSection.vue';
 import Icon from '../../../utility/Icon.vue';
-import { getTrace } from '../../../../middleware/request/tracer.ts';
+import { useTrace } from '../../../../middleware/request/tracer.ts';
 import GenshinReadableLink from '../../links/GenshinReadableLink.vue';
 import Wikitext from '../../../utility/Wikitext.vue';
 
-const { ctx } = getTrace();
+const { ctx } = useTrace();
 
 const { result } = defineProps<{
   result: QuestGenerateResult,

@@ -41,10 +41,10 @@
 
 <script setup lang="ts">
 import { AchievementExcelConfigData } from '../../../../shared/types/genshin/achievement-types.ts';
-import { getTrace } from '../../../middleware/request/tracer.ts';
+import { useTrace } from '../../../middleware/request/tracer.ts';
 import AchievementTriggerDesc from './AchievementTriggerDesc.vue';
 
-const { normGenshinText } = getTrace();
+const { normGenshinText } = useTrace();
 
 defineProps<{
   achievements?: AchievementExcelConfigData[],

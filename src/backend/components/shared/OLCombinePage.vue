@@ -24,7 +24,7 @@
 
 <script setup lang="ts">
 import WikiTemplateLink from '../utility/WikiTemplateLink.vue';
-import { getTrace } from '../../middleware/request/tracer.ts';
+import { useTrace } from '../../middleware/request/tracer.ts';
 
-const { ctx } = getTrace();
+const { ctx } = useTrace();
 </script>

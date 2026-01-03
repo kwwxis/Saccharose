@@ -13,7 +13,6 @@ import { isStringNotBlank } from '../shared/util/stringUtil.ts';
 import requestIp from 'request-ip';
 import jsonResponse from './middleware/response/jsonResponse.ts';
 import antiBots from './middleware/request/antiBots.ts';
-import { traceMiddleware } from './middleware/request/tracer.ts';
 import { normalAccessLogging, earlyAccessLogging } from './middleware/request/accessLogging.ts';
 import defaultResponseHeaders from './middleware/response/defaultResponseHeaders.ts';
 import { PUBLIC_DIR, VIEWS_ROOT } from './loadenv.ts';
@@ -136,29 +135,29 @@ export async function appInit(): Promise<Express> {
     app.use(express.static(ENV.EXT_PUBLIC_DIR));
   }
 
-  if (isStringNotBlank(process.env.EXT_GENSHIN_IMAGES)) {
+  if (isStringNotBlank(ENV.EXT_GENSHIN_IMAGES)) {
     logInit('Serving external Genshin images');
-    app.use('/images/genshin', createStaticImagesHandler(process.env.EXT_GENSHIN_IMAGES, '/images/genshin/', 'genshin'));
+    app.use('/images/genshin', createStaticImagesHandler(ENV.EXT_GENSHIN_IMAGES, '/images/genshin/', 'genshin'));
   } else {
     throw 'EXT_GENSHIN_IMAGES is required!';
   }
-  if (isStringNotBlank(process.env.EXT_HSR_IMAGES)) {
+  if (isStringNotBlank(ENV.EXT_HSR_IMAGES)) {
     logInit('Serving external HSR images');
-    app.use('/images/hsr', createStaticImagesHandler(process.env.EXT_HSR_IMAGES, '/images/hsr/', 'hsr'));
+    app.use('/images/hsr', createStaticImagesHandler(ENV.EXT_HSR_IMAGES, '/images/hsr/', 'hsr'));
   } else {
     throw 'EXT_HSR_IMAGES is required!';
   }
-  if (isStringNotBlank(process.env.EXT_ZENLESS_IMAGES)) {
+  if (isStringNotBlank(ENV.EXT_ZENLESS_IMAGES)) {
     logInit('Serving external Zenless images');
-    app.use('/images/zenless', createStaticImagesHandler(process.env.EXT_ZENLESS_IMAGES, '/images/zenless/', 'zenless'));
+    app.use('/images/zenless', createStaticImagesHandler(ENV.EXT_ZENLESS_IMAGES, '/images/zenless/', 'zenless'));
   } else {
     throw 'EXT_ZENLESS_IMAGES is required!';
   }
-  if (isStringNotBlank(process.env.EXT_WUWA_IMAGES)) {
+  if (isStringNotBlank(ENV.EXT_WUWA_IMAGES)) {
     logInit('Serving external Wuthering Waves images');
-    app.use('/images/wuwa/Game/Aki/UI', createStaticImagesHandler(process.env.EXT_WUWA_IMAGES, '/images/wuwa/', 'wuwa'));
-    app.use('/images/wuwa//Game/Aki/UI', createStaticImagesHandler(process.env.EXT_WUWA_IMAGES, '/images/wuwa/', 'wuwa'));
-    app.use('/images/wuwa', createStaticImagesHandler(process.env.EXT_WUWA_IMAGES, '/images/wuwa/', 'wuwa'));
+    app.use('/images/wuwa/Game/Aki/UI', createStaticImagesHandler(ENV.EXT_WUWA_IMAGES, '/images/wuwa/', 'wuwa'));
+    app.use('/images/wuwa//Game/Aki/UI', createStaticImagesHandler(ENV.EXT_WUWA_IMAGES, '/images/wuwa/', 'wuwa'));
+    app.use('/images/wuwa', createStaticImagesHandler(ENV.EXT_WUWA_IMAGES, '/images/wuwa/', 'wuwa'));
   } else {
     throw 'EXT_WUWA_IMAGES is required!';
   }
@@ -167,17 +166,16 @@ export async function appInit(): Promise<Express> {
   // ~~~~~~~~~~~~~~~~~~~
   logInit(`Initializing sessions`);
   app.use(sessions);                                        // sessions
-  SiteUserProvider.startSiteNoticeCacheEviction();           // site notice cache eviction
+  SiteUserProvider.startSiteNoticeCacheEviction();          // site notice cache eviction
 
   // Middleware for requests
   // ~~~~~~~~~~~~~~~~~~~~~~~
   logInit(`Adding middleware for incoming requests`);
   app.use(antiBots);                                        // rejects bot-like requests
-  app.use(cookieParser(process.env.SESSION_SECRET));        // parses cookies
+  app.use(cookieParser(ENV.SESSION_SECRET));                // parses cookies
   app.use(useragent.express());                             // parses user-agent header
   app.use(express.urlencoded({extended: true}));     // parses url-encoded POST/PUT bodies
   app.use(requestIp.mw());                                  // enable request-ip
-  app.use(traceMiddleware);
 
   // Initialize Request Context
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~

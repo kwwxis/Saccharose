@@ -15,7 +15,7 @@ import { basename } from 'path';
 import { removeSuffix, SbOut } from '../../shared/util/stringUtil.ts';
 import {
   SiteMenuShownEntry,
-  SitePrefName,
+  SitePrefName, SiteUser,
   SiteUserPrefs,
   VisitorPrefsCookieName,
 } from '../../shared/types/site/site-user-types.ts';
@@ -35,11 +35,71 @@ export type RequestContextUpdate = {
 };
 
 /**
+ * ThinRequest is a minimal, request-scoped snapshot of an incoming HTTP request,
+ * intended for use outside the Express routing layer (e.g. Vue SSR rendering).
+ *
+ * Why this exists:
+ * ----------------
+ * The Express `Request` object is large, mutable, and tightly coupled to the
+ * underlying HTTP server implementation. Passing it through application,
+ * rendering, or view layers retains a broad object graph for the lifetime of
+ * the request and encourages deep coupling to transport-specific details.
+ *
+ * ThinRequest avoids those issues by:
+ * - Copying only the request data that is safe and relevant beyond routing
+ * - Avoiding retention of the Express `Request` object and its internals
+ * - Providing a stable, framework-agnostic API for request-derived values
+ * - Making request context explicit without relying on ambient globals
+ *
+ * Design guarantees:
+ * ------------------
+ * - Contains no references to Express `Request` or `Response`
+ * - Safe to pass through Vue server-side rendering without extending lifetimes
+ * - Compatible with concurrent renders in a single Node process
+ * - Read-only by convention (and may be frozen by the caller)
+ *
+ * ThinRequest represents *what the application needs to know* about a request,
+ * not *how the request was received*, keeping rendering logic decoupled from
+ * HTTP transport concerns.
+ */
+export interface ThinRequest {
+  user: SiteUser;
+  query: Record<string, unknown>;
+  cookies: Record<string, any>;
+  url: string;
+  path: string;
+  originalUrl: string;
+  method: string;
+  isAuthenticated(): boolean;
+}
+
+export function createThinRequest(req: Request): ThinRequest {
+  const authenticated =
+    typeof req.isAuthenticated === 'function'
+      ? req.isAuthenticated()
+      : false;
+
+  return {
+    user: req.user,
+    query: { ...req.query },
+    cookies: req.cookies ? { ...req.cookies } : {},
+    url: req.url,
+    path: req.path,
+    originalUrl: req.originalUrl,
+    method: req.method,
+
+    isAuthenticated() {
+      return authenticated;
+    },
+  };
+}
+
+/**
  * Only one instance per request. This class may hold information about the request as well as have some utility
  * methods.
  */
 export class RequestContext {
-  private _req: Request;
+  private readonly _req: ThinRequest;
   private _cachedPrefs: SiteUserPrefs;
 
   // Data Properties:
@@ -59,7 +119,7 @@ export class RequestContext {
   webpackBundles: WebpackBundles;
 
   constructor(req: Request) {
-    this._req = req;
+    this._req = createThinRequest(req);
     this.title = '';
     this.bodyClass = [];
     this.viewStack = { viewName: 'RouterRootView' };
@@ -249,6 +309,10 @@ export class RequestContext {
 
   hasBodyClass(bodyClass: string) {
     return this.bodyClass.includes(bodyClass);
+  }
+
+  cookies(): Record<string, any> {
+    return this._req.cookies;
   }
 
   cookie(cookieName: string, orElse: string = '') {

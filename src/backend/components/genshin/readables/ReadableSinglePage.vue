@@ -163,13 +163,13 @@
 import { Readable } from '../../../../shared/types/genshin/readable-types.ts';
 import ReadableTexts from './partials/ReadableTexts.vue';
 import Wikitext from '../../utility/Wikitext.vue';
-import { getTrace } from '../../../middleware/request/tracer.ts';
+import { useTrace } from '../../../middleware/request/tracer.ts';
 import GenshinStars from '../links/GenshinStars.vue';
 import GenshinItem from '../links/GenshinItem.vue';
 import JsonText from '../../utility/JsonText.vue';
 import { OLResult } from '../../../../shared/types/ol-types.ts';
 
-const { normGenshinText } = getTrace();
+const { normGenshinText } = useTrace();
 
 defineProps<{
   title?: string,

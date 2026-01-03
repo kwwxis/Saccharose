@@ -8,9 +8,9 @@
 
 <script setup lang="ts">
 import { MwArticleSearchResult } from '../../../shared/mediawiki/mwTypes.ts';
-import { getTrace } from '../../middleware/request/tracer.ts';
+import { useTrace } from '../../middleware/request/tracer.ts';
 
-const { ctx } = getTrace();
+const { ctx } = useTrace();
 
 defineProps<{
   searchResults?: MwArticleSearchResult[]

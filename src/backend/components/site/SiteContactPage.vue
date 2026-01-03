@@ -46,10 +46,10 @@
 </template>
 
 <script setup lang="ts">
-import { getTrace } from '../../middleware/request/tracer.ts';
+import { useTrace } from '../../middleware/request/tracer.ts';
 import { SITE_SHORT_TITLE, SITE_TITLE } from '../../loadenv.ts';
 
-const { nonce, ctx } = getTrace();
+const { nonce, ctx } = useTrace();
 
 // language=JavaScript
 import HtmlScript from '../utility/HtmlScript.vue';

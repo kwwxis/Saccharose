@@ -97,12 +97,12 @@
 
 <script setup lang="ts">
 import { TextMapSearchResponse } from '../../../../shared/types/lang-types.ts';
-import { getTrace } from '../../../middleware/request/tracer.ts';
+import { useTrace } from '../../../middleware/request/tracer.ts';
 import { Marker } from '../../../../shared/util/highlightMarker.ts';
 import Icon from '../../utility/Icon.vue';
 import Wikitext from '../../utility/Wikitext.vue';
 
-const { ctx } = getTrace();
+const { ctx } = useTrace();
 
 const props = defineProps<{
   response?: TextMapSearchResponse

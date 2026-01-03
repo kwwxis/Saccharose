@@ -189,26 +189,25 @@
 
 <script setup lang="ts">
 import { SiteUserProvider } from '../../middleware/auth/SiteUserProvider.ts';
-import { getTrace } from '../../middleware/request/tracer.ts';
+import { useTrace } from '../../middleware/request/tracer.ts';
 import Icon from '../utility/Icon.vue';
 import { SiteMenuShown, SiteMenuShownType, SiteUser } from '../../../shared/types/site/site-user-types.ts';
 import SearchModeInput from '../utility/SearchModeInput.vue';
 import { SiteSidebar } from '../../../shared/types/site/site-sidebar-types.ts';
 import { LANG_CODES, LangCode } from '../../../shared/types/lang-types.ts';
 
-let request = getTrace().req;
-let user: SiteUser = request.user;
+let { user, ctx } = useTrace();
 
-let isNightmode: boolean = request.context.prefs.isNightmode || false;
+let isNightmode: boolean = ctx.prefs.isNightmode || false;
 let avatarUrl: string = SiteUserProvider.getAvatarUrl(user);
-let sidebarConfigs: SiteSidebar[] = Object.values(request.context.allSiteSidebarConfig);
-let sidebarShown: SiteMenuShown = request.context.prefs.siteMenuShown || {};
+let sidebarConfigs: SiteSidebar[] = Object.values(ctx.allSiteSidebarConfig);
+let sidebarShown: SiteMenuShown = ctx.prefs.siteMenuShown || {};
 let sidebarConfigItemCounter: number = 0;
 
 const voPrefixDisableLangCodesAvailable: LangCode[] = LANG_CODES.filter(x => x !== 'CH');
 
-let voPrefixDisabledLangCodes: LangCode[] = Array.isArray(request.context.prefs.voPrefixDisabledLangs)
-  ? request.context.prefs.voPrefixDisabledLangs : [];
+let voPrefixDisabledLangCodes: LangCode[] = Array.isArray(ctx.prefs.voPrefixDisabledLangs)
+  ? ctx.prefs.voPrefixDisabledLangs : [];
 
 function levelOptionNextParity(): string {
   return sidebarConfigItemCounter++ % 2 === 0 ? 'even' : 'odd';

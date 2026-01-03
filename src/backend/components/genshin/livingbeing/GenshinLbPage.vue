@@ -96,12 +96,12 @@
 <script setup lang="ts">
 import { MonsterExcelConfigData } from '../../../../shared/types/genshin/monster-types.ts';
 import Wikitext from '../../utility/Wikitext.vue';
-import { getTrace } from '../../../middleware/request/tracer.ts';
+import { useTrace } from '../../../middleware/request/tracer.ts';
 import JsonText from '../../utility/JsonText.vue';
 import { safeStringify } from '../../../../shared/util/genericUtil.ts';
 import GenshinItem from '../links/GenshinItem.vue';
 
-const { normGenshinText } = getTrace();
+const { normGenshinText } = useTrace();
 
 defineProps<{
   title?: string,

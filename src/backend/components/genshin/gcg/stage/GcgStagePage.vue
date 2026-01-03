@@ -362,12 +362,12 @@ import Wikitext from '../../../utility/Wikitext.vue';
 import DialogueSection from '../../../utility/DialogueSection.vue';
 import JsonText from '../../../utility/JsonText.vue';
 import Icon from '../../../utility/Icon.vue';
-import { getTrace } from '../../../../middleware/request/tracer.ts';
+import { useTrace } from '../../../../middleware/request/tracer.ts';
 import GenshinItem from '../../links/GenshinItem.vue';
 import { toInt } from '../../../../../shared/util/numberUtil.ts';
 import TcgCard from '../../links/TcgCard.vue';
 
-const { normGenshinText } = getTrace();
+const { normGenshinText } = useTrace();
 
 defineProps<{
   stage: GCGGameExcelConfigData,

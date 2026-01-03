@@ -45,6 +45,7 @@ export interface ControlUserMode {
   outputLangCode: LangCode,
   searchMode: SearchMode,
   prefs: SiteUserPrefs,
+  cookies: Record<string, any>,
 }
 
 export type ControlUserModeProvider = ControlUserMode|Request|WsSession|SiteUser;
@@ -55,6 +56,7 @@ function createDefaultControlUserMode(): ControlUserMode {
     outputLangCode: DEFAULT_LANG,
     searchMode: DEFAULT_SEARCH_MODE,
     prefs: {},
+    cookies: {},
   };
 }
 
@@ -82,6 +84,7 @@ export function getControlUserMode(input: ControlUserModeProvider): ControlUserM
     mode.outputLangCode = input.context.outputLangCode;
     mode.searchMode = input.context.searchMode;
     mode.prefs = input.context.prefs;
+    mode.cookies = input.context.cookies();
   }
 
   if (isSiteUser(input)) {

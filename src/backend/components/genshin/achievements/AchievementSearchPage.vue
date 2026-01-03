@@ -29,7 +29,7 @@
 <script setup lang="ts">
 import SearchModeInput from '../../utility/SearchModeInput.vue';
 import Icon from '../../utility/Icon.vue';
-import { getTrace } from '../../../middleware/request/tracer.ts';
+import { useTrace } from '../../../middleware/request/tracer.ts';
 
-const { ctx } = getTrace();
+const { ctx } = useTrace();
 </script>

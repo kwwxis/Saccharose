@@ -3,12 +3,12 @@
 </template>
 
 <script setup lang="ts">
-import { getTrace } from '../../middleware/request/tracer.ts';
+import { useTrace } from '../../middleware/request/tracer.ts';
 
 defineProps<{
   name: string,
   noLink?: boolean,
 }>();
 
-const {ctx} = getTrace();
+const {ctx} = useTrace();
 </script>

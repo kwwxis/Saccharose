@@ -62,9 +62,9 @@ import {
   TextMapChangesForDisplay,
 } from '../../../shared/types/changelog-types.ts';
 import Icon from '../utility/Icon.vue';
-import { getTrace } from '../../middleware/request/tracer.ts';
+import { useTrace } from '../../middleware/request/tracer.ts';
 
-const { ctx } = getTrace();
+const { ctx } = useTrace();
 
 defineProps<{
   currentVersion?: GameVersion,

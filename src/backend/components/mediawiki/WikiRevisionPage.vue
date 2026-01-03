@@ -70,7 +70,7 @@
 import Icon from '../utility/Icon.vue';
 import { isInt } from '../../../shared/util/numberUtil.ts';
 import { MwArticleInfo } from '../../../shared/mediawiki/mwTypes.ts';
-import { getTrace } from '../../middleware/request/tracer.ts';
+import { useTrace } from '../../middleware/request/tracer.ts';
 import { toParam } from '../../../shared/util/stringUtil.ts';
 
 const {pageid, page, revid} = defineProps<{
@@ -85,6 +85,6 @@ const has_revid: boolean = isInt(revid);
 const meta_pageid: string = has_pageid ? String(pageid) : '';
 const meta_revid: string = has_revid ? String(revid) : '';
 
-const { ctx } = getTrace();
+const { ctx } = useTrace();
 const openPageInWikiLink = has_pageid ? `https://${ctx.siteModeWikiDomain}/wiki/${toParam(page.title)}` : null;
 </script>

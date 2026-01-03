@@ -147,9 +147,9 @@ import Icon from '../utility/Icon.vue';
 import Wikitext from '../utility/Wikitext.vue';
 import { isset } from '../../../shared/util/genericUtil.ts';
 import { valuesOf } from '../../../shared/util/arrayUtil.ts';
-import { getTrace } from '../../middleware/request/tracer.ts';
+import { useTrace } from '../../middleware/request/tracer.ts';
 
-const { ctx } = getTrace();
+const { ctx } = useTrace();
 
 defineProps<{
   currentVersion?: GameVersion,

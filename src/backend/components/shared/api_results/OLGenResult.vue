@@ -9,7 +9,7 @@
           <span class="expando" :ui-action="`expando: #ol-result-content-${idx}`"><Icon name="chevron-down" :size="17" /></span>
           <span style="opacity:0.6">TextMapHash:&nbsp;</span>
           <code style="word-break:break-all" class="spacer5-right">{{ olResult.textMapHash }}</code>
-          <a v-if="req.isAuthenticated()" :href="`${ctx.siteHome}/excel-usages?q=${olResult.textMapHash}`"
+          <a v-if="isAuthenticated" :href="`${ctx.siteHome}/excel-usages?q=${olResult.textMapHash}`"
              role="button" class="secondary small spacer5-right fontWeight500" target="_blank">Usages</a>
         </h4>
         <div class="valign">
@@ -26,7 +26,7 @@
           </template>
         </template>
         <Wikitext :id="`ol-result-${idx}`" :for-ol="true" :markers="olResult.markers" :value="olResult.result" :extra-class-names="'spacer5-top'" />
-        <template v-if="req.isAuthenticated() && olResult.duplicateTextMapHashes?.length">
+        <template v-if="isAuthenticated && olResult.duplicateTextMapHashes?.length">
           <h5>Duplicate TextMapHashes</h5>
           <p class="spacer5-bottom">List of TextMapHashes whose values are duplicates of {{olResult.textMapHash}} across all languages.<br>
             Click on a link to see where that hash is used or see
@@ -53,12 +53,12 @@
 </template>
 
 <script setup lang="ts">
-import { getTrace } from '../../../middleware/request/tracer.ts';
+import { useTrace } from '../../../middleware/request/tracer.ts';
 import Icon from '../../utility/Icon.vue';
 import Wikitext from '../../utility/Wikitext.vue';
 import { OLResult } from '../../../../shared/types/ol-types.ts';
 
-const { ctx, req } = getTrace();
+const { ctx, isAuthenticated } = useTrace();
 
 defineProps<{
   olResults?: OLResult[],

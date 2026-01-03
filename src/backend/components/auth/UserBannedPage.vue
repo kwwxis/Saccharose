@@ -55,15 +55,13 @@
 
 <script setup lang="ts">
 import { SiteUserProvider } from '../../middleware/auth/SiteUserProvider.ts';
-import { getTrace } from '../../middleware/request/tracer.ts';
-import { SiteUser } from '../../../shared/types/site/site-user-types.ts';
+import { useTrace } from '../../middleware/request/tracer.ts';
 import { SITE_TITLE } from '../../loadenv.ts';
 
 defineProps<{
   reason?: string,
 }>();
 
-let request = getTrace().req;
-let user: SiteUser = request.user;
+let { user } = useTrace();
 let avatarUrl: string = SiteUserProvider.getAvatarUrl(user);
 </script>

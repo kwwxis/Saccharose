@@ -28,7 +28,7 @@
 import DialogueSection from '../utility/DialogueSection.vue';
 import { DialogueSectionResult } from '../../util/dialogueSectionResult.ts';
 import { LangSuggest } from '../../../shared/types/lang-types.ts';
-import { getTrace } from '../../middleware/request/tracer.ts';
+import { useTrace } from '../../middleware/request/tracer.ts';
 
 defineProps<{
   query?: string,
@@ -36,7 +36,7 @@ defineProps<{
   langSuggest?: LangSuggest
 }>();
 
-const { ctx } = getTrace();
+const { ctx } = useTrace();
 
 </script>
 

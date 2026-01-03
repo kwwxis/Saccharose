@@ -79,11 +79,11 @@ import {
   HomeWorldFurnitureTypeTree,
 } from '../../../../shared/types/genshin/homeworld-types.ts';
 import HtmlScript from '../../utility/HtmlScript.vue';
-import { getTrace } from '../../../middleware/request/tracer.js';
+import { useTrace } from '../../../middleware/request/tracer.js';
 import GenshinStars from '../links/GenshinStars.vue';
 import { escapeHtmlAllowEntities } from '../../../../shared/util/stringUtil.ts';
 
-const { nonce } = getTrace();
+const { nonce } = useTrace();
 
 defineProps<{
   furnitureList: HomeWorldFurnitureExcelConfigData[],

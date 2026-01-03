@@ -7,7 +7,6 @@ import { replaceAsync, splitArgs } from '../../shared/util/stringUtil.ts';
 import JSON5 from 'json5';
 import { isLangCode, LangCode } from '../../shared/types/lang-types.ts';
 import { AbstractControl } from '../domain/abstract/abstractControl.ts';
-import { getTrace } from '../middleware/request/tracer.ts';
 
 export type FileFormatOption = 'default' | 'remove' | 'custom';
 
@@ -191,8 +190,11 @@ async function evaluateVariable(ctrl: AbstractControl, obj: Object, expr: string
   }
 }
 
-export async function fileFormatOptionsApply(ctrl: AbstractControl, obj: Object, cookieName: string, defaultFormat: string): Promise<string> {
-  const cookies = getTrace()?.cookies || {};
+export async function fileFormatOptionsApply(ctrl: AbstractControl,
+                                             obj: Object,
+                                             cookieName: string,
+                                             defaultFormat: string): Promise<string> {
+  const cookies = ctrl.state.controlUserMode.cookies || {};
 
   let pref: FileFormatOption = cookies[cookieName] || 'default';
   let customFormat: string;

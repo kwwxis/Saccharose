@@ -52,8 +52,8 @@ export class MwClientInterface {
       protocol: 'https',
       server: server,
       path: lang ? '/' + lang : '/',
-      username: process.env.MW_USERNAME,
-      password: process.env.MW_PASSWORD,
+      username: ENV.MW_USERNAME,
+      password: ENV.MW_PASSWORD,
       debug: false
     });
   }

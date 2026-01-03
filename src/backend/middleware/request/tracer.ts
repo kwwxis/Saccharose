@@ -1,5 +1,4 @@
-import { AsyncLocalStorage } from 'node:async_hooks';
-import { NextFunction, Request, Response } from 'express';
+import { Request } from 'express';
 import { RequestContext } from '../../routing/requestContext.ts';
 import { GenshinControl, getGenshinControl } from '../../domain/genshin/genshinControl.ts';
 import { getStarRailControl, StarRailControl } from '../../domain/hsr/starRailControl.ts';
@@ -7,14 +6,19 @@ import { getZenlessControl, ZenlessControl } from '../../domain/zenless/zenlessC
 import { getWuwaControl, WuwaControl } from '../../domain/wuwa/wuwaControl.ts';
 import { ProcessEnv } from '../../env-types.ts';
 import { ControlUserMode, getControlUserMode } from '../../domain/abstract/abstractControlState.ts';
+import { SiteUser } from '../../../shared/types/site/site-user-types.ts';
+import { inject } from 'vue';
+
+export const TraceKey = Symbol('trace');
 
 export type ITrace = {
   // Request:
-  req: Request,
-  res: Response,
   ctx: RequestContext,
   nonce: string,
   cookies?: Record<string, any>,
+  user?: SiteUser,
+  isAuthenticated: boolean,
+  url: string,
 
   // Process:
   env: ProcessEnv,
@@ -31,8 +35,6 @@ export type ITrace = {
   normZenlessText: (s: string) => string,
   normWuwaText: (s: string) => string,
 }
-
-export const asyncLocalStorage: AsyncLocalStorage<ITrace> = new AsyncLocalStorage<ITrace>();
 
 export type LocalControls = {
   genshinControl: GenshinControl,
@@ -85,27 +87,24 @@ export function createLocalControls(mode: ControlUserMode, cacheUpon?: any): Loc
   return self;
 }
 
-export function traceMiddleware(req: Request, res: Response, next: NextFunction) {
-  const store: ITrace = {
-    req,
-    res,
+export function createITrace(req: Request): ITrace {
+  const ctx = req.context;
+  return {
     env: ENV as any,
-    get cookies() {
-      return req.cookies || {};
-    },
-    get ctx() {
-      return req.context;
-    },
-    get nonce() {
-      return req.context.nonce;
-    },
+    user: req.user,
+    url: req.url,
+    ctx: ctx,
+    isAuthenticated: ctx.isAuthenticated(),
+    cookies: ctx.cookies(),
+    nonce: ctx.nonce,
     ... createLocalControls(getControlUserMode(req), req),
   };
-  asyncLocalStorage.run(store, () => {
-    next();
-  });
 }
 
-export function getTrace(): ITrace {
-  return asyncLocalStorage.getStore();
+export function useTrace(): ITrace {
+  const trace: ITrace = inject(TraceKey);
+  if (!trace) {
+    throw new Error('Trace not available.');
+  }
+  return trace;
 }

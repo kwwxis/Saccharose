@@ -71,11 +71,11 @@
 
 <script setup lang="ts">
 import Icon from '../utility/Icon.vue';
-import { getTrace } from '../../middleware/request/tracer.ts';
+import { useTrace } from '../../middleware/request/tracer.ts';
 import WikiTemplateLink from '../utility/WikiTemplateLink.vue';
 import { OLConfig, OLConfigMap } from '../../../shared/types/ol-types.ts';
 
-const { ctx } = getTrace();
+const { ctx } = useTrace();
 
 defineProps<{
 }>();

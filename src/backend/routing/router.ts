@@ -16,6 +16,7 @@ import {
 } from './routingTypes.ts';
 import { Component } from '@vue/runtime-core';
 import { App, createSSRApp } from 'vue';
+import { createITrace, ITrace, TraceKey } from '../middleware/request/tracer.ts';
 
 export function isVueComponent(object: any): object is Component {
   return !!(<any> object).ssrRender || !!(<any> object).render;
@@ -121,6 +122,7 @@ async function updateReqContext(req: Request, res: Response, payload: Readonly<R
 
 export async function doRender(req: Request, res: Response,
                                view: string|Component,
+                               trace: ITrace,
                                locals?: RequestLocals,
                                callback?: (err: Error, html: string) => void): Promise<string|Error> {
   try {
@@ -128,7 +130,11 @@ export async function doRender(req: Request, res: Response,
       locals,
       layouts: [
         ... (locals && Array.isArray(locals.layouts) ? locals.layouts : []),
-        isVueComponent(view) ? createSSRApp(view, locals).mixin({inheritAttrs: false}) : view
+        isVueComponent(view)
+          ? createSSRApp(view, locals)
+            .mixin({inheritAttrs: false})
+            .provide(TraceKey, trace)
+          : view
       ],
       title: locals && (<any> locals).title,
       bodyClass: locals && (<any> locals).bodyClass,
@@ -168,12 +174,12 @@ export function create(context?: Readonly<RequestContextUpdate>): Router {
     res.render = async function(view: string|Component,
                                 locals?: RequestLocals,
                                 callback?: (err: Error, html: string) => void) {
-      return doRender(req, res, view, locals, callback);
+      return doRender(req, res, view, createITrace(req), locals, callback);
     };
 
     res.renderComponent = async function(component: Component,
                                          locals?: RequestLocals): Promise<string|Error> {
-      return doRender(req, res, component, locals);
+      return doRender(req, res, component, createITrace(req), locals);
     };
 
     next();

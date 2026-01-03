@@ -29,11 +29,11 @@
 </template>
 
 <script setup lang="ts">
-import { getTrace } from '../../middleware/request/tracer.ts';
+import { useTrace } from '../../middleware/request/tracer.ts';
 import { FileAndSize } from '../../../shared/types/utility-types.ts';
 import ByteSizeLabel from '../utility/ByteSizeLabel.vue';
 
-const { ctx } = getTrace();
+const { ctx } = useTrace();
 
 defineProps<{
   excels?: FileAndSize[],

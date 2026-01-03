@@ -22,11 +22,11 @@
 </template>
 
 <script setup lang="ts">
-import { getTrace } from '../../middleware/request/tracer.js';
+import { useTrace } from '../../middleware/request/tracer.js';
 import HtmlScript from '../utility/HtmlScript.vue';
 import ByteSizeLabel from '../utility/ByteSizeLabel.vue';
 
-const { ctx, nonce } = getTrace();
+const { ctx, nonce } = useTrace();
 
 defineProps<{
   fileName?: string,

@@ -18,10 +18,10 @@
 <script setup lang="ts">
 import { GCGRuleTextExcelConfigData } from '../../../../shared/types/genshin/gcg-types.ts';
 import Wikitext from '../../utility/Wikitext.vue';
-import { getTrace } from '../../../middleware/request/tracer.ts';
+import { useTrace } from '../../../middleware/request/tracer.ts';
 import { genshinSpriteTagIconize } from '../../../routing/viewUtilities.ts';
 
-const { normGenshinText } = getTrace();
+const { normGenshinText } = useTrace();
 
 defineProps<{
   rules: GCGRuleTextExcelConfigData[],

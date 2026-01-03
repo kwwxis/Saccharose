@@ -511,7 +511,7 @@ import { MaterialExcelConfigData } from '../../../../shared/types/genshin/materi
 import { Readable } from '../../../../shared/types/genshin/readable-types.ts';
 import Icon from '../../utility/Icon.vue';
 import GenshinItem from '../links/GenshinItem.vue';
-import { getTrace } from '../../../middleware/request/tracer.ts';
+import { useTrace } from '../../../middleware/request/tracer.ts';
 import GenshinStars from '../links/GenshinStars.vue';
 import Wikitext from '../../utility/Wikitext.vue';
 import ReadableTexts from '../readables/partials/ReadableTexts.vue';
@@ -521,7 +521,7 @@ import JsonText from '../../utility/JsonText.vue';
 import { reformatPrimitiveArrays } from '../../../../shared/util/stringUtil.ts';
 import TcgCard from '../links/TcgCard.vue';
 
-const { normGenshinText } = getTrace();
+const { normGenshinText } = useTrace();
 
 defineProps<{
   title?: string,

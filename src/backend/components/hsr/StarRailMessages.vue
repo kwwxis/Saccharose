@@ -12,8 +12,8 @@
 
 <script setup lang="ts">
 import { AvatarConfig } from '../../../shared/types/hsr/hsr-avatar-types.ts';
-import { getTrace } from '../../middleware/request/tracer.ts';
-const { normStarRailText } = getTrace();
+import { useTrace } from '../../middleware/request/tracer.ts';
+const { normStarRailText } = useTrace();
 
 defineProps<{
   avatars?: AvatarConfig[]

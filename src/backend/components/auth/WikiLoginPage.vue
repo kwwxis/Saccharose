@@ -89,9 +89,8 @@
 </template>
 
 <script setup lang="ts">
-import { getTrace } from '../../middleware/request/tracer.ts';
+import { useTrace } from '../../middleware/request/tracer.ts';
 import { SiteUserProvider } from '../../middleware/auth/SiteUserProvider.ts';
-import { SiteUser } from '../../../shared/types/site/site-user-types.ts';
 
 const { cont } = defineProps<{
   cont?: string,
@@ -100,10 +99,10 @@ const { cont } = defineProps<{
 let myCont = cont;
 
 if (!myCont) {
-  myCont = getTrace().req.url;
+  myCont = useTrace().url;
 }
 
-let user: SiteUser = getTrace().req.user;
+let { user } = useTrace();
 let avatarUrl: string = SiteUserProvider.getAvatarUrl(user);
 </script>
 

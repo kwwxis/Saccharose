@@ -54,7 +54,7 @@
 </template>
 
 <script setup lang="ts">
-import { getTrace } from '../../middleware/request/tracer.ts';
+import { useTrace } from '../../middleware/request/tracer.ts';
 import { SITE_SHORT_TITLE, SITE_TITLE } from '../../loadenv.ts';
 
 const { cont } = defineProps<{
@@ -64,6 +64,6 @@ const { cont } = defineProps<{
 let myCont = cont;
 
 if (!myCont) {
-  myCont = getTrace().req.url;
+  myCont = useTrace().url;
 }
 </script>

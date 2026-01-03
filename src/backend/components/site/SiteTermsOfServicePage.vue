@@ -289,8 +289,8 @@
 </template>
 
 <script setup lang="ts">
-import { getTrace } from '../../middleware/request/tracer.ts';
+import { useTrace } from '../../middleware/request/tracer.ts';
 import { SITE_SHORT_TITLE, SITE_TITLE } from '../../loadenv.ts';
 
-const { env } = getTrace();
+const { env } = useTrace();
 </script>
