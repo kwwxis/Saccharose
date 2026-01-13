@@ -471,7 +471,13 @@ export class InterActionDialog {
       nextGroupId = this.Group.NextGroupId;
     }
 
+    const seenNextGroupId: Set<number> = new Set();
     while (nextGroupId) {
+      if (seenNextGroupId.has(nextGroupId)) {
+        break;
+      }
+      seenNextGroupId.add(nextGroupId);
+
       const nextGroup = this.File.findGroup(nextGroupId);
       if (!nextGroup)
         break;
