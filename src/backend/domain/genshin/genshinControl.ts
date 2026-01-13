@@ -1830,7 +1830,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
     let foundFile: boolean = await this.fileExists('./InterAction/' + fileName);
     if (!foundFile) {
-      if (diskFileName && await this.fileExists('./InterAction/' + diskFileName)) {
+      if (diskFileName && (await this.fileExists('./InterAction/' + diskFileName))) {
         foundFile = true;
         fileName = diskFileName;
       } else {
@@ -3457,6 +3457,9 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   }
 
   async selectAchievement(id: number): Promise<AchievementExcelConfigData> {
+    if (isNaN(id)) {
+      throw new Error('selectAchievement: id must be a number');
+    }
     let achievement: AchievementExcelConfigData = await this.knex.select('*').from('AchievementExcelConfigData')
       .where({Id: id}).first().then(this.commonLoadFirst);
     return this.postProcessAchievement(achievement);

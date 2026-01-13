@@ -164,7 +164,7 @@ export async function selectTutorials(ctrl: GenshinControl,
       text += `\n|icon     = ${tipsIcon || ''}`;
     }
     if (tutorial.CodexType === 'CODEX_NEWACTIVITY') {
-      text += `\n|about    = ` + await ctrl.selectNewActivityName((<NewActivityPushTipsConfigData> tutorial.PushTip).ActivityId);
+      text += `\n|about    = ` + (await ctrl.selectNewActivityName((<NewActivityPushTipsConfigData> tutorial.PushTip).ActivityId));
     } else {
       text += `\n|about    = `;
     }

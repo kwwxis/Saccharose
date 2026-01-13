@@ -723,7 +723,7 @@ export class GCGControl {
     }
 
     const goldenImageExists: boolean = await this.ctrl.cached('GCG:GoldenImageExists:' + card.Id, 'boolean', async () => {
-      return !!card.WikiImage && await fsExists(path.resolve(IMAGEDIR_GENSHIN_EXT, './' + card.WikiImage + '_Golden.png'));
+      return !!card.WikiImage && (await fsExists(path.resolve(IMAGEDIR_GENSHIN_EXT, './' + card.WikiImage + '_Golden.png')));
     });
     if (goldenImageExists) {
       card.WikiGoldenImage = card.WikiImage + '_Golden';
@@ -1032,7 +1032,7 @@ export class GCGControl {
           effectName = effectSkill.NameText;
           effectDesc = effectSkill.WikiDesc;
         }
-        skill.WikiDesc += `<br><br>'''` + effectName + `'''<br>` + await this.normGcgText(effectDesc);
+        skill.WikiDesc += `<br><br>'''` + effectName + `'''<br>` + (await this.normGcgText(effectDesc));
       }
       effectCardIds = newIds;
     }
@@ -1217,7 +1217,7 @@ export class GCGControl {
         sect.addHeaderProp('Low Health Value', gcgTalk.LowHealthValue);
         sect.addHeaderProp('Low Health Card ID', gcgTalk.LowHealthConfigId);
 
-        const lowHealthCard = gcgTalk.LowHealthConfigId && await this.selectCharacterCard(gcgTalk.LowHealthConfigId);
+        const lowHealthCard = gcgTalk.LowHealthConfigId && (await this.selectCharacterCard(gcgTalk.LowHealthConfigId));
         if (lowHealthCard) {
           sect.prependFreeForm(`;(${this.ctrl.i18n('TCG_WhenEnemyHealthDrops', {
             name: stage.OppoPlayerNameText,
@@ -1231,7 +1231,7 @@ export class GCGControl {
         sect.addHeaderProp('High Health Value', gcgTalk.HighHealthValue);
         sect.addHeaderProp('High Health Card ID', gcgTalk.LowHealthConfigId);
 
-        const highHealthCard = gcgTalk.LowHealthConfigId && await this.selectCharacterCard(gcgTalk.LowHealthConfigId);
+        const highHealthCard = gcgTalk.LowHealthConfigId && (await this.selectCharacterCard(gcgTalk.LowHealthConfigId));
         if (highHealthCard) {
           sect.prependFreeForm(`;(${this.ctrl.i18n('TCG_WhenEnemyHealthDrops', {
             name: stage.OppoPlayerNameText,

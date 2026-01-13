@@ -22,7 +22,11 @@ import {
 import { SiteSidebar } from '../../shared/types/site/site-sidebar-types.ts';
 import { icon } from './viewUtilities.ts';
 import { SIDEBAR_CONFIG } from './sidebarConfig.ts';
-import { SITE_MODE_URL_PATH_REGEXES, SiteMode } from '../../shared/types/site/site-mode-type.ts';
+import {
+  getDefaultBasePathForSiteMode, getSiteModeFromPath,
+  SITE_MODE_URL_PATH_REGEXES,
+  SiteMode,
+} from '../../shared/types/site/site-mode-type.ts';
 
 /**
  * A payload object used to make updates to {@link RequestContext}
@@ -126,22 +130,12 @@ export class RequestContext {
     this.viewStackPointer = this.viewStack;
     this.webpackBundles = getWebpackBundleFileNames();
 
-    const lcPath = req.path.toLowerCase();
-    if (SITE_MODE_URL_PATH_REGEXES.HSR.test(lcPath)) {
-      this.siteMode = 'hsr';
-    } else if (SITE_MODE_URL_PATH_REGEXES.ZENLESS.test(lcPath)) {
-      this.siteMode = 'zenless';
-    } else if (SITE_MODE_URL_PATH_REGEXES.WUWA.test(lcPath)) {
-      this.siteMode = 'wuwa';
-    } else if (SITE_MODE_URL_PATH_REGEXES.GENSHIN.test(lcPath)) {
-      this.siteMode = 'genshin';
-    } else {
-      this.siteMode = 'unset';
-    }
+    this.siteMode = getSiteModeFromPath(req.path);
     this.htmlMetaProps['x-site-mode'] = this.siteMode;
     this.htmlMetaProps['x-site-mode-home'] = this.siteHome;
     this.htmlMetaProps['x-site-mode-name'] = this.siteModeName;
     this.htmlMetaProps['x-site-mode-wiki-domain'] = this.siteModeWikiDomain;
+    this.htmlMetaProps['x-site-mode-preferred-base-path'] = this.siteModePreferredBasePath;
     this.htmlMetaProps['x-wss-url'] = ENV.WSS_URL;
   }
 
@@ -185,6 +179,10 @@ export class RequestContext {
       default:
         return '';
     }
+  }
+
+  get siteModePreferredBasePath(): string {
+    return this.prefs.preferredBasePaths[this.siteMode] || getDefaultBasePathForSiteMode(this.siteMode);
   }
 
   get siteModeName(): string {

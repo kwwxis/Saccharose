@@ -456,7 +456,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
         let lastPercent: number = -1;
 
         for (let row of json) {
-          batch.push(... await createRowPayload(table, row, json, acc));
+          batch.push(... (await createRowPayload(table, row, json, acc)));
           if (batch.length >= batchMax) {
             await addBatchToTransaction();
           }

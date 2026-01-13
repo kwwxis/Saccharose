@@ -742,3 +742,23 @@ export function toHtmlId(input: string): string {
   htmlIdCache.set(input, result);
   return result;
 }
+
+export function replaceBasePathInUrl(
+  url: string,
+  replacer: (basePath: string) => string
+): string {
+  const parsed = new URL(url);
+  const { pathname } = parsed;
+
+  // first path segment only
+  const match = pathname.match(/^\/[^/]+/);
+  if (!match) return url;
+
+  const basePath = match[0];
+  const replacement = replacer(basePath);
+
+  if (replacement === basePath) return url;
+
+  parsed.pathname = replacement + pathname.slice(basePath.length);
+  return parsed.toString();
+}

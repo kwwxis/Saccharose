@@ -1,7 +1,12 @@
 import passport_discord from 'passport-discord';
 import { LangCode } from '../lang-types.ts';
 import { SearchMode } from '../../util/searchUtil.ts';
-import { SiteMode } from './site-mode-type.ts';
+import {
+  GenshinSiteModeBasePath,
+  SiteMode, SiteModeBasePathMap,
+  StarRailSiteModeBasePath, WuwaSiteModeBasePath,
+  ZenlessSiteModeBasePath,
+} from './site-mode-type.ts';
 
 export const VisitorPrefsCookieName = 'VisitorUserPrefs';
 
@@ -35,8 +40,12 @@ export type SiteUserPrefs = {
   voPrefixDisabledLangs?: LangCode[],
 
   dbotSiteMode?: SiteMode,
-};
 
+  preferredBasePaths?: SiteUserPrefsPreferredBasePaths,
+};
+export type SiteUserPrefsPreferredBasePaths = {
+  [M in SiteMode]?: SiteModeBasePathMap[M];
+};
 export type SiteMenuShown = {
   [menuId: string]: SiteMenuShownEntry
 };

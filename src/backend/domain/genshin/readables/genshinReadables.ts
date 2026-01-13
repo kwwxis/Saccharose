@@ -354,17 +354,17 @@ export class GenshinReadables {
     const shouldLoadItems: boolean = (typeof loadReadableItems === 'function' ? loadReadableItems(view) : loadReadableItems) === true;
     if (shouldLoadItems) {
       view.Items = [
-        ...await view.Document.ContentLocalizedIds.asyncMap((id: number, idx: number) => this.loadLocalization(view.Document, idx + 1, false, id)),
-        ...await pairArrays(view.Document.QuestContentLocalizedIds, view.Document.QuestIdList).asyncMap(
+        ...(await view.Document.ContentLocalizedIds.asyncMap((id: number, idx: number) => this.loadLocalization(view.Document, idx + 1, false, id))),
+        ...(await pairArrays(view.Document.QuestContentLocalizedIds, view.Document.QuestIdList).asyncMap(
           async ([id, triggerCond], idx: number) => await this.loadLocalization(view.Document, idx + 1, true, id, triggerCond)
-        )
+        ))
       ];
       if (view.Document.AdditionalQuestContentLocalizedIds && view.Document.AdditionalQuestContentLocalizedIds.length) {
         let startForPage = view.Document.QuestContentLocalizedIds.length;
         view.Items.push(
-          ...await pairArrays(view.Document.AdditionalQuestContentLocalizedIds, view.Document.AdditionalQuestIdList).asyncMap(
+          ...(await pairArrays(view.Document.AdditionalQuestContentLocalizedIds, view.Document.AdditionalQuestIdList).asyncMap(
             async ([id, triggerCond], idx: number) => await this.loadLocalization(view.Document, startForPage + idx + 1, true, id, triggerCond)
-          )
+          ))
         );
       }
     }

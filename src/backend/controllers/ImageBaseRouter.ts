@@ -111,7 +111,7 @@ export default async function(): Promise<Router> {
     }
   }
 
-  router.endpoint('/genshin/:imageName/:downloadName?', {
+  router.endpoint(['/genshin/:imageName', '/genshin/:imageName/:downloadName'], {
     get: async (req: Request, res: Response, _next: NextFunction) => {
       await generalDownloader(req, res, IMAGEDIR_GENSHIN_EXT, async (data: Buffer) => {
         if (req.query.convert) {
@@ -137,19 +137,19 @@ export default async function(): Promise<Router> {
     }
   });
 
-  // router.endpoint('/hsr/:imageName/:downloadName?', {
+  // router.endpoint(['/hsr/:imageName', '/hsr/:imageName/{:downloadName}'], {
   //   get: async (req: Request, res: Response, _next: NextFunction) => {
   //     await generalDownloader(req, res, IMAGEDIR_HSR_EXT);
   //   }
   // });
   //
-  // router.endpoint('/zenless/:imageName/:downloadName?', {
+  // router.endpoint(['/zenless/:imageName', '/zenless/:imageName/{:downloadName}'], {
   //   get: async (req: Request, res: Response, _next: NextFunction) => {
   //     await generalDownloader(req, res, IMAGEDIR_ZENLESS_EXT);
   //   }
   // });
 
-  router.route('*').all((req: Request, res: Response) => {
+  router.route('*splat').all((req: Request, res: Response) => {
     res.status(404).end('Not found');
   });
 

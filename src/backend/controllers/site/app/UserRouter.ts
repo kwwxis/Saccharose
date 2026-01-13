@@ -1,7 +1,7 @@
 import { Request, Response, Router } from 'express';
 import { create } from '../../../routing/router.ts';
 import { SiteUserProvider } from '../../../middleware/auth/SiteUserProvider.ts';
-import SettingsPage from '../../../components/auth/SettingsPage.vue';
+import SettingsPage from '../../../components/usersettings/SettingsPage.vue';
 import SiteNoticesPage from '../../../components/site/SiteNoticesPage.vue';
 import NumberFormattingNotice from '../../../components/site/notices/NumberFormattingNotice.vue';
 import { SiteNotice } from '../../../../shared/types/site/site-user-types.ts';

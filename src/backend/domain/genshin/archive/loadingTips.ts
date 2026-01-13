@@ -209,7 +209,7 @@ async function createResultObject(ctrl: GenshinControl): Promise<LoadingCat> {
 
   for (let nationKey of nationKeys) {
     const catNameHash: number = ManualTextMapHashes[nationKey];
-    const catName = await ctrl.getTextMapItem(ctrl.outputLangCode, catNameHash) || nationKey;
+    const catName = (await ctrl.getTextMapItem(ctrl.outputLangCode, catNameHash)) || nationKey;
     const catNameMap = await ctrl.createLangCodeMap(catNameHash, true);
     result.subCats.push({
       catName,
@@ -230,7 +230,7 @@ async function createResultObject(ctrl: GenshinControl): Promise<LoadingCat> {
 
   for (let otherKey of otherKeys) {
     const catNameHash: number = ManualTextMapHashes[otherKey];
-    const catName = await ctrl.getTextMapItem(ctrl.outputLangCode, catNameHash) || otherKey;
+    const catName = (await ctrl.getTextMapItem(ctrl.outputLangCode, catNameHash)) || otherKey;
     const catNameMap = await ctrl.createLangCodeMap(catNameHash, true);
     otherCat.subCats.push({
       catName,

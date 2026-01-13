@@ -1,9 +1,8 @@
 import { Express } from 'express';
 import express from 'express';
-import 'express-async-errors';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
-import useragent from 'express-useragent';
+import * as useragent from 'express-useragent';
 import helmet from 'helmet';
 import { openPgGamedata, openPgSite, enableDbExitHook } from './util/db.ts';
 import sessions from './middleware/auth/sessions.ts';
@@ -48,6 +47,9 @@ import {
 import { enableLogFileWatchShutdownHook, startLogFileWatch } from './logview/logview.ts';
 import { SiteUserProvider } from './middleware/auth/SiteUserProvider.ts';
 import { startRecentSavedSearchesPruneInterval } from './savedsearch/wsSavedSearches.ts';
+import {
+  siteModePreferredBasePathRedirectorMiddleware
+} from './middleware/request/siteModePreferredBasePathRedirector.ts';
 
 const app: Express = express();
 
@@ -132,7 +134,7 @@ export async function appInit(): Promise<Express> {
 
   if (isStringNotBlank(ENV.EXT_PUBLIC_DIR)) {
     logInit('Serving external public directory');
-    app.use(express.static(ENV.EXT_PUBLIC_DIR));
+    app.use(express.static(ENV.EXT_PUBLIC_DIR, { dotfiles: 'allow' })); // Allow dotfiles for .well-known
   }
 
   if (isStringNotBlank(ENV.EXT_GENSHIN_IMAGES)) {
@@ -213,6 +215,7 @@ export async function appInit(): Promise<Express> {
 
   // Load auth middleware
   // ~~~~~~~~~~~~~~~~~~~~
+  app.use(siteModePreferredBasePathRedirectorMiddleware);
   app.use(siteUserMiddleware);
   // ALL ENDPOINTS PAST THIS POINT ARE SUBJECT TO REQUIRING AUTHENTICATION
 
@@ -240,7 +243,7 @@ export async function appInit(): Promise<Express> {
   // ~~~~~~~~~~~
   // 404 handler must come after all other routers are loaded
   logInit(`Registering 404 handler`);
-  app.get('*', function(_req: Request, res: Response) {
+  app.get('*splat', function(_req: Request, res: Response) {
     res.status(404).render('errors/404');
   });
 

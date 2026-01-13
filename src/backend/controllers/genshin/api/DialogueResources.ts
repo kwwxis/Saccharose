@@ -123,8 +123,8 @@ router.endpoint('/dialogue/single-branch-generate', {
       await res.renderComponent(SingleBranchDialogueResult, {
         sections: result,
         query,
-        ... await questStillsHelper(ctrl),
-        ... await inDialogueReadablesHelper(ctrl),
+        ... (await questStillsHelper(ctrl)),
+        ... (await inDialogueReadablesHelper(ctrl)),
         langSuggest: result.length ? null : await ctrl.langSuggest(query)
       });
       return;
@@ -152,8 +152,8 @@ router.endpoint('/dialogue/npc-dialogue-generate', {
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
       await res.renderComponent(NpcDialogueResultTemplate, {
         resultSet: resultSet,
-        ... await questStillsHelper(ctrl),
-        ... await inDialogueReadablesHelper(ctrl),
+        ... (await questStillsHelper(ctrl)),
+        ... (await inDialogueReadablesHelper(ctrl)),
       });
       return;
     } else {

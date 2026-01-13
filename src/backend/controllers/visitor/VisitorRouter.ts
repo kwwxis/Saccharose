@@ -20,7 +20,7 @@ export default async function(): Promise<Router> {
   });
 
   router.get('/privacy', async (req: Request, res: Response) => {
-    if (!req.isAuthenticated() || await SiteUserProvider.isBanned(req.user)) {
+    if (!req.isAuthenticated() || (await SiteUserProvider.isBanned(req.user))) {
       await res.renderComponent(SitePrivacyPolicyPage, {
         title: 'Privacy Policy',
         layouts: ['layouts/basic-layout'],
@@ -36,7 +36,7 @@ export default async function(): Promise<Router> {
   });
 
   router.get('/terms', async (req: Request, res: Response) => {
-    if (!req.isAuthenticated() || await SiteUserProvider.isBanned(req.user)) {
+    if (!req.isAuthenticated() || (await SiteUserProvider.isBanned(req.user))) {
       await res.renderComponent(SiteTermsOfServicePage, {
         title: 'Terms of Service',
         layouts: ['layouts/basic-layout'],
@@ -52,7 +52,7 @@ export default async function(): Promise<Router> {
   });
 
   router.get('/contact', async (req: Request, res: Response) => {
-    if (!req.isAuthenticated() || await SiteUserProvider.isBanned(req.user)) {
+    if (!req.isAuthenticated() || (await SiteUserProvider.isBanned(req.user))) {
       await res.renderComponent(SiteContactPage, {
         title: 'Contact',
         layouts: ['layouts/basic-layout'],

@@ -144,8 +144,8 @@ export default async function(): Promise<Router> {
       bodyClass: ['page--avatar-cond-dialogue'],
       avatar,
       result,
-      ... await questStillsHelper(ctrl),
-      ... await inDialogueReadablesHelper(ctrl),
+      ... (await questStillsHelper(ctrl)),
+      ... (await inDialogueReadablesHelper(ctrl)),
     });
   });
 

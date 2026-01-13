@@ -176,25 +176,25 @@ export function fixBrokenJsonStrings(input: string): string {
 export async function writeDeobfBin() {
   shouldIgnoreConfig.shouldIgnoreEmptyString = true;
 
-  // let anyInvalidJson = false;
-  // for (let file of fsWalkSync(getGenshinDataFilePath('./BinOutput.Raw/InterAction/QuestDialogue'))) {
-  //   let fileContent: string = await fsRead(file);
-  //   try {
-  //     JSON.parse(fileContent);
-  //   } catch (_err) {
-  //     fileContent = fixBrokenJsonStrings(fileContent);
-  //     try {
-  //       JSON.parse(fileContent);
-  //       await fsWrite(file, fileContent);
-  //     } catch (err) {
-  //       console.log('Invalid JSON:', file, err);
-  //       anyInvalidJson = true;
-  //     }
-  //   }
-  // }
-  // if (anyInvalidJson) {
-  //   return;
-  // }
+  let anyInvalidJson = false;
+  for (let file of fsWalkSync(getGenshinDataFilePath('./BinOutput.Raw/InterAction/QuestDialogue'))) {
+    let fileContent: string = await fsRead(file);
+    try {
+      JSON.parse(fileContent);
+    } catch (_err) {
+      fileContent = fixBrokenJsonStrings(fileContent);
+      try {
+        JSON.parse(fileContent);
+        await fsWrite(file, fileContent);
+      } catch (err) {
+        console.log('Invalid JSON:', file, err);
+        anyInvalidJson = true;
+      }
+    }
+  }
+  if (anyInvalidJson) {
+    return;
+  }
 
   console.log('----- CodexQuest Mapping -----');
   const cqMapping = await mapCodexQuest();
@@ -217,20 +217,20 @@ export async function writeDeobfBin() {
   console.log('----- Voice Mapping -----');
   const voiceMapping = await mapVoiceOvers();
 
-  // // Merge talkMapping and questMapping in case anything was missed
-  // const talkQuestCombinedMappings = combineMappings(questMapping, talkMapping);
+  // Merge talkMapping and questMapping in case anything was missed
+  const talkQuestCombinedMappings = combineMappings(questMapping, talkMapping);
 
   console.log();
   console.log();
 
   console.log('----- Writing Outputs -----');
-  // await walkSyncWrite('./BinOutput.Raw/CodexQuest', './BinOutput/CodexQuest', cqMapping);
-  // await walkSyncWrite('./BinOutput.Raw/GCG/Gcg_DeclaredValueSet', './BinOutput/GCG/Gcg_DeclaredValueSet', gcgDvsMapping);
-  // await walkSyncWrite('./BinOutput.Raw/HomeworldFurnitureSuit', './BinOutput/HomeworldFurnitureSuit', furnSuitMapping);
-  // await walkSyncWrite('./BinOutput.Raw/InterAction/QuestDialogue', './BinOutput/InterAction/QuestDialogue', iaMapping);
-  // await walkSyncWrite('./BinOutput.Raw/Talk', './BinOutput/Talk', talkQuestCombinedMappings);
-  // await walkSyncWrite('./BinOutput.Raw/Quest', './BinOutput/Quest', talkQuestCombinedMappings);
-  // await walkSyncWrite('./BinOutput.Raw/Voice', './BinOutput/Voice', voiceMapping);
+  await walkSyncWrite('./BinOutput.Raw/CodexQuest', './BinOutput/CodexQuest', cqMapping);
+  await walkSyncWrite('./BinOutput.Raw/GCG/Gcg_DeclaredValueSet', './BinOutput/GCG/Gcg_DeclaredValueSet', gcgDvsMapping);
+  await walkSyncWrite('./BinOutput.Raw/HomeworldFurnitureSuit', './BinOutput/HomeworldFurnitureSuit', furnSuitMapping);
+  await walkSyncWrite('./BinOutput.Raw/InterAction/QuestDialogue', './BinOutput/InterAction/QuestDialogue', iaMapping);
+  await walkSyncWrite('./BinOutput.Raw/Talk', './BinOutput/Talk', talkQuestCombinedMappings);
+  await walkSyncWrite('./BinOutput.Raw/Quest', './BinOutput/Quest', talkQuestCombinedMappings);
+  await walkSyncWrite('./BinOutput.Raw/Voice', './BinOutput/Voice', voiceMapping);
 }
 
 // region Mappers
@@ -498,7 +498,8 @@ async function mapTalk(): Promise<Record<string, string>> {
     'Blossom', 'Coop', 'Cutscene', 'FreeGroup',
     'Gadget', 'GadgetGroup',
     'Npc', 'NpcGroup', 'NpcOther',
-    'Quest'
+    'Quest',
+    // 'Storyboard', 'StoryboardGroup'
   ];
 
   for (let SUB_FOLDER of SUB_FOLDERS) {

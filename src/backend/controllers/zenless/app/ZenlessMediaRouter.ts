@@ -3,6 +3,7 @@ import { Request, Response, Router } from 'express';
 import WikiRevisionPage from '../../../components/mediawiki/WikiRevisionPage.vue';
 import { isInt, toInt } from '../../../../shared/util/numberUtil.ts';
 import { mwZenlessClient } from '../../../mediawiki/mwClientInterface.ts';
+import { expressWildcardPath } from '../../../middleware/request/pathHelpers.ts';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -21,13 +22,14 @@ export default async function(): Promise<Router> {
   //   });
   // });
   //
-  // router.get('/media/details/:imageName(*)', async (req: Request, res: Response) => {
+  // router.get('/media/details/*imageName', async (req: Request, res: Response) => {
   //   const ctrl = getZenlessControl(req);
-  //   const { entity, usageEntities } = await ctrl.selectImageIndexEntityAndUsages(req.params.imageName);
+  //   const imageName = expressWildcardPath(req.params.imageName);
+  //   const { entity, usageEntities } = await ctrl.selectImageIndexEntityAndUsages(imageName);
   //   await res.renderComponent(ZenlessMediaDetailsPage, {
-  //     title: 'Media Details: ' + String(req.params.imageName),
+  //     title: 'Media Details: ' + imageName,
   //     bodyClass: ['page--media', 'page--media-details', 'page--larger'],
-  //     pathImageName: req.params.imageName,
+  //     pathImageName: imageName,
   //     entity,
   //     usageEntities,
   //   });

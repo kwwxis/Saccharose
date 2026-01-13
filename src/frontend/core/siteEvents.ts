@@ -10,6 +10,7 @@ import enableErrorListeners from './readyActions/enableErrorListeners.ts';
 import enableUriChecks from './readyActions/enableUriChecks.ts';
 import enableAxiosCsrf from './readyActions/enableAxiosCsrf.ts';
 import enableMobileMenuCSS from './readyActions/enableMobileMenuCSS.ts';
+import { enableSiteModePreferredBasePathAdjuster } from './readyActions/siteModePreferredBasePathAdjuster.ts';
 import { tooltipInterval } from './intervalActions/tooltipInterval.ts';
 import { timestampInterval } from './intervalActions/timestampInterval.ts';
 import { enableReadonlyInterval } from './intervalActions/enableReadonlyInterval.ts';
@@ -47,6 +48,7 @@ runWhenDOMContentLoaded(() => {
 
   enableUriChecks();
   enableMobileMenuCSS();
+  enableSiteModePreferredBasePathAdjuster();
   recalculateDesktopStickyHeader();
 
   siteIntervalFunction(); // run immediately at start

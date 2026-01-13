@@ -510,8 +510,8 @@ async function addUnparentedDialogue(ctrl: GenshinControl, mainQuest: MainQuestE
 async function addQuestMessages(ctrl: GenshinControl, mainQuest: MainQuestExcelConfigData) {
   const allQuestMessageIds: string[] = [];
 
-  allQuestMessageIds.push(... await grepIdStartsWith<string>(RAW_MANUAL_TEXTMAP_ID_PROP, 'QUEST_Message_Q' + mainQuest.Id,
-    ctrl.getDataFilePath('./ExcelBinOutput/ManualTextMapConfigData.json')));
+  allQuestMessageIds.push(... (await grepIdStartsWith<string>(RAW_MANUAL_TEXTMAP_ID_PROP, 'QUEST_Message_Q' + mainQuest.Id,
+    ctrl.getDataFilePath('./ExcelBinOutput/ManualTextMapConfigData.json'))));
 
   for (let quest of mainQuest.QuestExcelConfigDataList) {
     if (allQuestMessageIds && allQuestMessageIds.length) {

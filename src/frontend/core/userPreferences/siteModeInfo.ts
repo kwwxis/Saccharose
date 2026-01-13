@@ -12,6 +12,9 @@ export const SITE_MODE_NAME =
 export const SITE_MODE_WIKI_DOMAIN =
   document.querySelector<HTMLMetaElement>('meta[name="x-site-mode-wiki-domain"]').content || '';
 
+export const SITE_MODE_PREFERRED_BASE_PATH =
+  document.querySelector<HTMLMetaElement>('meta[name="x-site-mode-preferred-base-path"]').content || '';
+
 console.log('[Init] Site Mode:', {mode: SITE_MODE, home: SITE_MODE_HOME, name: SITE_MODE_NAME, wikiDomain: SITE_MODE_WIKI_DOMAIN});
 
 const SiteModeInfo = {

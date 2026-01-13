@@ -1,4 +1,7 @@
 <template>
+  <p class="info-notice spacer10-bottom" style="
+    font-size: 15px;
+  ">There is no save button. All settings changes save automatically.</p>
   <section class="card">
     <h2>General Settings</h2>
     <div class="content form-box">
@@ -27,9 +30,9 @@
             </span>
           </div>
           <select class="header-language-selector-input" name="inputLangCode" title="Input Language">
-            <option v-for="langCode of Object.keys(request.context.languages)"
+            <option v-for="langCode of Object.keys(ctx.languages)"
                     :value="langCode"
-                    :selected="request.context.inputLangCode === langCode">{{ request.context.languages[langCode] }}</option>
+                    :selected="ctx.inputLangCode === langCode">{{ ctx.languages[langCode] }}</option>
           </select>
         </div>
         <div class="output-language-selector header-language-selector">
@@ -41,9 +44,9 @@
             </span>
           </div>
           <select class="header-language-selector-input" name="outputLangCode" title="Output Language">
-            <option v-for="langCode of Object.keys(request.context.languages)"
+            <option v-for="langCode of Object.keys(ctx.languages)"
                     :value="langCode"
-                    :selected="request.context.outputLangCode === langCode">{{ request.context.languages[langCode] }}</option>
+                    :selected="ctx.outputLangCode === langCode">{{ ctx.languages[langCode] }}</option>
           </select>
         </div>
       </div>
@@ -80,6 +83,40 @@
   </section>
 
   <section class="card">
+    <h2>Preferred Site Mode Base Paths</h2>
+    <div class="content">
+      <p>You can still go to links that use another base path other than your preferred base path, but they'll
+      redirect to your preferred base path.</p>
+    </div>
+    <div class="content form-box">
+      <div class="field valign">
+        <label style="min-width: 150px">Genshin</label>
+        <div class="valign">
+          <SettingsSiteModeBasePathOption site-mode="genshin" />
+        </div>
+      </div>
+      <div class="field valign spacer20-top">
+        <label style="min-width: 150px">Honkai Star Rail</label>
+        <div class="valign">
+          <SettingsSiteModeBasePathOption site-mode="hsr" />
+        </div>
+      </div>
+      <div class="field valign spacer20-top">
+        <label style="min-width: 150px">Zenless Zone Zero</label>
+        <div class="valign">
+          <SettingsSiteModeBasePathOption site-mode="zenless" />
+        </div>
+      </div>
+      <div class="field valign spacer20-top">
+        <label style="min-width: 150px">Wuthering Waves</label>
+        <div class="valign">
+          <SettingsSiteModeBasePathOption site-mode="wuwa" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
     <h2>Other Settings</h2>
     <div class="content form-box">
       <div class="field flexColumn">
@@ -104,79 +141,22 @@
         <div class="level-1" v-for="section of conf.sections">
           <div class="level-option valign" :data-parity="levelOptionNextParity()">
             <span v-html="section.name" class="grow"></span>
-            <div class="valign posRel no-shrink spacer5-left">
-              <button class="secondary small" ui-action="dropdown">
-                <span class="valign">
-                  <strong class="current-option spacer3-horiz" v-html="levelOptionInitialLabel(conf.id, section.id)"></strong>
-                  <Icon name="chevron-down" />
-                </span>
-              </button>
-              <div class="ui-dropdown">
-                <div :class="levelOptionInitialClass(conf.id, section.id, 'shown')"
-                     :ui-action="`dropdown-item; set-user-pref: siteMenuShown, ${conf.id}|${section.id}|shown`">
-                  <span class="option-text color-green">Shown</span>
-                </div>
-                <div :class="levelOptionInitialClass(conf.id, section.id, 'collapsed')"
-                     :ui-action="`dropdown-item; set-user-pref: siteMenuShown, ${conf.id}|${section.id}|collapsed`">
-                  <span class="option-text color-yellow">Collapsed</span>
-                </div>
-                <div :class="levelOptionInitialClass(conf.id, section.id, 'hidden')"
-                     :ui-action="`dropdown-item; set-user-pref: siteMenuShown, ${conf.id}|${section.id}|hidden`">
-                  <span class="option-text color-red">Hidden</span>
-                </div>
-              </div>
+            <div class="valign no-shrink spacer5-left">
+              <SettingsSidebarLevelOption :conf-id="conf.id" :thing-id="section.id" />
             </div>
           </div>
           <div class="level-2" v-for="content of section.content">
             <div v-if="content.name" class="level-option valign" :data-parity="levelOptionNextParity()">
               <span v-html="content.name" class="grow"></span>
-              <div class="valign posRel no-shrink spacer5-left">
-                <button class="secondary small" ui-action="dropdown">
-                  <span class="valign">
-                    <strong class="current-option spacer3-horiz" v-html="levelOptionInitialLabel(conf.id, content.id)"></strong>
-                    <Icon name="chevron-down" />
-                  </span>
-                </button>
-                <div class="ui-dropdown">
-                  <div :class="levelOptionInitialClass(conf.id, content.id, 'shown')"
-                       :ui-action="`dropdown-item; set-user-pref: siteMenuShown, ${conf.id}|${content.id}|shown`">
-                    <span class="option-text color-green">Shown</span>
-                  </div>
-                  <div :class="levelOptionInitialClass(conf.id, content.id, 'collapsed')"
-                       :ui-action="`dropdown-item; set-user-pref: siteMenuShown, ${conf.id}|${content.id}|collapsed`">
-                    <span class="option-text color-yellow">Collapsed</span>
-                  </div>
-                  <div :class="levelOptionInitialClass(conf.id, content.id, 'hidden')"
-                       :ui-action="`dropdown-item; set-user-pref: siteMenuShown, ${conf.id}|${content.id}|hidden`">
-                    <span class="option-text color-red">Hidden</span>
-                  </div>
-                </div>
+              <div class="valign no-shrink spacer5-left">
+                <SettingsSidebarLevelOption :conf-id="conf.id" :thing-id="content.id" />
               </div>
             </div>
             <div class="level-3" v-for="item of content.items">
               <div class="level-option valign" :data-parity="levelOptionNextParity()">
                 <span v-html="item.name" class="grow"></span>
-                <div class="valign posRel no-shrink spacer5-left">
-                  <button class="secondary small" ui-action="dropdown">
-                    <span class="valign">
-                      <strong class="current-option spacer3-horiz" v-html="levelOptionInitialLabel(conf.id, item.id)"></strong>
-                      <Icon name="chevron-down" />
-                    </span>
-                  </button>
-                  <div class="ui-dropdown">
-                    <div :class="levelOptionInitialClass(conf.id, item.id, 'shown')"
-                         :ui-action="`dropdown-item; set-user-pref: siteMenuShown, ${conf.id}|${item.id}|shown`">
-                      <span class="option-text color-green">Shown</span>
-                    </div>
-                    <div :class="levelOptionInitialClass(conf.id, item.id, 'collapsed')"
-                         :ui-action="`dropdown-item; set-user-pref: siteMenuShown, ${conf.id}|${item.id}|collapsed`">
-                      <span class="option-text color-yellow">Collapsed</span>
-                    </div>
-                    <div :class="levelOptionInitialClass(conf.id, item.id, 'hidden')"
-                         :ui-action="`dropdown-item; set-user-pref: siteMenuShown, ${conf.id}|${item.id}|hidden`">
-                      <span class="option-text color-red">Hidden</span>
-                    </div>
-                  </div>
+                <div class="valign no-shrink spacer5-left">
+                  <SettingsSidebarLevelOption :conf-id="conf.id" :thing-id="item.id" />
                 </div>
               </div>
             </div>
@@ -195,42 +175,21 @@ import { SiteMenuShown, SiteMenuShownType, SiteUser } from '../../../shared/type
 import SearchModeInput from '../utility/SearchModeInput.vue';
 import { SiteSidebar } from '../../../shared/types/site/site-sidebar-types.ts';
 import { LANG_CODES, LangCode } from '../../../shared/types/lang-types.ts';
+import SettingsSidebarLevelOption from './SettingsSidebarLevelOption.vue';
+import SettingsSiteModeBasePathOption from './SettingsSiteModeBasePathOption.vue';
 
 let { user, ctx } = useTrace();
 
 let isNightmode: boolean = ctx.prefs.isNightmode || false;
 let avatarUrl: string = SiteUserProvider.getAvatarUrl(user);
 let sidebarConfigs: SiteSidebar[] = Object.values(ctx.allSiteSidebarConfig);
-let sidebarShown: SiteMenuShown = ctx.prefs.siteMenuShown || {};
-let sidebarConfigItemCounter: number = 0;
 
 const voPrefixDisableLangCodesAvailable: LangCode[] = LANG_CODES.filter(x => x !== 'CH');
-
 let voPrefixDisabledLangCodes: LangCode[] = Array.isArray(ctx.prefs.voPrefixDisabledLangs)
   ? ctx.prefs.voPrefixDisabledLangs : [];
 
+let sidebarConfigItemCounter: number = 0;
 function levelOptionNextParity(): string {
   return sidebarConfigItemCounter++ % 2 === 0 ? 'even' : 'odd';
 }
-
-function levelOptionInitialLabel(confId: string, thingId: string): string {
-  if (sidebarShown[confId]?.[thingId] === 'collapsed') {
-    return '<span class="option-text color-yellow">Collapsed</span>';
-  } else if (sidebarShown[confId]?.[thingId] === 'hidden') {
-    return '<span class="option-text color-red">Hidden</span>';
-  } else {
-    return '<span class="option-text color-green">Shown</span>';
-  }
-}
-
-function levelOptionInitialClass(confId: string, thingId: string, thingState: SiteMenuShownType): string {
-  if (sidebarShown[confId]?.[thingId] === thingState) {
-    return 'option selected';
-  } if (!sidebarShown[confId]?.[thingId] && thingState === 'shown') {
-    return 'option selected';
-  } else {
-    return 'option';
-  }
-}
-
 </script>

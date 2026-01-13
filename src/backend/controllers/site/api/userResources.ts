@@ -8,6 +8,10 @@ import { SiteUserProvider } from '../../../middleware/auth/SiteUserProvider.ts';
 import { isInt, toInt } from '../../../../shared/util/numberUtil.ts';
 import { createWsJwtToken } from '../../../websocket/ws-server-auth.ts';
 import { WsJwtTokenResponse } from '../../../../shared/types/wss-types.ts';
+import {
+  GENSHIN_SITE_MODE_BASE_PATHS, HSR_SITE_MODE_BASE_PATHS,
+  WUWA_SITE_MODE_BASE_PATHS, ZENLESS_SITE_MODE_BASE_PATHS,
+} from '../../../../shared/types/site/site-mode-type.ts';
 
 export default function(router: Router): void {
   router.endpoint('/prefs', {
@@ -46,6 +50,50 @@ export default function(router: Router): void {
         case 'searchMode': {
           if (SEARCH_MODES.includes(prefValue)) {
             prefPayload.searchMode = prefValue;
+          }
+          break;
+        }
+        case 'preferredBasePaths': {
+          const parts: string[] = String(prefValue).split('|');
+          if (parts.length !== 2) {
+            throw HttpError.badRequest('InvalidParameter', 'Invalid payload provided');
+          }
+          if (req.context.prefs.preferredBasePaths) {
+            prefPayload.preferredBasePaths = req.context.prefs.preferredBasePaths;
+          } else {
+            prefPayload.preferredBasePaths = {};
+          }
+          switch (parts[0]) {
+            case 'genshin':
+              if (GENSHIN_SITE_MODE_BASE_PATHS.includes(parts[1] as any)) {
+                prefPayload.preferredBasePaths.genshin = parts[1] as any;
+              } else {
+                throw HttpError.badRequest('InvalidParameter', 'Invalid base path in payload');
+              }
+              break;
+            case 'hsr':
+              if (HSR_SITE_MODE_BASE_PATHS.includes(parts[1] as any)) {
+                prefPayload.preferredBasePaths.hsr = parts[1] as any;
+              } else {
+                throw HttpError.badRequest('InvalidParameter', 'Invalid base path in payload');
+              }
+              break;
+            case 'zenless':
+              if (ZENLESS_SITE_MODE_BASE_PATHS.includes(parts[1] as any)) {
+                prefPayload.preferredBasePaths.zenless = parts[1] as any;
+              } else {
+                throw HttpError.badRequest('InvalidParameter', 'Invalid base path in payload');
+              }
+              break;
+            case 'wuwa':
+              if (WUWA_SITE_MODE_BASE_PATHS.includes(parts[1] as any)) {
+                prefPayload.preferredBasePaths.wuwa = parts[1] as any;
+              } else {
+                throw HttpError.badRequest('InvalidParameter', 'Invalid base path in payload');
+              }
+              break;
+            default:
+              throw HttpError.badRequest('InvalidParameter', 'Invalid site mode in payload');
           }
           break;
         }

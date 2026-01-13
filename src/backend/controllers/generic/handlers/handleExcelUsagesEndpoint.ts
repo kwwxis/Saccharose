@@ -21,7 +21,7 @@ export async function handleExcelUsagesEndpoint(ctrl: AbstractControl, req: Requ
 
   if (ctrl instanceof GenshinControl) {
     for (let id of ids) {
-      changeRecordRefs.push(...await ctrl.excelChangelog.selectChangeRefAddedAt(id));
+      changeRecordRefs.push(...(await ctrl.excelChangelog.selectChangeRefAddedAt(id)));
     }
   }
 

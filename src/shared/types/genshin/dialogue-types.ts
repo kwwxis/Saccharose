@@ -46,7 +46,9 @@ export type TalkBinType =
   'Npc' |
   'NpcGroup' |
   'NpcOther' |
-  'Quest';
+  'Quest' |
+  'Storyboard' |
+  'StoryboardGroup';
 
 export const OptionIconMap = {
   UI_Icon_Intee_ActivityProps: 'Special Souvenir',

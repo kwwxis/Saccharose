@@ -8,6 +8,7 @@ import GenshinMediaListPage from '../../../components/genshin/media/GenshinMedia
 import GenshinMediaDetailsPage from '../../../components/genshin/media/GenshinMediaDetailsPage.vue';
 import { getGenshinControl } from '../../../domain/genshin/genshinControl.ts';
 import GenshinMediaArchiveJobPage from '../../../components/genshin/media/GenshinMediaArchiveJobPage.vue';
+import { expressWildcardPath } from '../../../middleware/request/pathHelpers.ts';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -26,13 +27,14 @@ export default async function(): Promise<Router> {
     });
   });
 
-  router.get('/media/details/:imageName', async (req: Request, res: Response) => {
+  router.get('/media/details/*imageName', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
-    const { entity, usageEntities } = await ctrl.selectImageIndexEntityAndUsages(req.params.imageName);
+    const imageName = expressWildcardPath(req.params.imageName);
+    const { entity, usageEntities } = await ctrl.selectImageIndexEntityAndUsages(imageName);
     await res.renderComponent(GenshinMediaDetailsPage, {
-      title: 'Media Details: ' + String(req.params.imageName),
+      title: 'Media Details: ' + imageName,
       bodyClass: ['page--media', 'page--media-details', 'page--larger'],
-      pathImageName: req.params.imageName,
+      pathImageName: imageName,
       entity,
       usageEntities,
     });

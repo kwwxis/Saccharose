@@ -262,7 +262,7 @@ export class SiteUserProviderImpl {
         });
       }
 
-      if (!row.json_data.wiki_allowed && await this.isInReqBypass({discord_id: discordUser.id})) {
+      if (!row.json_data.wiki_allowed && (await this.isInReqBypass({discord_id: discordUser.id}))) {
         row.json_data.wiki_allowed = true;
       }
 

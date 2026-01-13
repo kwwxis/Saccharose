@@ -23,7 +23,7 @@ import {
   selectLoadingTips,
 } from '../../../domain/genshin/archive/loadingTips.ts';
 import { LoadingCat } from '../../../../shared/types/genshin/loading-types.ts';
-import { toInt } from '../../../../shared/util/numberUtil.ts';
+import { isInt, toInt } from '../../../../shared/util/numberUtil.ts';
 import { paramCmp, SbOut, sentenceJoin, toParam } from '../../../../shared/util/stringUtil.ts';
 import { Request, Response, Router } from 'express';
 import { defaultMap, toBoolean } from '../../../../shared/util/genericUtil.ts';
@@ -152,7 +152,7 @@ export default async function(): Promise<Router> {
 
   // region Viewpoints
   // --------------------------------------------------------------------------------------------------------------
-  router.get('/viewpoints/:city?', async (req: Request, res: Response) => {
+  router.get(['/viewpoints', '/viewpoints/{:city}'], async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
     let cityName: string = '';
     let viewpointsList: ViewpointsByRegion = null;
@@ -190,7 +190,7 @@ export default async function(): Promise<Router> {
     });
   });
 
-  router.get('/tutorials/:category?', async (req: Request, res: Response) => {
+  router.get(['/tutorials', '/tutorials/{:category}'], async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
     const codexTypes: PushTipsCodexType[] = PushTipsCodexTypeList;
     let codexTypeName: string = null;
@@ -226,9 +226,35 @@ export default async function(): Promise<Router> {
     });
   });
 
-  router.get('/achievements/:id(\\d+)/', async (req: Request, res: Response) => {
+  router.get('/achievements/:categoryOrId', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
-    const achievement = await ctrl.selectAchievement(toInt(req.params.id));
+
+    if (!isInt(req.params.categoryOrId)) {
+      let goalName: string = 'Category not found';
+      let achievements: AchievementsByGoals = null;
+
+      const goals = await ctrl.selectAchievementGoals();
+      const goal = goals.find(goal =>
+        paramCmp(goal.NameTextEN, req.params.categoryOrId) ||
+        paramCmp(goal.NameText, req.params.categoryOrId) ||
+        paramCmp(goal.Id, req.params.categoryOrId)
+      );
+      if (goal) {
+        goalName = goal.NameText;
+        achievements = await ctrl.selectAchievements(goal.Id);
+      }
+
+      await res.renderComponent(AchievementListingPage, {
+        title: `Achievements - ${goalName}`,
+        bodyClass: ['page--achievements', 'page--achievements-categories'],
+        category: req.params.categoryOrId,
+        goals,
+        achievements
+      });
+      return;
+    }
+
+    const achievement = await ctrl.selectAchievement(toInt(req.params.categoryOrId));
 
     const sb = new SbOut();
     if (achievement) {
@@ -309,30 +335,13 @@ export default async function(): Promise<Router> {
     });
   });
 
-  router.get('/achievements/:category?', async (req: Request, res: Response) => {
+  router.get('/achievements', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
     const goals = await ctrl.selectAchievementGoals();
-    let goalName: string = '';
-    let achievements: AchievementsByGoals = null;
-
-    if (req.params.category) {
-      let goal = goals.find(goal =>
-        paramCmp(goal.NameTextEN, req.params.category) ||
-        paramCmp(goal.NameText, req.params.category) ||
-        paramCmp(goal.Id, req.params.category)
-      );
-      if (goal) {
-        goalName = goal.NameText;
-        achievements = await ctrl.selectAchievements(goal.Id);
-      }
-    }
-
     await res.renderComponent(AchievementListingPage, {
-      title: goalName ? `Achievements - ${goalName}` : 'Achievements',
+      title: 'Achievements',
       bodyClass: ['page--achievements', 'page--achievements-categories'],
-      category: req.params.category,
-      goals,
-      achievements
+      goals
     });
   });
   // endregion

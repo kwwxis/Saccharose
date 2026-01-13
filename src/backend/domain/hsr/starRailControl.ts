@@ -245,7 +245,7 @@ interface StarRailVoiceConfigRaw {
 }
 
 export function normalizeStarRailVoicePath(voicePath: string): string {
-  return voicePath.replace(/_/g, ' ').toLowerCase() + '.ogg'
+  return voicePath.replace(/_/g, ' ').toLowerCase() + '.ogg';
 }
 
 export async function loadStarRailVoiceItems(): Promise<void> {

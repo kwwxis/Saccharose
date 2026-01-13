@@ -85,7 +85,7 @@ export function startWss() {
   httpServer.on('upgrade', async (request, socket, head) => {
     const authorizedUser = verifyWsJwtToken(request);
 
-    if (!authorizedUser || !authorizedUser.wiki_allowed || await SiteUserProvider.isBanned(authorizedUser)) {
+    if (!authorizedUser || !authorizedUser.wiki_allowed || (await SiteUserProvider.isBanned(authorizedUser))) {
       socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
       socket.destroy();
       return;

@@ -1685,4 +1685,47 @@ export const genshinSchema = {
       {name: 'GroupId', type: 'integer', isIndex: true},
     ],
   },
+
+  BeyondCostumeExcelConfigData: <SchemaTable> {
+    name: 'BeyondCostumeExcelConfigData',
+    jsonFile: './ExcelBinOutput/BeyondCostumeExcelConfigData.json',
+    columns: [
+      {name: 'CostumeId', type: 'integer', isPrimary: true},
+    ],
+  },
+  BeyondCostumeSuitExcelConfigData: <SchemaTable> {
+    name: 'BeyondCostumeSuitExcelConfigData',
+    jsonFile: './ExcelBinOutput/BeyondCostumeSuitExcelConfigData.json',
+    columns: [
+      {name: 'SuitId', type: 'integer', isPrimary: true},
+    ],
+  },
+  BeyondEmojiExcelConfigData: <SchemaTable> {
+    name: 'BeyondEmojiExcelConfigData',
+    jsonFile: './ExcelBinOutput/BeyondEmojiExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+    ],
+  },
+  BeyondHallFacilityExcelConfigData: <SchemaTable> {
+    name: 'BeyondHallFacilityExcelConfigData',
+    jsonFile: './ExcelBinOutput/BeyondHallFacilityExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+    ],
+  },
+  BeyondPoseExcelConfigData: <SchemaTable> {
+    name: 'BeyondPoseExcelConfigData',
+    jsonFile: './ExcelBinOutput/BeyondPoseExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+    ],
+  },
+  BydMaterialExcelConfigData: <SchemaTable> {
+    name: 'BydMaterialExcelConfigData',
+    jsonFile: './ExcelBinOutput/BydMaterialExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+    ],
+  },
 };

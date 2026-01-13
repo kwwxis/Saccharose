@@ -52,7 +52,7 @@ export default async function(): Promise<Router> {
 
   // Client Error Handlers
   // ~~~~~~~~~~~~~~~~~~~~~
-  router.route('*').all((_req: Request, res: Response) => {
+  router.route('*splat').all((_req: Request, res: Response) => {
     res.status(404).send();
   });
   router.use(apiErrorHandler);
