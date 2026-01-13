@@ -182,7 +182,7 @@ export class RequestContext {
   }
 
   get siteModePreferredBasePath(): string {
-    return this.prefs.preferredBasePaths[this.siteMode] || getDefaultBasePathForSiteMode(this.siteMode);
+    return this.prefs.preferredBasePaths?.[this.siteMode] || getDefaultBasePathForSiteMode(this.siteMode);
   }
 
   get siteModeName(): string {
