@@ -56,7 +56,7 @@ export class WuwaControl extends AbstractControl<WuwaControlState> {
       stateConstructor: WuwaControlState,
       modeOrState: modeOrState,
       excelPath: './ConfigDB',
-      disabledLangCodes: ['IT', 'TR', 'RU', 'TH', 'VI', 'ID', 'PT'],
+      disabledLangCodes: ['IT', 'TR', 'RU', 'VI', 'ID', 'PT'],
       currentGameVersion: CurrentWuwaVersion,
       gameVersions: WuwaVersions,
       changelogConfig: {
