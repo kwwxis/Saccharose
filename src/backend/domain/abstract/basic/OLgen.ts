@@ -11,6 +11,7 @@ import { SbOut } from '../../../../shared/util/stringUtil.ts';
 import { isUnset } from '../../../../shared/util/genericUtil.ts';
 import { closeKnex } from '../../../util/db.ts';
 import { OLCombinedResult, OLResult } from '../../../../shared/types/ol-types.ts';
+import { WuwaControl } from '../../wuwa/wuwaControl.ts';
 
 async function ol_gen_internal(ctrl: AbstractControl,
                                textMapHash: TextMapHash,
@@ -18,7 +19,7 @@ async function ol_gen_internal(ctrl: AbstractControl,
   wikitext: string,
   warnings: string[],
 }> {
-  const templateConfig: {langCode: LangCode, rm: boolean, tl: boolean}[] = [
+  let templateConfig: {langCode: LangCode, rm: boolean, tl: boolean}[] = [
     { langCode: 'EN', rm: false, tl: false },
     { langCode: 'CHS', rm: true, tl: true },
     { langCode: 'CHT', rm: true, tl: true },
@@ -35,6 +36,19 @@ async function ol_gen_internal(ctrl: AbstractControl,
     { langCode: 'TR', rm: false, tl: true },
     { langCode: 'IT', rm: false, tl: true },
   ];
+  if (ctrl instanceof WuwaControl) {
+    templateConfig = [
+      { langCode: 'EN', rm: false, tl: false },
+      { langCode: 'CHS', rm: true, tl: true },
+      { langCode: 'CHT', rm: true, tl: true },
+      { langCode: 'JP', rm: true, tl: true },
+      { langCode: 'KR', rm: false, tl: true },
+      { langCode: 'FR', rm: false, tl: true },
+      { langCode: 'DE', rm: false, tl: true },
+      { langCode: 'ES', rm: false, tl: true },
+      { langCode: 'TH', rm: true, tl: true },
+    ];
+  }
   let sbOut = new SbOut();
   if (opts.includeHeader) {
     sbOut.line('==Other Languages==');
