@@ -7,6 +7,7 @@ export async function genshinNormalize() {
   await fixKorean();
   await fixRussian();
   await fixJapanese();
+  await delBadTalk();
   await importNormalize(getGenshinDataFilePath('./ExcelBinOutput'), ['ProudSkillExcelConfigData.json', 'DialogExcelConfigData.json'], 'genshin');
 }
 
