@@ -31,6 +31,13 @@ async function fixThai() {
     JSON.stringify(thC_json, null, 2), 'utf-8');
 }
 
+async function delBadTalk() {
+  const t0 = getGenshinDataFilePath('./ExcelBinOutput/TalkExcelConfigData_0.json');
+  const t1 = getGenshinDataFilePath('./ExcelBinOutput/TalkExcelConfigData_1.json');
+  fs.unlinkSync(t0);
+  fs.unlinkSync(t1);
+}
+
 async function fixRussian() {
   const ruC_path = getGenshinDataFilePath('./TextMap/TextMapRU.json');
   const ru0_path = getGenshinDataFilePath('./TextMap/TextMapRU_0.json');

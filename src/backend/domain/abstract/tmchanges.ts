@@ -62,11 +62,6 @@ export class TextMapChangelog {
 
   async selectChangesForDisplay(version: string, langCode: LangCode, doNormText: boolean): Promise<TextMapChangesForDisplay> {
     const rows: TextMapChangeEntity[] = await this.selectAllRows(version, langCode);
-    console.log({
-      version,
-      langCode,
-      rowcount: rows.length
-    })
 
     const out: TextMapChangesForDisplay = {
       langCode: langCode,
