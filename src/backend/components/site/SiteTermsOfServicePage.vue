@@ -11,6 +11,7 @@
             <a role="listitem" href="#responsibilities">Your Responsibilities</a>
             <section>
               <a role="listitem" href="#acceptable_use_policy">Acceptable Use Policy</a>
+              <a role="listitem" href="#external_sharing_restrictions">External Sharing Restrictions</a>
               <a role="listitem" href="#api_usage_rules">API Usage Rules</a>
             </section>
             <a role="listitem" href="#third_party_links">Third Party Links</a>
@@ -86,6 +87,20 @@
             <li>violate or threaten to violate the privacy or infringe the rights of others;</li>
             <li>violate the law in any way.</li>
           </ul>
+
+          <h3 id="external_sharing_restrictions">External Sharing Restrictions</h3>
+
+          <h4>Restrictions on Redistribution and External Sharing</h4>
+          <p>You may not share screenshots of content from this website, direct links to this website, or the name “saccharose.wiki” in contexts that are not primarily dedicated to contributing to or discussing the supported game wikis.</p>
+
+          <h4>Permitted Use of Game Assets Outside Editing Contexts</h4>
+          <p>When sharing individual game assets made available through this website in contexts that fall outside the scope described above, users may do so only if the shared material is limited to the asset itself and does not include website user interface elements, branding, URLs, references to the website’s name, or other content that would reasonably identify this website as the source.</p>
+
+          <h4>Internal Editing and Coordination Exception</h4>
+          <p>The above limitations on attribution and presentation do not apply within private or semi-private spaces used primarily for wiki editing, contributor coordination, or internal discussion among editors.</p>
+
+          <h4>Determination of Applicable Context</h4>
+          <p>The applicability of these sections is determined by the primary purpose and audience of the space, not by its technical access controls or visibility settings.</p>
 
           <h3 id="api_usage_rules">API Usage</h3>
           <p>We provide a public API that you may use for any purpose, provided that you abide by our Terms
