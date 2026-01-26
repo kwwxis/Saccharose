@@ -94,7 +94,7 @@
           <p>You may not share screenshots of content from this website, direct links to this website, or the name “saccharose.wiki” in contexts that are not primarily dedicated to contributing to or discussing the supported game wikis.</p>
 
           <h4>Permitted Use of Game Assets Outside Editing Contexts</h4>
-          <p>When sharing individual game assets made available through this website in contexts that fall outside the scope described above, users may do so only if the shared material is limited to the asset itself and does not include website user interface elements, branding, URLs, references to the website’s name, or other content that would reasonably identify this website as the source.</p>
+          <p>When sharing individual game assets (text, images) made available through this website in contexts that fall outside the scope described above, users may do so only if the shared material is limited to the asset itself and does not include website user interface elements, branding, URLs, references to the website’s name, or other content that would reasonably identify this website as the source.</p>
 
           <h4>Internal Editing and Coordination Exception</h4>
           <p>The above limitations on attribution and presentation do not apply within private or semi-private spaces used primarily for wiki editing, contributor coordination, or internal discussion among editors.</p>
