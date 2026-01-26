@@ -168,10 +168,12 @@ export function hashFlash(scrollTo: boolean = false, initialDelay: number = 0) {
     console.log('Hash Change:', hash);
     let target = document.getElementById(hash);
     if (target) {
-      window.history.replaceState({}, null, window.location.href.split('#')[0]);
       setTimeout(() => {
+        window.history.replaceState({}, null, window.location.href.split('#')[0]);
         if (scrollTo) {
           scrollToElement(target);
+        } else {
+          target.scrollIntoView({ behavior: 'instant' });
         }
         setTimeout(() => {
           target.classList.add('flash');
