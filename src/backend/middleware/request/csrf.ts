@@ -1,7 +1,6 @@
 import { toBoolean } from '../../../shared/util/genericUtil.ts';
 import { CookieOptions, Response } from 'express';
-import { doubleCsrf } from 'csrf-csrf';
-import { DoubleCsrfConfigOptions } from 'csrf-csrf/lib';
+import { doubleCsrf, DoubleCsrfConfigOptions } from 'csrf-csrf';
 
 export const CSRF_COOKIE_NAME =
   toBoolean(ENV.SSL_ENABLED) ? '__Host-x-csrf-token' : 'x-csrf-token';
@@ -23,10 +22,10 @@ const CONFIG: DoubleCsrfConfigOptions = {
   cookieName: CSRF_COOKIE_NAME,
   cookieOptions: CSRF_COOKIE_OPTIONS,
   ignoredMethods: ['GET', 'HEAD', 'OPTIONS'],
-  getTokenFromRequest: (req) => req.headers['x-csrf-token'],
+  getCsrfTokenFromRequest: (req) => req.headers['x-csrf-token'],
 }
 
 export const {
-  generateToken,
+  generateCsrfToken,
   doubleCsrfProtection,
 } = doubleCsrf(CONFIG);

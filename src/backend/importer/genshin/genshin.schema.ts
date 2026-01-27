@@ -1726,6 +1726,19 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/BydMaterialExcelConfigData.json',
     columns: [
       {name: 'Id', type: 'integer', isPrimary: true},
+      {name: 'DescTextMapHash', type: 'decimal', isIndex: true},
+      {name: 'NameTextMapHash', type: 'decimal', isIndex: true},
+      {name: 'RankLevel', type: 'integer', isIndex: true},
     ],
+    renameFields: {
+      AOLHBMPNDIN: 'BydMaterialType',
+    }
+  },
+  BydMaterialSourceExcelConfigData: <SchemaTable> {
+    name: 'BydMaterialSourceExcelConfigData',
+    jsonFile: './ExcelBinOutput/BydMaterialSourceExcelConfigData.json',
+    columns: [
+      {name: 'Id', type: 'integer', isPrimary: true},
+    ]
   },
 };

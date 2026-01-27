@@ -10,6 +10,7 @@ import { QuestExcelConfigData } from '../../../shared/types/genshin/quest-types.
 import { DocumentExcelConfigData } from '../../../shared/types/genshin/readable-types.ts';
 
 import { NpcExcelConfigData } from '../../../shared/types/genshin/npc-types.ts';
+import { AvatarExcelConfigData } from '../../../shared/types/genshin/avatar-types.ts';
 
 const excel = (file: string) => `./ExcelBinOutput/${file}.json`;
 
@@ -76,6 +77,11 @@ const presets = {
   ProudSkillExcelConfigData: <InspectOpt> { file: excel('ProudSkillExcelConfigData'), inspectFieldValues: ['LifeEffectType'] },
   AvatarSkillExcelConfigData: <InspectOpt> { file: excel('AvatarSkillExcelConfigData'), inspectFieldValues: ['CostElemType', 'DragType'] },
   BuffExcelConfigData: <InspectOpt> { file: excel('BuffExcelConfigData'), inspectFieldValues: ['ServerBuffType', 'StackType'] },
+  BydMaterialExcelConfigData: <InspectOpt> { file: excel('BydMaterialExcelConfigData'), inspectFieldValues: ['ItemUse[#ALL].UseOp', 'ItemType', 'AOLHBMPNDIN', 'DBNOHODFJMC', 'CJIIKHAEBAF'] },
+  BydMaterialSourceExcelConfigData: <InspectOpt> { file: excel('BydMaterialSourceExcelConfigData'), inspectFieldValues: [] },
+
+  AvatarExcelConfigData: <InspectOpt> { file: excel('AvatarExcelConfigData'), inspectFieldValues: ['QualityType', 'UseType', 'WeaponType', 'BodyType', 'AvatarIdentityType'] },
+
 };
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
@@ -83,7 +89,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     const ctrl = getGenshinControl();
     // await inspectDataFile(ctrl, presets.QuestExcelConfigData);
     // await inspectDataFile(ctrl, presets.TalkExcelConfigData);
-    await inspectDataFile(ctrl, presets.AchievementExcelConfigData);
+    await inspectDataFile(ctrl, presets.AvatarExcelConfigData);
     await closeKnex();
   })();
 }

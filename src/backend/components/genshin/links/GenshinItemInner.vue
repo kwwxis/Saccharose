@@ -2,7 +2,7 @@
   <div class="material-card">
     <div class="material-icon"
          :class="{'no-count': noCount}"
-         :data-quality="item.RankLevel || 0">
+         :data-quality="qualityNum">
       <img v-if="hasImage" :src="imageUrl" loading="lazy" decoding="async" />
       <img v-else src="/images/genshin/static/Item_Unknown.png" loading="lazy" decoding="async" />
     </div>
@@ -21,6 +21,9 @@ const { normGenshinText } = useTrace();
 const { item, itemCount } = defineProps<GenshinItemComponentProps>();
 const effectIcon: string = (<any> item).EffectIcon;
 
-const hasImage = (<any> item).IconUrl || item.Icon || (<any> item).IconName;
-const imageUrl = (<any> item).IconUrl ? (<any> item).IconUrl : `/images/genshin/${item.Icon || (<any> item).IconName}.png`;
+const qualityNum: number = (<any> item).RankLevel || 0;
+const hasImage = (<any> item).IconUrl || (<any> item).Icon || (<any> item).IconName;
+const imageUrl = (<any> item).IconUrl ?
+  (<any> item).IconUrl
+  : `/images/genshin/${(<any> item).Icon || (<any> item).IconName}.png`;
 </script>

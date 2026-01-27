@@ -18,6 +18,17 @@ import {
   ZENLESS_SITE_MODE_BASE_PATHS,
 } from '../../shared/types/site/site-mode-type.ts';
 
+export async function provideAppBaseLocals(req: Request) {
+  const localControls = createLocalControls(getControlUserMode(req), req);
+  return {
+    ... localControls,
+    outputLangCode: req.context.outputLangCode,
+    inputLangCode: req.context.inputLangCode,
+    csrfToken: req.csrfToken(),
+    siteNoticeBanners: await SiteUserProvider.getSiteNoticesForBanner(req)
+  };
+}
+
 export default async function(): Promise<Router> {
   const router: Router = create({
     layouts: ['layouts/app-layout', 'layouts/app-layout-inner'],
@@ -26,14 +37,7 @@ export default async function(): Promise<Router> {
       return num >= 3 && num <= 10 ? ['painmelo'] : [];
     },
     locals: async (req: Request) => {
-      const localControls = createLocalControls(getControlUserMode(req), req);
-      return {
-        ... localControls,
-        outputLangCode: req.context.outputLangCode,
-        inputLangCode: req.context.inputLangCode,
-        csrfToken: req.csrfToken(),
-        siteNoticeBanners: await SiteUserProvider.getSiteNoticesForBanner(req)
-      };
+      return await provideAppBaseLocals(req);
     }
   });
 

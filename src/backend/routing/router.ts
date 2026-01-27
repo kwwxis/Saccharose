@@ -164,8 +164,12 @@ export async function doRender(req: Request, res: Response,
 /**
  * Create an Express Router.
  */
-export function create(context?: Readonly<RequestContextUpdate>): Router {
+export function create(context?: Readonly<RequestContextUpdate>, preContextCb?: (router: Router) => void): Router {
   const router: Router = express.Router();
+
+  if (preContextCb) {
+    preContextCb(router);
+  }
 
   router.use(async function defaultMiddleware(req: Request, res: Response, next: NextFunction) {
     if (context)

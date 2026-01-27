@@ -6,17 +6,19 @@ import SiteTermsOfServicePage from '../../components/site/SiteTermsOfServicePage
 import SiteContactPage from '../../components/site/SiteContactPage.vue';
 import OLGenPage from '../../components/shared/OLGenPage.vue';
 import OLCombinePage from '../../components/shared/OLCombinePage.vue';
+import { provideAppBaseLocals } from '../AppBaseRouter.ts';
+import { doubleCsrfProtection } from '../../middleware/request/csrf.ts';
 
 export default async function(): Promise<Router> {
   const router: Router = create({
     locals: async (req: Request) => {
       if (req.isAuthenticated()) {
-        return {
-          siteNoticeBanners: await SiteUserProvider.getSiteNoticesForBanner(req)
-        };
+        return await provideAppBaseLocals(req);
       }
       return {};
     }
+  }, r => {
+    r.use(doubleCsrfProtection);
   });
 
   router.get('/privacy', async (req: Request, res: Response) => {

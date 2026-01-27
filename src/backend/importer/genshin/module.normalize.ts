@@ -35,8 +35,10 @@ async function fixThai() {
 async function delBadTalk() {
   const t0 = getGenshinDataFilePath('./ExcelBinOutput/TalkExcelConfigData_0.json');
   const t1 = getGenshinDataFilePath('./ExcelBinOutput/TalkExcelConfigData_1.json');
-  fs.unlinkSync(t0);
-  fs.unlinkSync(t1);
+  if (fs.existsSync(t0))
+    fs.unlinkSync(t0);
+  if (fs.existsSync(t1))
+    fs.unlinkSync(t1);
 }
 
 async function fixRussian() {
