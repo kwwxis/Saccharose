@@ -45,15 +45,15 @@
   <section class="card" v-if="entity?.extra_info?.otherNames?.length">
     <h2>Other Versions</h2>
     <template v-for="otherName of entity.extra_info.otherNames">
-      <h3>{{ otherName.name }}</h3>
+      <h3>{{ otherName.image_name }}</h3>
       <div class="content">
         <div class="media-image">
           <div class="image-frame no-max-width">
             <div class="image-obj">
-              <img :src="`/images/genshin/${encodeURIComponent(otherName.name)}.png`" />
+              <img :src="`/images/genshin/${encodeURIComponent(otherName.image_name)}.png`" />
             </div>
             <div class="image-label">
-              <ByteSizeLabel :byte-size="otherName.size" />
+              <ByteSizeLabel :byte-size="otherName.image_size" />
             </div>
           </div>
         </div>

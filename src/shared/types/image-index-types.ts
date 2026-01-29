@@ -11,11 +11,7 @@ export interface ImageIndexExcelMetaEntry {
   rows: number[]
 }
 
-export interface ImageIndexEntity {
-  image_name: string,
-  image_size: number,
-  image_width: number,
-  image_height: number,
+export interface ImageIndexEntity extends ImageIndexObj {
   excel_usages: string[],
   excel_meta: ImageIndexExcelMeta,
   image_cats?: Record<string, string>,
@@ -24,12 +20,14 @@ export interface ImageIndexEntity {
 }
 
 export interface ImageIndexExtraInfo {
-  otherNames?: ImageIndexOtherName[]
+  otherNames?: ImageIndexObj[]
 }
 
-export interface ImageIndexOtherName {
-  name: string,
-  size: number
+export interface ImageIndexObj {
+  image_name: string,
+  image_size: number,
+  image_width: number,
+  image_height: number,
 }
 
 export interface ImageIndexSearchParams {

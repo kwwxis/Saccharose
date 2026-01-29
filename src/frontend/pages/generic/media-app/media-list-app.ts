@@ -90,7 +90,7 @@ export function initiateMediaListPage(
             <a href="${siteModeHome}/media/details/${escapeHtml(entity.image_name)}" class="image-label" target="_blank">${escapeHtml(entity.image_name)}</a>
             <span class="image-sublabel">
               <span class="image-dsize">${entity.image_width} &times; ${entity.image_height}</span>
-              <span class="image-bsize">${getByteSizeLabel(entity)}</span>
+              <span class="image-bsize">${getByteSizeLabel(entity.image_size)}</span>
             </span>
             <span class="image-toprightlabel${entity.first_version ? '' : ' hide'}">${entity.first_version}</span>
           </div>

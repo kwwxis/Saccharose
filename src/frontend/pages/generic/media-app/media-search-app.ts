@@ -7,7 +7,11 @@ import {
 import { SaccharoseApiEndpoint } from '../../../core/endpoints.ts';
 import { frag1, isElementPartiallyInViewport } from '../../../util/domutil.ts';
 import { escapeHtml } from '../../../../shared/util/stringUtil.ts';
-import { ImageIndexSearchParams, ImageIndexSearchResult } from '../../../../shared/types/image-index-types.ts';
+import {
+  ImageIndexObj,
+  ImageIndexSearchParams,
+  ImageIndexSearchResult,
+} from '../../../../shared/types/image-index-types.ts';
 import { ModalRef, modalService } from '../../../util/modalService.ts';
 import { ScriptJobPostResult } from '../../../../backend/util/scriptJobs.ts';
 import { toastError, toastSuccess } from '../../../util/toasterUtil.ts';
@@ -150,21 +154,27 @@ export function initiateMediaSearchPage(
         }
 
         for (let entity of result.results) {
-          resultTarget.append(frag1(`
-          <div class="media-image">
-            <div class="image-frame bordered">
-              <div class="image-obj">
-                <img src="${imagePathPrefix}${escapeHtml(entity.image_name)}.png" />
+          let imageObjs: ImageIndexObj[] = [entity];
+          if (entity.extra_info?.otherNames) {
+            imageObjs.push(... entity.extra_info.otherNames);
+          }
+          for (let imageObj of imageObjs) {
+            resultTarget.append(frag1(`
+              <div class="media-image">
+                <div class="image-frame bordered">
+                  <div class="image-obj">
+                    <img src="${imagePathPrefix}${escapeHtml(encodeURIComponent(imageObj.image_name))}.png" />
+                  </div>
+                  <a href="${siteModeHome}/media/details/${escapeHtml(entity.image_name)}" class="image-label" target="_blank">${escapeHtml(imageObj.image_name)}</a>
+                  <span class="image-sublabel">
+                    <span class="image-dsize">${imageObj.image_width} &times; ${imageObj.image_height}</span>
+                    <span class="image-bsize">${getByteSizeLabel(imageObj.image_size)}</span>
+                  </span>
+                  <span class="image-toprightlabel${entity.first_version ? '' : ' hide'}">${entity.first_version}</span>
+                </div>
               </div>
-              <a href="${siteModeHome}/media/details/${escapeHtml(entity.image_name)}" class="image-label" target="_blank">${escapeHtml(entity.image_name)}</a>
-              <span class="image-sublabel">
-                <span class="image-dsize">${entity.image_width} &times; ${entity.image_height}</span>
-                <span class="image-bsize">${getByteSizeLabel(entity)}</span>
-              </span>
-              <span class="image-toprightlabel${entity.first_version ? '' : ' hide'}">${entity.first_version}</span>
-            </div>
-          </div>
-        `));
+            `));
+          }
         }
         if (result.hasMore) {
           resultTarget.append(frag1(`<div id="media-search-load-more" style="min-height:1px"></div>`))

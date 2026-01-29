@@ -48,10 +48,10 @@
                   <div class="media-image">
                     <div class="image-frame bordered">
                       <div class="image-obj">
-                        <img :src="`/images/genshin/${encodeURIComponent(otherName.name)}.png`" style="max-height:74px" loading="lazy" decoding="async" />
+                        <img :src="`/images/genshin/${encodeURIComponent(otherName.image_name)}.png`" style="max-height:74px" loading="lazy" decoding="async" />
                       </div>
                       <span class="image-label">
-                        <ByteSizeLabel :byte-size="otherName.size" />
+                        <ByteSizeLabel :byte-size="otherName.image_size" />
                       </span>
                     </div>
                   </div>
@@ -77,10 +77,10 @@
                   <div class="media-image">
                     <div class="image-frame bordered">
                       <div class="image-obj">
-                        <img :src="`/images/genshin/${encodeURIComponent(otherName.name)}.png`" style="max-height:74px" loading="lazy" decoding="async" />
+                        <img :src="`/images/genshin/${encodeURIComponent(otherName.image_name)}.png`" style="max-height:74px" loading="lazy" decoding="async" />
                       </div>
                       <span class="image-label">
-                        <ByteSizeLabel :byte-size="otherName.size" />
+                        <ByteSizeLabel :byte-size="otherName.image_size" />
                       </span>
                     </div>
                   </div>

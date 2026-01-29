@@ -8,13 +8,13 @@ import {
   ImageCategoryMap,
   ImageIndexEntity,
   ImageIndexExcelMeta,
-  ImageIndexExcelMetaEntry, ImageIndexOtherName, newImageCategory,
+  ImageIndexExcelMetaEntry, ImageIndexObj, newImageCategory,
 } from '../../../shared/types/image-index-types.ts';
 import { imageSizeFromFile, ISizeCalculationResult } from '../../util/image-size';
 
-const otherNames: Record<string, ImageIndexOtherName[]> = defaultMap('Array');
+const otherNames: Record<string, ImageIndexObj[]> = defaultMap('Array');
 
-function getImageNames(): string[] {
+async function getImageNames(): Promise<string[]> {
   console.log('Gathering image names...');
   const imageNames: string[] = [];
   for (const fileName of fs.readdirSync(IMAGEDIR_GENSHIN_EXT)) {
@@ -25,12 +25,16 @@ function getImageNames(): string[] {
     const imageName: string = fileName.slice(0, -4); // Remove ".png" suffix
     if (imageName.includes('#')) {
       const imageBaseName = imageName.split('#')[0];
-      const size: number = fs.statSync(path.resolve(IMAGEDIR_GENSHIN_EXT, `./${imageName}.png`))?.size || 0;
+      const filePath = path.resolve(IMAGEDIR_GENSHIN_EXT, `./${imageName}.png`);
+      const size: number = fs.statSync(filePath)?.size || 0;
+      const imageSize: ISizeCalculationResult = await imageSizeFromFile(filePath);
 
-      if (!otherNames[imageBaseName].some(x => x.name === imageName)) {
+      if (!otherNames[imageBaseName].some(x => x.image_name === imageName)) {
         otherNames[imageBaseName].push({
-          name: imageName,
-          size,
+          image_name: imageName,
+          image_size: size,
+          image_width: imageSize.width,
+          image_height: imageSize.height,
         });
       }
 
@@ -55,7 +59,7 @@ export async function indexGenshinImages(catMapOnly: boolean = false) {
 
   const catmap: ImageCategoryMap = newImageCategory('root');
 
-  for (let imageName of getImageNames()) {
+  for (let imageName of await getImageNames()) {
     imageNameSet.add(imageName);
   }
 

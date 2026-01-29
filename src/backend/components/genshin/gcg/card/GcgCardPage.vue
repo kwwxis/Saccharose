@@ -54,11 +54,11 @@
                 <div class="media-image" v-for="otherName of WikiImageEntity.extra_info.otherNames">
                   <div class="image-frame bordered">
                     <div class="image-obj">
-                      <img :src="`/images/genshin/${encodeURIComponent(otherName.name)}.png`" style="max-height:200px" loading="lazy"
+                      <img :src="`/images/genshin/${encodeURIComponent(otherName.image_name)}.png`" style="max-height:200px" loading="lazy"
                            decoding="async" />
                     </div>
                     <span class="image-label">
-                      <ByteSizeLabel :byte-size="otherName.size" />
+                      <ByteSizeLabel :byte-size="otherName.image_size" />
                     </span>
                   </div>
                 </div>
@@ -81,10 +81,10 @@
                 <div class="media-image"  v-for="otherName of WikiGoldenImageEntity.extra_info.otherNames">
                   <div class="image-frame bordered">
                     <div class="image-obj">
-                      <img :src="`/images/genshin/${encodeURIComponent(otherName.name)}.png`" style="max-height:200px" loading="lazy" decoding="async" />
+                      <img :src="`/images/genshin/${encodeURIComponent(otherName.image_name)}.png`" style="max-height:200px" loading="lazy" decoding="async" />
                     </div>
                     <span class="image-label">
-                      <ByteSizeLabel :byte-size="otherName.size" />
+                      <ByteSizeLabel :byte-size="otherName.image_size" />
                     </span>
                   </div>
                 </div>
