@@ -1,7 +1,7 @@
 import { pageMatch } from '../../../core/pageMatch.ts';
 import { SaccharoseApiEndpoint } from '../../../core/endpoints.ts';
 import {
-  ImageCategoryMap,
+  ImageCategoryMap, ImageIndexObj,
   ImageIndexSearchParams,
   ImageIndexSearchResult,
 } from '../../../../shared/types/image-index-types.ts';
@@ -81,21 +81,27 @@ export function initiateMediaListPage(
         const firstVersionCssClass = entity.first_version
             ? ' ' + `first-version-${entity.first_version.replace(/\./g, '-')}` : '';
 
-        loadZoneEl.append(frag1(`
-        <div class="media-image media-version-filter-target${firstVersionCssClass}">
-          <div class="image-frame bordered">
-            <div class="image-obj">
-              <img src="${imagePathPrefix}${escapeHtml(entity.image_name)}.png" />
+        let imageObjs: ImageIndexObj[] = [entity];
+        if (entity.extra_info?.otherNames) {
+          imageObjs.push(... entity.extra_info.otherNames);
+        }
+        for (let imageObj of imageObjs) {
+          loadZoneEl.append(frag1(`
+            <div class="media-image media-version-filter-target${firstVersionCssClass}">
+              <div class="image-frame bordered">
+                <div class="image-obj">
+                  <img src="${imagePathPrefix}${escapeHtml(encodeURIComponent(imageObj.image_name))}.png" />
+                </div>
+                <a href="${siteModeHome}/media/details/${escapeHtml(entity.image_name)}" class="image-label" target="_blank">${escapeHtml(imageObj.image_name)}</a>
+                <span class="image-sublabel">
+                  <span class="image-dsize">${imageObj.image_width} &times; ${imageObj.image_height}</span>
+                  <span class="image-bsize">${getByteSizeLabel(imageObj.image_size)}</span>
+                </span>
+                <span class="image-toprightlabel${entity.first_version ? '' : ' hide'}">${entity.first_version}</span>
+              </div>
             </div>
-            <a href="${siteModeHome}/media/details/${escapeHtml(entity.image_name)}" class="image-label" target="_blank">${escapeHtml(entity.image_name)}</a>
-            <span class="image-sublabel">
-              <span class="image-dsize">${entity.image_width} &times; ${entity.image_height}</span>
-              <span class="image-bsize">${getByteSizeLabel(entity.image_size)}</span>
-            </span>
-            <span class="image-toprightlabel${entity.first_version ? '' : ' hide'}">${entity.first_version}</span>
-          </div>
-        </div>
-      `));
+          `));
+        }
       }
 
       if (result.hasMore) {
