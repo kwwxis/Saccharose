@@ -137,6 +137,8 @@ async function avatarSelector(ctrl: GenshinControl, avatarId: string|number, tag
 }
 
 async function doMapping(ctrl: GenshinControl, helper: MetaPropsHelper, cond: ConfigCondition<MappingType>, noMatchCallback?: MappingHandler) {
+  if (!cond.Param)
+    cond.Param = [];
   const p0 = cond.Param[0];
   const p1 = cond.Param[1];
   const p2 = cond.Param[2];
@@ -159,22 +161,22 @@ export async function addMetaProps_questExcel(ctrl: GenshinControl, sect: Dialog
 
   for (let cond of (questSub.FinishCond || [])) {
     await doMapping(ctrl, finishCondPropsHelpers, cond, async (_ctrl, props) => {
-      props.addProp(cond.Type, cond.Param);
+      props.addMayEmptyProp(cond.Type, cond.Param);
     });
   }
   for (let exec of (questSub.FinishExec || [])) {
     await doMapping(ctrl, finishExecPropsHelpers, exec, async (_ctrl, props) => {
-      props.addProp(exec.Type, exec.Param);
+      props.addMayEmptyProp(exec.Type, exec.Param);
     });
   }
   for (let cond of (questSub.FailCond || [])) {
     await doMapping(ctrl, failCondPropsHelpers, cond, async (_ctrl, props) => {
-      props.addProp(cond.Type, cond.Param);
+      props.addMayEmptyProp(cond.Type, cond.Param);
     });
   }
   for (let exec of (questSub.FailExec || [])) {
     await doMapping(ctrl, failExecPropsHelpers, exec, async (_ctrl, props) => {
-      props.addProp(exec.Type, exec.Param);
+      props.addMayEmptyProp(exec.Type, exec.Param);
     });
   }
 }
@@ -199,16 +201,14 @@ export async function addMetaProps_talkConfig(ctrl: GenshinControl, sect: Dialog
           await questExcelMetaPropValue(ctrl, p0)
         ]);
       } else {
-        props.addProp(beginCond.Type, [
-          ... beginCond.Param
-        ]);
+        props.addMayEmptyProp(beginCond.Type, beginCond.Param);
       }
     });
   }
 
   for (let exec of (talkConfig.FinishExec || [])) {
     await doMapping(ctrl, finishExecPropsHelpers, exec, async (ctrl, props, p0) => {
-      props.addProp(exec.Type, exec.Param);
+      props.addMayEmptyProp(exec.Type, exec.Param);
     });
   }
 }

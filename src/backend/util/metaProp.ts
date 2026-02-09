@@ -92,6 +92,14 @@ export class MetaPropsHelper {
     }
   }
 
+  addMayEmptyProp(label: string, values: MetaPropAcceptValue) {
+    if (!values || (Array.isArray(values) && !values.length)) {
+      return this.addEmptyProp(label);
+    } else {
+      return this.addProp(label, values);
+    }
+  }
+
   addProp(label: string, values: MetaPropAcceptValue, link?: string) {
     if (!values || (Array.isArray(values) && !values.length)) {
       return;
