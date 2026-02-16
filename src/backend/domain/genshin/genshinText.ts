@@ -138,8 +138,8 @@ function __wandererPlaceholder(langCode: LangCode = 'EN', plainForm: boolean = f
   })();
   if (plainForm) {
     return nameText;
-  } else if (langCode === 'EN') {
-    return '{{' + nameText + '}}';
+  } else if (langCode === 'EN' || langCode === 'VI') {
+    return '{{Wanderer}}';
   } else {
     return '(' + nameText + ')';
   }

@@ -559,7 +559,10 @@ export default async function(): Promise<Router> {
       LoadRelatedMaterial: true,
     });
     const sb: SbOut = new SbOut();
-    const ol: OLResult = furn ? (await ol_gen_from_id(ctrl, furn.NameTextMapHash, { addDefaultHidden: true })) : null;
+    const ol: OLResult = furn ? (await ol_gen_from_id(ctrl, furn.NameTextMapHash, {
+      addDefaultHidden: true,
+      hideTl: true
+    })) : null;
 
     if (furn) {
       const normNameText: string = ctrl.normText(furn.NameText, ctrl.outputLangCode);
