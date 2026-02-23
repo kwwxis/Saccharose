@@ -66,6 +66,12 @@ export default async function(): Promise<Router> {
 
   if (isSiteModeDisabled('genshin')) {
     GENSHIN_SITE_MODE_BASE_PATHS.forEach(basePath => {
+      router.use(`${basePath}`, (_req: Request, res: Response) => {
+        res.status(404).render('errors/unavailable', {
+          label: 'Genshin Impact',
+          bodyClass: 'hide-app-sidebar'
+        });
+      });
       router.use(`${basePath}/*splat`, (_req: Request, res: Response) => {
         res.status(404).render('errors/unavailable', {
           label: 'Genshin Impact',

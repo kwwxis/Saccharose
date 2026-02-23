@@ -40,6 +40,11 @@ export async function writeDeobfExcels() {
   // noinspection JSMismatchedCollectionQueryUpdate (empty array: whitelist not enabled)
   const whitelist: string[] = [];
 
+  // GadgetExcelConfigData
+  // ManualTextMapConfigData
+  // NpcExcelConfigData
+  // RewardExcelConfigData
+
   const jsonsInDir = fs.readdirSync(rawExcelDirPath).filter(file => path.extname(file) === '.json');
   for (let _jsonFile of jsonsInDir) {
     const fileName = path.basename(_jsonFile);
