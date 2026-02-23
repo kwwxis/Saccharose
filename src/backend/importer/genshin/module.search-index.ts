@@ -79,6 +79,19 @@ export async function importSearchIndex() {
     }
     writeOutput('Material', materialIndex);
   }
+  // Material Index
+  // --------------------------------------------------------------------------------------------------------------
+  {
+    process.stdout.write(chalk.bold('Generating byd material index...'));
+    const materialList = await ctrl.selectAllBydMaterialExcelConfigData();
+    const materialIndex: { [textMapHash: number]: number } = {};
+
+    for (let material of materialList) {
+      materialIndex[material.NameTextMapHash] = material.Id;
+      materialIndex[material.DescTextMapHash] = material.Id;
+    }
+    writeOutput('BydMaterial', materialIndex);
+  }
   // Furniture Index
   // --------------------------------------------------------------------------------------------------------------
   {

@@ -5,9 +5,9 @@ import sharp from 'sharp';
 import { fsWalkSync } from '../../util/fsutil.ts';
 
 async function doIt() {
-  const combinedDir: string = 'E:/HoYoAssets/GenshinAssets/Texture2D/';
+  const combinedDir: string = 'E:/GameDataAssets/GenshinAssets/Texture2D/';
   const sourceDir: string = 'C:/HoyoTools/AnimeStudio/GI_OutputFiles';
-  const targetDir: string = "E:/HoYoAssets/GenshinAssets/Texture2D_Archive/Texture2D_6.3";
+  const targetDir: string = "E:/GameDataAssets/GenshinAssets/Texture2D_Archive/Texture2D_6.3";
 
   const files: string[] = [];
   for (let file of fsWalkSync(sourceDir)) {

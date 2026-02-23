@@ -168,6 +168,7 @@ import { getGCGControl } from './gcg/gcg_control.ts';
 import { getGIAssetIndexHash } from './misc/giAssetIndexHash.ts';
 import { NpcExcelConfigData, NpcFirstMetExcelConfigData } from '../../../shared/types/genshin/npc-types.ts';
 import { CityConfigData, WorldAreaConfigData, WorldAreaType } from '../../../shared/types/genshin/place-types.ts';
+import { BydMaterialExcelConfigData } from '../../../shared/types/genshin/beyond-types.ts';
 
 // region Control State
 // --------------------------------------------------------------------------------------------------------------
@@ -3140,6 +3141,59 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     const materials: MaterialExcelConfigData[] = await this.knex.select('*').from('MaterialExcelConfigData')
       .then(this.commonLoad);
     await materials.asyncMap(material => this.postProcessMaterial(material, loadConf));
+    return materials;
+  }
+  // endregion
+
+  // region BydMaterial
+  private async postProcessBydMaterial(material: BydMaterialExcelConfigData): Promise<BydMaterialExcelConfigData> {
+    if (!material) {
+      return material;
+    }
+    return material;
+  }
+
+  async selectBydMaterialExcelConfigData(id: number): Promise<BydMaterialExcelConfigData> {
+    return await this.knex.select('*').from('BydMaterialExcelConfigData')
+      .where({ Id: id }).first().then(this.commonLoadFirst)
+      .then(material => this.postProcessBydMaterial(material));
+  }
+
+  async selectBydMaterialsBySearch(searchText: string, searchFlags: string): Promise<BydMaterialExcelConfigData[]> {
+    if (!searchText || !searchText.trim()) {
+      return []
+    } else {
+      searchText = searchText.trim();
+    }
+
+    const ids: number[] = [];
+
+    if (isInt(searchText)) {
+      ids.push(toInt(searchText));
+    }
+
+    await this.streamTextMapMatchesWithIndex({
+      inputLangCode: this.inputLangCode,
+      outputLangCode: this.outputLangCode,
+      searchText,
+      textIndexName: 'BydMaterial',
+      stream: (id: number) => {
+        if (!ids.includes(id))
+          ids.push(id);
+      },
+      flags: searchFlags
+    });
+
+    const materials: BydMaterialExcelConfigData[] = await this.knex.select('*').from('BydMaterialExcelConfigData')
+      .whereIn('Id', ids).then(this.commonLoad);
+    await materials.asyncMap(material => this.postProcessBydMaterial(material));
+    return materials;
+  }
+
+  async selectAllBydMaterialExcelConfigData(): Promise<BydMaterialExcelConfigData[]> {
+    const materials: BydMaterialExcelConfigData[] = await this.knex.select('*').from('BydMaterialExcelConfigData')
+      .then(this.commonLoad);
+    await materials.asyncMap(material => this.postProcessBydMaterial(material));
     return materials;
   }
   // endregion

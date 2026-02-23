@@ -1,4 +1,5 @@
 import { modalService } from './modalService.ts';
+import { escapeHtml } from '../../shared/util/stringUtil.ts';
 
 let handlingJavascriptError = false;
 
@@ -16,11 +17,14 @@ export function showJavascriptErrorDialog(message, source, lineno?: number, coln
 
   handlingJavascriptError = true;
 
+  let debugInfo = `Source:${source};Lineno:${lineno};Colno:${colno}\n${error}`;
+
   modalService.modal('Unexpected Error', `
     <p>
       An unexpected JavaScript error occurred. Try again in a few moments. If the problem
       persists then yell at kwwxis.
     </p>
+    <textarea class="code w100p spacer5-top" style="height:50px">${escapeHtml(debugInfo)}</textarea>
   `).onClose(() => {
     handlingJavascriptError = false;
   })

@@ -496,8 +496,7 @@
         Raw JSON
       </h2>
       <div id="json-outer" class="content collapsed hide">
-        <textarea class="code json w100p autosize" spellcheck="false" style="max-width:792px"
-                  translate="no">{{ JSON.stringify(material, null, 2) }}</textarea>
+        <JsonText :value="JSON.stringify(material, null, 2)" />
       </div>
     </section>
   </template>

@@ -9,9 +9,9 @@ import { fsWalkSync } from '../../util/fsutil.ts';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const combinedDir = "E:/HoYoAssets/GenshinAssets/Texture2D/";
+const combinedDir = "E:/GameDataAssets/GenshinAssets/Texture2D/";
 const sourceDir = "C:/HoyoTools/AnimeStudio/GI_OutputFiles";
-const targetDir = "E:/HoYoAssets/GenshinAssets/Texture2D_Archive/Texture2D_6.3";
+const targetDir = "E:/GameDataAssets/GenshinAssets/Texture2D_Archive/Texture2D_6.3";
 const NUM_WORKERS = Math.max(1, os.cpus().length - 1);
 
 sharp.cache(false);

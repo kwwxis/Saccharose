@@ -80,8 +80,8 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     if (OptionIconMap[optionIcon]) {
       continue;
     }
-    if (fs.existsSync('E:\\HoYoAssets\\GenshinAssets\\Texture2D\\' + optionIcon + '.png')) {
-      fs.copyFileSync('E:\\HoYoAssets\\GenshinAssets\\Texture2D\\' + optionIcon + '.png',
+    if (fs.existsSync('E:\\GameDataAssets\\GenshinAssets\\Texture2D\\' + optionIcon + '.png')) {
+      fs.copyFileSync('E:\\GameDataAssets\\GenshinAssets\\Texture2D\\' + optionIcon + '.png',
         'C:\\Users\\Matthew\\Documents\\Wiki Tools\\CategoryDownloader\\dicons\\' + optionIcon + '.png');
     }
   }
