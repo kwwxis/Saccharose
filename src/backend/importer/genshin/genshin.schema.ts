@@ -1743,8 +1743,8 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/BydMaterialExcelConfigData.json',
     columns: [
       {name: 'Id', type: 'integer', isPrimary: true},
-      {name: 'DescTextMapHash', type: 'decimal', isIndex: true},
-      {name: 'NameTextMapHash', type: 'decimal', isIndex: true},
+      {name: 'DescTextMapHash', type: 'text', isIndex: true},
+      {name: 'NameTextMapHash', type: 'text', isIndex: true},
       {name: 'RankLevel', type: 'integer', isIndex: true},
     ],
     renameFields: {
