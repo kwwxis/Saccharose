@@ -82,6 +82,8 @@ const presets = {
 
   AvatarExcelConfigData: <InspectOpt> { file: excel('AvatarExcelConfigData'), inspectFieldValues: ['QualityType', 'UseType', 'WeaponType', 'BodyType', 'AvatarIdentityType'] },
 
+  BeyondCostumeExcelConfigData: <InspectOpt> { file: excel('BeyondCostumeExcelConfigData'), inspectFieldValues: ['ColorScheme[#ALL]', 'EOJEBBEGFBI', 'ComponentSlot1[#ALL].ComponentSlot2[#ALL]', 'IFNNDCKNDCO[#ALL]', 'Rarity', 'BodyType[#ALL]'] },
+  BeyondCostumeSuitExcelConfigData: <InspectOpt> { file: excel('BeyondCostumeSuitExcelConfigData'), inspectFieldValues: ['ColorScheme[#ALL]', 'BEEKCGDOFEI', 'DMKFPGJLKFE', 'Rarity', 'BodyType[#ALL]', 'ShowType'] },
 };
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
@@ -89,7 +91,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     const ctrl = getGenshinControl();
     // await inspectDataFile(ctrl, presets.QuestExcelConfigData);
     // await inspectDataFile(ctrl, presets.TalkExcelConfigData);
-    await inspectDataFile(ctrl, presets.AvatarExcelConfigData);
+    await inspectDataFile(ctrl, presets.BeyondCostumeSuitExcelConfigData);
     await closeKnex();
   })();
 }

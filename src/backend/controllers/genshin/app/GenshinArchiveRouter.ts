@@ -62,6 +62,15 @@ import FurnitureListPage from '../../../components/genshin/furnishings/Furniture
 import FurniturePage from '../../../components/genshin/furnishings/FurniturePage.vue';
 import { OLResult } from '../../../../shared/types/ol-types.ts';
 import { GenshinVersions } from '../../../../shared/types/game-versions.ts';
+import BydMaterialSearchPage from '../../../components/genshin/materials/BydMaterialSearchPage.vue';
+import BydMaterialItemPage from '../../../components/genshin/materials/BydMaterialItemPage.vue';
+import {
+  BeyondCostumeExcelConfigData,
+  BeyondCostumeSuitExcelConfigData,
+  BydMaterialExcelConfigData,
+} from '../../../../shared/types/genshin/beyond-types.ts';
+import BeyondCostumePage from '../../../components/genshin/materials/BeyondCostumePage.vue';
+import BeyondCostumeSuitPage from '../../../components/genshin/materials/BeyondCostumeSuitPage.vue';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -101,7 +110,79 @@ export default async function(): Promise<Router> {
     } else {
       await res.renderComponent(MaterialItemPage, {
         title: 'Item not found',
-        bodyClass: ['page--materials'],
+        bodyClass: ['page--items'],
+      });
+    }
+  });
+  // endregion
+
+  // region BYD Material Items
+  // --------------------------------------------------------------------------------------------------------------
+  router.get('/byd/items', async (req: Request, res: Response) => {
+    await res.renderComponent(BydMaterialSearchPage, {
+      title: 'Items',
+      bodyClass: ['page--byd', 'page--byd-items'],
+    });
+  });
+
+  router.get('/byd/items/:itemId', async (req: Request, res: Response) => {
+    const ctrl = getGenshinControl(req);
+
+    if (req.params.itemId) {
+      const material: BydMaterialExcelConfigData = await ctrl.selectBydMaterialExcelConfigData(toInt(req.params.itemId), {
+        LoadItemUse: true
+      });
+
+      await res.renderComponent(BydMaterialItemPage, {
+        title: material ? material.NameText : 'Item not found',
+        bodyClass: ['page--byd', 'page--byd-items'],
+        material,
+        ol: material ? (await ol_gen_from_id(ctrl, material.NameTextMapHash)) : null
+      });
+    } else {
+      await res.renderComponent(BydMaterialItemPage, {
+        title: 'Item not found',
+        bodyClass: ['page--byd', 'page--byd-items'],
+      });
+    }
+  });
+
+  router.get('/byd/costumes/:itemId', async (req: Request, res: Response) => {
+    const ctrl = getGenshinControl(req);
+
+    if (req.params.itemId) {
+      const costume: BeyondCostumeExcelConfigData = await ctrl.selectBeyondCostumeExcelConfigData(toInt(req.params.itemId));
+
+      await res.renderComponent(BeyondCostumePage, {
+        title: costume ? costume.NameText : 'Costume not found',
+        bodyClass: ['page--byd', 'page--byd-costumes'],
+        costume,
+        ol: costume ? (await ol_gen_from_id(ctrl, costume.NameTextMapHash)) : null
+      });
+    } else {
+      await res.renderComponent(BeyondCostumePage, {
+        title: 'Item not found',
+        bodyClass: ['page--byd', 'page--byd-costumes'],
+      });
+    }
+  });
+
+  router.get('/byd/costume-suits/:itemId', async (req: Request, res: Response) => {
+    const ctrl = getGenshinControl(req);
+
+    if (req.params.itemId) {
+      const costumeSuit: BeyondCostumeSuitExcelConfigData = await ctrl.selectBeyondCostumeSuitExcelConfigData(toInt(req.params.itemId));
+
+      await res.renderComponent(BeyondCostumeSuitPage, {
+        title: costumeSuit ? costumeSuit.NameText : 'Costume suit not found',
+        bodyClass: ['page--byd', 'page--byd-costume-suits'],
+        costumeSuit,
+        ol: costumeSuit ? (await ol_gen_from_id(ctrl, costumeSuit.NameTextMapHash)) : null
+      });
+    } else {
+      await res.renderComponent(BeyondCostumeSuitPage, {
+        title: 'Item not found',
+        bodyClass: ['page--byd', 'page--byd-costume-suits'],
       });
     }
   });

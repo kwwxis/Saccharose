@@ -187,6 +187,8 @@ async function importForVersion(ctrl: GenshinControl, version: GameVersion) {
     });
   }
 
+  console.log(`[${version.number}] Inserting readable changelog for ${version.label} - ${changes.length} changes, ${contents.length} contents`);
+
   const CHANGES_BATCH_SIZE = 1000;
   const CONTENTS_BATCH_SIZE = 500;
 

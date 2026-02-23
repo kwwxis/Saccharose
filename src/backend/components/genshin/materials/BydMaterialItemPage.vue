@@ -94,16 +94,24 @@
                 </td>
                 <td><JsonText :value="reformatPrimitiveArrays(JSON.stringify(itemUse.UseParam, null, 2))" :seamless="true" /></td>
               </tr>
-<!--              <tr>-->
-<!--                <td class="bold">-->
-<!--                  <div style="line-height:1em;padding:4px 0">-->
-<!--                    <span>More Context</span><br />-->
-<!--                    <small>(If implemented by site)</small>-->
-<!--                  </div>-->
-<!--                </td>-->
-<!--                <td>-->
-<!--                </td>-->
-<!--              </tr>-->
+              <tr>
+                <td class="bold">
+                  <div style="line-height:1em;padding:4px 0">
+                    <span>More Context</span><br />
+                    <small>(If implemented by site)</small>
+                  </div>
+                </td>
+                <td>
+                  <div v-if="itemUse.UseOp === 'BYD_MATERIAL_USE_GAIN_COSTUME' && material.LoadedItemUse.Costume">
+                    <p class="spacer10-bottom">Unlocks costume:</p>
+                    <a :href="`/genshin/byd/costumes/${material.LoadedItemUse.Costume.CostumeId}`">{{ material.LoadedItemUse.Costume.NameText }}</a>
+                  </div>
+                  <div v-if="itemUse.UseOp === 'BYD_MATERIAL_USE_GAIN_COSTUME_SUIT' && material.LoadedItemUse.CostumeSuit">
+                    <p class="spacer10-bottom">Unlocks costume suit:</p>
+                    <a :href="`/genshin/byd/costume-suits/${material.LoadedItemUse.CostumeSuit.SuitId}`">{{ material.LoadedItemUse.CostumeSuit.NameText }}</a>
+                  </div>
+                </td>
+              </tr>
             </table>
           </div>
         </template>

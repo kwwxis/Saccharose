@@ -1691,6 +1691,12 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/BeyondCostumeExcelConfigData.json',
     columns: [
       {name: 'CostumeId', type: 'integer', isPrimary: true},
+      {name: 'DescriptionTextMapHash', type: 'text', isIndex: true},
+      {name: 'NonTrialEquivalentCostumeId', type: 'integer', isIndex: true},
+      {name: 'NonAscendedCostumeId', type: 'integer', isIndex: true},
+      {name: 'NameTextMapHash', type: 'text', isIndex: true},
+      {name: 'SortId', type: 'integer', isIndex: true},
+      {name: 'SuitId', type: 'integer', isIndex: true},
     ],
   },
   BeyondCostumeSuitExcelConfigData: <SchemaTable> {
@@ -1698,7 +1704,18 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/BeyondCostumeSuitExcelConfigData.json',
     columns: [
       {name: 'SuitId', type: 'integer', isPrimary: true},
+      {name: 'ShowType', type: 'string', isIndex: true},
+      {name: 'DescriptionTextMapHash', type: 'text', isIndex: true},
+      {name: 'NameTextMapHash', type: 'text', isIndex: true},
+      {name: 'SortId', type: 'integer', isIndex: true},
     ],
+    renameFields: {
+      CGGPLMIINBI: 'ColorScheme',
+      FGNGJJJFGHN: 'VividRating',
+      NLFEACGEKCA: 'Rarity',
+      PGJPMCHJIDG: 'BodyType',
+      BEEKCGDOFEI: 'SuitSource',
+    }
   },
   BeyondEmojiExcelConfigData: <SchemaTable> {
     name: 'BeyondEmojiExcelConfigData',

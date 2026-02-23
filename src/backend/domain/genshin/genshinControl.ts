@@ -168,7 +168,10 @@ import { getGCGControl } from './gcg/gcg_control.ts';
 import { getGIAssetIndexHash } from './misc/giAssetIndexHash.ts';
 import { NpcExcelConfigData, NpcFirstMetExcelConfigData } from '../../../shared/types/genshin/npc-types.ts';
 import { CityConfigData, WorldAreaConfigData, WorldAreaType } from '../../../shared/types/genshin/place-types.ts';
-import { BydMaterialExcelConfigData } from '../../../shared/types/genshin/beyond-types.ts';
+import {
+  BeyondCostumeExcelConfigData, BeyondCostumeSuitExcelConfigData,
+  BydMaterialExcelConfigData, BydMaterialLoadConf,
+} from '../../../shared/types/genshin/beyond-types.ts';
 
 // region Control State
 // --------------------------------------------------------------------------------------------------------------
@@ -3146,20 +3149,53 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   // endregion
 
   // region BydMaterial
-  private async postProcessBydMaterial(material: BydMaterialExcelConfigData): Promise<BydMaterialExcelConfigData> {
+  private async postProcessBydMaterial(material: BydMaterialExcelConfigData, loadConf: BydMaterialLoadConf): Promise<BydMaterialExcelConfigData> {
     if (!material) {
       return material;
+    }
+    if (material.Icon) {
+      material.IconUrl = '/images/genshin/' + material.Icon + '.png';
+      material.DownloadIconUrl = '/serve-image/genshin/' + material.Icon + '/Item ' + this.sanitizeFileName(material.NameText) + '.png?download=1';
+    }
+    if (!material.ItemUse) {
+      material.ItemUse = [];
+    } else {
+      material.ItemUse = material.ItemUse.filter(x => x.UseOp !== 'BYD_MATERIAL_USE_NONE');
+    }
+    if (material.ItemUse) {
+      material.ItemUse = material.ItemUse.map(use => {
+        if (use.UseParam) {
+          use.UseParam = use.UseParam.filter(x => isset(x) && x !== '');
+        }
+        return use;
+      }).filter(use => !!use.UseOp || (use.UseParam && use.UseParam.length));
+    }
+
+    if (loadConf.LoadItemUse) {
+      material.LoadedItemUse = {};
+
+      const costumeId = toInt(material.ItemUse
+        .find(x => x.UseOp === 'BYD_MATERIAL_USE_GAIN_COSTUME')?.UseParam[0]);
+      if (costumeId) {
+        material.LoadedItemUse.Costume = await this.selectBeyondCostumeExcelConfigData(costumeId);
+      }
+
+      const costumeSuitId = toInt(material.ItemUse
+        .find(x => x.UseOp === 'BYD_MATERIAL_USE_GAIN_COSTUME_SUIT')?.UseParam[0])
+      if (costumeSuitId) {
+        material.LoadedItemUse.CostumeSuit = await this.selectBeyondCostumeSuitExcelConfigData(costumeSuitId);
+      }
     }
     return material;
   }
 
-  async selectBydMaterialExcelConfigData(id: number): Promise<BydMaterialExcelConfigData> {
+  async selectBydMaterialExcelConfigData(id: number, loadConf: BydMaterialLoadConf = {}): Promise<BydMaterialExcelConfigData> {
     return await this.knex.select('*').from('BydMaterialExcelConfigData')
       .where({ Id: id }).first().then(this.commonLoadFirst)
-      .then(material => this.postProcessBydMaterial(material));
+      .then(material => this.postProcessBydMaterial(material, loadConf));
   }
 
-  async selectBydMaterialsBySearch(searchText: string, searchFlags: string): Promise<BydMaterialExcelConfigData[]> {
+  async selectBydMaterialsBySearch(searchText: string, searchFlags: string, loadConf: BydMaterialLoadConf = {}): Promise<BydMaterialExcelConfigData[]> {
     if (!searchText || !searchText.trim()) {
       return []
     } else {
@@ -3186,15 +3222,52 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
     const materials: BydMaterialExcelConfigData[] = await this.knex.select('*').from('BydMaterialExcelConfigData')
       .whereIn('Id', ids).then(this.commonLoad);
-    await materials.asyncMap(material => this.postProcessBydMaterial(material));
+    await materials.asyncMap(material => this.postProcessBydMaterial(material, loadConf));
     return materials;
   }
 
-  async selectAllBydMaterialExcelConfigData(): Promise<BydMaterialExcelConfigData[]> {
+  async selectAllBydMaterialExcelConfigData(loadConf: BydMaterialLoadConf = {}): Promise<BydMaterialExcelConfigData[]> {
     const materials: BydMaterialExcelConfigData[] = await this.knex.select('*').from('BydMaterialExcelConfigData')
       .then(this.commonLoad);
-    await materials.asyncMap(material => this.postProcessBydMaterial(material));
+    await materials.asyncMap(material => this.postProcessBydMaterial(material, loadConf));
     return materials;
+  }
+  // endregion
+
+  // region Byd Costume
+  private async postProcessBeyondCostumeExcelConfigData(costume: BeyondCostumeExcelConfigData): Promise<BeyondCostumeExcelConfigData> {
+    costume.ComponentFlatSlots = [];
+    for (let slot1 of costume.ComponentSlot1) {
+      for (let slot2 of slot1.ComponentSlot2) {
+        costume.ComponentFlatSlots.push(slot2);
+      }
+    }
+    return costume;
+  }
+
+  async selectBeyondCostumeExcelConfigData(id: number): Promise<BeyondCostumeExcelConfigData> {
+    return await this.knex.select('*').from('BeyondCostumeExcelConfigData')
+      .where({ CostumeId: id }).first().then(this.commonLoadFirst)
+      .then(material => this.postProcessBeyondCostumeExcelConfigData(material));
+  }
+
+  async selectBeyondCostumesBySuitId(suitId: number): Promise<BeyondCostumeExcelConfigData[]> {
+    return await this.knex.select('*').from('BeyondCostumeExcelConfigData')
+      .where({ SuitId: suitId }).then(this.commonLoad)
+      .then(results => results.asyncMap(x => this.postProcessBeyondCostumeExcelConfigData(x)));
+  }
+  // endregion
+
+  // region Byd Cosutume Suit
+  private async postProcessBeyondCostumeSuitExcelConfigData(costumeSuit: BeyondCostumeSuitExcelConfigData): Promise<BeyondCostumeSuitExcelConfigData> {
+    costumeSuit.SetComponents = await this.selectBeyondCostumesBySuitId(costumeSuit.SuitId);
+    return costumeSuit;
+  }
+
+  async selectBeyondCostumeSuitExcelConfigData(id: number): Promise<BeyondCostumeSuitExcelConfigData> {
+    return await this.knex.select('*').from('BeyondCostumeSuitExcelConfigData')
+      .where({ SuitId: id }).first().then(this.commonLoadFirst)
+      .then(material => this.postProcessBeyondCostumeSuitExcelConfigData(material));
   }
   // endregion
 

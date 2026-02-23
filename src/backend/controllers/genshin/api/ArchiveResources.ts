@@ -15,6 +15,8 @@ import TutorialList from '../../../components/genshin/tutorials/TutorialList.vue
 import WeaponSearchResults from '../../../components/genshin/weapons/WeaponSearchResults.vue';
 import ReadableSearchResults from '../../../components/genshin/readables/partials/ReadableSearchResults.vue';
 import MaterialSearchResults from '../../../components/genshin/materials/MaterialSearchResults.vue';
+import { BydMaterialExcelConfigData } from '../../../../shared/types/genshin/beyond-types.ts';
+import BydMaterialSearchResults from '../../../components/genshin/materials/BydMaterialSearchResults.vue';
 
 const router: Router = create();
 
@@ -43,6 +45,23 @@ router.endpoint('/items/search', {
 
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
       await res.renderComponent(MaterialSearchResults, {
+        materials: materials,
+        searchText: req.query.text as string
+      });
+    } else {
+      return materials;
+    }
+  }
+});
+
+router.endpoint('/byd/items/search', {
+  get: async (req: Request, res: Response) => {
+    const ctrl = getGenshinControl(req);
+
+    let materials: BydMaterialExcelConfigData[] = await ctrl.selectBydMaterialsBySearch(req.query.text as string, ctrl.searchModeFlags);
+
+    if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
+      await res.renderComponent(BydMaterialSearchResults, {
         materials: materials,
         searchText: req.query.text as string
       });

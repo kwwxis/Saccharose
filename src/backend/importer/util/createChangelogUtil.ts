@@ -12,6 +12,7 @@ import { AbstractControl } from '../../domain/abstract/abstractControl.ts';
 import { importTextMapChanges } from '../../domain/abstract/tmchanges.ts';
 import { toString } from '../../../shared/util/stringUtil.ts';
 import { importExcelChanges } from '../../domain/abstract/excelchanges.ts';
+import { fsExists } from '../../util/fsutil.ts';
 
 class CreateChangelogOpts {
   readonly prevDataRoot: string;
@@ -139,11 +140,18 @@ async function computeExcelFileChanges(opts: CreateChangelogOpts) {
     }
 
     const metadataOnly: boolean = schemaTable.changelog?.metadataOnly || false;
-    const prevFilePath: string = noPriorChangelog ? null : path.resolve(prevDataRoot, schemaTable.jsonFile);
+    const prevFilePath: string = path.resolve(prevDataRoot, schemaTable.jsonFile);
     const currFilePath: string = path.resolve(currDataRoot, schemaTable.jsonFile);
 
-    const prevDataRaw: any[] = noPriorChangelog ? [] : JSON.parse(fs.readFileSync(prevFilePath, {encoding: 'utf8'}));
-    const currDataRaw: any[] = JSON.parse(fs.readFileSync(currFilePath, {encoding: 'utf8'}));
+    const prevFileExists: boolean = (await fsExists(prevFilePath)) && !noPriorChangelog;
+    const currFileExists: boolean = await fsExists(currFilePath);
+
+    if (!prevFileExists && !currFileExists) {
+      continue;
+    }
+
+    const prevDataRaw: any[] = prevFileExists ? JSON.parse(fs.readFileSync(prevFilePath, {encoding: 'utf8'})) : [];
+    const currDataRaw: any[] = currFileExists ? JSON.parse(fs.readFileSync(currFilePath, {encoding: 'utf8'})) : [];
     const prevData: {[key: string]: any} = mapBy(prevDataRaw, primaryKey);
     const currData: {[key: string]: any} = mapBy(currDataRaw, primaryKey);
 

@@ -293,7 +293,7 @@ export async function importTextMapChanges(
   const rows: TextMapChangeEntity[] = convertJsonToEntities(json, version);
 
   console.log('-'.repeat(100))
-  console.log(`[${version.number}] Inserting textmap changelog for ${version.label}`);
+  console.log(`[${version.number}] Inserting textmap changelog for ${version.label} - ${rows.length} entitites`);
 
   let deletedCount = await knex('textmap_changes')
     .where('version', version.number)

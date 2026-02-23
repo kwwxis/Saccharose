@@ -103,7 +103,7 @@ export async function importExcelChanges(
   const rows: ExcelChangeEntity[] = json.map(r => toExcelChangeEntity(r));
 
   console.log('-'.repeat(100))
-  console.log(`[${version.number}] Inserting excel changelog for ${version.label}`);
+  console.log(`[${version.number}] Inserting excel changelog for ${version.label} - ${rows.length} entities`);
 
   let deletedCount = await knex('excel_changes')
     .where('version', version.number)

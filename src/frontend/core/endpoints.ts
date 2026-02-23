@@ -216,6 +216,7 @@ export const genshinEndpoints = {
   searchReadables: new GenshinApiEndpoint<{text: string}>('GET', '/readables/search'),
 
   searchItems: new GenshinApiEndpoint<{text: string}>('GET', '/items/search'),
+  searchBydItems: new GenshinApiEndpoint<{text: string}>('GET', '/byd/items/search'),
   searchWeapons: new GenshinApiEndpoint<{text: string}>('GET', '/weapons/search'),
   searchAchievements: new GenshinApiEndpoint<{text: string}>('GET', '/achievements/search'),
   searchTutorials: new GenshinApiEndpoint<{text: string}>('GET', '/tutorials/search'),

@@ -34,6 +34,7 @@ import './pages/generic/wiki-revs/rev-app-main.ts';
 import './pages/genshin/archive/achievements-search.ts';
 import './pages/genshin/archive/readables-search.ts';
 import './pages/genshin/archive/material-search.ts';
+import './pages/genshin/archive/byd-material-search-page.ts';
 import './pages/genshin/archive/weapon-search.ts';
 import './pages/genshin/archive/furniture-list.ts';
 import './pages/genshin/archive/tutorials-search.ts';
