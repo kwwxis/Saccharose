@@ -308,7 +308,7 @@ export const WuwaVersions: GameVersions = new GameVersions([
 ], true);
 
 // TODO: This needs to be updated with each new Genshin version!
-export const CurrentGenshinVersion: GameVersion = GenshinVersions.get('6.3');
+export const CurrentGenshinVersion: GameVersion = GenshinVersions.get('6.4');
 
 // TODO: This needs to be updated with each new Honkai Star Rail version!
 export const CurrentStarRailVersion: GameVersion = StarRailVersions.get('4.0');
