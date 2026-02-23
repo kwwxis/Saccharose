@@ -93,6 +93,7 @@ export const SIDEBAR_CONFIG: { [siteMode: string]: SiteSidebar } = {
             items: [
               { id: 'items', name: 'Items', link: '/genshin/items', bodyClass: 'page--items' },
               { id: 'weapons', name: 'Weapons', link: '/genshin/weapons', bodyClass: 'page--weapons' },
+              { id: 'byd-items', name: 'Byd Items', link: '/genshin/byd/items', bodyClass: 'page--byd-items' },
             ]
           },
           {
@@ -130,15 +131,6 @@ export const SIDEBAR_CONFIG: { [siteMode: string]: SiteSidebar } = {
               { id: 'furniture-set', name: 'Furnishing Sets', link: '/genshin/furnishing-sets', bodyClass: 'page--furniture-set' },
             ]
           },
-          {
-            id: 'byd',
-            name: 'Beyond UGC',
-            items: [
-              { id: 'byd-items', name: 'Byd Items', link: '/genshin/byd/items', bodyClass: 'page--byd-items' },
-              { id: 'byd-costume', name: 'Cosmetic Components', link: '/genshin/byd/costumes', bodyClass: 'page--byd-costumes' },
-              { id: 'byd-costume-suit', name: 'Cosmetic Sets', link: '/genshin/byd/costume-suits', bodyClass: 'page--byd-costume-suits' },
-            ]
-          }
         ]
       },
       {
