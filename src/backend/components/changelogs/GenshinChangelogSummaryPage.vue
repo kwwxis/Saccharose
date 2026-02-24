@@ -62,6 +62,20 @@
         </div>
       </div>
 
+      <h3 id="new-weapon-skins-header" class="new-summary-section-header secondary-header valign">
+        <span class="expando spacer5-right" ui-action="expando: #new-weapon-skins-content"><Icon name="chevron-down" :size="17" /></span>
+        <span class="new-summary-section-title">New Weapon Appearances</span>
+        <span class="secondary-label new-summary-section-count">{{ newSummary.weaponSkins.length }}</span>
+      </h3>
+      <div id="new-weapon-skins-content" class="new-summary-section-content content alignStart flexWrap">
+        <template v-for="weaponSkin of newSummary.weaponSkins">
+          <GenshinItem :item="weaponSkin" />
+        </template>
+        <div v-if="!newSummary.weaponSkins.length">
+          <p>(None)</p>
+        </div>
+      </div>
+
       <h3 id="new-foods-header" class="new-summary-section-header secondary-header valign">
         <span class="expando spacer5-right" ui-action="expando: #new-foods-content"><Icon name="chevron-down" :size="17" /></span>
         <span class="new-summary-section-title">New Materials: Foods</span>

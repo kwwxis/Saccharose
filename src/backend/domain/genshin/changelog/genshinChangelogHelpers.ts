@@ -33,6 +33,7 @@ import { NpcExcelConfigData } from '../../../../shared/types/genshin/npc-types.t
 export type GenshinChangelogNewRecordSummary = {
   avatars: AvatarExcelConfigData[],
   weapons: WeaponExcelConfigData[],
+  weaponSkins: MaterialExcelConfigData[],
   foods: MaterialExcelConfigData[],
   tcgItems: MaterialExcelConfigData[],
   blueprints: MaterialExcelConfigData[],
@@ -113,6 +114,7 @@ async function _generateGenshinChangelogNewRecordSummary(ctrl: GenshinControl, g
   const out: GenshinChangelogNewRecordSummary = {
     avatars: null,
     weapons: null,
+    weaponSkins: null,
     foods: null,
     tcgItems: null,
     avatarItems: null,
@@ -155,11 +157,13 @@ async function _generateGenshinChangelogNewRecordSummary(ctrl: GenshinControl, g
         avatarItems: materials.filter(item => item.MaterialType === 'MATERIAL_NAMECARD'
           || item.MaterialType === 'MATERIAL_TALENT' || item.MaterialType === 'MATERIAL_AVATAR'),
         blueprints: materials.filter(item => item.MaterialType === 'MATERIAL_FURNITURE_FORMULA' || item.MaterialType === 'MATERIAL_FURNITURE_SUITE_FORMULA'),
+        weaponSkins: materials.filter(item => item.MaterialType === 'MATERIAL_WEAPON_SKIN'),
         items: materials.filter(item => (
           !(!!item.FoodQuality || item.MaterialType === 'MATERIAL_FOOD' || item.MaterialType === 'MATERIAL_NOTICE_ADD_HP')
           && !(item.MaterialType && item.MaterialType.startsWith('MATERIAL_GCG'))
           && !(item.MaterialType === 'MATERIAL_FURNITURE_FORMULA' || item.MaterialType === 'MATERIAL_FURNITURE_SUITE_FORMULA')
           && !(item.MaterialType === 'MATERIAL_NAMECARD' || item.MaterialType === 'MATERIAL_TALENT' || item.MaterialType === 'MATERIAL_AVATAR')
+          && !(item.MaterialType === 'MATERIAL_WEAPON_SKIN')
         )),
       });
     }),

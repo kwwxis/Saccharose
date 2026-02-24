@@ -231,6 +231,7 @@ export async function writeDeobfBin() {
   await walkSyncWrite('./BinOutput.Raw/Talk', './BinOutput/Talk', talkQuestCombinedMappings);
   await walkSyncWrite('./BinOutput.Raw/Quest', './BinOutput/Quest', talkQuestCombinedMappings);
   await walkSyncWrite('./BinOutput.Raw/Voice', './BinOutput/Voice', voiceMapping);
+  await walkSyncWrite('./BinOutput.Raw/_unknown_dir', './BinOutput/_unknown_dir', talkQuestCombinedMappings);
 }
 
 // region Mappers
