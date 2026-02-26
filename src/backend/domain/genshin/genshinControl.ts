@@ -158,6 +158,7 @@ import {
   BeyondCostumeExcelConfigData, BeyondCostumeSuitExcelConfigData,
   BydMaterialExcelConfigData, BydMaterialLoadConf,
 } from '../../../shared/types/genshin/beyond-types.ts';
+import { giImageHashToImageName } from './misc/giContainerHash.ts';
 
 // region Control State
 // --------------------------------------------------------------------------------------------------------------
@@ -3228,6 +3229,13 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
         costume.ComponentFlatSlots.push(slot2);
       }
     }
+    if (costume.IconHash) {
+      const imageName = await giImageHashToImageName(costume.IconHash);
+      if (imageName) {
+        costume.Icon = imageName;
+        costume.IconUrl = '/images/genshin/' + costume.Icon + '.png';
+      }
+    }
     return costume;
   }
 
@@ -3244,9 +3252,16 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   }
   // endregion
 
-  // region Byd Cosutume Suit
+  // region Byd Costume Suit
   private async postProcessBeyondCostumeSuitExcelConfigData(costumeSuit: BeyondCostumeSuitExcelConfigData): Promise<BeyondCostumeSuitExcelConfigData> {
     costumeSuit.SetComponents = await this.selectBeyondCostumesBySuitId(costumeSuit.SuitId);
+    if (costumeSuit.IconHash) {
+      const imageName = await giImageHashToImageName(costumeSuit.IconHash);
+      if (imageName) {
+        costumeSuit.Icon = imageName;
+        costumeSuit.IconUrl = '/images/genshin/' + costumeSuit.Icon + '.png';
+      }
+    }
     return costumeSuit;
   }
 

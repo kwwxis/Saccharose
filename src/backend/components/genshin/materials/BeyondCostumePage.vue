@@ -4,6 +4,7 @@
       <h2>
         <span class="dispBlock" style="margin-top:-5px"><a role="button" class="secondary fontWeight600" style="font-size:14px;padding:3px 8px" href="/genshin/items">Back to items search</a></span>
         <span class="valign spacer10-top">
+          <img class="framed-icon x36" :src="costume.IconUrl" loading="lazy" decoding="async" />
           <span class="spacer15-left">{{ costume.NameText }}</span>
         </span>
       </h2>
@@ -12,6 +13,11 @@
           <tr>
             <td style="width:150px" class="bold">ID</td>
             <td>{{ String(costume.CostumeId).padStart(6, '0') }}</td>
+            <td rowspan="2" style="width:100px">
+              <div class="fr">
+                <img class="framed-icon x96" :src="costume.IconUrl" loading="lazy" decoding="async" />
+              </div>
+            </td>
           </tr>
           <tr>
             <td class="bold">Name</td>
@@ -19,7 +25,7 @@
           </tr>
           <tr>
             <td class="bold">Description</td>
-            <td>
+            <td colspan="2">
               <div class="posRel spacer5-top">
                 <div style="padding-right:50px;">
                   <Wikitext id="item-desc" :value="normGenshinText(costume.DescriptionText)" :seamless="true" />
@@ -33,11 +39,11 @@
           </tr>
           <tr>
             <td class="bold">Body Type</td>
-            <td>{{ costume.BodyType.join(', ') }}</td>
+            <td colspan="2">{{ costume.BodyType.join(', ') }}</td>
           </tr>
           <tr>
             <td class="bold">Color Scheme</td>
-            <td>{{ costume.ColorScheme.join(', ') }}</td>
+            <td colspan="2">{{ costume.ColorScheme.join(', ') }}</td>
           </tr>
         </table>
       </div>

@@ -4,6 +4,7 @@
       <h2>
         <span class="dispBlock" style="margin-top:-5px"><a role="button" class="secondary fontWeight600" style="font-size:14px;padding:3px 8px" href="/genshin/items">Back to items search</a></span>
         <span class="valign spacer10-top">
+          <img class="framed-icon x36" :src="costumeSuit.IconUrl" loading="lazy" decoding="async" />
           <span class="spacer15-left">{{ costumeSuit.NameText }}</span>
         </span>
       </h2>
@@ -12,6 +13,11 @@
           <tr>
             <td style="width:150px" class="bold">ID</td>
             <td>{{ String(costumeSuit.SuitId).padStart(6, '0') }}</td>
+            <td rowspan="2" style="width:100px">
+              <div class="fr">
+                <img class="framed-icon x96" :src="costumeSuit.IconUrl" loading="lazy" decoding="async" />
+              </div>
+            </td>
           </tr>
           <tr>
             <td class="bold">Name</td>
@@ -33,15 +39,15 @@
           </tr>
           <tr>
             <td class="bold">Body Type</td>
-            <td>{{ costumeSuit.BodyType.join(', ') }}</td>
+            <td colspan="2">{{ costumeSuit.BodyType.join(', ') }}</td>
           </tr>
           <tr>
             <td class="bold">Color Scheme</td>
-            <td>{{ costumeSuit.ColorScheme.join(', ') }}</td>
+            <td colspan="2">{{ costumeSuit.ColorScheme.join(', ') }}</td>
           </tr>
           <tr>
             <td class="bold">Suit Source</td>
-            <td>{{ costumeSuit.SuitSource }}</td>
+            <td colspan="2">{{ costumeSuit.SuitSource }}</td>
           </tr>
         </table>
       </div>
@@ -49,11 +55,14 @@
     <section v-if="costumeSuit.SetComponents" class="card">
       <h2>Set Components</h2>
       <div class="content">
-        <ul>
-          <li v-for="comp of costumeSuit.SetComponents">
-            <a :href="`/genshin/byd/costumes/${comp.CostumeId}`">{{comp.CostumeId}}: {{comp.NameText}} ({{comp.ComponentFlatSlots.join(', ')}})</a>
-          </li>
-        </ul>
+        <hr class="spacer5-vert" />
+        <div v-for="comp of costumeSuit.SetComponents">
+          <a :href="`/genshin/byd/costumes/${comp.CostumeId}`" class="valign">
+            <img class="framed-icon x64" :src="comp.IconUrl" loading="lazy" decoding="async" />
+            <span class="spacer10-left">{{comp.CostumeId}}: {{comp.NameText}} ({{comp.ComponentFlatSlots.join(', ')}})</span>
+          </a>
+          <hr class="spacer5-vert" />
+        </div>
       </div>
     </section>
     <section v-if="ol" id="ol" class="card">

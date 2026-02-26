@@ -137,7 +137,9 @@ export interface BeyondCostumeExcelConfigData {
   EOJEBBEGFBI: string,
   IFNNDCKNDCO: string[],
   MKACFNHPGBG: number,
-  OKEAIHBLANI: string|number,
+  IconHash: string|number,
+  Icon?: string,
+  IconUrl?: string,
 }
 
 export function isBeyondCostume(x: any): x is BeyondCostumeExcelConfigData {
@@ -164,13 +166,16 @@ export interface BeyondCostumeSuitExcelConfigData {
   BodyType: BeyondCostumeBodyType[],
   ColorScheme: BeyondColorScheme[],
 
+  IconHash: string,
+  Icon?: string,
+  IconUrl?: string,
+
   SuitSource: BeyondCostumeSuitSource,
   BJPPNIPKGOI: boolean,
   CCNLLHCNENE: number,
   CHPEHOOKEMH: string,
   DLHIOHMGAFN: number|string,
   DMKFPGJLKFE: string,
-  IconHash: string,
   JKOIAGBNEPM: boolean,
   LJDPGLEPKMF: { 6: number },
   OKKOMOCBGNM: string,

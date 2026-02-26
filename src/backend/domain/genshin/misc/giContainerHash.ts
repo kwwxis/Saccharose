@@ -22,7 +22,7 @@ export function giImageHashToContainerId(imageHash: string|number|bigint) {
   }
 }
 
-export async function giImageHashToImageName(imageHash: string|number|bigint) {
+export async function giImageHashToImageName(imageHash: string|number|bigint): Promise<string> {
   const containerId: number = giImageHashToContainerId(imageHash);
   if (!containerId) {
     return null;
