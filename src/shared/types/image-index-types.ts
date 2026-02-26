@@ -65,3 +65,8 @@ export function newImageCategory(name: string): ImageCategoryMap {
     children: defaultMap((subName: string) => newImageCategory(subName))
   };
 }
+
+export interface ImageContainerEntity {
+  container_id: number,
+  image_name: string,
+}

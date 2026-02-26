@@ -66,15 +66,26 @@
             </td>
             <td style="vertical-align: top">
               <DialogueSection :section="favor.dialogue" :no-title="true" :no-top-line="true" />
-              <div class="spacer5-bottom">
+              <div class="alignStart spacer5-bottom">
                 <template v-for="item of favor.event.Reward.RewardItemList">
-                  <GenshinItem :item="item.Material" :item-count="item.ItemCount" :no-name="true" class="spacer10-right small" />
+                  <div class="spacer10-right">
+                    <GenshinItem :item="item.Material" :item-count="item.ItemCount" :no-name="true" :small="true" />
+                  </div>
                 </template>
               </div>
             </td>
           </tr>
           </tbody>
         </table>
+      </div>
+    </section>
+    <section id="raw-json" class="card">
+      <h2 class="valign">
+        <span class="expando spacer5-right expand-action collapsed-state" ui-action="expando: #json-outer"><Icon name="chevron-down" :size="17" /></span>
+        Raw JSON
+      </h2>
+      <div id="json-outer" class="content collapsed hide">
+        <JsonText :value="safeStringify(suite, null, 2)" />
       </div>
     </section>
   </template>
@@ -103,6 +114,8 @@ import Icon from '../../utility/Icon.vue';
 import { toParam } from '../../../../shared/util/stringUtil.ts';
 import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
 import { useTrace } from '../../../middleware/request/tracer.ts';
+import JsonText from '../../utility/JsonText.vue';
+import { safeStringify } from '../../../../shared/util/genericUtil.ts';
 
 const { normGenshinText } = useTrace();
 

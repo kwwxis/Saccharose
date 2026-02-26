@@ -5,7 +5,7 @@ import {
 
 } from '../../../shared/types/genshin/general-types.ts';
 import SrtParser, { SrtLine } from '../../util/srtParser.ts';
-import fs, { promises as fsp } from 'fs';
+import { promises as fsp } from 'fs';
 import {
   arrayFillRange,
   arrayIndexOf,
@@ -14,14 +14,12 @@ import {
   arrayUnique,
   cleanEmpty,
   mapBy,
-  pairArrays,
   sort,
 } from '../../../shared/util/arrayUtil.ts';
 import { isInt, toInt } from '../../../shared/util/numberUtil.ts';
 import { normalizeRawJson, SchemaTable } from '../../importer/import_db.ts';
 import {
   extractRomanNumeral,
-  isStringBlank,
   replaceAsync,
   romanToInt,
   rtrim,
@@ -80,24 +78,14 @@ import {
   HomeWorldNPCExcelConfigData,
   HomeWorldNPCLoadConf,
 } from '../../../shared/types/genshin/homeworld-types.ts';
-import { grepStream } from '../../util/shellutil.ts';
 import {
   DATAFILE_GENSHIN_VOICE_ITEMS,
   getGenshinDataFilePath,
-  getReadableRelPath,
   IMAGEDIR_GENSHIN_EXT, isSiteModeDisabled,
 } from '../../loadenv.ts';
 import {
-  BooksCodexExcelConfigData,
   BookSuitExcelConfigData,
-  DocumentExcelConfigData,
-  LANG_CODE_TO_LOCALIZATION_PATH_PROP,
-  LocalizationExcelConfigData,
   Readable,
-  ReadableArchive,
-  ReadableItem,
-  ReadableSearchResult,
-  ReadableText,
 } from '../../../shared/types/genshin/readable-types.ts';
 import {
   RELIC_EQUIP_TYPE_TO_NAME,
@@ -124,7 +112,6 @@ import {
 } from '../../../shared/types/genshin/monster-types.ts';
 import { defaultMap, isEmpty, isset } from '../../../shared/util/genericUtil.ts';
 import { NewActivityExcelConfigData } from '../../../shared/types/genshin/activity-types.ts';
-import { Marker } from '../../../shared/util/highlightMarker.ts';
 import { ElementType, ManualTextMapHashes } from '../../../shared/types/genshin/manual-text-map.ts';
 import { custom, logInitData } from '../../util/logger.ts';
 import { DialogBranchingCache, orderChapterQuests } from './dialogue/dialogue_util.ts';
@@ -146,7 +133,6 @@ import {
   AchievementGoalExcelConfigData,
   AchievementsByGoals,
 } from '../../../shared/types/genshin/achievement-types.ts';
-import { Request } from 'express';
 import {
   InterAction,
   InterActionD2F,
@@ -158,7 +144,7 @@ import {
 import { CommonLineId, DialogWikitextResult } from '../../../shared/types/common-types.ts';
 import { genshin_i18n, GENSHIN_I18N_MAP, GENSHIN_MATERIAL_TYPE_DESC_PLURAL_MAP } from '../abstract/i18n.ts';
 import * as console from 'console';
-import { CurrentGenshinVersion, GameVersion, GenshinVersions } from '../../../shared/types/game-versions.ts';
+import { CurrentGenshinVersion, GenshinVersions } from '../../../shared/types/game-versions.ts';
 import { AbstractControlState, ControlUserModeProvider } from '../abstract/abstractControlState.ts';
 import { Knex } from 'knex';
 import { fsExists } from '../../util/fsutil.ts';
@@ -1371,7 +1357,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
               this.state.questBgPicCounter[mainQuestId] = imageNumber + 1;
               this.state.questBgPicSeen[mainQuestId][CustomImageName] = imageNumber;
             }
-            //console.log('IA', CustomImageName, imageNumber, iaNextDialogs.Intermediates); // TODO
+            //console.log('IA', CustomImageName, imageNumber, iaNextDialogs.Intermediates);
 
             const genWikiName = (o: InterAction): string => {
               let wikiName = (mqName ? mqName + ' ' : '') + 'Quest Still ' + imageNumber;

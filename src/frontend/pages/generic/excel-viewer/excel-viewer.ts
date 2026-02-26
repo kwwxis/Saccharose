@@ -1,11 +1,12 @@
 import { pageMatch } from '../../../core/pageMatch.ts';
 
 import type {
+  AgPromise,
   ColDef, ColGroupDef,
   ColumnState,
   GetContextMenuItemsParams,
   GridApi,
-  GridOptions, GridReadyEvent,
+  GridOptions, GridReadyEvent, ICellRenderer, ICellRendererComp,
   ICellRendererParams,
   MenuItemDef,
 } from 'ag-grid-community';
@@ -26,9 +27,11 @@ import { ExcelViewerDB, invokeExcelViewerDB } from './excel-viewer-storage.ts';
 import { StoreNames } from 'idb/build/entry';
 import { highlightJson, highlightWikitext } from '../../../core/ace/aceHighlight.ts';
 import { isNightmode, onSiteThemeChange } from '../../../core/userPreferences/siteTheme.ts';
-import { toInt } from '../../../../shared/util/numberUtil.ts';
+import { isInt, toInt } from '../../../../shared/util/numberUtil.ts';
 import { templateIcon } from '../../../util/templateIcons.ts';
 import { doWithCreateGrid } from '../../../core/gridInterface/agGridInterface.ts';
+import { genshinEndpoints } from '../../../core/endpoints.ts';
+import { uuidv4 } from '../../../../shared/util/uuidv4.ts';
 
 function initializeThemeWatcher(elements: HTMLElement[]) {
   onSiteThemeChange(theme => {
@@ -61,6 +64,45 @@ function determineInitialWidth(fieldName: string, data: any) {
   return initialWidth;
 }
 
+class GenshinImageHashCellRenderer implements ICellRendererComp {
+  private el: HTMLElement;
+
+  init(params: ICellRendererParams<any>): AgPromise<void> | void {
+    this.el = document.createElement('div');
+
+    this.el.innerHTML = `<div><span class="code">${escapeHtml(params.value)}</span></div>`;
+
+    const p = genshinEndpoints.imageNameFromHash.send({imageHash: params.value}).then(res => {
+      if (res?.imageName) {
+        const imageName = escapeHtml(res?.imageName);
+        const srcValue = `/images/genshin/${imageName}.png`;
+
+        this.el.insertAdjacentHTML('beforeend',
+          `
+                <div><span>${escapeHtml(imageName)}</span></div>
+                <img class="excel-image" src="${srcValue}" loading="lazy" decoding="async"
+          alt="Image not found" onerror="this.classList.add('excel-image-error')" data-file-name="${imageName}.png" />`);
+      }
+    });
+
+    return p as any;
+  }
+
+  destroy(): void {
+  }
+
+  getGui(): HTMLElement {
+    return this.el;
+  }
+
+  refresh(params: ICellRendererParams<any>): boolean {
+    return true;
+  }
+
+}
+
+const imageHashFieldTestRegex = /(imageHash|iconHash)$/i;
+
 export function makeSingleColumnDef(fieldKey: string, fieldName: string, data: any, opts: SingleColumnDefOpts = {}) {
   const colDef: ColDef = <ColDef> {
     // ID:
@@ -86,7 +128,9 @@ export function makeSingleColumnDef(fieldKey: string, fieldName: string, data: a
 
     // Display:
     width: determineInitialWidth(fieldName, data),
-    hide: opts.defaultShown ? false : (fieldName.includes('TextMapHash') || fieldName.endsWith('Hash')),
+    hide: opts.defaultShown || imageHashFieldTestRegex.test(fieldName)
+      ? false
+      : (fieldName.includes('TextMapHash') || fieldName.endsWith('Hash')),
     cellClass: 'cell-type-' + (isUnset(data) ? 'null' : typeof data),
 
     // Default Formatter:
@@ -113,9 +157,12 @@ export function makeSingleColumnDef(fieldKey: string, fieldName: string, data: a
       || fieldName.includes('Title') || fieldName.includes('Desc') || fieldName.includes('Story')),
     isJson: typeof data === 'object',
     isEnum: typeof data === 'string' && data.toUpperCase() === data,
+    isGenshinImageHash: SiteModeInfo.isGenshin && imageHashFieldTestRegex.test(fieldName) && isInt(data)
   };
 
-  if (dataType.isGenshinImage || dataType.isStarRailImage || dataType.isWuwaImage) {
+  if (dataType.isGenshinImageHash) {
+    colDef.cellRenderer = GenshinImageHashCellRenderer;
+  } else if (dataType.isGenshinImage || dataType.isStarRailImage || dataType.isWuwaImage) {
     colDef.cellRenderer = function(params: ICellRendererParams) {
       if (!params.value || !(isString(params.value) || isStringArray(params.value)))
         return '';

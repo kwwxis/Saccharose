@@ -150,6 +150,17 @@ CREATE INDEX genshin_image_index_trgm_idx ON genshin_image_index USING GIN (imag
 
 CREATE INDEX genshin_image_index_cat_idx ON genshin_image_index USING GIN (image_cats);
 
+DROP TABLE IF EXISTS genshin_image_containers;
+
+CREATE TABLE genshin_image_containers
+(
+    container_id    INTEGER NOT NULL,
+    image_name      TEXT NOT NULL
+);
+
+CREATE INDEX genshin_image_containers_container_id_idx ON genshin_image_containers (container_id);
+CREATE INDEX genshin_image_containers_iamge_name_idx ON genshin_image_containers (image_name);
+
 -- HSR IMAGE INDEX
 ----------------------------------------------------------------------------------------------------------------
 DROP TABLE IF EXISTS hsr_image_index;

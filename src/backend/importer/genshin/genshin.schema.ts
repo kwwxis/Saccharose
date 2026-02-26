@@ -1698,6 +1698,9 @@ export const genshinSchema = {
       {name: 'SortId', type: 'integer', isIndex: true},
       {name: 'SuitId', type: 'integer', isIndex: true},
     ],
+    renameFields: {
+      OKEAIHBLANI: 'IconHash'
+    }
   },
   BeyondCostumeSuitExcelConfigData: <SchemaTable> {
     name: 'BeyondCostumeSuitExcelConfigData',

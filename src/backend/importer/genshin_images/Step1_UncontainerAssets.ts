@@ -3,6 +3,7 @@ import path from 'path';
 import { pathToFileURL } from 'url';
 import { toInt } from '../../../shared/util/numberUtil.ts';
 import { fsWalkSync } from '../../util/fsutil.ts';
+import { GenshinContainerDiscriminator } from '../../domain/genshin/misc/giContainerDiscriminator.ts';
 
 // Copies from IN_DIR to OUT_DIR
 // IN_DIR is unaffected
@@ -17,9 +18,7 @@ async function doIt() {
 
     const baseName: string = filePathSplit[0];
     const containerId: number = toInt(filePathSplit[1]);
-    const isNegative: boolean = containerId < 0;
-
-    const discriminator: string = (isNegative ? 'n' : '') + Math.abs(containerId).toString(16);
+    const discriminator: string = GenshinContainerDiscriminator.toDiscriminator(containerId);
 
     let targetPath = path.resolve(OUT_DIR, './' + baseName.slice(0, -4) + '#' + discriminator + '.png');
 

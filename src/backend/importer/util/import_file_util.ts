@@ -6,12 +6,10 @@ import { getTextMapRelPath } from '../../loadenv.ts';
 import { AbstractControl } from '../../domain/abstract/abstractControl.ts';
 import { EM_DASH, EN_DASH, NormTextOptions } from '../../domain/abstract/genericNormalizers.ts';
 import XXH from 'xxhashjs';
-import JSONBigImport from '../../util/json-bigint';
 import { isInt } from '../../../shared/util/numberUtil.ts';
 import { isUnset } from '../../../shared/util/genericUtil.ts';
 import { reformatPrimitiveArrays } from '../../../shared/util/stringUtil.ts';
-
-const JSONbig = JSONBigImport({ useNativeBigInt: true, objectProto: true});
+import { parseJsonConvertingBigIntsToStrings } from '../../util/jsonbig.ts';
 
 const isOnePropObj = (o: any, key: string) => o && typeof o === 'object' && Object.keys(o).length === 1 && Object.keys(o)[0] === key;
 
@@ -19,6 +17,7 @@ const isEmptyObj = (o: any) => {
   if (o && typeof o === 'object' && Object.keys(o).length === 0) {
     return true;
   }
+  // noinspection RedundantIfStatementJS
   if (o && typeof o === 'object' && Object.values(o).every(v => v === 0 || isUnset(v) || isEmptyObj(v))) {
     return true;
   }
@@ -27,6 +26,7 @@ const isEmptyObj = (o: any) => {
 
 // Some text map keys are strings instead of numbers, which are then converted to numbers for the final TextMap
 // Use this function to get the numeric text map hash from the string key.
+// noinspection JSUnusedLocalSymbols
 function getStableHash(str: string): number {
   let hash1 = 5381n;
   let hash2 = 5381n;
@@ -137,14 +137,7 @@ export async function importNormalize(jsonDir: string, skip: string[], game: 'ge
     process.stdout.write(chalk.bold('Processing: ' + filePath));
     try {
       let fileData = await fsp.readFile(filePath, 'utf8');
-
-      let json = JSONbig.parse(fileData);
-
-      // Stringify and parse again to convert bigints to string via replacer
-      json = JSON.parse(JSON.stringify(
-        json,
-        (_, v) => typeof v === 'bigint' ? v.toString() : v
-      ))
+      let json = parseJsonConvertingBigIntsToStrings(fileData);
 
       if (game === 'hsr') {
         if (Array.isArray(json)) {

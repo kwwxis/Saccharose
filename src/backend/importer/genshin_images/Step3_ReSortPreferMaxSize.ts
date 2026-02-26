@@ -1,19 +1,12 @@
 import fs from 'fs';
-import path from 'path';
 import { pathToFileURL } from 'url';
 import sharp from 'sharp';
 import exifReader from 'exif-reader';
 import { fsWalkSync } from '../../util/fsutil.ts';
+import { GenshinContainerDiscriminator } from '../../domain/genshin/misc/giContainerDiscriminator.ts';
 
 // Runs in-place on the same directory:
 const IN_OUT_DIR: string = 'C:/HoyoTools/AnimeStudio/GI_OutputFiles';
-
-async function getDiscriminator(myPath: string) {
-  const exifBuf = (await sharp(myPath).metadata()).exif;
-  const exifData = exifBuf ? exifReader(exifBuf) : null;
-  const containerDiscriminator: string = exifData?.Image?.Model;
-  return containerDiscriminator;
-}
 
 async function doIt() {
   let renameCount = 0;
@@ -30,7 +23,7 @@ async function doIt() {
       const baseSize: number = fs.statSync(basePath).size;
 
       if (mySize > baseSize) {
-        const basePathDiscriminator = await getDiscriminator(basePath);
+        const basePathDiscriminator = await GenshinContainerDiscriminator.getDiscriminatorFromExif(basePath);
         fs.renameSync(basePath, basePath.slice(0, -4) + '#' + basePathDiscriminator + '.png');
         fs.renameSync(myPath, basePath);
         renameCount++;

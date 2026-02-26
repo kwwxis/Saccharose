@@ -8,6 +8,7 @@ import {
 } from '../schema/translate_schema.ts';
 import { normalizeRawJson } from '../import_db.ts';
 import { genshinSchema } from './genshin.schema.ts';
+import { parseJsonConvertingBigIntsToStrings } from '../../util/jsonbig.ts';
 
 export async function writeDeobfExcels() {
   function getSchemaFilePath(filePath: string): string {
@@ -26,6 +27,8 @@ export async function writeDeobfExcels() {
     'DialogExcelConfigData',
     'DialogUnparentedExcelConfigData',
     'CodexQuestExcelConfigData',
+    'ManualTextMapConfigData',
+    'GadgetExcelConfigData',
   ];
 
   const schemaNamesVisitMaxPairs: Record<string, number> = { };
@@ -39,11 +42,6 @@ export async function writeDeobfExcels() {
 
   // noinspection JSMismatchedCollectionQueryUpdate (empty array: whitelist not enabled)
   const whitelist: string[] = [];
-
-  // GadgetExcelConfigData
-  // ManualTextMapConfigData
-  // NpcExcelConfigData
-  // RewardExcelConfigData
 
   const jsonsInDir = fs.readdirSync(rawExcelDirPath).filter(file => path.extname(file) === '.json');
   for (let _jsonFile of jsonsInDir) {
@@ -67,14 +65,14 @@ export async function writeDeobfExcels() {
       console.log('NEW EXCEL: not in schema - ' + schemaName);
 
       const absJsonPath = path.resolve(rawExcelDirPath, fileName);
-      let json = await fsp.readFile(absJsonPath, { encoding: 'utf8' }).then(data => JSON.parse(data));
+      let json = await fsp.readFile(absJsonPath, { encoding: 'utf8' }).then(data => parseJsonConvertingBigIntsToStrings(data));
       json = normalizeRawJson(json);
       fs.writeFileSync(path.resolve(mappedExcelDirPath, './' + schemaName + '.json'), JSON.stringify(json, null, 2));
     } else {
       console.log('Processing ' + schemaName);
 
       const absJsonPath = path.resolve(rawExcelDirPath, fileName);
-      let json = await fsp.readFile(absJsonPath, { encoding: 'utf8' }).then(data => JSON.parse(data));
+      let json = await fsp.readFile(absJsonPath, { encoding: 'utf8' }).then(data => parseJsonConvertingBigIntsToStrings(data));
 
       if (!schemaNamesForCopyOnly.includes(schemaName)) {
         const propertySchema: PropertySchemaResult = await createPropertySchema(

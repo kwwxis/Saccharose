@@ -2,15 +2,13 @@ import path from 'path';
 import { getGenshinDataFilePath } from '../../loadenv.ts';
 import { promises as fsp } from 'fs';
 import { createPropertySchemaWithArray, PropertySchemaResult, shouldIgnoreConfig } from '../schema/translate_schema.ts';
-import JSONBigImport, { JSONBigInt } from '../../util/json-bigint';
 import { defaultMap } from '../../../shared/util/genericUtil.ts';
 import { INTERACTION_KEEP_TYPES } from '../../../shared/types/genshin/interaction-types.ts';
 import { sort } from '../../../shared/util/arrayUtil.ts';
 import { fsRead, fsReadJson, fsWalkSync, fsWrite } from '../../util/fsutil.ts';
 import { renameFields } from '../import_db.ts';
 import { isInt } from '../../../shared/util/numberUtil.ts';
-
-const JSONbig: JSONBigInt = JSONBigImport({ useNativeBigInt: true, objectProto: true });
+import { JSONbig } from '../../util/jsonbig.ts';
 
 // region Walk Sync
 // --------------------------------------------------------------------------------------------------------------

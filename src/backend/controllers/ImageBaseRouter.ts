@@ -7,6 +7,7 @@ import { convertFoodImageToDelicious, convertFoodImageToSuspicious } from '../do
 import { toBoolean } from '../../shared/util/genericUtil.ts';
 
 import { fsExists } from '../util/fsutil.ts';
+import { giImageHashToImageName } from '../domain/genshin/misc/giContainerHash.ts';
 
 export default async function(): Promise<Router> {
 
@@ -110,6 +111,13 @@ export default async function(): Promise<Router> {
       res.status(400).end('BadRequest');
     }
   }
+
+  router.endpoint('/genshin/image-name-from-hash', {
+    get: async (req: Request, res: Response) => {
+      const imageName = await giImageHashToImageName(String(req.query.imageHash));
+      return { imageName };
+    }
+  })
 
   router.endpoint(['/genshin/:imageName', '/genshin/:imageName/:downloadName'], {
     get: async (req: Request, res: Response, _next: NextFunction) => {

@@ -4,7 +4,6 @@ import '../../loadenv.ts';
 import fs, {promises as fsp} from 'fs';
 import { defaultMap, isUnset } from '../../../shared/util/genericUtil.ts';
 import { pathToFileURL } from 'url';
-import JSONBigImport, { JSONBigInt } from '../../util/json-bigint';
 import {
   arraySum,
   PathAndValue,
@@ -16,8 +15,7 @@ import { isInt, isNumeric } from '../../../shared/util/numberUtil.ts';
 import path from 'node:path';
 import { SchemaTableSet } from '../import_db.ts';
 import { genshinSchema } from '../genshin/genshin.schema.ts';
-
-const JSONbig: JSONBigInt = JSONBigImport({ useNativeBigInt: true, objectProto: true });
+import { JSONbig } from '../../util/jsonbig.ts';
 
 const textMapHashes: Set<string> = new Set(Object.keys(
   JSON.parse(fs.readFileSync(path.resolve(ENV.GENSHIN_DATA_ROOT, './TextMap/TextMapEN.json'), 'utf-8'))

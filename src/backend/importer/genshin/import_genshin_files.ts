@@ -26,6 +26,7 @@ import { genshinSchema } from './genshin.schema.ts';
 import { isset } from '../../../shared/util/genericUtil.ts';
 import { importGenshinReadableChanges } from '../../domain/genshin/readables/genshinReadableChanges.ts';
 import { doImportExcelScalars } from '../util/excel_usages_importer.ts';
+import { populateImageContainers } from './module.image-containers.ts';
 
 export async function importGenshinFilesCli() {
   const options_beforeDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
@@ -44,6 +45,7 @@ export async function importGenshinFilesCli() {
     {name: 'new-images', type: Boolean, description: 'Creates new images map per game version. Must be ran before index-images.'},
     {name: 'index-images', type: String, typeLabel: 'full_import | cat_map_only', description: 'Creates index for asset images. ' +
         'Must load all wanted Texture2D images into the EXT_GENSHIN_IMAGES directory first though.'},
+    {name: 'populate-image-containers', type: Boolean, description: 'Populate image containers mapping.'},
     {name: 'excel-scalars', type: Boolean, description: 'Import excel scalars for excel usages.'},
   ];
 
@@ -171,6 +173,9 @@ export async function importGenshinFilesCli() {
       return;
     }
     await indexGenshinImages(mode === 'cat_map_only');
+  }
+  if (options['populate-image-containers']) {
+    await populateImageContainers();
   }
   if (options['make-excels']) {
     await generateQuestDialogExcels(getGenshinDataFilePath());

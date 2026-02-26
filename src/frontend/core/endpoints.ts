@@ -227,6 +227,8 @@ export const genshinEndpoints = {
     ScriptJobPostResult<'createImageIndexArchive'>>('POST', '/media/post-create-image-index-job'),
 
   searchTcgStages: new GenshinApiEndpoint<{text: string}>('GET', '/gcg/stage-search'),
+
+  imageNameFromHash: new BaseUrlEndpoint<{imageHash: string}, {imageName: string}>('GET', '/serve-image/genshin/image-name-from-hash'),
 };
 
 export const starRailEndpoints = {
