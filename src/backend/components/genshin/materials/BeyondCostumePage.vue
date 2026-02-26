@@ -2,7 +2,6 @@
   <template v-if="costume">
     <section class="card">
       <h2>
-        <span class="dispBlock" style="margin-top:-5px"><a role="button" class="secondary fontWeight600" style="font-size:14px;padding:3px 8px" href="/genshin/items">Back to items search</a></span>
         <span class="valign spacer10-top">
           <img class="framed-icon x36" :src="costume.IconUrl" loading="lazy" decoding="async" />
           <span class="spacer15-left">{{ costume.NameText }}</span>
