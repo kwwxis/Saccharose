@@ -80,8 +80,8 @@ class GenshinImageHashCellRenderer implements ICellRendererComp {
         this.el.insertAdjacentHTML('beforeend',
           `
                 <div><span>${escapeHtml(imageName)}</span></div>
-                <img class="excel-image" src="${srcValue}" loading="lazy" decoding="async"
-          alt="Image not found" onerror="this.classList.add('excel-image-error')" data-file-name="${imageName}.png" />`);
+                <div class="excel-image-wrapper"><img class="excel-image" src="${srcValue}" loading="lazy" decoding="async"
+          alt="Image not found" onerror="this.classList.add('excel-image-error')" data-file-name="${imageName}.png" /></div>`);
       }
     });
 
@@ -130,7 +130,7 @@ export function makeSingleColumnDef(fieldKey: string, fieldName: string, data: a
     width: determineInitialWidth(fieldName, data),
     hide: opts.defaultShown || imageHashFieldTestRegex.test(fieldName)
       ? false
-      : (fieldName.includes('TextMapHash') || fieldName.endsWith('Hash')),
+      : (fieldName.includes('TextMapHash') || fieldName.endsWith('Hash') || fieldName === 'ExcelRowIndex'),
     cellClass: 'cell-type-' + (isUnset(data) ? 'null' : typeof data),
 
     // Default Formatter:
@@ -195,8 +195,8 @@ export function makeSingleColumnDef(fieldKey: string, fieldName: string, data: a
         }
 
         // noinspection HtmlDeprecatedAttribute
-        outHtml += `<img class="excel-image" src="${srcValue}" loading="lazy" decoding="async"
-          alt="Image not found" onerror="this.classList.add('excel-image-error')" data-file-name="${fileName}.png" />`;
+        outHtml += `<div class="excel-image-wrapper"><img class="excel-image" src="${srcValue}" loading="lazy" decoding="async"
+          alt="Image not found" onerror="this.classList.add('excel-image-error')" data-file-name="${fileName}.png" /></div>`;
       }
 
       if (isStringArray(params.value)) {
@@ -236,7 +236,11 @@ function generateColDefs(excelData: any[]): (ColDef | ColGroupDef)[] {
 
   const uniqueKeys: {[key: string]: Set<any>|false} = {};
 
-  for (let row of excelData) {
+  for (let rowIndex = 0; rowIndex < excelData.length; rowIndex++) {
+    let row = excelData[rowIndex];
+
+    row.ExcelRowIndex = rowIndex;
+
     for (let key of Object.keys(row)) {
       if (typeof row[key] === 'number') {
         if (!uniqueKeys.hasOwnProperty(key)) {
@@ -388,6 +392,7 @@ export async function initExcelViewer<T = any>(excelFileName: string,
   const gridOptions: GridOptions = {
     columnDefs: opts.overrideColDefs || generateColDefs(excelData),
     rowData: excelData,
+    getRowId: params => params.data.ExcelRowIndex.toString(),
     defaultColDef: {
       resizable: true,
       sortable: true,
@@ -433,7 +438,7 @@ export async function initExcelViewer<T = any>(excelFileName: string,
         'copyWithHeaders'
       ];
 
-      const cellEl: HTMLElement = document.querySelector(`.ag-body-viewport .ag-row[row-id="${params.node.id}"] .ag-cell[col-id="${params.column.getColId()}"]`);
+      const cellEl: HTMLElement = gridEl.querySelector(`.ag-body-viewport .ag-row[row-id="${params.node.id}"] .ag-cell[col-id="${params.column.getColId()}"]`);
       const cellImage: HTMLImageElement = cellEl.querySelector('.excel-image:not(.excel-image-error)');
 
       if (cellImage) {
@@ -505,6 +510,13 @@ export async function initExcelViewer<T = any>(excelFileName: string,
           });
         }, true);
       });
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.has('rowIndex')) {
+        const rowIndex = toInt(urlParams.get('rowIndex'));
+        if (isInt(rowIndex) && rowIndex >= 0) {
+          jumpToOriginalIndex(rowIndex);
+        }
+      }
     }
   };
 
@@ -537,6 +549,79 @@ export async function initExcelViewer<T = any>(excelFileName: string,
     await invokeExcelViewerDB(db => {
       db.put(storeName, [], excelFileName);
     });
+  }
+
+  function centerForDuration(rowNode, durationMs = 300) {
+    if (!rowNode) return;
+
+    const end = performance.now() + durationMs;
+
+    function tick() {
+      gridApi.ensureNodeVisible(rowNode, 'middle');
+
+      if (performance.now() < end) {
+        requestAnimationFrame(tick);
+      }
+    }
+
+    tick();
+  }
+
+  function centerUntilScrollStable(rowNode, {
+    maxMs = 300,
+    stableFramesRequired = 4
+  } = {}) {
+    if (!rowNode) return;
+
+    // AG Grid internal DOM query (works in practice; keep contained here)
+    const viewport = gridEl.querySelector('.ag-body-viewport');
+    if (!viewport) {
+      // fallback
+      centerForDuration(rowNode, maxMs);
+      return;
+    }
+
+    const end = performance.now() + maxMs;
+    let stableFrames = 0;
+    let lastScrollTop = viewport.scrollTop;
+
+    function tick() {
+      gridApi.ensureNodeVisible(rowNode, 'middle');
+
+      const current = viewport.scrollTop;
+      if (Math.abs(current - lastScrollTop) < 1) {
+        stableFrames++;
+      } else {
+        stableFrames = 0;
+        lastScrollTop = current;
+      }
+
+      if (stableFrames < stableFramesRequired && performance.now() < end) {
+        requestAnimationFrame(tick);
+      }
+    }
+
+    tick();
+  }
+
+  function jumpToOriginalIndex(index) {
+    const rowNode = gridApi.getRowNode(index.toString());
+    if (!rowNode)
+      return;
+
+    // Make sure it's visible (even if filtered)
+    rowNode.setSelected(true);
+
+    const run = () => centerUntilScrollStable(rowNode, { maxMs: 300 });
+
+    run();
+
+    const handler = () => run();
+
+    gridApi.addEventListener('modelUpdated', handler);
+
+    // remove after a short while so this doesn't become a permanent coupling
+    setTimeout(() => gridApi.removeEventListener('modelUpdated', handler), 500);
   }
 
   let quickFilterDebounceId: any;
@@ -614,6 +699,7 @@ export async function initExcelViewer<T = any>(excelFileName: string,
     getPreferredColumnState,
     savePreferredColumnState,
     resetPreferredColumnState,
+    jumpToOriginalIndex,
   };
 }
 
@@ -637,6 +723,7 @@ pageMatch('vue/ExcelViewerTablePage', async () => {
     getPreferredColumnState,
     savePreferredColumnState,
     resetPreferredColumnState,
+    jumpToOriginalIndex,
   } = await initExcelViewer(excelFileName, excelData, containerEl, {
     includeExcelListButton: true
   });
@@ -647,4 +734,5 @@ pageMatch('vue/ExcelViewerTablePage', async () => {
   (<any> window).getPreferredColumnState = getPreferredColumnState;
   (<any> window).savePreferredColumnState = savePreferredColumnState;
   (<any> window).resetPreferredColumnState = resetPreferredColumnState;
+  (<any> window).jumpToOriginalIndex = jumpToOriginalIndex;
 });

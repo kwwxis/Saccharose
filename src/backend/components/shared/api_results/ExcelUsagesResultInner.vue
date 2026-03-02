@@ -8,9 +8,16 @@
       <div :data-scalar="scalar" :data-file="file" class="content">
         <template v-for="(item, i) of scalarToUsages[scalar][file]">
           <div class="posRel">
-            <div class="posAbs secondary-header" style="left:0;right:0;border-top:0;font-size:13px;padding:1px 10px;">
+            <div class="posAbs secondary-header valign" style="left:0;right:0;border-top:0;font-size:13px;padding:1px 3px 1px 10px;">
               <code>[{{ item.refIndex }}].{{ item.field }}</code>
-              <small class="fr">Match {{ i + 1 }}</small>
+              <div class="grow"></div>
+              <small>Match {{ i + 1 }}</small>
+              <a role="button" class="secondary small spacer10-left"
+                 :href="`/genshin/excel-viewer/${file}?rowIndex=${item.refIndex}`"
+                 target="_blank">
+                <span class="spacer5-right">Excel Viewer</span>
+                <Icon name="external-link" :size="14" />
+              </a>
             </div>
             <JsonText :markers="item.refObjectMarkers" :value="item.refObjectStringified" :extra-style="`padding-top:30px`" />
           </div>

@@ -3,6 +3,7 @@ import { removeSuffix } from '../../../../shared/util/stringUtil.ts';
 import { Request, Response } from 'express';
 import ExcelViewerTablePage from '../../../components/shared/ExcelViewerTablePage.vue';
 import { FileAndSize } from '../../../../shared/types/utility-types.ts';
+import { toInt } from '../../../../shared/util/numberUtil.ts';
 
 export async function sendExcelViewerTableResponse(ctrl: AbstractControl, req: Request, res: Response) {
   const excels: FileAndSize[] = await ctrl.getExcelFileNames();
@@ -23,5 +24,6 @@ export async function sendExcelViewerTableResponse(ctrl: AbstractControl, req: R
     fileName: targetExcelName,
     fileSize: foundTarget?.size,
     json: foundJson,
+    jumpToRowIndex: toInt(req.query.rowIndex)
   });
 }

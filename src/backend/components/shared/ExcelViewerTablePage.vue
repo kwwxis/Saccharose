@@ -2,7 +2,10 @@
   <template v-if="json">
     <HtmlScript :nonce="nonce" :content="`
     window.excelData = ${JSON.stringify(json)};
+    `" />
+    <HtmlScript :nonce="nonce" :content="`
     window.excelFileName = '${fileName}';
+    window.excelJumpToRowIndex = ${isInt(jumpToRowIndex) ? jumpToRowIndex : -1};
     `" />
     <div id="excelViewerContainer"></div>
   </template>
@@ -25,12 +28,14 @@
 import { useTrace } from '../../middleware/request/tracer.js';
 import HtmlScript from '../utility/HtmlScript.vue';
 import ByteSizeLabel from '../utility/ByteSizeLabel.vue';
+import { isInt } from '../../../shared/util/numberUtil.ts';
 
-const { ctx, nonce } = useTrace();
+const { nonce } = useTrace();
 
 defineProps<{
   fileName?: string,
   fileSize?: number,
   json?: any[],
+  jumpToRowIndex?: number,
 }>();
 </script>
