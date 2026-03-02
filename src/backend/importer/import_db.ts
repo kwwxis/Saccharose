@@ -517,7 +517,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
       const usage: string = commandLineUsage([
         {
           header: 'Saccharose DB Importer',
-          content: 'Imports game data json into a sqlite database for this application.'
+          content: 'Imports game data json into a postgres database for this application.'
         },
         {
           header: 'Options',
