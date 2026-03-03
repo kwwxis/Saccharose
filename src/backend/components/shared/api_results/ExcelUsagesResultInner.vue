@@ -13,7 +13,7 @@
               <div class="grow"></div>
               <small>Match {{ i + 1 }}</small>
               <a role="button" class="secondary small spacer10-left"
-                 :href="`/genshin/excel-viewer/${file}?rowIndex=${item.refIndex}`"
+                 :href="`${ctx.siteHome}/excel-viewer/${file}?rowIndex=${item.refIndex}`"
                  target="_blank">
                 <span class="spacer5-right">Excel Viewer</span>
                 <Icon name="external-link" :size="14" />
@@ -37,6 +37,9 @@ import { ScalarToExcelUsages } from '../../../../shared/util/searchUtil.ts';
 import { ExcelChangeRef } from '../../../../shared/types/changelog-types.ts';
 import Icon from '../../utility/Icon.vue';
 import JsonText from '../../utility/JsonText.vue';
+import { useTrace } from '../../../middleware/request/tracer.ts';
+
+const { ctx } = useTrace();
 
 defineProps<{
   scalar?: string,
