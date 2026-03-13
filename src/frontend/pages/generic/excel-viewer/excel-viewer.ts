@@ -130,7 +130,7 @@ export function makeSingleColumnDef(fieldKey: string, fieldName: string, data: a
     width: determineInitialWidth(fieldName, data),
     hide: opts.defaultShown || imageHashFieldTestRegex.test(fieldName)
       ? false
-      : (fieldName.includes('TextMapHash') || fieldName.endsWith('Hash') || fieldName === 'ExcelRowIndex'),
+      : (fieldName.includes('TextMapHash') || fieldName.endsWith('Hash') || fieldName === 'RowIndex'),
     cellClass: 'cell-type-' + (isUnset(data) ? 'null' : typeof data),
 
     // Default Formatter:
@@ -238,8 +238,6 @@ function generateColDefs(excelData: any[]): (ColDef | ColGroupDef)[] {
 
   for (let rowIndex = 0; rowIndex < excelData.length; rowIndex++) {
     let row = excelData[rowIndex];
-
-    row.ExcelRowIndex = rowIndex;
 
     for (let key of Object.keys(row)) {
       if (typeof row[key] === 'number') {
@@ -389,10 +387,15 @@ export async function initExcelViewer<T = any>(excelFileName: string,
 
   initializeThemeWatcher([topEl, gridEl, gridLoadingEl]);
 
+  for (let rowIndex = 0; rowIndex < excelData.length; rowIndex++) {
+    let row: any = excelData[rowIndex];
+    row.RowIndex = rowIndex;
+  }
+
   const gridOptions: GridOptions = {
     columnDefs: opts.overrideColDefs || generateColDefs(excelData),
     rowData: excelData,
-    getRowId: params => params.data.ExcelRowIndex.toString(),
+    getRowId: params => params.data.RowIndex.toString(),
     defaultColDef: {
       resizable: true,
       sortable: true,
