@@ -22,7 +22,10 @@
     "noFallthroughCasesInSwitch": true,
     "baseUrl": "./src",
     "skipLibCheck": true,
-    "lib": [ "ESNext" ]
+    "lib": [ "ESNext" ],
+    "strict": true,
+    "strictPropertyInitialization": false,
+    "strictNullChecks": false
   },
   "ts-node": {
     "esm": true,

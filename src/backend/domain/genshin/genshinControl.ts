@@ -2103,14 +2103,14 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     const codexManualTextMap: {[manualTextMapId: string]: string} = await this.selectAnimalCodexManualTextMap();
 
     const archive: LivingBeingArchive = {
-      MonsterCodex: defaultMap((key: string): LivingBeingArchiveGroup => ({
-        SubType: key,
-        NameText: codexManualTextMap[key.replace('CODEX_SUBTYPE', 'UI_CODEX_ANIMAL_CATEGORY')],
+      MonsterCodex: defaultMap((key: string|number): LivingBeingArchiveGroup => ({
+        SubType: String(key),
+        NameText: codexManualTextMap[String(key).replace('CODEX_SUBTYPE', 'UI_CODEX_ANIMAL_CATEGORY')],
         CodexList: [],
       })),
-      WildlifeCodex: defaultMap((key: string): LivingBeingArchiveGroup => ({
-        SubType: key,
-        NameText: codexManualTextMap[key.replace('CODEX_SUBTYPE', 'UI_CODEX_ANIMAL_CATEGORY')],
+      WildlifeCodex: defaultMap((key: string|number): LivingBeingArchiveGroup => ({
+        SubType: String(key),
+        NameText: codexManualTextMap[String(key).replace('CODEX_SUBTYPE', 'UI_CODEX_ANIMAL_CATEGORY')],
         CodexList: [],
       })),
       NonCodexMonsters: {

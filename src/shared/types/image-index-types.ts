@@ -62,7 +62,7 @@ export function newImageCategory(name: string): ImageCategoryMap {
   return {
     name: name,
     newImageVersions: [],
-    children: defaultMap((subName: string) => newImageCategory(subName))
+    children: defaultMap((subName: string|number) => newImageCategory(String(subName)))
   };
 }
 

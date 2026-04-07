@@ -616,7 +616,11 @@ export function throttle<T extends Function>(fn: T, delayMs: number): T {
   };
 }
 
-export function defaultMap<T extends object>(defaultValue: ((prop: keyof T) => T[keyof T])|'Set'|'Map'|'Array'|'Object'|'Zero'|'One'|'Infinity'|'-Infinity'|{new (prop?: keyof T): T[keyof T]}, initialObj?: T): T {
+export function defaultMap<T extends object>(defaultValue:
+                                               ((prop: keyof T) => T[keyof T])
+                                               |'Set'|'Map'|'Array'|'Object'|'Zero'|'One'|'Infinity'|'-Infinity'
+                                               |{new (prop?: keyof T): T[keyof T]},
+                                             initialObj?: T): T {
   return new Proxy<T>(initialObj || {} as T, {
     get(obj: T, prop: string | symbol) {
       if (prop === 'toJSON') {

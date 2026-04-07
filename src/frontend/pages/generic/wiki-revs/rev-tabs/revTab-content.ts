@@ -28,8 +28,8 @@ export function initRevContentTab(state: WikiRevAppState) {
 type RevOwnerList = { [owner: string]: { owner: string, textSize: number } };
 
 function buildOwnerList(state: WikiRevAppState): RevOwnerList {
-  const ownerList: RevOwnerList = defaultMap((owner: string) => ({
-    owner,
+  const ownerList: RevOwnerList = defaultMap((owner: string|number) => ({
+    owner: String(owner),
     textSize: 0,
   }));
 
