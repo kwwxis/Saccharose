@@ -428,10 +428,10 @@ export async function loadGenshinTextSupportingData(): Promise<void> {
   // Server Overseas
   // --------------------------------------------------------------------------------------------------------------
   serverBrandTipsOverseas = await ctrl.cached('TextSupportingData:ServerBrandTipsOverseas', 'json', async () => {
-    return await ctrl.createLangCodeMap(2874657049);
+    return await ctrl.createLangCodeMap(ManualTextMapHashes.ServerBrandTipsOverseas);
   });
   serverEmailAskOverseas = await ctrl.cached('TextSupportingData:ServerEmailAskOverseas', 'json', async () => {
-    return await ctrl.createLangCodeMap(2535673454);
+    return await ctrl.createLangCodeMap(ManualTextMapHashes.ServerEmailAskOverseas);
   });
 
   // Element TextMap

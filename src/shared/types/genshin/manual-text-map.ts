@@ -1,142 +1,150 @@
 
 export const ManualTextMapHashes = {
   // None:
-  'None': 3053155130,
-  'GCG_TAG_WEAPON_NONE': 3053155130,
-  'GCG_TAG_ELEMENT_NONE': 3053155130,
+  'None': 3053154618,
+  'GCG_TAG_WEAPON_NONE': 3053154618,
+  'GCG_TAG_ELEMENT_NONE': 3053154618,
 
   // All:
   'All': 4081188009,
-  'Other': 4294312844,
+  'Other': 463752568,
 
   // Lumine/Aether:
   'Lumine': 3241049361,
   'Aether': 2329553598,
 
+  'ServerBrandTipsOverseas': 2874657049,
+  'ServerEmailAskOverseas': 2535672942,
+
   // Regions / Maps / Nations / Factions
   // --------------------------------------------------------------------------------------------------------------
   // Monstadt
-  'Mondstadt': 706446876,
-  'GCG_TAG_NATION_MONDSTADT': 3622220579,
+  'Mondstadt': 49482922,
+  'GCG_TAG_NATION_MONDSTADT': 3622220067,
 
   // Liyue:
-  'Liyue': 1982412604,
-  'GCG_TAG_NATION_LIYUE': 1271778987,
+  'Liyue': 45426028,
+  'GCG_TAG_NATION_LIYUE': 1271778475,
 
   // Inazuma
-  'Inazuma': 869248244,
-  'GCG_TAG_NATION_INAZUMA': 1547136635,
+  'Inazuma': 139804829,
+  'GCG_TAG_NATION_INAZUMA': 1547136123,
 
   // Sumeru
-  'Sumeru': 1074864084,
-  'GCG_TAG_NATION_SUMERU': 3926786643,
+  'Sumeru': 103729490,
+  'GCG_TAG_NATION_SUMERU': 3926786131,
 
   // Fontaine
-  'Fontaine': 2386365724,
+  'Fontaine': 18666903,
   'GCG_TAG_NATION_FONTAINE': 242250147,
 
   // Natlan
-  'Natlan': 2736148156,
-  'GCG_TAG_NATION_NATLAN': 3332492851,
+  'Natlan': 177860670,
+  'GCG_TAG_NATION_NATLAN': 3332492339,
 
   // Nod-Krai
-  'Nod-Krai': 1978435092,
+  'Nod-Krai': 2879894,
+  'GCG_TAG_NATION_NODKRAI': 3969490099,
 
   // Snezhnaya
-  'Snezhnaya': 536575635,
-  'GCG_TAG_NATION_SNEZHNAYA': 536575635,
+  'Snezhnaya': 536575123,
+  'GCG_TAG_NATION_SNEZHNAYA': 536575123,
 
   // Khaenri'ah
-  "Khaenri'ah": 4075667307,
-  'Khaenriah': 4075667307,
-  'GCG_TAG_NATION_KHAENRIAH': 4075667307,
+  "Khaenri'ah": 4075666795,
+  'Khaenriah': 4075666795,
+  'GCG_TAG_NATION_KHAENRIAH': 4075666795,
 
   // Simulanka:
-  'Simulanka': 1938538708,
+  'Simulanka': 377968915,
   'GCG_TAG_NATION_SIMULANKA': 377968915,
 
+  // Cosmic Calamity
+  'Cosmic Calamity': 1897389369,
+  'GCG_TAG_NATION_COSMIC_CALAMITY': 2708658179,
+
   // Other Maps
-  'Serenitea Pot': 3071628724,
-  'Golden Apple Archipelago': 2157852924,
-  'Miliastra Wonderland': 830593667, // todo
-  'Three Realms Gateway Offering': 2887066388,
-  'Spiral Abyss': 2284786655,
-  'Enkanomiya': 1862653596,
-  'Veluriyam Mirage': 1719443972,
-  'The Chasm: Underground Mines': 297471884,
-  'Sea of Bygone Eras': 824436964,
-  'Theater Lobby': 2963086156,
+  'Serenitea Pot': 200477924,
+  'Golden Apple Archipelago': 209420713,
+  'Miliastra Wonderland': 441907591,
+  'Three Realms Gateway Offering': 2032300089,
+  'Spiral Abyss': 112115079,
+  'Enkanomiya': 80907774,
+  'Veluriyam Mirage': 84854953,
+  'The Chasm: Underground Mines': 297471372,
+  'Sea of Bygone Eras': 73076751,
+  'Theater Lobby': 661281239,
   'Ancient Sacred Mountain': 966415828,
   'Chenyu Vale': 68445495,
 
   // Other Factions
-  'Fatui': 243035471,
-  'GCG_TAG_CAMP_FATUI': 243035471,
+  'Fatui': 2363243827,
+  'GCG_TAG_CAMP_FATUI': 2363243827,
 
   'Hilichurl': 148952339,
   'GCG_TAG_CAMP_HILICHURL': 148952339,
 
-  'Monster': 880768891,
-  'GCG_TAG_CAMP_MONSTER': 880768891,
+  'Monster': 880768379,
+  'GCG_TAG_CAMP_MONSTER': 880768379,
 
-  'Kairagi': 65490883,
-  'GCG_TAG_CAMP_KAIRAGI': 65490883,
+  'Kairagi': 2722933019,
+  'GCG_TAG_CAMP_KAIRAGI': 2722933019,
 
   'The Eremites': 2263672043,
   'GCG_TAG_CAMP_EREMITE': 2263672043,
 
-  'Consecrated Beast': 1265669115,
-  'GCG_TAG_CAMP_SACREAD': 2263672043,
+  'Consecrated Beast': 1265668603,
+  'GCG_TAG_CAMP_SACREAD': 1265668603,
 
   // General
   // --------------------------------------------------------------------------------------------------------------
   'Domains': 705921482,
   'Domain': 4043227537,
 
-  'Furnishing Set': 1999112795,
+  'Furnishing Set': 1999112283,
   'Gift Set': 205103331,
 
-  'Genius Invokation TCG': 406594273,
-  'Imaginarium Theater': 1116422958,
+  'Genius Invokation TCG': 406593761,
+  'Imaginarium Theater': 191610270,
   'Stygian Onslaught': 2939058421,
 
   // Elements
   // --------------------------------------------------------------------------------------------------------------
   // Pyro
-  'Pyro': 3531671786,
-  'Fire': 3531671786,
-  'GCG_TAG_ELEMENT_HYDRO': 3531671786,
+  'Pyro': 570857819,
+  'Fire': 570857819,
+  'GCG_TAG_ELEMENT_HYDRO': 570857819,
 
   // Hydro
-  'Hydro': 514679490,
-  'Water': 514679490,
-  'GCG_TAG_ELEMENT_PYRO': 514679490,
+  'Hydro': 2763884907,
+  'Water': 2763884907,
+  'GCG_TAG_ELEMENT_PYRO': 2763884907,
 
   // Dendro
-  'Dendro': 3552853794,
-  'Grass': 3552853794,
-  'GCG_TAG_ELEMENT_DENDRO': 3552853794,
+  'Dendro': 3544484259,
+  'Grass': 3544484259,
+  'GCG_TAG_ELEMENT_DENDRO': 3544484259,
 
   // Electro
-  'Electro': 1844493602,
-  'Electric': 1844493602,
-  'Elec': 1844493602,
-  'GCG_TAG_ELEMENT_ELECTRO': 1844493602,
+  'Electro': 3010704803,
+  'Electric': 3010704803,
+  'Elec': 3010704803,
+  'GCG_TAG_ELEMENT_ELECTRO': 3010704803,
 
   // Anemo
-  'Anemo': 594678994,
-  'Wind': 594678994,
-  'GCG_TAG_ELEMENT_ANEMO': 594678994,
+  'Anemo': 497883395,
+  'Wind': 497883395,
+  'GCG_TAG_ELEMENT_ANEMO': 497883395,
 
   // Cryo
-  'Cryo': 3168728290,
-  'Ice': 3168728290,
-  'GCG_TAG_ELEMENT_CRYO': 3168728290,
+  'Cryo': 4267146251,
+  'Ice': 4267146251,
+  'GCG_TAG_ELEMENT_CRYO': 4267146251,
 
   // Geo
-  'Geo': 1844983962,
-  'Rock': 1844983962,
-  'GCG_TAG_ELEMENT_GEO': 1844983962,
+  'Geo': 1050918155,
+  'Rock': 1050918155,
+  'GCG_TAG_ELEMENT_GEO': 1050918155,
 
   // Physical
   'Physical': 2185633152,
@@ -144,25 +152,25 @@ export const ManualTextMapHashes = {
 
   // Weapons
   // --------------------------------------------------------------------------------------------------------------
-  'Sword': 4182347097,
-  'WEAPON_SWORD_ONE_HAND': 4182347097,
-  'GCG_TAG_WEAPON_SWORD': 4182347097,
+  'Sword': 2853832131,
+  'WEAPON_SWORD_ONE_HAND': 2853832131,
+  'GCG_TAG_WEAPON_SWORD': 2853832131,
 
-  'Claymore': 2629625177,
-  'WEAPON_CLAYMORE': 2629625177,
-  'GCG_TAG_WEAPON_CLAYMORE': 2629625177,
+  'Claymore': 2994597931,
+  'WEAPON_CLAYMORE': 2994597931,
+  'GCG_TAG_WEAPON_CLAYMORE': 2994597931,
 
-  'Polearm': 3939718601,
-  'WEAPON_POLE': 3939718601,
-  'GCG_TAG_WEAPON_POLE': 3939718601,
+  'Polearm': 3212334355,
+  'WEAPON_POLE': 3212334355,
+  'GCG_TAG_WEAPON_POLE': 3212334355,
 
-  'Catalyst': 43479985,
-  'WEAPON_CATALYST': 43479985,
-  'GCG_TAG_WEAPON_CATALYST': 43479985,
+  'Catalyst': 4174579731,
+  'WEAPON_CATALYST': 4174579731,
+  'GCG_TAG_WEAPON_CATALYST': 4174579731,
 
-  'Bow': 3537421225,
-  'WEAPON_BOW': 3537421225,
-  'GCG_TAG_WEAPON_BOW': 3537421225,
+  'Bow': 4214538643,
+  'WEAPON_BOW': 4214538643,
+  'GCG_TAG_WEAPON_BOW': 4214538643,
 };
 
 export const ElementTypeToNation = {
