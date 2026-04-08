@@ -360,6 +360,8 @@ function elementColorTemplate(langCode: LangCode,
                               ELEMENT_TEXTMAP_KEY: keyof typeof ELEMENT_TEXTMAP,
                               TPL_COLOR_NAME: string,
                               _fullMatch: string, g1: string) {
+  g1 = g1 || '';
+
   const elementName: LangCodeMap = ELEMENT_TEXTMAP[ELEMENT_TEXTMAP_KEY];
 
   // Exact element name match: <color>Hydro</color> --> {{Hydro}}
