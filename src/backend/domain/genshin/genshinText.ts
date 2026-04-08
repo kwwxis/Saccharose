@@ -365,12 +365,12 @@ function elementColorTemplate(langCode: LangCode,
   const elementName: LangCodeMap = ELEMENT_TEXTMAP[ELEMENT_TEXTMAP_KEY];
 
   // Exact element name match: <color>Hydro</color> --> {{Hydro}}
-  if (wikisSupportingElementNameTemplates.has(langCode) && g1.toLowerCase() === elementName.EN.toLowerCase()) {
+  if (wikisSupportingElementNameTemplates.has(langCode) && g1.toLowerCase() === elementName.EN?.toLowerCase()) {
     return `{{${TPL_COLOR_NAME}}}`;
   }
 
   // Contains element name: <color>Hydro DMG</color> --> {{Color|Hydro DMG}}
-  else if (wikisSupportingInTextColorKeyword.has(langCode) && g1.toLowerCase().includes(elementName.EN.toLowerCase())) {
+  else if (wikisSupportingInTextColorKeyword.has(langCode) && g1.toLowerCase().includes(elementName.EN?.toLowerCase())) {
     return `{{Color|${g1}}}`;
   }
 
