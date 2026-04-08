@@ -29,6 +29,7 @@ export async function writeDeobfExcels() {
     'CodexQuestExcelConfigData',
     'ManualTextMapConfigData',
     'GadgetExcelConfigData',
+    'FettersExcelConfigData',
   ];
 
   const schemaNamesVisitMaxPairs: Record<string, number> = { };
@@ -70,6 +71,7 @@ export async function writeDeobfExcels() {
       fs.writeFileSync(path.resolve(mappedExcelDirPath, './' + schemaName + '.json'), JSON.stringify(json, null, 2));
     } else {
       console.log('Processing ' + schemaName);
+      console.time('Processed ' + schemaName);
 
       const absJsonPath = path.resolve(rawExcelDirPath, fileName);
       let json = await fsp.readFile(absJsonPath, { encoding: 'utf8' }).then(data => parseJsonConvertingBigIntsToStrings(data));
@@ -88,6 +90,7 @@ export async function writeDeobfExcels() {
       }
 
       fs.writeFileSync(path.resolve(mappedExcelDirPath, './' + schemaName + '.json'), JSON.stringify(json, null, 2));
+      console.timeEnd('Processed ' + schemaName);
     }
 
     if (schemaName === endAt) {

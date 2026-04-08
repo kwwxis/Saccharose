@@ -1,35 +1,64 @@
-import { getGenshinDataFilePath, getStarRailDataFilePath } from '../../loadenv.ts';
+import { getGenshinDataFilePath } from '../../loadenv.ts';
 import fs from 'fs';
 import { importNormalize } from '../util/import_file_util.ts';
+import { fsExists, fsReadJson } from '../../util/fsutil.ts';
 
-export async function genshinNormalize() {
-  await fixThai();
-  await fixKorean();
-  await fixRussian();
-  await fixJapanese();
-  await delBadTalk();
-  await importNormalize(getGenshinDataFilePath('./ExcelBinOutput'), ['ProudSkillExcelConfigData.json', 'DialogExcelConfigData.json'], 'genshin');
+async function tmJsons(path: string): Promise<any[]> {
+  path = getGenshinDataFilePath(path);
+
+  let jsons: any[] = [];
+  if (await fsExists(path)) {
+    console.log('  Found ' + path);
+    jsons.push(await fsReadJson(path));
+  }
+
+  for (let i = 0; i <= 2; i++) {
+    let splitPath = path.replace('.json', `_${i}.json`);
+    if (await fsExists(splitPath)) {
+      console.log('  Found ' + splitPath);
+      jsons.push(await fsReadJson(splitPath));
+    }
+  }
+
+  return jsons;
 }
 
-async function fixThai() {
-  const thC_path = getGenshinDataFilePath('./TextMap/TextMapTH.json');
-  const th0_path = getGenshinDataFilePath('./TextMap/TextMapTH_0.json');
-  const th1_path = getGenshinDataFilePath('./TextMap/TextMapTH_1.json');
+export async function genshinNormalize() {
+  const infos = [
+    {addon: './TextMap/TextMap_MediumCHS.json',  mainfile: './TextMap/TextMapCHS.json'},
+    {addon: './TextMap/TextMap_MediumCHT.json',  mainfile: './TextMap/TextMapCHT.json'},
+    {addon: './TextMap/TextMap_MediumDE.json',   mainfile: './TextMap/TextMapDE.json'},
+    {addon: './TextMap/TextMap_MediumEN.json',   mainfile: './TextMap/TextMapEN.json'},
+    {addon: './TextMap/TextMap_MediumES.json',   mainfile: './TextMap/TextMapES.json'},
+    {addon: './TextMap/TextMap_MediumFR.json',   mainfile: './TextMap/TextMapFR.json'},
+    {addon: './TextMap/TextMap_MediumID.json',   mainfile: './TextMap/TextMapID.json'},
+    {addon: './TextMap/TextMap_MediumIT.json',   mainfile: './TextMap/TextMapIT.json'},
+    {addon: './TextMap/TextMap_MediumJP.json',   mainfile: './TextMap/TextMapJP.json'},
+    {addon: './TextMap/TextMap_MediumKR.json',   mainfile: './TextMap/TextMapKR.json'},
+    {addon: './TextMap/TextMap_MediumPT.json',   mainfile: './TextMap/TextMapPT.json'},
+    {addon: './TextMap/TextMap_MediumRU.json',   mainfile: './TextMap/TextMapRU.json'},
+    {addon: './TextMap/TextMap_MediumTH.json',   mainfile: './TextMap/TextMapTH.json'},
+    {addon: './TextMap/TextMap_MediumTR.json',   mainfile: './TextMap/TextMapTR.json'},
+    {addon: './TextMap/TextMap_MediumVI.json',   mainfile: './TextMap/TextMapVI.json'},
+  ];
+  for (let info of infos) {
+    console.log('Processing ' + info.mainfile);
+    let fullJson = {};
 
-  const thC_json = {};
+    for (let json of await tmJsons(info.mainfile)) {
+      Object.assign(fullJson, json);
+    }
 
-  if (fs.existsSync(thC_path)) {
-    Object.assign(thC_json, JSON.parse(fs.readFileSync(thC_path, {encoding: 'utf8'})));
-  }
-  if (fs.existsSync(th0_path)) {
-    Object.assign(thC_json, JSON.parse(fs.readFileSync(th0_path, {encoding: 'utf8'})));
-  }
-  if (fs.existsSync(th1_path)) {
-    Object.assign(thC_json, JSON.parse(fs.readFileSync(th1_path, { encoding: 'utf8' })));
+    for (let json of await tmJsons(info.addon)) {
+      Object.assign(fullJson, json);
+    }
+
+    fs.writeFileSync(getGenshinDataFilePath(info.mainfile), JSON.stringify(fullJson, null, 2), 'utf-8');
   }
 
-  fs.writeFileSync(getGenshinDataFilePath('./TextMap/TextMapTH.json'),
-    JSON.stringify(thC_json, null, 2), 'utf-8');
+  await delBadTalk();
+
+  await importNormalize(getGenshinDataFilePath('./ExcelBinOutput'), ['ProudSkillExcelConfigData.json', 'DialogExcelConfigData.json'], 'genshin');
 }
 
 async function delBadTalk() {
@@ -39,41 +68,4 @@ async function delBadTalk() {
     fs.unlinkSync(t0);
   if (fs.existsSync(t1))
     fs.unlinkSync(t1);
-}
-
-async function fixRussian() {
-  const ruC_path = getGenshinDataFilePath('./TextMap/TextMapRU.json');
-  const ru0_path = getGenshinDataFilePath('./TextMap/TextMapRU_0.json');
-  const ru1_path = getGenshinDataFilePath('./TextMap/TextMapRU_1.json');
-
-  const ruC_json = {};
-
-  if (fs.existsSync(ruC_path)) {
-    Object.assign(ruC_json, JSON.parse(fs.readFileSync(ruC_path, {encoding: 'utf8'})));
-  }
-  if (fs.existsSync(ru0_path)) {
-    Object.assign(ruC_json, JSON.parse(fs.readFileSync(ru0_path, {encoding: 'utf8'})));
-  }
-  if (fs.existsSync(ru1_path)) {
-    Object.assign(ruC_json, JSON.parse(fs.readFileSync(ru1_path, { encoding: 'utf8' })));
-  }
-
-  fs.writeFileSync(getGenshinDataFilePath('./TextMap/TextMapRU.json'),
-    JSON.stringify(ruC_json, null, 2), 'utf-8');
-}
-
-async function fixKorean() {
-  const ko_path = getGenshinDataFilePath('./TextMap/TextMapKO.json');
-  if (fs.existsSync(ko_path)) {
-    fs.renameSync(ko_path, getGenshinDataFilePath('./TextMap/TextMapKR.json'));
-    console.log('Moved TextMapKO.json to TextMapKR.json');
-  }
-}
-
-async function fixJapanese() {
-  const ja_path = getGenshinDataFilePath('./TextMap/TextMapJA.json');
-  if (fs.existsSync(ja_path)) {
-    fs.renameSync(ja_path, getGenshinDataFilePath('./TextMap/TextMapJP.json'));
-    console.log('Moved TextMapJA.json to TextMapJP.json');
-  }
 }

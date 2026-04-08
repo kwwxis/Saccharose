@@ -1,7 +1,7 @@
 import fs from 'fs';
 import { IMAGEDIR_GENSHIN_EXT } from '../../loadenv.ts';
 import { closeKnex, openPgSite } from '../../util/db.ts';
-import { ImageContainerEntity, ImageIndexEntity } from '../../../shared/types/image-index-types.ts';
+import { ImageContainerEntity } from '../../../shared/types/image-index-types.ts';
 import path from 'path';
 import { GenshinContainerDiscriminator } from '../../domain/genshin/misc/giContainerDiscriminator.ts';
 

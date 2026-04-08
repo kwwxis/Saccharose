@@ -68,7 +68,7 @@ export async function importGenshinFilesCli() {
   let options: commandLineArgs.CommandLineOptions;
   try {
     options = commandLineArgs([... options_beforeDb, ...options_agnosticDb, ... options_afterDb, ... options_util]);
-  } catch (e) {
+  } catch (e: any) {
     if (typeof e === 'object' && e.name === 'UNKNOWN_OPTION') {
       console.warn(chalk.red('\nUnknown option: ' + e.optionName));
     } else {
