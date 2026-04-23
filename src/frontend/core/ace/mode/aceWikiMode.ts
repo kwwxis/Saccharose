@@ -19,7 +19,7 @@ import { quotifyWikitextTokens } from './aceWikitextQuotify.ts';
   let HtmlHighlightRules = acequire('./html_highlight_rules').HtmlHighlightRules;
   //let CssHighlightRules = acequire('./css_highlight_rules').CssHighlightRules;
 
-  let WikitextHighlightRules: any = function() {
+  let WikitextHighlightRules: any = function(this: any) {
     // regexp must not have capturing parentheses. Use (?:) instead.
     // regexps are ordered -> the first match is used
 
@@ -498,7 +498,7 @@ import { quotifyWikitextTokens } from './aceWikitextQuotify.ts';
 
   let WikitextHighlightRules = acequire('./wikitext_highlight_rules').WikitextHighlightRules;
 
-  let Mode = function() {
+  let Mode = function(this: any) {
     this.HighlightRules = WikitextHighlightRules;
 
     this.createModeDelegates({
@@ -512,7 +512,7 @@ import { quotifyWikitextTokens } from './aceWikitextQuotify.ts';
   };
   oop.inherits(Mode, TextMode);
 
-  (function() {
+  (function(this: any) {
     this.type = 'text';
     this.blockComment = { start: '<!--', end: '-->' };
 

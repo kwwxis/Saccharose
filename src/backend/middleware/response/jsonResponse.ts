@@ -6,7 +6,7 @@ function isBadCode(statusCode: number) {
 }
 
 function interceptJsonFunction(originalJsonFunction: (body?: any) => Response): (body?: any) => Response {
-  return function(obj) {
+  return function(this: Response, obj) {
     const fields = this.req.query['fields'];
 
     return isBadCode(this.statusCode)

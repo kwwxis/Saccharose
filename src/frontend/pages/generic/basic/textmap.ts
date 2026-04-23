@@ -13,7 +13,6 @@ import { listen } from '../../../util/eventListen.ts';
 import SiteModeInfo from '../../../core/userPreferences/siteModeInfo.ts';
 import { highlightReplace } from '../../../core/ace/aceHighlight.ts';
 import { TextMapChangeRef } from '../../../../shared/types/changelog-types.ts';
-import { createPatch } from '../../../../shared/jsdiff/jsdiff.js';
 import { createDiffUIFullDiff, DiffUI } from '../../../util/DiffUI.ts';
 import { isNightmode } from '../../../core/userPreferences/siteTheme.ts';
 import { ColorSchemeType } from 'diff2html/lib/types';

@@ -37,7 +37,7 @@ pageMatch('vue/GenshinQuestPage', () => {
           document.querySelectorAll('[data-filter-similarity-group]')
             .forEach(el => el.classList.remove('active'));
 
-          const sections: HTMLElement[] = Array.from(resultParent.querySelectorAll('.dialogue-section'));
+          const sections: HTMLElement[] = Array.from(resultParent.querySelectorAll<HTMLElement>('.dialogue-section'));
 
           let groupId = target.getAttribute('data-filter-similarity-group');
           if (groupId === 'RESET' || targetIsActive) {

@@ -3,19 +3,24 @@ import { getGenshinDataFilePath, PIPELINE_DIR } from '../loadenv.ts';
 import { pathToFileURL } from 'url';
 import treeKill from 'tree-kill';
 import { isPromise, isset } from '../../shared/util/genericUtil.ts';
-import { isInt, toInt } from '../../shared/util/numberUtil.ts';
+import { toInt } from '../../shared/util/numberUtil.ts';
 import { splitLimit } from '../../shared/util/stringUtil.ts';
 import path from 'path';
 import { LangDetectResult } from '../../shared/types/common-types.ts';
 import { Duration } from '../../shared/util/duration.ts';
+import { NonSharedBuffer } from 'node:buffer';
 
 async function exec(command: string, options: ExecOptions): Promise<string> {
   return new Promise((resolve, reject) => {
-    _execAsync(command, options, (err: ExecException, stdout: string, _stderr: string) => {
+    _execAsync(command, options, (err: ExecException, stdout: string|NonSharedBuffer, _stderr: string|NonSharedBuffer) => {
       if (err) {
         return reject(err);
       } else {
-        return resolve(stdout);
+        if (typeof stdout === 'string') {
+          resolve(stdout);
+        } else {
+          resolve(stdout.toString('utf-8'));
+        }
       }
     });
   });
@@ -429,7 +434,7 @@ export async function grep(searchText: string,
     return stdout.split(/\n/)
       .map(s => postProcessGrepLine(s, cmd.hasLineNumFlag, extraOpts.startFromLine))
       .filter(x => !!x);
-  } catch (err) {
+  } catch (err: any) {
     if (err && err.code === 1) {
       return []; // exit code of 1 is no matches found - not an error for our use case
     } else if (err && err.code === 'ERR_CHILD_PROCESS_STDIO_MAXBUFFER') {
@@ -441,7 +446,7 @@ export async function grep(searchText: string,
       if (hasRegexFlag) {
         try {
           new RegExp(searchText)
-        } catch (e) {
+        } catch (e: any) {
           throw e?.message || 'Search error occurred.';
         }
       }

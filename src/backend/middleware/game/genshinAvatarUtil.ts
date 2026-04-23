@@ -67,7 +67,7 @@ export async function getGenshinAvatars(ctrl: GenshinControl, combineTraveler: b
 export async function getGenshinAvatar(ctrl: GenshinControl, req: Request, combineTraveler: boolean): Promise<AvatarExcelConfigData> {
   const avatars = await getGenshinAvatars(ctrl, combineTraveler);
   const arg: string|number = ['avatarId', 'avatarName', 'avatar', 'id']
-    .map(key => req.params[key] || <string> req.query[key]).find(val => !!val);
+    .map(key => String(req.params[key] || req.query[key])).find(val => !!val);
 
   if (!arg) {
     return null;
@@ -96,7 +96,7 @@ export async function getGenshinAvatar(ctrl: GenshinControl, req: Request, combi
 export async function getCompanion(ctrl: GenshinControl, req: Request): Promise<HomeWorldNPCExcelConfigData> {
   const companions = await getHomeWorldCompanions(ctrl);
   const arg: string|number = ['avatarId', 'avatarName', 'avatar', 'id']
-    .map(key => req.params[key] || <string> req.query[key]).find(val => !!val);
+    .map(key => String(req.params[key] || req.query[key])).find(val => !!val);
 
   if (!arg) {
     return null;

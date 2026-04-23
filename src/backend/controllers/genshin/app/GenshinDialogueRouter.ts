@@ -56,7 +56,7 @@ export default async function(): Promise<Router> {
       await res.renderComponent(GenshinChapterPage, {
         title: 'Chapters & Acts',
         chapterNotFound: true,
-        requestId: req.params.id,
+        requestId: String(req.params.id),
         bodyClass: ['page--chapters']
       });
       return;

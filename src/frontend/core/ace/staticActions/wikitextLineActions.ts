@@ -135,7 +135,7 @@ export function applyWikitextLineActions(element: HTMLElement, commonLineIds: Co
     });
 
     const removeAllPanels = () => {
-      document.querySelectorAll('.ace_line-info-panel-outer').forEach((el: HTMLElement) => {
+      document.querySelectorAll<HTMLElement>('.ace_line-info-panel-outer').forEach((el: HTMLElement) => {
         document.querySelectorAll(`[data-active="${el.id}"]`).forEach(x => x.removeAttribute('data-active'));
         el.style.opacity = '0';
         setTimeout(() => {
@@ -162,7 +162,7 @@ export function applyWikitextLineActions(element: HTMLElement, commonLineIds: Co
       }, 500);
     };
 
-    element.querySelectorAll('.ace_static_text_layer .ace_line').forEach((lineEl: HTMLElement) => {
+    element.querySelectorAll<HTMLElement>('.ace_static_text_layer .ace_line').forEach((lineEl: HTMLElement) => {
       lineEl.addEventListener('mouseenter', () => {
         lineEl.classList.add('hovered');
         lastHoveredLine = lineEl;
@@ -213,7 +213,7 @@ function calculateLinePanelPositions(panel: HTMLElement, lineRect: DOMRect) {
 }
 
 export function recalculateAceLinePanelPositions() {
-  document.querySelectorAll('.ace_line-info-panel-outer').forEach((el: HTMLElement) => {
+  document.querySelectorAll<HTMLElement>('.ace_line-info-panel-outer').forEach((el: HTMLElement) => {
     const lineEl: HTMLElement = document.querySelector(`[data-active="${el.id}"]`);
     if (lineEl) {
       calculateLinePanelPositions(el, getElementOffset(lineEl));

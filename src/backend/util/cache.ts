@@ -3,7 +3,7 @@ import { createClient, RedisClientType, RedisFunctions, RedisModules, RedisScrip
 import { logInit, logShutdown } from './logger.ts';
 import { toBoolean } from '../../shared/util/genericUtil.ts';
 import { RespVersions, TypeMapping } from '@redis/client/dist/lib/RESP/types';
-import { isArrayLike, toArray } from '../../shared/util/arrayUtil.ts';
+import { toArray } from '../../shared/util/arrayUtil.ts';
 
 const cache: {
   mode: 'memory' | 'redis',

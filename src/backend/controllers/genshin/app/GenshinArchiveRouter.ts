@@ -239,7 +239,7 @@ export default async function(): Promise<Router> {
     let viewpointsList: ViewpointsByRegion = null;
 
     if (req.params.city) {
-      let cityId = await ctrl.getCityIdFromName(req.params.city);
+      let cityId = await ctrl.getCityIdFromName(String(req.params.city));
       if (cityId) {
         cityName = await ctrl.selectCityNameById(cityId);
         viewpointsList = await selectViewpoints(ctrl, cityId);
@@ -252,7 +252,7 @@ export default async function(): Promise<Router> {
     await res.renderComponent(GenshinViewpointsPage, {
       title: `${cityName} Viewpoints`.trim(),
       bodyClass: ['page--viewpoints'],
-      citySelected: req.params.city,
+      citySelected: String(req.params.city),
       cities,
       viewpointsList,
       fileFormatParams: VIEWPOINT_FILE_FORMAT_PARAMS.join(','),
@@ -288,7 +288,7 @@ export default async function(): Promise<Router> {
     await res.renderComponent(TutorialCategoriesPage, {
       title: codexTypeName ? `Tutorials - ${codexTypeName}` : 'Tutorials',
       bodyClass: ['page--tutorials', 'page--tutorials-categories'],
-      categorySelected: req.params.category,
+      categorySelected: String(req.params.category),
       categoryNames: codexTypes.map(pushTipCodexTypeName),
       tutorialsByType,
       fileFormatParams: TUTORIAL_FILE_FORMAT_PARAMS.join(','),
@@ -328,7 +328,7 @@ export default async function(): Promise<Router> {
       await res.renderComponent(AchievementListingPage, {
         title: `Achievements - ${goalName}`,
         bodyClass: ['page--achievements', 'page--achievements-categories'],
-        category: req.params.categoryOrId,
+        category: String(req.params.categoryOrId),
         goals,
         achievements
       });

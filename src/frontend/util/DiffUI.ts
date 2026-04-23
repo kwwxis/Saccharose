@@ -11,7 +11,7 @@ import * as ace from 'brace';
 import { isNightmode, offSiteThemeChange, onSiteThemeChange, SiteTheme } from '../core/userPreferences/siteTheme.ts';
 import { createElement } from './domutil.ts';
 import { ColorSchemeType } from 'diff2html/lib/types';
-import { createPatch } from '../../shared/jsdiff/patch/create';
+import { createPatch } from 'diff';
 
 export type DiffUIConfig = Omit<Diff2HtmlConfig, 'maxLineLengthHighlight'> & {
   drawFileHeader?: boolean,

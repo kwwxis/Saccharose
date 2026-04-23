@@ -1,6 +1,6 @@
 // noinspection JSUnusedGlobalSymbols
 import { escapeHtml } from '../../shared/util/stringUtil.ts';
-import axios, { AxiosError, Method } from 'axios';
+import axios, { AxiosError } from 'axios';
 import { showInternalErrorDialog, showJavascriptErrorDialog } from '../util/errorHandler.ts';
 import { modalService } from '../util/modalService.ts';
 import { HttpError } from '../../shared/util/httpError.ts';

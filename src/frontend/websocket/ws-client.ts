@@ -115,7 +115,7 @@ export class WsClient {
       }
     };
 
-    this.ws.onopen = (event: Event) => {
+    this.ws.onopen = (_event: Event) => {
       this.didOpen = true;
       console.log('[WS:Open] Successfully opened WebSocket.');
       this.reconnectAttempts = INITIAL_RECONNECT_ATTEMPTS;
@@ -161,11 +161,13 @@ export class WsClient {
     return isset(this.ws) && this.ws.readyState === WebSocket.OPEN;
   }
 
-  private buildMessage<T extends WsMessageType>(message: WsMessage<T>): void;
-  private buildMessage<T extends WsMessageType>(type: T, data: WsMessageData[T]): void;
-  private buildMessage<T extends WsMessageType>(type: T, correlationId: string, data: WsMessageData[T]): void;
+  private buildMessage<T extends WsMessageType>(message: WsMessage<T>): WsMessage<T>;
+  private buildMessage<T extends WsMessageType>(type: T, data: WsMessageData[T]): WsMessage<T>;
+  private buildMessage<T extends WsMessageType>(type: T, correlationId: string, data: WsMessageData[T]): WsMessage<T>;
 
-  private buildMessage<T extends WsMessageType>(typeOrMessage: T|WsMessage<T>, dataOrCorrelationId?: string|WsMessageData[T], maybeData?: WsMessageData[T]): WsMessage<T> {
+  private buildMessage<T extends WsMessageType>(typeOrMessage: T|WsMessage<T>,
+                                                dataOrCorrelationId?: string|WsMessageData[T],
+                                                maybeData?: WsMessageData[T]): WsMessage<T> {
     if (isUnset(typeOrMessage)) {
       throw 'Type or message is required';
     }
@@ -194,8 +196,8 @@ export class WsClient {
   public send<T extends WsMessageType>(message: WsMessage<T>): void;
   public send<T extends WsMessageType>(type: T, data: WsMessageData[T]): void;
   public send<T extends WsMessageType>(type: T, correlationId: string, data: WsMessageData[T]): void;
-  public send(): void {
-    const message = this.buildMessage.apply(this, arguments);
+  public send<T extends WsMessageType>(): void {
+    const message: WsMessage<T> = this.buildMessage.apply(this, arguments as any) as any;
     if (this.isOpen()) {
       this.ws.send(JSON.stringify(message));
     } else {
@@ -207,7 +209,7 @@ export class WsClient {
   public prepare<T extends WsMessageType>(type: T, data: WsMessageData[T]): PreparedMessage<T>;
   public prepare<T extends WsMessageType>(type: T, correlationId: string, data: WsMessageData[T]): PreparedMessage<T>;
   public prepare<T extends WsMessageType>(): PreparedMessage<T> {
-    const message = this.buildMessage.apply(this, arguments);
+    const message: WsMessage<T> = this.buildMessage.apply(this, arguments as any) as any;
     return new PreparedMessage<T>(message);
   }
 

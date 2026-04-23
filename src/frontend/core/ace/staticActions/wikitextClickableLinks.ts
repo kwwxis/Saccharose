@@ -91,7 +91,7 @@ function isClickableTokenConfigured(token: HTMLElement) {
 
 export function applyWikitextClickableLinks(element: HTMLElement) {
   initialSetup();
-  element.querySelectorAll('.ace_template-name, .ace_link-name').forEach((el: HTMLElement) => {
+  element.querySelectorAll<HTMLElement>('.ace_template-name, .ace_link-name').forEach((el: HTMLElement) => {
     if (!isClickableTokenConfigured(el)) {
       configureClickableToken(el);
     }

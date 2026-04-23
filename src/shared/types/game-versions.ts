@@ -93,7 +93,10 @@ export class GameVersions {
     return !!this.get(v);
   }
 
-  get(s: string): GameVersion {
+  get(s: string|string[]): GameVersion {
+    if (Array.isArray(s)) {
+      s = s[0];
+    }
     const cacheKey = s;
     if (this.getCache.has(cacheKey)) {
       return this.getCache.get(cacheKey);

@@ -496,7 +496,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     let options: commandLineArgs.CommandLineOptions;
     try {
       options = commandLineArgs(optionDefinitions);
-    } catch (e) {
+    } catch (e: any) {
       if (typeof e === 'object' && e.name === 'UNKNOWN_OPTION') {
         console.warn(chalk.red('\nUnknown option: ' + e.optionName));
       } else {

@@ -1,32 +1,8 @@
-import { Diff, diffWords, diffWordsWithSpace } from '../../shared/jsdiff/jsdiff.js';
-import type { WordsOptions } from 'diff';
-import { fileURLToPath, pathToFileURL } from 'url';
+import { pathToFileURL } from 'url';
 import { LANG_CODE_TO_LOCALE, LangCode, NON_SPACE_DELIMITED_LANG_CODES } from '../../shared/types/lang-types.ts';
-import path, { dirname } from 'path';
-import fs from 'fs';
+import { DiffWordsOptionsNonabortable, diffWordsWithSpace } from 'diff';
 
-const reWhitespace = /\S/;
-
-export const intlDiff = new Diff();
-
-intlDiff.equals = function(left, right) {
-  if (this.options.ignoreCase) {
-    left = left.toLowerCase();
-    right = right.toLowerCase();
-  }
-  return left === right || (this.options.ignoreWhitespace && !reWhitespace.test(left) && !reWhitespace.test(right));
-};
-
-intlDiff.tokenize = function(value) {
-  const segmenter = new Intl.Segmenter(LANG_CODE_TO_LOCALE[this.options.langCode || 'EN'], { granularity: 'word' });
-  return Array.from(segmenter.segment(value)).map(s => s.segment);
-};
-
-function generateOptions(options, defaults: Partial<JsIntlDiffOptions>) {
-  return Object.assign(defaults, options || {});
-}
-
-export interface JsIntlDiffOptions extends WordsOptions {
+export interface JsIntlDiffOptions extends DiffWordsOptionsNonabortable {
   langCode: LangCode,
 
   /**
@@ -41,26 +17,19 @@ export interface JsIntlDiffOptions extends WordsOptions {
 }
 
 export function diffIntl(oldStr, newStr, options: JsIntlDiffOptions) {
-  options = generateOptions(options, {
-    langCode: 'EN',
-    ignoreWhitespace: true
-  });
-  if (options.forceIntl || NON_SPACE_DELIMITED_LANG_CODES.includes(options.langCode)) {
-    return intlDiff.diff(oldStr, newStr, options);
-  } else {
-    return diffWords(oldStr, newStr, options);
-  }
+  return diffIntlWithSpace(oldStr, newStr, options);
 }
 
 export function diffIntlWithSpace(oldStr, newStr, options: JsIntlDiffOptions) {
-  options = generateOptions(options, {
-    langCode: 'EN'
-  });
-  if (options.forceIntl || NON_SPACE_DELIMITED_LANG_CODES.includes(options.langCode)) {
-    return intlDiff.diff(oldStr, newStr, options);
-  } else {
-    return diffWordsWithSpace(oldStr, newStr, options);
+  if (!options || !options.langCode) {
+    throw 'langCode is required';
   }
+
+  if (options.forceIntl || NON_SPACE_DELIMITED_LANG_CODES.includes(options.langCode)) {
+    options.intlSegmenter = new Intl.Segmenter(LANG_CODE_TO_LOCALE[options.langCode || 'EN'], { granularity: 'word' });
+  }
+
+  return diffWordsWithSpace(oldStr, newStr, options);
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
@@ -94,14 +63,14 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
 
   console.log('----------')
 
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname = dirname(__filename);
-
-  console.log('Diff start');
-  const result = diffWordsWithSpace(
-    fs.readFileSync(path.resolve(__dirname, './jsIntlDiffTest.old.txt'), {encoding: 'utf-8'}),
-    fs.readFileSync(path.resolve(__dirname, './jsIntlDiffTest.new.txt'), {encoding: 'utf-8'})
-  );
-  //console.log(result);
-  console.log('Diff end');
+  // const __filename = fileURLToPath(import.meta.url);
+  // const __dirname = dirname(__filename);
+  //
+  // console.log('Diff start');
+  // const result = diffWordsWithSpace(
+  //   fs.readFileSync(path.resolve(__dirname, './jsIntlDiffTest.old.txt'), {encoding: 'utf-8'}),
+  //   fs.readFileSync(path.resolve(__dirname, './jsIntlDiffTest.new.txt'), {encoding: 'utf-8'})
+  // );
+  // //console.log(result);
+  // console.log('Diff end');
 }

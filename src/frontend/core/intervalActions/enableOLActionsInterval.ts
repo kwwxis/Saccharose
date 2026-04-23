@@ -8,7 +8,7 @@ import { getOLEndpoint } from '../endpoints.ts';
 
 export function enableOLActionsInterval() {
   const { config } = getOLEndpoint();
-  document.querySelectorAll('.highlighted.ol-result-textarea:not(.ol-result-textarea-processed)').forEach(
+  document.querySelectorAll<HTMLElement>('.highlighted.ol-result-textarea:not(.ol-result-textarea-processed)').forEach(
     (contentEditableEl: HTMLElement) => {
       contentEditableEl.classList.add('ol-result-textarea-processed');
 

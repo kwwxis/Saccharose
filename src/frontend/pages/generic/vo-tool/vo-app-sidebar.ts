@@ -2,7 +2,7 @@ import { listen } from '../../../util/eventListen.ts';
 import { VoAppState } from './vo-tool.ts';
 
 export async function VoAppSidebar(_state: VoAppState): Promise<void> {
-  const allRows: HTMLElement[] = Array.from(document.querySelectorAll('.vo-toolbar-sidebar-avatar'));
+  const allRows: HTMLElement[] = Array.from(document.querySelectorAll<HTMLElement>('.vo-toolbar-sidebar-avatar'));
   const pendingIconEl = document.getElementById('vo-toolbar-sidebar-search-pending');
 
   const lc = (s: string) => s ? s.toLowerCase() : '';

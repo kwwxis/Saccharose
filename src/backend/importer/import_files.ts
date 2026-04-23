@@ -18,7 +18,7 @@ async function importFilesCli() {
   let options: commandLineArgs.CommandLineOptions;
   try {
     options = commandLineArgs(optionDefinitions, {partial: true, stopAtFirstUnknown: false});
-  } catch (e) {
+  } catch (e: any) {
     if (typeof e === 'object' && e.name === 'UNKNOWN_OPTION') {
       console.warn(chalk.red('\nUnknown option: ' + e.optionName));
     } else {

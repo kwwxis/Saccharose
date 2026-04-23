@@ -44,7 +44,7 @@ export async function getWuwaRole(ctrl: WuwaControl, req: Request): Promise<Role
   const roles = await getWuwaRoles(ctrl);
 
   const arg: string|number = ['roleId', 'roleName', 'name', 'role', 'id']
-    .map(key => req.params[key] || <string> req.query[key]).find(val => !!val);
+    .map(key => String(req.params[key] || req.query[key])).find(val => !!val);
 
   if (!arg) {
     return null;

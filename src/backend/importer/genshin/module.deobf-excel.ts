@@ -42,7 +42,7 @@ export async function writeDeobfExcels() {
   let didStart: boolean = (s => !s)(startAt);
 
   // noinspection JSMismatchedCollectionQueryUpdate (empty array: whitelist not enabled)
-  const whitelist: string[] = [];
+  const whitelist: string[] = ['LocalizationExcelConfigData'];
 
   const jsonsInDir = fs.readdirSync(rawExcelDirPath).filter(file => path.extname(file) === '.json');
   for (let _jsonFile of jsonsInDir) {

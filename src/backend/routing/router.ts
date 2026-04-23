@@ -148,8 +148,8 @@ export async function doRender(req: Request, res: Response,
       callback(null, rendered);
     }
     return rendered;
-  } catch (e) {
-    if (typeof callback === 'function') {
+  } catch (e: unknown) {
+    if (e instanceof Error && typeof callback === 'function') {
       callback(e, null);
     }
     if (locals && locals.throwOnError) {
@@ -157,7 +157,9 @@ export async function doRender(req: Request, res: Response,
     } else if (req.next) {
       req.next(e);
     }
-    return e;
+    if (e instanceof Error) {
+      return e;
+    }
   }
 }
 

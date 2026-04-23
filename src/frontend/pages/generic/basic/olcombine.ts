@@ -11,6 +11,7 @@ pageMatch('vue/OLCombinePage', () => {
     {
       selector: '.ol-combine-submit',
       event: 'click',
+      stuff: true,
       handle() {
         document.querySelector('.ol-combine-submit-pending').classList.remove('hide');
         getOLCombineEndpoint().send(null, {text: editor.getValue()}, true).then(result => {

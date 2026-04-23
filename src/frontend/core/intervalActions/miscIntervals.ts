@@ -1,6 +1,6 @@
 
 export function enableMiscIntervals() {
-  document.querySelectorAll('a.unblankIfSameUrl').forEach((el: HTMLAnchorElement) => {
+  document.querySelectorAll<HTMLAnchorElement>('a.unblankIfSameUrl').forEach((el: HTMLAnchorElement) => {
     el.classList.remove('unblankIfSameUrl');
 
     if (urlsAreSame(el.href, location.href)) {

@@ -106,7 +106,7 @@ export default async function(): Promise<Router> {
     await res.renderComponent(CharacterStoriesPage, {
       title: 'Character Stories - ' + (story?.avatar?.NameText || 'N/A'),
       avatar,
-      avatarId: req.params.avatar,
+      avatarId: String(req.params.avatar),
       story: story,
       bodyClass: ['page--character-stories'],
       tab: queryTab(req, 'display', 'wikitext', ... (story?.hasAlteredStories ? ['altered-display', 'altered-wikitext'] : [])),

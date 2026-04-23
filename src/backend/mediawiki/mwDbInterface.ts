@@ -5,7 +5,7 @@ import { isInt, toInt } from '../../shared/util/numberUtil.ts';
 import { MwArticleInfo, MwRevision, MwRevLoadMode } from '../../shared/mediawiki/mwTypes.ts';
 import { isNotEmpty } from '../../shared/util/genericUtil.ts';
 import { diffIntlWithSpace } from '../util/jsIntlDiff.ts';
-import { createPatch } from '../../shared/jsdiff/jsdiff.js';
+import { createPatch } from 'diff';
 
 export type MwRevEntity = {
   pageid: number,

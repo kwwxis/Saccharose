@@ -3,7 +3,7 @@ const allowReadonlyKeys = new Set(['ArrowUp', 'ArrowRight', 'ArrowDown', 'ArrowL
   'PageUp', 'PageDown', 'Home', 'End']);
 
 export function enableReadonlyInterval() {
-  const contentEditableList: HTMLElement[] = Array.from(document.querySelectorAll('[contenteditable][readonly]:not(.readonly-contenteditable-processed)'));
+  const contentEditableList: HTMLElement[] = Array.from(document.querySelectorAll<HTMLElement>('[contenteditable][readonly]:not(.readonly-contenteditable-processed)'));
 
   for (let el of contentEditableList) {
     el.classList.add('readonly-contenteditable-processed');

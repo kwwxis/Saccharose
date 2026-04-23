@@ -85,7 +85,7 @@ export function highlight(opts: HighlightOptions): HTMLElement {
   // --------------------------------------------------------------------------------------------------------------
   const EditSession = ace.acequire('ace/edit_session').EditSession;
   const TextLayer = ace.acequire('ace/layer/text').Text;
-  const SimpleTextLayer = function(config: any = {}) {
+  const SimpleTextLayer = function(this: any, config: any = {}) {
     this.config = config;
   };
   SimpleTextLayer.prototype = TextLayer.prototype;
@@ -334,7 +334,7 @@ function applyMarkerToToken(token: HTMLElement, marker: Marker) {
 }
 
 function markifyTextLayer(element: HTMLElement, aggs: Map<number, MarkerAggregate>) {
-  const aceLines: HTMLElement[] = Array.from(element.querySelectorAll('.ace_static_text_layer .ace_line'));
+  const aceLines: HTMLElement[] = Array.from(element.querySelectorAll<HTMLElement>('.ace_static_text_layer .ace_line'));
 
   for (let i = 0; i < aceLines.length; i++) {
     const aceLine: HTMLElement = aceLines[i];

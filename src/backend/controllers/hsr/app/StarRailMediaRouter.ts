@@ -46,7 +46,7 @@ export default async function(): Promise<Router> {
 
   router.get('/media/archive-job/:jobId', async (req: Request, res: Response) => {
     await res.renderComponent(StarRailMediaArchiveJobPage, {
-      jobId: req.params.jobId,
+      jobId: String(req.params.jobId),
     });
   });
 

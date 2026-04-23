@@ -3,13 +3,15 @@ import { escapeHtmlAllowEntities } from '../../shared/util/stringUtil.ts';
 import { GENSHIN_SPRITE_TAGS } from '../domain/genshin/genshinText.ts';
 import { toInt } from '../../shared/util/numberUtil.ts';
 
-export function icon(iconName: string): string;
-export function icon(iconName: string, size: number): string;
-export function icon(iconName: string, props: Partial<FeatherAttributes>): string;
-export function icon(iconName: string, size: number, props: Partial<FeatherAttributes>): string;
-export function icon(iconName: string, props: Partial<FeatherAttributes>, size: number): string;
+export function icon(iconName: FeatherIconNames): string;
+export function icon(iconName: FeatherIconNames, size: number): string;
+export function icon(iconName: FeatherIconNames, props: Partial<FeatherAttributes>): string;
+export function icon(iconName: FeatherIconNames, size: number, props: Partial<FeatherAttributes>): string;
+export function icon(iconName: FeatherIconNames, props: Partial<FeatherAttributes>, size: number): string;
 
-export function icon(iconName: FeatherIconNames, sizeOrProps?: number|Partial<FeatherAttributes>, propsOrSize?: number|Partial<FeatherAttributes>): string {
+export function icon(iconName: FeatherIconNames,
+                     sizeOrProps?: number|Partial<FeatherAttributes>,
+                     propsOrSize?: number|Partial<FeatherAttributes>): string {
   let size: number = undefined;
   let props: Partial<FeatherAttributes> = {};
 

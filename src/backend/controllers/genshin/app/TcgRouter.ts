@@ -151,7 +151,7 @@ export default async function(): Promise<Router> {
 
     await res.renderComponent(GcgCardPage, {
       title: (card?.WikiName || 'Not Found') + ' | TCG Card',
-      reqCardId: req.params.cardId,
+      reqCardId: String(req.params.cardId),
       bodyClass: ['page--tcg-card'],
       card: card,
       wikitext: await generateCardPage(gcg, card),

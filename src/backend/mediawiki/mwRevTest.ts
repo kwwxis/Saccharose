@@ -15,9 +15,9 @@ function test0() {
   const segmentHolder: MwOwnSegmentHolder = new MwOwnSegmentHolder();
 
   segmentHolder.setSegments([
-    {value: 'The quick brown ', owner: 'UserA', mode: 'added'},
-    {value: 'fox jumps over ', owner: 'UserB', mode: 'added'},
-    {value: ' the lazy dog!', owner: 'UserC', mode: 'added'},
+    {value: 'The quick brown ', owner: 'UserA', mode: 'added', revId: 1},
+    {value: 'fox jumps over ', owner: 'UserB', mode: 'added', revId: 1},
+    {value: ' the lazy dog!', owner: 'UserC', mode: 'added', revId: 1},
   ], true);
 
   console.log('1:', segmentHolder.segments);

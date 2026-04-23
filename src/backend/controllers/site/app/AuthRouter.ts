@@ -1,4 +1,4 @@
-import { CookieOptions, NextFunction, Request, Response, Router } from 'express';
+import { NextFunction, Request, Response, Router } from 'express';
 import { create } from '../../../routing/router.ts';
 import passport from 'passport';
 import ejs from 'ejs';

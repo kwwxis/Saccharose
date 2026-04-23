@@ -116,7 +116,7 @@ export default async function(): Promise<Router> {
     ctrl.state.AutoloadAvatar = false;
 
     const excelChangelog: ExcelVersionChangelog = await ctrl.excelChangelog.selectVersionAggregate(gameVersion);
-    const excelFileChanges = excelChangelog[req.params.excelFileName];
+    const excelFileChanges = excelChangelog[String(req.params.excelFileName)];
     const schemaTable = ctrl.schema[excelFileChanges.name];
 
     for (let record of valuesOf(excelFileChanges.changedRecords)) {

@@ -55,7 +55,7 @@ export default function(router: Router): void {
 
   router.endpoint('/jobs/:jobId', {
     get: async (req: Request, _res: Response): Promise<ScriptJobState<ScriptJobAction>> => {
-      const jobId: string = req.params.jobId;
+      const jobId: string = String(req.params.jobId);
       return await ScriptJobCoordinator.getState(jobId);
     }
   });

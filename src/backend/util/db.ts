@@ -3,7 +3,7 @@ import exitHook from 'async-exit-hook';
 import { logInit, logShutdown } from './logger.ts';
 import { toInt } from '../../shared/util/numberUtil.ts';
 import Pool from 'pg-pool';
-import { isEmpty, toBoolean } from '../../shared/util/genericUtil.ts';
+import { isEmpty } from '../../shared/util/genericUtil.ts';
 import { isSiteModeDisabled } from '../loadenv.ts';
 
 export type SaccharoseDb = {

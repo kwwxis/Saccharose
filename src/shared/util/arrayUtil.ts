@@ -45,7 +45,7 @@ export function isArrayLike(obj: any): boolean {
   );
 }
 
-export function filterInPlace<T>(a: T[], condition: (item: T) => boolean, thisArg: any = null): T[] {
+export function filterInPlace<T>(a: T[], condition: (item: T, i?: number, a?: T[]) => boolean, thisArg: any = null): T[] {
     let j = 0;
 
     a.forEach((e: T, i: number) => {

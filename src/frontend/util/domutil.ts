@@ -736,8 +736,8 @@ export function getElementOffset(el: HTMLElement): DOMRect {
 export class DOMClassWatcher {
   private readonly targetNode: HTMLElement;
   private readonly classesToWatch: string[];
-  private readonly classAddedCallback: (cls?: String, targetNode?: HTMLElement) => void;
-  private readonly classRemovedCallback: (cls?: String, targetNode?: HTMLElement) => void;
+  private readonly classAddedCallback: (cls?: string, targetNode?: HTMLElement) => void;
+  private readonly classRemovedCallback: (cls?: string, targetNode?: HTMLElement) => void;
   private observer: MutationObserver;
   private lastClassState: { [cls: string]: boolean } = {};
 

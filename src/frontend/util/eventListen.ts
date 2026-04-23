@@ -1,150 +1,146 @@
 import { isElement, waitForElement } from './domutil.ts';
 
-export interface ListenerCallback<T extends Event, E extends Element = HTMLElement> {
-  (evt: T, target?: E): void;
-}
-
 export interface ListenerEventMap extends HTMLElementEventMap, WindowEventMap {
   enter: KeyboardEvent,
   ready: Event
 }
 
-export interface ListenerObject<K extends keyof ListenerEventMap> {
+export interface ListenerObject<K extends keyof ListenerEventMap, E extends Element = HTMLElement> {
   selector?: HTMLElement|HTMLElement[]|Document|string;
   event: K;
   multiple?: boolean;
-  handle: ListenerCallback<ListenerEventMap[K]>;
+  handle: (evt: ListenerEventMap[K], E) => void;
   [extraProp: string]: any;
 }
 
-export type Listener =
-  ListenerObject<'abort'> |
-  ListenerObject<'animationcancel'> |
-  ListenerObject<'animationend'> |
-  ListenerObject<'animationiteration'> |
-  ListenerObject<'animationstart'> |
-  ListenerObject<'auxclick'> |
-  ListenerObject<'beforeinput'> |
-  ListenerObject<'blur'> |
-  ListenerObject<'cancel'> |
-  ListenerObject<'canplay'> |
-  ListenerObject<'canplaythrough'> |
-  ListenerObject<'change'> |
-  ListenerObject<'click'> |
-  ListenerObject<'close'> |
-  ListenerObject<'compositionend'> |
-  ListenerObject<'compositionstart'> |
-  ListenerObject<'compositionupdate'> |
-  ListenerObject<'contextmenu'> |
-  ListenerObject<'copy'> |
-  ListenerObject<'cuechange'> |
-  ListenerObject<'cut'> |
-  ListenerObject<'dblclick'> |
-  ListenerObject<'drag'> |
-  ListenerObject<'dragend'> |
-  ListenerObject<'dragenter'> |
-  ListenerObject<'dragleave'> |
-  ListenerObject<'dragover'> |
-  ListenerObject<'dragstart'> |
-  ListenerObject<'drop'> |
-  ListenerObject<'durationchange'> |
-  ListenerObject<'emptied'> |
-  ListenerObject<'ended'> |
-  ListenerObject<'error'> |
-  ListenerObject<'focus'> |
-  ListenerObject<'focusin'> |
-  ListenerObject<'focusout'> |
-  ListenerObject<'formdata'> |
-  ListenerObject<'gotpointercapture'> |
-  ListenerObject<'input'> |
-  ListenerObject<'invalid'> |
-  ListenerObject<'keydown'> |
-  ListenerObject<'keypress'> |
-  ListenerObject<'keyup'> |
-  ListenerObject<'load'> |
-  ListenerObject<'loadeddata'> |
-  ListenerObject<'loadedmetadata'> |
-  ListenerObject<'loadstart'> |
-  ListenerObject<'lostpointercapture'> |
-  ListenerObject<'mousedown'> |
-  ListenerObject<'mouseenter'> |
-  ListenerObject<'mouseleave'> |
-  ListenerObject<'mousemove'> |
-  ListenerObject<'mouseout'> |
-  ListenerObject<'mouseover'> |
-  ListenerObject<'mouseup'> |
-  ListenerObject<'paste'> |
-  ListenerObject<'pause'> |
-  ListenerObject<'play'> |
-  ListenerObject<'playing'> |
-  ListenerObject<'pointercancel'> |
-  ListenerObject<'pointerdown'> |
-  ListenerObject<'pointerenter'> |
-  ListenerObject<'pointerleave'> |
-  ListenerObject<'pointermove'> |
-  ListenerObject<'pointerout'> |
-  ListenerObject<'pointerover'> |
-  ListenerObject<'pointerup'> |
-  ListenerObject<'progress'> |
-  ListenerObject<'ratechange'> |
-  ListenerObject<'reset'> |
-  ListenerObject<'resize'> |
-  ListenerObject<'scroll'> |
-  ListenerObject<'scrollend'> |
-  ListenerObject<'securitypolicyviolation'> |
-  ListenerObject<'seeked'> |
-  ListenerObject<'seeking'> |
-  ListenerObject<'select'> |
-  ListenerObject<'selectionchange'> |
-  ListenerObject<'selectstart'> |
-  ListenerObject<'slotchange'> |
-  ListenerObject<'stalled'> |
-  ListenerObject<'submit'> |
-  ListenerObject<'suspend'> |
-  ListenerObject<'timeupdate'> |
-  ListenerObject<'toggle'> |
-  ListenerObject<'touchcancel'> |
-  ListenerObject<'touchend'> |
-  ListenerObject<'touchmove'> |
-  ListenerObject<'touchstart'> |
-  ListenerObject<'transitioncancel'> |
-  ListenerObject<'transitionend'> |
-  ListenerObject<'transitionrun'> |
-  ListenerObject<'transitionstart'> |
-  ListenerObject<'volumechange'> |
-  ListenerObject<'waiting'> |
-  ListenerObject<'webkitanimationend'> |
-  ListenerObject<'webkitanimationiteration'> |
-  ListenerObject<'webkitanimationstart'> |
-  ListenerObject<'webkittransitionend'> |
-  ListenerObject<'wheel'> |
+export type Listener<E extends Element = any> =
+  ListenerObject<'abort', E> |
+  ListenerObject<'animationcancel', E> |
+  ListenerObject<'animationend', E> |
+  ListenerObject<'animationiteration', E> |
+  ListenerObject<'animationstart', E> |
+  ListenerObject<'auxclick', E> |
+  ListenerObject<'beforeinput', E> |
+  ListenerObject<'blur', E> |
+  ListenerObject<'cancel', E> |
+  ListenerObject<'canplay', E> |
+  ListenerObject<'canplaythrough', E> |
+  ListenerObject<'change', E> |
+  ListenerObject<'click', E> |
+  ListenerObject<'close', E> |
+  ListenerObject<'compositionend', E> |
+  ListenerObject<'compositionstart', E> |
+  ListenerObject<'compositionupdate', E> |
+  ListenerObject<'contextmenu', E> |
+  ListenerObject<'copy', E> |
+  ListenerObject<'cuechange', E> |
+  ListenerObject<'cut', E> |
+  ListenerObject<'dblclick', E> |
+  ListenerObject<'drag', E> |
+  ListenerObject<'dragend', E> |
+  ListenerObject<'dragenter', E> |
+  ListenerObject<'dragleave', E> |
+  ListenerObject<'dragover', E> |
+  ListenerObject<'dragstart', E> |
+  ListenerObject<'drop', E> |
+  ListenerObject<'durationchange', E> |
+  ListenerObject<'emptied', E> |
+  ListenerObject<'ended', E> |
+  ListenerObject<'error', E> |
+  ListenerObject<'focus', E> |
+  ListenerObject<'focusin', E> |
+  ListenerObject<'focusout', E> |
+  ListenerObject<'formdata', E> |
+  ListenerObject<'gotpointercapture', E> |
+  ListenerObject<'input', E> |
+  ListenerObject<'invalid', E> |
+  ListenerObject<'keydown', E> |
+  ListenerObject<'keypress', E> |
+  ListenerObject<'keyup', E> |
+  ListenerObject<'load', E> |
+  ListenerObject<'loadeddata', E> |
+  ListenerObject<'loadedmetadata', E> |
+  ListenerObject<'loadstart', E> |
+  ListenerObject<'lostpointercapture', E> |
+  ListenerObject<'mousedown', E> |
+  ListenerObject<'mouseenter', E> |
+  ListenerObject<'mouseleave', E> |
+  ListenerObject<'mousemove', E> |
+  ListenerObject<'mouseout', E> |
+  ListenerObject<'mouseover', E> |
+  ListenerObject<'mouseup', E> |
+  ListenerObject<'paste', E> |
+  ListenerObject<'pause', E> |
+  ListenerObject<'play', E> |
+  ListenerObject<'playing', E> |
+  ListenerObject<'pointercancel', E> |
+  ListenerObject<'pointerdown', E> |
+  ListenerObject<'pointerenter', E> |
+  ListenerObject<'pointerleave', E> |
+  ListenerObject<'pointermove', E> |
+  ListenerObject<'pointerout', E> |
+  ListenerObject<'pointerover', E> |
+  ListenerObject<'pointerup', E> |
+  ListenerObject<'progress', E> |
+  ListenerObject<'ratechange', E> |
+  ListenerObject<'reset', E> |
+  ListenerObject<'resize', E> |
+  ListenerObject<'scroll', E> |
+  ListenerObject<'scrollend', E> |
+  ListenerObject<'securitypolicyviolation', E> |
+  ListenerObject<'seeked', E> |
+  ListenerObject<'seeking', E> |
+  ListenerObject<'select', E> |
+  ListenerObject<'selectionchange', E> |
+  ListenerObject<'selectstart', E> |
+  ListenerObject<'slotchange', E> |
+  ListenerObject<'stalled', E> |
+  ListenerObject<'submit', E> |
+  ListenerObject<'suspend', E> |
+  ListenerObject<'timeupdate', E> |
+  ListenerObject<'toggle', E> |
+  ListenerObject<'touchcancel', E> |
+  ListenerObject<'touchend', E> |
+  ListenerObject<'touchmove', E> |
+  ListenerObject<'touchstart', E> |
+  ListenerObject<'transitioncancel', E> |
+  ListenerObject<'transitionend', E> |
+  ListenerObject<'transitionrun', E> |
+  ListenerObject<'transitionstart', E> |
+  ListenerObject<'volumechange', E> |
+  ListenerObject<'waiting', E> |
+  ListenerObject<'webkitanimationend', E> |
+  ListenerObject<'webkitanimationiteration', E> |
+  ListenerObject<'webkitanimationstart', E> |
+  ListenerObject<'webkittransitionend', E> |
+  ListenerObject<'wheel', E> |
 
-  ListenerObject<'afterprint'> |
-  ListenerObject<'beforeprint'> |
-  ListenerObject<'beforeunload'> |
-  ListenerObject<'DOMContentLoaded'> |
-  ListenerObject<'devicemotion'> |
-  ListenerObject<'deviceorientation'> |
-  ListenerObject<'fullscreenchange'> |
-  ListenerObject<'fullscreenerror'> |
-  ListenerObject<'gamepadconnected'> |
-  ListenerObject<'gamepaddisconnected'> |
-  ListenerObject<'hashchange'> |
-  ListenerObject<'languagechange'> |
-  ListenerObject<'message'> |
-  ListenerObject<'messageerror'> |
-  ListenerObject<'offline'> |
-  ListenerObject<'online'> |
-  ListenerObject<'orientationchange'> |
-  ListenerObject<'pagehide'> |
-  ListenerObject<'pageshow'> |
-  ListenerObject<'popstate'> |
-  ListenerObject<'rejectionhandled'> |
-  ListenerObject<'storage'> |
-  ListenerObject<'unhandledrejection'> |
-  ListenerObject<'unload'> |
+  ListenerObject<'afterprint', E> |
+  ListenerObject<'beforeprint', E> |
+  ListenerObject<'beforeunload', E> |
+  ListenerObject<'DOMContentLoaded', E> |
+  ListenerObject<'devicemotion', E> |
+  ListenerObject<'deviceorientation', E> |
+  ListenerObject<'fullscreenchange', E> |
+  ListenerObject<'fullscreenerror', E> |
+  ListenerObject<'gamepadconnected', E> |
+  ListenerObject<'gamepaddisconnected', E> |
+  ListenerObject<'hashchange', E> |
+  ListenerObject<'languagechange', E> |
+  ListenerObject<'message', E> |
+  ListenerObject<'messageerror', E> |
+  ListenerObject<'offline', E> |
+  ListenerObject<'online', E> |
+  ListenerObject<'orientationchange', E> |
+  ListenerObject<'pagehide', E> |
+  ListenerObject<'pageshow', E> |
+  ListenerObject<'popstate', E> |
+  ListenerObject<'rejectionhandled', E> |
+  ListenerObject<'storage', E> |
+  ListenerObject<'unhandledrejection', E> |
+  ListenerObject<'unload', E> |
 
-  ListenerObject<'ready'> |
+  ListenerObject<'ready', E> |
   ListenerObject<'enter'>;
 
 export function runWhenDOMContentLoaded(runnable: Function) {
@@ -230,7 +226,7 @@ export function listen(
 
   listeners.forEach(opts => {
     if (opts.event === 'ready') {
-      runWhenDOMContentLoaded(() => opts.handle.call(opts));
+      runWhenDOMContentLoaded(() => opts.handle.call(opts, null, null));
       return;
     } else if (opts.event === 'enter') {
       opts.event = 'keypress' as any;
@@ -269,8 +265,8 @@ export function listen(
       }
       if (!target) return;
 
-      const listener = function(event) {
-        opts.handle.call(opts, event, target);
+      const listener = function(event: Event) {
+        (opts.handle as any).call(opts, event, target);
       };
       target.addEventListener(opts.event, listener);
       (<any> ref)._handles.push({element: target, event: opts.event, listener});

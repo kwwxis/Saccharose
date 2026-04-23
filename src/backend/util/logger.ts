@@ -23,7 +23,7 @@ function createDebugger(namespace: string): debug.Debugger {
       },
       apply: function(_self, _thisArg, argList: any[]) {
         for (let d of debuggers) {
-          d.apply(d, argList);
+          d.apply(d, argList as any);
         }
       }
     });

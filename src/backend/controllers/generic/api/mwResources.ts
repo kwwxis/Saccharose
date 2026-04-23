@@ -48,7 +48,7 @@ export default function(router: Router): void {
   router.endpoint('/mw/:siteMode/articles/:pageId', {
     get: async (req: Request, _res: Response): Promise<MwArticleInfo> => {
       const mwClient: MwClientInterface = getMwClient(req.params.siteMode as SiteMode);
-      return mwClient.getArticleInfo(req.params.pageId);
+      return mwClient.getArticleInfo(String(req.params.pageId));
     }
   });
 

@@ -297,7 +297,7 @@ export class CheckboxTree {
 
     this._callOpt('cbBeforeWalk', [ul]);
 
-    ul.querySelectorAll(':scope > li').forEach((li: CheckboxTreeLI) => {
+    ul.querySelectorAll<CheckboxTreeLI>(':scope > li').forEach((li: CheckboxTreeLI) => {
       li._tree = this;
       li._ul = ul;
       this._callOpt('cbBeforeListItem', [li, ul]);
@@ -391,9 +391,9 @@ export class CheckboxTree {
     return values;
   }
 
-  toJSON(ul = undefined, cbText = undefined): CheckboxTreeNode[] {
+  toJSON(ul: HTMLUListElement = undefined, cbText = undefined): CheckboxTreeNode[] {
     if (!ul) ul = this.el;
-    return Array.from(ul.querySelectorAll(':scope > li')).map((li: CheckboxTreeLI) => {
+    return Array.from(ul.querySelectorAll<CheckboxTreeLI>(':scope > li')).map((li: CheckboxTreeLI) => {
       let node: CheckboxTreeNode = {};
 
       if (cbText) {
@@ -419,7 +419,7 @@ export class CheckboxTree {
         node.name = li._checkbox.name || null;
       }
 
-      let ul2 = li.querySelector(':scope > ul');
+      let ul2 = li.querySelector<HTMLUListElement>(':scope > ul');
       if (ul2) {
         node.children = this.toJSON(ul2, cbText);
       }

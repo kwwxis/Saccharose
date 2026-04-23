@@ -44,7 +44,7 @@ export async function getStarRailAvatar(ctrl: StarRailControl, req: Request): Pr
   const avatars = await getStarRailAvatars(ctrl);
 
   const arg: string|number = ['avatarId', 'avatarName', 'avatar', 'id']
-    .map(key => req.params[key] || <string> req.query[key]).find(val => !!val);
+    .map(key => String(req.params[key] || req.query[key])).find(val => !!val);
 
   if (!arg) {
     return null;
