@@ -91,6 +91,7 @@ export function __normZenlessText(text: string, langCode: LangCode, opts: NormTe
     text = text.replace(/<color=#FE437E(?:FF)?>(.*?)<\/color>/g, '{{Color|Ether|$1}}');
     text = text.replace(/<color=#2EB6FF(?:FF)?>(.*?)<\/color>/g, '{{Color|Electric|$1}}');
     text = text.replace(/<color=#F0D12B(?:FF)?>(.*?)<\/color>/g, '{{Color|Physical|$1}}');
+    text = text.replace(/<color=#A6C5FD(?:FF)?>(.*?)<\/color>/g, '{{Color|Wind|$1}}');
 
     // Unknown:
     text = text.replace(/<color=(#[0-9a-fA-F]{6})(?:FF|ff)?>(.*?)<\/color>/g, '{{Color|$1|$2}}');
