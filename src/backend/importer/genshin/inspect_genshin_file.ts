@@ -69,7 +69,7 @@ const presets = {
       return record.GivingMethod === 'GIVING_METHOD_EXACT';
   },},
   GivingGroupExcelConfigData: <InspectOpt> { file: excel('GivingGroupExcelConfigData'), inspectFieldValues: [] },
-  DocumentExcelConfigData: <InspectOpt> { file: excel('DocumentExcelConfigData'), inspectFieldValues: ['DocumentType', 'SplitType'] },
+  DocumentExcelConfigData: <InspectOpt> { file: excel('DocumentExcelConfigData'), inspectFieldValues: ['DocumentType', 'SplitType', 'PreviewPath'] },
   NpcExcelConfigData: <InspectOpt> { file: excel('NpcExcelConfigData'), inspectFieldValues: ['BodyType', 'SpecialType', 'BillboardType', 'ElementName', 'ElementType']},
   NpcFirstMetExcelConfigData: <InspectOpt> { file: excel('NpcFirstMetExcelConfigData'), inspectFieldValues: ['NpcType', 'CostElemType']},
 
@@ -91,7 +91,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     const ctrl = getGenshinControl();
     // await inspectDataFile(ctrl, presets.QuestExcelConfigData);
     // await inspectDataFile(ctrl, presets.TalkExcelConfigData);
-    await inspectDataFile(ctrl, presets.BeyondCostumeSuitExcelConfigData);
+    await inspectDataFile(ctrl, presets.DocumentExcelConfigData);
     await closeKnex();
   })();
 }

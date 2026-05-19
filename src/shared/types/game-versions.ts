@@ -241,6 +241,7 @@ export const GenshinVersions: GameVersions = new GameVersions([
   new GameVersion({number: '6.3', prevNumber: '6.2', label: 'Luna IV', aliases: ['Luna 4', 'L4'], showTextmapChangelog: true, showExcelChangelog: true, showNewMedia: true, hasChangelogSummary: true}),
   new GameVersion({number: '6.4', prevNumber: '6.3', label: 'Luna V', aliases: ['Luna 5', 'L5'], showTextmapChangelog: true, showExcelChangelog: true, showNewMedia: true, hasChangelogSummary: true}),
   new GameVersion({number: '6.5', prevNumber: '6.4', label: 'Luna VI', aliases: ['Luna 6', 'L6'], showTextmapChangelog: true, showExcelChangelog: true, showNewMedia: true, hasChangelogSummary: true}),
+  new GameVersion({number: '6.6', prevNumber: '6.5', label: 'Luna VII', aliases: ['Luna 7', 'L7'], showTextmapChangelog: true, showExcelChangelog: true, showNewMedia: true, hasChangelogSummary: true}),
 ], true);
 
 // TODO: This needs to be updated with each new Honkai Star Rail version!
@@ -316,7 +317,7 @@ export const WuwaVersions: GameVersions = new GameVersions([
 ], true);
 
 // TODO: This needs to be updated with each new Genshin version!
-export const CurrentGenshinVersion: GameVersion = GenshinVersions.get('6.5');
+export const CurrentGenshinVersion: GameVersion = GenshinVersions.get('6.6');
 
 // TODO: This needs to be updated with each new Honkai Star Rail version!
 export const CurrentStarRailVersion: GameVersion = StarRailVersions.get('4.2');
