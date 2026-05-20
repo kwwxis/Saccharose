@@ -2,7 +2,7 @@ import { GenshinControl } from '../../domain/genshin/genshinControl.ts';
 import { AvatarExcelConfigData, isTraveler } from '../../../shared/types/genshin/avatar-types.ts';
 import { fetchCharacterStories } from '../../domain/genshin/character/fetchStoryFetters.ts';
 import { isInt, toInt } from '../../../shared/util/numberUtil.ts';
-import { isString } from '../../../shared/util/stringUtil.ts';
+import { isString, toString } from '../../../shared/util/stringUtil.ts';
 import jsonMask from 'json-mask';
 import { HomeWorldNPCExcelConfigData } from '../../../shared/types/genshin/homeworld-types.ts';
 import { getHomeWorldCompanions } from '../../domain/genshin/character/companion_dialogue.ts';
@@ -66,8 +66,10 @@ export async function getGenshinAvatars(ctrl: GenshinControl, combineTraveler: b
 
 export async function getGenshinAvatar(ctrl: GenshinControl, req: Request, combineTraveler: boolean): Promise<AvatarExcelConfigData> {
   const avatars = await getGenshinAvatars(ctrl, combineTraveler);
+
   const arg: string|number = ['avatarId', 'avatarName', 'avatar', 'id']
-    .map(key => String(req.params[key] || req.query[key])).find(val => !!val);
+    .map(key => toString(req.params[key] || req.query[key]))
+    .find(val => !!val);
 
   if (!arg) {
     return null;
@@ -96,7 +98,7 @@ export async function getGenshinAvatar(ctrl: GenshinControl, req: Request, combi
 export async function getCompanion(ctrl: GenshinControl, req: Request): Promise<HomeWorldNPCExcelConfigData> {
   const companions = await getHomeWorldCompanions(ctrl);
   const arg: string|number = ['avatarId', 'avatarName', 'avatar', 'id']
-    .map(key => String(req.params[key] || req.query[key])).find(val => !!val);
+    .map(key => toString(req.params[key] || req.query[key])).find(val => !!val);
 
   if (!arg) {
     return null;

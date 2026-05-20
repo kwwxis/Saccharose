@@ -27,7 +27,6 @@ import {
 } from '../../../domain/genshin/dialogue/basic_dialogue_generator.ts';
 import GenshinAvatarCondDialoguePage from '../../../components/genshin/dialogue/GenshinAvatarCondDialoguePage.vue';
 import { inDialogueReadablesHelper, questStillsHelper } from '../api/DialogueResources.ts';
-import { TextMapHash } from '../../../../shared/types/lang-types.ts';
 
 export default async function(): Promise<Router> {
   const router: Router = create();

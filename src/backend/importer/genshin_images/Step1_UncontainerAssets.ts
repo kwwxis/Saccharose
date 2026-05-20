@@ -5,8 +5,7 @@ import { toInt } from '../../../shared/util/numberUtil.ts';
 import { fsWalkSync } from '../../util/fsutil.ts';
 import { GenshinContainerDiscriminator } from '../../domain/genshin/misc/giContainerDiscriminator.ts';
 
-// Copies from IN_DIR to OUT_DIR
-// IN_DIR is unaffected
+// Moves files from IN_DIR to OUT_DIR
 const IN_DIR: string  = 'C:/HoyoTools/AnimeStudio/GI_Output/';
 const OUT_DIR: string = 'C:/HoyoTools/AnimeStudio/GI_OutputFiles/';
 
@@ -22,7 +21,7 @@ async function doIt() {
 
     let targetPath = path.resolve(OUT_DIR, './' + baseName.slice(0, -4) + '#' + discriminator + '.png');
 
-    fs.copyFileSync(filePath, targetPath);
+    fs.renameSync(filePath, targetPath);
   }
 }
 
