@@ -16,6 +16,10 @@ import { GenshinContainerDiscriminator } from '../../domain/genshin/misc/giConta
 const IMAGE_NAME_REGEX =
   /^UI_(Achievement|Activity|Animal|Avatar|BattlePass|Beyd|Beyond|Byd|ChapterIcon|CutScene|DungeonPic|ExplorePic|FlycloakIcon|GCG|Gacha|Icon|Item|LoadingPic|Map|Mark|MessageIcon|MiniMap|MonsterIcon|NPC|Pic|PlotCutScene|Quest|ReadPic|Reputation|Reunion|UGC).*/i;
 
+const dbBatchSize = 1000;
+const workerMessageBatchSize = 250;
+const workerProgressMessageSize = 100;
+
 type WorkerInput = {
   imageNames: string[];
 };
@@ -23,14 +27,25 @@ type WorkerInput = {
 type WorkerMessage = {
   type: 'rows';
   rows: ImageContainerEntity[];
-} | {
+}
+  | {
+  type: 'progress';
+  processed: number;
+}
+  | {
   type: 'done';
   processed: number;
   emitted: number;
 };
 
-const dbBatchSize = 1000;
-const workerMessageBatchSize = 250;
+let activeKnex: ReturnType<typeof openPgSite> | undefined;
+let insertQueue: Promise<void> = Promise.resolve();
+let pendingDbBatch: ImageContainerEntity[] = [];
+let totalInserted = 0;
+
+let totalImagesToProcess = 0;
+let totalImagesProcessed = 0;
+let lastLoggedPercent = -1;
 
 function chunkArray<T>(items: T[], chunkCount: number): T[][] {
   const chunks: T[][] = Array.from({ length: chunkCount }, () => []);
@@ -40,6 +55,26 @@ function chunkArray<T>(items: T[], chunkCount: number): T[][] {
   }
 
   return chunks.filter((chunk) => chunk.length > 0);
+}
+
+function logOverallProgress(processedDelta: number) {
+  totalImagesProcessed += processedDelta;
+
+  if (!totalImagesToProcess) {
+    return;
+  }
+
+  const percent = Math.floor(
+    (totalImagesProcessed / totalImagesToProcess) * 100,
+  );
+
+  if (percent !== lastLoggedPercent) {
+    lastLoggedPercent = percent;
+
+    console.log(
+      `Overall progress: ${percent}% (${totalImagesProcessed}/${totalImagesToProcess})`,
+    );
+  }
 }
 
 async function runWorker() {
@@ -52,6 +87,7 @@ async function runWorker() {
   const rows: ImageContainerEntity[] = [];
   let processed = 0;
   let emitted = 0;
+  let progressSinceLastMessage = 0;
 
   async function flushRows() {
     if (!rows.length) {
@@ -64,32 +100,50 @@ async function runWorker() {
     } satisfies WorkerMessage);
   }
 
+  function flushProgress() {
+    if (!progressSinceLastMessage) {
+      return;
+    }
+
+    parentPort!.postMessage({
+      type: 'progress',
+      processed: progressSinceLastMessage,
+    } satisfies WorkerMessage);
+
+    progressSinceLastMessage = 0;
+  }
+
   for (const imageName of imageNames) {
     processed++;
+    progressSinceLastMessage++;
 
     const filePath = path.resolve(IMAGEDIR_GENSHIN_EXT, `${imageName}.png`);
     const discriminator =
       await GenshinContainerDiscriminator.getDiscriminatorFromExif(filePath);
 
-    if (!discriminator) {
-      continue;
+    if (discriminator) {
+      const containerId =
+        GenshinContainerDiscriminator.toContainerId(discriminator);
+
+      rows.push({
+        container_id: containerId,
+        image_name: imageName,
+      });
+
+      emitted++;
     }
-
-    const containerId = GenshinContainerDiscriminator.toContainerId(discriminator);
-
-    rows.push({
-      container_id: containerId,
-      image_name: imageName,
-    });
-
-    emitted++;
 
     if (rows.length >= workerMessageBatchSize) {
       await flushRows();
     }
+
+    if (progressSinceLastMessage >= workerProgressMessageSize) {
+      flushProgress();
+    }
   }
 
   await flushRows();
+  flushProgress();
 
   parentPort.postMessage({
     type: 'done',
@@ -98,7 +152,7 @@ async function runWorker() {
   } satisfies WorkerMessage);
 }
 
-async function runWorkerThread(imageNames: string[]): Promise<{
+function runWorkerThread(imageNames: string[]): Promise<{
   processed: number;
   emitted: number;
 }> {
@@ -114,6 +168,8 @@ async function runWorkerThread(imageNames: string[]): Promise<{
     worker.on('message', (message: WorkerMessage) => {
       if (message.type === 'rows') {
         void enqueueRows(message.rows);
+      } else if (message.type === 'progress') {
+        logOverallProgress(message.processed);
       } else if (message.type === 'done') {
         donePayload = {
           processed: message.processed,
@@ -134,17 +190,6 @@ async function runWorkerThread(imageNames: string[]): Promise<{
     });
   });
 }
-
-/**
- * Main-thread insert queue.
- *
- * Workers can emit rows concurrently. This serializes DB writes so batch state
- * is not mutated by overlapping async message handlers.
- */
-let insertQueue: Promise<void> = Promise.resolve();
-let activeKnex: ReturnType<typeof openPgSite> | undefined;
-let pendingDbBatch: ImageContainerEntity[] = [];
-let totalInserted = 0;
 
 function enqueueRows(rows: ImageContainerEntity[]) {
   insertQueue = insertQueue.then(async () => {
@@ -187,7 +232,9 @@ async function flushInsertQueue() {
 
 export async function populateImageContainers() {
   if (!isMainThread) {
-    throw new Error('populateImageContainers() must only be called on the main thread.');
+    throw new Error(
+      'populateImageContainers() must only be called on the main thread.',
+    );
   }
 
   activeKnex = openPgSite();
@@ -212,6 +259,15 @@ export async function populateImageContainers() {
     }
 
     console.log(`Image count to process: ${gatherImageNames.length}`);
+
+    totalImagesToProcess = gatherImageNames.length;
+    totalImagesProcessed = 0;
+    lastLoggedPercent = -1;
+
+    if (!gatherImageNames.length) {
+      console.log('Done. No images to process.');
+      return;
+    }
 
     const workerCount = Math.min(
       gatherImageNames.length,
@@ -249,8 +305,13 @@ export async function populateImageContainers() {
     await closeKnex();
 
     activeKnex = undefined;
+    insertQueue = Promise.resolve();
     pendingDbBatch = [];
     totalInserted = 0;
+
+    totalImagesToProcess = 0;
+    totalImagesProcessed = 0;
+    lastLoggedPercent = -1;
   }
 }
 
