@@ -131,7 +131,7 @@ export async function fetchCompanionDialogue(ctrl: GenshinControl, avatarNameOrI
       if (rewardEvent.FurnitureSuitId) {
         let furnitureSuite = await ctrl.selectFurnitureSuite(rewardEvent.FurnitureSuitId);
         if (furnitureSuite) {
-          section.title = `Special Dialogue for Favorite Furnishing Set: <a href="/furnishing-sets/${furnitureSuite.SuiteId}">${escapeHtml(furnitureSuite.SuiteNameText)}</a>`;
+          section.title = `Special Dialogue for Favorite Furnishing Set: <a href="/genshin/furnishing-sets/${furnitureSuite.SuiteId}">${escapeHtml(furnitureSuite.SuiteNameText)}</a>`;
           section.isHtmlTitle = true;
         }
       }

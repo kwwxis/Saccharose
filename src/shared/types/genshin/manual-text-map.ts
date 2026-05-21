@@ -3,18 +3,18 @@ export const ManualTextMapHashes = {
   // None:
   'None': 3053154618,
   'GCG_TAG_WEAPON_NONE': 3053154618,
-  'GCG_TAG_ELEMENT_NONE': 3053154618,
+  'GCG_TAG_ELEMENT_NONE': 3053154618, // None
 
   // All:
-  'All': 4081188009,
-  'Other': 463752568,
+  'All': 4081188009, // FURNITURE_SCREEN_ALL
+  'Other': 463752568, // UI_REPORT_CASE_OTHER
 
   // Lumine/Aether:
-  'Lumine': 3241049361,
-  'Aether': 2329553598,
+  'Lumine': 3241049361, // INFO_FEMALE_PRONOUN_YING
+  'Aether': 2329553086, // INFO_MALE_PRONOUN_KONG
 
-  'ServerBrandTipsOverseas': 2874657049,
-  'ServerEmailAskOverseas': 2535672942,
+  'ServerBrandTipsOverseas': 2874657049, // Server_BrandTips_Oversea
+  'ServerEmailAskOverseas': 2535672942, // Server_Email_Ask_Oversea
 
   // Regions / Maps / Nations / Factions
   // --------------------------------------------------------------------------------------------------------------
@@ -98,53 +98,53 @@ export const ManualTextMapHashes = {
 
   // General
   // --------------------------------------------------------------------------------------------------------------
-  'Domains': 705921482,
-  'Domain': 4043227537,
+  'Domains': 705921482, // UI_WORLD_DUNGEON_TIPS_TITLE
+  'Domain': 4043227537, // DUNGEON_DAILY_FIGHT
 
   'Furnishing Set': 1999112283,
   'Gift Set': 205103331,
 
-  'Genius Invokation TCG': 406593761,
-  'Imaginarium Theater': 191610270,
-  'Stygian Onslaught': 2939058421,
+  'Genius Invokation TCG': 406593761, // UI_GCG_CONNECT_FULL_TITLE
+  'Imaginarium Theater': 1116422446, // UI_ROLE_COMBAT_NAME
+  'Stygian Onslaught': 2939058421, // UI_ACTIVITY_LEYLINEC_MARK_TITLE
 
   // Elements
   // --------------------------------------------------------------------------------------------------------------
   // Pyro
-  'Pyro': 570857819,
-  'Fire': 570857819,
-  'GCG_TAG_ELEMENT_HYDRO': 570857819,
+  'Pyro': 3531671786, // Fire
+  'Fire': 3531671786,
+  'GCG_TAG_ELEMENT_HYDRO': 3531671786,
 
   // Hydro
-  'Hydro': 2763884907,
-  'Water': 2763884907,
-  'GCG_TAG_ELEMENT_PYRO': 2763884907,
+  'Hydro': 514678978, // Water
+  'Water': 514678978,
+  'GCG_TAG_ELEMENT_PYRO': 514678978,
 
   // Dendro
-  'Dendro': 3544484259,
-  'Grass': 3544484259,
-  'GCG_TAG_ELEMENT_DENDRO': 3544484259,
+  'Dendro': 3552853282, // Grass
+  'Grass': 3552853282, // Grass
+  'GCG_TAG_ELEMENT_DENDRO': 3552853282, // Grass
 
   // Electro
-  'Electro': 3010704803,
-  'Electric': 3010704803,
-  'Elec': 3010704803,
-  'GCG_TAG_ELEMENT_ELECTRO': 3010704803,
+  'Electro': 1844493602, // Electric
+  'Electric': 1844493602, // Electric
+  'Elec': 1844493602, // Electric
+  'GCG_TAG_ELEMENT_ELECTRO': 1844493602, // Electric
 
   // Anemo
-  'Anemo': 497883395,
-  'Wind': 497883395,
-  'GCG_TAG_ELEMENT_ANEMO': 497883395,
+  'Anemo': 594678994, // Wind
+  'Wind': 594678994, // Wind
+  'GCG_TAG_ELEMENT_ANEMO': 594678994, // Wind
 
   // Cryo
-  'Cryo': 4267146251,
-  'Ice': 4267146251,
-  'GCG_TAG_ELEMENT_CRYO': 4267146251,
+  'Cryo': 3168728290, // Ice
+  'Ice': 3168728290, // Ice
+  'GCG_TAG_ELEMENT_CRYO': 3168728290, // Ice
 
   // Geo
-  'Geo': 1050918155,
-  'Rock': 1050918155,
-  'GCG_TAG_ELEMENT_GEO': 1050918155,
+  'Geo': 1844983962, // Rock
+  'Rock': 1844983962, // Rock
+  'GCG_TAG_ELEMENT_GEO': 1844983962, // Rock
 
   // Physical
   'Physical': 2185633152,
@@ -152,25 +152,25 @@ export const ManualTextMapHashes = {
 
   // Weapons
   // --------------------------------------------------------------------------------------------------------------
-  'Sword': 2853832131,
-  'WEAPON_SWORD_ONE_HAND': 2853832131,
-  'GCG_TAG_WEAPON_SWORD': 2853832131,
+  'Sword': 1338971406, // WEAPON_SWORD_ONE_HAND
+  'WEAPON_SWORD_ONE_HAND': 1338971406, // WEAPON_SWORD_ONE_HAND
+  'GCG_TAG_WEAPON_SWORD': 1338971406, // WEAPON_SWORD_ONE_HAND
 
-  'Claymore': 2994597931,
-  'WEAPON_CLAYMORE': 2994597931,
-  'GCG_TAG_WEAPON_CLAYMORE': 2994597931,
+  'Claymore': 2037296618, // WEAPON_CLAYMORE
+  'WEAPON_CLAYMORE': 2037296618, // WEAPON_CLAYMORE
+  'GCG_TAG_WEAPON_CLAYMORE': 2037296618, // WEAPON_CLAYMORE
 
-  'Polearm': 3212334355,
-  'WEAPON_POLE': 3212334355,
-  'GCG_TAG_WEAPON_POLE': 3212334355,
+  'Polearm': 802819506, // WEAPON_POLE
+  'WEAPON_POLE': 802819506, // WEAPON_POLE
+  'GCG_TAG_WEAPON_POLE': 802819506, // WEAPON_POLE
 
-  'Catalyst': 4174579731,
-  'WEAPON_CATALYST': 4174579731,
-  'GCG_TAG_WEAPON_CATALYST': 4174579731,
+  'Catalyst': 126862514, // WEAPON_CATALYST
+  'WEAPON_CATALYST': 126862514, // WEAPON_CATALYST
+  'GCG_TAG_WEAPON_CATALYST': 126862514, // WEAPON_CATALYST
 
-  'Bow': 4214538643,
-  'WEAPON_BOW': 4214538643,
-  'GCG_TAG_WEAPON_BOW': 4214538643,
+  'Bow': 4066069922, // WEAPON_BOW
+  'WEAPON_BOW': 4066069922, // WEAPON_BOW
+  'GCG_TAG_WEAPON_BOW': 4066069922, // WEAPON_BOW
 };
 
 export const ElementTypeToNation = {

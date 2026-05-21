@@ -120,7 +120,7 @@
                     <span class="fontWeight500 spacer5-right opacity70p">Diff:</span>
                     <span>{{ range.prevContentVersion?.displayLabel || range.startVersion.displayLabel }} &ndash; {{ range.startVersion.displayLabel }}</span>
                     <span class="fontWeight400 spacer10-left opacity30p">/</span>
-                    <span class="fontWeight500 spacer5-right spacer10-left opacity70p">Range:</span>
+                    <span class="fontWeight500 spacer5-right spacer10-left opacity70p">Range In Effect:</span>
                     <span>{{ range.startVersion.displayLabel }} &ndash; {{ range.endVersion.displayLabel }}</span>
                   </h3>
                   <div>
