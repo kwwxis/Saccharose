@@ -4,7 +4,7 @@ import {
   TextMapChangeRef,
   TextMapChangeRefs,
   TextMapChangesForDisplay,
-  TextMapFullChangelog,
+  TextMapFullChangelog, TextMapHashAggEntity,
 } from '../../../shared/types/changelog-types.ts';
 import { LangCode, TextMapHash } from '../../../shared/types/lang-types.ts';
 import { AbstractControl } from './abstractControl.ts';
@@ -318,3 +318,55 @@ export async function importTextMapChanges(
   console.log(`[${version.number}] Done`);
 }
 // endregion
+
+export async function backfillTextmapHashAggs(knex: Knex) {
+  const hashes: string[] = (
+    await knex('textmap_changes').distinct<{ hash: string }[]>('hash')
+  ).map(row => row.hash);
+
+  const hashChunks = chunk(hashes, 1000);
+
+  console.log('Chunk count: ' + hashChunks.length);
+
+  let numChunksLooped = 0;
+  for (let hashChunk of hashChunks) {
+    console.log(`Chunk ${++numChunksLooped} of ${hashChunks.length}`);
+    await knex.transaction(async (trx) => {
+      for (let hash of hashChunk) {
+        await tmAggId(trx, hash);
+      }
+    });
+  }
+
+  console.log('Done');
+}
+
+export async function tmAggId(db: Knex|Knex.Transaction, hash: string): Promise<string> {
+  const insertedRows = await db<TextMapHashAggEntity>("textmap_hash_aggs")
+    .insert({
+      hash,
+      agg_id: db.raw("gen_random_uuid()"),
+    })
+    .onConflict("hash")
+    .ignore()
+    .returning<{ agg_id: string }[]>("agg_id");
+
+  const insertedAggId = insertedRows[0]?.agg_id;
+
+  if (insertedAggId !== undefined) {
+    return insertedAggId;
+  }
+
+  const existingRow = await db<TextMapHashAggEntity>("textmap_hash_aggs")
+    .select("agg_id")
+    .where({ hash })
+    .first();
+
+  if (!existingRow) {
+    throw new Error(
+      `Failed to get agg_id for hash ${hash}; row conflicted but was not visible`,
+    );
+  }
+
+  return existingRow.agg_id;
+}

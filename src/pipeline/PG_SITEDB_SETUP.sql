@@ -11,6 +11,7 @@ ALTER SYSTEM SET archive_mode = 'off';
 ALTER SYSTEM SET max_wal_senders = 0;
 
 CREATE EXTENSION pg_trgm;
+CREATE EXTENSION pgcrypto;
 
 -- Site User
 ----------------------------------------------------------------------------------------------------------------

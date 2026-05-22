@@ -9,7 +9,7 @@ import { ExcelChangeRecord, TextMapFullChangelog } from '../../../shared/types/c
 import { GameVersion } from '../../../shared/types/game-versions.ts';
 import chalk from 'chalk';
 import { AbstractControl } from '../../domain/abstract/abstractControl.ts';
-import { importTextMapChanges } from '../../domain/abstract/tmchanges.ts';
+import { backfillTextmapHashAggs, importTextMapChanges } from '../../domain/abstract/tmchanges.ts';
 import { toString } from '../../../shared/util/stringUtil.ts';
 import { importExcelChanges } from '../../domain/abstract/excelchanges.ts';
 import { fsExists } from '../../util/fsutil.ts';
@@ -318,6 +318,10 @@ async function computeExcelFileChanges(opts: CreateChangelogOpts) {
   console.log('Beginning importing Excel change entities');
   await importExcelChanges(opts.ctrl.knex, changeRecords, opts.version);
   console.log('Finished importing Excel change entities');
+}
+
+export async function doChangelogMiscBackfill(ctrl: AbstractControl) {
+  await backfillTextmapHashAggs(ctrl.knex);
 }
 
 export async function createChangelog(ctrl: AbstractControl,

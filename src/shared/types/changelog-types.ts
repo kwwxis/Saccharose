@@ -1,7 +1,8 @@
 import { LangCode, TextMapHash } from './lang-types.ts';
 import { GameVersion } from './game-versions.ts';
 import { defaultMap } from '../util/genericUtil.ts';
-export type ChangeType = 'added' | 'updated' | 'removed';
+import { Knex } from 'knex';
+export type ChangeType = 'added' | 'updated' | 'removed' | 'replaced';
 
 // region Excel Changelog Types
 // --------------------------------------------------------------------------------------------------------------
@@ -135,8 +136,14 @@ export type TextMapChangeEntity = {
   lang_code: LangCode,
   hash: TextMapHash,
   change_type: ChangeType,
+  prev_hash?: TextMapHash, // only if change_type = REPLACED
   content?: string,
   prev_content?: string,
+};
+
+export type TextMapHashAggEntity = {
+  hash: string;
+  agg_id: string;
 };
 
 export type TextMapChangeRef = {
@@ -163,7 +170,8 @@ export type TextMapChanges = {
   langCode: LangCode,
   added: Record<TextMapHash, string>,
   removed: Record<TextMapHash, string>,
-  updated: Record<TextMapHash, TextMapContentChange>
+  updated: Record<TextMapHash, TextMapContentChange>,
+  replaced?: Record<TextMapHash, TextMapHash>,
 }
 
 export type TextMapContentChange = {

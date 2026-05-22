@@ -5,6 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { fsWalkSync } from '../../util/fsutil.ts';
+import { chunkArrayByNumChunks } from '../../../shared/util/arrayUtil.ts';
 
 const combinedDir = 'E:/GameDataAssets/GenshinAssets/Texture2D/';
 const targetDir = 'E:/GameDataAssets/GenshinAssets/Texture2D_Archive/Texture2D_6.5';
@@ -13,23 +14,13 @@ const autoKeepThreshold = new Date('2026-05-07T11:39:52.000Z');
 
 const __filename = fileURLToPath(import.meta.url);
 
-function chunkArray(array, chunkCount) {
-  const chunks = Array.from({ length: chunkCount }, () => []);
-
-  for (let i = 0; i < array.length; i++) {
-    chunks[i % chunkCount].push(array[i]);
-  }
-
-  return chunks.filter(chunk => chunk.length > 0);
-}
-
 if (isMainThread) {
   const files = Array.from(fsWalkSync(targetDir)).map(file =>
     file.replace(/\\/g, '/')
   );
 
   const workerCount = Math.min(os.cpus().length, files.length || 1);
-  const chunks = chunkArray(files, workerCount);
+  const chunks = chunkArrayByNumChunks(files, workerCount);
 
   let completed = 0;
   let failed = false;

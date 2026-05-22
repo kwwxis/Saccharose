@@ -14,7 +14,7 @@ import { importVoiceOvers } from './module.voice-overs.ts';
 import { importSearchIndex } from './module.search-index.ts';
 import { generateAvatarAnimInteractionGoodBad, generateQuestDialogExcels } from './module.make-excels.ts';
 import { loadInterActionQD } from './module.interaction.ts';
-import { createChangelog } from '../util/createChangelogUtil.ts';
+import { createChangelog, doChangelogMiscBackfill } from '../util/createChangelogUtil.ts';
 import { indexGenshinImages } from './module.index-images.ts';
 import { exportExcel } from './module.export-excel.ts';
 import { recordNewGenshinImages } from './module.new-images.ts';
@@ -57,6 +57,7 @@ export async function importGenshinFilesCli() {
     {name: 'changelog-ex', type: String, typeLabel: '<version>',
       description: 'Creates excel data changelog between the provided version and the version before it (changelog-tm must be ran first)'},
     {name: 'changelog-rd', type: String, typeLabel: '<version>', description: 'Imports readables for changelog.'},
+    {name: 'changelog-misc-backfill', type: Boolean, description: 'Misc backfill'},
   ];
 
   const options_util: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
@@ -194,6 +195,9 @@ export async function importGenshinFilesCli() {
   }
   if (options['changelog-rd']) {
     await importGenshinReadableChanges(getGenshinControl(), options['changelog-rd']);
+  }
+  if (options['changelog-misc-backfill']) {
+    await doChangelogMiscBackfill(getGenshinControl());
   }
   if (options['excel-scalars']) {
     await doImportExcelScalars(getGenshinControl());

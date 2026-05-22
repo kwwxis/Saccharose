@@ -12,7 +12,7 @@ import { importNormalize, importPlainTextMap } from '../util/import_file_util.ts
 import fs from 'fs';
 import { indexWuwaImages } from './module.index-images.ts';
 import { fetchFavorWords } from '../../domain/wuwa/character/fetchRoleFavorWords.ts';
-import { createChangelog } from '../util/createChangelogUtil.ts';
+import { createChangelog, doChangelogMiscBackfill } from '../util/createChangelogUtil.ts';
 import { wuwaNormalize } from './module.normalize.ts';
 import { isset } from '../../../shared/util/genericUtil.ts';
 import { doImportExcelScalars } from '../util/excel_usages_importer.ts';
@@ -45,6 +45,7 @@ export async function importWuwaFilesCli() {
       description: 'Creates textmap changelog between the provided version and the version before it.'},
     {name: 'changelog-ex', type: String, typeLabel: '<version>',
       description: 'Creates excel data changelog between the provided version and the version before it (changelog-tm must be ran first)'},
+    {name: 'changelog-misc-backfill', type: Boolean, description: 'Misc backfill'},
   ];
 
   const options_util: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
@@ -123,6 +124,9 @@ export async function importWuwaFilesCli() {
   }
   if (options['changelog-ex']) {
     await createChangelog(getWuwaControl(), options['changelog-ex'], 'excel');
+  }
+  if (options['changelog-misc-backfill']) {
+    await doChangelogMiscBackfill(getWuwaControl());
   }
   if (options['excel-scalars']) {
     await doImportExcelScalars(getWuwaControl());

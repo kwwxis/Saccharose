@@ -667,3 +667,19 @@ export function inRange(n: number, r: IndexedRange): boolean {
   return n >= r.start
     && n <= r.end;
 }
+
+/**
+ * Chunk an array by the total number of chunks there should be.
+ *
+ * @param items The array to split into chunks.
+ * @param chunkCount The total number of chunks there should be. This is *not* the number of items per chunk.
+ */
+export function chunkArrayByNumChunks<T>(items: T[], chunkCount: number): T[][] {
+  const chunks: T[][] = Array.from({ length: chunkCount }, () => []);
+
+  for (let i = 0; i < items.length; i++) {
+    chunks[i % chunkCount].push(items[i]);
+  }
+
+  return chunks.filter((chunk) => chunk.length > 0);
+}

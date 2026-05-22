@@ -1,17 +1,13 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import {
-  Worker,
-  isMainThread,
-  parentPort,
-  workerData,
-} from 'worker_threads';
+import { isMainThread, parentPort, Worker, workerData } from 'worker_threads';
 
 import { IMAGEDIR_GENSHIN_EXT } from '../../loadenv.ts';
 import { closeKnex, openPgSite } from '../../util/db.ts';
 import { ImageContainerEntity } from '../../../shared/types/image-index-types.ts';
 import { GenshinContainerDiscriminator } from '../../domain/genshin/misc/giContainerDiscriminator.ts';
+import { chunkArrayByNumChunks } from '../../../shared/util/arrayUtil.ts';
 
 const IMAGE_NAME_REGEX =
   /^UI_(Achievement|Activity|Animal|Avatar|BattlePass|Beyd|Beyond|Byd|ChapterIcon|CutScene|DungeonPic|ExplorePic|FlycloakIcon|GCG|Gacha|Icon|Item|LoadingPic|Map|Mark|MessageIcon|MiniMap|MonsterIcon|NPC|Pic|PlotCutScene|Quest|ReadPic|Reputation|Reunion|UGC).*/i;
@@ -46,16 +42,6 @@ let totalInserted = 0;
 let totalImagesToProcess = 0;
 let totalImagesProcessed = 0;
 let lastLoggedPercent = -1;
-
-function chunkArray<T>(items: T[], chunkCount: number): T[][] {
-  const chunks: T[][] = Array.from({ length: chunkCount }, () => []);
-
-  for (let i = 0; i < items.length; i++) {
-    chunks[i % chunkCount].push(items[i]);
-  }
-
-  return chunks.filter((chunk) => chunk.length > 0);
-}
 
 function logOverallProgress(processedDelta: number) {
   totalImagesProcessed += processedDelta;
@@ -274,7 +260,7 @@ export async function populateImageContainers() {
       Math.max(1, os.availableParallelism?.() ?? os.cpus().length),
     );
 
-    const chunks = chunkArray(gatherImageNames, workerCount);
+    const chunks = chunkArrayByNumChunks(gatherImageNames, workerCount);
 
     console.log(`Starting ${chunks.length} worker threads.`);
 

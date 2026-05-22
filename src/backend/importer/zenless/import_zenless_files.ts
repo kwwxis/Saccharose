@@ -11,7 +11,7 @@ import { importPlainTextMap } from '../util/import_file_util.ts';
 import { getZenlessControl } from '../../domain/zenless/zenlessControl.ts';
 import { generateDialogueNodes } from './module.dialogue-nodes.ts';
 import { zenlessNormalize } from './module.normalize.ts';
-import { createChangelog } from '../util/createChangelogUtil.ts';
+import { createChangelog, doChangelogMiscBackfill } from '../util/createChangelogUtil.ts';
 import { doImportExcelScalars } from '../util/excel_usages_importer.ts';
 
 export async function importZenlessFilesCli() {
@@ -30,6 +30,7 @@ export async function importZenlessFilesCli() {
       description: 'Creates textmap changelog between the provided version and the version before it.'},
     {name: 'changelog-ex', type: String, typeLabel: '<version>',
       description: 'Creates excel data changelog between the provided version and the version before it (changelog-tm must be ran first)'},
+    {name: 'changelog-misc-backfill', type: Boolean, description: 'Misc backfill'},
   ];
 
   const options_util: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
@@ -100,6 +101,9 @@ export async function importZenlessFilesCli() {
   }
   if (options['changelog-ex']) {
     await createChangelog(getZenlessControl(), options['changelog-ex'], 'excel');
+  }
+  if (options['changelog-misc-backfill']) {
+    await doChangelogMiscBackfill(getZenlessControl());
   }
   if (options['excel-scalars']) {
     await doImportExcelScalars(getZenlessControl());

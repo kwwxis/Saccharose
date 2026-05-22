@@ -8,15 +8,24 @@ ALTER SYSTEM SET max_wal_senders = 0;
 
 -- TEXTMAP CHANGES
 --------------------------------------------------------------------------------------------------------------
+CREATE TABLE textmap_hash_aggs
+(
+    hash        TEXT NOT NULL,
+    agg_id      UUID NOT NULL DEFAULT gen_random_uuid(),
+    PRIMARY KEY (hash)
+);
+
 CREATE TABLE textmap_changes
 (
-
     version         TEXT NOT NULL,
     lang_code       TEXT NOT NULL,
     hash            TEXT NOT NULL,
+    agg_id          UUID NOT NULL,
+
     change_type     TEXT NOT NULL,
     content         TEXT,
     prev_content    TEXT,
+    prev_hash       TEXT,
     PRIMARY KEY (version, lang_code, hash)
 );
 
