@@ -3,6 +3,7 @@
   <meta id="x-tmdiff-added" name="x-tmdiff-added" :content="JSON.stringify(textmapChanges.added)" />
   <meta id="x-tmdiff-removed" name="x-tmdiff-removed" :content="JSON.stringify(textmapChanges.removed)" />
   <meta id="x-tmdiff-updated" name="x-tmdiff-updated" :content="JSON.stringify(textmapChanges.updated)" />
+  <meta id="x-tmdiff-superseded" name="x-tmdiff-superseded" :content="JSON.stringify(textmapChanges.superseded)" />
 
   <section class="card spacer10-bottom">
     <h2 class="valign">
@@ -37,6 +38,9 @@
       <button id="tab-removedEntries" role="tab" class="tab" :class="{'active': activeTab === 'removed'}" ui-action="tab: #tabpanel-removedEntries, changedEntries; set-query-param: tab=removed">
         Removed Entries ({{ Object.keys(textmapChanges.removed).length }})
       </button>
+      <button id="tab-supersededEntries" role="tab" class="tab" :class="{'active': activeTab === 'superseded'}" ui-action="tab: #tabpanel-supersededEntries, changedEntries; set-query-param: tab=superseded">
+        Superseded Entries ({{ Object.keys(textmapChanges.superseded).length }})
+      </button>
     </div>
 
     <div id="tabpanel-addedEntries" role="tabpanel" aria-labelledby="tab-addedEntries" class="tabpanel"
@@ -52,6 +56,11 @@
     <div id="tabpanel-removedEntries" role="tabpanel" aria-labelledby="tab-removedEntries" class="tabpanel"
          :class="{'active': activeTab === 'removed', 'hide': activeTab !== 'removed'}">
       <div id="grid-removedEntries"></div>
+    </div>
+
+    <div id="tabpanel-supersededEntries" role="tabpanel" aria-labelledby="tab-supersededEntries" class="tabpanel"
+         :class="{'active': activeTab === 'superseded', 'hide': activeTab !== 'superseded'}">
+      <div id="grid-supersededEntries"></div>
     </div>
   </section>
 </template>
@@ -69,6 +78,6 @@ const { ctx } = useTrace();
 defineProps<{
   currentVersion?: GameVersion,
   textmapChanges?: TextMapChangesForDisplay,
-  activeTab?: 'added' | 'updated' | 'removed'
+  activeTab?: 'added' | 'updated' | 'removed' | 'superseded',
 }>();
 </script>

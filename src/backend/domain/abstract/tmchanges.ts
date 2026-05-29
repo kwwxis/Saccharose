@@ -38,7 +38,10 @@ export class TextMapChangelog {
     if (this.isDisabled)
       return [];
     return await this.knex.select('*').from('textmap_changes')
-      .where(cleanEmpty({version, lang_code: langCode}))
+      .where(cleanEmpty({
+        version,
+        lang_code: langCode
+      }))
       .then();
   }
 
@@ -68,6 +71,7 @@ export class TextMapChangelog {
       added: [],
       removed: [],
       updated: [],
+      superseded: [],
     };
 
     const normFunction = (str: string) => {
@@ -97,6 +101,11 @@ export class TextMapChangelog {
           oldText = normFunction(oldText);
 
           out.updated.push({ textMapHash: row.hash, oldText, newText });
+          break;
+        case 'superseded':
+          let oldHash = row.prev_hash;
+          let newHash = row.hash;
+          out.superseded.push({ oldTextMapHash: oldHash, newTextMapHash: newHash });
           break;
       }
     }
@@ -130,16 +139,21 @@ export class TextMapChangelog {
       .then();
 
     for (let row of rows) {
+      const gameVersion: GameVersion = this.ctrl.gameVersions.get(row.version);
       refs.push({
         hash: row.hash,
         aggId: row.agg_id,
-        version: this.ctrl.gameVersions.get(row.version),
+        version: gameVersion,
         changeType: row.change_type,
         value: doNorm(row.content),
         prevValue: doNorm(row.prev_content),
+        prevHash: row.prev_hash,
       });
     }
-    return new TextMapChangeRefs(refs);
+
+    const out = new TextMapChangeRefs(refs);
+    out.ensureSorted();
+    return out;
   }
 
   async selectMultiChangeRefs(hashes: TextMapHash[],
@@ -167,15 +181,18 @@ export class TextMapChangelog {
       .then();
 
     for (let row of rows) {
+      const gameVersion: GameVersion = this.ctrl.gameVersions.get(row.version);
       out.add({
         hash: row.hash,
         aggId: row.agg_id,
-        version: this.ctrl.gameVersions.get(row.version),
+        version: gameVersion,
         changeType: row.change_type,
         value: doNorm(row.content),
         prevValue: doNorm(row.prev_content),
+        prevHash: row.prev_hash,
       });
     }
+    out.ensureSorted();
     return out;
   }
 }

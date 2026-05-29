@@ -1,6 +1,7 @@
 import { LangCode, TextMapHash } from './lang-types.ts';
 import { GameVersion } from './game-versions.ts';
 import { defaultMap } from '../util/genericUtil.ts';
+import { sort } from '../util/arrayUtil.ts';
 
 export type ChangeType = 'added' | 'updated' | 'removed' | 'superseded';
 
@@ -152,8 +153,9 @@ export type TextMapChangeRef = {
   hash: TextMapHash,
   version: GameVersion,
   changeType: ChangeType,
-  value: string,
+  value?: string,
   prevValue?: string,
+  prevHash?: TextMapHash,
 }
 
 export class TextMapChangeRefs {
@@ -165,6 +167,10 @@ export class TextMapChangeRefs {
 
   add(ref: TextMapChangeRef): void {
     this.list.push(ref);
+  }
+
+  ensureSorted() {
+    sort(this.list, '-version.idxOrder');
   }
 }
 
@@ -184,6 +190,10 @@ export class TextMapMultiChangeRefs {
   byHash(hash: TextMapHash): TextMapChangeRefs {
     const aggId = this.hashToAggId[hash];
     return aggId ? this.byAggId(aggId) : new TextMapChangeRefs([]);
+  }
+
+  ensureSorted() {
+    Object.values(this.aggToChangeRefs).forEach(changeRefs => changeRefs.ensureSorted());
   }
 }
 // endregion
@@ -212,6 +222,7 @@ export type TextMapChangesForDisplay = {
   added: TextMapChangeAddDisplay[],
   removed: TextMapChangeRemoveDisplay[],
   updated: TextMapChangeUpdateDisplay[]
+  superseded: TextMapChangeSupersedeDisplay[],
 }
 export type TextMapChangeAddDisplay = {
   textMapHash: TextMapHash,
@@ -225,6 +236,10 @@ export type TextMapChangeUpdateDisplay = {
 export type TextMapChangeRemoveDisplay = {
   textMapHash: TextMapHash,
   text: string,
+}
+export type TextMapChangeSupersedeDisplay = {
+  oldTextMapHash: TextMapHash,
+  newTextMapHash: TextMapHash,
 }
 // endregion
 

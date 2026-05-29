@@ -189,6 +189,11 @@ pageMatch('vue/TextmapSearchPage', () => {
         el.classList.add('diff-processed');
 
         const json: TextMapChangeRef = JSON.parse(el.getAttribute('data-json'));
+
+        if (json.changeType === 'superseded') {
+          return;
+        }
+
         if (json.prevValue && json.value) {
           const diffUIArea: HTMLElement = el.querySelector('.diff-ui-area');
 

@@ -48,11 +48,11 @@ export async function importHsrFilesCli() {
       description: 'Creates textmap changelog between the provided version and the version before it.'},
     {name: 'changelog-ex', type: String, typeLabel: '<version>',
       description: 'Creates excel data changelog between the provided version and the version before it (changelog-tm must be ran first)'},
-    {name: 'changelog-misc-backfill', type: Boolean, description: 'Misc backfill'},
   ];
 
   const options_util: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
     {name: 'help', type: Boolean, description: 'Display this usage guide.'},
+    {name: 'changelog-misc-backfill', type: Boolean, description: 'Misc backfill'},
   ];
 
   let options: commandLineArgs.CommandLineOptions;

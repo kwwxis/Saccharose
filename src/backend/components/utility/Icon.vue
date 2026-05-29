@@ -1,13 +1,13 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue';
 import { dragHandle, icon } from '../../routing/viewUtilities.ts';
-import { FeatherAttributes } from 'feather-icons';
+import { FeatherAttributes, FeatherIconNames } from 'feather-icons';
 import { toInt } from '../../../shared/util/numberUtil.ts';
 
 export default defineComponent({
   name: 'Icon',
   props: {
-    name: { type: String, required: true },
+    name: { type: String as unknown as PropType<FeatherIconNames|'drag-handle'>, required: true },
     size: { type: Number, required: false },
     props: { type: Object as PropType<Partial<FeatherAttributes>>, required: false },
   },

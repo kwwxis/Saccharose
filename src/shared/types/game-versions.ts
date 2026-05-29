@@ -7,6 +7,7 @@ export class GameVersion {
   label?: string;
   aliases?: string[];
   parent: GameVersions;
+  idxOrder: number;
 
   showTextmapChangelog?: boolean;
   showExcelChangelog?: boolean;
@@ -31,6 +32,7 @@ export class GameVersion {
       number: this.number,
       prevNumber: this.prevNumber,
       label: this.label,
+      idxOrder: this.idxOrder,
       aliases: this.aliases,
       showTextmapChangelog: this.showTextmapChangelog,
       showExcelChangelog: this.showExcelChangelog,
@@ -66,7 +68,10 @@ export class GameVersions {
 
   constructor(readonly list: GameVersion[], readonly isTopLevel: boolean = false) {
     if (this.isTopLevel) {
-      list.forEach(v => v.parent = this);
+      list.forEach((v, idx) => {
+        v.parent = this;
+        v.idxOrder = idx;
+      });
     }
   }
 

@@ -2,7 +2,7 @@ import { pageMatch } from '../../core/pageMatch.ts';
 import { initExcelViewer, makeSingleColumnDef } from '../generic/excel-viewer/excel-viewer.ts';
 import {
   TextMapChangeAddDisplay,
-  TextMapChangeRemoveDisplay,
+  TextMapChangeRemoveDisplay, TextMapChangeSupersedeDisplay,
   TextMapChangeUpdateDisplay,
 } from '../../../shared/types/changelog-types.ts';
 import type { AgPromise, ICellRendererComp, ICellRendererParams } from 'ag-grid-community';
@@ -58,6 +58,7 @@ pageMatch('vue/ChangelogTextMapPage', async () => {
   const addedData: TextMapChangeAddDisplay[] = JSON.parse(document.querySelector<HTMLMetaElement>('#x-tmdiff-added').content);
   const updatedData: TextMapChangeUpdateDisplay[] = JSON.parse(document.querySelector<HTMLMetaElement>('#x-tmdiff-updated').content);
   const removedData: TextMapChangeRemoveDisplay[] = JSON.parse(document.querySelector<HTMLMetaElement>('#x-tmdiff-removed').content);
+  const supersededData: TextMapChangeSupersedeDisplay[] = JSON.parse(document.querySelector<HTMLMetaElement>('#x-tmdiff-superseded').content);
 
   let resetPreferredColumnStateFunctions: Function[] = [];
 
@@ -114,6 +115,23 @@ pageMatch('vue/ChangelogTextMapPage', async () => {
         overrideColDefs: [
           makeSingleColumnDef('textMapHash', 'TextMapHash', '123', {defaultShown: true}),
           makeSingleColumnDef('text', 'Text', 'Lorem Ipsum'),
+        ],
+        height: 'calc(100vh - 252px)',
+      }
+    );
+    resetPreferredColumnStateFunctions.push(resetPreferredColumnState);
+  }
+
+  if (supersededData && supersededData.length) {
+    let { resetPreferredColumnState } = await initExcelViewer(
+      'Superseded TextMap Entries - ' + changelogVersion,
+      supersededData,
+      document.querySelector('#grid-supersededEntries'),
+      {
+        includeExcelListButton: false,
+        overrideColDefs: [
+          makeSingleColumnDef('oldTextMapHash', 'Old Hash', '123', {defaultShown: true}),
+          makeSingleColumnDef('newTextMapHash', 'New Hash', '123', {defaultShown: true}),
         ],
         height: 'calc(100vh - 252px)',
       }

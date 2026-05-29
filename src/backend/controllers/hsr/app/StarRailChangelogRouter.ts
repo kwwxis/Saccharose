@@ -39,7 +39,7 @@ export default async function(): Promise<Router> {
       true
     );
 
-    const activeTab = queryTab(req, 'added', 'updated', 'removed');
+    const activeTab = queryTab(req, 'added', 'updated', 'removed', 'superseded');
 
     await res.renderComponent(ChangelogTextMapPage, {
       title: 'HSR TextMap Diff ' + gameVersion.displayLabel,

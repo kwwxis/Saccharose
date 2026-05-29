@@ -69,8 +69,24 @@
               <span>{{ changeRef.changeType }}</span>
             </h3>
             <div class="content change-ref-content" :data-json="JSON.stringify(changeRef)">
-              <Wikitext :value="changeRef.value" />
-              <div class="diff-ui-area"></div>
+              <template v-if="changeRef.changeType === 'superseded'">
+                <table style="line-height:1em">
+                  <tr>
+                    <td><small class="opacity70p">Old Hash</small></td>
+                    <td></td>
+                    <td><small class="opacity70p">New Hash</small></td>
+                  </tr>
+                  <tr>
+                    <td><code readonly class="code no-input-style no-theme color-red">{{ changeRef.prevHash }}</code></td>
+                    <td><Icon name="arrow-right" :size="16" :props="{'class': 'spacer5-horiz'}" /></td>
+                    <td><code readonly class="code no-input-style no-theme color-green">{{ changeRef.hash }}</code></td>
+                  </tr>
+                </table>
+              </template>
+              <template v-else>
+                <Wikitext :value="changeRef.value" />
+                <div class="diff-ui-area"></div>
+              </template>
             </div>
           </div>
         </div>
