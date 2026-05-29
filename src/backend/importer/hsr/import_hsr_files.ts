@@ -13,7 +13,7 @@ import { getStarRailControl, loadStarRailVoiceItems } from '../../domain/hsr/sta
 import { fetchVoiceAtlases } from '../../domain/hsr/character/fetchVoiceAtlas.ts';
 import { indexStarRailImages } from './module.index-images.ts';
 import { starRailNormalize } from './module.normalize.ts';
-import { createChangelog, doChangelogMiscBackfill } from '../util/createChangelogUtil.ts';
+import { createChangelog, doChangelogMiscBackfill } from '../util/changelog/createChangelogUtil.ts';
 import { recordNewStarRailImages } from './module.new-images.ts';
 import { isset } from '../../../shared/util/genericUtil.ts';
 import { doImportExcelScalars } from '../util/excel_usages_importer.ts';

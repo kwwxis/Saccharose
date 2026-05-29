@@ -30,7 +30,9 @@ CREATE TABLE textmap_changes
 );
 
 CREATE INDEX textmap_changes_version_lang_code_idx ON textmap_changes (version, lang_code);
-CREATE INDEX textmap_changes_hash_change_type_idx ON textmap_changes (hash, change_type);
+CREATE INDEX idx_textmap_changes_version_change_type ON textmap_changes (version, change_type);
+CREATE INDEX idx_textmap_changes_lang_code_agg_id ON textmap_changes (lang_code, agg_id);
+CREATE INDEX idx_textmap_changes_agg_id_lang_code ON textmap_changes (agg_id, lang_code);
 
 -- EXCEL SCALARS
 --------------------------------------------------------------------------------------------------------------

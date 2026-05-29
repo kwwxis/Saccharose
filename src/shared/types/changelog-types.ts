@@ -1,8 +1,8 @@
 import { LangCode, TextMapHash } from './lang-types.ts';
 import { GameVersion } from './game-versions.ts';
 import { defaultMap } from '../util/genericUtil.ts';
-import { Knex } from 'knex';
-export type ChangeType = 'added' | 'updated' | 'removed' | 'replaced';
+
+export type ChangeType = 'added' | 'updated' | 'removed' | 'superseded';
 
 // region Excel Changelog Types
 // --------------------------------------------------------------------------------------------------------------
@@ -135,18 +135,21 @@ export type TextMapChangeEntity = {
   version: string,
   lang_code: LangCode,
   hash: TextMapHash,
+  agg_id: string,
   change_type: ChangeType,
-  prev_hash?: TextMapHash, // only if change_type = REPLACED
+  prev_hash?: TextMapHash, // only if change_type = 'superseded'
   content?: string,
   prev_content?: string,
 };
 
 export type TextMapHashAggEntity = {
-  hash: string;
+  hash: TextMapHash;
   agg_id: string;
 };
 
 export type TextMapChangeRef = {
+  aggId: string,
+  hash: TextMapHash,
   version: GameVersion,
   changeType: ChangeType,
   value: string,
@@ -158,6 +161,29 @@ export class TextMapChangeRefs {
 
   get firstAdded(): TextMapChangeRef {
     return this.list.find(ref => ref.changeType === 'added') || null;
+  }
+
+  add(ref: TextMapChangeRef): void {
+    this.list.push(ref);
+  }
+}
+
+export class TextMapMultiChangeRefs {
+  private hashToAggId: Record<TextMapHash, string> = {};
+  private aggToChangeRefs: Record<string, TextMapChangeRefs> = defaultMap(() => new TextMapChangeRefs([]));
+
+  add(changeRef: TextMapChangeRef): void {
+    this.hashToAggId[changeRef.hash] = changeRef.aggId;
+    this.aggToChangeRefs[changeRef.aggId].add(changeRef);
+  }
+
+  byAggId(aggId: string): TextMapChangeRefs {
+    return this.aggToChangeRefs[aggId] || new TextMapChangeRefs([]);
+  }
+
+  byHash(hash: TextMapHash): TextMapChangeRefs {
+    const aggId = this.hashToAggId[hash];
+    return aggId ? this.byAggId(aggId) : new TextMapChangeRefs([]);
   }
 }
 // endregion
@@ -171,7 +197,7 @@ export type TextMapChanges = {
   added: Record<TextMapHash, string>,
   removed: Record<TextMapHash, string>,
   updated: Record<TextMapHash, TextMapContentChange>,
-  replaced?: Record<TextMapHash, TextMapHash>,
+  superseded: Record<TextMapHash, TextMapHash>,
 }
 
 export type TextMapContentChange = {

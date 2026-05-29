@@ -14,7 +14,7 @@ import { importVoiceOvers } from './module.voice-overs.ts';
 import { importSearchIndex } from './module.search-index.ts';
 import { generateAvatarAnimInteractionGoodBad, generateQuestDialogExcels } from './module.make-excels.ts';
 import { loadInterActionQD } from './module.interaction.ts';
-import { createChangelog, doChangelogMiscBackfill } from '../util/createChangelogUtil.ts';
+import { createChangelog, doChangelogMiscBackfill } from '../util/changelog/createChangelogUtil.ts';
 import { indexGenshinImages } from './module.index-images.ts';
 import { exportExcel } from './module.export-excel.ts';
 import { recordNewGenshinImages } from './module.new-images.ts';

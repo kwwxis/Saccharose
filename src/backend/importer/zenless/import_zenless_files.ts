@@ -11,7 +11,7 @@ import { importPlainTextMap } from '../util/import_file_util.ts';
 import { getZenlessControl } from '../../domain/zenless/zenlessControl.ts';
 import { generateDialogueNodes } from './module.dialogue-nodes.ts';
 import { zenlessNormalize } from './module.normalize.ts';
-import { createChangelog, doChangelogMiscBackfill } from '../util/createChangelogUtil.ts';
+import { createChangelog, doChangelogMiscBackfill } from '../util/changelog/createChangelogUtil.ts';
 import { doImportExcelScalars } from '../util/excel_usages_importer.ts';
 
 export async function importZenlessFilesCli() {

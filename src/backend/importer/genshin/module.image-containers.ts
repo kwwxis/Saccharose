@@ -7,7 +7,7 @@ import { IMAGEDIR_GENSHIN_EXT } from '../../loadenv.ts';
 import { closeKnex, openPgSite } from '../../util/db.ts';
 import { ImageContainerEntity } from '../../../shared/types/image-index-types.ts';
 import { GenshinContainerDiscriminator } from '../../domain/genshin/misc/giContainerDiscriminator.ts';
-import { chunkArrayByNumChunks } from '../../../shared/util/arrayUtil.ts';
+import { chunkArray } from '../../../shared/util/arrayUtil.ts';
 
 const IMAGE_NAME_REGEX =
   /^UI_(Achievement|Activity|Animal|Avatar|BattlePass|Beyd|Beyond|Byd|ChapterIcon|CutScene|DungeonPic|ExplorePic|FlycloakIcon|GCG|Gacha|Icon|Item|LoadingPic|Map|Mark|MessageIcon|MiniMap|MonsterIcon|NPC|Pic|PlotCutScene|Quest|ReadPic|Reputation|Reunion|UGC).*/i;
@@ -260,7 +260,7 @@ export async function populateImageContainers() {
       Math.max(1, os.availableParallelism?.() ?? os.cpus().length),
     );
 
-    const chunks = chunkArrayByNumChunks(gatherImageNames, workerCount);
+    const chunks = chunkArray(gatherImageNames, {chunkSize: workerCount});
 
     console.log(`Starting ${chunks.length} worker threads.`);
 

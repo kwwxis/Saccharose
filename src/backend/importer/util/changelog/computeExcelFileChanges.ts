@@ -1,122 +1,16 @@
-import '../../loadenv.ts';
-import { LangCode, TextMapHash } from '../../../shared/types/lang-types.ts';
+import { ExcelChangeRecord } from '../../../../shared/types/changelog-types.ts';
+import { schemaPrimaryKey } from '../../import_db.ts';
 import path from 'path';
+import { fsExists } from '../../../util/fsutil.ts';
 import fs from 'fs';
-import { defaultMap, isUnset } from '../../../shared/util/genericUtil.ts';
-import { isEquiv, mapBy, resolveObjectPath, walkObject } from '../../../shared/util/arrayUtil.ts';
-import { schemaPrimaryKey, SchemaTableSet } from '../import_db.ts';
-import { ExcelChangeRecord, TextMapFullChangelog } from '../../../shared/types/changelog-types.ts';
-import { GameVersion } from '../../../shared/types/game-versions.ts';
-import chalk from 'chalk';
-import { AbstractControl } from '../../domain/abstract/abstractControl.ts';
-import { backfillTextmapHashAggs, importTextMapChanges } from '../../domain/abstract/tmchanges.ts';
-import { toString } from '../../../shared/util/stringUtil.ts';
-import { importExcelChanges } from '../../domain/abstract/excelchanges.ts';
-import { fsExists } from '../../util/fsutil.ts';
+import { isEquiv, mapBy, resolveObjectPath, walkObject } from '../../../../shared/util/arrayUtil.ts';
+import { defaultMap, isUnset } from '../../../../shared/util/genericUtil.ts';
+import { toString } from '../../../../shared/util/stringUtil.ts';
+import { TextMapHash } from '../../../../shared/types/lang-types.ts';
+import { importExcelChanges } from '../../../domain/abstract/excelchanges.ts';
+import { CreateChangelogOpts } from './createChangelogUtil.ts';
 
-class CreateChangelogOpts {
-  readonly prevDataRoot: string;
-  readonly currDataRoot: string;
-  readonly noPriorChangelog: boolean;
-  readonly gameSchema: SchemaTableSet;
-
-  constructor(readonly ctrl: AbstractControl, readonly version: GameVersion) {
-    this.gameSchema = ctrl.schema;
-    this.noPriorChangelog = this.version.noPriorChangelog;
-    if (!this.noPriorChangelog)
-      this.prevDataRoot = path.resolve(ctrl.changelogConfig.archivesDirectory, `./${this.version.prevNumber}`);
-    this.currDataRoot = path.resolve(ctrl.changelogConfig.archivesDirectory, `./${this.version.number}`);
-    console.info(`Creating changelog for ${this.version.prevNumber} - ${this.version.number} diff`);
-  }
-}
-
-const EMPTY_STR: string = "";
-
-async function computeTextMapChanges(opts: CreateChangelogOpts) {
-  const textmapChangelog: TextMapFullChangelog = defaultMap(langCode => ({
-    langCode,
-    added: {},
-    removed: {},
-    updated: {},
-  }));
-
-  const { prevDataRoot, currDataRoot, noPriorChangelog } = opts;
-  for (let schemaTable of Object.values(opts.gameSchema)) {
-    if (!schemaTable.textMapSchemaLangCode) {
-      continue;
-    }
-
-    const langCode: LangCode = schemaTable.textMapSchemaLangCode;
-    console.log('Computing change entities for TextMap' + langCode);
-
-    let prevFilePath: string = noPriorChangelog ? null : path.resolve(prevDataRoot, schemaTable.jsonFile).replace(/\\/g, '/');
-    let currFilePath: string = path.resolve(currDataRoot, schemaTable.jsonFile).replace(/\\/g, '/');
-
-    if (prevFilePath && !fs.existsSync(prevFilePath))
-      prevFilePath = prevFilePath.replace(/\/TextMap([A-Z]+)\.json/, '/Text$1.json');
-    if (!fs.existsSync(currFilePath))
-      currFilePath = currFilePath.replace(/\/TextMap([A-Z]+)\.json/, '/Text$1.json');
-
-    const prevData: Record<TextMapHash, string> = noPriorChangelog || !fs.existsSync(prevFilePath)
-      ? {}
-      : JSON.parse(fs.readFileSync(prevFilePath, {encoding: 'utf8'}));
-
-    if (!fs.existsSync(currFilePath)) {
-      console.log('  ' + chalk.red('(Does not exist)'));
-      continue;
-    }
-
-    const currData: Record<TextMapHash, string> = JSON.parse(fs.readFileSync(currFilePath, {encoding: 'utf8'}));
-
-    const addedHashes: Set<TextMapHash> = new Set(Object.keys(currData).filter(hash => !prevData[hash]));
-    const removedHashes: Set<TextMapHash> = new Set(Object.keys(prevData).filter(hash => !currData[hash]));
-
-    let addedCount = 0;
-    let removedCount = 0;
-    let updatedCount = 0;
-    let unchangedCount = 0;
-
-    for (let addedHash of addedHashes) {
-      if (EMPTY_STR !== currData[addedHash]) {
-        textmapChangelog[langCode].added[addedHash] = currData[addedHash];
-        addedCount++;
-      }
-    }
-
-    for (let removedHash of removedHashes) {
-      if (EMPTY_STR !== prevData[removedHash]) {
-        textmapChangelog[langCode].removed[removedHash] = prevData[removedHash];
-        removedCount++;
-      }
-    }
-
-    for (let [textMapHash, _textMapContent] of Object.entries(currData)) {
-      if (addedHashes.has(textMapHash) || removedHashes.has(textMapHash)) {
-        continue;
-      }
-      if (currData[textMapHash] !== prevData[textMapHash]) {
-        updatedCount++;
-        textmapChangelog[langCode].updated[textMapHash] = {
-          oldValue: prevData[textMapHash],
-          newValue: currData[textMapHash]
-        };
-      } else {
-        unchangedCount++;
-      }
-    }
-    console.log('  Added: ' + addedCount);
-    console.log('  Removed: ' + removedCount);
-    console.log('  Updated: ' + updatedCount);
-    console.log('  Unchanged: ' + unchangedCount);
-  }
-  console.log('Finished computing textmap change entities');
-
-  console.log('Beginning importing textmap change entities');
-  await importTextMapChanges(opts.ctrl.knex, textmapChangelog, opts.version);
-  console.log('Finished importing textmap change entities');
-}
-
-async function computeExcelFileChanges(opts: CreateChangelogOpts) {
+export async function computeExcelFileChanges(opts: CreateChangelogOpts) {
   const changeRecords: ExcelChangeRecord[] = [];
 
   const updatedTextMapHashes = await opts.ctrl.textMapChangelog.selectUpdatedTextMapHashes(opts.version.number);
@@ -150,10 +44,10 @@ async function computeExcelFileChanges(opts: CreateChangelogOpts) {
       continue;
     }
 
-    const prevDataRaw: any[] = prevFileExists ? JSON.parse(fs.readFileSync(prevFilePath, {encoding: 'utf8'})) : [];
-    const currDataRaw: any[] = currFileExists ? JSON.parse(fs.readFileSync(currFilePath, {encoding: 'utf8'})) : [];
-    const prevData: {[key: string]: any} = mapBy(prevDataRaw, primaryKey);
-    const currData: {[key: string]: any} = mapBy(currDataRaw, primaryKey);
+    const prevDataRaw: any[] = prevFileExists ? JSON.parse(fs.readFileSync(prevFilePath, { encoding: 'utf8' })) : [];
+    const currDataRaw: any[] = currFileExists ? JSON.parse(fs.readFileSync(currFilePath, { encoding: 'utf8' })) : [];
+    const prevData: { [key: string]: any } = mapBy(prevDataRaw, primaryKey);
+    const currData: { [key: string]: any } = mapBy(currDataRaw, primaryKey);
 
     console.log(`Computing changelog for SchemaTable: ${schemaTable.name} // pkey: ${primaryKey} // ` +
       'CurrKeyCount:', Object.keys(currData).length, 'PrevKeyCount:', Object.keys(prevData).length);
@@ -217,8 +111,8 @@ async function computeExcelFileChanges(opts: CreateChangelogOpts) {
           key: key,
           changeType: 'updated',
           updatedFields: defaultMap(field => ({
-            field: toString(field)
-          }))
+            field: toString(field),
+          })),
         };
         const pathsInCurrRecord: Set<string> = new Set();
         let didFindChanges: boolean = false;
@@ -318,38 +212,6 @@ async function computeExcelFileChanges(opts: CreateChangelogOpts) {
   console.log('Beginning importing Excel change entities');
   await importExcelChanges(opts.ctrl.knex, changeRecords, opts.version);
   console.log('Finished importing Excel change entities');
-}
-
-export async function doChangelogMiscBackfill(ctrl: AbstractControl) {
-  await backfillTextmapHashAggs(ctrl.knex);
-}
-
-export async function createChangelog(ctrl: AbstractControl,
-                                      versionInput: string,
-                                      mode: 'textmap' | 'excel' | 'both'): Promise<void> {
-  const version: GameVersion = ctrl.gameVersions.get(versionInput);
-  if (!version) {
-    console.error('Not a valid version: ' + versionInput);
-    return;
-  }
-
-  const state: CreateChangelogOpts = new CreateChangelogOpts(ctrl, version);
-
-  if (mode === 'textmap' || mode === 'both') {
-    if (state.version.showTextmapChangelog) {
-      await computeTextMapChanges(state);
-    } else {
-      console.error('Version ' + version.number + ' does not support textmap changelog');
-    }
-  }
-
-  if (mode === 'excel' || mode === 'both') {
-    if (state.version.showExcelChangelog) {
-      await computeExcelFileChanges(state);
-    } else {
-      console.error('Version ' + version.number + ' does not support excel changelog');
-    }
-  }
 }
 
 /**

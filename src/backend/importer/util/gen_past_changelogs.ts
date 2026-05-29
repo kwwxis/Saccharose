@@ -1,7 +1,7 @@
 import { pathToFileURL } from 'url';
 import { GenshinVersions, StarRailVersions, WuwaVersions } from '../../../shared/types/game-versions.ts';
 import { wuwaNormalize } from '../wuwa/module.normalize.ts';
-import { createChangelog } from './createChangelogUtil.ts';
+import { createChangelog } from './changelog/createChangelogUtil.ts';
 import { wuwaSchema } from '../wuwa/wuwa.schema.ts';
 import { starRailNormalize } from '../hsr/module.normalize.ts';
 import { starRailSchema } from '../hsr/hsr.schema.ts';

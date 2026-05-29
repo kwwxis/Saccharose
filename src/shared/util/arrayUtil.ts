@@ -671,15 +671,31 @@ export function inRange(n: number, r: IndexedRange): boolean {
 /**
  * Chunk an array by the total number of chunks there should be.
  *
- * @param items The array to split into chunks.
- * @param chunkCount The total number of chunks there should be. This is *not* the number of items per chunk.
+ * @param arr The array to split into chunks.
+ * @param options Either `numChunks` or `chunkSize` must be specified, and not both.
+ * @param options.numChunks The total number of chunks there should be. This is *not* the number of items per chunk.
+ * @param options.chunkSize The number of items that should be in each chunk. The last chunk may have fewer items if the array length isn't divisible by `chunkSize`.
+ *
+ * @example
+ *   chunkArray([1, 2, 3, 4, 5], {numChunks: 2}); // => [[1, 3, 5], [2, 4]]
+ *   chunkArray([1, 2, 3, 4, 5], {chunkSize: 2}); // => [[1, 2], [3, 4], [5]]
  */
-export function chunkArrayByNumChunks<T>(items: T[], chunkCount: number): T[][] {
-  const chunks: T[][] = Array.from({ length: chunkCount }, () => []);
+export function chunkArray<T>(arr: T[], options: {numChunks?: number, chunkSize?: number}): T[][] {
+  if (isInt(options.numChunks)) {
+    const chunks: T[][] = Array.from({ length: options.numChunks }, () => []);
 
-  for (let i = 0; i < items.length; i++) {
-    chunks[i % chunkCount].push(items[i]);
+    for (let i = 0; i < arr.length; i++) {
+      chunks[i % options.numChunks].push(arr[i]);
+    }
+
+    return chunks.filter((chunk) => chunk.length > 0);
+  } else if (isInt(options.chunkSize)) {
+    const result: T[][] = [];
+    for (let i = 0; i < arr.length; i += options.chunkSize) {
+      result.push(arr.slice(i, i + options.chunkSize));
+    }
+    return result;
+  } else {
+    throw new Error('Either numChunks or chunkSize must be specified, and they must be integers.');
   }
-
-  return chunks.filter((chunk) => chunk.length > 0);
 }

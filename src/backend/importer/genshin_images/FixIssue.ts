@@ -5,7 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { fsWalkSync } from '../../util/fsutil.ts';
-import { chunkArrayByNumChunks } from '../../../shared/util/arrayUtil.ts';
+import { chunkArray } from '../../../shared/util/arrayUtil.ts';
 
 const combinedDir = 'E:/GameDataAssets/GenshinAssets/Texture2D/';
 const targetDir = 'E:/GameDataAssets/GenshinAssets/Texture2D_Archive/Texture2D_6.5';
@@ -20,7 +20,7 @@ if (isMainThread) {
   );
 
   const workerCount = Math.min(os.cpus().length, files.length || 1);
-  const chunks = chunkArrayByNumChunks(files, workerCount);
+  const chunks = chunkArray(files, {chunkSize: workerCount});
 
   let completed = 0;
   let failed = false;

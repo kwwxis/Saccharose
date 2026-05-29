@@ -67,7 +67,7 @@ import { Marker } from '../../../shared/util/highlightMarker.ts';
 import { AbstractControlState, AbstractControlStateType, ControlUserModeProvider } from './abstractControlState.ts';
 import { NormTextOptions } from './genericNormalizers.ts';
 import {
-  TextMapChangeRefs,
+  TextMapChangeRefs, TextMapMultiChangeRefs,
 } from '../../../shared/types/changelog-types.ts';
 import { GameVersion, GameVersions } from '../../../shared/types/game-versions.ts';
 import { ScriptJobActionArgs, ScriptJobCoordinator, ScriptJobPostResult } from '../../util/scriptJobs.ts';
@@ -492,9 +492,9 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       });
     }
 
-    const hashes = Array.from(results.keys());
-    const texts = await this.getTextMapItems(opts.outputLangCode, hashes);
-    const changeRefsMap = await this.textMapChangelog.selectMultiChangeRefs(hashes, opts.outputLangCode, opts.doNormText);
+    const hashes: string[] = Array.from(results.keys());
+    const texts: Record<TextMapHash, string> = await this.getTextMapItems(opts.outputLangCode, hashes);
+    const changeRefsMap: TextMapMultiChangeRefs = await this.textMapChangelog.selectMultiChangeRefs(hashes, opts.outputLangCode, opts.doNormText);
 
     for (let [textMapHash, text] of Object.entries(texts)) {
       if (opts.doNormText) {
@@ -502,7 +502,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       }
       const result = results.get(textMapHash);
       result.text = text;
-      result.changeRefs = changeRefsMap[textMapHash];
+      result.changeRefs = changeRefsMap.byHash(textMapHash);
     }
 
     return Array.from(results.values());
@@ -536,11 +536,11 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       }
     }
 
-    const changeRefsMap = await this.textMapChangelog.selectMultiChangeRefs(
+    const changeRefsMap: TextMapMultiChangeRefs = await this.textMapChangelog.selectMultiChangeRefs(
       Object.keys(agg2), opts.outputLangCode, opts.doNormText);
 
     for (let obj of Object.values(agg2)) {
-      obj.changeRefs = changeRefsMap[obj.hash];
+      obj.changeRefs = changeRefsMap.byHash(obj.hash);
     }
 
     return Object.values(agg2);
