@@ -34,7 +34,9 @@ export async function writeDeobfExcels() {
 
   const schemaNamesVisitMaxPairs: Record<string, number> = { };
   const schemaNamesMaxRecordSlice: Record<string, number> = {
-    'MaterialSourceDataExcelConfigData': 1000
+    'MaterialSourceDataExcelConfigData': 1000,
+    'ProudSkillExcelConfigData': 200,
+    'ReminderExcelConfigData': 200
   };
 
   let startAt: string = null; // inclusive
