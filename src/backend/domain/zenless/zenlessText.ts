@@ -132,7 +132,7 @@ export function __normZenlessText(text: string, langCode: LangCode, opts: NormTe
     });
 
   if (text.includes('<ruby=')) {
-    text = text.replaceAll(/<ruby=([^>]+)>([^<]+)<\/ruby>/, (_fm, rubi, base) => {
+    text = text.replaceAll(/<ruby=([^>]+)>([^<]+)<\/ruby>/g, (_fm, rubi, base) => {
       return `{{Rubi|${base}|${rubi}}}`;
     });
   }
