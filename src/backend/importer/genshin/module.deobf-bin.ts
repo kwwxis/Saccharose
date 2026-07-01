@@ -519,12 +519,16 @@ async function mapTalk(): Promise<Record<string, string>> {
     // 'Storyboard', 'StoryboardGroup'
   ];
 
+  const MUST_INCLUDE_FILES: Record<string, string[]> = {
+    'Quest': ['7009601.json'],
+  }
+
   for (let SUB_FOLDER of SUB_FOLDERS) {
     console.log('Processing Talk/' + SUB_FOLDER);
     const schemaRows: any[] = await walkSyncJsonCombine(getSchemaFilePath('./BinOutput/Talk/' + SUB_FOLDER),
-      getTalkCombiner(true), 60, [], true);
+      getTalkCombiner(true), 60, MUST_INCLUDE_FILES[SUB_FOLDER] || [], true);
     const rawRows: any[] = await walkSyncJsonCombine(getGenshinDataFilePath('./BinOutput.Raw/Talk/' + SUB_FOLDER),
-      getTalkCombiner(false), 60, [], true);
+      getTalkCombiner(false), 60, MUST_INCLUDE_FILES[SUB_FOLDER] || [], true);
 
     const propertySchema: PropertySchemaResult = await createPropertySchemaWithArray(
       null,
