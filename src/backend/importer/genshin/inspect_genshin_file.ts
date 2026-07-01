@@ -31,7 +31,7 @@ const presets = {
   FetterStoryExcelConfigData: <InspectOpt> { file: excel('FetterStoryExcelConfigData'), inspectFieldValues: [
     'OpenConds[#ALL].CondType', 'FinishConds[#ALL].CondType'] },
   FetterInfoExcelConfigData: <InspectOpt> { file: excel('FetterInfoExcelConfigData'), inspectFieldValues: ['AvatarAssocType', 'OpenConds[#ALL].CondType', 'FinishConds[#ALL].CondType'] },
-  LocalizationExcelConfigData: <InspectOpt> { file: excel('LocalizationExcelConfigData'), inspectFieldValues: ['AssetType'] },
+  LocalizationExcelConfigData: <InspectOpt> { file: excel('LocalizationExcelConfigData'), inspectFieldValues: [] },
   TalkExcelConfigData: <InspectOpt> { file: excel('TalkExcelConfigData'), inspectFieldValues: [
     'BeginCond[#ALL].Type', 'BeginCondComb', 'FinishExec[#ALL].Type', 'HeroTalk', 'LoadType', 'TalkMarkType', 'TalkType', 'TalkBinType', 'TalkRole.Type'
     ] },

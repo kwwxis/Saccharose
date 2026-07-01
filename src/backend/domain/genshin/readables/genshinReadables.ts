@@ -232,7 +232,7 @@ export class GenshinReadables {
       }
     }
 
-    if (!localization || localization.AssetType !== 'LOC_TEXT') {
+    if (!localization) {
       return ret;
     }
 

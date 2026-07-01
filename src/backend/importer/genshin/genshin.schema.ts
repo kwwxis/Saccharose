@@ -584,7 +584,6 @@ export const genshinSchema = {
     jsonFile: './ExcelBinOutput/LocalizationExcelConfigData.json',
     columns: [
       { name: 'Id', type: 'integer', isPrimary: true },
-      { name: 'AssetType', type: 'text', isIndex: true },
       { name: 'ScPath', type: 'text', isIndex: true },
       { name: 'TcPath', type: 'text', isIndex: true },
       { name: 'EnPath', type: 'text', isIndex: true },

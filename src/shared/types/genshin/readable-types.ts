@@ -135,11 +135,6 @@ export const LANG_CODE_TO_LOCALIZATION_PATH_PROP_ENTRIES: {langCode: LangCode, p
 
 export interface LocalizationExcelConfigData {
   Id: number,
-  AssetType:
-    'LOC_IMAGE' |
-    'LOC_SUBTITLE' |
-    'LOC_TEXT' |
-    'LOC_TROPHY_SET_ICON',
   DefaultPath: string,
   ScPath: string,
   TcPath: string,
