@@ -249,6 +249,21 @@ export interface FurnitureSuiteExcelConfigData {
 
 export type FurnitureSuiteTree = {[cat1: string]: {[cat2: string]: FurnitureSuiteExcelConfigData[]}};
 
+export interface FurnitureSuiteUnitsExcelConfigData {
+  JsonName: string,
+  FurnitureUnits: {
+    Rotation: { $type: string, X: number, Y: number, Z: number },
+    EulerAngles: { $type: string, X: number, Y: number, Z: number },
+    FurnitureId: number
+  }[],
+  NpcSpawnPoints: {
+    EulerAngles: { $type: string, X: number, Y: number, Z: number },
+    Rotation: { $type: string, X: number, Y: number, Z: number }
+  }[],
+  Height: number,
+  Radius: number,
+}
+
 // Furniture Make Config
 // --------------------------------------------------------------------------------------------------------------
 export interface FurnitureMakeExcelConfigData {

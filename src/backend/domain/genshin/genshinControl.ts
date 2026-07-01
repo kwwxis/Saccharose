@@ -68,7 +68,7 @@ import {
 import {
   FurnitureMakeExcelConfigData,
   FurnitureSuiteExcelConfigData,
-  FurnitureSuiteLoadConf,
+  FurnitureSuiteLoadConf, FurnitureSuiteUnitsExcelConfigData,
   HomeworldAnimalExcelConfigData,
   HomeWorldEventExcelConfigData,
   HomeWorldFurnitureExcelConfigData,
@@ -2501,7 +2501,9 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   // region HomeWorld Furniture Suite
   async selectFurnitureSuite(suiteId: number, loadConf?: FurnitureSuiteLoadConf): Promise<FurnitureSuiteExcelConfigData> {
     return await this.knex.select('*').from('FurnitureSuiteExcelConfigData')
-      .where({SuiteId: suiteId}).first().then(this.commonLoadFirst).then(suite => this.postProcessFurnitureSuite(suite, loadConf));
+      .where({SuiteId: suiteId}).first()
+      .then(this.commonLoadFirst)
+      .then(suite => this.postProcessFurnitureSuite(suite, loadConf));
   }
 
   async selectAllFurnitureSuite(loadConf?: FurnitureSuiteLoadConf): Promise<FurnitureSuiteExcelConfigData[]> {
@@ -2537,25 +2539,29 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     suite.MainFurnType = suite.MappedFurnType[0];
     suite.Units = [];
     if (loadConf?.LoadUnits && suite.JsonName) {
-      const path = `./BinOutput/HomeworldFurnitureSuit/${suite.JsonName}.json`;
-      if (await this.fileExists(path)) {
-        const data: any = await this.readJsonFile(path);
-        if (data && Array.isArray(data.furnitureUnits)) {
-          const unitMap: Map<number, {furn: HomeWorldFurnitureExcelConfigData, count: number}> = new Map();
-          for (let furnUnit of data.furnitureUnits) {
-            const furnId = furnUnit.furnitureID;
-            if (!unitMap.has(furnId)) {
-              unitMap.set(furnId, {furn: await this.selectFurniture(furnId), count: 0});
-            }
-            unitMap.get(furnId).count++;
+
+      const furnUnitData: FurnitureSuiteUnitsExcelConfigData = await this.knex.select('*')
+        .from('FurnitureSuiteUnitsExcelConfigData')
+        .where({JsonName: suite.JsonName}).first()
+        .then(this.commonLoadFirst);
+
+      if (furnUnitData) {
+        const unitMap: Map<number, {furn: HomeWorldFurnitureExcelConfigData, count: number}> = new Map();
+
+        for (let furnUnit of furnUnitData.FurnitureUnits) {
+          const furnId = furnUnit.FurnitureId;
+          if (!unitMap.has(furnId)) {
+            unitMap.set(furnId, {furn: await this.selectFurniture(furnId), count: 0});
           }
-          for (let [furnId, unitInfo] of unitMap) {
-            suite.Units.push({
-              FurnitureId: toInt(furnId),
-              Furniture: unitInfo.furn,
-              Count: unitInfo.count,
-            })
-          }
+          unitMap.get(furnId).count++;
+        }
+
+        for (let [furnId, unitInfo] of unitMap) {
+          suite.Units.push({
+            FurnitureId: toInt(furnId),
+            Furniture: unitInfo.furn,
+            Count: unitInfo.count,
+          })
         }
       }
     }

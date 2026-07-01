@@ -12,7 +12,11 @@ import { importVoiceItems } from './module.voice-items.ts';
 import { writeDeobfExcels } from './module.deobf-excel.ts';
 import { importVoiceOvers } from './module.voice-overs.ts';
 import { importSearchIndex } from './module.search-index.ts';
-import { generateAvatarAnimInteractionGoodBad, generateQuestDialogExcels } from './module.make-excels.ts';
+import {
+  generateAvatarAnimInteractionGoodBad,
+  generateHomeWorldFurnitureSuitExcel,
+  generateQuestDialogExcels,
+} from './module.make-excels.ts';
 import { loadInterActionQD } from './module.interaction.ts';
 import { createChangelog, doChangelogMiscBackfill } from '../util/changelog/createChangelogUtil.ts';
 import { indexGenshinImages } from './module.index-images.ts';
@@ -180,6 +184,7 @@ export async function importGenshinFilesCli() {
   }
   if (options['make-excels']) {
     await generateQuestDialogExcels(getGenshinDataFilePath());
+    await generateHomeWorldFurnitureSuitExcel(getGenshinDataFilePath());
   }
   if (options['avatar-anim-interaction']) {
     await generateAvatarAnimInteractionGoodBad(getGenshinDataFilePath());

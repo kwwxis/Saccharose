@@ -10,6 +10,7 @@
  * It also generates some custom files:
  *   - DialogUnparentedExcelConfigData: associates dialogs to a main quest for dialogs that aren't part of a talk.
  *   - CodexQuestExcelConfigData: info from BinOutput/CodexQuest (quest log in the in-game archive)
+ *   - FurnitureSuiteUnitsExcelConfigData: info from BinOutput/HomeworldFurnitureSuit (furniture sets for the Serenitea Pot)
  */
 
 import fs, { promises as fsp } from 'fs';
@@ -20,7 +21,7 @@ import { sort, walkObject } from '../../../shared/util/arrayUtil.ts';
 import { renameFields } from '../import_db.ts';
 import { defaultMap } from '../../../shared/util/genericUtil.ts';
 import { isInt, toInt } from '../../../shared/util/numberUtil.ts';
-import { fsWalkSync } from '../../util/fsutil.ts';
+import { fsReadJson, fsWalkSync } from '../../util/fsutil.ts';
 
 export async function generateAvatarAnimInteractionGoodBad(repoRoot: string) {
   const binOutputPath: string = path.resolve(repoRoot, './BinOutput');
@@ -57,6 +58,45 @@ export async function generateAvatarAnimInteractionGoodBad(repoRoot: string) {
 
 // region Main Function
 // --------------------------------------------------------------------------------------------------------------
+export async function generateHomeWorldFurnitureSuitExcel(repoRoot: string) {
+  const binOutputPath: string = path.resolve(repoRoot, './BinOutput');
+  const excelDirPath: string = path.resolve(repoRoot, './ExcelBinOutput');
+
+  if (!fs.existsSync(binOutputPath)) throw new Error('BinOutput path does not exist!');
+  if (!fs.existsSync(excelDirPath)) throw new Error('ExcelBinOutput path does not exist!');
+
+  const binOutputTargetPath: string = path.resolve(binOutputPath, './HomeworldFurnitureSuit');
+
+  if (!fs.existsSync(binOutputTargetPath)) throw new Error('BinOutput/HomeworldFurnitureSuit path does not exist!');
+
+  console.log('Processing BinOutput/HomeworldFurnitureSuit');
+
+  let excelRows = [];
+
+  for (let fileName of fsWalkSync(binOutputTargetPath)) {
+    if (!fileName.endsWith('.json')) {
+      continue;
+    }
+
+    let data: any = await fsReadJson(fileName);
+    data.jsonName = path.basename(fileName, '.json');
+
+    if (!data.furnitureUnits && !data.FurnitureUnits) {
+      continue;
+    }
+
+    excelRows.push(data);
+  }
+
+  console.log('Processed ' + excelRows.length + ' homeworld furniture suits');
+
+  console.log('Sorting HomeworldFurnitureSuit');
+  sort(excelRows, 'jsonName');
+
+  console.log('Writing to FurnitureSuiteUnitsExcelConfigData');
+  fs.writeFileSync(path.resolve(excelDirPath, './FurnitureSuiteUnitsExcelConfigData.json'), JSON.stringify(excelRows, null, 2));
+}
+
 export async function generateQuestDialogExcels(repoRoot: string) {
   const binOutputPath: string = path.resolve(repoRoot, './BinOutput');
   const excelDirPath: string = path.resolve(repoRoot, './ExcelBinOutput');

@@ -413,6 +413,13 @@ export const genshinSchema = {
       { name: 'SceneType', type: 'text' },
     ]
   },
+  FurnitureSuiteUnitsExcelConfigData: <SchemaTable> {
+    name: 'FurnitureSuiteUnitsExcelConfigData',
+    jsonFile: './ExcelBinOutput/FurnitureSuiteUnitsExcelConfigData.json',
+    columns: [
+      { name: 'JsonName', type: 'text', isPrimary: true },
+    ]
+  },
   HomeWorldPlantExcelConfigData: <SchemaTable> {
     name: 'HomeWorldPlantExcelConfigData',
     jsonFile: './ExcelBinOutput/HomeWorldPlantExcelConfigData.json',
