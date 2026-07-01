@@ -79,7 +79,7 @@ export async function importSearchIndex() {
     }
     writeOutput('Material', materialIndex);
   }
-  // Material Index
+  // BYD Material Index
   // --------------------------------------------------------------------------------------------------------------
   {
     process.stdout.write(chalk.bold('Generating byd material index...'));

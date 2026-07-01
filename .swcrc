@@ -1,46 +1,17 @@
-[
-  {
-    "test": ".tsx?$",
-    "jsc": {
-      "parser": {
-        "syntax": "typescript",
-        "tsx": true,
-        "dynamicImport": true,
-        "privateMethod": false,
-        "functionBind": false,
-        "exportDefaultFrom": false,
-        "exportNamespaceFrom": false,
-        "decorators": true,
-        "decoratorsBeforeExport": false,
-        "topLevelAwait": true,
-        "importMeta": true
-      },
-      "transform": {
-        "legacyDecorator": true,
-        "decoratorMetadata": true
-      }
-    }
-  },
-  {
-    "test": ".jsx?$",
-    "jsc": {
-      "parser": {
-        "syntax": "ecmascript",
-        "jsx": true,
-        "dynamicImport": true,
-        "privateMethod": false,
-        "functionBind": false,
-        "exportDefaultFrom": false,
-        "exportNamespaceFrom": false,
-        "decorators": true,
-        "decoratorsBeforeExport": false,
-        "topLevelAwait": true,
-        "importMeta": true
-      },
-      "transform": {
-        "legacyDecorator": true,
-        "decoratorMetadata": true
-      }
+{
+  "$schema": "https://swc.rs/schema.json",
+  "jsc": {
+    "parser": {
+      "syntax": "typescript",
+      "tsx": true,
+      "decorators": true,
+      "dynamicImport": true,
+      "importMeta": true,
+      "topLevelAwait": true
+    },
+    "transform": {
+      "legacyDecorator": true,
+      "decoratorMetadata": true
     }
   }
-]
+}

@@ -14,11 +14,15 @@ import { WeaponExcelConfigData } from '../../../../shared/types/genshin/weapon-t
 import { HomeWorldFurnitureExcelConfigData } from '../../../../shared/types/genshin/homeworld-types.ts';
 import { ReliquaryExcelConfigData } from '../../../../shared/types/genshin/artifact-types.ts';
 import GenshinItemInner from './GenshinItemInner.vue';
-import { BydMaterialExcelConfigData } from '../../../../shared/types/genshin/beyond-types.ts';
+import {
+  BeyondCostumeExcelConfigData, BeyondCostumeSuitExcelConfigData,
+  BydMaterialExcelConfigData, isBeyondCostume, isBeyondCostumeSuit,
+} from '../../../../shared/types/genshin/beyond-types.ts';
 import { AvatarExcelConfigData, isAvatar } from '../../../../shared/types/genshin/avatar-types.ts';
 
 export type GenshinItemComponentProps = {
-  item?: MaterialExcelConfigData|WeaponExcelConfigData|HomeWorldFurnitureExcelConfigData|ReliquaryExcelConfigData|BydMaterialExcelConfigData|AvatarExcelConfigData,
+  item?: MaterialExcelConfigData|WeaponExcelConfigData|HomeWorldFurnitureExcelConfigData|ReliquaryExcelConfigData
+    |BydMaterialExcelConfigData|AvatarExcelConfigData|BeyondCostumeExcelConfigData|BeyondCostumeSuitExcelConfigData,
   itemCount?: number,
   noCount?: boolean,
   noLink?: boolean,
@@ -29,15 +33,21 @@ export type GenshinItemComponentProps = {
 const props = defineProps<GenshinItemComponentProps>();
 const { item } = props;
 
-const itemLink = isAvatar(item)
-  ? null
-  : (
-    (item.ItemType === 'ITEM_WEAPON' ? 'weapons' : '') ||
-    (item.ItemType === 'ITEM_FURNITURE' ? 'furnishings' : '') ||
-    (item.ItemType === 'ITEM_RELIQUARY' ? 'artifacts' : '') ||
-    (item.ItemType === 'ITEM_BEYOND_MATERIAL' ? 'byd/items' : '') ||
-    (item.ItemType === 'ITEM_BEYOND_MATERIAL' ? 'byd/items' : '') ||
-    'items'
-  );
-
+const itemLink = (() => {
+  if (isAvatar(item)) {
+    return null;
+  } else if (isBeyondCostume(item)) {
+    return 'byd/costumes';
+  } else if (isBeyondCostumeSuit(item)) {
+    return 'byd/costume-suits';
+  } else if (item.ItemType === 'ITEM_WEAPON') {
+    return 'weapons';
+  } else if (item.ItemType === 'ITEM_FURNITURE') {
+    return 'furnishings';
+  } else if (item.ItemType === 'ITEM_RELIQUARY') {
+    return 'artifacts';
+  } else if (item.ItemType === 'ITEM_BEYOND_MATERIAL') {
+    return 'byd/items';
+  }
+})();
 </script>

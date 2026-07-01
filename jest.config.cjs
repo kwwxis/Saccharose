@@ -175,7 +175,40 @@ module.exports = {
 
   // A map from regular expressions to paths to transformers
   transform: {
-    '^.+\\.(t|j)sx?$': '@swc/jest',
+    "^.+\\.tsx?$": [
+      "@swc/jest",
+      {
+        jsc: {
+          parser: {
+            syntax: "typescript",
+            tsx: true,
+            decorators: true,
+            dynamicImport: true
+          },
+          transform: {
+            legacyDecorator: true,
+            decoratorMetadata: true
+          }
+        }
+      }
+    ],
+    "^.+\\.jsx?$": [
+      "@swc/jest",
+      {
+        jsc: {
+          parser: {
+            syntax: "ecmascript",
+            jsx: true,
+            decorators: true,
+            dynamicImport: true
+          },
+          transform: {
+            legacyDecorator: true,
+            decoratorMetadata: true
+          }
+        }
+      }
+    ]
   },
 
   // An array of regexp pattern strings that are matched against all source file paths, matched files will skip transformation

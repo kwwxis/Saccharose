@@ -1,5 +1,6 @@
 import { isUnset } from './genericUtil.ts';
 import { LANG_CODE_TO_LOCALE, LangCode } from '../types/lang-types.ts';
+import { pathToFileURL } from 'url';
 
 export function isString(x: any): x is string {
   return typeof x === 'string';
@@ -704,11 +705,138 @@ export function paramCmp(a: any, b: any) {
   return String(a).trim().toLowerCase().replace(/_/g, ' ') === String(b).trim().toLowerCase().replace(/_/g, ' ');
 }
 
-export function reformatPrimitiveArrays(jsonStr: string) {
-  return jsonStr.replace(/\[(\s*(\d+(\.\d+)?|"[^"]+"|true|false),?\n\s*)*]/g, fm => {
-    let s = fm.slice(1, -1).split(',').map(s => s.trim()).join(', ');
-    return s ? '[ ' + s + ' ]' : '[]';
-  });
+/**
+ * Takes in a JSON string and reformats arrays of primitive values (numbers, strings, booleans, null) to be compacted
+ * into a single line, while leaving any other unrelated formatting intact.
+ *
+ * @param jsonStr
+ */
+export function reformatPrimitiveArrays(jsonStr: string): string {
+  function isWhitespace(ch: string): boolean {
+    return ch === " " || ch === "\n" || ch === "\r" || ch === "\t";
+  }
+
+  function skipWhitespace(i: number): number {
+    while (i < jsonStr.length && isWhitespace(jsonStr[i])) i++;
+    return i;
+  }
+
+  function scanString(i: number): number {
+    // jsonStr[i] must be '"'
+    i++;
+
+    while (i < jsonStr.length) {
+      const ch = jsonStr[i];
+
+      if (ch === "\\") {
+        // Skip escaped character, including escaped quote/backslash/etc.
+        i += 2;
+        continue;
+      }
+
+      if (ch === '"') {
+        return i + 1;
+      }
+
+      i++;
+    }
+
+    throw new Error("Invalid JSON string: unterminated string");
+  }
+
+  function scanPrimitive(i: number): number | null {
+    i = skipWhitespace(i);
+
+    if (jsonStr[i] === '"') {
+      return scanString(i);
+    }
+
+    const rest = jsonStr.slice(i);
+
+    const literalMatch = /^(true|false|null)/.exec(rest);
+    if (literalMatch) {
+      return i + literalMatch[0].length;
+    }
+
+    // JSON number grammar, not just \d+(\.\d+)?
+    const numberMatch = /^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?/.exec(rest);
+    if (numberMatch) {
+      return i + numberMatch[0].length;
+    }
+
+    return null;
+  }
+
+  function compactArrayIfPrimitive(start: number): { end: number; replacement: string } | null {
+    // jsonStr[start] must be '['
+    let i = skipWhitespace(start + 1);
+    const rawItems: string[] = [];
+
+    if (jsonStr[i] === "]") {
+      return {
+        end: i + 1,
+        replacement: "[]",
+      };
+    }
+
+    while (i < jsonStr.length) {
+      const itemStart = skipWhitespace(i);
+      const itemEnd = scanPrimitive(itemStart);
+
+      if (itemEnd === null) {
+        return null;
+      }
+
+      rawItems.push(jsonStr.slice(itemStart, itemEnd));
+
+      i = skipWhitespace(itemEnd);
+
+      if (jsonStr[i] === ",") {
+        i = skipWhitespace(i + 1);
+        continue;
+      }
+
+      if (jsonStr[i] === "]") {
+        return {
+          end: i + 1,
+          replacement: `[ ${rawItems.join(", ")} ]`,
+        };
+      }
+
+      return null;
+    }
+
+    return null;
+  }
+
+  let result = "";
+  let i = 0;
+
+  while (i < jsonStr.length) {
+    const ch = jsonStr[i];
+
+    if (ch === '"') {
+      const end = scanString(i);
+      result += jsonStr.slice(i, end);
+      i = end;
+      continue;
+    }
+
+    if (ch === "[") {
+      const compacted = compactArrayIfPrimitive(i);
+
+      if (compacted) {
+        result += compacted.replacement;
+        i = compacted.end;
+        continue;
+      }
+    }
+
+    result += ch;
+    i++;
+  }
+
+  return result;
 }
 
 const htmlIdCache = new Map<string, string>();

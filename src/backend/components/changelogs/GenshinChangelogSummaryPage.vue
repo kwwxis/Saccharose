@@ -146,6 +146,48 @@
         </div>
       </div>
 
+      <h3 id="new-byd-items-header" class="new-summary-section-header secondary-header valign">
+        <span class="expando spacer5-right" ui-action="expando: #new-byd-items-content"><Icon name="chevron-down" :size="17" /></span>
+        <span class="new-summary-section-title">BeyondUGC: New Items</span>
+        <span class="secondary-label new-summary-section-count">{{ newSummary.bydItems.length }}</span>
+      </h3>
+      <div id="new-byd-items-content" class="new-summary-section-content content alignStart flexWrap">
+        <template v-for="item of newSummary.bydItems">
+          <GenshinItem :item="item" />
+        </template>
+        <div v-if="!newSummary.bydItems.length">
+          <p>(None)</p>
+        </div>
+      </div>
+
+      <h3 id="new-byd-costumes-header" class="new-summary-section-header secondary-header valign">
+        <span class="expando spacer5-right" ui-action="expando: #new-byd-costumes-content"><Icon name="chevron-down" :size="17" /></span>
+        <span class="new-summary-section-title">BeyondUGC: New Costumes</span>
+        <span class="secondary-label new-summary-section-count">{{ newSummary.bydCostumes.length }}</span>
+      </h3>
+      <div id="new-byd-costumes-content" class="new-summary-section-content content alignStart flexWrap">
+        <template v-for="item of newSummary.bydCostumes">
+          <GenshinItem :item="item" />
+        </template>
+        <div v-if="!newSummary.bydCostumes.length">
+          <p>(None)</p>
+        </div>
+      </div>
+
+      <h3 id="new-byd-costume-suits-header" class="new-summary-section-header secondary-header valign">
+        <span class="expando spacer5-right" ui-action="expando: #new-byd-costume-suits-content"><Icon name="chevron-down" :size="17" /></span>
+        <span class="new-summary-section-title">BeyondUGC: New Costume Suits</span>
+        <span class="secondary-label new-summary-section-count">{{ newSummary.bydCostumeSuits.length }}</span>
+      </h3>
+      <div id="new-byd-costume-suits-content" class="new-summary-section-content content alignStart flexWrap">
+        <template v-for="item of newSummary.bydCostumeSuits">
+          <GenshinItem :item="item" />
+        </template>
+        <div v-if="!newSummary.bydCostumeSuits.length">
+          <p>(None)</p>
+        </div>
+      </div>
+
       <h3 id="new-artifacts-header" class="new-summary-section-header secondary-header valign">
         <span class="expando spacer5-right" ui-action="expando: #new-artifacts-content"><Icon name="chevron-down" :size="17" /></span>
         <span class="new-summary-section-title">New Artifacts</span>

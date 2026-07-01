@@ -3223,6 +3223,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
   // region Byd Costume
   private async postProcessBeyondCostumeExcelConfigData(costume: BeyondCostumeExcelConfigData): Promise<BeyondCostumeExcelConfigData> {
+    costume.Id = costume.CostumeId;
     costume.ComponentFlatSlots = [];
     for (let slot1 of costume.ComponentSlot1) {
       for (let slot2 of slot1.ComponentSlot2) {
@@ -3254,6 +3255,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
   // region Byd Costume Suit
   private async postProcessBeyondCostumeSuitExcelConfigData(costumeSuit: BeyondCostumeSuitExcelConfigData): Promise<BeyondCostumeSuitExcelConfigData> {
+    costumeSuit.Id = costumeSuit.SuitId;
     costumeSuit.SetComponents = await this.selectBeyondCostumesBySuitId(costumeSuit.SuitId);
     if (costumeSuit.IconHash) {
       const imageName = await giImageHashToImageName(costumeSuit.IconHash);

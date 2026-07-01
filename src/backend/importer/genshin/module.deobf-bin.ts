@@ -60,7 +60,10 @@ async function walkSyncWrite(inDir: string, outDir: string, mapping: Record<stri
 
 type Combiner = (acc: any[], json: any, fileName?: string) => void;
 
-async function walkSyncJsonCombine(dir: string, combiner: Combiner, maxCombines: number = 0, mustIncludeFiles: string[] = [], onlyIntFiles: boolean = false): Promise<any[]> {
+async function walkSyncJsonCombine(dir: string, combiner: Combiner, maxCombines: number = 0,
+                                   mustIncludeFiles: string[] = [],
+                                   onlyIntFiles: boolean = false,
+                                   onlyMustIncludeFiles: boolean = false): Promise<any[]> {
   let acc: any[] = [];
   let combines: number = 0;
 
@@ -75,6 +78,9 @@ async function walkSyncJsonCombine(dir: string, combiner: Combiner, maxCombines:
     }
     const baseName = path.basename(file);
     const baseNameNoExt = baseName.slice(0, -5);
+    if (onlyMustIncludeFiles && !mustIncludeFiles.includes(baseName)) {
+      continue;
+    }
     if (onlyIntFiles && !isInt(baseNameNoExt)) {
       continue;
     }
@@ -444,6 +450,18 @@ async function mapQuest(): Promise<Record<string, string>> {
     schemaRows,
     rawRows
   );
+
+  // const schemaRows2: any[] = await walkSyncJsonCombine(getSchemaFilePath('./BinOutput/Quest'),
+  //   getQuestCombiner(true), 120, ['76190.json'], false, true);
+  // const rawRows2: any[] = await walkSyncJsonCombine(getGenshinDataFilePath('./BinOutput.Raw/Quest'),
+  //   getQuestCombiner(false), 120, ['bdc24e43.json'], false, true);
+  //
+  // const propertySchema2: PropertySchemaResult = await createPropertySchemaWithArray(
+  //   null,
+  //   null,
+  //   schemaRows2,
+  //   rawRows2
+  // );
 
   console.log(propertySchema.map);
 

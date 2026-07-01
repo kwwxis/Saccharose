@@ -675,12 +675,14 @@ export function inRange(n: number, r: IndexedRange): boolean {
  * @param options Either `numChunks` or `chunkSize` must be specified, and not both.
  * @param options.numChunks The total number of chunks there should be. This is *not* the number of items per chunk.
  * @param options.chunkSize The number of items that should be in each chunk. The last chunk may have fewer items if the array length isn't divisible by `chunkSize`.
+ * @param options.drainSource If true, the source array will be emptied in-place as chunks are created, reducing memory usage.
  *
  * @example
  *   chunkArray([1, 2, 3, 4, 5], {numChunks: 2}); // => [[1, 3, 5], [2, 4]]
  *   chunkArray([1, 2, 3, 4, 5], {chunkSize: 2}); // => [[1, 2], [3, 4], [5]]
+ *   chunkArray([1, 2, 3, 4, 5], {chunkSize: 2, drainSource: true}); // => [[1, 2], [3, 4], [5]], arr is now []
  */
-export function chunkArray<T>(arr: T[], options: {numChunks?: number, chunkSize?: number}): T[][] {
+export function chunkArray<T>(arr: T[], options: {numChunks?: number, chunkSize?: number, drainSource?: boolean}): T[][] {
   if (isInt(options.numChunks)) {
     const chunks: T[][] = Array.from({ length: options.numChunks }, () => []);
 
@@ -688,12 +690,24 @@ export function chunkArray<T>(arr: T[], options: {numChunks?: number, chunkSize?
       chunks[i % options.numChunks].push(arr[i]);
     }
 
+    if (options.drainSource) {
+      arr.length = 0;
+    }
+
     return chunks.filter((chunk) => chunk.length > 0);
   } else if (isInt(options.chunkSize)) {
     const result: T[][] = [];
-    for (let i = 0; i < arr.length; i += options.chunkSize) {
-      result.push(arr.slice(i, i + options.chunkSize));
+    
+    if (options.drainSource) {
+      while (arr.length > 0) {
+        result.push(arr.splice(0, options.chunkSize));
+      }
+    } else {
+      for (let i = 0; i < arr.length; i += options.chunkSize) {
+        result.push(arr.slice(i, i + options.chunkSize));
+      }
     }
+    
     return result;
   } else {
     throw new Error('Either numChunks or chunkSize must be specified, and they must be integers.');

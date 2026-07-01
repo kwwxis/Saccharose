@@ -29,6 +29,10 @@ import { sort } from '../../../../shared/util/arrayUtil.ts';
 import { defaultMap } from '../../../../shared/util/genericUtil.ts';
 import { GameVersion, GameVersions } from '../../../../shared/types/game-versions.ts';
 import { NpcExcelConfigData } from '../../../../shared/types/genshin/npc-types.ts';
+import {
+  BeyondCostumeExcelConfigData, BeyondCostumeSuitExcelConfigData,
+  BydMaterialExcelConfigData,
+} from '../../../../shared/types/genshin/beyond-types.ts';
 
 export type GenshinChangelogNewRecordSummary = {
   avatars: AvatarExcelConfigData[],
@@ -39,6 +43,9 @@ export type GenshinChangelogNewRecordSummary = {
   blueprints: MaterialExcelConfigData[],
   avatarItems: MaterialExcelConfigData[],
   items: MaterialExcelConfigData[],
+  bydItems: BydMaterialExcelConfigData[],
+  bydCostumes: BeyondCostumeExcelConfigData[],
+  bydCostumeSuits: BeyondCostumeSuitExcelConfigData[],
 
   furnishings: HomeWorldFurnitureExcelConfigData[],
   furnishingSets: FurnitureSuiteExcelConfigData[],
@@ -120,6 +127,9 @@ async function _generateGenshinChangelogNewRecordSummary(ctrl: GenshinControl, g
     avatarItems: null,
     blueprints: null,
     items: null,
+    bydItems: null,
+    bydCostumes: null,
+    bydCostumeSuits: null,
 
     furnishings: null,
     furnishingSets: null,
@@ -166,6 +176,17 @@ async function _generateGenshinChangelogNewRecordSummary(ctrl: GenshinControl, g
           && !(item.MaterialType === 'MATERIAL_WEAPON_SKIN')
         )),
       });
+    }),
+
+
+    newIntKeysOf('BydMaterialExcelConfigData').asyncMap(id => ctrl.selectBydMaterialExcelConfigData(id)).then(bydItems => {
+      out.bydItems = bydItems;
+    }),
+    newIntKeysOf('BeyondCostumeExcelConfigData').asyncMap(id => ctrl.selectBeyondCostumeExcelConfigData(id)).then(costumes => {
+      out.bydCostumes = costumes;
+    }),
+    newIntKeysOf('BeyondCostumeSuitExcelConfigData').asyncMap(id => ctrl.selectBeyondCostumeSuitExcelConfigData(id)).then(costumeSuits => {
+      out.bydCostumeSuits = costumeSuits;
     }),
 
     newIntKeysOf('MonsterExcelConfigData').asyncMap(monsterId => ctrl.selectMonsterById(monsterId)).then(monsters => {

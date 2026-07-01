@@ -260,7 +260,8 @@ export async function populateImageContainers() {
       Math.max(1, os.availableParallelism?.() ?? os.cpus().length),
     );
 
-    const chunks = chunkArray(gatherImageNames, {chunkSize: workerCount});
+    const chunkSize = Math.ceil(gatherImageNames.length / workerCount);
+    const chunks = chunkArray(gatherImageNames, {chunkSize: chunkSize, drainSource: true});
 
     console.log(`Starting ${chunks.length} worker threads.`);
 
