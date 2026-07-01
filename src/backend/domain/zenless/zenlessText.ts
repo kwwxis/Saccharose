@@ -117,9 +117,25 @@ export function __normZenlessText(text: string, langCode: LangCode, opts: NormTe
       }
     });
 
-  // if (text.includes('{RUBY')) {
-  //   text = text.replace(/\{RUBY_B#(.*?)}(.*?)\{RUBY_E#}/g, '{{Rubi|$2|$1}}');
-  // }
+  text = text.replace(/<Action:(InLevelMoveUp|InLevelMoveDown|InLevelMoveLeft|InLevelMoveRight)>/g,
+    (_fm, g: 'InLevelMoveUp'|'InLevelMoveDown'|'InLevelMoveLeft'|'InLevelMoveRight') => {
+      switch (g) {
+        case 'InLevelMoveUp':
+          return '{{key|W}}';
+        case 'InLevelMoveDown':
+          return '{{key|S}}';
+        case 'InLevelMoveLeft':
+          return '{{key|A}}';
+        case 'InLevelMoveRight':
+          return '{{key|D}}';
+      }
+    });
+
+  if (text.includes('<ruby=')) {
+    text = text.replaceAll(/<ruby=(^[>]+)>([^<]+)<\/ruby>/, (_fm, rubi, base) => {
+      return `{{Rubi|${base}|${rubi}}}`;
+    });
+  }
 
   text = mergeMcTemplate(text, langCode, opts.plaintext)
 
