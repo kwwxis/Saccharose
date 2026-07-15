@@ -120,10 +120,10 @@ export async function importGenshinFilesCli() {
   }
 
   if (options['normalize-tm']) {
-    await genshinNormalize();
+    await genshinNormalize('textmap');
   }
   if (options['normalize-ex']) {
-    await genshinNormalize();
+    await genshinNormalize('excel');
   }
   if (options.plaintext) {
     const ctrl = getGenshinControl();
