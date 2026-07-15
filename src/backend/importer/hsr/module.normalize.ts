@@ -1,10 +1,10 @@
-import { getGenshinDataFilePath, getStarRailDataFilePath } from '../../loadenv.ts';
+import { getStarRailDataFilePath } from '../../loadenv.ts';
 import fs from 'fs';
 import { importNormalize } from '../util/import_file_util.ts';
 import { fsExists, fsReadJson } from '../../util/fsutil.ts';
 
 async function tmJsons(path: string): Promise<any[]> {
-  path = getGenshinDataFilePath(path);
+  path = getStarRailDataFilePath(path);
 
   let jsons: any[] = [];
   if (await fsExists(path)) {
@@ -53,7 +53,7 @@ export async function starRailNormalize() {
       Object.assign(fullJson, json);
     }
 
-    fs.writeFileSync(getGenshinDataFilePath(info.mainfile), JSON.stringify(fullJson, null, 2), 'utf-8');
+    fs.writeFileSync(getStarRailDataFilePath(info.mainfile), JSON.stringify(fullJson, null, 2), 'utf-8');
   }
   await importNormalize(getStarRailDataFilePath('./ExcelOutput'), [], 'hsr');
 }
