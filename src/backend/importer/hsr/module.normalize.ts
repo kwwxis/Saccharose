@@ -1,75 +1,59 @@
-import { getStarRailDataFilePath } from '../../loadenv.ts';
+import { getGenshinDataFilePath, getStarRailDataFilePath } from '../../loadenv.ts';
 import fs from 'fs';
 import { importNormalize } from '../util/import_file_util.ts';
+import { fsExists, fsReadJson } from '../../util/fsutil.ts';
+
+async function tmJsons(path: string): Promise<any[]> {
+  path = getGenshinDataFilePath(path);
+
+  let jsons: any[] = [];
+  if (await fsExists(path)) {
+    console.log('  Found ' + path);
+    jsons.push(await fsReadJson(path));
+  }
+
+  for (let i = 0; i <= 2; i++) {
+    let splitPath = path.replace('.json', `_${i}.json`);
+    if (await fsExists(splitPath)) {
+      console.log('  Found ' + splitPath);
+      jsons.push(await fsReadJson(splitPath));
+    }
+  }
+
+  return jsons;
+}
 
 export async function starRailNormalize() {
-  await fixThai();
-  await fixRussian();
-  await fixKorean();
+  const infos = [
+    {addon: './TextMap/TextMapMainCHS.json',  mainfile: './TextMap/TextMapCHS.json'},
+    {addon: './TextMap/TextMapMainCHT.json',  mainfile: './TextMap/TextMapCHT.json'},
+    {addon: './TextMap/TextMapMainDE.json',   mainfile: './TextMap/TextMapDE.json'},
+    {addon: './TextMap/TextMapMainEN.json',   mainfile: './TextMap/TextMapEN.json'},
+    {addon: './TextMap/TextMapMainES.json',   mainfile: './TextMap/TextMapES.json'},
+    {addon: './TextMap/TextMapMainFR.json',   mainfile: './TextMap/TextMapFR.json'},
+    {addon: './TextMap/TextMapMainID.json',   mainfile: './TextMap/TextMapID.json'},
+    {addon: './TextMap/TextMapMainIT.json',   mainfile: './TextMap/TextMapIT.json'},
+    {addon: './TextMap/TextMapMainJP.json',   mainfile: './TextMap/TextMapJP.json'},
+    {addon: './TextMap/TextMapMainKR.json',   mainfile: './TextMap/TextMapKR.json'},
+    {addon: './TextMap/TextMapMainPT.json',   mainfile: './TextMap/TextMapPT.json'},
+    {addon: './TextMap/TextMapMainRU.json',   mainfile: './TextMap/TextMapRU.json'},
+    {addon: './TextMap/TextMapMainTH.json',   mainfile: './TextMap/TextMapTH.json'},
+    {addon: './TextMap/TextMapMainTR.json',   mainfile: './TextMap/TextMapTR.json'},
+    {addon: './TextMap/TextMapMainVI.json',   mainfile: './TextMap/TextMapVI.json'},
+  ];
+  for (let info of infos) {
+    console.log('Processing ' + info.mainfile);
+    let fullJson = {};
+
+    for (let json of await tmJsons(info.mainfile)) {
+      Object.assign(fullJson, json);
+    }
+
+    for (let json of await tmJsons(info.addon)) {
+      Object.assign(fullJson, json);
+    }
+
+    fs.writeFileSync(getGenshinDataFilePath(info.mainfile), JSON.stringify(fullJson, null, 2), 'utf-8');
+  }
   await importNormalize(getStarRailDataFilePath('./ExcelOutput'), [], 'hsr');
-}
-
-async function fixThai() {
-  const thC_path = getStarRailDataFilePath('./TextMap/TextMapTH.json');
-  const th0_path = getStarRailDataFilePath('./TextMap/TextMapTH_0.json');
-  const th1_path = getStarRailDataFilePath('./TextMap/TextMapTH_1.json');
-
-  const thC_json = {};
-
-  if (fs.existsSync(thC_path)) {
-    Object.assign(thC_json, JSON.parse(fs.readFileSync(thC_path, {encoding: 'utf8'})));
-  }
-  if (fs.existsSync(th0_path)) {
-    Object.assign(thC_json, JSON.parse(fs.readFileSync(th0_path, {encoding: 'utf8'})));
-  }
-  if (fs.existsSync(th1_path)) {
-    Object.assign(thC_json, JSON.parse(fs.readFileSync(th1_path, { encoding: 'utf8' })));
-  }
-
-  fs.writeFileSync(getStarRailDataFilePath('./TextMap/TextMapTH.json'),
-    JSON.stringify(thC_json, null, 2), 'utf-8');
-}
-
-
-async function fixRussian() {
-  const ruC_path = getStarRailDataFilePath('./TextMap/TextMapRU.json');
-  const ru0_path = getStarRailDataFilePath('./TextMap/TextMapRU_0.json');
-  const ru1_path = getStarRailDataFilePath('./TextMap/TextMapRU_1.json');
-
-  const ruC_json = {};
-
-  if (fs.existsSync(ruC_path)) {
-    Object.assign(ruC_json, JSON.parse(fs.readFileSync(ruC_path, {encoding: 'utf8'})));
-  }
-  if (fs.existsSync(ru0_path)) {
-    Object.assign(ruC_json, JSON.parse(fs.readFileSync(ru0_path, {encoding: 'utf8'})));
-  }
-  if (fs.existsSync(ru1_path)) {
-    Object.assign(ruC_json, JSON.parse(fs.readFileSync(ru1_path, { encoding: 'utf8' })));
-  }
-
-  fs.writeFileSync(getStarRailDataFilePath('./TextMap/TextMapRU.json'),
-    JSON.stringify(ruC_json, null, 2), 'utf-8');
-}
-
-
-async function fixKorean() {
-  const krC_path = getStarRailDataFilePath('./TextMap/TextMapKR.json');
-  const kr0_path = getStarRailDataFilePath('./TextMap/TextMapKR_0.json');
-  const kr1_path = getStarRailDataFilePath('./TextMap/TextMapKR_1.json');
-
-  const krC_json = {};
-
-  if (fs.existsSync(krC_path)) {
-    Object.assign(krC_json, JSON.parse(fs.readFileSync(krC_path, {encoding: 'utf8'})));
-  }
-  if (fs.existsSync(kr0_path)) {
-    Object.assign(krC_json, JSON.parse(fs.readFileSync(kr0_path, {encoding: 'utf8'})));
-  }
-  if (fs.existsSync(kr1_path)) {
-    Object.assign(krC_json, JSON.parse(fs.readFileSync(kr1_path, { encoding: 'utf8' })));
-  }
-
-  fs.writeFileSync(getStarRailDataFilePath('./TextMap/TextMapKR.json'),
-    JSON.stringify(krC_json, null, 2), 'utf-8');
 }
