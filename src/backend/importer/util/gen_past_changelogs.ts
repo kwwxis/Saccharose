@@ -6,7 +6,7 @@ import { wuwaSchema } from '../wuwa/wuwa.schema.ts';
 import { starRailNormalize } from '../hsr/module.normalize.ts';
 import { starRailSchema } from '../hsr/hsr.schema.ts';
 import { genshinSchema } from '../genshin/genshin.schema.ts';
-import { genshinNormalize } from '../genshin/module.normalize.ts';
+// import { genshinNormalize } from '../genshin/module.normalize.ts';
 import { getWuwaControl } from '../../domain/wuwa/wuwaControl.ts';
 import { getStarRailControl } from '../../domain/hsr/starRailControl.ts';
 import { getGenshinControl } from '../../domain/genshin/genshinControl.ts';

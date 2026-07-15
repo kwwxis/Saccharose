@@ -23,42 +23,46 @@ async function tmJsons(path: string): Promise<any[]> {
   return jsons;
 }
 
-export async function genshinNormalize() {
-  const infos = [
-    {addon: './TextMap/TextMap_MediumCHS.json',  mainfile: './TextMap/TextMapCHS.json'},
-    {addon: './TextMap/TextMap_MediumCHT.json',  mainfile: './TextMap/TextMapCHT.json'},
-    {addon: './TextMap/TextMap_MediumDE.json',   mainfile: './TextMap/TextMapDE.json'},
-    {addon: './TextMap/TextMap_MediumEN.json',   mainfile: './TextMap/TextMapEN.json'},
-    {addon: './TextMap/TextMap_MediumES.json',   mainfile: './TextMap/TextMapES.json'},
-    {addon: './TextMap/TextMap_MediumFR.json',   mainfile: './TextMap/TextMapFR.json'},
-    {addon: './TextMap/TextMap_MediumID.json',   mainfile: './TextMap/TextMapID.json'},
-    {addon: './TextMap/TextMap_MediumIT.json',   mainfile: './TextMap/TextMapIT.json'},
-    {addon: './TextMap/TextMap_MediumJP.json',   mainfile: './TextMap/TextMapJP.json'},
-    {addon: './TextMap/TextMap_MediumKR.json',   mainfile: './TextMap/TextMapKR.json'},
-    {addon: './TextMap/TextMap_MediumPT.json',   mainfile: './TextMap/TextMapPT.json'},
-    {addon: './TextMap/TextMap_MediumRU.json',   mainfile: './TextMap/TextMapRU.json'},
-    {addon: './TextMap/TextMap_MediumTH.json',   mainfile: './TextMap/TextMapTH.json'},
-    {addon: './TextMap/TextMap_MediumTR.json',   mainfile: './TextMap/TextMapTR.json'},
-    {addon: './TextMap/TextMap_MediumVI.json',   mainfile: './TextMap/TextMapVI.json'},
-  ];
-  for (let info of infos) {
-    console.log('Processing ' + info.mainfile);
-    let fullJson = {};
+export async function genshinNormalize(mode: 'textmap'|'excel'|'both') {
+  if (mode === 'textmap' || mode === 'both') {
+    const infos = [
+      {addon: './TextMap/TextMap_MediumCHS.json',  mainfile: './TextMap/TextMapCHS.json'},
+      {addon: './TextMap/TextMap_MediumCHT.json',  mainfile: './TextMap/TextMapCHT.json'},
+      {addon: './TextMap/TextMap_MediumDE.json',   mainfile: './TextMap/TextMapDE.json'},
+      {addon: './TextMap/TextMap_MediumEN.json',   mainfile: './TextMap/TextMapEN.json'},
+      {addon: './TextMap/TextMap_MediumES.json',   mainfile: './TextMap/TextMapES.json'},
+      {addon: './TextMap/TextMap_MediumFR.json',   mainfile: './TextMap/TextMapFR.json'},
+      {addon: './TextMap/TextMap_MediumID.json',   mainfile: './TextMap/TextMapID.json'},
+      {addon: './TextMap/TextMap_MediumIT.json',   mainfile: './TextMap/TextMapIT.json'},
+      {addon: './TextMap/TextMap_MediumJP.json',   mainfile: './TextMap/TextMapJP.json'},
+      {addon: './TextMap/TextMap_MediumKR.json',   mainfile: './TextMap/TextMapKR.json'},
+      {addon: './TextMap/TextMap_MediumPT.json',   mainfile: './TextMap/TextMapPT.json'},
+      {addon: './TextMap/TextMap_MediumRU.json',   mainfile: './TextMap/TextMapRU.json'},
+      {addon: './TextMap/TextMap_MediumTH.json',   mainfile: './TextMap/TextMapTH.json'},
+      {addon: './TextMap/TextMap_MediumTR.json',   mainfile: './TextMap/TextMapTR.json'},
+      {addon: './TextMap/TextMap_MediumVI.json',   mainfile: './TextMap/TextMapVI.json'},
+    ];
+    for (let info of infos) {
+      console.log('Processing ' + info.mainfile);
+      let fullJson = {};
 
-    for (let json of await tmJsons(info.mainfile)) {
-      Object.assign(fullJson, json);
+      for (let json of await tmJsons(info.mainfile)) {
+        Object.assign(fullJson, json);
+      }
+
+      for (let json of await tmJsons(info.addon)) {
+        Object.assign(fullJson, json);
+      }
+
+      fs.writeFileSync(getGenshinDataFilePath(info.mainfile), JSON.stringify(fullJson, null, 2), 'utf-8');
     }
-
-    for (let json of await tmJsons(info.addon)) {
-      Object.assign(fullJson, json);
-    }
-
-    fs.writeFileSync(getGenshinDataFilePath(info.mainfile), JSON.stringify(fullJson, null, 2), 'utf-8');
   }
+  if (mode === 'excel' || mode === 'both') {
+    await delBadTalk();
 
-  await delBadTalk();
-
-  await importNormalize(getGenshinDataFilePath('./ExcelBinOutput'), ['ProudSkillExcelConfigData.json', 'DialogExcelConfigData.json'], 'genshin');
+    await importNormalize(getGenshinDataFilePath('./ExcelBinOutput'),
+      ['ProudSkillExcelConfigData.json', 'DialogExcelConfigData.json'], 'genshin');
+  }
 }
 
 async function delBadTalk() {

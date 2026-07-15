@@ -26,7 +26,6 @@ import fs from 'fs';
 import { writeDeobfBin } from './module.deobf-bin.ts';
 import { isInt } from '../../../shared/util/numberUtil.ts';
 import { genshinNormalize } from './module.normalize.ts';
-import { genshinSchema } from './genshin.schema.ts';
 import { isset } from '../../../shared/util/genericUtil.ts';
 import { importGenshinReadableChanges } from '../../domain/genshin/readables/genshinReadableChanges.ts';
 import { doImportExcelScalars } from '../util/excel_usages_importer.ts';
@@ -38,7 +37,8 @@ export async function importGenshinFilesCli() {
     {name: 'deobf-excel', type: Boolean, description: 'Deobfuscate Excels.'},
     {name: 'deobf-bin', type: Boolean, description: 'Deobfuscate BinOutput.'},
     {name: 'make-excels', type: Boolean, description: 'Creates some of the excels that are no longer updated by the game client (run before normalize)'},
-    {name: 'normalize', type: Boolean, description: 'Normalizes the JSON files.'},
+    {name: 'normalize-tm', type: Boolean, description: 'Normalizes the TextMap JSON files.'},
+    {name: 'normalize-ex', type: Boolean, description: 'Normalizes the Excel JSON files.'},
     {name: 'plaintext', type: Boolean, description: 'Creates the PlainTextMap files.'},
     {name: 'voice-items', type: Boolean, description: 'Creates the normalized voice items file.'},
     {name: 'interaction', type: Boolean, description: 'Load QuestDialogue InterActions from BinOutput.'},
@@ -119,7 +119,10 @@ export async function importGenshinFilesCli() {
     return;
   }
 
-  if (options.normalize) {
+  if (options['normalize-tm']) {
+    await genshinNormalize();
+  }
+  if (options['normalize-ex']) {
     await genshinNormalize();
   }
   if (options.plaintext) {

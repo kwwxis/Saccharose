@@ -9,6 +9,7 @@ import {
 import { normalizeRawJson } from '../import_db.ts';
 import { genshinSchema } from './genshin.schema.ts';
 import { parseJsonConvertingBigIntsToStrings } from '../../util/jsonbig.ts';
+import { reformatPrimitiveArrays } from '../../../shared/util/stringUtil.ts';
 
 export async function writeDeobfExcels() {
   function getSchemaFilePath(filePath: string): string {
@@ -27,16 +28,16 @@ export async function writeDeobfExcels() {
     'DialogExcelConfigData',
     'DialogUnparentedExcelConfigData',
     'CodexQuestExcelConfigData',
-    'ManualTextMapConfigData',
-    'GadgetExcelConfigData',
-    'FettersExcelConfigData',
   ];
 
   const schemaNamesVisitMaxPairs: Record<string, number> = { };
   const schemaNamesMaxRecordSlice: Record<string, number> = {
-    'MaterialSourceDataExcelConfigData': 1000,
+    'MaterialSourceDataExcelConfigData': 100,
     'ProudSkillExcelConfigData': 200,
-    'ReminderExcelConfigData': 200
+    'ReminderExcelConfigData': 200,
+    'GadgetExcelConfigData': 50,
+    'FettersExcelConfigData': 50,
+    'ManualTextMapConfigData': 5,
   };
 
   let startAt: string = null; // inclusive
@@ -68,15 +69,18 @@ export async function writeDeobfExcels() {
       console.log('NEW EXCEL: not in schema - ' + schemaName);
 
       const absJsonPath = path.resolve(rawExcelDirPath, fileName);
-      let json = await fsp.readFile(absJsonPath, { encoding: 'utf8' }).then(data => parseJsonConvertingBigIntsToStrings(data));
+      let json = await fsp.readFile(absJsonPath, { encoding: 'utf8' })
+        .then(data => parseJsonConvertingBigIntsToStrings(data));
       json = normalizeRawJson(json);
-      fs.writeFileSync(path.resolve(mappedExcelDirPath, './' + schemaName + '.json'), JSON.stringify(json, null, 2));
+      fs.writeFileSync(path.resolve(mappedExcelDirPath, './' + schemaName + '.json'),
+        reformatPrimitiveArrays(JSON.stringify(json, null, 2)));
     } else {
       console.log('Processing ' + schemaName);
       console.time('Processed ' + schemaName);
 
       const absJsonPath = path.resolve(rawExcelDirPath, fileName);
-      let json = await fsp.readFile(absJsonPath, { encoding: 'utf8' }).then(data => parseJsonConvertingBigIntsToStrings(data));
+      let json = await fsp.readFile(absJsonPath, { encoding: 'utf8' })
+        .then(data => parseJsonConvertingBigIntsToStrings(data));
 
       if (!schemaNamesForCopyOnly.includes(schemaName)) {
         const propertySchema: PropertySchemaResult = await createPropertySchema(
@@ -91,7 +95,8 @@ export async function writeDeobfExcels() {
         createPropertySchemaPostProcess_imprintEmptyArrays(json, propertySchema.arrayPaths);
       }
 
-      fs.writeFileSync(path.resolve(mappedExcelDirPath, './' + schemaName + '.json'), JSON.stringify(json, null, 2));
+      fs.writeFileSync(path.resolve(mappedExcelDirPath, './' + schemaName + '.json'),
+        reformatPrimitiveArrays(JSON.stringify(json, null, 2)));
       console.timeEnd('Processed ' + schemaName);
     }
 
