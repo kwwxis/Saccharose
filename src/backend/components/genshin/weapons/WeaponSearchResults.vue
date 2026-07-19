@@ -8,7 +8,15 @@
       <div v-for="weapon of weapons" class="w100p">
         <a :href="`/genshin/weapons/${weapon.Id}`" class="secondary spacer3-all valign textAlignLeft" role="button" style="padding:5px">
           <GenshinItem :item="weapon" :no-name="true" :no-count="true" :no-link="true" />
-          <span class="spacer10-left">{{ weapon.NameText }}</span>
+          <div class="spacer10-horiz grow">
+            <div class="fontWeight600">{{ normGenshinText(weapon.NameText) }}</div>
+            <div class="valign spacer5-top">
+              <GenshinStars :quality="weapon.RankLevel || 0" />
+              <small class="opacity80p spacer5-left">{{ weapon.ItemTypeName }}</small>
+              <div class="grow"></div>
+              <small class="opacity80p" v-if="weapon.AddedAt">Added in {{ weapon.AddedAt.version.displayLabel }}</small>
+            </div>
+          </div>
         </a>
       </div>
     </div>
@@ -23,6 +31,10 @@
 <script setup lang="ts">
 import { WeaponExcelConfigData } from '../../../../shared/types/genshin/weapon-types.ts';
 import GenshinItem from '../links/GenshinItem.vue';
+import { useTrace } from '../../../middleware/request/tracer.ts';
+import GenshinStars from '../links/GenshinStars.vue';
+
+const { normGenshinText } = useTrace();
 
 defineProps<{
   weapons?: WeaponExcelConfigData[],

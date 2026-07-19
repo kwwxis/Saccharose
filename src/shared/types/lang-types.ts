@@ -194,6 +194,14 @@ export type LangCodeMap<T = string> = {
   VI: T,
 };
 
+export function createLangCodeMapOfSameValue<T>(value: T): LangCodeMap<T> {
+  const map = {};
+  LANG_CODES.forEach(code => {
+    map[code] = value;
+  });
+  return map as LangCodeMap<T>;
+}
+
 export type VoiceItem = { id: number, fileName: string, type?: string, isGendered?: boolean, gender?: 'M' | 'F', avatar?: string };
 export type VoiceItemArrayMap = { [voiceId: string]: VoiceItem[] };
 export type VoiceItemFlatMap = { [voiceId: string]: VoiceItem };

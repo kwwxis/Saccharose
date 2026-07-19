@@ -4,7 +4,7 @@ import { logInit, logShutdown } from './logger.ts';
 import { toInt } from '../../shared/util/numberUtil.ts';
 import Pool from 'pg-pool';
 import { isEmpty } from '../../shared/util/genericUtil.ts';
-import { isSiteModeDisabled } from '../loadenv.ts';
+import { isServerRun, isSiteModeDisabled } from '../loadenv.ts';
 
 export type SaccharoseDb = {
   genshin: Knex,
@@ -13,8 +13,8 @@ export type SaccharoseDb = {
   wuwa: Knex
 }
 
-let singleton: SaccharoseDb = null;
-let pgSingleton: Knex = null;
+let gameDataSingleton: SaccharoseDb = null;
+let siteDataSingleton: Knex = null;
 
 export const pgSessionPool = new Pool({
   host:     ENV.POSTGRES_SITE_HOST,
@@ -43,7 +43,11 @@ function pgSiteDatabase() {
 
 function pgGamedataDatabase(db: string) {
   if (isEmpty(db)) {
-    throw 'Database name is required!';
+    if (isServerRun()) {
+      throw 'Database name is required!';
+    } else {
+      return null;
+    }
   }
   return knex({
     client: 'pg',
@@ -62,43 +66,43 @@ function pgGamedataDatabase(db: string) {
 }
 
 export function openPgGamedata(): SaccharoseDb {
-  if (singleton) {
-    return singleton;
+  if (gameDataSingleton) {
+    return gameDataSingleton;
   }
-  singleton = {
+  gameDataSingleton = {
     genshin:  isSiteModeDisabled('genshin') ? null  : pgGamedataDatabase(ENV.POSTGRES_GAMEDATA_DATABASE_GENSHIN),
     hsr:      isSiteModeDisabled('hsr') ? null      : pgGamedataDatabase(ENV.POSTGRES_GAMEDATA_DATABASE_HSR),
     zenless:  isSiteModeDisabled('zenless') ? null  : pgGamedataDatabase(ENV.POSTGRES_GAMEDATA_DATABASE_ZENLESS),
     wuwa:     isSiteModeDisabled('wuwa') ? null     : pgGamedataDatabase(ENV.POSTGRES_GAMEDATA_DATABASE_WUWA),
   };
-  return singleton;
+  return gameDataSingleton;
 }
 
 export function openPgSite(): Knex {
-  if (pgSingleton) {
-    return pgSingleton;
+  if (siteDataSingleton) {
+    return siteDataSingleton;
   }
-  pgSingleton = pgSiteDatabase();
-  return pgSingleton;
+  siteDataSingleton = pgSiteDatabase();
+  return siteDataSingleton;
 }
 
 export async function closeKnex(): Promise<boolean> {
   const destroyPromises: Promise<void>[] = [];
 
-  if (singleton) {
-    destroyPromises.push(... Object.values(singleton)
+  if (gameDataSingleton) {
+    destroyPromises.push(... Object.values(gameDataSingleton)
       .filter(knex => !!knex)
       .map(knex => knex.destroy()));
   }
 
-  if (pgSingleton) {
-    destroyPromises.push(pgSingleton.destroy());
+  if (siteDataSingleton) {
+    destroyPromises.push(siteDataSingleton.destroy());
   }
 
   if (destroyPromises.length) {
     return Promise.all(destroyPromises).then(() => {
-      singleton = null;
-      pgSingleton = null;
+      gameDataSingleton = null;
+      siteDataSingleton = null;
       return true;
     });
   }

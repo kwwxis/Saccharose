@@ -37,7 +37,6 @@ import {
   TalkConfigAccumulator,
   talkConfigGenerate,
 } from '../../../domain/genshin/dialogue/dialogue_util.ts';
-import { ManualTextMapHashes } from '../../../../shared/types/genshin/manual-text-map.ts';
 import { MetaProp } from '../../../util/metaProp.ts';
 import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
 import AchievementListingPage from '../../../components/genshin/achievements/AchievementListingPage.vue';
@@ -71,6 +70,8 @@ import {
 } from '../../../../shared/types/genshin/beyond-types.ts';
 import BeyondCostumePage from '../../../components/genshin/materials/BeyondCostumePage.vue';
 import BeyondCostumeSuitPage from '../../../components/genshin/materials/BeyondCostumeSuitPage.vue';
+import { ReliquarySetExcelConfigData } from '../../../../shared/types/genshin/artifact-types.ts';
+import ArtifactSetPage from '../../../components/genshin/artifacts/ArtifactSetPage.vue';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -93,6 +94,7 @@ export default async function(): Promise<Router> {
         LoadSourceData: true,
         LoadItemUse: true,
         LoadCodex: true,
+        LoadAddedAt: true,
       });
 
       let readable: Readable = material ? await ctrl.readables.select(material.Id) : null;
@@ -130,7 +132,8 @@ export default async function(): Promise<Router> {
 
     if (req.params.itemId) {
       const material: BydMaterialExcelConfigData = await ctrl.selectBydMaterialExcelConfigData(toInt(req.params.itemId), {
-        LoadItemUse: true
+        LoadItemUse: true,
+        LoadAddedAt: true,
       });
 
       await res.renderComponent(BydMaterialItemPage, {
@@ -188,6 +191,39 @@ export default async function(): Promise<Router> {
   });
   // endregion
 
+  // region Artifacts
+  // --------------------------------------------------------------------------------------------------------------
+  router.get('/artifact-sets/:setId', async (req: Request, res: Response) => {
+    const ctrl = getGenshinControl(req);
+
+    if (req.params.setId) {
+      const set: ReliquarySetExcelConfigData = await ctrl.selectArtifactSetById(toInt(req.params.setId), {
+        LoadArtifacts: true,
+        LoadStories: true,
+      });
+
+      set.InjectedOL = await ol_gen_from_id(ctrl, set.SetNameTextMapHash);
+
+      for (let slot of Object.values(set.ArtifactSlots)) {
+        if (slot.RANK_4) {
+          slot.InjectedOL = await ol_gen_from_id(ctrl, slot.RANK_4.NameTextMapHash);
+        }
+      }
+
+      await res.renderComponent(ArtifactSetPage, {
+        title: set ? set.SetNameText : 'Artifact set not found',
+        bodyClass: ['page--artifacts', 'page--artifact-sets'],
+        set,
+      });
+    } else {
+      await res.renderComponent(ArtifactSetPage, {
+        title: 'Artifact set not found',
+        bodyClass: ['page--artifacts', 'page--artifact-sets'],
+      });
+    }
+  });
+  // endregion
+
   // region Weapons
   // --------------------------------------------------------------------------------------------------------------
   router.get('/weapons', async (req: Request, res: Response) => {
@@ -203,7 +239,8 @@ export default async function(): Promise<Router> {
     const weapon = await ctrl.selectWeaponById(toInt(req.params.weaponId), {
       LoadRelations: true,
       LoadReadable: true,
-      LoadEquipAffix: true
+      LoadEquipAffix: true,
+      LoadAddedAt: true,
     });
 
     if (weapon) {
@@ -238,8 +275,10 @@ export default async function(): Promise<Router> {
     let cityName: string = '';
     let viewpointsList: ViewpointsByRegion = null;
 
-    if (req.params.city) {
-      let cityId = await ctrl.getCityIdFromName(String(req.params.city));
+    const citySelected: string = req.params.city ? String(req.params.city) : null;
+
+    if (citySelected) {
+      let cityId = await ctrl.getCityIdFromName(citySelected);
       if (cityId) {
         cityName = await ctrl.selectCityNameById(cityId);
         viewpointsList = await selectViewpoints(ctrl, cityId);
@@ -252,7 +291,7 @@ export default async function(): Promise<Router> {
     await res.renderComponent(GenshinViewpointsPage, {
       title: `${cityName} Viewpoints`.trim(),
       bodyClass: ['page--viewpoints'],
-      citySelected: String(req.params.city),
+      citySelected,
       cities,
       viewpointsList,
       fileFormatParams: VIEWPOINT_FILE_FORMAT_PARAMS.join(','),
@@ -277,8 +316,9 @@ export default async function(): Promise<Router> {
     let codexTypeName: string = null;
     let tutorialsByType: TutorialsByType = null;
 
-    if (req.params.category) {
-      let codexType = codexTypes.find(codexType => paramCmp(pushTipCodexTypeName(codexType), req.params.category));
+    const categorySelected: string = req.params.category ? String(req.params.category) : null;
+    if (categorySelected) {
+      let codexType = codexTypes.find(codexType => paramCmp(pushTipCodexTypeName(codexType), categorySelected));
       if (codexType) {
         codexTypeName = pushTipCodexTypeName(codexType);
         tutorialsByType = await selectTutorials(ctrl, codexType);
@@ -288,7 +328,7 @@ export default async function(): Promise<Router> {
     await res.renderComponent(TutorialCategoriesPage, {
       title: codexTypeName ? `Tutorials - ${codexTypeName}` : 'Tutorials',
       bodyClass: ['page--tutorials', 'page--tutorials-categories'],
-      categorySelected: String(req.params.category),
+      categorySelected,
       categoryNames: codexTypes.map(pushTipCodexTypeName),
       tutorialsByType,
       fileFormatParams: TUTORIAL_FILE_FORMAT_PARAMS.join(','),
@@ -336,6 +376,7 @@ export default async function(): Promise<Router> {
     }
 
     const achievement = await ctrl.selectAchievement(toInt(req.params.categoryOrId));
+    const crRecord = achievement ? await ctrl.excelChangelog.selectChangeRefAddedAt(achievement.Id, 'AchievementExcelConfigData') : null;
 
     const sb = new SbOut();
     if (achievement) {
@@ -400,7 +441,6 @@ export default async function(): Promise<Router> {
       sb.line((await ol_gen_from_id(ctrl, achievement.TitleTextMapHash)).result);
       sb.line();
       sb.line('==Change History==');
-      const crRecord = await ctrl.excelChangelog.selectChangeRefAddedAt(achievement.Id, 'AchievementExcelConfigData');
       sb.line('{{Change History|' + (crRecord?.version?.label || '<!-- version -->') + '}}');
       sb.line();
       sb.line('==Navigation==');
@@ -410,6 +450,7 @@ export default async function(): Promise<Router> {
 
     await res.renderComponent(AchievementPage, {
       achievement,
+      crRecord,
       wikitext: sb.toString(),
       title: 'Achievement: ' + (achievement?.TitleText || 'Not Found'),
       bodyClass: ['page--achievements', 'page--achievements-single', 'page--vue'],
@@ -557,9 +598,9 @@ export default async function(): Promise<Router> {
     if (suite) {
       recipeWikitext.line('{{Recipe');
       if (suite.MainFurnType.TypeId == 772 || suite.MainFurnType.TypeId == 672) {
-        recipeWikitext.line(`|type = ${await ctrl.getTextMapItem(ctrl.outputLangCode, ManualTextMapHashes['Gift Set'])}`);
+        recipeWikitext.line(`|type = ${await ctrl.manualtm.getTextByKey(ctrl.outputLangCode,'Gift Set')}`);
       } else {
-        recipeWikitext.line(`|type = ${await ctrl.getTextMapItem(ctrl.outputLangCode, ManualTextMapHashes['Furnishing Set'])}`);
+        recipeWikitext.line(`|type = ${await ctrl.manualtm.getTextByKey(ctrl.outputLangCode,'Furnishing Set')}`);
       }
       for (let unit of suite.Units) {
         recipeWikitext.line(`|${unit.Furniture.NameText.replace(/\|/g, '{{!}}')} = ${unit.Count}`);
@@ -719,7 +760,7 @@ export default async function(): Promise<Router> {
   // --------------------------------------------------------------------------------------------------------------
   router.get('/enemies', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
-    const title = (await ctrl.selectManualTextMapConfigDataById('UI_CODEX_ANIMAL_MONSTER')).TextMapContentText;
+    const title = (await ctrl.manualtm.selectRecord('UI_CODEX_ANIMAL_MONSTER')).TextMapContentText;
     const archive = await ctrl.selectLivingBeingArchive();
 
     await res.renderComponent(GenshinLbListingPage, {
@@ -731,7 +772,7 @@ export default async function(): Promise<Router> {
 
   router.get('/wildlife', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
-    const title = (await ctrl.selectManualTextMapConfigDataById('UI_CODEX_ANIMAL_ANIMAL')).TextMapContentText;
+    const title = (await ctrl.manualtm.selectRecord('UI_CODEX_ANIMAL_ANIMAL')).TextMapContentText;
     const archive = await ctrl.selectLivingBeingArchive();
 
     await res.renderComponent(GenshinLbListingPage, {

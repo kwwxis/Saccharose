@@ -93,8 +93,16 @@
             <td><code>{{ weapon.ItemType }}</code></td>
           </tr>
           <tr>
+            <td class="bold" colspan="2">Item Type Name</td>
+            <td><code>{{ weapon.ItemTypeName }}</code></td>
+          </tr>
+          <tr>
             <td class="bold" colspan="2">Weapon Type</td>
             <td><code>{{ weapon.WeaponType }}</code></td>
+          </tr>
+          <tr v-if="weapon.AddedAt">
+            <td class="bold" colspan="2">Added In Version</td>
+            <td><code>{{ weapon.AddedAt.version.displayLabel }}</code></td>
           </tr>
           <template v-if="weapon.EquipAffixList?.length">
             <tr>

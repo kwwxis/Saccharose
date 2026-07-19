@@ -44,6 +44,10 @@
             <td class="bold">Color Scheme</td>
             <td colspan="2">{{ costume.ColorScheme.join(', ') }}</td>
           </tr>
+          <tr v-if="costume.AddedAt">
+            <td class="bold">Added In Version</td>
+            <td colspan="2">{{ costume.AddedAt.version.displayLabel }}</td>
+          </tr>
         </table>
       </div>
     </section>

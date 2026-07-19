@@ -1,23 +1,18 @@
+import { EquipAffixExcelConfigData } from './general-types.ts';
+import { Readable } from './readable-types.ts';
+import { TextMapHash } from '../lang-types.ts';
+import { OLResult } from '../ol-types.ts';
+
 export type ReliquaryEquipType =
   'EQUIP_BRACER'    | // Flower
-  'EQUIP_DRESS'     | // Circlet
   'EQUIP_NECKLACE'  | // Plume
+  'EQUIP_SHOES'     | // Sands
   'EQUIP_RING'      | // Goblet
-  'EQUIP_SHOES'     ; // Sands
-
-export const RELIC_EQUIP_TYPE_TO_NAME: {[equipType: string]: ReliquaryEquipName} = {
-  'EQUIP_BRACER': 'Flower',
-  'EQUIP_DRESS': 'Circlet',
-  'EQUIP_NECKLACE': 'Plume',
-  'EQUIP_RING': 'Goblet',
-  'EQUIP_SHOES': 'Sands',
-}
-
-export type ReliquaryEquipName = 'Flower' | 'Circlet' | 'Plume' | 'Sands' | 'Goblet';
+  'EQUIP_DRESS'     ; // Circlet
 
 export interface ReliquaryExcelConfigData {
   EquipType: ReliquaryEquipType,
-  EquipName: ReliquaryEquipName,
+  EquipName: string,
   ShowPic: string,
   RankLevel: number,
   MainPropDepotId: number,
@@ -42,6 +37,7 @@ export interface ReliquaryExcelConfigData {
   DestroyReturnMaterial: number[],
   DestroyReturnMaterialCount: number[],
   Dropable: boolean,
+  Story?: Readable;
 }
 
 export interface ReliquaryCodexExcelConfigData {
@@ -56,12 +52,42 @@ export interface ReliquaryCodexExcelConfigData {
   SortOrder: number,
 }
 
+export type ReliquaryLoadConf = {
+  LoadStory?: boolean,
+};
+
+export type ReliquarySetLoadConf = {
+  LoadArtifacts?: boolean,
+  LoadStories?: boolean,
+};
+
 export interface ReliquarySetExcelConfigData {
   SetId: number
   SetIcon: string,
+  SetNameText: string,
+  SetNameTextMapHash: TextMapHash;
   SetNeedNum: number[],
   EquipAffixId: number,
+  EquipAffixList?: EquipAffixExcelConfigData[],
   ContainsList: number[],
+  ArtifactSlots?: ArtifactsOfSet,
   BagSortValue: number,
   TextList: number[],
+  InjectedOL?: OLResult
+}
+
+export type ArtifactsOfSet = {
+  EQUIP_BRACER: ArtifactsOfSetSlot,
+  EQUIP_NECKLACE: ArtifactsOfSetSlot,
+  EQUIP_SHOES: ArtifactsOfSetSlot,
+  EQUIP_RING: ArtifactsOfSetSlot,
+  EQUIP_DRESS: ArtifactsOfSetSlot,
+}
+
+export type ArtifactsOfSetSlot = {
+  EquipName: string,
+  EquipType: ReliquaryEquipType,
+  RANK_4: ReliquaryExcelConfigData,
+  RANK_5: ReliquaryExcelConfigData,
+  InjectedOL?: OLResult
 }

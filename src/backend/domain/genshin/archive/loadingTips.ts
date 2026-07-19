@@ -4,13 +4,12 @@ import { GenshinControl, getGenshinControl } from '../genshinControl.ts';
 import { closeKnex } from '../../../util/db.ts';
 import { mapBy, sort } from '../../../../shared/util/arrayUtil.ts';
 import { SbOut } from '../../../../shared/util/stringUtil.ts';
-import { ManualTextMapHashes } from '../../../../shared/types/genshin/manual-text-map.ts';
 import {
   LoadingSituationExcelConfigData,
   LoadingCat,
   LoadingTipsExcelConfigData,
 } from '../../../../shared/types/genshin/loading-types.ts';
-import { LangCodeMap } from '../../../../shared/types/lang-types.ts';
+import { createLangCodeMapOfSameValue, LangCodeMap } from '../../../../shared/types/lang-types.ts';
 import { isInt, toInt } from '../../../../shared/util/numberUtil.ts';
 import { WorldAreaConfigData } from '../../../../shared/types/genshin/place-types.ts';
 
@@ -86,10 +85,10 @@ async function getCategoryForTip(ctrl: GenshinControl,
     sort(foundCats, '-weight');
     cat = foundCats[0].text;
   }
-  if (ManualTextMapHashes[cat]) {
+  if (ctrl.manualtm.isKey(cat)) {
     return {
-      catName: await ctrl.getTextMapItem(ctrl.outputLangCode, ManualTextMapHashes[cat]),
-      catNameMap: await ctrl.createLangCodeMap(ManualTextMapHashes[cat], true)
+      catName: await ctrl.manualtm.getTextByKey(ctrl.outputLangCode, cat),
+      catNameMap: await ctrl.manualtm.mapByKey(cat, true)
     };
   } else {
     return {
@@ -199,8 +198,8 @@ async function createResultObject(ctrl: GenshinControl): Promise<LoadingCat> {
   ];
 
   const result: LoadingCat = {
-    catName: await ctrl.getTextMapItem(ctrl.outputLangCode, ManualTextMapHashes.All),
-    catNameMap: await ctrl.createLangCodeMap(ManualTextMapHashes.All),
+    catName: await ctrl.manualtm.getTextByKey(ctrl.outputLangCode, 'All'),
+    catNameMap: await ctrl.manualtm.mapByKey('All'),
     subCats: [
 
     ],
@@ -208,20 +207,26 @@ async function createResultObject(ctrl: GenshinControl): Promise<LoadingCat> {
   };
 
   for (let nationKey of nationKeys) {
-    const catNameHash: number = ManualTextMapHashes[nationKey];
-    const catName = (await ctrl.getTextMapItem(ctrl.outputLangCode, catNameHash)) || nationKey;
-    const catNameMap = await ctrl.createLangCodeMap(catNameHash, true);
-    result.subCats.push({
-      catName,
-      catNameMap,
-      subCats: [],
-      tips: []
-    });
+    if (!ctrl.manualtm.isKey(nationKey)) {
+      result.subCats.push({
+        catName: nationKey,
+        catNameMap: createLangCodeMapOfSameValue(nationKey),
+        subCats: [],
+        tips: []
+      });
+    } else {
+      result.subCats.push({
+        catName: await ctrl.manualtm.getTextByKey(ctrl.outputLangCode, nationKey),
+        catNameMap: await ctrl.manualtm.mapByKey(nationKey, true),
+        subCats: [],
+        tips: []
+      });
+    }
   }
 
   const otherCat: LoadingCat = {
-    catName: await ctrl.getTextMapItem(ctrl.outputLangCode, ManualTextMapHashes.Other),
-    catNameMap: await ctrl.createLangCodeMap(ManualTextMapHashes.Other),
+    catName: await ctrl.manualtm.getTextByKey(ctrl.outputLangCode, 'Other'),
+    catNameMap: await ctrl.manualtm.mapByKey('Other'),
     subCats: [],
     tips: []
   };
@@ -229,15 +234,21 @@ async function createResultObject(ctrl: GenshinControl): Promise<LoadingCat> {
   result.subCats.push(otherCat);
 
   for (let otherKey of otherKeys) {
-    const catNameHash: number = ManualTextMapHashes[otherKey];
-    const catName = (await ctrl.getTextMapItem(ctrl.outputLangCode, catNameHash)) || otherKey;
-    const catNameMap = await ctrl.createLangCodeMap(catNameHash, true);
-    otherCat.subCats.push({
-      catName,
-      catNameMap,
-      subCats: [],
-      tips: []
-    });
+    if (!ctrl.manualtm.isKey(otherKey)) {
+      result.subCats.push({
+        catName: otherKey,
+        catNameMap: createLangCodeMapOfSameValue(otherKey),
+        subCats: [],
+        tips: []
+      });
+    } else {
+      otherCat.subCats.push({
+        catName: await ctrl.manualtm.getTextByKey(ctrl.outputLangCode, otherKey),
+        catNameMap: await ctrl.manualtm.mapByKey(otherKey, true),
+        subCats: [],
+        tips: []
+      });
+    }
   }
 
   return result;
@@ -294,7 +305,7 @@ export async function selectLoadingTips(ctrl: GenshinControl): Promise<LoadingCa
   const areas: WorldAreaConfigData[] = await ctrl.selectWorldAreas();
   const situations: LoadingSituationExcelConfigData[] = await ctrl.readDataFile('./ExcelBinOutput/LoadingSituationExcelConfigData.json');
   const situationsByStageId: {[stageId: number]: LoadingSituationExcelConfigData} = mapBy(situations, 'StageId');
-  const otherCatName: string = await ctrl.getTextMapItem(ctrl.outputLangCode, ManualTextMapHashes.Other);
+  const otherCatName: string = await ctrl.manualtm.getTextByKey(ctrl.outputLangCode, 'Other');
 
   const tips: LoadingTipsExcelConfigData[] = await ctrl.readDataFile('./ExcelBinOutput/LoadingTipsExcelConfigData.json');
   const ret: LoadingCat = await createResultObject(ctrl);

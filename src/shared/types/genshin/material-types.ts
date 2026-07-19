@@ -7,6 +7,7 @@ import {
 import { AvatarExcelConfigData, BuffExcelConfigData } from './avatar-types.ts';
 import { GCGCommonCard } from './gcg-types.ts';
 import { BooksCodexExcelConfigData } from './readable-types.ts';
+import { ExcelChangeRef } from '../changelog-types.ts';
 
 export const ADVENTURE_EXP_ID = 102;
 export const PRIMOGEM_ID = 201;
@@ -175,7 +176,13 @@ export type MaterialItemUseOp =
   'ITEM_USE_UNLOCK_PROFILE_FRAME'             |
   'ITEM_USE_UNLOCK_PROFILE_PICTURE'           ;
 
-export type MaterialLoadConf = {LoadSourceData?: boolean, LoadRelations?: boolean, LoadItemUse?: boolean, LoadCodex?: boolean};
+export type MaterialLoadConf = {
+  LoadSourceData?: boolean,
+  LoadRelations?: boolean,
+  LoadItemUse?: boolean,
+  LoadCodex?: boolean,
+  LoadAddedAt?: boolean,
+};
 
 export function isMaterialExcelConfigData(o: any): o is MaterialExcelConfigData {
   return o.Id && o.MaterialType;
@@ -278,6 +285,7 @@ export interface MaterialExcelConfigData {
   SourceData?: MaterialSourceDataExcelConfigData,
   Relations?: ItemRelationMap,
   Codex?: MaterialCodexExcelConfigData,
+  AddedAt?: ExcelChangeRef;
 }
 
 export type MaterialFoodQuality = 'FOOD_QUALITY_NONE' | 'FOOD_QUALITY_STRANGE' | 'FOOD_QUALITY_ORDINARY' | 'FOOD_QUALITY_DELICIOUS';

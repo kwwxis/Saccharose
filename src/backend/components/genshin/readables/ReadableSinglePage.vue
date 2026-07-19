@@ -63,6 +63,15 @@
             <td class="w70p">{{ readable?.Artifact?.NameText }}</td>
           </tr>
           <tr>
+            <td class="bold">Artifact Set</td>
+            <td class="w70p">
+              <a class="valign" :href="`/genshin/artifact-sets/${readable?.Artifact?.SetId}`" target="_blank">
+                <span class="spacer3-right">Link</span>
+                <Icon name="external-link" :size="15" />
+              </a>
+            </td>
+          </tr>
+          <tr>
             <td class="bold">Document Title</td>
             <td class="w70p">{{ readable?.Document?.TitleText }}</td>
           </tr>
@@ -168,6 +177,7 @@ import GenshinStars from '../links/GenshinStars.vue';
 import GenshinItem from '../links/GenshinItem.vue';
 import JsonText from '../../utility/JsonText.vue';
 import { OLResult } from '../../../../shared/types/ol-types.ts';
+import Icon from '../../utility/Icon.vue';
 
 const { normGenshinText } = useTrace();
 

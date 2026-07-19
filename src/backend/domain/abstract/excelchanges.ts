@@ -55,7 +55,8 @@ export class ExcelChangelog {
   async selectChangeRefAddedAt(id: string|number): Promise<ExcelChangeRef[]>
   async selectChangeRefAddedAt(id: string|number, excelFile: string): Promise<ExcelChangeRef>
   async selectChangeRefAddedAt(id: string|number, excelFile?: string): Promise<ExcelChangeRef|ExcelChangeRef[]> {
-    return (await this.selectChangeRefs(id)).filter(r => r.changeType === 'added');
+    const res: ExcelChangeRef[] = (await this.selectChangeRefs(id, excelFile)).filter(r => r.changeType === 'added');
+    return excelFile ? res[0] : res;
   }
 
   async selectChangeRefs(key: string|number, excelFile?: string): Promise<ExcelChangeRef[]> {

@@ -33,7 +33,7 @@ import { replaceAsync } from '../../../../shared/util/stringUtil.ts';
 import { isUnset } from '../../../../shared/util/genericUtil.ts';
 import { findFiles } from '../../../util/shellutil.ts';
 import path from 'path';
-import { standardElementCode } from '../../../../shared/types/genshin/manual-text-map.ts';
+import { standardElementCode } from '../misc/manual-text-map.ts';
 import { html2quotes, unnestHtmlTags } from '../../../../shared/mediawiki/mwQuotes.ts';
 import { loadGenshinTextSupportingData } from '../genshinText.ts';
 import { dialogueGenerateByNpc, NpcDialogueResult } from '../dialogue/basic_dialogue_generator.ts';
@@ -733,23 +733,23 @@ export class GCGControl {
 
     switch (card.CardType) {
       case 'GCG_CARD_ASSIST':
-        card.WikiType = (await this.ctrl.selectManualTextMapConfigDataById('UI_GCG_CARD_TYPE_SUPPORT')).TextMapContentText;
+        card.WikiType = (await this.ctrl.manualtm.selectRecord('UI_GCG_CARD_TYPE_SUPPORT')).TextMapContentText;
         break;
       case 'GCG_CARD_EVENT':
-        card.WikiType = (await this.ctrl.selectManualTextMapConfigDataById('UI_GCG_CARD_TYPE_EVENT')).TextMapContentText;
+        card.WikiType = (await this.ctrl.manualtm.selectRecord('UI_GCG_CARD_TYPE_EVENT')).TextMapContentText;
         break;
       case 'GCG_CARD_MODIFY':
-        card.WikiType = (await this.ctrl.selectManualTextMapConfigDataById('UI_GCG_CARD_TYPE_EQUIP')).TextMapContentText;
+        card.WikiType = (await this.ctrl.manualtm.selectRecord('UI_GCG_CARD_TYPE_EQUIP')).TextMapContentText;
         break;
       case 'GCG_CARD_ONSTAGE':
         break;
       case 'GCG_CARD_STATE':
         break;
       case 'GCG_CARD_SUMMON':
-        card.WikiType = (await this.ctrl.selectManualTextMapConfigDataById('UI_GCG_CARD_TYPE_SUMMON')).TextMapContentText;
+        card.WikiType = (await this.ctrl.manualtm.selectRecord('UI_GCG_CARD_TYPE_SUMMON')).TextMapContentText;
         break;
       case 'GCG_CARD_CHARACTER':
-        card.WikiType = (await this.ctrl.selectManualTextMapConfigDataById('UI_GCG_CARD_TYPE_CHAR')).TextMapContentText;
+        card.WikiType = (await this.ctrl.manualtm.selectRecord('UI_GCG_CARD_TYPE_CHAR')).TextMapContentText;
         break;
     }
 

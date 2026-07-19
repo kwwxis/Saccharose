@@ -15,7 +15,7 @@ async function getQuestOptionalSteps(ctrl: GenshinControl): Promise<Record<numbe
   const mtmIds: string[] = await grepIdStartsWith<string>(RAW_MANUAL_TEXTMAP_ID_PROP, 'QUEST_ProgressGuide_',
     ctrl.getDataFilePath('./ExcelBinOutput/ManualTextMapConfigData.json'));
 
-  const mtms: Record<string, ManualTextMapConfigData> = await ctrl.selectAllManualTextMapConfigDataByIds(mtmIds);
+  const mtms: Record<string, ManualTextMapConfigData> = await ctrl.manualtm.selectMultiRecord(mtmIds);
 
   const mapping: Record<number, ManualTextMapConfigData[]> = defaultMap('Array');
 

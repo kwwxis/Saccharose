@@ -1,9 +1,8 @@
 <template>
-  <div v-if="noLink || !itemLink" class="material-item" :class="{ 'no-name': noName, 'small': small }">
+  <div v-if="noLink || !itemLink" :class="cssClasses">
     <GenshinItemInner v-bind="props" />
   </div>
-  <a v-else class="material-item" :class="{ 'no-name': noName, 'small': small }"
-     :href="`/genshin/${itemLink}/${item.Id}`">
+  <a v-else :class="cssClasses" :href="`/genshin/${itemLink}/${item.Id}`">
     <GenshinItemInner v-bind="props" />
   </a>
 </template>
@@ -28,13 +27,16 @@ export type GenshinItemComponentProps = {
   noLink?: boolean,
   noName?: boolean,
   small?: boolean,
+  class?: string|string[]|Record<string, boolean>,
 };
 
 const props = defineProps<GenshinItemComponentProps>();
 const { item } = props;
 
 const itemLink = (() => {
-  if (isAvatar(item)) {
+  if (!item) {
+    return null;
+  } else if (isAvatar(item)) {
     return null;
   } else if (isBeyondCostume(item)) {
     return 'byd/costumes';
@@ -50,4 +52,20 @@ const itemLink = (() => {
     return 'byd/items';
   }
 })();
+
+const cssClasses = {
+  'material-item': true,
+  'no-name': props.noName,
+  'small': props.small,
+};
+
+if (typeof props.class === 'string') {
+  cssClasses[props.class] = true;
+} else if (Array.isArray(props.class)) {
+  for (const cls of props.class) {
+    cssClasses[cls] = true;
+  }
+} else if (typeof props.class === 'object') {
+  Object.assign(cssClasses, props.class);
+}
 </script>

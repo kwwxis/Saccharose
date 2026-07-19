@@ -1,7 +1,7 @@
 // noinspection JSUnusedGlobalSymbols
 
 import {
-  ConfigCondition, FeatureTagExcelConfigData, FeatureTagGroupExcelConfigData,
+  ConfigCondition, EquipAffixExcelConfigData, FeatureTagExcelConfigData, FeatureTagGroupExcelConfigData,
 
 } from '../../../shared/types/genshin/general-types.ts';
 import SrtParser, { SrtLine } from '../../util/srtParser.ts';
@@ -31,7 +31,6 @@ import {
   CodexQuestNarratageTypes,
   DialogExcelConfigData,
   DialogUnparented,
-  ManualTextMapConfigData,
   OptionIconMap,
   ReminderExcelConfigData,
   TalkExcelConfigData,
@@ -42,7 +41,7 @@ import {
 import {
   ChapterCollection,
   ChapterExcelConfigData,
-  MainQuestExcelConfigData,
+  MainQuestExcelConfigData, MainQuestSearchResults,
   QuestExcelConfigData,
   QuestType,
   ReputationQuestExcelConfigData,
@@ -88,13 +87,12 @@ import {
   Readable,
 } from '../../../shared/types/genshin/readable-types.ts';
 import {
-  RELIC_EQUIP_TYPE_TO_NAME,
-  ReliquaryCodexExcelConfigData,
-  ReliquaryExcelConfigData,
-  ReliquarySetExcelConfigData,
+  ArtifactsOfSet,
+  ReliquaryCodexExcelConfigData, ReliquaryEquipType,
+  ReliquaryExcelConfigData, ReliquaryLoadConf,
+  ReliquarySetExcelConfigData, ReliquarySetLoadConf,
 } from '../../../shared/types/genshin/artifact-types.ts';
 import {
-  EquipAffixExcelConfigData,
   WeaponExcelConfigData,
   WeaponLoadConf,
   WeaponType,
@@ -112,7 +110,7 @@ import {
 } from '../../../shared/types/genshin/monster-types.ts';
 import { defaultMap, isEmpty, isset } from '../../../shared/util/genericUtil.ts';
 import { NewActivityExcelConfigData } from '../../../shared/types/genshin/activity-types.ts';
-import { ElementType, ManualTextMapHashes } from '../../../shared/types/genshin/manual-text-map.ts';
+import { ElementType, GenshinManualTextMap } from './misc/manual-text-map.ts';
 import { custom, logInitData } from '../../util/logger.ts';
 import { DialogBranchingCache, orderChapterQuests } from './dialogue/dialogue_util.ts';
 import { __normGenshinText, GenshinNormTextOpts } from './genshinText.ts';
@@ -243,6 +241,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   readonly voice: GenshinVoice = new GenshinVoice(this);
   readonly readables: GenshinReadables = new GenshinReadables(this);
   readonly readableChanges: ReadableChangesCtrl = new ReadableChangesCtrl(this);
+  readonly manualtm: GenshinManualTextMap = new GenshinManualTextMap(this);
 
   constructor(modeOrState?: ControlUserModeProvider|GenshinControlState) {
     super({
@@ -353,11 +352,11 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   }
 
   readonly maybeTextMapHash = (prop: string, x: any): boolean => {
-    if (prop.length >= 8 && prop.toUpperCase() === prop) {
+    if (prop.length >= 7 && prop.toUpperCase() === prop) {
       if (Array.isArray(x)) {
-        return (x as any[]).every(y => typeof y === 'number' && String(y).length >= 8);
+        return (x as any[]).every(y => typeof y === 'number' && String(y).length >= 7);
       } else {
-        return typeof x === 'number' && String(x).length >= 8;
+        return typeof x === 'number' && String(x).length >= 7;
       }
     }
     return false;
@@ -441,12 +440,12 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       if (this.state.AutoloadText && prop.endsWith('ElementType') || prop.endsWith('ElementTypes')) {
         let newProp = prop.replace('ElementType', 'ElementName');
         if (typeof object[prop] === 'string') {
-          object[newProp] = await this.getElementName(object[prop] as ElementType, this.outputLangCode);
+          object[newProp] = await this.manualtm.getElementName(this.outputLangCode, object[prop] as ElementType);
         } else if (Array.isArray(object[prop])) {
           let newArray = [];
           for (let item of <any[]>object[prop]) {
             if (typeof item === 'string' && item !== 'None') {
-              newArray.push(await this.getElementName(item as ElementType, this.outputLangCode));
+              newArray.push(await this.manualtm.getElementName(this.outputLangCode, item as ElementType));
             }
           }
           object[newProp] = newArray;
@@ -466,14 +465,6 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       }
     }
     return object;
-  }
-
-  async getElementName(elementType: ElementType|GCGTagElementType, langCode: LangCode = 'EN'): Promise<string> {
-    let hash = ManualTextMapHashes[elementType];
-    if (!hash) {
-      hash = ManualTextMapHashes['None'];
-    }
-    return await this.getTextMapItem(langCode, hash);
   }
   // endregion
 
@@ -799,10 +790,9 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
   // region Chapter/Main Quest Combined Search
 
-  async searchMainQuestsAndChapters(query: string|number): Promise<{
-    mainQuests: MainQuestExcelConfigData[],
-    chapters: ChapterExcelConfigData[],
-  }> {
+  async searchMainQuestsAndChapters(query: string|number): Promise<MainQuestSearchResults> {
+    let results: MainQuestSearchResults;
+
     if (typeof query === 'string') {
       const mainQuestIds: number[] = [];
       const chapterIds: number[] = [];
@@ -823,7 +813,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
         flags: this.searchModeFlags
       });
 
-      return {
+      results = {
         mainQuests: await this.knex.select('*').from('MainQuestExcelConfigData')
           .whereIn('Id', mainQuestIds)
           .then(this.commonLoad).then(x => this.postProcessMainQuests(x)),
@@ -834,11 +824,18 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     } else {
       const mainQuest = await this.selectMainQuestById(query);
       const chapter = await this.selectChapterById(query);
-      return {
+
+      results = {
         mainQuests: mainQuest ? [mainQuest] : [],
         chapters: chapter ? [chapter] : [],
       }
     }
+
+    const allChapterMainQuestIds: Set<number> = new Set(results.chapters.flatMap(chapter => chapter.Quests.map(q => q.Id)));
+
+    results.mainQuests = results.mainQuests.filter(mq => !allChapterMainQuestIds.has(mq.Id));
+
+    return results;
   }
   // endregion
 
@@ -872,21 +869,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   }
   // endregion
 
-  // region Manual Text Map
-  async selectManualTextMapConfigDataById(id: string): Promise<ManualTextMapConfigData> {
-    return await this.knex.select('*').from('ManualTextMapConfigData')
-      .where({TextMapId: id}).first().then(this.commonLoadFirst);
-  }
-
-  async selectAllManualTextMapConfigDataByIds(ids: string[]): Promise<Record<string, ManualTextMapConfigData>> {
-    const result: ManualTextMapConfigData[] = await this.knex.select('*').from('ManualTextMapConfigData')
-      .whereIn('TextMapId', ids).then(this.commonLoad);
-    return mapBy(result, 'TextMapId');
-  }
-  // endregion
-
   // region Talk Excel
-
   private async postProcessTalkExcel(talk: TalkExcelConfigData): Promise<TalkExcelConfigData> {
     if (!talk) {
       return talk;
@@ -1581,8 +1564,8 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
       if (text && text.includes('SEXPRO')) {
         text = await replaceAsync(text, /\{(MATEAVATAR|PLAYERAVATAR)#SEXPRO\[(.*?)\|(.*?)]}/g, async (_fullMatch, g0, g1, g2) => {
-          let g1e = await this.selectManualTextMapConfigDataById(g1);
-          let g2e = await this.selectManualTextMapConfigDataById(g2);
+          let g1e = await this.manualtm.selectRecord(g1);
+          let g2e = await this.manualtm.selectRecord(g2);
           let extraParam = g0 === 'MATEAVATAR' ? '|mc=1' : '';
           if (g1.includes('FEMALE')) {
             return `{{MC|m=${g2e.TextMapContentText}|f=${g1e.TextMapContentText}${extraParam}}`;
@@ -2091,7 +2074,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
         'UI_CODEX_ANIMAL_CATEGORY_ELEMENTAL',
         'UI_CODEX_ANIMAL_NAME_LOCKED',
       ].asyncMap(async key => {
-        ret[key] = (await this.selectManualTextMapConfigDataById(key)).TextMapContentText;
+        ret[key] = (await this.manualtm.selectRecord(key)).TextMapContentText;
       });
       return ret;
     });
@@ -3089,6 +3072,9 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     if (loadConf.LoadCodex) {
       material.Codex = await this.selectMaterialCodexByMaterialId(material.Id);
     }
+    if (loadConf.LoadAddedAt) {
+      material.AddedAt = await this.excelChangelog.selectChangeRefAddedAt(material.Id, 'MaterialExcelConfigData');
+    }
     return material;
   }
 
@@ -3126,6 +3112,8 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       },
       flags: searchFlags
     });
+
+    loadConf.LoadAddedAt = true;
 
     const materials: MaterialExcelConfigData[] = await this.knex.select('*').from('MaterialExcelConfigData')
       .whereIn('Id', ids).then(this.commonLoad);
@@ -3179,6 +3167,11 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
         material.LoadedItemUse.CostumeSuit = await this.selectBeyondCostumeSuitExcelConfigData(costumeSuitId);
       }
     }
+
+    if (loadConf.LoadAddedAt) {
+      material.AddedAt = await this.excelChangelog.selectChangeRefAddedAt(material.Id, 'BydMaterialExcelConfigData');
+    }
+
     return material;
   }
 
@@ -3213,6 +3206,8 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       flags: searchFlags
     });
 
+    loadConf.LoadAddedAt = true;
+
     const materials: BydMaterialExcelConfigData[] = await this.knex.select('*').from('BydMaterialExcelConfigData')
       .whereIn('Id', ids).then(this.commonLoad);
     await materials.asyncMap(material => this.postProcessBydMaterial(material, loadConf));
@@ -3243,6 +3238,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
         costume.IconUrl = '/images/genshin/' + costume.Icon + '.png';
       }
     }
+    costume.AddedAt = await this.excelChangelog.selectChangeRefAddedAt(costume.CostumeId, 'BeyondCostumeExcelConfigData');
     return costume;
   }
 
@@ -3270,6 +3266,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
         costumeSuit.IconUrl = '/images/genshin/' + costumeSuit.Icon + '.png';
       }
     }
+    costumeSuit.AddedAt = await this.excelChangelog.selectChangeRefAddedAt(costumeSuit.SuitId, 'BeyondCostumeSuitExcelConfigData');
     return costumeSuit;
   }
 
@@ -3423,11 +3420,19 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   }
   // endregion
 
+  // region Equip Affix
+  async selectEquipAffixListById(id: number): Promise<EquipAffixExcelConfigData[]> {
+    return await this.knex.select('*').from('EquipAffixExcelConfigData')
+      .where({Id: id}).then(this.commonLoad);
+  }
+  // endregion
+
   // region Weapons
   private async postProcessWeapon(weapon: WeaponExcelConfigData, loadConf: WeaponLoadConf): Promise<WeaponExcelConfigData> {
     if (!weapon || !loadConf) {
       return weapon;
     }
+    weapon.ItemTypeName = await this.manualtm.getWeaponTypeName(this.outputLangCode, weapon.WeaponType);
     if (loadConf.LoadRelations) {
       weapon.Relations = await this.selectItemRelations({byRoleId: weapon.Id});
     }
@@ -3437,20 +3442,10 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     if (loadConf.LoadEquipAffix && weapon.SkillAffix && weapon.SkillAffix.length && isInt(weapon.SkillAffix[0]) && weapon.SkillAffix[0] !== 0) {
       weapon.EquipAffixList = await this.selectEquipAffixListById(weapon.SkillAffix[0]);
     }
-    return weapon;
-  }
-
-  async selectEquipAffixListById(id: number): Promise<EquipAffixExcelConfigData[]> {
-    return await this.knex.select('*').from('EquipAffixExcelConfigData')
-      .where({Id: id}).then(this.commonLoad);
-  }
-
-  async getWeaponType(weaponType: WeaponType|WeaponTypeEN|GCGTagWeaponType, langCode: LangCode = 'EN'): Promise<string> {
-    let hash = ManualTextMapHashes[weaponType];
-    if (!hash) {
-      hash = ManualTextMapHashes['None'];
+    if (loadConf.LoadAddedAt) {
+      weapon.AddedAt = await this.excelChangelog.selectChangeRefAddedAt(weapon.Id, 'WeaponExcelConfigData');
     }
-    return await this.getTextMapItem(langCode, hash);
+    return weapon;
   }
 
   async selectWeaponById(id: number, loadConf: WeaponLoadConf = {}): Promise<WeaponExcelConfigData> {
@@ -3467,7 +3462,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       .where({StoryId: storyId}).first().then(this.commonLoadFirst);
   }
 
-  async selectWeaponsBySearch(searchText: string, searchFlags: string): Promise<WeaponExcelConfigData[]> {
+  async selectWeaponsBySearch(searchText: string, searchFlags: string, loadConf: WeaponLoadConf = {}): Promise<WeaponExcelConfigData[]> {
     if (!searchText || !searchText.trim()) {
       return []
     } else {
@@ -3492,30 +3487,59 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       flags: searchFlags
     });
 
+    loadConf.LoadAddedAt = true;
+
     return await this.knex.select('*').from('WeaponExcelConfigData')
-      .whereIn('Id', ids).then(this.commonLoad);
+      .whereIn('Id', ids).then(this.commonLoad)
+      .then(weapons => weapons.asyncMap(weapon => this.postProcessWeapon(weapon, loadConf)));
   }
   // endregion
 
   // region Artifacts
-  async selectArtifactById(id: number): Promise<ReliquaryExcelConfigData> {
-    let artifact: ReliquaryExcelConfigData = await this.knex.select('*').from('ReliquaryExcelConfigData')
-      .where({Id: id}).first().then(this.commonLoadFirst);
+  private async postProcessArtifact(artifact: ReliquaryExcelConfigData, loadConf: ReliquaryLoadConf): Promise<ReliquaryExcelConfigData> {
     if (!artifact) {
       return artifact;
     }
-    artifact.EquipName = RELIC_EQUIP_TYPE_TO_NAME[artifact.EquipType];
+    artifact.EquipName = await this.manualtm.getTextByKey(this.outputLangCode, artifact.EquipType);
+    if (loadConf.LoadStory && artifact.StoryId) {
+      artifact.Story = await this.readables.select(artifact.StoryId, true);
+    }
     return artifact;
   }
 
-  async selectArtifactByStoryId(storyId: number): Promise<ReliquaryExcelConfigData> {
-    let artifact: ReliquaryExcelConfigData = await this.knex.select('*').from('ReliquaryExcelConfigData')
-      .where({StoryId: storyId}).first().then(this.commonLoadFirst);
-    if (!artifact) {
-      return artifact;
+  async selectArtifactById(id: number, loadConf: ReliquaryLoadConf = {}): Promise<ReliquaryExcelConfigData> {
+    return await this.knex.select('*').from('ReliquaryExcelConfigData')
+      .where({Id: id}).first().then(this.commonLoadFirst).then(artifact => this.postProcessArtifact(artifact, loadConf));
+  }
+
+  async selectArtifactByStoryId(storyId: number, loadConf: ReliquaryLoadConf = {}): Promise<ReliquaryExcelConfigData> {
+    return await this.knex.select('*').from('ReliquaryExcelConfigData')
+      .where({StoryId: storyId}).first().then(this.commonLoadFirst).then(artifact => this.postProcessArtifact(artifact, loadConf));
+  }
+
+  async selectArtifactsBySetId(setId: number, loadConf: ReliquaryLoadConf = {}): Promise<ArtifactsOfSet> {
+    const artifacts: ReliquaryExcelConfigData[] = await this.knex.select('*')
+      .from('ReliquaryExcelConfigData')
+      .where({SetId: setId}).then(this.commonLoad)
+      .then(artifacts => artifacts.asyncMap(artifact => this.postProcessArtifact(artifact, loadConf)));
+
+    const ret: ArtifactsOfSet = defaultMap((equipType: ReliquaryEquipType) => ({
+      EquipName: null,
+      EquipType: equipType,
+      RANK_4: null,
+      RANK_5: null
+    }));
+
+    for (let artifact of artifacts) {
+      if (!ret[artifact.EquipType].EquipName) {
+        ret[artifact.EquipType].EquipName = artifact.EquipName;
+      }
+      if (!ret[artifact.EquipType]['RANK_' + artifact.RankLevel]) {
+        ret[artifact.EquipType]['RANK_' + artifact.RankLevel] = artifact;
+      }
     }
-    artifact.EquipName = RELIC_EQUIP_TYPE_TO_NAME[artifact.EquipType];
-    return artifact;
+
+    return ret;
   }
 
   async selectArtifactCodexById(id: number): Promise<ReliquaryCodexExcelConfigData> {
@@ -3523,9 +3547,26 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       .where({Id: id}).first().then(this.commonLoadFirst);
   }
 
-  async selectArtifactSetById(id: number): Promise<ReliquarySetExcelConfigData> {
+  private async postProcessArtifactSet(set: ReliquarySetExcelConfigData, loadConf: ReliquarySetLoadConf): Promise<ReliquarySetExcelConfigData> {
+    if (!set) {
+      return set;
+    }
+    set.EquipAffixList = await this.selectEquipAffixListById(set.EquipAffixId);
+    if (set.EquipAffixList && set.EquipAffixList.length) {
+      set.SetNameText = set.EquipAffixList[0].NameText;
+      set.SetNameTextMapHash = set.EquipAffixList[0].NameTextMapHash;
+    }
+    if (loadConf.LoadArtifacts) {
+      set.ArtifactSlots = await this.selectArtifactsBySetId(set.SetId, {
+        LoadStory: loadConf.LoadStories
+      });
+    }
+    return set;
+  }
+
+  async selectArtifactSetById(id: number, loadConf: ReliquarySetLoadConf = {}): Promise<ReliquarySetExcelConfigData> {
     return await this.knex.select('*').from('ReliquarySetExcelConfigData')
-      .where({SetId: id}).first().then(this.commonLoadFirst);
+      .where({SetId: id}).first().then(this.commonLoadFirst).then(set => this.postProcessArtifactSet(set, loadConf));
   }
   // endregion
 

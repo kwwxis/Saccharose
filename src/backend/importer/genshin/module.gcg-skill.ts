@@ -3,7 +3,7 @@ import fs from 'fs';
 import { getGenshinDataFilePath } from '../../loadenv.ts';
 import path from 'path';
 import { GCGCharSkillDamage, GCGSkillExcelConfigData } from '../../../shared/types/genshin/gcg-types.ts';
-import { standardElementCode } from '../../../shared/types/genshin/manual-text-map.ts';
+import { standardElementCode } from '../../domain/genshin/misc/manual-text-map.ts';
 import chalk from 'chalk';
 import { getGenshinControl } from '../../domain/genshin/genshinControl.ts';
 import { closeKnex } from '../../util/db.ts';

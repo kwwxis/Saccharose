@@ -1,4 +1,5 @@
 import { isInt } from '../../util/numberUtil.ts';
+import { ExcelChangeRef } from '../changelog-types.ts';
 
 export type BydMaterialExcelConfigDataItemUseOp =
   'BYD_MATERIAL_USE_ADD_SELECT_ITEM_UNREPEATABLE' |
@@ -29,7 +30,10 @@ export type BydMaterialType =
   'BEYOND_MATERIAL_TYPE_DROP_EXTRA_CHEST'             |
   'BEYOND_MATERIAL_TYPE_UNREPEATABLE_SELECTABLE_CHEST';
 
-export type BydMaterialLoadConf = {LoadItemUse?: boolean};
+export type BydMaterialLoadConf = {
+  LoadItemUse?: boolean,
+  LoadAddedAt?: boolean,
+};
 
 export interface BydMaterialExcelConfigData {
   BydMaterialType: BydMaterialType,
@@ -64,7 +68,8 @@ export interface BydMaterialExcelConfigData {
   LoadedItemUse?: {
     Costume?: BeyondCostumeExcelConfigData,
     CostumeSuit?: BeyondCostumeSuitExcelConfigData,
-  }
+  },
+  AddedAt?: ExcelChangeRef,
 }
 
 export interface BydMaterialSourceExcelConfigData {
@@ -141,6 +146,7 @@ export interface BeyondCostumeExcelConfigData {
   IconHash: string|number,
   Icon?: string,
   IconUrl?: string,
+  AddedAt?: ExcelChangeRef,
 }
 
 export function isBeyondCostume(x: any): x is BeyondCostumeExcelConfigData {
@@ -183,6 +189,8 @@ export interface BeyondCostumeSuitExcelConfigData {
   OKKOMOCBGNM: string,
   PGGGJDBAJBP: string,
   PNFLGFBKKAJ: number,
+
+  AddedAt?: ExcelChangeRef,
 }
 
 export function isBeyondCostumeSuit(x: any): x is BeyondCostumeSuitExcelConfigData {

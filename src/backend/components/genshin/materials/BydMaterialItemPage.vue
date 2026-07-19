@@ -54,6 +54,10 @@
             <td class="bold">Global Item Limit</td>
             <td colspan="2">{{ material.GlobalItemLimit }}</td>
           </tr>
+          <tr v-if="material.AddedAt">
+            <td class="bold">Added In Version</td>
+            <td colspan="2">{{ material.AddedAt.version.displayLabel }}</td>
+          </tr>
         </table>
       </div>
     </section>

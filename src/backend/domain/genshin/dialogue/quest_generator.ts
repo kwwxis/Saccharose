@@ -518,7 +518,7 @@ async function addQuestMessages(ctrl: GenshinControl, mainQuest: MainQuestExcelC
       quest.QuestMessages = [];
       for (let id of allQuestMessageIds) {
         if (id === 'QUEST_Message_Q' + quest.SubId.toString() || id.startsWith('QUEST_Message_Q' + quest.SubId.toString() + '_'))
-          quest.QuestMessages.push(await ctrl.selectManualTextMapConfigDataById(id));
+          quest.QuestMessages.push(await ctrl.manualtm.selectRecord(id));
       }
     }
   }
@@ -526,7 +526,7 @@ async function addQuestMessages(ctrl: GenshinControl, mainQuest: MainQuestExcelC
     mainQuest.QuestMessages = [];
     for (let id of allQuestMessageIds) {
       if (id === 'QUEST_Message_Q' + mainQuest.Id.toString() || id.startsWith('QUEST_Message_Q' + mainQuest.Id.toString() + '_'))
-        mainQuest.QuestMessages.push(await ctrl.selectManualTextMapConfigDataById(id));
+        mainQuest.QuestMessages.push(await ctrl.manualtm.selectRecord(id));
     }
   }
 }

@@ -4,7 +4,7 @@
     <template v-for="mainQuest of mainQuests">
       <a role="button" class="quest-search-result-item secondary dispBlock spacer5-bottom textAlignLeft"
          :href="`/genshin/quests/${mainQuest.Id}`" :data-id="mainQuest.Id">
-        <strong>ID {{ mainQuest.Id }}:&nbsp;</strong>
+        <strong>{{ mainQuest.Type }} {{ mainQuest.Id }}:&nbsp;</strong>
         <span>{{ mainQuest.TitleText || '(No title)' }}</span>
       </a>
     </template>

@@ -14,7 +14,7 @@ import jsonResponse from './middleware/response/jsonResponse.ts';
 import antiBots from './middleware/request/antiBots.ts';
 import { normalAccessLogging, earlyAccessLogging } from './middleware/request/accessLogging.ts';
 import defaultResponseHeaders from './middleware/response/defaultResponseHeaders.ts';
-import { PUBLIC_DIR, VIEWS_ROOT } from './loadenv.ts';
+import { isSiteModeDisabled, isSiteModeEnabled, PUBLIC_DIR, VIEWS_ROOT } from './loadenv.ts';
 import { doubleCsrfProtection } from './middleware/request/csrf.ts';
 import { pageLoadErrorHandler } from './middleware/response/globalErrorHandler.ts';
 import { loadGenshinVoiceItems } from './domain/genshin/genshinControl.ts';
@@ -50,6 +50,7 @@ import { startRecentSavedSearchesPruneInterval } from './savedsearch/wsSavedSear
 import {
   siteModePreferredBasePathRedirectorMiddleware
 } from './middleware/request/siteModePreferredBasePathRedirector.ts';
+import { toBoolean } from '../shared/util/genericUtil.ts';
 
 const app: Express = express();
 
@@ -87,35 +88,37 @@ export async function appInit(): Promise<Express> {
 
   // Initialize Cache
   // ~~~~~~~~~~~~~~~~
-  logInitCache('Opening Redis Client');
-  await openRedisClient();
-  enableRedisExitHook();
+  if (toBoolean(ENV.REDIS_ENABLED)) {
+    logInitCache('Opening Redis Client');
+    await openRedisClient();
+    enableRedisExitHook();
 
-  const redisGenshinVersion: string = await redisGetString('Genshin:CurrentVersion');
-  const redisStarRailVersion: string = await redisGetString('StarRail:CurrentVersion');
-  const redisZenlessVersion: string = await redisGetString('Zenless:CurrentVersion');
-  const redisWuwaVersion: string = await redisGetString('Wuwa:CurrentVersion');
+    const redisGenshinVersion: string = await redisGetString('Genshin:CurrentVersion');
+    const redisStarRailVersion: string = await redisGetString('StarRail:CurrentVersion');
+    const redisZenlessVersion: string = await redisGetString('Zenless:CurrentVersion');
+    const redisWuwaVersion: string = await redisGetString('Wuwa:CurrentVersion');
 
-  // Automatically clear cache when the current version number is incremented:
-  if (redisGenshinVersion !== CurrentGenshinVersion.number) {
-    logInitCache('Clearing Redis cache for Genshin Impact!');
-    await redisDelPattern('Genshin:*');
-    await redisSetString('Genshin:CurrentVersion', CurrentGenshinVersion.number);
-  }
-  if (redisStarRailVersion !== CurrentStarRailVersion.number) {
-    logInitCache('Clearing Redis cache for Honkai Star Rail!');
-    await redisDelPattern('StarRail:*');
-    await redisSetString('StarRail:CurrentVersion', CurrentStarRailVersion.number);
-  }
-  if (redisZenlessVersion !== CurrentZenlessVersion.number) {
-    logInitCache('Clearing Redis cache for Zenless Zone Zero!');
-    await redisDelPattern('Zenless:*');
-    await redisSetString('Zenless:CurrentVersion', CurrentZenlessVersion.number);
-  }
-  if (redisWuwaVersion !== CurrentWuwaVersion.number) {
-    logInitCache('Clearing Redis cache for Wuthering Waves!');
-    await redisDelPattern('Wuwa:*');
-    await redisSetString('Wuwa:CurrentVersion', CurrentWuwaVersion.number);
+    // Automatically clear the cache when the current version number is incremented:
+    if (isSiteModeEnabled('genshin') && redisGenshinVersion !== CurrentGenshinVersion.number) {
+      logInitCache('Clearing Redis cache for Genshin Impact!');
+      await redisDelPattern('Genshin:*');
+      await redisSetString('Genshin:CurrentVersion', CurrentGenshinVersion.number);
+    }
+    if (isSiteModeEnabled('hsr') && redisStarRailVersion !== CurrentStarRailVersion.number) {
+      logInitCache('Clearing Redis cache for Honkai Star Rail!');
+      await redisDelPattern('StarRail:*');
+      await redisSetString('StarRail:CurrentVersion', CurrentStarRailVersion.number);
+    }
+    if (isSiteModeEnabled('zenless') && redisZenlessVersion !== CurrentZenlessVersion.number) {
+      logInitCache('Clearing Redis cache for Zenless Zone Zero!');
+      await redisDelPattern('Zenless:*');
+      await redisSetString('Zenless:CurrentVersion', CurrentZenlessVersion.number);
+    }
+    if (isSiteModeEnabled('wuwa') && redisWuwaVersion !== CurrentWuwaVersion.number) {
+      logInitCache('Clearing Redis cache for Wuthering Waves!');
+      await redisDelPattern('Wuwa:*');
+      await redisSetString('Wuwa:CurrentVersion', CurrentWuwaVersion.number);
+    }
   }
 
   // Load supporting game data
@@ -141,27 +144,36 @@ export async function appInit(): Promise<Express> {
     logInit('Serving external Genshin images');
     app.use('/images/genshin', createStaticImagesHandler(ENV.EXT_GENSHIN_IMAGES, '/images/genshin/', 'genshin'));
   } else {
-    throw 'EXT_GENSHIN_IMAGES is required!';
+    if (isSiteModeEnabled('genshin')) {
+      throw 'EXT_GENSHIN_IMAGES is required!';
+    }
   }
   if (isStringNotBlank(ENV.EXT_HSR_IMAGES)) {
     logInit('Serving external HSR images');
     app.use('/images/hsr', createStaticImagesHandler(ENV.EXT_HSR_IMAGES, '/images/hsr/', 'hsr'));
   } else {
-    throw 'EXT_HSR_IMAGES is required!';
+    if (isSiteModeEnabled('hsr')) {
+      throw 'EXT_HSR_IMAGES is required!';
+    }
   }
   if (isStringNotBlank(ENV.EXT_ZENLESS_IMAGES)) {
     logInit('Serving external Zenless images');
     app.use('/images/zenless', createStaticImagesHandler(ENV.EXT_ZENLESS_IMAGES, '/images/zenless/', 'zenless'));
   } else {
-    throw 'EXT_ZENLESS_IMAGES is required!';
+    if (isSiteModeEnabled('zenless')) {
+      throw 'EXT_ZENLESS_IMAGES is required!';
+    }
   }
   if (isStringNotBlank(ENV.EXT_WUWA_IMAGES)) {
     logInit('Serving external Wuthering Waves images');
     app.use('/images/wuwa/Game/Aki/UI', createStaticImagesHandler(ENV.EXT_WUWA_IMAGES, '/images/wuwa/', 'wuwa'));
+    // The double "//" can sometimes happen, don't remove the line below.
     app.use('/images/wuwa//Game/Aki/UI', createStaticImagesHandler(ENV.EXT_WUWA_IMAGES, '/images/wuwa/', 'wuwa'));
     app.use('/images/wuwa', createStaticImagesHandler(ENV.EXT_WUWA_IMAGES, '/images/wuwa/', 'wuwa'));
   } else {
-    throw 'EXT_WUWA_IMAGES is required!';
+    if (isSiteModeEnabled('wuwa')) {
+      throw 'EXT_WUWA_IMAGES is required!';
+    }
   }
 
   // Initialize sessions
@@ -241,7 +253,7 @@ export async function appInit(): Promise<Express> {
 
   // 404-Handler
   // ~~~~~~~~~~~
-  // 404 handler must come after all other routers are loaded
+  // 404-handler must come after all other routers are loaded
   logInit(`Registering 404 handler`);
   app.get('*splat', function(_req: Request, res: Response) {
     res.status(404).render('errors/404');

@@ -15,6 +15,9 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 let _isServerRun: boolean = false;
 
+/**
+ * If the application is running in server mode. To distinguish from runtimes ran through the CLI as one-off scripts.
+ */
 export function isServerRun(): boolean {
   return _isServerRun
 }
@@ -41,6 +44,10 @@ const GENSHIN_DISABLED = toBoolean(ENV.GENSHIN_DISABLED);
 const HSR_DISABLED = toBoolean(ENV.HSR_DISABLED);
 const ZENLESS_DISABLED = toBoolean(ENV.ZENLESS_DISABLED);
 const WUWA_DISABLED = toBoolean(ENV.WUWA_DISABLED);
+
+export function isSiteModeEnabled(requestSiteMode: SiteMode) {
+  return !isSiteModeDisabled(requestSiteMode);
+}
 
 export function isSiteModeDisabled(requestSiteMode: SiteMode) {
   switch (requestSiteMode) {

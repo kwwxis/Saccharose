@@ -24,7 +24,6 @@ import {
   grepStream,
   langDetect,
   ShellFlags,
-  ShellTimeoutError,
 } from '../../util/shellutil.ts';
 import { _cachedImpl } from '../../util/cache.ts';
 

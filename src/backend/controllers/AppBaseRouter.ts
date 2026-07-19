@@ -65,59 +65,25 @@ export default async function(): Promise<Router> {
   });
 
   if (isSiteModeDisabled('genshin')) {
-    GENSHIN_SITE_MODE_BASE_PATHS.forEach(basePath => {
-      router.use(`${basePath}`, (_req: Request, res: Response) => {
-        res.status(404).render('errors/unavailable', {
-          label: 'Genshin Impact',
-          bodyClass: 'hide-app-sidebar'
-        });
-      });
-      router.use(`${basePath}/*splat`, (_req: Request, res: Response) => {
-        res.status(404).render('errors/unavailable', {
-          label: 'Genshin Impact',
-          bodyClass: 'hide-app-sidebar'
-        });
-      });
-    });
+    unavailableSiteModeHandler(router, GENSHIN_SITE_MODE_BASE_PATHS, 'Genshin Impact');
   } else {
     router.use(GENSHIN_SITE_MODE_BASE_PATHS,  await GenshinRouter());
   }
 
   if (isSiteModeDisabled('hsr')) {
-    HSR_SITE_MODE_BASE_PATHS.forEach(basePath => {
-      router.use(`${basePath}/*splat`, (_req: Request, res: Response) => {
-        res.status(404).render('errors/unavailable', {
-          label: 'Honkai Star Rail',
-          bodyClass: 'hide-app-sidebar'
-        });
-      });
-    });
+    unavailableSiteModeHandler(router, HSR_SITE_MODE_BASE_PATHS, 'Honkai Star Rail');
   } else {
     router.use(HSR_SITE_MODE_BASE_PATHS, await StarRailRouter());
   }
 
   if (isSiteModeDisabled('zenless')) {
-    ZENLESS_SITE_MODE_BASE_PATHS.forEach(basePath => {
-      router.use(`${basePath}/*splat`, (_req: Request, res: Response) => {
-        res.status(404).render('errors/unavailable', {
-          label: 'Zenless Zone Zero',
-          bodyClass: 'hide-app-sidebar'
-        });
-      });
-    });
+    unavailableSiteModeHandler(router, ZENLESS_SITE_MODE_BASE_PATHS, 'Zenless Zone Zero');
   } else {
     router.use(ZENLESS_SITE_MODE_BASE_PATHS, await ZenlessRouter());
   }
 
   if (isSiteModeDisabled('wuwa')) {
-    WUWA_SITE_MODE_BASE_PATHS.forEach(basePath => {
-      router.use(`${basePath}/*splat`,  (_req: Request, res: Response) => {
-        res.status(404).render('errors/unavailable', {
-          label: 'Wuthering Waves',
-          bodyClass: 'hide-app-sidebar'
-        });
-      });
-    })
+    unavailableSiteModeHandler(router, WUWA_SITE_MODE_BASE_PATHS, 'Wuthering Waves');
   } else {
     router.use(WUWA_SITE_MODE_BASE_PATHS, await WuwaRouter());
   }
@@ -127,3 +93,16 @@ export default async function(): Promise<Router> {
 
   return router;
 };
+
+function unavailableSiteModeHandler(router: Router, basePaths: string[], label: string) {
+  basePaths.forEach(basePath => {
+    [`${basePath}`, `${basePath}/*splat`].forEach(actualPath => {
+      router.use(actualPath, (_req: Request, res: Response) => {
+        res.status(404).render('errors/unavailable', {
+          label: label,
+          bodyClass: 'hide-app-sidebar'
+        });
+      });
+    });
+  });
+}

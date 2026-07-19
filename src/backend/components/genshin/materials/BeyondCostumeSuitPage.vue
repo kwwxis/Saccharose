@@ -48,6 +48,10 @@
             <td class="bold">Suit Source</td>
             <td colspan="2">{{ costumeSuit.SuitSource }}</td>
           </tr>
+          <tr v-if="costumeSuit.AddedAt">
+            <td class="bold">Added In Version</td>
+            <td colspan="2">{{ costumeSuit.AddedAt.version.displayLabel }}</td>
+          </tr>
         </table>
       </div>
     </section>

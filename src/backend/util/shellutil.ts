@@ -2,7 +2,7 @@ import { ChildProcessWithoutNullStreams, ExecException, exec as _execAsync, spaw
 import { getGenshinDataFilePath, PIPELINE_DIR } from '../loadenv.ts';
 import { pathToFileURL } from 'url';
 import treeKill from 'tree-kill';
-import { isPromise, isset } from '../../shared/util/genericUtil.ts';
+import { isEmpty, isPromise, isset, isUnset } from '../../shared/util/genericUtil.ts';
 import { toInt } from '../../shared/util/numberUtil.ts';
 import { splitLimit } from '../../shared/util/stringUtil.ts';
 import path from 'path';
@@ -536,6 +536,9 @@ export async function findFiles(fileSearch: string, absoluteFilePath: string): P
 
 export async function langDetect(text: string): Promise<LangDetectResult> {
   try {
+    if (isEmpty(ENV.PYTHON_COMMAND)) {
+      return { isReliable: false, details: [] };
+    }
     const pyFile = path.resolve(PIPELINE_DIR, './detect_language.py').replace(/\\/g, '/');
     const cmd = `${ENV.PYTHON_COMMAND} ${pyFile} ${shellEscapeArg(text)}`;
 

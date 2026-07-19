@@ -1,4 +1,4 @@
-import { ElementType } from './manual-text-map.ts';
+import { ElementType } from '../../../backend/domain/genshin/misc/manual-text-map.ts';
 
 export type DungeonType =
   'DUNGEON_ACTIVITY'                  |

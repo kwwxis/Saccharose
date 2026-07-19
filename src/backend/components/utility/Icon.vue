@@ -9,12 +9,21 @@ export default defineComponent({
   props: {
     name: { type: String as unknown as PropType<FeatherIconNames|'drag-handle'>, required: true },
     size: { type: Number, required: false },
+    class: { type: String, required: false },
     props: { type: Object as PropType<Partial<FeatherAttributes>>, required: false },
   },
   setup(__props, { expose: __expose }) {
     __expose();
     const props = __props;
-    const html = props.name === 'drag-handle' ? dragHandle() : icon(props.name, toInt(props.size), props.props);
+    const featherProps: Partial<FeatherAttributes> = props.props || {};
+    if (props.class) {
+      if (featherProps.class) {
+        featherProps.class += ' ' + props.class;
+      } else {
+        featherProps.class = props.class;
+      }
+    }
+    const html = props.name === 'drag-handle' ? dragHandle() : icon(props.name, toInt(props.size), featherProps);
     const __returned__ = { props, html };
     Object.defineProperty(__returned__, "__isScriptSetup", { enumerable: false, value: true });
     return __returned__;

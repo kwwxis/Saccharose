@@ -14,7 +14,6 @@ import {
 import { GenshinControl, getGenshinControl } from './genshinControl.ts';
 import { mapBy } from '../../../shared/util/arrayUtil.ts';
 import { logInitData } from '../../util/logger.ts';
-import { ManualTextMapHashes } from '../../../shared/types/genshin/manual-text-map.ts';
 import { isSiteModeDisabled } from '../../loadenv.ts';
 import { AvatarSkillExcelConfigData, ProudSkillExcelConfigData } from '../../../shared/types/genshin/avatar-types.ts';
 import { defaultMap } from '../../../shared/util/genericUtil.ts';
@@ -428,23 +427,23 @@ export async function loadGenshinTextSupportingData(): Promise<void> {
   // Server Overseas
   // --------------------------------------------------------------------------------------------------------------
   serverBrandTipsOverseas = await ctrl.cached('TextSupportingData:ServerBrandTipsOverseas', 'json', async () => {
-    return await ctrl.createLangCodeMap(ManualTextMapHashes.ServerBrandTipsOverseas);
+    return await ctrl.manualtm.mapByKey('ServerBrandTipsOverseas');
   });
   serverEmailAskOverseas = await ctrl.cached('TextSupportingData:ServerEmailAskOverseas', 'json', async () => {
-    return await ctrl.createLangCodeMap(ManualTextMapHashes.ServerEmailAskOverseas);
+    return await ctrl.manualtm.mapByKey('ServerEmailAskOverseas');
   });
 
   // Element TextMap
   // --------------------------------------------------------------------------------------------------------------
   ELEMENT_TEXTMAP = await ctrl.cached('TextSupportingData:ElementTextMap', 'json', async () => {
-    ELEMENT_TEXTMAP.PYRO = await ctrl.createLangCodeMap(ManualTextMapHashes.Pyro);
-    ELEMENT_TEXTMAP.HYDRO = await ctrl.createLangCodeMap(ManualTextMapHashes.Hydro);
-    ELEMENT_TEXTMAP.DENDRO = await ctrl.createLangCodeMap(ManualTextMapHashes.Dendro);
-    ELEMENT_TEXTMAP.ELECTRO = await ctrl.createLangCodeMap(ManualTextMapHashes.Electro);
-    ELEMENT_TEXTMAP.ANEMO = await ctrl.createLangCodeMap(ManualTextMapHashes.Anemo);
-    ELEMENT_TEXTMAP.CRYO = await ctrl.createLangCodeMap(ManualTextMapHashes.Cryo);
-    ELEMENT_TEXTMAP.GEO = await ctrl.createLangCodeMap(ManualTextMapHashes.Geo);
-    ELEMENT_TEXTMAP.PHYSICAL = await ctrl.createLangCodeMap(ManualTextMapHashes.Physical);
+    ELEMENT_TEXTMAP.PYRO = await ctrl.manualtm.mapByKey('Pyro');
+    ELEMENT_TEXTMAP.HYDRO = await ctrl.manualtm.mapByKey('Hydro');
+    ELEMENT_TEXTMAP.DENDRO = await ctrl.manualtm.mapByKey('Dendro');
+    ELEMENT_TEXTMAP.ELECTRO = await ctrl.manualtm.mapByKey('Electro');
+    ELEMENT_TEXTMAP.ANEMO = await ctrl.manualtm.mapByKey('Anemo');
+    ELEMENT_TEXTMAP.CRYO = await ctrl.manualtm.mapByKey('Cryo');
+    ELEMENT_TEXTMAP.GEO = await ctrl.manualtm.mapByKey('Geo');
+    ELEMENT_TEXTMAP.PHYSICAL = await ctrl.manualtm.mapByKey('Physical');
     return ELEMENT_TEXTMAP;
   });
 

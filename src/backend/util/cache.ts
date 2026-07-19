@@ -8,18 +8,12 @@ import { toArray } from '../../shared/util/arrayUtil.ts';
 const cache: {
   mode: 'memory' | 'redis',
   memory: {[key: string]: any}
-  redis: RedisClientType<RedisModules, RedisFunctions, RedisScripts, RespVersions, TypeMapping>,
-  bufferRedis: RedisClientType<RedisModules, RedisFunctions, RedisScripts, RespVersions, TypeMapping>,
+  redis: RedisClientType<RedisModules, RedisFunctions, RedisScripts, RespVersions, TypeMapping>
 } = {
   mode: 'memory',
   memory: {},
-  redis: null,
-  bufferRedis: null
+  redis: null
 };
-
-export function redisClient(): RedisClientType<RedisModules, RedisFunctions, RedisScripts, RespVersions, TypeMapping> {
-  return cache.redis;
-}
 
 export async function redisGetString(key: string): Promise<string> {
   return (await cache.redis.get(key))?.toString();
@@ -56,6 +50,10 @@ export async function redisDelPattern(pattern: string): Promise<void> {
   }
 }
 
+/**
+ * Delete the given cache key(s) from both the in-memory cache and the Redis cache (if enabled).
+ * @param keys The cache key(s) to delete. Can be a single string or an array of strings.
+ */
 export async function delcache(keys: string|string[]) {
   if (!keys || !keys.length) {
     return;
@@ -90,6 +88,17 @@ export async function cached<T>(key: string,
   return _cachedImpl(key, valueMode, supplierFn);
 }
 
+/**
+ * Actual implementation of the `cached` function. This is separated out so that the public `cached` function can have
+ * multiple overloads for different value types. But this remains exported so that it can be used directly in cases
+ * where the value mode is not known at compile time.
+ *
+ * @param key The cache key to get or set.
+ * @param valueMode The value mode to use for the cache. This determines how the value is stored and retrieved from the cache.
+ * @param supplierFn A function that returns the value to be cached if the key is not found. This function will be
+ * called with the cache key as an argument.
+ * @returns The value from the cache, or the value returned by `supplierFn` if the key was not found.
+ */
 export async function _cachedImpl<T>(key: string,
                                      valueMode: 'string' | 'json' | 'boolean' | 'memory' | 'set' | 'disabled',
                                      supplierFn: (key?: string) => Promise<T>): Promise<T> {
@@ -187,10 +196,14 @@ export async function openRedisClient() {
     .connect();
 }
 
+/**
+ * Enable the Redis exit hook. This will close the Redis client when the process exits.
+ * If the Redis client is not enabled or opened, this function will do nothing.
+ */
 export function enableRedisExitHook() {
   exitHook(callback => {
     if (!cache.redis) {
-
+      return;
     }
     logShutdown('Exit signal received, closing Redis client...');
     cache.redis.disconnect().then(() => {

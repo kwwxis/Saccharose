@@ -22,6 +22,11 @@ export interface ChapterCollection {
   IQ: {[chapterName: string]: ChapterExcelConfigData[]},
 }
 
+export type MainQuestSearchResults = {
+  mainQuests: MainQuestExcelConfigData[],
+  chapters: ChapterExcelConfigData[],
+};
+
 export interface ChapterOLView {
   mainChapterName: OLResult,
   subChapterName: OLResult,

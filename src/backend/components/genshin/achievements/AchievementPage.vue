@@ -55,6 +55,10 @@
             <AchievementTriggerDesc :achievement="achievement" />
           </td>
         </tr>
+        <tr v-if="crRecord">
+          <td class="bold">Added In Version</td>
+          <td class="w70p">{{ crRecord.version.displayLabel }}</td>
+        </tr>
         </tbody>
       </table>
       <div class="spacer10-top">
@@ -70,11 +74,13 @@ import Wikitext from '../../utility/Wikitext.vue';
 import { AchievementExcelConfigData } from '../../../../shared/types/genshin/achievement-types.ts';
 import { useTrace } from '../../../middleware/request/tracer.ts';
 import { toParam } from '../../../../shared/util/stringUtil.ts';
+import { ExcelChangeRef } from '../../../../shared/types/changelog-types.ts';
 
 const { normGenshinText } = useTrace();
 
 defineProps<{
   achievement?: AchievementExcelConfigData,
   wikitext?: string,
+  crRecord?: ExcelChangeRef,
 }>();
 </script>

@@ -29,8 +29,8 @@ export async function getGenshinAvatars(ctrl: GenshinControl, combineTraveler: b
     const storiesByAvatar = await fetchCharacterStories(ctrl);
     let foundTraveler = false;
 
-    const lumineName = await ctrl.selectManualTextMapConfigDataById('INFO_FEMALE_PRONOUN_YING');
-    const aetherName = await ctrl.selectManualTextMapConfigDataById('INFO_MALE_PRONOUN_KONG');
+    const lumineName = await ctrl.manualtm.selectRecord('INFO_FEMALE_PRONOUN_YING');
+    const aetherName = await ctrl.manualtm.selectRecord('INFO_MALE_PRONOUN_KONG');
 
     return Object.values(storiesByAvatar)
       .map(x => jsonMask(x.avatar, avatarMaskProps))

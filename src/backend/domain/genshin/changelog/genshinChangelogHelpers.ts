@@ -33,6 +33,7 @@ import {
   BeyondCostumeExcelConfigData, BeyondCostumeSuitExcelConfigData,
   BydMaterialExcelConfigData,
 } from '../../../../shared/types/genshin/beyond-types.ts';
+import { ReliquarySetExcelConfigData } from '../../../../shared/types/genshin/artifact-types.ts';
 
 export type GenshinChangelogNewRecordSummary = {
   avatars: AvatarExcelConfigData[],
@@ -46,6 +47,7 @@ export type GenshinChangelogNewRecordSummary = {
   bydItems: BydMaterialExcelConfigData[],
   bydCostumes: BeyondCostumeExcelConfigData[],
   bydCostumeSuits: BeyondCostumeSuitExcelConfigData[],
+  artifactSets: ReliquarySetExcelConfigData[],
 
   furnishings: HomeWorldFurnitureExcelConfigData[],
   furnishingSets: FurnitureSuiteExcelConfigData[],
@@ -130,6 +132,7 @@ async function _generateGenshinChangelogNewRecordSummary(ctrl: GenshinControl, g
     bydItems: null,
     bydCostumes: null,
     bydCostumeSuits: null,
+    artifactSets: null,
 
     furnishings: null,
     furnishingSets: null,
@@ -178,6 +181,10 @@ async function _generateGenshinChangelogNewRecordSummary(ctrl: GenshinControl, g
       });
     }),
 
+    newIntKeysOf('ReliquarySetExcelConfigData').asyncMap(id => ctrl.selectArtifactSetById(id, {LoadArtifacts: true}))
+      .then(artifactSets => {
+        out.artifactSets = artifactSets;
+      }),
 
     newIntKeysOf('BydMaterialExcelConfigData').asyncMap(id => ctrl.selectBydMaterialExcelConfigData(id)).then(bydItems => {
       out.bydItems = bydItems;

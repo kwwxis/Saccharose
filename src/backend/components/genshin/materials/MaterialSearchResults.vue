@@ -8,7 +8,15 @@
       <div v-for="material of materials" class="w100p">
         <a :href="`/genshin/items/${material.Id}`" class="secondary spacer3-all valign textAlignLeft" role="button" style="padding:5px">
           <GenshinItem :item="material" :no-name="true" :no-count="true" :no-link="true" />
-          <span class="spacer10-left">{{ material.NameText }}</span>
+          <div class="spacer10-horiz grow">
+            <div class="fontWeight600">{{ normGenshinText(material.NameText) }}</div>
+            <div class="valign spacer5-top">
+              <GenshinStars :quality="material.RankLevel || 0" />
+              <small class="opacity80p spacer5-left">{{ material.WikiTypeDescText }}</small>
+              <div class="grow"></div>
+              <small class="opacity80p" v-if="material.AddedAt">Added in {{ material.AddedAt.version.displayLabel }}</small>
+            </div>
+          </div>
         </a>
       </div>
     </div>
@@ -18,6 +26,10 @@
 <script setup lang="ts">
 import { MaterialExcelConfigData } from '../../../../shared/types/genshin/material-types.ts';
 import GenshinItem from '../links/GenshinItem.vue';
+import { useTrace } from '../../../middleware/request/tracer.ts';
+import GenshinStars from '../links/GenshinStars.vue';
+
+const { normGenshinText } = useTrace();
 
 defineProps<{
   materials?: MaterialExcelConfigData[],
