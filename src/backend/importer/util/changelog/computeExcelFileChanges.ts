@@ -1,5 +1,5 @@
 import { ExcelChangeRecord } from '../../../../shared/types/changelog-types.ts';
-import { schemaPrimaryKey } from '../../import_db.ts';
+import { normalizeRawJson, schemaPrimaryKey } from '../../import_db.ts';
 import path from 'path';
 import { fsExists } from '../../../util/fsutil.ts';
 import fs from 'fs';
@@ -44,8 +44,8 @@ export async function computeExcelFileChanges(opts: CreateChangelogOpts) {
       continue;
     }
 
-    const prevDataRaw: any[] = prevFileExists ? JSON.parse(fs.readFileSync(prevFilePath, { encoding: 'utf8' })) : [];
-    const currDataRaw: any[] = currFileExists ? JSON.parse(fs.readFileSync(currFilePath, { encoding: 'utf8' })) : [];
+    const prevDataRaw: any[] = prevFileExists ? normalizeRawJson(JSON.parse(fs.readFileSync(prevFilePath, { encoding: 'utf8' })), schemaTable) : [];
+    const currDataRaw: any[] = currFileExists ? normalizeRawJson(JSON.parse(fs.readFileSync(currFilePath, { encoding: 'utf8' })), schemaTable) : [];
     const prevData: { [key: string]: any } = mapBy(prevDataRaw, primaryKey);
     const currData: { [key: string]: any } = mapBy(currDataRaw, primaryKey);
 

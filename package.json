@@ -26,6 +26,7 @@
   "author": "kwwxis",
   "license": "MIT",
   "dependencies": {
+    "@types/cors": "2.8.19",
     "7zip-bin": "5.2.0",
     "ag-grid-community": "32.2.0",
     "ag-grid-enterprise": "32.2.0",
@@ -44,6 +45,7 @@
     "compression": "1.8.1",
     "connect-pg-simple": "10.0.0",
     "cookie-parser": "1.4.7",
+    "cors": "2.8.6",
     "create-html-element": "5.1.0",
     "csrf-csrf": "4.0.3",
     "debug": "4.4.3",
@@ -80,6 +82,7 @@
     "passport-discord": "0.1.4",
     "pg": "8.20.0",
     "pg-pool": "3.13.0",
+    "pg-query-stream": "4.16.0",
     "pikaday": "1.8.2",
     "redis": "5.11.0",
     "reflect-metadata": "0.2.2",

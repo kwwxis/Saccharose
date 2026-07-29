@@ -2,6 +2,7 @@ import express, { NextFunction, Request, Response } from 'express';
 import { escapeRegExp } from '../../../shared/util/stringUtil.ts';
 
 import { SiteMode } from '../../../shared/types/site/site-mode-type.ts';
+import { CorsOptions } from 'cors';
 
 export function createStaticImagesHandler(SERVER_IMAGES_ROOT: string, HTTP_PATH: string, FOR: SiteMode) {
   if (!HTTP_PATH.endsWith('/'))
@@ -30,3 +31,29 @@ export function createStaticImagesHandler(SERVER_IMAGES_ROOT: string, HTTP_PATH:
     return staticHandler(req, res, next);
   };
 }
+
+const allowedOriginRegexes: RegExp[] = [
+  /^https:\/\/([a-z0-9-]+\.)*discord(app)?\.com$/i,
+  /^https:\/\/embed.dan.onl$/i,
+];
+
+export const StaticImageCorsOptions: CorsOptions = {
+  origin: function (origin, callback) {
+    // 1. Allow mobile apps or direct browser URL navigation (origin is undefined)
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    // 2. Check if the web/desktop client origin matches Discord's ecosystem
+    for (let allowedOriginRegex of allowedOriginRegexes) {
+      if (allowedOriginRegex.test(origin)) {
+        return callback(null, true);
+      }
+    }
+
+    // 3. Reject any other website trying to embed your image
+    callback(new Error('Not allowed by CORS / ORB restrictions'));
+  },
+  // Automatically attaches the 'Vary: Origin' header for browser caching health
+  optionsSuccessStatus: 200
+};

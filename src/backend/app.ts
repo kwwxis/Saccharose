@@ -25,7 +25,7 @@ import { loadZenlessTextSupportingData } from './domain/zenless/zenlessText.ts';
 import { Request, Response } from 'express';
 import { logInit, logInitCache } from './util/logger.ts';
 import imageBaseRouter from './controllers/ImageBaseRouter.ts';
-import { createStaticImagesHandler } from './middleware/request/staticImagesHandler.ts';
+import { createStaticImagesHandler, StaticImageCorsOptions } from './middleware/request/staticImagesHandler.ts';
 import { ScriptJobCoordinator } from './util/scriptJobs.ts';
 import authRouter from './controllers/site/app/AuthRouter.ts';
 import siteUserMiddleware from './middleware/auth/siteUserMiddleware.ts';
@@ -51,6 +51,7 @@ import {
   siteModePreferredBasePathRedirectorMiddleware
 } from './middleware/request/siteModePreferredBasePathRedirector.ts';
 import { toBoolean } from '../shared/util/genericUtil.ts';
+import cors from 'cors';
 
 const app: Express = express();
 
@@ -142,7 +143,7 @@ export async function appInit(): Promise<Express> {
 
   if (isStringNotBlank(ENV.EXT_GENSHIN_IMAGES)) {
     logInit('Serving external Genshin images');
-    app.use('/images/genshin', createStaticImagesHandler(ENV.EXT_GENSHIN_IMAGES, '/images/genshin/', 'genshin'));
+    app.use('/images/genshin', cors(StaticImageCorsOptions), createStaticImagesHandler(ENV.EXT_GENSHIN_IMAGES, '/images/genshin/', 'genshin'));
   } else {
     if (isSiteModeEnabled('genshin')) {
       throw 'EXT_GENSHIN_IMAGES is required!';
@@ -150,7 +151,7 @@ export async function appInit(): Promise<Express> {
   }
   if (isStringNotBlank(ENV.EXT_HSR_IMAGES)) {
     logInit('Serving external HSR images');
-    app.use('/images/hsr', createStaticImagesHandler(ENV.EXT_HSR_IMAGES, '/images/hsr/', 'hsr'));
+    app.use('/images/hsr', cors(StaticImageCorsOptions), createStaticImagesHandler(ENV.EXT_HSR_IMAGES, '/images/hsr/', 'hsr'));
   } else {
     if (isSiteModeEnabled('hsr')) {
       throw 'EXT_HSR_IMAGES is required!';
@@ -158,7 +159,7 @@ export async function appInit(): Promise<Express> {
   }
   if (isStringNotBlank(ENV.EXT_ZENLESS_IMAGES)) {
     logInit('Serving external Zenless images');
-    app.use('/images/zenless', createStaticImagesHandler(ENV.EXT_ZENLESS_IMAGES, '/images/zenless/', 'zenless'));
+    app.use('/images/zenless', cors(StaticImageCorsOptions), createStaticImagesHandler(ENV.EXT_ZENLESS_IMAGES, '/images/zenless/', 'zenless'));
   } else {
     if (isSiteModeEnabled('zenless')) {
       throw 'EXT_ZENLESS_IMAGES is required!';
@@ -166,10 +167,10 @@ export async function appInit(): Promise<Express> {
   }
   if (isStringNotBlank(ENV.EXT_WUWA_IMAGES)) {
     logInit('Serving external Wuthering Waves images');
-    app.use('/images/wuwa/Game/Aki/UI', createStaticImagesHandler(ENV.EXT_WUWA_IMAGES, '/images/wuwa/', 'wuwa'));
+    app.use('/images/wuwa/Game/Aki/UI', cors(StaticImageCorsOptions), createStaticImagesHandler(ENV.EXT_WUWA_IMAGES, '/images/wuwa/', 'wuwa'));
     // The double "//" can sometimes happen, don't remove the line below.
-    app.use('/images/wuwa//Game/Aki/UI', createStaticImagesHandler(ENV.EXT_WUWA_IMAGES, '/images/wuwa/', 'wuwa'));
-    app.use('/images/wuwa', createStaticImagesHandler(ENV.EXT_WUWA_IMAGES, '/images/wuwa/', 'wuwa'));
+    app.use('/images/wuwa//Game/Aki/UI', cors(StaticImageCorsOptions), createStaticImagesHandler(ENV.EXT_WUWA_IMAGES, '/images/wuwa/', 'wuwa'));
+    app.use('/images/wuwa', cors(StaticImageCorsOptions), createStaticImagesHandler(ENV.EXT_WUWA_IMAGES, '/images/wuwa/', 'wuwa'));
   } else {
     if (isSiteModeEnabled('wuwa')) {
       throw 'EXT_WUWA_IMAGES is required!';
@@ -234,7 +235,7 @@ export async function appInit(): Promise<Express> {
   // Load serve-image router
   // ~~~~~~~~~~~~~~~~~~~~~~~
   logInit(`Loading image router`);
-  app.use('/serve-image', await imageBaseRouter());
+  app.use('/serve-image', cors(StaticImageCorsOptions), await imageBaseRouter());
 
   // Load BaseRouter and CSRF protection
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
