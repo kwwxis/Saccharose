@@ -64,3 +64,15 @@ CREATE INDEX excel_changes_version_idx ON excel_changes (version);
 
 -- Non-unique composite index on ("key", "excel_file")
 CREATE INDEX idx_excel_change_entity_key_version ON excel_changes (key, excel_file);
+
+-- APPLICATION TEXTMAP SEARCH INDEXES
+--------------------------------------------------------------------------------------------------------------
+DROP TABLE IF EXISTS textmap_search_index CASCADE;
+
+CREATE TABLE textmap_search_index
+(
+    index_name      TEXT NOT NULL,
+    hash            TEXT NOT NULL,
+    key             TEXT NOT NULL,
+    PRIMARY KEY (index_name, hash)
+);

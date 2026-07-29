@@ -252,7 +252,22 @@ async function convertJsonToEntities(knex: Knex, json: TextMapFullChangelog, ver
   // Handle supersede pairs: save the new hash with Aggregate ID of old hash to ensure continuity of references across supersessions
   if (supersedePairs.length > 0) {
     console.log('  Saving superseding new hashes with old hash\'s Aggregate ID...');
-    const supersedeSavePairs: HashAggIdPair[] = supersedePairs.map(pair => ({
+
+    // Supersede pairs are computed language-independently but recorded once per language code
+    // (see computeTextMapChanges.ts secondPass), so the same (oldHash, newHash) pair legitimately
+    // appears once per language here. Deduplicate by the pair itself before converting to
+    // hash/agg_id save pairs, so genuine per-language repeats don't look like conflicts downstream.
+    const seenSupersedePairs = new Set<string>();
+    const dedupedSupersedePairs = supersedePairs.filter(pair => {
+      const key = `${pair.oldHash}|${pair.newHash}`;
+      if (seenSupersedePairs.has(key)) {
+        return false;
+      }
+      seenSupersedePairs.add(key);
+      return true;
+    });
+
+    const supersedeSavePairs: HashAggIdPair[] = dedupedSupersedePairs.map(pair => ({
       hash: pair.newHash,
       aggId: hashToAggId[pair.oldHash],
     }));
@@ -492,8 +507,30 @@ async function saveTmAggId(db: Knex|Knex.Transaction, pairs: HashAggIdPair[]): P
     return;
   }
 
+  // Deduplicate by hash to avoid "ON CONFLICT DO UPDATE command cannot affect row a second time",
+  // which happens if the same hash appears more than once within a single insert batch
+  // (e.g., the same new hash superseding an old hash across multiple languages). The last pair wins.
+  // Duplicates aren't expected, so log them if found for investigation.
+  // Deduplicate by hash to avoid "ON CONFLICT DO UPDATE command cannot affect row a second time",
+  // which happens if the same hash appears more than once within a single insert batch. Expected,
+  // harmless duplicates (e.g. the same supersede pair recorded once per language) are deduped
+  // silently. Only genuinely conflicting agg_id values for the same hash are logged, since those
+  // indicate unexpected/inconsistent data worth investigating.
+  const dedupedPairs = new Map<string, HashAggIdPair>();
+  for (const pair of pairs) {
+    const hashStr = String(pair.hash);
+    const existing = dedupedPairs.get(hashStr);
+    if (existing && existing.aggId !== pair.aggId) {
+      console.warn(
+        `  [WARN] Conflicting agg_id for hash ${hashStr}: ` +
+        `${existing.aggId} -> ${pair.aggId} (keeping latter)`,
+      );
+    }
+    dedupedPairs.set(hashStr, pair);
+  }
+
   await db<TextMapHashAggEntity>("textmap_hash_aggs")
-    .insert(pairs.map(pair => ({
+    .insert(Array.from(dedupedPairs.values()).map(pair => ({
       hash: pair.hash,
       agg_id: pair.aggId,
     })))
