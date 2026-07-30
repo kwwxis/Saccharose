@@ -24,7 +24,7 @@ import { LangCode } from '../../shared/types/lang-types.ts';
 
 // Shared Util:
 import { humanTiming, isEmpty, isPromise, isset, isUnset, timeConvert } from '../../shared/util/genericUtil.ts';
-import { resolveObjectPath } from '../../shared/util/arrayUtil.ts';
+import { resolveObjectPath, walkObject } from '../../shared/util/arrayUtil.ts';
 import { isStringBlank, ucFirst } from '../../shared/util/stringUtil.ts';
 
 // Schema:
@@ -78,10 +78,15 @@ export type SchemaTable = {
    *
    * @param row The current row
    * @param allRows The list of all rows
-   * @param acc An accumulator object. It starts off as an empty object and the same object is passed to every call
+   * @param acc An accumulator object. It starts off as an empty object, and the same object is passed to every call
    * to `customRowResolve`. What is done with this object is up to the implementer.
    */
   customRowResolve?: SchemaTableCustomRowResolver,
+
+  /**
+   * Essentially the same as `customRowResolve`, but this is a provider function that returns the resolver function. This is useful
+   * if the resolver function needs to be `async`, or if it needs to import other modules that may cause circular dependencies.
+   */
   customRowResolveProvider?: SchemaTableCustomRowResolverProvider,
 
   /**
@@ -148,14 +153,80 @@ export type SchemaColumnType =
   | 'uuid';
 
 export type SchemaColumn = {
+  /**
+   * The name of the column in the database table, and the property to be used to resolve the value from the row
+   * (unless `resolve` or `resolveByValueExample` is specified).
+   */
   name: string,
+
+  /**
+   * The type of the column in the database table.
+   */
   type: SchemaColumnType,
+
+  /**
+   * Rather than using the `name` of the column to resolve the value from the row,
+   * this property can be used to specify a different property name (for only resolve purpose)
+   * or a function to resolve the value.
+   */
   resolve?: string | ((row: any) => any),
+
+  /**
+   * If the property name is unknown or dynamic, this property can be used to specify an example value to resolve the value from the row.
+   *
+   * It assumes that only one property in the row has the same value as the example value, and that property that is found
+   * will be used to resolve all values for this column across all rows.
+   *
+   * - If multiple properties among the row(s) have the
+   *   same value as the example value, the first property that is found will be used.
+   *
+   * - Multiple columns for the same table cannot use the same example value, as that would cause ambiguity in which property to resolve.
+   *   If multiple columns are using the same example value, the behavior is undefined.
+   *
+   * This column's `resolve` property will be set to the result, overwriting any existing value in `resolve` if it was already set.
+   */
+  resolveByValueExample?: any,
+
+  /**
+   * Optional group number for usage with `resolveByValueExample`. For columns sharing the same group number,
+   * the `resolveByValueExample` will only match upon a row if all columns of the same group matched an example value
+   * in that row.
+   *
+   * If even one column of the same group does not match an example value in that row, then none of the columns of that group will be resolved for that row.
+   *
+   * Group number be at least 1.
+   */
+  resolveByValueExampleGroup?: number,
+
+  /**
+   * This column should be an index column. (default: false)
+   */
   isIndex?: boolean,
+
+  /**
+   * This column should be the primary column. (default: false)
+   * Only one column can be the primary column. If multiple columns are marked as primary, the behavior is undefined.
+   */
   isPrimary?: boolean,
+
+  /**
+   * This column should be a unique column. (default: false)
+   */
   isUnique?: boolean,
+
+  /**
+   * If the value is undefined or null, should it be set to this default value? (default: undefined)
+   */
   defaultValue?: any,
+
+  /**
+   * If the value is `0`, should it be converted to null? (default: false)
+   */
   allowZero?: boolean,
+
+  /**
+   * If the value is an empty string, should it be converted to null? (default: false)
+   */
   allowEmptyString?: boolean,
 };
 
@@ -434,6 +505,80 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
           json = Object.values(json);
         }
         totalRows = json.length;
+      }
+
+      const colsResolvedByExample: SchemaColumn[] = table.columns.filter(x => isset(x.resolveByValueExample));
+      if (colsResolvedByExample.length) {
+        const exampleValueToCol: Record<string, SchemaColumn> = {};
+
+        for (let col of colsResolvedByExample) {
+          exampleValueToCol[JSON.stringify(col.resolveByValueExample)] = col;
+        }
+
+        if (!table.propertySchema) {
+          table.propertySchema = {};
+        }
+
+        for (let row of json) {
+          // Only record the first match found per example value within this row
+          const rowMatches: Record<string, string> = {};
+
+          walkObject(row, prop => {
+            if (prop.isLeaf) {
+              const serializedValue = JSON.stringify(prop.value);
+
+              if (exampleValueToCol.hasOwnProperty(serializedValue) && !rowMatches.hasOwnProperty(serializedValue)) {
+                rowMatches[serializedValue] = prop.path;
+              }
+            }
+          });
+
+          // Split this row's matches into ungrouped (resolve immediately) and grouped
+          // (only resolve if every pending column of the group matched in this row) keys:
+          const ungroupedMatchedKeys: string[] = [];
+          const groupedMatchedKeys: Record<number, string[]> = {};
+
+          for (let key of Object.keys(rowMatches)) {
+            const group = exampleValueToCol[key].resolveByValueExampleGroup;
+            if (isset(group)) {
+              (groupedMatchedKeys[group] = groupedMatchedKeys[group] || []).push(key);
+            } else {
+              ungroupedMatchedKeys.push(key);
+            }
+          }
+
+          for (let key of ungroupedMatchedKeys) {
+            table.propertySchema[rowMatches[key]] = exampleValueToCol[key].name;
+            // exampleValueToCol[key].resolve = rowMatches[key];
+            delete exampleValueToCol[key];
+          }
+
+          for (let group of Object.keys(groupedMatchedKeys).map(Number)) {
+            const matchedKeys: string[] = groupedMatchedKeys[group];
+            const pendingKeysInGroup: string[] = Object.keys(exampleValueToCol)
+              .filter(key => exampleValueToCol[key].resolveByValueExampleGroup === group);
+
+            if (matchedKeys.length === pendingKeysInGroup.length) {
+              // Every column of this group matched an example value in this row, so resolve them all.
+              for (let key of matchedKeys) {
+                table.propertySchema[rowMatches[key]] = exampleValueToCol[key].name;
+                // exampleValueToCol[key].resolve = rowMatches[key];
+                delete exampleValueToCol[key];
+              }
+            }
+            // Otherwise, not all columns of the group matched in this row, so discard these matches
+            // and leave the group's columns unresolved for consideration in subsequent rows.
+          }
+
+          if (Object.keys(exampleValueToCol).length === 0) {
+            break; // all example values have been resolved
+          }
+        }
+
+        if (Object.keys(exampleValueToCol).length > 0) {
+          throw 'Could not resolve all example values for table: ' + table.name + '.\n' +
+          'Unresolved: ' + Object.keys(exampleValueToCol).map(x => JSON.parse(x)).join(', ');
+        }
       }
 
       await knex.transaction(async (tx) =>  {

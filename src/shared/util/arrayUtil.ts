@@ -74,7 +74,12 @@ export function fromKeysWithFixedValue<T>(keys: string[], value: T): { [key: str
     return obj;
 }
 
-export type PathAndValue = {path: string, basename: string, value: any, isLeaf: boolean};
+export type PathAndValue = {
+  path: string,
+  basename: string,
+  value: any,
+  isLeaf: boolean
+};
 
 /**
  * Checks if two objects are equivalent.
@@ -697,7 +702,7 @@ export function chunkArray<T>(arr: T[], options: {numChunks?: number, chunkSize?
     return chunks.filter((chunk) => chunk.length > 0);
   } else if (isInt(options.chunkSize)) {
     const result: T[][] = [];
-    
+
     if (options.drainSource) {
       while (arr.length > 0) {
         result.push(arr.splice(0, options.chunkSize));
@@ -707,7 +712,7 @@ export function chunkArray<T>(arr: T[], options: {numChunks?: number, chunkSize?
         result.push(arr.slice(i, i + options.chunkSize));
       }
     }
-    
+
     return result;
   } else {
     throw new Error('Either numChunks or chunkSize must be specified, and they must be integers.');

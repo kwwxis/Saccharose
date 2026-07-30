@@ -15,6 +15,7 @@ import { CommonLineId, DialogWikitextResult } from '../../../shared/types/common
 import { DialogueNode, DialogueNodeBranches } from '../../../shared/types/zenless/dialogue-types.ts';
 import { Z3DialogBranchingCache, Z3DialogUtil } from './dialogue/z3_dialogue_util.ts';
 import { Knex } from 'knex';
+import { ZenlessGlossaryTerm } from '../../../shared/types/zenless/zenless-misc-types.ts';
 
 // region Control State
 // --------------------------------------------------------------------------------------------------------------
@@ -172,6 +173,13 @@ export class ZenlessControl extends AbstractControl<ZenlessControlState> {
       }
     }
     return targetObject;
+  }
+  // endregion
+
+  // region Misc
+  async selectAllGlossaryTerms(): Promise<ZenlessGlossaryTerm[]> {
+    return await this.knex.select('*')
+      .from('GlossaryTerms').then(this.commonLoad);
   }
   // endregion
 

@@ -125,4 +125,16 @@ export const zenlessSchema = {
       return (await import('./zenless.customRowResolvers.ts')).relation_DialogToNext_resolver;
     }
   },
+
+  GlossaryTerms: <SchemaTable> {
+    name: 'GlossaryTerms',
+    jsonFile: './FileCfg/3541280622646752426.json',
+    columns: [
+      { name: 'TermId', type: 'text', isPrimary: true, resolveByValueExample: 1000033, resolveByValueExampleGroup: 1 },
+      { name: 'TermKey', type: 'text', resolveByValueExample: 'Remielle_NounPrompts_04', resolveByValueExampleGroup: 1 },
+      { name: 'TitleKey', type: 'text', resolveByValueExample: 'Remielle_NounPrompts_04_Title', resolveByValueExampleGroup: 1 },
+      { name: 'DescKey', type: 'text', resolveByValueExample: 'Remielle_NounPrompts_04_Des', resolveByValueExampleGroup: 1 },
+      { name: 'SourceKey', type: 'text', resolveByValueExample: 'Remielle_UniqueSkill_Title', resolveByValueExampleGroup: 1 },
+    ]
+  },
 }
