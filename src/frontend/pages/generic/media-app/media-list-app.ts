@@ -23,7 +23,7 @@ export function initiateMediaListPage(
   enableVersionFilter: boolean,
   versionFilterInfoTooltipExtra: string,
 ) {
-  pageMatch(`vue/${vueComponentName}`, async () => {
+  pageMatch(`${vueComponentName}`, async () => {
     const loadingEl: HTMLElement = document.querySelector('#media-list-loading');
     const appEl: HTMLElement = document.querySelector('#media-list-app');
     appEl.innerHTML = '';

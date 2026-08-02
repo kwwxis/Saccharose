@@ -26,7 +26,7 @@ export function initiateMediaSearchPage(
   archiveJobPagePrefix: string,
   enableVersionFilter: boolean,
 ) {
-  pageMatch(`vue/${vueComponentName}`, () => {
+  pageMatch(`${vueComponentName}`, () => {
     let handle: GenericSearchPageHandle;
 
     startGenericSearchPageListeners({

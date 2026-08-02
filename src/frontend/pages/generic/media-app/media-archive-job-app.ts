@@ -11,7 +11,7 @@ import { toastSuccess } from '../../../util/toasterUtil.ts';
 export function initiateMediaArchiveJobPage(
   vueComponentName: string,
 ) {
-  pageMatch(`vue/${vueComponentName}`, () => {
+  pageMatch(`${vueComponentName}`, () => {
     const jobId: string = document.querySelector('#job-id').textContent.trim();
     console.log('Job ID:', jobId);
 
