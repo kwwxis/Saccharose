@@ -4,7 +4,7 @@ import { startGenericSearchPageListeners } from '../../genericSearchPage.ts';
 import { modalService } from '../../../util/modalService.ts';
 import { listen } from '../../../util/eventListen.ts';
 
-pageMatch('vue/GenshinVoToDialoguePage', () => {
+pageMatch('GenshinVoToDialoguePage', () => {
   startGenericSearchPageListeners({
     endpoint: genshinEndpoints.voToDialogue,
     doPost: true,

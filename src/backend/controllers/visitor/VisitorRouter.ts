@@ -6,18 +6,10 @@ import SiteTermsOfServicePage from '../../components/site/SiteTermsOfServicePage
 import SiteContactPage from '../../components/site/SiteContactPage.vue';
 import OLGenPage from '../../components/shared/OLGenPage.vue';
 import OLCombinePage from '../../components/shared/OLCombinePage.vue';
-import { provideAppBaseLocals } from '../AppBaseRouter.ts';
 import { doubleCsrfProtection } from '../../middleware/request/csrf.ts';
 
 export default async function(): Promise<Router> {
-  const router: Router = create({
-    locals: async (req: Request) => {
-      if (req.isAuthenticated()) {
-        return await provideAppBaseLocals(req);
-      }
-      return {};
-    }
-  }, r => {
+  const router: Router = create(null, r => {
     r.use(doubleCsrfProtection);
   });
 
@@ -25,13 +17,13 @@ export default async function(): Promise<Router> {
     if (!req.isAuthenticated() || (await SiteUserProvider.isBanned(req.user))) {
       await res.renderComponent(SitePrivacyPolicyPage, {
         title: 'Privacy Policy',
-        layouts: ['layouts/basic-layout'],
+        layoutType: 'basic',
         bodyClass: ['page--docs', 'page--privacy'],
       });
     } else {
       await res.renderComponent(SitePrivacyPolicyPage, {
         title: 'Privacy Policy',
-        layouts: ['layouts/app-layout', 'layouts/app-layout-inner'],
+        layoutType: 'app',
         bodyClass: ['page--docs', 'page--privacy', 'page--larger'],
       });
     }
@@ -41,13 +33,13 @@ export default async function(): Promise<Router> {
     if (!req.isAuthenticated() || (await SiteUserProvider.isBanned(req.user))) {
       await res.renderComponent(SiteTermsOfServicePage, {
         title: 'Terms of Service',
-        layouts: ['layouts/basic-layout'],
+        layoutType: 'basic',
         bodyClass: ['page--docs', 'page--terms'],
       });
     } else {
       await res.renderComponent(SiteTermsOfServicePage, {
         title: 'Terms of Service',
-        layouts: ['layouts/app-layout', 'layouts/app-layout-inner'],
+        layoutType: 'app',
         bodyClass: ['page--docs', 'page--terms', 'page--larger'],
       });
     }
@@ -57,13 +49,13 @@ export default async function(): Promise<Router> {
     if (!req.isAuthenticated() || (await SiteUserProvider.isBanned(req.user))) {
       await res.renderComponent(SiteContactPage, {
         title: 'Contact',
-        layouts: ['layouts/basic-layout'],
+        layoutType: 'basic',
         bodyClass: ['page--docs', 'page--contact'],
       });
     } else {
       await res.renderComponent(SiteContactPage, {
         title: 'Contact',
-        layouts: ['layouts/app-layout', 'layouts/app-layout-inner'],
+        layoutType: 'app',
         bodyClass: ['page--docs', 'page--contact', 'page--larger'],
       });
     }
@@ -75,7 +67,7 @@ export default async function(): Promise<Router> {
     }
     await res.renderComponent(OLGenPage, {
       title: 'OL',
-      layouts: ['layouts/basic-layout', 'layouts/visitor-wrapper'],
+      layoutType: 'visitor',
       bodyClass: ['page--OL']
     });
   });
@@ -85,7 +77,7 @@ export default async function(): Promise<Router> {
     }
     await res.renderComponent(OLGenPage, {
       title: 'OL',
-      layouts: ['layouts/basic-layout', 'layouts/visitor-wrapper'],
+      layoutType: 'visitor',
       bodyClass: ['page--OL'],
     });
   });
@@ -95,7 +87,7 @@ export default async function(): Promise<Router> {
     }
     await res.renderComponent(OLCombinePage, {
       title: 'OL Combine',
-      layouts: ['layouts/basic-layout', 'layouts/visitor-wrapper'],
+      layoutType: 'visitor',
       bodyClass: ['page--OL-combine']
     });
   });

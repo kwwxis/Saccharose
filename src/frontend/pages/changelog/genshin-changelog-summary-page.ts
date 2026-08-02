@@ -11,7 +11,7 @@ import { isNightmode } from '../../core/userPreferences/siteTheme.ts';
 import { GeneralEventBus } from '../../core/generalEventBus.ts';
 import { listen } from '../../util/eventListen.ts';
 
-pageMatch('vue/GenshinChangelogSummaryPage', async () => {
+pageMatch('GenshinChangelogSummaryPage', async () => {
   const tocContent = Array.from(document.querySelectorAll('.new-summary-section-header')).map(headerEl => {
     const title = headerEl.querySelector('.new-summary-section-title').textContent;
     const count = headerEl.querySelector('.new-summary-section-count').textContent;

@@ -30,7 +30,7 @@
             </span>
           </div>
           <select class="header-language-selector-input" name="inputLangCode" title="Input Language">
-            <option v-for="langCode of Object.keys(ctx.languages)"
+            <option v-for="langCode of ctx.languageCodes"
                     :value="langCode"
                     :selected="ctx.inputLangCode === langCode">{{ ctx.languages[langCode] }}</option>
           </select>
@@ -44,7 +44,7 @@
             </span>
           </div>
           <select class="header-language-selector-input" name="outputLangCode" title="Output Language">
-            <option v-for="langCode of Object.keys(ctx.languages)"
+            <option v-for="langCode of ctx.languageCodes"
                     :value="langCode"
                     :selected="ctx.outputLangCode === langCode">{{ ctx.languages[langCode] }}</option>
           </select>

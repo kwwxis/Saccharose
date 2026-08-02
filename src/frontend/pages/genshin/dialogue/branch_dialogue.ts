@@ -4,7 +4,7 @@ import { startGenericSearchPageListeners } from '../../genericSearchPage.ts';
 import './branch-dialogue.scss';
 import { listen } from '../../../util/eventListen.ts';
 
-pageMatch('vue/GenshinBranchDialoguePage', () => {
+pageMatch('GenshinBranchDialoguePage', () => {
   startGenericSearchPageListeners({
     endpoint: genshinEndpoints.generateSingleDialogueBranch,
     asHtml: true,

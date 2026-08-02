@@ -8,7 +8,7 @@ import { isInt } from '../../../../shared/util/numberUtil.ts';
 import { hashFlash, pasteFromClipboard } from '../../../util/domutil.ts';
 import { onOutputLanguageChanged } from '../../../core/userPreferences/siteLanguage.ts';
 
-pageMatch('vue/GenshinQuestPage', () => {
+pageMatch('GenshinQuestPage', () => {
   let lastSuccessfulQuestId: number = 0;
 
   function postLoad(resultParent: HTMLElement) {

@@ -15,6 +15,7 @@ export interface ProcessEnv {
   LOGVIEW_FILE?: string;
   SITE_TITLE?: string;
   SITE_SHORT_TITLE?: string;
+  TRUST_PROXY?: string;
 
   // SSL Settings
   // --------------------------------------------------------------------------------------------------------------

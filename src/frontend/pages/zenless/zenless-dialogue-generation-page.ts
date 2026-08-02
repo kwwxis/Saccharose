@@ -2,7 +2,7 @@ import { pageMatch } from '../../core/pageMatch.ts';
 import { startGenericSearchPageListeners } from '../genericSearchPage.ts';
 import { zenlessEndpoints } from '../../core/endpoints.ts';
 
-pageMatch('vue/ZenlessDialogueGenerationPage', () => {
+pageMatch('ZenlessDialogueGenerationPage', () => {
   startGenericSearchPageListeners({
     endpoint: zenlessEndpoints.dialogueGeneration,
     asHtml: true,

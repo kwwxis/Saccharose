@@ -1,8 +1,9 @@
-import { RequestContext } from './requestContext.ts';
+import { LayoutType, RequestContext, ThinRequest } from './requestContext.ts';
 import { NextFunction, Request, Response } from 'express';
 import { Component } from '@vue/runtime-core';
 
 import { SiteUser } from '../../shared/types/site/site-user-types.ts';
+import { App, Slots } from 'vue';
 
 declare module 'express-serve-static-core' {
   interface Request {
@@ -10,36 +11,19 @@ declare module 'express-serve-static-core' {
     user: SiteUser,
   }
   interface Response {
-    //csv(data: any, csvHeaders?: boolean, headers?: any, statusCode?: number): Response,
-    render(view: Component, options?: object, callback?: (err: Error, html: string) => void): void;
-    render<C extends Component>(view: C, options?: RequestCommonLocals & PropsOf<C>, callback?: (err: Error, html: string) => void): void;
-    renderComponent<C extends Component>(view: C, options?: RequestCommonLocals & PropsOf<C>): Promise<string|Error>;
+    renderComponent<C extends Component>(view: C, options?: RequestCommonLocals & VuePropsOf<C>): Promise<string|Error>;
   }
   interface Router {
     endpoint(route: string | string[], handlers: RouterRestfulHandlers): void,
   }
 }
 
-export type IncludeFunction = (view: string, locals?: RequestLocals) => string;
-
 export type RequestCommonLocals = {
-  title?: string,
-  layouts?: string[],
-  bodyClass?: string[],
+  title?: string|((req: ThinRequest) => string),
+  bodyClass?: string[]|((req: ThinRequest) => string[]),
+  layoutType?: LayoutType|((req: ThinRequest) => LayoutType),
   throwOnError?: boolean,
 }
-
-export type RequestLocals = ((req: Request, res: Response) => any) | any;
-
-export type RequestViewStack = {
-  parent?: RequestViewStack;
-  viewName?: string,
-  subviewName?: string;
-  subviewStack?: RequestViewStack;
-  include?: IncludeFunction,
-  use?: IncludeFunction,
-  [prop: string]: any;
-};
 
 export type RouterRestfulHandlers = {
   get?: (req: Request, res: Response, next: NextFunction) => void,
@@ -49,5 +33,30 @@ export type RouterRestfulHandlers = {
   error?: (err: any, req: Request, res: Response, next: NextFunction) => void,
 };
 
-export type PropsOf<T> = T extends new (...args: any[]) => { $props: infer P } ? P : never;
+export function isVueComponent(object: any): object is Component {
+  return !!(<any> object).ssrRender || !!(<any> object).render;
+}
 
+export function isVueApp(object: any): object is App {
+  return !!(<any> object)._component && !!(<any> object)._context && !!(<any> object).version;
+}
+
+export type VuePropsOf<T> = T extends new (...args: any[]) => { $props: infer P } ? P : never;
+
+/*
+// Unified slot type extraction
+export type VueSlotsOf<C extends Component> =
+  // Composition API (script setup with defineSlots)
+  C extends { __slots?: infer S }
+    ? NonNullable<S>
+  // Options API (defineComponent with SlotsType)
+  : C extends new (...args: any[]) => { $slots: infer S }
+    ? NonNullable<S>
+  // Check for slots in the component type
+  : C extends { slots?: infer S }
+    ? S extends Record<string, any>
+      ? S
+      : Slots
+  // Fallback to generic Slots
+  : Slots;
+*/

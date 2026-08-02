@@ -101,7 +101,7 @@ function initTabListeners(state: WikiRevAppState) {
   });
 }
 
-pageMatch('vue/WikiRevisionPage', async () => {
+pageMatch('WikiRevisionPage', async () => {
   const pageId: number = toInt(document.querySelector<HTMLMetaElement>('meta[name="x-pageid"]')?.content);
   const revId: number = toInt(document.querySelector<HTMLMetaElement>('meta[name="x-revid"]')?.content);
 

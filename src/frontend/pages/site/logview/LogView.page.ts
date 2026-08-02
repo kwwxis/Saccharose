@@ -9,7 +9,7 @@ import { humanTiming, printHumanTiming } from '../../../../shared/util/genericUt
 import moment from 'moment';
 import { uuidv4 } from '../../../../shared/util/uuidv4.ts';
 
-pageMatch('vue/SiteLogViewPage', () => {
+pageMatch('SiteLogViewPage', () => {
   const mainContainer: HTMLDivElement = document.querySelector('#site-logview');
   const myId: string = uuidv4();
 

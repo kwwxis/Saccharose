@@ -103,7 +103,21 @@ export class SiteUserProviderImpl {
   // region Find User
   // --------------------------------------------------------------------------------------------------------------
   async find(discordId: string): Promise<SiteUser> {
-    const row: SiteUserEntity = await pg.select('*').from('site_user').where({discord_id: discordId}).first().then();
+    const row: SiteUserEntity & {is_banned?: boolean} = await pg.select(
+      'site_user.*',
+      pg.raw('(site_user_banned.discord_id IS NOT NULL OR site_user_banned.wiki_username IS NOT NULL) as is_banned')
+    ).from('site_user')
+      .leftJoin('site_user_banned', function() {
+        this.on('site_user_banned.discord_id', '=', 'site_user.discord_id')
+          .orOn('site_user_banned.wiki_username', '=', 'site_user.wiki_username');
+      })
+      .where({'site_user.discord_id': discordId})
+      .first().then();
+
+    if (!row) {
+      return undefined;
+    }
+
     if (!row.json_data?.wiki_allowed) {
       let inBypass: boolean = false;
 
@@ -122,7 +136,8 @@ export class SiteUserProviderImpl {
         });
       }
     }
-    return row?.json_data;
+
+    return row.json_data ? {...row.json_data, is_banned: !!row.is_banned} : undefined;
   }
   // endregion
 
@@ -132,16 +147,17 @@ export class SiteUserProviderImpl {
     if (!user || !user.id) {
       return false;
     }
-    return cached('Site:UserBanned:' + user.id, 'disabled', async () => {
-      let qb = pg.select('*').from('site_user_banned');
-      if (user.wiki_username) {
-        qb = qb.where({wiki_username: user.wiki_username}).or.where({discord_id: user.id});
-      } else {
-        qb = qb.where({discord_id: user.id});
-      }
-      const row: any = await qb.first().then();
-      return !!row;
-    });
+    if (typeof user.is_banned === 'boolean') {
+      return user.is_banned;
+    }
+    let qb = pg.select('*').from('site_user_banned');
+    if (user.wiki_username) {
+      qb = qb.where({wiki_username: user.wiki_username}).or.where({discord_id: user.id});
+    } else {
+      qb = qb.where({discord_id: user.id});
+    }
+    const row: any = await qb.first().then();
+    return !!row;
   }
 
   async getBanReason(user: SiteUser): Promise<string> {
@@ -209,6 +225,7 @@ export class SiteUserProviderImpl {
     }
 
     Object.assign(data, payload);
+    delete data.is_banned; // transient/computed field - do not persist
 
     await pg('site_user').where({discord_id: discordId}).update({
       discord_username: payload?.discord?.username || data.discord_username,
@@ -229,6 +246,7 @@ export class SiteUserProviderImpl {
     }
 
     modifier(data.prefs);
+    delete data.is_banned; // transient/computed field - do not persist
 
     await pg('site_user').where({discord_id: discordId}).update({
       json_data: JSON.stringify(data)

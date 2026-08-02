@@ -155,7 +155,7 @@
 
 <script setup lang="ts">
 import Wikitext from './Wikitext.vue';
-import { icon } from '../../routing/viewUtilities.ts';
+import { icon } from '../../routing/viewIconHelpers.ts';
 import { uuidv4 } from '../../../shared/util/uuidv4.ts';
 import { DialogueSectionResult } from '../../util/dialogueSectionResult.ts';
 import MetaProps from '../shared/MetaProps.vue';

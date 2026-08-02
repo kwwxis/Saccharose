@@ -4,7 +4,7 @@ import * as ace from 'brace';
 import { createWikitextEditor } from '../../../core/ace/aceEditor.ts';
 import { listen } from '../../../util/eventListen.ts';
 
-pageMatch('vue/OLCombinePage', () => {
+pageMatch('OLCombinePage', () => {
   const editor: ace.Editor = createWikitextEditor('ol-combine-input');
 
   listen([

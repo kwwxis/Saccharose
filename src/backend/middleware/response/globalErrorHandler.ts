@@ -1,15 +1,15 @@
-import { VIEWS_ROOT } from '../../loadenv.ts';
 import { HttpError } from '../../../shared/util/httpError.ts';
 import { NextFunction, Request, Response } from 'express';
-import { clearCsrfCookie, CSRF_COOKIE_NAME } from '../request/csrf.ts';
+import { clearCsrfCookie } from '../request/csrf.ts';
 import { ShellTimeoutError } from '../../util/shellutil.ts';
+import InternalServerErrorCard from '../../components/errors/InternalServerErrorCard.vue';
 
 export async function pageLoadErrorHandler(err: any, req: Request, res: Response, next: NextFunction) {
   if (err && typeof err === 'object' && (err.code === 'EBADCSRFTOKEN' || err.type === 'EBADCSRFTOKEN')) {
     clearCsrfCookie(res);
     let didRefresh = req.context.cookie('EBADCSRFTOKEN.DID_REFRESH');
     if (didRefresh) {
-      res.status(400).sendFile(`${VIEWS_ROOT}/errors/csrfTokenDenied.html`);
+      res.status(400).send(ERROR_PAGES.CSRF_TOKEN_DENIED);
     } else {
       res.cookie('EBADCSRFTOKEN.DID_REFRESH', '1', {
         maxAge: 1000 * 60,
@@ -26,21 +26,24 @@ export async function pageLoadErrorHandler(err: any, req: Request, res: Response
     return next(err);
   }
 
-  do {
+  try {
+    await res.status(500).renderComponent(InternalServerErrorCard, {
+      throwOnError: true
+    });
+    return;
+  } catch (ignore) {
     try {
-      res.status(500).render('errors/500', {
-        throwOnError: true
+      await res.status(500).renderComponent(InternalServerErrorCard, {
+        throwOnError: true,
+        layoutType: 'basic'
       });
       return;
-    } catch (e) {
-      req.context.popViewStack();
-      req.context.popViewStack();
-    }
-  } while (req.context.canPopViewStack());
+    } catch (ignore) {}
+  }
 
-  // Depending on what causes the error, attempting to render 'errors/500.ejs' might cause an error too.
+  // Depending on what caused the error, attempting to render 'InternalServerErrorCard' might cause an error too.
   // In that case then just send an HTML file as the safe option.
-  res.status(500).sendFile(`${VIEWS_ROOT}/errors/500.html`);
+  res.status(500).send(ERROR_PAGES.INTERNAL_SERVER_ERROR);
 }
 
 export async function apiErrorHandler(err: any, req: Request, res: Response, next: NextFunction) {
@@ -67,4 +70,51 @@ export async function apiErrorHandler(err: any, req: Request, res: Response, nex
 function sendHttpError(err: HttpError, res: Response): Response {
   res.status(err.status).json(err.toJson());
   return res;
+}
+
+const ERROR_PAGES = {
+  CSRF_TOKEN_DENIED: `
+  <!DOCTYPE html>
+  <html lang='en'>
+  <body>
+    <div style="
+      width: 500px;
+      margin: 40px auto;
+      font-family: sans-serif;
+      ">
+      <h1>403</h1>
+      <h2>Session expired?</h2>
+      <hr>
+      <p style="
+        font-size: 16px;
+        line-height: 22px;">
+        Invalid CSRF token. This error might happen if your session expired.
+        Try clicking the back button in your browser or refreshing the page.
+      </p>
+    </div>
+  </body>
+  </html>
+  `,
+  INTERNAL_SERVER_ERROR: `
+  <!DOCTYPE html>
+  <html lang='en'>
+  <body>
+    <div style="
+      width: 500px;
+      margin: 40px auto;
+      font-family: sans-serif;
+      ">
+      <h1>500</h1>
+      <h2>Internal Server Error</h2>
+      <hr>
+      <p style="
+        font-size: 16px;
+        line-height: 22px;">
+        Sorry, an internal server error has occurred. Try again later.<br>
+        If this keeps happening, then please let kwwxis know.
+      </p>
+    </div>
+  </body>
+  </html>
+  `,
 }

@@ -8,7 +8,7 @@ import { listen } from '../../../util/eventListen.ts';
 import { deleteQueryStringParameter, getQueryStringParameter, setQueryStringParameter } from '../../../util/domutil.ts';
 import { toInt } from '../../../../shared/util/numberUtil.ts';
 
-pageMatch('vue/FurnitureListPage', () => {
+pageMatch('FurnitureListPage', () => {
   const typeTree: HomeWorldFurnitureTypeTree = (<any> window).typeTree;
 
   const tokensToId: {[token: string]: Set<number>} = defaultMap('Set');

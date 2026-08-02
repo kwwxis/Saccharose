@@ -3,7 +3,7 @@ import { pageMatch } from '../../../core/pageMatch.ts';
 import { startGenericSearchPageListeners } from '../../genericSearchPage.ts';
 import { toInt } from '../../../../shared/util/numberUtil.ts';
 
-pageMatch('vue/GenshinRemindersPage', () => {
+pageMatch('GenshinRemindersPage', () => {
   startGenericSearchPageListeners({
     endpoint: genshinEndpoints.generateReminderDialogue,
     asHtml: true,

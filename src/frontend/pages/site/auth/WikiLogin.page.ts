@@ -2,7 +2,7 @@ import { pageMatch } from '../../../core/pageMatch.ts';
 import { listen } from '../../../util/eventListen.ts';
 import { genericEndpoints } from '../../../core/endpoints.ts';
 
-pageMatch('vue/WikiLoginPage', () => {
+pageMatch('WikiLoginPage', () => {
   const wikiNameEl: HTMLInputElement = document.querySelector('#wiki-username');
   const wikiLangEl: HTMLInputElement = document.querySelector('#wiki-lang');
   const wikiCheckEl: HTMLButtonElement = document.querySelector('#wiki-check');

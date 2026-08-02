@@ -1,0 +1,17 @@
+<template>
+  <div class="card error-box-card">
+    <div class="error-box is--500">
+      <h1>500</h1>
+      <h2>Internal Server Error</h2>
+      <hr class="thin-border">
+      <p>Sorry, an internal server error has occurred. Try again later.<br>
+        If this keeps happening then please let kwwxis know.</p>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+defineProps<{
+
+}>();
+</script>

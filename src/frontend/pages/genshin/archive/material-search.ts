@@ -2,7 +2,7 @@ import { genshinEndpoints } from '../../../core/endpoints.ts';
 import { pageMatch } from '../../../core/pageMatch.ts';
 import { startGenericSearchPageListeners } from '../../genericSearchPage.ts';
 
-pageMatch('vue/MaterialSearchPage', () => {
+pageMatch('MaterialSearchPage', () => {
   startGenericSearchPageListeners({
     endpoint: genshinEndpoints.searchItems,
     asHtml: true,

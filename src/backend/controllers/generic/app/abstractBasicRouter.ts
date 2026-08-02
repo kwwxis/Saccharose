@@ -1,5 +1,5 @@
 import { AbstractControl } from '../../../domain/abstract/abstractControl.ts';
-import { removeSuffix } from '../../../../shared/util/stringUtil.ts';
+import { removeSuffix, toString } from '../../../../shared/util/stringUtil.ts';
 import { Request, Response } from 'express';
 import ExcelViewerTablePage from '../../../components/shared/ExcelViewerTablePage.vue';
 import { FileAndSize } from '../../../../shared/types/utility-types.ts';
@@ -25,5 +25,17 @@ export async function sendExcelViewerTableResponse(ctrl: AbstractControl, req: R
     fileSize: foundTarget?.size,
     json: foundJson,
     jumpToRowIndex: toInt(req.query.rowIndex)
+  });
+}
+
+export async function sendExcelDownloadResponse(ctrl: AbstractControl, req: Request, res: Response) {
+  const file: string = toString(req.params.file);
+  res.download(ctrl.getDataFilePath(ctrl.getExcelPath(file)), err => {
+    if (err) {
+      console.error('Error sending file:', err);
+      if (!res.headersSent) {
+        res.status(500).send('Could not download the file. An internal error occurred.');
+      }
+    }
   });
 }

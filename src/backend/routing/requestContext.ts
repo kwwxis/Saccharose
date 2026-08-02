@@ -6,13 +6,8 @@ import { CompareTernary, ternary } from '../../shared/util/genericUtil.ts';
 import { DEFAULT_LANG, LANG_CODES, LANG_CODES_TO_NAME, LangCode } from '../../shared/types/lang-types.ts';
 import { DEFAULT_SEARCH_MODE, SEARCH_MODES, SearchMode } from '../../shared/util/searchUtil.ts';
 import { Request } from 'express';
-import { RequestLocals, RequestViewStack } from './routingTypes.ts';
-import { renderToString as renderVueToString } from 'vue/server-renderer';
-import { App } from 'vue';
-import { isVueApp } from './router.ts';
 import { SiteUserProvider } from '../middleware/auth/SiteUserProvider.ts';
-import { basename } from 'path';
-import { removeSuffix, SbOut } from '../../shared/util/stringUtil.ts';
+import { SbOut } from '../../shared/util/stringUtil.ts';
 import {
   SiteMenuShownEntry,
   SitePrefName, SiteUser,
@@ -20,23 +15,13 @@ import {
   VisitorPrefsCookieName,
 } from '../../shared/types/site/site-user-types.ts';
 import { SiteSidebar } from '../../shared/types/site/site-sidebar-types.ts';
-import { icon } from './viewUtilities.ts';
+import { icon } from './viewIconHelpers.ts';
 import { SIDEBAR_CONFIG } from './sidebarConfig.ts';
 import {
   getDefaultBasePathForSiteMode, getSiteModeFromPath,
-  SITE_MODE_URL_PATH_REGEXES,
   SiteMode,
 } from '../../shared/types/site/site-mode-type.ts';
-
-/**
- * A payload object used to make updates to {@link RequestContext}
- */
-export type RequestContextUpdate = {
-  title?: string | ((req: Request) => Promise<string>);
-  layouts?: (string|App)[];
-  bodyClass?: string[] | ((req: Request) => Promise<string[]>);
-  locals?: RequestLocals;
-};
+import { RequestCommonLocals } from './routingTypes.ts';
 
 /**
  * ThinRequest is a minimal, request-scoped snapshot of an incoming HTTP request,
@@ -98,6 +83,8 @@ export function createThinRequest(req: Request): ThinRequest {
   };
 }
 
+export type LayoutType = 'basic' | 'app' | 'empty' | 'visitor';
+
 /**
  * Only one instance per request. This class may hold information about the request as well as have some utility
  * methods.
@@ -112,22 +99,16 @@ export class RequestContext {
   htmlMetaProps: { [name: string]: string } = {};
   siteMode: SiteMode;
 
-  // Internal Views:
-  viewStack: RequestViewStack;
-  viewStackPointer: RequestViewStack;
-  virtualStaticViews: {[vname: string]: string} = {};
-  private virtualStaticViewCounter: number = 0;
-
   // Technical Properties:
   nonce = crypto.randomBytes(16).toString('hex');
   webpackBundles: WebpackBundles;
+
+  layoutType: LayoutType = 'basic';
 
   constructor(req: Request) {
     this._req = createThinRequest(req);
     this.title = '';
     this.bodyClass = [];
-    this.viewStack = { viewName: 'RouterRootView' };
-    this.viewStackPointer = this.viewStack;
     this.webpackBundles = getWebpackBundleFileNames();
 
     this.siteMode = getSiteModeFromPath(req.path);
@@ -139,33 +120,44 @@ export class RequestContext {
     this.htmlMetaProps['x-wss-url'] = ENV.WSS_URL;
   }
 
-  async createStaticVirtualView(html: string|App): Promise<string> {
-    let viewName: string = 'virtual-static-views/' + this.virtualStaticViewCounter++;
+  update(payload: RequestCommonLocals) {
+    if (!payload)
+      return;
 
-    if (typeof html !== 'string') {
-      if (isVueApp(html)) {
-        const vueApp: App = html;
-        html = await renderVueToString(vueApp);
-
-        if (vueApp._component?.__name) {
-          viewName = 'vue/' + vueApp._component.__name;
-        } else if (vueApp._component?.__file) {
-          viewName = 'vue/' + removeSuffix(basename(vueApp._component?.__file), '.vue');
-        }
-      } else {
-        console.error('createStaticVirtualView: illegal argument', html);
-        throw 'createStaticVirtualView: illegal argument';
-      }
+    if (payload.bodyClass && payload.bodyClass.length) {
+      this.bodyClass = this.bodyClass.concat(
+        typeof payload.bodyClass === 'function'
+          ? payload.bodyClass(this._req)
+          : payload.bodyClass
+      );
     }
-
-    this.virtualStaticViews[viewName] = html;
-    return viewName;
+    if (payload.title) {
+      this.title = typeof payload.title === 'function'
+        ? payload.title(this._req)
+        : payload.title;
+    }
+    if (payload.title) {
+      this.title = typeof payload.title === 'function'
+        ? payload.title(this._req)
+        : payload.title;
+    }
+    if (payload.layoutType) {
+      this.layoutType = typeof payload.layoutType === 'function'
+        ? payload.layoutType(this._req)
+        : payload.layoutType;
+    }
   }
 
-  get discordAvatarUrl(): string {
-    return SiteUserProvider.getAvatarUrl(this._req.user);
+  hasBodyClass(bodyClass: string) {
+    return this.bodyClass.includes(bodyClass);
   }
 
+  get bodyClassString() {
+    return this.bodyClass ? this.bodyClass.join(' ') : '';
+  }
+
+  // region SITE MODE
+  // --------------------------------------------------------------------------------------------------------------
   get siteHome(): string {
     switch (this.siteMode) {
       case 'hsr':
@@ -237,6 +229,18 @@ export class RequestContext {
     }
     return wikiDomain;
   }
+  // endregion
+
+  // region MISC UTILITIES
+  // --------------------------------------------------------------------------------------------------------------
+
+  isAuthenticated(): boolean {
+    return this._req.isAuthenticated();
+  }
+
+  get discordAvatarUrl(): string {
+    return SiteUserProvider.getAvatarUrl(this._req.user);
+  }
 
   wikiTemplateLink(template: string, noLink: boolean = false): string {
     return '{{' + createHtmlElement({
@@ -257,21 +261,24 @@ export class RequestContext {
   get isProduction() {
     return getNodeEnv() === 'production';
   }
+  // endregion
 
-  getAllViewNames() {
-    let pointer: RequestViewStack = this.viewStack;
-    let names = [];
-    while (pointer) {
-      names.push(pointer.viewName);
-      pointer = pointer.subviewStack;
+  // region SITE/PAGE TITLE
+  // --------------------------------------------------------------------------------------------------------------
+  get siteTitle() {
+    return SITE_TITLE;
+  }
+
+  getFormattedPageTitle(customTitle?: string) {
+    if (!customTitle) {
+      customTitle = this.title;
     }
-    return names;
+    return customTitle ? `${customTitle} | ${SITE_TITLE}` : SITE_TITLE;
   }
+  // endregion
 
-  isAuthenticated(): boolean {
-    return this._req.isAuthenticated();
-  }
-
+  // region COOKIE & PREF UTILITIES
+  // --------------------------------------------------------------------------------------------------------------
   get prefs(): SiteUserPrefs {
     if (this._cachedPrefs) {
       return this._cachedPrefs;
@@ -289,24 +296,6 @@ export class RequestContext {
 
       return {};
     }
-  }
-
-  canPopViewStack(): boolean {
-    return this.viewStackPointer.parent && this.viewStackPointer.parent.viewName !== 'RouterRootView';
-  }
-
-  popViewStack(): boolean {
-    if (!this.canPopViewStack()) {
-      return false;
-    }
-    this.viewStackPointer = this.viewStackPointer.parent;
-    this.viewStackPointer.subviewName = undefined;
-    this.viewStackPointer.subviewStack = undefined;
-    return true;
-  }
-
-  hasBodyClass(bodyClass: string) {
-    return this.bodyClass.includes(bodyClass);
   }
 
   cookies(): Record<string, any> {
@@ -327,31 +316,29 @@ export class RequestContext {
     return this.prefs[prefName] || orElse;
   }
 
+  prefBool<T extends SitePrefName, V>(prefName: T, valueIfTrue: V, valueIfFalse: V): V {
+    return this.prefs[prefName] ? valueIfTrue : valueIfFalse;
+  }
+
   prefTernary<T extends SitePrefName>(prefName: T): CompareTernary<SiteUserPrefs[T]> {
     return ternary(this.prefs[prefName]).setDefaultElse('');
   }
 
-  get siteTitle() {
-    return SITE_TITLE;
-  }
-
-  getFormattedPageTitle(customTitle?: string) {
-    if (!customTitle) {
-      customTitle = this.title;
-    }
-    return customTitle ? `${customTitle} | ${SITE_TITLE}` : SITE_TITLE;
-  }
-
-  get bodyClassString() {
-    return this.bodyClass ? this.bodyClass.join(' ') : '';
-  }
-
+  // region LANGUAGE CONSTANTS
+  // --------------------------------------------------------------------------------------------------------------
   get languages() {
     let copy = Object.assign({}, LANG_CODES_TO_NAME);
     delete copy['CH'];
     return copy;
   }
 
+  get languageCodes(): LangCode[] {
+    return LANG_CODES.filter(code => code !== 'CH');
+  }
+  // endregion
+
+  // region USER OPTIONS
+  // --------------------------------------------------------------------------------------------------------------
   get inputLangCode() {
     const req = this._req;
     if (typeof req.query['input'] === 'string' && (LANG_CODES as string[]).includes(req.query['input'])) {
@@ -378,7 +365,10 @@ export class RequestContext {
       return this.prefs.searchMode || DEFAULT_SEARCH_MODE;
     }
   }
+  // endregion
 
+  // region DIRECT LINK SETTINGS
+  // --------------------------------------------------------------------------------------------------------------
   hasQuerySettings() {
     return this._req.query['input'] || this._req.query['output'] || this._req.query['searchMode'];
   }
@@ -396,6 +386,10 @@ export class RequestContext {
     }
     return out;
   }
+  // endregion
+
+  // region SIDEBAR
+  // --------------------------------------------------------------------------------------------------------------
 
   createSiteSidebarHtml(appSidebarOverlayScroll: boolean = false): string {
     const sb: SbOut = new SbOut();
@@ -485,4 +479,5 @@ export class RequestContext {
   get allSiteSidebarConfig(): { [siteMode: string]: SiteSidebar } {
     return SIDEBAR_CONFIG;
   }
+  // endregion
 }

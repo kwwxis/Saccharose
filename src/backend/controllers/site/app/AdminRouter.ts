@@ -2,13 +2,14 @@ import { NextFunction, Request, Response, Router } from 'express';
 import { create } from '../../../routing/router.ts';
 import SiteLogViewPage from '../../../components/site/admin/SiteLogViewPage.vue';
 import SiteCacheManager from '../../../components/site/admin/SiteCacheManager.vue';
+import AccessDeniedErrorCard from '../../../components/errors/AccessDeniedErrorCard.vue';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
 
-  router.use((req: Request, res: Response, next: NextFunction) => {
+  router.use(async (req: Request, res: Response, next: NextFunction) => {
     if (!req.isAuthenticated() || !req.user || !req.user.roles.includes('admin')) {
-      res.status(403).render('errors/accessDenied');
+      await res.status(403).renderComponent(AccessDeniedErrorCard);
       return;
     }
     next();

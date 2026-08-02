@@ -2,19 +2,16 @@ import { Express } from 'express';
 import express from 'express';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
-import * as useragent from 'express-useragent';
 import helmet from 'helmet';
 import { openPgGamedata, openPgSite, enableDbExitHook } from './util/db.ts';
 import sessions from './middleware/auth/sessions.ts';
 import appBaseRouter from './controllers/AppBaseRouter.ts';
 import apiBaseRouter from './controllers/ApiBaseRouter.ts';
 import { isStringNotBlank } from '../shared/util/stringUtil.ts';
-import requestIp from 'request-ip';
-import jsonResponse from './middleware/response/jsonResponse.ts';
 import antiBots from './middleware/request/antiBots.ts';
 import { normalAccessLogging, earlyAccessLogging } from './middleware/request/accessLogging.ts';
 import defaultResponseHeaders from './middleware/response/defaultResponseHeaders.ts';
-import { isSiteModeDisabled, isSiteModeEnabled, PUBLIC_DIR, VIEWS_ROOT } from './loadenv.ts';
+import { isSiteModeEnabled, PUBLIC_DIR } from './loadenv.ts';
 import { doubleCsrfProtection } from './middleware/request/csrf.ts';
 import { pageLoadErrorHandler } from './middleware/response/globalErrorHandler.ts';
 import { loadGenshinVoiceItems } from './domain/genshin/genshinControl.ts';
@@ -52,6 +49,7 @@ import {
 } from './middleware/request/siteModePreferredBasePathRedirector.ts';
 import { toBoolean } from '../shared/util/genericUtil.ts';
 import cors from 'cors';
+import NotFoundErrorCard from './components/errors/NotFoundErrorCard.vue';
 
 const app: Express = express();
 
@@ -67,9 +65,8 @@ export async function appInit(): Promise<Express> {
   didInit = true;
 
   logInit(`Configuring dependencies`);
-  app.set('trust proxy', true);
-  app.set('views', VIEWS_ROOT);
-  app.set('view engine', 'ejs');
+  app.set('trust proxy', toBoolean(ENV.TRUST_PROXY));
+  app.set('x-powered-by', false);
 
   // Load application resources
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -188,9 +185,7 @@ export async function appInit(): Promise<Express> {
   logInit(`Adding middleware for incoming requests`);
   app.use(antiBots);                                        // rejects bot-like requests
   app.use(cookieParser(ENV.SESSION_SECRET));                // parses cookies
-  app.use(useragent.express());                             // parses user-agent header
   app.use(express.urlencoded({extended: true}));     // parses url-encoded POST/PUT bodies
-  app.use(requestIp.mw());                                  // enable request-ip
 
   // Initialize Request Context
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -202,14 +197,13 @@ export async function appInit(): Promise<Express> {
   logInit(`Adding middleware for outgoing responses`);
   app.use(compression());                                   // payload compression
   app.use(helmet({                                   // security-related headers
-    contentSecurityPolicy: false,                           // CSP header is set in base router
+    contentSecurityPolicy: false,                           // CSP header is set in the base router
     crossOriginEmbedderPolicy: false,
     hsts: false,                                            // HSTS header is set in defaultResponseHeaders
   }));
   app.use(helmet.referrerPolicy({                    // referrer policy header
     policy: 'same-origin'
   }));
-  app.use(jsonResponse);                                    // JSON response field masking
   app.use(defaultResponseHeaders);                          // Add default response headers
 
   // Load authorize endpoint
@@ -245,19 +239,33 @@ export async function appInit(): Promise<Express> {
   app.use(doubleCsrfProtection);
   app.use('/', await appBaseRouter());
 
-  // Global Error Handler
-  // ~~~~~~~~~~~~~~~~~~~~
+  // Global Error Handlers
+  // ~~~~~~~~~~~~~~~~~~~~~
   logInit(`Adding global error handlers`);
-  process.on('uncaughtException', (err) => console.error('UncaughtException!', err));
-  process.on('unhandledRejection', (err) => console.error('UnhandledRejection!', err));
+  process.on('uncaughtException', (err: Error) => {
+    console.error('CRITICAL UNCAUGHT EXCEPTION:', err);
+
+    // Must always crash the process after an uncaught exception; otherwise the state of the process becomes unreliable,
+    // unpredictable, and unsafe. It might sound like a good idea to keep the app from crashing, but here is not the
+    // place or way to do it. In our case, an external process manager like PM2 will automatically restart the process.
+    process.exit(1);
+  });
+  process.on('unhandledRejection', (reason: unknown, promise: Promise<unknown>) => {
+    console.error('Unhandled rejection at:', promise, 'reason:', reason);
+
+    // Throw the reason as an exception so the uncaughtException handler can crash the process.
+    // For similar reasons to uncaught exceptions, it is not a good idea to keep the app running after an unhandled
+    // promise rejection.
+    throw reason;
+  });
   app.use(pageLoadErrorHandler);
 
   // 404-Handler
   // ~~~~~~~~~~~
   // 404-handler must come after all other routers are loaded
   logInit(`Registering 404 handler`);
-  app.get('*splat', function(_req: Request, res: Response) {
-    res.status(404).render('errors/404');
+  app.get('*splat', async (_req: Request, res: Response) => {
+    await res.status(404).renderComponent(NotFoundErrorCard);
   });
 
   // Application loading complete

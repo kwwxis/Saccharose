@@ -53,7 +53,7 @@ class TextMapDiffCellComponent implements ICellRendererComp<TextMapChangeUpdateD
 
 }
 
-pageMatch('vue/ChangelogTextMapPage', async () => {
+pageMatch('ChangelogTextMapPage', async () => {
   const changelogVersion: string = document.querySelector<HTMLMetaElement>('#x-changelog-version').content;
   const addedData: TextMapChangeAddDisplay[] = JSON.parse(document.querySelector<HTMLMetaElement>('#x-tmdiff-added').content);
   const updatedData: TextMapChangeUpdateDisplay[] = JSON.parse(document.querySelector<HTMLMetaElement>('#x-tmdiff-updated').content);

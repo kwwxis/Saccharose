@@ -4,7 +4,7 @@ import { startGenericSearchPageListeners } from '../../genericSearchPage.ts';
 import { listen } from '../../../util/eventListen.ts';
 import { modalService } from '../../../util/modalService.ts';
 
-pageMatch('vue/GenshinNpcDialoguePage', () => {
+pageMatch('GenshinNpcDialoguePage', () => {
   startGenericSearchPageListeners({
     endpoint: genshinEndpoints.generateNpcDialogue,
     asHtml: true,

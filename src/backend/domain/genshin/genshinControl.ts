@@ -123,7 +123,6 @@ import {
   VoiceItem,
   VoiceItemArrayMap,
 } from '../../../shared/types/lang-types.ts';
-import { GCGTagElementType, GCGTagWeaponType } from '../../../shared/types/genshin/gcg-types.ts';
 import path from 'path';
 import { genericNormSearchText, NormTextOptions } from '../abstract/genericNormalizers.ts';
 import {

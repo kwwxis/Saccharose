@@ -4,7 +4,7 @@
             :data-cookie-name="cookieName"
             :data-file-format-default="fileFormatDefault || ''"
             :data-file-format-params="fileFormatParams || ''"
-            :data-lang-codes="Object.keys(ctx.languages).join(',')">
+            :data-lang-codes="ctx.languageCodes.join(',')">
     <legend><code>{{ paramName }}</code> parameter</legend>
     <div class="field spacer5-horiz" style="padding-right:30px">
       <label class="ui-radio dispBlock" style="padding-left:5px;font-size:13px;">

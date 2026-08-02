@@ -23,7 +23,10 @@ export type SiteUser = {
   wiki_avatar?: string,
   wiki_allowed?: boolean,
 
-  prefs: SiteUserPrefs
+  prefs: SiteUserPrefs,
+
+  // Transient/computed field - not persisted to `json_data`, always recomputed by SiteUserProvider#find:
+  is_banned?: boolean,
 };
 
 export type SiteUserPrefs = {

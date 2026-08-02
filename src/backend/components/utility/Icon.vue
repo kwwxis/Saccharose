@@ -1,7 +1,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue';
-import { dragHandle, icon } from '../../routing/viewUtilities.ts';
-import { FeatherAttributes, FeatherIconNames } from 'feather-icons';
+import { dragHandle, icon, IconProps } from '../../routing/viewIconHelpers.ts';
+import { FeatherIconNames } from 'feather-icons';
 import { toInt } from '../../../shared/util/numberUtil.ts';
 
 export default defineComponent({
@@ -10,12 +10,12 @@ export default defineComponent({
     name: { type: String as unknown as PropType<FeatherIconNames|'drag-handle'>, required: true },
     size: { type: Number, required: false },
     class: { type: String, required: false },
-    props: { type: Object as PropType<Partial<FeatherAttributes>>, required: false },
+    props: { type: Object as PropType<IconProps>, required: false },
   },
   setup(__props, { expose: __expose }) {
     __expose();
     const props = __props;
-    const featherProps: Partial<FeatherAttributes> = props.props || {};
+    const featherProps: IconProps = props.props || {};
     if (props.class) {
       if (featherProps.class) {
         featherProps.class += ' ' + props.class;

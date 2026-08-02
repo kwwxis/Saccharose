@@ -11,7 +11,7 @@ import { toBoolean } from '../../../../shared/util/genericUtil.ts';
 import { modalService } from '../../../util/modalService.ts';
 import { getUserPref, setUserPref } from '../../../core/userPreferences/sitePrefsContainer.ts';
 
-pageMatch('vue/OLGenPage', () => {
+pageMatch('OLGenPage', () => {
   const {endpoint, config} = getOLEndpoint();
 
   function loadResultFromURL() {

@@ -1,0 +1,17 @@
+<template>
+  <div class="card error-box-card">
+    <div class="error-box is--404">
+      <h1>Temporarily Unavailable</h1>
+      <hr class="thin-border">
+      <p>The <strong>{{ label }}</strong> section of the site is currently unavailable due to an ongoing data update.
+      </p>
+    </div>
+  </div>
+
+</template>
+
+<script setup lang="ts">
+defineProps<{
+  label: string,
+}>();
+</script>

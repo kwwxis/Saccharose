@@ -157,7 +157,7 @@
                   <Icon name="chevron-down" />
                 </button>
                 <div id="vo-app-interfacelang-dropdown" class="ui-dropdown">
-                  <template v-for="langCode of Object.keys(ctx.languages)">
+                  <template v-for="langCode of ctx.languageCodes">
                     <div :class="`vo-app-interfacelang-option option ${ctx.outputLangCode === langCode ? 'selected' : ''}`"
                          ui-action="dropdown-item" :data-value="langCode">{{ ctx.languages[langCode] }}</div>
                   </template>

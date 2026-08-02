@@ -706,7 +706,7 @@ export async function initExcelViewer<T = any>(excelFileName: string,
   };
 }
 
-pageMatch('vue/ExcelViewerTablePage', async () => {
+pageMatch('ExcelViewerTablePage', async () => {
   const containerEl: HTMLElement = document.querySelector('#excelViewerContainer');
 
   if (!containerEl) {

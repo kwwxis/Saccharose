@@ -19,6 +19,7 @@ module.exports = {
     ]
   },
 
+  /*
   // Prebuild hook
   prebuild: async () => {
     console.time('ETSC rmdir');
@@ -34,13 +35,7 @@ module.exports = {
   // Postbuild hook
   postbuild: async () => {
     console.timeEnd('ETSC build');
-
-    console.time('ETSC cpy');
-    await fsp.cp('./src/backend/views', './dist/backend/views', {
-      force: true,
-      recursive: true,
-    });
     await fsp.cp('./src/pipeline/detect_language.py', './dist/pipeline/detect_language.py', { force: true });
-    console.timeEnd('ETSC cpy');
   },
+  */
 };

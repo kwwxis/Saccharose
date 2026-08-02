@@ -19,7 +19,7 @@
 import { GCGRuleTextExcelConfigData } from '../../../../shared/types/genshin/gcg-types.ts';
 import Wikitext from '../../utility/Wikitext.vue';
 import { useTrace } from '../../../middleware/request/tracer.ts';
-import { genshinSpriteTagIconize } from '../../../routing/viewUtilities.ts';
+import { genshinSpriteTagIconize } from '../../../routing/viewIconHelpers.ts';
 
 const { normGenshinText } = useTrace();
 

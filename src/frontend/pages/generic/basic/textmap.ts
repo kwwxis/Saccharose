@@ -17,7 +17,7 @@ import { createDiffUIFullDiff, DiffUI } from '../../../util/DiffUI.ts';
 import { isNightmode } from '../../../core/userPreferences/siteTheme.ts';
 import { ColorSchemeType } from 'diff2html/lib/types';
 
-pageMatch('vue/TextmapSearchPage', () => {
+pageMatch('TextmapSearchPage', () => {
   let handle: GenericSearchPageHandle;
 
   let endpoint: SaccharoseApiEndpoint<any>;

@@ -30,7 +30,7 @@ dotenv.config({ path: envFile });
 
 export const ENV: ProcessEnv = <any> process.env;
 
-export const VIEWS_ROOT = path.resolve(__dirname, './views');
+export const COMPONENTS_ROOT = path.resolve(__dirname, './components');
 export const PUBLIC_DIR = path.resolve(__dirname, '../../public');
 export const PIPELINE_DIR = path.resolve(__dirname, '../pipeline');
 export const REDIST_DIR = path.resolve(PUBLIC_DIR, './redist');

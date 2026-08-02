@@ -7,7 +7,7 @@ import UserBannedPage from '../../components/auth/UserBannedPage.vue';
 export default async (req: Request, res: Response, next: NextFunction) => {
   if (!req.isAuthenticated()) {
     await res.renderComponent(DiscordLoginPage, {
-      layouts: ['layouts/basic-layout'],
+      layoutType: 'basic'
     });
     return;
   }
@@ -29,12 +29,12 @@ export default async (req: Request, res: Response, next: NextFunction) => {
     if (await SiteUserProvider.isBanned(req.user)) {
       const reason = await SiteUserProvider.getBanReason(req.user);
       await res.renderComponent(UserBannedPage, {
-        layouts: ['layouts/basic-layout'],
+        layoutType: 'basic',
         reason,
       });
     } else {
       await res.renderComponent(WikiLoginPage, {
-        layouts: ['layouts/basic-layout'],
+        layoutType: 'basic'
       });
     }
     return;
@@ -43,7 +43,7 @@ export default async (req: Request, res: Response, next: NextFunction) => {
   if (await SiteUserProvider.isBanned(req.user)) {
     const reason = await SiteUserProvider.getBanReason(req.user);
     await res.renderComponent(UserBannedPage, {
-      layouts: ['layouts/basic-layout'],
+      layoutType: 'basic',
       reason,
     });
     return;

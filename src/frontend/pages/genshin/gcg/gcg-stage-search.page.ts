@@ -2,7 +2,7 @@ import { genshinEndpoints } from '../../../core/endpoints.ts';
 import { pageMatch } from '../../../core/pageMatch.ts';
 import { startGenericSearchPageListeners } from '../../genericSearchPage.ts';
 
-pageMatch('vue/GcgStageSearchPage', () => {
+pageMatch('GcgStageSearchPage', () => {
   startGenericSearchPageListeners({
     endpoint: genshinEndpoints.searchTcgStages,
     asHtml: true,
