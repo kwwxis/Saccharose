@@ -93,7 +93,7 @@
       <div class="spacer15-vert">
         <AppLanguageSelector />
       </div>
-      <RawHtml :html="sidebarHtml" />
+      <div id="mobile-menu-sidebar-outlet"></div>
     </div>
     <div id="mobile-menu-body-cover" class="hide"></div>
   </template>

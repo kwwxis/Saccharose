@@ -1,4 +1,4 @@
-import { getScrollbarWidth } from '../../util/domutil.ts';
+import { frag, getScrollbarWidth } from '../../util/domutil.ts';
 
 export default function() {
   const scrollbarWidth = getScrollbarWidth();
@@ -10,4 +10,6 @@ export default function() {
     `.collapsed { height: 0 !important; overflow: hidden !important; padding: 0 !important; }\n` +
     `</style>`
   );
+  const outlet = document.getElementById('mobile-menu-sidebar-outlet');
+  outlet.replaceWith(frag(document.getElementById('app-sidebar').innerHTML));
 }

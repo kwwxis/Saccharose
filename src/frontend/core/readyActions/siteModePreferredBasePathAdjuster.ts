@@ -17,7 +17,7 @@ export function enableSiteModePreferredBasePathAdjuster() {
             } else if (node.querySelectorAll) {
               // Check for 'a' elements within the added node (e.g., if a whole div was added)
               node.querySelectorAll('a').forEach(anchor => {
-                console.log('Found new <a> element inside an added node:', anchor);
+                // console.log('Found new <a> element inside an added node:', anchor);
                 handleAnchor(anchor);
               });
             }
