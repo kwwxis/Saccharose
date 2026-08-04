@@ -1,4 +1,4 @@
-import { create } from '../../../routing/router.ts';
+import { create } from '../../../rendering/customRouter.ts';
 import { getGenshinControl } from '../../../domain/genshin/genshinControl.ts';
 import { BookSuitExcelConfigData, Readable } from '../../../../shared/types/genshin/readable-types.ts';
 import { ol_combine_results, ol_gen_from_id } from '../../../domain/abstract/basic/OLgen.ts';
@@ -550,7 +550,7 @@ export default async function(): Promise<Router> {
     let cat = allCat.subCats.find(c => toParam(c.catName).toLowerCase() === toParam(catName).toLowerCase());
     if (!cat) {
       cat = allCat.subCats.find(c => Object.values(c.catNameMap).some(x => toParam(x).toLowerCase() === toParam(catName).toLowerCase()));
-      req.context.htmlMetaProps['X-ReplaceInUrl'] = catName + ';' + cat.catName;
+      req.context.setHtmlMetaProp('X-ReplaceInUrl', catName + ';' + cat.catName);
     }
 
     await res.renderComponent(GenshinLoadingTips, {

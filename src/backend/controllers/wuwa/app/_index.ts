@@ -1,4 +1,4 @@
-import { create } from '../../../routing/router.ts';
+import { create } from '../../../rendering/customRouter.ts';
 import WuwaBasicRouter from './WuwaBasicRouter.ts';
 import { Router } from 'express';
 import WuwaMediaRouter from './WuwaMediaRouter.ts';

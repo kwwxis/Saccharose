@@ -1,5 +1,5 @@
 import helmet from 'helmet';
-import { create } from '../routing/router.ts';
+import { create } from '../rendering/customRouter.ts';
 import { getRandomInt, toBoolean } from '../../shared/util/genericUtil.ts';
 import GenshinRouter from './genshin/app/_index.ts';
 import StarRailRouter from './hsr/app/_index.ts';

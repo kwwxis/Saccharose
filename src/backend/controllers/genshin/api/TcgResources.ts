@@ -1,4 +1,4 @@
-import { create } from '../../../routing/router.ts';
+import { create } from '../../../rendering/customRouter.ts';
 import { Request, Response, Router } from 'express';
 import { getGenshinControl } from '../../../domain/genshin/genshinControl.ts';
 import { removeCyclicRefs } from '../../../../shared/util/genericUtil.ts';

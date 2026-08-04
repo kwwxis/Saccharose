@@ -1,5 +1,5 @@
 import { Request, Response, Router } from 'express';
-import { create } from '../../../routing/router.ts';
+import { create } from '../../../rendering/customRouter.ts';
 import {
   CommonAvatar,
   toCommonAvatarFromStarRail,

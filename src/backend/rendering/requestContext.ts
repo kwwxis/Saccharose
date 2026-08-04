@@ -7,81 +7,23 @@ import { DEFAULT_LANG, LANG_CODES, LANG_CODES_TO_NAME, LangCode } from '../../sh
 import { DEFAULT_SEARCH_MODE, SEARCH_MODES, SearchMode } from '../../shared/util/searchUtil.ts';
 import { Request } from 'express';
 import { SiteUserProvider } from '../middleware/auth/SiteUserProvider.ts';
-import { SbOut } from '../../shared/util/stringUtil.ts';
+import { escapeHtml, SbOut } from '../../shared/util/stringUtil.ts';
 import {
   SiteMenuShownEntry,
-  SitePrefName, SiteUser,
+  SitePrefName,
   SiteUserPrefs,
   VisitorPrefsCookieName,
 } from '../../shared/types/site/site-user-types.ts';
 import { SiteSidebar } from '../../shared/types/site/site-sidebar-types.ts';
-import { icon } from './viewIconHelpers.ts';
-import { SIDEBAR_CONFIG } from './sidebarConfig.ts';
+import { iconSvg } from '../../shared/util/iconProvider.ts';
+import { SIDEBAR_CONFIG } from './appSidebarConfig.ts';
 import {
-  getDefaultBasePathForSiteMode, getSiteModeFromPath,
+  getDefaultBasePathForSiteMode,
+  getSiteModeFromPath,
   SiteMode,
 } from '../../shared/types/site/site-mode-type.ts';
-import { RequestCommonLocals } from './routingTypes.ts';
-
-/**
- * ThinRequest is a minimal, request-scoped snapshot of an incoming HTTP request,
- * intended for use outside the Express routing layer (e.g. Vue SSR rendering).
- *
- * Why this exists:
- * ----------------
- * The Express `Request` object is large, mutable, and tightly coupled to the
- * underlying HTTP server implementation. Passing it through application,
- * rendering, or view layers retains a broad object graph for the lifetime of
- * the request and encourages deep coupling to transport-specific details.
- *
- * ThinRequest avoids those issues by:
- * - Copying only the request data that is safe and relevant beyond routing
- * - Avoiding retention of the Express `Request` object and its internals
- * - Providing a stable, framework-agnostic API for request-derived values
- * - Making request context explicit without relying on ambient globals
- *
- * Design guarantees:
- * ------------------
- * - Contains no references to Express `Request` or `Response`
- * - Safe to pass through Vue server-side rendering without extending lifetimes
- * - Compatible with concurrent renders in a single Node process
- * - Read-only by convention (and may be frozen by the caller)
- *
- * ThinRequest represents *what the application needs to know* about a request,
- * not *how the request was received*, keeping rendering logic decoupled from
- * HTTP transport concerns.
- */
-export interface ThinRequest {
-  user: SiteUser;
-  query: Record<string, unknown>;
-  cookies: Record<string, any>;
-  url: string;
-  path: string;
-  originalUrl: string;
-  method: string;
-  isAuthenticated(): boolean;
-}
-
-export function createThinRequest(req: Request): ThinRequest {
-  const authenticated =
-    typeof req.isAuthenticated === 'function'
-      ? req.isAuthenticated()
-      : false;
-
-  return {
-    user: req.user,
-    query: { ...req.query },
-    cookies: req.cookies ? { ...req.cookies } : {},
-    url: req.url,
-    path: req.path,
-    originalUrl: req.originalUrl,
-    method: req.method,
-
-    isAuthenticated() {
-      return authenticated;
-    },
-  };
-}
+import { createThinRequest, ThinRequest } from './thinRequest.ts';
+import { RequestCommonLocals } from './customRouter.ts';
 
 export type LayoutType = 'basic' | 'app' | 'empty' | 'visitor';
 
@@ -94,14 +36,14 @@ export class RequestContext {
   private _cachedPrefs: SiteUserPrefs;
 
   // Data Properties:
-  title: string;
-  bodyClass: string[];
-  htmlMetaProps: { [name: string]: string } = {};
-  siteMode: SiteMode;
+  private title: string;
+  private bodyClass: string[];
+  private htmlMetaProps: { [name: string]: string } = {};
+  readonly siteMode: SiteMode;
 
   // Technical Properties:
-  nonce = crypto.randomBytes(16).toString('hex');
-  webpackBundles: WebpackBundles;
+  readonly nonce: string = crypto.randomBytes(16).toString('hex');
+  readonly webpackBundles: WebpackBundles = getWebpackBundleFileNames();
 
   layoutType: LayoutType = 'basic';
 
@@ -109,7 +51,6 @@ export class RequestContext {
     this._req = createThinRequest(req);
     this.title = '';
     this.bodyClass = [];
-    this.webpackBundles = getWebpackBundleFileNames();
 
     this.siteMode = getSiteModeFromPath(req.path);
     this.htmlMetaProps['x-site-mode'] = this.siteMode;
@@ -118,6 +59,14 @@ export class RequestContext {
     this.htmlMetaProps['x-site-mode-wiki-domain'] = this.siteModeWikiDomain;
     this.htmlMetaProps['x-site-mode-preferred-base-path'] = this.siteModePreferredBasePath;
     this.htmlMetaProps['x-wss-url'] = ENV.WSS_URL;
+  }
+
+  setHtmlMetaProp(name: string, value: string) {
+    this.htmlMetaProps[name] = escapeHtml(value);
+  }
+
+  getHtmlMetaProps(): { [name: string]: string } {
+    return this.htmlMetaProps;
   }
 
   update(payload: RequestCommonLocals) {
@@ -405,7 +354,7 @@ export class RequestContext {
     `);
     sb.line(`<div class="app-sidebar-content" data-id="${conf.id}"${appSidebarOverlayScroll ? ' data-overlayscrollbars-initialize': ''}>`);
 
-    const chevronDownHtml: string = icon('chevron-down', 17);
+    const chevronDownHtml: string = iconSvg('chevron-down', 17);
 
     const shownConfig: SiteMenuShownEntry = this.prefs.siteMenuShown?.[conf.id] || {};
 

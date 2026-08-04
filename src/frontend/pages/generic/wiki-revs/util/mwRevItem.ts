@@ -1,9 +1,9 @@
 import { MwRevision, MwTagMap } from '../../../../../shared/mediawiki/mwTypes.ts';
 import { escapeHtml, toParam } from '../../../../../shared/util/stringUtil.ts';
 import { SITE_MODE_WIKI_DOMAIN } from '../../../../core/userPreferences/siteModeInfo.ts';
-import { templateIcon } from '../../../../util/templateIcons.ts';
 import { isEmpty, timeConvert } from '../../../../../shared/util/genericUtil.ts';
 import { WikiRevAppState } from '../rev-app-main.ts';
+import { iconSvg } from '../../../../../shared/util/iconProvider.ts';
 
 export function createRevListHtml(state: WikiRevAppState, revisions: MwRevision[], reverse: boolean = false) {
   return (reverse ? revisions.slice().reverse() : revisions).map(rev => {
@@ -23,7 +23,7 @@ export function createRevListHtml(state: WikiRevAppState, revisions: MwRevision[
             <span class="${deltaSize.startsWith('+') ? 'mw-rev-green' : 'mw-rev-red'}">&nbsp;(${deltaSize})</span>
             <span class="grow"></span>
             <a class="mw-rev-openinwiki valign" href="https://${SITE_MODE_WIKI_DOMAIN}/${toParam(state.page.title)}?diff=prev&oldid=${rev.revid}"
-              target="_blank">Open in wiki ${templateIcon('external-link')}</a>
+              target="_blank">Open in wiki ${iconSvg('external-link')}</a>
           </div>
         </div>
         <div class="mw-rev-subtitle valign">

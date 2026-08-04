@@ -28,10 +28,9 @@ import { StoreNames } from 'idb/build/entry';
 import { highlightJson, highlightWikitext } from '../../../core/ace/aceHighlight.ts';
 import { isNightmode, onSiteThemeChange } from '../../../core/userPreferences/siteTheme.ts';
 import { isInt, toInt } from '../../../../shared/util/numberUtil.ts';
-import { templateIcon } from '../../../util/templateIcons.ts';
 import { doWithCreateGrid } from '../../../core/gridInterface/agGridInterface.ts';
 import { genshinEndpoints } from '../../../core/endpoints.ts';
-import { uuidv4 } from '../../../../shared/util/uuidv4.ts';
+import { iconSvg } from '../../../../shared/util/iconProvider.ts';
 
 function initializeThemeWatcher(elements: HTMLElement[]) {
   onSiteThemeChange(theme => {
@@ -317,7 +316,6 @@ function generateColDefs(excelData: any[]): (ColDef | ColGroupDef)[] {
 }
 
 function createExcelViewerHtml(fileName: string, includeExcelListButton: boolean, height: string) {
-  console.log(document.getElementById('template-maximize-icon'));
   return frag1(`
   <div class="excel-viewer">
     <section class="excel-viewer-top card ag-theme-alpine${isNightmode() ? '-dark' : ''}">
@@ -328,8 +326,8 @@ function createExcelViewerHtml(fileName: string, includeExcelListButton: boolean
         <button class="excel-toggle-full-screen valign secondary spacer10-left">
           <span class="maximize-text spacer5-right">Enter Full Screen</span>
           <span class="minimize-text spacer5-right">Exit Full Screen</span>
-          <span class="maximize-icon valign">${document.getElementById('template-maximize-icon').innerHTML}</span>
-          <span class="minimize-icon valign">${document.getElementById('template-minimize-icon').innerHTML}</span>
+          <span class="maximize-icon valign">${iconSvg('maximize-2')}</span>
+          <span class="minimize-icon valign">${iconSvg('minimize-2')}</span>
         </button>
       </h2>
       <div class="content">
@@ -341,7 +339,7 @@ function createExcelViewerHtml(fileName: string, includeExcelListButton: boolean
           <div class="excel-export posRel">
             <button class="secondary border-light" ui-action="dropdown">
               <span class="spacer5-right">Export</span>
-              ${templateIcon('chevron-down')}
+              ${iconSvg('chevron-down')}
             </button>
             <div class="ui-dropdown right">
               <div class="excel-export-csv option" ui-action="dropdown-item">As CSV</div>

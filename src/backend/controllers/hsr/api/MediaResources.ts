@@ -1,4 +1,4 @@
-import { create } from '../../../routing/router.ts';
+import { create } from '../../../rendering/customRouter.ts';
 import { Request, Response, Router } from 'express';
 import { getStarRailControl } from '../../../domain/hsr/starRailControl.ts';
 

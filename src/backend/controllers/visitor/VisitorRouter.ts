@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response, Router } from 'express';
-import { create } from '../../routing/router.ts';
+import { create } from '../../rendering/customRouter.ts';
 import { SiteUserProvider } from '../../middleware/auth/SiteUserProvider.ts';
 import SitePrivacyPolicyPage from '../../components/site/SitePrivacyPolicyPage.vue';
 import SiteTermsOfServicePage from '../../components/site/SiteTermsOfServicePage.vue';

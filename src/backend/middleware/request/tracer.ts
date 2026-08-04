@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import { RequestContext } from '../../routing/requestContext.ts';
+import { RequestContext } from '../../rendering/requestContext.ts';
 import { GenshinControl, getGenshinControl } from '../../domain/genshin/genshinControl.ts';
 import { getStarRailControl, StarRailControl } from '../../domain/hsr/starRailControl.ts';
 import { getZenlessControl, ZenlessControl } from '../../domain/zenless/zenlessControl.ts';

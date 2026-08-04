@@ -1,5 +1,5 @@
 import { Request, Response, Router } from 'express';
-import { create } from '../../../routing/router.ts';
+import { create } from '../../../rendering/customRouter.ts';
 import { SiteUserProvider } from '../../../middleware/auth/SiteUserProvider.ts';
 import SettingsPage from '../../../components/usersettings/SettingsPage.vue';
 import SiteNoticesPage from '../../../components/site/SiteNoticesPage.vue';

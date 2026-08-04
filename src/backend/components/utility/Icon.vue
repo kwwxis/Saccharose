@@ -1,13 +1,12 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue';
-import { dragHandle, icon, IconProps } from '../../routing/viewIconHelpers.ts';
-import { FeatherIconNames } from 'feather-icons';
+import { IconName, IconProps, iconSvg } from '../../../shared/util/iconProvider.ts';
 import { toInt } from '../../../shared/util/numberUtil.ts';
 
 export default defineComponent({
   name: 'Icon',
   props: {
-    name: { type: String as unknown as PropType<FeatherIconNames|'drag-handle'>, required: true },
+    name: { type: String as unknown as PropType<IconName>, required: true },
     size: { type: Number, required: false },
     class: { type: String, required: false },
     props: { type: Object as PropType<IconProps>, required: false },
@@ -23,7 +22,7 @@ export default defineComponent({
         featherProps.class = props.class;
       }
     }
-    const html = props.name === 'drag-handle' ? dragHandle() : icon(props.name, toInt(props.size), featherProps);
+    const html = iconSvg(props.name, toInt(props.size), featherProps);
     const __returned__ = { props, html };
     Object.defineProperty(__returned__, "__isScriptSetup", { enumerable: false, value: true });
     return __returned__;

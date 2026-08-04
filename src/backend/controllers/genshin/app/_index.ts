@@ -1,4 +1,4 @@
-import { create } from '../../../routing/router.ts';
+import { create } from '../../../rendering/customRouter.ts';
 import { Router } from 'express';
 import BasicRouter from './GenshinBasicRouter.ts';
 import DialogueRouter from './GenshinDialogueRouter.ts';

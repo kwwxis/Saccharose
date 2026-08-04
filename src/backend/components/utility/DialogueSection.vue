@@ -5,7 +5,7 @@
     <h4 v-if="!noTitle" class="dialogue-section-header valign">
       <!-- Expando icon button -->
       <span class="dialogue-section-expando" :ui-action="`expando: #dialogue-section-content-${section.id}`"
-            v-html="icon('chevron-down', 17)"></span>
+            v-html="iconSvg('chevron-down', 17)"></span>
 
       <!-- Actual title text -->
       <span v-if="!section.isHtmlTitle" class="dialogue-section-title">{{ section.title }}</span>
@@ -17,7 +17,7 @@
             ui-tippy-html="true"
             class="dispInlineFlex spacer5-left"
             style="height:14px;width:14px;opacity:0.8"
-            v-html="icon('info', 14)"></span>
+            v-html="iconSvg('info', 14)"></span>
 
       <!-- Similitary group -->
       <template v-if="section.similarityGroupId">
@@ -55,11 +55,11 @@
             <button class="dialogue-indent-button secondary small plus" ui-tippy-hover="Increase indent"
                     :ui-action="`wikitext-indent: #wikitext-${section.id}, increase`"
                     style="margin:0 0 5px 5px"
-                    v-html="icon('plus', 16)"></button>
+                    v-html="iconSvg('plus', 16)"></button>
             <button class="dialogue-indent-button secondary small minus" ui-tippy-hover="Decrease indent"
                     :ui-action="`wikitext-indent: #wikitext-${section.id}, decrease`"
                     style="margin:0 0 5px 0"
-                    v-html="icon('minus', 16)"></button>
+                    v-html="iconSvg('minus', 16)"></button>
           </div>
         </template>
       </div>
@@ -70,7 +70,7 @@
         <template v-if="section.beginCondProps.length">
           <h5 class="valign">Begin Conditions
             <span ui-tippy-hover="Conditions that must match for the dialogue section to be entered."
-                  class="dispInlineFlex spacer5-left opacity50p" v-html="icon('info', 14)"></span></h5>
+                  class="dispInlineFlex spacer5-left opacity50p" v-html="iconSvg('info', 14)"></span></h5>
           <MetaProps :props="section.beginCondProps" />
         </template>
 
@@ -78,14 +78,14 @@
         <template v-if="section.finishCondProps.length">
           <h5 class="valign">Finish Conditions
             <span ui-tippy-hover="Conditions that must match for Finish Executions to be executed after the dialogue section is exited."
-                  class="dispInlineFlex spacer5-left opacity50p" v-html="icon('info', 14)"></span></h5>
+                  class="dispInlineFlex spacer5-left opacity50p" v-html="iconSvg('info', 14)"></span></h5>
           <MetaProps :props="section.finishCondProps" />
         </template>
 
         <template v-if="section.finishExecProps.length">
           <h5 class="valign">Finish Executions
             <span ui-tippy-hover="Operations that are executed after the dialogue section was entered and exited while having met the Finish Conditions (if any)."
-                  class="dispInlineFlex spacer5-left opacity50p" v-html="icon('info', 14)"></span></h5>
+                  class="dispInlineFlex spacer5-left opacity50p" v-html="iconSvg('info', 14)"></span></h5>
           <MetaProps :props="section.finishExecProps" />
         </template>
 
@@ -128,12 +128,12 @@
                     ui-tippy-hover="Increase indent"
                     :ui-action="`wikitext-indent: #wikitext-${section.id}-${idx}, increase`"
                     style="margin:0 0 5px 5px"
-                    v-html="icon('plus', 16)"></button>
+                    v-html="iconSvg('plus', 16)"></button>
             <button class="dialogue-indent-button secondary small minus"
                     ui-tippy-hover="Decrease indent"
                     :ui-action="`wikitext-indent: #wikitext-${section.id}-${idx}, decrease`"
                     style="margin:0 0 5px 0"
-                    v-html="icon('minus', 16)"></button>
+                    v-html="iconSvg('minus', 16)"></button>
           </div>
           <Wikitext :id="`wikitext-${section.id}-${idx}`"
                     :value="item.wikitext"
@@ -155,7 +155,7 @@
 
 <script setup lang="ts">
 import Wikitext from './Wikitext.vue';
-import { icon } from '../../routing/viewIconHelpers.ts';
+import { iconSvg } from '../../../shared/util/iconProvider.ts';
 import { uuidv4 } from '../../../shared/util/uuidv4.ts';
 import { DialogueSectionResult } from '../../util/dialogueSectionResult.ts';
 import MetaProps from '../shared/MetaProps.vue';

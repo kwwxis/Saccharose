@@ -2,10 +2,7 @@ import passport_discord from 'passport-discord';
 import { LangCode } from '../lang-types.ts';
 import { SearchMode } from '../../util/searchUtil.ts';
 import {
-  GenshinSiteModeBasePath,
   SiteMode, SiteModeBasePathMap,
-  StarRailSiteModeBasePath, WuwaSiteModeBasePath,
-  ZenlessSiteModeBasePath,
 } from './site-mode-type.ts';
 
 export const VisitorPrefsCookieName = 'VisitorUserPrefs';

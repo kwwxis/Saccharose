@@ -8,11 +8,11 @@ import {
 import { frag, frag1, isElementPartiallyInViewport } from '../../../util/domutil.ts';
 import { escapeHtml } from '../../../../shared/util/stringUtil.ts';
 import { isNotEmpty, toBoolean } from '../../../../shared/util/genericUtil.ts';
-import { templateIcon } from '../../../util/templateIcons.ts';
 import { uuidv4 } from '../../../../shared/util/uuidv4.ts';
 import './media-list.styles.scss';
 import { GenshinVersions, GameVersions } from '../../../../shared/types/game-versions.ts';
 import { getByteSizeLabel } from './media-app-util.ts';
+import { iconSvg } from '../../../../shared/util/iconProvider.ts';
 
 export function initiateMediaListPage(
   vueComponentName: string,
@@ -24,6 +24,7 @@ export function initiateMediaListPage(
   versionFilterInfoTooltipExtra: string,
 ) {
   pageMatch(`${vueComponentName}`, async () => {
+    const infoIconHtml: string = iconSvg('info');
     const loadingEl: HTMLElement = document.querySelector('#media-list-loading');
     const appEl: HTMLElement = document.querySelector('#media-list-app');
     appEl.innerHTML = '';
@@ -35,7 +36,7 @@ export function initiateMediaListPage(
                style="max-width: 490px;width: 100%;"/>
         <span ui-tippy="{content: 'Only filters images to the version it was first added. Does not account for modifications. ${versionFilterInfoTooltipExtra}',delay:[200, 100]}"
               class="valign spacer10-left" style="opacity: 0.5; width: 19px;">
-          ${document.getElementById('template-info-icon').innerHTML}
+          ${infoIconHtml}
         </span>
          <span id="firstVersionFilterErrorText" class="dispInlineBlock spacer10-left color-red" style="font-size:15px"></span>
       </div>
@@ -72,7 +73,7 @@ export function initiateMediaListPage(
       rootCatMap
     });
 
-    const expandoHtml: string = templateIcon('chevron-down');
+    const expandoHtml: string = iconSvg('chevron-down');
     const imageLoaders: {[mediaCatId: string]: Function} = {};
 
     async function loadImages(mediaCatId: string, loadZoneEl: HTMLElement, catPath: string, offset: number) {

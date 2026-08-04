@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response, Router } from 'express';
-import { create } from '../routing/router.ts';
+import { create } from '../rendering/customRouter.ts';
 import path from 'path';
 import { IMAGEDIR_GENSHIN_EXT } from '../loadenv.ts';
 import { promises as fsp } from 'fs';

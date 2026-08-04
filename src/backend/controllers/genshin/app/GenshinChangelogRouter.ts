@@ -1,5 +1,5 @@
 import { Request, Response, Router } from 'express';
-import { create } from '../../../routing/router.ts';
+import { create } from '../../../rendering/customRouter.ts';
 import ChangelogListPage from '../../../components/changelogs/ChangelogListPage.vue';
 import { GenshinVersions } from '../../../../shared/types/game-versions.ts';
 import GenshinChangelogSummaryPage from '../../../components/changelogs/GenshinChangelogSummaryPage.vue';

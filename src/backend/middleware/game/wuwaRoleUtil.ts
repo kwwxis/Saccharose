@@ -60,7 +60,7 @@ export async function getWuwaRole(ctrl: WuwaControl, req: Request): Promise<Role
         const langCodeMap = await ctrl.createLangCodeMap(role.Name, false);
         for (let name of Object.values(langCodeMap)) {
           if (nameCmp === name?.toLowerCase()) {
-            req.context.htmlMetaProps['X-ReplaceInUrl'] = arg + ';' + role.NameText;
+            req.context.setHtmlMetaProp('X-ReplaceInUrl', arg + ';' + role.NameText);
             return role;
           }
         }

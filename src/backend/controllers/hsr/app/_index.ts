@@ -1,4 +1,4 @@
-import { create } from '../../../routing/router.ts';
+import { create } from '../../../rendering/customRouter.ts';
 import { Router } from 'express';
 import StarRailBasicRouter from './StarRailBasicRouter.ts';
 import StarRailCharacterRouter from './StarRailCharacterRouter.ts';

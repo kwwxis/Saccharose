@@ -1,11 +1,13 @@
 import { escapeHtml } from '../../shared/util/stringUtil.ts';
 
-export const TOAST_INFO = 'info';
-export const TOAST_SUCCESS = 'success';
-export const TOAST_ERROR = 'error';
+export const TOAST_INFO: ToastType = 'info';
+export const TOAST_SUCCESS: ToastType = 'success';
+export const TOAST_ERROR: ToastType = 'error';
+
+export type ToastType = 'info' | 'success' | 'error';
 
 export type ToastOpts = {
-  type?: string,
+  type?: ToastType,
   title?: string,
   content?: string,
   ttl?: number,

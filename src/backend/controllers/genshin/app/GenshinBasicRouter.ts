@@ -1,7 +1,11 @@
-import { create } from '../../../routing/router.ts';
+import { create } from '../../../rendering/customRouter.ts';
 import { getGenshinControl } from '../../../domain/genshin/genshinControl.ts';
-import { sendExcelViewerTableResponse } from '../../generic/app/abstractBasicRouter.ts';
-import { Request, Response, Router } from 'express';
+import {
+  sendExcelRawDownloadResponse,
+  sendExcelViewerTableResponse,
+  sendTextMapRawDownloadResponse,
+} from '../../generic/app/abstractBasicRouter.ts';
+import { NextFunction, Request, Response, Router } from 'express';
 import GenshinLandingPage from '../../../components/genshin/GenshinLandingPage.vue';
 import ExcelUsagesPage from '../../../components/shared/ExcelUsagesPage.vue';
 import ExcelViewerListPage from '../../../components/shared/ExcelViewerListPage.vue';
@@ -20,9 +24,12 @@ export default async function(): Promise<Router> {
     await res.renderComponent(TextmapSearchPage, {
       title: 'TextMap Search',
       bodyClass: ['page--textmap'],
-      versionFilterMoreInfo: 'Supported from 1.5 onwards.'
+      versionFilterMoreInfo: 'Supported from 1.5 onwards.',
+      supportedLangCodes: getGenshinControl(req).supportedLangCodes,
     });
   });
+
+  router.get('/textmap/download', ... sendTextMapRawDownloadResponse(req => getGenshinControl(req)));
 
   router.get('/OL', async (req: Request, res: Response) => {
     await res.renderComponent(OLGenPage, {
@@ -59,10 +66,8 @@ export default async function(): Promise<Router> {
     await sendExcelViewerTableResponse(ctrl, req, res);
   });
 
-  router.get('/excel-download/:file', async (req: Request, res: Response) => {
-    const ctrl = getGenshinControl(req);
-    ctrl.state.AutoloadAvatar = false;
-    await sendExcelViewerTableResponse(ctrl, req, res);
+  router.get('/excel-viewer/:file/raw-download', async (req: Request, res: Response, next: NextFunction) => {
+    await sendExcelRawDownloadResponse(getGenshinControl(req), req, res, next);
   });
 
   return router;

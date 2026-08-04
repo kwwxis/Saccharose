@@ -1,7 +1,11 @@
-import { create } from '../../../routing/router.ts';
-import { Request, Response, Router } from 'express';
+import { create } from '../../../rendering/customRouter.ts';
+import { NextFunction, Request, Response, Router } from 'express';
 import WuwaLanding from '../../../components/wuwa/WuwaLanding.vue';
-import { sendExcelViewerTableResponse } from '../../generic/app/abstractBasicRouter.ts';
+import {
+  sendExcelRawDownloadResponse,
+  sendExcelViewerTableResponse,
+  sendTextMapRawDownloadResponse,
+} from '../../generic/app/abstractBasicRouter.ts';
 import { getWuwaControl } from '../../../domain/wuwa/wuwaControl.ts';
 import ExcelViewerListPage from '../../../components/shared/ExcelViewerListPage.vue';
 import ExcelUsagesPage from '../../../components/shared/ExcelUsagesPage.vue';
@@ -19,9 +23,12 @@ export default async function(): Promise<Router> {
   router.get('/textmap', async (req: Request, res: Response) => {
     await res.renderComponent(TextmapSearchPage, {
       title: 'TextMap Search',
-      bodyClass: ['page--textmap']
+      bodyClass: ['page--textmap'],
+      supportedLangCodes: getWuwaControl(req).supportedLangCodes,
     });
   });
+
+  router.get('/textmap/download', ... sendTextMapRawDownloadResponse(req => getWuwaControl(req)));
 
   router.get('/OL', async (req: Request, res: Response) => {
     await res.renderComponent(OLGenPage, {
@@ -54,6 +61,10 @@ export default async function(): Promise<Router> {
 
   router.get('/excel-viewer/:file', async (req: Request, res: Response) => {
     await sendExcelViewerTableResponse(getWuwaControl(req), req, res);
+  });
+
+  router.get('/excel-viewer/:file/raw-download', async (req: Request, res: Response, next: NextFunction) => {
+    await sendExcelRawDownloadResponse(getWuwaControl(req), req, res, next);
   });
 
   return router;

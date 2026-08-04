@@ -1,6 +1,6 @@
 import { toInt } from '../../../shared/util/numberUtil.ts';
 import { LangCode, LangCodeMap, TextMapHash } from '../../../shared/types/lang-types.ts';
-import { wordRejoin, wordSplit } from '../../../shared/util/stringUtil.ts';
+import { escapeHtmlAllowEntities, wordRejoin, wordSplit } from '../../../shared/util/stringUtil.ts';
 import {
   genericNormText,
   mergeMcTemplate,
@@ -524,4 +524,15 @@ async function populateGenshinTextLinks(ctrl: GenshinControl, links: PendingGens
   });
 
   return linksMap;
+}
+
+export function genshinSpriteTagIconize(s: string, escapeHtmlFirst: boolean = true) {
+  if (escapeHtmlFirst) {
+    s = escapeHtmlAllowEntities(s);
+  }
+  return s.replace(/\{SPRITE_PRESET#(\d+)}/g, (fm: string, g1: string) => {
+    let image = GENSHIN_SPRITE_TAGS[toInt(g1)].Image;
+    image = image.split('/').pop();
+    return `<img src="/images/genshin/${image}.png" class="icon x24" />`;
+  });
 }

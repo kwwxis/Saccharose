@@ -1,6 +1,8 @@
 // noinspection JSUnusedGlobalSymbols
 
 import { frag } from './domutil.ts';
+import { genericEndpoints } from '../core/endpoints.ts';
+import { iconSvg } from '../../shared/util/iconProvider.ts';
 
 /**
  * The rendered HTML is formatted as:
@@ -290,8 +292,8 @@ export class CheckboxTree {
     const cls_closed = 'is--closed';
     const cls_open = 'is--open';
 
-    const icon_open = document.querySelector('#template-chevron-down-icon').innerHTML;
-    const icon_closed = document.querySelector('#template-chevron-right-icon').innerHTML;
+    const icon_open = iconSvg('chevron-down');
+    const icon_closed = iconSvg('chevron-right');
 
     ul.classList.add('checkbox-tree-did-init');
 

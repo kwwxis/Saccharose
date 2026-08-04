@@ -1,4 +1,4 @@
-import { create } from '../routing/router.ts';
+import { create } from '../rendering/customRouter.ts';
 import { apiErrorHandler } from '../middleware/response/globalErrorHandler.ts';
 import apiAccessControlHeaders from '../middleware/api/apiAccessControlHeaders.ts';
 import apiAuth from '../middleware/api/apiAuth.ts';
@@ -6,7 +6,7 @@ import GenshinResources from './genshin/api/_index.ts';
 import StarRailResources from './hsr/api/_index.ts';
 import ZenlessResources from './zenless/api/_index.ts';
 import WuwaResources from './wuwa/api/_index.ts';
-import LangDetectResource from './generic/api/langDetectResource.ts';
+import MiscGeneralResources from './generic/api/miscGeneralResources.ts';
 import MwResources from './generic/api/mwResources.ts';
 import ScriptJobResources from './generic/api/scriptJobResources.ts';
 import UserResources from './site/api/userResources.ts';
@@ -34,7 +34,7 @@ export default async function(): Promise<Router> {
     ZenlessResources(router);
   if (!isSiteModeDisabled('wuwa'))
     WuwaResources(router);
-  LangDetectResource(router);
+  MiscGeneralResources(router);
   MwResources(router);
   ScriptJobResources(router);
   UserResources(router);

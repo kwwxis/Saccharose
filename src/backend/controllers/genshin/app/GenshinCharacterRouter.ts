@@ -1,4 +1,4 @@
-import { create } from '../../../routing/router.ts';
+import { create } from '../../../rendering/customRouter.ts';
 import { HomeWorldNPCExcelConfigData } from '../../../../shared/types/genshin/homeworld-types.ts';
 import { fetchCompanionDialogue, getHomeWorldCompanions } from '../../../domain/genshin/character/companion_dialogue.ts';
 import { getGenshinControl } from '../../../domain/genshin/genshinControl.ts';

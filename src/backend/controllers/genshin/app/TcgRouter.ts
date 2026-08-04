@@ -1,4 +1,4 @@
-import { create } from '../../../routing/router.ts';
+import { create } from '../../../rendering/customRouter.ts';
 import { getGenshinControl } from '../../../domain/genshin/genshinControl.ts';
 import { getGCGControl } from '../../../domain/genshin/gcg/gcg_control.ts';
 import { generateGCGTutorialDialogue } from '../../../domain/genshin/gcg/gcg_tutorial_text.ts';

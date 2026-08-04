@@ -10,12 +10,12 @@ import { createElement } from '../../../util/domutil.ts';
 import { listen } from '../../../util/eventListen.ts';
 import { WikiRevAppState } from './rev-app-main.ts';
 import { revSelect } from './rev-app-revPage.ts';
-import { templateIcon } from '../../../util/templateIcons.ts';
 import { mapBy } from '../../../../shared/util/arrayUtil.ts';
 import { OverlayScrollbars } from 'overlayscrollbars';
 import { isNightmode } from '../../../core/userPreferences/siteTheme.ts';
 import { createRevListHtml } from './util/mwRevItem.ts';
 import { ScriptJobPollContext } from '../../../util/ScriptJobPollContext.ts';
+import { iconSvg } from '../../../../shared/util/iconProvider.ts';
 
 let sideOverlayScroll: OverlayScrollbars;
 
@@ -131,13 +131,13 @@ async function loadRevList(state: WikiRevAppState) {
                   : 'just refreshed'
               }).<br><br>Either wait for it to refresh or click the &quot;Force Refresh&quot; button.`,
               allowHTML: true,
-            }))}">${templateIcon('info')}</span>
+            }))}">${iconSvg('info')}</span>
          </span>
           <button id="rev-force-article-refresh" class="secondary small spacer5-left no-shrink">Force Refresh</button>
         </p>
         <div class="posRel fontWeight500 no-shrink spacer5-left">
           <button class="secondary" ui-action="dropdown: #rev-sort-dropdown">
-            <span class="valign">Sort: <strong id="rev-sort-dropdown-current" class="spacer3-horiz">Newest to Oldest</strong> ${templateIcon('chevron-down')}</span>
+            <span class="valign">Sort: <strong id="rev-sort-dropdown-current" class="spacer3-horiz">Newest to Oldest</strong> ${iconSvg('chevron-down')}</span>
           </button>
           <div id="rev-sort-dropdown" class="ui-dropdown">
             <div data-value="flexColumnReverse" class="option selected" ui-action="dropdown-item">Newest to Oldest</div>

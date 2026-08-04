@@ -1,4 +1,4 @@
-import { create } from '../../../routing/router.ts';
+import { create } from '../../../rendering/customRouter.ts';
 import ZenlessBasicRouter from './ZenlessBasicRouter.ts';
 import { Router } from 'express';
 import ZenlessMediaRouter from './ZenlessMediaRouter.ts';

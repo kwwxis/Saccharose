@@ -20,6 +20,8 @@ import { GeneralEventBus } from '../generalEventBus.ts';
 import { genericEndpoints } from '../endpoints.ts';
 import { setUserPref } from '../userPreferences/sitePrefsContainer.ts';
 import { uiExpando } from './uiExpando.ts';
+import { makeToast, ToastOpts } from '../../util/toasterUtil.ts';
+import JSON5 from 'json5';
 
 function parseUiAction(actionEl: HTMLElement): UiAction[] {
   const actionStr = actionEl.getAttribute('ui-action');
@@ -168,6 +170,21 @@ export function runUiActions(actionEl: HTMLElement, actions: UiAction[]) {
         break;
       }
 
+      // Attribute Actions
+      // ----------------------------------------------------------------------------------------------------
+      case 'set-attr': {
+        for (let target of qsAll(actionParams[0])) {
+          target.setAttribute(actionParams[1], actionParams[2]);
+        }
+        break;
+      }
+      case 'remove-attr': {
+        for (let target of qsAll(actionParams[0])) {
+          target.removeAttribute(actionParams[1]);
+        }
+        break;
+      }
+
       // Show/Hide/Toggle Elements
       // ----------------------------------------------------------------------------------------------------
       case 'show': {
@@ -241,6 +258,13 @@ export function runUiActions(actionEl: HTMLElement, actions: UiAction[]) {
       }
       case 'dropdown-item': {
         onDropdownItemClick(actionEl);
+        break;
+      }
+
+      // Toast
+      // ----------------------------------------------------------------------------------------------------
+      case 'toast': {
+        makeToast((JSON5.parse(actionEl.getAttribute('data-toast') || actionEl.getAttribute('data-toast-opts')) as ToastOpts));
         break;
       }
 

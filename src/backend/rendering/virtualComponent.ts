@@ -1,5 +1,5 @@
 import { Component, VNode, VNodeChild, h } from 'vue';
-import { VuePropsOf } from './routingTypes.ts';
+import { VuePropsOf } from './vueHelpers.ts';
 import { removeSuffix } from '../../shared/util/stringUtil.ts';
 import { basename } from 'path';
 

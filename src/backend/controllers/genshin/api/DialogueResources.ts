@@ -1,4 +1,4 @@
-import { create } from '../../../routing/router.ts';
+import { create } from '../../../rendering/customRouter.ts';
 import { GenshinControl, getGenshinControl } from '../../../domain/genshin/genshinControl.ts';
 import { isInt, toInt } from '../../../../shared/util/numberUtil.ts';
 import { questGenerate, QuestGenerateResult } from '../../../domain/genshin/dialogue/quest_generator.ts';

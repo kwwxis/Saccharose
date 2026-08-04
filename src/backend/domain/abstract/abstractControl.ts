@@ -165,6 +165,10 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
   // endregion
 
   // region State Property Aliases
+  get supportedLangCodes() {
+    return LANG_CODES.filter(langCode => !this.disabledLangCodes.has(langCode) && langCode !== 'CH');
+  }
+
   get inputLangCode(): LangCode {
     return this.state.inputLangCode;
   }
@@ -391,6 +395,9 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
   }
 
   getExcelPath(subPath?: string): string {
+    if (!!subPath && (subPath.includes('../') || subPath.includes('..\\'))) {
+      throw 'Access to parent directories disallowed.';
+    }
     return subPath ? path.join(this.excelPath, subPath) : this.excelPath;
   }
 

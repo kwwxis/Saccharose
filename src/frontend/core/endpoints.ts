@@ -22,6 +22,7 @@ import { TextMapSearchResponse } from '../../shared/types/lang-types.ts';
 import { ScalarToExcelUsages } from '../../shared/util/searchUtil.ts';
 import { WsJwtTokenResponse } from '../../shared/types/wss-types.ts';
 import { OLCombinedResult, OLConfig, OLConfigMap, OLResult } from '../../shared/types/ol-types.ts';
+import { IconName, IconProps } from '../../shared/util/iconProvider.ts';
 
 export type ApiParams<T> = T & {
   fields?: string,
@@ -33,6 +34,7 @@ export type ApiMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
 export abstract class SaccharoseApiEndpoint<Params extends Object, Result = any, PostBody = any> {
   readonly uri: string;
   readonly method: ApiMethod;
+  private jsonParamTypes: Set<string> = new Set<string>();
 
   protected constructor(readonly base_uri: string,
                         uri: string,
@@ -42,6 +44,11 @@ export abstract class SaccharoseApiEndpoint<Params extends Object, Result = any,
     }
     this.uri = this.base_uri + uri;
     this.method = method;
+  }
+
+  jsonParam(paramName: string): this {
+    this.jsonParamTypes.add(paramName);
+    return this;
   }
 
   send(params: ApiParams<Params>): Promise<Result>;
@@ -62,6 +69,11 @@ export abstract class SaccharoseApiEndpoint<Params extends Object, Result = any,
     let cleanedParams = cleanEmpty(params);
 
     for (let paramKey of Object.keys(cleanedParams)) {
+      if (this.jsonParamTypes.has(paramKey)) {
+        cleanedParams[paramKey] = JSON.stringify(cleanedParams[paramKey]);
+        continue;
+      }
+
       if (typeof cleanedParams[paramKey] === 'boolean') {
         cleanedParams[paramKey] = cleanedParams[paramKey] ? 'true' : 'false';
       }

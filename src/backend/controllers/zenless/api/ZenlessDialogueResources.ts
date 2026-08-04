@@ -1,4 +1,4 @@
-import { create } from '../../../routing/router.ts';
+import { create } from '../../../rendering/customRouter.ts';
 import { getZenlessControl } from '../../../domain/zenless/zenlessControl.ts';
 import { Request, Response, Router } from 'express';
 import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';

@@ -4,7 +4,7 @@ import { listen } from '../../../../util/eventListen.ts';
 import { ColorSchemeType, OutputFormatType } from 'diff2html/lib/types';
 import { clearElements, frag1 } from '../../../../util/domutil.ts';
 import { isNightmode } from '../../../../core/userPreferences/siteTheme.ts';
-import { templateIcon } from '../../../../util/templateIcons.ts';
+import { iconSvg } from '../../../../../shared/util/iconProvider.ts';
 
 let currDiffUI: DiffUI;
 let didRender: boolean = false;
@@ -76,7 +76,7 @@ function addFormatMenu(state: WikiRevAppState, ui: DiffUI) {
       <button class="secondary small" ui-action="dropdown">
         <span class="valign">Format:
           <strong class="current-option spacer3-horiz">${currentFormat === 'side-by-side' ? 'Side-by-Side' : 'Line-by-Line'}</strong>
-          ${templateIcon('chevron-down')}
+          ${iconSvg('chevron-down')}
         </span>
       </button>
       <div class="ui-dropdown">

@@ -1,4 +1,4 @@
-import { create } from '../../../routing/router.ts';
+import { create } from '../../../rendering/customRouter.ts';
 import { Request, Response, Router } from 'express';
 import WuwaMediaSearchPage from '../../../components/wuwa/media/WuwaMediaSearchPage.vue';
 import WuwaMediaListPage from '../../../components/wuwa/media/WuwaMediaListPage.vue';

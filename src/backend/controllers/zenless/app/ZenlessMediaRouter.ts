@@ -1,4 +1,4 @@
-import { create } from '../../../routing/router.ts';
+import { create } from '../../../rendering/customRouter.ts';
 import { Request, Response, Router } from 'express';
 import WikiRevisionPage from '../../../components/mediawiki/WikiRevisionPage.vue';
 import { isInt, toInt } from '../../../../shared/util/numberUtil.ts';

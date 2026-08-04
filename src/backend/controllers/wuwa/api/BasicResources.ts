@@ -1,4 +1,4 @@
-import { create } from '../../../routing/router.ts';
+import { create } from '../../../rendering/customRouter.ts';
 import {
   handleTextMapSearchEndpoint,
 } from '../../generic/handlers/handleTextMapSearch.ts';

@@ -1,12 +1,16 @@
-import { create } from '../../../routing/router.ts';
-import { Request, Response, Router } from 'express';
+import { create } from '../../../rendering/customRouter.ts';
+import { NextFunction, Request, Response, Router } from 'express';
 import ZenlessDialogueHelperPage from '../../../components/zenless/ZenlessDialogueHelperPage.vue';
 import ZenlessLandingPage from '../../../components/zenless/ZenlessLandingPage.vue';
 import TextmapSearchPage from '../../../components/shared/TextmapSearchPage.vue';
 import OLGenPage from '../../../components/shared/OLGenPage.vue';
 import ExcelUsagesPage from '../../../components/shared/ExcelUsagesPage.vue';
 import ExcelViewerListPage from '../../../components/shared/ExcelViewerListPage.vue';
-import { sendExcelViewerTableResponse } from '../../generic/app/abstractBasicRouter.ts';
+import {
+  sendExcelRawDownloadResponse,
+  sendExcelViewerTableResponse,
+  sendTextMapRawDownloadResponse,
+} from '../../generic/app/abstractBasicRouter.ts';
 import { getZenlessControl } from '../../../domain/zenless/zenlessControl.ts';
 import OLCombinePage from '../../../components/shared/OLCombinePage.vue';
 import ZenlessDialogueGenerationPage from '../../../components/zenless/ZenlessDialogueGenerationPage.vue';
@@ -22,8 +26,11 @@ export default async function(): Promise<Router> {
     await res.renderComponent(TextmapSearchPage, {
       title: 'TextMap Search',
       bodyClass: ['page--textmap'],
+      supportedLangCodes: getZenlessControl(req).supportedLangCodes,
     });
   });
+
+  router.get('/textmap/download', ... sendTextMapRawDownloadResponse(req => getZenlessControl(req)));
 
   router.get('/OL', async (req: Request, res: Response) => {
     await res.renderComponent(OLGenPage, {
@@ -56,6 +63,10 @@ export default async function(): Promise<Router> {
 
   router.get('/excel-viewer/:file', async (req: Request, res: Response) => {
     await sendExcelViewerTableResponse(getZenlessControl(req), req, res);
+  });
+
+  router.get('/excel-viewer/:file/raw-download', async (req: Request, res: Response, next: NextFunction) => {
+    await sendExcelRawDownloadResponse(getZenlessControl(req), req, res, next);
   });
 
   router.get('/dialogue-helper', async (req: Request, res: Response) => {

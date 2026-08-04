@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response, Router } from 'express';
-import { create } from '../../../routing/router.ts';
+import { create } from '../../../rendering/customRouter.ts';
 import SiteLogViewPage from '../../../components/site/admin/SiteLogViewPage.vue';
 import SiteCacheManager from '../../../components/site/admin/SiteCacheManager.vue';
 import AccessDeniedErrorCard from '../../../components/errors/AccessDeniedErrorCard.vue';

@@ -27,7 +27,7 @@ import { ScriptJobCoordinator } from './util/scriptJobs.ts';
 import authRouter from './controllers/site/app/AuthRouter.ts';
 import siteUserMiddleware from './middleware/auth/siteUserMiddleware.ts';
 import visitorRouter from './controllers/visitor/VisitorRouter.ts';
-import { reqContextInitMiddleware } from './routing/router.ts';
+import { reqContextInitMiddleware } from './rendering/customRouter.ts';
 import {
   enableRedisExitHook,
   openRedisClient,

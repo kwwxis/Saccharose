@@ -10,5 +10,5 @@
     "*.vue.template.ts"
   ],
   "exec": "node --no-warnings=ExperimentalWarning --loader ts-node/esm src/pipeline/build.ts && node .",
-  "ext": "ts,tsx,js,json,vue,ejs"
+  "ext": "ts,tsx,js,json,vue"
 }

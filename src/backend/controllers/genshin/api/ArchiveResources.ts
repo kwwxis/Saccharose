@@ -1,4 +1,4 @@
-import { create } from '../../../routing/router.ts';
+import { create } from '../../../rendering/customRouter.ts';
 import { getGenshinControl } from '../../../domain/genshin/genshinControl.ts';
 import { ReadableSearchResult } from '../../../../shared/types/genshin/readable-types.ts';
 import { MaterialExcelConfigData } from '../../../../shared/types/genshin/material-types.ts';
