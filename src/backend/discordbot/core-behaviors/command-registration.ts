@@ -49,7 +49,10 @@ export class CommandRegistrationModule extends DiscordBotModule {
         let siteUser: SiteUser = await SiteUserProvider.find(discordUserId);
 
         if (!siteUser) {
-          await commandInfo.reply('You are not a user of Saccharose.wiki! To become a user, you must login to the site and pass verification.');
+          await commandInfo.reply({
+            content: 'Sorry, usage of this bot is restricted to only registered users of this service.',
+            ephemeral: true,
+          });
           return;
         }
 
