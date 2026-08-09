@@ -49,13 +49,25 @@ export class GenshinManualTextMap {
   }
 
   async selectRecord(id: string): Promise<ManualTextMapConfigData> {
-    return await this.ctrl.knex.select('*').from('ManualTextMapConfigData')
-      .where({TextMapId: id}).first().then(this.ctrl.commonLoadFirst);
+    return await this.ctrl.knex.select('*')
+      .from('ManualTextMapConfigData')
+      .where({TextMapId: id})
+      .first().then(this.ctrl.commonLoadFirst);
   }
 
   async selectMultiRecord(ids: string[]): Promise<Record<string, ManualTextMapConfigData>> {
-    const result: ManualTextMapConfigData[] = await this.ctrl.knex.select('*').from('ManualTextMapConfigData')
-      .whereIn('TextMapId', ids).then(this.ctrl.commonLoad);
+    const result: ManualTextMapConfigData[] = await this.ctrl.knex.select('*')
+      .from('ManualTextMapConfigData')
+      .whereIn('TextMapId', ids)
+      .then(this.ctrl.commonLoad);
+    return mapBy(result, 'TextMapId');
+  }
+
+  async selectRecordsByIdStartsWith(idStartsWith: string, mode: 'like'|'ilike' = 'ilike'): Promise<Record<string, ManualTextMapConfigData>> {
+    const result: ManualTextMapConfigData[] = await this.ctrl.knex.select('*')
+      .from('ManualTextMapConfigData')
+      .where('TextMapId', mode, idStartsWith + '%')
+      .then(this.ctrl.commonLoad);
     return mapBy(result, 'TextMapId');
   }
 

@@ -15,7 +15,6 @@
     background: #f7f9fb;
 
     body.nightmode & {
-      background: hsl(255deg 12% 16%);
       background: #2a2a36;
     }
   }
@@ -26,7 +25,6 @@
     justify-content: center;
     align-items: center;
     -webkit-appearance: none;
-    -moz-appearance: none;
     appearance: none;
     width: 1em;
     height: 1em;
@@ -39,7 +37,7 @@
     left: auto;
     flex-shrink: 0;
 
-    &:focus {
+    &:not([disabled]):focus {
       box-shadow: 0 0 0 3px rgba(0, 140, 221, 0.2);
       border-color: #3daaf5;
     }
@@ -77,6 +75,10 @@
                     #fff 55%
     ) no-repeat;
   }
+
+  &[disabled] {
+    filter: grayscale(100%);
+  }
 }
 
 .ui-checkbox input {
@@ -103,6 +105,10 @@
     background: linear-gradient(#fff, #fff) center center / 0.35em 0.15em,
     linear-gradient(hsla(204, 90%, 60%, 0.85), hsla(204, 90%, 60%, 0.85)) center center / 0.6em 0.6em;
     background-repeat: no-repeat;
+  }
+
+  &[disabled] {
+    filter: grayscale(100%);
   }
 }
 

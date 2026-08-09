@@ -85,6 +85,10 @@ export type ModalOpts = {
   confirmButtonClass?: string,
   cancelButtonClass?: string,
 
+  confirmManualClose?: boolean,
+  cancelManualClose?: boolean,
+
+  disallowBackdropClose?: boolean,
   disallowUserClose?: boolean,
 }
 
@@ -118,22 +122,25 @@ class ModalService {
       <div class="modal-content${opts.contentClass ? ' ' + opts.contentClass : ''}"></div>
     `;
 
+    let confirmUiAction = opts.confirmManualClose ? '' : 'ui-action="close-modals"';
+    let cancelUiAction  = opts.cancelManualClose  ? '' : 'ui-action="close-modals"';
+
     if (!opts.disallowUserClose) {
       if (optType == TYPE_ALERT) {
         inner += `
           <div class="modal-footer">
-            <button class="confirm ${opts.confirmButtonClass || 'secondary'}" ui-action="close-modals">${opts.confirmButtonText || 'OK'}</button>
+            <button class="confirm ${opts.confirmButtonClass || 'secondary'}" ${confirmUiAction}>${opts.confirmButtonText || 'OK'}</button>
           </div>`;
       } else if (optType == TYPE_CONFIRM) {
         inner += `
           <div class="modal-footer">
-            <button class="confirm ${opts.confirmButtonClass || 'primary'}" ui-action="close-modals">${opts.confirmButtonText || 'OK'}</button>
-            <button class="cancel ${opts.cancelButtonClass || 'secondary'}" ui-action="close-modals">${opts.cancelButtonText || 'Cancel'}</button>
+            <button class="confirm ${opts.confirmButtonClass || 'primary'}" ${confirmUiAction}>${opts.confirmButtonText || 'OK'}</button>
+            <button class="cancel ${opts.cancelButtonClass || 'secondary'}" ${cancelUiAction}>${opts.cancelButtonText || 'Cancel'}</button>
           </div>`;
       } else if (optType == TYPE_MODAL) {
         inner += `
           <div class="modal-footer">
-            <button class="confirm ${opts.confirmButtonClass || 'primary'}" ui-action="close-modals">${opts.confirmButtonText || 'Dismiss'}</button>
+            <button class="confirm ${opts.confirmButtonClass || 'primary'}" ${confirmUiAction}>${opts.confirmButtonText || 'Dismiss'}</button>
           </div>`;
       }
     }
@@ -152,11 +159,13 @@ class ModalService {
 
     MODAL_REFS[id] = modalRef;
 
-    modalOuterEl.addEventListener('click', (event) => {
-      if (isHTMLElement(event.target) && !event.target.closest('.modal')) {
-        modalRef.close(true);
-      }
-    })
+    if (!opts.disallowUserClose && !opts.disallowBackdropClose) {
+      modalOuterEl.addEventListener('click', (event) => {
+        if (isHTMLElement(event.target) && !event.target.closest('.modal')) {
+          modalRef.close(true);
+        }
+      })
+    }
 
     if (contents instanceof Node) {
       modalOuterEl.querySelector(`.modal-content`).append(contents);

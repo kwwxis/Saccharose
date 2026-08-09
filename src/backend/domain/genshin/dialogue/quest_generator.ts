@@ -4,7 +4,7 @@ import { GenshinControl, getGenshinControl } from '../genshinControl.ts';
 import { ol_gen_from_id } from '../../abstract/basic/OLgen.ts';
 import { arrayUnique } from '../../../../shared/util/arrayUtil.ts';
 import {
-  DialogUnparented,
+  DialogUnparented, ManualTextMapConfigData,
   TalkExcelConfigData,
 } from '../../../../shared/types/genshin/dialogue-types.ts';
 import {
@@ -22,8 +22,6 @@ import { pathToFileURL } from 'url';
 import { SbOut } from '../../../../shared/util/stringUtil.ts';
 import { dialogueCompareApply, SimilarityGroups } from './dialogue_compare.ts';
 import { custom } from '../../../util/logger.ts';
-import { grepIdStartsWith } from '../../../util/shellutil.ts';
-import { RAW_MANUAL_TEXTMAP_ID_PROP } from '../../../importer/genshin/genshin.schema.ts';
 import { isInt, toInt } from '../../../../shared/util/numberUtil.ts';
 import { Readable } from '../../../../shared/types/genshin/readable-types.ts';
 import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
@@ -41,6 +39,7 @@ export class QuestGenerateResult {
   npc: QuestGenerateResultNpcInfo = {names: [], data: {}};
 
   stepsWikitext: string = null;
+  subSteps: {text: string, possibleMainStep?: string}[] = [];
   questDescriptions: string[] = [];
   otherLanguagesWikitext: string = null;
   dialogue: DialogueSectionResult[] = [];
@@ -216,6 +215,28 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
       return stepText;
     })
     .join('\n');
+
+  async function getQuestSubSteps(prefix: number): Promise<ManualTextMapConfigData[]> {
+    const mtms: Record<string, ManualTextMapConfigData> = await ctrl.manualtm.selectRecordsByIdStartsWith(
+      'QUEST_ProgressGuide_' + prefix);
+    return Object.values(mtms);
+  }
+
+  result.subSteps = [];
+  for (let q of mainQuest.QuestExcelConfigDataList) {
+    const subSteps = await getQuestSubSteps(q.SubId);
+
+    if (subSteps.length) {
+      for (let subStep of subSteps) {
+        if (subStep.TextMapContentText) {
+          result.subSteps.push({
+            text: '#* ' + ctrl.normText(subStep.TextMapContentText, ctrl.outputLangCode),
+            possibleMainStep: q.DescText ? ctrl.normText(q.DescText, ctrl.outputLangCode) : undefined,
+          })
+        }
+      }
+    }
+  }
 
   // Quest Descriptions
   // --------------------------------------------------------------------------------------------------------------
@@ -449,13 +470,12 @@ export async function questGenerate(questNameOrId: string|number, ctrl: GenshinC
 }
 
 async function addOrphanedDialogue(ctrl: GenshinControl, mainQuest: MainQuestExcelConfigData) {
-  const allDialogueIds = await grepIdStartsWith('id', mainQuest.Id,
-    ctrl.getDataFilePath('./ExcelBinOutput/DialogExcelConfigData.json'));
+  const allDialogueIds: number[] = await ctrl.selectDialogIdsByDialogIdStartsWith(mainQuest.Id);
 
   const handleOrphanedDialog = async (quest: MainQuestExcelConfigData|QuestExcelConfigData, id: number) => {
     if (ctrl.isInDialogIdCache(id))
       return;
-    let dialog = await ctrl.selectSingleDialogExcelConfigData(id as number);
+    let dialog = await ctrl.selectSingleDialogExcelConfigData(id);
     if (dialog) {
       if (!quest.NonTalkDialog)
         quest.NonTalkDialog = [];
@@ -467,11 +487,11 @@ async function addOrphanedDialogue(ctrl: GenshinControl, mainQuest: MainQuestExc
     for (let id of allDialogueIds) {
       if (!id.toString().startsWith(quest.SubId.toString()))
         continue;
-      await handleOrphanedDialog(quest, id as number);
+      await handleOrphanedDialog(quest, id);
     }
   }
   for (let id of allDialogueIds) {
-    await handleOrphanedDialog(mainQuest, id as number);
+    await handleOrphanedDialog(mainQuest, id);
   }
 }
 
@@ -508,26 +528,33 @@ async function addUnparentedDialogue(ctrl: GenshinControl, mainQuest: MainQuestE
 }
 
 async function addQuestMessages(ctrl: GenshinControl, mainQuest: MainQuestExcelConfigData) {
-  const allQuestMessageIds: string[] = [];
+  const questMessagePrefix = 'QUEST_Message_Q';
 
-  allQuestMessageIds.push(... (await grepIdStartsWith<string>(RAW_MANUAL_TEXTMAP_ID_PROP, 'QUEST_Message_Q' + mainQuest.Id,
-    ctrl.getDataFilePath('./ExcelBinOutput/ManualTextMapConfigData.json'))));
+  let questMessageRecords: Record<string, ManualTextMapConfigData> = await ctrl.manualtm.selectRecordsByIdStartsWith(
+    questMessagePrefix + mainQuest.Id);
+
+  if (!Object.keys(questMessageRecords).length) {
+    return;
+  } else {
+    let newMap = {};
+    for (let id of Object.keys(questMessageRecords)) {
+      newMap[id.slice(questMessagePrefix.length)] = questMessageRecords[id];
+    }
+    questMessageRecords = newMap;
+  }
 
   for (let quest of mainQuest.QuestExcelConfigDataList) {
-    if (allQuestMessageIds && allQuestMessageIds.length) {
-      quest.QuestMessages = [];
-      for (let id of allQuestMessageIds) {
-        if (id === 'QUEST_Message_Q' + quest.SubId.toString() || id.startsWith('QUEST_Message_Q' + quest.SubId.toString() + '_'))
-          quest.QuestMessages.push(await ctrl.manualtm.selectRecord(id));
-      }
+    quest.QuestMessages = [];
+    for (let id of Object.keys(questMessageRecords)) {
+      if (id === quest.SubId.toString() || id.startsWith(quest.SubId.toString() + '_'))
+        quest.QuestMessages.push(questMessageRecords[id]);
     }
   }
-  if (allQuestMessageIds && allQuestMessageIds.length) {
-    mainQuest.QuestMessages = [];
-    for (let id of allQuestMessageIds) {
-      if (id === 'QUEST_Message_Q' + mainQuest.Id.toString() || id.startsWith('QUEST_Message_Q' + mainQuest.Id.toString() + '_'))
-        mainQuest.QuestMessages.push(await ctrl.manualtm.selectRecord(id));
-    }
+
+  mainQuest.QuestMessages = [];
+  for (let id of Object.keys(questMessageRecords)) {
+    if (id === mainQuest.Id.toString() || id.startsWith(mainQuest.Id.toString() + '_'))
+      mainQuest.QuestMessages.push(questMessageRecords[id]);
   }
 }
 

@@ -39,8 +39,6 @@ export type SiteUserPrefs = {
 
   voPrefixDisabledLangs?: LangCode[],
 
-  dbotSiteMode?: SiteMode,
-
   preferredBasePaths?: SiteUserPrefsPreferredBasePaths,
 };
 export type SiteUserPrefsPreferredBasePaths = {

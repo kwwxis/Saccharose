@@ -95,6 +95,14 @@ export type SchemaTable = {
    */
   skipNormalizeRawJson?: boolean,
 
+  /**
+   * A function that is called after the table has been created but before any data is inserted.
+   * This can be used to create additional indexes or modifications to the table that cannot be done through the
+   * {@link SchemaTable} or {@link SchemaColumn} definitions. For some things, Knex.JS itself cannot handle it either,
+   * in which case you should use the `knex.raw()` function to execute raw SQL statements.
+   */
+  afterCreate?: (knex: Knex) => Promise<void>,
+
   // Rename Options
   // --------------------------------------------------------------------------------------------------------------
 
@@ -110,8 +118,8 @@ export type SchemaTable = {
 
   /**
    * When a field with a name in this object is encountered, and if the value of that
-   * field is an array, then the value of that field will be converted to the first non-falsy value in that array and will
-   * be set to the field with the corresponding value in this object.
+   * field is an array, then the value of that field will be converted to the first non-falsy value in that array and
+   * will be set to the field with the corresponding value in this object.
    */
   singularize?: { [fieldName: string]: string },
 
@@ -126,6 +134,11 @@ export type SchemaTable = {
   }
 };
 
+/**
+ * Get the primary key column name of a schema table.
+ * @param schemaTable The schema table to get the primary key column name from.
+ * @return The primary key column name, or undefined if there is no primary key column.
+ */
 export function schemaPrimaryKey(schemaTable: SchemaTable): string {
   if (!schemaTable?.columns) {
     return undefined;
@@ -422,7 +435,10 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
         if (!table.customRowResolve && !table.customRowResolveProvider && !table.noIncludeJson) {
           builder.jsonb('json_data');
         }
-      }).then();
+      });
+      if (table.afterCreate) {
+        await table.afterCreate(knex);
+      }
       console.log('  (done)');
     }
 

@@ -73,6 +73,8 @@ CREATE TABLE textmap_search_index
 (
     index_name      TEXT NOT NULL,
     hash            TEXT NOT NULL,
-    key             TEXT NOT NULL,
-    PRIMARY KEY (index_name, hash)
+    key             INT NOT NULL,
+    role            TEXT
 );
+
+CREATE INDEX idx_textmap_search_index_index_name_hash ON textmap_search_index (index_name, hash);

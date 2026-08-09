@@ -16,6 +16,11 @@ import { TextMapChangeRef } from '../../../../shared/types/changelog-types.ts';
 import { createDiffUIFullDiff, DiffUI } from '../../../util/DiffUI.ts';
 import { isNightmode } from '../../../core/userPreferences/siteTheme.ts';
 import { ColorSchemeType } from 'diff2html/lib/types';
+import { GeneralEventBus } from '../../../core/generalEventBus.ts';
+import { isLangCode, LangCode } from '../../../../shared/types/lang-types.ts';
+import { modalService } from '../../../util/modalService.ts';
+import { toBoolean } from '../../../../shared/util/genericUtil.ts';
+import { toastInfo } from '../../../util/toasterUtil.ts';
 
 pageMatch('TextmapSearchPage', () => {
   let handle: GenericSearchPageHandle;
@@ -224,5 +229,185 @@ pageMatch('TextmapSearchPage', () => {
       document.querySelector<HTMLInputElement>('#startFromLine').value = '';
       document.querySelector<HTMLInputElement>('#resultSetIdx').value = '';
     }
-  })
+  });
+
+  listen([
+    {
+      selector: '.textmap-download-trigger[data-lang]',
+      event: 'click',
+      multiple: true,
+      handle(_event, buttonEl) {
+        const langCode: string = buttonEl.getAttribute('data-lang');
+        if (!langCode || !isLangCode(langCode)) {
+          return;
+        }
+        GeneralEventBus.emit('openTextMapDownloadModal', langCode);
+      }
+    }
+  ])
+});
+
+GeneralEventBus.on('openTextMapDownloadModal', (langCode: LangCode) => {
+  modalService.closeAll();
+
+  let downloadOptions = {
+    doNormText: true,
+    decolor: false,
+    plaintext: false,
+    plaintextMcMode: 'both', // or 'male' or 'female'
+    forceFancyDash: false,
+    skipHtml2Quotes: false,
+  };
+
+  function radioCheckboxHtml(name: keyof typeof downloadOptions) {
+    return `
+        <label class="ui-radio boolean-radio dispBlock" style="padding-left:5px;font-size:13px;">
+          <input type="radio" name="${name}" value="false" ${!downloadOptions[name] ? 'checked' : ''} />
+          <span>No</span>
+        </label>
+        <label class="ui-radio boolean-radio dispBlock" style="padding-left:5px;font-size:13px;">
+          <input type="radio" name="${name}" value="true" ${downloadOptions[name] ? 'checked' : ''} />
+          <span>Yes</span>
+        </label>
+    `;
+  }
+
+  const modalRef = modalService.confirm('Download TextMap' + langCode, `
+  <div class="content">
+    <div class="field spacer10-bottom">
+      <div class="fontWeight700 spacer5-bottom">Do Norm Text</div>
+      <p>If set to no, then the raw textmap without any normalization/transformations can be downloaded.</p>
+      <div class="valign spacer-top">${radioCheckboxHtml('doNormText')}</div>
+    </div>
+    <fieldset>
+      <legend>Norm Text Options</legend>
+      <div class="content">
+        <div class="field spacer10-bottom">
+          <div class="fontWeight700 spacer5-bottom">Decolor</div>
+          <p>If yes, color syntax is removed while the text within colors remains.</p>
+          <p>The behavior of this option is forced to yes when Plaintext is set to yes.</p>
+          <div class="valign spacer-top">${radioCheckboxHtml('decolor')}</div>
+        </div>
+        <div class="field spacer10-bottom">
+          <div class="fontWeight700 spacer5-bottom">Plaintext</div>
+          <p>If yes, convert to plaintext without most wiki template syntax or common textmap script syntax.
+          This is good for searching, as you can enter text naturally and not have to worry about the presence of some
+          color syntax or such preventing you from finding something.</p>
+          <div class="valign spacer-top">${radioCheckboxHtml('plaintext')}</div>
+        </div>
+        <div class="field spacer10-bottom">
+          <div class="fontWeight700 spacer5-bottom">Plaintext MC Mode</div>
+          <p>If both, then "<code>(he/she)</code>"; if male, then "<code>he</code>";
+          if female, then "<code>she</code>".</p>
+          <p>This is only available as an option when Plaintext is set to yes.</p>
+          <div class="valign spacer-top">
+            <label class="ui-radio dispBlock" style="padding-left:5px;font-size:13px;">
+              <input type="radio" name="plaintextMcMode" value="both" disabled checked />
+              <span>Both</span>
+            </label>
+            <label class="ui-radio dispBlock" style="padding-left:5px;font-size:13px;">
+              <input type="radio" name="plaintextMcMode" value="male" disabled />
+              <span>Male</span>
+            </label>
+            <label class="ui-radio dispBlock" style="padding-left:5px;font-size:13px;">
+              <input type="radio" name="plaintextMcMode" value="female" disabled />
+              <span>Female</span>
+            </label>
+          </div>
+        </div>
+        <div class="field spacer10-bottom">
+          <div class="fontWeight700 spacer5-bottom">Force Fancy Dash</div>
+          <p>If yes, then em-dashes and en-dashes are kept in Unicode form, rather than:</p>
+          <p>1) be converted into <code>&amp;mdash;</code> or <code>&amp;ndash;</code> respectively when DoNormText=yes and Plaintext=no;</p>
+          <p>or 2) be converted into regular ASCII dashes in plaintext mode when DoNormText=yes and Plaintext=yes.</p>
+          <div class="valign spacer5-top">${radioCheckboxHtml('forceFancyDash')}</div>
+        </div>
+        <div class="field spacer10-bottom">
+          <div class="fontWeight700 spacer5-bottom">Skip Html2Quotes</div>
+          <p>Html2Quotes is the process by which italics are converted into <code>''</code> and
+          bolds are converted into <code>'''</code> for wikitext. If this is set to yes, then that process will be skipped.</p>
+          <div class="valign spacer-top">${radioCheckboxHtml('skipHtml2Quotes')}</div>
+        </div>
+      </div>
+    </fieldset>
+  </div>
+  `, {
+    modalClass: 'modal-lg',
+    disallowBackdropClose: true,
+    confirmButtonText: 'Download',
+    cancelButtonText: 'Cancel',
+  });
+
+  modalRef.onConfirm(() => {
+    Object.keys(downloadOptions).forEach(key => {
+      const inputEl = modalRef.outerEl.querySelector<HTMLInputElement>(`input[name="${key}"]:checked`);
+      if (inputEl) {
+        if (key === 'plaintextMcMode') {
+          downloadOptions[key] = inputEl.getAttribute('value');
+        } else {
+          downloadOptions[key] = toBoolean(inputEl.getAttribute('value'));
+        }
+      }
+    });
+
+    setTimeout(() => {
+      modalService.alert('Downloading TextMap' + langCode, `
+      <p class="spacer10-bottom">Your download has started. This could take a moment... please wait.</p>
+      <p>You can close this modal after the download finishes.</p>
+      `);
+
+      let downloadLink: string = SiteModeInfo.home + '/textmap/download?langCode=' + langCode;
+      Object.entries(downloadOptions).forEach(([key, value]) => {
+        downloadLink += `&${key}=${value}`;
+      });
+      location.href = downloadLink;
+    })
+  });
+
+  listen([
+    {
+      selector: '.boolean-radio input[type="radio"]',
+      event: 'change',
+      multiple: true,
+      handle(event, inputEl) {
+        const name = inputEl.getAttribute('name');
+        const value = toBoolean(inputEl.getAttribute('value'));
+        console.log('Changed', name, value);
+
+        if (name === 'doNormText') {
+          modalRef.outerEl.querySelectorAll<HTMLInputElement>('input[type="radio"]')
+            .forEach(other => {
+              const otherName = other.getAttribute('name');
+              if (otherName === 'doNormText') {
+                return;
+              }
+
+              if (value) {
+                if (other.hasAttribute('data-already-disabled')) {
+                  other.removeAttribute('data-already-disabled');
+                } else {
+                  other.disabled = false;
+                }
+              } else {
+                if (other.disabled) {
+                  other.setAttribute('data-already-disabled', 'true');
+                }
+                other.disabled = true;
+              }
+            });
+        }
+        if (name === 'plaintext') {
+          modalRef.outerEl.querySelectorAll<HTMLInputElement>('input[type="radio"][name="plaintextMcMode"]')
+            .forEach(other => {
+              other.disabled = !value;
+            });
+
+          modalRef.outerEl.querySelectorAll<HTMLInputElement>('input[type="radio"][name="decolor"]')
+            .forEach(other => {
+              other.disabled = value;
+            });
+        }
+      }
+    }
+  ], modalRef.outerEl);
 });

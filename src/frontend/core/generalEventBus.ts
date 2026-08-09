@@ -7,6 +7,7 @@ export const GeneralEventBus = new EventBus<{
   'SiteThemeChange': [SiteTheme],
   'inputLangCodeChanged': [LangCode],
   'outputLangCodeChanged': [LangCode],
+  'openTextMapDownloadModal': [LangCode],
 }>('Generic-Events');
 
 export type GeneralTabEvent = {

@@ -6,7 +6,7 @@ import { isset } from '../../shared/util/genericUtil.ts';
 /**
  * Returns the tag name of an element in all-lowercase.
  */
-export function tag(el: Element): string {
+export function tagOf(el: Element): string {
   return el ? el.tagName.toLowerCase() : null;
 }
 
@@ -426,7 +426,15 @@ export function deleteQueryStringParameter(name: string) {
  * @returns {string}
  */
 export function getFocusableSelector(prefix: string = '') {
-    let arr = ['button', '[role=button]', 'a', 'input:not([type=hidden]):not([readonly])', 'select', 'textarea:not([readonly])', '[tabindex]:not([tabindex^="-"])'];
+    let arr = [
+      'button:not(.modal-close)',
+      '[role=button]:not(.modal-close)',
+      'a',
+      'input:not([type=hidden]):not([readonly])',
+      'select',
+      'textarea:not([readonly])',
+      '[tabindex]:not([tabindex^="-"])'
+    ];
     if (prefix) {
         arr = arr.map(v => prefix + ' ' + v);
     }

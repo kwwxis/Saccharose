@@ -16,7 +16,6 @@ export interface NormTextOptions<T = any> {
   decolor?: boolean,
   plaintext?: boolean,
   plaintextMcMode?: 'both' | 'male' | 'female',
-  sNum?: number,
   mcPlaceholderProvider?: (langCode: LangCode, degender?: boolean) => string,
   mcPlaceholderForceLangCode?: LangCode,
   forceFancyDash?: boolean,
@@ -165,7 +164,7 @@ export function genericNormText(text: string, langCode: LangCode, opts: NormText
   }
 
   if (opts.decolor || opts.plaintext) {
-    text = text.replace(/<color=#[^>]+>(.*?)<\/color>/gs, '$1');
+    text = text.replace(/<color=#?[^>]+>(.*?)<\/color>/gs, '$1');
   }
 
   // No longer needed as these are now automatically converted by Fandom or the OL module:

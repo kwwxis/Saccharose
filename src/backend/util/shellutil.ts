@@ -26,6 +26,9 @@ async function exec(command: string, options: ExecOptions): Promise<string> {
   });
 }
 
+/**
+ * Error thrown when a shell command times out.
+ */
 export class ShellTimeoutError extends Error {
   constructor(message: string, readonly timeoutMs: number, readonly opInfo: string) {
     super(message);
@@ -44,6 +47,7 @@ export class ShellTimeoutError extends Error {
  * @param stdoutLineStream Stream method for stdout.
  * @param stderrLineStream Stream method for stderr.
  * @param timeout Max time allowed to run for.
+ * @returns Promise that resolves with the exit code of the command, or rejects with an error if the command fails.
  */
 export async function execLineStream(command: string,
                                      postInitialize: (childProcess: ChildProcessWithoutNullStreams) => void,
@@ -203,7 +207,7 @@ export async function execLineStream(command: string,
 /**
  * Escape a string to be used as the argument to a command.
  */
-export function shellEscapeArg(s: string, prefix: string = '', suffix: string = ''): string {
+export function shellEscapeArg(s: string): string {
   s = s.replace(/\x00+/g, '');
   s = s.replace(/\b/g, '');
 
@@ -215,9 +219,12 @@ export function shellEscapeArg(s: string, prefix: string = '', suffix: string = 
   s = s.replace(/\t/g, '\\\\t');
   s = s.replace(/\v/g, '\\\\v');
 
-  return `'` + prefix + s + suffix + `'`;
+  return `'` + s + `'`;
 }
 
+/**
+ * Class to represent shell flags and their values, with methods to parse, stringify, and manipulate them.
+ */
 export class ShellFlags {
   private map: Map<string, string>;
 
@@ -328,22 +335,37 @@ export class ShellFlags {
   }
 }
 
+/**
+ * Extra options for the grep command.
+ */
 export type GrepExtraOpts = {
+  /**
+   * Flags to pass to the grep command. Flags will be appropriately parsed, meaning both `-w -i` and `-wi` are
+   * acceptable.
+   */
   flags?: string,
-  escapeDoubleQuotes?: boolean,
+  /**
+   * If set, start from a specific line number in the file rather than from the first line.
+   * Results will still be returned with the correct line number from the original beginning of the file, which is
+   * implemented by using `tail` and then adding this number minus one to the line number of each result.
+   */
   startFromLine?: number
 }
 
+/**
+ * Creates the grep command string with the given search text, file path, and extra options.
+ * Handles escaping as necessary.
+ *
+ * @param searchText The text to search for.
+ * @param absoluteFilePath The absolute path to the file to search in.
+ * @param extraOpts The extra options.
+ */
 function createGrepCommand(searchText: string, absoluteFilePath: string, extraOpts: GrepExtraOpts): {
   line: string,
   flags: ShellFlags,
   hasLineNumFlag: boolean
 } {
   let flags: ShellFlags = ShellFlags.parseFlags(extraOpts.flags);
-
-  if (extraOpts.escapeDoubleQuotes && absoluteFilePath.endsWith('.json')) {
-    searchText = searchText.replace(/"/g, `\\"`); // double quotes, assuming searching within a JSON string value
-  }
 
   searchText = shellEscapeArg(searchText);
 
@@ -377,40 +399,26 @@ function createGrepCommand(searchText: string, absoluteFilePath: string, extraOp
   let grepCmd = `rg ${flags.stringify()} -- ${searchText}`;
 
   if (isset(extraOpts.startFromLine)) {
-    // In order to grep on standard input (i.e. grep from the output of tail), the file of the grep command must be "-"
-    //
-    // From https://man7.org/linux/man-pages/man1/grep.1.html
-    // >  A FILE of “-” stands for standard input.  If no FILE is given,
-    // >       recursive searches examine the working directory, and
-    // >       non-recursive searches read standard input.
+    /*
+    To grep on standard input (i.e., grep from the output of tail), the file of the grep command must be "-"
+
+    From https://man7.org/linux/man-pages/man1/grep.1.html
+    > A FILE of “-” stands for standard input.  If no FILE is given,
+    > recursive searches examine the working directory, and
+    > non-recursive searches read standard input.
+    */
     return { line: `tail -n +${extraOpts.startFromLine} ${absoluteFilePath} | ${grepCmd} -`, flags, hasLineNumFlag };
   } else {
     return { line: `${grepCmd} ${absoluteFilePath}`, flags, hasLineNumFlag };
   }
 }
 
-export async function getLineNumberForLineText(lineText: string,
-                                               absoluteFilePath: string) {
-  const matches = await grep(lineText, absoluteFilePath, {
-    flags: '-n',
-    escapeDoubleQuotes: false
-  });
-  for (let match of matches) {
-    if (!match)
-      continue;
-
-    let lineNum = toInt(match.split(':', 2)[0]);
-    if (isNaN(lineNum))
-      continue;
-
-    let matchText = splitLimit(match, ':', 2)[1];
-    if (matchText === lineText) {
-      return lineNum;
-    }
-  }
-  return -1;
-}
-
+/**
+ * Necessary post-processing of a grep output line to adjust the line number if the grep command was run on a tail of the file.
+ * @param s
+ * @param hasLineNumFlag
+ * @param startFromLine
+ */
 function postProcessGrepLine(s: string, hasLineNumFlag: boolean, startFromLine: number) {
   s = s.trim();
   if (hasLineNumFlag && isset(startFromLine)) {
@@ -419,6 +427,14 @@ function postProcessGrepLine(s: string, hasLineNumFlag: boolean, startFromLine: 
   return s;
 }
 
+/**
+ * Grep the file for the given search text and returns all the matching lines in one array.
+ *
+ * @param searchText The text to search for. Format may depend on the flags provided in extraOpts.
+ * @param absoluteFilePath The absolute path to the file to search in.
+ * @param extraOpts Extra options for the grep command, such as flags and the line number to start from.
+ * @returns Promise that resolves with an array of matching lines, or rejects with an error if the command fails.
+ */
 export async function grep(searchText: string,
                            absoluteFilePath: string,
                            extraOpts: GrepExtraOpts): Promise<string[]> {
@@ -455,6 +471,19 @@ export async function grep(searchText: string,
   }
 }
 
+/**
+ * Grep the file and stream the results line by line to the provided stream callback.
+ * This is useful in cases where there may be too many lines to hold in memory at once.
+ *
+ * @param searchText The text to search for. Format may depend on the flags provided in extraOpts.
+ * @param absoluteFilePath The absolute path to the file to search in.
+ * @param timeout The maximum time to allow the command to run for.
+ * @param stream The callback to stream the results to. The callback is called with each line of the output, and
+ * an optional kill function that can be called to stop the command.
+ * @param extraOpts Extra options for the grep command, such as flags and the line number to start from.
+ * @returns A promise that resolves with the exit code of the command once all lines have been streamed,
+ * or rejects with an error if the command fails.
+ */
 export async function grepStream(searchText: string,
                                  absoluteFilePath: string,
                                  timeout: Duration,
@@ -475,24 +504,13 @@ export async function grepStream(searchText: string,
   );
 }
 
-export async function grepIdStartsWith<T = number | string>(idProp: string,
-                                       idPrefix: number | string,
-                                       absoluteFilePath: string): Promise<T[]> {
-  let isInt = typeof idPrefix === 'number';
-  let grepSearchText = `"${idProp}": ${isInt ? idPrefix : '"' + idPrefix}`;
-  let lines = await grep(grepSearchText, absoluteFilePath, {
-    flags: '-i',
-    escapeDoubleQuotes: false
-  });
-  let out = [];
-  for (let line of lines) {
-    let parts = /":\s+"?([^",$]+)/.exec(line);
-    out.push(isInt ? toInt(parts[1]) : parts[1]);
-  }
-  return out;
-}
-
 // noinspection JSUnusedGlobalSymbols
+/**
+ * Get the text at a specific line number in a file.
+ * @param lineNum The line number to get the text from (1-based).
+ * @param absoluteFilePath The absolute path to the file to get the text from.
+ * @returns A promise that resolves with the text at the specified line number, or rejects with an error if the command fails.
+ */
 export async function getTextAtLine(lineNum: number, absoluteFilePath: string): Promise<string> {
   try {
     const cmd = `sed '${lineNum}q;d' ${absoluteFilePath}`;
@@ -509,10 +527,30 @@ export async function getTextAtLine(lineNum: number, absoluteFilePath: string): 
   }
 }
 
-export async function findFiles(fileSearch: string, absoluteFilePath: string): Promise<string[]> {
+/**
+ * Find files in a directory that match a specific search pattern.
+ * @param fileSearch The iname search pattern to match files against (e.g., '*.json'). This uses standard shell globbing
+ * patterns, only supporting syntax like `*`, `?`, and `[]`. The search is case-insensitive.
+ * @param absoluteFilePath The absolute path to the directory to search in.
+ * @param noAppendWildcards By default, the `*` wildcard is appended to the start and end of the search pattern, if not
+ * already present. If this parameter is set to `true`, the search pattern will be used as-is without appending these wildcards.
+ * @returns A promise that resolves with an array of file paths that match the search pattern, or rejects with an error if the command fails.
+ */
+export async function findFiles(fileSearch: string, absoluteFilePath: string, noAppendWildcards: boolean = false): Promise<string[]> {
   try {
     absoluteFilePath = absoluteFilePath.replace(/\\/g, '/');
-    const cmd = `find ${shellEscapeArg(absoluteFilePath)} -iname ${shellEscapeArg(fileSearch, '*', '*')} -print`;
+    if (!noAppendWildcards) {
+      let prefix = '';
+      let suffix = '';
+      if (!fileSearch.startsWith('*')) {
+        prefix = '*';
+      }
+      if (!fileSearch.endsWith('*')) {
+        suffix = '*';
+      }
+      fileSearch = prefix + fileSearch + suffix;
+    }
+    const cmd = `find ${shellEscapeArg(absoluteFilePath)} -iname ${shellEscapeArg(fileSearch)} -print`;
 
     const stdout: string = await exec(cmd, {
       env: { PATH: ENV.SHELL_PATH },
@@ -534,6 +572,11 @@ export async function findFiles(fileSearch: string, absoluteFilePath: string): P
   }
 }
 
+/**
+ * Detect the language of the given text.
+ * @param text The text to detect the language of.
+ * @returns A promise that resolves with the language detection result, or rejects with an error if the command fails.
+ */
 export async function langDetect(text: string): Promise<LangDetectResult> {
   try {
     if (isEmpty(ENV.PYTHON_COMMAND)) {

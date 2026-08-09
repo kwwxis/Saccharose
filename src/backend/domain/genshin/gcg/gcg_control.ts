@@ -174,7 +174,12 @@ export class GCGControl {
         return obj.WikiName;
       } else {
         const rawText = await this.ctrl.getTextMapItem(this.ctrl.outputLangCode, obj.NameTextMapHash);
-        const normText = this.ctrl.normText(rawText, this.ctrl.outputLangCode, { plaintext: false, decolor: false, sNum: toInt(sNumStr), skipHtml2Quotes: true });
+        const normText = this.ctrl.normText(rawText, this.ctrl.outputLangCode, {
+          plaintext: false,
+          decolor: false,
+          skipHtml2Quotes: true,
+          customOpts: { sNum: toInt(sNumStr) }
+        });
         return obj.WikiName !== normText ? `[[${obj.WikiName}|${normText}]]` : `[[${normText}]]`;
       }
     };

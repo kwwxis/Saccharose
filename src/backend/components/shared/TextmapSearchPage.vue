@@ -8,11 +8,10 @@
           Download <Icon name="chevron-down" class="spacer5-left" :size="16" />
         </button>
         <div class="ui-dropdown">
-          <a v-for="langCode of supportedLangCodes"
-             :href="`${ctx.siteHome}/textmap/download?langCode=${langCode}`"
-             ui-action="dropdown-item; toast"
-             :data-toast="`{title: 'Download started', content: 'Downloading TextMap${ langCode }.json'}`"
-             class="option">{{ ctx.languages[langCode] }} ({{ langCode }})</a>
+          <div v-for="langCode of supportedLangCodes"
+               class="option textmap-download-trigger"
+               ui-action="dropdown-item"
+               :data-lang="langCode">{{ ctx.languages[langCode] }} ({{ langCode }})</div>
         </div>
       </div>
     </h2>

@@ -240,6 +240,13 @@ export interface DialogWikitextResult {
   wikitext: string,
   ids: CommonLineId[],
 }
+
+export interface TextmapSearchIndexRow {
+  index_name: string,
+  hash: string,
+  key: number,
+  role?: string
+}
 // endregion
 
 // region Excel Usage Scalars

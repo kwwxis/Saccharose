@@ -1157,6 +1157,56 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     return result && result.TalkContentText ? result : null;
   }
 
+  async selectDialogIdsByDialogIdStartsWith(prefix: number): Promise<number[]> {
+    /**
+     * As an example, for a prefix of `7001`, this builds a query like:
+     *
+     * ```sql
+     * SELECT "Id" FROM "DialogExcelConfigData" WHERE ("Id" >= 7001 AND "Id" < 7002)
+     *   OR ("Id" >= 70010 AND "Id" < 70020)
+     *   OR ("Id" >= 700100 AND "Id" < 700200)
+     *   OR ("Id" >= 7001000 AND "Id" < 7002000)
+     *   OR ("Id" >= 70010000 AND "Id" < 70020000)
+     *   OR ("Id" >= 700100000 AND "Id" < 700200000)
+     *   OR ("Id" >= 7001000000 AND "Id" < 7002000000)
+     *   OR ("Id" >= 70010000000 AND "Id" < 70020000000)
+     *   OR ("Id" >= 700100000000 AND "Id" < 700200000000);
+     * ```
+     *
+     * Although an odd SQL query, as the primary key column, the existing B-Tree index on the `Id` column will make
+     * this query be extremely fast. A `(("Id"::text) text_pattern_ops)` index would not be significantly faster, and
+     * would thus be a waste of disk space, and is therefore not necessary.
+     */
+    function buildIdStartsWithQuery(prefix: string | number): string {
+      const value = String(prefix);
+
+      if (!/^\d+$/.test(value)) {
+        throw new Error("Prefix must contain digits only.");
+      }
+
+      if (value.length > 12) {
+        throw new Error("Prefix cannot be longer than 12 digits.");
+      }
+
+      const prefixNumber = BigInt(value);
+      const conditions: string[] = [];
+
+      for (let totalDigits = value.length; totalDigits <= 12; totalDigits++) {
+        const extraDigits = totalDigits - value.length;
+        const multiplier = 10n ** BigInt(extraDigits);
+
+        const lower = prefixNumber * multiplier;
+        const upper = (prefixNumber + 1n) * multiplier;
+
+        conditions.push(`("Id" >= ${lower} AND "Id" < ${upper})`);
+      }
+
+      return `SELECT "Id" FROM "DialogExcelConfigData" WHERE ${conditions.join("\n  OR ")};`.trim();
+    }
+    return await this.knex.raw(buildIdStartsWithQuery(prefix)).then(res =>
+      res.rows.map((row: any) => toInt(row.Id)));
+  }
+
   async selectDialogsFromTextMapHash(textMapHash: TextMapHash|TextMapHash[],
                                      noAddCache: boolean = false,
                                      byRoleName: boolean = false): Promise<DialogExcelConfigData[]> {

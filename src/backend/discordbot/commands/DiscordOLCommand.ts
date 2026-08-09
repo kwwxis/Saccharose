@@ -1,13 +1,15 @@
 import { AbstractDiscordCommand, ExecContext } from './abstractDiscordCommand.ts';
 import { ChatInputCommandInteraction, EmbedBuilder, SlashCommandBuilder } from 'discord.js';
-import { SiteUser } from '../../../shared/types/site/site-user-types.ts';
 import { SharedSlashCommand } from '@discordjs/builders';
 import { LangCode } from '../../../shared/types/lang-types.ts';
 import { OLResult } from '../../../shared/types/ol-types.ts';
 import { ol_gen } from '../../domain/abstract/basic/OLgen.ts';
+import { AvailableSiteModes, SiteMode } from '../../../shared/types/site/site-mode-type.ts';
 
 export class DiscordOLCommand extends AbstractDiscordCommand {
   readonly name: string = 'ol';
+
+  readonly siteModes: SiteMode[] = AvailableSiteModes;
 
   override schema(): SharedSlashCommand {
     return new SlashCommandBuilder()
@@ -23,14 +25,6 @@ export class DiscordOLCommand extends AbstractDiscordCommand {
   }
 
   override async execute(ctx: ExecContext, command: ChatInputCommandInteraction): Promise<void> {
-    if (!ctx.user.prefs.dbotSiteMode) {
-      await command.reply({
-        content: `You must first set which game with \`/sacch game [game]\``,
-        ephemeral: true,
-      });
-      return;
-    }
-
     await command.deferReply();
 
     const text: string = command.options.getString('text') as LangCode;

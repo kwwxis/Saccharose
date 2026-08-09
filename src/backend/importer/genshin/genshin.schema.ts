@@ -15,8 +15,7 @@ import { FurnitureMakeExcelConfigData } from '../../../shared/types/genshin/home
 import { GCGCharacterLevelExcelConfigData, GCGWeekLevelExcelConfigData } from '../../../shared/types/genshin/gcg-types.ts';
 import { DocumentExcelConfigData } from '../../../shared/types/genshin/readable-types.ts';
 import { toInt } from '../../../shared/util/numberUtil.ts';
-
-export const RAW_MANUAL_TEXTMAP_ID_PROP: string = 'textMapId';
+import { Knex } from 'knex';
 
 export type GenshinSchemaNames = keyof typeof genshinSchema;
 
@@ -98,6 +97,9 @@ export const genshinSchema = {
       { name: 'TextMapId', type: 'text', isPrimary: true },
       { name: 'TextMapContentTextMapHash', type: 'text', isIndex: true },
     ],
+    async afterCreate(knex: Knex) {
+      await knex.raw(`CREATE INDEX ON "ManualTextMapConfigData" ("TextMapId" text_pattern_ops);`);
+    }
   },
   NpcExcelConfigData: <SchemaTable> {
     name: 'NpcExcelConfigData',

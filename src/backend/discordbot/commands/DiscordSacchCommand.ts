@@ -18,24 +18,12 @@ const LANG_CHOICES: APIApplicationCommandOptionChoice<string>[] = LANG_CODES.fil
 export class DiscordSacchCommand extends AbstractDiscordCommand {
   readonly name: string = 'sacch';
 
+  readonly siteModes: SiteMode[] = AvailableSiteModes;
+
   override schema(): SharedSlashCommand {
     return new SlashCommandBuilder()
       .setName(this.name)
       .setDescription('Change your Saccharose.wiki user options')
-      .addSubcommand(command =>
-        command.setName('game')
-          .setDescription('Set your game for commands')
-          .addStringOption(opt => opt
-            .setName('game')
-            .setDescription('Game choice')
-            .setChoices([
-              { name: 'Genshin', value: 'genshin' },
-              { name: 'HSR', value: 'hsr' },
-              { name: 'Zenless', value: 'zenless' },
-              { name: 'Wuwa', value: 'wuwa' },
-            ])
-            .setRequired(true)),
-      )
       .addSubcommand(command =>
         command.setName('inlang')
           .setDescription('Set your input language')
@@ -61,26 +49,9 @@ export class DiscordSacchCommand extends AbstractDiscordCommand {
   }
 
   override async execute(ctx: ExecContext, command: ChatInputCommandInteraction): Promise<void> {
-    const subcommand: 'game'|'inlang'|'outlang'|'info' = command.options.getSubcommand() as any;
+    const subcommand: 'inlang'|'outlang'|'info' = command.options.getSubcommand() as any;
 
-    if (subcommand === 'game') {
-      const selectedGame: SiteMode = command.options.getString('game') as SiteMode;
-
-      if (!AvailableSiteModes.includes(selectedGame)) {
-        await command.reply({
-          content: `Not a valid game choice: ` + selectedGame,
-          ephemeral: true,
-        });
-        return;
-      }
-
-      await SiteUserProvider.updatePrefs(ctx.user.id, prefs => prefs.dbotSiteMode = selectedGame);
-
-      await command.reply({
-        content: `Your preferred game has been set to **${selectedGame}**.`,
-        ephemeral: true,
-      });
-    } else if (subcommand === 'inlang') {
+    if (subcommand === 'inlang') {
       const langCode: LangCode = command.options.getString('lang') as LangCode;
 
       if (!LANG_CODES.includes(langCode)) {
@@ -118,9 +89,6 @@ export class DiscordSacchCommand extends AbstractDiscordCommand {
       const embed = new EmbedBuilder()
         .setTitle('Saccharose.wiki User Info')
         .addFields({
-          name: 'Game',
-          value: ctx.user.prefs.dbotSiteMode || 'unset'
-        }, {
           name: 'Input Language',
           value: ctx.user.prefs.inputLangCode || DEFAULT_LANG
         }, {

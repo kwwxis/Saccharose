@@ -21,9 +21,10 @@ import { defaultMap } from '../../../shared/util/genericUtil.ts';
 export type GenshinNormTextOpts = {
   wandererPlaceholderPlainForm?: boolean,
   littleOnePlaceholderPlainForm?: boolean,
+  sNum?: number,
 };
 
-function __convertGenshinRubi(langCode: LangCode, text: string): string {
+function __convertGenshinRubi(langCode: LangCode, text: string, plaintext: boolean): string {
   const rubiMap: { [index: number]: string } = {};
   const rubiRegex = /{RUBY#\[([SD])]([^}]+)}/;
 
@@ -56,7 +57,7 @@ function __convertGenshinRubi(langCode: LangCode, text: string): string {
 
     if (rubiIndices.length) {
       let rubiText = rubiIndices.map(rubiIndex => rubiMap[rubiIndex]).join('');
-      part.segment = `{{Rubi|${part.segment}|${rubiText}}}`;
+      part.segment = plaintext ? part.segment : `{{Rubi|${part.segment}|${rubiText}}}`;
     }
   }
   return wordRejoin(parts);
@@ -277,7 +278,7 @@ export function __normGenshinText(text: string, langCode: LangCode, opts: NormTe
   }
 
   if (text.includes('RUBY#[')) {
-    text = __convertGenshinRubi(langCode, text);
+    text = __convertGenshinRubi(langCode, text, opts.plaintext);
   }
 
   if (text && text.includes('REGEX#OVERSEA') && serverBrandTipsOverseas && serverEmailAskOverseas) {
@@ -289,8 +290,8 @@ export function __normGenshinText(text: string, langCode: LangCode, opts: NormTe
 
   if (/\|s1:/.test(text)) {
     let parts = text.split(/\|s\d+:/);
-    if (opts.sNum && opts.sNum <= parts.length - 1) {
-      text = parts[opts.sNum];
+    if (opts.customOpts?.sNum && opts.customOpts?.sNum <= parts.length - 1) {
+      text = parts[opts.customOpts?.sNum];
     } else {
       text = parts[0];
     }

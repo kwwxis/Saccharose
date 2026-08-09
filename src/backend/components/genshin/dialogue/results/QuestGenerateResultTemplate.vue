@@ -129,6 +129,30 @@
         </template>
       </div>
     </div>
+    <div v-if="subSteps?.length" id="quest-sub-steps-section" class="content">
+      <div class="valign">
+        <h4 class="valign">
+          <span class="expando spacer5-right" ui-action="expando: #quest-sub-steps-content"><Icon name="chevron-down" :size="17" /></span>
+          <span>Sub-Steps</span>
+        </h4>
+      </div>
+      <div id="quest-sub-steps-content">
+        <p class="spacer10-bottom">It's not possible to accurately determine which main step the sub-step is under,
+          but the one that it <em>might</em> be under is shown in bold based on Section ID. Sometimes this guess
+          might be accurate and sometimes completely wrong.</p>
+        <div v-for="(subStep, idx) of subSteps">
+          <p><strong>{{ subStep.possibleMainStep || '(Unknown)' }}</strong></p>
+          <div class="posRel">
+            <Wikitext :id="`quest-sub-step-${idx}`" :value="subStep.text" :extra-style="'padding-right:46px;min-height:40px'" />
+            <button class="secondary small posAbs" :ui-action="`copy: #quest-sub-step-${idx}`"
+                    ui-tippy-hover="Click to copy to clipboard"
+                    ui-tippy-flash="{content:'Copied!', delay: [0,2000]}"
+                    style="right: 0; top: 0;">Copy</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div id="ol-section" class="content">
       <div class="valign">
         <h4 class="valign">
@@ -305,6 +329,7 @@ const {
   questId,
   npc,
   stepsWikitext,
+  subSteps,
   questDescriptions,
   otherLanguagesWikitext,
   dialogue,

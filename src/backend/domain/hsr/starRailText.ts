@@ -74,8 +74,8 @@ export function __normStarRailText(text: string, langCode: LangCode, opts: NormT
     brFormat: '<br />'
   });
   text = text.replace(/<\/?unbreak>/g, '');
-  text = text.replace(/<align="([^"]+)">/g, '<div align="$1">');
-  text = text.replace(/<\/align>/g, '</div>');
+  text = text.replace(/<align="([^"]+)">/g, opts.plaintext ? '' : '<div align="$1">');
+  text = text.replace(/<\/align>/g, opts.plaintext ? '' : '</div>');
   text = text.replace(/<size=([^>]+)>(.*?)<\/size>/gs, opts.plaintext ? '$2' : '{{Size|$1|$2}}');
 
   if (!opts.decolor && !opts.plaintext) {
@@ -113,7 +113,7 @@ export function __normStarRailText(text: string, langCode: LangCode, opts: NormT
   });
 
   if (text.includes('{RUBY')) {
-    text = text.replace(/\{RUBY_B#(.*?)}(.*?)\{RUBY_E#}/g, '{{Rubi|$2|$1}}');
+    text = text.replace(/\{RUBY_B#(.*?)}(.*?)\{RUBY_E#}/g, opts.plaintext ? '$2' : '{{Rubi|$2|$1}}');
   }
 
   if (langCode === 'KR') {

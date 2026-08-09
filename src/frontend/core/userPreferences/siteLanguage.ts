@@ -1,6 +1,6 @@
 import { GeneralEventBus } from '../generalEventBus.ts';
 import { DEFAULT_LANG, LangCode, LangCodeMap } from '../../../shared/types/lang-types.ts';
-import { tag } from '../../util/domutil.ts';
+import { tagOf } from '../../util/domutil.ts';
 import { Listener } from '../../util/eventListen.ts';
 import { USER_PREFS, setUserPref } from './sitePrefsContainer.ts';
 
@@ -19,7 +19,7 @@ async function processLangCodeChange(name: 'inputLangCode' | 'outputLangCode', v
   await setUserPref(name, value);
 
   const processOption = (opt: HTMLElement) => {
-    let isSelectOption = tag(opt) === 'option';
+    let isSelectOption = tagOf(opt) === 'option';
     let optValue = (opt.hasAttribute('value')
         ? opt.getAttribute('value')
         : opt.getAttribute('data-value')
@@ -48,16 +48,16 @@ async function processLangCodeChange(name: 'inputLangCode' | 'outputLangCode', v
     if (el.hasAttribute('value')) {
       el.setAttribute('value', value);
     }
-    if (tag(el) != 'input' && tag(el)!= 'select' && tag(el) !== 'textarea') {
+    if (tagOf(el) != 'input' && tagOf(el)!= 'select' && tagOf(el) !== 'textarea') {
       el.textContent = languages[value];
     }
   };
 
   let elements = Array.from(document.querySelectorAll(`[name="${name}"], [data-name="${name}"], [data-for="${name}"], [data-control="${name}"]`));
   for (let element of elements) {
-    if (tag(element) === 'select') {
+    if (tagOf(element) === 'select') {
       element.querySelectorAll('option').forEach(el => processOption(el));
-    } else if (tag(element) === 'span' || tag(element) === 'p' || tag(element) === 'div' || tag(element) === 'section') {
+    } else if (tagOf(element) === 'span' || tagOf(element) === 'p' || tagOf(element) === 'div' || tagOf(element) === 'section') {
       element.querySelectorAll('.option').forEach(el => processOption(el as HTMLElement));
 
       if (element.classList.contains('current-value') || element.classList.contains('current-option')) {

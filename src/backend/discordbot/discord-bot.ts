@@ -1,45 +1,17 @@
 import '../loadenv.ts';
-import {
-  REST,
-  Routes,
-  Client,
-  Events,
-  GatewayIntentBits,
-  SlashCommandBuilder,
-  ChatInputCommandInteraction,
-} from 'discord.js';
-import { SiteUserProvider } from '../middleware/auth/SiteUserProvider.ts';
-import { SiteUser } from '../../shared/types/site/site-user-types.ts';
-import { AbstractDiscordCommand, ExecContext } from './commands/abstractDiscordCommand.ts';
-import { DiscordPingCommand } from './commands/DiscordPingCommand.ts';
-import { DiscordOLCommand } from './commands/DiscordOLCommand.ts';
-import { DiscordSacchCommand } from './commands/DiscordSacchCommand.ts';
-
-const commandList: AbstractDiscordCommand[] = [
-  new DiscordPingCommand(),
-  new DiscordOLCommand(),
-  new DiscordSacchCommand(),
-];
+import { Client, Events, GatewayIntentBits, REST } from 'discord.js';
+import { GuildRegistrationModule } from './core-behaviors/guild-registration.ts';
+import { CommandRegistrationModule } from './core-behaviors/command-registration.ts';
 
 export class DiscordBotMain {
   rest: REST;
   client: Client;
 
-  async registerCommands() {
-    try {
-      const commandPayload = commandList.map(command => command.schema().toJSON());
-      console.log('Started refreshing application (/) commands.');
-      await this.rest.put(Routes.applicationCommands(ENV.DISCORD_BOT_CLIENT_ID), { body: commandPayload });
-      console.log('Successfully reloaded application (/) commands.');
-    } catch (error) {
-      console.error(error);
-    }
-  }
+  guildRegistration: GuildRegistrationModule = new GuildRegistrationModule(this);
+  commandRegistration: CommandRegistrationModule = new CommandRegistrationModule(this);
 
   async init() {
     this.rest = new REST({ version: '10' }).setToken(ENV.DISCORD_BOT_CLIENT_SECRET);
-
-    await this.registerCommands();
 
     this.client = new Client({
       intents: [GatewayIntentBits.Guilds],
@@ -58,38 +30,37 @@ export class DiscordBotMain {
       },
     });
 
+    this.guildRegistration.init();
+    this.commandRegistration.init();
+
     this.client.on(Events.ClientReady, readyClient => {
       console.log(`Logged in as ${readyClient.user.tag}!`);
     });
 
-    this.client.on(Events.InteractionCreate, async interaction => {
-      if (interaction.isChatInputCommand()) {
-        let commandInfo: ChatInputCommandInteraction = interaction;
-        let discordUserId: string = interaction.user.id;
-        let siteUser: SiteUser = await SiteUserProvider.find(discordUserId);
-
-        if (!siteUser) {
-          await commandInfo.reply('You are not a user of Saccharose.wiki! To become a user, you must login to the site and pass verification.');
-          return;
-        }
-
-        await this.handleChatInputCommand(siteUser, commandInfo);
-      }
-    });
-
     await this.client.login(ENV.DISCORD_BOT_CLIENT_SECRET);
-  }
 
-  async handleChatInputCommand(user: SiteUser, commandInteraction: ChatInputCommandInteraction) {
-    for (let command of commandList) {
-      if (command.name === commandInteraction.commandName) {
-        await command.execute(new ExecContext(user), commandInteraction);
-        break;
+    let shuttingDown = false;
+
+    const shutdown = async (signal: 'SIGINT'|'SIGTERM') => {
+      if (shuttingDown) return;
+      shuttingDown = true;
+
+      console.log(`[bot] Received ${signal}, shutting down...`);
+
+      try {
+        await this.client.destroy();
+      } catch (error) {
+        console.error('[bot] Shutdown failed', error);
       }
-    }
+
+      process.exit(0);
+    };
+
+    process.once('SIGINT', () => shutdown('SIGINT'));
+    process.once('SIGTERM', () => shutdown('SIGTERM'));
   }
 }
 
-export const DiscordBot = new DiscordBotMain();
+export const DiscordBot: DiscordBotMain = new DiscordBotMain();
 
 await DiscordBot.init();

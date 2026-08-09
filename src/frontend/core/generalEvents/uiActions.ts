@@ -8,8 +8,6 @@ import {
 } from '../../util/domutil.ts';
 import { modalService } from '../../util/modalService.ts';
 import { getInputLanguage, getOutputLanguage } from '../userPreferences/siteLanguage.ts';
-import { uuidv4 } from '../../../shared/util/uuidv4.ts';
-import Cookies from 'js-cookie';
 import { flashTippy } from '../../util/tooltipUtil.ts';
 import { Marker } from '../../../shared/util/highlightMarker.ts';
 import { getSiteSearchMode } from '../userPreferences/siteSearchMode.ts';
