@@ -1,7 +1,6 @@
 import { fileURLToPath, pathToFileURL } from 'url';
 import fs from "fs";
 import path from "path";
-import sharp from "sharp";
 import os from "os";
 import { Worker, isMainThread, parentPort } from "worker_threads";
 import { fsWalkSync } from '../../util/fsutil.ts';
@@ -9,31 +8,19 @@ import { fsWalkSync } from '../../util/fsutil.ts';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const combinedDir = "E:/GameDataAssets/GenshinAssets/Texture2D/";
 const sourceDir = "C:/HoyoTools/AnimeStudio/GI_OutputFiles";
-const targetDir = "E:/GameDataAssets/GenshinAssets/Texture2D_Archive/Texture2D_7.0";
+const targetDir = "E:/GameDataAssets/GenshinAssets/Texture2D/";
 const NUM_WORKERS = Math.max(1, os.cpus().length - 1);
 
-sharp.cache(false);
-
 async function runMain() {
-  const existingTargetNames = new Set<string>();
-  for (let file of fsWalkSync(targetDir)) {
-    existingTargetNames.add(path.basename(file));
-  }
-  console.log(`Found ${existingTargetNames.size} existing files in target dir.`);
-
-  const allFiles: string[] = [];
+  const files: string[] = [];
   for (let file of fsWalkSync(sourceDir)) {
-    allFiles.push(file.replace(/\\/g, "/"));
+    files.push(file.replace(/\\/g, "/"));
   }
-
-  const files = allFiles.filter((file) => !existingTargetNames.has(path.basename(file)));
-  const skipped = allFiles.length - files.length;
 
   const total = files.length;
   let completed = 0;
-  console.log(`Found ${allFiles.length} source files, skipping ${skipped} already in target dir. Processing ${total}. Using ${NUM_WORKERS} workers.`);
+  console.log(`Found ${total} files. Using ${NUM_WORKERS} workers.`);
 
   const queue = [...files];
 
@@ -92,31 +79,10 @@ async function runWorker() {
       try {
         const file = msg.file;
         const basename = path.basename(file);
-
-        const existingName = combinedDir + basename;
         const targetName = targetDir + '/' + basename;
 
-        let shouldCopy = false;
-
-        if (!fs.existsSync(existingName)) {
-          shouldCopy = true;
-        } else {
-          const fileSize = fs.statSync(file)?.size || 0;
-          const existingSize = fs.statSync(existingName)?.size || 0;
-          if (fileSize != existingSize) {
-            shouldCopy = true;
-          } else {
-            const buff1 = await sharp(file).toBuffer();
-            const buff2 = await sharp(existingName).toBuffer();
-            if (!buff1.equals(buff2)) {
-              shouldCopy = true;
-            }
-          }
-        }
-
-        if (shouldCopy) {
-          fs.copyFileSync(file, targetName);
-        }
+        // Always overwrite the target with the source file.
+        fs.copyFileSync(file, targetName);
 
         parentPort?.postMessage({ done: file });
       } catch (err: any) {

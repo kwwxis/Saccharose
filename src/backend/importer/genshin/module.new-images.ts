@@ -6,10 +6,12 @@ import { closeKnex } from '../../util/db.ts';
 
 export async function recordNewGenshinImages() {
   const result: Record<string, string> = {};
+  const countsByVersion: Record<string, number> = {};
 
   console.log('Recording new images...');
   for (let version of GenshinVersions.list.filter(v => v.showNewMedia)) {
     console.log('  Processing version: ' + version.number);
+    countsByVersion[version.number] = 0;
     for (const fileName of fs.readdirSync(path.resolve(IMAGEDIR_GENSHIN_ARCHIVE, `./Texture2D_${version.number}`))) {
       if (!fileName.endsWith('.png')) {
         continue;
@@ -20,6 +22,7 @@ export async function recordNewGenshinImages() {
         continue;
       }
       result[imageName] = version.number;
+      countsByVersion[version.number]++;
     }
   }
 
@@ -28,6 +31,11 @@ export async function recordNewGenshinImages() {
     JSON.stringify(result, null, 2),
     'utf-8'
   );
+
+  console.log('New image count per version:');
+  for (const version of GenshinVersions.list.filter(v => v.showNewMedia)) {
+    console.log(`  ${version.number}: ${countsByVersion[version.number]}`);
+  }
 
   console.log('Done.');
   await closeKnex();
