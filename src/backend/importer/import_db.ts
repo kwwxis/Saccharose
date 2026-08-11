@@ -616,7 +616,8 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
         let acc: Record<string, any> = {};
         let lastPercent: number = -1;
 
-        for (let row of json) {
+        for (let i = 0; i < json.length; i++) {
+          let row = json[i];
           batch.push(... (await createRowPayload(table, row, json, acc)));
           if (batch.length >= batchMax) {
             await addBatchToTransaction();
@@ -629,6 +630,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
             spinner.text = `Processed ${currentRow} rows of ${totalRows} (${percent}%) (B${batchNum})`;
           }
           currentRow++;
+          json[i] = null; // free memory
         }
 
         if (batch.length) {

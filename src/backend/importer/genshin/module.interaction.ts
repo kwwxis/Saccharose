@@ -23,8 +23,8 @@ const allTypes: Set<string> = new Set();
 const uiTriggerContextNames: Set<string> = new Set();
 const d2f: InterActionD2F = defaultMap('Array');
 
-const outDirName = './TestInterAction';
-const outFileName = './TestInterActionD2F.json';
+const outDirName = './InterAction';
+const outFileName = './InterActionD2F.json';
 
 export async function loadInterActionQD(repoRoot: string) {
   const binOutputPath: string = path.resolve(repoRoot, './BinOutput');
@@ -55,9 +55,6 @@ export async function loadInterActionQD(repoRoot: string) {
     if (!filePath.endsWith('.json')) {
       continue;
     }
-    if (!filePath.includes('EQ/V6,5')) {
-      continue;
-    }
     try {
       const relName = path.relative(binOutputIAQD, filePath).replace(/\\/g, '/').replace(/\//g, ';');
       const outFile = path.resolve(outDir, relName);
@@ -84,8 +81,6 @@ export async function loadInterActionQD(repoRoot: string) {
   }
   console.log('  100%');
 
-  console.log(JSON.stringify(d2f, null, 2));
-  console.log(reformatPrimitiveArrays(JSON.stringify(d2f, null, 2)));
   fs.writeFileSync(path.resolve(repoRoot, outFileName), reformatPrimitiveArrays(JSON.stringify(d2f, null, 2)));
   console.log('Done');
 }
