@@ -17,11 +17,11 @@ async function doWithCond(fetterConds: FetterCond[], condType: FetterCondType, c
 }
 
 export async function processFetterConds(ctrl: GenshinControl, fetter: FetterWithConditions, PROP: 'OpenConds' | 'FinishConds') {
+  const summaryObj: FetterCondSummary = (fetter[PROP + 'Summary'] = {});
+
   if (!fetter[PROP] || !fetter[PROP].length) {
     return;
   }
-
-  const summaryObj: FetterCondSummary = (fetter[PROP + 'Summary'] = {});
 
   fetter[PROP] = fetter[PROP].filter(x => !!x.CondType);
 

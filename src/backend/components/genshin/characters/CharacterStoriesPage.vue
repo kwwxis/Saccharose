@@ -43,16 +43,16 @@
           <div class="content">
             <h3 class="title-text">{{ fetter.StoryTitleText }}</h3>
             <div class="valign meta-props">
-              <div v-if="fetter.OpenCondsSummary.Friendship" class="prop">
+              <div v-if="fetter.OpenCondsSummary?.Friendship" class="prop">
                 <span class="prop-label">Friendship Lv.</span>
                 <span class="prop-values">
-                  <span class="prop-value">{{ fetter.OpenCondsSummary.Friendship }}</span>
+                  <span class="prop-value">{{ fetter.OpenCondsSummary?.Friendship }}</span>
                 </span>
               </div>
-              <div v-if="fetter.OpenCondsSummary.QuestTitleTextMap" class="prop">
+              <div v-if="fetter.OpenCondsSummary?.QuestTitleTextMap" class="prop">
                 <span class="prop-label">Quest</span>
                 <span class="prop-values">
-                  <span class="prop-value">{{ fetter.OpenCondsSummary.QuestTitleTextMap[ctx.outputLangCode] }}</span>
+                  <span class="prop-value">{{ fetter.OpenCondsSummary?.QuestTitleTextMap[ctx.outputLangCode] }}</span>
                 </span>
               </div>
             </div>
@@ -73,16 +73,16 @@
                 <h3 class="title-text">{{ fetter.StoryTitleText }} <Icon name="arrow-right" :size="14" /> {{ fetter.StoryTitle2Text }}</h3>
               </template>
               <div class="valign meta-props">
-                <div v-if="fetter.FinishCondsSummary.Friendship" class="prop">
+                <div v-if="fetter.FinishCondsSummary?.Friendship" class="prop">
                   <span class="prop-label">Friendship Lv.</span>
                   <span class="prop-values">
-                    <span class="prop-value">{{ fetter.FinishCondsSummary.Friendship }}</span>
+                    <span class="prop-value">{{ fetter.FinishCondsSummary?.Friendship }}</span>
                   </span>
                 </div>
-                <div v-if="fetter.FinishCondsSummary.QuestTitleTextMap" class="prop">
+                <div v-if="fetter.FinishCondsSummary?.QuestTitleTextMap" class="prop">
                   <span class="prop-label">Altered after Quest</span>
                   <span class="prop-values">
-                    <span class="prop-value">{{ fetter.FinishCondsSummary.QuestTitleTextMap[ctx.outputLangCode] }}</span>
+                    <span class="prop-value">{{ fetter.FinishCondsSummary?.QuestTitleTextMap[ctx.outputLangCode] }}</span>
                   </span>
                 </div>
               </div>

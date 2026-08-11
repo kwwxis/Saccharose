@@ -171,20 +171,20 @@ export class GenshinVoAppPreloadConfig extends VoAppPreloadConfig {
 
     const fetter = voiceOver.Original;
     if (fetter.OpenCondsSummary) {
-      if (fetter.OpenCondsSummary.AscensionPhase) {
-        out.prop('ascension', fetter.OpenCondsSummary.AscensionPhase);
+      if (fetter.OpenCondsSummary?.AscensionPhase) {
+        out.prop('ascension', fetter.OpenCondsSummary?.AscensionPhase);
       }
-      if (fetter.OpenCondsSummary.QuestTitleTextMap) {
-        out.prop('quest', fetter.OpenCondsSummary.QuestTitleTextMap[input.userLang]);
+      if (fetter.OpenCondsSummary?.QuestTitleTextMap) {
+        out.prop('quest', fetter.OpenCondsSummary?.QuestTitleTextMap[input.userLang]);
       }
-      if (fetter.OpenCondsSummary.Friendship) {
-        out.prop('friendship', fetter.OpenCondsSummary.Friendship);
+      if (fetter.OpenCondsSummary?.Friendship) {
+        out.prop('friendship', fetter.OpenCondsSummary?.Friendship);
       }
-      if (fetter.OpenCondsSummary.Statue) {
-        out.prop('statue', fetter.OpenCondsSummary.Statue);
+      if (fetter.OpenCondsSummary?.Statue) {
+        out.prop('statue', fetter.OpenCondsSummary?.Statue);
       }
-      if (fetter.OpenCondsSummary.Waypoint) {
-        out.prop('waypoint', fetter.OpenCondsSummary.Waypoint);
+      if (fetter.OpenCondsSummary?.Waypoint) {
+        out.prop('waypoint', fetter.OpenCondsSummary?.Waypoint);
       }
     }
   }
