@@ -50,6 +50,10 @@ const itemLink = (() => {
     return 'artifacts';
   } else if (item.ItemType === 'ITEM_BEYOND_MATERIAL') {
     return 'byd/items';
+  } else if (item.ItemType === 'ITEM_MATERIAL' || item.ItemType === 'ITEM_VIRTUAL') {
+    return 'items';
+  } else {
+    return null;
   }
 })();
 
