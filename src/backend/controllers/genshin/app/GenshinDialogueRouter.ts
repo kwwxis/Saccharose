@@ -116,7 +116,7 @@ export default async function(): Promise<Router> {
   router.get('/reminders/all', async (req: Request, res: Response) => {
     await res.renderComponent(GenshinAllReminders, {
       title: 'All Reminders',
-      reminderGroups: await reminderGenerateAll(getGenshinControl(req)),
+      reminderGroups: [], //await reminderGenerateAll(getGenshinControl(req)),
       bodyClass: ['page--all-reminders']
     });
   });

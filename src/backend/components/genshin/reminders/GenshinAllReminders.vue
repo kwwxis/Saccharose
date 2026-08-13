@@ -6,6 +6,7 @@
               :ui-action="`tab: #tabpanel-${group.id}, reminderGroups`">{{ group.title }}</button>
     </div>
     <div class="content">
+      <p>Feature temporarily disabled until further notice.</p>
       <div class="dialogue-container">
         <div v-for="group of reminderGroups" :id="`tabpanel-${group.id}`" role="tabpanel" :aria-labelledby="`tab-${group.id}`"
              class="tabpanel hide">
