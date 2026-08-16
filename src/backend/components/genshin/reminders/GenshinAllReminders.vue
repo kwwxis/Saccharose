@@ -2,12 +2,15 @@
   <section class="card">
     <h2>All Reminder Dialogue</h2>
     <div class="tab-list" role="tablist">
+      <button id="tab-landing" class="tab active" ui-action="tab: #tabpanel-landing, reminderGroups">Landing</button>
       <button :id="`tab-${group.id}`" class="tab" v-for="group of reminderGroups"
               :ui-action="`tab: #tabpanel-${group.id}, reminderGroups`">{{ group.title }}</button>
     </div>
     <div class="content">
-      <p>Feature temporarily disabled until further notice.</p>
       <div class="dialogue-container">
+        <div class="tabpanel active" id="tabpanel-landing" role="tabpanel" aria-labelledby="tab-landing">
+          <p>Select a tab.</p>
+        </div>
         <div v-for="group of reminderGroups" :id="`tabpanel-${group.id}`" role="tabpanel" :aria-labelledby="`tab-${group.id}`"
              class="tabpanel hide">
           <template v-for="section of group.children">

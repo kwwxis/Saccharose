@@ -70,6 +70,8 @@ export function __normZenlessText(text: string, langCode: LangCode, opts: NormTe
     opts = {};
   if (!opts.mcPlaceholderProvider)
     opts.mcPlaceholderProvider = __proxyPlaceholder;
+  if (langCode === 'RU')
+    opts.forceFancyDash = true;
 
   text = genericNormText(text, langCode, opts, {
     brFormat: '<br />'

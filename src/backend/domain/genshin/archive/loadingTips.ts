@@ -180,6 +180,7 @@ async function createResultObject(ctrl: GenshinControl): Promise<LoadingCat> {
     'Fontaine',
     'Natlan',
     'Nod-Krai',
+    'Snezhnaya',
   ];
 
   const otherKeys: string[] = [

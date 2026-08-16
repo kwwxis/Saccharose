@@ -115,15 +115,26 @@ class ReminderGenerationContext {
     if (!reminder) {
       return reminder;
     }
+
+    const seen: Map<number, ReminderExcelConfigData> = new Map();
+
     while (true) {
-      const previous = this.preloadedNextToPrevious[reminder.Id]
+      const previous: ReminderExcelConfigData = this.preloadedNextToPrevious[reminder.Id]
         || (this.onlyUsePreloadedSources ? null : await this.ctrl.selectPreviousReminder(reminder.Id));
+
       if (previous && previous.Id !== reminder.Id) {
+        if (seen.has(previous.Id)) {
+          // If there's a circular reference, then prefer the one with the lowest ID
+          reminder = seen.get(Math.min(... Array.from(seen.keys())));
+          break;
+        }
         reminder = previous;
+        seen.set(reminder.Id, reminder);
       } else {
         break;
       }
     }
+
     return reminder;
   }
 
