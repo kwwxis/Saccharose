@@ -1,6 +1,6 @@
 import fs from 'fs';
 import { getZenlessDataFilePath } from '../../loadenv.ts';
-import { importNormalize } from '../util/import_file_util.ts';
+import { importNormalize } from '../util/import_normalize.ts';
 
 export async function zenlessNormalize() {
   const infos = [

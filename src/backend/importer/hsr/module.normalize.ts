@@ -1,6 +1,6 @@
 import { getStarRailDataFilePath } from '../../loadenv.ts';
 import fs from 'fs';
-import { importNormalize } from '../util/import_file_util.ts';
+import { importNormalize } from '../util/import_normalize.ts';
 import { fsExists, fsReadJson } from '../../util/fsutil.ts';
 
 async function tmJsons(path: string): Promise<any[]> {

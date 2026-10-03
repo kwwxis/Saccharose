@@ -7,7 +7,6 @@ import commandLineUsage, { OptionDefinition as UsageOptionDefinition } from 'com
 import chalk from 'chalk';
 import { getStarRailDataFilePath } from '../../loadenv.ts';
 import { closeKnex } from '../../util/db.ts';
-import { importPlainTextMap } from '../util/import_file_util.ts';
 import fs from 'fs';
 import { getStarRailControl, loadStarRailVoiceItems } from '../../domain/hsr/starRailControl.ts';
 import { fetchVoiceAtlases } from '../../domain/hsr/character/fetchVoiceAtlas.ts';
@@ -17,6 +16,7 @@ import { createChangelog, doChangelogMiscBackfill } from '../util/changelog/crea
 import { recordNewStarRailImages } from './module.new-images.ts';
 import { isset } from '../../../shared/util/genericUtil.ts';
 import { doImportExcelScalars } from '../util/excel_usages_importer.ts';
+import { importPlainTextMap } from '../util/import_plaintext.ts';
 
 async function importVoiceOvers() {
   const outDir = ENV.HSR_DATA_ROOT;

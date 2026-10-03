@@ -8,7 +8,7 @@ import chalk from 'chalk';
 import { getWuwaDataFilePath } from '../../loadenv.ts';
 import { getWuwaControl } from '../../domain/wuwa/wuwaControl.ts';
 import { closeKnex } from '../../util/db.ts';
-import { importNormalize, importPlainTextMap } from '../util/import_file_util.ts';
+import { importNormalize } from '../util/import_normalize.ts';
 import fs from 'fs';
 import { indexWuwaImages } from './module.index-images.ts';
 import { fetchFavorWords } from '../../domain/wuwa/character/fetchRoleFavorWords.ts';
@@ -16,6 +16,7 @@ import { createChangelog, doChangelogMiscBackfill } from '../util/changelog/crea
 import { wuwaNormalize } from './module.normalize.ts';
 import { isset } from '../../../shared/util/genericUtil.ts';
 import { doImportExcelScalars } from '../util/excel_usages_importer.ts';
+import { importPlainTextMap } from '../util/import_plaintext.ts';
 
 async function importVoiceOvers() {
   const outDir = ENV.WUWA_DATA_ROOT;

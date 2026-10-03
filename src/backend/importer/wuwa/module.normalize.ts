@@ -1,6 +1,6 @@
 import { getWuwaDataFilePath } from '../../loadenv.ts';
 import fs from 'fs';
-import { importNormalize } from '../util/import_file_util.ts';
+import { importNormalize } from '../util/import_normalize.ts';
 
 export async function wuwaNormalize() {
   const textMapDE = getWuwaDataFilePath('./TextMap/de/MultiText.json');

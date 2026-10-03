@@ -7,12 +7,12 @@ import commandLineUsage, { OptionDefinition as UsageOptionDefinition } from 'com
 import chalk from 'chalk';
 import { getZenlessDataFilePath } from '../../loadenv.ts';
 import { closeKnex } from '../../util/db.ts';
-import { importPlainTextMap } from '../util/import_file_util.ts';
 import { getZenlessControl } from '../../domain/zenless/zenlessControl.ts';
 import { generateDialogueNodes } from './module.dialogue-nodes.ts';
 import { zenlessNormalize } from './module.normalize.ts';
 import { createChangelog, doChangelogMiscBackfill } from '../util/changelog/createChangelogUtil.ts';
 import { doImportExcelScalars } from '../util/excel_usages_importer.ts';
+import { importPlainTextMap } from '../util/import_plaintext.ts';
 
 export async function importZenlessFilesCli() {
   const options_beforeDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [

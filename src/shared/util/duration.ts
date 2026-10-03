@@ -115,6 +115,15 @@ export class Duration {
     return Math.floor(this.millis / 86_400_000);
   }
 
+  /**
+   * Returns a new `Date` that is this duration added to the specified base date.
+   * @param base The date or timestamp to add this duration to. Defaults to the current date/time if not specified.
+   * @returns A new `Date` representing the base date plus this duration.
+   */
+  toDate(base: Date|number = Date.now()): Date {
+    return new Date(asMs(base) + this.millis);
+  }
+
   // --- Arithmetic Operations ---
 
   /**

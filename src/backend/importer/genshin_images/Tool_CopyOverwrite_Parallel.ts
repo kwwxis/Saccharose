@@ -78,8 +78,11 @@ async function runWorker() {
     if (msg.file) {
       try {
         const file = msg.file;
-        const basename = path.basename(file);
-        const targetName = targetDir + '/' + basename;
+        const relPath = path.relative(sourceDir, file);
+        const targetName = path.join(targetDir, relPath);
+
+        // Ensure the target's subfolder structure exists.
+        fs.mkdirSync(path.dirname(targetName), { recursive: true });
 
         // Always overwrite the target with the source file.
         fs.copyFileSync(file, targetName);

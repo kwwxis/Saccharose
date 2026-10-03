@@ -6,7 +6,6 @@ import chalk from 'chalk';
 import { getGenshinDataFilePath } from '../../loadenv.ts';
 import { getGenshinControl } from '../../domain/genshin/genshinControl.ts';
 import { closeKnex } from '../../util/db.ts';
-import { importPlainTextMap } from '../util/import_file_util.ts';
 import { importGcgSkill } from './module.gcg-skill.ts';
 import { importVoiceItems } from './module.voice-items.ts';
 import { writeDeobfExcels } from './module.deobf-excel.ts';
@@ -30,6 +29,7 @@ import { isset } from '../../../shared/util/genericUtil.ts';
 import { importGenshinReadableChanges } from '../../domain/genshin/readables/genshinReadableChanges.ts';
 import { doImportExcelScalars } from '../util/excel_usages_importer.ts';
 import { populateImageContainers } from './module.image-containers.ts';
+import { importPlainTextMap } from '../util/import_plaintext.ts';
 
 export async function importGenshinFilesCli() {
   const options_beforeDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
