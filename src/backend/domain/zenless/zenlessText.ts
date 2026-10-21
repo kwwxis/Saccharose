@@ -105,8 +105,8 @@ export function __normZenlessText(text: string, langCode: LangCode, opts: NormTe
     text = text.replace(/<color=(#[0-9a-fA-F]{6})(?:FF|ff)?>(.*?)<\/color>/g, '{{Color|$1|$2}}');
   }
 
-  text = text.replace(/<IconMap:Icon_(Normal|Evade|Switch|Special|SpecialReady|SpecialReady_Rp|UltimateReady)>/g,
-    (_fm, g: 'Normal'|'Evade'|'Switch'|'Special'|'SpecialReady'|'SpecialReady_Rp'|'UltimateReady') => {
+  text = text.replace(/<IconMap:Icon_(Normal|Evade|Switch|Special|SpecialReady|SpecialReady_Rp|SpecialReady_Ep|UltimateReady)>/g,
+    (_fm, g: 'Normal'|'Evade'|'Switch'|'Special'|'SpecialReady'|'SpecialReady_Rp'|'SpecialReady_Ep'|'UltimateReady') => {
       switch (g) {
         case 'Normal':
           return '{{BA}}';
@@ -120,6 +120,8 @@ export function __normZenlessText(text: string, langCode: LangCode, opts: NormTe
           return '{{EX}}';
         case 'SpecialReady_Rp':
           return '{{EXRP}}';
+        case 'SpecialReady_Ep':
+          return '{{EXAR}}';
         case 'UltimateReady':
           return '{{Ult2}}';
       }
@@ -141,6 +143,12 @@ export function __normZenlessText(text: string, langCode: LangCode, opts: NormTe
 
   if (text.includes('<ruby=')) {
     text = text.replaceAll(/<ruby=([^>]+)>([^<]+)<\/ruby>/g, (_fm, rubi, base) => {
+      return opts.plaintext ? base : `{{Rubi|${base}|${rubi}}}`;
+    });
+  }
+
+  if (text.includes('<ruby><rt>')) {
+    text = text.replaceAll(/<ruby><rt>([^<]+)<\/rt>([^<]+)<\/ruby>/g, (_fm, base, rubi) => {
       return opts.plaintext ? base : `{{Rubi|${base}|${rubi}}}`;
     });
   }
