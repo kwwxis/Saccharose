@@ -101,30 +101,30 @@ export const zenlessSchema = {
 
   // Dialogue Node
   // --------------------------------------------------------------------------------------------------------------
-  DialogueNodeTemplateTb: <SchemaTable> {
-    name: 'DialogueNodeTemplateTb',
-    jsonFile: './FileCfg/DialogueNodeTemplateTb.json',
-    columns: [
-      { name: 'NodeId', type: 'text', isPrimary: true },
-      { name: 'NodeType', type: 'integer', isIndex: true },
-      { name: 'ScriptConfigName', type: 'text', isIndex: true },
-      { name: 'AvatarNameKey', type: 'text', isIndex: true },
-      { name: 'DialogueKey', type: 'text', isIndex: true },
-      { name: 'AvatarId', type: 'integer', isIndex: true },
-    ]
-  },
-  Relation_DialogToNext: <SchemaTable> {
-    name: 'Relation_DialogToNext',
-    jsonFile: './FileCfg/DialogueNodeTemplateTb.json',
-    columns: [
-      { name: 'NodeId', type: 'text', isIndex: true },
-      { name: 'NextNodeId', type: 'text', isIndex: true },
-    ],
-    customRowResolveProvider: async () => {
-      // Cannot import ZenlessControl from this file (zenless.schema.ts) which is why we're using a dynamic import.
-      return (await import('./zenless.customRowResolvers.ts')).relation_DialogToNext_resolver;
-    }
-  },
+  // DialogueNodeTemplateTb: <SchemaTable> {
+  //   name: 'DialogueNodeTemplateTb',
+  //   jsonFile: './FileCfg/DialogueNodeTemplateTb.json',
+  //   columns: [
+  //     { name: 'NodeId', type: 'text', isPrimary: true },
+  //     { name: 'NodeType', type: 'integer', isIndex: true },
+  //     { name: 'ScriptConfigName', type: 'text', isIndex: true },
+  //     { name: 'AvatarNameKey', type: 'text', isIndex: true },
+  //     { name: 'DialogueKey', type: 'text', isIndex: true },
+  //     { name: 'AvatarId', type: 'integer', isIndex: true },
+  //   ]
+  // },
+  // Relation_DialogToNext: <SchemaTable> {
+  //   name: 'Relation_DialogToNext',
+  //   jsonFile: './FileCfg/DialogueNodeTemplateTb.json',
+  //   columns: [
+  //     { name: 'NodeId', type: 'text', isIndex: true },
+  //     { name: 'NextNodeId', type: 'text', isIndex: true },
+  //   ],
+  //   customRowResolveProvider: async () => {
+  //     // Cannot import ZenlessControl from this file (zenless.schema.ts) which is why we're using a dynamic import.
+  //     return (await import('./zenless.customRowResolvers.ts')).relation_DialogToNext_resolver;
+  //   }
+  // },
 
   GlossaryTerms: <SchemaTable> {
     name: 'GlossaryTerms',

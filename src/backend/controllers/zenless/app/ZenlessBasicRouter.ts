@@ -13,7 +13,7 @@ import {
 } from '../../generic/app/abstractBasicRouter.ts';
 import { getZenlessControl } from '../../../domain/zenless/zenlessControl.ts';
 import OLCombinePage from '../../../components/shared/OLCombinePage.vue';
-import ZenlessDialogueGenerationPage from '../../../components/zenless/ZenlessDialogueGenerationPage.vue';
+// import ZenlessDialogueGenerationPage from '../../../components/zenless/ZenlessDialogueGenerationPage.vue';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -76,12 +76,12 @@ export default async function(): Promise<Router> {
     });
   });
 
-  router.get('/dialogue-generation', async (req: Request, res: Response) => {
-    await res.renderComponent(ZenlessDialogueGenerationPage, {
-      title: 'Dialogue Generation',
-      bodyClass: ['page--dialogue-generation']
-    });
-  });
+  // router.get('/dialogue-generation', async (req: Request, res: Response) => {
+  //   await res.renderComponent(ZenlessDialogueGenerationPage, {
+  //     title: 'Dialogue Generation',
+  //     bodyClass: ['page--dialogue-generation']
+  //   });
+  // });
 
   return router;
 }

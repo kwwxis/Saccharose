@@ -292,9 +292,9 @@ export const zenlessEndpoints = {
     hashSearch: boolean,
   }>('GET', '/dialogue-helper'),
 
-  dialogueGeneration: new ZenlessApiEndpoint<{
-    text: string,
-  }>('GET', '/dialogue-generation'),
+  // dialogueGeneration: new ZenlessApiEndpoint<{
+  //   text: string,
+  // }>('GET', '/dialogue-generation'),
 
   getExcelUsages: new ZenlessApiEndpoint<{q: string}, ScalarToExcelUsages>('GET', '/excel-usages'),
 };

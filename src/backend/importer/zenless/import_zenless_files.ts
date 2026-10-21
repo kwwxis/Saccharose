@@ -16,7 +16,7 @@ import { importPlainTextMap } from '../util/import_plaintext.ts';
 
 export async function importZenlessFilesCli() {
   const options_beforeDb: (ArgsOptionDefinition & UsageOptionDefinition)[] = [
-    {name: 'dialogue-nodes', type: Boolean, description: 'Creates dialogue nodes file.'},
+    // {name: 'dialogue-nodes', type: Boolean, description: 'Creates dialogue nodes file.'},
     {name: 'normalize', type: Boolean, description: 'Normalizes the JSON files.'},
     {name: 'plaintext', type: Boolean, description: 'Creates the PlainTextMap files.'},
   ];
@@ -93,9 +93,9 @@ export async function importZenlessFilesCli() {
     const ctrl = getZenlessControl();
     await importPlainTextMap(ctrl, getZenlessDataFilePath);
   }
-  if (options['dialogue-nodes']) {
-    await generateDialogueNodes(getZenlessDataFilePath());
-  }
+  // if (options['dialogue-nodes']) {
+  //   await generateDialogueNodes(getZenlessDataFilePath());
+  // }
   if (options['changelog-tm']) {
     await createChangelog(getZenlessControl(), options['changelog-tm'], 'textmap');
   }
