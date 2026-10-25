@@ -15,7 +15,7 @@ import {
   TutorialsByType,
 } from '../../../../shared/types/genshin/tutorial-types.ts';
 import { isInt, toInt } from '../../../../shared/util/numberUtil.ts';
-import { escapeRegExp } from '../../../../shared/util/stringUtil.ts';
+import { escapeRegExp, createTextMatchRanker } from '../../../../shared/util/stringUtil.ts';
 import { Marker } from '../../../../shared/util/highlightMarker.ts';
 
 export function pushTipCodexTypeName(type: PushTipsCodexType): string {
@@ -76,25 +76,21 @@ export const TUTORIAL_DEFAULT_FILE_FORMAT_IMAGE =
  * Searches tutorials, returning a list of tutorial IDs.
  */
 export async function searchTutorials(ctrl: GenshinControl, searchText: string): Promise<number[]> {
-  const ids: number[] = [];
-
-  if (isInt(searchText)) {
-    ids.push(toInt(searchText));
-  }
+  const directIdMatch: number[] = isInt(searchText) ? [toInt(searchText)] : [];
+  const ranker = createTextMatchRanker(searchText, ctrl.searchModeFlags.includes('i'));
 
   await ctrl.streamTextMapMatchesWithIndex({
     inputLangCode: ctrl.inputLangCode,
     outputLangCode: ctrl.outputLangCode,
     searchText,
     textIndexName: 'Tutorial',
-    stream: (id: number) => {
-      if (!ids.includes(id))
-        ids.push(id);
+    stream: (id: number, entityIndexName, textMapHash, text: string) => {
+      ranker.add(id, text);
     },
     flags: ctrl.searchModeFlags
   });
 
-  return ids;
+  return ranker.orderedIds(directIdMatch);
 }
 
 export async function selectTutorials(ctrl: GenshinControl,

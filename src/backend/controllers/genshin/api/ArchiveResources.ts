@@ -17,6 +17,7 @@ import ReadableSearchResults from '../../../components/genshin/readables/partial
 import MaterialSearchResults from '../../../components/genshin/materials/MaterialSearchResults.vue';
 import { BydMaterialExcelConfigData } from '../../../../shared/types/genshin/beyond-types.ts';
 import BydMaterialSearchResults from '../../../components/genshin/materials/BydMaterialSearchResults.vue';
+import { GameVersions } from '../../../../shared/types/game-versions.ts';
 
 const router: Router = create();
 
@@ -24,7 +25,11 @@ router.endpoint('/readables/search', {
   get: async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
 
-    let searchView: ReadableSearchResult = await ctrl.readables.search(req.query.text as string);
+    const versionFilter: GameVersions = ctrl.gameVersions
+      .where(v => v.showExcelChangelog)
+      .fromFilterString(req.query.versionFilter);
+
+    let searchView: ReadableSearchResult = await ctrl.readables.search(req.query.text as string, versionFilter);
 
     if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
       await res.renderComponent(ReadableSearchResults, {

@@ -638,6 +638,32 @@ export function cleanEmpty<T>(o: T): T {
     }
 }
 
+/**
+ * Sorts an array of items according to the position of their key (as produced by `keySelector`) within an
+ * externally provided `order` array. Items whose key isn't found in `order` are placed at the end, retaining
+ * their relative order. Does not mutate the input array.
+ *
+ * Useful after a `whereIn(...)` database query, which does not guarantee that the returned rows preserve the
+ * order of the ids that were queried for.
+ */
+export function sortByExternalOrder<T, K = any>(items: T[], keySelector: keyof T | ((item: T) => K), idsInOrder: K[]): T[] {
+    const getKey: (item: T) => K = typeof keySelector === 'function'
+        ? keySelector as (item: T) => K
+        : (item: T) => item[keySelector] as unknown as K;
+
+    const indexByKey: Map<K, number> = new Map();
+    idsInOrder.forEach((key, idx) => {
+        if (!indexByKey.has(key)) {
+            indexByKey.set(key, idx);
+        }
+    });
+    return items.slice().sort((a, b) => {
+        const ia: number = indexByKey.has(getKey(a)) ? indexByKey.get(getKey(a)) : idsInOrder.length;
+        const ib: number = indexByKey.has(getKey(b)) ? indexByKey.get(getKey(b)) : idsInOrder.length;
+        return ia - ib;
+    });
+}
+
 export function arrayUnique<T>(a: T[]): T[] {
     let prims = { 'boolean': {}, 'number': {}, 'string': {} }, objs = [];
     return a.filter(function(item) {

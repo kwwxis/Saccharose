@@ -11,6 +11,9 @@
         </div>
         <SearchModeInput />
       </div>
+      <div class="field valign">
+        <VersionFilterInput></VersionFilterInput>
+      </div>
       <div class="field valign spacer10-top">
         <button class="search-submit primary primary--2">Search</button>
         <div class="search-submit-pending hide loading small spacer5-left"></div>
@@ -23,6 +26,7 @@
 <script setup lang="ts">
 import Icon from '../../utility/Icon.vue';
 import SearchModeInput from '../../utility/SearchModeInput.vue';
+import VersionFilterInput from '../../utility/VersionFilterInput.vue';
 
 defineProps<{
 

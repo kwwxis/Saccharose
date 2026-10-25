@@ -271,9 +271,14 @@
         <span class="expando spacer5-right" ui-action="expando: #readable-text-content"><Icon name="chevron-down" :size="17" /></span>
         <span>Readable Text</span>
         <span class="grow"></span>
-        <a class="valign fontWeight500" :href="`/genshin/readables/item/${material.Id}`" style="font-size:18px" target="_blank">
-          <span class="spacer5-right" style="font-size:15px">Readable</span><Icon name="external-link" :size="16" />
-        </a>
+        <div style="line-height: 1em">
+          <a class="valign fontWeight500" :href="`/genshin/readables/item/${readable.Id}`" style="font-size:18px" target="_blank">
+            <span class="spacer5-right" style="font-size:15px">Readable {{readable.Id}}</span><Icon name="external-link" :size="16" />
+          </a>
+          <div class="opacity80p" v-if="readable.AddedAtVersion">
+            <small>Added in {{ readable.AddedAtVersion.displayLabel }}</small>
+          </div>
+        </div>
       </h2>
       <div id="readable-text-content" class="content">
         <ReadableTexts :readable="readable" />

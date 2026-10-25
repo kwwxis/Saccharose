@@ -14,6 +14,12 @@ pageMatch('ReadableSearchPage', () => {
         queryParam: 'q',
         pasteButton: '.search-input-paste',
         clearButton: '.search-input-clear'
+      },
+      {
+        selector: '#versionFilter',
+        apiParam: 'versionFilter',
+        queryParam: 'versions',
+        clearButton: '.version-filter-clear',
       }
     ],
 

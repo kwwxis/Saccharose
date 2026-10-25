@@ -73,8 +73,8 @@ import AchievementTriggerDesc from './AchievementTriggerDesc.vue';
 import Wikitext from '../../utility/Wikitext.vue';
 import { AchievementExcelConfigData } from '../../../../shared/types/genshin/achievement-types.ts';
 import { useTrace } from '../../../middleware/request/tracer.ts';
-import { toParam } from '../../../../shared/util/stringUtil.ts';
 import { ExcelChangeRef } from '../../../../shared/types/changelog-types.ts';
+import { toParam } from '../../../../shared/util/stringHtmlUtil.ts';
 
 const { normGenshinText } = useTrace();
 

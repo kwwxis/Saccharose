@@ -1,4 +1,4 @@
-import { escapeHtml } from '../../shared/util/stringUtil.ts';
+import { escapeHtml } from '../../shared/util/stringHtmlUtil.ts';
 
 export const TOAST_INFO: ToastType = 'info';
 export const TOAST_SUCCESS: ToastType = 'success';

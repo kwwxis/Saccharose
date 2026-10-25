@@ -101,7 +101,7 @@
           <div v-if="expanded.Images?.length" role="tabpanel" :aria-labelledby="`tab-${itemRef}-${expanded.LangCode}-images`" class="tabpanel content hide" :id="`tabpanel-${itemRef}-${expanded.LangCode}-images`" data-for="images">
             <fieldset v-for="image of expanded.Images" class="spacer5-top">
               <legend>{{ image }}</legend>
-              <img :src="`/images/genshin/${image}.png`" />
+              <img :src="`/images/genshin/${image}.png`" style="max-width:100%" />
             </fieldset>
           </div>
 

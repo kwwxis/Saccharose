@@ -259,6 +259,7 @@ export type ReadableChanges = {
   list: ReadableChange[];
   byVersionNumber: Record<string, ReadableChange>;
   ranges: ReadableChangeRange[];
+  lowestContentfulVersion: GameVersion,
 }
 
 export type ReadableChangeRange = {

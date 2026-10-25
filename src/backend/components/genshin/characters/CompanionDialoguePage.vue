@@ -34,7 +34,8 @@
 import { HomeWorldNPCExcelConfigData } from '../../../../shared/types/genshin/homeworld-types.ts';
 import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
 import DialogueSection from '../../utility/DialogueSection.vue';
-import { toParam } from '../../../../shared/util/stringUtil.ts';
+
+import { toParam } from '../../../../shared/util/stringHtmlUtil.ts';
 
 defineProps<{
   companions?: HomeWorldNPCExcelConfigData[]

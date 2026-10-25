@@ -12,9 +12,10 @@ import {
   VoAppPreloadInput,
 } from '../../generic/vo-tool/vo-preload-types.ts';
 import { enforcePropOrderItem } from '../../generic/vo-tool/vo-handle.ts';
-import { replaceRomanNumerals, romanToInt, SbOut } from '../../../../shared/util/stringUtil.ts';
+import { SbOut } from '../../../../shared/util/stringUtil.ts';
 import { FavorWord, FavorWordGroup } from '../../../../shared/types/wuwa/favor-types.ts';
 import { isRover, RoleInfo } from '../../../../shared/types/wuwa/role-types.ts';
+import { replaceRomanNumerals, romanToInt } from '../../../../shared/util/romanNumeralUtil.ts';
 
 // region General Config
 // --------------------------------------------------------------------------------------------------------------

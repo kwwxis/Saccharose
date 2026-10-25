@@ -1,7 +1,8 @@
 import { Listener } from '../../util/eventListen.ts';
 import Cookies from 'js-cookie';
 import { modalService } from '../../util/modalService.ts';
-import { escapeHtml } from '../../../shared/util/stringUtil.ts';
+
+import { escapeHtml } from '../../../shared/util/stringHtmlUtil.ts';
 
 export const FileFormatListeners: Listener[] = [
   {

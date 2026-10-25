@@ -4,7 +4,6 @@ import { SITE_MODE } from '../../../core/userPreferences/siteModeInfo.ts';
 import { constrainNumber, isInt, toInt } from '../../../../shared/util/numberUtil.ts';
 import { ScriptJobPostResult, ScriptJobState } from '../../../../backend/util/scriptJobs.ts';
 import { MwRevision } from '../../../../shared/mediawiki/mwTypes.ts';
-import { escapeHtml } from '../../../../shared/util/stringUtil.ts';
 import { humanTiming } from '../../../../shared/util/genericUtil.ts';
 import { createElement } from '../../../util/domutil.ts';
 import { listen } from '../../../util/eventListen.ts';
@@ -16,6 +15,7 @@ import { isNightmode } from '../../../core/userPreferences/siteTheme.ts';
 import { createRevListHtml } from './util/mwRevItem.ts';
 import { ScriptJobPollContext } from '../../../util/ScriptJobPollContext.ts';
 import { iconSvg } from '../../../../shared/util/iconProvider.ts';
+import { escapeHtml } from '../../../../shared/util/stringHtmlUtil.ts';
 
 let sideOverlayScroll: OverlayScrollbars;
 

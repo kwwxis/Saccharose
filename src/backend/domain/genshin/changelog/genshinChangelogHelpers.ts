@@ -222,7 +222,7 @@ async function _generateGenshinChangelogNewRecordSummary(ctrl: GenshinControl, g
       disableTalkLoad: true,
     })).then(ret => out.tcgStages = ret),
 
-    newIntKeysOf('DocumentExcelConfigData').asyncMap(id => ctrl.readables.select(id, false)).then(readables => {
+    newIntKeysOf('DocumentExcelConfigData').asyncMap(id => ctrl.readables.select(id, {LoadReadableItems: false})).then(readables => {
       out.readables = ctrl.readables.generateArchive(readables);
     }),
 
@@ -255,7 +255,7 @@ async function _generateGenshinChangelogNewRecordSummary(ctrl: GenshinControl, g
 
   out.updatedReadables = ctrl.readables.generateArchive(await updatedLocPaths.asyncMap(async changedLocPath => {
     const locId = await ctrl.readables.selectLocalizationIdByLocPath(changedLocPath.locPath);
-    return await ctrl.readables.selectReadableByLocalizationId(locId, false);
+    return await ctrl.readables.selectReadableByLocalizationId(locId, {LoadReadableItems: false});
   }));
 
   for (let npc of out.npcs) {

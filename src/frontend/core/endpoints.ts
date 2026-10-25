@@ -1,5 +1,4 @@
 // noinspection JSUnusedGlobalSymbols
-import { escapeHtml } from '../../shared/util/stringUtil.ts';
 import axios, { AxiosError } from 'axios';
 import { showInternalErrorDialog, showJavascriptErrorDialog } from '../util/errorHandler.ts';
 import { modalService } from '../util/modalService.ts';
@@ -18,11 +17,12 @@ import {
 } from '../../shared/types/image-index-types.ts';
 import { SitePrefName, SiteUserPrefs } from '../../shared/types/site/site-user-types.ts';
 import { FavorWordGroup } from '../../shared/types/wuwa/favor-types.ts';
-import { TextMapSearchResponse } from '../../shared/types/lang-types.ts';
+import { TextMapSearchEndpointParams, TextMapSearchResponse } from '../../shared/types/lang-types.ts';
 import { ScalarToExcelUsages } from '../../shared/util/searchUtil.ts';
 import { WsJwtTokenResponse } from '../../shared/types/wss-types.ts';
 import { OLCombinedResult, OLConfig, OLConfigMap, OLResult } from '../../shared/types/ol-types.ts';
 import { IconName, IconProps } from '../../shared/util/iconProvider.ts';
+import { escapeHtml } from '../../shared/util/stringHtmlUtil.ts';
 
 export type ApiParams<T> = T & {
   fields?: string,
@@ -213,11 +213,7 @@ export const genshinEndpoints = {
   generateReminderDialogue: new GenshinApiEndpoint<{text: string, subsequentAmount?: number}>(
     'GET', '/dialogue/reminder-dialogue-generate'),
 
-  searchTextMap: new GenshinApiEndpoint<{
-    text: string,
-    startFromLine: number,
-    resultSetIdx: number,
-  }, TextMapSearchResponse>('GET', '/search-textmap'),
+  searchTextMap: new GenshinApiEndpoint<TextMapSearchEndpointParams, TextMapSearchResponse>('GET', '/search-textmap'),
 
   getExcelUsages: new GenshinApiEndpoint<{q: string}, ScalarToExcelUsages>('GET', '/excel-usages'),
 
@@ -225,7 +221,7 @@ export const genshinEndpoints = {
 
   getFetters: new GenshinApiEndpoint<{avatarId: number}, FetterGroup>('GET', '/character/fetters'),
 
-  searchReadables: new GenshinApiEndpoint<{text: string}>('GET', '/readables/search'),
+  searchReadables: new GenshinApiEndpoint<{text: string, versionFilter?: string}>('GET', '/readables/search'),
 
   searchItems: new GenshinApiEndpoint<{text: string}>('GET', '/items/search'),
   searchBydItems: new GenshinApiEndpoint<{text: string}>('GET', '/byd/items/search'),
@@ -254,11 +250,7 @@ export const starRailEndpoints = {
 
   combineOL: new StarRailApiEndpoint<any, OLCombinedResult, string>('POST', '/OL/combine'),
 
-  searchTextMap: new StarRailApiEndpoint<{
-    text: string,
-    startFromLine: number,
-    resultSetIdx: number,
-  }, TextMapSearchResponse>('GET', '/search-textmap'),
+  searchTextMap: new StarRailApiEndpoint<TextMapSearchEndpointParams, TextMapSearchResponse>('GET', '/search-textmap'),
 
   getExcelUsages: new StarRailApiEndpoint<{q: string}, ScalarToExcelUsages>('GET', '/excel-usages'),
 
@@ -281,11 +273,7 @@ export const zenlessEndpoints = {
 
   combineOL: new ZenlessApiEndpoint<any, OLCombinedResult, string>('POST', '/OL/combine'),
 
-  searchTextMap: new ZenlessApiEndpoint<{
-    text: string,
-    startFromLine: number,
-    resultSetIdx: number,
-  }, TextMapSearchResponse>('GET', '/search-textmap'),
+  searchTextMap: new ZenlessApiEndpoint<TextMapSearchEndpointParams, TextMapSearchResponse>('GET', '/search-textmap'),
 
   dialogueHelper: new ZenlessApiEndpoint<{
     text: string,
@@ -310,11 +298,7 @@ export const wuwaEndpoints = {
 
   combineOL: new WuwaApiEndpoint<any, OLCombinedResult, string>('POST', '/OL/combine'),
 
-  searchTextMap: new WuwaApiEndpoint<{
-    text: string,
-    startFromLine: number,
-    resultSetIdx: number,
-  }, TextMapSearchResponse, TextMapSearchResponse>('GET', '/search-textmap'),
+  searchTextMap: new WuwaApiEndpoint<TextMapSearchEndpointParams, TextMapSearchResponse, TextMapSearchResponse>('GET', '/search-textmap'),
 
   getExcelUsages: new WuwaApiEndpoint<{q: string}, ScalarToExcelUsages>('GET', '/excel-usages'),
 

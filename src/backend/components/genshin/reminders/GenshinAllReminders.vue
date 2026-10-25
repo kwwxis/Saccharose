@@ -27,8 +27,8 @@
 import DialogueSection from '../../utility/DialogueSection.vue';
 import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
 import { GameVersion } from '../../../../shared/types/game-versions.ts';
-import { toHtmlId } from '../../../../shared/util/stringUtil.ts';
 import { ReminderExcelByVersionCounts } from '../../../../shared/types/genshin/dialogue-types.ts';
+import { toHtmlId } from '../../../../shared/util/stringHtmlUtil.ts';
 
 const { reminderGroups } = defineProps<{
   version?: GameVersion,

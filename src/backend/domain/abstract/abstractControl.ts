@@ -71,7 +71,7 @@ import { GameVersion, GameVersions } from '../../../shared/types/game-versions.t
 import { ScriptJobActionArgs, ScriptJobCoordinator, ScriptJobPostResult } from '../../util/scriptJobs.ts';
 import { IntHolder } from '../../../shared/util/valueHolder.ts';
 import { SiteMode } from '../../../shared/types/site/site-mode-type.ts';
-import { fsExists, fsReadJson } from '../../util/fsutil.ts';
+import { fsExists } from '../../util/fsutil.ts';
 import { TextMapChangelog } from './tmchanges.ts';
 import { Duration } from '../../../shared/util/duration.ts';
 import { ExcelScalarEntity, TextmapSearchIndexRow } from '../../../shared/types/common-types.ts';
@@ -735,7 +735,7 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
         } else {
           keysSeen.add(row.key);
         }
-        opts.stream(row.key, row.index_name, row.hash, hashMatches[row.hash]);
+        opts.stream(row.key, row.index_name, row.hash, hashMatches[row.hash], row.role);
       }
     });
 

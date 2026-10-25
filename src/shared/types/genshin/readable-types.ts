@@ -16,7 +16,9 @@ import { WeaponExcelConfigData } from './weapon-types.ts';
 import { MainQuestExcelConfigData } from './quest-types.ts';
 import { Marker } from '../../util/highlightMarker.ts';
 import { LangCode, LangCodeMap } from '../lang-types.ts';
-import { ReadableChangesGroup } from '../changelog-types.ts';
+import { ExcelChangeRef, ReadableChangesGroup } from '../changelog-types.ts';
+import { AvatarCostumeExcelConfigData, AvatarFlycloakExcelConfigData } from './avatar-types.ts';
+import { GameVersion } from '../game-versions.ts';
 
 // Search View
 // --------------------------------------------------------------------------------------------------------------
@@ -26,27 +28,67 @@ export interface ReadableSearchResult {
   ContentResults: Readable[]
 }
 
+export type ReadableLoadConf = {
+  LoadReadableItems?: boolean | ((readable: Readable) => boolean),
+  LoadAddedAt?: boolean,
+};
+
 // Book View
 // --------------------------------------------------------------------------------------------------------------
 
-export interface Readable {
-  Id: number,
+export type ReadableVariantType = 'Material' | 'Artifact' | 'Weapon' | 'Flycloak' | 'Costume';
+export type ReadableMetaType = 'BookSuit' | 'NonBookSuit' | 'BookCodex' | 'NonBookCodex';
+
+export interface ReadableVariantInfo {
+  VariantType: ReadableVariantType,
   TitleText?: string,
   TitleTextMapHash?: number,
   Icon?: string,
+}
 
+export interface Readable {
+  // The ID of the DocumentExcelConfigData that this readable is based on. This is the primary key for the readable.
+  Id: number,
+
+  // The general type of the readable:
+  VariantTypes: ReadableVariantType[],
+  MetaTypes: ReadableMetaType[],
+
+  // Fields taken from the type-specific ExcelConfigData, if available:
+  PrimaryVariantTitleText?: string,
+  PrimaryVariantTitleTextMapHash?: number,
+  PrimaryVariantIcon?: string,
+  Variants: {[variantType in ReadableVariantType]?: ReadableVariantInfo},
+
+  // The following fields are always available, regardless of type:
   Document: DocumentExcelConfigData,
   Items: ReadableItem[],
 
+  // Type=Material data:
   Material?: MaterialExcelConfigData,
+
+  // BookSuit is for readables part of a collection. This is only checked for readables of type "Material"
   BookSuit?: BookSuitExcelConfigData,
+
+  // Codex is if the readable is in the in-game Archive (which is internally called "Codex").
   BookCodex?: BooksCodexExcelConfigData,
 
+  // Type=Artifact data:
   Artifact?: ReliquaryExcelConfigData,
   ArtifactSet?: ReliquarySetExcelConfigData,
   ArtifactCodex?: ReliquaryCodexExcelConfigData,
 
+  // Type=Weapon data:
   Weapon?: WeaponExcelConfigData,
+
+  // Type=Flycloak data:
+  Flycloak?: AvatarFlycloakExcelConfigData;
+
+  // Type=Costume data:
+  Costume?: AvatarCostumeExcelConfigData;
+
+  // The version at which this Readable (DocumentExcelConfigData) was first added to the game.
+  AddedAtVersion?: GameVersion;
 }
 
 export interface ReadableArchive {

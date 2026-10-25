@@ -29,7 +29,7 @@ import { SchemaTable } from '../../../importer/import_db.ts';
 import { genshinSchema } from '../../../importer/genshin/genshin.schema.ts';
 import { LangCode } from '../../../../shared/types/lang-types.ts';
 import { isInt, toInt } from '../../../../shared/util/numberUtil.ts';
-import { replaceAsync } from '../../../../shared/util/stringUtil.ts';
+import { createTextMatchRanker, replaceAsync } from '../../../../shared/util/stringUtil.ts';
 import { isUnset } from '../../../../shared/util/genericUtil.ts';
 import { findFiles } from '../../../util/shellutil.ts';
 import path from 'path';
@@ -37,7 +37,7 @@ import { standardElementCode } from '../misc/manual-text-map.ts';
 import { html2quotes, unnestHtmlTags } from '../../../../shared/mediawiki/mwQuotes.ts';
 import { loadGenshinTextSupportingData } from '../genshinText.ts';
 import { dialogueGenerateByNpc, NpcDialogueResult } from '../dialogue/basic_dialogue_generator.ts';
-import { mapBy } from '../../../../shared/util/arrayUtil.ts';
+import { mapBy, sortByExternalOrder } from '../../../../shared/util/arrayUtil.ts';
 import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
 import { fsExists } from '../../../util/fsutil.ts';
 
@@ -628,26 +628,25 @@ export class GCGControl {
       searchText = searchText.trim();
     }
 
-    const ids: number[] = [];
-
-    if (isInt(searchText)) {
-      ids.push(toInt(searchText));
-    }
+    const directIdMatch: number[] = isInt(searchText) ? [toInt(searchText)] : [];
+    const ranker = createTextMatchRanker(searchText, searchFlags.includes('i'));
 
     await this.ctrl.streamTextMapMatchesWithIndex({
       inputLangCode: this.ctrl.inputLangCode,
       outputLangCode: this.ctrl.outputLangCode,
       searchText,
       textIndexName: 'TCGStage',
-      stream: (id: number) => {
-        if (!ids.includes(id))
-          ids.push(id);
+      stream: (id: number, entityIndexName, textMapHash, text: string) => {
+        ranker.add(id, text);
       },
       flags: searchFlags
     });
 
-    return await this.multiSelect('GCGGameExcelConfigData', 'Id', ids,
+    const ids: number[] = ranker.orderedIds(directIdMatch);
+
+    const stages: GCGGameExcelConfigData[] = await this.multiSelect('GCGGameExcelConfigData', 'Id', ids,
         o => this.postProcessStage(o, disableLoad));
+    return sortByExternalOrder(stages, 'Id', ids);
   }
 
   getStageForJson(stage: GCGGameExcelConfigData, unmap: boolean = false): GCGGameExcelConfigData {

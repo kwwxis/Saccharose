@@ -27,7 +27,6 @@ export default async function(): Promise<Router> {
     await res.renderComponent(TextmapSearchPage, {
       title: 'TextMap Search',
       bodyClass: ['page--textmap'],
-      versionFilterMoreInfo: 'Does not support verson 3.1 in particular.',
       supportedLangCodes: getStarRailControl(req).supportedLangCodes,
     });
   });

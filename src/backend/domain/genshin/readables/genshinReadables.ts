@@ -3,10 +3,11 @@ import {
   BooksCodexExcelConfigData,
   BookSuitExcelConfigData,
   DocumentExcelConfigData, LANG_CODE_TO_LOCALIZATION_PATH_PROP, LANG_CODE_TO_LOCALIZATION_PATH_PROP_ENTRIES,
-  LocalizationExcelConfigData, Readable, ReadableArchive, ReadableItem, ReadableSearchResult, ReadableText,
+  LocalizationExcelConfigData, Readable, ReadableArchive, ReadableItem, ReadableLoadConf, ReadableSearchResult, ReadableText,
+  ReadableVariantInfo,
 } from '../../../../shared/types/genshin/readable-types.ts';
 import { Knex } from 'knex';
-import { isStringBlank } from '../../../../shared/util/stringUtil.ts';
+import { isStringBlank, createTextMatchRanker } from '../../../../shared/util/stringUtil.ts';
 import { LangCode } from '../../../../shared/types/lang-types.ts';
 import { pairArrays, sort } from '../../../../shared/util/arrayUtil.ts';
 import { grepStream } from '../../../util/shellutil.ts';
@@ -16,8 +17,8 @@ import { Marker } from '../../../../shared/util/highlightMarker.ts';
 import { isset } from '../../../../shared/util/genericUtil.ts';
 import { fsRead } from '../../../util/fsutil.ts';
 import { toInt } from '../../../../shared/util/numberUtil.ts';
-import { ReadableChanges, ReadableChangesGroup } from '../../../../shared/types/changelog-types.ts';
 import { Duration } from '../../../../shared/util/duration.ts';
+import { GameVersion, GameVersions } from '../../../../shared/types/game-versions.ts';
 
 export class GenshinReadables {
   constructor(readonly ctrl: GenshinControl) {}
@@ -58,8 +59,21 @@ export class GenshinReadables {
       .where({Id: id}).first().then(this.ctrl.commonLoadFirst);
   }
 
-  public async selectBookCollection(suitId: number): Promise<BookSuitExcelConfigData> {
-    let archive: ReadableArchive = await this.selectArchive(readable => readable?.BookSuit?.Id === toInt(suitId));
+  public async selectBookCollection(suitId: number, loadConf: ReadableLoadConf = {}): Promise<BookSuitExcelConfigData> {
+    let archive: ReadableArchive = await this.selectArchive({
+      LoadReadableItems: readable => {
+        const superCondition = readable?.BookSuit?.Id === toInt(suitId);
+
+        if (typeof loadConf.LoadReadableItems === 'function') {
+          return superCondition && loadConf.LoadReadableItems(readable);
+        } else if (typeof loadConf.LoadReadableItems === 'boolean') {
+          return superCondition && loadConf.LoadReadableItems;
+        } else {
+          return superCondition;
+        }
+      },
+      ... loadConf
+    });
     return archive.BookCollections[suitId];
   }
   // endregion
@@ -70,19 +84,18 @@ export class GenshinReadables {
     if (isStringBlank(searchText)) {
       return [];
     }
-    let ids: number[] = [];
+    const ranker = createTextMatchRanker(searchText, (flags || '').includes('i'));
     await this.ctrl.streamTextMapMatchesWithIndex({
       inputLangCode: langCode,
       outputLangCode: langCode,
       searchText,
       textIndexName: 'Readable',
-      stream: (id: number) => {
-        if (!ids.includes(id))
-          ids.push(id);
+      stream: (id: number, entityIndexName, textMapHash, text: string) => {
+        ranker.add(id, text);
       },
       flags
     });
-    return ids;
+    return ranker.orderedIds();
   }
 
   private async getReadableFileNamesByContentMatch(langCode: LangCode, searchText: string, flags?: string): Promise<string[]> {
@@ -102,7 +115,11 @@ export class GenshinReadables {
     return out;
   }
 
-  public async search(searchText: string): Promise<ReadableSearchResult> {
+  public async search(searchText: string, versionFilter?: GameVersions): Promise<ReadableSearchResult> {
+    if (versionFilter && versionFilter.isEmpty()) {
+      versionFilter = null;
+    }
+
     const contentMatchFileNames = await this.getReadableFileNamesByContentMatch(this.inputLangCode, searchText, this.ctrl.searchModeFlags);
     const titleMatchDocumentIds = await this.getDocumentIdsByTitleMatch(this.inputLangCode, searchText, this.ctrl.searchModeFlags);
     const ret: ReadableSearchResult = { ContentResults: [], TitleResults: [] }
@@ -119,8 +136,20 @@ export class GenshinReadables {
       const normSearchText: string = this.ctrl.normText(searchText, this.inputLangCode);
 
       ret.ContentResults = await localizations.asyncMap(async localization => {
-        return await this.selectReadableByLocalizationId(localization.Id, true);
+        return await this.selectReadableByLocalizationId(localization.Id, {
+          LoadReadableItems: true,
+          LoadAddedAt: true
+        });
       });
+
+      if (versionFilter) {
+        ret.ContentResults = ret.ContentResults.filter(view => {
+          if (!view || !view.Document || !view.AddedAtVersion) {
+            return false;
+          }
+          return versionFilter.has(view.AddedAtVersion);
+        });
+      }
 
       for (let view of ret.ContentResults) {
         for (let item of view.Items) {
@@ -134,7 +163,19 @@ export class GenshinReadables {
     }
 
     if (titleMatchDocumentIds.length) {
-      ret.TitleResults = await titleMatchDocumentIds.asyncMap(async id => await this.select(id, false));
+      ret.TitleResults = await titleMatchDocumentIds.asyncMap(async id => await this.select(id, {
+        LoadReadableItems: false,
+        LoadAddedAt: true
+      }));
+
+      if (versionFilter) {
+        ret.TitleResults = ret.TitleResults.filter(view => {
+          if (!view || !view.Document || !view.AddedAtVersion) {
+            return false;
+          }
+          return versionFilter.has(view.AddedAtVersion);
+        });
+      }
     }
 
     return ret;
@@ -153,12 +194,12 @@ export class GenshinReadables {
       .then(res => res ? res.DocumentId : undefined);
   }
 
-  public async selectReadableByLocalizationId(localizationId: number, loadReadableItems: boolean = true): Promise<Readable> {
+  public async selectReadableByLocalizationId(localizationId: number, loadConf: ReadableLoadConf = {}): Promise<Readable> {
     if (isNaN(localizationId)) {
       return null;
     }
     return await this.selectDocumentIdByLocalizationId(localizationId)
-      .then(docId => isset(docId) ? this.select(docId, loadReadableItems) : null);
+      .then(docId => isset(docId) ? this.select(docId, loadConf) : null);
   }
 
   public async selectLocalizationIdByLocPath(path: string): Promise<number> {
@@ -302,7 +343,7 @@ export class GenshinReadables {
   }
 
   public async select(documentInput: number|DocumentExcelConfigData,
-                      loadReadableItems: boolean|((readable: Readable) => boolean) = true): Promise<Readable> {
+                      loadConf: ReadableLoadConf = {}): Promise<Readable> {
     const document: DocumentExcelConfigData = typeof documentInput === 'number' ? await this.selectDocument(documentInput) : documentInput;
 
     if (!document) {
@@ -312,16 +353,34 @@ export class GenshinReadables {
     const view: Readable = {
       Id: document.Id,
       Document: document,
-      Items: []
+      Items: [],
+      VariantTypes: [],
+      MetaTypes: [],
+      Variants: {},
     };
 
     view.BookCodex = await this.selectBookCodexByMaterialId(document.Id);
+    if (view.BookCodex) {
+      view.MetaTypes.push('BookCodex');
+    } else {
+      view.MetaTypes.push('NonBookCodex');
+    }
+
     view.Material = await this.ctrl.selectMaterialExcelConfigData(document.Id);
     view.Artifact = await this.ctrl.selectArtifactByStoryId(document.Id);
     view.Weapon = await this.ctrl.selectWeaponByStoryId(document.Id);
+    view.Costume = await this.ctrl.selectAvatarCostumeByMaterialId(document.Id);
+    view.Flycloak = await this.ctrl.selectAvatarFlycloakByMaterialId(document.Id);
 
     if (view.Material && view.Material.SetId) {
       view.BookSuit = await this.selectBookSuitById(view.Material.SetId);
+      if (view.BookSuit) {
+        view.MetaTypes.push('BookSuit');
+      } else {
+        view.MetaTypes.push('NonBookSuit');
+      }
+    } else {
+      view.MetaTypes.push('NonBookSuit');
     }
 
     if (view.Artifact) {
@@ -330,28 +389,64 @@ export class GenshinReadables {
     }
 
     if (view.Material) {
-      view.TitleText = view.Material.NameText;
-      view.TitleTextMapHash = view.Material.NameTextMapHash;
-      view.Icon = view.Material.Icon;
-      if (!view.TitleText)
-        view.TitleText = '(Unnamed item)';
-    } else if (view.Artifact) {
-      view.TitleText = view.Artifact.NameText;
-      view.TitleTextMapHash = view.Artifact.NameTextMapHash;
-      view.Icon = view.Artifact.Icon;
-      if (!view.TitleText)
-        view.TitleText = '(Unnamed artifact)';
-    } else if (view.Weapon) {
-      view.TitleText = view.Weapon.NameText;
-      view.TitleTextMapHash = view.Weapon.NameTextMapHash;
-      view.Icon = view.Weapon.Icon;
-      if (!view.TitleText)
-        view.TitleText = '(Unnamed weapon)';
-    } else {
-      view.TitleText = '(Unidentifiable readable)';
+      view.VariantTypes.push('Material');
+      view.Variants.Material = {
+        VariantType: 'Material',
+        TitleText: view.Material.NameText || '(Unnamed item)',
+        TitleTextMapHash: view.Material.NameTextMapHash,
+        Icon: view.Material.Icon,
+      };
+    }
+    if (view.Artifact) {
+      view.VariantTypes.push('Artifact');
+      view.Variants.Artifact = {
+        VariantType: 'Artifact',
+        TitleText: view.Artifact.NameText || '(Unnamed artifact)',
+        TitleTextMapHash: view.Artifact.NameTextMapHash,
+        Icon: view.Artifact.Icon,
+      };
+    }
+    if (view.Weapon) {
+      view.VariantTypes.push('Weapon');
+      view.Variants.Weapon = {
+        VariantType: 'Weapon',
+        TitleText: view.Weapon.NameText || '(Unnamed weapon)',
+        TitleTextMapHash: view.Weapon.NameTextMapHash,
+        Icon: view.Weapon.Icon,
+      };
+    }
+    if (view.Flycloak) {
+      view.VariantTypes.push('Flycloak');
+      view.Variants.Flycloak = {
+        VariantType: 'Flycloak',
+        TitleText: view.Flycloak.NameText || '(Unnamed flycloak)',
+        TitleTextMapHash: view.Flycloak.NameTextMapHash,
+        Icon: view.Flycloak.Icon,
+      };
+    }
+    if (view.Costume) {
+      view.VariantTypes.push('Costume');
+      view.Variants.Costume = {
+        VariantType: 'Costume',
+        TitleText: view.Costume.NameText || '(Unnamed costume)',
+        TitleTextMapHash: view.Costume.NameTextMapHash,
+        Icon: view.Costume.FrontIconName,
+      };
     }
 
-    const shouldLoadItems: boolean = (typeof loadReadableItems === 'function' ? loadReadableItems(view) : loadReadableItems) === true;
+    const primaryVariant: ReadableVariantInfo = view.Variants.Material
+      || Object.values(view.Variants).find(variant => !!variant);
+    if (primaryVariant) {
+      view.PrimaryVariantTitleText = primaryVariant.TitleText;
+      view.PrimaryVariantTitleTextMapHash = primaryVariant.TitleTextMapHash;
+      view.PrimaryVariantIcon = primaryVariant.Icon;
+    } else {
+      view.PrimaryVariantTitleText = '(Unidentifiable readable)';
+      view.PrimaryVariantIcon = 'static/Item_Unknown';
+    }
+
+    const shouldLoadItems: boolean = (typeof loadConf.LoadReadableItems === 'function'
+      ? loadConf.LoadReadableItems(view) : loadConf.LoadReadableItems) === true;
     if (shouldLoadItems) {
       view.Items = [
         ...(await view.Document.ContentLocalizedIds.asyncMap((id: number, idx: number) => this.loadLocalization(view.Document, idx + 1, false, id))),
@@ -366,6 +461,30 @@ export class GenshinReadables {
             async ([id, triggerCond], idx: number) => await this.loadLocalization(view.Document, startForPage + idx + 1, true, id, triggerCond)
           ))
         );
+      }
+    }
+
+    if (loadConf.LoadAddedAt) {
+      let addedAt = await this.ctrl.excelChangelog.selectChangeRefAddedAt(document.Id, 'DocumentExcelConfigData');
+      if (addedAt) {
+        view.AddedAtVersion = addedAt.version;
+      }
+
+      let lowestChangeVersion: GameVersion = null;
+
+      for (let item of view.Items) {
+        if (!item.ReadableChangesGroup) {
+          continue;
+        }
+        for (let changesGroup of Object.values(item.ReadableChangesGroup)) {
+          if (!lowestChangeVersion || changesGroup.lowestContentfulVersion.idxOrder < lowestChangeVersion.idxOrder) {
+            lowestChangeVersion = changesGroup.lowestContentfulVersion;
+          }
+        }
+      }
+
+      if (lowestChangeVersion && (!view.AddedAtVersion || lowestChangeVersion.idxOrder < view.AddedAtVersion.idxOrder)) {
+        view.AddedAtVersion = lowestChangeVersion;
       }
     }
 
@@ -409,9 +528,9 @@ export class GenshinReadables {
     return archive;
   }
 
-  public async selectArchive(loadReadableItems: boolean|((readable: Readable) => boolean) = false): Promise<ReadableArchive> {
+  public async selectArchive(loadConf: ReadableLoadConf = {}): Promise<ReadableArchive> {
     const documents = await this.selectAllDocument();
-    const readables = await documents.asyncMap(async document => this.select(document, loadReadableItems));
+    const readables = await documents.asyncMap(async document => this.select(document, loadConf));
     return this.generateArchive(readables.filter(x => !!x));
   }
   // endregion

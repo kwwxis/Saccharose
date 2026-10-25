@@ -31,8 +31,8 @@
 
 <script setup lang="ts">
 import { GCGGameExcelConfigData } from '../../../../../shared/types/genshin/gcg-types.ts';
-import { toParam } from '../../../../../shared/util/stringUtil.ts';
 import GcgStageTable from './GcgStageTable.vue';
+import { toParam } from '../../../../../shared/util/stringHtmlUtil.ts';
 
 const {stagesByGroupAndType} = defineProps<{
   stagesByGroupAndType?: {[group: string]: {[type: string]: GCGGameExcelConfigData[]}}

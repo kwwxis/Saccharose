@@ -1,12 +1,12 @@
 import { pageMatch } from '../../../core/pageMatch.ts';
 import { ScriptJobPollContext } from '../../../util/ScriptJobPollContext.ts';
 import { frag, frag1 } from '../../../util/domutil.ts';
-import { escapeHtml } from '../../../../shared/util/stringUtil.ts';
 import { genericEndpoints } from '../../../core/endpoints.ts';
 import { ScriptJobState } from '../../../../backend/util/scriptJobs.ts';
 import { humanTiming, timeConvert } from '../../../../shared/util/genericUtil.ts';
 import { toInt } from '../../../../shared/util/numberUtil.ts';
 import { toastSuccess } from '../../../util/toasterUtil.ts';
+import { escapeHtml } from '../../../../shared/util/stringHtmlUtil.ts';
 
 export function initiateMediaArchiveJobPage(
   vueComponentName: string,

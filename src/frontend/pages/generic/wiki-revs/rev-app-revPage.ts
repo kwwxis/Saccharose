@@ -1,7 +1,6 @@
 import { genericEndpoints } from '../../../core/endpoints.ts';
 import { SITE_MODE, SITE_MODE_HOME } from '../../../core/userPreferences/siteModeInfo.ts';
 import { humanTiming, isEmpty, timeConvert } from '../../../../shared/util/genericUtil.ts';
-import { escapeHtml } from '../../../../shared/util/stringUtil.ts';
 import { initRevPrevContentTab } from './rev-tabs/revTab-prevContent.ts';
 import { WikiRevAppState } from './rev-app-main.ts';
 import { initRevContentTab } from './rev-tabs/revTab-content.ts';
@@ -9,6 +8,7 @@ import { initRevDiffTab } from './rev-tabs/revTab-diff.ts';
 import { moveRevTabWheel } from './rev-tabs/revTab-wheel.ts';
 import { isInt, toInt } from '../../../../shared/util/numberUtil.ts';
 import { MwTagMap } from '../../../../shared/mediawiki/mwTypes.ts';
+import { escapeHtml } from '../../../../shared/util/stringHtmlUtil.ts';
 
 export async function revSelect(state: WikiRevAppState, selectTab: boolean = true) {
   if (!isInt(state.revId)) {

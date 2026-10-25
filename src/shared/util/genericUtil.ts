@@ -3,7 +3,8 @@
 import moment from 'moment';
 import { arrayContains, isArrayLike, isIterable } from './arrayUtil.ts';
 import cloneDeep from 'clone-deep';
-import { escapeHtml, sentenceJoin } from './stringUtil.ts';
+import { sentenceJoin } from './stringUtil.ts';
+import { escapeHtml } from './stringHtmlUtil.ts';
 
 export type Type<T> = { new(...args: any[]): T };
 

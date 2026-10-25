@@ -1,7 +1,7 @@
 import { isElement } from '../../util/domutil.ts';
-import { replaceBasePathInUrl } from '../../../shared/util/stringUtil.ts';
 import { getDefaultBasePathForSiteMode, getSiteModeFromPath } from '../../../shared/types/site/site-mode-type.ts';
 import { USER_PREFS } from '../userPreferences/sitePrefsContainer.ts';
+import { replaceBasePathInUrl } from '../../../shared/util/stringHtmlUtil.ts';
 
 export function enableSiteModePreferredBasePathAdjuster() {
   document.querySelectorAll('a').forEach(a => handleAnchor(a));

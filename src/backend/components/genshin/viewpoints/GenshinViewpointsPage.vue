@@ -63,10 +63,10 @@
 <script setup lang="ts">
 import { ViewpointsByRegion } from '../../../../shared/types/genshin/viewpoint-types.ts';
 import { entriesOf } from '../../../../shared/util/arrayUtil.ts';
-import { toParam } from '../../../../shared/util/stringUtil.ts';
 import Wikitext from '../../utility/Wikitext.vue';
 import FileFormatOptions from '../../utility/FileFormatOptions.vue';
 import { CityConfigData } from '../../../../shared/types/genshin/place-types.ts';
+import { toParam } from '../../../../shared/util/stringHtmlUtil.ts';
 
 defineProps<{
   citySelected?: string,

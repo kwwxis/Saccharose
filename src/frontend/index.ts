@@ -73,40 +73,29 @@ import './pages/zenless/zenless-dialogue-generation-page.ts';
 
 // Expose certain functions to global scope for debugging purposes
 // ----------------------------------------------------------------------------------------------------
-import { escapeHtml, toHtmlId } from '../shared/util/stringUtil.ts';
-
+import { escapeHtml, toHtmlId } from '../shared/util/stringHtmlUtil.ts';
 (<any> window).escapeHtml = escapeHtml;
 (<any> window).toHtmlId = toHtmlId;
 
 import JSON5 from 'json5';
-
 (<any> window).JSON5 = JSON5;
 
 import { resolveObjectPath } from '../shared/util/arrayUtil.ts';
-
 (<any> window).resolveObjectPath = resolveObjectPath;
 
-import { walkObjectGen } from '../shared/util/arrayUtil.ts';
-
-(<any> window).walkObject = walkObjectGen;
-
 import { isEquiv } from '../shared/util/arrayUtil.ts';
-
 (<any> window).isEquiv = isEquiv;
 
 import { mwParse } from '../shared/mediawiki/mwParse.ts';
-
 (<any> window).mwParse = mwParse;
 
 import { uuidv4, NIL_UUID, MAX_UUID } from '../shared/util/uuidv4.ts';
-
 (<any> window).uuidv4 = uuidv4;
 (<any> window).NIL_UUID = NIL_UUID;
 (<any> window).MAX_UUID = MAX_UUID;
 
 import { getElementOffset } from './util/domutil.ts';
 import { humanTiming, printHumanTiming } from '../shared/util/genericUtil.ts';
-
 (<any> window).getElementOffset = getElementOffset;
 (<any> window).humanTiming = humanTiming;
 (<any> window).printHumanTiming = printHumanTiming;

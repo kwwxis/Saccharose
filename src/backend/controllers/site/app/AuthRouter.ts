@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response, Router } from 'express';
 import { create } from '../../../rendering/customRouter.ts';
 import passport from 'passport';
-import ejs from 'ejs';
 import {
   mwGenshinClient,
   mwStarRailClient,
@@ -64,12 +63,16 @@ export default async function(): Promise<Router> {
       cont = '/';
     }
     clearCsrfCookie(res);
+    // Safely embed `cont` as a JS string literal. Escaping `<` as a unicode sequence prevents the value from
+    // being able to prematurely close the surrounding <script> tag (e.g. via "</script>") while still producing
+    // a valid JS string that `window.location.href` can be assigned from.
+    const safeCont: string = JSON.stringify(cont).replace(/</g, '\\u003c');
     const html: string = `<!doctype html>
   <html lang="en"><body>
-    <script>window.location.href = "<%= cont %>";</script>
+    <script>window.location.href = ${safeCont};</script>
   </body></html>`;
     res.set('Content-Type', 'text/html');
-    res.send(Buffer.from(ejs.render(html, { cont })));
+    res.send(Buffer.from(html));
   });
 
   router.post('/auth/uncheck', async (req: Request, res: Response) => {

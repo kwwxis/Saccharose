@@ -1,9 +1,9 @@
 import { MwRevision, MwTagMap } from '../../../../../shared/mediawiki/mwTypes.ts';
-import { escapeHtml, toParam } from '../../../../../shared/util/stringUtil.ts';
 import { SITE_MODE_WIKI_DOMAIN } from '../../../../core/userPreferences/siteModeInfo.ts';
 import { isEmpty, timeConvert } from '../../../../../shared/util/genericUtil.ts';
 import { WikiRevAppState } from '../rev-app-main.ts';
 import { iconSvg } from '../../../../../shared/util/iconProvider.ts';
+import { escapeHtml, toParam } from '../../../../../shared/util/stringHtmlUtil.ts';
 
 export function createRevListHtml(state: WikiRevAppState, revisions: MwRevision[], reverse: boolean = false) {
   return (reverse ? revisions.slice().reverse() : revisions).map(rev => {

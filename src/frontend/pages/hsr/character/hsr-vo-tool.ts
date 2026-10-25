@@ -18,7 +18,8 @@ import {
   VoAppPreloadInput,
 } from '../../generic/vo-tool/vo-preload-types.ts';
 import { enforcePropOrderItem } from '../../generic/vo-tool/vo-handle.ts';
-import { replaceRomanNumerals, romanToInt, SbOut } from '../../../../shared/util/stringUtil.ts';
+import { SbOut } from '../../../../shared/util/stringUtil.ts';
+import { replaceRomanNumerals, romanToInt } from '../../../../shared/util/romanNumeralUtil.ts';
 
 // region General Config
 // --------------------------------------------------------------------------------------------------------------

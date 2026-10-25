@@ -1,16 +1,15 @@
 import '../../loadenv.ts';
 import { LangCode } from '../../../shared/types/lang-types.ts';
-import {
-  takeFromStartUntilFirstWord,
-  takeFromEndUntilLastWord,
-  wordRejoin,
-  wordSplit,
-} from '../../../shared/util/stringUtil.ts';
 import { toInt } from '../../../shared/util/numberUtil.ts';
 import { pathToFileURL } from 'url';
 import { html2quotes, unnestHtmlTags } from '../../../shared/mediawiki/mwQuotes.ts';
 import type { Change } from 'diff';
 import { diffIntlWithSpace } from '../../util/jsIntlDiff.ts';
+import {
+  takeFromEndUntilLastWord,
+  takeFromStartUntilFirstWord,
+  wordRejoin, wordSplit,
+} from '../../../shared/util/stringIntlUtil.ts';
 
 export interface NormTextOptions<T = any> {
   decolor?: boolean,

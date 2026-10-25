@@ -4,10 +4,10 @@ import { LogViewLine, LogViewRequest } from '../../../../shared/types/wss-types.
 import { LogViewEntity } from '../../../../shared/types/site/site-logview-types.ts';
 import { frag, frag1, getScrollbarWidth } from '../../../util/domutil.ts';
 import './logview.scss';
-import { escapeHtml } from '../../../../shared/util/stringUtil.ts';
 import { humanTiming, printHumanTiming } from '../../../../shared/util/genericUtil.ts';
 import moment from 'moment';
 import { uuidv4 } from '../../../../shared/util/uuidv4.ts';
+import { escapeHtml } from '../../../../shared/util/stringHtmlUtil.ts';
 
 pageMatch('SiteLogViewPage', () => {
   const mainContainer: HTMLDivElement = document.querySelector('#site-logview');

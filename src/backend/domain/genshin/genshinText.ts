@@ -1,6 +1,5 @@
 import { toInt } from '../../../shared/util/numberUtil.ts';
 import { LangCode, LangCodeMap, TextMapHash } from '../../../shared/types/lang-types.ts';
-import { escapeHtmlAllowEntities, wordRejoin, wordSplit } from '../../../shared/util/stringUtil.ts';
 import {
   genericNormText,
   mergeMcTemplate,
@@ -17,6 +16,8 @@ import { logInitData } from '../../util/logger.ts';
 import { isSiteModeDisabled } from '../../loadenv.ts';
 import { AvatarSkillExcelConfigData, ProudSkillExcelConfigData } from '../../../shared/types/genshin/avatar-types.ts';
 import { defaultMap } from '../../../shared/util/genericUtil.ts';
+import { wordRejoin, wordSplit } from '../../../shared/util/stringIntlUtil.ts';
+import { escapeHtmlAllowEntities } from '../../../shared/util/stringHtmlUtil.ts';
 
 export type GenshinNormTextOpts = {
   wandererPlaceholderPlainForm?: boolean,

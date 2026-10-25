@@ -20,7 +20,8 @@ function createReadableChanges(ctrl: GenshinControl, langCode: LangCode, inputLi
     list: [],
     byVersionNumber: {},
     langCode: langCode,
-    ranges: []
+    ranges: [],
+    lowestContentfulVersion: null,
   };
 
   for (let r of inputList) {
@@ -29,7 +30,11 @@ function createReadableChanges(ctrl: GenshinControl, langCode: LangCode, inputLi
 
   for (let v of ctrl.gameVersions.list) {
     if (ret.byVersionNumber[v.number]) {
-      ret.list.push(ret.byVersionNumber[v.number]);
+      const change = ret.byVersionNumber[v.number];
+      ret.list.push(change);
+      if (change.contentText && (!ret.lowestContentfulVersion || v.idxOrder < ret.lowestContentfulVersion.idxOrder)) {
+        ret.lowestContentfulVersion = v;
+      }
     }
   }
 

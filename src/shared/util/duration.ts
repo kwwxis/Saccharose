@@ -1,4 +1,5 @@
 // noinspection JSUnusedGlobalSymbols
+
 /**
  * Represents a duration of time, stored internally as milliseconds.
  *
@@ -6,6 +7,8 @@
  * as well as methods for arithmetic operations and comparisons.
  *
  * Based on the Java `Duration` class but simplified for TypeScript.
+ *
+ * TODO: Replace with native `Temporal.Duration` when it becomes widely available in browsers and Node.js.
  */
 export class Duration {
   private readonly millis: number;

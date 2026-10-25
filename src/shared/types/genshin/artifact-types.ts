@@ -10,6 +10,7 @@ export type ReliquaryEquipType =
   'EQUIP_RING'      | // Goblet
   'EQUIP_DRESS'     ; // Circlet
 
+// Called "Artifacts" in-game
 export interface ReliquaryExcelConfigData {
   EquipType: ReliquaryEquipType,
   EquipName: string,

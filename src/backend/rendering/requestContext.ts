@@ -7,7 +7,7 @@ import { DEFAULT_LANG, LANG_CODES, LANG_CODES_TO_NAME, LangCode } from '../../sh
 import { DEFAULT_SEARCH_MODE, SEARCH_MODES, SearchMode } from '../../shared/util/searchUtil.ts';
 import { Request } from 'express';
 import { SiteUserProvider } from '../middleware/auth/SiteUserProvider.ts';
-import { escapeHtml, SbOut } from '../../shared/util/stringUtil.ts';
+import { SbOut } from '../../shared/util/stringUtil.ts';
 import {
   SiteMenuShownEntry,
   SitePrefName,
@@ -24,6 +24,7 @@ import {
 } from '../../shared/types/site/site-mode-type.ts';
 import { createThinRequest, ThinRequest } from './thinRequest.ts';
 import { RequestCommonLocals } from './customRouter.ts';
+import { escapeHtml } from '../../shared/util/stringHtmlUtil.ts';
 
 export type LayoutType = 'basic' | 'app' | 'empty' | 'visitor';
 

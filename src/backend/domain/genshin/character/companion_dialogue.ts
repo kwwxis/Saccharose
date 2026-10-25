@@ -9,9 +9,10 @@ import util from 'util';
 import { toBoolean } from '../../../../shared/util/genericUtil.ts';
 import { pathToFileURL } from 'url';
 import { sort } from '../../../../shared/util/arrayUtil.ts';
-import { escapeHtml, toLower } from '../../../../shared/util/stringUtil.ts';
+import { toLower } from '../../../../shared/util/stringUtil.ts';
 import { getGenshinDataFilePath } from '../../../loadenv.ts';
 import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
+import { escapeHtml } from '../../../../shared/util/stringHtmlUtil.ts';
 
 export async function getHomeWorldCompanions(ctrl: GenshinControl): Promise<HomeWorldNPCExcelConfigData[]> {
   return ctrl.cached('HomeWorld:Companions:NPCExcels:'+ctrl.outputLangCode, 'json', async () => {

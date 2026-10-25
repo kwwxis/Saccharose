@@ -71,7 +71,8 @@ import Icon from '../utility/Icon.vue';
 import { isInt } from '../../../shared/util/numberUtil.ts';
 import { MwArticleInfo } from '../../../shared/mediawiki/mwTypes.ts';
 import { useTrace } from '../../middleware/request/tracer.ts';
-import { toParam } from '../../../shared/util/stringUtil.ts';
+
+import { toParam } from '../../../shared/util/stringHtmlUtil.ts';
 
 const {pageid, page, revid} = defineProps<{
   pageid?: number,

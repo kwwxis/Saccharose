@@ -8,13 +8,15 @@ import {
   VoItem,
 } from './vo-handle.ts';
 import { MwParamNode, MwTemplateNode } from '../../../../shared/mediawiki/mwParseTypes.ts';
-import { escapeHtml, romanize, ucFirst } from '../../../../shared/util/stringUtil.ts';
+import { ucFirst } from '../../../../shared/util/stringUtil.ts';
 import { createElement, createPlaintextContenteditable, flashElement } from '../../../util/domutil.ts';
 import { listen } from '../../../util/eventListen.ts';
 import { flashTippy } from '../../../util/tooltipUtil.ts';
 import { createWikitextEditor, getAceEditor } from '../../../core/ace/aceEditor.ts';
 import { modalService } from '../../../util/modalService.ts';
 import { VoAppPreloadInput } from './vo-preload-types.ts';
+import { romanize } from '../../../../shared/util/romanNumeralUtil.ts';
+import { escapeHtml } from '../../../../shared/util/stringHtmlUtil.ts';
 
 const sortableDefaultOptions: Sortable.Options = {
   scroll: true,

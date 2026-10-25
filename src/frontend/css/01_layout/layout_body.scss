@@ -43,6 +43,11 @@ body.nightmode .tippy-box {
   border: 1px solid hsl(255deg 13% 42%);
 }
 
+.tippy-box ul,
+.tippy-box ol {
+  padding-left: 1.3em;
+}
+
 .page--wide {
   #app-wrapper {
     max-width: initial;

@@ -69,11 +69,11 @@ import {
   AchievementGoalExcelConfigData,
   AchievementsByGoals,
 } from '../../../../shared/types/genshin/achievement-types.ts';
-import { toParam } from '../../../../shared/util/stringUtil.ts';
 import { useTrace } from '../../../middleware/request/tracer.ts';
 import Wikitext from '../../utility/Wikitext.vue';
 import { valuesOf } from '../../../../shared/util/arrayUtil.ts';
 import AchievementListingTable from './AchievementListingTable.vue';
+import { toParam } from '../../../../shared/util/stringHtmlUtil.ts';
 
 const { ctx } = useTrace();
 

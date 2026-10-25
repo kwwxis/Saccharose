@@ -1,7 +1,7 @@
 import { ScriptJobAction, ScriptJobState } from '../../backend/util/scriptJobs.ts';
 import { genericEndpoints } from '../core/endpoints.ts';
-import { escapeHtml } from '../../shared/util/stringUtil.ts';
 import { constrainNumber } from '../../shared/util/numberUtil.ts';
+import { escapeHtml } from '../../shared/util/stringHtmlUtil.ts';
 
 export type ScriptJobPollPick<T extends ScriptJobAction> = Pick<ScriptJobState<T>,
   'job_id' | 'run_complete' | 'run_log' | 'run_end' | 'result_error'>;

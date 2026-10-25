@@ -11,7 +11,7 @@ import type {
   MenuItemDef,
 } from 'ag-grid-community';
 
-import { camelCaseToTitleCase, escapeHtml, isString, isStringArray } from '../../../../shared/util/stringUtil.ts';
+import { camelCaseToTitleCase, isString, isStringArray } from '../../../../shared/util/stringUtil.ts';
 import { sort } from '../../../../shared/util/arrayUtil.ts';
 import { listen } from '../../../util/eventListen.ts';
 import {
@@ -31,6 +31,7 @@ import { isInt, toInt } from '../../../../shared/util/numberUtil.ts';
 import { doWithCreateGrid } from '../../../core/gridInterface/agGridInterface.ts';
 import { genshinEndpoints } from '../../../core/endpoints.ts';
 import { iconSvg } from '../../../../shared/util/iconProvider.ts';
+import { escapeHtml } from '../../../../shared/util/stringHtmlUtil.ts';
 
 function initializeThemeWatcher(elements: HTMLElement[]) {
   onSiteThemeChange(theme => {

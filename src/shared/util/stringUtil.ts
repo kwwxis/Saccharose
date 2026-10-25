@@ -1,6 +1,4 @@
 import { isUnset } from './genericUtil.ts';
-import { LANG_CODE_TO_LOCALE, LangCode } from '../types/lang-types.ts';
-import { pathToFileURL } from 'url';
 
 export function isString(x: any): x is string {
   return typeof x === 'string';
@@ -83,35 +81,6 @@ export function titleCase(s: string) {
     }
     return word[0].toUpperCase() + word.slice(1);
   });
-}
-
-const entityMap = {
-  '&': '&amp;',
-  '<': '&lt;',
-  '>': '&gt;',
-  '"': '&quot;',
-  '\'': '&#39;',
-  '/': '&#x2F;',
-  '`': '&#x60;',
-  '=': '&#x3D;',
-};
-
-/**
- * Escapes HTML special characters in a string to prevent XSS attacks.
- * @param html The string to escape.
- * @returns The escaped string with HTML entities.
- */
-export function escapeHtml(html: any) {
-  return String(html).replace(/[&<>"'`=\/]/g, s => entityMap[s]);
-}
-
-/**
- * Escape HTML but allow HTML entities like &mdash;
- * @param html
- */
-export function escapeHtmlAllowEntities(html: string) {
-  // same as escapeHtml but without '&'
-  return String(html).replace(/[<>"'`=\/]/g, s => entityMap[s]);
 }
 
 /**
@@ -401,10 +370,16 @@ export const whitespace = [
 export const whitespaceCombined = whitespace.join('');
 
 /**
- * PHP trim() equivalent
- * @returns {string}
+ * Trims whitespace or specified characters from the beginning and/or end of a string.
+ *
+ * This is the equivalent of PHP's `trim()` function.
+ *
+ * @param str The string to trim. If not a string, it will be converted to a string.
+ * @param char_mask Optional string of characters to trim. If not provided, all whitespace characters will be trimmed.
+ * @param mode Optional bitwise mode to specify which side(s) to trim: 1 for left, 2 for right, 3 for both (default).
+ * @returns The trimmed string.
  */
-export function trim(str, char_mask = undefined, mode = undefined): string {
+export function trim(str: any, char_mask: any = undefined, mode: number = undefined): string {
   if (!str) {
     return str;
   }
@@ -468,6 +443,15 @@ export function rtrim(str, char_mask = undefined): string {
   return trim(str, char_mask, 2);
 }
 
+/**
+ * Asynchronously replaces matches of a regex in a string using an asynchronous function.
+ *
+ * @param str The input string to perform replacements on.
+ * @param regex The regular expression to match substrings for replacement.
+ * @param asyncFn An asynchronous function that takes a match and returns a Promise resolving to the replacement string.
+ * The arguments follow the format of [Specifying a function as the replacement](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace#specifying_a_function_as_the_replacement)
+ * @returns A Promise that resolves to the modified string with all replacements applied.
+ */
 export async function replaceAsync(str: string, regex: RegExp, asyncFn: Function): Promise<string> {
   const promises = [];
   str.replace(regex, (match, ...args) => {
@@ -477,86 +461,6 @@ export async function replaceAsync(str: string, regex: RegExp, asyncFn: Function
   });
   const data = await Promise.all(promises);
   return str.replace(regex, () => data.shift());
-}
-
-/**
- * Checks if a string is a valid Roman numeral.
- * @param str The string to check.
- * @returns True if the string is a valid Roman numeral, otherwise false.
- */
-export function isValidRomanNumeral(str: string): boolean {
-  return /^M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$/.test(str);
-}
-
-export function extractRomanNumeral(str: string): string {
-  return !str ? str : str.split(' ').find(s => isValidRomanNumeral(s));
-}
-
-export function replaceRomanNumerals(str: string, replacer: (roman: string) => string) {
-  if (!str) {
-    return str;
-  }
-  let split = str.split(' ');
-  split = split.map(part => {
-    if (isValidRomanNumeral(part)) {
-      return replacer(part);
-    } else {
-      return part;
-    }
-  });
-  return split.join(' ');
-}
-
-/**
- * Converts an integer to a Roman numeral string.
- * @param num The integer to convert.
- * @returns The Roman numeral representation of the integer, or NaN if the input is not a number.
- */
-export function romanize(num: number) {
-  if (isNaN(num))
-    return NaN;
-  let digits = String(+num).split(''),
-    key = ['', 'C', 'CC', 'CCC', 'CD', 'D', 'DC', 'DCC', 'DCCC', 'CM',
-      '', 'X', 'XX', 'XXX', 'XL', 'L', 'LX', 'LXX', 'LXXX', 'XC',
-      '', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX'],
-    roman = '',
-    i = 3;
-  while (i--)
-    roman = (key[+digits.pop() + (i * 10)] || '') + roman;
-  return Array(+digits.join('') + 1).join('M') + roman;
-}
-
-/**
- * Converts a Roman numeral string to an integer.
- * @param s The Roman numeral string to convert.
- * @returns The integer value of the Roman numeral, or -1 if the input is invalid.
- */
-export function romanToInt(s: string) {
-  if (!s) {
-    return -1;
-  }
-  const sym = {
-    'I': 1,
-    'V': 5,
-    'X': 10,
-    'L': 50,
-    'C': 100,
-    'D': 500,
-    'M': 1000,
-  };
-  let result = 0;
-  for (let i = 0; i < s.length; i++) {
-    const cur = sym[s[i]];
-    const next = sym[s[i + 1]];
-
-    if (cur < next) {
-      result += next - cur; // IV -> 5 - 1 = 4
-      i++;
-    } else {
-      result += cur;
-    }
-  }
-  return result;
 }
 
 /**
@@ -681,83 +585,6 @@ export class SbOut {
   wtTableEnd() {
     this.line(`|}`);
   }
-}
-
-/**
- * Splits the text into segments (words) based on the specified language code.
- * @param langCode The language code to use for segmentation.
- * @param text The text to segment.
- * @returns An array of segments, each represented as an Intl.SegmentData object.
- */
-export const wordSplit = (langCode: LangCode, text: string): Intl.SegmentData[] => {
-  const segmenter = new Intl.Segmenter(LANG_CODE_TO_LOCALE[langCode], { granularity: 'word' });
-  return Array.from(segmenter.segment(text));
-};
-
-/**
- * Rejoins the segments (words) into a single string.
- * @param segments The segments to rejoin.
- * @returns The rejoined string.
- */
-export const wordRejoin = (segments: Intl.SegmentData[]): string => {
-  return segments.map(s => s.segment).join('');
-};
-
-/**
- * Removes the first word at the start of the segments.
- *
- * Modifies the segments passed in and returns the removed word segments.
- *
- * @param segments
- */
-export function takeFromStartUntilFirstWord(segments: Intl.SegmentData[]): Intl.SegmentData[] {
-  let i = 0;
-  for (let segment of segments) {
-    i++;
-    if (segment.isWordLike) {
-      break;
-    }
-  }
-  return segments.splice(0, i);
-}
-
-/**
- * Removes the last word at the end of the segments.
- *
- * Modifies the segments passed in and returns the removed word segments.
- *
- * @param segments
- */
-export function takeFromEndUntilLastWord(segments: Intl.SegmentData[]): Intl.SegmentData[] {
-  let i = 0;
-  for (let segment of segments.slice().reverse()) {
-    i++;
-    if (segment.isWordLike) {
-      break;
-    }
-  }
-  return segments.splice(-i);
-}
-
-export function toParam(x: any): string {
-  if (isUnset(x)) {
-    return '';
-  }
-  return encodeURIComponent(String(x).replace(/ /g, '_'));
-}
-
-export function fromParam(param: string): string {
-  if (isUnset(param)) {
-    return '';
-  }
-  return decodeURIComponent(param).replace(/_/g, ' ');
-}
-
-export function paramCmp(a: any, b: any) {
-  if (a === b) {
-    return true;
-  }
-  return String(a).trim().toLowerCase().replace(/_/g, ' ') === String(b).trim().toLowerCase().replace(/_/g, ' ');
 }
 
 /**
@@ -894,62 +721,69 @@ export function reformatPrimitiveArrays(jsonStr: string): string {
   return result;
 }
 
-const htmlIdCache = new Map<string, string>();
-
 /**
- * Converts any string into a valid HTML ID by sanitizing it and appending a hash to ensure uniqueness.
- *
- * Guaranteed to not collide with other different strings, even if they sanitize to the same base string.
- *
- * @param input The input string to convert.
- * @returns A valid HTML ID string.
+ * Computes a relevance rank for how well `text` matches `searchText`, for use when sorting search results so
+ * that the best matches come first. Lower rank is better. An exact (case-normalized) match ranks highest (0),
+ * followed by prefix/suffix matches (1), then any other substring match (2), with everything else last (3).
  */
-export function toHtmlId(input: string): string {
-  // Return from cache if already computed
-  const cached = htmlIdCache.get(input);
-  if (cached) return cached;
-
-  // Simple but reliable non-crypto hash (FNV-1a variant)
-  let hash = 2166136261; // Constant from FNV-1a hash algorithm (offset basis)
-  for (const ch of input) {
-    hash ^= ch.codePointAt(0)!;
-    hash = Math.imul(hash, 16777619); // Constant from FNV-1a hash algorithm (FNV prime)
+export function textMatchRank(searchText: string, text: string, caseInsensitive: boolean = true): number {
+  if (!text || !searchText) {
+    return 3;
   }
-  const hashStr = (hash >>> 0).toString(36); // unsigned & compact
-
-  // Sanitize base for HTML ID
-  const base = input
-    .normalize("NFKD")                      // handle Unicode safely
-    .replace(/[^\w\-:.]+/g, '-')            // valid HTML id chars only
-    .replace(/^-+|-+$/g, '')                // trim dashes
-    .toLowerCase();
-
-  // Ensure starts with a letter
-  const safeBase = /^[a-z]/.test(base) ? base : 'id-' + base;
-
-  const result = `${safeBase || 'id'}-${hashStr}`;
-
-  // Cache the result
-  htmlIdCache.set(input, result);
-  return result;
+  const needle: string = caseInsensitive ? searchText.toLowerCase() : searchText;
+  const haystack: string = caseInsensitive ? text.toLowerCase() : text;
+  if (haystack === needle) {
+    return 0;
+  }
+  if (haystack.startsWith(needle) || haystack.endsWith(needle)) {
+    return 1;
+  }
+  if (haystack.includes(needle)) {
+    return 2;
+  }
+  return 3;
 }
 
-export function replaceBasePathInUrl(
-  url: string,
-  replacer: (basePath: string) => string
-): string {
-  const parsed = new URL(url);
-  const { pathname } = parsed;
+/**
+ * Collects `(id, text)` pairs reported by a {@link TextMapSearchIndexStreamOpts.stream} callback (deduping by
+ * `id`), then produces a list of ids ordered so that the best text matches to `searchText` come first (see
+ * {@link textMatchRank}). Ids that are added via `prependIds` (e.g. an id that was matched directly rather than
+ * via text search) are always placed before the ranked ids, in the order given.
+ */
+export function createTextMatchRanker(searchText: string, caseInsensitive: boolean = true) {
+  const seenIds: Set<number> = new Set();
+  const matches: { id: number, text: string }[] = [];
+  return {
+    add(id: number, text: string): void {
+      if (!seenIds.has(id)) {
+        seenIds.add(id);
+        matches.push({ id, text });
+      }
+    },
+    has(id: number): boolean {
+      return seenIds.has(id);
+    },
+    orderedIds(prependIds: number[] = []): number[] {
+      const ranked: number[] = matches.slice().sort((a, b) => {
+        const rankDiff: number = textMatchRank(searchText, a.text, caseInsensitive) - textMatchRank(searchText, b.text, caseInsensitive);
+        if (rankDiff !== 0) {
+          return rankDiff;
+        }
+        return (a.text?.length ?? 0) - (b.text?.length ?? 0);
+      }).map(m => m.id);
 
-  // first path segment only
-  const match = pathname.match(/^\/[^/]+/);
-  if (!match) return url;
-
-  const basePath = match[0];
-  const replacement = replacer(basePath);
-
-  if (replacement === basePath) return url;
-
-  parsed.pathname = replacement + pathname.slice(basePath.length);
-  return parsed.toString();
+      const result: number[] = [];
+      for (const id of prependIds) {
+        if (!result.includes(id)) {
+          result.push(id);
+        }
+      }
+      for (const id of ranked) {
+        if (!result.includes(id)) {
+          result.push(id);
+        }
+      }
+      return result;
+    }
+  };
 }

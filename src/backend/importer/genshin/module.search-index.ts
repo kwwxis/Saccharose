@@ -18,7 +18,7 @@ class IndexAccumulator {
 
   constructor(readonly indexName: string) {}
 
-  add(hash: TextMapHash, key: number, role?: string) {
+  add(hash: TextMapHash, key: number, role: string) {
     if (isUnset(key) || isUnset(hash) || hash === 0) {
       return;
     }
@@ -72,7 +72,7 @@ export async function importSearchIndex() {
     const mainQuestIndex: IndexAccumulator = new IndexAccumulator('MainQuest');
 
     for (let mainQuest of mainQuestList) {
-      mainQuestIndex.add(mainQuest.TitleTextMapHash, mainQuest.Id);
+      mainQuestIndex.add(mainQuest.TitleTextMapHash, mainQuest.Id, 'Title');
     }
     await mainQuestIndex.writeAndFlush();
   }
@@ -84,7 +84,7 @@ export async function importSearchIndex() {
     const chapterIndex: IndexAccumulator = new IndexAccumulator('Chapter');
 
     for (let chapter of chapterList) {
-      chapterIndex.add(chapter.ChapterTitleTextMapHash, chapter.Id);
+      chapterIndex.add(chapter.ChapterTitleTextMapHash, chapter.Id, 'Title');
     }
     await chapterIndex.writeAndFlush();
   }
@@ -102,9 +102,18 @@ export async function importSearchIndex() {
     const readableIndex: IndexAccumulator = new IndexAccumulator('Readable');
 
     for (let view of readableList) {
-      readableIndex.add(view.TitleTextMapHash, view.Id, 'Title');
+      let titleTextMapHashes: Set<TextMapHash> = new Set();
+
       if (view.Document && view.Document.TitleTextMapHash) {
         readableIndex.add(view.Document.TitleTextMapHash, view.Id, 'DocTitle');
+        titleTextMapHashes.add(view.Document.TitleTextMapHash);
+      }
+
+      for (let variant of Object.values(view.Variants)) {
+        if (variant.TitleTextMapHash && !titleTextMapHashes.has(variant.TitleTextMapHash)) {
+          readableIndex.add(variant.TitleTextMapHash, view.Id, 'VariantTitle');
+          titleTextMapHashes.add(variant.TitleTextMapHash);
+        }
       }
     }
     await readableIndex.writeAndFlush();
@@ -223,10 +232,10 @@ export async function importSearchIndex() {
     const stages = await gcg.selectAllStage();
     for (let stage of stages) {
       if (stage.OppoPlayerNameText) {
-        tcgStageIndex.add(stage.OppoPlayerNameTextMapHash, stage.Id);
+        tcgStageIndex.add(stage.OppoPlayerNameTextMapHash, stage.Id, 'EnemyName');
       }
       if (stage.Reward?.LevelNameText) {
-        tcgStageIndex.add(stage.Reward.LevelNameTextMapHash, stage.Id);
+        tcgStageIndex.add(stage.Reward.LevelNameTextMapHash, stage.Id, 'LevelName');
       }
     }
     await tcgStageIndex.writeAndFlush();

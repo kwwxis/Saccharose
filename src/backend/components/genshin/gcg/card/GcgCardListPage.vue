@@ -60,9 +60,9 @@ import {
   GCGActionCardsByObtainability,
   GCGCharCardsByObtainability,
 } from '../../../../../shared/types/genshin/gcg-types.ts';
-import { escapeHtml, toParam } from '../../../../../shared/util/stringUtil.ts';
 import GcgCardTableChar from '../partials/GcgCardTableChar.vue';
 import GcgCardTableAction from '../partials/GcgCardTableAction.vue';
+import { escapeHtml, toParam } from '../../../../../shared/util/stringHtmlUtil.ts';
 
 defineProps<{
   charCardsBySection: GCGCharCardsByObtainability,

@@ -11,8 +11,8 @@ import { IndexedRange, intersectRange } from '../../../shared/util/arrayUtil.ts'
 import { getInputValue, isTextNode, textNodesUnder } from '../../util/domutil.ts';
 import { initAceThemeWatcher } from './aceThemeWatcher.ts';
 import { applyWikitextLinker } from './staticActions/wikitextLinker.ts';
-import { escapeHtml } from '../../../shared/util/stringUtil.ts';
 import { toInt } from '../../../shared/util/numberUtil.ts';
+import { escapeHtml } from '../../../shared/util/stringHtmlUtil.ts';
 
 // region Static Highlight: Options
 // --------------------------------------------------------------------------------------------------------------

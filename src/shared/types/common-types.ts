@@ -245,7 +245,7 @@ export interface TextmapSearchIndexRow {
   index_name: string,
   hash: string,
   key: number,
-  role?: string
+  role: string
 }
 // endregion
 

@@ -111,11 +111,11 @@ import DialogueSection from '../../utility/DialogueSection.vue';
 import GenshinItem from '../links/GenshinItem.vue';
 import Wikitext from '../../utility/Wikitext.vue';
 import Icon from '../../utility/Icon.vue';
-import { toParam } from '../../../../shared/util/stringUtil.ts';
 import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
 import { useTrace } from '../../../middleware/request/tracer.ts';
 import JsonText from '../../utility/JsonText.vue';
 import { safeStringify } from '../../../../shared/util/genericUtil.ts';
+import { toParam } from '../../../../shared/util/stringHtmlUtil.ts';
 
 const { normGenshinText } = useTrace();
 

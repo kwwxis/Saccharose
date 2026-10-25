@@ -235,9 +235,9 @@ import { NormTextOptions } from '../../domain/abstract/genericNormalizers.js';
 import { CommonAvatar } from '../../../shared/types/common-types.js';
 import Icon from '../utility/Icon.vue';
 import { useTrace } from '../../middleware/request/tracer.js';
-import { toParam } from '../../../shared/util/stringUtil.js';
 import HtmlScript from '../utility/HtmlScript.vue';
 import { ternary } from '../../../shared/util/genericUtil.ts';
+import { toParam } from '../../../shared/util/stringHtmlUtil.ts';
 
 const { ctx } = useTrace();
 

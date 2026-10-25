@@ -1,12 +1,12 @@
 import { pageMatch } from '../../../core/pageMatch.ts';
 import { HomeWorldFurnitureTypeTree } from '../../../../shared/types/genshin/homeworld-types.ts';
 import { CheckboxTree, CheckboxTreeNode, CheckTreeOpts } from '../../../util/CheckboxTree.ts';
-import { escapeHtml } from '../../../../shared/util/stringUtil.ts';
 import { sort } from '../../../../shared/util/arrayUtil.ts';
 import { defaultMap } from '../../../../shared/util/genericUtil.ts';
 import { listen } from '../../../util/eventListen.ts';
 import { deleteQueryStringParameter, getQueryStringParameter, setQueryStringParameter } from '../../../util/domutil.ts';
 import { toInt } from '../../../../shared/util/numberUtil.ts';
+import { escapeHtml } from '../../../../shared/util/stringHtmlUtil.ts';
 
 pageMatch('FurnitureListPage', () => {
   const typeTree: HomeWorldFurnitureTypeTree = (<any> window).typeTree;

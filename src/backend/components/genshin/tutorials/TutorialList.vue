@@ -79,7 +79,8 @@ import { TutorialsByType } from '../../../../shared/types/genshin/tutorial-types
 import { arraySum, entriesOf, keysOf, valuesOf } from '../../../../shared/util/arrayUtil.ts';
 import Wikitext from '../../utility/Wikitext.vue';
 import FileFormatOptions from '../../utility/FileFormatOptions.vue';
-import { toParam } from '../../../../shared/util/stringUtil.ts';
+
+import { toParam } from '../../../../shared/util/stringHtmlUtil.ts';
 
 defineProps<{
   searchText?: string,

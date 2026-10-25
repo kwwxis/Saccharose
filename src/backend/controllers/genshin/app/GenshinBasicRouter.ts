@@ -24,7 +24,7 @@ export default async function(): Promise<Router> {
     await res.renderComponent(TextmapSearchPage, {
       title: 'TextMap Search',
       bodyClass: ['page--textmap'],
-      versionFilterMoreInfo: 'Supported from 1.5 onwards.',
+      versionFilterMoreInfo: 'Genshin TextMap Search version filtering only supports 1.5 onwards.',
       supportedLangCodes: getGenshinControl(req).supportedLangCodes,
     });
   });

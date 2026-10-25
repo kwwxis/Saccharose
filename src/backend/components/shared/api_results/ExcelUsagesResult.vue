@@ -62,7 +62,8 @@ import { ScalarToExcelUsages } from '../../../../shared/util/searchUtil.ts';
 import { ExcelChangeRef } from '../../../../shared/types/changelog-types.ts';
 import ExcelUsagesResultInner from './ExcelUsagesResultInner.vue';
 import Icon from '../../utility/Icon.vue';
-import { toHtmlId } from '../../../../shared/util/stringUtil.ts';
+
+import { toHtmlId } from '../../../../shared/util/stringHtmlUtil.ts';
 
 const {scalarToUsages} = defineProps<{
   scalarToUsages?: ScalarToExcelUsages,

@@ -81,7 +81,8 @@ import {
 import HtmlScript from '../../utility/HtmlScript.vue';
 import { useTrace } from '../../../middleware/request/tracer.js';
 import GenshinStars from '../links/GenshinStars.vue';
-import { escapeHtmlAllowEntities } from '../../../../shared/util/stringUtil.ts';
+
+import { escapeHtmlAllowEntities } from '../../../../shared/util/stringHtmlUtil.ts';
 
 const { nonce } = useTrace();
 

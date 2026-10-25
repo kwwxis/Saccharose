@@ -17,7 +17,12 @@ import { createDiffUIFullDiff, DiffUI } from '../../../util/DiffUI.ts';
 import { isNightmode } from '../../../core/userPreferences/siteTheme.ts';
 import { ColorSchemeType } from 'diff2html/lib/types';
 import { GeneralEventBus } from '../../../core/generalEventBus.ts';
-import { isLangCode, LangCode } from '../../../../shared/types/lang-types.ts';
+import {
+  isLangCode,
+  LangCode,
+  TextMapSearchEndpointParams,
+  TextMapSearchResponse,
+} from '../../../../shared/types/lang-types.ts';
 import { modalService } from '../../../util/modalService.ts';
 import { toBoolean } from '../../../../shared/util/genericUtil.ts';
 import { toastInfo } from '../../../util/toasterUtil.ts';
@@ -25,7 +30,7 @@ import { toastInfo } from '../../../util/toasterUtil.ts';
 pageMatch('TextmapSearchPage', () => {
   let handle: GenericSearchPageHandle;
 
-  let endpoint: SaccharoseApiEndpoint<any>;
+  let endpoint: SaccharoseApiEndpoint<TextMapSearchEndpointParams, TextMapSearchResponse>;
 
   if (SiteModeInfo.isGenshin) {
     endpoint = genshinEndpoints.searchTextMap;

@@ -32,7 +32,8 @@
 <script setup lang="ts">
 import { TutorialsByType } from '../../../../shared/types/genshin/tutorial-types.ts';
 import TutorialList from './TutorialList.vue';
-import { toParam } from '../../../../shared/util/stringUtil.ts';
+
+import { toParam } from '../../../../shared/util/stringHtmlUtil.ts';
 
 defineProps<{
   categorySelected?: string,

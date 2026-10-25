@@ -24,7 +24,7 @@ import {
 } from '../../../domain/genshin/archive/loadingTips.ts';
 import { LoadingCat } from '../../../../shared/types/genshin/loading-types.ts';
 import { isInt, toInt } from '../../../../shared/util/numberUtil.ts';
-import { paramCmp, SbOut, sentenceJoin, toParam } from '../../../../shared/util/stringUtil.ts';
+import { SbOut, sentenceJoin } from '../../../../shared/util/stringUtil.ts';
 import { Request, Response, Router } from 'express';
 import { defaultMap, toBoolean } from '../../../../shared/util/genericUtil.ts';
 import AchievementPage from '../../../components/genshin/achievements/AchievementPage.vue';
@@ -72,6 +72,7 @@ import BeyondCostumePage from '../../../components/genshin/materials/BeyondCostu
 import BeyondCostumeSuitPage from '../../../components/genshin/materials/BeyondCostumeSuitPage.vue';
 import { ReliquarySetExcelConfigData } from '../../../../shared/types/genshin/artifact-types.ts';
 import ArtifactSetPage from '../../../components/genshin/artifacts/ArtifactSetPage.vue';
+import { paramCmp, toParam } from '../../../../shared/util/stringHtmlUtil.ts';
 
 export default async function(): Promise<Router> {
   const router: Router = create();
@@ -97,7 +98,10 @@ export default async function(): Promise<Router> {
         LoadAddedAt: true,
       });
 
-      let readable: Readable = material ? await ctrl.readables.select(material.Id) : null;
+      let readable: Readable = material ? await ctrl.readables.select(material.Id, {
+        LoadReadableItems: true,
+        LoadAddedAt: true,
+      }) : null;
       if (!readable || !readable.Material || readable.Material.Id !== material.Id) {
         readable = null;
       }
@@ -473,7 +477,10 @@ export default async function(): Promise<Router> {
 
   router.get('/readables', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
-    const archive = await ctrl.readables.selectArchive();
+    const archive = await ctrl.readables.selectArchive({
+      LoadReadableItems: false,
+      LoadAddedAt: true
+    });
 
     await res.renderComponent(ReadableAllListingPage, {
       title: 'Books & Readables',
@@ -491,7 +498,9 @@ export default async function(): Promise<Router> {
 
   router.get('/readables/book-collection/:suitId', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
-    const collection: BookSuitExcelConfigData = await ctrl.readables.selectBookCollection(toInt(req.params.suitId));
+    const collection: BookSuitExcelConfigData = await ctrl.readables.selectBookCollection(toInt(req.params.suitId), {
+      LoadAddedAt: true,
+    });
 
     let infobox = `{{Book Collection Infobox
 |image     = Book ${collection.SuitNameText}.png
@@ -515,12 +524,15 @@ export default async function(): Promise<Router> {
 
   router.get('/readables/item/:itemId', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
-    const readable: Readable = await ctrl.readables.select(toInt(req.params.itemId));
+    const readable: Readable = await ctrl.readables.select(toInt(req.params.itemId), {
+      LoadReadableItems: true,
+      LoadAddedAt: true,
+    });
 
     await res.renderComponent(ReadableSinglePage, {
-      title: readable?.TitleText || 'Not Found',
+      title: readable?.Document?.TitleText || readable?.PrimaryVariantTitleText || 'Not Found',
       readable: readable,
-      ol: readable ? await ol_gen_from_id(ctrl, readable.TitleTextMapHash) : null,
+      ol: readable ? await ol_gen_from_id(ctrl, readable.PrimaryVariantTitleTextMapHash) : null,
       bodyClass: ['page--readables', 'page--readable-single']
     });
   });

@@ -55,8 +55,8 @@
 
 <script setup lang="ts">
 import { FurnitureSuiteTree } from '../../../../shared/types/genshin/homeworld-types.ts';
-import { toParam } from '../../../../shared/util/stringUtil.ts';
 import { entriesOf } from '../../../../shared/util/arrayUtil.ts';
+import { toParam } from '../../../../shared/util/stringHtmlUtil.ts';
 
 defineProps<{
   suiteTree?: FurnitureSuiteTree

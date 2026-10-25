@@ -39,6 +39,11 @@ export class MarkerAggregate {
     this.line = line;
   }
 
+  /**
+   * Applies adjustments to all of the markers in this aggregate.
+   *
+   * @param adjustments The adjustments to apply to the markers.
+   */
   applyAdjustments(adjustments: MarkerAdjustment[]) {
     adjustments = adjustments.filter(a => a.line == this.line);
 
@@ -86,15 +91,24 @@ export class MarkerAggregate {
     }
   }
 
+  /**
+   * Creates a map of MarkerAggregates from a list of markers.
+   *
+   * @param markers
+   * @return A map of MarkerAggregates, keyed by line number.
+   */
   static from(markers: Marker[]): Map<number, MarkerAggregate> {
     const aggs: Map<number, MarkerAggregate> = new Map<number, MarkerAggregate>;
     if (!markers || !markers.length) {
       return aggs;
     }
     for (let marker of markers) {
+      // Skip markers that are not valid, either because it is a 0-length marker or because the end is before the start.
+      // Full-line markers are exempt from this check because they don't have a start or end.
       if (!marker.fullLine && (marker.start === marker.end || marker.end < marker.start)) {
         continue;
       }
+
       let agg: MarkerAggregate = aggs.get(marker.line);
       if (!agg) {
         agg = new MarkerAggregate(marker.line);
@@ -106,6 +120,14 @@ export class MarkerAggregate {
   }
 }
 
+/**
+ * An object that should be returned by marker creation interceptors
+ * to indicate whether to skip default marker processing and/or add additional markers.
+ *
+ * Do note that `skip` only skips the default markers but does not skip any additional markers that are added via
+ * the `markers` property. If you wish to "replace" the default markers with your own entirely, then set `skip` to true
+ * and populate the `markers` property with your own markers.
+ */
 export type MarkerCreateInterceptorResult = {
   /**
    * If set to true, the default marker processing for this line will be skipped.
@@ -119,18 +141,29 @@ export type MarkerCreateInterceptorResult = {
 };
 
 /**
+ * An interceptor that is called before the default marker creation for a line.
+ * It can return an object to indicate whether to skip default marker processing and/or add additional markers.
+ *
  * @param line The line content
  * @param lineNum The line number (starting from 1)
  */
 export type MarkerPreCreateInterceptorSync = (line: string, lineNum?: number) => MarkerCreateInterceptorResult;
 
 /**
+ * An interceptor that is called before the default marker creation for a line.
+ * It can return an object to indicate whether to skip default marker processing and/or add additional markers.
+ *
  * @param line The line content
  * @param lineNum The line number (starting from 1)
  */
 export type MarkerPreCreateInterceptorAsync = (line: string, lineNum?: number) => MarkerCreateInterceptorResult|Promise<MarkerCreateInterceptorResult>;
 
 /**
+ * An interceptor that is called after the default marker creation for a line.
+ * It can return an object to indicate whether to discard the default markers and/or add additional markers.
+ *
+ * If `skip` is set to true, then the default markers will be discarded and only the additional markers (if any) will be used.
+ *
  * @param markers The zero-to-many markers that were created for this line.
  * @param line The line content
  * @param lineNum The line number (starting from 1)
@@ -138,18 +171,30 @@ export type MarkerPreCreateInterceptorAsync = (line: string, lineNum?: number) =
 export type MarkerPostCreateInterceptorSync = (markers: Marker[], line?: string, lineNum?: number) => MarkerCreateInterceptorResult;
 
 /**
+ * An interceptor that is called after the default marker creation for a line.
+ * It can return an object to indicate whether to discard the default markers and/or add additional markers.
+ *
+ * If `skip` is set to true, then the default markers will be discarded and only the additional markers (if any) will be used.
+ *
  * @param markers The zero-to-many markers that were created for this line.
  * @param line The line content
  * @param lineNum The line number (starting from 1)
  */
 export type MarkerPostCreateInterceptorAsync = (markers: Marker[], line?: string, lineNum?: number) => MarkerCreateInterceptorResult|Promise<MarkerCreateInterceptorResult>;
 
-
+/**
+ * A marker that can be applied to a line of text. It has a token (CSS class), a line number, and a start and end column.
+ *
+ * This class does not support multi-line markers. If you need to mark multiple lines, you should create a separate
+ * marker for each line.
+ */
 export class Marker implements IndexedRange {
   /**
    * CSS classes for the marker, separate with '.'
    *
-   * For example: `'token1.token2.token3'`
+   * For example, `'token1.token2.token3'`
+   *
+   * In the above example, the marker will have the CSS classes `token1`, `token2`, and `token3`.
    */
   token: string;
 
@@ -174,13 +219,18 @@ export class Marker implements IndexedRange {
   fullLine?: boolean;
 
   /**
-   * Optionally apply HTML attributes to the marker.
+   * Optionally, apply HTML attributes to the marker.
    */
   attr?: {[attrName: string]: string|number|boolean};
 
+  // The two fields below are used internally to apply adjustments to the marker's start and end positions.
+  // Their values are ephemeral and will be reset to 0 after the adjustments are applied.
   _startMod?: number = 0;
   _endMod?: number = 0;
 
+  /**
+   * Creates a new marker. See field docs for details on the parameters.
+   */
   constructor(token: string, line: number, start: number, end: number, attr?: {[attrName: string]: string|number}, fullLine: boolean = false) {
     this.token = token;
     this.line = line;
@@ -190,10 +240,16 @@ export class Marker implements IndexedRange {
     this.fullLine = fullLine;
   }
 
+  /**
+   * Helper factory method to create a full-line marker.
+   */
   static fullLine(token: string, line: number): Marker {
     return new Marker(token, line, 0, 0, null, true);
   }
 
+  /**
+   * Returns a string representation of the marker that can be used to reconstruct the marker using `Marker.fromString()`.
+   */
   toString(): string {
     let s = this.token + ',' + this.line;
     if (this.fullLine) {
@@ -209,6 +265,12 @@ export class Marker implements IndexedRange {
     return s;
   }
 
+  /**
+   * Creates a marker from a string representation of the marker. See `Marker.toString()` for details on the format.
+   *
+   * @param s The string representation of the marker.
+   * @returns A new Marker object, or null if the string is invalid.
+   */
   static fromString(s: string): Marker {
     let a = s.trim().split(',').map(x => x.trim()).filter(x => !!x);
     if (a.length < 3) {
@@ -252,6 +314,18 @@ export class Marker implements IndexedRange {
     }
   }
 
+  /**
+   * Creates markers for all occurrences of the search text in the content text. The search text can be a string or a regular expression.
+   *
+   * This is asynchronous for the sake of any asynchronous interceptors.
+   * If you don't have any asynchronous interceptors, you can use `Marker.create()` instead.
+   *
+   * @param searchText The text to search for. Can be a string or a regular expression.
+   * @param contentText The text to search in.
+   * @param interceptors Optional interceptors to modify the markers before and after creation.
+   * @param token Optional token to use for the markers. If not provided, the default token will be used.
+   * @returns An array of markers for all occurrences of the search text in the content text.
+   */
   static async createAsync(searchText: string|RegExp, contentText: string, interceptors?: {
     pre?: MarkerPreCreateInterceptorAsync,
     post?: MarkerPostCreateInterceptorAsync,
@@ -261,6 +335,18 @@ export class Marker implements IndexedRange {
     return ret.markers;
   }
 
+  /**
+   * Creates markers for all occurrences of the search text in the content text. The search text can be a string or a regular expression.
+   *
+   * This is synchronous and will not wait for any asynchronous interceptors.
+   * If you have any asynchronous interceptors, use `Marker.createAsync()` instead.
+   *
+   * @param searchText The text to search for. Can be a string or a regular expression.
+   * @param contentText The text to search in.
+   * @param interceptors Optional interceptors to modify the markers before and after creation.
+   * @param token Optional token to use for the markers. If not provided, the default token will be used.
+   * @returns An array of markers for all occurrences of the search text in the content text.
+   */
   static create(searchText: string|RegExp, contentText: string, interceptors?: {
     pre?: MarkerPreCreateInterceptorSync,
     post?: MarkerPostCreateInterceptorSync,
@@ -269,6 +355,9 @@ export class Marker implements IndexedRange {
     return ret.markers;
   }
 
+  /**
+   * The internal implementation of the marker creation logic. This is used by both `create()` and `createAsync()`.
+   */
   private static createInternal(searchText: string|RegExp, contentText: string, interceptors?: {
     pre?: MarkerPreCreateInterceptorAsync,
     post?: MarkerPostCreateInterceptorAsync,
@@ -362,15 +451,33 @@ export class Marker implements IndexedRange {
     return { markers, promises };
   }
 
+  /**
+   * Joins an array of markers into a single string representation that can be used to reconstruct the markers using `Marker.splitting()`.
+   *
+   * This is *not* something that merges markers into a single marker, but rather a serialization function.
+   *
+   * @param markers The array of markers to join.
+   * @returns A string representation of the markers.
+   */
   static joining(markers: Marker[]): string {
     return markers && Array.isArray(markers) && markers.length ? markers.map(m => m.toString()).join(';') : '';
   }
 
+  /**
+   * Checks if an object is probably a Marker and returns a type-narrowing result.
+   * This is not a foolproof check, but it should be sufficient for most cases.
+   *
+   * @param o The object to check.
+   * @returns True if the object is probably a Marker, false otherwise.
+   */
   static isMarker(o: any): o is Marker {
     return !!o && typeof o === 'object' && !Array.isArray(o) && o.hasOwnProperty('token') && o.hasOwnProperty('line') &&
       (o.fullLine || isInt(o.start) || isInt(o.end));
   }
 
+  /**
+   * Helper for splitting() that splits a string into multiple markers using ';' as the delimiter.
+   */
   private static multiFromString(o: string): Marker[] {
     return o.split(';')
       .map(s => s.trim())
@@ -379,6 +486,16 @@ export class Marker implements IndexedRange {
       .filter(s => !!s);
   }
 
+  /**
+   * Splits a string or an array of strings/markers into an array of markers.
+   *
+   * - If the input is a string, it will be split by ';' and each part will be converted to a marker.
+   * - If the input is an array, each element will be processed individually.
+   * - Each element can be a string or a marker. If it is a string, it will be split by ';' and converted to markers.
+   *
+   * @param o The input to split. Can be a string, a marker, or an array of strings/markers.
+   * @returns An array of markers.
+   */
   static splitting(o: string|Marker|(string|Marker)[]): Marker[] {
     if (!o) {
       return [];

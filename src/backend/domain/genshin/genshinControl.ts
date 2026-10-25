@@ -13,13 +13,13 @@ import {
   cleanEmpty,
   mapBy,
   sort,
+  sortByExternalOrder,
 } from '../../../shared/util/arrayUtil.ts';
 import { isInt, toInt } from '../../../shared/util/numberUtil.ts';
 import { normalizeRawJson, SchemaTable } from '../../importer/import_db.ts';
 import {
-  extractRomanNumeral,
+  createTextMatchRanker,
   replaceAsync,
-  romanToInt,
   SbOut,
 } from '../../../shared/util/stringUtil.ts';
 import {
@@ -93,7 +93,11 @@ import {
   WeaponExcelConfigData,
   WeaponLoadConf,
 } from '../../../shared/types/genshin/weapon-types.ts';
-import { AvatarExcelConfigData, BuffExcelConfigData } from '../../../shared/types/genshin/avatar-types.ts';
+import {
+  AvatarCostumeExcelConfigData,
+  AvatarExcelConfigData, AvatarFlycloakExcelConfigData,
+  BuffExcelConfigData,
+} from '../../../shared/types/genshin/avatar-types.ts';
 import {
   AnimalCodexExcelConfigData,
   MonsterDescribeExcelConfigData,
@@ -147,6 +151,7 @@ import {
 } from '../../../shared/types/genshin/beyond-types.ts';
 import { giImageHashToImageName } from './misc/giContainerHash.ts';
 import { GenshinLivingBeingModule } from './archive/livingBeingModule.ts';
+import { extractRomanNumeral, romanToInt } from '../../../shared/util/romanNumeralUtil.ts';
 
 // region Control State
 // --------------------------------------------------------------------------------------------------------------
@@ -674,22 +679,25 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
   async searchChapters(query: string|number): Promise<ChapterExcelConfigData[]> {
     if (typeof query === 'string') {
-      const chapterIds: number[] = [];
+      const ranker = createTextMatchRanker(query, this.searchModeFlags.includes('i'));
 
       await this.streamTextMapMatchesWithIndex({
         inputLangCode: this.inputLangCode,
         outputLangCode: this.outputLangCode,
         searchText: query,
         textIndexName: 'Chapter',
-        stream(entityId: number) {
-          chapterIds.push(entityId);
+        stream(entityId: number, entityIndexName: string, textMapHash, text: string) {
+          ranker.add(entityId, text);
         },
         flags: this.searchModeFlags
       });
 
+      const chapterIds: number[] = ranker.orderedIds();
+
       return await this.knex.select('*').from('ChapterExcelConfigData')
         .whereIn('Id', chapterIds)
-        .then(this.commonLoad).then(ret => ret.asyncMap(x => this.postProcessChapter(x, true)));
+        .then(this.commonLoad).then(ret => ret.asyncMap(x => this.postProcessChapter(x, true)))
+        .then(ret => sortByExternalOrder(ret, 'Id', chapterIds));
     } else {
       const x = await this.selectChapterById(query, true);
       return x ? [x] : [];
@@ -723,20 +731,22 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
 
   async searchMainQuests(query: string|number): Promise<MainQuestExcelConfigData[]> {
     if (typeof query === 'string') {
-      const mainQuestIds: number[] = [];
+      const ranker = createTextMatchRanker(query, this.searchModeFlags.includes('i'));
       await this.streamTextMapMatchesWithIndex({
         inputLangCode: this.inputLangCode,
         outputLangCode: this.outputLangCode,
         searchText: query,
         textIndexName: 'MainQuest',
-        stream(entityId: number) {
-          mainQuestIds.push(entityId);
+        stream(entityId: number, entityIndexName: string, textMapHash, text: string) {
+          ranker.add(entityId, text);
         },
         flags: this.searchModeFlags
       });
+      const mainQuestIds: number[] = ranker.orderedIds();
       return await this.knex.select('*').from('MainQuestExcelConfigData')
         .whereIn('Id', mainQuestIds)
-        .then(this.commonLoad).then(x => this.postProcessMainQuests(x));
+        .then(this.commonLoad).then(x => this.postProcessMainQuests(x))
+        .then(x => sortByExternalOrder(x, 'Id', mainQuestIds));
     } else {
       const x = await this.selectMainQuestById(query);
       return x ? [x] : [];
@@ -809,32 +819,38 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     let results: MainQuestSearchResults;
 
     if (typeof query === 'string') {
-      const mainQuestIds: number[] = [];
-      const chapterIds: number[] = [];
+      const caseInsensitive = this.searchModeFlags.includes('i');
+      const mainQuestRanker = createTextMatchRanker(query, caseInsensitive);
+      const chapterRanker = createTextMatchRanker(query, caseInsensitive);
 
       await this.streamTextMapMatchesWithIndex({
         inputLangCode: this.inputLangCode,
         outputLangCode: this.outputLangCode,
         searchText: query,
         textIndexName: ['MainQuest', 'Chapter'],
-        stream(entityId: number, entityIndexName: string) {
+        stream(entityId: number, entityIndexName: string, textMapHash, text: string) {
           if (entityIndexName === 'MainQuest') {
-            mainQuestIds.push(entityId);
+            mainQuestRanker.add(entityId, text);
           }
           if (entityIndexName === 'Chapter') {
-            chapterIds.push(entityId);
+            chapterRanker.add(entityId, text);
           }
         },
         flags: this.searchModeFlags
       });
 
+      const mainQuestIds: number[] = mainQuestRanker.orderedIds();
+      const chapterIds: number[] = chapterRanker.orderedIds();
+
       results = {
         mainQuests: await this.knex.select('*').from('MainQuestExcelConfigData')
           .whereIn('Id', mainQuestIds)
-          .then(this.commonLoad).then(x => this.postProcessMainQuests(x)),
+          .then(this.commonLoad).then(x => this.postProcessMainQuests(x))
+          .then(x => sortByExternalOrder(x, 'Id', mainQuestIds)),
         chapters: await this.knex.select('*').from('ChapterExcelConfigData')
           .whereIn('Id', chapterIds)
           .then(this.commonLoad).then(ret => ret.asyncMap(x => this.postProcessChapter(x, true)))
+          .then(ret => sortByExternalOrder(ret, 'Id', chapterIds))
       }
     } else {
       const mainQuest = await this.selectMainQuestById(query);
@@ -1456,7 +1472,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
             }));
             this.state.questHasQuestItemPictures[mainQuestId] = true;
           } else if (action.Type === 'UI_TRIGGER' && action.ContextName === 'QuestReadingDialog' && isInt(action.Param)) {
-            const readable = await this.readables.select(toInt(action.Param), true);
+            const readable = await this.readables.select(toInt(action.Param), {LoadReadableItems: true});
             if (readable) {
               fakeDialogs.push(await this.makeFakeDialog(action.ActionId, {
                 CustomWikiReadable: readable
@@ -1975,6 +1991,30 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
   async selectBuffExcel(serverBuffId: number): Promise<BuffExcelConfigData> {
     return await this.knex.select('*').from('BuffExcelConfigData')
       .where({ServerBuffId: serverBuffId})
+      .first().then(this.commonLoadFirst);
+  }
+
+  async selectAvatarCostumeById(skinId: number): Promise<AvatarCostumeExcelConfigData> {
+    return await this.knex.select('*').from('AvatarCostumeExcelConfigData')
+      .where({SkinId: skinId})
+      .first().then(this.commonLoadFirst);
+  }
+
+  async selectAvatarCostumeByMaterialId(itemId: number): Promise<AvatarCostumeExcelConfigData> {
+    return await this.knex.select('*').from('AvatarCostumeExcelConfigData')
+      .where({ItemId: itemId})
+      .first().then(this.commonLoadFirst);
+  }
+
+  async selectAvatarFlycloakById(flycloakId: number): Promise<AvatarFlycloakExcelConfigData> {
+    return await this.knex.select('*').from('AvatarFlycloakExcelConfigData')
+      .where({FlycloakId: flycloakId})
+      .first().then(this.commonLoadFirst);
+  }
+
+  async selectAvatarFlycloakByMaterialId(materialId: number): Promise<AvatarFlycloakExcelConfigData> {
+    return await this.knex.select('*').from('AvatarFlycloakExcelConfigData')
+      .where({MaterialId: materialId})
       .first().then(this.commonLoadFirst);
   }
   // endregion
@@ -2968,30 +3008,28 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       searchText = searchText.trim();
     }
 
-    const ids: number[] = [];
-
-    if (isInt(searchText)) {
-      ids.push(toInt(searchText));
-    }
+    const directIdMatch: number[] = isInt(searchText) ? [toInt(searchText)] : [];
+    const ranker = createTextMatchRanker(searchText, searchFlags.includes('i'));
 
     await this.streamTextMapMatchesWithIndex({
       inputLangCode: this.inputLangCode,
       outputLangCode: this.outputLangCode,
       searchText,
       textIndexName: 'Material',
-      stream: (id: number) => {
-        if (!ids.includes(id))
-          ids.push(id);
+      stream: (id: number, entityIndexName, textMapHash, text: string) => {
+        ranker.add(id, text);
       },
       flags: searchFlags
     });
+
+    const ids: number[] = ranker.orderedIds(directIdMatch);
 
     loadConf.LoadAddedAt = true;
 
     const materials: MaterialExcelConfigData[] = await this.knex.select('*').from('MaterialExcelConfigData')
       .whereIn('Id', ids).then(this.commonLoad);
     await materials.asyncMap(material => this.postProcessMaterial(material, loadConf));
-    return materials;
+    return sortByExternalOrder(materials, 'Id', ids);
   }
 
   async selectAllMaterialExcelConfigData(loadConf: MaterialLoadConf = {}): Promise<MaterialExcelConfigData[]> {
@@ -3061,30 +3099,28 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       searchText = searchText.trim();
     }
 
-    const ids: number[] = [];
-
-    if (isInt(searchText)) {
-      ids.push(toInt(searchText));
-    }
+    const directIdMatch: number[] = isInt(searchText) ? [toInt(searchText)] : [];
+    const ranker = createTextMatchRanker(searchText, searchFlags.includes('i'));
 
     await this.streamTextMapMatchesWithIndex({
       inputLangCode: this.inputLangCode,
       outputLangCode: this.outputLangCode,
       searchText,
       textIndexName: 'BydMaterial',
-      stream: (id: number) => {
-        if (!ids.includes(id))
-          ids.push(id);
+      stream: (id: number, entityIndexName, textMapHash, text: string) => {
+        ranker.add(id, text);
       },
       flags: searchFlags
     });
+
+    const ids: number[] = ranker.orderedIds(directIdMatch);
 
     loadConf.LoadAddedAt = true;
 
     const materials: BydMaterialExcelConfigData[] = await this.knex.select('*').from('BydMaterialExcelConfigData')
       .whereIn('Id', ids).then(this.commonLoad);
     await materials.asyncMap(material => this.postProcessBydMaterial(material, loadConf));
-    return materials;
+    return sortByExternalOrder(materials, 'Id', ids);
   }
 
   async selectAllBydMaterialExcelConfigData(loadConf: BydMaterialLoadConf = {}): Promise<BydMaterialExcelConfigData[]> {
@@ -3310,7 +3346,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       weapon.Relations = await this.selectItemRelations({byRoleId: weapon.Id});
     }
     if (loadConf.LoadReadable && weapon.StoryId) {
-      weapon.Story = await this.readables.select(weapon.StoryId, true);
+      weapon.Story = await this.readables.select(weapon.StoryId, {LoadReadableItems: true});
     }
     if (loadConf.LoadEquipAffix && weapon.SkillAffix && weapon.SkillAffix.length && isInt(weapon.SkillAffix[0]) && weapon.SkillAffix[0] !== 0) {
       weapon.EquipAffixList = await this.selectEquipAffixListById(weapon.SkillAffix[0]);
@@ -3342,29 +3378,28 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       searchText = searchText.trim();
     }
 
-    const ids: number[] = [];
-
-    if (isInt(searchText)) {
-      ids.push(toInt(searchText));
-    }
+    const directIdMatch: number[] = isInt(searchText) ? [toInt(searchText)] : [];
+    const ranker = createTextMatchRanker(searchText, searchFlags.includes('i'));
 
     await this.streamTextMapMatchesWithIndex({
       inputLangCode: this.inputLangCode,
       outputLangCode: this.outputLangCode,
       searchText,
       textIndexName: 'Weapon',
-      stream: (id: number) => {
-        if (!ids.includes(id))
-          ids.push(id);
+      stream: (id: number, entityIndexName, textMapHash, text: string) => {
+        ranker.add(id, text);
       },
       flags: searchFlags
     });
+
+    const ids: number[] = ranker.orderedIds(directIdMatch);
 
     loadConf.LoadAddedAt = true;
 
     return await this.knex.select('*').from('WeaponExcelConfigData')
       .whereIn('Id', ids).then(this.commonLoad)
-      .then(weapons => weapons.asyncMap(weapon => this.postProcessWeapon(weapon, loadConf)));
+      .then(weapons => weapons.asyncMap(weapon => this.postProcessWeapon(weapon, loadConf)))
+      .then(weapons => sortByExternalOrder(weapons, 'Id', ids));
   }
   // endregion
 
@@ -3375,7 +3410,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     }
     artifact.EquipName = await this.manualtm.getTextByKey(this.outputLangCode, artifact.EquipType);
     if (loadConf.LoadStory && artifact.StoryId) {
-      artifact.Story = await this.readables.select(artifact.StoryId, true);
+      artifact.Story = await this.readables.select(artifact.StoryId, {LoadReadableItems: true});
     }
     return artifact;
   }
@@ -3522,29 +3557,28 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       searchText = searchText.trim();
     }
 
-    const ids: number[] = [];
-
-    if (isInt(searchText)) {
-      ids.push(toInt(searchText));
-    }
+    const directIdMatch: number[] = isInt(searchText) ? [toInt(searchText)] : [];
+    const ranker = createTextMatchRanker(searchText, searchFlags.includes('i'));
 
     await this.streamTextMapMatchesWithIndex({
       inputLangCode: this.inputLangCode,
       outputLangCode: this.outputLangCode,
       searchText,
       textIndexName: 'Achievement',
-      stream: (id) => {
-        if (!ids.includes(id))
-          ids.push(id);
+      stream: (id, entityIndexName, textMapHash, text: string) => {
+        ranker.add(id, text);
       },
       flags: searchFlags
     });
+
+    const ids: number[] = ranker.orderedIds(directIdMatch);
 
     let achievements: AchievementExcelConfigData[] = await this.knex.select('*').from('AchievementExcelConfigData')
       .whereIn('Id', ids).then(this.commonLoad);
 
     achievements = await achievements.asyncMap(a => this.postProcessAchievement(a));
     achievements = achievements.filter(a => !!a);
+    achievements = sortByExternalOrder(achievements, 'Id', ids);
 
     return achievements;
   }

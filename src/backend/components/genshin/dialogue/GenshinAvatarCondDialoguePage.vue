@@ -87,12 +87,12 @@
 <script setup lang="ts">
 import { AvatarExcelConfigData } from '../../../../shared/types/genshin/avatar-types.ts';
 import { TalkExcelAvatarBeginCondResult } from '../../../domain/genshin/dialogue/basic_dialogue_generator.ts';
-import { toParam } from '../../../../shared/util/stringUtil.ts';
 import Icon from '../../utility/Icon.vue';
 import DialogueSection from '../../utility/DialogueSection.vue';
 import { Readable } from '../../../../shared/types/genshin/readable-types.ts';
 import InDialogueReadablesHelper from './helpers/InDialogueReadablesHelper.vue';
 import QuestStillsHelper from './helpers/QuestStillsHelper.vue';
+import { toParam } from '../../../../shared/util/stringHtmlUtil.ts';
 
 defineProps<{
   avatar?: AvatarExcelConfigData,

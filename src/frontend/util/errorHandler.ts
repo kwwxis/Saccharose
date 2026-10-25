@@ -1,5 +1,6 @@
 import { modalService } from './modalService.ts';
-import { escapeHtml } from '../../shared/util/stringUtil.ts';
+
+import { escapeHtml } from '../../shared/util/stringHtmlUtil.ts';
 
 let handlingJavascriptError = false;
 

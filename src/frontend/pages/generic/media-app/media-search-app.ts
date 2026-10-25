@@ -6,7 +6,6 @@ import {
 } from '../../genericSearchPage.ts';
 import { SaccharoseApiEndpoint } from '../../../core/endpoints.ts';
 import { frag1, isElementPartiallyInViewport } from '../../../util/domutil.ts';
-import { escapeHtml } from '../../../../shared/util/stringUtil.ts';
 import {
   ImageIndexObj,
   ImageIndexSearchParams,
@@ -16,6 +15,7 @@ import { ModalRef, modalService } from '../../../util/modalService.ts';
 import { ScriptJobPostResult } from '../../../../backend/util/scriptJobs.ts';
 import { toastError, toastSuccess } from '../../../util/toasterUtil.ts';
 import { getByteSizeLabel } from './media-app-util.ts';
+import { escapeHtml } from '../../../../shared/util/stringHtmlUtil.ts';
 
 export function initiateMediaSearchPage(
   vueComponentName: string,

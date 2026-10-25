@@ -132,8 +132,8 @@ import { StoryFetters } from '../../../../shared/types/genshin/fetter-types.ts';
 import Wikitext from '../../utility/Wikitext.vue';
 import { useTrace } from '../../../middleware/request/tracer.ts';
 import Icon from '../../utility/Icon.vue';
-import { toParam } from '../../../../shared/util/stringUtil.ts';
 import MetaProps from '../../shared/MetaProps.vue';
+import { toParam } from '../../../../shared/util/stringHtmlUtil.ts';
 
 const { ctx } = useTrace();
 

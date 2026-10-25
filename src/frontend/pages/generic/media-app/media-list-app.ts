@@ -6,13 +6,13 @@ import {
   ImageIndexSearchResult,
 } from '../../../../shared/types/image-index-types.ts';
 import { frag, frag1, isElementPartiallyInViewport } from '../../../util/domutil.ts';
-import { escapeHtml } from '../../../../shared/util/stringUtil.ts';
 import { isNotEmpty, toBoolean } from '../../../../shared/util/genericUtil.ts';
 import { uuidv4 } from '../../../../shared/util/uuidv4.ts';
 import './media-list.styles.scss';
 import { GenshinVersions, GameVersions } from '../../../../shared/types/game-versions.ts';
 import { getByteSizeLabel } from './media-app-util.ts';
 import { iconSvg } from '../../../../shared/util/iconProvider.ts';
+import { escapeHtml } from '../../../../shared/util/stringHtmlUtil.ts';
 
 export function initiateMediaListPage(
   vueComponentName: string,

@@ -707,7 +707,6 @@ import { arraySum, valuesOf } from '../../../shared/util/arrayUtil.ts';
 import { GameVersion } from '../../../shared/types/game-versions.ts';
 import Icon from '../utility/Icon.vue';
 import { GenshinChangelogNewRecordSummary } from '../../domain/genshin/changelog/genshinChangelogHelpers.ts';
-import { toParam } from '../../../shared/util/stringUtil.ts';
 import GenshinItem from '../genshin/links/GenshinItem.vue';
 import GenshinLbLink from '../genshin/links/GenshinLbLink.vue';
 import TcgCard from '../genshin/links/TcgCard.vue';
@@ -718,6 +717,7 @@ import { ChapterExcelConfigData } from '../../../shared/types/genshin/quest-type
 import GenshinChapterListItem from '../genshin/chapters/GenshinChapterListItem.vue';
 import { SITE_SHORT_TITLE } from '../../loadenv.ts';
 import GenshinChangelogSummaryReadablesView from './GenshinChangelogSummaryReadablesView.vue';
+import { toParam } from '../../../shared/util/stringHtmlUtil.ts';
 
 const { ctx } = useTrace();
 

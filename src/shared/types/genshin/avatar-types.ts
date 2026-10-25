@@ -98,8 +98,9 @@ export interface AvatarExcelConfigData {
   WindSubHurt: number,
 }
 
+// Called "Wind Gliders" in-game
 export interface AvatarFlycloakExcelConfigData {
-  FlycloakId: number,
+  FlycloakId: number, // primary key
   NameText: string,
   DescText: string,
   NameTextMapHash: number,
@@ -107,15 +108,16 @@ export interface AvatarFlycloakExcelConfigData {
   PrefabPath: string,
   JsonName: string,
   Icon: string,
-  MaterialId: number
+  MaterialId: number // MaterialExcelConfigData.Id
 }
 
+// Called "Character Outfits" in-game
 export interface AvatarCostumeExcelConfigData {
-  SkinId: number,
+  SkinId: number, // primary key
   IndexId: number,
   NameTextMapHash: number,
   DescTextMapHash: number,
-  ItemId: number,
+  ItemId: number, // MaterialExcelConfigData.Id
   CharacterId: number,
   JsonName: string,
   PrefabPathHash: string,

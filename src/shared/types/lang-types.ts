@@ -2,6 +2,7 @@ import { Marker } from '../util/highlightMarker.ts';
 import { LangDetectResult } from './common-types.ts';
 import { GameVersion, GameVersions } from './game-versions.ts';
 import { TextMapChangeRef, TextMapChangeRefs } from './changelog-types.ts';
+import { GenshinApiEndpoint } from '../../frontend/core/endpoints.ts';
 
 export type TextMapHash = number|string;
 
@@ -43,7 +44,17 @@ export type TextMapSearchStreamOpts = TextMapSearchOpts & {
 };
 export type TextMapSearchIndexStreamOpts = TextMapSearchOpts & {
   textIndexName: string|string[],
-  stream: (entityId: number, entityIndexName: string, textMapHash: TextMapHash, text?: string) => void,
+  stream: (entityId: number, entityIndexName?: string, textMapHash?: TextMapHash, text?: string, role?: string) => void,
+};
+
+export type TextMapSearchEndpointParams = {
+  text: string,
+  startFromLine?: number,
+  resultSetIdx?: number,
+  isRawInput?: boolean,
+  isRawOutput?: boolean,
+  hashSearch?: boolean,
+  versionFilter?: string,
 };
 
 export type PlainLineMapItem = {Line: number, Hash: TextMapHash, LineType?: string };

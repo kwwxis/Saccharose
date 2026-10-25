@@ -9,13 +9,13 @@ import { sort } from '../../../../shared/util/arrayUtil.ts';
 import { LangCode } from '../../../../shared/types/lang-types.ts';
 import SiteModeInfo, { SITE_MODE_HOME } from '../../../core/userPreferences/siteModeInfo.ts';
 import { frag1 } from '../../../util/domutil.ts';
-import { toParam } from '../../../../shared/util/stringUtil.ts';
 import {
   getAllVoAppSavedAvatars, putVoAppSavedAvatar,
   removeVoAppSavedAvatar,
   VoAppSavedAvatar, VoAppStorageMigration,
 } from './vo-app-storage.ts';
 import { CommonAvatar } from '../../../../shared/types/common-types.ts';
+import { toParam } from '../../../../shared/util/stringHtmlUtil.ts';
 
 export async function VoAppWelcome(state: VoAppState) {
   if (!document.querySelector('#vo-app-welcome'))

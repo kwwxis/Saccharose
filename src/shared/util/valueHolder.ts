@@ -96,6 +96,14 @@ export class AtomicReference<T> {
       this.value = newValue;
     });
   }
+
+  async getAndSet(fn: (currentValue: T) => T): Promise<T> {
+    return this.myLock.acquire('value', () => {
+      const oldValue = this.value;
+      this.value = fn(oldValue);
+      return oldValue;
+    });
+  }
 }
 
 /**

@@ -6,12 +6,12 @@ import { MwOwnSegment } from '../../../../../backend/mediawiki/mwOwnSegmentHolde
 import { Marker } from '../../../../../shared/util/highlightMarker.ts';
 import { IndexedRange, intersectRange, sort } from '../../../../../shared/util/arrayUtil.ts';
 import { defaultMap } from '../../../../../shared/util/genericUtil.ts';
-import { escapeHtml } from '../../../../../shared/util/stringUtil.ts';
 import { listen, runWhenDOMContentLoaded } from '../../../../util/eventListen.ts';
 import { highlightWikitext } from '../../../../core/ace/aceHighlight.ts';
 import { toInt } from '../../../../../shared/util/numberUtil.ts';
 import { clearElements, createElement, frag1 } from '../../../../util/domutil.ts';
 import { createRevListHtml } from '../util/mwRevItem.ts';
+import { escapeHtml } from '../../../../../shared/util/stringHtmlUtil.ts';
 
 // region Entrypoint
 // --------------------------------------------------------------------------------------------------------------

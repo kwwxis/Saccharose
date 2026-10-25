@@ -1,8 +1,8 @@
 import { toBoolean } from '../../shared/util/genericUtil';
 import { Request } from 'express';
 import { iconSvg } from '../../shared/util/iconProvider.ts';
-import { escapeHtml } from '../../shared/util/stringUtil.ts';
 import fastJson from 'fast-json-stringify';
+import { escapeHtml } from '../../shared/util/stringHtmlUtil.ts';
 
 export const fastStringifyLangCodesToName = fastJson({
   type: 'object',
