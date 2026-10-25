@@ -30,6 +30,37 @@ dotenv.config({ path: envFile });
 
 export const ENV: ProcessEnv = <any> process.env;
 
+/**
+ * Shell executable names that this application's shell-based features (in `util/shellutil.ts`) are written
+ * against. Those features rely on POSIX shell semantics specifically:
+ *   - Single-quote argument escaping (`shellEscapeArg`), which is a POSIX/bash convention and provides no
+ *     protection at all under e.g. `cmd.exe` (which doesn't treat `'` as a quote character).
+ *   - `tail -n +N file | rg -` style pipes for paginated search.
+ * Rather than try to generalize the implementation to support arbitrary shells, `SHELL_EXEC` is required to point
+ * to one of these POSIX-compatible shells; anything else is rejected at startup.
+ */
+const POSIX_SHELL_NAMES = new Set(['bash', 'sh', 'dash', 'zsh', 'ash']);
+
+function validateShellExec(): void {
+  if (!ENV.SHELL_EXEC) {
+    // Not configured - nothing to validate here; features that depend on it will fail on their own when invoked.
+    return;
+  }
+  const baseName = path.basename(ENV.SHELL_EXEC).replace(/\.exe$/i, '').toLowerCase();
+  if (!POSIX_SHELL_NAMES.has(baseName)) {
+    console.error(
+      `[loadenv] SHELL_EXEC is set to "${ENV.SHELL_EXEC}", which does not look like a POSIX-compatible shell ` +
+      `(expected the executable name to be one of: ${[...POSIX_SHELL_NAMES].join(', ')}). This application's ` +
+      `shell-based features are written specifically against POSIX shell semantics (single-quote argument ` +
+      `escaping, "tail | rg" pipes) and are not safe or functional with other shells (e.g. cmd.exe, PowerShell). ` +
+      `Refusing to start.`
+    );
+    process.exit(1);
+  }
+}
+
+validateShellExec();
+
 export const COMPONENTS_ROOT = path.resolve(__dirname, './components');
 export const PUBLIC_DIR = path.resolve(__dirname, '../../public');
 export const PIPELINE_DIR = path.resolve(__dirname, '../pipeline');

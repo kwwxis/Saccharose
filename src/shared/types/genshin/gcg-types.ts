@@ -1,5 +1,5 @@
 import { AvatarExcelConfigData } from './avatar-types.ts';
-import { MonsterExcelConfigData } from './monster-types.ts';
+import { MonsterExcelConfigData } from './living-being-types.ts';
 import { TalkExcelConfigData } from './dialogue-types.ts';
 import { MainQuestExcelConfigData, QuestExcelConfigData } from './quest-types.ts';
 import { MaterialExcelConfigData, RewardExcelConfigData } from './material-types.ts';

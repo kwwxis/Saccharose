@@ -17,6 +17,25 @@ export abstract class AbstractControlState {
    */
   public DbConnection: Knex|boolean = true;
 
+  /**
+   * Control-instance-scoped TextMap lookup cache, keyed by lang code then by hash (as a string).
+   *
+   * This exists purely to avoid re-querying the same hash multiple times within the lifetime of a single
+   * control (e.g. the same hash showing up on multiple related rows during one request), not as a
+   * process-wide/cross-request cache - TextMap has tens of millions of rows and most hashes are only ever
+   * relevant to the request/search that touched them, so caching process-wide would be wasteful.
+   *
+   * Use {@link AbstractControl.getTextMapItem}/{@link AbstractControl.getTextMapItems} which read/write
+   * this cache automatically - do not populate it directly.
+   */
+  textMapCache: Partial<Record<LangCode, Record<string, string>>> = {};
+
+  /**
+   * Set to true to disable {@link textMapCache} (i.e. force every {@link AbstractControl.getTextMapItem}/
+   * {@link AbstractControl.getTextMapItems} call to always hit the database).
+   */
+  DisableTextMapCache: boolean = false;
+
   constructor(controlUserModeProvider?: ControlUserModeProvider) {
     this.controlUserMode = getControlUserMode(controlUserModeProvider);
   }

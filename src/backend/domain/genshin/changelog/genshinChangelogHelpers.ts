@@ -15,7 +15,7 @@ import { ExcelChangeRecord, ExcelVersionChangelog } from '../../../../shared/typ
 import { isInt, toInt } from '../../../../shared/util/numberUtil.ts';
 import { GenshinSchemaNames } from '../../../importer/genshin/genshin.schema.ts';
 import { GenshinControl } from '../genshinControl.ts';
-import { MonsterExcelConfigData } from '../../../../shared/types/genshin/monster-types.ts';
+import { MonsterExcelConfigData } from '../../../../shared/types/genshin/living-being-types.ts';
 import { GCGControl, getGCGControl } from '../gcg/gcg_control.ts';
 import { AchievementExcelConfigData } from '../../../../shared/types/genshin/achievement-types.ts';
 import { LoadingCat, LoadingTipsExcelConfigData } from '../../../../shared/types/genshin/loading-types.ts';

@@ -47,7 +47,7 @@
 </template>
 
 <script setup lang="ts">
-import { LivingBeingTable } from '../../../../shared/types/genshin/monster-types.ts';
+import { LivingBeingTable } from '../../../../shared/types/genshin/living-being-types.ts';
 import GenshinLbLink from '../links/GenshinLbLink.vue';
 
 defineProps<{

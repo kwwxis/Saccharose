@@ -144,7 +144,7 @@ export async function _cachedImpl<T>(key: string,
       let raw: T = await supplierFn(key);
       cache.memory[key] = raw;
 
-      let value: string|Buffer;
+      let value: string | Buffer;
       switch (valueMode) {
         case 'string': {
           value = typeof raw === 'string' ? raw : String(raw);

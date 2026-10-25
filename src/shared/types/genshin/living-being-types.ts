@@ -1,14 +1,26 @@
 import { HomeworldAnimalExcelConfigData } from './homeworld-types.ts';
 
-// Monster
+// Common Types for Living Beings (Monsters and Animals)
 // --------------------------------------------------------------------------------------------------------------
 
+/**
+ * Common load configuration for living beings (monsters and animals).
+ */
 export interface LivingBeingLoadConf {
   LoadHomeWorldAnimal?: boolean,
   LoadModelArtPath?: boolean,
   LoadAltDescTextQuestConds?: boolean,
 }
 
+export interface LivingBeingCommonDescribe {
+  Id: number,
+  Icon: string,
+  NameText: string,
+  NameTextMapHash: number,
+}
+
+// Monster
+// --------------------------------------------------------------------------------------------------------------
 export interface MonsterExcelConfigData {
   Id: number,
   MonsterName: string,
@@ -18,7 +30,7 @@ export interface MonsterExcelConfigData {
   Type: 'MONSTER_BOSS' | 'MONSTER_ENV_ANIMAL' | 'MONSTER_FISH' | 'MONSTER_ORDINARY' | 'MONSTER_PARTNER',
 
   DescribeId: number,
-  Describe?: CommonDescribe,
+  Describe?: LivingBeingCommonDescribe,
   MonsterDescribe?: MonsterDescribeExcelConfigData,
   AnimalDescribe?: AnimalDescribeExcelConfigData,
   AnimalCodex?: AnimalCodexExcelConfigData,
@@ -82,14 +94,7 @@ export interface MonsterExcelConfigData {
   OKJNGNPPCBP: string,
 }
 
-export interface CommonDescribe {
-  Id: number,
-  Icon: string,
-  NameText: string,
-  NameTextMapHash: number,
-}
-
-export interface MonsterDescribeExcelConfigData extends CommonDescribe {
+export interface MonsterDescribeExcelConfigData extends LivingBeingCommonDescribe {
   Id: number
   TitleId: number,
   Title: MonsterTitleExcelConfigData,
@@ -115,7 +120,7 @@ export interface MonsterTitleExcelConfigData {
   TitleNameText: string,
 }
 
-// Archive
+// Living Being Archive (full set of monsters and animals)
 // --------------------------------------------------------------------------------------------------------------
 
 export type LivingBeingTable = {[subType: string]: LivingBeingArchiveGroup};
@@ -212,7 +217,7 @@ export interface AnimalCodexExcelConfigData {
   Monsters?: MonsterExcelConfigData[],
 }
 
-export interface AnimalDescribeExcelConfigData extends CommonDescribe {
+export interface AnimalDescribeExcelConfigData extends LivingBeingCommonDescribe {
   Id: number,
   Icon: string,
   NameText: string,

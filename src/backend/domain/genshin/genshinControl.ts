@@ -98,7 +98,7 @@ import {
   AnimalCodexExcelConfigData,
   MonsterDescribeExcelConfigData,
   MonsterExcelConfigData,
-} from '../../../shared/types/genshin/monster-types.ts';
+} from '../../../shared/types/genshin/living-being-types.ts';
 import { defaultMap, isEmpty, isset } from '../../../shared/util/genericUtil.ts';
 import { NewActivityExcelConfigData } from '../../../shared/types/genshin/activity-types.ts';
 import { ElementType, GenshinManualTextMap } from './misc/manual-text-map.ts';
@@ -360,6 +360,30 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       object = normalizeRawJson(object, typeof triggerNormalize === 'boolean' ? null : triggerNormalize);
     }
     const objAsAny = object as any;
+
+    if (this.state.AutoloadText) {
+      // Pre-warm the TextMap cache with a single batched query for every hash this object will need, so that
+      // the per-property resolution loop below hits the control-instance cache instead of issuing one DB
+      // round-trip per TextMapHash-like property.
+      const hashesToPrefetch: TextMapHash[] = [];
+      for (let prop in object) {
+        const maybeTextMapHash = this.maybeTextMapHash(prop, object[prop]);
+        const isTextMapHashProp = (prop.endsWith('MapHash') || prop.endsWith('MapHashList')) || maybeTextMapHash;
+        const isDescProp = prop.endsWith('Desc') && Array.isArray(object[prop]) && (<any[]>object[prop]).every(x => isInt(x));
+        const isTipsProp = prop.endsWith('Tips') && Array.isArray(object[prop]);
+        if (isTextMapHashProp || isDescProp || isTipsProp) {
+          if (Array.isArray(object[prop])) {
+            hashesToPrefetch.push(...(<any[]>object[prop]));
+          } else {
+            hashesToPrefetch.push(<TextMapHash> object[prop]);
+          }
+        }
+      }
+      if (hashesToPrefetch.length) {
+        await this.getTextMapItems(this.outputLangCode, hashesToPrefetch);
+      }
+    }
+
     for (let prop in object) {
       const maybeTextMapHash = this.state.AutoloadText && this.maybeTextMapHash(prop, object[prop]);
       if (this.state.AutoloadText && (

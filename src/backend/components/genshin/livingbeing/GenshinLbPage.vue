@@ -94,7 +94,7 @@
 </template>
 
 <script setup lang="ts">
-import { MonsterExcelConfigData } from '../../../../shared/types/genshin/monster-types.ts';
+import { MonsterExcelConfigData } from '../../../../shared/types/genshin/living-being-types.ts';
 import Wikitext from '../../utility/Wikitext.vue';
 import { useTrace } from '../../../middleware/request/tracer.ts';
 import JsonText from '../../utility/JsonText.vue';

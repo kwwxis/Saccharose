@@ -14,6 +14,7 @@ import defaultResponseHeaders from './middleware/response/defaultResponseHeaders
 import { isSiteModeEnabled, PUBLIC_DIR } from './loadenv.ts';
 import { doubleCsrfProtection } from './middleware/request/csrf.ts';
 import { pageLoadErrorHandler } from './middleware/response/globalErrorHandler.ts';
+import authPresenceCookieMiddleware from './middleware/response/authPresenceCookieMiddleware';
 import { loadGenshinVoiceItems } from './domain/genshin/genshinControl.ts';
 import { loadStarRailVoiceItems } from './domain/hsr/starRailControl.ts';
 import { loadStarRailTextSupportingData } from './domain/hsr/starRailText.ts';
@@ -205,6 +206,7 @@ export async function appInit(): Promise<Express> {
     policy: 'same-origin'
   }));
   app.use(defaultResponseHeaders);                          // Add default response headers
+  app.use(authPresenceCookieMiddleware);                    // Add auth presence cookie
 
   // Load authorize endpoint
   // ~~~~~~~~~~~~~~~~~~~~~~~

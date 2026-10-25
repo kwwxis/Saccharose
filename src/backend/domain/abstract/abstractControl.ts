@@ -287,8 +287,16 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
     if (this.disabledLangCodes.has(langCode)) {
       return null;
     }
-    return await this.knex.select('Text').from('TextMap' + langCode)
+    const cache = this.state.DisableTextMapCache ? null : (this.state.textMapCache[langCode] ||= {});
+    if (cache && hash in cache) {
+      return cache[hash];
+    }
+    const text = await this.knex.select('Text').from('TextMap' + langCode)
       .where({ Hash: hash }).first().then(x => x?.Text);
+    if (cache) {
+      cache[hash] = text;
+    }
+    return text;
   }
 
   async getTextMapItems(langCode: LangCode, hashes: TextMapHash[]): Promise<Record<TextMapHash, string>> {
@@ -307,14 +315,40 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
       return null;
     }
 
-    return this.knex.select('*').from('TextMap' + langCode)
-      .whereIn('Hash', hashes).then((records) => {
-        const result: Record<TextMapHash, string> = {};
-        for (let record of records) {
-          result[record.Hash] = record.Text;
+    const cache = this.state.DisableTextMapCache ? null : (this.state.textMapCache[langCode] ||= {});
+    const result: Record<TextMapHash, string> = {};
+    const uncachedHashes: string[] = [];
+
+    for (let hash of hashes as string[]) {
+      if (cache && hash in cache) {
+        if (cache[hash] !== undefined) {
+          result[hash] = cache[hash];
         }
-        return result;
-      });
+      } else {
+        uncachedHashes.push(hash);
+      }
+    }
+
+    if (uncachedHashes.length) {
+      const records = await this.knex.select('*').from('TextMap' + langCode).whereIn('Hash', uncachedHashes);
+      const foundHashes: Set<string> = new Set();
+      for (let record of records) {
+        result[record.Hash] = record.Text;
+        if (cache) {
+          cache[record.Hash] = record.Text;
+        }
+        foundHashes.add(record.Hash);
+      }
+      if (cache) {
+        for (let hash of uncachedHashes) {
+          if (!foundHashes.has(hash)) {
+            cache[hash] = undefined;
+          }
+        }
+      }
+    }
+
+    return result;
   }
 
   async isEmptyTextMapItem(langCode: LangCode, hash: TextMapHash): Promise<boolean> {

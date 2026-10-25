@@ -13,7 +13,7 @@
 </template>
 
 <script setup lang="ts">
-import { MonsterExcelConfigData } from '../../../../shared/types/genshin/monster-types.ts';
+import { MonsterExcelConfigData } from '../../../../shared/types/genshin/living-being-types.ts';
 
 defineProps<{
   monster?: MonsterExcelConfigData

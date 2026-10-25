@@ -1,6 +1,6 @@
 import { AvatarExcelConfigData } from './avatar-types.ts';
 import { MaterialExcelConfigData, MaterialVecItem, RewardExcelConfigData } from './material-types.ts';
-import { MonsterExcelConfigData } from './monster-types.ts';
+import { MonsterExcelConfigData } from './living-being-types.ts';
 import { NpcExcelConfigData } from './npc-types.ts';
 
 // HomeWorld NPC/Avatar

@@ -460,9 +460,9 @@ export class ArrayStream<T> {
     return this.promiseChain.then(() => this.arr);
   }
 
-  async toMap<K extends KeysMatching<T, string | number>>(keyProp: K, out?: { [key: string|number]: T }): Promise<{ [key: string|number]: T }> {
+  async toMap<K extends KeysMatching<T, string | number>>(keyProp: K, out?: Record<T[K] & (string | number), T>): Promise<Record<T[K] & (string | number), T>> {
     return this.promiseChain.then(() => {
-      out = out || {};
+      out = out || ({} as Record<T[K] & (string | number), T>);
       for (let item of this.arr) {
         let k: number|string = <any> item[keyProp];
         out[k] = item;
@@ -496,11 +496,11 @@ export class ArrayStream<T> {
 export function mapBy<T, K extends KeysMatching<T, string | number>>(
   array: T[],
   keyProp: K,
-  out?: { [key: string|number]: T }
-): { [key: string|number]: T } {
-  out = out || {};
+  out?: Record<T[K] & (string | number), T>
+): Record<T[K] & (string | number), T> {
+  out = out || ({} as Record<T[K] & (string | number), T>);
   for (let item of array) {
-    let k: number|string = <any> item[keyProp];
+    let k = item[keyProp] as unknown as T[K] & (string | number);
     out[k] = item;
   }
   return out;

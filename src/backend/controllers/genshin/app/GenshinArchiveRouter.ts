@@ -761,11 +761,12 @@ export default async function(): Promise<Router> {
   router.get('/enemies', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
     const title = (await ctrl.manualtm.selectRecord('UI_CODEX_ANIMAL_MONSTER')).TextMapContentText;
-    const archive = await ctrl.lb.selectLivingBeingArchive();
+
+    const lbTable = await ctrl.lb.selectMonsterCodexArchive();
 
     await res.renderComponent(GenshinLbListingPage, {
       title,
-      lbTable: archive.MonsterCodex,
+      lbTable,
       bodyClass: ['page--lb', 'page--enemies']
     });
   });
@@ -773,23 +774,25 @@ export default async function(): Promise<Router> {
   router.get('/wildlife', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
     const title = (await ctrl.manualtm.selectRecord('UI_CODEX_ANIMAL_ANIMAL')).TextMapContentText;
-    const archive = await ctrl.lb.selectLivingBeingArchive();
+
+    const lbTable = await ctrl.lb.selectWildlifeCodexArchive();
 
     await res.renderComponent(GenshinLbListingPage, {
       title,
-      lbTable: archive.WildlifeCodex,
+      lbTable,
       bodyClass: ['page--lb', 'page--wildlife']
     });
   });
 
   router.get('/enemies/non-codex', async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
-    const archive = await ctrl.lb.selectLivingBeingArchive();
+
+    const lbTable = await ctrl.lb.selectNonCodexMonsterArchive();
 
     await res.renderComponent(GenshinLbListingPage, {
       title: 'Non-Codex Living Beings',
       introText: 'These are living beings that do not appear in the in-game archive.',
-      lbTable: archive.NonCodexMonsters,
+      lbTable,
       bodyClass: ['page--lb', 'page--non-codex-enemies']
     });
   });
