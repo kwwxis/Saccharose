@@ -25,9 +25,7 @@ router.endpoint('/readables/search', {
   get: async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
 
-    const versionFilter: GameVersions = ctrl.gameVersions
-      .where(v => v.showExcelChangelog)
-      .fromFilterString(req.query.versionFilter);
+    const versionFilter: GameVersions = ctrl.gameVersions.fromFilterString(req.query.versionFilter);
 
     let searchView: ReadableSearchResult = await ctrl.readables.search(req.query.text as string, versionFilter);
 
