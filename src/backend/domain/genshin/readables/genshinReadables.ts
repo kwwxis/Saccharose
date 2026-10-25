@@ -164,7 +164,7 @@ export class GenshinReadables {
 
     if (titleMatchDocumentIds.length) {
       ret.TitleResults = await titleMatchDocumentIds.asyncMap(async id => await this.select(id, {
-        LoadReadableItems: false,
+        LoadReadableItems: true,
         LoadAddedAt: true
       }));
 
