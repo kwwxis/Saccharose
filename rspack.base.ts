@@ -80,7 +80,14 @@ export default (env: 'development'|'production') => <Configuration> {
           rspack.CssExtractRspackPlugin.loader,
           {loader: 'css-loader', options: {url: false, sourceMap: true}},
           'postcss-loader',
-          {loader: 'sass-loader', options: {sourceMap: true, implementation: sass}}
+          {loader: 'sass-loader', options: {sourceMap: true, implementation: sass, sassOptions: {
+            // Sass normally prepends a UTF-8 BOM (or `@charset`) to the compiled CSS whenever any
+            // `@use`'d stylesheet contains non-ASCII characters. The HTTP `Content-Type` header already
+            // declares `charset=utf-8` for served CSS, so this marker is redundant - and LightningCSS's
+            // minifier (used by rspack.prod.ts) mis-parses a leading BOM, silently dropping the very next
+            // CSS rule. Disabling it here avoids that bug.
+            charset: false,
+          }}}
         ]
       }
     ],
