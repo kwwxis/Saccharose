@@ -61,14 +61,14 @@ ul.checkbox-tree p {
 .card > h2, .card .primary-header {
   background: hsla(223, 67%, 18%, 0.03);
   padding: 8px 10px;
-  border-bottom: 1px solid hsl(240, 50%, 96.5%);
+  border-bottom: 1px solid hsl(240, 50%, 90%);
   font-family: 'Open Sans', sans-serif;
   font-size: 17px;
   font-weight: 600;
 
   body.nightmode & {
     background: hsl(232deg 15% 29% / 32%);
-    border-bottom-color: hsl(255deg 13% 25%);
+    border-bottom-color: hsl(255deg 13% 30%);
   }
 }
 

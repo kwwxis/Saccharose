@@ -124,3 +124,34 @@
 .ag-filter-body-wrapper {
   min-width: 200px !important;
 }
+
+#furniture-grid {
+  --ag-cell-horizontal-padding: 8px;
+}
+
+.ag-theme-alpine-dark {
+  --ag-background-color: hsl(255, 13%, 14%);
+  --ag-foreground-color: hsl(255, 5%, 85%);
+  --ag-border-color: hsl(255, 12%, 32%); // hsl(232, 12%, 32%);
+  --ag-secondary-border-color: hsl(255, 13%, 27%); // hsl(232, 12%, 35%);
+  --ag-modal-overlay-background-color: rgba(24, 29, 31, 0.66);
+  --ag-header-background-color: hsl(255, 13%, 14%);
+  --ag-tooltip-background-color: hsl(255, 13%, 14%);
+  --ag-odd-row-background-color: hsl(255, 12%, 16%);
+  --ag-control-panel-background-color: hsl(255, 13%, 14%);
+
+  --ag-subheader-background-color: #000;
+  --ag-input-disabled-background-color: #282c2f;
+  --ag-input-focus-box-shadow: 0 0 2px 0.5px rgba(255, 255, 255, 0.5), 0 0 4px 3px var(--ag-input-focus-border-color);
+  --ag-card-shadow: 0 1px 20px 1px black;
+  --ag-disabled-foreground-color: rgba(255, 255, 255, 0.5);
+  --ag-chip-background-color: rgba(255, 255, 255, 0.07);
+  --ag-input-disabled-border-color: rgba(104, 104, 110, 0.3);
+  --ag-input-disabled-background-color: rgba(104, 104, 110, 0.07);
+  --ag-advanced-filter-join-pill-color: #7a3a37;
+  --ag-advanced-filter-column-pill-color: #355f2d;
+  --ag-advanced-filter-option-pill-color: #5a3168;
+  --ag-advanced-filter-value-pill-color: #374c86;
+  --ag-row-loading-skeleton-effect-color: rgba(202, 203, 204, 0.4);
+  color-scheme: dark;
+}

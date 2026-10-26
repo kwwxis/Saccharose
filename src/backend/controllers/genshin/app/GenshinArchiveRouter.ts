@@ -698,8 +698,10 @@ export default async function(): Promise<Router> {
       hideTl: true
     })) : null;
 
+    let normNameText: string;
+
     if (furn) {
-      const normNameText: string = ctrl.normText(furn.NameText, ctrl.outputLangCode);
+      normNameText = ctrl.normText(furn.NameText, ctrl.outputLangCode);
       sb.setPropPad(15);
       sb.line('{{Furnishing Infobox');
       sb.prop('id', furn.Id);
@@ -757,10 +759,12 @@ export default async function(): Promise<Router> {
         sb.line(`{{Furnishing Navbox|${furn.IsInterior ? 'interior' : 'exterior'}}}`);
       }
       sb.line();
+    } else {
+      normNameText = 'Furnishing Not Found';
     }
 
     await res.renderComponent(FurniturePage, {
-      title: 'Furnishings',
+      title: normNameText + ' - Furnishings',
       furn,
       wikitext: sb.toString(),
       bodyClass: ['page--furniture'],

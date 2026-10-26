@@ -154,8 +154,8 @@ import { OLResult } from '../../../../shared/types/ol-types.ts';
 const { normGenshinText } = useTrace();
 
 defineProps<{
-  furn: HomeWorldFurnitureExcelConfigData,
-  wikitext: string,
-  ol: OLResult,
+  furn?: HomeWorldFurnitureExcelConfigData,
+  wikitext?: string,
+  ol?: OLResult,
 }>();
 </script>
