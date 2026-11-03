@@ -1,5 +1,5 @@
 // Loadenv:
-import { getPlainTextMapRelPath, getTextIndexRelPath } from '../../loadenv.ts';
+import { getPlainTextMapRelPath } from '../../loadenv.ts';
 
 // Third-Party:
 import { Knex } from 'knex';
@@ -37,7 +37,7 @@ import {
   PlainLineMapItem,
   TextMapHash,
   TextMapSearchGetOpts,
-  TextMapSearchIndexStreamOpts,
+  TextMapSearchIndexStreamOpts, TextMapSearchIndexStreamParams,
   TextMapSearchOpts,
   TextMapSearchResponse,
   TextMapSearchResult,
@@ -735,7 +735,14 @@ export abstract class AbstractControl<T extends AbstractControlState = AbstractC
         } else {
           keysSeen.add(row.key);
         }
-        opts.stream(row.key, row.index_name, row.hash, hashMatches[row.hash], row.role);
+        const params: TextMapSearchIndexStreamParams = {
+          entityId: row.key,
+          entityIndexName: row.index_name,
+          textMapHash: row.hash,
+          text: hashMatches[row.hash],
+          role: row.role,
+        };
+        opts.stream(params);
       }
     });
 

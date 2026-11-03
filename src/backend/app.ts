@@ -71,22 +71,33 @@ export async function appInit(): Promise<Express> {
 
   // Load application resources
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~
-  logInit(`Opening database and loading data resources`);
+  logInit(`Opening database`);
   openPgGamedata();
   openPgSite();
   enableDbExitHook();
+  logInit('Opened database connections');
+
+  logInit(`Initializing script job coordinator`);
   ScriptJobCoordinator.init();
-  await ScriptJobCoordinator.deleteOldJobs();
-  await ScriptJobCoordinator.markAllComplete();
+  // Not awaited: this is startup housekeeping (cleans up/expires stale job rows from previous runs) and isn't
+  // needed for the rest of app startup or for serving requests, so it shouldn't block the critical path.
+  Promise.all([
+    ScriptJobCoordinator.deleteOldJobs(),
+    ScriptJobCoordinator.markAllComplete(),
+  ]).catch(err => console.error('Error during script job coordinator startup cleanup:', err));
+  logInit('Initialized script job coordinator');
 
   // Application intervals
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~
+  logInit('Starting application intervals');
   await startLogFileWatch();
   await enableLogFileWatchShutdownHook();
   await startRecentSavedSearchesPruneInterval();
+  logInit('Started application intervals');
 
   // Initialize Cache
   // ~~~~~~~~~~~~~~~~
+  logInit('Initializing cache');
   if (toBoolean(ENV.REDIS_ENABLED)) {
     logInitCache('Opening Redis Client');
     await openRedisClient();
@@ -118,29 +129,34 @@ export async function appInit(): Promise<Express> {
       await redisDelPattern('Wuwa:*');
       await redisSetString('Wuwa:CurrentVersion', CurrentWuwaVersion.number);
     }
+    logInitCache('Redis client opened and cache initialized');
   }
+  logInit('Initialized cache');
 
   // Load supporting game data
   // ~~~~~~~~~~~~~~~~~~~~~~~~~
-  await loadGenshinVoiceItems();
-  await loadStarRailVoiceItems();
-  await loadGenshinTextSupportingData();
-  await loadStarRailTextSupportingData();
-  await loadZenlessTextSupportingData();
+  logInit('Loading supporting game data');
+  await Promise.all([
+    loadGenshinVoiceItems(),
+    loadStarRailVoiceItems(),
+    loadGenshinTextSupportingData(),
+    loadStarRailTextSupportingData(),
+    loadZenlessTextSupportingData(),
+  ]);
+  logInit('Loaded supporting game data');
 
   app.use(earlyAccessLogging);
 
   // Serve static directories
   // ~~~~~~~~~~~~~~~~~~~~~~~~
+  logInit('Serving static directories');
   app.use(express.static(PUBLIC_DIR));
 
   if (isStringNotBlank(ENV.EXT_PUBLIC_DIR)) {
-    logInit('Serving external public directory');
     app.use(express.static(ENV.EXT_PUBLIC_DIR, { dotfiles: 'allow' })); // Allow dotfiles for .well-known
   }
 
   if (isStringNotBlank(ENV.EXT_GENSHIN_IMAGES)) {
-    logInit('Serving external Genshin images');
     app.use('/images/genshin', cors(StaticImageCorsOptions), createStaticImagesHandler(ENV.EXT_GENSHIN_IMAGES, '/images/genshin/', 'genshin'));
   } else {
     if (isSiteModeEnabled('genshin')) {
@@ -148,7 +164,6 @@ export async function appInit(): Promise<Express> {
     }
   }
   if (isStringNotBlank(ENV.EXT_HSR_IMAGES)) {
-    logInit('Serving external HSR images');
     app.use('/images/hsr', cors(StaticImageCorsOptions), createStaticImagesHandler(ENV.EXT_HSR_IMAGES, '/images/hsr/', 'hsr'));
   } else {
     if (isSiteModeEnabled('hsr')) {
@@ -156,7 +171,6 @@ export async function appInit(): Promise<Express> {
     }
   }
   if (isStringNotBlank(ENV.EXT_ZENLESS_IMAGES)) {
-    logInit('Serving external Zenless images');
     app.use('/images/zenless', cors(StaticImageCorsOptions), createStaticImagesHandler(ENV.EXT_ZENLESS_IMAGES, '/images/zenless/', 'zenless'));
   } else {
     if (isSiteModeEnabled('zenless')) {
@@ -164,7 +178,6 @@ export async function appInit(): Promise<Express> {
     }
   }
   if (isStringNotBlank(ENV.EXT_WUWA_IMAGES)) {
-    logInit('Serving external Wuthering Waves images');
     app.use('/images/wuwa/Game/Aki/UI', cors(StaticImageCorsOptions), createStaticImagesHandler(ENV.EXT_WUWA_IMAGES, '/images/wuwa/', 'wuwa'));
     // The double "//" can sometimes happen, don't remove the line below.
     app.use('/images/wuwa//Game/Aki/UI', cors(StaticImageCorsOptions), createStaticImagesHandler(ENV.EXT_WUWA_IMAGES, '/images/wuwa/', 'wuwa'));
@@ -174,12 +187,14 @@ export async function appInit(): Promise<Express> {
       throw 'EXT_WUWA_IMAGES is required!';
     }
   }
+  logInit('Served static directories');
 
   // Initialize sessions
   // ~~~~~~~~~~~~~~~~~~~
   logInit(`Initializing sessions`);
   app.use(sessions);                                        // sessions
   SiteUserProvider.startSiteNoticeCacheEviction();          // site notice cache eviction
+  logInit(`Initialized sessions`);
 
   // Middleware for requests
   // ~~~~~~~~~~~~~~~~~~~~~~~
@@ -187,11 +202,14 @@ export async function appInit(): Promise<Express> {
   app.use(antiBots);                                        // rejects bot-like requests
   app.use(cookieParser(ENV.SESSION_SECRET));                // parses cookies
   app.use(express.urlencoded({extended: true}));     // parses url-encoded POST/PUT bodies
+  logInit('Added middleware for incoming requests');
 
   // Initialize Request Context
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~
+  logInit('Initializing request context');
   app.use(reqContextInitMiddleware);                        // request context init
   app.use(normalAccessLogging);                             // access logging
+  logInit('Initialized request context');
 
   // Middleware for responses
   // ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -207,6 +225,7 @@ export async function appInit(): Promise<Express> {
   }));
   app.use(defaultResponseHeaders);                          // Add default response headers
   app.use(authPresenceCookieMiddleware);                    // Add auth presence cookie
+  logInit(`Added middleware for outgoing responses`);
 
   // Load authorize endpoint
   // ~~~~~~~~~~~~~~~~~~~~~~~
@@ -221,17 +240,21 @@ export async function appInit(): Promise<Express> {
   // API router uses its own auth flow and should not come after "siteUserMiddlewareRouter()"
   logInit(`Loading API router`);
   app.use('/api', await apiBaseRouter());
+  logInit(`Loaded API router`);
 
   // Load auth middleware
   // ~~~~~~~~~~~~~~~~~~~~
+  logInit(`Loading site user middleware`);
   app.use(siteModePreferredBasePathRedirectorMiddleware);
   app.use(siteUserMiddleware);
+  logInit(`Loaded site user middleware`);
   // ALL ENDPOINTS PAST THIS POINT ARE SUBJECT TO REQUIRING AUTHENTICATION
 
   // Load serve-image router
   // ~~~~~~~~~~~~~~~~~~~~~~~
   logInit(`Loading image router`);
   app.use('/serve-image', cors(StaticImageCorsOptions), await imageBaseRouter());
+  logInit('Loaded image router');
 
   // Load BaseRouter and CSRF protection
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -240,6 +263,7 @@ export async function appInit(): Promise<Express> {
   logInit(`Loading application router`);
   app.use(doubleCsrfProtection);
   app.use('/', await appBaseRouter());
+  logInit('Loaded application router');
 
   // Global Error Handlers
   // ~~~~~~~~~~~~~~~~~~~~~
@@ -261,6 +285,7 @@ export async function appInit(): Promise<Express> {
     throw reason;
   });
   app.use(pageLoadErrorHandler);
+  logInit('Added global error handlers');
 
   // 404-Handler
   // ~~~~~~~~~~~
@@ -269,6 +294,7 @@ export async function appInit(): Promise<Express> {
   app.get('*splat', async (_req: Request, res: Response) => {
     await res.status(404).renderComponent(NotFoundErrorCard);
   });
+  logInit('Registered 404 handler');
 
   // Application loading complete
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~

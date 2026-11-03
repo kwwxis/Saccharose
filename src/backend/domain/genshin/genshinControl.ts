@@ -1,4 +1,5 @@
 // noinspection JSUnusedGlobalSymbols
+
 import {
   ConfigCondition, EquipAffixExcelConfigData, FeatureTagExcelConfigData, FeatureTagGroupExcelConfigData,
 } from '../../../shared/types/genshin/general-types.ts';
@@ -75,7 +76,6 @@ import {
   HomeWorldNPCLoadConf,
 } from '../../../shared/types/genshin/homeworld-types.ts';
 import {
-  DATAFILE_GENSHIN_VOICE_ITEMS,
   getGenshinDataFilePath,
   isSiteModeDisabled,
 } from '../../loadenv.ts';
@@ -114,7 +114,7 @@ import debug from 'debug';
 import {
   LANG_CODE_TO_LOCALE,
   LangCode,
-  TextMapHash,
+  TextMapHash, TextMapSearchIndexStreamParams,
   VoiceItem,
   VoiceItemArrayMap,
 } from '../../../shared/types/lang-types.ts';
@@ -686,8 +686,8 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
         outputLangCode: this.outputLangCode,
         searchText: query,
         textIndexName: 'Chapter',
-        stream(entityId: number, entityIndexName: string, textMapHash, text: string) {
-          ranker.add(entityId, text);
+        stream(params: TextMapSearchIndexStreamParams) {
+          ranker.add(params.entityId, params.text);
         },
         flags: this.searchModeFlags
       });
@@ -737,8 +737,8 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
         outputLangCode: this.outputLangCode,
         searchText: query,
         textIndexName: 'MainQuest',
-        stream(entityId: number, entityIndexName: string, textMapHash, text: string) {
-          ranker.add(entityId, text);
+        stream(params: TextMapSearchIndexStreamParams) {
+          ranker.add(params.entityId, params.text);
         },
         flags: this.searchModeFlags
       });
@@ -828,12 +828,12 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
         outputLangCode: this.outputLangCode,
         searchText: query,
         textIndexName: ['MainQuest', 'Chapter'],
-        stream(entityId: number, entityIndexName: string, textMapHash, text: string) {
-          if (entityIndexName === 'MainQuest') {
-            mainQuestRanker.add(entityId, text);
+        stream(params: TextMapSearchIndexStreamParams) {
+          if (params.entityIndexName === 'MainQuest') {
+            mainQuestRanker.add(params.entityId, params.text);
           }
-          if (entityIndexName === 'Chapter') {
-            chapterRanker.add(entityId, text);
+          if (params.entityIndexName === 'Chapter') {
+            chapterRanker.add(params.entityId, params.text);
           }
         },
         flags: this.searchModeFlags
@@ -1680,7 +1680,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
           || previousDialog.Branches?.map(b => b[0]).every(x => this.isPlayerDialogOption(x))
         )
 
-        // The previous dialog's next dialogs must contain current dialog:
+        // The previous dialog's next dialogs must contain the current dialog:
         && previousDialog.NextDialogs.some(x => x === dialog.Id)) {
         numSubsequentNonBranchPlayerDialogOption++;
       } else {
@@ -1864,7 +1864,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     const assetIndexPath = `Data/_BinOutput/InterAction/QuestDialogue/` + fileName.replace(/;/g, '/');
     const assetIndexHash = getGIAssetIndexHash(assetIndexPath);
 
-    // Re-add ".json" suffix
+    // Re-add the ".json" suffix
     fileName += '.json';
     const originalFileName = fileName;
 
@@ -1925,8 +1925,8 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
     let fileGroups: InterActionGroup[] = [];
 
     if (fileName) {
-      // The file names from InterActionD2F are already the disk file names so we don't need to check
-      // "interActionDiskFileNameCache" or do anything with asset index hash...
+      // The file names from InterActionD2F are already the disk file names, so we don't need to check
+      // "interActionDiskFileNameCache" or do anything with the asset index hash...
       if (this.state.interActionCache[fileName]) {
         fileGroups = this.state.interActionCache[fileName];
       } else {
@@ -2430,7 +2430,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       suite.MappedFurnType = await suite.FurnType.filter(x => !!x).asyncMap(id => this.selectFurnitureType(id));
     }
     if (!suite.MappedFurnType || !suite.MappedFurnType.length) {
-      suite.MappedFurnType = [await this.selectFurnitureType(771)]; // outdoor set (non gift)
+      suite.MappedFurnType = [await this.selectFurnitureType(771)]; // outdoor set (non-gift)
     }
     suite.MainFurnType = suite.MappedFurnType[0];
     suite.Units = [];
@@ -2721,7 +2721,7 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
           for (let vecProp of materialVecProps) {
             if (!row[vecProp])
               row[vecProp] = [];
-            row[vecProp] = row[vecProp].filter(x => !!x.Id);
+            row[vecProp] = row[vecProp].filter((x: any) => !!x.Id);
             for (let vecItem of (row[vecProp] as MaterialVecItem[])) {
               if (vecItem.Id) {
                 vecItem.Material = await this.selectMaterialExcelConfigData(vecItem.Id, {LoadRelations: false, LoadSourceData: false});
@@ -3016,8 +3016,8 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       outputLangCode: this.outputLangCode,
       searchText,
       textIndexName: 'Material',
-      stream: (id: number, entityIndexName, textMapHash, text: string) => {
-        ranker.add(id, text);
+      stream: (params: TextMapSearchIndexStreamParams) => {
+        ranker.add(params.entityId, params.text);
       },
       flags: searchFlags
     });
@@ -3107,8 +3107,8 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       outputLangCode: this.outputLangCode,
       searchText,
       textIndexName: 'BydMaterial',
-      stream: (id: number, entityIndexName, textMapHash, text: string) => {
-        ranker.add(id, text);
+      stream: (params: TextMapSearchIndexStreamParams) => {
+        ranker.add(params.entityId, params.text);
       },
       flags: searchFlags
     });
@@ -3386,8 +3386,8 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       outputLangCode: this.outputLangCode,
       searchText,
       textIndexName: 'Weapon',
-      stream: (id: number, entityIndexName, textMapHash, text: string) => {
-        ranker.add(id, text);
+      stream: (params: TextMapSearchIndexStreamParams) => {
+        ranker.add(params.entityId, params.text);
       },
       flags: searchFlags
     });
@@ -3565,8 +3565,8 @@ export class GenshinControl extends AbstractControl<GenshinControlState> {
       outputLangCode: this.outputLangCode,
       searchText,
       textIndexName: 'Achievement',
-      stream: (id, entityIndexName, textMapHash, text: string) => {
-        ranker.add(id, text);
+      stream: (params: TextMapSearchIndexStreamParams) => {
+        ranker.add(params.entityId, params.text);
       },
       flags: searchFlags
     });
@@ -3683,7 +3683,7 @@ export async function loadGenshinVoiceItems(): Promise<void> {
     return;
   logInitData('Loading Genshin Voice Items -- starting...');
 
-  const voiceItemsFilePath = path.resolve(ENV.GENSHIN_DATA_ROOT, DATAFILE_GENSHIN_VOICE_ITEMS);
+  const voiceItemsFilePath = path.resolve(ENV.GENSHIN_DATA_ROOT, './VoiceItems.json');
   const result: VoiceItemArrayMap = await fsp.readFile(voiceItemsFilePath, {encoding: 'utf8'}).then(data => JSON.parse(data));
 
   Object.assign(GENSHIN_VOICE_ITEMS, result);
@@ -3694,7 +3694,7 @@ export async function loadGenshinVoiceItems(): Promise<void> {
 export type GenshinVoiceItemType = 'Dialog'|'Reminder'|'Fetter'|'AnimatorEvent'|'WeatherMonologue'|'JoinTeam'|'Card';
 
 export class GenshinVoice {
-  private prefixingDisabled: boolean;
+  private readonly prefixingDisabled: boolean;
 
   constructor(readonly ctrl: GenshinControl) {
     this.prefixingDisabled = ctrl.state.prefs.voPrefixDisabledLangs?.includes(ctrl.outputLangCode);

@@ -44,7 +44,15 @@ export type TextMapSearchStreamOpts = TextMapSearchOpts & {
 };
 export type TextMapSearchIndexStreamOpts = TextMapSearchOpts & {
   textIndexName: string|string[],
-  stream: (entityId: number, entityIndexName?: string, textMapHash?: TextMapHash, text?: string, role?: string) => void,
+  stream: (params: TextMapSearchIndexStreamParams) => void,
+};
+
+export type TextMapSearchIndexStreamParams = {
+  entityId: number,
+  entityIndexName: string,
+  textMapHash: TextMapHash,
+  text: string,
+  role: string,
 };
 
 export type TextMapSearchEndpointParams = {

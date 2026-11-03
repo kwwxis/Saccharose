@@ -14,7 +14,6 @@ export default <Configuration> merge(baseConfig('development'), {
   },
   devtool: 'eval-cheap-module-source-map',
   optimization: {
-    removeAvailableModules: false,
     removeEmptyChunks: false,
     minimize: false,
   },
@@ -29,9 +28,9 @@ export default <Configuration> merge(baseConfig('development'), {
       port: 35729,
       hostname: process.env.WEB_DOMAIN,
       ... (toBoolean(process.env.SSL_ENABLED) ? {
-        key: fs.readFileSync(process.env.SSL_KEY, 'utf8'),
-        cert: fs.readFileSync(process.env.SSL_CERT, 'utf8'),
-        ca: fs.readFileSync(process.env.SSL_CA, 'utf8'),
+        key: fs.readFileSync(process.env.SSL_KEY as string, 'utf8'),
+        cert: fs.readFileSync(process.env.SSL_CERT as string, 'utf8'),
+        ca: fs.readFileSync(process.env.SSL_CA as string, 'utf8'),
       } : {})
     }),
   ]

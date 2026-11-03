@@ -3,7 +3,7 @@
 const JsExtPlugin = require('./etsc-jsext.cjs');
 const fsp = require('node:fs/promises');
 const dotenv = require('dotenv');
-dotenv.config();
+dotenv.config({ fast: true });
 
 /** @type {import('esbuild-node-tsc/dist/config').Config} */
 module.exports = {

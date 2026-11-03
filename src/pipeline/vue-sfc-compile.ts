@@ -31,44 +31,103 @@ const projectRoot = (() => {
 const srcRoot = path.resolve(projectRoot, './src').replace(/\\/g, '/');
 const publicVueDistDir = path.resolve(projectRoot, './public/v-dist/');
 
-export async function cleanVueSfc() {
-  const promises: Promise<void>[] = [];
-  for await (let file of getFiles(srcRoot)) {
-    if (file.endsWith('.vue.ts') || file.endsWith('.vue.script.ts') || file.endsWith('.vue.style.scss') || file.endsWith('.vue.template.ts')) {
-      promises.push(fs.promises.unlink(file));
-    }
-  }
-  await Promise.all(promises);
+// Generated `.vue.ts` / `.vue.script.ts` / `.vue.template.ts` files are written here, mirroring the
+// path of their source `.vue` file under `src/`, rather than alongside the source file itself. This
+// keeps the `src/` tree free of generated files (e.g. for IDE project views). `esbuild-tsc.ts` maps
+// these back to the same `dist/` output paths as before via explicit `{in, out}` entry points, so the
+// final build output is unaffected.
+export const vueGenRoot = path.resolve(projectRoot, './.vuegen').replace(/\\/g, '/');
+
+/** Mirrored path under `vueGenRoot` for a given absolute `.vue` source path (without extension). */
+export function vueGenPath(absSrcPath: string): string {
+  return path.resolve(vueGenRoot, path.relative(srcRoot, absSrcPath)).replace(/\\/g, '/');
 }
 
+export async function cleanVueSfc() {
+  await fs.promises.rm(vueGenRoot, { recursive: true, force: true });
+}
+
+// Cache of per-file compiled styles, keyed by absolute path, so that incremental/watch rebuilds
+// (see `compileSingleVueFile`) can regenerate the combined CSS bundle without re-reading/recompiling
+// every single .vue file's styles each time.
+const stylesCache = new Map<string, string[]>();
+
 export async function compileVueSfc() {
-  const allStyles: string[] = [];
   const promises: Promise<void>[] = [];
 
   for await (let file of getFiles(srcRoot)) {
     if (file.endsWith('.vue')) {
-      let absPath = file.replace(/\\/g, '/');
-      let relPath = './' + path.relative(projectRoot, file).replace(/\\/g, '/');
-      let baseName = path.basename(relPath);
-
-      promises.push(doIt({ absPath, relPath, baseName }).then(result => {
-        if (result?.styles) {
-          allStyles.push(... result.styles);
-        }
-      }));
+      promises.push(compileSingleVueFile(file, { writeBundle: false }));
     }
   }
 
   await Promise.all(promises);
+  await writeStylesBundle();
+}
 
-  if (allStyles.length) {
-    let style: string = allStyles.join('\n\n').trim();
-    let compileResult = sass.compileString(style);
-    if (!fs.existsSync(publicVueDistDir)) {
-      await fs.promises.mkdir(publicVueDistDir);
-    }
-    await fs.promises.writeFile(path.resolve(publicVueDistDir, './vue.bundle.css'), compileResult.css, {encoding: 'utf-8'})
+async function writeStylesBundle(): Promise<void> {
+  const allStyles: string[] = [...stylesCache.values()].flat();
+  if (!allStyles.length) {
+    return;
   }
+  let style: string = allStyles.join('\n\n').trim();
+  let compileResult = sass.compileString(style);
+  if (!fs.existsSync(publicVueDistDir)) {
+    await fs.promises.mkdir(publicVueDistDir);
+  }
+  await fs.promises.writeFile(path.resolve(publicVueDistDir, './vue.bundle.css'), compileResult.css, {encoding: 'utf-8'})
+}
+
+/**
+ * Compiles a single `.vue` file (absolute path). Used both by `compileVueSfc` (full build) and by
+ * `watchVueSfc` (incremental rebuilds) so that only the changed file is re-transformed instead of
+ * every `.vue` file in the project.
+ */
+export async function compileSingleVueFile(file: string, opts: { writeBundle?: boolean } = {}): Promise<void> {
+  let absPath = file.replace(/\\/g, '/');
+  let relPath = './' + path.relative(projectRoot, file).replace(/\\/g, '/');
+  let baseName = path.basename(relPath);
+  let genPath = vueGenPath(absPath);
+
+  const result = await doIt({ absPath, relPath, baseName, genPath });
+  stylesCache.set(absPath, result?.styles ?? []);
+
+  if (opts.writeBundle !== false) {
+    await writeStylesBundle();
+  }
+}
+
+/**
+ * Watches `.vue` files under `src/` and recompiles only the file that changed (plus regenerates the
+ * combined CSS bundle from cache) instead of re-running a full `compileVueSfc()` pass. Intended for
+ * the dev watch build (see `build-watch.ts`); assumes `compileVueSfc()` has already run once so that
+ * `stylesCache` is populated for all files.
+ */
+export function watchVueSfc(onRebuild: (file: string) => void): fs.FSWatcher {
+  // fs.watch can fire several raw events for a single file save (e.g. editors that write+rename, or
+  // multiple flushes), so debounce per-file to avoid recompiling/rebuilding multiple times per save.
+  const debounceMs = 100;
+  const pendingTimers = new Map<string, NodeJS.Timeout>();
+
+  return fs.watch(srcRoot, { recursive: true }, (_event, filename) => {
+    if (!filename || !filename.endsWith('.vue') || filename.includes('.vue.')) {
+      return;
+    }
+    const absPath = path.resolve(srcRoot, filename).replace(/\\/g, '/');
+
+    clearTimeout(pendingTimers.get(absPath));
+    pendingTimers.set(absPath, setTimeout(() => {
+      pendingTimers.delete(absPath);
+
+      if (!fs.existsSync(absPath)) {
+        stylesCache.delete(absPath);
+        return;
+      }
+      compileSingleVueFile(absPath).then(() => onRebuild(absPath)).catch(err => {
+        console.error(`[vue-sfc watch] Failed to compile ${absPath}:`, err);
+      });
+    }, debounceMs));
+  });
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
@@ -103,8 +162,9 @@ async function doIt(paths: {
   absPath: string,
   relPath: string,
   baseName: string,
+  genPath: string,
 }): Promise<DoItResult|undefined> {
-  const { absPath, relPath, baseName } = paths;
+  const { absPath, relPath, baseName, genPath } = paths;
 
   const fileContent: string = (await fs.promises.readFile(absPath)).toString('utf-8');
   const opts: SfcOptions = {
@@ -234,10 +294,14 @@ async function doIt(paths: {
   }
 
   await Promise.all([
-    fs.promises.writeFile(absPath + '.ts', await transformFacade(), {encoding: 'utf-8'}),
+    fs.promises.mkdir(path.dirname(genPath), { recursive: true }),
+  ]);
+
+  await Promise.all([
+    fs.promises.writeFile(genPath + '.ts', await transformFacade(), {encoding: 'utf-8'}),
     transformScriptAndTemplate().then(async (result) => {
-      await fs.promises.writeFile(absPath + '.script.ts', result.script, {encoding: 'utf-8'});
-      await fs.promises.writeFile(absPath + '.template.ts', result.template, {encoding: 'utf-8'});
+      await fs.promises.writeFile(genPath + '.script.ts', result.script, {encoding: 'utf-8'});
+      await fs.promises.writeFile(genPath + '.template.ts', result.template, {encoding: 'utf-8'});
     })
   ]);
   return {

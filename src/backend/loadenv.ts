@@ -1,5 +1,3 @@
-// File to set 'use strict' and load environment variables
-import 'use-strict';
 import '../shared/polyfills.ts';
 import './env-types.ts';
 import path, { dirname } from 'path';
@@ -13,6 +11,8 @@ import { ProcessEnv } from './env-types.ts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
+// Is Server Run check
+// --------------------------------------------------------------------------------------------------------------
 let _isServerRun: boolean = false;
 
 /**
@@ -25,10 +25,17 @@ export function setIsServerRun(isServerRun: boolean): void {
   _isServerRun = isServerRun;
 }
 
+// ENV Loading and Constant Export
+// --------------------------------------------------------------------------------------------------------------
 const envFile = path.resolve(__dirname, '../../.env');
-dotenv.config({ path: envFile });
+dotenv.config({ path: envFile, fast: true });
 
 export const ENV: ProcessEnv = <any> process.env;
+
+export const getNodeEnv = (): 'development'|'production' => <any> ENV.NODE_ENV;
+
+// Shell Check
+// --------------------------------------------------------------------------------------------------------------
 
 /**
  * Shell executable names that this application's shell-based features (in `util/shellutil.ts`) are written
@@ -61,6 +68,8 @@ function validateShellExec(): void {
 
 validateShellExec();
 
+// Specific Paths and Constants
+// --------------------------------------------------------------------------------------------------------------
 export const COMPONENTS_ROOT = path.resolve(__dirname, './components');
 export const PUBLIC_DIR = path.resolve(__dirname, '../../public');
 export const PIPELINE_DIR = path.resolve(__dirname, '../pipeline');
@@ -68,9 +77,10 @@ export const REDIST_DIR = path.resolve(PUBLIC_DIR, './redist');
 export const BACKEND_ROOT = __dirname;
 export const SITE_TITLE = ENV.SITE_TITLE || 'Saccharose.wiki';
 export const SITE_SHORT_TITLE = ENV.SITE_SHORT_TITLE || 'Saccharose';
-export const EJS_DELIMITER = '%';
 export const WEB_ACCESS_LOG = ENV.WEB_ACCESS_LOG ? path.resolve(ENV.WEB_ACCESS_LOG) : null;
 
+// Site Mode Flags
+// --------------------------------------------------------------------------------------------------------------
 const GENSHIN_DISABLED = toBoolean(ENV.GENSHIN_DISABLED);
 const HSR_DISABLED = toBoolean(ENV.HSR_DISABLED);
 const ZENLESS_DISABLED = toBoolean(ENV.ZENLESS_DISABLED);
@@ -95,27 +105,21 @@ export function isSiteModeDisabled(requestSiteMode: SiteMode) {
   }
 }
 
-export const IMAGEDIR_GENSHIN_STATIC = path.resolve(PUBLIC_DIR, './images/genshin/static');
+// Specific Image Paths and Constants
+// --------------------------------------------------------------------------------------------------------------
+const pathResolve = (...p: string[]) =>
+  p.some(x => !x)
+    ? null
+    : path.resolve(... p).replaceAll('\\', '/');
 
-export const IMAGEDIR_GENSHIN_EXT = path.resolve(ENV.EXT_GENSHIN_IMAGES);
-export const IMAGEDIR_GENSHIN_ARCHIVE = ENV.EXT_GENSHIN_IMAGES_ARCHIVE
-  ? path.resolve(ENV.EXT_GENSHIN_IMAGES_ARCHIVE) : null;
+export const IMAGEDIR_GENSHIN_STATIC = pathResolve(PUBLIC_DIR, './images/genshin/static');
+export const IMAGEDIR_GENSHIN_EXT = pathResolve(ENV.EXT_GENSHIN_IMAGES);
+export const IMAGEDIR_GENSHIN_ARCHIVE = pathResolve(ENV.EXT_GENSHIN_IMAGES_ARCHIVE);
 
-export const IMAGEDIR_HSR_EXT = path.resolve(ENV.EXT_HSR_IMAGES);
-export const IMAGEDIR_HSR_ARCHIVE = ENV.EXT_HSR_IMAGES_ARCHIVE
-  ? path.resolve(ENV.EXT_HSR_IMAGES_ARCHIVE) : null;
+export const IMAGEDIR_HSR_EXT = pathResolve(ENV.EXT_HSR_IMAGES);
+export const IMAGEDIR_HSR_ARCHIVE = pathResolve(ENV.EXT_HSR_IMAGES_ARCHIVE);
 
-export const IMAGEDIR_ZENLESS_EXT = path.resolve(ENV.EXT_ZENLESS_IMAGES);
-
-export const IMAGEDIR_WUWA_EXT = path.resolve(ENV.EXT_WUWA_IMAGES);
-
-export const DATAFILE_GENSHIN_VOICE_ITEMS = './VoiceItems.json';
-export const DATAFILE_GENSHIN_FETTERS = './VoiceOvers.json';
-export const DATAFILE_HSR_VOICE_ITEMS = './ExcelOutput/VoiceConfig.json';
-export const DATAFILE_HSR_VOICE_ATLASES = './VoiceOvers.json';
-export const DATAFILE_WUWA_ROLE_FAVOR_WORDS = './VoiceOvers.json';
-
-export const getNodeEnv = (): 'development'|'production' => <any> ENV.NODE_ENV;
+export const IMAGEDIR_WUWA_EXT = pathResolve(ENV.EXT_WUWA_IMAGES);
 
 export const getTextMapRelPath = (langCode: LangCode): string =>
   './TextMap/TextMap'+langCode+'.json';
@@ -123,12 +127,8 @@ export const getTextMapRelPath = (langCode: LangCode): string =>
 export const getPlainTextMapRelPath = (langCode: LangCode, fileType: 'Text' | 'Hash'): string =>
   './TextMap/Plain/PlainTextMap'+langCode+'_'+fileType+'.dat';
 
-export const getTextIndexRelPath = (textIndexName: string): string =>
-  './TextMap/Index/TextIndex_'+textIndexName+'.json';
-
-export const getReadableRelPath = (langCode: LangCode): string =>
-  './Readable/'+langCode;
-
+// Get Data File Path Functions
+// --------------------------------------------------------------------------------------------------------------
 export function getGenshinDataFilePath(file?: string): string {
   if (!file) {
     return ENV.GENSHIN_DATA_ROOT.replaceAll('\\', '/');
@@ -169,6 +169,8 @@ export function getWuwaDataFilePath(file?: string): string {
   return path.resolve(ENV.WUWA_DATA_ROOT, file).replaceAll('\\', '/');
 }
 
+// Console Inspect Function
+// --------------------------------------------------------------------------------------------------------------
 function consoleInspect(... args: any[]): void {
   let newArgs: any[] = [];
   for (let arg of args) {

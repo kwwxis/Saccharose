@@ -11,7 +11,7 @@ import { RsdoctorRspackPlugin } from '@rsdoctor/rspack-plugin';
 
 // @ts-ignore
 const __dirname = dirname(fileURLToPath(import.meta.url));
-dotenv.config();
+dotenv.config({ fast: true });
 
 const pathDefaults = {
   entry: path.resolve(__dirname, './src/frontend/index.ts'),

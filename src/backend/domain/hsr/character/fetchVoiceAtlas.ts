@@ -15,7 +15,6 @@ import {
   normalizeStarRailVoicePath,
   StarRailControl,
 } from '../starRailControl.ts';
-import { DATAFILE_HSR_VOICE_ATLASES } from '../../../loadenv.ts';
 import { defaultMap } from '../../../../shared/util/genericUtil.ts';
 import { mapBy } from '../../../../shared/util/arrayUtil.ts';
 import { toInt } from '../../../../shared/util/numberUtil.ts';
@@ -24,7 +23,7 @@ import { fsReadJson } from '../../../util/fsutil.ts';
 export async function fetchVoiceAtlases(ctrl: StarRailControl, skipCache: boolean = false): Promise<VoiceAtlasGroupByAvatar> {
   if (!skipCache) {
     return ctrl.cached('VoiceAtlasGroup', 'json', async () => {
-      const filePath = path.resolve(ENV.HSR_DATA_ROOT, DATAFILE_HSR_VOICE_ATLASES);
+      const filePath = path.resolve(ENV.HSR_DATA_ROOT, './VoiceOvers.json');
       const result: VoiceAtlasGroupByAvatar = await fsReadJson(filePath);
       return result;
     });

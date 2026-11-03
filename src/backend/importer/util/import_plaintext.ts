@@ -1,7 +1,7 @@
 import { AbstractControl } from '../../domain/abstract/abstractControl.ts';
 import fs, { promises as fsp } from 'fs';
 import { LANG_CODES } from '../../../shared/types/lang-types.ts';
-import { getTextMapRelPath } from '../../loadenv.ts';
+import { getPlainTextMapRelPath, getTextMapRelPath } from '../../loadenv.ts';
 import chalk from 'chalk';
 import { EM_DASH, EN_DASH, NormTextOptions } from '../../domain/abstract/genericNormalizers.ts';
 
@@ -55,9 +55,9 @@ export async function importPlainTextMap(ctrl: AbstractControl, getDataFilePath:
       }
 
       console.log(`  Writing to PlainTextMap${langCode}_Text.dat`);
-      fs.writeFileSync(getDataFilePath('./TextMap/Plain/PlainTextMap' + langCode + '_Text.dat'), textList.join('\n'), 'utf8');
+      fs.writeFileSync(getDataFilePath(getPlainTextMapRelPath(langCode, 'Text')), textList.join('\n'), 'utf8');
       console.log(`  Writing to PlainTextMap${langCode}_Hash.dat`);
-      fs.writeFileSync(getDataFilePath('./TextMap/Plain/PlainTextMap' + langCode + '_Hash.dat'), hashList.join('\n'), 'utf8');
+      fs.writeFileSync(getDataFilePath(getPlainTextMapRelPath(langCode, 'Hash')), hashList.join('\n'), 'utf8');
 
       textmap = null;
     } catch (e) {

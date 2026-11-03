@@ -9,9 +9,7 @@ import chalk from 'chalk';
 import { distance as strdist } from 'fastest-levenshtein';
 import { AvatarExcelConfigData, isTraveler } from '../../../../shared/types/genshin/avatar-types.ts';
 import { VoiceItem } from '../../../../shared/types/lang-types.ts';
-import { DATAFILE_GENSHIN_FETTERS } from '../../../loadenv.ts';
 import path from 'path';
-import fs from 'fs';
 import { defaultMap } from '../../../../shared/util/genericUtil.ts';
 import { mapBy } from '../../../../shared/util/arrayUtil.ts';
 import { fsReadJson } from '../../../util/fsutil.ts';
@@ -60,7 +58,7 @@ function getVoAvatarName(avatar: AvatarExcelConfigData, voiceItems: VoiceItem[])
 export async function fetchCharacterFetters(ctrl: GenshinControl, skipCache: boolean = false): Promise<FetterGroupByAvatar> {
   if (!skipCache) {
     return ctrl.cached('Fetters:FetterGroup', 'json', async () => {
-      const filePath = path.resolve(ENV.GENSHIN_DATA_ROOT, DATAFILE_GENSHIN_FETTERS);
+      const filePath = path.resolve(ENV.GENSHIN_DATA_ROOT, './VoiceOvers.json');
       const result: FetterGroupByAvatar = await fsReadJson(filePath);
       return result;
     });

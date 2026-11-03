@@ -111,7 +111,11 @@ async function walkSyncJsonCombine(dir: string, combiner: Combiner, maxCombines:
   return acc;
 }
 
-const findKeyWithValue = (o: any, searchV: any, searchDepth: number, currentDepth: number = 0, isRoot: boolean = true): string => {
+const findKeyWithValue = (o: any,
+                          searchV: ((v: any, k: string) => boolean)|string|number,
+                          searchDepth: number,
+                          currentDepth: number = 0,
+                          isRoot: boolean = true): string => {
   if (Array.isArray(o)) {
     for (let oe of o) {
       const ret = findKeyWithValue(oe, searchV, searchDepth, currentDepth, false);
@@ -154,12 +158,14 @@ function getSchemaFilePath(filePath: string): string {
  * Fixes JSON strings where string values are split by a newline
  * before the closing quote, e.g.:
  *
+ * ```
  *   "key": "value
  * ",
  *   "key": "
  * ",
  *   "key": "something
  * "
+ * ```
  */
 export function fixBrokenJsonStrings(input: string): string {
   let output: string = '';
@@ -284,7 +290,7 @@ async function mapCodexQuest(): Promise<Record<string, string>> {
   rawRecord = await fsReadJson(getGenshinDataFilePath('./BinOutput.Raw/CodexQuest/11027.json'));
   rawRecord = renameFields(rawRecord, propertySchema);
 
-  rawItem0 = rawRecord.subQuests.find(f => JSON.stringify(f).includes(`itemId":222`)).items.find(i => i.itemId === 222);
+  rawItem0 = rawRecord.subQuests.find((f: any) => JSON.stringify(f).includes(`itemId":222`)).items.find((i: any) => i?.itemId === 222);
 
   propertySchema[findKeyWithValue(rawItem0, v => Array.isArray(v) && v.length === 1 && v[0] === 223, 0)] = 'nextItemIdList';
   propertySchema[findKeyWithValue(rawItem0, v => JSON.stringify(v).includes(`"TalkFinished"`), 0)] = 'showCondition';
@@ -294,12 +300,12 @@ async function mapCodexQuest(): Promise<Record<string, string>> {
   rawRecord = await fsReadJson(getGenshinDataFilePath('./BinOutput.Raw/CodexQuest/8021.json'));
   rawRecord = renameFields(rawRecord, propertySchema);
 
-  rawItem0 = rawRecord.subQuests.find(f => JSON.stringify(f).includes(`itemId":232`)).items.find(i => i.itemId === 232);
+  rawItem0 = rawRecord.subQuests.find((f: any) => JSON.stringify(f).includes(`itemId":232`)).items.find((i: any) => i?.itemId === 232);
 
   propertySchema[findKeyWithValue(rawItem0, (v,k) => JSON.stringify(v).includes(`SpeakerKnown`) && k !== 'speakerText', 0)] = 'speakerText2'
   propertySchema[findKeyWithValue(rawItem0, (v,k) => Array.isArray(v) && JSON.stringify(v).includes(`DialogNormal`) && k !== 'dialogs', 0)] = 'dialogs2';
 
-  rawItem0 = rawRecord.subQuests.find(f => JSON.stringify(f).includes(`itemId":274`)).items.find(i => i.itemId === 274);
+  rawItem0 = rawRecord.subQuests.find((f: any) => JSON.stringify(f).includes(`itemId":274`)).items.find((i: any) => i?.itemId === 274);
 
   propertySchema[findKeyWithValue(rawItem0, (v) => Array.isArray(v) && JSON.stringify(v).includes('Narratage'), 0)] = 'texts'
 
@@ -436,7 +442,7 @@ async function mapInterAction(): Promise<Record<string, string>> {
 }
 
 async function mapQuest(): Promise<Record<string, string>> {
-  const getQuestCombiner = (isForSchema: boolean): Combiner => {
+  const getQuestCombiner = (_isForSchema: boolean): Combiner => {
     return (acc, json) => {
       acc.push(json);
     };
@@ -523,7 +529,7 @@ async function mapTalk(): Promise<Record<string, string>> {
   ];
 
   const MUST_INCLUDE_FILES: Record<string, string[]> = {
-    'Quest': ['7009601.json'],
+    'Quest': ['7009601.json', '1403907.json'],
   }
 
   for (let SUB_FOLDER of SUB_FOLDERS) {

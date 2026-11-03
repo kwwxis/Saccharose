@@ -8,10 +8,9 @@ import {
 } from '../../../../shared/types/genshin/readable-types.ts';
 import { Knex } from 'knex';
 import { isStringBlank, createTextMatchRanker } from '../../../../shared/util/stringUtil.ts';
-import { LangCode } from '../../../../shared/types/lang-types.ts';
+import { LangCode, TextMapSearchIndexStreamParams } from '../../../../shared/types/lang-types.ts';
 import { pairArrays, sort } from '../../../../shared/util/arrayUtil.ts';
 import { grepStream } from '../../../util/shellutil.ts';
-import { getReadableRelPath } from '../../../loadenv.ts';
 import path from 'node:path';
 import { Marker } from '../../../../shared/util/highlightMarker.ts';
 import { isset } from '../../../../shared/util/genericUtil.ts';
@@ -90,8 +89,8 @@ export class GenshinReadables {
       outputLangCode: langCode,
       searchText,
       textIndexName: 'Readable',
-      stream: (id: number, entityIndexName, textMapHash, text: string) => {
-        ranker.add(id, text);
+      stream: (params: TextMapSearchIndexStreamParams) => {
+        ranker.add(params.entityId, params.text);
       },
       flags
     });
@@ -105,7 +104,7 @@ export class GenshinReadables {
 
     let out: string[] = [];
 
-    await grepStream(searchText, this.ctrl.getDataFilePath(getReadableRelPath(langCode)), Duration.ofSeconds(30), line => {
+    await grepStream(searchText, this.ctrl.getDataFilePath('./Readable/' + langCode), Duration.ofSeconds(30), line => {
       let exec = /\/([^\/]+)\.txt/.exec(line);
       if (exec) {
         out.push(exec[1]);

@@ -1,7 +1,7 @@
 // noinspection JSUnusedGlobalSymbols
 
 import { AbstractControl } from '../abstract/abstractControl.ts';
-import { DATAFILE_HSR_VOICE_ITEMS, getStarRailDataFilePath, isSiteModeDisabled } from '../../loadenv.ts';
+import { getStarRailDataFilePath, isSiteModeDisabled } from '../../loadenv.ts';
 import { normalizeRawJson, SchemaTable } from '../../importer/import_db.ts';
 import {
   LangCode, LangCodeMap,
@@ -11,17 +11,15 @@ import {
 } from '../../../shared/types/lang-types.ts';
 import { __normStarRailText, StarRailNormTextOpts } from './starRailText.ts';
 import path from 'path';
-import fs from 'fs';
 import { defaultMap } from '../../../shared/util/genericUtil.ts';
 import { LoadingDesc } from '../../../shared/types/hsr/hsr-misc-types.ts';
 import { sort } from '../../../shared/util/arrayUtil.ts';
 import { genericNormSearchText, NormTextOptions } from '../abstract/genericNormalizers.ts';
-import { Request } from 'express';
 import { logInitData } from '../../util/logger.ts';
 import { AvatarConfig } from '../../../shared/types/hsr/hsr-avatar-types.ts';
 import { hsr_i18n, HSR_I18N_MAP } from '../abstract/i18n.ts';
 import { AbstractControlState, ControlUserModeProvider } from '../abstract/abstractControlState.ts';
-import { CurrentStarRailVersion, GameVersion, StarRailVersions } from '../../../shared/types/game-versions.ts';
+import { CurrentStarRailVersion, StarRailVersions } from '../../../shared/types/game-versions.ts';
 import { Knex } from 'knex';
 import { fsReadJson } from '../../util/fsutil.ts';
 
@@ -259,7 +257,7 @@ export async function loadStarRailVoiceItems(): Promise<void> {
     return;
   logInitData('Loading HSR Voice Items -- starting...');
 
-  const voiceItemsFilePath = path.resolve(ENV.HSR_DATA_ROOT, DATAFILE_HSR_VOICE_ITEMS);
+  const voiceItemsFilePath = path.resolve(ENV.HSR_DATA_ROOT, './ExcelOutput/VoiceConfig.json');
   const result: StarRailVoiceConfigRaw[] = await fsReadJson(voiceItemsFilePath);
 
   for (let item of result) {

@@ -16,6 +16,8 @@
       <excludeFolder url="file://$MODULE_DIR$/test/resources" />
       <excludeFolder url="file://$MODULE_DIR$/public/v-dist" />
       <excludeFolder url="file://$MODULE_DIR$/src/backend/domain/abstract/basic/rubi" />
+      <excludeFolder url="file://$MODULE_DIR$/.idea/dataSources" />
+      <excludeFolder url="file://$MODULE_DIR$/.vuegen" />
       <excludePattern pattern="package-lock.json" />
     </content>
     <orderEntry type="inheritedJdk" />

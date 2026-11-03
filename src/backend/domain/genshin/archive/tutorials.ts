@@ -17,6 +17,7 @@ import {
 import { isInt, toInt } from '../../../../shared/util/numberUtil.ts';
 import { escapeRegExp, createTextMatchRanker } from '../../../../shared/util/stringUtil.ts';
 import { Marker } from '../../../../shared/util/highlightMarker.ts';
+import { TextMapSearchIndexStreamParams } from '../../../../shared/types/lang-types.ts';
 
 export function pushTipCodexTypeName(type: PushTipsCodexType): string {
   if (!type) {
@@ -84,8 +85,8 @@ export async function searchTutorials(ctrl: GenshinControl, searchText: string):
     outputLangCode: ctrl.outputLangCode,
     searchText,
     textIndexName: 'Tutorial',
-    stream: (id: number, entityIndexName, textMapHash, text: string) => {
-      ranker.add(id, text);
+    stream: (params: TextMapSearchIndexStreamParams) => {
+      ranker.add(params.entityId, params.text);
     },
     flags: ctrl.searchModeFlags
   });

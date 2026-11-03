@@ -58,10 +58,6 @@ class IndexAccumulator {
 }
 
 export async function importSearchIndex() {
-  if (!fs.existsSync(getGenshinDataFilePath('./TextMap/Index/'))) {
-    fs.mkdirSync(getGenshinDataFilePath('./TextMap/Index/'));
-  }
-
   const ctrl: GenshinControl = getGenshinControl();
 
   // Main Quest Index

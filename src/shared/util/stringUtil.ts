@@ -452,8 +452,8 @@ export function rtrim(str, char_mask = undefined): string {
  * The arguments follow the format of [Specifying a function as the replacement](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace#specifying_a_function_as_the_replacement)
  * @returns A Promise that resolves to the modified string with all replacements applied.
  */
-export async function replaceAsync(str: string, regex: RegExp, asyncFn: Function): Promise<string> {
-  const promises = [];
+export async function replaceAsync(str: string, regex: RegExp, asyncFn: (fullMatch: string, ...args: any[]) => Promise<string>): Promise<string> {
+  const promises: Promise<string>[] = [];
   str.replace(regex, (match, ...args) => {
     const promise = asyncFn(match, ...args);
     promises.push(promise);

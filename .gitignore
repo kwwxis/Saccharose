@@ -63,7 +63,5 @@ node_modules/
 /public/redist/*
 !/public/redist/.gitkeep
 
-*.vue.ts
-*.vue.script.ts
-*.vue.template.ts
+/.vuegen
 access.log

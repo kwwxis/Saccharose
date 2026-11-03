@@ -27,7 +27,7 @@ import fs from 'fs';
 import { getGenshinDataFilePath, IMAGEDIR_GENSHIN_EXT } from '../../../loadenv.ts';
 import { SchemaTable } from '../../../importer/import_db.ts';
 import { genshinSchema } from '../../../importer/genshin/genshin.schema.ts';
-import { LangCode } from '../../../../shared/types/lang-types.ts';
+import { LangCode, TextMapSearchIndexStreamParams } from '../../../../shared/types/lang-types.ts';
 import { isInt, toInt } from '../../../../shared/util/numberUtil.ts';
 import { createTextMatchRanker, replaceAsync } from '../../../../shared/util/stringUtil.ts';
 import { isUnset } from '../../../../shared/util/genericUtil.ts';
@@ -636,8 +636,8 @@ export class GCGControl {
       outputLangCode: this.ctrl.outputLangCode,
       searchText,
       textIndexName: 'TCGStage',
-      stream: (id: number, entityIndexName, textMapHash, text: string) => {
-        ranker.add(id, text);
+      stream: (params: TextMapSearchIndexStreamParams) => {
+        ranker.add(params.entityId, params.text);
       },
       flags: searchFlags
     });

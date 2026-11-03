@@ -1,14 +1,11 @@
 import { pathToFileURL } from 'url';
 import { getWuwaControl, WuwaControl } from '../wuwaControl.ts';
 import path from 'path';
-import fs from 'fs';
 import { mapBy, sort } from '../../../../shared/util/arrayUtil.ts';
 import { defaultMap } from '../../../../shared/util/genericUtil.ts';
-import { DATAFILE_WUWA_ROLE_FAVOR_WORDS } from '../../../loadenv.ts';
 import { RoleInfo } from '../../../../shared/types/wuwa/role-types.ts';
 import {
   FavorWord,
-  FavorWordCondSummary,
   FavorWordGroup,
   FavorWordGroupByRole,
 } from '../../../../shared/types/wuwa/favor-types.ts';
@@ -20,7 +17,7 @@ import { fsReadJson } from '../../../util/fsutil.ts';
 export async function fetchFavorWords(ctrl: WuwaControl, skipCache: boolean = false): Promise<FavorWordGroupByRole> {
   if (!skipCache) {
     return ctrl.cached('RoleFavor:RoleFavorWordsGroup', 'json', async () => {
-      const filePath = path.resolve(ENV.WUWA_DATA_ROOT, DATAFILE_WUWA_ROLE_FAVOR_WORDS);
+      const filePath = path.resolve(ENV.WUWA_DATA_ROOT, './VoiceOvers.json');
       const result: FavorWordGroupByRole = await fsReadJson(filePath);
       return result;
     });

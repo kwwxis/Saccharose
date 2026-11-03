@@ -2,7 +2,7 @@
 import '../loadenv.ts';
 import {
   getGenshinDataFilePath,
-  getStarRailDataFilePath,
+  getStarRailDataFilePath, getTextMapRelPath,
   getWuwaDataFilePath,
   getZenlessDataFilePath,
 } from '../loadenv.ts';
@@ -260,7 +260,7 @@ export function schemaForDbName(dbName: 'genshin' | 'hsr' | 'zenless' | 'wuwa'):
 export function textMapSchema(langCode: LangCode): SchemaTable {
   return <SchemaTable> {
     name: 'TextMap' + langCode,
-    jsonFile: './TextMap/TextMap'+langCode+'.json',
+    jsonFile: getTextMapRelPath(langCode),
     jsonFileType: 'kv_pairs',
     textMapSchemaLangCode: langCode,
     skipNormalizeRawJson: true,

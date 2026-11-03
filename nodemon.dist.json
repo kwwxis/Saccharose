@@ -1,0 +1,9 @@
+{
+  "restartable": "rs",
+  "watch": [
+    "dist/backend",
+    "dist/shared"
+  ],
+  "exec": "node .",
+  "ext": "js,json"
+}

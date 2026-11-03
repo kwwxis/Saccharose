@@ -20,23 +20,6 @@ const isEmptyObj = (o: any) => {
   return false;
 }
 
-// Some text map keys are strings instead of numbers, which are then converted to numbers for the final TextMap
-// Use this function to get the numeric text map hash from the string key.
-// noinspection JSUnusedLocalSymbols
-function getStableHash(str: string): number {
-  let hash1 = 5381n;
-  let hash2 = 5381n;
-
-  for (let i = 0; i < str.length && typeof str[i] !== 'undefined'; i += 2) {
-    hash1 = ((hash1 << 5n) + hash1) ^ BigInt(str.charCodeAt(i));
-    if (i + 1 < str.length) {
-      hash2 = ((hash2 << 5n) + hash2) ^ BigInt(str.charCodeAt(i + 1));
-    }
-  }
-
-  return Number(BigInt.asIntN(32, (hash1 + (hash2 * 1566083941n)) | 0n));
-}
-
 function normalizeRecordForGenshin<T>(record: T): T {
   if (!record || typeof record !== 'object') {
     return record;
