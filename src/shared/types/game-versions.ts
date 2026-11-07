@@ -1,4 +1,5 @@
 import { isEmpty } from '../util/genericUtil.ts';
+import { HttpError } from '../util/httpError.ts';
 
 export class GameVersion {
   number: string;
@@ -55,10 +56,19 @@ export class GameVersion {
   }
 
   prev(): GameVersion {
+    // `parent` is normally always set for versions that came from a top-level `GameVersions` list, but guard
+    // against it being unset anyway (e.g. a standalone/detached `GameVersion` not sourced from such a list) so
+    // this can never throw - callers should just treat a missing parent the same as "no previous version".
+    if (!this.parent || !this.prevNumber) {
+      return undefined;
+    }
     return this.parent.list.find(v => v.number === this.prevNumber);
   }
 
   next(): GameVersion {
+    if (!this.parent) {
+      return undefined;
+    }
     return this.parent.list.find(v => v.prevNumber === this.number);
   }
 }
@@ -146,15 +156,15 @@ export class GameVersions {
         let split: string[] = version.split('-');
 
         if (split.length !== 2)
-          throw 'Invalid version range: ' + version;
+          throw HttpError.badRequest('InvalidParameter', 'Invalid version range: ' + version);
 
         let lowerbound: GameVersion = this.get(split[0].trim());
         let upperbound: GameVersion = this.get(split[1].trim());
 
         if (!lowerbound)
-          throw `Lowerbound of version range is an unknown or unsupported version: ${split[0].trim()} (in version range: ${version})`;
+          throw HttpError.badRequest('InvalidParameter', `Lowerbound of version range is an unknown or unsupported version: ${split[0].trim()} (in version range: ${version})`);
         if (!upperbound)
-          throw `Upperbound of version range is an unknown or unsupported version: ${split[1].trim()} (in version range: ${version})`;
+          throw HttpError.badRequest('InvalidParameter', `Upperbound of version range is an unknown or unsupported version: ${split[1].trim()} (in version range: ${version})`);
 
         let cursor: GameVersion = lowerbound;
         finalVersions.push(cursor);
@@ -169,12 +179,12 @@ export class GameVersions {
         }
 
         if (!foundUpperbound)
-          throw `Upperbound must be a greater version than the lowerbound (in version range: ${version})`;
+          throw HttpError.badRequest('InvalidParameter', `Upperbound must be a greater version than the lowerbound (in version range: ${version})`);
       } else if (version.endsWith('+')) {
         version = version.slice(0, -1).trim();
 
         if (!this.has(version)) {
-          throw 'Unknown or unsupported version: ' + version;
+          throw HttpError.badRequest('InvalidParameter', 'Unknown or unsupported version: ' + version);
         }
 
         let cursor: GameVersion = this.get(version);
@@ -184,7 +194,7 @@ export class GameVersions {
           finalVersions.push(cursor);
         }
       } else {
-        throw new Error('Unknown or unsupported version: ' + version);
+        throw HttpError.badRequest('InvalidParameter', 'Unknown or unsupported version: ' + version);
       }
     }
 

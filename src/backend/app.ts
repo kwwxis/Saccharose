@@ -14,7 +14,7 @@ import defaultResponseHeaders from './middleware/response/defaultResponseHeaders
 import { isSiteModeEnabled, PUBLIC_DIR } from './loadenv.ts';
 import { doubleCsrfProtection } from './middleware/request/csrf.ts';
 import { pageLoadErrorHandler } from './middleware/response/globalErrorHandler.ts';
-import authPresenceCookieMiddleware from './middleware/response/authPresenceCookieMiddleware';
+import authPresenceCookieMiddleware from './middleware/response/authPresenceCookieMiddleware.ts';
 import { loadGenshinVoiceItems } from './domain/genshin/genshinControl.ts';
 import { loadStarRailVoiceItems } from './domain/hsr/starRailControl.ts';
 import { loadStarRailTextSupportingData } from './domain/hsr/starRailText.ts';
@@ -29,6 +29,7 @@ import authRouter from './controllers/site/app/AuthRouter.ts';
 import siteUserMiddleware from './middleware/auth/siteUserMiddleware.ts';
 import visitorRouter from './controllers/visitor/VisitorRouter.ts';
 import { reqContextInitMiddleware } from './rendering/customRouter.ts';
+import { requestTraceStoreMiddleware } from './middleware/request/requestTraceStore.ts';
 import {
   enableRedisExitHook,
   openRedisClient,
@@ -144,6 +145,11 @@ export async function appInit(): Promise<Express> {
     loadZenlessTextSupportingData(),
   ]);
   logInit('Loaded supporting game data');
+
+  // Must be the very first middleware so that it wraps as much of the request-handling code as possible,
+  // making the current request's method/URL available (via AsyncLocalStorage) to code that has no direct
+  // access to the `req` object, such as deeply nested utility functions (e.g. shellutil.ts).
+  app.use(requestTraceStoreMiddleware);
 
   app.use(earlyAccessLogging);
 

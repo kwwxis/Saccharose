@@ -2,11 +2,16 @@ import { openPgSite } from '../../../util/db.ts';
 import { isUnset } from '../../../../shared/util/genericUtil.ts';
 
 export function giImageHashToContainerId(imageHash: string|number|bigint) {
-  if (isUnset(imageHash) || imageHash === 0) {
+  if (isUnset(imageHash) || imageHash === 0 || imageHash === '') {
     return 0;
   }
   if (typeof imageHash === 'string' || typeof imageHash === 'number') {
-    imageHash = BigInt(imageHash);
+    try {
+      imageHash = BigInt(imageHash);
+    } catch (e) {
+      // Not a valid representation of a number (e.g. missing/malformed query parameter) - treat as "no container".
+      return 0;
+    }
   }
 
   const mask = 0xFFFFFFFFFFn;

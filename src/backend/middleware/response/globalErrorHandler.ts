@@ -3,6 +3,7 @@ import { NextFunction, Request, Response } from 'express';
 import { clearCsrfCookie } from '../request/csrf.ts';
 import { ShellTimeoutError } from '../../util/shellutil.ts';
 import InternalServerErrorCard from '../../components/errors/InternalServerErrorCard.vue';
+import { formatRequestInfo } from '../request/requestTraceStore.ts';
 
 export async function pageLoadErrorHandler(err: any, req: Request, res: Response, next: NextFunction) {
   if (err && typeof err === 'object' && (err.code === 'EBADCSRFTOKEN' || err.type === 'EBADCSRFTOKEN')) {
@@ -20,7 +21,7 @@ export async function pageLoadErrorHandler(err: any, req: Request, res: Response
     return;
   }
 
-  console.error('\x1b[4m\x1b[1mInternal Error (Page Load):\x1b[0m\n', err);
+  console.error(`\x1b[4m\x1b[1mInternal Error (Page Load):\x1b[0m \x1b[2m[${formatRequestInfo(req)}]\x1b[0m\n`, err);
 
   if (res.headersSent) {
     return next(err);
@@ -62,7 +63,7 @@ export async function apiErrorHandler(err: any, req: Request, res: Response, nex
   } else if (err instanceof ShellTimeoutError) {
     sendHttpError(HttpError.badRequest('ETIMEDOUT', err.message), res);
   } else {
-    console.error('\x1b[4m\x1b[1mInternal Error (API):\x1b[0m\n', err);
+    console.error(`\x1b[4m\x1b[1mInternal Error (API):\x1b[0m \x1b[2m[${formatRequestInfo(req)}]\x1b[0m\n`, err);
     sendHttpError(HttpError.internalServerError('InternalError', 'An internal server error occurred. Try again later.'), res);
   }
 }

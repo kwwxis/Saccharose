@@ -27,11 +27,11 @@ export function isStringEmpty(str) {
 }
 
 export function isStringNotBlank(str) {
-  return !!str && typeof str === 'string' && str.trim().length;
+  return typeof str === 'string' && !!str && str.trim().length;
 }
 
 export function isStringBlank(str) {
-  return !isStringNotBlank(str);
+  return typeof str === 'string' && (!str || !str.trim().length);
 }
 
 export function ucFirst(str: string): string {

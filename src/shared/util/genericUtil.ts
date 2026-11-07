@@ -2,7 +2,6 @@
 
 import moment from 'moment';
 import { arrayContains, isArrayLike, isIterable } from './arrayUtil.ts';
-import cloneDeep from 'clone-deep';
 import { sentenceJoin } from './stringUtil.ts';
 import { escapeHtml } from './stringHtmlUtil.ts';
 
@@ -437,11 +436,50 @@ export function hasCyclicRefs(obj: any): boolean {
 }
 
 /**
+ * Deep clones a value, correctly preserving circular references by mapping each originally-visited
+ * object/array to its clone (via `seen`), and correctly cloning arbitrary class instances (not just plain
+ * objects/arrays) by preserving their prototype.
+ *
+ * This exists because the `clone-deep` npm package (used elsewhere in this codebase) silently returns
+ * non-plain-object values (e.g. instances of custom classes) **unchanged** instead of cloning them - which
+ * would cause {@link removeCyclicRefs} to end up mutating shared/singleton class instances in-place instead
+ * of a copy, since it assumes its input has already been fully, independently cloned.
+ */
+function safeCloneDeep<T>(value: T, seen: WeakMap<object, any> = new WeakMap()): T {
+  if (value === null || typeof value !== 'object') {
+    return value;
+  }
+  if (seen.has(value as object)) {
+    return seen.get(value as object);
+  }
+  if (value instanceof Date) {
+    return new Date(value.getTime()) as any;
+  }
+  if (value instanceof RegExp) {
+    return new RegExp(value) as any;
+  }
+  if (Array.isArray(value)) {
+    const clone: any[] = [];
+    seen.set(value, clone);
+    for (let item of value) {
+      clone.push(safeCloneDeep(item, seen));
+    }
+    return clone as any;
+  }
+  const clone: any = Object.create(Object.getPrototypeOf(value));
+  seen.set(value as object, clone);
+  for (let key in value) {
+    clone[key] = safeCloneDeep((value as any)[key], seen);
+  }
+  return clone;
+}
+
+/**
  * Removes any circular references from an object **in-place**.
  */
 export function removeCyclicRefs<T>(obj: T, cyclicValueReplacer?: CyclicValueReplacer, deepCopy: boolean = true, tryClone: boolean = true): T {
   if (tryClone && deepCopy) {
-    obj = cloneDeep(obj);
+    obj = safeCloneDeep(obj);
   }
 
   let queue: any[] = [obj];

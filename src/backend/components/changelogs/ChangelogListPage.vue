@@ -6,7 +6,7 @@
     <div class="content">
       <p v-if="errorMessage" class="error-notice spacer10-bottom">{{ errorMessage }}</p>
       <template v-for="version of gameVersionsToList">
-        <div class="secondary-label valign spacer5-bottom" v-if="version.showTextmapChangelog">
+        <div class="secondary-label valign spacer5-bottom" v-if="version && version.showTextmapChangelog">
           <span>{{ version.prev()?.displayLabel }} &ndash; {{ version.displayLabel }}</span>
 
           <span class="grow"></span>

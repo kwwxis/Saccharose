@@ -14,6 +14,12 @@ export async function doRender(req: Request,
                                component: Component,
                                trace: ITrace,
                                props?: any): Promise<string | Error> {
+  // Capture the call stack synchronously, right as this render is kicked off. Errors thrown deep inside Vue's
+  // SSR internals (e.g. via ssrRenderList/ssrRenderSlot) typically lose the outer async call stack by the time
+  // they're caught below, making it impossible to tell which route/controller triggered the render. We stitch
+  // this captured stack onto any such error, so the originating request/controller is still visible in logs.
+  const componentName: string = (component as any)?.__name || (component as any)?.name || 'UnknownComponent';
+  const renderCallSite = new Error(`doRender(${componentName}) called for: ${req.method} ${req.originalUrl || req.url}`);
   try {
     if (!req.context) {
       throw new Error('Request context is not initialized. Make sure to use reqContextInitMiddleware before calling doRender.');
@@ -69,6 +75,12 @@ export async function doRender(req: Request,
 
     return rendered;
   } catch (e: unknown) {
+    if (e instanceof Error && e.stack && renderCallSite.stack) {
+      // Append the captured call-site stack (skipping its own "Error: ..." message line) so the log shows both
+      // where the error actually occurred (e.g. deep in Vue SSR internals) and which route/controller/request
+      // triggered the render in the first place.
+      e.stack += '\n    --- Render triggered from ---\n' + renderCallSite.stack.split('\n').slice(1).join('\n');
+    }
     if (props && props.throwOnError) {
       throw e;
     } else if (req.next) {

@@ -2,11 +2,11 @@ import '../../../loadenv.ts';
 import { closeKnex } from '../../../util/db.ts';
 import { GenshinControl, getGenshinControl } from '../genshinControl.ts';
 import util from 'util';
-import { isInt, toInt } from '../../../../shared/util/numberUtil.ts';
+import { isInt, isInt32, toInt } from '../../../../shared/util/numberUtil.ts';
 import {
   DialogExcelConfigData, TalkExcelConfigData,
 } from '../../../../shared/types/genshin/dialogue-types.ts';
-import { escapeRegExp, trim } from '../../../../shared/util/stringUtil.ts';
+import { escapeRegExp, isStringBlank, trim } from '../../../../shared/util/stringUtil.ts';
 import {
   dialogueToQuestId,
   TalkConfigAccumulator,
@@ -24,6 +24,7 @@ import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
 import { GameVersions } from '../../../../shared/types/game-versions.ts';
 import { NpcExcelConfigData } from '../../../../shared/types/genshin/npc-types.ts';
 import { AvatarExcelConfigData } from '../../../../shared/types/genshin/avatar-types.ts';
+import { isUnset } from '../../../../shared/util/genericUtil.ts';
 
 // region NPC Filtering for Single Branch Dialogue
 // --------------------------------------------------------------------------------------------------------------
@@ -165,7 +166,11 @@ async function handle(state: DialogueGenerateState, id: number|DialogExcelConfig
 
   // Fast case: if ID is a Talk ID
   // --------------------------------------------------------------------------------------------------------------
-  if (typeof id === 'number') {
+  // `TalkExcelConfigData.Id`/`DialogExcelConfigData.Id` are `integer` (int4) DB columns, so a numeric id outside
+  // the 32-bit range (e.g. the user's search text happened to be numeric but is actually a (bigint) TextMap hash
+  // rather than a dialog/talk id) can never match a row - querying it anyway would throw a DB range error instead
+  // of the normal "not found" handling below.
+  if (typeof id === 'number' && isInt32(id)) {
     const debug = custom('branch-dialogue:' + id);
     if (seenTalkConfigIds.has(id) || seenFirstDialogueIds.has(id)) {
       debug('Fast case: already seen, exit');
@@ -184,7 +189,9 @@ async function handle(state: DialogueGenerateState, id: number|DialogExcelConfig
   // --------------------------------------------------------------------------------------------------------------
 
   // Look for dialog excel:
-  const dialog: DialogExcelConfigData = typeof id === 'number' ? await ctrl.selectSingleDialogExcelConfigData(id, true) : id;
+  const dialog: DialogExcelConfigData = typeof id === 'number'
+    ? (isInt32(id) ? await ctrl.selectSingleDialogExcelConfigData(id, true) : null)
+    : id;
 
   // If no dialog, then there's nothing we can do:
   if (!dialog) {
@@ -325,7 +332,10 @@ export async function dialogueGenerate(ctrl: GenshinControl, opts: DialogueGener
   const debug = custom('branch-dialogue');
   debug('Generating branch dialogue for opts:', opts, '/ query:', state.query);
 
-  if (typeof state.query === 'string') {
+  if (isUnset(state.query) || isStringBlank(state.query)) {
+    debug('Early exit: no query');
+    return state.result;
+  } else if (typeof state.query === 'string') {
     debug('Path 1: string');
     let acceptedCount = 0;
     for await (let textMapHash of ctrl.generateTextMapMatches({
@@ -390,7 +400,9 @@ async function npcListFromInput(ctrl: GenshinControl, npcNameOrId: string|number
   }
 
   let npcList: NpcExcelConfigData[] = [];
-  if (typeof npcNameOrId === 'string') {
+  if (isUnset(npcNameOrId)) {
+    return npcList;
+  } else if (typeof npcNameOrId === 'string') {
     npcList = await ctrl.selectNpcListByName(npcNameOrId);
   } else {
     let npc = await ctrl.getNpc(npcNameOrId);

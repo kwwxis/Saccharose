@@ -39,7 +39,7 @@ router.endpoint('/quests/findMainQuest', {
 
     const { mainQuests, chapters } = await ctrl.searchMainQuestsAndChapters(query);
 
-    if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
+    if (req.headers.accept && req.headers.accept.toLowerCase().includes('text/html')) {
       await res.renderComponent(GenshinQuestSearchResults, {
         mainQuests,
         chapters
@@ -66,7 +66,7 @@ router.endpoint('/quests/generate', {
     const ctrl = getGenshinControl(req);
     let result: QuestGenerateResult = await questGenerate(param, ctrl);
 
-    if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
+    if (req.headers.accept && req.headers.accept.toLowerCase().includes('text/html')) {
       await res.renderComponent(QuestGenerateResultTemplate, {
         result
       });
@@ -104,8 +104,11 @@ export async function inDialogueReadablesHelper(ctrl: GenshinControl) {
 router.endpoint('/dialogue/single-branch-generate', {
   get: async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
-    const query = (req.query.text as string)?.trim();
+    const query = (req.query.text as string)?.trim() ?? '';
 
+    if (!query) {
+      throw HttpError.badRequest('InvalidParameter', 'Cannot generate dialogue for an empty query.');
+    }
     if (query.toLowerCase() === 'paimon') {
       throw HttpError.badRequest('UnsupportedOperation', 'Unfortunately, you cannot search for just "Paimon" as the operation would be too intensive.');
     }
@@ -119,7 +122,7 @@ router.endpoint('/dialogue/single-branch-generate', {
       voicedOnly: toBoolean(req.query.voicedOnly)
     });
 
-    if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
+    if (req.headers.accept && req.headers.accept.toLowerCase().includes('text/html')) {
       await res.renderComponent(SingleBranchDialogueResult, {
         sections: result,
         query,
@@ -137,7 +140,7 @@ router.endpoint('/dialogue/single-branch-generate', {
 router.endpoint('/dialogue/npc-dialogue-generate', {
   get: async (req: Request, res: Response) => {
     const ctrl = getGenshinControl(req);
-    const query = (req.query.name as string)?.trim();
+    const query = (req.query.name as string)?.trim() ?? '';
 
     switch (query.toLowerCase()) {
       case 'paimon':
@@ -149,7 +152,7 @@ router.endpoint('/dialogue/npc-dialogue-generate', {
 
     let resultSet: NpcDialogueResultSet = await dialogueGenerateByNpc(ctrl, query);
 
-    if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
+    if (req.headers.accept && req.headers.accept.toLowerCase().includes('text/html')) {
       await res.renderComponent(NpcDialogueResultTemplate, {
         resultSet: resultSet,
         ... (await questStillsHelper(ctrl)),
@@ -170,10 +173,10 @@ router.endpoint('/dialogue/reminder-dialogue-generate', {
       subsequentAmount = toInt(req.query.subsequentAmount);
     }
 
-    const query = (req.query.text as string)?.trim();
+    const query = (req.query.text as string)?.trim() ?? '';
     let result: DialogueSectionResult[] = await reminderGenerate(ctrl, query, subsequentAmount);
 
-    if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
+    if (req.headers.accept && req.headers.accept.toLowerCase().includes('text/html')) {
       await res.renderComponent(SingleBranchDialogueResult, {
         sections: result,
         query,
@@ -259,7 +262,7 @@ router.endpoint('/dialogue/vo-to-dialogue', {
       talkResultsCount += talkResult.results.length;
     }
 
-    if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
+    if (req.headers.accept && req.headers.accept.toLowerCase().includes('text/html')) {
       await res.renderComponent(VoToDialogueResult, { results, talkResults, talkResultsCount });
       return;
     } else {

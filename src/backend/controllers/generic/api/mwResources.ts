@@ -21,7 +21,7 @@ export default function(router: Router): void {
 
       const searchResults: MwArticleSearchResult[] = await mwClient.searchArticles(query);
 
-      if ((req.headers.accept && req.headers.accept.toLowerCase() === 'text/html')) {
+      if ((req.headers.accept && req.headers.accept.toLowerCase().includes('text/html'))) {
         await res.renderComponent(WikiRevisionSearchResults, {
           searchResults: searchResults
         });

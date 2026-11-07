@@ -7,11 +7,11 @@ import { MetaProp } from '../../../util/metaProp.ts';
 import { pathToFileURL } from 'url';
 import { TextMapHash } from '../../../../shared/types/lang-types.ts';
 import { Marker } from '../../../../shared/util/highlightMarker.ts';
-import { escapeRegExp } from '../../../../shared/util/stringUtil.ts';
-import { sort } from '../../../../shared/util/arrayUtil.ts';
+import { escapeRegExp, isStringBlank } from '../../../../shared/util/stringUtil.ts';
 import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
 import { DialogWikitextResult } from '../../../../shared/types/common-types.ts';
 import { GameVersion } from '../../../../shared/types/game-versions.ts';
+import { isUnset } from '../../../../shared/util/genericUtil.ts';
 
 export async function reminderGenerateAll(ctrl: GenshinControl, version: GameVersion): Promise<DialogueSectionResult[]> {
   return ctrl.cached('RemindersAll:' + ctrl.outputLangCode, 'memory', async () => {
@@ -193,6 +193,10 @@ export async function reminderGenerateFromSpeakerTextMapHashes(ctrl: GenshinCont
 export async function reminderGenerate(ctrl: GenshinControl, query: number|string, subsequentAmount: number = 0): Promise<DialogueSectionResult[]> {
   query = typeof query === 'string' ? query.trim() : query;
   query = maybeInt(query);
+
+  if (isUnset(query) || isStringBlank(query)) {
+    throw 'Cannot generate reminder dialogue for empty query.';
+  }
 
   const context = new ReminderGenerationContext(ctrl);
 

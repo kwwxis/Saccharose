@@ -28,7 +28,7 @@ export async function handleOlCombine(ctrl: AbstractControl, req: Request, res: 
 
   const combined: OLCombinedResult = ol_combine_results(olResults);
 
-  if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
+  if (req.headers.accept && req.headers.accept.toLowerCase().includes('text/html')) {
     await res.renderComponent(OLCombineResult, {
       combineResult: combined,
     });

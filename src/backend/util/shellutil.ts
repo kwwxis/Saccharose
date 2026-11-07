@@ -16,6 +16,7 @@ import path from 'path';
 import { LangDetectResult } from '../../shared/types/common-types.ts';
 import { Duration } from '../../shared/util/duration.ts';
 import { NonSharedBuffer } from 'node:buffer';
+import { formatCurrentRequestTrace } from '../middleware/request/requestTraceStore.ts';
 
 async function exec(command: string, options: ExecOptions): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -226,8 +227,21 @@ export async function execLineStream(command: string,
       let timeoutMs: number = timeout.toMillis();
       killTimeoutId = setTimeout(() => {
         killFn();
-        child.emit('error', new ShellTimeoutError(`Operation timed out after ${timeoutMs} milliseconds`, timeoutMs,
-          `execLineStream: ` + command));
+        const timeoutError = new ShellTimeoutError(`Operation timed out after ${timeoutMs} milliseconds`, timeoutMs,
+          `execLineStream: ` + command);
+        errorObj = timeoutError;
+        child.emit('error', timeoutError);
+
+        // Killing the child (and especially any grandchild processes it spawned via the shell, e.g. `rg`) is not
+        // always reliable (see comment in `killFn`), so we cannot depend on a subsequent 'close' event to settle
+        // this promise. Settle immediately here instead so callers (e.g. Express route handlers) get a timely
+        // rejection rather than hanging indefinitely until some outer layer (e.g. a reverse proxy) gives up.
+        if (!settled) {
+          settled = true;
+          if (onExit)
+            onExit(-1, child, timeoutError);
+          reject(timeoutError);
+        }
       }, timeoutMs);
     }
 
@@ -265,7 +279,7 @@ export async function execLineStream(command: string,
     }
 
     child.on('error', error => {
-      console.error('\x1b[4m\x1b[1mshell error:\x1b[0m\n', error);
+      console.error(`\x1b[4m\x1b[1mshell error:\x1b[0m \x1b[2m[${formatCurrentRequestTrace()}]\x1b[0m\n`, error);
       errorObj = error;
 
       // If the process never actually started (e.g. the configured SHELL_EXEC wasn't found on disk), `child.pid`
@@ -683,7 +697,7 @@ export async function grep(searchText: string,
     } else if (err && err.code === 'ERR_CHILD_PROCESS_STDIO_MAXBUFFER') {
       throw 'Max buffer reached (too many results).';
     } else {
-      console.error('\x1b[4m\x1b[1mshell error:\x1b[0m\n', err);
+      console.error(`\x1b[4m\x1b[1mshell error:\x1b[0m \x1b[2m[${formatCurrentRequestTrace()}]\x1b[0m\n`, err);
       const parsedFlags = ShellFlags.parseFlags(extraOpts.flags);
       const hasRegexFlag: boolean = parsedFlags.has('-P') || parsedFlags.has('-e');
       if (hasRegexFlag) {
@@ -749,7 +763,7 @@ export async function getTextAtLine(lineNum: number, absoluteFilePath: string): 
 
     return stdout.trim();
   } catch (err) {
-    console.error('\x1b[4m\x1b[1mshell error:\x1b[0m\n', err);
+    console.error(`\x1b[4m\x1b[1mshell error:\x1b[0m \x1b[2m[${formatCurrentRequestTrace()}]\x1b[0m\n`, err);
     throw 'Search error occurred.';
   }
 }
@@ -797,7 +811,7 @@ export async function findFiles(fileSearch: string, absoluteFilePath: string, no
       return f;
     });
   } catch (err) {
-    console.error('\x1b[4m\x1b[1mshell error:\x1b[0m\n', err);
+    console.error(`\x1b[4m\x1b[1mshell error:\x1b[0m \x1b[2m[${formatCurrentRequestTrace()}]\x1b[0m\n`, err);
     throw 'Search error occurred.';
   }
 }
@@ -824,7 +838,7 @@ export async function langDetect(text: string): Promise<LangDetectResult> {
 
     return JSON.parse(stdout);
   } catch (err) {
-    console.error('\x1b[4m\x1b[1mshell error:\x1b[0m\n', err);
+    console.error(`\x1b[4m\x1b[1mshell error:\x1b[0m \x1b[2m[${formatCurrentRequestTrace()}]\x1b[0m\n`, err);
     throw 'Shell error occurred.';
   }
 }

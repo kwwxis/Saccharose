@@ -123,6 +123,29 @@ export function toInt(x: any, defaultIfNaN?: number): number {
 }
 
 /**
+ * The minimum and maximum values that fit in a Postgres/SQL `integer` (int4) column.
+ */
+export const INT32_MIN = -2147483648;
+export const INT32_MAX = 2147483647;
+
+/**
+ * Returns true if the value is an integer (per {@link isInt}) that also fits within the bounds of a 32-bit signed
+ * integer (i.e. a Postgres/SQL `integer` column). Use this before querying an `integer` id column with a
+ * user-supplied value, since Postgres will throw a range error (rather than simply returning no rows) for
+ * out-of-range values.
+ *
+ * @param value The value to check.
+ * @returns True if the value is a 32-bit integer, otherwise false.
+ */
+export function isInt32(value: any): boolean {
+  if (!isInt(value)) {
+    return false;
+  }
+  const num = Number(value);
+  return !isNaN(num) && num >= INT32_MIN && num <= INT32_MAX;
+}
+
+/**
  * If the parameter passed into this function is in the form of an integer, then it'll be returned as an integer,
  * otherwise the original parameter will be returned.
  *

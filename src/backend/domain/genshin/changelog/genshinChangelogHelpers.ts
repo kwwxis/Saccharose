@@ -251,7 +251,7 @@ async function _generateGenshinChangelogNewRecordSummary(ctrl: GenshinControl, g
       .then(npcs => out.npcs = npcs),
   ]);
 
-  const updatedLocPaths = await ctrl.readableChanges.getChangedLocsWithHashes(gameVersion.prev().number, gameVersion.number, ctrl.outputLangCode);
+  const updatedLocPaths = await ctrl.readableChanges.getChangedLocsWithHashes(gameVersion.prev()?.number, gameVersion.number, ctrl.outputLangCode);
 
   out.updatedReadables = ctrl.readables.generateArchive(await updatedLocPaths.asyncMap(async changedLocPath => {
     const locId = await ctrl.readables.selectLocalizationIdByLocPath(changedLocPath.locPath);

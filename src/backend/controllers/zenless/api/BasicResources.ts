@@ -60,7 +60,7 @@ router.endpoint('/dialogue-helper', {
     wikitextResult.wikitext = sb.toString();
     section.setWikitext(wikitextResult);
 
-    if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
+    if (req.headers.accept && req.headers.accept.toLowerCase().includes('text/html')) {
       await res.renderComponent(ZenlessDialogueHelperResult, {
         section
       });

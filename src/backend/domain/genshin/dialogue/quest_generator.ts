@@ -22,7 +22,7 @@ import { pathToFileURL } from 'url';
 import { SbOut } from '../../../../shared/util/stringUtil.ts';
 import { dialogueCompareApply, SimilarityGroups } from './dialogue_compare.ts';
 import { custom } from '../../../util/logger.ts';
-import { isInt, toInt } from '../../../../shared/util/numberUtil.ts';
+import { isInt, isInt32, toInt } from '../../../../shared/util/numberUtil.ts';
 import { Readable } from '../../../../shared/types/genshin/readable-types.ts';
 import { DialogueSectionResult } from '../../../util/dialogueSectionResult.ts';
 import { defaultMap } from '../../../../shared/util/genericUtil.ts';
@@ -61,7 +61,15 @@ export type QuestGenerateResultNpcInfo = {
   data: {[Id: number]: NpcExcelConfigData},
 };
 
-async function findMainQuest(ctrl: GenshinControl, questNameOrId: string|number, questIndex: number) {
+async function findMainQuest(ctrl: GenshinControl, questNameOrId: string|number, questIndex: number): Promise<MainQuestExcelConfigData> {
+  if (typeof questNameOrId !== 'string' && !isInt32(questNameOrId)) {
+    // Guards against undefined/NaN ids (e.g. no "id"/"name" param given) as well as ids that are technically
+    // numbers but out of range for the `MainQuestExcelConfigData.Id` integer column (e.g. a user manually typing
+    // a huge number into the URL) - both would otherwise throw an unhandled DB error instead of a normal "not
+    // found" result.
+    return null;
+  }
+
   const mainQuests: MainQuestExcelConfigData[] = typeof questNameOrId === 'string'
     ? await ctrl.searchMainQuests(questNameOrId.trim())
     : [await ctrl.selectMainQuestById(questNameOrId)];

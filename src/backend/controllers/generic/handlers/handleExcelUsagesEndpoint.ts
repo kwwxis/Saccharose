@@ -25,7 +25,7 @@ export async function handleExcelUsagesEndpoint(ctrl: AbstractControl, req: Requ
     }
   }
 
-  if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
+  if (req.headers.accept && req.headers.accept.toLowerCase().includes('text/html')) {
     await res.renderComponent(ExcelUsagesResult, {
       scalarToUsages,
       changeRecordRefs,

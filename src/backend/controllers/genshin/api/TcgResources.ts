@@ -13,11 +13,11 @@ router.endpoint('/gcg/stage-search', {
     const ctrl = getGenshinControl(req);
     const gcg = getGCGControl(ctrl);
 
-    const query = (req.query.text as string)?.trim();
+    const query = (req.query.text as string)?.trim() ?? '';
 
     const stages = await gcg.searchStages(query, ctrl.searchModeFlags);
 
-    if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
+    if (req.headers.accept && req.headers.accept.toLowerCase().includes('text/html')) {
       await res.renderComponent(GcgStageSearchResults, {
         stages
       });

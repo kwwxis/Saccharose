@@ -114,7 +114,7 @@ export default async function(): Promise<Router> {
 
   router.endpoint('/genshin/image-name-from-hash', {
     get: async (req: Request, res: Response) => {
-      const imageName = await giImageHashToImageName(String(req.query.imageHash));
+      const imageName = req.query.imageHash ? await giImageHashToImageName(String(req.query.imageHash)) : null;
       return { imageName };
     }
   })

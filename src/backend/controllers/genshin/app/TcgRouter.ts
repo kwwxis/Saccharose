@@ -77,7 +77,7 @@ export default async function(): Promise<Router> {
     await res.renderComponent(GcgStagePage, {
       title: (stage?.WikiCombinedTitle || 'Not Found') + ' | TCG Stage',
       stage,
-      stageForJsonUnmapped: removeCyclicRefs(gcg.getStageForJson(stage, true), ApiCyclicValueReplacer, false),
+      stageForJsonUnmapped: removeCyclicRefs(gcg.getStageForJson(stage, true), ApiCyclicValueReplacer),
       wikitext: await generateStageTemplate(gcg, stage),
       dialogueWikitext: stage.StageTalk ? stage.StageTalk.toString(true) : null,
       idleWikitext: stage.IdleTalk ? stage.IdleTalk.toString(true) : null,

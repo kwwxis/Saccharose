@@ -36,7 +36,7 @@ export type ITrace = {
   normWuwaText: (s: string) => string,
 }
 
-export type LocalControls = {
+type LocalControls = {
   genshinControl: GenshinControl,
   starRailControl: StarRailControl,
   zenlessControl: ZenlessControl,
@@ -47,7 +47,7 @@ export type LocalControls = {
   normWuwaText: (s: string) => string,
 };
 
-export function createLocalControls(mode: ControlUserMode, cacheUpon?: any): LocalControls {
+function createLocalControls(mode: ControlUserMode, cacheUpon?: any): LocalControls {
   if (cacheUpon?._localControls) {
     return cacheUpon._localControls;
   }

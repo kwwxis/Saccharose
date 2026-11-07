@@ -21,7 +21,7 @@ export async function handleOlEndpoint(ctrl: AbstractControl, req: Request, res:
 
   add_ol_markers(results);
 
-  if (req.headers.accept && req.headers.accept.toLowerCase() === 'text/html') {
+  if (req.headers.accept && req.headers.accept.toLowerCase().includes('text/html')) {
     if (toBoolean(req.query.singleResultSimpleHtml)) {
       await res.renderComponent(OLGenSimpleResult, {
         olResult: results?.[0],
