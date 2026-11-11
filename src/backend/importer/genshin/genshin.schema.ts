@@ -147,7 +147,7 @@ export const genshinSchema = {
       { name: 'TalkId', type: 'integer' },
     ],
     customRowResolveProvider: async () => {
-      return (await import('./genshin.customRowResolvers')).Relation_TalkAvatarCond_resolver;
+      return (await import('./genshin.customRowResolvers.ts')).Relation_TalkAvatarCond_resolver;
     },
   },
   Relation_NpcToTalk: <SchemaTable> {
@@ -1614,7 +1614,7 @@ export const genshinSchema = {
     ],
     customRowResolveProvider: async () => {
       // Cannot import GenshinControl from this file (genshin.schema.ts) which is why we're using a dynamic import.
-      return (await import('./genshin.customRowResolvers')).Relation_CookBonusExcelConfigData_resolver;
+      return (await import('./genshin.customRowResolvers.ts')).Relation_CookBonusExcelConfigData_resolver;
     },
   },
   ForgeExcelConfigData: <SchemaTable> {
